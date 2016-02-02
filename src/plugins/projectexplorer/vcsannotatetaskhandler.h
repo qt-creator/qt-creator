@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PROJECTEXPLORER_VCSANNOTATETASKHANDLER_H
-#define PROJECTEXPLORER_VCSANNOTATETASKHANDLER_H
+#pragma once
 
 #include "itaskhandler.h"
 
@@ -36,14 +35,10 @@ class VcsAnnotateTaskHandler : public ITaskHandler
     Q_OBJECT
 
 public:
-    VcsAnnotateTaskHandler() {}
-
-    bool canHandle(const Task &) const;
-    void handle(const Task &task);
-    QAction *createAction(QObject *parent) const;
+    bool canHandle(const Task &) const override;
+    void handle(const Task &task) override;
+    QAction *createAction(QObject *parent) const override;
 };
 
 } // namespace Internal
 } // namespace ProjectExplorer
-
-#endif // PROJECTEXPLORER_VCSANNOTATETASKHANDLER_H

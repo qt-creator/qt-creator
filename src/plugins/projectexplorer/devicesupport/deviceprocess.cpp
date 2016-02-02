@@ -36,10 +36,6 @@ DeviceProcess::DeviceProcess(const IDevice::ConstPtr &device, QObject *parent)
 {
 }
 
-DeviceProcess::~DeviceProcess()
-{
-}
-
 IDevice::ConstPtr DeviceProcess::device() const
 {
     return m_device;

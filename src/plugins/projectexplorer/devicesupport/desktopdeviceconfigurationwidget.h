@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef DESKTOPDEVICECONFIGURATIONWIDGET_H
-#define DESKTOPDEVICECONFIGURATIONWIDGET_H
+#pragma once
 
 #include "idevicewidget.h"
 
@@ -36,9 +35,9 @@ class DesktopDeviceConfigurationWidget : public IDeviceWidget
     Q_OBJECT
 public:
     explicit DesktopDeviceConfigurationWidget(const IDevice::Ptr &device, QWidget *parent = 0);
-    ~DesktopDeviceConfigurationWidget();
+    ~DesktopDeviceConfigurationWidget() override;
 
-    void updateDeviceFromUi();
+    void updateDeviceFromUi() override;
 
 private:
     void updateFreePorts();
@@ -50,5 +49,3 @@ private:
 };
 
 } // namespace ProjectExplorer
-
-#endif // DESKTOPDEVICECONFIGURATIONWIDGET_H

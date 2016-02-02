@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef WINDEBUGINTERFACE_H
-#define WINDEBUGINTERFACE_H
+#pragma once
 
 #include <QThread>
 
@@ -37,7 +36,7 @@ class WinDebugInterface : public QThread
 
 public:
     explicit WinDebugInterface(QObject *parent = 0);
-    ~WinDebugInterface();
+    ~WinDebugInterface() override;
 
     static WinDebugInterface *instance();
 
@@ -50,7 +49,7 @@ signals:
 private:
     enum Handles { DataReadyEventHandle, TerminateEventHandle, HandleCount };
 
-    void run();
+    void run() override;
     bool runLoop();
 
     static WinDebugInterface *m_instance;
@@ -64,5 +63,3 @@ private:
 
 } // namespace Internal
 } // namespace ProjectExplorer
-
-#endif // WINDEBUGINTERFACE_H

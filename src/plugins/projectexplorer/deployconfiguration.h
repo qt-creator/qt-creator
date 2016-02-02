@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PROJECTEXPLORER_DEPLOYCONFIGURATION_H
-#define PROJECTEXPLORER_DEPLOYCONFIGURATION_H
+#pragma once
 
 #include "projectexplorer_export.h"
 
@@ -80,6 +79,7 @@ class PROJECTEXPLORER_EXPORT DefaultDeployConfiguration : public DeployConfigura
 {
     Q_OBJECT
     friend class DefaultDeployConfigurationFactory; // for the ctors
+
 protected:
     DefaultDeployConfiguration(Target *target, Core::Id id);
     DefaultDeployConfiguration(Target *target, DeployConfiguration *source);
@@ -132,5 +132,3 @@ private:
 } // namespace ProjectExplorer
 
 Q_DECLARE_METATYPE(ProjectExplorer::DeployConfiguration *)
-
-#endif // PROJECTEXPLORER_DEPLOYCONFIGURATION_H

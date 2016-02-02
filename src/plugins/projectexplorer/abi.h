@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PROJECTEXPLORER_ABI_H
-#define PROJECTEXPLORER_ABI_H
+#pragma once
 
 #include "projectexplorer_export.h"
 
@@ -156,6 +155,5 @@ inline int qHash(const ProjectExplorer::Abi &abi)
             + (abi.wordWidth() << 13);
     return QT_PREPEND_NAMESPACE(qHash)(h);
 }
-} // namespace ProjectExplorer
 
-#endif // PROJECTEXPLORER_ABI_H
+} // namespace ProjectExplorer

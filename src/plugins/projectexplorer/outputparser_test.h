@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef OUTPUTPARSER_TESTER_H
-#define OUTPUTPARSER_TESTER_H
+#pragma once
 
 #if defined(WITH_TESTS)
 
@@ -63,14 +62,14 @@ public:
 
     void setDebugEnabled(bool);
 
-    void appendOutputParser(IOutputParser *parser);
+    void appendOutputParser(IOutputParser *parser) override;
 
 signals:
     void aboutToDeleteParser();
 
 private:
-    void outputAdded(const QString &string, ProjectExplorer::BuildStep::OutputFormat format);
-    void taskAdded(const ProjectExplorer::Task &task, int linkedLines, int skipLines);
+    void outputAdded(const QString &string, ProjectExplorer::BuildStep::OutputFormat format) override;
+    void taskAdded(const ProjectExplorer::Task &task, int linkedLines, int skipLines) override;
 
     void reset();
 
@@ -91,8 +90,8 @@ class TestTerminator : public IOutputParser
 public:
     TestTerminator(OutputParserTester *t);
 
-    void stdOutput(const QString &line);
-    void stdError(const QString &line);
+    void stdOutput(const QString &line) override;
+    void stdError(const QString &line) override;
 
 private:
     OutputParserTester *m_tester;
@@ -103,5 +102,3 @@ private:
 Q_DECLARE_METATYPE(ProjectExplorer::OutputParserTester::Channel)
 
 #endif
-
-#endif // OUTPUTPARSER_TESTER_H

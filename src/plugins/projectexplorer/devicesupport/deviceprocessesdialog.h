@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef DEVICEPROCESSESDIALOG_H
-#define DEVICEPROCESSESDIALOG_H
+#pragma once
 
 #include "../projectexplorer_export.h"
 
@@ -45,7 +44,7 @@ class PROJECTEXPLORER_EXPORT DeviceProcessesDialog : public QDialog
 
 public:
     explicit DeviceProcessesDialog(QWidget *parent = 0);
-    ~DeviceProcessesDialog();
+    ~DeviceProcessesDialog() override;
     void addAcceptButton(const QString &label);
     void addCloseButton();
 
@@ -63,5 +62,3 @@ private:
 };
 
 } // namespace ProjectExplorer
-
-#endif // DEVICEPROCESSESDIALOG_H

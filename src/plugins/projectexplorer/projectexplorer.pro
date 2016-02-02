@@ -286,7 +286,6 @@ SOURCES += projectexplorer.cpp \
     projectmacroexpander.cpp \
     customparser.cpp \
     customparserconfigdialog.cpp \
-    ipotentialkit.cpp \
     selectablefilesmodel.cpp \
     xcodebuildparser.cpp \
     propertiespanel.cpp \

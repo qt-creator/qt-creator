@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef DESKTOPDEVICEFACTORY_H
-#define DESKTOPDEVICEFACTORY_H
+#pragma once
 
 #include "idevicefactory.h"
 
@@ -38,16 +37,14 @@ class DesktopDeviceFactory : public IDeviceFactory
 public:
     explicit DesktopDeviceFactory(QObject *parent = 0);
 
-    QString displayNameForId(Core::Id type) const;
-    QList<Core::Id> availableCreationIds() const;
+    QString displayNameForId(Core::Id type) const override;
+    QList<Core::Id> availableCreationIds() const override;
 
-    bool canCreate() const;
-    IDevice::Ptr create(Core::Id id) const;
-    bool canRestore(const QVariantMap &map) const;
-    IDevice::Ptr restore(const QVariantMap &map) const;
+    bool canCreate() const override;
+    IDevice::Ptr create(Core::Id id) const override;
+    bool canRestore(const QVariantMap &map) const override;
+    IDevice::Ptr restore(const QVariantMap &map) const override;
 };
 
 } // namespace Internal
 } // namespace ProjectExplorer
-
-#endif // DESKTOPDEVICE_H

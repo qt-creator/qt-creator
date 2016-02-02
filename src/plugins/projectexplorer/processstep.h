@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PROCESSSTEP_H
-#define PROCESSSTEP_H
+#pragma once
 
 #include "ui_processstep.h"
 #include "abstractprocessstep.h"
@@ -105,5 +104,3 @@ private:
 
 } // namespace Internal
 } // namespace ProjectExplorer
-
-#endif // PROCESSSTEP_H

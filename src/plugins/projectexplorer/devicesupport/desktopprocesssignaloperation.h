@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef WINDOWSPROCESSSIGNALOPERATION_H
-#define WINDOWSPROCESSSIGNALOPERATION_H
+#pragma once
 
 #include "idevice.h"
 
@@ -36,11 +35,10 @@ class PROJECTEXPLORER_EXPORT DesktopProcessSignalOperation : public DeviceProces
 {
     Q_OBJECT
 public:
-    ~DesktopProcessSignalOperation() {}
-    void killProcess(qint64 pid);
-    void killProcess(const QString &filePath);
-    void interruptProcess(qint64 pid);
-    void interruptProcess(const QString &filePath);
+    void killProcess(qint64 pid) override;
+    void killProcess(const QString &filePath) override;
+    void interruptProcess(qint64 pid) override;
+    void interruptProcess(const QString &filePath) override;
 
 private:
     void killProcessSilently(qint64 pid);
@@ -50,10 +48,9 @@ private:
     void appendMsgCannotInterrupt(qint64 pid, const QString &why);
 
 protected:
-    explicit DesktopProcessSignalOperation() {}
+    DesktopProcessSignalOperation() = default;
 
     friend class DesktopDevice;
 };
 
 } // namespace ProjectExplorer
-#endif // WINDOWSPROCESSSIGNALOPERATION_H

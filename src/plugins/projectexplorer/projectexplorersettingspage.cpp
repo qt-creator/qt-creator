@@ -162,10 +162,6 @@ ProjectExplorerSettingsPage::ProjectExplorerSettingsPage()
     setCategoryIcon(QLatin1String(Constants::PROJECTEXPLORER_SETTINGS_CATEGORY_ICON));
 }
 
-ProjectExplorerSettingsPage::~ProjectExplorerSettingsPage()
-{
-}
-
 QWidget *ProjectExplorerSettingsPage::widget()
 {
     if (!m_widget) {

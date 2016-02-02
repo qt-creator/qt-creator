@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CODESTYLESETTINGSPROPERTIESPAGE_H
-#define CODESTYLESETTINGSPROPERTIESPAGE_H
+#pragma once
 
 #include "ui_codestylesettingspropertiespage.h"
 
@@ -38,7 +37,7 @@ class CodeStyleSettingsWidget : public QWidget
 {
     Q_OBJECT
 public:
-    CodeStyleSettingsWidget(Project *project);
+    explicit CodeStyleSettingsWidget(Project *project);
 
 private:
     Ui::CodeStyleSettingsPropertiesPage m_ui;
@@ -47,6 +46,3 @@ private:
 
 } // namespace Internal
 } // namespace ProjectExplorer
-
-
-#endif // CODESTYLESETTINGSPROPERTIESPAGE_H

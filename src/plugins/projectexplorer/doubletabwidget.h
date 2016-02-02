@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef DOUBLETABWIDGET_H
-#define DOUBLETABWIDGET_H
+#pragma once
 
 #include <QVector>
 #include <QWidget>
@@ -39,8 +38,8 @@ class DoubleTabWidget : public QWidget
 {
     Q_OBJECT
 public:
-    DoubleTabWidget(QWidget *parent = 0);
-    ~DoubleTabWidget();
+    explicit DoubleTabWidget(QWidget *parent = 0);
+    ~DoubleTabWidget() override;
 
     void setTitle(const QString &title);
     QString title() const { return m_title; }
@@ -63,10 +62,10 @@ signals:
     void currentIndexChanged(int index, int subIndex);
 
 protected:
-    void paintEvent(QPaintEvent *event);
-    void mousePressEvent(QMouseEvent *event);
-    bool event(QEvent *event);
-    QSize minimumSizeHint() const;
+    void paintEvent(QPaintEvent *event) override;
+    void mousePressEvent(QMouseEvent *event) override;
+    bool event(QEvent *event) override;
+    QSize minimumSizeHint() const override;
 
 private:
     struct Tab {
@@ -97,5 +96,3 @@ private:
 
 } // namespace Internal
 } // namespace ProjectExplorer
-
-#endif // DOUBLETABWIDGET_H

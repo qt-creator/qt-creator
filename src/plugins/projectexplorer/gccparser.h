@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef GCCPARSER_H
-#define GCCPARSER_H
+#pragma once
 
 #include "ioutputparser.h"
 
@@ -41,12 +40,12 @@ class PROJECTEXPLORER_EXPORT GccParser : public ProjectExplorer::IOutputParser
 public:
     GccParser();
 
-    void stdError(const QString &line);
-    void stdOutput(const QString &line);
+    void stdError(const QString &line) override;
+    void stdOutput(const QString &line) override;
 
 protected:
     void newTask(const Task &task);
-    void doFlush();
+    void doFlush() override;
 
     void amendDescription(const QString &desc, bool monospaced);
 
@@ -60,5 +59,3 @@ private:
 };
 
 } // namespace ProjectExplorer
-
-#endif // GCCPARSER_H

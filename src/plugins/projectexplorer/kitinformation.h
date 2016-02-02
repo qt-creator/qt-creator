@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef KITINFORMATION_H
-#define KITINFORMATION_H
+#pragma once
 
 #include "kitmanager.h"
 #include "kit.h"
@@ -197,5 +196,3 @@ public:
 };
 
 } // namespace ProjectExplorer
-
-#endif // KITINFORMATION_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef TOOLCHAINOPTIONSPAGE_H
-#define TOOLCHAINOPTIONSPAGE_H
+#pragma once
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
@@ -46,9 +45,9 @@ class ToolChainOptionsPage : public Core::IOptionsPage
 public:
     ToolChainOptionsPage();
 
-    QWidget *widget();
-    void apply();
-    void finish();
+    QWidget *widget() override;
+    void apply() override;
+    void finish() override;
 
 private:
     QPointer<ToolChainOptionsWidget> m_widget;
@@ -56,5 +55,3 @@ private:
 
 } // namespace Internal
 } // namespace ProjectExplorer
-
-#endif // TOOLCHAINOPTIONSPAGE_H

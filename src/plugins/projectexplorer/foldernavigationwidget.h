@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef FOLDERNAVIGATIONWIDGET_H
-#define FOLDERNAVIGATIONWIDGET_H
+#pragma once
 
 #include <coreplugin/inavigationwidgetfactory.h>
 
@@ -49,7 +48,7 @@ class FolderNavigationWidget : public QWidget
     Q_OBJECT
     Q_PROPERTY(bool autoSynchronization READ autoSynchronization WRITE setAutoSynchronization)
 public:
-    FolderNavigationWidget(QWidget *parent = 0);
+    explicit FolderNavigationWidget(QWidget *parent = 0);
 
     bool autoSynchronization() const;
     bool hiddenFilesFilter() const;
@@ -65,7 +64,7 @@ private:
     void ensureCurrentIndex();
 
 protected:
-    virtual void contextMenuEvent(QContextMenuEvent *ev);
+    void contextMenuEvent(QContextMenuEvent *ev) override;
 
 private:
     void setCurrentTitle(QString dirName, const QString &fullPath);
@@ -91,12 +90,10 @@ class FolderNavigationWidgetFactory : public Core::INavigationWidgetFactory
 public:
     FolderNavigationWidgetFactory();
 
-    Core::NavigationView createWidget();
-    void saveSettings(int position, QWidget *widget);
-    void restoreSettings(int position, QWidget *widget);
+    Core::NavigationView createWidget() override;
+    void saveSettings(int position, QWidget *widget) override;
+    void restoreSettings(int position, QWidget *widget) override;
 };
 
 } // namespace Internal
 } // namespace ProjectExplorer
-
-#endif // FOLDERNAVIGATIONWIDGET_H

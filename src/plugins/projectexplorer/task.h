@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PROJECTEXPLORER_TASK_H
-#define PROJECTEXPLORER_TASK_H
+#pragma once
 
 #include "projectexplorer_export.h"
 
@@ -48,7 +47,7 @@ public:
         Warning
     };
 
-    Task();
+    Task() = default;
     Task(TaskType type, const QString &description,
          const Utils::FileName &file, int line, Core::Id category,
          const Utils::FileName &iconName = Utils::FileName());
@@ -59,12 +58,12 @@ public:
     bool isNull() const;
     void clear();
 
-    unsigned int taskId;
-    TaskType type;
+    unsigned int taskId = 0;
+    TaskType type = Unknown;
     QString description;
     Utils::FileName file;
-    int line;
-    int movedLine; // contains a line number if the line was moved in the editor
+    int line = -1;
+    int movedLine = -1; // contains a line number if the line was moved in the editor
     Core::Id category;
     QIcon icon;
     void addMark(TextEditor::TextMark *mark);
@@ -93,5 +92,3 @@ bool PROJECTEXPLORER_EXPORT operator<(const Task &a, const Task &b);
 
 Q_DECLARE_METATYPE(ProjectExplorer::Task)
 Q_DECLARE_METATYPE(QList<ProjectExplorer::Task>)
-
-#endif // PROJECTEXPLORER_TASK_H

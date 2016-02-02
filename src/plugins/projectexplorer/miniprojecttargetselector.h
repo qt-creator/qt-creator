@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef MINIPROJECTTARGETSELECTOR_H
-#define MINIPROJECTTARGETSELECTOR_H
+#pragma once
 
 #include <QListWidget>
 #include <QDateTime>
@@ -52,10 +51,11 @@ namespace Internal {
 class ListWidget : public QListWidget
 {
     Q_OBJECT
+
 public:
     ListWidget(QWidget *parent);
-    void keyPressEvent(QKeyEvent *event);
-    void keyReleaseEvent(QKeyEvent *event);
+    void keyPressEvent(QKeyEvent *event) override;
+    void keyReleaseEvent(QKeyEvent *event) override;
     void setMaxCount(int maxCount);
     int maxCount();
 
@@ -63,6 +63,7 @@ public:
     void setOptimalWidth(int width);
 
     int padding();
+
 private:
     int m_maxCount;
     int m_optimalWidth;
@@ -71,8 +72,10 @@ private:
 class ProjectListWidget : public ListWidget
 {
     Q_OBJECT
+
 public:
     explicit ProjectListWidget(QWidget *parent = 0);
+
 private:
     void addProject(ProjectExplorer::Project *project);
     void removeProject(ProjectExplorer::Project *project);
@@ -89,7 +92,7 @@ class KitAreaWidget : public QWidget
     Q_OBJECT
 public:
     explicit KitAreaWidget(QWidget *parent = 0);
-    ~KitAreaWidget();
+    ~KitAreaWidget() override;
 
     void setKit(ProjectExplorer::Kit *k);
 
@@ -105,15 +108,19 @@ private:
 class GenericListWidget : public ListWidget
 {
     Q_OBJECT
+
 public:
-    GenericListWidget(QWidget *parent = 0);
+    explicit GenericListWidget(QWidget *parent = 0);
+
 signals:
     void changeActiveProjectConfiguration(ProjectExplorer::ProjectConfiguration *dc);
+
 public:
     void setProjectConfigurations(const QList<ProjectConfiguration *> &list, ProjectConfiguration *active);
     void setActiveProjectConfiguration(ProjectConfiguration *active);
     void addProjectConfiguration(ProjectConfiguration *pc);
     void removeProjectConfiguration(ProjectConfiguration *pc);
+
 private:
     void rowChanged(int index);
     void displayNameChanged();
@@ -125,13 +132,14 @@ private:
 class MiniProjectTargetSelector : public QWidget
 {
     Q_OBJECT
+
 public:
     explicit MiniProjectTargetSelector(QAction *projectAction, QWidget *parent = 0);
-    void setVisible(bool visible);
+    void setVisible(bool visible) override;
 
-    void keyPressEvent(QKeyEvent *ke);
-    void keyReleaseEvent(QKeyEvent *ke);
-    bool event(QEvent *event);
+    void keyPressEvent(QKeyEvent *ke) override;
+    void keyReleaseEvent(QKeyEvent *ke) override;
+    bool event(QEvent *event) override;
 
     void toggleVisible();
     void nextOrShow();
@@ -178,8 +186,8 @@ private:
     void updateDeployListVisible();
     void updateRunListVisible();
     void updateSummary();
-    void paintEvent(QPaintEvent *);
-    void mousePressEvent(QMouseEvent *);
+    void paintEvent(QPaintEvent *) override;
+    void mousePressEvent(QMouseEvent *) override;
 
     void doLayout(bool keepSize);
     QVector<int> listWidgetWidths(int minSize, int maxSize);
@@ -205,5 +213,3 @@ private:
 
 } // namespace Internal
 } // namespace ProjectExplorer
-
-#endif // MINIPROJECTTARGETSELECTOR_H

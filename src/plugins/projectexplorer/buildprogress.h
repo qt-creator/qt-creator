@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef BUILDPROGRESS_H
-#define BUILDPROGRESS_H
+#pragma once
 
 #include "taskwindow.h"
 
@@ -39,8 +38,9 @@ namespace Internal {
 class BuildProgress : public QWidget
 {
     Q_OBJECT
+
 public:
-    BuildProgress(TaskWindow *taskWindow, Qt::Orientation orientation = Qt::Vertical);
+    explicit BuildProgress(TaskWindow *taskWindow, Qt::Orientation orientation = Qt::Vertical);
 
 private:
     void updateState();
@@ -55,5 +55,3 @@ private:
 
 } // namespace Internal
 } // namespace ProjectExplorer
-
-#endif // BUILDPROGRESS_H

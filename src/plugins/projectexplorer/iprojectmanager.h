@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PROJECTMANAGER_H
-#define PROJECTMANAGER_H
+#pragma once
 
 #include "projectexplorer_export.h"
 
@@ -34,19 +33,14 @@ namespace ProjectExplorer {
 
 class Project;
 
-class PROJECTEXPLORER_EXPORT IProjectManager
-    : public QObject
+class PROJECTEXPLORER_EXPORT IProjectManager : public QObject
 {
     Q_OBJECT
 
 public:
-    IProjectManager() {}
-
     virtual QString mimeType() const = 0;
     // fileName is a canonical path!
     virtual Project *openProject(const QString &fileName, QString *errorString) = 0;
 };
 
 } // namespace ProjectExplorer
-
-#endif //PROJECTMANAGER_H

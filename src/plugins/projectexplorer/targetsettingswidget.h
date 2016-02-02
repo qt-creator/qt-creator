@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef TARGETSETTINGSWIDGET_H
-#define TARGETSETTINGSWIDGET_H
+#pragma once
 
 #include "targetselector.h"
 
@@ -46,7 +45,7 @@ class TargetSettingsWidget : public QWidget
 
 public:
     explicit TargetSettingsWidget(QWidget *parent = 0);
-    ~TargetSettingsWidget();
+    ~TargetSettingsWidget() override;
 
     void setCentralWidget(QWidget *widget);
 
@@ -64,6 +63,7 @@ public:
     void setAddButtonEnabled(bool enabled);
     void setAddButtonMenu(QMenu *menu);
     void setTargetMenu(QMenu *menu);
+
 signals:
     void currentChanged(int targetIndex, int subIndex);
     void manageButtonClicked();
@@ -83,5 +83,3 @@ private:
 
 } // namespace Internal
 } // namespace ProjectExplorer
-
-#endif // TARGETSETTINGSWIDGET_H

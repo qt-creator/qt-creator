@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SETTINGSACCESSOR_H
-#define SETTINGSACCESSOR_H
+#pragma once
 
 #include <utils/fileutils.h>
 
@@ -45,7 +44,7 @@ class SettingsAccessorPrivate;
 class SettingsAccessor
 {
 public:
-    SettingsAccessor(Project *project);
+    explicit SettingsAccessor(Project *project);
     virtual ~SettingsAccessor();
 
     Project *project() const;
@@ -144,11 +143,9 @@ public:
     UserFileAccessor(Project *project);
 
 protected:
-    QVariantMap prepareSettings(const QVariantMap &data) const;
-    QVariantMap prepareToSaveSettings(const QVariantMap &data) const;
+    QVariantMap prepareSettings(const QVariantMap &data) const override;
+    QVariantMap prepareToSaveSettings(const QVariantMap &data) const override;
 };
 
 } // namespace Internal
 } // namespace ProjectExplorer
-
-#endif // SETTINGSACCESSOR_H

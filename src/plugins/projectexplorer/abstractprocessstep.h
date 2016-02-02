@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef ABSTRACTPROCESSSTEP_H
-#define ABSTRACTPROCESSSTEP_H
+#pragma once
 
 #include "buildstep.h"
 #include "processparameters.h"
@@ -100,5 +99,3 @@ private:
 };
 
 } // namespace ProjectExplorer
-
-#endif // ABSTRACTPROCESSSTEP_H

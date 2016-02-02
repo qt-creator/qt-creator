@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PROJECTEXPLORER_REMOVETASKHANDLER_H
-#define PROJECTEXPLORER_REMOVETASKHANDLER_H
+#pragma once
 
 #include "itaskhandler.h"
 
@@ -36,14 +35,10 @@ class RemoveTaskHandler : public ITaskHandler
     Q_OBJECT
 
 public:
-    RemoveTaskHandler() {}
-
-    bool canHandle(const Task &) const { return true; }
-    void handle(const Task &task);
-    QAction *createAction(QObject *parent) const;
+    bool canHandle(const Task &) const override { return true; }
+    void handle(const Task &task) override;
+    QAction *createAction(QObject *parent) const override;
 };
 
 } // namespace Internal
 } // namespace ProjectExplorer
-
-#endif // PROJECTEXPLORER_REMOVETASKHANDLER_H

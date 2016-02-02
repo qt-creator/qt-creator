@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef NODESVISITOR_H
-#define NODESVISITOR_H
+#pragma once
 
 #include "projectexplorer_export.h"
 
@@ -47,6 +46,7 @@ public:
     virtual void visitSessionNode(SessionNode *) {}
     virtual void visitProjectNode(ProjectNode *) {}
     virtual void visitFolderNode(FolderNode *) {}
+
 protected:
      NodesVisitor() {}
 };
@@ -55,13 +55,14 @@ protected:
 
 class PROJECTEXPLORER_EXPORT FindNodesForFileVisitor : public NodesVisitor {
 public:
-    FindNodesForFileVisitor(const Utils::FileName &fileToSearch);
+    explicit FindNodesForFileVisitor(const Utils::FileName &fileToSearch);
 
     QList<Node*> nodes() const;
 
-    void visitProjectNode(ProjectNode *node);
-    void visitFolderNode(FolderNode *node);
-    void visitSessionNode(SessionNode *node);
+    void visitProjectNode(ProjectNode *node) override;
+    void visitFolderNode(FolderNode *node) override;
+    void visitSessionNode(SessionNode *node) override;
+
 private:
     Utils::FileName m_path;
     QList<Node*> m_nodes;
@@ -71,12 +72,11 @@ class PROJECTEXPLORER_EXPORT FindAllFilesVisitor : public NodesVisitor {
 public:
     Utils::FileNameList filePaths() const;
 
-    void visitProjectNode(ProjectNode *projectNode);
-    void visitFolderNode(FolderNode *folderNode);
+    void visitProjectNode(ProjectNode *projectNode) override;
+    void visitFolderNode(FolderNode *folderNode) override;
+
 private:
     Utils::FileNameList m_filePaths;
 };
 
 } // namespace ProjectExplorer
-
-#endif // NODESVISITOR_H

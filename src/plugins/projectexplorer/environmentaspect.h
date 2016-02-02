@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef ENVIRONMENTASPECT_H
-#define ENVIRONMENTASPECT_H
+#pragma once
 
 #include "projectexplorer_export.h"
 
@@ -43,7 +42,7 @@ class PROJECTEXPLORER_EXPORT EnvironmentAspect : public IRunConfigurationAspect
 
 public:
     // IRunConfigurationAspect:
-    RunConfigWidget *createConfigurationWidget();
+    RunConfigWidget *createConfigurationWidget() override;
 
     virtual QList<int> possibleBaseEnvironments() const = 0;
     virtual QString baseEnvironmentDisplayName(int base) const = 0;
@@ -64,8 +63,8 @@ signals:
 
 protected:
     explicit EnvironmentAspect(RunConfiguration *rc);
-    void fromMap(const QVariantMap &map);
-    void toMap(QVariantMap &map) const;
+    void fromMap(const QVariantMap &map) override;
+    void toMap(QVariantMap &map) const override;
 
 private:
     mutable int m_base;
@@ -73,5 +72,3 @@ private:
 };
 
 } // namespace ProjectExplorer
-
-#endif // ENVIRONMENTASPECT_H

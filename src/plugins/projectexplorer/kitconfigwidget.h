@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef KITCONFIGWIDGET_H
-#define KITCONFIGWIDGET_H
+#pragma once
 
 #include "projectexplorer_export.h"
 
@@ -80,5 +79,3 @@ protected:
 };
 
 } // namespace ProjectExplorer
-
-#endif // KITCONFIGWIDGET_H

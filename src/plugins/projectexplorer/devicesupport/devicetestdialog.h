@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef DEVICETESTDIALOG_H
-#define DEVICETESTDIALOG_H
+#pragma once
 
 #include "idevice.h"
 
@@ -39,9 +38,9 @@ class DeviceTestDialog : public QDialog
 
 public:
     DeviceTestDialog(const IDevice::ConstPtr &deviceConfiguration, QWidget *parent = 0);
-    ~DeviceTestDialog();
+    ~DeviceTestDialog() override;
 
-    void reject();
+    void reject() override;
 
 private:
     void handleProgressMessage(const QString &message);
@@ -56,5 +55,3 @@ private:
 
 } // namespace Internal
 } // namespace ProjectExplorer
-
-#endif // Include guard.

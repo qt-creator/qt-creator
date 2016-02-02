@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QTC_DEVICEPROCESS_H
-#define QTC_DEVICEPROCESS_H
+#pragma once
 
 #include "../projectexplorer_export.h"
 #include "../runconfiguration.h"
@@ -43,8 +42,6 @@ class PROJECTEXPLORER_EXPORT DeviceProcess : public QObject
 {
     Q_OBJECT
 public:
-    virtual ~DeviceProcess();
-
     virtual void start(const Runnable &runnable) = 0;
     virtual void interrupt() = 0;
     virtual void terminate() = 0;
@@ -69,7 +66,7 @@ signals:
     void readyReadStandardError();
 
 protected:
-    DeviceProcess(const QSharedPointer<const IDevice> &device, QObject *parent = 0);
+    explicit DeviceProcess(const QSharedPointer<const IDevice> &device, QObject *parent = 0);
     QSharedPointer<const IDevice> device() const;
 
 private:
@@ -77,5 +74,3 @@ private:
 };
 
 } // namespace ProjectExplorer
-
-#endif // Include guard.

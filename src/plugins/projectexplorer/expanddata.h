@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef EXPANDDATA_H
-#define EXPANDDATA_H
+#pragma once
 
 #include <QString>
 #include <QHash>
@@ -49,5 +48,3 @@ int qHash(const ExpandData &data);
 
 } // namespace Internal
 } // namespace ProjectExplorer
-
-#endif // EXPANDDATA_H

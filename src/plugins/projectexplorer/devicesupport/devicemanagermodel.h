@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef DEVICEMANAGERMODEL_H
-#define DEVICEMANAGERMODEL_H
+#pragma once
 
 #include "../projectexplorer_export.h"
 #include "idevice.h"
@@ -41,7 +40,7 @@ class PROJECTEXPLORER_EXPORT DeviceManagerModel : public QAbstractListModel
     Q_OBJECT
 public:
     explicit DeviceManagerModel(const DeviceManager *deviceManager, QObject *parent = 0);
-    ~DeviceManagerModel();
+    ~DeviceManagerModel() override;
 
     void setFilter(const QList<Core::Id> &filter);
     void setTypeFilter(Core::Id type);
@@ -50,7 +49,7 @@ public:
     Core::Id deviceId(int pos) const;
     int indexOf(IDevice::ConstPtr dev) const;
     int indexForId(Core::Id id) const;
-    int rowCount(const QModelIndex &parent = QModelIndex()) const;
+    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
 
     void updateDevice(Core::Id id);
 
@@ -60,12 +59,10 @@ private:
     void handleDeviceUpdated(Core::Id id);
     void handleDeviceListChanged();
 
-    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
     bool matchesTypeFilter(const IDevice::ConstPtr &dev) const;
 
     Internal::DeviceManagerModelPrivate * const d;
 };
 
 } // namespace ProjectExplorer
-
-#endif // DEVICEMANAGERMODEL_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef TARGETSELECTOR_H
-#define TARGETSELECTOR_H
+#pragma once
 
 #include <QWidget>
 #include <QPixmap>
@@ -42,14 +41,15 @@ class TargetSelector : public QWidget
 {
 Q_OBJECT
 public:
-    struct Target {
+    class Target {
+    public:
         QString name;
         int currentSubIndex;
     };
 
     explicit TargetSelector(QWidget *parent = 0);
 
-    QSize sizeHint() const;
+    QSize sizeHint() const override;
 
     int targetWidth() const;
     QString runButtonString() const { return tr("Run"); }
@@ -80,13 +80,13 @@ signals:
     void menuShown(int targetIndex);
 
 protected:
-    void paintEvent(QPaintEvent *event);
-    void mousePressEvent(QMouseEvent *event);
-    void mouseMoveEvent(QMouseEvent *event);
-    void leaveEvent(QEvent *event);
-    void showEvent(QShowEvent *event);
-    void resizeEvent(QResizeEvent *event);
-    bool event(QEvent *e);
+    void paintEvent(QPaintEvent *event) override;
+    void mousePressEvent(QMouseEvent *event) override;
+    void mouseMoveEvent(QMouseEvent *event) override;
+    void leaveEvent(QEvent *event) override;
+    void showEvent(QShowEvent *event) override;
+    void resizeEvent(QResizeEvent *event) override;
+    bool event(QEvent *e) override;
 
 private:
     void changeButtonPressed();
@@ -118,5 +118,3 @@ private:
 
 } // namespace Internal
 } // namespace ProjectExplorer
-
-#endif // TARGETSELECTOR_H

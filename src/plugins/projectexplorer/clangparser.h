@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CLANGPARSER_H
-#define CLANGPARSER_H
+#pragma once
 
 #include "gccparser.h"
 #include "task.h"
@@ -51,5 +50,3 @@ private:
 };
 
 } // namespace ProjectExplorer
-
-#endif // CLANGPARSER_H

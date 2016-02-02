@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef DEPLOYMENTDATAVIEW_H
-#define DEPLOYMENTDATAVIEW_H
+#pragma once
 
 #include "namedwidget.h"
 #include "projectexplorer_export.h"
@@ -40,7 +39,7 @@ class PROJECTEXPLORER_EXPORT DeploymentDataView : public NamedWidget
 
 public:
     explicit DeploymentDataView(Target *target, QWidget *parent = 0);
-    ~DeploymentDataView();
+    ~DeploymentDataView() override;
 
 private:
     void updateDeploymentDataModel();
@@ -49,5 +48,3 @@ private:
 };
 
 } // namespace ProjectExplorer
-
-#endif // Include guard

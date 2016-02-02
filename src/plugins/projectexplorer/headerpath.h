@@ -23,9 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef HEADERPATH_H
-#define HEADERPATH_H
-
+#pragma once
 #include <QString>
 
 #include "projectexplorer_export.h"
@@ -41,12 +39,10 @@ public:
         FrameworkHeaderPath
     };
 
-    HeaderPath()
-        : m_kind(GlobalHeaderPath)
+    HeaderPath() : m_kind(GlobalHeaderPath)
     { }
 
-    HeaderPath(const QString &path, Kind kind)
-        : m_path(path), m_kind(kind)
+    HeaderPath(const QString &path, Kind kind) : m_path(path), m_kind(kind)
     { }
 
     QString path() const { return m_path; }
@@ -54,8 +50,7 @@ public:
 
     bool operator==(const HeaderPath &other) const
     {
-        return m_kind == other.m_kind
-                && m_path == other.m_path;
+        return m_kind == other.m_kind && m_path == other.m_path;
     }
 
 private:
@@ -64,5 +59,3 @@ private:
 };
 
 } // namespace ProjectExplorer
-
-#endif // HEADERPATH_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef IDEVICE_H
-#define IDEVICE_H
+#pragma once
 
 #include "../projectexplorer_export.h"
 
@@ -58,7 +57,6 @@ class PROJECTEXPLORER_EXPORT DeviceProcessSignalOperation : public QObject
 {
     Q_OBJECT
 public:
-    ~DeviceProcessSignalOperation() {}
     typedef QSharedPointer<DeviceProcessSignalOperation> Ptr;
 
     virtual void killProcess(qint64 pid) = 0;
@@ -84,7 +82,7 @@ class PROJECTEXPLORER_EXPORT PortsGatheringMethod
 public:
     typedef QSharedPointer<const PortsGatheringMethod> Ptr;
 
-    virtual ~PortsGatheringMethod();
+    virtual ~PortsGatheringMethod() = default;
     virtual QByteArray commandLine(QAbstractSocket::NetworkLayerProtocol protocol) const = 0;
     virtual QList<int> usedPorts(const QByteArray &commandOutput) const = 0;
 };
@@ -207,5 +205,3 @@ protected:
 };
 
 } // namespace ProjectExplorer
-
-#endif // IDEVICE_H

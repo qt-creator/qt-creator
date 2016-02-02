@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef DEVICEMANAGER_H
-#define DEVICEMANAGER_H
+#pragma once
 
 #include "idevice.h"
 
@@ -53,7 +52,7 @@ class PROJECTEXPLORER_EXPORT DeviceManager : public QObject
     friend class IDevice;
 
 public:
-    ~DeviceManager();
+    ~DeviceManager() override;
 
     static DeviceManager *instance();
 
@@ -116,5 +115,3 @@ private:
 };
 
 } // namespace ProjectExplorer
-
-#endif // DEVICEMANAGER_H

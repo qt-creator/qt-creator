@@ -101,10 +101,6 @@ void ProjectWizardContext::clear()
 }
 
 // ---- ProjectFileWizardExtension
-ProjectFileWizardExtension::ProjectFileWizardExtension()
-  : m_context(0)
-{
-}
 
 ProjectFileWizardExtension::~ProjectFileWizardExtension()
 {

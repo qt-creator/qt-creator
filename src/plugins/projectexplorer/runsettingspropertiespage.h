@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef RUNSETTINGSPROPERTIESPAGE_H
-#define RUNSETTINGSPROPERTIESPAGE_H
+#pragma once
 
 #include <QWidget>
 
@@ -58,7 +57,6 @@ class RunSettingsWidget : public QWidget
     Q_OBJECT
 public:
     explicit RunSettingsWidget(Target *target);
-    ~RunSettingsWidget();
 
 private:
     void currentRunConfigurationChanged(int index);
@@ -113,5 +111,3 @@ private:
 
 } // namespace Internal
 } // namespace ProjectExplorer
-
-#endif // RUNSETTINGSPROPERTIESPAGE_H

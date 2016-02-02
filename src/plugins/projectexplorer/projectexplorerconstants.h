@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PROJECTEXPLORERCONSTANTS_H
-#define PROJECTEXPLORERCONSTANTS_H
+#pragma once
 
 #include <QtGlobal>
 
@@ -263,5 +262,3 @@ const char PROJECTTREE_ID[] = "Projects";
 
 } // namespace Constants
 } // namespace ProjectExplorer
-
-#endif // PROJECTEXPLORERCONSTANTS_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PROJECTEXPLORERSETTINGSPAGE_H
-#define PROJECTEXPLORERSETTINGSPAGE_H
+#pragma once
 
 #include "ui_projectexplorersettingspage.h"
 
@@ -41,6 +40,7 @@ class ProjectExplorerSettings;
 // Documentation inside.
 class ProjectExplorerSettingsWidget : public QWidget {
     Q_OBJECT
+
 public:
     explicit ProjectExplorerSettingsWidget(QWidget *parent = 0);
 
@@ -73,17 +73,14 @@ class ProjectExplorerSettingsPage : public Core::IOptionsPage
 
 public:
     ProjectExplorerSettingsPage();
-    ~ProjectExplorerSettingsPage();
 
-    QWidget *widget();
-    void apply();
-    void finish();
+    QWidget *widget() override;
+    void apply() override;
+    void finish() override;
 
 private:
     QPointer<ProjectExplorerSettingsWidget> m_widget;
 };
 
-} // Internal
-} // ProjectExplorer
-
-#endif // PROJECTEXPLORERSETTINGSPAGE_H
+} // namespace Internal
+} // namespace ProjectExplorer

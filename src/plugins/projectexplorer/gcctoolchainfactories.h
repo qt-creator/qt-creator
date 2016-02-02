@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef GCCTOOLCHAINFACTORIES_H
-#define GCCTOOLCHAINFACTORIES_H
+#pragma once
 
 #include "toolchain.h"
 #include "toolchainconfigwidget.h"
@@ -51,13 +50,13 @@ class GccToolChainFactory : public ToolChainFactory
 public:
     GccToolChainFactory();
 
-    QList<ToolChain *> autoDetect(const QList<ToolChain *> &alreadyKnown);
+    QList<ToolChain *> autoDetect(const QList<ToolChain *> &alreadyKnown) override;
 
-    bool canCreate();
-    ToolChain *create();
+    bool canCreate() override;
+    ToolChain *create() override;
 
-    bool canRestore(const QVariantMap &data);
-    ToolChain *restore(const QVariantMap &data);
+    bool canRestore(const QVariantMap &data) override;
+    ToolChain *restore(const QVariantMap &data) override;
 
 protected:
     virtual GccToolChain *createToolChain(bool autoDetect);
@@ -75,7 +74,7 @@ class GccToolChainConfigWidget : public ToolChainConfigWidget
     Q_OBJECT
 
 public:
-    GccToolChainConfigWidget(GccToolChain *);
+    explicit GccToolChainConfigWidget(GccToolChain *tc);
     static QStringList splitString(const QString &s);
 
 private:
@@ -83,10 +82,10 @@ private:
     void handlePlatformCodeGenFlagsChange();
     void handlePlatformLinkerFlagsChange();
 
-    void applyImpl();
-    void discardImpl() { setFromToolchain(); }
-    bool isDirtyImpl() const;
-    void makeReadOnlyImpl();
+    void applyImpl() override;
+    void discardImpl() override { setFromToolchain(); }
+    bool isDirtyImpl() const override;
+    void makeReadOnlyImpl() override;
 
     void setFromToolchain();
 
@@ -110,12 +109,12 @@ class ClangToolChainFactory : public GccToolChainFactory
 public:
     ClangToolChainFactory();
 
-    QList<ToolChain *> autoDetect(const QList<ToolChain *> &alreadyKnown);
+    QList<ToolChain *> autoDetect(const QList<ToolChain *> &alreadyKnown) override;
 
-    bool canRestore(const QVariantMap &data);
+    bool canRestore(const QVariantMap &data) override;
 
 protected:
-    GccToolChain *createToolChain(bool autoDetect);
+    GccToolChain *createToolChain(bool autoDetect) override;
 };
 
 // --------------------------------------------------------------------------
@@ -129,12 +128,12 @@ class MingwToolChainFactory : public GccToolChainFactory
 public:
     MingwToolChainFactory();
 
-    QList<ToolChain *> autoDetect(const QList<ToolChain *> &alreadyKnown);
+    QList<ToolChain *> autoDetect(const QList<ToolChain *> &alreadyKnown) override;
 
-    bool canRestore(const QVariantMap &data);
+    bool canRestore(const QVariantMap &data) override;
 
 protected:
-    GccToolChain *createToolChain(bool autoDetect);
+    GccToolChain *createToolChain(bool autoDetect) override;
 };
 
 // --------------------------------------------------------------------------
@@ -148,15 +147,13 @@ class LinuxIccToolChainFactory : public GccToolChainFactory
 public:
     LinuxIccToolChainFactory();
 
-    QList<ToolChain *> autoDetect(const QList<ToolChain *> &alreadyKnown);
+    QList<ToolChain *> autoDetect(const QList<ToolChain *> &alreadyKnown) override;
 
-    bool canRestore(const QVariantMap &data);
+    bool canRestore(const QVariantMap &data) override;
 
 protected:
-    GccToolChain *createToolChain(bool autoDetect);
+    GccToolChain *createToolChain(bool autoDetect) override;
 };
 
 } // namespace Internal
 } // namespace ProjectExplorer
-
-#endif // GCCTOOLCHAINFACTORIES_H

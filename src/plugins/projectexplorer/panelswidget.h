@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PANELSWIDGET_H
-#define PANELSWIDGET_H
+#pragma once
 
 #include "projectexplorer_export.h"
 
@@ -42,7 +41,8 @@ class PROJECTEXPLORER_EXPORT PanelsWidget : public QScrollArea
     Q_OBJECT
 public:
     explicit PanelsWidget(QWidget *parent = 0);
-    ~PanelsWidget();
+    ~PanelsWidget() override;
+
     // Adds a widget
     void addPropertiesPanel(PropertiesPanel *panel);
 
@@ -54,5 +54,4 @@ private:
     QWidget *m_root;
 };
 
-} // end namespace
-#endif // PANELSWIDGET_H
+} // namespace ProjectExplorer

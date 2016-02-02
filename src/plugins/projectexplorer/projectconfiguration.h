@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PROJECTCONFIGURATION_H
-#define PROJECTCONFIGURATION_H
+#pragma once
 
 #include "projectexplorer_export.h"
 
@@ -84,5 +83,3 @@ PROJECTEXPLORER_EXPORT QString displayNameFromMap(const QVariantMap &map);
 } // namespace ProjectExplorer
 
 Q_DECLARE_METATYPE(ProjectExplorer::ProjectConfiguration *)
-
-#endif // PROJECTCONFIGURATION_H

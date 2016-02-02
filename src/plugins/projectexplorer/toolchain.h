@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef TOOLCHAIN_H
-#define TOOLCHAIN_H
+#pragma once
 
 #include "projectexplorer_export.h"
 #include "projectexplorer_global.h"
@@ -123,6 +122,7 @@ public:
     // Make sure to call this function when deriving!
     virtual QVariantMap toMap() const;
     virtual QList<Task> validateKit(const Kit *k) const;
+
 protected:
     explicit ToolChain(Core::Id typeId, Detection d);
     explicit ToolChain(const ToolChain &);
@@ -168,5 +168,3 @@ private:
 };
 
 } // namespace ProjectExplorer
-
-#endif // TOOLCHAIN_H

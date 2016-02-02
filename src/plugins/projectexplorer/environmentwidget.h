@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef ENVIRONMENTWIDGET_H
-#define ENVIRONMENTWIDGET_H
+#pragma once
 
 #include "projectexplorer_export.h"
 
@@ -36,7 +35,7 @@ QT_FORWARD_DECLARE_CLASS(QModelIndex)
 namespace Utils {
 class Environment;
 class EnvironmentItem;
-}
+} // namespace Utils
 
 namespace ProjectExplorer {
 namespace Internal {
@@ -48,7 +47,7 @@ protected:
     QModelIndex moveCursor(CursorAction cursorAction, Qt::KeyboardModifiers modifiers);
     void keyPressEvent(QKeyEvent *event);
 };
-}
+} // namespace Internal
 
 class EnvironmentWidgetPrivate;
 
@@ -58,7 +57,7 @@ class PROJECTEXPLORER_EXPORT EnvironmentWidget : public QWidget
 
 public:
     explicit EnvironmentWidget(QWidget *parent, QWidget *additionalDetailsWidget = 0);
-    virtual ~EnvironmentWidget();
+    ~EnvironmentWidget() override;
 
     void setBaseEnvironmentText(const QString &text);
     void setBaseEnvironment(const Utils::Environment &env);
@@ -87,5 +86,3 @@ private:
 };
 
 } // namespace ProjectExplorer
-
-#endif // ENVIRONMENTWIDGET_H

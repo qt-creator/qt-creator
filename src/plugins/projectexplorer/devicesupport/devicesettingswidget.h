@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef DEVICESETTINGSWIDGET_H
-#define DEVICESETTINGSWIDGET_H
+#pragma once
 
 #include "idevice.h"
 
@@ -51,7 +50,7 @@ class DeviceSettingsWidget : public QWidget
     Q_OBJECT
 public:
     DeviceSettingsWidget(QWidget *parent = 0);
-    ~DeviceSettingsWidget();
+    ~DeviceSettingsWidget() override;
 
     void saveSettings();
 
@@ -87,5 +86,3 @@ private:
 
 } // namespace Internal
 } // namespace ProjectExplorer
-
-#endif // DEVICESETTINGSWIDGET_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef TARGETSETTINGSPANEL_H
-#define TARGETSETTINGSPANEL_H
+#pragma once
 
 #include <QWidget>
 
@@ -53,7 +52,7 @@ class TargetSettingsPanelWidget : public QWidget
     Q_OBJECT
 public:
     TargetSettingsPanelWidget(Project *project);
-    ~TargetSettingsPanelWidget();
+    ~TargetSettingsPanelWidget() override;
 
     void setupUi();
 
@@ -61,7 +60,7 @@ public:
     void setCurrentSubIndex(int subIndex);
 
 protected:
-    bool event(QEvent *event);
+    bool event(QEvent *event) override;
 
 private:
     void currentTargetChanged(int targetIndex, int subIndex);
@@ -101,5 +100,3 @@ private:
 
 } // namespace Internal
 } // namespace ProjectExplorer
-
-#endif // TARGETSETTINGSPANEL_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PROJECTEXPLORER_DEVICECHECKBUILDSTEP_H
-#define PROJECTEXPLORER_DEVICECHECKBUILDSTEP_H
+#pragma once
 
 #include "../buildstep.h"
 #include "../projectexplorer_export.h"
@@ -51,5 +50,3 @@ public:
 };
 
 } // namespace ProjectExplorer
-
-#endif // PROJECTEXPLORER_DEVICECHECKBUILDSTEP_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PROJECTTREEWIDGET_H
-#define PROJECTTREEWIDGET_H
+#pragma once
 
 #include "expanddata.h"
 
@@ -54,7 +53,7 @@ class ProjectTreeWidget : public QWidget
     Q_OBJECT
 public:
     explicit ProjectTreeWidget(QWidget *parent = 0);
-    ~ProjectTreeWidget();
+    ~ProjectTreeWidget() override;
 
     bool autoSynchronization() const;
     void setAutoSynchronization(bool sync);
@@ -124,5 +123,3 @@ public:
 
 } // namespace Internal
 } // namespace ProjectExplorer
-
-#endif // PROJECTTREEWIDGET_H

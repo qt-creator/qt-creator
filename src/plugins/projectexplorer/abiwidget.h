@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PROJECTEXPLORER_ABIWIDGET_H
-#define PROJECTEXPLORER_ABIWIDGET_H
+#pragma once
 
 #include "projectexplorer_export.h"
 
@@ -45,7 +44,7 @@ class PROJECTEXPLORER_EXPORT AbiWidget : public QWidget
 
 public:
     AbiWidget(QWidget *parent = 0);
-    ~AbiWidget();
+    ~AbiWidget() override;
 
     void setAbis(const QList<Abi> &, const Abi &current);
     QList<Abi> supportedAbis() const;
@@ -66,5 +65,3 @@ private:
 };
 
 } // namespace ProjectExplorer
-
-#endif // PROJECTEXPLORER_ABIWIDGET_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef BUILDMANAGER_H
-#define BUILDMANAGER_H
+#pragma once
 
 #include "projectexplorer_export.h"
 #include "buildstep.h"
@@ -43,7 +42,7 @@ class PROJECTEXPLORER_EXPORT BuildManager : public QObject
 
 public:
     explicit BuildManager(QObject *parent, QAction *cancelBuildAction);
-    ~BuildManager();
+    ~BuildManager() override;
     static BuildManager *instance();
 
     static void extensionsInitialized();
@@ -104,5 +103,3 @@ private:
 };
 
 } // namespace ProjectExplorer
-
-#endif // BUILDMANAGER_H

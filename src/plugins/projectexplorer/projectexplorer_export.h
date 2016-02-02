@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PROJECTEXPLORER_EXPORT_H
-#define PROJECTEXPLORER_EXPORT_H
+#pragma once
 
 #include <qglobal.h>
 
@@ -33,5 +32,3 @@
 #else
 #  define PROJECTEXPLORER_EXPORT Q_DECL_IMPORT
 #endif
-
-#endif // PROJECTEXPLORER_EXPORT_H

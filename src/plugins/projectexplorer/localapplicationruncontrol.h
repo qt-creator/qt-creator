@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef LOCALAPPLICATIONRUNCONTROL_H
-#define LOCALAPPLICATIONRUNCONTROL_H
+#pragma once
 
 #include "runconfiguration.h"
 
@@ -41,5 +40,3 @@ public:
 
 } // namespace Internal
 } // namespace ProjectExplorer
-
-#endif // LOCALAPPLICATIONRUNCONTROL_H

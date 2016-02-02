@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PROJECTWINDOW_H
-#define PROJECTWINDOW_H
+#pragma once
 
 #include "projectexplorer_export.h"
 
@@ -80,7 +79,6 @@ class ProjectWindow : public QWidget
 
 public:
     explicit ProjectWindow(QWidget *parent = 0);
-    ~ProjectWindow();
 
     void aboutToShutdown();
 
@@ -105,5 +103,3 @@ private:
 
 } // namespace Internal
 } // namespace ProjectExplorer
-
-#endif // PROJECTWINDOW_H

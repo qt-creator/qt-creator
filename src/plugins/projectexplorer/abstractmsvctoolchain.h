@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef ABSTRACTMSVCTOOLCHAIN_H
-#define ABSTRACTMSVCTOOLCHAIN_H
+#pragma once
 
 #include "toolchain.h"
 #include "abi.h"
@@ -100,5 +99,3 @@ protected:
 
 } // namespace Internal
 } // namespace ProjectExplorer
-
-#endif // ABSTRACTMSVCTOOLCHAIN_H

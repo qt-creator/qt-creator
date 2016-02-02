@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PROJECT_H
-#define PROJECT_H
+#pragma once
 
 #include "projectexplorer_export.h"
 
@@ -193,5 +192,3 @@ private:
 } // namespace ProjectExplorer
 
 Q_DECLARE_METATYPE(ProjectExplorer::Project *)
-
-#endif // PROJECT_H

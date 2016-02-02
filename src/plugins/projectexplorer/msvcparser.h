@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef MSVCPARSER_H
-#define MSVCPARSER_H
+#pragma once
 
 #include "ioutputparser.h"
 #include "task.h"
@@ -41,11 +40,11 @@ class PROJECTEXPLORER_EXPORT MsvcParser :  public ProjectExplorer::IOutputParser
 public:
     MsvcParser();
 
-    void stdOutput(const QString &line);
-    void stdError(const QString &line);
+    void stdOutput(const QString &line) override;
+    void stdError(const QString &line) override;
 
 private:
-    void doFlush();
+    void doFlush() override;
     bool processCompileLine(const QString &line);
 
     QRegularExpression m_compileRegExp;
@@ -56,5 +55,3 @@ private:
 };
 
 } // namespace ProjectExplorer
-
-#endif // MSVCPARSER_H

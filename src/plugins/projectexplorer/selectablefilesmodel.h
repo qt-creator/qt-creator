@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SELECTABLEFILESMODEL_H
-#define SELECTABLEFILESMODEL_H
+#pragma once
 
 #include <QAbstractItemModel>
 #include <QSet>
@@ -61,8 +60,9 @@ public:
     Tree *parent;
 };
 
-struct Glob
+class Glob
 {
+public:
     enum Mode { EXACT, ENDSWITH, REGEXP };
     Mode mode;
     QString matchString;
@@ -90,18 +90,18 @@ class PROJECTEXPLORER_EXPORT SelectableFilesModel : public QAbstractItemModel
 
 public:
     SelectableFilesModel(QObject *parent);
-    ~SelectableFilesModel();
+    ~SelectableFilesModel() override;
 
     void setInitialMarkedFiles(const Utils::FileNameList &files);
 
-    int columnCount(const QModelIndex &parent) const;
-    int rowCount(const QModelIndex &parent) const;
-    QModelIndex index(int row, int column, const QModelIndex &parent) const;
-    QModelIndex parent(const QModelIndex &child) const;
+    int columnCount(const QModelIndex &parent) const override;
+    int rowCount(const QModelIndex &parent) const override;
+    QModelIndex index(int row, int column, const QModelIndex &parent) const override;
+    QModelIndex parent(const QModelIndex &child) const override;
 
-    bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole);
-    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
-    Qt::ItemFlags flags(const QModelIndex &index) const;
+    bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole) override;
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
+    Qt::ItemFlags flags(const QModelIndex &index) const override;
 
     Utils::FileNameList selectedFiles() const;
     Utils::FileNameList selectedPaths() const;
@@ -230,6 +230,3 @@ public:
 };
 
 } // namespace ProjectExplorer
-
-#endif // SELECTABLEFILESMODEL_H
-

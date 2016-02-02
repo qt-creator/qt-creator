@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CUSTOMPARSER_H
-#define CUSTOMPARSER_H
+#pragma once
 
 #include "ioutputparser.h"
 
@@ -86,9 +85,9 @@ class CustomParser : public ProjectExplorer::IOutputParser
 {
 public:
     CustomParser(const CustomParserSettings &settings = CustomParserSettings());
-    ~CustomParser();
-    void stdError(const QString &line);
-    void stdOutput(const QString &line);
+
+    void stdError(const QString &line) override;
+    void stdOutput(const QString &line) override;
 
     void setSettings(const CustomParserSettings &settings);
 
@@ -104,5 +103,3 @@ private:
 } // namespace ProjectExplorer
 
 Q_DECLARE_METATYPE(ProjectExplorer::CustomParserExpression::CustomParserChannel);
-
-#endif // CUSTOMPARSER_H

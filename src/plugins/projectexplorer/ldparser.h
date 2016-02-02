@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef LDPARSER_H
-#define LDPARSER_H
+#pragma once
 
 #include "ioutputparser.h"
 
@@ -38,7 +37,7 @@ class LdParser : public ProjectExplorer::IOutputParser
 
 public:
     LdParser();
-    void stdError(const QString &line);
+    void stdError(const QString &line) override;
 
 private:
     QRegularExpression m_ranlib;
@@ -47,5 +46,3 @@ private:
 };
 
 } // namespace ProjectExplorer
-
-#endif // GCCPARSER_H

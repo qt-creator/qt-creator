@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef ANSIFILTERPARSER_H
-#define ANSIFILTERPARSER_H
+#pragma once
 
 #include "ioutputparser.h"
 
@@ -36,13 +35,11 @@ class AnsiFilterParser : public IOutputParser
 
 public:
     AnsiFilterParser();
-    void stdOutput(const QString &line);
-    void stdError(const QString &line);
+    void stdOutput(const QString &line) override;
+    void stdError(const QString &line) override;
 
 private:
     QString filterLine(const QString &line);
 };
 
 } // namespace ProjectExplorer
-
-#endif // ANSIFILTERPARSER_H

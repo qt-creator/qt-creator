@@ -228,10 +228,6 @@ RunSettingsWidget::RunSettingsWidget(Target *target)
             this, &RunSettingsWidget::activeRunConfigurationChanged);
 }
 
-RunSettingsWidget::~RunSettingsWidget()
-{
-}
-
 void RunSettingsWidget::aboutToShowAddMenu()
 {
     m_addRunMenu->clear();

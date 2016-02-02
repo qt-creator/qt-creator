@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef BUILDINFO_H
-#define BUILDINFO_H
+#pragma once
 
 #include "projectexplorer_export.h"
 
@@ -74,5 +73,3 @@ private:
 };
 
 } // namespace ProjectExplorer
-
-#endif // BUILDINFO_H

@@ -220,16 +220,16 @@ void QtKitInformation::kitsWereLoaded()
 
 KitMatcher QtKitInformation::platformMatcher(Core::Id platform)
 {
-    return std::function<bool(const Kit *)>([platform](const Kit *kit) -> bool {
+    return KitMatcher(std::function<bool(const Kit *)>([platform](const Kit *kit) -> bool {
         BaseQtVersion *version = QtKitInformation::qtVersion(kit);
         return version && version->targetDeviceTypes().contains(platform);
-    });
+    }));
 }
 
 KitMatcher QtKitInformation::qtVersionMatcher(const QSet<Core::Id> &required,
     const QtVersionNumber &min, const QtVersionNumber &max)
 {
-    return std::function<bool(const Kit *)>([required, min, max](const Kit *kit) -> bool {
+    return KitMatcher(std::function<bool(const Kit *)>([required, min, max](const Kit *kit) -> bool {
         BaseQtVersion *version = QtKitInformation::qtVersion(kit);
         if (!version)
             return false;
@@ -239,7 +239,7 @@ KitMatcher QtKitInformation::qtVersionMatcher(const QSet<Core::Id> &required,
         if (max.majorVersion > -1 && current > max)
             return false;
         return version->availableFeatures().contains(required);
-    });
+    }));
 }
 
 QSet<Core::Id> QtKitInformation::supportedPlatforms(const Kit *k) const

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PROJECTWIZARDPAGE_H
-#define PROJECTWIZARDPAGE_H
+#pragma once
 
 #include "projectnodes.h"
 
@@ -55,7 +54,7 @@ class ProjectWizardPage : public Utils::WizardPage
 
 public:
     explicit ProjectWizardPage(QWidget *parent = 0);
-    virtual ~ProjectWizardPage();
+    ~ProjectWizardPage() override;
 
     FolderNode *currentNode() const;
 
@@ -106,5 +105,3 @@ private:
 
 } // namespace Internal
 } // namespace ProjectExplorer
-
-#endif // PROJECTWIZARDPAGE_H

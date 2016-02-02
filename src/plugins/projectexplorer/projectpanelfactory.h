@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PROJECTPANELFACTORY_H
-#define PROJECTPANELFACTORY_H
+#pragma once
 
 #include "projectexplorer_export.h"
 #include "propertiespanel.h"
@@ -99,5 +98,3 @@ private:
 };
 
 } // namespace ProjectExplorer
-
-#endif // PROJECTPANELFACTORY_H

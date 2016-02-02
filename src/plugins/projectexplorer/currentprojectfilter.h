@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CURRENTPROJECTFILTER_H
-#define CURRENTPROJECTFILTER_H
+#pragma once
 
 #include <coreplugin/locator/basefilefilter.h>
 
@@ -43,8 +42,8 @@ class CurrentProjectFilter : public Core::BaseFileFilter
 
 public:
     CurrentProjectFilter();
-    void refresh(QFutureInterface<void> &future);
-    void prepareSearch(const QString &entry);
+    void refresh(QFutureInterface<void> &future) override;
+    void prepareSearch(const QString &entry) override;
 
 private:
     void currentProjectChanged();
@@ -55,5 +54,3 @@ private:
 
 } // namespace Internal
 } // namespace ProjectExplorer
-
-#endif // CURRENTPROJECTFILTER_H

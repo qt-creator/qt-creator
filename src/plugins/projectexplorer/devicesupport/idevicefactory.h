@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef IDEVICEFACTORY_H
-#define IDEVICEFACTORY_H
+#pragma once
 
 #include "idevice.h"
 #include <projectexplorer/projectexplorer_export.h>
@@ -51,19 +50,15 @@ public:
     virtual QList<Core::Id> availableCreationIds() const = 0;
 
     virtual bool canCreate() const;
-
     virtual IDevice::Ptr create(Core::Id id) const = 0;
 
     virtual bool canRestore(const QVariantMap &map) const = 0;
-
     virtual IDevice::Ptr restore(const QVariantMap &map) const = 0;
 
     static IDeviceFactory *find(Core::Id type);
 
 protected:
-    IDeviceFactory(QObject *parent = 0);
+    explicit IDeviceFactory(QObject *parent = 0);
 };
 
 } // namespace ProjectExplorer
-
-#endif // IDEVICEFACTORY_H

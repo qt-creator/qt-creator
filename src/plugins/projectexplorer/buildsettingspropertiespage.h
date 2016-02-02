@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef BUILDSETTINGSPROPERTIESPAGE_H
-#define BUILDSETTINGSPROPERTIESPAGE_H
+#pragma once
 
 #include <QWidget>
 
@@ -49,7 +48,7 @@ class BuildSettingsWidget : public QWidget
     Q_OBJECT
 public:
     BuildSettingsWidget(Target *target);
-    ~BuildSettingsWidget();
+    ~BuildSettingsWidget() override;
 
     void clearWidgets();
     void addSubWidget(NamedWidget *widget);
@@ -86,5 +85,3 @@ private:
 
 } // namespace Internal
 } // namespace ProjectExplorer
-
-#endif // BUILDSETTINGSPROPERTIESPAGE_H

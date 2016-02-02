@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef DEVICEUSEDPORTSGATHERER_H
-#define DEVICEUSEDPORTSGATHERER_H
+#pragma once
 
 #include "idevice.h"
 
@@ -39,7 +38,7 @@ class PROJECTEXPLORER_EXPORT DeviceUsedPortsGatherer : public QObject
 
 public:
     DeviceUsedPortsGatherer(QObject *parent = 0);
-    ~DeviceUsedPortsGatherer();
+    ~DeviceUsedPortsGatherer() override;
 
     void start(const ProjectExplorer::IDevice::ConstPtr &device);
     void stop();
@@ -63,5 +62,3 @@ private:
 };
 
 } // namespace ProjectExplorer
-
-#endif // DEVICEUSEDPORTSGATHERER_H

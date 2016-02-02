@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef WAITFORSTOPDIALOG_H
-#define WAITFORSTOPDIALOG_H
+#pragma once
 
 #include <QList>
 #include <QDialog>
@@ -43,7 +42,7 @@ class WaitForStopDialog : public QDialog
 {
     Q_OBJECT
 public:
-    WaitForStopDialog(QList<ProjectExplorer::RunControl *> runControls);
+    explicit WaitForStopDialog(QList<ProjectExplorer::RunControl *> runControls);
 
     bool canceled();
 private:
@@ -57,6 +56,3 @@ private:
 
 } // namespace Internal
 } // namespace ProjectExplorer
-
-#endif // WAITFORSTOPDIALOG_H
-

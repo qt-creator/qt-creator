@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PROJECTEXPLORERSETTINGS_H
-#define PROJECTEXPLORERSETTINGS_H
+#pragma once
 
 #include <QUuid>
 
@@ -36,30 +35,20 @@ class ProjectExplorerSettings
 public:
     enum StopBeforeBuild { StopNone = 0, StopSameProject = 1, StopAll = 2 };
 
-    ProjectExplorerSettings() :
-        buildBeforeDeploy(true), deployBeforeRun(true),
-        saveBeforeBuild(false), showCompilerOutput(false),
-        showRunOutput(true), showDebugOutput(false),
-        cleanOldAppOutput(false), mergeStdErrAndStdOut(false),
-        wrapAppOutput(true), useJom(true),
-        autorestoreLastSession(false), prompToStopRunControl(false),
-        maxAppOutputLines(100000), stopBeforeBuild(StopBeforeBuild::StopNone)
-    { }
-
-    bool buildBeforeDeploy;
-    bool deployBeforeRun;
-    bool saveBeforeBuild;
-    bool showCompilerOutput;
-    bool showRunOutput;
-    bool showDebugOutput;
-    bool cleanOldAppOutput;
-    bool mergeStdErrAndStdOut;
-    bool wrapAppOutput;
-    bool useJom;
-    bool autorestoreLastSession; // This option is set in the Session Manager!
-    bool prompToStopRunControl;
-    int  maxAppOutputLines;
-    StopBeforeBuild stopBeforeBuild;
+    bool buildBeforeDeploy = true;
+    bool deployBeforeRun = true;
+    bool saveBeforeBuild = false;
+    bool showCompilerOutput = false;
+    bool showRunOutput = true;
+    bool showDebugOutput = false;
+    bool cleanOldAppOutput = false;
+    bool mergeStdErrAndStdOut = false;
+    bool wrapAppOutput = true;
+    bool useJom = true;
+    bool autorestoreLastSession = false; // This option is set in the Session Manager!
+    bool prompToStopRunControl = false;
+    int  maxAppOutputLines = 100000;
+    StopBeforeBuild stopBeforeBuild = StopBeforeBuild::StopNone;
 
     // Add a UUid which is used to identify the development environment.
     // This is used to warn the user when he is trying to open a .user file that was created
@@ -88,5 +77,3 @@ inline bool operator==(const ProjectExplorerSettings &p1, const ProjectExplorerS
 
 } // namespace ProjectExplorer
 } // namespace Internal
-
-#endif // PROJECTEXPLORERSETTINGS_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef DEPENDENCIESPANEL_H
-#define DEPENDENCIESPANEL_H
+#pragma once
 
 #include <QAbstractListModel>
 
@@ -53,11 +52,11 @@ class DependenciesModel : public QAbstractListModel
 public:
     explicit DependenciesModel(Project *project, QObject *parent = 0);
 
-    int rowCount(const QModelIndex &index) const;
-    int columnCount(const QModelIndex &index) const;
-    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
-    bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole);
-    Qt::ItemFlags flags(const QModelIndex &index) const;
+    int rowCount(const QModelIndex &index) const override;
+    int columnCount(const QModelIndex &index) const override;
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
+    bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole) override;
+    Qt::ItemFlags flags(const QModelIndex &index) const override;
 
 private:
     void resetModel();
@@ -71,10 +70,10 @@ class DependenciesView : public QTreeView
     Q_OBJECT
 
 public:
-    DependenciesView(QWidget *parent);
+    explicit DependenciesView(QWidget *parent);
 
-    QSize sizeHint() const;
-    void setModel(QAbstractItemModel *model);
+    QSize sizeHint() const override;
+    void setModel(QAbstractItemModel *model) override;
 
 private:
     void updateSizeHint();
@@ -98,5 +97,3 @@ private:
 
 } // namespace Internal
 } // namespace ProjectExplorer
-
-#endif // DEPENDENCIESPANEL_H

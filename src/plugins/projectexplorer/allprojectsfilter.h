@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef ALLPROJECTSFILTER_H
-#define ALLPROJECTSFILTER_H
+#pragma once
 
 #include <coreplugin/locator/basefilefilter.h>
 
@@ -39,8 +38,8 @@ class AllProjectsFilter : public Core::BaseFileFilter
 
 public:
     AllProjectsFilter();
-    void refresh(QFutureInterface<void> &future);
-    void prepareSearch(const QString &entry);
+    void refresh(QFutureInterface<void> &future) override;
+    void prepareSearch(const QString &entry) override;
 
 private:
     void markFilesAsOutOfDate();
@@ -48,5 +47,3 @@ private:
 
 } // namespace Internal
 } // namespace ProjectExplorer
-
-#endif // ALLPROJECTSFILTER_H

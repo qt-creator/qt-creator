@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CURRENTPROJECTFIND_H
-#define CURRENTPROJECTFIND_H
+#pragma once
 
 #include "allprojectsfind.h"
 
@@ -41,19 +40,19 @@ class CurrentProjectFind : public AllProjectsFind
 public:
     CurrentProjectFind();
 
-    QString id() const;
-    QString displayName() const;
+    QString id() const override;
+    QString displayName() const override;
 
-    bool isEnabled() const;
+    bool isEnabled() const override;
 
-    void writeSettings(QSettings *settings);
-    void readSettings(QSettings *settings);
+    void writeSettings(QSettings *settings) override;
+    void readSettings(QSettings *settings) override;
 
 protected:
     Utils::FileIterator *files(const QStringList &nameFilters,
-                               const QVariant &additionalParameters) const;
-    QVariant additionalParameters() const;
-    QString label() const;
+                               const QVariant &additionalParameters) const override;
+    QVariant additionalParameters() const override;
+    QString label() const override;
 
 private:
     void handleProjectChanged();
@@ -62,5 +61,3 @@ private:
 
 } // namespace Internal
 } // namespace ProjectExplorer
-
-#endif // CURRENTPROJECTFIND_H

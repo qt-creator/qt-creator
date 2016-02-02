@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef KITFEATUREPROVIDER_H
-#define KITFEATUREPROVIDER_H
+#pragma once
 
 #include <coreplugin/id.h>
 #include <coreplugin/featureprovider.h>
@@ -35,12 +34,10 @@ namespace Internal {
 class KitFeatureProvider : public Core::IFeatureProvider
 {
 public:
-    QSet<Core::Id> availableFeatures(Core::Id id) const;
-    QSet<Core::Id> availablePlatforms() const;
-    QString displayNameForPlatform(Core::Id id) const;
+    QSet<Core::Id> availableFeatures(Core::Id id) const override;
+    QSet<Core::Id> availablePlatforms() const override;
+    QString displayNameForPlatform(Core::Id id) const override;
 };
 
 } // namespace Internal
 } // namespace ProjectExplorer
-
-#endif // KITFEATUREPROVIDER_H

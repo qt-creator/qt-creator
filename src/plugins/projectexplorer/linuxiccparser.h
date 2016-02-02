@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef LINUXICCPARSER_H
-#define LINUXICCPARSER_H
+#pragma once
 
 #include "ioutputparser.h"
 #include "task.h"
@@ -40,10 +39,10 @@ class LinuxIccParser : public ProjectExplorer::IOutputParser
 public:
     LinuxIccParser();
 
-    void stdError(const QString &line);
+    void stdError(const QString &line) override;
 
 private:
-    void doFlush();
+    void doFlush() override;
 
     QRegExp m_firstLine;
     QRegExp m_continuationLines;
@@ -57,5 +56,3 @@ private:
 };
 
 } // namespace ProjectExplorer
-
-#endif // GCCPARSER_H

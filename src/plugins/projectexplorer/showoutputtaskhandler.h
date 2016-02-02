@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PROJECTEXPLORER_SHOWOUTPUTTASKHANDLER_H
-#define PROJECTEXPLORER_SHOWOUTPUTTASKHANDLER_H
+#pragma once
 
 #include "itaskhandler.h"
 
@@ -40,9 +39,9 @@ class ShowOutputTaskHandler : public ITaskHandler
 public:
     explicit ShowOutputTaskHandler(CompileOutputWindow *window);
 
-    bool canHandle(const Task &) const;
-    void handle(const Task &task);
-    QAction *createAction(QObject *parent) const;
+    bool canHandle(const Task &) const override;
+    void handle(const Task &task) override;
+    QAction *createAction(QObject *parent) const override;
 
 private:
     CompileOutputWindow * m_window;
@@ -50,5 +49,3 @@ private:
 
 } // namespace Internal
 } // namespace ProjectExplorer
-
-#endif // PROJECTEXPLORER_SHOWOUTPUTTASKHANDLER_H

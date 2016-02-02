@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PROJECTEXPLORER_SHOWINEDITORTASKHANDLER_H
-#define PROJECTEXPLORER_SHOWINEDITORTASKHANDLER_H
+#pragma once
 
 #include "itaskhandler.h"
 
@@ -36,15 +35,11 @@ class ShowInEditorTaskHandler : public ITaskHandler
     Q_OBJECT
 
 public:
-    ShowInEditorTaskHandler() {}
-
-    bool isDefaultHandler() const { return true; }
-    bool canHandle(const Task &) const;
-    void handle(const Task &task);
-    QAction *createAction(QObject *parent ) const;
+    bool isDefaultHandler() const override { return true; }
+    bool canHandle(const Task &) const override;
+    void handle(const Task &task) override;
+    QAction *createAction(QObject *parent ) const override;
 };
 
 } // namespace Internal
 } // namespace ProjectExplorer
-
-#endif // PROJECTEXPLORER_SHOWINEDITORTASKHANDLER_H

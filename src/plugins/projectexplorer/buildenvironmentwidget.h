@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef BUILDENVIRONMENTWIDGET_H
-#define BUILDENVIRONMENTWIDGET_H
+#pragma once
 
 #include <projectexplorer/namedwidget.h>
 
@@ -42,7 +41,7 @@ class PROJECTEXPLORER_EXPORT BuildEnvironmentWidget : public NamedWidget
     Q_OBJECT
 
 public:
-    BuildEnvironmentWidget(BuildConfiguration *bc);
+    explicit BuildEnvironmentWidget(BuildConfiguration *bc);
 
 private:
     void environmentModelUserChangesChanged();
@@ -55,5 +54,3 @@ private:
 };
 
 } // namespace ProjectExplorer
-
-#endif // BUILDENVIRONMENTWIDGET_H

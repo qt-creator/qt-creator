@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef OSPARSER_H
-#define OSPARSER_H
+#pragma once
 
 #include "ioutputparser.h"
 
@@ -41,15 +40,13 @@ class PROJECTEXPLORER_EXPORT OsParser : public ProjectExplorer::IOutputParser
 public:
     OsParser();
 
-    void stdError(const QString &line);
-    void stdOutput(const QString &line);
+    void stdError(const QString &line) override;
+    void stdOutput(const QString &line) override;
 
-    bool hasFatalErrors() const;
+    bool hasFatalErrors() const override;
 
 private:
     bool m_hasFatalError;
 };
 
 } // namespace ProjectExplorer
-
-#endif // OSPARSER_H

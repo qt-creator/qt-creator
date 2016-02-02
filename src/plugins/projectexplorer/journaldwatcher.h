@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef JOURNALDWATCHER_H
-#define JOURNALDWATCHER_H
+#pragma once
 
 #include <QByteArray>
 #include <QMap>
@@ -44,7 +43,7 @@ public:
     typedef QMap<QByteArray, QByteArray> LogEntry;
     typedef std::function<void(LogEntry)> Subscription;
 
-    ~JournaldWatcher();
+    ~JournaldWatcher() override;
 
     static JournaldWatcher *instance();
 
@@ -67,5 +66,3 @@ private:
 };
 
 } // namespace ProjectExplorer
-
-#endif // JOURNALDWATCHER_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef ENVIRONMENTITEMSWIDGET_H
-#define ENVIRONMENTITEMSWIDGET_H
+#pragma once
 
 #include <QDialog>
 
@@ -38,7 +37,7 @@ class EnvironmentItemsWidget : public QWidget
     Q_OBJECT
 public:
     explicit EnvironmentItemsWidget(QWidget *parent = 0);
-    ~EnvironmentItemsWidget();
+    ~EnvironmentItemsWidget() override;
 
     void setEnvironmentItems(const QList<Utils::EnvironmentItem> &items);
     QList<Utils::EnvironmentItem> environmentItems() const;
@@ -55,18 +54,16 @@ class EnvironmentItemsDialog : public QDialog
     Q_OBJECT
 public:
     explicit EnvironmentItemsDialog(QWidget *parent = 0);
-    ~EnvironmentItemsDialog();
+    ~EnvironmentItemsDialog() override;
 
     void setEnvironmentItems(const QList<Utils::EnvironmentItem> &items);
     QList<Utils::EnvironmentItem> environmentItems() const;
 
-    static QList<Utils::EnvironmentItem> getEnvironmentItems(QWidget *parent,
-                    const QList<Utils::EnvironmentItem> &initial, bool *ok = 0);
+    static QList<Utils::EnvironmentItem>
+    getEnvironmentItems(QWidget *parent, const QList<Utils::EnvironmentItem> &initial, bool *ok = 0);
 
 private:
     EnvironmentItemsDialogPrivate *d;
 };
 
 } // namespace ProjectExplorer
-
-#endif // ENVIRONMENTITEMSWIDGET_H

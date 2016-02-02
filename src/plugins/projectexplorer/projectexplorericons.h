@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PROJECTEXPLORERICONS_H
-#define PROJECTEXPLORERICONS_H
+#pragma once
 
 #include <utils/icon.h>
 
@@ -83,5 +82,3 @@ const Utils::Icon INTERRUPT_SMALL({
 
 } // namespace Icons
 } // namespace ProjectExplorer
-
-#endif // PROJECTEXPLORERICONS_H

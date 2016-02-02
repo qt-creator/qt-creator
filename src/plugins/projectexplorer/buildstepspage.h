@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef BUILDSTEPSPAGE_H
-#define BUILDSTEPSPAGE_H
+#pragma once
 
 #include "buildstep.h"
 #include "namedwidget.h"
@@ -52,7 +51,7 @@ class ToolWidget : public Utils::FadingPanel
 {
     Q_OBJECT
 public:
-    ToolWidget(QWidget *parent = 0);
+    explicit ToolWidget(QWidget *parent = 0);
 
     void fadeTo(qreal value);
     void setOpacity(qreal value);
@@ -63,6 +62,7 @@ public:
     void setRemoveEnabled(bool b);
     void setUpVisible(bool b);
     void setDownVisible(bool b);
+
 signals:
     void disabledClicked();
     void upClicked();
@@ -154,5 +154,3 @@ private:
 
 } // Internal
 } // ProjectExplorer
-
-#endif // BUILDSTEPSPAGE_H

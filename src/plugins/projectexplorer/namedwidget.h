@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PROJECTEXPLORER_NAMEDWIDGET_H
-#define PROJECTEXPLORER_NAMEDWIDGET_H
+#pragma once
 
 #include "projectexplorer_export.h"
 
@@ -37,7 +36,7 @@ class PROJECTEXPLORER_EXPORT NamedWidget : public QWidget
     Q_OBJECT
 
 public:
-    NamedWidget(QWidget *parent = 0);
+    explicit NamedWidget(QWidget *parent = 0);
 
     QString displayName() const;
 
@@ -52,5 +51,3 @@ private:
 };
 
 } // namespace ProjectExplorer
-
-#endif // PROJECTEXPLORER_NAMEDWIDGET_H

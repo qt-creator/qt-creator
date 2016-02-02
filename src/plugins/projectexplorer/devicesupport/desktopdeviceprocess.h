@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QTC_DESKTOPDEVICEPROCESS_H
-#define QTC_DESKTOPDEVICEPROCESS_H
+#pragma once
 
 #include "deviceprocess.h"
 
@@ -59,5 +58,3 @@ private:
 
 } // namespace Internal
 } // namespace ProjectExplorer
-
-#endif // Include guard

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef KITMANAGER_H
-#define KITMANAGER_H
+#pragma once
 
 #include "projectexplorer_export.h"
 
@@ -109,8 +108,9 @@ class PROJECTEXPLORER_EXPORT KitMatcher
 {
 public:
     typedef std::function<bool(const Kit *)> Matcher;
-    KitMatcher(const Matcher &m) : m_matcher(m) {}
-    KitMatcher() {}
+
+    explicit KitMatcher(const Matcher &m) : m_matcher(m) {}
+    KitMatcher() = default;
 
     bool isValid() const { return !!m_matcher; }
     bool matches(const Kit *kit) const { return m_matcher(kit); }
@@ -125,7 +125,7 @@ class PROJECTEXPLORER_EXPORT KitManager : public QObject
 
 public:
     static KitManager *instance();
-    ~KitManager();
+    ~KitManager() override;
 
     static QList<Kit *> kits();
     static QList<Kit *> matchingKits(const KitMatcher &matcher);
@@ -176,8 +176,7 @@ private:
     class KitList
     {
     public:
-        KitList()
-        { }
+        KitList() { }
         Core::Id defaultKit;
         QList<Kit *> kits;
     };
@@ -193,5 +192,3 @@ private:
 };
 
 } // namespace ProjectExplorer
-
-#endif // KITMANAGER_H

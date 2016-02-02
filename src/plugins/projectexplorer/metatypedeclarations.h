@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PROJECTEXPLORERMETATYPEDECLARATIONS_H
-#define PROJECTEXPLORERMETATYPEDECLARATIONS_H
+#pragma once
 
 #include <QMetaType>
 
@@ -42,5 +41,3 @@ Q_DECLARE_OPAQUE_POINTER(ProjectExplorer::SessionManager*)
 Q_DECLARE_METATYPE(QList<ProjectExplorer::Project*>)
 Q_DECLARE_METATYPE(ProjectExplorer::SessionManager*)
 Q_DECLARE_METATYPE(ProjectExplorer::IProjectManager*)
-
-#endif // PROJECTEXPLORERMETATYPEDECLARATIONS_H

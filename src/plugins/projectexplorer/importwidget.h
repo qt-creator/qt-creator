@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef IMPORTWIDGET_H
-#define IMPORTWIDGET_H
+#pragma once
 
 #include <QWidget>
 
@@ -42,7 +41,6 @@ class ImportWidget : public QWidget
 
 public:
     explicit ImportWidget(QWidget *parent = 0);
-    ~ImportWidget();
 
     void setCurrentDirectory(const Utils::FileName &dir);
 
@@ -57,5 +55,3 @@ private:
 
 } // namespace Internal
 } // namespace ProjectExplorer
-
-#endif // IMPORTWIDGET_H

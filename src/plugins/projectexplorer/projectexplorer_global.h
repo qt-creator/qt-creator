@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PROJECTEXPLORER_GLOBAL_H
-#define PROJECTEXPLORER_GLOBAL_H
+#pragma once
 
 namespace ProjectExplorer {
 
@@ -81,6 +80,5 @@ inline WarningFlags operator~(WarningFlags flags)
 {
     return static_cast<WarningFlags>(~static_cast<int>(flags));
 }
-} // namespace ProjectExplorer
 
-#endif // PROJECTEXPLORER_GLOBAL_H
+} // namespace ProjectExplorer

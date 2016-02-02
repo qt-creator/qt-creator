@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PROJECTMACROEXPANDER_H
-#define PROJECTMACROEXPANDER_H
+#pragma once
 
 #include "projectexplorer_export.h"
 
@@ -43,5 +42,3 @@ public:
 };
 
 } // namespace ProjectExplorer
-
-#endif // PROJECTMACROEXPANDER_H

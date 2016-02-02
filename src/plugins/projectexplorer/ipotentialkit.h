@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef IPOTENTIALKIT_H
-#define IPOTENTIALKIT_H
+#pragma once
 
 #include <QObject>
 #include <QMetaType>
@@ -36,7 +35,6 @@ class PROJECTEXPLORER_EXPORT IPotentialKit : public QObject
 {
     Q_OBJECT
 public:
-    virtual ~IPotentialKit();
     virtual QString displayName() const = 0;
     virtual void executeFromMenu() = 0;
     virtual QWidget *createWidget(QWidget *parent) const = 0;
@@ -45,5 +43,3 @@ public:
 
 }
 Q_DECLARE_METATYPE(ProjectExplorer::IPotentialKit*)
-
-#endif // IPOTENTIALKIT_H

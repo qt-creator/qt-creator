@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef DEPLOYMENTDATAMODEL_H
-#define DEPLOYMENTDATAMODEL_H
+#pragma once
 
 #include "deploymentdata.h"
 #include "projectexplorer_export.h"
@@ -42,14 +41,12 @@ public:
     void setDeploymentData(const DeploymentData &deploymentData);
 
 private:
-    int rowCount(const QModelIndex &parent = QModelIndex()) const;
-    int columnCount(const QModelIndex &parent = QModelIndex()) const;
-    QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
-    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
+    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
+    int columnCount(const QModelIndex &parent = QModelIndex()) const override;
+    QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
 
     DeploymentData m_deploymentData;
 };
 
 } // namespace ProjectExplorer
-
-#endif // Include guard

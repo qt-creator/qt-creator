@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef ONDEVICEAPPLICATIONRUNNER_H
-#define ONDEVICEAPPLICATIONRUNNER_H
+#pragma once
 
 #include "idevice.h"
 
@@ -43,7 +42,7 @@ class PROJECTEXPLORER_EXPORT DeviceApplicationRunner : public QObject
 
 public:
     explicit DeviceApplicationRunner(QObject *parent = 0);
-    ~DeviceApplicationRunner();
+    ~DeviceApplicationRunner() override;
 
     void start(const IDevice::ConstPtr &device, const Runnable &runnable);
     void stop();
@@ -70,5 +69,3 @@ private:
 };
 
 } // namespace ProjectExplorer
-
-#endif // ONDEVICEAPPLICATIONRUNNER_H

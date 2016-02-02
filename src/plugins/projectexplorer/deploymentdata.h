@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef DEPLOYMENTDATA_H
-#define DEPLOYMENTDATA_H
+#pragma once
 
 #include "deployablefile.h"
 #include "projectexplorer_export.h"
@@ -84,5 +83,3 @@ inline bool operator!=(const DeploymentData &d1, const DeploymentData &d2)
 }
 
 } // namespace ProjectExplorer
-
-#endif // DEPLOYMENTDATA_H

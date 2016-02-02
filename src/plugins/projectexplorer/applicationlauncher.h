@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef APPLICATIONLAUNCHER_H
-#define APPLICATIONLAUNCHER_H
+#pragma once
 
 #include "projectexplorer_export.h"
 
@@ -49,7 +48,7 @@ public:
     };
 
     explicit ApplicationLauncher(QObject *parent = 0);
-    ~ApplicationLauncher();
+    ~ApplicationLauncher() override;
 
     void setProcessChannelMode(QProcess::ProcessChannelMode mode);
     void start(const ProjectExplorer::StandardRunnable &runnable);
@@ -85,5 +84,3 @@ private:
 };
 
 } // namespace ProjectExplorer
-
-#endif // APPLICATIONLAUNCHER_H

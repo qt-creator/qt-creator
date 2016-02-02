@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef IOSXCODEPARSER_H
-#define IOSXCODEPARSER_H
+#pragma once
 
 #include "projectexplorer_export.h"
 #include "ioutputparser.h"
@@ -47,9 +46,10 @@ public:
 
     XcodebuildParser();
 
-    void stdOutput(const QString &line);
-    void stdError(const QString &line);
-    bool hasFatalErrors() const;
+    void stdOutput(const QString &line) override;
+    void stdError(const QString &line) override;
+    bool hasFatalErrors() const override;
+
 private:
     int m_fatalErrorCount;
     QRegExp m_failureRe;
@@ -59,6 +59,7 @@ private:
     XcodebuildStatus m_xcodeBuildParserState;
     QString m_lastTarget;
     QString m_lastProject;
+
 #if defined WITH_TESTS
     friend class XcodebuildParserTester;
     friend class ProjectExplorerPlugin;
@@ -81,5 +82,3 @@ public slots:
 #endif
 
 } // namespace ProjectExplorer
-
-#endif // IOSXCODEPARSER_H

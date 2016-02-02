@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef ENVIRONMENTASPECTWIDGET_H
-#define ENVIRONMENTASPECTWIDGET_H
+#pragma once
 
 #include "projectexplorer_export.h"
 
@@ -51,9 +50,9 @@ class PROJECTEXPLORER_EXPORT EnvironmentAspectWidget : public RunConfigWidget
     Q_OBJECT
 
 public:
-    EnvironmentAspectWidget(EnvironmentAspect *aspect, QWidget *additionalWidget = 0);
+    explicit EnvironmentAspectWidget(EnvironmentAspect *aspect, QWidget *additionalWidget = 0);
 
-    QString displayName() const;
+    QString displayName() const override;
     virtual EnvironmentAspect *aspect() const;
 
     QWidget *additionalWidget() const;
@@ -75,5 +74,3 @@ private:
 };
 
 } // namespace ProjectExplorer
-
-#endif // ENVIRONMENTASPECTWIDGET_H

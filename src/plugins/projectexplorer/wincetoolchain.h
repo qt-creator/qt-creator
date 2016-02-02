@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef WINCETOOLCHAIN_H
-#define WINCETOOLCHAIN_H
+#pragma once
 
 #include "abstractmsvctoolchain.h"
 #include "abi.h"
@@ -118,8 +117,5 @@ private:
     QList<ToolChain *> detectCEToolKits(const QString &msvcPath, const QString &vcvarsbat);
 };
 
-
 } // namespace Internal
 } // namespace ProjectExplorer
-
-#endif // MSVCTOOLCHAIN_H

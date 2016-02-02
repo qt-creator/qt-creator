@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SSHDEVICEPROCESSLIST_H
-#define SSHDEVICEPROCESSLIST_H
+#pragma once
 
 #include "deviceprocesslist.h"
 
@@ -35,7 +34,7 @@ class PROJECTEXPLORER_EXPORT SshDeviceProcessList : public DeviceProcessList
     Q_OBJECT
 public:
     explicit SshDeviceProcessList(const IDevice::ConstPtr &device, QObject *parent = 0);
-    ~SshDeviceProcessList();
+    ~SshDeviceProcessList() override;
 
 private:
     void handleConnectionError();
@@ -45,8 +44,8 @@ private:
     virtual QString listProcessesCommandLine() const = 0;
     virtual QList<DeviceProcessItem> buildProcessList(const QString &listProcessesReply) const = 0;
 
-    void doUpdate();
-    void doKillProcess(const DeviceProcessItem &process);
+    void doUpdate() override;
+    void doKillProcess(const DeviceProcessItem &process) override;
 
     void handleProcessError(const QString &errorMessage);
     void setFinished();
@@ -56,5 +55,3 @@ private:
 };
 
 } // namespace ProjectExplorer
-
-#endif // SSHDEVICEPROCESSLIST_H

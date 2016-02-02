@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PROCESSPARAMETERS_H
-#define PROCESSPARAMETERS_H
+#pragma once
 
 #include "projectexplorer_export.h"
 
@@ -85,5 +84,3 @@ private:
 };
 
 } // namespace ProjectExplorer
-
-#endif // PROCESSPARAMETERS_H

@@ -48,10 +48,6 @@ void CeSdkInfo::addToEnvironment(Environment &env)
     env.prependOrSetPath(m_bin);
 }
 
-CeSdkHandler::CeSdkHandler()
-{
-}
-
 bool CeSdkHandler::parse(const QString &vsdir)
 {
     // look at the file at %VCInstallDir%/vcpackages/WCE.VCPlatform.config

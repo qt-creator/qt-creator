@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef MSVCTOOLCHAIN_H
-#define MSVCTOOLCHAIN_H
+#pragma once
 
 #include "abstractmsvctoolchain.h"
 #include "abi.h"
@@ -120,10 +119,10 @@ public:
     MsvcToolChainConfigWidget(ToolChain *);
 
 private:
-    void applyImpl() override {}
+    void applyImpl() override { }
     void discardImpl() override { setFromToolChain(); }
     bool isDirtyImpl() const override { return false; }
-    void makeReadOnlyImpl() override {}
+    void makeReadOnlyImpl() override { }
 
     void setFromToolChain();
 
@@ -132,5 +131,3 @@ private:
 
 } // namespace Internal
 } // namespace ProjectExplorer
-
-#endif // MSVCTOOLCHAIN_H

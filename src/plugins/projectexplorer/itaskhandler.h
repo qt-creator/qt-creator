@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PROJECTEXPLORER_ITASKHANDLER_H
-#define PROJECTEXPLORER_ITASKHANDLER_H
+#pragma once
 
 #include "projectexplorer_export.h"
 
@@ -45,8 +44,6 @@ class PROJECTEXPLORER_EXPORT ITaskHandler : public QObject
     Q_OBJECT
 
 public:
-    explicit ITaskHandler() {}
-
     virtual bool isDefaultHandler() const { return false; }
     virtual bool canHandle(const Task &) const = 0;
     virtual void handle(const Task &) = 0;
@@ -55,5 +52,3 @@ public:
 };
 
 } // namespace ProjectExplorer
-
-#endif // PROJECTEXPLORER_ITASKHANDLER_H

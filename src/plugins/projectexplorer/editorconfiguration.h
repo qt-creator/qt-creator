@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef EDITORCONFIGURATION_H
-#define EDITORCONFIGURATION_H
+#pragma once
 
 #include "projectexplorer_export.h"
 
@@ -60,7 +59,7 @@ class PROJECTEXPLORER_EXPORT EditorConfiguration : public QObject
 
 public:
     EditorConfiguration();
-    ~EditorConfiguration();
+    ~EditorConfiguration() override;
 
     void setUseGlobalSettings(bool use);
     bool useGlobalSettings() const;
@@ -117,6 +116,4 @@ private:
 PROJECTEXPLORER_EXPORT TextEditor::TabSettings actualTabSettings(
     const QString &fileName, const TextEditor::TextDocument *baseTextDocument);
 
-} // ProjectExplorer
-
-#endif // EDITORCONFIGURATION_H
+} // namespace ProjectExplorer

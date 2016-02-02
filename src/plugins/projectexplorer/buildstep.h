@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef BUILDSTEP_H
-#define BUILDSTEP_H
+#pragma once
 
 #include "projectconfiguration.h"
 #include "projectexplorer_export.h"
@@ -94,8 +93,7 @@ private:
     bool m_enabled;
 };
 
-class PROJECTEXPLORER_EXPORT IBuildStepFactory :
-    public QObject
+class PROJECTEXPLORER_EXPORT IBuildStepFactory : public QObject
 {
     Q_OBJECT
 
@@ -116,14 +114,10 @@ public:
     virtual BuildStep *clone(BuildStepList *parent, BuildStep *product) = 0;
 };
 
-class PROJECTEXPLORER_EXPORT BuildStepConfigWidget
-    : public QWidget
+class PROJECTEXPLORER_EXPORT BuildStepConfigWidget : public QWidget
 {
     Q_OBJECT
 public:
-    BuildStepConfigWidget()
-        : QWidget()
-        {}
     virtual QString summaryText() const = 0;
     virtual QString additionalSummaryText() const { return QString(); }
     virtual QString displayName() const = 0;
@@ -134,19 +128,15 @@ signals:
     void updateAdditionalSummary();
 };
 
-class PROJECTEXPLORER_EXPORT SimpleBuildStepConfigWidget
-    : public BuildStepConfigWidget
+class PROJECTEXPLORER_EXPORT SimpleBuildStepConfigWidget : public BuildStepConfigWidget
 {
     Q_OBJECT
 public:
-    SimpleBuildStepConfigWidget(BuildStep *step)
-        : m_step(step)
+    SimpleBuildStepConfigWidget(BuildStep *step) : m_step(step)
     {
         connect(m_step, &ProjectConfiguration::displayNameChanged,
                 this, &BuildStepConfigWidget::updateSummary);
     }
-
-    ~SimpleBuildStepConfigWidget() {}
 
     QString summaryText() const { return QLatin1String("<b>") + displayName() + QLatin1String("</b>"); }
     QString displayName() const { return m_step->displayName(); }
@@ -161,5 +151,3 @@ private:
 
 Q_DECLARE_METATYPE(ProjectExplorer::BuildStep::OutputFormat)
 Q_DECLARE_METATYPE(ProjectExplorer::BuildStep::OutputNewlineSetting)
-
-#endif // BUILDSTEP_H

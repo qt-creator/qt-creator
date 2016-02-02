@@ -544,10 +544,10 @@ static std::function<bool(const Kit *)> cdbMatcher(char wordWidth = 0)
 static Kit *findUniversalCdbKit()
 {
     if (Utils::is64BitWindowsSystem()) {
-        if (Kit *cdb64Kit = KitManager::find(cdbMatcher(64)))
+        if (Kit *cdb64Kit = KitManager::find(KitMatcher(cdbMatcher(64))))
             return cdb64Kit;
     }
-    return KitManager::find(cdbMatcher());
+    return KitManager::find(KitMatcher(cdbMatcher()));
 }
 
 ///////////////////////////////////////////////////////////////////////

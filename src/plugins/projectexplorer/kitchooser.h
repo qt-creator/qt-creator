@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PROJECTEXPLORER_KITCHOOSER_H
-#define PROJECTEXPLORER_KITCHOOSER_H
+#pragma once
 
 #include "projectexplorer_export.h"
 
@@ -81,5 +80,3 @@ private:
 };
 
 } // namespace ProjectExplorer
-
-#endif // PROJECTEXPLORER_KITCHOOSER_H

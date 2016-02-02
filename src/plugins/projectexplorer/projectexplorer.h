@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PROJECTEXPLORER_H
-#define PROJECTEXPLORER_H
+#pragma once
 
 #include "projectexplorer_export.h"
 #include "projectexplorerconstants.h"
@@ -56,8 +55,7 @@ class FileNode;
 
 namespace Internal { class ProjectExplorerSettings; }
 
-class PROJECTEXPLORER_EXPORT ProjectExplorerPlugin
-    : public ExtensionSystem::IPlugin
+class PROJECTEXPLORER_EXPORT ProjectExplorerPlugin : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "ProjectExplorer.json")
@@ -66,7 +64,7 @@ class PROJECTEXPLORER_EXPORT ProjectExplorerPlugin
 
 public:
     ProjectExplorerPlugin();
-    ~ProjectExplorerPlugin();
+    ~ProjectExplorerPlugin() override;
 
     static ProjectExplorerPlugin *instance();
 
@@ -120,9 +118,9 @@ public:
     static void showContextMenu(QWidget *view, const QPoint &globalPos, Node *node);
 
     //PluginInterface
-    bool initialize(const QStringList &arguments, QString *errorMessage);
-    void extensionsInitialized();
-    ShutdownFlag aboutToShutdown();
+    bool initialize(const QStringList &arguments, QString *errorMessage) override;
+    void extensionsInitialized() override;
+    ShutdownFlag aboutToShutdown() override;
 
     static void setProjectExplorerSettings(const Internal::ProjectExplorerSettings &pes);
     static Internal::ProjectExplorerSettings projectExplorerSettings();
@@ -225,5 +223,3 @@ private slots:
 };
 
 } // namespace ProjectExplorer
-
-#endif // PROJECTEXPLORER_H

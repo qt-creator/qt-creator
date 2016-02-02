@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PROJECTFILEWIZARDEXTENSION2_H
-#define PROJECTFILEWIZARDEXTENSION2_H
+#pragma once
 
 #include "projectexplorer_export.h"
 
@@ -40,26 +39,24 @@ class ProjectWizardContext;
 class PROJECTEXPLORER_EXPORT ProjectFileWizardExtension : public Core::IFileWizardExtension
 {
     Q_OBJECT
-public:
-    explicit ProjectFileWizardExtension();
-    ~ProjectFileWizardExtension();
 
-    QList<QWizardPage *> extensionPages(const Core::IWizardFactory *wizard);
+public:
+    ~ProjectFileWizardExtension() override;
+
+    QList<QWizardPage *> extensionPages(const Core::IWizardFactory *wizard) override;
     bool processFiles(const QList<Core::GeneratedFile> &files,
-                 bool *removeOpenProjectAttribute, QString *errorMessage);
-    void applyCodeStyle(Core::GeneratedFile *file) const;
+                      bool *removeOpenProjectAttribute, QString *errorMessage) override;
+    void applyCodeStyle(Core::GeneratedFile *file) const override;
 
 public slots:
-    void firstExtensionPageShown(const QList<Core::GeneratedFile> &files, const QVariantMap &extraValues);
+    void firstExtensionPageShown(const QList<Core::GeneratedFile> &files, const QVariantMap &extraValues) override;
 
 private:
     bool processProject(const QList<Core::GeneratedFile> &files,
                         bool *removeOpenProjectAttribute, QString *errorMessage);
 
-    ProjectWizardContext *m_context;
+    ProjectWizardContext *m_context = 0;
 };
 
 } // namespace Internal
 } // namespace ProjectExplorer
-
-#endif // PROJECTFILEWIZARDEXTENSION2_H

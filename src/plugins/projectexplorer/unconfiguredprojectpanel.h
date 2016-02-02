@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef UNCONFIGUREDPROJECTPANEL_H
-#define UNCONFIGUREDPROJECTPANEL_H
+#pragma once
 
 #include <QString>
 #include <QWidget>
@@ -42,10 +41,12 @@ class TargetSetupPageWrapper : public QWidget
 {
     Q_OBJECT
 public:
-    TargetSetupPageWrapper(Project *project);
+    explicit TargetSetupPageWrapper(Project *project);
+
 protected:
-    void keyReleaseEvent(QKeyEvent *event);
-    void keyPressEvent(QKeyEvent *event);
+    void keyReleaseEvent(QKeyEvent *event) override;
+    void keyPressEvent(QKeyEvent *event) override;
+
 private:
     void done();
     void cancel();
@@ -61,5 +62,3 @@ private:
 
 } // namespace Internal
 } // namespace ProjectExplorer
-
-#endif // UNCONFIGUREDPROJECTPANEL_H

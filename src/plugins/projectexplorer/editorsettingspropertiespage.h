@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef EDITORSETTINGSPROPERTIESPAGE_H
-#define EDITORSETTINGSPROPERTIESPAGE_H
+#pragma once
 
 #include "ui_editorsettingspropertiespage.h"
 
@@ -38,7 +37,7 @@ class EditorSettingsWidget : public QWidget
 {
     Q_OBJECT
 public:
-    EditorSettingsWidget(Project *project);
+    explicit EditorSettingsWidget(Project *project);
 
 private:
     void globalSettingsActivated(int index);
@@ -52,5 +51,3 @@ private:
 
 } // namespace Internal
 } // namespace ProjectExplorer
-
-#endif // EDITORSETTINGSPROPERTIESPAGE_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CUSTOMTOOLCHAIN_H
-#define CUSTOMTOOLCHAIN_H
+#pragma once
 
 #include "projectexplorer_export.h"
 
@@ -50,6 +49,7 @@ namespace ProjectExplorer {
 class AbiWidget;
 
 namespace Internal { class CustomToolChainFactory; }
+
 // --------------------------------------------------------------------------
 // CustomToolChain
 // --------------------------------------------------------------------------
@@ -199,5 +199,3 @@ protected:
 
 } // namespace Internal
 } // namespace ProjectExplorer
-
-#endif // CUSTOMTOOLCHAIN_H

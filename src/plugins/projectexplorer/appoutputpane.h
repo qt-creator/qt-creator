@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef APPOUTPUTPANE_H
-#define APPOUTPUTPANE_H
+#pragma once
 
 #include <coreplugin/ioutputpane.h>
 
@@ -62,23 +61,23 @@ public:
     };
 
     AppOutputPane();
-    virtual ~AppOutputPane();
+    ~AppOutputPane() override;
 
-    QWidget *outputWidget(QWidget *);
-    QList<QWidget *> toolBarWidgets() const;
-    QString displayName() const;
-    int priorityInStatusBar() const;
-    void clearContents();
-    void visibilityChanged(bool);
-    bool canFocus() const;
-    bool hasFocus() const;
-    void setFocus();
+    QWidget *outputWidget(QWidget *) override;
+    QList<QWidget *> toolBarWidgets() const override;
+    QString displayName() const override;
+    int priorityInStatusBar() const override;
+    void clearContents() override;
+    void visibilityChanged(bool) override;
+    bool canFocus() const override;
+    bool hasFocus() const override;
+    void setFocus() override;
 
-    bool canNext() const;
-    bool canPrevious() const;
-    void goToNext();
-    void goToPrev();
-    bool canNavigate() const;
+    bool canNext() const override;
+    bool canPrevious() const override;
+    void goToNext() override;
+    void goToPrev() override;
+    bool canNavigate() const override;
 
     void createNewOutputWindow(RunControl *rc);
     void showTabFor(RunControl *rc);
@@ -162,5 +161,3 @@ private:
 
 } // namespace Internal
 } // namespace ProjectExplorer
-
-#endif // APPOUTPUTPANE_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef TOOLCHAINMANAGER_H
-#define TOOLCHAINMANAGER_H
+#pragma once
 
 #include "projectexplorer_export.h"
 
@@ -50,7 +49,7 @@ class PROJECTEXPLORER_EXPORT ToolChainManager : public QObject
 
 public:
     static ToolChainManager *instance();
-    ~ToolChainManager();
+    ~ToolChainManager() override;
 
     static QList<ToolChain *> toolChains();
     static QList<ToolChain *> findToolChains(const Abi &abi);
@@ -92,5 +91,3 @@ private:
 };
 
 } // namespace ProjectExplorer
-
-#endif // TOOLCHAINMANAGER_H

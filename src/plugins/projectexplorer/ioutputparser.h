@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef IOUTPUTPARSER_H
-#define IOUTPUTPARSER_H
+#pragma once
 
 #include "projectexplorer_export.h"
 #include "buildstep.h"
@@ -40,7 +39,7 @@ class PROJECTEXPLORER_EXPORT IOutputParser : public QObject
     Q_OBJECT
 public:
     IOutputParser() = default;
-    ~IOutputParser();
+    ~IOutputParser() override;
 
     virtual void appendOutputParser(IOutputParser *parser);
 
@@ -77,5 +76,3 @@ private:
 } // namespace ProjectExplorer
 
 Q_DECLARE_METATYPE(ProjectExplorer::IOutputParser*)
-
-#endif // IOUTPUTPARSER_H

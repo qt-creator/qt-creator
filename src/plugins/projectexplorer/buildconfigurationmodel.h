@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef BUILDCONFIGURATIONMODEL_H
-#define BUILDCONFIGURATIONMODEL_H
+#pragma once
 
 #include <QAbstractItemModel>
 
@@ -39,21 +38,21 @@ class BuildConfigurationModel : public QAbstractListModel
 public:
     explicit BuildConfigurationModel(Target *target, QObject *parent = 0);
 
-    int rowCount(const QModelIndex &parent = QModelIndex()) const;
-    int columnCount(const QModelIndex &parent = QModelIndex()) const;
-    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
+    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
+    int columnCount(const QModelIndex &parent = QModelIndex()) const override;
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
 
     BuildConfiguration *buildConfigurationAt(int i);
     BuildConfiguration *buildConfigurationFor(const QModelIndex &idx);
     QModelIndex indexFor(BuildConfiguration *rc);
+
 private:
     void addedBuildConfiguration(ProjectExplorer::BuildConfiguration*);
     void removedBuildConfiguration(ProjectExplorer::BuildConfiguration*);
     void displayNameChanged();
+
     Target *m_target;
     QList<BuildConfiguration *> m_buildConfigurations;
 };
 
-}
-
-#endif // RUNCONFIGURATIONMODEL_H
+} // namespace ProjectExplorer

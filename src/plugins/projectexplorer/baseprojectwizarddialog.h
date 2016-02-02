@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef BASEPROJECTWIZARDDIALOG_H
-#define BASEPROJECTWIZARDDIALOG_H
+#pragma once
 
 #include "projectexplorer_export.h"
 
@@ -51,7 +50,7 @@ public:
     explicit BaseProjectWizardDialog(const Core::BaseFileWizardFactory *factory, QWidget *parent,
                                      const Core::WizardDialogParameters &parameters);
 
-    virtual ~BaseProjectWizardDialog();
+    ~BaseProjectWizardDialog() override;
 
     QString projectName() const;
     QString path() const;
@@ -81,11 +80,9 @@ protected:
 private:
     void init();
     void slotAccepted();
-    bool validateCurrentPage();
+    bool validateCurrentPage() override;
 
     BaseProjectWizardDialogPrivate *d;
 };
 
 } // namespace ProjectExplorer
-
-#endif // BASEPROJECTWIZARDDIALOG_H

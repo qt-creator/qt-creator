@@ -29,10 +29,10 @@ namespace ProjectExplorer {
 
 static QList<ProjectPanelFactory *> s_factories;
 
-ProjectPanelFactory::ProjectPanelFactory()
-    : m_priority(0),
-      m_supportsFunction([] (Project *) { return true; })
-{}
+ProjectPanelFactory::ProjectPanelFactory() :
+    m_priority(0),
+    m_supportsFunction([] (Project *) { return true; })
+{ }
 
 int ProjectPanelFactory::priority() const
 {

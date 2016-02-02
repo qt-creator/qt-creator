@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef RUNCONFIGURATION_ASPECTS_H
-#define RUNCONFIGURATION_ASPECTS_H
+#pragma once
 
 #include "runconfiguration.h"
 #include "applicationlauncher.h"
@@ -49,7 +48,8 @@ class PROJECTEXPLORER_EXPORT TerminalAspect : public IRunConfigurationAspect
     Q_OBJECT
 
 public:
-    explicit TerminalAspect(RunConfiguration *rc, const QString &key, bool useTerminal = false, bool userSet = false);
+    explicit TerminalAspect(RunConfiguration *rc, const QString &key,
+                            bool useTerminal = false, bool userSet = false);
 
     TerminalAspect *create(RunConfiguration *runConfig) const override;
     TerminalAspect *clone(RunConfiguration *runConfig) const override;
@@ -138,5 +138,3 @@ private:
 };
 
 } // namespace ProjectExplorer
-
-#endif // RUNCONFIGURATION_ASPECTS_H

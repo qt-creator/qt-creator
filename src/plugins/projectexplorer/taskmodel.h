@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef TASKMODEL_H
-#define TASKMODEL_H
+#pragma once
 
 #include <QAbstractItemModel>
 
@@ -41,13 +40,13 @@ class TaskModel : public QAbstractItemModel
 
 public:
     // Model stuff
-    TaskModel(QObject *parent);
+    explicit TaskModel(QObject *parent);
 
-    QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const;
-    QModelIndex parent(const QModelIndex &child) const;
-    int rowCount(const QModelIndex &parent = QModelIndex()) const;
-    int columnCount(const QModelIndex &parent = QModelIndex()) const;
-    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
+    QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const override;
+    QModelIndex parent(const QModelIndex &child) const override;
+    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
+    int columnCount(const QModelIndex &parent = QModelIndex()) const override;
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
     Task task(const QModelIndex &index) const;
 
     QList<Core::Id> categoryIds() const;
@@ -132,11 +131,11 @@ public:
 
     TaskModel *taskModel() { return m_sourceModel; }
 
-    QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const;
-    QModelIndex parent(const QModelIndex &child) const;
-    int rowCount(const QModelIndex &parent = QModelIndex()) const;
-    int columnCount(const QModelIndex &parent = QModelIndex()) const;
-    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
+    QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const override;
+    QModelIndex parent(const QModelIndex &child) const override;
+    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
+    int columnCount(const QModelIndex &parent = QModelIndex()) const override;
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
 
     bool filterIncludesUnknowns() const { return m_includeUnknowns; }
     void setFilterIncludesUnknowns(bool b) { m_includeUnknowns = b; invalidateFilter(); }
@@ -157,6 +156,7 @@ public:
     { return m_sourceModel->hasFile(mapToSource(index)); }
 
     QModelIndex mapFromSource(const QModelIndex &idx) const;
+
 private:
     void handleNewRows(const QModelIndex &index, int first, int last);
     void handleRowsAboutToBeRemoved(const QModelIndex &index, int first, int last);
@@ -180,5 +180,3 @@ private:
 
 } // namespace Internal
 } // namespace ProjectExplorer
-
-#endif // TASKMODEL_H

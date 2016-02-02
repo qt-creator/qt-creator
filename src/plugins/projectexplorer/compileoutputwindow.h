@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef COMPILEOUTPUTWINDOW_H
-#define COMPILEOUTPUTWINDOW_H
+#pragma once
 
 #include "buildstep.h"
 #include <coreplugin/ioutputpane.h>
@@ -55,25 +54,26 @@ class CompileOutputWindow : public Core::IOutputPane
     Q_OBJECT
 
 public:
-    CompileOutputWindow(QAction *cancelBuildAction);
-    ~CompileOutputWindow();
+    explicit CompileOutputWindow(QAction *cancelBuildAction);
+    ~CompileOutputWindow() override;
 
-    QWidget *outputWidget(QWidget *);
-    QList<QWidget *> toolBarWidgets() const;
-    QString displayName() const { return tr("Compile Output"); }
-    int priorityInStatusBar() const;
-    void clearContents();
-    void visibilityChanged(bool visible);
+    QWidget *outputWidget(QWidget *) override;
+    QList<QWidget *> toolBarWidgets() const override;
+    QString displayName() const override { return tr("Compile Output"); }
+    int priorityInStatusBar() const override;
+    void clearContents() override;
+    void visibilityChanged(bool visible) override;
+    bool canFocus() const override;
+    bool hasFocus() const override;
+    void setFocus() override;
+
+    bool canNext() const override;
+    bool canPrevious() const override;
+    void goToNext() override;
+    void goToPrev() override;
+    bool canNavigate() const override;
+
     void appendText(const QString &text, BuildStep::OutputFormat format);
-    bool canFocus() const;
-    bool hasFocus() const;
-    void setFocus();
-
-    bool canNext() const;
-    bool canPrevious() const;
-    void goToNext();
-    void goToPrev();
-    bool canNavigate() const;
 
     void registerPositionOf(const Task &task, int linkedOutputLines, int skipLines);
     bool knowsPositionOf(const Task &task);
@@ -87,7 +87,7 @@ private:
 
     CompileOutputTextEdit *m_outputWindow;
     QHash<unsigned int, QPair<int, int>> m_taskPositions;
-    ShowOutputTaskHandler * m_handler;
+    ShowOutputTaskHandler *m_handler;
     QToolButton *m_cancelBuildButton;
     QToolButton *m_zoomInButton;
     QToolButton *m_zoomOutButton;
@@ -96,5 +96,3 @@ private:
 
 } // namespace Internal
 } // namespace ProjectExplorer
-
-#endif // COMPILEOUTPUTWINDOW_H

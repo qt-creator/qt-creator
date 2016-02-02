@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef TASKHUB_H
-#define TASKHUB_H
+#pragma once
 
 #include "task.h"
 
@@ -76,7 +75,7 @@ signals:
 
 private:
     TaskHub();
-    ~TaskHub();
+    ~TaskHub() override;
 
     static QVector<Core::Id> m_registeredCategories;
 
@@ -84,4 +83,3 @@ private:
 };
 
 } // namespace ProjectExplorer
-#endif // TASKHUB_H

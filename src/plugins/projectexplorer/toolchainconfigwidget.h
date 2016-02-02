@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef TOOLCHAINCONFIGWIDGET_H
-#define TOOLCHAINCONFIGWIDGET_H
+#pragma once
 
 #include "projectexplorer_export.h"
 
@@ -50,7 +49,7 @@ class PROJECTEXPLORER_EXPORT ToolChainConfigWidget : public QScrollArea
     Q_OBJECT
 
 public:
-    ToolChainConfigWidget(ToolChain *);
+    explicit ToolChainConfigWidget(ToolChain *tc);
 
     ToolChain *toolChain() const;
 
@@ -81,5 +80,3 @@ private:
 };
 
 } // namespace ProjectExplorer
-
-#endif // TOOLCHAINCONFIGWIDGET_H

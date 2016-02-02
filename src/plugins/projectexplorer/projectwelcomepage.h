@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PROJECTWELCOMEPAGE_H
-#define PROJECTWELCOMEPAGE_H
+#pragma once
 
 #include <QAbstractListModel>
 
@@ -40,13 +39,15 @@ namespace Internal {
 class SessionModel : public QAbstractListModel
 {
     Q_OBJECT
+
 public:
     enum { DefaultSessionRole = Qt::UserRole+1, LastSessionRole, ActiveSessionRole, ProjectsPathRole, ProjectsDisplayRole };
 
     explicit SessionModel(QObject *parent = 0);
-    int rowCount(const QModelIndex &parent) const;
-    QVariant data(const QModelIndex &index, int role) const;
-    QHash<int, QByteArray> roleNames() const;
+
+    int rowCount(const QModelIndex &parent) const override;
+    QVariant data(const QModelIndex &index, int role) const override;
+    QHash<int, QByteArray> roleNames() const override;
 
     Q_SCRIPTABLE bool isDefaultVirgin() const;
 
@@ -61,13 +62,14 @@ public slots:
 class ProjectModel : public QAbstractListModel
 {
     Q_OBJECT
+
 public:
     enum { FilePathRole = Qt::UserRole+1, PrettyFilePathRole };
 
     ProjectModel(QObject *parent = 0);
-    int rowCount(const QModelIndex &parent) const;
-    QVariant data(const QModelIndex &index, int role) const;
-    QHash<int, QByteArray> roleNames() const;
+    int rowCount(const QModelIndex &parent) const override;
+    QVariant data(const QModelIndex &index, int role) const override;
+    QHash<int, QByteArray> roleNames() const override;
 
 public slots:
     void resetProjects();
@@ -79,12 +81,12 @@ class ProjectWelcomePage : public Core::IWelcomePage
 public:
     ProjectWelcomePage();
 
-    void facilitateQml(QQmlEngine *engine);
-    QUrl pageLocation() const;
+    void facilitateQml(QQmlEngine *engine) override;
+    QUrl pageLocation() const override;
     QWidget *page() { return 0; }
-    QString title() const { return tr("Projects"); }
-    int priority() const { return 20; }
-    Core::Id id() const;
+    QString title() const override { return tr("Projects"); }
+    int priority() const override { return 20; }
+    Core::Id id() const override;
 
     void reloadWelcomeScreenData();
 
@@ -104,5 +106,3 @@ private:
 
 } // namespace Internal
 } // namespace ProjectExplorer
-
-#endif // PROJECTWELCOMEPAGE_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef BUILDCONFIGURATION_H
-#define BUILDCONFIGURATION_H
+#pragma once
 
 #include "projectexplorer_export.h"
 #include "projectconfiguration.h"
@@ -155,5 +154,3 @@ signals:
 } // namespace ProjectExplorer
 
 Q_DECLARE_METATYPE(ProjectExplorer::BuildConfiguration *)
-
-#endif // BUILDCONFIGURATION_H

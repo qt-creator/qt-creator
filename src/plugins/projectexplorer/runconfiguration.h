@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef RUNCONFIGURATION_H
-#define RUNCONFIGURATION_H
+#pragma once
 
 #include "projectconfiguration.h"
 #include "projectexplorerconstants.h"
@@ -87,7 +86,7 @@ class PROJECTEXPLORER_EXPORT ISettingsAspect : public QObject
     Q_OBJECT
 
 public:
-    ISettingsAspect() {}
+    ISettingsAspect() { }
 
     /// Create a configuration widget for this settings aspect.
     virtual QWidget *createConfigWidget(QWidget *parent) = 0;
@@ -118,7 +117,7 @@ class PROJECTEXPLORER_EXPORT IRunConfigurationAspect : public QObject
 
 public:
     explicit IRunConfigurationAspect(RunConfiguration *runConfig);
-    ~IRunConfigurationAspect();
+    ~IRunConfigurationAspect() override;
 
     virtual IRunConfigurationAspect *create(RunConfiguration *runConfig) const = 0;
     virtual IRunConfigurationAspect *clone(RunConfiguration *runConfig) const;
@@ -157,7 +156,7 @@ private:
 class PROJECTEXPLORER_EXPORT ClonableConcept
 {
 public:
-    virtual ~ClonableConcept() {}
+    virtual ~ClonableConcept() = default;
     virtual ClonableConcept *clone() const = 0;
     virtual bool equals(const std::unique_ptr<ClonableConcept> &other) const = 0;
 };
@@ -166,7 +165,7 @@ template <class T>
 class ClonableModel : public ClonableConcept
 {
 public:
-    ClonableModel(const T &data) : m_data(data) {}
+    ClonableModel(const T &data) : m_data(data) { }
     ClonableConcept *clone() const override { return new ClonableModel(*this); }
 
     bool equals(const std::unique_ptr<ClonableConcept> &other) const override
@@ -181,8 +180,8 @@ public:
 class PROJECTEXPLORER_EXPORT Runnable
 {
 public:
-    Runnable() {}
-    Runnable(const Runnable &other) : d(other.d->clone()) {}
+    Runnable() = default;
+    Runnable(const Runnable &other) : d(other.d->clone()) { }
     Runnable(Runnable &&other) /* MSVC 2013 doesn't want = default */ : d(std::move(other.d)) {}
     template <class T> Runnable(const T &data) : d(new ClonableModel<T>(data)) {}
 
@@ -205,8 +204,8 @@ private:
 class PROJECTEXPLORER_EXPORT Connection
 {
 public:
-    Connection() {}
-    Connection(const Connection &other) : d(other.d->clone()) {}
+    Connection() = default;
+    Connection(const Connection &other) : d(other.d->clone()) { }
     Connection(Connection &&other) /* MSVC 2013 doesn't want = default */ : d(std::move(other.d)) {}
     template <class T> Connection(const T &data) : d(new ClonableModel<T>(data)) {}
 
@@ -328,15 +327,11 @@ public:
     virtual IRunConfigurationAspect *createRunConfigurationAspect(RunConfiguration *rc);
 };
 
-class PROJECTEXPLORER_EXPORT RunConfigWidget
-    : public QWidget
+class PROJECTEXPLORER_EXPORT RunConfigWidget : public QWidget
 {
     Q_OBJECT
-public:
-    RunConfigWidget()
-        : QWidget(0)
-    {}
 
+public:
     virtual QString displayName() const = 0;
 
 signals:
@@ -346,6 +341,7 @@ signals:
 class PROJECTEXPLORER_EXPORT RunControl : public QObject
 {
     Q_OBJECT
+
 public:
     enum StopResult {
         StoppedSynchronously, // Stopped.
@@ -412,5 +408,3 @@ private:
 // Allow a RunConfiguration to be stored in a QVariant
 Q_DECLARE_METATYPE(ProjectExplorer::RunConfiguration*)
 Q_DECLARE_METATYPE(ProjectExplorer::RunControl*)
-
-#endif // RUNCONFIGURATION_H

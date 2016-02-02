@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef RUNCONFIGURATIONMODEL_H
-#define RUNCONFIGURATIONMODEL_H
+#pragma once
 
 #include <QAbstractItemModel>
 
@@ -36,16 +35,18 @@ class RunConfiguration;
 class RunConfigurationModel : public QAbstractListModel
 {
     Q_OBJECT
+
 public:
     explicit RunConfigurationModel(Target *target, QObject *parent = 0);
 
-    int rowCount(const QModelIndex &parent = QModelIndex()) const;
-    int columnCount(const QModelIndex &parent = QModelIndex()) const;
-    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
+    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
+    int columnCount(const QModelIndex &parent = QModelIndex()) const override;
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
 
     RunConfiguration *runConfigurationAt(int i);
     RunConfiguration *runConfigurationFor(const QModelIndex &idx);
     QModelIndex indexFor(RunConfiguration *rc);
+
 private:
     void addedRunConfiguration(ProjectExplorer::RunConfiguration*);
     void removedRunConfiguration(ProjectExplorer::RunConfiguration*);
@@ -54,6 +55,4 @@ private:
     QList<RunConfiguration *> m_runConfigurations;
 };
 
-}
-
-#endif // RUNCONFIGURATIONMODEL_H
+} // namespace ProjectExplorer

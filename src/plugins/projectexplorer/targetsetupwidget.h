@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef TARGETSETUPWIDGET_H
-#define TARGETSETUPWIDGET_H
+#pragma once
 
 #include "projectexplorer_export.h"
 
@@ -56,11 +55,12 @@ namespace Internal {
 class TargetSetupWidget : public QWidget
 {
     Q_OBJECT
+
 public:
     TargetSetupWidget(Kit *k,
                       const QString &projectPath,
                       const QList<BuildInfo *> &infoList);
-    ~TargetSetupWidget();
+    ~TargetSetupWidget() override;
 
     Kit *kit();
     void clearKit();
@@ -107,5 +107,3 @@ private:
 
 } // namespace Internal
 } // namespace ProjectExplorer
-
-#endif // TARGETSETUPWIDGET_H

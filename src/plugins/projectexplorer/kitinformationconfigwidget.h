@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef KITINFORMATIONCONFIGWIDGET_H
-#define KITINFORMATIONCONFIGWIDGET_H
+#pragma once
 
 #include "kitconfigwidget.h"
 
@@ -193,5 +192,3 @@ private:
 
 } // namespace Internal
 } // namespace ProjectExplorer
-
-#endif // KITINFORMATIONCONFIGWIDGET_H

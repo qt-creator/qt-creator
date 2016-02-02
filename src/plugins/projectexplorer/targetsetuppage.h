@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef TARGETSETUPPAGE_H
-#define TARGETSETUPPAGE_H
+#pragma once
 
 #include "projectexplorer_export.h"
 
@@ -59,11 +58,11 @@ class PROJECTEXPLORER_EXPORT TargetSetupPage : public Utils::WizardPage
 
 public:
     explicit TargetSetupPage(QWidget *parent = 0);
-    ~TargetSetupPage();
+    ~TargetSetupPage() override;
 
     /// Initializes the TargetSetupPage
     /// \note The import information is gathered in initializePage(), make sure that the right projectPath is set before
-    void initializePage();
+    void initializePage() override;
 
     // Call these before initializePage!
     void setRequiredKitMatcher(const KitMatcher &matcher);
@@ -74,7 +73,7 @@ public:
     /// call this before \sa initializePage()
     void setUseScrollArea(bool b);
 
-    bool isComplete() const;
+    bool isComplete() const override;
     bool setupProject(Project *project);
     bool isKitSelected(Core::Id id) const;
     void setKitSelected(Core::Id id, bool selected);
@@ -127,5 +126,3 @@ private:
 };
 
 } // namespace ProjectExplorer
-
-#endif // TARGETSETUPPAGE_H

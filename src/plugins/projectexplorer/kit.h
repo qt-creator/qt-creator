@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef KIT_H
-#define KIT_H
+#pragma once
 
 #include "projectexplorer_export.h"
 #include "task.h"
@@ -56,7 +55,7 @@ class KitPrivate;
 class PROJECTEXPLORER_EXPORT Kit
 {
 public:
-    Kit(Core::Id id = Core::Id());
+    explicit Kit(Core::Id id = Core::Id());
 
     // Do not trigger evaluations
     void blockNotification();
@@ -157,5 +156,3 @@ private:
 } // namespace ProjectExplorer
 
 Q_DECLARE_METATYPE(ProjectExplorer::Kit *)
-
-#endif // KIT_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef BUILDTARGETINFO_H
-#define BUILDTARGETINFO_H
+#pragma once
 
 #include "projectexplorer_export.h"
 
@@ -39,14 +38,13 @@ namespace ProjectExplorer {
 class PROJECTEXPLORER_EXPORT BuildTargetInfo
 {
 public:
-    BuildTargetInfo() {}
+    BuildTargetInfo() = default;
     BuildTargetInfo(const QString &targetName, const Utils::FileName &targetFilePath,
-                    const Utils::FileName &projectFilePath)
-        : targetName(targetName)
-        , targetFilePath(targetFilePath)
-        , projectFilePath(projectFilePath)
-    {
-    }
+                    const Utils::FileName &projectFilePath) :
+        targetName(targetName),
+        targetFilePath(targetFilePath),
+        projectFilePath(projectFilePath)
+    { }
 
     QString targetName;
     Utils::FileName targetFilePath;
@@ -70,7 +68,6 @@ inline uint qHash(const BuildTargetInfo &ti)
 {
     return qHash(ti.targetName);
 }
-
 
 class PROJECTEXPLORER_EXPORT BuildTargetInfoList
 {
@@ -115,5 +112,3 @@ inline bool operator!=(const BuildTargetInfoList &til1, const BuildTargetInfoLis
 }
 
 } // namespace ProjectExplorer
-
-#endif // BUILDTARGETINFO_H

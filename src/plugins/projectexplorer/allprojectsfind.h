@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef ALLPROJECTSFIND_H
-#define ALLPROJECTSFIND_H
+#pragma once
 
 #include <texteditor/basefilefind.h>
 
@@ -43,24 +42,24 @@ class AllProjectsFind : public TextEditor::BaseFileFind
 public:
     AllProjectsFind();
 
-    QString id() const;
-    QString displayName() const;
+    QString id() const override;
+    QString displayName() const override;
 
-    bool isEnabled() const;
+    bool isEnabled() const override;
 
-    QWidget *createConfigWidget();
-    void writeSettings(QSettings *settings);
-    void readSettings(QSettings *settings);
+    QWidget *createConfigWidget() override;
+    void writeSettings(QSettings *settings) override;
+    void readSettings(QSettings *settings) override;
 
 protected:
     Utils::FileIterator *files(const QStringList &nameFilters,
-                               const QVariant &additionalParameters) const;
+                               const QVariant &additionalParameters) const override;
     Utils::FileIterator *filesForProjects(const QStringList &nameFilters,
-                               const QList<Project *> &projects) const;
+                                          const QList<Project *> &projects) const;
 
-    QVariant additionalParameters() const;
-    QString label() const;
-    QString toolTip() const;
+    QVariant additionalParameters() const override;
+    QString label() const override;
+    QString toolTip() const override;
 
 private:
     void handleFileListChanged();
@@ -70,5 +69,3 @@ private:
 
 } // namespace Internal
 } // namespace ProjectExplorer
-
-#endif // ALLPROJECTSFIND_H

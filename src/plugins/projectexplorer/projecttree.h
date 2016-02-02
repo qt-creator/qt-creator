@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PROJECTTREE_H
-#define PROJECTTREE_H
+#pragma once
 
 #include "projectexplorer_export.h"
 
@@ -156,6 +155,5 @@ private:
     Internal::ProjectTreeWidget *m_focusForContextMenu;
     Core::Context m_lastProjectContext;
 };
-}
 
-#endif // PROJECTTREE_H
+} // namespace ProjectExplorer

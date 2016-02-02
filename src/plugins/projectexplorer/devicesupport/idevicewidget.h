@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef IDEVICEWIDGET_H
-#define IDEVICEWIDGET_H
+#pragma once
 
 #include "idevice.h"
 #include <projectexplorer/projectexplorer_export.h>
@@ -41,8 +40,9 @@ public:
     virtual void updateDeviceFromUi() = 0;
 
 protected:
-    IDeviceWidget(const IDevice::Ptr &device, QWidget *parent = 0)
-        : QWidget(parent), m_device(device) {}
+    explicit IDeviceWidget(const IDevice::Ptr &device, QWidget *parent = 0) : QWidget(parent),
+        m_device(device)
+    { }
 
     IDevice::Ptr device() const { return m_device; }
 
@@ -51,5 +51,3 @@ private:
 };
 
 } // namespace ProjectExplorer
-
-#endif // IDEVICEWIDGET_H

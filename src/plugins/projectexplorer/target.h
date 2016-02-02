@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef TARGET_H
-#define TARGET_H
+#pragma once
 
 #include "projectconfiguration.h"
 #include "projectexplorer_export.h"
@@ -177,5 +176,3 @@ private:
 } // namespace ProjectExplorer
 
 Q_DECLARE_METATYPE(ProjectExplorer::Target *)
-
-#endif // TARGET_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef KITOPTIONSPAGE_H
-#define KITOPTIONSPAGE_H
+#pragma once
 
 #include "projectexplorer_export.h"
 
@@ -49,9 +48,9 @@ class PROJECTEXPLORER_EXPORT KitOptionsPage : public Core::IOptionsPage
 public:
     KitOptionsPage();
 
-    QWidget *widget();
-    void apply();
-    void finish();
+    QWidget *widget() override;
+    void apply() override;
+    void finish() override;
 
     void showKit(Kit *k);
 
@@ -60,5 +59,3 @@ private:
 };
 
 } // namespace ProjectExplorer
-
-#endif // KITOPTIONSPAGE_H

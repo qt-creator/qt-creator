@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef DEVICEFACTORYSELECTIONDIALOG_H
-#define DEVICEFACTORYSELECTIONDIALOG_H
+#pragma once
 
 #include <QDialog>
 
@@ -42,7 +41,7 @@ class DeviceFactorySelectionDialog : public QDialog
 
 public:
     explicit DeviceFactorySelectionDialog(QWidget *parent = 0);
-    ~DeviceFactorySelectionDialog();
+    ~DeviceFactorySelectionDialog() override;
     Core::Id selectedId() const;
 
 private:
@@ -53,5 +52,3 @@ private:
 
 } // namespace Internal
 } // namespace ProjectExplorer
-
-#endif // DEVICEFACTORYSELECTIONDIALOG_H

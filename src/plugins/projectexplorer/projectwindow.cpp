@@ -85,10 +85,6 @@ ProjectWindow::ProjectWindow(QWidget *parent)
     showProperties(-1, -1);
 }
 
-ProjectWindow::~ProjectWindow()
-{
-}
-
 void ProjectWindow::aboutToShutdown()
 {
     showProperties(-1, -1);

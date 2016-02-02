@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PROJECTEXPLORER_COPYTASKHANDLER_H
-#define PROJECTEXPLORER_COPYTASKHANDLER_H
+#pragma once
 
 #include "itaskhandler.h"
 
@@ -36,15 +35,11 @@ class CopyTaskHandler : public ITaskHandler
     Q_OBJECT
 
 public:
-    CopyTaskHandler() {}
-
-    bool canHandle(const Task &) const { return true; }
-    void handle(const Task &task);
-    Core::Id actionManagerId() const;
-    QAction *createAction(QObject *parent) const;
+    bool canHandle(const Task &) const override { return true; }
+    void handle(const Task &task) override;
+    Core::Id actionManagerId() const override;
+    QAction *createAction(QObject *parent) const override;
 };
 
 } // namespace Internal
 } // namespace ProjectExplorer
-
-#endif // PROJECTEXPLORER_COPYTASKHANDLER_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PROJECTNODES_H
-#define PROJECTNODES_H
+#pragma once
 
 #include "projectexplorer_export.h"
 
@@ -409,5 +408,3 @@ T1 subtractSortedList(T1 list1, T1 list2, T3 sorter)
 
 Q_DECLARE_METATYPE(ProjectExplorer::Node *)
 Q_DECLARE_METATYPE(ProjectExplorer::FolderNode *)
-
-#endif // PROJECTNODES_H

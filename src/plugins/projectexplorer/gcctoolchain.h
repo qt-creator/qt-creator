@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef GCCTOOLCHAIN_H
-#define GCCTOOLCHAIN_H
+#pragma once
 
 #include "projectexplorer_export.h"
 
@@ -222,5 +221,3 @@ private:
 };
 
 } // namespace ProjectExplorer
-
-#endif // GCCTOOLCHAIN_H

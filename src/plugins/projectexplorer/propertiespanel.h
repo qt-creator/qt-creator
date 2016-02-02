@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PROPERTIESPANEL_H
-#define PROPERTIESPANEL_H
+#pragma once
 
 #include "projectexplorer_export.h"
 
@@ -32,12 +31,13 @@
 #include <QWidget>
 
 namespace ProjectExplorer {
+
 class PROJECTEXPLORER_EXPORT PropertiesPanel
 {
     Q_DISABLE_COPY(PropertiesPanel)
 
 public:
-    PropertiesPanel() {}
+    PropertiesPanel() = default;
     ~PropertiesPanel() { delete m_widget; }
 
     QString displayName() const { return m_displayName; }
@@ -53,5 +53,5 @@ private:
     QWidget *m_widget;
     QIcon m_icon;
 };
-}
-#endif // PROPERTIESPANEL_H
+
+} // namespace ProjectExplorer

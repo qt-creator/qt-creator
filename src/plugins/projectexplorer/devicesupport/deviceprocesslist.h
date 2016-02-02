@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef DEVICEPROCESSLIST_H
-#define DEVICEPROCESSLIST_H
+#pragma once
 
 #include "idevice.h"
 
@@ -52,7 +51,7 @@ class PROJECTEXPLORER_EXPORT DeviceProcessList : public QAbstractItemModel
 
 public:
     DeviceProcessList(const IDevice::ConstPtr &device, QObject *parent = 0);
-    ~DeviceProcessList();
+    ~DeviceProcessList() override;
 
     void update();
     void killProcess(int row);
@@ -73,14 +72,14 @@ protected:
     IDevice::ConstPtr device() const;
 
 private:
-    QModelIndex index(int row, int column, const QModelIndex &parent) const;
-    int rowCount(const QModelIndex &parent = QModelIndex()) const;
-    int columnCount(const QModelIndex &parent = QModelIndex()) const;
+    QModelIndex index(int row, int column, const QModelIndex &parent) const override;
+    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
+    int columnCount(const QModelIndex &parent = QModelIndex()) const override;
     QVariant headerData(int section, Qt::Orientation orientation,
-        int role = Qt::DisplayRole) const;
-    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
-    QModelIndex parent(const QModelIndex &) const;
-    bool hasChildren(const QModelIndex &parent) const;
+                        int role = Qt::DisplayRole) const override;
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
+    QModelIndex parent(const QModelIndex &) const override;
+    bool hasChildren(const QModelIndex &parent) const override;
 
     virtual void doUpdate() = 0;
     virtual void doKillProcess(const DeviceProcessItem &process) = 0;
@@ -91,5 +90,3 @@ private:
 };
 
 } // namespace ProjectExplorer
-
-#endif // DEVICEPROCESSLIST_H

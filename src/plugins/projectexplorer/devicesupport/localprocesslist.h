@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef LOCALPROCESSLIST_H
-#define LOCALPROCESSLIST_H
+#pragma once
 
 #include "deviceprocesslist.h"
 
@@ -42,24 +41,21 @@ class LocalProcessList : public DeviceProcessList
     Q_OBJECT
 
 public:
-    LocalProcessList(const IDevice::ConstPtr &device, QObject *parent = 0);
-    virtual Qt::ItemFlags flags(const QModelIndex &index) const;
+    explicit LocalProcessList(const IDevice::ConstPtr &device, QObject *parent = 0);
+    Qt::ItemFlags flags(const QModelIndex &index) const override;
 
     static QList<DeviceProcessItem> getLocalProcesses();
 
 private:
-    void doUpdate();
-    void doKillProcess(const DeviceProcessItem &process);
+    void doUpdate() override;
+    void doKillProcess(const DeviceProcessItem &process) override;
 
 private:
     void handleUpdate();
     void reportDelayedKillStatus(const QString &errorMessage);
 
     const qint64 m_myPid;
-
 };
 
 } // namespace Internal
 } // namespace ProjectExplorer
-
-#endif // LOCALPROCESSLIST_H

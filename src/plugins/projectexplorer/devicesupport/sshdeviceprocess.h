@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QTC_SSHDEVICEPROCESS_H
-#define QTC_SSHDEVICEPROCESS_H
+#pragma once
 
 #include "deviceprocess.h"
 
@@ -36,23 +35,23 @@ class PROJECTEXPLORER_EXPORT SshDeviceProcess : public DeviceProcess
 {
     Q_OBJECT
 public:
-    SshDeviceProcess(const QSharedPointer<const IDevice> &device, QObject *parent = 0);
-    ~SshDeviceProcess();
+    explicit SshDeviceProcess(const QSharedPointer<const IDevice> &device, QObject *parent = 0);
+    ~SshDeviceProcess() override;
 
-    void start(const Runnable &runnable);
-    void interrupt();
-    void terminate();
-    void kill();
+    void start(const Runnable &runnable) override;
+    void interrupt() override;
+    void terminate() override;
+    void kill() override;
 
-    QProcess::ProcessState state() const;
-    QProcess::ExitStatus exitStatus() const;
-    int exitCode() const;
-    QString errorString() const;
+    QProcess::ProcessState state() const override;
+    QProcess::ExitStatus exitStatus() const override;
+    int exitCode() const override;
+    QString errorString() const override;
 
-    QByteArray readAllStandardOutput();
-    QByteArray readAllStandardError();
+    QByteArray readAllStandardOutput() override;
+    QByteArray readAllStandardError() override;
 
-    qint64 write(const QByteArray &data);
+    qint64 write(const QByteArray &data) override;
 
     // Default is "false" due to OpenSSH not implementing this feature for some reason.
     void setSshServerSupportsSignals(bool signalsSupported);
@@ -76,5 +75,3 @@ private:
 };
 
 } // namespace ProjectExplorer
-
-#endif // Include guard.

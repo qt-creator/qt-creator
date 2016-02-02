@@ -118,10 +118,6 @@ CustomParser::CustomParser(const CustomParserSettings &settings)
     setSettings(settings);
 }
 
-CustomParser::~CustomParser()
-{
-}
-
 void CustomParser::stdError(const QString &line)
 {
     if (parseLine(line, CustomParserExpression::ParseStdErrChannel))

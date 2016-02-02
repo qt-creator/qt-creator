@@ -36,8 +36,7 @@ using namespace Core;
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
 
-CurrentProjectFilter::CurrentProjectFilter()
-  : BaseFileFilter(), m_project(0)
+CurrentProjectFilter::CurrentProjectFilter() : BaseFileFilter(), m_project(0)
 {
     setId("Files in current project");
     setDisplayName(tr("Files in Current Project"));

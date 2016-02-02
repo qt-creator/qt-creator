@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SESSION_H
-#define SESSION_H
+#pragma once
 
 #include "projectexplorer_export.h"
 
@@ -44,7 +43,7 @@ QT_END_NAMESPACE
 namespace Core {
 class IMode;
 class IEditor;
-}
+} // namespace Core
 
 namespace ProjectExplorer {
 
@@ -63,7 +62,7 @@ class PROJECTEXPLORER_EXPORT SessionManager : public QObject
 
 public:
     explicit SessionManager(QObject *parent = 0);
-    ~SessionManager();
+    ~SessionManager() override;
 
     static SessionManager *instance();
 
@@ -158,5 +157,3 @@ private:
 };
 
 } // namespace ProjectExplorer
-
-#endif // SESSION_H

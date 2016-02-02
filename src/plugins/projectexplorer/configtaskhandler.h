@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PROJECTEXPLORER_CONFIGTASKHANDLER_H
-#define PROJECTEXPLORER_CONFIGTASKHANDLER_H
+#pragma once
 
 #include "itaskhandler.h"
 
@@ -40,9 +39,9 @@ class ConfigTaskHandler : public ITaskHandler
 public:
     ConfigTaskHandler(const Task &pattern, Core::Id page);
 
-    bool canHandle(const Task &task) const;
-    void handle(const Task &task);
-    QAction *createAction(QObject *parent) const;
+    bool canHandle(const Task &task) const override;
+    void handle(const Task &task) override;
+    QAction *createAction(QObject *parent) const override;
 
 private:
     const Task m_pattern;
@@ -51,5 +50,3 @@ private:
 
 } // namespace Internal
 } // namespace ProjectExplorer
-
-#endif // PROJECTEXPLORER_CONFIGTASKHANDLER_H

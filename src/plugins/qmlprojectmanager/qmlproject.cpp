@@ -338,7 +338,7 @@ Project::RestoreResult QmlProject::fromMap(const QVariantMap &map, QString *erro
     if (!activeTarget()) {
         // find a kit that matches prerequisites (prefer default one)
         QList<Kit*> kits = KitManager::matchingKits(
-            std::function<bool(const Kit *)>([this](const Kit *k) -> bool {
+            KitMatcher(std::function<bool(const Kit *)>([this](const Kit *k) -> bool {
                 if (!k->isValid())
                     return false;
 
@@ -367,7 +367,7 @@ Project::RestoreResult QmlProject::fromMap(const QVariantMap &map, QString *erro
                 }
 
                 return version->qtVersion() >= minVersion && hasViewer;
-            }));
+            })));
 
         if (!kits.isEmpty()) {
             Kit *kit = 0;

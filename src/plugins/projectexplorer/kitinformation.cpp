@@ -332,9 +332,9 @@ void DeviceTypeKitInformation::setDeviceTypeId(Kit *k, Core::Id type)
 
 KitMatcher DeviceTypeKitInformation::deviceTypeMatcher(Core::Id type)
 {
-    return std::function<bool(const Kit *)>([type](const Kit *kit) {
+    return KitMatcher(std::function<bool(const Kit *)>([type](const Kit *kit) {
         return type.isValid() && deviceTypeId(kit) == type;
-    });
+    }));
 }
 
 QSet<Core::Id> DeviceTypeKitInformation::supportedPlatforms(const Kit *k) const

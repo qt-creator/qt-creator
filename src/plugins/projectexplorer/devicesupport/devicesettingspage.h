@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef DEVICESETTINGSPAGE_H
-#define DEVICESETTINGSPAGE_H
+#pragma once
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
@@ -42,9 +41,9 @@ class DeviceSettingsPage : public Core::IOptionsPage
 public:
     DeviceSettingsPage(QObject *parent = 0);
 
-    QWidget *widget();
-    void apply();
-    void finish();
+    QWidget *widget() override;
+    void apply() override;
+    void finish() override;
 
 private:
     QPointer<DeviceSettingsWidget> m_widget;
@@ -52,5 +51,3 @@ private:
 
 } // namespace Internal
 } // namespace ProjectExplorer
-
-#endif // DEVICESETTINGSPAGE_H

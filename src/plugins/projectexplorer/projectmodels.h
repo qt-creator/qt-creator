@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PROJECTMODELS_H
-#define PROJECTMODELS_H
+#pragma once
 
 #include <utils/fileutils.h>
 
@@ -44,28 +43,29 @@ namespace Internal {
 class FlatModel : public QAbstractItemModel
 {
     Q_OBJECT
+
 public:
     FlatModel(SessionNode *rootNode, QObject *parent);
 
     // QAbstractItemModel
-    QModelIndex index(int row, int column, const QModelIndex & parent = QModelIndex()) const;
-    QModelIndex parent(const QModelIndex &index) const;
-    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
-    Qt::ItemFlags flags(const QModelIndex &index) const;
-    bool setData(const QModelIndex &index, const QVariant &value, int role);
+    QModelIndex index(int row, int column, const QModelIndex & parent = QModelIndex()) const override;
+    QModelIndex parent(const QModelIndex &index) const override;
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
+    Qt::ItemFlags flags(const QModelIndex &index) const override;
+    bool setData(const QModelIndex &index, const QVariant &value, int role) override;
 
-    int rowCount(const QModelIndex & parent = QModelIndex()) const;
-    int columnCount(const QModelIndex & parent = QModelIndex()) const;
-    bool hasChildren(const QModelIndex & parent = QModelIndex()) const;
+    int rowCount(const QModelIndex & parent = QModelIndex()) const override;
+    int columnCount(const QModelIndex & parent = QModelIndex()) const override;
+    bool hasChildren(const QModelIndex & parent = QModelIndex()) const override;
 
-    bool canFetchMore(const QModelIndex & parent) const;
-    void fetchMore(const QModelIndex & parent);
+    bool canFetchMore(const QModelIndex & parent) const override;
+    void fetchMore(const QModelIndex & parent) override;
 
     void reset();
 
-    Qt::DropActions supportedDragActions() const;
-    QStringList mimeTypes() const;
-    QMimeData *mimeData(const QModelIndexList &indexes) const;
+    Qt::DropActions supportedDragActions() const override;
+    QStringList mimeTypes() const override;
+    QMimeData *mimeData(const QModelIndexList &indexes) const override;
 
     void setStartupProject(ProjectNode *projectNode);
 
@@ -136,6 +136,3 @@ int caseFriendlyCompare(const QString &a, const QString &b);
 
 } // namespace Internal
 } // namespace ProjectExplorer
-
-
-#endif // PROJECTMODELS_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef DEPLOYABLEFILE_H
-#define DEPLOYABLEFILE_H
+#pragma once
 
 #include "projectexplorer_export.h"
 
@@ -77,5 +76,3 @@ inline bool operator!=(const DeployableFile &d1, const DeployableFile &d2)
 PROJECTEXPLORER_EXPORT uint qHash(const DeployableFile &d);
 
 } // namespace ProjectExplorer
-
-#endif // DEPLOYABLEFILE_H

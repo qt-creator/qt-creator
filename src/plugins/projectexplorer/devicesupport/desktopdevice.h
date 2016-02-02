@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef DESKTOPDEVICE_H
-#define DESKTOPDEVICE_H
+#pragma once
 
 #include "../projectexplorer_export.h"
 
@@ -39,22 +38,22 @@ namespace Internal { class DesktopDeviceFactory; }
 class PROJECTEXPLORER_EXPORT DesktopDevice : public IDevice
 {
 public:
-    IDevice::DeviceInfo deviceInformation() const;
+    IDevice::DeviceInfo deviceInformation() const override;
 
-    QString displayType() const;
-    IDeviceWidget *createWidget();
-    QList<Core::Id> actionIds() const;
-    QString displayNameForActionId(Core::Id actionId) const;
-    void executeAction(Core::Id actionId, QWidget *parent = 0);
-    bool canAutoDetectPorts() const;
-    bool canCreateProcessModel() const;
-    DeviceProcessList *createProcessListModel(QObject *parent) const;
-    bool canCreateProcess() const { return true; }
-    DeviceProcess *createProcess(QObject *parent) const;
-    DeviceProcessSignalOperation::Ptr signalOperation() const;
-    QString qmlProfilerHost() const;
+    QString displayType() const override;
+    IDeviceWidget *createWidget() override;
+    QList<Core::Id> actionIds() const override;
+    QString displayNameForActionId(Core::Id actionId) const override;
+    void executeAction(Core::Id actionId, QWidget *parent = 0) override;
+    bool canAutoDetectPorts() const override;
+    bool canCreateProcessModel() const override;
+    DeviceProcessList *createProcessListModel(QObject *parent) const override;
+    bool canCreateProcess() const override { return true; }
+    DeviceProcess *createProcess(QObject *parent) const override;
+    DeviceProcessSignalOperation::Ptr signalOperation() const override;
+    QString qmlProfilerHost() const override;
 
-    IDevice::Ptr clone() const;
+    IDevice::Ptr clone() const override;
 
 protected:
     DesktopDevice();
@@ -65,5 +64,3 @@ protected:
 };
 
 } // namespace ProjectExplorer
-
-#endif // DESKTOPDEVICE_H

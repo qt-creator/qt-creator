@@ -23,10 +23,9 @@
 **
 ****************************************************************************/
 
-#ifndef CE_SDK_HANDLER_H
-#define CE_SDK_HANDLER_H
+#pragma once
 
-#include <projectexplorer/projectexplorer.h>
+#include "projectexplorer.h"
 
 #include <QDir>
 
@@ -38,6 +37,7 @@ class PROJECTEXPLORER_EXPORT CeSdkInfo
 {
 public:
     CeSdkInfo();
+
     inline QString                  name() const;
     inline QString                  binPath() const;
     inline QString                  includePath() const;
@@ -47,6 +47,7 @@ public:
     inline int                      majorVersion() const;
     inline int                      minorVersion() const;
     inline bool                     isSupported() const;
+
 private:
     friend class                    CeSdkHandler;
     QString                         m_name;
@@ -69,16 +70,15 @@ inline bool CeSdkInfo::isSupported() const { return m_major >= 5; }
 class PROJECTEXPLORER_EXPORT CeSdkHandler
 {
 public:
-                                    CeSdkHandler();
-    bool                            parse(const QString &path);
-    inline QList<CeSdkInfo>         listAll() const;
-    CeSdkInfo                       find(const QString &name) const;
-    static QString                  platformName(const QString &qtpath);
+    bool parse(const QString &path);
+    inline QList<CeSdkInfo> listAll() const;
+    CeSdkInfo find(const QString &name) const;
+    static QString platformName(const QString &qtpath);
 private:
-    inline QString                  fixPaths(QString path) const;
-    QList<CeSdkInfo>                m_list;
-    QString                         VCInstallDir;
-    QString                         VSInstallDir;
+    inline QString fixPaths(QString path) const;
+    QList<CeSdkInfo> m_list;
+    QString VCInstallDir;
+    QString VSInstallDir;
 };
 
 inline QList<CeSdkInfo> CeSdkHandler::listAll() const
@@ -98,5 +98,3 @@ inline QString CeSdkHandler::fixPaths(QString path) const
 }
 
 } // namespace ProjectExplorer
-
-#endif // CE_SDK_HANDLER_H

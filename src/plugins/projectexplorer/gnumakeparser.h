@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef GNUMAKEPARSER_H
-#define GNUMAKEPARSER_H
+#pragma once
 
 #include "ioutputparser.h"
 
@@ -40,16 +39,16 @@ class PROJECTEXPLORER_EXPORT GnuMakeParser : public ProjectExplorer::IOutputPars
 public:
     explicit GnuMakeParser();
 
-    void stdOutput(const QString &line);
-    void stdError(const QString &line);
+    void stdOutput(const QString &line) override;
+    void stdError(const QString &line) override;
 
-    void setWorkingDirectory(const QString &workingDirectory);
+    void setWorkingDirectory(const QString &workingDirectory) override;
 
     QStringList searchDirectories() const;
 
-    bool hasFatalErrors() const;
+    bool hasFatalErrors() const override;
 
-    void taskAdded(const ProjectExplorer::Task &task, int linkedLines, int skippedLines);
+    void taskAdded(const ProjectExplorer::Task &task, int linkedLines, int skippedLines) override;
 
 private:
     void addDirectory(const QString &dir);
@@ -85,5 +84,3 @@ public:
 #endif
 
 } // namespace ProjectExplorer
-
-#endif // GNUMAKEPARSER_H

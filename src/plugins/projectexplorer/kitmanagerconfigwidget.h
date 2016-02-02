@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef KITMANAGERCONFIGWIDGET_H
-#define KITMANAGERCONFIGWIDGET_H
+#pragma once
 
 #include "kitconfigwidget.h"
 
@@ -48,7 +47,7 @@ class KitManagerConfigWidget : public QWidget
 
 public:
     explicit KitManagerConfigWidget(Kit *k);
-    ~KitManagerConfigWidget();
+    ~KitManagerConfigWidget() override;
 
     QString displayName() const;
 
@@ -87,7 +86,7 @@ private:
         ButtonColumn
     };
 
-    void showEvent(QShowEvent *event);
+    void showEvent(QShowEvent *event) override;
     QLabel *createLabel(const QString &name, const QString &toolTip);
 
     QGridLayout *m_layout;
@@ -107,5 +106,3 @@ private:
 
 } // namespace Internal
 } // namespace ProjectExplorer
-
-#endif // KITMANAGERCONFIGWIDGET_H

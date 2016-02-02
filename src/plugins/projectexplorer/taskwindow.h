@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef TASKWINDOW_H
-#define TASKWINDOW_H
+#pragma once
 
 #include <coreplugin/id.h>
 #include <coreplugin/ioutputpane.h>
@@ -49,7 +48,7 @@ class TaskWindow : public Core::IOutputPane
 
 public:
     TaskWindow();
-    virtual ~TaskWindow();
+    ~TaskWindow() override;
 
     void delayedInitialization();
 
@@ -58,23 +57,23 @@ public:
     int errorTaskCount(Core::Id category = Core::Id()) const;
 
     // IOutputPane
-    QWidget *outputWidget(QWidget *);
-    QList<QWidget *> toolBarWidgets() const;
+    QWidget *outputWidget(QWidget *) override;
+    QList<QWidget *> toolBarWidgets() const override;
 
-    QString displayName() const { return tr("Issues"); }
-    int priorityInStatusBar() const;
-    void clearContents();
-    void visibilityChanged(bool visible);
+    QString displayName() const override { return tr("Issues"); }
+    int priorityInStatusBar() const override;
+    void clearContents() override;
+    void visibilityChanged(bool visible) override;
 
-    bool canFocus() const;
-    bool hasFocus() const;
-    void setFocus();
+    bool canFocus() const override;
+    bool hasFocus() const override;
+    void setFocus() override;
 
-    bool canNavigate() const;
-    bool canNext() const;
-    bool canPrevious() const;
-    void goToNext();
-    void goToPrev();
+    bool canNavigate() const override;
+    bool canNext() const override;
+    bool canPrevious() const override;
+    void goToNext() override;
+    void goToPrev() override;
 
 signals:
     void tasksChanged();
@@ -106,5 +105,3 @@ private:
 
 } // namespace Internal
 } // namespace ProjectExplorer
-
-#endif // TASKWINDOW_H

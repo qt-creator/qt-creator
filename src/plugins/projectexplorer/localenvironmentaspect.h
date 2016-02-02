@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef LOCALENVIRONMENTASPECT_H
-#define LOCALENVIRONMENTASPECT_H
+#pragma once
 
 #include "environmentaspect.h"
 
@@ -37,11 +36,11 @@ class PROJECTEXPLORER_EXPORT LocalEnvironmentAspect : public EnvironmentAspect
 public:
     typedef std::function<void(RunConfiguration *, Utils::Environment &)> BaseEnvironmentModifier;
     LocalEnvironmentAspect(RunConfiguration *parent, const BaseEnvironmentModifier &modifier);
-    LocalEnvironmentAspect *create(RunConfiguration *parent) const;
+    LocalEnvironmentAspect *create(RunConfiguration *parent) const override;
 
-    QList<int> possibleBaseEnvironments() const;
-    QString baseEnvironmentDisplayName(int base) const;
-    Utils::Environment baseEnvironment() const;
+    QList<int> possibleBaseEnvironments() const override;
+    QString baseEnvironmentDisplayName(int base) const override;
+    Utils::Environment baseEnvironment() const override;
 
     void buildEnvironmentHasChanged();
 
@@ -56,5 +55,3 @@ private:
 };
 
 } // namespace ProjectExplorer
-
-#endif // LOCALENVIRONMENTASPECT_H

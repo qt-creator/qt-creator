@@ -155,7 +155,6 @@ public:
 };
 } // namespace Internal
 
-PortsGatheringMethod::~PortsGatheringMethod() { }
 DeviceTester::DeviceTester(QObject *parent) : QObject(parent) { }
 
 IDevice::IDevice() : d(new Internal::IDevicePrivate)

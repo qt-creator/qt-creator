@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PROJECTEXPLORER_BUILDSTEPLIST_H
-#define PROJECTEXPLORER_BUILDSTEPLIST_H
+#pragma once
 
 #include "projectexplorer_export.h"
 
@@ -81,5 +80,3 @@ private:
 } // namespace ProjectExplorer
 
 Q_DECLARE_METATYPE(ProjectExplorer::BuildStepList *)
-
-#endif // PROJECTEXPLORER_BUILDSTEPLIST_H

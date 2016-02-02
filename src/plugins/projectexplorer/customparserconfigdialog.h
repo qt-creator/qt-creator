@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CUSTOMPARSERCONFIGDIALOG_H
-#define CUSTOMPARSERCONFIGDIALOG_H
+#pragma once
 
 #include "customparser.h"
 
@@ -45,7 +44,7 @@ class CustomParserConfigDialog : public QDialog
 
 public:
     explicit CustomParserConfigDialog(QDialog *parent = 0);
-    ~CustomParserConfigDialog();
+    ~CustomParserConfigDialog() override;
 
     void setExampleSettings();
     void setSettings(const CustomParserSettings &settings);
@@ -89,5 +88,3 @@ private:
 
 } // namespace Internal
 } // namespace ProjectExplorer
-
-#endif // CUSTOMPARSERCONFIGDIALOG_H

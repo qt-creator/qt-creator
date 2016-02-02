@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef KITMODEL_H
-#define KITMODEL_H
+#pragma once
 
 #include "projectexplorer_export.h"
 
@@ -98,5 +97,3 @@ private:
 
 } // namespace Internal
 } // namespace ProjectExplorer
-
-#endif // KITMODEL_H
