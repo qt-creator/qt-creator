@@ -244,11 +244,27 @@ void StackTreeView::copyContentsToClipboard()
     QString str;
     int n = model()->rowCount();
     int m = model()->columnCount();
+    QVector<int> largestColumnWidths(m, 0);
+
+    // First, find the widths of the largest columns,
+    // so that we can print them out nicely aligned.
+    for (int i = 0; i != n; ++i) {
+        for (int j = 0; j < m; ++j) {
+            const QModelIndex index = model()->index(i, j);
+            const int columnWidth = model()->data(index).toString().size();
+            if (columnWidth > largestColumnWidths.at(j))
+                largestColumnWidths[j] = columnWidth;
+        }
+    }
+
     for (int i = 0; i != n; ++i) {
         for (int j = 0; j != m; ++j) {
             QModelIndex index = model()->index(i, j);
-            str += model()->data(index).toString();
-            str += QLatin1Char('\t');
+            const QString columnEntry = model()->data(index).toString();
+            str += columnEntry;
+            const int difference = largestColumnWidths.at(j) - columnEntry.size();
+            // Add one extra space between columns.
+            str += QString().fill(QLatin1Char(' '), difference > 0 ? difference + 1 : 1);
         }
         str += QLatin1Char('\n');
     }
