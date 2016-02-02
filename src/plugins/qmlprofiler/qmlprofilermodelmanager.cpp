@@ -338,7 +338,7 @@ void QmlProfilerModelManager::save(const QString &filename)
 
     d->notesModel->saveData();
 
-    QFuture<void> result = QtConcurrent::run<void>([this, file] (QFutureInterface<void> &future) {
+    QFuture<void> result = Utils::runAsync<void>([this, file] (QFutureInterface<void> &future) {
         QmlProfilerFileWriter writer;
         writer.setTraceTime(traceTime()->startTime(), traceTime()->endTime(),
                             traceTime()->duration());
@@ -367,7 +367,7 @@ void QmlProfilerModelManager::load(const QString &filename)
     clear();
     setState(AcquiringData);
 
-    QFuture<void> result = QtConcurrent::run<void>([this, file] (QFutureInterface<void> &future) {
+    QFuture<void> result = Utils::runAsync<void>([this, file] (QFutureInterface<void> &future) {
         QmlProfilerFileReader reader;
         reader.setFuture(&future);
         connect(&reader, &QmlProfilerFileReader::error, this, &QmlProfilerModelManager::error);
