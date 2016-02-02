@@ -45,6 +45,7 @@ class SQLITE_EXPORT Utf8String
     friend SQLITE_EXPORT bool operator!=(const Utf8String &first, const Utf8String &second);
     friend SQLITE_EXPORT bool operator==(const Utf8String &first, const Utf8String &second);
     friend SQLITE_EXPORT bool operator==(const Utf8String &first, const char *second);
+    friend SQLITE_EXPORT bool operator==(const char *first, const Utf8String &second);
     friend SQLITE_EXPORT bool operator==(const Utf8String &first, const QString &second);
     friend SQLITE_EXPORT bool operator<(const Utf8String &first, const Utf8String &second);
 
@@ -111,6 +112,7 @@ SQLITE_EXPORT const Utf8String operator+(const Utf8String &first, const Utf8Stri
 SQLITE_EXPORT bool operator!=(const Utf8String &first, const Utf8String &second);
 SQLITE_EXPORT bool operator==(const Utf8String &first, const Utf8String &second);
 SQLITE_EXPORT bool operator==(const Utf8String &first, const char *second);
+SQLITE_EXPORT bool operator==(const char *first, const Utf8String &second);
 SQLITE_EXPORT bool operator==(const Utf8String &first, const QString &second);
 SQLITE_EXPORT bool operator<(const Utf8String &first, const Utf8String &second);
 
