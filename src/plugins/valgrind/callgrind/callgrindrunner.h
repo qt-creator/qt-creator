@@ -53,21 +53,16 @@ public:
 signals:
     void statusMessage(const QString &message);
 
-private slots:
-    void localParseDataAvailable(const QString &file);
-
-    void controllerFinished(Valgrind::Callgrind::CallgrindController::Option);
-
-    void processFinished(int, QProcess::ExitStatus);
-
 private:
-    void triggerParse();
-
+    void processFinished(int, QProcess::ExitStatus);
     QString tool() const;
+
+    void localParseDataAvailable(const QString &file);
+    void controllerFinished(Valgrind::Callgrind::CallgrindController::Option);
+    void triggerParse();
 
     CallgrindController *m_controller;
     Parser *m_parser;
-
     bool m_paused;
 };
 
