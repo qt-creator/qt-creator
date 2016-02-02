@@ -96,10 +96,6 @@ RunControl *QmlProfilerRunControlFactory::create(RunConfiguration *runConfigurat
         connection.analyzerPort = LocalQmlProfilerRunner::findFreePort(connection.analyzerHost);
     }
 
-    // only desktop device is supported
-    const IDevice::ConstPtr device = DeviceKitInformation::device(kit);
-    QTC_ASSERT(device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE, return 0);
-
     auto runControl = qobject_cast<QmlProfilerRunControl *>
              (AnalyzerManager::createRunControl(runConfiguration, mode));
     QTC_ASSERT(runControl, return 0);
