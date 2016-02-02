@@ -1,0 +1,8 @@
+<RCC>
+    <qresource prefix="/clangcodemodel">
+        <file>images/error.png</file>
+        <file>images/error@2x.png</file>
+        <file>images/warning.png</file>
+        <file>images/warning@2x.png</file>
+    </qresource>
+</RCC>

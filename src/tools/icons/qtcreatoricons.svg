@@ -2930,8 +2930,26 @@
          d="M 90,594.5 86.474874,598.01041 81.5,598 77.989592,594.47487 78,589.5 81.525126,585.98959 86.5,586 l 3.510408,3.52513 z" />
     </g>
     <g
-       id="src/plugins/coreplugin/images/warning"
+       style="display:inline"
+       id="warningtriangle"
        transform="translate(-437,-48)">
+      <rect
+         style="fill:#ffffff;stroke:none"
+         id="use3942-1"
+         width="16"
+         height="16"
+         x="453"
+         y="584" />
+      <path
+         id="path5300-7-5"
+         d="m 461.5,586 -1,0 -5.5,11 0,1 12,0 0,-1 z"
+         inkscape:connector-curvature="0"
+         style="display:inline;fill:#000000"
+         sodipodi:nodetypes="ccccccc" />
+    </g>
+    <g
+       id="src/plugins/coreplugin/images/warning"
+       transform="translate(-421,-48)">
       <rect
          style="fill:#ffffff;stroke:none"
          id="use3942"
@@ -2939,15 +2957,24 @@
          height="16"
          x="453"
          y="584" />
+      <use
+         x="0"
+         y="0"
+         xlink:href="#warningtriangle"
+         id="use4758"
+         transform="translate(437,48)"
+         width="100%"
+         height="100%" />
       <path
          id="path5300-7"
-         d="m 461.5,586 -1,0 -5.5,11 0,1 12,0 0,-1 -5.5,-11 z m -0.5,11 c -0.553,0 -1,-0.447 -1,-1 0,-0.553 0.447,-1 1,-1 0.553,0 1,0.447 1,1 0,0.553 -0.447,1 -1,1 z m 0.7,-3 -1.4,0 -0.3,-5 2,0 -0.3,5 z"
+         d="m 461,597 c -0.553,0 -1,-0.447 -1,-1 0,-0.553 0.447,-1 1,-1 0.553,0 1,0.447 1,1 0,0.553 -0.447,1 -1,1 z m 0.7,-3 -1.4,0 -0.3,-5 2,0 z"
          inkscape:connector-curvature="0"
-         style="display:inline;fill:#000000" />
+         style="display:inline;fill:#ffffff;fill-opacity:1"
+         sodipodi:nodetypes="sssssccccc" />
     </g>
     <g
        id="src/plugins/coreplugin/images/error"
-       transform="translate(-438,-48)">
+       transform="translate(-422,-48)">
       <use
          height="600"
          width="800"
@@ -2964,7 +2991,7 @@
     </g>
     <g
        id="src/plugins/coreplugin/images/info"
-       transform="translate(-438,-48)">
+       transform="translate(-422,-48)">
       <rect
          y="584"
          x="486"
@@ -2979,7 +3006,8 @@
          style="display:inline;fill:#000000" />
     </g>
     <g
-       id="src/plugins/coreplugin/images/warningfill">
+       id="src/plugins/coreplugin/images/warningfill"
+       transform="translate(16,0)">
       <rect
          y="520"
          x="16"
@@ -2994,6 +3022,51 @@
          width="2"
          id="rect4768"
          style="opacity:1;fill:#000000;fill-opacity:1;stroke:none;stroke-opacity:1" />
+    </g>
+    <g
+       style="display:inline"
+       id="src/plugins/clangcodemodel/images/warning"
+       transform="translate(-373,-48)">
+      <rect
+         style="fill:#ffffff;stroke:none"
+         id="use3942-4"
+         width="16"
+         height="16"
+         x="453"
+         y="584" />
+      <use
+         x="0"
+         y="0"
+         xlink:href="#warningtriangle"
+         id="use4758-9"
+         transform="translate(437,48)"
+         width="100%"
+         height="100%" />
+      <path
+         style="fill:#ffffff;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+         d="m 457,596 8,0 -4,-7.5"
+         id="path4794"
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="ccc" />
+    </g>
+    <g
+       style="display:inline"
+       id="src/plugins/clangcodemodel/images/error"
+       transform="translate(-374,-48)">
+      <use
+         height="600"
+         width="800"
+         transform="translate(470,48)"
+         id="use3888-4"
+         xlink:href="#src/plugins/coreplugin/images/compile_error_taskbar"
+         y="0"
+         x="0" />
+      <path
+         style="fill:#ffffff;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+         d="m 474,594 2,2 4,0 2,-2 0,-4 -2,-2 -4,0 -2,2"
+         id="path4796"
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="cccccccc" />
     </g>
   </g>
   <g

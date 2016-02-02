@@ -27,7 +27,8 @@
 
 #include "clangconstants.h"
 
-#include <coreplugin/coreicons.h>
+#include <utils/icon.h>
+#include <utils/theme/theme.h>
 
 #include <QString>
 
@@ -65,8 +66,12 @@ ClangTextMark::ClangTextMark(const QString &fileName, int lineNumber, ClangBackE
 
 void ClangTextMark::setIcon(ClangBackEnd::DiagnosticSeverity severity)
 {
-    static const QIcon errorIcon{Core::Icons::ERROR.icon()};
-    static const QIcon warningIcon{Core::Icons::WARNING.icon()};
+    static const QIcon errorIcon = Utils::Icon({
+            {QLatin1String(":/clangcodemodel/images/error.png"), Utils::Theme::IconsErrorColor}
+        }, Utils::Icon::Tint).icon();
+    static const QIcon warningIcon = Utils::Icon({
+            {QLatin1String(":/clangcodemodel/images/warning.png"), Utils::Theme::IconsWarningColor}
+        }, Utils::Icon::Tint).icon();
 
     if (isWarningOrNote(severity))
         TextMark::setIcon(warningIcon);
