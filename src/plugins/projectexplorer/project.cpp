@@ -201,8 +201,7 @@ void Project::addTarget(Target *t)
 
 bool Project::removeTarget(Target *target)
 {
-    if (!target || !d->m_targets.contains(target))
-        return false;
+    QTC_ASSERT(target && d->m_targets.contains(target), return false);
 
     if (BuildManager::isBuilding(target))
         return false;
