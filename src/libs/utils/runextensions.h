@@ -668,20 +668,29 @@ QFuture<ReduceResult> mapReduce(const Container &container, const InitFunction &
     \sa std::thread
     \sa std::invoke
  */
-template <typename ResultType, typename Function, typename... Args,
-          typename = typename std::enable_if<
-                !std::is_same<typename std::decay<Function>::type, QThreadPool>::value
-              >::type>
-QFuture<ResultType> runAsync(Function &&function, Args&&... args)
+template <typename ResultType, typename Function, typename... Args>
+QFuture<ResultType> runAsync(QThread::Priority priority, Function &&function, Args&&... args)
 {
     auto job = new Internal::AsyncJob<ResultType,Function,Args...>
             (std::forward<Function>(function), std::forward<Args>(args)...);
+    job->setThreadPriority(priority);
     QFuture<ResultType> future = job->future();
     auto thread = new Internal::RunnableThread(job);
     thread->moveToThread(qApp->thread()); // make sure thread gets deleteLater on main thread
     QObject::connect(thread, &QThread::finished, thread, &QObject::deleteLater);
     thread->start();
     return future;
+}
+
+template <typename ResultType, typename Function, typename... Args,
+          typename = typename std::enable_if<
+                !std::is_same<typename std::decay<Function>::type, QThreadPool>::value
+                && !std::is_same<typename std::decay<Function>::type, QThread::Priority>::value
+              >::type>
+QFuture<ResultType> runAsync(Function &&function, Args&&... args)
+{
+    return runAsync<ResultType>(QThread::InheritPriority, std::forward<Function>(function),
+                                std::forward<Args>(args)...);
 }
 
 template <typename ResultType, typename Function, typename... Args>

@@ -41,6 +41,7 @@ private slots:
 #ifdef SUPPORTS_MOVE
     void moveOnlyType();
 #endif
+    void threadPriority();
 };
 
 void report3(QFutureInterface<int> &fi)
@@ -303,6 +304,18 @@ void tst_RunExtensions::moveOnlyType()
 }
 
 #endif
+
+void tst_RunExtensions::threadPriority()
+{
+    QScopedPointer<QThreadPool> pool(new QThreadPool);
+    // with pool
+    QCOMPARE(Utils::runAsync<int>(pool.data(), QThread::LowestPriority, &report3).results(),
+             QList<int>({0, 2, 1}));
+
+    // without pool
+    QCOMPARE(Utils::runAsync<int>(QThread::LowestPriority, report3).results(),
+             QList<int>({0, 2, 1}));
+}
 
 QTEST_MAIN(tst_RunExtensions)
 
