@@ -891,7 +891,7 @@ void FindReferences::findUsages(const QString &fileName, quint32 offset)
 {
     ModelManagerInterface *modelManager = ModelManagerInterface::instance();
 
-    QFuture<Usage> result = QtConcurrent::run(
+    QFuture<Usage> result = Utils::runAsync<Usage>(
                 &find_helper, modelManager->workingCopy(),
                 modelManager->snapshot(), fileName, offset,
                 QString());
@@ -908,7 +908,7 @@ void FindReferences::renameUsages(const QString &fileName, quint32 offset,
     if (newName.isNull())
         newName = QLatin1String("");
 
-    QFuture<Usage> result = QtConcurrent::run(
+    QFuture<Usage> result = Utils::runAsync<Usage>(
                 &find_helper, modelManager->workingCopy(),
                 modelManager->snapshot(), fileName, offset,
                 newName);
