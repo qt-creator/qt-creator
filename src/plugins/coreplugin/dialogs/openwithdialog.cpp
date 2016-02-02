@@ -40,14 +40,14 @@ OpenWithDialog::OpenWithDialog(const QString &fileName, QWidget *parent)
     label->setText(tr("Open file \"%1\" with:").arg(Utils::FileName::fromString(fileName).fileName()));
     buttonBox->button(QDialogButtonBox::Ok)->setDefault(true);
 
-    connect(buttonBox->button(QDialogButtonBox::Ok), SIGNAL(clicked()),
-            this, SLOT(accept()));
-    connect(buttonBox->button(QDialogButtonBox::Cancel), SIGNAL(clicked()),
-            this, SLOT(reject()));
-    connect(editorListWidget, SIGNAL(itemDoubleClicked(QListWidgetItem*)),
-        this, SLOT(accept()));
-    connect(editorListWidget, SIGNAL(currentItemChanged(QListWidgetItem*,QListWidgetItem*)),
-            this, SLOT(currentItemChanged(QListWidgetItem*,QListWidgetItem*)));
+    connect(buttonBox->button(QDialogButtonBox::Ok), &QAbstractButton::clicked,
+            this, &QDialog::accept);
+    connect(buttonBox->button(QDialogButtonBox::Cancel), &QAbstractButton::clicked,
+            this, &QDialog::reject);
+    connect(editorListWidget, &QListWidget::itemDoubleClicked,
+        this, &QDialog::accept);
+    connect(editorListWidget, &QListWidget::currentItemChanged,
+            this, &OpenWithDialog::currentItemChanged);
 
     setOkButtonEnabled(false);
 }

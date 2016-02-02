@@ -113,12 +113,11 @@ signals:
     void sideBarClosed();
     void availableItemsChanged();
 
-private slots:
+private:
     void splitSubWidget();
     void closeSubWidget();
     void updateWidgets();
 
-private:
     Internal::SideBarWidget *insertSideBarWidget(int position,
                                                  const QString &title = QString());
     void removeSideBarWidget(Internal::SideBarWidget *widget);

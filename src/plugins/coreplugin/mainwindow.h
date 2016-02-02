@@ -129,7 +129,7 @@ public slots:
 protected:
     virtual void closeEvent(QCloseEvent *event);
 
-private slots:
+private:
     void openFile();
     void aboutToShowRecentFiles();
     void setFocusToEditor();
@@ -143,7 +143,6 @@ private slots:
     void restoreWindowState();
     void newItemDialogFinished();
 
-private:
     void updateContextObject(const QList<IContext *> &context);
     void updateContext();
 

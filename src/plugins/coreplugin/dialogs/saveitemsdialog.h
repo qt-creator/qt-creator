@@ -56,12 +56,10 @@ public:
     bool alwaysSaveChecked();
     QList<IDocument *> itemsToSave() const;
 
-private slots:
+private:
     void collectItemsToSave();
     void discardAll();
     void updateSaveButton();
-
-private:
     void adjustButtonWidths();
 
     Ui::SaveItemsDialog m_ui;

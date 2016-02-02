@@ -73,10 +73,8 @@ signals:
     void splitMe(int factoryIndex);
     void closeMe();
 
-private slots:
-    void comboBoxIndexChanged(int);
-
 private:
+    void comboBoxIndexChanged(int);
     void populateSplitMenu();
 
     NavigationWidget *m_parentWidget;

@@ -202,9 +202,9 @@ Internal::SideBarWidget *SideBar::insertSideBarWidget(int position, const QStrin
         d->m_widgets.at(0)->setCloseIcon(Icons::CLOSE_SPLIT_BOTTOM.icon());
 
     Internal::SideBarWidget *item = new Internal::SideBarWidget(this, id);
-    connect(item, SIGNAL(splitMe()), this, SLOT(splitSubWidget()));
-    connect(item, SIGNAL(closeMe()), this, SLOT(closeSubWidget()));
-    connect(item, SIGNAL(currentWidgetChanged()), this, SLOT(updateWidgets()));
+    connect(item, &Internal::SideBarWidget::splitMe, this, &SideBar::splitSubWidget);
+    connect(item, &Internal::SideBarWidget::closeMe, this, &SideBar::closeSubWidget);
+    connect(item, &Internal::SideBarWidget::currentWidgetChanged, this, &SideBar::updateWidgets);
     insertWidget(position, item);
     d->m_widgets.insert(position, item);
     if (d->m_widgets.size() == 1)

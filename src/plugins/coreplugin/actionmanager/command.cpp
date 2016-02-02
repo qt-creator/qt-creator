@@ -206,7 +206,7 @@ Action::Action(Id id)
       m_contextInitialized(false)
 {
     m_action->setShortcutVisibleInToolTip(true);
-    connect(m_action, SIGNAL(changed()), this, SLOT(updateActiveState()));
+    connect(m_action, &QAction::changed, this, &Action::updateActiveState);
 }
 
 Id Action::id() const

@@ -68,13 +68,11 @@ signals:
     void changed();
     void candidateChanged();
 
-private slots:
+private:
     void updateCandidateFindFilter(QWidget *old, QWidget *now);
     void clearFindSupport();
     void aggregationChanged();
     void candidateAggregationChanged();
-
-private:
     void removeFindSupportConnections();
 
     QPointer<IFindSupport> m_currentFind;

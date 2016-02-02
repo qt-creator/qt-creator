@@ -138,7 +138,7 @@ void FindPlugin::initialize(const QStringList &, QString *)
     d->m_findDialog = new Internal::FindToolWindow(this);
     d->m_searchResultWindow = new SearchResultWindow(d->m_findDialog);
     ExtensionSystem::PluginManager::addObject(d->m_searchResultWindow);
-    connect(ICore::instance(), SIGNAL(saveSettingsRequested()), this, SLOT(writeSettings()));
+    connect(ICore::instance(), &ICore::saveSettingsRequested, this, &FindPlugin::writeSettings);
 }
 
 void FindPlugin::extensionsInitialized()

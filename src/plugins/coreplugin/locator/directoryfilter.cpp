@@ -183,7 +183,7 @@ void DirectoryFilter::refresh(QFutureInterface<void> &future)
         QMutexLocker locker(&m_lock);
         if (m_directories.count() < 1) {
             m_files.clear();
-            QTimer::singleShot(0, this, SLOT(updateFileIterator()));
+            QTimer::singleShot(0, this, &DirectoryFilter::updateFileIterator);
             future.setProgressRange(0, 1);
             future.setProgressValueAndText(1, tr("%1 filter update: 0 files").arg(displayName()));
             return;
@@ -208,7 +208,7 @@ void DirectoryFilter::refresh(QFutureInterface<void> &future)
     if (!future.isCanceled()) {
         QMutexLocker locker(&m_lock);
         m_files = filesFound;
-        QTimer::singleShot(0, this, SLOT(updateFileIterator()));
+        QTimer::singleShot(0, this, &DirectoryFilter::updateFileIterator);
         future.setProgressValue(subDirIterator.maxProgress());
     } else {
         future.setProgressValueAndText(subDirIterator.currentProgress(), tr("%1 filter update: canceled").arg(displayName()));

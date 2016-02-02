@@ -111,7 +111,9 @@ protected:
     void mousePressEvent(QMouseEvent *e);
     void focusInEvent(QFocusEvent *);
 
-private slots:
+private:
+    friend class SplitterOrView; // for setParentSplitterOrView
+
     void closeCurrentEditor();
     void listSelectionActivated(int index);
     void splitHorizontally();
@@ -120,8 +122,6 @@ private slots:
     void closeSplit();
     void openDroppedFiles(const QList<Utils::DropSupport::FileSpec> &files);
 
-private:
-    friend class SplitterOrView; // for setParentSplitterOrView
     void setParentSplitterOrView(SplitterOrView *splitterOrView);
 
     void fillListContextMenu(QMenu *menu);

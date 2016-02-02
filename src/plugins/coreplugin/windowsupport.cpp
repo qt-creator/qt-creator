@@ -62,21 +62,21 @@ WindowSupport::WindowSupport(QWidget *window, const Context &context)
     if (UseMacShortcuts) {
         m_minimizeAction = new QAction(this);
         ActionManager::registerAction(m_minimizeAction, Constants::MINIMIZE_WINDOW, context);
-        connect(m_minimizeAction, SIGNAL(triggered()), m_window, SLOT(showMinimized()));
+        connect(m_minimizeAction, &QAction::triggered, m_window, &QWidget::showMinimized);
 
         m_zoomAction = new QAction(this);
         ActionManager::registerAction(m_zoomAction, Constants::ZOOM_WINDOW, context);
-        connect(m_zoomAction, SIGNAL(triggered()), m_window, SLOT(showMaximized()));
+        connect(m_zoomAction, &QAction::triggered, m_window, &QWidget::showMaximized);
 
         m_closeAction = new QAction(this);
         ActionManager::registerAction(m_closeAction, Constants::CLOSE_WINDOW, context);
-        connect(m_closeAction, SIGNAL(triggered()), m_window, SLOT(close()), Qt::QueuedConnection);
+        connect(m_closeAction, &QAction::triggered, m_window, &QWidget::close, Qt::QueuedConnection);
     }
 
     m_toggleFullScreenAction = new QAction(this);
     updateFullScreenAction();
     ActionManager::registerAction(m_toggleFullScreenAction, Constants::TOGGLE_FULLSCREEN, context);
-    connect(m_toggleFullScreenAction, SIGNAL(triggered()), this, SLOT(toggleFullScreen()));
+    connect(m_toggleFullScreenAction, &QAction::triggered, this, &WindowSupport::toggleFullScreen);
 
     WindowList::addWindow(window);
 

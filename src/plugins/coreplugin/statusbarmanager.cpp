@@ -90,11 +90,11 @@ StatusBarManager::~StatusBarManager()
 
 void StatusBarManager::init()
 {
-    connect(ExtensionSystem::PluginManager::instance(), SIGNAL(objectAdded(QObject*)),
-            this, SLOT(objectAdded(QObject*)));
-    connect(ExtensionSystem::PluginManager::instance(), SIGNAL(aboutToRemoveObject(QObject*)),
-            this, SLOT(aboutToRemoveObject(QObject*)));
-    connect(ICore::instance(), SIGNAL(saveSettingsRequested()), this, SLOT(saveSettings()));
+    connect(ExtensionSystem::PluginManager::instance(), &ExtensionSystem::PluginManager::objectAdded,
+            this, &StatusBarManager::objectAdded);
+    connect(ExtensionSystem::PluginManager::instance(), &ExtensionSystem::PluginManager::aboutToRemoveObject,
+            this, &StatusBarManager::aboutToRemoveObject);
+    connect(ICore::instance(), &ICore::saveSettingsRequested, this, &StatusBarManager::saveSettings);
 }
 
 void StatusBarManager::objectAdded(QObject *obj)

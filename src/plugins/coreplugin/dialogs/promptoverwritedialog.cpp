@@ -72,8 +72,8 @@ PromptOverwriteDialog::PromptOverwriteDialog(QWidget *parent) :
     m_view->setModel(m_model);
     mainLayout->addWidget(m_view);
     QDialogButtonBox *bb = new QDialogButtonBox(QDialogButtonBox::Ok|QDialogButtonBox::Cancel);
-    connect(bb, SIGNAL(accepted()), this, SLOT(accept()));
-    connect(bb, SIGNAL(rejected()), this, SLOT(reject()));
+    connect(bb, &QDialogButtonBox::accepted, this, &QDialog::accept);
+    connect(bb, &QDialogButtonBox::rejected, this, &QDialog::reject);
     mainLayout->addWidget(bb);
 }
 

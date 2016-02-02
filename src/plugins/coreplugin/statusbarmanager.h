@@ -63,12 +63,11 @@ public:
     void extensionsInitalized();
     void restoreSettings();
 
-private slots:
+private:
     void objectAdded(QObject *obj);
     void aboutToRemoveObject(QObject *obj);
     void saveSettings();
 
-private:
     MainWindow *m_mainWnd;
     QSplitter *m_splitter;
     QList<QWidget *> m_statusBarWidgets;

@@ -135,8 +135,8 @@ EditorToolBar::EditorToolBar(QWidget *parent) :
     d->m_dragHandleMenu = new QMenu(d->m_dragHandle);
     d->m_dragHandle->setMenu(d->m_dragHandleMenu);
 
-    connect(d->m_goBackAction, SIGNAL(triggered()), this, SIGNAL(goBackClicked()));
-    connect(d->m_goForwardAction, SIGNAL(triggered()), this, SIGNAL(goForwardClicked()));
+    connect(d->m_goBackAction, &QAction::triggered, this, &EditorToolBar::goBackClicked);
+    connect(d->m_goForwardAction, &QAction::triggered, this, &EditorToolBar::goForwardClicked);
 
     d->m_editorList->setProperty("hideicon", true);
     d->m_editorList->setProperty("notelideasterisk", true);
@@ -193,7 +193,8 @@ EditorToolBar::EditorToolBar(QWidget *parent) :
 
     // this signal is disconnected for standalone toolbars and replaced with
     // a private slot connection
-    connect(d->m_editorList, SIGNAL(activated(int)), this, SIGNAL(listSelectionActivated(int)));
+    connect(d->m_editorList, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated),
+            this, &EditorToolBar::listSelectionActivated);
 
     connect(d->m_editorList, &QComboBox::customContextMenuRequested, [this](QPoint p) {
        QMenu menu;
@@ -204,24 +205,25 @@ EditorToolBar::EditorToolBar(QWidget *parent) :
        d->m_dragHandleMenu->clear();
        fillListContextMenu(d->m_dragHandleMenu);
     });
-    connect(d->m_lockButton, SIGNAL(clicked()), this, SLOT(makeEditorWritable()));
-    connect(d->m_closeEditorButton, SIGNAL(clicked()), this, SLOT(closeEditor()), Qt::QueuedConnection);
-    connect(d->m_horizontalSplitAction, SIGNAL(triggered()),
-            this, SIGNAL(horizontalSplitClicked()), Qt::QueuedConnection);
-    connect(d->m_verticalSplitAction, SIGNAL(triggered()),
-            this, SIGNAL(verticalSplitClicked()), Qt::QueuedConnection);
-    connect(d->m_splitNewWindowAction, SIGNAL(triggered()),
-            this, SIGNAL(splitNewWindowClicked()), Qt::QueuedConnection);
-    connect(d->m_closeSplitButton, SIGNAL(clicked()),
-            this, SIGNAL(closeSplitClicked()), Qt::QueuedConnection);
+    connect(d->m_lockButton, &QAbstractButton::clicked, this, &EditorToolBar::makeEditorWritable);
+    connect(d->m_closeEditorButton, &QAbstractButton::clicked,
+            this, &EditorToolBar::closeEditor, Qt::QueuedConnection);
+    connect(d->m_horizontalSplitAction, &QAction::triggered,
+            this, &EditorToolBar::horizontalSplitClicked, Qt::QueuedConnection);
+    connect(d->m_verticalSplitAction, &QAction::triggered,
+            this, &EditorToolBar::verticalSplitClicked, Qt::QueuedConnection);
+    connect(d->m_splitNewWindowAction, &QAction::triggered,
+            this, &EditorToolBar::splitNewWindowClicked, Qt::QueuedConnection);
+    connect(d->m_closeSplitButton, &QAbstractButton::clicked,
+            this, &EditorToolBar::closeSplitClicked, Qt::QueuedConnection);
 
 
-    connect(ActionManager::command(Constants::CLOSE), SIGNAL(keySequenceChanged()),
-            this, SLOT(updateActionShortcuts()));
-    connect(ActionManager::command(Constants::GO_BACK), SIGNAL(keySequenceChanged()),
-            this, SLOT(updateActionShortcuts()));
-    connect(ActionManager::command(Constants::GO_FORWARD), SIGNAL(keySequenceChanged()),
-            this, SLOT(updateActionShortcuts()));
+    connect(ActionManager::command(Constants::CLOSE), &Command::keySequenceChanged,
+            this, &EditorToolBar::updateActionShortcuts);
+    connect(ActionManager::command(Constants::GO_BACK), &Command::keySequenceChanged,
+            this, &EditorToolBar::updateActionShortcuts);
+    connect(ActionManager::command(Constants::GO_FORWARD), &Command::keySequenceChanged,
+            this, &EditorToolBar::updateActionShortcuts);
 
     updateActionShortcuts();
 }
@@ -234,7 +236,7 @@ EditorToolBar::~EditorToolBar()
 void EditorToolBar::removeToolbarForEditor(IEditor *editor)
 {
     QTC_ASSERT(editor, return);
-    disconnect(editor->document(), SIGNAL(changed()), this, SLOT(checkDocumentStatus()));
+    disconnect(editor->document(), &IDocument::changed, this, &EditorToolBar::checkDocumentStatus);
 
     QWidget *toolBar = editor->toolBar();
     if (toolBar != 0) {
@@ -268,7 +270,7 @@ void EditorToolBar::closeEditor()
 void EditorToolBar::addEditor(IEditor *editor)
 {
     QTC_ASSERT(editor, return);
-    connect(editor->document(), SIGNAL(changed()), this, SLOT(checkDocumentStatus()));
+    connect(editor->document(), &IDocument::changed, this, &EditorToolBar::checkDocumentStatus);
     QWidget *toolBar = editor->toolBar();
 
     if (toolBar && !d->m_isStandalone)
@@ -304,8 +306,10 @@ void EditorToolBar::setToolbarCreationFlags(ToolbarCreationFlags flags)
         connect(EditorManager::instance(), &EditorManager::currentEditorChanged,
                 this, &EditorToolBar::updateEditorListSelection);
 
-        disconnect(d->m_editorList, SIGNAL(activated(int)), this, SIGNAL(listSelectionActivated(int)));
-        connect(d->m_editorList, SIGNAL(activated(int)), this, SLOT(changeActiveEditor(int)));
+        disconnect(d->m_editorList, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated),
+                   this, &EditorToolBar::listSelectionActivated);
+        connect(d->m_editorList, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated),
+                this, &EditorToolBar::changeActiveEditor);
         d->m_splitButton->setVisible(false);
         d->m_closeSplitButton->setVisible(false);
     }

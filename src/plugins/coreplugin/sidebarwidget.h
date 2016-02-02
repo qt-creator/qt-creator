@@ -66,10 +66,9 @@ signals:
     void closeMe();
     void currentWidgetChanged();
 
-private slots:
+private:
     void setCurrentIndex(int);
 
-private:
     SideBarComboBox *m_comboBox;
     SideBarItem *m_currentItem;
     QToolBar *m_toolbar;

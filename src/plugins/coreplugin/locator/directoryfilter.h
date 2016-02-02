@@ -48,14 +48,13 @@ public:
     bool openConfigDialog(QWidget *parent, bool &needsRefresh);
     void refresh(QFutureInterface<void> &future);
 
-private slots:
+private:
     void addDirectory();
     void editDirectory();
     void removeDirectory();
     void updateOptionButtons();
     void updateFileIterator();
 
-private:
     QStringList m_directories;
     QStringList m_filters;
     // Our config dialog, uses in addDirectory and editDirectory

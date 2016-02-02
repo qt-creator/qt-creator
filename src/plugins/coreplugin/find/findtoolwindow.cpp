@@ -55,13 +55,14 @@ FindToolWindow::FindToolWindow(FindPlugin *plugin, QWidget *parent)
     m_ui.searchTerm->setPlaceholderText(QString());
     setFocusProxy(m_ui.searchTerm);
 
-    connect(m_ui.searchButton, SIGNAL(clicked()), this, SLOT(search()));
-    connect(m_ui.replaceButton, SIGNAL(clicked()), this, SLOT(replace()));
-    connect(m_ui.matchCase, SIGNAL(toggled(bool)), m_plugin, SLOT(setCaseSensitive(bool)));
-    connect(m_ui.wholeWords, SIGNAL(toggled(bool)), m_plugin, SLOT(setWholeWord(bool)));
-    connect(m_ui.regExp, SIGNAL(toggled(bool)), m_plugin, SLOT(setRegularExpression(bool)));
-    connect(m_ui.filterList, SIGNAL(activated(int)), this, SLOT(setCurrentFilter(int)));
-    connect(m_ui.searchTerm, SIGNAL(textChanged(QString)), this, SLOT(updateButtonStates()));
+    connect(m_ui.searchButton, &QAbstractButton::clicked, this, &FindToolWindow::search);
+    connect(m_ui.replaceButton, &QAbstractButton::clicked, this, &FindToolWindow::replace);
+    connect(m_ui.matchCase, &QAbstractButton::toggled, m_plugin, &FindPlugin::setCaseSensitive);
+    connect(m_ui.wholeWords, &QAbstractButton::toggled, m_plugin, &FindPlugin::setWholeWord);
+    connect(m_ui.regExp, &QAbstractButton::toggled, m_plugin, &FindPlugin::setRegularExpression);
+    connect(m_ui.filterList, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated),
+            this, static_cast<void (FindToolWindow::*)(int)>(&FindToolWindow::setCurrentFilter));
+    connect(m_ui.searchTerm, &QLineEdit::textChanged, this, &FindToolWindow::updateButtonStates);
 
     m_findCompleter->setModel(m_plugin->findCompletionModel());
     m_ui.searchTerm->setSpecialCompleter(m_findCompleter);
@@ -72,7 +73,7 @@ FindToolWindow::FindToolWindow(FindPlugin *plugin, QWidget *parent)
     m_ui.configWidget->setLayout(layout);
     updateButtonStates();
 
-    connect(m_plugin, SIGNAL(findFlagsChanged()), this, SLOT(updateFindFlags()));
+    connect(m_plugin, &FindPlugin::findFlagsChanged, this, &FindToolWindow::updateFindFlags);
 }
 
 FindToolWindow::~FindToolWindow()
@@ -190,9 +191,11 @@ void FindToolWindow::setCurrentFilter(int index)
         if (i == index) {
             m_configWidget = configWidget;
             if (m_currentFilter)
-                disconnect(m_currentFilter, SIGNAL(enabledChanged(bool)), this, SLOT(updateButtonStates()));
+                disconnect(m_currentFilter, &IFindFilter::enabledChanged,
+                           this, &FindToolWindow::updateButtonStates);
             m_currentFilter = m_filters.at(i);
-            connect(m_currentFilter, SIGNAL(enabledChanged(bool)), this, SLOT(updateButtonStates()));
+            connect(m_currentFilter, &IFindFilter::enabledChanged,
+                    this, &FindToolWindow::updateButtonStates);
             updateButtonStates();
             if (m_configWidget)
                 m_ui.configWidget->layout()->addWidget(m_configWidget);

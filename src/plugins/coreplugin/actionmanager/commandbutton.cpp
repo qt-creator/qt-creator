@@ -58,7 +58,7 @@ CommandButton::CommandButton(Id id, QWidget *parent)
 void CommandButton::setCommandId(Id id)
 {
     if (m_command)
-        disconnect(m_command, SIGNAL(keySequenceChanged()), this, SLOT(updateToolTip()));
+        disconnect(m_command.data(), &Command::keySequenceChanged, this, &CommandButton::updateToolTip);
 
     m_command = ActionManager::command(id);
 
@@ -66,7 +66,7 @@ void CommandButton::setCommandId(Id id)
         m_toolTipBase = m_command->description();
 
     updateToolTip();
-    connect(m_command, SIGNAL(keySequenceChanged()), this, SLOT(updateToolTip()));
+    connect(m_command.data(), &Command::keySequenceChanged, this, &CommandButton::updateToolTip);
 }
 
 QString CommandButton::toolTipBase() const

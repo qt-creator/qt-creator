@@ -97,7 +97,7 @@ signals:
 protected:
     bool eventFilter(QObject *obj, QEvent *event);
 
-private slots:
+private:
     void changeActiveEditor(int row);
     void makeEditorWritable();
 
@@ -105,7 +105,6 @@ private slots:
     void closeEditor();
     void updateActionShortcuts();
 
-private:
     void updateDocumentStatus(IDocument *document);
     void updateEditorListSelection(IEditor *newSelection);
     void fillListContextMenu(QMenu *menu);

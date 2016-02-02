@@ -65,10 +65,9 @@ public:
 signals:
     void actionsUpdated(Core::IEditor *editor);
 
-private slots:
+private:
     void updateActions();
 
-private:
     void currentEditorChanged(IEditor *editor);
     void updateContext(IMode *newMode, IMode *oldMode);
     void setActiveContext(const Context &context);

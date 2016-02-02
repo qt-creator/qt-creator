@@ -73,13 +73,13 @@ SideBarWidget::SideBarWidget(SideBar *sideBar, const QString &id)
     m_splitAction = new QAction(tr("Split"), m_toolbar);
     m_splitAction->setToolTip(tr("Split"));
     m_splitAction->setIcon(Icons::SPLIT_HORIZONTAL.icon());
-    connect(m_splitAction, SIGNAL(triggered()), this, SIGNAL(splitMe()));
+    connect(m_splitAction, &QAction::triggered, this, &SideBarWidget::splitMe);
     m_toolbar->addAction(m_splitAction);
 
     m_closeAction = new QAction(tr("Close"), m_toolbar);
     m_closeAction->setToolTip(tr("Close"));
     m_closeAction->setIcon(Icons::CLOSE_SPLIT_BOTTOM.icon());
-    connect(m_closeAction, SIGNAL(triggered()), this, SIGNAL(closeMe()));
+    connect(m_closeAction, &QAction::triggered, this, &SideBarWidget::closeMe);
     m_toolbar->addAction(m_closeAction);
 
     QVBoxLayout *lay = new QVBoxLayout();
@@ -101,8 +101,8 @@ SideBarWidget::SideBarWidget(SideBar *sideBar, const QString &id)
     }
     setCurrentItem(t);
 
-    connect(m_comboBox, SIGNAL(currentIndexChanged(int)),
-            this, SLOT(setCurrentIndex(int)));
+    connect(m_comboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+            this, &SideBarWidget::setCurrentIndex);
 }
 
 SideBarWidget::~SideBarWidget()

@@ -164,13 +164,13 @@ void CurrentDocumentFind::updateCandidateFindFilter(QWidget *old, QWidget *now)
     if (candidate == m_candidateWidget && impl == m_candidateFind)
         return;
     if (m_candidateWidget)
-        disconnect(Aggregation::Aggregate::parentAggregate(m_candidateWidget), SIGNAL(changed()),
-                   this, SLOT(candidateAggregationChanged()));
+        disconnect(Aggregation::Aggregate::parentAggregate(m_candidateWidget), &Aggregation::Aggregate::changed,
+                   this, &CurrentDocumentFind::candidateAggregationChanged);
     m_candidateWidget = candidate;
     m_candidateFind = impl;
     if (m_candidateWidget)
-        connect(Aggregation::Aggregate::parentAggregate(m_candidateWidget), SIGNAL(changed()),
-                this, SLOT(candidateAggregationChanged()));
+        connect(Aggregation::Aggregate::parentAggregate(m_candidateWidget), &Aggregation::Aggregate::changed,
+                this, &CurrentDocumentFind::candidateAggregationChanged);
     emit candidateChanged();
 }
 
@@ -183,17 +183,17 @@ void CurrentDocumentFind::acceptCandidate()
         m_currentFind->clearHighlights();
 
     if (m_currentWidget)
-        disconnect(Aggregation::Aggregate::parentAggregate(m_currentWidget), SIGNAL(changed()),
-                   this, SLOT(aggregationChanged()));
+        disconnect(Aggregation::Aggregate::parentAggregate(m_currentWidget), &Aggregation::Aggregate::changed,
+                   this, &CurrentDocumentFind::aggregationChanged);
     m_currentWidget = m_candidateWidget;
-    connect(Aggregation::Aggregate::parentAggregate(m_currentWidget), SIGNAL(changed()),
-            this, SLOT(aggregationChanged()));
+    connect(Aggregation::Aggregate::parentAggregate(m_currentWidget), &Aggregation::Aggregate::changed,
+            this, &CurrentDocumentFind::aggregationChanged);
 
     m_currentFind = m_candidateFind;
     if (m_currentFind) {
         connect(m_currentFind.data(), &IFindSupport::changed,
                 this, &CurrentDocumentFind::changed);
-        connect(m_currentFind, SIGNAL(destroyed(QObject*)), SLOT(clearFindSupport()));
+        connect(m_currentFind.data(), &QObject::destroyed, this, &CurrentDocumentFind::clearFindSupport);
     }
     if (m_currentWidget)
         m_currentWidget->installEventFilter(this);

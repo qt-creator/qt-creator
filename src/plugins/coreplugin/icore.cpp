@@ -315,14 +315,14 @@ ICore::ICore(MainWindow *mainwindow)
     m_instance = this;
     m_mainwindow = mainwindow;
     // Save settings once after all plugins are initialized:
-    connect(PluginManager::instance(), SIGNAL(initializationDone()),
-            this, SLOT(saveSettings()));
+    connect(PluginManager::instance(), &PluginManager::initializationDone,
+            this, &ICore::saveSettings);
     connect(PluginManager::instance(), &PluginManager::testsFinished, [this] (int failedTests) {
         emit coreAboutToClose();
         QCoreApplication::exit(failedTests);
     });
-    connect(m_mainwindow, SIGNAL(newItemDialogRunningChanged()),
-            this, SIGNAL(newItemDialogRunningChanged()));
+    connect(m_mainwindow, &MainWindow::newItemDialogRunningChanged,
+            this, &ICore::newItemDialogRunningChanged);
 }
 
 ICore::~ICore()

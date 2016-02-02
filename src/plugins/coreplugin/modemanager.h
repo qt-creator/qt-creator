@@ -69,19 +69,18 @@ signals:
     // the default argument '=0' is important for connects without the oldMode argument.
     void currentModeChanged(Core::IMode *mode, Core::IMode *oldMode = 0);
 
-private slots:
+private:
+    explicit ModeManager(Internal::MainWindow *mainWindow, Internal::FancyTabWidget *modeStack);
+    ~ModeManager();
+
+    static void init();
+
     void objectAdded(QObject *obj);
     void aboutToRemoveObject(QObject *obj);
     void currentTabAboutToChange(int index);
     void currentTabChanged(int index);
     void updateModeToolTip();
     void enabledStateChanged();
-
-private:
-    explicit ModeManager(Internal::MainWindow *mainWindow, Internal::FancyTabWidget *modeStack);
-    ~ModeManager();
-
-    static void init();
 
     friend class Core::Internal::MainWindow;
 };

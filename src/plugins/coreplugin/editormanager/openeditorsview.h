@@ -56,7 +56,7 @@ public:
     // QAbstractProxyModel::supportedDragActions delegation is missing in Qt 5
     Qt::DropActions supportedDragActions() const;
 
-private slots:
+private:
     void sourceDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
     void sourceRowsRemoved(const QModelIndex &parent, int start, int end);
     void sourceRowsInserted(const QModelIndex &parent, int start, int end);

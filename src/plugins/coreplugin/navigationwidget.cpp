@@ -181,10 +181,10 @@ void NavigationWidget::setFactories(const QList<INavigationWidgetFactory *> &fac
 
     foreach (INavigationWidgetFactory *factory, factories) {
         const Id id = factory->id();
-
         QAction *action = new QAction(tr("Activate %1 View").arg(factory->displayName()), this);
-        connect(action, SIGNAL(triggered()), this, SLOT(activateSubWidget()));
         d->m_actionMap.insert(action, id);
+        connect(action, &QAction::triggered,
+                this, [this, action]() { activateSubWidget(d->m_actionMap[action]); });
 
         Command *cmd = ActionManager::registerAction(action,
             id.withPrefix("QtCreator.Sidebar."), navicontext);
@@ -248,20 +248,13 @@ Internal::NavigationSubWidget *NavigationWidget::insertSubItem(int position,int 
     Internal::NavigationSubWidget *nsw = new Internal::NavigationSubWidget(this, position, index);
     connect(nsw, &Internal::NavigationSubWidget::splitMe,
             this, &NavigationWidget::splitSubWidget);
-    connect(nsw, SIGNAL(closeMe()), this, SLOT(closeSubWidget()));
+    connect(nsw, &Internal::NavigationSubWidget::closeMe, this, &NavigationWidget::closeSubWidget);
     insertWidget(position, nsw);
     d->m_subWidgets.insert(position, nsw);
     d->m_subWidgets.at(0)->setCloseIcon(d->m_subWidgets.size() == 1
                                         ? Icons::CLOSE_SPLIT_LEFT.icon()
                                         : Icons::CLOSE_SPLIT_TOP.icon());
     return nsw;
-}
-
-void NavigationWidget::activateSubWidget()
-{
-    QAction *original = qobject_cast<QAction *>(sender());
-    Id id = d->m_actionMap[original];
-    activateSubWidget(id);
 }
 
 QWidget *NavigationWidget::activateSubWidget(Id factoryId)

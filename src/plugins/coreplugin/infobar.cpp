@@ -172,8 +172,8 @@ void InfoBarDisplay::setInfoBar(InfoBar *infoBar)
         m_infoBar->disconnect(this);
     m_infoBar = infoBar;
     if (m_infoBar) {
-        connect(m_infoBar, SIGNAL(changed()), SLOT(update()));
-        connect(m_infoBar, SIGNAL(destroyed()), SLOT(infoBarDestroyed()));
+        connect(m_infoBar, &InfoBar::changed, this, &InfoBarDisplay::update);
+        connect(m_infoBar, &QObject::destroyed, this, &InfoBarDisplay::infoBarDestroyed);
     }
     update();
 }
@@ -258,7 +258,7 @@ void InfoBarDisplay::update()
                 hbox->addWidget(infoWidgetSuppressButton);
         }
 
-        connect(infoWidget, SIGNAL(destroyed()), SLOT(widgetDestroyed()));
+        connect(infoWidget, &QObject::destroyed, this, &InfoBarDisplay::widgetDestroyed);
         m_boxLayout->insertWidget(m_boxIndex, infoWidget);
         m_infoWidgets << infoWidget;
     }

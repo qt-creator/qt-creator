@@ -56,10 +56,9 @@ protected:
     bool event(QEvent *ev);
     bool eventFilter(QObject *obj, QEvent *ev);
 
-private slots:
+private:
     void actionChanged();
 
-private:
     QCheckBox *createCheckboxForCommand(Id id);
 
     QMap<QAction *, QCheckBox *> m_checkboxMap;
@@ -89,10 +88,15 @@ public:
     void setUseFakeVim(bool on);
 
     void setLightColoredIcon(bool lightColored);
+
 public slots:
     void setBackward(bool backward);
 
-private slots:
+protected:
+    bool focusNextPrevChild(bool next);
+    void resizeEvent(QResizeEvent *event);
+
+private:
     void invokeFindNext();
     void invokeGlobalFindNext();
     void invokeFindPrevious();
@@ -133,11 +137,6 @@ private slots:
 
     void setFocusToCurrentFindSupport();
 
-protected:
-    bool focusNextPrevChild(bool next);
-    void resizeEvent(QResizeEvent *event);
-
-private:
     void installEventFilters();
     void invokeClearResults();
     void setFindFlag(FindFlag flag, bool enabled);

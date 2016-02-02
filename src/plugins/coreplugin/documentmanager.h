@@ -45,7 +45,10 @@ namespace Core {
 class IContext;
 class IDocument;
 
-namespace Internal { class MainWindow; }
+namespace Internal {
+class DocumentManagerPrivate;
+class MainWindow;
+}
 
 class CORE_EXPORT DocumentManager : public QObject
 {
@@ -148,19 +151,18 @@ signals:
 protected:
     bool eventFilter(QObject *obj, QEvent *e);
 
-private slots:
-    void documentDestroyed(QObject *obj);
-    void checkForNewFileName();
-    void checkForReload();
-    void changedFile(const QString &file);
-
 private:
     explicit DocumentManager(QObject *parent);
     ~DocumentManager();
 
+    void documentDestroyed(QObject *obj);
+    void checkForNewFileName();
+    void checkForReload();
+    void changedFile(const QString &file);
     void filePathChanged(const Utils::FileName &oldName, const Utils::FileName &newName);
 
     friend class Core::Internal::MainWindow;
+    friend class Core::Internal::DocumentManagerPrivate;
 };
 
 /*! The FileChangeBlocker blocks all change notifications to all IDocument * that

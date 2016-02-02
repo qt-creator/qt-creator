@@ -67,7 +67,7 @@ public slots:
 protected:
     bool eventFilter(QObject *obj, QEvent *event);
 
-private slots:
+private:
     void taskFinished();
     void cancelAllRunningTasks();
     void setApplicationProgressRange(int min, int max);
@@ -83,7 +83,6 @@ private slots:
     void updateStatusDetailsWidget();
 
     void slotRemoveTask();
-private:
     void readSettings();
     void initInternal();
     void stopFadeOfSummaryProgress();
@@ -130,10 +129,9 @@ class ProgressTimer : public QTimer
 public:
     ProgressTimer(QObject *parent, const QFutureInterface<void> &futureInterface, int expectedSeconds);
 
-private slots:
+private:
     void handleTimeout();
 
-private:
     QFutureInterface<void> m_futureInterface;
     QFutureWatcher<void> m_futureWatcher;
     int m_expectedTime;

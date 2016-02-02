@@ -271,12 +271,13 @@ LocatorWidget::LocatorWidget(Locator *qop) :
 
     m_fileLineEdit->setButtonMenu(Utils::FancyLineEdit::Left, m_filterMenu);
 
-    connect(m_refreshAction, SIGNAL(triggered()), m_locatorPlugin, SLOT(refresh()));
-    connect(m_configureAction, SIGNAL(triggered()), this, SLOT(showConfigureDialog()));
-    connect(m_fileLineEdit, SIGNAL(textChanged(QString)),
-        this, SLOT(showPopup()));
-    connect(m_completionList, SIGNAL(activated(QModelIndex)),
-            this, SLOT(scheduleAcceptCurrentEntry()));
+    connect(m_refreshAction, &QAction::triggered,
+            m_locatorPlugin, [this]() { m_locatorPlugin->refresh(); });
+    connect(m_configureAction, &QAction::triggered, this, &LocatorWidget::showConfigureDialog);
+    connect(m_fileLineEdit, &QLineEdit::textChanged,
+        this, &LocatorWidget::showPopup);
+    connect(m_completionList, &QAbstractItemView::activated,
+            this, &LocatorWidget::scheduleAcceptCurrentEntry);
 
     m_entriesWatcher = new QFutureWatcher<LocatorFilterEntry>(this);
     connect(m_entriesWatcher, &QFutureWatcher<LocatorFilterEntry>::resultsReadyAt,
@@ -286,7 +287,7 @@ LocatorWidget::LocatorWidget(Locator *qop) :
 
     m_showPopupTimer.setInterval(100);
     m_showPopupTimer.setSingleShot(true);
-    connect(&m_showPopupTimer, SIGNAL(timeout()), SLOT(showPopupNow()));
+    connect(&m_showPopupTimer, &QTimer::timeout, this, &LocatorWidget::showPopupNow);
 
     m_progressIndicator = new Utils::ProgressIndicator(Utils::ProgressIndicator::Small,
                                                        m_fileLineEdit);
@@ -324,7 +325,7 @@ void LocatorWidget::updateFilterList()
             action = new QAction(filter->displayName(), this);
             cmd = ActionManager::registerAction(action, locatorId);
             cmd->setAttribute(Command::CA_UpdateText);
-            connect(action, SIGNAL(triggered()), this, SLOT(filterSelected()));
+            connect(action, &QAction::triggered, this, &LocatorWidget::filterSelected);
             action->setData(qVariantFromValue(filter));
         } else {
             action = actionCopy.take(filterId);
@@ -415,7 +416,7 @@ bool LocatorWidget::eventFilter(QObject *obj, QEvent *event)
         case Qt::Key_Escape:
             if (!ke->modifiers()) {
                 event->accept();
-                QTimer::singleShot(0, this, SLOT(setFocusToCurrentMode()));
+                QTimer::singleShot(0, this, &LocatorWidget::setFocusToCurrentMode);
                 return true;
             }
         case Qt::Key_Alt:

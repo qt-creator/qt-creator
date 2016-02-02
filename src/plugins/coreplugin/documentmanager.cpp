@@ -126,8 +126,9 @@ struct FileState
 };
 
 
-struct DocumentManagerPrivate
+class DocumentManagerPrivate
 {
+public:
     DocumentManagerPrivate();
     QFileSystemWatcher *fileWatcher();
     QFileSystemWatcher *linkWatcher();
@@ -163,8 +164,8 @@ QFileSystemWatcher *DocumentManagerPrivate::fileWatcher()
 {
     if (!m_fileWatcher) {
         m_fileWatcher= new QFileSystemWatcher(m_instance);
-        QObject::connect(m_fileWatcher, SIGNAL(fileChanged(QString)),
-                         m_instance, SLOT(changedFile(QString)));
+        QObject::connect(m_fileWatcher, &QFileSystemWatcher::fileChanged,
+                         m_instance, &DocumentManager::changedFile);
     }
     return m_fileWatcher;
 }
@@ -175,8 +176,8 @@ QFileSystemWatcher *DocumentManagerPrivate::linkWatcher()
         if (!m_linkWatcher) {
             m_linkWatcher = new QFileSystemWatcher(m_instance);
             m_linkWatcher->setObjectName(QLatin1String("_qt_autotest_force_engine_poller"));
-            QObject::connect(m_linkWatcher, SIGNAL(fileChanged(QString)),
-                             m_instance, SLOT(changedFile(QString)));
+            QObject::connect(m_linkWatcher, &QFileSystemWatcher::fileChanged,
+                             m_instance, &DocumentManager::changedFile);
         }
         return m_linkWatcher;
     }
@@ -271,7 +272,8 @@ void DocumentManager::addDocuments(const QList<IDocument *> &documents, bool add
 
         foreach (IDocument *document, documents) {
             if (document && !d->m_documentsWithoutWatch.contains(document)) {
-                connect(document, SIGNAL(destroyed(QObject*)), m_instance, SLOT(documentDestroyed(QObject*)));
+                connect(document, &QObject::destroyed,
+                        m_instance, &DocumentManager::documentDestroyed);
                 connect(document, &IDocument::filePathChanged,
                         m_instance, &DocumentManager::filePathChanged);
                 d->m_documentsWithoutWatch.append(document);
@@ -282,9 +284,10 @@ void DocumentManager::addDocuments(const QList<IDocument *> &documents, bool add
 
     foreach (IDocument *document, documents) {
         if (document && !d->m_documentsWithWatch.contains(document)) {
-            connect(document, SIGNAL(changed()), m_instance, SLOT(checkForNewFileName()));
-            connect(document, SIGNAL(destroyed(QObject*)), m_instance, SLOT(documentDestroyed(QObject*)));
-            connect(document, &IDocument::filePathChanged, m_instance, &DocumentManager::filePathChanged);
+            connect(document, &IDocument::changed, m_instance, &DocumentManager::checkForNewFileName);
+            connect(document, &QObject::destroyed, m_instance, &DocumentManager::documentDestroyed);
+            connect(document, &IDocument::filePathChanged,
+                    m_instance, &DocumentManager::filePathChanged);
             addFileInfo(document);
         }
     }
@@ -425,9 +428,9 @@ bool DocumentManager::removeDocument(IDocument *document)
     if (!d->m_documentsWithoutWatch.removeOne(document)) {
         addWatcher = true;
         removeFileInfo(document);
-        disconnect(document, SIGNAL(changed()), m_instance, SLOT(checkForNewFileName()));
+        disconnect(document, &IDocument::changed, m_instance, &DocumentManager::checkForNewFileName);
     }
-    disconnect(document, SIGNAL(destroyed(QObject*)), m_instance, SLOT(documentDestroyed(QObject*)));
+    disconnect(document, &QObject::destroyed, m_instance, &DocumentManager::documentDestroyed);
     return addWatcher;
 }
 
@@ -888,7 +891,7 @@ void DocumentManager::changedFile(const QString &fileName)
         d->m_changedFiles.insert(fileName);
 
     if (wasempty && !d->m_changedFiles.isEmpty())
-        QTimer::singleShot(200, this, SLOT(checkForReload()));
+        QTimer::singleShot(200, this, &DocumentManager::checkForReload);
 }
 
 void DocumentManager::checkForReload()
@@ -904,7 +907,7 @@ void DocumentManager::checkForReload()
         // file modified dialog, or of loading large files, has delivered a file change event from
         // a watcher *and* the timer triggered. We may never end up here in a nested way, so
         // recheck later.
-        QTimer::singleShot(200, this, SLOT(checkForReload()));
+        QTimer::singleShot(200, this, &DocumentManager::checkForReload);
         return;
     }
 
@@ -1374,7 +1377,7 @@ bool DocumentManager::eventFilter(QObject *obj, QEvent *e)
 {
     if (obj == qApp && e->type() == QEvent::ApplicationActivate) {
         // activeWindow is not necessarily set yet, do checkForReload asynchronously
-        QTimer::singleShot(0, this, SLOT(checkForReload()));
+        QTimer::singleShot(0, this, &DocumentManager::checkForReload);
     }
     return false;
 }

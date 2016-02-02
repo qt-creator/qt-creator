@@ -82,12 +82,11 @@ protected:
     // groupId --> list of Command* and ActionContainer*
     QList<Group> m_groups;
 
-private slots:
+private:
     void scheduleUpdate();
     void update();
     void itemDestroyed();
 
-private:
     QList<Group>::const_iterator findGroup(Id groupId) const;
     QAction *insertLocation(QList<Group>::const_iterator group) const;
 

@@ -129,14 +129,13 @@ public:
     bool hasError() const;
     QString errorString() const;
 
-private slots:
+private:
     void started();
     void finished(int exitCode, QProcess::ExitStatus status);
     void error(QProcess::ProcessError error);
     void readStandardOutput();
     void readStandardError();
 
-private:
     void run();
     bool resolve();
 

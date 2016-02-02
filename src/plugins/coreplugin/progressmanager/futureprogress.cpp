@@ -54,12 +54,10 @@ class FutureProgressPrivate : public QObject
 {
     Q_OBJECT
 
-public slots:
-    void fadeAway();
-
 public:
     explicit FutureProgressPrivate(FutureProgress *q);
 
+    void fadeAway();
     void tryToFadeAway();
 
     QFutureWatcher<void> m_watcher;
@@ -135,14 +133,16 @@ FutureProgress::FutureProgress(QWidget *parent) :
     d->m_widgetLayout->setContentsMargins(7, 0, 7, 2);
     d->m_widgetLayout->setSpacing(0);
 
-    connect(&d->m_watcher, SIGNAL(started()), this, SLOT(setStarted()));
-    connect(&d->m_watcher, SIGNAL(finished()), this, SLOT(setFinished()));
-    connect(&d->m_watcher, SIGNAL(canceled()), this, SIGNAL(canceled()));
-    connect(&d->m_watcher, SIGNAL(progressRangeChanged(int,int)), this, SLOT(setProgressRange(int,int)));
-    connect(&d->m_watcher, SIGNAL(progressValueChanged(int)), this, SLOT(setProgressValue(int)));
-    connect(&d->m_watcher, SIGNAL(progressTextChanged(QString)),
-            this, SLOT(setProgressText(QString)));
-    connect(d->m_progress, SIGNAL(clicked()), this, SLOT(cancel()));
+    connect(&d->m_watcher, &QFutureWatcherBase::started, this, &FutureProgress::setStarted);
+    connect(&d->m_watcher, &QFutureWatcherBase::finished, this, &FutureProgress::setFinished);
+    connect(&d->m_watcher, &QFutureWatcherBase::canceled, this, &FutureProgress::canceled);
+    connect(&d->m_watcher, &QFutureWatcherBase::progressRangeChanged,
+            this, &FutureProgress::setProgressRange);
+    connect(&d->m_watcher, &QFutureWatcherBase::progressValueChanged,
+            this, &FutureProgress::setProgressValue);
+    connect(&d->m_watcher, &QFutureWatcherBase::progressTextChanged,
+            this, &FutureProgress::setProgressText);
+    connect(d->m_progress, &Internal::ProgressBar::clicked, this, &FutureProgress::cancel);
     setMinimumWidth(100);
     setMaximumWidth(300);
 }
@@ -212,7 +212,7 @@ bool FutureProgress::eventFilter(QObject *, QEvent *e)
     if (d->m_keep != KeepOnFinish && d->m_waitingForUserInteraction
             && (e->type() == QEvent::MouseMove || e->type() == QEvent::KeyPress)) {
         qApp->removeEventFilter(this);
-        QTimer::singleShot(notificationTimeout, d, SLOT(fadeAway()));
+        QTimer::singleShot(notificationTimeout, d, &FutureProgressPrivate::fadeAway);
     }
     return false;
 }
@@ -245,7 +245,7 @@ void FutureProgressPrivate::tryToFadeAway()
         qApp->installEventFilter(m_q);
         m_fadeStarting = true;
     } else if (m_keep == FutureProgress::HideOnFinish) {
-        QTimer::singleShot(shortNotificationTimeout, this, SLOT(fadeAway()));
+        QTimer::singleShot(shortNotificationTimeout, this, &FutureProgressPrivate::fadeAway);
         m_fadeStarting = true;
     }
 }
@@ -386,7 +386,7 @@ void FutureProgressPrivate::fadeAway()
     animation->setEndValue(0.0);
     group->addAnimation(animation);
 
-    connect(group, SIGNAL(finished()), m_q, SIGNAL(removeMe()));
+    connect(group, &QAbstractAnimation::finished, m_q, &FutureProgress::removeMe);
     group->start(QAbstractAnimation::DeleteWhenStopped);
     emit m_q->fadeStarted();
 }

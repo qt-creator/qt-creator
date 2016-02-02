@@ -78,10 +78,8 @@ public:
     void removeAttribute(CommandAttribute attr);
     bool hasAttribute(CommandAttribute attr) const;
 
-private slots:
-    void updateActiveState();
-
 private:
+    void updateActiveState();
     void setActive(bool state);
 
     Context m_context;

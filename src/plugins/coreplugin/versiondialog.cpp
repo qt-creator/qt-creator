@@ -98,7 +98,7 @@ VersionDialog::VersionDialog(QWidget *parent)
     QPushButton *closeButton = buttonBox->button(QDialogButtonBox::Close);
     QTC_CHECK(closeButton);
     buttonBox->addButton(closeButton, QDialogButtonBox::ButtonRole(QDialogButtonBox::RejectRole | QDialogButtonBox::AcceptRole));
-    connect(buttonBox , SIGNAL(rejected()), this, SLOT(reject()));
+    connect(buttonBox , &QDialogButtonBox::rejected, this, &QDialog::reject);
 
     QLabel *logoLabel = new QLabel;
     logoLabel->setPixmap(Icons::QTLOGO_128.pixmap());

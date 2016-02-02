@@ -74,15 +74,20 @@ EditorView::EditorView(SplitterOrView *parentSplitterOrView, QWidget *parent) :
     tl->setSpacing(0);
     tl->setMargin(0);
     {
-        connect(m_toolBar, SIGNAL(goBackClicked()), this, SLOT(goBackInNavigationHistory()));
-        connect(m_toolBar, SIGNAL(goForwardClicked()), this, SLOT(goForwardInNavigationHistory()));
-        connect(m_toolBar, SIGNAL(closeClicked()), this, SLOT(closeCurrentEditor()));
-        connect(m_toolBar, SIGNAL(listSelectionActivated(int)), this, SLOT(listSelectionActivated(int)));
-        connect(m_toolBar, &EditorToolBar::currentDocumentMoved, this, &EditorView::closeCurrentEditor);
-        connect(m_toolBar, SIGNAL(horizontalSplitClicked()), this, SLOT(splitHorizontally()));
-        connect(m_toolBar, SIGNAL(verticalSplitClicked()), this, SLOT(splitVertically()));
-        connect(m_toolBar, SIGNAL(splitNewWindowClicked()), this, SLOT(splitNewWindow()));
-        connect(m_toolBar, SIGNAL(closeSplitClicked()), this, SLOT(closeSplit()));
+        connect(m_toolBar, &EditorToolBar::goBackClicked,
+                this, &EditorView::goBackInNavigationHistory);
+        connect(m_toolBar, &EditorToolBar::goForwardClicked,
+                this, &EditorView::goForwardInNavigationHistory);
+        connect(m_toolBar, &EditorToolBar::closeClicked, this, &EditorView::closeCurrentEditor);
+        connect(m_toolBar, &EditorToolBar::listSelectionActivated,
+                this, &EditorView::listSelectionActivated);
+        connect(m_toolBar, &EditorToolBar::currentDocumentMoved,
+                this, &EditorView::closeCurrentEditor);
+        connect(m_toolBar, &EditorToolBar::horizontalSplitClicked,
+                this, &EditorView::splitHorizontally);
+        connect(m_toolBar, &EditorToolBar::verticalSplitClicked, this, &EditorView::splitVertically);
+        connect(m_toolBar, &EditorToolBar::splitNewWindowClicked, this, &EditorView::splitNewWindow);
+        connect(m_toolBar, &EditorToolBar::closeSplitClicked, this, &EditorView::closeSplit);
         m_toolBar->setMenuProvider([this](QMenu *menu) { fillListContextMenu(menu); });
         tl->addWidget(m_toolBar);
     }

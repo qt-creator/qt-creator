@@ -74,11 +74,10 @@ public:
 public slots:
     void selectAndHide();
 
-private slots:
+private:
     void editorClicked(QTreeWidgetItem *item);
     void selectEditor(QTreeWidgetItem *item);
 
-private:
     void addHistoryItems(const QList<EditLocation> &history, EditorView *view, QSet<IDocument*> &documentsDone);
     void addRestoredItems();
     void ensureCurrentVisible();

@@ -69,11 +69,10 @@ public:
 
     bool disambiguateDisplayNames(DocumentModel::Entry *entry);
 
-private slots:
+private:
     friend class DocumentModel;
     void itemChanged();
 
-private:
     class DynamicEntry
     {
     public:
@@ -263,7 +262,7 @@ void DocumentModelPrivate::addEntry(DocumentModel::Entry *entry)
         previousEntry = 0;
         disambiguateDisplayNames(entry);
         if (replace)
-            connect(entry->document, SIGNAL(changed()), this, SLOT(itemChanged()));
+            connect(entry->document, &IDocument::changed, this, &DocumentModelPrivate::itemChanged);
         return;
     }
 
@@ -282,7 +281,7 @@ void DocumentModelPrivate::addEntry(DocumentModel::Entry *entry)
     disambiguateDisplayNames(entry);
     if (!fixedPath.isEmpty())
         m_entryByFixedPath[fixedPath] = entry;
-    connect(entry->document, SIGNAL(changed()), this, SLOT(itemChanged()));
+    connect(entry->document, &IDocument::changed, this, &DocumentModelPrivate::itemChanged);
     endInsertRows();
 }
 
@@ -406,7 +405,7 @@ void DocumentModelPrivate::removeDocument(int idx)
                                                                DocumentManager::ResolveLinks);
         m_entryByFixedPath.remove(fixedPath);
     }
-    disconnect(entry->document, SIGNAL(changed()), this, SLOT(itemChanged()));
+    disconnect(entry->document, &IDocument::changed, this, &DocumentModelPrivate::itemChanged);
     disambiguateDisplayNames(entry);
     delete entry;
 }

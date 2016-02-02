@@ -89,7 +89,7 @@ protected:
     void mousePressEvent(QMouseEvent *event);
     void paintEvent(QPaintEvent *);
 
-private slots:
+private:
     void updateToolTip(const QString &);
     void cancel();
     void setStarted();
@@ -98,8 +98,6 @@ private slots:
     void setProgressValue(int val);
     void setProgressText(const QString &text);
 
-private:
-    friend class FutureProgressPrivate; // for sending signal
     FutureProgressPrivate *d;
 };
 

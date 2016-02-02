@@ -243,7 +243,7 @@ EditorManagerPrivate::~EditorManagerPrivate()
     // close all extra windows
     for (int i = 0; i < m_editorAreas.size(); ++i) {
         EditorArea *area = m_editorAreas.at(i);
-        disconnect(area, SIGNAL(destroyed(QObject*)), this, SLOT(editorAreaDestroyed(QObject*)));
+        disconnect(area, &QObject::destroyed, this, &EditorManagerPrivate::editorAreaDestroyed);
         delete area;
     }
     m_editorAreas.clear();
@@ -271,15 +271,15 @@ void EditorManagerPrivate::init()
     cmd->setAttribute(Command::CA_UpdateText);
     cmd->setDescription(tr("Revert File to Saved"));
     mfile->addAction(cmd, Constants::G_FILE_SAVE);
-    connect(m_revertToSavedAction, SIGNAL(triggered()), m_instance, SLOT(revertToSaved()));
+    connect(m_revertToSavedAction, &QAction::triggered, m_instance, &EditorManager::revertToSaved);
 
     // Save Action
     ActionManager::registerAction(m_saveAction, Constants::SAVE, editManagerContext);
-    connect(m_saveAction, SIGNAL(triggered()), m_instance, SLOT(saveDocument()));
+    connect(m_saveAction, &QAction::triggered, m_instance, []() { EditorManager::saveDocument(); });
 
     // Save As Action
     ActionManager::registerAction(m_saveAsAction, Constants::SAVEAS, editManagerContext);
-    connect(m_saveAsAction, SIGNAL(triggered()), m_instance, SLOT(saveDocumentAs()));
+    connect(m_saveAsAction, &QAction::triggered, m_instance, &EditorManager::saveDocumentAs);
 
     // Window Menu
     ActionContainer *mwindow = ActionManager::actionContainer(Constants::M_WINDOW);
@@ -294,8 +294,8 @@ void EditorManagerPrivate::init()
     cmd->setAttribute(Command::CA_UpdateText);
     cmd->setDescription(m_closeCurrentEditorAction->text());
     mfile->addAction(cmd, Constants::G_FILE_CLOSE);
-    connect(m_closeCurrentEditorAction, SIGNAL(triggered()),
-            m_instance, SLOT(slotCloseCurrentEditorOrDocument()));
+    connect(m_closeCurrentEditorAction, &QAction::triggered,
+            m_instance, &EditorManager::slotCloseCurrentEditorOrDocument);
 
     if (HostOsInfo::isWindowsHost()) {
         // workaround for QTCREATORBUG-72
@@ -303,121 +303,133 @@ void EditorManagerPrivate::init()
         cmd = ActionManager::registerAction(action, Constants::CLOSE_ALTERNATIVE, editManagerContext);
         cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+F4")));
         cmd->setDescription(EditorManager::tr("Close"));
-        connect(action, SIGNAL(triggered()), m_instance, SLOT(slotCloseCurrentEditorOrDocument()));
+        connect(action, &QAction::triggered,
+                m_instance, &EditorManager::slotCloseCurrentEditorOrDocument);
     }
 
     // Close All Action
     cmd = ActionManager::registerAction(m_closeAllEditorsAction, Constants::CLOSEALL, editManagerContext, true);
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+W")));
     mfile->addAction(cmd, Constants::G_FILE_CLOSE);
-    connect(m_closeAllEditorsAction, SIGNAL(triggered()), m_instance, SLOT(closeAllEditors()));
+    connect(m_closeAllEditorsAction, &QAction::triggered,
+            m_instance, []() { EditorManager::closeAllEditors(); });
 
     // Close All Others Action
     cmd = ActionManager::registerAction(m_closeOtherDocumentsAction, Constants::CLOSEOTHERS, editManagerContext, true);
     mfile->addAction(cmd, Constants::G_FILE_CLOSE);
     cmd->setAttribute(Command::CA_UpdateText);
-    connect(m_closeOtherDocumentsAction, SIGNAL(triggered()), m_instance, SLOT(closeOtherDocuments()));
+    connect(m_closeOtherDocumentsAction, &QAction::triggered,
+            m_instance, []() { EditorManager::closeOtherDocuments(); });
 
     // Close All Others Except Visible Action
     cmd = ActionManager::registerAction(m_closeAllEditorsExceptVisibleAction, Constants::CLOSEALLEXCEPTVISIBLE, editManagerContext, true);
     mfile->addAction(cmd, Constants::G_FILE_CLOSE);
-    connect(m_closeAllEditorsExceptVisibleAction, SIGNAL(triggered()),
-            this, SLOT(closeAllEditorsExceptVisible()));
+    connect(m_closeAllEditorsExceptVisibleAction, &QAction::triggered,
+            this, &EditorManagerPrivate::closeAllEditorsExceptVisible);
 
     //Save XXX Context Actions
-    connect(m_copyFilePathContextAction, SIGNAL(triggered()),
-            this, SLOT(copyFilePathFromContextMenu()));
-    connect(m_copyLocationContextAction, SIGNAL(triggered()),
-            this, SLOT(copyLocationFromContextMenu()));
-    connect(m_copyFileNameContextAction, SIGNAL(triggered()),
-            this, SLOT(copyFileNameFromContextMenu()));
-    connect(m_saveCurrentEditorContextAction, SIGNAL(triggered()),
-            this, SLOT(saveDocumentFromContextMenu()));
-    connect(m_saveAsCurrentEditorContextAction, SIGNAL(triggered()),
-            this, SLOT(saveDocumentAsFromContextMenu()));
-    connect(m_revertToSavedCurrentEditorContextAction, SIGNAL(triggered()),
-            this, SLOT(revertToSavedFromContextMenu()));
+    connect(m_copyFilePathContextAction, &QAction::triggered,
+            this, &EditorManagerPrivate::copyFilePathFromContextMenu);
+    connect(m_copyLocationContextAction, &QAction::triggered,
+            this, &EditorManagerPrivate::copyLocationFromContextMenu);
+    connect(m_copyFileNameContextAction, &QAction::triggered,
+            this, &EditorManagerPrivate::copyFileNameFromContextMenu);
+    connect(m_saveCurrentEditorContextAction, &QAction::triggered,
+            this, &EditorManagerPrivate::saveDocumentFromContextMenu);
+    connect(m_saveAsCurrentEditorContextAction, &QAction::triggered,
+            this, &EditorManagerPrivate::saveDocumentAsFromContextMenu);
+    connect(m_revertToSavedCurrentEditorContextAction, &QAction::triggered,
+            this, &EditorManagerPrivate::revertToSavedFromContextMenu);
 
     // Close XXX Context Actions
-    connect(m_closeAllEditorsContextAction, SIGNAL(triggered()),
-            m_instance, SLOT(closeAllEditors()));
-    connect(m_closeCurrentEditorContextAction, SIGNAL(triggered()),
-            this, SLOT(closeEditorFromContextMenu()));
-    connect(m_closeOtherDocumentsContextAction, SIGNAL(triggered()),
-            this, SLOT(closeOtherDocumentsFromContextMenu()));
-    connect(m_closeAllEditorsExceptVisibleContextAction, SIGNAL(triggered()),
-            this, SLOT(closeAllEditorsExceptVisible()));
+    connect(m_closeAllEditorsContextAction, &QAction::triggered,
+            m_instance, []() { EditorManager::closeAllEditors(); });
+    connect(m_closeCurrentEditorContextAction, &QAction::triggered,
+            this, &EditorManagerPrivate::closeEditorFromContextMenu);
+    connect(m_closeOtherDocumentsContextAction, &QAction::triggered,
+            this, &EditorManagerPrivate::closeOtherDocumentsFromContextMenu);
+    connect(m_closeAllEditorsExceptVisibleContextAction, &QAction::triggered,
+            this, &EditorManagerPrivate::closeAllEditorsExceptVisible);
 
-    connect(m_openGraphicalShellAction, SIGNAL(triggered()), this, SLOT(showInGraphicalShell()));
-    connect(m_openTerminalAction, SIGNAL(triggered()), this, SLOT(openTerminal()));
-    connect(m_findInDirectoryAction, SIGNAL(triggered()), this, SLOT(findInDirectory()));
+    connect(m_openGraphicalShellAction, &QAction::triggered,
+            this, &EditorManagerPrivate::showInGraphicalShell);
+    connect(m_openTerminalAction, &QAction::triggered, this, &EditorManagerPrivate::openTerminal);
+    connect(m_findInDirectoryAction, &QAction::triggered,
+            this, &EditorManagerPrivate::findInDirectory);
 
     // Goto Previous In History Action
     cmd = ActionManager::registerAction(m_gotoPreviousDocHistoryAction, Constants::GOTOPREVINHISTORY, editDesignContext);
     cmd->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Alt+Tab") : tr("Ctrl+Tab")));
     mwindow->addAction(cmd, Constants::G_WINDOW_NAVIGATE);
-    connect(m_gotoPreviousDocHistoryAction, SIGNAL(triggered()),
-            this, SLOT(gotoPreviousDocHistory()));
+    connect(m_gotoPreviousDocHistoryAction, &QAction::triggered,
+            this, &EditorManagerPrivate::gotoPreviousDocHistory);
 
     // Goto Next In History Action
     cmd = ActionManager::registerAction(m_gotoNextDocHistoryAction, Constants::GOTONEXTINHISTORY, editDesignContext);
     cmd->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Alt+Shift+Tab") : tr("Ctrl+Shift+Tab")));
     mwindow->addAction(cmd, Constants::G_WINDOW_NAVIGATE);
-    connect(m_gotoNextDocHistoryAction, SIGNAL(triggered()), this, SLOT(gotoNextDocHistory()));
+    connect(m_gotoNextDocHistoryAction, &QAction::triggered,
+            this, &EditorManagerPrivate::gotoNextDocHistory);
 
     // Go back in navigation history
     cmd = ActionManager::registerAction(m_goBackAction, Constants::GO_BACK, editDesignContext);
     cmd->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Ctrl+Alt+Left") : tr("Alt+Left")));
     mwindow->addAction(cmd, Constants::G_WINDOW_NAVIGATE);
-    connect(m_goBackAction, SIGNAL(triggered()), m_instance, SLOT(goBackInNavigationHistory()));
+    connect(m_goBackAction, &QAction::triggered,
+            m_instance, &EditorManager::goBackInNavigationHistory);
 
     // Go forward in navigation history
     cmd = ActionManager::registerAction(m_goForwardAction, Constants::GO_FORWARD, editDesignContext);
     cmd->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Ctrl+Alt+Right") : tr("Alt+Right")));
     mwindow->addAction(cmd, Constants::G_WINDOW_NAVIGATE);
-    connect(m_goForwardAction, SIGNAL(triggered()), m_instance, SLOT(goForwardInNavigationHistory()));
+    connect(m_goForwardAction, &QAction::triggered,
+            m_instance, &EditorManager::goForwardInNavigationHistory);
 
     m_splitAction = new QAction(tr("Split"), this);
     cmd = ActionManager::registerAction(m_splitAction, Constants::SPLIT, editManagerContext);
     cmd->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+E,2") : tr("Ctrl+E,2")));
     mwindow->addAction(cmd, Constants::G_WINDOW_SPLIT);
-    connect(m_splitAction, SIGNAL(triggered()), this, SLOT(split()));
+    connect(m_splitAction, &QAction::triggered, this, [this]() { split(Qt::Vertical); });
 
     m_splitSideBySideAction = new QAction(tr("Split Side by Side"), this);
     cmd = ActionManager::registerAction(m_splitSideBySideAction, Constants::SPLIT_SIDE_BY_SIDE, editManagerContext);
     cmd->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+E,3") : tr("Ctrl+E,3")));
     mwindow->addAction(cmd, Constants::G_WINDOW_SPLIT);
-    connect(m_splitSideBySideAction, SIGNAL(triggered()), m_instance, SLOT(splitSideBySide()));
+    connect(m_splitSideBySideAction, &QAction::triggered, m_instance, &EditorManager::splitSideBySide);
 
     m_splitNewWindowAction = new QAction(tr("Open in New Window"), this);
     cmd = ActionManager::registerAction(m_splitNewWindowAction, Constants::SPLIT_NEW_WINDOW, editManagerContext);
     cmd->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+E,4") : tr("Ctrl+E,4")));
     mwindow->addAction(cmd, Constants::G_WINDOW_SPLIT);
-    connect(m_splitNewWindowAction, SIGNAL(triggered()), this, SLOT(splitNewWindow()));
+    connect(m_splitNewWindowAction, &QAction::triggered,
+            this, [this]() { splitNewWindow(currentEditorView()); });
 
     m_removeCurrentSplitAction = new QAction(tr("Remove Current Split"), this);
     cmd = ActionManager::registerAction(m_removeCurrentSplitAction, Constants::REMOVE_CURRENT_SPLIT, editManagerContext);
     cmd->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+E,0") : tr("Ctrl+E,0")));
     mwindow->addAction(cmd, Constants::G_WINDOW_SPLIT);
-    connect(m_removeCurrentSplitAction, SIGNAL(triggered()), this, SLOT(removeCurrentSplit()));
+    connect(m_removeCurrentSplitAction, &QAction::triggered,
+            this, &EditorManagerPrivate::removeCurrentSplit);
 
     m_removeAllSplitsAction = new QAction(tr("Remove All Splits"), this);
     cmd = ActionManager::registerAction(m_removeAllSplitsAction, Constants::REMOVE_ALL_SPLITS, editManagerContext);
     cmd->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+E,1") : tr("Ctrl+E,1")));
     mwindow->addAction(cmd, Constants::G_WINDOW_SPLIT);
-    connect(m_removeAllSplitsAction, SIGNAL(triggered()), this, SLOT(removeAllSplits()));
+    connect(m_removeAllSplitsAction, &QAction::triggered,
+            this, &EditorManagerPrivate::removeAllSplits);
 
     m_gotoPreviousSplitAction = new QAction(tr("Go to Previous Split or Window"), this);
     cmd = ActionManager::registerAction(m_gotoPreviousSplitAction, Constants::GOTO_PREV_SPLIT, editManagerContext);
     cmd->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+E,i") : tr("Ctrl+E,i")));
     mwindow->addAction(cmd, Constants::G_WINDOW_SPLIT);
-    connect(m_gotoPreviousSplitAction, SIGNAL(triggered()), this, SLOT(gotoPreviousSplit()));
+    connect(m_gotoPreviousSplitAction, &QAction::triggered,
+            this, &EditorManagerPrivate::gotoPreviousSplit);
 
     m_gotoNextSplitAction = new QAction(tr("Go to Next Split or Window"), this);
     cmd = ActionManager::registerAction(m_gotoNextSplitAction, Constants::GOTO_NEXT_SPLIT, editManagerContext);
     cmd->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+E,o") : tr("Ctrl+E,o")));
     mwindow->addAction(cmd, Constants::G_WINDOW_SPLIT);
-    connect(m_gotoNextSplitAction, SIGNAL(triggered()), this, SLOT(gotoNextSplit()));
+    connect(m_gotoNextSplitAction, &QAction::triggered, this, &EditorManagerPrivate::gotoNextSplit);
 
     ActionContainer *medit = ActionManager::actionContainer(Constants::M_EDIT);
     ActionContainer *advancedMenu = ActionManager::createMenu(Constants::M_EDIT_ADVANCED);
@@ -442,7 +454,7 @@ void EditorManagerPrivate::init()
     mainEditorArea->hide();
     connect(mainEditorArea, &EditorArea::windowTitleNeedsUpdate,
             this, &EditorManagerPrivate::updateWindowTitle);
-    connect(mainEditorArea, SIGNAL(destroyed(QObject*)), this, SLOT(editorAreaDestroyed(QObject*)));
+    connect(mainEditorArea, &QObject::destroyed, this, &EditorManagerPrivate::editorAreaDestroyed);
     d->m_editorAreas.append(mainEditorArea);
     d->m_currentView = mainEditorArea->view();
 
@@ -454,7 +466,7 @@ void EditorManagerPrivate::init()
 
     m_autoSaveTimer = new QTimer(this);
     m_autoSaveTimer->setObjectName(QLatin1String("EditorManager::m_autoSaveTimer"));
-    connect(m_autoSaveTimer, SIGNAL(timeout()), SLOT(autoSave()));
+    connect(m_autoSaveTimer, &QTimer::timeout, this, &EditorManagerPrivate::autoSave);
     updateAutoSave();
 
     d->m_openEditorsFactory = new OpenEditorsViewFactory();
@@ -1114,7 +1126,7 @@ IEditor *EditorManagerPrivate::createEditor(IEditorFactory *factory, const QStri
     IEditor *editor = factory->createEditor();
     if (editor) {
         QTC_CHECK(editor->document()->id().isValid()); // sanity check that the editor has an id set
-        connect(editor->document(), SIGNAL(changed()), d, SLOT(handleDocumentStateChange()));
+        connect(editor->document(), &IDocument::changed, d, &EditorManagerPrivate::handleDocumentStateChange);
         emit m_instance->editorCreated(editor, fileName);
     }
 
@@ -1420,7 +1432,7 @@ void EditorManagerPrivate::splitNewWindow(EditorView *view)
     auto win = new EditorWindow;
     EditorArea *area = win->editorArea();
     d->m_editorAreas.append(area);
-    connect(area, SIGNAL(destroyed(QObject*)), d, SLOT(editorAreaDestroyed(QObject*)));
+    connect(area, &QObject::destroyed, d, &EditorManagerPrivate::editorAreaDestroyed);
     win->show();
     ICore::raiseWindow(win);
     if (newEditor)
@@ -1809,7 +1821,7 @@ void EditorManagerPrivate::handleContextChange(const QList<IContext *> &context)
         // the locator line edit) first activates the window and sets focus to its focus widget.
         // Only afterwards the focus is shifted to the widget that received the click.
         d->m_scheduledCurrentEditor = editor;
-        QTimer::singleShot(0, d, SLOT(setCurrentEditorFromContextChange()));
+        QTimer::singleShot(0, d, &EditorManagerPrivate::setCurrentEditorFromContextChange);
     } else {
         updateActions();
     }
@@ -2026,16 +2038,6 @@ void EditorManagerPrivate::split(Qt::Orientation orientation)
         view->parentSplitterOrView()->split(orientation);
 
     updateActions();
-}
-
-void EditorManagerPrivate::split()
-{
-    split(Qt::Vertical);
-}
-
-void EditorManagerPrivate::splitNewWindow()
-{
-    splitNewWindow(currentEditorView());
 }
 
 void EditorManagerPrivate::removeCurrentSplit()

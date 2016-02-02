@@ -191,8 +191,7 @@ MainWindow::MainWindow() :
     m_progressManager->progressView()->setParent(this);
     m_progressManager->progressView()->setReferenceWidget(m_modeStack->statusBar());
 
-    connect(QApplication::instance(), SIGNAL(focusChanged(QWidget*,QWidget*)),
-            this, SLOT(updateFocusWidget(QWidget*,QWidget*)));
+    connect(qApp, &QApplication::focusChanged, this, &MainWindow::updateFocusWidget);
     // Add a small Toolbutton for toggling the navigation widget
     statusBar()->insertPermanentWidget(0, m_toggleSideBarButton);
 
@@ -354,8 +353,8 @@ void MainWindow::extensionsInitialized()
 
     emit m_coreImpl->coreAboutToOpen();
     // Delay restoreWindowState, since it is overridden by LayoutRequest event
-    QTimer::singleShot(0, this, SLOT(restoreWindowState()));
-    QTimer::singleShot(0, m_coreImpl, SIGNAL(coreOpened()));
+    QTimer::singleShot(0, this, &MainWindow::restoreWindowState);
+    QTimer::singleShot(0, m_coreImpl, &ICore::coreOpened);
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
@@ -493,7 +492,7 @@ void MainWindow::registerDefaultActions()
     m_focusToEditor = new QAction(tr("Return to Editor"), this);
     Command *cmd = ActionManager::registerAction(m_focusToEditor, Constants::S_RETURNTOEDITOR);
     cmd->setDefaultKeySequence(QKeySequence(Qt::Key_Escape));
-    connect(m_focusToEditor, SIGNAL(triggered()), this, SLOT(setFocusToEditor()));
+    connect(m_focusToEditor, &QAction::triggered, this, &MainWindow::setFocusToEditor);
 
     // New File Action
     QIcon icon = QIcon::fromTheme(QLatin1String("document-new"), Icons::NEWFILE.icon());
@@ -515,13 +514,13 @@ void MainWindow::registerDefaultActions()
     cmd = ActionManager::registerAction(m_openAction, Constants::OPEN);
     cmd->setDefaultKeySequence(QKeySequence::Open);
     mfile->addAction(cmd, Constants::G_FILE_OPEN);
-    connect(m_openAction, SIGNAL(triggered()), this, SLOT(openFile()));
+    connect(m_openAction, &QAction::triggered, this, &MainWindow::openFile);
 
     // Open With Action
     m_openWithAction = new QAction(tr("Open File &With..."), this);
     cmd = ActionManager::registerAction(m_openWithAction, Constants::OPEN_WITH);
     mfile->addAction(cmd, Constants::G_FILE_OPEN);
-    connect(m_openWithAction, SIGNAL(triggered()), this, SLOT(openFileWith()));
+    connect(m_openWithAction, &QAction::triggered, this, &MainWindow::openFileWith);
 
     // File->Recent Files Menu
     ActionContainer *ac = ActionManager::createMenu(Constants::M_FILE_RECENTFILES);
@@ -554,7 +553,7 @@ void MainWindow::registerDefaultActions()
     cmd = ActionManager::registerAction(m_saveAllAction, Constants::SAVEALL);
     cmd->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? QString() : tr("Ctrl+Shift+S")));
     mfile->addAction(cmd, Constants::G_FILE_SAVE);
-    connect(m_saveAllAction, SIGNAL(triggered()), this, SLOT(saveAll()));
+    connect(m_saveAllAction, &QAction::triggered, this, &MainWindow::saveAll);
 
     // Print Action
     icon = QIcon::fromTheme(QLatin1String("document-print"));
@@ -571,7 +570,7 @@ void MainWindow::registerDefaultActions()
     cmd = ActionManager::registerAction(m_exitAction, Constants::EXIT);
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Q")));
     mfile->addAction(cmd, Constants::G_FILE_OTHER);
-    connect(m_exitAction, SIGNAL(triggered()), this, SLOT(exit()));
+    connect(m_exitAction, &QAction::triggered, this, &MainWindow::exit);
 
     // Undo Action
     icon = QIcon::fromTheme(QLatin1String("edit-undo"), Icons::UNDO.icon());
@@ -642,7 +641,7 @@ void MainWindow::registerDefaultActions()
     cmd = ActionManager::registerAction(m_optionsAction, Constants::OPTIONS);
     cmd->setDefaultKeySequence(QKeySequence::Preferences);
     mtools->addAction(cmd, Constants::G_TOOLS_OPTIONS);
-    connect(m_optionsAction, SIGNAL(triggered()), this, SLOT(showOptionsDialog()));
+    connect(m_optionsAction, &QAction::triggered, this, [this]() { showOptionsDialog(); });
 
     mwindow->addSeparator(Constants::G_WINDOW_LIST);
 
@@ -700,7 +699,8 @@ void MainWindow::registerDefaultActions()
     m_toggleModeSelectorAction = new QAction(tr("Show Mode Selector"), this);
     m_toggleModeSelectorAction->setCheckable(true);
     cmd = ActionManager::registerAction(m_toggleModeSelectorAction, Constants::TOGGLE_MODE_SELECTOR);
-    connect(m_toggleModeSelectorAction, &QAction::triggered, ModeManager::instance(), &ModeManager::setModeSelectorVisible);
+    connect(m_toggleModeSelectorAction, &QAction::triggered,
+            ModeManager::instance(), &ModeManager::setModeSelectorVisible);
     mwindow->addAction(cmd, Constants::G_WINDOW_VIEWS);
 
     // Window->Views
@@ -737,7 +737,7 @@ void MainWindow::registerDefaultActions()
 //    cmd = ActionManager::registerAction(tmpaction, Constants:: ABOUT_QT);
 //    mhelp->addAction(cmd, Constants::G_HELP_ABOUT);
 //    tmpaction->setEnabled(true);
-//    connect(tmpaction, SIGNAL(triggered()), qApp, SLOT(aboutQt()));
+//    connect(tmpaction, &QAction::triggered, qApp, &QApplication::aboutQt);
     // About sep
     if (!HostOsInfo::isMacHost()) { // doesn't have the "About" actions in the Help menu
         tmpaction = new QAction(this);
@@ -844,7 +844,7 @@ void MainWindow::exit()
     // since on close we are going to delete everything
     // so to prevent the deleting of that object we
     // just append it
-    QTimer::singleShot(0, this,  SLOT(close()));
+    QTimer::singleShot(0, this,  &QWidget::close);
 }
 
 void MainWindow::openFileWith()
@@ -929,8 +929,7 @@ void MainWindow::updateContextObject(const QList<IContext *> &context)
 
 void MainWindow::aboutToShutdown()
 {
-    disconnect(QApplication::instance(), SIGNAL(focusChanged(QWidget*,QWidget*)),
-               this, SLOT(updateFocusWidget(QWidget*,QWidget*)));
+    disconnect(qApp, &QApplication::focusChanged, this, &MainWindow::updateFocusWidget);
     m_activeContext.clear();
     hide();
 }
@@ -1136,7 +1135,7 @@ void MainWindow::newItemDialogFinished()
 {
     m_newAction->setEnabled(true);
     // fire signal when the dialog is actually destroyed
-    QTimer::singleShot(0, this, SIGNAL(newItemDialogRunningChanged()));
+    QTimer::singleShot(0, this, &MainWindow::newItemDialogRunningChanged);
 }
 
 } // namespace Internal

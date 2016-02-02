@@ -103,10 +103,10 @@ QWidget *GeneralSettings::widget()
         m_page->colorButton->setColor(StyleHelper::requestedBaseColor());
         m_page->resetWarningsButton->setEnabled(canResetWarnings());
 
-        connect(m_page->resetColorButton, SIGNAL(clicked()),
-                this, SLOT(resetInterfaceColor()));
-        connect(m_page->resetWarningsButton, SIGNAL(clicked()),
-                this, SLOT(resetWarnings()));
+        connect(m_page->resetColorButton, &QAbstractButton::clicked,
+                this, &GeneralSettings::resetInterfaceColor);
+        connect(m_page->resetWarningsButton, &QAbstractButton::clicked,
+                this, &GeneralSettings::resetWarnings);
     }
     return m_widget;
 }

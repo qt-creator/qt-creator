@@ -239,8 +239,8 @@ void ActionContainerPrivate::addAction(Command *command, Id groupId)
     QAction *beforeAction = insertLocation(groupIt);
     m_groups[groupIt-m_groups.constBegin()].items.append(command);
 
-    connect(command, SIGNAL(activeStateChanged()), this, SLOT(scheduleUpdate()));
-    connect(command, SIGNAL(destroyed()), this, SLOT(itemDestroyed()));
+    connect(command, &Command::activeStateChanged, this, &ActionContainerPrivate::scheduleUpdate);
+    connect(command, &QObject::destroyed, this, &ActionContainerPrivate::itemDestroyed);
     insertAction(beforeAction, command->action());
     scheduleUpdate();
 }
@@ -258,7 +258,7 @@ void ActionContainerPrivate::addMenu(ActionContainer *menu, Id groupId)
     QAction *beforeAction = insertLocation(groupIt);
     m_groups[groupIt-m_groups.constBegin()].items.append(menu);
 
-    connect(menu, SIGNAL(destroyed()), this, SLOT(itemDestroyed()));
+    connect(menu, &QObject::destroyed, this, &ActionContainerPrivate::itemDestroyed);
     insertMenu(beforeAction, container->menu());
     scheduleUpdate();
 }
@@ -276,7 +276,7 @@ void ActionContainerPrivate::addMenu(ActionContainer *before, ActionContainer *m
     QAction *beforeAction = before->menu()->menuAction();
     m_groups[groupIt-m_groups.constBegin()].items.append(menu);
 
-    connect(menu, SIGNAL(destroyed()), this, SLOT(itemDestroyed()));
+    connect(menu, &QObject::destroyed, this, &ActionContainerPrivate::itemDestroyed);
     insertMenu(beforeAction, container->menu());
     scheduleUpdate();
 }
@@ -311,11 +311,13 @@ void ActionContainerPrivate::clear()
         foreach (QObject *item, group.items) {
             if (Command *command = qobject_cast<Command *>(item)) {
                 removeAction(command->action());
-                disconnect(command, SIGNAL(activeStateChanged()), this, SLOT(scheduleUpdate()));
-                disconnect(command, SIGNAL(destroyed()), this, SLOT(itemDestroyed()));
+                disconnect(command, &Command::activeStateChanged,
+                           this, &ActionContainerPrivate::scheduleUpdate);
+                disconnect(command, &QObject::destroyed, this, &ActionContainerPrivate::itemDestroyed);
             } else if (ActionContainer *container = qobject_cast<ActionContainer *>(item)) {
                 container->clear();
-                disconnect(container, SIGNAL(destroyed()), this, SLOT(itemDestroyed()));
+                disconnect(container, &QObject::destroyed,
+                           this, &ActionContainerPrivate::itemDestroyed);
                 removeMenu(container->menu());
             }
         }
@@ -360,7 +362,7 @@ void ActionContainerPrivate::scheduleUpdate()
     if (m_updateRequested)
         return;
     m_updateRequested = true;
-    QTimer::singleShot(0, this, SLOT(update()));
+    QTimer::singleShot(0, this, &ActionContainerPrivate::update);
 }
 
 void ActionContainerPrivate::update()

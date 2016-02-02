@@ -130,26 +130,26 @@ OutputPaneManager::OutputPaneManager(QWidget *parent) :
     m_clearAction = new QAction(this);
     m_clearAction->setIcon(Icons::CLEAN_PANE.icon());
     m_clearAction->setText(tr("Clear"));
-    connect(m_clearAction, SIGNAL(triggered()), this, SLOT(clearPage()));
+    connect(m_clearAction, &QAction::triggered, this, &OutputPaneManager::clearPage);
 
     m_nextAction = new QAction(this);
     m_nextAction->setIcon(Icons::NEXT.icon());
     m_nextAction->setText(tr("Next Item"));
-    connect(m_nextAction, SIGNAL(triggered()), this, SLOT(slotNext()));
+    connect(m_nextAction, &QAction::triggered, this, &OutputPaneManager::slotNext);
 
     m_prevAction = new QAction(this);
     m_prevAction->setIcon(Icons::PREV.icon());
     m_prevAction->setText(tr("Previous Item"));
-    connect(m_prevAction, SIGNAL(triggered()), this, SLOT(slotPrev()));
+    connect(m_prevAction, &QAction::triggered, this, &OutputPaneManager::slotPrev);
 
     m_minMaxAction = new QAction(this);
     m_minMaxAction->setIcon(m_maximizeIcon);
     m_minMaxAction->setText(tr("Maximize Output Pane"));
 
     m_closeButton->setIcon(Icons::CLOSE_SPLIT_BOTTOM.icon());
-    connect(m_closeButton, SIGNAL(clicked()), this, SLOT(slotHide()));
+    connect(m_closeButton, &QAbstractButton::clicked, this, &OutputPaneManager::slotHide);
 
-    connect(ICore::instance(), SIGNAL(saveSettingsRequested()), this, SLOT(saveSettings()));
+    connect(ICore::instance(), &ICore::saveSettingsRequested, this, &OutputPaneManager::saveSettings);
 
     QVBoxLayout *mainlayout = new QVBoxLayout;
     mainlayout->setSpacing(0);
@@ -228,7 +228,7 @@ void OutputPaneManager::init()
     cmd->setAttribute(Command::CA_UpdateText);
     cmd->setAttribute(Command::CA_UpdateIcon);
     mpanes->addAction(cmd, "Coreplugin.OutputPane.ActionsGroup");
-    connect(m_minMaxAction, SIGNAL(triggered()), this, SLOT(slotMinMax()));
+    connect(m_minMaxAction, &QAction::triggered, this, &OutputPaneManager::slotMinMax);
     m_minMaxButton->setDefaultAction(cmd->action());
 
     mpanes->addSeparator("Coreplugin.OutputPane.ActionsGroup");
@@ -249,12 +249,15 @@ void OutputPaneManager::init()
         const int idx = m_outputWidgetPane->addWidget(outPane->outputWidget(this));
         QTC_CHECK(idx == i);
 
-        connect(outPane, SIGNAL(showPage(int)), this, SLOT(showPage(int)));
-        connect(outPane, SIGNAL(hidePage()), this, SLOT(slotHide()));
-        connect(outPane, SIGNAL(togglePage(int)), this, SLOT(togglePage(int)));
-        connect(outPane, SIGNAL(navigateStateUpdate()), this, SLOT(updateNavigateState()));
-        connect(outPane, SIGNAL(flashButton()), this, SLOT(flashButton()));
-        connect(outPane, SIGNAL(setBadgeNumber(int)), this, SLOT(setBadgeNumber(int)));
+        connect(outPane, &IOutputPane::showPage, this, [this, outPane](int flags) {
+            showPage(findIndexForPage(outPane), flags);
+        });
+        connect(outPane, &IOutputPane::hidePage, this, &OutputPaneManager::slotHide);
+        connect(outPane, &IOutputPane::togglePage, this, &OutputPaneManager::togglePage);
+        connect(outPane, &IOutputPane::navigateStateUpdate,
+                this, &OutputPaneManager::updateNavigateState);
+        connect(outPane, &IOutputPane::flashButton, this, &OutputPaneManager::flashButton);
+        connect(outPane, &IOutputPane::setBadgeNumber, this, &OutputPaneManager::setBadgeNumber);
 
         QWidget *toolButtonsContainer = new QWidget(m_opToolBarWidgets);
         QHBoxLayout *toolButtonsLayout = new QHBoxLayout;
@@ -285,19 +288,21 @@ void OutputPaneManager::init()
         ++shortcutNumber;
         m_buttonsWidget->layout()->addWidget(button);
         m_buttons.append(button);
-        connect(button, SIGNAL(clicked()), this, SLOT(buttonTriggered()));
+        connect(button, &QAbstractButton::clicked, this, [this, button]() {
+            buttonTriggered(m_buttons.indexOf(button));
+         });
 
         bool visible = outPane->priorityInStatusBar() != -1;
         button->setVisible(visible);
         m_buttonVisibility.insert(id, visible);
 
-        connect(action, SIGNAL(triggered()), this, SLOT(shortcutTriggered()));
+        connect(action, &QAction::triggered, this, &OutputPaneManager::shortcutTriggered);
     }
 
     m_titleLabel->setMinimumWidth(minTitleWidth + m_titleLabel->contentsMargins().left()
                                   + m_titleLabel->contentsMargins().right());
     m_buttonsWidget->layout()->addWidget(m_manageButton);
-    connect(m_manageButton, SIGNAL(clicked()), this, SLOT(popupMenu()));
+    connect(m_manageButton, &QAbstractButton::clicked, this, &OutputPaneManager::popupMenu);
 
     readSettings();
 }
@@ -343,12 +348,6 @@ void OutputPaneManager::slotMinMax()
     m_minMaxAction->setIcon(m_maximised ? m_minimizeIcon : m_maximizeIcon);
     m_minMaxAction->setText(m_maximised ? tr("Minimize Output Pane")
                                             : tr("Maximize Output Pane"));
-}
-
-void OutputPaneManager::buttonTriggered()
-{
-    OutputPaneToggleButton *button = qobject_cast<OutputPaneToggleButton *>(sender());
-    buttonTriggered(m_buttons.indexOf(button));
 }
 
 void OutputPaneManager::buttonTriggered(int idx)
@@ -454,13 +453,6 @@ void OutputPaneManager::setBadgeNumber(int number)
     int idx = findIndexForPage(pane);
     if (pane)
         m_buttons.value(idx)->setIconBadgeNumber(number);
-}
-
-// Slot connected to showPage signal of each page
-void OutputPaneManager::showPage(int flags)
-{
-    int idx = findIndexForPage(qobject_cast<IOutputPane*>(sender()));
-    showPage(idx, flags);
 }
 
 void OutputPaneManager::showPage(int idx, int flags)
@@ -626,13 +618,14 @@ OutputPaneToggleButton::OutputPaneToggleButton(int number, const QString &text,
     QFont fnt = QApplication::font();
     setFont(fnt);
     if (m_action)
-        connect(m_action, SIGNAL(changed()), this, SLOT(updateToolTip()));
+        connect(m_action, &QAction::changed, this, &OutputPaneToggleButton::updateToolTip);
 
     m_flashTimer->setDirection(QTimeLine::Forward);
     m_flashTimer->setCurveShape(QTimeLine::SineCurve);
     m_flashTimer->setFrameRange(0, 92);
-    connect(m_flashTimer, SIGNAL(valueChanged(qreal)), this, SLOT(update()));
-    connect(m_flashTimer, SIGNAL(finished()), this, SLOT(update()));
+    auto updateSlot = static_cast<void (QWidget::*)()>(&QWidget::update);
+    connect(m_flashTimer, &QTimeLine::valueChanged, this, updateSlot);
+    connect(m_flashTimer, &QTimeLine::finished, this, updateSlot);
 }
 
 void OutputPaneToggleButton::updateToolTip()

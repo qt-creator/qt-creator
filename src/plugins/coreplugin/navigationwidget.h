@@ -104,12 +104,9 @@ public:
 protected:
     void resizeEvent(QResizeEvent *);
 
-private slots:
-    void activateSubWidget();
+private:
     void splitSubWidget(int factoryIndex);
     void closeSubWidget();
-
-private:
     void updateToggleText();
     Internal::NavigationSubWidget *insertSubItem(int position, int index);
     int factoryIndex(Id id);

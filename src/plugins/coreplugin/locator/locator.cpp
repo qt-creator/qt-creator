@@ -66,7 +66,7 @@ Locator::Locator()
 {
     m_corePlugin = 0;
     m_refreshTimer.setSingleShot(false);
-    connect(&m_refreshTimer, SIGNAL(timeout()), this, SLOT(refresh()));
+    connect(&m_refreshTimer, &QTimer::timeout, this, [this]() { refresh(); });
 }
 
 Locator::~Locator()
@@ -103,7 +103,8 @@ void Locator::initialize(CorePlugin *corePlugin, const QStringList &, QString *)
     Command *cmd = ActionManager::registerAction(action, Constants::LOCATE);
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+K")));
     connect(action, &QAction::triggered, this, &Locator::openLocator);
-    connect(cmd, SIGNAL(keySequenceChanged()), this, SLOT(updatePlaceholderText()));
+    connect(cmd, &Command::keySequenceChanged,
+            this, [this, cmd]() { updatePlaceholderText(cmd); });
     updatePlaceholderText(cmd);
 
     ActionContainer *mtools = ActionManager::actionContainer(Constants::M_TOOLS);
@@ -128,13 +129,11 @@ void Locator::initialize(CorePlugin *corePlugin, const QStringList &, QString *)
     m_corePlugin->addAutoReleasedObject(new SpotlightLocatorFilter);
 #endif
 
-    connect(ICore::instance(), SIGNAL(saveSettingsRequested()), this, SLOT(saveSettings()));
+    connect(ICore::instance(), &ICore::saveSettingsRequested, this, &Locator::saveSettings);
 }
 
 void Locator::updatePlaceholderText(Command *command)
 {
-    if (!command)
-        command = qobject_cast<Command *>(sender());
     QTC_ASSERT(command, return);
     if (command->keySequence().isEmpty())
         m_locatorWidget->setPlaceholderText(tr("Type to locate"));

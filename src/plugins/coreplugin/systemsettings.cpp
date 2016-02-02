@@ -27,6 +27,7 @@
 #include "coreconstants.h"
 #include "editormanager/editormanager_p.h"
 #include "icore.h"
+#include "iversioncontrol.h"
 #include "patchtool.h"
 #include "vcsmanager.h"
 
@@ -99,11 +100,13 @@ QWidget *SystemSettings::widget()
         m_page->bigFilesLimitSpinBox->setValue(EditorManagerPrivate::bigFileSizeLimit());
 
         if (HostOsInfo::isAnyUnixHost()) {
-            connect(m_page->resetTerminalButton, SIGNAL(clicked()), this, SLOT(resetTerminal()));
+            connect(m_page->resetTerminalButton, &QAbstractButton::clicked,
+                    this, &SystemSettings::resetTerminal);
             if (!HostOsInfo::isMacHost()) {
-                connect(m_page->resetFileBrowserButton, SIGNAL(clicked()), this, SLOT(resetFileBrowser()));
-                connect(m_page->helpExternalFileBrowserButton, SIGNAL(clicked()),
-                        this, SLOT(showHelpForFileBrowser()));
+                connect(m_page->resetFileBrowserButton, &QAbstractButton::clicked,
+                        this, &SystemSettings::resetFileBrowser);
+                connect(m_page->helpExternalFileBrowserButton, &QAbstractButton::clicked,
+                        this, &SystemSettings::showHelpForFileBrowser);
             }
         }
 
@@ -134,8 +137,8 @@ QWidget *SystemSettings::widget()
 
         updatePath();
 
-        connect(VcsManager::instance(), SIGNAL(configurationChanged(const IVersionControl*)),
-                this, SLOT(updatePath()));
+        connect(VcsManager::instance(), &VcsManager::configurationChanged,
+                this, &SystemSettings::updatePath);
     }
     return m_widget;
 }

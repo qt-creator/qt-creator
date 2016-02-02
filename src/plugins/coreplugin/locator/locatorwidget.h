@@ -60,7 +60,7 @@ public:
 
     void setPlaceholderText(const QString &text);
 
-private slots:
+private:
     void showPopup();
     void showPopupNow();
     void acceptCurrentEntry();
@@ -71,7 +71,6 @@ private slots:
     void scheduleAcceptCurrentEntry();
     void setFocusToCurrentMode();
 
-private:
     bool eventFilter(QObject *obj, QEvent *event);
 
     void showCompletionList();

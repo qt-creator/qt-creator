@@ -87,7 +87,7 @@ FancyTabBar::FancyTabBar(QWidget *parent)
     m_triggerTimer.setSingleShot(true);
 
     // We use a zerotimer to keep the sidebar responsive
-    connect(&m_triggerTimer, SIGNAL(timeout()), this, SLOT(emitCurrentIndex()));
+    connect(&m_triggerTimer, &QTimer::timeout, this, &FancyTabBar::emitCurrentIndex);
 }
 
 FancyTabBar::~FancyTabBar()
@@ -468,7 +468,7 @@ FancyTabWidget::FancyTabWidget(QWidget *parent)
     mainLayout->addLayout(vlayout);
     setLayout(mainLayout);
 
-    connect(m_tabBar, SIGNAL(currentChanged(int)), this, SLOT(showWidget(int)));
+    connect(m_tabBar, &FancyTabBar::currentChanged, this, &FancyTabWidget::showWidget);
 }
 
 void FancyTabWidget::setSelectionWidgetVisible(bool visible)

@@ -167,10 +167,9 @@ public slots:
     void setCurrentIndex(int index);
     void setSelectionWidgetVisible(bool visible);
 
-private slots:
+private:
     void showWidget(int index);
 
-private:
     FancyTabBar *m_tabBar;
     QWidget *m_cornerWidgetContainer;
     QStackedLayout *m_modesStack;

@@ -365,7 +365,7 @@ void HelpManager::addUserDefinedFilter(const QString &filter, const QStringList 
         emit m_instance->collectionFileChanged();
 }
 
-// -- private slots
+// -- private
 
 void HelpManager::setupHelpManager()
 {
@@ -402,8 +402,6 @@ void HelpManager::setupHelpManager()
 
     emit m_instance->setupFinished();
 }
-
-// -- private
 
 void HelpManagerPrivate::cleanUpDocumentation()
 {

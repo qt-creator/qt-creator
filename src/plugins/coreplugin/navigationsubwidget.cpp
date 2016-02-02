@@ -90,12 +90,13 @@ NavigationSubWidget::NavigationSubWidget(NavigationWidget *parentWidget, int pos
     setLayout(lay);
     lay->addWidget(m_toolBar);
 
-    connect(m_closeButton, SIGNAL(clicked()), this, SIGNAL(closeMe()));
+    connect(m_closeButton, &QAbstractButton::clicked, this, &NavigationSubWidget::closeMe);
 
     setFactoryIndex(factoryIndex);
 
-    connect(m_navigationComboBox, SIGNAL(currentIndexChanged(int)),
-            this, SLOT(comboBoxIndexChanged(int)));
+    connect(m_navigationComboBox,
+            static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+            this, &NavigationSubWidget::comboBoxIndexChanged);
 
     comboBoxIndexChanged(factoryIndex);
 }

@@ -100,12 +100,11 @@ signals:
 public slots:
     static void clearVersionControlCache();
 
-private slots:
-    void handleConfigurationChanges();
-
 private:
     explicit VcsManager(QObject *parent = 0);
     ~VcsManager();
+
+    void handleConfigurationChanges();
 
     friend class Core::Internal::MainWindow;
 };

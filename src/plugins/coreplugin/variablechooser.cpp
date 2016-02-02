@@ -550,7 +550,7 @@ static bool handleEscapePressed(QKeyEvent *ke, QWidget *widget)
 {
     if (ke->key() == Qt::Key_Escape && !ke->modifiers()) {
         ke->accept();
-        QTimer::singleShot(0, widget, SLOT(close()));
+        QTimer::singleShot(0, widget, &QWidget::close);
         return true;
     }
     return false;

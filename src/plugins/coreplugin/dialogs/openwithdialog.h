@@ -49,10 +49,8 @@ public:
 
     void setCurrentEditor(int index);
 
-private slots:
-    void currentItemChanged(QListWidgetItem *, QListWidgetItem *);
-
 private:
+    void currentItemChanged(QListWidgetItem *, QListWidgetItem *);
     void setOkButtonEnabled(bool);
 };
 

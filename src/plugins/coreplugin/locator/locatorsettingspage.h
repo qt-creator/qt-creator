@@ -64,13 +64,11 @@ public:
     void apply();
     void finish();
 
-private slots:
+private:
     void updateButtonStates();
     void configureFilter(const QModelIndex &proxyIndex);
     void addCustomFilter();
     void removeCustomFilter();
-
-private:
     void initializeModel();
     void saveFilterStates();
     void restoreFilterStates();

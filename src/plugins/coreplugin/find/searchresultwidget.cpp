@@ -163,13 +163,13 @@ SearchResultWidget::SearchResultWidget(QWidget *parent) :
     m_cancelButton = new QToolButton(topFindWidget);
     m_cancelButton->setText(tr("Cancel"));
     m_cancelButton->setToolButtonStyle(Qt::ToolButtonTextOnly);
-    connect(m_cancelButton, SIGNAL(clicked()), this, SLOT(cancel()));
+    connect(m_cancelButton, &QAbstractButton::clicked, this, &SearchResultWidget::cancel);
     m_searchAgainButton = new QToolButton(topFindWidget);
     m_searchAgainButton->setToolTip(tr("Repeat the search with same parameters."));
     m_searchAgainButton->setText(tr("Search again"));
     m_searchAgainButton->setToolButtonStyle(Qt::ToolButtonTextOnly);
     m_searchAgainButton->setVisible(false);
-    connect(m_searchAgainButton, SIGNAL(clicked()), this, SLOT(searchAgain()));
+    connect(m_searchAgainButton, &QAbstractButton::clicked, this, &SearchResultWidget::searchAgain);
 
     m_replaceLabel = new QLabel(tr("Replace with:"), m_topReplaceWidget);
     m_replaceTextEdit = new WideEnoughLineEdit(m_topReplaceWidget);
@@ -187,7 +187,7 @@ SearchResultWidget::SearchResultWidget(QWidget *parent) :
 
     if (FindPlugin * plugin = FindPlugin::instance()) {
         m_preserveCaseCheck->setChecked(plugin->hasFindFlag(FindPreserveCase));
-        connect(m_preserveCaseCheck, SIGNAL(clicked(bool)), plugin, SLOT(setPreserveCase(bool)));
+        connect(m_preserveCaseCheck, &QAbstractButton::clicked, plugin, &FindPlugin::setPreserveCase);
     }
 
     m_matchesFoundLabel = new QLabel(topFindWidget);
@@ -206,10 +206,12 @@ SearchResultWidget::SearchResultWidget(QWidget *parent) :
     setShowReplaceUI(m_replaceSupported);
     setSupportPreserveCase(true);
 
-    connect(m_searchResultTreeView, SIGNAL(jumpToSearchResult(SearchResultItem)),
-            this, SLOT(handleJumpToSearchResult(SearchResultItem)));
-    connect(m_replaceTextEdit, SIGNAL(returnPressed()), this, SLOT(handleReplaceButton()));
-    connect(m_replaceButton, SIGNAL(clicked()), this, SLOT(handleReplaceButton()));
+    connect(m_searchResultTreeView, &SearchResultTreeView::jumpToSearchResult,
+            this, &SearchResultWidget::handleJumpToSearchResult);
+    connect(m_replaceTextEdit, &QLineEdit::returnPressed,
+            this, &SearchResultWidget::handleReplaceButton);
+    connect(m_replaceButton, &QAbstractButton::clicked,
+            this, &SearchResultWidget::handleReplaceButton);
 }
 
 SearchResultWidget::~SearchResultWidget()

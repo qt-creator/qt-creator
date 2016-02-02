@@ -99,7 +99,7 @@ using namespace Core::Internal;
                                                  "myplugin.myaction",
                                                  Context(C_GLOBAL));
         cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Alt+u")));
-        connect(myAction, SIGNAL(triggered()), this, SLOT(performMyAction()));
+        connect(myAction, &QAction::triggered, this, &MyPlugin::performMyAction);
     \endcode
 
     So the \c connect is done to your own QAction instance. If you create e.g.

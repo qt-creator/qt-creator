@@ -197,29 +197,29 @@ void ProxyModel::setSourceModel(QAbstractItemModel *sm)
 {
     QAbstractItemModel *previousModel = sourceModel();
     if (previousModel) {
-        disconnect(previousModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)),
-                   this, SLOT(sourceDataChanged(QModelIndex,QModelIndex)));
-        disconnect(previousModel, SIGNAL(rowsInserted(QModelIndex,int,int)),
-                   this, SLOT(sourceRowsInserted(QModelIndex,int,int)));
-        disconnect(previousModel, SIGNAL(rowsRemoved(QModelIndex,int,int)),
-                   this, SLOT(sourceRowsRemoved(QModelIndex,int,int)));
-        disconnect(previousModel, SIGNAL(rowsAboutToBeInserted(QModelIndex,int,int)),
-                   this, SLOT(sourceRowsAboutToBeInserted(QModelIndex,int,int)));
-        disconnect(previousModel, SIGNAL(rowsAboutToBeRemoved(QModelIndex,int,int)),
-                   this, SLOT(sourceRowsAboutToBeRemoved(QModelIndex,int,int)));
+        disconnect(previousModel, &QAbstractItemModel::dataChanged,
+                   this, &ProxyModel::sourceDataChanged);
+        disconnect(previousModel, &QAbstractItemModel::rowsInserted,
+                   this, &ProxyModel::sourceRowsInserted);
+        disconnect(previousModel, &QAbstractItemModel::rowsRemoved,
+                   this, &ProxyModel::sourceRowsRemoved);
+        disconnect(previousModel, &QAbstractItemModel::rowsAboutToBeInserted,
+                   this, &ProxyModel::sourceRowsAboutToBeInserted);
+        disconnect(previousModel, &QAbstractItemModel::rowsAboutToBeRemoved,
+                   this, &ProxyModel::sourceRowsAboutToBeRemoved);
     }
     QAbstractProxyModel::setSourceModel(sm);
     if (sm) {
-        connect(sm, SIGNAL(dataChanged(QModelIndex,QModelIndex)),
-                this, SLOT(sourceDataChanged(QModelIndex,QModelIndex)));
-        connect(sm, SIGNAL(rowsInserted(QModelIndex,int,int)),
-                this, SLOT(sourceRowsInserted(QModelIndex,int,int)));
-        connect(sm, SIGNAL(rowsRemoved(QModelIndex,int,int)),
-                this, SLOT(sourceRowsRemoved(QModelIndex,int,int)));
-        connect(sm, SIGNAL(rowsAboutToBeInserted(QModelIndex,int,int)),
-                this, SLOT(sourceRowsAboutToBeInserted(QModelIndex,int,int)));
-        connect(sm, SIGNAL(rowsAboutToBeRemoved(QModelIndex,int,int)),
-                this, SLOT(sourceRowsAboutToBeRemoved(QModelIndex,int,int)));
+        connect(sm, &QAbstractItemModel::dataChanged,
+                this, &ProxyModel::sourceDataChanged);
+        connect(sm, &QAbstractItemModel::rowsInserted,
+                this, &ProxyModel::sourceRowsInserted);
+        connect(sm, &QAbstractItemModel::rowsRemoved,
+                this, &ProxyModel::sourceRowsRemoved);
+        connect(sm, &QAbstractItemModel::rowsAboutToBeInserted,
+                this, &ProxyModel::sourceRowsAboutToBeInserted);
+        connect(sm, &QAbstractItemModel::rowsAboutToBeRemoved,
+                this, &ProxyModel::sourceRowsAboutToBeRemoved);
     }
 }
 

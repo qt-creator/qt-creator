@@ -104,7 +104,7 @@ public:
     QMap<QString, QList<ExternalTool *> > tools() const;
     void apply();
 
-private slots:
+private:
     void handleCurrentChanged(const QModelIndex &now, const QModelIndex &previous);
     void showInfoForItem(const QModelIndex &index);
     void updateItem(const QModelIndex &index);
@@ -118,7 +118,6 @@ private slots:
     void editEnvironmentChanges();
     void updateEnvironmentLabel();
 
-private:
     Ui::ExternalToolConfig *ui;
     QStringList m_environment;
     ExternalToolModel *m_model;

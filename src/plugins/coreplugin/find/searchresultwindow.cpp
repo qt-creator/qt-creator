@@ -141,8 +141,8 @@ namespace Internal {
         cmd->setAttribute(Command::CA_UpdateText);
         m_expandCollapseButton->setDefaultAction(cmd->action());
 
-        connect(m_expandCollapseAction, &QAction::toggled, this,
-                &SearchResultWindowPrivate::handleExpandCollapseToolButton);
+        connect(m_expandCollapseAction, &QAction::toggled,
+                this, &SearchResultWindowPrivate::handleExpandCollapseToolButton);
 
     }
 

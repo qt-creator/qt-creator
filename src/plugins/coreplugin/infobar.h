@@ -108,12 +108,11 @@ public:
     void setTarget(QBoxLayout *layout, int index);
     void setInfoBar(InfoBar *infoBar);
 
-private slots:
+private:
     void update();
     void infoBarDestroyed();
     void widgetDestroyed();
 
-private:
     QList<QWidget *> m_infoWidgets;
     InfoBar *m_infoBar;
     QBoxLayout *m_boxLayout;

@@ -82,10 +82,11 @@ SaveItemsDialog::SaveItemsDialog(QWidget *parent,
     adjustButtonWidths();
     updateSaveButton();
 
-    connect(m_ui.buttonBox->button(QDialogButtonBox::Save), SIGNAL(clicked()),
-            this, SLOT(collectItemsToSave()));
-    connect(discardButton, SIGNAL(clicked()), this, SLOT(discardAll()));
-    connect(m_ui.treeWidget, SIGNAL(itemSelectionChanged()), this, SLOT(updateSaveButton()));
+    connect(m_ui.buttonBox->button(QDialogButtonBox::Save), &QAbstractButton::clicked,
+            this, &SaveItemsDialog::collectItemsToSave);
+    connect(discardButton, &QAbstractButton::clicked, this, &SaveItemsDialog::discardAll);
+    connect(m_ui.treeWidget, &QTreeWidget::itemSelectionChanged,
+            this, &SaveItemsDialog::updateSaveButton);
 }
 
 void SaveItemsDialog::setMessage(const QString &msg)

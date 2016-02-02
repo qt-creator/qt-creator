@@ -44,13 +44,13 @@ ExecuteFilter::ExecuteFilter()
 
     m_process = new Utils::QtcProcess(this);
     m_process->setEnvironment(Utils::Environment::systemEnvironment());
-    connect(m_process, SIGNAL(finished(int,QProcess::ExitStatus)), this,
-            SLOT(finished(int,QProcess::ExitStatus)));
-    connect(m_process, SIGNAL(readyReadStandardOutput()), this, SLOT(readStandardOutput()));
-    connect(m_process, SIGNAL(readyReadStandardError()), this, SLOT(readStandardError()));
+    connect(m_process, static_cast<void (QProcess::*)(int,QProcess::ExitStatus)>(&QProcess::finished),
+            this, &ExecuteFilter::finished);
+    connect(m_process, &QProcess::readyReadStandardOutput, this, &ExecuteFilter::readStandardOutput);
+    connect(m_process, &QProcess::readyReadStandardError, this, &ExecuteFilter::readStandardError);
 
     m_runTimer.setSingleShot(true);
-    connect(&m_runTimer, SIGNAL(timeout()), this, SLOT(runHeadCommand()));
+    connect(&m_runTimer, &QTimer::timeout, this, &ExecuteFilter::runHeadCommand);
 }
 
 QList<LocatorFilterEntry> ExecuteFilter::matchesFor(QFutureInterface<LocatorFilterEntry> &future,

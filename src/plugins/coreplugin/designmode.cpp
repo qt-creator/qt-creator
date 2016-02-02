@@ -187,7 +187,7 @@ void DesignMode::currentEditorChanged(IEditor *editor)
         }
     }
     if (d->m_currentEditor)
-        disconnect(d->m_currentEditor.data()->document(), SIGNAL(changed()), this, SLOT(updateActions()));
+        disconnect(d->m_currentEditor.data()->document(), &IDocument::changed, this, &DesignMode::updateActions);
 
     if (!mimeEditorAvailable) {
         setActiveContext(Context());
@@ -200,7 +200,7 @@ void DesignMode::currentEditorChanged(IEditor *editor)
         d->m_currentEditor = editor;
 
         if (d->m_currentEditor)
-            connect(d->m_currentEditor.data()->document(), SIGNAL(changed()), this, SLOT(updateActions()));
+            connect(d->m_currentEditor.data()->document(), &IDocument::changed, this, &DesignMode::updateActions);
 
         emit actionsUpdated(d->m_currentEditor.data());
     }

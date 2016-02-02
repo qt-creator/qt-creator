@@ -110,17 +110,17 @@ OutputWindow::OutputWindow(Context context, QWidget *parent)
     ActionManager::registerAction(pasteAction, Constants::PASTE, context);
     ActionManager::registerAction(selectAllAction, Constants::SELECTALL, context);
 
-    connect(undoAction, SIGNAL(triggered()), this, SLOT(undo()));
-    connect(redoAction, SIGNAL(triggered()), this, SLOT(redo()));
-    connect(cutAction, SIGNAL(triggered()), this, SLOT(cut()));
-    connect(copyAction, SIGNAL(triggered()), this, SLOT(copy()));
-    connect(pasteAction, SIGNAL(triggered()), this, SLOT(paste()));
-    connect(selectAllAction, SIGNAL(triggered()), this, SLOT(selectAll()));
+    connect(undoAction, &QAction::triggered, this, &QPlainTextEdit::undo);
+    connect(redoAction, &QAction::triggered, this, &QPlainTextEdit::redo);
+    connect(cutAction, &QAction::triggered, this, &QPlainTextEdit::cut);
+    connect(copyAction, &QAction::triggered, this, &QPlainTextEdit::copy);
+    connect(pasteAction, &QAction::triggered, this, &QPlainTextEdit::paste);
+    connect(selectAllAction, &QAction::triggered, this, &QPlainTextEdit::selectAll);
 
-    connect(this, SIGNAL(undoAvailable(bool)), undoAction, SLOT(setEnabled(bool)));
-    connect(this, SIGNAL(redoAvailable(bool)), redoAction, SLOT(setEnabled(bool)));
-    connect(this, SIGNAL(copyAvailable(bool)), cutAction, SLOT(setEnabled(bool)));  // OutputWindow never read-only
-    connect(this, SIGNAL(copyAvailable(bool)), copyAction, SLOT(setEnabled(bool)));
+    connect(this, &QPlainTextEdit::undoAvailable, undoAction, &QAction::setEnabled);
+    connect(this, &QPlainTextEdit::redoAvailable, redoAction, &QAction::setEnabled);
+    connect(this, &QPlainTextEdit::copyAvailable, cutAction, &QAction::setEnabled);  // OutputWindow never read-only
+    connect(this, &QPlainTextEdit::copyAvailable, copyAction, &QAction::setEnabled);
 
     undoAction->setEnabled(false);
     redoAction->setEnabled(false);

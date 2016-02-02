@@ -78,10 +78,9 @@ protected:
     void setFileIterator(Iterator *iterator);
     QSharedPointer<Iterator> fileIterator();
 
-private slots:
+private:
     void updatePreviousResultData();
 
-private:
     Internal::BaseFileFilterPrivate *d;
 };
 

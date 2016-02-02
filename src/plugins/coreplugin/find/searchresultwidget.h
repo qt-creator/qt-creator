@@ -104,13 +104,12 @@ signals:
 
     void navigateStateChanged();
 
-private slots:
+private:
     void handleJumpToSearchResult(const SearchResultItem &item);
     void handleReplaceButton();
     void cancel();
     void searchAgain();
 
-private:
     void setShowReplaceUI(bool visible);
     void continueAfterSizeWarning();
     void cancelAfterSizeWarning();

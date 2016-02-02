@@ -69,11 +69,10 @@ public:
 protected:
     bool eventFilter(QObject *obj, QEvent *event);
 
-private slots:
+private:
     void toggleFullScreen();
     void updateFullScreenAction();
 
-private:
     QWidget *m_window;
     IContext *m_contextObject;
     QAction *m_minimizeAction;

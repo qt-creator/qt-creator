@@ -55,7 +55,7 @@ public:
 
     static void hoverOverlay(QPainter *painter, const QRect &spanRect);
 
-private slots:
+private:
     void actionChanged();
 };
 

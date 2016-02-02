@@ -48,10 +48,9 @@ public:
     QString toolTipBase() const;
     void setToolTipBase(const QString &toolTipBase);
 
-private slots:
+private:
     void updateToolTip();
 
-private:
     QPointer<Command> m_command;
     QString m_toolTipBase;
 };

@@ -204,12 +204,12 @@ void VcsManager::extensionsInitialized()
 {
     // Change signal connections
     foreach (IVersionControl *versionControl, versionControls()) {
-        connect(versionControl, SIGNAL(filesChanged(QStringList)),
-                DocumentManager::instance(), SIGNAL(filesChangedInternally(QStringList)));
-        connect(versionControl, SIGNAL(repositoryChanged(QString)),
-                m_instance, SIGNAL(repositoryChanged(QString)));
-        connect(versionControl, SIGNAL(configurationChanged()),
-                m_instance, SLOT(handleConfigurationChanges()));
+        connect(versionControl, &IVersionControl::filesChanged,
+                DocumentManager::instance(), &DocumentManager::filesChangedInternally);
+        connect(versionControl, &IVersionControl::repositoryChanged,
+                m_instance, &VcsManager::repositoryChanged);
+        connect(versionControl, &IVersionControl::configurationChanged,
+                m_instance, &VcsManager::handleConfigurationChanges);
     }
 }
 

@@ -173,7 +173,7 @@ FindToolBar::FindToolBar(FindPlugin *plugin, CurrentDocumentFind *currentDocumen
     cmd = ActionManager::registerAction(m_findInDocumentAction, Constants::FIND_IN_DOCUMENT);
     cmd->setDefaultKeySequence(QKeySequence::Find);
     mfind->addAction(cmd, Constants::G_FIND_CURRENTDOCUMENT);
-    connect(m_findInDocumentAction, SIGNAL(triggered()), this, SLOT(openFind()));
+    connect(m_findInDocumentAction, &QAction::triggered, this, [this]() { openFind(); });
 
     // Pressing the find shortcut while focus is in the tool bar should not change the search text,
     // so register a different find action for the tool bar
@@ -188,8 +188,9 @@ FindToolBar::FindToolBar(FindPlugin *plugin, CurrentDocumentFind *currentDocumen
         cmd = ActionManager::registerAction(m_enterFindStringAction, "Find.EnterFindString");
         cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+E")));
         mfind->addAction(cmd, Constants::G_FIND_ACTIONS);
-        connect(m_enterFindStringAction, &QAction::triggered, this, &FindToolBar::putSelectionToFindClipboard);
-        connect(QApplication::clipboard(), SIGNAL(findBufferChanged()), this, SLOT(updateFromFindClipboard()));
+        connect(m_enterFindStringAction, &QAction::triggered,
+                this, &FindToolBar::putSelectionToFindClipboard);
+        connect(QApplication::clipboard(), &QClipboard::findBufferChanged, this, &FindToolBar::updateFromFindClipboard);
     }
 
     m_findNextAction = new QAction(tr("Find Next"), this);
@@ -224,7 +225,8 @@ FindToolBar::FindToolBar(FindPlugin *plugin, CurrentDocumentFind *currentDocumen
     cmd = ActionManager::registerAction(m_findPreviousSelectedAction, Constants::FIND_PREV_SELECTED);
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+F3")));
     mfind->addAction(cmd, Constants::G_FIND_ACTIONS);
-    connect(m_findPreviousSelectedAction, &QAction::triggered, this, &FindToolBar::findPreviousSelected);
+    connect(m_findPreviousSelectedAction, &QAction::triggered,
+            this, &FindToolBar::findPreviousSelected);
 
     m_replaceAction = new QAction(tr("Replace"), this);
     cmd = ActionManager::registerAction(m_replaceAction, Constants::REPLACE);
@@ -252,11 +254,13 @@ FindToolBar::FindToolBar(FindPlugin *plugin, CurrentDocumentFind *currentDocumen
     m_replacePreviousAction = new QAction(tr("Replace && Find Previous"), this);
     cmd = ActionManager::registerAction(m_replacePreviousAction, Constants::REPLACE_PREVIOUS);
     mfind->addAction(cmd, Constants::G_FIND_ACTIONS);
-    connect(m_replacePreviousAction, &QAction::triggered, this, &FindToolBar::invokeGlobalReplacePrevious);
+    connect(m_replacePreviousAction, &QAction::triggered,
+            this, &FindToolBar::invokeGlobalReplacePrevious);
     m_localReplacePreviousAction = new QAction(m_replacePreviousAction->text(), this);
     cmd = ActionManager::registerAction(m_localReplacePreviousAction, Constants::REPLACE_PREVIOUS, findcontext);
     cmd->augmentActionWithShortcutToolTip(m_localReplacePreviousAction);
-    connect(m_localReplacePreviousAction, &QAction::triggered, this, &FindToolBar::invokeReplacePrevious);
+    connect(m_localReplacePreviousAction, &QAction::triggered,
+            this, &FindToolBar::invokeReplacePrevious);
 
     m_replaceAllAction = new QAction(tr("Replace All"), this);
     cmd = ActionManager::registerAction(m_replaceAllAction, Constants::REPLACE_ALL);
@@ -300,8 +304,10 @@ FindToolBar::FindToolBar(FindPlugin *plugin, CurrentDocumentFind *currentDocumen
     mfind->addAction(cmd, Constants::G_FIND_FLAGS);
     connect(m_preserveCaseAction, &QAction::toggled, this, &FindToolBar::setPreserveCase);
 
-    connect(m_currentDocumentFind, &CurrentDocumentFind::candidateChanged, this, &FindToolBar::adaptToCandidate);
-    connect(m_currentDocumentFind, &CurrentDocumentFind::changed, this, &FindToolBar::updateGlobalActions);
+    connect(m_currentDocumentFind, &CurrentDocumentFind::candidateChanged,
+            this, &FindToolBar::adaptToCandidate);
+    connect(m_currentDocumentFind, &CurrentDocumentFind::changed,
+            this, &FindToolBar::updateGlobalActions);
     connect(m_currentDocumentFind, &CurrentDocumentFind::changed, this, &FindToolBar::updateToolBar);
     updateGlobalActions();
     updateToolBar();
@@ -868,7 +874,7 @@ bool FindToolBar::focusNextPrevChild(bool next)
 void FindToolBar::resizeEvent(QResizeEvent *event)
 {
     Q_UNUSED(event)
-    QTimer::singleShot(0, this, SLOT(updateToolBar()));
+    QTimer::singleShot(0, this, &FindToolBar::updateToolBar);
 }
 
 void FindToolBar::writeSettings()

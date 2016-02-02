@@ -71,10 +71,8 @@ public slots:
     void saveSettings();
     void openLocator();
 
-private slots:
-    void updatePlaceholderText(Core::Command *command = 0);
-
 private:
+    void updatePlaceholderText(Core::Command *command);
     void loadSettings();
     void updateEditorManagerPlaceholderText();
 

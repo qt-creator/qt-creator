@@ -74,17 +74,6 @@ protected:
     void focusInEvent(QFocusEvent *e);
     void resizeEvent(QResizeEvent *e);
 
-private slots:
-    void showPage(int flags);
-    void togglePage(int flags);
-    void clearPage();
-    void buttonTriggered();
-    void updateNavigateState();
-    void popupMenu();
-    void saveSettings() const;
-    void flashButton();
-    void setBadgeNumber(int number);
-
 private:
     // the only class that is allowed to create and destroy
     friend class MainWindow;
@@ -96,6 +85,13 @@ private:
     explicit OutputPaneManager(QWidget *parent = 0);
     ~OutputPaneManager();
 
+    void togglePage(int flags);
+    void clearPage();
+    void updateNavigateState();
+    void popupMenu();
+    void saveSettings() const;
+    void flashButton();
+    void setBadgeNumber(int number);
     void showPage(int idx, int flags);
     void ensurePageVisible(int idx);
     int findIndexForPage(IOutputPane *out);
@@ -163,10 +159,8 @@ public:
     void flash(int count = 3);
     void setIconBadgeNumber(int number);
 
-private slots:
-    void updateToolTip();
-
 private:
+    void updateToolTip();
     void checkStateSet();
 
     QString m_number;

@@ -442,8 +442,8 @@ ExternalToolConfig::ExternalToolConfig(QWidget *parent) :
     ui->toolTree->setModel(m_model);
     ui->toolTree->setEditTriggers(QAbstractItemView::DoubleClicked | QAbstractItemView::EditKeyPressed);
 
-    connect(ui->toolTree->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)),
-            this, SLOT(handleCurrentChanged(QModelIndex,QModelIndex)));
+    connect(ui->toolTree->selectionModel(), &QItemSelectionModel::currentChanged,
+            this, &ExternalToolConfig::handleCurrentChanged);
 
     auto chooser = new VariableChooser(this);
     chooser->addSupportedWidget(ui->executable->lineEdit());
@@ -451,30 +451,40 @@ ExternalToolConfig::ExternalToolConfig(QWidget *parent) :
     chooser->addSupportedWidget(ui->workingDirectory->lineEdit());
     chooser->addSupportedWidget(ui->inputText);
 
-    connect(ui->description, SIGNAL(editingFinished()), this, SLOT(updateCurrentItem()));
-    connect(ui->executable, SIGNAL(editingFinished()), this, SLOT(updateCurrentItem()));
-    connect(ui->executable, SIGNAL(browsingFinished()), this, SLOT(updateCurrentItem()));
-    connect(ui->arguments, SIGNAL(editingFinished()), this, SLOT(updateCurrentItem()));
-    connect(ui->arguments, SIGNAL(editingFinished()), this, SLOT(updateEffectiveArguments()));
-    connect(ui->workingDirectory, SIGNAL(editingFinished()), this, SLOT(updateCurrentItem()));
-    connect(ui->workingDirectory, SIGNAL(browsingFinished()), this, SLOT(updateCurrentItem()));
-    connect(ui->environmentButton, SIGNAL(clicked()), this, SLOT(editEnvironmentChanges()));
-    connect(ui->outputBehavior, SIGNAL(activated(int)), this, SLOT(updateCurrentItem()));
-    connect(ui->errorOutputBehavior, SIGNAL(activated(int)), this, SLOT(updateCurrentItem()));
-    connect(ui->modifiesDocumentCheckbox, SIGNAL(clicked()), this, SLOT(updateCurrentItem()));
-    connect(ui->inputText, SIGNAL(textChanged()), this, SLOT(updateCurrentItem()));
+    connect(ui->description, &QLineEdit::editingFinished,
+            this, &ExternalToolConfig::updateCurrentItem);
+    connect(ui->executable, &Utils::PathChooser::editingFinished,
+            this, &ExternalToolConfig::updateCurrentItem);
+    connect(ui->executable, &Utils::PathChooser::browsingFinished,
+            this, &ExternalToolConfig::updateCurrentItem);
+    connect(ui->arguments, &QLineEdit::editingFinished, this, &ExternalToolConfig::updateCurrentItem);
+    connect(ui->arguments, &QLineEdit::editingFinished,
+            this, &ExternalToolConfig::updateEffectiveArguments);
+    connect(ui->workingDirectory, &Utils::PathChooser::editingFinished,
+            this, &ExternalToolConfig::updateCurrentItem);
+    connect(ui->workingDirectory, &Utils::PathChooser::browsingFinished,
+            this, &ExternalToolConfig::updateCurrentItem);
+    connect(ui->environmentButton, &QAbstractButton::clicked,
+            this, &ExternalToolConfig::editEnvironmentChanges);
+    connect(ui->outputBehavior, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated),
+            this, &ExternalToolConfig::updateCurrentItem);
+    connect(ui->errorOutputBehavior, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated),
+            this, &ExternalToolConfig::updateCurrentItem);
+    connect(ui->modifiesDocumentCheckbox, &QAbstractButton::clicked,
+            this, &ExternalToolConfig::updateCurrentItem);
+    connect(ui->inputText, &QPlainTextEdit::textChanged, this, &ExternalToolConfig::updateCurrentItem);
 
-    connect(ui->revertButton, SIGNAL(clicked()), this, SLOT(revertCurrentItem()));
-    connect(ui->removeButton, SIGNAL(clicked()), this, SLOT(removeTool()));
+    connect(ui->revertButton, &QAbstractButton::clicked, this, &ExternalToolConfig::revertCurrentItem);
+    connect(ui->removeButton, &QAbstractButton::clicked, this, &ExternalToolConfig::removeTool);
 
     QMenu *menu = new QMenu(ui->addButton);
     ui->addButton->setMenu(menu);
     QAction *addTool = new QAction(tr("Add Tool"), this);
     menu->addAction(addTool);
-    connect(addTool, SIGNAL(triggered()), this, SLOT(addTool()));
+    connect(addTool, &QAction::triggered, this, &ExternalToolConfig::addTool);
     QAction *addCategory = new QAction(tr("Add Category"), this);
     menu->addAction(addCategory);
-    connect(addCategory, SIGNAL(triggered()), this, SLOT(addCategory()));
+    connect(addCategory, &QAction::triggered, this, &ExternalToolConfig::addCategory);
 
     showInfoForItem(QModelIndex());
 

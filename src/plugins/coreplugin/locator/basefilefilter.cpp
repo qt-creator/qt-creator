@@ -159,7 +159,7 @@ QList<LocatorFilterEntry> BaseFileFilter::matchesFor(QFutureInterface<LocatorFil
         d->m_current.clear(); // free memory
     } else {
         d->m_current.iterator.clear();
-        QTimer::singleShot(0, this, SLOT(updatePreviousResultData()));
+        QTimer::singleShot(0, this, &BaseFileFilter::updatePreviousResultData);
     }
     return betterEntries;
 }

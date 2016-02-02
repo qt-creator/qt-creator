@@ -136,12 +136,12 @@ public slots:
     static void gotoNextSplit();
 
     void handleDocumentStateChange();
-    static void editorAreaDestroyed(QObject *area);
+    void editorAreaDestroyed(QObject *area);
 
 signals:
     void placeholderTextChanged(const QString &text);
 
-private slots:
+private:
     static void gotoNextDocHistory();
     static void gotoPreviousDocHistory();
 
@@ -164,13 +164,10 @@ private slots:
     static void openTerminal();
     static void findInDirectory();
 
-    static void split();
-    static void splitNewWindow();
     static void removeCurrentSplit();
 
     static void setCurrentEditorFromContextChange();
 
-private:
     static OpenEditorsWindow *windowPopup();
     static void showPopupOrSelectDocument();
 

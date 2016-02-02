@@ -49,13 +49,12 @@ public:
     void apply();
     void finish();
 
-private slots:
+private:
     void showHelpForFileBrowser();
     void resetFileBrowser();
     void resetTerminal();
     void updatePath();
 
-private:
     void variableHelpDialogCreator(const QString &helpText);
     Ui::SystemSettings *m_page;
     QPointer<QMessageBox> m_dialog;

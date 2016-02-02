@@ -59,14 +59,13 @@ protected:
     bool event(QEvent *event);
     bool eventFilter(QObject *obj, QEvent *event);
 
-private slots:
+private:
     void search();
     void replace();
     void setCurrentFilter(int index);
     void updateButtonStates();
     void updateFindFlags();
 
-private:
     void acceptAndGetParameters(QString *term, IFindFilter **filter);
 
     Ui::FindDialog m_ui;

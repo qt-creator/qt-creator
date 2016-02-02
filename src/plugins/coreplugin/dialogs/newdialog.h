@@ -67,7 +67,7 @@ public:
 protected:
     bool event(QEvent *);
 
-private slots:
+private:
     void currentCategoryChanged(const QModelIndex &);
     void currentItemChanged(const QModelIndex &);
     void accept();
@@ -75,7 +75,6 @@ private slots:
     void updateOkButton();
     void setSelectedPlatform(const QString &platform);
 
-private:
     Core::IWizardFactory *currentWizardFactory() const;
     void addItem(QStandardItem *topLevelCategoryItem, IWizardFactory *factory);
     void saveState();

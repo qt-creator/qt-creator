@@ -623,11 +623,15 @@ void ExternalToolRunner::run()
         }
     }
     m_process = new QtcProcess(this);
-    connect(m_process, SIGNAL(started()), this, SLOT(started()));
-    connect(m_process, SIGNAL(finished(int,QProcess::ExitStatus)), this, SLOT(finished(int,QProcess::ExitStatus)));
-    connect(m_process, SIGNAL(error(QProcess::ProcessError)), this, SLOT(error(QProcess::ProcessError)));
-    connect(m_process, SIGNAL(readyReadStandardOutput()), this, SLOT(readStandardOutput()));
-    connect(m_process, SIGNAL(readyReadStandardError()), this, SLOT(readStandardError()));
+    connect(m_process, &QProcess::started, this, &ExternalToolRunner::started);
+    connect(m_process, static_cast<void (QProcess::*)(int,QProcess::ExitStatus)>(&QProcess::finished),
+            this, &ExternalToolRunner::finished);
+    connect(m_process, static_cast<void (QProcess::*)(QProcess::ProcessError)>(&QProcess::error),
+            this, &ExternalToolRunner::error);
+    connect(m_process, &QProcess::readyReadStandardOutput,
+            this, &ExternalToolRunner::readStandardOutput);
+    connect(m_process, &QProcess::readyReadStandardError,
+            this, &ExternalToolRunner::readStandardError);
     if (!m_resolvedWorkingDirectory.isEmpty())
         m_process->setWorkingDirectory(m_resolvedWorkingDirectory);
     m_process->setCommand(m_resolvedExecutable.toString(), m_resolvedArguments);

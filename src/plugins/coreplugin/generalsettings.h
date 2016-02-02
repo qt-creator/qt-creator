@@ -49,12 +49,11 @@ public:
     void apply();
     void finish();
 
-private slots:
+private:
     void resetInterfaceColor();
     void resetWarnings();
     void resetLanguage();
 
-private:
     bool canResetWarnings() const;
     void fillLanguageBox() const;
     QString language() const;

@@ -55,16 +55,14 @@ public:
     void accept(LocatorFilterEntry selection) const;
     void refresh(QFutureInterface<void> &) {}
 
-private slots:
+private:
     void finished(int exitCode, QProcess::ExitStatus status);
     void readStandardOutput();
     void readStandardError();
     void runHeadCommand();
 
-private:
     QString headCommand() const;
 
-private:
     QQueue<ExecuteData> m_taskQueue;
     QStringList m_commandHistory;
     Utils::QtcProcess *m_process;

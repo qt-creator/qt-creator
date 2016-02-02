@@ -70,8 +70,8 @@ OpenEditorsWindow::OpenEditorsWindow(QWidget *parent) :
     layout->setMargin(0);
     layout->addWidget(m_editorList);
 
-    connect(m_editorList, SIGNAL(itemClicked(QTreeWidgetItem*,int)),
-            this, SLOT(editorClicked(QTreeWidgetItem*)));
+    connect(m_editorList, &QTreeWidget::itemClicked,
+            this, &OpenEditorsWindow::editorClicked);
 }
 
 void OpenEditorsWindow::selectAndHide()
