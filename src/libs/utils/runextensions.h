@@ -517,27 +517,22 @@ void blockingMapReduce(QFutureInterface<ReduceResult> futureInterface, const Con
     futureInterface.reportFinished();
 }
 
-// TODO: Use universal references and std::forward to function when we require MSVC2015
-// (MSVC2013 has a bug that std::thread does not move the copied arguments to the function call,
-// which leads to compile errors with rvalue arguments)
 template <typename ResultType, typename Function, typename Obj, typename... Args>
 typename std::enable_if<std::is_member_pointer<typename std::decay<Function>::type>::value>::type
-runAsyncImpl(QFutureInterface<ResultType> futureInterface, const Function &function, const Obj &obj, const Args&... args)
+runAsyncImpl(QFutureInterface<ResultType> futureInterface, Function &&function, Obj &&obj, Args&&... args)
 {
-    std::mem_fn(function)(obj, futureInterface, args...);
+    std::mem_fn(std::forward<Function>(function))(std::forward<Obj>(obj),
+                                                  futureInterface, std::forward<Args>(args)...);
     if (futureInterface.isPaused())
         futureInterface.waitForResume();
     futureInterface.reportFinished();
 }
 
-// TODO: Use universal references and std::forward to function when we require MSVC2015
-// (MSVC2013 has a bug that std::thread does not move the copied arguments to the function call,
-// which leads to compile errors with rvalue arguments)
 template <typename ResultType, typename Function, typename... Args>
 typename std::enable_if<!std::is_member_pointer<typename std::decay<Function>::type>::value>::type
-runAsyncImpl(QFutureInterface<ResultType> futureInterface, const Function &function, const Args&... args)
+runAsyncImpl(QFutureInterface<ResultType> futureInterface, Function &&function, Args&&... args)
 {
-    function(futureInterface, args...);
+    function(futureInterface, std::forward<Args>(args)...);
     if (futureInterface.isPaused())
         futureInterface.waitForResume();
     futureInterface.reportFinished();
