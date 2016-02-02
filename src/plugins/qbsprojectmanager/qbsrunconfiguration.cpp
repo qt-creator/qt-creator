@@ -112,7 +112,9 @@ QbsRunConfiguration::QbsRunConfiguration(Target *parent, Core::Id id) :
     m_currentInstallStep(0),
     m_currentBuildStepList(0)
 {
-    addExtraAspect(new LocalEnvironmentAspect(this, [this](Environment &env) { addToBaseEnvironment(env); }));
+    addExtraAspect(new LocalEnvironmentAspect(this, [](RunConfiguration *rc, Environment &env) {
+                       static_cast<QbsRunConfiguration *>(rc)->addToBaseEnvironment(env);
+                   }));
     addExtraAspect(new ArgumentsAspect(this, QStringLiteral("Qbs.RunConfiguration.CommandLineArguments")));
     addExtraAspect(new WorkingDirectoryAspect(this, QStringLiteral("Qbs.RunConfiguration.WorkingDirectory")));
 

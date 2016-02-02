@@ -80,7 +80,9 @@ DesktopQmakeRunConfiguration::DesktopQmakeRunConfiguration(Target *parent, Core:
     RunConfiguration(parent, id),
     m_proFilePath(pathFromId(id))
 {
-    addExtraAspect(new LocalEnvironmentAspect(this, [this](Environment &env) { addToBaseEnvironment(env); }));
+    addExtraAspect(new LocalEnvironmentAspect(this, [](RunConfiguration *rc, Environment &env) {
+                       static_cast<DesktopQmakeRunConfiguration *>(rc)->addToBaseEnvironment(env);
+                   }));
     addExtraAspect(new ArgumentsAspect(this, QStringLiteral("Qt4ProjectManager.Qt4RunConfiguration.CommandLineArguments")));
     addExtraAspect(new TerminalAspect(this, QStringLiteral("Qt4ProjectManager.Qt4RunConfiguration.UseTerminal")));
     addExtraAspect(new WorkingDirectoryAspect(this,

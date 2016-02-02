@@ -35,7 +35,7 @@ class PROJECTEXPLORER_EXPORT LocalEnvironmentAspect : public EnvironmentAspect
     Q_OBJECT
 
 public:
-    typedef std::function<void(Utils::Environment &)> BaseEnvironmentModifier;
+    typedef std::function<void(RunConfiguration *, Utils::Environment &)> BaseEnvironmentModifier;
     LocalEnvironmentAspect(RunConfiguration *parent, const BaseEnvironmentModifier &modifier);
     LocalEnvironmentAspect *create(RunConfiguration *parent) const;
 
