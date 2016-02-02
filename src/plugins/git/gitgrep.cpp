@@ -122,13 +122,6 @@ public:
             m_fi.reportResult(resultList);
     }
 
-    void finish()
-    {
-        read();
-        m_fi.setProgressValue(1);
-        m_fi.reportFinished();
-    }
-
     void exec()
     {
         m_fi.setProgressRange(0, 1);
@@ -158,16 +151,17 @@ public:
                 &m_process, &QtcProcess::kill);
         connect(&m_process, &QProcess::readyRead,
                 this, &GitGrepRunner::read);
-        connect(&m_process, static_cast<void(QProcess::*)(int)>(&QProcess::finished),
-                this, &GitGrepRunner::finish);
-        QEventLoop eventLoop;
-        connect(&watcher, &QFutureWatcher<FileSearchResultList>::finished,
-                &eventLoop, &QEventLoop::quit);
         m_process.start();
         if (!m_process.waitForStarted())
             return;
-        m_fi.reportStarted();
+        QEventLoop eventLoop;
+        connect(&m_process, static_cast<void(QProcess::*)(int)>(&QProcess::finished),
+                this, [this, &eventLoop]() {
+            read();
+            eventLoop.quit();
+        });
         eventLoop.exec();
+        m_fi.setProgressValue(1);
     }
 
     static void run(QFutureInterface<FileSearchResultList> &fi,
