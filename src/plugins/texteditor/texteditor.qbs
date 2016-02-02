@@ -115,9 +115,6 @@ QtcPlugin {
         "textdocument.h",
         "textdocumentlayout.cpp",
         "textdocumentlayout.h",
-        "textdocumentmanipulator.cpp",
-        "textdocumentmanipulator.h",
-        "textdocumentmanipulatorinterface.h",
         "texteditor.cpp",
         "texteditor.h",
         "texteditor.qrc",
@@ -186,6 +183,9 @@ QtcPlugin {
             "quickfixassistprovider.h",
             "runner.cpp",
             "runner.h",
+            "textdocumentmanipulator.cpp",
+            "textdocumentmanipulator.h",
+            "textdocumentmanipulatorinterface.h",
         ]
     }
 
