@@ -5,7 +5,7 @@ PreferredStyles=
 [Palette]
 brightText=ffffffff
 darkText=ff000000
-textDisabled=99a0a0a0
+textDisabled=88a0a0a0
 
 [Colors]
 BackgroundColorAlternate=ff3d3d3d
@@ -46,15 +46,15 @@ FutureProgressBackgroundColor=ffff0000
 IconsBaseColor=ffdcdcdc
 IconsDisabledColor=textDisabled
 IconsInfoColor=ff3099dc
-IconsInfoToolBarColor=ff43aced
+IconsInfoToolBarColor=ff71b2db
 IconsWarningColor=ffecbc1c
-IconsWarningToolBarColor=fff9ce1f
+IconsWarningToolBarColor=fff2d76e
 IconsErrorColor=ffdf4f4f
-IconsErrorToolBarColor=ffe8555a
-IconsRunColor=ff7fc341
-IconsStopColor=ffd84e51
-IconsDebugColor=ffb8c6ff
-IconsInterruptColor=ff7488db
+IconsErrorToolBarColor=ffdb6f71
+IconsRunColor=ffa4d576
+IconsStopColor=ffdb6f71
+IconsDebugColor=ffdcdcdc
+IconsInterruptColor=ff8f9dda
 IconsNavigationArrowsColor=ffebc322
 IconsBuildHammerHandleColor=ffdd7710
 IconsBuildHammerHeadColor=ff989898
