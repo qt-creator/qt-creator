@@ -175,19 +175,21 @@ void CppToolsPlugin::test_cpplocatorfilters_CppLocatorFilter_data()
         << cppFunctionsFilter
         << _("function")
         << (QList<ResultData>()
-            << ResultData(_("functionDefinedInClass(bool, int)"), _("MyClass"))
-            << ResultData(_("functionDefinedInClass(bool, int)"), _("MyNamespace::MyClass"))
+            << ResultData(_("functionDefinedInClass(bool, int)"), _("MyClass (file1.cpp)"))
             << ResultData(_("functionDefinedInClass(bool, int)"),
-                          _("<anonymous namespace>::MyClass"))
-            << ResultData(_("functionDefinedOutSideClass(char)"), _("MyClass"))
-            << ResultData(_("functionDefinedOutSideClass(char)"), _("MyNamespace::MyClass"))
+                          _("MyNamespace::MyClass (file1.cpp)"))
+            << ResultData(_("functionDefinedInClass(bool, int)"),
+                          _("<anonymous namespace>::MyClass (file1.cpp)"))
+            << ResultData(_("functionDefinedOutSideClass(char)"), _("MyClass (file1.cpp)"))
             << ResultData(_("functionDefinedOutSideClass(char)"),
-                          _("<anonymous namespace>::MyClass"))
+                          _("MyNamespace::MyClass (file1.cpp)"))
+            << ResultData(_("functionDefinedOutSideClass(char)"),
+                          _("<anonymous namespace>::MyClass (file1.cpp)"))
             << ResultData(_("functionDefinedOutSideClassAndNamespace(float)"),
-                          _("MyNamespace::MyClass"))
+                          _("MyNamespace::MyClass (file1.cpp)"))
             << ResultData(_("myFunction(bool, int)"), testFileShort)
-            << ResultData(_("myFunction(bool, int)"), _("MyNamespace"))
-            << ResultData(_("myFunction(bool, int)"), _("<anonymous namespace>"))
+            << ResultData(_("myFunction(bool, int)"), _("MyNamespace (file1.cpp)"))
+            << ResultData(_("myFunction(bool, int)"), _("<anonymous namespace> (file1.cpp)"))
            );
 
     QTest::newRow("CppFunctionsFilter-WithNamespacePrefix")
@@ -195,12 +197,14 @@ void CppToolsPlugin::test_cpplocatorfilters_CppLocatorFilter_data()
         << cppFunctionsFilter
         << _("mynamespace::")
         << (QList<ResultData>()
-            << ResultData(_("MyClass()"), _("MyNamespace::MyClass"))
-            << ResultData(_("functionDefinedInClass(bool, int)"), _("MyNamespace::MyClass"))
-            << ResultData(_("functionDefinedOutSideClass(char)"), _("MyNamespace::MyClass"))
+            << ResultData(_("MyClass()"), _("MyNamespace::MyClass (file1.cpp)"))
+            << ResultData(_("functionDefinedInClass(bool, int)"),
+                          _("MyNamespace::MyClass (file1.cpp)"))
+            << ResultData(_("functionDefinedOutSideClass(char)"),
+                          _("MyNamespace::MyClass (file1.cpp)"))
             << ResultData(_("functionDefinedOutSideClassAndNamespace(float)"),
-                          _("MyNamespace::MyClass"))
-            << ResultData(_("myFunction(bool, int)"), _("MyNamespace"))
+                          _("MyNamespace::MyClass (file1.cpp)"))
+            << ResultData(_("myFunction(bool, int)"), _("MyNamespace (file1.cpp)"))
            );
 
     QTest::newRow("CppClassesFilter")
@@ -264,9 +268,9 @@ void CppToolsPlugin::test_cpplocatorfilters_CppLocatorFilter_data()
         << cppFunctionsFilter
         << _("M")
         << (QList<ResultData>()
-            << ResultData(_("anotherMethod"), _("MyClass"))
-            << ResultData(_("anotherMethod:"), _("MyClass"))
-            << ResultData(_("someMethod"), _("MyClass"))
+            << ResultData(_("anotherMethod"), _("MyClass (file1.mm)"))
+            << ResultData(_("anotherMethod:"), _("MyClass (file1.mm)"))
+            << ResultData(_("someMethod"), _("MyClass (file1.mm)"))
             );
 }
 

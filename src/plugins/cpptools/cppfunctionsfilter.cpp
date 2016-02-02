@@ -25,6 +25,8 @@
 
 #include "cppfunctionsfilter.h"
 
+#include <utils/fileutils.h>
+
 using namespace CppTools;
 using namespace CppTools::Internal;
 
@@ -48,8 +50,13 @@ Core::LocatorFilterEntry CppFunctionsFilter::filterEntryFromIndexItem(IndexItem:
     QString name = info->symbolName();
     QString extraInfo = info->symbolScope();
     info->unqualifiedNameAndScope(name, &name, &extraInfo);
-    if (extraInfo.isEmpty())
+    if (extraInfo.isEmpty()) {
         extraInfo = info->shortNativeFilePath();
+    } else {
+        extraInfo.append(QLatin1String(" ("))
+                .append(Utils::FileName::fromString(info->fileName()).fileName())
+                .append(QLatin1String(")"));
+    }
 
     Core::LocatorFilterEntry filterEntry(this, name + info->symbolType(), id, info->icon());
     filterEntry.extraInfo = extraInfo;
