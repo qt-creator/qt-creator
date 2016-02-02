@@ -248,12 +248,13 @@ bool Manager::isBuildingDefinition(const QString &id) const
     return m_isBuildingDefinition.contains(id);
 }
 
-class ManagerProcessor : public QObject
+class ManagerProcessor
 {
-    Q_OBJECT
 public:
     ManagerProcessor();
-    void process(QFutureInterface<Manager::RegisterData> &future);
+    // TODO: make move-only when we can require MSVC2015
+
+    void operator()(QFutureInterface<Manager::RegisterData> &future);
 
     QStringList m_definitionsPaths;
     static const int kMaxProgress;
@@ -269,7 +270,7 @@ ManagerProcessor::ManagerProcessor()
         m_definitionsPaths.append(settings.fallbackDefinitionFilesPath());
 }
 
-void ManagerProcessor::process(QFutureInterface<Manager::RegisterData> &future)
+void ManagerProcessor::operator()(QFutureInterface<Manager::RegisterData> &future)
 {
     future.setProgressRange(0, kMaxProgress);
 
@@ -321,11 +322,7 @@ void Manager::registerHighlightingFiles()
     if (!m_registeringWatcher.isRunning()) {
         clear();
 
-        ManagerProcessor *processor = new ManagerProcessor;
-        QFuture<RegisterData> future =
-            QtConcurrent::run(&ManagerProcessor::process, processor);
-        connect(&m_registeringWatcher, &QFutureWatcherBase::finished,
-                processor, &QObject::deleteLater);
+        QFuture<RegisterData> future = Utils::runAsync<RegisterData>(ManagerProcessor());
         m_registeringWatcher.setFuture(future);
     } else {
         m_hasQueuedRegistration = true;
