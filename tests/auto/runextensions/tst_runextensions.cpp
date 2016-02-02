@@ -27,6 +27,10 @@
 
 #include <QtTest>
 
+#if !defined(Q_CC_MSVC) || _MSC_VER >= 1900 // MSVC2015
+#define SUPPORTS_MOVE
+#endif
+
 class tst_RunExtensions : public QObject
 {
     Q_OBJECT
@@ -34,6 +38,9 @@ class tst_RunExtensions : public QObject
 private slots:
     void runAsync();
     void runInThreadPool();
+#ifdef SUPPORTS_MOVE
+    void moveOnlyType();
+#endif
 };
 
 void report3(QFutureInterface<int> &fi)
@@ -267,6 +274,35 @@ void tst_RunExtensions::runInThreadPool()
     QCOMPARE(Utils::runAsync<QString>(pool.data(), &MyObject::memberString2, &obj, QString(QLatin1String("rvalue"))).results(),
              QList<QString>({QString(QLatin1String("rvalue"))}));
 }
+
+#ifdef SUPPORTS_MOVE
+
+class MoveOnlyType
+{
+public:
+    MoveOnlyType() = default;
+    MoveOnlyType(const MoveOnlyType &) = delete;
+    MoveOnlyType(MoveOnlyType &&) = default;
+    MoveOnlyType &operator=(const MoveOnlyType &) = delete;
+    MoveOnlyType &operator=(MoveOnlyType &&) = default;
+};
+
+class MoveOnlyCallable : public MoveOnlyType
+{
+public:
+    void operator()(QFutureInterface<int> &fi, const MoveOnlyType &)
+    {
+        fi.reportResult(1);
+    }
+};
+
+void tst_RunExtensions::moveOnlyType()
+{
+    QCOMPARE(Utils::runAsync<int>(MoveOnlyCallable(), MoveOnlyType()).results(),
+             QList<int>({1}));
+}
+
+#endif
 
 QTEST_MAIN(tst_RunExtensions)
 
