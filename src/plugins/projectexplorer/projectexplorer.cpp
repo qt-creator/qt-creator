@@ -39,6 +39,7 @@
 #include "jsonwizard/jsonwizardpagefactory_p.h"
 #include "project.h"
 #include "projectexplorersettings.h"
+#include "projectexplorersettingspage.h"
 #include "removetaskhandler.h"
 #include "unconfiguredprojectpanel.h"
 #include "kitfeatureprovider.h"
@@ -630,7 +631,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     addAutoReleasedObject(new ProjectFileWizardExtension);
 
     // Settings pages
-    //addAutoReleasedObject(new ProjectExplorerSettingsPage);
+    addAutoReleasedObject(new ProjectExplorerSettingsPage);
     addAutoReleasedObject(new DeviceSettingsPage);
 
     // context menus
