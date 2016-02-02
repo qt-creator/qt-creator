@@ -86,6 +86,8 @@ private slots:
     void finished();
 
 private:
+    void run(QFutureInterface<Use> &futureInterface, const QmlJSTools::SemanticInfo &semanticInfo);
+
     QFutureWatcher<Use>  m_watcher;
     QmlJSEditorDocument *m_document;
     int m_startRevision;

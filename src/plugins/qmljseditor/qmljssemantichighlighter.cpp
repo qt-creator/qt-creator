@@ -44,9 +44,8 @@
 #include <texteditor/fontsettings.h>
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
+#include <utils/runextensions.h>
 
-#include <QFutureInterface>
-#include <QRunnable>
 #include <QTextDocument>
 #include <QThreadPool>
 
@@ -58,24 +57,6 @@ namespace QmlJSEditor {
 using namespace Internal;
 
 namespace {
-
-template <typename T>
-class PriorityTask :
-        public QFutureInterface<T>,
-        public QRunnable
-{
-public:
-    typedef QFuture<T> Future;
-
-    Future start(QThread::Priority priority)
-    {
-        this->setRunnable(this);
-        this->reportStarted();
-        Future future = this->future();
-        QThreadPool::globalInstance()->start(this, priority);
-        return future;
-    }
-};
 
 static bool isIdScope(const ObjectValue *scope, const QList<const QmlComponentChain *> &chain)
 {
@@ -186,21 +167,55 @@ protected:
     }
 };
 
-class CollectionTask :
-        public PriorityTask<SemanticHighlighter::Use>,
-        protected Visitor
+class CollectionTask : protected Visitor
 {
 public:
-    CollectionTask(const QmlJSTools::SemanticInfo &semanticInfo,
-                   SemanticHighlighter &semanticHighlighter)
-        : m_semanticInfo(semanticInfo)
-        , m_semanticHighlighter(semanticHighlighter)
+    CollectionTask(QFutureInterface<SemanticHighlighter::Use> futureInterface,
+                   const QmlJSTools::SemanticInfo &semanticInfo)
+        : m_futureInterface(futureInterface)
+        , m_semanticInfo(semanticInfo)
         , m_scopeChain(semanticInfo.scopeChain())
         , m_scopeBuilder(&m_scopeChain)
         , m_lineOfLastUse(0)
         , m_nextExtraFormat(SemanticHighlighter::Max)
         , m_currentDelayedUse(0)
-    {}
+    {
+        int nMessages = 0;
+        if (m_scopeChain.document()->language().isFullySupportedLanguage()) {
+            nMessages = m_scopeChain.document()->diagnosticMessages().size()
+                    + m_semanticInfo.semanticMessages.size()
+                    + m_semanticInfo.staticAnalysisMessages.size();
+            m_delayedUses.reserve(nMessages);
+            m_diagnosticRanges.reserve(nMessages);
+            m_extraFormats.reserve(nMessages);
+            addMessages(m_scopeChain.document()->diagnosticMessages(), m_scopeChain.document());
+            addMessages(m_semanticInfo.semanticMessages, m_semanticInfo.document);
+            addMessages(m_semanticInfo.staticAnalysisMessages, m_semanticInfo.document);
+
+            Utils::sort(m_delayedUses, sortByLinePredicate);
+        }
+        m_currentDelayedUse = 0;
+    }
+
+    QVector<QTextLayout::FormatRange> diagnosticRanges()
+    {
+        return m_diagnosticRanges;
+    }
+
+    QHash<int, QTextCharFormat> extraFormats()
+    {
+        return m_extraFormats;
+    }
+
+    void run()
+    {
+        Node *root = m_scopeChain.document()->ast();
+        m_stateNames = CollectStateNames(m_scopeChain)(root);
+        accept(root);
+        while (m_currentDelayedUse < m_delayedUses.size())
+            m_uses.append(m_delayedUses.value(m_currentDelayedUse++));
+        flush();
+    }
 
 protected:
     void accept(Node *ast)
@@ -438,35 +453,6 @@ protected:
     }
 
 private:
-    void run()
-    {
-        int nMessages = 0;
-        if (m_scopeChain.document()->language().isFullySupportedLanguage()) {
-            nMessages = m_scopeChain.document()->diagnosticMessages().size()
-                    + m_semanticInfo.semanticMessages.size()
-                    + m_semanticInfo.staticAnalysisMessages.size();
-            m_delayedUses.reserve(nMessages);
-            m_diagnosticRanges.reserve(nMessages);
-            m_extraFormats.reserve(nMessages);
-            addMessages(m_scopeChain.document()->diagnosticMessages(), m_scopeChain.document());
-            addMessages(m_semanticInfo.semanticMessages, m_semanticInfo.document);
-            addMessages(m_semanticInfo.staticAnalysisMessages, m_semanticInfo.document);
-
-            Utils::sort(m_delayedUses, sortByLinePredicate);
-        }
-        m_currentDelayedUse = 0;
-
-        m_semanticHighlighter.reportMessagesInfo(m_diagnosticRanges, m_extraFormats);
-
-        Node *root = m_scopeChain.document()->ast();
-        m_stateNames = CollectStateNames(m_scopeChain)(root);
-        accept(root);
-        while (m_currentDelayedUse < m_delayedUses.size())
-            m_uses.append(m_delayedUses.value(m_currentDelayedUse++));
-        flush();
-        reportFinished();
-    }
-
     void addUse(const SourceLocation &location, SemanticHighlighter::UseType type)
     {
         addUse(SemanticHighlighter::Use(location.startLine, location.startColumn, location.length, type));
@@ -522,13 +508,13 @@ private:
             return;
 
         Utils::sort(m_uses, sortByLinePredicate);
-        reportResults(m_uses);
+        m_futureInterface.reportResults(m_uses);
         m_uses.clear();
         m_uses.reserve(chunkSize);
     }
 
+    QFutureInterface<SemanticHighlighter::Use> m_futureInterface;
     const QmlJSTools::SemanticInfo &m_semanticInfo;
-    SemanticHighlighter &m_semanticHighlighter;
     ScopeChain m_scopeChain;
     ScopeBuilder m_scopeBuilder;
     QStringList m_stateNames;
@@ -558,11 +544,9 @@ void SemanticHighlighter::rerun(const QmlJSTools::SemanticInfo &semanticInfo)
 {
     m_watcher.cancel();
 
-    // this does not simply use QtConcurrentRun because we want a low-priority future
-    // the thread pool deletes the task when it is done
-    CollectionTask::Future f = (new CollectionTask(semanticInfo, *this))->start(QThread::LowestPriority);
     m_startRevision = m_document->document()->revision();
-    m_watcher.setFuture(f);
+    m_watcher.setFuture(Utils::runAsync<Use>(QThread::LowestPriority,
+                                             &SemanticHighlighter::run, this, semanticInfo));
 }
 
 void SemanticHighlighter::cancel()
@@ -592,6 +576,13 @@ void SemanticHighlighter::finished()
 
     TextEditor::SemanticHighlighter::clearExtraAdditionalFormatsUntilEnd(
                 m_document->syntaxHighlighter(), m_watcher.future());
+}
+
+void SemanticHighlighter::run(QFutureInterface<SemanticHighlighter::Use> &futureInterface, const QmlJSTools::SemanticInfo &semanticInfo)
+{
+    CollectionTask task(futureInterface, semanticInfo);
+    reportMessagesInfo(task.diagnosticRanges(), task.extraFormats());
+    task.run();
 }
 
 void SemanticHighlighter::updateFontSettings(const TextEditor::FontSettings &fontSettings)
