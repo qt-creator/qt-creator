@@ -27,7 +27,6 @@
 
 #include <projectexplorer/devicesupport/deviceapplicationrunner.h>
 #include <projectexplorer/projectexplorericons.h>
-#include <projectexplorer/runnables.h>
 
 using namespace ProjectExplorer;
 
@@ -38,16 +37,15 @@ class RemoteLinuxRunControl::RemoteLinuxRunControlPrivate
 public:
     bool running;
     DeviceApplicationRunner runner;
-    StandardRunnable runnable;
 };
 
 RemoteLinuxRunControl::RemoteLinuxRunControl(RunConfiguration *rc)
         : RunControl(rc, ProjectExplorer::Constants::NORMAL_RUN_MODE), d(new RemoteLinuxRunControlPrivate)
 {
     setIcon(ProjectExplorer::Icons::RUN_SMALL);
+    setRunnable(rc->runnable());
 
     d->running = false;
-    d->runnable = rc->runnable().as<StandardRunnable>();
 }
 
 RemoteLinuxRunControl::~RemoteLinuxRunControl()
@@ -70,7 +68,7 @@ void RemoteLinuxRunControl::start()
             this, &RemoteLinuxRunControl::handleRunnerFinished);
     connect(&d->runner, &DeviceApplicationRunner::reportProgress,
             this, &RemoteLinuxRunControl::handleProgressReport);
-    d->runner.start(device(), d->runnable);
+    d->runner.start(device(), runnable());
 }
 
 RunControl::StopResult RemoteLinuxRunControl::stop()
