@@ -429,9 +429,7 @@ QmakeProFileNode *DesktopQmakeRunConfiguration::projectNode() const
     QTC_ASSERT(project, return nullptr);
     QmakeProFileNode *rootNode = project->rootProjectNode();
     QTC_ASSERT(rootNode, return nullptr);
-    QmakeProFileNode *node = rootNode->findProFileFor(m_proFilePath);
-    QTC_CHECK(node);
-    return node;
+    return rootNode->findProFileFor(m_proFilePath);
 }
 
 QString DesktopQmakeRunConfiguration::defaultDisplayName()
