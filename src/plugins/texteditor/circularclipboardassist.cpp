@@ -58,6 +58,8 @@ public:
         setText(text);
     }
 
+    ~ClipboardProposalItem() Q_DECL_NOEXCEPT {}
+
     void apply(TextDocumentManipulatorInterface &manipulator, int /*basePosition*/) const override
     {
 

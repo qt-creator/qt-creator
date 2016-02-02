@@ -55,7 +55,7 @@ class TEXTEDITOR_EXPORT KeywordsAssistProposalItem : public AssistProposalItem
 {
 public:
     KeywordsAssistProposalItem(bool isFunction);
-    ~KeywordsAssistProposalItem();
+    ~KeywordsAssistProposalItem() Q_DECL_NOEXCEPT;
 
     bool prematurelyApplies(const QChar &c) const override;
     void applyContextualContent(TextDocumentManipulatorInterface &manipulator, int basePosition) const override;

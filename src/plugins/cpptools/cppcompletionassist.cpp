@@ -86,6 +86,7 @@ public:
     CppAssistProposalItem() :
         m_isOverloaded(false) {}
 
+    ~CppAssistProposalItem() Q_DECL_NOEXCEPT {}
     bool prematurelyApplies(const QChar &c) const override;
     void applyContextualContent(TextDocumentManipulatorInterface &manipulator, int basePosition) const override;
 

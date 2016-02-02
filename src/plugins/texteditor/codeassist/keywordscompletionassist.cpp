@@ -83,7 +83,7 @@ KeywordsAssistProposalItem::KeywordsAssistProposalItem(bool isFunction)
 {
 }
 
-KeywordsAssistProposalItem::~KeywordsAssistProposalItem()
+KeywordsAssistProposalItem::~KeywordsAssistProposalItem() Q_DECL_NOEXCEPT
 {}
 
 bool KeywordsAssistProposalItem::prematurelyApplies(const QChar &c) const

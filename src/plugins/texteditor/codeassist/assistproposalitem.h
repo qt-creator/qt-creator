@@ -41,6 +41,7 @@ class TextEditorWidget;
 class TEXTEDITOR_EXPORT AssistProposalItem : public AssistProposalItemInterface
 {
 public:
+    ~AssistProposalItem() Q_DECL_NOEXCEPT {}
     QString text() const override;
     bool implicitlyApplies() const override;
     bool prematurelyApplies(const QChar &c) const override;
