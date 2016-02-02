@@ -184,8 +184,7 @@ QIcon Icon::icon() const
         const QPixmap combinedMask = Utils::combinedMask(masks, m_style);
         result.addPixmap(masksToIcon(masks, combinedMask, m_style));
 
-        QColor disabledColor = creatorTheme()->palette().mid().color();
-        disabledColor.setAlphaF(0.6);
+        const QColor disabledColor = creatorTheme()->color(Theme::IconsDisabledColor);
         result.addPixmap(maskToColorAndAlpha(combinedMask, disabledColor), QIcon::Disabled);
         return result;
     }

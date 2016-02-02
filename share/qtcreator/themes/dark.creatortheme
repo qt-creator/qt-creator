@@ -6,7 +6,7 @@ DefaultTextEditorColorScheme=dark.xml
 [Palette]
 shadowBackground=ff232323
 text=ffe7e7e7
-textDisabled=ffa0a0a0
+textDisabled=ff909090
 hoverBackground=ff515151
 selectedBackground=ff151515
 normalBackground=ff333333
