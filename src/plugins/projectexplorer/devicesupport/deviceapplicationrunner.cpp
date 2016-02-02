@@ -25,17 +25,10 @@
 
 #include "deviceapplicationrunner.h"
 
-#include "sshdeviceprocess.h"
+#include "deviceprocess.h"
 #include "../runnables.h"
 
-#include <ssh/sshconnection.h>
-#include <ssh/sshconnectionmanager.h>
-#include <utils/environment.h>
 #include <utils/qtcassert.h>
-
-#include <QStringList>
-
-using namespace QSsh;
 
 namespace ProjectExplorer {
 
