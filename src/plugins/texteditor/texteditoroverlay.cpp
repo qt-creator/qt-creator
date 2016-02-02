@@ -93,9 +93,9 @@ void TextEditorOverlay::addOverlaySelection(int begin, int end,
     selection.m_bg = bg;
 
     selection.m_cursor_begin = QTextCursor(document);
-    selection.m_cursor_begin.setPos(begin);
+    selection.m_cursor_begin.setPosition(begin);
     selection.m_cursor_end = QTextCursor(document);
-    selection.m_cursor_end.setPos(end);
+    selection.m_cursor_end.setPosition(end);
 
     if (overlaySelectionFlags & ExpandBegin)
         selection.m_cursor_begin.setKeepPositionOnInsert(true);
