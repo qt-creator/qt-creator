@@ -43,13 +43,10 @@ using namespace ProjectExplorer;
 namespace BareMetal {
 namespace Internal {
 
-BareMetalDebugSupport::BareMetalDebugSupport(
-        const ProjectExplorer::IDevice::ConstPtr device,
-        Debugger::DebuggerRunControl *runControl)
+BareMetalDebugSupport::BareMetalDebugSupport(Debugger::DebuggerRunControl *runControl)
     : QObject(runControl)
     , m_appRunner(new ProjectExplorer::DeviceApplicationRunner(this))
     , m_runControl(runControl)
-    , m_device(device)
     , m_state(BareMetalDebugSupport::Inactive)
 {
     Q_ASSERT(runControl);
@@ -149,7 +146,7 @@ void BareMetalDebugSupport::adapterSetupFailed(const QString &error)
 
 void BareMetalDebugSupport::startExecution()
 {
-    auto dev = qSharedPointerCast<const BareMetalDevice>(m_device);
+    auto dev = qSharedPointerCast<const BareMetalDevice>(m_runControl->device());
     QTC_ASSERT(dev, return);
 
     const GdbServerProvider *p = GdbServerProviderManager::instance()->findProvider(
@@ -175,7 +172,7 @@ void BareMetalDebugSupport::startExecution()
     StandardRunnable r;
     r.executable = p->executable();
     r.commandLineArguments = Utils::QtcProcess::joinArgs(p->arguments(), Utils::OsTypeLinux);
-    m_appRunner->start(m_device, r);
+    m_appRunner->start(dev, r);
 }
 
 void BareMetalDebugSupport::setFinished()
