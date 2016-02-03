@@ -66,7 +66,7 @@ public:
 
 signals:
     void aboutToPerformFullParse();
-    void testItemCreated(TestTreeItem *item, TestTreeModel::Type type);
+    void testParseResultReady(TestParseResult result);
     void parsingStarted();
     void parsingFinished();
     void parsingFailed();

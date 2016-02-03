@@ -124,6 +124,12 @@ struct TestCodeLocationAndType {
     TestTreeItem::TestStates m_state;
 };
 
+struct GTestCaseSpec
+{
+    QString testCaseName;
+    bool parameterized;
+};
+
 typedef QVector<TestCodeLocationAndType> TestCodeLocationList;
 
 } // namespace Internal

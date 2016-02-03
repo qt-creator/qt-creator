@@ -129,12 +129,6 @@ private:
 
 };
 
-struct GTestCaseSpec
-{
-    QString testCaseName;
-    bool parameterized;
-};
-
 inline bool operator<(const GTestCaseSpec &spec1, const GTestCaseSpec &spec2)
 {
     if (spec1.testCaseName != spec2.testCaseName)

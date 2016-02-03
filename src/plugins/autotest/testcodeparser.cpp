@@ -83,8 +83,7 @@ TestCodeParser::TestCodeParser(TestTreeModel *parent)
             this, &TestCodeParser::onFinished);
     connect(&m_futureWatcher, &QFutureWatcher<TestParseResult>::resultReadyAt,
             this, [this] (int index) {
-        const TestParseResult result = m_futureWatcher.resultAt(index);
-        emit testItemCreated(result.item, result.type);
+        emit testParseResultReady(m_futureWatcher.resultAt(index));
     });
 }
 
@@ -427,65 +426,6 @@ static QMap<QString, TestCodeLocationList> checkForDataTags(const QString &fileN
     return QMap<QString, TestCodeLocationList>();
 }
 
-static TestTreeItem *constructTestTreeItem(const QString &fileName,
-                                           const QString &mainFile,  // used for Quick Tests only
-                                           const QString &testCaseName,
-                                           int line, int column,
-                                           const QMap<QString, TestCodeLocationAndType> &functions,
-                                           const QMap<QString, TestCodeLocationList> dataTags = QMap<QString, TestCodeLocationList>())
-{
-    TestTreeItem *treeItem = new TestTreeItem(testCaseName, fileName, TestTreeItem::TestClass);
-    treeItem->setMainFile(mainFile); // used for Quick Tests only
-    treeItem->setLine(line);
-    treeItem->setColumn(column);
-
-    foreach (const QString &functionName, functions.keys()) {
-        const TestCodeLocationAndType locationAndType = functions.value(functionName);
-        TestTreeItem *treeItemChild = new TestTreeItem(functionName, locationAndType.m_name,
-                                                       locationAndType.m_type);
-        treeItemChild->setLine(locationAndType.m_line);
-        treeItemChild->setColumn(locationAndType.m_column);
-        treeItemChild->setState(locationAndType.m_state);
-
-        // check for data tags and if there are any for this function add them
-        const QString qualifiedFunctionName = testCaseName + QLatin1String("::") + functionName;
-        if (dataTags.contains(qualifiedFunctionName)) {
-            const TestCodeLocationList &tags = dataTags.value(qualifiedFunctionName);
-            foreach (const TestCodeLocationAndType &tagLocation, tags) {
-                TestTreeItem *tagTreeItem = new TestTreeItem(tagLocation.m_name,
-                                                             locationAndType.m_name,
-                                                             tagLocation.m_type);
-                tagTreeItem->setLine(tagLocation.m_line);
-                tagTreeItem->setColumn(tagLocation.m_column);
-                tagTreeItem->setState(tagLocation.m_state);
-                treeItemChild->appendChild(tagTreeItem);
-            }
-        }
-
-        treeItem->appendChild(treeItemChild);
-    }
-    return treeItem;
-}
-
-static TestTreeItem *constructGTestTreeItem(const QString &filePath, const GTestCaseSpec &caseSpec,
-                                            const QString &proFile,
-                                            const TestCodeLocationList &testSets)
-{
-    TestTreeItem *item = new TestTreeItem(caseSpec.testCaseName, QString(),
-            caseSpec.parameterized ? TestTreeItem::GTestCaseParameterized
-                                   : TestTreeItem::GTestCase);
-    foreach (const TestCodeLocationAndType &locationAndType, testSets) {
-        TestTreeItem *treeItemChild = new TestTreeItem(locationAndType.m_name, filePath,
-                                                       locationAndType.m_type);
-        treeItemChild->setState(locationAndType.m_state);
-        treeItemChild->setLine(locationAndType.m_line);
-        treeItemChild->setColumn(locationAndType.m_column);
-        treeItemChild->setMainFile(proFile);
-        item->appendChild(treeItemChild);
-    }
-    return item;
-}
-
 /****** end of helpers ******/
 
 static void handleQtQuickTest(QFutureInterface<TestParseResult> futureInterface,
@@ -512,29 +452,16 @@ static void handleQtQuickTest(QFutureInterface<TestParseResult> futureInterface,
         const TestCodeLocationAndType tcLocationAndType = qmlVisitor.testCaseLocation();
         const QMap<QString, TestCodeLocationAndType> testFunctions = qmlVisitor.testFunctions();
 
-        TestTreeItem *testTreeItem;
-        if (testCaseName.isEmpty()) {
-            testTreeItem = new TestTreeItem(QString(), QString(), TestTreeItem::TestClass);
-
-            foreach (const QString &functionName, testFunctions.keys()) {
-                const TestCodeLocationAndType locationAndType = testFunctions.value(functionName);
-                TestTreeItem *testFunction = new TestTreeItem(functionName, locationAndType.m_name,
-                                                              locationAndType.m_type);
-                testFunction->setLine(locationAndType.m_line);
-                testFunction->setColumn(locationAndType.m_column);
-                testFunction->setMainFile(cppFileName);
-                testFunction->setReferencingFile(cppFileName);
-                testTreeItem->appendChild(testFunction);
-            }
-
-        } else {
-            testTreeItem = constructTestTreeItem(tcLocationAndType.m_name, cppFileName,
-                                                 testCaseName, tcLocationAndType.m_line,
-                                                 tcLocationAndType.m_column, testFunctions);
-            testTreeItem->setReferencingFile(cppFileName);
+        TestParseResult parseResult(TestTreeModel::QuickTest);
+        parseResult.referencingFile = cppFileName;
+        parseResult.functions = testFunctions;
+        if (!testCaseName.isEmpty()) {
+            parseResult.fileName = tcLocationAndType.m_name;
+            parseResult.testCaseName = testCaseName;
+            parseResult.line = tcLocationAndType.m_line;
+            parseResult.column = tcLocationAndType.m_column;
         }
-
-        futureInterface.reportResult(TestParseResult(testTreeItem, TestTreeModel::QuickTest));
+        futureInterface.reportResult(parseResult);
     }
 }
 
@@ -555,12 +482,18 @@ static void handleGTest(QFutureInterface<TestParseResult> futureInterface, const
     if (ppList.size())
         proFile = ppList.at(0)->projectFile;
 
+    QVector<TestParseResult> parseResults;
     foreach (const GTestCaseSpec &testSpec, result.keys()) {
-        TestTreeItem *item = constructGTestTreeItem(filePath, testSpec, proFile,
-                                                    result.value(testSpec));
-
-        futureInterface.reportResult(TestParseResult(item, TestTreeModel::GoogleTest));
+        TestParseResult parseResult(TestTreeModel::GoogleTest);
+        parseResult.fileName = filePath;
+        parseResult.testCaseName = testSpec.testCaseName;
+        parseResult.parameterized = testSpec.parameterized;
+        parseResult.referencingFile = proFile;
+        parseResult.dataTagsOrTestSets.insert(QString(), result.value(testSpec));
+        parseResults.append(parseResult);
     }
+    if (parseResults.size())
+        futureInterface.reportResults(parseResults);
 }
 
 static void checkDocumentForTestCode(QFutureInterface<TestParseResult> futureInterface,
@@ -603,13 +536,17 @@ static void checkDocumentForTestCode(QFutureInterface<TestParseResult> futureInt
             if (hasReferencingFile)
                 dataTags.unite(checkForDataTags(document->fileName(), testFunctions));
 
-            TestTreeItem *item = constructTestTreeItem(declaringDoc->fileName(), QString(),
-                                                       testCaseName, line, column, testFunctions,
-                                                       dataTags);
+            TestParseResult parseResult(TestTreeModel::AutoTest);
+            parseResult.fileName = declaringDoc->fileName();
+            parseResult.testCaseName = testCaseName;
+            parseResult.line = line;
+            parseResult.column = column;
+            parseResult.functions = testFunctions;
+            parseResult.dataTagsOrTestSets = dataTags;
             if (hasReferencingFile)
-                item->setReferencingFile(fileName);
+                parseResult.referencingFile = fileName;
 
-            futureInterface.reportResult(TestParseResult(item, TestTreeModel::AutoTest));
+            futureInterface.reportResult(parseResult);
             return;
         }
     }

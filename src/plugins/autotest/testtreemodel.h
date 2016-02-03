@@ -27,6 +27,7 @@
 #define TESTTREEMODEL_H
 
 #include "testconfiguration.h"
+#include "testtreeitem.h"
 
 #include <cplusplus/CppDocument.h>
 
@@ -37,15 +38,15 @@
 namespace Autotest {
 namespace Internal {
 
-struct TestCodeLocationAndType;
 class TestCodeParser;
-class TestTreeItem;
+struct TestParseResult;
 
 class TestTreeModel : public Utils::TreeModel
 {
     Q_OBJECT
 public:
     enum Type {
+        Invalid,
         AutoTest,
         QuickTest,
         GoogleTest
@@ -89,6 +90,7 @@ public slots:
 
 private:
     void addTestTreeItem(TestTreeItem *item, Type type);
+    void onParseResultReady(TestParseResult result);
     void removeAllTestItems();
     void removeFiles(const QStringList &files);
     void markForRemoval(const QString &filePath, Type type);
@@ -147,14 +149,24 @@ private:
 
 struct TestParseResult
 {
-    TestParseResult(TestTreeItem *it, TestTreeModel::Type t) : item(it), type(t) {}
-    TestTreeItem *item;
+    TestParseResult(TestTreeModel::Type t = TestTreeModel::Invalid) : type(t) {}
+
     TestTreeModel::Type type;
+    QString fileName;
+    QString proFile;
+    QString referencingFile;
+    QString testCaseName;
+    int line = 0;
+    int column = 0;
+    bool parameterized = false;
+    QMap<QString, TestCodeLocationAndType> functions;
+    QMap<QString, TestCodeLocationList> dataTagsOrTestSets;
 };
 
 } // namespace Internal
 } // namespace Autotest
 
 Q_DECLARE_METATYPE(Autotest::Internal::TestTreeModel::Type)
+Q_DECLARE_METATYPE(Autotest::Internal::TestParseResult)
 
 #endif // TESTTREEMODEL_H
