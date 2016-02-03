@@ -43,6 +43,7 @@
 
 #include <extensionsystem/pluginmanager.h>
 
+#include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
 #include <QMenu>
@@ -229,15 +230,17 @@ void FindPlugin::setupMenu()
 
 void FindPlugin::setupFilterMenuItems()
 {
-    QList<IFindFilter*> findInterfaces =
-        ExtensionSystem::PluginManager::getObjects<IFindFilter>();
+    QList<IFindFilter*> findInterfaces = ExtensionSystem::PluginManager::getObjects<IFindFilter>();
     Command *cmd;
 
     ActionContainer *mfindadvanced = ActionManager::actionContainer(Constants::M_FIND_ADVANCED);
     d->m_filterActions.clear();
     bool haveEnabledFilters = false;
     const Id base("FindFilter.");
-    foreach (IFindFilter *filter, findInterfaces) {
+    QList<IFindFilter *> sortedFilters = findInterfaces;
+    Utils::sort(sortedFilters, [](IFindFilter *a, IFindFilter *b) -> bool
+        { return a->displayName() < b->displayName(); });
+    foreach (IFindFilter *filter, sortedFilters) {
         QAction *action = new QAction(QLatin1String("    ") + filter->displayName(), this);
         bool isEnabled = filter->isEnabled();
         if (isEnabled)
@@ -253,7 +256,7 @@ void FindPlugin::setupFilterMenuItems()
         connect(filter, &IFindFilter::enabledChanged, this, &FindPlugin::filterChanged);
         connect(filter, &IFindFilter::displayNameChanged, this, &FindPlugin::displayNameChanged);
     }
-    d->m_findDialog->setFindFilters(findInterfaces);
+    d->m_findDialog->setFindFilters(sortedFilters);
     d->m_openFindDialog->setEnabled(haveEnabledFilters);
 }
 
