@@ -24,8 +24,7 @@
 **
 ****************************************************************************/
 
-#ifndef SETTINGSPAGE_H
-#define SETTINGSPAGE_H
+#pragma once
 
 #include <vcsbase/vcsbaseoptionspage.h>
 
@@ -43,7 +42,7 @@ class SettingsPageWidget : public QWidget
     Q_OBJECT
 
 public:
-    explicit SettingsPageWidget(QWidget *parent = 0);
+    explicit SettingsPageWidget(QWidget *parent = nullptr);
 
     ClearCaseSettings settings() const;
     void setSettings(const ClearCaseSettings &);
@@ -60,15 +59,13 @@ class SettingsPage : public VcsBase::VcsBaseOptionsPage
 public:
     SettingsPage();
 
-    QWidget *widget();
-    void apply();
-    void finish() { }
+    QWidget *widget() override;
+    void apply() override;
+    void finish() override { }
 
 private:
-    QPointer<SettingsPageWidget> m_widget;
+    QPointer<SettingsPageWidget> m_widget = nullptr;
 };
 
 } // namespace ClearCase
 } // namespace Internal
-
-#endif  // SETTINGSPAGE_H

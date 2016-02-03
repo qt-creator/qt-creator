@@ -156,39 +156,9 @@ static QString debugCodec(const QTextCodec *c)
 // ------------- ClearCasePlugin
 ClearCasePlugin *ClearCasePlugin::m_clearcasePluginInstance = 0;
 
-ViewData::ViewData() :
-    isDynamic(false),
-    isUcm(false)
-{
-}
-
 ClearCasePlugin::ClearCasePlugin() :
-    m_commandLocator(0),
-    m_checkOutAction(0),
-    m_checkInCurrentAction(0),
-    m_undoCheckOutAction(0),
-    m_undoHijackAction(0),
-    m_diffCurrentAction(0),
-    m_historyCurrentAction(0),
-    m_annotateCurrentAction(0),
-    m_addFileAction(0),
-    m_diffActivityAction(0),
-    m_updateIndexAction(0),
-    m_updateViewAction(0),
-    m_checkInActivityAction(0),
-    m_checkInAllAction(0),
-    m_statusAction(0),
-    m_checkInSelectedAction(0),
-    m_checkInDiffAction(0),
-    m_submitUndoAction(0),
-    m_submitRedoAction(0),
-    m_menuAction(0),
-    m_submitActionTriggered(false),
     m_activityMutex(new QMutex),
     m_statusMap(new StatusMap)
-  #ifdef WITH_TESTS
-   ,m_fakeClearTool(false)
-  #endif
 {
     qRegisterMetaType<ClearCase::Internal::FileStatus::Status>("ClearCase::Internal::FileStatus::Status");
     connect(qApp, &QApplication::applicationStateChanged,

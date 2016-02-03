@@ -36,8 +36,9 @@
 namespace ClearCase {
 namespace Internal {
 
-CheckOutDialog::CheckOutDialog(const QString &fileName, bool isUcm, bool showComment, QWidget *parent) :
-    QDialog(parent), ui(new Ui::CheckOutDialog), m_actSelector(0)
+CheckOutDialog::CheckOutDialog(const QString &fileName, bool isUcm, bool showComment,
+                               QWidget *parent) :
+    QDialog(parent), ui(new Ui::CheckOutDialog)
 {
     ui->setupUi(this);
     ui->lblFileName->setText(fileName);

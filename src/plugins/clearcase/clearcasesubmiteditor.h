@@ -24,8 +24,7 @@
 **
 ****************************************************************************/
 
-#ifndef CLEARCASESUBMITEDITOR_H
-#define CLEARCASESUBMITEDITOR_H
+#pragma once
 
 #include <vcsbase/vcsbasesubmiteditor.h>
 
@@ -50,10 +49,7 @@ public:
 
 protected:
     QByteArray fileContents() const override;
-
 };
 
 } // namespace Internal
 } // namespace ClearCase
-
-#endif // CLEARCASESUBMITEDITOR_H

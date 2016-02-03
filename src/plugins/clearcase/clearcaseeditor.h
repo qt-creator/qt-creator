@@ -24,8 +24,7 @@
 **
 ****************************************************************************/
 
-#ifndef CLEARCASEEDITOR_H
-#define CLEARCASEEDITOR_H
+#pragma once
 
 #include <vcsbase/vcsbaseeditor.h>
 
@@ -52,5 +51,3 @@ private:
 
 } // namespace Internal
 } // namespace ClearCase
-
-#endif // CLEARCASEEDITOR_H

@@ -60,15 +60,7 @@ using namespace ClearCase::Internal;
 
 ClearCaseSettings::ClearCaseSettings() :
     ccCommand(defaultCommand()),
-    diffType(GraphicalDiff),
     diffArgs(QLatin1String(defaultDiffArgs)),
-    autoAssignActivityName(true),
-    autoCheckOut(true),
-    noComment(false),
-    keepFileUndoCheckout(true),
-    promptToCheckIn(false),
-    disableIndexer(false),
-    extDiffAvailable(false),
     historyCount(defaultHistoryCount),
     timeOutS(defaultTimeOutS)
 { }

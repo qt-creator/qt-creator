@@ -24,8 +24,7 @@
 **
 ****************************************************************************/
 
-#ifndef CHECKOUTDIALOG_H
-#define CHECKOUTDIALOG_H
+#pragma once
 
 #include <QDialog>
 
@@ -57,10 +56,8 @@ private slots:
 
 private:
     Ui::CheckOutDialog *ui;
-    ActivitySelector *m_actSelector;
+    ActivitySelector *m_actSelector = nullptr;
 };
 
 } // namespace Internal
 } // namespace ClearCase
-
-#endif // CHECKOUTDIALOG_H

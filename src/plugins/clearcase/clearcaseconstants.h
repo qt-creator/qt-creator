@@ -24,8 +24,7 @@
 **
 ****************************************************************************/
 
-#ifndef CLEARCASE_CONSTANTS_H
-#define CLEARCASE_CONSTANTS_H
+#pragma once
 
 #include <QtGlobal>
 
@@ -44,5 +43,3 @@ enum { debug = 0 };
 
 } // namespace Constants
 } // namespace ClearCase
-
-#endif // CLEARCASE_CONSTANTS_H

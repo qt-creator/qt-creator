@@ -24,8 +24,7 @@
 **
 ****************************************************************************/
 
-#ifndef ACTIVITYSELECTOR_H
-#define ACTIVITYSELECTOR_H
+#pragma once
 
 #include <QWidget>
 
@@ -43,7 +42,7 @@ class ActivitySelector : public QWidget
     Q_OBJECT
 
 public:
-    explicit ActivitySelector(QWidget *parent = 0);
+    explicit ActivitySelector(QWidget *parent = nullptr);
     QString activity() const;
     void setActivity(const QString &act);
     void addKeep();
@@ -58,11 +57,9 @@ private slots:
 
 private:
     ClearCasePlugin *m_plugin;
-    bool m_changed;
+    bool m_changed = false;
     QComboBox *m_cmbActivity;
 };
 
 } // namespace Internal
 } // namespace ClearCase
-
-#endif // ACTIVITYSELECTOR_H

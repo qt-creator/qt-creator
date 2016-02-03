@@ -24,8 +24,7 @@
 **
 ****************************************************************************/
 
-#ifndef ANNOTATIONHIGHLIGHTER_H
-#define ANNOTATIONHIGHLIGHTER_H
+#pragma once
 
 #include <vcsbase/baseannotationhighlighter.h>
 
@@ -38,15 +37,13 @@ class ClearCaseAnnotationHighlighter : public VcsBase::BaseAnnotationHighlighter
     Q_OBJECT
 public:
     explicit ClearCaseAnnotationHighlighter(const ChangeNumbers &changeNumbers,
-                                            QTextDocument *document = 0);
+                                            QTextDocument *document = nullptr);
 
 private:
-    QString changeNumber(const QString &block) const;
+    QString changeNumber(const QString &block) const override;
 
-    const QChar m_separator;
+    const QChar m_separator = QLatin1Char('|');
 };
 
 } // namespace Internal
 } // namespace ClearCase
-
-#endif // ANNOTATIONHIGHLIGHTER_H

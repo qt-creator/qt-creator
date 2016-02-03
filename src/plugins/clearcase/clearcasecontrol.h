@@ -24,8 +24,7 @@
 **
 ****************************************************************************/
 
-#ifndef CLEARCASECONTROL_H
-#define CLEARCASECONTROL_H
+#pragma once
 
 #include <coreplugin/iversioncontrol.h>
 
@@ -68,10 +67,8 @@ public:
     void emitConfigurationChanged();
 
 private:
-    ClearCasePlugin *m_plugin;
+    ClearCasePlugin *const m_plugin;
 };
 
 } // namespace Internal
 } // namespace ClearCase
-
-#endif // CLEARCASECONTROL_H

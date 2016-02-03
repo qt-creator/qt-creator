@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CLEARCASESYNC_H
-#define CLEARCASESYNC_H
+#pragma once
 
 #include "clearcaseplugin.h"
 
@@ -55,7 +54,7 @@ signals:
     void updateStreamAndView();
 
 private:
-    ClearCasePlugin *m_plugin;
+    ClearCasePlugin *const m_plugin;
     QSharedPointer<StatusMap> m_statusMap;
 
 public slots:
@@ -69,10 +68,7 @@ public slots:
     void verifyFileNotManagedDynamicView();
 
 #endif
-
 };
 
 } // namespace Internal
 } // namespace ClearCase
-
-#endif // CLEARCASESYNC_H

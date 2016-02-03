@@ -36,10 +36,8 @@
 using namespace ClearCase;
 using namespace ClearCase::Internal;
 
-ClearCaseControl::ClearCaseControl(ClearCasePlugin *plugin) :
-    m_plugin(plugin)
-{
-}
+ClearCaseControl::ClearCaseControl(ClearCasePlugin *plugin) : m_plugin(plugin)
+{ }
 
 QString ClearCaseControl::displayName() const
 {

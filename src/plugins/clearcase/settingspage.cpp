@@ -42,8 +42,7 @@
 using namespace ClearCase::Internal;
 using namespace Utils;
 
-SettingsPageWidget::SettingsPageWidget(QWidget *parent) :
-    QWidget(parent)
+SettingsPageWidget::SettingsPageWidget(QWidget *parent) : QWidget(parent)
 {
     m_ui.setupUi(this);
     m_ui.commandPathChooser->setPromptDialogTitle(tr("ClearCase Command"));
@@ -105,8 +104,7 @@ void SettingsPageWidget::setSettings(const ClearCaseSettings &s)
     m_ui.indexOnlyVOBsEdit->setText(s.indexOnlyVOBs);
 }
 
-SettingsPage::SettingsPage() :
-    m_widget(0)
+SettingsPage::SettingsPage()
 {
     setId(ClearCase::Constants::VCS_ID_CLEARCASE);
     setDisplayName(tr("ClearCase"));

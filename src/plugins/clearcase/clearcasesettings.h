@@ -24,8 +24,7 @@
 **
 ****************************************************************************/
 
-#ifndef CLEARCASESETTINGS_H
-#define CLEARCASESETTINGS_H
+#pragma once
 
 #include <QHash>
 #include <QString>
@@ -57,27 +56,25 @@ public:
 
     QString ccCommand;
     QString ccBinaryPath;
-    DiffType diffType;
+    DiffType diffType = GraphicalDiff;
     QString diffArgs;
     QString indexOnlyVOBs;
     QHash<QString, int> totalFiles;
-    bool autoAssignActivityName;
-    bool autoCheckOut;
-    bool noComment;
-    bool keepFileUndoCheckout;
-    bool promptToCheckIn;
-    bool disableIndexer;
-    bool extDiffAvailable;
+    bool autoAssignActivityName = true;
+    bool autoCheckOut = true;
+    bool noComment = false;
+    bool keepFileUndoCheckout = true;
+    bool promptToCheckIn = false;
+    bool disableIndexer = false;
+    bool extDiffAvailable = false;
     int historyCount;
     int timeOutS;
 };
 
 inline bool operator==(const ClearCaseSettings &p1, const ClearCaseSettings &p2)
-    { return p1.equals(p2); }
+{ return p1.equals(p2); }
 inline bool operator!=(const ClearCaseSettings &p1, const ClearCaseSettings &p2)
-    { return !p1.equals(p2); }
+{ return !p1.equals(p2); }
 
 } // namespace Internal
 } // namespace ClearCase
-
-#endif // CLEARCASESETTINGS_H

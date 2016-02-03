@@ -43,8 +43,7 @@ namespace Internal {
 ClearCaseSync::ClearCaseSync(ClearCasePlugin *plugin, QSharedPointer<StatusMap> statusMap) :
     m_plugin(plugin),
     m_statusMap(statusMap)
-{
-}
+{ }
 
 QStringList ClearCaseSync::updateStatusHotFiles(const QString &viewRoot, int &total)
 {

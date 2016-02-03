@@ -24,8 +24,7 @@
 **
 ****************************************************************************/
 
-#ifndef CLEARCASEPLUGIN_H
-#define CLEARCASEPLUGIN_H
+#pragma once
 
 #include "clearcasesettings.h"
 
@@ -94,7 +93,7 @@ public:
 
     FileStatus(Status _status = Unknown, QFile::Permissions perm = 0)
         : status(_status), permissions(perm)
-    {}
+    { }
 };
 
 typedef QHash<QString, FileStatus> StatusMap;
@@ -102,11 +101,9 @@ typedef QHash<QString, FileStatus> StatusMap;
 class ViewData
 {
 public:
-    ViewData();
-
     QString name;
-    bool isDynamic;
-    bool isUcm;
+    bool isDynamic = false;
+    bool isUcm = false;
     QString root;
 };
 
@@ -119,9 +116,9 @@ class ClearCasePlugin : public VcsBase::VcsBasePlugin
 
 public:
     ClearCasePlugin();
-    ~ClearCasePlugin();
+    ~ClearCasePlugin() override;
 
-    bool initialize(const QStringList &arguments, QString *error_message);
+    bool initialize(const QStringList &arguments, QString *error_message) override;
 
     ClearCaseSubmitEditor *openClearCaseSubmitEditor(const QString &fileName, bool isUcm);
 
@@ -198,8 +195,8 @@ private slots:
 #endif
 
 protected:
-    void updateActions(VcsBase::VcsBasePlugin::ActionState);
-    bool submitEditorAboutToClose();
+    void updateActions(VcsBase::VcsBasePlugin::ActionState) override;
+    bool submitEditorAboutToClose() override;
     QString ccGet(const QString &workingDir, const QString &file, const QString &prefix = QString());
     QList<QStringPair> ccGetActivities() const;
 
@@ -271,40 +268,38 @@ private:
     QString m_activity;
     QString m_diffPrefix;
 
-    Core::CommandLocator *m_commandLocator;
-    Utils::ParameterAction *m_checkOutAction;
-    Utils::ParameterAction *m_checkInCurrentAction;
-    Utils::ParameterAction *m_undoCheckOutAction;
-    Utils::ParameterAction *m_undoHijackAction;
-    Utils::ParameterAction *m_diffCurrentAction;
-    Utils::ParameterAction *m_historyCurrentAction;
-    Utils::ParameterAction *m_annotateCurrentAction;
-    Utils::ParameterAction *m_addFileAction;
-    QAction *m_diffActivityAction;
-    QAction *m_updateIndexAction;
-    Utils::ParameterAction *m_updateViewAction;
-    Utils::ParameterAction *m_checkInActivityAction;
-    QAction *m_checkInAllAction;
-    QAction *m_statusAction;
+    Core::CommandLocator *m_commandLocator = nullptr;
+    Utils::ParameterAction *m_checkOutAction = nullptr;
+    Utils::ParameterAction *m_checkInCurrentAction = nullptr;
+    Utils::ParameterAction *m_undoCheckOutAction = nullptr;
+    Utils::ParameterAction *m_undoHijackAction = nullptr;
+    Utils::ParameterAction *m_diffCurrentAction = nullptr;
+    Utils::ParameterAction *m_historyCurrentAction = nullptr;
+    Utils::ParameterAction *m_annotateCurrentAction = nullptr;
+    Utils::ParameterAction *m_addFileAction = nullptr;
+    QAction *m_diffActivityAction = nullptr;
+    QAction *m_updateIndexAction = nullptr;
+    Utils::ParameterAction *m_updateViewAction = nullptr;
+    Utils::ParameterAction *m_checkInActivityAction = nullptr;
+    QAction *m_checkInAllAction = nullptr;
+    QAction *m_statusAction = nullptr;
 
-    QAction *m_checkInSelectedAction;
-    QAction *m_checkInDiffAction;
-    QAction *m_submitUndoAction;
-    QAction *m_submitRedoAction;
-    QAction *m_menuAction;
-    bool m_submitActionTriggered;
+    QAction *m_checkInSelectedAction = nullptr;
+    QAction *m_checkInDiffAction = nullptr;
+    QAction *m_submitUndoAction = nullptr;
+    QAction *m_submitRedoAction = nullptr;
+    QAction *m_menuAction = nullptr;
+    bool m_submitActionTriggered = false;
     QMutex *m_activityMutex;
     QList<QStringPair> m_activities;
     QSharedPointer<StatusMap> m_statusMap;
 
     static ClearCasePlugin *m_clearcasePluginInstance;
 #ifdef WITH_TESTS
-    bool m_fakeClearTool;
+    bool m_fakeClearTool = false;
     QString m_tempFile;
 #endif
 };
 
 } // namespace Internal
 } // namespace ClearCase
-
-#endif // CLEARCASEPLUGIN_H

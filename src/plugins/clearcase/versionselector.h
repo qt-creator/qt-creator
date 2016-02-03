@@ -24,8 +24,7 @@
 **
 ****************************************************************************/
 
-#ifndef VERSIONSELECTOR_H
-#define VERSIONSELECTOR_H
+#pragma once
 
 #include <QDialog>
 
@@ -43,18 +42,18 @@ class VersionSelector : public QDialog
     Q_OBJECT
 
 public:
-    explicit VersionSelector(const QString &fileName, const QString &message, QWidget *parent = 0);
-    ~VersionSelector();
+    explicit VersionSelector(const QString &fileName, const QString &message,
+                             QWidget *parent = nullptr);
+    ~VersionSelector() override;
     bool isUpdate() const;
 
 private:
+    bool readValues();
+
     Ui::VersionSelector *ui;
     QTextStream *m_stream;
     QString m_versionID, m_createdBy, m_createdOn, m_message;
-    bool readValues();
 };
-
 
 } // namespace Internal
 } // namespace ClearCase
-#endif // VERSIONSELECTOR_H

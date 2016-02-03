@@ -24,8 +24,7 @@
 **
 ****************************************************************************/
 
-#ifndef CLEARCASESUBMITEDITORWIDGET_H
-#define CLEARCASESUBMITEDITORWIDGET_H
+#pragma once
 
 #include <vcsbase/submiteditorwidget.h>
 
@@ -58,7 +57,7 @@ protected:
     QString commitName() const;
 
 private:
-    ActivitySelector *m_actSelector;
+    ActivitySelector *m_actSelector = nullptr;
     QCheckBox *m_chkIdentical;
     QCheckBox *m_chkPTime;
     QVBoxLayout *m_verticalLayout;
@@ -66,5 +65,3 @@ private:
 
 } // namespace Internal
 } // namespace ClearCase
-
-#endif // CLEARCASESUBMITEDITORWIDGET_H

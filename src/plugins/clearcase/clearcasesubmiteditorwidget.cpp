@@ -36,7 +36,6 @@
 using namespace ClearCase::Internal;
 
 ClearCaseSubmitEditorWidget::ClearCaseSubmitEditorWidget()
-    : m_actSelector(0)
 {
     setDescriptionMandatory(false);
     auto checkInWidget = new QWidget(this);
