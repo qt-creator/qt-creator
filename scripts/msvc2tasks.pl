@@ -27,7 +27,7 @@
 
 =head1 NAME
 
-msvc2tasks.pl - Convert MSVC warnings into Qt Creator task files.
+msvc2tasks.pl - Convert MSVC/Clang-cl warnings and errors into Qt Creator task files.
 
 =head1 SYNOPSIS
 
@@ -37,16 +37,39 @@ msvc2tasks.pl - Convert MSVC warnings into Qt Creator task files.
 
 use strict;
 
-while (my $line = <STDIN> ) {
-    chomp($line);
-    # --- extract file name based matching:
+sub filterLine
+{
+    my ($line) = @_;
+
+    my ($fileName, $lineNumber, $category, $text);
+
+    # --- MSVC:
     # c:\foo.cpp(395) : warning C4800: 'BOOL' : forcing value to bool 'true' or 'false' (performance warning)
-    if ($line =~ /^([^(]+)\((\d+)\) ?: warning (C\d+:.*)$/) {
-        my $fileName = $1;
-        my $lineNumber = $2;
-        my $text = $3;
+    if ($line =~ /^([^(]+)\((\d+)\) ?: (warning|error) (C\d+:.*)$/) {
+        $fileName = $1;
+        $lineNumber = $2;
+        $category = $3;
+        $text = $4;
+    # --- Clang-cl:
+    #  ..\gui\text\qfontengine_ft.cpp(1743,5) :  warning: variable 'bytesPerLine' is used uninitialized whenever switch default is taken [-Wsometimes-uninitialized]
+    } elsif ($line =~ /^([^(]+)\((\d+),\d+\) ?: +(warning|error):\s+(.*)$/) {
+        $fileName = $1;
+        $lineNumber = $2;
+        $category = $3;
+        $text = $4;
+    }
+
+    if (defined $fileName) {
         $fileName =~ s|\\|/|g;
         $text =~ s|\\|/|g;  # Fix file names mentioned in text since tasks file have backslash-escaping.
-        print $fileName, "\t", $lineNumber, "\twarn\t", $text,"\n";
+        $category = $category eq 'warning' ? 'warn' : 'err';
     }
+
+    return ($fileName, $lineNumber, $category, $text);
+}
+
+while (my $line = <STDIN> ) {
+    chomp($line);
+    my ($fileName, $lineNumber, $category, $text) = filterLine($line);
+    print $fileName, "\t", $lineNumber, "\t", $category, "\t", $text,"\n" if defined $text;
 }
