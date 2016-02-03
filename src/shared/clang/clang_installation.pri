@@ -99,7 +99,8 @@ unix {
     clang_lib = $$findClangLibInLibDir($$LLVM_LIBDIR)
     isEmpty(clang_lib): error("Cannot find Clang shared library in $$LLVM_LIBDIR")
 
-    LLVM_LIBS = -L$${LLVM_LIBDIR} -l$${clang_lib}
+    !contains(QMAKE_DEFAULT_LIBDIRS, $$LLVM_LIBDIR): LLVM_LIBS = -L$${LLVM_LIBDIR}
+    LLVM_LIBS += -l$${clang_lib}
 }
 
 isEmpty(LLVM_VERSION): error("Cannot determine clang version at $$LLVM_INSTALL_DIR")

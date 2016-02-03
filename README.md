@@ -116,7 +116,11 @@ For detailed information on the supported compilers, see
        command...` error. If a `sh.exe` is found, the compile process will fail.
        You have to remove it from the path.
 
-  10.  You are now ready to configure and build Qt and Qt Creator.
+  10.  To enable the Clang-based code model: Install Clang (>= version 3.6.2)
+       and set the environment variable LLVM_INSTALL_DIR to point to the
+       installation location.
+
+  11.  You are now ready to configure and build Qt and Qt Creator.
        Please see <https://wiki.qt.io/Building_Qt_5_from_Git> for
        recommended configure-options for Qt 5.
        To use MinGW, open the the shell prompt and enter:
@@ -133,10 +137,17 @@ For detailed information on the supported compilers, see
          cd ..\creator
          qmake && jom
 
-   11. To launch Qt Creator, enter:
+   12. To launch Qt Creator, enter:
        qtcreator
 
-   12. When using  Visual C++ with the "Debugging Tools for Windows" installed,
+   13. To test the Clang-based code model, verify that backend process
+         bin\clangbackend.exe
+       launches (displaying its usage).
+
+       The library libclang.dll needs to be copied to the bin directory if
+       Clang cannot be found in the path.
+
+   14. When using  Visual C++ with the "Debugging Tools for Windows" installed,
        the extension library `qtcreatorcdbext.dll` to be loaded into the
        Windows console debugger (`cdb.exe`) should have been built under
        `lib\qtcreatorcdbext32` or `lib\qtcreatorcdbext64`.
@@ -151,7 +162,7 @@ For detailed information on the supported compilers, see
        debugging from the repository
        <https://code.qt.io/cgit/qt-creator/binary-artifacts.git/tree> .
 
-   13. Qt Creator can be registered as a post-mortem debugger. This
+   15. Qt Creator can be registered as a post-mortem debugger. This
        can be done in the options page or by running the tool qtcdebugger
        with administrative privileges passing the command line options
        -register/unregister, respectively. Alternatively,
