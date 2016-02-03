@@ -54,4 +54,3 @@ private slots:
 
 } // namespace Internal
 } // namespace CMakeProject
-

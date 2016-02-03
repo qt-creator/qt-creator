@@ -152,4 +152,3 @@ public:
 
 } // namespace Internal
 } // namespace CMakeProjectManager
-

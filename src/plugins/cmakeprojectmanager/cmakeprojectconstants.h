@@ -50,4 +50,3 @@ const char CMAKE_SETTINGSPAGE_ID[] = "Z.CMake";
 
 } // namespace Constants
 } // namespace CMakeProjectManager
-

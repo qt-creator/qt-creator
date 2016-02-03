@@ -54,4 +54,3 @@ private:
 
 } // namespace Internal
 } // namespace CMakeProjectManager
-

@@ -32,4 +32,3 @@
 #else
 #  define CMAKE_EXPORT Q_DECL_IMPORT
 #endif
-
