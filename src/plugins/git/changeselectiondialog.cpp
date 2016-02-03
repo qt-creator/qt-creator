@@ -31,6 +31,7 @@
 
 #include <coreplugin/vcsmanager.h>
 
+#include <utils/pathchooser.h>
 #include <utils/theme/theme.h>
 
 #include <QProcess>
@@ -60,19 +61,19 @@ ChangeSelectionDialog::ChangeSelectionDialog(const QString &workingDirectory, Co
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     m_gitExecutable = GitPlugin::instance()->client()->vcsBinary();
     m_ui->setupUi(this);
-    m_ui->workingDirectoryEdit->setText(workingDirectory);
+    m_ui->workingDirectoryChooser->setExpectedKind(PathChooser::ExistingDirectory);
+    m_ui->workingDirectoryChooser->setPromptDialogTitle(tr("Select Git Directory"));
+    m_ui->workingDirectoryChooser->setPath(workingDirectory);
     m_gitEnvironment = GitPlugin::instance()->client()->processEnvironment();
     m_ui->changeNumberEdit->setFocus();
     m_ui->changeNumberEdit->selectAll();
 
-    connect(m_ui->changeNumberEdit, &Utils::CompletingLineEdit::textChanged,
+    connect(m_ui->changeNumberEdit, &CompletingLineEdit::textChanged,
             this, &ChangeSelectionDialog::changeTextChanged);
-    connect(m_ui->workingDirectoryEdit, &QLineEdit::textChanged,
+    connect(m_ui->workingDirectoryChooser, &PathChooser::pathChanged,
             this, &ChangeSelectionDialog::recalculateDetails);
-    connect(m_ui->workingDirectoryEdit, &QLineEdit::textChanged,
+    connect(m_ui->workingDirectoryChooser, &PathChooser::pathChanged,
             this, &ChangeSelectionDialog::recalculateCompletion);
-    connect(m_ui->selectDirectoryButton, &QPushButton::clicked,
-            this, &ChangeSelectionDialog::chooseWorkingDirectory);
     connect(m_ui->selectFromHistoryButton, &QPushButton::clicked,
             this, &ChangeSelectionDialog::selectCommitFromRecentHistory);
     connect(m_ui->showButton, &QPushButton::clicked,
@@ -133,20 +134,9 @@ void ChangeSelectionDialog::selectCommitFromRecentHistory()
     m_ui->changeNumberEdit->setText(dialog.commit());
 }
 
-void ChangeSelectionDialog::chooseWorkingDirectory()
-{
-    QString folder = QFileDialog::getExistingDirectory(this, tr("Select Git Directory"),
-                                                       m_ui->workingDirectoryEdit->text());
-
-    if (folder.isEmpty())
-        return;
-
-    m_ui->workingDirectoryEdit->setText(folder);
-}
-
 QString ChangeSelectionDialog::workingDirectory() const
 {
-    const QString workingDir = m_ui->workingDirectoryEdit->text();
+    const QString workingDir = m_ui->workingDirectoryChooser->path();
     if (workingDir.isEmpty() || !QDir(workingDir).exists())
         return QString();
 
@@ -244,16 +234,9 @@ void ChangeSelectionDialog::recalculateDetails()
     enableButtons(false);
 
     const QString workingDir = workingDirectory();
-    QPalette palette = m_ui->workingDirectoryEdit->palette();
-    Theme *theme = creatorTheme();
     if (workingDir.isEmpty()) {
         m_ui->detailsText->setPlainText(tr("Error: Bad working directory."));
-        palette.setColor(QPalette::Text, theme->color(Theme::TextColorError));
-        m_ui->workingDirectoryEdit->setPalette(palette);
         return;
-    } else {
-        palette.setColor(QPalette::Text, theme->color(Theme::TextColorNormal));
-        m_ui->workingDirectoryEdit->setPalette(palette);
     }
 
     const QString ref = change();

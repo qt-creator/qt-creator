@@ -24,15 +24,8 @@
      </property>
     </widget>
    </item>
-   <item row="0" column="1">
-    <widget class="QLineEdit" name="workingDirectoryEdit"/>
-   </item>
-   <item row="0" column="2">
-    <widget class="QPushButton" name="selectDirectoryButton">
-     <property name="text">
-      <string>Browse &amp;Directory...</string>
-     </property>
-    </widget>
+   <item row="0" column="1" colspan="2">
+    <widget class="Utils::PathChooser" name="workingDirectoryChooser" native="true"/>
    </item>
    <item row="1" column="0">
     <widget class="QLabel" name="changeLabel">
@@ -127,6 +120,12 @@
    <class>Utils::CompletingLineEdit</class>
    <extends>QLineEdit</extends>
    <header location="global">utils/completinglineedit.h</header>
+  </customwidget>
+  <customwidget>
+   <class>Utils::PathChooser</class>
+   <extends>QWidget</extends>
+   <header location="global">utils/pathchooser.h</header>
+   <container>1</container>
   </customwidget>
  </customwidgets>
  <resources/>

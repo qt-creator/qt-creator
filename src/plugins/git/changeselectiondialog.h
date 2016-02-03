@@ -68,7 +68,6 @@ public:
     ChangeCommand command() const;
 
 private:
-    void chooseWorkingDirectory();
     void selectCommitFromRecentHistory();
     void setDetails(int exitCode);
     void recalculateCompletion();
