@@ -26,6 +26,7 @@
 #include "projectexplorersettingspage.h"
 #include "projectexplorersettings.h"
 #include "projectexplorer.h"
+#include "ui_projectexplorersettingspage.h"
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/documentmanager.h>
@@ -38,6 +39,36 @@ namespace ProjectExplorer {
 namespace Internal {
 
     enum { UseCurrentDirectory, UseProjectDirectory };
+
+class ProjectExplorerSettingsWidget : public QWidget
+{
+    Q_OBJECT
+
+public:
+    explicit ProjectExplorerSettingsWidget(QWidget *parent = 0);
+
+    ProjectExplorerSettings settings() const;
+    void setSettings(const ProjectExplorerSettings  &s);
+
+    QString projectsDirectory() const;
+    void setProjectsDirectory(const QString &pd);
+
+    bool useProjectsDirectory();
+    void setUseProjectsDirectory(bool v);
+
+    QString buildDirectory() const;
+    void setBuildDirectory(const QString &bd);
+
+private:
+    void slotDirectoryButtonGroupChanged();
+    void resetDefaultBuildDirectory();
+    void updateResetButton();
+
+    void setJomVisible(bool);
+
+    Ui::ProjectExplorerSettingsPageUi m_ui;
+    QUuid m_environmentId;
+};
 
 ProjectExplorerSettingsWidget::ProjectExplorerSettingsWidget(QWidget *parent) :
     QWidget(parent)
@@ -192,3 +223,4 @@ void ProjectExplorerSettingsPage::finish()
 } // namespace Internal
 } // namespace ProjectExplorer
 
+#include "projectexplorersettingspage.moc"

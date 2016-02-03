@@ -36,36 +36,7 @@ namespace ProjectExplorer {
 namespace Internal {
 
 class ProjectExplorerSettings;
-
-// Documentation inside.
-class ProjectExplorerSettingsWidget : public QWidget {
-    Q_OBJECT
-
-public:
-    explicit ProjectExplorerSettingsWidget(QWidget *parent = 0);
-
-    ProjectExplorerSettings settings() const;
-    void setSettings(const ProjectExplorerSettings  &s);
-
-    QString projectsDirectory() const;
-    void setProjectsDirectory(const QString &pd);
-
-    bool useProjectsDirectory();
-    void setUseProjectsDirectory(bool v);
-
-    QString buildDirectory() const;
-    void setBuildDirectory(const QString &bd);
-
-private:
-    void slotDirectoryButtonGroupChanged();
-    void resetDefaultBuildDirectory();
-    void updateResetButton();
-
-    void setJomVisible(bool);
-
-    Ui::ProjectExplorerSettingsPageUi m_ui;
-    QUuid m_environmentId;
-};
+class ProjectExplorerSettingsWidget;
 
 class ProjectExplorerSettingsPage : public Core::IOptionsPage
 {
