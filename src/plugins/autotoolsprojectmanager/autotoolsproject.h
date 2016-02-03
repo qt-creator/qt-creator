@@ -25,8 +25,7 @@
 **
 ****************************************************************************/
 
-#ifndef AUTOTOOLSPROJECT_H
-#define AUTOTOOLSPROJECT_H
+#pragma once
 
 #include <projectexplorer/project.h>
 
@@ -41,7 +40,7 @@ namespace Utils { class FileSystemWatcher; }
 namespace ProjectExplorer {
 class Node;
 class FolderNode;
-}
+} // namespace ProjectExplorer
 
 namespace AutotoolsProjectManager {
 namespace Internal {
@@ -76,7 +75,7 @@ public:
 protected:
     RestoreResult fromMap(const QVariantMap &map, QString *errorMessage) override;
 
-private slots:
+private:
     /**
      *  Loads the project tree by parsing the makefiles.
      */
@@ -103,7 +102,6 @@ private slots:
      */
     void onFileChanged(const QString &file);
 
-private:
     /**
      * Creates folder-nodes and file-nodes for the project tree.
      */
@@ -128,7 +126,6 @@ private:
      */
     void updateCppCodeModel();
 
-private:
     QString m_projectName;
 
     /// Return value for AutotoolsProject::files()
@@ -139,12 +136,10 @@ private:
     QStringList m_watchedFiles;
 
     /// Responsible for parsing the makefiles asynchronously in a thread
-    MakefileParserThread *m_makefileParserThread;
+    MakefileParserThread *m_makefileParserThread = nullptr;
 
     QFuture<void> m_codeModelFuture;
 };
 
 } // namespace Internal
 } // namespace AutotoolsProjectManager
-
-#endif // AUTOTOOLSPROJECT_H

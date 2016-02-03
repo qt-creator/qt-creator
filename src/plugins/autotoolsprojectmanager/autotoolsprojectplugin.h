@@ -25,8 +25,7 @@
 **
 ****************************************************************************/
 
-#ifndef AUTOTOOLSPROJECTPLUGIN_H
-#define AUTOTOOLSPROJECTPLUGIN_H
+#pragma once
 
 #include <extensionsystem/iplugin.h>
 
@@ -67,13 +66,9 @@ class AutotoolsProjectPlugin : public ExtensionSystem::IPlugin
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "AutotoolsProjectManager.json")
 
 public:
-    AutotoolsProjectPlugin();
-
-    void extensionsInitialized();
-    bool initialize(const QStringList &arguments, QString *errorString);
+    void extensionsInitialized() override;
+    bool initialize(const QStringList &arguments, QString *errorString) override;
 };
 
 } // namespace Internal
 } // namespace AutotoolsProjectManager
-
-#endif // AUTOTOOLSPROJECTPLUGIN_H

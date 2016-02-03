@@ -25,8 +25,7 @@
 **
 ****************************************************************************/
 
-#ifndef AUTOTOOLSPROJECTFILE_H
-#define AUTOTOOLSPROJECTFILE_H
+#pragma once
 
 #include <coreplugin/idocument.h>
 
@@ -60,5 +59,3 @@ public:
 
 } // namespace Internal
 } // namespace AutotoolsProjectManager
-
-#endif // AUTOTOOLSPROJECTFILE_H

@@ -25,8 +25,7 @@
 **
 ****************************************************************************/
 
-#ifndef AUTOTOOLSPROJECTNODE_H
-#define AUTOTOOLSPROJECTNODE_H
+#pragma once
 
 #include <projectexplorer/projectnodes.h>
 
@@ -57,5 +56,3 @@ public:
 
 } // namespace Internal
 } // namespace AutotoolsProjectManager
-
-#endif // AUTOTOOLSPROJECTNODE_H

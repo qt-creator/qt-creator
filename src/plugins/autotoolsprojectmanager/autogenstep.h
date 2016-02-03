@@ -25,8 +25,7 @@
 **
 ****************************************************************************/
 
-#ifndef AUTOGENSTEP_H
-#define AUTOGENSTEP_H
+#pragma once
 
 #include <projectexplorer/abstractprocessstep.h>
 
@@ -114,7 +113,7 @@ private:
     void ctor();
 
     QString m_additionalArguments;
-    bool m_runAutogen;
+    bool m_runAutogen = false;
 };
 
 //////////////////////////////////
@@ -132,8 +131,8 @@ class AutogenStepConfigWidget : public ProjectExplorer::BuildStepConfigWidget
 public:
     AutogenStepConfigWidget(AutogenStep *autogenStep);
 
-    QString displayName() const;
-    QString summaryText() const;
+    QString displayName() const override;
+    QString summaryText() const override;
 
 private slots:
     void updateDetails();
@@ -146,6 +145,3 @@ private:
 
 } // namespace Internal
 } // namespace AutotoolsProjectManager
-
-#endif // AUTOGENSTEP_H
-

@@ -25,8 +25,7 @@
 **
 ****************************************************************************/
 
-#ifndef CONFIGURESTEP_H
-#define CONFIGURESTEP_H
+#pragma once
 
 #include <projectexplorer/abstractprocessstep.h>
 
@@ -115,7 +114,7 @@ private:
     void ctor();
 
     QString m_additionalArguments;
-    bool m_runConfigure;
+    bool m_runConfigure = false;
 };
 
 /////////////////////////////////////
@@ -133,8 +132,8 @@ class ConfigureStepConfigWidget : public ProjectExplorer::BuildStepConfigWidget
 public:
     ConfigureStepConfigWidget(ConfigureStep *configureStep);
 
-    QString displayName() const;
-    QString summaryText() const;
+    QString displayName() const override;
+    QString summaryText() const override;
 
 private slots:
     void updateDetails();
@@ -147,6 +146,3 @@ private:
 
 } // namespace Internal
 } // namespace AutotoolsProjectManager
-
-#endif // CONFIGURESTEP_H
-

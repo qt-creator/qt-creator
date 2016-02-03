@@ -57,8 +57,8 @@ using namespace ProjectExplorer::Constants;
 //////////////////////////////////////
 // AutotoolsBuildConfiguration class
 //////////////////////////////////////
-AutotoolsBuildConfiguration::AutotoolsBuildConfiguration(Target *parent)
-    : BuildConfiguration(parent, Core::Id(AUTOTOOLS_BC_ID))
+AutotoolsBuildConfiguration::AutotoolsBuildConfiguration(Target *parent) :
+    BuildConfiguration(parent, Core::Id(AUTOTOOLS_BC_ID))
 {
   // /<foobar> is used so the un-changed check in setBuildDirectory() works correctly.
   // The leading / is to avoid the relative the path expansion in BuildConfiguration::buildDirectory.
@@ -70,13 +70,13 @@ NamedWidget *AutotoolsBuildConfiguration::createConfigWidget()
     return new AutotoolsBuildSettingsWidget(this);
 }
 
-AutotoolsBuildConfiguration::AutotoolsBuildConfiguration(Target *parent, Core::Id id)
-    : BuildConfiguration(parent, id)
+AutotoolsBuildConfiguration::AutotoolsBuildConfiguration(Target *parent, Core::Id id) :
+    BuildConfiguration(parent, id)
 { }
 
 AutotoolsBuildConfiguration::AutotoolsBuildConfiguration(Target *parent,
-                                                         AutotoolsBuildConfiguration *source)
-    : BuildConfiguration(parent, source)
+                                                         AutotoolsBuildConfiguration *source) :
+    BuildConfiguration(parent, source)
 {
     cloneSteps(source);
 }
@@ -86,8 +86,7 @@ AutotoolsBuildConfiguration::AutotoolsBuildConfiguration(Target *parent,
 //////////////////////////////////////
 AutotoolsBuildConfigurationFactory::AutotoolsBuildConfigurationFactory(QObject *parent) :
     IBuildConfigurationFactory(parent)
-{
-}
+{ }
 
 int AutotoolsBuildConfigurationFactory::priority(const Target *parent) const
 {

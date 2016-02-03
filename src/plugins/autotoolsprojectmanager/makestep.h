@@ -25,8 +25,7 @@
 **
 ****************************************************************************/
 
-#ifndef MAKESTEP_H
-#define MAKESTEP_H
+#pragma once
 
 #include <projectexplorer/abstractprocessstep.h>
 #include <projectexplorer/task.h>
@@ -115,7 +114,7 @@ private:
 
     QStringList m_buildTargets;
     QString m_additionalArguments;
-    bool m_clean;
+    bool m_clean = false;
 };
 
 ///////////////////////////////
@@ -133,8 +132,8 @@ class MakeStepConfigWidget : public ProjectExplorer::BuildStepConfigWidget
 public:
     MakeStepConfigWidget(MakeStep *makeStep);
 
-    QString displayName() const;
-    QString summaryText() const;
+    QString displayName() const override;
+    QString summaryText() const override;
 
 private slots:
     void updateDetails();
@@ -147,5 +146,3 @@ private:
 
 } // namespace Internal
 } // namespace AutotoolsProjectManager
-
-#endif // MAKESTEP_H

@@ -31,15 +31,7 @@
 
 using namespace AutotoolsProjectManager::Internal;
 
-MakefileParserThread::MakefileParserThread(const QString &makefile) :
-    QThread(),
-    m_parser(makefile),
-    m_mutex(),
-    m_hasError(false),
-    m_executable(),
-    m_sources(),
-    m_makefiles(),
-    m_includePaths()
+MakefileParserThread::MakefileParserThread(const QString &makefile) : m_parser(makefile)
 {
     connect(&m_parser, &MakefileParser::status,
             this, &MakefileParserThread::status);

@@ -25,8 +25,7 @@
 **
 ****************************************************************************/
 
-#ifndef MAKEFILEPARSER_H
-#define MAKEFILEPARSER_H
+#pragma once
 
 #include <QMutex>
 #include <QStringList>
@@ -258,10 +257,9 @@ private:
      */
     bool maybeParseCPPFlag(const QString &term);
 
-private:
-    bool m_success;             ///< Return value for MakefileParser::parse().
+    bool m_success = false;     ///< Return value for MakefileParser::parse().
 
-    bool m_cancel;              ///< True, if the parsing should be cancelled.
+    bool m_cancel = false;      ///< True, if the parsing should be cancelled.
     mutable QMutex m_mutex;     ///< Mutex to protect m_cancel.
 
     QString m_makefile;         ///< Filename of the makefile
@@ -280,6 +278,3 @@ private:
 
 } // namespace Internal
 } // namespace AutotoolsProjectManager
-
-#endif // MAKEFILEPARSER_H
-

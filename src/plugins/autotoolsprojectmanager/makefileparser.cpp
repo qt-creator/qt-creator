@@ -37,20 +37,8 @@
 
 using namespace AutotoolsProjectManager::Internal;
 
-MakefileParser::MakefileParser(const QString &makefile) :
-    QObject(),
-    m_success(false),
-    m_cancel(false),
-    m_mutex(),
-    m_makefile(makefile),
-    m_executable(),
-    m_sources(),
-    m_makefiles(),
-    m_includePaths(),
-    m_line(),
-    m_textStream()
-{
-}
+MakefileParser::MakefileParser(const QString &makefile) : m_makefile(makefile)
+{ }
 
 MakefileParser::~MakefileParser()
 {

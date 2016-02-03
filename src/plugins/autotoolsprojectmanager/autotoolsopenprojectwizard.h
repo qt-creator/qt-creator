@@ -25,8 +25,7 @@
 **
 ****************************************************************************/
 
-#ifndef AUTOTOOLSOPENPROJECTWIZARD_H
-#define AUTOTOOLSOPENPROJECTWIZARD_H
+#pragma once
 
 #include <utils/wizard.h>
 
@@ -42,13 +41,9 @@ class AutotoolsOpenProjectWizard : public Utils::Wizard
     Q_OBJECT
 
 public:
-    enum PageId
-    {
-        BuildPathPageId
-    };
+    enum PageId { BuildPathPageId };
 
-    AutotoolsOpenProjectWizard(AutotoolsManager *manager,
-                               const QString &sourceDirectory,
+    AutotoolsOpenProjectWizard(AutotoolsManager *manager, const QString &sourceDirectory,
                                QWidget *parent = 0);
 
     QString buildDirectory() const;
@@ -73,10 +68,8 @@ private slots:
     void buildDirectoryChanged();
 
 private:
-    AutotoolsOpenProjectWizard *m_wizard;
     Utils::PathChooser *m_pc;
 };
 
 } // namespace Internal
 } // namespace AutotoolsProjectManager
-#endif //AUTOTOOLSOPENPROJECTWIZARD_H

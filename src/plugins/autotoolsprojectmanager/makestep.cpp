@@ -59,8 +59,7 @@ const char MAKE_STEP_ADDITIONAL_ARGUMENTS_KEY[] = "AutotoolsProjectManager.MakeS
 //////////////////////////
 // MakeStepFactory class
 //////////////////////////
-MakeStepFactory::MakeStepFactory(QObject *parent) :
-    IBuildStepFactory(parent)
+MakeStepFactory::MakeStepFactory(QObject *parent) : IBuildStepFactory(parent)
 { setObjectName(QLatin1String("Autotools::MakeStepFactory")); }
 
 QList<Core::Id> MakeStepFactory::availableCreationIds(BuildStepList *parent) const
@@ -122,22 +121,17 @@ BuildStep *MakeStepFactory::restore(BuildStepList *parent, const QVariantMap &ma
 /////////////////////
 // MakeStep class
 /////////////////////
-MakeStep::MakeStep(BuildStepList* bsl) :
-    AbstractProcessStep(bsl, Core::Id(MAKE_STEP_ID)),
-    m_clean(false)
+MakeStep::MakeStep(BuildStepList* bsl) : AbstractProcessStep(bsl, Core::Id(MAKE_STEP_ID))
 {
     ctor();
 }
 
-MakeStep::MakeStep(BuildStepList *bsl, Core::Id id) :
-    AbstractProcessStep(bsl, id),
-    m_clean(false)
+MakeStep::MakeStep(BuildStepList *bsl, Core::Id id) : AbstractProcessStep(bsl, id)
 {
     ctor();
 }
 
-MakeStep::MakeStep(BuildStepList *bsl, MakeStep *bs) :
-    AbstractProcessStep(bsl, bs),
+MakeStep::MakeStep(BuildStepList *bsl, MakeStep *bs) : AbstractProcessStep(bsl, bs),
     m_buildTargets(bs->m_buildTargets),
     m_additionalArguments(bs->additionalArguments()),
     m_clean(bs->m_clean)

@@ -42,10 +42,10 @@ using namespace AutotoolsProjectManager::Internal;
 //////////////////////////////////////
 AutotoolsOpenProjectWizard::AutotoolsOpenProjectWizard(AutotoolsManager *manager,
                                                        const QString &sourceDirectory,
-                                                       QWidget *parent)
-    : Utils::Wizard(parent),
-      m_manager(manager),
-      m_sourceDirectory(sourceDirectory)
+                                                       QWidget *parent) :
+    Utils::Wizard(parent),
+    m_manager(manager),
+    m_sourceDirectory(sourceDirectory)
 {
     QDir dir(m_sourceDirectory);
     m_buildDirectory = dir.absolutePath();
@@ -79,8 +79,8 @@ void AutotoolsOpenProjectWizard::setBuildDirectory(const QString &directory)
 /////////////////////////
 // BuildPathPage class
 /////////////////////////
-BuildPathPage::BuildPathPage(AutotoolsOpenProjectWizard *wizard)
-    : QWizardPage(wizard), m_wizard(wizard)
+BuildPathPage::BuildPathPage(AutotoolsOpenProjectWizard *w) : QWizardPage(w),
+    m_pc(new Utils::PathChooser)
 {
     QFormLayout *fl = new QFormLayout;
     this->setLayout(fl);
@@ -92,10 +92,10 @@ BuildPathPage::BuildPathPage(AutotoolsOpenProjectWizard *wizard)
                       "This ensures that the source directory remains clean and enables multiple builds "
                       "with different settings."));
     fl->addWidget(label);
-    m_pc = new Utils::PathChooser(this);
     m_pc->setHistoryCompleter(QLatin1String("AutoTools.BuildDir.History"));
-    m_pc->setBaseDirectory(m_wizard->sourceDirectory());
-    m_pc->setPath(m_wizard->buildDirectory());
+    AutotoolsOpenProjectWizard *wiz = static_cast<AutotoolsOpenProjectWizard *>(wizard());
+    m_pc->setBaseDirectory(wiz->sourceDirectory());
+    m_pc->setPath(wiz->buildDirectory());
     connect(m_pc, &Utils::PathChooser::rawPathChanged, this, &BuildPathPage::buildDirectoryChanged);
     fl->addRow(tr("Build directory:"), m_pc);
     setTitle(tr("Build Location"));
@@ -103,5 +103,5 @@ BuildPathPage::BuildPathPage(AutotoolsOpenProjectWizard *wizard)
 
 void BuildPathPage::buildDirectoryChanged()
 {
-    m_wizard->setBuildDirectory(m_pc->path());
+    static_cast<AutotoolsOpenProjectWizard *>(wizard())->setBuildDirectory(m_pc->path());
 }

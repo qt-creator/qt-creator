@@ -25,8 +25,7 @@
 **
 ****************************************************************************/
 
-#ifndef AUTOTOOLSBUILDSETTINGSWIDGET_H
-#define AUTOTOOLSBUILDSETTINGSWIDGET_H
+#pragma once
 
 #include <projectexplorer/namedwidget.h>
 
@@ -64,5 +63,3 @@ private:
 
 } // namespace Internal
 } // namespace AutotoolsProjectManager
-
-#endif // AUTOTOOLSBUILDSETTINGSWIDGET_H

@@ -69,8 +69,7 @@ using namespace AutotoolsProjectManager::Internal;
 using namespace ProjectExplorer;
 
 AutotoolsProject::AutotoolsProject(AutotoolsManager *manager, const QString &fileName) :
-    m_fileWatcher(new Utils::FileSystemWatcher(this)),
-    m_makefileParserThread(0)
+    m_fileWatcher(new Utils::FileSystemWatcher(this))
 {
     setId(Constants::AUTOTOOLS_PROJECT_ID);
     setProjectManager(manager);

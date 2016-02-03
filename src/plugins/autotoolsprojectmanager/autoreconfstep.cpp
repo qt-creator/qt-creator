@@ -52,10 +52,8 @@ const char AUTORECONF_ADDITIONAL_ARGUMENTS_KEY[] = "AutotoolsProjectManager.Auto
 ////////////////////////////////
 // AutoreconfStepFactory class
 ////////////////////////////////
-AutoreconfStepFactory::AutoreconfStepFactory(QObject *parent) :
-    IBuildStepFactory(parent)
-{
-}
+AutoreconfStepFactory::AutoreconfStepFactory(QObject *parent) : IBuildStepFactory(parent)
+{ }
 
 QList<Core::Id> AutoreconfStepFactory::availableCreationIds(BuildStepList *parent) const
 {
@@ -122,14 +120,12 @@ bool AutoreconfStepFactory::canHandle(BuildStepList *parent) const
 // AutoreconfStep class
 /////////////////////////
 AutoreconfStep::AutoreconfStep(BuildStepList *bsl) :
-    AbstractProcessStep(bsl, Core::Id(AUTORECONF_STEP_ID)),
-    m_runAutoreconf(false)
+    AbstractProcessStep(bsl, Core::Id(AUTORECONF_STEP_ID))
 {
     ctor();
 }
 
-AutoreconfStep::AutoreconfStep(BuildStepList *bsl, Core::Id id) :
-    AbstractProcessStep(bsl, id)
+AutoreconfStep::AutoreconfStep(BuildStepList *bsl, Core::Id id) : AbstractProcessStep(bsl, id)
 {
     ctor();
 }
@@ -229,15 +225,13 @@ bool AutoreconfStep::fromMap(const QVariantMap &map)
 //////////////////////////////////////
 AutoreconfStepConfigWidget::AutoreconfStepConfigWidget(AutoreconfStep *autoreconfStep) :
     m_autoreconfStep(autoreconfStep),
-    m_summaryText(),
-    m_additionalArguments(0)
+    m_additionalArguments(new QLineEdit(this))
 {
     QFormLayout *fl = new QFormLayout(this);
     fl->setMargin(0);
     fl->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
     setLayout(fl);
 
-    m_additionalArguments = new QLineEdit(this);
     fl->addRow(tr("Arguments:"), m_additionalArguments);
     m_additionalArguments->setText(m_autoreconfStep->additionalArguments());
 

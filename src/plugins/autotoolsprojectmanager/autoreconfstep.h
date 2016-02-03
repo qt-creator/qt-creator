@@ -25,8 +25,7 @@
 **
 ****************************************************************************/
 
-#ifndef AUTORECONFSTEP_H
-#define AUTORECONFSTEP_H
+#pragma once
 
 #include <projectexplorer/abstractprocessstep.h>
 
@@ -114,7 +113,7 @@ private:
     void ctor();
 
     QString m_additionalArguments;
-    bool m_runAutoreconf;
+    bool m_runAutoreconf = false;
 };
 
 //////////////////////////////////////
@@ -132,8 +131,8 @@ class AutoreconfStepConfigWidget : public ProjectExplorer::BuildStepConfigWidget
 public:
     AutoreconfStepConfigWidget(AutoreconfStep *autoreconfStep);
 
-    QString displayName() const;
-    QString summaryText() const;
+    QString displayName() const override;
+    QString summaryText() const override;
 
 private slots:
     void updateDetails();
@@ -146,6 +145,3 @@ private:
 
 } // namespace Internal
 } // namespace AutotoolsProjectManager
-
-#endif // AUTORECONFSTEP_H
-

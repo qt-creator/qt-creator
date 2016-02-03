@@ -39,13 +39,8 @@
 
 using namespace AutotoolsProjectManager::Internal;
 
-AutotoolsProjectPlugin::AutotoolsProjectPlugin()
-{
-}
-
 void AutotoolsProjectPlugin::extensionsInitialized()
-{
-}
+{ }
 
 bool AutotoolsProjectPlugin::initialize(const QStringList &arguments,
                                         QString *errorString)

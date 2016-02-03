@@ -25,8 +25,7 @@
 **
 ****************************************************************************/
 
-#ifndef AUTOTOOLSPROJECTCONSTANTS_H
-#define AUTOTOOLSPROJECTCONSTANTS_H
+#pragma once
 
 namespace AutotoolsProjectManager {
 /**
@@ -43,5 +42,3 @@ namespace Constants {
     const char PROJECT_CONTEXT[] = "AutotoolsProject.ProjectContext";
 } // namespace Constants
 } // namespace AutotoolsProjectManager
-
-#endif // AUTOTOOLSPROJECTCONSTANTS_H

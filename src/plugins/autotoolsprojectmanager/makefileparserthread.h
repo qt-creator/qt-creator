@@ -25,8 +25,7 @@
 **
 ****************************************************************************/
 
-#ifndef MAKEFILEPARSERTHREAD_H
-#define MAKEFILEPARSERTHREAD_H
+#pragma once
 
 #include "makefileparser.h"
 
@@ -131,7 +130,7 @@ private:
     MakefileParser m_parser;    ///< Is not accessible outside the thread
 
     mutable QMutex m_mutex;
-    bool m_hasError;            ///< Return value for MakefileParserThread::hasError()
+    bool m_hasError = false;    ///< Return value for MakefileParserThread::hasError()
     QString m_executable;       ///< Return value for MakefileParserThread::executable()
     QStringList m_sources;      ///< Return value for MakefileParserThread::sources()
     QStringList m_makefiles;    ///< Return value for MakefileParserThread::makefiles()
@@ -143,7 +142,3 @@ private:
 
 } // namespace Internal
 } // namespace AutotoolsProjectManager
-
-#endif // MAKEFILEPARSERTHREAD_H
-
-

@@ -46,13 +46,13 @@ using namespace AutotoolsProjectManager::Internal;
 using namespace ProjectExplorer;
 
 AutotoolsBuildSettingsWidget::AutotoolsBuildSettingsWidget(AutotoolsBuildConfiguration *bc) :
+    m_pathChooser(new Utils::PathChooser),
     m_buildConfiguration(bc)
 {
     QFormLayout *fl = new QFormLayout(this);
     fl->setContentsMargins(0, 0, 0, 0);
     fl->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
 
-    m_pathChooser = new Utils::PathChooser(this);
     m_pathChooser->setEnabled(true);
     m_pathChooser->setExpectedKind(Utils::PathChooser::Directory);
     m_pathChooser->setBaseFileName(bc->target()->project()->projectDirectory());

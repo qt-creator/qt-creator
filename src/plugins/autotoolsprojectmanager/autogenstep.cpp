@@ -53,10 +53,8 @@ const char AUTOGEN_STEP_ID[] = "AutotoolsProjectManager.AutogenStep";
 /////////////////////////////
 // AutogenStepFactory class
 /////////////////////////////
-AutogenStepFactory::AutogenStepFactory(QObject *parent) :
-    IBuildStepFactory(parent)
-{
-}
+AutogenStepFactory::AutogenStepFactory(QObject *parent) : IBuildStepFactory(parent)
+{ }
 
 QList<Core::Id> AutogenStepFactory::availableCreationIds(BuildStepList *parent) const
 {
@@ -122,21 +120,17 @@ bool AutogenStepFactory::canHandle(BuildStepList *parent) const
 ////////////////////////
 // AutogenStep class
 ////////////////////////
-AutogenStep::AutogenStep(BuildStepList *bsl) :
-    AbstractProcessStep(bsl, Core::Id(AUTOGEN_STEP_ID)),
-    m_runAutogen(false)
+AutogenStep::AutogenStep(BuildStepList *bsl) : AbstractProcessStep(bsl, Core::Id(AUTOGEN_STEP_ID))
 {
     ctor();
 }
 
-AutogenStep::AutogenStep(BuildStepList *bsl, Core::Id id) :
-    AbstractProcessStep(bsl, id)
+AutogenStep::AutogenStep(BuildStepList *bsl, Core::Id id) : AbstractProcessStep(bsl, id)
 {
     ctor();
 }
 
-AutogenStep::AutogenStep(BuildStepList *bsl, AutogenStep *bs) :
-    AbstractProcessStep(bsl, bs),
+AutogenStep::AutogenStep(BuildStepList *bsl, AutogenStep *bs) : AbstractProcessStep(bsl, bs),
     m_additionalArguments(bs->additionalArguments())
 {
     ctor();
@@ -236,15 +230,13 @@ bool AutogenStep::fromMap(const QVariantMap &map)
 //////////////////////////////////
 AutogenStepConfigWidget::AutogenStepConfigWidget(AutogenStep *autogenStep) :
     m_autogenStep(autogenStep),
-    m_summaryText(),
-    m_additionalArguments(0)
+    m_additionalArguments(new QLineEdit)
 {
     QFormLayout *fl = new QFormLayout(this);
     fl->setMargin(0);
     fl->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
     setLayout(fl);
 
-    m_additionalArguments = new QLineEdit(this);
     fl->addRow(tr("Arguments:"), m_additionalArguments);
     m_additionalArguments->setText(m_autogenStep->additionalArguments());
 

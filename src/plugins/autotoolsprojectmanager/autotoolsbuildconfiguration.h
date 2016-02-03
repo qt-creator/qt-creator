@@ -25,8 +25,7 @@
 **
 ****************************************************************************/
 
-#ifndef AUTOTOOLSBUILDCONFIGURATION_H
-#define AUTOTOOLSBUILDCONFIGURATION_H
+#pragma once
 
 #include <projectexplorer/buildconfiguration.h>
 
@@ -88,4 +87,3 @@ private:
 
 } // namespace Internal
 } // namespace AutotoolsProjectManager
-#endif // AUTOTOOLSBUILDCONFIGURATION_H

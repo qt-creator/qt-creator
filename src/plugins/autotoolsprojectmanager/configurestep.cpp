@@ -67,10 +67,8 @@ static QString projectDirRelativeToBuildDir(BuildConfiguration *bc) {
 ////////////////////////////////
 // ConfigureStepFactory Class
 ////////////////////////////////
-ConfigureStepFactory::ConfigureStepFactory(QObject *parent) :
-    IBuildStepFactory(parent)
-{
-}
+ConfigureStepFactory::ConfigureStepFactory(QObject *parent) : IBuildStepFactory(parent)
+{ }
 
 QList<Core::Id> ConfigureStepFactory::availableCreationIds(BuildStepList *parent) const
 {
@@ -137,20 +135,17 @@ bool ConfigureStepFactory::canHandle(BuildStepList *parent) const
 // ConfigureStep class
 ////////////////////////
 ConfigureStep::ConfigureStep(BuildStepList* bsl) :
-    AbstractProcessStep(bsl, Core::Id(CONFIGURE_STEP_ID)),
-    m_runConfigure(false)
+    AbstractProcessStep(bsl, Core::Id(CONFIGURE_STEP_ID))
 {
     ctor();
 }
 
-ConfigureStep::ConfigureStep(BuildStepList *bsl, Core::Id id) :
-    AbstractProcessStep(bsl, id)
+ConfigureStep::ConfigureStep(BuildStepList *bsl, Core::Id id) : AbstractProcessStep(bsl, id)
 {
     ctor();
 }
 
-ConfigureStep::ConfigureStep(BuildStepList *bsl, ConfigureStep *bs) :
-    AbstractProcessStep(bsl, bs),
+ConfigureStep::ConfigureStep(BuildStepList *bsl, ConfigureStep *bs) : AbstractProcessStep(bsl, bs),
     m_additionalArguments(bs->additionalArguments())
 {
     ctor();
@@ -252,15 +247,13 @@ bool ConfigureStep::fromMap(const QVariantMap &map)
 /////////////////////////////////////
 ConfigureStepConfigWidget::ConfigureStepConfigWidget(ConfigureStep *configureStep) :
     m_configureStep(configureStep),
-    m_summaryText(),
-    m_additionalArguments(0)
+    m_additionalArguments(new QLineEdit)
 {
     QFormLayout *fl = new QFormLayout(this);
     fl->setMargin(0);
     fl->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
     setLayout(fl);
 
-    m_additionalArguments = new QLineEdit(this);
     fl->addRow(tr("Arguments:"), m_additionalArguments);
     m_additionalArguments->setText(m_configureStep->additionalArguments());
 
