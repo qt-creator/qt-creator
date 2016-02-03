@@ -103,7 +103,7 @@ void ClangPreprocessorAssistProposalItem::apply(TextEditor::TextDocumentManipula
 
     const bool isReplaced = manipulator.replace(basePosition, length, textToBeInserted);
     if (isReplaced && cursorOffset)
-            manipulator.setCursorPosition(manipulator.currentPosition() + cursorOffset);
+        manipulator.setCursorPosition(manipulator.currentPosition() + cursorOffset);
 }
 
 void ClangPreprocessorAssistProposalItem::setText(const QString &text)
