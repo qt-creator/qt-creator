@@ -47,7 +47,7 @@ static QPair<Utils::FileName, int> parseFileName(const QString &input)
         int pos = fileName.lastIndexOf(QLatin1Char('('));
         if (pos >= 0) {
             bool ok = false;
-            int n = fileName.mid(pos + 1, fileName.count() - pos - 2).toInt(&ok);
+            int n = fileName.midRef(pos + 1, fileName.count() - pos - 2).toInt(&ok);
             if (ok) {
                 fileName = fileName.left(pos);
                 linenumber = n;

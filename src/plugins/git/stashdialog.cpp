@@ -243,7 +243,7 @@ static inline QString nextStash(const QString &stash)
     if (closingBracePos == -1)
         return QString();
     bool ok;
-    const int n = stash.mid(openingBracePos + 1, closingBracePos - openingBracePos - 1).toInt(&ok);
+    const int n = stash.midRef(openingBracePos + 1, closingBracePos - openingBracePos - 1).toInt(&ok);
     if (!ok)
         return QString();
     QString rc =  stash.left(openingBracePos + 1);

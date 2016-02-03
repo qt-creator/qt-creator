@@ -231,8 +231,8 @@ QString previousRevision(const QString &rev)
     const int dotPos = rev.lastIndexOf(QLatin1Char('.'));
     if (dotPos == -1)
         return rev;
-    const int minor = rev.mid(dotPos + 1).toInt();
-    return rev.left(dotPos + 1) + QString::number(minor - 1);
+    const int minor = rev.midRef(dotPos + 1).toInt();
+    return rev.leftRef(dotPos + 1) + QString::number(minor - 1);
 }
 
 // Is "[1.2...].1"?

@@ -318,7 +318,7 @@ QList<int> AndroidToolChainFactory::versionNumberFromString(const QString &versi
             index = end;
 
         bool ok;
-        int v = version.mid(start, index - start).toInt(&ok);
+        int v = version.midRef(start, index - start).toInt(&ok);
         if (!ok) // unparseable, return what we have
             return result;
 

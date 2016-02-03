@@ -2005,7 +2005,7 @@ UserFileVersion11Upgrader::~UserFileVersion11Upgrader()
 
 static inline int targetId(const QString &targetKey)
 {
-    return targetKey.mid(targetKey.lastIndexOf(QLatin1Char('.')) + 1).toInt();
+    return targetKey.midRef(targetKey.lastIndexOf(QLatin1Char('.')) + 1).toInt();
 }
 
 QVariantMap UserFileVersion11Upgrader::upgrade(const QVariantMap &map)

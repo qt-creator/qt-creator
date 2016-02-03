@@ -375,9 +375,9 @@ AbstractMsvcToolChain::WarningFlagAdder::WarningFlagAdder(const QString &flag,
     }
     bool ok = false;
     if (m_doesEnable)
-        m_warningCode = flag.mid(2).toInt(&ok);
+        m_warningCode = flag.midRef(2).toInt(&ok);
     else
-        m_warningCode = flag.mid(3).toInt(&ok);
+        m_warningCode = flag.midRef(3).toInt(&ok);
     if (!ok)
         m_triggered = true;
 }

@@ -349,7 +349,7 @@ ContextData getLocationContext(TextDocument *document, int lineNumber)
             if (!fileName.isEmpty()) {
                 // Possibly one of the  "27 [1] foo = x" lines
                 int pos = line.indexOf(QLatin1Char('['));
-                int ln = line.left(pos - 1).toInt();
+                int ln = line.leftRef(pos - 1).toInt();
                 if (ln > 0) {
                     data.type = LocationByFile;
                     data.fileName = fileName;

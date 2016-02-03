@@ -52,10 +52,10 @@ ComponentVersion::ComponentVersion(const QString &versionString)
     if (dotIdx == -1)
         return;
     bool ok = false;
-    int maybeMajor = versionString.left(dotIdx).toInt(&ok);
+    int maybeMajor = versionString.leftRef(dotIdx).toInt(&ok);
     if (!ok)
         return;
-    int maybeMinor = versionString.mid(dotIdx + 1).toInt(&ok);
+    int maybeMinor = versionString.midRef(dotIdx + 1).toInt(&ok);
     if (!ok)
         return;
     _major = maybeMajor;

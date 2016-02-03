@@ -642,7 +642,7 @@ QList<ToolChain *> MsvcToolChainFactory::autoDetect(const QList<ToolChain *> &al
         QString path = QDir::fromNativeSeparators(vsRegistry.value(vsName).toString());
         if (path.endsWith(QLatin1Char('/')))
             path.chop(1);
-        const int version = vsName.left(dotPos).toInt();
+        const int version = vsName.leftRef(dotPos).toInt();
         const QString vcvarsAllbat = path + QLatin1String("/vcvarsall.bat");
         if (QFileInfo(vcvarsAllbat).isFile()) {
             QList<MsvcToolChain::Platform> platforms; // prioritized list

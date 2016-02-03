@@ -898,7 +898,7 @@ void DebuggerToolTipHolder::positionShow(const TextEditorWidget *editorWidget)
 static QDate dateFromString(const QString &date)
 {
     return date.size() == 8 ?
-        QDate(date.left(4).toInt(), date.mid(4, 2).toInt(), date.mid(6, 2).toInt()) :
+        QDate(date.leftRef(4).toInt(), date.midRef(4, 2).toInt(), date.midRef(6, 2).toInt()) :
         QDate();
 }
 

@@ -393,7 +393,7 @@ QList<ToolChain *> WinCEToolChainFactory::autoDetect(const QList<ToolChain *> &a
             continue;
 
         const QString path = QDir::fromNativeSeparators(vsRegistry.value(vsName).toString());
-        const int version = vsName.left(dotPos).toInt();
+        const int version = vsName.leftRef(dotPos).toInt();
 
         // Check existence of various install scripts
         const QString vcvars32bat = path + QLatin1String("bin/vcvars32.bat");

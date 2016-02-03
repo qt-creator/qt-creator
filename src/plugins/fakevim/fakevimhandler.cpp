@@ -5465,7 +5465,7 @@ bool FakeVimHandler::Private::handleExSubstituteCommand(const ExCommand &cmd)
     QString line = cmd.args;
     const int countIndex = line.lastIndexOf(QRegExp(_("\\d+$")));
     if (countIndex != -1) {
-        count = line.mid(countIndex).toInt();
+        count = line.midRef(countIndex).toInt();
         line = line.mid(0, countIndex).trimmed();
     }
 

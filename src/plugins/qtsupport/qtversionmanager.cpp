@@ -208,7 +208,7 @@ static bool restoreQtVersions()
         if (!key.startsWith(keyPrefix))
             continue;
         bool ok;
-        int count = key.mid(keyPrefix.count()).toInt(&ok);
+        int count = key.midRef(keyPrefix.count()).toInt(&ok);
         if (!ok || count < 0)
             continue;
 
@@ -282,7 +282,7 @@ void QtVersionManager::updateFromInstaller(bool emitSignal)
         if (!key.startsWith(keyPrefix))
             continue;
         bool ok;
-        int count = key.mid(keyPrefix.count()).toInt(&ok);
+        int count = key.midRef(keyPrefix.count()).toInt(&ok);
         if (!ok || count < 0)
             continue;
 

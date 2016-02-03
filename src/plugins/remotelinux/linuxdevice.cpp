@@ -87,7 +87,7 @@ private:
                 continue;
             }
             bool ok;
-            const int pid = elements.first().mid(6).toInt(&ok);
+            const int pid = elements.first().midRef(6).toInt(&ok);
             if (!ok) {
                 qDebug("%s: Expected number in %s. Line was '%s'.", Q_FUNC_INFO,
                        qPrintable(elements.first()), qPrintable(visualizeNull(line)));

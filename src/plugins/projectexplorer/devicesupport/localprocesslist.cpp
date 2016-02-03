@@ -210,7 +210,7 @@ static QList<DeviceProcessItem> getLocalProcessesUsingPs()
                 if (cmdSep > 0) {
                     const int argsSep = cmdSep != -1 ? line.indexOf(blank, cmdSep + 1) : -1;
                     DeviceProcessItem procData;
-                    procData.pid = line.left(pidSep).toInt();
+                    procData.pid = line.leftRef(pidSep).toInt();
                     procData.cmdLine = line.mid(cmdSep + 1);
                     if (argsSep == -1)
                         procData.exe = line.mid(cmdSep + 1);

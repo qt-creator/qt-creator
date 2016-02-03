@@ -79,7 +79,7 @@ QColor QmlJS::toQColor(const QString &qmlColorString)
     QColor color;
     if (qmlColorString.size() == 9 && qmlColorString.at(0) == QLatin1Char('#')) {
         bool ok;
-        const int alpha = qmlColorString.mid(1, 2).toInt(&ok, 16);
+        const int alpha = qmlColorString.midRef(1, 2).toInt(&ok, 16);
         if (ok) {
             QString name(qmlColorString.at(0));
             name.append(qmlColorString.right(6));

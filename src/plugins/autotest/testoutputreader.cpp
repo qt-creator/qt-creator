@@ -48,7 +48,7 @@ static QString decode(const QString& original)
     while ((pos = regex.indexIn(original, pos)) != -1) {
         const QString value = regex.cap(1);
         if (value.startsWith(QLatin1Char('x')))
-            result.replace(regex.cap(0), QChar(value.mid(1).toInt(0, 16)));
+            result.replace(regex.cap(0), QChar(value.midRef(1).toInt(0, 16)));
         else
             result.replace(regex.cap(0), QChar(value.toInt(0, 10)));
         pos += regex.matchedLength();

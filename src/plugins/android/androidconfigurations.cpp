@@ -347,7 +347,7 @@ void AndroidConfig::updateNdkInformation() const
     QDirIterator it(path.appendPath(QLatin1String("platforms")).toString(), QStringList() << QLatin1String("android-*"), QDir::Dirs);
     while (it.hasNext()) {
         const QString &fileName = it.next();
-        m_availableNdkPlatforms.push_back(fileName.mid(fileName.lastIndexOf(QLatin1Char('-')) + 1).toInt());
+        m_availableNdkPlatforms.push_back(fileName.midRef(fileName.lastIndexOf(QLatin1Char('-')) + 1).toInt());
     }
     Utils::sort(m_availableNdkPlatforms, std::greater<int>());
 
@@ -907,7 +907,7 @@ QString AndroidConfig::getAvdName(const QString &serialnumber)
     if (index == -1)
         return QString();
     bool ok;
-    int port = serialnumber.mid(index + 1).toInt(&ok);
+    int port = serialnumber.midRef(index + 1).toInt(&ok);
     if (!ok)
         return QString();
 

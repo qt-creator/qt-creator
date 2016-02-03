@@ -445,7 +445,7 @@ Abi::Abi(const QString &abiString) :
             return;
 
         bool ok = false;
-        int bitCount = bits.left(bits.count() - 3).toInt(&ok);
+        int bitCount = bits.leftRef(bits.count() - 3).toInt(&ok);
         if (!ok)
             return;
         if (bitCount != 8 && bitCount != 16 && bitCount != 32 && bitCount != 64)
@@ -830,7 +830,7 @@ QList<Abi> Abi::abisOfBinary(const Utils::FileName &path)
             const QString fileName = QString::fromLocal8Bit(data.mid(0, 16));
             quint64 fileNameOffset = 0;
             if (fileName.startsWith(QLatin1String("#1/")))
-                fileNameOffset = fileName.mid(3).toInt();
+                fileNameOffset = fileName.midRef(3).toInt();
             const QString fileLength = QString::fromLatin1(data.mid(48, 10));
 
             int toSkip = 60 + fileNameOffset;
