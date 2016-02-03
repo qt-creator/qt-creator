@@ -408,9 +408,12 @@ QList<TestConfiguration *> TestTreeModel::getSelectedTests() const
         }
     }
 
-    foreach (TestConfiguration *config, foundMains.values())
+    foreach (TestConfiguration *config, foundMains.values()) {
         if (!config->unnamedOnly())
             result << config;
+        else
+            delete config;
+    }
 
     // get selected Google Tests
     QMap<QString, QStringList> proFilesWithEnabledTestSets;
