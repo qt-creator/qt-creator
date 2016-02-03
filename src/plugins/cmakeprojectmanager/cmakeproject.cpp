@@ -129,7 +129,7 @@ void CMakeProject::changeActiveBuildConfiguration(ProjectExplorer::BuildConfigur
         config = CMakeConfigurationKitInformation::configuration(k);
     } else {
         k = cmakebc->target()->kit();
-        // FIXME: Fill config with data from cmakebc!
+        config = cmakebc->cmakeConfiguration();
         buildDir = cmakebc->buildDirectory();
     }
     if (k) {
@@ -378,7 +378,7 @@ void CMakeProject::setCurrentCMakeConfiguration(const QList<ConfigModel::DataIte
     if (!m_buildDirManager || m_buildDirManager->isBusy())
         return;
 
-    const CMakeConfig config = Utils::transform(items, [](const ConfigModel::DataItem &i) {
+    const CMakeConfig newConfig = Utils::transform(items, [](const ConfigModel::DataItem &i) {
         CMakeConfigItem ni;
         ni.key = i.key.toUtf8();
         ni.value = i.value.toUtf8();
@@ -404,6 +404,15 @@ void CMakeProject::setCurrentCMakeConfiguration(const QList<ConfigModel::DataIte
         }
         return ni;
     });
+
+    // There is a buildDirManager, so there must also be an active BC:
+    QTC_ASSERT(activeTarget(), return);
+    QTC_ASSERT(activeTarget()->activeBuildConfiguration(), return);
+
+    auto bc = static_cast<CMakeBuildConfiguration *>(activeTarget()->activeBuildConfiguration());
+    QTC_ASSERT(bc, return);
+    const CMakeConfig config = bc->cmakeConfiguration() + newConfig;
+    bc->setCMakeConfiguration(config);
 
     m_buildDirManager->setInputConfiguration(config);
 }

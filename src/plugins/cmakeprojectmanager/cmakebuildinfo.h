@@ -26,6 +26,7 @@
 #pragma once
 
 #include "cmakebuildconfiguration.h"
+#include "cmakeconfigitem.h"
 
 #include <projectexplorer/buildinfo.h>
 #include <projectexplorer/kit.h>
@@ -48,16 +49,14 @@ public:
         displayName = bc->displayName();
         buildDirectory = bc->buildDirectory();
         kitId = bc->target()->kit()->id();
-        environment = bc->environment();
 
         QTC_ASSERT(bc->target()->project(), return);
         sourceDirectory = bc->target()->project()->projectDirectory().toString();
-        arguments = bc->initialArguments();
+        configuration = bc->cmakeConfiguration();
     }
 
-    Utils::Environment environment;
     QString sourceDirectory;
-    QString arguments;
+    CMakeConfig configuration;
 };
 
 } // namespace CMakeProjectManager

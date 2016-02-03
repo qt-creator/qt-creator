@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include "cmakeconfigitem.h"
+
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/abi.h>
 
@@ -54,8 +56,8 @@ public:
 
     void emitBuildTypeChanged();
 
-    void setInitialArguments(const QString &arguments);
-    QString initialArguments() const;
+    void setCMakeConfiguration(const CMakeConfig &config);
+    CMakeConfig cmakeConfiguration() const;
 
 protected:
     CMakeBuildConfiguration(ProjectExplorer::Target *parent, CMakeBuildConfiguration *source);
@@ -63,6 +65,7 @@ protected:
 
 private:
     QString m_initialArguments;
+    CMakeConfig m_configuration;
 
     friend class CMakeProjectManager::CMakeProject;
 };
