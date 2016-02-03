@@ -593,10 +593,10 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     createRepositoryAction(gitContainer, tr("Actions on Commits..."), "Git.ChangeActions",
                            context, false, [this] { startChangeRelatedAction("Git.ChangeActions"); });
 
-    m_createRepositryAction = new QAction(tr("Create Repository..."), this);
+    QAction *createRepositoryAction = new QAction(tr("Create Repository..."), this);
     Command *createRepositoryCommand = ActionManager::registerAction(
-                m_createRepositryAction, "Git.CreateRepository");
-    connect(m_createRepositryAction, &QAction::triggered, this, &GitPlugin::createRepository);
+                createRepositoryAction, "Git.CreateRepository");
+    connect(createRepositoryAction, &QAction::triggered, this, &GitPlugin::createRepository);
     gitContainer->addAction(createRepositoryCommand);
 
     // Submit editor
@@ -1273,7 +1273,6 @@ void GitPlugin::updateActions(VcsBasePlugin::ActionState as)
         m_remoteDialog->refresh(currentState().topLevel(), false);
 
     m_commandLocator->setEnabled(repositoryEnabled);
-    m_createRepositryAction->setEnabled(true);
     if (!enableMenuAction(as, m_menuAction))
         return;
     if (repositoryEnabled)

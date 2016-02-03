@@ -210,7 +210,6 @@ private:
     QAction *m_continueRevertAction;
     QAction *m_fixupCommitAction;
     QAction *m_interactiveRebaseAction;
-    QAction *m_createRepositryAction;
 
     QVector<Utils::ParameterAction *> m_fileActions;
     QVector<Utils::ParameterAction *> m_projectActions;
