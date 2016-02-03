@@ -35,9 +35,8 @@
 namespace Bazaar {
 namespace Internal {
 
-UnCommitDialog::UnCommitDialog(QWidget *parent)
-    : QDialog(parent),
-      m_ui(new Ui::UnCommitDialog)
+UnCommitDialog::UnCommitDialog(QWidget *parent) : QDialog(parent),
+    m_ui(new Ui::UnCommitDialog)
 {
     m_ui->setupUi(this);
 

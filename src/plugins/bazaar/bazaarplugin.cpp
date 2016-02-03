@@ -135,12 +135,6 @@ const VcsBaseSubmitEditorParameters submitEditorParameters = {
 BazaarPlugin *BazaarPlugin::m_instance = 0;
 
 BazaarPlugin::BazaarPlugin()
-    : m_client(0),
-      m_commandLocator(0),
-      m_addAction(0),
-      m_deleteAction(0),
-      m_menuAction(0),
-      m_submitActionTriggered(false)
 {
     m_instance = this;
 }

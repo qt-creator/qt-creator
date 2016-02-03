@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef BAZAARCONTROL_H
-#define BAZAARCONTROL_H
+#pragma once
 
 #include <coreplugin/iversioncontrol.h>
 
@@ -72,10 +71,8 @@ public slots:
     void changed(const QVariant &);
 
 private:
-    BazaarClient *m_bazaarClient;
+    BazaarClient *const m_bazaarClient;
 };
 
 } // namespace Internal
 } // namespace Bazaar
-
-#endif // BAZAARCONTROL_H

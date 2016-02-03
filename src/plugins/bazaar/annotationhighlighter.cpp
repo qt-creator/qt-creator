@@ -33,8 +33,7 @@ BazaarAnnotationHighlighter::BazaarAnnotationHighlighter(const ChangeNumbers &ch
                                                          QTextDocument *document)
     : VcsBase::BaseAnnotationHighlighter(changeNumbers, document),
       m_changeset(QLatin1String(Constants::ANNOTATE_CHANGESET_ID))
-{
-}
+{ }
 
 QString BazaarAnnotationHighlighter::changeNumber(const QString &block) const
 {

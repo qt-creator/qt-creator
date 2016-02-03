@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef UNCOMMITDIALOG_H
-#define UNCOMMITDIALOG_H
+#pragma once
 
 #include <QDialog>
 
@@ -39,7 +38,7 @@ class UnCommitDialog : public QDialog
 
 public:
     explicit UnCommitDialog(QWidget *parent = 0);
-    ~UnCommitDialog();
+    ~UnCommitDialog() override;
 
     QStringList extraOptions() const;
     QString revision() const;
@@ -53,5 +52,3 @@ private:
 
 } // namespace Internal
 } // namespace Bazaar
-
-#endif // UNCOMMITDIALOG_H

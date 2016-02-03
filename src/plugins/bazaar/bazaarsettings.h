@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef BAZAARSETTINGS_H
-#define BAZAARSETTINGS_H
+#pragma once
 
 #include <vcsbase/vcsbaseclientsettings.h>
 
@@ -47,5 +46,3 @@ public:
 
 } // namespace Internal
 } // namespace Bazaar
-
-#endif // BAZAARSETTINGS_H

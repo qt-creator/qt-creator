@@ -23,19 +23,13 @@
 **
 ****************************************************************************/
 
-#ifndef OPTIONSPAGE_H
-#define OPTIONSPAGE_H
+#pragma once
 
 #include "ui_optionspage.h"
 
 #include <vcsbase/vcsbaseoptionspage.h>
 
-#include <QWidget>
-#include <QPointer>
-
-namespace VcsBase {
-class VcsBaseClientSettings;
-} // namespace VcsBase
+namespace VcsBase { class VcsBaseClientSettings; }
 
 namespace Bazaar {
 namespace Internal {
@@ -65,5 +59,3 @@ public:
 
 } // namespace Internal
 } // namespace Bazaar
-
-#endif // OPTIONSPAGE_H

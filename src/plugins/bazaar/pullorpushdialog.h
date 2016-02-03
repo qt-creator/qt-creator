@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PULLORPUSHDIALOG_H
-#define PULLORPUSHDIALOG_H
+#pragma once
 
 #include <QDialog>
 
@@ -44,7 +43,7 @@ public:
     };
 
     explicit PullOrPushDialog(Mode mode, QWidget *parent = 0);
-    ~PullOrPushDialog();
+    ~PullOrPushDialog() override;
 
     // Common parameters and options
     QString branchLocation() const;
@@ -60,7 +59,7 @@ public:
     bool isCreatePrefixOptionEnabled() const;
 
 protected:
-    void changeEvent(QEvent *e);
+    void changeEvent(QEvent *e) override;
 
 private:
     Mode m_mode;
@@ -69,5 +68,3 @@ private:
 
 } // namespace Internal
 } // namespace Bazaar
-
-#endif // PULLORPUSHDIALOG_H

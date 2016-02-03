@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef BAZAARCLIENT_H
-#define BAZAARCLIENT_H
+#pragma once
 
 #include "bazaarsettings.h"
 #include "branchinfo.h"
@@ -72,5 +71,3 @@ private:
 
 } // namespace Internal
 } // namespace Bazaar
-
-#endif // BAZAARCLIENT_H

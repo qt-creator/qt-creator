@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef BAZAARPLUGIN_H
-#define BAZAARPLUGIN_H
+#pragma once
 
 #include "bazaarsettings.h"
 
@@ -65,7 +64,18 @@ public:
     static BazaarPlugin *instance();
     BazaarClient *client() const;
 
+protected:
+    void updateActions(VcsBase::VcsBasePlugin::ActionState);
+    bool submitEditorAboutToClose();
+
+#ifdef WITH_TESTS
 private slots:
+    void testDiffFileResolving_data();
+    void testDiffFileResolving();
+    void testLogResolving();
+#endif
+
+private:
     // File menu action slots
     void addCurrentFile();
     void annotateCurrentFile();
@@ -89,17 +99,7 @@ private slots:
     void commitFromEditor();
     void uncommit();
     void diffFromEditorSelected(const QStringList &files);
-#ifdef WITH_TESTS
-    void testDiffFileResolving_data();
-    void testDiffFileResolving();
-    void testLogResolving();
-#endif
 
-protected:
-    void updateActions(VcsBase::VcsBasePlugin::ActionState);
-    bool submitEditorAboutToClose();
-
-private:
     // Functions
     void createMenu(const Core::Context &context);
     void createSubmitEditorActions();
@@ -109,37 +109,34 @@ private:
 
     // Variables
     static BazaarPlugin *m_instance;
-    BazaarSettings m_bazaarSettings;
-    OptionsPage *m_optionsPage;
-    BazaarClient *m_client;
 
-    Core::CommandLocator *m_commandLocator;
-    Core::ActionContainer *m_bazaarContainer;
+    BazaarSettings m_bazaarSettings;
+    BazaarClient *m_client = nullptr;
+
+    Core::CommandLocator *m_commandLocator = nullptr;
+    Core::ActionContainer *m_bazaarContainer = nullptr;
 
     QList<QAction *> m_repositoryActionList;
 
     // Menu Items (file actions)
-    Utils::ParameterAction *m_addAction;
-    Utils::ParameterAction *m_deleteAction;
-    Utils::ParameterAction *m_annotateFile;
-    Utils::ParameterAction *m_diffFile;
-    Utils::ParameterAction *m_logFile;
-    Utils::ParameterAction *m_renameFile;
-    Utils::ParameterAction *m_revertFile;
-    Utils::ParameterAction *m_statusFile;
+    Utils::ParameterAction *m_addAction = nullptr;
+    Utils::ParameterAction *m_deleteAction = nullptr;
+    Utils::ParameterAction *m_annotateFile = nullptr;
+    Utils::ParameterAction *m_diffFile = nullptr;
+    Utils::ParameterAction *m_logFile = nullptr;
+    Utils::ParameterAction *m_revertFile = nullptr;
+    Utils::ParameterAction *m_statusFile = nullptr;
 
     // Submit editor actions
-    QAction *m_editorCommit;
-    QAction *m_editorDiff;
-    QAction *m_editorUndo;
-    QAction *m_editorRedo;
-    QAction *m_menuAction;
+    QAction *m_editorCommit = nullptr;
+    QAction *m_editorDiff = nullptr;
+    QAction *m_editorUndo = nullptr;
+    QAction *m_editorRedo = nullptr;
+    QAction *m_menuAction = nullptr;
 
     QString m_submitRepository;
-    bool m_submitActionTriggered;
+    bool m_submitActionTriggered = false;
 };
 
 } // namespace Internal
 } // namespace Bazaar
-
-#endif // BAZAARPLUGIN_H

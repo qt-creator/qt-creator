@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef BAZAARCOMMITWIDGET_H
-#define BAZAARCOMMITWIDGET_H
+#pragma once
 
 #include "ui_bazaarcommitpanel.h"
 
@@ -58,5 +57,3 @@ private:
 
 } // namespace Internal
 } // namespace Bazaar
-
-#endif // BAZAARCOMMITWIDGET_H

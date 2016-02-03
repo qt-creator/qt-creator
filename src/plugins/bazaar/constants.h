@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef BAZAARCONSTANTS_H
-#define BAZAARCONSTANTS_H
+#pragma once
 
 namespace Bazaar {
 namespace Constants {
@@ -64,5 +63,3 @@ const char FSTATUS_RENAMED[] = "Renamed";
 
 } // namespace Constants
 } // namespace Bazaar
-
-#endif // BAZAARCONSTANTS_H

@@ -39,8 +39,8 @@ using namespace Bazaar::Internal;
 using namespace Bazaar;
 
 BazaarEditorWidget::BazaarEditorWidget() :
-      m_changesetId(QLatin1String(Constants::CHANGESET_ID)),
-      m_exactChangesetId(QLatin1String(Constants::CHANGESET_ID_EXACT))
+    m_changesetId(QLatin1String(Constants::CHANGESET_ID)),
+    m_exactChangesetId(QLatin1String(Constants::CHANGESET_ID_EXACT))
 {
     setAnnotateRevisionTextFormat(tr("&Annotate %1"));
     setAnnotatePreviousRevisionTextFormat(tr("Annotate &parent revision %1"));

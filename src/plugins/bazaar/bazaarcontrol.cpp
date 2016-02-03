@@ -39,10 +39,8 @@
 
 using namespace Bazaar::Internal;
 
-BazaarControl::BazaarControl(BazaarClient *client)
-    : m_bazaarClient(client)
-{
-}
+BazaarControl::BazaarControl(BazaarClient *client) : m_bazaarClient(client)
+{ }
 
 QString BazaarControl::displayName() const
 {

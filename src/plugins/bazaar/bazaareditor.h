@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef BAZAAREDITOR_H
-#define BAZAAREDITOR_H
+#pragma once
 
 #include <vcsbase/vcsbaseeditor.h>
 
@@ -52,5 +51,3 @@ private:
 
 } // namespace Internal
 } // namespace Bazaar
-
-#endif // BAZAAREDITOR_H

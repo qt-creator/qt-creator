@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef BRANCHINFO_H
-#define BRANCHINFO_H
+#pragma once
 
 #include <QString>
 
@@ -41,5 +40,3 @@ public:
 
 } // namespace Internal
 } // namespace Bazaar
-
-#endif // BRANCHINFO_H
