@@ -37,7 +37,8 @@ VirtualFunctionProposalItem::VirtualFunctionProposalItem(
 {
 }
 
-void VirtualFunctionProposalItem::apply(TextEditor::TextEditorWidget *, int) const
+void VirtualFunctionProposalItem::apply(TextEditor::TextDocumentManipulatorInterface &,
+                                        int) const
 {
     if (!m_link.hasValidTarget())
         return;

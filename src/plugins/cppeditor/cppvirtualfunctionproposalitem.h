@@ -38,7 +38,8 @@ public:
     VirtualFunctionProposalItem(const TextEditor::TextEditorWidget::Link &link,
                                 bool openInSplit = true);
     ~VirtualFunctionProposalItem() Q_DECL_NOEXCEPT {}
-    void apply(TextEditor::TextEditorWidget * /* editorWidget */, int /* basePosition */) const;
+    void apply(TextEditor::TextDocumentManipulatorInterface &manipulator,
+               int basePosition) const override;
     TextEditor::TextEditorWidget::Link link() const { return m_link; } // Exposed for tests
 
 private:
