@@ -166,6 +166,7 @@ class ClonableModel : public ClonableConcept
 {
 public:
     ClonableModel(const T &data) : m_data(data) { }
+    ~ClonableModel() Q_DECL_NOEXCEPT { } // gcc 4.7.3
     ClonableConcept *clone() const override { return new ClonableModel(*this); }
 
     bool equals(const std::unique_ptr<ClonableConcept> &other) const override
