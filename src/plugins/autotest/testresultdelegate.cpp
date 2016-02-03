@@ -85,7 +85,7 @@ QString TestResultDelegate::outputString(const TestResult &testResult, bool sele
 
 void TestResultDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
-    QStyleOptionViewItemV4 opt = option;
+    QStyleOptionViewItem opt = option;
     initStyleOption(&opt, index);
     // make sure we paint the complete delegate instead of keeping an offset
     opt.rect.adjust(-opt.rect.x(), 0, 0, 0);
@@ -113,7 +113,7 @@ void TestResultDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
     const TestResult &testResult = resultFilterModel->testResult(index);
 
     // draw the indicator by ourself as we paint across it with the delegate
-    QStyleOptionViewItemV4 indicatorOpt = option;
+    QStyleOptionViewItem indicatorOpt = option;
     indicatorOpt.rect = QRect(0, opt.rect.y(), positions.indentation(), opt.rect.height());
     opt.widget->style()->drawPrimitive(QStyle::PE_IndicatorBranch, &indicatorOpt, painter);
 
@@ -174,7 +174,7 @@ void TestResultDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
 
 QSize TestResultDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
-    QStyleOptionViewItemV4 opt = option;
+    QStyleOptionViewItem opt = option;
     // make sure opt.rect is initialized correctly - otherwise we might get a width of 0
     opt.initFrom(opt.widget);
     initStyleOption(&opt, index);

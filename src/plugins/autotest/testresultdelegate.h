@@ -60,7 +60,7 @@ private:
     class LayoutPositions
     {
     public:
-        LayoutPositions(QStyleOptionViewItemV4 &options, TestResultFilterModel *filterModel)
+        LayoutPositions(QStyleOptionViewItem &options, TestResultFilterModel *filterModel)
             : m_totalWidth(options.rect.width()),
               m_top(options.rect.top()),
               m_bottom(options.rect.bottom())
