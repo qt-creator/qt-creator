@@ -67,7 +67,7 @@ public:
     QString workingDirectory() const;
     ChangeCommand command() const;
 
-private slots:
+private:
     void chooseWorkingDirectory();
     void selectCommitFromRecentHistory();
     void setDetails(int exitCode);
@@ -79,7 +79,6 @@ private slots:
     void acceptRevert();
     void acceptShow();
 
-private:
     void enableButtons(bool b);
     void terminateProcess();
 

@@ -228,14 +228,13 @@ signals:
     void queryFinished(const QByteArray &);
     void finished();
 
-private slots:
+private:
     void processError(QProcess::ProcessError);
     void processFinished(int exitCode, QProcess::ExitStatus);
     void readyReadStandardError();
     void readyReadStandardOutput();
     void timeout();
 
-private:
     void startQuery(const QString &query);
     void errorTermination(const QString &msg);
     void terminate();

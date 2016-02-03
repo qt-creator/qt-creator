@@ -117,7 +117,7 @@ public:
     ~BaseController();
     void runCommand(const QList<QStringList> &args, QTextCodec *codec = 0);
 
-private slots:
+private:
     virtual void processOutput(const QString &output);
 
 protected:

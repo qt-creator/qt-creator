@@ -105,12 +105,6 @@ public:
 public slots:
     void start();
 
-private slots:
-    void processError(QProcess::ProcessError);
-    void processFinished(int exitCode, QProcess::ExitStatus);
-    void processReadyReadStandardError();
-    void processReadyReadStandardOutput();
-
 private:
     enum State
     {
@@ -118,6 +112,11 @@ private:
         DoneState,
         ErrorState
     };
+
+    void processError(QProcess::ProcessError);
+    void processFinished(int exitCode, QProcess::ExitStatus);
+    void processReadyReadStandardError();
+    void processReadyReadStandardOutput();
 
     void handleError(const QString &message);
     void show();

@@ -53,10 +53,9 @@ public:
     bool hasStashForNextBranch();
     bool hasLocalChanges();
 
-private slots:
+private:
     void updatePopStashCheckBox(bool moveChangesChecked);
 
-private:
     Ui::BranchCheckoutDialog *m_ui;
     bool m_foundStashForNextBranch;
     bool m_hasLocalChanges;

@@ -343,7 +343,7 @@ public:
 public slots:
     void show(const QString &source, const QString &id, const QString &name = QString());
 
-private slots:
+private:
     void finishSubmoduleUpdate();
     void fetchFinished(const QVariant &cookie);
     void slotChunkActionsRequested(QMenu *menu, bool isValid);
@@ -351,7 +351,6 @@ private slots:
     void slotUnstageChunk();
     void branchesForCommit(const QString &revision);
 
-private:
     void stage(const QString &patch, bool revert);
 
     enum CodecType { CodecSource, CodecLogOutput, CodecNone };

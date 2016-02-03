@@ -76,7 +76,7 @@ public slots:
     void fetchStarted(const QSharedPointer<Gerrit::Internal::GerritChange> &change);
     void fetchFinished();
 
-private slots:
+private:
     void slotCurrentChanged();
     void slotActivated(const QModelIndex &);
     void slotRefreshStateChanged(bool);
@@ -87,7 +87,6 @@ private slots:
 
     void manageProgressIndicator();
 
-private:
     void setProgressIndicatorVisible(bool v);
     QModelIndex currentIndex() const;
     QPushButton *addActionButton(const QString &text, const std::function<void()> &buttonSlot);

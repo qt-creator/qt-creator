@@ -55,12 +55,11 @@ public:
     QString reviewers() const;
     bool isValid() const;
 
-private slots:
+private:
     void setChangeRange();
     void setRemoteBranches(bool includeOld = false);
     void updateCommits(int index);
 
-private:
     typedef QPair<QString, QDate> BranchDate;
     typedef QMultiMap<QString, BranchDate> RemoteBranchesMap;
 

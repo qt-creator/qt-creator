@@ -46,14 +46,13 @@ public:
 
     void setPlainText(const QString &text) override;
 
-private slots:
+private:
     void checkoutChange();
     void cherryPickChange();
     void revertChange();
     void logChange();
     void applyDiffChunk(const VcsBase::DiffChunk& chunk, bool revert);
 
-private:
     void init() override;
     void resetChange(const QByteArray &resetType);
     void addDiffActions(QMenu *menu, const VcsBase::DiffChunk &chunk) override;
