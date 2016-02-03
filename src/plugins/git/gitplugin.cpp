@@ -62,6 +62,7 @@
 #include <utils/mimetypes/mimedatabase.h>
 #include <utils/qtcassert.h>
 #include <utils/parameteraction.h>
+#include <utils/pathchooser.h>
 
 #include <vcsbase/basevcseditorfactory.h>
 #include <vcsbase/submitfilemodel.h>
@@ -590,8 +591,12 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     // --------------
     gitContainer->addSeparator(context);
 
-    createRepositoryAction(gitContainer, tr("Actions on Commits..."), "Git.ChangeActions",
-                           context, false, [this] { startChangeRelatedAction("Git.ChangeActions"); });
+    QAction *actionsOnCommitsAction = new QAction(tr("Actions on Commits..."), this);
+    Command *actionsOnCommitsCommand = ActionManager::registerAction(
+                actionsOnCommitsAction, "Git.ChangeActions");
+    connect(actionsOnCommitsAction, &QAction::triggered, this,
+            [this] { startChangeRelatedAction("Git.ChangeActions"); });
+    gitContainer->addAction(actionsOnCommitsCommand);
 
     QAction *createRepositoryAction = new QAction(tr("Create Repository..."), this);
     Command *createRepositoryCommand = ActionManager::registerAction(
@@ -756,10 +761,9 @@ void GitPlugin::startRebase()
 void GitPlugin::startChangeRelatedAction(const Id &id)
 {
     const VcsBasePluginState state = currentState();
-    if (!state.hasTopLevel())
-        return;
 
-    ChangeSelectionDialog dialog(state.topLevel(), id, ICore::mainWindow());
+    ChangeSelectionDialog dialog(state.hasTopLevel() ? state.topLevel() : PathChooser::homePath(),
+                                 id, ICore::mainWindow());
 
     int result = dialog.exec();
 
