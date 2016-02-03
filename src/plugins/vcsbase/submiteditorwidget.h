@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SUBMITEDITORWIDGET_H
-#define SUBMITEDITORWIDGET_H
+#pragma once
 
 #include "vcsbase_global.h"
 
@@ -54,7 +53,7 @@ class VCSBASE_EXPORT SubmitEditorWidget : public QWidget
 
 public:
     SubmitEditorWidget();
-    ~SubmitEditorWidget();
+    ~SubmitEditorWidget() override;
 
     // Register/Unregister actions that are managed by ActionManager with this widget.
     // The submit action should have Core::Command::CA_UpdateText set as its text will
@@ -101,17 +100,14 @@ public:
     void setUpdateInProgress(bool value);
     bool updateInProgress() const;
 
+public slots:
+    void updateSubmitAction();
+
 signals:
     void diffSelected(const QList<int> &);
     void fileSelectionChanged(bool someFileSelected);
     void submitActionTextChanged(const QString &);
     void submitActionEnabledChanged(bool);
-
-private slots:
-    void updateCheckAllComboBox();
-    void checkAllToggled();
-    void checkAll();
-    void uncheckAll();
 
 protected:
     virtual QString cleanupDescription(const QString &) const;
@@ -124,10 +120,12 @@ protected:
 protected slots:
     void descriptionTextChanged();
 
-public slots:
-    void updateSubmitAction();
+private:
+    void updateCheckAllComboBox();
+    void checkAllToggled();
+    void checkAll();
+    void uncheckAll();
 
-private slots:
     void triggerDiffSelected();
     void diffActivated(const QModelIndex &index);
     void diffActivatedDelayed();
@@ -136,7 +134,6 @@ private slots:
     void editorCustomContextMenuRequested(const QPoint &);
     void fileListCustomContextMenuRequested(const QPoint & pos);
 
-private:
     bool hasSelection() const;
     int checkedFilesCount() const;
     void wrapDescription();
@@ -146,5 +143,3 @@ private:
 };
 
 } // namespace VcsBase
-
-#endif // SUBMITEDITORWIDGET_H

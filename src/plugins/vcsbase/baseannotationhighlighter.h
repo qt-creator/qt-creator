@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef BASEANNOTATIONHIGHLIGHTER_H
-#define BASEANNOTATIONHIGHLIGHTER_H
+#pragma once
 
 #include "vcsbase_global.h"
 
@@ -36,27 +35,26 @@ class BaseAnnotationHighlighterPrivate;
 class VCSBASE_EXPORT BaseAnnotationHighlighter : public TextEditor::SyntaxHighlighter
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(BaseAnnotationHighlighter)
+
 public:
     typedef  QSet<QString> ChangeNumbers;
 
     explicit BaseAnnotationHighlighter(const ChangeNumbers &changeNumbers,
                                        QTextDocument *document = 0);
-    virtual ~BaseAnnotationHighlighter();
+    ~BaseAnnotationHighlighter() override;
 
     void setChangeNumbers(const ChangeNumbers &changeNumbers);
 
-    virtual void highlightBlock(const QString &text);
+    virtual void highlightBlock(const QString &text) override;
 
-    virtual void setFontSettings(const TextEditor::FontSettings &fontSettings);
+    virtual void setFontSettings(const TextEditor::FontSettings &fontSettings) override;
 
 private:
     // Implement this to return the change number of a line
     virtual QString changeNumber(const QString &block) const = 0;
 
-    QScopedPointer<BaseAnnotationHighlighterPrivate> d_ptr;
+    BaseAnnotationHighlighterPrivate *const d;
+    friend class BaseAnnotationHighlighterPrivate;
 };
 
 } // namespace VcsBase
-
-#endif // BASEANNOTATIONHIGHLIGHTER_H

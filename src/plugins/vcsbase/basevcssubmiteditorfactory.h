@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef BASEVCSSUBMITEDITORFACTORY_H
-#define BASEVCSSUBMITEDITORFACTORY_H
+#pragma once
 
 #include "vcsbase_global.h"
 
@@ -46,14 +45,11 @@ public:
     typedef std::function<VcsBaseSubmitEditor *()> EditorCreator;
 
     VcsSubmitEditorFactory(const VcsBaseSubmitEditorParameters *parameters, const EditorCreator &editorCreator);
-    ~VcsSubmitEditorFactory();
 
-    Core::IEditor *createEditor();
+    Core::IEditor *createEditor() override;
 
 private:
     EditorCreator m_editorCreator;
 };
 
 } // namespace VcsBase
-
-#endif // BASEVCSSUBMITEDITORFACTORY_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef VCSBASEOPTIONSPAGE_H
-#define VCSBASEOPTIONSPAGE_H
+#pragma once
 
 #include "vcsbase_global.h"
 
@@ -44,7 +43,6 @@ class VCSBASE_EXPORT VcsBaseOptionsPage : public Core::IOptionsPage
 {
 public:
     explicit VcsBaseOptionsPage(QObject *parent = 0);
-    ~VcsBaseOptionsPage();
 };
 
 class VcsBaseClientImpl;
@@ -69,9 +67,9 @@ public:
 
     explicit VcsClientOptionsPage(Core::IVersionControl *control, VcsBaseClientImpl *client, QObject *parent = 0);
 
-    VcsClientOptionsPageWidget *widget();
-    virtual void apply();
-    virtual void finish();
+    VcsClientOptionsPageWidget *widget() override;
+    virtual void apply() override;
+    virtual void finish() override;
 
 signals:
     void settingsChanged();
@@ -86,5 +84,3 @@ private:
 };
 
 } // namespace VcsBase
-
-#endif // VCSBASEOPTIONSPAGE_H

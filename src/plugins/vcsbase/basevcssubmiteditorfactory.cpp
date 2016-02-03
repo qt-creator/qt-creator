@@ -37,10 +37,6 @@ VcsSubmitEditorFactory::VcsSubmitEditorFactory
     addMimeType(parameters->mimeType);
 }
 
-VcsSubmitEditorFactory::~VcsSubmitEditorFactory()
-{
-}
-
 Core::IEditor *VcsSubmitEditorFactory::createEditor()
 {
     return m_editorCreator();

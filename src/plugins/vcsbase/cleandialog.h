@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CLEANDIALOG_H
-#define CLEANDIALOG_H
+#pragma once
 
 #include "vcsbase_global.h"
 
@@ -44,19 +43,19 @@ class VCSBASE_EXPORT CleanDialog : public QDialog
 
 public:
     explicit CleanDialog(QWidget *parent = 0);
-    ~CleanDialog();
+    ~CleanDialog() override;
 
-    void setFileList(const QString &workingDirectory, const QStringList &files, const QStringList &ignoredFiles);
+    void setFileList(const QString &workingDirectory, const QStringList &files,
+                     const QStringList &ignoredFiles);
 
 public slots:
-    void accept();
+    void accept() override;
 
-private slots:
+private:
     void slotDoubleClicked(const QModelIndex &);
     void selectAllItems(bool checked);
     void updateSelectAllCheckBox();
 
-private:
     QStringList checkedFiles() const;
     bool promptToDelete();
     void addFile(const QString &workingDirectory, QString fileName, bool checked);
@@ -65,5 +64,3 @@ private:
 };
 
 } // namespace VcsBase
-
-#endif // CLEANDIALOG_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef VCSJSEXTENSION_H
-#define VCSJSEXTENSION_H
+#pragma once
 
 #include <QObject>
 
@@ -42,5 +41,3 @@ public:
 
 } // namespace Internal
 } // namespace VcsBase
-
-#endif // VCSJSEXTENSION_H

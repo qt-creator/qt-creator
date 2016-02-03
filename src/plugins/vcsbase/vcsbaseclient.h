@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef VCSBASECLIENT_H
-#define VCSBASECLIENT_H
+#pragma once
 
 #include "vcsbase_global.h"
 
@@ -46,7 +45,7 @@ namespace Core { class Id; }
 namespace Utils {
 struct SynchronousProcessResponse;
 class ExitCodeInterpreter;
-}
+} // namespace Utils
 
 namespace VcsBase {
 
@@ -64,7 +63,7 @@ class VCSBASE_EXPORT VcsBaseClientImpl : public QObject
 
 public:
     explicit VcsBaseClientImpl(VcsBaseClientSettings *settings);
-    ~VcsBaseClientImpl();
+    ~VcsBaseClientImpl() override;
 
     VcsBaseClientSettings &settings() const;
 
@@ -137,14 +136,14 @@ public:
     class VCSBASE_EXPORT StatusItem
     {
     public:
-        StatusItem() {}
+        StatusItem() = default;
         StatusItem(const QString &s, const QString &f);
         QString flags;
         QString file;
     };
 
     explicit VcsBaseClient(VcsBaseClientSettings *settings);
-    ~VcsBaseClient();
+    ~VcsBaseClient() override;
     virtual bool synchronousCreateRepository(const QString &workingDir,
                                              const QStringList &extraOptions = QStringList());
     virtual bool synchronousClone(const QString &workingDir,
@@ -164,9 +163,9 @@ public:
     virtual bool synchronousPush(const QString &workingDir,
                                  const QString &dstLocation,
                                  const QStringList &extraOptions = QStringList());
-    virtual void annotate(const QString &workingDir, const QString &file,
-                          const QString &revision = QString(), int lineNumber = -1,
-                          const QStringList &extraOptions = QStringList());
+    void annotate(const QString &workingDir, const QString &file,
+                  const QString &revision = QString(), int lineNumber = -1,
+                  const QStringList &extraOptions = QStringList()) override;
     virtual void diff(const QString &workingDir, const QStringList &files = QStringList(),
                       const QStringList &extraOptions = QStringList());
     virtual void log(const QString &workingDir, const QStringList &files = QStringList(),
@@ -241,5 +240,3 @@ private:
 };
 
 } //namespace VcsBase
-
-#endif // VCSBASECLIENT_H

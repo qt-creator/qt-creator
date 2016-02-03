@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef VCSBASE_VCSBASEEDITORPARAMETERWIDGET_H
-#define VCSBASE_VCSBASEEDITORPARAMETERWIDGET_H
+#pragma once
 
 #include "vcsbase_global.h"
 
@@ -48,11 +47,12 @@ class VCSBASE_EXPORT VcsBaseEditorParameterWidget : public QWidget
 
 public:
     explicit VcsBaseEditorParameterWidget(QWidget *parent = 0);
-    ~VcsBaseEditorParameterWidget();
+    ~VcsBaseEditorParameterWidget() override;
 
-    struct VCSBASE_EXPORT ComboBoxItem
+    class VCSBASE_EXPORT ComboBoxItem
     {
-        ComboBoxItem() {}
+    public:
+        ComboBoxItem() = default;
         ComboBoxItem(const QString &text, const QVariant &val);
         QString displayText;
         QVariant value;
@@ -85,13 +85,14 @@ signals:
     void argumentsChanged();
 
 protected:
-    struct OptionMapping
+    class OptionMapping
     {
-        OptionMapping();
+    public:
+        OptionMapping() = default;
         OptionMapping(const QString &option, QWidget *w);
         OptionMapping(const QStringList &optionList, QWidget *w);
         QStringList options;
-        QWidget *widget;
+        QWidget *widget = nullptr;
     };
 
     const QList<OptionMapping> &optionMappings() const;
@@ -104,5 +105,3 @@ private:
 };
 
 } // namespace VcsBase
-
-#endif // VCSBASE_VCSBASEEDITORPARAMETERWIDGET_H

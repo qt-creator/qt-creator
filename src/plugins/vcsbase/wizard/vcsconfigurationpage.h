@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef VCSCONFIGURATIONPAGE_H
-#define VCSCONFIGURATIONPAGE_H
+#pragma once
 
 #include "../vcsbase_global.h"
 
@@ -36,17 +35,17 @@ namespace Core { class IVersionControl; }
 
 namespace VcsBase {
 
-namespace Internal { class VcsConfigurationPagePrivate; }
-
 namespace Internal {
+class VcsConfigurationPagePrivate;
 
 class VcsConfigurationPageFactory : public ProjectExplorer::JsonWizardPageFactory
 {
 public:
     VcsConfigurationPageFactory();
 
-    Utils::WizardPage *create(ProjectExplorer::JsonWizard *wizard, Core::Id typeId, const QVariant &data);
-    bool validateData(Core::Id typeId, const QVariant &data, QString *errorMessage);
+    Utils::WizardPage *create(ProjectExplorer::JsonWizard *wizard, Core::Id typeId,
+                              const QVariant &data) override;
+    bool validateData(Core::Id typeId, const QVariant &data, QString *errorMessage) override;
 };
 
 } // namespace Internal
@@ -57,21 +56,18 @@ class VCSBASE_EXPORT VcsConfigurationPage : public Utils::WizardPage
 
 public:
     VcsConfigurationPage();
-    ~VcsConfigurationPage();
+    ~VcsConfigurationPage() override;
 
     void setVersionControl(const Core::IVersionControl *vc);
     void setVersionControlId(const QString &id);
 
-    void initializePage();
-    bool isComplete() const;
-
-private slots:
-    void openConfiguration();
+    void initializePage() override;
+    bool isComplete() const override;
 
 private:
+    void openConfiguration();
+
     Internal::VcsConfigurationPagePrivate *const d;
 };
 
 } // namespace VcsBase
-
-#endif // VCSCONFIGURATIONPAGE_H

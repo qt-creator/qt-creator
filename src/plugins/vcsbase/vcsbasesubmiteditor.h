@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef VCSBASE_SUBMITEDITOR_H
-#define VCSBASE_SUBMITEDITOR_H
+#pragma once
 
 #include "vcsbase_global.h"
 
@@ -33,8 +32,8 @@
 #include <QAbstractItemView>
 
 QT_BEGIN_NAMESPACE
-class QIcon;
 class QAction;
+class QIcon;
 QT_END_NAMESPACE
 
 namespace ProjectExplorer { class Project; }
@@ -44,6 +43,7 @@ namespace Internal {
     class CommonVcsSettings;
     class SubmitEditorFile;
 } // namespace Internal
+
 class SubmitEditorWidget;
 class SubmitFileModel;
 class VcsBaseSubmitEditorPrivate;
@@ -132,13 +132,6 @@ signals:
     void diffSelectedRows(const QList<int> &rows);
     void fileContentsChanged();
 
-private slots:
-    void slotDiffSelectedVcsFiles(const QList<int> &rawList);
-    void slotCheckSubmitMessage();
-    void slotInsertNickName();
-    void slotSetFieldNickName(int);
-    void slotUpdateEditorSettings(const VcsBase::Internal::CommonVcsSettings &);
-
 protected:
     /* These hooks allow for modifying the contents that goes to
      * the file. The default implementation uses the text
@@ -153,6 +146,12 @@ protected:
     bool isDescriptionMandatory() const;
 
 private:
+    void slotDiffSelectedVcsFiles(const QList<int> &rawList);
+    void slotCheckSubmitMessage();
+    void slotInsertNickName();
+    void slotSetFieldNickName(int);
+    void slotUpdateEditorSettings(const VcsBase::Internal::CommonVcsSettings &);
+
     void createUserFields(const QString &fieldConfigFile);
     bool checkSubmitMessage(QString *errorMessage) const;
     bool runSubmitMessageCheckScript(const QString &script, QString *errorMessage) const;
@@ -164,5 +163,3 @@ private:
 };
 
 } // namespace VcsBase
-
-#endif // VCSBASE_SUBMITEDITOR_H

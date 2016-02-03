@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef VCSBASEEDITOR_H
-#define VCSBASEEDITOR_H
+#pragma once
 
 #include "vcsbase_global.h"
 
@@ -43,7 +42,7 @@ namespace VcsBase {
 namespace Internal {
 class ChangeTextCursorHandler;
 class VcsBaseEditorWidgetPrivate;
-}
+} // namespace Internal
 
 class BaseAnnotationHighlighter;
 class VcsBaseEditorWidget;
@@ -83,11 +82,11 @@ class VCSBASE_EXPORT VcsBaseEditor : public TextEditor::BaseTextEditor
 {
     Q_OBJECT
 public:
-    explicit VcsBaseEditor();
+    VcsBaseEditor();
 
     // Utility to find a parameter set by type in an array.
-    static  const VcsBaseEditorParameters *
-        findType(const VcsBaseEditorParameters *array, int arraySize, EditorContentType et);
+    static const VcsBaseEditorParameters *
+    findType(const VcsBaseEditorParameters *array, int arraySize, EditorContentType et);
 
     // Utility to find the codec for a source (file or directory), querying
     // the editor manager and the project managers (defaults to system codec).
@@ -231,19 +230,6 @@ protected:
     void mouseDoubleClickEvent(QMouseEvent *e) override;
     void keyPressEvent(QKeyEvent *) override;
 
-private slots:
-    void slotActivateAnnotation();
-    void slotPopulateDiffBrowser();
-    void slotPopulateLogBrowser();
-    void slotJumpToEntry(int);
-    void slotCursorPositionChanged() override;
-    void slotAnnotateRevision();
-    void slotApplyDiffChunk();
-    void slotPaste();
-    void showProgressIndicator();
-    void hideProgressIndicator();
-
-protected:
     /* A helper that can be used to locate a file in a diff in case it
      * is relative. Tries to derive the directory from base directory,
      * source and version control. */
@@ -275,6 +261,17 @@ protected:
     virtual QString revisionSubject(const QTextBlock &inBlock) const;
 
 private:
+    void slotActivateAnnotation();
+    void slotPopulateDiffBrowser();
+    void slotPopulateLogBrowser();
+    void slotJumpToEntry(int);
+    void slotCursorPositionChanged() override;
+    void slotAnnotateRevision();
+    void slotApplyDiffChunk();
+    void slotPaste();
+    void showProgressIndicator();
+    void hideProgressIndicator();
+
     bool canApplyDiffChunk(const DiffChunk &dc) const;
     // Revert a patch chunk. Default implementation uses patch.exe
     bool applyDiffChunk(const DiffChunk &dc, bool revert = false) const;
@@ -302,5 +299,3 @@ public:
 } // namespace VcsBase
 
 Q_DECLARE_METATYPE(VcsBase::DiffChunk)
-
-#endif // VCSBASEEDITOR_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef DIFFANDLOGHIGHLIGHTER_H
-#define DIFFANDLOGHIGHLIGHTER_H
+#pragma once
 
 #include "vcsbase_global.h"
 
@@ -45,19 +44,18 @@ class DiffAndLogHighlighterPrivate;
 class VCSBASE_EXPORT DiffAndLogHighlighter : public TextEditor::SyntaxHighlighter
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(DiffAndLogHighlighter)
+
 public:
     explicit DiffAndLogHighlighter(const QRegExp &filePattern, const QRegExp &changePattern);
-    ~DiffAndLogHighlighter();
+    ~DiffAndLogHighlighter() override;
 
-    void highlightBlock(const QString &text);
+    void highlightBlock(const QString &text) override;
 
-    virtual void setFontSettings(const TextEditor::FontSettings &fontSettings);
+    virtual void setFontSettings(const TextEditor::FontSettings &fontSettings) override;
 
 private:
-    QScopedPointer<DiffAndLogHighlighterPrivate> d_ptr;
+    friend class DiffAndLogHighlighterPrivate;
+    DiffAndLogHighlighterPrivate *const d;
 };
 
 } // namespace VcsBase
-
-#endif // DIFFANDLOGHIGHLIGHTER_H

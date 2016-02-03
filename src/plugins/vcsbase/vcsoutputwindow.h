@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef VCSOUTPUTWINDOW_H
-#define VCSOUTPUTWINDOW_H
+#pragma once
 
 #include "vcsbase_global.h"
 
@@ -39,26 +38,26 @@ class VCSBASE_EXPORT VcsOutputWindow : public Core::IOutputPane
     Q_PROPERTY(QString repository READ repository WRITE setRepository)
 
 public:
-    ~VcsOutputWindow();
+    ~VcsOutputWindow() override;
 
-    QWidget *outputWidget(QWidget *parent);
-    QList<QWidget *> toolBarWidgets() const;
-    QString displayName() const;
+    QWidget *outputWidget(QWidget *parent) override;
+    QList<QWidget *> toolBarWidgets() const override;
+    QString displayName() const override;
 
-    int priorityInStatusBar() const;
+    int priorityInStatusBar() const override;
 
-    void clearContents();
-    void visibilityChanged(bool visible);
+    void clearContents() override;
+    void visibilityChanged(bool visible) override;
 
-    void setFocus();
-    bool hasFocus() const;
-    bool canFocus() const;
+    void setFocus() override;
+    bool hasFocus() const override;
+    bool canFocus() const override;
 
-    bool canNavigate() const;
-    bool canNext() const;
-    bool canPrevious() const;
-    void goToNext();
-    void goToPrev();
+    bool canNavigate() const override;
+    bool canNext() const override;
+    bool canPrevious() const override;
+    void goToNext() override;
+    void goToPrev() override;
 
     static VcsOutputWindow *instance();
 
@@ -120,5 +119,3 @@ private:
 };
 
 } // namespace VcsBase
-
-#endif // VCSOUTPUTWINDOW_H

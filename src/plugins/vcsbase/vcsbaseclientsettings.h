@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef VCSBASECLIENTSETTINGS_H
-#define VCSBASECLIENTSETTINGS_H
+#pragma once
 
 #include "vcsbase_global.h"
 
@@ -103,5 +102,3 @@ inline bool operator!=(const VcsBaseClientSettings &s1, const VcsBaseClientSetti
 { return !s1.equals(s2); }
 
 } // namespace VcsBase
-
-#endif // VCSBASECLIENTSETTINGS_H

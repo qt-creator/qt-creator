@@ -226,11 +226,6 @@ void VcsBaseEditorParameterWidget::executeCommand()
     emit commandExecutionRequested();
 }
 
-VcsBaseEditorParameterWidget::OptionMapping::OptionMapping() :
-    widget(0)
-{
-}
-
 VcsBaseEditorParameterWidget::OptionMapping::OptionMapping(const QString &option, QWidget *w) :
     widget(w)
 {

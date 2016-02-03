@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef VCSBASE_PROJECTCACHE_H
-#define VCSBASE_PROJECTCACHE_H
+#pragma once
 
 #include <utils/fileutils.h>
 
@@ -44,7 +43,7 @@ public:
 
 private:
     VcsProjectCache();
-    ~VcsProjectCache();
+    ~VcsProjectCache() override;
 
     static void invalidate();
     static ProjectExplorer::Project *projectForToplevel(const Utils::FileName &vcsTopLevel);
@@ -69,5 +68,3 @@ private:
 
 } // namespace Internal
 } // namespace VcsBase
-
-#endif // VCSBASE_PROJECTCACHE_H

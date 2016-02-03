@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef COMMONVCSSETTINGS_H
-#define COMMONVCSSETTINGS_H
+#pragma once
 
 #include <QString>
 
@@ -66,5 +65,3 @@ QDebug operator<<(QDebug, const CommonVcsSettings &);
 
 } // namespace Internal
 } // namespace VcsBase
-
-#endif // COMMONVCSSETTINGS_H

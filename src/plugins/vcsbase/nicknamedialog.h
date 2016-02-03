@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef NICKNAMEDIALOG_H
-#define NICKNAMEDIALOG_H
+#pragma once
 
 #include <QDialog>
 
@@ -46,7 +45,7 @@ class NickNameDialog : public QDialog
 
 public:
     explicit NickNameDialog(QStandardItemModel *model, QWidget *parent = 0);
-    virtual ~NickNameDialog();
+    ~NickNameDialog() override;
 
     QString nickName() const;
 
@@ -59,11 +58,10 @@ public:
     // Return a list for a completer on the field line edits
     static QStringList nickNameList(const QStandardItemModel *model);
 
-private slots:
+private:
     void slotCurrentItemChanged(const QModelIndex &);
     void slotActivated(const QModelIndex &);
 
-private:
     QPushButton *okButton() const;
 
     Ui::NickNameDialog *m_ui;
@@ -73,5 +71,3 @@ private:
 
 } // namespace Internal
 } // namespace VcsBase
-
-#endif // NICKNAMEDIALOG_H

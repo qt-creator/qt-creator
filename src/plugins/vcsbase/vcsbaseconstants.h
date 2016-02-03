@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef VCSBASE_CONSTANTS_H
-#define VCSBASE_CONSTANTS_H
+#pragma once
 
 #include <QtGlobal>
 
@@ -51,5 +50,3 @@ const char VAR_VCS_TOPLEVELPATH[] = "CurrentProject:VcsTopLevelPath";
 
 } // namespace Constants
 } // namespace VcsBase
-
-#endif // VCSBASE_CONSTANTS_H

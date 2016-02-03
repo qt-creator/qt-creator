@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef VCSPLUGIN_H
-#define VCSPLUGIN_H
+#pragma once
 
 #include <extensionsystem/iplugin.h>
 
@@ -49,11 +48,11 @@ class VcsPlugin : public ExtensionSystem::IPlugin
 
 public:
     VcsPlugin();
-    ~VcsPlugin();
+    ~VcsPlugin() override;
 
-    bool initialize(const QStringList &arguments, QString *errorMessage);
+    bool initialize(const QStringList &arguments, QString *errorMessage) override;
 
-    void extensionsInitialized();
+    void extensionsInitialized() override;
 
     static VcsPlugin *instance();
 
@@ -68,10 +67,9 @@ signals:
     void settingsChanged(const VcsBase::Internal::CommonVcsSettings &s);
     void submitEditorAboutToClose(VcsBase::VcsBaseSubmitEditor *e, bool *result);
 
-private slots:
+private:
     void slotSettingsChanged();
 
-private:
     void populateNickNameModel();
 
     static VcsPlugin *m_instance;
@@ -81,5 +79,3 @@ private:
 
 } // namespace Internal
 } // namespace VcsBase
-
-#endif // VCSPLUGIN_H

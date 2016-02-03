@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef BASEVCSEDITORFACTORY_H
-#define BASEVCSEDITORFACTORY_H
+#pragma once
 
 #include "vcsbase_global.h"
 
@@ -48,6 +47,3 @@ public:
 };
 
 } // namespace VcsBase
-
-#endif // BASEVCSEDITORFACTORY_H
-

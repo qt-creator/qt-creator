@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef VCSBASE_COMMAND_H
-#define VCSBASE_COMMAND_H
+#pragma once
 
 #include "vcsbase_global.h"
 
@@ -44,25 +43,23 @@ public:
 
     VcsCommand(const QString &defaultWorkingDirectory, const QProcessEnvironment &environment);
 
-    const QProcessEnvironment processEnvironment() const;
+    const QProcessEnvironment processEnvironment() const override;
 
     Utils::SynchronousProcessResponse runCommand(const Utils::FileName &binary,
                                                  const QStringList &arguments, int timeoutS,
                                                  const QString &workDirectory = QString(),
-                                                 Utils::ExitCodeInterpreter *interpreter = 0);
+                                                 Utils::ExitCodeInterpreter *interpreter = 0) override;
 
     bool runFullySynchronous(const Utils::FileName &binary, const QStringList &arguments,
                              int timeoutS, QByteArray *outputData, QByteArray *errorData,
-                             const QString &workingDirectory = QString());
+                             const QString &workingDirectory = QString()) override;
 private:
-    unsigned processFlags() const;
+    unsigned processFlags() const override;
     void emitRepositoryChanged(const QString &workingDirectory);
 
-    void coreAboutToClose();
+    void coreAboutToClose() override;
 
     bool m_preventRepositoryChanged;
 };
 
 } // namespace VcsBase
-
-#endif // VCSBASE_COMMAND_H

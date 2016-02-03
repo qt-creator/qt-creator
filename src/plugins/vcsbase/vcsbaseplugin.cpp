@@ -353,22 +353,19 @@ public:
 */
 
 VcsBasePluginState::VcsBasePluginState() : data(new VcsBasePluginStateData)
-{
-}
+{ }
+
 
 VcsBasePluginState::VcsBasePluginState(const VcsBasePluginState &rhs) : data(rhs.data)
-{
-}
+{ }
+
+VcsBasePluginState::~VcsBasePluginState() = default;
 
 VcsBasePluginState &VcsBasePluginState::operator=(const VcsBasePluginState &rhs)
 {
     if (this != &rhs)
         data.operator=(rhs.data);
     return *this;
-}
-
-VcsBasePluginState::~VcsBasePluginState()
-{
 }
 
 QString VcsBasePluginState::currentFile() const
@@ -546,8 +543,7 @@ Internal::StateListener *VcsBasePluginPrivate::m_listener = 0;
 
 VcsBasePlugin::VcsBasePlugin() :
     d(new VcsBasePluginPrivate())
-{
-}
+{ }
 
 VcsBasePlugin::~VcsBasePlugin()
 {

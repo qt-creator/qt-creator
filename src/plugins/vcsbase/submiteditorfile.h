@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SUBMITEDITORFILE_H
-#define SUBMITEDITORFILE_H
+#pragma once
 
 #include "vcsbasesubmiteditor.h"
 
@@ -60,8 +59,5 @@ private:
     VcsBaseSubmitEditor *m_editor;
 };
 
-
 } // namespace Internal
 } // namespace VcsBase
-
-#endif // SUBMITEDITORFILE_H

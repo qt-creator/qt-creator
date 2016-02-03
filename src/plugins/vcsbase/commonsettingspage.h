@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef COMMONSETTINGSPAGE_H
-#define COMMONSETTINGSPAGE_H
+#pragma once
 
 #include "commonvcssettings.h"
 
@@ -44,15 +43,14 @@ class CommonSettingsWidget : public QWidget
 
 public:
     explicit CommonSettingsWidget(QWidget *parent = 0);
-    ~CommonSettingsWidget();
+    ~CommonSettingsWidget() override;
 
     CommonVcsSettings settings() const;
     void setSettings(const CommonVcsSettings &s);
 
-private slots:
+private:
     void updatePath();
 
-private:
     Ui::CommonSettingsPage *m_ui;
 };
 
@@ -63,9 +61,9 @@ class CommonOptionsPage : public VcsBaseOptionsPage
 public:
     explicit CommonOptionsPage(QObject *parent = 0);
 
-    QWidget *widget();
-    void apply();
-    void finish();
+    QWidget *widget() override;
+    void apply() override;
+    void finish() override;
 
     CommonVcsSettings settings() const { return m_settings; }
 
@@ -79,5 +77,3 @@ private:
 
 } // namespace Internal
 } // namespace VcsBase
-
-#endif // COMMONSETTINGSPAGE_H

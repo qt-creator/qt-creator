@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef VCSBASEGLOBAL_H
-#define VCSBASEGLOBAL_H
+#pragma once
 
 #include <qglobal.h>
 
@@ -33,5 +32,3 @@
 #else
 #  define VCSBASE_EXPORT Q_DECL_IMPORT
 #endif
-
-#endif // VCSBASEGLOBAL_H

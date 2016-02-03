@@ -23,16 +23,15 @@
 **
 ****************************************************************************/
 
-#ifndef VCSBASEPLUGIN_H
-#define VCSBASEPLUGIN_H
+#pragma once
 
 #include "vcsbase_global.h"
 
 #include <extensionsystem/iplugin.h>
 
-#include <QSharedDataPointer>
 #include <QList>
 #include <QProcessEnvironment>
+#include <QSharedDataPointer>
 
 QT_BEGIN_NAMESPACE
 class QAction;
@@ -131,10 +130,10 @@ protected:
     explicit VcsBasePlugin();
 
     void initializeVcs(Core::IVersionControl *vc, const Core::Context &context);
-    void extensionsInitialized();
+    void extensionsInitialized() override;
 
 public:
-    ~VcsBasePlugin();
+    ~VcsBasePlugin() override;
 
     const VcsBasePluginState &currentState() const;
     Core::IVersionControl *versionControl() const;
@@ -202,14 +201,11 @@ protected:
     // Returns whether actions should be set up further.
     bool enableMenuAction(ActionState as, QAction *in) const;
 
-private slots:
+private:
     void slotSubmitEditorAboutToClose(VcsBaseSubmitEditor *submitEditor, bool *result);
     void slotStateChanged(const VcsBase::Internal::State &s, Core::IVersionControl *vc);
 
-private:
     VcsBasePluginPrivate *d;
 };
 
 } // namespace VcsBase
-
-#endif // VCSBASEPLUGIN_H

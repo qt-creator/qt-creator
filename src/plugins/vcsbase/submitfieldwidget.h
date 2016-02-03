@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SUBMITFIELDWIDGET_H
-#define SUBMITFIELDWIDGET_H
+#pragma once
 
 #include "vcsbase_global.h"
 
@@ -47,7 +46,7 @@ class VCSBASE_EXPORT SubmitFieldWidget : public QWidget
 
 public:
     explicit SubmitFieldWidget(QWidget *parent = 0);
-    virtual ~SubmitFieldWidget();
+    ~SubmitFieldWidget() override;
 
     QStringList fields() const;
     void setFields(const QStringList&);
@@ -70,12 +69,11 @@ public:
 signals:
     void browseButtonClicked(int pos, const QString &field);
 
-private slots:
+private:
     void slotRemove();
     void slotComboIndexChanged(int);
     void slotBrowseButtonClicked();
 
-private:
     void removeField(int index);
     bool comboIndexChange(int fieldNumber, int index);
     void createField(const QString &f);
@@ -84,5 +82,3 @@ private:
 };
 
 } // namespace VcsBase
-
-#endif // SUBMITFIELDWIDGET_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef VCSCOMMANDPAGE_H
-#define VCSCOMMANDPAGE_H
+#pragma once
 
 #include "../vcsbase_global.h"
 
@@ -45,8 +44,8 @@ public:
     VcsCommandPageFactory();
 
     Utils::WizardPage *create(ProjectExplorer::JsonWizard *wizard, Core::Id typeId,
-                              const QVariant &data);
-    bool validateData(Core::Id typeId, const QVariant &data, QString *errorMessage);
+                              const QVariant &data) override;
+    bool validateData(Core::Id typeId, const QVariant &data, QString *errorMessage) override;
 };
 
 class VcsCommandPage : public Utils::ShellCommandPage
@@ -56,7 +55,7 @@ class VcsCommandPage : public Utils::ShellCommandPage
 public:
     VcsCommandPage();
 
-    void initializePage();
+    void initializePage() override;
 
     void setCheckoutData(const QString &repo, const QString &baseDir, const QString &name,
                          const QStringList &args);
@@ -92,5 +91,3 @@ private:
 
 } // namespace Internal
 } // namespace VcsBase
-
-#endif // VCSCOMMANDPAGE_H
