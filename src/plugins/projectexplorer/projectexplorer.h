@@ -206,6 +206,9 @@ private slots:
     void testMsvcOutputParsers_data();
     void testMsvcOutputParsers();
 
+    void testClangClOutputParsers_data();
+    void testClangClOutputParsers();
+
     void testGccAbiGuessing_data();
     void testGccAbiGuessing();
 

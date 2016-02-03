@@ -52,12 +52,13 @@ public:
                     amd64_arm
                   };
 
-    MsvcToolChain(const QString &name, const Abi &abi,
-                  const QString &varsBat, const QString &varsBatArg, Detection d = ManualDetection);
+    explicit MsvcToolChain(const QString &name, const Abi &abi,
+                           const QString &varsBat, const QString &varsBatArg,
+                           Detection d = ManualDetection);
+    MsvcToolChain();
+
     bool isValid() const override;
     Utils::FileNameList suggestedMkspecList() const override;
-
-    static MsvcToolChain *readFromMap(const QVariantMap &data);
 
     QString typeDisplayName() const override;
 
@@ -73,14 +74,44 @@ public:
     bool operator == (const ToolChain &) const override;
 
 protected:
+    explicit MsvcToolChain(Core::Id typeId, const QString &name, const Abi &abi,
+                           const QString &varsBat, const QString &varsBatArg,
+                           Detection d);
+    explicit MsvcToolChain(Core::Id typeId);
+
     Utils::Environment readEnvironmentSetting(Utils::Environment& env) const override;
     QByteArray msvcPredefinedMacros(const QStringList cxxflags,
                                     const Utils::Environment &env) const override;
 
 private:
-    MsvcToolChain();
-
     QString m_varsBatArg; // Argument
+};
+
+class ClangClToolChain : public MsvcToolChain
+{
+public:
+    explicit ClangClToolChain(const QString &name, const QString &llvmDir,
+                              const Abi &abi,
+                              const QString &varsBat, const QString &varsBatArg,
+                              Detection d = ManualDetection);
+    ClangClToolChain();
+
+    bool isValid() const override;
+    QString typeDisplayName() const override;
+    QList<Utils::FileName> suggestedMkspecList() const override;
+    void addToEnvironment(Utils::Environment &env) const override;
+    Utils::FileName compilerCommand() const override { return m_compiler; }
+    IOutputParser *outputParser() const override;
+    ToolChain *clone() const override;
+    QVariantMap toMap() const override;
+    bool fromMap(const QVariantMap &data) override;
+    ToolChainConfigWidget *configurationWidget() override;
+
+    QString llvmDir() const { return m_llvmDir; }
+
+private:
+    QString m_llvmDir;
+    Utils::FileName m_compiler;
 };
 
 // --------------------------------------------------------------------------
@@ -97,8 +128,7 @@ public:
     QList<ToolChain *> autoDetect(const QList<ToolChain *> &alreadyKnown) override;
 
     bool canRestore(const QVariantMap &data) override;
-    ToolChain *restore(const QVariantMap &data) override
-    { return MsvcToolChain::readFromMap(data); }
+    ToolChain *restore(const QVariantMap &data) override;
 
     ToolChainConfigWidget *configurationWidget(ToolChain *);
     static QString vcVarsBatFor(const QString &basePath, const QString &toolchainName);
@@ -108,25 +138,59 @@ private:
 };
 
 // --------------------------------------------------------------------------
-// MsvcToolChainConfigWidget
+// MsvcBasedToolChainConfigWidget
 // --------------------------------------------------------------------------
 
-class MsvcToolChainConfigWidget : public ToolChainConfigWidget
+class MsvcBasedToolChainConfigWidget : public ToolChainConfigWidget
 {
     Q_OBJECT
 
 public:
-    MsvcToolChainConfigWidget(ToolChain *);
+    explicit MsvcBasedToolChainConfigWidget(ToolChain *);
 
-private:
+protected:
     void applyImpl() override { }
-    void discardImpl() override { setFromToolChain(); }
+    void discardImpl() override { setFromMsvcToolChain(); }
     bool isDirtyImpl() const override { return false; }
     void makeReadOnlyImpl() override { }
 
-    void setFromToolChain();
+    void setFromMsvcToolChain();
 
+private:
+    QLabel *m_nameDisplayLabel;
     QLabel *m_varsBatDisplayLabel;
+};
+
+// --------------------------------------------------------------------------
+// MsvcToolChainConfigWidget
+// --------------------------------------------------------------------------
+
+class MsvcToolChainConfigWidget : public MsvcBasedToolChainConfigWidget
+{
+    Q_OBJECT
+
+public:
+    explicit MsvcToolChainConfigWidget(ToolChain *);
+};
+
+// --------------------------------------------------------------------------
+// ClangClToolChainConfigWidget
+// --------------------------------------------------------------------------
+
+class ClangClToolChainConfigWidget : public MsvcBasedToolChainConfigWidget
+{
+    Q_OBJECT
+
+public:
+    explicit ClangClToolChainConfigWidget(ToolChain *);
+
+protected:
+    void discardImpl() override { setFromClangClToolChain(); }
+
+private:
+    void setFromClangClToolChain();
+
+    QLabel *m_llvmDirLabel;
 };
 
 } // namespace Internal

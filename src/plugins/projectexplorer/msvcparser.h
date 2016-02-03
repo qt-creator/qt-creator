@@ -54,4 +54,22 @@ private:
     int m_lines = 0;
 };
 
+class PROJECTEXPLORER_EXPORT ClangClParser :  public ProjectExplorer::IOutputParser
+{
+    Q_OBJECT
+
+public:
+    ClangClParser();
+
+    void stdOutput(const QString &line) override;
+    void stdError(const QString &line) override;
+
+private:
+    void doFlush() override;
+
+    const QRegularExpression m_compileRegExp;
+    Task m_lastTask;
+    int m_linkedLines = 0;
+};
+
 } // namespace ProjectExplorer
