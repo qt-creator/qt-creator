@@ -572,7 +572,7 @@ KitInformation::ItemList EnvironmentKitInformation::toUserOutput(const Kit *k) c
     ItemList retVal;
     QVariant envValue = k->value(EnvironmentKitInformation::id());
     if (envValue.isValid())
-        retVal << qMakePair(QLatin1Literal("Environment"), envValue.toStringList().join(QLatin1Literal("\n")));
+        retVal << qMakePair(QLatin1Literal("Environment"), envValue.toStringList().join(QLatin1Literal("<br>")));
 
     return retVal;
 }
