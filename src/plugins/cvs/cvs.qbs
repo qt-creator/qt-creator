@@ -16,7 +16,6 @@ QtcPlugin {
         "cvs.qrc",
         "cvsclient.cpp",
         "cvsclient.h",
-        "cvsconstants.h",
         "cvscontrol.cpp",
         "cvscontrol.h",
         "cvseditor.cpp",

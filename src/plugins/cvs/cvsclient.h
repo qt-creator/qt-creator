@@ -23,10 +23,10 @@
 **
 ****************************************************************************/
 
-#ifndef CVSCLIENT_H
-#define CVSCLIENT_H
+#pragma once
 
 #include "cvssettings.h"
+
 #include <vcsbase/vcsbaseclient.h>
 
 namespace Cvs {
@@ -43,17 +43,15 @@ public:
 
     CvsSettings &settings() const;
     void diff(const QString &workingDir, const QStringList &files,
-              const QStringList &extraOptions = QStringList());
-    QString findTopLevelForFile(const QFileInfo &file) const;
-    QStringList revisionSpec(const QString &revision) const;
-    StatusItem parseStatusLine(const QString &line) const;
+              const QStringList &extraOptions = QStringList()) override;
+    QString findTopLevelForFile(const QFileInfo &file) const override;
+    QStringList revisionSpec(const QString &revision) const override;
+    StatusItem parseStatusLine(const QString &line) const override;
 
 protected:
-    Utils::ExitCodeInterpreter *exitCodeInterpreter(VcsCommandTag cmd, QObject *parent) const;
-    Core::Id vcsEditorKind(VcsCommandTag cmd) const;
+    Utils::ExitCodeInterpreter *exitCodeInterpreter(VcsCommandTag cmd, QObject *parent) const override;
+    Core::Id vcsEditorKind(VcsCommandTag cmd) const override;
 };
 
 } // namespace Internal
 } // namespace Cvs
-
-#endif // CVSCLIENT_H

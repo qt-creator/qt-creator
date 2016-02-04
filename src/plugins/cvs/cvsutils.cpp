@@ -25,31 +25,17 @@
 
 #include "cvsutils.h"
 
-#include <QDebug>
 #include <QRegExp>
 #include <QStringList>
 
 namespace Cvs {
 namespace Internal {
 
-CvsRevision::CvsRevision(const QString &rev) :
-    revision(rev)
-{
-}
+CvsRevision::CvsRevision(const QString &rev) : revision(rev)
+{ }
 
-CvsLogEntry::CvsLogEntry(const QString &f) :
-    file(f)
-{
-}
-
-QDebug operator<<(QDebug d, const CvsLogEntry &e)
-{
-    QDebug nospace = d.nospace();
-    nospace << "File: " << e.file << e.revisions.size() << '\n';
-    foreach (const CvsRevision &r, e.revisions)
-        nospace << "  " << r.revision << ' ' << r.date << ' ' << r.commitId << '\n';
-    return d;
-}
+CvsLogEntry::CvsLogEntry(const QString &f) : file(f)
+{ }
 
 /* Parse:
 \code

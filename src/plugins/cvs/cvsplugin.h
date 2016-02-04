@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CVSPLUGIN_H
-#define CVSPLUGIN_H
+#pragma once
 
 #include "cvssettings.h"
 #include "cvsutils.h"
@@ -40,7 +39,7 @@ QT_END_NAMESPACE
 namespace Core {
 class CommandLocator;
 class IVersionControl;
-}
+} // namespace Core
 
 namespace Utils { class ParameterAction; }
 namespace VcsBase { class VcsBaseSubmitEditor; }
@@ -48,17 +47,16 @@ namespace VcsBase { class VcsBaseSubmitEditor; }
 namespace Cvs {
 namespace Internal {
 
-struct CvsDiffParameters;
 class CvsSubmitEditor;
 class CvsControl;
 class CvsClient;
 
-struct CvsResponse
+class CvsResponse
 {
+public:
     enum Result { Ok, NonNullExitCode, OtherError };
-    CvsResponse() : result(Ok) {}
 
-    Result result;
+    Result result = Ok;
     QString stdOut;
     QString stdErr;
     QString message;
@@ -70,11 +68,11 @@ class CvsPlugin : public VcsBase::VcsBasePlugin
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "CVS.json")
 
 public:
-    ~CvsPlugin();
+    ~CvsPlugin() override;
 
     CvsClient *client() const;
 
-    bool initialize(const QStringList &arguments, QString *errorMessage);
+    bool initialize(const QStringList &arguments, QString *errorMessage) override;
 
     CvsSubmitEditor *openCVSSubmitEditor(const QString &fileName);
 
@@ -102,8 +100,8 @@ private slots:
 #endif
 
 protected:
-    void updateActions(VcsBase::VcsBasePlugin::ActionState);
-    bool submitEditorAboutToClose();
+    void updateActions(VcsBase::VcsBasePlugin::ActionState) override;
+    bool submitEditorAboutToClose() override;
 
 private:
     void addCurrentFile();
@@ -205,5 +203,3 @@ private:
 
 } // namespace Cvs
 } // namespace Internal
-
-#endif // CVSPLUGIN_H

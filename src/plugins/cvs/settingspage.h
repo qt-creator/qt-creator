@@ -23,24 +23,13 @@
 **
 ****************************************************************************/
 
-#ifndef SETTINGSPAGE_H
-#define SETTINGSPAGE_H
+#pragma once
 
 #include "ui_settingspage.h"
 
 #include <vcsbase/vcsbaseoptionspage.h>
 
-#include <QWidget>
-#include <QPointer>
-#include <QString>
-
-QT_BEGIN_NAMESPACE
-class QSettings;
-QT_END_NAMESPACE
-
-namespace VcsBase {
-class VcsBaseClientSettings;
-} // namespace VcsBase
+namespace VcsBase { class VcsBaseClientSettings; }
 
 namespace Cvs {
 namespace Internal {
@@ -70,5 +59,3 @@ public:
 
 } // namespace Cvs
 } // namespace Internal
-
-#endif // SETTINGSPAGE_H

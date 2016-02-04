@@ -42,8 +42,7 @@ using namespace Cvs::Internal;
 
 CvsControl::CvsControl(CvsPlugin *plugin) :
     m_plugin(plugin)
-{
-}
+{ }
 
 QString CvsControl::displayName() const
 {

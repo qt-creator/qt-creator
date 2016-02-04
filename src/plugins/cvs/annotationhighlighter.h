@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef ANNOTATIONHIGHLIGHTER_H
-#define ANNOTATIONHIGHLIGHTER_H
+#pragma once
 
 #include <vcsbase/baseannotationhighlighter.h>
 
@@ -41,12 +40,8 @@ public:
                                       QTextDocument *document = 0);
 
 private:
-    QString changeNumber(const QString &block) const;
-
-    const QChar m_blank;
+    QString changeNumber(const QString &block) const override;
 };
 
 } // namespace Internal
 } // namespace Cvs
-
-#endif // ANNOTATIONHIGHLIGHTER_H

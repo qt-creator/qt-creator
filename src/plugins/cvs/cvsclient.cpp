@@ -25,7 +25,6 @@
 
 #include "cvsclient.h"
 #include "cvssettings.h"
-#include "cvsconstants.h"
 
 #include <vcsbase/vcsbaseplugin.h>
 #include <vcsbase/vcsbaseeditor.h>

@@ -28,7 +28,6 @@
 #include "cvseditor.h"
 #include "cvssubmiteditor.h"
 #include "cvsclient.h"
-#include "cvsconstants.h"
 #include "cvscontrol.h"
 
 #include <vcsbase/basevcseditorfactory.h>
@@ -153,11 +152,6 @@ static inline const VcsBaseEditorParameters *findType(int ie)
     return VcsBaseEditor::findType(editorParameters, sizeof(editorParameters) / sizeof(editorParameters[0]), et);
 }
 
-static inline QString debugCodec(const QTextCodec *c)
-{
-    return c ? QString::fromLatin1(c->name()) : QString::fromLatin1("Null codec");
-}
-
 static inline bool messageBoxQuestion(const QString &title, const QString &question)
 {
     return QMessageBox::question(ICore::dialogParent(), title, question, QMessageBox::Yes|QMessageBox::No) == QMessageBox::Yes;
@@ -202,7 +196,6 @@ bool CvsPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 {
     Q_UNUSED(arguments)
     Q_UNUSED(errorMessage)
-    using namespace Constants;
     using namespace Core::Constants;
 
     Context context(CVS_CONTEXT);
@@ -711,8 +704,6 @@ void CvsPlugin::startCommit(const QString &workingDir, const QString &file)
 bool CvsPlugin::commit(const QString &messageFile,
                               const QStringList &fileList)
 {
-    if (Constants::debug)
-        qDebug() << Q_FUNC_INFO << messageFile << fileList;
     QStringList args = QStringList(QLatin1String("commit"));
     args << QLatin1String("-F") << messageFile;
     args.append(fileList);
@@ -1003,8 +994,6 @@ bool CvsPlugin::describe(const QString &toplevel, const QString &file, const
     // This function makes use of it to find all files related to
     // a commit in order to emulate a "describe global change" functionality
     // if desired.
-    if (Constants::debug)
-        qDebug() << Q_FUNC_INFO << file << changeNr;
     // Number must be > 1
     if (isFirstRevision(changeNr)) {
         *errorMessage = tr("The initial revision %1 cannot be described.").arg(changeNr);
@@ -1179,9 +1168,6 @@ IEditor *CvsPlugin::showOutputInEditor(const QString& title, const QString &outp
     const VcsBaseEditorParameters *params = findType(editorType);
     QTC_ASSERT(params, return 0);
     const Id id = params->id;
-    if (Constants::debug)
-        qDebug() << "CVSPlugin::showOutputInEditor" << title << id.name()
-                 <<  "source=" << source << "Size= " << output.size() <<  " Type=" << editorType << debugCodec(codec);
     QString s = title;
     IEditor *editor = EditorManager::openEditorWithContents(id, &s, output.toUtf8());
     connect(editor, SIGNAL(annotateRevisionRequested(QString,QString,QString,int)),
@@ -1252,12 +1238,7 @@ bool CvsPlugin::managesDirectory(const QString &directory, QString *topLevel /* 
             }
         }
     } while (false);
-    if (Constants::debug) {
-        QDebug nsp = qDebug().nospace();
-        nsp << "CVSPlugin::managesDirectory" << directory << manages;
-        if (topLevel)
-            nsp << *topLevel;
-    }
+
     return manages;
 }
 

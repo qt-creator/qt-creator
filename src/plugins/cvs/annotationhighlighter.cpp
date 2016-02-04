@@ -30,13 +30,11 @@ using namespace Cvs::Internal;
 
 CvsAnnotationHighlighter::CvsAnnotationHighlighter(const ChangeNumbers &changeNumbers,
                                                    QTextDocument *document) :
-    VcsBase::BaseAnnotationHighlighter(changeNumbers, document),
-    m_blank(QLatin1Char(' '))
-{
-}
+    VcsBase::BaseAnnotationHighlighter(changeNumbers, document)
+{ }
 
 QString CvsAnnotationHighlighter::changeNumber(const QString &block) const
 {
-    const int pos = block.indexOf(m_blank);
+    const int pos = block.indexOf(QLatin1Char(' '));
     return pos > 1 ? block.left(pos) : QString();
 }

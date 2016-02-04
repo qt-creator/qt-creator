@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CVSCONTROL_H
-#define CVSCONTROL_H
+#pragma once
 
 #include <coreplugin/iversioncontrol.h>
 
@@ -67,10 +66,8 @@ public:
     void emitFilesChanged(const QStringList &l);
 
 private:
-    CvsPlugin *m_plugin;
+    CvsPlugin *const m_plugin;
 };
 
 } // namespace Internal
 } // namespace Cvs
-
-#endif // CVSCONTROL_H

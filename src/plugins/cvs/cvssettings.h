@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CVSSETTINGS_H
-#define CVSSETTINGS_H
+#pragma once
 
 #include <vcsbase/vcsbaseclientsettings.h>
 
@@ -52,5 +51,3 @@ protected:
 
 } // namespace Internal
 } // namespace Cvs
-
-#endif // CVSSETTINGS_H

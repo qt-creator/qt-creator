@@ -8,8 +8,7 @@ HEADERS += annotationhighlighter.h \
     cvseditor.h \
     cvssubmiteditor.h \
     cvssettings.h \
-    cvsutils.h \
-    cvsconstants.h
+    cvsutils.h
 
 SOURCES += annotationhighlighter.cpp \
     cvsplugin.cpp \

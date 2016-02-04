@@ -23,17 +23,12 @@
 **
 ****************************************************************************/
 
-#ifndef CVSUTILS_H
-#define CVSUTILS_H
+#pragma once
 
 #include "cvssubmiteditor.h"
 
 #include <QString>
 #include <QList>
-
-QT_BEGIN_NAMESPACE
-class QDebug;
-QT_END_NAMESPACE
 
 namespace Cvs {
 namespace Internal {
@@ -41,8 +36,9 @@ namespace Internal {
 // Utilities to parse output of a CVS log.
 
 // A revision of a file.
-struct CvsRevision
+class CvsRevision
 {
+public:
     CvsRevision(const QString &rev);
 
     QString revision;
@@ -51,15 +47,14 @@ struct CvsRevision
 };
 
 // A log entry consisting of the file and its revisions.
-struct CvsLogEntry
+class CvsLogEntry
 {
+public:
     CvsLogEntry(const QString &file);
 
     QString file;
     QList<CvsRevision> revisions;
 };
-
-QDebug operator<<(QDebug d, const CvsLogEntry &);
 
 // Parse. Pass on a directory to obtain full paths when
 // running from the repository directory.
@@ -83,5 +78,3 @@ bool isFirstRevision(const QString &r);
 
 } // namespace Internal
 } // namespace Cvs
-
-#endif // CVSUTILS_H

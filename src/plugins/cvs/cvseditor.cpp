@@ -27,7 +27,6 @@
 #include "cvsutils.h"
 
 #include "annotationhighlighter.h"
-#include "cvsconstants.h"
 
 #include <utils/qtcassert.h>
 #include <vcsbase/diffandloghighlighter.h>
@@ -81,8 +80,6 @@ QSet<QString> CvsEditorWidget::annotationChanges() const
             changes.insert(r.cap(1));
         }
     }
-    if (Constants::debug)
-        qDebug() << "CVSEditor::annotationChanges() returns #" << changes.size();
     return changes;
 }
 

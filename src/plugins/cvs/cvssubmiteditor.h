@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CVSSUBMITEDITOR_H
-#define CVSSUBMITEDITOR_H
+#pragma once
 
 #include <QPair>
 #include <QStringList>
@@ -58,5 +57,3 @@ private:
 
 } // namespace Internal
 } // namespace Cvs
-
-#endif // CVSSUBMITEDITOR_H

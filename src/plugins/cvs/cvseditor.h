@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CVSEDITOR_H
-#define CVSEDITOR_H
+#pragma once
 
 #include <vcsbase/vcsbaseeditor.h>
 
@@ -54,5 +53,3 @@ private:
 
 } // namespace Internal
 } // namespace Cvs
-
-#endif // CVSEDITOR_H

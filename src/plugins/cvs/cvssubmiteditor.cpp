@@ -36,8 +36,7 @@ CvsSubmitEditor::CvsSubmitEditor(const VcsBaseSubmitEditorParameters *parameters
     m_msgAdded(tr("Added")),
     m_msgRemoved(tr("Removed")),
     m_msgModified(tr("Modified"))
-{
-}
+{ }
 
 QString CvsSubmitEditor::stateName(State st) const
 {
