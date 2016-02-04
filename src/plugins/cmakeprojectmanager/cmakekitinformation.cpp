@@ -38,20 +38,22 @@
 using namespace ProjectExplorer;
 
 namespace CMakeProjectManager {
+// --------------------------------------------------------------------
+// CMakeKitInformation:
+// --------------------------------------------------------------------
 
 static Core::Id defaultCMakeToolId()
 {
     CMakeTool *defaultTool = CMakeToolManager::defaultCMakeTool();
-    if (defaultTool)
-        return defaultTool->id();
-
-    return Core::Id();
+    return defaultTool ? defaultTool->id() : Core::Id();
 }
+
+static const char TOOL_ID[] = "CMakeProjectManager.CMakeKitInformation";
 
 CMakeKitInformation::CMakeKitInformation()
 {
     setObjectName(QLatin1String("CMakeKitInformation"));
-    setId(CMakeKitInformation::id());
+    setId(TOOL_ID);
     setPriority(20000);
 
     //make sure the default value is set if a selected CMake is removed
@@ -63,37 +65,26 @@ CMakeKitInformation::CMakeKitInformation()
             [this]() { foreach (Kit *k, KitManager::kits()) fix(k); });
 }
 
-Core::Id CMakeKitInformation::id()
-{
-    return "CMakeProjectManager.CMakeKitInformation";
-}
-
 CMakeTool *CMakeKitInformation::cmakeTool(const Kit *k)
 {
     if (!k)
         return 0;
 
-    const QVariant id = k->value(CMakeKitInformation::id());
+    const QVariant id = k->value(TOOL_ID);
     return CMakeToolManager::findById(Core::Id::fromSetting(id));
 }
 
 void CMakeKitInformation::setCMakeTool(Kit *k, const Core::Id id)
 {
-    QTC_ASSERT(k, return);
-
-    if (id.isValid()) {
-        // Only set cmake tools that are known to the manager
-        QTC_ASSERT(CMakeToolManager::findById(id), return);
-        k->setValue(CMakeKitInformation::id(), id.toSetting());
-    } else {
-        //setting a empty Core::Id will reset to the default value
-        k->setValue(CMakeKitInformation::id(), defaultCMakeToolId().toSetting());
-    }
+    const Core::Id toSet = id.isValid() ? id : defaultCMakeToolId();
+    QTC_ASSERT(!id.isValid() || CMakeToolManager::findById(toSet), return);
+    if (k)
+        k->setValue(TOOL_ID, toSet.toSetting());
 }
 
 QVariant CMakeKitInformation::defaultValue(const Kit *k) const
 {
-    Core::Id id = k ? defaultCMakeToolId() : Core::Id();
+    const Core::Id id = k ? defaultCMakeToolId() : Core::Id();
     return id.toSetting();
 }
 
@@ -106,22 +97,19 @@ QList<Task> CMakeKitInformation::validate(const Kit *k) const
 void CMakeKitInformation::setup(Kit *k)
 {
     CMakeTool *tool = CMakeKitInformation::cmakeTool(k);
-    if (tool)
-        return;
-
-    setCMakeTool(k, defaultCMakeToolId());
+    if (!tool)
+        setCMakeTool(k, defaultCMakeToolId());
 }
 
 void CMakeKitInformation::fix(Kit *k)
 {
-    CMakeTool *tool = CMakeKitInformation::cmakeTool(k);
-    if (!tool)
+    if (!CMakeKitInformation::cmakeTool(k))
         setup(k);
 }
 
 KitInformation::ItemList CMakeKitInformation::toUserOutput(const Kit *k) const
 {
-    CMakeTool *tool = cmakeTool(k);
+    const CMakeTool *const tool = cmakeTool(k);
     return ItemList() << qMakePair(tr("CMake"), tool == 0 ? tr("Unconfigured") : tool->displayName());
 }
 
