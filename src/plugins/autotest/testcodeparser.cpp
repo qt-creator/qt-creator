@@ -79,6 +79,8 @@ TestCodeParser::TestCodeParser(TestTreeModel *parent)
             this, &TestCodeParser::onAllTasksFinished);
     connect(this, &TestCodeParser::partialParsingFinished,
             this, &TestCodeParser::onPartialParsingFinished);
+    connect(&m_futureWatcher, &QFutureWatcher<TestParseResult>::started,
+            this, &TestCodeParser::parsingStarted);
     connect(&m_futureWatcher, &QFutureWatcher<TestParseResult>::finished,
             this, &TestCodeParser::onFinished);
     connect(&m_futureWatcher, &QFutureWatcher<TestParseResult>::resultReadyAt,
@@ -747,7 +749,6 @@ void TestCodeParser::scanForTests(const QStringList &fileList)
         Core::ProgressManager::addTask(future, tr("Scanning for Tests"),
                                        Autotest::Constants::TASK_PARSE);
     }
-    emit parsingStarted();
 }
 
 void TestCodeParser::onTaskStarted(Core::Id type)
