@@ -637,14 +637,11 @@ void TestCodeParser::onQmlDocumentUpdated(const QmlJS::Document::Ptr &document)
         return;
     }
     const CPlusPlus::Snapshot snapshot = CppTools::CppModelManager::instance()->snapshot();
-    QMap<QString, QString> referencingFiles = m_model->referencingFiles();
-    if (referencingFiles.contains(fileName)) {
-        const QString &referencingFile = referencingFiles.value(fileName);
-        if (!referencingFile.isEmpty() && snapshot.contains(referencingFile)) {
-            qCDebug(LOG) << "calling scanForTests with cached referencing files"
-                         << "(onQmlDocumentUpdated)";
-            scanForTests(QStringList(referencingFile));
-        }
+    const QString &referencingFile = m_model->referencingFiles().value(fileName);
+    if (!referencingFile.isEmpty() && snapshot.contains(referencingFile)) {
+        qCDebug(LOG) << "calling scanForTests with cached referencing files"
+                     << "(onQmlDocumentUpdated)";
+        scanForTests(QStringList(referencingFile));
     }
 }
 
