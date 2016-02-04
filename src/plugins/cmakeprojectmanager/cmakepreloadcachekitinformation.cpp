@@ -51,7 +51,7 @@ Core::Id CMakePreloadCacheKitInformation::id()
     return "CMakeProjectManager.CMakePreloadCacheKitInformation";
 }
 
-QVariant CMakePreloadCacheKitInformation::defaultValue(Kit *) const
+QVariant CMakePreloadCacheKitInformation::defaultValue(const Kit *) const
 {
     return QString();
 }

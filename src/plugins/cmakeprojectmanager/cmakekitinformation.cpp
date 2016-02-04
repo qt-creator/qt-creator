@@ -91,7 +91,7 @@ Core::Id CMakeKitInformation::defaultValue()
     return Core::Id();
 }
 
-QVariant CMakeKitInformation::defaultValue(Kit *) const
+QVariant CMakeKitInformation::defaultValue(const Kit *) const
 {
     return defaultValue().toSetting();
 }

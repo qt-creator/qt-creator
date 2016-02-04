@@ -68,7 +68,7 @@ class AndroidGdbServerKitInformation : public ProjectExplorer::KitInformation
 public:
     AndroidGdbServerKitInformation();
 
-    QVariant defaultValue(ProjectExplorer::Kit *) const override;
+    QVariant defaultValue(const ProjectExplorer::Kit *) const override;
 
     QList<ProjectExplorer::Task> validate(const ProjectExplorer::Kit *) const override;
 
@@ -80,7 +80,7 @@ public:
     static bool isAndroidKit(const ProjectExplorer::Kit *kit);
     static Utils::FileName gdbServer(const ProjectExplorer::Kit *kit);
     static void setGdbSever(ProjectExplorer::Kit *kit, const Utils::FileName &gdbServerCommand);
-    static Utils::FileName autoDetect(ProjectExplorer::Kit *kit);
+    static Utils::FileName autoDetect(const ProjectExplorer::Kit *kit);
 };
 
 } // namespace Internal

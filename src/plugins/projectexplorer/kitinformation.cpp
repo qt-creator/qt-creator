@@ -56,7 +56,7 @@ SysRootKitInformation::SysRootKitInformation()
     setPriority(31000);
 }
 
-QVariant SysRootKitInformation::defaultValue(Kit *k) const
+QVariant SysRootKitInformation::defaultValue(const Kit *k) const
 {
     Q_UNUSED(k)
     return QString();
@@ -122,7 +122,7 @@ ToolChainKitInformation::ToolChainKitInformation()
             this, &ToolChainKitInformation::kitsWereLoaded);
 }
 
-QVariant ToolChainKitInformation::defaultValue(Kit *k) const
+QVariant ToolChainKitInformation::defaultValue(const Kit *k) const
 {
     Q_UNUSED(k);
     QList<ToolChain *> tcList = ToolChainManager::toolChains();
@@ -282,7 +282,7 @@ DeviceTypeKitInformation::DeviceTypeKitInformation()
     setPriority(33000);
 }
 
-QVariant DeviceTypeKitInformation::defaultValue(Kit *k) const
+QVariant DeviceTypeKitInformation::defaultValue(const Kit *k) const
 {
     Q_UNUSED(k);
     return QByteArray(Constants::DESKTOP_DEVICE_TYPE);
@@ -364,7 +364,7 @@ DeviceKitInformation::DeviceKitInformation()
             this, &DeviceKitInformation::kitsWereLoaded);
 }
 
-QVariant DeviceKitInformation::defaultValue(Kit *k) const
+QVariant DeviceKitInformation::defaultValue(const Kit *k) const
 {
     Core::Id type = DeviceTypeKitInformation::deviceTypeId(k);
     // Use default device if that is compatible:
@@ -529,7 +529,7 @@ EnvironmentKitInformation::EnvironmentKitInformation()
     setPriority(29000);
 }
 
-QVariant EnvironmentKitInformation::defaultValue(Kit *k) const
+QVariant EnvironmentKitInformation::defaultValue(const Kit *k) const
 {
     Q_UNUSED(k)
     return QStringList();

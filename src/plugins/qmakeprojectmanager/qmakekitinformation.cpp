@@ -45,7 +45,7 @@ QmakeKitInformation::QmakeKitInformation()
     setPriority(24000);
 }
 
-QVariant QmakeKitInformation::defaultValue(Kit *k) const
+QVariant QmakeKitInformation::defaultValue(const Kit *k) const
 {
     Q_UNUSED(k);
     return QString();

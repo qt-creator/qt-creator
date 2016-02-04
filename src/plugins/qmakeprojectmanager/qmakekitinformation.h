@@ -39,7 +39,7 @@ class QMAKEPROJECTMANAGER_EXPORT QmakeKitInformation : public ProjectExplorer::K
 public:
     QmakeKitInformation();
 
-    QVariant defaultValue(ProjectExplorer::Kit *k) const override;
+    QVariant defaultValue(const ProjectExplorer::Kit *k) const override;
 
     QList<ProjectExplorer::Task> validate(const ProjectExplorer::Kit *k) const override;
     void setup(ProjectExplorer::Kit *k) override;

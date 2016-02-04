@@ -71,7 +71,7 @@ public:
     Core::Id id() const { return m_id; }
     int priority() const { return m_priority; }
 
-    virtual QVariant defaultValue(Kit *) const = 0;
+    virtual QVariant defaultValue(const Kit *) const = 0;
 
     // called to find issues with the kit
     virtual QList<Task> validate(const Kit *) const = 0;

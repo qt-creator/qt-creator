@@ -46,7 +46,7 @@ public:
     static Core::Id defaultValue();
 
     // KitInformation interface
-    QVariant defaultValue(ProjectExplorer::Kit *) const override;
+    QVariant defaultValue(const ProjectExplorer::Kit *k) const override;
     QList<ProjectExplorer::Task> validate(const ProjectExplorer::Kit *k) const override;
     void setup(ProjectExplorer::Kit *k) override;
     void fix(ProjectExplorer::Kit *k) override;
@@ -55,4 +55,3 @@ public:
 };
 
 } // namespace CMakeProjectManager
-

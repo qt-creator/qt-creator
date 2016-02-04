@@ -55,7 +55,7 @@ DebuggerKitInformation::DebuggerKitInformation()
     setPriority(28000);
 }
 
-QVariant DebuggerKitInformation::defaultValue(Kit *k) const
+QVariant DebuggerKitInformation::defaultValue(const Kit *k) const
 {
     ToolChain *tc = ToolChainKitInformation::toolChain(k);
     if (!tc)

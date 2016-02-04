@@ -53,7 +53,7 @@ AndroidGdbServerKitInformation::AndroidGdbServerKitInformation()
     setPriority(27999); // Just one less than Debugger!
 }
 
-QVariant AndroidGdbServerKitInformation::defaultValue(Kit *kit) const
+QVariant AndroidGdbServerKitInformation::defaultValue(const Kit *kit) const
 {
     return autoDetect(kit).toString();
 }
@@ -100,7 +100,7 @@ void AndroidGdbServerKitInformation::setGdbSever(Kit *kit, const FileName &gdbSe
     kit->setValue(AndroidGdbServerKitInformation::id(), gdbServerCommand.toString());
 }
 
-FileName AndroidGdbServerKitInformation::autoDetect(Kit *kit)
+FileName AndroidGdbServerKitInformation::autoDetect(const Kit *kit)
 {
     ToolChain *tc = ToolChainKitInformation::toolChain(kit);
     if (!tc || tc->typeId() != Constants::ANDROID_TOOLCHAIN_ID)

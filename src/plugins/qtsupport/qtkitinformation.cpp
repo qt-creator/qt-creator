@@ -53,7 +53,7 @@ QtKitInformation::QtKitInformation()
             this, &QtKitInformation::kitsWereLoaded);
 }
 
-QVariant QtKitInformation::defaultValue(ProjectExplorer::Kit *k) const
+QVariant QtKitInformation::defaultValue(const Kit *k) const
 {
     Q_UNUSED(k);
 

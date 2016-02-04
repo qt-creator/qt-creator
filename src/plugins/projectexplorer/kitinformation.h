@@ -49,7 +49,7 @@ class PROJECTEXPLORER_EXPORT SysRootKitInformation : public KitInformation
 public:
     SysRootKitInformation();
 
-    QVariant defaultValue(Kit *k) const override;
+    QVariant defaultValue(const Kit *k) const override;
 
     QList<Task> validate(const Kit *k) const override;
 
@@ -74,7 +74,7 @@ class PROJECTEXPLORER_EXPORT ToolChainKitInformation : public KitInformation
 public:
     ToolChainKitInformation();
 
-    QVariant defaultValue(Kit *k) const override;
+    QVariant defaultValue(const Kit *k) const override;
 
     QList<Task> validate(const Kit *k) const override;
     void fix(Kit *k) override;
@@ -113,7 +113,7 @@ class PROJECTEXPLORER_EXPORT DeviceTypeKitInformation : public KitInformation
 public:
     DeviceTypeKitInformation();
 
-    QVariant defaultValue(Kit *k) const override;
+    QVariant defaultValue(const Kit *k) const override;
 
     QList<Task> validate(const Kit *k) const override;
 
@@ -142,7 +142,7 @@ class PROJECTEXPLORER_EXPORT DeviceKitInformation : public KitInformation
 public:
     DeviceKitInformation();
 
-    QVariant defaultValue(Kit *k) const override;
+    QVariant defaultValue(const Kit *k) const override;
 
     QList<Task> validate(const Kit *k) const override;
     void fix(Kit *k) override;
@@ -180,7 +180,7 @@ class PROJECTEXPLORER_EXPORT EnvironmentKitInformation : public KitInformation
 public:
     EnvironmentKitInformation();
 
-    QVariant defaultValue(Kit *k) const override;
+    QVariant defaultValue(const Kit *k) const override;
 
     QList<Task> validate(const Kit *k) const override;
     void fix(Kit *k) override;

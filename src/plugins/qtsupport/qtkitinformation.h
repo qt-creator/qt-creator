@@ -43,7 +43,7 @@ class QTSUPPORT_EXPORT QtKitInformation : public ProjectExplorer::KitInformation
 public:
     QtKitInformation();
 
-    QVariant defaultValue(ProjectExplorer::Kit *k) const override;
+    QVariant defaultValue(const ProjectExplorer::Kit *k) const override;
 
     QList<ProjectExplorer::Task> validate(const ProjectExplorer::Kit *k) const override;
     void fix(ProjectExplorer::Kit *) override;
