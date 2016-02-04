@@ -34,8 +34,6 @@
 #include <utils/wizard.h>
 
 #include <QVBoxLayout>
-#include <QLineEdit>
-#include <QPushButton>
 
 namespace GenericProjectManager {
 namespace Internal {

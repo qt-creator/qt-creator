@@ -37,9 +37,6 @@
 namespace GenericProjectManager {
 namespace Internal {
 
-Manager::Manager()
-{ }
-
 QString Manager::mimeType() const
 {
     return QLatin1String(Constants::GENERICMIMETYPE);

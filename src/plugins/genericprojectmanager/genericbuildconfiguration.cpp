@@ -51,13 +51,11 @@ const char GENERIC_BC_ID[] = "GenericProjectManager.GenericBuildConfiguration";
 
 GenericBuildConfiguration::GenericBuildConfiguration(Target *parent)
     : BuildConfiguration(parent, Core::Id(GENERIC_BC_ID))
-{
-}
+{ }
 
 GenericBuildConfiguration::GenericBuildConfiguration(Target *parent, Core::Id id)
     : BuildConfiguration(parent, id)
-{
-}
+{ }
 
 GenericBuildConfiguration::GenericBuildConfiguration(Target *parent, GenericBuildConfiguration *source) :
     BuildConfiguration(parent, source)

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef GENERICPROJECTWIZARD_H
-#define GENERICPROJECTWIZARD_H
+#pragma once
 
 #include <coreplugin/basefilewizard.h>
 #include <coreplugin/basefilewizardfactory.h>
@@ -72,5 +71,3 @@ protected:
 
 } // namespace Internal
 } // namespace GenericProjectManager
-
-#endif // GENERICPROJECTWIZARD_H

@@ -23,20 +23,18 @@
 **
 ****************************************************************************/
 
-#ifndef GENERICMAKESTEP_H
-#define GENERICMAKESTEP_H
+#pragma once
 
 #include <projectexplorer/abstractprocessstep.h>
 
-QT_BEGIN_NAMESPACE
-class QListWidgetItem;
-QT_END_NAMESPACE
+QT_FORWARD_DECLARE_CLASS(QListWidgetItem);
 
 namespace GenericProjectManager {
 namespace Internal {
 
 class GenericMakeStepConfigWidget;
 class GenericMakeStepFactory;
+
 namespace Ui { class GenericMakeStep; }
 
 class GenericMakeStep : public ProjectExplorer::AbstractProcessStep
@@ -75,7 +73,7 @@ private:
     QStringList m_buildTargets;
     QString m_makeArguments;
     QString m_makeCommand;
-    bool m_clean;
+    bool m_clean = false;
 };
 
 class GenericMakeStepConfigWidget : public ProjectExplorer::BuildStepConfigWidget
@@ -83,10 +81,11 @@ class GenericMakeStepConfigWidget : public ProjectExplorer::BuildStepConfigWidge
     Q_OBJECT
 
 public:
-    GenericMakeStepConfigWidget(GenericMakeStep *makeStep);
-    ~GenericMakeStepConfigWidget();
-    QString displayName() const;
-    QString summaryText() const;
+    explicit GenericMakeStepConfigWidget(GenericMakeStep *makeStep);
+    ~GenericMakeStepConfigWidget() override;
+
+    QString displayName() const override;
+    QString summaryText() const override;
 
 private slots:
     void itemChanged(QListWidgetItem *item);
@@ -124,5 +123,3 @@ public:
 
 } // namespace Internal
 } // namespace GenericProjectManager
-
-#endif // GENERICMAKESTEP_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef GENERICPROJECTMANAGER_H
-#define GENERICPROJECTMANAGER_H
+#pragma once
 
 #include <projectexplorer/iprojectmanager.h>
 
@@ -38,10 +37,8 @@ class Manager : public ProjectExplorer::IProjectManager
     Q_OBJECT
 
 public:
-    Manager();
-
-    virtual QString mimeType() const;
-    virtual ProjectExplorer::Project *openProject(const QString &fileName, QString *errorString);
+    virtual QString mimeType() const override;
+    virtual ProjectExplorer::Project *openProject(const QString &fileName, QString *errorString) override;
 
     void registerProject(GenericProject *project);
     void unregisterProject(GenericProject *project);
@@ -52,5 +49,3 @@ private:
 
 } // namespace Internal
 } // namespace GenericProjectManager
-
-#endif // GENERICPROJECTMANAGER_H

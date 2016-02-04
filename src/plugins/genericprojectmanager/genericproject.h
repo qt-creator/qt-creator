@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef GENERICPROJECT_H
-#define GENERICPROJECT_H
+#pragma once
 
 #include "genericprojectmanager.h"
 #include "genericprojectnodes.h"
@@ -128,5 +127,3 @@ private:
 
 } // namespace Internal
 } // namespace GenericProjectManager
-
-#endif // GENERICPROJECT_H

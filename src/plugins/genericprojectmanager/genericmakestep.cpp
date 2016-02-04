@@ -60,15 +60,13 @@ const char MAKE_COMMAND_KEY[] = "GenericProjectManager.GenericMakeStep.MakeComma
 const char CLEAN_KEY[] = "GenericProjectManager.GenericMakeStep.Clean";
 
 GenericMakeStep::GenericMakeStep(BuildStepList *parent) :
-    AbstractProcessStep(parent, Id(GENERIC_MS_ID)),
-    m_clean(false)
+    AbstractProcessStep(parent, Id(GENERIC_MS_ID))
 {
     ctor();
 }
 
 GenericMakeStep::GenericMakeStep(BuildStepList *parent, const Id id) :
-    AbstractProcessStep(parent, id),
-    m_clean(false)
+    AbstractProcessStep(parent, id)
 {
     ctor();
 }
@@ -218,8 +216,8 @@ void GenericMakeStep::setBuildTarget(const QString &target, bool on)
 // GenericMakeStepConfigWidget
 //
 
-GenericMakeStepConfigWidget::GenericMakeStepConfigWidget(GenericMakeStep *makeStep)
-    : m_makeStep(makeStep)
+GenericMakeStepConfigWidget::GenericMakeStepConfigWidget(GenericMakeStep *makeStep) :
+    m_makeStep(makeStep)
 {
     m_ui = new Ui::GenericMakeStep;
     m_ui->setupUi(this);

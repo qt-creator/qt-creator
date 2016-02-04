@@ -37,9 +37,9 @@ using namespace ProjectExplorer;
 namespace GenericProjectManager {
 namespace Internal {
 
-GenericProjectNode::GenericProjectNode(GenericProject *project)
-    : ProjectNode(project->projectFilePath())
-    , m_project(project)
+GenericProjectNode::GenericProjectNode(GenericProject *project) :
+    ProjectNode(project->projectFilePath()),
+    m_project(project)
 {
     setDisplayName(project->projectFilePath().toFileInfo().completeBaseName());
 }

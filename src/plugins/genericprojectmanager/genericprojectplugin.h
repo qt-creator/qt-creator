@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef GENERICPROJECTPLUGIN_H
-#define GENERICPROJECTPLUGIN_H
+#pragma once
 
 #include <extensionsystem/iplugin.h>
 
@@ -45,11 +44,8 @@ class GenericProjectPlugin : public ExtensionSystem::IPlugin
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "GenericProjectManager.json")
 
 public:
-    bool initialize(const QStringList &arguments, QString *errorString);
-    void extensionsInitialized() {}
-
-private slots:
-    void editFiles();
+    bool initialize(const QStringList &arguments, QString *errorString) override;
+    void extensionsInitialized() override { }
 
 #ifdef WITH_TESTS
 private slots:
@@ -57,9 +53,10 @@ private slots:
     void test_mixed1();
     void test_mixed2();
 #endif // WITH_TESTS
+
+private:
+    void editFiles();
 };
 
 } // namespace Internal
 } // namespace GenericProject
-
-#endif // GENERICPROJECTPLUGIN_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef GENERICPROJECTNODE_H
-#define GENERICPROJECTNODE_H
+#pragma once
 
 #include <projectexplorer/projectnodes.h>
 
@@ -42,7 +41,7 @@ class GenericProject;
 class GenericProjectNode : public ProjectExplorer::ProjectNode
 {
 public:
-    GenericProjectNode(GenericProject *project);
+    explicit GenericProjectNode(GenericProject *project);
 
     bool showInSimpleTree() const override;
 
@@ -61,10 +60,8 @@ private:
     void removeEmptySubFolders(FolderNode *gparent, FolderNode *parent);
 
 private:
-    GenericProject *m_project;
+    GenericProject *const m_project;
 };
 
 } // namespace Internal
 } // namespace GenericProjectManager
-
-#endif // GENERICPROJECTNODE_H

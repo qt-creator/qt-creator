@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef GENERICPROJECTFILESEDITOR_H
-#define GENERICPROJECTFILESEDITOR_H
+#pragma once
 
 #include <texteditor/texteditor.h>
 
@@ -39,5 +38,3 @@ public:
 
 } // namespace Internal
 } // namespace GenericProjectManager
-
-#endif // GENERICPROJECTFILESEDITOR_H

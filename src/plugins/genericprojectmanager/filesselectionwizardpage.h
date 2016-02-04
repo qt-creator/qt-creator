@@ -23,19 +23,11 @@
 **
 ****************************************************************************/
 
-#ifndef FILESSELECTIONWIZARDPAGE_H
-#define FILESSELECTIONWIZARDPAGE_H
-
-#include <QWizardPage>
+#pragma once
 
 #include <utils/fileutils.h>
 
-QT_BEGIN_NAMESPACE
-class QVBoxLayout;
-class QLabel;
-class QTreeView;
-class QLineEdit;
-QT_END_NAMESPACE
+#include <QWizardPage>
 
 namespace ProjectExplorer { class SelectableFilesWidget; }
 
@@ -50,9 +42,9 @@ class FilesSelectionWizardPage : public QWizardPage
 
 public:
     FilesSelectionWizardPage(GenericProjectWizardDialog *genericProjectWizard, QWidget *parent = 0);
-    bool isComplete() const;
-    void initializePage();
-    void cleanupPage();
+    bool isComplete() const override;
+    void initializePage() override;
+    void cleanupPage() override;
     Utils::FileNameList selectedFiles() const;
     Utils::FileNameList selectedPaths() const;
 
@@ -63,5 +55,3 @@ private:
 
 } // namespace Internal
 } // namespace GenericProjectManager
-
-#endif // FILESSELECTIONWIZARDPAGE_H

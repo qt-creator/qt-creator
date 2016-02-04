@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef GENERICPROJECTCONSTANTS_H
-#define GENERICPROJECTCONSTANTS_H
+#pragma once
 
 namespace GenericProjectManager {
 namespace Constants {
@@ -35,14 +34,8 @@ const char GENERICMIMETYPE[]    = "text/x-generic-project"; // ### FIXME
 // Contexts
 const char FILES_EDITOR_ID[]    = "QT4.FilesEditor";
 
-const char FILES_MIMETYPE[]     = "application/vnd.qtcreator.generic.files";
-const char INCLUDES_MIMETYPE[]  = "application/vnd.qtcreator.generic.includes";
-const char CONFIG_MIMETYPE[]    = "application/vnd.qtcreator.generic.config";
-
 // Project
 const char GENERICPROJECT_ID[]  = "GenericProjectManager.GenericProject";
 
 } // namespace Constants
 } // namespace GenericProjectManager
-
-#endif // GENERICPROJECTCONSTANTS_H

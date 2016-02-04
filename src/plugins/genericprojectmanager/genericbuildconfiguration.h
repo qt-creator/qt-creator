@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef GENERICBUILDCONFIGURATION_H
-#define GENERICBUILDCONFIGURATION_H
+#pragma once
 
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/namedwidget.h>
@@ -93,16 +92,13 @@ class GenericBuildSettingsWidget : public ProjectExplorer::NamedWidget
 public:
     GenericBuildSettingsWidget(GenericBuildConfiguration *bc);
 
-private slots:
+private:
     void buildDirectoryChanged();
     void environmentHasChanged();
 
-private:
     Utils::PathChooser *m_pathChooser;
     GenericBuildConfiguration *m_buildConfiguration;
 };
 
 } // namespace Internal
 } // namespace GenericProjectManager
-
-#endif // GENERICBUILDCONFIGURATION_H

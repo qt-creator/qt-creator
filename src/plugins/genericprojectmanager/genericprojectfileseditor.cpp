@@ -46,9 +46,9 @@ ProjectFilesFactory::ProjectFilesFactory()
 {
     setId(Constants::FILES_EDITOR_ID);
     setDisplayName(QCoreApplication::translate("OpenWith::Editors", ".files Editor"));
-    addMimeType(Constants::FILES_MIMETYPE);
-    addMimeType(Constants::INCLUDES_MIMETYPE);
-    addMimeType(Constants::CONFIG_MIMETYPE);
+    addMimeType("application/vnd.qtcreator.generic.files");
+    addMimeType("application/vnd.qtcreator.generic.includes");
+    addMimeType("application/vnd.qtcreator.generic.config");
 
     setDocumentCreator([]() { return new TextDocument(Constants::FILES_EDITOR_ID); });
     setEditorActionHandlers(TextEditorActionHandler::None);
