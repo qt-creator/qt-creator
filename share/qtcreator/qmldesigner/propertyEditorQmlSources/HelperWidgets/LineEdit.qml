@@ -127,7 +127,6 @@ Controls.TextField {
                 anchors.fill: parent
                 anchors.margins: -1
                 color: "transparent"
-                radius: 4
                 opacity: 0.3
                 visible: control.activeFocus
             }
@@ -179,6 +178,8 @@ Controls.TextField {
             indicator:  Item {
                 implicitWidth: 16
                 implicitHeight: 16
+                x: 7
+                y: 1
                 Image { source: "qrc:qmldesigner/images/checkbox_tr_" +
                                 (control.checked ? "checked": "unchecked") +
                                 (control.pressed ? "_pressed": "") + ".png" }

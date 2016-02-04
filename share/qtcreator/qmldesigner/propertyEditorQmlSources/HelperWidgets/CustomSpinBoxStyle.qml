@@ -43,9 +43,8 @@ SpinBoxStyle {
         opacity: styleData.upEnabled ? styleData.upPressed ? 0.5 : 1 : 0.5
         Image {
             source: "images/up-arrow.png"
-            anchors.centerIn: parent
-            anchors.verticalCenterOffset: 2
-            anchors.horizontalCenterOffset: -2
+            x: 1
+            y: 5
         }
     }
 
@@ -55,9 +54,8 @@ SpinBoxStyle {
         opacity: styleData.downEnabled ? styleData.downPressed ? 0.5 : 1 : 0.5
         Image {
             source: "images/down-arrow.png"
-            anchors.centerIn: parent
-            anchors.verticalCenterOffset: -1
-            anchors.horizontalCenterOffset: -2
+            x: 1
+            y: 2.5 // Hack! Spinbox sets an non-int offset, somewhere
         }
     }
 
