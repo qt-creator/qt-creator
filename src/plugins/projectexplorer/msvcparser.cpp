@@ -60,6 +60,36 @@ static QPair<Utils::FileName, int> parseFileName(const QString &input)
 
 using namespace ProjectExplorer;
 
+// nmake/jom messages.
+static bool handleNmakeJomMessage(const QString &line, Task *task)
+{
+    int matchLength = 0;
+    if (line.startsWith(QLatin1String("Error:")))
+        matchLength = 6;
+    else if (line.startsWith(QLatin1String("Warning:")))
+        matchLength = 8;
+
+    if (!matchLength)
+        return false;
+
+    *task = Task(Task::Error,
+                 line.mid(matchLength).trimmed(), /* description */
+                 Utils::FileName(), /* fileName */
+                 -1, /* linenumber */
+                 Constants::TASK_CATEGORY_COMPILE);
+    return true;
+}
+
+static Task::TaskType taskType(const QString &category)
+{
+    Task::TaskType type = Task::Unknown;
+    if (category == QLatin1String("warning"))
+        type = Task::Warning;
+    else if (category == QLatin1String("error"))
+        type = Task::Error;
+    return type;
+}
+
 MsvcParser::MsvcParser()
 {
     setObjectName(QLatin1String("MsvcParser"));
@@ -103,21 +133,7 @@ void MsvcParser::stdOutput(const QString &line)
 
     if (processCompileLine(line))
         return;
-    if (line.startsWith(QLatin1String("Error:"))) {
-        m_lastTask = Task(Task::Error,
-                          line.mid(6).trimmed(), /* description */
-                          Utils::FileName(), /* fileName */
-                          -1, /* linenumber */
-                          Constants::TASK_CATEGORY_COMPILE);
-        m_lines = 1;
-        return;
-    }
-    if (line.startsWith(QLatin1String("Warning:"))) {
-        m_lastTask = Task(Task::Warning,
-                          line.mid(8).trimmed(), /* description */
-                          Utils::FileName(), /* fileName */
-                          -1, /* linenumber */
-                          Constants::TASK_CATEGORY_COMPILE);
+    if (handleNmakeJomMessage(line, &m_lastTask)) {
         m_lines = 1;
         return;
     }
@@ -141,12 +157,7 @@ void MsvcParser::stdError(const QString &line)
     if (processCompileLine(line))
         return;
     // Jom outputs errors to stderr
-    if (line.startsWith(QLatin1String("Error:"))) {
-        m_lastTask = Task(Task::Error,
-                          line.mid(6).trimmed(), /* description */
-                          Utils::FileName(), /* fileName */
-                          -1, /* linenumber */
-                          Constants::TASK_CATEGORY_COMPILE);
+    if (handleNmakeJomMessage(line, &m_lastTask)) {
         m_lines = 1;
         return;
     }
@@ -160,13 +171,8 @@ bool MsvcParser::processCompileLine(const QString &line)
     QRegularExpressionMatch match = m_compileRegExp.match(line);
     if (match.hasMatch()) {
         QPair<Utils::FileName, int> position = parseFileName(match.captured(1));
-        Task::TaskType type = Task::Unknown;
-        const QString category = match.captured(3);
-        if (category == QLatin1String("warning"))
-            type = Task::Warning;
-        else if (category == QLatin1String("error"))
-            type = Task::Error;
-        m_lastTask = Task(type, match.captured(4).trimmed() /* description */,
+        m_lastTask = Task(taskType(match.captured(3)),
+                          match.captured(4).trimmed() /* description */,
                           position.first, position.second,
                           Constants::TASK_CATEGORY_COMPILE);
         m_lines = 1;
