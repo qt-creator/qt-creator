@@ -39,6 +39,15 @@ using namespace ProjectExplorer;
 
 namespace CMakeProjectManager {
 
+static Core::Id defaultCMakeToolId()
+{
+    CMakeTool *defaultTool = CMakeToolManager::defaultCMakeTool();
+    if (defaultTool)
+        return defaultTool->id();
+
+    return Core::Id();
+}
+
 CMakeKitInformation::CMakeKitInformation()
 {
     setObjectName(QLatin1String("CMakeKitInformation"));
@@ -78,22 +87,14 @@ void CMakeKitInformation::setCMakeTool(Kit *k, const Core::Id id)
         k->setValue(CMakeKitInformation::id(), id.toSetting());
     } else {
         //setting a empty Core::Id will reset to the default value
-        k->setValue(CMakeKitInformation::id(),defaultValue().toSetting());
+        k->setValue(CMakeKitInformation::id(), defaultCMakeToolId().toSetting());
     }
 }
 
-Core::Id CMakeKitInformation::defaultValue()
+QVariant CMakeKitInformation::defaultValue(const Kit *k) const
 {
-    CMakeTool *defaultTool = CMakeToolManager::defaultCMakeTool();
-    if (defaultTool)
-        return defaultTool->id();
-
-    return Core::Id();
-}
-
-QVariant CMakeKitInformation::defaultValue(const Kit *) const
-{
-    return defaultValue().toSetting();
+    Core::Id id = k ? defaultCMakeToolId() : Core::Id();
+    return id.toSetting();
 }
 
 QList<Task> CMakeKitInformation::validate(const Kit *k) const
@@ -108,7 +109,7 @@ void CMakeKitInformation::setup(Kit *k)
     if (tool)
         return;
 
-    setCMakeTool(k, defaultValue());
+    setCMakeTool(k, defaultCMakeToolId());
 }
 
 void CMakeKitInformation::fix(Kit *k)

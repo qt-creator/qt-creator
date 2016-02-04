@@ -43,7 +43,6 @@ public:
 
     static CMakeTool *cmakeTool(const ProjectExplorer::Kit *k);
     static void setCMakeTool(ProjectExplorer::Kit *k, const Core::Id id);
-    static Core::Id defaultValue();
 
     // KitInformation interface
     QVariant defaultValue(const ProjectExplorer::Kit *k) const override;
