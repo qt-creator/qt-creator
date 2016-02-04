@@ -70,7 +70,6 @@ signals:
     void parsingStarted();
     void parsingFinished();
     void parsingFailed();
-    void partialParsingFinished();
 
 public slots:
     void emitUpdateTestTree();

@@ -77,8 +77,6 @@ TestCodeParser::TestCodeParser(TestTreeModel *parent)
             this, &TestCodeParser::onTaskStarted);
     connect(progressManager, &Core::ProgressManager::allTasksFinished,
             this, &TestCodeParser::onAllTasksFinished);
-    connect(this, &TestCodeParser::partialParsingFinished,
-            this, &TestCodeParser::onPartialParsingFinished);
     connect(&m_futureWatcher, &QFutureWatcher<TestParseResult>::started,
             this, &TestCodeParser::parsingStarted);
     connect(&m_futureWatcher, &QFutureWatcher<TestParseResult>::finished,
@@ -774,14 +772,14 @@ void TestCodeParser::onFinished()
     case PartialParse:
         qCDebug(LOG) << "setting state to Idle (onFinished, PartialParse)";
         m_parserState = Idle;
-        emit partialParsingFinished();
+        onPartialParsingFinished();
         break;
     case FullParse:
         qCDebug(LOG) << "setting state to Idle (onFinished, FullParse)";
         m_parserState = Idle;
         m_dirty = parsingHasFailed;
         if (m_partialUpdatePostponed || m_fullUpdatePostponed || parsingHasFailed) {
-            emit partialParsingFinished();
+            onPartialParsingFinished();
         } else {
             qCDebug(LOG) << "emitting parsingFinished"
                          << "(onFinished, FullParse, nothing postponed, parsing succeeded)";
