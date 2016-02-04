@@ -571,9 +571,10 @@ static void checkDocumentForTestCode(QFutureInterface<TestParseResult> futureInt
     const CppTools::CppModelManager *modelManager = CppTools::CppModelManager::instance();
 
     QList<CppTools::ProjectPart::Ptr> projParts = modelManager->projectPart(fileName);
-    if (projParts.size())
+    if (projParts.size()) {
         if (!projParts.at(0)->selectedForBuilding)
             return;
+    }
 
     if (includesQtQuickTest(document, modelManager)) {
         handleQtQuickTest(futureInterface, document);
@@ -673,9 +674,9 @@ void TestCodeParser::onCppDocumentUpdated(const CPlusPlus::Document::Ptr &docume
     if (!project)
         return;
     const QString fileName = document->fileName();
-    if (!project->files(ProjectExplorer::Project::AllFiles).contains(fileName)) {
+    if (!project->files(ProjectExplorer::Project::AllFiles).contains(fileName))
         return;
-    }
+
     qCDebug(LOG) << "calling scanForTests (onCppDocumentUpdated)";
     scanForTests(QStringList(fileName));
 }
@@ -766,12 +767,10 @@ void TestCodeParser::scanForTests(const QStringList &fileList)
             m_fullUpdatePostponed = true;
             m_partialUpdatePostponed = false;
             m_postponedFiles.clear();
-        } else {
-            if (!m_fullUpdatePostponed) {
-                m_partialUpdatePostponed = true;
-                foreach (const QString &file, fileList)
-                    m_postponedFiles.insert(file);
-            }
+        } else if (!m_fullUpdatePostponed) {
+            m_partialUpdatePostponed = true;
+            foreach (const QString &file, fileList)
+                m_postponedFiles.insert(file);
         }
         return;
     }
