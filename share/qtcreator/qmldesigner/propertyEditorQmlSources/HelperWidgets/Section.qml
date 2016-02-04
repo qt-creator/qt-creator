@@ -28,12 +28,13 @@ import QtQuick.Controls 1.1 as Controls
 import QtQuick.Layouts 1.0
 
 Item {
-
     id: section
     property alias caption: label.text
     property int leftPadding: 8
     property int topPadding: 4
     property int rightPadding: 0
+
+    readonly property int animationDuration: 120
 
     clip: true
 
@@ -55,12 +56,16 @@ Item {
         }
 
         Image {
+            id: arrow
             source: "images/down-arrow.png"
-            rotation: section.state === "Collapsed" ? -90 : 0
             anchors.left: parent.left
             anchors.leftMargin: 4
             anchors.verticalCenter: parent.verticalCenter
-            Behavior on rotation {NumberAnimation{duration: 80}}
+            Behavior on rotation {
+                NumberAnimation {
+                    duration: animationDuration
+                }
+            }
         }
 
         color: "#444"
@@ -104,10 +109,14 @@ Item {
         anchors.top: header.bottom
         anchors.topMargin: topPadding
         id: row
-        Behavior on opacity { NumberAnimation{easing.type: Easing.Linear ; duration: 80} }
     }
 
-    Behavior on height { NumberAnimation{easing.type: Easing.OutCubic ; duration: 140} }
+    Behavior on implicitHeight {
+        NumberAnimation {
+            easing.type: Easing.OutCubic
+            duration: animationDuration
+        }
+    }
 
     states: [
         State {
@@ -117,11 +126,9 @@ Item {
                 implicitHeight: header.height
             }
             PropertyChanges {
-                target: row
-                opacity: 0
-
+                target: arrow
+                rotation: -90
             }
         }
     ]
-
 }
