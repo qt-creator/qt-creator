@@ -1106,7 +1106,11 @@ static TestPlan generateCustomTestPlan(IPlugin *plugin, const QList<QObject *> &
         if (!matched) {
             QTextStream out(stdout);
             out << "No test function or class matches \"" << matchText
-                << "\" in plugin \"" << plugin->metaObject()->className() << "\"." << endl;
+                << "\" in plugin \"" << plugin->metaObject()->className()
+                << "\".\nAvailable functions:\n";
+            foreach (const QString &f, testFunctionsOfPluginObject)
+                out << "  " << f << '\n';
+            out << endl;
         }
     }
 
