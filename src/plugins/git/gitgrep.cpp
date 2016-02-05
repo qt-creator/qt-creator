@@ -29,20 +29,21 @@
 
 #include <coreplugin/vcsmanager.h>
 #include <texteditor/findinfiles.h>
+#include <vcsbase/vcscommand.h>
 #include <vcsbase/vcsbaseconstants.h>
 
 #include <utils/filesearch.h>
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
 #include <utils/runextensions.h>
+#include <utils/synchronousprocess.h>
 
 #include <QCheckBox>
-#include <QCoreApplication>
-#include <QEventLoop>
 #include <QFuture>
 #include <QFutureWatcher>
+#include <QScopedPointer>
 #include <QSettings>
+#include <QTextStream>
 
 using namespace Utils;
 
@@ -50,6 +51,7 @@ namespace Git {
 namespace Internal {
 
 using namespace Core;
+using VcsBase::VcsCommand;
 
 namespace {
 
@@ -68,33 +70,33 @@ public:
         m_directory = parameters.additionalParameters.toString();
     }
 
-    void processLine(const QByteArray &line, FileSearchResultList *resultList) const
+    void processLine(const QString &line, FileSearchResultList *resultList) const
     {
         if (line.isEmpty())
             return;
-        static const char boldRed[] = "\x1b[1;31m";
-        static const char resetColor[] = "\x1b[m";
+        static const QLatin1String boldRed("\x1b[1;31m");
+        static const QLatin1String resetColor("\x1b[m");
         FileSearchResult single;
-        const int lineSeparator = line.indexOf('\0');
+        const int lineSeparator = line.indexOf(QChar::Null);
         single.fileName = m_directory + QLatin1Char('/')
-                + QString::fromLocal8Bit(line.left(lineSeparator));
-        const int textSeparator = line.indexOf('\0', lineSeparator + 1);
+                + line.left(lineSeparator);
+        const int textSeparator = line.indexOf(QChar::Null, lineSeparator + 1);
         single.lineNumber = line.mid(lineSeparator + 1, textSeparator - lineSeparator - 1).toInt();
-        QByteArray text = line.mid(textSeparator + 1);
+        QString text = line.mid(textSeparator + 1);
         QVector<QPair<int, int>> matches;
         for (;;) {
             const int matchStart = text.indexOf(boldRed);
             if (matchStart == -1)
                 break;
-            const int matchTextStart = matchStart + int(sizeof(boldRed)) - 1;
+            const int matchTextStart = matchStart + boldRed.size();
             const int matchEnd = text.indexOf(resetColor, matchTextStart);
             QTC_ASSERT(matchEnd != -1, break);
             const int matchLength = matchEnd - matchTextStart;
             matches.append(qMakePair(matchStart, matchLength));
             text = text.left(matchStart) + text.mid(matchTextStart, matchLength)
-                    + text.mid(matchEnd + int(sizeof(resetColor)) - 1);
+                    + text.mid(matchEnd + resetColor.size());
         }
-        single.matchingLine = QString::fromLocal8Bit(text);
+        single.matchingLine = text;
         foreach (auto match, matches) {
             single.matchStart = match.first;
             single.matchLength = match.second;
@@ -102,11 +104,13 @@ public:
         }
     }
 
-    void read()
+    void read(const QString &text)
     {
         FileSearchResultList resultList;
-        while (m_process.canReadLine() && !m_fi.isCanceled())
-            processLine(m_process.readLine().trimmed(), &resultList);
+        QString t = text;
+        QTextStream stream(&t);
+        while (!stream.atEnd() && !m_fi.isCanceled())
+            processLine(stream.readLine(), &resultList);
         if (!resultList.isEmpty())
             m_fi.reportResult(resultList);
     }
@@ -130,27 +134,18 @@ public:
             arguments << QLatin1String("-F");
         arguments << m_parameters.text;
         arguments << QLatin1String("--") << m_parameters.nameFilters;
-        QString args;
-        m_process.addArgs(&args, arguments);
-        m_process.setWorkingDirectory(m_directory);
-        m_process.setCommand(GitPlugin::instance()->client()->vcsBinary().toString(), args);
+        GitClient *client = GitPlugin::instance()->client();
+        QScopedPointer<VcsCommand> command(client->createCommand(m_directory));
+        command->addFlags(VcsCommand::SilentOutput);
+        command->setProgressiveOutput(true);
         QFutureWatcher<FileSearchResultList> watcher;
         watcher.setFuture(m_fi.future());
         connect(&watcher, &QFutureWatcher<FileSearchResultList>::canceled,
-                &m_process, &QtcProcess::kill);
-        connect(&m_process, &QProcess::readyRead,
-                this, &GitGrepRunner::read);
-        m_process.start();
-        if (!m_process.waitForStarted())
-            return;
-        QEventLoop eventLoop;
-        connect(&m_process, static_cast<void(QProcess::*)(int)>(&QProcess::finished),
-                this, [this, &eventLoop]() {
-            read();
-            eventLoop.quit();
-        });
-        eventLoop.exec();
-        m_fi.setProgressValue(1);
+                command.data(), &VcsCommand::cancel);
+        connect(command.data(), &VcsCommand::stdOutText, this, &GitGrepRunner::read);
+        SynchronousProcessResponse resp = command->runCommand(client->vcsBinary(), arguments, 0);
+        if (resp.result != SynchronousProcessResponse::Finished)
+            m_fi.reportCanceled();
     }
 
     static void run(QFutureInterface<FileSearchResultList> &fi,
@@ -161,7 +156,6 @@ public:
     }
 
 private:
-    QtcProcess m_process;
     FutureInterfaceType m_fi;
     QString m_directory;
     const TextEditor::FileFindParameters &m_parameters;
