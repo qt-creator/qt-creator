@@ -32,8 +32,6 @@
 
 using namespace ClangStaticAnalyzer::Internal;
 
-namespace {
-
 static QString clangExecutablePath()
 {
     const QString clangFileName = Utils::HostOsInfo::withExecutableSuffix(QStringLiteral("clang"));
@@ -48,7 +46,28 @@ static bool writeFile(const QString &filePath, const QByteArray &source)
     return saver.write(source) && saver.finalize();
 }
 
-} // anonymous namespace
+static bool waitUntilSignalCounterIsGreatorThanZero(int &signalCounter, int timeOutInMs = 5000)
+{
+    QElapsedTimer timer;
+    timer.start();
+
+    while (timer.elapsed() <= timeOutInMs) {
+        QCoreApplication::processEvents();
+
+        if (signalCounter != 0) {
+            if (signalCounter == 1)
+                return true;
+
+            qDebug() << "signalCounter:" << signalCounter;
+            return false;
+        }
+
+        QThread::msleep(50);
+    }
+
+    qDebug() << "signalCounter:" << signalCounter;
+    return false;
+}
 
 class ClangStaticAnalyzerRunnerTest : public QObject
 {
@@ -82,92 +101,57 @@ public:
 
 private:
     int m_startedSignalEmitted;
-    QSignalSpy m_spyStarted;
-    QSignalSpy m_spyFinishedWithFailure;
-    QSignalSpy m_spyFinishedWithSuccess;
+    int m_finishedWithSuccessEmitted;
+    int m_finishedWithFailureEmitted;
+    QString m_finishedWithFailureErrorMessage;
 };
 
 ClangStaticAnalyzerRunnerSignalTester::ClangStaticAnalyzerRunnerSignalTester(
         ClangStaticAnalyzerRunner *runner)
     : m_startedSignalEmitted(0)
-    , m_spyStarted(runner, SIGNAL(started()))
-    , m_spyFinishedWithFailure(runner, SIGNAL(finishedWithFailure(QString,QString)))
-    , m_spyFinishedWithSuccess(runner, SIGNAL(finishedWithSuccess(QString)))
+    , m_finishedWithSuccessEmitted(0)
+    , m_finishedWithFailureEmitted(0)
 {
-    // On Windows started() is emitted before ClangStaticAnalyzerRunner::run()
-    // returns and thus before we reach QSignalSpy::wait(). Ensure that we will
-    // get notified about those early started() signals.
     QObject::connect(runner, &ClangStaticAnalyzerRunner::started, [this] {
         ++m_startedSignalEmitted;
+    });
+
+    QObject::connect(runner, &ClangStaticAnalyzerRunner::finishedWithSuccess, [this] {
+        ++m_finishedWithSuccessEmitted;
+    });
+
+    QObject::connect(runner,
+                     &ClangStaticAnalyzerRunner::finishedWithFailure,
+                     [this] (const QString &errorMessage, const QString &) {
+        ++m_finishedWithFailureEmitted;
+        m_finishedWithFailureErrorMessage = errorMessage;
     });
 }
 
 bool ClangStaticAnalyzerRunnerSignalTester::expectStartedSignal()
 {
-    if (m_startedSignalEmitted != 0) {
-        if (m_startedSignalEmitted == 1)
-            return true;
-
-        qDebug() << "started() emitted more than once.";
-        return false;
-    } else if (m_spyStarted.wait()) {
-        if (m_spyStarted.size() == 1)
-            return true;
-
-        qDebug() << "started() emitted more than once.";
-        return false;
-    }
-
-    qDebug() << "started() not emitted.";
-    return false;
+    return waitUntilSignalCounterIsGreatorThanZero(m_startedSignalEmitted);
 }
 
 bool ClangStaticAnalyzerRunnerSignalTester::expectFinishWithSuccessSignal()
 {
-    if (m_spyFinishedWithSuccess.wait()) {
-        if (m_spyFinishedWithSuccess.size() != 1) {
-            qDebug() << "finishedWithSuccess() emitted more than once.";
-            return false;
-        }
-    } else {
-        qDebug() << "finishedWithSuccess() not emitted.";
-        return false;
-    }
-
-    if (m_spyFinishedWithFailure.size() != 0) {
-        qDebug() << "finishedWithFailure() emitted.";
-        return false;
-    }
-
-    return true;
+    return waitUntilSignalCounterIsGreatorThanZero(m_finishedWithSuccessEmitted);
 }
 
 bool ClangStaticAnalyzerRunnerSignalTester::expectFinishWithFailureSignal(
         const QString &expectedErrorMessage)
 {
-    if (m_spyFinishedWithFailure.wait()) {
-        if (m_spyFinishedWithFailure.size() == 1) {
-            const QList<QVariant> args = m_spyFinishedWithFailure.at(0);
-            const QString errorMessage = args.at(0).toString();
-            if (errorMessage == expectedErrorMessage) {
-                if (m_spyFinishedWithSuccess.size() != 0) {
-                    qDebug() << "Got expected error, but finishedWithSuccess() was also emitted.";
-                    return false;
-                }
-                return true;
-            } else {
-                qDebug() << "Actual error message:" << errorMessage;
-                qDebug() << "Expected error message:" << expectedErrorMessage;
-                return false;
-            }
+    if (waitUntilSignalCounterIsGreatorThanZero(m_finishedWithFailureEmitted)) {
+        if (m_finishedWithFailureErrorMessage == expectedErrorMessage) {
+            return true;
         } else {
-            qDebug() << "Finished with more than one failure (expected only one).";
+            qDebug() << "Actual error message:" << m_finishedWithFailureErrorMessage;
+            qDebug() << "Expected error message:" << expectedErrorMessage;
             return false;
         }
-    } else {
-        qDebug() << "Not finished with failure, but expected.";
-        return false;
     }
+
+    return false;
 }
 
 void ClangStaticAnalyzerRunnerTest::runWithTestCodeGeneratedOneIssue()
