@@ -97,7 +97,6 @@ public:
     void markForRemoval(bool mark);
     void markForRemovalRecursively(bool mark);
     bool markedForRemoval() const { return m_markedForRemoval; }
-    QList<QString> getChildNames() const;
     TestTreeItem *parentItem() const;
     TestTreeItem *childItem(int row) const;
 

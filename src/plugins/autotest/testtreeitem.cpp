@@ -258,14 +258,6 @@ void TestTreeItem::markForRemovalRecursively(bool mark)
         childItem(row)->markForRemovalRecursively(mark);
 }
 
-QList<QString> TestTreeItem::getChildNames() const
-{
-    QList<QString> names;
-    for (int row = 0, count = childCount(); row < count; ++row)
-        names << childItem(row)->name();
-    return names;
-}
-
 TestTreeItem *TestTreeItem::parentItem() const
 {
     return static_cast<TestTreeItem *>(parent());
