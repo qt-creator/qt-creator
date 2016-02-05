@@ -7,6 +7,7 @@ Project {
     references: [
         "app/app.qbs",
         "app/app_version_header.qbs",
+        project.sharedSourcesDir + "/json",
         "libs/libs.qbs",
         "plugins/plugins.qbs",
         "tools/tools.qbs"
@@ -45,7 +46,6 @@ Project {
             qbsBaseDir + "/src/plugins/plugins.qbs",
             qbsBaseDir + "/share/share.qbs",
             qbsBaseDir + "/src/app/apps.qbs",
-            project.sharedSourcesDir + "/json",
         ]
     }
 }
