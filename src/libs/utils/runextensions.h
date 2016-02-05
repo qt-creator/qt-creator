@@ -760,30 +760,63 @@ QFuture<ReduceResult> mapReduce(const Container &container, const InitFunction &
 /*!
     The interface of \c {runAsync} is similar to the std::thread constructor and \c {std::invoke}.
 
-    The \a function argument can be a member function, an object with \c {operator()}, a
-    \c {std::function}, lambda, function pointer or function reference.
-    They need to take a \c {QFutureInterface<ResultType>&} as their first argument, followed by
+    The \a function argument can be a member function,
+    an object with \c {operator()} (with no overloads),
+    a \c {std::function}, lambda, function pointer or function reference.
+    The \a args are passed to the function call after they are copied/moved to the thread.
+
+    The \a function can take a \c {QFutureInterface<ResultType>&} as its first argument, followed by
     other custom arguments which need to be passed to this function.
+    If it does not take a \c {QFutureInterface<ResultType>&} as its first argument
+    and its return type is not void, the function call's result is reported to the QFuture.
     If \a function is a (non-static) member function, the first argument in \a args is expected
     to be the object that the function is called on.
 
+    If a thread \a pool is given, the function is run there. Otherwise a new, independent thread
+    is started.
+
     \sa std::thread
     \sa std::invoke
+    \sa QThreadPool
+    \sa QThread::Priority
  */
 template <typename ResultType, typename Function, typename... Args>
-QFuture<ResultType> runAsync(QThread::Priority priority, Function &&function, Args&&... args)
+QFuture<ResultType> runAsync(QThreadPool *pool, QThread::Priority priority,
+                             Function &&function, Args&&... args)
 {
     auto job = new Internal::AsyncJob<ResultType,Function,Args...>
             (std::forward<Function>(function), std::forward<Args>(args)...);
     job->setThreadPriority(priority);
     QFuture<ResultType> future = job->future();
-    auto thread = new Internal::RunnableThread(job);
-    thread->moveToThread(qApp->thread()); // make sure thread gets deleteLater on main thread
-    QObject::connect(thread, &QThread::finished, thread, &QObject::deleteLater);
-    thread->start();
+    if (pool) {
+        job->setThreadPool(pool);
+        pool->start(job);
+    } else {
+        auto thread = new Internal::RunnableThread(job);
+        thread->moveToThread(qApp->thread()); // make sure thread gets deleteLater on main thread
+        QObject::connect(thread, &QThread::finished, thread, &QObject::deleteLater);
+        thread->start();
+    }
     return future;
 }
 
+/*!
+    Runs \a function with \a args in a new thread with given thread \a priority.
+    \sa runAsync(QThreadPool*,QThread::Priority,Function&&,Args&&...)
+    \sa QThread::Priority
+ */
+template <typename ResultType, typename Function, typename... Args>
+QFuture<ResultType> runAsync(QThread::Priority priority, Function &&function, Args&&... args)
+{
+    return runAsync<ResultType>(static_cast<QThreadPool *>(nullptr), priority,
+                                std::forward<Function>(function), std::forward<Args>(args)...);
+}
+
+/*!
+    Runs \a function with \a args in a new thread with thread priority QThread::InheritPriority.
+    \sa runAsync(QThreadPool*,QThread::Priority,Function&&,Args&&...)
+    \sa QThread::Priority
+ */
 template <typename ResultType, typename Function, typename... Args,
           typename = typename std::enable_if<
                 !std::is_same<typename std::decay<Function>::type, QThreadPool>::value
@@ -791,23 +824,16 @@ template <typename ResultType, typename Function, typename... Args,
               >::type>
 QFuture<ResultType> runAsync(Function &&function, Args&&... args)
 {
-    return runAsync<ResultType>(QThread::InheritPriority, std::forward<Function>(function),
+    return runAsync<ResultType>(static_cast<QThreadPool *>(nullptr),
+                                QThread::InheritPriority, std::forward<Function>(function),
                                 std::forward<Args>(args)...);
 }
 
-template <typename ResultType, typename Function, typename... Args>
-QFuture<ResultType> runAsync(QThreadPool *pool, QThread::Priority priority,
-                             Function &&function, Args&&... args)
-{
-    auto job = new Internal::AsyncJob<ResultType,Function,Args...>
-            (std::forward<Function>(function), std::forward<Args>(args)...);
-    job->setThreadPool(pool);
-    job->setThreadPriority(priority);
-    QFuture<ResultType> future = job->future();
-    pool->start(job);
-    return future;
-}
-
+/*!
+    Runs \a function with \a args in a thread \a pool with thread priority QThread::InheritPriority.
+    \sa runAsync(QThreadPool*,QThread::Priority,Function&&,Args&&...)
+    \sa QThread::Priority
+ */
 template <typename ResultType, typename Function, typename... Args,
           typename = typename std::enable_if<
                 !std::is_same<typename std::decay<Function>::type, QThread::Priority>::value
