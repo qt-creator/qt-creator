@@ -74,7 +74,8 @@ public:
 signals:
     // Signal interface to implement
     void codeWarningsUpdated(unsigned revision,
-                             const QList<QTextEdit::ExtraSelection> selections);
+                             const QList<QTextEdit::ExtraSelection> selections,
+                             const TextEditor::RefactorMarkers &refactorMarkers);
 
     void ifdefedOutBlocksUpdated(unsigned revision,
                                  const QList<TextEditor::BlockRange> ifdefedOutBlocks);

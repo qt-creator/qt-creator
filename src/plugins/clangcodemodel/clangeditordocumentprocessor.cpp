@@ -164,7 +164,8 @@ void ClangEditorDocumentProcessor::updateCodeWarnings(const QVector<ClangBackEnd
     if (documentRevision == revision()) {
         m_diagnosticManager.processNewDiagnostics(diagnostics);
         const auto codeWarnings = m_diagnosticManager.takeExtraSelections();
-        emit codeWarningsUpdated(revision(), codeWarnings);
+        const auto fixitAvailableMarkers = m_diagnosticManager.takeFixItAvailableMarkers();
+        emit codeWarningsUpdated(revision(), codeWarnings, fixitAvailableMarkers);
     }
 }
 namespace {

@@ -115,7 +115,8 @@ private slots:
     void onCppDocumentUpdated();
 
     void onCodeWarningsUpdated(unsigned revision,
-                               const QList<QTextEdit::ExtraSelection> selections);
+                               const QList<QTextEdit::ExtraSelection> selections,
+                               const TextEditor::RefactorMarkers &refactorMarkers);
     void onIfdefedOutBlocksUpdated(unsigned revision,
                                    const QList<TextEditor::BlockRange> ifdefedOutBlocks);
 
@@ -132,6 +133,8 @@ private:
     void finalizeInitializationAfterDuplication(TextEditorWidget *other) override;
 
     unsigned documentRevision() const;
+
+    TextEditor::RefactorMarkers refactorMarkersWithoutClangMarkers() const;
 
 private:
     QScopedPointer<CppEditorWidgetPrivate> d;

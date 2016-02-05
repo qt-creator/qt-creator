@@ -27,12 +27,18 @@
 #include "clangdiagnosticmanager.h"
 #include "clangisdiagnosticrelatedtolocation.h"
 
+#include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/actionmanager/command.h>
+
+#include <cpptools/cpptoolsconstants.h>
+
 #include <texteditor/convenience.h>
 #include <texteditor/fontsettings.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditorsettings.h>
 
 #include <utils/fileutils.h>
+#include <utils/proxyaction.h>
 #include <utils/qtcassert.h>
 
 #include <QTextBlock>
@@ -193,6 +199,40 @@ bool editorDocumentProcessorHasDiagnosticAt(
     return false;
 }
 
+QTextCursor cursorAtLastPositionOfLine(QTextDocument *textDocument, int lineNumber)
+{
+    const QTextBlock textBlock = textDocument->findBlockByNumber(lineNumber - 1);
+    QTC_ASSERT(textBlock.isValid(), return QTextCursor());
+
+    const int lastPositionOfLine = textBlock.position() + textBlock.length() - 1;
+
+    QTextCursor textCursor(textDocument);
+    textCursor.setPosition(lastPositionOfLine);
+
+    return textCursor;
+}
+
+QString tooltipForFixItAvailableMarker()
+{
+    QString text = QObject::tr("Inspect available fixits");
+
+    Core::Command *command = Core::ActionManager::command(TextEditor::Constants::QUICKFIX_THIS);
+    if (command)
+        text = Utils::ProxyAction::stringWithAppendedShortcut(text, command->keySequence());
+
+    return text;
+}
+
+TextEditor::RefactorMarker createFixItAvailableMarker(QTextDocument *textDocument, int lineNumber)
+{
+    TextEditor::RefactorMarker marker;
+    marker.tooltip = tooltipForFixItAvailableMarker();
+    marker.cursor = cursorAtLastPositionOfLine(textDocument, lineNumber);
+    marker.data = QLatin1String(CppTools::Constants::CPP_CLANG_FIXIT_AVAILABLE_MARKER_ID);
+
+    return marker;
+}
+
 } // anonymous
 
 namespace ClangCodeModel {
@@ -212,6 +252,15 @@ void ClangDiagnosticManager::generateTextMarks()
     addClangTextMarks(m_errorDiagnostics);
 }
 
+void ClangDiagnosticManager::generateFixItAvailableMarkers()
+{
+    m_fixItAvailableMarkers.clear();
+
+    QSet<int> lineNumbersWithFixItMarker;
+    addFixItAvailableMarker(m_warningDiagnostics, lineNumbersWithFixItMarker);
+    addFixItAvailableMarker(m_errorDiagnostics, lineNumbersWithFixItMarker);
+}
+
 QList<QTextEdit::ExtraSelection> ClangDiagnosticManager::takeExtraSelections()
 {
     auto extraSelections = m_extraSelections;
@@ -219,6 +268,15 @@ QList<QTextEdit::ExtraSelection> ClangDiagnosticManager::takeExtraSelections()
     m_extraSelections.clear();
 
     return extraSelections;
+}
+
+TextEditor::RefactorMarkers ClangDiagnosticManager::takeFixItAvailableMarkers()
+{
+    TextEditor::RefactorMarkers fixItAvailableMarkers = m_fixItAvailableMarkers;
+
+    m_fixItAvailableMarkers.clear();
+
+    return fixItAvailableMarkers;
 }
 
 bool ClangDiagnosticManager::hasDiagnosticsAt(uint line, uint column) const
@@ -262,6 +320,7 @@ void ClangDiagnosticManager::processNewDiagnostics(
 
     generateTextMarks();
     generateEditorSelections();
+    generateFixItAvailableMarkers();
 }
 
 const QVector<ClangBackEnd::DiagnosticContainer> &
@@ -285,6 +344,24 @@ void ClangDiagnosticManager::addClangTextMarks(
         textMark.setBaseTextDocument(m_textDocument);
 
         m_textDocument->addMark(&textMark);
+    }
+}
+
+void ClangDiagnosticManager::addFixItAvailableMarker(
+        const QVector<ClangBackEnd::DiagnosticContainer> &diagnostics,
+        QSet<int> &lineNumbersWithFixItMarker)
+{
+    for (auto &&diagnostic : diagnostics) {
+        const int line = int(diagnostic.location().line());
+        if (!diagnostic.fixIts().isEmpty() && !lineNumbersWithFixItMarker.contains(line)) {
+            const TextEditor::RefactorMarker marker
+                    = createFixItAvailableMarker(m_textDocument->document(), line);
+
+            lineNumbersWithFixItMarker.insert(line);
+            m_fixItAvailableMarkers.append(marker);
+        }
+
+        addFixItAvailableMarker(diagnostic.children(), lineNumbersWithFixItMarker);
     }
 }
 

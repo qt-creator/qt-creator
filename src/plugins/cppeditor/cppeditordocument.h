@@ -60,7 +60,8 @@ public:
 
 signals:
     void codeWarningsUpdated(unsigned contentsRevision,
-                             const QList<QTextEdit::ExtraSelection> selections);
+                             const QList<QTextEdit::ExtraSelection> selections,
+                             const TextEditor::RefactorMarkers &refactorMarkers);
 
     void ifdefedOutBlocksUpdated(unsigned contentsRevision,
                                  const QList<TextEditor::BlockRange> ifdefedOutBlocks);

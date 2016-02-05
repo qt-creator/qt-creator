@@ -34,6 +34,7 @@
 
 #include <texteditor/convenience.h>
 #include <texteditor/fontsettings.h>
+#include <texteditor/refactoroverlay.h>
 #include <texteditor/texteditorsettings.h>
 
 #include <cplusplus/CppDocument.h>
@@ -307,7 +308,7 @@ void BuiltinEditorDocumentProcessor::onCodeWarningsUpdated(
 
     m_codeWarnings += toTextEditorSelections(codeWarnings, textDocument());
     m_codeWarningsUpdated = true;
-    emit codeWarningsUpdated(revision(), m_codeWarnings);
+    emit codeWarningsUpdated(revision(), m_codeWarnings, TextEditor::RefactorMarkers());
 }
 
 SemanticInfo::Source BuiltinEditorDocumentProcessor::createSemanticInfoSource(bool force) const

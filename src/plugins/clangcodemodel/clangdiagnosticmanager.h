@@ -28,9 +28,12 @@
 
 #include "clangtextmark.h"
 
+#include <texteditor/refactoroverlay.h>
+
 #include <clangbackendipc/diagnosticcontainer.h>
 
 #include <QList>
+#include <QSet>
 #include <QTextEdit>
 #include <QVector>
 
@@ -50,6 +53,7 @@ public:
 
     const QVector<ClangBackEnd::DiagnosticContainer> &diagnosticsWithFixIts() const;
     QList<QTextEdit::ExtraSelection> takeExtraSelections();
+    TextEditor::RefactorMarkers takeFixItAvailableMarkers();
 
     bool hasDiagnosticsAt(uint line, uint column) const;
     QVector<ClangBackEnd::DiagnosticContainer> diagnosticsAt(uint line, uint column) const;
@@ -61,7 +65,10 @@ private:
     void filterDiagnostics(const QVector<ClangBackEnd::DiagnosticContainer> &diagnostics);
     void generateEditorSelections();
     void generateTextMarks();
+    void generateFixItAvailableMarkers();
     void addClangTextMarks(const QVector<ClangBackEnd::DiagnosticContainer> &diagnostics);
+    void addFixItAvailableMarker(const QVector<ClangBackEnd::DiagnosticContainer> &diagnostics,
+                                 QSet<int> &lineNumbersWithFixItMarker);
 
 private:
     TextEditor::TextDocument *m_textDocument;
@@ -70,6 +77,7 @@ private:
     QVector<ClangBackEnd::DiagnosticContainer> m_errorDiagnostics;
     QVector<ClangBackEnd::DiagnosticContainer> m_fixItdiagnostics;
     QList<QTextEdit::ExtraSelection> m_extraSelections;
+    TextEditor::RefactorMarkers m_fixItAvailableMarkers;
     std::vector<ClangTextMark> m_clangTextMarks;
 };
 

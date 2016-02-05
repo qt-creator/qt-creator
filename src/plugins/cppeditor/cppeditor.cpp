@@ -56,6 +56,7 @@
 #include <cpptools/symbolfinder.h>
 
 #include <texteditor/completionsettings.h>
+#include <texteditor/convenience.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/textdocumentlayout.h>
 #include <texteditor/texteditorsettings.h>
@@ -271,11 +272,14 @@ void CppEditorWidget::onCppDocumentUpdated()
 }
 
 void CppEditorWidget::onCodeWarningsUpdated(unsigned revision,
-                                            const QList<QTextEdit::ExtraSelection> selections)
+                                            const QList<QTextEdit::ExtraSelection> selections,
+                                            const TextEditor::RefactorMarkers &refactorMarkers)
 {
     if (revision != documentRevision())
         return;
+
     setExtraSelections(TextEditorWidget::CodeWarningsSelection, selections);
+    setRefactorMarkers(refactorMarkersWithoutClangMarkers() + refactorMarkers);
 }
 
 void CppEditorWidget::onIfdefedOutBlocksUpdated(unsigned revision,
@@ -426,6 +430,26 @@ CppEditorWidget::Link CppEditorWidget::findLinkAt(const QTextCursor &cursor, boo
 unsigned CppEditorWidget::documentRevision() const
 {
     return document()->revision();
+}
+
+static bool isClangFixItAvailableMarker(const RefactorMarker &marker)
+{
+    return marker.data.toString()
+        == QLatin1String(CppTools::Constants::CPP_CLANG_FIXIT_AVAILABLE_MARKER_ID);
+}
+
+RefactorMarkers CppEditorWidget::refactorMarkersWithoutClangMarkers() const
+{
+    RefactorMarkers clearedRefactorMarkers;
+
+    foreach (const RefactorMarker &marker, refactorMarkers()) {
+        if (isClangFixItAvailableMarker(marker))
+            continue;
+
+        clearedRefactorMarkers.append(marker);
+    }
+
+    return clearedRefactorMarkers;
 }
 
 bool CppEditorWidget::isSemanticInfoValidExceptLocalUses() const
@@ -631,8 +655,15 @@ QSharedPointer<FunctionDeclDefLink> CppEditorWidget::declDefLink() const
 
 void CppEditorWidget::onRefactorMarkerClicked(const RefactorMarker &marker)
 {
-    if (marker.data.canConvert<FunctionDeclDefLink::Marker>())
+    if (marker.data.canConvert<FunctionDeclDefLink::Marker>()) {
         applyDeclDefLinkChanges(true);
+    } else if (isClangFixItAvailableMarker(marker)) {
+        int line, column;
+        if (Convenience::convertPosition(document(), marker.cursor.position(), &line, &column)) {
+            setTextCursor(marker.cursor);
+            invokeAssist(TextEditor::QuickFix);
+        }
+    }
 }
 
 void CppEditorWidget::updateFunctionDeclDefLink()
