@@ -357,30 +357,29 @@ Utils::SynchronousProcessResponse ShellCommand::runCommand(const Utils::FileName
             process.setStdErrBufferedSignalsEnabled(true);
             connect(&process, &Utils::SynchronousProcess::stdErrBuffered,
                     this, [this, proxy](const QString &text)
-                          {
-                              if (!(d->m_flags & SuppressStdErr))
-                                  proxy->appendError(text);
-                              if (d->m_progressiveOutput)
-                                  emit stdErrText(text);
-                          });
+            {
+                if (!(d->m_flags & SuppressStdErr))
+                    proxy->appendError(text);
+                if (d->m_progressiveOutput)
+                    emit stdErrText(text);
+            });
         }
 
         // connect stdout to the output window if desired
-        if (d->m_progressParser || d->m_progressiveOutput
-                || (d->m_flags & ShowStdOut)) {
+        if (d->m_progressParser || d->m_progressiveOutput || (d->m_flags & ShowStdOut)) {
             process.setStdOutBufferedSignalsEnabled(true);
             connect(&process, &Utils::SynchronousProcess::stdOutBuffered,
                     this, [this, proxy](const QString &text)
-                          {
-                              if (d->m_progressParser)
-                                  d->m_progressParser->parseProgress(text);
-                              if (d->m_flags & ShowStdOut)
-                                  proxy->append(text);
-                              if (d->m_progressiveOutput) {
-                                  emit stdOutText(text);
-                                  d->m_hadOutput = true;
-                              }
-                          });
+            {
+                if (d->m_progressParser)
+                    d->m_progressParser->parseProgress(text);
+                if (d->m_flags & ShowStdOut)
+                    proxy->append(text);
+                if (d->m_progressiveOutput) {
+                    emit stdOutText(text);
+                    d->m_hadOutput = true;
+                }
+            });
         }
 
         process.setTimeOutMessageBoxEnabled(true);
