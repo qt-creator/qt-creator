@@ -35,7 +35,6 @@
 #include <QPainter>
 #include <QStyledItemDelegate>
 #include <QToolTip>
-#include <QtConcurrentRun>
 
 using namespace Android;
 using namespace Android::Internal;

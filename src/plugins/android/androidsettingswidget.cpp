@@ -35,6 +35,7 @@
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
 #include <utils/pathchooser.h>
+#include <utils/runextensions.h>
 #include <projectexplorer/toolchainmanager.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/kitinformation.h>
@@ -52,7 +53,6 @@
 #include <QMessageBox>
 #include <QModelIndex>
 #include <QtCore/QUrl>
-#include <QtConcurrentRun>
 
 namespace Android {
 namespace Internal {
@@ -293,7 +293,7 @@ void AndroidSettingsWidget::check(AndroidSettingsWidget::Mode mode)
             }
 
             if (!gdbPaths.isEmpty()) {
-                m_checkGdbWatcher.setFuture(QtConcurrent::run(&checkGdbForBrokenPython, gdbPaths));
+                m_checkGdbWatcher.setFuture(Utils::runAsync(&checkGdbForBrokenPython, gdbPaths));
                 m_gdbCheckPaths = gdbPaths;
             }
 

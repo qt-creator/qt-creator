@@ -36,11 +36,11 @@
 #include <projectexplorer/target.h>
 #include <qtsupport/qtkitinformation.h>
 #include <utils/qtcassert.h>
+#include <utils/runextensions.h>
 
 #include <QApplication>
 #include <QDir>
 #include <QTime>
-#include <QtConcurrentRun>
 #include <QTemporaryFile>
 #include <QTcpServer>
 #include <QTcpSocket>
@@ -322,7 +322,7 @@ void AndroidRunner::forceStop()
 void AndroidRunner::start()
 {
     m_adbLogcatProcess.start(m_adb, selector() << _("logcat"));
-    QtConcurrent::run(this, &AndroidRunner::asyncStart);
+    Utils::runAsync(&AndroidRunner::asyncStart, this);
 }
 
 void AndroidRunner::asyncStart()

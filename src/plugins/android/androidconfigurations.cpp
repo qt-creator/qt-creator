@@ -49,6 +49,7 @@
 #include <qtsupport/qtversionmanager.h>
 #include <utils/algorithm.h>
 #include <utils/environment.h>
+#include <utils/runextensions.h>
 #include <utils/sleep.h>
 
 #include <QDateTime>
@@ -59,7 +60,6 @@
 #include <QDirIterator>
 #include <QMetaObject>
 #include <QApplication>
-#include <QtConcurrentRun>
 
 #include <QStringListModel>
 #include <QMessageBox>
@@ -614,7 +614,8 @@ AndroidConfig::CreateAvdInfo AndroidConfig::gatherCreateAVDInfo(QWidget *parent,
 
 QFuture<AndroidConfig::CreateAvdInfo> AndroidConfig::createAVD(CreateAvdInfo info) const
 {
-    return QtConcurrent::run(&AndroidConfig::createAVDImpl, info, androidToolPath(), androidToolEnvironment());
+    return Utils::runAsync(&AndroidConfig::createAVDImpl, info,
+                           androidToolPath(), androidToolEnvironment());
 }
 
 AndroidConfig::CreateAvdInfo AndroidConfig::createAVDImpl(CreateAvdInfo info, FileName androidToolPath, Environment env)
@@ -685,7 +686,8 @@ bool AndroidConfig::removeAVD(const QString &name) const
 
 QFuture<QVector<AndroidDeviceInfo>> AndroidConfig::androidVirtualDevicesFuture() const
 {
-    return QtConcurrent::run(&AndroidConfig::androidVirtualDevices, androidToolPath().toString(), androidToolEnvironment());
+    return Utils::runAsync(&AndroidConfig::androidVirtualDevices,
+                           androidToolPath().toString(), androidToolEnvironment());
 }
 
 QVector<AndroidDeviceInfo> AndroidConfig::androidVirtualDevices(const QString &androidTool, const Environment &environment)
