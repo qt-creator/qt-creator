@@ -27,6 +27,7 @@
 #include "gitclient.h"
 #include "gitplugin.h"
 
+#include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/vcsmanager.h>
 #include <texteditor/findinfiles.h>
 #include <vcsbase/vcscommand.h>
@@ -116,9 +117,6 @@ public:
 
     void exec()
     {
-        m_fi.setProgressRange(0, 1);
-        m_fi.setProgressValue(0);
-
         QStringList arguments;
         arguments << QLatin1String("-c") << QLatin1String("color.grep.match=bold red")
                   << QLatin1String("grep") << QLatin1String("-zn")
@@ -161,6 +159,7 @@ public:
                     TextEditor::FileFindParameters parameters)
     {
         GitGrepRunner runner(fi, parameters);
+        Core::ProgressTimer progress(fi, 20);
         runner.exec();
     }
 
