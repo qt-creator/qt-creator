@@ -144,8 +144,18 @@ public:
                 command.data(), &VcsCommand::cancel);
         connect(command.data(), &VcsCommand::stdOutText, this, &GitGrepRunner::read);
         SynchronousProcessResponse resp = command->runCommand(client->vcsBinary(), arguments, 0);
-        if (resp.result != SynchronousProcessResponse::Finished)
+        switch (resp.result) {
+        case SynchronousProcessResponse::TerminatedAbnormally:
+        case SynchronousProcessResponse::StartFailed:
+        case SynchronousProcessResponse::Hang:
             m_fi.reportCanceled();
+            break;
+        case SynchronousProcessResponse::Finished:
+        case SynchronousProcessResponse::FinishedError:
+            // When no results are found, git-grep exits with non-zero status.
+            // Do not consider this as an error.
+            break;
+        }
     }
 
     static void run(QFutureInterface<FileSearchResultList> &fi,
