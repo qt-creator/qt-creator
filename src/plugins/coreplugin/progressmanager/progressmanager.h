@@ -29,8 +29,11 @@
 #include <coreplugin/core_global.h>
 #include <coreplugin/id.h>
 
-#include <QObject>
 #include <QFuture>
+#include <QFutureInterfaceBase>
+#include <QObject>
+
+QT_FORWARD_DECLARE_CLASS(QTimer)
 
 namespace Core {
 class FutureProgress;
@@ -67,6 +70,20 @@ private:
     ~ProgressManager();
 
     friend class Core::Internal::ProgressManagerPrivate;
+};
+
+class CORE_EXPORT ProgressTimer : public QObject
+{
+public:
+    ProgressTimer(QObject *parent, const QFutureInterfaceBase &futureInterface, int expectedSeconds);
+
+private:
+    void handleTimeout();
+
+    QFutureInterfaceBase m_futureInterface;
+    int m_expectedTime;
+    int m_currentTime;
+    QTimer *m_timer;
 };
 
 } // namespace Core

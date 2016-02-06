@@ -780,21 +780,20 @@ void ProgressManager::cancelTasks(Id type)
 
 
 ProgressTimer::ProgressTimer(QObject *parent,
-                             const QFutureInterface<void> &futureInterface,
+                             const QFutureInterfaceBase &futureInterface,
                              int expectedSeconds)
-    : QTimer(parent),
+    : QObject(parent),
       m_futureInterface(futureInterface),
       m_expectedTime(expectedSeconds),
       m_currentTime(0)
 {
-    m_futureWatcher.setFuture(m_futureInterface.future());
-
     m_futureInterface.setProgressRange(0, 100);
     m_futureInterface.setProgressValue(0);
 
-    setInterval(1000); // 1 second
-    connect(this, &QTimer::timeout, this, &ProgressTimer::handleTimeout);
-    connect(&m_futureWatcher, &QFutureWatcherBase::started, this, [this]() { start(); });
+    m_timer = new QTimer(this);
+    m_timer->setInterval(1000); // 1 second
+    connect(m_timer, &QTimer::timeout, this, &ProgressTimer::handleTimeout);
+    m_timer->start();
 }
 
 void ProgressTimer::handleTimeout()
