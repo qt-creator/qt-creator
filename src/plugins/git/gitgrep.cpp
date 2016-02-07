@@ -27,27 +27,39 @@
 #include "gitclient.h"
 #include "gitplugin.h"
 
+#include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/vcsmanager.h>
 #include <texteditor/findinfiles.h>
 #include <vcsbase/vcscommand.h>
 #include <vcsbase/vcsbaseconstants.h>
 
+#include <utils/fancylineedit.h>
 #include <utils/filesearch.h>
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 #include <utils/runextensions.h>
 #include <utils/synchronousprocess.h>
+#include <utils/textfileformat.h>
 
 #include <QCheckBox>
 #include <QFuture>
 #include <QFutureWatcher>
+#include <QHBoxLayout>
+#include <QRegularExpressionValidator>
 #include <QScopedPointer>
 #include <QSettings>
 #include <QTextStream>
 
 namespace Git {
 namespace Internal {
+
+class GitGrepParameters
+{
+public:
+    QString ref;
+    bool isEnabled = false;
+};
 
 using namespace Core;
 using namespace Utils;
@@ -56,6 +68,7 @@ using VcsBase::VcsCommand;
 namespace {
 
 const char EnableGitGrep[] = "EnableGitGrep";
+const char GitGrepRef[] = "GitGrepRef";
 
 class GitGrepRunner : public QObject
 {
@@ -78,8 +91,10 @@ public:
         static const QLatin1String resetColor("\x1b[m");
         FileSearchResult single;
         const int lineSeparator = line.indexOf(QChar::Null);
-        single.fileName = m_directory + QLatin1Char('/')
-                + line.left(lineSeparator);
+        QString filePath = line.left(lineSeparator);
+        if (!m_ref.isEmpty() && filePath.startsWith(m_ref))
+            filePath.remove(0, m_ref.length());
+        single.fileName = m_directory + QLatin1Char('/') + filePath;
         const int textSeparator = line.indexOf(QChar::Null, lineSeparator + 1);
         single.lineNumber = line.mid(lineSeparator + 1, textSeparator - lineSeparator - 1).toInt();
         QString text = line.mid(textSeparator + 1);
@@ -130,6 +145,11 @@ public:
         else
             arguments << QLatin1String("-F");
         arguments << m_parameters.text;
+        GitGrepParameters params = m_parameters.extensionParameters.value<GitGrepParameters>();
+        if (!params.ref.isEmpty()) {
+            arguments << params.ref;
+            m_ref = params.ref + QLatin1Char(':');
+        }
         arguments << QLatin1String("--") << m_parameters.nameFilters;
         GitClient *client = GitPlugin::instance()->client();
         QScopedPointer<VcsCommand> command(client->createCommand(m_directory));
@@ -166,6 +186,7 @@ public:
 private:
     FutureInterfaceType m_fi;
     QString m_directory;
+    QString m_ref;
     const TextEditor::FileFindParameters &m_parameters;
 };
 
@@ -180,9 +201,21 @@ static bool validateDirectory(const QString &path)
 
 GitGrep::GitGrep()
 {
-    m_widget = new QCheckBox(tr("&Use Git Grep"));
-    m_widget->setToolTip(tr("Use Git Grep for searching. This includes only files "
-                            "that are managed by source control."));
+    m_widget = new QWidget;
+    auto layout = new QHBoxLayout(m_widget);
+    layout->setMargin(0);
+    m_enabledCheckBox = new QCheckBox(tr("&Use Git Grep"));
+    m_enabledCheckBox->setToolTip(tr("Use Git Grep for searching. This includes only files "
+                                     "that are managed by Git."));
+    layout->addWidget(m_enabledCheckBox);
+    m_treeLineEdit = new FancyLineEdit;
+    m_treeLineEdit->setPlaceholderText(
+                tr("Tree: add reference here or leave empty to search through the file system)"));
+    m_treeLineEdit->setToolTip(
+                tr("Reference can be HEAD, tag, local or remote branch, or a commit hash."));
+    const QRegularExpression refExpression(QLatin1String("[\\w/]*"));
+    m_treeLineEdit->setValidator(new QRegularExpressionValidator(refExpression, this));
+    layout->addWidget(m_treeLineEdit);
     TextEditor::FindInFiles *findInFiles = TextEditor::FindInFiles::instance();
     QTC_ASSERT(findInFiles, return);
     connect(findInFiles, &TextEditor::FindInFiles::pathChanged,
@@ -202,6 +235,14 @@ QString GitGrep::title() const
     return tr("Git Grep");
 }
 
+QString GitGrep::toolTip() const
+{
+    const QString ref = m_treeLineEdit->text();
+    if (!ref.isEmpty())
+        return tr("Ref: %1\n%2").arg(ref);
+    return QLatin1String("%1");
+}
+
 QWidget *GitGrep::widget() const
 {
     return m_widget;
@@ -209,27 +250,32 @@ QWidget *GitGrep::widget() const
 
 bool GitGrep::isEnabled() const
 {
-    return m_widget->isEnabled() && m_widget->isChecked();
+    return m_widget->isEnabled() && m_enabledCheckBox->isChecked();
 }
 
 bool GitGrep::isEnabled(const TextEditor::FileFindParameters &parameters) const
 {
-    return parameters.extensionParameters.toBool();
+    return parameters.extensionParameters.value<GitGrepParameters>().isEnabled;
 }
 
 QVariant GitGrep::parameters() const
 {
-    return isEnabled();
+    GitGrepParameters params;
+    params.isEnabled = isEnabled();
+    params.ref = m_treeLineEdit->text();
+    return qVariantFromValue(params);
 }
 
 void GitGrep::readSettings(QSettings *settings)
 {
-    m_widget->setChecked(settings->value(QLatin1String(EnableGitGrep), false).toBool());
+    m_enabledCheckBox->setChecked(settings->value(QLatin1String(EnableGitGrep), false).toBool());
+    m_treeLineEdit->setText(settings->value(QLatin1String(GitGrepRef)).toString());
 }
 
 void GitGrep::writeSettings(QSettings *settings) const
 {
-    settings->setValue(QLatin1String(EnableGitGrep), m_widget->isChecked());
+    settings->setValue(QLatin1String(EnableGitGrep), m_enabledCheckBox->isChecked());
+    settings->setValue(QLatin1String(GitGrepRef), m_treeLineEdit->text());
 }
 
 QFuture<FileSearchResultList> GitGrep::executeSearch(
@@ -238,5 +284,37 @@ QFuture<FileSearchResultList> GitGrep::executeSearch(
     return Utils::runAsync(GitGrepRunner::run, parameters);
 }
 
+IEditor *GitGrep::openEditor(const SearchResultItem &item,
+                             const TextEditor::FileFindParameters &parameters)
+{
+    GitGrepParameters params = parameters.extensionParameters.value<GitGrepParameters>();
+    if (!params.isEnabled || params.ref.isEmpty() || item.path.isEmpty())
+        return nullptr;
+    const QString path = QDir::fromNativeSeparators(item.path.first());
+    QByteArray content;
+    GitClient *client = GitPlugin::instance()->client();
+    const QString topLevel = parameters.additionalParameters.toString();
+    const QString relativePath = QDir(topLevel).relativeFilePath(path);
+    if (!client->synchronousShow(topLevel, params.ref + QLatin1String(":./") + relativePath,
+                                 &content, nullptr)) {
+        return nullptr;
+    }
+    if (content.isEmpty())
+        return nullptr;
+    QByteArray fileContent;
+    if (TextFileFormat::readFileUTF8(path, 0, &fileContent, 0) == TextFileFormat::ReadSuccess) {
+        if (fileContent == content)
+            return nullptr; // open the file for read/write
+    }
+    QString title = tr("Git Show %1:%2").arg(params.ref).arg(relativePath);
+    IEditor *editor = EditorManager::openEditorWithContents(Id(), &title, content, title,
+                                                            EditorManager::DoNotSwitchToDesignMode);
+    editor->gotoLine(item.lineNumber, item.textMarkPos);
+    editor->document()->setTemporary(true);
+    return editor;
+}
+
 } // Internal
 } // Git
+
+Q_DECLARE_METATYPE(Git::Internal::GitGrepParameters)

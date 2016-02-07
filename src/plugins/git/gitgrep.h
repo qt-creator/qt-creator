@@ -28,9 +28,11 @@
 
 #include <texteditor/basefilefind.h>
 
-#include <utils/fileutils.h>
+#include <QCoreApplication>
 
 QT_FORWARD_DECLARE_CLASS(QCheckBox)
+
+namespace Utils { class FancyLineEdit; }
 
 namespace Git {
 namespace Internal {
@@ -43,6 +45,7 @@ public:
     GitGrep();
     ~GitGrep() override;
     QString title() const override;
+    QString toolTip() const override;
     QWidget *widget() const override;
     bool isEnabled() const override;
     bool isEnabled(const TextEditor::FileFindParameters &parameters) const override;
@@ -51,9 +54,13 @@ public:
     void writeSettings(QSettings *settings) const override;
     QFuture<Utils::FileSearchResultList> executeSearch(
             const TextEditor::FileFindParameters &parameters) override;
+    Core::IEditor *openEditor(const Core::SearchResultItem &item,
+                              const TextEditor::FileFindParameters &parameters) override;
 
 private:
-    QCheckBox *m_widget;
+    QWidget *m_widget;
+    QCheckBox *m_enabledCheckBox;
+    Utils::FancyLineEdit *m_treeLineEdit;
 };
 
 } // namespace Internal

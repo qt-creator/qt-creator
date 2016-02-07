@@ -41,9 +41,10 @@ QT_END_NAMESPACE
 
 namespace Utils { class FileIterator; }
 namespace Core {
+class IEditor;
+class IFindSupport;
 class SearchResult;
 class SearchResultItem;
-class IFindSupport;
 } // namespace Core
 
 namespace TextEditor {
@@ -65,6 +66,7 @@ class TEXTEDITOR_EXPORT FileFindExtension : public QObject
 public:
     virtual ~FileFindExtension() {}
     virtual QString title() const = 0;
+    virtual QString toolTip() const = 0; // add %1 placeholder where the find flags should be put
     virtual QWidget *widget() const = 0;
     virtual bool isEnabled() const = 0;
     virtual bool isEnabled(const FileFindParameters &parameters) const = 0;
@@ -73,6 +75,8 @@ public:
     virtual void writeSettings(QSettings *settings) const = 0;
     virtual QFuture<Utils::FileSearchResultList> executeSearch(
             const FileFindParameters &parameters) = 0;
+    virtual Core::IEditor *openEditor(const Core::SearchResultItem &item,
+                                      const FileFindParameters &parameters) = 0;
 };
 
 class TEXTEDITOR_EXPORT BaseFileFind : public Core::IFindFilter

@@ -140,8 +140,11 @@ void BaseFileFind::runNewSearch(const QString &txt, FindFlags findFlags,
     d->m_currentFindSupport = 0;
     if (d->m_filterCombo)
         updateComboEntries(d->m_filterCombo, true);
+    QString tooltip = toolTip();
+    if (d->m_extension)
+        tooltip = tooltip.arg(d->m_extension->toolTip());
     SearchResult *search = SearchResultWindow::instance()->startNewSearch(label(),
-                           toolTip().arg(IFindFilter::descriptionForFindFlags(findFlags)),
+                           tooltip.arg(IFindFilter::descriptionForFindFlags(findFlags)),
                            txt, searchMode, SearchResultWindow::PreserveCaseEnabled,
                            QString::fromLatin1("TextEditor"));
     search->setTextToReplace(txt);
@@ -320,14 +323,19 @@ void BaseFileFind::updateComboEntries(QComboBox *combo, bool onTop)
 void BaseFileFind::openEditor(const SearchResultItem &item)
 {
     SearchResult *result = qobject_cast<SearchResult *>(sender());
+    FileFindParameters parameters = result->userData().value<FileFindParameters>();
     IEditor *openedEditor = 0;
-    if (item.path.size() > 0) {
-        openedEditor = EditorManager::openEditorAt(QDir::fromNativeSeparators(item.path.first()),
-                                                   item.lineNumber,
-                                                   item.textMarkPos, Id(),
-                                                   EditorManager::DoNotSwitchToDesignMode);
-    } else {
-        openedEditor = EditorManager::openEditor(QDir::fromNativeSeparators(item.text));
+    if (d->m_extension)
+        openedEditor = d->m_extension->openEditor(item, parameters);
+    if (!openedEditor) {
+        if (item.path.size() > 0) {
+            openedEditor = EditorManager::openEditorAt(QDir::fromNativeSeparators(item.path.first()),
+                                                       item.lineNumber,
+                                                       item.textMarkPos, Id(),
+                                                       EditorManager::DoNotSwitchToDesignMode);
+        } else {
+            openedEditor = EditorManager::openEditor(QDir::fromNativeSeparators(item.text));
+        }
     }
     if (d->m_currentFindSupport)
         d->m_currentFindSupport->clearHighlights();
@@ -336,11 +344,8 @@ void BaseFileFind::openEditor(const SearchResultItem &item)
         return;
     // highlight results
     if (IFindSupport *findSupport = Aggregation::query<IFindSupport>(openedEditor->widget())) {
-        if (result) {
-            FileFindParameters parameters = result->userData().value<FileFindParameters>();
-            d->m_currentFindSupport = findSupport;
-            d->m_currentFindSupport->highlightAll(parameters.text, parameters.flags);
-        }
+        d->m_currentFindSupport = findSupport;
+        d->m_currentFindSupport->highlightAll(parameters.text, parameters.flags);
     }
 }
 
