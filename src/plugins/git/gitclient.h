@@ -226,7 +226,7 @@ public:
                                            QString *errorMessage = 0) const;
     SubmoduleDataMap submoduleList(const QString &workingDirectory) const;
     bool synchronousShow(const QString &workingDirectory, const QString &id,
-                              QString *output, QString *errorMessage) const;
+                         QByteArray *output, QString *errorMessage) const;
 
     bool synchronousRevListCmd(const QString &workingDirectory, const QStringList &arguments,
                                QString *output, QString *errorMessage = 0) const;

@@ -1814,7 +1814,7 @@ SubmoduleDataMap GitClient::submoduleList(const QString &workingDirectory) const
 }
 
 bool GitClient::synchronousShow(const QString &workingDirectory, const QString &id,
-                                 QString *output, QString *errorMessage) const
+                                QByteArray *output, QString *errorMessage) const
 {
     if (!canShow(id)) {
         *errorMessage = msgCannotShow(id);
@@ -1822,12 +1822,9 @@ bool GitClient::synchronousShow(const QString &workingDirectory, const QString &
     }
     QStringList args(QLatin1String("show"));
     args << QLatin1String(decorateOption) << QLatin1String(noColorOption) << id;
-    QByteArray outputText;
     QByteArray errorText;
-    const bool rc = vcsFullySynchronousExec(workingDirectory, args, &outputText, &errorText);
-    if (rc)
-        *output = commandOutputFromLocal8Bit(outputText);
-    else
+    const bool rc = vcsFullySynchronousExec(workingDirectory, args, output, &errorText);
+    if (!rc)
         msgCannotRun(QStringList(QLatin1String("show")), workingDirectory, errorText, errorMessage);
     return rc;
 }
