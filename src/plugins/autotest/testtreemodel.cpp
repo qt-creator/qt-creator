@@ -768,7 +768,7 @@ static TestTreeItem *constructTestTreeItem(const QString &fileName,
 }
 
 static TestTreeItem *constructGTestTreeItem(const QString &filePath, const QString &testCaseName,
-                                            const bool parameterized, const QString &proFile,
+                                            const bool parameterized,
                                             const QString &referencingFile,
                                             const TestCodeLocationList &testSets)
 {
@@ -781,7 +781,7 @@ static TestTreeItem *constructGTestTreeItem(const QString &filePath, const QStri
         treeItemChild->setState(locationAndType.m_state);
         treeItemChild->setLine(locationAndType.m_line);
         treeItemChild->setColumn(locationAndType.m_column);
-        treeItemChild->setMainFile(proFile);
+        treeItemChild->setMainFile(referencingFile);
         item->appendChild(treeItemChild);
     }
     item->setReferencingFile(referencingFile);
@@ -801,8 +801,7 @@ void TestTreeModel::onParseResultReady(TestParseResult result)
     case GoogleTest:
         QTC_ASSERT(result.dataTagsOrTestSets.size() == 1, return);
         addTestTreeItem(constructGTestTreeItem(result.fileName, result.testCaseName,
-                                               result.parameterized, result.proFile,
-                                               result.referencingFile,
+                                               result.parameterized, result.referencingFile,
                                                result.dataTagsOrTestSets.first()), result.type);
         break;
     case Invalid:

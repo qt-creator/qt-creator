@@ -153,7 +153,6 @@ struct TestParseResult
 
     TestTreeModel::Type type;
     QString fileName;
-    QString proFile;
     QString referencingFile;
     QString testCaseName;
     int line = 0;
