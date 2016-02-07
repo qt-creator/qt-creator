@@ -45,12 +45,11 @@
 #include <QSettings>
 #include <QTextStream>
 
-using namespace Utils;
-
 namespace Git {
 namespace Internal {
 
 using namespace Core;
+using namespace Utils;
 using VcsBase::VcsCommand;
 
 namespace {
@@ -187,8 +186,8 @@ GitGrep::GitGrep()
                             "that are managed by source control."));
     TextEditor::FindInFiles *findInFiles = TextEditor::FindInFiles::instance();
     QTC_ASSERT(findInFiles, return);
-    QObject::connect(findInFiles, &TextEditor::FindInFiles::pathChanged,
-                     m_widget.data(), [this](const QString &path) {
+    connect(findInFiles, &TextEditor::FindInFiles::pathChanged,
+            m_widget, [this](const QString &path) {
         m_widget->setEnabled(validateDirectory(path));
     });
     findInFiles->setFindExtension(this);
@@ -196,7 +195,7 @@ GitGrep::GitGrep()
 
 GitGrep::~GitGrep()
 {
-    delete m_widget.data();
+    delete m_widget;
 }
 
 QString GitGrep::title() const
@@ -206,7 +205,7 @@ QString GitGrep::title() const
 
 QWidget *GitGrep::widget() const
 {
-    return m_widget.data();
+    return m_widget;
 }
 
 bool GitGrep::isEnabled() const

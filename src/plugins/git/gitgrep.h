@@ -30,9 +30,6 @@
 
 #include <utils/fileutils.h>
 
-#include <QPointer>
-#include <QStringListModel>
-
 QT_FORWARD_DECLARE_CLASS(QCheckBox)
 
 namespace Git {
@@ -56,7 +53,7 @@ public:
             const TextEditor::FileFindParameters &parameters) override;
 
 private:
-    QPointer<QCheckBox> m_widget;
+    QCheckBox *m_widget;
 };
 
 } // namespace Internal
