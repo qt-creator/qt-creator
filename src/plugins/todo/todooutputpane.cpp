@@ -29,6 +29,9 @@
 #include "todoitemsmodel.h"
 #include "todooutputtreeview.h"
 
+#include <aggregation/aggregate.h>
+#include <coreplugin/find/itemviewfind.h>
+
 #include <QIcon>
 #include <QHeaderView>
 #include <QToolButton>
@@ -185,6 +188,9 @@ void TodoOutputPane::createTreeView()
 {
     m_todoTreeView = new TodoOutputTreeView();
     m_todoTreeView->setModel(m_todoItemsModel);
+    Aggregation::Aggregate *agg = new Aggregation::Aggregate;
+    agg->add(m_todoTreeView);
+    agg->add(new Core::ItemViewFind(m_todoTreeView));
 
     connect(m_todoTreeView, &TodoOutputTreeView::activated, this, &TodoOutputPane::todoTreeViewClicked);
 }
