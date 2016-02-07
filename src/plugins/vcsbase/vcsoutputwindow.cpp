@@ -126,6 +126,9 @@ OutputWindowPlainTextEdit::OutputWindowPlainTextEdit(QWidget *parent) :
     m_messageFormat.setForeground(Utils::creatorTheme()->color(Theme::OutputPanes_MessageOutput));
     m_formatter = new Utils::OutputFormatter;
     m_formatter->setPlainTextEdit(this);
+    Aggregation::Aggregate *agg = new Aggregation::Aggregate;
+    agg->add(this);
+    agg->add(new Core::BaseTextFind(this));
 }
 
 OutputWindowPlainTextEdit::~OutputWindowPlainTextEdit()
@@ -288,12 +291,8 @@ public:
 
 Internal::OutputWindowPlainTextEdit *VcsOutputWindowPrivate::widget()
 {
-    if (!m_widget) {
+    if (!m_widget)
         m_widget = new Internal::OutputWindowPlainTextEdit();
-        Aggregation::Aggregate *agg = new Aggregation::Aggregate;
-        agg->add(m_widget);
-        agg->add(new Core::BaseTextFind(m_widget));
-    }
     return m_widget;
 }
 
