@@ -64,27 +64,28 @@ RefactorMarker RefactorOverlay::markerAt(const QPoint &pos) const
 
 void RefactorOverlay::paintMarker(const RefactorMarker& marker, QPainter *painter, const QRect &clip)
 {
-    QPointF offset = m_editor->contentOffset();
-    QRectF geometry = m_editor->blockBoundingGeometry(marker.cursor.block()).translated(offset);
+    const QPointF offset = m_editor->contentOffset();
+    const QRectF geometry = m_editor->blockBoundingGeometry(marker.cursor.block()).translated(offset);
 
     if (geometry.top() > clip.bottom() + 10 || geometry.bottom() < clip.top() - 10)
         return; // marker not visible
 
-    QTextCursor cursor = marker.cursor;
-
-    QRect r = m_editor->cursorRect(cursor);
+    const QTextCursor cursor = marker.cursor;
+    const QRect cursorRect = m_editor->cursorRect(cursor);
 
     QIcon icon = marker.icon;
     if (icon.isNull())
         icon = m_icon;
 
-    QSize sz = icon.actualSize(QSize(m_editor->fontMetrics().width(QLatin1Char(' '))+2, r.height()));
+    const QSize proposedIconSize = QSize(m_editor->fontMetrics().width(QLatin1Char(' ')) + 2,
+                                         cursorRect.height());
+    const QSize actualIconSize = icon.actualSize(proposedIconSize);
 
-    int x = r.right();
-    marker.rect = QRect(x, r.top(), sz.width(), sz.height());
+    const int x = cursorRect.right();
+    marker.rect = QRect(x, cursorRect.top(), actualIconSize.width(), actualIconSize.height());
 
     icon.paint(painter, marker.rect);
-    m_maxWidth = qMax((qreal)m_maxWidth, x + sz.width() - offset.x());
+    m_maxWidth = qMax(m_maxWidth, x + actualIconSize.width() - int(offset.x()));
 }
 
 } // namespace TextEditor
