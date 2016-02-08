@@ -24,7 +24,7 @@
 ****************************************************************************/
 
 #include "filesearch.h"
-#include "runextensions.h"
+#include "mapreduce.h"
 
 #include <QCoreApplication>
 #include <QMutex>

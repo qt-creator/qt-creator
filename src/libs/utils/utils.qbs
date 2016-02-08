@@ -122,6 +122,7 @@ QtcLibrary {
         "listutils.h",
         "macroexpander.cpp",
         "macroexpander.h",
+        "mapreduce.h",
         "multitask.h",
         "navigationtreeview.cpp",
         "navigationtreeview.h",
