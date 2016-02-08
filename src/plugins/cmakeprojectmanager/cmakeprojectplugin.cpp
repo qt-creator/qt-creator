@@ -37,13 +37,8 @@
 #include "cmakekitinformation.h"
 #include "cmakepreloadcachekitinformation.h"
 
-#include <coreplugin/featureprovider.h>
 #include <utils/mimetypes/mimedatabase.h>
 #include <projectexplorer/kitmanager.h>
-
-#include <QtPlugin>
-#include <QDebug>
-
 
 using namespace CMakeProjectManager::Internal;
 
