@@ -60,7 +60,7 @@ void CMakeParser::stdError(const QString &line)
         return;
     }
     if (m_skippedFirstEmptyLine)
-        m_skippedFirstEmptyLine= false;
+        m_skippedFirstEmptyLine = false;
 
     if (m_commonError.indexIn(trimmedLine) != -1) {
         m_lastTask = Task(Task::Error, QString(), Utils::FileName::fromUserInput(m_commonError.cap(1)),
