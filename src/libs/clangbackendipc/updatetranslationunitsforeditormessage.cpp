@@ -25,8 +25,6 @@
 
 #include "updatetranslationunitsforeditormessage.h"
 
-#include "container_common.h"
-
 #include <QDataStream>
 #include <QDebug>
 
@@ -61,11 +59,6 @@ QDataStream &operator>>(QDataStream &in, UpdateTranslationUnitsForEditorMessage 
 bool operator==(const UpdateTranslationUnitsForEditorMessage &first, const UpdateTranslationUnitsForEditorMessage &second)
 {
     return first.fileContainers_ == second.fileContainers_;
-}
-
-bool operator<(const UpdateTranslationUnitsForEditorMessage &first, const UpdateTranslationUnitsForEditorMessage &second)
-{
-    return compareContainer(first.fileContainers_, second.fileContainers_);
 }
 
 QDebug operator<<(QDebug debug, const UpdateTranslationUnitsForEditorMessage &message)

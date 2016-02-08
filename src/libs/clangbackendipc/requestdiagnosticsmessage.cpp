@@ -61,11 +61,6 @@ bool operator==(const RequestDiagnosticsMessage &first, const RequestDiagnostics
     return first.file_ == second.file_;
 }
 
-bool operator<(const RequestDiagnosticsMessage &first, const RequestDiagnosticsMessage &second)
-{
-    return first.file_ < second.file_;
-}
-
 QDebug operator<<(QDebug debug, const RequestDiagnosticsMessage &message)
 {
     debug.nospace() << "RequestDiagnosticsMessage("

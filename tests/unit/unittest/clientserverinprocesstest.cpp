@@ -35,7 +35,6 @@
 #include <cmbcompletecodemessage.h>
 #include <cmbechomessage.h>
 #include <cmbendmessage.h>
-#include <cmbmessages.h>
 #include <cmbregisterprojectsforeditormessage.h>
 #include <cmbregistertranslationunitsforeditormessage.h>
 #include <cmbunregisterprojectsforeditormessage.h>

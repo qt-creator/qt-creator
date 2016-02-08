@@ -37,7 +37,7 @@ class IpcClientInterface;
 class CMBIPC_EXPORT IpcServerInterface : public IpcInterface
 {
 public:
-    void dispatch(const QVariant &message) override;
+    void dispatch(const MessageEnvelop &messageEnvelop) override;
 
     virtual void end() = 0;
     virtual void registerTranslationUnitsForEditor(const RegisterTranslationUnitForEditorMessage &message) = 0;

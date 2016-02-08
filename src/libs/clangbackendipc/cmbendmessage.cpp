@@ -47,11 +47,6 @@ bool operator==(const EndMessage &/*first*/, const EndMessage &/*second*/)
     return true;
 }
 
-bool operator<(const EndMessage &/*first*/, const EndMessage &/*second*/)
-{
-    return true;
-}
-
 QDebug operator<<(QDebug debug, const EndMessage &/*message*/)
 {
     return debug.nospace() << "EndMessage()";
@@ -61,5 +56,6 @@ void PrintTo(const EndMessage &/*message*/, ::std::ostream* os)
 {
     *os << "EndMessage()";
 }
+
 }
 

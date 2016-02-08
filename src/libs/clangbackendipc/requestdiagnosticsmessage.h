@@ -35,7 +35,6 @@ class CMBIPC_EXPORT RequestDiagnosticsMessage
     friend CMBIPC_EXPORT QDataStream &operator<<(QDataStream &out, const RequestDiagnosticsMessage &message);
     friend CMBIPC_EXPORT QDataStream &operator>>(QDataStream &in, RequestDiagnosticsMessage &message);
     friend CMBIPC_EXPORT bool operator==(const RequestDiagnosticsMessage &first, const RequestDiagnosticsMessage &second);
-    friend CMBIPC_EXPORT bool operator<(const RequestDiagnosticsMessage &first, const RequestDiagnosticsMessage &second);
     friend CMBIPC_EXPORT QDebug operator<<(QDebug debug, const RequestDiagnosticsMessage &message);
     friend void PrintTo(const RequestDiagnosticsMessage &message, ::std::ostream* os);
 
@@ -53,13 +52,11 @@ private:
 CMBIPC_EXPORT QDataStream &operator<<(QDataStream &out, const RequestDiagnosticsMessage &message);
 CMBIPC_EXPORT QDataStream &operator>>(QDataStream &in, RequestDiagnosticsMessage &message);
 CMBIPC_EXPORT bool operator==(const RequestDiagnosticsMessage &first, const RequestDiagnosticsMessage &second);
-CMBIPC_EXPORT bool operator<(const RequestDiagnosticsMessage &first, const RequestDiagnosticsMessage &second);
 
 CMBIPC_EXPORT QDebug operator<<(QDebug debug, const RequestDiagnosticsMessage &message);
 void PrintTo(const RequestDiagnosticsMessage &message, ::std::ostream* os);
 
+DECLARE_MESSAGE(RequestDiagnosticsMessage);
 } // namespace ClangBackEnd
-
-Q_DECLARE_METATYPE(ClangBackEnd::RequestDiagnosticsMessage)
 
 #endif // CLANGBACKEND_REQUESTDIAGNOSTICSMESSAGE_H

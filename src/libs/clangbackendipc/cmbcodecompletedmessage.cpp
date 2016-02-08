@@ -86,11 +86,6 @@ bool operator==(const CodeCompletedMessage &first, const CodeCompletedMessage &s
         && first.codeCompletions_ == second.codeCompletions_;
 }
 
-bool operator<(const CodeCompletedMessage &first, const CodeCompletedMessage &second)
-{
-    return first.ticketNumber_ < second.ticketNumber_;
-}
-
 #define RETURN_TEXT_FOR_CASE(enumValue) case CompletionCorrection::enumValue: return #enumValue
 static const char *completionCorrectionToText(CompletionCorrection correction)
 {

@@ -35,8 +35,6 @@ class CMBIPC_EXPORT FixItContainer
     friend CMBIPC_EXPORT QDataStream &operator<<(QDataStream &out, const FixItContainer &container);
     friend CMBIPC_EXPORT QDataStream &operator>>(QDataStream &in, FixItContainer &container);
     friend CMBIPC_EXPORT bool operator==(const FixItContainer &first, const FixItContainer &second);
-    friend CMBIPC_EXPORT bool operator<(const FixItContainer &first, const FixItContainer &second);
-
 public:
     FixItContainer() = default;
     FixItContainer(const Utf8String &text,
@@ -53,7 +51,6 @@ private:
 CMBIPC_EXPORT QDataStream &operator<<(QDataStream &out, const FixItContainer &container);
 CMBIPC_EXPORT QDataStream &operator>>(QDataStream &in, FixItContainer &container);
 CMBIPC_EXPORT bool operator==(const FixItContainer &first, const FixItContainer &second);
-CMBIPC_EXPORT bool operator<(const FixItContainer &first, const FixItContainer &second);
 
 CMBIPC_EXPORT QDebug operator<<(QDebug debug, const FixItContainer &container);
 void PrintTo(const FixItContainer &container, ::std::ostream* os);

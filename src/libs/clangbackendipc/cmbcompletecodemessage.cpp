@@ -99,15 +99,6 @@ bool operator==(const CompleteCodeMessage &first, const CompleteCodeMessage &sec
             && first.column_ == second.column_;
 }
 
-bool operator<(const CompleteCodeMessage &first, const CompleteCodeMessage &second)
-{
-    return first.ticketNumber_ < second.ticketNumber_
-            && first.filePath_ < second.filePath_
-            && first.projectPartId_ < second.projectPartId_
-            && first.line_ < second.line_
-            && first.column_ < second.column_;
-}
-
 QDebug operator<<(QDebug debug, const CompleteCodeMessage &message)
 {
     debug.nospace() << "CompleteCodeMessage(";

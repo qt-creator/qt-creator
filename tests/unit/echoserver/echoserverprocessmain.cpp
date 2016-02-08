@@ -25,7 +25,6 @@
 
 #include "echoipcserver.h"
 
-#include <cmbmessages.h>
 #include <connectionserver.h>
 
 #include <QCoreApplication>
@@ -43,8 +42,6 @@ int main(int argc, char *argv[])
         qWarning() << "wrong argument count";
         return 1;
     }
-
-    ClangBackEnd::Messages::registerMessages();
 
     ClangBackEnd::EchoIpcServer echoIpcServer;
     ClangBackEnd::ConnectionServer connectionServer(application.arguments()[1]);

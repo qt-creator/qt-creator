@@ -30,8 +30,6 @@
 
 #include <utf8string.h>
 
-#include <QMetaType>
-
 namespace ClangBackEnd {
 
 class CMBIPC_EXPORT CompleteCodeMessage
@@ -39,7 +37,6 @@ class CMBIPC_EXPORT CompleteCodeMessage
     friend CMBIPC_EXPORT QDataStream &operator<<(QDataStream &out, const CompleteCodeMessage &message);
     friend CMBIPC_EXPORT QDataStream &operator>>(QDataStream &in, CompleteCodeMessage &message);
     friend CMBIPC_EXPORT bool operator==(const CompleteCodeMessage &first, const CompleteCodeMessage &second);
-    friend CMBIPC_EXPORT bool operator<(const CompleteCodeMessage &first, const CompleteCodeMessage &second);
     friend CMBIPC_EXPORT QDebug operator<<(QDebug debug, const CompleteCodeMessage &message);
     friend void PrintTo(const CompleteCodeMessage &message, ::std::ostream* os);
 
@@ -70,13 +67,11 @@ private:
 CMBIPC_EXPORT QDataStream &operator<<(QDataStream &out, const CompleteCodeMessage &message);
 CMBIPC_EXPORT QDataStream &operator>>(QDataStream &in, CompleteCodeMessage &message);
 CMBIPC_EXPORT bool operator==(const CompleteCodeMessage &first, const CompleteCodeMessage &second);
-CMBIPC_EXPORT bool operator<(const CompleteCodeMessage &first, const CompleteCodeMessage &second);
 
 CMBIPC_EXPORT QDebug operator<<(QDebug debug, const CompleteCodeMessage &message);
 void PrintTo(const CompleteCodeMessage &message, ::std::ostream* os);
 
+DECLARE_MESSAGE(CompleteCodeMessage);
 } // namespace ClangBackEnd
-
-Q_DECLARE_METATYPE(ClangBackEnd::CompleteCodeMessage)
 
 #endif // CLANGBACKEND_COMPLETECODEMESSAGE_H

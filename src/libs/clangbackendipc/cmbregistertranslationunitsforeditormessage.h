@@ -28,7 +28,6 @@
 
 #include "filecontainer.h"
 
-#include <QMetaType>
 #include <QVector>
 
 namespace ClangBackEnd {
@@ -38,7 +37,6 @@ class CMBIPC_EXPORT RegisterTranslationUnitForEditorMessage
     friend CMBIPC_EXPORT QDataStream &operator<<(QDataStream &out, const RegisterTranslationUnitForEditorMessage &message);
     friend CMBIPC_EXPORT QDataStream &operator>>(QDataStream &in, RegisterTranslationUnitForEditorMessage &message);
     friend CMBIPC_EXPORT bool operator==(const RegisterTranslationUnitForEditorMessage &first, const RegisterTranslationUnitForEditorMessage &second);
-    friend CMBIPC_EXPORT bool operator<(const RegisterTranslationUnitForEditorMessage &first, const RegisterTranslationUnitForEditorMessage &second);
     friend void PrintTo(const RegisterTranslationUnitForEditorMessage &message, ::std::ostream* os);
 public:
     RegisterTranslationUnitForEditorMessage() = default;
@@ -59,12 +57,11 @@ private:
 CMBIPC_EXPORT QDataStream &operator<<(QDataStream &out, const RegisterTranslationUnitForEditorMessage &message);
 CMBIPC_EXPORT QDataStream &operator>>(QDataStream &in, RegisterTranslationUnitForEditorMessage &message);
 CMBIPC_EXPORT bool operator==(const RegisterTranslationUnitForEditorMessage &first, const RegisterTranslationUnitForEditorMessage &second);
-CMBIPC_EXPORT bool operator<(const RegisterTranslationUnitForEditorMessage &first, const RegisterTranslationUnitForEditorMessage &second);
 
 CMBIPC_EXPORT QDebug operator<<(QDebug debug, const RegisterTranslationUnitForEditorMessage &message);
 void PrintTo(const RegisterTranslationUnitForEditorMessage &message, ::std::ostream* os);
-} // namespace ClangBackEnd
 
-Q_DECLARE_METATYPE(ClangBackEnd::RegisterTranslationUnitForEditorMessage)
+DECLARE_MESSAGE(RegisterTranslationUnitForEditorMessage);
+} // namespace ClangBackEnd
 
 #endif // CLANGBACKEND_REGISTERFILEFORCODECOMPLITION_H

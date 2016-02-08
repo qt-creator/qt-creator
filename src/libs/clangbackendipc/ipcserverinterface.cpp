@@ -30,6 +30,7 @@
 #include "cmbregistertranslationunitsforeditormessage.h"
 #include "cmbunregisterprojectsforeditormessage.h"
 #include "cmbunregistertranslationunitsforeditormessage.h"
+#include "messageenvelop.h"
 #include "registerunsavedfilesforeditormessage.h"
 #include "requestdiagnosticsmessage.h"
 #include "requesthighlightingmessage.h"
@@ -42,49 +43,48 @@
 
 namespace ClangBackEnd {
 
-void IpcServerInterface::dispatch(const QVariant &message)
+void IpcServerInterface::dispatch(const MessageEnvelop &messageEnvelop)
 {
-    static const int endMessageType = QMetaType::type("ClangBackEnd::EndMessage");
-    static const int registerTranslationUnitsForEditorMessageType = QMetaType::type("ClangBackEnd::RegisterTranslationUnitForEditorMessage");
-    static const int updateTranslationUnitsForEditorMessageType = QMetaType::type("ClangBackEnd::UpdateTranslationUnitsForEditorMessage");
-    static const int unregisterTranslationUnitsForEditorMessageType = QMetaType::type("ClangBackEnd::UnregisterTranslationUnitsForEditorMessage");
-    static const int registerProjectPartsForEditorMessageType = QMetaType::type("ClangBackEnd::RegisterProjectPartsForEditorMessage");
-    static const int unregisterProjectPartsForEditorMessageType = QMetaType::type("ClangBackEnd::UnregisterProjectPartsForEditorMessage");
-    static const int registerUnsavedFilesForEditorMessageType = QMetaType::type("ClangBackEnd::RegisterUnsavedFilesForEditorMessage");
-    static const int unregisterUnsavedFilesForEditorMessageType = QMetaType::type("ClangBackEnd::UnregisterUnsavedFilesForEditorMessage");
-    static const int completeCodeMessageType = QMetaType::type("ClangBackEnd::CompleteCodeMessage");
-    static const int requestDiagnosticsMessageType = QMetaType::type("ClangBackEnd::RequestDiagnosticsMessage");
-    static const int requestHighlightingTypeMessage = QMetaType::type("ClangBackEnd::RequestHighlightingMessage");
-    static const int updateVisibleTranslationUnitsMessageType = QMetaType::type("ClangBackEnd::UpdateVisibleTranslationUnitsMessage");
-
-    int type = message.userType();
-
-    if (type == endMessageType)
-        end();
-    else if (type == registerTranslationUnitsForEditorMessageType)
-        registerTranslationUnitsForEditor(message.value<RegisterTranslationUnitForEditorMessage>());
-    else if (type == updateTranslationUnitsForEditorMessageType)
-        updateTranslationUnitsForEditor(message.value<UpdateTranslationUnitsForEditorMessage>());
-    else if (type == unregisterTranslationUnitsForEditorMessageType)
-        unregisterTranslationUnitsForEditor(message.value<UnregisterTranslationUnitsForEditorMessage>());
-    else if (type == registerProjectPartsForEditorMessageType)
-        registerProjectPartsForEditor(message.value<RegisterProjectPartsForEditorMessage>());
-    else if (type == unregisterProjectPartsForEditorMessageType)
-        unregisterProjectPartsForEditor(message.value<UnregisterProjectPartsForEditorMessage>());
-    else if (type == registerUnsavedFilesForEditorMessageType)
-        registerUnsavedFilesForEditor(message.value<RegisterUnsavedFilesForEditorMessage>());
-    else if (type == unregisterUnsavedFilesForEditorMessageType)
-        unregisterUnsavedFilesForEditor(message.value<UnregisterUnsavedFilesForEditorMessage>());
-    else if (type == completeCodeMessageType)
-        completeCode(message.value<CompleteCodeMessage>());
-    else if (type == requestDiagnosticsMessageType)
-        requestDiagnostics(message.value<RequestDiagnosticsMessage>());
-    else if (type == requestHighlightingTypeMessage)
-        requestHighlighting(message.value<RequestHighlightingMessage>());
-    else if (type == updateVisibleTranslationUnitsMessageType)
-        updateVisibleTranslationUnits(message.value<UpdateVisibleTranslationUnitsMessage>());
-    else
-        qWarning() << "Unknown IpcServerMessage";
+    switch (messageEnvelop.messageType()) {
+        case MessageType::EndMessage:
+            end();
+            break;
+        case MessageType::RegisterTranslationUnitForEditorMessage:
+            registerTranslationUnitsForEditor(messageEnvelop.message<RegisterTranslationUnitForEditorMessage>());
+            break;
+        case MessageType::UpdateTranslationUnitsForEditorMessage:
+            updateTranslationUnitsForEditor(messageEnvelop.message<UpdateTranslationUnitsForEditorMessage>());
+            break;
+        case MessageType::UnregisterTranslationUnitsForEditorMessage:
+            unregisterTranslationUnitsForEditor(messageEnvelop.message<UnregisterTranslationUnitsForEditorMessage>());
+            break;
+        case MessageType::RegisterProjectPartsForEditorMessage:
+            registerProjectPartsForEditor(messageEnvelop.message<RegisterProjectPartsForEditorMessage>());
+            break;
+        case MessageType::UnregisterProjectPartsForEditorMessage:
+            unregisterProjectPartsForEditor(messageEnvelop.message<UnregisterProjectPartsForEditorMessage>());
+            break;
+        case MessageType::RegisterUnsavedFilesForEditorMessage:
+            registerUnsavedFilesForEditor(messageEnvelop.message<RegisterUnsavedFilesForEditorMessage>());
+            break;
+        case MessageType::UnregisterUnsavedFilesForEditorMessage:
+            unregisterUnsavedFilesForEditor(messageEnvelop.message<UnregisterUnsavedFilesForEditorMessage>());
+            break;
+        case MessageType::CompleteCodeMessage:
+            completeCode(messageEnvelop.message<CompleteCodeMessage>());
+            break;
+        case MessageType::RequestDiagnosticsMessage:
+            requestDiagnostics(messageEnvelop.message<RequestDiagnosticsMessage>());
+            break;
+        case MessageType::RequestHighlightingMessage:
+            requestHighlighting(messageEnvelop.message<RequestHighlightingMessage>());
+            break;
+        case MessageType::UpdateVisibleTranslationUnitsMessage:
+            updateVisibleTranslationUnits(messageEnvelop.message<UpdateVisibleTranslationUnitsMessage>());
+            break;
+        default:
+            qWarning() << "Unknown IpcServerMessage";
+    }
 }
 
 void IpcServerInterface::addClient(IpcClientInterface *client)

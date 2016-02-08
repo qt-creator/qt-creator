@@ -30,7 +30,6 @@
 
 #include "filecontainer.h"
 
-#include <QMetaType>
 #include <QVector>
 
 namespace ClangBackEnd {
@@ -40,7 +39,6 @@ class CMBIPC_EXPORT UnregisterTranslationUnitsForEditorMessage
     friend CMBIPC_EXPORT QDataStream &operator<<(QDataStream &out, const UnregisterTranslationUnitsForEditorMessage &message);
     friend CMBIPC_EXPORT QDataStream &operator>>(QDataStream &in, UnregisterTranslationUnitsForEditorMessage &message);
     friend CMBIPC_EXPORT bool operator==(const UnregisterTranslationUnitsForEditorMessage &first, const UnregisterTranslationUnitsForEditorMessage &second);
-    friend CMBIPC_EXPORT bool operator<(const UnregisterTranslationUnitsForEditorMessage &first, const UnregisterTranslationUnitsForEditorMessage &second);
     friend void PrintTo(const UnregisterTranslationUnitsForEditorMessage &message, ::std::ostream* os);
 
 public:
@@ -56,14 +54,13 @@ private:
 CMBIPC_EXPORT QDataStream &operator<<(QDataStream &out, const UnregisterTranslationUnitsForEditorMessage &message);
 CMBIPC_EXPORT QDataStream &operator>>(QDataStream &in, UnregisterTranslationUnitsForEditorMessage &message);
 CMBIPC_EXPORT bool operator==(const UnregisterTranslationUnitsForEditorMessage &first, const UnregisterTranslationUnitsForEditorMessage &second);
-CMBIPC_EXPORT bool operator<(const UnregisterTranslationUnitsForEditorMessage &first, const UnregisterTranslationUnitsForEditorMessage &second);
 
 CMBIPC_EXPORT QDebug operator<<(QDebug debug, const UnregisterTranslationUnitsForEditorMessage &message);
 #ifdef CLANGBACKEND_TESTS
 void PrintTo(const UnregisterTranslationUnitsForEditorMessage &message, ::std::ostream* os);
 #endif
-} // namespace ClangBackEnd
 
-Q_DECLARE_METATYPE(ClangBackEnd::UnregisterTranslationUnitsForEditorMessage)
+DECLARE_MESSAGE(UnregisterTranslationUnitsForEditorMessage);
+} // namespace ClangBackEnd
 
 #endif // CLANGBACKEND_UNRegisterTranslationUnitForEditorMessage_H

@@ -45,11 +45,6 @@ bool operator==(const AliveMessage &/*first*/, const AliveMessage &/*second*/)
     return true;
 }
 
-bool operator<(const AliveMessage &/*first*/, const AliveMessage &/*second*/)
-{
-    return true;
-}
-
 QDebug operator<<(QDebug debug, const AliveMessage &/*message*/)
 {
     return debug.nospace() << "AliveMessage()";

@@ -79,5 +79,49 @@ enum class CompletionCorrection
     DotToArrowCorrection
 };
 
+enum class MessageType : quint8 {
+    InvalidMessage,
+    AliveMessage,
+    EchoMessage,
+    EndMessage,
+
+    RegisterTranslationUnitForEditorMessage,
+    UpdateTranslationUnitsForEditorMessage,
+    UnregisterTranslationUnitsForEditorMessage,
+
+    RegisterUnsavedFilesForEditorMessage,
+    UnregisterUnsavedFilesForEditorMessage,
+
+    RegisterProjectPartsForEditorMessage,
+    UnregisterProjectPartsForEditorMessage,
+
+    RequestDiagnosticsMessage,
+    DiagnosticsChangedMessage,
+
+    RequestHighlightingMessage,
+    HighlightingChangedMessage,
+
+    UpdateVisibleTranslationUnitsMessage,
+
+    CompleteCodeMessage,
+    CodeCompletedMessage,
+
+    TranslationUnitDoesNotExistMessage,
+    ProjectPartsDoNotExistMessage
+};
+
+template<MessageType messageEnumeration>
+struct MessageTypeTrait;
+
+template<class Message>
+struct MessageTrait;
+
+#define DECLARE_MESSAGE(Message) \
+template<> \
+struct MessageTrait<Message> \
+{ \
+    static const MessageType enumeration = MessageType::Message; \
+};
+
 }
 #endif // CLANGBACKENDIPC_GLOBAL_H

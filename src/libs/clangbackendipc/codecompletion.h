@@ -31,7 +31,6 @@
 
 #include <utf8string.h>
 
-#include <QMetaType>
 #include <QVector>
 
 namespace ClangBackEnd {
@@ -44,7 +43,6 @@ class CMBIPC_EXPORT CodeCompletion
     friend CMBIPC_EXPORT QDataStream &operator<<(QDataStream &out, const CodeCompletion &message);
     friend CMBIPC_EXPORT QDataStream &operator>>(QDataStream &in, CodeCompletion &message);
     friend CMBIPC_EXPORT bool operator==(const CodeCompletion &first, const CodeCompletion &second);
-    friend CMBIPC_EXPORT bool operator<(const CodeCompletion &first, const CodeCompletion &second);
     friend CMBIPC_EXPORT QDebug operator<<(QDebug debug, const CodeCompletion &message);
     friend void PrintTo(const CodeCompletion &message, ::std::ostream* os);
 
@@ -123,7 +121,6 @@ private:
 CMBIPC_EXPORT QDataStream &operator<<(QDataStream &out, const CodeCompletion &message);
 CMBIPC_EXPORT QDataStream &operator>>(QDataStream &in, CodeCompletion &message);
 CMBIPC_EXPORT bool operator==(const CodeCompletion &first, const CodeCompletion &second);
-CMBIPC_EXPORT bool operator<(const CodeCompletion &first, const CodeCompletion &second);
 
 CMBIPC_EXPORT QDebug operator<<(QDebug debug, const CodeCompletion &message);
 CMBIPC_EXPORT QDebug operator<<(QDebug debug, CodeCompletion::Kind kind);
@@ -132,7 +129,5 @@ void PrintTo(const CodeCompletion &message, ::std::ostream* os);
 void PrintTo(CodeCompletion::Kind kind, ::std::ostream *os);
 void PrintTo(CodeCompletion::Availability availability, ::std::ostream *os);
 } // namespace ClangBackEnd
-
-Q_DECLARE_METATYPE(ClangBackEnd::CodeCompletion)
 
 #endif // CLANGBACKEND_CODECOMPLETION_H

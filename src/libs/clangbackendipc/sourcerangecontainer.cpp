@@ -69,12 +69,6 @@ bool operator==(const SourceRangeContainer &first, const SourceRangeContainer &s
     return first.start_ == second.start_ && first.end_ == second.end_;
 }
 
-bool operator<(const SourceRangeContainer &first, const SourceRangeContainer &second)
-{
-    return first.start_ < second.start_
-        || (first.start_ == second.start_ && first.end_ < second.end_);
-}
-
 QDebug operator<<(QDebug debug, const SourceRangeContainer &container)
 {
     debug.nospace() << "SourceRangeContainer("

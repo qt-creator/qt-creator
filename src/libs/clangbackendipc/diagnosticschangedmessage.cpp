@@ -25,8 +25,6 @@
 
 #include "diagnosticschangedmessage.h"
 
-#include "container_common.h"
-
 #include <QDataStream>
 #include <QDebug>
 
@@ -71,12 +69,6 @@ bool operator==(const DiagnosticsChangedMessage &first, const DiagnosticsChanged
 {
     return first.file_ == second.file_
             && first.diagnostics_ == second.diagnostics_;
-}
-
-bool operator<(const DiagnosticsChangedMessage &first, const DiagnosticsChangedMessage &second)
-{
-    return first.file_ < second.file_
-            && compareContainer(first.diagnostics_, second.diagnostics_);
 }
 
 QDebug operator<<(QDebug debug, const DiagnosticsChangedMessage &message)

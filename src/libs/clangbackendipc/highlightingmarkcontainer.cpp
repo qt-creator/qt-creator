@@ -96,21 +96,6 @@ bool operator==(const HighlightingMarkContainer &first, const HighlightingMarkCo
         && first.type_ == second.type_;
 }
 
-bool operator<(const HighlightingMarkContainer &first, const HighlightingMarkContainer &second)
-{
-    if (first.line() == second.line()) {
-        if (first.column() == second.column()) {
-            if (first.length() == second.length())
-                return first.type() < second.type();
-            return first.length() < second.length();
-        }
-
-        return first.column() < second.column();
-    }
-
-    return first.line() < second.line();
-}
-
 #define RETURN_TEXT_FOR_CASE(enumValue) case HighlightingType::enumValue: return #enumValue
 static const char *highlightingTypeToCStringLiteral(HighlightingType type)
 {

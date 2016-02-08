@@ -25,8 +25,6 @@
 
 #include "highlightingchangedmessage.h"
 
-#include "container_common.h"
-
 #include <QDataStream>
 #include <QDebug>
 
@@ -81,13 +79,6 @@ bool operator==(const HighlightingChangedMessage &first, const HighlightingChang
     return first.file_ == second.file_
         && first.highlightingMarks_ == second.highlightingMarks_
         && first.skippedPreprocessorRanges_ == second.skippedPreprocessorRanges_;
-}
-
-bool operator<(const HighlightingChangedMessage &first, const HighlightingChangedMessage &second)
-{
-    return first.file_ < second.file_
-        && compareContainer(first.highlightingMarks_, second.highlightingMarks_)
-        && compareContainer(first.skippedPreprocessorRanges_, second.skippedPreprocessorRanges_);
 }
 
 QDebug operator<<(QDebug debug, const HighlightingChangedMessage &message)

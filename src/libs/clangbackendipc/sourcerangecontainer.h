@@ -35,8 +35,6 @@ class CMBIPC_EXPORT SourceRangeContainer
     friend CMBIPC_EXPORT QDataStream &operator<<(QDataStream &out, const SourceRangeContainer &container);
     friend CMBIPC_EXPORT QDataStream &operator>>(QDataStream &in, SourceRangeContainer &container);
     friend CMBIPC_EXPORT bool operator==(const SourceRangeContainer &first, const SourceRangeContainer &second);
-    friend CMBIPC_EXPORT bool operator<(const SourceRangeContainer &first, const SourceRangeContainer &second);
-
 public:
     SourceRangeContainer() = default;
     SourceRangeContainer(SourceLocationContainer start,
@@ -54,13 +52,10 @@ private:
 CMBIPC_EXPORT QDataStream &operator<<(QDataStream &out, const SourceRangeContainer &container);
 CMBIPC_EXPORT QDataStream &operator>>(QDataStream &in, SourceRangeContainer &container);
 CMBIPC_EXPORT bool operator==(const SourceRangeContainer &first, const SourceRangeContainer &second);
-CMBIPC_EXPORT bool operator<(const SourceRangeContainer &first, const SourceRangeContainer &second);
 
 CMBIPC_EXPORT QDebug operator<<(QDebug debug, const SourceRangeContainer &container);
 void PrintTo(const SourceRangeContainer &container, ::std::ostream* os);
 
 } // namespace ClangBackEnd
-
-Q_DECLARE_METATYPE(ClangBackEnd::SourceRangeContainer)
 
 #endif // CLANGBACKEND_SOURCERANGECONTAINER_H

@@ -14,7 +14,6 @@ SOURCES += $$PWD/ipcserverinterface.cpp \
     $$PWD/cmbendmessage.cpp \
     $$PWD/cmbalivemessage.cpp \
     $$PWD/ipcclientproxy.cpp \
-    $$PWD/cmbmessages.cpp \
     $$PWD/writemessageblock.cpp \
     $$PWD/readmessageblock.cpp \
     $$PWD/ipcinterface.cpp \
@@ -57,7 +56,6 @@ HEADERS += \
     $$PWD/cmbendmessage.h \
     $$PWD/cmbalivemessage.h \
     $$PWD/ipcclientproxy.h \
-    $$PWD/cmbmessages.h \
     $$PWD/writemessageblock.h \
     $$PWD/readmessageblock.h \
     $$PWD/ipcinterface.h \
@@ -77,7 +75,6 @@ HEADERS += \
     $$PWD/codecompletionchunk.h \
     $$PWD/projectpartcontainer.h \
     $$PWD/projectpartsdonotexistmessage.h \
-    $$PWD/container_common.h \
     $$PWD/clangbackendipc_global.h \
     $$PWD/lineprefixer.h \
     $$PWD/clangbackendipcdebugutils.h \
@@ -93,6 +90,7 @@ HEADERS += \
     $$PWD/updatetranslationunitsforeditormessage.h \
     $$PWD/updatevisibletranslationunitsmessage.h \
     $$PWD/highlightingchangedmessage.h \
-    $$PWD/highlightingmarkcontainer.h
+    $$PWD/highlightingmarkcontainer.h \
+    $$PWD/messageenvelop.h
 
 contains(QT_CONFIG, reduce_exports):CONFIG += hide_symbols

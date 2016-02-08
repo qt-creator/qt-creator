@@ -61,11 +61,6 @@ bool operator==(const RequestHighlightingMessage &first, const RequestHighlighti
     return first.fileContainer_ == second.fileContainer_;
 }
 
-bool operator<(const RequestHighlightingMessage &first, const RequestHighlightingMessage &second)
-{
-    return first.fileContainer_ < second.fileContainer_;
-}
-
 QDebug operator<<(QDebug debug, const RequestHighlightingMessage &message)
 {
     debug.nospace() << "RequestHighlightingMessage("

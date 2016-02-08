@@ -47,7 +47,7 @@
 
 namespace ClangBackEnd {
 
-void EchoIpcServer::dispatch(const QVariant &message)
+void EchoIpcServer::dispatch(const MessageEnvelop &message)
 {
     IpcServerInterface::dispatch(message);
 }
@@ -60,60 +60,60 @@ void EchoIpcServer::end()
 
 void EchoIpcServer::registerTranslationUnitsForEditor(const RegisterTranslationUnitForEditorMessage &message)
 {
-    echoMessage(QVariant::fromValue(message));
+    echoMessage(message);
 }
 
 void EchoIpcServer::updateTranslationUnitsForEditor(const UpdateTranslationUnitsForEditorMessage &message)
 {
-    echoMessage(QVariant::fromValue(message));
+    echoMessage(message);
 }
 
 void EchoIpcServer::unregisterTranslationUnitsForEditor(const UnregisterTranslationUnitsForEditorMessage &message)
 {
-    echoMessage(QVariant::fromValue(message));
+    echoMessage(message);
 }
 
 void EchoIpcServer::registerProjectPartsForEditor(const RegisterProjectPartsForEditorMessage &message)
 {
-    echoMessage(QVariant::fromValue(message));
+    echoMessage(message);
 }
 
 void EchoIpcServer::unregisterProjectPartsForEditor(const UnregisterProjectPartsForEditorMessage &message)
 {
-    echoMessage(QVariant::fromValue(message));
+    echoMessage(message);
 }
 
 void EchoIpcServer::registerUnsavedFilesForEditor(const RegisterUnsavedFilesForEditorMessage &message)
 {
-    echoMessage(QVariant::fromValue(message));
+    echoMessage(message);
 }
 
 void EchoIpcServer::unregisterUnsavedFilesForEditor(const UnregisterUnsavedFilesForEditorMessage &message)
 {
-    echoMessage(QVariant::fromValue(message));
+    echoMessage(message);
 }
 
 void EchoIpcServer::completeCode(const CompleteCodeMessage &message)
 {
-    echoMessage(QVariant::fromValue(message));
+    echoMessage(message);
 }
 
 void EchoIpcServer::requestDiagnostics(const RequestDiagnosticsMessage &message)
 {
-    echoMessage(QVariant::fromValue(message));
+    echoMessage(message);
 }
 
 void EchoIpcServer::requestHighlighting(const RequestHighlightingMessage &message)
 {
-    echoMessage(QVariant::fromValue(message));
+    echoMessage(message);
 }
 
 void EchoIpcServer::updateVisibleTranslationUnits(const UpdateVisibleTranslationUnitsMessage &message)
 {
-    echoMessage(QVariant::fromValue(message));
+    echoMessage(message);
 }
 
-void EchoIpcServer::echoMessage(const QVariant &message)
+void EchoIpcServer::echoMessage(const MessageEnvelop &message)
 {
     client()->echo(EchoMessage(message));
 }

@@ -33,7 +33,7 @@ namespace ClangBackEnd {
 class EchoIpcServer : public IpcServerInterface
 {
 public:
-    void dispatch(const QVariant &message) override;
+    void dispatch(const MessageEnvelop &message) override;
     void end() override;
     void registerTranslationUnitsForEditor(const RegisterTranslationUnitForEditorMessage &message) override;
     void updateTranslationUnitsForEditor(const UpdateTranslationUnitsForEditorMessage &message) override;
@@ -48,7 +48,7 @@ public:
     void updateVisibleTranslationUnits(const UpdateVisibleTranslationUnitsMessage &message) override;
 
 private:
-    void echoMessage(const QVariant &message);
+    void echoMessage(const MessageEnvelop &message);
 };
 
 } // namespace ClangBackEnd

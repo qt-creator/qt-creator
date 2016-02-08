@@ -28,7 +28,6 @@
 
 #include "projectpartcontainer.h"
 
-#include <QMetaType>
 #include <QVector>
 
 namespace ClangBackEnd {
@@ -38,7 +37,6 @@ class CMBIPC_EXPORT RegisterProjectPartsForEditorMessage
     friend CMBIPC_EXPORT QDataStream &operator<<(QDataStream &out, const RegisterProjectPartsForEditorMessage &message);
     friend CMBIPC_EXPORT QDataStream &operator>>(QDataStream &in, RegisterProjectPartsForEditorMessage &message);
     friend CMBIPC_EXPORT bool operator==(const RegisterProjectPartsForEditorMessage &first, const RegisterProjectPartsForEditorMessage &second);
-    friend CMBIPC_EXPORT bool operator<(const RegisterProjectPartsForEditorMessage &first, const RegisterProjectPartsForEditorMessage &second);
     friend void PrintTo(const RegisterProjectPartsForEditorMessage &message, ::std::ostream* os);
 public:
     RegisterProjectPartsForEditorMessage() = default;
@@ -53,12 +51,11 @@ private:
 CMBIPC_EXPORT QDataStream &operator<<(QDataStream &out, const RegisterProjectPartsForEditorMessage &message);
 CMBIPC_EXPORT QDataStream &operator>>(QDataStream &in, RegisterProjectPartsForEditorMessage &message);
 CMBIPC_EXPORT bool operator==(const RegisterProjectPartsForEditorMessage &first, const RegisterProjectPartsForEditorMessage &second);
-CMBIPC_EXPORT bool operator<(const RegisterProjectPartsForEditorMessage &first, const RegisterProjectPartsForEditorMessage &second);
 
 CMBIPC_EXPORT QDebug operator<<(QDebug debug, const RegisterProjectPartsForEditorMessage &message);
 void PrintTo(const RegisterProjectPartsForEditorMessage &message, ::std::ostream* os);
-} // namespace ClangBackEnd
 
-Q_DECLARE_METATYPE(ClangBackEnd::RegisterProjectPartsForEditorMessage)
+DECLARE_MESSAGE(RegisterProjectPartsForEditorMessage);
+} // namespace ClangBackEnd
 
 #endif // CLANGBACKEND_REGISTERPROJECTSFOREDITORMESSAGE_H

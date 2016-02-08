@@ -40,7 +40,6 @@ class CMBIPC_EXPORT DiagnosticContainer
     friend CMBIPC_EXPORT QDataStream &operator<<(QDataStream &out, const DiagnosticContainer &container);
     friend CMBIPC_EXPORT QDataStream &operator>>(QDataStream &in, DiagnosticContainer &container);
     friend CMBIPC_EXPORT bool operator==(const DiagnosticContainer &first, const DiagnosticContainer &second);
-    friend CMBIPC_EXPORT bool operator<(const DiagnosticContainer &first, const DiagnosticContainer &second);
 
 public:
     DiagnosticContainer() = default;
@@ -81,13 +80,10 @@ private:
 CMBIPC_EXPORT QDataStream &operator<<(QDataStream &out, const DiagnosticContainer &container);
 CMBIPC_EXPORT QDataStream &operator>>(QDataStream &in, DiagnosticContainer &container);
 CMBIPC_EXPORT bool operator==(const DiagnosticContainer &first, const DiagnosticContainer &second);
-CMBIPC_EXPORT bool operator<(const DiagnosticContainer &first, const DiagnosticContainer &second);
 
 CMBIPC_EXPORT QDebug operator<<(QDebug debug, const DiagnosticContainer &container);
 void PrintTo(const DiagnosticContainer &container, ::std::ostream* os);
 
 } // namespace ClangBackEnd
-
-Q_DECLARE_METATYPE(ClangBackEnd::DiagnosticContainer)
 
 #endif // CLANGBACKEND_DIAGNOSTICCONTAINER_H

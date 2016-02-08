@@ -32,13 +32,12 @@
 
 namespace ClangBackEnd {
 
-EchoMessage::EchoMessage(const QVariant &message)
+EchoMessage::EchoMessage(const MessageEnvelop &message)
     : message_(message)
 {
-
 }
 
-const QVariant &EchoMessage::message() const
+const MessageEnvelop &EchoMessage::message() const
 {
     return message_;
 }
@@ -62,24 +61,14 @@ bool operator==(const EchoMessage &first, const EchoMessage &second)
     return first.message_ == second.message_;
 }
 
-bool operator<(const EchoMessage &first, const EchoMessage &second)
+QDebug operator<<(QDebug debug, const EchoMessage &)
 {
-    return first.message_ < second.message_;
+    return debug.nospace() << "EchoMessage()";
 }
 
-QDebug operator<<(QDebug debug, const EchoMessage &message)
+void PrintTo(const EchoMessage &, ::std::ostream* os)
 {
-    return debug.nospace() << "EchoMessage(" << message.message() << ")";
-}
-
-void PrintTo(const EchoMessage &message, ::std::ostream* os)
-{
-    QString output;
-    QDebug debug(&output);
-
-    debug << message;
-
-    *os << output.toUtf8().constData();
+    *os << "EchoMessage()";
 }
 
 } // namespace ClangBackEnd

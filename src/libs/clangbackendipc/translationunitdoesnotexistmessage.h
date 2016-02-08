@@ -28,8 +28,6 @@
 
 #include "filecontainer.h"
 
-#include <QMetaType>
-
 namespace ClangBackEnd {
 
 class CMBIPC_EXPORT TranslationUnitDoesNotExistMessage
@@ -37,7 +35,6 @@ class CMBIPC_EXPORT TranslationUnitDoesNotExistMessage
     friend CMBIPC_EXPORT QDataStream &operator<<(QDataStream &out, const TranslationUnitDoesNotExistMessage &message);
     friend CMBIPC_EXPORT QDataStream &operator>>(QDataStream &in, TranslationUnitDoesNotExistMessage &message);
     friend CMBIPC_EXPORT bool operator==(const TranslationUnitDoesNotExistMessage &first, const TranslationUnitDoesNotExistMessage &second);
-    friend CMBIPC_EXPORT bool operator<(const TranslationUnitDoesNotExistMessage &first, const TranslationUnitDoesNotExistMessage &second);
     friend CMBIPC_EXPORT QDebug operator<<(QDebug debug, const TranslationUnitDoesNotExistMessage &message);
     friend void PrintTo(const TranslationUnitDoesNotExistMessage &message, ::std::ostream* os);
 public:
@@ -56,13 +53,11 @@ private:
 CMBIPC_EXPORT QDataStream &operator<<(QDataStream &out, const TranslationUnitDoesNotExistMessage &message);
 CMBIPC_EXPORT QDataStream &operator>>(QDataStream &in, TranslationUnitDoesNotExistMessage &message);
 CMBIPC_EXPORT bool operator==(const TranslationUnitDoesNotExistMessage &first, const TranslationUnitDoesNotExistMessage &second);
-CMBIPC_EXPORT bool operator<(const TranslationUnitDoesNotExistMessage &first, const TranslationUnitDoesNotExistMessage &second);
 
 CMBIPC_EXPORT QDebug operator<<(QDebug debug, const TranslationUnitDoesNotExistMessage &message);
 void PrintTo(const TranslationUnitDoesNotExistMessage &message, ::std::ostream* os);
 
+DECLARE_MESSAGE(TranslationUnitDoesNotExistMessage)
 } // namespace ClangBackEnd
-
-Q_DECLARE_METATYPE(ClangBackEnd::TranslationUnitDoesNotExistMessage)
 
 #endif // CLANGBACKEND_TRANSLATIONUNITDOESNOTEXISTSMESSAGE_H

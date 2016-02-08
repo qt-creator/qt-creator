@@ -28,8 +28,6 @@
 
 #include "clangbackendipc_global.h"
 
-#include <QMetaType>
-
 namespace ClangBackEnd {
 
 class CMBIPC_EXPORT EndMessage
@@ -39,12 +37,11 @@ class CMBIPC_EXPORT EndMessage
 CMBIPC_EXPORT QDataStream &operator<<(QDataStream &out, const EndMessage &message);
 CMBIPC_EXPORT QDataStream &operator>>(QDataStream &in, EndMessage &message);
 CMBIPC_EXPORT bool operator==(const EndMessage &first, const EndMessage &second);
-CMBIPC_EXPORT bool operator<(const EndMessage &first, const EndMessage &second);
 
 CMBIPC_EXPORT QDebug operator<<(QDebug debug, const EndMessage &message);
 void PrintTo(const EndMessage &message, ::std::ostream* os);
-}
 
-Q_DECLARE_METATYPE(ClangBackEnd::EndMessage)
+DECLARE_MESSAGE(EndMessage)
+}
 
 #endif // CMBENDMESSAGE_H

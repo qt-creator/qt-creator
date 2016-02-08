@@ -28,8 +28,6 @@
 
 #include "clangbackendipc_global.h"
 
-#include <QMetaType>
-
 namespace ClangBackEnd {
 
 class CMBIPC_EXPORT HighlightingMarkContainer
@@ -37,8 +35,6 @@ class CMBIPC_EXPORT HighlightingMarkContainer
     friend CMBIPC_EXPORT QDataStream &operator<<(QDataStream &out, const HighlightingMarkContainer &container);
     friend CMBIPC_EXPORT QDataStream &operator>>(QDataStream &in, HighlightingMarkContainer &container);
     friend CMBIPC_EXPORT bool operator==(const HighlightingMarkContainer &first, const HighlightingMarkContainer &second);
-    friend CMBIPC_EXPORT bool operator<(const HighlightingMarkContainer &first, const HighlightingMarkContainer &second);
-
 public:
     HighlightingMarkContainer() = default;
     HighlightingMarkContainer(uint line, uint column, uint length, HighlightingType type);
@@ -61,14 +57,11 @@ private:
 CMBIPC_EXPORT QDataStream &operator<<(QDataStream &out, const HighlightingMarkContainer &container);
 CMBIPC_EXPORT QDataStream &operator>>(QDataStream &in, HighlightingMarkContainer &container);
 CMBIPC_EXPORT bool operator==(const HighlightingMarkContainer &first, const HighlightingMarkContainer &second);
-CMBIPC_EXPORT bool operator<(const HighlightingMarkContainer &first, const HighlightingMarkContainer &second);
 
 CMBIPC_EXPORT QDebug operator<<(QDebug debug, const HighlightingMarkContainer &container);
 CMBIPC_EXPORT void PrintTo(HighlightingType highlightingType, ::std::ostream *os);
 void PrintTo(const HighlightingMarkContainer &container, ::std::ostream *os);
 
 } // namespace ClangBackEnd
-
-Q_DECLARE_METATYPE(ClangBackEnd::HighlightingMarkContainer)
 
 #endif // CLANGBACKEND_HIGHLIGHTINGMARKCONTAINER_H

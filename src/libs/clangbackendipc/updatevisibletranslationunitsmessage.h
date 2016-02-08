@@ -30,8 +30,6 @@
 
 #include <utf8stringvector.h>
 
-#include <QMetaType>
-
 namespace ClangBackEnd {
 
 class CMBIPC_EXPORT UpdateVisibleTranslationUnitsMessage
@@ -39,8 +37,6 @@ class CMBIPC_EXPORT UpdateVisibleTranslationUnitsMessage
     friend CMBIPC_EXPORT QDataStream &operator<<(QDataStream &out, const UpdateVisibleTranslationUnitsMessage &message);
     friend CMBIPC_EXPORT QDataStream &operator>>(QDataStream &in, UpdateVisibleTranslationUnitsMessage &message);
     friend CMBIPC_EXPORT bool operator==(const UpdateVisibleTranslationUnitsMessage &first, const UpdateVisibleTranslationUnitsMessage &second);
-    friend CMBIPC_EXPORT bool operator<(const UpdateVisibleTranslationUnitsMessage &first, const UpdateVisibleTranslationUnitsMessage &second);
-
 public:
     UpdateVisibleTranslationUnitsMessage() = default;
     UpdateVisibleTranslationUnitsMessage(const Utf8String &currentEditorFilePath,
@@ -57,12 +53,11 @@ private:
 CMBIPC_EXPORT QDataStream &operator<<(QDataStream &out, const UpdateVisibleTranslationUnitsMessage &message);
 CMBIPC_EXPORT QDataStream &operator>>(QDataStream &in, UpdateVisibleTranslationUnitsMessage &message);
 CMBIPC_EXPORT bool operator==(const UpdateVisibleTranslationUnitsMessage &first, const UpdateVisibleTranslationUnitsMessage &second);
-CMBIPC_EXPORT bool operator<(const UpdateVisibleTranslationUnitsMessage &first, const UpdateVisibleTranslationUnitsMessage &second);
 
 CMBIPC_EXPORT QDebug operator<<(QDebug debug, const UpdateVisibleTranslationUnitsMessage &message);
 void PrintTo(const UpdateVisibleTranslationUnitsMessage &message, ::std::ostream* os);
-} // namespace ClangBackEnd
 
-Q_DECLARE_METATYPE(ClangBackEnd::UpdateVisibleTranslationUnitsMessage)
+DECLARE_MESSAGE(UpdateVisibleTranslationUnitsMessage)
+} // namespace ClangBackEnd
 
 #endif // CLANGBACKEND_UPDATEVISIBLETRANSLATIONUNITSMESSAGE_H

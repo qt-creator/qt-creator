@@ -29,20 +29,21 @@
 #include <QtGlobal>
 
 QT_BEGIN_NAMESPACE
-class QVariant;
 class QDataStream;
 class QIODevice;
 QT_END_NAMESPACE
 
 namespace ClangBackEnd {
 
+class MessageEnvelop;
+
 class ReadMessageBlock
 {
 public:
     ReadMessageBlock(QIODevice *ioDevice = nullptr);
 
-    QVariant read();
-    QVector<QVariant> readAll();
+    MessageEnvelop read();
+    QVector<MessageEnvelop> readAll();
 
     void resetCounter();
 

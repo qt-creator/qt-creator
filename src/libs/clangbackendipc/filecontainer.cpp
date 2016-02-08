@@ -118,14 +118,6 @@ bool operator==(const FileContainer &first, const FileContainer &second)
     return first.filePath_ == second.filePath_ && first.projectPartId_ == second.projectPartId_;
 }
 
-bool operator<(const FileContainer &first, const FileContainer &second)
-{
-    if (first.filePath_ == second.filePath_)
-        return first.projectPartId_ < second.projectPartId_;
-
-    return first.filePath_ < second.filePath_;
-}
-
 QDebug operator<<(QDebug debug, const FileContainer &container)
 {
     debug.nospace() << "FileContainer("

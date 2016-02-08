@@ -30,17 +30,15 @@
 
 #include <QtGlobal>
 
-QT_BEGIN_NAMESPACE
-class QVariant;
-QT_END_NAMESPACE
-
 namespace ClangBackEnd {
+
+class MessageEnvelop;
 
 class CMBIPC_EXPORT IpcInterface
 {
 public:
     virtual ~IpcInterface();
-    virtual void dispatch(const QVariant &message) = 0;
+    virtual void dispatch(const MessageEnvelop &messageEnvelop) = 0;
 };
 
 } // namespace ClangBackEnd

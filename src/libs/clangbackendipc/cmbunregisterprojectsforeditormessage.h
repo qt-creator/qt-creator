@@ -30,8 +30,6 @@
 
 #include <utf8stringvector.h>
 
-#include <QMetaType>
-
 namespace ClangBackEnd {
 
 class CMBIPC_EXPORT UnregisterProjectPartsForEditorMessage
@@ -39,7 +37,6 @@ class CMBIPC_EXPORT UnregisterProjectPartsForEditorMessage
     friend CMBIPC_EXPORT QDataStream &operator<<(QDataStream &out, const UnregisterProjectPartsForEditorMessage &message);
     friend CMBIPC_EXPORT QDataStream &operator>>(QDataStream &in, UnregisterProjectPartsForEditorMessage &message);
     friend CMBIPC_EXPORT bool operator==(const UnregisterProjectPartsForEditorMessage &first, const UnregisterProjectPartsForEditorMessage &second);
-    friend CMBIPC_EXPORT bool operator<(const UnregisterProjectPartsForEditorMessage &first, const UnregisterProjectPartsForEditorMessage &second);
     friend void PrintTo(const UnregisterProjectPartsForEditorMessage &message, ::std::ostream* os);
 
 public:
@@ -55,12 +52,11 @@ private:
 CMBIPC_EXPORT QDataStream &operator<<(QDataStream &out, const UnregisterProjectPartsForEditorMessage &message);
 CMBIPC_EXPORT QDataStream &operator>>(QDataStream &in, UnregisterProjectPartsForEditorMessage &message);
 CMBIPC_EXPORT bool operator==(const UnregisterProjectPartsForEditorMessage &first, const UnregisterProjectPartsForEditorMessage &second);
-CMBIPC_EXPORT bool operator<(const UnregisterProjectPartsForEditorMessage &first, const UnregisterProjectPartsForEditorMessage &second);
 
 CMBIPC_EXPORT QDebug operator<<(QDebug debug, const UnregisterProjectPartsForEditorMessage &message);
 void PrintTo(const UnregisterProjectPartsForEditorMessage &message, ::std::ostream* os);
-} // namespace ClangBackEnd
 
-Q_DECLARE_METATYPE(ClangBackEnd::UnregisterProjectPartsForEditorMessage)
+DECLARE_MESSAGE(UnregisterProjectPartsForEditorMessage);
+} // namespace ClangBackEnd
 
 #endif // CLANGBACKEND_UNREGISTERPROJECTSFOREDITOR_H

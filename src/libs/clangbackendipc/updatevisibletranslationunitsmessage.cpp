@@ -25,8 +25,6 @@
 
 #include "updatevisibletranslationunitsmessage.h"
 
-#include "container_common.h"
-
 #include <QDataStream>
 #include <QDebug>
 
@@ -74,12 +72,6 @@ bool operator==(const UpdateVisibleTranslationUnitsMessage &first, const UpdateV
 {
     return first.currentEditorFilePath_ == second.currentEditorFilePath_
         && first.visibleEditorFilePaths_ == second.visibleEditorFilePaths_;
-}
-
-bool operator<(const UpdateVisibleTranslationUnitsMessage &first, const UpdateVisibleTranslationUnitsMessage &second)
-{
-    return first.currentEditorFilePath_ < second.currentEditorFilePath_
-        && compareContainer(first.visibleEditorFilePaths_, second.visibleEditorFilePaths_);
 }
 
 QDebug operator<<(QDebug debug, const UpdateVisibleTranslationUnitsMessage &message)

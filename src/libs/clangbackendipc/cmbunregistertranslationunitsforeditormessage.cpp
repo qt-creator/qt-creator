@@ -25,8 +25,6 @@
 
 #include "cmbunregistertranslationunitsforeditormessage.h"
 
-#include "container_common.h"
-
 #ifdef CLANGBACKEND_TESTS
 #include <gtest/gtest-printers.h>
 #endif
@@ -64,11 +62,6 @@ QDataStream &operator>>(QDataStream &in, UnregisterTranslationUnitsForEditorMess
 bool operator==(const UnregisterTranslationUnitsForEditorMessage &first, const UnregisterTranslationUnitsForEditorMessage &second)
 {
     return first.fileContainers_ == second.fileContainers_;
-}
-
-bool operator<(const UnregisterTranslationUnitsForEditorMessage &first, const UnregisterTranslationUnitsForEditorMessage &second)
-{
-    return compareContainer(first.fileContainers_, second.fileContainers_);
 }
 
 QDebug operator<<(QDebug debug, const UnregisterTranslationUnitsForEditorMessage &message)

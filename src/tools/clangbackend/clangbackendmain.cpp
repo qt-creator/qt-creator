@@ -28,7 +28,6 @@
 #include <QLoggingCategory>
 
 #include <connectionserver.h>
-#include <cmbmessages.h>
 #include <clangipcserver.h>
 
 QString processArguments(QCoreApplication &application)
@@ -59,8 +58,6 @@ int main(int argc, char *argv[])
     QCoreApplication application(argc, argv);
 
     const QString connection =  processArguments(application);
-
-    ClangBackEnd::Messages::registerMessages();
 
     clang_toggleCrashRecovery(true);
     clang_enableStackTraces();

@@ -70,11 +70,6 @@ bool operator==(const FixItContainer &first, const FixItContainer &second)
     return first.text_ == second.text_ && first.range_ == second.range_;
 }
 
-bool operator<(const FixItContainer &first, const FixItContainer &second)
-{
-    return first.range_ < second.range_;
-}
-
 QDebug operator<<(QDebug debug, const FixItContainer &container)
 {
     debug.nospace() << "FixItContainer("

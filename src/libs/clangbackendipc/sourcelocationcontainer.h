@@ -30,8 +30,6 @@
 
 #include <utf8string.h>
 
-#include <QMetaType>
-
 namespace ClangBackEnd {
 
 class CMBIPC_EXPORT SourceLocationContainer
@@ -40,8 +38,6 @@ class CMBIPC_EXPORT SourceLocationContainer
     friend CMBIPC_EXPORT QDataStream &operator>>(QDataStream &in, SourceLocationContainer &container);
     friend CMBIPC_EXPORT bool operator==(const SourceLocationContainer &first, const SourceLocationContainer &second);
     friend CMBIPC_EXPORT bool operator!=(const SourceLocationContainer &first, const SourceLocationContainer &second);
-    friend CMBIPC_EXPORT bool operator<(const SourceLocationContainer &first, const SourceLocationContainer &second);
-
 public:
     SourceLocationContainer() = default;
     SourceLocationContainer(const Utf8String &filePath,
@@ -62,13 +58,10 @@ CMBIPC_EXPORT QDataStream &operator<<(QDataStream &out, const SourceLocationCont
 CMBIPC_EXPORT QDataStream &operator>>(QDataStream &in, SourceLocationContainer &container);
 CMBIPC_EXPORT bool operator==(const SourceLocationContainer &first, const SourceLocationContainer &second);
 CMBIPC_EXPORT bool operator!=(const SourceLocationContainer &first, const SourceLocationContainer &second);
-CMBIPC_EXPORT bool operator<(const SourceLocationContainer &first, const SourceLocationContainer &second);
 
 CMBIPC_EXPORT QDebug operator<<(QDebug debug, const SourceLocationContainer &container);
 void PrintTo(const SourceLocationContainer &container, ::std::ostream* os);
 
 } // namespace ClangBackEnd
-
-Q_DECLARE_METATYPE(ClangBackEnd::SourceLocationContainer)
 
 #endif // CLANGBACKEND_SOURCELOCATIONCONTAINER_H

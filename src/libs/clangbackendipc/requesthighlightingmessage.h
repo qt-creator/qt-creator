@@ -35,7 +35,6 @@ class CMBIPC_EXPORT RequestHighlightingMessage
     friend CMBIPC_EXPORT QDataStream &operator<<(QDataStream &out, const RequestHighlightingMessage &message);
     friend CMBIPC_EXPORT QDataStream &operator>>(QDataStream &in, RequestHighlightingMessage &message);
     friend CMBIPC_EXPORT bool operator==(const RequestHighlightingMessage &first, const RequestHighlightingMessage &second);
-    friend CMBIPC_EXPORT bool operator<(const RequestHighlightingMessage &first, const RequestHighlightingMessage &second);
     friend CMBIPC_EXPORT QDebug operator<<(QDebug debug, const RequestHighlightingMessage &message);
     friend void PrintTo(const RequestHighlightingMessage &message, ::std::ostream* os);
 
@@ -52,13 +51,11 @@ private:
 CMBIPC_EXPORT QDataStream &operator<<(QDataStream &out, const RequestHighlightingMessage &message);
 CMBIPC_EXPORT QDataStream &operator>>(QDataStream &in, RequestHighlightingMessage &message);
 CMBIPC_EXPORT bool operator==(const RequestHighlightingMessage &first, const RequestHighlightingMessage &second);
-CMBIPC_EXPORT bool operator<(const RequestHighlightingMessage &first, const RequestHighlightingMessage &second);
 
 CMBIPC_EXPORT QDebug operator<<(QDebug debug, const RequestHighlightingMessage &message);
 void PrintTo(const RequestHighlightingMessage &message, ::std::ostream* os);
 
+DECLARE_MESSAGE(RequestHighlightingMessage)
 } // namespace ClangBackEnd
-
-Q_DECLARE_METATYPE(ClangBackEnd::RequestHighlightingMessage)
 
 #endif //  CLANGBACKEND_REQUESTHIGHLIGHTING_H

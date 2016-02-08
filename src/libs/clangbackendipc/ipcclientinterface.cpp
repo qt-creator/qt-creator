@@ -27,6 +27,7 @@
 
 #include "cmbcodecompletedmessage.h"
 #include "cmbechomessage.h"
+#include "messageenvelop.h"
 #include "projectpartsdonotexistmessage.h"
 #include "translationunitdoesnotexistmessage.h"
 #include "diagnosticschangedmessage.h"
@@ -37,35 +38,33 @@
 
 namespace ClangBackEnd {
 
-
-void IpcClientInterface::dispatch(const QVariant &message)
+void IpcClientInterface::dispatch(const MessageEnvelop &messageEnvelop)
 {
-    static const int aliveMessageType = QMetaType::type("ClangBackEnd::AliveMessage");
-    static const int echoMessageType = QMetaType::type("ClangBackEnd::EchoMessage");
-    static const int codeCompletedMessageType = QMetaType::type("ClangBackEnd::CodeCompletedMessage");
-    static const int translationUnitDoesNotExistMessage = QMetaType::type("ClangBackEnd::TranslationUnitDoesNotExistMessage");
-    static const int projectPartsDoNotExistMessage = QMetaType::type("ClangBackEnd::ProjectPartsDoNotExistMessage");
-    static const int diagnosticsChangedMessage = QMetaType::type("ClangBackEnd::DiagnosticsChangedMessage");
-    static const int highlightingChangedMessage = QMetaType::type("ClangBackEnd::HighlightingChangedMessage");
-
-    int type = message.userType();
-
-    if (type == aliveMessageType)
-        alive();
-    else if (type == echoMessageType)
-        echo(message.value<EchoMessage>());
-    else if (type == codeCompletedMessageType)
-        codeCompleted(message.value<CodeCompletedMessage>());
-    else if (type == translationUnitDoesNotExistMessage)
-        translationUnitDoesNotExist(message.value<TranslationUnitDoesNotExistMessage>());
-    else if (type == projectPartsDoNotExistMessage)
-        projectPartsDoNotExist(message.value<ProjectPartsDoNotExistMessage>());
-    else if (type == diagnosticsChangedMessage)
-        diagnosticsChanged(message.value<DiagnosticsChangedMessage>());
-    else if (type == highlightingChangedMessage)
-        highlightingChanged(message.value<HighlightingChangedMessage>());
-    else
-        qWarning() << "Unknown IpcClientMessage";
+    switch (messageEnvelop.messageType()) {
+        case MessageType::AliveMessage:
+            alive();
+            break;
+        case MessageType::EchoMessage:
+            echo(messageEnvelop.message<EchoMessage>());
+            break;
+        case MessageType::CodeCompletedMessage:
+            codeCompleted(messageEnvelop.message<CodeCompletedMessage>());
+            break;
+        case MessageType::TranslationUnitDoesNotExistMessage:
+            translationUnitDoesNotExist(messageEnvelop.message<TranslationUnitDoesNotExistMessage>());
+            break;
+        case MessageType::ProjectPartsDoNotExistMessage:
+            projectPartsDoNotExist(messageEnvelop.message<ProjectPartsDoNotExistMessage>());
+            break;
+        case MessageType::DiagnosticsChangedMessage:
+            diagnosticsChanged(messageEnvelop.message<DiagnosticsChangedMessage>());
+            break;
+        case MessageType::HighlightingChangedMessage:
+            highlightingChanged(messageEnvelop.message<HighlightingChangedMessage>());
+            break;
+        default:
+            qWarning() << "Unknown IpcClientMessage";
+    }
 }
 
 } // namespace ClangBackEnd

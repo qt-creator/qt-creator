@@ -76,11 +76,6 @@ bool operator==(const TranslationUnitDoesNotExistMessage &first, const Translati
     return first.fileContainer_ == second.fileContainer_;
 }
 
-bool operator<(const TranslationUnitDoesNotExistMessage &first, const TranslationUnitDoesNotExistMessage &second)
-{
-    return first.fileContainer_ < second.fileContainer_;
-}
-
 QDebug operator<<(QDebug debug, const TranslationUnitDoesNotExistMessage &message)
 {
     debug.nospace() << "TranslationUnitDoesNotExistMessage(";

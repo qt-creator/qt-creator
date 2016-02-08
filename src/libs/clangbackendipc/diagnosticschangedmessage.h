@@ -39,7 +39,6 @@ class CMBIPC_EXPORT DiagnosticsChangedMessage
     friend CMBIPC_EXPORT QDataStream &operator<<(QDataStream &out, const DiagnosticsChangedMessage &message);
     friend CMBIPC_EXPORT QDataStream &operator>>(QDataStream &in, DiagnosticsChangedMessage &message);
     friend CMBIPC_EXPORT bool operator==(const DiagnosticsChangedMessage &first, const DiagnosticsChangedMessage &second);
-    friend CMBIPC_EXPORT bool operator<(const DiagnosticsChangedMessage &first, const DiagnosticsChangedMessage &second);
     friend CMBIPC_EXPORT QDebug operator<<(QDebug debug, const DiagnosticsChangedMessage &message);
     friend void PrintTo(const DiagnosticsChangedMessage &message, ::std::ostream* os);
 
@@ -59,13 +58,11 @@ private:
 CMBIPC_EXPORT QDataStream &operator<<(QDataStream &out, const DiagnosticsChangedMessage &message);
 CMBIPC_EXPORT QDataStream &operator>>(QDataStream &in, DiagnosticsChangedMessage &message);
 CMBIPC_EXPORT bool operator==(const DiagnosticsChangedMessage &first, const DiagnosticsChangedMessage &second);
-CMBIPC_EXPORT bool operator<(const DiagnosticsChangedMessage &first, const DiagnosticsChangedMessage &second);
 
 CMBIPC_EXPORT QDebug operator<<(QDebug debug, const DiagnosticsChangedMessage &message);
 void PrintTo(const DiagnosticsChangedMessage &message, ::std::ostream* os);
 
+DECLARE_MESSAGE(DiagnosticsChangedMessage)
 } // namespace ClangBackEnd
-
-Q_DECLARE_METATYPE(ClangBackEnd::DiagnosticsChangedMessage)
 
 #endif // CLANGBACKEND_DIAGNOSTICSCHANGEDMESSAGE_H

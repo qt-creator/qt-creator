@@ -40,7 +40,6 @@ class CMBIPC_EXPORT HighlightingChangedMessage
     friend CMBIPC_EXPORT QDataStream &operator<<(QDataStream &out, const HighlightingChangedMessage &message);
     friend CMBIPC_EXPORT QDataStream &operator>>(QDataStream &in, HighlightingChangedMessage &message);
     friend CMBIPC_EXPORT bool operator==(const HighlightingChangedMessage &first, const HighlightingChangedMessage &second);
-    friend CMBIPC_EXPORT bool operator<(const HighlightingChangedMessage &first, const HighlightingChangedMessage &second);
     friend CMBIPC_EXPORT QDebug operator<<(QDebug debug, const HighlightingChangedMessage &message);
     friend void PrintTo(const HighlightingChangedMessage &message, ::std::ostream* os);
 
@@ -63,13 +62,11 @@ private:
 CMBIPC_EXPORT QDataStream &operator<<(QDataStream &out, const HighlightingChangedMessage &message);
 CMBIPC_EXPORT QDataStream &operator>>(QDataStream &in, HighlightingChangedMessage &message);
 CMBIPC_EXPORT bool operator==(const HighlightingChangedMessage &first, const HighlightingChangedMessage &second);
-CMBIPC_EXPORT bool operator<(const HighlightingChangedMessage &first, const HighlightingChangedMessage &second);
 
 CMBIPC_EXPORT QDebug operator<<(QDebug debug, const HighlightingChangedMessage &message);
 void PrintTo(const HighlightingChangedMessage &message, ::std::ostream* os);
 
+DECLARE_MESSAGE(HighlightingChangedMessage)
 } // namespace ClangBackEnd
-
-Q_DECLARE_METATYPE(ClangBackEnd::HighlightingChangedMessage)
 
 #endif // CLANGBACKEND_HIGHLIGHTINGCHANGEDMESSAGE_H

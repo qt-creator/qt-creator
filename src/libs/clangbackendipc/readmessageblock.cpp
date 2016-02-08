@@ -25,6 +25,8 @@
 
 #include "readmessageblock.h"
 
+#include "messageenvelop.h"
+
 #include <QDataStream>
 #include <QDebug>
 #include <QIODevice>
@@ -54,11 +56,11 @@ void ReadMessageBlock::checkIfMessageIsLost(QDataStream &in)
     messageCounter = currentMessageCounter;
 }
 
-QVariant ReadMessageBlock::read()
+MessageEnvelop ReadMessageBlock::read()
 {
     QDataStream in(ioDevice);
 
-    QVariant message;
+    MessageEnvelop message;
 
     if (isTheWholeMessageReadable(in)) {
         checkIfMessageIsLost(in);
@@ -68,12 +70,12 @@ QVariant ReadMessageBlock::read()
     return message;
 }
 
-QVector<QVariant> ReadMessageBlock::readAll()
+QVector<MessageEnvelop> ReadMessageBlock::readAll()
 {
-    QVector<QVariant> messages;
+    QVector<MessageEnvelop> messages;
 
     while (true) {
-        const QVariant message = read();
+        const MessageEnvelop message = read();
         if (message.isValid())
             messages.append(message);
         else

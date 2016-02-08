@@ -87,13 +87,6 @@ bool operator!=(const SourceLocationContainer &first, const SourceLocationContai
         || first.filePath_ != second.filePath_;
 }
 
-bool operator<(const SourceLocationContainer &first, const SourceLocationContainer &second)
-{
-    return first.filePath_ < second.filePath_
-        || (first.filePath_ == second.filePath_ && first.line_ < second.line_)
-        || (first.filePath_ == second.filePath_ && first.line_ == second.line_ && first.column_ < second.column_);
-}
-
 QDebug operator<<(QDebug debug, const SourceLocationContainer &container)
 {
     debug.nospace() << "SourceLocationContainer("

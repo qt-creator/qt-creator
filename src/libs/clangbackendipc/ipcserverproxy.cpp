@@ -33,6 +33,7 @@
 #include <cmbunregisterprojectsforeditormessage.h>
 #include <cmbunregistertranslationunitsforeditormessage.h>
 #include <ipcclientinterface.h>
+#include <messageenvelop.h>
 #include <registerunsavedfilesforeditormessage.h>
 #include <requestdiagnosticsmessage.h>
 #include <requesthighlightingmessage.h>
@@ -56,7 +57,7 @@ IpcServerProxy::IpcServerProxy(IpcClientInterface *client, QIODevice *ioDevice)
 
 void IpcServerProxy::readMessages()
 {
-    for (const QVariant &message : readMessageBlock.readAll())
+    for (const auto &message : readMessageBlock.readAll())
         client->dispatch(message);
 }
 
@@ -68,62 +69,62 @@ void IpcServerProxy::resetCounter()
 
 void IpcServerProxy::end()
 {
-    writeMessageBlock.write(QVariant::fromValue(EndMessage()));
+    writeMessageBlock.write(EndMessage());
 }
 
 void IpcServerProxy::registerTranslationUnitsForEditor(const RegisterTranslationUnitForEditorMessage &message)
 {
-    writeMessageBlock.write(QVariant::fromValue(message));
+    writeMessageBlock.write(message);
 }
 
 void IpcServerProxy::updateTranslationUnitsForEditor(const ClangBackEnd::UpdateTranslationUnitsForEditorMessage &message)
 {
-    writeMessageBlock.write(QVariant::fromValue(message));
+    writeMessageBlock.write(message);
 }
 
 void IpcServerProxy::unregisterTranslationUnitsForEditor(const UnregisterTranslationUnitsForEditorMessage &message)
 {
-    writeMessageBlock.write(QVariant::fromValue(message));
+    writeMessageBlock.write(message);
 }
 
 void IpcServerProxy::registerProjectPartsForEditor(const RegisterProjectPartsForEditorMessage &message)
 {
-    writeMessageBlock.write(QVariant::fromValue(message));
+    writeMessageBlock.write(message);
 }
 
 void IpcServerProxy::unregisterProjectPartsForEditor(const UnregisterProjectPartsForEditorMessage &message)
 {
-    writeMessageBlock.write(QVariant::fromValue(message));
+    writeMessageBlock.write(message);
 }
 
 void ClangBackEnd::IpcServerProxy::registerUnsavedFilesForEditor(const ClangBackEnd::RegisterUnsavedFilesForEditorMessage &message)
 {
-    writeMessageBlock.write(QVariant::fromValue(message));
+    writeMessageBlock.write(message);
 }
 
 void ClangBackEnd::IpcServerProxy::unregisterUnsavedFilesForEditor(const ClangBackEnd::UnregisterUnsavedFilesForEditorMessage &message)
 {
-    writeMessageBlock.write(QVariant::fromValue(message));
+    writeMessageBlock.write(message);
 }
 
 void IpcServerProxy::completeCode(const CompleteCodeMessage &message)
 {
-    writeMessageBlock.write(QVariant::fromValue(message));
+    writeMessageBlock.write(message);
 }
 
 void IpcServerProxy::requestDiagnostics(const ClangBackEnd::RequestDiagnosticsMessage &message)
 {
-    writeMessageBlock.write(QVariant::fromValue(message));
+    writeMessageBlock.write(message);
 }
 
 void IpcServerProxy::requestHighlighting(const RequestHighlightingMessage &message)
 {
-    writeMessageBlock.write(QVariant::fromValue(message));
+    writeMessageBlock.write(message);
 }
 
 void IpcServerProxy::updateVisibleTranslationUnits(const UpdateVisibleTranslationUnitsMessage &message)
 {
-    writeMessageBlock.write(QVariant::fromValue(message));
+    writeMessageBlock.write(message);
 }
 
 } // namespace ClangBackEnd

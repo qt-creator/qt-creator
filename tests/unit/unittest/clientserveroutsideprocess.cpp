@@ -27,7 +27,6 @@
 
 #include <cmbalivemessage.h>
 #include <cmbcodecompletedmessage.h>
-#include <cmbmessages.h>
 #include <cmbcompletecodemessage.h>
 #include <cmbechomessage.h>
 #include <cmbendmessage.h>
@@ -115,7 +114,7 @@ TEST_F(ClientServerOutsideProcess, SendRegisterTranslationUnitForEditorMessage)
     ClangBackEnd::RegisterTranslationUnitForEditorMessage registerTranslationUnitForEditorMessage({fileContainer},
                                                                                                   filePath,
                                                                                                   {filePath});
-    EchoMessage echoMessage(QVariant::fromValue(registerTranslationUnitForEditorMessage));
+    EchoMessage echoMessage(registerTranslationUnitForEditorMessage);
 
     EXPECT_CALL(mockIpcClient, echo(echoMessage))
             .Times(1);
@@ -128,7 +127,7 @@ TEST_F(ClientServerOutsideProcess, SendUnregisterTranslationUnitsForEditorMessag
 {
     FileContainer fileContainer(Utf8StringLiteral("foo.cpp"), Utf8StringLiteral("projectId"));
     ClangBackEnd::UnregisterTranslationUnitsForEditorMessage unregisterTranslationUnitsForEditorMessage ({fileContainer});
-    EchoMessage echoMessage(QVariant::fromValue(unregisterTranslationUnitsForEditorMessage));
+    EchoMessage echoMessage(unregisterTranslationUnitsForEditorMessage);
 
     EXPECT_CALL(mockIpcClient, echo(echoMessage))
             .Times(1);
@@ -140,7 +139,7 @@ TEST_F(ClientServerOutsideProcess, SendUnregisterTranslationUnitsForEditorMessag
 TEST_F(ClientServerOutsideProcess, SendCompleteCodeMessage)
 {
     CompleteCodeMessage codeCompleteMessage(Utf8StringLiteral("foo.cpp"), 24, 33, Utf8StringLiteral("do what I want"));
-    EchoMessage echoMessage(QVariant::fromValue(codeCompleteMessage));
+    EchoMessage echoMessage(codeCompleteMessage);
 
     EXPECT_CALL(mockIpcClient, echo(echoMessage))
             .Times(1);
@@ -153,7 +152,7 @@ TEST_F(ClientServerOutsideProcess, SendRegisterProjectPartsForEditorMessage)
 {
     ClangBackEnd::ProjectPartContainer projectContainer(Utf8StringLiteral(TESTDATA_DIR"/complete.pro"));
     ClangBackEnd::RegisterProjectPartsForEditorMessage registerProjectPartsForEditorMessage({projectContainer});
-    EchoMessage echoMessage(QVariant::fromValue(registerProjectPartsForEditorMessage));
+    EchoMessage echoMessage(registerProjectPartsForEditorMessage);
 
     EXPECT_CALL(mockIpcClient, echo(echoMessage))
             .Times(1);
@@ -165,7 +164,7 @@ TEST_F(ClientServerOutsideProcess, SendRegisterProjectPartsForEditorMessage)
 TEST_F(ClientServerOutsideProcess, SendUnregisterProjectPartsForEditorMessage)
 {
     ClangBackEnd::UnregisterProjectPartsForEditorMessage unregisterProjectPartsForEditorMessage({Utf8StringLiteral(TESTDATA_DIR"/complete.pro")});
-    EchoMessage echoMessage(QVariant::fromValue(unregisterProjectPartsForEditorMessage));
+    EchoMessage echoMessage(unregisterProjectPartsForEditorMessage);
 
     EXPECT_CALL(mockIpcClient, echo(echoMessage))
             .Times(1);

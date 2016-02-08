@@ -138,12 +138,6 @@ bool operator==(const DiagnosticContainer &first, const DiagnosticContainer &sec
         && first.location_ == second.location_;
 }
 
-bool operator<(const DiagnosticContainer &first, const DiagnosticContainer &second)
-{
-    return first.text_ < second.text_
-        || (first.text_ == second.text_ && first.location_ < second.location_);
-}
-
 static const char *severityToText(DiagnosticSeverity severity)
 {
     switch (severity) {

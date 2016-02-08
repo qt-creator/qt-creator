@@ -25,6 +25,8 @@
 
 #include "writemessageblock.h"
 
+#include "messageenvelop.h"
+
 #include <QDataStream>
 #include <QDebug>
 #include <QIODevice>
@@ -38,7 +40,7 @@ WriteMessageBlock::WriteMessageBlock(QIODevice *ioDevice)
 {
 }
 
-void WriteMessageBlock::write(const QVariant &message)
+void WriteMessageBlock::write(const MessageEnvelop &message)
 {
     QByteArray block;
     QDataStream out(&block, QIODevice::WriteOnly);

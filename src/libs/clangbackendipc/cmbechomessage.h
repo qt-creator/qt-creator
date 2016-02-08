@@ -28,8 +28,7 @@
 
 #include "clangbackendipc_global.h"
 
-#include <QMetaType>
-#include <QVariant>
+#include "messageenvelop.h"
 
 namespace ClangBackEnd {
 
@@ -37,27 +36,24 @@ class CMBIPC_EXPORT EchoMessage
 {
     friend CMBIPC_EXPORT QDataStream &operator>>(QDataStream &in, EchoMessage &message);
     friend CMBIPC_EXPORT bool operator==(const EchoMessage &first, const EchoMessage &second);
-    friend CMBIPC_EXPORT bool operator<(const EchoMessage &first, const EchoMessage &second);
 public:
     EchoMessage() = default;
-    explicit EchoMessage(const QVariant &message);
+    explicit EchoMessage(const MessageEnvelop &message);
 
-    const QVariant &message() const;
+    const MessageEnvelop &message() const;
 
 private:
-    QVariant message_;
+    MessageEnvelop message_;
 };
 
 CMBIPC_EXPORT QDataStream &operator<<(QDataStream &out, const EchoMessage &message);
 CMBIPC_EXPORT QDataStream &operator>>(QDataStream &in, EchoMessage &message);
 CMBIPC_EXPORT bool operator==(const EchoMessage &first, const EchoMessage &second);
-CMBIPC_EXPORT bool operator<(const EchoMessage &first, const EchoMessage &second);
 
 CMBIPC_EXPORT QDebug operator<<(QDebug debug, const EchoMessage &message);
 void PrintTo(const EchoMessage &message, ::std::ostream* os);
 
+DECLARE_MESSAGE(EchoMessage)
 } // namespace ClangBackEnd
-
-Q_DECLARE_METATYPE(ClangBackEnd::EchoMessage)
 
 #endif // CLANGBACKEND_ECHOMESSAGE_H

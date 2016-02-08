@@ -28,8 +28,6 @@
 
 #include "clangbackendipc_global.h"
 
-#include <QMetaType>
-
 namespace ClangBackEnd {
 
 class CMBIPC_EXPORT AliveMessage
@@ -39,12 +37,10 @@ class CMBIPC_EXPORT AliveMessage
 CMBIPC_EXPORT QDataStream &operator<<(QDataStream &out, const AliveMessage &message);
 CMBIPC_EXPORT QDataStream &operator>>(QDataStream &in, AliveMessage &message);
 CMBIPC_EXPORT bool operator==(const AliveMessage &first, const AliveMessage &second);
-CMBIPC_EXPORT bool operator<(const AliveMessage &first, const AliveMessage &second);
 
 CMBIPC_EXPORT QDebug operator<<(QDebug debug, const AliveMessage &message);
 
+DECLARE_MESSAGE(AliveMessage)
 }
-
-Q_DECLARE_METATYPE(ClangBackEnd::AliveMessage)
 
 #endif // CMBALIVEMESSAGE_H

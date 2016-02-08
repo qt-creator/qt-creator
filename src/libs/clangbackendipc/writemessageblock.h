@@ -36,12 +36,14 @@ QT_END_NAMESPACE
 
 namespace ClangBackEnd {
 
+class MessageEnvelop;
+
 class WriteMessageBlock
 {
 public:
     WriteMessageBlock(QIODevice *ioDevice = nullptr);
 
-    void write(const QVariant &message);
+    void write(const MessageEnvelop &message);
 
     qint64 counter() const;
 

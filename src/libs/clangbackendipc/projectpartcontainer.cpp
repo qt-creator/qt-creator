@@ -73,11 +73,6 @@ bool operator==(const ProjectPartContainer &first, const ProjectPartContainer &s
     return first.projectPartId_ == second.projectPartId_;
 }
 
-bool operator<(const ProjectPartContainer &first, const ProjectPartContainer &second)
-{
-    return first.projectPartId_ < second.projectPartId_;
-}
-
 static Utf8String quotedArguments(const Utf8StringVector &arguments)
 {
     const Utf8String quote = Utf8String::fromUtf8("\"");

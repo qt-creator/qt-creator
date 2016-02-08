@@ -25,8 +25,6 @@
 
 #include "cmbregistertranslationunitsforeditormessage.h"
 
-#include "container_common.h"
-
 #include <QDataStream>
 #include <QDebug>
 
@@ -80,13 +78,6 @@ bool operator==(const RegisterTranslationUnitForEditorMessage &first, const Regi
     return first.fileContainers_ == second.fileContainers_
         && first.currentEditorFilePath_ == second.currentEditorFilePath_
         && first.visibleEditorFilePaths_ == second.visibleEditorFilePaths_;
-}
-
-bool operator<(const RegisterTranslationUnitForEditorMessage &first, const RegisterTranslationUnitForEditorMessage &second)
-{
-    return compareContainer(first.fileContainers_, second.fileContainers_)
-        && first.currentEditorFilePath_ < second.currentEditorFilePath_
-        && compareContainer(first.visibleEditorFilePaths_, second.visibleEditorFilePaths_);
 }
 
 QDebug operator<<(QDebug debug, const RegisterTranslationUnitForEditorMessage &message)

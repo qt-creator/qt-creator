@@ -25,8 +25,6 @@
 
 #include "registerunsavedfilesforeditormessage.h"
 
-#include "container_common.h"
-
 #include <QDataStream>
 #include <QDebug>
 
@@ -61,11 +59,6 @@ QDataStream &operator>>(QDataStream &in, RegisterUnsavedFilesForEditorMessage &m
 bool operator==(const RegisterUnsavedFilesForEditorMessage &first, const RegisterUnsavedFilesForEditorMessage &second)
 {
     return first.fileContainers_ == second.fileContainers_;
-}
-
-bool operator<(const RegisterUnsavedFilesForEditorMessage &first, const RegisterUnsavedFilesForEditorMessage &second)
-{
-    return compareContainer(first.fileContainers_, second.fileContainers_);
 }
 
 QDebug operator<<(QDebug debug, const RegisterUnsavedFilesForEditorMessage &message)

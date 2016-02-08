@@ -28,8 +28,6 @@
 #include <QDataStream>
 #include <QDebug>
 
-#include <container_common.h>
-
 #include <ostream>
 
 namespace ClangBackEnd {
@@ -62,11 +60,6 @@ QDataStream &operator>>(QDataStream &in, ProjectPartsDoNotExistMessage &message)
 bool operator==(const ProjectPartsDoNotExistMessage &first, const ProjectPartsDoNotExistMessage &second)
 {
     return first.projectPartIds_ == second.projectPartIds_;
-}
-
-bool operator<(const ProjectPartsDoNotExistMessage &first, const ProjectPartsDoNotExistMessage &second)
-{
-    return compareContainer(first.projectPartIds_, second.projectPartIds_);
 }
 
 QDebug operator<<(QDebug debug, const ProjectPartsDoNotExistMessage &message)

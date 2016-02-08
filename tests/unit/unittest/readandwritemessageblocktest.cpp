@@ -27,13 +27,13 @@
 #include <cmbcodecompletedmessage.h>
 #include <cmbcompletecodemessage.h>
 #include <cmbendmessage.h>
-#include <cmbmessages.h>
 #include <cmbregistertranslationunitsforeditormessage.h>
 #include <cmbunregistertranslationunitsforeditormessage.h>
 #include <diagnosticcontainer.h>
 #include <diagnosticschangedmessage.h>
 #include <highlightingchangedmessage.h>
 #include <highlightingmarkcontainer.h>
+#include <messageenvelop.h>
 #include <requestdiagnosticsmessage.h>
 #include <requesthighlightingmessage.h>
 #include <readmessageblock.h>
@@ -68,7 +68,7 @@ protected:
     template<class Type>
     void CompareMessage(const Type &message);
 
-    QVariant writeCodeCompletedMessage();
+    ClangBackEnd::MessageEnvelop writeCodeCompletedMessage();
     void popLastCharacterFromBuffer();
     void pushLastCharacterToBuffer();
     void readPartialMessage();
@@ -106,31 +106,31 @@ void ReadAndWriteMessageBlock::TearDown()
 
 TEST_F(ReadAndWriteMessageBlock, WriteMessageAndTestSize)
 {
-    writeMessageBlock.write(QVariant::fromValue(ClangBackEnd::EndMessage()));
+    writeMessageBlock.write(ClangBackEnd::EndMessage());
 
-    ASSERT_EQ(46, buffer.size());
+    ASSERT_EQ(17, buffer.size());
 }
 
 TEST_F(ReadAndWriteMessageBlock, WriteSecondMessageAndTestSize)
 {
-    writeMessageBlock.write(QVariant::fromValue(ClangBackEnd::EndMessage()));
+    writeMessageBlock.write(ClangBackEnd::EndMessage());
 
-    ASSERT_EQ(46, buffer.size());
+    ASSERT_EQ(17, buffer.size());
 }
 
 TEST_F(ReadAndWriteMessageBlock, WriteTwoMessagesAndTestCount)
 {
-    writeMessageBlock.write(QVariant::fromValue(ClangBackEnd::EndMessage()));
-    writeMessageBlock.write(QVariant::fromValue(ClangBackEnd::EndMessage()));
+    writeMessageBlock.write(ClangBackEnd::EndMessage());
+    writeMessageBlock.write(ClangBackEnd::EndMessage());
 
     ASSERT_EQ(2, writeMessageBlock.counter());
 }
 
 TEST_F(ReadAndWriteMessageBlock, ReadThreeMessagesAndTestCount)
 {
-    writeMessageBlock.write(QVariant::fromValue(ClangBackEnd::EndMessage()));
-    writeMessageBlock.write(QVariant::fromValue(ClangBackEnd::EndMessage()));
-    writeMessageBlock.write(QVariant::fromValue(ClangBackEnd::EndMessage()));
+    writeMessageBlock.write(ClangBackEnd::EndMessage());
+    writeMessageBlock.write(ClangBackEnd::EndMessage());
+    writeMessageBlock.write(ClangBackEnd::EndMessage());
     buffer.seek(0);
 
     ASSERT_EQ(3, readMessageBlock.readAll().count());
@@ -232,7 +232,7 @@ TEST_F(ReadAndWriteMessageBlock, GetInvalidMessageForAPartialBuffer)
 
 TEST_F(ReadAndWriteMessageBlock, ReadMessageAfterInterruption)
 {
-    const QVariant writeMessage = writeCodeCompletedMessage();
+    const auto writeMessage = writeCodeCompletedMessage();
     popLastCharacterFromBuffer();
     buffer.seek(0);
     readPartialMessage();
@@ -241,16 +241,16 @@ TEST_F(ReadAndWriteMessageBlock, ReadMessageAfterInterruption)
     ASSERT_EQ(readMessageBlock.read(), writeMessage);
 }
 
-QVariant ReadAndWriteMessageBlock::writeCodeCompletedMessage()
+ClangBackEnd::MessageEnvelop ReadAndWriteMessageBlock::writeCodeCompletedMessage()
 {
     ClangBackEnd::CodeCompletedMessage message(
         ClangBackEnd::CodeCompletions({Utf8StringLiteral("newFunction()")}),
         ClangBackEnd::CompletionCorrection::NoCorrection,
         1);
-    const QVariant writeMessage = QVariant::fromValue(message);
-    writeMessageBlock.write(writeMessage);
 
-    return writeMessage;
+    writeMessageBlock.write(message);
+
+    return message;
 }
 
 void ReadAndWriteMessageBlock::popLastCharacterFromBuffer()
@@ -267,7 +267,7 @@ void ReadAndWriteMessageBlock::pushLastCharacterToBuffer()
 
 void ReadAndWriteMessageBlock::readPartialMessage()
 {
-    QVariant readMessage = readMessageBlock.read();
+    const ClangBackEnd::MessageEnvelop readMessage = readMessageBlock.read();
 
     ASSERT_FALSE(readMessage.isValid());
 }
@@ -275,11 +275,11 @@ void ReadAndWriteMessageBlock::readPartialMessage()
 template<class Type>
 void ReadAndWriteMessageBlock::CompareMessage(const Type &message)
 {
-    const QVariant writeMessage = QVariant::fromValue(message);
+    const ClangBackEnd::MessageEnvelop writeMessage = message;
     writeMessageBlock.write(writeMessage);
     buffer.seek(0);
 
-    const QVariant readMessage = readMessageBlock.read();
+    const ClangBackEnd::MessageEnvelop readMessage = readMessageBlock.read();
 
     ASSERT_EQ(writeMessage, readMessage);
 }

@@ -157,11 +157,6 @@ bool operator==(const CodeCompletion &first, const CodeCompletion &second)
             && first.completionKind_ == second.completionKind_;
 }
 
-bool operator<(const CodeCompletion &first, const CodeCompletion &second)
-{
-    return first.text_ < second.text_;
-}
-
 static const char *completionKindToString(CodeCompletion::Kind kind)
 {
     switch (kind) {

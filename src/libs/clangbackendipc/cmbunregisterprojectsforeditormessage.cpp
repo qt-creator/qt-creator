@@ -25,8 +25,6 @@
 
 #include "cmbunregisterprojectsforeditormessage.h"
 
-#include "container_common.h"
-
 #include <QDataStream>
 #include <QDebug>
 
@@ -63,11 +61,6 @@ QDataStream &operator>>(QDataStream &in, UnregisterProjectPartsForEditorMessage 
 bool operator==(const UnregisterProjectPartsForEditorMessage &first, const UnregisterProjectPartsForEditorMessage &second)
 {
     return first.projectPartIds_ == second.projectPartIds_;
-}
-
-bool operator<(const UnregisterProjectPartsForEditorMessage &first, const UnregisterProjectPartsForEditorMessage &second)
-{
-    return compareContainer(first.projectPartIds_, second.projectPartIds_);
 }
 
 QDebug operator<<(QDebug debug, const UnregisterProjectPartsForEditorMessage &message)

@@ -28,7 +28,6 @@
 
 #include "filecontainer.h"
 
-#include <QMetaType>
 #include <QVector>
 
 namespace ClangBackEnd {
@@ -38,7 +37,6 @@ class CMBIPC_EXPORT UnregisterUnsavedFilesForEditorMessage
     friend CMBIPC_EXPORT QDataStream &operator<<(QDataStream &out, const UnregisterUnsavedFilesForEditorMessage &message);
     friend CMBIPC_EXPORT QDataStream &operator>>(QDataStream &in, UnregisterUnsavedFilesForEditorMessage &message);
     friend CMBIPC_EXPORT bool operator==(const UnregisterUnsavedFilesForEditorMessage &first, const UnregisterUnsavedFilesForEditorMessage &second);
-    friend CMBIPC_EXPORT bool operator<(const UnregisterUnsavedFilesForEditorMessage &first, const UnregisterUnsavedFilesForEditorMessage &second);
     friend void PrintTo(const UnregisterUnsavedFilesForEditorMessage &message, ::std::ostream* os);
 public:
     UnregisterUnsavedFilesForEditorMessage() = default;
@@ -53,12 +51,11 @@ private:
 CMBIPC_EXPORT QDataStream &operator<<(QDataStream &out, const UnregisterUnsavedFilesForEditorMessage &message);
 CMBIPC_EXPORT QDataStream &operator>>(QDataStream &in, UnregisterUnsavedFilesForEditorMessage &message);
 CMBIPC_EXPORT bool operator==(const UnregisterUnsavedFilesForEditorMessage &first, const UnregisterUnsavedFilesForEditorMessage &second);
-CMBIPC_EXPORT bool operator<(const UnregisterUnsavedFilesForEditorMessage &first, const UnregisterUnsavedFilesForEditorMessage &second);
 
 CMBIPC_EXPORT QDebug operator<<(QDebug debug, const UnregisterUnsavedFilesForEditorMessage &message);
 void PrintTo(const UnregisterUnsavedFilesForEditorMessage &message, ::std::ostream* os);
-} // namespace ClangBackEnd
 
-Q_DECLARE_METATYPE(ClangBackEnd::UnregisterUnsavedFilesForEditorMessage)
+DECLARE_MESSAGE(UnregisterUnsavedFilesForEditorMessage)
+} // namespace ClangBackEnd
 
 #endif // CLANGBACKEND_UNREGISTERTRANSLATIONUNITSFOREDITORMESSAGE_H

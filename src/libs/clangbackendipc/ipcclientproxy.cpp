@@ -32,6 +32,7 @@
 #include "diagnosticschangedmessage.h"
 #include "highlightingchangedmessage.h"
 #include "ipcserverinterface.h"
+#include "messageenvelop.h"
 #include "projectpartsdonotexistmessage.h"
 #include "translationunitdoesnotexistmessage.h"
 
@@ -72,42 +73,42 @@ IpcClientProxy &IpcClientProxy::operator=(IpcClientProxy &&other)
 
 void IpcClientProxy::alive()
 {
-    writeMessageBlock.write(QVariant::fromValue(AliveMessage()));
+    writeMessageBlock.write(AliveMessage());
 }
 
 void IpcClientProxy::echo(const EchoMessage &message)
 {
-    writeMessageBlock.write(QVariant::fromValue(message));
+    writeMessageBlock.write(message);
 }
 
 void IpcClientProxy::codeCompleted(const CodeCompletedMessage &message)
 {
-    writeMessageBlock.write(QVariant::fromValue(message));
+    writeMessageBlock.write(message);
 }
 
 void IpcClientProxy::translationUnitDoesNotExist(const TranslationUnitDoesNotExistMessage &message)
 {
-    writeMessageBlock.write(QVariant::fromValue(message));
+    writeMessageBlock.write(message);
 }
 
 void IpcClientProxy::projectPartsDoNotExist(const ProjectPartsDoNotExistMessage &message)
 {
-    writeMessageBlock.write(QVariant::fromValue(message));
+    writeMessageBlock.write(message);
 }
 
 void IpcClientProxy::diagnosticsChanged(const DiagnosticsChangedMessage &message)
 {
-    writeMessageBlock.write(QVariant::fromValue(message));
+    writeMessageBlock.write(message);
 }
 
 void IpcClientProxy::highlightingChanged(const HighlightingChangedMessage &message)
 {
-    writeMessageBlock.write(QVariant::fromValue(message));
+    writeMessageBlock.write(message);
 }
 
 void IpcClientProxy::readMessages()
 {
-    for (const QVariant &message : readMessageBlock.readAll())
+    for (const MessageEnvelop &message : readMessageBlock.readAll())
         server->dispatch(message);
 }
 

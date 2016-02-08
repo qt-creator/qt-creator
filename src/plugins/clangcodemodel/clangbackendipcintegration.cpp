@@ -57,7 +57,6 @@
 #include <clangbackendipc/cmbregisterprojectsforeditormessage.h>
 #include <clangbackendipc/cmbunregistertranslationunitsforeditormessage.h>
 #include <clangbackendipc/cmbunregisterprojectsforeditormessage.h>
-#include <clangbackendipc/cmbmessages.h>
 #include <clangbackendipc/registerunsavedfilesforeditormessage.h>
 #include <clangbackendipc/requestdiagnosticsmessage.h>
 #include <clangbackendipc/requesthighlightingmessage.h>
@@ -323,15 +322,8 @@ IpcCommunicator::IpcCommunicator()
     initializeBackend();
 }
 
-static bool areMessagesRegistered = false;
-
 void IpcCommunicator::initializeBackend()
 {
-    if (!areMessagesRegistered) {
-        areMessagesRegistered = true;
-        Messages::registerMessages();
-    }
-
     const QString clangBackEndProcessPath = backendProcessPath();
     qCDebug(log) << "Starting" << clangBackEndProcessPath;
     QTC_ASSERT(QFileInfo(clangBackEndProcessPath).exists(), return);

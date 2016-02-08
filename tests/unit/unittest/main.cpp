@@ -25,8 +25,6 @@
 
 #include <sqliteglobal.h>
 
-#include <cmbmessages.h>
-
 #include <QCoreApplication>
 #include <QLoggingCategory>
 
@@ -35,7 +33,6 @@
 
 int main(int argc, char *argv[])
 {
-    ClangBackEnd::Messages::registerMessages();
     Sqlite::registerTypes();
 
     QCoreApplication application(argc, argv);

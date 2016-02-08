@@ -52,7 +52,7 @@ class HighlightingChangedMessage;
 class CMBIPC_EXPORT IpcClientInterface : public IpcInterface
 {
 public:
-    void dispatch(const QVariant &message) override;
+    void dispatch(const MessageEnvelop &messageEnvelop) override;
 
     virtual void alive() = 0;
     virtual void echo(const EchoMessage &message) = 0;
