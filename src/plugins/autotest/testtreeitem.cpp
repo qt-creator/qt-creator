@@ -57,28 +57,6 @@ TestTreeItem::TestTreeItem(const QString &name, const QString &filePath, Type ty
     }
 }
 
-TestTreeItem::~TestTreeItem()
-{
-    removeChildren();
-}
-
-TestTreeItem::TestTreeItem(const TestTreeItem &other)
-    : TreeItem( { other.m_name } ),
-      m_name(other.m_name),
-      m_filePath(other.m_filePath),
-      m_checked(other.m_checked),
-      m_type(other.m_type),
-      m_line(other.m_line),
-      m_column(other.m_column),
-      m_mainFile(other.m_mainFile),
-      m_referencingFile(other.m_referencingFile),
-      m_state(other.m_state),
-      m_markedForRemoval(other.m_markedForRemoval)
-{
-    for (int row = 0, count = other.childCount(); row < count; ++row)
-        appendChild(new TestTreeItem(*other.childItem(row)));
-}
-
 static QIcon testTreeIcon(TestTreeItem::Type type)
 {
     static QIcon icons[] = {
@@ -169,39 +147,56 @@ bool TestTreeItem::setData(int /*column*/, const QVariant &data, int role)
     return false;
 }
 
-bool TestTreeItem::modifyContent(const TestTreeItem *modified)
+bool TestTreeItem::modifyTestCaseContent(const QString &name, unsigned line, unsigned column)
+{
+    bool hasBeenModified = modifyName(name);
+    hasBeenModified |= modifyLineAndColumn(line, column);
+    return hasBeenModified;
+}
+
+bool TestTreeItem::modifyTestFunctionContent(const TestCodeLocationAndType &location)
+{
+    bool hasBeenModified = modifyFilePath(location.m_name);
+    hasBeenModified |= modifyLineAndColumn(location.m_line, location.m_column);
+    return hasBeenModified;
+}
+
+bool TestTreeItem::modifyDataTagContent(const QString &fileName,
+                                        const TestCodeLocationAndType &location)
+{
+    bool hasBeenModified = modifyFilePath(fileName);
+    hasBeenModified |= modifyName(location.m_name);
+    hasBeenModified |= modifyLineAndColumn(location.m_line, location.m_column);
+    return hasBeenModified;
+}
+
+bool TestTreeItem::modifyGTestSetContent(const QString &fileName, const QString &referencingFile,
+                                         const TestCodeLocationAndType &location)
+{
+    bool hasBeenModified = modifyFilePath(fileName);
+    if (m_referencingFile != referencingFile) {
+        m_referencingFile = referencingFile;
+        hasBeenModified = true;
+    }
+    hasBeenModified |= modifyLineAndColumn(location.m_line, location.m_column);
+    if (m_state != location.m_state) {
+        m_state = location.m_state;
+        hasBeenModified = true;
+    }
+    return hasBeenModified;
+}
+
+bool TestTreeItem::modifyLineAndColumn(unsigned line, unsigned column)
 {
     bool hasBeenModified = false;
-    if (m_filePath != modified->m_filePath) {
-        m_filePath = modified->m_filePath;
+    if (m_line != line) {
+        m_line = line;
         hasBeenModified = true;
     }
-    if (m_name != modified->m_name) {
-        m_name = modified->m_name;
+    if (m_column != column) {
+        m_column = column;
         hasBeenModified = true;
     }
-    if (m_line != modified->m_line) {
-        m_line = modified->m_line;
-        hasBeenModified = true;
-    }
-    if (m_mainFile != modified->m_mainFile) {
-        m_mainFile = modified->m_mainFile;
-        hasBeenModified = true;
-    }
-    if (m_referencingFile != modified->m_referencingFile) {
-        m_referencingFile = modified->m_referencingFile;
-        hasBeenModified = true;
-    }
-    if (m_type != modified->m_type) {
-        m_type = modified->m_type;
-        hasBeenModified = true;
-    }
-    if (m_state != modified->m_state) {
-        m_state = modified->m_state;
-        hasBeenModified = true;
-    }
-    if (m_markedForRemoval != modified->m_markedForRemoval)
-        m_markedForRemoval = modified->m_markedForRemoval;
     return hasBeenModified;
 }
 
@@ -268,6 +263,38 @@ TestTreeItem *TestTreeItem::childItem(int row) const
     return static_cast<TestTreeItem *>(child(row));
 }
 
+TestTreeItem *TestTreeItem::findChildByName(const QString &name)
+{
+    return findChildBy([name](const TestTreeItem *other) -> bool {
+        return other->name() == name;
+    });
+}
+
+TestTreeItem *TestTreeItem::findChildByFiles(const QString &filePath,
+                                             const QString &referencingFile)
+{
+    return findChildBy([filePath, referencingFile](const TestTreeItem *other) -> bool {
+        return other->filePath() == filePath && other->referencingFile() == referencingFile;
+    });
+}
+
+TestTreeItem *TestTreeItem::findChildByNameAndFile(const QString &name, const QString &filePath)
+{
+    return findChildBy([name, filePath](const TestTreeItem *other) -> bool {
+        return other->filePath() == filePath && other->name() == name;
+    });
+}
+
+TestTreeItem *TestTreeItem::findChildByNameTypeAndFile(const QString &name, TestTreeItem::Type type,
+                                                       const QString &referencingFile)
+{
+    return findChildBy([name, type, referencingFile](const TestTreeItem *other) -> bool {
+        return other->referencingFile() == referencingFile
+                && other->name() == name
+                && other->type() == type;
+    });
+}
+
 void TestTreeItem::revalidateCheckState()
 {
     if (childCount() == 0)
@@ -292,6 +319,34 @@ void TestTreeItem::revalidateCheckState()
         }
     }
     m_checked = (foundUnchecked ? Qt::Unchecked : Qt::Checked);
+}
+
+inline bool TestTreeItem::modifyFilePath(const QString &filePath)
+{
+    if (m_filePath != filePath) {
+        m_filePath = filePath;
+        return true;
+    }
+    return false;
+}
+
+inline bool TestTreeItem::modifyName(const QString &name)
+{
+    if (m_name != name) {
+        m_name = name;
+        return true;
+    }
+    return false;
+}
+
+TestTreeItem *TestTreeItem::findChildBy(CompareFunction compare)
+{
+    for (int row = 0, count = childCount(); row < count; ++row) {
+        TestTreeItem *child = childItem(row);
+        if (compare(child))
+            return child;
+    }
+    return 0;
 }
 
 } // namespace Internal

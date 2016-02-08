@@ -44,6 +44,8 @@ namespace {
 namespace Autotest {
 namespace Internal {
 
+struct TestCodeLocationAndType;
+
 class TestTreeItem : public Utils::TreeItem
 {
 
@@ -72,15 +74,20 @@ public:
 
     TestTreeItem(const QString &name = QString(), const QString &filePath = QString(),
                  Type type = Root);
-    virtual ~TestTreeItem();
-    TestTreeItem(const TestTreeItem& other);
 
     virtual QVariant data(int column, int role) const override;
     virtual bool setData(int column, const QVariant &data, int role) override;
-    bool modifyContent(const TestTreeItem *modified);
+    bool modifyTestCaseContent(const QString &name, unsigned line, unsigned column);
+    bool modifyTestFunctionContent(const TestCodeLocationAndType &location);
+    bool modifyDataTagContent(const QString &fileName, const TestCodeLocationAndType &location);
+    bool modifyGTestSetContent(const QString &fileName, const QString &referencingFile,
+                               const TestCodeLocationAndType &location);
+    bool modifyLineAndColumn(unsigned line, unsigned column);
 
     const QString name() const { return m_name; }
+    void setName(const QString &name) { m_name = name; }
     const QString filePath() const { return m_filePath; }
+    void setFilePath(const QString &filePath) { m_filePath = filePath; }
     void setLine(unsigned line) { m_line = line;}
     unsigned line() const { return m_line; }
     void setColumn(unsigned column) { m_column = column; }
@@ -100,8 +107,19 @@ public:
     TestTreeItem *parentItem() const;
     TestTreeItem *childItem(int row) const;
 
+    TestTreeItem *findChildByName(const QString &name);
+    TestTreeItem *findChildByFiles(const QString &filePath, const QString &referencingFile);
+    TestTreeItem *findChildByNameAndFile(const QString &name, const QString &filePath);
+    TestTreeItem *findChildByNameTypeAndFile(const QString &name,
+                                             TestTreeItem::Type type, const QString &referencingFile);
+
 private:
     void revalidateCheckState();
+    bool modifyFilePath(const QString &filePath);
+    bool modifyName(const QString &name);
+
+    typedef std::function<bool(const TestTreeItem *)> CompareFunction;
+    TestTreeItem *findChildBy(CompareFunction compare);
 
     QString m_name;
     QString m_filePath;

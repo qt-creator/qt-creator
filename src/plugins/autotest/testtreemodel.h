@@ -89,21 +89,19 @@ signals:
 public slots:
 
 private:
-    void addTestTreeItem(TestTreeItem *item, Type type);
     void onParseResultReady(TestParseResult result);
+    void handleParseResult(const TestParseResult &result);
+    void handleUnnamedQuickParseResult(const TestParseResult &result);
+    void handleGTestParseResult(const TestParseResult &result);
     void removeAllTestItems();
     void removeFiles(const QStringList &files);
     void markForRemoval(const QString &filePath, Type type);
     bool sweepChildren(TestTreeItem *item);
-    TestTreeItem *findTestTreeItemByContent(TestTreeItem *item, TestTreeItem *parent, Type type);
 
     TestTreeItem *unnamedQuickTests() const;
     TestTreeItem *rootItemForType(Type type);
 
     explicit TestTreeModel(QObject *parent = 0);
-    void modifyTestSubtree(QModelIndex &toBeModifiedIndex, const TestTreeItem *newItem);
-    void processChildren(QModelIndex &parentIndex, const TestTreeItem *newItem,
-                         const int upperBound, const QHash<QString, Qt::CheckState> &checkStates);
     void setupParsingConnections();
 
     TestTreeItem *m_autoTestRootItem;

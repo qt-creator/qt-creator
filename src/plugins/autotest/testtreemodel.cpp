@@ -655,136 +655,90 @@ QMap<QString, QString> TestTreeModel::referencingFiles() const
     return finder.referencingFiles();
 }
 
-TestTreeItem *TestTreeModel::findTestTreeItemByContent(TestTreeItem *item, TestTreeItem *parent,
-                                                       Type type)
+static TestTreeItem *constructDataTagTestTreeItem(const QString &fileName,
+                                                  const TestCodeLocationAndType &location)
 {
-    for (int row = 0, count = parent->childCount(); row < count; ++row) {
-        TestTreeItem *current = parent->childItem(row);
-        if (current->name() != item->name())
-            continue;
-
-        switch (type) {
-        case AutoTest:
-            if (current->filePath() == item->filePath())
-                return current;
-            break;
-        case QuickTest:
-            if (current->filePath() == item->filePath() && current->mainFile() == item->mainFile())
-                return current;
-            break;
-        case GoogleTest:
-            if (current->type() == item->type())
-                return current;
-            break;
-        case Invalid:
-            break;
-        }
-    }
-    return 0;
+    TestTreeItem *tagTreeItem = new TestTreeItem(location.m_name, fileName, location.m_type);
+    tagTreeItem->setLine(location.m_line);
+    tagTreeItem->setColumn(location.m_column);
+    tagTreeItem->setState(location.m_state);
+    return tagTreeItem;
 }
 
-void TestTreeModel::addTestTreeItem(TestTreeItem *item, Type type)
+static TestTreeItem *constructUnnamedQuickFunctionTestTreeItem(const QString &functionName,
+                                                               const QString &referencingFile,
+                                                               const TestCodeLocationAndType &location)
 {
-    TestTreeItem *parent = rootItemForType(type);
-    TestTreeItem *toBeUpdated = findTestTreeItemByContent(item, parent, type);
-    const int count = item->childCount();
-    if (toBeUpdated) {
-        if (!toBeUpdated->markedForRemoval()) {
-            for (int row = 0; row < count; ++row)
-                toBeUpdated->appendChild(new TestTreeItem(*item->childItem(row)));
-        } else {
-            for (int childRow = count - 1; childRow >= 0; --childRow) {
-                TestTreeItem *childItem = item->childItem(childRow);
-                TestTreeItem *origChild = findTestTreeItemByContent(childItem, toBeUpdated, type);
-                if (origChild) {
-                    QModelIndex toBeModifiedIndex = indexForItem(origChild);
-                    modifyTestSubtree(toBeModifiedIndex, childItem);
-                } else {
-                    toBeUpdated->insertChild(qMin(count, toBeUpdated->childCount()),
-                                             new TestTreeItem(*childItem));
-                }
-            }
-        }
-        delete item;
-    } else {
-        parent->appendChild(item);
-    }
-    emit testTreeModelChanged();
+    TestTreeItem *treeItem = new TestTreeItem(functionName, location.m_name, location.m_type);
+    treeItem->setLine(location.m_line);
+    treeItem->setColumn(location.m_column);
+    treeItem->setMainFile(referencingFile); // FIXME: can be handled by referencingFile
+    treeItem->setReferencingFile(referencingFile);
+    return treeItem;
 }
 
-static TestTreeItem *constructTestTreeItem(const QString &fileName,
-                                           const QString &referencingFile,
-                                           const QString &testCaseName,
-                                           int line, int column,
-                                           const QMap<QString, TestCodeLocationAndType> &functions,
-                                           const QMap<QString, TestCodeLocationList> dataTags = QMap<QString, TestCodeLocationList>())
+static TestTreeItem *constructFunctionTestTreeItem(const QString &funcName,
+                                                   const TestCodeLocationAndType &location,
+                                                   const TestCodeLocationList &dataTags)
+{
+    TestTreeItem *treeItem = new TestTreeItem(funcName, location.m_name, location.m_type);
+    treeItem->setLine(location.m_line);
+    treeItem->setColumn(location.m_column);
+    treeItem->setState(location.m_state);
+
+    // if there are any data tags for this function add them
+    foreach (const TestCodeLocationAndType &tagLocation, dataTags)
+        treeItem->appendChild(constructDataTagTestTreeItem(location.m_name, tagLocation));
+    return treeItem;
+}
+
+static TestTreeItem *constructTestTreeItem(const TestParseResult &result)
 {
     TestTreeItem *treeItem;
-    if (testCaseName.isEmpty()) { // unnamed Quick Test
+    if (result.testCaseName.isEmpty()) { // unnamed Quick Test
         treeItem = new TestTreeItem(QString(), QString(), TestTreeItem::TestClass);
-        foreach (const QString &functionName, functions.keys()) {
-            const TestCodeLocationAndType locationAndType = functions.value(functionName);
-            TestTreeItem *testFunction = new TestTreeItem(functionName, locationAndType.m_name,
-                                                          locationAndType.m_type);
-            testFunction->setLine(locationAndType.m_line);
-            testFunction->setColumn(locationAndType.m_column);
-            testFunction->setMainFile(referencingFile); // FIXME: can be handled by referencingFile
-            testFunction->setReferencingFile(referencingFile);
-            treeItem->appendChild(testFunction);
+        foreach (const QString &functionName, result.functions.keys()) {
+            treeItem->appendChild(constructUnnamedQuickFunctionTestTreeItem(
+                    functionName, result.referencingFile, result.functions.value(functionName)));
         }
     } else {
-        treeItem = new TestTreeItem(testCaseName, fileName, TestTreeItem::TestClass);
-        treeItem->setMainFile(referencingFile); // FIXME: can be handled by referencingFile
-        treeItem->setReferencingFile(referencingFile);
-        treeItem->setLine(line);
-        treeItem->setColumn(column);
+        treeItem = new TestTreeItem(result.testCaseName, result.fileName, TestTreeItem::TestClass);
+        treeItem->setMainFile(result.referencingFile); // FIXME: can be handled by referencingFile
+        treeItem->setReferencingFile(result.referencingFile);
+        treeItem->setLine(result.line);
+        treeItem->setColumn(result.column);
 
-        foreach (const QString &functionName, functions.keys()) {
-            const TestCodeLocationAndType locationAndType = functions.value(functionName);
-            TestTreeItem *treeItemChild = new TestTreeItem(functionName, locationAndType.m_name,
-                                                           locationAndType.m_type);
-            treeItemChild->setLine(locationAndType.m_line);
-            treeItemChild->setColumn(locationAndType.m_column);
-            treeItemChild->setState(locationAndType.m_state);
-
-            // check for data tags and if there are any for this function add them
-            const QString qualifiedFunctionName = testCaseName + QLatin1String("::") + functionName;
-            if (dataTags.contains(qualifiedFunctionName)) {
-                const TestCodeLocationList &tags = dataTags.value(qualifiedFunctionName);
-                foreach (const TestCodeLocationAndType &tagLocation, tags) {
-                    TestTreeItem *tagTreeItem = new TestTreeItem(tagLocation.m_name,
-                                                                 locationAndType.m_name,
-                                                                 tagLocation.m_type);
-                    tagTreeItem->setLine(tagLocation.m_line);
-                    tagTreeItem->setColumn(tagLocation.m_column);
-                    tagTreeItem->setState(tagLocation.m_state);
-                    treeItemChild->appendChild(tagTreeItem);
-                }
-            }
-            treeItem->appendChild(treeItemChild);
+        foreach (const QString &functionName, result.functions.keys()) {
+            const TestCodeLocationAndType locationAndType = result.functions.value(functionName);
+            const QString qualifiedName = result.testCaseName + QLatin1String("::") + functionName;
+            treeItem->appendChild(
+                        constructFunctionTestTreeItem(functionName, locationAndType,
+                                                      result.dataTagsOrTestSets.value(qualifiedName)));
         }
     }
     return treeItem;
 }
 
-static TestTreeItem *constructGTestTreeItem(const QString &filePath, const QString &testCaseName,
-                                            const bool parameterized,
-                                            const QString &referencingFile,
-                                            const TestCodeLocationList &testSets)
+static TestTreeItem *constructGTestSetTreeItem(const QString &filePath,
+                                               const QString &referencingFile,
+                                               const TestCodeLocationAndType &location)
 {
-    TestTreeItem *item = new TestTreeItem(testCaseName, QString(),
-            parameterized ? TestTreeItem::GTestCaseParameterized
-                          : TestTreeItem::GTestCase);
-    foreach (const TestCodeLocationAndType &locationAndType, testSets) {
-        TestTreeItem *treeItemChild = new TestTreeItem(locationAndType.m_name, filePath,
-                                                       locationAndType.m_type);
-        treeItemChild->setState(locationAndType.m_state);
-        treeItemChild->setLine(locationAndType.m_line);
-        treeItemChild->setColumn(locationAndType.m_column);
-        treeItemChild->setMainFile(referencingFile);
-        item->appendChild(treeItemChild);
-    }
-    item->setReferencingFile(referencingFile);
+    TestTreeItem *treeItem = new TestTreeItem(location.m_name, filePath, location.m_type);
+    treeItem->setState(location.m_state);
+    treeItem->setLine(location.m_line);
+    treeItem->setColumn(location.m_column);
+    treeItem->setMainFile(referencingFile);
+    return treeItem;
+}
+
+static TestTreeItem *constructGTestTreeItem(const TestParseResult &result)
+{
+    TestTreeItem *item = new TestTreeItem(result.testCaseName, QString(),
+            result.parameterized ? TestTreeItem::GTestCaseParameterized
+                                 : TestTreeItem::GTestCase);
+    item->setReferencingFile(result.referencingFile);
+    foreach (const TestCodeLocationAndType &location, result.dataTagsOrTestSets.first())
+        item->appendChild(constructGTestSetTreeItem(result.fileName, result.referencingFile, location));
     return item;
 }
 
@@ -792,21 +746,129 @@ void TestTreeModel::onParseResultReady(TestParseResult result)
 {
     switch (result.type) {
     case AutoTest:
+        handleParseResult(result);
     case QuickTest:
-        addTestTreeItem(constructTestTreeItem(result.fileName, result.referencingFile,
-                                              result.testCaseName, result.line, result.column,
-                                              result.functions, result.dataTagsOrTestSets),
-                        result.type);
+        if (result.testCaseName.isEmpty()) {
+            handleUnnamedQuickParseResult(result);
+            break;
+        }
+        handleParseResult(result);
         break;
     case GoogleTest:
         QTC_ASSERT(result.dataTagsOrTestSets.size() == 1, return);
-        addTestTreeItem(constructGTestTreeItem(result.fileName, result.testCaseName,
-                                               result.parameterized, result.referencingFile,
-                                               result.dataTagsOrTestSets.first()), result.type);
+        handleGTestParseResult(result);
         break;
     case Invalid:
         QTC_ASSERT(false, qWarning("TestParseResult of type Invalid unexpected."));
         break;
+    }
+}
+
+void TestTreeModel::handleParseResult(const TestParseResult &result)
+{
+    TestTreeItem *root;
+    switch (result.type) {
+    case AutoTest:
+        root = m_autoTestRootItem;
+        break;
+    case QuickTest:
+        root = m_quickTestRootItem;
+        break;
+    default:
+        QTC_ASSERT(false, return); // should never happen, just to avoid warning
+    }
+
+    TestTreeItem *toBeModified = root->findChildByFiles(result.fileName, result.referencingFile);
+    // if there's no matching item, add the new one
+    if (!toBeModified) {
+        root->appendChild(constructTestTreeItem(result));
+        return;
+    }
+    // else we have to check level by level.. first the current level...
+    bool changed = toBeModified->modifyTestCaseContent(result.testCaseName, result.line,
+                                                       result.column);
+    toBeModified->markForRemoval(false);
+    if (changed)
+        emit dataChanged(indexForItem(toBeModified), indexForItem(toBeModified));
+    // ...now the functions
+    foreach (const QString &func, result.functions.keys()) {
+        TestTreeItem *functionItem = toBeModified->findChildByName(func);
+        // if there's no function matching, add the new one
+        if (!functionItem) {
+            const QString qualifiedName = result.testCaseName + QLatin1String("::") + func;
+            toBeModified->appendChild(
+                        constructFunctionTestTreeItem(func, result.functions.value(func),
+                                                      result.dataTagsOrTestSets.value(qualifiedName)));
+            continue;
+        }
+        // else we have to check level by level.. first the current level...
+        changed = functionItem->modifyTestFunctionContent(result.functions.value(func));
+        functionItem->markForRemoval(false);
+        if (changed)
+            emit dataChanged(indexForItem(functionItem), indexForItem(functionItem));
+        // ...now the data tags
+        const QString &funcFileName = result.functions.value(func).m_name;
+        const QString qualifiedFunctionName = result.testCaseName + QLatin1String("::") + func;
+        foreach (const TestCodeLocationAndType &location, result.dataTagsOrTestSets.value(qualifiedFunctionName)) {
+            TestTreeItem *dataTagItem = functionItem->findChildByName(location.m_name);
+            if (!dataTagItem) {
+                functionItem->appendChild(constructDataTagTestTreeItem(funcFileName, location));
+                continue;
+            }
+            changed = dataTagItem->modifyDataTagContent(funcFileName, location);
+            dataTagItem->markForRemoval(false);
+            if (changed)
+                emit dataChanged(indexForItem(dataTagItem), indexForItem(dataTagItem));
+        }
+    }
+}
+
+void TestTreeModel::handleUnnamedQuickParseResult(const TestParseResult &result)
+{
+    TestTreeItem *toBeModified = unnamedQuickTests();
+    if (!toBeModified) {
+        m_quickTestRootItem->appendChild(constructTestTreeItem(result));
+        return;
+    }
+    // if we have already Unnamed Quick tests we might update them..
+    foreach (const QString &func, result.functions.keys()) {
+        const TestCodeLocationAndType &location = result.functions.value(func);
+        TestTreeItem *functionItem = toBeModified->findChildByNameAndFile(func, location.m_name);
+        if (!functionItem) {
+            toBeModified->appendChild(
+                        constructUnnamedQuickFunctionTestTreeItem(func, result.referencingFile,
+                                                                  location));
+            continue;
+        }
+        functionItem->modifyLineAndColumn(result.line, result.column);
+        functionItem->markForRemoval(false);
+    }
+}
+
+void TestTreeModel::handleGTestParseResult(const TestParseResult &result)
+{
+    TestTreeItem::Type type = result.parameterized ? TestTreeItem::GTestCaseParameterized
+                                                   : TestTreeItem::GTestCase;
+    TestTreeItem *toBeModified = m_googleTestRootItem->findChildByNameTypeAndFile(
+                result.testCaseName, type, result.referencingFile);
+    if (!toBeModified) {
+        m_googleTestRootItem->appendChild(constructGTestTreeItem(result));
+        return;
+    }
+    // if found nothing has to be updated as all relevant members are used to find the item
+    foreach (const TestCodeLocationAndType &location , result.dataTagsOrTestSets.first()) {
+        TestTreeItem *testSetItem = toBeModified->findChildByNameAndFile(location.m_name,
+                                                                         result.fileName);
+        if (!testSetItem) {
+            toBeModified->appendChild(constructGTestSetTreeItem(result.fileName,
+                                                                result.referencingFile, location));
+            continue;
+        }
+        bool changed = testSetItem->modifyGTestSetContent(result.fileName,
+                                                          result.referencingFile, location);
+        testSetItem->markForRemoval(false);
+        if (changed)
+            emit dataChanged(indexForItem(testSetItem), indexForItem(testSetItem));
     }
 }
 
@@ -831,84 +893,6 @@ TestTreeItem *TestTreeModel::rootItemForType(TestTreeModel::Type type)
         break;
     }
     QTC_ASSERT(false, return 0);
-}
-
-void TestTreeModel::modifyTestSubtree(QModelIndex &toBeModifiedIndex, const TestTreeItem *newItem)
-{
-    if (!toBeModifiedIndex.isValid())
-        return;
-
-    TestTreeItem *toBeModifiedItem = static_cast<TestTreeItem *>(itemForIndex(toBeModifiedIndex));
-    if (toBeModifiedItem->modifyContent(newItem))
-        emit dataChanged(toBeModifiedIndex, toBeModifiedIndex,
-                         QVector<int>() << Qt::DisplayRole << Qt::ToolTipRole << LinkRole);
-
-    // process sub-items as well...
-    const int childCount = toBeModifiedItem->childCount();
-    const int newChildCount = newItem->childCount();
-
-    // for keeping the CheckState on modifications
-    // TODO might still fail for duplicate entries
-    QHash<QString, Qt::CheckState> checkStates;
-    for (int row = 0; row < childCount; ++row) {
-        const TestTreeItem *child = toBeModifiedItem->childItem(row);
-        checkStates.insert(child->name(), child->checked());
-    }
-
-    if (childCount <= newChildCount) {
-        processChildren(toBeModifiedIndex, newItem, childCount, checkStates);
-        // add additional items
-        for (int row = childCount; row < newChildCount; ++row) {
-            const TestTreeItem *newChild = newItem->childItem(row);
-            TestTreeItem *toBeAdded = new TestTreeItem(*newChild);
-            if (checkStates.contains(toBeAdded->name())
-                    && checkStates.value(toBeAdded->name()) != Qt::Checked)
-                toBeAdded->setChecked(checkStates.value(toBeAdded->name()));
-            toBeModifiedItem->appendChild(toBeAdded);
-        }
-    } else {
-        processChildren(toBeModifiedIndex, newItem, newChildCount, checkStates);
-        // remove rest of the items
-        for (int row = childCount - 1; row > newChildCount; --row)
-            delete takeItem(toBeModifiedItem->childItem(row));
-    }
-    emit testTreeModelChanged();
-}
-
-void TestTreeModel::processChildren(QModelIndex &parentIndex, const TestTreeItem *newItem,
-                                    const int upperBound,
-                                    const QHash<QString, Qt::CheckState> &checkStates)
-{
-    static QVector<int> modificationRoles = QVector<int>() << Qt::DisplayRole
-                                                           << Qt::ToolTipRole
-                                                           << LinkRole;
-    TestTreeItem *toBeModifiedItem = static_cast<TestTreeItem *>(itemForIndex(parentIndex));
-    for (int row = 0; row < upperBound; ++row) {
-        QModelIndex child = parentIndex.child(row, 0);
-        TestTreeItem *toBeModifiedChild = toBeModifiedItem->childItem(row);
-        const TestTreeItem *modifiedChild = newItem->childItem(row);
-        if (toBeModifiedChild->modifyContent(modifiedChild))
-            emit dataChanged(child, child, modificationRoles);
-
-        // handle data tags - just remove old and add them
-        if (modifiedChild->childCount() || toBeModifiedChild->childCount()) {
-            toBeModifiedChild->removeChildren();
-            const int count = modifiedChild->childCount();
-            for (int childRow = 0; childRow < count; ++childRow)
-                toBeModifiedChild->appendChild(new TestTreeItem(*modifiedChild->childItem(childRow)));
-        }
-
-        if (checkStates.contains(toBeModifiedChild->name())) {
-                Qt::CheckState state = checkStates.value(toBeModifiedChild->name());
-                if (state != toBeModifiedChild->checked()) {
-                    toBeModifiedChild->setChecked(state);
-                    emit dataChanged(child, child, QVector<int>() << Qt::CheckStateRole);
-            }
-        } else { // newly added (BAD: happens for renaming as well)
-            toBeModifiedChild->setChecked(Qt::Checked);
-            emit dataChanged(child, child, QVector<int>() << Qt::CheckStateRole);
-        }
-    }
 }
 
 #ifdef WITH_TESTS
