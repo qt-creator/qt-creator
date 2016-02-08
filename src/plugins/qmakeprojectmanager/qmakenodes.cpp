@@ -1997,7 +1997,8 @@ EvalResult *QmakeProFileNode::evaluate(const EvalInput &input)
         result->newVarValues[ObjCHeaderVar] = fileListForVar(input.readerExact, input.readerCumulative,
                                                      QLatin1String("OBJECTIVE_HEADERS"), input.projectDir, input.buildDirectory);
         result->newVarValues[UiDirVar] = QStringList() << uiDirPath(input.readerExact, input.buildDirectory);
-        result->newVarValues[UiHeaderExtensionVar] = QStringList() <<  input.readerExact->value(QLatin1String("QMAKE_EXT_H"));
+        result->newVarValues[HeaderExtensionVar] = QStringList() <<  input.readerExact->value(QLatin1String("QMAKE_EXT_H"));
+        result->newVarValues[CppExtensionVar] = QStringList() <<  input.readerExact->value(QLatin1String("QMAKE_EXT_CPP"));
         result->newVarValues[MocDirVar] = QStringList() << mocDirPath(input.readerExact, input.buildDirectory);
         result->newVarValues[ResourceVar] = fileListForVar(input.readerExact, input.readerCumulative,
                                                    QLatin1String("RESOURCES"), input.projectDir, input.buildDirectory);
@@ -2578,7 +2579,7 @@ void QmakeProFileNode::updateUiFiles(const QString &buildDir)
 
         // Find the UiDir, there can only ever be one
         const Utils::FileName uiDir = uiDirectory(Utils::FileName::fromString(buildDir));
-        const QString uiExtensions = singleVariableValue(UiHeaderExtensionVar);
+        const QString uiExtensions = singleVariableValue(HeaderExtensionVar);
         foreach (const FileNode *uiFile, uiFiles) {
             QString headerFile = uiHeaderFile(uiDir, uiFile->filePath(), uiExtensions);
             if (!headerFile.isEmpty())
