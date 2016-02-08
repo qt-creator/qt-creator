@@ -155,8 +155,8 @@ struct TestParseResult
     QString fileName;
     QString referencingFile;
     QString testCaseName;
-    int line = 0;
-    int column = 0;
+    unsigned line = 0;
+    unsigned column = 0;
     bool parameterized = false;
     QMap<QString, TestCodeLocationAndType> functions;
     QMap<QString, TestCodeLocationList> dataTagsOrTestSets;
