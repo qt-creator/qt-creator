@@ -498,9 +498,9 @@ void ClangStaticAnalyzerRunControl::finalize()
                      + QLatin1Char('\n'),
                   Utils::NormalMessageFormat);
 
-    if (m_filesAnalyzed == 0 && m_filesNotAnalyzed != 0) {
+    if (m_filesNotAnalyzed != 0) {
         AnalyzerUtils::logToIssuesPane(Task::Error,
-                tr("Clang Static Analyzer: Failed to analyze any files."));
+                tr("Clang Static Analyzer: Not all files could be analyzed."));
     }
 
     m_progress.reportFinished();
