@@ -77,12 +77,13 @@ void RefactorOverlay::paintMarker(const RefactorMarker& marker, QPainter *painte
     if (icon.isNull())
         icon = m_icon;
 
-    const QSize proposedIconSize = QSize(m_editor->fontMetrics().width(QLatin1Char(' ')) + 2,
+    const QSize proposedIconSize = QSize(m_editor->fontMetrics().width(QLatin1Char(' ')) + 3,
                                          cursorRect.height());
     const QSize actualIconSize = icon.actualSize(proposedIconSize);
 
+    const int y = cursorRect.top() + ((cursorRect.height() - actualIconSize.height()) / 2);
     const int x = cursorRect.right();
-    marker.rect = QRect(x, cursorRect.top(), actualIconSize.width(), actualIconSize.height());
+    marker.rect = QRect(x, y, actualIconSize.width(), actualIconSize.height());
 
     icon.paint(painter, marker.rect);
     m_maxWidth = qMax(m_maxWidth, x + actualIconSize.width() - int(offset.x()));
