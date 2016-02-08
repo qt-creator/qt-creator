@@ -250,8 +250,8 @@ bool CleanDialog::promptToDelete()
         return false;
 
     // Remove in background
-    QFuture<void> task = Utils::runAsync<void>(Internal::runCleanFiles, d->m_workingDirectory,
-                                               selectedFiles, Internal::handleError);
+    QFuture<void> task = Utils::runAsync(Internal::runCleanFiles, d->m_workingDirectory,
+                                         selectedFiles, Internal::handleError);
 
     const QString taskName = tr("Cleaning \"%1\"").
                              arg(QDir::toNativeSeparators(d->m_workingDirectory));

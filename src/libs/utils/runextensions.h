@@ -435,6 +435,138 @@ QT_END_NAMESPACE
 namespace Utils {
 namespace Internal {
 
+/*
+   resultType<F>::type
+
+   Returns the type of results that would be reported by a callable of type F
+   when called through the runAsync methods. I.e. the ResultType in
+
+   void f(QFutureInterface<Result> &fi, ...)
+   ResultType f(...)
+
+   Returns void if F is not callable, and if F is a callable that does not take
+   a QFutureInterface& as its first parameter and returns void.
+*/
+
+template<typename T>
+struct hasCallOperator
+{
+    using yes = char;
+    using no = struct { char foo[2]; };
+
+    template<typename C>
+    static yes test(decltype(&C::operator()));
+
+    template<typename C>
+    static no test(...);
+
+    static const bool value = (sizeof(test<T>(0)) == sizeof(yes));
+};
+
+template <typename Function>
+struct resultType;
+
+template <typename Function, typename Arg>
+struct resultTypeWithArgument;
+
+template <typename Function, int index, bool>
+struct resultTypeTakesArguments;
+
+template <typename Function, bool>
+struct resultTypeIsMemberFunction;
+
+template <typename Function, bool>
+struct resultTypeIsFunctionLike;
+
+template <typename Function, bool>
+struct resultTypeHasCallOperator;
+
+template <typename Function, typename ResultType>
+struct resultTypeWithArgument<Function, QFutureInterface<ResultType>&>
+{
+    using type = ResultType;
+};
+
+template <typename Function, typename Arg>
+struct resultTypeWithArgument
+{
+    using type = typename functionTraits<Function>::ResultType;
+};
+
+template <typename Function, int index>
+struct resultTypeTakesArguments<Function, index, true>
+        : public resultTypeWithArgument<Function, typename functionTraits<Function>::template argument<index>::type>
+{
+};
+
+template <typename Function, int index>
+struct resultTypeTakesArguments<Function, index, false>
+{
+    using type = typename functionTraits<Function>::ResultType;
+};
+
+template <typename Function>
+struct resultTypeIsFunctionLike<Function, true>
+        : public resultTypeTakesArguments<Function, 0, (functionTraits<Function>::arity > 0)>
+{
+};
+
+template <typename Function>
+struct resultTypeIsMemberFunction<Function, true>
+        : public resultTypeTakesArguments<Function, 1, (functionTraits<Function>::arity > 1)>
+{
+};
+
+template <typename Function>
+struct resultTypeIsMemberFunction<Function, false>
+{
+    using type = void;
+};
+
+template <typename Function>
+struct resultTypeIsFunctionLike<Function, false>
+        : public resultTypeIsMemberFunction<Function, std::is_member_function_pointer<Function>::value>
+{
+};
+
+template <typename Function>
+struct resultTypeHasCallOperator<Function, false>
+        : public resultTypeIsFunctionLike<Function, std::is_function<typename std::remove_pointer<typename std::decay<Function>::type>::type>::value>
+{
+};
+
+template <typename Callable>
+struct resultTypeHasCallOperator<Callable, true>
+        : public resultTypeTakesArguments<decltype(&Callable::operator()), 1, (functionTraits<decltype(&Callable::operator())>::arity > 1)>
+{
+};
+
+template <typename Function>
+struct resultType
+        : public resultTypeHasCallOperator<Function, hasCallOperator<Function>::value>
+{
+};
+
+template <typename Function>
+struct resultType<Function&> : public resultType<Function>
+{
+};
+
+template <typename Function>
+struct resultType<const Function&> : public resultType<Function>
+{
+};
+
+template <typename Function>
+struct resultType<Function &&> : public resultType<Function>
+{
+};
+
+/*
+   Callable object that wraps a member function pointer with the object it
+   will be called on.
+*/
+
 template <typename Function>
 class MemberCallable;
 
@@ -477,6 +609,10 @@ private:
     Result(Obj::* m_function)(Args...);
     Obj *m_obj;
 };
+
+/*
+   Helper functions for runAsync that run in the started thread.
+*/
 
 // void function that does not take QFutureInterface
 template <typename ResultType, typename Function, typename... Args>
@@ -556,6 +692,11 @@ void runAsyncImpl(QFutureInterface<ResultType> futureInterface, Function &&funct
                  MemberCallable<Function>(std::forward<Function>(function), std::forward<Obj>(obj)),
                  std::forward<Args>(args)...);
 }
+
+/*
+   AsyncJob is a QRunnable that wraps a function with the
+   arguments that are passed to it when it is run in a thread.
+*/
 
 // can be replaced with std::(make_)index_sequence with C++14
 template <std::size_t...>
@@ -671,9 +812,10 @@ private:
     \sa QThreadPool
     \sa QThread::Priority
  */
-template <typename ResultType, typename Function, typename... Args>
-QFuture<ResultType> runAsync(QThreadPool *pool, QThread::Priority priority,
-                             Function &&function, Args&&... args)
+template <typename Function, typename... Args,
+          typename ResultType = typename Internal::resultType<Function>::type>
+QFuture<ResultType>
+runAsync(QThreadPool *pool, QThread::Priority priority, Function &&function, Args&&... args)
 {
     auto job = new Internal::AsyncJob<ResultType,Function,Args...>
             (std::forward<Function>(function), std::forward<Args>(args)...);
@@ -696,11 +838,13 @@ QFuture<ResultType> runAsync(QThreadPool *pool, QThread::Priority priority,
     \sa runAsync(QThreadPool*,QThread::Priority,Function&&,Args&&...)
     \sa QThread::Priority
  */
-template <typename ResultType, typename Function, typename... Args>
-QFuture<ResultType> runAsync(QThread::Priority priority, Function &&function, Args&&... args)
+template <typename Function, typename... Args,
+          typename ResultType = typename Internal::resultType<Function>::type>
+QFuture<ResultType>
+runAsync(QThread::Priority priority, Function &&function, Args&&... args)
 {
-    return runAsync<ResultType>(static_cast<QThreadPool *>(nullptr), priority,
-                                std::forward<Function>(function), std::forward<Args>(args)...);
+    return runAsync(static_cast<QThreadPool *>(nullptr), priority,
+                    std::forward<Function>(function), std::forward<Args>(args)...);
 }
 
 /*!
@@ -708,16 +852,18 @@ QFuture<ResultType> runAsync(QThread::Priority priority, Function &&function, Ar
     \sa runAsync(QThreadPool*,QThread::Priority,Function&&,Args&&...)
     \sa QThread::Priority
  */
-template <typename ResultType, typename Function, typename... Args,
+template <typename Function, typename... Args,
           typename = typename std::enable_if<
                 !std::is_same<typename std::decay<Function>::type, QThreadPool>::value
                 && !std::is_same<typename std::decay<Function>::type, QThread::Priority>::value
-              >::type>
-QFuture<ResultType> runAsync(Function &&function, Args&&... args)
+              >::type,
+          typename ResultType = typename Internal::resultType<Function>::type>
+QFuture<ResultType>
+runAsync(Function &&function, Args&&... args)
 {
-    return runAsync<ResultType>(static_cast<QThreadPool *>(nullptr),
-                                QThread::InheritPriority, std::forward<Function>(function),
-                                std::forward<Args>(args)...);
+    return runAsync(static_cast<QThreadPool *>(nullptr),
+                    QThread::InheritPriority, std::forward<Function>(function),
+                    std::forward<Args>(args)...);
 }
 
 /*!
@@ -725,15 +871,16 @@ QFuture<ResultType> runAsync(Function &&function, Args&&... args)
     \sa runAsync(QThreadPool*,QThread::Priority,Function&&,Args&&...)
     \sa QThread::Priority
  */
-template <typename ResultType, typename Function, typename... Args,
+template <typename Function, typename... Args,
           typename = typename std::enable_if<
                 !std::is_same<typename std::decay<Function>::type, QThread::Priority>::value
-              >::type>
-QFuture<ResultType> runAsync(QThreadPool *pool,
-                             Function &&function, Args&&... args)
+              >::type,
+          typename ResultType = typename Internal::resultType<Function>::type>
+QFuture<ResultType>
+runAsync(QThreadPool *pool, Function &&function, Args&&... args)
 {
-    return runAsync<ResultType>(pool, QThread::InheritPriority, std::forward<Function>(function),
-                                std::forward<Args>(args)...);
+    return runAsync(pool, QThread::InheritPriority, std::forward<Function>(function),
+                    std::forward<Args>(args)...);
 }
 
 } // Utils

@@ -347,7 +347,7 @@ void QmlProfilerModelManager::save(const QString &filename)
     connect(writer, &QObject::destroyed, this, &QmlProfilerModelManager::saveFinished,
             Qt::QueuedConnection);
 
-    QFuture<void> result = Utils::runAsync<void>([file, writer] (QFutureInterface<void> &future) {
+    QFuture<void> result = Utils::runAsync([file, writer] (QFutureInterface<void> &future) {
         writer->setFuture(&future);
         writer->save(file);
         delete writer;
@@ -387,7 +387,7 @@ void QmlProfilerModelManager::load(const QString &filename)
         acquiringDone();
     }, Qt::QueuedConnection);
 
-    QFuture<void> result = Utils::runAsync<void>([file, reader] (QFutureInterface<void> &future) {
+    QFuture<void> result = Utils::runAsync([file, reader] (QFutureInterface<void> &future) {
         reader->setFuture(&future);
         reader->load(file);
         file->close();

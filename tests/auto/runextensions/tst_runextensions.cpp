@@ -185,40 +185,40 @@ public:
 void tst_RunExtensions::runAsync()
 {
     // free function pointer
-    QCOMPARE(Utils::runAsync<int>(&report3).results(),
+    QCOMPARE(Utils::runAsync(&report3).results(),
              QList<int>({0, 2, 1}));
-    QCOMPARE(Utils::runAsync<int>(report3).results(),
+    QCOMPARE(Utils::runAsync(report3).results(),
              QList<int>({0, 2, 1}));
 
-    QCOMPARE(Utils::runAsync<double>(reportN, 4).results(),
+    QCOMPARE(Utils::runAsync(reportN, 4).results(),
              QList<double>({0, 0, 0, 0}));
-    QCOMPARE(Utils::runAsync<double>(reportN, 2).results(),
+    QCOMPARE(Utils::runAsync(reportN, 2).results(),
              QList<double>({0, 0}));
 
     QString s = QLatin1String("string");
     const QString &crs = QLatin1String("cr string");
     const QString cs = QLatin1String("c string");
 
-    QCOMPARE(Utils::runAsync<QString>(reportString1, s).results(),
+    QCOMPARE(Utils::runAsync(reportString1, s).results(),
              QList<QString>({s}));
-    QCOMPARE(Utils::runAsync<QString>(reportString1, crs).results(),
+    QCOMPARE(Utils::runAsync(reportString1, crs).results(),
              QList<QString>({crs}));
-    QCOMPARE(Utils::runAsync<QString>(reportString1, cs).results(),
+    QCOMPARE(Utils::runAsync(reportString1, cs).results(),
              QList<QString>({cs}));
-    QCOMPARE(Utils::runAsync<QString>(reportString1, QString(QLatin1String("rvalue"))).results(),
+    QCOMPARE(Utils::runAsync(reportString1, QString(QLatin1String("rvalue"))).results(),
              QList<QString>({QString(QLatin1String("rvalue"))}));
 
-    QCOMPARE(Utils::runAsync<QString>(reportString2, s).results(),
+    QCOMPARE(Utils::runAsync(reportString2, s).results(),
              QList<QString>({s}));
-    QCOMPARE(Utils::runAsync<QString>(reportString2, crs).results(),
+    QCOMPARE(Utils::runAsync(reportString2, crs).results(),
              QList<QString>({crs}));
-    QCOMPARE(Utils::runAsync<QString>(reportString2, cs).results(),
+    QCOMPARE(Utils::runAsync(reportString2, cs).results(),
              QList<QString>({cs}));
-    QCOMPARE(Utils::runAsync<QString>(reportString2, QString(QLatin1String("rvalue"))).results(),
+    QCOMPARE(Utils::runAsync(reportString2, QString(QLatin1String("rvalue"))).results(),
              QList<QString>({QString(QLatin1String("rvalue"))}));
 
     // lambda
-    QCOMPARE(Utils::runAsync<double>([](QFutureInterface<double> &fi, int n) {
+    QCOMPARE(Utils::runAsync([](QFutureInterface<double> &fi, int n) {
                  fi.reportResults(QVector<double>(n, 0));
              }, 3).results(),
              QList<double>({0, 0, 0}));
@@ -227,46 +227,46 @@ void tst_RunExtensions::runAsync()
     const std::function<void(QFutureInterface<double>&,int)> fun = [](QFutureInterface<double> &fi, int n) {
         fi.reportResults(QVector<double>(n, 0));
     };
-    QCOMPARE(Utils::runAsync<double>(fun, 2).results(),
+    QCOMPARE(Utils::runAsync(fun, 2).results(),
              QList<double>({0, 0}));
 
     // operator()
-    QCOMPARE(Utils::runAsync<double>(Callable(), 3).results(),
+    QCOMPARE(Utils::runAsync(Callable(), 3).results(),
              QList<double>({0, 0, 0}));
     const Callable c{};
-    QCOMPARE(Utils::runAsync<double>(c, 2).results(),
+    QCOMPARE(Utils::runAsync(c, 2).results(),
              QList<double>({0, 0}));
 
     // static member functions
-    QCOMPARE(Utils::runAsync<double>(&MyObject::staticMember0).results(),
+    QCOMPARE(Utils::runAsync(&MyObject::staticMember0).results(),
              QList<double>({0, 2, 1}));
-    QCOMPARE(Utils::runAsync<double>(&MyObject::staticMember1, 2).results(),
+    QCOMPARE(Utils::runAsync(&MyObject::staticMember1, 2).results(),
              QList<double>({0, 0}));
 
     // member functions
     const MyObject obj{};
-    QCOMPARE(Utils::runAsync<double>(&MyObject::member0, &obj).results(),
+    QCOMPARE(Utils::runAsync(&MyObject::member0, &obj).results(),
              QList<double>({0, 2, 1}));
-    QCOMPARE(Utils::runAsync<double>(&MyObject::member1, &obj, 4).results(),
+    QCOMPARE(Utils::runAsync(&MyObject::member1, &obj, 4).results(),
              QList<double>({0, 0, 0, 0}));
-    QCOMPARE(Utils::runAsync<QString>(&MyObject::memberString1, &obj, s).results(),
+    QCOMPARE(Utils::runAsync(&MyObject::memberString1, &obj, s).results(),
              QList<QString>({s}));
-    QCOMPARE(Utils::runAsync<QString>(&MyObject::memberString1, &obj, crs).results(),
+    QCOMPARE(Utils::runAsync(&MyObject::memberString1, &obj, crs).results(),
              QList<QString>({crs}));
-    QCOMPARE(Utils::runAsync<QString>(&MyObject::memberString1, &obj, cs).results(),
+    QCOMPARE(Utils::runAsync(&MyObject::memberString1, &obj, cs).results(),
              QList<QString>({cs}));
-    QCOMPARE(Utils::runAsync<QString>(&MyObject::memberString1, &obj, QString(QLatin1String("rvalue"))).results(),
+    QCOMPARE(Utils::runAsync(&MyObject::memberString1, &obj, QString(QLatin1String("rvalue"))).results(),
              QList<QString>({QString(QLatin1String("rvalue"))}));
-    QCOMPARE(Utils::runAsync<QString>(&MyObject::memberString2, &obj, s).results(),
+    QCOMPARE(Utils::runAsync(&MyObject::memberString2, &obj, s).results(),
              QList<QString>({s}));
-    QCOMPARE(Utils::runAsync<QString>(&MyObject::memberString2, &obj, crs).results(),
+    QCOMPARE(Utils::runAsync(&MyObject::memberString2, &obj, crs).results(),
              QList<QString>({crs}));
-    QCOMPARE(Utils::runAsync<QString>(&MyObject::memberString2, &obj, cs).results(),
+    QCOMPARE(Utils::runAsync(&MyObject::memberString2, &obj, cs).results(),
              QList<QString>({cs}));
-    QCOMPARE(Utils::runAsync<QString>(&MyObject::memberString2, &obj, QString(QLatin1String("rvalue"))).results(),
+    QCOMPARE(Utils::runAsync(&MyObject::memberString2, &obj, QString(QLatin1String("rvalue"))).results(),
              QList<QString>({QString(QLatin1String("rvalue"))}));
     MyObject nonConstObj{};
-    QCOMPARE(Utils::runAsync<double>(&MyObject::nonConstMember, &nonConstObj).results(),
+    QCOMPARE(Utils::runAsync(&MyObject::nonConstMember, &nonConstObj).results(),
              QList<double>({0, 2, 1}));
 }
 
@@ -274,40 +274,40 @@ void tst_RunExtensions::runInThreadPool()
 {
     QScopedPointer<QThreadPool> pool(new QThreadPool);
     // free function pointer
-    QCOMPARE(Utils::runAsync<int>(pool.data(), &report3).results(),
+    QCOMPARE(Utils::runAsync(pool.data(), &report3).results(),
              QList<int>({0, 2, 1}));
-    QCOMPARE(Utils::runAsync<int>(pool.data(), report3).results(),
+    QCOMPARE(Utils::runAsync(pool.data(), report3).results(),
              QList<int>({0, 2, 1}));
 
-    QCOMPARE(Utils::runAsync<double>(pool.data(), reportN, 4).results(),
+    QCOMPARE(Utils::runAsync(pool.data(), reportN, 4).results(),
              QList<double>({0, 0, 0, 0}));
-    QCOMPARE(Utils::runAsync<double>(pool.data(), reportN, 2).results(),
+    QCOMPARE(Utils::runAsync(pool.data(), reportN, 2).results(),
              QList<double>({0, 0}));
 
     QString s = QLatin1String("string");
     const QString &crs = QLatin1String("cr string");
     const QString cs = QLatin1String("c string");
 
-    QCOMPARE(Utils::runAsync<QString>(pool.data(), reportString1, s).results(),
+    QCOMPARE(Utils::runAsync(pool.data(), reportString1, s).results(),
              QList<QString>({s}));
-    QCOMPARE(Utils::runAsync<QString>(pool.data(), reportString1, crs).results(),
+    QCOMPARE(Utils::runAsync(pool.data(), reportString1, crs).results(),
              QList<QString>({crs}));
-    QCOMPARE(Utils::runAsync<QString>(pool.data(), reportString1, cs).results(),
+    QCOMPARE(Utils::runAsync(pool.data(), reportString1, cs).results(),
              QList<QString>({cs}));
-    QCOMPARE(Utils::runAsync<QString>(pool.data(), reportString1, QString(QLatin1String("rvalue"))).results(),
+    QCOMPARE(Utils::runAsync(pool.data(), reportString1, QString(QLatin1String("rvalue"))).results(),
              QList<QString>({QString(QLatin1String("rvalue"))}));
 
-    QCOMPARE(Utils::runAsync<QString>(pool.data(), reportString2, s).results(),
+    QCOMPARE(Utils::runAsync(pool.data(), reportString2, s).results(),
              QList<QString>({s}));
-    QCOMPARE(Utils::runAsync<QString>(pool.data(), reportString2, crs).results(),
+    QCOMPARE(Utils::runAsync(pool.data(), reportString2, crs).results(),
              QList<QString>({crs}));
-    QCOMPARE(Utils::runAsync<QString>(pool.data(), reportString2, cs).results(),
+    QCOMPARE(Utils::runAsync(pool.data(), reportString2, cs).results(),
              QList<QString>({cs}));
-    QCOMPARE(Utils::runAsync<QString>(pool.data(), reportString2, QString(QLatin1String("rvalue"))).results(),
+    QCOMPARE(Utils::runAsync(pool.data(), reportString2, QString(QLatin1String("rvalue"))).results(),
              QList<QString>({QString(QLatin1String("rvalue"))}));
 
     // lambda
-    QCOMPARE(Utils::runAsync<double>(pool.data(), [](QFutureInterface<double> &fi, int n) {
+    QCOMPARE(Utils::runAsync(pool.data(), [](QFutureInterface<double> &fi, int n) {
                  fi.reportResults(QVector<double>(n, 0));
              }, 3).results(),
              QList<double>({0, 0, 0}));
@@ -316,43 +316,43 @@ void tst_RunExtensions::runInThreadPool()
     const std::function<void(QFutureInterface<double>&,int)> fun = [](QFutureInterface<double> &fi, int n) {
         fi.reportResults(QVector<double>(n, 0));
     };
-    QCOMPARE(Utils::runAsync<double>(pool.data(), fun, 2).results(),
+    QCOMPARE(Utils::runAsync(pool.data(), fun, 2).results(),
              QList<double>({0, 0}));
 
     // operator()
-    QCOMPARE(Utils::runAsync<double>(pool.data(), Callable(), 3).results(),
+    QCOMPARE(Utils::runAsync(pool.data(), Callable(), 3).results(),
              QList<double>({0, 0, 0}));
     const Callable c{};
-    QCOMPARE(Utils::runAsync<double>(pool.data(), c, 2).results(),
+    QCOMPARE(Utils::runAsync(pool.data(), c, 2).results(),
              QList<double>({0, 0}));
 
     // static member functions
-    QCOMPARE(Utils::runAsync<double>(pool.data(), &MyObject::staticMember0).results(),
+    QCOMPARE(Utils::runAsync(pool.data(), &MyObject::staticMember0).results(),
              QList<double>({0, 2, 1}));
-    QCOMPARE(Utils::runAsync<double>(pool.data(), &MyObject::staticMember1, 2).results(),
+    QCOMPARE(Utils::runAsync(pool.data(), &MyObject::staticMember1, 2).results(),
              QList<double>({0, 0}));
 
     // member functions
     const MyObject obj{};
-    QCOMPARE(Utils::runAsync<double>(pool.data(), &MyObject::member0, &obj).results(),
+    QCOMPARE(Utils::runAsync(pool.data(), &MyObject::member0, &obj).results(),
              QList<double>({0, 2, 1}));
-    QCOMPARE(Utils::runAsync<double>(pool.data(), &MyObject::member1, &obj, 4).results(),
+    QCOMPARE(Utils::runAsync(pool.data(), &MyObject::member1, &obj, 4).results(),
              QList<double>({0, 0, 0, 0}));
-    QCOMPARE(Utils::runAsync<QString>(pool.data(), &MyObject::memberString1, &obj, s).results(),
+    QCOMPARE(Utils::runAsync(pool.data(), &MyObject::memberString1, &obj, s).results(),
              QList<QString>({s}));
-    QCOMPARE(Utils::runAsync<QString>(pool.data(), &MyObject::memberString1, &obj, crs).results(),
+    QCOMPARE(Utils::runAsync(pool.data(), &MyObject::memberString1, &obj, crs).results(),
              QList<QString>({crs}));
-    QCOMPARE(Utils::runAsync<QString>(pool.data(), &MyObject::memberString1, &obj, cs).results(),
+    QCOMPARE(Utils::runAsync(pool.data(), &MyObject::memberString1, &obj, cs).results(),
              QList<QString>({cs}));
-    QCOMPARE(Utils::runAsync<QString>(pool.data(), &MyObject::memberString1, &obj, QString(QLatin1String("rvalue"))).results(),
+    QCOMPARE(Utils::runAsync(pool.data(), &MyObject::memberString1, &obj, QString(QLatin1String("rvalue"))).results(),
              QList<QString>({QString(QLatin1String("rvalue"))}));
-    QCOMPARE(Utils::runAsync<QString>(pool.data(), &MyObject::memberString2, &obj, s).results(),
+    QCOMPARE(Utils::runAsync(pool.data(), &MyObject::memberString2, &obj, s).results(),
              QList<QString>({s}));
-    QCOMPARE(Utils::runAsync<QString>(pool.data(), &MyObject::memberString2, &obj, crs).results(),
+    QCOMPARE(Utils::runAsync(pool.data(), &MyObject::memberString2, &obj, crs).results(),
              QList<QString>({crs}));
-    QCOMPARE(Utils::runAsync<QString>(pool.data(), &MyObject::memberString2, &obj, cs).results(),
+    QCOMPARE(Utils::runAsync(pool.data(), &MyObject::memberString2, &obj, cs).results(),
              QList<QString>({cs}));
-    QCOMPARE(Utils::runAsync<QString>(pool.data(), &MyObject::memberString2, &obj, QString(QLatin1String("rvalue"))).results(),
+    QCOMPARE(Utils::runAsync(pool.data(), &MyObject::memberString2, &obj, QString(QLatin1String("rvalue"))).results(),
              QList<QString>({QString(QLatin1String("rvalue"))}));
 }
 
@@ -379,7 +379,7 @@ public:
 
 void tst_RunExtensions::moveOnlyType()
 {
-    QCOMPARE(Utils::runAsync<int>(MoveOnlyCallable(), MoveOnlyType()).results(),
+    QCOMPARE(Utils::runAsync(MoveOnlyCallable(), MoveOnlyType()).results(),
              QList<int>({1}));
 }
 
@@ -389,11 +389,11 @@ void tst_RunExtensions::threadPriority()
 {
     QScopedPointer<QThreadPool> pool(new QThreadPool);
     // with pool
-    QCOMPARE(Utils::runAsync<int>(pool.data(), QThread::LowestPriority, &report3).results(),
+    QCOMPARE(Utils::runAsync(pool.data(), QThread::LowestPriority, &report3).results(),
              QList<int>({0, 2, 1}));
 
     // without pool
-    QCOMPARE(Utils::runAsync<int>(QThread::LowestPriority, report3).results(),
+    QCOMPARE(Utils::runAsync(QThread::LowestPriority, report3).results(),
              QList<int>({0, 2, 1}));
 }
 
@@ -401,37 +401,37 @@ void tst_RunExtensions::runAsyncNoFutureInterface()
 {
     // free function pointer
     bool value = false;
-    Utils::runAsync<void>(voidFunction, &value).waitForFinished();
+    Utils::runAsync(voidFunction, &value).waitForFinished();
     QCOMPARE(value, true);
 
-    QCOMPARE(Utils::runAsync<int>(one).results(),
+    QCOMPARE(Utils::runAsync(one).results(),
              QList<int>({1}));
-    QCOMPARE(Utils::runAsync<int>(identity, 5).results(),
+    QCOMPARE(Utils::runAsync(identity, 5).results(),
              QList<int>({5}));
 
     QString s = QLatin1String("string");
     const QString &crs = QLatin1String("cr string");
     const QString cs = QLatin1String("c string");
 
-    QCOMPARE(Utils::runAsync<QString>(stringIdentity1, s).results(),
+    QCOMPARE(Utils::runAsync(stringIdentity1, s).results(),
              QList<QString>({s}));
-    QCOMPARE(Utils::runAsync<QString>(stringIdentity1, crs).results(),
+    QCOMPARE(Utils::runAsync(stringIdentity1, crs).results(),
              QList<QString>({crs}));
-    QCOMPARE(Utils::runAsync<QString>(stringIdentity1, cs).results(),
+    QCOMPARE(Utils::runAsync(stringIdentity1, cs).results(),
              QList<QString>({cs}));
-    QCOMPARE(Utils::runAsync<QString>(stringIdentity1, QString(QLatin1String("rvalue"))).results(),
+    QCOMPARE(Utils::runAsync(stringIdentity1, QString(QLatin1String("rvalue"))).results(),
              QList<QString>({QString(QLatin1String("rvalue"))}));
-    QCOMPARE(Utils::runAsync<QString>(stringIdentity2, s).results(),
+    QCOMPARE(Utils::runAsync(stringIdentity2, s).results(),
              QList<QString>({s}));
-    QCOMPARE(Utils::runAsync<QString>(stringIdentity2, crs).results(),
+    QCOMPARE(Utils::runAsync(stringIdentity2, crs).results(),
              QList<QString>({crs}));
-    QCOMPARE(Utils::runAsync<QString>(stringIdentity2, cs).results(),
+    QCOMPARE(Utils::runAsync(stringIdentity2, cs).results(),
              QList<QString>({cs}));
-    QCOMPARE(Utils::runAsync<QString>(stringIdentity2, QString(QLatin1String("rvalue"))).results(),
+    QCOMPARE(Utils::runAsync(stringIdentity2, QString(QLatin1String("rvalue"))).results(),
              QList<QString>({QString(QLatin1String("rvalue"))}));
 
     // lambda
-    QCOMPARE(Utils::runAsync<double>([](int n) {
+    QCOMPARE(Utils::runAsync([](int n) -> double {
                  return n + 1;
              }, 3).results(),
              QList<double>({4}));
@@ -440,50 +440,50 @@ void tst_RunExtensions::runAsyncNoFutureInterface()
     const std::function<double(int)> fun = [](int n) {
         return n + 1;
     };
-    QCOMPARE(Utils::runAsync<double>(fun, 2).results(),
+    QCOMPARE(Utils::runAsync(fun, 2).results(),
              QList<double>({3}));
 
     // operator()
     value = false;
-    Utils::runAsync<void>(CallableWithoutQFutureInterface(), &value).waitForFinished();
+    Utils::runAsync(CallableWithoutQFutureInterface(), &value).waitForFinished();
     QCOMPARE(value, true);
     value = false;
     const CallableWithoutQFutureInterface c{};
-    Utils::runAsync<void>(c, &value).waitForFinished();
+    Utils::runAsync(c, &value).waitForFinished();
     QCOMPARE(value, true);
 
     // static member functions
     value = false;
-    Utils::runAsync<void>(&MyObjectWithoutQFutureInterface::staticMember0, &value).waitForFinished();
+    Utils::runAsync(&MyObjectWithoutQFutureInterface::staticMember0, &value).waitForFinished();
     QCOMPARE(value, true);
-    QCOMPARE(Utils::runAsync<double>(&MyObjectWithoutQFutureInterface::staticMember1, 2).results(),
+    QCOMPARE(Utils::runAsync(&MyObjectWithoutQFutureInterface::staticMember1, 2).results(),
              QList<double>({2}));
 
     // member functions
     const MyObjectWithoutQFutureInterface obj{};
     value = false;
-    Utils::runAsync<void>(&MyObjectWithoutQFutureInterface::member0, &obj, &value).waitForFinished();
+    Utils::runAsync(&MyObjectWithoutQFutureInterface::member0, &obj, &value).waitForFinished();
     QCOMPARE(value, true);
-    QCOMPARE(Utils::runAsync<double>(&MyObjectWithoutQFutureInterface::member1, &obj, 4).results(),
+    QCOMPARE(Utils::runAsync(&MyObjectWithoutQFutureInterface::member1, &obj, 4).results(),
              QList<double>({4}));
-    QCOMPARE(Utils::runAsync<QString>(&MyObjectWithoutQFutureInterface::memberString1, &obj, s).results(),
+    QCOMPARE(Utils::runAsync(&MyObjectWithoutQFutureInterface::memberString1, &obj, s).results(),
              QList<QString>({s}));
-    QCOMPARE(Utils::runAsync<QString>(&MyObjectWithoutQFutureInterface::memberString1, &obj, crs).results(),
+    QCOMPARE(Utils::runAsync(&MyObjectWithoutQFutureInterface::memberString1, &obj, crs).results(),
              QList<QString>({crs}));
-    QCOMPARE(Utils::runAsync<QString>(&MyObjectWithoutQFutureInterface::memberString1, &obj, cs).results(),
+    QCOMPARE(Utils::runAsync(&MyObjectWithoutQFutureInterface::memberString1, &obj, cs).results(),
              QList<QString>({cs}));
-    QCOMPARE(Utils::runAsync<QString>(&MyObjectWithoutQFutureInterface::memberString1, &obj, QString(QLatin1String("rvalue"))).results(),
+    QCOMPARE(Utils::runAsync(&MyObjectWithoutQFutureInterface::memberString1, &obj, QString(QLatin1String("rvalue"))).results(),
              QList<QString>({QString(QLatin1String("rvalue"))}));
-    QCOMPARE(Utils::runAsync<QString>(&MyObjectWithoutQFutureInterface::memberString2, &obj, s).results(),
+    QCOMPARE(Utils::runAsync(&MyObjectWithoutQFutureInterface::memberString2, &obj, s).results(),
              QList<QString>({s}));
-    QCOMPARE(Utils::runAsync<QString>(&MyObjectWithoutQFutureInterface::memberString2, &obj, crs).results(),
+    QCOMPARE(Utils::runAsync(&MyObjectWithoutQFutureInterface::memberString2, &obj, crs).results(),
              QList<QString>({crs}));
-    QCOMPARE(Utils::runAsync<QString>(&MyObjectWithoutQFutureInterface::memberString2, &obj, cs).results(),
+    QCOMPARE(Utils::runAsync(&MyObjectWithoutQFutureInterface::memberString2, &obj, cs).results(),
              QList<QString>({cs}));
-    QCOMPARE(Utils::runAsync<QString>(&MyObjectWithoutQFutureInterface::memberString2, &obj, QString(QLatin1String("rvalue"))).results(),
+    QCOMPARE(Utils::runAsync(&MyObjectWithoutQFutureInterface::memberString2, &obj, QString(QLatin1String("rvalue"))).results(),
              QList<QString>({QString(QLatin1String("rvalue"))}));
     MyObjectWithoutQFutureInterface nonConstObj{};
-    QCOMPARE(Utils::runAsync<double>(&MyObjectWithoutQFutureInterface::nonConstMember, &nonConstObj, 4).results(),
+    QCOMPARE(Utils::runAsync(&MyObjectWithoutQFutureInterface::nonConstMember, &nonConstObj, 4).results(),
              QList<double>({4}));
 }
 

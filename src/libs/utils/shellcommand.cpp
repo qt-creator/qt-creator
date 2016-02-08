@@ -222,7 +222,7 @@ void ShellCommand::execute()
     if (d->m_jobs.empty())
         return;
 
-    QFuture<void> task = Utils::runAsync<void>(&ShellCommand::run, this);
+    QFuture<void> task = Utils::runAsync(&ShellCommand::run, this);
     d->m_watcher.setFuture(task);
     addTask(task);
 }

@@ -235,7 +235,7 @@ void GitGrep::writeSettings(QSettings *settings) const
 QFuture<FileSearchResultList> GitGrep::executeSearch(
         const TextEditor::FileFindParameters &parameters)
 {
-    return Utils::runAsync<FileSearchResultList>(GitGrepRunner::run, parameters);
+    return Utils::runAsync(GitGrepRunner::run, parameters);
 }
 
 } // Internal

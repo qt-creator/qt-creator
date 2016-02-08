@@ -738,7 +738,7 @@ void TestCodeParser::scanForTests(const QStringList &fileList)
     }
 
     QFuture<TestParseResult> future
-            = Utils::runAsync<TestParseResult>(&performParse, list, referencingFiles);
+            = Utils::runAsync(&performParse, list, referencingFiles);
     m_futureWatcher.setFuture(future);
     if (list.size() > 5) {
         Core::ProgressManager::addTask(future, tr("Scanning for Tests"),

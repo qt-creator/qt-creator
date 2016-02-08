@@ -1806,10 +1806,10 @@ void QmakeProFileNode::asyncUpdate()
         m_readerExact->setExact(false);
     m_parseFutureWatcher.waitForFinished();
     EvalInput input = evalInput();
-    QFuture<EvalResult *> future = Utils::runAsync<EvalResult *>(ProjectExplorerPlugin::sharedThreadPool(),
-                                                                 QThread::LowestPriority,
-                                                                 &QmakeProFileNode::asyncEvaluate,
-                                                                 this, input);
+    QFuture<EvalResult *> future = Utils::runAsync(ProjectExplorerPlugin::sharedThreadPool(),
+                                                   QThread::LowestPriority,
+                                                   &QmakeProFileNode::asyncEvaluate,
+                                                   this, input);
     m_parseFutureWatcher.setFuture(future);
 }
 

@@ -285,8 +285,8 @@ void TestRunner::runTests()
     const QSharedPointer<TestSettings> settings = AutotestPlugin::instance()->settings();
     const QString &metricsOption = TestSettings::metricsTypeToOption(settings->metrics);
 
-    QFuture<TestResult *> future = Utils::runAsync<TestResult *>(&performTestRun, m_selectedTests,
-                                                               settings->timeout, metricsOption);
+    QFuture<TestResult *> future = Utils::runAsync(&performTestRun, m_selectedTests,
+                                                   settings->timeout, metricsOption);
     m_futureWatcher.setFuture(future);
     Core::ProgressManager::addTask(future, tr("Running Tests"), Autotest::Constants::TASK_INDEX);
 }

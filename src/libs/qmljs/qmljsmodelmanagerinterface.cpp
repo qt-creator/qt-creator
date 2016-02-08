@@ -319,10 +319,10 @@ QFuture<void> ModelManagerInterface::refreshSourceFiles(const QStringList &sourc
     if (sourceFiles.isEmpty())
         return QFuture<void>();
 
-    QFuture<void> result = Utils::runAsync<void>(&ModelManagerInterface::parse,
-                                                 workingCopyInternal(), sourceFiles,
-                                                 this, Dialect(Dialect::Qml),
-                                                 emitDocumentOnDiskChanged);
+    QFuture<void> result = Utils::runAsync(&ModelManagerInterface::parse,
+                                           workingCopyInternal(), sourceFiles,
+                                           this, Dialect(Dialect::Qml),
+                                           emitDocumentOnDiskChanged);
     cleanupFutures();
     m_futures.append(result);
 
@@ -348,9 +348,9 @@ QFuture<void> ModelManagerInterface::refreshSourceFiles(const QStringList &sourc
 
 void ModelManagerInterface::fileChangedOnDisk(const QString &path)
 {
-    Utils::runAsync<void>(&ModelManagerInterface::parse,
-                          workingCopyInternal(), QStringList() << path,
-                          this, Dialect(Dialect::AnyLanguage), true);
+    Utils::runAsync(&ModelManagerInterface::parse,
+                    workingCopyInternal(), QStringList() << path,
+                    this, Dialect(Dialect::AnyLanguage), true);
 }
 
 void ModelManagerInterface::removeFiles(const QStringList &files)
@@ -1096,9 +1096,9 @@ void ModelManagerInterface::maybeScan(const PathsAndLanguages &importPaths)
     }
 
     if (pathToScan.length() > 1) {
-        QFuture<void> result = Utils::runAsync<void>(&ModelManagerInterface::importScan,
-                                                     workingCopyInternal(), pathToScan,
-                                                     this, true, true);
+        QFuture<void> result = Utils::runAsync(&ModelManagerInterface::importScan,
+                                               workingCopyInternal(), pathToScan,
+                                               this, true, true);
         cleanupFutures();
         m_futures.append(result);
 
@@ -1243,7 +1243,7 @@ void ModelManagerInterface::startCppQmlTypeUpdate()
     if (!cppModelManager)
         return;
 
-    m_cppQmlTypesUpdater = Utils::runAsync<void>(&ModelManagerInterface::updateCppQmlTypes,
+    m_cppQmlTypesUpdater = Utils::runAsync(&ModelManagerInterface::updateCppQmlTypes,
                 this, cppModelManager->snapshot(), m_queuedCppDocuments);
     m_queuedCppDocuments.clear();
 }

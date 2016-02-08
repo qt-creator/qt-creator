@@ -322,7 +322,7 @@ void Manager::registerHighlightingFiles()
     if (!m_registeringWatcher.isRunning()) {
         clear();
 
-        QFuture<RegisterData> future = Utils::runAsync<RegisterData>(ManagerProcessor());
+        QFuture<RegisterData> future = Utils::runAsync(ManagerProcessor());
         m_registeringWatcher.setFuture(future);
     } else {
         m_hasQueuedRegistration = true;
