@@ -299,8 +299,9 @@ static void addJsonArray(const QJsonArray &array, const QString &keyPrefix, ProV
     const int size = array.count();
     keys.reserve(size);
     for (int i = 0; i < size; ++i) {
-        keys.append(QString::number(i));
-        addJsonValue(array.at(i), keyPrefix + QString::number(i), map);
+        const QString number = QString::number(i);
+        keys.append(number);
+        addJsonValue(array.at(i), keyPrefix + number, map);
     }
     insertJsonKeyValue(keyPrefix + QLatin1String("_KEYS_"), keys, map);
 }
