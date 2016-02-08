@@ -138,37 +138,16 @@ def textUnderCursor(window, fromPos, toPos):
     return returnValue
 
 def which(program):
-    def is_exe(fpath):
-        return os.path.exists(fpath) and os.access(fpath, os.X_OK)
-
-    def callableFile(path):
-        if is_exe(path):
-            return path
-        if platform.system() in ('Windows', 'Microsoft'):
-            for suffix in suffixes.split(os.pathsep):
-                if is_exe(path + suffix):
-                    return path + suffix
-        return None
-
+    # Don't use spawn.find_executable because it can't find .bat or
+    # .cmd files and doesn't check whether a file is executable (!)
     if platform.system() in ('Windows', 'Microsoft'):
-        suffixes = os.getenv("PATHEXT")
-        if not suffixes:
-            test.fatal("Can't read environment variable PATHEXT. Please check your installation.")
-            suffixes = ""
-
-    fpath, fname = os.path.split(program)
-    if fpath:
-        return callableFile(program)
+        command = "where"
     else:
-        if platform.system() in ('Windows', 'Microsoft'):
-            cf = callableFile(os.getcwd() + os.sep + program)
-            if cf:
-                return cf
-        for path in os.environ["PATH"].split(os.pathsep):
-            exe_file = os.path.join(path, program)
-            cf = callableFile(exe_file)
-            if cf:
-                return cf
+        command = "which"
+    foundPath = getOutputFromCmdline(command + " " + program)
+    if foundPath:
+        return foundPath.splitlines()[0]
+    else:
         return None
 
 # this function removes the user files of given pro file(s)
