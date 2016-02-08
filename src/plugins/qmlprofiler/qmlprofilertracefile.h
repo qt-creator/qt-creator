@@ -50,14 +50,21 @@ class QmlProfilerFileReader : public QObject
 public:
     explicit QmlProfilerFileReader(QObject *parent = 0);
 
-    void setQmlDataModel(QmlProfilerDataModel *dataModel);
     void setFuture(QFutureInterface<void> *future);
 
     bool load(QIODevice *device);
     quint64 loadedFeatures() const;
 
+    qint64 traceStart() const { return m_traceStart; }
+    qint64 traceEnd() const { return m_traceEnd; }
+
+    const QVector<QmlProfilerDataModel::QmlEventTypeData> &qmlEvents() const { return m_qmlEvents; }
+    const QVector<QmlProfilerDataModel::QmlEventData> &ranges() const { return m_ranges; }
+    const QVector<QmlProfilerDataModel::QmlEventNoteData> &notes() const { return m_notes; }
+
 signals:
     void error(const QString &error);
+    void success();
 
 private:
     void loadEventData(QXmlStreamReader &reader);
@@ -66,7 +73,7 @@ private:
     void progress(QIODevice *device);
     bool isCanceled() const;
 
-    QmlProfilerDataModel *m_qmlModel;
+    qint64 m_traceStart, m_traceEnd;
     QFutureInterface<void> *m_future;
     QVector<QmlProfilerDataModel::QmlEventTypeData> m_qmlEvents;
     QVector<QmlProfilerDataModel::QmlEventData> m_ranges;

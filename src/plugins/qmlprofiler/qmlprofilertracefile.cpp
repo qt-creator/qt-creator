@@ -117,14 +117,11 @@ static QString qmlTypeAsString(Message message, RangeType rangeType)
 
 QmlProfilerFileReader::QmlProfilerFileReader(QObject *parent) :
     QObject(parent),
+    m_traceStart(-1),
+    m_traceEnd(-1),
     m_future(0),
     m_loadedFeatures(0)
 {
-}
-
-void QmlProfilerFileReader::setQmlDataModel(QmlProfilerDataModel *dataModel)
-{
-    m_qmlModel = dataModel;
 }
 
 void QmlProfilerFileReader::setFuture(QFutureInterface<void> *future)
@@ -142,8 +139,6 @@ bool QmlProfilerFileReader::load(QIODevice *device)
     QXmlStreamReader stream(device);
 
     bool validVersion = true;
-    qint64 traceStart = -1;
-    qint64 traceEnd = -1;
 
     while (validVersion && !stream.atEnd() && !stream.hasError()) {
         if (isCanceled())
@@ -160,9 +155,9 @@ bool QmlProfilerFileReader::load(QIODevice *device)
                 else
                     validVersion = false;
                 if (attributes.hasAttribute(_("traceStart")))
-                    traceStart = attributes.value(_("traceStart")).toLongLong();
+                    m_traceStart = attributes.value(_("traceStart")).toLongLong();
                 if (attributes.hasAttribute(_("traceEnd")))
-                    traceEnd = attributes.value(_("traceEnd")).toLongLong();
+                    m_traceEnd = attributes.value(_("traceEnd")).toLongLong();
             }
 
             if (elementName == _("eventData")) {
@@ -190,8 +185,7 @@ bool QmlProfilerFileReader::load(QIODevice *device)
         emit error(tr("Error while parsing trace data file: %1").arg(stream.errorString()));
         return false;
     } else {
-        m_qmlModel->setData(traceStart, qMax(traceStart, traceEnd), m_qmlEvents, m_ranges);
-        m_qmlModel->setNoteData(m_notes);
+        emit success();
         return true;
     }
 }

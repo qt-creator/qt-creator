@@ -338,16 +338,20 @@ void QmlProfilerModelManager::save(const QString &filename)
 
     d->notesModel->saveData();
 
-    QFuture<void> result = Utils::runAsync<void>([this, file] (QFutureInterface<void> &future) {
-        QmlProfilerFileWriter writer;
-        writer.setTraceTime(traceTime()->startTime(), traceTime()->endTime(),
-                            traceTime()->duration());
-        writer.setQmlEvents(d->model->getEventTypes(), d->model->getEvents());
-        writer.setNotes(d->model->getEventNotes());
-        writer.setFuture(&future);
-        writer.save(file);
+    QmlProfilerFileWriter *writer = new QmlProfilerFileWriter(this);
+    writer->setTraceTime(traceTime()->startTime(), traceTime()->endTime(),
+                        traceTime()->duration());
+    writer->setQmlEvents(d->model->getEventTypes(), d->model->getEvents());
+    writer->setNotes(d->model->getEventNotes());
+
+    connect(writer, &QObject::destroyed, this, &QmlProfilerModelManager::saveFinished,
+            Qt::QueuedConnection);
+
+    QFuture<void> result = Utils::runAsync<void>([file, writer] (QFutureInterface<void> &future) {
+        writer->setFuture(&future);
+        writer->save(file);
+        delete writer;
         file->deleteLater();
-        QMetaObject::invokeMethod(this, "saveFinished", Qt::QueuedConnection);
     });
 
     Core::ProgressManager::addTask(result, tr("Saving Trace Data"), Constants::TASK_SAVE,
@@ -366,23 +370,32 @@ void QmlProfilerModelManager::load(const QString &filename)
 
     clear();
     setState(AcquiringData);
+    QmlProfilerFileReader *reader = new QmlProfilerFileReader(this);
 
-    QFuture<void> result = Utils::runAsync<void>([this, file] (QFutureInterface<void> &future) {
-        QmlProfilerFileReader reader;
-        reader.setFuture(&future);
-        connect(&reader, &QmlProfilerFileReader::error, this, &QmlProfilerModelManager::error);
-        reader.setQmlDataModel(d->model);
-        reader.load(file);
-        setRecordedFeatures(reader.loadedFeatures());
+    connect(reader, &QmlProfilerFileReader::error, this, [this, reader](const QString &message) {
+        delete reader;
+        emit error(message);
+    }, Qt::QueuedConnection);
+
+    connect(reader, &QmlProfilerFileReader::success, this, [this, reader]() {
+        d->model->setData(reader->traceStart(), qMax(reader->traceStart(), reader->traceEnd()),
+                          reader->qmlEvents(), reader->ranges());
+        d->model->setNoteData(reader->notes());
+        setRecordedFeatures(reader->loadedFeatures());
+        d->traceTime->increaseEndTime(d->model->lastTimeMark());
+        delete reader;
+        acquiringDone();
+    }, Qt::QueuedConnection);
+
+    QFuture<void> result = Utils::runAsync<void>([file, reader] (QFutureInterface<void> &future) {
+        reader->setFuture(&future);
+        reader->load(file);
         file->close();
         file->deleteLater();
-        d->traceTime->increaseEndTime(d->model->lastTimeMark());
-        acquiringDone();
     });
 
     Core::ProgressManager::addTask(result, tr("Loading Trace Data"), Constants::TASK_LOAD);
 }
-
 
 void QmlProfilerModelManager::setState(QmlProfilerModelManager::State state)
 {
