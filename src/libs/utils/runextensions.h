@@ -222,12 +222,9 @@ private:
 
 // void function that does not take QFutureInterface
 template <typename ResultType, typename Function, typename... Args>
-void runAsyncReturnVoidDispatch(std::true_type, QFutureInterface<ResultType> futureInterface, Function &&function, Args&&... args)
+void runAsyncReturnVoidDispatch(std::true_type, QFutureInterface<ResultType>, Function &&function, Args&&... args)
 {
     function(std::forward<Args>(args)...);
-    if (futureInterface.isPaused())
-        futureInterface.waitForResume();
-    futureInterface.reportFinished();
 }
 
 // non-void function that does not take QFutureInterface
@@ -235,9 +232,6 @@ template <typename ResultType, typename Function, typename... Args>
 void runAsyncReturnVoidDispatch(std::false_type, QFutureInterface<ResultType> futureInterface, Function &&function, Args&&... args)
 {
     futureInterface.reportResult(function(std::forward<Args>(args)...));
-    if (futureInterface.isPaused())
-        futureInterface.waitForResume();
-    futureInterface.reportFinished();
 }
 
 // function that takes QFutureInterface
@@ -245,9 +239,6 @@ template <typename ResultType, typename Function, typename... Args>
 void runAsyncQFutureInterfaceDispatch(std::true_type, QFutureInterface<ResultType> futureInterface, Function &&function, Args&&... args)
 {
     function(futureInterface, std::forward<Args>(args)...);
-    if (futureInterface.isPaused())
-        futureInterface.waitForResume();
-    futureInterface.reportFinished();
 }
 
 // function that does not take QFutureInterface
@@ -374,6 +365,9 @@ private:
     {
         // invalidates data, which is moved into the call
         runAsyncImpl(futureInterface, std::move(std::get<index>(data))...);
+        if (futureInterface.isPaused())
+            futureInterface.waitForResume();
+        futureInterface.reportFinished();
     }
 
     Data data;

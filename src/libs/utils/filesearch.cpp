@@ -83,8 +83,8 @@ class FileSearch
 public:
     FileSearch(const QString &searchTerm, QTextDocument::FindFlags flags,
                QMap<QString, QString> fileToContentsMap);
-    FileSearchResultList operator()(QFutureInterface<FileSearchResultList> futureInterface,
-                                          const FileIterator::Item &item) const;
+    void operator()(QFutureInterface<FileSearchResultList> &futureInterface,
+                    const FileIterator::Item &item) const;
 
 private:
     QMap<QString, QString> fileToContentsMap;
@@ -104,8 +104,8 @@ public:
     FileSearchRegExp(const QString &searchTerm, QTextDocument::FindFlags flags,
                      QMap<QString, QString> fileToContentsMap);
     FileSearchRegExp(const FileSearchRegExp &other);
-    FileSearchResultList operator()(QFutureInterface<FileSearchResultList> futureInterface,
-                                          const FileIterator::Item &item) const;
+    void operator()(QFutureInterface<FileSearchResultList> &futureInterface,
+                    const FileIterator::Item &item) const;
 
 private:
     QRegularExpressionMatch doGuardedMatch(const QString &line, int offset) const;
@@ -129,17 +129,21 @@ FileSearch::FileSearch(const QString &searchTerm, QTextDocument::FindFlags flags
     termDataUpper = searchTermUpper.constData();
 }
 
-FileSearchResultList FileSearch::operator()(QFutureInterface<FileSearchResultList> futureInterface,
-                                                  const FileIterator::Item &item) const
+void FileSearch::operator()(QFutureInterface<FileSearchResultList> &futureInterface,
+                            const FileIterator::Item &item) const
 {
-    FileSearchResultList results;
     if (futureInterface.isCanceled())
-        return results;
+        return;
+    futureInterface.setProgressRange(0, 1);
+    futureInterface.setProgressValue(0);
+    FileSearchResultList results;
     QFile file;
     QTextStream stream;
     QString tempString;
-    if (!openStream(item.filePath, item.encoding, &stream, &file, &tempString, fileToContentsMap))
-        return results;
+    if (!openStream(item.filePath, item.encoding, &stream, &file, &tempString, fileToContentsMap)) {
+        futureInterface.cancel(); // failure
+        return;
+    }
     int lineNr = 0;
 
     while (!stream.atEnd()) {
@@ -211,7 +215,10 @@ FileSearchResultList FileSearch::operator()(QFutureInterface<FileSearchResultLis
     }
     if (file.isOpen())
         file.close();
-    return results;
+    if (!futureInterface.isCanceled()) {
+        futureInterface.reportResult(results);
+        futureInterface.setProgressValue(1);
+    }
 }
 
 FileSearchRegExp::FileSearchRegExp(const QString &searchTerm, QTextDocument::FindFlags flags,
@@ -238,17 +245,21 @@ QRegularExpressionMatch FileSearchRegExp::doGuardedMatch(const QString &line, in
     return expression.match(line, offset);
 }
 
-FileSearchResultList FileSearchRegExp::operator()(QFutureInterface<FileSearchResultList> futureInterface,
-                                                        const FileIterator::Item &item) const
+void FileSearchRegExp::operator()(QFutureInterface<FileSearchResultList> &futureInterface,
+                                  const FileIterator::Item &item) const
 {
-    FileSearchResultList results;
     if (futureInterface.isCanceled())
-        return results;
+        return;
+    futureInterface.setProgressRange(0, 1);
+    futureInterface.setProgressValue(0);
+    FileSearchResultList results;
     QFile file;
     QTextStream stream;
     QString tempString;
-    if (!openStream(item.filePath, item.encoding, &stream, &file, &tempString, fileToContentsMap))
-        return results;
+    if (!openStream(item.filePath, item.encoding, &stream, &file, &tempString, fileToContentsMap)) {
+        futureInterface.cancel(); // failure
+        return;
+    }
     int lineNr = 0;
 
     QString line;
@@ -277,7 +288,10 @@ FileSearchResultList FileSearchRegExp::operator()(QFutureInterface<FileSearchRes
     }
     if (file.isOpen())
         file.close();
-    return results;
+    if (!futureInterface.isCanceled()) {
+        futureInterface.reportResult(results);
+        futureInterface.setProgressValue(1);
+    }
 }
 
 struct SearchState
@@ -345,7 +359,7 @@ void cleanUpFileSearch(QFutureInterface<FileSearchResultList> &futureInterface,
 QFuture<FileSearchResultList> Utils::findInFiles(const QString &searchTerm, FileIterator *files,
     QTextDocument::FindFlags flags, QMap<QString, QString> fileToContentsMap)
 {
-    return mapReduce<FileSearchResultList>(std::cref(*files),
+    return mapReduce(std::cref(*files),
                      [searchTerm, files](QFutureInterface<FileSearchResultList> &futureInterface) {
                          return initFileSearch(futureInterface, searchTerm, files);
                      },
@@ -357,7 +371,7 @@ QFuture<FileSearchResultList> Utils::findInFiles(const QString &searchTerm, File
 QFuture<FileSearchResultList> Utils::findInFilesRegExp(const QString &searchTerm, FileIterator *files,
     QTextDocument::FindFlags flags, QMap<QString, QString> fileToContentsMap)
 {
-    return mapReduce<FileSearchResultList>(std::cref(*files),
+    return mapReduce(std::cref(*files),
                      [searchTerm, files](QFutureInterface<FileSearchResultList> &futureInterface) {
                          return initFileSearch(futureInterface, searchTerm, files);
                      },
