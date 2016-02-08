@@ -46,6 +46,8 @@ FlameGraphView::FlameGraphView(QWidget *parent, QmlProfiler::QmlProfilerModelMan
     qmlRegisterType<FlameGraph>("FlameGraph", 1, 0, "FlameGraph");
     qmlRegisterUncreatableType<FlameGraphModel>("FlameGraphModel", 1, 0, "FlameGraphModel",
                                                 QLatin1String("use the context property"));
+    qmlRegisterUncreatableType<QAbstractItemModel>("AbstractItemModel", 1, 0, "AbstractItemModel",
+                                                   QLatin1String("only for Qt 5.4"));
 
     m_content->rootContext()->setContextProperty(QStringLiteral("flameGraphModel"), m_model);
     m_content->setSource(QUrl(QStringLiteral("qrc:/FlameGraphView.qml")));
