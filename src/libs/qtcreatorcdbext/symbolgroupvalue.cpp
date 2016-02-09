@@ -653,14 +653,16 @@ const QtInfo &QtInfo::get(const SymbolGroupValueContext &ctx)
     std::string moduleName;
     std::string::size_type exclPos = std::string::npos;
     std::string::size_type libPos = std::string::npos;
+    std::string::size_type qtPos = std::string::npos;
 
     const StringList &modules = SymbolGroupValue::getAllModuleNames(ctx);
     for (StringListConstIt module = modules.begin(), total = modules.end();
          module != total; ++module) {
         moduleName = *module;
-        if (moduleName.find("Qt") != std::string::npos) {
+        qtPos = moduleName.find("Qt");
+        if (qtPos != std::string::npos) {
             libPos = moduleName.find("Core");
-            if (libPos != std::string::npos)
+            if (libPos != std::string::npos && (libPos - qtPos) < 4)
                 break;
         }
     }
