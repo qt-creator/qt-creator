@@ -81,7 +81,7 @@ bool TextDocumentManipulator::replace(int position, int length, const QString &t
 void TextDocumentManipulator::insertCodeSnippet(int position, const QString &text)
 {
     auto cursor = m_textEditorWidget->textCursor();
-    cursor.setPosition(position);
+    cursor.setPosition(position, QTextCursor::KeepAnchor);
     m_textEditorWidget->insertCodeSnippet(cursor, text);
 }
 
