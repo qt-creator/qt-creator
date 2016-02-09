@@ -883,8 +883,8 @@ void QbsProject::updateBuildTargetData()
 {
     updateApplicationTargets();
     updateDeploymentInfo();
-    foreach (Target *t, targets())
-        t->updateDefaultRunConfigurations();
+    if (activeTarget())
+        activeTarget()->updateDefaultRunConfigurations();
 }
 
 } // namespace Internal
