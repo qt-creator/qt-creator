@@ -75,7 +75,8 @@ private:
 class CORE_EXPORT ProgressTimer : public QObject
 {
 public:
-    ProgressTimer(QObject *parent, const QFutureInterfaceBase &futureInterface, int expectedSeconds);
+    ProgressTimer(const QFutureInterfaceBase &futureInterface, int expectedSeconds,
+                  QObject *parent = 0);
 
 private:
     void handleTimeout();

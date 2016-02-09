@@ -763,7 +763,7 @@ FutureProgress *ProgressManager::addTimedTask(const QFutureInterface<void> &futu
 {
     QFutureInterface<void> dummy(futureInterface); // Need mutable to access .future()
     FutureProgress *fp = m_instance->doAddTask(dummy.future(), title, type, flags);
-    (void) new ProgressTimer(fp, futureInterface, expectedSeconds);
+    (void) new ProgressTimer(futureInterface, expectedSeconds, fp);
     return fp;
 }
 
@@ -779,9 +779,9 @@ void ProgressManager::cancelTasks(Id type)
 }
 
 
-ProgressTimer::ProgressTimer(QObject *parent,
-                             const QFutureInterfaceBase &futureInterface,
-                             int expectedSeconds)
+ProgressTimer::ProgressTimer(const QFutureInterfaceBase &futureInterface,
+                             int expectedSeconds,
+                             QObject *parent)
     : QObject(parent),
       m_futureInterface(futureInterface),
       m_expectedTime(expectedSeconds),
