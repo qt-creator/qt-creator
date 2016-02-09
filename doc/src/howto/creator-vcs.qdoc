@@ -58,7 +58,7 @@
         \row
             \li Git
             \li \l{http://git-scm.com/}
-            \li Git version 1.7.2, or later
+            \li Git version 1.8.0, or later
 
                 Gerrit version 2.6, or later
         \row

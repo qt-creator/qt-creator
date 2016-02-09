@@ -2838,11 +2838,8 @@ bool GitClient::synchronousSetTrackingBranch(const QString &workingDirectory,
 {
     QByteArray outputText;
     QStringList arguments;
-    arguments << QLatin1String("branch");
-    if (gitVersion() >= 0x010800)
-        arguments << (QLatin1String("--set-upstream-to=") + tracking) << branch;
-    else
-        arguments << QLatin1String("--set-upstream") << branch << tracking;
+    arguments << QLatin1String("branch")
+              << (QLatin1String("--set-upstream-to=") + tracking) << branch;
     return vcsFullySynchronousExec(workingDirectory, arguments, &outputText);
 }
 

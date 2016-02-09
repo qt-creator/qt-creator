@@ -86,15 +86,7 @@ MergeTool::~MergeTool()
 bool MergeTool::start(const QString &workingDirectory, const QStringList &files)
 {
     QStringList arguments;
-    arguments << QLatin1String("mergetool") << QLatin1String("-y");
-    if (!files.isEmpty()) {
-        if (m_client->gitVersion() < 0x010708) {
-            Core::AsynchronousMessageBox::warning(tr("Error"),
-                                                   tr("File input for the merge tool requires Git 1.7.8, or later."));
-            return false;
-        }
-        arguments << files;
-    }
+    arguments << QLatin1String("mergetool") << QLatin1String("-y") << files;
     m_process = new MergeToolProcess(this);
     m_process->setWorkingDirectory(workingDirectory);
     const Utils::FileName binary = m_client->vcsBinary();

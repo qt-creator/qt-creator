@@ -95,7 +95,7 @@ using namespace VcsBase;
 namespace Git {
 namespace Internal {
 
-const unsigned minimumRequiredVersion = 0x010702;
+const unsigned minimumRequiredVersion = 0x010800;
 const char RC_GIT_MIME_XML[] = ":/git/Git.mimetypes.xml";
 
 const VcsBaseEditorParameters editorParameters[] = {
