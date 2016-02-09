@@ -25,10 +25,11 @@
 
 #pragma once
 
-#include "gitsettings.h" // CommitType
+#include "commitdata.h"
 
 #include <vcsbase/vcsbasesubmiteditor.h>
 
+#include <QFutureWatcher>
 #include <QStringList>
 
 namespace VcsBase { class SubmitFileModel; }
@@ -38,9 +39,17 @@ namespace Internal {
 
 class GitClient;
 class GitSubmitEditorWidget;
-class CommitData;
-class CommitDataFetcher;
 class GitSubmitEditorPanelData;
+
+class CommitDataFetchResult
+{
+public:
+    static CommitDataFetchResult fetch(CommitType commitType, const QString &workingDirectory);
+
+    QString errorMessage;
+    CommitData commitData;
+    bool success;
+};
 
 class GitSubmitEditor : public VcsBase::VcsBaseSubmitEditor
 {
@@ -63,11 +72,10 @@ protected:
 private:
     void slotDiffSelected(const QList<int> &rows);
     void showCommit(const QString &commit);
-    void commitDataRetrieved(bool success);
+    void commitDataRetrieved();
 
     inline GitSubmitEditorWidget *submitEditorWidget();
     inline const GitSubmitEditorWidget *submitEditorWidget() const;
-    void resetCommitDataFetcher();
 
     VcsBase::SubmitFileModel *m_model = nullptr;
     QTextCodec *m_commitEncoding = nullptr;
@@ -75,7 +83,7 @@ private:
     QString m_amendSHA1;
     QString m_workingDirectory;
     bool m_firstUpdate = true;
-    CommitDataFetcher *m_commitDataFetcher = nullptr;
+    QFutureWatcher<CommitDataFetchResult> m_fetchWatcher;
 };
 
 } // namespace Internal

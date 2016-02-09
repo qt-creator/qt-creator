@@ -24,7 +24,6 @@
 ****************************************************************************/
 
 #include "gitsubmiteditor.h"
-#include "commitdata.h"
 #include "gitclient.h"
 #include "gitplugin.h"
 #include "gitsubmiteditorwidget.h"
@@ -33,6 +32,7 @@
 #include <coreplugin/iversioncontrol.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <utils/qtcassert.h>
+#include <utils/runextensions.h>
 #include <vcsbase/submitfilemodel.h>
 #include <vcsbase/vcsoutputwindow.h>
 
@@ -40,7 +40,6 @@
 #include <QStringList>
 #include <QTextCodec>
 #include <QTimer>
-#include <QtConcurrentRun>
 
 static const char TASK_UPDATE_COMMIT[] = "Git.UpdateCommit";
 
@@ -84,36 +83,15 @@ private:
     }
 };
 
-class CommitDataFetcher : public QObject
+CommitDataFetchResult CommitDataFetchResult::fetch(CommitType commitType, const QString &workingDirectory)
 {
-    Q_OBJECT
-
-public:
-    CommitDataFetcher(CommitType commitType, const QString &workingDirectory) :
-        m_commitData(commitType),
-        m_workingDirectory(workingDirectory)
-    {
-    }
-
-    void start()
-    {
-        QString commitTemplate;
-        bool success = GitPlugin::client()->getCommitData(m_workingDirectory, &commitTemplate,
-                                                          m_commitData, &m_errorMessage);
-        emit finished(success);
-    }
-
-    const CommitData &commitData() const { return m_commitData; }
-    const QString &errorMessage() const { return m_errorMessage; }
-
-signals:
-    void finished(bool result);
-
-private:
-    CommitData m_commitData;
-    QString m_workingDirectory;
-    QString m_errorMessage;
-};
+    CommitDataFetchResult result;
+    result.commitData.commitType = commitType;
+    QString commitTemplate;
+    result.success = GitPlugin::client()->getCommitData(workingDirectory, &commitTemplate,
+                                                        result.commitData, &result.errorMessage);
+    return result;
+}
 
 /* The problem with git is that no diff can be obtained to for a random
  * multiselection of staged/unstaged files; it requires the --cached
@@ -127,11 +105,12 @@ GitSubmitEditor::GitSubmitEditor(const VcsBaseSubmitEditorParameters *parameters
     connect(submitEditorWidget(), &GitSubmitEditorWidget::show, this, &GitSubmitEditor::showCommit);
     connect(GitPlugin::instance()->versionControl(), &Core::IVersionControl::repositoryChanged,
             this, &GitSubmitEditor::forceUpdateFileModel);
+    connect(&m_fetchWatcher, &QFutureWatcher<CommitDataFetchResult>::finished,
+            this, &GitSubmitEditor::commitDataRetrieved);
 }
 
 GitSubmitEditor::~GitSubmitEditor()
 {
-    resetCommitDataFetcher();
 }
 
 GitSubmitEditorWidget *GitSubmitEditor::submitEditorWidget()
@@ -142,14 +121,6 @@ GitSubmitEditorWidget *GitSubmitEditor::submitEditorWidget()
 const GitSubmitEditorWidget *GitSubmitEditor::submitEditorWidget() const
 {
     return static_cast<GitSubmitEditorWidget *>(widget());
-}
-
-void GitSubmitEditor::resetCommitDataFetcher()
-{
-    if (!m_commitDataFetcher)
-        return;
-    disconnect(m_commitDataFetcher, &CommitDataFetcher::finished, this, &GitSubmitEditor::commitDataRetrieved);
-    connect(m_commitDataFetcher, &CommitDataFetcher::finished, m_commitDataFetcher, &QObject::deleteLater);
 }
 
 void GitSubmitEditor::setCommitData(const CommitData &d)
@@ -254,13 +225,12 @@ void GitSubmitEditor::updateFileModel()
     if (w->updateInProgress() || m_workingDirectory.isEmpty())
         return;
     w->setUpdateInProgress(true);
-    resetCommitDataFetcher();
-    m_commitDataFetcher = new CommitDataFetcher(m_commitType, m_workingDirectory);
-    connect(m_commitDataFetcher, &CommitDataFetcher::finished, this, &GitSubmitEditor::commitDataRetrieved);
-    QFuture<void> future = QtConcurrent::run(m_commitDataFetcher, &CommitDataFetcher::start);
-    Core::ProgressManager::addTask(future, tr("Refreshing Commit Data"), TASK_UPDATE_COMMIT);
+    m_fetchWatcher.setFuture(Utils::runAsync(&CommitDataFetchResult::fetch,
+                                             m_commitType, m_workingDirectory));
+    Core::ProgressManager::addTask(m_fetchWatcher.future(), tr("Refreshing Commit Data"),
+                                   TASK_UPDATE_COMMIT);
 
-    GitPlugin::client()->addFuture(future);
+    GitPlugin::client()->addFuture(m_fetchWatcher.future());
 }
 
 void GitSubmitEditor::forceUpdateFileModel()
@@ -272,21 +242,20 @@ void GitSubmitEditor::forceUpdateFileModel()
         updateFileModel();
 }
 
-void GitSubmitEditor::commitDataRetrieved(bool success)
+void GitSubmitEditor::commitDataRetrieved()
 {
+    CommitDataFetchResult result = m_fetchWatcher.result();
     GitSubmitEditorWidget *w = submitEditorWidget();
-    if (success) {
-        setCommitData(m_commitDataFetcher->commitData());
+    if (result.success) {
+        setCommitData(result.commitData);
         w->refreshLog(m_workingDirectory);
         w->setEnabled(true);
     } else {
         // Nothing to commit left!
-        VcsOutputWindow::appendError(m_commitDataFetcher->errorMessage());
+        VcsOutputWindow::appendError(result.errorMessage);
         m_model->clear();
         w->setEnabled(false);
     }
-    m_commitDataFetcher->deleteLater();
-    m_commitDataFetcher = 0;
     w->setUpdateInProgress(false);
 }
 
@@ -316,5 +285,3 @@ QByteArray GitSubmitEditor::fileContents() const
 
 } // namespace Internal
 } // namespace Git
-
-#include "gitsubmiteditor.moc"
