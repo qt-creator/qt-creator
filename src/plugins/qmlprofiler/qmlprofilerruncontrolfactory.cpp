@@ -86,8 +86,7 @@ RunControl *QmlProfilerRunControlFactory::create(RunConfiguration *runConfigurat
     AnalyzerConnection connection;
     const QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(kit);
     if (version) {
-        QtSupport::QtVersionNumber versionNumber = version->qtVersion();
-        if (versionNumber.majorVersion >= 5 && versionNumber.minorVersion >= 6)
+        if (version->qtVersion() >= QtSupport::QtVersionNumber(5, 6, 0))
             connection.analyzerSocket = LocalQmlProfilerRunner::findFreeSocket();
         else
             connection.analyzerPort = LocalQmlProfilerRunner::findFreePort(connection.analyzerHost);
