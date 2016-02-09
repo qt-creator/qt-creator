@@ -29,7 +29,7 @@
 #include <coreplugin/fileiconprovider.h>
 #include <coreplugin/icore.h>
 
-#include <utils/QtConcurrentTools>
+#include <utils/runextensions.h>
 #include <utils/algorithm.h>
 
 #include <QDialogButtonBox>
@@ -82,7 +82,7 @@ void SelectableFilesModel::startParsing(const Utils::FileName &baseDir)
     m_rootForFuture->fullPath = baseDir;
     m_rootForFuture->isDir = true;
 
-    m_watcher.setFuture(QtConcurrent::run(&SelectableFilesModel::run, this));
+    m_watcher.setFuture(Utils::runAsync(&SelectableFilesModel::run, this));
 }
 
 void SelectableFilesModel::run(QFutureInterface<void> &fi)

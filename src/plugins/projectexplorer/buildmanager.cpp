@@ -49,7 +49,7 @@
 #include <QFutureWatcher>
 #include <QElapsedTimer>
 
-#include <utils/QtConcurrentTools>
+#include <utils/runextensions.h>
 
 #include <QApplication>
 
@@ -460,7 +460,7 @@ void BuildManager::nextStep()
             d->m_watcher.setFuture(d->m_futureInterfaceForAysnc.future());
             d->m_currentBuildStep->run(d->m_futureInterfaceForAysnc);
         } else {
-            d->m_watcher.setFuture(QtConcurrent::run(&BuildStep::run, d->m_currentBuildStep));
+            d->m_watcher.setFuture(Utils::runAsync(&BuildStep::run, d->m_currentBuildStep));
         }
     } else {
         d->m_running = false;
