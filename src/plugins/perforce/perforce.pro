@@ -8,7 +8,6 @@ HEADERS += \
     changenumberdialog.h \
     perforcesubmiteditor.h \
     pendingchangesdialog.h \
-    perforceconstants.h \
     perforceversioncontrol.h \
     perforcesettings.h \
     annotationhighlighter.h \

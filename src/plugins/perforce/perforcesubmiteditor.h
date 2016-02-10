@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PERFORCESUBMITEDITOR_H
-#define PERFORCESUBMITEDITOR_H
+#pragma once
 
 #include <vcsbase/vcsbasesubmiteditor.h>
 
@@ -75,5 +74,3 @@ private:
 
 } // namespace Internal
 } // namespace Perforce
-
-#endif // PERFORCESUBMITEDITOR_H

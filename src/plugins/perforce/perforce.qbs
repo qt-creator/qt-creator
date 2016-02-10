@@ -22,7 +22,6 @@ QtcPlugin {
         "perforce.qrc",
         "perforcechecker.cpp",
         "perforcechecker.h",
-        "perforceconstants.h",
         "perforceeditor.cpp",
         "perforceeditor.h",
         "perforceplugin.cpp",

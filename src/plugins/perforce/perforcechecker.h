@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PERFORCECHECKER_H
-#define PERFORCECHECKER_H
+#pragma once
 
 #include <QObject>
 #include <QProcess>
@@ -40,10 +39,9 @@ class PerforceChecker : public QObject
 {
     Q_OBJECT
 public:
-    explicit PerforceChecker(QObject *parent = 0);
+    explicit PerforceChecker(QObject *parent = nullptr);
     ~PerforceChecker();
 
-public slots:
     void start(const QString &binary,
                const QString &workingDirectory,
                const QStringList &basicArgs = QStringList(),
@@ -72,13 +70,11 @@ private:
 
     QProcess m_process;
     QString m_binary;
-    int m_timeOutMS;
-    bool m_timedOut;
-    bool m_useOverideCursor;
-    bool m_isOverrideCursor;
+    int m_timeOutMS = -1;
+    bool m_timedOut = false;
+    bool m_useOverideCursor = false;
+    bool m_isOverrideCursor = false;
 };
 
-}
-}
-
-#endif // PERFORCECHECKER_H
+} // namespace Internal
+} // namespace Perforce

@@ -26,13 +26,10 @@
 #include "perforcesubmiteditor.h"
 #include "perforcesubmiteditorwidget.h"
 #include "perforceplugin.h"
-#include "perforceconstants.h"
 
 #include <coreplugin/idocument.h>
 #include <vcsbase/submitfilemodel.h>
 #include <utils/qtcassert.h>
-
-#include <QDebug>
 
 namespace Perforce {
 namespace Internal {
@@ -62,15 +59,11 @@ QByteArray PerforceSubmitEditor::fileContents() const
         it.next();
         out << it.key() << ":" << it.value();
     }
-    if (Perforce::Constants::debug)
-        qDebug() << Q_FUNC_INFO << text;
     return text.toLocal8Bit();
 }
 
 bool PerforceSubmitEditor::setFileContents(const QByteArray &contents)
 {
-    if (Perforce::Constants::debug)
-        qDebug() << Q_FUNC_INFO << contents;
     if (!parseText(QString::fromUtf8(contents)))
         return false;
     updateFields();

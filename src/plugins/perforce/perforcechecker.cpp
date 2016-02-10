@@ -24,7 +24,6 @@
 ****************************************************************************/
 
 #include "perforcechecker.h"
-#include "perforceconstants.h"
 
 #include <utils/qtcassert.h>
 #include <utils/synchronousprocess.h>
@@ -40,12 +39,7 @@
 namespace Perforce {
 namespace Internal {
 
-PerforceChecker::PerforceChecker(QObject *parent) :
-    QObject(parent),
-    m_timeOutMS(-1),
-    m_timedOut(false),
-    m_useOverideCursor(false),
-    m_isOverrideCursor(false)
+PerforceChecker::PerforceChecker(QObject *parent) : QObject(parent)
 {
     connect(&m_process, static_cast<void (QProcess::*)(QProcess::ProcessError)>(&QProcess::error),
             this, &PerforceChecker::slotError);

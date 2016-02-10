@@ -26,7 +26,6 @@
 #include "perforceeditor.h"
 
 #include "annotationhighlighter.h"
-#include "perforceconstants.h"
 #include "perforceplugin.h"
 
 #include <coreplugin/editormanager/editormanager.h>
@@ -85,8 +84,6 @@ QSet<QString> PerforceEditorWidget::annotationChanges() const
             changes.insert(r.cap(1));
         }
     }
-    if (Perforce::Constants::debug)
-        qDebug() << "PerforceEditor::annotationChanges() returns #" << changes.size();
     return changes;
 }
 

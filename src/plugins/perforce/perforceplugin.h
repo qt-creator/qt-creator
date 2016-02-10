@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PERFORCEPLUGIN_H
-#define PERFORCEPLUGIN_H
+#pragma once
 
 #include "perforcesettings.h"
 
@@ -76,8 +75,7 @@ class PerforcePlugin : public VcsBase::VcsBasePlugin
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "Perforce.json")
 
 public:
-    PerforcePlugin();
-    ~PerforcePlugin();
+    PerforcePlugin() = default;
 
     bool initialize(const QStringList &arguments, QString *errorMessage);
     void extensionsInitialized();
@@ -105,19 +103,19 @@ public slots:
     void describe(const QString &source, const QString &n);
     void vcsAnnotate(const QString &workingDirectory, const QString &file,
                      const QString &revision, int lineNumber);
-    void p4Diff(const Perforce::Internal::PerforceDiffParameters &p);
+
+protected:
+    void updateActions(VcsBase::VcsBasePlugin::ActionState);
+    bool submitEditorAboutToClose();
 
 #ifdef WITH_TESTS
 private slots:
     void testLogResolving();
 #endif
 
-protected:
-    void updateActions(VcsBase::VcsBasePlugin::ActionState);
-    bool submitEditorAboutToClose();
-
-
 private:
+    void p4Diff(const PerforceDiffParameters &p);
+
     void openCurrentFile();
     void addCurrentFile();
     void revertCurrentFile();
@@ -149,8 +147,7 @@ private:
     public:
         DirectoryCacheEntry(bool isManaged, const QString &topLevel):
             m_isManaged(isManaged), m_topLevel(topLevel)
-        {
-        }
+        { }
 
         bool m_isManaged;
         QString m_topLevel;
@@ -216,36 +213,36 @@ private:
 
     static PerforceVersionControl *perforceVersionControl();
 
-    Core::CommandLocator *m_commandLocator;
-    Utils::ParameterAction *m_editAction;
-    Utils::ParameterAction *m_addAction;
-    Utils::ParameterAction *m_deleteAction;
-    QAction *m_openedAction;
-    Utils::ParameterAction *m_revertFileAction;
-    Utils::ParameterAction *m_diffFileAction;
-    Utils::ParameterAction *m_diffProjectAction;
-    Utils::ParameterAction *m_updateProjectAction;
-    Utils::ParameterAction *m_revertProjectAction;
-    Utils::ParameterAction *m_revertUnchangedAction;
-    QAction *m_diffAllAction;
-    Utils::ParameterAction *m_submitProjectAction;
-    QAction *m_pendingAction;
-    QAction *m_describeAction;
-    Utils::ParameterAction *m_annotateCurrentAction;
-    QAction *m_annotateAction;
-    Utils::ParameterAction *m_filelogCurrentAction;
-    QAction *m_filelogAction;
-    Utils::ParameterAction *m_logProjectAction;
-    QAction *m_logRepositoryAction;
-    QAction *m_submitCurrentLogAction;
-    QAction *m_updateAllAction;
-    bool m_submitActionTriggered;
-    QAction *m_diffSelectedFiles;
+    Core::CommandLocator *m_commandLocator = nullptr;
+    Utils::ParameterAction *m_editAction = nullptr;
+    Utils::ParameterAction *m_addAction = nullptr;
+    Utils::ParameterAction *m_deleteAction = nullptr;
+    QAction *m_openedAction = nullptr;
+    Utils::ParameterAction *m_revertFileAction = nullptr;
+    Utils::ParameterAction *m_diffFileAction = nullptr;
+    Utils::ParameterAction *m_diffProjectAction = nullptr;
+    Utils::ParameterAction *m_updateProjectAction = nullptr;
+    Utils::ParameterAction *m_revertProjectAction = nullptr;
+    Utils::ParameterAction *m_revertUnchangedAction = nullptr;
+    QAction *m_diffAllAction = nullptr;
+    Utils::ParameterAction *m_submitProjectAction = nullptr;
+    QAction *m_pendingAction = nullptr;
+    QAction *m_describeAction = nullptr;
+    Utils::ParameterAction *m_annotateCurrentAction = nullptr;
+    QAction *m_annotateAction = nullptr;
+    Utils::ParameterAction *m_filelogCurrentAction = nullptr;
+    QAction *m_filelogAction = nullptr;
+    Utils::ParameterAction *m_logProjectAction = nullptr;
+    QAction *m_logRepositoryAction = nullptr;
+    QAction *m_submitCurrentLogAction = nullptr;
+    QAction *m_updateAllAction = nullptr;
+    bool m_submitActionTriggered = false;
+    QAction *m_diffSelectedFiles = nullptr;
     QString m_commitMessageFileName;
     mutable QString m_tempFilePattern;
-    QAction *m_undoAction;
-    QAction *m_redoAction;
-    QAction *m_menuAction;
+    QAction *m_undoAction = nullptr;
+    QAction *m_redoAction = nullptr;
+    QAction *m_menuAction = nullptr;
 
     static PerforcePlugin *m_instance;
 
@@ -255,5 +252,3 @@ private:
 
 } // namespace Perforce
 } // namespace Internal
-
-#endif // PERFORCEPLUGIN_H

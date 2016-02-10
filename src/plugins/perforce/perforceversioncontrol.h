@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PERFORCEVERSIONCONTROL_H
-#define PERFORCEVERSIONCONTROL_H
+#pragma once
 
 #include <coreplugin/iversioncontrol.h>
 
@@ -66,7 +65,5 @@ private:
     PerforcePlugin *m_plugin;
 };
 
-} // Internal
-} // Perforce
-
-#endif // PERFORCEVERSIONCONTROL_H
+} // namespace Internal
+} // namespace Perforce

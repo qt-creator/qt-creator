@@ -30,8 +30,7 @@
 
 using namespace Perforce::Internal;
 
-PendingChangesDialog::PendingChangesDialog(const QString &data, QWidget *parent)
-    : QDialog(parent)
+PendingChangesDialog::PendingChangesDialog(const QString &data, QWidget *parent) : QDialog(parent)
 {
     m_ui.setupUi(this);
     if (!data.isEmpty()) {

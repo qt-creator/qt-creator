@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CHANGENUMBERDIALOG_H
-#define CHANGENUMBERDIALOG_H
+#pragma once
 
 #include <QDialog>
 
@@ -38,7 +37,7 @@ class ChangeNumberDialog : public QDialog
 {
     Q_OBJECT
 public:
-    ChangeNumberDialog(QWidget *parent = 0);
+    ChangeNumberDialog(QWidget *parent = nullptr);
     int number() const;
 
 private:
@@ -48,5 +47,3 @@ private:
 
 } // namespace Perforce
 } // namespace Internal
-
-#endif // CHANGENUMBERDIALOG_H

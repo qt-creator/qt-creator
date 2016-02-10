@@ -23,11 +23,9 @@
 **
 ****************************************************************************/
 
-#ifndef PERFORCESETTINGS_H
-#define PERFORCESETTINGS_H
+#pragma once
 
 #include <QString>
-#include <QScopedPointer>
 
 QT_BEGIN_NAMESPACE
 class QSettings;
@@ -55,10 +53,10 @@ struct Settings {
     QString p4User;
     QString errorString;
     int logCount;
-    bool defaultEnv;
+    bool defaultEnv = true;
     int timeOutS;
-    bool promptToSubmit;
-    bool autoOpen;
+    bool promptToSubmit = true;
+    bool autoOpen = true;
 };
 
 inline bool operator==(const Settings &s1, const Settings &s2) { return s1.equals(s2); }
@@ -80,11 +78,10 @@ inline bool operator!=(const Settings &s1, const Settings &s2) { return !s1.equa
 
 class PerforceSettings
 {
-    Q_DISABLE_COPY(PerforceSettings)
-
 public:
-    PerforceSettings();
+    PerforceSettings() = default;
     ~PerforceSettings();
+    PerforceSettings(const PerforceSettings &other) = delete;
 
     inline bool isValid() const
     {
@@ -139,10 +136,8 @@ private:
     Settings m_settings;
     QString m_topLevel;
     QString m_topLevelSymLinkTarget;
-    QScopedPointer<QDir> m_topLevelDir;
+    QDir *m_topLevelDir = nullptr;
 };
 
-} // Internal
-} // Perforce
-
-#endif // PERFORCESETTINGS_H
+} // namespace Internal
+} // namespace Perforce

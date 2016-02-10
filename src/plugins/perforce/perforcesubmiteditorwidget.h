@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PERFORCESUBMITEDITORWIDGET_H
-#define PERFORCESUBMITEDITORWIDGET_H
+#pragma once
 
 #include "ui_submitpanel.h"
 #include <vcsbase/submiteditorwidget.h>
@@ -48,5 +47,3 @@ private:
 
 } // namespace Internal
 } // namespace Perforce
-
-#endif // PERFORCESUBMITEDITORWIDGET_H

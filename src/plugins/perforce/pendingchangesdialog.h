@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PENDINGCHANGESDIALOG_H
-#define PENDINGCHANGESDIALOG_H
+#pragma once
 
 #include <QDialog>
 
@@ -38,7 +37,7 @@ class PendingChangesDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit PendingChangesDialog(const QString &data, QWidget *parent = 0);
+    explicit PendingChangesDialog(const QString &data, QWidget *parent = nullptr);
     int changeNumber() const;
 
 private:
@@ -47,6 +46,3 @@ private:
 
 } // namespace Perforce
 } // namespace Internal
-
-#endif // PENDINGCHANGESDIALOG_H
-

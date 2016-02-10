@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef ANNOTATIONHIGHLIGHTER_H
-#define ANNOTATIONHIGHLIGHTER_H
+#pragma once
 
 #include <vcsbase/baseannotationhighlighter.h>
 
@@ -37,15 +36,11 @@ class PerforceAnnotationHighlighter : public VcsBase::BaseAnnotationHighlighter
     Q_OBJECT
 public:
     explicit PerforceAnnotationHighlighter(const ChangeNumbers &changeNumbers,
-                                           QTextDocument *document = 0);
+                                           QTextDocument *document = nullptr);
 
 private:
-    QString changeNumber(const QString &block) const;
-
-    const QChar m_colon;
+    QString changeNumber(const QString &block) const override;
 };
 
 } // namespace Perforce
 } // namespace Internal
-
-#endif // ANNOTATIONHIGHLIGHTER_H

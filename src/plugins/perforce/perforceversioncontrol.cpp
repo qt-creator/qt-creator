@@ -25,7 +25,6 @@
 
 #include "perforceversioncontrol.h"
 #include "perforceplugin.h"
-#include "perforceconstants.h"
 #include "perforcesettings.h"
 
 #include <vcsbase/vcsbaseconstants.h>
@@ -38,8 +37,7 @@ namespace Internal {
 
 PerforceVersionControl::PerforceVersionControl(PerforcePlugin *plugin) :
     m_plugin(plugin)
-{
-}
+{ }
 
 QString PerforceVersionControl::displayName() const
 {
@@ -140,14 +138,7 @@ QString PerforceVersionControl::vcsMakeWritableText() const
 
 bool PerforceVersionControl::managesDirectory(const QString &directory, QString *topLevel) const
 {
-    const bool rc = m_plugin->managesDirectory(directory, topLevel);
-    if (Perforce::Constants::debug) {
-        QDebug nsp = qDebug().nospace();
-        nsp << "managesDirectory" << directory << rc;
-        if (topLevel)
-            nsp << topLevel;
-    }
-    return rc;
+    return m_plugin->managesDirectory(directory, topLevel);
 }
 
 bool PerforceVersionControl::managesFile(const QString &workingDirectory, const QString &fileName) const

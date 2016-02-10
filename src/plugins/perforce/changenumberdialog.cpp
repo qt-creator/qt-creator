@@ -29,8 +29,7 @@
 
 using namespace Perforce::Internal;
 
-ChangeNumberDialog::ChangeNumberDialog(QWidget *parent)
-    : QDialog(parent)
+ChangeNumberDialog::ChangeNumberDialog(QWidget *parent) : QDialog(parent)
 {
     m_ui.setupUi(this);
     m_ui.numberLineEdit->setValidator(new QIntValidator(0, 1000000, this));

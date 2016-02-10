@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PERFORCEEDITOR_H
-#define PERFORCEEDITOR_H
+#pragma once
 
 #include <vcsbase/vcsbaseeditor.h>
 
@@ -53,5 +52,3 @@ private:
 
 } // namespace Perforce
 } // namespace Internal
-
-#endif // PERFORCEEDITOR_H

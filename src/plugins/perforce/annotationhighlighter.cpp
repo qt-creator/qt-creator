@@ -30,14 +30,12 @@ namespace Internal {
 
 PerforceAnnotationHighlighter::PerforceAnnotationHighlighter(const ChangeNumbers &changeNumbers,
                                                              QTextDocument *document) :
-    VcsBase::BaseAnnotationHighlighter(changeNumbers, document),
-    m_colon(QLatin1Char(':'))
-{
-}
+    VcsBase::BaseAnnotationHighlighter(changeNumbers, document)
+{ }
 
 QString PerforceAnnotationHighlighter::changeNumber(const QString &block) const
 {
-    const int pos = block.indexOf(m_colon);
+    const int pos = block.indexOf(QLatin1Char(':'));
     return pos > 1 ? block.left(pos) : QString();
 }
 

@@ -25,13 +25,11 @@
 
 #include "perforcesettings.h"
 #include "perforceplugin.h"
-#include "perforceconstants.h"
 
 #include <utils/qtcassert.h>
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
 
-#include <QDebug>
 #include <QSettings>
 #include <QStringList>
 #include <QCoreApplication>
@@ -59,14 +57,8 @@ static QString defaultCommand()
 namespace Perforce {
 namespace Internal {
 
-Settings::Settings() :
-    logCount(defaultLogCount),
-    defaultEnv(true),
-    timeOutS(defaultTimeOutS),
-    promptToSubmit(true),
-    autoOpen(true)
-{
-}
+Settings::Settings() : logCount(defaultLogCount), timeOutS(defaultTimeOutS)
+{ }
 
 bool Settings::equals(const Settings &rhs) const
 {
@@ -93,12 +85,9 @@ QStringList Settings::commonP4Arguments() const
 }
 
 // --------------------PerforceSettings
-PerforceSettings::PerforceSettings()
-{
-}
-
 PerforceSettings::~PerforceSettings()
 {
+    delete m_topLevelDir;
 }
 
 void PerforceSettings::fromSettings(QSettings *settings)
@@ -220,21 +209,20 @@ void PerforceSettings::setTopLevel(const QString &t)
         } else {
             m_topLevelSymLinkTarget = m_topLevel = t;
         }
-        m_topLevelDir.reset(new QDir(m_topLevelSymLinkTarget));
-        if (Perforce::Constants::debug)
-            qDebug() << "PerforceSettings::setTopLevel" << m_topLevel << m_topLevelSymLinkTarget;
+        m_topLevelDir =  new QDir(m_topLevelSymLinkTarget);
     }
 }
 
 void PerforceSettings::clearTopLevel()
 {
-    m_topLevelDir.reset();
+    delete m_topLevelDir;
+    m_topLevelDir = nullptr;
     m_topLevel.clear();
 }
 
 QString PerforceSettings::relativeToTopLevel(const QString &dir) const
 {
-    QTC_ASSERT(!m_topLevelDir.isNull(), return QLatin1String("../") + dir);
+    QTC_ASSERT(m_topLevelDir, return QLatin1String("../") + dir);
     return m_topLevelDir->relativeFilePath(dir);
 }
 

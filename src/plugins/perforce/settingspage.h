@@ -23,10 +23,8 @@
 **
 ****************************************************************************/
 
-#ifndef SETTINGSPAGE_H
-#define SETTINGSPAGE_H
+#pragma once
 
-#include <QPointer>
 #include <QWidget>
 
 #include <vcsbase/vcsbaseoptionspage.h>
@@ -46,6 +44,7 @@ class SettingsPageWidget : public QWidget
 
 public:
     explicit SettingsPageWidget(QWidget *parent = 0);
+    ~SettingsPageWidget() override;
 
     void setSettings(const PerforceSettings &);
     Settings settings() const;
@@ -57,7 +56,7 @@ private:
     void testSucceeded(const QString &repo);
 
     Ui::SettingsPage m_ui;
-    QPointer<PerforceChecker> m_checker;
+    PerforceChecker *m_checker = nullptr;
 };
 
 class SettingsPage : public VcsBase::VcsBaseOptionsPage
@@ -66,16 +65,15 @@ class SettingsPage : public VcsBase::VcsBaseOptionsPage
 
 public:
     SettingsPage();
+    ~SettingsPage() override;
 
-    QWidget *widget();
-    void apply();
-    void finish();
+    QWidget *widget() override;
+    void apply() override;
+    void finish() override;
 
 private:
-    QPointer<SettingsPageWidget> m_widget;
+    SettingsPageWidget *m_widget = nullptr;
 };
 
 } // namespace Internal
 } // namespace Perforce
-
-#endif // SETTINGSPAGE_H

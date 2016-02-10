@@ -49,13 +49,18 @@ SettingsPageWidget::SettingsPageWidget(QWidget *parent) :
     connect(m_ui.testPushButton, &QPushButton::clicked, this, &SettingsPageWidget::slotTest);
 }
 
+SettingsPageWidget::~SettingsPageWidget()
+{
+    delete m_checker;
+}
+
 void SettingsPageWidget::slotTest()
 {
     if (!m_checker) {
         m_checker = new PerforceChecker(this);
         m_checker->setUseOverideCursor(true);
-        connect(m_checker.data(), &PerforceChecker::failed, this, &SettingsPageWidget::setStatusError);
-        connect(m_checker.data(), &PerforceChecker::succeeded, this, &SettingsPageWidget::testSucceeded);
+        connect(m_checker, &PerforceChecker::failed, this, &SettingsPageWidget::setStatusError);
+        connect(m_checker, &PerforceChecker::succeeded, this, &SettingsPageWidget::testSucceeded);
     }
 
     if (m_checker->isRunning())
@@ -118,6 +123,11 @@ SettingsPage::SettingsPage()
     setDisplayName(tr("Perforce"));
 }
 
+SettingsPage::~SettingsPage()
+{
+    delete m_widget;
+}
+
 QWidget *SettingsPage::widget()
 {
     if (!m_widget) {
@@ -135,4 +145,5 @@ void SettingsPage::apply()
 void SettingsPage::finish()
 {
     delete m_widget;
+    m_widget = nullptr;
 }
