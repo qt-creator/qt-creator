@@ -38,10 +38,9 @@ public:
     void fetch(const QString &url) override;
     void paste(const QString &, ContentType, int, const QString &, const QString &, const QString &) override;
 
-private slots:
+private:
     void fetchFinished();
 
-private:
     QNetworkReply *m_fetchReply = nullptr;
 };
 

@@ -45,8 +45,8 @@ public:
 
     void extensionsInitialized() override;
 
-private slots:
 #ifdef WITH_TESTS
+private slots:
     void testCMakeParser_data();
     void testCMakeParser();
 #endif

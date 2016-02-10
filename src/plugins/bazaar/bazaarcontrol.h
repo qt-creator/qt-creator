@@ -64,7 +64,6 @@ public:
                                                      const QString &localName,
                                                      const QStringList &extraArgs) override;
 
-public slots:
     // To be connected to the VCSTask's success signal to emit the repository/
     // files changed signals according to the variant's type:
     // String -> repository, StringList -> files

@@ -40,8 +40,10 @@ class CheckOutDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit CheckOutDialog(const QString &fileName, bool isUcm, bool showComment, QWidget *parent = 0);
-    ~CheckOutDialog();
+    explicit CheckOutDialog(const QString &fileName, bool isUcm, bool showComment,
+                            QWidget *parent = nullptr);
+    ~CheckOutDialog() override;
+
     QString activity() const;
     QString comment() const;
     bool isReserved() const;
@@ -51,10 +53,10 @@ public:
     void hideHijack();
 
     void hideComment();
-private slots:
-    void toggleUnreserved(bool checked);
 
 private:
+    void toggleUnreserved(bool checked);
+
     Ui::CheckOutDialog *ui;
     ActivitySelector *m_actSelector = nullptr;
 };

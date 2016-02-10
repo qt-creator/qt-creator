@@ -43,10 +43,9 @@ public:
     QStringList extraOptions() const;
     QString revision() const;
 
-private slots:
+private:
     void dryRun();
 
-private:
     Ui::UnCommitDialog *m_ui;
 };
 

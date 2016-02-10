@@ -49,7 +49,6 @@ class CodePasterServiceImpl : public QObject, public CodePaster::Service
 public:
     explicit CodePasterServiceImpl(QObject *parent = 0);
 
-public slots:
     void postText(const QString &text, const QString &mimeType) override;
     void postCurrentEditor() override;
     void postClipboard() override;

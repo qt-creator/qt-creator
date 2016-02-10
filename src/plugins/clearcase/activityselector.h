@@ -49,13 +49,11 @@ public:
     bool refresh();
     bool changed() { return m_changed; }
 
-public slots:
     void newActivity();
 
-private slots:
+private:
     void userChanged();
 
-private:
     ClearCasePlugin *m_plugin;
     bool m_changed = false;
     QComboBox *m_cmbActivity;

@@ -164,19 +164,19 @@ public:
     inline bool isFakeCleartool() const { return m_fakeClearTool; }
 #endif
 
-public slots:
     void vcsAnnotate(const QString &workingDir, const QString &file,
                      const QString &revision = QString(), int lineNumber = -1) const;
     bool newActivity();
     void updateStreamAndView();
 
-private slots:
-    void annotateVersion(const QString &workingDirectory, const QString &file, const QString &revision, int lineNumber);
-    void describe(const QString &source, const QString &changeNr);
-    void syncSlot();
-    void updateStatusActions();
+protected:
+    void updateActions(VcsBase::VcsBasePlugin::ActionState) override;
+    bool submitEditorAboutToClose() override;
+    QString ccGet(const QString &workingDir, const QString &file, const QString &prefix = QString());
+    QList<QStringPair> ccGetActivities() const;
 
 #ifdef WITH_TESTS
+private slots:
     void initTestCase();
     void cleanupTestCase();
     void testDiffFileResolving_data();
@@ -194,13 +194,12 @@ private slots:
     void testVcsStatusDynamicNotManaged();
 #endif
 
-protected:
-    void updateActions(VcsBase::VcsBasePlugin::ActionState) override;
-    bool submitEditorAboutToClose() override;
-    QString ccGet(const QString &workingDir, const QString &file, const QString &prefix = QString());
-    QList<QStringPair> ccGetActivities() const;
-
 private:
+    void annotateVersion(const QString &workingDirectory, const QString &file, const QString &revision, int lineNumber);
+    void describe(const QString &source, const QString &changeNr);
+    void syncSlot();
+    void updateStatusActions();
+
     void checkOutCurrentFile();
     void addCurrentFile();
     void undoCheckOutCurrent();

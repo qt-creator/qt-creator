@@ -57,8 +57,8 @@ private:
     ClearCasePlugin *const m_plugin;
     QSharedPointer<StatusMap> m_statusMap;
 
-public slots:
 #ifdef WITH_TESTS
+public slots:
     void verifyParseStatus(const QString &fileName, const QString &cleartoolLsLine,
                            const FileStatus::Status);
     void verifyFileNotManaged();
@@ -66,7 +66,6 @@ public slots:
     void verifyFileCheckedOutDynamicView();
     void verifyFileCheckedInDynamicView();
     void verifyFileNotManagedDynamicView();
-
 #endif
 };
 

@@ -42,6 +42,7 @@ using namespace CodePaster;
 class PasteReceiver : public QObject
 {
     Q_OBJECT
+
 public:
     PasteReceiver(const QString &protocol, const QString &filePath) : m_filePath(filePath)
     {
@@ -55,7 +56,6 @@ public:
             qFatal("Internal error: Invalid protocol.");
     }
 
-public slots:
     void paste()
     {
         QFile file(m_filePath);
@@ -76,14 +76,13 @@ public slots:
         m_protocol->paste(content);
     }
 
-private slots:
+private:
     void handlePasteDone(const QString &link)
     {
         std::cout << qPrintable(link) << std::endl;
         qApp->quit();
     }
 
-private:
     const QString m_filePath;
     QScopedPointer<Protocol> m_protocol;
 };
