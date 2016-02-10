@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef MERCURIALSETTINGS_H
-#define MERCURIALSETTINGS_H
+#pragma once
 
 #include <vcsbase/vcsbaseclientsettings.h>
 
@@ -42,5 +41,3 @@ public:
 
 } // namespace Internal
 } // namespace Mercurial
-
-#endif // MERCURIALSETTINGS_H

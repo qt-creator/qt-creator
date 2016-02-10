@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef COMMITEDITOR_H
-#define COMMITEDITOR_H
+#pragma once
 
 #include <vcsbase/vcsbaseclient.h>
 #include <vcsbase/vcsbasesubmiteditor.h>
@@ -54,10 +53,8 @@ public:
 
 private:
     MercurialCommitWidget *commitWidget();
-    VcsBase::SubmitFileModel *fileModel;
+    VcsBase::SubmitFileModel *fileModel = nullptr;
 };
 
 } // namespace Internal
 } // namespace Mercurial
-
-#endif // COMMITEDITOR_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef ANNOTATIONHIGHLIGHTER_H
-#define ANNOTATIONHIGHLIGHTER_H
+#pragma once
 
 #include <vcsbase/baseannotationhighlighter.h>
 #include <QRegExp>
@@ -39,10 +38,9 @@ public:
                                             QTextDocument *document = 0);
 
 private:
-    QString changeNumber(const QString &block) const;
+    QString changeNumber(const QString &block) const override;
     mutable QRegExp changeset;
 };
 
 } //namespace Internal
 }// namespace Mercurial
-#endif // ANNOTATIONHIGHLIGHTER_H

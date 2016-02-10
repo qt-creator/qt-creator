@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SRCDESTDIALOG_H
-#define SRCDESTDIALOG_H
+#pragma once
 
 #include <utils/pathchooser.h>
 #include <QDialog>
@@ -41,7 +40,7 @@ class SrcDestDialog : public QDialog
 public:
     enum Direction { outgoing, incoming };
     explicit SrcDestDialog(Direction dir, QWidget *parent = 0);
-    ~SrcDestDialog();
+    ~SrcDestDialog() override;
 
     void setPathChooserKind(Utils::PathChooser::Kind kind);
     QString getRepositoryString() const;
@@ -58,5 +57,3 @@ private:
 
 } // namespace Internal
 } // namespace Mercurial
-
-#endif // SRCDESTDIALOG_H

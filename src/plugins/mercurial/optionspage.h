@@ -23,19 +23,13 @@
 **
 ****************************************************************************/
 
-#ifndef OPTIONSPAGE_H
-#define OPTIONSPAGE_H
+#pragma once
 
 #include "ui_optionspage.h"
 
 #include <vcsbase/vcsbaseoptionspage.h>
 
-#include <QWidget>
-#include <QPointer>
-
-namespace VcsBase {
-class VcsBaseClientSettings;
-} // namespace VcsBase
+namespace VcsBase { class VcsBaseClientSettings; }
 
 namespace Mercurial {
 namespace Internal {
@@ -47,13 +41,12 @@ class OptionsPageWidget : public VcsBase::VcsClientOptionsPageWidget
 public:
     explicit OptionsPageWidget(QWidget *parent = 0);
 
-    VcsBase::VcsBaseClientSettings settings() const;
-    void setSettings(const VcsBase::VcsBaseClientSettings &s);
+    VcsBase::VcsBaseClientSettings settings() const override;
+    void setSettings(const VcsBase::VcsBaseClientSettings &s) override;
 
 private:
     Ui::OptionsPage m_ui;
 };
-
 
 class OptionsPage : public VcsBase::VcsClientOptionsPage
 {
@@ -65,5 +58,3 @@ public:
 
 } // namespace Internal
 } // namespace Mercurial
-
-#endif // OPTIONSPAGE_H

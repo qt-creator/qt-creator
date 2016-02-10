@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef MERCURIAL_REVERTDIALOG_H
-#define MERCURIAL_REVERTDIALOG_H
+#pragma once
 
 #include "ui_revertdialog.h"
 
@@ -39,7 +38,7 @@ class RevertDialog : public QDialog
 
 public:
     RevertDialog(QWidget *parent = 0);
-    ~RevertDialog();
+    ~RevertDialog() override;
 
     QString revision() const;
 
@@ -49,5 +48,3 @@ private:
 
 } // namespace Internal
 } // namespace Mercurial
-
-#endif // MERCURIAL_REVERTDIALOG_H

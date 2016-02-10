@@ -63,11 +63,10 @@ private:
     MercurialClient *m_client;
 };
 
-MercurialControl::MercurialControl(MercurialClient *client)
-    : Core::IVersionControl(new MercurialTopicCache(client))
-    , mercurialClient(client)
-{
-}
+MercurialControl::MercurialControl(MercurialClient *client) :
+    Core::IVersionControl(new MercurialTopicCache(client)),
+    mercurialClient(client)
+{ }
 
 QString MercurialControl::displayName() const
 {

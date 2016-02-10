@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef MERCURIALPLUGIN_H
-#define MERCURIALPLUGIN_H
+#pragma once
 
 #include "mercurialsettings.h"
 
@@ -64,11 +63,16 @@ class MercurialPlugin : public VcsBase::VcsBasePlugin
 
 public:
     MercurialPlugin();
-    ~MercurialPlugin();
-    bool initialize(const QStringList &arguments, QString *errorMessage);
+    ~MercurialPlugin() override;
+
+    bool initialize(const QStringList &arguments, QString *errorMessage) override;
 
     static MercurialPlugin *instance() { return m_instance; }
     static MercurialClient *client() { return m_instance->m_client; }
+
+protected:
+    void updateActions(VcsBase::VcsBasePlugin::ActionState) override;
+    bool submitEditorAboutToClose() override;
 
 #ifdef WITH_TESTS
 private slots:
@@ -76,10 +80,6 @@ private slots:
     void testDiffFileResolving();
     void testLogResolving();
 #endif
-
-protected:
-    void updateActions(VcsBase::VcsBasePlugin::ActionState);
-    bool submitEditorAboutToClose();
 
 private:
     // File menu action slots
@@ -131,39 +131,36 @@ private:
 
     // Variables
     static MercurialPlugin *m_instance;
-    OptionsPage *optionsPage;
-    MercurialClient *m_client;
+    OptionsPage *optionsPage = nullptr;
+    MercurialClient *m_client = nullptr;
 
-    Core::ICore *core;
-    Core::CommandLocator *m_commandLocator;
-    Core::ActionContainer *m_mercurialContainer;
+    Core::CommandLocator *m_commandLocator = nullptr;
+    Core::ActionContainer *m_mercurialContainer = nullptr;
 
     QList<QAction *> m_repositoryActionList;
 
     // Menu items (file actions)
-    Utils::ParameterAction *m_addAction;
-    Utils::ParameterAction *m_deleteAction;
-    Utils::ParameterAction *annotateFile;
-    Utils::ParameterAction *diffFile;
-    Utils::ParameterAction *logFile;
-    Utils::ParameterAction *renameFile;
-    Utils::ParameterAction *revertFile;
-    Utils::ParameterAction *statusFile;
+    Utils::ParameterAction *m_addAction = nullptr;
+    Utils::ParameterAction *m_deleteAction = nullptr;
+    Utils::ParameterAction *annotateFile = nullptr;
+    Utils::ParameterAction *diffFile = nullptr;
+    Utils::ParameterAction *logFile = nullptr;
+    Utils::ParameterAction *renameFile = nullptr;
+    Utils::ParameterAction *revertFile = nullptr;
+    Utils::ParameterAction *statusFile = nullptr;
 
-    QAction *m_createRepositoryAction;
+    QAction *m_createRepositoryAction = nullptr;
     // Submit editor actions
-    QAction *editorCommit;
-    QAction *editorDiff;
-    QAction *editorUndo;
-    QAction *editorRedo;
-    QAction *m_menuAction;
+    QAction *editorCommit = nullptr;
+    QAction *editorDiff = nullptr;
+    QAction *editorUndo = nullptr;
+    QAction *editorRedo = nullptr;
+    QAction *m_menuAction = nullptr;
 
     QString m_submitRepository;
 
-    bool m_submitActionTriggered;
+    bool m_submitActionTriggered = false;
 };
 
 } // namespace Internal
 } // namespace Mercurial
-
-#endif // MERCURIALPLUGIN_H

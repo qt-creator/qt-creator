@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef MERCURIALCOMMITWIDGET_H
-#define MERCURIALCOMMITWIDGET_H
+#pragma once
 
 #include "ui_mercurialcommitpanel.h"
 
@@ -49,7 +48,7 @@ public:
     QString repoRoot();
 
 protected:
-    QString cleanupDescription(const QString &input) const;
+    QString cleanupDescription(const QString &input) const override;
 
 private:
     QWidget *mercurialCommitPanel;
@@ -58,5 +57,3 @@ private:
 
 } // namespace Internal
 } // namespace Mercurial
-
-#endif // MERCURIALCOMMITWIDGET_H

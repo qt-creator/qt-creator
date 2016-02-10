@@ -112,8 +112,8 @@ void MercurialSubmitHighlighter::highlightBlock(const QString &text)
 }
 
 
-MercurialCommitWidget::MercurialCommitWidget()
-    : mercurialCommitPanel(new QWidget)
+MercurialCommitWidget::MercurialCommitWidget() :
+    mercurialCommitPanel(new QWidget)
 {
     mercurialCommitPanelUi.setupUi(mercurialCommitPanel);
     insertTopWidget(mercurialCommitPanel);

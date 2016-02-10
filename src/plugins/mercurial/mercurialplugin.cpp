@@ -102,16 +102,7 @@ static const VcsBaseSubmitEditorParameters submitEditorParameters = {
 
 MercurialPlugin *MercurialPlugin::m_instance = 0;
 
-MercurialPlugin::MercurialPlugin() :
-        optionsPage(0),
-        m_client(0),
-        core(0),
-        m_commandLocator(0),
-        m_addAction(0),
-        m_deleteAction(0),
-        m_createRepositoryAction(0),
-        m_menuAction(0),
-        m_submitActionTriggered(false)
+MercurialPlugin::MercurialPlugin()
 {
     m_instance = this;
 }
@@ -120,10 +111,10 @@ MercurialPlugin::~MercurialPlugin()
 {
     if (m_client) {
         delete m_client;
-        m_client = 0;
+        m_client = nullptr;
     }
 
-    m_instance = 0;
+    m_instance = nullptr;
 }
 
 bool MercurialPlugin::initialize(const QStringList & /* arguments */, QString * /*errorMessage */)

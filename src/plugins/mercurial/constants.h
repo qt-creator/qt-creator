@@ -23,8 +23,9 @@
 **
 ****************************************************************************/
 
-#ifndef MERCURIAL_CONSTANTS_H
-#define MERCURIAL_CONSTANTS_H
+#pragma once
+
+#include <QtGlobal>
 
 namespace Mercurial {
 namespace Constants {
@@ -90,5 +91,3 @@ const char DIFFEDITOR[] = "Mercurial.Action.Editor.Diff";
 
 } // namespace Constants
 } // namespace mercurial
-
-#endif // MERCURIAL_CONSTANTS_H

@@ -23,15 +23,14 @@
 **
 ****************************************************************************/
 
-#ifndef MERCURIALCLIENT_H
-#define MERCURIALCLIENT_H
+#pragma once
 
 #include "mercurialsettings.h"
 #include <vcsbase/vcsbaseclient.h>
 
 namespace Mercurial {
 namespace Internal {
-struct MercurialDiffParameters;
+class MercurialDiffParameters;
 
 class MercurialClient : public VcsBase::VcsBaseClient
 {
@@ -42,10 +41,10 @@ public:
     bool synchronousClone(const QString &workingDir,
                           const QString &srcLocation,
                           const QString &dstLocation,
-                          const QStringList &extraOptions = QStringList());
+                          const QStringList &extraOptions = QStringList()) override;
     bool synchronousPull(const QString &workingDir,
                          const QString &srcLocation,
-                         const QStringList &extraOptions = QStringList());
+                         const QStringList &extraOptions = QStringList()) override;
     bool manifestSync(const QString &repository, const QString &filename);
     QString branchQuerySync(const QString &repositoryRoot);
     QStringList parentRevisionsSync(const QString &workingDirectory,
@@ -60,28 +59,26 @@ public:
 
     void annotate(const QString &workingDir, const QString &file,
                   const QString &revision = QString(), int lineNumber = -1,
-                  const QStringList &extraOptions = QStringList());
+                  const QStringList &extraOptions = QStringList()) override;
     void commit(const QString &repositoryRoot, const QStringList &files,
                 const QString &commitMessageFile,
-                const QStringList &extraOptions = QStringList());
+                const QStringList &extraOptions = QStringList()) override;
     void diff(const QString &workingDir, const QStringList &files = QStringList(),
-              const QStringList &extraOptions = QStringList());
+              const QStringList &extraOptions = QStringList()) override;
     void import(const QString &repositoryRoot, const QStringList &files,
-                const QStringList &extraOptions = QStringList());
+                const QStringList &extraOptions = QStringList()) override;
     void revertAll(const QString &workingDir, const QString &revision = QString(),
-                   const QStringList &extraOptions = QStringList());
+                   const QStringList &extraOptions = QStringList()) override;
 
-public slots:
     void view(const QString &source, const QString &id,
-              const QStringList &extraOptions = QStringList());
+              const QStringList &extraOptions = QStringList()) override;
 
-public:
-    QString findTopLevelForFile(const QFileInfo &file) const;
+    QString findTopLevelForFile(const QFileInfo &file) const override;
 
 protected:
-    Core::Id vcsEditorKind(VcsCommandTag cmd) const;
-    QStringList revisionSpec(const QString &revision) const;
-    StatusItem parseStatusLine(const QString &line) const;
+    Core::Id vcsEditorKind(VcsCommandTag cmd) const override;
+    QStringList revisionSpec(const QString &revision) const override;
+    StatusItem parseStatusLine(const QString &line) const override;
 
 signals:
     void needUpdate();
@@ -93,5 +90,3 @@ private:
 
 } //namespace Internal
 } //namespace Mercurial
-
-#endif // MERCURIALCLIENT_H

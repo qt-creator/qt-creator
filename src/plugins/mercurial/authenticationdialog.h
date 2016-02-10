@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef AUTHENTICATIONDIALOG_H
-#define AUTHENTICATIONDIALOG_H
+#pragma once
 
 #include <QDialog>
 
@@ -39,7 +38,7 @@ class AuthenticationDialog : public QDialog
 
 public:
     explicit AuthenticationDialog(const QString &username, const QString &password, QWidget *parent = 0);
-    ~AuthenticationDialog();
+    ~AuthenticationDialog() override;
     void setPasswordEnabled(bool enabled);
     QString getUserName();
     QString getPassword();
@@ -50,5 +49,3 @@ private:
 
 } // namespace Internal
 } // namespace Mercurial
-
-#endif // AUTHENTICATIONDIALOG_H

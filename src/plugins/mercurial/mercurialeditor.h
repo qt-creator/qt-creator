@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef MERCURIALEDITOR_H
-#define MERCURIALEDITOR_H
+#pragma once
 
 #include <vcsbase/vcsbaseeditor.h>
 
@@ -55,5 +54,3 @@ private:
 
 } // namespace Internal
 } // namespace Mercurial
-
-#endif // MERCURIALEDITOR_H

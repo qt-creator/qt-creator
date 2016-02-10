@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef MERCURIALCONTROL_H
-#define MERCURIALCONTROL_H
+#pragma once
 
 #include <coreplugin/iversioncontrol.h>
 
@@ -39,7 +38,7 @@ class MercurialClient;
 
 // Implements just the basics of the Version Control Interface
 // MercurialClient handles all the work.
-class MercurialControl: public Core::IVersionControl
+class MercurialControl : public Core::IVersionControl
 {
     Q_OBJECT
 
@@ -73,10 +72,8 @@ public slots:
     void changed(const QVariant&);
 
 private:
-    MercurialClient *mercurialClient;
+    MercurialClient *const mercurialClient;
 };
 
 } // namespace Internal
 } // namespace Mercurial
-
-#endif // MERCURIALCONTROL_H
