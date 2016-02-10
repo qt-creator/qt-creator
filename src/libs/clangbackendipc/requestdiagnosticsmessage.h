@@ -46,7 +46,6 @@ public:
 
 private:
     FileContainer file_;
-    quint32 documentRevision_;
 };
 
 CMBIPC_EXPORT QDataStream &operator<<(QDataStream &out, const RequestDiagnosticsMessage &message);
