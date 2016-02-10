@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CPASTERPLUGIN_H
-#define CPASTERPLUGIN_H
+#pragma once
 
 #include "codepasterservice.h"
 
@@ -40,7 +39,7 @@ QT_END_NAMESPACE
 namespace CodePaster {
 class CustomFetcher;
 class CustomPoster;
-struct Settings;
+class Settings;
 class Protocol;
 
 class CodePasterServiceImpl : public QObject, public CodePaster::Service
@@ -77,7 +76,10 @@ public:
 
     static CodepasterPlugin *instance();
 
-public slots:
+    void post(PasteSources pasteSources);
+    void post(QString data, const QString &mimeType);
+
+private:
     void pasteSnippet();
     void fetch();
     void finishPost(const QString &link);
@@ -85,10 +87,7 @@ public slots:
                      const QString &content,
                      bool error);
 
-    void post(PasteSources pasteSources);
-    void post(QString data, const QString &mimeType);
     void fetchUrl();
-private:
 
     static CodepasterPlugin *m_instance;
     const QSharedPointer<Settings> m_settings;
@@ -103,5 +102,3 @@ private:
 Q_DECLARE_OPERATORS_FOR_FLAGS(CodepasterPlugin::PasteSources)
 
 } // namespace CodePaster
-
-#endif // CPASTERPLUGIN_H

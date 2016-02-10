@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PASTESELECTDIALOG_H
-#define PASTESELECTDIALOG_H
+#pragma once
 
 #include "ui_pasteselect.h"
 
@@ -50,14 +49,11 @@ public:
 
     int protocolIndex() const;
 
-signals:
-
-private slots:
+private:
     void protocolChanged(int);
     void list();
     void listDone(const QString &name, const QStringList &items);
 
-private:
     const QList<Protocol*> m_protocols;
 
     Internal::Ui::PasteSelectDialog m_ui;
@@ -65,5 +61,3 @@ private:
 };
 
 } // namespace CodePaster
-
-#endif // PASTESELECTDIALOG_H

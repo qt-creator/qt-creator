@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef FILESHAREPROTOCOLSETTINGSPAGE_H
-#define FILESHAREPROTOCOLSETTINGSPAGE_H
+#pragma once
 
 #include <coreplugin/dialogs/ioptionspage.h>
 #include "ui_fileshareprotocolsettingswidget.h"
@@ -39,7 +38,8 @@ QT_END_NAMESPACE
 
 namespace CodePaster {
 
-struct FileShareProtocolSettings {
+class FileShareProtocolSettings {
+public:
     FileShareProtocolSettings();
     void toSettings(QSettings *) const;
     void fromSettings(const QSettings *);
@@ -74,14 +74,12 @@ public:
     explicit FileShareProtocolSettingsPage(const QSharedPointer<FileShareProtocolSettings> &s,
                                            QObject *parent = 0);
 
-    QWidget *widget();
-    void apply();
-    void finish() { }
+    QWidget *widget() override;
+    void apply() override;
+    void finish() override { }
 
 private:
     const QSharedPointer<FileShareProtocolSettings> m_settings;
     QPointer<FileShareProtocolSettingsWidget> m_widget;
 };
 } // namespace CodePaster
-
-#endif // FILESHAREPROTOCOLSETTINGSPAGE_H

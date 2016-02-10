@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CODEPASTERSERVICE_H
-#define CODEPASTERSERVICE_H
+#pragma once
 
 #include <QObject>
 #include <QString>
@@ -41,11 +40,8 @@ public:
     virtual void postClipboard() = 0;
 };
 
-} // CodePaster
+} // namespace CodePaster
 
 QT_BEGIN_NAMESPACE
 Q_DECLARE_INTERFACE(CodePaster::Service, "CodePaster::Service")
 QT_END_NAMESPACE
-
-#endif // CODEPASTERSERVICE_H
-

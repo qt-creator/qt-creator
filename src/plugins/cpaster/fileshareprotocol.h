@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef FILESHAREPROTOCOL_H
-#define FILESHAREPROTOCOL_H
+#pragma once
 
 #include "protocol.h"
 
@@ -33,7 +32,7 @@
 namespace CodePaster {
 
 class FileShareProtocolSettingsPage;
-struct FileShareProtocolSettings;
+class FileShareProtocolSettings;
 
 /* FileShareProtocol: Allows for pasting via a shared network
  * drive by writing XML files. */
@@ -66,5 +65,3 @@ private:
 };
 
 } // namespace CodePaster
-
-#endif // FILESHAREPROTOCOL_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PROTOCOL_H
-#define PROTOCOL_H
+#pragma once
 
 #include <QObject>
 #include <QScopedPointer>
@@ -55,7 +54,7 @@ public:
         PostUserNameCapability = 0x8
     };
 
-    virtual ~Protocol();
+    ~Protocol() override;
 
     virtual QString name() const = 0;
 
@@ -108,7 +107,7 @@ class NetworkProtocol : public Protocol
     Q_OBJECT
 
 public:
-    virtual ~NetworkProtocol();
+    ~NetworkProtocol() override;
 
 protected:
     QNetworkReply *httpGet(const QString &url);
@@ -120,5 +119,3 @@ protected:
 };
 
 } //namespace CodePaster
-
-#endif // PROTOCOL_H

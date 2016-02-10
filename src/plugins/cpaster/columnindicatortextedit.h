@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef COLUMNINDICATORTEXTEDIT_H
-#define COLUMNINDICATORTEXTEDIT_H
+#pragma once
 
 #include <QTextEdit>
 
@@ -45,6 +44,5 @@ private:
     int m_columnIndicator = 0;
     QFont m_columnIndicatorFont;
 };
-} // namespace CodePaster
 
-#endif // COLUMNINDICATORTEXTEDIT_H
+} // namespace CodePaster

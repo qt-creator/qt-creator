@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PASTEBINDOTCAPROTOCOL_H
-#define PASTEBINDOTCAPROTOCOL_H
+#pragma once
 
 #include "protocol.h"
 
@@ -48,15 +47,14 @@ public:
                const QString &description = QString()) override;
     void list() override;
 
-public slots:
-    void fetchFinished();
-    void listFinished();
-    void pasteFinished();
-
 protected:
     bool checkConfiguration(QString *errorMessage) override;
 
 private:
+    void fetchFinished();
+    void listFinished();
+    void pasteFinished();
+
     QNetworkReply *m_fetchReply = nullptr;
     QNetworkReply *m_listReply = nullptr;
     QNetworkReply *m_pasteReply = nullptr;
@@ -65,4 +63,3 @@ private:
 };
 
 } // namespace CodePaster
-#endif // PASTEBINDOTCAPROTOCOL_H

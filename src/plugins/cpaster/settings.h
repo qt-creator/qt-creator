@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SETTINGS_H
-#define SETTINGS_H
+#pragma once
 
 #include <QString>
 
@@ -34,7 +33,8 @@ QT_END_NAMESPACE
 
 namespace CodePaster {
 
-struct Settings {
+class Settings {
+public:
     void toSettings(QSettings *s) const;
     void fromSettings(const QSettings *s);
     bool equals(const Settings &s) const;
@@ -50,5 +50,3 @@ inline bool operator==(const Settings &s1, const Settings &s2) { return s1.equal
 inline bool operator!=(const Settings &s1, const Settings &s2) { return !s1.equals(s2); }
 
 } // namespace CodePaster
-
-#endif // SETTINGS_H

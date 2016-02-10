@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef URLOPENPROTOCOL_H
-#define URLOPENPROTOCOL_H
+#pragma once
 
 #include "protocol.h"
 
@@ -46,6 +45,4 @@ private:
     QNetworkReply *m_fetchReply = nullptr;
 };
 
-}
-
-#endif // URLOPENPROTOCOL_H
+} // namespace CodePaster

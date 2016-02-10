@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SETTINGSPAGE_H
-#define SETTINGSPAGE_H
+#pragma once
 
 #include "ui_settingspage.h"
 
@@ -36,7 +35,7 @@
 
 namespace CodePaster {
 
-struct Settings;
+class Settings;
 
 class SettingsWidget : public QWidget
 {
@@ -74,5 +73,3 @@ private:
 };
 
 } // namespace CodePaster
-
-#endif // SETTINGSPAGE_H

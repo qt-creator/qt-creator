@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CPASTERCONSTANTS_H
-#define CPASTERCONSTANTS_H
+#pragma once
 
 #include <QtGlobal>
 
@@ -37,5 +36,3 @@ const char SETTINGS_CATEGORY_CPASTER_ICON[] = ":/cpaster/images/category_cpaster
 
 } // namespace Constants
 } // namespace CodePaster
-
-#endif // CPASTERCONSTANTS_H

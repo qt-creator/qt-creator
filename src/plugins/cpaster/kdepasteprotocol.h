@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef KDEPASTE_H
-#define KDEPASTE_H
+#pragma once
 
 #include "protocol.h"
 
@@ -50,15 +49,14 @@ public:
     QString hostUrl() const { return m_hostUrl; }
     void setHostUrl(const QString &hostUrl);
 
-public slots:
-    void fetchFinished();
-    void pasteFinished();
-    void listFinished();
-
 protected:
     bool checkConfiguration(QString *errorMessage = 0) override;
 
 private:
+    void fetchFinished();
+    void pasteFinished();
+    void listFinished();
+
     QString m_hostUrl;
 
     QNetworkReply *m_fetchReply = nullptr;
@@ -78,10 +76,8 @@ public:
         setHostUrl(QLatin1String("https://pastebin.kde.org/"));
     }
 
-    QString name() const { return protocolName(); }
+    QString name() const override { return protocolName(); }
     static QString protocolName();
 };
 
 } // namespace CodePaster
-
-#endif // KDEPASTE_H

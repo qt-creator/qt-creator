@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PASTEVIEW_H
-#define PASTEVIEW_H
+#pragma once
 
 #include "ui_pasteview.h"
 
@@ -70,11 +69,10 @@ public:
 
     void accept() override;
 
-private slots:
+private:
     void contentChanged();
     void protocolChanged(int);
 
-private:
     void setupDialog(const QString &user, const QString &description, const QString &comment);
     int showDialog();
 
@@ -86,5 +84,5 @@ private:
     FileDataList m_parts;
     Mode m_mode = DiffChunkMode;
 };
+
 } // namespace CodePaster
-#endif // VIEW_H
