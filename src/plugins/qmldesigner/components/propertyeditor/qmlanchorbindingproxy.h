@@ -71,6 +71,7 @@ class QmlAnchorBindingProxy : public QObject
     Q_PROPERTY(bool horizontalCentered READ horizontalCentered WRITE setHorizontalCentered NOTIFY centeredHChanged)
     Q_PROPERTY(bool verticalCentered READ verticalCentered WRITE setVerticalCentered NOTIFY centeredVChanged)
     Q_PROPERTY(QVariant itemNode READ itemNode NOTIFY itemNodeChanged)
+    Q_PROPERTY(QVariant itemModelNode READ itemModelNode NOTIFY itemNodeChanged)
 
     Q_PROPERTY(QStringList possibleTargetItems READ possibleTargetItems NOTIFY itemNodeChanged)
 
@@ -110,6 +111,7 @@ public:
     bool horizontalCentered();
     bool verticalCentered();
     QVariant itemNode() const { return QVariant::fromValue(m_qmlItemNode.modelNode().id()); }
+    QVariant itemModelNode() const { return QVariant::fromValue(m_qmlItemNode.modelNode()); }
 
     QString topTarget() const;
     QString bottomTarget() const;
