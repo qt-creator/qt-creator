@@ -242,10 +242,10 @@ AutogenStepConfigWidget::AutogenStepConfigWidget(AutogenStep *autogenStep) :
 
     updateDetails();
 
-    connect(m_additionalArguments, SIGNAL(textChanged(QString)),
-            autogenStep, SLOT(setAdditionalArguments(QString)));
-    connect(autogenStep, SIGNAL(additionalArgumentsChanged(QString)),
-            this, SLOT(updateDetails()));
+    connect(m_additionalArguments, &QLineEdit::textChanged,
+            autogenStep, &AutogenStep::setAdditionalArguments);
+    connect(autogenStep, &AutogenStep::additionalArgumentsChanged,
+            this, &AutogenStepConfigWidget::updateDetails);
 }
 
 QString AutogenStepConfigWidget::displayName() const

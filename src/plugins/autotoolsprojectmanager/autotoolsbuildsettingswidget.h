@@ -52,11 +52,10 @@ class AutotoolsBuildSettingsWidget : public ProjectExplorer::NamedWidget
 public:
     AutotoolsBuildSettingsWidget(AutotoolsBuildConfiguration *bc);
 
-private slots:
+private:
     void buildDirectoryChanged();
     void environmentHasChanged();
 
-private:
     Utils::PathChooser *m_pathChooser;
     AutotoolsBuildConfiguration *m_buildConfiguration;
 };

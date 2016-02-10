@@ -237,10 +237,10 @@ AutoreconfStepConfigWidget::AutoreconfStepConfigWidget(AutoreconfStep *autorecon
 
     updateDetails();
 
-    connect(m_additionalArguments, SIGNAL(textChanged(QString)),
-            autoreconfStep, SLOT(setAdditionalArguments(QString)));
-    connect(autoreconfStep, SIGNAL(additionalArgumentsChanged(QString)),
-            this, SLOT(updateDetails()));
+    connect(m_additionalArguments, &QLineEdit::textChanged,
+            autoreconfStep, &AutoreconfStep::setAdditionalArguments);
+    connect(autoreconfStep, &AutoreconfStep::additionalArgumentsChanged,
+            this, &AutoreconfStepConfigWidget::updateDetails);
 }
 
 QString AutoreconfStepConfigWidget::displayName() const

@@ -271,11 +271,12 @@ MakeStepConfigWidget::MakeStepConfigWidget(MakeStep *makeStep) :
 
     updateDetails();
 
-    connect(m_additionalArguments, SIGNAL(textChanged(QString)),
-            makeStep, SLOT(setAdditionalArguments(QString)));
-    connect(makeStep, SIGNAL(additionalArgumentsChanged(QString)),
-            this, SLOT(updateDetails()));
-    connect(m_makeStep->project(), SIGNAL(environmentChanged()), this, SLOT(updateDetails()));
+    connect(m_additionalArguments, &QLineEdit::textChanged,
+            makeStep, &MakeStep::setAdditionalArguments);
+    connect(makeStep, &MakeStep::additionalArgumentsChanged,
+            this, &MakeStepConfigWidget::updateDetails);
+    connect(m_makeStep->project(), &Project::environmentChanged,
+            this, &MakeStepConfigWidget::updateDetails);
 }
 
 QString MakeStepConfigWidget::displayName() const

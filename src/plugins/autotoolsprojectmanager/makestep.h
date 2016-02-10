@@ -97,7 +97,6 @@ public:
     QString additionalArguments() const;
     QVariantMap toMap() const override;
 
-public slots:
     void setAdditionalArguments(const QString &list);
 
 signals:
@@ -135,10 +134,9 @@ public:
     QString displayName() const override;
     QString summaryText() const override;
 
-private slots:
+private:
     void updateDetails();
 
-private:
     MakeStep *m_makeStep;
     QString m_summaryText;
     QLineEdit *m_additionalArguments;

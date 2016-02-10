@@ -110,7 +110,6 @@ public:
      */
     bool isCanceled() const;
 
-public slots:
     /**
      * Cancels the parsing of the makefile. MakefileParser::hasError() will
      * return true in this case.

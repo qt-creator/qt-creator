@@ -64,10 +64,9 @@ class BuildPathPage : public QWizardPage
 public:
     explicit BuildPathPage(AutotoolsOpenProjectWizard *wizard);
 
-private slots:
+private:
     void buildDirectoryChanged();
 
-private:
     Utils::PathChooser *m_pc;
 };
 

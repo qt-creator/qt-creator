@@ -66,7 +66,8 @@ AutotoolsBuildSettingsWidget::AutotoolsBuildSettingsWidget(AutotoolsBuildConfigu
     m_pathChooser->setPath(m_buildConfiguration->rawBuildDirectory().toString());
     setDisplayName(tr("Autotools Manager"));
 
-    connect(bc, SIGNAL(environmentChanged()), this, SLOT(environmentHasChanged()));
+    connect(bc, &BuildConfiguration::environmentChanged,
+            this, &AutotoolsBuildSettingsWidget::environmentHasChanged);
 }
 
 void AutotoolsBuildSettingsWidget::buildDirectoryChanged()

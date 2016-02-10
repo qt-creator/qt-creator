@@ -259,12 +259,12 @@ ConfigureStepConfigWidget::ConfigureStepConfigWidget(ConfigureStep *configureSte
 
     updateDetails();
 
-    connect(m_additionalArguments, SIGNAL(textChanged(QString)),
-            configureStep, SLOT(setAdditionalArguments(QString)));
-    connect(configureStep, SIGNAL(additionalArgumentsChanged(QString)),
-            this, SLOT(updateDetails()));
-    connect(configureStep, SIGNAL(buildDirectoryChanged()),
-            this, SLOT(updateDetails()));
+    connect(m_additionalArguments, &QLineEdit::textChanged,
+            configureStep, &ConfigureStep::setAdditionalArguments);
+    connect(configureStep, &ConfigureStep::additionalArgumentsChanged,
+            this, &ConfigureStepConfigWidget::updateDetails);
+    connect(configureStep, &ConfigureStep::buildDirectoryChanged,
+            this, &ConfigureStepConfigWidget::updateDetails);
 }
 
 QString ConfigureStepConfigWidget::displayName() const
