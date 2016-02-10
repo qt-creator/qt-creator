@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef BRANCHDIALOG_H
-#define BRANCHDIALOG_H
+#pragma once
 
 #include <QDialog>
 
@@ -51,7 +50,7 @@ class BranchDialog : public QDialog
 
 public:
     explicit BranchDialog(QWidget *parent = 0);
-    ~BranchDialog();
+    ~BranchDialog() override;
 
 public slots:
     void refresh(const QString &repository, bool force);
@@ -81,5 +80,3 @@ private:
 
 } // namespace Internal
 } // namespace Git
-
-#endif // BRANCHDIALOG_H

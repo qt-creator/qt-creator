@@ -84,11 +84,6 @@ enum FetchMode
     FetchCheckout
 };
 
-static inline GitClient *gitClient()
-{
-    return GitPlugin::instance()->client();
-}
-
 /* FetchContext: Retrieves the patch and displays
  * or applies it as desired. Does deleteLater() once it is done. */
 
@@ -158,7 +153,7 @@ FetchContext::FetchContext(const QSharedPointer<GerritChange> &change,
     connect(&m_watcher, &QFutureWatcher<void>::canceled, this, &FetchContext::terminate);
     m_watcher.setFuture(m_progress.future());
     m_process.setWorkingDirectory(repository);
-    m_process.setProcessEnvironment(gitClient()->processEnvironment());
+    m_process.setProcessEnvironment(GitPlugin::client()->processEnvironment());
     m_process.closeWriteChannel();
 }
 
@@ -250,7 +245,7 @@ void FetchContext::show()
 {
     const QString title = QString::number(m_change->number) + QLatin1Char('/')
             + QString::number(m_change->currentPatchSet.patchSetNumber);
-    gitClient()->show(m_repository, QLatin1String("FETCH_HEAD"), title);
+    GitPlugin::client()->show(m_repository, QLatin1String("FETCH_HEAD"), title);
 }
 
 void FetchContext::cherryPick()
@@ -258,12 +253,12 @@ void FetchContext::cherryPick()
     // Point user to errors.
     VcsBase::VcsOutputWindow::instance()->popup(IOutputPane::ModeSwitch
                                                   | IOutputPane::WithFocus);
-    gitClient()->synchronousCherryPick(m_repository, QLatin1String("FETCH_HEAD"));
+    GitPlugin::client()->synchronousCherryPick(m_repository, QLatin1String("FETCH_HEAD"));
 }
 
 void FetchContext::checkout()
 {
-    gitClient()->stashAndCheckout(m_repository, QLatin1String("FETCH_HEAD"));
+    GitPlugin::client()->stashAndCheckout(m_repository, QLatin1String("FETCH_HEAD"));
 }
 
 void FetchContext::terminate()
@@ -355,7 +350,7 @@ void GerritPlugin::push(const QString &topLevel)
 
     args << target;
 
-    gitClient()->push(topLevel, args);
+    GitPlugin::client()->push(topLevel, args);
 }
 
 // Open or raise the Gerrit dialog window.
@@ -393,13 +388,13 @@ void GerritPlugin::push()
 
 Utils::FileName GerritPlugin::gitBinDirectory()
 {
-    return gitClient()->gitBinDirectory();
+    return GitPlugin::client()->gitBinDirectory();
 }
 
 // Find the branch of a repository.
 QString GerritPlugin::branch(const QString &repository)
 {
-    return gitClient()->synchronousCurrentLocalBranch(repository);
+    return GitPlugin::client()->synchronousCurrentLocalBranch(repository);
 }
 
 void GerritPlugin::fetchDisplay(const QSharedPointer<GerritChange> &change)
@@ -420,13 +415,11 @@ void GerritPlugin::fetchCheckout(const QSharedPointer<GerritChange> &change)
 void GerritPlugin::fetch(const QSharedPointer<GerritChange> &change, int mode)
 {
     // Locate git.
-    const Utils::FileName git = gitClient()->vcsBinary();
+    const Utils::FileName git = GitPlugin::client()->vcsBinary();
     if (git.isEmpty()) {
         VcsBase::VcsOutputWindow::appendError(tr("Git is not available."));
         return;
     }
-
-    GitClient *client = gitClient();
 
     QString repository;
     bool verifiedRepository = false;
@@ -435,7 +428,7 @@ void GerritPlugin::fetch(const QSharedPointer<GerritChange> &change, int mode)
 
     if (!repository.isEmpty()) {
         // Check if remote from a working dir is the same as remote from patch
-        QMap<QString, QString> remotesList = client->synchronousRemotesList(repository);
+        QMap<QString, QString> remotesList = GitPlugin::client()->synchronousRemotesList(repository);
         if (!remotesList.isEmpty()) {
             QStringList remotes = remotesList.values();
             foreach (QString remote, remotes) {
@@ -448,7 +441,7 @@ void GerritPlugin::fetch(const QSharedPointer<GerritChange> &change, int mode)
             }
 
             if (!verifiedRepository) {
-                SubmoduleDataMap submodules = client->submoduleList(repository);
+                SubmoduleDataMap submodules = GitPlugin::client()->submoduleList(repository);
                 foreach (const SubmoduleData &submoduleData, submodules) {
                     QString remote = submoduleData.url;
                     if (remote.endsWith(QLatin1String(".git")))

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef STASHDIALOG_H
-#define STASHDIALOG_H
+#pragma once
 
 #include <QDialog>
 
@@ -51,11 +50,10 @@ class StashDialog : public QDialog
 
 public:
     explicit StashDialog(QWidget *parent = 0);
-    ~StashDialog();
+    ~StashDialog() override;
 
     static QString msgRepositoryLabel(const QString &repository);
 
-public slots:
     void refresh(const QString &repository, bool force);
 
 private:
@@ -95,5 +93,3 @@ private:
 
 } // namespace Internal
 } // namespace Git
-
-#endif // STASHDIALOG_H

@@ -70,8 +70,7 @@ private:
     QString m_suggestedRemoteBranch;
     Ui::GerritPushDialog *m_ui;
     RemoteBranchesMap m_remoteBranches;
-    bool m_isValid;
-    Git::Internal::GitClient *m_client;
+    bool m_isValid = false;
 };
 
 

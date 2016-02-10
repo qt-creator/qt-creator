@@ -24,16 +24,14 @@
 ****************************************************************************/
 
 #include "remotemodel.h"
+#include "gitplugin.h"
 #include "gitclient.h"
 
 namespace Git {
 namespace Internal {
 
 // ------ RemoteModel
-RemoteModel::RemoteModel(GitClient *client, QObject *parent) :
-    QAbstractTableModel(parent),
-    m_flags(Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsEditable),
-    m_client(client)
+RemoteModel::RemoteModel(QObject *parent) : QAbstractTableModel(parent)
 { }
 
 QString RemoteModel::remoteName(int row) const
@@ -50,9 +48,9 @@ bool RemoteModel::removeRemote(int row)
 {
     QString output;
     QString error;
-    bool success = m_client->synchronousRemoteCmd(m_workingDirectory,
-                                                  QStringList() << QLatin1String("rm") << remoteName(row),
-                                                  &output, &error);
+    bool success = GitPlugin::client()->synchronousRemoteCmd(m_workingDirectory,
+                                                             QStringList() << QLatin1String("rm") << remoteName(row),
+                                                             &output, &error);
     if (success)
         success = refresh(m_workingDirectory, &error);
     return success;
@@ -65,9 +63,9 @@ bool RemoteModel::addRemote(const QString &name, const QString &url)
     if (name.isEmpty() || url.isEmpty())
         return false;
 
-    bool success = m_client->synchronousRemoteCmd(m_workingDirectory,
-                                                  QStringList() << QLatin1String("add") << name << url,
-                                                  &output, &error);
+    bool success = GitPlugin::client()->synchronousRemoteCmd(m_workingDirectory,
+                                                             QStringList() << QLatin1String("add") << name << url,
+                                                             &output, &error);
     if (success)
         success = refresh(m_workingDirectory, &error);
     return success;
@@ -77,9 +75,9 @@ bool RemoteModel::renameRemote(const QString &oldName, const QString &newName)
 {
     QString output;
     QString error;
-    bool success = m_client->synchronousRemoteCmd(m_workingDirectory,
-                                                  QStringList() << QLatin1String("rename") << oldName << newName,
-                                                  &output, &error);
+    bool success = GitPlugin::client()->synchronousRemoteCmd(m_workingDirectory,
+                                                             QStringList() << QLatin1String("rename") << oldName << newName,
+                                                             &output, &error);
     if (success)
         success = refresh(m_workingDirectory, &error);
     return success;
@@ -89,9 +87,9 @@ bool RemoteModel::updateUrl(const QString &name, const QString &newUrl)
 {
     QString output;
     QString error;
-    bool success = m_client->synchronousRemoteCmd(m_workingDirectory,
-                                                  QStringList() << QLatin1String("set-url") << name << newUrl,
-                                                  &output, &error);
+    bool success = GitPlugin::client()->synchronousRemoteCmd(m_workingDirectory,
+                                                             QStringList() << QLatin1String("set-url") << name << newUrl,
+                                                             &output, &error);
     if (success)
         success = refresh(m_workingDirectory, &error);
     return success;
@@ -184,8 +182,8 @@ bool RemoteModel::refresh(const QString &workingDirectory, QString *errorMessage
     m_workingDirectory = workingDirectory;
 
     // get list of remotes.
-    QMap<QString,QString> remotesList =
-            m_client->synchronousRemotesList(workingDirectory, errorMessage);
+    QMap<QString,QString> remotesList
+            = GitPlugin::client()->synchronousRemotesList(workingDirectory, errorMessage);
 
     if (remotesList.isEmpty())
         return false;
@@ -209,11 +207,6 @@ int RemoteModel::findRemoteByName(const QString &name) const
         if (remoteName(i) == name)
             return i;
     return -1;
-}
-
-GitClient *RemoteModel::client() const
-{
-    return m_client;
 }
 
 } // namespace Internal

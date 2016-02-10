@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef MERGETOOL_H
-#define MERGETOOL_H
+#pragma once
 
 #include <QObject>
 #include <QStringList>
@@ -74,18 +73,15 @@ private:
     void chooseAction();
     void addButton(QMessageBox *msgBox, const QString &text, char key);
 
-    MergeToolProcess *m_process;
-    MergeType m_mergeType;
+    MergeToolProcess *m_process = nullptr;
+    MergeType m_mergeType = NormalMerge;
     QString m_fileName;
-    FileState m_localState;
+    FileState m_localState = UnknownState;
     QString m_localInfo;
-    FileState m_remoteState;
+    FileState m_remoteState = UnknownState;
     QString m_remoteInfo;
-    GitClient *m_client;
-    bool m_merging;
+    bool m_merging = false;
 };
 
 } // namespace Internal
 } // namespace Git
-
-#endif // MERGETOOL_H

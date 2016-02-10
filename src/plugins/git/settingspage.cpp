@@ -92,7 +92,7 @@ void SettingsPageWidget::setSettings(const VcsBaseClientSettings &s)
 
 // -------- SettingsPage
 SettingsPage::SettingsPage(Core::IVersionControl *control) :
-    VcsClientOptionsPage(control, GitPlugin::instance()->client())
+    VcsClientOptionsPage(control, GitPlugin::client())
 {
     setId(VcsBase::Constants::VCS_ID_GIT);
     setDisplayName(tr("Git"));

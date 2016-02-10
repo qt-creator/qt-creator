@@ -81,8 +81,7 @@ void RemoteAdditionDialog::clear()
 RemoteDialog::RemoteDialog(QWidget *parent) :
     QDialog(parent),
     m_ui(new Ui::RemoteDialog),
-    m_remoteModel(new RemoteModel(GitPlugin::instance()->client(), this)),
-    m_addDialog(0)
+    m_remoteModel(new RemoteModel(this))
 {
     setModal(false);
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
@@ -166,7 +165,7 @@ void RemoteDialog::pushToRemote()
 
     const int row = indexList.at(0).row();
     const QString remoteName = m_remoteModel->remoteName(row);
-    m_remoteModel->client()->push(m_remoteModel->workingDirectory(),
+    GitPlugin::client()->push(m_remoteModel->workingDirectory(),
                                              QStringList() << remoteName);
 }
 
@@ -178,7 +177,7 @@ void RemoteDialog::fetchFromRemote()
 
     int row = indexList.at(0).row();
     const QString remoteName = m_remoteModel->remoteName(row);
-    m_remoteModel->client()->fetch(m_remoteModel->workingDirectory(), remoteName);
+    GitPlugin::client()->fetch(m_remoteModel->workingDirectory(), remoteName);
 }
 
 void RemoteDialog::updateButtonState()

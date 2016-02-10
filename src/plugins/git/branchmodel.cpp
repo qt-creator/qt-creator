@@ -193,8 +193,7 @@ public:
 BranchModel::BranchModel(GitClient *client, QObject *parent) :
     QAbstractItemModel(parent),
     m_client(client),
-    m_rootNode(new BranchNode),
-    m_currentBranch(0)
+    m_rootNode(new BranchNode)
 {
     QTC_CHECK(m_client);
 

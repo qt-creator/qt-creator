@@ -46,11 +46,7 @@ namespace Internal {
 
 // ------------------
 GitSubmitEditorWidget::GitSubmitEditorWidget() :
-    m_pushAction(NoPush),
-    m_gitSubmitPanel(new QWidget),
-    m_logChangeWidget(0),
-    m_hasUnmerged(false),
-    m_isInitialized(false)
+    m_gitSubmitPanel(new QWidget)
 {
     m_gitSubmitPanelUi.setupUi(m_gitSubmitPanel);
     new GitSubmitHighlighter(descriptionEdit());

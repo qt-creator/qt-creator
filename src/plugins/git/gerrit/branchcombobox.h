@@ -38,13 +38,12 @@ namespace Internal {
 class BranchComboBox : public QComboBox
 {
 public:
-    BranchComboBox(QWidget *parent = 0);
+    explicit BranchComboBox(QWidget *parent = nullptr);
     void init(const QString &repository);
 
 private:
-    Git::Internal::GitClient *m_client;
     QString m_repository;
-    bool m_detached;
+    bool m_detached = false;
 };
 
 } // namespace Internal

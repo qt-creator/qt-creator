@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef REMOTEDIALOG_H
-#define REMOTEDIALOG_H
+#pragma once
 
 #include <QDialog>
 
@@ -34,7 +33,7 @@ namespace Internal {
 namespace Ui {
 class RemoteDialog;
 class RemoteAdditionDialog;
-}
+} // namespace Ui
 
 class GitClient;
 class RemoteModel;
@@ -49,7 +48,7 @@ class RemoteAdditionDialog : public QDialog
 
 public:
     explicit RemoteAdditionDialog(QWidget *parent = 0);
-    ~RemoteAdditionDialog();
+    ~RemoteAdditionDialog() override;
 
     QString remoteName() const;
     QString remoteUrl() const;
@@ -70,9 +69,8 @@ class RemoteDialog : public QDialog
 
 public:
     explicit RemoteDialog(QWidget *parent = 0);
-    ~RemoteDialog();
+    ~RemoteDialog() override;
 
-public slots:
     void refresh(const QString &repository, bool force);
 
 private:
@@ -87,10 +85,8 @@ private:
     Ui::RemoteDialog *m_ui;
 
     RemoteModel *m_remoteModel;
-    RemoteAdditionDialog *m_addDialog;
+    RemoteAdditionDialog *m_addDialog = nullptr;
 };
 
 } // namespace Internal
 } // namespace Git
-
-#endif // REMOTEDIALOG_H

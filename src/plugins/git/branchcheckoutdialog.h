@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef BRANCHCHECKOUTDIALOG_H
-#define BRANCHCHECKOUTDIALOG_H
+#pragma once
 
 #include <QDialog>
 
@@ -40,7 +39,7 @@ class BranchCheckoutDialog : public QDialog
 public:
     explicit BranchCheckoutDialog(QWidget *parent, const QString &currentBranch,
                                   const QString &nextBranch);
-    ~BranchCheckoutDialog();
+    ~BranchCheckoutDialog() override;
 
     void foundNoLocalChanges();
     void foundStashForNextBranch();
@@ -63,5 +62,3 @@ private:
 
 } // namespace Internal
 } // namespace Git
-
-#endif // BRANCHCHECKOUTDIALOG_H

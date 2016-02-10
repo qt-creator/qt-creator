@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef GITPLUGIN_H
-#define GITPLUGIN_H
+#pragma once
 
 #include "gitsettings.h"
 
@@ -51,11 +50,12 @@ class Command;
 class CommandLocator;
 class Context;
 class ActionContainer;
-}
+} // namespace Core
 namespace Utils { class ParameterAction; }
 namespace Gerrit {
 namespace Internal { class GerritPlugin; }
-}
+} // namespace Gerrit
+
 namespace Git {
 namespace Internal {
 
@@ -79,12 +79,12 @@ public:
     ~GitPlugin();
 
     static GitPlugin *instance();
+    static GitClient *client();
 
     bool initialize(const QStringList &arguments, QString *errorMessage) override;
 
     GitVersionControl *gitVersionControl() const;
 
-    GitClient *client() const;
     Gerrit::Internal::GerritPlugin *gerritPlugin() const;
     bool isCommitEditorOpen() const;
 
@@ -191,42 +191,40 @@ private:
     void startCommit(CommitType commitType);
     void updateVersionWarning();
 
-    Core::CommandLocator *m_commandLocator;
+    Core::CommandLocator *m_commandLocator = nullptr;
 
-    QAction *m_submitCurrentAction;
-    QAction *m_diffSelectedFilesAction;
-    QAction *m_undoAction;
-    QAction *m_redoAction;
-    QAction *m_menuAction;
-    QAction *m_repositoryBrowserAction;
-    QAction *m_mergeToolAction;
-    QAction *m_submoduleUpdateAction;
-    QAction *m_abortMergeAction;
-    QAction *m_abortRebaseAction;
-    QAction *m_abortCherryPickAction;
-    QAction *m_abortRevertAction;
-    QAction *m_continueRebaseAction;
-    QAction *m_continueCherryPickAction;
-    QAction *m_continueRevertAction;
-    QAction *m_fixupCommitAction;
-    QAction *m_interactiveRebaseAction;
+    QAction *m_submitCurrentAction = nullptr;
+    QAction *m_diffSelectedFilesAction = nullptr;
+    QAction *m_undoAction = nullptr;
+    QAction *m_redoAction = nullptr;
+    QAction *m_menuAction = nullptr;
+    QAction *m_repositoryBrowserAction = nullptr;
+    QAction *m_mergeToolAction = nullptr;
+    QAction *m_submoduleUpdateAction = nullptr;
+    QAction *m_abortMergeAction = nullptr;
+    QAction *m_abortRebaseAction = nullptr;
+    QAction *m_abortCherryPickAction = nullptr;
+    QAction *m_abortRevertAction = nullptr;
+    QAction *m_continueRebaseAction = nullptr;
+    QAction *m_continueCherryPickAction = nullptr;
+    QAction *m_continueRevertAction = nullptr;
+    QAction *m_fixupCommitAction = nullptr;
+    QAction *m_interactiveRebaseAction = nullptr;
 
     QVector<Utils::ParameterAction *> m_fileActions;
     QVector<Utils::ParameterAction *> m_projectActions;
     QVector<QAction *> m_repositoryActions;
-    Utils::ParameterAction *m_applyCurrentFilePatchAction;
-    Gerrit::Internal::GerritPlugin *m_gerritPlugin;
+    Utils::ParameterAction *m_applyCurrentFilePatchAction = nullptr;
+    Gerrit::Internal::GerritPlugin *m_gerritPlugin = nullptr;
 
-    GitClient *m_gitClient;
+    GitClient *m_gitClient = nullptr;
     QPointer<StashDialog> m_stashDialog;
     QPointer<BranchDialog> m_branchDialog;
     QPointer<RemoteDialog> m_remoteDialog;
     QString m_submitRepository;
     QString m_commitMessageFileName;
-    bool m_submitActionTriggered;
+    bool m_submitActionTriggered = false;
 };
 
 } // namespace Internal
 } // namespace Git
-
-#endif // GITPLUGIN_H

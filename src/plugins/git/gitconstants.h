@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef GIT_CONSTANTS_H
-#define GIT_CONSTANTS_H
+#pragma once
 
 #include <QtGlobal>
 
@@ -52,5 +51,3 @@ const char C_GITEDITORID[]  = "Git Editor";
 
 } // namespace Constants
 } // namespace Git
-
-#endif // GIT_CONSTANTS_H

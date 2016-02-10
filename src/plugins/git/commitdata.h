@@ -23,30 +23,24 @@
 **
 ****************************************************************************/
 
-#ifndef COMMITDATA_H
-#define COMMITDATA_H
+#pragma once
 
 #include "gitsettings.h" // CommitType
 
 #include <QStringList>
 #include <QPair>
 
-QT_BEGIN_NAMESPACE
-class QDebug;
-QT_END_NAMESPACE
-
 namespace Git {
 namespace Internal {
 
 // Read-only
-struct GitSubmitEditorPanelInfo
+class GitSubmitEditorPanelInfo
 {
+public:
     void clear();
     QString repository;
     QString branch;
 };
-
-QDebug operator<<(QDebug d, const GitSubmitEditorPanelInfo &);
 
 enum PushAction {
     NoPush,
@@ -54,8 +48,9 @@ enum PushAction {
     PushToGerrit
 };
 
-struct GitSubmitEditorPanelData
+class GitSubmitEditorPanelData
 {
+public:
     void clear();
     // Format as "John Doe <jdoe@foobar.com>"
     QString authorString() const;
@@ -65,8 +60,6 @@ struct GitSubmitEditorPanelData
     bool bypassHooks;
     PushAction pushAction;
 };
-
-QDebug operator<<(QDebug d, const GitSubmitEditorPanelData &);
 
 enum FileState {
     EmptyFileState = 0x00,
@@ -132,5 +125,3 @@ bool operator<(const CommitData::StateFilePair &a,
 
 } // namespace Internal
 } // namespace Git
-
-#endif // COMMITDATA_H

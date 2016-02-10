@@ -52,19 +52,17 @@ using namespace Utils;
 namespace Git {
 namespace Internal {
 
-ChangeSelectionDialog::ChangeSelectionDialog(const QString &workingDirectory, Core::Id id, QWidget *parent)
-    : QDialog(parent)
-    , m_ui(new Ui::ChangeSelectionDialog)
-    , m_process(0)
-    , m_command(NoCommand)
+ChangeSelectionDialog::ChangeSelectionDialog(const QString &workingDirectory, Core::Id id,
+                                             QWidget *parent) :
+    QDialog(parent), m_ui(new Ui::ChangeSelectionDialog)
 {
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
-    m_gitExecutable = GitPlugin::instance()->client()->vcsBinary();
+    m_gitExecutable = GitPlugin::client()->vcsBinary();
     m_ui->setupUi(this);
     m_ui->workingDirectoryChooser->setExpectedKind(PathChooser::ExistingDirectory);
     m_ui->workingDirectoryChooser->setPromptDialogTitle(tr("Select Git Directory"));
     m_ui->workingDirectoryChooser->setPath(workingDirectory);
-    m_gitEnvironment = GitPlugin::instance()->client()->processEnvironment();
+    m_gitEnvironment = GitPlugin::client()->processEnvironment();
     m_ui->changeNumberEdit->setFocus();
     m_ui->changeNumberEdit->selectAll();
 
@@ -216,7 +214,7 @@ void ChangeSelectionDialog::recalculateCompletion()
     m_oldWorkingDir = workingDir;
 
     if (!workingDir.isEmpty()) {
-        GitClient *client = GitPlugin::instance()->client();
+        GitClient *client = GitPlugin::client();
         QStringList args;
         args << QLatin1String("--format=%(refname:short)");
         QString output;

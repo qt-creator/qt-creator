@@ -25,19 +25,11 @@
 
 #include "gitutils.h"
 
-#include <QDebug>
 #include <QInputDialog>
 #include <QLineEdit>
 
 namespace Git {
 namespace Internal {
-
-QDebug operator<<(QDebug d, const Stash &s)
-{
-    QDebug nospace = d.nospace();
-    nospace << "name=" << s.name << " branch=" << s.branch << " message=" << s.message;
-    return d;
-}
 
 void Stash::clear()
 {

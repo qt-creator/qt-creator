@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef GITSUBMITEDITOR_H
-#define GITSUBMITEDITOR_H
+#pragma once
 
 #include "gitsettings.h" // CommitType
 
@@ -41,11 +40,12 @@ class GitClient;
 class GitSubmitEditorWidget;
 class CommitData;
 class CommitDataFetcher;
-struct GitSubmitEditorPanelData;
+class GitSubmitEditorPanelData;
 
 class GitSubmitEditor : public VcsBase::VcsBaseSubmitEditor
 {
     Q_OBJECT
+
 public:
     explicit GitSubmitEditor(const VcsBase::VcsBaseSubmitEditorParameters *parameters);
     ~GitSubmitEditor() override;
@@ -69,17 +69,14 @@ private:
     inline const GitSubmitEditorWidget *submitEditorWidget() const;
     void resetCommitDataFetcher();
 
-    VcsBase::SubmitFileModel *m_model;
-    QTextCodec *m_commitEncoding;
-    CommitType m_commitType;
+    VcsBase::SubmitFileModel *m_model = nullptr;
+    QTextCodec *m_commitEncoding = nullptr;
+    CommitType m_commitType = SimpleCommit;
     QString m_amendSHA1;
     QString m_workingDirectory;
-    bool m_firstUpdate;
-    CommitDataFetcher *m_commitDataFetcher;
-    GitClient *m_gitClient;
+    bool m_firstUpdate = true;
+    CommitDataFetcher *m_commitDataFetcher = nullptr;
 };
 
 } // namespace Internal
 } // namespace Git
-
-#endif // GITSUBMITEDITOR_H

@@ -28,7 +28,6 @@
 #include <utils/qtcassert.h>
 
 #include <QCoreApplication>
-#include <QDebug>
 
 namespace Git {
 namespace Internal {
@@ -37,12 +36,6 @@ void GitSubmitEditorPanelInfo::clear()
 {
     repository.clear();
     branch.clear();
-}
-
-QDebug operator<<(QDebug d, const GitSubmitEditorPanelInfo &data)
-{
-    d.nospace() << "Rep: " << data.repository << " branch: " << data.branch;
-    return d;
 }
 
 void GitSubmitEditorPanelData::clear()
@@ -65,14 +58,6 @@ QString GitSubmitEditorPanelData::authorString() const
     rc += email;
     rc += QLatin1Char('>');
     return rc;
-}
-
-QDebug operator<<(QDebug d, const GitSubmitEditorPanelData &data)
-{
-    d.nospace() << " author:" << data.author << " email: " << data.email
-                << " bypass hooks: " << data.bypassHooks
-                << " action after commit " << data.pushAction;
-    return d;
 }
 
 CommitData::CommitData(CommitType type)

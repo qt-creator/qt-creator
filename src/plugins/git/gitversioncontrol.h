@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef GITVERSIONCONTROL_H
-#define GITVERSIONCONTROL_H
+#pragma once
 
 #include <coreplugin/iversioncontrol.h>
 
@@ -73,5 +72,3 @@ private:
 
 } // Internal
 } // Git
-
-#endif // GITVERSIONCONTROL_H

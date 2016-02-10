@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SETTINGSPAGE_H
-#define SETTINGSPAGE_H
+#pragma once
 
 #include <vcsbase/vcsbaseoptionspage.h>
 
@@ -46,6 +45,7 @@ namespace Internal {
 
 class SettingsPageWidget : public VcsBase::VcsClientOptionsPageWidget {
     Q_OBJECT
+
 public:
     explicit SettingsPageWidget(QWidget *parent = 0);
 
@@ -67,5 +67,3 @@ public:
 
 } // namespace Internal
 } // namespace Git
-
-#endif // SETTINGSPAGE_H

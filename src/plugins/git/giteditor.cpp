@@ -124,7 +124,7 @@ static QString sanitizeBlameOutput(const QString &b)
     if (b.isEmpty())
         return b;
 
-    const bool omitDate = GitPlugin::instance()->client()->settings().boolValue(
+    const bool omitDate = GitPlugin::client()->settings().boolValue(
                 GitSettings::omitAnnotationDateKey);
     const QChar space(QLatin1Char(' '));
     const int parenPos = b.indexOf(QLatin1Char(')'));
@@ -190,31 +190,31 @@ void GitEditorWidget::setPlainText(const QString &text)
 
 void GitEditorWidget::checkoutChange()
 {
-    GitPlugin::instance()->client()->stashAndCheckout(
+    GitPlugin::client()->stashAndCheckout(
                 sourceWorkingDirectory(), m_currentChange);
 }
 
 void GitEditorWidget::resetChange(const QByteArray &resetType)
 {
-    GitPlugin::instance()->client()->reset(
+    GitPlugin::client()->reset(
                 sourceWorkingDirectory(), QLatin1String("--" + resetType), m_currentChange);
 }
 
 void GitEditorWidget::cherryPickChange()
 {
-    GitPlugin::instance()->client()->synchronousCherryPick(
+    GitPlugin::client()->synchronousCherryPick(
                 sourceWorkingDirectory(), m_currentChange);
 }
 
 void GitEditorWidget::revertChange()
 {
-    GitPlugin::instance()->client()->synchronousRevert(
+    GitPlugin::client()->synchronousRevert(
                 sourceWorkingDirectory(), m_currentChange);
 }
 
 void GitEditorWidget::logChange()
 {
-    GitPlugin::instance()->client()->log(
+    GitPlugin::client()->log(
                 sourceWorkingDirectory(), QString(), false, QStringList(m_currentChange));
 }
 
@@ -229,12 +229,11 @@ void GitEditorWidget::applyDiffChunk(const DiffChunk& chunk, bool revert)
     patchFile.write(chunk.chunk);
     patchFile.close();
 
-    GitClient *client = GitPlugin::instance()->client();
     QStringList args = QStringList() << QLatin1String("--cached");
     if (revert)
         args << QLatin1String("--reverse");
     QString errorMessage;
-    if (client->synchronousApplyPatch(baseDir, patchFile.fileName(), &errorMessage, args)) {
+    if (GitPlugin::client()->synchronousApplyPatch(baseDir, patchFile.fileName(), &errorMessage, args)) {
         if (errorMessage.isEmpty())
             VcsOutputWindow::append(tr("Chunk successfully staged"));
         else
@@ -283,7 +282,7 @@ void GitEditorWidget::aboutToOpen(const QString &fileName, const QString &realFi
         const QString gitPath = fi.absolutePath();
         setSource(gitPath);
         textDocument()->setCodec(
-                    GitPlugin::instance()->client()->encoding(gitPath, "i18n.commitEncoding"));
+                    GitPlugin::client()->encoding(gitPath, "i18n.commitEncoding"));
     }
 }
 
@@ -293,18 +292,17 @@ QString GitEditorWidget::decorateVersion(const QString &revision) const
     const QString workingDirectory = fi.absolutePath();
 
     // Format verbose, SHA1 being first token
-    return GitPlugin::instance()->client()->synchronousShortDescription(workingDirectory, revision);
+    return GitPlugin::client()->synchronousShortDescription(workingDirectory, revision);
 }
 
 QStringList GitEditorWidget::annotationPreviousVersions(const QString &revision) const
 {
     QStringList revisions;
     QString errorMessage;
-    GitClient *client = GitPlugin::instance()->client();
     const QFileInfo fi(source());
     const QString workingDirectory = fi.absolutePath();
     // Get the SHA1's of the file.
-    if (!client->synchronousParentRevisions(workingDirectory, revision, &revisions, &errorMessage)) {
+    if (!GitPlugin::client()->synchronousParentRevisions(workingDirectory, revision, &revisions, &errorMessage)) {
         VcsOutputWindow::appendSilently(errorMessage);
         return QStringList();
     }
@@ -313,7 +311,7 @@ QStringList GitEditorWidget::annotationPreviousVersions(const QString &revision)
 
 bool GitEditorWidget::isValidRevision(const QString &revision) const
 {
-    return GitPlugin::instance()->client()->isValidRevision(revision);
+    return GitPlugin::client()->isValidRevision(revision);
 }
 
 void GitEditorWidget::addChangeActions(QMenu *menu, const QString &change)

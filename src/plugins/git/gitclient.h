@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef GITCLIENT_H
-#define GITCLIENT_H
+#pragma once
 
 #include "gitsettings.h"
 #include "commitdata.h"
@@ -71,7 +70,7 @@ namespace Git {
 namespace Internal {
 
 class CommitData;
-struct GitSubmitEditorPanelData;
+class GitSubmitEditorPanelData;
 class Stash;
 
 enum StatusMode
@@ -108,7 +107,7 @@ public:
     class StashInfo
     {
     public:
-        StashInfo();
+        StashInfo() = default;
         enum StashResult { StashUnchanged, StashCanceled, StashFailed,
                            Stashed, NotStashed /* User did not want it */ };
 
@@ -126,9 +125,8 @@ public:
         StashResult m_stashResult;
         QString m_message;
         QString m_workingDir;
-        GitClient *m_client;
         StashFlag m_flags;
-        PushAction m_pushAction;
+        PushAction m_pushAction = NoPush;
     };
 
     static const char *stashNamePrefix;
@@ -340,7 +338,6 @@ public:
     static QString msgNoChangedFiles();
     static QString msgNoCommits(bool includeRemote);
 
-public slots:
     void show(const QString &source, const QString &id, const QString &name = QString());
 
 private:
@@ -401,5 +398,3 @@ private:
 
 } // namespace Internal
 } // namespace Git
-
-#endif // GITCLIENT_H

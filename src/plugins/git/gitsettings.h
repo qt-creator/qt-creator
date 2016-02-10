@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef GITSETTINGS_H
-#define GITSETTINGS_H
+#pragma once
 
 #include <vcsbase/vcsbaseclientsettings.h>
 
@@ -65,5 +64,3 @@ public:
 
 } // namespace Internal
 } // namespace Git
-
-#endif // GITSETTINGS_H

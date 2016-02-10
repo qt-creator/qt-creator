@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef BRANCHMODEL_H
-#define BRANCHMODEL_H
+#pragma once
 
 #include <QAbstractListModel>
 #include <QVariant>
@@ -44,8 +43,8 @@ class BranchModel : public QAbstractItemModel {
     Q_OBJECT
 
 public:
-    explicit BranchModel(GitClient *client, QObject *parent = 0);
-    ~BranchModel();
+    explicit BranchModel(GitClient *client, QObject *parent = nullptr);
+    ~BranchModel() override;
 
     // QAbstractItemModel
     QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const override;
@@ -93,11 +92,9 @@ private:
     GitClient *m_client;
     QString m_workingDirectory;
     BranchNode *m_rootNode;
-    BranchNode *m_currentBranch;
+    BranchNode *m_currentBranch = nullptr;
     QString m_currentSha;
 };
 
 } // namespace Internal
 } // namespace Git
-
-#endif // BRANCHMODEL_H

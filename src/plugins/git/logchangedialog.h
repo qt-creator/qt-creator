@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef LOGCHANGEDDIALOG_H
-#define LOGCHANGEDDIALOG_H
+#pragma once
 
 #include <utils/itemviews.h>
 
@@ -128,5 +127,3 @@ private:
 
 } // namespace Internal
 } // namespace Git
-
-#endif // LOGCHANGEDDIALOG_H

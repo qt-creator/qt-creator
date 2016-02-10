@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef GITGREP_H
-#define GITGREP_H
+#pragma once
 
 #include <texteditor/basefilefind.h>
 
@@ -65,5 +64,3 @@ private:
 
 } // namespace Internal
 } // namespace Git
-
-#endif // FINDINFILES_H

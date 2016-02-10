@@ -65,14 +65,14 @@ QString GerritPushDialog::determineRemoteBranch(const QString &localBranch)
     args << QLatin1String("-r") << QLatin1String("--contains")
          << earliestCommit + QLatin1Char('^');
 
-    if (!m_client->synchronousBranchCmd(m_workingDir, args, &output, &error))
+    if (!GitPlugin::client()->synchronousBranchCmd(m_workingDir, args, &output, &error))
         return QString();
     const QString head = QLatin1String("/HEAD");
     QStringList refs = output.split(QLatin1Char('\n'));
 
     QString remoteTrackingBranch;
     if (localBranch != QLatin1String("HEAD"))
-        remoteTrackingBranch = m_client->synchronousTrackingBranch(m_workingDir, localBranch);
+        remoteTrackingBranch = GitPlugin::client()->synchronousTrackingBranch(m_workingDir, localBranch);
 
     QString remoteBranch;
     foreach (const QString &reference, refs) {
@@ -99,7 +99,7 @@ void GerritPushDialog::initRemoteBranches()
     QString remotesPrefix(QLatin1String("refs/remotes/"));
     args << QLatin1String("--format=%(refname)\t%(committerdate:raw)")
          << remotesPrefix;
-    if (!m_client->synchronousForEachRefCmd(m_workingDir, args, &output))
+    if (!GitPlugin::client()->synchronousForEachRefCmd(m_workingDir, args, &output))
         return;
 
     const QStringList refs = output.split(QLatin1String("\n"));
@@ -113,7 +113,7 @@ void GerritPushDialog::initRemoteBranches()
         BranchDate bd(ref.mid(refBranchIndex + 1), QDateTime::fromTime_t(timeT).date());
         m_remoteBranches.insertMulti(ref.left(refBranchIndex), bd);
     }
-    QStringList remotes = m_client->synchronousRemotesList(m_workingDir).keys();
+    QStringList remotes = GitPlugin::client()->synchronousRemotesList(m_workingDir).keys();
     remotes.removeDuplicates();
     {
         const QString origin = QLatin1String("origin");
@@ -130,10 +130,8 @@ void GerritPushDialog::initRemoteBranches()
 GerritPushDialog::GerritPushDialog(const QString &workingDir, const QString &reviewerList, QWidget *parent) :
     QDialog(parent),
     m_workingDir(workingDir),
-    m_ui(new Ui::GerritPushDialog),
-    m_isValid(false)
+    m_ui(new Ui::GerritPushDialog)
 {
-    m_client = GitPlugin::instance()->client();
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     m_ui->setupUi(this);
     m_ui->repositoryLabel->setText(QDir::toNativeSeparators(workingDir));
@@ -189,7 +187,7 @@ QString GerritPushDialog::calculateChangeRange(const QString &branch)
     QString number;
     QString error;
 
-    m_client->synchronousRevListCmd(m_workingDir, args, &number, &error);
+    GitPlugin::client()->synchronousRevListCmd(m_workingDir, args, &number, &error);
 
     number.chop(1);
     return number;
@@ -228,7 +226,7 @@ void GerritPushDialog::setRemoteBranches(bool includeOld)
 
     const QString remoteName = selectedRemoteName();
     if (!m_remoteBranches.contains(remoteName)) {
-        foreach (const QString &branch, m_client->synchronousRepositoryBranches(remoteName, m_workingDir))
+        foreach (const QString &branch, GitPlugin::client()->synchronousRepositoryBranches(remoteName, m_workingDir))
             m_remoteBranches.insertMulti(remoteName, qMakePair(branch, QDate()));
     }
 

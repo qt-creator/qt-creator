@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef ANNOTATIONHIGHLIGHTER_H
-#define ANNOTATIONHIGHLIGHTER_H
+#pragma once
 
 #include <vcsbase/baseannotationhighlighter.h>
 
@@ -47,5 +46,3 @@ private:
 
 } // namespace Internal
 } // namespace Git
-
-#endif // ANNOTATIONHIGHLIGHTER_H

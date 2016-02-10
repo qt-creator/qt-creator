@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef BRANCHADDDIALOG_H
-#define BRANCHADDDIALOG_H
+#pragma once
 
 #include <QDialog>
 
@@ -40,7 +39,7 @@ class BranchAddDialog : public QDialog
 
 public:
     BranchAddDialog(const QStringList &localBranches, bool addBranch, QWidget *parent);
-    ~BranchAddDialog();
+    ~BranchAddDialog() override;
 
     void setBranchName(const QString &);
     QString branchName() const;
@@ -57,5 +56,3 @@ private:
 
 } // namespace Internal
 } // namespace Git
-
-#endif // BRANCHADDDIALOG_H

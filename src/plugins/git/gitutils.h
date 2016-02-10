@@ -23,13 +23,11 @@
 **
 ****************************************************************************/
 
-#ifndef GITUTILS_H
-#define GITUTILS_H
+#pragma once
 
 #include <QString>
 
 QT_BEGIN_NAMESPACE
-class QDebug;
 class QWidget;
 QT_END_NAMESPACE
 
@@ -46,8 +44,6 @@ public:
     QString message;
 };
 
-QDebug operator<<(QDebug d, const Stash &);
-
 // Make QInputDialog  play nicely
 bool inputText(QWidget *parent, const QString &title, const QString &prompt, QString *s);
 
@@ -61,5 +57,3 @@ QString versionString(unsigned ver);
 
 } // namespace Internal
 } // namespace Git
-
-#endif // GITUTILS_H

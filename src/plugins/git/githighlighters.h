@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef GITHIGHLIGHTERS_H
-#define GITHIGHLIGHTERS_H
+#pragma once
 
 #include <texteditor/syntaxhighlighter.h>
 
@@ -81,5 +80,3 @@ private:
 
 } // namespace Internal
 } // namespace Git
-
-#endif // GITHIGHLIGHTERS_H

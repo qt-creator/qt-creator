@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef GITEDITOR_H
-#define GITEDITOR_H
+#pragma once
 
 #include <vcsbase/vcsbaseeditor.h>
 
@@ -75,5 +74,3 @@ private:
 
 } // namespace Git
 } // namespace Internal
-
-#endif // GITEDITOR_H

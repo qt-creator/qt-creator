@@ -45,38 +45,28 @@ namespace Internal {
 class MergeToolProcess : public QProcess
 {
 public:
-    MergeToolProcess(QObject *parent = 0) :
-        QProcess(parent)
-    {
-    }
+    MergeToolProcess(QObject *parent = 0) : QProcess(parent)
+    { }
 
 protected:
     qint64 readData(char *data, qint64 maxlen) override
     {
         qint64 res = QProcess::readData(data, maxlen);
         if (res > 0)
-            VcsOutputWindow::append(QString::fromLocal8Bit(data, res));
+            VcsOutputWindow::append(QString::fromLocal8Bit(data, int(res)));
         return res;
     }
 
     qint64 writeData(const char *data, qint64 len) override
     {
         if (len > 0)
-            VcsOutputWindow::append(QString::fromLocal8Bit(data, len));
+            VcsOutputWindow::append(QString::fromLocal8Bit(data, int(len)));
         return QProcess::writeData(data, len);
     }
 };
 
-MergeTool::MergeTool(QObject *parent) :
-    QObject(parent),
-    m_process(0),
-    m_mergeType(NormalMerge),
-    m_localState(UnknownState),
-    m_remoteState(UnknownState),
-    m_client(GitPlugin::instance()->client()),
-    m_merging(false)
-{
-}
+MergeTool::MergeTool(QObject *parent) : QObject(parent)
+{ }
 
 MergeTool::~MergeTool()
 {
@@ -89,7 +79,7 @@ bool MergeTool::start(const QString &workingDirectory, const QStringList &files)
     arguments << QLatin1String("mergetool") << QLatin1String("-y") << files;
     m_process = new MergeToolProcess(this);
     m_process->setWorkingDirectory(workingDirectory);
-    const Utils::FileName binary = m_client->vcsBinary();
+    const Utils::FileName binary = GitPlugin::client()->vcsBinary();
     VcsOutputWindow::appendCommand(workingDirectory, binary, arguments);
     m_process->start(binary.toString(), arguments);
     if (m_process->waitForStarted()) {
@@ -265,7 +255,7 @@ void MergeTool::done()
         VcsOutputWindow::appendError(tr("Merge tool process terminated with exit code %1")
                                   .arg(exitCode));
     }
-    m_client->continueCommandIfNeeded(workingDirectory, exitCode == 0);
+    GitPlugin::client()->continueCommandIfNeeded(workingDirectory, exitCode == 0);
     GitPlugin::instance()->gitVersionControl()->emitRepositoryChanged(workingDirectory);
     deleteLater();
 }

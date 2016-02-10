@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef REMOTEMODEL_H
-#define REMOTEMODEL_H
+#pragma once
 
 #include <QAbstractTableModel>
 #include <QList>
@@ -38,7 +37,7 @@ class GitClient;
 class RemoteModel : public QAbstractTableModel {
     Q_OBJECT
 public:
-    explicit RemoteModel(GitClient *client, QObject *parent = 0);
+    explicit RemoteModel(QObject *parent = 0);
 
     void clear();
     bool refresh(const QString &workingDirectory, QString *errorMessage);
@@ -64,24 +63,21 @@ public:
 
     QString workingDirectory() const;
     int findRemoteByName(const QString &name) const;
-    GitClient *client() const;
 
 protected:
-    struct Remote {
+    class Remote {
+    public:
         QString name;
         QString url;
     };
     typedef QList<Remote> RemoteList;
 
 private:
-    const Qt::ItemFlags m_flags;
+    const Qt::ItemFlags m_flags = Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsEditable;
 
-    GitClient *m_client;
     QString m_workingDirectory;
     RemoteList m_remotes;
 };
 
 } // namespace Internal
 } // namespace Git
-
-#endif // REMOTEMODEL_H

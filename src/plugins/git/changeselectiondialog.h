@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CHANGESELECTIONDIALOG_H
-#define CHANGESELECTIONDIALOG_H
+#pragma once
 
 #include <coreplugin/id.h>
 
@@ -60,7 +59,7 @@ class ChangeSelectionDialog : public QDialog
     Q_OBJECT
 public:
     ChangeSelectionDialog(const QString &workingDirectory, Core::Id id, QWidget *parent);
-    ~ChangeSelectionDialog();
+    ~ChangeSelectionDialog() override;
 
     QString change() const;
 
@@ -83,15 +82,13 @@ private:
 
     Ui::ChangeSelectionDialog *m_ui;
 
-    QProcess *m_process;
+    QProcess *m_process = nullptr;
     Utils::FileName m_gitExecutable;
     QProcessEnvironment m_gitEnvironment;
-    ChangeCommand m_command;
-    QStringListModel *m_changeModel;
+    ChangeCommand m_command = NoCommand;
+    QStringListModel *m_changeModel = nullptr;
     QString m_oldWorkingDir;
 };
 
 } // namespace Internal
 } // namespace Git
-
-#endif // CHANGESELECTIONDIALOG_H

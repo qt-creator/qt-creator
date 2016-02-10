@@ -151,8 +151,7 @@ public:
             m_ref = params.ref + QLatin1Char(':');
         }
         arguments << QLatin1String("--") << m_parameters.nameFilters;
-        GitClient *client = GitPlugin::instance()->client();
-        QScopedPointer<VcsCommand> command(client->createCommand(m_directory));
+        QScopedPointer<VcsCommand> command(GitPlugin::client()->createCommand(m_directory));
         command->addFlags(VcsCommand::SilentOutput);
         command->setProgressiveOutput(true);
         QFutureWatcher<FileSearchResultList> watcher;
@@ -160,7 +159,7 @@ public:
         connect(&watcher, &QFutureWatcher<FileSearchResultList>::canceled,
                 command.data(), &VcsCommand::cancel);
         connect(command.data(), &VcsCommand::stdOutText, this, &GitGrepRunner::read);
-        SynchronousProcessResponse resp = command->runCommand(client->vcsBinary(), arguments, 0);
+        SynchronousProcessResponse resp = command->runCommand(GitPlugin::client()->vcsBinary(), arguments, 0);
         switch (resp.result) {
         case SynchronousProcessResponse::TerminatedAbnormally:
         case SynchronousProcessResponse::StartFailed:
@@ -292,11 +291,10 @@ IEditor *GitGrep::openEditor(const SearchResultItem &item,
         return nullptr;
     const QString path = QDir::fromNativeSeparators(item.path.first());
     QByteArray content;
-    GitClient *client = GitPlugin::instance()->client();
     const QString topLevel = parameters.additionalParameters.toString();
     const QString relativePath = QDir(topLevel).relativeFilePath(path);
-    if (!client->synchronousShow(topLevel, params.ref + QLatin1String(":./") + relativePath,
-                                 &content, nullptr)) {
+    if (!GitPlugin::client()->synchronousShow(topLevel, params.ref + QLatin1String(":./") + relativePath,
+                                              &content, nullptr)) {
         return nullptr;
     }
     if (content.isEmpty())

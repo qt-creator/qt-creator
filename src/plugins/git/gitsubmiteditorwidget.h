@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef GITSUBMITEDITORWIDGET_H
-#define GITSUBMITEDITORWIDGET_H
+#pragma once
 
 #include "ui_gitsubmitpanel.h"
 #include "gitsettings.h"
@@ -43,8 +42,8 @@ QT_END_NAMESPACE
 namespace Git {
 namespace Internal {
 
-struct GitSubmitEditorPanelInfo;
-struct GitSubmitEditorPanelData;
+class GitSubmitEditorPanelInfo;
+class GitSubmitEditorPanelData;
 class LogChangeWidget;
 
 /* Submit editor widget with 2 additional panes:
@@ -90,18 +89,16 @@ private:
     void setPanelData(const GitSubmitEditorPanelData &data);
     void setPanelInfo(const GitSubmitEditorPanelInfo &info);
 
-    PushAction m_pushAction;
+    PushAction m_pushAction = NoPush;
     QWidget *m_gitSubmitPanel;
-    LogChangeWidget *m_logChangeWidget;
+    LogChangeWidget *m_logChangeWidget = nullptr;
     Ui::GitSubmitPanel m_gitSubmitPanelUi;
     QValidator *m_emailValidator;
     QString m_originalAuthor;
     QString m_originalEmail;
-    bool m_hasUnmerged;
-    bool m_isInitialized;
+    bool m_hasUnmerged = false;
+    bool m_isInitialized = false;
 };
 
 } // namespace Internal
 } // namespace Git
-
-#endif // GITSUBMITEDITORWIDGET_H

@@ -127,16 +127,7 @@ const VcsBaseEditorParameters editorParameters[] = {
 
 static GitPlugin *m_instance = 0;
 
-GitPlugin::GitPlugin() :
-    m_commandLocator(0),
-    m_submitCurrentAction(0),
-    m_diffSelectedFilesAction(0),
-    m_undoAction(0),
-    m_redoAction(0),
-    m_menuAction(0),
-    m_applyCurrentFilePatchAction(0),
-    m_gitClient(0),
-    m_submitActionTriggered(false)
+GitPlugin::GitPlugin()
 {
     m_instance = this;
     m_fileActions.reserve(10);
@@ -167,6 +158,11 @@ bool GitPlugin::isCommitEditorOpen() const
 GitPlugin *GitPlugin::instance()
 {
     return m_instance;
+}
+
+GitClient *GitPlugin::client()
+{
+    return m_instance->m_gitClient;
 }
 
 const VcsBaseSubmitEditorParameters submitParameters = {
@@ -1351,11 +1347,6 @@ void GitPlugin::updateRepositoryBrowserAction()
     const bool hasRepositoryBrowserCmd
             = !client()->settings().stringValue(GitSettings::repositoryBrowserCmd).isEmpty();
     m_repositoryBrowserAction->setEnabled(repositoryEnabled && hasRepositoryBrowserCmd);
-}
-
-GitClient *GitPlugin::client() const
-{
-    return m_gitClient;
 }
 
 Gerrit::Internal::GerritPlugin *GitPlugin::gerritPlugin() const

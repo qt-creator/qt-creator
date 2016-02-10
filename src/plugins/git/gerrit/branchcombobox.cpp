@@ -30,17 +30,13 @@
 using namespace Git::Internal;
 using namespace Gerrit::Internal;
 
-BranchComboBox::BranchComboBox(QWidget *parent) :
-    QComboBox(parent),
-    m_detached(false)
-{
-    m_client = GitPlugin::instance()->client();
-}
+BranchComboBox::BranchComboBox(QWidget *parent) : QComboBox(parent)
+{ }
 
 void BranchComboBox::init(const QString &repository)
 {
     m_repository = repository;
-    QString currentBranch = m_client->synchronousCurrentLocalBranch(repository);
+    QString currentBranch = GitPlugin::client()->synchronousCurrentLocalBranch(repository);
     if (currentBranch.isEmpty()) {
         m_detached = true;
         currentBranch = QLatin1String("HEAD");
@@ -50,7 +46,7 @@ void BranchComboBox::init(const QString &repository)
     const QString branchPrefix(QLatin1String("refs/heads/"));
     QStringList args;
     args << QLatin1String("--format=%(refname)") << branchPrefix;
-    if (!m_client->synchronousForEachRefCmd(m_repository, args, &output))
+    if (!GitPlugin::client()->synchronousForEachRefCmd(m_repository, args, &output))
         return;
     QStringList branches = output.trimmed().split(QLatin1Char('\n'));
     foreach (const QString &ref, branches) {
