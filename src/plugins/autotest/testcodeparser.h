@@ -76,7 +76,7 @@ public slots:
     void updateTestTree();
     void onCppDocumentUpdated(const CPlusPlus::Document::Ptr &document);
     void onQmlDocumentUpdated(const QmlJS::Document::Ptr &document);
-    void onStartupProjectChanged(ProjectExplorer::Project *);
+    void onStartupProjectChanged(ProjectExplorer::Project *project);
     void onProjectPartsUpdated(ProjectExplorer::Project *project);
 
 private:

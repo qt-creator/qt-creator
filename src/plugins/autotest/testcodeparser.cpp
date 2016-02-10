@@ -645,14 +645,12 @@ void TestCodeParser::onQmlDocumentUpdated(const QmlJS::Document::Ptr &document)
     }
 }
 
-void TestCodeParser::onStartupProjectChanged(ProjectExplorer::Project *)
+void TestCodeParser::onStartupProjectChanged(ProjectExplorer::Project *project)
 {
-    if (m_parserState == FullParse || m_parserState == PartialParse) {
+    if (m_parserState == FullParse || m_parserState == PartialParse)
         Core::ProgressManager::instance()->cancelTasks(Constants::TASK_PARSE);
-    } else {
-        emit aboutToPerformFullParse();
+    else if (project)
         emitUpdateTestTree();
-    }
 }
 
 void TestCodeParser::onProjectPartsUpdated(ProjectExplorer::Project *project)
