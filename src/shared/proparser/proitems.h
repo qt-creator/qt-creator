@@ -360,6 +360,8 @@ class ProFunctionDef {
 public:
     ProFunctionDef(ProFile *pro, int offset) : m_pro(pro), m_offset(offset) { m_pro->ref(); }
     ProFunctionDef(const ProFunctionDef &o) : m_pro(o.m_pro), m_offset(o.m_offset) { m_pro->ref(); }
+    ProFunctionDef(ProFunctionDef &&other) Q_DECL_NOTHROW
+        : m_pro(other.m_pro), m_offset(other.m_offset) { other.m_pro = nullptr; }
     ~ProFunctionDef() { m_pro->deref(); }
     ProFunctionDef &operator=(const ProFunctionDef &o)
     {
@@ -371,6 +373,18 @@ public:
         }
         return *this;
     }
+    ProFunctionDef &operator=(ProFunctionDef &&other) Q_DECL_NOTHROW
+    {
+        ProFunctionDef moved(std::move(other));
+        swap(moved);
+        return *this;
+    }
+    void swap(ProFunctionDef &other) Q_DECL_NOTHROW
+    {
+        qSwap(m_pro, other.m_pro);
+        qSwap(m_offset, other.m_offset);
+    }
+
     ProFile *pro() const { return m_pro; }
     const ushort *tokPtr() const { return m_pro->tokPtr() + m_offset; }
 private:
