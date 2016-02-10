@@ -459,8 +459,9 @@ public:
 
 private:
     TTC(const TTC &other) :
-        ToolChain(other)
-    { token = other.token; }
+        ToolChain(other.typeId(), other.detection()),
+        token(other.token)
+    {}
 
     bool m_valid;
 
