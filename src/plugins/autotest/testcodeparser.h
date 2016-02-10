@@ -63,6 +63,10 @@ public:
     void setState(State state);
     State state() const { return m_parserState; }
     void setDirty() { m_dirty = true; }
+#ifdef WITH_TESTS
+    bool furtherParsingExpected() const
+    { return m_singleShotScheduled || m_fullUpdatePostponed || m_partialUpdatePostponed; }
+#endif
 
 signals:
     void aboutToPerformFullParse();

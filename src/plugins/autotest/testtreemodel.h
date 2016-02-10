@@ -85,6 +85,9 @@ public:
 
 signals:
     void testTreeModelChanged();
+#ifdef WITH_TESTS
+    void sweepingDone();
+#endif
 
 public slots:
 

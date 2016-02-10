@@ -569,6 +569,10 @@ void TestTreeModel::sweep()
     }
     if (hasChanged)
         emit testTreeModelChanged();
+#ifdef WITH_TESTS
+    if (m_parser->state() == TestCodeParser::Idle && !m_parser->furtherParsingExpected())
+        emit sweepingDone();
+#endif
 }
 
 QMap<QString, QString> TestTreeModel::testCaseNamesForFiles(QStringList files)
