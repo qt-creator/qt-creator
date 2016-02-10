@@ -127,9 +127,8 @@ bool CodepasterPlugin::initialize(const QStringList &arguments, QString *errorMe
                            };
     const int count = sizeof(protos) / sizeof(Protocol *);
     for (int i = 0; i < count; ++i) {
-        connect(protos[i], SIGNAL(pasteDone(QString)), this, SLOT(finishPost(QString)));
-        connect(protos[i], SIGNAL(fetchDone(QString,QString,bool)),
-                this, SLOT(finishFetch(QString,QString,bool)));
+        connect(protos[i], &Protocol::pasteDone, this, &CodepasterPlugin::finishPost);
+        connect(protos[i], &Protocol::fetchDone, this, &CodepasterPlugin::finishFetch);
         settingsPage->addProtocol(protos[i]->name());
         if (protos[i]->hasSettings())
             addAutoReleasedObject(protos[i]->settingsPage());
