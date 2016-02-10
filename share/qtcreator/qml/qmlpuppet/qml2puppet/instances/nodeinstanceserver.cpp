@@ -482,6 +482,7 @@ void NodeInstanceServer::setupDummyData(const QUrl &fileUrl)
 
     if (m_dummyContextObject.isNull())
         setupDefaultDummyData();
+    rootContext()->setContextObject(m_dummyContextObject);
 }
 
 void NodeInstanceServer::setupDefaultDummyData()
