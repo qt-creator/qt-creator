@@ -40,6 +40,7 @@ namespace {
 
 const char LINK_ACTION_GOTO_LOCATION[] = "#gotoLocation";
 const char LINK_ACTION_APPLY_FIX[] = "#applyFix";
+const int childIndentationOnTheLeftInPixel = 10;
 
 QString wrapInBoldTags(const QString &text)
 {
@@ -172,7 +173,7 @@ QWidget *createChildDiagnosticLabel(const ClangBackEnd::DiagnosticContainer &dia
     const QVector<ClangBackEnd::FixItContainer> fixits = diagnostic.fixIts();
 
     auto *label = new QLabel(text);
-    label->setContentsMargins(10, 0, 0, 0); // indent
+    label->setContentsMargins(childIndentationOnTheLeftInPixel, 0, 0, 0);
     label->setTextFormat(Qt::RichText);
     QObject::connect(label, &QLabel::linkActivated, [location, fixits](const QString &action) {
         if (action == QLatin1String(LINK_ACTION_APPLY_FIX))
@@ -184,6 +185,32 @@ QWidget *createChildDiagnosticLabel(const ClangBackEnd::DiagnosticContainer &dia
     });
 
     return label;
+}
+
+void addChildrenToLayout(const QString &mainFilePath,
+                         const QVector<ClangBackEnd::DiagnosticContainer>::const_iterator first,
+                         const QVector<ClangBackEnd::DiagnosticContainer>::const_iterator last,
+                         QBoxLayout &boxLayout)
+{
+    for (auto it = first; it != last; ++it)
+        boxLayout.addWidget(createChildDiagnosticLabel(*it, mainFilePath));;
+}
+
+void setupChildDiagnostics(const QString &mainFilePath,
+                           const QVector<ClangBackEnd::DiagnosticContainer> &diagnostics,
+                           QBoxLayout &boxLayout)
+{
+    if (diagnostics.size() <= 10) {
+        addChildrenToLayout(mainFilePath, diagnostics.begin(), diagnostics.end(), boxLayout);
+    } else {
+        addChildrenToLayout(mainFilePath, diagnostics.begin(), diagnostics.begin() + 7, boxLayout);
+
+        auto ellipsisLabel = new QLabel(QStringLiteral("..."));
+        ellipsisLabel->setContentsMargins(childIndentationOnTheLeftInPixel, 0, 0, 0);
+        boxLayout.addWidget(ellipsisLabel);
+
+        addChildrenToLayout(mainFilePath, diagnostics.end() - 3, diagnostics.end(), boxLayout);
+    }
 }
 
 } // anonymous namespace
@@ -199,13 +226,11 @@ ClangDiagnosticToolTipWidget::ClangDiagnosticToolTipWidget(
     auto *mainLayout = createLayout<QVBoxLayout>();
 
     foreach (const auto &diagnostic, diagnostics) {
-        // Set up header and text row of main diagnostic
+        // Set up header and text row for main diagnostic
         mainLayout->addWidget(new MainDiagnosticWidget(diagnostic));
 
-        // Set up child rows
-        const QString mainFilePath = diagnostic.location().filePath();
-        foreach (const auto &childDiagnostic, diagnostic.children())
-            mainLayout->addWidget(createChildDiagnosticLabel(childDiagnostic, mainFilePath));
+        // Set up child rows for notes
+        setupChildDiagnostics(diagnostic.location().filePath(), diagnostic.children(), *mainLayout);
     }
 
     setLayout(mainLayout);
