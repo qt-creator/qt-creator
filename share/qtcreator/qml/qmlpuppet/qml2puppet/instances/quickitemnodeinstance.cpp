@@ -644,6 +644,16 @@ void QuickItemNodeInstance::setPropertyBinding(const PropertyName &name, const Q
 
     refresh();
 
+    /* Evaluate properties of the root item in the context of the dummy context if they contain parent.
+     * This is done manually because we cannot "overwrite" the parent property
+     */
+
+    if (isRootNodeInstance() && expression.contains(QLatin1String("parent."))) {
+        QQmlExpression qmlContextExpression(context(), nodeInstanceServer()->dummyContextObject(), expression);
+        QVariant value = qmlContextExpression.evaluate();
+        setPropertyVariant(name, value);
+    }
+
     if (isInLayoutable())
         parentInstance()->refreshLayoutable();
 }
