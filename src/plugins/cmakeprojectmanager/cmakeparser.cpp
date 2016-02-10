@@ -36,6 +36,7 @@ using namespace ProjectExplorer;
 
 const char COMMON_ERROR_PATTERN[] = "^CMake Error at (.*):([0-9]*) \\((.*)\\):";
 const char NEXT_SUBERROR_PATTERN[] = "^CMake Error in (.*):";
+const char LOCATION_LINE_PATTERN[] = ":(\\d+):(?:(\\d+))?$";
 
 CMakeParser::CMakeParser()
 {
@@ -46,41 +47,82 @@ CMakeParser::CMakeParser()
     m_nextSubError.setPattern(QLatin1String(NEXT_SUBERROR_PATTERN));
     m_nextSubError.setMinimal(true);
     QTC_CHECK(m_nextSubError.isValid());
+
+    m_locationLine.setPattern(QLatin1String(LOCATION_LINE_PATTERN));
+    QTC_CHECK(m_locationLine.isValid());
+
     appendOutputParser(new GnuMakeParser());
 }
 
 void CMakeParser::stdError(const QString &line)
 {
     QString trimmedLine = rightTrimmed(line);
-    if (trimmedLine.isEmpty() && !m_lastTask.isNull()) {
+
+    if (trimmedLine.endsWith(QLatin1String("in cmake code at")))
+        qDebug() << "Break";
+
+    switch (m_expectTripleLineErrorData) {
+    case NONE:
+        if (trimmedLine.isEmpty() && !m_lastTask.isNull()) {
+            if (m_skippedFirstEmptyLine)
+                doFlush();
+            else
+                m_skippedFirstEmptyLine = true;
+            return;
+        }
         if (m_skippedFirstEmptyLine)
+            m_skippedFirstEmptyLine = false;
+
+        if (m_commonError.indexIn(trimmedLine) != -1) {
+            m_lastTask = Task(Task::Error, QString(), Utils::FileName::fromUserInput(m_commonError.cap(1)),
+                              m_commonError.cap(2).toInt(), Constants::TASK_CATEGORY_BUILDSYSTEM);
+            m_lines = 1;
+            return;
+        } else if (m_nextSubError.indexIn(trimmedLine) != -1) {
+            m_lastTask = Task(Task::Error, QString(), Utils::FileName::fromUserInput(m_nextSubError.cap(1)), -1,
+                              Constants::TASK_CATEGORY_BUILDSYSTEM);
+            m_lines = 1;
+            return;
+        } else if (trimmedLine.startsWith(QLatin1String("  ")) && !m_lastTask.isNull()) {
+            if (!m_lastTask.description.isEmpty())
+                m_lastTask.description.append(QLatin1Char(' '));
+            m_lastTask.description.append(trimmedLine.trimmed());
+            ++m_lines;
+            return;
+        } else if (trimmedLine.endsWith(QLatin1String("in cmake code at"))) {
+            m_expectTripleLineErrorData = LINE_LOCATION;
             doFlush();
-        else
-            m_skippedFirstEmptyLine = true;
+            m_lastTask = Task(trimmedLine.contains(QLatin1String("Error")) ? Task::Error : Task::Warning,
+                              QString(), Utils::FileName(), -1, Constants::TASK_CATEGORY_BUILDSYSTEM);
+            return;
+        }
+        IOutputParser::stdError(line);
+        return;
+    case LINE_LOCATION:
+        {
+            QRegularExpressionMatch m = m_locationLine.match(trimmedLine);
+            QTC_CHECK(m.hasMatch());
+            m_lastTask.file = Utils::FileName::fromUserInput(trimmedLine.mid(0, m.capturedStart()));
+            m_lastTask.line = m.captured(1).toInt();
+            m_expectTripleLineErrorData = LINE_DESCRIPTION;
+        }
+        return;
+    case LINE_DESCRIPTION:
+        m_lastTask.description = trimmedLine;
+        if (trimmedLine.endsWith(QLatin1Char('\"')))
+            m_expectTripleLineErrorData = LINE_DESCRIPTION2;
+        else {
+            m_expectTripleLineErrorData = NONE;
+            doFlush();
+        }
+        return;
+    case LINE_DESCRIPTION2:
+        m_lastTask.description.append(QLatin1Char('\n'));
+        m_lastTask.description.append(trimmedLine);
+        m_expectTripleLineErrorData = NONE;
+        doFlush();
         return;
     }
-    if (m_skippedFirstEmptyLine)
-        m_skippedFirstEmptyLine = false;
-
-    if (m_commonError.indexIn(trimmedLine) != -1) {
-        m_lastTask = Task(Task::Error, QString(), Utils::FileName::fromUserInput(m_commonError.cap(1)),
-                          m_commonError.cap(2).toInt(), Constants::TASK_CATEGORY_BUILDSYSTEM);
-        m_lines = 1;
-        return;
-    } else if (m_nextSubError.indexIn(trimmedLine) != -1) {
-        m_lastTask = Task(Task::Error, QString(), Utils::FileName::fromUserInput(m_nextSubError.cap(1)), -1,
-                          Constants::TASK_CATEGORY_BUILDSYSTEM);
-        m_lines = 1;
-        return;
-    } else if (trimmedLine.startsWith(QLatin1String("  ")) && !m_lastTask.isNull()) {
-        if (!m_lastTask.description.isEmpty())
-            m_lastTask.description.append(QLatin1Char(' '));
-        m_lastTask.description.append(trimmedLine.trimmed());
-        ++m_lines;
-        return;
-    }
-
-    IOutputParser::stdError(line);
 }
 
 void CMakeParser::doFlush()
@@ -181,6 +223,33 @@ void CMakeProjectPlugin::testCMakeParser_data()
                 << Task(Task::Error,
                         QLatin1String("message called with incorrect number of arguments"),
                         Utils::FileName::fromUserInput(QLatin1String("src/1/CMakeLists.txt")), 8,
+                        categoryBuild))
+            << QString();
+
+    QTest::newRow("cmake error")
+            << QString::fromLatin1("CMake Error: Error in cmake code at\n"
+                                   "/test/path/CMakeLists.txt:9:\n"
+                                   "Parse error.  Expected \"(\", got newline with text \"\n"
+                                   "\".")
+            << OutputParserTester::STDERR
+            << QString() << QString()
+            << (QList<ProjectExplorer::Task>()
+                << Task(Task::Error,
+                        QLatin1String("Parse error.  Expected \"(\", got newline with text \"\n\"."),
+                        Utils::FileName::fromUserInput(QLatin1String("/test/path/CMakeLists.txt")), 9,
+                        categoryBuild))
+            << QString();
+
+    QTest::newRow("cmake warning")
+            << QString::fromLatin1("Syntax Warning in cmake code at\n"
+                                   "/test/path/CMakeLists.txt:9:15\n"
+                                   "Argument not separated from preceding token by whitespace.")
+            << OutputParserTester::STDERR
+            << QString() << QString()
+            << (QList<ProjectExplorer::Task>()
+                << Task(Task::Warning,
+                        QLatin1String("Argument not separated from preceding token by whitespace."),
+                        Utils::FileName::fromUserInput(QLatin1String("/test/path/CMakeLists.txt")), 9,
                         categoryBuild))
             << QString();
 }
