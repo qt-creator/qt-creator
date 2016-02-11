@@ -2756,7 +2756,8 @@ void GitClient::fetch(const QString &workingDirectory, const QString &remote)
 {
     QStringList arguments(QLatin1String("fetch"));
     arguments << (remote.isEmpty() ? QLatin1String("--all") : remote);
-    VcsCommand *command = vcsExec(workingDirectory, arguments, 0, true, 0, workingDirectory);
+    VcsCommand *command = vcsExec(workingDirectory, arguments, 0, true,
+                                  VcsCommand::ShowSuccessMessage, workingDirectory);
     connect(command, &VcsCommand::success, this, &GitClient::fetchFinished);
 }
 
