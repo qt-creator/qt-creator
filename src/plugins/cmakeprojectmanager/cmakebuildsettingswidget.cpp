@@ -29,6 +29,7 @@
 #include "cmakeproject.h"
 #include "cmakebuildconfiguration.h"
 
+#include <coreplugin/coreicons.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/find/itemviewfind.h>
 #include <projectexplorer/projectexplorer.h>
@@ -94,7 +95,21 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
     mainLayout->addWidget(buildDirChooser->buttonAtIndex(0), row, 2);
 
     ++row;
-    mainLayout->addItem(new QSpacerItem(20, 20), row, 0);
+    mainLayout->addItem(new QSpacerItem(20, 10), row, 0);
+
+    ++row;
+    m_errorLabel = new QLabel;
+    m_errorLabel->setPixmap(Core::Icons::ERROR.pixmap());
+    m_errorLabel->setVisible(false);
+    m_errorMessageLabel = new QLabel;
+    m_errorMessageLabel->setVisible(false);
+    auto boxLayout = new QHBoxLayout;
+    boxLayout->addWidget(m_errorLabel);
+    boxLayout->addWidget(m_errorMessageLabel);
+    mainLayout->addLayout(boxLayout, row, 0, 1, 3, Qt::AlignHCenter);
+
+    ++row;
+    mainLayout->addItem(new QSpacerItem(20, 10), row, 0);
 
     ++row;
     auto tree = new Utils::TreeView;
@@ -145,6 +160,7 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
     mainLayout->addWidget(m_reconfigureButton, row, 0, 1, 3);
 
     updateAdvancedCheckBox();
+    setError(bc->error());
 
     connect(project, &CMakeProject::parsingStarted, this, [this]() {
         updateButtonState();
@@ -180,6 +196,24 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
         m_configView->setCurrentIndex(idx);
         m_configView->edit(idx);
     });
+
+    connect(bc, &CMakeBuildConfiguration::errorOccured, this, &CMakeBuildSettingsWidget::setError);
+}
+
+void CMakeBuildSettingsWidget::setError(const QString &message)
+{
+    bool showWarning = !message.isEmpty();
+    m_errorLabel->setVisible(showWarning);
+    m_errorLabel->setToolTip(message);
+    m_errorMessageLabel->setVisible(showWarning);
+    m_errorMessageLabel->setText(message);
+    m_errorMessageLabel->setToolTip(message);
+
+    m_configView->setVisible(!showWarning);
+    m_editButton->setVisible(!showWarning);
+    m_resetButton->setVisible(!showWarning);
+    m_showAdvancedCheckBox->setVisible(!showWarning);
+    m_reconfigureButton->setVisible(!showWarning);
 }
 
 void CMakeBuildSettingsWidget::updateButtonState()

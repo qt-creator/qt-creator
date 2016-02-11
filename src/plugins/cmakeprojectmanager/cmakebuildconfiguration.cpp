@@ -81,6 +81,16 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(ProjectExplorer::Target *parent
                                            displayName(), BuildConfiguration::Unknown));
 }
 
+bool CMakeBuildConfiguration::isEnabled() const
+{
+    return m_error.isEmpty();
+}
+
+QString CMakeBuildConfiguration::disabledReason() const
+{
+    return error();
+}
+
 CMakeBuildConfiguration::CMakeBuildConfiguration(ProjectExplorer::Target *parent,
                                                  CMakeBuildConfiguration *source) :
     BuildConfiguration(parent, source),
@@ -158,6 +168,20 @@ void CMakeBuildConfiguration::setCMakeConfiguration(const CMakeConfig &config)
 CMakeConfig CMakeBuildConfiguration::cmakeConfiguration() const
 {
     return m_configuration;
+}
+
+void CMakeBuildConfiguration::setError(const QString &message)
+{
+    if (m_error == message)
+        return;
+    m_error = message;
+    emit enabledChanged();
+    emit errorOccured(m_error);
+}
+
+QString CMakeBuildConfiguration::error() const
+{
+    return m_error;
 }
 
 ProjectExplorer::NamedWidget *CMakeBuildConfiguration::createConfigWidget()

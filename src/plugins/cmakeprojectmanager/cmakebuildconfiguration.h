@@ -48,6 +48,9 @@ class CMakeBuildConfiguration : public ProjectExplorer::BuildConfiguration
 public:
     CMakeBuildConfiguration(ProjectExplorer::Target *parent);
 
+    bool isEnabled() const override;
+    QString disabledReason() const override;
+
     ProjectExplorer::NamedWidget *createConfigWidget() override;
 
     QVariantMap toMap() const override;
@@ -59,6 +62,12 @@ public:
     void setCMakeConfiguration(const CMakeConfig &config);
     CMakeConfig cmakeConfiguration() const;
 
+    void setError(const QString &message);
+    QString error() const;
+
+signals:
+    void errorOccured(const QString &message);
+
 protected:
     CMakeBuildConfiguration(ProjectExplorer::Target *parent, CMakeBuildConfiguration *source);
     bool fromMap(const QVariantMap &map) override;
@@ -66,6 +75,7 @@ protected:
 private:
     QString m_initialArguments;
     CMakeConfig m_configuration;
+    QString m_error;
 
     friend class CMakeProjectManager::CMakeProject;
 };

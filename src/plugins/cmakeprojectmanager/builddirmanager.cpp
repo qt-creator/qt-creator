@@ -451,6 +451,14 @@ CMakeConfig BuildDirManager::parseConfiguration() const
             CMakeConfigItem::Type t = fromByteArray(type);
             if (t != CMakeConfigItem::INTERNAL)
                 result << CMakeConfigItem(key, t, documentation, value);
+
+            // Sanity checks:
+            if (key == "CMAKE_HOME_DIRECTORY") {
+                const Utils::FileName actualSourceDir = Utils::FileName::fromUserInput(QString::fromUtf8(value));
+                if (actualSourceDir != m_sourceDir)
+                    emit errorOccured(tr("Build directory contains a build of the wrong project (%1).")
+                                      .arg(actualSourceDir.toUserOutput()));
+            }
         }
     }
 

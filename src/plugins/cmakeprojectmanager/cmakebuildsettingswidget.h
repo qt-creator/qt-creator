@@ -33,6 +33,7 @@
 
 QT_BEGIN_NAMESPACE
 class QCheckBox;
+class QLabel;
 class QPushButton;
 class QTreeView;
 class QSortFilterProxyModel;
@@ -52,6 +53,8 @@ class CMakeBuildSettingsWidget : public ProjectExplorer::NamedWidget
 public:
     CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc);
 
+    void setError(const QString &message);
+
 private:
     void updateButtonState();
     void updateAdvancedCheckBox();
@@ -66,6 +69,8 @@ private:
     QCheckBox *m_showAdvancedCheckBox;
     QPushButton *m_reconfigureButton;
     QTimer m_showProgressTimer;
+    QLabel *m_errorLabel;
+    QLabel *m_errorMessageLabel;
 };
 
 } // namespace Internal

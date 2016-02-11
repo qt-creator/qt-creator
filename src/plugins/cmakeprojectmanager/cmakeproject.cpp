@@ -139,6 +139,8 @@ void CMakeProject::changeActiveBuildConfiguration(ProjectExplorer::BuildConfigur
                 this, &CMakeProject::parsingStarted);
         connect(m_buildDirManager, &BuildDirManager::dataAvailable,
                 this, &CMakeProject::parseCMakeOutput);
+        connect(m_buildDirManager, &BuildDirManager::errorOccured,
+                cmakebc, &CMakeBuildConfiguration::setError);
     }
 }
 

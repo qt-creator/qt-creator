@@ -100,6 +100,7 @@ private:
 
     const Utils::FileName m_sourceDir;
     Utils::FileName m_buildDir;
+    Utils::FileName m_parsedSourceDir;
     const ProjectExplorer::Kit *const m_kit;
     Utils::Environment m_environment;
     CMakeConfig m_inputConfig;
