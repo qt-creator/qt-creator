@@ -721,6 +721,9 @@ void PluginManager::formatOptions(QTextStream &str, int optionIndentation, int d
     formatOption(str, QString::fromLatin1(OptionsParser::TEST_OPTION) + QLatin1String(" all"),
                  QString(), QLatin1String("Run tests from all plugins"),
                  optionIndentation, descriptionIndentation);
+    formatOption(str, QString::fromLatin1(OptionsParser::NOTEST_OPTION),
+                 QLatin1String("plugin"), QLatin1String("Exclude all of the plugin's tests from the test run"),
+                 optionIndentation, descriptionIndentation);
 #endif
 }
 

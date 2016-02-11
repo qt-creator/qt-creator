@@ -48,6 +48,7 @@ public:
     static const char *NO_LOAD_OPTION;
     static const char *LOAD_OPTION;
     static const char *TEST_OPTION;
+    static const char *NOTEST_OPTION;
     static const char *PROFILE_OPTION;
 private:
     // return value indicates if the option was processed
@@ -55,7 +56,7 @@ private:
     bool checkForEndOfOptions();
     bool checkForLoadOption();
     bool checkForNoLoadOption();
-    bool checkForTestOption();
+    bool checkForTestOptions();
     bool checkForAppOption();
     bool checkForPluginOption();
     bool checkForProfilingOption();

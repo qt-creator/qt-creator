@@ -28,6 +28,8 @@
 
 #include "pluginspec.h"
 
+#include <utils/algorithm.h>
+
 #include <QSet>
 #include <QStringList>
 #include <QObject>
@@ -87,11 +89,12 @@ public:
 
     bool containsTestSpec(PluginSpec *pluginSpec) const
     {
-        foreach (const TestSpec &testSpec, testSpecs) {
-            if (testSpec.pluginSpec == pluginSpec)
-                return true;
-        }
-        return false;
+        return Utils::contains(testSpecs, [pluginSpec](const TestSpec &s) { return s.pluginSpec == pluginSpec; });
+    }
+
+    void removeTestSpec(PluginSpec *pluginSpec)
+    {
+        testSpecs = Utils::filtered(testSpecs, [pluginSpec](const TestSpec &s) { return s.pluginSpec != pluginSpec; });
     }
 
     QHash<QString, PluginCollection *> pluginCategories;

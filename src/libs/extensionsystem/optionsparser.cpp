@@ -29,6 +29,8 @@
 #include "pluginmanager_p.h"
 #include "pluginspec_p.h"
 
+#include <utils/algorithm.h>
+
 #include <QCoreApplication>
 
 using namespace ExtensionSystem;
@@ -38,6 +40,7 @@ const char END_OF_OPTIONS[] = "--";
 const char *OptionsParser::NO_LOAD_OPTION = "-noload";
 const char *OptionsParser::LOAD_OPTION = "-load";
 const char *OptionsParser::TEST_OPTION = "-test";
+const char *OptionsParser::NOTEST_OPTION = "-notest";
 const char *OptionsParser::PROFILE_OPTION = "-profile";
 
 OptionsParser::OptionsParser(const QStringList &args,
@@ -76,7 +79,7 @@ bool OptionsParser::parse()
         if (checkForProfilingOption())
             continue;
 #ifdef WITH_TESTS
-        if (checkForTestOption())
+        if (checkForTestOptions())
             continue;
 #endif
         if (checkForAppOption())
@@ -104,37 +107,57 @@ bool OptionsParser::checkForEndOfOptions()
     return true;
 }
 
-bool OptionsParser::checkForTestOption()
+bool OptionsParser::checkForTestOptions()
 {
-    if (m_currentArg != QLatin1String(TEST_OPTION))
-        return false;
-    if (nextToken(RequiredToken)) {
-        if (m_currentArg == QLatin1String("all")) {
-            foreach (PluginSpec *spec, m_pmPrivate->pluginSpecs) {
-                if (spec && !m_pmPrivate->containsTestSpec(spec))
-                    m_pmPrivate->testSpecs.append(PluginManagerPrivate::TestSpec(spec));
-            }
-        } else {
-            QStringList args = m_currentArg.split(QLatin1Char(','));
-            const QString pluginName = args.takeFirst();
-            if (PluginSpec *spec = m_pmPrivate->pluginByName(pluginName)) {
-                if (m_pmPrivate->containsTestSpec(spec)) {
+    if (m_currentArg == QLatin1String(TEST_OPTION)) {
+        if (nextToken(RequiredToken)) {
+            if (m_currentArg == QLatin1String("all")) {
+                foreach (PluginSpec *spec, m_pmPrivate->pluginSpecs) {
+                    if (spec && !m_pmPrivate->containsTestSpec(spec))
+                        m_pmPrivate->testSpecs.append(PluginManagerPrivate::TestSpec(spec));
+                }
+            } else {
+                QStringList args = m_currentArg.split(QLatin1Char(','));
+                const QString pluginName = args.takeFirst();
+                if (PluginSpec *spec = m_pmPrivate->pluginByName(pluginName)) {
+                    if (m_pmPrivate->containsTestSpec(spec)) {
+                        if (m_errorString)
+                            *m_errorString = QCoreApplication::translate("PluginManager",
+                                                                         "The plugin \"%1\" is specified twice for testing.").arg(pluginName);
+                        m_hasError = true;
+                    } else {
+                        m_pmPrivate->testSpecs.append(PluginManagerPrivate::TestSpec(spec, args));
+                    }
+                } else  {
                     if (m_errorString)
                         *m_errorString = QCoreApplication::translate("PluginManager",
-                                                                     "The plugin \"%1\" is specified twice for testing.").arg(pluginName);
+                                                                     "The plugin \"%1\" does not exist.").arg(pluginName);
+                    m_hasError = true;
+                }
+            }
+        }
+        return true;
+    } else if (m_currentArg == QLatin1String(NOTEST_OPTION)) {
+        if (nextToken(RequiredToken)) {
+            if (PluginSpec *spec = m_pmPrivate->pluginByName(m_currentArg)) {
+                if (!m_pmPrivate->containsTestSpec(spec)) {
+                    if (m_errorString)
+                        *m_errorString = QCoreApplication::translate("PluginManager",
+                                                                     "The plugin \"%1\" is not tested.").arg(m_currentArg);
                     m_hasError = true;
                 } else {
-                    m_pmPrivate->testSpecs.append(PluginManagerPrivate::TestSpec(spec, args));
+                    m_pmPrivate->removeTestSpec(spec);
                 }
-            } else  {
+            } else {
                 if (m_errorString)
                     *m_errorString = QCoreApplication::translate("PluginManager",
-                                                                 "The plugin \"%1\" does not exist.").arg(pluginName);
+                                                                 "The plugin \"%1\" does not exist.").arg(m_currentArg);
                 m_hasError = true;
             }
         }
+        return true;
     }
-    return true;
+    return false;
 }
 
 bool OptionsParser::checkForLoadOption()
