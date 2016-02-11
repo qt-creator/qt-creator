@@ -70,10 +70,11 @@ public:
     void revertAll(const QString &workingDir, const QString &revision = QString(),
                    const QStringList &extraOptions = QStringList()) override;
 
+    QString findTopLevelForFile(const QFileInfo &file) const override;
+
+public slots:
     void view(const QString &source, const QString &id,
               const QStringList &extraOptions = QStringList()) override;
-
-    QString findTopLevelForFile(const QFileInfo &file) const override;
 
 protected:
     Core::Id vcsEditorKind(VcsCommandTag cmd) const override;

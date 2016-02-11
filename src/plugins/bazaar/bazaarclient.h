@@ -52,10 +52,12 @@ public:
     void annotate(const QString &workingDir, const QString &file,
                   const QString &revision = QString(), int lineNumber = -1,
                   const QStringList &extraOptions = QStringList());
-    void view(const QString &source, const QString &id,
-              const QStringList &extraOptions = QStringList());
     QString findTopLevelForFile(const QFileInfo &file) const;
     bool managesFile(const QString &workingDirectory, const QString &fileName) const;
+
+public slots:
+    void view(const QString &source, const QString &id,
+              const QStringList &extraOptions = QStringList());
 
 protected:
     Core::Id vcsEditorKind(VcsCommandTag cmd) const;

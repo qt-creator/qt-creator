@@ -194,9 +194,11 @@ private slots:
     void testVcsStatusDynamicNotManaged();
 #endif
 
+public slots:
+    void describe(const QString &source, const QString &changeNr);
+
 private:
     void annotateVersion(const QString &workingDirectory, const QString &file, const QString &revision, int lineNumber);
-    void describe(const QString &source, const QString &changeNr);
     void syncSlot();
     void updateStatusActions();
 
