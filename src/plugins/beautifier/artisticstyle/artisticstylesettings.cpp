@@ -74,6 +74,18 @@ void ArtisticStyleSettings::updateVersion()
     m_versionWatcher.setFuture(m_versionFuture);
 }
 
+static int parseVersion(const QString &text)
+{
+    // The version in Artistic Style is printed like "Artistic Style Version 2.04"
+    const QRegExp rx(QLatin1String("([2-9]{1})\\.([0-9]{2})(\\.[1-9]{1})?$"));
+    if (rx.indexIn(text) != -1) {
+        const int major = rx.cap(1).toInt() * 100;
+        const int minor = rx.cap(2).toInt();
+        return major + minor;
+    }
+    return 0;
+}
+
 void ArtisticStyleSettings::helperUpdateVersion(QFutureInterface<int> &future)
 {
     QProcess process;
@@ -84,17 +96,12 @@ void ArtisticStyleSettings::helperUpdateVersion(QFutureInterface<int> &future)
         return;
     }
 
-    // The version in Artistic Style is printed like "Artistic Style Version 2.04"
-    const QString version = QString::fromUtf8(process.readAllStandardError()).trimmed();
-    const QRegExp rx(QLatin1String("([2-9]{1})\\.([0-9]{2})(\\.[1-9]{1})?$"));
-    if (rx.indexIn(version) != -1) {
-        const int major = rx.cap(1).toInt() * 100;
-        const int minor = rx.cap(2).toInt();
-        future.reportResult(major + minor);
-        return;
-    }
-    future.reportResult(0);
-    return;
+    // Astyle prints the version on stdout or stderr, depending on platform
+    const int version = parseVersion(QString::fromUtf8(process.readAllStandardOutput()).trimmed());
+    if (version != 0)
+        future.reportResult(version);
+    else
+        future.reportResult(parseVersion(QString::fromUtf8(process.readAllStandardError()).trimmed()));
 }
 
 void ArtisticStyleSettings::helperSetVersion()
