@@ -212,7 +212,7 @@ GitGrep::GitGrep()
                 tr("Tree: add reference here or leave empty to search through the file system)"));
     m_treeLineEdit->setToolTip(
                 tr("Reference can be HEAD, tag, local or remote branch, or a commit hash."));
-    const QRegularExpression refExpression(QLatin1String("[\\w/]*"));
+    const QRegularExpression refExpression(QLatin1String("[\\S]*"));
     m_treeLineEdit->setValidator(new QRegularExpressionValidator(refExpression, this));
     layout->addWidget(m_treeLineEdit);
     TextEditor::FindInFiles *findInFiles = TextEditor::FindInFiles::instance();
