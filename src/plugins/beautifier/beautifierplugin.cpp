@@ -48,7 +48,7 @@
 #include <texteditor/texteditorconstants.h>
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
-#include <utils/QtConcurrentTools>
+#include <utils/runextensions.h>
 
 #include <QAction>
 #include <QDir>
@@ -236,7 +236,7 @@ void BeautifierPlugin::formatCurrentFile(const Command &command, int startPos, i
             connect(watcher, &QFutureWatcherBase::finished, m_asyncFormatMapper,
                     static_cast<void (QSignalMapper::*)()>(&QSignalMapper::map));
             m_asyncFormatMapper->setMapping(watcher, watcher);
-            watcher->setFuture(QtConcurrent::run(&BeautifierPlugin::formatAsync, this, task));
+            watcher->setFuture(Utils::runAsync(&BeautifierPlugin::formatAsync, this, task));
         }
     }
 }

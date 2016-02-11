@@ -31,7 +31,7 @@
 
 #include <coreplugin/icore.h>
 
-#include <utils/QtConcurrentTools>
+#include <utils/runextensions.h>
 
 #include <QDateTime>
 #include <QFile>
@@ -70,7 +70,7 @@ void ArtisticStyleSettings::updateVersion()
     if (m_versionFuture.isRunning())
         m_versionFuture.cancel();
 
-    m_versionFuture = QtConcurrent::run(&ArtisticStyleSettings::helperUpdateVersion, this);
+    m_versionFuture = Utils::runAsync(&ArtisticStyleSettings::helperUpdateVersion, this);
     m_versionWatcher.setFuture(m_versionFuture);
 }
 
