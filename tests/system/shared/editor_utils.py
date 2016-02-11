@@ -266,6 +266,7 @@ def getEditorForFileSuffix(curFile, treeViewSyntax=False):
     proEditorSuffixes = ["pro", "pri", "prf"]
     glslEditorSuffixes= ["frag", "vert", "fsh", "vsh", "glsl", "shader", "gsh"]
     pytEditorSuffixes = ["py", "pyw", "wsgi"]
+    binEditorSuffixes = ["bin"]
     suffix = __getFileSuffix__(curFile)
     expected = os.path.basename(curFile)
     if treeViewSyntax:
@@ -281,6 +282,8 @@ def getEditorForFileSuffix(curFile, treeViewSyntax=False):
             editor = waitForObject(":Qt Creator_QmlJSEditor::QmlJSTextEditorWidget")
         elif suffix in proEditorSuffixes or suffix in glslEditorSuffixes or suffix in pytEditorSuffixes:
             editor = waitForObject(":Qt Creator_TextEditor::TextEditorWidget")
+        elif suffix in binEditorSuffixes:
+            editor = waitForObject(":Qt Creator_BinEditor::BinEditorWidget")
         else:
             test.log("Trying TextEditorWidget (file suffix: %s)" % suffix)
             try:
