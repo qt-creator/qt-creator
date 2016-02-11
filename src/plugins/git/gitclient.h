@@ -343,7 +343,6 @@ public slots:
 
 private:
     void finishSubmoduleUpdate();
-    void fetchFinished(const QVariant &cookie);
     void slotChunkActionsRequested(QMenu *menu, bool isValid);
     void slotStageChunk();
     void slotUnstageChunk();

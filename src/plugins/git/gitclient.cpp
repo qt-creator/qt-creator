@@ -1999,11 +1999,6 @@ void GitClient::finishSubmoduleUpdate()
     m_updatedSubmodules.clear();
 }
 
-void GitClient::fetchFinished(const QVariant &cookie)
-{
-    GitPlugin::instance()->updateBranches(cookie.toString());
-}
-
 GitClient::StatusResult GitClient::gitStatus(const QString &workingDirectory, StatusMode mode,
                                              QString *output, QString *errorMessage) const
 {
@@ -2757,8 +2752,9 @@ void GitClient::fetch(const QString &workingDirectory, const QString &remote)
     QStringList arguments(QLatin1String("fetch"));
     arguments << (remote.isEmpty() ? QLatin1String("--all") : remote);
     VcsCommand *command = vcsExec(workingDirectory, arguments, 0, true,
-                                  VcsCommand::ShowSuccessMessage, workingDirectory);
-    connect(command, &VcsCommand::success, this, &GitClient::fetchFinished);
+                                  VcsCommand::ShowSuccessMessage);
+    connect(command, &VcsCommand::success,
+            this, [workingDirectory]() { GitPlugin::instance()->updateBranches(workingDirectory); });
 }
 
 bool GitClient::executeAndHandleConflicts(const QString &workingDirectory,
