@@ -147,6 +147,26 @@
     However, those options are not supported by all versions of Perf and Perf may
     not start if an unsupported option is given.
 
+    \section2 Aggregating Data
+
+    In the \uicontrol Granularity field, you can specify whether the data
+    should be aggregated by function or by binary address.
+
+    If you choose \uicontrol Function, all stack frames will be reported with
+    the start address of the function they belong to. Thus, you get a concise
+    overview in the \uicontrol Statistics view, with one entry per function. In
+    the \uicontrol Timeline view, all stack frames from the same function will
+    then have the same color. However, this way you cannot track down which
+    exact lines of code took the most time to execute.
+
+    If you choose \uicontrol Address, the exact address of each stack frame in
+    each sample is reported. Those addresses are then mapped to lines of code,
+    which means that the same function or even line can show up multiple times
+    in the \uicontrol Statistics view. Further, stack frames from the same
+    function will have different colors in the \uicontrol Timeline view,
+    depending on the exact value of the program counter when the sample was
+    recorded.
+
     \section1 Analyzing Collected Data
 
     The \uicontrol Timeline view displays a graphical representation of CPU
