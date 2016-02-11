@@ -504,6 +504,12 @@ void ProjectExplorerPlugin::testMsvcOutputParsers_data()
                     Utils::FileName::fromUserInput(QLatin1String("D:\\Project\\types.h")), 71,
                     Constants::TASK_CATEGORY_COMPILE))
             << QString();
+    QTest::newRow("ignore moc note")
+            << QString::fromLatin1("/home/qtwebkithelpviewer.h:0: Note: No relevant classes found. No output generated.")
+            << OutputParserTester::STDERR
+            << QString() << QString::fromLatin1("/home/qtwebkithelpviewer.h:0: Note: No relevant classes found. No output generated.\n")
+            << (QList<ProjectExplorer::Task>())
+            << QString();
 }
 
 void ProjectExplorerPlugin::testMsvcOutputParsers()

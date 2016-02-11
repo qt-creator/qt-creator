@@ -44,14 +44,21 @@ void QMakeParser::stdError(const QString &line)
     if (m_error.indexIn(lne) > -1) {
         QString fileName = m_error.cap(1);
         Task::TaskType type = Task::Error;
+        const QString description = m_error.cap(3);
         if (fileName.startsWith(QLatin1String("WARNING: "))) {
             type = Task::Warning;
             fileName = fileName.mid(9);
         } else if (fileName.startsWith(QLatin1String("ERROR: "))) {
             fileName = fileName.mid(7);
         }
+        if (description.startsWith(QLatin1String("note:"), Qt::CaseInsensitive))
+            type = Task::Unknown;
+        else if (description.startsWith(QLatin1String("warning:"), Qt::CaseInsensitive))
+            type = Task::Warning;
+        else if (description.startsWith(QLatin1String("error:"), Qt::CaseInsensitive))
+            type = Task::Error;
         Task task = Task(type,
-                         m_error.cap(3) /* description */,
+                         description,
                          Utils::FileName::fromUserInput(fileName),
                          m_error.cap(2).toInt() /* line */,
                          Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
@@ -173,7 +180,17 @@ void QmakeProjectManagerPlugin::testQmakeOutputParsers_data()
                         Utils::FileName::fromUserInput(QLatin1String("e:\\QtSDK\\Simulator\\Qt\\msvc2008\\lib\\qtmaind.prl")), 1,
                         categoryBuildSystem))
             << QString();
-}
+    QTest::newRow("moc note")
+            << QString::fromLatin1("/home/qtwebkithelpviewer.h:0: Note: No relevant classes found. No output generated.")
+            << OutputParserTester::STDERR
+            << QString() << QString()
+            << (QList<ProjectExplorer::Task>()
+                << Task(Task::Unknown,
+                        QLatin1String("Note: No relevant classes found. No output generated."),
+                        Utils::FileName::fromUserInput(QLatin1String("/home/qtwebkithelpviewer.h")), 0,
+                        categoryBuildSystem)
+                )
+            << QString();}
 
 void QmakeProjectManagerPlugin::testQmakeOutputParsers()
 {

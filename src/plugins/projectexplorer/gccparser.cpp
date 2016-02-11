@@ -880,6 +880,17 @@ void ProjectExplorerPlugin::testGccOutputParsers_data()
                         categoryCompile)
                 )
             << QString();
+    QTest::newRow("moc note")
+            << QString::fromLatin1("/home/qtwebkithelpviewer.h:0: Note: No relevant classes found. No output generated.")
+            << OutputParserTester::STDERR
+            << QString() << QString()
+            << (QList<ProjectExplorer::Task>()
+                << Task(Task::Unknown,
+                        QLatin1String("Note: No relevant classes found. No output generated."),
+                        Utils::FileName::fromUserInput(QLatin1String("/home/qtwebkithelpviewer.h")), 0,
+                        categoryCompile)
+                )
+            << QString();
 }
 
 void ProjectExplorerPlugin::testGccOutputParsers()

@@ -215,6 +215,17 @@ void ProjectExplorerPlugin::testLinuxIccOutputParsers_data()
                         Utils::FileName::fromUserInput(QLatin1String("main.cpp")), 41,
                         Constants::TASK_CATEGORY_COMPILE))
             << QString();
+    QTest::newRow("moc note")
+            << QString::fromLatin1("/home/qtwebkithelpviewer.h:0: Note: No relevant classes found. No output generated.")
+            << OutputParserTester::STDERR
+            << QString() << QString()
+            << (QList<ProjectExplorer::Task>()
+                << Task(Task::Unknown,
+                        QLatin1String("Note: No relevant classes found. No output generated."),
+                        Utils::FileName::fromUserInput(QLatin1String("/home/qtwebkithelpviewer.h")), 0,
+                        Constants::TASK_CATEGORY_COMPILE)
+                )
+            << QString();
 }
 
 void ProjectExplorerPlugin::testLinuxIccOutputParsers()

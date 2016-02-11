@@ -31,11 +31,12 @@ using namespace ProjectExplorer;
 
 static Task::TaskType taskType(const QString &capture)
 {
-    if (capture == QLatin1String("warning"))
+    const QString lc = capture.toLower();
+    if (lc == QLatin1String("error"))
+        return Task::Error;
+    if (lc == QLatin1String("warning"))
         return Task::Warning;
-    else if (capture == QLatin1String("note"))
-        return Task::Unknown;
-    return Task::Error;
+    return Task::Unknown;
 }
 
 // opt. drive letter + filename: (2 brackets)
@@ -248,6 +249,17 @@ void ProjectExplorerPlugin::testClangOutputParser_data()
                             QLatin1String("code signing is required for product type 'Application' in SDK 'iOS 7.0'"),
                             Utils::FileName(), -1,
                             categoryCompile))
+                << QString();
+        QTest::newRow("moc note")
+                << QString::fromLatin1("/home/qtwebkithelpviewer.h:0: Note: No relevant classes found. No output generated.")
+                << OutputParserTester::STDERR
+                << QString() << QString()
+                << (QList<ProjectExplorer::Task>()
+                    << Task(Task::Unknown,
+                            QLatin1String("Note: No relevant classes found. No output generated."),
+                            Utils::FileName::fromUserInput(QLatin1String("/home/qtwebkithelpviewer.h")), 0,
+                            categoryCompile)
+                    )
                 << QString();
 }
 

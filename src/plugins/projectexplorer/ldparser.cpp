@@ -120,7 +120,8 @@ void LdParser::stdError(const QString &line)
             description.startsWith(QLatin1String("At top level")) ||
             description.startsWith(QLatin1String("instantiated from ")) ||
             description.startsWith(QLatin1String("In ")) ||
-            description.startsWith(QLatin1String("first defined here"))) {
+            description.startsWith(QLatin1String("first defined here")) ||
+            description.startsWith(QLatin1String("note:"), Qt::CaseInsensitive)) {
             type = Task::Unknown;
         } else if (description.startsWith(QLatin1String("warning: "), Qt::CaseInsensitive)) {
             type = Task::Warning;
