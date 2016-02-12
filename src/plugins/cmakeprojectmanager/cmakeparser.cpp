@@ -27,7 +27,6 @@
 
 #include <utils/qtcassert.h>
 
-#include <projectexplorer/gnumakeparser.h>
 #include <projectexplorer/projectexplorerconstants.h>
 
 using namespace CMakeProjectManager;
@@ -50,8 +49,6 @@ CMakeParser::CMakeParser()
 
     m_locationLine.setPattern(QLatin1String(LOCATION_LINE_PATTERN));
     QTC_CHECK(m_locationLine.isValid());
-
-    appendOutputParser(new GnuMakeParser());
 }
 
 void CMakeParser::stdError(const QString &line)

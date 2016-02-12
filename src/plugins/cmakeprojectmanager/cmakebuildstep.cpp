@@ -35,6 +35,7 @@
 
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/deployconfiguration.h>
+#include <projectexplorer/gnumakeparser.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectexplorer.h>
@@ -204,7 +205,8 @@ bool CMakeBuildStep::init(QList<const BuildStep *> &earlierSteps)
     pp->setArguments(arguments);
     pp->resolveAll();
 
-    setOutputParser(new CMakeParser());
+    setOutputParser(new CMakeParser);
+    appendOutputParser(new GnuMakeParser);
     IOutputParser *parser = target()->kit()->createOutputParser();
     if (parser)
         appendOutputParser(parser);
