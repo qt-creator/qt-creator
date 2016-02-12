@@ -29,10 +29,16 @@
 #include "ui_docsettingspage.h"
 #include <coreplugin/dialogs/ioptionspage.h>
 
+#include <QList>
 #include <QPointer>
+
+QT_FORWARD_DECLARE_CLASS(QSortFilterProxyModel)
+QT_FORWARD_DECLARE_CLASS(QModelIndex)
 
 namespace Help {
 namespace Internal {
+
+class DocModel;
 
 class DocSettingsPage : public Core::IOptionsPage
 {
@@ -47,14 +53,14 @@ public:
 
 private slots:
     void addDocumentation();
-    void removeDocumentation();
 
 private:
     bool eventFilter(QObject *object, QEvent *event);
-    void removeDocumentation(const QList<QListWidgetItem *> &items);
-    void addItem(const QString &nameSpace, const QString &fileName, bool userManaged);
+    void removeDocumentation(const QList<QModelIndex> &items);
 
 private:
+    QList<QModelIndex> currentSelection() const;
+
     Ui::DocSettingsPage m_ui;
     QPointer<QWidget> m_widget;
 
@@ -64,6 +70,9 @@ private:
     NameSpaceToPathHash m_filesToRegister;
     QHash<QString, bool> m_filesToRegisterUserManaged;
     NameSpaceToPathHash m_filesToUnregister;
+
+    QSortFilterProxyModel *m_proxyModel = nullptr;
+    DocModel *m_model = nullptr;
 };
 
 } // namespace Help

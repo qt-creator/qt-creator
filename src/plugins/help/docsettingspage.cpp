@@ -28,13 +28,104 @@
 
 #include <coreplugin/helpmanager.h>
 
-#include <QCoreApplication>
-
 #include <QFileDialog>
 #include <QKeyEvent>
 #include <QMessageBox>
 
+#include <QAbstractListModel>
+#include <QCoreApplication>
+#include <QDir>
+#include <QSortFilterProxyModel>
+#include <QVariant>
+#include <QVector>
+
+#include <algorithm>
+
 using namespace Core;
+
+namespace Help {
+namespace Internal {
+
+class DocEntry
+{
+public:
+    QString name;
+    QString fileName;
+    QString nameSpace;
+};
+
+static bool operator<(const DocEntry &d1, const DocEntry &d2)
+{ return d1.name < d2.name; }
+
+static DocEntry createEntry(const QString &nameSpace, const QString &fileName, bool userManaged)
+{
+    DocEntry result;
+    result.name = userManaged ? nameSpace : DocSettingsPage::tr("%1 (auto-detected)").arg(nameSpace);
+    result.fileName = fileName;
+    result.nameSpace = nameSpace;
+    return result;
+}
+
+class DocModel : public QAbstractListModel {
+public:
+    typedef QVector<DocEntry> DocEntries;
+
+    explicit DocModel(const DocEntries &e = DocEntries(), QObject *parent = nullptr)
+        : QAbstractListModel(parent), m_docEntries(e) {}
+
+    int rowCount(const QModelIndex & = QModelIndex()) const override { return m_docEntries.size(); }
+    QVariant data(const QModelIndex &index, int role) const override;
+
+    void insertEntry(const DocEntry &e);
+    void removeAt(int row);
+
+    const DocEntry &entryAt(int row) const { return m_docEntries.at(row); }
+
+private:
+    DocEntries m_docEntries;
+};
+
+QVariant DocModel::data(const QModelIndex &index, int role) const
+{
+    QVariant result;
+    const int row = index.row();
+    if (index.isValid() && row < m_docEntries.size()) {
+        switch (role) {
+        case Qt::DisplayRole:
+            result = QVariant(m_docEntries.at(row).name);
+            break;
+        case Qt::ToolTipRole:
+            result = QVariant(QDir::toNativeSeparators(m_docEntries.at(row).fileName));
+            break;
+        case Qt::UserRole:
+            result = QVariant(m_docEntries.at(row).nameSpace);
+            break;
+        default:
+            break;
+        }
+    }
+    return result;
+}
+
+void DocModel::insertEntry(const DocEntry &e)
+{
+    const auto it = std::lower_bound(m_docEntries.begin(), m_docEntries.end(), e);
+    const int index = int(it - m_docEntries.begin());
+    beginInsertRows(QModelIndex(), index, index);
+    m_docEntries.insert(it, e);
+    endInsertRows();
+}
+
+void DocModel::removeAt(int row)
+{
+    beginRemoveRows(QModelIndex(), row, row);
+    m_docEntries.removeAt(row);
+    endRemoveRows();
+}
+
+} // namespace Internal
+} // namespace Help
+
 using namespace Help::Internal;
 
 DocSettingsPage::DocSettingsPage()
@@ -49,25 +140,36 @@ DocSettingsPage::DocSettingsPage()
 QWidget *DocSettingsPage::widget()
 {
     if (!m_widget) {
-        m_widget = new QWidget;
-        m_ui.setupUi(m_widget);
-
-        connect(m_ui.addButton, SIGNAL(clicked()), this, SLOT(addDocumentation()));
-        connect(m_ui.removeButton, SIGNAL(clicked()), this, SLOT(removeDocumentation()));
-
-        m_ui.docsListWidget->installEventFilter(this);
-
         const QStringList nameSpaces = HelpManager::registeredNamespaces();
         const QSet<QString> userDocumentationPaths = HelpManager::userDocumentationPaths();
+        DocModel::DocEntries entries;
+        entries.reserve(nameSpaces.size());
         foreach (const QString &nameSpace, nameSpaces) {
             const QString filePath = HelpManager::fileFromNamespace(nameSpace);
             bool user = userDocumentationPaths.contains(filePath);
-            addItem(nameSpace, filePath, user);
+            entries.append(createEntry(nameSpace, filePath, user));
             m_filesToRegister.insert(nameSpace, filePath);
             m_filesToRegisterUserManaged.insert(nameSpace, user);
         }
+        std::stable_sort(entries.begin(), entries.end());
 
         m_filesToUnregister.clear();
+
+        m_widget = new QWidget;
+        m_ui.setupUi(m_widget);
+        m_model = new DocModel(entries, m_ui.docsListView);
+        m_proxyModel = new QSortFilterProxyModel(m_ui.docsListView);
+        m_proxyModel->setSourceModel(m_model);
+        m_ui.docsListView->setModel(m_proxyModel);
+        m_ui.filterLineEdit->setFiltering(true);
+        connect(m_ui.filterLineEdit, &QLineEdit::textChanged,
+                m_proxyModel, &QSortFilterProxyModel::setFilterFixedString);
+
+        connect(m_ui.addButton, &QAbstractButton::clicked, this, &DocSettingsPage::addDocumentation);
+        connect(m_ui.removeButton, &QAbstractButton::clicked, this,
+                [this] () { removeDocumentation(currentSelection()); });
+
+        m_ui.docsListView->installEventFilter(this);
     }
     return m_widget;
 }
@@ -97,7 +199,8 @@ void DocSettingsPage::addDocumentation()
             continue;
         }
 
-        addItem(nameSpace, file, true/*user managed*/);
+        m_model->insertEntry(createEntry(nameSpace, file, true /* user managed */));
+
         m_filesToRegister.insert(nameSpace, filePath);
         m_filesToRegisterUserManaged.insert(nameSpace, true/*user managed*/);
 
@@ -142,11 +245,6 @@ void DocSettingsPage::addDocumentation()
     }
 }
 
-void DocSettingsPage::removeDocumentation()
-{
-    removeDocumentation(m_ui.docsListWidget->selectedItems());
-}
-
 void DocSettingsPage::apply()
 {
     HelpManager::unregisterDocumentation(m_filesToUnregister.keys());
@@ -169,14 +267,14 @@ void DocSettingsPage::finish()
 
 bool DocSettingsPage::eventFilter(QObject *object, QEvent *event)
 {
-    if (object != m_ui.docsListWidget)
+    if (object != m_ui.docsListView)
         return IOptionsPage::eventFilter(object, event);
 
     if (event->type() == QEvent::KeyPress) {
         QKeyEvent *ke = static_cast<QKeyEvent*>(event);
         switch (ke->key()) {
             case Qt::Key_Delete:
-                removeDocumentation(m_ui.docsListWidget->selectedItems());
+                removeDocumentation(currentSelection());
             break;
             default: break;
         }
@@ -185,32 +283,32 @@ bool DocSettingsPage::eventFilter(QObject *object, QEvent *event)
     return IOptionsPage::eventFilter(object, event);
 }
 
-void DocSettingsPage::removeDocumentation(const QList<QListWidgetItem*> &items)
+void DocSettingsPage::removeDocumentation(const QList<QModelIndex> &items)
 {
     if (items.isEmpty())
         return;
 
-    int row = 0;
-    foreach (QListWidgetItem* item, items) {
-        const QString nameSpace = item->data(Qt::UserRole).toString();
+    for (int i = items.size() - 1; i >= 0; --i) {
+        const int row = items.at(i).row();
+        const QString nameSpace = m_model->entryAt(row).nameSpace;
 
         m_filesToRegister.remove(nameSpace);
         m_filesToRegisterUserManaged.remove(nameSpace);
         m_filesToUnregister.insertMulti(nameSpace, QDir::cleanPath(HelpManager::fileFromNamespace(nameSpace)));
 
-        row = m_ui.docsListWidget->row(item);
-        delete m_ui.docsListWidget->takeItem(row);
+        m_model->removeAt(row);
     }
 
-    m_ui.docsListWidget->setCurrentRow(qMax(row - 1, 0),
-        QItemSelectionModel::ClearAndSelect);
+    const int newlySelectedRow = qMax(items.constFirst().row() - 1, 0);
+    const QModelIndex index = m_proxyModel->mapFromSource(m_model->index(newlySelectedRow));
+    m_ui.docsListView->selectionModel()->select(index, QItemSelectionModel::ClearAndSelect);
 }
 
-void DocSettingsPage::addItem(const QString &nameSpace, const QString &fileName, bool userManaged)
+QList<QModelIndex> DocSettingsPage::currentSelection() const
 {
-    const QString name = userManaged ? nameSpace : tr("%1 (auto-detected)").arg(nameSpace);
-    QListWidgetItem* item = new QListWidgetItem(name);
-    item->setToolTip(fileName);
-    item->setData(Qt::UserRole, nameSpace);
-    m_ui.docsListWidget->addItem(item);
+    QModelIndexList result;
+    Q_ASSERT(!m_widget.isNull());
+    foreach (const QModelIndex &index, m_ui.docsListView->selectionModel()->selectedRows())
+        result.append(m_proxyModel->mapToSource(index));
+    return result;
 }
