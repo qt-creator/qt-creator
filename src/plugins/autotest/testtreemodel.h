@@ -89,7 +89,7 @@ signals:
 public slots:
 
 private:
-    void onParseResultReady(TestParseResult result);
+    void onParseResultReady(const TestParseResult &result);
     void handleParseResult(const TestParseResult &result);
     void handleUnnamedQuickParseResult(const TestParseResult &result);
     void handleGTestParseResult(const TestParseResult &result);

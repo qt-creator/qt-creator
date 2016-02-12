@@ -482,7 +482,6 @@ static void handleGTest(QFutureInterface<TestParseResult> futureInterface, const
     if (ppList.size())
         proFile = ppList.at(0)->projectFile;
 
-    QVector<TestParseResult> parseResults;
     foreach (const GTestCaseSpec &testSpec, result.keys()) {
         TestParseResult parseResult(TestTreeModel::GoogleTest);
         parseResult.fileName = filePath;
@@ -490,10 +489,8 @@ static void handleGTest(QFutureInterface<TestParseResult> futureInterface, const
         parseResult.parameterized = testSpec.parameterized;
         parseResult.referencingFile = proFile;
         parseResult.dataTagsOrTestSets.insert(QString(), result.value(testSpec));
-        parseResults.append(parseResult);
+        futureInterface.reportResult(parseResult);
     }
-    if (parseResults.size())
-        futureInterface.reportResults(parseResults);
 }
 
 static void checkDocumentForTestCode(QFutureInterface<TestParseResult> futureInterface,

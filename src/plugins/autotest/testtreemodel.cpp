@@ -742,7 +742,7 @@ static TestTreeItem *constructGTestTreeItem(const TestParseResult &result)
     return item;
 }
 
-void TestTreeModel::onParseResultReady(TestParseResult result)
+void TestTreeModel::onParseResultReady(const TestParseResult &result)
 {
     switch (result.type) {
     case AutoTest:
