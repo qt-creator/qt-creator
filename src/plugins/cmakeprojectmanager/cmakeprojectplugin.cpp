@@ -60,6 +60,7 @@ bool CMakeProjectPlugin::initialize(const QStringList & /*arguments*/, QString *
     ProjectExplorer::KitManager::registerKitInformation(new CMakeKitInformation);
     ProjectExplorer::KitManager::registerKitInformation(new CMakeGeneratorKitInformation);
     ProjectExplorer::KitManager::registerKitInformation(new CMakePreloadCacheKitInformation);
+    ProjectExplorer::KitManager::registerKitInformation(new CMakeConfigurationKitInformation);
 
     return true;
 }

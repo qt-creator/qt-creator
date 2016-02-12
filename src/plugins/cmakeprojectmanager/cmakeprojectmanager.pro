@@ -3,6 +3,7 @@ include(../../qtcreatorplugin.pri)
 
 HEADERS = cmakebuildinfo.h \
     cmakebuildstep.h \
+    cmakeconfigitem.h \
     cmakeproject.h \
     cmakeprojectplugin.h \
     cmakeprojectmanager.h \
@@ -31,6 +32,7 @@ HEADERS = cmakebuildinfo.h \
     cmakepreloadcachekitconfigwidget.h
 
 SOURCES = cmakebuildstep.cpp \
+    cmakeconfigitem.cpp \
     cmakeproject.cpp \
     cmakeprojectplugin.cpp \
     cmakeprojectmanager.cpp \

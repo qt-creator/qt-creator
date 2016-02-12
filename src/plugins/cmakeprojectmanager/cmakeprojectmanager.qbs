@@ -27,6 +27,8 @@ QtcPlugin {
         "cmakebuildstep.h",
         "cmakecbpparser.cpp",
         "cmakecbpparser.h",
+        "cmakeconfigitem.cpp",
+        "cmakeconfigitem.h",
         "cmakeeditor.cpp",
         "cmakeeditor.h",
         "cmakefile.cpp",

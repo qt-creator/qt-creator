@@ -29,9 +29,13 @@
 #include "cmaketool.h"
 
 #include <projectexplorer/task.h>
+#include <projectexplorer/toolchain.h>
 #include <projectexplorer/kit.h>
+#include <projectexplorer/kitinformation.h>
+#include <qtsupport/qtkitinformation.h>
 #include <projectexplorer/projectexplorerconstants.h>
 
+#include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
 using namespace ProjectExplorer;
@@ -235,6 +239,181 @@ KitInformation::ItemList CMakeGeneratorKitInformation::toUserOutput(const Kit *k
 KitConfigWidget *CMakeGeneratorKitInformation::createConfigWidget(Kit *k) const
 {
     return new Internal::CMakeGeneratorKitConfigWidget(k, this);
+}
+
+// --------------------------------------------------------------------
+// CMakeConfigurationKitInformation:
+// --------------------------------------------------------------------
+
+static const char CONFIGURATION_ID[] = "CMake.ConfigurationKitInformation";
+
+static const char CMAKE_QMAKE_KEY[] = "QT_QMAKE_EXECUTABLE";
+static const char CMAKE_TOOLCHAIN_KEY[] = "CMAKE_CXX_COMPILER";
+
+CMakeConfigurationKitInformation::CMakeConfigurationKitInformation()
+{
+    setObjectName(QLatin1String("CMakeConfigurationKitInformation"));
+    setId(CONFIGURATION_ID);
+    setPriority(18000);
+}
+
+CMakeConfig CMakeConfigurationKitInformation::configuration(const Kit *k)
+{
+    if (!k)
+        return CMakeConfig();
+    const QStringList tmp = k->value(CONFIGURATION_ID).toStringList();
+    return Utils::transform(tmp, [](const QString &s) { return CMakeConfigItem::fromString(s); });
+}
+
+void CMakeConfigurationKitInformation::setConfiguration(Kit *k, const CMakeConfig &config)
+{
+    if (!k)
+        return;
+    const QStringList tmp = Utils::transform(config, [](const CMakeConfigItem &i) { return i.toString(); });
+    k->setValue(CONFIGURATION_ID, tmp);
+}
+
+QStringList CMakeConfigurationKitInformation::toStringList(const Kit *k)
+{
+    QStringList current
+            = Utils::transform(CMakeConfigurationKitInformation::configuration(k),
+                               [](const CMakeConfigItem &i) { return i.toString(); });
+    Utils::sort(current);
+    return current;
+}
+
+void CMakeConfigurationKitInformation::fromStringList(Kit *k, const QStringList &in)
+{
+    CMakeConfig result;
+    foreach (const QString &s, in) {
+        const CMakeConfigItem item = CMakeConfigItem::fromString(s);
+        if (!item.key.isEmpty())
+            result << item;
+    }
+    setConfiguration(k, result);
+}
+
+QVariant CMakeConfigurationKitInformation::defaultValue(const Kit *k) const
+{
+    // FIXME: Convert preload scripts
+    CMakeConfig config;
+    const QtSupport::BaseQtVersion *const version = QtSupport::QtKitInformation::qtVersion(k);
+    if (version && version->isValid())
+        config << CMakeConfigItem(CMAKE_QMAKE_KEY, version->qmakeCommand().toString().toUtf8());
+    const ToolChain *const tc = ToolChainKitInformation::toolChain(k);
+    if (tc && tc->isValid())
+        config << CMakeConfigItem(CMAKE_TOOLCHAIN_KEY, tc->compilerCommand().toString().toUtf8());
+
+    const QStringList tmp
+            = Utils::transform(config, [](const CMakeConfigItem &i) { return i.toString(); });
+    return tmp;
+}
+
+QList<Task> CMakeConfigurationKitInformation::validate(const Kit *k) const
+{
+    const QtSupport::BaseQtVersion *const version = QtSupport::QtKitInformation::qtVersion(k);
+    const ToolChain *const tc = ToolChainKitInformation::toolChain(k);
+    const CMakeConfig config = configuration(k);
+
+    QByteArray qmakePath;
+    QByteArray tcPath;
+    foreach (const CMakeConfigItem &i, config) {
+        if (i.key == CMAKE_QMAKE_KEY)
+            qmakePath = i.value;
+        else if (i.key == CMAKE_TOOLCHAIN_KEY)
+            tcPath = i.value;
+    }
+
+    QList<Task> result;
+    // Validate Qt:
+    if (qmakePath.isEmpty()) {
+        if (version && version->isValid()) {
+            result << Task(Task::Warning, tr("CMake configuration has no path to qmake binary set, "
+                                             "even though the kit has a valid Qt version."),
+                           Utils::FileName(), -1, Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM));
+        }
+    } else {
+        if (!version || !version->isValid()) {
+            result << Task(Task::Warning, tr("CMake configuration has a path to a qmake binary set, "
+                                             "even though the kit has no valid Qt version."),
+                           Utils::FileName(), -1, Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM));
+        } else if (qmakePath != version->qmakeCommand().toString().toUtf8()) {
+            result << Task(Task::Warning, tr("CMake configuration has a path to a qmake binary set, "
+                                             "which does not match up with the qmake binary path "
+                                             "configured in the Qt version."),
+                           Utils::FileName(), -1, Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM));
+        }
+    }
+
+    // Validate Toolchain:
+    if (tcPath.isEmpty()) {
+        if (tc && tc->isValid()) {
+            result << Task(Task::Warning, tr("CMake configuration has no path to a C++ compiler set, "
+                                             "even though the kit has a valid tool chain."),
+                           Utils::FileName(), -1, Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM));
+        }
+    } else {
+        if (!tc || !tc->isValid()) {
+            result << Task(Task::Warning, tr("CMake configuration has a path to a C++ compiler set, "
+                                             "even though the kit has no valid tool chain."),
+                           Utils::FileName(), -1, Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM));
+        } else if (tcPath != tc->compilerCommand().toString().toUtf8()) {
+            result << Task(Task::Warning, tr("CMake configuration has a path to a C++ compiler set, "
+                                             "that does not match up with the compiler path "
+                                             "configured in the tool chain of the kit."),
+                           Utils::FileName(), -1, Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM));
+        }
+    }
+
+    return result;
+}
+
+void CMakeConfigurationKitInformation::setup(Kit *k)
+{
+    if (k)
+        k->setValue(CONFIGURATION_ID, defaultValue(k));
+}
+
+void CMakeConfigurationKitInformation::fix(Kit *k)
+{
+    const QtSupport::BaseQtVersion *const version = QtSupport::QtKitInformation::qtVersion(k);
+    const QByteArray qmakePath
+            = (version && version->isValid()) ? version->qmakeCommand().toString().toUtf8() : QByteArray();
+    const ToolChain *const tc = ToolChainKitInformation::toolChain(k);
+    const QByteArray tcPath
+            = (tc && tc->isValid()) ? tc->compilerCommand().toString().toUtf8() : QByteArray();
+
+    CMakeConfig result;
+    bool haveQmake = false;
+    bool haveToolChain = false;
+
+    foreach (const CMakeConfigItem &i, configuration(k)) {
+        if (i.key == CMAKE_QMAKE_KEY)
+            haveQmake = true;
+        else if (i.key == CMAKE_TOOLCHAIN_KEY)
+            haveToolChain = true;
+        result << i;
+    }
+
+    if (!haveQmake && !qmakePath.isEmpty())
+        result << CMakeConfigItem(CMAKE_QMAKE_KEY, qmakePath);
+    if (!haveToolChain && !tcPath.isEmpty())
+        result << CMakeConfigItem(CMAKE_TOOLCHAIN_KEY, tcPath);
+
+    setConfiguration(k, result);
+}
+
+KitInformation::ItemList CMakeConfigurationKitInformation::toUserOutput(const Kit *k) const
+{
+    const QStringList current = toStringList(k);
+    return ItemList() << qMakePair(tr("CMake Configuration"), current.join(QLatin1String("<br>")));
+}
+
+KitConfigWidget *CMakeConfigurationKitInformation::createConfigWidget(Kit *k) const
+{
+    if (!k)
+        return 0;
+    return new Internal::CMakeConfigurationKitConfigWidget(k, this);
 }
 
 } // namespace CMakeProjectManager
