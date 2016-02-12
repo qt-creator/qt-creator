@@ -86,7 +86,6 @@
 #include <QProcess>
 #include <QRegExp>
 #include <QSharedPointer>
-#include <QtConcurrentRun>
 #include <QTemporaryFile>
 #include <QTextCodec>
 #include <QtPlugin>
@@ -1547,7 +1546,7 @@ bool ClearCasePlugin::vcsOpen(const QString &workingDir, const QString &fileName
 
     if (!m_settings.disableIndexer &&
             (fi.isWritable() || vcsStatus(absPath).status == FileStatus::Unknown))
-        QtConcurrent::run(&sync, QStringList(absPath)).waitForFinished();
+        Utils::runAsync(sync, QStringList(absPath)).waitForFinished();
     if (vcsStatus(absPath).status == FileStatus::CheckedOut) {
         QMessageBox::information(0, tr("ClearCase Checkout"), tr("File is already checked out."));
         return true;
@@ -2043,7 +2042,7 @@ void ClearCasePlugin::updateIndex()
         return;
     m_checkInAllAction->setEnabled(false);
     m_statusMap->clear();
-    QFuture<void> result = QtConcurrent::run(&sync, project->files(Project::SourceFiles));
+    QFuture<void> result = Utils::runAsync(sync, project->files(Project::SourceFiles));
     if (!m_settings.disableIndexer)
         ProgressManager::addTask(result, tr("Updating ClearCase Index"), ClearCase::Constants::TASK_INDEX);
 }
@@ -2178,7 +2177,7 @@ void ClearCasePlugin::syncSlot()
     QString topLevel = state.topLevel();
     if (topLevel != state.currentProjectTopLevel())
         return;
-    QtConcurrent::run(&sync, QStringList());
+    Utils::runAsync(sync, QStringList());
 }
 
 void ClearCasePlugin::closing()
