@@ -29,13 +29,16 @@
 #include "cmaketoolmanager.h"
 #include "cmaketool.h"
 
-#include <utils/qtcassert.h>
 #include <coreplugin/icore.h>
 #include <projectexplorer/kit.h>
 #include <projectexplorer/projectexplorerconstants.h>
 
+#include <utils/qtcassert.h>
+
 #include <QComboBox>
 #include <QPushButton>
+
+using namespace ProjectExplorer;
 
 namespace CMakeProjectManager {
 namespace Internal {
@@ -44,9 +47,9 @@ namespace Internal {
 // CMakeKitConfigWidget:
 // --------------------------------------------------------------------
 
-CMakeKitConfigWidget::CMakeKitConfigWidget(ProjectExplorer::Kit *kit,
-                                           const ProjectExplorer::KitInformation *ki) :
-    ProjectExplorer::KitConfigWidget(kit, ki),
+CMakeKitConfigWidget::CMakeKitConfigWidget(Kit *kit,
+                                           const KitInformation *ki) :
+    KitConfigWidget(kit, ki),
     m_comboBox(new QComboBox),
     m_manageButton(new QPushButton(KitConfigWidget::msgManage()))
 {
@@ -194,9 +197,9 @@ void CMakeKitConfigWidget::manageCMakeTools()
 // --------------------------------------------------------------------
 
 
-CMakeGeneratorKitConfigWidget::CMakeGeneratorKitConfigWidget(ProjectExplorer::Kit *kit,
-                                                             const ProjectExplorer::KitInformation *ki) :
-    ProjectExplorer::KitConfigWidget(kit, ki),
+CMakeGeneratorKitConfigWidget::CMakeGeneratorKitConfigWidget(Kit *kit,
+                                                             const KitInformation *ki) :
+    KitConfigWidget(kit, ki),
     m_comboBox(new QComboBox)
 {
     m_comboBox->setToolTip(toolTip());
