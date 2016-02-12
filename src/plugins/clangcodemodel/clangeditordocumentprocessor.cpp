@@ -52,7 +52,7 @@
 
 #include <utils/qtcassert.h>
 #include <utils/tooltip/tooltip.h>
-#include <utils/QtConcurrentTools>
+#include <utils/runextensions.h>
 
 #include <QTextBlock>
 
@@ -103,7 +103,7 @@ void ClangEditorDocumentProcessor::run()
     connect(&m_parserWatcher, &QFutureWatcher<void>::finished,
             this, &ClangEditorDocumentProcessor::onParserFinished);
     const CppTools::WorkingCopy workingCopy = CppTools::CppModelManager::instance()->workingCopy();
-    const QFuture<void> future = QtConcurrent::run(&runParser, parser(), workingCopy);
+    const QFuture<void> future = ::Utils::runAsync(&runParser, parser(), workingCopy);
     m_parserWatcher.setFuture(future);
 
     // Run builtin processor
