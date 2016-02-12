@@ -26,6 +26,7 @@
 #include "shellcommand.h"
 
 #include "fileutils.h"
+#include "qtcassert.h"
 #include "synchronousprocess.h"
 #include "runextensions.h"
 
