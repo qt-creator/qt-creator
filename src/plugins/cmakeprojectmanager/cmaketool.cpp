@@ -37,7 +37,7 @@
 #include <QUuid>
 #include <QVariantMap>
 
-using namespace CMakeProjectManager;
+namespace CMakeProjectManager {
 
 const char CMAKE_INFORMATION_ID[] = "Id";
 const char CMAKE_INFORMATION_COMMAND[] = "Binary";
@@ -223,7 +223,7 @@ void CMakeTool::setPathMapper(const CMakeTool::PathMapper &pathMapper)
     m_pathMapper = pathMapper;
 }
 
-QString CMakeTool::mapAllPaths(ProjectExplorer::Kit *kit, const QString &in) const
+QString CMakeTool::mapAllPaths(const ProjectExplorer::Kit *kit, const QString &in) const
 {
     if (m_pathMapper)
         return m_pathMapper(kit, in);
@@ -318,3 +318,5 @@ QStringList CMakeTool::parseVariableOutput(const QString &output)
     }
     return result;
 }
+
+} // namespace CMakeProjectManager

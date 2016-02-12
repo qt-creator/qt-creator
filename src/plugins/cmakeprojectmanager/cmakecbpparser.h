@@ -27,13 +27,18 @@
 
 #include "cmakeproject.h"
 
-#include <QXmlStreamReader>
+#include <utils/fileutils.h>
 
+#include <QList>
+#include <QMap>
+#include <QSet>
+#include <QString>
+#include <QXmlStreamReader>
 
 namespace ProjectExplorer {
 class FileNode;
 class Kit;
-}
+} // namespace ProjectExplorer
 
 namespace CMakeProjectManager {
 namespace Internal {
@@ -41,7 +46,8 @@ namespace Internal {
 class CMakeCbpParser : public QXmlStreamReader
 {
 public:
-    bool parseCbpFile(ProjectExplorer::Kit *kit, const QString &fileName, const QString &sourceDirectory);
+    bool parseCbpFile(const ProjectExplorer::Kit *const kit, const QString &fileName,
+                      const QString &sourceDirectory);
     QList<ProjectExplorer::FileNode *> fileList();
     QList<ProjectExplorer::FileNode *> cmakeFileList();
     QList<CMakeBuildTarget> buildTargets();
@@ -67,11 +73,11 @@ private:
     void sortFiles();
 
     QMap<Utils::FileName, QString> m_unitTargetMap;
-    ProjectExplorer::Kit *m_kit = 0;
+    const ProjectExplorer::Kit *m_kit = 0;
     QList<ProjectExplorer::FileNode *> m_fileList;
     QList<ProjectExplorer::FileNode *> m_cmakeFileList;
     QSet<Utils::FileName> m_processedUnits;
-    bool m_parsingCmakeUnit;
+    bool m_parsingCMakeUnit;
 
     CMakeBuildTarget m_buildTarget;
     QList<CMakeBuildTarget> m_buildTargets;

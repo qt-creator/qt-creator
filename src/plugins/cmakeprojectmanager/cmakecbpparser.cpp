@@ -151,7 +151,7 @@ void CMakeCbpParser::sortFiles()
         qCDebug(log) << target.title << target.sourceDirectory << target.includeFiles << target.defines << target.files << "\n";
 }
 
-bool CMakeCbpParser::parseCbpFile(Kit *kit, const QString &fileName, const QString &sourceDirectory)
+bool CMakeCbpParser::parseCbpFile(const Kit *const kit, const QString &fileName, const QString &sourceDirectory)
 {
     m_kit = kit;
     m_buildDirectory = QFileInfo(fileName).absolutePath();
@@ -437,14 +437,14 @@ void CMakeCbpParser::parseUnit()
         fileName = FileName::fromUserInput(mappedFile);
     }
 
-    m_parsingCmakeUnit = false;
+    m_parsingCMakeUnit = false;
     m_unitTarget.clear();
     while (!atEnd()) {
         readNext();
         if (isEndElement()) {
             if (!fileName.endsWith(QLatin1String(".rule")) && !m_processedUnits.contains(fileName)) {
                 // Now check whether we found a virtual element beneath
-                if (m_parsingCmakeUnit) {
+                if (m_parsingCMakeUnit) {
                     m_cmakeFileList.append( new ProjectExplorer::FileNode(fileName, ProjectExplorer::ProjectFileType, false));
                 } else {
                     bool generated = false;
@@ -475,7 +475,7 @@ void CMakeCbpParser::parseUnit()
 void CMakeCbpParser::parseUnitOption()
 {
     const QXmlStreamAttributes optionAttributes = attributes();
-    m_parsingCmakeUnit = optionAttributes.hasAttribute(QLatin1String("virtualFolder"));
+    m_parsingCMakeUnit = optionAttributes.hasAttribute(QLatin1String("virtualFolder"));
     m_unitTarget = optionAttributes.value(QLatin1String("target")).toString();
 
     while (!atEnd()) {

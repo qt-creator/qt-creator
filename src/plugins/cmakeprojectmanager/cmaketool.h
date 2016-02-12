@@ -52,7 +52,7 @@ public:
         AutoDetection
     };
 
-    typedef std::function<QString (ProjectExplorer::Kit *, const QString &)> PathMapper;
+    typedef std::function<QString (const ProjectExplorer::Kit *, const QString &)> PathMapper;
 
     explicit CMakeTool(Detection d, const Core::Id &id);
     explicit CMakeTool(const QVariantMap &map, bool fromSdk);
@@ -78,7 +78,7 @@ public:
     void setDisplayName(const QString &displayName);
 
     void setPathMapper(const PathMapper &includePathMapper);
-    QString mapAllPaths(ProjectExplorer::Kit *kit, const QString &in) const;
+    QString mapAllPaths(const ProjectExplorer::Kit *kit, const QString &in) const;
 
 private:
     Utils::SynchronousProcessResponse run(const QString &arg) const;
