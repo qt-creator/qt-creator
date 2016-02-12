@@ -828,7 +828,7 @@ runAsync(QThreadPool *pool, QThread::Priority priority, Function &&function, Arg
         auto thread = new Internal::RunnableThread(job);
         thread->moveToThread(qApp->thread()); // make sure thread gets deleteLater on main thread
         QObject::connect(thread, &QThread::finished, thread, &QObject::deleteLater);
-        thread->start();
+        thread->start(priority);
     }
     return future;
 }
