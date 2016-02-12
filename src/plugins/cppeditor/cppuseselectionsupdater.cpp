@@ -40,8 +40,8 @@
 #include <cplusplus/TranslationUnit.h>
 
 #include <utils/qtcassert.h>
+#include <utils/runextensions.h>
 
-#include <QtConcurrentRun>
 #include <QTextBlock>
 #include <QTextCursor>
 #include <QTextEdit>
@@ -350,7 +350,7 @@ void CppUseSelectionsUpdater::handleSymbolCaseAsynchronously(const Document::Ptr
     m_findUsesCursorPosition = m_editorWidget->position();
 
     const Params params = Params(m_editorWidget->textCursor(), document, snapshot);
-    m_findUsesWatcher->setFuture(QtConcurrent::run(&findUses, params));
+    m_findUsesWatcher->setFuture(Utils::runAsync(findUses, params));
 }
 
 void CppUseSelectionsUpdater::handleSymbolCaseSynchronously(const Document::Ptr document,

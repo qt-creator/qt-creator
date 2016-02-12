@@ -43,9 +43,9 @@
 
 #include <utils/proxyaction.h>
 #include <utils/qtcassert.h>
+#include <utils/runextensions.h>
 #include <utils/tooltip/tooltip.h>
 
-#include <QtConcurrentRun>
 #include <QVarLengthArray>
 
 using namespace CPlusPlus;
@@ -256,7 +256,7 @@ void FunctionDeclDefLinkFinder::startFindLinkAt(
     // handle the rest in a thread
     m_watcher.reset(new QFutureWatcher<QSharedPointer<FunctionDeclDefLink> >());
     connect(m_watcher.data(), SIGNAL(finished()), this, SLOT(onFutureDone()));
-    m_watcher->setFuture(QtConcurrent::run(&findLinkHelper, result, refactoringChanges));
+    m_watcher->setFuture(Utils::runAsync(findLinkHelper, result, refactoringChanges));
 }
 
 FunctionDeclDefLink::FunctionDeclDefLink()

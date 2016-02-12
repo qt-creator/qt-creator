@@ -200,8 +200,7 @@ void SemanticInfoUpdater::updateDetached(const SemanticInfo::Source source)
         return;
     }
 
-    d->m_future = QtConcurrent::run<SemanticInfoUpdaterPrivate, void, const SemanticInfo::Source>
-            (&SemanticInfoUpdaterPrivate::update_helper, d.data(), source);
+    d->m_future = Utils::runAsync(&SemanticInfoUpdaterPrivate::update_helper, d.data(), source);
 }
 
 SemanticInfo SemanticInfoUpdater::semanticInfo() const

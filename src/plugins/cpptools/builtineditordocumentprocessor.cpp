@@ -203,9 +203,9 @@ BuiltinEditorDocumentProcessor::~BuiltinEditorDocumentProcessor()
 
 void BuiltinEditorDocumentProcessor::run()
 {
-    m_parserFuture = QtConcurrent::run(&runParser,
-                                       parser(),
-                                       CppModelManager::instance()->workingCopy());
+    m_parserFuture = Utils::runAsync(runParser,
+                                     parser(),
+                                     CppModelManager::instance()->workingCopy());
 }
 
 BaseEditorDocumentParser::Ptr BuiltinEditorDocumentProcessor::parser()

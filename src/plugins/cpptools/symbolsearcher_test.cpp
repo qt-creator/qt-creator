@@ -106,7 +106,7 @@ public:
         const QScopedPointer<SymbolSearcher> symbolSearcher(
             indexingSupport->createSymbolSearcher(searchParameters, QSet<QString>() << testFile));
         QFuture<Core::SearchResultItem> search
-            = QtConcurrent::run(&SymbolSearcher::runSearch, symbolSearcher.data());
+            = Utils::runAsync(&SymbolSearcher::runSearch, symbolSearcher.data());
         search.waitForFinished();
         ResultDataList results = ResultData::fromSearchResultList(search.results());
         QCOMPARE(results, expectedResults);

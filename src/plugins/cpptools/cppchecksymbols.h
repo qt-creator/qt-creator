@@ -32,9 +32,9 @@
 
 #include <cplusplus/TypeOfExpression.h>
 
-#include <QSet>
 #include <QFuture>
-#include <QtConcurrentRun>
+#include <QSet>
+#include <QThreadPool>
 
 namespace CppTools {
 

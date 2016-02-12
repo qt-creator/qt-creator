@@ -353,7 +353,7 @@ QFuture<void> BuiltinIndexingSupport::refreshSourceFiles(const QSet<QString> &so
     params.workingCopy = mgr->workingCopy();
     params.sourceFiles = sourceFiles;
 
-    QFuture<void> result = QtConcurrent::run(&parse, params);
+    QFuture<void> result = Utils::runAsync(parse, params);
 
     if (m_synchronizer.futures().size() > 10) {
         QList<QFuture<void> > futures = m_synchronizer.futures();
