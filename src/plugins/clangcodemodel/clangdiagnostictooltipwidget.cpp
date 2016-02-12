@@ -84,6 +84,23 @@ QString clickableLocation(const QString &mainFilePath,
     return wrapInLink(linkText, QLatin1String(LINK_ACTION_GOTO_LOCATION));
 }
 
+QString clickableFixIt(const QString &text, bool hasFixIt)
+{
+    if (!hasFixIt)
+        return text;
+
+    QString clickableText = text;
+    QString nonClickableCategory;
+    const int colonPosition = text.indexOf(QStringLiteral(": "));
+
+    if (colonPosition != -1) {
+        nonClickableCategory = text.mid(0, colonPosition + 2);
+        clickableText = text.mid(colonPosition + 2);
+    }
+
+    return nonClickableCategory + wrapInLink(clickableText, QLatin1String(LINK_ACTION_APPLY_FIX));
+}
+
 void openEditorAt(const ClangBackEnd::SourceLocationContainer &location)
 {
     Core::EditorManager::openEditorAt(location.filePath().toString(),
@@ -109,60 +126,11 @@ LayoutType *createLayout()
     return layout;
 }
 
-class MainDiagnosticWidget : public QWidget
-{
-    Q_OBJECT
-public:
-    MainDiagnosticWidget(const ClangBackEnd::DiagnosticContainer &diagnostic)
-    {
-        setContentsMargins(0, 0, 0, 0);
-        auto *mainLayout = createLayout<QVBoxLayout>();
+enum IndentType { IndentDiagnostic, DoNotIndentDiagnostic };
 
-        // Set up header row: category + responsible option
-        const QString category = diagnostic.category();
-        const QString diagnosticText = diagnostic.text().toString().toHtmlEscaped();
-        const QString responsibleOption = diagnostic.enableOption();
-        const ClangBackEnd::SourceLocationContainer location = diagnostic.location();
-
-        auto *headerLayout = createLayout<QHBoxLayout>();
-        headerLayout->addWidget(new QLabel(wrapInBoldTags(category)), 1);
-
-        auto *responsibleOptionLabel = new QLabel(wrapInColor(responsibleOption, "gray"));
-        headerLayout->addWidget(responsibleOptionLabel, 0);
-        mainLayout->addLayout(headerLayout);
-
-        // Set up main row: diagnostic text
-        const QString text = clickableLocation(location.filePath(), location)
-                             + QStringLiteral(": ")
-                             + diagnosticText;
-        auto *mainTextLabel = new QLabel(text);
-        mainTextLabel->setTextFormat(Qt::RichText);
-        QObject::connect(mainTextLabel, &QLabel::linkActivated, [location](const QString &) {
-            openEditorAt(location);
-            Utils::ToolTip::hideImmediately();
-        });
-        mainLayout->addWidget(mainTextLabel);
-
-        setLayout(mainLayout);
-    }
-};
-
-QString clickableFixIt(const QString &text, bool hasFixIt)
-{
-    if (!hasFixIt)
-        return text;
-
-    const QString notePrefix = QStringLiteral("note: ");
-
-    QString modifiedText = text;
-    if (modifiedText.startsWith(notePrefix))
-        modifiedText = modifiedText.mid(notePrefix.size());
-
-    return notePrefix + wrapInLink(modifiedText, QLatin1String(LINK_ACTION_APPLY_FIX));
-}
-
-QWidget *createChildDiagnosticLabel(const ClangBackEnd::DiagnosticContainer &diagnostic,
-                                    const QString &mainFilePath)
+QWidget *createDiagnosticLabel(const ClangBackEnd::DiagnosticContainer &diagnostic,
+                               const QString &mainFilePath,
+                               IndentType indentType = DoNotIndentDiagnostic)
 {
     const bool hasFixit = !diagnostic.fixIts().isEmpty();
     const QString diagnosticText = diagnostic.text().toString().toHtmlEscaped();
@@ -173,7 +141,8 @@ QWidget *createChildDiagnosticLabel(const ClangBackEnd::DiagnosticContainer &dia
     const QVector<ClangBackEnd::FixItContainer> fixits = diagnostic.fixIts();
 
     auto *label = new QLabel(text);
-    label->setContentsMargins(childIndentationOnTheLeftInPixel, 0, 0, 0);
+    if (indentType == IndentDiagnostic)
+        label->setContentsMargins(childIndentationOnTheLeftInPixel, 0, 0, 0);
     label->setTextFormat(Qt::RichText);
     QObject::connect(label, &QLabel::linkActivated, [location, fixits](const QString &action) {
         if (action == QLatin1String(LINK_ACTION_APPLY_FIX))
@@ -187,13 +156,41 @@ QWidget *createChildDiagnosticLabel(const ClangBackEnd::DiagnosticContainer &dia
     return label;
 }
 
+class MainDiagnosticWidget : public QWidget
+{
+    Q_OBJECT
+public:
+    MainDiagnosticWidget(const ClangBackEnd::DiagnosticContainer &diagnostic)
+    {
+        setContentsMargins(0, 0, 0, 0);
+        auto *mainLayout = createLayout<QVBoxLayout>();
+
+        // Set up header row: category + responsible option
+        const QString category = diagnostic.category();
+        const QString responsibleOption = diagnostic.enableOption();
+        const ClangBackEnd::SourceLocationContainer location = diagnostic.location();
+
+        auto *headerLayout = createLayout<QHBoxLayout>();
+        headerLayout->addWidget(new QLabel(wrapInBoldTags(category)), 1);
+
+        auto *responsibleOptionLabel = new QLabel(wrapInColor(responsibleOption, "gray"));
+        headerLayout->addWidget(responsibleOptionLabel, 0);
+        mainLayout->addLayout(headerLayout);
+
+        // Set up main row: diagnostic text
+        mainLayout->addWidget(createDiagnosticLabel(diagnostic, location.filePath()));
+
+        setLayout(mainLayout);
+    }
+};
+
 void addChildrenToLayout(const QString &mainFilePath,
                          const QVector<ClangBackEnd::DiagnosticContainer>::const_iterator first,
                          const QVector<ClangBackEnd::DiagnosticContainer>::const_iterator last,
                          QBoxLayout &boxLayout)
 {
     for (auto it = first; it != last; ++it)
-        boxLayout.addWidget(createChildDiagnosticLabel(*it, mainFilePath));;
+        boxLayout.addWidget(createDiagnosticLabel(*it, mainFilePath, IndentDiagnostic));
 }
 
 void setupChildDiagnostics(const QString &mainFilePath,
