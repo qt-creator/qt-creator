@@ -86,7 +86,7 @@ public:
                     this, &MultiTask::setProgressValue);
             connect(watcher, &QFutureWatcherBase::progressTextChanged,
                     this, &MultiTask::setProgressText);
-            watcher->setFuture(QtConcurrent::run(fn, object));
+            watcher->setFuture(Utils::runAsync(QThreadPool::globalInstance(), fn, object));
         }
         selfWatcher = new QFutureWatcher<R>();
         connect(selfWatcher, &QFutureWatcherBase::canceled, this, &MultiTask::cancelSelf);
