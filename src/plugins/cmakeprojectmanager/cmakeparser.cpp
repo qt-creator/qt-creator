@@ -55,9 +55,6 @@ void CMakeParser::stdError(const QString &line)
 {
     QString trimmedLine = rightTrimmed(line);
 
-    if (trimmedLine.endsWith(QLatin1String("in cmake code at")))
-        qDebug() << "Break";
-
     switch (m_expectTripleLineErrorData) {
     case NONE:
         if (trimmedLine.isEmpty() && !m_lastTask.isNull()) {
