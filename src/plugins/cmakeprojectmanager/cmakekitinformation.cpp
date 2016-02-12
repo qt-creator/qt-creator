@@ -28,12 +28,11 @@
 #include "cmaketoolmanager.h"
 #include "cmaketool.h"
 
-#include <utils/qtcassert.h>
 #include <projectexplorer/task.h>
 #include <projectexplorer/kit.h>
 #include <projectexplorer/projectexplorerconstants.h>
 
-#include <QDebug>
+#include <utils/qtcassert.h>
 
 using namespace ProjectExplorer;
 
