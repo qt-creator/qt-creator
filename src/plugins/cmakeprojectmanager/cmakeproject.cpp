@@ -36,8 +36,6 @@
 #include "cmakeprojectmanager.h"
 
 #include <coreplugin/icore.h>
-#include <coreplugin/infobar.h>
-#include <coreplugin/editormanager/editormanager.h>
 #include <cpptools/cppmodelmanager.h>
 #include <cpptools/projectinfo.h>
 #include <cpptools/projectpartbuilder.h>
@@ -250,10 +248,6 @@ void CMakeProject::parseCMakeOutput()
 {
     QTC_ASSERT(m_buildDirManager, return);
     QTC_ASSERT(activeTarget() && activeTarget()->activeBuildConfiguration(), return);
-
-    foreach (Core::IDocument *document, Core::DocumentModel::openedDocuments())
-        if (isProjectFile(document->filePath()))
-            document->infoBar()->removeInfo("CMakeEditor.RunCMake");
 
     auto activeBC = static_cast<CMakeBuildConfiguration *>(activeTarget()->activeBuildConfiguration());
 

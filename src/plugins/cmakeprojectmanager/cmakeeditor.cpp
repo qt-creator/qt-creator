@@ -35,7 +35,6 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
-#include <coreplugin/infobar.h>
 
 #include <extensionsystem/pluginmanager.h>
 
@@ -61,37 +60,6 @@ namespace Internal {
 //
 // CMakeEditor
 //
-
-CMakeEditor::CMakeEditor()
-{
-}
-
-void CMakeEditor::finalizeInitialization()
-{
-    connect(document(), &IDocument::changed, [this]() {
-        BaseTextDocument *document = textDocument();
-        if (!document->isModified())
-            return;
-        InfoBar *infoBar = document->infoBar();
-        Id infoRunCMake("CMakeEditor.RunCMake");
-        if (!infoBar->canInfoBeAdded(infoRunCMake))
-            return;
-        InfoBarEntry info(infoRunCMake,
-                          tr("Changes to cmake files are shown in the project tree after building."),
-                          InfoBarEntry::GlobalSuppressionEnabled);
-        info.setCustomButtonInfo(tr("Build now"), [document]() {
-            foreach (Project *p, SessionManager::projects()) {
-                if (CMakeProject *cmakeProject = qobject_cast<CMakeProject *>(p)) {
-                    if (cmakeProject->isProjectFile(document->filePath())) {
-                        ProjectExplorerPlugin::buildProject(cmakeProject);
-                        break;
-                    }
-                }
-            }
-        });
-        infoBar->addInfo(info);
-    });
-}
 
 QString CMakeEditor::contextHelpId() const
 {
