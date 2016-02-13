@@ -33,7 +33,7 @@ Exception::Exception(const QString &errorMessage)
 }
 
 NullPointerException::NullPointerException()
-    : Exception(QStringLiteral("unacceptable null object"))
+    : Exception(tr("Unacceptable null object."))
 {
 }
 

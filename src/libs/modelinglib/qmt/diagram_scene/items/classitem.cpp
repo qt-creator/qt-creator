@@ -298,7 +298,7 @@ bool ClassItem::extendContextMenu(QMenu *menu)
 {
     bool extended = false;
     if (diagramSceneModel()->diagramSceneController()->elementTasks()->hasClassDefinition(object(), diagramSceneModel()->diagram())) {
-        menu->addAction(new ContextMenuAction(QObject::tr("Show Definition"), QStringLiteral("showDefinition"), menu));
+        menu->addAction(new ContextMenuAction(tr("Show Definition"), QStringLiteral("showDefinition"), menu));
         extended = true;
     }
     return extended;

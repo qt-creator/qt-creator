@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "ioexceptions.h"
+#include <QObject>
 
 namespace qmt {
 
@@ -40,32 +41,32 @@ FileIOException::FileIOException(const QString &errorMsg, const QString &fileNam
 }
 
 FileNotFoundException::FileNotFoundException(const QString &fileName)
-    : FileIOException(QStringLiteral("file not found"), fileName)
+    : FileIOException(tr("File not found."), fileName)
 {
 }
 
 FileCreationException::FileCreationException(const QString &fileName)
-    : FileIOException(QStringLiteral("unable to create file"), fileName)
+    : FileIOException(tr("Unable to create file."), fileName)
 {
 }
 
 FileWriteError::FileWriteError(const QString &fileName, int lineNumber)
-    : FileIOException(QStringLiteral("writing to file failed"), fileName, lineNumber)
+    : FileIOException(tr("Writing to file failed."), fileName, lineNumber)
 {
 }
 
 FileReadError::FileReadError(const QString &fileName, int lineNumber)
-    : FileIOException(QStringLiteral("reading from file failed"), fileName, lineNumber)
+    : FileIOException(tr("Reading from file failed."), fileName, lineNumber)
 {
 }
 
 IllegalXmlFile::IllegalXmlFile(const QString &fileName, int lineNumber)
-    : FileIOException(QStringLiteral("illegal xml file"), fileName, lineNumber)
+    : FileIOException(tr("Illegal XML file."), fileName, lineNumber)
 {
 }
 
 UnknownFileVersion::UnknownFileVersion(int version, const QString &fileName, int lineNumber)
-    : FileIOException(QString(QStringLiteral("unable to handle file version %1")).arg(version), fileName, lineNumber)
+    : FileIOException(tr("Unable to handle file version %1.").arg(version), fileName, lineNumber)
 {
 }
 

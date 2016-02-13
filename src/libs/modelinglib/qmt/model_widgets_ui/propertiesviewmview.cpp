@@ -498,7 +498,7 @@ void PropertiesView::MView::visitMClass(const MClass *klass)
     if (m_classMembersStatusLabel == 0) {
         QMT_CHECK(!m_classMembersParseButton);
         m_classMembersStatusLabel = new QLabel(m_topWidget);
-        m_classMembersParseButton = new QPushButton(QStringLiteral("Clean Up"), m_topWidget);
+        m_classMembersParseButton = new QPushButton(tr("Clean Up"), m_topWidget);
         auto layout = new QHBoxLayout();
         layout->addWidget(m_classMembersStatusLabel);
         layout->addWidget(m_classMembersParseButton);

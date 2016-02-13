@@ -29,11 +29,14 @@
 #include "qmt_global.h"
 
 #include <QString>
+#include <QCoreApplication>
 
 namespace qmt {
 
 class QMT_EXPORT Exception
 {
+    Q_DECLARE_TR_FUNCTIONS(Exception)
+
 public:
     explicit Exception(const QString &errorMessage);
     virtual ~Exception() = default;

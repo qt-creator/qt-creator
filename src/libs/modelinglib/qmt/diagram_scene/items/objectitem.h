@@ -38,6 +38,8 @@
 
 #include "qmt/stereotype/stereotypeicon.h"
 
+#include <QCoreApplication>
+
 QT_BEGIN_NAMESPACE
 class QAction;
 QT_END_NAMESPACE
@@ -68,6 +70,8 @@ class ObjectItem :
         public IAlignable,
         public IEditable
 {
+    Q_DECLARE_TR_FUNCTIONS(ObjectItem)
+
 protected:
     enum ResizeFlags {
         ResizeUnlocked,

@@ -739,36 +739,36 @@ void ObjectItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 
     bool addSeparator = false;
     if (diagramSceneModel()->diagramSceneController()->elementTasks()->hasDiagram(m_object, m_diagramSceneModel->diagram())) {
-        menu.addAction(new ContextMenuAction(QObject::tr("Open Diagram"), QStringLiteral("openDiagram"), &menu));
+        menu.addAction(new ContextMenuAction(tr("Open Diagram"), QStringLiteral("openDiagram"), &menu));
         addSeparator = true;
     } else if (diagramSceneModel()->diagramSceneController()->elementTasks()->mayCreateDiagram(m_object, m_diagramSceneModel->diagram())) {
-        menu.addAction(new ContextMenuAction(QObject::tr("Create Diagram"), QStringLiteral("createDiagram"), &menu));
+        menu.addAction(new ContextMenuAction(tr("Create Diagram"), QStringLiteral("createDiagram"), &menu));
         addSeparator = true;
     }
     if (extendContextMenu(&menu))
         addSeparator = true;
     if (addSeparator)
         menu.addSeparator();
-    menu.addAction(new ContextMenuAction(QObject::tr("Remove"), QStringLiteral("remove"),
+    menu.addAction(new ContextMenuAction(tr("Remove"), QStringLiteral("remove"),
                                          QKeySequence(QKeySequence::Delete), &menu));
-    menu.addAction(new ContextMenuAction(QObject::tr("Delete"), QStringLiteral("delete"),
+    menu.addAction(new ContextMenuAction(tr("Delete"), QStringLiteral("delete"),
                                          QKeySequence(Qt::CTRL + Qt::Key_D), &menu));
-    //menu.addAction(new ContextMenuAction(QObject::tr("Select in Model Tree"), QStringLiteral("selectInModelTree"), &menu));
+    //menu.addAction(new ContextMenuAction(tr("Select in Model Tree"), QStringLiteral("selectInModelTree"), &menu));
     QMenu alignMenu;
-    alignMenu.setTitle(QObject::tr("Align Objects"));
-    alignMenu.addAction(new ContextMenuAction(QObject::tr("Align Left"), QStringLiteral("alignLeft"), &alignMenu));
-    alignMenu.addAction(new ContextMenuAction(QObject::tr("Center Vertically"), QStringLiteral("centerVertically"),
+    alignMenu.setTitle(tr("Align Objects"));
+    alignMenu.addAction(new ContextMenuAction(tr("Align Left"), QStringLiteral("alignLeft"), &alignMenu));
+    alignMenu.addAction(new ContextMenuAction(tr("Center Vertically"), QStringLiteral("centerVertically"),
                                               &alignMenu));
-    alignMenu.addAction(new ContextMenuAction(QObject::tr("Align Right"), QStringLiteral("alignRight"), &alignMenu));
+    alignMenu.addAction(new ContextMenuAction(tr("Align Right"), QStringLiteral("alignRight"), &alignMenu));
     alignMenu.addSeparator();
-    alignMenu.addAction(new ContextMenuAction(QObject::tr("Align Top"), QStringLiteral("alignTop"), &alignMenu));
-    alignMenu.addAction(new ContextMenuAction(QObject::tr("Center Horizontally"), QStringLiteral("centerHorizontally"),
+    alignMenu.addAction(new ContextMenuAction(tr("Align Top"), QStringLiteral("alignTop"), &alignMenu));
+    alignMenu.addAction(new ContextMenuAction(tr("Center Horizontally"), QStringLiteral("centerHorizontally"),
                                               &alignMenu));
-    alignMenu.addAction(new ContextMenuAction(QObject::tr("Align Bottom"), QStringLiteral("alignBottom"), &alignMenu));
+    alignMenu.addAction(new ContextMenuAction(tr("Align Bottom"), QStringLiteral("alignBottom"), &alignMenu));
     alignMenu.addSeparator();
-    alignMenu.addAction(new ContextMenuAction(QObject::tr("Same Width"), QStringLiteral("sameWidth"), &alignMenu));
-    alignMenu.addAction(new ContextMenuAction(QObject::tr("Same Height"), QStringLiteral("sameHeight"), &alignMenu));
-    alignMenu.addAction(new ContextMenuAction(QObject::tr("Same Size"), QStringLiteral("sameSize"), &alignMenu));
+    alignMenu.addAction(new ContextMenuAction(tr("Same Width"), QStringLiteral("sameWidth"), &alignMenu));
+    alignMenu.addAction(new ContextMenuAction(tr("Same Height"), QStringLiteral("sameHeight"), &alignMenu));
+    alignMenu.addAction(new ContextMenuAction(tr("Same Size"), QStringLiteral("sameSize"), &alignMenu));
     alignMenu.setEnabled(m_diagramSceneModel->hasMultiObjectsSelection());
     menu.addMenu(&alignMenu);
 
