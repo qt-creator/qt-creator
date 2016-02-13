@@ -41,6 +41,7 @@
 QT_BEGIN_NAMESPACE
 class QWidget;
 class QLabel;
+class QLayout;
 class QFormLayout;
 class QLineEdit;
 class QPushButton;
@@ -129,6 +130,12 @@ private:
     void onAnnotationVisualRoleChanged(int visualRoleIndex);
 
     void prepare();
+    void addRow(const QString &label, QLayout *layout, const char *id);
+    void addRow(const QString &label, QWidget *widget, const char *id);
+    void addRow(QWidget *widget, const char *id);
+    void insertRow(const char *before_id, const QString &label, QLayout *layout, const char *id);
+    void insertRow(const char *before_id, const QString &label, QWidget *widget, const char *id);
+    void insertRow(const char *before_id, QWidget *widget, const char *id);
     template<class T, class V>
     void setTitle(const QList<V *> &elements, const QString &singularTitle,
                   const QString &pluralTitle);
@@ -179,6 +186,7 @@ private:
     StereotypesController *m_stereotypesController;
     QWidget *m_topWidget;
     QFormLayout *m_topLayout;
+    QList<const char *> m_rowToId;
     QString m_propertiesTitle;
     // MElement
     StereotypeIcon::Element m_stereotypeElement;
