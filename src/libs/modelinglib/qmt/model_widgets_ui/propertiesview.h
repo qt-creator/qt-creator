@@ -31,6 +31,7 @@
 #include "qmt/infrastructure/qmt_global.h"
 
 #include <QScopedPointer>
+#include <functional>
 
 QT_BEGIN_NAMESPACE
 class QWidget;
@@ -51,9 +52,10 @@ class StyleController;
 class QMT_EXPORT PropertiesView : public QObject
 {
     Q_OBJECT
-    class MView;
 
 public:
+    class MView;
+
     explicit PropertiesView(QObject *parent = 0);
     ~PropertiesView() override;
 
@@ -65,6 +67,7 @@ public:
     void setStereotypeController(StereotypeController *stereotypeController);
     StyleController *styleController() const { return m_styleController; }
     void setStyleController(StyleController *styleController);
+    void setMViewFactory(std::function<MView *(PropertiesView *)> factory);
 
     QList<MElement *> selectedModelElements() const { return m_selectedModelElements; }
     void setSelectedModelElements(const QList<MElement *> &modelElements);
@@ -118,6 +121,7 @@ private:
     DiagramController *m_diagramController;
     StereotypeController *m_stereotypeController;
     StyleController *m_styleController;
+    std::function<MView *(PropertiesView *)> m_viewFactory;
     QList<MElement *> m_selectedModelElements;
     QList<DElement *> m_selectedDiagramElements;
     MDiagram *m_selectedDiagram;

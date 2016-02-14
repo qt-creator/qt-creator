@@ -43,6 +43,7 @@ PropertiesView::PropertiesView(QObject *parent)
       m_diagramController(0),
       m_stereotypeController(0),
       m_styleController(0),
+      m_viewFactory([=](PropertiesView *propertiesView) { return new MView(propertiesView); }),
       m_selectedDiagram(0),
       m_widget(0)
 {
@@ -149,6 +150,11 @@ void PropertiesView::setStyleController(StyleController *styleController)
     m_styleController = styleController;
 }
 
+void PropertiesView::setMViewFactory(std::function<MView *(PropertiesView *)> factory)
+{
+    m_viewFactory = factory;
+}
+
 void PropertiesView::setSelectedModelElements(const QList<MElement *> &modelElements)
 {
     QMT_CHECK(modelElements.size() > 0);
@@ -157,7 +163,7 @@ void PropertiesView::setSelectedModelElements(const QList<MElement *> &modelElem
         m_selectedModelElements = modelElements;
         m_selectedDiagramElements.clear();
         m_selectedDiagram = 0;
-        m_mview.reset(new MView(this));
+        m_mview.reset(m_viewFactory(this));
         m_mview->update(m_selectedModelElements);
         m_widget = m_mview->topLevelWidget();
     }
@@ -172,7 +178,7 @@ void PropertiesView::setSelectedDiagramElements(const QList<DElement *> &diagram
         m_selectedDiagramElements = diagramElements;
         m_selectedDiagram = diagram;
         m_selectedModelElements.clear();
-        m_mview.reset(new MView(this));
+        m_mview.reset(m_viewFactory(this));
         m_mview->update(m_selectedDiagramElements, m_selectedDiagram);
         m_widget = m_mview->topLevelWidget();
     }

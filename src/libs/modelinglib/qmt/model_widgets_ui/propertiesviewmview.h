@@ -98,7 +98,7 @@ public:
     void update(QList<DElement *> &diagramElements, MDiagram *diagram);
     void edit();
 
-private:
+protected:
     void onStereotypesChanged(const QString &stereotypes);
     void onObjectNameChanged(const QString &name);
     void onNamespaceChanged(const QString &umlNamespace);
