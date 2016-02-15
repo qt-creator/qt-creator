@@ -1520,6 +1520,12 @@
                 \li \uicontrol {Files in File System} recursively searches files
                     matching the defined file pattern in the selected directory.
 
+                    Select the \uicontrol {Use Git Grep} check box to use Git to
+                    only search tracked files in the Git work tree. To restrict
+                    the search to the HEAD, a tag, a local or remote branch, or
+                    a commit hash, enter a reference in the field. Leave the
+                    field empty to search through the file system.
+
                 \li \uicontrol {Current File} searches only the current file.
 
                 \li \uicontrol {Open Documents} searches all open files.
