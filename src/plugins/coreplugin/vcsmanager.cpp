@@ -223,13 +223,20 @@ IVersionControl *VcsManager::versionControl(Id id)
     return Utils::findOrDefault(versionControls(), Utils::equal(&Core::IVersionControl::id, id));
 }
 
+static QString absoluteWithNoTrailingSlash(const QString &directory)
+{
+    QString res = QDir(directory).absolutePath();
+    if (res.endsWith(QLatin1Char('/')))
+        res.chop(1);
+    return res;
+}
+
 void VcsManager::resetVersionControlForDirectory(const QString &inputDirectory)
 {
     if (inputDirectory.isEmpty())
         return;
 
-    const QString directory = QDir(inputDirectory).absolutePath();
-
+    const QString directory = absoluteWithNoTrailingSlash(inputDirectory);
     d->resetCache(directory);
     emit m_instance->repositoryChanged(directory);
 }
@@ -246,7 +253,7 @@ IVersionControl* VcsManager::findVersionControlForDirectory(const QString &input
     }
 
     // Make sure we an absolute path:
-    QString directory = QDir(inputDirectory).absolutePath();
+    QString directory = absoluteWithNoTrailingSlash(inputDirectory);
 #ifdef WITH_TESTS
     if (directory[0].isLetter() && directory.indexOf(QLatin1Char(':') + QLatin1String(TEST_PREFIX)) == 1)
         directory = directory.mid(2);
@@ -284,7 +291,7 @@ IVersionControl* VcsManager::findVersionControlForDirectory(const QString &input
     }
 
     // Register Vcs(s) with the cache
-    QString tmpDir = QFileInfo(directory).canonicalFilePath();
+    QString tmpDir = absoluteWithNoTrailingSlash(directory);
 #if defined WITH_TESTS
     // Force caching of test directories (even though they do not exist):
     if (directory.startsWith(QLatin1String(TEST_PREFIX)))
