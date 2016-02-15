@@ -39,6 +39,7 @@
 #include <QFutureInterface>
 #include <QObject>
 #include <QSet>
+#include <QTimer>
 
 QT_FORWARD_DECLARE_CLASS(QTemporaryDir);
 QT_FORWARD_DECLARE_CLASS(QFileSystemWatcher);
@@ -117,6 +118,8 @@ private:
     // For error reporting:
     ProjectExplorer::IOutputParser *m_parser = nullptr;
     QFutureInterface<void> *m_future = nullptr;
+
+    QTimer m_reparseTimer;
 };
 
 } // namespace Internal

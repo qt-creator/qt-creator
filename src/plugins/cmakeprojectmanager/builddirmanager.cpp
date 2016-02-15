@@ -48,7 +48,6 @@
 #include <QRegularExpression>
 #include <QSet>
 #include <QTemporaryDir>
-#include <QTimer>
 
 // --------------------------------------------------------------------
 // Helper:
@@ -107,9 +106,13 @@ BuildDirManager::BuildDirManager(const Utils::FileName &sourceDir, const Project
     QTC_CHECK(!m_buildDir.isEmpty());
     QTC_CHECK(k);
 
+    m_reparseTimer.setSingleShot(true);
+    m_reparseTimer.setInterval(500);
+    connect(&m_reparseTimer, &QTimer::timeout, this, &BuildDirManager::forceReparse);
+
     connect(m_watcher, &QFileSystemWatcher::fileChanged, this, [this]() {
         if (!isBusy())
-            forceReparse();
+            m_reparseTimer.start();
     });
 
     QTimer::singleShot(0, this, &BuildDirManager::parse);
@@ -129,6 +132,12 @@ bool BuildDirManager::isBusy() const
 
 void BuildDirManager::forceReparse()
 {
+    if (isBusy()) {
+        m_cmakeProcess->disconnect();
+        m_cmakeProcess->deleteLater();
+        m_cmakeProcess = nullptr;
+    }
+
     CMakeTool *tool = CMakeKitInformation::cmakeTool(m_kit);
     const QString generator = CMakeGeneratorKitInformation::generator(m_kit);
 
