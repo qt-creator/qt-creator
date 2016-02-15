@@ -176,7 +176,26 @@ void CMakeProject::handleKitChanges()
     changeActiveBuildConfiguration(t->activeBuildConfiguration()); // force proper refresh
 }
 
-QStringList CMakeProject::getCXXFlagsFor(const CMakeBuildTarget &buildTarget, QByteArray *cachedBuildNinja)
+QStringList CMakeProject::getCXXFlagsFor(const CMakeBuildTarget &buildTarget,
+                                         QHash<QString, QStringList> &cache)
+{
+    // check cache:
+    auto it = cache.constFind(buildTarget.title);
+    if (it != cache.constEnd())
+        return *it;
+
+    if (extractCXXFlagsFromMake(buildTarget, cache))
+        return cache.value(buildTarget.title);
+
+    if (extractCXXFlagsFromNinja(buildTarget, cache))
+        return cache.value(buildTarget.title);
+
+    cache.insert(buildTarget.title, QStringList());
+    return QStringList();
+}
+
+bool CMakeProject::extractCXXFlagsFromMake(const CMakeBuildTarget &buildTarget,
+                                           QHash<QString, QStringList> &cache)
 {
     QString makeCommand = QDir::fromNativeSeparators(buildTarget.makeCommand);
     int startIndex = makeCommand.indexOf(QLatin1Char('\"'));
@@ -195,55 +214,63 @@ QStringList CMakeProject::getCXXFlagsFor(const CMakeBuildTarget &buildTarget, QB
                 QString line = stream.readLine().trimmed();
                 if (line.startsWith(QLatin1String("CXX_FLAGS ="))) {
                     // Skip past =
-                    return line.mid(11).trimmed().split(QLatin1Char(' '), QString::SkipEmptyParts);
+                    cache.insert(buildTarget.title,
+                                 line.mid(11).trimmed().split(QLatin1Char(' '),
+                                                              QString::SkipEmptyParts));
+                    return true;
                 }
             }
         }
     }
+    return false;
+}
+
+bool CMakeProject::extractCXXFlagsFromNinja(const CMakeBuildTarget &buildTarget,
+                                            QHash<QString, QStringList> &cache)
+{
+    Q_UNUSED(buildTarget)
+    if (!cache.isEmpty()) // We fill the cache in one go!
+        return false;
 
     // Attempt to find build.ninja file and obtain FLAGS (CXX_FLAGS) from there if no suitable flags.make were
     // found
     // Get "all" target's working directory
-    if (!buildTargets().empty()) {
-        if (cachedBuildNinja->isNull()) {
-            QString buildNinjaFile = QDir::fromNativeSeparators(buildTargets().at(0).workingDirectory);
-            buildNinjaFile += QLatin1String("/build.ninja");
-            QFile buildNinja(buildNinjaFile);
-            if (buildNinja.exists()) {
-                buildNinja.open(QIODevice::ReadOnly | QIODevice::Text);
-                *cachedBuildNinja = buildNinja.readAll();
-                buildNinja.close();
-            } else {
-                *cachedBuildNinja = QByteArray();
-            }
-        }
-
-        if (cachedBuildNinja->isEmpty())
-            return QStringList();
-
-        QTextStream stream(cachedBuildNinja);
-        bool targetFound = false;
-        bool cxxFound = false;
-        QString targetSearchPattern = QString::fromLatin1("target %1").arg(buildTarget.title);
-
-        while (!stream.atEnd()) {
-            // 1. Look for a block that refers to the current target
-            // 2. Look for a build rule which invokes CXX_COMPILER
-            // 3. Return the FLAGS definition
-            QString line = stream.readLine().trimmed();
-            if (line.startsWith(QLatin1String("#"))) {
-                if (!line.startsWith(QLatin1String("# Object build statements for"))) continue;
-                targetFound = line.endsWith(targetSearchPattern);
-            } else if (targetFound && line.startsWith(QLatin1String("build"))) {
-                cxxFound = line.indexOf(QLatin1String("CXX_COMPILER")) != -1;
-            } else if (cxxFound && line.startsWith(QLatin1String("FLAGS ="))) {
-                // Skip past =
-                return line.mid(7).trimmed().split(QLatin1Char(' '), QString::SkipEmptyParts);
-            }
-        }
-
+    QByteArray ninjaFile;
+    QString buildNinjaFile = QDir::fromNativeSeparators(buildTargets().at(0).workingDirectory);
+    buildNinjaFile += QLatin1String("/build.ninja");
+    QFile buildNinja(buildNinjaFile);
+    if (buildNinja.exists()) {
+        buildNinja.open(QIODevice::ReadOnly | QIODevice::Text);
+        ninjaFile = buildNinja.readAll();
+        buildNinja.close();
     }
-    return QStringList();
+
+    if (ninjaFile.isEmpty())
+        return false;
+
+    QTextStream stream(ninjaFile);
+    bool cxxFound = false;
+    const QString targetSignature = QLatin1String("# Object build statements for ");
+    QString currentTarget;
+
+    while (!stream.atEnd()) {
+        // 1. Look for a block that refers to the current target
+        // 2. Look for a build rule which invokes CXX_COMPILER
+        // 3. Return the FLAGS definition
+        QString line = stream.readLine().trimmed();
+        if (line.startsWith(QLatin1Char('#'))) {
+            if (line.startsWith(targetSignature)) {
+                int pos = line.lastIndexOf(QLatin1Char(' '));
+                currentTarget = line.mid(pos + 1);
+            }
+        } else if (!currentTarget.isEmpty() && line.startsWith(QLatin1String("build"))) {
+            cxxFound = line.indexOf(QLatin1String("CXX_COMPILER")) != -1;
+        } else if (cxxFound && line.startsWith(QLatin1String("FLAGS ="))) {
+            // Skip past =
+            cache.insert(currentTarget, line.mid(7).trimmed().split(QLatin1Char(' '), QString::SkipEmptyParts));
+        }
+    }
+    return !cache.isEmpty();
 }
 
 void CMakeProject::parseCMakeOutput()
@@ -283,13 +310,13 @@ void CMakeProject::parseCMakeOutput()
 
     ppBuilder.setQtVersion(activeQtVersion);
 
-    QByteArray cachedBuildNinja;
+    QHash<QString, QStringList> targetDataCache;
     foreach (const CMakeBuildTarget &cbt, buildTargets()) {
         // This explicitly adds -I. to the include paths
         QStringList includePaths = cbt.includeFiles;
         includePaths += projectDirectory().toString();
         ppBuilder.setIncludePaths(includePaths);
-        QStringList cxxflags = getCXXFlagsFor(cbt, &cachedBuildNinja);
+        QStringList cxxflags = getCXXFlagsFor(cbt, targetDataCache);
         ppBuilder.setCFlags(cxxflags);
         ppBuilder.setCxxFlags(cxxflags);
         ppBuilder.setDefines(cbt.defines);

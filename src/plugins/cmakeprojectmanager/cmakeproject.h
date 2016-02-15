@@ -145,7 +145,9 @@ private:
     QString uiHeaderFile(const QString &uiFile);
     void updateTargetRunConfigurations(ProjectExplorer::Target *t);
     void updateApplicationAndDeploymentTargets();
-    QStringList getCXXFlagsFor(const CMakeBuildTarget &buildTarget, QByteArray *cachedBuildNinja);
+    QStringList getCXXFlagsFor(const CMakeBuildTarget &buildTarget, QHash<QString, QStringList> &cache);
+    bool extractCXXFlagsFromMake(const CMakeBuildTarget &buildTarget, QHash<QString, QStringList> &cache);
+    bool extractCXXFlagsFromNinja(const CMakeBuildTarget &buildTarget, QHash<QString, QStringList> &cache);
 
     ProjectExplorer::Target *m_activeTarget = 0;
     Internal::BuildDirManager *m_buildDirManager = 0;
