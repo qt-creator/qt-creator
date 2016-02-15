@@ -696,7 +696,16 @@ static void detectCppBuildTools(QList<ToolChain *> *list)
     }
 }
 
-// Detect Clang-cl on top of MSVC2015.
+static ToolChain *findMsvcToolChain(const QList<ToolChain *> &list,
+                                    unsigned char wordWidth, Abi::OSFlavor flavor)
+{
+    return Utils::findOrDefault(list, [wordWidth, flavor] (const ToolChain *tc)
+        { const Abi abi = tc->targetAbi();
+          return abi.osFlavor() == flavor
+              && wordWidth == abi.wordWidth();} );
+}
+
+// Detect Clang-cl on top of MSVC2015 or MSVC2013.
 static void detectClangClToolChain(QList<ToolChain *> *list)
 {
 #ifdef Q_OS_WIN64
@@ -713,17 +722,19 @@ static void detectClangClToolChain(QList<ToolChain *> *list)
         return;
     const unsigned char wordWidth = Utils::is64BitWindowsBinary(path + QStringLiteral("/bin/") + QLatin1String(clangClBinary))
         ? 64 : 32;
-    const auto it = std::find_if(list->cbegin(), list->cend(),
-                                 [wordWidth] (ToolChain *tc) { const Abi abi = tc->targetAbi();
-                                                               return abi.osFlavor() == Abi::WindowsMsvc2015Flavor
-                                                                   && wordWidth == abi.wordWidth();} );
-    if (it == list->cend())
+    const ToolChain *toolChain = findMsvcToolChain(*list, wordWidth, Abi::WindowsMsvc2015Flavor);
+    if (!toolChain)
+        toolChain = findMsvcToolChain(*list, wordWidth, Abi::WindowsMsvc2013Flavor);
+    if (!toolChain) {
         qWarning("Unable to find a suitable MSVC version for \"%s\".", qPrintable(QDir::toNativeSeparators(path)));
-
-    const MsvcToolChain *msvcToolChain = static_cast<MsvcToolChain *>(*it);
+        return;
+    }
+    const MsvcToolChain *msvcToolChain = static_cast<const MsvcToolChain *>(toolChain);
+    const Abi targetAbi = msvcToolChain->targetAbi();
     const QString name = QStringLiteral("LLVM ") + QString::number(wordWidth)
-        + QStringLiteral("bit based on MSVC2015");
-    list->append(new ClangClToolChain(name, path, msvcToolChain->targetAbi(),
+        + QStringLiteral("bit based on ")
+        + Abi::toString(targetAbi.osFlavor()).toUpper();
+    list->append(new ClangClToolChain(name, path, targetAbi,
                                       msvcToolChain->varsBat(), msvcToolChain->varsBatArg(),
                                       ToolChain::AutoDetection));
 }
