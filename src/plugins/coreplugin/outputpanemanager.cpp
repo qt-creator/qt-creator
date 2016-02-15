@@ -189,11 +189,14 @@ QWidget *OutputPaneManager::buttonsWidget()
     return m_buttonsWidget;
 }
 
-// Return shortcut as Ctrl+<number>
-static inline int paneShortCut(int number)
+// Return shortcut as Alt+<number> or Cmd+<number> if number is a non-zero digit
+static inline QKeySequence paneShortCut(int number)
 {
+    if (number < 1 || number > 9)
+        return QKeySequence();
+
     const int modifier = HostOsInfo::isMacHost() ? Qt::CTRL : Qt::ALT;
-    return modifier | (Qt::Key_0 + number);
+    return QKeySequence(modifier | (Qt::Key_0 + number));
 }
 
 void OutputPaneManager::init()
@@ -224,7 +227,7 @@ void OutputPaneManager::init()
     mpanes->addAction(cmd, "Coreplugin.OutputPane.ActionsGroup");
 
     cmd = ActionManager::registerAction(m_minMaxAction, "Coreplugin.OutputPane.minmax");
-    cmd->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Ctrl+9") : tr("Alt+9")));
+    cmd->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Ctrl+Shift+9") : tr("Alt+Shift+9")));
     cmd->setAttribute(Command::CA_UpdateText);
     cmd->setAttribute(Command::CA_UpdateIcon);
     mpanes->addAction(cmd, "Coreplugin.OutputPane.ActionsGroup");
@@ -282,7 +285,7 @@ void OutputPaneManager::init()
         m_actions.append(action);
         m_ids.append(id);
 
-        cmd->setDefaultKeySequence(QKeySequence(paneShortCut(shortcutNumber)));
+        cmd->setDefaultKeySequence(paneShortCut(shortcutNumber));
         OutputPaneToggleButton *button = new OutputPaneToggleButton(shortcutNumber, outPane->displayName(),
                                                                     cmd->action());
         ++shortcutNumber;
