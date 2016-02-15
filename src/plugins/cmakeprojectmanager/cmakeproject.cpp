@@ -256,6 +256,7 @@ void CMakeProject::parseCMakeOutput()
     rootProjectNode()->setDisplayName(m_buildDirManager->projectName());
 
     buildTree(static_cast<CMakeProjectNode *>(rootProjectNode()), m_buildDirManager->files());
+    m_buildDirManager->clearFiles(); // Some of the FileNodes in files() were deleted!
 
     updateApplicationAndDeploymentTargets();
 
@@ -449,7 +450,7 @@ bool CMakeProject::hasBuildTarget(const QString &title) const
     return Utils::anyOf(buildTargets(), [title](const CMakeBuildTarget &ct) { return ct.title == title; });
 }
 
-void CMakeProject::gatherFileNodes(ProjectExplorer::FolderNode *parent, QList<ProjectExplorer::FileNode *> &list)
+void CMakeProject::gatherFileNodes(ProjectExplorer::FolderNode *parent, QList<ProjectExplorer::FileNode *> &list) const
 {
     foreach (ProjectExplorer::FolderNode *folder, parent->subFolderNodes())
         gatherFileNodes(folder, list);
@@ -539,8 +540,25 @@ QString CMakeProject::displayName() const
 
 QStringList CMakeProject::files(FilesMode fileMode) const
 {
-    Q_UNUSED(fileMode)
-    return m_files;
+    QStringList result;
+    if (m_buildDirManager) {
+        QList<FileNode *> nodes;
+        gatherFileNodes(rootProjectNode(), nodes);
+        nodes = Utils::filtered(nodes, [fileMode](const FileNode *fn) {
+            const bool isGenerated = fn->isGenerated();
+            switch (fileMode)
+            {
+            case ProjectExplorer::Project::SourceFiles:
+                return !isGenerated;
+            case ProjectExplorer::Project::GeneratedFiles:
+                return isGenerated;
+            case ProjectExplorer::Project::AllFiles:
+                return true;
+            }
+        });
+        result = Utils::transform(nodes, [fileMode](const FileNode* fn) { return fn->filePath().toString(); });
+    }
+    return result;
 }
 
 Project::RestoreResult CMakeProject::fromMap(const QVariantMap &map, QString *errorMessage)
@@ -712,7 +730,7 @@ void CMakeProject::createUiCodeModelSupport()
     QHash<QString, QString> uiFileHash;
 
     // Find all ui files
-    foreach (const QString &uiFile, m_files) {
+    foreach (const QString &uiFile, files(SourceFiles)) {
         if (uiFile.endsWith(QLatin1String(".ui")))
             uiFileHash.insert(uiFile, uiHeaderFile(uiFile));
     }

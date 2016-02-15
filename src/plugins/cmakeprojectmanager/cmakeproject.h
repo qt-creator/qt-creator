@@ -139,7 +139,7 @@ private:
     void updateRunConfigurations();
 
     void buildTree(Internal::CMakeProjectNode *rootNode, QList<ProjectExplorer::FileNode *> list);
-    void gatherFileNodes(ProjectExplorer::FolderNode *parent, QList<ProjectExplorer::FileNode *> &list);
+    void gatherFileNodes(ProjectExplorer::FolderNode *parent, QList<ProjectExplorer::FileNode *> &list) const;
     ProjectExplorer::FolderNode *findOrCreateFolder(Internal::CMakeProjectNode *rootNode, QString directory);
     void createUiCodeModelSupport();
     QString uiHeaderFile(const QString &uiFile);
@@ -151,7 +151,6 @@ private:
     Internal::BuildDirManager *m_buildDirManager = 0;
 
     // TODO probably need a CMake specific node structure
-    QStringList m_files;
     QList<CMakeBuildTarget> m_buildTargets;
     QFuture<void> m_codeModelFuture;
 };

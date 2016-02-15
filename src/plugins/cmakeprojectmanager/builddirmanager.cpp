@@ -37,6 +37,7 @@
 #include <projectexplorer/taskhub.h>
 
 #include <utils/algorithm.h>
+#include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 #include <utils/synchronousprocess.h>
@@ -203,6 +204,11 @@ QList<ProjectExplorer::FileNode *> BuildDirManager::files() const
     return m_files;
 }
 
+void BuildDirManager::clearFiles()
+{
+    m_files.clear();
+}
+
 CMakeConfig BuildDirManager::configuration() const
 {
     return parseConfiguration();
@@ -220,8 +226,7 @@ void BuildDirManager::extractData()
     m_files.append(new ProjectExplorer::FileNode(topCMake, ProjectExplorer::ProjectFileType, false));
     m_watchedFiles.insert(topCMake);
 
-    foreach (const QString &file, m_watcher->files())
-        m_watcher->removePath(file);
+    m_watcher->removePaths(m_watcher->files());
 
     // Find cbp file
     QString cbpFile = CMakeManager::findCbpFile(m_buildDir.toString());
@@ -250,8 +255,9 @@ void BuildDirManager::extractData()
     }
 
     m_watchedFiles = projectFiles;
-    foreach (const Utils::FileName &f, m_watchedFiles)
-        m_watcher->addPath(f.toString());
+    const QStringList toWatch
+            = Utils::transform(m_watchedFiles.toList(), [](const Utils::FileName &fn) { return fn.toString(); });
+    m_watcher->addPaths(toWatch);
 
     m_buildTargets = cbpparser.buildTargets();
 }

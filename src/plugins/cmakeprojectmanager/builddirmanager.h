@@ -81,6 +81,7 @@ public:
     QString projectName() const;
     QList<CMakeBuildTarget> buildTargets() const;
     QList<ProjectExplorer::FileNode *> files() const;
+    void clearFiles();
     CMakeConfig configuration() const;
 
 signals:
