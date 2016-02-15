@@ -63,16 +63,5 @@ private:
     Status m_status;
 };
 
-// Currently QtConcurrent::map does not support passing member functions for sequence of pointers
-// (only works for operator.*) which is the case for the downloaders held by the manager. Then the
-// reason for the following functor. If something is implemented (for example a type traits) to
-// handle operator->* in QtConcurrent::map this functor will not be necessary since it would be
-// possible to directly pass DefinitionDownloader::run.
-struct DownloaderStarter
-{
-    void operator()(DefinitionDownloader *downloader)
-    { downloader->run(); }
-};
-
 } // namespace Internal
 } // namespace TextEditor

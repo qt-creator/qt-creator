@@ -37,7 +37,7 @@
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <utils/algorithm.h>
-#include <utils/QtConcurrentTools>
+#include <utils/mapreduce.h>
 #include <utils/mimetypes/mimedatabase.h>
 #include <utils/networkaccessmanager.h>
 
@@ -432,7 +432,7 @@ void MultiDefinitionDownloader::downloadDefinitions(const QList<QUrl> &urls)
         m_downloaders.append(downloader);
     }
 
-    QFuture<void> future = QtConcurrent::map(m_downloaders, DownloaderStarter());
+    QFuture<void> future = Utils::map(m_downloaders, &DefinitionDownloader::run);
     m_downloadWatcher.setFuture(future);
     ProgressManager::addTask(future, tr("Downloading Highlighting Definitions"),
                              "TextEditor.Task.Download");
