@@ -150,11 +150,11 @@ using namespace Utils;
     The actual refresh, which calls all the filters' refresh functions
     in a different thread, looks like this:
     \code
-    QFuture<void> task = QtConcurrent::run(&ILocatorFilter::refresh, filters);
+    QFuture<void> task = Utils::map(filters, &ILocatorFilter::refresh);
     Core::FutureProgress *progress = Core::ProgressManager::addTask(task, tr("Indexing"),
                                                                     Locator::Constants::TASK_INDEX);
     \endcode
-    First, we tell QtConcurrent to start a thread which calls all the filters'
+    First, we to start an asynchronous operation which calls all the filters'
     refresh function. After that we register the returned QFuture object
     with the ProgressManager.
 

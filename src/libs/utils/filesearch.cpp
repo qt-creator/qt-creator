@@ -359,7 +359,7 @@ void cleanUpFileSearch(QFutureInterface<FileSearchResultList> &futureInterface,
 QFuture<FileSearchResultList> Utils::findInFiles(const QString &searchTerm, FileIterator *files,
     QTextDocument::FindFlags flags, QMap<QString, QString> fileToContentsMap)
 {
-    return mapReduce(std::cref(*files),
+    return mapReduce(files->begin(), files->end(),
                      [searchTerm, files](QFutureInterface<FileSearchResultList> &futureInterface) {
                          return initFileSearch(futureInterface, searchTerm, files);
                      },
@@ -371,7 +371,7 @@ QFuture<FileSearchResultList> Utils::findInFiles(const QString &searchTerm, File
 QFuture<FileSearchResultList> Utils::findInFilesRegExp(const QString &searchTerm, FileIterator *files,
     QTextDocument::FindFlags flags, QMap<QString, QString> fileToContentsMap)
 {
-    return mapReduce(std::cref(*files),
+    return mapReduce(files->begin(), files->end(),
                      [searchTerm, files](QFutureInterface<FileSearchResultList> &futureInterface) {
                          return initFileSearch(futureInterface, searchTerm, files);
                      },

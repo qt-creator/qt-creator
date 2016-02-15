@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include "utils_global.h"
 #include "runextensions.h"
 
 #include <QFutureWatcher>
@@ -32,31 +33,33 @@
 namespace Utils {
 namespace Internal {
 
-// TODO: try to use this for replacing MultiTask
-
-class MapReduceBase : public QObject
+class QTCREATOR_UTILS_EXPORT MapReduceObject : public QObject
 {
     Q_OBJECT
 };
 
-template <typename Container, typename MapFunction, typename State, typename ReduceResult, typename ReduceFunction>
-class MapReduce : public MapReduceBase
+template <typename Iterator, typename MapResult, typename MapFunction, typename State, typename ReduceResult, typename ReduceFunction>
+class MapReduceBase : public MapReduceObject
 {
-    using MapResult = typename Internal::resultType<MapFunction>::type;
-    using Iterator = typename Container::const_iterator;
+protected:
+    static const int MAX_PROGRESS = 1000000;
 
 public:
-    MapReduce(QFutureInterface<ReduceResult> futureInterface, const Container &container,
-              const MapFunction &map, State &state, const ReduceFunction &reduce)
+    MapReduceBase(QFutureInterface<ReduceResult> futureInterface, Iterator begin, Iterator end,
+              const MapFunction &map, State &state, const ReduceFunction &reduce, int size)
         : m_futureInterface(futureInterface),
-          m_container(container),
-          m_iterator(m_container.begin()),
+          m_iterator(begin),
+          m_end(end),
           m_map(map),
           m_state(state),
-          m_reduce(reduce)
+          m_reduce(reduce),
+          m_handleProgress(size >= 0),
+          m_size(size)
     {
+        if (m_handleProgress) // progress is handled by us
+            m_futureInterface.setProgressRange(0, MAX_PROGRESS);
         connect(&m_selfWatcher, &QFutureWatcher<void>::canceled,
-                this, &MapReduce::cancelAll);
+                this, &MapReduceBase::cancelAll);
         m_selfWatcher.setFuture(futureInterface.future());
     }
 
@@ -66,16 +69,24 @@ public:
             m_loop.exec();
     }
 
-private:
+protected:
+    virtual void reduce(QFutureWatcher<MapResult> *watcher) = 0;
+
     bool schedule()
     {
         bool didSchedule = false;
-        while (m_iterator != m_container.end() && m_mapWatcher.size() < QThread::idealThreadCount()) {
+        while (m_iterator != m_end && m_mapWatcher.size() < QThread::idealThreadCount()) {
             didSchedule = true;
             auto watcher = new QFutureWatcher<MapResult>();
             connect(watcher, &QFutureWatcher<MapResult>::finished, this, [this, watcher]() {
                 mapFinished(watcher);
             });
+            if (m_handleProgress) {
+                connect(watcher, &QFutureWatcher<MapResult>::progressValueChanged,
+                        this, &MapReduceBase::updateProgress);
+                connect(watcher, &QFutureWatcher<MapResult>::progressRangeChanged,
+                        this, &MapReduceBase::updateProgress);
+            }
             m_mapWatcher.append(watcher);
             watcher->setFuture(runAsync(&m_threadPool, m_map, *m_iterator));
             ++m_iterator;
@@ -85,20 +96,40 @@ private:
 
     void mapFinished(QFutureWatcher<MapResult> *watcher)
     {
-        m_mapWatcher.removeAll(watcher); // remove so we can schedule next one
+        m_mapWatcher.removeOne(watcher); // remove so we can schedule next one
         bool didSchedule = false;
         if (!m_futureInterface.isCanceled()) {
             // first schedule the next map...
             didSchedule = schedule();
+            ++m_successfullyFinishedMapCount;
+            updateProgress();
             // ...then reduce
-            const int resultCount = watcher->future().resultCount();
-            for (int i = 0; i < resultCount; ++i) {
-                Internal::runAsyncImpl(m_futureInterface, m_reduce, m_state, watcher->future().resultAt(i));
-            }
+            reduce(watcher);
         }
         delete watcher;
         if (!didSchedule && m_mapWatcher.isEmpty())
             m_loop.quit();
+    }
+
+    void updateProgress()
+    {
+        if (!m_handleProgress) // cannot compute progress
+            return;
+        if (m_size == 0 || m_successfullyFinishedMapCount == m_size) {
+            m_futureInterface.setProgressValue(MAX_PROGRESS);
+            return;
+        }
+        if (!m_futureInterface.isProgressUpdateNeeded())
+            return;
+        const double progressPerMap = MAX_PROGRESS / double(m_size);
+        double progress = m_successfullyFinishedMapCount * progressPerMap;
+        foreach (const QFutureWatcher<MapResult> *watcher, m_mapWatcher) {
+            if (watcher->progressMinimum() != watcher->progressMaximum()) {
+                const double range = watcher->progressMaximum() - watcher->progressMinimum();
+                progress += (watcher->progressValue() - watcher->progressMinimum()) / range * progressPerMap;
+            }
+        }
+        m_futureInterface.setProgressValue(int(progress));
     }
 
     void cancelAll()
@@ -109,40 +140,110 @@ private:
 
     QFutureWatcher<void> m_selfWatcher;
     QFutureInterface<ReduceResult> m_futureInterface;
-    const Container &m_container;
     Iterator m_iterator;
+    const Iterator m_end;
     const MapFunction &m_map;
     State &m_state;
     const ReduceFunction &m_reduce;
     QEventLoop m_loop;
     QThreadPool m_threadPool; // for reusing threads
     QList<QFutureWatcher<MapResult> *> m_mapWatcher;
+    const bool m_handleProgress;
+    const int m_size;
+    int m_successfullyFinishedMapCount = 0;
 };
 
-template <typename Container, typename InitFunction, typename MapFunction, typename ReduceResult,
+// non-void result of map function.
+template <typename Iterator, typename MapResult, typename MapFunction, typename State, typename ReduceResult, typename ReduceFunction>
+class MapReduce : public MapReduceBase<Iterator, MapResult, MapFunction, State, ReduceResult, ReduceFunction>
+{
+    using BaseType = MapReduceBase<Iterator, MapResult, MapFunction, State, ReduceResult, ReduceFunction>;
+public:
+    MapReduce(QFutureInterface<ReduceResult> futureInterface, Iterator begin, Iterator end,
+              const MapFunction &map, State &state, const ReduceFunction &reduce, int size)
+        : BaseType(futureInterface, begin, end, map, state, reduce, size)
+    {
+    }
+
+protected:
+    void reduce(QFutureWatcher<MapResult> *watcher) override
+    {
+        const int resultCount = watcher->future().resultCount();
+        for (int i = 0; i < resultCount; ++i) {
+            Internal::runAsyncImpl(BaseType::m_futureInterface, BaseType::m_reduce,
+                                   BaseType::m_state, watcher->future().resultAt(i));
+        }
+    }
+
+};
+
+// specialization for void result of map function. Reducing is a no-op.
+template <typename Iterator, typename MapFunction, typename State, typename ReduceResult, typename ReduceFunction>
+class MapReduce<Iterator, void, MapFunction, State, ReduceResult, ReduceFunction> : public MapReduceBase<Iterator, void, MapFunction, State, ReduceResult, ReduceFunction>
+{
+    using BaseType = MapReduceBase<Iterator, void, MapFunction, State, ReduceResult, ReduceFunction>;
+public:
+    MapReduce(QFutureInterface<ReduceResult> futureInterface, Iterator begin, Iterator end,
+              const MapFunction &map, State &state, const ReduceFunction &reduce, int size)
+        : BaseType(futureInterface, begin, end, map, state, reduce, size)
+    {
+    }
+
+protected:
+    void reduce(QFutureWatcher<void> *) override
+    {
+    }
+
+};
+
+template <typename Iterator, typename InitFunction, typename MapFunction, typename ReduceResult,
           typename ReduceFunction, typename CleanUpFunction>
-void blockingMapReduce(QFutureInterface<ReduceResult> &futureInterface, const Container &container,
-                       const InitFunction &init, const MapFunction &map,
-                       const ReduceFunction &reduce, const CleanUpFunction &cleanup)
+void blockingIteratorMapReduce(QFutureInterface<ReduceResult> &futureInterface, Iterator begin, Iterator end,
+                               const InitFunction &init, const MapFunction &map,
+                               const ReduceFunction &reduce, const CleanUpFunction &cleanup, int size)
 {
     auto state = init(futureInterface);
-    MapReduce<Container, MapFunction, decltype(state), ReduceResult, ReduceFunction> mr(futureInterface, container, map, state, reduce);
+    MapReduce<Iterator, typename Internal::resultType<MapFunction>::type, MapFunction, decltype(state), ReduceResult, ReduceFunction>
+            mr(futureInterface, begin, end, map, state, reduce, size);
     mr.exec();
     cleanup(futureInterface, state);
 }
 
-} // Internal
-
-template <typename Container, typename InitFunction, typename MapFunction,
-          typename ReduceFunction, typename CleanUpFunction,
-          typename ReduceResult = typename Internal::resultType<ReduceFunction>::type>
-QFuture<ReduceResult>
-mapReduce(std::reference_wrapper<Container> containerWrapper,
+template <typename Container, typename InitFunction, typename MapFunction, typename ReduceResult,
+          typename ReduceFunction, typename CleanUpFunction>
+void blockingContainerMapReduce(QFutureInterface<ReduceResult> &futureInterface, const Container &container,
                                 const InitFunction &init, const MapFunction &map,
                                 const ReduceFunction &reduce, const CleanUpFunction &cleanup)
 {
-    return runAsync(Internal::blockingMapReduce<Container, InitFunction, MapFunction, ReduceResult, ReduceFunction, CleanUpFunction>,
-                containerWrapper, init, map, reduce, cleanup);
+    blockingIteratorMapReduce(futureInterface, std::begin(container), std::end(container),
+                              init, map, reduce, cleanup, container.size());
+}
+
+template <typename ReduceResult>
+static void *dummyInit(QFutureInterface<ReduceResult> &) { return nullptr; }
+
+template <typename MapResult>
+struct DummyReduce {
+    MapResult operator()(void *, const MapResult &result) const { return result; }
+};
+template <>
+struct DummyReduce<void> {
+};
+
+template <typename ReduceResult>
+static void dummyCleanup(QFutureInterface<ReduceResult> &, void *) { }
+
+} // Internal
+
+template <typename Iterator, typename InitFunction, typename MapFunction,
+          typename ReduceFunction, typename CleanUpFunction,
+          typename ReduceResult = typename Internal::resultType<ReduceFunction>::type>
+QFuture<ReduceResult>
+mapReduce(Iterator begin, Iterator end, const InitFunction &init, const MapFunction &map,
+               const ReduceFunction &reduce, const CleanUpFunction &cleanup, int size = -1)
+{
+    return runAsync(Internal::blockingIteratorMapReduce<Iterator, InitFunction, MapFunction, ReduceResult, ReduceFunction, CleanUpFunction>,
+                begin, end, init, map, reduce, cleanup, size);
 }
 
 /*!
@@ -184,8 +285,21 @@ QFuture<ReduceResult>
 mapReduce(const Container &container, const InitFunction &init, const MapFunction &map,
                const ReduceFunction &reduce, const CleanUpFunction &cleanup)
 {
-    return runAsync(Internal::blockingMapReduce<Container, InitFunction, MapFunction, ReduceResult, ReduceFunction, CleanUpFunction>,
-                container, init, map, reduce, cleanup);
+    return runAsync(Internal::blockingContainerMapReduce<Container, InitFunction, MapFunction, ReduceResult, ReduceFunction, CleanUpFunction>,
+                    container, init, map, reduce, cleanup);
+}
+
+// TODO: Currently does not order its map results.
+template <typename Container, typename MapFunction,
+          typename MapResult = typename Internal::resultType<MapFunction>::type>
+QFuture<MapResult>
+map(const Container &container, const MapFunction &map)
+{
+    return mapReduce(container,
+                     &Internal::dummyInit<MapResult>,
+                     map,
+                     Internal::DummyReduce<MapResult>(),
+                     &Internal::dummyCleanup<MapResult>);
 }
 
 } // Utils

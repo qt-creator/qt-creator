@@ -39,7 +39,7 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorersettings.h>
 
-#include <utils/multitask.h>
+#include <utils/runextensions.h>
 
 #include <QFuture>
 #include <QFutureInterface>

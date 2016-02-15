@@ -46,8 +46,8 @@
 #include <qmljs/qmljsdialect.h>
 #include <qmljstools/qmljsmodelmanager.h>
 
-#include <utils/multitask.h>
 #include <utils/qtcassert.h>
+#include <utils/runextensions.h>
 #include <utils/textfileformat.h>
 
 #include <QDirIterator>
