@@ -208,10 +208,9 @@ GitGrep::GitGrep()
                                      "that are managed by Git."));
     layout->addWidget(m_enabledCheckBox);
     m_treeLineEdit = new FancyLineEdit;
-    m_treeLineEdit->setPlaceholderText(
-                tr("Tree: add reference here or leave empty to search through the file system)"));
-    m_treeLineEdit->setToolTip(
-                tr("Reference can be HEAD, tag, local or remote branch, or a commit hash."));
+    m_treeLineEdit->setPlaceholderText(tr("Tree (optional)"));
+    m_treeLineEdit->setToolTip(tr("Can be HEAD, tag, local or remote branch, or a commit hash.\n"
+                                  "Leave empty to search through the file system."));
     const QRegularExpression refExpression(QLatin1String("[\\S]*"));
     m_treeLineEdit->setValidator(new QRegularExpressionValidator(refExpression, this));
     layout->addWidget(m_treeLineEdit);
