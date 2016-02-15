@@ -27,6 +27,8 @@
 
 #include <utils/qtcassert.h>
 
+#include <QString>
+
 namespace CMakeProjectManager {
 
 // --------------------------------------------------------------------
