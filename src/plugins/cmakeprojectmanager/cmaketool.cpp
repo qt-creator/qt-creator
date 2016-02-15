@@ -152,12 +152,14 @@ QStringList CMakeTool::supportedGenerators() const
             foreach (const QString &line, lines) {
                 if (line.isEmpty())
                     continue;
-                if (line == QLatin1String("Generators"))
+                if (line == QLatin1String("Generators")) {
                     inGeneratorSection = true;
+                    continue;
+                }
                 if (!inGeneratorSection)
                     continue;
 
-                if (line.startsWith(QLatin1String("  "))) {
+                if (line.startsWith(QLatin1String("  ")) && line.at(3) != QLatin1Char(' ')) {
                     int pos = line.indexOf(QLatin1Char('='));
                     if (pos < 0)
                         pos = line.length();
