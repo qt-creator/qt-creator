@@ -299,7 +299,7 @@ void DocSettingsPage::removeDocumentation(const QList<QModelIndex> &items)
         m_model->removeAt(row);
     }
 
-    const int newlySelectedRow = qMax(items.constFirst().row() - 1, 0);
+    const int newlySelectedRow = qMax(items.first().row() - 1, 0);
     const QModelIndex index = m_proxyModel->mapFromSource(m_model->index(newlySelectedRow));
     m_ui.docsListView->selectionModel()->select(index, QItemSelectionModel::ClearAndSelect);
 }
