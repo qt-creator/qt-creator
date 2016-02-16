@@ -31,6 +31,7 @@
 #include "editordiagramview.h"
 #include "elementtasks.h"
 #include "extdocumentcontroller.h"
+#include "extpropertiesmview.h"
 #include "modeldocument.h"
 #include "modeleditor_constants.h"
 #include "modeleditor_plugin.h"
@@ -339,6 +340,11 @@ void ModelEditor::initDocument()
     d->propertiesView->setModelController(documentController->modelController());
     d->propertiesView->setStereotypeController(documentController->stereotypeController());
     d->propertiesView->setStyleController(documentController->styleController());
+    d->propertiesView->setMViewFactory([=](qmt::PropertiesView *view) {
+        auto extView = new ExtPropertiesMView(view);
+        extView->setProjectController(documentController->projectController());
+        return extView;
+    });
 
     d->modelTreeView->setTreeModel(documentController->sortedTreeModel());
     d->modelTreeView->setElementTasks(documentController->elementTasks());

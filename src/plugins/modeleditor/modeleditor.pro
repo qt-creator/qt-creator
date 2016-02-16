@@ -35,6 +35,7 @@ SOURCES += \
     editordiagramview.cpp \
     elementtasks.cpp \
     extdocumentcontroller.cpp \
+    extpropertiesmview.cpp \
     jsextension.cpp \
     modeldocument.cpp \
     modeleditor.cpp \
@@ -57,6 +58,7 @@ HEADERS += \
     editordiagramview.h \
     elementtasks.h \
     extdocumentcontroller.h \
+    extpropertiesmview.h \
     jsextension.h \
     modeldocument.h \
     modeleditor_constants.h \
