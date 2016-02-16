@@ -245,7 +245,8 @@ QString CppSourceProcessor::resolveFile(const QString &fileName, IncludeType typ
         if (it != m_fileNameCache.constEnd())
             return it.value();
         const QString fn = resolveFile_helper(fileName, type);
-        m_fileNameCache.insert(fileName, fn);
+        if (!fn.isEmpty())
+            m_fileNameCache.insert(fileName, fn);
         return fn;
     }
 
