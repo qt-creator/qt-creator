@@ -179,8 +179,8 @@ void OpenEditorsWindow::setEditors(const QList<EditLocation> &globalHistory, Edi
     // add missing editors from the global history
     addHistoryItems(globalHistory, view, documentsDone);
 
-    // add purely restored editors which are not initialised yet
-    addRestoredItems();
+    // add purely suspended editors which are not initialised yet
+    addSuspendedItems();
 }
 
 
@@ -241,10 +241,10 @@ void OpenEditorsWindow::addHistoryItems(const QList<EditLocation> &history, Edit
     }
 }
 
-void OpenEditorsWindow::addRestoredItems()
+void OpenEditorsWindow::addSuspendedItems()
 {
     foreach (DocumentModel::Entry *entry, DocumentModel::entries()) {
-        if (!entry->isRestored)
+        if (!entry->isSuspended)
             continue;
         QTreeWidgetItem *item = new QTreeWidgetItem();
         QString title = entry->displayName();

@@ -920,7 +920,7 @@ void SplitterOrView::restoreState(const QByteArray &state)
                                                       | EditorManager::DoNotChangeCurrentEditor);
 
         if (!e) {
-            DocumentModel::Entry *entry = DocumentModel::firstRestoredEntry();
+            DocumentModel::Entry *entry = DocumentModel::firstSuspendedEntry();
             if (entry) {
                 EditorManagerPrivate::activateEditorForEntry(view(), entry,
                     EditorManager::IgnoreNavigationHistory | EditorManager::DoNotChangeCurrentEditor);

@@ -79,7 +79,7 @@ private:
     void selectEditor(QTreeWidgetItem *item);
 
     void addHistoryItems(const QList<EditLocation> &history, EditorView *view, QSet<IDocument*> &documentsDone);
-    void addRestoredItems();
+    void addSuspendedItems();
     void ensureCurrentVisible();
     void selectUpDown(bool up);
 
