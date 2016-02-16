@@ -248,6 +248,7 @@ void QmlProfilerStatisticsView::clear()
     d->m_eventTree->clear();
     d->m_eventChildren->clear();
     d->m_eventParents->clear();
+    d->rangeStart = d->rangeEnd = -1;
 }
 
 void QmlProfilerStatisticsView::restrictToRange(qint64 rangeStart, qint64 rangeEnd)

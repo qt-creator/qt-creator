@@ -69,6 +69,7 @@ FlameGraphView::FlameGraphView(QWidget *parent, QmlProfiler::QmlProfilerModelMan
 
 void FlameGraphView::clear()
 {
+    m_isRestrictedToRange = false;
 }
 
 void FlameGraphView::restrictToRange(qint64 rangeStart, qint64 rangeEnd)
