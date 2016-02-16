@@ -31,6 +31,10 @@
 #include <gtest/gtest.h>
 #include "gtest-qt-printing.h"
 
+#ifdef WITH_BENCHMARKS
+#include <benchmark/benchmark_api.h>
+#endif
+
 int main(int argc, char *argv[])
 {
     Sqlite::registerTypes();
@@ -39,6 +43,17 @@ int main(int argc, char *argv[])
 
     QLoggingCategory::setFilterRules(QStringLiteral("*.info=false\n*.debug=false\n*.warning=false"));
 
-    ::testing::InitGoogleTest(&argc, argv);
-    return RUN_ALL_TESTS();
+    testing::InitGoogleTest(&argc, argv);
+#ifdef WITH_BENCHMARKS
+    benchmark::Initialize(&argc, argv);
+#endif
+
+    int testsHaveErrors = RUN_ALL_TESTS();
+
+#ifdef WITH_BENCHMARKS
+    if (testsHaveErrors == 0  && application.arguments().contains(QStringLiteral("--with-benchmarks")))
+        benchmark::RunSpecifiedBenchmarks();
+#endif
+
+    return testsHaveErrors;
 }
