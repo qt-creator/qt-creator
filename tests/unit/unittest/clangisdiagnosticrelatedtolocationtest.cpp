@@ -82,6 +82,9 @@ DiagnosticContainer createDiagnosticWithRange(uint startLine,
 
 class ClangIsDiagnosticRelatedToLocation : public ::testing::Test
 {
+public:
+    ClangIsDiagnosticRelatedToLocation() {}
+
 protected:
     const QVector<SourceRangeContainer> emptyRanges;
 };
