@@ -381,14 +381,6 @@ void DocumentModel::removeEditor(IEditor *editor, bool *lastOneForDocument)
     }
 }
 
-void DocumentModel::removeDocument(const QString &fileName)
-{
-    int index = d->indexOfFilePath(Utils::FileName::fromString(fileName));
-    // For non suspended entries, we wouldn't know what to do with the associated editors
-    QTC_ASSERT(d->m_entries.at(index)->isSuspended, return);
-    d->removeDocument(index);
-}
-
 void DocumentModelPrivate::removeDocument(int idx)
 {
     if (idx < 0)
@@ -464,6 +456,14 @@ DocumentModel::Entry *DocumentModel::entryForDocument(IDocument *document)
 {
     return Utils::findOrDefault(d->m_entries,
                                 [&document](Entry *entry) { return entry->document == document; });
+}
+
+DocumentModel::Entry *DocumentModel::entryForFilePath(const Utils::FileName &filePath)
+{
+    const int index = d->indexOfFilePath(filePath);
+    if (index < 0)
+        return nullptr;
+    return d->m_entries.at(index);
 }
 
 QList<IDocument *> DocumentModel::openedDocuments()

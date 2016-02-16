@@ -25,7 +25,6 @@
 
 #include "openeditorswindow.h"
 
-#include "documentmodel.h"
 #include "editormanager.h"
 #include "editormanager_p.h"
 #include "editorview.h"
@@ -44,6 +43,12 @@ Q_DECLARE_METATYPE(Core::IDocument*)
 
 using namespace Core;
 using namespace Core::Internal;
+
+enum class Role
+{
+    Entry = Qt::UserRole,
+    View = Qt::UserRole + 1
+};
 
 OpenEditorsWindow::OpenEditorsWindow(QWidget *parent) :
     QFrame(parent, Qt::Popup),
@@ -173,14 +178,14 @@ void OpenEditorsWindow::setEditors(const QList<EditLocation> &globalHistory, Edi
 {
     m_editorList->clear();
 
-    QSet<IDocument*> documentsDone;
-    addHistoryItems(view->editorHistory(), view, documentsDone);
+    QSet<const DocumentModel::Entry *> entriesDone;
+    addHistoryItems(view->editorHistory(), view, entriesDone);
 
     // add missing editors from the global history
-    addHistoryItems(globalHistory, view, documentsDone);
+    addHistoryItems(globalHistory, view, entriesDone);
 
     // add purely suspended editors which are not initialised yet
-    addSuspendedItems();
+    addRemainingItems(view, entriesDone);
 }
 
 
@@ -188,16 +193,11 @@ void OpenEditorsWindow::selectEditor(QTreeWidgetItem *item)
 {
     if (!item)
         return;
-    if (IDocument *document = item->data(0, Qt::UserRole).value<IDocument*>()) {
-        EditorView *view = item->data(0, Qt::UserRole+1).value<EditorView*>();
-        EditorManagerPrivate::activateEditorForDocument(view, document);
-    } else {
-        if (!EditorManager::openEditor(
-                    item->toolTip(0), item->data(0, Qt::UserRole+2).value<Id>())) {
-            DocumentModel::removeDocument(item->toolTip(0));
-            delete item;
-        }
-    }
+    auto entry = item->data(0, int(Role::Entry)).value<DocumentModel::Entry *>();
+    QTC_ASSERT(entry, return);
+    auto view = item->data(0, int(Role::View)).value<EditorView *>();
+    if (!EditorManagerPrivate::activateEditorForEntry(view, entry))
+        delete item;
 }
 
 void OpenEditorsWindow::editorClicked(QTreeWidgetItem *item)
@@ -212,48 +212,51 @@ void OpenEditorsWindow::ensureCurrentVisible()
     m_editorList->scrollTo(m_editorList->currentIndex(), QAbstractItemView::PositionAtCenter);
 }
 
+static DocumentModel::Entry *entryForEditLocation(const EditLocation &item)
+{
+    if (!item.document.isNull())
+        return DocumentModel::entryForDocument(item.document);
+    return DocumentModel::entryForFilePath(Utils::FileName::fromString(item.fileName));
+}
 
 void OpenEditorsWindow::addHistoryItems(const QList<EditLocation> &history, EditorView *view,
-                                        QSet<IDocument *> &documentsDone)
+                                        QSet<const DocumentModel::Entry *> &entriesDone)
 {
     foreach (const EditLocation &hi, history) {
-        if (hi.document.isNull() || documentsDone.contains(hi.document))
-            continue;
-        documentsDone.insert(hi.document.data());
-        DocumentModel::Entry *entry = DocumentModel::entryForDocument(hi.document);
-        QString title = entry ? entry->displayName() : hi.document->displayName();
-        QTC_ASSERT(!title.isEmpty(), continue);
-        QTreeWidgetItem *item = new QTreeWidgetItem();
-        if (hi.document->isModified())
-            title += tr("*");
-        item->setIcon(0, !hi.document->filePath().isEmpty() && hi.document->isFileReadOnly()
-                      ? DocumentModel::lockedIcon() : m_emptyIcon);
-        item->setText(0, title);
-        item->setToolTip(0, hi.document->filePath().toString());
-        item->setData(0, Qt::UserRole, QVariant::fromValue(hi.document.data()));
-        item->setData(0, Qt::UserRole+1, QVariant::fromValue(view));
-        item->setTextAlignment(0, Qt::AlignLeft);
-
-        m_editorList->addTopLevelItem(item);
-
-        if (m_editorList->topLevelItemCount() == 1)
-            m_editorList->setCurrentItem(item);
+        if (DocumentModel::Entry *entry = entryForEditLocation(hi))
+            addItem(entry, entriesDone, view);
     }
 }
 
-void OpenEditorsWindow::addSuspendedItems()
+void OpenEditorsWindow::addRemainingItems(EditorView *view,
+                                          QSet<const DocumentModel::Entry *> &entriesDone)
 {
-    foreach (DocumentModel::Entry *entry, DocumentModel::entries()) {
-        if (!entry->isSuspended)
-            continue;
-        QTreeWidgetItem *item = new QTreeWidgetItem();
-        QString title = entry->displayName();
-        item->setIcon(0, m_emptyIcon);
-        item->setText(0, title);
-        item->setToolTip(0, entry->fileName().toString());
-        item->setData(0, Qt::UserRole+2, QVariant::fromValue(entry->id()));
-        item->setTextAlignment(0, Qt::AlignLeft);
+    foreach (DocumentModel::Entry *entry, DocumentModel::entries())
+        addItem(entry, entriesDone, view);
+}
 
-        m_editorList->addTopLevelItem(item);
-    }
+void OpenEditorsWindow::addItem(DocumentModel::Entry *entry,
+                                QSet<const DocumentModel::Entry *> &entriesDone,
+                                EditorView *view)
+{
+    if (entriesDone.contains(entry))
+        return;
+    entriesDone.insert(entry);
+    QString title = entry->displayName();
+    QTC_ASSERT(!title.isEmpty(), return);
+    QTreeWidgetItem *item = new QTreeWidgetItem();
+    if (entry->document->isModified())
+        title += tr("*");
+    item->setIcon(0, !entry->fileName().isEmpty() && entry->document->isFileReadOnly()
+                  ? DocumentModel::lockedIcon() : m_emptyIcon);
+    item->setText(0, title);
+    item->setToolTip(0, entry->fileName().toString());
+    item->setData(0, int(Role::Entry), QVariant::fromValue(entry));
+    item->setData(0, int(Role::View), QVariant::fromValue(view));
+    item->setTextAlignment(0, Qt::AlignLeft);
+
+    m_editorList->addTopLevelItem(item);
+
+    if (m_editorList->topLevelItemCount() == 1)
+        m_editorList->setCurrentItem(item);
 }

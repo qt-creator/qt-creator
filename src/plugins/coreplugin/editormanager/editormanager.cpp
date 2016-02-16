@@ -1245,23 +1245,27 @@ IEditor *EditorManagerPrivate::activateEditor(EditorView *view, IEditor *editor,
     return editor;
 }
 
-void EditorManagerPrivate::activateEditorForEntry(EditorView *view, DocumentModel::Entry *entry, EditorManager::OpenEditorFlags flags)
+bool EditorManagerPrivate::activateEditorForEntry(EditorView *view, DocumentModel::Entry *entry,
+                                                  EditorManager::OpenEditorFlags flags)
 {
-    QTC_ASSERT(view, return);
+    QTC_ASSERT(view, return false);
     if (!entry) { // no document
         view->setCurrentEditor(0);
         setCurrentView(view);
         setCurrentEditor(0);
-        return;
+        return false;
     }
     IDocument *document = entry->document;
     if (!entry->isSuspended)  {
-        activateEditorForDocument(view, document, flags);
-        return;
+        IEditor *editor = activateEditorForDocument(view, document, flags);
+        return editor != nullptr;
     }
 
-    if (!openEditor(view, entry->fileName().toString(), entry->id(), flags))
+    if (!openEditor(view, entry->fileName().toString(), entry->id(), flags)) {
         DocumentModel::removeEntry(entry);
+        return false;
+    }
+    return true;
 }
 
 void EditorManagerPrivate::closeEditorOrDocument(IEditor *editor)

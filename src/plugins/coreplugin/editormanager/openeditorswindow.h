@@ -26,6 +26,7 @@
 #ifndef OPENEDITORSWINDOW_H
 #define OPENEDITORSWINDOW_H
 
+#include "documentmodel.h"
 #include "editorview.h"
 
 #include <QFrame>
@@ -78,8 +79,12 @@ private:
     void editorClicked(QTreeWidgetItem *item);
     void selectEditor(QTreeWidgetItem *item);
 
-    void addHistoryItems(const QList<EditLocation> &history, EditorView *view, QSet<IDocument*> &documentsDone);
-    void addSuspendedItems();
+    void addHistoryItems(const QList<EditLocation> &history, EditorView *view,
+                         QSet<const DocumentModel::Entry *> &entriesDone);
+    void addRemainingItems(EditorView *view,
+                           QSet<const DocumentModel::Entry *> &entriesDone);
+    void addItem(DocumentModel::Entry *entry, QSet<const DocumentModel::Entry *> &entriesDone,
+                 EditorView *view);
     void ensureCurrentVisible();
     void selectUpDown(bool up);
 
