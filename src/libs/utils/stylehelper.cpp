@@ -108,6 +108,11 @@ QColor StyleHelper::baseColor(bool lightColored)
         return m_baseColor.lighter(230);
 }
 
+bool StyleHelper::isBaseColorDefault()
+{
+    return m_requestedBaseColor == DEFAULT_BASE_COLOR;
+}
+
 QColor StyleHelper::highlightColor(bool lightColored)
 {
     QColor result = baseColor(lightColored);

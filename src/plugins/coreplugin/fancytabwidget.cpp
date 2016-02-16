@@ -119,7 +119,9 @@ void FancyTabBar::paintEvent(QPaintEvent *event)
     if (creatorTheme()->widgetStyle() == Theme::StyleFlat) {
         // draw background of upper part of left tab widget
         // (Welcome, ... Help)
-        p.fillRect (event->rect(), creatorTheme()->color(Theme::FancyTabBarBackgroundColor));
+        p.fillRect(event->rect(), StyleHelper::isBaseColorDefault()
+                   ? creatorTheme()->color(Theme::FancyTabBarBackgroundColor)
+                   : StyleHelper::baseColor());
     }
 
     for (int i = 0; i < count(); ++i)
@@ -320,14 +322,11 @@ void FancyTabBar::paintTab(QPainter *painter, int tabIndex) const
     const float fader = m_tabs[tabIndex]->fader();
     if (fader > 0 && !HostOsInfo::isMacHost() && !selected && enabled) {
         painter->save();
-        if (creatorTheme()->widgetStyle() == Theme::StyleFlat) {
-            QColor c = creatorTheme()->color(Theme::BackgroundColorHover);
-            c.setAlpha(255 * fader);
-            painter->fillRect(rect, c);
-        } else {
-            painter->setOpacity(fader);
+        painter->setOpacity(fader);
+        if (creatorTheme()->widgetStyle() == Theme::StyleFlat)
+            painter->fillRect(rect, creatorTheme()->color(Theme::BackgroundColorHover));
+        else
             FancyToolButton::hoverOverlay(painter, rect);
-        }
         painter->restore();
     }
 
