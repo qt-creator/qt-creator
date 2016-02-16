@@ -85,7 +85,6 @@ public:
     bool isRestrictedToRange() const override;
 
 signals:
-    void gotoSourceLocation(const QString &fileName, int lineNumber, int columnNumber);
     void typeSelected(int typeIndex);
 
 public slots:
