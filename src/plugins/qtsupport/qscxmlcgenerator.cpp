@@ -48,10 +48,10 @@ QScxmlcGenerator::QScxmlcGenerator(const ProjectExplorer::Project *project,
             this, &QScxmlcGenerator::finishProcess);
 }
 
-void QScxmlcGenerator::parseIssues(const QByteArray &stderr)
+void QScxmlcGenerator::parseIssues(const QByteArray &processStderr)
 {
     QList<ProjectExplorer::Task> issues;
-    foreach (const QByteArray &line, stderr.split('\n')) {
+    foreach (const QByteArray &line, processStderr.split('\n')) {
         QByteArrayList tokens = line.split(':');
 
         if (tokens.length() > 4) {
