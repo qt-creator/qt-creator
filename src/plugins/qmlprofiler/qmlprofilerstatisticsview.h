@@ -84,9 +84,6 @@ public:
     void restrictToRange(qint64 rangeStart, qint64 rangeEnd) override;
     bool isRestrictedToRange() const override;
 
-signals:
-    void typeSelected(int typeIndex);
-
 public slots:
     void selectByTypeId(int typeIndex) override;
     void onVisibleFeaturesChanged(quint64 features) override;
