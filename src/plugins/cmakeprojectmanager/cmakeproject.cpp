@@ -553,6 +553,7 @@ QStringList CMakeProject::files(FilesMode fileMode) const
             case ProjectExplorer::Project::GeneratedFiles:
                 return isGenerated;
             case ProjectExplorer::Project::AllFiles:
+            default:
                 return true;
             }
         });
