@@ -65,15 +65,6 @@ ArtisticStyleSettings::ArtisticStyleSettings() :
     read();
 }
 
-void ArtisticStyleSettings::updateVersion()
-{
-    if (m_versionFuture.isRunning())
-        m_versionFuture.cancel();
-
-    m_versionFuture = Utils::runAsync(&ArtisticStyleSettings::helperUpdateVersion, this);
-    m_versionWatcher.setFuture(m_versionFuture);
-}
-
 static int parseVersion(const QString &text)
 {
     // The version in Artistic Style is printed like "Artistic Style Version 2.04"
@@ -86,22 +77,29 @@ static int parseVersion(const QString &text)
     return 0;
 }
 
-void ArtisticStyleSettings::helperUpdateVersion(QFutureInterface<int> &future)
+static int updateVersionHelper(const QString &command)
 {
     QProcess process;
-    process.start(command(), QStringList() << QLatin1String("--version"));
+    process.start(command, QStringList() << QLatin1String("--version"));
     if (!process.waitForFinished()) {
         process.kill();
-        future.reportResult(0);
-        return;
+        return 0;
     }
 
     // Astyle prints the version on stdout or stderr, depending on platform
     const int version = parseVersion(QString::fromUtf8(process.readAllStandardOutput()).trimmed());
     if (version != 0)
-        future.reportResult(version);
-    else
-        future.reportResult(parseVersion(QString::fromUtf8(process.readAllStandardError()).trimmed()));
+        return version;
+    return parseVersion(QString::fromUtf8(process.readAllStandardError()).trimmed());
+}
+
+void ArtisticStyleSettings::updateVersion()
+{
+    if (m_versionFuture.isRunning())
+        m_versionFuture.cancel();
+
+    m_versionFuture = Utils::runAsync(updateVersionHelper, command());
+    m_versionWatcher.setFuture(m_versionFuture);
 }
 
 void ArtisticStyleSettings::helperSetVersion()

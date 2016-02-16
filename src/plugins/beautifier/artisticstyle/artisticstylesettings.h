@@ -70,7 +70,6 @@ private slots:
 private:
     QFuture<int> m_versionFuture;
     QFutureWatcher<int> m_versionWatcher;
-    void helperUpdateVersion(QFutureInterface<int> &future);
 };
 
 } // namespace ArtisticStyle
