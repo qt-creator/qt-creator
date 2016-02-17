@@ -28,6 +28,8 @@
 
 #include "textdocumentmanipulatorinterface.h"
 
+#include <utils/declarationmacros.h>
+
 QT_BEGIN_NAMESPACE
 class QIcon;
 class QString;
@@ -43,7 +45,10 @@ class TextEditorWidget;
 class TEXTEDITOR_EXPORT AssistProposalItemInterface
 {
 public:
+    AssistProposalItemInterface() = default;
     virtual ~AssistProposalItemInterface() Q_DECL_NOEXCEPT = default;
+
+    UTILS_DELETE_MOVE_AND_COPY(AssistProposalItemInterface)
 
     virtual QString text() const = 0;
     virtual bool implicitlyApplies() const = 0;

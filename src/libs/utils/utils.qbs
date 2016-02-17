@@ -64,6 +64,7 @@ QtcLibrary {
         "consoleprocess_p.h",
         "crumblepath.cpp",
         "crumblepath.h",
+        "declarationmacros.h",
         "detailsbutton.cpp",
         "detailsbutton.h",
         "detailswidget.cpp",

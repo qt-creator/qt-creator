@@ -210,7 +210,8 @@ HEADERS += \
     $$PWD/icon.h \
     $$PWD/port.h \
     $$PWD/functiontraits.h \
-    $$PWD/mapreduce.h
+    $$PWD/mapreduce.h \
+    $$PWD/declarationmacros.h
 
 FORMS += $$PWD/filewizardpage.ui \
     $$PWD/projectintropage.ui \
