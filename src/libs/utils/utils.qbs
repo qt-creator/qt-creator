@@ -187,6 +187,7 @@ QtcLibrary {
         "smallstring.h",
         "smallstringiterator.h",
         "smallstringliteral.h",
+        "smallstringlayout.h",
         "smallstringmemory.h",
         "smallstringvector.h",
         "statuslabel.cpp",
