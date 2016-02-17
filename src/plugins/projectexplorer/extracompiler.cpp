@@ -51,8 +51,8 @@ class ExtraCompilerPrivate
 public:
     const Project *project;
     Utils::FileName source;
+    QHash<Utils::FileName, QByteArray> contents;
     Utils::FileNameList targets;
-    QVector<QByteArray> contents;
     QList<Task> issues;
     QDateTime compileTime;
     Core::IEditor *lastEditor = 0;
@@ -71,7 +71,8 @@ ExtraCompiler::ExtraCompiler(const Project *project, const Utils::FileName &sour
     d->project = project;
     d->source = source;
     d->targets = targets;
-    d->contents.resize(targets.size());
+    foreach (const Utils::FileName &target, targets)
+        d->contents.insert(target, QByteArray());
     d->timer.setSingleShot(true);
 
     connect(d->project, &Project::activeTargetChanged, this, &ExtraCompiler::onActiveTargetChanged);
@@ -148,11 +149,7 @@ Utils::FileName ExtraCompiler::source() const
 
 QByteArray ExtraCompiler::content(const Utils::FileName &file) const
 {
-    for (int i = 0; i < d->targets.length(); ++i) {
-        if (d->targets[i] == file)
-            return d->contents[i];
-    }
-    return QByteArray();
+    return d->contents.value(file);
 }
 
 Utils::FileNameList ExtraCompiler::targets() const
@@ -335,13 +332,11 @@ void ExtraCompilerPrivate::updateIssues()
 
 void ExtraCompiler::setContent(const Utils::FileName &file, const QByteArray &contents)
 {
-    for (int i = 0; i < d->targets.length(); ++i) {
-        if (d->targets[i] == file) {
-            if (d->contents[i] != contents) {
-                d->contents[i] = contents;
-                emit contentsChanged(file);
-            }
-            return;
+    auto it = d->contents.find(file);
+    if (it != d->contents.end()) {
+        if (it.value() != contents) {
+            it.value() = contents;
+            emit contentsChanged(file);
         }
     }
 }
