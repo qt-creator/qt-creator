@@ -25,7 +25,7 @@
 
 #include "cmbunregistertranslationunitsforeditormessage.h"
 
-#ifdef CLANGBACKEND_TESTS
+#ifdef UNIT_TESTS
 #include <gtest/gtest-printers.h>
 #endif
 
@@ -76,7 +76,7 @@ QDebug operator<<(QDebug debug, const UnregisterTranslationUnitsForEditorMessage
     return debug;
 }
 
-#ifdef CLANGBACKEND_TESTS
+#ifdef UNIT_TESTS
 void PrintTo(const UnregisterTranslationUnitsForEditorMessage &message, ::std::ostream* os)
 {
     *os << "UnregisterTranslationUnitsForEditorMessage(";
