@@ -282,12 +282,11 @@ def addHelpDocumentation(which):
     waitForObject("{container=':Options.qt_tabwidget_tabbar_QTabBar' type='TabItem' text='Documentation'}")
     clickOnTab(":Options.qt_tabwidget_tabbar_QTabBar", "Documentation")
     # get rid of all docs already registered
-    listWidget = waitForObject("{type='QListWidget' name='docsListWidget' visible='1'}")
-    if listWidget.count > 0:
-        rect = listWidget.visualItemRect(listWidget.item(0))
-        mouseClick(listWidget, rect.x+5, rect.y+5, 0, Qt.LeftButton)
+    listWidget = waitForObject("{type='QListView' name='docsListView' visible='1'}")
+    if listWidget.model().rowCount() > 0:
+        mouseClick(listWidget)
         type(listWidget, "<Ctrl+a>")
-        mouseClick(waitForObject("{type='QPushButton' name='removeButton' visible='1'}"), 5, 5, 0, Qt.LeftButton)
+        clickButton(waitForObject("{type='QPushButton' name='removeButton' visible='1'}"))
     for qch in which:
         clickButton(waitForObject("{type='QPushButton' name='addButton' visible='1' text='Add...'}"))
         selectFromFileDialog(qch)
