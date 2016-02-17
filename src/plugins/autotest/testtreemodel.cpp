@@ -747,6 +747,7 @@ void TestTreeModel::onParseResultReady(const TestParseResult &result)
     switch (result.type) {
     case AutoTest:
         handleParseResult(result);
+        break;
     case QuickTest:
         if (result.testCaseName.isEmpty()) {
             handleUnnamedQuickParseResult(result);
