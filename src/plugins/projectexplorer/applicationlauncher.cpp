@@ -43,6 +43,7 @@
 #include <utils/qtcprocess.h>
 
 #include <QTextCodec>
+#include <QTimer>
 
 #ifdef Q_OS_WIN
 #include <windows.h>
@@ -80,7 +81,9 @@ struct ApplicationLauncherPrivate {
     QTextCodec::ConverterState m_outputCodecState;
     QTextCodec::ConverterState m_errorCodecState;
     // Keep track whether we need to emit a finished signal
-    bool m_processRunning;
+    bool m_processRunning = false;
+
+    qint64 m_listeningPid = 0;
 };
 
 ApplicationLauncherPrivate::ApplicationLauncherPrivate() :
@@ -114,7 +117,7 @@ ApplicationLauncher::ApplicationLauncher(QObject *parent)
     d->m_consoleProcess.setSettings(Core::ICore::settings());
 #endif
     connect(&d->m_consoleProcess, SIGNAL(processStarted()),
-            this, SIGNAL(processStarted()));
+            this, SLOT(handleProcessStarted()));
     connect(&d->m_consoleProcess, SIGNAL(processError(QString)),
             this, SLOT(consoleProcessError(QString)));
     connect(&d->m_consoleProcess, SIGNAL(processStopped(int,QProcess::ExitStatus)),
@@ -288,24 +291,33 @@ void ApplicationLauncher::cannotRetrieveDebugOutput()
 
 void ApplicationLauncher::checkDebugOutput(qint64 pid, const QString &message)
 {
-    if (applicationPID() == pid)
+    if (d->m_listeningPid == pid)
         emit appendMessage(message, Utils::DebugFormat);
 }
 
 void ApplicationLauncher::processDone(int exitCode, QProcess::ExitStatus status)
 {
-    emit processExited(exitCode, status);
+    QTimer::singleShot(100, this, [this, exitCode, status]() {
+        d->m_listeningPid = 0;
+        emit processExited(exitCode, status);
+    });
 }
 
 void ApplicationLauncher::bringToForeground()
 {
     emit bringToForegroundRequested(applicationPID());
-    emit processStarted();
+    handleProcessStarted();
 }
 
 QString ApplicationLauncher::msgWinCannotRetrieveDebuggingOutput()
 {
     return tr("Cannot retrieve debugging output.") + QLatin1Char('\n');
+}
+
+void ApplicationLauncher::handleProcessStarted()
+{
+    d->m_listeningPid = applicationPID();
+    emit processStarted();
 }
 
 } // namespace ProjectExplorer
