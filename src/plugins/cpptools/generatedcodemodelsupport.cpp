@@ -103,7 +103,7 @@ void GeneratedCodeModelSupport::init() const
 
 QByteArray GeneratedCodeModelSupport::contents() const
 {
-    return m_generator->content(m_generatedFileName).toUtf8();
+    return m_generator->content(m_generatedFileName);
 }
 
 QString GeneratedCodeModelSupport::fileName() const

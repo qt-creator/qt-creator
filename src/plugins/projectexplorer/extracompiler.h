@@ -50,8 +50,8 @@ public:
 
     // You can set the contents from the outside. This is done if the file has been (re)created by
     // the regular build process.
-    void setContent(const Utils::FileName &file, const QString &content);
-    QString content(const Utils::FileName &file) const;
+    void setContent(const Utils::FileName &file, const QByteArray &content);
+    QByteArray content(const Utils::FileName &file) const;
 
     Utils::FileNameList targets() const;
 

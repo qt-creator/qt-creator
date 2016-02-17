@@ -76,7 +76,7 @@ void QScxmlcGenerator::finishProcess()
         QFile generated(m_tmpdir.path() + QLatin1Char('/') + target.fileName());
         if (!generated.open(QIODevice::ReadOnly))
             continue;
-        setContent(target, QString::fromUtf8(generated.readAll()));
+        setContent(target, generated.readAll());
     }
 }
 

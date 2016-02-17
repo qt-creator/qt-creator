@@ -52,7 +52,7 @@ public:
     const Project *project;
     Utils::FileName source;
     Utils::FileNameList targets;
-    QVector<QString> contents;
+    QVector<QByteArray> contents;
     QList<Task> issues;
     QDateTime compileTime;
     Core::IEditor *lastEditor = 0;
@@ -117,7 +117,7 @@ ExtraCompiler::ExtraCompiler(const Project *project, const Utils::FileName &sour
 
         QFile file(target.toString());
         if (file.open(QFile::ReadOnly | QFile::Text))
-            setContent(target, QTextStream(&file).readAll());
+            setContent(target, file.readAll());
     }
 
     if (d->dirty) {
@@ -146,13 +146,13 @@ Utils::FileName ExtraCompiler::source() const
     return d->source;
 }
 
-QString ExtraCompiler::content(const Utils::FileName &file) const
+QByteArray ExtraCompiler::content(const Utils::FileName &file) const
 {
     for (int i = 0; i < d->targets.length(); ++i) {
         if (d->targets[i] == file)
             return d->contents[i];
     }
-    return QString();
+    return QByteArray();
 }
 
 Utils::FileNameList ExtraCompiler::targets() const
@@ -190,9 +190,8 @@ void ExtraCompiler::onTargetsBuilt(Project *project)
 
             QFile file(target.toString());
             if (file.open(QFile::ReadOnly | QFile::Text)) {
-                QTextStream stream(&file);
                 d->compileTime = generateTime;
-                setContent(target, stream.readAll());
+                setContent(target, file.readAll());
             }
         }
     }
@@ -334,7 +333,7 @@ void ExtraCompilerPrivate::updateIssues()
     widget->setExtraSelections(TextEditor::TextEditorWidget::CodeWarningsSelection, selections);
 }
 
-void ExtraCompiler::setContent(const Utils::FileName &file, const QString &contents)
+void ExtraCompiler::setContent(const Utils::FileName &file, const QByteArray &contents)
 {
     for (int i = 0; i < d->targets.length(); ++i) {
         if (d->targets[i] == file) {

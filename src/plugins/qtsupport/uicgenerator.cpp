@@ -62,7 +62,7 @@ void UicGenerator::finishProcess()
 
     // As far as I can discover in the UIC sources, it writes out local 8-bit encoding. The
     // conversion below is to normalize both the encoding, and the line terminators.
-    QString normalized = QString::fromLocal8Bit(m_process.readAllStandardOutput());
+    QByteArray normalized = QString::fromLocal8Bit(m_process.readAllStandardOutput()).toUtf8();
     qCDebug(m_log) << "finish process: ok" << normalized.size() << "bytes.";
     setCompileTime(QDateTime::currentDateTime());
     setContent(targets()[0], normalized);
