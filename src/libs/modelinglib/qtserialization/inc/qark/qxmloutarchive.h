@@ -60,8 +60,6 @@ public:
 
     ~QXmlOutArchive()
     {
-        if (m_savingRefMap.countDanglingReferences() > 0)
-            throw DanglingReferences();
     }
 
     template<typename T>
@@ -112,6 +110,8 @@ public:
     void endDocument()
     {
         m_stream.writeEndDocument();
+        if (m_savingRefMap.countDanglingReferences() > 0)
+            throw DanglingReferences();
     }
 
     void beginElement(const Tag &tag)
