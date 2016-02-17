@@ -332,7 +332,7 @@ void SessionManager::setActiveBuildConfiguration(Target *target, BuildConfigurat
         if (otherProject == target->project())
             continue;
         Target *otherTarget = otherProject->activeTarget();
-        if (otherTarget->kit()->id() != kitId)
+        if (!otherTarget || otherTarget->kit()->id() != kitId)
             continue;
 
         foreach (BuildConfiguration *otherBc, otherTarget->buildConfigurations()) {
@@ -360,7 +360,7 @@ void SessionManager::setActiveDeployConfiguration(Target *target, DeployConfigur
         if (otherProject == target->project())
             continue;
         Target *otherTarget = otherProject->activeTarget();
-        if (otherTarget->kit()->id() != kitId)
+        if (!otherTarget || otherTarget->kit()->id() != kitId)
             continue;
 
         foreach (DeployConfiguration *otherDc, otherTarget->deployConfigurations()) {
