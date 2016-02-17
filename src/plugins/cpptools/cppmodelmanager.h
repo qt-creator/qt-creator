@@ -162,6 +162,8 @@ public:
 
     SymbolFinder *symbolFinder();
 
+    QThreadPool *sharedThreadPool();
+
     static QSet<QString> timeStampModifiedFiles(const QList<Document::Ptr> &documentsToCheck);
 
     static Internal::CppSourceProcessor *createSourceProcessor();

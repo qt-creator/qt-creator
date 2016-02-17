@@ -145,7 +145,8 @@ void SymbolsFindFilter::startSearch(SearchResult *search)
     SymbolSearcher *symbolSearcher = m_manager->indexingSupport()->createSymbolSearcher(parameters, projectFileNames);
     connect(watcher, SIGNAL(finished()),
             symbolSearcher, SLOT(deleteLater()));
-    watcher->setFuture(Utils::runAsync(&SymbolSearcher::runSearch, symbolSearcher));
+    watcher->setFuture(Utils::runAsync(m_manager->sharedThreadPool(),
+                                       &SymbolSearcher::runSearch, symbolSearcher));
     FutureProgress *progress = ProgressManager::addTask(watcher->future(), tr("Searching for Symbol"),
                                                         Core::Constants::TASK_SEARCH);
     connect(progress, SIGNAL(clicked()), search, SLOT(popup()));

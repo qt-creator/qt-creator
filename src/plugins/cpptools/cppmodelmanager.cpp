@@ -58,6 +58,7 @@
 #include <QDir>
 #include <QMutexLocker>
 #include <QTextBlock>
+#include <QThreadPool>
 #include <QTimer>
 
 #if defined(QTCREATOR_WITH_DUMP_AST) && defined(Q_CC_GNU)
@@ -157,6 +158,7 @@ public:
     CppFindReferences *m_findReferences;
 
     SymbolFinder m_symbolFinder;
+    QThreadPool m_threadPool;
 
     bool m_enableGC;
     QTimer m_delayedGcTimer;
@@ -1194,6 +1196,11 @@ void CppModelManager::enableGarbageCollector(bool enable)
 SymbolFinder *CppModelManager::symbolFinder()
 {
     return &d->m_symbolFinder;
+}
+
+QThreadPool *CppModelManager::sharedThreadPool()
+{
+    return &d->m_threadPool;
 }
 
 } // namespace CppTools

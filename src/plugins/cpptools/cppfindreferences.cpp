@@ -365,7 +365,8 @@ void CppFindReferences::findAll_helper(SearchResult *search, Symbol *symbol,
     SearchResultWindow::instance()->popup(IOutputPane::ModeSwitch | IOutputPane::WithFocus);
     const WorkingCopy workingCopy = m_modelManager->workingCopy();
     QFuture<Usage> result;
-    result = Utils::runAsync(find_helper, workingCopy, context, symbol);
+    result = Utils::runAsync(m_modelManager->sharedThreadPool(), find_helper,
+                             workingCopy, context, symbol);
     createWatcher(result, search);
 
     FutureProgress *progress = ProgressManager::addTask(result, tr("Searching for Usages"),
@@ -669,7 +670,8 @@ void CppFindReferences::findMacroUses(const Macro &macro, const QString &replace
     }
 
     QFuture<Usage> result;
-    result = Utils::runAsync(findMacroUses_helper, workingCopy, snapshot, macro);
+    result = Utils::runAsync(m_modelManager->sharedThreadPool(), findMacroUses_helper,
+                             workingCopy, snapshot, macro);
     createWatcher(result, search);
 
     FutureProgress *progress = ProgressManager::addTask(result, tr("Searching for Usages"),

@@ -26,6 +26,7 @@
 #include "cppsemanticinfoupdater.h"
 
 #include "cpplocalsymbols.h"
+#include "cppmodelmanager.h"
 
 #include <utils/qtcassert.h>
 #include <utils/runextensions.h>
@@ -200,7 +201,8 @@ void SemanticInfoUpdater::updateDetached(const SemanticInfo::Source source)
         return;
     }
 
-    d->m_future = Utils::runAsync(&SemanticInfoUpdaterPrivate::update_helper, d.data(), source);
+    d->m_future = Utils::runAsync(CppModelManager::instance()->sharedThreadPool(),
+                                  &SemanticInfoUpdaterPrivate::update_helper, d.data(), source);
 }
 
 SemanticInfo SemanticInfoUpdater::semanticInfo() const
