@@ -1,0 +1,979 @@
+/****************************************************************************
+**
+** Copyright (C) 2016 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of Qt Creator.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 3 as published by the Free Software
+** Foundation with exceptions as appearing in the file LICENSE.GPL3-EXCEPT
+** included in the packaging of this file. Please review the following
+** information to ensure the GNU General Public License requirements will
+** be met: https://www.gnu.org/licenses/gpl-3.0.html.
+**
+****************************************************************************/
+
+#include "gtest/gtest.h"
+#include "gmock/gmock-matchers.h"
+#include "gtest-qt-printing.h"
+
+#include <QString>
+
+#include <utils/smallstringvector.h>
+
+#include <utils/smallstring.h>
+
+#ifndef __cpp_constexpr
+#define constexpr
+#endif
+
+using namespace ::testing;
+
+using Utils::SmallString;
+using Utils::SmallStringLiteral;
+using Utils::SmallStringView;
+
+TEST(SmallString, BasicStringEqual)
+{
+    ASSERT_THAT(SmallString("text"), Eq(SmallString("text")));
+}
+
+TEST(SmallString, BasicSmallStringUnequal)
+{
+    ASSERT_THAT(SmallString("text"), Ne(SmallString("other text")));
+}
+
+TEST(SmallString, NullSmallStringIsEqualToEmptySmallString)
+{
+    ASSERT_THAT(SmallString(), Eq(SmallString("")));
+}
+
+TEST(SmallString, ShortSmallStringLiteralIsShortSmallString)
+{
+    constexpr SmallStringLiteral shortText("short string");
+
+#if __cpp_constexpr >= 201304
+    ASSERT_TRUE(shortText.isShortString());
+#else
+    ASSERT_TRUE(shortText.isReference());
+#endif
+}
+
+TEST(SmallString, ShortSmallStringIsShortSmallString)
+{
+    SmallString shortText("short string");
+
+#if __cpp_constexpr >= 201304
+    ASSERT_TRUE(shortText.isShortString());
+#else
+    ASSERT_TRUE(shortText.isReference());
+#endif
+}
+
+TEST(SmallString, ShortSmallStringIsReference)
+{
+    SmallString longText("very very very very very long text");
+
+    ASSERT_TRUE(longText.isReference());
+}
+
+TEST(SmallString, ShortSmallStringIsNotReference)
+{
+    const char *shortCSmallString = "short string";
+    auto shortText = SmallString::fromUtf8(shortCSmallString);
+
+    ASSERT_FALSE(shortText.isReference());
+}
+
+TEST(SmallString, MaximumShortSmallString)
+{
+    SmallString maximumShortText("very very very very short text", 30);
+
+    ASSERT_THAT(maximumShortText.constData(), StrEq("very very very very short text"));
+}
+
+TEST(SmallString, LongConstExpressionSmallStringIsReference)
+{
+    SmallString longText("very very very very very very very very very very very long string");
+
+    ASSERT_TRUE(longText.isReference());
+}
+
+TEST(SmallString, CloneShortSmallString)
+{
+    SmallString shortText("short string");
+
+    auto clonedText = shortText.clone();
+
+    ASSERT_THAT(clonedText, Eq("short string"));
+}
+
+TEST(SmallString, CloneLongSmallString)
+{
+    SmallString longText = SmallString::fromUtf8("very very very very very very very very very very very long string");
+
+    auto clonedText = longText.clone();
+
+    ASSERT_THAT(clonedText, Eq("very very very very very very very very very very very long string"));
+}
+
+TEST(SmallString, ClonedLongSmallStringDataPointerIsDifferent)
+{
+    SmallString longText = SmallString::fromUtf8("very very very very very very very very very very very long string");
+
+    auto clonedText = longText.clone();
+
+    ASSERT_THAT(clonedText.data(), Ne(longText.data()));
+}
+
+TEST(SmallString, CopyShortConstExpressionSmallStringIsShortSmallString)
+{
+    SmallString shortText("short string");
+
+    auto shortTextCopy = shortText;
+
+#if __cpp_constexpr >= 201304
+    ASSERT_TRUE(shortTextCopy.isShortString());
+#else
+    ASSERT_TRUE(shortTextCopy.isReference());
+#endif
+}
+
+TEST(SmallString, CopyLongConstExpressionSmallStringIsLongSmallString)
+{
+    SmallString longText("very very very very very very very very very very very long string");
+
+    auto longTextCopy = longText;
+
+    ASSERT_FALSE(longTextCopy.isShortString());
+}
+
+TEST(SmallString, SmallStringFromCharacterArrayIsReference)
+{
+    const char longCString[] = "very very very very very very very very very very very long string";
+
+    SmallString longString(longCString);
+
+    ASSERT_TRUE(longString.isReference());
+}
+
+TEST(SmallString, SmallStringFromCharacterPointerIsNotReference)
+{
+    const char *longCString = "very very very very very very very very very very very long string";
+
+    SmallString longString = SmallString::fromUtf8(longCString);
+
+    ASSERT_FALSE(longString.isReference());
+}
+
+TEST(SmallString, CopyStringFromReference)
+{
+    SmallString longText("very very very very very very very very very very very long string");
+    SmallString longTextCopy;
+
+    longTextCopy = longText;
+
+    ASSERT_TRUE(longTextCopy.isReference());
+}
+
+TEST(SmallString, SmallStringLiteralShortSmallStringDataAccess)
+{
+    SmallStringLiteral literalText("very very very very very very very very very very very long string");
+
+    ASSERT_THAT(literalText.data(), StrEq("very very very very very very very very very very very long string"));
+}
+
+TEST(SmallString, SmallStringLiteralLongSmallStringDataAccess)
+{
+    SmallStringLiteral literalText("short string");
+
+    ASSERT_THAT(literalText.data(), StrEq("short string"));
+}
+
+TEST(SmallString, ReferenceDataAccess)
+{
+    SmallString literalText("short string");
+
+    ASSERT_THAT(literalText.constData(), StrEq("short string"));
+}
+
+TEST(SmallString, ShortDataAccess)
+{
+    const char *shortCString = "short string";
+    auto shortText = SmallString::fromUtf8(shortCString);
+
+    ASSERT_THAT(shortText.constData(), StrEq("short string"));
+}
+
+TEST(SmallString, LongDataAccess)
+{
+    const char *longCString = "very very very very very very very very very very very long string";
+    auto longText = SmallString::fromUtf8(longCString);
+
+    ASSERT_THAT(longText.constData(), StrEq(longCString));
+}
+
+TEST(SmallString, LongSmallStringHasShortSmallStringSizeZero)
+{
+    auto longText = SmallString::fromUtf8("very very very very very very very very very very very long string");
+
+    ASSERT_THAT(longText.shortStringSize(), 0);
+}
+
+TEST(SmallString, BeginIsEqualEndForEmptySmallString)
+{
+    SmallString text;
+
+    ASSERT_THAT(text.begin(), Eq(text.end()));
+}
+
+TEST(SmallString, BeginIsNotEqualEndForNonEmptySmallString)
+{
+    SmallString text("x");
+
+    ASSERT_THAT(text.begin(), Ne(text.end()));
+}
+
+TEST(SmallString, BeginPlusOneIsEqualEndForSmallStringWidthSizeOne)
+{
+    SmallString text("x");
+
+    auto beginPlusOne = text.begin() + 1l;
+
+    ASSERT_THAT(beginPlusOne, Eq(text.end()));
+}
+
+TEST(SmallString, RBeginIsEqualREndForEmptySmallString)
+{
+    SmallString text;
+
+    ASSERT_THAT(text.rbegin(), Eq(text.rend()));
+}
+
+TEST(SmallString, RBeginIsNotEqualREndForNonEmptySmallString)
+{
+    SmallString text("x");
+
+    ASSERT_THAT(text.rbegin(), Ne(text.rend()));
+}
+
+TEST(SmallString, RBeginPlusOneIsEqualREndForSmallStringWidthSizeOne)
+{
+    SmallString text("x");
+
+    auto beginPlusOne = text.rbegin() + 1l;
+
+    ASSERT_THAT(beginPlusOne, Eq(text.rend()));
+}
+
+TEST(SmallString, ToQString)
+{
+    SmallString text("short string");
+
+    auto qStringText = text;
+
+    ASSERT_THAT(qStringText, QStringLiteral("short string"));
+}
+
+TEST(SmallString, FromQString)
+{
+    QString qStringText = QStringLiteral("short string");
+
+    auto text = SmallString::fromQString(qStringText);
+
+    ASSERT_THAT(text, SmallString("short string"));
+}
+
+
+TEST(SmallString, FromQByteArray)
+{
+    QByteArray qByteArray = QByteArrayLiteral("short string");
+
+    auto text = SmallString::fromQByteArray(qByteArray);
+
+    ASSERT_THAT(text, SmallString("short string"));
+}
+
+TEST(SmallString, MidOneParameter)
+{
+    SmallString text("some text");
+
+    auto midString = text.mid(5);
+
+    ASSERT_THAT(midString, Eq(SmallString("text")));
+}
+
+TEST(SmallString, MidTwoParameter)
+{
+    SmallString text("some text and more");
+
+    auto midString = text.mid(5, 4);
+
+    ASSERT_THAT(midString, Eq(SmallString("text")));
+}
+
+TEST(SmallString, SizeOfEmptyStringl)
+{
+    SmallString emptyString;
+
+    auto size = emptyString.size();
+
+    ASSERT_THAT(size, 0);
+}
+
+TEST(SmallString, SizeShortSmallStringLiteral)
+{
+    SmallStringLiteral shortText("text");
+
+    auto size = shortText.size();
+
+    ASSERT_THAT(size, 4);
+}
+
+TEST(SmallString, SizeLongSmallStringLiteral)
+{
+    auto longText = SmallStringLiteral("very very very very very very very very very very very long string");
+
+    auto size = longText.size();
+
+    ASSERT_THAT(size, 66);
+}
+
+TEST(SmallString, SizeReference)
+{
+    SmallString shortText("text");
+
+    auto size = shortText.size();
+
+    ASSERT_THAT(size, 4);
+}
+
+TEST(SmallString, SizeShortSmallString)
+{
+    SmallString shortText("text", 4);
+
+    auto size = shortText.size();
+
+    ASSERT_THAT(size, 4);
+}
+
+TEST(SmallString, SizeLongSmallString)
+{
+    auto longText = SmallString::fromUtf8("very very very very very very very very very very very long string");
+
+    auto size = longText.size();
+
+    ASSERT_THAT(size, 66);
+}
+
+TEST(SmallString, CapacityReference)
+{
+    SmallString shortText("very very very very very very very long string");
+
+    auto capacity = shortText.capacity();
+
+    ASSERT_THAT(capacity, 0);
+}
+
+TEST(SmallString, CapacityShortSmallString)
+{
+    SmallString shortText("text", 4);
+
+    auto capacity = shortText.capacity();
+
+    ASSERT_THAT(capacity, 30);
+}
+
+TEST(SmallString, CapacityLongSmallString)
+{
+    auto longText = SmallString::fromUtf8("very very very very very very very very very very very long string");
+
+    auto capacity = longText.capacity();
+
+    ASSERT_THAT(capacity, 66);
+}
+
+TEST(SmallString, FitsNotInCapacityBecauseNullSmallStringIsAShortSmallString)
+{
+    SmallString text;
+
+    ASSERT_FALSE(text.fitsNotInCapacity(30));
+}
+
+TEST(SmallString, FitsNotInCapacityBecauseItIsReference)
+{
+    SmallString text("very very very very very very very long string");
+
+    ASSERT_TRUE(text.fitsNotInCapacity(1));
+}
+
+TEST(SmallString, FitsInShortSmallStringCapacity)
+{
+    SmallString text("text", 4);
+
+    ASSERT_FALSE(text.fitsNotInCapacity(30));
+}
+
+TEST(SmallString, FitsInNotShortSmallStringCapacity)
+{
+    SmallString text("text", 4);
+
+    ASSERT_TRUE(text.fitsNotInCapacity(31));
+}
+
+TEST(SmallString, FitsInLongSmallStringCapacity)
+{
+    SmallString text = SmallString::fromUtf8("very very very very very very long string");
+
+    ASSERT_FALSE(text.fitsNotInCapacity(33)) << text.capacity();
+}
+
+TEST(SmallString, FitsNotInLongSmallStringCapacity)
+{
+    SmallString text = SmallString::fromUtf8("very very very very very very long string");
+
+    ASSERT_TRUE(text.fitsNotInCapacity(65)) << text.capacity();
+}
+
+TEST(SmallString, AppendNullSmallString)
+{
+    SmallString text("text");
+
+    text.append(SmallString());
+
+    ASSERT_THAT(text, SmallString("text"));
+}
+
+TEST(SmallString, AppendEmptySmallString)
+{
+    SmallString text("text");
+
+    text.append(SmallString(""));
+
+    ASSERT_THAT(text, SmallString("text"));
+}
+
+
+TEST(SmallString, AppendShortSmallString)
+{
+    SmallString text("some ");
+
+    text.append(SmallString("text"));
+
+    ASSERT_THAT(text, SmallString("some text"));
+}
+
+TEST(SmallString, AppendLongSmallString)
+{
+    SmallString longText("some very very very very very very very very very very very long string");
+    longText.append(SmallString(" text"));
+
+    ASSERT_THAT(longText, SmallString("some very very very very very very very very very very very long string text"));
+}
+
+TEST(SmallString, ToByteArray)
+{
+    SmallString text("some text");
+
+    ASSERT_THAT(text.toQByteArray(), QByteArrayLiteral("some text"));
+}
+
+TEST(SmallString, Contains)
+{
+    SmallString text("some text");
+
+    ASSERT_TRUE(text.contains(SmallString("text")));
+    ASSERT_TRUE(text.contains("text"));
+    ASSERT_TRUE(text.contains('x'));
+}
+
+TEST(SmallString, NotContains)
+{
+    SmallString text("some text");
+
+    ASSERT_FALSE(text.contains(SmallString("textTwo")));
+    ASSERT_FALSE(text.contains("foo"));
+    ASSERT_FALSE(text.contains('q'));
+}
+
+TEST(SmallString, EqualSmallStringOperator)
+{
+    ASSERT_TRUE(SmallString() == SmallString(""));
+    ASSERT_FALSE(SmallString() == SmallString("text"));
+    ASSERT_TRUE(SmallString("text") == SmallString("text"));
+    ASSERT_FALSE(SmallString("text") == SmallString("text2"));
+}
+
+TEST(SmallString, EqualCStringArrayOperator)
+{
+    ASSERT_TRUE(SmallString() == "");
+    ASSERT_FALSE(SmallString() == "text");
+    ASSERT_TRUE(SmallString("text") == "text");
+    ASSERT_FALSE(SmallString("text") == "text2");
+}
+
+TEST(SmallString, EqualCStringPointerOperator)
+{
+    ASSERT_TRUE(SmallString("text") == SmallString("text").data());
+    ASSERT_FALSE(SmallString("text") == SmallString("text2").data());
+}
+
+TEST(SmallString, EqualSmallStringViewOperator)
+{
+    ASSERT_TRUE(SmallString("text") == SmallStringView("text"));
+    ASSERT_FALSE(SmallString("text") == SmallStringView("text2"));
+}
+
+TEST(SmallString, EqualSmallStringViewsOperator)
+{
+    ASSERT_TRUE(SmallStringView("text") == SmallStringView("text"));
+    ASSERT_FALSE(SmallStringView("text") == SmallStringView("text2"));
+}
+
+TEST(SmallString, UnequalOperator)
+{
+    ASSERT_FALSE(SmallString("text") != SmallString("text"));
+    ASSERT_TRUE(SmallString("text") != SmallString("text2"));
+}
+
+TEST(SmallString, UnequalCStringArrayOperator)
+{
+    ASSERT_FALSE(SmallString("text") != "text");
+    ASSERT_TRUE(SmallString("text") != "text2");
+}
+
+TEST(SmallString, UnequalCStringPointerOperator)
+{
+    ASSERT_FALSE(SmallString("text") != SmallString("text").data());
+    ASSERT_TRUE(SmallString("text") != SmallString("text2").data());
+}
+
+TEST(SmallString, UnequalSmallStringViewArrayOperator)
+{
+    ASSERT_FALSE(SmallString("text") != SmallStringView("text"));
+    ASSERT_TRUE(SmallString("text") != SmallStringView("text2"));
+}
+
+TEST(SmallString, UnequalSmallStringViewsArrayOperator)
+{
+    ASSERT_FALSE(SmallStringView("text") != SmallStringView("text"));
+    ASSERT_TRUE(SmallStringView("text") != SmallStringView("text2"));
+}
+
+TEST(SmallString, SmallerOperator)
+{
+    ASSERT_TRUE(SmallString() < SmallString("text"));
+    ASSERT_TRUE(SmallString("some") < SmallString("text"));
+    ASSERT_TRUE(SmallString("text") < SmallString("texta"));
+    ASSERT_FALSE(SmallString("texta") < SmallString("text"));
+    ASSERT_FALSE(SmallString("text") < SmallString("some"));
+    ASSERT_FALSE(SmallString("text") < SmallString("text"));
+}
+
+TEST(SmallString, IsEmpty)
+{
+    ASSERT_FALSE(SmallString("text").isEmpty());
+    ASSERT_TRUE(SmallString("").isEmpty());
+    ASSERT_TRUE(SmallString().isEmpty());
+}
+
+TEST(SmallString, HasContent)
+{
+    ASSERT_TRUE(SmallString("text").hasContent());
+    ASSERT_FALSE(SmallString("").hasContent());
+    ASSERT_FALSE(SmallString().hasContent());
+}
+
+TEST(SmallString, Clear)
+{
+    SmallString text("text");
+
+    text.clear();
+
+    ASSERT_TRUE(text.isEmpty());
+}
+
+TEST(SmallString, ReplaceWithEqualSizedText)
+{
+    SmallString text("here is some text");
+
+    text.replace("some", "much");
+
+    ASSERT_THAT(text, SmallString("here is much text"));
+}
+
+TEST(SmallString, ReplaceWithEqualSizedTextOnEmptyText)
+{
+    SmallString text;
+
+    text.replace("some", "much");
+
+    ASSERT_THAT(text, SmallString());
+}
+
+TEST(SmallString, ReplaceWithShorterText)
+{
+    SmallString text("here is some text");
+
+    text.replace("some", "any");
+
+    ASSERT_THAT(text, SmallString("here is any text"));
+}
+
+TEST(SmallString, ReplaceWithShorterTextOnEmptyText)
+{
+    SmallString text;
+
+    text.replace("some", "any");
+
+    ASSERT_THAT(text, SmallString());
+}
+
+TEST(SmallString, ReplaceWithLongerText)
+{
+    SmallString text("here is some text");
+
+    text.replace("some", "much more");
+
+    ASSERT_THAT(text, SmallString("here is much more text"));
+}
+
+TEST(SmallString, ReplaceWithLongerTextOnEmptyText)
+{
+    SmallString text;
+
+    text.replace("some", "much more");
+
+    ASSERT_THAT(text, SmallString());
+}
+
+TEST(SmallString, ReplaceShortSmallStringWithLongerText)
+{
+    SmallString text = SmallString::fromUtf8("here is some text");
+
+    text.replace("some", "much more");
+
+    ASSERT_THAT(text, SmallString("here is much more text"));
+}
+
+TEST(SmallString, ReplaceLongSmallStringWithLongerText)
+{
+    SmallString text = SmallString::fromUtf8("some very very very very very very very very very very very long string");
+
+    text.replace("some", "much more");
+
+    ASSERT_THAT(text, Eq(SmallString("much more very very very very very very very very very very very long string")));
+}
+
+TEST(SmallString, MultipleReplaceSmallStringWithLongerText)
+{
+    SmallString text = SmallString("here is some text with some longer text");
+
+    text.replace("some", "much more");
+
+    ASSERT_THAT(text, SmallString("here is much more text with much more longer text"));
+}
+
+TEST(SmallString, MultipleReplaceSmallStringWithShorterText)
+{
+    SmallString text = SmallString("here is some text with some longer text");
+
+    text.replace("some", "a");
+
+    ASSERT_THAT(text, SmallString("here is a text with a longer text"));
+}
+
+TEST(SmallString, DontReplaceReplacedText)
+{
+    SmallString text("here is some foo text");
+
+    text.replace("foo", "foofoo");
+
+    ASSERT_THAT(text, SmallString("here is some foofoo text"));
+}
+
+
+TEST(SmallString, StartsWith)
+{
+    SmallString text("$column");
+
+    ASSERT_TRUE(text.startsWith("$column"));
+    ASSERT_TRUE(text.startsWith("$col"));
+    ASSERT_FALSE(text.startsWith("col"));
+    ASSERT_TRUE(text.startsWith('$'));
+    ASSERT_FALSE(text.startsWith('@'));
+}
+
+TEST(SmallString, EndsWith)
+{
+    SmallString text("/my/path");
+
+    ASSERT_TRUE(text.endsWith("/my/path"));
+    ASSERT_TRUE(text.endsWith("path"));
+    ASSERT_FALSE(text.endsWith("paths"));
+    ASSERT_TRUE(text.endsWith('h'));
+    ASSERT_FALSE(text.endsWith('x'));
+}
+
+TEST(SmallString, EndsWithSmallString)
+{
+    SmallString text("/my/path");
+
+    ASSERT_TRUE(text.endsWith(SmallString("path")));
+    ASSERT_TRUE(text.endsWith('h'));
+}
+
+TEST(SmallString, ReserveSmallerThanReference)
+{
+    SmallString text("text");
+
+    text.reserve(2);
+
+    ASSERT_THAT(text.capacity(), 30);
+}
+
+TEST(SmallString, ReserveBiggerThanReference)
+{
+    SmallString text("text");
+
+    text.reserve(10);
+
+    ASSERT_THAT(text.capacity(), 30);
+}
+
+TEST(SmallString, ReserveMuchBiggerThanReference)
+{
+    SmallString text("text");
+
+    text.reserve(100);
+
+    ASSERT_THAT(text.capacity(), 100);
+}
+
+TEST(SmallString, ReserveSmallerThanShortSmallString)
+{
+    SmallString text = SmallString::fromUtf8("text");
+
+    text.reserve(10);
+
+    ASSERT_THAT(text.capacity(), 30);
+}
+
+TEST(SmallString, ReserveBiggerThanShortSmallString)
+{
+    SmallString text = SmallString::fromUtf8("text");
+
+    text.reserve(100);
+
+    ASSERT_THAT(text.capacity(), 100);
+}
+
+TEST(SmallString, ReserveBiggerThanLongSmallString)
+{
+    SmallString text = SmallString::fromUtf8("some very very very very very very very very very very very long string");
+
+    text.reserve(100);
+
+    ASSERT_THAT(text.capacity(), 100);
+}
+
+TEST(SmallString, OptimalHeapCacheLineForSize)
+{
+    ASSERT_THAT(SmallString::optimalHeapCapacity(64), 64);
+    ASSERT_THAT(SmallString::optimalHeapCapacity(65), 128);
+    ASSERT_THAT(SmallString::optimalHeapCapacity(127), 128);
+    ASSERT_THAT(SmallString::optimalHeapCapacity(128), 128);
+    ASSERT_THAT(SmallString::optimalHeapCapacity(129), 192);
+    ASSERT_THAT(SmallString::optimalHeapCapacity(191), 192);
+    ASSERT_THAT(SmallString::optimalHeapCapacity(193), 256);
+    ASSERT_THAT(SmallString::optimalHeapCapacity(255), 256);
+    ASSERT_THAT(SmallString::optimalHeapCapacity(257), 384);
+    ASSERT_THAT(SmallString::optimalHeapCapacity(257), 384);
+    ASSERT_THAT(SmallString::optimalHeapCapacity(383), 384);
+    ASSERT_THAT(SmallString::optimalHeapCapacity(385), 512);
+    ASSERT_THAT(SmallString::optimalHeapCapacity(4095), 4096);
+    ASSERT_THAT(SmallString::optimalHeapCapacity(4096), 4096);
+    ASSERT_THAT(SmallString::optimalHeapCapacity(4097), 6144);
+}
+
+TEST(SmallString, OptimalCapacityForSize)
+{
+    SmallString text;
+
+    ASSERT_THAT(text.optimalCapacity(0), 0);
+    ASSERT_THAT(text.optimalCapacity(30), 30);
+    ASSERT_THAT(text.optimalCapacity(31), 63);
+    ASSERT_THAT(text.optimalCapacity(63), 63);
+    ASSERT_THAT(text.optimalCapacity(64), 127);
+    ASSERT_THAT(text.optimalCapacity(128), 191);
+}
+
+TEST(SmallString, DataStreamData)
+{
+    SmallString inputText("foo");
+    QByteArray byteArray;
+    QDataStream out(&byteArray, QIODevice::ReadWrite);
+
+    out << inputText;
+
+    ASSERT_TRUE(byteArray.endsWith("foo"));
+}
+
+TEST(SmallString, ReadDataStreamSize)
+{
+    SmallString outputText("foo");
+    QByteArray byteArray;
+    quint32 size;
+    {
+        QDataStream out(&byteArray, QIODevice::WriteOnly);
+        out << outputText;
+    }
+    QDataStream in(&byteArray, QIODevice::ReadOnly);
+
+    in >> size;
+
+    ASSERT_THAT(size, 3);
+}
+
+TEST(SmallString, ReadDataStreamData)
+{
+    SmallString outputText("foo");
+    QByteArray byteArray;
+    SmallString outputString;
+    {
+        QDataStream out(&byteArray, QIODevice::WriteOnly);
+        out << outputText;
+    }
+    QDataStream in(&byteArray, QIODevice::ReadOnly);
+
+    in >> outputString;
+
+    ASSERT_THAT(outputString, SmallString("foo"));
+}
+
+TEST(SmallString, ShortSmallStringCopyConstuctor)
+{
+    SmallString text("text");
+
+    auto copy = text;
+
+    ASSERT_THAT(copy, text);
+}
+
+TEST(SmallString, LongSmallStringCopyConstuctor)
+{
+    SmallString text("this is a very very very very long text");
+
+    auto copy = text;
+
+    ASSERT_THAT(copy, text);
+}
+
+TEST(SmallString, ShortSmallStringMoveConstuctor)
+{
+    SmallString text("text");
+
+    auto copy = std::move(text);
+
+    ASSERT_TRUE(text.isEmpty());
+    ASSERT_THAT(copy, SmallString("text"));
+}
+
+TEST(SmallString, LongSmallStringMoveConstuctor)
+{
+    SmallString text("this is a very very very very long text");
+
+    auto copy = std::move(text);
+
+    ASSERT_TRUE(text.isEmpty());
+    ASSERT_THAT(copy, SmallString("this is a very very very very long text"));
+}
+
+TEST(SmallString, ShortSmallStringCopyAssignment)
+{
+    SmallString text("text");
+    SmallString copy("more text");
+
+    copy = text;
+
+    ASSERT_THAT(copy, text);
+}
+
+TEST(SmallString, LongSmallStringCopyAssignment)
+{
+    SmallString text("this is a very very very very long text");
+    SmallString copy("more text");
+
+    copy = text;
+
+    ASSERT_THAT(copy, text);
+}
+
+TEST(SmallString, LongSmallStringCopySelfAssignment)
+{
+    SmallString text("this is a very very very very long text");
+
+    text = text;
+
+    ASSERT_THAT(text, SmallString("this is a very very very very long text"));
+}
+
+TEST(SmallString, ShortSmallStringMoveAssignment)
+{
+    SmallString text("text");
+    SmallString copy("more text");
+
+    copy = std::move(text);
+
+    ASSERT_THAT(text, SmallString("more text"));
+    ASSERT_THAT(copy, SmallString("text"));
+}
+
+TEST(SmallString, LongSmallStringMoveAssignment)
+{
+    SmallString text("this is a very very very very long text");
+    SmallString copy("more text");
+
+    copy = std::move(text);
+
+    ASSERT_THAT(text, SmallString("more text"));
+    ASSERT_THAT(copy, SmallString("this is a very very very very long text"));
+}
+
+TEST(SmallString, ReplaceByPositionShorterWithLongerText)
+{
+    SmallString text("this is a very very very very long text");
+
+    text.replace(8, 1, "some");
+
+    ASSERT_THAT(text, SmallString("this is some very very very very long text"));
+}
+
+TEST(SmallString, ReplaceByPositionLongerWithShortText)
+{
+    SmallString text("this is some very very very very long text");
+
+    text.replace(8, 4, "a");
+
+    ASSERT_THAT(text, SmallString("this is a very very very very long text"));
+}
+
+TEST(SmallString, ReplaceByPositionEqualSizedTexts)
+{
+    SmallString text("this is very very very very very long text");
+
+    text.replace(33, 4, "much");
+
+    ASSERT_THAT(text, SmallString("this is very very very very very much text"));
+}
+

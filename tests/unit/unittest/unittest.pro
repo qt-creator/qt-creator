@@ -64,7 +64,13 @@ SOURCES += \
     highlightingmarksreportertest.cpp \
     chunksreportedmonitor.cpp \
     unsavedfiletest.cpp \
-    clangisdiagnosticrelatedtolocationtest.cpp
+    clangisdiagnosticrelatedtolocationtest.cpp \
+    smallstringtest.cpp
+
+exists($$GOOGLEBENCHMARK_DIR) {
+SOURCES += \
+    smallstringbenchmark.cpp
+}
 
 HEADERS += \
     gtest-qt-printing.h \
