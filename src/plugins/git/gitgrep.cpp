@@ -178,7 +178,7 @@ public:
                     TextEditor::FileFindParameters parameters)
     {
         GitGrepRunner runner(fi, parameters);
-        Core::ProgressTimer progress(fi, 20);
+        Core::ProgressTimer progress(fi, 5);
         runner.exec();
     }
 
