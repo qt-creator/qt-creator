@@ -106,6 +106,7 @@ UnstartedAppWatcherDialog::UnstartedAppWatcherDialog(QWidget *parent)
     m_pathChooser = new Utils::PathChooser(this);
     m_pathChooser->setExpectedKind(Utils::PathChooser::ExistingCommand);
     m_pathChooser->setHistoryCompleter(QLatin1String("LocalExecutable"));
+    m_pathChooser->setMinimumWidth(400);
 
     if (activeTarget) {
         if (RunConfiguration *runConfig = activeTarget->activeRunConfiguration()) {
