@@ -3298,7 +3298,9 @@ void ProjectExplorerPluginPrivate::updateSessionMenu()
     QActionGroup *ag = new QActionGroup(m_sessionMenu);
     connect(ag, &QActionGroup::triggered, this, &ProjectExplorerPluginPrivate::setSession);
     const QString activeSession = SessionManager::activeSession();
-    foreach (const QString &session, SessionManager::sessions()) {
+    QStringList ss(SessionManager::sessions());
+    qSort(ss.begin(), ss.end());
+    foreach (QString const & session, ss) {
         QAction *act = ag->addAction(session);
         act->setData(session);
         act->setCheckable(true);
