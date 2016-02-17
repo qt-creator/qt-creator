@@ -56,6 +56,7 @@
 
 static const char kSettingsGroup[] = "Progress";
 static const char kDetailsPinned[] = "DetailsPinned";
+static const int TimerInterval = 100; // 100 ms
 
 using namespace Core;
 using namespace Core::Internal;
@@ -791,7 +792,7 @@ ProgressTimer::ProgressTimer(const QFutureInterfaceBase &futureInterface,
     m_futureInterface.setProgressValue(0);
 
     m_timer = new QTimer(this);
-    m_timer->setInterval(1000); // 1 second
+    m_timer->setInterval(TimerInterval);
     connect(m_timer, &QTimer::timeout, this, &ProgressTimer::handleTimeout);
     m_timer->start();
 }
@@ -803,7 +804,8 @@ void ProgressTimer::handleTimeout()
     // This maps expectation to atan(1) to Pi/4 ~= 0.78, i.e. snaps
     // from 78% to 100% when expectations are met at the time the
     // future finishes. That's not bad for a random choice.
-    const double mapped = atan2(double(m_currentTime), double(m_expectedTime));
+    const double mapped = atan2(double(m_currentTime) * TimerInterval / 1000.0,
+                                double(m_expectedTime));
     const double progress = 100 * 2 * mapped / 3.14;
     m_futureInterface.setProgressValue(int(progress));
 }
