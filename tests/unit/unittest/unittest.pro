@@ -13,6 +13,8 @@ OBJECTS_DIR = $$OUT_PWD/obj # workaround for qmake bug in object_parallel_to_sou
 
 osx:QMAKE_CXXFLAGS = -stdlib=libc++
 
+force_debug_info:QMAKE_CXXFLAGS += -fno-omit-frame-pointer
+
 DEFINES += \
     QT_NO_CAST_FROM_ASCII \
     UNIT_TESTS \
