@@ -796,7 +796,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 
     // session menu
     ActionContainer *msession = ActionManager::createMenu(Constants::M_SESSION);
-    msession->menu()->setTitle(tr("Sessions"));
+    msession->menu()->setTitle(tr("&Sessions"));
     msession->setOnAllDisabledBehavior(ActionContainer::Show);
     mfile->addMenu(msession, Core::Constants::G_FILE_OPEN);
     dd->m_sessionMenu = msession->menu();
@@ -3298,7 +3298,9 @@ void ProjectExplorerPluginPrivate::updateSessionMenu()
     QActionGroup *ag = new QActionGroup(m_sessionMenu);
     connect(ag, &QActionGroup::triggered, this, &ProjectExplorerPluginPrivate::setSession);
     const QString activeSession = SessionManager::activeSession();
-    foreach (const QString &session, SessionManager::sessions()) {
+    QStringList ss(SessionManager::sessions());
+    qSort(ss.begin(), ss.end());
+    foreach (QString const & session, ss) {
         QAction *act = ag->addAction(session);
         act->setData(session);
         act->setCheckable(true);

@@ -158,6 +158,7 @@ bool SessionDialog::autoLoadSession() const
 void SessionDialog::addItems(bool setDefaultSession)
 {
     QStringList sessions = SessionManager::sessions();
+    qSort(sessions.begin(), sessions.end());
     foreach (const QString &session, sessions) {
         m_ui.sessionList->addItem(session);
         if (setDefaultSession && session == SessionManager::activeSession())
@@ -186,6 +187,7 @@ void SessionDialog::addSessionToUi(const QString &name, bool switchTo)
 {
     m_ui.sessionList->clear();
     QStringList sessions = SessionManager::sessions();
+    qSort(sessions.begin(), sessions.end());
     m_ui.sessionList->addItems(sessions);
     m_ui.sessionList->setCurrentRow(sessions.indexOf(name));
     markItems();
