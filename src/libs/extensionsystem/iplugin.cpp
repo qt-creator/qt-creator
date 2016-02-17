@@ -122,8 +122,8 @@
     be delayed a few milliseconds to give input and paint events a chance to be processed.
 
     This function can be used if a plugin needs to do non-trivial setup that doesn't
-    necessarily needs to be done directly at startup, but still should be done within a
-    short time afterwards. This can increase the felt plugin/application startup
+    necessarily need to be done directly at startup, but still should be done within a
+    short time afterwards. This can decrease the felt plugin/application startup
     time a lot, with very little effort.
 
     \sa initialize()
