@@ -6124,12 +6124,8 @@ void TextEditorWidget::cutLine()
 // ctrl+ins
 void TextEditorWidget::copyLine()
 {
-    QTextCursor prevCursor = textCursor();
     d->maybeSelectLine();
     copy();
-    if (!prevCursor.hasSelection())
-        prevCursor.movePosition(QTextCursor::StartOfBlock);
-    doSetTextCursor(prevCursor, d->m_inBlockSelectionMode);
 }
 
 void TextEditorWidget::deleteLine()
