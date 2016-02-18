@@ -454,13 +454,12 @@ PropertyNameList getSignals(const ObjectValue *objectValue, const ContextPtr &co
 
     signalList.append(processor.signalList());
 
+    PrototypeIterator prototypeIterator(objectValue, context);
+    QList<const ObjectValue *> objects = prototypeIterator.all();
+
     if (!local) {
-        const ObjectValue* prototype = objectValue->prototype(context);
-
-        if (prototype == objectValue)
-            return signalList;
-
-        signalList.append(getSignals(prototype, context));
+        foreach (const ObjectValue *prototype, objects)
+            signalList.append(getSignals(prototype, context, true));
     }
 
     return signalList;
