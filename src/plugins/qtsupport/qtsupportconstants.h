@@ -50,6 +50,7 @@ const char FEATURE_QWIDGETS[] = "QtSupport.Wizards.FeatureQWidgets";
 const char FEATURE_QT_QUICK_PREFIX[] = "QtSupport.Wizards.FeatureQtQuick";
 const char FEATURE_QMLPROJECT[] = "QtSupport.Wizards.FeatureQtQuickProject";
 const char FEATURE_QT_QUICK_CONTROLS_PREFIX[] = "QtSupport.Wizards.FeatureQtQuick.Controls";
+const char FEATURE_QT_LABS_CONTROLS_PREFIX[] = "QtSupport.Wizards.FeatureQt.labs.controls";
 const char FEATURE_QT_QUICK_UI_FILES[] = "QtSupport.Wizards.FeatureQtQuick.UiFiles";
 const char FEATURE_QT_WEBKIT[] = "QtSupport.Wizards.FeatureQtWebkit";
 const char FEATURE_QT_3D[] = "QtSupport.Wizards.FeatureQt3d";
