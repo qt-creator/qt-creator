@@ -26,6 +26,9 @@
 #include "modelnodeoperations.h"
 #include "modelnodecontextmenu_helper.h"
 #include "layoutingridlayout.h"
+#include "findimplementation.h"
+
+#include "addsignalhandlerdialog.h"
 
 #include <cmath>
 #include <nodeabstractproperty.h>
@@ -38,6 +41,7 @@
 #include <documentmanager.h>
 #include <qmlanchors.h>
 #include <nodelistproperty.h>
+#include <signalhandlerproperty.h>
 
 #include <limits>
 #include <qmldesignerplugin.h>
@@ -48,6 +52,8 @@
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/modemanager.h>
+#include <coreplugin/icore.h>
+
 #include <qmljseditor/qmljsfindreferences.h>
 
 #include <QCoreApplication>
@@ -543,10 +549,87 @@ void layoutGridLayout(const SelectionContext &selectionContext)
     }
 }
 
-void gotoImplementation(const SelectionContext &/*selectionState*/)
+/*
+bool optionsPageLessThan(const IOptionsPage *p1, const IOptionsPage *p2)
 {
+    if (p1->category() != p2->category())
+        return p1->category().alphabeticallyBefore(p2->category());
+    return p1->id().alphabeticallyBefore(p2->id());
+}
+
+static inline QList<IOptionsPage*> sortedOptionsPages()
+{
+    QList<IOptionsPage*> rc = ExtensionSystem::PluginManager::getObjects<IOptionsPage>();
+    qStableSort(rc.begin(), rc.end(), optionsPageLessThan);
+    return rc;
+}
+
+*/
+static PropertyNameList sortedPropertyNameList(const PropertyNameList &nameList)
+{
+    PropertyNameList sortedPropertyNameList = nameList;
+    qStableSort(sortedPropertyNameList);
+    return sortedPropertyNameList;
+}
+
+static QString toUpper(const QString signal)
+{
+    QString ret = signal;
+    ret[0] = signal.at(0).toUpper();
+    return ret;
+}
+
+static void addSignal(const QString &typeName, const QString &itemId, const QString &signalName)
+{
+    QScopedPointer<Model> model(Model::create("Item", 2, 0));
+    RewriterView rewriterView(RewriterView::Amend, 0);
+
+    TextEditor::TextEditorWidget *textEdit = qobject_cast<TextEditor::TextEditorWidget*>
+            (Core::EditorManager::currentEditor()->widget());
+
+    BaseTextEditModifier modifier(textEdit);
+
+    rewriterView.setCheckSemanticErrors(false);
+    rewriterView.setTextModifier(&modifier);
+
+    model->setRewriterView(&rewriterView);
+
+    foreach (const ModelNode &modelNode, rewriterView.allModelNodes()) {
+        if (modelNode.type() == typeName) {
+            modelNode.signalHandlerProperty(itemId.toUtf8()
+                                            + ".on"
+                                            + toUpper(signalName).toUtf8()).setSource(QLatin1String("{\n}"));
+        }
+    }
+}
+
+static QStringList getSortedSignalNameList(const ModelNode &modelNode)
+{
+    NodeMetaInfo metaInfo = modelNode.metaInfo();
+    QStringList signalNames;
+
+    if (metaInfo.isValid()) {
+        foreach (const PropertyName &signalName, sortedPropertyNameList(metaInfo.signalNames()))
+            if (!signalName.contains("Changed"))
+            signalNames.append(signalName);
+
+        foreach (const PropertyName &propertyName, sortedPropertyNameList(metaInfo.propertyNames()))
+            if (!propertyName.contains("."))
+                signalNames.append(propertyName + "Changed");
+    }
+
+    return signalNames;
+}
+
+void gotoImplementation(const SelectionContext &selectionState)
+{
+    QString itemId;
+    if (selectionState.singleNodeIsSelected())
+        itemId = selectionState.selectedModelNodes().first().id();
     const QString fileName = QmlDesignerPlugin::instance()->documentManager().currentDesignDocument()->fileName().toString();
     const QString typeName = QmlDesignerPlugin::instance()->documentManager().currentDesignDocument()->fileName().toFileInfo().baseName();
+
+    QStringList signalNames = getSortedSignalNameList(selectionState.selectedModelNodes().first());
 
     QList<QmlJSEditor::FindReferences::Usage> usages = QmlJSEditor::FindReferences::findUsageOfType(fileName, typeName);
 
@@ -557,9 +640,37 @@ void gotoImplementation(const SelectionContext &/*selectionState*/)
         return;
     }
 
-    Core::ModeManager::activateMode(Core::Constants::MODE_EDIT);
-    Core::EditorManager::openEditorAt(usages.first().path, usages.first().line, usages.first().col);
+    usages = FindImplementation::run(usages.first().path, typeName, itemId);
 
+    Core::ModeManager::activateMode(Core::Constants::MODE_EDIT);
+
+    if (usages.count() == 1) {
+        Core::EditorManager::openEditorAt(usages.first().path, usages.first().line, usages.first().col);
+
+        if (!signalNames.isEmpty()) {
+            AddSignalHandlerDialog *dialog = new AddSignalHandlerDialog(Core::ICore::dialogParent());
+            dialog->setSignals(signalNames);
+
+            AddSignalHandlerDialog::connect(dialog, &AddSignalHandlerDialog::done, [=] {
+                dialog->deleteLater();
+
+                if (dialog->signal().isEmpty())
+                    return;
+
+                addSignal(typeName, itemId, dialog->signal());
+
+                //Move cursor to correct curser position
+                const QString filePath = Core::EditorManager::currentDocument()->filePath().toString();
+                QList<QmlJSEditor::FindReferences::Usage> usages = FindImplementation::run(filePath, typeName, itemId);
+                Core::EditorManager::openEditorAt(filePath, usages.first().line, usages.first().col + 1);
+            } );
+            dialog->show();
+
+        }
+        return;
+    }
+
+    Core::EditorManager::openEditorAt(usages.first().path, usages.first().line, usages.first().col + 1);
 }
 
 void removeLayout(const SelectionContext &selectionContext)
