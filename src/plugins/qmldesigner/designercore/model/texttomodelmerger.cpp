@@ -156,9 +156,14 @@ static inline QString fixEscapedUnicodeChar(const QString &value) //convert "\u2
 
 static inline bool isSignalPropertyName(const QString &signalName)
 {
+    if (signalName.isEmpty())
+        return false;
     // see QmlCompiler::isSignalPropertyName
-    return signalName.length() >= 3 && signalName.startsWith(QStringLiteral("on")) &&
-           signalName.at(2).isLetter();
+    QStringList list = signalName.split(QLatin1String("."));
+
+    QString pureSignalName = list.last();
+    return pureSignalName.length() >= 3 && pureSignalName.startsWith(QStringLiteral("on")) &&
+            pureSignalName.at(2).isLetter();
 }
 
 static inline QVariant cleverConvert(const QString &value)
