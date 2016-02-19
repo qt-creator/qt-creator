@@ -35,6 +35,8 @@ QtcPlugin {
         "elementtasks.h",
         "extdocumentcontroller.cpp",
         "extdocumentcontroller.h",
+        "extpropertiesmview.cpp",
+        "extpropertiesmview.h",
         "jsextension.cpp",
         "jsextension.h",
         "modeldocument.cpp",
