@@ -28,6 +28,10 @@
 
 #include <QtTest>
 
+#if !defined(Q_CC_MSVC) || _MSC_VER >= 1900 // MSVC2015
+#define SUPPORTS_MOVE
+#endif
+
 class tst_MapReduce : public QObject
 {
     Q_OBJECT
@@ -36,6 +40,9 @@ private slots:
     void mapReduce();
     void mapReduceRvalueContainer();
     void map();
+#ifdef SUPPORTS_MOVE
+    void moveOnlyType();
+#endif
 };
 
 static int returnxx(int x)
@@ -67,10 +74,9 @@ void tst_MapReduce::mapReduce()
         fi.reportResult(state);
     };
 
-    // TODO: cannot use function returnxx without pointer here because of decayCopy of arguments in runAsync
     {
         QList<double> results = Utils::mapReduce(QList<int>({1, 2, 3, 4, 5}),
-                                                 dummyInit, &returnxx,
+                                                 dummyInit, returnxx,
                                                  reduceWithFutureInterface, cleanupHalfState)
                 .results();
         Utils::sort(results); // mapping order is undefined
@@ -78,7 +84,7 @@ void tst_MapReduce::mapReduce()
     }
     {
         QList<double> results = Utils::mapReduce(QList<int>({1, 2, 3, 4, 5}),
-                                                 dummyInit, &returnxxThroughFutureInterface,
+                                                 dummyInit, returnxxThroughFutureInterface,
                                                  reduceWithFutureInterface, cleanupHalfState)
                 .results();
         Utils::sort(results); // mapping order is undefined
@@ -86,7 +92,17 @@ void tst_MapReduce::mapReduce()
     }
     {
         QList<double> results = Utils::mapReduce(QList<int>({1, 2, 3, 4, 5}),
-                                                 dummyInit, &returnxx,
+                                                 dummyInit, returnxx,
+                                                 reduceWithReturn, cleanupHalfState)
+                .results();
+        Utils::sort(results); // mapping order is undefined
+        QCOMPARE(results, QList<double>({0., 1., 4., 9., 16., 25., 27.5}));
+    }
+    {
+        // lvalue ref container
+        QList<int> container({1, 2, 3, 4, 5});
+        QList<double> results = Utils::mapReduce(container,
+                                                 dummyInit, returnxx,
                                                  reduceWithReturn, cleanupHalfState)
                 .results();
         Utils::sort(results); // mapping order is undefined
@@ -129,7 +145,72 @@ void tst_MapReduce::map()
         Utils::sort(results); // mapping order is undefined
         QCOMPARE(results, QList<int>({1, 2, 5}));
     }
+    {
+        // inplace editing
+        QList<int> container({2, 5, 1});
+        Utils::map(std::ref(container), [](int &x) { x *= 2; }).waitForFinished();
+        QCOMPARE(container, QList<int>({4, 10, 2}));
+    }
 }
+
+#ifdef SUPPORTS_MOVE
+
+class MoveOnlyType
+{
+public:
+    MoveOnlyType() = default;
+    MoveOnlyType(const MoveOnlyType &) = delete;
+    MoveOnlyType(MoveOnlyType &&) = default;
+    MoveOnlyType &operator=(const MoveOnlyType &) = delete;
+    MoveOnlyType &operator=(MoveOnlyType &&) = default;
+};
+
+class MoveOnlyState : public MoveOnlyType
+{
+public:
+    int count = 0;
+};
+
+class MoveOnlyInit : public MoveOnlyType
+{
+public:
+    MoveOnlyState operator()(QFutureInterface<int> &) const { return MoveOnlyState(); }
+};
+
+class MoveOnlyMap : public MoveOnlyType
+{
+public:
+    int operator()(const MoveOnlyType &) const { return 1; }
+};
+
+class MoveOnlyReduce : public MoveOnlyType
+{
+public:
+    void operator()(QFutureInterface<int> &, MoveOnlyState &state, int) { ++state.count; }
+};
+
+class MoveOnlyList : public std::vector<MoveOnlyType>
+{
+public:
+    MoveOnlyList() { emplace_back(MoveOnlyType()); emplace_back(MoveOnlyType()); }
+    MoveOnlyList(const MoveOnlyList &) = delete;
+    MoveOnlyList(MoveOnlyList &&) = default;
+    MoveOnlyList &operator=(const MoveOnlyList &) = delete;
+    MoveOnlyList &operator=(MoveOnlyList &&) = default;
+};
+
+void tst_MapReduce::moveOnlyType()
+{
+    QCOMPARE(Utils::mapReduce(MoveOnlyList(),
+                              MoveOnlyInit(),
+                              MoveOnlyMap(),
+                              MoveOnlyReduce(),
+                              [](QFutureInterface<int> &fi, MoveOnlyState &state) { fi.reportResult(state.count); }
+                ).results(),
+             QList<int>({2}));
+}
+
+#endif
 
 QTEST_MAIN(tst_MapReduce)
 
