@@ -239,8 +239,7 @@ Rectangle {
                 var newTypeId = model.typeId(selectedItem);
                 if (newTypeId !== typeId) {
                     typeId = newTypeId;
-                    if (eventLocation.file !== undefined)
-                        root.updateCursorPosition();
+                    root.updateCursorPosition();
                 }
             } else {
                 rangeDetails.hide();
