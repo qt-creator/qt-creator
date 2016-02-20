@@ -178,8 +178,13 @@ Command Uncrustify::command(const QString &cfgFile, bool fragment) const
     Command command;
     command.setExecutable(m_settings->command());
     command.setProcessing(Command::PipeProcessing);
-    command.addOption(QLatin1String("-l"));
-    command.addOption(QLatin1String("cpp"));
+    if (m_settings->version() >= 62) {
+        command.addOption(QLatin1String("--assume"));
+        command.addOption(QLatin1String("%file"));
+    } else {
+        command.addOption(QLatin1String("-l"));
+        command.addOption(QLatin1String("cpp"));
+    }
     command.addOption(QLatin1String("-L"));
     command.addOption(QLatin1String("1-2"));
     if (fragment)

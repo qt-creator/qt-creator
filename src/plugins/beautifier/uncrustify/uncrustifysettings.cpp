@@ -35,6 +35,7 @@
 #include <QFile>
 #include <QFileInfo>
 #include <QProcess>
+#include <QRegularExpression>
 #include <QXmlStreamWriter>
 
 namespace Beautifier {
@@ -52,6 +53,10 @@ const QString kFormatEntireFileFallback = QLatin1String("formatEntireFileFallbac
 UncrustifySettings::UncrustifySettings() :
     AbstractSettings(QLatin1String(Constants::Uncrustify::SETTINGS_NAME), QLatin1String(".cfg"))
 {
+    connect(&m_versionProcess,
+            static_cast<void(QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished),
+            this, &UncrustifySettings::parseVersionProcessResult);
+
     setCommand(QLatin1String("uncrustify"));
     m_settings.insert(kUseOtherFiles, QVariant(true));
     m_settings.insert(kUseHomeFile, QVariant(false));
@@ -182,6 +187,39 @@ void UncrustifySettings::createDocumentationFile() const
         file.close();
         file.remove();
     }
+}
+
+static bool parseVersion(const QString &text, int &version)
+{
+    // The version in Uncrustify is printed like "uncrustify 0.62"
+    const QRegularExpression rx(QLatin1String("([0-9]{1})\\.([0-9]{2})"));
+    const QRegularExpressionMatch match = rx.match(text);
+    if (!match.hasMatch())
+        return false;
+
+    const int major = match.captured(1).toInt() * 100;
+    const int minor = match.captured(2).toInt();
+    version = major + minor;
+    return true;
+}
+
+void UncrustifySettings::updateVersion()
+{
+    if (m_versionProcess.state() != QProcess::NotRunning) {
+        m_versionProcess.kill();
+        m_versionProcess.waitForFinished();
+    }
+    m_versionProcess.start(command(), QStringList() << QLatin1String("--version"));
+}
+
+void UncrustifySettings::parseVersionProcessResult(int exitCode, QProcess::ExitStatus exitStatus)
+{
+    Q_UNUSED(exitCode)
+    if (exitStatus != QProcess::NormalExit)
+        return;
+
+    if (!parseVersion(QString::fromUtf8(m_versionProcess.readAllStandardOutput()), m_version))
+        parseVersion(QString::fromUtf8(m_versionProcess.readAllStandardError()), m_version);
 }
 
 } // namespace Uncrustify
