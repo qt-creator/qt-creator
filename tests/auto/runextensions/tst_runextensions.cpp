@@ -43,6 +43,7 @@ private slots:
 #endif
     void threadPriority();
     void runAsyncNoFutureInterface();
+    void crefFunction();
 };
 
 void report3(QFutureInterface<int> &fi)
@@ -485,6 +486,75 @@ void tst_RunExtensions::runAsyncNoFutureInterface()
     MyObjectWithoutQFutureInterface nonConstObj{};
     QCOMPARE(Utils::runAsync(&MyObjectWithoutQFutureInterface::nonConstMember, &nonConstObj, 4).results(),
              QList<double>({4}));
+}
+
+void tst_RunExtensions::crefFunction()
+{
+    // free function pointer with future interface
+    auto fun = &report3;
+    QCOMPARE(Utils::runAsync(std::cref(fun)).results(),
+             QList<int>({0, 2, 1}));
+
+    // lambda with future interface
+    auto lambda = [](QFutureInterface<double> &fi, int n) {
+        fi.reportResults(QVector<double>(n, 0));
+    };
+    QCOMPARE(Utils::runAsync(std::cref(lambda), 3).results(),
+             QList<double>({0, 0, 0}));
+
+    // std::function with future interface
+    const std::function<void(QFutureInterface<double>&,int)> funObj = [](QFutureInterface<double> &fi, int n) {
+        fi.reportResults(QVector<double>(n, 0));
+    };
+    QCOMPARE(Utils::runAsync(std::cref(funObj), 2).results(),
+             QList<double>({0, 0}));
+
+    // callable with future interface
+    const Callable c{};
+    QCOMPARE(Utils::runAsync(std::cref(c), 2).results(),
+             QList<double>({0, 0}));
+
+    // member functions with future interface
+    auto member = &MyObject::member0;
+    const MyObject obj{};
+    QCOMPARE(Utils::runAsync(std::cref(member), &obj).results(),
+             QList<double>({0, 2, 1}));
+
+    // free function pointer without future interface
+    bool value = false;
+    auto voidFun = &voidFunction;
+    Utils::runAsync(std::cref(voidFun), &value).waitForFinished();
+    QCOMPARE(value, true);
+
+    auto oneFun = &one;
+    QCOMPARE(Utils::runAsync(std::cref(oneFun)).results(),
+             QList<int>({1}));
+
+    // lambda without future interface
+    auto lambda2 = [](int n) -> double {
+        return n + 1;
+    };
+    QCOMPARE(Utils::runAsync(std::cref(lambda2), 3).results(),
+             QList<double>({4}));
+
+    // std::function
+    const std::function<double(int)> funObj2 = [](int n) {
+        return n + 1;
+    };
+    QCOMPARE(Utils::runAsync(std::cref(funObj2), 2).results(),
+             QList<double>({3}));
+
+    // callable without future interface
+    const CallableWithoutQFutureInterface c2{};
+    Utils::runAsync(std::cref(c2), &value).waitForFinished();
+    QCOMPARE(value, true);
+
+    // member functions without future interface
+    const MyObjectWithoutQFutureInterface obj2{};
+    auto member2 = &MyObjectWithoutQFutureInterface::member0;
+    value = false;
+    Utils::runAsync(std::cref(member2), &obj2, &value).waitForFinished();
+    QCOMPARE(value, true);
 }
 
 QTEST_MAIN(tst_RunExtensions)

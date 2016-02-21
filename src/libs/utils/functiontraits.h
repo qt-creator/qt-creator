@@ -53,6 +53,12 @@ struct functionTraits<Result(*)(Args...)> : public functionTraits<Result(Args...
 {
 };
 
+// const function pointer
+template <typename Result, typename... Args>
+struct functionTraits<Result(* const)(Args...)> : public functionTraits<Result(Args...)>
+{
+};
+
 // member function
 template <typename Type, typename Result, typename... Args>
 struct functionTraits<Result(Type::*)(Args...)> : public functionTraits<Result(Type&,Args...)>
@@ -62,6 +68,18 @@ struct functionTraits<Result(Type::*)(Args...)> : public functionTraits<Result(T
 // const member function
 template <typename Type, typename Result, typename... Args>
 struct functionTraits<Result(Type::*)(Args...) const> : public functionTraits<Result(Type&,Args...)>
+{
+};
+
+// const pointer to member function
+template <typename Type, typename Result, typename... Args>
+struct functionTraits<Result(Type::* const)(Args...)> : public functionTraits<Result(Type&,Args...)>
+{
+};
+
+// const pointer to const member function
+template <typename Type, typename Result, typename... Args>
+struct functionTraits<Result(Type::* const)(Args...) const> : public functionTraits<Result(Type&,Args...)>
 {
 };
 
