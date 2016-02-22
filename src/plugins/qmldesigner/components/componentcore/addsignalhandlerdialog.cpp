@@ -31,6 +31,7 @@ AddSignalHandlerDialog::AddSignalHandlerDialog(QWidget *parent) :
     m_ui(new Ui::AddSignalHandlerDialog)
 {
     m_ui->setupUi(this);
+    setModal(true);
 
     connect(m_ui->all, &QRadioButton::toggled, this, &AddSignalHandlerDialog::updateComboBox);
     connect(m_ui->properties, &QRadioButton::toggled, this, &AddSignalHandlerDialog::updateComboBox);
