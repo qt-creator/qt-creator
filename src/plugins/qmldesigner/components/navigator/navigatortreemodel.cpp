@@ -348,23 +348,10 @@ ItemRow NavigatorTreeModel::createItemRow(const ModelNode &modelNode)
     return newRow;
 }
 
-static bool isModelNodeExported(const ModelNode &modelNode)
-{
-    if (!modelNode.id().isEmpty()) {
-         PropertyName modelNodeId = modelNode.id().toUtf8();
-         ModelNode rootModelNode = modelNode.view()->rootModelNode();
-         Q_ASSERT(rootModelNode.isValid());
-         if (rootModelNode.hasBindingProperty(modelNodeId)
-                 && rootModelNode.bindingProperty(modelNodeId).isDynamic()
-                 && rootModelNode.bindingProperty(modelNodeId).expression().toUtf8() == modelNodeId)
-             return true;
-    }
-
-    return false;
-}
-
 void NavigatorTreeModel::updateItemRow(const ModelNode &modelNode, ItemRow items)
 {
+    QmlObjectNode currentQmlObjectNode(modelNode);
+
     bool blockSignal = blockItemChangedSignal(true);
 
     items.idItem->setText(modelNode.id());
@@ -374,9 +361,8 @@ void NavigatorTreeModel::updateItemRow(const ModelNode &modelNode, ItemRow items
     items.idItem->setData(isInvisible, InvisibleRole);
 
     items.visibilityItem->setCheckState(isInvisible ? Qt::Unchecked : Qt::Checked);
-    items.exportItem->setCheckState(isModelNodeExported(modelNode) ? Qt::Checked : Qt::Unchecked);
+    items.exportItem->setCheckState(currentQmlObjectNode.isAliasExported() ? Qt::Checked : Qt::Unchecked);
 
-    QmlObjectNode currentQmlObjectNode(modelNode);
     if (currentQmlObjectNode.hasError()) {
         items.idItem->setData(true, ErrorRole);
         items.idItem->setToolTip(currentQmlObjectNode.error());

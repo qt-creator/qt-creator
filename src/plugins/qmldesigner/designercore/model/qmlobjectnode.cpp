@@ -308,6 +308,35 @@ void QmlObjectNode::destroy()
     modelNode().destroy();
 }
 
+void QmlObjectNode::ensureAliasExport()
+{
+    if (!isValid())
+        throw new InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
+
+    if (!isAliasExported()) {
+        modelNode().validId();
+        PropertyName modelNodeId = modelNode().id().toUtf8();
+        ModelNode rootModelNode = view()->rootModelNode();
+        rootModelNode.bindingProperty(modelNodeId).setDynamicTypeNameAndExpression("alias", modelNodeId);
+    }
+}
+
+bool QmlObjectNode::isAliasExported() const
+{
+
+    if (modelNode().isValid() && !modelNode().id().isEmpty()) {
+         PropertyName modelNodeId = modelNode().id().toUtf8();
+         ModelNode rootModelNode = view()->rootModelNode();
+         Q_ASSERT(rootModelNode.isValid());
+         if (rootModelNode.hasBindingProperty(modelNodeId)
+                 && rootModelNode.bindingProperty(modelNodeId).isDynamic()
+                 && rootModelNode.bindingProperty(modelNodeId).expression().toUtf8() == modelNodeId)
+             return true;
+    }
+
+    return false;
+}
+
 /*!
     Returns a list of states the affect this object.
 */

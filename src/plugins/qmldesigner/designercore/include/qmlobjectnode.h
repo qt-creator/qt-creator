@@ -92,6 +92,9 @@ public:
 
     void destroy();
 
+    void ensureAliasExport();
+    bool isAliasExported() const;
+
     QList<QmlModelState> allAffectingStates() const;
     QList<QmlModelStateOperation> allAffectingStatesOperations() const;
 
