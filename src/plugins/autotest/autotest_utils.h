@@ -37,14 +37,20 @@ public:
     static bool isGTestMacro(const QString &macro)
     {
         static QStringList valid = {
-            QStringLiteral("TEST"), QStringLiteral("TEST_F"), QStringLiteral("TEST_P")
+            QStringLiteral("TEST"), QStringLiteral("TEST_F"), QStringLiteral("TEST_P"),
+            QStringLiteral("TYPED_TEST"), QStringLiteral("TYPED_TEST_P")
         };
         return valid.contains(macro);
     }
 
     static bool isGTestParameterized(const QString &macro)
     {
-        return macro == QStringLiteral("TEST_P");
+        return macro == QStringLiteral("TEST_P") || macro == QStringLiteral("TYPED_TEST_P");
+    }
+
+    static bool isGTestTyped(const QString &macro)
+    {
+        return macro == QStringLiteral("TYPED_TEST") || macro == QStringLiteral("TYPED_TEST_P");
     }
 
     static bool isQTestMacro(const QByteArray &macro)

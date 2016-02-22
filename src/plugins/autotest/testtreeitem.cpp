@@ -386,6 +386,8 @@ GoogleTestTreeItem *GoogleTestTreeItem::createTestItem(const TestParseResult &re
     item->setProFile(result.proFile);
     if (result.parameterized)
         item->setState(Parameterized);
+    if (result.typed)
+        item->setState(Typed);
     foreach (const TestCodeLocationAndType &location, result.dataTagsOrTestSets.first())
         item->appendChild(createTestSetItem(result, location));
     return item;
@@ -407,11 +409,8 @@ QVariant GoogleTestTreeItem::data(int column, int role) const
 {
     switch (role) {
     case Qt::DisplayRole:
-        if (type() == TestCase) {
-            if (m_state & Parameterized)
-                return QString(name() + QObject::tr(" [parameterized]"));
-            return name();
-        }
+        if (type() == TestCase)
+            return QVariant(name() + nameSuffix());
         break;
     case StateRole:
         return (int)m_state;
@@ -445,6 +444,18 @@ TestTreeItem *GoogleTestTreeItem::findChildByNameStateAndFile(const QString &nam
     });
 }
 
+QString GoogleTestTreeItem::nameSuffix() const
+{
+    static QString markups[] = { QObject::tr("parameterized"), QObject::tr("typed") };
+    QString suffix;
+    if (m_state & Parameterized)
+        suffix =  QLatin1String(" [") + markups[0];
+    if (m_state & Typed)
+        suffix += (suffix.isEmpty() ? QLatin1String(" [") : QLatin1String(", ")) + markups[1];
+    if (!suffix.isEmpty())
+        suffix += QLatin1Char(']');
+    return suffix;
+}
 
 } // namespace Internal
 } // namespace Autotest

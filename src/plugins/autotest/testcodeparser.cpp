@@ -497,6 +497,7 @@ static void handleGTest(QFutureInterface<TestParseResult> futureInterface, const
         parseResult.fileName = filePath;
         parseResult.testCaseName = testSpec.testCaseName;
         parseResult.parameterized = testSpec.parameterized;
+        parseResult.typed = testSpec.typed;
         parseResult.proFile = proFile;
         parseResult.dataTagsOrTestSets.insert(QString(), result.value(testSpec));
         futureInterface.reportResult(parseResult);

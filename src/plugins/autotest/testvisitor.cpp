@@ -392,6 +392,7 @@ bool GTestVisitor::visit(CPlusPlus::FunctionDefinitionAST *ast)
         GTestCaseSpec spec;
         spec.testCaseName = disabledCase ? testCaseName.mid(9) : testCaseName;
         spec.parameterized = TestUtils::isGTestParameterized(prettyName);
+        spec.typed = TestUtils::isGTestTyped(prettyName);
         m_gtestFunctions[spec].append(locationAndType);
     }
 

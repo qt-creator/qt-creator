@@ -257,6 +257,17 @@ QList<TestConfiguration *> TestTreeModel::getAllTestCases() const
     return result;
 }
 
+static QString gtestFilter(GoogleTestTreeItem::TestStates states)
+{
+    if ((states & GoogleTestTreeItem::Parameterized) && (states & GoogleTestTreeItem::Typed))
+        return QLatin1String("*/%1/*.%2");
+    if (states & GoogleTestTreeItem::Parameterized)
+        return QLatin1String("*/%1.%2/*");
+    if (states & GoogleTestTreeItem::Typed)
+        return QLatin1String("%1/*.%2");
+    return QLatin1String("%1.%2");
+}
+
 QList<TestConfiguration *> TestTreeModel::getSelectedTests() const
 {
     QList<TestConfiguration *> result;
@@ -385,16 +396,10 @@ QList<TestConfiguration *> TestTreeModel::getSelectedTests() const
         for (int grandChildRow = 0; grandChildRow < grandChildCount; ++grandChildRow) {
             const TestTreeItem *grandChild = child->childItem(grandChildRow);
             const QString &proFile = grandChild->proFile();
-            QStringList enabled = proFilesWithEnabledTestSets.value(proFile);
             if (grandChild->checked() == Qt::Checked) {
-                QString testSpecifier = child->name() + QLatin1Char('.') + grandChild->name();
-                if (child->state() & GoogleTestTreeItem::Parameterized) {
-                    testSpecifier.prepend(QLatin1String("*/"));
-                    testSpecifier.append(QLatin1String("/*"));
-                }
-                enabled << testSpecifier;
+                proFilesWithEnabledTestSets[proFile].append(
+                            gtestFilter(child->state()).arg(child->name()).arg(grandChild->name()));
             }
-            proFilesWithEnabledTestSets.insert(proFile, enabled);
         }
     }
 
@@ -435,9 +440,8 @@ TestConfiguration *TestTreeModel::getTestConfiguration(const TestTreeItem *item)
             config->setProFile(item->proFile());
             config->setProject(project);
         } else if (auto gtestItem = item->asGoogleTestTreeItem()) {
-            QString testSpecifier = item->name() + QLatin1String(".*");
-            if (gtestItem->state() & GoogleTestTreeItem::Parameterized)
-                testSpecifier.prepend(QLatin1String("*/"));
+            const QString &testSpecifier
+                    = gtestFilter(gtestItem->state()).arg(item->name()).arg(QLatin1Char('*'));
 
             if (int childCount = item->childCount()) {
                 config = new TestConfiguration(QString(), QStringList(testSpecifier));
@@ -463,12 +467,9 @@ TestConfiguration *TestTreeModel::getTestConfiguration(const TestTreeItem *item)
             config->setProFile(parent->proFile());
             config->setProject(project);
         } else if (auto gtestParent = parent->asGoogleTestTreeItem()) {
-            QString testSpecifier = parent->name() + QLatin1Char('.') + item->name();
+            const QString &testSpecifier
+                    = gtestFilter(gtestParent->state()).arg(parent->name()).arg(item->name());
 
-            if (gtestParent->state() & GoogleTestTreeItem::Parameterized) {
-                testSpecifier.prepend(QLatin1String("*/"));
-                testSpecifier.append(QLatin1String("/*"));
-            }
             config = new TestConfiguration(QString(), QStringList(testSpecifier));
             config->setProFile(item->proFile());
             config->setProject(project);
@@ -733,6 +734,8 @@ void TestTreeModel::handleGTestParseResult(const TestParseResult &result)
     GoogleTestTreeItem::TestStates states = GoogleTestTreeItem::Enabled;
     if (result.parameterized)
         states |= GoogleTestTreeItem::Parameterized;
+    if (result.typed)
+        states |= GoogleTestTreeItem::Typed;
     TestTreeItem *toBeModified = m_googleTestRootItem->findChildByNameStateAndFile(
                 result.testCaseName, states, result.proFile);
     if (!toBeModified) {

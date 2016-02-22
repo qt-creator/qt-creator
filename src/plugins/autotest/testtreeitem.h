@@ -168,6 +168,7 @@ public:
         Enabled         = 0x00,
         Disabled        = 0x01,
         Parameterized   = 0x02,
+        Typed           = 0x04,
     };
 
     Q_FLAGS(TestState)
@@ -192,6 +193,7 @@ public:
     TestTreeItem *findChildByNameStateAndFile(const QString &name,
                                               GoogleTestTreeItem::TestStates state,
                                               const QString &proFile);
+    QString nameSuffix() const;
 
 private:
     GoogleTestTreeItem::TestStates m_state;
@@ -209,6 +211,7 @@ struct GTestCaseSpec
 {
     QString testCaseName;
     bool parameterized;
+    bool typed;
 };
 
 } // namespace Internal
