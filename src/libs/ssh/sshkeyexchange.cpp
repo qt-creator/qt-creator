@@ -154,9 +154,9 @@ void SshKeyExchange::sendNewKeysPacket(const SshIncomingPacket &dhReply,
         DH_KA_Operation dhOp(*m_dhKey);
         SecureVector<byte> encodedF = BigInt::encode(reply.f);
         encodedK = dhOp.agree(encodedF, encodedF.size());
-        m_dhKey.reset(nullptr);
         printData("y", AbstractSshPacket::encodeMpInt(m_dhKey->get_y()));
         printData("f", AbstractSshPacket::encodeMpInt(reply.f));
+        m_dhKey.reset(nullptr);
     } else {
         Q_ASSERT(m_ecdhKey);
         concatenatedData // Q_C.
