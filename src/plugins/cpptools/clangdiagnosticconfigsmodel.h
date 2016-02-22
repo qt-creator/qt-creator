@@ -23,60 +23,33 @@
 **
 ****************************************************************************/
 
-#ifndef CPPTOOLS_CPPCODEMODELSETTINGS_H
-#define CPPTOOLS_CPPCODEMODELSETTINGS_H
+#pragma once
 
-#include "cpptools_global.h"
-
-#include "clangdiagnosticconfigsmodel.h"
-
-#include <QObject>
-#include <QStringList>
-
-QT_BEGIN_NAMESPACE
-class QSettings;
-QT_END_NAMESPACE
+#include "clangdiagnosticconfig.h"
 
 namespace CppTools {
+namespace Internal {
 
-class CPPTOOLS_EXPORT CppCodeModelSettings : public QObject
+class ClangDiagnosticConfigsModel
 {
-    Q_OBJECT
-
 public:
-    enum PCHUsage {
-        PchUse_None = 1,
-        PchUse_BuildSystem = 2
-    };
+    ClangDiagnosticConfigsModel(const ClangDiagnosticConfigs &customConfigs);
 
-public:
-    void fromSettings(QSettings *s);
-    void toSettings(QSettings *s);
+    int size() const;
+    const ClangDiagnosticConfig &at(int index) const;
 
-public:
-    Core::Id clangDiagnosticConfigId() const;
-    void setClangDiagnosticConfigId(const Core::Id &configId);
-    const ClangDiagnosticConfig clangDiagnosticConfig() const;
+    void appendOrUpdate(const ClangDiagnosticConfig &config);
+    void removeConfigWithId(const Core::Id &id);
 
-    ClangDiagnosticConfigs clangCustomDiagnosticConfigs() const;
-    void setClangCustomDiagnosticConfigs(const ClangDiagnosticConfigs &configs);
-
-    PCHUsage pchUsage() const;
-    void setPCHUsage(PCHUsage pchUsage);
-
-public: // for tests
-    void emitChanged();
-
-signals:
-    void changed();
-    void clangDiagnosticConfigIdChanged();
+    ClangDiagnosticConfigs configs() const;
+    const ClangDiagnosticConfig &configWithId(const Core::Id &id) const;
 
 private:
-    PCHUsage m_pchUsage = PchUse_None;
-    ClangDiagnosticConfigs m_clangCustomDiagnosticConfigs;
-    Core::Id m_clangDiagnosticConfigId;
+    int indexOfConfig(const Core::Id &id) const;
+
+private:
+    ClangDiagnosticConfigs m_diagnosticConfigs;
 };
 
+} // namespace Internal
 } // namespace CppTools
-
-#endif // CPPTOOLS_CPPCODEMODELSETTINGS_H

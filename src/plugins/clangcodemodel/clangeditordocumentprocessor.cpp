@@ -342,8 +342,8 @@ static QStringList languageOptions(const QString &filePath, CppTools::ProjectPar
 
 static QStringList fileArguments(const QString &filePath, CppTools::ProjectPart *projectPart)
 {
-    return QStringList(languageOptions(filePath, projectPart))
-         + CppTools::codeModelSettings()->extraClangOptions();
+    return languageOptions(filePath, projectPart)
+         + CppTools::codeModelSettings()->clangDiagnosticConfig().commandLineOptions();
 }
 
 ClangBackEnd::FileContainer

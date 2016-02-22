@@ -23,60 +23,51 @@
 **
 ****************************************************************************/
 
-#ifndef CPPTOOLS_CPPCODEMODELSETTINGS_H
-#define CPPTOOLS_CPPCODEMODELSETTINGS_H
+#pragma once
 
-#include "cpptools_global.h"
-
+#include "clangdiagnosticconfig.h"
 #include "clangdiagnosticconfigsmodel.h"
 
-#include <QObject>
-#include <QStringList>
-
-QT_BEGIN_NAMESPACE
-class QSettings;
-QT_END_NAMESPACE
+#include <QWidget>
 
 namespace CppTools {
+namespace Internal {
 
-class CPPTOOLS_EXPORT CppCodeModelSettings : public QObject
+namespace Ui { class ClangDiagnosticConfigsWidget; }
+
+class ClangDiagnosticConfigsWidget : public QWidget
 {
     Q_OBJECT
 
 public:
-    enum PCHUsage {
-        PchUse_None = 1,
-        PchUse_BuildSystem = 2
-    };
+    explicit ClangDiagnosticConfigsWidget(const ClangDiagnosticConfigs &customConfigs,
+                                          const Core::Id &configToSelect,
+                                          QWidget *parent = 0);
 
-public:
-    void fromSettings(QSettings *s);
-    void toSettings(QSettings *s);
+    Core::Id currentConfigId() const;
+    ClangDiagnosticConfigs customConfigs() const;
 
-public:
-    Core::Id clangDiagnosticConfigId() const;
-    void setClangDiagnosticConfigId(const Core::Id &configId);
-    const ClangDiagnosticConfig clangDiagnosticConfig() const;
+    ~ClangDiagnosticConfigsWidget();
 
-    ClangDiagnosticConfigs clangCustomDiagnosticConfigs() const;
-    void setClangCustomDiagnosticConfigs(const ClangDiagnosticConfigs &configs);
+private slots:
+    void onCurrentConfigChanged(int);
+    void onCopyButtonClicked();
+    void onRemoveButtonClicked();
 
-    PCHUsage pchUsage() const;
-    void setPCHUsage(PCHUsage pchUsage);
-
-public: // for tests
-    void emitChanged();
-
-signals:
-    void changed();
-    void clangDiagnosticConfigIdChanged();
+    void onDiagnosticOptionsEdited();
 
 private:
-    PCHUsage m_pchUsage = PchUse_None;
-    ClangDiagnosticConfigs m_clangCustomDiagnosticConfigs;
-    Core::Id m_clangDiagnosticConfigId;
+    void syncWidgetsToModel(const Core::Id &configToSelect = Core::Id());
+    void syncConfigChooserToModel(const Core::Id &configToSelect = Core::Id());
+    void syncOtherWidgetsToComboBox();
+
+    bool isConfigChooserEmpty() const;
+    const ClangDiagnosticConfig &currentConfig() const;
+
+private:
+    Ui::ClangDiagnosticConfigsWidget *m_ui;
+    ClangDiagnosticConfigsModel m_diagnosticConfigsModel;
 };
 
-} // namespace CppTools
-
-#endif // CPPTOOLS_CPPCODEMODELSETTINGS_H
+} // Internal namespace
+} // CppTools namespace

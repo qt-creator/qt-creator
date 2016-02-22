@@ -24,6 +24,8 @@
 ****************************************************************************/
 
 #include "cppcodemodelsettingspage.h"
+
+#include "clangdiagnosticconfigswidget.h"
 #include "cppmodelmanager.h"
 #include "cpptoolsconstants.h"
 #include "ui_cppcodemodelsettingspage.h"
@@ -43,10 +45,6 @@ CppCodeModelSettingsWidget::CppCodeModelSettingsWidget(QWidget *parent)
     m_ui->setupUi(this);
 
     m_ui->clangSettingsGroupBox->setVisible(true);
-    connect(m_ui->clangOptionsResetButton, &QPushButton::clicked, [this]() {
-        const QString options = m_settings->defaultExtraClangOptions().join(QLatin1Char('\n'));
-        m_ui->clangOptionsToAppendTextEdit->document()->setPlainText(options);
-    });
 }
 
 CppCodeModelSettingsWidget::~CppCodeModelSettingsWidget()
@@ -73,15 +71,17 @@ void CppCodeModelSettingsWidget::applyToSettings() const
         m_settings->toSettings(Core::ICore::settings());
 }
 
-void CppCodeModelSettingsWidget::setupClangCodeModelWidgets() const
+void CppCodeModelSettingsWidget::setupClangCodeModelWidgets()
 {
     const bool isClangActive = CppModelManager::instance()->isClangCodeModelActive();
 
     m_ui->activateClangCodeModelPluginHint->setVisible(!isClangActive);
     m_ui->clangSettingsGroupBox->setEnabled(isClangActive);
 
-    const QString extraClangOptions = m_settings->extraClangOptions().join(QLatin1Char('\n'));
-    m_ui->clangOptionsToAppendTextEdit->document()->setPlainText(extraClangOptions);
+    m_clangDiagnosticConfigsWidget = new ClangDiagnosticConfigsWidget(
+                                            m_settings->clangCustomDiagnosticConfigs(),
+                                            m_settings->clangDiagnosticConfigId());
+    m_ui->clangSettingsGroupBox->layout()->addWidget(m_clangDiagnosticConfigsWidget);
 }
 
 void CppCodeModelSettingsWidget::setupPchCheckBox() const
@@ -94,12 +94,18 @@ bool CppCodeModelSettingsWidget::applyClangCodeModelWidgetsToSettings() const
 {
     bool settingsChanged = false;
 
-    const QStringList previousOptions = m_settings->extraClangOptions();
-    const QString newOptionsAsString = m_ui->clangOptionsToAppendTextEdit->document()->toPlainText();
-    const QStringList newOptions = newOptionsAsString.split(QLatin1Char('\n'),
-                                                            QString::SkipEmptyParts);
-    if (newOptions != previousOptions) {
-        m_settings->setExtraClangOptions(newOptions);
+    const Core::Id oldConfigId = m_settings->clangDiagnosticConfigId();
+    const Core::Id currentConfigId = m_clangDiagnosticConfigsWidget->currentConfigId();
+    if (oldConfigId != currentConfigId) {
+        m_settings->setClangDiagnosticConfigId(currentConfigId);
+        settingsChanged = true;
+    }
+
+    const ClangDiagnosticConfigs oldDiagnosticConfigs = m_settings->clangCustomDiagnosticConfigs();
+    const ClangDiagnosticConfigs currentDiagnosticConfigs
+            = m_clangDiagnosticConfigsWidget->customConfigs();
+    if (oldDiagnosticConfigs != currentDiagnosticConfigs) {
+        m_settings->setClangCustomDiagnosticConfigs(currentDiagnosticConfigs);
         settingsChanged = true;
     }
 
