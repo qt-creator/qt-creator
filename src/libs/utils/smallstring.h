@@ -177,16 +177,6 @@ public:
         swap(first.m_data, second.m_data);
     }
 
-    char &operator[](size_type index)
-    {
-        return at(index);
-    }
-
-    const char &operator[](size_type index) const
-    {
-        return at(index);
-    }
-
     QByteArray toQByteArray() const noexcept
     {
         return QByteArray(data(), int(size()));
