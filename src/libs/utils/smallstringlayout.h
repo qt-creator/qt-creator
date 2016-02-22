@@ -61,8 +61,8 @@ struct AllocatedLayout {
         size_type capacity;
     } data;
     char dummy[maximumShortStringDataAreaSize - sizeof(Data)];
-    std::uint8_t isReference : 1;
     std::uint8_t shortStringSize: 6;
+    std::uint8_t isReference : 1;
     std::uint8_t hasAllocated : 1;
 };
 
