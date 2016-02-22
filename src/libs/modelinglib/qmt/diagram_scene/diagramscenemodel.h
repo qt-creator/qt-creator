@@ -113,8 +113,9 @@ public:
     void selectElement(DElement *element);
     void editElement(DElement *element);
     void copyToClipboard();
-    bool exportPng(const QString &fileName);
-    void exportPdf(const QString &fileName);
+    bool exportImage(const QString &fileName);
+    bool exportPdf(const QString &fileName);
+    bool exportSvg(const QString &fileName);
 
     void selectItem(QGraphicsItem *item, bool multiSelect);
     void moveSelectedItems(QGraphicsItem *grabbedItem, const QPointF &delta);

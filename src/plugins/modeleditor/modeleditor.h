@@ -86,6 +86,8 @@ public:
     void openParentDiagram();
     void editProperties();
     void editSelectedItem();
+    void exportDiagram();
+
     qmt::MPackage *guessSelectedPackage() const;
 
 private:

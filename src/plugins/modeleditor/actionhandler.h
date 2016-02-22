@@ -64,6 +64,7 @@ public:
     QAction *deleteAction() const;
     QAction *selectAllAction() const;
     QAction *openParentDiagramAction() const;
+    QAction *exportDiagramAction() const;
 
     void createActions();
 
@@ -79,6 +80,7 @@ private slots:
     void openParentDiagram();
     void onEditProperties();
     void onEditItem();
+    void exportDiagram();
 
 private:
     Core::Command *registerCommand(const Core::Id &id, const std::function<void()> &slot,

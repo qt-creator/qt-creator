@@ -9,7 +9,7 @@ QtcLibrary {
         "./qtserialization/inc",
     ])
 
-    Depends { name: "Qt.widgets" }
+    Depends { name: "Qt"; submodules: ["widgets", "svg"] }
     Depends { name: "Utils" }
 
     Group {
