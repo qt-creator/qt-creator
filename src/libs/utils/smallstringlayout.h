@@ -62,7 +62,7 @@ struct AllocatedLayout {
     } data;
     char dummy[maximumShortStringDataAreaSize - sizeof(Data)];
     std::uint8_t shortStringSize: 6;
-    std::uint8_t isReference : 1;
+    std::uint8_t isReadOnlyReference : 1;
     std::uint8_t hasAllocated : 1;
 };
 
@@ -74,14 +74,14 @@ struct ReferenceLayout {
     } data;
     char dummy[maximumShortStringDataAreaSize - sizeof(Data)];
     std::uint8_t shortStringSize: 6;
-    std::uint8_t isReference : 1;
+    std::uint8_t isReadOnlyReference : 1;
     std::uint8_t hasAllocated : 1;
 };
 
 struct ShortStringLayout {
     char string[maximumShortStringDataAreaSize];
     std::uint8_t shortStringSize: 6;
-    std::uint8_t isReference : 1;
+    std::uint8_t isReadOnlyReference : 1;
     std::uint8_t hasAllocated : 1;
 };
 
@@ -112,14 +112,14 @@ struct ALIGNAS_16 StringDataLayout {
 #pragma GCC diagnostic pop
 #endif
             shortString.hasAllocated = false;
-            shortString.isReference = false;
+            shortString.isReadOnlyReference = false;
         } else {
             reference.data.pointer = string;
             reference.data.size = Size - 1;
             reference.data.capacity = 0;
             reference.shortStringSize = 0;
             reference.hasAllocated = true;
-            reference.isReference = true;
+            reference.isReadOnlyReference = true;
         }
 #endif
     }

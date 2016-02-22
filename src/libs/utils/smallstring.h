@@ -96,7 +96,7 @@ public:
             m_data.shortString.string[size] = 0;
             m_data.shortString.shortStringSize = uchar(size);
             m_data.shortString.hasAllocated = false;
-            m_data.shortString.isReference = false;
+            m_data.shortString.isReadOnlyReference = false;
         } else {
             m_data.allocated.data.pointer = Memory::allocate(capacity + 1);
             std::memcpy(m_data.allocated.data.pointer, string, size);
@@ -105,7 +105,7 @@ public:
             m_data.allocated.data.capacity = capacity;
             m_data.allocated.shortStringSize = 0;
             m_data.allocated.hasAllocated = true;
-            m_data.allocated.isReference = false;
+            m_data.allocated.isReadOnlyReference = false;
         }
     }
 
@@ -130,7 +130,7 @@ public:
 #else
     SmallString(const SmallString &string)
     {
-        if (string.isShortString() || string.isReference())
+        if (string.isShortString() || string.isReadOnlyReference())
             m_data = string.m_data;
         else
             new (this) SmallString{string.data(), string.size()};
@@ -473,14 +473,14 @@ UNIT_TEST_PUBLIC:
         return !m_data.shortString.hasAllocated;
     }
 
-    bool isReference() const noexcept
+    bool isReadOnlyReference() const noexcept
     {
-        return m_data.shortString.isReference;
+        return m_data.shortString.isReadOnlyReference;
     }
 
     bool hasAllocatedMemory() const noexcept
     {
-        return !isShortString() && !isReference();
+        return !isShortString() && !isReadOnlyReference();
     }
 
     bool fitsNotInCapacity(size_type capacity) const noexcept

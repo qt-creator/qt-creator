@@ -111,9 +111,9 @@ public:
     }
 
     constexpr
-    bool isReference() const noexcept
+    bool isReadOnlyReference() const noexcept
     {
-        return m_data.shortString.isReference;
+        return m_data.shortString.isReadOnlyReference;
     }
 
     operator SmallStringView() const
