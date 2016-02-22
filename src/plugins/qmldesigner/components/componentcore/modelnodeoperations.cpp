@@ -579,7 +579,7 @@ static QString toUpper(const QString signal)
     return ret;
 }
 
-static void addSignal(const QString &typeName, const QString &itemId, const QString &signalName)
+static void addSignal(const QString &typeName, const QString &itemId, const QString &signalName, bool isRootModelNode)
 {
     QScopedPointer<Model> model(Model::create("Item", 2, 0));
     RewriterView rewriterView(RewriterView::Amend, 0);
@@ -594,11 +594,16 @@ static void addSignal(const QString &typeName, const QString &itemId, const QStr
 
     model->setRewriterView(&rewriterView);
 
+    PropertyName signalHandlerName;
+
+    if (isRootModelNode)
+        signalHandlerName = "on" + toUpper(signalName).toUtf8();
+    else
+        signalHandlerName = itemId.toUtf8() + ".on" + toUpper(signalName).toUtf8();
+
     foreach (const ModelNode &modelNode, rewriterView.allModelNodes()) {
         if (modelNode.type() == typeName) {
-            modelNode.signalHandlerProperty(itemId.toUtf8()
-                                            + ".on"
-                                            + toUpper(signalName).toUtf8()).setSource(QLatin1String("{\n}"));
+            modelNode.signalHandlerProperty(signalHandlerName).setSource(QLatin1String("{\n}"));
         }
     }
 }
@@ -641,6 +646,8 @@ void gotoImplementation(const SelectionContext &selectionState)
         modelNode = selectionState.selectedModelNodes().first();
     }
 
+    bool isModelNodeRoot = true;
+
     QmlObjectNode qmlObjectNode(modelNode);
 
     if (!qmlObjectNode.isValid()) {
@@ -651,6 +658,7 @@ void gotoImplementation(const SelectionContext &selectionState)
     }
 
     if (!qmlObjectNode.isRootModelNode()) {
+        isModelNodeRoot = false;
         try {
             RewriterTransaction transaction =
                     qmlObjectNode.view()->beginRewriterTransaction(QByteArrayLiteral("NavigatorTreeModel:exportItem"));
@@ -693,7 +701,16 @@ void gotoImplementation(const SelectionContext &selectionState)
                 if (dialog->signal().isEmpty())
                     return;
 
-                addSignal(typeName, itemId, dialog->signal());
+                try {
+                    RewriterTransaction transaction =
+                            qmlObjectNode.view()->beginRewriterTransaction(QByteArrayLiteral("NavigatorTreeModel:exportItem"));
+
+                    addSignal(typeName, itemId, dialog->signal(), isModelNodeRoot);
+                }  catch (RewritingException &exception) { //better safe than sorry! There always might be cases where we fail
+                    exception.showException();
+                }
+
+                addSignal(typeName, itemId, dialog->signal(), isModelNodeRoot);
 
                 //Move cursor to correct curser position
                 const QString filePath = Core::EditorManager::currentDocument()->filePath().toString();
