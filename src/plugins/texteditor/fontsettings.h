@@ -30,6 +30,8 @@
 
 #include "colorscheme.h"
 
+#include <utils/sizedarray.h>
+
 #include <QHash>
 #include <QList>
 #include <QString>
@@ -44,6 +46,13 @@ QT_END_NAMESPACE
 namespace TextEditor {
 
 class FormatDescription;
+
+using MixinTextStyles = Utils::SizedArray<TextStyle, 6>;
+
+struct TextStyles {
+    TextStyle mainStyle;
+    MixinTextStyles mixinStyles;
+};
 
 /**
  * Font settings (default font and enumerated list of formats).
@@ -66,6 +75,7 @@ public:
 
     QVector<QTextCharFormat> toTextCharFormats(const QVector<TextStyle> &categories) const;
     QTextCharFormat toTextCharFormat(TextStyle category) const;
+    QTextCharFormat toTextCharFormat(const TextStyles textStyles) const;
 
     QString family() const;
     void setFamily(const QString &family);
@@ -100,6 +110,9 @@ public:
     static QString defaultSchemeFileName(const QString &fileName = QString());
 
 private:
+    void addMixinStyle(QTextCharFormat &textCharFormat, const MixinTextStyles &mixinStyles) const;
+
+private:
     QString m_family;
     QString m_schemeFileName;
     int m_fontSize;
@@ -107,6 +120,7 @@ private:
     bool m_antialias;
     ColorScheme m_scheme;
     mutable QHash<TextStyle, QTextCharFormat> m_formatCache;
+    mutable QHash<TextStyles, QTextCharFormat> m_textCharFormatCache;
 };
 
 inline bool operator==(const FontSettings &f1, const FontSettings &f2) { return f1.equals(f2); }

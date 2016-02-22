@@ -139,8 +139,9 @@ bool FontSettings::equals(const FontSettings &f) const
  */
 QTextCharFormat FontSettings::toTextCharFormat(TextStyle category) const
 {
-    if (m_formatCache.contains(category))
-        return m_formatCache.value(category);
+    auto textCharFormatIterator = m_formatCache.find(category);
+    if (textCharFormatIterator != m_formatCache.end())
+        return *textCharFormatIterator;
 
     const Format &f = m_scheme.formatFor(category);
     QTextCharFormat tf;
@@ -172,6 +173,60 @@ QTextCharFormat FontSettings::toTextCharFormat(TextStyle category) const
 
     m_formatCache.insert(category, tf);
     return tf;
+}
+
+uint qHash(const TextStyles &textStyles)
+{
+    uint hash = ::qHash(quint8(textStyles.mainStyle));
+
+    hash ^= ::qHashRange(textStyles.mixinStyles.cbegin(), textStyles.mixinStyles.cend());
+
+    return hash;
+}
+
+bool operator==(const TextStyles &first, const TextStyles &second)
+{
+    return first.mainStyle == second.mainStyle
+        && first.mixinStyles == second.mixinStyles;
+}
+
+void FontSettings::addMixinStyle(QTextCharFormat &textCharFormat,
+                                 const MixinTextStyles &mixinStyles) const
+{
+    for (TextStyle mixinStyle : mixinStyles) {
+        const QTextCharFormat mixinTextCharFormat = toTextCharFormat(mixinStyle);
+        if (!textCharFormat.hasProperty(QTextFormat::ForegroundBrush))
+            textCharFormat.setForeground(mixinTextCharFormat.foreground());
+
+        if (!textCharFormat.hasProperty(QTextFormat::BackgroundBrush))
+            textCharFormat.setBackground(mixinTextCharFormat.background());
+
+        if (!textCharFormat.fontItalic())
+            textCharFormat.setFontItalic(mixinTextCharFormat.fontItalic());
+
+        if (textCharFormat.fontWeight() == QFont::Normal)
+            textCharFormat.setFontWeight(mixinTextCharFormat.fontWeight());
+
+        if (textCharFormat.underlineStyle() == QTextCharFormat::NoUnderline) {
+            textCharFormat.setUnderlineStyle(mixinTextCharFormat.underlineStyle());
+            textCharFormat.setUnderlineColor(mixinTextCharFormat.underlineColor());
+        }
+    };
+}
+
+QTextCharFormat FontSettings::toTextCharFormat(const TextStyles textStyles) const
+{
+    auto textCharFormatIterator = m_textCharFormatCache.find(textStyles);
+    if (textCharFormatIterator != m_textCharFormatCache.end())
+        return *textCharFormatIterator;
+
+    QTextCharFormat textCharFormat = toTextCharFormat(textStyles.mainStyle);
+
+    addMixinStyle(textCharFormat, textStyles.mixinStyles);
+
+    m_textCharFormatCache.insert(textStyles, textCharFormat);
+
+    return textCharFormat;
 }
 
 /**

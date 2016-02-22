@@ -31,7 +31,7 @@
 namespace TextEditor {
 
 // Text color and style categories
-enum TextStyle {
+enum TextStyle : quint8 {
     C_TEXT,
 
     C_LINK,
