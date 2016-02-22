@@ -95,7 +95,7 @@ public:
             std::memcpy(m_data.shortString.string, string, size);
             m_data.shortString.string[size] = 0;
             m_data.shortString.shortStringSize = uchar(size);
-            m_data.shortString.hasAllocated = false;
+            m_data.shortString.isReference = false;
             m_data.shortString.isReadOnlyReference = false;
         } else {
             m_data.allocated.data.pointer = Memory::allocate(capacity + 1);
@@ -104,7 +104,7 @@ public:
             m_data.allocated.data.size = size;
             m_data.allocated.data.capacity = capacity;
             m_data.allocated.shortStringSize = 0;
-            m_data.allocated.hasAllocated = true;
+            m_data.allocated.isReference = true;
             m_data.allocated.isReadOnlyReference = false;
         }
     }
@@ -470,7 +470,7 @@ public:
 UNIT_TEST_PUBLIC:
     bool isShortString() const noexcept
     {
-        return !m_data.shortString.hasAllocated;
+        return !m_data.shortString.isReference;
     }
 
     bool isReadOnlyReference() const noexcept

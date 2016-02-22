@@ -107,7 +107,7 @@ public:
     constexpr
     bool isShortString() const noexcept
     {
-        return !m_data.shortString.hasAllocated;
+        return !m_data.shortString.isReference;
     }
 
     constexpr
