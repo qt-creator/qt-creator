@@ -603,6 +603,17 @@ static void addSignal(const QString &typeName, const QString &itemId, const QStr
     }
 }
 
+static QStringList cleanSignalNames(const QStringList &input)
+{
+    QStringList output;
+
+    foreach (const QString &signal, input)
+        if (!signal.startsWith(QLatin1String("__")) && !output.contains(signal))
+            output.append(signal);
+
+    return output;
+}
+
 static QStringList getSortedSignalNameList(const ModelNode &modelNode)
 {
     NodeMetaInfo metaInfo = modelNode.metaInfo();
@@ -654,7 +665,7 @@ void gotoImplementation(const SelectionContext &selectionState)
     const QString fileName = QmlDesignerPlugin::instance()->documentManager().currentDesignDocument()->fileName().toString();
     const QString typeName = QmlDesignerPlugin::instance()->documentManager().currentDesignDocument()->fileName().toFileInfo().baseName();
 
-    QStringList signalNames = getSortedSignalNameList(selectionState.selectedModelNodes().first());
+    QStringList signalNames = cleanSignalNames(getSortedSignalNameList(selectionState.selectedModelNodes().first()));
 
     QList<QmlJSEditor::FindReferences::Usage> usages = QmlJSEditor::FindReferences::findUsageOfType(fileName, typeName);
 
