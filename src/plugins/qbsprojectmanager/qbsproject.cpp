@@ -674,6 +674,21 @@ void QbsProject::updateDocuments(const QSet<QString> &files)
     m_qbsDocuments.unite(toAdd);
 }
 
+static CppTools::ProjectFile::Kind cppFileType(const qbs::SourceArtifact &sourceFile)
+{
+    if (sourceFile.fileTags().contains(QLatin1String("hpp")))
+        return CppTools::ProjectFile::CXXHeader;
+    if (sourceFile.fileTags().contains(QLatin1String("cpp")))
+        return CppTools::ProjectFile::CXXSource;
+    if (sourceFile.fileTags().contains(QLatin1String("c")))
+        return CppTools::ProjectFile::CSource;
+    if (sourceFile.fileTags().contains(QLatin1String("objc")))
+        return CppTools::ProjectFile::ObjCSource;
+    if (sourceFile.fileTags().contains(QLatin1String("objcpp")))
+        return CppTools::ProjectFile::ObjCXXSource;
+    return CppTools::ProjectFile::Unclassified;
+}
+
 void QbsProject::updateCppCodeModel()
 {
     if (!m_projectData.isValid())
@@ -759,7 +774,11 @@ void QbsProject::updateCppCodeModel()
                     .arg(grp.location().line())
                     .arg(grp.location().column()));
 
+
+            QHash<QString, qbs::SourceArtifact> filePathToSourceArtifact;
             foreach (const qbs::SourceArtifact &source, grp.allSourceArtifacts()) {
+                filePathToSourceArtifact.insert(source.filePath(), source);
+
                 foreach (const QString &tag, source.fileTags()) {
                     for (auto i = factoriesBegin; i != factoriesEnd; ++i) {
                         if ((*i)->sourceTag() != tag)
@@ -779,8 +798,12 @@ void QbsProject::updateCppCodeModel()
                 }
             }
 
-            const QList<Id> languages =
-                    ppBuilder.createProjectPartsForFiles(grp.allFilePaths());
+            const QList<Id> languages = ppBuilder.createProjectPartsForFiles(
+                grp.allFilePaths(),
+                [filePathToSourceArtifact](const QString &filePath) {
+                    return cppFileType(filePathToSourceArtifact.value(filePath));
+            });
+
             foreach (Id language, languages)
                 setProjectLanguage(language, true);
         }
@@ -811,13 +834,14 @@ void QbsProject::updateCppCompilerCallData()
             if (!group.isEnabled())
                 continue;
 
-            foreach (const QString &file, group.allFilePaths()) {
-                if (!CppTools::ProjectFile::isSource(CppTools::ProjectFile::classify(file)))
+            foreach (const qbs::SourceArtifact &file, group.allSourceArtifacts()) {
+                const QString &filePath = file.filePath();
+                if (!CppTools::ProjectFile::isSource(cppFileType(file)))
                     continue;
 
                 qbs::ErrorInfo errorInfo;
-                const qbs::RuleCommandList ruleCommands
-                       = m_qbsProject.ruleCommands(product, file, QLatin1String("obj"), &errorInfo);
+                const qbs::RuleCommandList ruleCommands = m_qbsProject.ruleCommands(product,
+                        filePath, QLatin1String("obj"), &errorInfo);
                 if (errorInfo.hasError())
                     continue;
 
@@ -828,7 +852,7 @@ void QbsProject::updateCppCompilerCallData()
                 }
 
                 if (!calls.isEmpty())
-                    data.insert(file, calls);
+                    data.insert(filePath, calls);
             }
         }
     }

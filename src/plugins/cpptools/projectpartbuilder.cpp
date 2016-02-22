@@ -44,7 +44,10 @@ namespace {
 class ProjectFileCategorizer
 {
 public:
-    ProjectFileCategorizer(const QString &partName, const QStringList &files)
+    ProjectFileCategorizer(const QString &partName,
+                           const QStringList &files,
+                           ProjectPartBuilder::FileClassifier fileClassifier
+                                = ProjectPartBuilder::FileClassifier())
         : m_partName(partName)
     {
         using CppTools::ProjectFile;
@@ -52,7 +55,11 @@ public:
         QStringList cHeaders, cxxHeaders;
 
         foreach (const QString &file, files) {
-            switch (ProjectFile::classify(file)) {
+            const ProjectFile::Kind kind = fileClassifier
+                    ? fileClassifier(file)
+                    : ProjectFile::classify(file);
+
+            switch (kind) {
             case ProjectFile::CSource: m_cSources += file; break;
             case ProjectFile::CHeader: cHeaders += file; break;
             case ProjectFile::CXXSource: m_cxxSources += file; break;
@@ -191,11 +198,12 @@ void ProjectPartBuilder::setConfigFileName(const QString &configFileName)
     m_templatePart->projectConfigFile = configFileName;
 }
 
-QList<Core::Id> ProjectPartBuilder::createProjectPartsForFiles(const QStringList &files)
+QList<Core::Id> ProjectPartBuilder::createProjectPartsForFiles(const QStringList &files,
+                                                               FileClassifier fileClassifier)
 {
     QList<Core::Id> languages;
 
-    ProjectFileCategorizer cat(m_templatePart->displayName, files);
+    ProjectFileCategorizer cat(m_templatePart->displayName, files, fileClassifier);
     if (cat.hasNoParts())
         return languages;
 
