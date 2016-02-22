@@ -624,8 +624,33 @@ static QStringList getSortedSignalNameList(const ModelNode &modelNode)
 void gotoImplementation(const SelectionContext &selectionState)
 {
     QString itemId;
-    if (selectionState.singleNodeIsSelected())
+    ModelNode modelNode;
+    if (selectionState.singleNodeIsSelected()) {
         itemId = selectionState.selectedModelNodes().first().id();
+        modelNode = selectionState.selectedModelNodes().first();
+    }
+
+    QmlObjectNode qmlObjectNode(modelNode);
+
+    if (!qmlObjectNode.isValid()) {
+        QString title = QCoreApplication::translate("ModelNodeOperations", "Go to Implementation");
+        QString description = QCoreApplication::translate("ModelNodeOperations", "Invalid item.");
+        Core::AsynchronousMessageBox::warning(title, description);
+        return;
+    }
+
+    if (!qmlObjectNode.isRootModelNode()) {
+        try {
+            RewriterTransaction transaction =
+                    qmlObjectNode.view()->beginRewriterTransaction(QByteArrayLiteral("NavigatorTreeModel:exportItem"));
+
+            QmlObjectNode qmlObjectNode(modelNode);
+            qmlObjectNode.ensureAliasExport();
+        }  catch (RewritingException &exception) { //better safe than sorry! There always might be cases where we fail
+            exception.showException();
+        }
+    }
+
     const QString fileName = QmlDesignerPlugin::instance()->documentManager().currentDesignDocument()->fileName().toString();
     const QString typeName = QmlDesignerPlugin::instance()->documentManager().currentDesignDocument()->fileName().toFileInfo().baseName();
 

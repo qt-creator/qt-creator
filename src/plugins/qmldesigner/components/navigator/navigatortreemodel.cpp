@@ -425,9 +425,8 @@ void NavigatorTreeModel::handleChangedExportItem(QStandardItem *exportItem, Mode
             RewriterTransaction transaction =
                     m_view->beginRewriterTransaction(QByteArrayLiteral("NavigatorTreeModel:exportItem"));
 
-            modelNode.validId();
-            modelNodeId = modelNode.id().toUtf8();
-            rootModelNode.bindingProperty(modelNodeId).setDynamicTypeNameAndExpression("alias", modelNodeId);
+            QmlObjectNode qmlObjectNode(modelNode);
+            qmlObjectNode.ensureAliasExport();
         }  catch (RewritingException &exception) { //better safe than sorry! There always might be cases where we fail
             exception.showException();
         }
