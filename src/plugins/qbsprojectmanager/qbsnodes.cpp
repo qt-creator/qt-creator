@@ -453,11 +453,17 @@ void QbsGroupNode::setupFiles(ProjectExplorer::FolderNode *root, const qbs::Grou
     FileTreeNode::reorder(&tree, productPath);
     FileTreeNode::simplify(&tree);
 
-    setupFolder(root, group, &tree, productPath, updateExisting);
+    QHash<QString, ProjectExplorer::FileType> fileTypeHash;
+    foreach (const qbs::SourceArtifact &sa, group.allSourceArtifacts())
+        fileTypeHash[sa.filePath()] = fileType(sa);
+
+    setupFolder(root, fileTypeHash, &tree, productPath, updateExisting);
 }
 
-void QbsGroupNode::setupFolder(ProjectExplorer::FolderNode *root, const qbs::GroupData &group,
-                               const FileTreeNode *fileTree, const QString &baseDir,
+void QbsGroupNode::setupFolder(ProjectExplorer::FolderNode *root,
+                               const QHash<QString, ProjectExplorer::FileType> &fileTypeHash,
+                               const FileTreeNode *fileTree,
+                               const QString &baseDir,
                                bool updateExisting)
 {
     // We only need to care about FileNodes and FolderNodes here. Everything else is
@@ -478,10 +484,6 @@ void QbsGroupNode::setupFolder(ProjectExplorer::FolderNode *root, const qbs::Gro
             continue; // Skip ProjectNodes mixed into the folders...
         foldersToRemove.append(fn);
     }
-
-    QHash<QString, ProjectExplorer::FileType> fileTypeHash;
-    foreach (const qbs::SourceArtifact &sa, group.allSourceArtifacts())
-        fileTypeHash[sa.filePath()] = fileType(sa);
 
     foreach (FileTreeNode *c, fileTree->children) {
         Utils::FileName path = Utils::FileName::fromString(c->path());
@@ -537,7 +539,7 @@ void QbsGroupNode::setupFolder(ProjectExplorer::FolderNode *root, const qbs::Gro
             if (isQrcFile)
                 static_cast<ResourceTopLevelNode *>(fn)->update();
             else
-                setupFolder(fn, group, c, c->path(), updateExisting);
+                setupFolder(fn, fileTypeHash, c, c->path(), updateExisting);
 
         }
     }

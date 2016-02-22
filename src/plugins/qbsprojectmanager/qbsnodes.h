@@ -106,8 +106,10 @@ public:
                            const QString &productPath, bool updateExisting);
 
 private:
-    static void setupFolder(ProjectExplorer::FolderNode *folder, const qbs::GroupData &group,
-            const FileTreeNode *subFileTree, const QString &baseDir, bool updateExisting);
+    static void setupFolder(ProjectExplorer::FolderNode *folder,
+                            const QHash<QString, ProjectExplorer::FileType> &fileTypeHash,
+                            const FileTreeNode *subFileTree, const QString &baseDir,
+                            bool updateExisting);
     static ProjectExplorer::FileType fileType(const qbs::SourceArtifact &artifact);
 
     qbs::GroupData m_qbsGroupData;
