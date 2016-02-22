@@ -29,6 +29,7 @@
 #include "customqbspropertiesdialog.h"
 #include "qbsconstants.h"
 #include "qbsprojectmanager.h"
+#include "qbsprojectmanagersettings.h"
 
 #include <coreplugin/icore.h>
 #include <projectexplorer/kit.h>
@@ -51,7 +52,7 @@ class QbsProfilesSettingsWidget : public QWidget
 public:
     QbsProfilesSettingsWidget(QWidget *parent = 0);
 
-    void applyCustomProperties();
+    void apply();
 
 private slots:
     void refreshKitsList();
@@ -71,7 +72,10 @@ private:
 };
 
 QbsProfilesSettingsPage::QbsProfilesSettingsPage(QObject *parent)
-    : Core::IOptionsPage(parent), m_widget(0)
+    : Core::IOptionsPage(parent)
+    , m_widget(0)
+    , m_useQtcSettingsDirPersistent(QbsProjectManagerSettings::useCreatorSettingsDirForQbs())
+
 {
     setId("AA.QbsProfiles");
     setDisplayName(QCoreApplication::translate("QbsProjectManager", "Profiles"));
@@ -91,32 +95,41 @@ QWidget *QbsProfilesSettingsPage::widget()
 void QbsProfilesSettingsPage::apply()
 {
     if (m_widget)
-        m_widget->applyCustomProperties();
+        m_widget->apply();
+    m_useQtcSettingsDirPersistent = QbsProjectManagerSettings::useCreatorSettingsDirForQbs();
 }
 
 void QbsProfilesSettingsPage::finish()
 {
     delete m_widget;
     m_widget = 0;
+    QbsProjectManagerSettings::setUseCreatorSettingsDirForQbs(m_useQtcSettingsDirPersistent);
+    QbsProjectManagerSettings::writeSettings();
 }
 
 
 QbsProfilesSettingsWidget::QbsProfilesSettingsWidget(QWidget *parent)
     : QWidget(parent)
-    , m_model(Core::ICore::userResourcePath())
+    , m_model(QbsProjectManagerSettings::qbsSettingsBaseDir())
     , m_applyingProperties(false)
 {
     m_model.setEditable(false);
     m_ui.setupUi(this);
+    m_ui.settingsDirCheckBox->setChecked(QbsProjectManagerSettings::useCreatorSettingsDirForQbs());
     connect(ProjectExplorer::KitManager::instance(), &ProjectExplorer::KitManager::kitsChanged,
             this, &QbsProfilesSettingsWidget::refreshKitsList);
+    connect(m_ui.settingsDirCheckBox, &QCheckBox::stateChanged, [this]() {
+        QbsProjectManagerSettings::setUseCreatorSettingsDirForQbs(m_ui.settingsDirCheckBox->isChecked());
+        m_model.updateSettingsDir(QbsProjectManagerSettings::qbsSettingsBaseDir());
+        displayCurrentProfile();
+    });
     connect(m_ui.expandButton, SIGNAL(clicked()), m_ui.propertiesView, SLOT(expandAll()));
     connect(m_ui.collapseButton, SIGNAL(clicked()), m_ui.propertiesView, SLOT(collapseAll()));
     connect(m_ui.editButton, SIGNAL(clicked()), SLOT(editProfile()));
     refreshKitsList();
 }
 
-void QbsProfilesSettingsWidget::applyCustomProperties()
+void QbsProfilesSettingsWidget::apply()
 {
     QTC_ASSERT(!m_applyingProperties, return);
     m_applyingProperties = true; // The following will cause kitsChanged() to be emitted.

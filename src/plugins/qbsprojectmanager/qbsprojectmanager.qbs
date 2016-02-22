@@ -104,6 +104,8 @@ QtcPlugin {
         "qbsprojectmanagerconstants.h",
         "qbsprojectmanagerplugin.cpp",
         "qbsprojectmanagerplugin.h",
+        "qbsprojectmanagersettings.cpp",
+        "qbsprojectmanagersettings.h",
         "qbsprojectparser.cpp",
         "qbsprojectparser.h",
         "qbsrunconfiguration.cpp",

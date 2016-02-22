@@ -23,27 +23,35 @@
 **
 ****************************************************************************/
 
-#ifndef QBSPROFILESSETTINGSPAGE_H
-#define QBSPROFILESSETTINGSPAGE_H
+#ifndef QBSPROJECTMANAGERSETTINGS_H
+#define QBSPROJECTMANAGERSETTINGS_H
 
-#include <coreplugin/dialogs/ioptionspage.h>
+#include <QObject>
 
 namespace QbsProjectManager {
 namespace Internal {
-class QbsProfilesSettingsWidget;
 
-class QbsProfilesSettingsPage : public Core::IOptionsPage
+class QbsProjectManagerSettings : public QObject
 {
+    Q_OBJECT
 public:
-    QbsProfilesSettingsPage(QObject *parent = 0);
+    static QbsProjectManagerSettings &instance();
+
+    static void setUseCreatorSettingsDirForQbs(bool useCreatorDir);
+    static bool useCreatorSettingsDirForQbs();
+    static QString qbsSettingsBaseDir();
+    static void writeSettings() { instance().doWriteSettings(); }
+
+signals:
+    void settingsBaseChanged();
 
 private:
-    QWidget *widget() override;
-    void apply() override;
-    void finish() override;
+    QbsProjectManagerSettings();
 
-    QbsProfilesSettingsWidget *m_widget;
-    bool m_useQtcSettingsDirPersistent;
+    void readSettings();
+    void doWriteSettings();
+
+    bool m_useCreatorSettings;
 };
 
 } // namespace Internal

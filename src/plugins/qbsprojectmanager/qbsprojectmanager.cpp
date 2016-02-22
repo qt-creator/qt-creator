@@ -30,6 +30,7 @@
 #include "qbsproject.h"
 #include "qbsprojectmanagerconstants.h"
 #include "qbsprojectmanagerplugin.h"
+#include "qbsprojectmanagersettings.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
@@ -62,7 +63,6 @@ QbsManager *QbsManager::m_instance = 0;
 QbsManager::QbsManager() :
     m_defaultPropertyProvider(new DefaultPropertyProvider)
 {
-    m_settings = new qbs::Settings(Core::ICore::userResourcePath());
     m_instance = this;
 
     setObjectName(QLatin1String("QbsProjectManager"));
@@ -74,6 +74,8 @@ QbsManager::QbsManager() :
             &QbsManager::handleKitUpdate);
     connect(ProjectExplorer::KitManager::instance(), &ProjectExplorer::KitManager::kitRemoved, this,
             &QbsManager::handleKitRemoval);
+    connect(&QbsProjectManagerSettings::instance(), &QbsProjectManagerSettings::settingsBaseChanged,
+            this, &QbsManager::updateAllProfiles);
 
     m_logSink = new QbsLogSink(this);
     int level = qbs::LoggerWarning;
@@ -121,12 +123,12 @@ QString QbsManager::profileForKit(const ProjectExplorer::Kit *k)
     if (!k)
         return QString();
     updateProfileIfNecessary(k);
-    return m_settings->value(qtcProfilePrefix() + k->id().toString()).toString();
+    return settings()->value(qtcProfilePrefix() + k->id().toString()).toString();
 }
 
 void QbsManager::setProfileForKit(const QString &name, const ProjectExplorer::Kit *k)
 {
-    m_settings->setValue(qtcProfilePrefix() + k->id().toString(), name);
+    settings()->setValue(qtcProfilePrefix() + k->id().toString(), name);
 }
 
 void QbsManager::updateProfileIfNecessary(const ProjectExplorer::Kit *kit)
@@ -135,6 +137,22 @@ void QbsManager::updateProfileIfNecessary(const ProjectExplorer::Kit *kit)
     // Note that the const_cast is safe, as we do not call any non-const methods on the object.
     if (m_kitsToBeSetupForQbs.removeOne(const_cast<ProjectExplorer::Kit *>(kit)))
         addProfileFromKit(kit);
+}
+
+void QbsManager::updateAllProfiles()
+{
+    foreach (const auto * const kit, ProjectExplorer::KitManager::kits())
+        addProfileFromKit(kit);
+}
+
+qbs::Settings *QbsManager::settings()
+{
+    if (!m_settings
+            || m_settings->baseDirectory() != QbsProjectManagerSettings::qbsSettingsBaseDir()) {
+        delete m_settings;
+        m_settings = new qbs::Settings(QbsProjectManagerSettings::qbsSettingsBaseDir());
+    }
+    return m_settings;
 }
 
 void QbsManager::addProfile(const QString &name, const QVariantMap &data)
@@ -217,9 +235,9 @@ void QbsManager::handleKitRemoval(ProjectExplorer::Kit *kit)
 {
     m_kitsToBeSetupForQbs.removeOne(kit);
     const QString key = qtcProfilePrefix() + kit->id().toString();
-    const QString profileName = m_settings->value(key).toString();
-    m_settings->remove(key);
-    qbs::Profile(profileName, m_settings).removeProfile();
+    const QString profileName = settings()->value(key).toString();
+    settings()->remove(key);
+    qbs::Profile(profileName, settings()).removeProfile();
 }
 
 } // namespace Internal

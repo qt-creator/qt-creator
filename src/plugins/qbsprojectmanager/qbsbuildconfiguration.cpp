@@ -31,6 +31,7 @@
 #include "qbsinstallstep.h"
 #include "qbsproject.h"
 #include "qbsprojectmanagerconstants.h"
+#include "qbsprojectmanagersettings.h"
 
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/icore.h>
@@ -285,8 +286,10 @@ QString QbsBuildConfiguration::equivalentCommandLine(const BuildStep *buildStep)
     }
     Utils::QtcProcess::addArgs(&commandLine, QStringList() << QLatin1String("-f")
                                << buildStep->project()->projectFilePath().toUserOutput());
-    Utils::QtcProcess::addArgs(&commandLine, QStringList() << QLatin1String("--settings-dir")
-                               << QDir::toNativeSeparators(Core::ICore::userResourcePath()));
+    if (QbsProjectManagerSettings::useCreatorSettingsDirForQbs()) {
+        Utils::QtcProcess::addArgs(&commandLine, QStringList() << QLatin1String("--settings-dir")
+                << QDir::toNativeSeparators(QbsProjectManagerSettings::qbsSettingsBaseDir()));
+    }
     if (stepProxy.dryRun())
         Utils::QtcProcess::addArg(&commandLine, QLatin1String("--dry-run"));
     if (stepProxy.keepGoing())

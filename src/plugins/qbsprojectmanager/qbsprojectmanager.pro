@@ -38,6 +38,7 @@ HEADERS = \
     qbsprojectmanager_global.h \
     qbsprojectmanagerconstants.h \
     qbsprojectmanagerplugin.h \
+    qbsprojectmanagersettings.h \
     qbsprojectparser.h \
     qbsrunconfiguration.h \
     qbsconstants.h
@@ -60,6 +61,7 @@ SOURCES = \
     qbsprojectfile.cpp \
     qbsprojectmanager.cpp \
     qbsprojectmanagerplugin.cpp \
+    qbsprojectmanagersettings.cpp \
     qbsprojectparser.cpp \
     qbsrunconfiguration.cpp
 
