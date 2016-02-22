@@ -479,9 +479,14 @@ void QbsGroupNode::setupFolder(ProjectExplorer::FolderNode *root, const qbs::Gro
         foldersToRemove.append(fn);
     }
 
+    QHash<QString, ProjectExplorer::FileType> fileTypeHash;
+    foreach (const qbs::SourceArtifact &sa, group.allSourceArtifacts())
+        fileTypeHash[sa.filePath()] = fileType(sa);
+
     foreach (FileTreeNode *c, fileTree->children) {
         Utils::FileName path = Utils::FileName::fromString(c->path());
-        const ProjectExplorer::FileType newFileType = fileType(group, *c);
+        const ProjectExplorer::FileType newFileType =
+                fileTypeHash.value(c->path(), ProjectExplorer::UnknownFileType);
         const bool isQrcFile = newFileType == ProjectExplorer::ResourceType;
 
         // Handle files:
@@ -541,17 +546,9 @@ void QbsGroupNode::setupFolder(ProjectExplorer::FolderNode *root, const qbs::Gro
     root->addFileNodes(filesToAdd);
 }
 
-ProjectExplorer::FileType QbsGroupNode::fileType(const qbs::GroupData &group,
-                                                 const FileTreeNode &fileNode)
+ProjectExplorer::FileType QbsGroupNode::fileType(const qbs::SourceArtifact &artifact)
 {
-    if (!group.isValid())
-        return ProjectExplorer::UnknownFileType;
-    const qbs::SourceArtifact artifact = Utils::findOrDefault(group.allSourceArtifacts(),
-            [&fileNode](const qbs::SourceArtifact &sa) { return sa.filePath() == fileNode.path(); });
-    QTC_ASSERT(artifact.isValid() || !fileNode.isFile(),
-               qDebug() << fileNode.path() << group.name(); return ProjectExplorer::UnknownFileType);
-    if (!artifact.isValid())
-        return ProjectExplorer::UnknownFileType;
+    QTC_ASSERT(artifact.isValid(), return ProjectExplorer::UnknownFileType);
 
     if (artifact.fileTags().contains(QLatin1String("c"))
             || artifact.fileTags().contains(QLatin1String("cpp"))

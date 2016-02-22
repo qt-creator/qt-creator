@@ -108,8 +108,7 @@ public:
 private:
     static void setupFolder(ProjectExplorer::FolderNode *folder, const qbs::GroupData &group,
             const FileTreeNode *subFileTree, const QString &baseDir, bool updateExisting);
-    static ProjectExplorer::FileType fileType(const qbs::GroupData &group,
-                                              const FileTreeNode &fileNode);
+    static ProjectExplorer::FileType fileType(const qbs::SourceArtifact &artifact);
 
     qbs::GroupData m_qbsGroupData;
     QString m_productPath;
