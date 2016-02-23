@@ -134,6 +134,11 @@ bool FontSettings::equals(const FontSettings &f) const
             && m_scheme == f.m_scheme;
 }
 
+uint qHash(const TextStyle &textStyle)
+{
+    return ::qHash(quint8(textStyle));
+}
+
 /**
  * Returns the QTextCharFormat of the given format category.
  */
@@ -177,9 +182,9 @@ QTextCharFormat FontSettings::toTextCharFormat(TextStyle category) const
 
 uint qHash(const TextStyles &textStyles)
 {
-    uint hash = ::qHash(quint8(textStyles.mainStyle));
+    uint hash = qHash(textStyles.mainStyle);
     for (TextStyle mixinStyle : textStyles.mixinStyles)
-        hash ^= ::qHash(mixinStyle);
+        hash ^= qHash(mixinStyle);
     return hash;
 }
 
