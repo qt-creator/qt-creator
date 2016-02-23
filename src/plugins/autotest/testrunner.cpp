@@ -118,9 +118,11 @@ void TestRunner::setSelectedTests(const QList<TestConfiguration *> &selected)
 }
 
 static void performTestRun(QFutureInterface<TestResult *> &futureInterface,
-                           const QList<TestConfiguration *> selectedTests, const int timeout,
-                           const QString metricsOption)
+                           const QList<TestConfiguration *> selectedTests,
+                           const TestSettings &settings)
 {
+    const int timeout = settings.timeout;
+    const QString &metricsOption = TestSettings::metricsTypeToOption(settings.metrics);
     QEventLoop eventLoop;
     int testCaseCount = 0;
     foreach (TestConfiguration *config, selectedTests) {
@@ -177,13 +179,21 @@ static void performTestRun(QFutureInterface<TestResult *> &futureInterface,
                 argumentList << testConfiguration->testCases();
             testProcess.setArguments(argumentList);
         } else { // TestTypeGTest
+            QStringList argumentList;
             const QStringList &testSets = testConfiguration->testCases();
             if (testSets.size()) {
-                QStringList argumentList;
                 argumentList << QLatin1String("--gtest_filter=")
                                 + testSets.join(QLatin1Char(':'));
-                testProcess.setArguments(argumentList);
             }
+            if (settings.gtestRunDisabled)
+                argumentList << QLatin1String("--gtest_also_run_disabled_tests");
+            if (settings.gtestRepeat)
+                argumentList << QString::fromLatin1("--gtest_repeat=%1").arg(settings.gtestIterations);
+            if (settings.gtestShuffle) {
+                argumentList << QLatin1String("--gtest_shuffle");
+                argumentList << QString::fromLatin1("--gtest_random_seed=%1").arg(settings.gtestSeed);
+            }
+            testProcess.setArguments(argumentList);
         }
 
         testProcess.setWorkingDirectory(testConfiguration->workingDirectory());
@@ -282,11 +292,8 @@ void TestRunner::prepareToRunTests()
 
 void TestRunner::runTests()
 {
-    const QSharedPointer<TestSettings> settings = AutotestPlugin::instance()->settings();
-    const QString &metricsOption = TestSettings::metricsTypeToOption(settings->metrics);
-
     QFuture<TestResult *> future = Utils::runAsync(&performTestRun, m_selectedTests,
-                                                   settings->timeout, metricsOption);
+                                                   *AutotestPlugin::instance()->settings());
     m_futureWatcher.setFuture(future);
     Core::ProgressManager::addTask(future, tr("Running Tests"), Autotest::Constants::TASK_INDEX);
 }

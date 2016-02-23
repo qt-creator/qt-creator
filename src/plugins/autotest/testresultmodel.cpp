@@ -292,7 +292,8 @@ void TestResultFilterModel::enableAllResultTypes()
               << Result::BlacklistedFail << Result::Benchmark
               << Result::MessageCurrentTest << Result::MessageTestCaseStart
               << Result::MessageTestCaseSuccess << Result::MessageTestCaseWarn
-              << Result::MessageTestCaseFail << Result::MessageTestCaseEnd;
+              << Result::MessageTestCaseFail << Result::MessageTestCaseEnd
+              << Result::MessageTestCaseRepetition;
     invalidateFilter();
 }
 

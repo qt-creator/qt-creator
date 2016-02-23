@@ -314,6 +314,7 @@ void GTestOutputReader::processOutput()
     static QRegExp testSetFail(QStringLiteral("^\\[  FAILED  \\] (.*) \\((.*)\\)$"));
     static QRegExp disabledTests(QStringLiteral("^  YOU HAVE (\\d+) DISABLED TESTS?$"));
     static QRegExp failureLocation(QStringLiteral("^(.*):(\\d+): Failure$"));
+    static QRegExp iterations(QStringLiteral("^Repeating all tests \\(iteration (\\d+)\\) . . .$"));
 
     while (m_testApplication->canReadLine()) {
         if (m_futureInterface.isCanceled())
@@ -337,7 +338,10 @@ void GTestOutputReader::processOutput()
 
         if (!line.startsWith(QLatin1Char('['))) {
             m_description.append(line).append(QLatin1Char('\n'));
-            if (line.startsWith(QStringLiteral("Note:"))) {
+            if (iterations.exactMatch(line)) {
+                m_iteration = iterations.cap(1).toInt();
+                m_description.clear();
+            } else if (line.startsWith(QStringLiteral("Note:"))) {
                 auto testResult = new GTestResult();
                 testResult->setResult(Result::MessageInternal);
                 testResult->setDescription(line);
@@ -366,8 +370,14 @@ void GTestOutputReader::processOutput()
         } else if (newTestStarts.exactMatch(line)) {
             m_currentTestName = newTestStarts.cap(1);
             auto testResult = new GTestResult(m_currentTestName);
-            testResult->setResult(Result::MessageTestCaseStart);
-            testResult->setDescription(tr("Executing test case %1").arg(m_currentTestName));
+            if (m_iteration > 1) {
+                testResult->setResult(Result::MessageTestCaseRepetition);
+                testResult->setDescription(tr("Repeating test case %1 (iteration %2)")
+                                           .arg(m_currentTestName).arg(m_iteration));
+            } else {
+                testResult->setResult(Result::MessageTestCaseStart);
+                testResult->setDescription(tr("Executing test case %1").arg(m_currentTestName));
+            }
             m_futureInterface.reportResult(testResult);
         } else if (newTestSetStarts.exactMatch(line)) {
             m_currentTestSet = newTestSetStarts.cap(1);

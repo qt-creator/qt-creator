@@ -160,6 +160,7 @@ struct TestParseResult
     unsigned column = 0;
     bool parameterized = false;
     bool typed = false;
+    bool disabled = false;
     QMap<QString, TestCodeLocationAndType> functions;
     QMap<QString, TestCodeLocationList> dataTagsOrTestSets;
 };

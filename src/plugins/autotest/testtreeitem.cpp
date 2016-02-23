@@ -388,6 +388,8 @@ GoogleTestTreeItem *GoogleTestTreeItem::createTestItem(const TestParseResult &re
         item->setState(Parameterized);
     if (result.typed)
         item->setState(Typed);
+    if (result.disabled)
+        item->setState(Disabled);
     foreach (const TestCodeLocationAndType &location, result.dataTagsOrTestSets.first())
         item->appendChild(createTestSetItem(result, location));
     return item;
@@ -408,10 +410,14 @@ GoogleTestTreeItem *GoogleTestTreeItem::createTestSetItem(const TestParseResult 
 QVariant GoogleTestTreeItem::data(int column, int role) const
 {
     switch (role) {
-    case Qt::DisplayRole:
-        if (type() == TestCase)
-            return QVariant(name() + nameSuffix());
-        break;
+    case Qt::DisplayRole: {
+        if (type() == TestTreeItem::Root)
+            return TestTreeItem::data(column, role);
+
+        const QString &displayName = (m_state & GoogleTestTreeItem::Disabled)
+                ? name().mid(9) : name();
+        return QVariant(displayName + nameSuffix());
+    }
     case StateRole:
         return (int)m_state;
     default:

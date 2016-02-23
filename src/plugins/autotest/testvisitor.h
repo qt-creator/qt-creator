@@ -134,10 +134,14 @@ inline bool operator<(const GTestCaseSpec &spec1, const GTestCaseSpec &spec2)
     if (spec1.testCaseName != spec2.testCaseName)
         return spec1.testCaseName < spec2.testCaseName;
     if (spec1.parameterized == spec2.parameterized) {
-        if (spec1.typed == spec2.typed)
-            return false;
-        else
+        if (spec1.typed == spec2.typed) {
+            if (spec1.disabled == spec2.disabled)
+                return false;
+            else
+                return !spec1.disabled;
+        } else {
             return !spec1.typed;
+        }
     } else {
         return !spec1.parameterized;
     }

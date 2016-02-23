@@ -498,6 +498,7 @@ static void handleGTest(QFutureInterface<TestParseResult> futureInterface, const
         parseResult.testCaseName = testSpec.testCaseName;
         parseResult.parameterized = testSpec.parameterized;
         parseResult.typed = testSpec.typed;
+        parseResult.disabled = testSpec.disabled;
         parseResult.proFile = proFile;
         parseResult.dataTagsOrTestSets.insert(QString(), result.value(testSpec));
         futureInterface.reportResult(parseResult);

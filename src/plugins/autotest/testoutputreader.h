@@ -100,6 +100,7 @@ private:
     QString m_currentTestSet;
     QString m_description;
     QByteArray m_unprocessed;
+    int m_iteration = 0;
 };
 
 

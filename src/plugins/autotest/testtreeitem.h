@@ -212,6 +212,7 @@ struct GTestCaseSpec
     QString testCaseName;
     bool parameterized;
     bool typed;
+    bool disabled;
 };
 
 } // namespace Internal

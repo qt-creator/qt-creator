@@ -383,16 +383,17 @@ bool GTestVisitor::visit(CPlusPlus::FunctionDefinitionAST *ast)
         m_document->translationUnit()->getTokenStartPosition(token, &line, &column);
 
         TestCodeLocationAndType locationAndType;
-        locationAndType.m_name = disabled ? testName.mid(9) : testName;
+        locationAndType.m_name = testName;
         locationAndType.m_line = line;
         locationAndType.m_column = column - 1;
         locationAndType.m_type = TestTreeItem::TestFunctionOrSet;
-        locationAndType.m_state = (disabled || disabledCase) ? GoogleTestTreeItem::Disabled
-                                                             : GoogleTestTreeItem::Enabled;
+        locationAndType.m_state = disabled ? GoogleTestTreeItem::Disabled
+                                           : GoogleTestTreeItem::Enabled;
         GTestCaseSpec spec;
-        spec.testCaseName = disabledCase ? testCaseName.mid(9) : testCaseName;
+        spec.testCaseName = testCaseName;
         spec.parameterized = TestUtils::isGTestParameterized(prettyName);
         spec.typed = TestUtils::isGTestTyped(prettyName);
+        spec.disabled = disabledCase;
         m_gtestFunctions[spec].append(locationAndType);
     }
 
