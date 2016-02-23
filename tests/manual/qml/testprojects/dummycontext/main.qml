@@ -32,6 +32,9 @@ The dummy context that defines parent and root is dummydata/context/main.qml.
 Without the dummy context the root item does not have a defined size and the
 color of the inner rectangle is not defined.
 
+When Designer shows an error message about the missing parent,
+click "Ignore" to see the rendering.
+
 */
 
 Rectangle {
