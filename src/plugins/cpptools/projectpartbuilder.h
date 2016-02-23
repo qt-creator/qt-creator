@@ -66,7 +66,8 @@ public:
                                              const Utils::FileName &sysRoot);
 
 private:
-    void createProjectPart(const QStringList &theSources, const QString &partName,
+    void createProjectPart(const QVector<ProjectFile> &theSources,
+                           const QString &partName,
                            ProjectPart::LanguageVersion languageVersion,
                            ProjectPart::LanguageExtensions languageExtensions);
 
