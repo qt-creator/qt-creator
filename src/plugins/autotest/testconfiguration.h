@@ -51,7 +51,6 @@ public:
 
     void setTestCases(const QStringList &testCases);
     void setTestCaseCount(int count);
-    void setMainFilePath(const QString &mainFile);
     void setTargetFile(const QString &targetFile);
     void setTargetName(const QString &targetName);
     void setProFile(const QString &proFile);

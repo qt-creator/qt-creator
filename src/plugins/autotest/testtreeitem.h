@@ -57,24 +57,12 @@ public:
     enum Type
     {
         Root,
-        TestClass,
-        TestFunction,
+        TestCase,
+        TestFunctionOrSet,
         TestDataTag,
         TestDataFunction,
-        TestSpecialFunction,
-        GTestCase,
-        GTestCaseParameterized,
-        GTestName
+        TestSpecialFunction
     };
-
-    enum TestState
-    {
-        Enabled         = 0x00,
-        Disabled        = 0x01,
-    };
-
-    Q_FLAGS(TestState)
-    Q_DECLARE_FLAGS(TestStates, TestState)
 
     TestTreeItem(const QString &name = QString(), const QString &filePath = QString(),
                  Type type = Root);
@@ -84,8 +72,6 @@ public:
     bool modifyTestCaseContent(const QString &name, unsigned line, unsigned column);
     bool modifyTestFunctionContent(const TestCodeLocationAndType &location);
     bool modifyDataTagContent(const QString &fileName, const TestCodeLocationAndType &location);
-    bool modifyGTestSetContent(const QString &fileName, const QString &referencingFile,
-                               const TestCodeLocationAndType &location);
     bool modifyLineAndColumn(unsigned line, unsigned column);
 
     const QString name() const { return m_name; }
@@ -96,13 +82,11 @@ public:
     unsigned line() const { return m_line; }
     void setColumn(unsigned column) { m_column = column; }
     unsigned column() const { return m_column; }
-    QString referencingFile() const { return m_referencingFile; }
-    void setReferencingFile(const QString &referencingFile) { m_referencingFile = referencingFile; }
+    QString proFile() const { return m_proFile; }
+    void setProFile(const QString &proFile) { m_proFile = proFile; }
     void setChecked(const Qt::CheckState checked);
     Qt::CheckState checked() const;
     Type type() const { return m_type; }
-    void setState(TestStates states) { m_state = states; }
-    TestStates state() const { return m_state; }
     void markForRemoval(bool mark);
     void markForRemovalRecursively(bool mark);
     bool markedForRemoval() const { return m_markedForRemoval; }
@@ -110,22 +94,24 @@ public:
     TestTreeItem *childItem(int row) const;
 
     TestTreeItem *findChildByName(const QString &name);
-    TestTreeItem *findChildByFiles(const QString &filePath, const QString &referencingFile);
+    TestTreeItem *findChildByFile(const QString &filePath);
     TestTreeItem *findChildByNameAndFile(const QString &name, const QString &filePath);
-    TestTreeItem *findChildByNameTypeAndFile(const QString &name,
-                                             TestTreeItem::Type type, const QString &referencingFile);
 
     virtual AutoTestTreeItem *asAutoTestTreeItem() { return 0; }
     virtual QuickTestTreeItem *asQuickTestTreeItem() { return 0; }
     virtual GoogleTestTreeItem *asGoogleTestTreeItem() { return 0; }
+    virtual const AutoTestTreeItem *asAutoTestTreeItem() const { return 0; }
+    virtual const QuickTestTreeItem *asQuickTestTreeItem() const { return 0; }
+    virtual const GoogleTestTreeItem *asGoogleTestTreeItem() const { return 0; }
+
+protected:
+    bool modifyFilePath(const QString &filePath);
+    typedef std::function<bool(const TestTreeItem *)> CompareFunction;
+    TestTreeItem *findChildBy(CompareFunction compare);
 
 private:
     void revalidateCheckState();
-    bool modifyFilePath(const QString &filePath);
     bool modifyName(const QString &name);
-
-    typedef std::function<bool(const TestTreeItem *)> CompareFunction;
-    TestTreeItem *findChildBy(CompareFunction compare);
 
     QString m_name;
     QString m_filePath;
@@ -133,23 +119,8 @@ private:
     Type m_type;
     unsigned m_line;
     unsigned m_column;
-    QString m_referencingFile;
-    TestStates m_state;
+    QString m_proFile;
     bool m_markedForRemoval;
-};
-
-struct TestCodeLocationAndType {
-    QString m_name;     // tag name for m_type == TEST_DATATAG, file name for other values
-    unsigned m_line;
-    unsigned m_column;
-    TestTreeItem::Type m_type;
-    TestTreeItem::TestStates m_state;
-};
-
-struct GTestCaseSpec
-{
-    QString testCaseName;
-    bool parameterized;
 };
 
 typedef QVector<TestCodeLocationAndType> TestCodeLocationList;
@@ -161,6 +132,7 @@ public:
                      Type type = Root) : TestTreeItem(name, filePath, type) {}
 
     virtual AutoTestTreeItem *asAutoTestTreeItem() override { return this; }
+    virtual const AutoTestTreeItem *asAutoTestTreeItem() const override { return this; }
 
     static AutoTestTreeItem *createTestItem(const TestParseResult &result);
     static AutoTestTreeItem *createFunctionItem(const QString &functionName,
@@ -177,6 +149,7 @@ public:
                       Type type = Root) : TestTreeItem(name, filePath, type) {}
 
     virtual QuickTestTreeItem *asQuickTestTreeItem() override { return this; }
+    virtual const QuickTestTreeItem *asQuickTestTreeItem() const override { return this; }
 
     static QuickTestTreeItem *createTestItem(const TestParseResult &result);
     static QuickTestTreeItem *createFunctionItem(const QString &functionName,
@@ -189,15 +162,52 @@ public:
 class GoogleTestTreeItem : public TestTreeItem
 {
 public:
+    enum TestState
+    {
+        Enabled         = 0x00,
+        Disabled        = 0x01,
+        Parameterized   = 0x02,
+    };
+
+    Q_FLAGS(TestState)
+    Q_DECLARE_FLAGS(TestStates, TestState)
+
     GoogleTestTreeItem(const QString &name = QString(), const QString &filePath = QString(),
-                       Type type = Root) : TestTreeItem(name, filePath, type) {}
+                       Type type = Root) : TestTreeItem(name, filePath, type), m_state(Enabled) {}
 
     virtual GoogleTestTreeItem *asGoogleTestTreeItem() override { return this; }
+    virtual const GoogleTestTreeItem *asGoogleTestTreeItem() const override { return this; }
 
     static GoogleTestTreeItem *createTestItem(const TestParseResult &result);
     static GoogleTestTreeItem *createTestSetItem(const TestParseResult &result,
                                                  const TestCodeLocationAndType &location);
 
+    QVariant data(int column, int role) const override;
+
+    void setStates(TestStates states) { m_state = states; }
+    void setState(TestState state) { m_state |= state; }
+    TestStates state() const { return m_state; }
+    bool modifyTestSetContent(const QString &fileName, const TestCodeLocationAndType &location);
+    TestTreeItem *findChildByNameStateAndFile(const QString &name,
+                                              GoogleTestTreeItem::TestStates state,
+                                              const QString &proFile);
+
+private:
+    GoogleTestTreeItem::TestStates m_state;
+};
+
+struct TestCodeLocationAndType {
+    QString m_name;     // tag name for m_type == TEST_DATATAG, file name for other values
+    unsigned m_line;
+    unsigned m_column;
+    TestTreeItem::Type m_type;
+    GoogleTestTreeItem::TestStates m_state;
+};
+
+struct GTestCaseSpec
+{
+    QString testCaseName;
+    bool parameterized;
 };
 
 } // namespace Internal

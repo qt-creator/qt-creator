@@ -63,25 +63,7 @@ TestConfiguration::~TestConfiguration()
     m_testCases.clear();
 }
 
-void basicProjectInformation(Project *project, const QString &mainFilePath, QString *proFile,
-                             QString *displayName, Project **targetProject)
-{
-    CppTools::CppModelManager *cppMM = CppTools::CppModelManager::instance();
-    QList<CppTools::ProjectPart::Ptr> projParts = cppMM->projectInfo(project).projectParts();
-
-    foreach (const CppTools::ProjectPart::Ptr &part, projParts) {
-        foreach (const CppTools::ProjectFile currentFile, part->files) {
-            if (currentFile.path == mainFilePath) {
-                *proFile = part->projectFile;
-                *displayName = part->displayName;
-                *targetProject = part->project;
-                return;
-            }
-        }
-    }
-}
-
-void basicProjectInformation(Project *project, const QString &proFile, QString *displayName,
+void completeBasicProjectInformation(Project *project, const QString &proFile, QString *displayName,
                              Project **targetProject)
 {
     CppTools::CppModelManager *cppMM = CppTools::CppModelManager::instance();
@@ -105,7 +87,7 @@ static bool isLocal(RunConfiguration *runConfiguration)
 
 void TestConfiguration::completeTestInformation()
 {
-    QTC_ASSERT(!m_mainFilePath.isEmpty() || !m_proFile.isEmpty(), return);
+    QTC_ASSERT(!m_proFile.isEmpty(), return);
 
     Project *project = SessionManager::startupProject();
     if (!project)
@@ -114,7 +96,6 @@ void TestConfiguration::completeTestInformation()
     QString targetFile;
     QString targetName;
     QString workDir;
-    QString proFile = m_proFile;
     QString displayName;
     QString buildDir;
     Project *targetProject = 0;
@@ -123,10 +104,7 @@ void TestConfiguration::completeTestInformation()
     bool guessedRunConfiguration = false;
     setProject(0);
 
-    if (m_proFile.isEmpty())
-        basicProjectInformation(project, m_mainFilePath, &proFile, &displayName, &targetProject);
-    else
-        basicProjectInformation(project, proFile, &displayName, &targetProject);
+    completeBasicProjectInformation(project, m_proFile, &displayName, &targetProject);
 
     Target *target = project->activeTarget();
     if (!target)
@@ -135,7 +113,7 @@ void TestConfiguration::completeTestInformation()
     BuildTargetInfoList appTargets = target->applicationTargets();
     foreach (const BuildTargetInfo &bti, appTargets.list) {
         // some project manager store line/column information as well inside ProjectPart
-        if (bti.isValid() && proFile.startsWith(bti.projectFilePath.toString())) {
+        if (bti.isValid() && m_proFile.startsWith(bti.projectFilePath.toString())) {
             targetFile = Utils::HostOsInfo::withExecutableSuffix(bti.targetFilePath.toString());
             targetName = bti.targetName;
             break;
@@ -146,8 +124,8 @@ void TestConfiguration::completeTestInformation()
         if (auto buildConfig = target->activeBuildConfiguration()) {
             const QString buildBase = buildConfig->buildDirectory().toString();
             const QString projBase = targetProject->projectDirectory().toString();
-            if (proFile.startsWith(projBase))
-                buildDir = QFileInfo(buildBase + proFile.mid(projBase.length())).absolutePath();
+            if (m_proFile.startsWith(projBase))
+                buildDir = QFileInfo(buildBase + m_proFile.mid(projBase.length())).absolutePath();
         }
     }
 
@@ -180,7 +158,6 @@ void TestConfiguration::completeTestInformation()
         }
     }
 
-    setProFile(proFile);
     setDisplayName(displayName);
 
     if (hasDesktopTarget) {
@@ -213,11 +190,6 @@ void TestConfiguration::setTestCases(const QStringList &testCases)
 void TestConfiguration::setTestCaseCount(int count)
 {
     m_testCaseCount = count;
-}
-
-void TestConfiguration::setMainFilePath(const QString &mainFile)
-{
-    m_mainFilePath = mainFile;
 }
 
 void TestConfiguration::setTargetFile(const QString &targetFile)

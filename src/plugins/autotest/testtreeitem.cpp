@@ -42,20 +42,9 @@ TestTreeItem::TestTreeItem(const QString &name, const QString &filePath, Type ty
       m_filePath(filePath),
       m_type(type),
       m_line(0),
-      m_state(Enabled),
       m_markedForRemoval(false)
 {
-    switch (m_type) {
-    case TestClass:
-    case TestFunction:
-    case GTestCase:
-    case GTestCaseParameterized:
-    case GTestName:
-        m_checked = Qt::Checked;
-        break;
-    default:
-        m_checked = Qt::Unchecked;
-    }
+    m_checked = (m_type == TestCase || m_type == TestFunctionOrSet) ? Qt::Checked : Qt::Unchecked;
 }
 
 static QIcon testTreeIcon(TestTreeItem::Type type)
@@ -66,8 +55,6 @@ static QIcon testTreeIcon(TestTreeItem::Type type)
         QIcon(QLatin1String(":/images/func.png")),
         QIcon(QLatin1String(":/images/data.png"))
     };
-    if (type == TestTreeItem::GTestCase || type == TestTreeItem::GTestCaseParameterized)
-        return icons[1];
 
     if (int(type) >= int(sizeof icons / sizeof *icons))
         return icons[2];
@@ -82,12 +69,10 @@ QVariant TestTreeItem::data(int /*column*/, int role) const
             return QString(m_name + QObject::tr(" (none)"));
         else if (m_name.isEmpty())
             return QObject::tr(Constants::UNNAMED_QUICKTESTS);
-        else if (m_type == GTestCaseParameterized)
-            return QString(m_name + QObject::tr(" [parameterized]"));
         else
             return m_name;
     case Qt::ToolTipRole:
-        if (m_type == TestClass && m_name.isEmpty()) {
+        if (m_type == TestCase && m_name.isEmpty()) {
             return QObject::tr("<p>Give all test cases a name to ensure correct behavior "
                                "when running test cases and to be able to select them.</p>");
         }
@@ -101,12 +86,9 @@ QVariant TestTreeItem::data(int /*column*/, int role) const
         case TestSpecialFunction:
         case TestDataTag:
             return QVariant();
-        case TestClass:
-        case GTestCase:
-        case GTestCaseParameterized:
+        case TestCase:
             return m_name.isEmpty() ? QVariant() : checked();
-        case TestFunction:
-        case GTestName:
+        case TestFunctionOrSet:
             if (parentItem() && parentItem()->name().isEmpty())
                 return QVariant();
             return checked();
@@ -123,17 +105,15 @@ QVariant TestTreeItem::data(int /*column*/, int role) const
         case TestDataFunction:
         case TestSpecialFunction:
             return true;
-        case TestClass:
+        case TestCase:
             return m_name.isEmpty();
-        case TestFunction:
+        case TestFunctionOrSet:
             return parentItem() ? parentItem()->name().isEmpty() : false;
         default:
             return false;
         }
     case TypeRole:
         return m_type;
-    case StateRole:
-        return (int)m_state;
     }
     return QVariant();
 }
@@ -171,22 +151,6 @@ bool TestTreeItem::modifyDataTagContent(const QString &fileName,
     return hasBeenModified;
 }
 
-bool TestTreeItem::modifyGTestSetContent(const QString &fileName, const QString &referencingFile,
-                                         const TestCodeLocationAndType &location)
-{
-    bool hasBeenModified = modifyFilePath(fileName);
-    if (m_referencingFile != referencingFile) {
-        m_referencingFile = referencingFile;
-        hasBeenModified = true;
-    }
-    hasBeenModified |= modifyLineAndColumn(location.m_line, location.m_column);
-    if (m_state != location.m_state) {
-        m_state = location.m_state;
-        hasBeenModified = true;
-    }
-    return hasBeenModified;
-}
-
 bool TestTreeItem::modifyLineAndColumn(unsigned line, unsigned column)
 {
     bool hasBeenModified = false;
@@ -204,15 +168,12 @@ bool TestTreeItem::modifyLineAndColumn(unsigned line, unsigned column)
 void TestTreeItem::setChecked(const Qt::CheckState checkState)
 {
     switch (m_type) {
-    case TestFunction:
-    case GTestName: {
+    case TestFunctionOrSet: {
         m_checked = (checkState == Qt::Unchecked ? Qt::Unchecked : Qt::Checked);
         parentItem()->revalidateCheckState();
         break;
     }
-    case TestClass:
-    case GTestCase:
-    case GTestCaseParameterized: {
+    case TestCase: {
         Qt::CheckState usedState = (checkState == Qt::Unchecked ? Qt::Unchecked : Qt::Checked);
         for (int row = 0, count = childCount(); row < count; ++row)
             childItem(row)->setChecked(usedState);
@@ -226,11 +187,8 @@ void TestTreeItem::setChecked(const Qt::CheckState checkState)
 Qt::CheckState TestTreeItem::checked() const
 {
     switch (m_type) {
-    case TestClass:
-    case TestFunction:
-    case GTestCase:
-    case GTestCaseParameterized:
-    case GTestName:
+    case TestCase:
+    case TestFunctionOrSet:
         return m_checked;
     case TestDataFunction:
     case TestSpecialFunction:
@@ -271,11 +229,10 @@ TestTreeItem *TestTreeItem::findChildByName(const QString &name)
     });
 }
 
-TestTreeItem *TestTreeItem::findChildByFiles(const QString &filePath,
-                                             const QString &referencingFile)
+TestTreeItem *TestTreeItem::findChildByFile(const QString &filePath)
 {
-    return findChildBy([filePath, referencingFile](const TestTreeItem *other) -> bool {
-        return other->filePath() == filePath && other->referencingFile() == referencingFile;
+    return findChildBy([filePath](const TestTreeItem *other) -> bool {
+        return other->filePath() == filePath;
     });
 }
 
@@ -283,16 +240,6 @@ TestTreeItem *TestTreeItem::findChildByNameAndFile(const QString &name, const QS
 {
     return findChildBy([name, filePath](const TestTreeItem *other) -> bool {
         return other->filePath() == filePath && other->name() == name;
-    });
-}
-
-TestTreeItem *TestTreeItem::findChildByNameTypeAndFile(const QString &name, TestTreeItem::Type type,
-                                                       const QString &referencingFile)
-{
-    return findChildBy([name, type, referencingFile](const TestTreeItem *other) -> bool {
-        return other->referencingFile() == referencingFile
-                && other->name() == name
-                && other->type() == type;
     });
 }
 
@@ -352,9 +299,8 @@ TestTreeItem *TestTreeItem::findChildBy(CompareFunction compare)
 
 AutoTestTreeItem *AutoTestTreeItem::createTestItem(const TestParseResult &result)
 {
-    AutoTestTreeItem *item = new AutoTestTreeItem(result.testCaseName, result.fileName,
-                                                  TestTreeItem::TestClass);
-    item->setReferencingFile(result.referencingFile);
+    AutoTestTreeItem *item = new AutoTestTreeItem(result.testCaseName, result.fileName, TestCase);
+    item->setProFile(result.proFile);
     item->setLine(result.line);
     item->setColumn(result.column);
 
@@ -392,9 +338,8 @@ AutoTestTreeItem *AutoTestTreeItem::createDataTagItem(const QString &fileName,
 
 QuickTestTreeItem *QuickTestTreeItem::createTestItem(const TestParseResult &result)
 {
-    QuickTestTreeItem *item = new QuickTestTreeItem(result.testCaseName, result.fileName,
-                                                    TestTreeItem::TestClass);
-    item->setReferencingFile(result.referencingFile);
+    QuickTestTreeItem *item = new QuickTestTreeItem(result.testCaseName, result.fileName, TestCase);
+    item->setProFile(result.proFile);
     item->setLine(result.line);
     item->setColumn(result.column);
     foreach (const QString &functionName, result.functions.keys())
@@ -413,7 +358,7 @@ QuickTestTreeItem *QuickTestTreeItem::createFunctionItem(const QString &function
 
 QuickTestTreeItem *QuickTestTreeItem::createUnnamedQuickTestItem(const TestParseResult &result)
 {
-    QuickTestTreeItem *item = new QuickTestTreeItem(QString(), QString(), TestTreeItem::TestClass);
+    QuickTestTreeItem *item = new QuickTestTreeItem(QString(), QString(), TestCase);
     foreach (const QString &functionName, result.functions.keys())
         item->appendChild(createUnnamedQuickFunctionItem(functionName, result));
     return item;
@@ -426,15 +371,16 @@ QuickTestTreeItem *QuickTestTreeItem::createUnnamedQuickFunctionItem(const QStri
     QuickTestTreeItem *item = new QuickTestTreeItem(functionName, location.m_name, location.m_type);
     item->setLine(location.m_line);
     item->setColumn(location.m_column);
-    item->setReferencingFile(result.referencingFile);
+    item->setProFile(result.proFile);
     return item;
 }
 
 GoogleTestTreeItem *GoogleTestTreeItem::createTestItem(const TestParseResult &result)
 {
-    GoogleTestTreeItem *item = new GoogleTestTreeItem(result.testCaseName, QString(),
-            result.parameterized ? TestTreeItem::GTestCaseParameterized : TestTreeItem::GTestCase);
-    item->setReferencingFile(result.referencingFile);
+    GoogleTestTreeItem *item = new GoogleTestTreeItem(result.testCaseName, QString(), TestCase);
+    item->setProFile(result.proFile);
+    if (result.parameterized)
+        item->setState(Parameterized);
     foreach (const TestCodeLocationAndType &location, result.dataTagsOrTestSets.first())
         item->appendChild(createTestSetItem(result, location));
     return item;
@@ -445,12 +391,55 @@ GoogleTestTreeItem *GoogleTestTreeItem::createTestSetItem(const TestParseResult 
 {
     GoogleTestTreeItem *item = new GoogleTestTreeItem(location.m_name, result.fileName,
                                                       location.m_type);
-    item->setState(location.m_state);
+    item->setStates(location.m_state);
     item->setLine(location.m_line);
     item->setColumn(location.m_column);
-    item->setReferencingFile(result.referencingFile);
+    item->setProFile(result.proFile);
     return item;
 }
+
+QVariant GoogleTestTreeItem::data(int column, int role) const
+{
+    switch (role) {
+    case Qt::DisplayRole:
+        if (type() == TestCase) {
+            if (m_state & Parameterized)
+                return QString(name() + QObject::tr(" [parameterized]"));
+            return name();
+        }
+        break;
+    case StateRole:
+        return (int)m_state;
+    default:
+        break;
+    }
+    return TestTreeItem::data(column, role);
+}
+
+bool GoogleTestTreeItem::modifyTestSetContent(const QString &fileName,
+                                              const TestCodeLocationAndType &location)
+{
+    bool hasBeenModified = modifyFilePath(fileName);
+    hasBeenModified |= modifyLineAndColumn(location.m_line, location.m_column);
+    if (m_state != location.m_state) {
+        m_state = location.m_state;
+        hasBeenModified = true;
+    }
+    return hasBeenModified;
+}
+
+TestTreeItem *GoogleTestTreeItem::findChildByNameStateAndFile(const QString &name,
+                                                              GoogleTestTreeItem::TestStates state,
+                                                              const QString &referencingFile)
+{
+    return findChildBy([name, state, referencingFile](const TestTreeItem *other) -> bool {
+        GoogleTestTreeItem *gtestItem = const_cast<TestTreeItem *>(other)->asGoogleTestTreeItem();
+        return other->proFile() == referencingFile
+                && other->name() == name
+                && gtestItem->state() == state;
+    });
+}
+
 
 } // namespace Internal
 } // namespace Autotest

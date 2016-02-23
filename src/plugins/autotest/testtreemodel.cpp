@@ -44,43 +44,11 @@
 namespace Autotest {
 namespace Internal {
 
-class ReferencingFilesFinder : public Utils::TreeItemVisitor
-{
-public:
-    ReferencingFilesFinder() {}
-
-    bool preVisit(Utils::TreeItem *item) override
-    {
-        // 0 = invisible root, 1 = main categories, 2 = test cases, 3 = test functions
-        return item->level() < 4;
-    }
-
-    void visit(Utils::TreeItem *item) override
-    {
-        // skip invisible root item
-        if (!item->parent())
-            return;
-
-        if (auto testItem = static_cast<TestTreeItem *>(item)) {
-            if (!testItem->filePath().isEmpty() && !testItem->referencingFile().isEmpty())
-                m_referencingFiles.insert(testItem->filePath(), testItem->referencingFile());
-        }
-    }
-
-    QMap<QString, QString> referencingFiles() const { return m_referencingFiles; }
-
-private:
-    QMap<QString, QString> m_referencingFiles;
-
-};
-
-/***********************************************************************************************/
-
 TestTreeModel::TestTreeModel(QObject *parent) :
     TreeModel(parent),
-    m_autoTestRootItem(new TestTreeItem(tr("Auto Tests"), QString(), TestTreeItem::Root)),
-    m_quickTestRootItem(new TestTreeItem(tr("Qt Quick Tests"), QString(), TestTreeItem::Root)),
-    m_googleTestRootItem(new TestTreeItem(tr("Google Tests"), QString(), TestTreeItem::Root)),
+    m_autoTestRootItem(new AutoTestTreeItem(tr("Auto Tests"), QString(), TestTreeItem::Root)),
+    m_quickTestRootItem(new QuickTestTreeItem(tr("Qt Quick Tests"), QString(), TestTreeItem::Root)),
+    m_googleTestRootItem(new GoogleTestTreeItem(tr("Google Tests"), QString(), TestTreeItem::Root)),
     m_parser(new TestCodeParser(this)),
     m_connectionsInitialized(false)
 {
@@ -174,14 +142,11 @@ bool TestTreeModel::setData(const QModelIndex &index, const QVariant &value, int
         emit dataChanged(index, index);
         if (role == Qt::CheckStateRole) {
             switch (item->type()) {
-            case TestTreeItem::TestClass:
-            case TestTreeItem::GTestCase:
-            case TestTreeItem::GTestCaseParameterized:
+            case TestTreeItem::TestCase:
                 if (item->childCount() > 0)
                     emit dataChanged(index.child(0, 0), index.child(item->childCount() - 1, 0));
                 break;
-            case TestTreeItem::TestFunction:
-            case TestTreeItem::GTestName:
+            case TestTreeItem::TestFunctionOrSet:
                 emit dataChanged(index.parent(), index.parent());
                 break;
             default: // avoid warning regarding unhandled enum member
@@ -200,14 +165,11 @@ Qt::ItemFlags TestTreeModel::flags(const QModelIndex &index) const
 
     TestTreeItem *item = static_cast<TestTreeItem *>(itemForIndex(index));
     switch(item->type()) {
-    case TestTreeItem::TestClass:
-    case TestTreeItem::GTestCase:
-    case TestTreeItem::GTestCaseParameterized:
+    case TestTreeItem::TestCase:
         if (item->name().isEmpty())
             return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
         return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsTristate | Qt::ItemIsUserCheckable;
-    case TestTreeItem::TestFunction:
-    case TestTreeItem::GTestName:
+    case TestTreeItem::TestFunctionOrSet:
         if (item->parentItem()->name().isEmpty())
             return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
         return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsUserCheckable;
@@ -241,55 +203,51 @@ QList<TestConfiguration *> TestTreeModel::getAllTestCases() const
 
         TestConfiguration *tc = new TestConfiguration(child->name(), QStringList(),
                                                       child->childCount());
-        tc->setMainFilePath(child->filePath());
+        tc->setProFile(child->proFile());
         tc->setProject(project);
         result << tc;
     }
 
     // get all Quick Tests
-    QMap<QString, int> foundMains;
+    QMap<QString, int> foundProFiles;
     for (int row = 0, count = m_quickTestRootItem->childCount(); row < count; ++row) {
         const TestTreeItem *child = m_quickTestRootItem->childItem(row);
         // unnamed Quick Tests must be handled separately
         if (child->name().isEmpty()) {
             for (int childRow = 0, ccount = child->childCount(); childRow < ccount; ++ childRow) {
                 const TestTreeItem *grandChild = child->childItem(childRow);
-                const QString mainFile = grandChild->referencingFile();
-                foundMains.insert(mainFile, foundMains.contains(mainFile)
-                                            ? foundMains.value(mainFile) + 1 : 1);
+                const QString &proFile = grandChild->proFile();
+                foundProFiles.insert(proFile, foundProFiles[proFile] + 1);
             }
             continue;
         }
         // named Quick Test
-        const QString mainFile = child->referencingFile();
-        foundMains.insert(mainFile, foundMains.contains(mainFile)
-                          ? foundMains.value(mainFile) + child->childCount()
-                          : child->childCount());
+        const QString &proFile = child->proFile();
+        foundProFiles.insert(proFile, foundProFiles[proFile] + child->childCount());
     }
-    // create TestConfiguration for each main
-    foreach (const QString &mainFile, foundMains.keys()) {
+    // create TestConfiguration for each project file
+    foreach (const QString &proFile, foundProFiles.keys()) {
         TestConfiguration *tc = new TestConfiguration(QString(), QStringList(),
-                                                      foundMains.value(mainFile));
-        tc->setMainFilePath(mainFile);
+                                                      foundProFiles.value(proFile));
+        tc->setProFile(proFile);
         tc->setProject(project);
         result << tc;
     }
 
-    foundMains.clear();
+    foundProFiles.clear();
 
     // get all Google Tests
     for (int row = 0, count = m_googleTestRootItem->childCount(); row < count; ++row) {
         const TestTreeItem *child = m_googleTestRootItem->childItem(row);
         for (int childRow = 0, childCount = child->childCount(); childRow < childCount; ++childRow) {
-            const QString &proFilePath = child->childItem(childRow)->referencingFile();
-            foundMains.insert(proFilePath, foundMains.contains(proFilePath)
-                              ? foundMains.value(proFilePath) + 1 : 1);
+            const QString &proFilePath = child->childItem(childRow)->proFile();
+            foundProFiles.insert(proFilePath, foundProFiles[proFilePath] + 1);
         }
     }
 
-    foreach (const QString &proFile, foundMains.keys()) {
+    foreach (const QString &proFile, foundProFiles.keys()) {
         TestConfiguration *tc = new TestConfiguration(QString(), QStringList(),
-                                                      foundMains.value(proFile));
+                                                      foundProFiles.value(proFile));
         tc->setProFile(proFile);
         tc->setProject(project);
         tc->setTestType(TestTypeGTest);
@@ -316,7 +274,7 @@ QList<TestConfiguration *> TestTreeModel::getSelectedTests() const
             continue;
         case Qt::Checked:
             testConfiguration = new TestConfiguration(child->name(), QStringList(), child->childCount());
-            testConfiguration->setMainFilePath(child->filePath());
+            testConfiguration->setProFile(child->proFile());
             testConfiguration->setProject(project);
             result << testConfiguration;
             continue;
@@ -332,7 +290,7 @@ QList<TestConfiguration *> TestTreeModel::getSelectedTests() const
             }
 
             testConfiguration = new TestConfiguration(childName, testCases);
-            testConfiguration->setMainFilePath(child->filePath());
+            testConfiguration->setProFile(child->proFile());
             testConfiguration->setProject(project);
             result << testConfiguration;
         }
@@ -342,24 +300,24 @@ QList<TestConfiguration *> TestTreeModel::getSelectedTests() const
     // on and on and on...
     // TODO: do this later on for Auto Tests as well to support strange setups? or redo the model
 
-    QMap<QString, TestConfiguration *> foundMains;
+    QMap<QString, TestConfiguration *> foundProFiles;
 
     if (TestTreeItem *unnamed = unnamedQuickTests()) {
         for (int childRow = 0, ccount = unnamed->childCount(); childRow < ccount; ++ childRow) {
             const TestTreeItem *grandChild = unnamed->childItem(childRow);
-            const QString mainFile = grandChild->referencingFile();
-            if (foundMains.contains(mainFile)) {
+            const QString &proFile = grandChild->proFile();
+            if (foundProFiles.contains(proFile)) {
                 QTC_ASSERT(testConfiguration,
                            qWarning() << "Illegal state (unnamed Quick Test listed as named)";
                            return QList<TestConfiguration *>());
-                foundMains[mainFile]->setTestCaseCount(testConfiguration->testCaseCount() + 1);
+                foundProFiles[proFile]->setTestCaseCount(testConfiguration->testCaseCount() + 1);
             } else {
                 testConfiguration = new TestConfiguration(QString(), QStringList());
                 testConfiguration->setTestCaseCount(1);
                 testConfiguration->setUnnamedOnly(true);
-                testConfiguration->setMainFilePath(mainFile);
+                testConfiguration->setProFile(proFile);
                 testConfiguration->setProject(project);
-                foundMains.insert(mainFile, testConfiguration);
+                foundProFiles.insert(proFile, testConfiguration);
             }
         }
     }
@@ -381,13 +339,13 @@ QList<TestConfiguration *> TestTreeModel::getSelectedTests() const
             int grandChildCount = child->childCount();
             for (int grandChildRow = 0; grandChildRow < grandChildCount; ++grandChildRow) {
                 const TestTreeItem *grandChild = child->childItem(grandChildRow);
-                if (grandChild->type() != TestTreeItem::TestFunction)
+                if (grandChild->type() != TestTreeItem::TestFunctionOrSet)
                     continue;
                 testFunctions << child->name() + QLatin1String("::") + grandChild->name();
             }
             TestConfiguration *tc;
-            if (foundMains.contains(child->referencingFile())) {
-                tc = foundMains[child->referencingFile()];
+            if (foundProFiles.contains(child->proFile())) {
+                tc = foundProFiles[child->proFile()];
                 QStringList oldFunctions(tc->testCases());
                 // if oldFunctions.size() is 0 this test configuration is used for at least one
                 // unnamed test case
@@ -400,15 +358,15 @@ QList<TestConfiguration *> TestTreeModel::getSelectedTests() const
                 }
             } else {
                 tc = new TestConfiguration(QString(), testFunctions);
-                tc->setMainFilePath(child->referencingFile());
+                tc->setProFile(child->proFile());
                 tc->setProject(project);
-                foundMains.insert(child->referencingFile(), tc);
+                foundProFiles.insert(child->proFile(), tc);
             }
             break;
         }
     }
 
-    foreach (TestConfiguration *config, foundMains.values()) {
+    foreach (TestConfiguration *config, foundProFiles.values()) {
         if (!config->unnamedOnly())
             result << config;
         else
@@ -419,18 +377,18 @@ QList<TestConfiguration *> TestTreeModel::getSelectedTests() const
     QMap<QString, QStringList> proFilesWithEnabledTestSets;
 
     for (int row = 0, count = m_googleTestRootItem->childCount(); row < count; ++row) {
-        const TestTreeItem *child = m_googleTestRootItem->childItem(row);
+        const auto child = m_googleTestRootItem->childItem(row)->asGoogleTestTreeItem();
         if (child->checked() == Qt::Unchecked) // add this test name to disabled list ?
             continue;
 
         int grandChildCount = child->childCount();
         for (int grandChildRow = 0; grandChildRow < grandChildCount; ++grandChildRow) {
             const TestTreeItem *grandChild = child->childItem(grandChildRow);
-            const QString &proFile = grandChild->referencingFile();
+            const QString &proFile = grandChild->proFile();
             QStringList enabled = proFilesWithEnabledTestSets.value(proFile);
             if (grandChild->checked() == Qt::Checked) {
                 QString testSpecifier = child->name() + QLatin1Char('.') + grandChild->name();
-                if (child->type() == TestTreeItem::GTestCaseParameterized) {
+                if (child->state() & GoogleTestTreeItem::Parameterized) {
                     testSpecifier.prepend(QLatin1String("*/"));
                     testSpecifier.append(QLatin1String("/*"));
                 }
@@ -460,8 +418,8 @@ TestConfiguration *TestTreeModel::getTestConfiguration(const TestTreeItem *item)
 
     TestConfiguration *config = 0;
     switch (item->type()) {
-    case TestTreeItem::TestClass: {
-        if (item->parent() == m_quickTestRootItem) {
+    case TestTreeItem::TestCase: {
+        if (item->asQuickTestTreeItem()) {
             // Quick Test TestCase
             QStringList testFunctions;
             for (int row = 0, count = item->childCount(); row < count; ++row) {
@@ -469,29 +427,52 @@ TestConfiguration *TestTreeModel::getTestConfiguration(const TestTreeItem *item)
                                      + item->childItem(row)->name();
             }
             config = new TestConfiguration(QString(), testFunctions);
-            config->setMainFilePath(item->referencingFile());
+            config->setProFile(item->proFile());
             config->setProject(project);
-        } else {
+        } else if (item->asAutoTestTreeItem()) {
             // normal auto test
             config = new TestConfiguration(item->name(), QStringList(), item->childCount());
-            config->setMainFilePath(item->filePath());
+            config->setProFile(item->proFile());
             config->setProject(project);
+        } else if (auto gtestItem = item->asGoogleTestTreeItem()) {
+            QString testSpecifier = item->name() + QLatin1String(".*");
+            if (gtestItem->state() & GoogleTestTreeItem::Parameterized)
+                testSpecifier.prepend(QLatin1String("*/"));
+
+            if (int childCount = item->childCount()) {
+                config = new TestConfiguration(QString(), QStringList(testSpecifier));
+                config->setTestCaseCount(childCount);
+                config->setProFile(item->proFile());
+                config->setProject(project);
+                config->setTestType(TestTypeGTest);
+            }
         }
         break;
     }
-    case TestTreeItem::TestFunction: {
-        const TestTreeItem *parent = item->parentItem();
-        if (parent->parent() == m_quickTestRootItem) {
+    case TestTreeItem::TestFunctionOrSet: {
+        TestTreeItem *parent = item->parentItem();
+        if (parent->asQuickTestTreeItem()) {
             // it's a Quick Test function of a named TestCase
             QStringList testFunction(parent->name() + QLatin1String("::") + item->name());
             config = new TestConfiguration(QString(), testFunction);
-            config->setMainFilePath(parent->referencingFile());
+            config->setProFile(parent->proFile());
             config->setProject(project);
-        } else {
+        } else if (parent->asAutoTestTreeItem()){
             // normal auto test
             config = new TestConfiguration(parent->name(), QStringList() << item->name());
-            config->setMainFilePath(parent->filePath());
+            config->setProFile(parent->proFile());
             config->setProject(project);
+        } else if (auto gtestParent = parent->asGoogleTestTreeItem()) {
+            QString testSpecifier = parent->name() + QLatin1Char('.') + item->name();
+
+            if (gtestParent->state() & GoogleTestTreeItem::Parameterized) {
+                testSpecifier.prepend(QLatin1String("*/"));
+                testSpecifier.append(QLatin1String("/*"));
+            }
+            config = new TestConfiguration(QString(), QStringList(testSpecifier));
+            config->setProFile(item->proFile());
+            config->setProject(project);
+            config->setTestType(TestTypeGTest);
         }
         break;
     }
@@ -502,37 +483,8 @@ TestConfiguration *TestTreeModel::getTestConfiguration(const TestTreeItem *item)
             return 0;
         const QString functionWithTag = function->name() + QLatin1Char(':') + item->name();
         config = new TestConfiguration(parent->name(), QStringList() << functionWithTag);
-        config->setMainFilePath(parent->filePath());
+        config->setProFile(parent->proFile());
         config->setProject(project);
-        break;
-    }
-    case TestTreeItem::GTestCase:
-    case TestTreeItem::GTestCaseParameterized: {
-        QString testSpecifier = item->name() + QLatin1String(".*");
-        if (item->type() == TestTreeItem::GTestCaseParameterized)
-            testSpecifier.prepend(QLatin1String("*/"));
-
-        if (int childCount = item->childCount()) {
-            config = new TestConfiguration(QString(), QStringList(testSpecifier));
-            config->setTestCaseCount(childCount);
-            config->setProFile(item->childItem(0)->referencingFile());
-            config->setProject(project);
-            config->setTestType(TestTypeGTest);
-        }
-        break;
-    }
-    case TestTreeItem::GTestName: {
-        const TestTreeItem *parent = item->parentItem();
-        QString testSpecifier = parent->name() + QLatin1Char('.') + item->name();
-
-        if (parent->type() == TestTreeItem::GTestCaseParameterized) {
-            testSpecifier.prepend(QLatin1String("*/"));
-            testSpecifier.append(QLatin1String("/*"));
-        }
-        config = new TestConfiguration(QString(), QStringList(testSpecifier));
-        config->setProFile(item->referencingFile());
-        config->setProject(project);
-        config->setTestType(TestTypeGTest);
         break;
     }
     // not supported items
@@ -589,19 +541,16 @@ void TestTreeModel::markForRemoval(const QString &filePath)
         TestTreeItem *root = rootItemForType(type);
         for (int childRow = root->childCount() - 1; childRow >= 0; --childRow) {
             TestTreeItem *child = root->childItem(childRow);
-            if (child->markedForRemoval())
-                continue;
             // Qt + named Quick Tests
-            if (child->filePath() == filePath || child->referencingFile() == filePath) {
-                child->markForRemovalRecursively(true);
+            if (child->filePath() == filePath) {
+                child->markForRemoval(true);
             } else {
                 // unnamed Quick Tests and GTest and Qt Tests with separated source/header
                 int grandChildRow = child->childCount() - 1;
                 for ( ; grandChildRow >= 0; --grandChildRow) {
                     TestTreeItem *grandChild = child->childItem(grandChildRow);
-                    if (grandChild->filePath() == filePath
-                            || grandChild->referencingFile() == filePath) {
-                        grandChild->markForRemovalRecursively(true);
+                    if (grandChild->filePath() == filePath) {
+                        grandChild->markForRemoval(true);
                     }
                 }
             }
@@ -619,6 +568,26 @@ void TestTreeModel::sweep()
     }
     if (hasChanged)
         emit testTreeModelChanged();
+}
+
+QMap<QString, QString> TestTreeModel::testCaseNamesForFiles(QStringList files)
+{
+    QMap<QString, QString> result;
+    if (!m_autoTestRootItem)
+        return result;
+
+    for (int row = 0, count = m_autoTestRootItem->childCount(); row < count; ++row) {
+        const TestTreeItem *child = m_autoTestRootItem->childItem(row);
+        if (files.contains(child->filePath())) {
+            result.insert(child->filePath(), child->name());
+        }
+        for (int childRow = 0, children = child->childCount(); childRow < children; ++childRow) {
+            const TestTreeItem *grandChild = child->childItem(childRow);
+            if (files.contains(grandChild->filePath()))
+                result.insert(grandChild->filePath(), child->name());
+        }
+    }
+    return result;
 }
 
 /**
@@ -646,13 +615,6 @@ bool TestTreeModel::sweepChildren(TestTreeItem *item)
         child->markForRemoval(false);
     }
     return hasChanged;
-}
-
-QMap<QString, QString> TestTreeModel::referencingFiles() const
-{
-    ReferencingFilesFinder finder;
-    rootItem()->walkTree(&finder);
-    return finder.referencingFiles();
 }
 
 void TestTreeModel::onParseResultReady(const TestParseResult &result)
@@ -692,7 +654,7 @@ void TestTreeModel::handleParseResult(const TestParseResult &result)
         QTC_ASSERT(false, return); // should never happen, just to avoid warning
     }
 
-    TestTreeItem *toBeModified = root->findChildByFiles(result.fileName, result.referencingFile);
+    TestTreeItem *toBeModified = root->findChildByFile(result.fileName);
     // if there's no matching item, add the new one
     if (!toBeModified) {
         if (result.type == AutoTest)
@@ -761,17 +723,18 @@ void TestTreeModel::handleUnnamedQuickParseResult(const TestParseResult &result)
                                           func, result));
             continue;
         }
-        functionItem->modifyLineAndColumn(result.line, result.column);
+        functionItem->modifyLineAndColumn(location.m_line, location.m_column);
         functionItem->markForRemoval(false);
     }
 }
 
 void TestTreeModel::handleGTestParseResult(const TestParseResult &result)
 {
-    TestTreeItem::Type type = result.parameterized ? TestTreeItem::GTestCaseParameterized
-                                                   : TestTreeItem::GTestCase;
-    TestTreeItem *toBeModified = m_googleTestRootItem->findChildByNameTypeAndFile(
-                result.testCaseName, type, result.referencingFile);
+    GoogleTestTreeItem::TestStates states = GoogleTestTreeItem::Enabled;
+    if (result.parameterized)
+        states |= GoogleTestTreeItem::Parameterized;
+    TestTreeItem *toBeModified = m_googleTestRootItem->findChildByNameStateAndFile(
+                result.testCaseName, states, result.proFile);
     if (!toBeModified) {
         m_googleTestRootItem->appendChild(GoogleTestTreeItem::createTestItem(result));
         return;
@@ -784,8 +747,8 @@ void TestTreeModel::handleGTestParseResult(const TestParseResult &result)
             toBeModified->appendChild(GoogleTestTreeItem::createTestSetItem(result, location));
             continue;
         }
-        bool changed = testSetItem->modifyGTestSetContent(result.fileName,
-                                                          result.referencingFile, location);
+        bool changed = testSetItem->asGoogleTestTreeItem()->modifyTestSetContent(
+                    result.fileName, location);
         testSetItem->markForRemoval(false);
         if (changed)
             emit dataChanged(indexForItem(testSetItem), indexForItem(testSetItem));
