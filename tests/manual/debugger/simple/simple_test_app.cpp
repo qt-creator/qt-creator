@@ -5240,6 +5240,8 @@ namespace basic {
     namespace ns {
         typedef unsigned long long vl;
         typedef vl verylong;
+        using uvl = unsigned long long;
+        using usingverylong = uvl;
     }
 
     void testTypedef()
@@ -5253,6 +5255,23 @@ namespace basic {
         BREAK_HERE;
         // Check j 1000 basic::ns::vl.
         // Check k 1000 basic::ns::verylong.
+        // Check t1 0 basic::myType1.
+        // Check t2 0 basic::myType2.
+        // Continue.
+        dummyStatement(&j, &k, &t1, &t2);
+    }
+
+    void testUsing()
+    {
+        using myType1 = quint32;
+        using myType2 = unsigned int;
+        myType1 t1 = 0;
+        myType2 t2 = 0;
+        ns::uvl j = 1000;
+        ns::usingverylong k = 1000;
+        BREAK_HERE;
+        // Check j 1000 basic::ns::uvl.
+        // Check k 1000 basic::ns::usingverylong.
         // Check t1 0 basic::myType1.
         // Check t2 0 basic::myType2.
         // Continue.
@@ -5804,6 +5823,7 @@ namespace basic {
         testFunction();
         testAlphabeticSorting();
         testTypedef();
+        testUsing();
         testPointer();
         testPointerTypedef();
         testStruct();
