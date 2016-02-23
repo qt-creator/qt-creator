@@ -45,6 +45,10 @@ namespace Autotest {
 namespace Internal {
 
 struct TestCodeLocationAndType;
+class AutoTestTreeItem;
+class QuickTestTreeItem;
+class GoogleTestTreeItem;
+struct TestParseResult;
 
 class TestTreeItem : public Utils::TreeItem
 {
@@ -111,6 +115,10 @@ public:
     TestTreeItem *findChildByNameTypeAndFile(const QString &name,
                                              TestTreeItem::Type type, const QString &referencingFile);
 
+    virtual AutoTestTreeItem *asAutoTestTreeItem() { return 0; }
+    virtual QuickTestTreeItem *asQuickTestTreeItem() { return 0; }
+    virtual GoogleTestTreeItem *asGoogleTestTreeItem() { return 0; }
+
 private:
     void revalidateCheckState();
     bool modifyFilePath(const QString &filePath);
@@ -145,6 +153,52 @@ struct GTestCaseSpec
 };
 
 typedef QVector<TestCodeLocationAndType> TestCodeLocationList;
+
+class AutoTestTreeItem : public TestTreeItem
+{
+public:
+    AutoTestTreeItem(const QString &name = QString(), const QString &filePath = QString(),
+                     Type type = Root) : TestTreeItem(name, filePath, type) {}
+
+    virtual AutoTestTreeItem *asAutoTestTreeItem() override { return this; }
+
+    static AutoTestTreeItem *createTestItem(const TestParseResult &result);
+    static AutoTestTreeItem *createFunctionItem(const QString &functionName,
+                                                const TestCodeLocationAndType &location,
+                                                const TestCodeLocationList &dataTags);
+    static AutoTestTreeItem *createDataTagItem(const QString &fileName,
+                                               const TestCodeLocationAndType &location);
+};
+
+class QuickTestTreeItem : public TestTreeItem
+{
+public:
+    QuickTestTreeItem(const QString &name = QString(), const QString &filePath = QString(),
+                      Type type = Root) : TestTreeItem(name, filePath, type) {}
+
+    virtual QuickTestTreeItem *asQuickTestTreeItem() override { return this; }
+
+    static QuickTestTreeItem *createTestItem(const TestParseResult &result);
+    static QuickTestTreeItem *createFunctionItem(const QString &functionName,
+                                                 const TestCodeLocationAndType &location);
+    static QuickTestTreeItem *createUnnamedQuickTestItem(const TestParseResult &result);
+    static QuickTestTreeItem *createUnnamedQuickFunctionItem(const QString &functionName,
+                                                             const TestParseResult &result);
+};
+
+class GoogleTestTreeItem : public TestTreeItem
+{
+public:
+    GoogleTestTreeItem(const QString &name = QString(), const QString &filePath = QString(),
+                       Type type = Root) : TestTreeItem(name, filePath, type) {}
+
+    virtual GoogleTestTreeItem *asGoogleTestTreeItem() override { return this; }
+
+    static GoogleTestTreeItem *createTestItem(const TestParseResult &result);
+    static GoogleTestTreeItem *createTestSetItem(const TestParseResult &result,
+                                                 const TestCodeLocationAndType &location);
+
+};
 
 } // namespace Internal
 } // namespace Autotest

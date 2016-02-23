@@ -25,6 +25,7 @@
 
 #include "autotestconstants.h"
 #include "testtreeitem.h"
+#include "testtreemodel.h"
 
 #include <utils/qtcassert.h>
 
@@ -347,6 +348,108 @@ TestTreeItem *TestTreeItem::findChildBy(CompareFunction compare)
             return child;
     }
     return 0;
+}
+
+AutoTestTreeItem *AutoTestTreeItem::createTestItem(const TestParseResult &result)
+{
+    AutoTestTreeItem *item = new AutoTestTreeItem(result.testCaseName, result.fileName,
+                                                  TestTreeItem::TestClass);
+    item->setReferencingFile(result.referencingFile);
+    item->setLine(result.line);
+    item->setColumn(result.column);
+
+    foreach (const QString &functionName, result.functions.keys()) {
+        const TestCodeLocationAndType &locationAndType = result.functions.value(functionName);
+        const QString qualifiedName = result.testCaseName + QLatin1String("::") + functionName;
+        item->appendChild(createFunctionItem(functionName, locationAndType,
+                                             result.dataTagsOrTestSets.value(qualifiedName)));
+    }
+    return item;
+}
+
+AutoTestTreeItem *AutoTestTreeItem::createFunctionItem(const QString &functionName,
+                                                       const TestCodeLocationAndType &location,
+                                                       const TestCodeLocationList &dataTags)
+{
+    AutoTestTreeItem *item = new AutoTestTreeItem(functionName, location.m_name, location.m_type);
+    item->setLine(location.m_line);
+    item->setColumn(location.m_column);
+
+    // if there are any data tags for this function add them
+    foreach (const TestCodeLocationAndType &tagLocation, dataTags)
+        item->appendChild(createDataTagItem(location.m_name, tagLocation));
+    return item;
+}
+
+AutoTestTreeItem *AutoTestTreeItem::createDataTagItem(const QString &fileName,
+                                                      const TestCodeLocationAndType &location)
+{
+    AutoTestTreeItem *tagItem = new AutoTestTreeItem(location.m_name, fileName, location.m_type);
+    tagItem->setLine(location.m_line);
+    tagItem->setColumn(location.m_column);
+    return tagItem;
+}
+
+QuickTestTreeItem *QuickTestTreeItem::createTestItem(const TestParseResult &result)
+{
+    QuickTestTreeItem *item = new QuickTestTreeItem(result.testCaseName, result.fileName,
+                                                    TestTreeItem::TestClass);
+    item->setReferencingFile(result.referencingFile);
+    item->setLine(result.line);
+    item->setColumn(result.column);
+    foreach (const QString &functionName, result.functions.keys())
+        item->appendChild(createFunctionItem(functionName, result.functions.value(functionName)));
+    return item;
+}
+
+QuickTestTreeItem *QuickTestTreeItem::createFunctionItem(const QString &functionName,
+                                                         const TestCodeLocationAndType &location)
+{
+    QuickTestTreeItem *item = new QuickTestTreeItem(functionName, location.m_name, location.m_type);
+    item->setLine(location.m_line);
+    item->setColumn(location.m_column);
+    return item;
+}
+
+QuickTestTreeItem *QuickTestTreeItem::createUnnamedQuickTestItem(const TestParseResult &result)
+{
+    QuickTestTreeItem *item = new QuickTestTreeItem(QString(), QString(), TestTreeItem::TestClass);
+    foreach (const QString &functionName, result.functions.keys())
+        item->appendChild(createUnnamedQuickFunctionItem(functionName, result));
+    return item;
+}
+
+QuickTestTreeItem *QuickTestTreeItem::createUnnamedQuickFunctionItem(const QString &functionName,
+                                                                     const TestParseResult &result)
+{
+    const TestCodeLocationAndType &location = result.functions.value(functionName);
+    QuickTestTreeItem *item = new QuickTestTreeItem(functionName, location.m_name, location.m_type);
+    item->setLine(location.m_line);
+    item->setColumn(location.m_column);
+    item->setReferencingFile(result.referencingFile);
+    return item;
+}
+
+GoogleTestTreeItem *GoogleTestTreeItem::createTestItem(const TestParseResult &result)
+{
+    GoogleTestTreeItem *item = new GoogleTestTreeItem(result.testCaseName, QString(),
+            result.parameterized ? TestTreeItem::GTestCaseParameterized : TestTreeItem::GTestCase);
+    item->setReferencingFile(result.referencingFile);
+    foreach (const TestCodeLocationAndType &location, result.dataTagsOrTestSets.first())
+        item->appendChild(createTestSetItem(result, location));
+    return item;
+}
+
+GoogleTestTreeItem *GoogleTestTreeItem::createTestSetItem(const TestParseResult &result,
+                                                          const TestCodeLocationAndType &location)
+{
+    GoogleTestTreeItem *item = new GoogleTestTreeItem(location.m_name, result.fileName,
+                                                      location.m_type);
+    item->setState(location.m_state);
+    item->setLine(location.m_line);
+    item->setColumn(location.m_column);
+    item->setReferencingFile(result.referencingFile);
+    return item;
 }
 
 } // namespace Internal
