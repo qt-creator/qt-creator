@@ -40,6 +40,7 @@ private slots:
     void mapReduce();
     void mapReduceRvalueContainer();
     void map();
+    void orderedMapReduce();
 #ifdef SUPPORTS_MOVE
     void moveOnlyType();
 #endif
@@ -125,13 +126,8 @@ void tst_MapReduce::mapReduceRvalueContainer()
 
 void tst_MapReduce::map()
 {
-    {
-        QList<double> results = Utils::map(QList<int>({2, 5, 1}),
-                    [](int x) { return x*2.5; }
-        ).results();
-        Utils::sort(results);
-        QCOMPARE(results, QList<double>({2.5, 5., 12.5}));
-    }
+    QCOMPARE(Utils::map(QList<int>({2, 5, 1}), [](int x) { return x*2.5; }).results(),
+             QList<double>({5., 12.5, 2.5}));
     {
         // void result
         QList<int> results;
@@ -142,7 +138,9 @@ void tst_MapReduce::map()
                     // map
                     [&mutex, &results](int x) { QMutexLocker l(&mutex); results.append(x); }
                     ).waitForFinished();
-        Utils::sort(results); // mapping order is undefined
+        // Utils::map is "ordered" by default, but that means that result reporting is ordered,
+        // the map function is still called out-of-order
+        qSort(results);
         QCOMPARE(results, QList<int>({1, 2, 5}));
     }
     {
@@ -151,6 +149,17 @@ void tst_MapReduce::map()
         Utils::map(std::ref(container), [](int &x) { x *= 2; }).waitForFinished();
         QCOMPARE(container, QList<int>({4, 10, 2}));
     }
+}
+
+void tst_MapReduce::orderedMapReduce()
+{
+    QCOMPARE(Utils::mapReduce(QList<int>({1, 2, 3, 4}),
+                              [](QFutureInterface<int> &) { return 0; },
+                              [](int i) { return i*2; },
+                              [](int &state, int val) { state += val; return state; },
+                              [](QFutureInterface<int> &, int &) { },
+                              Utils::MapReduceOption::Ordered).results(),
+             QList<int>({2, 6, 12, 20}));
 }
 
 #ifdef SUPPORTS_MOVE

@@ -312,7 +312,7 @@ void Locator::refresh(QList<ILocatorFilter *> filters)
 {
     if (filters.isEmpty())
         filters = m_filters;
-    QFuture<void> task = Utils::map(filters, &ILocatorFilter::refresh);
+    QFuture<void> task = Utils::map(filters, &ILocatorFilter::refresh, Utils::MapReduceOption::Unordered);
     FutureProgress *progress =
         ProgressManager::addTask(task, tr("Updating Locator Caches"), Constants::TASK_INDEX);
     connect(progress, &FutureProgress::finished, this, &Locator::saveSettings);
