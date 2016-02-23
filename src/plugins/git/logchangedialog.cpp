@@ -294,7 +294,7 @@ void IconItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opti
         painter->save();
         painter->drawPixmap(o.rect.x(), o.rect.y(), m_icon.pixmap(size.width(), size.height()));
         painter->restore();
-        o.rect.translate(size.width(), 0);
+        o.rect.setLeft(size.width());
     }
     QStyledItemDelegate::paint(painter, o, index);
 }
