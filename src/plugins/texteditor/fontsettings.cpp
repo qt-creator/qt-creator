@@ -178,9 +178,8 @@ QTextCharFormat FontSettings::toTextCharFormat(TextStyle category) const
 uint qHash(const TextStyles &textStyles)
 {
     uint hash = ::qHash(quint8(textStyles.mainStyle));
-
-    hash ^= ::qHashRange(textStyles.mixinStyles.cbegin(), textStyles.mixinStyles.cend());
-
+    for (TextStyle mixinStyle : textStyles.mixinStyles)
+        hash ^= ::qHash(mixinStyle);
     return hash;
 }
 
