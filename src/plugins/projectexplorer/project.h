@@ -76,7 +76,6 @@ public:
 
     Core::IDocument *document() const;
     Utils::FileName projectFilePath() const;
-    // The directory that holds the project. This includes the absolute path.
     Utils::FileName projectDirectory() const;
     static Utils::FileName projectDirectory(const Utils::FileName &top);
 

@@ -512,10 +512,22 @@ QVariantMap Project::toMap() const
     return map;
 }
 
+/*!
+    Returns the directory that contains the project.
+
+    This includes the absolute path.
+*/
+
 Utils::FileName Project::projectDirectory() const
 {
     return projectDirectory(projectFilePath());
 }
+
+/*!
+    Returns the directory that contains the file \a top.
+
+    This includes the absolute path.
+*/
 
 Utils::FileName Project::projectDirectory(const Utils::FileName &top)
 {
