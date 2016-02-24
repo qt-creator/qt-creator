@@ -26,6 +26,7 @@
 #pragma once
 
 #include "cmakeconfigitem.h"
+#include "configmodel.h"
 
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/abi.h>
@@ -38,7 +39,9 @@ class CMakeProject;
 
 namespace Internal {
 
+class BuildDirManager;
 class CMakeBuildConfigurationFactory;
+class CMakeBuildSettingsWidget;
 
 class CMakeBuildConfiguration : public ProjectExplorer::BuildConfiguration
 {
@@ -47,6 +50,7 @@ class CMakeBuildConfiguration : public ProjectExplorer::BuildConfiguration
 
 public:
     CMakeBuildConfiguration(ProjectExplorer::Target *parent);
+    ~CMakeBuildConfiguration();
 
     bool isEnabled() const override;
     QString disabledReason() const override;
@@ -60,24 +64,44 @@ public:
     void emitBuildTypeChanged();
 
     void setCMakeConfiguration(const CMakeConfig &config);
+    bool hasCMakeConfiguration() const;
     CMakeConfig cmakeConfiguration() const;
 
-    void setError(const QString &message);
     QString error() const;
+
+    BuildDirManager *buildDirManager() const;
+
+    bool isParsing() const;
+
+    void parse();
+    void resetData();
 
 signals:
     void errorOccured(const QString &message);
+
+    void parsingStarted();
+    void dataAvailable();
 
 protected:
     CMakeBuildConfiguration(ProjectExplorer::Target *parent, CMakeBuildConfiguration *source);
     bool fromMap(const QVariantMap &map) override;
 
 private:
+    QList<ConfigModel::DataItem> completeCMakeConfiguration() const;
+    void setCurrentCMakeConfiguration(const QList<ConfigModel::DataItem> &items);
+
+    void setError(const QString &message);
+
     QString m_initialArguments;
     CMakeConfig m_configuration;
     QString m_error;
 
-    friend class CMakeProjectManager::CMakeProject;
+    mutable QList<CMakeConfigItem> m_completeConfigurationCache;
+
+    BuildDirManager *m_buildDirManager = nullptr;
+
+    friend class CMakeBuildSettingsWidget;
+    friend class CMakeProject;
 };
 
 class CMakeBuildConfigurationFactory : public ProjectExplorer::IBuildConfigurationFactory

@@ -57,39 +57,40 @@ class CMakeTool;
 
 namespace Internal {
 
+class CMakeBuildConfiguration;
+
 class BuildDirManager : public QObject
 {
     Q_OBJECT
 
 public:
-    BuildDirManager(const Utils::FileName &sourceDir, const ProjectExplorer::Kit *k,
-                    const CMakeConfig &inputConfig, const Utils::Environment &env,
-                    const Utils::FileName &buildDir);
+    BuildDirManager(const CMakeBuildConfiguration *bc);
     ~BuildDirManager() override;
 
-    const ProjectExplorer::Kit *kit() const { return m_kit; }
-    const Utils::FileName buildDirectory() const { return m_buildDir; }
-    const Utils::FileName sourceDirectory() const { return m_sourceDir; }
-    bool isBusy() const;
+    const ProjectExplorer::Kit *kit() const;
+    const Utils::FileName buildDirectory() const;
+    const Utils::FileName sourceDirectory() const;
+    const CMakeConfig cmakeConfiguration() const;
+    bool isParsing() const;
 
     void parse();
     void forceReparse();
-
-    void setInputConfiguration(const CMakeConfig &config);
+    void resetData();
 
     bool isProjectFile(const Utils::FileName &fileName) const;
     QString projectName() const;
     QList<CMakeBuildTarget> buildTargets() const;
-    QList<ProjectExplorer::FileNode *> files() const;
+    QList<ProjectExplorer::FileNode *> files();
     void clearFiles();
     CMakeConfig configuration() const;
 
 signals:
-    void parsingStarted() const;
+    void configurationStarted() const;
     void dataAvailable() const;
     void errorOccured(const QString &err) const;
 
 private:
+    void stopProcess();
     void extractData();
 
     void startCMake(CMakeTool *tool, const QString &generator, const CMakeConfig &config);
@@ -100,14 +101,9 @@ private:
 
     CMakeConfig parseConfiguration() const;
 
-    const Utils::FileName m_sourceDir;
-    Utils::FileName m_buildDir;
-    Utils::FileName m_parsedSourceDir;
-    const ProjectExplorer::Kit *const m_kit;
-    Utils::Environment m_environment;
-    CMakeConfig m_inputConfig;
+    bool m_hasData = false;
 
-    QTemporaryDir *m_tempDir = nullptr;
+    const CMakeBuildConfiguration *m_buildConfiguration = nullptr;
     Utils::QtcProcess *m_cmakeProcess = nullptr;
 
     QSet<Utils::FileName> m_watchedFiles;

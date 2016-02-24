@@ -83,6 +83,7 @@ public:
 signals:
     void cmakeCommandChanged();
     void targetsToBuildChanged();
+    void buildTargetsChanged();
 
 protected:
     void processStarted() override;
@@ -97,9 +98,9 @@ protected:
     void stdOutput(const QString &line) override;
 
 private:
-    void ctor();
+    void ctor(ProjectExplorer::BuildStepList *bsl);
 
-    void buildTargetsChanged();
+    void handleBuildTargetChanges();
     CMakeRunConfiguration *targetsActiveRunConfiguration() const;
 
     QRegExp m_percentProgress;

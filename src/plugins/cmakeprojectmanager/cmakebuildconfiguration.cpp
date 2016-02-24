@@ -25,6 +25,7 @@
 
 #include "cmakebuildconfiguration.h"
 
+#include "builddirmanager.h"
 #include "cmakebuildinfo.h"
 #include "cmakebuildstep.h"
 #include "cmakekitinformation.h"
@@ -75,10 +76,32 @@ static FileName shadowBuildDirectory(const FileName &projectFilePath, const Kit 
 CMakeBuildConfiguration::CMakeBuildConfiguration(ProjectExplorer::Target *parent) :
     BuildConfiguration(parent, Core::Id(Constants::CMAKE_BC_ID))
 {
-    CMakeProject *project = static_cast<CMakeProject *>(parent->project());
+    auto project = static_cast<CMakeProject *>(parent->project());
     setBuildDirectory(shadowBuildDirectory(project->projectFilePath(),
                                            parent->kit(),
                                            displayName(), BuildConfiguration::Unknown));
+
+    m_buildDirManager = new BuildDirManager(this);
+    connect(m_buildDirManager, &BuildDirManager::dataAvailable,
+            this, &CMakeBuildConfiguration::dataAvailable);
+    connect(m_buildDirManager, &BuildDirManager::errorOccured,
+            this, &CMakeBuildConfiguration::setError);
+    connect(m_buildDirManager, &BuildDirManager::configurationStarted,
+            this, [this]() { m_completeConfigurationCache.clear(); emit parsingStarted(); });
+
+    connect(this, &CMakeBuildConfiguration::environmentChanged,
+            m_buildDirManager, &BuildDirManager::forceReparse);
+    connect(this, &CMakeBuildConfiguration::buildDirectoryChanged,
+            m_buildDirManager, &BuildDirManager::parse);
+    connect(target(), &Target::kitChanged, m_buildDirManager, &BuildDirManager::forceReparse);
+
+    connect(this, &CMakeBuildConfiguration::parsingStarted, project, &CMakeProject::handleParsingStarted);
+    connect(this, &CMakeBuildConfiguration::dataAvailable, project, &CMakeProject::parseCMakeOutput);
+}
+
+CMakeBuildConfiguration::~CMakeBuildConfiguration()
+{
+    m_buildDirManager->deleteLater(); // Do not block while waiting for cmake...
 }
 
 bool CMakeBuildConfiguration::isEnabled() const
@@ -137,6 +160,102 @@ bool CMakeBuildConfiguration::fromMap(const QVariantMap &map)
     setCMakeConfiguration(legacyConf + conf);
 
     return true;
+}
+
+BuildDirManager *CMakeBuildConfiguration::buildDirManager() const
+{
+    return m_buildDirManager;
+}
+
+bool CMakeBuildConfiguration::isParsing() const
+{
+    return m_buildDirManager && m_buildDirManager->isParsing();
+}
+
+void CMakeBuildConfiguration::parse()
+{
+    m_buildDirManager->parse();
+}
+
+void CMakeBuildConfiguration::resetData()
+{
+    m_buildDirManager->resetData();
+}
+
+QList<ConfigModel::DataItem> CMakeBuildConfiguration::completeCMakeConfiguration() const
+{
+    if (m_buildDirManager->isParsing())
+        return QList<ConfigModel::DataItem>();
+
+    if (m_completeConfigurationCache.isEmpty())
+        m_completeConfigurationCache = m_buildDirManager->configuration();
+
+    return Utils::transform(m_completeConfigurationCache, [](const CMakeConfigItem &i) {
+        ConfigModel::DataItem j;
+        j.key = QString::fromUtf8(i.key);
+        j.value = QString::fromUtf8(i.value);
+        j.description = QString::fromUtf8(i.documentation);
+
+        j.isAdvanced = i.isAdvanced;
+        switch (i.type) {
+        case CMakeConfigItem::FILEPATH:
+            j.type = ConfigModel::DataItem::FILE;
+            break;
+        case CMakeConfigItem::PATH:
+            j.type = ConfigModel::DataItem::DIRECTORY;
+            break;
+        case CMakeConfigItem::BOOL:
+            j.type = ConfigModel::DataItem::BOOLEAN;
+            break;
+        case CMakeConfigItem::STRING:
+            j.type = ConfigModel::DataItem::STRING;
+            break;
+        default:
+            j.type = ConfigModel::DataItem::UNKNOWN;
+            break;
+        }
+
+        return j;
+    });
+}
+
+void CMakeBuildConfiguration::setCurrentCMakeConfiguration(const QList<ConfigModel::DataItem> &items)
+{
+    if (m_buildDirManager->isParsing())
+        return;
+
+    const CMakeConfig newConfig = Utils::transform(items, [](const ConfigModel::DataItem &i) {
+        CMakeConfigItem ni;
+        ni.key = i.key.toUtf8();
+        ni.value = i.value.toUtf8();
+        ni.documentation = i.description.toUtf8();
+        ni.isAdvanced = i.isAdvanced;
+        switch (i.type) {
+        case CMakeProjectManager::ConfigModel::DataItem::BOOLEAN:
+            ni.type = CMakeConfigItem::BOOL;
+            break;
+        case CMakeProjectManager::ConfigModel::DataItem::FILE:
+            ni.type = CMakeConfigItem::FILEPATH;
+            break;
+        case CMakeProjectManager::ConfigModel::DataItem::DIRECTORY:
+            ni.type = CMakeConfigItem::PATH;
+            break;
+        case CMakeProjectManager::ConfigModel::DataItem::STRING:
+            ni.type = CMakeConfigItem::STRING;
+            break;
+        case CMakeProjectManager::ConfigModel::DataItem::UNKNOWN:
+        default:
+            ni.type = CMakeConfigItem::INTERNAL;
+            break;
+        }
+        return ni;
+    });
+
+    // There is a buildDirManager, so there must also be an active BC:
+    const CMakeConfig config = cmakeConfiguration() + newConfig;
+    setCMakeConfiguration(config);
+
+    m_buildDirManager->forceReparse();
 }
 
 void CMakeBuildConfiguration::emitBuildTypeChanged()
