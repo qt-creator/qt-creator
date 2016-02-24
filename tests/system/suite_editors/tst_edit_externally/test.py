@@ -96,7 +96,8 @@ def main():
                 test.fatal("Failed to get editor - continuing...")
                 continue
         # verify currentFile
-        waitFor("'addedLine' in str(editor.plainText)", 2500)
-        test.compare(editor.plainText, contentBefore + "addedLine\n",
-                     "Verifying: file '%s' was reloaded modified." % currentFile)
+        if not currentFile.endswith(".bin"):
+            waitFor("'addedLine' in str(editor.plainText)", 2500)
+            test.compare(editor.plainText, contentBefore + "addedLine\n",
+                         "Verifying: file '%s' was reloaded modified." % currentFile)
     invokeMenuItem("File", "Exit")

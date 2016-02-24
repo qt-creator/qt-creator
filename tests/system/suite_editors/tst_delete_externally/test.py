@@ -43,22 +43,25 @@ def main():
             continue
 
         contentBefore = readFile(currentFile)
-        popupText = "The file %s was removed. Do you want to save it under a different name, or close the editor?"
         os.remove(currentFile)
-        test.compare(waitForObject(":File has been removed_QMessageBox").text,
-                     popupText % currentFile)
-        clickButton(waitForObject(":File has been removed.Save_QPushButton"))
-        waitFor("os.path.exists(currentFile)", 5000)
-        # avoids a lock-up on some Linux machines, purely empiric, might have different cause
-        waitFor("checkIfObjectExists(':File has been removed_QMessageBox', False, 0)", 5000)
+        if not currentFile.endswith(".bin"):
+            popupText = "The file %s was removed. Do you want to save it under a different name, or close the editor?"
+            test.compare(waitForObject(":File has been removed_QMessageBox").text,
+                         popupText % currentFile)
+            clickButton(waitForObject(":File has been removed.Save_QPushButton"))
+            waitFor("os.path.exists(currentFile)", 5000)
+            # avoids a lock-up on some Linux machines, purely empiric, might have different cause
+            waitFor("checkIfObjectExists(':File has been removed_QMessageBox', False, 0)", 5000)
 
-        test.compare(readFile(currentFile), contentBefore,
-                     "Verifying that file '%s' was restored correctly" % currentFile)
+            test.compare(readFile(currentFile), contentBefore,
+                         "Verifying that file '%s' was restored correctly" % currentFile)
 
-        # Different warning because of QTCREATORBUG-8130
-        popupText2 = "The file %s has been removed outside Qt Creator. Do you want to save it under a different name, or close the editor?"
-        os.remove(currentFile)
-        test.compare(waitForObject(":File has been removed_QMessageBox").text,
-                     popupText2 % currentFile)
-        clickButton(waitForObject(":File has been removed.Close_QPushButton"))
+            # Different warning because of QTCREATORBUG-8130
+            popupText2 = "The file %s has been removed outside Qt Creator. Do you want to save it under a different name, or close the editor?"
+            os.remove(currentFile)
+            test.compare(waitForObject(":File has been removed_QMessageBox").text,
+                         popupText2 % currentFile)
+            clickButton(waitForObject(":File has been removed.Close_QPushButton"))
+        test.verify(checkIfObjectExists(objectMap.realName(editor), False),
+                    "Was the editor closed after deleting the file?")
     invokeMenuItem("File", "Exit")

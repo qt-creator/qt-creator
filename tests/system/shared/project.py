@@ -794,10 +794,15 @@ def addCPlusPlusFileToCurrentProject(name, template, forceOverwrite=False, addTo
             test.compare(str(waitForObject("{name='HdrFileName' type='QLineEdit' visible='1'}").text),
                          expectedHeaderName)
     clickButton(waitForObject(":Next_QPushButton"))
-    fileExistedBefore = os.path.exists(os.path.join(basePath, name))
+    fileExistedBefore = False
+    if template == "C++ Class":
+        fileExistedBefore = (os.path.exists(os.path.join(basePath, name.lower() + ".cpp"))
+                             or os.path.exists(os.path.join(basePath, name.lower() + ".h")))
+    else:
+        fileExistedBefore = os.path.exists(os.path.join(basePath, name))
     __createProjectHandleLastPage__(expectedFiles, addToVersionControl=addToVCS)
     if (fileExistedBefore):
-        overwriteDialog = "{type='Core::Internal::PromptOverwriteDialog' unnamed='1' visible='1'}"
+        overwriteDialog = "{type='Core::PromptOverwriteDialog' unnamed='1' visible='1'}"
         waitForObject(overwriteDialog)
         if forceOverwrite:
             buttonToClick = 'OK'

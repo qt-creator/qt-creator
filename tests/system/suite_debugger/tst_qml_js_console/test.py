@@ -71,6 +71,8 @@ def getQmlJSConsoleOutput():
         result = []
         consoleView = waitForObject(":DebugModeWidget_Debugger::Internal::ConsoleView")
         model = consoleView.model()
+        # old input, output, new input > 2
+        waitFor("model.rowCount() > 2", 2000)
         return dumpItems(model)[:-1]
     except:
         return [""]

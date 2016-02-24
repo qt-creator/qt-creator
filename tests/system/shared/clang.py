@@ -37,6 +37,7 @@ def startCreatorTryingClang():
     except:
         # ClangCodeModel plugin has not been built - start without it
         test.warning("ClangCodeModel plugin not available - performing test without.")
+        overrideStartApplication()
         startApplication("qtcreator" + SettingsPath)
         return False
 

@@ -214,9 +214,11 @@ int main()
 
     if (WaitForSingleObject(pi.hProcess, INFINITE) == WAIT_FAILED)
         systemError("Wait for debugee failed, error %d\n");
-    CloseHandle(pi.hProcess);
-    CloseHandle(pi.hThread);
-    free(env);
+
+    /* Don't close the process/thread handles, so that the kernel doesn't free
+       the resources before ConsoleProcess is able to obtain handles to them
+       - this would be a problem if the child process exits very quickly. */
     doExit(0);
+
     return 0;
 }

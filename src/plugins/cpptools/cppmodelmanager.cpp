@@ -326,8 +326,6 @@ CppModelManager::CppModelManager(QObject *parent)
             this, SLOT(onAboutToRemoveProject(ProjectExplorer::Project*)));
     connect(sessionManager, SIGNAL(aboutToLoadSession(QString)),
             this, SLOT(onAboutToLoadSession()));
-    connect(sessionManager, SIGNAL(aboutToUnloadSession(QString)),
-            this, SLOT(onAboutToUnloadSession()));
 
     connect(Core::EditorManager::instance(), &Core::EditorManager::currentEditorChanged,
             this, &CppModelManager::onCurrentEditorChanged);
@@ -1021,17 +1019,6 @@ void CppModelManager::onAboutToLoadSession()
     GC();
 }
 
-void CppModelManager::onAboutToUnloadSession()
-{
-    Core::ProgressManager::cancelTasks(CppTools::Constants::TASK_INDEX);
-    do {
-        QMutexLocker locker(&d->m_projectMutex);
-        d->m_projectToProjectsInfo.clear();
-        recalculateProjectPartMappings();
-        d->m_dirty = true;
-    } while (0);
-}
-
 void CppModelManager::renameIncludes(const QString &oldFileName, const QString &newFileName)
 {
     if (oldFileName.isEmpty() || newFileName.isEmpty())
@@ -1063,6 +1050,7 @@ void CppModelManager::renameIncludes(const QString &oldFileName, const QString &
 
 void CppModelManager::onCoreAboutToClose()
 {
+    Core::ProgressManager::cancelTasks(CppTools::Constants::TASK_INDEX);
     d->m_enableGC = false;
 }
 

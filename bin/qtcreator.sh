@@ -1,5 +1,9 @@
 #! /bin/sh
 
+# Use this script if you add paths to LD_LIBRARY_PATH
+# that contain libraries that conflict with the
+# libraries that Qt Creator depends on.
+
 makeAbsolute() {
     case $1 in
         /*)
@@ -30,6 +34,12 @@ fi
 
 bindir=`dirname "$me"`
 libdir=`cd "$bindir/../lib" ; pwd`
-LD_LIBRARY_PATH=$libdir:$libdir/qtcreator${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}
+# Add path to deployed Qt libraries in package
+qtlibdir=$libdir/Qt/lib
+if test -d "$qtlibdir"; then
+    qtlibpath=:$qtlibdir
+fi
+# Add Qt Creator library path
+LD_LIBRARY_PATH=$libdir:$libdir/qtcreator$qtlibpath${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}
 export LD_LIBRARY_PATH
 exec "$bindir/qtcreator" ${1+"$@"}

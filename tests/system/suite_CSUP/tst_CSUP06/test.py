@@ -123,7 +123,10 @@ def checkSymbolCompletion(editor, isClangCodeModel):
     def testSymb(currentLine, *args):
         missing, expectedSug, expectedRes = args
         symbol = currentLine.lstrip("/").strip()
-        propShown = waitFor("object.exists(':popupFrame_TextEditor::GenericProposalWidget')", 2500)
+        timeout = 2500
+        if isClangCodeModel and JIRA.isBugStillOpen(15639):
+            timeout = 5000
+        propShown = waitFor("object.exists(':popupFrame_TextEditor::GenericProposalWidget')", timeout)
         test.compare(not propShown, symbol in missing,
                      "Proposal widget is (not) shown as expected (%s)" % symbol)
         found = []
@@ -144,8 +147,11 @@ def checkSymbolCompletion(editor, isClangCodeModel):
         else:
             exp = (symbol[:max(symbol.rfind(":"), symbol.rfind(".")) + 1]
                    + expectedSug.get(symbol, found)[0])
-        if not (isClangCodeModel and platform.system() in ('Microsoft', 'Windows')
-                and JIRA.isBugStillOpen(15483)):
+        if isClangCodeModel and changedLine != exp and JIRA.isBugStillOpen(15483):
+            test.xcompare(changedLine, exp, "Verify completion matches (QTCREATORBUG-15483).")
+            test.verify(changedLine.startswith(exp.replace("(", "").replace(")", "")),
+                        "Verify completion starts with expected string.")
+        else:
             test.compare(changedLine, exp, "Verify completion matches.")
 
     performAutoCompletionTest(editor, ".*Complete symbols.*", "//",
