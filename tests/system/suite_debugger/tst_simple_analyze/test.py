@@ -95,8 +95,9 @@ def performTest(workingDir, projectName, targetCount, availableConfigs):
                         "Elapsed time should be positive in string '%s'" % str(elapsedLabel.text))
         except:
             test.fatal("Could not read elapsed time from '%s'" % str(elapsedLabel.text))
-        if safeClickTab("Events"):
-            colPercent, colTotal, colCalls, colMean, colMedian, colLongest, colShortest = range(2, 9)
+        if safeClickTab("Statistics"):
+            (colPercent, colTotal, colSelfPercent, colSelf, colCalls,
+             colMean, colMedian, colLongest, colShortest) = range(2, 11)
             model = waitForObject(":Events.QmlProfilerEventsTable_QmlProfiler::"
                                   "Internal::QmlProfilerEventsMainView").model()
             compareEventsTab(model, "events_qt5.tsv")
@@ -111,6 +112,11 @@ def performTest(workingDir, projectName, targetCount, availableConfigs):
                     test.verify(not item.startswith('0.000 '),
                                 "Check for implausible durations (QTCREATORBUG-8996): %s" % item)
             for row in range(model.rowCount()):
+                selfPercent = str(model.index(row, colSelfPercent).data())
+                totalPercent = str(model.index(row, colPercent).data())
+                test.verify(float(selfPercent[:-2]) <= float(totalPercent[:-2]),
+                            "Self percentage (%s) can't be more than total percentage (%s)"
+                            % (selfPercent, totalPercent))
                 if str(model.index(row, colCalls).data()) == "1":
                     for col in [colMedian, colLongest, colShortest]:
                         test.compare(model.index(row, colMean).data(), model.index(row, col).data(),
@@ -124,7 +130,7 @@ def performTest(workingDir, projectName, targetCount, availableConfigs):
         test.verify(waitFor("model.rowCount() == 0", 3000), "Analyzer results cleared.")
 
 def compareEventsTab(model, file):
-    significantColumns = [0, 1, 4, 9]
+    significantColumns = [0, 1, 6, 11]
 
     expectedTable = []
     for record in testData.dataset(file):
