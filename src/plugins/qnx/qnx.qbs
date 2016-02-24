@@ -8,7 +8,6 @@ QtcPlugin {
     Depends { name: "QmlDebug" }
     Depends { name: "Utils" }
 
-    Depends { name: "AnalyzerBase" }
     Depends { name: "Core" }
     Depends { name: "Debugger" }
     Depends { name: "ProjectExplorer" }

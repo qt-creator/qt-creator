@@ -29,7 +29,7 @@
 #include "clangstaticanalyzertool.h"
 #include "clangstaticanalyzerutils.h"
 
-#include <analyzerbase/analyzermanager.h>
+#include <debugger/analyzer/analyzermanager.h>
 #include <cpptools/cppmodelmanager.h>
 #include <cpptools/cpptoolstestcase.h>
 #include <projectexplorer/kitinformation.h>

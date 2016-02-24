@@ -196,6 +196,12 @@ QtcPlugin {
     }
 
     Group {
+        name: "Images/analyzer"
+        prefix: "analyzer/images/"
+        files: ["*.png"]
+    }
+
+    Group {
         name: "RegistryAccess"
         condition: qbs.targetOS.contains("windows")
         prefix: project.sharedSourcesDir + "/registryaccess/"
@@ -223,7 +229,36 @@ QtcPlugin {
         ]
     }
 
+    Group {
+        name: "Analyzer"
+
+        files: [
+            "analyzer/analyzerbase.qrc",
+            "analyzer/analyzerbase_global.h",
+            "analyzer/analyzerconstants.h",
+            "analyzer/analyzericons.h",
+            "analyzer/analyzermanager.cpp",
+            "analyzer/analyzermanager.h",
+            "analyzer/analyzerrunconfigwidget.cpp",
+            "analyzer/analyzerrunconfigwidget.h",
+            "analyzer/analyzerruncontrol.cpp",
+            "analyzer/analyzerruncontrol.h",
+            "analyzer/analyzerstartparameters.h",
+            "analyzer/analyzerutils.cpp",
+            "analyzer/analyzerutils.h",
+            "analyzer/detailederrorview.cpp",
+            "analyzer/detailederrorview.h",
+            "analyzer/diagnosticlocation.cpp",
+            "analyzer/diagnosticlocation.h",
+            "analyzer/ianalyzertool.cpp",
+            "analyzer/ianalyzertool.h",
+            "analyzer/startremotedialog.cpp",
+            "analyzer/startremotedialog.h",
+        ]
+    }
+
     Export {
         Depends { name: "QtcSsh" }
+        Depends { name: "CPlusPlus" }
     }
 }

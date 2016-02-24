@@ -30,7 +30,7 @@
 #include "stack.h"
 #include "modelhelpers.h"
 
-#include <analyzerbase/diagnosticlocation.h>
+#include <debugger/analyzer/diagnosticlocation.h>
 #include <utils/qtcassert.h>
 
 #include <QCoreApplication>

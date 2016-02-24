@@ -30,9 +30,9 @@
 #include "valgrindsettings.h"
 #include "valgrindplugin.h"
 
-#include <analyzerbase/analyzermanager.h>
-#include <analyzerbase/analyzerutils.h>
-#include <analyzerbase/analyzerconstants.h>
+#include <debugger/analyzer/analyzermanager.h>
+#include <debugger/analyzer/analyzerutils.h>
+#include <debugger/analyzer/analyzerconstants.h>
 
 #include <valgrind/valgrindsettings.h>
 #include <valgrind/xmlprotocol/errorlistmodel.h>

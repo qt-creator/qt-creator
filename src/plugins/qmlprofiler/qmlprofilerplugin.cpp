@@ -29,7 +29,7 @@
 #include "qmlprofilertool.h"
 #include "qmlprofilertimelinemodel.h"
 
-#include <analyzerbase/analyzermanager.h>
+#include <debugger/analyzer/analyzermanager.h>
 #include <extensionsystem/pluginmanager.h>
 #include <utils/hostosinfo.h>
 

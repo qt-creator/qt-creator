@@ -3,7 +3,7 @@ QTC_LIB_DEPENDS += \
     extensionsystem \
     utils
 QTC_PLUGIN_DEPENDS += \
-    analyzerbase \
+    debugger \
     cpptools
 QTC_TEST_DEPENDS += \
     qbsprojectmanager \

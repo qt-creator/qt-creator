@@ -5,7 +5,6 @@ QTC_LIB_DEPENDS += \
     ssh \
     utils
 QTC_PLUGIN_DEPENDS += \
-    analyzerbase \
     coreplugin \
     debugger \
     projectexplorer \

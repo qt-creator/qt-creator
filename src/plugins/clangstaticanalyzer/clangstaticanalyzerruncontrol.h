@@ -26,7 +26,7 @@
 #ifndef CLANGSTATICANALYZERRUNCONTROL_H
 #define CLANGSTATICANALYZERRUNCONTROL_H
 
-#include <analyzerbase/analyzerruncontrol.h>
+#include <debugger/analyzer/analyzerruncontrol.h>
 #include <cpptools/projectinfo.h>
 #include <utils/environment.h>
 

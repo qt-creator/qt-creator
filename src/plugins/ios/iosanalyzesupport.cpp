@@ -34,14 +34,14 @@
 #include <debugger/debuggerruncontrol.h>
 #include <debugger/debuggerstartparameters.h>
 #include <debugger/debuggerrunconfigurationaspect.h>
+#include <debugger/analyzer/ianalyzertool.h>
+#include <debugger/analyzer/analyzermanager.h>
+#include <debugger/analyzer/analyzerruncontrol.h>
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/taskhub.h>
 #include <qtsupport/qtkitinformation.h>
 #include <utils/fileutils.h>
-#include <analyzerbase/ianalyzertool.h>
-#include <analyzerbase/analyzermanager.h>
-#include <analyzerbase/analyzerruncontrol.h>
 #include <utils/outputformat.h>
 #include <utils/qtcprocess.h>
 

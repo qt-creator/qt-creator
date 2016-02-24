@@ -33,11 +33,11 @@
 #include "valgrindsettings.h"
 #include "valgrindconfigwidget.h"
 
-#include <analyzerbase/analyzericons.h>
-#include <analyzerbase/analyzermanager.h>
-#include <analyzerbase/analyzerruncontrol.h>
-#include <analyzerbase/analyzerstartparameters.h>
-#include <analyzerbase/startremotedialog.h>
+#include <debugger/analyzer/analyzericons.h>
+#include <debugger/analyzer/analyzermanager.h>
+#include <debugger/analyzer/analyzerruncontrol.h>
+#include <debugger/analyzer/analyzerstartparameters.h>
+#include <debugger/analyzer/startremotedialog.h>
 
 #include <coreplugin/dialogs/ioptionspage.h>
 #include <coreplugin/actionmanager/actioncontainer.h>

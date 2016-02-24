@@ -43,14 +43,16 @@ public:
     DebuggerPlugin();
     ~DebuggerPlugin();
 
+    static DebuggerPlugin *instance();
+
 private:
     // IPlugin implementation.
-    bool initialize(const QStringList &arguments, QString *errorMessage);
+    bool initialize(const QStringList &arguments, QString *errorMessage) override;
     QObject *remoteCommand(const QStringList &options,
                            const QString &workingDirectory,
-                           const QStringList &arguments);
-    ShutdownFlag aboutToShutdown();
-    void extensionsInitialized();
+                           const QStringList &arguments) override;
+    ShutdownFlag aboutToShutdown() override;
+    void extensionsInitialized() override;
 
     // Called from AppOutputPane::attachToRunControl().
     Q_SLOT void attachExternalApplication(ProjectExplorer::RunControl *rc);

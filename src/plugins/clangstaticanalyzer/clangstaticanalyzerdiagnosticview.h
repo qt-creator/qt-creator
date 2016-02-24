@@ -26,7 +26,7 @@
 #ifndef CLANGSTATICANALYZERDIAGNOSTICVIEW_H
 #define CLANGSTATICANALYZERDIAGNOSTICVIEW_H
 
-#include <analyzerbase/detailederrorview.h>
+#include <debugger/analyzer/detailederrorview.h>
 
 namespace ClangStaticAnalyzer {
 namespace Internal {

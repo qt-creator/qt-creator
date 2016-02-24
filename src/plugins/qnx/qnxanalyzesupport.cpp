@@ -29,7 +29,7 @@
 #include "qnxrunconfiguration.h"
 #include "slog2inforunner.h"
 
-#include <analyzerbase/analyzerruncontrol.h>
+#include <debugger/analyzer/analyzerruncontrol.h>
 #include <projectexplorer/devicesupport/deviceapplicationrunner.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/target.h>

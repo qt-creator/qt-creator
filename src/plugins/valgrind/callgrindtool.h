@@ -26,7 +26,7 @@
 #ifndef CALLGRINDTOOL_H
 #define CALLGRINDTOOL_H
 
-#include <analyzerbase/ianalyzertool.h>
+#include <debugger/analyzer/ianalyzertool.h>
 
 namespace Valgrind {
 namespace Internal {

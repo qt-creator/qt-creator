@@ -28,10 +28,10 @@
 #include "androidrunner.h"
 #include "androidmanager.h"
 
-#include <analyzerbase/ianalyzertool.h>
-#include <analyzerbase/analyzermanager.h>
-#include <analyzerbase/analyzerruncontrol.h>
-#include <analyzerbase/analyzerstartparameters.h>
+#include <debugger/analyzer/ianalyzertool.h>
+#include <debugger/analyzer/analyzermanager.h>
+#include <debugger/analyzer/analyzerruncontrol.h>
+#include <debugger/analyzer/analyzerstartparameters.h>
 
 #include <projectexplorer/target.h>
 #include <projectexplorer/project.h>

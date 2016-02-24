@@ -4,8 +4,7 @@ QTC_PLUGIN_DEPENDS += \
     debugger \
     projectexplorer \
     qtsupport \
-    texteditor \
-    analyzerbase
+    texteditor
 
 QTC_LIB_DEPENDS += \
     extensionsystem \

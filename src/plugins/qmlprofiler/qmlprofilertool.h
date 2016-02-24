@@ -30,8 +30,8 @@
 #include "qmlprofilerconstants.h"
 #include "qmldebug/qmlprofilereventtypes.h"
 
-#include <analyzerbase/ianalyzertool.h>
-#include <analyzerbase/analyzerruncontrol.h>
+#include <debugger/analyzer/ianalyzertool.h>
+#include <debugger/analyzer/analyzerruncontrol.h>
 
 QT_BEGIN_NAMESPACE
 class QMessageBox;

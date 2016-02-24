@@ -69,6 +69,9 @@
 #include "commonoptionspage.h"
 #include "gdb/startgdbserverdialog.h"
 
+#include "analyzer/analyzerconstants.h"
+#include "analyzer/analyzermanager.h"
+
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/command.h>
@@ -99,6 +102,7 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/runnables.h>
 #include <projectexplorer/session.h>
+#include <projectexplorer/taskhub.h>
 #include <projectexplorer/target.h>
 
 #include <texteditor/texteditor.h>
@@ -385,6 +389,9 @@ using namespace ExtensionSystem;
 using namespace ProjectExplorer;
 using namespace TextEditor;
 using namespace Utils;
+
+using namespace Analyzer;
+//using namespace Analyzer::Internal;
 
 namespace CC = Core::Constants;
 namespace PE = ProjectExplorer::Constants;
@@ -3168,16 +3175,25 @@ QSharedPointer<Internal::GlobalDebuggerOptions> globalDebuggerOptions()
     is DebuggerCore, implemented in DebuggerPluginPrivate.
 */
 
+static DebuggerPlugin *m_instance = 0;
+
 DebuggerPlugin::DebuggerPlugin()
 {
     setObjectName(QLatin1String("DebuggerPlugin"));
     dd = new DebuggerPluginPrivate(this);
+    m_instance = this;
 }
 
 DebuggerPlugin::~DebuggerPlugin()
 {
     delete dd;
     dd = 0;
+    m_instance = 0;
+}
+
+DebuggerPlugin *DebuggerPlugin::instance()
+{
+    return m_instance;
 }
 
 bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMessage)
@@ -3198,6 +3214,13 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
 
     KitManager::registerKitInformation(new DebuggerKitInformation);
 
+    // Ex-Analyzer stuff
+    (void) new AnalyzerManager(this);
+
+    // Task integration.
+    //: Category under which Analyzer tasks are listed in Issues view
+    ProjectExplorer::TaskHub::addCategory(Analyzer::Constants::ANALYZERTASK_ID, tr("Analyzer"));
+
     return dd->initialize(arguments, errorMessage);
 }
 
@@ -3205,6 +3228,7 @@ IPlugin::ShutdownFlag DebuggerPlugin::aboutToShutdown()
 {
     removeObject(this);
     dd->aboutToShutdown();
+    AnalyzerManager::shutdown();
     return SynchronousShutdown;
 }
 

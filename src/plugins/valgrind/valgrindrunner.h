@@ -27,7 +27,7 @@
 #ifndef VALGRIND_RUNNER_H
 #define VALGRIND_RUNNER_H
 
-#include <analyzerbase/analyzerconstants.h>
+#include <debugger/analyzer/analyzerconstants.h>
 
 #include <projectexplorer/runnables.h>
 

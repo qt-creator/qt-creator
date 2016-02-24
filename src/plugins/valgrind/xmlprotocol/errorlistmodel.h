@@ -27,7 +27,7 @@
 #ifndef LIBVALGRIND_PROTOCOL_ERRORLISTMODEL_H
 #define LIBVALGRIND_PROTOCOL_ERRORLISTMODEL_H
 
-#include <analyzerbase/detailederrorview.h>
+#include <debugger/analyzer/detailederrorview.h>
 #include <utils/treemodel.h>
 
 #include <QSharedPointer>

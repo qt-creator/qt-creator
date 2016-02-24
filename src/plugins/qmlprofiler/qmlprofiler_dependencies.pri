@@ -7,7 +7,7 @@ QTC_LIB_DEPENDS += \
     timeline \
     utils
 QTC_PLUGIN_DEPENDS += \
-    analyzerbase \
+    debugger \
     coreplugin \
     projectexplorer \
     qtsupport \

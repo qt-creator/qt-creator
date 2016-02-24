@@ -28,7 +28,7 @@
 #include "qmlprofilerplugin.h"
 #include "qmlprofilerconstants.h"
 
-#include <analyzerbase/analyzerrunconfigwidget.h>
+#include <debugger/analyzer/analyzerrunconfigwidget.h>
 
 namespace QmlProfiler {
 namespace Internal {

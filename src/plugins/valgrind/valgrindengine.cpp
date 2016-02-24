@@ -28,8 +28,8 @@
 #include "valgrindsettings.h"
 #include "valgrindplugin.h"
 
-#include <analyzerbase/analyzermanager.h>
-#include <analyzerbase/analyzerstartparameters.h>
+#include <debugger/analyzer/analyzermanager.h>
+#include <debugger/analyzer/analyzerstartparameters.h>
 
 #include <coreplugin/icore.h>
 #include <coreplugin/ioutputpane.h>

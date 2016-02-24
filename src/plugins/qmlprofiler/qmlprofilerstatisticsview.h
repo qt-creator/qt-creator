@@ -32,7 +32,7 @@
 #include "qmlprofilereventsview.h"
 
 #include <qmldebug/qmlprofilereventtypes.h>
-#include <analyzerbase/ianalyzertool.h>
+#include <debugger/analyzer/ianalyzertool.h>
 #include <utils/itemviews.h>
 
 #include <QStandardItemModel>

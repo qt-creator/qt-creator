@@ -27,7 +27,7 @@
 #ifndef VALGRINDENGINE_H
 #define VALGRINDENGINE_H
 
-#include <analyzerbase/analyzerruncontrol.h>
+#include <debugger/analyzer/analyzerruncontrol.h>
 #include <utils/environment.h>
 #include <valgrind/valgrindrunner.h>
 #include <valgrind/valgrindsettings.h>

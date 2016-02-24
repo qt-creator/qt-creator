@@ -43,9 +43,9 @@
 #include <valgrind/valgrindplugin.h>
 #include <valgrind/valgrindsettings.h>
 
-#include <analyzerbase/analyzermanager.h>
-#include <analyzerbase/analyzerutils.h>
-#include <analyzerbase/analyzerconstants.h>
+#include <debugger/analyzer/analyzermanager.h>
+#include <debugger/analyzer/analyzerutils.h>
+#include <debugger/analyzer/analyzerconstants.h>
 
 #include <coreplugin/coreicons.h>
 #include <coreplugin/icore.h>
