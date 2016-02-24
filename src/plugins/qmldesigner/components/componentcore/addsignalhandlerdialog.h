@@ -43,7 +43,7 @@ public:
     QString signal() const;
 
 signals:
-    void done();
+    void signalSelected();
 
 private:
     void updateComboBox();

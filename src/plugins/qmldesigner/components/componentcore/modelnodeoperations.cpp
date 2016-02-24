@@ -695,7 +695,7 @@ void gotoImplementation(const SelectionContext &selectionState)
             AddSignalHandlerDialog *dialog = new AddSignalHandlerDialog(Core::ICore::dialogParent());
             dialog->setSignals(signalNames);
 
-            AddSignalHandlerDialog::connect(dialog, &AddSignalHandlerDialog::done, [=] {
+            AddSignalHandlerDialog::connect(dialog, &AddSignalHandlerDialog::signalSelected, [=] {
                 dialog->deleteLater();
 
                 if (dialog->signal().isEmpty())

@@ -74,5 +74,5 @@ void AddSignalHandlerDialog::updateComboBox()
 void AddSignalHandlerDialog::handleAccepted()
 {
     m_signal = m_ui->comboBox->currentText();
-    emit done();
+    emit signalSelected();
 }
