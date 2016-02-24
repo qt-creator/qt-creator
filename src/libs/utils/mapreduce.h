@@ -26,6 +26,7 @@
 #pragma once
 
 #include "utils_global.h"
+#include "algorithm.h"
 #include "runextensions.h"
 
 #include <QFutureWatcher>
@@ -316,6 +317,32 @@ void blockingContainerRefMapReduce(QFutureInterface<ReduceResult> &futureInterfa
 template <typename ReduceResult>
 static void *dummyInit() { return nullptr; }
 
+// copies or moves state to member, and then moves it to the result of the call operator
+template <typename State>
+struct StateWrapper {
+    using StateResult = typename std::decay<State>::type; // State is const& or & for lvalues
+    StateWrapper(State &&state) : m_state(std::forward<State>(state)) { }
+    StateResult operator()()
+    {
+        return std::move(m_state); // invalidates m_state
+    }
+
+    StateResult m_state;
+};
+
+// copies or moves reduce function to member, calls the reduce function with state and mapped value
+template <typename StateResult, typename MapResult, typename ReduceFunction>
+struct ReduceWrapper {
+    using Reduce = typename std::decay<ReduceFunction>::type;
+    ReduceWrapper(ReduceFunction &&reduce) : m_reduce(std::forward<ReduceFunction>(reduce)) { }
+    void operator()(QFutureInterface<StateResult> &, StateResult &state, const MapResult &mapResult)
+    {
+        m_reduce(state, mapResult);
+    }
+
+    Reduce m_reduce;
+};
+
 template <typename MapResult>
 struct DummyReduce {
     MapResult operator()(void *, const MapResult &result) const { return result; }
@@ -327,6 +354,12 @@ struct DummyReduce<void> {
 
 template <typename ReduceResult>
 static void dummyCleanup(void *) { }
+
+template <typename StateResult>
+static void cleanupReportingState(QFutureInterface<StateResult> &fi, StateResult &state)
+{
+    fi.reportResult(state);
+}
 
 } // Internal
 
@@ -440,6 +473,77 @@ mapReduce(std::reference_wrapper<Container> containerWrapper, InitFunction &&ini
                     option);
 }
 
+template <typename ForwardIterator, typename MapFunction, typename State, typename ReduceFunction,
+          typename StateResult = typename std::decay<State>::type, // State = T& or const T& for lvalues, so decay that away
+          typename MapResult = typename Internal::resultType<MapFunction>::type>
+QFuture<StateResult>
+mapReduce(ForwardIterator begin, ForwardIterator end, MapFunction &&map, State &&initialState,
+          ReduceFunction &&reduce, MapReduceOption option = MapReduceOption::Unordered, int size = -1)
+{
+    return mapReduce(begin, end,
+                     Internal::StateWrapper<State>(std::forward<State>(initialState)),
+                     std::forward<MapFunction>(map),
+                     Internal::ReduceWrapper<StateResult, MapResult, ReduceFunction>(std::forward<ReduceFunction>(reduce)),
+                     &Internal::cleanupReportingState<StateResult>,
+                     option, size);
+}
+
+template <typename Container, typename MapFunction, typename State, typename ReduceFunction,
+          typename StateResult = typename std::decay<State>::type, // State = T& or const T& for lvalues, so decay that away
+          typename MapResult = typename Internal::resultType<MapFunction>::type>
+QFuture<StateResult>
+mapReduce(Container &&container, MapFunction &&map, State &&initialState, ReduceFunction &&reduce,
+          MapReduceOption option = MapReduceOption::Unordered)
+{
+    return mapReduce(std::forward<Container>(container),
+                     Internal::StateWrapper<State>(std::forward<State>(initialState)),
+                     std::forward<MapFunction>(map),
+                     Internal::ReduceWrapper<StateResult, MapResult, ReduceFunction>(std::forward<ReduceFunction>(reduce)),
+                     &Internal::cleanupReportingState<StateResult>,
+                     option);
+}
+
+template <typename ForwardIterator, typename MapFunction, typename State, typename ReduceFunction,
+          typename StateResult = typename std::decay<State>::type, // State = T& or const T& for lvalues, so decay that away
+          typename MapResult = typename Internal::resultType<MapFunction>::type>
+Q_REQUIRED_RESULT
+StateResult
+mappedReduced(ForwardIterator begin, ForwardIterator end, MapFunction &&map, State &&initialState,
+              ReduceFunction &&reduce, MapReduceOption option = MapReduceOption::Unordered, int size = -1)
+{
+    return mapReduce(begin, end,
+                     std::forward<MapFunction>(map), std::forward<State>(initialState),
+                     std::forward<ReduceFunction>(reduce),
+                     option, size).result();
+}
+
+template <typename Container, typename MapFunction, typename State, typename ReduceFunction,
+          typename StateResult = typename std::decay<State>::type, // State = T& or const T& for lvalues, so decay that away
+          typename MapResult = typename Internal::resultType<MapFunction>::type>
+Q_REQUIRED_RESULT
+StateResult
+mappedReduced(Container &&container, MapFunction &&map, State &&initialState, ReduceFunction &&reduce,
+              MapReduceOption option = MapReduceOption::Unordered)
+{
+    return mapReduce(std::forward<Container>(container), std::forward<MapFunction>(map),
+                     std::forward<State>(initialState), std::forward<ReduceFunction>(reduce),
+                     option).result();
+}
+
+template <typename ForwardIterator, typename MapFunction,
+          typename MapResult = typename Internal::resultType<MapFunction>::type>
+QFuture<MapResult>
+map(ForwardIterator begin, ForwardIterator end, MapFunction &&map,
+    MapReduceOption option = MapReduceOption::Ordered, int size = -1)
+{
+    return mapReduce(begin, end,
+                     &Internal::dummyInit<MapResult>,
+                     std::forward<MapFunction>(map),
+                     Internal::DummyReduce<MapResult>(),
+                     &Internal::dummyCleanup<MapResult>,
+                     option, size);
+}
+
 template <typename Container, typename MapFunction,
           typename MapResult = typename Internal::resultType<MapFunction>::type>
 QFuture<MapResult>
@@ -451,6 +555,31 @@ map(Container &&container, MapFunction &&map, MapReduceOption option = MapReduce
                      Internal::DummyReduce<MapResult>(),
                      Internal::dummyCleanup<MapResult>,
                      option);
+}
+
+template <template<typename> class ResultContainer, typename ForwardIterator, typename MapFunction,
+          typename MapResult = typename Internal::resultType<MapFunction>::type>
+Q_REQUIRED_RESULT
+ResultContainer<MapResult>
+mapped(ForwardIterator begin, ForwardIterator end, MapFunction &&mapFun,
+    MapReduceOption option = MapReduceOption::Ordered, int size = -1)
+{
+    return Utils::transform<ResultContainer>(map(begin, end,
+                                                 std::forward<MapFunction>(mapFun),
+                                                 option, size).results(),
+                                             [](const MapResult &r) { return r; });
+}
+
+template <template<typename> class ResultContainer, typename Container, typename MapFunction,
+          typename MapResult = typename Internal::resultType<MapFunction>::type>
+Q_REQUIRED_RESULT
+ResultContainer<MapResult>
+mapped(Container &&container, MapFunction &&mapFun, MapReduceOption option = MapReduceOption::Ordered)
+{
+    return Utils::transform<ResultContainer>(map(container,
+                                                 std::forward<MapFunction>(mapFun),
+                                                 option).results(),
+                                             [](const MapResult &r) { return r; });
 }
 
 } // Utils

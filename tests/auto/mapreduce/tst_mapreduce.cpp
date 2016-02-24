@@ -76,6 +76,7 @@ void tst_MapReduce::mapReduce()
     };
 
     {
+        // map without future interface
         QList<double> results = Utils::mapReduce(QList<int>({1, 2, 3, 4, 5}),
                                                  initWithFutureInterface, returnxx,
                                                  reduceWithFutureInterface, cleanupWithFutureInterface)
@@ -84,6 +85,7 @@ void tst_MapReduce::mapReduce()
         QCOMPARE(results, QList<double>({0., 1., 4., 9., 16., 25., 27.5}));
     }
     {
+        // map with future interface
         QList<double> results = Utils::mapReduce(QList<int>({1, 2, 3, 4, 5}),
                                                  initWithFutureInterface, returnxxThroughFutureInterface,
                                                  reduceWithFutureInterface, cleanupWithFutureInterface)
@@ -92,6 +94,7 @@ void tst_MapReduce::mapReduce()
         QCOMPARE(results, QList<double>({0., 1., 4., 9., 16., 25., 27.5}));
     }
     {
+        // reduce without future interface
         QList<double> results = Utils::mapReduce(QList<int>({1, 2, 3, 4, 5}),
                                                  initWithFutureInterface, returnxx,
                                                  reduceWithReturn, cleanupWithFutureInterface)
@@ -110,6 +113,24 @@ void tst_MapReduce::mapReduce()
         QCOMPARE(results, QList<double>({0., 1., 4., 9., 16., 25., 27.5}));
     }
     {
+        // std::cref
+        QList<int> container({1, 2, 3, 4, 5});
+        QCOMPARE(Utils::mapReduce(std::cref(container),
+                                  initWithFutureInterface, returnxx,
+                                  reduceWithReturn, cleanupWithFutureInterface,
+                                  Utils::MapReduceOption::Ordered).results(),
+                 QList<double>({0., 1., 4., 9., 16., 25., 27.5}));
+    }
+    {
+        // std::ref
+        QList<int> container({1, 2, 3, 4, 5});
+        QCOMPARE(Utils::mapReduce(std::ref(container),
+                                  initWithFutureInterface, returnxx,
+                                  reduceWithReturn, cleanupWithFutureInterface,
+                                  Utils::MapReduceOption::Ordered).results(),
+                 QList<double>({0., 1., 4., 9., 16., 25., 27.5}));
+    }
+    {
         // init and cleanup without future interface
         QCOMPARE(Utils::mapReduce(QList<int>({1, 2, 3}),
                                   []() { return 0.; },
@@ -118,6 +139,39 @@ void tst_MapReduce::mapReduce()
                                   [](double &) { },
                                   Utils::MapReduceOption::Ordered).results(),
                  QList<double>({.5, 1.5, 3.}));
+    }
+    {
+        // simplified map reduce without init and cleanup
+        QCOMPARE(Utils::mapReduce(QList<QString>({QLatin1String("blubb"), QLatin1String("foo"), QLatin1String("blah")}),
+                                  [](const QString &val) { return val.size(); },
+                                  90.,
+                                  [](double &state, int val) {
+                                      state /= double(val);
+                                  },
+                                  Utils::MapReduceOption::Ordered).result(),
+                 1.5);
+    }
+    {
+        // simplified map reduce
+        // std::cref
+        QList<int> container({1, 2, 3});
+        QCOMPARE(Utils::mapReduce(std::cref(container), [](int val) { return 2*val; }, 10,
+                                  [](int &state, int val) { state += val; }).result(),
+                 22);
+    }
+    {
+        // simplified map reduce
+        // std::cref
+        QList<int> container({1, 2, 3});
+        QCOMPARE(Utils::mapReduce(std::ref(container), [](int &val) { return 2*val; }, 10,
+                                  [](int &state, int val) { state += val; }).result(),
+                 22);
+    }
+    {
+        // blocking mapReduce = mappedReduced
+        QCOMPARE(Utils::mappedReduced(QList<int>({1, 2, 3}), [](int &val) { return 2*val; }, 10,
+                                      [](int &state, int val) { state += val; }),
+                 22);
     }
 }
 
@@ -158,6 +212,28 @@ void tst_MapReduce::map()
         QList<int> container({2, 5, 1});
         Utils::map(std::ref(container), [](int &x) { x *= 2; }).waitForFinished();
         QCOMPARE(container, QList<int>({4, 10, 2}));
+
+        Utils::map(container.begin(), container.end(), [](int &x) { x *= 2; },
+            Utils::MapReduceOption::Unordered, 3).waitForFinished();
+        QCOMPARE(container, QList<int>({8, 20, 4}));
+    }
+
+    // blocking map = mapped
+    {
+        const QSet<int> sizes = Utils::mapped<QSet>(QStringList({QLatin1String("foo"),
+                                                                      QLatin1String("bar"), QLatin1String("blah")}),
+                                                         [](const QString &s) { return s.size(); });
+        QList<int> vals = sizes.toList();
+        qSort(vals);
+        QCOMPARE(vals, QList<int>({3, 4}));
+    }
+    {
+        const QStringList list({QLatin1String("foo"), QLatin1String("bar"), QLatin1String("blah")});
+        const QSet<int> sizes = Utils::mapped<QSet>(list.cbegin(), list.cend(),
+                                                    [](const QString &s) { return s.size(); });
+        QList<int> vals = sizes.toList();
+        qSort(vals);
+        QCOMPARE(vals, QList<int>({3, 4}));
     }
 }
 
