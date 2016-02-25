@@ -143,7 +143,7 @@ struct resultTypeHasCallOperator<Function, false>
 
 template <typename Callable>
 struct resultTypeHasCallOperator<Callable, true>
-        : public resultTypeTakesArguments<decltype(&Callable::operator()), 1, (functionTraits<decltype(&Callable::operator())>::arity > 1)>
+        : public resultTypeTakesArguments<Callable, 0, (functionTraits<Callable>::arity > 0)>
 {
 };
 
@@ -165,6 +165,17 @@ struct resultType<const Function&> : public resultType<Function>
 
 template <typename Function>
 struct resultType<Function &&> : public resultType<Function>
+{
+};
+
+// work around bug in MSVC 2015 where a reference_wrapper has a call operator even if the wrapped
+// object doesn't
+template <typename Function>
+struct resultType<std::reference_wrapper<Function>> : public resultType<Function>
+{
+};
+template <typename Function>
+struct resultType<std::reference_wrapper<const Function>> : public resultType<Function>
 {
 };
 
