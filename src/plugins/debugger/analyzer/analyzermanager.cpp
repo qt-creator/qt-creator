@@ -161,14 +161,14 @@ public:
 
 public:
     AnalyzerManager *q;
-    Internal::AnalyzerMode *m_mode;
-    bool m_isRunning;
-    FancyMainWindow *m_mainWindow;
-    AnalyzerAction *m_currentAction;
+    Internal::AnalyzerMode *m_mode = 0;
+    bool m_isRunning = false;
+    FancyMainWindow *m_mainWindow = 0;
+    AnalyzerAction *m_currentAction = 0;
     QList<AnalyzerAction *> m_actions;
-    QAction *m_startAction;
-    QAction *m_stopAction;
-    ActionContainer *m_menu;
+    QAction *m_startAction = 0;
+    QAction *m_stopAction = 0;
+    ActionContainer *m_menu = 0;
     QComboBox *m_toolBox;
     QStackedWidget *m_controlsStackWidget;
     QStackedWidget *m_statusLabelsStackWidget;
@@ -188,13 +188,6 @@ private:
 
 AnalyzerManagerPrivate::AnalyzerManagerPrivate(AnalyzerManager *qq):
     q(qq),
-    m_mode(0),
-    m_isRunning(false),
-    m_mainWindow(0),
-    m_currentAction(0),
-    m_startAction(0),
-    m_stopAction(0),
-    m_menu(0),
     m_toolBox(new QComboBox),
     m_controlsStackWidget(new QStackedWidget),
     m_statusLabelsStackWidget(new QStackedWidget)
