@@ -69,6 +69,7 @@ public:
 
     const ProjectExplorer::Kit *kit() const;
     const Utils::FileName buildDirectory() const;
+    const Utils::FileName workDirectory() const;
     const Utils::FileName sourceDirectory() const;
     const CMakeConfig cmakeConfiguration() const;
     bool isParsing() const;
@@ -76,6 +77,7 @@ public:
     void parse();
     void forceReparse();
     void resetData();
+    bool persistCMakeState();
 
     bool isProjectFile(const Utils::FileName &fileName) const;
     QString projectName() const;
@@ -91,6 +93,7 @@ signals:
 
 private:
     void stopProcess();
+    void cleanUpProcess();
     void extractData();
 
     void startCMake(CMakeTool *tool, const QString &generator, const CMakeConfig &config);
@@ -105,6 +108,7 @@ private:
 
     const CMakeBuildConfiguration *m_buildConfiguration = nullptr;
     Utils::QtcProcess *m_cmakeProcess = nullptr;
+    QTemporaryDir *m_tempDir = nullptr;
 
     QSet<Utils::FileName> m_watchedFiles;
     QString m_projectName;

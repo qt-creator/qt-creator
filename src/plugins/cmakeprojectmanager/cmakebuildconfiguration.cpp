@@ -92,7 +92,7 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(ProjectExplorer::Target *parent
     connect(this, &CMakeBuildConfiguration::environmentChanged,
             m_buildDirManager, &BuildDirManager::forceReparse);
     connect(this, &CMakeBuildConfiguration::buildDirectoryChanged,
-            m_buildDirManager, &BuildDirManager::parse);
+            m_buildDirManager, &BuildDirManager::forceReparse);
     connect(target(), &Target::kitChanged, m_buildDirManager, &BuildDirManager::forceReparse);
 
     connect(this, &CMakeBuildConfiguration::parsingStarted, project, &CMakeProject::handleParsingStarted);
@@ -180,6 +180,11 @@ void CMakeBuildConfiguration::parse()
 void CMakeBuildConfiguration::resetData()
 {
     m_buildDirManager->resetData();
+}
+
+bool CMakeBuildConfiguration::persistCMakeState()
+{
+    return m_buildDirManager->persistCMakeState();
 }
 
 QList<ConfigModel::DataItem> CMakeBuildConfiguration::completeCMakeConfiguration() const

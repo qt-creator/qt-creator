@@ -75,6 +75,7 @@ public:
 
     void parse();
     void resetData();
+    bool persistCMakeState();
 
 signals:
     void errorOccured(const QString &message);

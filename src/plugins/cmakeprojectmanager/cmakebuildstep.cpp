@@ -222,6 +222,37 @@ bool CMakeBuildStep::init(QList<const BuildStep *> &earlierSteps)
     return AbstractProcessStep::init(earlierSteps);
 }
 
+void CMakeBuildStep::run(QFutureInterface<bool> &fi)
+{
+    // Make sure CMake state was written to disk before trying to build:
+    CMakeBuildConfiguration *bc = cmakeBuildConfiguration();
+    if (!bc)
+        bc = qobject_cast<CMakeBuildConfiguration *>(target()->activeBuildConfiguration());
+    QTC_ASSERT(bc, return);
+
+    if (bc->persistCMakeState()) {
+        emit addOutput(tr("Persisting CMake state..."), BuildStep::MessageOutput);
+
+        m_runTrigger = connect(bc, &CMakeBuildConfiguration::dataAvailable,
+                               this, [this, &fi]() { runImpl(fi); });
+        m_errorTrigger = connect(bc, &CMakeBuildConfiguration::errorOccured,
+                                 this, [this, &fi]() {
+            fi.reportResult(false);
+        });
+    } else {
+        runImpl(fi);
+    }
+}
+
+void CMakeBuildStep::runImpl(QFutureInterface<bool> &fi)
+{
+    // Do the actual build:
+    disconnect(m_runTrigger);
+    disconnect(m_errorTrigger);
+
+    AbstractProcessStep::run(fi);
+}
+
 BuildStepConfigWidget *CMakeBuildStep::createConfigWidget()
 {
     return new CMakeBuildStepConfigWidget(this);
