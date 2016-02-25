@@ -28,9 +28,9 @@
 #include <QDialog>
 #include <QStringList>
 
-namespace Ui {
-class AddSignalHandlerDialog;
-}
+QT_BEGIN_NAMESPACE
+namespace Ui { class AddSignalHandlerDialog; }
+QT_END_NAMESPACE
 
 class AddSignalHandlerDialog : public QDialog
 {

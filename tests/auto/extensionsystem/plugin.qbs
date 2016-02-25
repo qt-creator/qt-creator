@@ -15,5 +15,6 @@ DynamicLibrary {
         project.buildDirectory + "/" + project.libDirName + "/qtcreator",
         project.buildDirectory + "/" + project.libDirName + "/qtcreator/plugins"
     ].concat(additionalRPaths)
+    cpp.cxxLanguageVersion: "c++11"
     property pathList additionalRPaths: []
 }
