@@ -58,11 +58,11 @@ static void returnxxThroughFutureInterface(QFutureInterface<int> &fi, int x)
 
 void tst_MapReduce::mapReduce()
 {
-    const auto dummyInit = [](QFutureInterface<double>& fi) -> double {
+    const auto initWithFutureInterface = [](QFutureInterface<double> &fi) -> double {
         fi.reportResult(0.);
         return 0.;
     };
-    const auto reduceWithFutureInterface = [](QFutureInterface<double>& fi, double &state, int value) {
+    const auto reduceWithFutureInterface = [](QFutureInterface<double> &fi, double &state, int value) {
         state += value;
         fi.reportResult(value);
     };
@@ -70,31 +70,31 @@ void tst_MapReduce::mapReduce()
         state += value;
         return value;
     };
-    const auto cleanupHalfState = [](QFutureInterface<double> &fi, double &state) {
+    const auto cleanupWithFutureInterface = [](QFutureInterface<double> &fi, double &state) {
         state /= 2.;
         fi.reportResult(state);
     };
 
     {
         QList<double> results = Utils::mapReduce(QList<int>({1, 2, 3, 4, 5}),
-                                                 dummyInit, returnxx,
-                                                 reduceWithFutureInterface, cleanupHalfState)
+                                                 initWithFutureInterface, returnxx,
+                                                 reduceWithFutureInterface, cleanupWithFutureInterface)
                 .results();
         Utils::sort(results); // mapping order is undefined
         QCOMPARE(results, QList<double>({0., 1., 4., 9., 16., 25., 27.5}));
     }
     {
         QList<double> results = Utils::mapReduce(QList<int>({1, 2, 3, 4, 5}),
-                                                 dummyInit, returnxxThroughFutureInterface,
-                                                 reduceWithFutureInterface, cleanupHalfState)
+                                                 initWithFutureInterface, returnxxThroughFutureInterface,
+                                                 reduceWithFutureInterface, cleanupWithFutureInterface)
                 .results();
         Utils::sort(results); // mapping order is undefined
         QCOMPARE(results, QList<double>({0., 1., 4., 9., 16., 25., 27.5}));
     }
     {
         QList<double> results = Utils::mapReduce(QList<int>({1, 2, 3, 4, 5}),
-                                                 dummyInit, returnxx,
-                                                 reduceWithReturn, cleanupHalfState)
+                                                 initWithFutureInterface, returnxx,
+                                                 reduceWithReturn, cleanupWithFutureInterface)
                 .results();
         Utils::sort(results); // mapping order is undefined
         QCOMPARE(results, QList<double>({0., 1., 4., 9., 16., 25., 27.5}));
@@ -103,11 +103,21 @@ void tst_MapReduce::mapReduce()
         // lvalue ref container
         QList<int> container({1, 2, 3, 4, 5});
         QList<double> results = Utils::mapReduce(container,
-                                                 dummyInit, returnxx,
-                                                 reduceWithReturn, cleanupHalfState)
+                                                 initWithFutureInterface, returnxx,
+                                                 reduceWithReturn, cleanupWithFutureInterface)
                 .results();
         Utils::sort(results); // mapping order is undefined
         QCOMPARE(results, QList<double>({0., 1., 4., 9., 16., 25., 27.5}));
+    }
+    {
+        // init and cleanup without future interface
+        QCOMPARE(Utils::mapReduce(QList<int>({1, 2, 3}),
+                                  []() { return 0.; },
+                                  [](int v) { return v*2; },
+                                  [](double &state, int v) { return state += v/4.; },
+                                  [](double &) { },
+                                  Utils::MapReduceOption::Ordered).results(),
+                 QList<double>({.5, 1.5, 3.}));
     }
 }
 
@@ -115,9 +125,9 @@ void tst_MapReduce::mapReduceRvalueContainer()
 {
     {
         QFuture<int> future = Utils::mapReduce(QList<int>({1, 2, 3, 4, 5}),
-                                                 [](QFutureInterface<int>&) { return 0; },
+                                                 []() { return 0; },
                                                  [](int value) { return value; },
-                                                 [](QFutureInterface<int>&, int &state, int value) { state += value; },
+                                                 [](QFutureInterface<int> &, int &state, int value) { state += value; },
                                                  [](QFutureInterface<int> &fi, int &state) { fi.reportResult(state); });
         // here, lifetime of the QList temporary ends
         QCOMPARE(future.results(), QList<int>({15}));
@@ -154,10 +164,10 @@ void tst_MapReduce::map()
 void tst_MapReduce::orderedMapReduce()
 {
     QCOMPARE(Utils::mapReduce(QList<int>({1, 2, 3, 4}),
-                              [](QFutureInterface<int> &) { return 0; },
+                              []() { return 0; },
                               [](int i) { return i*2; },
                               [](int &state, int val) { state += val; return state; },
-                              [](QFutureInterface<int> &, int &) { },
+                              [](int &) { },
                               Utils::MapReduceOption::Ordered).results(),
              QList<int>({2, 6, 12, 20}));
 }

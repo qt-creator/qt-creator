@@ -241,6 +241,32 @@ protected:
 
 };
 
+template <typename ResultType, typename Function, typename... Args>
+typename functionTraits<Function>::ResultType
+callWithMaybeFutureInterfaceDispatch(std::false_type, QFutureInterface<ResultType> &,
+                                     Function &&function, Args&&... args)
+{
+    return function(std::forward<Args>(args)...);
+}
+
+template <typename ResultType, typename Function, typename... Args>
+typename functionTraits<Function>::ResultType
+callWithMaybeFutureInterfaceDispatch(std::true_type, QFutureInterface<ResultType> &futureInterface,
+                                     Function &&function, Args&&... args)
+{
+    return function(futureInterface, std::forward<Args>(args)...);
+}
+
+template <typename ResultType, typename Function, typename... Args>
+typename functionTraits<Function>::ResultType
+callWithMaybeFutureInterface(QFutureInterface<ResultType> &futureInterface,
+                             Function &&function, Args&&... args)
+{
+    return callWithMaybeFutureInterfaceDispatch(
+                functionTakesArgument<Function, 0, QFutureInterface<ResultType>&>(),
+                futureInterface, std::forward<Function>(function), std::forward<Args>(args)...);
+}
+
 template <typename ForwardIterator, typename InitFunction, typename MapFunction, typename ReduceResult,
           typename ReduceFunction, typename CleanUpFunction>
 void blockingIteratorMapReduce(QFutureInterface<ReduceResult> &futureInterface, ForwardIterator begin, ForwardIterator end,
@@ -248,12 +274,14 @@ void blockingIteratorMapReduce(QFutureInterface<ReduceResult> &futureInterface, 
                                ReduceFunction &&reduce, CleanUpFunction &&cleanup,
                                MapReduceOption option, int size)
 {
-    auto state = init(futureInterface);
+    auto state = callWithMaybeFutureInterface<ReduceResult, InitFunction>
+            (futureInterface, std::forward<InitFunction>(init));
     MapReduce<ForwardIterator, typename Internal::resultType<MapFunction>::type, MapFunction, decltype(state), ReduceResult, ReduceFunction>
             mr(futureInterface, begin, end, std::forward<MapFunction>(map), state,
                std::forward<ReduceFunction>(reduce), option, size);
     mr.exec();
-    cleanup(futureInterface, state);
+    callWithMaybeFutureInterface<ReduceResult, CleanUpFunction, typename std::remove_reference<decltype(state)>::type&>
+            (futureInterface, std::forward<CleanUpFunction>(cleanup), state);
 }
 
 template <typename Container, typename InitFunction, typename MapFunction, typename ReduceResult,
@@ -286,7 +314,7 @@ void blockingContainerRefMapReduce(QFutureInterface<ReduceResult> &futureInterfa
 }
 
 template <typename ReduceResult>
-static void *dummyInit(QFutureInterface<ReduceResult> &) { return nullptr; }
+static void *dummyInit() { return nullptr; }
 
 template <typename MapResult>
 struct DummyReduce {
@@ -298,7 +326,7 @@ struct DummyReduce<void> {
 };
 
 template <typename ReduceResult>
-static void dummyCleanup(QFutureInterface<ReduceResult> &, void *) { }
+static void dummyCleanup(void *) { }
 
 } // Internal
 
@@ -342,7 +370,10 @@ mapReduce(ForwardIterator begin, ForwardIterator end, InitFunction &&init, MapFu
     mapReduce.
 
     Container<ItemType>
+
     StateType InitFunction(QFutureInterface<ReduceResultType>&)
+    or
+    StateType InitFunction()
 
     void MapFunction(QFutureInterface<MapResultType>&, const ItemType&)
     or
@@ -353,6 +384,8 @@ mapReduce(ForwardIterator begin, ForwardIterator end, InitFunction &&init, MapFu
     ReduceResultType ReduceFunction(StateType&, const ItemType&)
 
     void CleanUpFunction(QFutureInterface<ReduceResultType>&, StateType&)
+    or
+    void CleanUpFunction(StateType&)
 
     Notes:
     \list
