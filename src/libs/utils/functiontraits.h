@@ -29,6 +29,26 @@
 
 namespace Utils {
 
+/*
+    struct functionTraits<Function>
+    {
+        using ResultType; // Return type of Function
+        struct argument<unsigned index>
+        {
+            using type; // type of Function argument at index (starting with 0)
+        }
+    }
+
+    struct functionTakesArgument<Function, unsigned index, ArgumentType>;
+
+    Is derived from std::true_type if Function takes an argument of type ArgumentType at index.
+    Otherwise derived from std::false_type.
+*/
+
+////////////////////
+// functionTraits
+////////////////////
+
 // for callables. defined below.
 template <typename Callable>
 struct functionTraits;
@@ -132,6 +152,36 @@ struct functionTraits<const Callable&> : public functionTraits<Callable>
 // rvalue ref callables
 template <typename Callable>
 struct functionTraits<Callable&&> : public functionTraits<Callable>
+{
+};
+
+////////////////////
+// functionTakesArgument
+////////////////////
+namespace Internal {
+
+template <typename HasArity/*true_type or false_type*/,
+          typename Function, unsigned index, typename T>
+struct functionTakesArgumentArityDispatch;
+
+template <typename Function, unsigned index, typename T>
+struct functionTakesArgumentArityDispatch<std::false_type, Function, index, T>
+        : public std::false_type
+{
+};
+
+template <typename Function, unsigned index, typename T>
+struct functionTakesArgumentArityDispatch<std::true_type, Function, index, T>
+        : public std::is_same<T, typename functionTraits<Function>::template argument<index>::type>
+{
+};
+
+} // Internal
+
+template <typename Function, unsigned index, typename T>
+struct functionTakesArgument : public Internal::functionTakesArgumentArityDispatch<
+        std::integral_constant<bool, (functionTraits<Function>::arity > index)>,
+        Function, index, T>
 {
 };
 
