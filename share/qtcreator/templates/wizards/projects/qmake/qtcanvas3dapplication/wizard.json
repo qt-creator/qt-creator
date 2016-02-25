@@ -7,7 +7,7 @@
     "trDisplayName": "Qt Canvas 3D Application",
     "trDisplayCategory": "Application",
     "icon": "3dapplication.png",
-    "featuresRequired": [ "QtSupport.Wizards.FeatureQtCanvas3d" ],
+    "featuresRequired": [ "QtSupport.Wizards.FeatureQtCanvas3d1.1" ],
     "enabled": "%{JS: [ %{Plugins} ].indexOf('QmakeProjectManager') >= 0}",
 
     "options":

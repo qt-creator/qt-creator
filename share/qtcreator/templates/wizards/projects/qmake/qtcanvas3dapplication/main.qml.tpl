@@ -1,5 +1,5 @@
 import QtQuick 2.4
-import QtCanvas3D 1.0
+import QtCanvas3D 1.1
 import QtQuick.Window 2.2
 
 import "glcode.js" as GLCode
