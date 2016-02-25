@@ -44,12 +44,12 @@ class TestOutputReader : public QObject
 {
     Q_OBJECT
 public:
-    TestOutputReader(QFutureInterface<TestResult *> futureInterface,
+    TestOutputReader(const QFutureInterface<TestResultPtr> &futureInterface,
                      QProcess *testApplication, const QString &buildDirectory);
 
 protected:
     virtual void processOutput() = 0;
-    QFutureInterface<TestResult *> m_futureInterface;
+    QFutureInterface<TestResultPtr> m_futureInterface;
     QProcess *m_testApplication;  // not owned
     QString m_buildDir;
 };
@@ -57,7 +57,7 @@ protected:
 class QtTestOutputReader : public TestOutputReader
 {
 public:
-    QtTestOutputReader(QFutureInterface<TestResult *> futureInterface,
+    QtTestOutputReader(const QFutureInterface<TestResultPtr> &futureInterface,
                        QProcess *testApplication, const QString &buildDirectory);
 
 protected:
@@ -89,7 +89,7 @@ private:
 class GTestOutputReader : public TestOutputReader
 {
 public:
-    GTestOutputReader(QFutureInterface<TestResult *> futureInterface,
+    GTestOutputReader(const QFutureInterface<TestResultPtr> &futureInterface,
                       QProcess *testApplication, const QString &buildDirectory);
 
 protected:

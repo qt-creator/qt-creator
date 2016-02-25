@@ -41,15 +41,15 @@ namespace Internal {
 class TestResultItem : public Utils::TreeItem
 {
 public:
-    explicit TestResultItem(TestResult *testResult);
+    explicit TestResultItem(const TestResultPtr &testResult);
     ~TestResultItem();
     QVariant data(int column, int role) const;
-    const TestResult *testResult() const { return m_testResult; }
+    const TestResult *testResult() const { return m_testResult.data(); }
     void updateDescription(const QString &description);
     void updateResult();
 
 private:
-    TestResult *m_testResult;
+    TestResultPtr m_testResult;
 };
 
 class TestResultModel : public Utils::TreeModel
@@ -58,7 +58,7 @@ public:
     explicit TestResultModel(QObject *parent = 0);
     QVariant data(const QModelIndex &idx, int role) const;
 
-    void addTestResult(TestResult *testResult, bool autoExpand = false);
+    void addTestResult(const TestResultPtr &testResult, bool autoExpand = false);
     void removeCurrentTestMessage();
     void clearTestResults();
 

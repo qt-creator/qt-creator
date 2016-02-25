@@ -31,6 +31,7 @@
 #include <QString>
 #include <QColor>
 #include <QMetaType>
+#include <QSharedPointer>
 
 namespace Autotest {
 namespace Internal {
@@ -103,6 +104,8 @@ private:
     TestType m_type;
     // environment?
 };
+
+using TestResultPtr = QSharedPointer<TestResult>;
 
 class FaultyTestResult : public TestResult
 {

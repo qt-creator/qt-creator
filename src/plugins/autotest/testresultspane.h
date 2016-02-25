@@ -26,6 +26,8 @@
 #ifndef TESTRESULTSPANE_H
 #define TESTRESULTSPANE_H
 
+#include "testresult.h"
+
 #include <coreplugin/ioutputpane.h>
 
 #include <utils/itemviews.h>
@@ -47,7 +49,6 @@ class IContext;
 namespace Autotest {
 namespace Internal {
 
-class TestResult;
 class TestResultModel;
 class TestResultFilterModel;
 
@@ -90,7 +91,7 @@ public:
 signals:
 
 public slots:
-    void addTestResult(TestResult *result);
+    void addTestResult(const TestResultPtr &result);
 
 private slots:
     void onItemActivated(const QModelIndex &index);

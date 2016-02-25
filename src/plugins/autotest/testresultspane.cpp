@@ -200,7 +200,7 @@ TestResultsPane::~TestResultsPane()
     m_instance = 0;
 }
 
-void TestResultsPane::addTestResult(TestResult *result)
+void TestResultsPane::addTestResult(const TestResultPtr &result)
 {
     const QScrollBar *scrollBar = m_treeView->verticalScrollBar();
     m_atEnd = scrollBar ? scrollBar->value() == scrollBar->maximum() : true;
