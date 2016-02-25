@@ -673,23 +673,15 @@ bool operator==(Type first, const SmallString& second) noexcept
 inline
 bool operator==(const SmallString& first, const SmallString& second) noexcept
 {
-    if (Q_LIKELY(first.size() != second.size()))
-        return false;
-
-    const int comparison = std::memcmp(first.data(), second.data(), first.size());
-
-    return comparison == 0;
+    return first.size() == second.size()
+        && std::memcmp(first.data(), second.data(), first.size()) == 0;
 }
 
 inline
 bool operator==(const SmallString& first, const SmallStringView& second) noexcept
 {
-    if (Q_LIKELY(first.size() != second.size()))
-        return false;
-
-    const int comparison = std::memcmp(first.data(), second.data(), first.size());
-
-    return comparison == 0;
+    return first.size() == second.size()
+        && std::memcmp(first.data(), second.data(), first.size()) == 0;
 }
 
 inline
