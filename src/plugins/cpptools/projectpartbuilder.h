@@ -31,6 +31,8 @@
 #include "projectinfo.h"
 #include "projectpart.h"
 
+#include <functional>
+
 namespace ProjectExplorer {
 class ToolChain;
 }
@@ -53,7 +55,10 @@ public:
     void setDisplayName(const QString &displayName);
     void setConfigFileName(const QString &configFileName);
 
-    QList<Core::Id> createProjectPartsForFiles(const QStringList &files);
+    using FileClassifier = std::function<ProjectFile::Kind (const QString &filePath)>;
+
+    QList<Core::Id> createProjectPartsForFiles(const QStringList &files,
+                                               FileClassifier fileClassifier = FileClassifier());
 
     static void evaluateProjectPartToolchain(ProjectPart *projectPart,
                                              const ProjectExplorer::ToolChain *toolChain,
@@ -61,7 +66,8 @@ public:
                                              const Utils::FileName &sysRoot);
 
 private:
-    void createProjectPart(const QStringList &theSources, const QString &partName,
+    void createProjectPart(const QVector<ProjectFile> &theSources,
+                           const QString &partName,
                            ProjectPart::LanguageVersion languageVersion,
                            ProjectPart::LanguageExtensions languageExtensions);
 

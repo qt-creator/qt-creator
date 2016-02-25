@@ -76,11 +76,14 @@
 #include <QComboBox>
 #include <QDir>
 #include <QEvent>
+#include <QFileDialog>
 #include <QFileInfo>
 #include <QFrame>
 #include <QHBoxLayout>
+#include <QImageWriter>
 #include <QLabel>
 #include <QMap>
+#include <QMessageBox>
 #include <QPainter>
 #include <QPixmap>
 #include <QScrollArea>
@@ -121,6 +124,7 @@ public:
     QWidget *toolbar = 0;
     QComboBox *diagramSelector = 0;
     SelectedArea selectedArea = SelectedArea::Nothing;
+    QString lastExportDirPath;
 };
 
 ModelEditor::ModelEditor(UiController *uiController, ActionHandler *actionHandler, QWidget *parent)
@@ -512,6 +516,41 @@ void ModelEditor::editProperties()
 void ModelEditor::editSelectedItem()
 {
     onEditSelectedElement();
+}
+
+void ModelEditor::exportDiagram()
+{
+    qmt::MDiagram *diagram = currentDiagram();
+    if (diagram) {
+        if (d->lastExportDirPath.isEmpty())
+            d->lastExportDirPath = d->document->filePath().toFileInfo().canonicalPath();
+        QString fileName = QFileDialog::getSaveFileName(
+                    Core::ICore::dialogParent(),
+                    tr("Export Diagram"), d->lastExportDirPath,
+                    tr("Images (*.png *.jpeg *.jpg *.tif *.tiff);;PDF (*.pdf);;SVG (*.svg)"));
+        if (!fileName.isEmpty()) {
+            qmt::DocumentController *documentController = d->document->documentController();
+            qmt::DiagramSceneModel *sceneModel = documentController->diagramsManager()->diagramSceneModel(diagram);
+            bool success = false;
+            QString suffix = QFileInfo(fileName).suffix().toLower();
+            // TODO use QFileDialog::selectedNameFilter() as fallback if no suffix is given
+            if (suffix.isEmpty()) {
+                suffix = QStringLiteral(".png");
+                fileName += suffix;
+            }
+            if (suffix == QStringLiteral(".pdf"))
+                success = sceneModel->exportPdf(fileName);
+            else if (suffix == QStringLiteral(".svg"))
+                success = sceneModel->exportSvg(fileName);
+            else
+                success = sceneModel->exportImage(fileName);
+            if (success)
+                d->lastExportDirPath = QFileInfo(fileName).canonicalPath();
+            else
+                QMessageBox::critical(Core::ICore::dialogParent(), tr("Exporting Diagram Failed"),
+                                      tr("Exporting the diagram into file<br>\"%1\"<br>failed.").arg(fileName));
+        }
+    }
 }
 
 qmt::MPackage *ModelEditor::guessSelectedPackage() const

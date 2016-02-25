@@ -44,21 +44,30 @@ namespace {
 class ProjectFileCategorizer
 {
 public:
-    ProjectFileCategorizer(const QString &partName, const QStringList &files)
+    ProjectFileCategorizer(const QString &partName,
+                           const QStringList &files,
+                           ProjectPartBuilder::FileClassifier fileClassifier
+                                = ProjectPartBuilder::FileClassifier())
         : m_partName(partName)
     {
         using CppTools::ProjectFile;
 
-        QStringList cHeaders, cxxHeaders;
+        QVector<ProjectFile> cHeaders;
+        QVector<ProjectFile> cxxHeaders;
 
         foreach (const QString &file, files) {
-            switch (ProjectFile::classify(file)) {
-            case ProjectFile::CSource: m_cSources += file; break;
-            case ProjectFile::CHeader: cHeaders += file; break;
-            case ProjectFile::CXXSource: m_cxxSources += file; break;
-            case ProjectFile::CXXHeader: cxxHeaders += file; break;
-            case ProjectFile::ObjCSource: m_objcSources += file; break;
-            case ProjectFile::ObjCXXSource: m_objcxxSources += file; break;
+            const ProjectFile::Kind kind = fileClassifier
+                    ? fileClassifier(file)
+                    : ProjectFile::classify(file);
+            const ProjectFile projectFile(file, kind);
+
+            switch (kind) {
+            case ProjectFile::CSource: m_cSources += projectFile; break;
+            case ProjectFile::CHeader: cHeaders += projectFile; break;
+            case ProjectFile::CXXSource: m_cxxSources += projectFile; break;
+            case ProjectFile::CXXHeader: cxxHeaders += projectFile; break;
+            case ProjectFile::ObjCSource: m_objcSources += projectFile; break;
+            case ProjectFile::ObjCXXSource: m_objcxxSources += projectFile; break;
             default:
                 continue;
             }
@@ -92,10 +101,10 @@ public:
     bool hasObjcSources() const { return !m_objcSources.isEmpty(); }
     bool hasObjcxxSources() const { return !m_objcxxSources.isEmpty(); }
 
-    QStringList cSources() const { return m_cSources; }
-    QStringList cxxSources() const { return m_cxxSources; }
-    QStringList objcSources() const { return m_objcSources; }
-    QStringList objcxxSources() const { return m_objcxxSources; }
+    QVector<ProjectFile> cSources() const { return m_cSources; }
+    QVector<ProjectFile> cxxSources() const { return m_cxxSources; }
+    QVector<ProjectFile> objcSources() const { return m_objcSources; }
+    QVector<ProjectFile> objcxxSources() const { return m_objcxxSources; }
 
     bool hasMultipleParts() const { return m_partCount > 1; }
     bool hasNoParts() const { return m_partCount == 0; }
@@ -110,7 +119,10 @@ public:
 
 private:
     QString m_partName;
-    QStringList m_cSources, m_cxxSources, m_objcSources, m_objcxxSources;
+    QVector<ProjectFile> m_cSources;
+    QVector<ProjectFile> m_cxxSources;
+    QVector<ProjectFile> m_objcSources;
+    QVector<ProjectFile> m_objcxxSources;
     int m_partCount;
 };
 } // anonymous namespace
@@ -191,11 +203,12 @@ void ProjectPartBuilder::setConfigFileName(const QString &configFileName)
     m_templatePart->projectConfigFile = configFileName;
 }
 
-QList<Core::Id> ProjectPartBuilder::createProjectPartsForFiles(const QStringList &files)
+QList<Core::Id> ProjectPartBuilder::createProjectPartsForFiles(const QStringList &files,
+                                                               FileClassifier fileClassifier)
 {
     QList<Core::Id> languages;
 
-    ProjectFileCategorizer cat(m_templatePart->displayName, files);
+    ProjectFileCategorizer cat(m_templatePart->displayName, files, fileClassifier);
     if (cat.hasNoParts())
         return languages;
 
@@ -314,66 +327,14 @@ void ProjectPartBuilder::evaluateProjectPartToolchain(
     projectPart->updateLanguageFeatures();
 }
 
-namespace Internal {
-
-class ProjectFileAdder
-{
-public:
-    ProjectFileAdder(QVector<ProjectFile> &files);
-    ~ProjectFileAdder();
-
-    bool maybeAdd(const QString &path);
-
-private:
-
-    void addMapping(const char *mimeName, ProjectFile::Kind kind);
-
-    QVector<ProjectFile> &m_files;
-    QHash<QString, ProjectFile::Kind> m_mimeNameMapping;
-};
-
-ProjectFileAdder::ProjectFileAdder(QVector<ProjectFile> &files)
-    : m_files(files)
-{
-    addMapping(CppTools::Constants::C_SOURCE_MIMETYPE, ProjectFile::CSource);
-    addMapping(CppTools::Constants::C_HEADER_MIMETYPE, ProjectFile::CHeader);
-    addMapping(CppTools::Constants::CPP_SOURCE_MIMETYPE, ProjectFile::CXXSource);
-    addMapping(CppTools::Constants::CPP_HEADER_MIMETYPE, ProjectFile::CXXHeader);
-    addMapping(CppTools::Constants::OBJECTIVE_C_SOURCE_MIMETYPE, ProjectFile::ObjCSource);
-    addMapping(CppTools::Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE, ProjectFile::ObjCXXSource);
-}
-
-ProjectFileAdder::~ProjectFileAdder()
-{
-}
-
-bool ProjectFileAdder::maybeAdd(const QString &path)
-{
-    Utils::MimeDatabase mdb;
-    const Utils::MimeType mt = mdb.mimeTypeForFile(path);
-    if (m_mimeNameMapping.contains(mt.name())) {
-        m_files << ProjectFile(path, m_mimeNameMapping.value(mt.name()));
-        return true;
-    }
-    return false;
-}
-
-void ProjectFileAdder::addMapping(const char *mimeName, ProjectFile::Kind kind)
-{
-    Utils::MimeDatabase mdb;
-    Utils::MimeType mimeType = mdb.mimeTypeForName(QLatin1String(mimeName));
-    if (mimeType.isValid())
-        m_mimeNameMapping.insert(mimeType.name(), kind);
-}
-}
-
-void ProjectPartBuilder::createProjectPart(const QStringList &theSources,
+void ProjectPartBuilder::createProjectPart(const QVector<ProjectFile> &theSources,
                                            const QString &partName,
                                            ProjectPart::LanguageVersion languageVersion,
                                            ProjectPart::LanguageExtensions languageExtensions)
 {
     ProjectPart::Ptr part(m_templatePart->copy());
     part->displayName = partName;
+    part->files = theSources;
 
     QTC_ASSERT(part->project, return);
     if (ProjectExplorer::Target *activeTarget = part->project->activeTarget()) {
@@ -390,10 +351,6 @@ void ProjectPartBuilder::createProjectPart(const QStringList &theSources,
     }
 
     part->languageExtensions |= languageExtensions;
-
-    Internal::ProjectFileAdder adder(part->files);
-    foreach (const QString &file, theSources)
-        adder.maybeAdd(file);
 
     m_pInfo.appendProjectPart(part);
 }

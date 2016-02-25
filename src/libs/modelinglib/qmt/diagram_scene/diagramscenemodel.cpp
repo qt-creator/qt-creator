@@ -57,10 +57,9 @@
 
 #include <QBuffer>
 #include <QPdfWriter>
+#include <QFile>
 
-#ifdef USE_SVG_CLIPBOARD
 #include <QtSvg/QSvgGenerator>
-#endif
 
 namespace qmt {
 
@@ -372,6 +371,8 @@ void DiagramSceneModel::copyToClipboard()
 
 #ifdef USE_SVG_CLIPBOARD
     {
+        const double border = 5;
+
         QBuffer svgBuffer;
         QSvgGenerator svgGenerator;
         svgGenerator.setOutputDevice(&svgBuffer);
@@ -383,8 +384,8 @@ void DiagramSceneModel::copyToClipboard()
         svgPainter.setRenderHint(QPainter::Antialiasing);
         m_graphicsScene->render(&svgPainter,
                                 QRectF(border, border,
-                                       painter.device()->width() - 2 * border,
-                                       painter.device()->height() - 2 * border),
+                                       svgPainter.device()->width() - 2 * border,
+                                       svgPainter.device()->height() - 2 * border),
                                 sceneBoundingRect);
         svgPainter.end();
         mimeData->setData(QStringLiteral("image/svg+xml"), svgBuffer.buffer());
@@ -414,8 +415,9 @@ void DiagramSceneModel::copyToClipboard()
     }
 }
 
-bool DiagramSceneModel::exportPng(const QString &fileName)
+bool DiagramSceneModel::exportImage(const QString &fileName)
 {
+    // TODO support exporting selected elements only
     removeExtraSceneItems();
 
     QRectF sceneBoundingRect = m_graphicsScene->itemsBoundingRect();
@@ -450,8 +452,9 @@ bool DiagramSceneModel::exportPng(const QString &fileName)
     return success;
 }
 
-void DiagramSceneModel::exportPdf(const QString &fileName)
+bool DiagramSceneModel::exportPdf(const QString &fileName)
 {
+    // TODO support exporting selected elements only
     removeExtraSceneItems();
 
     QRectF sceneBoundingRect = m_graphicsScene->itemsBoundingRect();
@@ -479,6 +482,39 @@ void DiagramSceneModel::exportPdf(const QString &fileName)
     pdfPainter.end();
 
     addExtraSceneItems();
+
+    // TODO how to know that file was successfully created?
+    return true;
+}
+
+bool DiagramSceneModel::exportSvg(const QString &fileName)
+{
+    // TODO support exporting selected elements only
+    removeExtraSceneItems();
+
+    QRectF sceneBoundingRect = m_graphicsScene->itemsBoundingRect();
+
+    const double border = 5;
+
+    QSvgGenerator svgGenerator;
+    svgGenerator.setFileName(fileName);
+    QSize svgSceneSize = sceneBoundingRect.size().toSize();
+    svgGenerator.setSize(svgSceneSize);
+    svgGenerator.setViewBox(QRect(QPoint(0,0), svgSceneSize));
+    QPainter svgPainter;
+    svgPainter.begin(&svgGenerator);
+    svgPainter.setRenderHint(QPainter::Antialiasing);
+    m_graphicsScene->render(&svgPainter,
+                            QRectF(border, border,
+                                   svgPainter.device()->width() - 2 * border,
+                                   svgPainter.device()->height() - 2 * border),
+                            sceneBoundingRect);
+    svgPainter.end();
+
+    addExtraSceneItems();
+
+    // TODO how to know that file was successfully created?
+    return true;
 }
 
 void DiagramSceneModel::selectItem(QGraphicsItem *item, bool multiSelect)

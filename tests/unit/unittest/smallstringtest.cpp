@@ -65,7 +65,7 @@ TEST(SmallString, ShortSmallStringLiteralIsShortSmallString)
 #if __cpp_constexpr >= 201304
     ASSERT_TRUE(shortText.isShortString());
 #else
-    ASSERT_TRUE(shortText.isReference());
+    ASSERT_TRUE(shortText.isReadOnlyReference());
 #endif
 }
 
@@ -76,7 +76,7 @@ TEST(SmallString, ShortSmallStringIsShortSmallString)
 #if __cpp_constexpr >= 201304
     ASSERT_TRUE(shortText.isShortString());
 #else
-    ASSERT_TRUE(shortText.isReference());
+    ASSERT_TRUE(shortText.isReadOnlyReference());
 #endif
 }
 
@@ -84,7 +84,7 @@ TEST(SmallString, ShortSmallStringIsReference)
 {
     SmallString longText("very very very very very long text");
 
-    ASSERT_TRUE(longText.isReference());
+    ASSERT_TRUE(longText.isReadOnlyReference());
 }
 
 TEST(SmallString, ShortSmallStringIsNotReference)
@@ -92,7 +92,7 @@ TEST(SmallString, ShortSmallStringIsNotReference)
     const char *shortCSmallString = "short string";
     auto shortText = SmallString::fromUtf8(shortCSmallString);
 
-    ASSERT_FALSE(shortText.isReference());
+    ASSERT_FALSE(shortText.isReadOnlyReference());
 }
 
 TEST(SmallString, MaximumShortSmallString)
@@ -106,7 +106,7 @@ TEST(SmallString, LongConstExpressionSmallStringIsReference)
 {
     SmallString longText("very very very very very very very very very very very long string");
 
-    ASSERT_TRUE(longText.isReference());
+    ASSERT_TRUE(longText.isReadOnlyReference());
 }
 
 TEST(SmallString, CloneShortSmallString)
@@ -145,7 +145,7 @@ TEST(SmallString, CopyShortConstExpressionSmallStringIsShortSmallString)
 #if __cpp_constexpr >= 201304
     ASSERT_TRUE(shortTextCopy.isShortString());
 #else
-    ASSERT_TRUE(shortTextCopy.isReference());
+    ASSERT_TRUE(shortTextCopy.isReadOnlyReference());
 #endif
 }
 
@@ -164,7 +164,7 @@ TEST(SmallString, SmallStringFromCharacterArrayIsReference)
 
     SmallString longString(longCString);
 
-    ASSERT_TRUE(longString.isReference());
+    ASSERT_TRUE(longString.isReadOnlyReference());
 }
 
 TEST(SmallString, SmallStringFromCharacterPointerIsNotReference)
@@ -173,7 +173,7 @@ TEST(SmallString, SmallStringFromCharacterPointerIsNotReference)
 
     SmallString longString = SmallString::fromUtf8(longCString);
 
-    ASSERT_FALSE(longString.isReference());
+    ASSERT_FALSE(longString.isReadOnlyReference());
 }
 
 TEST(SmallString, CopyStringFromReference)
@@ -183,7 +183,7 @@ TEST(SmallString, CopyStringFromReference)
 
     longTextCopy = longText;
 
-    ASSERT_TRUE(longTextCopy.isReference());
+    ASSERT_TRUE(longTextCopy.isReadOnlyReference());
 }
 
 TEST(SmallString, SmallStringLiteralShortSmallStringDataAccess)

@@ -107,13 +107,13 @@ public:
     constexpr
     bool isShortString() const noexcept
     {
-        return !m_data.shortString.hasAllocated;
+        return !m_data.shortString.isReference;
     }
 
     constexpr
-    bool isReference() const noexcept
+    bool isReadOnlyReference() const noexcept
     {
-        return m_data.shortString.isReference;
+        return m_data.shortString.isReadOnlyReference;
     }
 
     operator SmallStringView() const

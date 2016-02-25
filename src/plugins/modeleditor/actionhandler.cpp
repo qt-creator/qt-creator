@@ -36,6 +36,7 @@
 
 #include <QAction>
 #include <QShortcut>
+#include <QMenu>
 
 namespace ModelEditor {
 namespace Internal {
@@ -52,6 +53,7 @@ public:
     QAction *deleteAction = 0;
     QAction *selectAllAction = 0;
     QAction *openParentDiagramAction = 0;
+    QAction *exportDiagramAction = 0;
 };
 
 ActionHandler::ActionHandler(const Core::Context &context, QObject *parent)
@@ -111,6 +113,11 @@ QAction *ActionHandler::openParentDiagramAction() const
     return d->openParentDiagramAction;
 }
 
+QAction *ActionHandler::exportDiagramAction() const
+{
+    return d->exportDiagramAction;
+}
+
 void ActionHandler::createActions()
 {
     Core::ActionContainer *medit = Core::ActionManager::actionContainer(Core::Constants::M_EDIT);
@@ -131,6 +138,18 @@ void ActionHandler::createActions()
     medit->addAction(deleteCommand, Core::Constants::G_EDIT_COPYPASTE);
     d->deleteAction = deleteCommand->action();
     d->selectAllAction = registerCommand(Core::Constants::SELECTALL, [this]() { selectAll(); }, d->context)->action();
+
+    Core::ActionContainer *menuModelEditor = Core::ActionManager::createMenu(Constants::MENU_ID);
+    menuModelEditor->menu()->setTitle(tr("Model Editor"));
+    Core::ActionContainer *menuTools = Core::ActionManager::actionContainer(Core::Constants::M_TOOLS);
+    menuTools->addMenu(menuModelEditor);
+
+    Core::Command *exportDiagramCommand = registerCommand(
+                Constants::EXPORT_DIAGRAM, [this]() { exportDiagram(); }, Core::Context(), true,
+                tr("Export Diagram..."));
+    menuModelEditor->addAction(exportDiagramCommand);
+    d->exportDiagramAction = exportDiagramCommand->action();
+
     d->openParentDiagramAction = registerCommand(
                 Constants::OPEN_PARENT_DIAGRAM, [this]() { openParentDiagram(); }, Core::Context(), true,
                 tr("Open Parent Diagram"), QKeySequence(QStringLiteral("Ctrl+Shift+P")))->action();
@@ -228,6 +247,13 @@ void ActionHandler::onEditItem()
     auto editor = qobject_cast<ModelEditor *>(Core::EditorManager::currentEditor());
     if (editor)
         editor->editSelectedItem();
+}
+
+void ActionHandler::exportDiagram()
+{
+    auto editor = qobject_cast<ModelEditor *>(Core::EditorManager::currentEditor());
+    if (editor)
+        editor->exportDiagram();
 }
 
 Core::Command *ActionHandler::registerCommand(const Core::Id &id, const std::function<void()> &slot,

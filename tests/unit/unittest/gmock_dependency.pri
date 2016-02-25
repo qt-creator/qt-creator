@@ -1,15 +1,31 @@
 isEmpty(GOOGLETEST_DIR):GOOGLETEST_DIR=$$(GOOGLETEST_DIR)
 
-isEmpty(GOOGLETEST_DIR):linux-* {
-    GTEST_INCLUDE_DIR = /usr/include/gtest
-    GMOCK_INCLUDE_DIR = /usr/include/gmock
-    GTEST_SRC_DIR = /usr/src/gtest
-    GMOCK_SRC_DIR = /usr/src/gmock
-} else {
-    GTEST_INCLUDE_DIR = $$GOOGLETEST_DIR/googletest
-    GMOCK_INCLUDE_DIR = $$GOOGLETEST_DIR/googlemock
+
+defineTest(setGoogleTestDirectories) {
+    DIRECTORY = $$1
+    GTEST_INCLUDE_DIR = $$DIRECTORY/googletest
+    GMOCK_INCLUDE_DIR = $$DIRECTORY/googlemock
     GTEST_SRC_DIR = $$GTEST_INCLUDE_DIR
     GMOCK_SRC_DIR = $$GMOCK_INCLUDE_DIR
+    export(GTEST_INCLUDE_DIR)
+    export(GMOCK_INCLUDE_DIR)
+    export(GTEST_SRC_DIR)
+    export(GMOCK_SRC_DIR)
+}
+
+isEmpty(GOOGLETEST_DIR) {
+    exists($$PWD/../../../../googletest) {
+        setGoogleTestDirectories($$PWD/../../../../googletest)
+    } else: exists($$PWD/../../../../../googletest) {
+        setGoogleTestDirectories($$PWD/../../../../../googletest)
+    } else: linux {
+        GTEST_INCLUDE_DIR = /usr/include/gtest
+        GMOCK_INCLUDE_DIR = /usr/include/gmock
+        GTEST_SRC_DIR = /usr/src/gtest
+        GMOCK_SRC_DIR = /usr/src/gmock
+    }
+} else {
+    setGoogleTestDirectories($$GOOGLETEST_DIR)
 }
 
 requires(exists($$GTEST_SRC_DIR):exists($$GMOCK_SRC_DIR))

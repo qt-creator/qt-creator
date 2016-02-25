@@ -95,8 +95,8 @@ public:
             std::memcpy(m_data.shortString.string, string, size);
             m_data.shortString.string[size] = 0;
             m_data.shortString.shortStringSize = uchar(size);
-            m_data.shortString.hasAllocated = false;
             m_data.shortString.isReference = false;
+            m_data.shortString.isReadOnlyReference = false;
         } else {
             m_data.allocated.data.pointer = Memory::allocate(capacity + 1);
             std::memcpy(m_data.allocated.data.pointer, string, size);
@@ -104,8 +104,8 @@ public:
             m_data.allocated.data.size = size;
             m_data.allocated.data.capacity = capacity;
             m_data.allocated.shortStringSize = 0;
-            m_data.allocated.hasAllocated = true;
-            m_data.allocated.isReference = false;
+            m_data.allocated.isReference = true;
+            m_data.allocated.isReadOnlyReference = false;
         }
     }
 
@@ -130,7 +130,7 @@ public:
 #else
     SmallString(const SmallString &string)
     {
-        if (string.isShortString() || string.isReference())
+        if (string.isShortString() || string.isReadOnlyReference())
             m_data = string.m_data;
         else
             new (this) SmallString{string.data(), string.size()};
@@ -175,16 +175,6 @@ public:
         using std::swap;
 
         swap(first.m_data, second.m_data);
-    }
-
-    char &operator[](size_type index)
-    {
-        return at(index);
-    }
-
-    const char &operator[](size_type index) const
-    {
-        return at(index);
     }
 
     QByteArray toQByteArray() const noexcept
@@ -470,17 +460,17 @@ public:
 UNIT_TEST_PUBLIC:
     bool isShortString() const noexcept
     {
-        return !m_data.shortString.hasAllocated;
+        return !m_data.shortString.isReference;
     }
 
-    bool isReference() const noexcept
+    bool isReadOnlyReference() const noexcept
     {
-        return m_data.shortString.isReference;
+        return m_data.shortString.isReadOnlyReference;
     }
 
     bool hasAllocatedMemory() const noexcept
     {
-        return !isShortString() && !isReference();
+        return !isShortString() && !isReadOnlyReference();
     }
 
     bool fitsNotInCapacity(size_type capacity) const noexcept
