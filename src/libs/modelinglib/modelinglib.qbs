@@ -9,8 +9,14 @@ QtcLibrary {
         "./qtserialization/inc",
     ])
 
-    Depends { name: "Qt"; submodules: ["widgets", "svg"] }
+    Depends { name: "Qt"; submodules: ["widgets"] }
+    Depends { name: "Qt.svg"; required: false }
     Depends { name: "Utils" }
+
+    Properties {
+        condition: !Qt.svg.present
+        cpp.defines: base.concat("QT_NO_SVG")
+    }
 
     Group {
         name: "Qmt"

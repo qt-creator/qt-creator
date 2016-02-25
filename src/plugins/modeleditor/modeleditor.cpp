@@ -524,10 +524,13 @@ void ModelEditor::exportDiagram()
     if (diagram) {
         if (d->lastExportDirPath.isEmpty())
             d->lastExportDirPath = d->document->filePath().toFileInfo().canonicalPath();
+        QString filter = tr("Images (*.png *.jpeg *.jpg *.tif *.tiff);;PDF (*.pdf)");
+#ifndef QT_NO_SVG
+        filter += tr(";;SVG (*.svg)");
+#endif // QT_NO_SVG
         QString fileName = QFileDialog::getSaveFileName(
                     Core::ICore::dialogParent(),
-                    tr("Export Diagram"), d->lastExportDirPath,
-                    tr("Images (*.png *.jpeg *.jpg *.tif *.tiff);;PDF (*.pdf);;SVG (*.svg)"));
+                    tr("Export Diagram"), d->lastExportDirPath, filter);
         if (!fileName.isEmpty()) {
             qmt::DocumentController *documentController = d->document->documentController();
             qmt::DiagramSceneModel *sceneModel = documentController->diagramsManager()->diagramSceneModel(diagram);
@@ -535,13 +538,15 @@ void ModelEditor::exportDiagram()
             QString suffix = QFileInfo(fileName).suffix().toLower();
             // TODO use QFileDialog::selectedNameFilter() as fallback if no suffix is given
             if (suffix.isEmpty()) {
-                suffix = QStringLiteral(".png");
-                fileName += suffix;
+                suffix = QStringLiteral("png");
+                fileName += QStringLiteral(".png");
             }
-            if (suffix == QStringLiteral(".pdf"))
+            if (suffix == QStringLiteral("pdf"))
                 success = sceneModel->exportPdf(fileName);
-            else if (suffix == QStringLiteral(".svg"))
+#ifndef QT_NO_SVG
+            else if (suffix == QStringLiteral("svg"))
                 success = sceneModel->exportSvg(fileName);
+#endif // QT_NO_SVG
             else
                 success = sceneModel->exportImage(fileName);
             if (success)
