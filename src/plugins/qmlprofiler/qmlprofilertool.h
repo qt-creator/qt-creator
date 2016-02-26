@@ -30,7 +30,7 @@
 #include "qmlprofilerconstants.h"
 #include "qmldebug/qmlprofilereventtypes.h"
 
-#include <debugger/analyzer/ianalyzertool.h>
+#include <debugger/analyzer/analyzermanager.h>
 #include <debugger/analyzer/analyzerruncontrol.h>
 
 QT_BEGIN_NAMESPACE

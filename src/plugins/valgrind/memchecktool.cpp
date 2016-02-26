@@ -89,7 +89,6 @@ using namespace Valgrind::XmlProtocol;
 
 namespace Valgrind {
 namespace Internal {
-const Core::Id MemcheckToolId = "Memcheck";
 
 // ---------------------------- MemcheckErrorFilterProxyModel
 MemcheckErrorFilterProxyModel::MemcheckErrorFilterProxyModel(QObject *parent)
@@ -330,8 +329,6 @@ QWidget *MemcheckTool::createWidgets()
 {
     QTC_ASSERT(!m_errorView, return 0);
 
-    Utils::FancyMainWindow *mw = AnalyzerManager::mainWindow();
-
     m_errorView = new MemcheckErrorView;
     m_errorView->setObjectName(QLatin1String("MemcheckErrorView"));
     m_errorView->setFrameStyle(QFrame::NoFrame);
@@ -351,9 +348,11 @@ QWidget *MemcheckTool::createWidgets()
     m_errorView->setObjectName(QLatin1String("Valgrind.MemcheckTool.ErrorView"));
     m_errorView->setWindowTitle(tr("Memory Issues"));
 
-    QDockWidget *errorDock = AnalyzerManager::createDockWidget(MemcheckToolId, m_errorView);
-    errorDock->show();
-    mw->splitDockWidget(mw->toolBarDockWidget(), errorDock, Qt::Vertical);
+    AnalyzerManager::createDockWidget(m_errorView, MemcheckDock);
+
+    Perspective perspective(MemcheckPerspective);
+    perspective.addDock(MemcheckDock, Core::Id(), Perspective::SplitVertical);
+    AnalyzerManager::addPerspective(perspective);
 
     connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::updateRunActions,
             this, &MemcheckTool::maybeActiveRunConfigurationChanged);
@@ -558,7 +557,7 @@ int MemcheckTool::updateUiAfterFinishedHelper()
 void MemcheckTool::engineFinished()
 {
     const int issuesFound = updateUiAfterFinishedHelper();
-    AnalyzerManager::showPermanentStatusMessage(MemcheckToolId, issuesFound > 0
+    AnalyzerManager::showPermanentStatusMessage(MemcheckPerspective, issuesFound > 0
         ? AnalyzerManager::tr("Memory Analyzer Tool finished, %n issues were found.", 0, issuesFound)
         : AnalyzerManager::tr("Memory Analyzer Tool finished, no issues were found."));
 }
@@ -566,7 +565,7 @@ void MemcheckTool::engineFinished()
 void MemcheckTool::loadingExternalXmlLogFileFinished()
 {
     const int issuesFound = updateUiAfterFinishedHelper();
-    AnalyzerManager::showPermanentStatusMessage(MemcheckToolId, issuesFound > 0
+    AnalyzerManager::showPermanentStatusMessage(MemcheckPerspective, issuesFound > 0
         ? AnalyzerManager::tr("Log file processed, %n issues were found.", 0, issuesFound)
         : AnalyzerManager::tr("Log file processed, no issues were found."));
 }

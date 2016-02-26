@@ -35,9 +35,6 @@
 #include <QSettings>
 #include <QDebug>
 
-
-using namespace Analyzer;
-
 const char numCallersC[]  = "Analyzer.Valgrind.NumCallers";
 const char leakCheckOnFinishC[]  = "Analyzer.Valgrind.LeakCheckOnFinish";
 const char showReachableC[] = "Analyzer.Valgrind.ShowReachable";

@@ -42,7 +42,7 @@
 
 #include <aggregation/aggregate.h>
 // Needed for the load&save actions in the context menu
-#include <debugger/analyzer/ianalyzertool.h>
+#include <debugger/analyzer/analyzermanager.h>
 #include <coreplugin/findplaceholder.h>
 #include <utils/styledbar.h>
 

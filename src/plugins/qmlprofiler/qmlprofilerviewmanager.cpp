@@ -81,9 +81,9 @@ void QmlProfilerViewManager::createViews()
     QTC_ASSERT(d->profilerModelManager, return);
     QTC_ASSERT(d->profilerState, return);
 
-    Utils::FancyMainWindow *mw = AnalyzerManager::mainWindow();
+    //Utils::FancyMainWindow *mw = AnalyzerManager::mainWindow();
 
-    d->traceView = new QmlProfilerTraceView(mw, this, d->profilerModelManager);
+    d->traceView = new QmlProfilerTraceView(0, this, d->profilerModelManager);
     d->traceView->setWindowTitle(tr("Timeline"));
     connect(d->traceView, &QmlProfilerTraceView::gotoSourceLocation,
             this, &QmlProfilerViewManager::gotoSourceLocation);
@@ -91,22 +91,23 @@ void QmlProfilerViewManager::createViews()
             this, &QmlProfilerViewManager::typeSelected);
     connect(this, &QmlProfilerViewManager::typeSelected,
             d->traceView, &QmlProfilerTraceView::selectByTypeId);
-    d->timelineDock = AnalyzerManager::createDockWidget(Constants::QmlProfilerToolId, d->traceView);
-    d->timelineDock->show();
-    mw->splitDockWidget(mw->toolBarDockWidget(), d->timelineDock, Qt::Vertical);
+    d->timelineDock = AnalyzerManager::createDockWidget(d->traceView, Constants::QmlProfilerTimelineDock);
+
     new QmlProfilerStateWidget(d->profilerState, d->profilerModelManager, d->traceView);
 
-    d->eventsViews << new QmlProfilerStatisticsView(mw, d->profilerModelManager);
+    Perspective perspective(Constants::QmlProfilerPerspective);
+    perspective.addDock(Constants::QmlProfilerTimelineDock, Core::Id(), Perspective::SplitVertical);
+
+    d->eventsViews << new QmlProfilerStatisticsView(0, d->profilerModelManager);
     if (d->eventsViewFactory)
-        d->eventsViews.append(d->eventsViewFactory->create(mw, d->profilerModelManager));
+        d->eventsViews.append(d->eventsViewFactory->create(0, d->profilerModelManager));
 
     // Clear settings if the new views aren't there yet. Otherwise we get glitches
     QSettings *settings = Core::ICore::settings();
     settings->beginGroup(QLatin1String("AnalyzerViewSettings_") +
-                         QLatin1String(QmlProfiler::Constants::QmlProfilerToolId));
+                         QLatin1String(QmlProfiler::Constants::QmlProfilerPerspective));
 
     foreach (QmlProfilerEventsView *view, d->eventsViews) {
-        view->setParent(mw);
         connect(view, &QmlProfilerEventsView::typeSelected,
                 this, &QmlProfilerViewManager::typeSelected);
         connect(this, &QmlProfilerViewManager::typeSelected,
@@ -117,15 +118,15 @@ void QmlProfilerViewManager::createViews()
                 this, &QmlProfilerViewManager::gotoSourceLocation);
         connect(view, &QmlProfilerEventsView::showFullRange,
                 this, [this](){restrictEventsToRange(-1, -1);});
-        QDockWidget *eventsDock = AnalyzerManager::createDockWidget(Constants::QmlProfilerToolId,
-                                                                    view);
-        eventsDock->show();
-        mw->tabifyDockWidget(d->timelineDock, eventsDock);
+        Core::Id dockId = Core::Id::fromString(view->objectName());
+        QDockWidget *eventsDock = AnalyzerManager::createDockWidget(view, dockId);
+        perspective.addDock(dockId, Constants::QmlProfilerTimelineDock, Perspective::AddToTab);
         new QmlProfilerStateWidget(d->profilerState, d->profilerModelManager, view);
 
         if (!settings->contains(eventsDock->objectName()))
             settings->remove(QString());
     }
+    AnalyzerManager::addPerspective(perspective);
 
     settings->endGroup();
     d->timelineDock->raise();

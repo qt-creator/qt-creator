@@ -26,14 +26,21 @@
 #ifndef CALLGRINDTOOL_H
 #define CALLGRINDTOOL_H
 
-#include <debugger/analyzer/ianalyzertool.h>
+#include <QObject>
+
+namespace ProjectExplorer { class RunConfiguration; }
 
 namespace Valgrind {
 namespace Internal {
 
-const char CallgrindToolId[] = "Callgrind";
+const char CallgrindPerspective[] = "CallgrindPerspective";
 const char CallgrindLocalActionId[] = "Callgrind.Local";
 const char CallgrindRemoteActionId[] = "Callgrind.Remote";
+
+const char CallgrindCallersDock[] = "CallgrindCallersDock";
+const char CallgrindCalleesDock[] = "CallgrindCalleesDock";
+const char CallgrindFlatDock[] = "CallgrindFlatDock";
+const char CallgrindVisualizationDock[] = "CallgrindVisualizationDock";
 
 class ValgrindRunControl;
 const char CALLGRIND_RUN_MODE[] = "CallgrindTool.CallgrindRunMode";

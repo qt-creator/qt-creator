@@ -45,6 +45,7 @@
 #include <utils/checkablemessagebox.h>
 #include <utils/fancymainwindow.h>
 
+#include <QAction>
 #include <QDockWidget>
 #include <QHBoxLayout>
 #include <QLabel>
@@ -103,11 +104,7 @@ QWidget *ClangStaticAnalyzerTool::createWidgets()
                 this, &ClangStaticAnalyzerTool::handleStateUpdate);
     }
 
-    QDockWidget *issuesDock = AnalyzerManager::createDockWidget(ClangStaticAnalyzerToolId,
-                                                                m_diagnosticView);
-    issuesDock->show();
-    Utils::FancyMainWindow *mw = AnalyzerManager::mainWindow();
-    mw->splitDockWidget(mw->toolBarDockWidget(), issuesDock, Qt::Vertical);
+    AnalyzerManager::createDockWidget(m_diagnosticView, ClangStaticAnalyzerDock);
 
     //
     // Toolbar widget
@@ -294,7 +291,7 @@ void ClangStaticAnalyzerTool::handleStateUpdate()
         message += tr("%n issues found (%1 suppressed).", 0, issuesFound)
                 .arg(issuesFound - issuesVisible);
     }
-    AnalyzerManager::showPermanentStatusMessage(ClangStaticAnalyzerToolId, message);
+    AnalyzerManager::showPermanentStatusMessage(ClangStaticAnalyzerPerspective, message);
 }
 
 } // namespace Internal

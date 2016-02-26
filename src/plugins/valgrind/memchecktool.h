@@ -27,7 +27,7 @@
 #ifndef MEMCHECKTOOL_H
 #define MEMCHECKTOOL_H
 
-#include <debugger/analyzer/ianalyzertool.h>
+#include <coreplugin/id.h>
 
 #include <QSortFilterProxyModel>
 
@@ -44,10 +44,15 @@ class Error;
 }
 }
 
+namespace ProjectExplorer { class RunConfiguration; }
+
 namespace Valgrind {
 
 const char MEMCHECK_RUN_MODE[] = "MemcheckTool.MemcheckRunMode";
 const char MEMCHECK_WITH_GDB_RUN_MODE[] = "MemcheckTool.MemcheckWithGdbRunMode";
+
+const char MemcheckPerspective[] = "MemcheckPerspective";
+const char MemcheckDock[] = "MemcheckDock";
 
 namespace Internal {
 

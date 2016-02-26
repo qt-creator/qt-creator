@@ -135,20 +135,24 @@ bool ClangStaticAnalyzerPlugin::initialize(const QStringList &arguments, QString
     const QString toolTip = tr("Clang Static Analyzer uses the analyzer from the clang project "
                                "to find bugs.");
 
-    auto action = new AnalyzerAction(this);
-    action->setRunMode(Constants::CLANGSTATICANALYZER_RUN_MODE);
-    action->setToolId(ClangStaticAnalyzerToolId);
-    action->setActionId("ClangStaticAnalyzer");
-    action->setWidgetCreator(widgetCreator);
-    action->setRunControlCreator(runControlCreator);
-    action->setCustomToolStarter([tool](ProjectExplorer::RunConfiguration *rc) {
+    Perspective perspective(ClangStaticAnalyzerPerspective);
+    perspective.addDock(ClangStaticAnalyzerDock, Core::Id(), Perspective::SplitVertical);
+    AnalyzerManager::addPerspective(perspective);
+
+    ActionDescription desc;
+    desc.setText(tr("Clang Static Analyzer"));
+    desc.setToolTip(toolTip);
+    desc.setEnabled(false);
+    desc.setRunMode(Constants::CLANGSTATICANALYZER_RUN_MODE);
+    desc.setPerspectiveId(ClangStaticAnalyzerPerspective);
+    desc.setActionId(ClangStaticAnalyzerAction);
+    desc.setWidgetCreator(widgetCreator);
+    desc.setRunControlCreator(runControlCreator);
+    desc.setCustomToolStarter([tool](ProjectExplorer::RunConfiguration *rc) {
         tool->startTool(rc);
     });
-    action->setText(tr("Clang Static Analyzer"));
-    action->setToolTip(toolTip);
-    action->setMenuGroup(Analyzer::Constants::G_ANALYZER_TOOLS);
-    action->setEnabled(false);
-    AnalyzerManager::addAction(action);
+    desc.setMenuGroup(Analyzer::Constants::G_ANALYZER_TOOLS);
+    AnalyzerManager::addAction(desc);
 
     return true;
 }

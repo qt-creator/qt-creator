@@ -583,7 +583,7 @@ void QmlProfilerTool::showSaveDialog()
         if (!filename.endsWith(QLatin1String(TraceFileExtension)))
             filename += QLatin1String(TraceFileExtension);
         saveLastTraceFile(filename);
-        AnalyzerManager::mainWindow()->setEnabled(false);
+        AnalyzerManager::enableMainWindow(false);
         d->m_profilerModelManager->save(filename);
     }
 }
@@ -605,7 +605,7 @@ void QmlProfilerTool::showLoadDialog()
 
     if (!filename.isEmpty()) {
         saveLastTraceFile(filename);
-        AnalyzerManager::mainWindow()->setEnabled(false);
+        AnalyzerManager::enableMainWindow(false);
         connect(d->m_profilerModelManager, &QmlProfilerModelManager::recordedFeaturesChanged,
                 this, &QmlProfilerTool::setRecordedFeatures);
         d->m_profilerModelManager->load(filename);
@@ -616,7 +616,7 @@ void QmlProfilerTool::onLoadSaveFinished()
 {
     disconnect(d->m_profilerModelManager, &QmlProfilerModelManager::recordedFeaturesChanged,
                this, &QmlProfilerTool::setRecordedFeatures);
-    AnalyzerManager::mainWindow()->setEnabled(true);
+    AnalyzerManager::enableMainWindow(true);
 }
 
 /*!

@@ -53,7 +53,7 @@ CallgrindRunControl::CallgrindRunControl(ProjectExplorer::RunConfiguration *runC
 
 void CallgrindRunControl::showStatusMessage(const QString &msg)
 {
-    AnalyzerManager::showPermanentStatusMessage(CallgrindToolId, msg);
+    AnalyzerManager::showPermanentStatusMessage(CallgrindPerspective, msg);
 }
 
 QStringList CallgrindRunControl::toolArguments() const

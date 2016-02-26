@@ -58,38 +58,35 @@ bool QmlProfilerPlugin::initialize(const QStringList &arguments, QString *errorS
         return tool->createRunControl(runConfiguration);
     };
 
-    AnalyzerAction *action = 0;
-
     QString description = QmlProfilerTool::tr(
         "The QML Profiler can be used to find performance bottlenecks in "
         "applications using QML.");
 
-    action = new AnalyzerAction(this);
-    action->setActionId(Constants::QmlProfilerLocalActionId);
-    action->setToolId(Constants::QmlProfilerToolId);
-    action->setWidgetCreator(widgetCreator);
-    action->setRunControlCreator(runControlCreator);
-    action->setToolPreparer([tool] { return tool->prepareTool(); });
-    action->setRunMode(ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
-    action->setText(tr("QML Profiler"));
-    action->setToolTip(description);
-    action->setMenuGroup(Analyzer::Constants::G_ANALYZER_TOOLS);
-    AnalyzerManager::addAction(action);
+    ActionDescription desc;
+    desc.setText(tr("QML Profiler"));
+    desc.setToolTip(description);
+    desc.setActionId(Constants::QmlProfilerLocalActionId);
+    desc.setPerspectiveId(Constants::QmlProfilerPerspective);
+    desc.setWidgetCreator(widgetCreator);
+    desc.setRunControlCreator(runControlCreator);
+    desc.setToolPreparer([tool] { return tool->prepareTool(); });
+    desc.setRunMode(ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
+    desc.setMenuGroup(Analyzer::Constants::G_ANALYZER_TOOLS);
+    AnalyzerManager::addAction(desc);
 
-    action = new AnalyzerAction(this);
-    action->setActionId(Constants::QmlProfilerRemoteActionId);
-    action->setToolId(Constants::QmlProfilerToolId);
-    action->setWidgetCreator(widgetCreator);
-    action->setRunControlCreator(runControlCreator);
-    action->setCustomToolStarter([tool](ProjectExplorer::RunConfiguration *rc) {
+    desc.setText(tr("QML Profiler (External)"));
+    desc.setToolTip(description);
+    desc.setActionId(Constants::QmlProfilerRemoteActionId);
+    desc.setPerspectiveId(Constants::QmlProfilerPerspective);
+    desc.setWidgetCreator(widgetCreator);
+    desc.setRunControlCreator(runControlCreator);
+    desc.setCustomToolStarter([tool](ProjectExplorer::RunConfiguration *rc) {
         tool->startRemoteTool(rc);
     });
-    action->setToolPreparer([tool] { return tool->prepareTool(); });
-    action->setRunMode(ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
-    action->setText(tr("QML Profiler (External)"));
-    action->setToolTip(description);
-    action->setMenuGroup(Analyzer::Constants::G_ANALYZER_REMOTE_TOOLS);
-    AnalyzerManager::addAction(action);
+    desc.setToolPreparer([tool] { return tool->prepareTool(); });
+    desc.setRunMode(ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
+    desc.setMenuGroup(Analyzer::Constants::G_ANALYZER_REMOTE_TOOLS);
+    AnalyzerManager::addAction(desc);
 
     addAutoReleasedObject(new QmlProfilerRunControlFactory());
     addAutoReleasedObject(new Internal::QmlProfilerOptionsPage());
