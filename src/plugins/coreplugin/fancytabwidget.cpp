@@ -300,8 +300,7 @@ void FancyTabBar::paintTab(QPainter *painter, int tabIndex) const
     if (selected) {
         if (creatorTheme()->widgetStyle() == Theme::StyleFlat) {
           // background color of a fancy tab that is active
-          painter->fillRect(rect.adjusted(0, 0, 0, -1),
-                            creatorTheme()->color(Theme::BackgroundColorSelected));
+          painter->fillRect(rect, creatorTheme()->color(Theme::FancyToolButtonSelectedColor));
         } else {
             paintSelectedTabBackground(painter, rect);
         }
@@ -324,7 +323,7 @@ void FancyTabBar::paintTab(QPainter *painter, int tabIndex) const
         painter->save();
         painter->setOpacity(fader);
         if (creatorTheme()->widgetStyle() == Theme::StyleFlat)
-            painter->fillRect(rect, creatorTheme()->color(Theme::BackgroundColorHover));
+            painter->fillRect(rect, creatorTheme()->color(Theme::FancyToolButtonHoverColor));
         else
             FancyToolButton::hoverOverlay(painter, rect);
         painter->restore();
