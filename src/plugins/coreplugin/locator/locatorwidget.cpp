@@ -233,6 +233,7 @@ LocatorWidget::LocatorWidget(Locator *qop) :
     // Explicitly hide the completion list popup.
     m_completionList->hide();
 
+    setAttribute(Qt::WA_Hover);
     setFocusProxy(m_fileLineEdit);
     setWindowTitle(tr("Locate..."));
     resize(200, 90);
