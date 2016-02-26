@@ -41,7 +41,8 @@ class QTCREATOR_UTILS_EXPORT HeaderViewStretcher : public QObject
 public:
     explicit HeaderViewStretcher(QHeaderView *headerView, int columnToStretch);
 
-    virtual bool eventFilter(QObject *obj, QEvent *ev);
+    void stretch();
+    bool eventFilter(QObject *obj, QEvent *ev) override;
 };
 
 } // namespace Utils

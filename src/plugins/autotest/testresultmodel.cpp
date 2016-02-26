@@ -33,14 +33,13 @@ namespace Internal {
 
 /********************************* TestResultItem ******************************************/
 
-TestResultItem::TestResultItem(TestResult *testResult)
+TestResultItem::TestResultItem(const TestResultPtr &testResult)
     : m_testResult(testResult)
 {
 }
 
 TestResultItem::~TestResultItem()
 {
-    delete m_testResult;
 }
 
 static QIcon testResultIcon(Result::Type result) {
@@ -138,7 +137,7 @@ QVariant TestResultModel::data(const QModelIndex &idx, int role) const
     return QVariant();
 }
 
-void TestResultModel::addTestResult(TestResult *testResult, bool autoExpand)
+void TestResultModel::addTestResult(const TestResultPtr &testResult, bool autoExpand)
 {
     const bool isCurrentTestMssg = testResult->result() == Result::MessageCurrentTest;
 
@@ -158,7 +157,6 @@ void TestResultModel::addTestResult(TestResult *testResult, bool autoExpand)
             if (result && result->result() == Result::MessageCurrentTest) {
                 current->updateDescription(testResult->description());
                 emit dataChanged(current->index(), current->index());
-                delete testResult;
                 return;
             }
         }
@@ -292,7 +290,8 @@ void TestResultFilterModel::enableAllResultTypes()
               << Result::BlacklistedFail << Result::Benchmark
               << Result::MessageCurrentTest << Result::MessageTestCaseStart
               << Result::MessageTestCaseSuccess << Result::MessageTestCaseWarn
-              << Result::MessageTestCaseFail << Result::MessageTestCaseEnd;
+              << Result::MessageTestCaseFail << Result::MessageTestCaseEnd
+              << Result::MessageTestCaseRepetition;
     invalidateFilter();
 }
 

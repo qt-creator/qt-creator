@@ -168,8 +168,6 @@ struct resultType<Function &&> : public resultType<Function>
 {
 };
 
-// work around bug in MSVC 2015 where a reference_wrapper has a call operator even if the wrapped
-// object doesn't
 template <typename Function>
 struct resultType<std::reference_wrapper<Function>> : public resultType<Function>
 {
@@ -282,7 +280,7 @@ template <typename ResultType, typename Function, typename... Args,
           typename = typename std::enable_if<
                 !std::is_member_pointer<typename std::decay<Function>::type>::value
               >::type>
-void runAsyncImpl(QFutureInterface<ResultType> futureInterface, Function &&function, Args&&... args)
+void runAsyncMemberDispatch(QFutureInterface<ResultType> futureInterface, Function &&function, Args&&... args)
 {
     runAsyncArityDispatch(std::integral_constant<bool, (functionTraits<Function>::arity > 0)>(),
                           futureInterface, std::forward<Function>(function), std::forward<Args>(args)...);
@@ -293,14 +291,30 @@ template <typename ResultType, typename Function, typename Obj, typename... Args
           typename = typename std::enable_if<
                 std::is_member_pointer<typename std::decay<Function>::type>::value
               >::type>
-void runAsyncImpl(QFutureInterface<ResultType> futureInterface, Function &&function, Obj &&obj, Args&&... args)
+void runAsyncMemberDispatch(QFutureInterface<ResultType> futureInterface, Function &&function, Obj &&obj, Args&&... args)
 {
     // Wrap member function with object into callable
     runAsyncImpl(futureInterface,
-                 MemberCallable<Function>(std::forward<Function>(function), std::forward<Obj>(obj)),
+                 MemberCallable<typename std::decay<Function>::type>(std::forward<Function>(function), std::forward<Obj>(obj)),
                  std::forward<Args>(args)...);
 }
 
+// cref to function/callable
+template <typename ResultType, typename Function, typename... Args>
+void runAsyncImpl(QFutureInterface<ResultType> futureInterface,
+                  std::reference_wrapper<Function> functionWrapper, Args&&... args)
+{
+    runAsyncMemberDispatch(futureInterface, functionWrapper.get(), std::forward<Args>(args)...);
+}
+
+// function/callable, no cref
+template <typename ResultType, typename Function, typename... Args>
+void runAsyncImpl(QFutureInterface<ResultType> futureInterface,
+                  Function &&function, Args&&... args)
+{
+    runAsyncMemberDispatch(futureInterface, std::forward<Function>(function),
+                           std::forward<Args>(args)...);
+}
 /*
    AsyncJob is a QRunnable that wraps a function with the
    arguments that are passed to it when it is run in a thread.

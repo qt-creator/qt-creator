@@ -55,7 +55,7 @@ signals:
     void testRunStarted();
     void testRunFinished();
     void requestStopTestRun();
-    void testResultReady(TestResult *result);
+    void testResultReady(const TestResultPtr &result);
 
 public slots:
     void prepareToRunTests();
@@ -69,7 +69,7 @@ private:
     void runTests();
     explicit TestRunner(QObject *parent = 0);
 
-    QFutureWatcher<TestResult *> m_futureWatcher;
+    QFutureWatcher<TestResultPtr> m_futureWatcher;
     QList<TestConfiguration *> m_selectedTests;
     bool m_executingTests;
 

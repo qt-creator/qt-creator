@@ -46,7 +46,7 @@
 #include <coreplugin/progressmanager/futureprogress.h>
 #include <extensionsystem/pluginmanager.h>
 #include <utils/algorithm.h>
-#include <utils/QtConcurrentTools>
+#include <utils/mapreduce.h>
 #include <utils/qtcassert.h>
 
 #include <QSettings>
@@ -312,7 +312,7 @@ void Locator::refresh(QList<ILocatorFilter *> filters)
 {
     if (filters.isEmpty())
         filters = m_filters;
-    QFuture<void> task = QtConcurrent::run(&ILocatorFilter::refresh, filters);
+    QFuture<void> task = Utils::map(filters, &ILocatorFilter::refresh);
     FutureProgress *progress =
         ProgressManager::addTask(task, tr("Updating Locator Caches"), Constants::TASK_INDEX);
     connect(progress, &FutureProgress::finished, this, &Locator::saveSettings);

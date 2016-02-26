@@ -62,7 +62,7 @@ public:
         Id id() const;
 
         IDocument *document;
-        bool isRestored;
+        bool isSuspended;
     };
 
     static Entry *entryAtRow(int row);
@@ -82,12 +82,12 @@ public:
 
     // editor manager related functions, nobody else should call it
     static void addEditor(IEditor *editor, bool *isNewDocument);
-    static void addRestoredDocument(const QString &fileName, const QString &displayName, Id id);
-    static Entry *firstRestoredEntry();
+    static void addSuspendedDocument(const QString &fileName, const QString &displayName, Id id);
+    static Entry *firstSuspendedEntry();
     static void removeEditor(IEditor *editor, bool *lastOneForDocument);
     static void removeDocument(const QString &fileName);
     static void removeEntry(Entry *entry);
-    static void removeAllRestoredEntries();
+    static void removeAllSuspendedEntries();
 
 private:
     DocumentModel();

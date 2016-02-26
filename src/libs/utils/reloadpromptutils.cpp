@@ -66,6 +66,9 @@ QTCREATOR_UTILS_EXPORT ReloadPromptAnswer reloadPrompt(const QString &title,
     msg.setText(prompt);
     msg.setDetailedText(details);
 
+    msg.button(QMessageBox::Close)->setText(QCoreApplication::translate("Utils::reloadPrompt",
+                                                                        "&Close"));
+
     switch (msg.exec()) {
     case QMessageBox::Yes:
         return  ReloadCurrent;

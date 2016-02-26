@@ -168,7 +168,6 @@ HEADERS += \
     $$PWD/persistentsettings.h \
     $$PWD/completingtextedit.h \
     $$PWD/json.h \
-    $$PWD/multitask.h \
     $$PWD/runextensions.h \
     $$PWD/portlist.h \
     $$PWD/tcpportsgatherer.h \

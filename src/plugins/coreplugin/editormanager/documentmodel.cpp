@@ -108,7 +108,7 @@ private:
     QHash<QString, DocumentModel::Entry *> m_entryByFixedPath;
 };
 
-class RestoredDocument : public IDocument
+class SuspendedDocument : public IDocument
 {
 public:
     bool save(QString *, const QString &, bool) override { return false; }
@@ -132,13 +132,13 @@ static DocumentModelPrivate *d;
 
 DocumentModel::Entry::Entry() :
     document(0),
-    isRestored(false)
+    isSuspended(false)
 {
 }
 
 DocumentModel::Entry::~Entry()
 {
-    if (isRestored)
+    if (isSuspended)
         delete document;
 }
 
@@ -222,20 +222,20 @@ void DocumentModel::addEditor(IEditor *editor, bool *isNewDocument)
     }
 }
 
-void DocumentModel::addRestoredDocument(const QString &fileName, const QString &displayName, Id id)
+void DocumentModel::addSuspendedDocument(const QString &fileName, const QString &displayName, Id id)
 {
     Entry *entry = new Entry;
-    entry->document = new RestoredDocument;
+    entry->document = new SuspendedDocument;
     entry->document->setFilePath(Utils::FileName::fromString(fileName));
     entry->document->setPreferredDisplayName(displayName);
     entry->document->setId(id);
-    entry->isRestored = true;
+    entry->isSuspended = true;
     d->addEntry(entry);
 }
 
-DocumentModel::Entry *DocumentModel::firstRestoredEntry()
+DocumentModel::Entry *DocumentModel::firstSuspendedEntry()
 {
-    return Utils::findOrDefault(d->m_entries, [](Entry *entry) { return entry->isRestored; });
+    return Utils::findOrDefault(d->m_entries, [](Entry *entry) { return entry->isSuspended; });
 }
 
 void DocumentModelPrivate::addEntry(DocumentModel::Entry *entry)
@@ -245,11 +245,11 @@ void DocumentModelPrivate::addEntry(DocumentModel::Entry *entry)
     if (!fileName.isEmpty())
         fixedPath = DocumentManager::fixFileName(fileName.toString(), DocumentManager::ResolveLinks);
 
-    // replace a non-loaded entry (aka 'restored') if possible
+    // replace a non-loaded entry (aka 'suspended') if possible
     int previousIndex = indexOfFilePath(fileName);
     if (previousIndex >= 0) {
         DocumentModel::Entry *previousEntry = m_entries.at(previousIndex);
-        const bool replace = !entry->isRestored && previousEntry->isRestored;
+        const bool replace = !entry->isSuspended && previousEntry->isSuspended;
         if (replace) {
             delete previousEntry;
             m_entries[previousIndex] = entry;
@@ -359,8 +359,8 @@ int DocumentModelPrivate::indexOfFilePath(const Utils::FileName &filePath) const
 
 void DocumentModel::removeEntry(DocumentModel::Entry *entry)
 {
-    // For non restored entries, we wouldn't know what to do with the associated editors
-    QTC_ASSERT(entry->isRestored, return);
+    // For non suspended entries, we wouldn't know what to do with the associated editors
+    QTC_ASSERT(entry->isSuspended, return);
     int index = d->m_entries.indexOf(entry);
     d->removeDocument(index);
 }
@@ -384,8 +384,8 @@ void DocumentModel::removeEditor(IEditor *editor, bool *lastOneForDocument)
 void DocumentModel::removeDocument(const QString &fileName)
 {
     int index = d->indexOfFilePath(Utils::FileName::fromString(fileName));
-    // For non restored entries, we wouldn't know what to do with the associated editors
-    QTC_ASSERT(d->m_entries.at(index)->isRestored, return);
+    // For non suspended entries, we wouldn't know what to do with the associated editors
+    QTC_ASSERT(d->m_entries.at(index)->isSuspended, return);
     d->removeDocument(index);
 }
 
@@ -410,10 +410,10 @@ void DocumentModelPrivate::removeDocument(int idx)
     delete entry;
 }
 
-void DocumentModel::removeAllRestoredEntries()
+void DocumentModel::removeAllSuspendedEntries()
 {
     for (int i = d->m_entries.count()-1; i >= 0; --i) {
-        if (d->m_entries.at(i)->isRestored) {
+        if (d->m_entries.at(i)->isSuspended) {
             int row = i + 1/*<no document>*/;
             d->beginRemoveRows(QModelIndex(), row, row);
             delete d->m_entries.takeAt(i);

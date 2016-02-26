@@ -94,8 +94,7 @@ bool TestVisitor::visit(CPlusPlus::Class *symbol)
                 else if (name.endsWith(QLatin1String("_data")))
                     locationAndType.m_type = TestTreeItem::TestDataFunction;
                 else
-                    locationAndType.m_type = TestTreeItem::TestFunction;
-                locationAndType.m_state = TestTreeItem::Enabled;
+                    locationAndType.m_type = TestTreeItem::TestFunctionOrSet;
                 m_privSlots.insert(name, locationAndType);
             }
         }
@@ -225,7 +224,6 @@ bool TestDataFunctionVisitor::visit(CPlusPlus::CallAST *ast)
                         locationAndType.m_column = column - 1;
                         locationAndType.m_line = line;
                         locationAndType.m_type = TestTreeItem::TestDataTag;
-                        locationAndType.m_state = TestTreeItem::Enabled;
                         m_currentTags.append(locationAndType);
                     }
                 }
@@ -302,7 +300,7 @@ bool TestQmlVisitor::visit(QmlJS::AST::UiObjectDefinition *ast)
     m_testCaseLocation.m_name = m_currentDoc->fileName();
     m_testCaseLocation.m_line = sourceLocation.startLine;
     m_testCaseLocation.m_column = sourceLocation.startColumn - 1;
-    m_testCaseLocation.m_type = TestTreeItem::TestClass;
+    m_testCaseLocation.m_type = TestTreeItem::TestCase;
     return true;
 }
 
@@ -335,9 +333,8 @@ bool TestQmlVisitor::visit(QmlJS::AST::FunctionDeclaration *ast)
         else if (name.endsWith(QLatin1String("_data")))
             locationAndType.m_type = TestTreeItem::TestDataFunction;
         else
-            locationAndType.m_type = TestTreeItem::TestFunction;
+            locationAndType.m_type = TestTreeItem::TestFunctionOrSet;
 
-        locationAndType.m_state = TestTreeItem::Enabled;
         m_testFunctions.insert(name.toString(), locationAndType);
     }
     return false;
@@ -386,15 +383,17 @@ bool GTestVisitor::visit(CPlusPlus::FunctionDefinitionAST *ast)
         m_document->translationUnit()->getTokenStartPosition(token, &line, &column);
 
         TestCodeLocationAndType locationAndType;
-        locationAndType.m_name = disabled ? testName.mid(9) : testName;
+        locationAndType.m_name = testName;
         locationAndType.m_line = line;
         locationAndType.m_column = column - 1;
-        locationAndType.m_type = TestTreeItem::GTestName;
-        locationAndType.m_state = (disabled || disabledCase) ? TestTreeItem::Disabled
-                                                             : TestTreeItem::Enabled;
+        locationAndType.m_type = TestTreeItem::TestFunctionOrSet;
+        locationAndType.m_state = disabled ? GoogleTestTreeItem::Disabled
+                                           : GoogleTestTreeItem::Enabled;
         GTestCaseSpec spec;
-        spec.testCaseName = disabledCase ? testCaseName.mid(9) : testCaseName;
+        spec.testCaseName = testCaseName;
         spec.parameterized = TestUtils::isGTestParameterized(prettyName);
+        spec.typed = TestUtils::isGTestTyped(prettyName);
+        spec.disabled = disabledCase;
         m_gtestFunctions[spec].append(locationAndType);
     }
 

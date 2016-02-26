@@ -38,6 +38,11 @@ static const char omitRunConfigWarnKey[] = "OmitRCWarnings";
 static const char limitResultOutputKey[] = "LimitResultOutput";
 static const char autoScrollKey[] = "AutoScrollResults";
 static const char alwaysParseKey[] = "AlwaysParse";
+static const char gtestRunDisabledKey[] = "RunDisabledGTests";
+static const char gtestRepeatKey[] = "RepeatGTests";
+static const char gtestShuffleKey[] = "ShuffleGTests";
+static const char gtestIterationsKey[] = "IterationsGTests";
+static const char gtestSeedKey[] = "SeedGTests";
 static const int defaultTimeout = 60000;
 
 TestSettings::TestSettings()
@@ -56,6 +61,11 @@ void TestSettings::toSettings(QSettings *s) const
     s->setValue(QLatin1String(limitResultOutputKey), limitResultOutput);
     s->setValue(QLatin1String(autoScrollKey), autoScroll);
     s->setValue(QLatin1String(alwaysParseKey), alwaysParse);
+    s->setValue(QLatin1String(gtestRunDisabledKey), gtestRunDisabled);
+    s->setValue(QLatin1String(gtestRepeatKey), gtestRepeat);
+    s->setValue(QLatin1String(gtestShuffleKey), gtestShuffle);
+    s->setValue(QLatin1String(gtestIterationsKey), gtestIterations);
+    s->setValue(QLatin1String(gtestSeedKey), gtestSeed);
     s->endGroup();
 }
 
@@ -87,6 +97,11 @@ void TestSettings::fromSettings(const QSettings *s)
     limitResultOutput = s->value(root + QLatin1String(limitResultOutputKey), true).toBool();
     autoScroll = s->value(root + QLatin1String(autoScrollKey), true).toBool();
     alwaysParse = s->value(root + QLatin1String(alwaysParseKey), false).toBool();
+    gtestRunDisabled = s->value(root + QLatin1String(gtestRunDisabledKey), false).toBool();
+    gtestRepeat = s->value(root + QLatin1String(gtestRepeatKey), false).toBool();
+    gtestShuffle = s->value(root + QLatin1String(gtestShuffleKey), false).toBool();
+    gtestIterations = s->value(root + QLatin1String(gtestIterationsKey), 1).toInt();
+    gtestSeed = s->value(root + QLatin1String(gtestSeedKey), 0).toInt();
 }
 
 bool TestSettings::equals(const TestSettings &rhs) const
@@ -96,7 +111,10 @@ bool TestSettings::equals(const TestSettings &rhs) const
             && omitRunConfigWarn == rhs.omitRunConfigWarn
             && limitResultOutput == rhs.limitResultOutput
             && autoScroll == rhs.autoScroll
-            && alwaysParse == rhs.alwaysParse;
+            && alwaysParse == rhs.alwaysParse
+            && gtestRunDisabled == rhs.gtestRunDisabled
+            && gtestRepeat == rhs.gtestRepeat && gtestIterations == rhs.gtestIterations
+            && gtestShuffle == rhs.gtestShuffle && gtestSeed == rhs.gtestSeed;
 }
 
 QString TestSettings::metricsTypeToOption(const MetricsType type)

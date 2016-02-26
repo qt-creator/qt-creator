@@ -44,8 +44,13 @@ HeaderViewStretcher::HeaderViewStretcher(QHeaderView *headerView, int columnToSt
         : QObject(headerView), m_columnToStretch(columnToStretch)
 {
     headerView->installEventFilter(this);
+    stretch();
+}
+
+void HeaderViewStretcher::stretch()
+{
     QHideEvent fake;
-    HeaderViewStretcher::eventFilter(headerView, &fake);
+    HeaderViewStretcher::eventFilter(parent(), &fake);
 }
 
 bool HeaderViewStretcher::eventFilter(QObject *obj, QEvent *ev)

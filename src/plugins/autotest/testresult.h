@@ -31,6 +31,7 @@
 #include <QString>
 #include <QColor>
 #include <QMetaType>
+#include <QSharedPointer>
 
 namespace Autotest {
 namespace Internal {
@@ -56,6 +57,7 @@ enum Type {
     MessageTestCaseWarn,
     MessageTestCaseFail,
     MessageTestCaseEnd,
+    MessageTestCaseRepetition,
     MessageCurrentTest, INTERNAL_MESSAGES_END = MessageCurrentTest,
 
     Invalid,
@@ -102,6 +104,8 @@ private:
     TestType m_type;
     // environment?
 };
+
+using TestResultPtr = QSharedPointer<TestResult>;
 
 class FaultyTestResult : public TestResult
 {

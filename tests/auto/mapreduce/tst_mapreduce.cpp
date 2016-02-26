@@ -34,6 +34,8 @@ class tst_MapReduce : public QObject
 
 private slots:
     void mapReduce();
+    void mapReduceRvalueContainer();
+    void map();
 };
 
 static int returnxx(int x)
@@ -89,6 +91,43 @@ void tst_MapReduce::mapReduce()
                 .results();
         Utils::sort(results); // mapping order is undefined
         QCOMPARE(results, QList<double>({0., 1., 4., 9., 16., 25., 27.5}));
+    }
+}
+
+void tst_MapReduce::mapReduceRvalueContainer()
+{
+    {
+        QFuture<int> future = Utils::mapReduce(QList<int>({1, 2, 3, 4, 5}),
+                                                 [](QFutureInterface<int>&) { return 0; },
+                                                 [](int value) { return value; },
+                                                 [](QFutureInterface<int>&, int &state, int value) { state += value; },
+                                                 [](QFutureInterface<int> &fi, int &state) { fi.reportResult(state); });
+        // here, lifetime of the QList temporary ends
+        QCOMPARE(future.results(), QList<int>({15}));
+    }
+}
+
+void tst_MapReduce::map()
+{
+    {
+        QList<double> results = Utils::map(QList<int>({2, 5, 1}),
+                    [](int x) { return x*2.5; }
+        ).results();
+        Utils::sort(results);
+        QCOMPARE(results, QList<double>({2.5, 5., 12.5}));
+    }
+    {
+        // void result
+        QList<int> results;
+        QMutex mutex;
+        Utils::map(
+                    // container
+                    QList<int>({2, 5, 1}),
+                    // map
+                    [&mutex, &results](int x) { QMutexLocker l(&mutex); results.append(x); }
+                    ).waitForFinished();
+        Utils::sort(results); // mapping order is undefined
+        QCOMPARE(results, QList<int>({1, 2, 5}));
     }
 }
 

@@ -41,6 +41,9 @@ TestSettingsWidget::TestSettingsWidget(QWidget *parent)
     m_ui.setupUi(this);
     m_ui.callgrindRB->setEnabled(Utils::HostOsInfo::isAnyUnixHost()); // valgrind available on UNIX
     m_ui.perfRB->setEnabled(Utils::HostOsInfo::isLinuxHost()); // according to docs perf Linux only
+
+    connect(m_ui.repeatGTestsCB, &QCheckBox::toggled, m_ui.repetitionSpin, &QSpinBox::setEnabled);
+    connect(m_ui.shuffleGTestsCB, &QCheckBox::toggled, m_ui.seedSpin, &QSpinBox::setEnabled);
 }
 
 void TestSettingsWidget::setSettings(const TestSettings &settings)
@@ -51,6 +54,11 @@ void TestSettingsWidget::setSettings(const TestSettings &settings)
     m_ui.limitResultOutputCB->setChecked(settings.limitResultOutput);
     m_ui.autoScrollCB->setChecked(settings.autoScroll);
     m_ui.alwaysParseCB->setChecked(settings.alwaysParse);
+    m_ui.runDisabledGTestsCB->setChecked(settings.gtestRunDisabled);
+    m_ui.repeatGTestsCB->setChecked(settings.gtestRepeat);
+    m_ui.shuffleGTestsCB->setChecked(settings.gtestShuffle);
+    m_ui.repetitionSpin->setValue(settings.gtestIterations);
+    m_ui.seedSpin->setValue(settings.gtestSeed);
 
     switch (settings.metrics) {
     case MetricsType::Walltime:
@@ -82,6 +90,11 @@ TestSettings TestSettingsWidget::settings() const
     result.limitResultOutput = m_ui.limitResultOutputCB->isChecked();
     result.autoScroll = m_ui.autoScrollCB->isChecked();
     result.alwaysParse = m_ui.alwaysParseCB->isChecked();
+    result.gtestRunDisabled = m_ui.runDisabledGTestsCB->isChecked();
+    result.gtestRepeat = m_ui.repeatGTestsCB->isChecked();
+    result.gtestShuffle = m_ui.shuffleGTestsCB->isChecked();
+    result.gtestIterations = m_ui.repetitionSpin->value();
+    result.gtestSeed = m_ui.seedSpin->value();
 
     if (m_ui.walltimeRB->isChecked())
         result.metrics = MetricsType::Walltime;

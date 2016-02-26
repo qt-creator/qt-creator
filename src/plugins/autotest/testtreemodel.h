@@ -81,10 +81,13 @@ public:
     void markAllForRemoval();
     void markForRemoval(const QString &filePath);
     void sweep();
-    QMap<QString, QString> referencingFiles() const;
+    QMap<QString, QString> testCaseNamesForFiles(QStringList files);
 
 signals:
     void testTreeModelChanged();
+#ifdef WITH_TESTS
+    void sweepingDone();
+#endif
 
 public slots:
 
@@ -104,9 +107,9 @@ private:
     explicit TestTreeModel(QObject *parent = 0);
     void setupParsingConnections();
 
-    TestTreeItem *m_autoTestRootItem;
-    TestTreeItem *m_quickTestRootItem;
-    TestTreeItem *m_googleTestRootItem;
+    AutoTestTreeItem *m_autoTestRootItem;
+    QuickTestTreeItem *m_quickTestRootItem;
+    GoogleTestTreeItem *m_googleTestRootItem;
     TestCodeParser *m_parser;
     bool m_connectionsInitialized;
     QAtomicInt m_refCounter;
@@ -151,11 +154,13 @@ struct TestParseResult
 
     TestTreeModel::Type type;
     QString fileName;
-    QString referencingFile;
+    QString proFile;
     QString testCaseName;
     unsigned line = 0;
     unsigned column = 0;
     bool parameterized = false;
+    bool typed = false;
+    bool disabled = false;
     QMap<QString, TestCodeLocationAndType> functions;
     QMap<QString, TestCodeLocationList> dataTagsOrTestSets;
 };

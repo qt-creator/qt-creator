@@ -1255,7 +1255,7 @@ void EditorManagerPrivate::activateEditorForEntry(EditorView *view, DocumentMode
         return;
     }
     IDocument *document = entry->document;
-    if (!entry->isRestored)  {
+    if (!entry->isSuspended)  {
         activateEditorForDocument(view, document, flags);
         return;
     }
@@ -1977,7 +1977,7 @@ bool EditorManagerPrivate::saveDocumentAs(IDocument *document)
 
 void EditorManagerPrivate::closeAllEditorsExceptVisible()
 {
-    DocumentModel::removeAllRestoredEntries();
+    DocumentModel::removeAllSuspendedEntries();
     QList<IDocument *> documentsToClose = DocumentModel::openedDocuments();
     foreach (IEditor *editor, EditorManager::visibleEditors())
         documentsToClose.removeAll(editor->document());
@@ -2120,7 +2120,7 @@ IEditor *EditorManager::currentEditor()
 
 bool EditorManager::closeAllEditors(bool askAboutModifiedEditors)
 {
-    DocumentModel::removeAllRestoredEntries();
+    DocumentModel::removeAllSuspendedEntries();
     if (closeDocuments(DocumentModel::openedDocuments(), askAboutModifiedEditors))
         return true;
     return false;
@@ -2128,7 +2128,7 @@ bool EditorManager::closeAllEditors(bool askAboutModifiedEditors)
 
 void EditorManager::closeOtherDocuments(IDocument *document)
 {
-    DocumentModel::removeAllRestoredEntries();
+    DocumentModel::removeAllSuspendedEntries();
     QList<IDocument *> documentsToClose = DocumentModel::openedDocuments();
     documentsToClose.removeAll(document);
     closeDocuments(documentsToClose, true);
@@ -2311,7 +2311,7 @@ void EditorManager::closeDocument(DocumentModel::Entry *entry)
 {
     if (!entry)
         return;
-    if (entry->isRestored)
+    if (entry->isSuspended)
         DocumentModel::removeEntry(entry);
     else
         closeDocuments(QList<IDocument *>() << entry->document);
@@ -2423,10 +2423,10 @@ bool EditorManager::closeEditors(const QList<IEditor*> &editorsToClose, bool ask
         if (newCurrent) {
             EditorManagerPrivate::activateEditor(view, newCurrent, DoNotChangeCurrentEditor);
         } else if (forceViewToShowEditor == view) {
-            DocumentModel::Entry *entry = DocumentModel::firstRestoredEntry();
+            DocumentModel::Entry *entry = DocumentModel::firstSuspendedEntry();
             if (entry) {
                 EditorManagerPrivate::activateEditorForEntry(view, entry, DoNotChangeCurrentEditor);
-            } else { // no "restored" ones, so any entry left should have a document
+            } else { // no "suspended" ones, so any entry left should have a document
                 const QList<DocumentModel::Entry *> documents = DocumentModel::entries();
                 if (!documents.isEmpty()) {
                     if (IDocument *document = documents.last()->document) {
@@ -2888,7 +2888,7 @@ bool EditorManager::restoreState(const QByteArray &state)
             if (rfi.exists() && fi.lastModified() < rfi.lastModified())
                 openEditor(fileName, id, DoNotMakeVisible);
             else
-                DocumentModel::addRestoredDocument(fileName, displayName, id);
+                DocumentModel::addSuspendedDocument(fileName, displayName, id);
         }
     }
 

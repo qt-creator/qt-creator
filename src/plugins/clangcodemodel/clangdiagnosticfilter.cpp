@@ -25,6 +25,10 @@
 
 #include "clangdiagnosticfilter.h"
 
+#include <cpptools/cppprojectfile.h>
+
+#include <utf8stringvector.h>
+
 namespace {
 
 bool isWarningOrNote(ClangBackEnd::DiagnosticSeverity severity)
@@ -39,6 +43,17 @@ bool isWarningOrNote(ClangBackEnd::DiagnosticSeverity severity)
     }
 
     Q_UNREACHABLE();
+}
+
+bool isBlackListedDiagnostic(const ClangBackEnd::DiagnosticContainer &diagnostic,
+                             bool isHeaderFile)
+{
+    static const Utf8StringVector blackList {
+        Utf8StringLiteral("warning: #pragma once in main file"),
+        Utf8StringLiteral("warning: #include_next in primary source file")
+    };
+
+    return isHeaderFile && blackList.contains(diagnostic.text());
 }
 
 template <class Condition>
@@ -76,8 +91,13 @@ namespace Internal {
 void ClangDiagnosticFilter::filterDocumentRelatedWarnings(
         const QVector<ClangBackEnd::DiagnosticContainer> &diagnostics)
 {
-    const auto isLocalWarning = [this] (const ClangBackEnd::DiagnosticContainer &diagnostic) {
+    using namespace CppTools;
+    const bool isHeaderFile = ProjectFile::isHeader(ProjectFile::classify(m_filePath));
+
+    const auto isLocalWarning = [this, isHeaderFile]
+            (const ClangBackEnd::DiagnosticContainer &diagnostic) {
         return isWarningOrNote(diagnostic.severity())
+            && !isBlackListedDiagnostic(diagnostic, isHeaderFile)
             && diagnostic.location().filePath() == m_filePath;
     };
 

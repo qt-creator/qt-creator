@@ -96,7 +96,9 @@ void AutoTestUnitTests::testCodeParser()
     QVERIFY(projectInfo.isValid());
 
     QSignalSpy parserSpy(m_model->parser(), SIGNAL(parsingFinished()));
+    QSignalSpy modelUpdateSpy(m_model, SIGNAL(sweepingDone()));
     QVERIFY(parserSpy.wait(20000));
+    QVERIFY(modelUpdateSpy.wait());
 
     if (m_isQt4)
         expectedNamedQuickTestsCount = expectedUnnamedQuickTestsCount = 0;
@@ -148,7 +150,9 @@ void AutoTestUnitTests::testCodeParserSwitchStartup()
         QVERIFY(projectInfo.isValid());
 
         QSignalSpy parserSpy(m_model->parser(), SIGNAL(parsingFinished()));
+        QSignalSpy modelUpdateSpy(m_model, SIGNAL(sweepingDone()));
         QVERIFY(parserSpy.wait(20000));
+        QVERIFY(modelUpdateSpy.wait());
 
         QCOMPARE(m_model->autoTestsCount(), expectedAutoTestsCount.at(i));
         QCOMPARE(m_model->namedQuickTestsCount(),
@@ -198,7 +202,9 @@ void AutoTestUnitTests::testCodeParserGTest()
     QVERIFY(projectInfo.isValid());
 
     QSignalSpy parserSpy(m_model->parser(), SIGNAL(parsingFinished()));
+    QSignalSpy modelUpdateSpy(m_model, SIGNAL(sweepingDone()));
     QVERIFY(parserSpy.wait(20000));
+    QVERIFY(modelUpdateSpy.wait());
 
     QCOMPARE(m_model->gtestNamesCount(), 6);
 
