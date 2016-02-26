@@ -27,9 +27,10 @@
 #include "analyzermanager.h"
 
 #include "analyzericons.h"
-#include "analyzerplugin.h"
 #include "analyzerstartparameters.h"
 #include "ianalyzertool.h"
+
+#include "../debuggerplugin.h"
 
 #include <coreplugin/coreicons.h>
 #include <coreplugin/findplaceholder.h>
@@ -77,7 +78,6 @@
 using namespace Core;
 using namespace Utils;
 using namespace Core::Constants;
-using namespace Analyzer::Internal;
 using namespace Analyzer::Constants;
 using namespace ProjectExplorer;
 
@@ -161,14 +161,14 @@ public:
 
 public:
     AnalyzerManager *q;
-    AnalyzerMode *m_mode;
-    bool m_isRunning;
-    FancyMainWindow *m_mainWindow;
-    AnalyzerAction *m_currentAction;
+    Internal::AnalyzerMode *m_mode = 0;
+    bool m_isRunning = false;
+    FancyMainWindow *m_mainWindow = 0;
+    AnalyzerAction *m_currentAction = 0;
     QList<AnalyzerAction *> m_actions;
-    QAction *m_startAction;
-    QAction *m_stopAction;
-    ActionContainer *m_menu;
+    QAction *m_startAction = 0;
+    QAction *m_stopAction = 0;
+    ActionContainer *m_menu = 0;
     QComboBox *m_toolBox;
     QStackedWidget *m_controlsStackWidget;
     QStackedWidget *m_statusLabelsStackWidget;
@@ -188,13 +188,6 @@ private:
 
 AnalyzerManagerPrivate::AnalyzerManagerPrivate(AnalyzerManager *qq):
     q(qq),
-    m_mode(0),
-    m_isRunning(false),
-    m_mainWindow(0),
-    m_currentAction(0),
-    m_startAction(0),
-    m_stopAction(0),
-    m_menu(0),
     m_toolBox(new QComboBox),
     m_controlsStackWidget(new QStackedWidget),
     m_statusLabelsStackWidget(new QStackedWidget)
@@ -259,7 +252,7 @@ void AnalyzerManagerPrivate::delayedInit()
     if (m_mode)
         return;
 
-    m_mode = new AnalyzerMode(q);
+    m_mode = new Internal::AnalyzerMode(q);
     createModeMainWindow();
 
     connect(ModeManager::instance(), &ModeManager::currentModeChanged,
@@ -286,7 +279,7 @@ void AnalyzerManagerPrivate::delayedInit()
     ICore::addContextObject(modeContextObject);
     m_mode->setWidget(splitter);
 
-    AnalyzerPlugin::instance()->addAutoReleasedObject(m_mode);
+    Debugger::Internal::DebuggerPlugin::instance()->addAutoReleasedObject(m_mode);
 
     // Populate Windows->Views menu with standard actions.
     Context analyzerContext(C_ANALYZEMODE);
@@ -444,8 +437,8 @@ void AnalyzerManagerPrivate::selectSavedTool()
 {
     const QSettings *settings = ICore::settings();
 
-    if (settings->contains(QLatin1String(LAST_ACTIVE_TOOL))) {
-        const Id lastAction = Id::fromSetting(settings->value(QLatin1String(LAST_ACTIVE_TOOL)));
+    if (settings->contains(QLatin1String(Internal::LAST_ACTIVE_TOOL))) {
+        const Id lastAction = Id::fromSetting(settings->value(QLatin1String(Internal::LAST_ACTIVE_TOOL)));
         foreach (AnalyzerAction *action, m_actions) {
             if (action->toolId() == lastAction) {
                 selectAction(action);
@@ -497,7 +490,7 @@ void AnalyzerManagerPrivate::selectAction(AnalyzerAction *action)
         m_statusLabelsStackWidget->addWidget(toolStatusLabel);
     }
     foreach (QDockWidget *widget, m_toolWidgets.value(toolId))
-        activateDock(Qt::DockWidgetArea(widget->property(INITIAL_DOCK_AREA).toInt()), widget);
+        activateDock(Qt::DockWidgetArea(widget->property(Internal::INITIAL_DOCK_AREA).toInt()), widget);
 
     loadToolSettings(action->toolId());
 
@@ -581,7 +574,7 @@ void AnalyzerManagerPrivate::saveToolSettings(Id toolId)
     m_mainWindow->saveSettings(settings);
     settings->setValue(QLatin1String("ToolSettingsSaved"), true);
     settings->endGroup();
-    settings->setValue(QLatin1String(LAST_ACTIVE_TOOL), toolId.toString());
+    settings->setValue(QLatin1String(Internal::LAST_ACTIVE_TOOL), toolId.toString());
 }
 
 void AnalyzerManagerPrivate::updateRunActions()
@@ -644,7 +637,7 @@ QDockWidget *AnalyzerManager::createDockWidget(Core::Id toolId,
 {
     QTC_ASSERT(!widget->objectName().isEmpty(), return 0);
     QDockWidget *dockWidget = d->m_mainWindow->addDockForWidget(widget);
-    dockWidget->setProperty(INITIAL_DOCK_AREA, int(area));
+    dockWidget->setProperty(Internal::INITIAL_DOCK_AREA, int(area));
     d->m_dockWidgets.append(AnalyzerManagerPrivate::DockPtr(dockWidget));
     d->m_toolWidgets[toolId].push_back(dockWidget);
     return dockWidget;

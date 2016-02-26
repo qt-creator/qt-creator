@@ -35,7 +35,7 @@
 #include "clangstaticanalyzerunittests.h"
 #endif
 
-#include <analyzerbase/analyzermanager.h>
+#include <debugger/analyzer/analyzermanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/icontext.h>
 #include <coreplugin/actionmanager/actionmanager.h>

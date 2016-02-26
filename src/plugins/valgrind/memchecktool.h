@@ -27,7 +27,7 @@
 #ifndef MEMCHECKTOOL_H
 #define MEMCHECKTOOL_H
 
-#include <analyzerbase/ianalyzertool.h>
+#include <debugger/analyzer/ianalyzertool.h>
 
 #include <QSortFilterProxyModel>
 

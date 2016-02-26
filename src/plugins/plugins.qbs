@@ -4,7 +4,6 @@ Project {
     name: "Plugins"
 
     references: [
-        "analyzerbase/analyzerbase.qbs",
         "android/android.qbs",
         "autotest/autotest.qbs",
         "autotoolsprojectmanager/autotoolsprojectmanager.qbs",

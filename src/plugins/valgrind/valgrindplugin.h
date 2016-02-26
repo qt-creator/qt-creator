@@ -28,7 +28,7 @@
 #define VALGRINDPLUGIN_H
 
 #include <extensionsystem/iplugin.h>
-#include <analyzerbase/ianalyzertool.h>
+#include <debugger/analyzer/ianalyzertool.h>
 #include <projectexplorer/projectexplorer.h>
 
 namespace Valgrind {

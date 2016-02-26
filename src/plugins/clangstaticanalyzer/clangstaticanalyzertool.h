@@ -26,7 +26,7 @@
 #ifndef CLANGSTATICANALYZERTOOL_H
 #define CLANGSTATICANALYZERTOOL_H
 
-#include <analyzerbase/ianalyzertool.h>
+#include <debugger/analyzer/ianalyzertool.h>
 #include <cpptools/projectinfo.h>
 
 #include <QHash>

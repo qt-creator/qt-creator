@@ -27,12 +27,8 @@
 #ifndef ANALYZERBASE_GLOBAL_H
 #define ANALYZERBASE_GLOBAL_H
 
-#include <qglobal.h>
+#include "../debugger_global.h"
 
-#if defined(ANALYZERBASE_LIBRARY)
-#  define ANALYZER_EXPORT Q_DECL_EXPORT
-#else
-#  define ANALYZER_EXPORT Q_DECL_IMPORT
-#endif
+#define ANALYZER_EXPORT DEBUGGER_EXPORT
 
 #endif // ANALYZERBASE_GLOBAL_H

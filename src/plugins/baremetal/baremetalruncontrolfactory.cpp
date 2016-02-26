@@ -40,9 +40,9 @@
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/buildconfiguration.h>
-#include <analyzerbase/analyzerstartparameters.h>
-#include <analyzerbase/analyzermanager.h>
-#include <analyzerbase/analyzerruncontrol.h>
+#include <debugger/analyzer/analyzerstartparameters.h>
+#include <debugger/analyzer/analyzermanager.h>
+#include <debugger/analyzer/analyzerruncontrol.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/target.h>
 #include <utils/portlist.h>

@@ -30,8 +30,8 @@
 #include "clangstaticanalyzersettings.h"
 #include "clangstaticanalyzerutils.h"
 
-#include <analyzerbase/analyzermanager.h>
-#include <analyzerbase/analyzerutils.h>
+#include <debugger/analyzer/analyzermanager.h>
+#include <debugger/analyzer/analyzerutils.h>
 
 #include <clangcodemodel/clangutils.h>
 

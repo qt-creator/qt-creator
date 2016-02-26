@@ -31,9 +31,9 @@
 #include "callgrindtool.h"
 #include "memchecktool.h"
 
-#include <analyzerbase/ianalyzertool.h>
-#include <analyzerbase/analyzermanager.h>
-#include <analyzerbase/analyzerrunconfigwidget.h>
+#include <debugger/analyzer/ianalyzertool.h>
+#include <debugger/analyzer/analyzermanager.h>
+#include <debugger/analyzer/analyzerrunconfigwidget.h>
 
 #include <utils/qtcassert.h>
 

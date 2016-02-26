@@ -8,7 +8,6 @@ QtcPlugin {
     Depends { name: "QmlDebug" }
     Depends { name: "Utils" }
 
-    Depends { name: "AnalyzerBase" }
     Depends { name: "Core" }
     Depends { name: "Debugger" }
     Depends { name: "ProjectExplorer" }
@@ -114,7 +113,7 @@ QtcPlugin {
     ]
 
     Export {
-        Depends { name: "AnalyzerBase" }
+        Depends { name: "Debugger" }
         Depends { name: "Core" }
         Depends { name: "QtcSsh" }
     }

@@ -40,7 +40,6 @@ SUBDIRS   = \
     bazaar \
     classview \
     tasklist \
-    analyzerbase \
     qmljstools \
     macros \
     remotelinux \

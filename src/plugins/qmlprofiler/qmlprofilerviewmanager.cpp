@@ -35,7 +35,7 @@
 #include <coreplugin/icore.h>
 #include <utils/qtcassert.h>
 #include <utils/fancymainwindow.h>
-#include <analyzerbase/analyzermanager.h>
+#include <debugger/analyzer/analyzermanager.h>
 #include <extensionsystem/pluginmanager.h>
 
 #include <QDockWidget>

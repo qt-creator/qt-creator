@@ -28,7 +28,7 @@
 
 #include "qmlprofilerstatemanager.h"
 
-#include <analyzerbase/analyzerruncontrol.h>
+#include <debugger/analyzer/analyzerruncontrol.h>
 #include <utils/outputformat.h>
 
 namespace QmlProfiler {

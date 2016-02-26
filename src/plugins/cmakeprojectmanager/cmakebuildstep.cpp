@@ -72,12 +72,12 @@ const char ADD_RUNCONFIGURATION_TEXT[] = "Current executable";
 
 CMakeBuildStep::CMakeBuildStep(BuildStepList *bsl) : AbstractProcessStep(bsl, Core::Id(MS_ID))
 {
-    ctor();
+    ctor(bsl);
 }
 
 CMakeBuildStep::CMakeBuildStep(BuildStepList *bsl, Core::Id id) : AbstractProcessStep(bsl, id)
 {
-    ctor();
+    ctor(bsl);
 }
 
 CMakeBuildStep::CMakeBuildStep(BuildStepList *bsl, CMakeBuildStep *bs) :
@@ -86,10 +86,10 @@ CMakeBuildStep::CMakeBuildStep(BuildStepList *bsl, CMakeBuildStep *bs) :
     m_toolArguments(bs->m_toolArguments),
     m_addRunConfigurationArgument(bs->m_addRunConfigurationArgument)
 {
-    ctor();
+    ctor(bsl);
 }
 
-void CMakeBuildStep::ctor()
+void CMakeBuildStep::ctor(BuildStepList *bsl)
 {
     m_percentProgress = QRegExp(QLatin1String("^\\[\\s*(\\d*)%\\]"));
     m_ninjaProgress = QRegExp(QLatin1String("^\\[\\s*(\\d*)/\\s*(\\d*)"));
@@ -97,9 +97,15 @@ void CMakeBuildStep::ctor()
     //: Default display name for the cmake make step.
     setDefaultDisplayName(tr("Make"));
 
+    auto bc = qobject_cast<CMakeBuildConfiguration *>(bsl->parent());
+    if (!bc) {
+        auto t = qobject_cast<Target *>(bsl->parent()->parent());
+        QTC_ASSERT(t, return);
+        bc = qobject_cast<CMakeBuildConfiguration *>(t->activeBuildConfiguration());
+    }
+
     connect(target(), &Target::kitChanged, this, &CMakeBuildStep::cmakeCommandChanged);
-    connect(static_cast<CMakeProject *>(project()), &CMakeProject::buildDirectoryDataAvailable,
-            this, &CMakeBuildStep::buildTargetsChanged);
+    connect(bc, &CMakeBuildConfiguration::dataAvailable, this, &CMakeBuildStep::handleBuildTargetChanges);
 }
 
 CMakeBuildConfiguration *CMakeBuildStep::cmakeBuildConfiguration() const
@@ -117,12 +123,13 @@ CMakeRunConfiguration *CMakeBuildStep::targetsActiveRunConfiguration() const
     return qobject_cast<CMakeRunConfiguration *>(target()->activeRunConfiguration());
 }
 
-void CMakeBuildStep::buildTargetsChanged()
+void CMakeBuildStep::handleBuildTargetChanges()
 {
     const QStringList filteredTargets
             = Utils::filtered(static_cast<CMakeProject *>(project())->buildTargetTitles(),
                               [this](const QString &s) { return m_buildTargets.contains(s); });
     setBuildTargets(filteredTargets);
+    emit buildTargetsChanged();
 }
 
 QVariantMap CMakeBuildStep::toMap() const
@@ -213,6 +220,37 @@ bool CMakeBuildStep::init(QList<const BuildStep *> &earlierSteps)
     outputParser()->setWorkingDirectory(pp->effectiveWorkingDirectory());
 
     return AbstractProcessStep::init(earlierSteps);
+}
+
+void CMakeBuildStep::run(QFutureInterface<bool> &fi)
+{
+    // Make sure CMake state was written to disk before trying to build:
+    CMakeBuildConfiguration *bc = cmakeBuildConfiguration();
+    if (!bc)
+        bc = qobject_cast<CMakeBuildConfiguration *>(target()->activeBuildConfiguration());
+    QTC_ASSERT(bc, return);
+
+    if (bc->persistCMakeState()) {
+        emit addOutput(tr("Persisting CMake state..."), BuildStep::MessageOutput);
+
+        m_runTrigger = connect(bc, &CMakeBuildConfiguration::dataAvailable,
+                               this, [this, &fi]() { runImpl(fi); });
+        m_errorTrigger = connect(bc, &CMakeBuildConfiguration::errorOccured,
+                                 this, [this, &fi]() {
+            fi.reportResult(false);
+        });
+    } else {
+        runImpl(fi);
+    }
+}
+
+void CMakeBuildStep::runImpl(QFutureInterface<bool> &fi)
+{
+    // Do the actual build:
+    disconnect(m_runTrigger);
+    disconnect(m_errorTrigger);
+
+    AbstractProcessStep::run(fi);
 }
 
 BuildStepConfigWidget *CMakeBuildStep::createConfigWidget()
@@ -401,7 +439,7 @@ CMakeBuildStepConfigWidget::CMakeBuildStepConfigWidget(CMakeBuildStep *buildStep
     connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::settingsChanged,
             this, &CMakeBuildStepConfigWidget::updateDetails);
 
-    connect(pro, &CMakeProject::buildDirectoryDataAvailable, this, &CMakeBuildStepConfigWidget::buildTargetsChanged);
+    connect(m_buildStep, &CMakeBuildStep::buildTargetsChanged, this, &CMakeBuildStepConfigWidget::buildTargetsChanged);
     connect(m_buildStep, &CMakeBuildStep::targetsToBuildChanged, this, &CMakeBuildStepConfigWidget::selectedBuildTargetsChanged);
     connect(pro, &CMakeProject::environmentChanged, this, &CMakeBuildStepConfigWidget::updateDetails);
 }

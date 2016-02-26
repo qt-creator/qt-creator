@@ -31,7 +31,7 @@
 #include <valgrind/callgrind/callgrindcontroller.h>
 #include <valgrind/callgrind/callgrindparser.h>
 
-#include <analyzerbase/analyzermanager.h>
+#include <debugger/analyzer/analyzermanager.h>
 
 #include <utils/qtcassert.h>
 

@@ -29,7 +29,7 @@
 #include "clangstaticanalyzerdiagnostic.h"
 #include "clangstaticanalyzerprojectsettings.h"
 
-#include <analyzerbase/detailederrorview.h>
+#include <debugger/analyzer/detailederrorview.h>
 #include <utils/fileutils.h>
 #include <utils/treemodel.h>
 

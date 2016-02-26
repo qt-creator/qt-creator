@@ -3,7 +3,7 @@ import qbs
 QtcPlugin {
     name: "ClangStaticAnalyzer"
 
-    Depends { name: "AnalyzerBase" }
+    Depends { name: "Debugger" }
     Depends { name: "Core" }
     Depends { name: "CppTools" }
     Depends { name: "ExtensionSystem" }

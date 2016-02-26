@@ -56,6 +56,7 @@ public:
     CMakeBuildConfiguration *targetsActiveBuildConfiguration() const;
 
     bool init(QList<const BuildStep *> &earlierSteps) override;
+    void run(QFutureInterface<bool> &fi) override;
 
     ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;
     bool immutable() const override;
@@ -83,6 +84,7 @@ public:
 signals:
     void cmakeCommandChanged();
     void targetsToBuildChanged();
+    void buildTargetsChanged();
 
 protected:
     void processStarted() override;
@@ -97,10 +99,15 @@ protected:
     void stdOutput(const QString &line) override;
 
 private:
-    void ctor();
+    void ctor(ProjectExplorer::BuildStepList *bsl);
 
-    void buildTargetsChanged();
+    void runImpl(QFutureInterface<bool> &fi);
+
+    void handleBuildTargetChanges();
     CMakeRunConfiguration *targetsActiveRunConfiguration() const;
+
+    QMetaObject::Connection m_runTrigger;
+    QMetaObject::Connection m_errorTrigger;
 
     QRegExp m_percentProgress;
     QRegExp m_ninjaProgress;

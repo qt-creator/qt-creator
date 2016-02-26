@@ -148,5 +148,6 @@ include(lldb/lldb.pri)
 include(qml/qml.pri)
 include(namedemangler/namedemangler.pri)
 include(console/console.pri)
+include(analyzer/analyzer.pri)
 
 include(shared/shared.pri)

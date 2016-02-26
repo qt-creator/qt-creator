@@ -27,9 +27,9 @@
 
 #include "clangstaticanalyzerconstants.h"
 
-#include <analyzerbase/analyzermanager.h>
-#include <analyzerbase/analyzerruncontrol.h>
-#include <analyzerbase/analyzerstartparameters.h>
+#include <debugger/analyzer/analyzermanager.h>
+#include <debugger/analyzer/analyzerruncontrol.h>
+#include <debugger/analyzer/analyzerstartparameters.h>
 
 #include <coreplugin/icontext.h>
 

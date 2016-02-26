@@ -27,7 +27,7 @@
 
 #include "remotelinuxrunconfiguration.h"
 
-#include <analyzerbase/analyzerruncontrol.h>
+#include <debugger/analyzer/analyzerruncontrol.h>
 
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/project.h>

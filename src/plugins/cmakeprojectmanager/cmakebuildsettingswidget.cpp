@@ -84,9 +84,9 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
     buildDirChooser->setBaseFileName(project->projectDirectory());
     buildDirChooser->setFileName(bc->buildDirectory());
     connect(buildDirChooser, &Utils::PathChooser::rawPathChanged, this,
-            [this, project](const QString &path) {
+            [this](const QString &path) {
                 m_configModel->flush(); // clear out config cache...
-                project->changeBuildDirectory(m_buildConfiguration, path);
+                m_buildConfiguration->setBuildDirectory(Utils::FileName::fromString(path));
             });
 
     int row = 0;
@@ -123,7 +123,7 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
     m_configView->setMinimumHeight(300);
     m_configView->setRootIsDecorated(false);
     m_configView->setUniformRowHeights(true);
-    new Utils::HeaderViewStretcher(m_configView->header(), 1);
+    auto stretcher = new Utils::HeaderViewStretcher(m_configView->header(), 1);
     m_configView->setSelectionMode(QAbstractItemView::SingleSelection);
     m_configView->setSelectionBehavior(QAbstractItemView::SelectItems);
     m_configView->setFrameShape(QFrame::NoFrame);
@@ -166,13 +166,18 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
         updateButtonState();
         m_showProgressTimer.start();
     });
-    connect(project, &CMakeProject::buildDirectoryDataAvailable,
-            this, [this, project, buildDirChooser](ProjectExplorer::BuildConfiguration *bc) {
+
+    if (m_buildConfiguration->isParsing())
+        m_showProgressTimer.start();
+    else
+        m_configModel->setConfiguration(m_buildConfiguration->completeCMakeConfiguration());
+
+    connect(m_buildConfiguration, &CMakeBuildConfiguration::dataAvailable,
+            this, [this, buildDirChooser, stretcher]() {
         updateButtonState();
-        if (m_buildConfiguration == bc) {
-            m_configModel->setConfiguration(project->currentCMakeConfiguration());
-            buildDirChooser->triggerChanged(); // refresh valid state...
-        }
+        m_configModel->setConfiguration(m_buildConfiguration->completeCMakeConfiguration());
+        stretcher->stretch();
+        buildDirChooser->triggerChanged(); // refresh valid state...
         m_showProgressTimer.stop();
         m_progressIndicator->hide();
     });
@@ -186,8 +191,8 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
             this, &CMakeBuildSettingsWidget::updateAdvancedCheckBox);
 
     connect(m_resetButton, &QPushButton::clicked, m_configModel, &ConfigModel::resetAllChanges);
-    connect(m_reconfigureButton, &QPushButton::clicked, this, [this, project]() {
-        project->setCurrentCMakeConfiguration(m_configModel->configurationChanges());
+    connect(m_reconfigureButton, &QPushButton::clicked, this, [this]() {
+        m_buildConfiguration->setCurrentCMakeConfiguration(m_configModel->configurationChanges());
     });
     connect(m_editButton, &QPushButton::clicked, this, [this]() {
         QModelIndex idx = m_configView->currentIndex();
@@ -218,8 +223,7 @@ void CMakeBuildSettingsWidget::setError(const QString &message)
 
 void CMakeBuildSettingsWidget::updateButtonState()
 {
-    auto project = static_cast<CMakeProject *>(m_buildConfiguration->target()->project());
-    const bool isParsing = project->isParsing();
+    const bool isParsing = m_buildConfiguration->isParsing();
     const bool hasChanges = m_configModel->hasChanges();
     m_resetButton->setEnabled(hasChanges && !isParsing);
     m_reconfigureButton->setEnabled((hasChanges || m_configModel->hasCMakeChanges()) && !isParsing);

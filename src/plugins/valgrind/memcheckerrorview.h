@@ -27,7 +27,7 @@
 #ifndef MEMCHECKERRORVIEW_H
 #define MEMCHECKERRORVIEW_H
 
-#include <analyzerbase/detailederrorview.h>
+#include <debugger/analyzer/detailederrorview.h>
 
 #include <QListView>
 

@@ -28,8 +28,8 @@
 #include "localqmlprofilerrunner.h"
 #include "qmlprofilertool.h"
 
-#include <analyzerbase/analyzermanager.h>
-#include <analyzerbase/analyzerstartparameters.h>
+#include <debugger/analyzer/analyzermanager.h>
+#include <debugger/analyzer/analyzerstartparameters.h>
 
 #include <coreplugin/icore.h>
 #include <utils/qtcassert.h>

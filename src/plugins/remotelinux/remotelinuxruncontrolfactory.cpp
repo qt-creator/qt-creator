@@ -31,10 +31,10 @@
 #include "remotelinuxrunconfiguration.h"
 #include "remotelinuxruncontrol.h"
 
-#include <analyzerbase/analyzermanager.h>
-#include <analyzerbase/analyzerruncontrol.h>
-#include <analyzerbase/analyzerstartparameters.h>
-#include <analyzerbase/ianalyzertool.h>
+#include <debugger/analyzer/analyzermanager.h>
+#include <debugger/analyzer/analyzerruncontrol.h>
+#include <debugger/analyzer/analyzerstartparameters.h>
+#include <debugger/analyzer/ianalyzertool.h>
 
 #include <debugger/debuggerruncontrol.h>
 #include <debugger/debuggerrunconfigurationaspect.h>

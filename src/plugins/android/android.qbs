@@ -4,7 +4,6 @@ QtcPlugin {
     name: "Android"
 
     Depends { name: "Qt"; submodules: ["widgets", "xml", "network"] }
-    Depends { name: "AnalyzerBase" }
     Depends { name: "Core" }
     Depends { name: "Debugger" }
     Depends { name: "ProjectExplorer" }

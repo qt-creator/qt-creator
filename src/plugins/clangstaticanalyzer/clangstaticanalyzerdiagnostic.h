@@ -26,7 +26,7 @@
 #ifndef CLANGSTATICANALZYERDIAGNOSTIC_H
 #define CLANGSTATICANALZYERDIAGNOSTIC_H
 
-#include <analyzerbase/diagnosticlocation.h>
+#include <debugger/analyzer/diagnosticlocation.h>
 
 #include <QList>
 #include <QMetaType>
