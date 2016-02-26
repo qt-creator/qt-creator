@@ -129,7 +129,6 @@
 #include <utils/stringutils.h>
 
 #include <QtPlugin>
-#include <QDebug>
 #include <QFileInfo>
 #include <QSettings>
 
@@ -3028,7 +3027,9 @@ void ProjectExplorerPluginPrivate::addNewFile()
     }
     ICore::showNewItemDialog(tr("New File", "Title of dialog"),
                              Utils::filtered(IWizardFactory::allWizardFactories(),
-                                             [](IWizardFactory *f) { return f->supportedPlatforms().isEmpty(); }),
+                                             [](IWizardFactory *f) {
+                                 return f->supportedProjectTypes().isEmpty();
+                             }),
                              location, map);
 }
 
@@ -3054,8 +3055,8 @@ void ProjectExplorerPluginPrivate::addNewSubproject()
         ICore::showNewItemDialog(tr("New Subproject", "Title of dialog"),
                                  Utils::filtered(IWizardFactory::allWizardFactories(),
                                                  [projectType](IWizardFactory *f) {
-                                                     return projectType.isValid() ? f->supportedPlatforms().contains(projectType)
-                                                                                  : !f->supportedPlatforms().isEmpty(); }),
+                                                     return projectType.isValid() ? f->supportedProjectTypes().contains(projectType)
+                                                                                  : !f->supportedProjectTypes().isEmpty(); }),
                                  location, map);
     }
 }
