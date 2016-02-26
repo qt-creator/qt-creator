@@ -50,6 +50,8 @@ class FolderNavigationWidget : public QWidget
 public:
     explicit FolderNavigationWidget(QWidget *parent = 0);
 
+    static QStringList projectFilesInDirectory(const QString &path);
+
     bool autoSynchronization() const;
     bool hiddenFilesFilter() const;
 
