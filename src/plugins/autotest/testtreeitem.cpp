@@ -138,7 +138,7 @@ bool TestTreeItem::modifyTestCaseContent(const QString &name, unsigned line, uns
 bool TestTreeItem::modifyTestFunctionContent(const TestCodeLocationAndType &location)
 {
     bool hasBeenModified = modifyFilePath(location.m_name);
-    hasBeenModified |= modifyLineAndColumn(location.m_line, location.m_column);
+    hasBeenModified |= modifyLineAndColumn(location);
     return hasBeenModified;
 }
 
@@ -147,8 +147,13 @@ bool TestTreeItem::modifyDataTagContent(const QString &fileName,
 {
     bool hasBeenModified = modifyFilePath(fileName);
     hasBeenModified |= modifyName(location.m_name);
-    hasBeenModified |= modifyLineAndColumn(location.m_line, location.m_column);
+    hasBeenModified |= modifyLineAndColumn(location);
     return hasBeenModified;
+}
+
+bool TestTreeItem::modifyLineAndColumn(const TestCodeLocationAndType &location)
+{
+    return modifyLineAndColumn(location.m_line, location.m_column);
 }
 
 bool TestTreeItem::modifyLineAndColumn(unsigned line, unsigned column)
@@ -420,7 +425,7 @@ bool GoogleTestTreeItem::modifyTestSetContent(const QString &fileName,
                                               const TestCodeLocationAndType &location)
 {
     bool hasBeenModified = modifyFilePath(fileName);
-    hasBeenModified |= modifyLineAndColumn(location.m_line, location.m_column);
+    hasBeenModified |= modifyLineAndColumn(location);
     if (m_state != location.m_state) {
         m_state = location.m_state;
         hasBeenModified = true;

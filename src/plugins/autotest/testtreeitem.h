@@ -72,6 +72,7 @@ public:
     bool modifyTestCaseContent(const QString &name, unsigned line, unsigned column);
     bool modifyTestFunctionContent(const TestCodeLocationAndType &location);
     bool modifyDataTagContent(const QString &fileName, const TestCodeLocationAndType &location);
+    bool modifyLineAndColumn(const TestCodeLocationAndType &location);
     bool modifyLineAndColumn(unsigned line, unsigned column);
 
     const QString name() const { return m_name; }

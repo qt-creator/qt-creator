@@ -723,7 +723,7 @@ void TestTreeModel::handleUnnamedQuickParseResult(const TestParseResult &result)
                                           func, result));
             continue;
         }
-        functionItem->modifyLineAndColumn(location.m_line, location.m_column);
+        functionItem->modifyLineAndColumn(location);
         functionItem->markForRemoval(false);
     }
 }
