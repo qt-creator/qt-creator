@@ -37,9 +37,10 @@ QT_FORWARD_DECLARE_CLASS(QComboBox)
 QT_FORWARD_DECLARE_CLASS(QSettings)
 
 namespace CppTools {
-namespace Internal {
 
 class ClangDiagnosticConfigsWidget;
+
+namespace Internal {
 
 namespace Ui { class CppCodeModelSettingsPage; }
 

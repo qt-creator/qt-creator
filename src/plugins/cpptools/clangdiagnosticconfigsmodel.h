@@ -25,24 +25,30 @@
 
 #pragma once
 
+#include "cpptools_global.h"
+
 #include "clangdiagnosticconfig.h"
 
 namespace CppTools {
-namespace Internal {
 
-class ClangDiagnosticConfigsModel
+class CPPTOOLS_EXPORT ClangDiagnosticConfigsModel
 {
 public:
+    ClangDiagnosticConfigsModel() = default;
     ClangDiagnosticConfigsModel(const ClangDiagnosticConfigs &customConfigs);
 
     int size() const;
     const ClangDiagnosticConfig &at(int index) const;
 
+    void prepend(const ClangDiagnosticConfig &config);
     void appendOrUpdate(const ClangDiagnosticConfig &config);
     void removeConfigWithId(const Core::Id &id);
 
     ClangDiagnosticConfigs configs() const;
+    bool hasConfigWithId(const Core::Id &id) const;
     const ClangDiagnosticConfig &configWithId(const Core::Id &id) const;
+
+    static QString displayNameWithBuiltinIndication(const ClangDiagnosticConfig &config);
 
 private:
     int indexOfConfig(const Core::Id &id) const;
@@ -51,5 +57,4 @@ private:
     ClangDiagnosticConfigs m_diagnosticConfigs;
 };
 
-} // namespace Internal
 } // namespace CppTools

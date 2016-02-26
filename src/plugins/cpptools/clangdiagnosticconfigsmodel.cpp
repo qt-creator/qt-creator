@@ -32,7 +32,6 @@
 #include <QCoreApplication>
 
 namespace CppTools {
-namespace Internal {
 
 static void addConfigForQuestionableConstructs(ClangDiagnosticConfigsModel &model)
 {
@@ -110,6 +109,11 @@ const ClangDiagnosticConfig &ClangDiagnosticConfigsModel::at(int index) const
     return m_diagnosticConfigs.at(index);
 }
 
+void ClangDiagnosticConfigsModel::prepend(const ClangDiagnosticConfig &config)
+{
+    m_diagnosticConfigs.prepend(config);
+}
+
 void ClangDiagnosticConfigsModel::appendOrUpdate(const ClangDiagnosticConfig &config)
 {
     const int index = indexOfConfig(config.id());
@@ -130,9 +134,23 @@ ClangDiagnosticConfigs ClangDiagnosticConfigsModel::configs() const
     return m_diagnosticConfigs;
 }
 
+bool ClangDiagnosticConfigsModel::hasConfigWithId(const Core::Id &id) const
+{
+    return indexOfConfig(id) != -1;
+}
+
 const ClangDiagnosticConfig &ClangDiagnosticConfigsModel::configWithId(const Core::Id &id) const
 {
     return m_diagnosticConfigs.at(indexOfConfig(id));
+}
+
+QString
+ClangDiagnosticConfigsModel::displayNameWithBuiltinIndication(const ClangDiagnosticConfig &config)
+{
+    return config.isReadOnly()
+            ? QCoreApplication::translate("ClangDiagnosticConfigsModel", "%1 [built-in]")
+                .arg(config.displayName())
+            : config.displayName();
 }
 
 int ClangDiagnosticConfigsModel::indexOfConfig(const Core::Id &id) const
@@ -142,5 +160,4 @@ int ClangDiagnosticConfigsModel::indexOfConfig(const Core::Id &id) const
     });
 }
 
-} // namespace Internal
 } // namespace CppTools

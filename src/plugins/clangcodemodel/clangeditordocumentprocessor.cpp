@@ -30,11 +30,14 @@
 #include "clangfixitoperation.h"
 #include "clangfixitoperationsextractor.h"
 #include "clanghighlightingmarksreporter.h"
+#include "clangprojectsettings.h"
 #include "clangutils.h"
 
 #include <diagnosticcontainer.h>
 #include <sourcelocationcontainer.h>
 
+#include <cpptools/clangdiagnosticconfigsmodel.h>
+#include <cpptools/clangdiagnosticconfigsmodel.h>
 #include <cpptools/compileroptionsbuilder.h>
 #include <cpptools/cppcodemodelsettings.h>
 #include <cpptools/cppmodelmanager.h>
@@ -340,10 +343,25 @@ static QStringList languageOptions(const QString &filePath, CppTools::ProjectPar
     return builder.options();
 }
 
+static QStringList warningOptions(CppTools::ProjectPart *projectPart)
+{
+    if (projectPart && projectPart->project) {
+        ClangProjectSettings projectSettings(projectPart->project);
+        if (!projectSettings.useGlobalWarningConfig()) {
+            const Core::Id warningConfigId = projectSettings.warningConfigId();
+            const CppTools::ClangDiagnosticConfigsModel configsModel(
+                        CppTools::codeModelSettings()->clangCustomDiagnosticConfigs());
+            if (configsModel.hasConfigWithId(warningConfigId))
+                return configsModel.configWithId(warningConfigId).commandLineOptions();
+        }
+    }
+
+    return CppTools::codeModelSettings()->clangDiagnosticConfig().commandLineOptions();
+}
+
 static QStringList fileArguments(const QString &filePath, CppTools::ProjectPart *projectPart)
 {
-    return languageOptions(filePath, projectPart)
-         + CppTools::codeModelSettings()->clangDiagnosticConfig().commandLineOptions();
+    return languageOptions(filePath, projectPart) + warningOptions(projectPart);
 }
 
 ClangBackEnd::FileContainer

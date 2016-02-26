@@ -121,7 +121,7 @@ void CppCodeModelSettings::setClangDiagnosticConfigId(const Core::Id &configId)
 
 const ClangDiagnosticConfig CppCodeModelSettings::clangDiagnosticConfig() const
 {
-    const Internal::ClangDiagnosticConfigsModel configsModel(m_clangCustomDiagnosticConfigs);
+    const ClangDiagnosticConfigsModel configsModel(m_clangCustomDiagnosticConfigs);
 
     return configsModel.configWithId(clangDiagnosticConfigId());
 }

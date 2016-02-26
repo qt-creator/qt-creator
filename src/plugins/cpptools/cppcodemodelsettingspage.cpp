@@ -78,8 +78,9 @@ void CppCodeModelSettingsWidget::setupClangCodeModelWidgets()
     m_ui->activateClangCodeModelPluginHint->setVisible(!isClangActive);
     m_ui->clangSettingsGroupBox->setEnabled(isClangActive);
 
+    ClangDiagnosticConfigsModel diagnosticConfigsModel(m_settings->clangCustomDiagnosticConfigs());
     m_clangDiagnosticConfigsWidget = new ClangDiagnosticConfigsWidget(
-                                            m_settings->clangCustomDiagnosticConfigs(),
+                                            diagnosticConfigsModel,
                                             m_settings->clangDiagnosticConfigId());
     m_ui->clangSettingsGroupBox->layout()->addWidget(m_clangDiagnosticConfigsWidget);
 }

@@ -26,12 +26,17 @@
 #include "clangcodemodelplugin.h"
 
 #include "clangconstants.h"
+#include "clangprojectsettingswidget.h"
 
 #ifdef WITH_TESTS
 #  include "test/clangcodecompletion_test.h"
 #endif
 
 #include <cpptools/cppmodelmanager.h>
+
+#include <projectexplorer/projectpanelfactory.h>
+#include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/session.h>
 
 #include <texteditor/textmark.h>
 
@@ -48,6 +53,15 @@ void initializeTextMarks()
                                            Utils::Theme::ClangCodeModel_Error_TextMarkColor);
 }
 
+void addProjectPanelWidget()
+{
+    auto panelFactory = new ProjectExplorer::ProjectPanelFactory();
+    panelFactory->setPriority(60);
+    panelFactory->setDisplayName(ClangProjectSettingsWidget::tr("Clang Code Model"));
+    panelFactory->setSimpleCreateWidgetFunction<ClangProjectSettingsWidget>(QIcon());
+    ProjectExplorer::ProjectPanelFactory::registerFactory(panelFactory);
+}
+
 } // anonymous namespace
 
 bool ClangCodeModelPlugin::initialize(const QStringList &arguments, QString *errorMessage)
@@ -58,6 +72,7 @@ bool ClangCodeModelPlugin::initialize(const QStringList &arguments, QString *err
     CppTools::CppModelManager::instance()->activateClangCodeModel(&m_modelManagerSupportProvider);
 
     initializeTextMarks();
+    addProjectPanelWidget();
 
     return true;
 }

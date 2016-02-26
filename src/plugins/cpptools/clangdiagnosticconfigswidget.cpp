@@ -34,28 +34,23 @@
 #include <QUuid>
 
 namespace CppTools {
-namespace Internal {
 
 ClangDiagnosticConfigsWidget::ClangDiagnosticConfigsWidget(
-        const ClangDiagnosticConfigs &customConfigs,
+        const ClangDiagnosticConfigsModel &diagnosticConfigsModel,
         const Core::Id &configToSelect,
         QWidget *parent)
     : QWidget(parent)
     , m_ui(new Ui::ClangDiagnosticConfigsWidget)
-    , m_diagnosticConfigsModel(customConfigs)
+    , m_diagnosticConfigsModel(diagnosticConfigsModel)
 {
     m_ui->setupUi(this);
 
-    connect(m_ui->configChooserComboBox,
-            static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
-            this,
-            &ClangDiagnosticConfigsWidget::onCurrentConfigChanged);
+    connectConfigChooserCurrentIndex();
     connect(m_ui->copyButton, &QPushButton::clicked,
             this, &ClangDiagnosticConfigsWidget::onCopyButtonClicked);
     connect(m_ui->removeButton, &QPushButton::clicked,
             this, &ClangDiagnosticConfigsWidget::onRemoveButtonClicked);
-    connect(m_ui->diagnosticOptionsTextEdit->document(), &QTextDocument::contentsChanged,
-            this, &ClangDiagnosticConfigsWidget::onDiagnosticOptionsEdited);
+    connectDiagnosticOptionsChanged();
 
     syncWidgetsToModel(configToSelect);
 }
@@ -68,6 +63,8 @@ ClangDiagnosticConfigsWidget::~ClangDiagnosticConfigsWidget()
 void ClangDiagnosticConfigsWidget::onCurrentConfigChanged(int)
 {
     syncOtherWidgetsToComboBox();
+
+    emit currentConfigChanged(currentConfigId());
 }
 
 static ClangDiagnosticConfig createCustomConfig(const ClangDiagnosticConfig &config,
@@ -95,6 +92,7 @@ void ClangDiagnosticConfigsWidget::onCopyButtonClicked()
     if (diaglogAccepted) {
         const ClangDiagnosticConfig customConfig = createCustomConfig(config, newName);
         m_diagnosticConfigsModel.appendOrUpdate(customConfig);
+        emit customConfigsChanged(customConfigs());
 
         syncConfigChooserToModel(customConfig.id());
         m_ui->diagnosticOptionsTextEdit->setFocus();
@@ -104,6 +102,7 @@ void ClangDiagnosticConfigsWidget::onCopyButtonClicked()
 void ClangDiagnosticConfigsWidget::onRemoveButtonClicked()
 {
     m_diagnosticConfigsModel.removeConfigWithId(currentConfigId());
+    emit customConfigsChanged(customConfigs());
 
     syncConfigChooserToModel();
 }
@@ -119,6 +118,7 @@ void ClangDiagnosticConfigsWidget::onDiagnosticOptionsEdited()
     updatedConfig.setCommandLineOptions(updatedCommandLine);
 
     m_diagnosticConfigsModel.appendOrUpdate(updatedConfig);
+    emit customConfigsChanged(customConfigs());
 }
 
 void ClangDiagnosticConfigsWidget::syncWidgetsToModel(const Core::Id &configToSelect)
@@ -127,29 +127,40 @@ void ClangDiagnosticConfigsWidget::syncWidgetsToModel(const Core::Id &configToSe
     syncOtherWidgetsToComboBox();
 }
 
-static QString adaptedDisplayName(const ClangDiagnosticConfig &config)
+static QString displayNameWithBuiltinIndication(const ClangDiagnosticConfig &config,
+                                                const Core::Id &exceptionalConfig)
 {
-    return config.isReadOnly()
-        ? QObject::tr("%1 [built-in]").arg(config.displayName())
-        : config.displayName();
+    if (exceptionalConfig == config.id())
+        return config.displayName();
+
+    return ClangDiagnosticConfigsModel::displayNameWithBuiltinIndication(config);
 }
 
 void ClangDiagnosticConfigsWidget::syncConfigChooserToModel(const Core::Id &configToSelect)
 {
+    disconnectConfigChooserCurrentIndex();
+
+    const int previousCurrentIndex = m_ui->configChooserComboBox->currentIndex();
     m_ui->configChooserComboBox->clear();
-    int currentIndex = -1;
+    int configToSelectIndex = -1;
 
     const int size = m_diagnosticConfigsModel.size();
     for (int i = 0; i < size; ++i) {
         const ClangDiagnosticConfig &config = m_diagnosticConfigsModel.at(i);
-        m_ui->configChooserComboBox->addItem(adaptedDisplayName(config), config.id().toSetting());
+        const QString displayName
+                = displayNameWithBuiltinIndication(config, m_configWithUndecoratedDisplayName);
+        m_ui->configChooserComboBox->addItem(displayName, config.id().toSetting());
 
         if (configToSelect == config.id())
-            currentIndex = i;
+            configToSelectIndex = i;
     }
 
-    if (currentIndex != -1)
-        m_ui->configChooserComboBox->setCurrentIndex(currentIndex);
+    connectConfigChooserCurrentIndex();
+
+    if (configToSelectIndex != -1)
+        m_ui->configChooserComboBox->setCurrentIndex(configToSelectIndex);
+    else if (previousCurrentIndex != m_ui->configChooserComboBox->currentIndex())
+        emit currentConfigChanged(currentConfigId());
 }
 
 void ClangDiagnosticConfigsWidget::syncOtherWidgetsToComboBox()
@@ -164,7 +175,7 @@ void ClangDiagnosticConfigsWidget::syncOtherWidgetsToComboBox()
 
     // Update child widgets
     const QString commandLineOptions = config.commandLineOptions().join(QLatin1Char(' '));
-    m_ui->diagnosticOptionsTextEdit->document()->setPlainText(commandLineOptions);
+    setDiagnosticOptions(commandLineOptions);
     m_ui->diagnosticOptionsTextEdit->setReadOnly(config.isReadOnly());
 }
 
@@ -176,6 +187,48 @@ bool ClangDiagnosticConfigsWidget::isConfigChooserEmpty() const
 const ClangDiagnosticConfig &ClangDiagnosticConfigsWidget::currentConfig() const
 {
     return m_diagnosticConfigsModel.configWithId(currentConfigId());
+}
+
+void ClangDiagnosticConfigsWidget::setDiagnosticOptions(const QString &options)
+{
+    if (options != m_ui->diagnosticOptionsTextEdit->document()->toPlainText()) {
+        disconnectDiagnosticOptionsChanged();
+        m_ui->diagnosticOptionsTextEdit->document()->setPlainText(options);
+        connectDiagnosticOptionsChanged();
+    }
+}
+
+void ClangDiagnosticConfigsWidget::connectConfigChooserCurrentIndex()
+{
+    connect(m_ui->configChooserComboBox,
+            static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+            this,
+            &ClangDiagnosticConfigsWidget::onCurrentConfigChanged);
+}
+
+void ClangDiagnosticConfigsWidget::disconnectConfigChooserCurrentIndex()
+{
+    disconnect(m_ui->configChooserComboBox,
+               static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+               this,
+               &ClangDiagnosticConfigsWidget::onCurrentConfigChanged);
+}
+
+void ClangDiagnosticConfigsWidget::connectDiagnosticOptionsChanged()
+{
+    connect(m_ui->diagnosticOptionsTextEdit->document(), &QTextDocument::contentsChanged,
+               this, &ClangDiagnosticConfigsWidget::onDiagnosticOptionsEdited);
+}
+
+void ClangDiagnosticConfigsWidget::disconnectDiagnosticOptionsChanged()
+{
+    disconnect(m_ui->diagnosticOptionsTextEdit->document(), &QTextDocument::contentsChanged,
+               this, &ClangDiagnosticConfigsWidget::onDiagnosticOptionsEdited);
+}
+
+void ClangDiagnosticConfigsWidget::setConfigWithUndecoratedDisplayName(const Core::Id &id)
+{
+    m_configWithUndecoratedDisplayName = id;
 }
 
 Core::Id ClangDiagnosticConfigsWidget::currentConfigId() const
@@ -192,5 +245,12 @@ ClangDiagnosticConfigs ClangDiagnosticConfigsWidget::customConfigs() const
     });
 }
 
-} // Internal namespace
+void ClangDiagnosticConfigsWidget::refresh(
+        const ClangDiagnosticConfigsModel &diagnosticConfigsModel,
+        const Core::Id &configToSelect)
+{
+    m_diagnosticConfigsModel = diagnosticConfigsModel;
+    syncWidgetsToModel(configToSelect);
+}
+
 } // CppTools namespace

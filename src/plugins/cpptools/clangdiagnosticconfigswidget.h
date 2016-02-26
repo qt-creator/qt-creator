@@ -25,29 +25,38 @@
 
 #pragma once
 
+#include "cpptools_global.h"
+
 #include "clangdiagnosticconfig.h"
 #include "clangdiagnosticconfigsmodel.h"
 
 #include <QWidget>
 
 namespace CppTools {
-namespace Internal {
 
 namespace Ui { class ClangDiagnosticConfigsWidget; }
 
-class ClangDiagnosticConfigsWidget : public QWidget
+class CPPTOOLS_EXPORT ClangDiagnosticConfigsWidget : public QWidget
 {
     Q_OBJECT
 
 public:
-    explicit ClangDiagnosticConfigsWidget(const ClangDiagnosticConfigs &customConfigs,
-                                          const Core::Id &configToSelect,
-                                          QWidget *parent = 0);
+    explicit ClangDiagnosticConfigsWidget(
+            const ClangDiagnosticConfigsModel &diagnosticConfigsModel = ClangDiagnosticConfigsModel(),
+            const Core::Id &configToSelect = Core::Id(),
+            QWidget *parent = 0);
+    ~ClangDiagnosticConfigsWidget();
 
     Core::Id currentConfigId() const;
     ClangDiagnosticConfigs customConfigs() const;
 
-    ~ClangDiagnosticConfigsWidget();
+    void setConfigWithUndecoratedDisplayName(const Core::Id &id);
+    void refresh(const ClangDiagnosticConfigsModel &diagnosticConfigsModel,
+                 const Core::Id &configToSelect);
+
+signals:
+    void currentConfigChanged(const Core::Id &currentConfigId);
+    void customConfigsChanged(const CppTools::ClangDiagnosticConfigs &customConfigs);
 
 private slots:
     void onCurrentConfigChanged(int);
@@ -64,10 +73,17 @@ private:
     bool isConfigChooserEmpty() const;
     const ClangDiagnosticConfig &currentConfig() const;
 
+    void setDiagnosticOptions(const QString &options);
+
+    void connectConfigChooserCurrentIndex();
+    void disconnectConfigChooserCurrentIndex();
+    void connectDiagnosticOptionsChanged();
+    void disconnectDiagnosticOptionsChanged();
+
 private:
     Ui::ClangDiagnosticConfigsWidget *m_ui;
     ClangDiagnosticConfigsModel m_diagnosticConfigsModel;
+    Core::Id m_configWithUndecoratedDisplayName;
 };
 
-} // Internal namespace
 } // CppTools namespace

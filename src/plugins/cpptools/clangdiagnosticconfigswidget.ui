@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>CppTools::Internal::ClangDiagnosticConfigsWidget</class>
- <widget class="QWidget" name="CppTools::Internal::ClangDiagnosticConfigsWidget">
+ <class>CppTools::ClangDiagnosticConfigsWidget</class>
+ <widget class="QWidget" name="CppTools::ClangDiagnosticConfigsWidget">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>545</width>
+    <width>597</width>
     <height>300</height>
    </rect>
   </property>
