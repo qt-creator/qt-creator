@@ -1,4 +1,6 @@
 TEMPLATE = subdirs
 
 SUBDIRS += check \
-    importscheck
+    importscheck \
+    dependencies
+

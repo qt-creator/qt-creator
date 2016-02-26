@@ -187,6 +187,7 @@ tmp/
 /tests/auto/ioutils/tst_ioutils
 /tests/auto/profilewriter/tst_profilewriter
 /tests/auto/qml/codemodel/check/tst_codemodel_check
+/tests/auto/qml/codemodel/dependencies/tst_dependencies
 /tests/auto/qml/persistenttrie/tst_trie_check
 /tests/auto/qml/qmldesigner/bauhaustests/tst_bauhaus
 /tests/auto/qml/qmldesigner/coretests/tst_qmldesigner_core

@@ -154,6 +154,7 @@ private:
     typedef QList<LanguageUtils::FakeMetaObject::ConstPtr> FakeMetaObjectList;
     FakeMetaObjectList _metaObjects;
     QList<ModuleApiInfo> _moduleApis;
+    QStringList _dependencies;
     QByteArray _fingerprint;
 
     PluginTypeInfoStatus _dumpStatus;
@@ -189,6 +190,12 @@ public:
 
     void setModuleApis(const QList<ModuleApiInfo> &apis)
     { _moduleApis = apis; }
+
+    QStringList dependencies() const
+    { return _dependencies; }
+
+    void setDependencies(const QStringList &deps)
+    { _dependencies = deps; }
 
     bool isValid() const
     { return _status == Found; }

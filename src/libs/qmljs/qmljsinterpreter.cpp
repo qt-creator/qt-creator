@@ -1117,11 +1117,13 @@ const Value *ObjectValue::lookupMember(const QString &name, const Context *conte
         }
     }
 
+    const ObjectValue *prototypeObject = 0;
+
     if (examinePrototypes && context) {
         PrototypeIterator iter(this, context);
         iter.next(); // skip this
         while (iter.hasNext()) {
-            const ObjectValue *prototypeObject = iter.next();
+            prototypeObject = iter.next();
             if (const Value *m = prototypeObject->lookupMember(name, context, foundInObject, false))
                 return m;
         }
@@ -1129,6 +1131,7 @@ const Value *ObjectValue::lookupMember(const QString &name, const Context *conte
 
     if (foundInObject)
         *foundInObject = 0;
+
     return 0;
 }
 
@@ -1346,6 +1349,7 @@ CppQmlTypesLoader::BuiltinObjects CppQmlTypesLoader::defaultQtObjects;
 CppQmlTypesLoader::BuiltinObjects CppQmlTypesLoader::loadQmlTypes(const QFileInfoList &qmlTypeFiles, QStringList *errors, QStringList *warnings)
 {
     QHash<QString, FakeMetaObject::ConstPtr> newObjects;
+    QStringList newDependencies;
 
     foreach (const QFileInfo &qmlTypeFile, qmlTypeFiles) {
         QString error, warning;
@@ -1355,7 +1359,8 @@ CppQmlTypesLoader::BuiltinObjects CppQmlTypesLoader::loadQmlTypes(const QFileInf
             file.close();
 
 
-            parseQmlTypeDescriptions(contents, &newObjects, 0, &error, &warning, qmlTypeFile.absoluteFilePath());
+            parseQmlTypeDescriptions(contents, &newObjects, 0, &newDependencies, &error, &warning,
+                                     qmlTypeFile.absoluteFilePath());
         } else {
             error = file.errorString();
         }
@@ -1377,6 +1382,7 @@ CppQmlTypesLoader::BuiltinObjects CppQmlTypesLoader::loadQmlTypes(const QFileInf
 void CppQmlTypesLoader::parseQmlTypeDescriptions(const QByteArray &contents,
                                                  BuiltinObjects *newObjects,
                                                  QList<ModuleApiInfo> *newModuleApis,
+                                                 QStringList *newDependencies,
                                                  QString *errorMessage,
                                                  QString *warningMessage, const QString &fileName)
 {
@@ -1396,7 +1402,7 @@ void CppQmlTypesLoader::parseQmlTypeDescriptions(const QByteArray &contents,
     errorMessage->clear();
     warningMessage->clear();
     TypeDescriptionReader reader(fileName, QString::fromUtf8(contents));
-    if (!reader(newObjects, newModuleApis)) {
+    if (!reader(newObjects, newModuleApis, newDependencies)) {
         if (reader.errorMessage().isEmpty())
             *errorMessage = QLatin1String("unknown error");
         else

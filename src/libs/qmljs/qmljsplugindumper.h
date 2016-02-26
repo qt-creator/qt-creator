@@ -75,6 +75,15 @@ private:
 
     void runQmlDump(const QmlJS::ModelManagerInterface::ProjectInfo &info, const QStringList &arguments, const QString &importPath);
     void dump(const Plugin &plugin);
+    void loadQmlTypeDescription(const QStringList &path, QStringList &errors, QStringList &warnings,
+                                QList<LanguageUtils::FakeMetaObject::ConstPtr> &objects,
+                                QList<ModuleApiInfo> *moduleApi,
+                                QStringList *dependencies) const;
+    QString buildQmltypesPath(const QString &name) const;
+    void loadDependencies(const QStringList &dependencies,
+                          QStringList &errors,
+                          QStringList &warnings,
+                          QList<LanguageUtils::FakeMetaObject::ConstPtr> &objects) const;
     void loadQmltypesFile(const QStringList &qmltypesFilePaths,
                           const QString &libraryPath,
                           QmlJS::LibraryInfo libraryInfo);

@@ -27,6 +27,7 @@
 #include "qmljsmodelmanagerinterface.h"
 
 #include <qmljs/qmljsinterpreter.h>
+#include <qmljs/qmljsviewercontext.h>
 //#include <projectexplorer/session.h>
 //#include <coreplugin/messagemanager.h>
 #include <utils/filesystemwatcher.h>
@@ -309,7 +310,9 @@ void PluginDumper::qmlPluginTypeDumpDone(int exitCode)
     QString warning;
     CppQmlTypesLoader::BuiltinObjects objectsList;
     QList<ModuleApiInfo> moduleApis;
-    CppQmlTypesLoader::parseQmlTypeDescriptions(output, &objectsList, &moduleApis, &error, &warning,
+    QStringList dependencies;
+    CppQmlTypesLoader::parseQmlTypeDescriptions(output, &objectsList, &moduleApis, &dependencies,
+                                                &error, &warning,
                                                 QLatin1String("<dump of ") + libraryPath + QLatin1Char('>'));
     if (exitCode == 0) {
         if (!error.isEmpty()) {
@@ -361,6 +364,115 @@ void PluginDumper::pluginChanged(const QString &pluginLibrary)
     dump(plugin);
 }
 
+void PluginDumper::loadQmlTypeDescription(const QStringList &paths,
+                                          QStringList &errors,
+                                          QStringList &warnings,
+                                          QList<FakeMetaObject::ConstPtr> &objects,
+                                          QList<ModuleApiInfo> *moduleApi,
+                                          QStringList *dependencies) const {
+    for (const QString &p: paths) {
+        Utils::FileReader reader;
+        if (!reader.fetch(p, QFile::Text)) {
+            errors += reader.errorString();
+            continue;
+        }
+        QString error;
+        QString warning;
+        CppQmlTypesLoader::BuiltinObjects objs;
+        QList<ModuleApiInfo> apis;
+        QStringList deps;
+        CppQmlTypesLoader::parseQmlTypeDescriptions(reader.data(), &objs, &apis, &deps,
+                                                    &error, &warning, p);
+        if (!error.isEmpty()) {
+            errors += tr("Failed to parse \"%1\".\nError: %2").arg(p, error);
+        } else {
+            objects += objs.values();
+            if (moduleApi)
+                *moduleApi += apis;
+            if (!deps.isEmpty())
+                *dependencies += deps;
+        }
+        if (!warning.isEmpty())
+            warnings += warning;
+    }
+}
+/*!
+ * \brief Build the path of an existing qmltypes file from a module name.
+ * \param name
+ * \return the module's qmltypes file path
+ *
+ * Look for \a name qmltypes file in model manager's import paths.
+ * For each import path the following files are searched, in this order:
+ *
+ *   - <name>.<major>.<minor>/plugins.qmltypes
+ *   - <name>.<major>/plugins.qmltypes
+ *   - <name>/plugins.qmltypes
+ *
+ * That means that a more qualified directory name has precedence over a
+ * less qualified one.  Be aware that the import paths order has a stronger
+ * precedence, so a less qualified name could shadow a more qualified one if
+ * it resides in a different import path.
+ *
+ * \sa LinkPrivate::importNonFile
+ */
+QString PluginDumper::buildQmltypesPath(const QString &name) const
+{
+    QStringList importName = name.split(QLatin1Char(' '));
+    QString qualifiedName = importName[0];
+    QString majorVersion;
+    QString minorVersion;
+    if (importName.length() == 2) {
+        QString versionString = importName[1];
+        QStringList version = versionString.split(QLatin1Char('.'));
+        if (version.length() == 2) {
+            majorVersion = version[0];
+            minorVersion = version[1];
+        }
+    }
+
+    for (const PathAndLanguage &p: m_modelManager->importPaths()) {
+        QString moduleName(qualifiedName.replace(QLatin1Char('.'), QLatin1Char('/')));
+        QString moduleNameMajor(moduleName + QLatin1Char('.') + majorVersion);
+        QString moduleNameMajorMinor(moduleNameMajor + QLatin1Char('.') + minorVersion);
+
+        for (const auto n: QStringList{moduleNameMajorMinor, moduleNameMajor, moduleName}) {
+            QString filename(p.path().toString() + QLatin1Char('/') + n
+                             + QLatin1String("/plugins.qmltypes"));
+            if (QFile::exists(filename))
+                return filename;
+        }
+    }
+    return QString();
+}
+
+/*!
+ * \brief Recursively load dependencies.
+ * \param dependencies
+ * \param errors
+ * \param warnings
+ * \param objects
+ *
+ * Recursively load type descriptions of dependencies, collecting results
+ * in \a objects.
+ */
+void PluginDumper::loadDependencies(const QStringList &dependencies,
+                                    QStringList &errors,
+                                    QStringList &warnings,
+                                    QList<FakeMetaObject::ConstPtr> &objects) const
+{
+    QStringList dependenciesPaths;
+    QString path;
+    for (const QString &name: dependencies) {
+        path = buildQmltypesPath(name);
+        if (!path.isNull())
+            dependenciesPaths << path;
+    }
+    QStringList newDependencies;
+    loadQmlTypeDescription(dependenciesPaths, errors, warnings, objects, 0, &newDependencies);
+    if (!newDependencies.isEmpty())
+        loadDependencies(newDependencies, errors, warnings, objects);
+}
+
 void PluginDumper::loadQmltypesFile(const QStringList &qmltypesFilePaths,
                                     const QString &libraryPath,
                                     QmlJS::LibraryInfo libraryInfo)
@@ -369,31 +481,14 @@ void PluginDumper::loadQmltypesFile(const QStringList &qmltypesFilePaths,
     QStringList warnings;
     QList<FakeMetaObject::ConstPtr> objects;
     QList<ModuleApiInfo> moduleApis;
+    QStringList dependencies;
 
-    foreach (const QString &qmltypesFilePath, qmltypesFilePaths) {
-        Utils::FileReader reader;
-        if (!reader.fetch(qmltypesFilePath, QFile::Text)) {
-            errors += reader.errorString();
-            continue;
-        }
-
-        QString error;
-        QString warning;
-        CppQmlTypesLoader::BuiltinObjects newObjects;
-        QList<ModuleApiInfo> newModuleApis;
-        CppQmlTypesLoader::parseQmlTypeDescriptions(reader.data(), &newObjects, &newModuleApis, &error, &warning, qmltypesFilePath);
-        if (!error.isEmpty()) {
-            errors += tr("Failed to parse \"%1\".\nError: %2").arg(qmltypesFilePath, error);
-        } else {
-            objects += newObjects.values();
-            moduleApis += newModuleApis;
-        }
-        if (!warning.isEmpty())
-            warnings += warning;
-    }
+    loadQmlTypeDescription(qmltypesFilePaths, errors, warnings, objects, &moduleApis, &dependencies);
+    loadDependencies(dependencies, errors, warnings, objects);
 
     libraryInfo.setMetaObjects(objects);
     libraryInfo.setModuleApis(moduleApis);
+    libraryInfo.setDependencies(dependencies);
     if (errors.isEmpty()) {
         libraryInfo.setPluginTypeInfoStatus(LibraryInfo::TypeInfoFileDone);
     } else {

@@ -519,6 +519,7 @@ void Snapshot::insertLibraryInfo(const QString &path, const LibraryInfo &info)
         foreach (const Export &e, cImport.possibleExports)
             _dependencies.addExport(component.fileName, e.exportName, e.pathRequired, e.typeName);
     }
+
     cImport.fingerprint = info.fingerprint();
     _dependencies.addCoreImport(cImport);
 }

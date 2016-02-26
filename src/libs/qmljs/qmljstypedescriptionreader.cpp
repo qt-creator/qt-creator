@@ -52,7 +52,8 @@ TypeDescriptionReader::~TypeDescriptionReader()
 
 bool TypeDescriptionReader::operator()(
         QHash<QString, FakeMetaObject::ConstPtr> *objects,
-        QList<ModuleApiInfo> *moduleApis)
+        QList<ModuleApiInfo> *moduleApis,
+        QStringList *dependencies)
 {
     Engine engine;
 
@@ -71,6 +72,7 @@ bool TypeDescriptionReader::operator()(
 
     _objects = objects;
     _moduleApis = moduleApis;
+    _dependencies = dependencies;
     readDocument(parser.ast());
 
     return _errorMessage.isEmpty();
@@ -141,6 +143,12 @@ void TypeDescriptionReader::readModule(UiObjectDefinition *ast)
         UiObjectMember *member = it->member;
         UiObjectDefinition *component = dynamic_cast<UiObjectDefinition *>(member);
 
+        UiScriptBinding *script = dynamic_cast<UiScriptBinding *>(member);
+        if (script && (toString(script->qualifiedId) == QStringLiteral("dependencies"))) {
+            readDependencies(script);
+            continue;
+        }
+
         QString typeName;
         if (component)
             typeName = toString(component->qualifiedTypeNameId);
@@ -172,6 +180,27 @@ void TypeDescriptionReader::addWarning(const SourceLocation &loc, const QString 
                 QString::number(loc.startLine),
                 QString::number(loc.startColumn),
                 message);
+}
+
+void TypeDescriptionReader::readDependencies(UiScriptBinding *ast) {
+    ExpressionStatement *stmt = dynamic_cast<ExpressionStatement*>(ast->statement);
+    if (!stmt) {
+        addError(ast->statement->firstSourceLocation(), tr("Expected dependency definitions"));
+        return;
+    }
+    ArrayLiteral *exp = dynamic_cast<ArrayLiteral *>(stmt->expression);
+    if (!exp) {
+        addError(stmt->expression->firstSourceLocation(), tr("Expected dependency definitions"));
+        return;
+    }
+    for (ElementList *l = exp->elements; l; l = l->next) {
+        StringLiteral *str = dynamic_cast<StringLiteral *>(l->expression);
+        if (!exp) {
+            addWarning(l->expression->firstSourceLocation(),
+                       tr("Cannot read dependency: skipping."));
+        }
+        *_dependencies << str->value.toString();
+    }
 }
 
 void TypeDescriptionReader::readComponent(UiObjectDefinition *ast)
