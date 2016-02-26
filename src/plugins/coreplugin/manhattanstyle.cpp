@@ -130,9 +130,16 @@ public:
     StyleAnimator animator;
 };
 
+QString lineEditImageFileName(const QString &pngFileName)
+{
+    return Utils::creatorTheme()->widgetStyle() == Utils::Theme::StyleDefault
+              ? StyleHelper::dpiSpecificImageFile(pngFileName)
+              : QString();
+}
+
 ManhattanStylePrivate::ManhattanStylePrivate() :
-    lineeditImage(StyleHelper::dpiSpecificImageFile(QStringLiteral(":/core/images/inputfield.png"))),
-    lineeditImage_disabled(StyleHelper::dpiSpecificImageFile(QStringLiteral(":/core/images/inputfield_disabled.png"))),
+    lineeditImage(lineEditImageFileName(QLatin1String(":/core/images/inputfield.png"))),
+    lineeditImage_disabled(lineEditImageFileName(QLatin1String(":/core/images/inputfield_disabled.png"))),
     extButtonPixmap(Core::Icons::TOOLBAR_EXTENSION.pixmap()),
     closeButtonPixmap(Core::Icons::CLOSE_FOREGROUND.pixmap())
 {
@@ -451,24 +458,25 @@ void ManhattanStyle::drawPrimitive(PrimitiveElement element, const QStyleOption 
             painter->save();
 
             // Fill the line edit background
-            QRect filledRect = option->rect.adjusted(1, 1, -1, -1);
-            painter->setBrushOrigin(filledRect.topLeft());
-            painter->fillRect(filledRect, option->palette.base());
+            QRectF backgroundRect = option->rect;
+            if (Utils::creatorTheme()->widgetStyle() == Utils::Theme::StyleDefault) {
+                backgroundRect.adjust(1, 1, -1, -1);
+                painter->setBrushOrigin(backgroundRect.topLeft());
+                painter->fillRect(backgroundRect, option->palette.base());
 
-            if (option->state & State_Enabled)
-                StyleHelper::drawCornerImage(d->lineeditImage, painter, option->rect, 5, 5, 5, 5);
-            else
-                StyleHelper::drawCornerImage(d->lineeditImage_disabled, painter, option->rect, 5, 5, 5, 5);
+                const bool enabled = option->state & State_Enabled;
+                StyleHelper::drawCornerImage(enabled ? d->lineeditImage : d->lineeditImage_disabled,
+                                             painter, option->rect, 5, 5, 5, 5);
+            } else {
+                painter->fillRect(backgroundRect, option->palette.base());
+            }
 
-            if (option->state & State_HasFocus || option->state & State_MouseOver) {
+            const bool hasFocus = state & State_HasFocus;
+            if (hasFocus || state & State_MouseOver) {
                 QColor hover = StyleHelper::baseColor();
-                if (state & State_HasFocus)
-                    hover.setAlpha(100);
-                else
-                    hover.setAlpha(50);
-
-                painter->setPen(QPen(hover, 1));
-                painter->drawRect(QRectF(option->rect).adjusted(1.5, 1.5, -1.5, -1.5));
+                hover.setAlpha(hasFocus ? 100 : 50);
+                painter->setPen(QPen(hover, 1, Qt::SolidLine, Qt::FlatCap, Qt::MiterJoin));
+                painter->drawRect(backgroundRect.adjusted(0.5, 0.5, -0.5, -0.5));
             }
             painter->restore();
         }
