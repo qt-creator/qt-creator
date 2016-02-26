@@ -74,6 +74,7 @@ void CppHighlighter::highlightBlock(const QString &text)
     // FIXME: Check defaults or get from document.
     LanguageFeatures features;
     features.cxx11Enabled = true;
+    features.cxxEnabled = true;
     features.c99Enabled = true;
 
     SimpleLexer tokenize;

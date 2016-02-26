@@ -201,6 +201,7 @@ static Tokens getTokens(const QTextCursor &cursor, int &prevState)
     features.qtKeywordsEnabled = false;
     features.qtMocRunEnabled = false;
     features.cxx11Enabled = true;
+    features.cxxEnabled = true;
     features.c99Enabled = true;
 
     SimpleLexer tokenize;

@@ -141,6 +141,7 @@ class tst_cxx11: public QObject
         if (file.open(QFile::ReadOnly)) {
             LanguageFeatures features;
             features.cxx11Enabled = true;
+            features.cxxEnabled = true;
             features.c99Enabled = c99Enabled;
             processDocument(doc, QTextStream(&file).readAll().toUtf8(), features, errors);
         } else {
@@ -292,6 +293,7 @@ void tst_cxx11::lambdaType()
 
     LanguageFeatures features;
     features.cxx11Enabled = true;
+    features.cxxEnabled = true;
 
     QByteArray errors;
     Document::Ptr doc = Document::create(QLatin1String("testFile"));

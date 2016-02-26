@@ -51,6 +51,7 @@ public:
         const StringLiteral *fileId = control.stringLiteral("<stdin>");
         LanguageFeatures features;
         features.cxx11Enabled = cxx11Enabled;
+        features.cxxEnabled = true;
         features.objCEnabled = true;
         features.qtEnabled = qtMocRun;
         features.qtKeywordsEnabled = qtMocRun;

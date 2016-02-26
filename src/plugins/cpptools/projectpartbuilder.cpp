@@ -208,11 +208,11 @@ void ProjectPartBuilder::setConfigFileName(const QString &configFileName)
 QList<Core::Id> ProjectPartBuilder::createProjectPartsForFiles(const QStringList &files,
                                                                FileClassifier fileClassifier)
 {
-    QList<Core::Id> languages;
+    QSet<Core::Id> languages;
 
     ProjectFileCategorizer cat(m_templatePart->displayName, files, fileClassifier);
     if (cat.hasNoParts())
-        return languages;
+        return languages.toList();
 
     using CppTools::ProjectFile;
     using CppTools::ProjectPart;
@@ -223,7 +223,7 @@ QList<Core::Id> ProjectPartBuilder::createProjectPartsForFiles(const QStringList
                           ProjectPart::C11,
                           ProjectPart::NoExtensions);
         // TODO: there is no C...
-//        languages += ProjectExplorer::Constants::LANG_C;
+        languages += ProjectExplorer::Constants::LANG_CXX;
     }
     if (cat.hasObjcSources()) {
         createProjectPart(cat.objcSources(),
@@ -231,7 +231,7 @@ QList<Core::Id> ProjectPartBuilder::createProjectPartsForFiles(const QStringList
                           ProjectPart::C11,
                           ProjectPart::ObjectiveCExtensions);
         // TODO: there is no Ojective-C...
-//        languages += ProjectExplorer::Constants::LANG_OBJC;
+        languages += ProjectExplorer::Constants::LANG_CXX;
     }
     if (cat.hasCxxSources()) {
         createProjectPart(cat.cxxSources(),
@@ -249,7 +249,7 @@ QList<Core::Id> ProjectPartBuilder::createProjectPartsForFiles(const QStringList
         languages += ProjectExplorer::Constants::LANG_CXX;
     }
 
-    return languages;
+    return languages.toList();
 }
 
 namespace {
@@ -316,8 +316,6 @@ void ProjectPartBuilder::evaluateProjectPartToolchain(
         languageVersion = ProjectPart::CXX11;
     else if (flags & ToolChain::StandardCxx98)
         languageVersion = ProjectPart::CXX98;
-    else
-        languageVersion = ProjectPart::CXX11;
 
     auto &languageExtensions = projectPart->languageExtensions;
 
@@ -357,6 +355,7 @@ void ProjectPartBuilder::createProjectPart(const QVector<ProjectFile> &theSource
     ProjectPart::Ptr part(m_templatePart->copy());
     part->displayName = partName;
     part->files = theSources;
+    part->languageVersion = languageVersion;
 
     QTC_ASSERT(part->project, return);
     if (ProjectExplorer::Target *activeTarget = part->project->activeTarget()) {

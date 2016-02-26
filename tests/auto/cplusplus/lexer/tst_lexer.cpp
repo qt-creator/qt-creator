@@ -403,7 +403,9 @@ void tst_SimpleLexer::ppOpOrPunc()
     QFETCH(Kind, expectedTokenKind);
 
     const QByteArray source = QTest::currentDataTag();
-    run(source, toTokens({unsigned(expectedTokenKind)}), false, CompareKind, true);
+    LanguageFeatures languageFeatures;
+    languageFeatures.cxxEnabled = true;
+    run(source, toTokens({unsigned(expectedTokenKind)}), false, CompareKind, true, languageFeatures);
 }
 
 void tst_SimpleLexer::ppOpOrPunc_data()
@@ -574,6 +576,7 @@ void tst_SimpleLexer::user_defined_literals()
     const TokenCompareFlags compareFlags = CompareKind | CompareBytes | CompareUtf16Chars | CompareUserDefinedLiteral;
     LanguageFeatures languageFeatures;
     languageFeatures.cxx11Enabled = true;
+    languageFeatures.cxxEnabled = true;
     run(source, expectedTokens, false, compareFlags, false, languageFeatures);
 }
 
@@ -626,7 +629,10 @@ void tst_SimpleLexer::offsets()
             | CompareUtf16CharsBegin
             | CompareUtf16CharsEnd
             ;
-    run(source, expectedTokens, false, compareFlags);
+
+    LanguageFeatures languageFeatures;
+    languageFeatures.cxxEnabled = true;
+    run(source, expectedTokens, false, compareFlags, false, languageFeatures);
 }
 
 void tst_SimpleLexer::offsets_data()

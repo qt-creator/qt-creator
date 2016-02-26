@@ -142,6 +142,7 @@ public:
         features.qtMocRunEnabled = qtMocRun;
         features.qtKeywordsEnabled = qtMocRun;
         features.cxx11Enabled = enableCxx11;
+        features.cxxEnabled = true;
         diag.errorCount = 0; // reset the error count.
         TranslationUnit *unit = parse(source, TranslationUnit::ParseTranlationUnit, features);
         QSharedPointer<Document> doc(new Document(unit));
