@@ -228,6 +228,7 @@ struct DummyReduce {
 };
 template <>
 struct DummyReduce<void> {
+    void operator()() const { } // needed for resultType<DummyReduce> with MSVC2013
 };
 
 template <typename ReduceResult>
@@ -242,7 +243,13 @@ QFuture<ReduceResult>
 mapReduce(Iterator begin, Iterator end, const InitFunction &init, const MapFunction &map,
                const ReduceFunction &reduce, const CleanUpFunction &cleanup, int size = -1)
 {
-    return runAsync(Internal::blockingIteratorMapReduce<Iterator, InitFunction, MapFunction, ReduceResult, ReduceFunction, CleanUpFunction>,
+    return runAsync(Internal::blockingIteratorMapReduce<
+                    Iterator,
+                    typename std::decay<InitFunction>::type,
+                    typename std::decay<MapFunction>::type,
+                    typename std::decay<ReduceResult>::type,
+                    typename std::decay<ReduceFunction>::type,
+                    typename std::decay<CleanUpFunction>::type>,
                 begin, end, init, map, reduce, cleanup, size);
 }
 
@@ -285,7 +292,13 @@ QFuture<ReduceResult>
 mapReduce(const Container &container, const InitFunction &init, const MapFunction &map,
                const ReduceFunction &reduce, const CleanUpFunction &cleanup)
 {
-    return runAsync(Internal::blockingContainerMapReduce<Container, InitFunction, MapFunction, ReduceResult, ReduceFunction, CleanUpFunction>,
+    return runAsync(Internal::blockingContainerMapReduce<
+                    typename std::decay<Container>::type,
+                    typename std::decay<InitFunction>::type,
+                    typename std::decay<MapFunction>::type,
+                    typename std::decay<ReduceResult>::type,
+                    typename std::decay<ReduceFunction>::type,
+                    typename std::decay<CleanUpFunction>::type>,
                     container, init, map, reduce, cleanup);
 }
 
@@ -296,10 +309,10 @@ QFuture<MapResult>
 map(const Container &container, const MapFunction &map)
 {
     return mapReduce(container,
-                     &Internal::dummyInit<MapResult>,
+                     Internal::dummyInit<MapResult>,
                      map,
                      Internal::DummyReduce<MapResult>(),
-                     &Internal::dummyCleanup<MapResult>);
+                     Internal::dummyCleanup<MapResult>);
 }
 
 } // Utils
