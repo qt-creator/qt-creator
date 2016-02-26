@@ -35,15 +35,14 @@ def main():
     # copy example project to temp directory
     templateDir = prepareTemplate(sourceExample)
     examplePath = os.path.join(templateDir, proFile)
-    clangLoaded = startCreatorTryingClang()
-    if not startedWithoutPluginError():
-        return
-    # open example project
-    openQmakeProject(examplePath)
-    # wait for parsing to complete
-    progressBarWait(30000)
-    for useClang in set([False, clangLoaded]):
-        selectClangCodeModel(clangLoaded, useClang)
+    for useClang in [False, True]:
+        if not startCreator(useClang):
+            continue
+        # open example project
+        openQmakeProject(examplePath)
+        # wait for parsing to complete
+        progressBarWait(30000)
+        checkCodeModelSettings(useClang)
         # open .cpp file in editor
         if not openDocument("propertyanimation.Sources.main\\.cpp"):
             test.fatal("Could not open main.cpp")
@@ -74,4 +73,4 @@ def main():
         waitForSearchResults()
         validateSearchResult(3)
         invokeMenuItem("File", "Close All")
-    invokeMenuItem("File", "Exit")
+        invokeMenuItem("File", "Exit")
