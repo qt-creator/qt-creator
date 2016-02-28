@@ -84,8 +84,10 @@ ModelManagerInterface::ProjectInfo ModelManager::defaultProjectInfoForProject(
                      << QLatin1String(Constants::QMLTYPES_MIMETYPE)
                      << QLatin1String(Constants::QMLUI_MIMETYPE);
         foreach (const QString &filePath, project->files(Project::SourceFiles)) {
-            if (qmlTypeNames.contains(mdb.mimeTypeForFile(filePath).name()))
+            if (qmlTypeNames.contains(mdb.mimeTypeForFile(
+                                          filePath, MimeDatabase::MatchExtension).name())) {
                 projectInfo.sourceFiles << filePath;
+            }
         }
         activeTarget = project->activeTarget();
     }
