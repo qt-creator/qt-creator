@@ -5,35 +5,35 @@
         <!-- sub class is missing in the freedesktop.org definition -->
         <sub-class-of type="text/plain"/>
         <comment>QML file</comment>
-        <glob pattern="*.qml"/>
+        <glob pattern="*.qml" weight="70"/>
     </mime-type>
     <mime-type type="application/x-qt.qbs+qml">
         <alias type="text/x-qt.qbs+qml"/>
         <sub-class-of type="text/x-qml"/>
         <comment>Qt Build Suite file</comment>
-        <glob pattern="*.qbs"/>
+        <glob pattern="*.qbs" weight="70"/>
     </mime-type>
     <mime-type type="application/x-qt.ui+qml">
         <alias type="text/x-qt.ui+qml"/>
         <sub-class-of type="text/x-qml"/>
         <comment>QtQuick Designer ui file</comment>
-        <glob pattern="*.ui.qml"/>
+        <glob pattern="*.ui.qml" weight="70"/>
     </mime-type>
     <mime-type type="application/x-qmlproject">
         <alias type="text/x-qmlproject"/>
         <sub-class-of type="text/x-qml"/>
         <comment>Qt Creator Qt UI project file</comment>
-        <glob pattern="*.qmlproject"/>
+        <glob pattern="*.qmlproject" weight="70"/>
     </mime-type>
     <mime-type type="application/x-qt.meta-info+qml">
         <alias type="text/x-qt.meta-info+qml"/>
         <sub-class-of type="text/x-qml"/>
         <comment>QML file</comment>
-        <glob pattern="*.qmltypes"/>
+        <glob pattern="*.qmltypes" weight="70"/>
     </mime-type>
     <mime-type type="application/json">
         <sub-class-of type="text/plain"/>
         <comment>JSON file</comment>
-        <glob pattern="*.json"/>
+        <glob pattern="*.json" weight="70"/>
     </mime-type>
 </mime-info>
