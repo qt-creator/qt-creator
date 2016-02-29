@@ -26,12 +26,11 @@
 source("../../shared/qtcreator.py")
 
 def main():
-    clangLoaded = startCreatorTryingClang()
-    if not startedWithoutPluginError():
-        return
-    createProject_Qt_Console(tempDir(), "SquishProject")
-    for useClang in set([False, clangLoaded]):
-        selectClangCodeModel(clangLoaded, useClang)
+    for useClang in [False, True]:
+        if not startCreator(useClang):
+            continue
+        createProject_Qt_Console(tempDir(), "SquishProject")
+        checkCodeModelSettings(useClang)
         selectFromLocator("main.cpp")
         cppwindow = waitForObject(":Qt Creator_CppEditor::Internal::CPPEditorWidget")
 
@@ -44,17 +43,15 @@ def main():
             typeLines(cppwindow, ("<Up>", testData.field(record, "declaration")))
             type(cppwindow, testData.field(record, "usage"))
             snooze(1) # maybe find something better
+            if useClang:
+                snooze(1)   # QTCREATORBUG-15639
             type(cppwindow, testData.field(record, "operator"))
             waitFor("object.exists(':popupFrame_TextEditor::GenericProposalWidget')", 1500)
             found = str(lineUnderCursor(cppwindow)).strip()
             exp = testData.field(record, "expected")
-            if useClang and exp[-2:] == "->":
-                test.xcompare(found, exp) # QTCREATORBUG-11581
-            else:
-                test.compare(found, exp)
+            test.compare(found, exp)
             invokeMenuItem("File", 'Revert "main.cpp" to Saved')
             clickButton(waitForObject(":Revert to Saved.Proceed_QPushButton"))
         snooze(1)
         invokeMenuItem("File", "Close All")
-
-    invokeMenuItem("File", "Exit")
+        invokeMenuItem("File", "Exit")

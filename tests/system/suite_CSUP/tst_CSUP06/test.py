@@ -161,21 +161,13 @@ def main():
     examplePath = os.path.join(srcPath, "creator", "tests", "manual", "cplusplus-tools")
     if not neededFilePresent(os.path.join(examplePath, "cplusplus-tools.pro")):
         return
-    clangLoaded = startCreatorTryingClang()
-    if not startedWithoutPluginError():
-        return
-
     templateDir = prepareTemplate(examplePath)
     examplePath = os.path.join(templateDir, "cplusplus-tools.pro")
-    openQmakeProject(examplePath, Targets.DESKTOP_531_DEFAULT)
-    __openCodeModelOptions__()
-    clangSettingsGroupBox = findObject(":clangSettingsGroupBox_QGroupBox")
-    test.compare(clangSettingsGroupBox.enabled, clangLoaded, "Verifying number of available code models")
-    test.verify(not clangSettingsGroupBox.checked,
-                "Verifying whether default is Qt Creator's builtin code model")
-    clickButton(waitForObject(":Options.Cancel_QPushButton"))
-    for useClang in set([False, clangLoaded]):
-        selectClangCodeModel(clangLoaded, useClang)
+    for useClang in [False, True]:
+        if not startCreator(useClang):
+            continue
+        openQmakeProject(examplePath, Targets.DESKTOP_531_DEFAULT)
+        checkCodeModelSettings(useClang)
         if not openDocument("cplusplus-tools.Sources.main\\.cpp"):
             earlyExit("Failed to open main.cpp.")
             return
@@ -188,5 +180,4 @@ def main():
         snooze(1)   # 'Close "main.cpp"' might still be disabled
         # editor must be closed to get the second code model applied on re-opening the file
         invokeMenuItem('File', 'Close "main.cpp"')
-
-    invokeMenuItem("File", "Exit")
+        invokeMenuItem("File", "Exit")

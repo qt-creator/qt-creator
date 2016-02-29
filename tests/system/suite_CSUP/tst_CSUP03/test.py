@@ -61,10 +61,6 @@ def constructExpectedCode(original, codeLines, funcSuffix):
     return "\n".join(tmp) + "\n"
 
 def main():
-    clangLoaded = startCreatorTryingClang()
-    if not startedWithoutPluginError():
-        return
-    projectName = createNewNonQtProject()
     if platform.system() == 'Darwin':
         home = '<Ctrl+Left>'
     else:
@@ -79,8 +75,11 @@ def main():
             "while with braces" : ["", "int dummy = 0;", "while (dummy < 10) {", "++dummy;"],
             "do while" : ["", "int dummy = 0;", "do", "++dummy;", "while (dummy < 10);"]
             }
-    for useClang in set([False, clangLoaded]):
-        selectClangCodeModel(clangLoaded, useClang)
+    for useClang in [False, True]:
+        if not startCreator(useClang):
+            continue
+        projectName = createNewNonQtProject()
+        checkCodeModelSettings(useClang)
         openDocument("%s.Sources.main\\.cpp" % projectName)
         editor = getEditorForFileSuffix("main.cpp")
         if not editor:
@@ -117,5 +116,4 @@ def main():
             revertMainCpp()
         snooze(1)   # "Close All" might be disabled
         invokeMenuItem('File', 'Close All')
-
-    invokeMenuItem('File', 'Exit')
+        invokeMenuItem('File', 'Exit')

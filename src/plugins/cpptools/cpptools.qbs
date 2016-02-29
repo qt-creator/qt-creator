@@ -66,6 +66,7 @@ QtcPlugin {
         "cppprojectfile.cpp", "cppprojectfile.h",
         "cppqtstyleindenter.cpp", "cppqtstyleindenter.h",
         "cpprefactoringchanges.cpp", "cpprefactoringchanges.h",
+        "cppselectionchanger.cpp", "cppselectionchanger.h",
         "cppsemanticinfo.cpp", "cppsemanticinfo.h",
         "cppsemanticinfoupdater.cpp", "cppsemanticinfoupdater.h",
         "cppsourceprocessor.cpp", "cppsourceprocessor.h",

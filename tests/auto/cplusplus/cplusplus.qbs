@@ -7,6 +7,7 @@ Project {
         "c99/c99.qbs",
         "checksymbols/checksymbols.qbs",
         "codeformatter/codeformatter.qbs",
+        "cppselectionchanger/cppselectionchanger.qbs",
         "cxx11/cxx11.qbs",
         "fileiterationorder/fileiterationorder.qbs",
         "findusages/findusages.qbs",

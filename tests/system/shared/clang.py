@@ -24,22 +24,27 @@
 ############################################################################
 
 def startCreatorTryingClang():
-    try:
-        # start Qt Creator with enabled ClangCodeModel plugin (without modifying settings)
-        startApplication("qtcreator -load ClangCodeModel" + SettingsPath)
-        errorMsg = "{type='QMessageBox' unnamed='1' visible='1' windowTitle='Qt Creator'}"
-        errorOK = "{text='OK' type='QPushButton' unnamed='1' visible='1' window=%s}" % errorMsg
-        if waitFor("object.exists(errorOK)", 5000):
-            clickButton(errorOK) # Error message
-            clickButton(errorOK) # Help message
-            raise Exception("ClangCodeModel not found.")
+    # start Qt Creator with enabled ClangCodeModel plugin (without modifying settings)
+    startApplication("qtcreator -load ClangCodeModel" + SettingsPath)
+    errorMsg = "{type='QMessageBox' unnamed='1' visible='1' windowTitle='Qt Creator'}"
+    errorOK = "{text='OK' type='QPushButton' unnamed='1' visible='1' window=%s}" % errorMsg
+    if not waitFor("object.exists(errorOK)", 5000):
         return True
-    except:
-        # ClangCodeModel plugin has not been built - start without it
-        test.warning("ClangCodeModel plugin not available - performing test without.")
+    clickButton(errorOK) # Error message
+    clickButton(errorOK) # Help message
+    test.fatal("ClangCodeModel plugin not available.")
+    return False
+
+def startCreator(useClang):
+    try:
+        if useClang:
+            if not startCreatorTryingClang():
+                return False
+        else:
+            startApplication("qtcreator" + SettingsPath)
+    finally:
         overrideStartApplication()
-        startApplication("qtcreator" + SettingsPath)
-        return False
+    return startedWithoutPluginError()
 
 def __openCodeModelOptions__():
     invokeMenuItem("Tools", "Options...")
@@ -47,14 +52,12 @@ def __openCodeModelOptions__():
     clickItem(":Options_QListView", "C++", 14, 15, 0, Qt.LeftButton)
     clickOnTab(":Options.qt_tabwidget_tabbar_QTabBar", "Code Model")
 
-def selectClangCodeModel(clangLoaded, enable):
+def checkCodeModelSettings(useClang):
     codeModelName = "built-in"
-    if clangLoaded and enable:
+    if useClang:
         codeModelName = "Clang"
     test.log("Testing code model: %s" % codeModelName)
     __openCodeModelOptions__()
-    if clangLoaded:
-        ensureChecked(":clangSettingsGroupBox_QGroupBox", enable)
     test.verify(verifyChecked("{name='ignorePCHCheckBox' type='QCheckBox' visible='1'}"),
                 "Verifying whether 'Ignore pre-compiled headers' is checked by default.")
     clickButton(waitForObject(":Options.OK_QPushButton"))

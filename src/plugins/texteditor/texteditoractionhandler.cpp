@@ -449,7 +449,7 @@ void TextEditorActionHandlerPrivate::createActions()
             G_EDIT_BLOCKS, advancedEditMenu);
     m_selectBlockDownAction = registerAction(SELECT_BLOCK_DOWN,
             [this] (TextEditorWidget *w) { w->selectBlockDown(); }, true, tr("Select Block Down"),
-            QKeySequence(),
+            QKeySequence(tr("Ctrl+Shift+Alt+U")),
             G_EDIT_BLOCKS, advancedEditMenu);
 
     // register GOTO Actions

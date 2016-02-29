@@ -59,7 +59,9 @@
 #include <QPdfWriter>
 #include <QFile>
 
+#ifndef QT_NO_SCG
 #include <QtSvg/QSvgGenerator>
+#endif
 
 namespace qmt {
 
@@ -339,59 +341,6 @@ void DiagramSceneModel::copyToClipboard()
         mimeData->setImageData(image);
     }
 
-#ifdef USE_PDF_CLIPBOARD
-    {
-        const double scaleFactor = 1.0;
-        const double border = 5;
-        const double baseDpi = 100;
-        const double dotsPerMm = 25.4 / baseDpi;
-
-        QBuffer pdfBuffer;
-        pdfBuffer.open(QIODevice::WriteOnly);
-
-        QPdfWriter pdfWriter(&pdfBuffer);
-        QSizeF pageSize = sceneBoundingRect.size();
-        pageSize += QSizeF(2.0 * border, 2.0 * border);
-        pageSize *= scaleFactor;
-        pdfWriter.setPageSize(QPdfWriter::Custom);
-        pdfWriter.setPageSizeMM(pageSize * dotsPerMm);
-
-        QPainter pdfPainter;
-        pdfPainter.begin(&pdfWriter);
-        m_graphicsScene->render(&pdfPainter,
-                                QRectF(border, border,
-                                       pdfPainter.device()->width() - 2 * border,
-                                       pdfPainter.device()->height() - 2 * border),
-                                sceneBoundingRect);
-        pdfPainter.end();
-        pdfBuffer.close();
-        mimeData->setData(QStringLiteral("application/pdf"), pdfBuffer.buffer());
-    }
-#endif
-
-#ifdef USE_SVG_CLIPBOARD
-    {
-        const double border = 5;
-
-        QBuffer svgBuffer;
-        QSvgGenerator svgGenerator;
-        svgGenerator.setOutputDevice(&svgBuffer);
-        QSize svgSceneSize = sceneBoundingRect.size().toSize();
-        svgGenerator.setSize(svgSceneSize);
-        svgGenerator.setViewBox(QRect(QPoint(0,0), svgSceneSize));
-        QPainter svgPainter;
-        svgPainter.begin(&svgGenerator);
-        svgPainter.setRenderHint(QPainter::Antialiasing);
-        m_graphicsScene->render(&svgPainter,
-                                QRectF(border, border,
-                                       svgPainter.device()->width() - 2 * border,
-                                       svgPainter.device()->height() - 2 * border),
-                                sceneBoundingRect);
-        svgPainter.end();
-        mimeData->setData(QStringLiteral("image/svg+xml"), svgBuffer.buffer());
-    }
-#endif
-
     QApplication::clipboard()->setMimeData(mimeData, QClipboard::Clipboard);
 
     if (!copyAll) {
@@ -489,6 +438,7 @@ bool DiagramSceneModel::exportPdf(const QString &fileName)
 
 bool DiagramSceneModel::exportSvg(const QString &fileName)
 {
+#ifndef QT_NO_SVG
     // TODO support exporting selected elements only
     removeExtraSceneItems();
 
@@ -515,6 +465,10 @@ bool DiagramSceneModel::exportSvg(const QString &fileName)
 
     // TODO how to know that file was successfully created?
     return true;
+#else // QT_NO_SVG
+    Q_UNUSED(fileName);
+    return false;
+#endif // QT_NO_SVG
 }
 
 void DiagramSceneModel::selectItem(QGraphicsItem *item, bool multiSelect)

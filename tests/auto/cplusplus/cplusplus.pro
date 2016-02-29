@@ -11,6 +11,7 @@ SUBDIRS = \
     typeprettyprinter \
     misc \
     c99 \
+    cppselectionchanger\
     cxx11 \
     checksymbols \
     lexer \

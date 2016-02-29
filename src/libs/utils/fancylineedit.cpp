@@ -542,17 +542,10 @@ void IconButton::paintEvent(QPaintEvent *)
 
 void IconButton::animateShow(bool visible)
 {
-    if (visible) {
-        QPropertyAnimation *animation = new QPropertyAnimation(this, "iconOpacity");
-        animation->setDuration(FADE_TIME);
-        animation->setEndValue(1.0);
-        animation->start(QAbstractAnimation::DeleteWhenStopped);
-    } else {
-        QPropertyAnimation *animation = new QPropertyAnimation(this, "iconOpacity");
-        animation->setDuration(FADE_TIME);
-        animation->setEndValue(0.0);
-        animation->start(QAbstractAnimation::DeleteWhenStopped);
-    }
+    QPropertyAnimation *animation = new QPropertyAnimation(this, "iconOpacity");
+    animation->setDuration(FADE_TIME);
+    animation->setEndValue(visible ? 1.0 : 0.0);
+    animation->start(QAbstractAnimation::DeleteWhenStopped);
 }
 
 QSize IconButton::sizeHint() const

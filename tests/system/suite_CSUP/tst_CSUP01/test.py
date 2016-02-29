@@ -43,14 +43,13 @@ def triggerCompletion(editorWidget):
 
 # entry of test
 def main():
-    clangLoaded = startCreatorTryingClang()
-    if not startedWithoutPluginError():
-        return
-    # create qt quick application
+    for useClang in [False, True]:
+        if not startCreator(useClang):
+            continue
+        # create qt quick application
 # Step 1: Open test .pro project.
-    createNewQtQuickApplication(tempDir(), "SampleApp")
-    for useClang in set([False, clangLoaded]):
-        selectClangCodeModel(clangLoaded, useClang)
+        createNewQtQuickApplication(tempDir(), "SampleApp")
+        checkCodeModelSettings(useClang)
         changeAutocompleteToManual(False)
 # Step 2: Open .cpp file in Edit mode.
         if not openDocument("SampleApp.Sources.main\\.cpp"):
@@ -103,6 +102,6 @@ def main():
                      "completed automatically even there is only one suggestion.")
         invokeMenuItem('File', 'Revert "main.cpp" to Saved')
         clickButton(waitForObject(":Revert to Saved.Proceed_QPushButton"))
-    # exit qt creator
-    invokeMenuItem("File", "Save All")
-    invokeMenuItem("File", "Exit")
+        # exit qt creator
+        invokeMenuItem("File", "Save All")
+        invokeMenuItem("File", "Exit")

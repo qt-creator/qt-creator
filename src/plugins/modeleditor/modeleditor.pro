@@ -4,27 +4,7 @@ DEFINES += MODELEDITOR_LIBRARY
 
 QT += core gui widgets
 
-!win32:CONFIG(pdf) {
-    DEFINES += USE_PDF_CLIPBOARD
-}
-
-!win32:CONFIG(svg): {
-    QT += svg
-    DEFINES += USE_SVG_CLIPBOARD
-}
-
-#win32:CONFIG(emf): {
-#    DEFINES += USE_EMF USE_EMF_CLIPBOARD
-#
-#    SOURCES += \
-#        emf-engine/qemfpaintengine.cpp \
-#        emf-engine/qemfwriter.cpp
-#
-#    HEADERS += \
-#        emf-engine/qemfpaintengine.h \
-#        emf-engine/qemfwriter.h
-#
-#}
+isEmpty(QT.svg.name): DEFINES += QT_NO_SVG
 
 SOURCES += \
     actionhandler.cpp \

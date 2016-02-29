@@ -36,6 +36,7 @@
 #include <QSignalMapper>
 
 namespace Core { class IEditor; }
+namespace TextEditor { class TextEditorWidget; }
 
 namespace Beautifier {
 namespace Internal {
@@ -44,6 +45,10 @@ class BeautifierAbstractTool;
 
 struct FormatTask
 {
+    FormatTask() :
+        startPos(-1),
+        endPos(0) {}
+
     FormatTask(QPlainTextEdit *_editor, const QString &_filePath, const QString &_sourceData,
                const Command &_command, int _startPos = -1, int _endPos = 0) :
         editor(_editor),
@@ -51,8 +56,7 @@ struct FormatTask
         sourceData(_sourceData),
         command(_command),
         startPos(_startPos),
-        endPos(_endPos),
-        timeout(false) {}
+        endPos(_endPos) {}
 
     QPointer<QPlainTextEdit> editor;
     QString filePath;
@@ -60,8 +64,8 @@ struct FormatTask
     Command command;
     int startPos;
     int endPos;
-    bool timeout;
     QString formattedData;
+    QString error;
 };
 
 class BeautifierPlugin : public ExtensionSystem::IPlugin
@@ -70,35 +74,30 @@ class BeautifierPlugin : public ExtensionSystem::IPlugin
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "Beautifier.json")
 
 public:
-    BeautifierPlugin();
-    ~BeautifierPlugin();
     bool initialize(const QStringList &arguments, QString *errorString) override;
     void extensionsInitialized() override;
     ShutdownFlag aboutToShutdown() override;
 
-    QString format(const QString &text, const Command &command, const QString &fileName,
-                   bool *timeout = 0);
     void formatCurrentFile(const Command &command, int startPos = -1, int endPos = 0);
-    void formatAsync(QFutureInterface<FormatTask> &future, FormatTask task);
 
     static QString msgCannotGetConfigurationFile(const QString &command);
     static QString msgFormatCurrentFile();
     static QString msgFormatSelectedText();
     static QString msgCommandPromptDialogTitle(const QString &command);
-
-public slots:
     static void showError(const QString &error);
 
 private slots:
     void updateActions(Core::IEditor *editor = 0);
-    void formatCurrentFileContinue(QObject *watcher = 0);
-
-signals:
-    void pipeError(QString);
 
 private:
     QList<BeautifierAbstractTool *> m_tools;
-    QSignalMapper *m_asyncFormatMapper;
+
+    void formatEditor(TextEditor::TextEditorWidget *editor, const Command &command,
+                      int startPos = -1, int endPos = 0);
+    void formatEditorAsync(TextEditor::TextEditorWidget *editor, const Command &command,
+                           int startPos = -1, int endPos = 0);
+    void checkAndApplyTask(const FormatTask &task);
+    void updateEditorText(QPlainTextEdit *editor, const QString &text);
 };
 
 } // namespace Internal

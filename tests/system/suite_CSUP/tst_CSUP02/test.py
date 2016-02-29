@@ -27,14 +27,13 @@ source("../../shared/qtcreator.py")
 
 # entry of test
 def main():
-    clangLoaded = startCreatorTryingClang()
-    if not startedWithoutPluginError():
-        return
-    # create qt quick application
+    for useClang in [False, True]:
+        if not startCreator(useClang):
+            continue
+        # create qt quick application
 # Step 1: Open test .pro project.
-    createNewQtQuickApplication(tempDir(), "SampleApp")
-    for useClang in set([False, clangLoaded]):
-        selectClangCodeModel(clangLoaded, useClang)
+        createNewQtQuickApplication(tempDir(), "SampleApp")
+        checkCodeModelSettings(useClang)
 # Step 2: Open .cpp file in Edit mode.
         if not openDocument("SampleApp.Sources.main\\.cpp"):
             test.fatal("Could not open main.cpp")
@@ -83,5 +82,5 @@ def main():
         snooze(1)   # 'Close "main.cpp"' might still be disabled
         # editor must be closed to get the second code model applied on re-opening the file
         invokeMenuItem('File', 'Close "main.cpp"')
-    # exit qt creator
-    invokeMenuItem("File", "Exit")
+        # exit qt creator
+        invokeMenuItem("File", "Exit")

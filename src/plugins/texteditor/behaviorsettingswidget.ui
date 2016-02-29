@@ -358,6 +358,16 @@ Specifies how backspace interacts with indentation.
          </widget>
         </item>
         <item>
+         <widget class="QCheckBox" name="smartSelectionChanging">
+          <property name="toolTip">
+           <string>Using Select Block Up / Down actions will now provide smarter selections.</string>
+          </property>
+          <property name="text">
+           <string>Enable smart selection changing</string>
+          </property>
+         </widget>
+        </item>
+        <item>
          <widget class="QCheckBox" name="keyboardTooltips">
           <property name="toolTip">
            <string>Pressing Alt displays context-sensitive help or type information as tooltips.</string>

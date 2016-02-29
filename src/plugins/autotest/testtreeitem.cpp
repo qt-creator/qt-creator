@@ -440,11 +440,11 @@ bool GoogleTestTreeItem::modifyTestSetContent(const QString &fileName,
 
 TestTreeItem *GoogleTestTreeItem::findChildByNameStateAndFile(const QString &name,
                                                               GoogleTestTreeItem::TestStates state,
-                                                              const QString &referencingFile)
+                                                              const QString &proFile)
 {
-    return findChildBy([name, state, referencingFile](const TestTreeItem *other) -> bool {
+    return findChildBy([name, state, proFile](const TestTreeItem *other) -> bool {
         GoogleTestTreeItem *gtestItem = const_cast<TestTreeItem *>(other)->asGoogleTestTreeItem();
-        return other->proFile() == referencingFile
+        return other->proFile() == proFile
                 && other->name() == name
                 && gtestItem->state() == state;
     });

@@ -294,6 +294,7 @@ public:
 
     const DisplaySettings &displaySettings() const;
     const MarginSettings &marginSettings() const;
+    const BehaviorSettings &behaviorSettings() const;
 
     void ensureCursorVisible();
 
@@ -389,8 +390,8 @@ public:
     void gotoNextWordCamelCase();
     void gotoNextWordCamelCaseWithSelection();
 
-    bool selectBlockUp();
-    bool selectBlockDown();
+    virtual bool selectBlockUp();
+    virtual bool selectBlockDown();
 
     void moveLineUp();
     void moveLineDown();
@@ -498,6 +499,7 @@ protected:
     void showDefaultContextMenu(QContextMenuEvent *e, Core::Id menuContextId);
     virtual void finalizeInitialization() {}
     virtual void finalizeInitializationAfterDuplication(TextEditorWidget *) {}
+    static QTextCursor flippedCursor(const QTextCursor &cursor);
 
 public:
     struct Link

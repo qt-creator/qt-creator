@@ -48,6 +48,7 @@
 #include <cpptools/cppcompletionassistprovider.h>
 #include <cpptools/cppeditoroutline.h>
 #include <cpptools/cppmodelmanager.h>
+#include <cpptools/cppselectionchanger.h>
 #include <cpptools/cppsemanticinfo.h>
 #include <cpptools/cpptoolsconstants.h>
 #include <cpptools/cpptoolsplugin.h>
@@ -55,6 +56,7 @@
 #include <cpptools/cppworkingcopy.h>
 #include <cpptools/symbolfinder.h>
 
+#include <texteditor/behaviorsettings.h>
 #include <texteditor/completionsettings.h>
 #include <texteditor/convenience.h>
 #include <texteditor/textdocument.h>
@@ -119,6 +121,8 @@ public:
 
     QScopedPointer<FollowSymbolUnderCursor> m_followSymbolUnderCursor;
     QToolButton *m_preprocessorButton;
+
+    CppSelectionChanger m_cppSelectionChanger;
 };
 
 CppEditorWidgetPrivate::CppEditorWidgetPrivate(CppEditorWidget *q)
@@ -130,6 +134,7 @@ CppEditorWidgetPrivate::CppEditorWidgetPrivate(CppEditorWidget *q)
     , m_declDefLinkFinder(new FunctionDeclDefLinkFinder(q))
     , m_followSymbolUnderCursor(new FollowSymbolUnderCursor(q))
     , m_preprocessorButton(0)
+    , m_cppSelectionChanger()
 {
 }
 
@@ -201,6 +206,9 @@ void CppEditorWidget::finalizeInitialization()
     connect(this, &CppEditorWidget::cursorPositionChanged, [this]() {
         if (!d->m_localRenaming.isActive())
             d->m_useSelectionsUpdater.scheduleUpdate();
+
+        // Notify selection expander about the changed cursor.
+        d->m_cppSelectionChanger.onCursorPositionChanged(textCursor());
     });
 
     // Tool bar creation
@@ -326,6 +334,44 @@ void CppEditorWidget::renameUsages(const QString &replacement)
             if (canonicalSymbol->identifier() != 0)
                 d->m_modelManager->renameUsages(canonicalSymbol, cs.context(), replacement);
     }
+}
+
+bool CppEditorWidget::selectBlockUp()
+{
+    if (!behaviorSettings().m_smartSelectionChanging)
+        return TextEditorWidget::selectBlockUp();
+
+    QTextCursor cursor = textCursor();
+    d->m_cppSelectionChanger.startChangeSelection();
+    const bool changed =
+            d->m_cppSelectionChanger.changeSelection(
+                CppSelectionChanger::ExpandSelection,
+                cursor,
+                d->m_lastSemanticInfo.doc);
+    if (changed)
+        setTextCursor(cursor);
+    d->m_cppSelectionChanger.stopChangeSelection();
+
+    return changed;
+}
+
+bool CppEditorWidget::selectBlockDown()
+{
+    if (!behaviorSettings().m_smartSelectionChanging)
+        return TextEditorWidget::selectBlockDown();
+
+    QTextCursor cursor = textCursor();
+    d->m_cppSelectionChanger.startChangeSelection();
+    const bool changed =
+            d->m_cppSelectionChanger.changeSelection(
+                CppSelectionChanger::ShrinkSelection,
+                cursor,
+                d->m_lastSemanticInfo.doc);
+    if (changed)
+        setTextCursor(cursor);
+    d->m_cppSelectionChanger.stopChangeSelection();
+
+    return changed;
 }
 
 void CppEditorWidget::renameSymbolUnderCursor()

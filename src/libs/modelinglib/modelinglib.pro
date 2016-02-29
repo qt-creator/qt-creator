@@ -1,7 +1,8 @@
 
 include(../../qtcreatorlibrary.pri)
 
-QT += svg
+!isEmpty(QT.svg.name): QT += svg
+else: DEFINES += QT_NO_SVG
 
 DEFINES += QMT_LIBRARY
 
