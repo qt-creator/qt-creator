@@ -181,7 +181,7 @@ static void initKindFilterAction(QAction *action, const QVariantList &kinds)
 MemcheckTool::MemcheckTool(QObject *parent)
   : QObject(parent)
 {
-    m_settings = 0;
+    m_settings = ValgrindPlugin::globalSettings();
     m_errorModel = 0;
     m_errorProxyModel = 0;
     m_errorView = 0;
