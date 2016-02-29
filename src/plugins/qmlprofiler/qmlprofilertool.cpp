@@ -193,15 +193,17 @@ QmlProfilerTool::~QmlProfilerTool()
 AnalyzerRunControl *QmlProfilerTool::createRunControl(const AnalyzerStartParameters &sp,
     RunConfiguration *runConfiguration)
 {
-    QmlProfilerRunConfigurationAspect *aspect = static_cast<QmlProfilerRunConfigurationAspect *>(
-                runConfiguration->extraAspect(Constants::SETTINGS));
-    QTC_ASSERT(aspect, return 0);
-
-    QmlProfilerSettings *settings = static_cast<QmlProfilerSettings *>(aspect->currentSettings());
-    QTC_ASSERT(settings, return 0);
-
-    d->m_profilerConnections->setFlushInterval(settings->flushEnabled() ?
-                                                   settings->flushInterval() : 0);
+    if (runConfiguration) {
+        QmlProfilerRunConfigurationAspect *aspect =
+                static_cast<QmlProfilerRunConfigurationAspect *>(
+                    runConfiguration->extraAspect(Constants::SETTINGS));
+        if (aspect) {
+            QmlProfilerSettings *settings =
+                    static_cast<QmlProfilerSettings *>(aspect->currentSettings());
+            d->m_profilerConnections->setFlushInterval((settings && settings->flushEnabled()) ?
+                                                           settings->flushInterval() : 0);
+        }
+    }
 
     QmlProfilerRunControl *engine = new QmlProfilerRunControl(sp, runConfiguration);
 
