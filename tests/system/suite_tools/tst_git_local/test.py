@@ -166,7 +166,7 @@ def main():
         return
     createProject_Qt_GUI(srcPath, projectName, addToVersionControl = "Git")
     openVcsLog()
-    vcsLog = waitForObject("{type='QPlainTextEdit' unnamed='1' visible='1' "
+    vcsLog = waitForObject("{type='Core::OutputWindow' unnamed='1' visible='1' "
                            "window=':Qt Creator_Core::Internal::MainWindow'}").plainText
     test.verify("Initialized empty Git repository in %s"
                 % os.path.join(srcPath, projectName, ".git").replace("\\", "/") in str(vcsLog),

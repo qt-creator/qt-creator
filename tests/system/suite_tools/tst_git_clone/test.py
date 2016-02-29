@@ -63,7 +63,7 @@ def verifyCloneLog(targetDir, canceled):
 
 def verifyVersionControlView(targetDir, canceled):
     openVcsLog()
-    vcsLog = str(waitForObject("{type='QPlainTextEdit' unnamed='1' visible='1' "
+    vcsLog = str(waitForObject("{type='Core::OutputWindow' unnamed='1' visible='1' "
                                "window=':Qt Creator_Core::Internal::MainWindow'}").plainText)
     test.log("Clone log is: %s" % vcsLog)
     test.verify("Executing in " + targetDir + ":" in vcsLog,
