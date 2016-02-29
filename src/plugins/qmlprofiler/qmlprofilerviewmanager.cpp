@@ -49,7 +49,6 @@ class QmlProfilerViewManager::QmlProfilerViewManagerPrivate {
 public:
     QmlProfilerViewManagerPrivate(QmlProfilerViewManager *qq) { Q_UNUSED(qq); }
 
-    QDockWidget *timelineDock;
     QmlProfilerTraceView *traceView;
     QList<QmlProfilerEventsView *> eventsViews;
     QmlProfilerStateManager *profilerState;
@@ -91,7 +90,7 @@ void QmlProfilerViewManager::createViews()
             this, &QmlProfilerViewManager::typeSelected);
     connect(this, &QmlProfilerViewManager::typeSelected,
             d->traceView, &QmlProfilerTraceView::selectByTypeId);
-    d->timelineDock = AnalyzerManager::createDockWidget(d->traceView, Constants::QmlProfilerTimelineDock);
+    AnalyzerManager::createDockWidget(d->traceView, Constants::QmlProfilerTimelineDock);
 
     new QmlProfilerStateWidget(d->profilerState, d->profilerModelManager, d->traceView);
 
@@ -129,7 +128,8 @@ void QmlProfilerViewManager::createViews()
     AnalyzerManager::addPerspective(perspective);
 
     settings->endGroup();
-    d->timelineDock->raise();
+    QTC_ASSERT(qobject_cast<QDockWidget *>(d->traceView->parentWidget()), return);
+    d->traceView->parentWidget()->raise();
 }
 
 bool QmlProfilerViewManager::hasValidSelection() const
@@ -164,7 +164,8 @@ void QmlProfilerViewManager::restrictEventsToRange(qint64 rangeStart, qint64 ran
 
 void QmlProfilerViewManager::raiseTimeline()
 {
-    d->timelineDock->raise();
+    QTC_ASSERT(qobject_cast<QDockWidget *>(d->traceView->parentWidget()), return);
+    d->traceView->parentWidget()->raise();
     d->traceView->setFocus();
 }
 
