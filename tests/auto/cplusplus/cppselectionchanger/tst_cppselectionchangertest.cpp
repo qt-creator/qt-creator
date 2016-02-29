@@ -62,6 +62,7 @@ private:
     bool m_result;
 };
 
+QT_BEGIN_NAMESPACE
 namespace QTest {
     template<>
     char *toString(const ChangeResult &changeResult)
@@ -73,6 +74,7 @@ namespace QTest {
         return qstrdup(ba.data());
     }
 }
+QT_END_NAMESPACE
 
 class tst_CppSelectionChanger : public QObject
 {
