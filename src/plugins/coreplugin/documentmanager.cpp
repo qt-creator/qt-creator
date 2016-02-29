@@ -126,12 +126,16 @@ struct FileState
 };
 
 
-class DocumentManagerPrivate
+class DocumentManagerPrivate : public QObject
 {
+    Q_OBJECT
 public:
     DocumentManagerPrivate();
     QFileSystemWatcher *fileWatcher();
     QFileSystemWatcher *linkWatcher();
+
+    void checkOnNextFocusChange();
+    void onApplicationFocusChange();
 
     QMap<QString, FileState> m_states;
     QSet<QString> m_changedFiles;
@@ -145,6 +149,7 @@ public:
     QFileSystemWatcher *m_fileWatcher; // Delayed creation.
     QFileSystemWatcher *m_linkWatcher; // Delayed creation (only UNIX/if a link is seen).
     bool m_blockActivated;
+    bool m_checkOnFocusChange = false;
     QString m_lastVisitedDirectory;
     QString m_defaultLocationForNewFiles;
     QString m_projectsDirectory;
@@ -185,6 +190,19 @@ QFileSystemWatcher *DocumentManagerPrivate::linkWatcher()
     return fileWatcher();
 }
 
+void DocumentManagerPrivate::checkOnNextFocusChange()
+{
+    m_checkOnFocusChange = true;
+}
+
+void DocumentManagerPrivate::onApplicationFocusChange()
+{
+    if (!m_checkOnFocusChange)
+        return;
+    m_checkOnFocusChange = false;
+    m_instance->checkForReload();
+}
+
 DocumentManagerPrivate::DocumentManagerPrivate() :
     m_fileWatcher(0),
     m_linkWatcher(0),
@@ -193,6 +211,7 @@ DocumentManagerPrivate::DocumentManagerPrivate() :
     m_useProjectsDirectory(true),
     m_blockedIDocument(0)
 {
+    connect(qApp, &QApplication::focusChanged, this, &DocumentManagerPrivate::onApplicationFocusChange);
 }
 
 } // namespace Internal
@@ -898,16 +917,19 @@ void DocumentManager::checkForReload()
 {
     if (d->m_changedFiles.isEmpty())
         return;
-    if (!QApplication::activeWindow())
+    if (QApplication::applicationState() != Qt::ApplicationActive)
         return;
-
-    if (QApplication::activeModalWidget() || d->m_blockActivated) {
+    // If d->m_blockActivated is true, then it means that the event processing of either the
+    // file modified dialog, or of loading large files, has delivered a file change event from
+    // a watcher *and* the timer triggered. We may never end up here in a nested way, so
+    // recheck later at the end of the checkForReload function.
+    if (d->m_blockActivated)
+        return;
+    if (QApplication::activeModalWidget()) {
         // We do not want to prompt for modified file if we currently have some modal dialog open.
-        // If d->m_blockActivated is true, then it means that the event processing of either the
-        // file modified dialog, or of loading large files, has delivered a file change event from
-        // a watcher *and* the timer triggered. We may never end up here in a nested way, so
-        // recheck later.
-        QTimer::singleShot(200, this, &DocumentManager::checkForReload);
+        // There is no really sensible way to get notified globally if a window closed,
+        // so just check on every focus change.
+        d->checkOnNextFocusChange();
         return;
     }
 
@@ -1129,7 +1151,8 @@ void DocumentManager::checkForReload()
     }
 
     d->m_blockActivated = false;
-
+    // re-check in case files where modified while the dialog was open
+    QTimer::singleShot(0, this, &DocumentManager::checkForReload);
 //    dump();
 }
 
@@ -1375,8 +1398,7 @@ void DocumentManager::notifyFilesChangedInternally(const QStringList &files)
 
 bool DocumentManager::eventFilter(QObject *obj, QEvent *e)
 {
-    if (obj == qApp && e->type() == QEvent::ApplicationActivate) {
-        // activeWindow is not necessarily set yet, do checkForReload asynchronously
+    if (obj == qApp && e->type() == QEvent::ApplicationStateChange) {
         QTimer::singleShot(0, this, &DocumentManager::checkForReload);
     }
     return false;
@@ -1396,3 +1418,5 @@ FileChangeBlocker::~FileChangeBlocker()
 }
 
 } // namespace Core
+
+#include "documentmanager.moc"
