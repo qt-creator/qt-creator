@@ -27,16 +27,9 @@
 #define DEBUGGERMAINWINDOW_H
 
 #include "debugger_global.h"
-#include "debuggerconstants.h"
-
-#include <utils/fancymainwindow.h>
-
-namespace Core { class IMode; }
 
 namespace Debugger {
 namespace Internal {
-
-class DebuggerMainWindowPrivate;
 
 // DebuggerMainWindow dock widget names
 const char DOCKWIDGET_BREAK[]         = "Debugger.Docks.Break";
@@ -50,42 +43,8 @@ const char DOCKWIDGET_THREADS[]       = "Debugger.Docks.Threads";
 const char DOCKWIDGET_WATCHERS[]      = "Debugger.Docks.LocalsAndWatchers";
 const char DOCKWIDGET_QML_INSPECTOR[] = "Debugger.Docks.QmlInspector";
 const char DOCKWIDGET_DEFAULT_AREA[]  = "Debugger.Docks.DefaultArea";
+
 } // namespace Internal
-
-class DEBUGGER_EXPORT DebuggerMainWindow : public Utils::FancyMainWindow
-{
-    Q_OBJECT
-
-public:
-    DebuggerMainWindow();
-    ~DebuggerMainWindow();
-
-    // Debugger toolbars are registered with this function.
-    void setToolBar(DebuggerLanguage language, QWidget *widget);
-
-    // Active languages to be debugged.
-    DebuggerLanguages activeDebugLanguages() const;
-    void setEngineDebugLanguages(DebuggerLanguages languages);
-
-    // Called when all dependent plugins have loaded.
-    void initialize();
-
-    void onModeChanged(Core::IMode *mode);
-
-    // Dockwidgets are registered to the main window.
-    QDockWidget *createDockWidget(const DebuggerLanguage &language, QWidget *widget);
-    void addStagedMenuEntries();
-
-    QWidget *createContents(Core::IMode *mode);
-
-    void readSettings();
-    void writeSettings() const;
-
-private:
-    friend class Internal::DebuggerMainWindowPrivate;
-    Internal::DebuggerMainWindowPrivate *d;
-};
-
 } // namespace Debugger
 
 #endif // DEBUGGERMAINWINDOW_H
