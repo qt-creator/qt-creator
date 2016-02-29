@@ -48,7 +48,7 @@ class ProjectPart;
 class DiagnosticContainer;
 class DiagnosticSet;
 class FileContainer;
-class HighlightingInformations;
+class HighlightingMarks;
 class TranslationUnits;
 class CommandLineArguments;
 class Cursor;
@@ -112,7 +112,7 @@ public:
 
     bool isNeedingReparse() const;
     bool hasNewDiagnostics() const;
-    bool hasNewHighlightingInformations() const;
+    bool hasNewHighlightingMarks() const;
 
     DiagnosticSet diagnostics() const;
     QVector<DiagnosticContainer> mainFileDiagnostics() const;
@@ -134,8 +134,8 @@ public:
     Cursor cursorAt(const Utf8String &filePath, uint line, uint column) const;
     Cursor cursor() const;
 
-    HighlightingInformations highlightingInformations() const;
-    HighlightingInformations highlightingInformationsInRange(const SourceRange &range) const;
+    HighlightingMarks highlightingMarks() const;
+    HighlightingMarks highlightingMarksInRange(const SourceRange &range) const;
 
     SkippedSourceRanges skippedSourceRanges() const;
 

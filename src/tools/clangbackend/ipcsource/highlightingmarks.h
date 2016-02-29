@@ -23,10 +23,9 @@
 **
 ****************************************************************************/
 
-#ifndef CLANGBACKEND_HIGHLIGHTINGINFORMATIONS_H
-#define CLANGBACKEND_HIGHLIGHTINGINFORMATIONS_H
+#pragma once
 
-#include "highlightinginformationsiterator.h"
+#include "highlightingmarksiterator.h"
 
 #include <clang-c/Index.h>
 
@@ -37,22 +36,22 @@ namespace ClangBackEnd {
 using uint = unsigned int;
 class HighlightingMarkContainer;
 
-class HighlightingInformations
+class HighlightingMarks
 {
 public:
-    using const_iterator = HighlightingInformationsIterator;
-    using value_type = HighlightingInformation;
+    using const_iterator = HighlightingMarksIterator;
+    using value_type = HighlightingMark;
 
 public:
-    HighlightingInformations() = default;
-    HighlightingInformations(CXTranslationUnit cxTranslationUnit, CXToken *tokens, uint tokensCount);
-    ~HighlightingInformations();
+    HighlightingMarks() = default;
+    HighlightingMarks(CXTranslationUnit cxTranslationUnit, CXToken *tokens, uint tokensCount);
+    ~HighlightingMarks();
 
     bool isEmpty() const;
     bool isNull() const;
     uint size() const;
 
-    HighlightingInformation operator[](size_t index) const;
+    HighlightingMark operator[](size_t index) const;
 
     const_iterator begin() const;
     const_iterator end() const;
@@ -68,5 +67,3 @@ private:
 };
 
 } // namespace ClangBackEnd
-
-#endif // CLANGBACKEND_HIGHLIGHTINGINFORMATIONS_H

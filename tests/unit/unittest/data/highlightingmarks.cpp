@@ -236,7 +236,7 @@ void f11()
     MacroDefinition(2, 4);
 }
 
-#include "highlightinginformations.h"
+#include "highlightingmarks.h"
 
 void f12() {
 GOTO_LABEL:
@@ -286,7 +286,7 @@ void f12()
     OutputParameter(One, 2);
 }
 
-#include <highlightinginformations.h>
+#include <highlightingmarks.h>
 
 #define FOREACH(variable, container) \
     variable; \

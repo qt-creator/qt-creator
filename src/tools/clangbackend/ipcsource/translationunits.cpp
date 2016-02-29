@@ -28,7 +28,7 @@
 #include <diagnosticschangedmessage.h>
 #include <diagnosticset.h>
 #include <highlightingchangedmessage.h>
-#include <highlightinginformations.h>
+#include <highlightingmarks.h>
 #include <projectpartsdonotexistexception.h>
 #include <projects.h>
 #include <skippedsourceranges.h>
@@ -199,7 +199,7 @@ namespace {
 
 bool translationUnitHasNewDocumentAnnotations(const TranslationUnit &translationUnit)
 {
-    return translationUnit.hasNewDiagnostics() || translationUnit.hasNewHighlightingInformations();
+    return translationUnit.hasNewDiagnostics() || translationUnit.hasNewHighlightingMarks();
 }
 
 }
@@ -365,7 +365,7 @@ void TranslationUnits::sendDocumentAnnotations(const TranslationUnit &translatio
         DiagnosticsChangedMessage diagnosticsMessage(fileContainer,
                                                      translationUnit.mainFileDiagnostics());
         HighlightingChangedMessage highlightingsMessage(fileContainer,
-                                                        translationUnit.highlightingInformations().toHighlightingMarksContainers(),
+                                                        translationUnit.highlightingMarks().toHighlightingMarksContainers(),
                                                         translationUnit.skippedSourceRanges().toSourceRangeContainers());
 
         sendDocumentAnnotationsCallback(std::move(diagnosticsMessage),

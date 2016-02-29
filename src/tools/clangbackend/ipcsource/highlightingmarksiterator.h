@@ -23,10 +23,9 @@
 **
 ****************************************************************************/
 
-#ifndef HIGHLIGHTINGINFORMATIONSITERATOR_H
-#define HIGHLIGHTINGINFORMATIONSITERATOR_H
+#pragma once
 
-#include "highlightinginformation.h"
+#include "highlightingmark.h"
 
 #include <iterator>
 #include <vector>
@@ -40,10 +39,10 @@ using uint = unsigned int;
 class DiagnosticSet;
 class Diagnostic;
 
-class HighlightingInformationsIterator : public std::iterator<std::forward_iterator_tag, HighlightingInformation, uint>
+class HighlightingMarksIterator : public std::iterator<std::forward_iterator_tag, HighlightingMark, uint>
 {
 public:
-    HighlightingInformationsIterator(std::vector<CXCursor>::const_iterator cxCursorIterator,
+    HighlightingMarksIterator(std::vector<CXCursor>::const_iterator cxCursorIterator,
                                      CXToken *cxToken,
                                      CXTranslationUnit cxTranslationUnit)
         : cxCursorIterator(cxCursorIterator),
@@ -51,7 +50,7 @@ public:
           cxTranslationUnit(cxTranslationUnit)
     {}
 
-    HighlightingInformationsIterator& operator++()
+    HighlightingMarksIterator& operator++()
     {
         ++cxCursorIterator;
         ++cxToken;
@@ -59,24 +58,24 @@ public:
         return *this;
     }
 
-    HighlightingInformationsIterator operator++(int)
+    HighlightingMarksIterator operator++(int)
     {
-        return HighlightingInformationsIterator(cxCursorIterator++, cxToken++, cxTranslationUnit);
+        return HighlightingMarksIterator(cxCursorIterator++, cxToken++, cxTranslationUnit);
     }
 
-    bool operator==(HighlightingInformationsIterator other) const
+    bool operator==(HighlightingMarksIterator other) const
     {
         return cxCursorIterator == other.cxCursorIterator;
     }
 
-    bool operator!=(HighlightingInformationsIterator other) const
+    bool operator!=(HighlightingMarksIterator other) const
     {
         return cxCursorIterator != other.cxCursorIterator;
     }
 
-    HighlightingInformation operator*()
+    HighlightingMark operator*()
     {
-        return HighlightingInformation(*cxCursorIterator, cxToken, cxTranslationUnit);
+        return HighlightingMark(*cxCursorIterator, cxToken, cxTranslationUnit);
     }
 
 private:
@@ -86,5 +85,3 @@ private:
 };
 
 } // namespace ClangBackEnd
-
-#endif // HIGHLIGHTINGINFORMATIONSITERATOR_H

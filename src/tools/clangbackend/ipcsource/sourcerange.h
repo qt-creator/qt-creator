@@ -37,7 +37,6 @@ class SourceRange
     friend class Diagnostic;
     friend class FixIt;
     friend class Cursor;
-    friend class HighlightingInformation;
     friend bool operator==(const SourceRange &first, const SourceRange &second);
 
 public:

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CLANGBACKEND_HIGHLIGHTINGMARKCONTAINER_H
-#define CLANGBACKEND_HIGHLIGHTINGMARKCONTAINER_H
+#pragma once
 
 #include "clangbackendipc_global.h"
 
@@ -63,5 +62,3 @@ CMBIPC_EXPORT void PrintTo(HighlightingType highlightingType, ::std::ostream *os
 void PrintTo(const HighlightingMarkContainer &container, ::std::ostream *os);
 
 } // namespace ClangBackEnd
-
-#endif // CLANGBACKEND_HIGHLIGHTINGMARKCONTAINER_H

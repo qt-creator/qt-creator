@@ -61,13 +61,13 @@ SOURCES += \
     utf8test.cpp \
     senddocumenttrackertest.cpp \
     cursortest.cpp \
-    highlightinginformationstest.cpp \
     skippedsourcerangestest.cpp \
     highlightingmarksreportertest.cpp \
     chunksreportedmonitor.cpp \
     unsavedfiletest.cpp \
     clangisdiagnosticrelatedtolocationtest.cpp \
     smallstringtest.cpp \
+    highlightingmarkstest.cpp \
     sizedarraytest.cpp
 
 exists($$GOOGLEBENCHMARK_DIR) {

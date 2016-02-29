@@ -23,7 +23,7 @@
 **
 ****************************************************************************/
 
-#include "highlightinginformations.h"
+#include "highlightingmarks.h"
 
 #include "highlightingmarkcontainer.h"
 
@@ -31,7 +31,7 @@
 
 namespace ClangBackEnd {
 
-HighlightingInformations::HighlightingInformations(CXTranslationUnit cxTranslationUnit, CXToken *tokens, uint tokensCount)
+HighlightingMarks::HighlightingMarks(CXTranslationUnit cxTranslationUnit, CXToken *tokens, uint tokensCount)
     : cxTranslationUnit(cxTranslationUnit),
       cxToken(tokens),
       cxTokenCount(tokensCount)
@@ -40,27 +40,27 @@ HighlightingInformations::HighlightingInformations(CXTranslationUnit cxTranslati
     clang_annotateTokens(cxTranslationUnit, cxToken, cxTokenCount, cxCursor.data());
 }
 
-HighlightingInformations::~HighlightingInformations()
+HighlightingMarks::~HighlightingMarks()
 {
     clang_disposeTokens(cxTranslationUnit, cxToken, cxTokenCount);
 }
 
-HighlightingInformations::const_iterator HighlightingInformations::begin() const
+HighlightingMarks::const_iterator HighlightingMarks::begin() const
 {
     return const_iterator(cxCursor.cbegin(), cxToken, cxTranslationUnit);
 }
 
-HighlightingInformations::const_iterator HighlightingInformations::end() const
+HighlightingMarks::const_iterator HighlightingMarks::end() const
 {
     return const_iterator(cxCursor.cend(), cxToken + cxTokenCount, cxTranslationUnit);
 }
 
-QVector<HighlightingMarkContainer> HighlightingInformations::toHighlightingMarksContainers() const
+QVector<HighlightingMarkContainer> HighlightingMarks::toHighlightingMarksContainers() const
 {
     QVector<HighlightingMarkContainer> containers;
     containers.reserve(size());
 
-    const auto isValidHighlightMark = [] (const HighlightingInformation &highlightMark) {
+    const auto isValidHighlightMark = [] (const HighlightingMark &highlightMark) {
         return !highlightMark.hasType(HighlightingType::Invalid);
     };
 
@@ -69,24 +69,24 @@ QVector<HighlightingMarkContainer> HighlightingInformations::toHighlightingMarks
     return containers;
 }
 
-bool HighlightingInformations::isEmpty() const
+bool HighlightingMarks::isEmpty() const
 {
     return cxTokenCount == 0;
 }
 
-bool ClangBackEnd::HighlightingInformations::isNull() const
+bool ClangBackEnd::HighlightingMarks::isNull() const
 {
     return cxToken == nullptr;
 }
 
-uint HighlightingInformations::size() const
+uint HighlightingMarks::size() const
 {
     return cxTokenCount;
 }
 
-HighlightingInformation HighlightingInformations::operator[](size_t index) const
+HighlightingMark HighlightingMarks::operator[](size_t index) const
 {
-    return HighlightingInformation(cxCursor[index], cxToken + index, cxTranslationUnit);
+    return HighlightingMark(cxCursor[index], cxToken + index, cxTranslationUnit);
 }
 
 } // namespace ClangBackEnd

@@ -26,7 +26,7 @@
 #include <diagnosticset.h>
 #include <filecontainer.h>
 #include <highlightingchangedmessage.h>
-#include <highlightinginformations.h>
+#include <highlightingmarks.h>
 #include <projectpartcontainer.h>
 #include <projectpart.h>
 #include <projectpartsdonotexistexception.h>
@@ -217,30 +217,30 @@ TEST_F(TranslationUnits, RemoveFileAndCheckForDiagnostics)
     ASSERT_TRUE(translationUnits.translationUnit(filePath, projectPartId).hasNewDiagnostics());
 }
 
-TEST_F(TranslationUnits, UpdateUnsavedFileAndCheckForHighlightingInformations)
+TEST_F(TranslationUnits, UpdateUnsavedFileAndCheckForHighlightingMarks)
 {
     ClangBackEnd::FileContainer fileContainer(filePath, projectPartId, Utf8StringVector(), 74u);
     ClangBackEnd::FileContainer headerContainer(headerPath, projectPartId, Utf8StringVector(), 74u);
     ClangBackEnd::FileContainer headerContainerWithUnsavedContent(headerPath, projectPartId, Utf8String(), true, 75u);
     translationUnits.create({fileContainer, headerContainer});
-    translationUnits.translationUnit(filePath, projectPartId).highlightingInformations();
+    translationUnits.translationUnit(filePath, projectPartId).highlightingMarks();
 
     translationUnits.update({headerContainerWithUnsavedContent});
 
-    ASSERT_TRUE(translationUnits.translationUnit(filePath, projectPartId).hasNewHighlightingInformations());
+    ASSERT_TRUE(translationUnits.translationUnit(filePath, projectPartId).hasNewHighlightingMarks());
 }
 
-TEST_F(TranslationUnits, RemoveFileAndCheckForHighlightingInformations)
+TEST_F(TranslationUnits, RemoveFileAndCheckForHighlightingMarks)
 {
     ClangBackEnd::FileContainer fileContainer(filePath, projectPartId, Utf8StringVector(), 74u);
     ClangBackEnd::FileContainer headerContainer(headerPath, projectPartId, Utf8StringVector(), 74u);
     ClangBackEnd::FileContainer headerContainerWithUnsavedContent(headerPath, projectPartId, Utf8String(), true, 75u);
     translationUnits.create({fileContainer, headerContainer});
-    translationUnits.translationUnit(filePath, projectPartId).highlightingInformations();
+    translationUnits.translationUnit(filePath, projectPartId).highlightingMarks();
 
     translationUnits.remove({headerContainerWithUnsavedContent});
 
-    ASSERT_TRUE(translationUnits.translationUnit(filePath, projectPartId).hasNewHighlightingInformations());
+    ASSERT_TRUE(translationUnits.translationUnit(filePath, projectPartId).hasNewHighlightingMarks());
 }
 
 TEST_F(TranslationUnits, DontGetNewerFileContainerIfRevisionIsTheSame)
@@ -402,7 +402,7 @@ TEST_F(TranslationUnits, DoNotSendDocumentAnnotationsAfterGettingDocumentAnnotat
     auto translationUnit = translationUnits.translationUnit(fileContainer);
     translationUnit.setIsVisibleInEditor(true);
     translationUnit.diagnostics(); // Reset
-    translationUnit.highlightingInformations(); // Reset
+    translationUnit.highlightingMarks(); // Reset
 
     EXPECT_CALL(mockSendDocumentAnnotationsCallback, sendDocumentAnnotations()).Times(0);
 
@@ -435,7 +435,7 @@ TEST_F(TranslationUnits, DoNotSendDocumentAnnotationsForCurrentEditorAfterGettin
     auto translationUnit = translationUnits.translationUnit(fileContainer);
     translationUnit.setIsUsedByCurrentEditor(true);
     translationUnit.diagnostics(); // Reset
-    translationUnit.highlightingInformations(); // Reset
+    translationUnit.highlightingMarks(); // Reset
 
     EXPECT_CALL(mockSendDocumentAnnotationsCallback, sendDocumentAnnotations()).Times(0);
 
@@ -472,7 +472,7 @@ TEST_F(TranslationUnits, SendDocumentAnnotationsOnlyOnceForVisibleEditor)
     auto headerTranslationUnit = translationUnits.translationUnit(headerContainer);
     headerTranslationUnit.setIsVisibleInEditor(true);
     headerTranslationUnit.diagnostics(); // Reset
-    headerTranslationUnit.highlightingInformations(); // Reset
+    headerTranslationUnit.highlightingMarks(); // Reset
 
     EXPECT_CALL(mockSendDocumentAnnotationsCallback, sendDocumentAnnotations()).Times(1);
 
@@ -485,7 +485,7 @@ TEST_F(TranslationUnits, SendDocumentAnnotationsAfterProjectPartChange)
     auto fileTranslationUnit = translationUnits.translationUnit(fileContainer);
     fileTranslationUnit.setIsVisibleInEditor(true);
     fileTranslationUnit.diagnostics(); // Reset
-    fileTranslationUnit.highlightingInformations(); // Reset
+    fileTranslationUnit.highlightingMarks(); // Reset
     projects.createOrUpdate({ProjectPartContainer(projectPartId, {Utf8StringLiteral("-DNEW")})});
     translationUnits.setTranslationUnitsDirtyIfProjectPartChanged();
 

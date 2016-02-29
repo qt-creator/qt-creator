@@ -27,7 +27,7 @@
 
 #include "clangstring.h"
 #include "cursor.h"
-#include "highlightinginformation.h"
+#include "highlightingmark.h"
 #include "sourcelocation.h"
 #include "sourcerange.h"
 
@@ -38,7 +38,7 @@
 
 namespace ClangBackEnd {
 
-HighlightingInformation::HighlightingInformation(const CXCursor &cxCursor,
+HighlightingMark::HighlightingMark(const CXCursor &cxCursor,
                                                  CXToken *cxToken,
                                                  CXTranslationUnit cxTranslationUnit)
 {
@@ -53,7 +53,7 @@ HighlightingInformation::HighlightingInformation(const CXCursor &cxCursor,
     type = kind(cxToken, originalCursor);
 }
 
-HighlightingInformation::HighlightingInformation(uint line, uint column, uint length, HighlightingType type)
+HighlightingMark::HighlightingMark(uint line, uint column, uint length, HighlightingType type)
     : line(line),
       column(column),
       length(length),
@@ -61,24 +61,24 @@ HighlightingInformation::HighlightingInformation(uint line, uint column, uint le
 {
 }
 
-bool HighlightingInformation::hasType(HighlightingType type) const
+bool HighlightingMark::hasType(HighlightingType type) const
 {
     return this->type == type;
 }
 
-bool HighlightingInformation::hasFunctionArguments() const
+bool HighlightingMark::hasFunctionArguments() const
 {
     return originalCursor.argumentCount() > 0;
 }
 
-QVector<HighlightingInformation> HighlightingInformation::outputFunctionArguments() const
+QVector<HighlightingMark> HighlightingMark::outputFunctionArguments() const
 {
-    QVector<HighlightingInformation> outputFunctionArguments;
+    QVector<HighlightingMark> outputFunctionArguments;
 
     return outputFunctionArguments;
 }
 
-HighlightingInformation::operator HighlightingMarkContainer() const
+HighlightingMark::operator HighlightingMarkContainer() const
 {
     return HighlightingMarkContainer(line, column, length, type);
 }
@@ -104,7 +104,7 @@ bool isFunctionInFinalClass(const Cursor &cursor)
 }
 }
 
-HighlightingType HighlightingInformation::memberReferenceKind(const Cursor &cursor) const
+HighlightingType HighlightingMark::memberReferenceKind(const Cursor &cursor) const
 {
     if (cursor.isDynamicCall()) {
         if (isFinalFunction(cursor) || isFunctionInFinalClass(cursor))
@@ -117,7 +117,7 @@ HighlightingType HighlightingInformation::memberReferenceKind(const Cursor &curs
 
 }
 
-HighlightingType HighlightingInformation::referencedTypeKind(const Cursor &cursor) const
+HighlightingType HighlightingMark::referencedTypeKind(const Cursor &cursor) const
 {
     const Cursor referencedCursor = cursor.referenced();
 
@@ -135,7 +135,7 @@ HighlightingType HighlightingInformation::referencedTypeKind(const Cursor &curso
     Q_UNREACHABLE();
 }
 
-HighlightingType HighlightingInformation::variableKind(const Cursor &cursor) const
+HighlightingType HighlightingMark::variableKind(const Cursor &cursor) const
 {
     if (cursor.isLocalVariable())
         return HighlightingType::LocalVariable;
@@ -143,7 +143,7 @@ HighlightingType HighlightingInformation::variableKind(const Cursor &cursor) con
         return HighlightingType::GlobalVariable;
 }
 
-bool HighlightingInformation::isVirtualMethodDeclarationOrDefinition(const Cursor &cursor) const
+bool HighlightingMark::isVirtualMethodDeclarationOrDefinition(const Cursor &cursor) const
 {
     return cursor.isVirtualMethod()
         && (originalCursor.isDeclaration() || originalCursor.isDefinition());
@@ -155,13 +155,13 @@ bool isNotFinalFunction(const Cursor &cursor)
 }
 
 }
-bool HighlightingInformation::isRealDynamicCall(const Cursor &cursor) const
+bool HighlightingMark::isRealDynamicCall(const Cursor &cursor) const
 {
 
     return originalCursor.isDynamicCall() && isNotFinalFunction(cursor);
 }
 
-HighlightingType HighlightingInformation::functionKind(const Cursor &cursor) const
+HighlightingType HighlightingMark::functionKind(const Cursor &cursor) const
 {
     if (isRealDynamicCall(cursor) || isVirtualMethodDeclarationOrDefinition(cursor))
         return HighlightingType::VirtualFunction;
@@ -169,7 +169,7 @@ HighlightingType HighlightingInformation::functionKind(const Cursor &cursor) con
         return HighlightingType::Function;
 }
 
-HighlightingType HighlightingInformation::identifierKind(const Cursor &cursor) const
+HighlightingType HighlightingMark::identifierKind(const Cursor &cursor) const
 {
     switch (cursor.kind()) {
         case CXCursor_Destructor:
@@ -268,7 +268,7 @@ HighlightingType punctationKind(const Cursor &cursor)
 }
 
 }
-HighlightingType HighlightingInformation::kind(CXToken *cxToken, const Cursor &cursor) const
+HighlightingType HighlightingMark::kind(CXToken *cxToken, const Cursor &cursor) const
 {
     auto cxTokenKind = clang_getTokenKind(*cxToken);
 
@@ -283,7 +283,7 @@ HighlightingType HighlightingInformation::kind(CXToken *cxToken, const Cursor &c
     Q_UNREACHABLE();
 }
 
-void PrintTo(const HighlightingInformation &information, ::std::ostream *os)
+void PrintTo(const HighlightingMark &information, ::std::ostream *os)
 {
     *os << "type: ";
     PrintTo(information.type, os);

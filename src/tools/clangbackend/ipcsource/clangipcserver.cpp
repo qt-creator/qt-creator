@@ -28,7 +28,7 @@
 #include "clangfilesystemwatcher.h"
 #include "codecompleter.h"
 #include "diagnosticset.h"
-#include "highlightinginformations.h"
+#include "highlightingmarks.h"
 #include "projectpartsdonotexistexception.h"
 #include "skippedsourceranges.h"
 #include "translationunitdoesnotexistexception.h"
@@ -288,7 +288,7 @@ void ClangIpcServer::requestHighlighting(const RequestHighlightingMessage &messa
                                                                 message.fileContainer().projectPartId());
 
         client()->highlightingChanged(HighlightingChangedMessage(translationUnit.fileContainer(),
-                                                                 translationUnit.highlightingInformations().toHighlightingMarksContainers(),
+                                                                 translationUnit.highlightingMarks().toHighlightingMarksContainers(),
                                                                  translationUnit.skippedSourceRanges().toSourceRangeContainers()));
     } catch (const TranslationUnitDoesNotExistException &exception) {
         client()->translationUnitDoesNotExist(TranslationUnitDoesNotExistMessage(exception.fileContainer()));

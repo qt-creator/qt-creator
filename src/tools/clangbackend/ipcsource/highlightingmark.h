@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CLANGBACKEND_HIGHLIGHTINGINFORMATION_H
-#define CLANGBACKEND_HIGHLIGHTINGINFORMATION_H
+#pragma once
 
 #include <clangbackendipc_global.h>
 #include <highlightingmarkcontainer.h>
@@ -35,18 +34,18 @@
 
 namespace ClangBackEnd {
 
-class HighlightingInformation
+class HighlightingMark
 {
-    friend bool operator==(const HighlightingInformation &first, const HighlightingInformation &second);
-    friend void PrintTo(const HighlightingInformation& highlightingInformation, ::std::ostream *os);
+    friend bool operator==(const HighlightingMark &first, const HighlightingMark &second);
+    friend void PrintTo(const HighlightingMark& highlightingMark, ::std::ostream *os);
 
 public:
-    HighlightingInformation(const CXCursor &cxCursor, CXToken *cxToken, CXTranslationUnit cxTranslationUnit);
-    HighlightingInformation(uint line, uint column, uint length, HighlightingType type);
+    HighlightingMark(const CXCursor &cxCursor, CXToken *cxToken, CXTranslationUnit cxTranslationUnit);
+    HighlightingMark(uint line, uint column, uint length, HighlightingType type);
 
     bool hasType(HighlightingType type) const;
     bool hasFunctionArguments() const;
-    QVector<HighlightingInformation> outputFunctionArguments() const;
+    QVector<HighlightingMark> outputFunctionArguments() const;
 
     operator HighlightingMarkContainer() const;
 
@@ -68,9 +67,9 @@ private:
     HighlightingType type;
 };
 
-void PrintTo(const HighlightingInformation& highlightingInformation, ::std::ostream *os);
+void PrintTo(const HighlightingMark& highlightingMark, ::std::ostream *os);
 
-inline bool operator==(const HighlightingInformation &first, const HighlightingInformation &second)
+inline bool operator==(const HighlightingMark &first, const HighlightingMark &second)
 {
     return first.line == second.line
         && first.column == second.column
@@ -79,5 +78,3 @@ inline bool operator==(const HighlightingInformation &first, const HighlightingI
 }
 
 } // namespace ClangBackEnd
-
-#endif // CLANGBACKEND_HIGHLIGHTINGINFORMATION_H

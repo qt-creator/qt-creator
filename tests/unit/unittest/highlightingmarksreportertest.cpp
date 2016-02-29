@@ -38,7 +38,7 @@
 #include "gtest-qt-printing.h"
 
 using ClangBackEnd::Cursor;
-using ClangBackEnd::HighlightingInformations;
+using ClangBackEnd::HighlightingMarks;
 using ClangBackEnd::HighlightingMarkContainer;
 using ClangBackEnd::HighlightingType;
 using ClangBackEnd::TranslationUnit;
@@ -54,7 +54,7 @@ struct Data {
     ProjectParts projects;
     UnsavedFiles unsavedFiles;
     TranslationUnits translationUnits{projects, unsavedFiles};
-    TranslationUnit translationUnit{Utf8StringLiteral(TESTDATA_DIR"/highlightinginformations.cpp"),
+    TranslationUnit translationUnit{Utf8StringLiteral(TESTDATA_DIR"/highlightingmarks.cpp"),
                                     ProjectPart(Utf8StringLiteral("projectPartId"),
                                                 {Utf8StringLiteral("-std=c++14")}),
                                     {},
