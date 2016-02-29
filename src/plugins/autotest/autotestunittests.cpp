@@ -24,8 +24,10 @@
 ****************************************************************************/
 
 #include "autotestconstants.h"
+#include "autotestplugin.h"
 #include "autotestunittests.h"
 #include "testcodeparser.h"
+#include "testsettings.h"
 #include "testtreemodel.h"
 
 #include <cpptools/cppmodelmanager.h>
@@ -39,8 +41,6 @@
 
 #include <QSignalSpy>
 #include <QTest>
-
-#include <coreplugin/navigationwidget.h>
 
 #include <qtsupport/qtkitinformation.h>
 
@@ -73,10 +73,17 @@ void AutoTestUnitTests::initTestCase()
         QSKIP("This test requires that there is a kit with a toolchain.");
 
     m_tmpDir = new CppTools::Tests::TemporaryCopiedDir(QLatin1String(":/unit_test"));
+
+    m_originalAlwaysParse = AutotestPlugin::instance()->settings()->alwaysParse;
+    if (!m_originalAlwaysParse) {
+        AutotestPlugin::instance()->settings()->alwaysParse = true;
+        TestTreeModel::instance()->enableParsingFromSettings();
+    }
 }
 
 void AutoTestUnitTests::cleanupTestCase()
 {
+    AutotestPlugin::instance()->settings()->alwaysParse = m_originalAlwaysParse;
     delete m_tmpDir;
 }
 
@@ -87,9 +94,6 @@ void AutoTestUnitTests::testCodeParser()
     QFETCH(int, expectedNamedQuickTestsCount);
     QFETCH(int, expectedUnnamedQuickTestsCount);
     QFETCH(int, expectedDataTagsCount);
-
-    NavigationWidget *navigation = NavigationWidget::instance();
-    navigation->activateSubWidget(Constants::AUTOTEST_ID);
 
     CppTools::Tests::ProjectOpenerAndCloser projectManager;
     const CppTools::ProjectInfo projectInfo = projectManager.open(projectFilePath, true);
@@ -140,9 +144,6 @@ void AutoTestUnitTests::testCodeParserSwitchStartup()
     QFETCH(QList<int>, expectedUnnamedQuickTestsCount);
     QFETCH(QList<int>, expectedDataTagsCount);
 
-    NavigationWidget *navigation = NavigationWidget::instance();
-    navigation->activateSubWidget(Constants::AUTOTEST_ID);
-
     CppTools::Tests::ProjectOpenerAndCloser projectManager;
     for (int i = 0; i < projectFilePaths.size(); ++i) {
         qDebug() << "Opening project" << projectFilePaths.at(i);
@@ -192,9 +193,6 @@ void AutoTestUnitTests::testCodeParserGTest()
 {
     if (qgetenv("GOOGLETEST_DIR").isEmpty())
         QSKIP("This test needs googletest - set GOOGLETEST_DIR (point to googletest repository)");
-
-    NavigationWidget *navigation = NavigationWidget::instance();
-    navigation->activateSubWidget(Constants::AUTOTEST_ID);
 
     CppTools::Tests::ProjectOpenerAndCloser projectManager;
     CppTools::ProjectInfo projectInfo = projectManager.open(

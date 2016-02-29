@@ -57,6 +57,7 @@ private:
     TestTreeModel *m_model;
     CppTools::Tests::TemporaryCopiedDir *m_tmpDir;
     bool m_isQt4;
+    bool m_originalAlwaysParse;
 };
 
 } // namespace Internal
