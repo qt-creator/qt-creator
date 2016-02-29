@@ -4,7 +4,7 @@
       <comment>C source code</comment>
       <sub-class-of type="text/plain"/>
       <alias type="text/x-c"/>
-      <glob pattern="*.c" case-sensitive="true"/>
+      <glob pattern="*.c" case-sensitive="true" weight="70"/>
     </mime-type>
 
     <mime-type type="text/vnd.nvidia.cuda.csrc">
@@ -25,14 +25,14 @@
     <mime-type type="text/x-c++hdr">
         <sub-class-of type="text/x-chdr"/>
         <comment>C++ header</comment>
-        <glob pattern="*.hh"/>
-        <glob pattern="*.hxx"/>
-        <glob pattern="*.h++"/>
-        <glob pattern="*.hpp"/>
-        <glob pattern="*.hp"/>
+        <glob pattern="*.hh" weight="70"/>
+        <glob pattern="*.hxx" weight="70"/>
+        <glob pattern="*.h++" weight="70"/>
+        <glob pattern="*.hpp" weight="70"/>
+        <glob pattern="*.hp" weight="70"/>
         <!-- Additions to freedesktop: -->
-        <glob pattern="*.h"/>
-        <glob pattern="*.H"/>
+        <glob pattern="*.h" weight="70"/>
+        <glob pattern="*.H" weight="70"/>
         <!-- Find include guards of header files without extension, for
              example, STL ones like <string>. Those can have a big initial
              comment exceeding 1000 chars, though. -->
@@ -47,19 +47,19 @@
         <comment>C++ source code</comment>
         <sub-class-of type="text/x-csrc"/>
         <comment>C++ source code</comment>
-        <glob pattern="*.cpp"/>
-        <glob pattern="*.cxx"/>
-        <glob pattern="*.cc"/>
-        <glob pattern="*.C" case-sensitive="true"/>
-        <glob pattern="*.c++"/>
+        <glob pattern="*.cpp" weight="70"/>
+        <glob pattern="*.cxx" weight="70"/>
+        <glob pattern="*.cc" weight="70"/>
+        <glob pattern="*.C" case-sensitive="true" weight="70"/>
+        <glob pattern="*.c++" weight="70"/>
         <!-- Additions to freedesktop: -->
-        <glob pattern="*.cp"/>
-        <glob pattern="*.inl"/>
-        <glob pattern="*.qdoc"/>
-        <glob pattern="*.tcc"/>
-        <glob pattern="*.tpp"/>
-        <glob pattern="*.t++"/>
-        <glob pattern="*.txx"/>
+        <glob pattern="*.cp" weight="70"/>
+        <glob pattern="*.inl" weight="70"/>
+        <glob pattern="*.qdoc" weight="70"/>
+        <glob pattern="*.tcc" weight="70"/>
+        <glob pattern="*.tpp" weight="70"/>
+        <glob pattern="*.t++" weight="70"/>
+        <glob pattern="*.txx" weight="70"/>
         <magic priority="30">
         <match value="-*- C++ -*-" type="string" offset="0:30"/>
         </magic>
@@ -71,7 +71,7 @@
     <expanded-acronym>Qt Meta Object Compiler</expanded-acronym>
     <!-- Fix to freedesktop: moc is C++ source -->
     <sub-class-of type="text/x-c++src"/>
-    <glob pattern="*.moc"/>
+    <glob pattern="*.moc" weight="70"/>
   </mime-type>
 
     <mime-type type="text/x-objc++src">

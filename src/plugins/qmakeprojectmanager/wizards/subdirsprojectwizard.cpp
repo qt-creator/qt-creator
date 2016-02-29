@@ -93,7 +93,7 @@ bool SubdirsProjectWizard::postGenerateFiles(const QWizard *w, const Core::Gener
         IWizardFactory::requestNewItemDialog(tr("New Subproject", "Title of dialog"),
                                              Utils::filtered(Core::IWizardFactory::allWizardFactories(),
                                                              [](Core::IWizardFactory *f) {
-                                                                 return f->supportedPlatforms().contains(Constants::QMAKEPROJECT_ID);
+                                                                 return f->supportedProjectTypes().contains(Constants::QMAKEPROJECT_ID);
                                                              }),
                                              wizard->parameters().projectPath(), map);
     } else {
