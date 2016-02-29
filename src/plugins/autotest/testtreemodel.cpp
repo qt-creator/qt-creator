@@ -561,14 +561,13 @@ void TestTreeModel::markForRemoval(const QString &filePath)
 
 void TestTreeModel::sweep()
 {
-    bool hasChanged = false;
     Type types[] = { AutoTest, QuickTest, GoogleTest };
     for (Type type : types) {
         TestTreeItem *root = rootItemForType(type);
-        hasChanged |= sweepChildren(root);
+        sweepChildren(root);
     }
-    if (hasChanged)
-        emit testTreeModelChanged();
+    // even if nothing has changed by the sweeping we might had parse which added or modified items
+    emit testTreeModelChanged();
 #ifdef WITH_TESTS
     if (m_parser->state() == TestCodeParser::Idle && !m_parser->furtherParsingExpected())
         emit sweepingDone();
