@@ -399,9 +399,8 @@ void CallgrindToolPrivate::updateCostFormat()
 void CallgrindToolPrivate::handleFilterProjectCosts()
 {
     Project *pro = ProjectTree::currentProject();
-    QTC_ASSERT(pro, return);
 
-    if (m_filterProjectCosts->isChecked()) {
+    if (pro && m_filterProjectCosts->isChecked()) {
         const QString projectDir = pro->projectDirectory().toString();
         m_proxyModel->setFilterBaseDir(projectDir);
     } else {
