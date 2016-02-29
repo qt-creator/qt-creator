@@ -30,6 +30,8 @@
 #include "analyzerbase_global.h"
 #include "analyzerconstants.h"
 
+#include "../debuggermainwindow.h"
+
 #include <coreplugin/id.h>
 
 #include <projectexplorer/projectexplorerconstants.h>
@@ -141,41 +143,6 @@ private:
     ToolStarter m_customToolStarter;
     ToolPreparer m_toolPreparer;
 };
-
-class ANALYZER_EXPORT Perspective
-{
-public:
-    enum SplitType { SplitVertical, SplitHorizontal, AddToTab };
-
-    struct Split {
-        Split() = default;
-        Split(Core::Id e, Core::Id d, SplitType t, bool v, Qt::DockWidgetArea a)
-            : existing(e), dockId(d), splitType(t), visibleByDefault(v), area(a)
-        {}
-        Core::Id existing;
-        Core::Id dockId;
-        SplitType splitType;
-        bool visibleByDefault;
-        Qt::DockWidgetArea area;
-    };
-    typedef QVector<Split> Splits;
-
-    Perspective(Core::Id id = Core::Id()) : m_id(id) {}
-
-    Core::Id id() const { return m_id; }
-    void addDock(Core::Id dockId, Core::Id existing, SplitType splitType,
-                 bool visibleByDefault = true,
-                 Qt::DockWidgetArea area = Qt::BottomDockWidgetArea);
-
-    Splits splits() const { return m_splits; }
-    QList<Core::Id> docks() const { return m_docks; }
-
-private:
-    Core::Id m_id;
-    QList<Core::Id> m_docks;
-    Splits m_splits;
-};
-
 
 // FIXME: Merge with AnalyzerPlugin.
 class ANALYZER_EXPORT AnalyzerManager : public QObject

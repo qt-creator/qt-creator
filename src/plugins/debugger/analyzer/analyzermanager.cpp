@@ -31,6 +31,8 @@
 #include "analyzerruncontrol.h"
 #include "../debuggerplugin.h"
 
+#include "../debuggermainwindow.h"
+
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
@@ -70,8 +72,8 @@
 #include <QMenu>
 #include <QPointer>
 #include <QPushButton>
-#include <QSettings>
 #include <QStackedWidget>
+#include <QSettings>
 #include <QToolButton>
 #include <QVBoxLayout>
 #include <QVariant>
@@ -81,6 +83,8 @@ using namespace Utils;
 using namespace Core::Constants;
 using namespace Analyzer::Constants;
 using namespace ProjectExplorer;
+using namespace Debugger;
+using namespace Debugger::Internal;
 
 namespace Analyzer {
 
@@ -250,8 +254,6 @@ class AnalyzerManagerPrivate : public QObject
 {
     Q_DECLARE_TR_FUNCTIONS(Analyzer::AnalyzerManager)
 public:
-    typedef QHash<QString, QVariant> FancyMainWindowSettings;
-
     AnalyzerManagerPrivate(AnalyzerManager *qq);
     ~AnalyzerManagerPrivate();
 
@@ -273,50 +275,34 @@ public:
     void selectAction(Id actionId);
     void handleToolStarted();
     void handleToolFinished();
-    void savePerspective(Id perspectiveId);
-    void restorePerspective(Id perspectiveId, bool fromStoredSettings);
     void modeChanged(IMode *mode);
     void resetLayout();
     void updateRunActions();
     const ActionDescription *findAction(Id actionId) const;
-    const Perspective *findPerspective(Id perspectiveId) const;
     const Id currentPerspectiveId() const;
 
 public:
     AnalyzerManager *q;
     Internal::AnalyzerMode *m_mode = 0;
     bool m_isRunning = false;
-    FancyMainWindow *m_mainWindow = 0;
     Core::Id m_currentActionId;
     QHash<Id, QAction *> m_actions;
     QList<ActionDescription> m_descriptions;
     QAction *m_startAction = 0;
     QAction *m_stopAction = 0;
     ActionContainer *m_menu = 0;
-    QComboBox *m_toolBox;
-    QStackedWidget *m_controlsStackWidget;
-    QStackedWidget *m_statusLabelsStackWidget;
-    QHash<Id, QDockWidget *> m_dockForDockId;
-    QList<Perspective> m_perspectives;
-    QHash<Id, QWidget *> m_controlsWidgetForPerspective;
-    QHash<Id, StatusLabel *> m_statusLabelForPerspective;
-    QSet<Id> m_defaultSettings;
 
-    // list of dock widgets to prevent memory leak
-    typedef QPointer<QDockWidget> DockPtr;
-    QList<DockPtr> m_dockWidgets;
+    MainWindowBase *m_mainWindow;
 };
 
 AnalyzerManagerPrivate::AnalyzerManagerPrivate(AnalyzerManager *qq):
-    q(qq),
-    m_toolBox(new QComboBox),
-    m_controlsStackWidget(new QStackedWidget),
-    m_statusLabelsStackWidget(new QStackedWidget)
+    q(qq), m_mainWindow(new MainWindowBase)
 {
-    m_toolBox->setObjectName(QLatin1String("AnalyzerManagerToolBox"));
-    m_toolBox->insertSeparator(0);
-    connect(m_toolBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, [this](int item) {
-        selectAction(Id::fromSetting(m_toolBox->itemData(item)));
+    QComboBox *toolBox = m_mainWindow->toolBox();
+    toolBox->setObjectName(QLatin1String("AnalyzerManagerToolBox"));
+    toolBox->insertSeparator(0);
+    connect(toolBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, [this, toolBox](int item) {
+        selectAction(Id::fromSetting(toolBox->itemData(item)));
     });
 
     setupActions();
@@ -327,12 +313,6 @@ AnalyzerManagerPrivate::AnalyzerManagerPrivate(AnalyzerManager *qq):
 
 AnalyzerManagerPrivate::~AnalyzerManagerPrivate()
 {
-    // as we have to setParent(0) on dock widget that are not selected,
-    // we keep track of all and make sure we don't leak any
-    foreach (const DockPtr &ptr, m_dockWidgets) {
-        if (ptr)
-            delete ptr.data();
-    }
 }
 
 void AnalyzerManagerPrivate::setupActions()
@@ -436,12 +416,12 @@ static QToolButton *toolButton(QAction *action)
 
 void AnalyzerManagerPrivate::createModeMainWindow()
 {
-    m_mainWindow = new FancyMainWindow();
     m_mainWindow->setObjectName(QLatin1String("AnalyzerManagerMainWindow"));
-    m_mainWindow->setDocumentMode(true);
-    m_mainWindow->setDockNestingEnabled(true);
-    m_mainWindow->setDockActionsVisible(false);
-    connect(m_mainWindow, &FancyMainWindow::resetLayout, this, &AnalyzerManagerPrivate::resetLayout);
+    m_mainWindow->setSettingsName(QLatin1String("AnalyzerViewSettings_"));
+    m_mainWindow->setLastSettingsName(QLatin1String(Internal::LAST_ACTIVE_TOOL));
+
+    connect(m_mainWindow, &FancyMainWindow::resetLayout,
+            this, &AnalyzerManagerPrivate::resetLayout);
 
     auto editorHolderLayout = new QVBoxLayout;
     editorHolderLayout->setMargin(0);
@@ -467,9 +447,9 @@ void AnalyzerManagerPrivate::createModeMainWindow()
     analyzeToolBarLayout->addWidget(toolButton(m_startAction));
     analyzeToolBarLayout->addWidget(toolButton(m_stopAction));
     analyzeToolBarLayout->addWidget(new StyledSeparator);
-    analyzeToolBarLayout->addWidget(m_toolBox);
-    analyzeToolBarLayout->addWidget(m_controlsStackWidget);
-    analyzeToolBarLayout->addWidget(m_statusLabelsStackWidget);
+    analyzeToolBarLayout->addWidget(m_mainWindow->toolBox());
+    analyzeToolBarLayout->addWidget(m_mainWindow->controlsStack());
+    analyzeToolBarLayout->addWidget(m_mainWindow->statusLabelsStack());
     analyzeToolBarLayout->addStretch();
 
     auto dock = new QDockWidget(tr("Analyzer Toolbar"));
@@ -552,14 +532,6 @@ const ActionDescription *AnalyzerManagerPrivate::findAction(Id actionId) const
     return 0;
 }
 
-const Perspective *AnalyzerManagerPrivate::findPerspective(Id perspectiveId) const
-{
-    foreach (const Perspective &perspective, m_perspectives)
-        if (perspective.id() == perspectiveId)
-            return &perspective;
-    return 0;
-}
-
 const Id AnalyzerManagerPrivate::currentPerspectiveId() const
 {
     const ActionDescription *action = findAction(m_currentActionId);
@@ -575,41 +547,18 @@ void AnalyzerManagerPrivate::selectAction(Id actionId)
 
     // Clean up old tool.
     Id currentPerspective = currentPerspectiveId();
-    if (currentPerspective.isValid()) {
-        savePerspective(currentPerspective);
-        const Perspective *perspective = findPerspective(currentPerspective);
-        QTC_ASSERT(perspective, return);
-        foreach (Id dockId, perspective->docks()) {
-            QDockWidget *dockWidget = m_dockForDockId.value(dockId);
-            QTC_ASSERT(dockWidget, continue);
-            m_mainWindow->removeDockWidget(dockWidget);
-            dockWidget->hide();
-            // Prevent saveState storing the data of the wrong children.
-            dockWidget->setParent(0);
-        }
-    }
+    m_mainWindow->closePerspective(currentPerspective);
 
     // Now change the tool.
     m_currentActionId = actionId;
 
-    Id perspectiveId = desc->perspectiveId();
-    if (!m_defaultSettings.contains(perspectiveId)) {
-        QWidget *widget = desc->createWidget();
-        QTC_CHECK(widget);
-        m_defaultSettings.insert(perspectiveId);
-        QTC_CHECK(!m_controlsWidgetForPerspective.contains(perspectiveId));
-        m_controlsWidgetForPerspective[perspectiveId] = widget;
-        m_controlsStackWidget->addWidget(widget);
-        StatusLabel * const toolStatusLabel = new StatusLabel;
-        m_statusLabelForPerspective[perspectiveId] = toolStatusLabel;
-        m_statusLabelsStackWidget->addWidget(toolStatusLabel);
-    }
+    m_mainWindow->restorePerspective(desc->perspectiveId(),
+                                     [desc] { return desc->createWidget(); },
+                                     true);
 
-    restorePerspective(desc->perspectiveId(), true);
-
-    const int toolboxIndex = m_toolBox->findText(desc->text());
+    const int toolboxIndex = m_mainWindow->toolBox()->findText(desc->text());
     QTC_ASSERT(toolboxIndex >= 0, return);
-    m_toolBox->setCurrentIndex(toolboxIndex);
+    m_mainWindow->toolBox()->setCurrentIndex(toolboxIndex);
 
     updateRunActions();
 }
@@ -625,15 +574,15 @@ void AnalyzerManagerPrivate::addAction(const ActionDescription &desc)
 
     int index = -1;
     if (desc.menuGroup() == Constants::G_ANALYZER_REMOTE_TOOLS) {
-        index = m_toolBox->count();
+        index = m_mainWindow->toolBox()->count();
     } else if (desc.menuGroup() == Constants::G_ANALYZER_TOOLS) {
-        for (int i = m_toolBox->count(); --i >= 0; )
-            if (m_toolBox->itemText(i).isEmpty())
+        for (int i = m_mainWindow->toolBox()->count(); --i >= 0; )
+            if (m_mainWindow->toolBox()->itemText(i).isEmpty())
                 index = i;
     }
 
     if (index >= 0)
-        m_toolBox->insertItem(index, desc.text(), desc.actionId().toSetting());
+        m_mainWindow->toolBox()->insertItem(index, desc.text(), desc.actionId().toSetting());
 
     Id menuGroup = desc.menuGroup();
     if (menuGroup.isValid()) {
@@ -661,63 +610,6 @@ void AnalyzerManagerPrivate::handleToolFinished()
     updateRunActions();
 }
 
-void AnalyzerManagerPrivate::restorePerspective(Id perspectiveId, bool fromStoredSettings)
-{
-    QTC_ASSERT(m_mainWindow, return);
-    if (!perspectiveId.isValid())
-        return;
-
-    const Perspective *perspective = findPerspective(perspectiveId);
-    QTC_ASSERT(perspective, return);
-
-    foreach (const Perspective::Split &split, perspective->splits()) {
-        QDockWidget *dock = m_dockForDockId.value(split.dockId);
-        m_mainWindow->addDockWidget(split.area, dock);
-        QDockWidget *existing = m_dockForDockId.value(split.existing);
-        if (!existing && split.area == Qt::BottomDockWidgetArea)
-            existing = m_mainWindow->toolBarDockWidget();
-        if (existing) {
-            switch (split.splitType) {
-            case Perspective::AddToTab:
-                m_mainWindow->tabifyDockWidget(existing, dock);
-                break;
-            case Perspective::SplitHorizontal:
-                m_mainWindow->splitDockWidget(existing, dock, Qt::Horizontal);
-                break;
-            case Perspective::SplitVertical:
-                m_mainWindow->splitDockWidget(existing, dock, Qt::Vertical);
-                break;
-            }
-        }
-        if (!split.visibleByDefault)
-            dock->hide();
-    }
-
-    if (fromStoredSettings) {
-        QSettings *settings = ICore::settings();
-        settings->beginGroup(QLatin1String("AnalyzerViewSettings_") + perspectiveId.toString());
-        if (settings->value(QLatin1String("ToolSettingsSaved"), false).toBool())
-            m_mainWindow->restoreSettings(settings);
-        settings->endGroup();
-    }
-
-    QTC_CHECK(m_controlsWidgetForPerspective.contains(perspectiveId));
-    m_controlsStackWidget->setCurrentWidget(m_controlsWidgetForPerspective.value(perspectiveId));
-    m_statusLabelsStackWidget->setCurrentWidget(m_statusLabelForPerspective.value(perspectiveId));
-}
-
-void AnalyzerManagerPrivate::savePerspective(Id perspectiveId)
-{
-    QTC_ASSERT(m_mainWindow, return);
-
-    QSettings *settings = ICore::settings();
-    settings->beginGroup(QLatin1String("AnalyzerViewSettings_") + perspectiveId.toString());
-    m_mainWindow->saveSettings(settings);
-    settings->setValue(QLatin1String("ToolSettingsSaved"), true);
-    settings->endGroup();
-    settings->setValue(QLatin1String(Internal::LAST_ACTIVE_TOOL), perspectiveId.toString());
-}
-
 void AnalyzerManagerPrivate::updateRunActions()
 {
     QString disabledReason;
@@ -731,7 +623,7 @@ void AnalyzerManagerPrivate::updateRunActions()
 
     m_startAction->setEnabled(enabled);
     m_startAction->setToolTip(disabledReason);
-    m_toolBox->setEnabled(!m_isRunning);
+    m_mainWindow->toolBox()->setEnabled(!m_isRunning);
     m_stopAction->setEnabled(m_isRunning);
 
     foreach (const ActionDescription &desc, m_descriptions) {
@@ -764,7 +656,7 @@ AnalyzerManager::~AnalyzerManager()
 
 void AnalyzerManager::shutdown()
 {
-    d->savePerspective(d->currentPerspectiveId());
+    d->m_mainWindow->savePerspective(d->currentPerspectiveId());
 }
 
 void AnalyzerManager::addAction(const ActionDescription &desc)
@@ -775,12 +667,11 @@ void AnalyzerManager::addAction(const ActionDescription &desc)
 QDockWidget *AnalyzerManager::createDockWidget(QWidget *widget, Id dockId)
 {
     QTC_ASSERT(!widget->objectName().isEmpty(), return 0);
-    QDockWidget *dockWidget = d->m_mainWindow->addDockForWidget(widget);
-    d->m_dockWidgets.append(AnalyzerManagerPrivate::DockPtr(dockWidget));
-    d->m_dockForDockId[dockId] = dockWidget;
+    QDockWidget *dockWidget = d->m_mainWindow->createDockWidget(widget, dockId);
 
     QAction *toggleViewAction = dockWidget->toggleViewAction();
     toggleViewAction->setText(dockWidget->windowTitle());
+
     Command *cmd = ActionManager::registerAction(toggleViewAction,
         Id("Analyzer.").withSuffix(dockWidget->objectName()));
     cmd->setAttribute(Command::CA_Hide);
@@ -800,7 +691,7 @@ void Perspective::addDock(Id dockId, Id existing, SplitType splitType,
 
 void AnalyzerManager::addPerspective(const Perspective &perspective)
 {
-    d->m_perspectives.append(perspective);
+    d->m_mainWindow->addPerspective(perspective);
 }
 
 void AnalyzerManager::selectAction(Id actionId, bool alsoRunIt)
@@ -819,19 +710,19 @@ void AnalyzerManager::enableMainWindow(bool on)
 
 void AnalyzerManagerPrivate::resetLayout()
 {
-    restorePerspective(currentPerspectiveId(), false);
+    d->m_mainWindow->restorePerspective(currentPerspectiveId(),
+                                        std::function<QWidget *()>(),
+                                        false);
 }
 
 void AnalyzerManager::showStatusMessage(Id perspective, const QString &message, int timeoutMS)
 {
-    StatusLabel * const statusLabel = d->m_statusLabelForPerspective.value(perspective);
-    QTC_ASSERT(statusLabel, return);
-    statusLabel->showStatusMessage(message, timeoutMS);
+    d->m_mainWindow->showStatusMessage(perspective, message, timeoutMS);
 }
 
 void AnalyzerManager::showPermanentStatusMessage(Id perspective, const QString &message)
 {
-    showStatusMessage(perspective, message, -1);
+    d->m_mainWindow->showStatusMessage(perspective, message, -1);
 }
 
 void AnalyzerManager::showMode()
