@@ -68,8 +68,6 @@ public:
     void setCMakeExecutable(const Utils::FileName &executable);
 
     Utils::FileName cmakeExecutable() const;
-    bool hasCodeBlocksMsvcGenerator() const;
-    bool hasCodeBlocksNinjaGenerator() const;
     QStringList supportedGenerators() const;
     TextEditor::Keywords keywords();
 
