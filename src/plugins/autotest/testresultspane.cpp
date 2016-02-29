@@ -35,6 +35,7 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/coreicons.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/find/itemviewfind.h>
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
 
@@ -115,7 +116,7 @@ TestResultsPane::TestResultsPane(QObject *parent) :
     TestResultDelegate *trd = new TestResultDelegate(this);
     m_treeView->setItemDelegate(trd);
 
-    outputLayout->addWidget(m_treeView);
+    outputLayout->addWidget(Core::ItemViewFind::createSearchableWrapper(m_treeView));
 
     createToolButtons();
 
