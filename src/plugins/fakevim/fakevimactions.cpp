@@ -25,7 +25,6 @@
 
 #include "fakevimactions.h"
 #include "fakevimhandler.h"
-#include "fakevimtr.h"
 
 // Please do not add any direct dependencies to other Qt Creator code  here.
 // Instead emit signals and let the FakeVimPlugin channel the information to
@@ -37,73 +36,92 @@
 
 #include <QDebug>
 
-#ifdef FAKEVIM_STANDALONE
-using namespace FakeVim::Internal::Utils;
-#else
 using namespace Utils;
-#endif
-
-///////////////////////////////////////////////////////////////////////
-//
-// FakeVimSettings
-//
-///////////////////////////////////////////////////////////////////////
 
 namespace FakeVim {
 namespace Internal {
 
 typedef QLatin1String _;
 
-#ifdef FAKEVIM_STANDALONE
-namespace Utils {
-
-SavedAction::SavedAction(QObject *parent)
-    : QObject(parent)
+DummyAction::DummyAction(void *)
 {
 }
 
-void SavedAction::setValue(const QVariant &value)
+void DummyAction::setValue(const QVariant &value)
 {
     m_value = value;
 }
 
-QVariant SavedAction::value() const
+QVariant DummyAction::value() const
 {
     return m_value;
 }
 
-void SavedAction::setDefaultValue(const QVariant &value)
+void DummyAction::setDefaultValue(const QVariant &value)
 {
     m_defaultValue = value;
 }
 
-QVariant SavedAction::defaultValue() const
+QVariant DummyAction::defaultValue() const
 {
     return m_defaultValue;
 }
 
-void SavedAction::setSettingsKey(const QString &key)
+void DummyAction::setSettingsKey(const QString &group, const QString &key)
 {
+    m_settingsGroup = group;
     m_settingsKey = key;
 }
 
-QString SavedAction::settingsKey() const
+QString DummyAction::settingsKey() const
 {
     return m_settingsKey;
 }
 
-} // namespace Utils
-#endif // FAKEVIM_STANDALONE
-
 FakeVimSettings::FakeVimSettings()
-{}
+{
+    // Specific FakeVim settings
+    createAction(ConfigReadVimRc,  false,     _("ReadVimRc"));
+    createAction(ConfigVimRcPath,  QString(), _("VimRcPath"));
+#ifndef FAKEVIM_STANDALONE
+    createAction( ConfigUseFakeVim, false,     _("UseFakeVim"));
+    item(ConfigUseFakeVim)->setText(tr("Use Vim-style Editing"));
+    item(ConfigReadVimRc)->setText(tr("Read .vimrc"));
+    item(ConfigVimRcPath)->setText(tr("Path to .vimrc"));
+#endif
+    createAction(ConfigShowMarks,      false, _("ShowMarks"),      _("sm"));
+    createAction(ConfigPassControlKey, false, _("PassControlKey"), _("pck"));
+    createAction(ConfigPassKeys,       true,  _("PassKeys"),       _("pk"));
+
+    // Emulated Vsetting
+    createAction(ConfigStartOfLine,    true,  _("StartOfLine"),   _("sol"));
+    createAction(ConfigTabStop,        8,     _("TabStop"),       _("ts"));
+    createAction(ConfigSmartTab,       false, _("SmartTab"),      _("sta"));
+    createAction(ConfigHlSearch,       true,  _("HlSearch"),      _("hls"));
+    createAction(ConfigShiftWidth,     8,     _("ShiftWidth"),    _("sw"));
+    createAction(ConfigExpandTab,      false, _("ExpandTab"),     _("et"));
+    createAction(ConfigAutoIndent,     false, _("AutoIndent"),    _("ai"));
+    createAction(ConfigSmartIndent,    false, _("SmartIndent"),   _("si"));
+    createAction(ConfigIncSearch,      true,  _("IncSearch"),     _("is"));
+    createAction(ConfigUseCoreSearch,  false, _("UseCoreSearch"), _("ucs"));
+    createAction(ConfigSmartCase,      false, _("SmartCase"),     _("scs"));
+    createAction(ConfigIgnoreCase,     false, _("IgnoreCase"),    _("ic"));
+    createAction(ConfigWrapScan,       true,  _("WrapScan"),      _("ws"));
+    createAction(ConfigTildeOp,        false, _("TildeOp"),       _("top"));
+    createAction(ConfigShowCmd,        true,  _("ShowCmd"),       _("sc"));
+    createAction(ConfigRelativeNumber, false, _("RelativeNumber"),_("rnu"));
+    createAction(ConfigScrollOff,      0,     _("ScrollOff"),     _("so"));
+    createAction(ConfigBackspace,      _("indent,eol,start"), _("ConfigBackspace"), _("bs"));
+    createAction(ConfigIsKeyword,      _("@,48-57,_,192-255,a-z,A-Z"), _("IsKeyword"), _("isk"));
+    createAction(ConfigClipboard,      QString(), _("Clipboard"), _("cb"));
+}
 
 FakeVimSettings::~FakeVimSettings()
 {
     qDeleteAll(m_items);
 }
 
-void FakeVimSettings::insertItem(int code, SavedAction *item,
+void FakeVimSettings::insertItem(int code, FakeVimAction *item,
     const QString &longName, const QString &shortName)
 {
     QTC_ASSERT(!m_items.contains(code), qDebug() << code; return);
@@ -116,27 +134,25 @@ void FakeVimSettings::insertItem(int code, SavedAction *item,
         m_nameToCode[shortName] = code;
 }
 
-#ifndef FAKEVIM_STANDALONE
 void FakeVimSettings::readSettings(QSettings *settings)
 {
-    foreach (SavedAction *item, m_items)
+    foreach (FakeVimAction *item, m_items)
         item->readSettings(settings);
 }
 
 void FakeVimSettings::writeSettings(QSettings *settings)
 {
-    foreach (SavedAction *item, m_items)
+    foreach (FakeVimAction *item, m_items)
         item->writeSettings(settings);
 }
-#endif // FAKEVIM_STANDALONE
 
-SavedAction *FakeVimSettings::item(int code)
+FakeVimAction *FakeVimSettings::item(int code)
 {
     QTC_ASSERT(m_items.value(code, 0), qDebug() << "CODE: " << code; return 0);
     return m_items.value(code, 0);
 }
 
-SavedAction *FakeVimSettings::item(const QString &name)
+FakeVimAction *FakeVimSettings::item(const QString &name)
 {
     return m_items.value(m_nameToCode.value(name, -1), 0);
 }
@@ -145,81 +161,38 @@ QString FakeVimSettings::trySetValue(const QString &name, const QString &value)
 {
     int code = m_nameToCode.value(name, -1);
     if (code == -1)
-        return Tr::tr("Unknown option: %1").arg(name);
+        return tr("Unknown option: %1").arg(name);
     if (code == ConfigTabStop || code == ConfigShiftWidth) {
         if (value.toInt() <= 0)
-            return Tr::tr("Argument must be positive: %1=%2")
+            return tr("Argument must be positive: %1=%2")
                     .arg(name).arg(value);
     }
-    SavedAction *act = item(code);
+    FakeVimAction *act = item(code);
     if (!act)
-        return Tr::tr("Unknown option: %1").arg(name);
+        return tr("Unknown option: %1").arg(name);
     act->setValue(value);
     return QString();
 }
 
-SavedAction *createAction(FakeVimSettings *instance, int code, const QVariant &value,
-                          const QString &settingsKey = QString(),
-                          const QString &shortKey = QString())
+void FakeVimSettings::createAction(int code, const QVariant &value,
+                                   const QString &settingsKey,
+                                   const QString &shortKey)
 {
-    SavedAction *item = new SavedAction(instance);
+    FakeVimAction *item = new FakeVimAction(0);
     item->setValue(value);
-#ifndef FAKEVIM_STANDALONE
     item->setSettingsKey(_("FakeVim"), settingsKey);
     item->setDefaultValue(value);
-    item->setCheckable( value.canConvert<bool>() );
-#endif
-    instance->insertItem(code, item, settingsKey.toLower(), shortKey);
-    return item;
+    item->setCheckable(value.canConvert<bool>());
+    insertItem(code, item, settingsKey.toLower(), shortKey);
 }
 
 FakeVimSettings *theFakeVimSettings()
 {
-    static FakeVimSettings *s = 0;
-    if (s)
-        return s;
-
-    s = new FakeVimSettings;
-
-    // Specific FakeVim settings
-    createAction(s, ConfigReadVimRc,  false,     _("ReadVimRc"));
-    createAction(s, ConfigVimRcPath,  QString(), _("VimRcPath"));
-#ifndef FAKEVIM_STANDALONE
-    createAction(s, ConfigUseFakeVim, false,     _("UseFakeVim"));
-    s->item(ConfigUseFakeVim)->setText(Tr::tr("Use Vim-style Editing"));
-    s->item(ConfigReadVimRc)->setText(Tr::tr("Read .vimrc"));
-    s->item(ConfigVimRcPath)->setText(Tr::tr("Path to .vimrc"));
-#endif
-    createAction(s, ConfigShowMarks,      false, _("ShowMarks"),      _("sm"));
-    createAction(s, ConfigPassControlKey, false, _("PassControlKey"), _("pck"));
-    createAction(s, ConfigPassKeys,       true,  _("PassKeys"),       _("pk"));
-
-    // Emulated Vim setting
-    createAction(s, ConfigStartOfLine,    true,  _("StartOfLine"),   _("sol"));
-    createAction(s, ConfigTabStop,        8,     _("TabStop"),       _("ts"));
-    createAction(s, ConfigSmartTab,       false, _("SmartTab"),      _("sta"));
-    createAction(s, ConfigHlSearch,       true,  _("HlSearch"),      _("hls"));
-    createAction(s, ConfigShiftWidth,     8,     _("ShiftWidth"),    _("sw"));
-    createAction(s, ConfigExpandTab,      false, _("ExpandTab"),     _("et"));
-    createAction(s, ConfigAutoIndent,     false, _("AutoIndent"),    _("ai"));
-    createAction(s, ConfigSmartIndent,    false, _("SmartIndent"),   _("si"));
-    createAction(s, ConfigIncSearch,      true,  _("IncSearch"),     _("is"));
-    createAction(s, ConfigUseCoreSearch,  false, _("UseCoreSearch"), _("ucs"));
-    createAction(s, ConfigSmartCase,      false, _("SmartCase"),     _("scs"));
-    createAction(s, ConfigIgnoreCase,     false, _("IgnoreCase"),    _("ic"));
-    createAction(s, ConfigWrapScan,       true,  _("WrapScan"),      _("ws"));
-    createAction(s, ConfigTildeOp,        false, _("TildeOp"),       _("top"));
-    createAction(s, ConfigShowCmd,        true,  _("ShowCmd"),       _("sc"));
-    createAction(s, ConfigRelativeNumber, false, _("RelativeNumber"),_("rnu"));
-    createAction(s, ConfigScrollOff,      0,     _("ScrollOff"),     _("so"));
-    createAction(s, ConfigBackspace,      _("indent,eol,start"), _("ConfigBackspace"), _("bs"));
-    createAction(s, ConfigIsKeyword,      _("@,48-57,_,192-255,a-z,A-Z"), _("IsKeyword"), _("isk"));
-    createAction(s, ConfigClipboard,      QString(), _("Clipboard"), _("cb"));
-
-    return s;
+    static FakeVimSettings s;
+    return &s;
 }
 
-SavedAction *theFakeVimSetting(int code)
+FakeVimAction *theFakeVimSetting(int code)
 {
     return theFakeVimSettings()->item(code);
 }
