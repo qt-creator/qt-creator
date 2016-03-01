@@ -67,6 +67,7 @@ public:
     QbsRootProjectNode *rootProjectNode() const override;
 
     QStringList files(FilesMode fileMode) const override;
+    QStringList filesGeneratedFrom(const QString &sourceFile) const override;
 
     bool isProjectEditable() const;
     bool addFilesToProduct(QbsBaseProjectNode *node, const QStringList &filePaths,

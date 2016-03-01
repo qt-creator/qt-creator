@@ -183,6 +183,14 @@ QStringList QbsProject::files(Project::FilesMode fileMode) const
     return result.toList();
 }
 
+QStringList QbsProject::filesGeneratedFrom(const QString &sourceFile) const
+{
+    QStringList generated;
+    foreach (const qbs::ProductData &data, m_projectData.allProducts())
+         generated << m_qbsProject.generatedFiles(data, sourceFile, false);
+    return generated;
+}
+
 bool QbsProject::isProjectEditable() const
 {
     return m_qbsProject.isValid() && !isParsing() && !BuildManager::isBuilding();
@@ -788,7 +796,8 @@ void QbsProject::updateCppCodeModel()
                     for (auto i = factoriesBegin; i != factoriesEnd; ++i) {
                         if ((*i)->sourceTag() != tag)
                             continue;
-                        QStringList generated = filesGeneratedFrom(source.filePath());
+                        QStringList generated = m_qbsProject.generatedFiles(prd, source.filePath(),
+                                                                            false);
                         if (generated.isEmpty())
                             continue;
 
