@@ -195,7 +195,7 @@
 :Select a Git Commit.Show_QPushButton	{name='showButton' text='Show' type='QPushButton' visible='1' window=':Select a Git Commit_Git::Internal::ChangeSelectionDialog'}
 :Select a Git Commit.changeNumberEdit_Utils::CompletingLineEdit	{name='changeNumberEdit' type='Utils::CompletingLineEdit' visible='1' window=':Select a Git Commit_Git::Internal::ChangeSelectionDialog'}
 :Select a Git Commit.detailsText_QPlainTextEdit	{name='detailsText' type='QPlainTextEdit' visible='1' window=':Select a Git Commit_Git::Internal::ChangeSelectionDialog'}
-:Select a Git Commit.workingDirectoryEdit_QLineEdit	{name='workingDirectoryEdit' type='QLineEdit' visible='1' window=':Select a Git Commit_Git::Internal::ChangeSelectionDialog'}
+:Select a Git Commit.workingDirectoryEdit_QLineEdit	{type='Utils::FancyLineEdit' unnamed='1' visible='1' window=':Select a Git Commit_Git::Internal::ChangeSelectionDialog'}
 :Select a Git Commit_Git::Internal::ChangeSelectionDialog	{name='Git__Internal__ChangeSelectionDialog' type='Git::Internal::ChangeSelectionDialog' visible='1' windowTitle='Select a Git Commit'}
 :Select signal.signalList_QTreeWidget	{container=':Go to slot.Select signal_QGroupBox' name='signalList' type='QTreeWidget' visible='1'}
 :Send to Codepaster.Cancel_QPushButton	{text='Cancel' type='QPushButton' unnamed='1' visible='1' window=':Send to Codepaster_CodePaster::PasteView'}
