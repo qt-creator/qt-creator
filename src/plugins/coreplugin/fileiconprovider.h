@@ -43,6 +43,7 @@ CORE_EXPORT QIcon icon(const QFileInfo &info);
 CORE_EXPORT QIcon icon(QFileIconProvider::IconType type);
 
 // Register additional overlay icons
+CORE_EXPORT QPixmap overlayIcon(const QPixmap &baseIcon, const QIcon &overlayIcon);
 CORE_EXPORT QPixmap overlayIcon(QStyle::StandardPixmap baseIcon, const QIcon &overlayIcon, const QSize &size);
 CORE_EXPORT void registerIconOverlayForSuffix(const char *path, const char *suffix);
 CORE_EXPORT void registerIconOverlayForMimeType(const char *path, const char *mimeType);

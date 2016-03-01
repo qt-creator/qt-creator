@@ -66,6 +66,7 @@
 #include <proparser/prowriter.h>
 #include <proparser/qmakevfs.h>
 
+#include <QApplication>
 #include <QDebug>
 #include <QDir>
 #include <QFile>
@@ -155,16 +156,14 @@ QmakeNodeStaticData::QmakeNodeStaticData()
     // Overlay the SP_DirIcon with the custom icons
     const QSize desiredSize = QSize(16, 16);
 
+    const QPixmap dirPixmap = qApp->style()->standardIcon(QStyle::SP_DirIcon).pixmap(desiredSize);
     for (unsigned i = 0 ; i < count; ++i) {
         QIcon overlayIcon;
         const QString iconFile = creatorTheme()->imageFile(fileTypeDataStorage[i].themeImage,
                                                            QString::fromLatin1(fileTypeDataStorage[i].icon));
         overlayIcon = QIcon(iconFile);
-        const QPixmap folderPixmap =
-                Core::FileIconProvider::overlayIcon(QStyle::SP_DirIcon,
-                                                    overlayIcon, desiredSize);
         QIcon folderIcon;
-        folderIcon.addPixmap(folderPixmap);
+        folderIcon.addPixmap(FileIconProvider::overlayIcon(dirPixmap, overlayIcon));
         const QString desc = QCoreApplication::translate("QmakeProjectManager::QmakePriFileNode", fileTypeDataStorage[i].typeName);
         const QString filter = QString::fromUtf8(fileTypeDataStorage[i].addFileFilter);
         fileTypeData.push_back(QmakeNodeStaticData::FileTypeData(fileTypeDataStorage[i].type,
@@ -174,9 +173,7 @@ QmakeNodeStaticData::QmakeNodeStaticData()
     const QString fileName = creatorTheme()->imageFile(Theme::ProjectFileIcon,
                                                        QLatin1String(":/qtsupport/images/qt_project.png"));
     const QIcon projectBaseIcon(fileName);
-    const QPixmap projectPixmap = Core::FileIconProvider::overlayIcon(QStyle::SP_DirIcon,
-                                                                      projectBaseIcon,
-                                                                      desiredSize);
+    const QPixmap projectPixmap = FileIconProvider::overlayIcon(dirPixmap, projectBaseIcon);
     projectIcon.addPixmap(projectPixmap);
 
     qAddPostRoutine(clearQmakeNodeStaticData);
