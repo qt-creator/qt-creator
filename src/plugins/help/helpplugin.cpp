@@ -593,14 +593,9 @@ void HelpPlugin::showContextHelp()
             .arg(contextHelpId)
             .arg(creatorTheme()->color(Theme::TextColorNormal).name()));
     } else {
-        const QUrl &oldSource = viewer->source();
-        if (source != oldSource) {
-            viewer->stop();
-            viewer->setSource(source); // triggers loadFinished which triggers id highlighting
-        } else {
-            viewer->scrollToAnchor(source.fragment());
-        }
         viewer->setFocus();
+        viewer->stop();
+        viewer->setSource(source); // triggers loadFinished which triggers id highlighting
         ICore::raiseWindow(viewer);
     }
 }

@@ -38,6 +38,8 @@
 #include <QHelpEngine>
 #include <QKeyEvent>
 #include <QMenu>
+#include <QScrollBar>
+#include <QTimer>
 #include <QToolTip>
 #include <QVBoxLayout>
 
@@ -145,12 +147,13 @@ void TextBrowserHelpViewer::setSource(const QUrl &url)
 
     slotLoadStarted();
     m_textBrowser->setSource(url);
-    slotLoadFinished();
-}
-
-void TextBrowserHelpViewer::scrollToAnchor(const QString &anchor)
-{
-    m_textBrowser->scrollToAnchor(anchor);
+    QTimer::singleShot(0, this, [this, url]() {
+        if (!url.fragment().isEmpty())
+            m_textBrowser->scrollToAnchor(url.fragment());
+        if (QScrollBar *hScrollBar = m_textBrowser->horizontalScrollBar())
+            hScrollBar->setValue(0);
+        slotLoadFinished();
+    });
 }
 
 void TextBrowserHelpViewer::setHtml(const QString &html)

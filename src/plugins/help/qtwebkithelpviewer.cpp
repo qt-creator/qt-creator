@@ -467,14 +467,10 @@ void QtWebKitHelpViewer::setSource(const QUrl &url)
     QUrl newWithoutFragment = url;
     newWithoutFragment.setFragment(QString());
     if (oldWithoutFragment == newWithoutFragment) {
+        m_webView->page()->mainFrame()->scrollToAnchor(url.fragment());
         slotLoadStarted();
         slotLoadFinished();
     }
-}
-
-void QtWebKitHelpViewer::scrollToAnchor(const QString &anchor)
-{
-    m_webView->page()->mainFrame()->scrollToAnchor(anchor);
 }
 
 void QtWebKitHelpViewer::highlightId(const QString &id)
