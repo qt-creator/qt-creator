@@ -783,8 +783,7 @@ void QbsProject::updateCppCodeModel()
                     for (auto i = factoriesBegin; i != factoriesEnd; ++i) {
                         if ((*i)->sourceTag() != tag)
                             continue;
-                        QStringList generated = qbsProject().generatedFiles(prd, source.filePath(),
-                                                                            QStringList());
+                        QStringList generated = filesGeneratedFrom(source.filePath());
                         if (generated.isEmpty())
                             continue;
 
