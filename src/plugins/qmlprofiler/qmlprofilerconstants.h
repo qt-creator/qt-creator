@@ -41,10 +41,9 @@ const char ANALYZER[] = "Analyzer";
 
 const char TraceFileExtension[] = ".qtd";
 
-const char QmlProfilerTimelineDock[] = "QmlProfilerTimelineDock";
-
-const char QmlProfilerPerspective[] = "QmlProfilerPerspective";
-const char QmlProfilerLocalActionId[] = "QmlProfiler.Local";
+const char QmlProfilerPerspectiveId[]  = "QmlProfiler.Perspective";
+const char QmlProfilerTimelineDockId[] = "QmlProfiler.Timeline.Dock";
+const char QmlProfilerLocalActionId[]  = "QmlProfiler.Local";
 const char QmlProfilerRemoteActionId[] = "QmlProfiler.Remote";
 
 const char QmlProfilerLoadActionId[] =

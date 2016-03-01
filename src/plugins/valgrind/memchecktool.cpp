@@ -348,11 +348,11 @@ QWidget *MemcheckTool::createWidgets()
     m_errorView->setObjectName(QLatin1String("Valgrind.MemcheckTool.ErrorView"));
     m_errorView->setWindowTitle(tr("Memory Issues"));
 
-    AnalyzerManager::createDockWidget(m_errorView, MemcheckDock);
+    AnalyzerManager::registerDockWidget(MemcheckErrorDockId, m_errorView);
 
-    Perspective perspective(MemcheckPerspective);
-    perspective.addDock(MemcheckDock, Core::Id(), Perspective::SplitVertical);
-    AnalyzerManager::addPerspective(perspective);
+    AnalyzerManager::registerPerspective(MemcheckPerspectiveId, {
+        { MemcheckErrorDockId, Core::Id(), Perspective::SplitVertical }
+    });
 
     connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::updateRunActions,
             this, &MemcheckTool::maybeActiveRunConfigurationChanged);
@@ -557,7 +557,7 @@ int MemcheckTool::updateUiAfterFinishedHelper()
 void MemcheckTool::engineFinished()
 {
     const int issuesFound = updateUiAfterFinishedHelper();
-    AnalyzerManager::showPermanentStatusMessage(MemcheckPerspective, issuesFound > 0
+    AnalyzerManager::showPermanentStatusMessage(MemcheckPerspectiveId, issuesFound > 0
         ? AnalyzerManager::tr("Memory Analyzer Tool finished, %n issues were found.", 0, issuesFound)
         : AnalyzerManager::tr("Memory Analyzer Tool finished, no issues were found."));
 }
@@ -565,7 +565,7 @@ void MemcheckTool::engineFinished()
 void MemcheckTool::loadingExternalXmlLogFileFinished()
 {
     const int issuesFound = updateUiAfterFinishedHelper();
-    AnalyzerManager::showPermanentStatusMessage(MemcheckPerspective, issuesFound > 0
+    AnalyzerManager::showPermanentStatusMessage(MemcheckPerspectiveId, issuesFound > 0
         ? AnalyzerManager::tr("Log file processed, %n issues were found.", 0, issuesFound)
         : AnalyzerManager::tr("Log file processed, no issues were found."));
 }

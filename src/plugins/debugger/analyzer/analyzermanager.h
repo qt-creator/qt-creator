@@ -85,9 +85,6 @@ public:
     Core::Id menuGroup() const { return m_menuGroup; }
     void setMenuGroup(Core::Id menuGroup) { m_menuGroup = menuGroup; }
 
-    Core::Id actionId() const { return m_actionId; }
-    void setActionId(Core::Id id) { m_actionId = id; }
-
     Core::Id perspectiveId() const { return m_perspective; }
     void setPerspectiveId(Core::Id id) { m_perspective = id; }
     void setToolMode(QFlags<ToolMode> mode) { m_toolMode = mode; }
@@ -95,13 +92,6 @@ public:
     Core::Id runMode() const { return m_runMode; }
     void setRunMode(Core::Id mode) { m_runMode = mode; }
     bool isRunnable(QString *reason = 0) const;
-
-    /// Creates all widgets used by the tool.
-    /// Returns a control widget which will be shown in the status bar when
-    /// this tool is selected.
-    typedef std::function<QWidget *()> WidgetCreator;
-    QWidget *createWidget() const { return m_widgetCreator(); }
-    void setWidgetCreator(const WidgetCreator &creator) { m_widgetCreator = creator; }
 
     /// Returns a new engine for the given start parameters.
     /// Called each time the tool is launched.
@@ -126,19 +116,13 @@ public:
     QString text() const { return m_text; }
     void setText(const QString &text) { m_text = text; }
 
-    bool enabled() const { return m_enabled; }
-    void setEnabled(bool enabled) { m_enabled = enabled; }
-
 private:
-    bool m_enabled = false;
     QString m_text;
     QString m_toolTip;
     Core::Id m_menuGroup;
-    Core::Id m_actionId;
     Core::Id m_perspective;
     QFlags<ToolMode> m_toolMode = AnyMode;
     Core::Id m_runMode;
-    WidgetCreator m_widgetCreator;
     RunControlCreator m_runControlCreator;
     ToolStarter m_customToolStarter;
     ToolPreparer m_toolPreparer;
@@ -156,11 +140,10 @@ public:
     static void shutdown();
 
     // Register a tool for a given start mode.
-    static void addAction(const ActionDescription &desc);
-    static void addPerspective(const Perspective &perspective);
-
-    // Dockwidgets are registered to the main window.
-    static QDockWidget *createDockWidget(QWidget *widget, Core::Id dockId);
+    static void registerAction(Core::Id actionId, const ActionDescription &desc);
+    static void registerPerspective(Core::Id perspectiveId, const Perspective &perspective);
+    static void registerDockWidget(Core::Id dockId, QWidget *widget);
+    static void registerToolbar(Core::Id toolbarId, QWidget *widget);
 
     static void enableMainWindow(bool on);
 

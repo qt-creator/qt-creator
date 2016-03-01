@@ -90,12 +90,13 @@ void QmlProfilerViewManager::createViews()
             this, &QmlProfilerViewManager::typeSelected);
     connect(this, &QmlProfilerViewManager::typeSelected,
             d->traceView, &QmlProfilerTraceView::selectByTypeId);
-    AnalyzerManager::createDockWidget(d->traceView, Constants::QmlProfilerTimelineDock);
+    AnalyzerManager::registerDockWidget(Constants::QmlProfilerTimelineDockId, d->traceView);
 
     new QmlProfilerStateWidget(d->profilerState, d->profilerModelManager, d->traceView);
 
-    Perspective perspective(Constants::QmlProfilerPerspective);
-    perspective.addDock(Constants::QmlProfilerTimelineDock, Core::Id(), Perspective::SplitVertical);
+    Perspective perspective;
+    perspective.addSplit({Constants::QmlProfilerTimelineDockId, Core::Id(),
+                          Perspective::SplitVertical});
 
     d->eventsViews << new QmlProfilerStatisticsView(0, d->profilerModelManager);
     if (d->eventsViewFactory)
@@ -104,7 +105,7 @@ void QmlProfilerViewManager::createViews()
     // Clear settings if the new views aren't there yet. Otherwise we get glitches
     QSettings *settings = Core::ICore::settings();
     settings->beginGroup(QLatin1String("AnalyzerViewSettings_") +
-                         QLatin1String(QmlProfiler::Constants::QmlProfilerPerspective));
+                         QLatin1String(QmlProfiler::Constants::QmlProfilerPerspectiveId));
 
     foreach (QmlProfilerEventsView *view, d->eventsViews) {
         connect(view, &QmlProfilerEventsView::typeSelected,
@@ -118,14 +119,14 @@ void QmlProfilerViewManager::createViews()
         connect(view, &QmlProfilerEventsView::showFullRange,
                 this, [this](){restrictEventsToRange(-1, -1);});
         Core::Id dockId = Core::Id::fromString(view->objectName());
-        QDockWidget *eventsDock = AnalyzerManager::createDockWidget(view, dockId);
-        perspective.addDock(dockId, Constants::QmlProfilerTimelineDock, Perspective::AddToTab);
+        AnalyzerManager::registerDockWidget(dockId, view);
+        perspective.addSplit({dockId, Constants::QmlProfilerTimelineDockId, Perspective::AddToTab});
         new QmlProfilerStateWidget(d->profilerState, d->profilerModelManager, view);
 
-        if (!settings->contains(eventsDock->objectName()))
+        if (!settings->contains(view->parent()->objectName())) // parent() is QDockWidget.
             settings->remove(QString());
     }
-    AnalyzerManager::addPerspective(perspective);
+    AnalyzerManager::registerPerspective(Constants::QmlProfilerPerspectiveId, perspective);
 
     settings->endGroup();
     QTC_ASSERT(qobject_cast<QDockWidget *>(d->traceView->parentWidget()), return);

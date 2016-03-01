@@ -38,11 +38,10 @@ class ClangStaticAnalyzerDiagnosticFilterModel;
 class ClangStaticAnalyzerDiagnosticModel;
 class ClangStaticAnalyzerDiagnosticView;
 class Diagnostic;
-class DummyRunConfiguration;
 
-const char ClangStaticAnalyzerPerspective[] = "ClangStaticAnalyzerPerspective";
-const char ClangStaticAnalyzerAction[] = "ClangStaticAnalyzerAction";
-const char ClangStaticAnalyzerDock[] = "ClangStaticAnalyzerDock";
+const char ClangStaticAnalyzerPerspectiveId[] = "ClangStaticAnalyzer.Perspective";
+const char ClangStaticAnalyzerActionId[]      = "ClangStaticAnalyzer.Action";
+const char ClangStaticAnalyzerDockId[]        = "ClangStaticAnalyzer.Dock";
 
 class ClangStaticAnalyzerTool : public QObject
 {

@@ -49,11 +49,19 @@ bool QmlProfilerPlugin::initialize(const QStringList &arguments, QString *errorS
 {
     Q_UNUSED(arguments)
 
+    QmlProfilerPlugin::instance = this;
+
     if (!Utils::HostOsInfo::canCreateOpenGLContext(errorString))
         return false;
 
+    return true;
+}
+
+void QmlProfilerPlugin::extensionsInitialized()
+{
+    factory = ExtensionSystem::PluginManager::getObject<QmlProfilerTimelineModelFactory>();
+
     auto tool = new QmlProfilerTool(this);
-    auto widgetCreator = [tool] { return tool->createWidgets(); };
     auto runControlCreator = [tool](ProjectExplorer::RunConfiguration *runConfiguration, Core::Id) {
         return tool->createRunControl(runConfiguration);
     };
@@ -65,20 +73,16 @@ bool QmlProfilerPlugin::initialize(const QStringList &arguments, QString *errorS
     ActionDescription desc;
     desc.setText(tr("QML Profiler"));
     desc.setToolTip(description);
-    desc.setActionId(Constants::QmlProfilerLocalActionId);
-    desc.setPerspectiveId(Constants::QmlProfilerPerspective);
-    desc.setWidgetCreator(widgetCreator);
+    desc.setPerspectiveId(Constants::QmlProfilerPerspectiveId);
     desc.setRunControlCreator(runControlCreator);
     desc.setToolPreparer([tool] { return tool->prepareTool(); });
     desc.setRunMode(ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
     desc.setMenuGroup(Analyzer::Constants::G_ANALYZER_TOOLS);
-    AnalyzerManager::addAction(desc);
+    AnalyzerManager::registerAction(Constants::QmlProfilerLocalActionId, desc);
 
     desc.setText(tr("QML Profiler (External)"));
     desc.setToolTip(description);
-    desc.setActionId(Constants::QmlProfilerRemoteActionId);
-    desc.setPerspectiveId(Constants::QmlProfilerPerspective);
-    desc.setWidgetCreator(widgetCreator);
+    desc.setPerspectiveId(Constants::QmlProfilerPerspectiveId);
     desc.setRunControlCreator(runControlCreator);
     desc.setCustomToolStarter([tool](ProjectExplorer::RunConfiguration *rc) {
         tool->startRemoteTool(rc);
@@ -86,18 +90,12 @@ bool QmlProfilerPlugin::initialize(const QStringList &arguments, QString *errorS
     desc.setToolPreparer([tool] { return tool->prepareTool(); });
     desc.setRunMode(ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
     desc.setMenuGroup(Analyzer::Constants::G_ANALYZER_REMOTE_TOOLS);
-    AnalyzerManager::addAction(desc);
+    AnalyzerManager::registerAction(Constants::QmlProfilerRemoteActionId, desc);
 
     addAutoReleasedObject(new QmlProfilerRunControlFactory());
     addAutoReleasedObject(new Internal::QmlProfilerOptionsPage());
-    QmlProfilerPlugin::instance = this;
 
-    return true;
-}
-
-void QmlProfilerPlugin::extensionsInitialized()
-{
-    factory = ExtensionSystem::PluginManager::getObject<QmlProfilerTimelineModelFactory>();
+    AnalyzerManager::registerToolbar(Constants::QmlProfilerPerspectiveId, tool->createWidgets());
 }
 
 ExtensionSystem::IPlugin::ShutdownFlag QmlProfilerPlugin::aboutToShutdown()

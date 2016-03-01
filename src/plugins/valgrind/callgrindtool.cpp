@@ -618,18 +618,18 @@ QWidget *CallgrindToolPrivate::createWidgets()
 
     updateCostFormat();
 
-    AnalyzerManager::createDockWidget(m_callersView, CallgrindCallersDock);
-    AnalyzerManager::createDockWidget(m_flatView, CallgrindFlatDock);
-    AnalyzerManager::createDockWidget(m_calleesView, CallgrindCalleesDock);
-    AnalyzerManager::createDockWidget(m_visualisation, CallgrindVisualizationDock);
+    AnalyzerManager::registerDockWidget(CallgrindCallersDockId, m_callersView);
+    AnalyzerManager::registerDockWidget(CallgrindFlatDockId, m_flatView);
+    AnalyzerManager::registerDockWidget(CallgrindCalleesDockId, m_calleesView);
+    AnalyzerManager::registerDockWidget(CallgrindVisualizationDockId, m_visualisation);
 
-    Perspective perspective(CallgrindPerspective);
-    perspective.addDock(CallgrindFlatDock, Id(), Perspective::SplitVertical);
-    perspective.addDock(CallgrindCalleesDock, Id(), Perspective::SplitVertical);
-    perspective.addDock(CallgrindCallersDock, CallgrindCalleesDock, Perspective::SplitHorizontal);
-    perspective.addDock(CallgrindVisualizationDock, Id(), Perspective::SplitVertical,
-                        false, Qt::RightDockWidgetArea);
-    AnalyzerManager::addPerspective(perspective);
+    AnalyzerManager::registerPerspective(CallgrindPerspectiveId, {
+        { CallgrindFlatDockId, Id(), Perspective::SplitVertical },
+        { CallgrindCalleesDockId, Id(), Perspective::SplitVertical },
+        { CallgrindCallersDockId, CallgrindCalleesDockId, Perspective::SplitHorizontal },
+        { CallgrindVisualizationDockId, Id(), Perspective::SplitVertical,
+          false, Qt::RightDockWidgetArea }
+    });
 
     //
     // Control Widget
@@ -823,7 +823,7 @@ void CallgrindToolPrivate::engineFinished()
     if (data)
         showParserResults(data);
     else
-        AnalyzerManager::showPermanentStatusMessage(CallgrindPerspective, tr("Profiling aborted."));
+        AnalyzerManager::showPermanentStatusMessage(CallgrindPerspectiveId, tr("Profiling aborted."));
 
     setBusyCursor(false);
 }
@@ -842,7 +842,7 @@ void CallgrindToolPrivate::showParserResults(const ParseData *data)
     } else {
         msg = tr("Parsing failed.");
     }
-    AnalyzerManager::showPermanentStatusMessage(CallgrindPerspective, msg);
+    AnalyzerManager::showPermanentStatusMessage(CallgrindPerspectiveId, msg);
 }
 
 void CallgrindToolPrivate::editorOpened(IEditor *editor)
@@ -907,7 +907,7 @@ void CallgrindToolPrivate::loadExternalLogFile()
         return;
     }
 
-    AnalyzerManager::showPermanentStatusMessage(CallgrindPerspective, tr("Parsing Profile Data..."));
+    AnalyzerManager::showPermanentStatusMessage(CallgrindPerspectiveId, tr("Parsing Profile Data..."));
     QCoreApplication::processEvents();
 
     Parser parser;

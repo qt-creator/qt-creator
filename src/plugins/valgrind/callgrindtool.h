@@ -33,14 +33,13 @@ namespace ProjectExplorer { class RunConfiguration; }
 namespace Valgrind {
 namespace Internal {
 
-const char CallgrindPerspective[] = "CallgrindPerspective";
-const char CallgrindLocalActionId[] = "Callgrind.Local";
-const char CallgrindRemoteActionId[] = "Callgrind.Remote";
-
-const char CallgrindCallersDock[] = "CallgrindCallersDock";
-const char CallgrindCalleesDock[] = "CallgrindCalleesDock";
-const char CallgrindFlatDock[] = "CallgrindFlatDock";
-const char CallgrindVisualizationDock[] = "CallgrindVisualizationDock";
+const char CallgrindPerspectiveId[]       = "Callgrind.Perspective";
+const char CallgrindLocalActionId[]       = "Callgrind.Local.Action";
+const char CallgrindRemoteActionId[]      = "Callgrind.Remote.Action";
+const char CallgrindCallersDockId[]       = "Callgrind.Callers.Dock";
+const char CallgrindCalleesDockId[]       = "Callgrind.Callees.Dock";
+const char CallgrindFlatDockId[]          = "Callgrind.Flat.Dock";
+const char CallgrindVisualizationDockId[] = "Callgrind.Visualization.Dock";
 
 class ValgrindRunControl;
 const char CALLGRIND_RUN_MODE[] = "CallgrindTool.CallgrindRunMode";

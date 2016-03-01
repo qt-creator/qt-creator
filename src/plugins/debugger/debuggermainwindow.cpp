@@ -43,12 +43,15 @@ namespace Internal {
 MainWindowBase::MainWindowBase()
 {
     m_controlsStackWidget = new QStackedWidget;
-    m_statusLabelsStackWidget= new QStackedWidget;
+    m_statusLabelsStackWidget = new QStackedWidget;
     m_toolBox = new QComboBox;
 
     setDockNestingEnabled(true);
     setDockActionsVisible(false);
     setDocumentMode(true);
+
+    connect(this, &FancyMainWindow::resetLayout,
+            this, &MainWindowBase::resetCurrentPerspective);
 }
 
 MainWindowBase::~MainWindowBase()
@@ -61,42 +64,52 @@ MainWindowBase::~MainWindowBase()
     }
 }
 
-void MainWindowBase::addPerspective(const Perspective &perspective)
+void MainWindowBase::registerPerspective(Id perspectiveId, const Perspective &perspective)
 {
-    m_perspectives.append(perspective);
+    m_perspectiveForPerspectiveId.insert(perspectiveId, perspective);
+}
+
+void MainWindowBase::registerToolbar(Id perspectiveId, QWidget *widget)
+{
+    m_toolbarForPerspectiveId.insert(perspectiveId, widget);
+
+    m_controlsStackWidget->addWidget(widget);
+    StatusLabel * const toolStatusLabel = new StatusLabel;
+    m_statusLabelForPerspectiveId[perspectiveId] = toolStatusLabel;
+    m_statusLabelsStackWidget->addWidget(toolStatusLabel);
 }
 
 void MainWindowBase::showStatusMessage(Id perspective, const QString &message, int timeoutMS)
 {
-    StatusLabel *statusLabel = m_statusLabelForPerspective.value(perspective);
+    StatusLabel *statusLabel = m_statusLabelForPerspectiveId.value(perspective);
     QTC_ASSERT(statusLabel, return);
     statusLabel->showStatusMessage(message, timeoutMS);
 }
 
-void MainWindowBase::restorePerspective(Id perspectiveId,
-                                        std::function<QWidget *()> creator,
-                                        bool fromStoredSettings)
+void MainWindowBase::resetCurrentPerspective()
 {
-    if (!perspectiveId.isValid())
-        return;
+    loadPerspectiveHelper(m_currentPerspectiveId, false);
+}
 
-    if (!m_defaultSettings.contains(perspectiveId) && creator) {
-        QWidget *widget = creator();
-        QTC_CHECK(widget);
-        m_defaultSettings.insert(perspectiveId);
-        QTC_CHECK(!m_controlsWidgetForPerspective.contains(perspectiveId));
-        m_controlsWidgetForPerspective[perspectiveId] = widget;
-        m_controlsStackWidget->addWidget(widget);
-        StatusLabel * const toolStatusLabel = new StatusLabel;
-        m_statusLabelForPerspective[perspectiveId] = toolStatusLabel;
-        m_statusLabelsStackWidget->addWidget(toolStatusLabel);
-    }
+void MainWindowBase::restorePerspective(Id perspectiveId)
+{
+    loadPerspectiveHelper(perspectiveId, true);
+}
 
-    const Perspective *perspective = findPerspective(perspectiveId);
-    QTC_ASSERT(perspective, return);
+void MainWindowBase::loadPerspectiveHelper(Id perspectiveId, bool fromStoredSettings)
+{
+    QTC_ASSERT(perspectiveId.isValid(), return);
 
-    foreach (const Perspective::Split &split, perspective->splits()) {
+    // Clean up old perspective.
+    closeCurrentPerspective();
+
+    m_currentPerspectiveId = perspectiveId;
+
+    QTC_ASSERT(m_perspectiveForPerspectiveId.contains(perspectiveId), return);
+    const auto splits = m_perspectiveForPerspectiveId.value(perspectiveId).splits();
+    for (const Perspective::Split &split : splits) {
         QDockWidget *dock = m_dockForDockId.value(split.dockId);
+        QTC_ASSERT(dock, continue);
         addDockWidget(split.area, dock);
         QDockWidget *existing = m_dockForDockId.value(split.existing);
         if (!existing && split.area == Qt::BottomDockWidgetArea)
@@ -116,30 +129,30 @@ void MainWindowBase::restorePerspective(Id perspectiveId,
         }
         if (!split.visibleByDefault)
             dock->hide();
+        else
+            dock->show();
     }
 
     if (fromStoredSettings) {
         QSettings *settings = ICore::settings();
-        settings->beginGroup(m_settingsName + perspectiveId.toString());
+        settings->beginGroup(perspectiveId.toString());
         if (settings->value(QLatin1String("ToolSettingsSaved"), false).toBool())
             restoreSettings(settings);
         settings->endGroup();
     }
 
-    QTC_CHECK(m_controlsWidgetForPerspective.contains(perspectiveId));
-    m_controlsStackWidget->setCurrentWidget(m_controlsWidgetForPerspective.value(perspectiveId));
-    m_statusLabelsStackWidget->setCurrentWidget(m_statusLabelForPerspective.value(perspectiveId));
+    QTC_CHECK(m_toolbarForPerspectiveId.contains(perspectiveId));
+    m_controlsStackWidget->setCurrentWidget(m_toolbarForPerspectiveId.value(perspectiveId));
+    m_statusLabelsStackWidget->setCurrentWidget(m_statusLabelForPerspectiveId.value(perspectiveId));
 }
 
-void MainWindowBase::closePerspective(Id perspectiveId)
+void MainWindowBase::closeCurrentPerspective()
 {
-    if (!perspectiveId.isValid())
+    if (!m_currentPerspectiveId.isValid())
         return;
-    savePerspective(perspectiveId);
-    const Perspective *perspective = findPerspective(perspectiveId);
-    QTC_ASSERT(perspective, return);
-    foreach (Id dockId, perspective->docks()) {
-        QDockWidget *dockWidget = m_dockForDockId.value(dockId);
+
+    saveCurrentPerspective();
+    foreach (QDockWidget *dockWidget, m_dockForDockId) {
         QTC_ASSERT(dockWidget, continue);
         removeDockWidget(dockWidget);
         dockWidget->hide();
@@ -148,25 +161,19 @@ void MainWindowBase::closePerspective(Id perspectiveId)
     }
 }
 
-const Perspective *MainWindowBase::findPerspective(Id perspectiveId) const
+void MainWindowBase::saveCurrentPerspective()
 {
-    foreach (const Perspective &perspective, m_perspectives)
-        if (perspective.id() == perspectiveId)
-            return &perspective;
-    return 0;
-}
-
-void MainWindowBase::savePerspective(Id perspectiveId)
-{
+    if (!m_currentPerspectiveId.isValid())
+        return;
     QSettings *settings = ICore::settings();
-    settings->beginGroup(m_settingsName + perspectiveId.toString());
+    settings->beginGroup(m_currentPerspectiveId.toString());
     saveSettings(settings);
     settings->setValue(QLatin1String("ToolSettingsSaved"), true);
     settings->endGroup();
-    settings->setValue(m_lastSettingsName, perspectiveId.toString());
+    settings->setValue(m_lastSettingsName, m_currentPerspectiveId.toString());
 }
 
-QDockWidget *MainWindowBase::createDockWidget(QWidget *widget, Id dockId)
+QDockWidget *MainWindowBase::registerDockWidget(Id dockId, QWidget *widget)
 {
     QTC_ASSERT(!widget->objectName().isEmpty(), return 0);
     QDockWidget *dockWidget = addDockForWidget(widget);
@@ -175,14 +182,9 @@ QDockWidget *MainWindowBase::createDockWidget(QWidget *widget, Id dockId)
     return dockWidget;
 }
 
-QString MainWindowBase::settingsName() const
+Core::Id MainWindowBase::currentPerspectiveId() const
 {
-    return m_settingsName;
-}
-
-void MainWindowBase::setSettingsName(const QString &settingsName)
-{
-    m_settingsName = settingsName;
+    return m_currentPerspectiveId;
 }
 
 QString MainWindowBase::lastSettingsName() const

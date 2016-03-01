@@ -104,7 +104,7 @@ QWidget *ClangStaticAnalyzerTool::createWidgets()
                 this, &ClangStaticAnalyzerTool::handleStateUpdate);
     }
 
-    AnalyzerManager::createDockWidget(m_diagnosticView, ClangStaticAnalyzerDock);
+    AnalyzerManager::registerDockWidget(ClangStaticAnalyzerDockId, m_diagnosticView);
 
     //
     // Toolbar widget
@@ -291,7 +291,7 @@ void ClangStaticAnalyzerTool::handleStateUpdate()
         message += tr("%n issues found (%1 suppressed).", 0, issuesFound)
                 .arg(issuesFound - issuesVisible);
     }
-    AnalyzerManager::showPermanentStatusMessage(ClangStaticAnalyzerPerspective, message);
+    AnalyzerManager::showPermanentStatusMessage(ClangStaticAnalyzerPerspectiveId, message);
 }
 
 } // namespace Internal

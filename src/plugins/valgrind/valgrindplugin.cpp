@@ -128,65 +128,54 @@ void ValgrindPlugin::extensionsInitialized()
          "Memcheck tool to find memory leaks.");
 
     auto mcTool = new MemcheckTool(this);
-    auto mcWidgetCreator = [mcTool] { return mcTool->createWidgets(); };
     auto cgTool = new CallgrindTool(this);
-    auto cgWidgetCreator = [cgTool] { return cgTool->createWidgets(); };
     auto cgRunControlCreator = [cgTool](RunConfiguration *runConfiguration, Id) {
         return cgTool->createRunControl(runConfiguration);
     };
+
+    AnalyzerManager::registerToolbar(MemcheckPerspectiveId, mcTool->createWidgets());
+    AnalyzerManager::registerToolbar(CallgrindPerspectiveId, cgTool->createWidgets());
 
     ActionDescription desc;
 
     if (!Utils::HostOsInfo::isWindowsHost()) {
         desc.setText(tr("Valgrind Memory Analyzer"));
         desc.setToolTip(memcheckToolTip);
-        desc.setEnabled(false);
-        desc.setActionId("Memcheck.Local");
-        desc.setPerspectiveId(MemcheckPerspective);
-        desc.setWidgetCreator(mcWidgetCreator);
+        desc.setPerspectiveId(MemcheckPerspectiveId);
         desc.setRunControlCreator([mcTool](RunConfiguration *runConfig, Id runMode) {
             return mcTool->createRunControl(runConfig, runMode);
         });
         desc.setToolMode(DebugMode);
         desc.setRunMode(MEMCHECK_RUN_MODE);
         desc.setMenuGroup(Analyzer::Constants::G_ANALYZER_TOOLS);
-        AnalyzerManager::addAction(desc);
+        AnalyzerManager::registerAction("Memcheck.Local", desc);
 
-        auto mcgTool = new MemcheckTool(this);
         desc.setText(tr("Valgrind Memory Analyzer with GDB"));
         desc.setToolTip(tr("Valgrind Analyze Memory with GDB uses the "
             "Memcheck tool to find memory leaks.\nWhen a problem is detected, "
             "the application is interrupted and can be debugged."));
-        desc.setEnabled(false);
-        desc.setActionId("MemcheckWithGdb.Local");
-        desc.setPerspectiveId(MemcheckPerspective);
-        desc.setWidgetCreator([mcgTool] { return mcgTool->createWidgets(); });
-        desc.setRunControlCreator([mcgTool](RunConfiguration *runConfig, Id runMode) {
-            return mcgTool->createRunControl(runConfig, runMode);
+        desc.setPerspectiveId(MemcheckPerspectiveId);
+        desc.setRunControlCreator([mcTool](RunConfiguration *runConfig, Id runMode) {
+            return mcTool->createRunControl(runConfig, runMode);
         });
         desc.setToolMode(DebugMode);
         desc.setRunMode(MEMCHECK_WITH_GDB_RUN_MODE);
         desc.setMenuGroup(Analyzer::Constants::G_ANALYZER_TOOLS);
-        AnalyzerManager::addAction(desc);
+        AnalyzerManager::registerAction("MemcheckWithGdb.Local", desc);
 
         desc.setText(tr("Valgrind Function Profiler"));
         desc.setToolTip(callgrindToolTip);
-        desc.setEnabled(false);
-        desc.setActionId(CallgrindLocalActionId);
-        desc.setPerspectiveId(CallgrindPerspective);
-        desc.setWidgetCreator(cgWidgetCreator);
+        desc.setPerspectiveId(CallgrindPerspectiveId);
         desc.setRunControlCreator(cgRunControlCreator);
         desc.setToolMode(OptimizedMode);
         desc.setRunMode(CALLGRIND_RUN_MODE);
         desc.setMenuGroup(Analyzer::Constants::G_ANALYZER_TOOLS);
-        AnalyzerManager::addAction(desc);
+        AnalyzerManager::registerAction(CallgrindLocalActionId, desc);
     }
 
     desc.setText(tr("Valgrind Memory Analyzer (External Remote Application)"));
     desc.setToolTip(memcheckToolTip);
-    desc.setActionId("Memcheck.Remote");
-    desc.setPerspectiveId(MemcheckPerspective);
-    desc.setWidgetCreator(mcWidgetCreator);
+    desc.setPerspectiveId(MemcheckPerspectiveId);
     desc.setCustomToolStarter([mcTool](ProjectExplorer::RunConfiguration *runConfig) {
         StartRemoteDialog dlg;
         if (dlg.exec() != QDialog::Accepted)
@@ -202,11 +191,11 @@ void ValgrindPlugin::extensionsInitialized()
         ProjectExplorerPlugin::startRunControl(rc, MEMCHECK_RUN_MODE);
     });
     desc.setMenuGroup(Analyzer::Constants::G_ANALYZER_REMOTE_TOOLS);
-    AnalyzerManager::addAction(desc);
+    AnalyzerManager::registerAction("Memcheck.Remote", desc);
 
-    desc.setActionId(CallgrindRemoteActionId);
-    desc.setPerspectiveId(CallgrindPerspective);
-    desc.setWidgetCreator(cgWidgetCreator);
+    desc.setText(tr("Valgrind Function Profiler (External Remote Application)"));
+    desc.setToolTip(callgrindToolTip);
+    desc.setPerspectiveId(CallgrindPerspectiveId);
     desc.setCustomToolStarter([cgTool](ProjectExplorer::RunConfiguration *runConfig) {
         StartRemoteDialog dlg;
         if (dlg.exec() != QDialog::Accepted)
@@ -221,11 +210,8 @@ void ValgrindPlugin::extensionsInitialized()
         rc->setDisplayName(runnable.executable);
         ProjectExplorerPlugin::startRunControl(rc, CALLGRIND_RUN_MODE);
     });
-
-    desc.setText(tr("Valgrind Function Profiler (External Remote Application)"));
-    desc.setToolTip(callgrindToolTip);
     desc.setMenuGroup(Analyzer::Constants::G_ANALYZER_REMOTE_TOOLS);
-    AnalyzerManager::addAction(desc);
+    AnalyzerManager::registerAction(CallgrindRemoteActionId, desc);
 
     // If there is a CppEditor context menu add our own context menu actions.
     if (ActionContainer *editorContextMenu =
