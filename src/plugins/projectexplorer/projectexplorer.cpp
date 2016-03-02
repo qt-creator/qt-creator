@@ -1637,6 +1637,7 @@ ProjectExplorerPlugin::OpenProjectResult ProjectExplorerPlugin::openProject(cons
         return result;
     dd->addToRecentProjects(fileName, project->displayName());
     SessionManager::setStartupProject(project);
+    project->projectLoaded();
     return result;
 }
 

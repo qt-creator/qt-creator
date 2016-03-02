@@ -152,6 +152,11 @@ QbsRootProjectNode *QbsProject::rootProjectNode() const
     return static_cast<QbsRootProjectNode *>(Project::rootProjectNode());
 }
 
+void QbsProject::projectLoaded()
+{
+    m_parsingDelay.start(0);
+}
+
 static void collectFilesForProject(const qbs::ProjectData &project, QSet<QString> &result)
 {
     result.insert(project.location().filePath());
