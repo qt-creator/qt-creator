@@ -268,22 +268,21 @@ void FancyToolButton::paintEvent(QPaintEvent *event)
 void FancyActionBar::paintEvent(QPaintEvent *event)
 {
     QPainter painter(this);
-
+    const QRectF borderRect = QRectF(rect()).adjusted(0.5, 0.5, -0.5, -0.5);
     if (creatorTheme()->widgetStyle () == Theme::StyleFlat) {
         // this paints the background of the bottom portion of the
         // left tab bar
         painter.fillRect(event->rect(), StyleHelper::isBaseColorDefault()
                          ? creatorTheme()->color(Theme::FancyTabBarBackgroundColor)
                          : StyleHelper::baseColor());
+        painter.setPen(StyleHelper::separatorColor());
+        painter.drawLine(borderRect.topLeft(), borderRect.topRight());
+    } else {
+        painter.setPen(StyleHelper::sidebarShadow());
+        painter.drawLine(borderRect.topLeft(), borderRect.topRight());
+        painter.setPen(StyleHelper::sidebarHighlight());
+        painter.drawLine(borderRect.topLeft() + QPointF(1, 1), borderRect.topRight() + QPointF(0, 1));
     }
-
-    QColor light = StyleHelper::sidebarHighlight();
-    QColor dark = StyleHelper::sidebarShadow();
-    const QRectF borderRect = QRectF(rect()).adjusted(0.5, 0.5, -0.5, -0.5);
-    painter.setPen(dark);
-    painter.drawLine(borderRect.topLeft(), borderRect.topRight());
-    painter.setPen(light);
-    painter.drawLine(borderRect.topLeft() + QPointF(1, 1), borderRect.topRight() + QPointF(0, 1));
 }
 
 QSize FancyToolButton::sizeHint() const

@@ -145,6 +145,11 @@ QColor StyleHelper::borderColor(bool lightColored)
     return result;
 }
 
+QColor StyleHelper::separatorColor()
+{
+    return borderColor(false);
+}
+
 // We try to ensure that the actual color used are within
 // reasonalbe bounds while generating the actual baseColor
 // from the users request.
