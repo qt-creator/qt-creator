@@ -102,7 +102,8 @@ QbsProject::QbsProject(QbsManager *manager, const QString &fileName) :
     m_qbsUpdateFutureInterface(0),
     m_parsingScheduled(false),
     m_cancelStatus(CancelStatusNone),
-    m_currentBc(0)
+    m_currentBc(0),
+    m_extraCompilersPending(false)
 {
     m_parsingDelay.setInterval(1000); // delay parsing by 1s.
 
@@ -575,6 +576,10 @@ void QbsProject::updateAfterBuild()
     m_projectData = m_qbsProject.projectData();
     updateBuildTargetData();
     updateCppCompilerCallData();
+    if (m_extraCompilersPending) {
+        m_extraCompilersPending = false;
+        updateCppCodeModel();
+    }
 }
 
 void QbsProject::registerQbsProjectParser(QbsProjectParser *p)
@@ -798,8 +803,11 @@ void QbsProject::updateCppCodeModel()
                             continue;
                         QStringList generated = m_qbsProject.generatedFiles(prd, source.filePath(),
                                                                             false);
-                        if (generated.isEmpty())
+                        if (generated.isEmpty()) {
+                            // We don't know the target files until we build for the first time.
+                            m_extraCompilersPending = true;
                             continue;
+                        }
 
                         const FileNameList fileNames = Utils::transform(generated,
                                                                         [](const QString &s) {
