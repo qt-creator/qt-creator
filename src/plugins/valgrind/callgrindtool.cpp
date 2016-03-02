@@ -247,7 +247,7 @@ CallgrindTool::CallgrindTool(QObject *parent)
         AnalyzerManager::registerAction(CallgrindLocalActionId, desc);
     }
 
-    desc.setText(tr("Valgrind Function Profiler (External Remote Application)"));
+    desc.setText(tr("Valgrind Function Profiler (External Application)"));
     desc.setPerspectiveId(CallgrindPerspectiveId);
     desc.setCustomToolStarter([this](ProjectExplorer::RunConfiguration *runConfig) {
         StartRemoteDialog dlg;

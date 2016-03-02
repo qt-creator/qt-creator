@@ -315,7 +315,7 @@ MemcheckTool::MemcheckTool(QObject *parent)
         AnalyzerManager::registerAction("MemcheckWithGdb.Local", desc);
     }
 
-    desc.setText(tr("Valgrind Memory Analyzer (External Remote Application)"));
+    desc.setText(tr("Valgrind Memory Analyzer (External Application)"));
     desc.setPerspectiveId(MemcheckPerspectiveId);
     desc.setCustomToolStarter([this](ProjectExplorer::RunConfiguration *runConfig) {
         StartRemoteDialog dlg;

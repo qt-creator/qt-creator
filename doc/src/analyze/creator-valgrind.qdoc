@@ -277,8 +277,7 @@
     \list 1
 
         \li Select \uicontrol Analyze > \uicontrol {Valgrind Memory Analyzer (External
-            Remote Application)} or
-            \uicontrol {Valgrind Function Profiler (External Remote Application)}.
+            Application)} or \uicontrol {Valgrind Function Profiler (External Application)}.
 
             \image qtcreator-valgrind-remote-settings.png "Start Analyzer dialog"
 
