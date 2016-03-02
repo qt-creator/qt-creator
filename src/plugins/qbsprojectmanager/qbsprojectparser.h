@@ -66,8 +66,12 @@ private:
     QString resourcesBaseDirectory() const;
     QString libExecDirectory() const;
 
+    void startRuleExecution();
+    void handleRuleExecutionDone();
+
     QString m_projectFilePath;
     qbs::SetupProjectJob *m_qbsSetupProjectJob;
+    qbs::BuildJob *m_ruleExecutionJob;
     qbs::ErrorInfo m_error;
     qbs::Project m_project;
 
