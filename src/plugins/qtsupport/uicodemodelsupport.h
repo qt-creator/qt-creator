@@ -72,22 +72,21 @@ private:
     QString uicCommand() const;
     QStringList environment() const;
 
-private slots:
-    bool finishProcess();
-
 private:
+    void startProcess(const QString &ui);
+    void errorProcess();
+    void finishProcess();
     ProjectExplorer::Project *m_project;
-    enum State { BARE, RUNNING, FINISHED, ABORTING };
 
-    void init() const;
-    bool runUic(const QString &ui) const;
-    mutable QProcess m_process;
+    void init();
+    bool runUic(const QString &ui);
+    void cleanUpProcess();
+
+    QProcess *m_process = nullptr;
     QString m_uiFileName;
     QString m_headerFileName;
-    mutable State m_state;
-    mutable QByteArray m_contents;
-    mutable QDateTime m_cacheTime;
-    static QList<UiCodeModelSupport *> m_waitingForStart;
+    QByteArray m_contents;
+    QDateTime m_cacheTime;
 };
 
 class QTSUPPORT_EXPORT UiCodeModelManager : public QObject

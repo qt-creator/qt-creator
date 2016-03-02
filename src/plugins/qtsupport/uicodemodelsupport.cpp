@@ -75,31 +75,26 @@ UiCodeModelSupport::UiCodeModelSupport(CppTools::CppModelManager *modelmanager,
     : CppTools::AbstractEditorSupport(modelmanager),
       m_project(project),
       m_uiFileName(uiFile),
-      m_headerFileName(uiHeaderFile),
-      m_state(BARE)
+      m_headerFileName(uiHeaderFile)
 {
     QLoggingCategory log("qtc.qtsupport.uicodemodelsupport");
     qCDebug(log) << "ctor UiCodeModelSupport for" << m_uiFileName << uiHeaderFile;
-    connect(&m_process, SIGNAL(finished(int)),
-            this, SLOT(finishProcess()));
     init();
 }
 
 UiCodeModelSupport::~UiCodeModelSupport()
 {
-    disconnect(&m_process, SIGNAL(finished(int)),
-               this, SLOT(finishProcess()));
-    m_process.kill();
+    cleanUpProcess();
     CppTools::CppModelManager::instance()->emitAbstractEditorSupportRemoved(m_headerFileName);
     QLoggingCategory log("qtc.qtsupport.uicodemodelsupport");
     qCDebug(log) << "dtor ~UiCodeModelSupport for" << m_uiFileName;
 }
 
-void UiCodeModelSupport::init() const
+void UiCodeModelSupport::init()
 {
+    QTC_ASSERT(!m_process, return);
+
     QLoggingCategory log("qtc.qtsupport.uicodemodelsupport");
-    if (m_state != BARE)
-        return;
     QDateTime sourceTime = QFileInfo(m_uiFileName).lastModified();
     QFileInfo uiHeaderFileInfo(m_headerFileName);
     QDateTime uiHeaderTime = uiHeaderFileInfo.exists() ? uiHeaderFileInfo.lastModified() : QDateTime();
@@ -110,7 +105,6 @@ void UiCodeModelSupport::init() const
             QTextStream stream(&file);
             m_contents = stream.readAll().toUtf8();
             m_cacheTime = uiHeaderTime;
-            m_state = FINISHED;
             notifyAboutUpdatedContents();
             return;
         }
@@ -129,14 +123,12 @@ void UiCodeModelSupport::init() const
             qCDebug(log) << "uic run wasn't succesfull";
             m_cacheTime = QDateTime ();
             m_contents.clear();
-            m_state = FINISHED;
             notifyAboutUpdatedContents();
             return;
         }
     } else {
         qCDebug(log) << "Could not open " << m_uiFileName << "needed for the cpp model";
         m_contents.clear();
-        m_state = FINISHED;
         notifyAboutUpdatedContents();
     }
 }
@@ -161,11 +153,7 @@ void UiCodeModelSupport::setHeaderFileName(const QString &name)
     if (m_headerFileName == name && m_cacheTime.isValid())
         return;
 
-    if (m_state == RUNNING) {
-        m_state = ABORTING;
-        m_process.kill();
-        m_process.waitForFinished(3000);
-    }
+    cleanUpProcess();
 
     QLoggingCategory log("qtc.qtsupport.uicodemodelsupport");
     qCDebug(log) << "UiCodeModelSupport::setFileName" << name;
@@ -173,45 +161,57 @@ void UiCodeModelSupport::setHeaderFileName(const QString &name)
     m_headerFileName = name;
     m_contents.clear();
     m_cacheTime = QDateTime();
-    m_state = BARE;
     init();
 }
 
-bool UiCodeModelSupport::runUic(const QString &ui) const
+bool UiCodeModelSupport::runUic(const QString &ui)
 {
+    QTC_ASSERT(!m_process, return false);
+
     const QString uic = uicCommand();
     if (uic.isEmpty())
         return false;
+
     QLoggingCategory log("qtc.qtsupport.uicodemodelsupport");
-    m_process.setEnvironment(environment());
+    m_process = new QProcess(this);
+    connect(m_process, static_cast<void (QProcess::*)(int)>(&QProcess::finished),
+            this, &UiCodeModelSupport::finishProcess);
+    connect(m_process, &QProcess::started, this, [this, ui]() { startProcess(ui); });
+#if QT_VERSION < QT_VERSION_CHECK(5, 6, 0) // ### fixme: Remove once 5.6 is the minimum Qt version required
+#  define QPROCESS_ERROR_SIGNAL static_cast<void (QProcess::*)(QProcess::ProcessError)>(&QProcess::error)
+#else
+#  define QPROCESS_ERROR_SIGNAL &QProcess::errorOccurred
+#endif
+    connect(m_process, QPROCESS_ERROR_SIGNAL, this, &UiCodeModelSupport::errorProcess);
+#undef QPROCESS_ERROR_SIGNAL
 
     qCDebug(log) << "  UiCodeModelSupport::runUic " << uic << " on " << ui.size() << " bytes";
-    m_process.start(uic, QStringList(), QIODevice::ReadWrite);
-    if (!m_process.waitForStarted())
-        return false;
-    m_process.write(ui.toUtf8());
-    if (!m_process.waitForBytesWritten(3000))
-        goto error;
-    m_process.closeWriteChannel();
-    m_state = RUNNING;
+    m_process->setEnvironment(environment());
+    m_process->start(uic, QStringList(), QIODevice::ReadWrite);
     return true;
+}
 
-error:
-    qCDebug(log) << "failed" << m_process.readAllStandardError();
-    m_process.kill();
-    m_state = FINISHED;
-    return false;
+void UiCodeModelSupport::cleanUpProcess()
+{
+    if (!m_process)
+        return;
+
+    disconnect(m_process);
+    if (m_process->state() == QProcess::Running) {
+        connect(m_process, static_cast<void (QProcess::*)(int)>(&QProcess::finished),
+                m_process, &QProcess::deleteLater);
+        m_process->kill();
+    } else {
+        m_process->deleteLater();
+    }
+    m_process = nullptr;
 }
 
 void UiCodeModelSupport::updateFromEditor(const QString &formEditorContents)
 {
     QLoggingCategory log("qtc.qtsupport.uicodemodelsupport");
     qCDebug(log) << "updating from editor" << m_uiFileName;
-    if (m_state == RUNNING) {
-        m_state = ABORTING;
-        m_process.kill();
-        m_process.waitForFinished(3000);
-    }
+    cleanUpProcess();
     runUic(formEditorContents);
 }
 
@@ -273,31 +273,39 @@ QStringList UiCodeModelSupport::environment() const
     }
 }
 
-bool UiCodeModelSupport::finishProcess()
+void UiCodeModelSupport::startProcess(const QString &ui)
 {
-    if (m_state != RUNNING)
-        return false;
+    QTC_ASSERT(m_process, return);
+    m_process->write(ui.toUtf8());
+    m_process->closeWriteChannel();
+
+}
+
+void UiCodeModelSupport::errorProcess()
+{
+    QTC_ASSERT(m_process, return);
     QLoggingCategory log("qtc.qtsupport.uicodemodelsupport");
-    if (!m_process.waitForFinished(3000)
-            && m_process.exitStatus() != QProcess::NormalExit
-            && m_process.exitCode() != 0) {
+    qCDebug(log) << "failed" << m_process->readAllStandardError();
+    cleanUpProcess();
+}
 
-        qCDebug(log) << "finish process: failed" << m_process.readAllStandardError();
-        m_process.kill();
-        m_state = FINISHED;
-        return false;
+void UiCodeModelSupport::finishProcess()
+{
+    QTC_ASSERT(m_process, return);
+    QLoggingCategory log("qtc.qtsupport.uicodemodelsupport");
+
+    if (m_process->exitStatus() == QProcess::NormalExit && m_process->exitCode() == 0) {
+        // As far as I can discover in the UIC sources, it writes out local 8-bit encoding. The
+        // conversion below is to normalize both the encoding, and the line terminators.
+        const QString normalized = QString::fromLocal8Bit(m_process->readAllStandardOutput());
+        m_contents = normalized.toUtf8();
+        m_cacheTime = QDateTime::currentDateTime();
+        qCDebug(log) << "finish process: ok" << m_contents.size() << "bytes.";
+
+        notifyAboutUpdatedContents();
+        updateDocument();
     }
-
-    // As far as I can discover in the UIC sources, it writes out local 8-bit encoding. The
-    // conversion below is to normalize both the encoding, and the line terminators.
-    QString normalized = QString::fromLocal8Bit(m_process.readAllStandardOutput());
-    m_contents = normalized.toUtf8();
-    m_cacheTime = QDateTime::currentDateTime();
-    qCDebug(log) << "finish process: ok" << m_contents.size() << "bytes.";
-    m_state = FINISHED;
-    notifyAboutUpdatedContents();
-    updateDocument();
-    return true;
+    cleanUpProcess();
 }
 
 UiCodeModelManager *UiCodeModelManager::m_instance = 0;
