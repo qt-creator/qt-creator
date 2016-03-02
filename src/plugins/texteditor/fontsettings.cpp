@@ -68,6 +68,7 @@ void FontSettings::clear()
     m_antialias = DEFAULT_ANTIALIAS;
     m_scheme.clear();
     m_formatCache.clear();
+    m_textCharFormatCache.clear();
 }
 
 void FontSettings::toSettings(const QString &category,
@@ -259,6 +260,7 @@ void FontSettings::setFamily(const QString &family)
 {
     m_family = family;
     m_formatCache.clear();
+    m_textCharFormatCache.clear();
 }
 
 /**
@@ -273,6 +275,7 @@ void FontSettings::setFontSize(int size)
 {
     m_fontSize = size;
     m_formatCache.clear();
+    m_textCharFormatCache.clear();
 }
 
 /**
@@ -287,6 +290,7 @@ void FontSettings::setFontZoom(int zoom)
 {
     m_fontZoom = zoom;
     m_formatCache.clear();
+    m_textCharFormatCache.clear();
 }
 
 QFont FontSettings::font() const
@@ -308,6 +312,7 @@ void FontSettings::setAntialias(bool antialias)
 {
     m_antialias = antialias;
     m_formatCache.clear();
+    m_textCharFormatCache.clear();
 }
 
 /**
@@ -345,6 +350,7 @@ bool FontSettings::loadColorScheme(const QString &fileName,
                                    const FormatDescriptions &descriptions)
 {
     m_formatCache.clear();
+    m_textCharFormatCache.clear();
     bool loaded = true;
     m_schemeFileName = fileName;
 
@@ -392,6 +398,7 @@ void FontSettings::setColorScheme(const ColorScheme &scheme)
 {
     m_scheme = scheme;
     m_formatCache.clear();
+    m_textCharFormatCache.clear();
 }
 
 static QString defaultFontFamily()
