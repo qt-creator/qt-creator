@@ -2212,7 +2212,7 @@ void DebuggerPluginPrivate::showStatusMessage(const QString &msg0, int timeout)
     showMessage(msg0, LogStatus);
     QString msg = msg0;
     msg.replace(QChar::LineFeed, QLatin1String("; "));
-    m_mainWindow->showStatusMessage(m_mainWindow->currentPerspectiveId(), msg, timeout);
+    m_mainWindow->showStatusMessage(msg, timeout);
 }
 
 void DebuggerPluginPrivate::coreShutdown()
@@ -3442,7 +3442,7 @@ QWidget *DebuggerPluginPrivate::createContents(IMode *mode)
     debugToolBarLayout->setSpacing(0);
 //    debugToolBarLayout->addWidget(m_mainWindow->toolBox());
     debugToolBarLayout->addWidget(m_mainWindow->controlsStack());
-    debugToolBarLayout->addWidget(m_mainWindow->statusLabelsStack());
+    debugToolBarLayout->addWidget(m_mainWindow->statusLabel());
     debugToolBarLayout->addWidget(new Utils::StyledSeparator);
     debugToolBarLayout->addStretch();
     debugToolBarLayout->addWidget(viewButton);

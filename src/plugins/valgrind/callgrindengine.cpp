@@ -48,12 +48,7 @@ CallgrindRunControl::CallgrindRunControl(ProjectExplorer::RunConfiguration *runC
     connect(m_runner.parser(), &Callgrind::Parser::parserDataReady,
             this, &CallgrindRunControl::slotFinished);
     connect(&m_runner, &Callgrind::CallgrindRunner::statusMessage,
-            this, &CallgrindRunControl::showStatusMessage);
-}
-
-void CallgrindRunControl::showStatusMessage(const QString &msg)
-{
-    AnalyzerManager::showPermanentStatusMessage(CallgrindPerspectiveId, msg);
+            this, &AnalyzerManager::showPermanentStatusMessage);
 }
 
 QStringList CallgrindRunControl::toolArguments() const

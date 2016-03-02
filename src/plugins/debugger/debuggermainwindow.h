@@ -109,7 +109,7 @@ public:
 
     QComboBox *toolBox() const { return m_toolBox; }
     QStackedWidget *controlsStack() const { return m_controlsStackWidget; }
-    QStackedWidget *statusLabelsStack() const { return m_statusLabelsStackWidget; }
+    Utils::StatusLabel *statusLabel() const { return m_statusLabel; }
 
     void registerPerspective(Core::Id perspectiveId, const Analyzer::Perspective &perspective);
     void registerToolbar(Core::Id perspectiveId, QWidget *widget);
@@ -120,7 +120,7 @@ public:
     void resetCurrentPerspective();
     void restorePerspective(Core::Id perspectiveId);
 
-    void showStatusMessage(Core::Id perspective, const QString &message, int timeoutMS);
+    void showStatusMessage(const QString &message, int timeoutMS);
 
     QString lastSettingsName() const;
     void setLastSettingsName(const QString &lastSettingsName);
@@ -134,11 +134,10 @@ private:
     QString m_lastSettingsName;
     QComboBox *m_toolBox;
     QStackedWidget *m_controlsStackWidget;
-    QStackedWidget *m_statusLabelsStackWidget;
+    Utils::StatusLabel *m_statusLabel;
     QHash<Core::Id, QDockWidget *> m_dockForDockId;
     QHash<Core::Id, QWidget *> m_toolbarForPerspectiveId;
     QHash<Core::Id, Analyzer::Perspective> m_perspectiveForPerspectiveId;
-    QHash<Core::Id, Utils::StatusLabel *> m_statusLabelForPerspectiveId;
 
     // list of dock widgets to prevent memory leak
     typedef QPointer<QDockWidget> DockPtr;

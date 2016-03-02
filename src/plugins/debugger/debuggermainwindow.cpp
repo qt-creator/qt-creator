@@ -43,7 +43,7 @@ namespace Internal {
 MainWindowBase::MainWindowBase()
 {
     m_controlsStackWidget = new QStackedWidget;
-    m_statusLabelsStackWidget = new QStackedWidget;
+    m_statusLabel = new Utils::StatusLabel;
     m_toolBox = new QComboBox;
 
     setDockNestingEnabled(true);
@@ -72,18 +72,12 @@ void MainWindowBase::registerPerspective(Id perspectiveId, const Perspective &pe
 void MainWindowBase::registerToolbar(Id perspectiveId, QWidget *widget)
 {
     m_toolbarForPerspectiveId.insert(perspectiveId, widget);
-
     m_controlsStackWidget->addWidget(widget);
-    StatusLabel * const toolStatusLabel = new StatusLabel;
-    m_statusLabelForPerspectiveId[perspectiveId] = toolStatusLabel;
-    m_statusLabelsStackWidget->addWidget(toolStatusLabel);
 }
 
-void MainWindowBase::showStatusMessage(Id perspective, const QString &message, int timeoutMS)
+void MainWindowBase::showStatusMessage(const QString &message, int timeoutMS)
 {
-    StatusLabel *statusLabel = m_statusLabelForPerspectiveId.value(perspective);
-    QTC_ASSERT(statusLabel, return);
-    statusLabel->showStatusMessage(message, timeoutMS);
+    m_statusLabel->showStatusMessage(message, timeoutMS);
 }
 
 void MainWindowBase::resetCurrentPerspective()
@@ -143,7 +137,6 @@ void MainWindowBase::loadPerspectiveHelper(Id perspectiveId, bool fromStoredSett
 
     QTC_CHECK(m_toolbarForPerspectiveId.contains(perspectiveId));
     m_controlsStackWidget->setCurrentWidget(m_toolbarForPerspectiveId.value(perspectiveId));
-    m_statusLabelsStackWidget->setCurrentWidget(m_statusLabelForPerspectiveId.value(perspectiveId));
 }
 
 void MainWindowBase::closeCurrentPerspective()

@@ -68,11 +68,9 @@ protected:
 signals:
     void parserDataReady(CallgrindRunControl *engine);
 
-private slots:
-    void slotFinished();
-    void showStatusMessage(const QString &msg);
-
 private:
+    void slotFinished();
+
     Valgrind::Callgrind::CallgrindRunner m_runner;
     bool m_markAsPaused;
 

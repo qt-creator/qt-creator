@@ -291,7 +291,7 @@ void ClangStaticAnalyzerTool::handleStateUpdate()
         message += tr("%n issues found (%1 suppressed).", 0, issuesFound)
                 .arg(issuesFound - issuesVisible);
     }
-    AnalyzerManager::showPermanentStatusMessage(ClangStaticAnalyzerPerspectiveId, message);
+    AnalyzerManager::showPermanentStatusMessage(message);
 }
 
 } // namespace Internal

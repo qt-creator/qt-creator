@@ -115,7 +115,7 @@ void ActionDescription::startTool() const
     AnalyzerManager::showMode();
 
     TaskHub::clearTasks(Constants::ANALYZERTASK_ID);
-    AnalyzerManager::showPermanentStatusMessage(perspectiveId(), QString());
+    AnalyzerManager::showPermanentStatusMessage(QString());
 
     if (m_toolPreparer && !m_toolPreparer())
         return;
@@ -438,7 +438,7 @@ void AnalyzerManagerPrivate::createModeMainWindow()
     analyzeToolBarLayout->addWidget(new StyledSeparator);
     analyzeToolBarLayout->addWidget(m_mainWindow->toolBox());
     analyzeToolBarLayout->addWidget(m_mainWindow->controlsStack());
-    analyzeToolBarLayout->addWidget(m_mainWindow->statusLabelsStack());
+    analyzeToolBarLayout->addWidget(m_mainWindow->statusLabel());
     analyzeToolBarLayout->addStretch();
 
     auto dock = new QDockWidget(tr("Analyzer Toolbar"));
@@ -680,14 +680,14 @@ void AnalyzerManager::enableMainWindow(bool on)
     d->m_mainWindow->setEnabled(on);
 }
 
-void AnalyzerManager::showStatusMessage(Id perspective, const QString &message, int timeoutMS)
+void AnalyzerManager::showStatusMessage(const QString &message, int timeoutMS)
 {
-    d->m_mainWindow->showStatusMessage(perspective, message, timeoutMS);
+    d->m_mainWindow->showStatusMessage(message, timeoutMS);
 }
 
-void AnalyzerManager::showPermanentStatusMessage(Id perspective, const QString &message)
+void AnalyzerManager::showPermanentStatusMessage(const QString &message)
 {
-    d->m_mainWindow->showStatusMessage(perspective, message, -1);
+    d->m_mainWindow->showStatusMessage(message, -1);
 }
 
 void AnalyzerManager::showMode()
