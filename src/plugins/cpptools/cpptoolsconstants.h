@@ -49,7 +49,8 @@ const char LOWERCASE_CPPFILES_KEY[] = "LowerCaseFiles";
 enum { lowerCaseFilesDefault = 1 };
 const char CPPTOOLS_SORT_EDITOR_DOCUMENT_OUTLINE[] = "SortedMethodOverview";
 const char CPPTOOLS_MODEL_MANAGER_PCH_USAGE[] = "PCHUsage";
-const char CPPTOOLS_EXTRA_CLANG_OPTIONS[] = "ExtraClangOptions";
+
+const char CPP_CLANG_BUILTIN_CONFIG_ID_EVERYTHING_WITH_EXCEPTIONS[] = "Builtin.EverythingWithExceptions";
 
 const char CPP_CODE_STYLE_SETTINGS_ID[] = "A.Cpp.Code Style";
 const char CPP_CODE_STYLE_SETTINGS_NAME[] = QT_TRANSLATE_NOOP("CppTools", "Code Style");

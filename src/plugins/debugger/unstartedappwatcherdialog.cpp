@@ -103,16 +103,26 @@ UnstartedAppWatcherDialog::UnstartedAppWatcherDialog(QWidget *parent)
     else if (KitManager::defaultKit())
         m_kitChooser->setCurrentKitId(KitManager::defaultKit()->id());
 
+    auto pathLayout = new QHBoxLayout;
     m_pathChooser = new Utils::PathChooser(this);
     m_pathChooser->setExpectedKind(Utils::PathChooser::ExistingCommand);
-    m_pathChooser->setHistoryCompleter(QLatin1String("LocalExecutable"));
+    m_pathChooser->setHistoryCompleter(QLatin1String("LocalExecutable"), true);
     m_pathChooser->setMinimumWidth(400);
 
+    auto resetExecutable = new QPushButton(tr("Reset"));
+    resetExecutable->setEnabled(false);
+    pathLayout->addWidget(m_pathChooser);
+    pathLayout->addWidget(resetExecutable);
     if (activeTarget) {
         if (RunConfiguration *runConfig = activeTarget->activeRunConfiguration()) {
             const Runnable runnable = runConfig->runnable();
-            if (runnable.is<StandardRunnable>() && isLocal(runConfig))
-                m_pathChooser->setPath(runnable.as<StandardRunnable>().executable);
+            if (runnable.is<StandardRunnable>() && isLocal(runConfig)) {
+                resetExecutable->setEnabled(true);
+                connect(resetExecutable, &QPushButton::clicked,
+                        this, [this, runnable]() {
+                    m_pathChooser->setPath(runnable.as<StandardRunnable>().executable);
+                });
+            }
         }
     }
 
@@ -140,7 +150,7 @@ UnstartedAppWatcherDialog::UnstartedAppWatcherDialog(QWidget *parent)
 
     QFormLayout *mainLayout = new QFormLayout(this);
     mainLayout->addRow(new QLabel(tr("Kit: "), this), m_kitChooser);
-    mainLayout->addRow(new QLabel(tr("Executable: "), this), m_pathChooser);
+    mainLayout->addRow(new QLabel(tr("Executable: "), this), pathLayout);
     mainLayout->addRow(m_hideOnAttachCheckBox);
     mainLayout->addRow(m_continueOnAttachCheckBox);
     mainLayout->addRow(m_waitingLabel);

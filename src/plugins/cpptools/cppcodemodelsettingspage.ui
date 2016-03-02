@@ -24,47 +24,12 @@
    <item>
     <widget class="QGroupBox" name="clangSettingsGroupBox">
      <property name="title">
-      <string>Clang Code Model</string>
+      <string>Clang Code Model Warnings</string>
      </property>
      <property name="checkable">
       <bool>false</bool>
      </property>
-     <layout class="QVBoxLayout" name="verticalLayout_3">
-      <item>
-       <widget class="QLabel" name="clangOptionsGeneralHintLabel">
-        <property name="text">
-         <string>Append additional command line options to Clang, one per line. &lt;i&gt;Use this with care.&lt;/i&gt;</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPlainTextEdit" name="clangOptionsToAppendTextEdit"/>
-      </item>
-      <item>
-       <layout class="QHBoxLayout" name="horizontalLayout">
-        <item>
-         <widget class="QPushButton" name="clangOptionsResetButton">
-          <property name="text">
-           <string>Reset Options</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <spacer name="horizontalSpacer">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>40</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-       </layout>
-      </item>
-     </layout>
+     <layout class="QVBoxLayout" name="verticalLayout_3"/>
     </widget>
    </item>
    <item>

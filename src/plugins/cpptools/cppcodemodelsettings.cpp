@@ -24,24 +24,63 @@
 ****************************************************************************/
 
 #include "cppcodemodelsettings.h"
+
+#include "clangdiagnosticconfigsmodel.h"
 #include "cpptoolsconstants.h"
+
+#include <utils/qtcassert.h>
 
 #include <QSettings>
 
 using namespace CppTools;
 
-static QLatin1String cppHeaderMimeType(Constants::CPP_HEADER_MIMETYPE);
-static QLatin1String cHeaderMimeType(Constants::C_HEADER_MIMETYPE);
-static QLatin1String clangExtraOptionsKey(Constants::CPPTOOLS_EXTRA_CLANG_OPTIONS);
+static Core::Id initialClangDiagnosticConfigId()
+{ return Core::Id(Constants::CPP_CLANG_BUILTIN_CONFIG_ID_EVERYTHING_WITH_EXCEPTIONS); }
+
+static CppCodeModelSettings::PCHUsage initialPchUsage()
+{ return CppCodeModelSettings::PchUse_None; }
+
+static QString clangDiagnosticConfigKey()
+{ return QStringLiteral("ClangDiagnosticConfig"); }
+
+static QString clangDiagnosticConfigsArrayKey()
+{ return QStringLiteral("ClangDiagnosticConfigs"); }
+
+static QString clangDiagnosticConfigsArrayIdKey()
+{ return QLatin1String("id"); }
+
+static QString clangDiagnosticConfigsArrayDisplayNameKey()
+{ return QLatin1String("displayName"); }
+
+static QString clangDiagnosticConfigsArrayOptionsKey()
+{ return QLatin1String("diagnosticOptions"); }
+
+static QString pchUsageKey()
+{ return QLatin1String(Constants::CPPTOOLS_MODEL_MANAGER_PCH_USAGE); }
 
 void CppCodeModelSettings::fromSettings(QSettings *s)
 {
     s->beginGroup(QLatin1String(Constants::CPPTOOLS_SETTINGSGROUP));
 
-    setExtraClangOptions(s->value(clangExtraOptionsKey, defaultExtraClangOptions()).toStringList());
+    const int size = s->beginReadArray(clangDiagnosticConfigsArrayKey());
+    for (int i = 0; i < size; ++i) {
+        s->setArrayIndex(i);
 
-    QVariant v = s->value(QLatin1String(Constants::CPPTOOLS_MODEL_MANAGER_PCH_USAGE), PchUse_None);
-    setPCHUsage(static_cast<PCHUsage>(v.toInt()));
+        ClangDiagnosticConfig config;
+        config.setId(Core::Id::fromSetting(s->value(clangDiagnosticConfigsArrayIdKey())));
+        config.setDisplayName(s->value(clangDiagnosticConfigsArrayDisplayNameKey()).toString());
+        config.setCommandLineOptions(s->value(clangDiagnosticConfigsArrayOptionsKey()).toStringList());
+        m_clangCustomDiagnosticConfigs.append(config);
+    }
+    s->endArray();
+
+    const Core::Id diagnosticConfigId = Core::Id::fromSetting(
+                                            s->value(clangDiagnosticConfigKey(),
+                                                     initialClangDiagnosticConfigId().toSetting()));
+    setClangDiagnosticConfigId(diagnosticConfigId);
+
+    const QVariant pchUsageVariant = s->value(pchUsageKey(), initialPchUsage());
+    setPCHUsage(static_cast<PCHUsage>(pchUsageVariant.toInt()));
     s->endGroup();
 
     emit changed();
@@ -51,39 +90,50 @@ void CppCodeModelSettings::toSettings(QSettings *s)
 {
     s->beginGroup(QLatin1String(Constants::CPPTOOLS_SETTINGSGROUP));
 
-    s->setValue(clangExtraOptionsKey, extraClangOptions());
-    s->setValue(QLatin1String(Constants::CPPTOOLS_MODEL_MANAGER_PCH_USAGE), pchUsage());
+    s->beginWriteArray(clangDiagnosticConfigsArrayKey());
+    for (int i = 0, size = m_clangCustomDiagnosticConfigs.size(); i < size; ++i) {
+        const ClangDiagnosticConfig &config = m_clangCustomDiagnosticConfigs.at(i);
+
+        s->setArrayIndex(i);
+        s->setValue(clangDiagnosticConfigsArrayIdKey(), config.id().toSetting());
+        s->setValue(clangDiagnosticConfigsArrayDisplayNameKey(), config.displayName());
+        s->setValue(clangDiagnosticConfigsArrayOptionsKey(), config.commandLineOptions());
+    }
+    s->endArray();
+
+    s->setValue(clangDiagnosticConfigKey(), clangDiagnosticConfigId().toSetting());
+    s->setValue(pchUsageKey(), pchUsage());
 
     s->endGroup();
 
     emit changed();
 }
 
-QStringList CppCodeModelSettings::defaultExtraClangOptions()
+Core::Id CppCodeModelSettings::clangDiagnosticConfigId() const
 {
-    return {
-        QStringLiteral("-Weverything"),
-        QStringLiteral("-Wno-c++98-compat"),
-        QStringLiteral("-Wno-c++98-compat-pedantic"),
-        QStringLiteral("-Wno-unused-macros"),
-        QStringLiteral("-Wno-newline-eof"),
-        QStringLiteral("-Wno-exit-time-destructors"),
-        QStringLiteral("-Wno-global-constructors"),
-        QStringLiteral("-Wno-gnu-zero-variadic-macro-arguments"),
-        QStringLiteral("-Wno-documentation"),
-        QStringLiteral("-Wno-shadow"),
-        QStringLiteral("-Wno-missing-prototypes"), // Not optimal for C projects.
-    };
+    return m_clangDiagnosticConfigId;
 }
 
-QStringList CppCodeModelSettings::extraClangOptions() const
+void CppCodeModelSettings::setClangDiagnosticConfigId(const Core::Id &configId)
 {
-    return m_extraClangOptions;
+    m_clangDiagnosticConfigId = configId;
 }
 
-void CppCodeModelSettings::setExtraClangOptions(const QStringList &extraClangOptions)
+const ClangDiagnosticConfig CppCodeModelSettings::clangDiagnosticConfig() const
 {
-    m_extraClangOptions = extraClangOptions;
+    const ClangDiagnosticConfigsModel configsModel(m_clangCustomDiagnosticConfigs);
+
+    return configsModel.configWithId(clangDiagnosticConfigId());
+}
+
+ClangDiagnosticConfigs CppCodeModelSettings::clangCustomDiagnosticConfigs() const
+{
+    return m_clangCustomDiagnosticConfigs;
+}
+
+void CppCodeModelSettings::setClangCustomDiagnosticConfigs(const ClangDiagnosticConfigs &configs)
+{
+    m_clangCustomDiagnosticConfigs = configs;
 }
 
 CppCodeModelSettings::PCHUsage CppCodeModelSettings::pchUsage() const

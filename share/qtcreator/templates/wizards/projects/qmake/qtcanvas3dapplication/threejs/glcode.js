@@ -9,7 +9,6 @@ function initializeGL(canvas) {
     camera.position.z = 5;
 
     var material = new THREE.MeshBasicMaterial({ color: 0x80c342,
-                                                 ambient: 0x000000,
                                                  shading: THREE.SmoothShading });
     var cubeGeometry = new THREE.BoxGeometry(1, 1, 1);
     cube = new THREE.Mesh(cubeGeometry, material);

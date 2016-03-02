@@ -29,6 +29,8 @@ SOURCES += \
     clanghighlightingmarksreporter.cpp \
     clangmodelmanagersupport.cpp \
     clangpreprocessorassistproposalitem.cpp \
+    clangprojectsettings.cpp \
+    clangprojectsettingswidget.cpp \
     clangtextmark.cpp \
     clangutils.cpp
 
@@ -58,8 +60,12 @@ HEADERS += \
     clangisdiagnosticrelatedtolocation.h \
     clangmodelmanagersupport.h \
     clangpreprocessorassistproposalitem.h \
+    clangprojectsettings.h \
+    clangprojectsettingswidget.h \
     clangtextmark.h \
     clangutils.h
+
+FORMS += clangprojectsettingswidget.ui
 
 RESOURCES += \
     clangcodemodel.qrc

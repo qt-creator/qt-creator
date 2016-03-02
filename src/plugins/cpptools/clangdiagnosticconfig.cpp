@@ -23,60 +23,56 @@
 **
 ****************************************************************************/
 
-#ifndef CPPTOOLS_CPPCODEMODELSETTINGS_H
-#define CPPTOOLS_CPPCODEMODELSETTINGS_H
-
-#include "cpptools_global.h"
-
-#include "clangdiagnosticconfigsmodel.h"
-
-#include <QObject>
-#include <QStringList>
-
-QT_BEGIN_NAMESPACE
-class QSettings;
-QT_END_NAMESPACE
+#include "clangdiagnosticconfig.h"
 
 namespace CppTools {
 
-class CPPTOOLS_EXPORT CppCodeModelSettings : public QObject
+Core::Id ClangDiagnosticConfig::id() const
 {
-    Q_OBJECT
+    return m_id;
+}
 
-public:
-    enum PCHUsage {
-        PchUse_None = 1,
-        PchUse_BuildSystem = 2
-    };
+void ClangDiagnosticConfig::setId(const Core::Id &id)
+{
+    m_id = id;
+}
 
-public:
-    void fromSettings(QSettings *s);
-    void toSettings(QSettings *s);
+QString ClangDiagnosticConfig::displayName() const
+{
+    return m_displayName;
+}
 
-public:
-    Core::Id clangDiagnosticConfigId() const;
-    void setClangDiagnosticConfigId(const Core::Id &configId);
-    const ClangDiagnosticConfig clangDiagnosticConfig() const;
+void ClangDiagnosticConfig::setDisplayName(const QString &displayName)
+{
+    m_displayName = displayName;
+}
 
-    ClangDiagnosticConfigs clangCustomDiagnosticConfigs() const;
-    void setClangCustomDiagnosticConfigs(const ClangDiagnosticConfigs &configs);
+QStringList ClangDiagnosticConfig::commandLineOptions() const
+{
+    return m_commandLineOptions;
+}
 
-    PCHUsage pchUsage() const;
-    void setPCHUsage(PCHUsage pchUsage);
+void ClangDiagnosticConfig::setCommandLineOptions(const QStringList &options)
+{
+    m_commandLineOptions = options;
+}
 
-public: // for tests
-    void emitChanged();
+bool ClangDiagnosticConfig::isReadOnly() const
+{
+    return m_isReadOnly;
+}
 
-signals:
-    void changed();
-    void clangDiagnosticConfigIdChanged();
+void ClangDiagnosticConfig::setIsReadOnly(bool isReadOnly)
+{
+    m_isReadOnly = isReadOnly;
+}
 
-private:
-    PCHUsage m_pchUsage = PchUse_None;
-    ClangDiagnosticConfigs m_clangCustomDiagnosticConfigs;
-    Core::Id m_clangDiagnosticConfigId;
-};
+bool ClangDiagnosticConfig::operator==(const ClangDiagnosticConfig &other) const
+{
+    return m_id == other.m_id
+        && m_displayName == other.m_displayName
+        && m_commandLineOptions == other.m_commandLineOptions
+        && m_isReadOnly == other.m_isReadOnly;
+}
 
 } // namespace CppTools
-
-#endif // CPPTOOLS_CPPCODEMODELSETTINGS_H

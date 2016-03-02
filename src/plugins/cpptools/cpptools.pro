@@ -9,6 +9,9 @@ HEADERS += \
     builtineditordocumentparser.h \
     builtineditordocumentprocessor.h \
     builtinindexingsupport.h \
+    clangdiagnosticconfig.h \
+    clangdiagnosticconfigsmodel.h \
+    clangdiagnosticconfigswidget.h \
     commentssettings.h \
     completionsettingspage.h \
     cppchecksymbols.h \
@@ -84,6 +87,9 @@ SOURCES += \
     builtineditordocumentparser.cpp \
     builtineditordocumentprocessor.cpp \
     builtinindexingsupport.cpp \
+    clangdiagnosticconfig.cpp \
+    clangdiagnosticconfigsmodel.cpp \
+    clangdiagnosticconfigswidget.cpp \
     commentssettings.cpp \
     completionsettingspage.cpp \
     cppchecksymbols.cpp \
@@ -149,6 +155,7 @@ SOURCES += \
     compileroptionsbuilder.cpp
 
 FORMS += \
+    clangdiagnosticconfigswidget.ui \
     completionsettingspage.ui \
     cppcodemodelsettingspage.ui \
     cppcodestylesettingspage.ui \

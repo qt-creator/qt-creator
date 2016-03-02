@@ -23,60 +23,41 @@
 **
 ****************************************************************************/
 
-#ifndef CPPTOOLS_CPPCODEMODELSETTINGS_H
-#define CPPTOOLS_CPPCODEMODELSETTINGS_H
+#pragma once
 
 #include "cpptools_global.h"
 
-#include "clangdiagnosticconfigsmodel.h"
+#include <coreplugin/id.h>
 
-#include <QObject>
 #include <QStringList>
-
-QT_BEGIN_NAMESPACE
-class QSettings;
-QT_END_NAMESPACE
+#include <QVector>
 
 namespace CppTools {
 
-class CPPTOOLS_EXPORT CppCodeModelSettings : public QObject
+class CPPTOOLS_EXPORT ClangDiagnosticConfig
 {
-    Q_OBJECT
-
 public:
-    enum PCHUsage {
-        PchUse_None = 1,
-        PchUse_BuildSystem = 2
-    };
+    Core::Id id() const;
+    void setId(const Core::Id &id);
 
-public:
-    void fromSettings(QSettings *s);
-    void toSettings(QSettings *s);
+    QString displayName() const;
+    void setDisplayName(const QString &displayName);
 
-public:
-    Core::Id clangDiagnosticConfigId() const;
-    void setClangDiagnosticConfigId(const Core::Id &configId);
-    const ClangDiagnosticConfig clangDiagnosticConfig() const;
+    QStringList commandLineOptions() const;
+    void setCommandLineOptions(const QStringList &commandLineOptions);
 
-    ClangDiagnosticConfigs clangCustomDiagnosticConfigs() const;
-    void setClangCustomDiagnosticConfigs(const ClangDiagnosticConfigs &configs);
+    bool isReadOnly() const;
+    void setIsReadOnly(bool isReadOnly);
 
-    PCHUsage pchUsage() const;
-    void setPCHUsage(PCHUsage pchUsage);
-
-public: // for tests
-    void emitChanged();
-
-signals:
-    void changed();
-    void clangDiagnosticConfigIdChanged();
+    bool operator==(const ClangDiagnosticConfig &other) const;
 
 private:
-    PCHUsage m_pchUsage = PchUse_None;
-    ClangDiagnosticConfigs m_clangCustomDiagnosticConfigs;
-    Core::Id m_clangDiagnosticConfigId;
+    Core::Id m_id;
+    QString m_displayName;
+    QStringList m_commandLineOptions;
+    bool m_isReadOnly = false;
 };
 
-} // namespace CppTools
+using ClangDiagnosticConfigs = QVector<ClangDiagnosticConfig>;
 
-#endif // CPPTOOLS_CPPCODEMODELSETTINGS_H
+} // namespace CppTools

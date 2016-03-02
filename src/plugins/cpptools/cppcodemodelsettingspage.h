@@ -37,6 +37,9 @@ QT_FORWARD_DECLARE_CLASS(QComboBox)
 QT_FORWARD_DECLARE_CLASS(QSettings)
 
 namespace CppTools {
+
+class ClangDiagnosticConfigsWidget;
+
 namespace Internal {
 
 namespace Ui { class CppCodeModelSettingsPage; }
@@ -53,7 +56,7 @@ public:
     void applyToSettings() const;
 
 private:
-    void setupClangCodeModelWidgets() const;
+    void setupClangCodeModelWidgets();
     void setupPchCheckBox() const;
 
     bool applyClangCodeModelWidgetsToSettings() const;
@@ -61,6 +64,7 @@ private:
 
 private:
     Ui::CppCodeModelSettingsPage *m_ui;
+    QPointer<ClangDiagnosticConfigsWidget> m_clangDiagnosticConfigsWidget;
     QSharedPointer<CppCodeModelSettings> m_settings;
 };
 
