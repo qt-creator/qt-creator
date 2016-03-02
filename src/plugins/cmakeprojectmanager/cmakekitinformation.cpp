@@ -176,12 +176,25 @@ QVariant CMakeGeneratorKitInformation::defaultValue(const Kit *k) const
         if (ninjaExec.isEmpty())
             it = known.constEnd(); // Ignore ninja generator without ninja exectuable
     }
-    if (it == known.constEnd())
-        it = std::find_if(known.constBegin(), known.constEnd(),
-                          [](const QString &s) { return s == QLatin1String("CodeBlocks - Unix Makefiles"); });
-    if (it == known.constEnd())
-        it = std::find_if(known.constBegin(), known.constEnd(),
-                          [](const QString &s) { return s == QLatin1String("CodeBlocks - NMake Makefiles"); });
+    if (Utils::HostOsInfo::isWindowsHost()) {
+        // *sigh* Windows with its zoo of incompatible stuff again...
+        ToolChain *tc = ToolChainKitInformation::toolChain(k);
+        if (tc && tc->typeId() == ProjectExplorer::Constants::MINGW_TOOLCHAIN_TYPEID) {
+            if (it == known.constEnd())
+                it = std::find_if(known.constBegin(), known.constEnd(),
+                                  [](const QString &s) { return s == QLatin1String("CodeBlocks - MinGW Makefiles"); });
+        } else {
+            if (it == known.constEnd())
+                it = std::find_if(known.constBegin(), known.constEnd(),
+                                  [](const QString &s) { return s == QLatin1String("CodeBlocks - NMake Makefiles"); });
+        }
+
+    } else {
+        // Unix-oid OSes:
+        if (it == known.constEnd())
+            it = std::find_if(known.constBegin(), known.constEnd(),
+                              [](const QString &s) { return s == QLatin1String("CodeBlocks - Unix Makefiles"); });
+    }
     if (it == known.constEnd())
         it = known.constBegin(); // Fallback to the first generator...
     if (it != known.constEnd())
