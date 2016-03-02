@@ -57,6 +57,7 @@ public:
         ShowBackgroundControl = 0x2,
         ShowFontControls = 0x4,
         ShowUnderlineControl = 0x8,
+        ShowFontAndUnderlineControls = ShowFontControls | ShowUnderlineControl,
         AllControls = 0xF,
         AllControlsExceptUnderline = AllControls & ~ShowUnderlineControl,
     };

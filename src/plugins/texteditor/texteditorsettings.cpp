@@ -305,7 +305,10 @@ TextEditorSettings::TextEditorSettings(QObject *parent)
                              QColor(255, 190, 0),
                              QTextCharFormat::DotLine,
                              FormatDescription::ShowUnderlineControl);
-
+    formatDescr.emplace_back(C_DECLARATION,
+                             tr("Declaration"),
+                             tr("Declaration of a function, variable, and so on."),
+                             FormatDescription::ShowFontAndUnderlineControls);
 
     d->m_fontSettingsPage = new FontSettingsPage(formatDescr,
                                                    Constants::TEXT_EDITOR_FONT_SETTINGS,
