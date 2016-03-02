@@ -160,6 +160,14 @@ public:
         OutputPanes_StdErrTextColor,
         OutputPanes_StdOutTextColor,
         OutputPanes_WarningMessageTextColor,
+        OutputPanes_TestPassTextColor,
+        OutputPanes_TestFailTextColor,
+        OutputPanes_TestXFailTextColor,
+        OutputPanes_TestXPassTextColor,
+        OutputPanes_TestSkipTextColor,
+        OutputPanes_TestWarnTextColor,
+        OutputPanes_TestFatalTextColor,
+        OutputPanes_TestDebugTextColor,
 
         /* Debugger Log Window */
 
