@@ -3305,102 +3305,6 @@ void DebuggerPlugin::extensionsInitialized()
     dd->extensionsInitialized();
 }
 
-#ifdef WITH_TESTS
-
-void DebuggerPluginPrivate::testLoadProject(const QString &proFile, const TestCallBack &cb)
-{
-    connect(ProjectTree::instance(), &ProjectTree::currentProjectChanged,
-            this, &DebuggerPluginPrivate::testProjectLoaded);
-
-    m_testCallbacks.append(cb);
-    ProjectExplorerPlugin::OpenProjectResult result = ProjectExplorerPlugin::openProject(proFile);
-    if (result) {
-        // Will end up in callback below due to the connections to
-        // signal currentProjectChanged().
-        return;
-    }
-
-    // Project opening failed. Eat the unused callback.
-    qWarning("Cannot open %s: %s", qPrintable(proFile), qPrintable(result.errorMessage()));
-    QVERIFY(false);
-    m_testCallbacks.pop_back();
-}
-
-void DebuggerPluginPrivate::testProjectLoaded(Project *project)
-{
-    if (!project) {
-        qWarning("Changed to null project.");
-        return;
-    }
-    m_testProject = project;
-    connect(project, SIGNAL(proFilesEvaluated()), SLOT(testProjectEvaluated()));
-    project->configureAsExampleProject({ });
-}
-
-void DebuggerPluginPrivate::testProjectEvaluated()
-{
-    QString fileName = m_testProject->projectFilePath().toUserOutput();
-    QVERIFY(!fileName.isEmpty());
-    qWarning("Project %s loaded", qPrintable(fileName));
-    connect(BuildManager::instance(), SIGNAL(buildQueueFinished(bool)),
-            this, SLOT(testProjectBuilt(bool)));
-    ProjectExplorerPlugin::buildProject(m_testProject);
-}
-
-void DebuggerPluginPrivate::testProjectBuilt(bool success)
-{
-    QVERIFY(success);
-    QVERIFY(!m_testCallbacks.isEmpty());
-    TestCallBack cb = m_testCallbacks.takeLast();
-    invoke<void>(cb.receiver, cb.slot);
-}
-
-void DebuggerPluginPrivate::testUnloadProject()
-{
-    ProjectExplorerPlugin *pe = ProjectExplorerPlugin::instance();
-    invoke<void>(pe, "unloadProject");
-}
-
-//static Target *activeTarget()
-//{
-//    Project *project = ProjectExplorerPlugin::instance()->currentProject();
-//    return project->activeTarget();
-//}
-
-//static Kit *currentKit()
-//{
-//    Target *t = activeTarget();
-//    if (!t || !t->isEnabled())
-//        return 0;
-//    return t->kit();
-//}
-
-//static LocalApplicationRunConfiguration *activeLocalRunConfiguration()
-//{
-//    Target *t = activeTarget();
-//    return t ? qobject_cast<LocalApplicationRunConfiguration *>(t->activeRunConfiguration()) : 0;
-//}
-
-void DebuggerPluginPrivate::testRunProject(const DebuggerRunParameters &rp, const TestCallBack &cb)
-{
-    m_testCallbacks.append(cb);
-    RunControl *rc = createAndScheduleRun(rp, 0);
-    connect(rc, &RunControl::finished, this, &DebuggerPluginPrivate::testRunControlFinished);
-}
-
-void DebuggerPluginPrivate::testRunControlFinished()
-{
-    QVERIFY(!m_testCallbacks.isEmpty());
-    TestCallBack cb = m_testCallbacks.takeLast();
-    ExtensionSystem::invoke<void>(cb.receiver, cb.slot);
-}
-
-void DebuggerPluginPrivate::testFinished()
-{
-    QTestEventLoop::instance().exitLoop();
-    QVERIFY(m_testSuccess);
-}
-
 void DebuggerPluginPrivate::updateUiForProject(Project *project)
 {
     if (m_previousProject) {
@@ -3604,6 +3508,101 @@ QWidget *DebuggerPluginPrivate::createContents(IMode *mode)
 //    return QObject::eventFilter(obj, event);
 //}
 
+
+#ifdef WITH_TESTS
+void DebuggerPluginPrivate::testLoadProject(const QString &proFile, const TestCallBack &cb)
+{
+    connect(ProjectTree::instance(), &ProjectTree::currentProjectChanged,
+            this, &DebuggerPluginPrivate::testProjectLoaded);
+
+    m_testCallbacks.append(cb);
+    ProjectExplorerPlugin::OpenProjectResult result = ProjectExplorerPlugin::openProject(proFile);
+    if (result) {
+        // Will end up in callback below due to the connections to
+        // signal currentProjectChanged().
+        return;
+    }
+
+    // Project opening failed. Eat the unused callback.
+    qWarning("Cannot open %s: %s", qPrintable(proFile), qPrintable(result.errorMessage()));
+    QVERIFY(false);
+    m_testCallbacks.pop_back();
+}
+
+void DebuggerPluginPrivate::testProjectLoaded(Project *project)
+{
+    if (!project) {
+        qWarning("Changed to null project.");
+        return;
+    }
+    m_testProject = project;
+    connect(project, SIGNAL(proFilesEvaluated()), SLOT(testProjectEvaluated()));
+    project->configureAsExampleProject({ });
+}
+
+void DebuggerPluginPrivate::testProjectEvaluated()
+{
+    QString fileName = m_testProject->projectFilePath().toUserOutput();
+    QVERIFY(!fileName.isEmpty());
+    qWarning("Project %s loaded", qPrintable(fileName));
+    connect(BuildManager::instance(), SIGNAL(buildQueueFinished(bool)),
+            this, SLOT(testProjectBuilt(bool)));
+    ProjectExplorerPlugin::buildProject(m_testProject);
+}
+
+void DebuggerPluginPrivate::testProjectBuilt(bool success)
+{
+    QVERIFY(success);
+    QVERIFY(!m_testCallbacks.isEmpty());
+    TestCallBack cb = m_testCallbacks.takeLast();
+    invoke<void>(cb.receiver, cb.slot);
+}
+
+void DebuggerPluginPrivate::testUnloadProject()
+{
+    ProjectExplorerPlugin *pe = ProjectExplorerPlugin::instance();
+    invoke<void>(pe, "unloadProject");
+}
+
+//static Target *activeTarget()
+//{
+//    Project *project = ProjectExplorerPlugin::instance()->currentProject();
+//    return project->activeTarget();
+//}
+
+//static Kit *currentKit()
+//{
+//    Target *t = activeTarget();
+//    if (!t || !t->isEnabled())
+//        return 0;
+//    return t->kit();
+//}
+
+//static LocalApplicationRunConfiguration *activeLocalRunConfiguration()
+//{
+//    Target *t = activeTarget();
+//    return t ? qobject_cast<LocalApplicationRunConfiguration *>(t->activeRunConfiguration()) : 0;
+//}
+
+void DebuggerPluginPrivate::testRunProject(const DebuggerRunParameters &rp, const TestCallBack &cb)
+{
+    m_testCallbacks.append(cb);
+    RunControl *rc = createAndScheduleRun(rp, 0);
+    connect(rc, &RunControl::finished, this, &DebuggerPluginPrivate::testRunControlFinished);
+}
+
+void DebuggerPluginPrivate::testRunControlFinished()
+{
+    QVERIFY(!m_testCallbacks.isEmpty());
+    TestCallBack cb = m_testCallbacks.takeLast();
+    ExtensionSystem::invoke<void>(cb.receiver, cb.slot);
+}
+
+void DebuggerPluginPrivate::testFinished()
+{
+    QTestEventLoop::instance().exitLoop();
+    QVERIFY(m_testSuccess);
+}
 
 ///////////////////////////////////////////////////////////////////////////
 

@@ -52,7 +52,7 @@ class ANALYZER_EXPORT Perspective
 public:
     enum SplitType { SplitVertical, SplitHorizontal, AddToTab };
 
-    class Split
+    class ANALYZER_EXPORT Split
     {
     public:
         Split() = default;
