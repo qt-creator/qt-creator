@@ -30,9 +30,11 @@
 #include "valgrindsettings.h"
 #include "valgrindplugin.h"
 
-#include <debugger/analyzer/analyzermanager.h>
-#include <debugger/analyzer/analyzerutils.h>
 #include <debugger/analyzer/analyzerconstants.h>
+#include <debugger/analyzer/analyzermanager.h>
+#include <debugger/analyzer/analyzerstartparameters.h>
+#include <debugger/analyzer/analyzerutils.h>
+#include <debugger/analyzer/startremotedialog.h>
 
 #include <valgrind/valgrindsettings.h>
 #include <valgrind/xmlprotocol/errorlistmodel.h>
@@ -62,26 +64,26 @@
 #include <coreplugin/id.h>
 
 #include <utils/fancymainwindow.h>
-#include <utils/styledbar.h>
 #include <utils/qtcassert.h>
+#include <utils/styledbar.h>
+#include <utils/stylehelper.h>
 
-#include <QString>
-#include <QLatin1String>
+#include <QAction>
+#include <QCheckBox>
+#include <QComboBox>
+#include <QDir>
+#include <QDockWidget>
+#include <QFile>
 #include <QFileDialog>
 #include <QFileInfo>
-#include <QFile>
-#include <QDir>
-
-#include <QDockWidget>
 #include <QHBoxLayout>
-#include <QComboBox>
 #include <QLabel>
-#include <QSpinBox>
-#include <QAction>
+#include <QLatin1String>
 #include <QMenu>
+#include <QSortFilterProxyModel>
+#include <QSpinBox>
+#include <QString>
 #include <QToolButton>
-#include <QCheckBox>
-#include <utils/stylehelper.h>
 
 using namespace Analyzer;
 using namespace ProjectExplorer;
@@ -90,7 +92,23 @@ using namespace Valgrind::XmlProtocol;
 namespace Valgrind {
 namespace Internal {
 
-// ---------------------------- MemcheckErrorFilterProxyModel
+class FrameFinder;
+
+class MemcheckErrorFilterProxyModel : public QSortFilterProxyModel
+{
+public:
+    MemcheckErrorFilterProxyModel(QObject *parent = 0);
+
+public:
+    void setAcceptedKinds(const QList<int> &acceptedKinds);
+    void setFilterExternalIssues(bool filter);
+    bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const;
+
+private:
+    QList<int> m_acceptedKinds;
+    bool m_filterExternalIssues;
+};
+
 MemcheckErrorFilterProxyModel::MemcheckErrorFilterProxyModel(QObject *parent)
     : QSortFilterProxyModel(parent),
       m_filterExternalIssues(false)
@@ -178,6 +196,56 @@ static void initKindFilterAction(QAction *action, const QVariantList &kinds)
     action->setData(kinds);
 }
 
+class MemcheckTool : public QObject
+{
+    Q_DECLARE_TR_FUNCTIONS(Valgrind::Internal::MemcheckTool)
+
+public:
+    MemcheckTool(QObject *parent);
+
+    QWidget *createWidgets();
+
+    MemcheckRunControl *createRunControl(ProjectExplorer::RunConfiguration *runConfiguration,
+                                         Core::Id runMode);
+
+private:
+    void settingsDestroyed(QObject *settings);
+    void maybeActiveRunConfigurationChanged();
+
+    void engineStarting(const MemcheckRunControl *engine);
+    void engineFinished();
+    void loadingExternalXmlLogFileFinished();
+
+    void parserError(const Valgrind::XmlProtocol::Error &error);
+    void internalParserError(const QString &errorString);
+    void updateErrorFilter();
+
+    void loadExternalXmlLogFile();
+
+    void setBusyCursor(bool busy);
+
+    void clearErrorView();
+    void updateFromSettings();
+    int updateUiAfterFinishedHelper();
+
+private:
+    ValgrindBaseSettings *m_settings;
+    QMenu *m_filterMenu;
+
+    FrameFinder *m_frameFinder;
+    Valgrind::XmlProtocol::ErrorListModel *m_errorModel;
+    MemcheckErrorFilterProxyModel *m_errorProxyModel;
+    MemcheckErrorView *m_errorView;
+
+    QList<QAction *> m_errorFilterActions;
+    QAction *m_filterProjectAction;
+    QList<QAction *> m_suppressionActions;
+    QAction *m_suppressionSeparator;
+    QAction *m_loadExternalLogFile;
+    QAction *m_goBack;
+    QAction *m_goNext;
+};
+
 MemcheckTool::MemcheckTool(QObject *parent)
   : QObject(parent)
 {
@@ -216,6 +284,55 @@ MemcheckTool::MemcheckTool(QObject *parent)
     a = new QAction(tr("Invalid Calls to \"free()\""), this);
     initKindFilterAction(a, { InvalidFree,  MismatchedFree });
     m_errorFilterActions.append(a);
+
+
+    using namespace std::placeholders;
+
+    AnalyzerManager::registerToolbar(MemcheckPerspectiveId, createWidgets());
+
+    ActionDescription desc;
+    desc.setToolTip(tr("Valgrind Analyze Memory uses the "
+         "Memcheck tool to find memory leaks."));
+
+    if (!Utils::HostOsInfo::isWindowsHost()) {
+        desc.setText(tr("Valgrind Memory Analyzer"));
+        desc.setPerspectiveId(MemcheckPerspectiveId);
+        desc.setRunControlCreator(std::bind(&MemcheckTool::createRunControl, this, _1, _2));
+        desc.setToolMode(DebugMode);
+        desc.setRunMode(MEMCHECK_RUN_MODE);
+        desc.setMenuGroup(Analyzer::Constants::G_ANALYZER_TOOLS);
+        AnalyzerManager::registerAction("Memcheck.Local", desc);
+
+        desc.setText(tr("Valgrind Memory Analyzer with GDB"));
+        desc.setToolTip(tr("Valgrind Analyze Memory with GDB uses the "
+            "Memcheck tool to find memory leaks.\nWhen a problem is detected, "
+            "the application is interrupted and can be debugged."));
+        desc.setPerspectiveId(MemcheckPerspectiveId);
+        desc.setRunControlCreator(std::bind(&MemcheckTool::createRunControl, this, _1, _2));
+        desc.setToolMode(DebugMode);
+        desc.setRunMode(MEMCHECK_WITH_GDB_RUN_MODE);
+        desc.setMenuGroup(Analyzer::Constants::G_ANALYZER_TOOLS);
+        AnalyzerManager::registerAction("MemcheckWithGdb.Local", desc);
+    }
+
+    desc.setText(tr("Valgrind Memory Analyzer (External Remote Application)"));
+    desc.setPerspectiveId(MemcheckPerspectiveId);
+    desc.setCustomToolStarter([this](ProjectExplorer::RunConfiguration *runConfig) {
+        StartRemoteDialog dlg;
+        if (dlg.exec() != QDialog::Accepted)
+            return;
+        ValgrindRunControl *rc = createRunControl(runConfig, MEMCHECK_RUN_MODE);
+        QTC_ASSERT(rc, return);
+        const auto runnable = dlg.runnable();
+        rc->setRunnable(runnable);
+        AnalyzerConnection connection;
+        connection.connParams = dlg.sshParams();
+        rc->setConnection(connection);
+        rc->setDisplayName(runnable.executable);
+        ProjectExplorerPlugin::startRunControl(rc, MEMCHECK_RUN_MODE);
+    });
+    desc.setMenuGroup(Analyzer::Constants::G_ANALYZER_REMOTE_TOOLS);
+    AnalyzerManager::registerAction("Memcheck.Remote", desc);
 }
 
 void MemcheckTool::settingsDestroyed(QObject *settings)
@@ -574,6 +691,19 @@ void MemcheckTool::setBusyCursor(bool busy)
 {
     QCursor cursor(busy ? Qt::BusyCursor : Qt::ArrowCursor);
     m_errorView->setCursor(cursor);
+}
+
+static MemcheckTool *theMemcheckTool;
+
+void initMemcheckTool(QObject *parent)
+{
+    theMemcheckTool = new MemcheckTool(parent);
+}
+
+void destroyMemcheckTool()
+{
+    delete theMemcheckTool;
+    theMemcheckTool = 0;
 }
 
 } // namespace Internal

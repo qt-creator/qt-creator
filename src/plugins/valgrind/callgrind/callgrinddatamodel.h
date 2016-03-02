@@ -41,7 +41,7 @@ class DataModel : public QAbstractItemModel
     Q_OBJECT
 
 public:
-    explicit DataModel(QObject *parent);
+    DataModel();
     virtual ~DataModel();
 
     virtual void setParseData(const ParseData *data);

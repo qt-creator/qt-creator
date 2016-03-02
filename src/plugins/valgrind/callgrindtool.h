@@ -28,8 +28,6 @@
 
 #include <QObject>
 
-namespace ProjectExplorer { class RunConfiguration; }
-
 namespace Valgrind {
 namespace Internal {
 
@@ -41,27 +39,10 @@ const char CallgrindCalleesDockId[]       = "Callgrind.Callees.Dock";
 const char CallgrindFlatDockId[]          = "Callgrind.Flat.Dock";
 const char CallgrindVisualizationDockId[] = "Callgrind.Visualization.Dock";
 
-class ValgrindRunControl;
 const char CALLGRIND_RUN_MODE[] = "CallgrindTool.CallgrindRunMode";
 
-class CallgrindToolPrivate;
-
-class CallgrindTool : public QObject
-{
-    Q_OBJECT
-
-public:
-    CallgrindTool(QObject *parent);
-    ~CallgrindTool();
-
-    ValgrindRunControl *createRunControl(ProjectExplorer::RunConfiguration *runConfiguration);
-    QWidget *createWidgets();
-
-    void handleShowCostsOfFunction();
-
-private:
-    CallgrindToolPrivate *d;
-};
+void initCallgrindTool(QObject *parent);
+void destroyCallgrindTool();
 
 } // namespace Internal
 } // namespace Valgrind

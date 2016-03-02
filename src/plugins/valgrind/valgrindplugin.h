@@ -44,8 +44,9 @@ public:
     ValgrindPlugin() {}
     ~ValgrindPlugin();
 
-    bool initialize(const QStringList &arguments, QString *errorString);
-    void extensionsInitialized();
+    bool initialize(const QStringList &arguments, QString *errorString) override;
+    void extensionsInitialized() override;
+    ShutdownFlag aboutToShutdown() override;
 
     static ValgrindGlobalSettings *globalSettings();
 };

@@ -27,24 +27,7 @@
 #ifndef MEMCHECKTOOL_H
 #define MEMCHECKTOOL_H
 
-#include <coreplugin/id.h>
-
-#include <QSortFilterProxyModel>
-
-QT_BEGIN_NAMESPACE
-class QModelIndex;
-class QAction;
-class QMenu;
-QT_END_NAMESPACE
-
-namespace Valgrind {
-namespace XmlProtocol {
-class ErrorListModel;
-class Error;
-}
-}
-
-namespace ProjectExplorer { class RunConfiguration; }
+#include <QObject>
 
 namespace Valgrind {
 
@@ -56,80 +39,8 @@ const char MemcheckErrorDockId[] = "Memcheck.Dock.Error";
 
 namespace Internal {
 
-class FrameFinder;
-class MemcheckErrorView;
-class MemcheckRunControl;
-class ValgrindBaseSettings;
-
-
-class MemcheckErrorFilterProxyModel : public QSortFilterProxyModel
-{
-    Q_OBJECT
-
-public:
-    MemcheckErrorFilterProxyModel(QObject *parent = 0);
-
-public slots:
-    void setAcceptedKinds(const QList<int> &acceptedKinds);
-    void setFilterExternalIssues(bool filter);
-
-protected:
-    bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const;
-
-private:
-    QList<int> m_acceptedKinds;
-    bool m_filterExternalIssues;
-};
-
-class MemcheckTool : public QObject
-{
-    Q_OBJECT
-
-public:
-    MemcheckTool(QObject *parent);
-
-    QWidget *createWidgets();
-
-    MemcheckRunControl *createRunControl(ProjectExplorer::RunConfiguration *runConfiguration,
-                                         Core::Id runMode);
-
-private:
-    void settingsDestroyed(QObject *settings);
-    void maybeActiveRunConfigurationChanged();
-
-    void engineStarting(const MemcheckRunControl *engine);
-    void engineFinished();
-    void loadingExternalXmlLogFileFinished();
-
-    void parserError(const Valgrind::XmlProtocol::Error &error);
-    void internalParserError(const QString &errorString);
-    void updateErrorFilter();
-
-    void loadExternalXmlLogFile();
-
-    void setBusyCursor(bool busy);
-
-    void clearErrorView();
-    void updateFromSettings();
-    int updateUiAfterFinishedHelper();
-
-private:
-    ValgrindBaseSettings *m_settings;
-    QMenu *m_filterMenu;
-
-    FrameFinder *m_frameFinder;
-    Valgrind::XmlProtocol::ErrorListModel *m_errorModel;
-    MemcheckErrorFilterProxyModel *m_errorProxyModel;
-    MemcheckErrorView *m_errorView;
-
-    QList<QAction *> m_errorFilterActions;
-    QAction *m_filterProjectAction;
-    QList<QAction *> m_suppressionActions;
-    QAction *m_suppressionSeparator;
-    QAction *m_loadExternalLogFile;
-    QAction *m_goBack;
-    QAction *m_goNext;
-};
+void initMemcheckTool(QObject *parent);
+void destroyMemcheckTool();
 
 } // namespace Internal
 } // namespace Valgrind
