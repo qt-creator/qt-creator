@@ -213,6 +213,7 @@ QVariant FlameGraphModel::lookup(const FlameGraphData &stats, int role) const
         case RangeType: return type.rangeType;
         case Details: return type.data.isEmpty() ?
                         FlameGraphModel::tr("Source code not available") : type.data;
+        case Location: return type.displayName;
         default: return QVariant();
         }
     } else {

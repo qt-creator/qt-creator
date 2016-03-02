@@ -91,10 +91,14 @@ ScrollView {
                     }
                 }
 
+                // Functions, not properties to limit the initial overhead when creating the nodes,
+                // and because FlameGraph.data(...) cannot be notified anyway.
+                function title() { return FlameGraph.data(FlameGraphModel.Type) || ""; }
+                function note() { return FlameGraph.data(FlameGraphModel.Note) || ""; }
                 function details() {
                     var model = [];
                     function addDetail(name, index, format) {
-                        model.push(name + ":");
+                        model.push(name);
                         model.push(format(FlameGraph.data(index)));
                     }
 
@@ -121,7 +125,7 @@ ScrollView {
                     }
 
                     if (!FlameGraph.dataValid) {
-                        model.push(qsTr("Details") + ":");
+                        model.push(qsTr("Details"));
                         model.push(qsTr("Various Events"));
                     } else {
                         addDetail(qsTr("Details"), FlameGraphModel.Details, noop);
@@ -131,7 +135,7 @@ ScrollView {
                         addDetail(qsTr("Mean Time"), FlameGraphModel.TimePerCall, printTime);
                         addDetail(qsTr("In Percent"), FlameGraphModel.TimeInPercent,
                                   addPercent);
-
+                        addDetail(qsTr("Location"), FlameGraphModel.Location, noop);
                     }
                     return model;
                 }
@@ -221,59 +225,56 @@ ScrollView {
             }
         }
 
-        Rectangle {
-            color: "white"
-            border.width: 1
-            border.color: flamegraph.grey2
-            width: tooltip.model.length > 0 ? tooltip.width + 10 : 0
-            height: tooltip.model.length > 0 ? tooltip.height + 10 : 0
-            y: flickable.contentY
-            x: anchorRight ? parent.width - width : 0
-            property bool anchorRight: true
+        FlameGraphDetails {
+            id: tooltip
 
-            Grid {
-                id: tooltip
-                anchors.margins: 5
-                anchors.top: parent.top
-                anchors.left: parent.left
-                spacing: 5
-                columns: 2
-                property var hoveredNode: null;
-                property var selectedNode: null;
-                property var model: {
-                    if (flameGraphModel.rowCount() === 0)
-                        return [ qsTr("No data available") ];
-                    else if (hoveredNode !== null)
-                        return hoveredNode.details();
-                    else if (selectedNode !== null)
-                        return selectedNode.details();
-                    else
-                        return [];
-                }
+            minimumX: 0
+            maximumX: flickable.width
+            minimumY: flickable.contentY
+            maximumY: flickable.contentY + flickable.height
 
-                Connections {
-                    target: flameGraphModel
-                    onModelReset: {
-                        tooltip.hoveredNode = null;
-                        tooltip.selectedNode = null;
-                    }
-                }
+            property var hoveredNode: null;
+            property var selectedNode: null;
 
-                Repeater {
-                    model: parent.model
-                    FlameGraphText {
-                        text: modelData
-                        font.bold: (index % 2) === 0
-                        width: Math.min(implicitWidth, 200)
-                        elide: Text.ElideRight
-                    }
-                }
+            property var currentNode: {
+                if (hoveredNode !== null)
+                    return hoveredNode;
+                else if (selectedNode !== null)
+                    return selectedNode;
+                else
+                    return null;
             }
 
-            MouseArea {
-                anchors.fill: parent
-                hoverEnabled: true
-                onEntered: parent.anchorRight = !parent.anchorRight
+            onClearSelection: {
+                selectedTypeId = -1;
+                selectedNode = null;
+                root.typeSelected(-1);
+            }
+
+            dialogTitle: {
+                if (currentNode)
+                    return currentNode.title();
+                else if (flameGraphModel.rowCount() === 0)
+                    return qsTr("No data available");
+                else
+                    return "";
+            }
+
+            model: currentNode ? currentNode.details() : []
+            note: currentNode ? currentNode.note() : ""
+
+            Connections {
+                target: flameGraphModel
+                onModelReset: {
+                    tooltip.hoveredNode = null;
+                    tooltip.selectedNode = null;
+                }
+                onDataChanged: {
+                    // refresh to trigger reevaluation of note
+                    var selectedNode = tooltip.selectedNode;
+                    tooltip.selectedNode = null;
+                    tooltip.selectedNode = selectedNode;
+                }
             }
         }
     }
