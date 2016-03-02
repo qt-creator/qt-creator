@@ -646,21 +646,23 @@ void AnalyzerManager::registerToolbar(Id toolbarId, QWidget *widget)
     d->m_mainWindow->registerToolbar(toolbarId, widget);
 }
 
-Perspective::Split::Split(Id dockId, Id existing, Perspective::SplitType splitType, bool visibleByDefault, Qt::DockWidgetArea area)
-    : dockId(dockId), existing(existing), splitType(splitType), visibleByDefault(visibleByDefault), area(area)
+Perspective::Operation::Operation(Id dockId, Id existing, Perspective::OperationType operationType,
+                                  bool visibleByDefault, Qt::DockWidgetArea area)
+    : dockId(dockId), existing(existing), operationType(operationType),
+      visibleByDefault(visibleByDefault), area(area)
 {}
 
-Perspective::Perspective(std::initializer_list<Perspective::Split> splits)
-    : m_splits(splits)
+Perspective::Perspective(std::initializer_list<Perspective::Operation> operations)
+    : m_operations(operations)
 {
-    for (const Split &split : splits)
-        m_docks.append(split.dockId);
+    for (const Operation &operation : operations)
+        m_docks.append(operation.dockId);
 }
 
-void Perspective::addSplit(const Split &split)
+void Perspective::addOperation(const Operation &operation)
 {
-    m_docks.append(split.dockId);
-    m_splits.append(split);
+    m_docks.append(operation.dockId);
+    m_operations.append(operation);
 }
 
 void AnalyzerManager::registerPerspective(Id perspectiveId, const Perspective &perspective)

@@ -100,16 +100,20 @@ void MainWindowBase::loadPerspectiveHelper(Id perspectiveId, bool fromStoredSett
     m_currentPerspectiveId = perspectiveId;
 
     QTC_ASSERT(m_perspectiveForPerspectiveId.contains(perspectiveId), return);
-    const auto splits = m_perspectiveForPerspectiveId.value(perspectiveId).splits();
-    for (const Perspective::Split &split : splits) {
-        QDockWidget *dock = m_dockForDockId.value(split.dockId);
+    const auto operations = m_perspectiveForPerspectiveId.value(perspectiveId).operations();
+    for (const Perspective::Operation &operation : operations) {
+        QDockWidget *dock = m_dockForDockId.value(operation.dockId);
         QTC_ASSERT(dock, continue);
-        addDockWidget(split.area, dock);
-        QDockWidget *existing = m_dockForDockId.value(split.existing);
-        if (!existing && split.area == Qt::BottomDockWidgetArea)
+        if (operation.operationType == Perspective::Raise) {
+            dock->raise();
+            continue;
+        }
+        addDockWidget(operation.area, dock);
+        QDockWidget *existing = m_dockForDockId.value(operation.existing);
+        if (!existing && operation.area == Qt::BottomDockWidgetArea)
             existing = toolBarDockWidget();
         if (existing) {
-            switch (split.splitType) {
+            switch (operation.operationType) {
             case Perspective::AddToTab:
                 tabifyDockWidget(existing, dock);
                 break;
@@ -119,9 +123,11 @@ void MainWindowBase::loadPerspectiveHelper(Id perspectiveId, bool fromStoredSett
             case Perspective::SplitVertical:
                 splitDockWidget(existing, dock, Qt::Vertical);
                 break;
+            default:
+                break;
             }
         }
-        if (!split.visibleByDefault)
+        if (!operation.visibleByDefault)
             dock->hide();
         else
             dock->show();

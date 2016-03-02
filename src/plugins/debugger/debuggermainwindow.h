@@ -50,34 +50,34 @@ namespace Analyzer {
 class ANALYZER_EXPORT Perspective
 {
 public:
-    enum SplitType { SplitVertical, SplitHorizontal, AddToTab };
+    enum OperationType { SplitVertical, SplitHorizontal, AddToTab, Raise };
 
-    class ANALYZER_EXPORT Split
+    class ANALYZER_EXPORT Operation
     {
     public:
-        Split() = default;
-        Split(Core::Id dockId, Core::Id existing, SplitType splitType,
+        Operation() = default;
+        Operation(Core::Id dockId, Core::Id existing, OperationType operationType,
               bool visibleByDefault = true,
               Qt::DockWidgetArea area = Qt::BottomDockWidgetArea);
 
         Core::Id dockId;
         Core::Id existing;
-        SplitType splitType;
+        OperationType operationType;
         bool visibleByDefault;
         Qt::DockWidgetArea area;
     };
 
     Perspective() = default;
-    Perspective(std::initializer_list<Split> splits);
+    Perspective(std::initializer_list<Operation> operations);
 
-    void addSplit(const Split &split);
+    void addOperation(const Operation &operation);
 
-    QVector<Split> splits() const { return m_splits; }
+    QVector<Operation> operations() const { return m_operations; }
     QVector<Core::Id> docks() const { return m_docks; }
 
 private:
     QVector<Core::Id> m_docks;
-    QVector<Split> m_splits;
+    QVector<Operation> m_operations;
 };
 
 } // Analyzer

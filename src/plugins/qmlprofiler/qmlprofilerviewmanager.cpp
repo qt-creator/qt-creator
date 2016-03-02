@@ -95,8 +95,8 @@ void QmlProfilerViewManager::createViews()
     new QmlProfilerStateWidget(d->profilerState, d->profilerModelManager, d->traceView);
 
     Perspective perspective;
-    perspective.addSplit({Constants::QmlProfilerTimelineDockId, Core::Id(),
-                          Perspective::SplitVertical});
+    perspective.addOperation({Constants::QmlProfilerTimelineDockId, Core::Id(),
+                              Perspective::SplitVertical});
 
     d->eventsViews << new QmlProfilerStatisticsView(0, d->profilerModelManager);
     if (d->eventsViewFactory)
@@ -120,7 +120,7 @@ void QmlProfilerViewManager::createViews()
                 this, [this](){restrictEventsToRange(-1, -1);});
         Core::Id dockId = Core::Id::fromString(view->objectName());
         AnalyzerManager::registerDockWidget(dockId, view);
-        perspective.addSplit({dockId, Constants::QmlProfilerTimelineDockId, Perspective::AddToTab});
+        perspective.addOperation({dockId, Constants::QmlProfilerTimelineDockId, Perspective::AddToTab});
         new QmlProfilerStateWidget(d->profilerState, d->profilerModelManager, view);
 
         if (!settings->contains(view->parent()->objectName())) // parent() is QDockWidget.
