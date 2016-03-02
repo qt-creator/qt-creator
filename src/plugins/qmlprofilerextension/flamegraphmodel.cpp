@@ -96,24 +96,8 @@ void FlameGraphModel::loadNotes(int typeIndex, bool emitSignal)
             m_typeIdsWithNotes.insert(typeIndex);
     }
 
-    if (!emitSignal)
-        return;
-
-    QQueue<QModelIndex> queue;
-    queue.append(QModelIndex());
-
-    QVector<int> roles = {Note};
-    while (!queue.isEmpty()) {
-        QModelIndex index = queue.takeFirst();
-        if (index.isValid()) {
-            FlameGraphData *data = static_cast<FlameGraphData *>(index.internalPointer());
-            if (changedNotes.contains(data->typeIndex))
-                emit dataChanged(index, index, roles);
-            for (int row = 0; row < rowCount(index); ++row)
-                queue.append(index.child(row, 0));
-        }
-
-    }
+    if (emitSignal)
+        emit dataChanged(QModelIndex(), QModelIndex(), QVector<int>() << Note);
 }
 
 void FlameGraphModel::loadData(qint64 rangeStart, qint64 rangeEnd)
@@ -203,9 +187,9 @@ QVariant FlameGraphModel::lookup(const FlameGraphData &stats, int role) const
         QmlProfiler::QmlProfilerNotesModel *notes = m_modelManager->notesModel();
         foreach (const QVariant &item, notes->byTypeId(stats.typeIndex)) {
             if (ret.isEmpty())
-                ret = item.toString();
+                ret = notes->text(item.toInt());
             else
-                ret += QChar::LineFeed + item.toString();
+                ret += QChar::LineFeed + notes->text(item.toInt());
         }
         return ret;
     }

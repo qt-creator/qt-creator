@@ -51,6 +51,9 @@ ScrollView {
             property color blue2: Qt.rgba(0.375, 0, 1, 1)
             property color grey1: "#B0B0B0"
             property color grey2: "#A0A0A0"
+            property color orange: "orange"
+
+            function checkBindingLoop(otherTypeId) {return false;}
 
             id: flamegraph
             width: parent.width
@@ -62,19 +65,29 @@ ScrollView {
 
             delegate: Item {
                 id: flamegraphItem
+
+                property int typeId: FlameGraph.data(FlameGraphModel.TypeId) || -1
+                property bool isBindingLoop: parent.checkBindingLoop(typeId)
                 property int level: parent.level + (rangeTypeVisible ? 1 : 0)
-                property bool isSelected: FlameGraph.data(FlameGraphModel.TypeId) ===
-                                          root.selectedTypeId
+                property bool isSelected: typeId !== -1 && typeId === root.selectedTypeId
                 property bool rangeTypeVisible: root.visibleRangeTypes &
                                                 (1 << FlameGraph.data(FlameGraphModel.RangeType))
 
                 onIsSelectedChanged: {
                     if (isSelected && (tooltip.selectedNode === null ||
-                            tooltip.selectedNode.FlameGraph.data(FlameGraphModel.TypeId) !==
-                            root.selectedTypeId)) {
+                            tooltip.selectedNode.typeId !== root.selectedTypeId)) {
                         tooltip.selectedNode = flamegraphItem;
                     } else if (!isSelected && tooltip.selectedNode === flamegraphItem) {
                         tooltip.selectedNode = null;
+                    }
+                }
+
+                function checkBindingLoop(otherTypeId) {
+                    if (typeId === otherTypeId) {
+                        isBindingLoop = true;
+                        return true;
+                    } else {
+                        return parent.checkBindingLoop(otherTypeId);
                     }
                 }
 
@@ -129,11 +142,21 @@ ScrollView {
                             return flamegraph.blue2;
                         else if (tooltip.hoveredNode === flamegraphItem)
                             return flamegraph.blue1;
+                        else if (flamegraphItem.note() !== "" || flamegraphItem.isBindingLoop)
+                            return flamegraph.orange;
                         else
-                            return flamegraph.grey1
+                            return flamegraph.grey1;
                     }
-                    border.width: (tooltip.hoveredNode === flamegraphItem ||
-                                   tooltip.selectedNode === flamegraphItem) ? 2 : 1
+                    border.width: {
+                        if (tooltip.hoveredNode === flamegraphItem ||
+                                tooltip.selectedNode === flamegraphItem) {
+                            return 2;
+                        } else if (flamegraphItem.note() !== "") {
+                            return 3;
+                        } else {
+                            return 1;
+                        }
+                    }
                     color: Qt.hsla((level % 12) / 72, 0.9 + Math.random() / 10,
                                    0.45 + Math.random() / 10, 0.9 + Math.random() / 10);
                     height: flamegraphItem.rangeTypeVisible ? flamegraph.itemHeight : 0;
