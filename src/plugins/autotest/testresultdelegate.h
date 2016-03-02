@@ -72,7 +72,7 @@ private:
             m_typeAreaWidth = QFontMetrics(options.font).width(QLatin1String("XXXXXXXX"));
             m_indentation = options.widget ? options.widget->style()->pixelMetric(
                                                  QStyle::PM_TreeViewIndentation, &options) : 0;
-            m_level = srcModel->hasChildren(filterModel->mapToSource(options.index)) ? 1 : 2;
+            m_level = filterModel->mapToSource(options.index).parent() == srcModel->rootItem()->index() ? 1 : 2;
             int flexibleArea = lineAreaLeft() - textAreaLeft() - ITEM_SPACING;
             if (m_maxFileLength > flexibleArea / 2)
                 m_realFileLength = flexibleArea / 2;
