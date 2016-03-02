@@ -37,60 +37,12 @@
 
 using namespace ProjectExplorer;
 
-//////////////////////////////////////////////////////////////////////////
-//
-// AnalyzerRunControl
-//
-//////////////////////////////////////////////////////////////////////////
-
-namespace Analyzer {
+namespace Debugger {
 
 AnalyzerRunControl::AnalyzerRunControl(RunConfiguration *runConfiguration, Core::Id runMode)
     : RunControl(runConfiguration, runMode)
 {
     setIcon(Icons::ANALYZER_CONTROL_START);
-
-    connect(this, &AnalyzerRunControl::finished,
-            this, &AnalyzerRunControl::runControlFinished);
-    connect(AnalyzerManager::stopAction(), &QAction::triggered,
-            this, &AnalyzerRunControl::stopIt);
 }
 
-void AnalyzerRunControl::stopIt()
-{
-    if (stop() == RunControl::StoppedSynchronously)
-        AnalyzerManager::handleToolFinished();
-}
-
-void AnalyzerRunControl::runControlFinished()
-{
-    m_isRunning = false;
-    AnalyzerManager::handleToolFinished();
-}
-
-void AnalyzerRunControl::start()
-{
-    AnalyzerManager::handleToolStarted();
-
-    if (startEngine()) {
-        m_isRunning = true;
-        emit started();
-    }
-}
-
-RunControl::StopResult AnalyzerRunControl::stop()
-{
-    if (!m_isRunning)
-        return StoppedSynchronously;
-
-    stopEngine();
-    m_isRunning = false;
-    return AsynchronousStop;
-}
-
-bool AnalyzerRunControl::isRunning() const
-{
-    return m_isRunning;
-}
-
-} // namespace Analyzer
+} // namespace Debugger

@@ -27,7 +27,6 @@
 #ifndef ANALYZERMANAGER_H
 #define ANALYZERMANAGER_H
 
-#include "analyzerbase_global.h"
 #include "analyzerconstants.h"
 
 #include "../debuggermainwindow.h"
@@ -48,7 +47,7 @@ QT_END_NAMESPACE
 
 namespace ProjectExplorer { class RunConfiguration; }
 
-namespace Analyzer {
+namespace Debugger {
 
 class AnalyzerRunControl;
 
@@ -75,9 +74,9 @@ Q_DECLARE_FLAGS(ToolModes, ToolMode)
  *
 */
 
-class ANALYZER_EXPORT ActionDescription
+class DEBUGGER_EXPORT ActionDescription
 {
-    Q_DECLARE_TR_FUNCTIONS(Analyzer::AnalyzerAction)
+    Q_DECLARE_TR_FUNCTIONS(Debugger::AnalyzerAction)
 
 public:
     ActionDescription() {}
@@ -85,8 +84,8 @@ public:
     Core::Id menuGroup() const { return m_menuGroup; }
     void setMenuGroup(Core::Id menuGroup) { m_menuGroup = menuGroup; }
 
-    Core::Id perspectiveId() const { return m_perspective; }
-    void setPerspectiveId(Core::Id id) { m_perspective = id; }
+    QByteArray perspectiveId() const { return m_perspectiveId; }
+    void setPerspectiveId(const QByteArray &id) { m_perspectiveId = id; }
     void setToolMode(QFlags<ToolMode> mode) { m_toolMode = mode; }
 
     Core::Id runMode() const { return m_runMode; }
@@ -120,7 +119,7 @@ private:
     QString m_text;
     QString m_toolTip;
     Core::Id m_menuGroup;
-    Core::Id m_perspective;
+    QByteArray m_perspectiveId;
     QFlags<ToolMode> m_toolMode = AnyMode;
     Core::Id m_runMode;
     RunControlCreator m_runControlCreator;
@@ -128,41 +127,28 @@ private:
     ToolPreparer m_toolPreparer;
 };
 
-// FIXME: Merge with AnalyzerPlugin.
-class ANALYZER_EXPORT AnalyzerManager : public QObject
-{
-    Q_OBJECT
+// FIXME: Merge with something sensible.
 
-public:
-    explicit AnalyzerManager(QObject *parent);
-    ~AnalyzerManager();
+// Register a tool for a given start mode.
+DEBUGGER_EXPORT void registerAction(Core::Id actionId, const ActionDescription &desc, QAction *startAction = 0);
+DEBUGGER_EXPORT void registerPerspective(const QByteArray &perspectiveId, const Utils::Perspective &perspective);
+DEBUGGER_EXPORT void registerToolbar(const QByteArray &perspectiveId, const Utils::ToolbarDescription &desc);
 
-    static void shutdown();
+DEBUGGER_EXPORT void enableMainWindow(bool on);
 
-    // Register a tool for a given start mode.
-    static void registerAction(Core::Id actionId, const ActionDescription &desc);
-    static void registerPerspective(Core::Id perspectiveId, const Perspective &perspective);
-    static void registerDockWidget(Core::Id dockId, QWidget *widget);
-    static void registerToolbar(Core::Id toolbarId, QWidget *widget);
+DEBUGGER_EXPORT void selectPerspective(const QByteArray &perspectiveId);
+DEBUGGER_EXPORT void runAction(Core::Id actionId);
 
-    static void enableMainWindow(bool on);
+// Convenience functions.
+DEBUGGER_EXPORT void showStatusMessage(const QString &message, int timeoutMS = 10000);
+DEBUGGER_EXPORT void showPermanentStatusMessage(const QString &message);
 
-    static void showMode();
-    static void selectAction(Core::Id actionId, bool alsoRunIt = false);
-    static void stopTool();
+DEBUGGER_EXPORT QAction *createStartAction();
+DEBUGGER_EXPORT QAction *createStopAction();
 
-    // Convenience functions.
-    static void showStatusMessage(const QString &message, int timeoutMS = 10000);
-    static void showPermanentStatusMessage(const QString &message);
+DEBUGGER_EXPORT AnalyzerRunControl *createAnalyzerRunControl(
+    ProjectExplorer::RunConfiguration *runConfiguration, Core::Id runMode);
 
-    static void handleToolStarted();
-    static void handleToolFinished();
-    static QAction *stopAction();
-
-    static AnalyzerRunControl *createRunControl(
-        ProjectExplorer::RunConfiguration *runConfiguration, Core::Id runMode);
-};
-
-} // namespace Analyzer
+} // namespace Debugger
 
 #endif // ANALYZERMANAGER_H

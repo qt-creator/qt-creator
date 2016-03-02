@@ -26,16 +26,16 @@
 #ifndef ANALYZERSTARTPARAMETERS_H
 #define ANALYZERSTARTPARAMETERS_H
 
-#include "analyzerbase_global.h"
+#include <debugger/debugger_global.h>
 
 #include <projectexplorer/runnables.h>
 #include <ssh/sshconnection.h>
 
 #include <QMetaType>
 
-namespace Analyzer {
+namespace Debugger {
 
-class ANALYZER_EXPORT AnalyzerConnection
+class DEBUGGER_EXPORT AnalyzerConnection
 {
 public:
     QSsh::SshConnectionParameters connParams;
@@ -44,8 +44,8 @@ public:
     quint16 analyzerPort = 0;
 };
 
-ANALYZER_EXPORT bool operator==(const AnalyzerConnection &c1, const AnalyzerConnection &c2);
+DEBUGGER_EXPORT bool operator==(const AnalyzerConnection &c1, const AnalyzerConnection &c2);
 
-} // namespace Analyzer
+} // namespace Debugger
 
 #endif // ANALYZERSTARTPARAMETERS_H

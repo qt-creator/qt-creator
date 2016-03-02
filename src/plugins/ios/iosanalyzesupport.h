@@ -33,7 +33,7 @@
 #include <QProcess>
 #include <QObject>
 
-namespace Analyzer { class AnalyzerRunControl; }
+namespace Debugger { class AnalyzerRunControl; }
 
 namespace Ios {
 namespace Internal {
@@ -47,7 +47,7 @@ class IosAnalyzeSupport : public QObject
 
 public:
     IosAnalyzeSupport(IosRunConfiguration *runConfig,
-                      Analyzer::AnalyzerRunControl *runControl, bool cppDebug, bool qmlDebug);
+                      Debugger::AnalyzerRunControl *runControl, bool cppDebug, bool qmlDebug);
     ~IosAnalyzeSupport();
 
 private:
@@ -59,7 +59,7 @@ private:
     void handleRemoteOutput(const QString &output);
     void handleRemoteErrorOutput(const QString &output);
 
-    Analyzer::AnalyzerRunControl *m_runControl;
+    Debugger::AnalyzerRunControl *m_runControl;
     IosRunner * const m_runner;
     QmlDebug::QmlOutputParser m_outputParser;
     int m_qmlPort;

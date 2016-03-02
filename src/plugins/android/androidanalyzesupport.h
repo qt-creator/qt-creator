@@ -29,7 +29,7 @@
 #include "androidrunconfiguration.h"
 #include <qmldebug/qmloutputparser.h>
 
-namespace Analyzer { class AnalyzerRunControl; }
+namespace Debugger { class AnalyzerRunControl; }
 namespace ProjectExplorer { class RunControl; }
 
 namespace Android {
@@ -43,7 +43,7 @@ class AndroidAnalyzeSupport : public QObject
 
 public:
     AndroidAnalyzeSupport(AndroidRunConfiguration *runConfig,
-        Analyzer::AnalyzerRunControl *runControl);
+        Debugger::AnalyzerRunControl *runControl);
 
     static ProjectExplorer::RunControl *createAnalyzeRunControl(AndroidRunConfiguration *runConfig,
                                                                 Core::Id runMode);

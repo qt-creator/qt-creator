@@ -43,8 +43,8 @@ public:
     MemcheckRunControl(ProjectExplorer::RunConfiguration *runConfiguration,
                        Core::Id runMode);
 
-    bool startEngine() override;
-    void stopEngine() override;
+    void start() override;
+    StopResult stop() override;
 
     QStringList suppressionFiles() const;
 

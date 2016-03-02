@@ -51,7 +51,7 @@ public:
     explicit QmlProfilerTool(QObject *parent);
     ~QmlProfilerTool();
 
-    Analyzer::AnalyzerRunControl *createRunControl(ProjectExplorer::RunConfiguration *runConfiguration = 0);
+    Debugger::AnalyzerRunControl *createRunControl(ProjectExplorer::RunConfiguration *runConfiguration = 0);
     void finalizeRunControl(QmlProfilerRunControl *runControl);
 
     bool prepareTool();
@@ -96,6 +96,7 @@ private slots:
     void toggleVisibleFeature(QAction *action);
 
 private:
+    void updateRunActions();
     void clearDisplay();
     void populateFileFinder(QString projectDirectory = QString(), QString activeSysroot = QString());
     template<QmlDebug::ProfileFeature feature>

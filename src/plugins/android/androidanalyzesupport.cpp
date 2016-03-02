@@ -39,7 +39,7 @@
 #include <QDir>
 #include <QTcpServer>
 
-using namespace Analyzer;
+using namespace Debugger;
 using namespace ProjectExplorer;
 
 namespace Android {
@@ -48,7 +48,7 @@ namespace Internal {
 RunControl *AndroidAnalyzeSupport::createAnalyzeRunControl(AndroidRunConfiguration *runConfig,
                                                            Core::Id runMode)
 {
-    AnalyzerRunControl *runControl = AnalyzerManager::createRunControl(runConfig, runMode);
+    AnalyzerRunControl *runControl = Debugger::createAnalyzerRunControl(runConfig, runMode);
     QTC_ASSERT(runControl, return 0);
     AnalyzerConnection connection;
     if (runMode == ProjectExplorer::Constants::QML_PROFILER_RUN_MODE) {

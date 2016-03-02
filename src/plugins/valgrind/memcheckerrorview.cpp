@@ -50,7 +50,7 @@ namespace Valgrind {
 namespace Internal {
 
 MemcheckErrorView::MemcheckErrorView(QWidget *parent)
-    : Analyzer::DetailedErrorView(parent),
+    : Debugger::DetailedErrorView(parent),
       m_settings(0)
 {
     m_suppressAction = new QAction(this);

@@ -52,7 +52,7 @@ public:
     QList<Diagnostic> diagnostics() const;
 
     enum ItemRole {
-        DiagnosticRole = Analyzer::DetailedErrorView::FullTextRole + 1
+        DiagnosticRole = Debugger::DetailedErrorView::FullTextRole + 1
     };
 };
 

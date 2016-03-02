@@ -39,7 +39,7 @@
 
 #include <QTextCursor>
 
-using namespace Analyzer;
+using namespace Debugger;
 using namespace Core;
 using namespace ProjectExplorer;
 
@@ -92,7 +92,7 @@ CPlusPlus::Symbol *AnalyzerUtils::findSymbolUnderCursor()
 
 void AnalyzerUtils::logToIssuesPane(Task::TaskType type, const QString &message)
 {
-    TaskHub::addTask(type, message, Analyzer::Constants::ANALYZERTASK_ID);
+    TaskHub::addTask(type, message, Debugger::Constants::ANALYZERTASK_ID);
     if (type == Task::Error)
         TaskHub::requestPopup();
 }

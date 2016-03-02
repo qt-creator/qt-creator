@@ -27,9 +27,6 @@
 #define DEBUGGERMAINWINDOW_H
 
 #include "debugger_global.h"
-#include "analyzer/analyzerbase_global.h"
-
-#include <coreplugin/id.h>
 
 #include <utils/fancymainwindow.h>
 #include <utils/statuslabel.h>
@@ -38,113 +35,108 @@
 #include <QSet>
 
 #include <functional>
-#include <initializer_list>
 
 QT_BEGIN_NAMESPACE
 class QComboBox;
 class QStackedWidget;
 QT_END_NAMESPACE
 
-namespace Analyzer {
+namespace Utils {
 
-class ANALYZER_EXPORT Perspective
+class DEBUGGER_EXPORT Perspective
 {
 public:
     enum OperationType { SplitVertical, SplitHorizontal, AddToTab, Raise };
 
-    class ANALYZER_EXPORT Operation
+    class DEBUGGER_EXPORT Operation
     {
     public:
         Operation() = default;
-        Operation(Core::Id dockId, Core::Id existing, OperationType operationType,
-              bool visibleByDefault = true,
-              Qt::DockWidgetArea area = Qt::BottomDockWidgetArea);
+        Operation(const QByteArray &dockId, QWidget *widget,
+                  const QByteArray &anchorDockId,
+                  OperationType operationType,
+                  bool visibleByDefault = true,
+                  Qt::DockWidgetArea area = Qt::BottomDockWidgetArea);
 
-        Core::Id dockId;
-        Core::Id existing;
+        QByteArray dockId;
+        QWidget *widget = 0;
+        QByteArray anchorDockId;
         OperationType operationType;
         bool visibleByDefault;
         Qt::DockWidgetArea area;
     };
 
     Perspective() = default;
-    Perspective(std::initializer_list<Operation> operations);
+    Perspective(const QString &name, const QVector<Operation> &operations);
 
     void addOperation(const Operation &operation);
 
     QVector<Operation> operations() const { return m_operations; }
-    QVector<Core::Id> docks() const { return m_docks; }
+    QVector<QByteArray> docks() const { return m_docks; }
+
+    QString name() const;
+    void setName(const QString &name);
 
 private:
-    QVector<Core::Id> m_docks;
+    QString m_name;
+    QVector<QByteArray> m_docks;
     QVector<Operation> m_operations;
 };
 
-} // Analyzer
+class DEBUGGER_EXPORT ToolbarDescription
+{
+public:
+    ToolbarDescription() = default;
+    ToolbarDescription(const QList<QWidget *> &widgets) : m_widgets(widgets) {}
 
-namespace Debugger {
-namespace Internal {
+    QList<QWidget *> widgets() const;
 
-// DebuggerMainWindow dock widget names
-const char DOCKWIDGET_BREAK[]         = "Debugger.Docks.Break";
-const char DOCKWIDGET_MODULES[]       = "Debugger.Docks.Modules";
-const char DOCKWIDGET_REGISTER[]      = "Debugger.Docks.Register";
-const char DOCKWIDGET_OUTPUT[]        = "Debugger.Docks.Output";
-const char DOCKWIDGET_SNAPSHOTS[]     = "Debugger.Docks.Snapshots";
-const char DOCKWIDGET_STACK[]         = "Debugger.Docks.Stack";
-const char DOCKWIDGET_SOURCE_FILES[]  = "Debugger.Docks.SourceFiles";
-const char DOCKWIDGET_THREADS[]       = "Debugger.Docks.Threads";
-const char DOCKWIDGET_WATCHERS[]      = "Debugger.Docks.LocalsAndWatchers";
+    void addAction(QAction *action);
+    void addWidget(QWidget *widget);
 
-const char CppPerspectiveId[]         = "Debugger.Perspective.Cpp";
-const char QmlPerspectiveId[]         = "Debugger.Perspective.Qml";
+private:
+    QList<QWidget *> m_widgets;
+};
 
-class MainWindowBase : public Utils::FancyMainWindow
+class DebuggerMainWindow : public FancyMainWindow
 {
     Q_OBJECT
 
 public:
-    MainWindowBase();
-    ~MainWindowBase() override;
+    DebuggerMainWindow();
+    ~DebuggerMainWindow() override;
 
-    QComboBox *toolBox() const { return m_toolBox; }
-    QStackedWidget *controlsStack() const { return m_controlsStackWidget; }
-    Utils::StatusLabel *statusLabel() const { return m_statusLabel; }
-
-    void registerPerspective(Core::Id perspectiveId, const Analyzer::Perspective &perspective);
-    void registerToolbar(Core::Id perspectiveId, QWidget *widget);
-    QDockWidget *registerDockWidget(Core::Id dockId, QWidget *widget);
+    void registerPerspective(const QByteArray &perspectiveId, const Perspective &perspective);
+    void registerToolbar(const QByteArray &perspectiveId, QWidget *widget);
 
     void saveCurrentPerspective();
-    void closeCurrentPerspective();
     void resetCurrentPerspective();
-    void restorePerspective(Core::Id perspectiveId);
+    void restorePerspective(const QByteArray &perspectiveId);
+
+    void finalizeSetup();
 
     void showStatusMessage(const QString &message, int timeoutMS);
-
-    QString lastSettingsName() const;
-    void setLastSettingsName(const QString &lastSettingsName);
-
-    Core::Id currentPerspectiveId() const;
+    QDockWidget *dockWidget(const QByteArray &dockId) const;
+    QByteArray currentPerspective() const { return m_currentPerspectiveId; }
 
 private:
-    void loadPerspectiveHelper(Core::Id perspectiveId, bool fromStoredSettings = true);
+    QDockWidget *registerDockWidget(const QByteArray &dockId, QWidget *widget);
+    void loadPerspectiveHelper(const QByteArray &perspectiveId, bool fromStoredSettings = true);
 
-    Core::Id m_currentPerspectiveId;
-    QString m_lastSettingsName;
-    QComboBox *m_toolBox;
+    QByteArray m_currentPerspectiveId;
+    QComboBox *m_perspectiveChooser;
     QStackedWidget *m_controlsStackWidget;
     Utils::StatusLabel *m_statusLabel;
-    QHash<Core::Id, QDockWidget *> m_dockForDockId;
-    QHash<Core::Id, QWidget *> m_toolbarForPerspectiveId;
-    QHash<Core::Id, Analyzer::Perspective> m_perspectiveForPerspectiveId;
+
+    QHash<QByteArray, QDockWidget *> m_dockForDockId;
+    QHash<QByteArray, QWidget *> m_toolbarForPerspectiveId;
+    QHash<QByteArray, Perspective> m_perspectiveForPerspectiveId;
 
     // list of dock widgets to prevent memory leak
     typedef QPointer<QDockWidget> DockPtr;
     QList<DockPtr> m_dockWidgets;
 };
 
-} // namespace Internal
-} // namespace Debugger
+} // Utils
 
 #endif // DEBUGGERMAINWINDOW_H

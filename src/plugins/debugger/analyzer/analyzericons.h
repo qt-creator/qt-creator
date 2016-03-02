@@ -28,7 +28,7 @@
 
 #include <utils/icon.h>
 
-namespace Analyzer {
+namespace Debugger {
 namespace Icons {
 
 const Utils::Icon ANALYZER_CONTROL_START({
@@ -42,6 +42,6 @@ const Utils::Icon MODE_ANALYZE_FLAT_ACTIVE({
         {QLatin1String(":/images/mode_analyze_mask.png"), Utils::Theme::IconsModeAnalyzeActiveColor}});
 
 } // namespace Icons
-} // namespace Analyzer
+} // namespace Debugger
 
 #endif // ANALYZERICONS_H

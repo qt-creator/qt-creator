@@ -36,7 +36,7 @@
 #include <QComboBox>
 #include <QPushButton>
 
-namespace Analyzer {
+namespace Debugger {
 
 AnalyzerRunConfigWidget::AnalyzerRunConfigWidget(ProjectExplorer::IRunConfigurationAspect *aspect)
 {
@@ -105,4 +105,4 @@ void AnalyzerRunConfigWidget::restoreGlobal()
     m_aspect->resetProjectToGlobalSettings();
 }
 
-} // namespace Analyzer
+} // namespace Debugger

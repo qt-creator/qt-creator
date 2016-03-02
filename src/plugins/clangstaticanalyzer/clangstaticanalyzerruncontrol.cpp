@@ -304,12 +304,12 @@ static Core::Id toolchainType(ProjectExplorer::RunConfiguration *runConfiguratio
     return ToolChainKitInformation::toolChain(runConfiguration->target()->kit())->typeId();
 }
 
-bool ClangStaticAnalyzerRunControl::startEngine()
+void ClangStaticAnalyzerRunControl::start()
 {
     m_success = false;
     emit starting();
 
-    QTC_ASSERT(m_projectInfo.isValid(), emit finished(); return false);
+    QTC_ASSERT(m_projectInfo.isValid(), emit finished(); return);
     const Utils::FileName projectFile = m_projectInfo.project()->projectFilePath();
     appendMessage(tr("Running Clang Static Analyzer on %1").arg(projectFile.toUserOutput())
                   + QLatin1Char('\n'), Utils::NormalMessageFormat);
@@ -324,7 +324,7 @@ bool ClangStaticAnalyzerRunControl::startEngine()
         appendMessage(errorMessage + QLatin1Char('\n'), Utils::ErrorMessageFormat);
         AnalyzerUtils::logToIssuesPane(Task::Error, errorMessage);
         emit finished();
-        return false;
+        return;
     }
     m_clangExecutable = executable;
 
@@ -337,7 +337,7 @@ bool ClangStaticAnalyzerRunControl::startEngine()
         appendMessage(errorMessage + QLatin1Char('\n'), Utils::ErrorMessageFormat);
         AnalyzerUtils::logToIssuesPane(Task::Error, errorMessage);
         emit finished();
-        return false;
+        return;
     }
     m_clangLogFileDir = temporaryDir.path();
 
@@ -364,19 +364,22 @@ bool ClangStaticAnalyzerRunControl::startEngine()
     qCDebug(LOG) << "Environment:" << m_environment;
     m_runners.clear();
     const int parallelRuns = ClangStaticAnalyzerSettings::instance()->simultaneousProcesses();
-    QTC_ASSERT(parallelRuns >= 1, emit finished(); return false);
+    QTC_ASSERT(parallelRuns >= 1, emit finished(); return);
     m_success = true;
+    m_running = true;
 
     if (m_unitsToProcess.isEmpty()) {
         finalize();
-        return false;
+        return;
     }
+
+    emit started();
+
     while (m_runners.size() < parallelRuns && !m_unitsToProcess.isEmpty())
         analyzeNextFile();
-    return true;
 }
 
-void ClangStaticAnalyzerRunControl::stopEngine()
+RunControl::StopResult ClangStaticAnalyzerRunControl::stop()
 {
     QSetIterator<ClangStaticAnalyzerRunner *> i(m_runners);
     while (i.hasNext()) {
@@ -389,7 +392,14 @@ void ClangStaticAnalyzerRunControl::stopEngine()
     appendMessage(tr("Clang Static Analyzer stopped by user.") + QLatin1Char('\n'),
                   Utils::NormalMessageFormat);
     m_progress.reportFinished();
+    m_running = false;
     emit finished();
+    return RunControl::StoppedSynchronously;
+}
+
+bool ClangStaticAnalyzerRunControl::isRunning() const
+{
+    return m_running;
 }
 
 void ClangStaticAnalyzerRunControl::analyzeNextFile()
@@ -479,7 +489,6 @@ void ClangStaticAnalyzerRunControl::handleFinished()
 
 void ClangStaticAnalyzerRunControl::onProgressCanceled()
 {
-    Analyzer::AnalyzerManager::stopTool();
     m_progress.reportCanceled();
     m_progress.reportFinished();
 }

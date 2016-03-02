@@ -48,7 +48,6 @@
 #include <qtsupport/qtkitinformation.h>
 #include <utils/portlist.h>
 
-using namespace Analyzer;
 using namespace Debugger;
 using namespace ProjectExplorer;
 using namespace Qnx;
@@ -142,7 +141,7 @@ RunControl *QnxRunControlFactory::create(RunConfiguration *runConfig, Core::Id m
         const IDevice::ConstPtr device = DeviceKitInformation::device(kit);
         if (device.isNull())
             return 0;
-        AnalyzerRunControl *runControl = AnalyzerManager::createRunControl(runConfig, mode);
+        AnalyzerRunControl *runControl = Debugger::createAnalyzerRunControl(runConfig, mode);
         QTC_ASSERT(runControl, return 0);
         runControl->setRunnable(runConfig->runnable());
         AnalyzerConnection connection;

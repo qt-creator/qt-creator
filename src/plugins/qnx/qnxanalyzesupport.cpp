@@ -45,7 +45,7 @@ namespace Qnx {
 namespace Internal {
 
 QnxAnalyzeSupport::QnxAnalyzeSupport(QnxRunConfiguration *runConfig,
-                                     Analyzer::AnalyzerRunControl *runControl)
+                                     Debugger::AnalyzerRunControl *runControl)
     : QnxAbstractRunSupport(runConfig, runControl)
     , m_runnable(runConfig->runnable().as<StandardRunnable>())
     , m_runControl(runControl)
@@ -65,7 +65,7 @@ QnxAnalyzeSupport::QnxAnalyzeSupport(QnxRunConfiguration *runConfig,
     connect(runner, &DeviceApplicationRunner::remoteStderr,
             this, &QnxAnalyzeSupport::handleRemoteOutput);
 
-    connect(m_runControl, &Analyzer::AnalyzerRunControl::starting,
+    connect(m_runControl, &Debugger::AnalyzerRunControl::starting,
             this, &QnxAnalyzeSupport::handleAdapterSetupRequested);
     connect(&m_outputParser, &QmlDebug::QmlOutputParser::waitingForConnectionOnPort,
             this, &QnxAnalyzeSupport::remoteIsRunning);

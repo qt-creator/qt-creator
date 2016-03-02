@@ -48,7 +48,7 @@
 #include <qtsupport/qtsupportconstants.h>
 #include <coreplugin/id.h>
 
-using namespace Analyzer;
+using namespace Debugger;
 using namespace ProjectExplorer;
 using namespace QmakeProjectManager;
 
@@ -190,7 +190,7 @@ RunControl *IosRunControlFactory::create(RunConfiguration *runConfig,
     if (mode == ProjectExplorer::Constants::NORMAL_RUN_MODE)
         res = new Ios::Internal::IosRunControl(rc);
     else if (mode == ProjectExplorer::Constants::QML_PROFILER_RUN_MODE) {
-        AnalyzerRunControl *runControl = AnalyzerManager::createRunControl(runConfig, mode);
+        AnalyzerRunControl *runControl = Debugger::createAnalyzerRunControl(runConfig, mode);
         QTC_ASSERT(runControl, return 0);
         IDevice::ConstPtr device = DeviceKitInformation::device(target->kit());
         if (device.isNull())

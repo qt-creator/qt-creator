@@ -35,7 +35,7 @@
 
 #include <utils/qtcassert.h>
 
-using namespace Analyzer;
+using namespace Debugger;
 using namespace Valgrind;
 using namespace Valgrind::Internal;
 
@@ -48,7 +48,7 @@ CallgrindRunControl::CallgrindRunControl(ProjectExplorer::RunConfiguration *runC
     connect(m_runner.parser(), &Callgrind::Parser::parserDataReady,
             this, &CallgrindRunControl::slotFinished);
     connect(&m_runner, &Callgrind::CallgrindRunner::statusMessage,
-            this, &AnalyzerManager::showPermanentStatusMessage);
+            this, &Debugger::showPermanentStatusMessage);
 }
 
 QStringList CallgrindRunControl::toolArguments() const
@@ -89,10 +89,10 @@ ValgrindRunner * CallgrindRunControl::runner()
     return &m_runner;
 }
 
-bool CallgrindRunControl::startEngine()
+void CallgrindRunControl::start()
 {
     appendMessage(tr("Profiling %1").arg(executable()) + QLatin1Char('\n'), Utils::NormalMessageFormat);
-    return ValgrindRunControl::startEngine();
+    return ValgrindRunControl::start();
 }
 
 void CallgrindRunControl::dump()

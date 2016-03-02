@@ -27,30 +27,25 @@
 #ifndef ANALYZERRUNCONTROL_H
 #define ANALYZERRUNCONTROL_H
 
-#include "analyzerbase_global.h"
+#include <debugger/debugger_global.h>
 
 #include <projectexplorer/runconfiguration.h>
 
 #include <utils/outputformat.h>
 
-namespace Analyzer {
+namespace Debugger {
 
 /**
  * An AnalyzerRunControl instance handles the launch of an analyzation tool.
  *
  * It gets created for each launch and deleted when the launch is stopped or ended.
  */
-class ANALYZER_EXPORT AnalyzerRunControl : public ProjectExplorer::RunControl
+class DEBUGGER_EXPORT AnalyzerRunControl : public ProjectExplorer::RunControl
 {
     Q_OBJECT
 
 public:
     AnalyzerRunControl(ProjectExplorer::RunConfiguration *runConfiguration, Core::Id runMode);
-
-    /// Start analyzation process.
-    virtual bool startEngine() = 0;
-    /// Trigger async stop of the analyzation process.
-    virtual void stopEngine() = 0;
 
     /// Controller actions.
     virtual bool canPause() const { return false; }
@@ -60,28 +55,16 @@ public:
     virtual void notifyRemoteSetupDone(quint16) {}
     virtual void notifyRemoteFinished() {}
 
-    // ProjectExplorer::RunControl
-    void start() override;
-    StopResult stop() override;
-    bool isRunning() const override;
+signals:
+    void starting();
 
 public slots:
     virtual void logApplicationMessage(const QString &, Utils::OutputFormat) { }
 
-private slots:
-    void stopIt();
-    void runControlFinished();
-
-signals:
-    /// Must be emitted when the engine is starting.
-    void starting();
-
 private:
     bool supportsReRunning() const override { return false; }
-
-protected:
-    bool m_isRunning;
 };
-} // namespace Analyzer
+
+} // namespace Debugger
 
 #endif // ANALYZERRUNCONTROL_H

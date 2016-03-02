@@ -56,8 +56,7 @@ public:
     bool isRunning() const { return m_running; }
     QList<Diagnostic> diagnostics() const;
 
-    QWidget *createWidgets();
-    Analyzer::AnalyzerRunControl *createRunControl(ProjectExplorer::RunConfiguration *runConfiguration,
+    Debugger::AnalyzerRunControl *createRunControl(ProjectExplorer::RunConfiguration *runConfiguration,
                                                    Core::Id runMode);
     void startTool(ProjectExplorer::RunConfiguration *rc);
 
@@ -71,6 +70,7 @@ private:
 
     void setBusyCursor(bool busy);
     void handleStateUpdate();
+    void updateRunActions();
 
 private:
     CppTools::ProjectInfo m_projectInfoBeforeBuild;
@@ -79,9 +79,12 @@ private:
     ClangStaticAnalyzerDiagnosticFilterModel *m_diagnosticFilterModel;
     ClangStaticAnalyzerDiagnosticView *m_diagnosticView;
 
+    QAction *m_startAction = 0;
+    QAction *m_stopAction = 0;
     QAction *m_goBack;
     QAction *m_goNext;
     bool m_running;
+    bool m_toolBusy = false;
 };
 
 } // namespace Internal

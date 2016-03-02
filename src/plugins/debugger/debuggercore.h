@@ -74,7 +74,6 @@ bool isReverseDebugging();
 void runControlStarted(DebuggerEngine *engine);
 void runControlFinished(DebuggerEngine *engine);
 void displayDebugger(DebuggerEngine *engine, bool updateEngine);
-DebuggerLanguages activeLanguages();
 void synchronizeBreakpoints();
 
 QWidget *mainWindow();

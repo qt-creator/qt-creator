@@ -5,7 +5,6 @@ QT += network
 
 SOURCES += \
     $$PWD/analyzerruncontrol.cpp \
-    $$PWD/analyzermanager.cpp \
     $$PWD/analyzerrunconfigwidget.cpp \
     $$PWD/analyzerutils.cpp \
     $$PWD/detailederrorview.cpp \
@@ -13,7 +12,6 @@ SOURCES += \
     $$PWD/startremotedialog.cpp
 
 HEADERS += \
-    $$PWD/analyzerbase_global.h \
     $$PWD/analyzerconstants.h \
     $$PWD/analyzerruncontrol.h \
     $$PWD/analyzermanager.h \

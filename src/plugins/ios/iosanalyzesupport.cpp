@@ -56,7 +56,7 @@
 #include <io.h>
 #endif
 
-using namespace Analyzer;
+using namespace Debugger;
 using namespace ProjectExplorer;
 
 namespace Ios {

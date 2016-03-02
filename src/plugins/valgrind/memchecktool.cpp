@@ -85,14 +85,60 @@
 #include <QString>
 #include <QToolButton>
 
-using namespace Analyzer;
+using namespace Debugger;
 using namespace ProjectExplorer;
+using namespace Utils;
 using namespace Valgrind::XmlProtocol;
 
 namespace Valgrind {
 namespace Internal {
 
-class FrameFinder;
+class FrameFinder : public ErrorListModel::RelevantFrameFinder
+{
+public:
+    Frame findRelevant(const Error &error) const
+    {
+        const QVector<Stack> stacks = error.stacks();
+        if (stacks.isEmpty())
+            return Frame();
+        const Stack &stack = stacks[0];
+        const QVector<Frame> frames = stack.frames();
+        if (frames.isEmpty())
+            return Frame();
+
+        //find the first frame belonging to the project
+        if (!m_projectFiles.isEmpty()) {
+            foreach (const Frame &frame, frames) {
+                if (frame.directory().isEmpty() || frame.fileName().isEmpty())
+                    continue;
+
+                //filepaths can contain "..", clean them:
+                const QString f = QFileInfo(frame.filePath()).absoluteFilePath();
+                if (m_projectFiles.contains(f))
+                    return frame;
+            }
+        }
+
+        //if no frame belonging to the project was found, return the first one that is not malloc/new
+        foreach (const Frame &frame, frames) {
+            if (!frame.functionName().isEmpty() && frame.functionName() != QLatin1String("malloc")
+                && !frame.functionName().startsWith(QLatin1String("operator new(")))
+            {
+                return frame;
+            }
+        }
+
+        //else fallback to the first frame
+        return frames.first();
+    }
+    void setFiles(const QStringList &files)
+    {
+        m_projectFiles = files;
+    }
+private:
+    QStringList m_projectFiles;
+};
+
 
 class MemcheckErrorFilterProxyModel : public QSortFilterProxyModel
 {
@@ -203,12 +249,13 @@ class MemcheckTool : public QObject
 public:
     MemcheckTool(QObject *parent);
 
-    QWidget *createWidgets();
+    void createWidgets();
 
     MemcheckRunControl *createRunControl(ProjectExplorer::RunConfiguration *runConfiguration,
                                          Core::Id runMode);
 
 private:
+    void updateRunActions();
     void settingsDestroyed(QObject *settings);
     void maybeActiveRunConfigurationChanged();
 
@@ -240,10 +287,14 @@ private:
     QList<QAction *> m_errorFilterActions;
     QAction *m_filterProjectAction;
     QList<QAction *> m_suppressionActions;
+    QAction *m_startAction;
+    QAction *m_startWithGdbAction;
+    QAction *m_stopAction;
     QAction *m_suppressionSeparator;
     QAction *m_loadExternalLogFile;
     QAction *m_goBack;
     QAction *m_goNext;
+    bool m_toolBusy = false;
 };
 
 MemcheckTool::MemcheckTool(QObject *parent)
@@ -288,7 +339,79 @@ MemcheckTool::MemcheckTool(QObject *parent)
 
     using namespace std::placeholders;
 
-    AnalyzerManager::registerToolbar(MemcheckPerspectiveId, createWidgets());
+    QTC_ASSERT(!m_errorView, return);
+
+    m_errorView = new MemcheckErrorView;
+    m_errorView->setObjectName(QLatin1String("MemcheckErrorView"));
+    m_errorView->setFrameStyle(QFrame::NoFrame);
+    m_errorView->setAttribute(Qt::WA_MacShowFocusRect, false);
+    m_errorModel = new ErrorListModel(m_errorView);
+    m_frameFinder = new Internal::FrameFinder;
+    m_errorModel->setRelevantFrameFinder(QSharedPointer<Internal::FrameFinder>(m_frameFinder));
+    m_errorProxyModel = new MemcheckErrorFilterProxyModel(m_errorView);
+    m_errorProxyModel->setSourceModel(m_errorModel);
+    m_errorProxyModel->setDynamicSortFilter(true);
+    m_errorView->setModel(m_errorProxyModel);
+    m_errorView->setSelectionMode(QAbstractItemView::ExtendedSelection);
+    // make m_errorView->selectionModel()->selectedRows() return something
+    m_errorView->setSelectionBehavior(QAbstractItemView::SelectRows);
+    m_errorView->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
+    m_errorView->setAutoScroll(false);
+    m_errorView->setObjectName(QLatin1String("Valgrind.MemcheckTool.ErrorView"));
+    m_errorView->setWindowTitle(tr("Memory Issues"));
+
+    Debugger::registerPerspective(MemcheckPerspectiveId, { tr("Memcheck"), {
+        { MemcheckErrorDockId, m_errorView, {}, Perspective::SplitVertical }
+    }});
+
+    connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::updateRunActions,
+            this, &MemcheckTool::maybeActiveRunConfigurationChanged);
+
+    //
+    // The Control Widget.
+    //
+
+    m_startAction = Debugger::createStartAction();
+    m_startWithGdbAction = Debugger::createStartAction();
+    m_stopAction = Debugger::createStopAction();
+
+    // Load external XML log file
+    auto action = new QAction(this);
+    action->setIcon(Core::Icons::OPENFILE.icon());
+    action->setToolTip(tr("Load External XML Log File"));
+    connect(action, &QAction::triggered, this, &MemcheckTool::loadExternalXmlLogFile);
+    m_loadExternalLogFile = action;
+
+    // Go to previous leak.
+    action = new QAction(this);
+    action->setDisabled(true);
+    action->setIcon(Core::Icons::PREV.icon());
+    action->setToolTip(tr("Go to previous leak."));
+    connect(action, &QAction::triggered, m_errorView, &MemcheckErrorView::goBack);
+    m_goBack = action;
+
+    // Go to next leak.
+    action = new QAction(this);
+    action->setDisabled(true);
+    action->setIcon(Core::Icons::NEXT.icon());
+    action->setToolTip(tr("Go to next leak."));
+    connect(action, &QAction::triggered, m_errorView, &MemcheckErrorView::goNext);
+    m_goNext = action;
+
+    auto filterButton = new QToolButton;
+    filterButton->setIcon(Core::Icons::FILTER.icon());
+    filterButton->setText(tr("Error Filter"));
+    filterButton->setPopupMode(QToolButton::InstantPopup);
+    filterButton->setProperty("noArrow", true);
+
+    m_filterMenu = new QMenu(filterButton);
+    foreach (QAction *filterAction, m_errorFilterActions)
+        m_filterMenu->addAction(filterAction);
+    m_filterMenu->addSeparator();
+    m_filterMenu->addAction(m_filterProjectAction);
+    m_filterMenu->addAction(m_suppressionSeparator);
+    connect(m_filterMenu, &QMenu::triggered, this, &MemcheckTool::updateErrorFilter);
+    filterButton->setMenu(m_filterMenu);
 
     ActionDescription desc;
     desc.setToolTip(tr("Valgrind Analyze Memory uses the "
@@ -300,8 +423,8 @@ MemcheckTool::MemcheckTool(QObject *parent)
         desc.setRunControlCreator(std::bind(&MemcheckTool::createRunControl, this, _1, _2));
         desc.setToolMode(DebugMode);
         desc.setRunMode(MEMCHECK_RUN_MODE);
-        desc.setMenuGroup(Analyzer::Constants::G_ANALYZER_TOOLS);
-        AnalyzerManager::registerAction("Memcheck.Local", desc);
+        desc.setMenuGroup(Debugger::Constants::G_ANALYZER_TOOLS);
+        Debugger::registerAction("Memcheck.Local", desc, m_startAction);
 
         desc.setText(tr("Valgrind Memory Analyzer with GDB"));
         desc.setToolTip(tr("Valgrind Analyze Memory with GDB uses the "
@@ -311,8 +434,8 @@ MemcheckTool::MemcheckTool(QObject *parent)
         desc.setRunControlCreator(std::bind(&MemcheckTool::createRunControl, this, _1, _2));
         desc.setToolMode(DebugMode);
         desc.setRunMode(MEMCHECK_WITH_GDB_RUN_MODE);
-        desc.setMenuGroup(Analyzer::Constants::G_ANALYZER_TOOLS);
-        AnalyzerManager::registerAction("MemcheckWithGdb.Local", desc);
+        desc.setMenuGroup(Debugger::Constants::G_ANALYZER_TOOLS);
+        Debugger::registerAction("MemcheckWithGdb.Local", desc, m_startWithGdbAction);
     }
 
     desc.setText(tr("Valgrind Memory Analyzer (External Application)"));
@@ -331,8 +454,42 @@ MemcheckTool::MemcheckTool(QObject *parent)
         rc->setDisplayName(runnable.executable);
         ProjectExplorerPlugin::startRunControl(rc, MEMCHECK_RUN_MODE);
     });
-    desc.setMenuGroup(Analyzer::Constants::G_ANALYZER_REMOTE_TOOLS);
-    AnalyzerManager::registerAction("Memcheck.Remote", desc);
+    desc.setMenuGroup(Debugger::Constants::G_ANALYZER_REMOTE_TOOLS);
+    Debugger::registerAction("Memcheck.Remote", desc);
+
+    ToolbarDescription toolbar;
+    toolbar.addAction(m_startAction);
+    //toolbar.addAction(m_startWithGdbAction);
+    toolbar.addAction(m_stopAction);
+    toolbar.addAction(m_loadExternalLogFile);
+    toolbar.addAction(m_goBack);
+    toolbar.addAction(m_goNext);
+    toolbar.addWidget(filterButton);
+    Debugger::registerToolbar(MemcheckPerspectiveId, toolbar);
+}
+
+void MemcheckTool::updateRunActions()
+{
+    if (m_toolBusy) {
+        m_startAction->setEnabled(false);
+        m_startAction->setToolTip(tr("A Valgrind Memcheck analysis is still in progress."));
+        m_startWithGdbAction->setEnabled(false);
+        m_startWithGdbAction->setToolTip(tr("A Valgrind Memcheck analysis is still in progress."));
+        m_stopAction->setEnabled(true);
+    } else {
+        const bool projectUsable = SessionManager::startupProject() != 0;
+        m_startAction->setToolTip(tr("Start a Valgrind Memcheck analysis."));
+        m_startWithGdbAction->setToolTip(tr("Start a Valgrind Memcheck with GDB analysis."));
+        if (projectUsable) {
+            m_startAction->setEnabled(true);
+            m_startWithGdbAction->setEnabled(true);
+            m_stopAction->setEnabled(false);
+        } else {
+            m_startAction->setEnabled(false);
+            m_startWithGdbAction->setEnabled(false);
+            m_stopAction->setEnabled(false);
+        }
+    }
 }
 
 void MemcheckTool::settingsDestroyed(QObject *settings)
@@ -368,6 +525,8 @@ void MemcheckTool::updateFromSettings()
 
 void MemcheckTool::maybeActiveRunConfigurationChanged()
 {
+    updateRunActions();
+
     ValgrindBaseSettings *settings = 0;
     if (Project *project = SessionManager::startupProject())
         if (Target *target = project->activeTarget())
@@ -395,150 +554,6 @@ void MemcheckTool::maybeActiveRunConfigurationChanged()
     updateFromSettings();
 }
 
-class FrameFinder : public ErrorListModel::RelevantFrameFinder
-{
-public:
-    Frame findRelevant(const Error &error) const
-    {
-        const QVector<Stack> stacks = error.stacks();
-        if (stacks.isEmpty())
-            return Frame();
-        const Stack &stack = stacks[0];
-        const QVector<Frame> frames = stack.frames();
-        if (frames.isEmpty())
-            return Frame();
-
-        //find the first frame belonging to the project
-        if (!m_projectFiles.isEmpty()) {
-            foreach (const Frame &frame, frames) {
-                if (frame.directory().isEmpty() || frame.fileName().isEmpty())
-                    continue;
-
-                //filepaths can contain "..", clean them:
-                const QString f = QFileInfo(frame.filePath()).absoluteFilePath();
-                if (m_projectFiles.contains(f))
-                    return frame;
-            }
-        }
-
-        //if no frame belonging to the project was found, return the first one that is not malloc/new
-        foreach (const Frame &frame, frames) {
-            if (!frame.functionName().isEmpty() && frame.functionName() != QLatin1String("malloc")
-                && !frame.functionName().startsWith(QLatin1String("operator new(")))
-            {
-                return frame;
-            }
-        }
-
-        //else fallback to the first frame
-        return frames.first();
-    }
-    void setFiles(const QStringList &files)
-    {
-        m_projectFiles = files;
-    }
-private:
-    QStringList m_projectFiles;
-};
-
-
-QWidget *MemcheckTool::createWidgets()
-{
-    QTC_ASSERT(!m_errorView, return 0);
-
-    m_errorView = new MemcheckErrorView;
-    m_errorView->setObjectName(QLatin1String("MemcheckErrorView"));
-    m_errorView->setFrameStyle(QFrame::NoFrame);
-    m_errorView->setAttribute(Qt::WA_MacShowFocusRect, false);
-    m_errorModel = new ErrorListModel(m_errorView);
-    m_frameFinder = new Internal::FrameFinder;
-    m_errorModel->setRelevantFrameFinder(QSharedPointer<Internal::FrameFinder>(m_frameFinder));
-    m_errorProxyModel = new MemcheckErrorFilterProxyModel(m_errorView);
-    m_errorProxyModel->setSourceModel(m_errorModel);
-    m_errorProxyModel->setDynamicSortFilter(true);
-    m_errorView->setModel(m_errorProxyModel);
-    m_errorView->setSelectionMode(QAbstractItemView::ExtendedSelection);
-    // make m_errorView->selectionModel()->selectedRows() return something
-    m_errorView->setSelectionBehavior(QAbstractItemView::SelectRows);
-    m_errorView->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
-    m_errorView->setAutoScroll(false);
-    m_errorView->setObjectName(QLatin1String("Valgrind.MemcheckTool.ErrorView"));
-    m_errorView->setWindowTitle(tr("Memory Issues"));
-
-    AnalyzerManager::registerDockWidget(MemcheckErrorDockId, m_errorView);
-
-    AnalyzerManager::registerPerspective(MemcheckPerspectiveId, {
-        { MemcheckErrorDockId, Core::Id(), Perspective::SplitVertical }
-    });
-
-    connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::updateRunActions,
-            this, &MemcheckTool::maybeActiveRunConfigurationChanged);
-
-    //
-    // The Control Widget.
-    //
-    QAction *action = 0;
-    QHBoxLayout *layout = new QHBoxLayout;
-    QToolButton *button = 0;
-
-    layout->setMargin(0);
-    layout->setSpacing(0);
-
-    // Load external XML log file
-    action = new QAction(this);
-    action->setIcon(Core::Icons::OPENFILE.icon());
-    action->setToolTip(tr("Load External XML Log File"));
-    connect(action, &QAction::triggered, this, &MemcheckTool::loadExternalXmlLogFile);
-    button = new QToolButton;
-    button->setDefaultAction(action);
-    layout->addWidget(button);
-    m_loadExternalLogFile = action;
-
-    // Go to previous leak.
-    action = new QAction(this);
-    action->setDisabled(true);
-    action->setIcon(Core::Icons::PREV.icon());
-    action->setToolTip(tr("Go to previous leak."));
-    connect(action, &QAction::triggered, m_errorView, &MemcheckErrorView::goBack);
-    button = new QToolButton;
-    button->setDefaultAction(action);
-    layout->addWidget(button);
-    m_goBack = action;
-
-    // Go to next leak.
-    action = new QAction(this);
-    action->setDisabled(true);
-    action->setIcon(Core::Icons::NEXT.icon());
-    action->setToolTip(tr("Go to next leak."));
-    connect(action, &QAction::triggered, m_errorView, &MemcheckErrorView::goNext);
-    button = new QToolButton;
-    button->setDefaultAction(action);
-    layout->addWidget(button);
-    m_goNext = action;
-
-    QToolButton *filterButton = new QToolButton;
-    filterButton->setIcon(Core::Icons::FILTER.icon());
-    filterButton->setText(tr("Error Filter"));
-    filterButton->setPopupMode(QToolButton::InstantPopup);
-    filterButton->setProperty("noArrow", true);
-
-    m_filterMenu = new QMenu(filterButton);
-    foreach (QAction *filterAction, m_errorFilterActions)
-        m_filterMenu->addAction(filterAction);
-    m_filterMenu->addSeparator();
-    m_filterMenu->addAction(m_filterProjectAction);
-    m_filterMenu->addAction(m_suppressionSeparator);
-    connect(m_filterMenu, &QMenu::triggered, this, &MemcheckTool::updateErrorFilter);
-    filterButton->setMenu(m_filterMenu);
-    layout->addWidget(filterButton);
-
-    layout->addStretch();
-    QWidget *widget = new QWidget;
-    widget->setObjectName(QLatin1String("MemCheckToolBarWidget"));
-    widget->setLayout(layout);
-    return widget;
-}
-
 MemcheckRunControl *MemcheckTool::createRunControl(RunConfiguration *runConfiguration,
                                                    Core::Id runMode)
 {
@@ -555,6 +570,12 @@ MemcheckRunControl *MemcheckTool::createRunControl(RunConfiguration *runConfigur
     connect(runControl, &MemcheckRunControl::parserError, this, &MemcheckTool::parserError);
     connect(runControl, &MemcheckRunControl::internalParserError, this, &MemcheckTool::internalParserError);
     connect(runControl, &MemcheckRunControl::finished, this, &MemcheckTool::engineFinished);
+
+    connect(m_stopAction, &QAction::triggered, runControl, [runControl] { runControl->stop(); });
+
+    m_toolBusy = true;
+    updateRunActions();
+
     return runControl;
 }
 
@@ -673,18 +694,19 @@ int MemcheckTool::updateUiAfterFinishedHelper()
 
 void MemcheckTool::engineFinished()
 {
+    m_toolBusy = false;
+    updateRunActions();
+
     const int issuesFound = updateUiAfterFinishedHelper();
-    AnalyzerManager::showPermanentStatusMessage(issuesFound > 0
-        ? AnalyzerManager::tr("Memory Analyzer Tool finished, %n issues were found.", 0, issuesFound)
-        : AnalyzerManager::tr("Memory Analyzer Tool finished, no issues were found."));
+    Debugger::showPermanentStatusMessage(
+        tr("Memory Analyzer Tool finished, %n issues were found.", 0, issuesFound));
 }
 
 void MemcheckTool::loadingExternalXmlLogFileFinished()
 {
     const int issuesFound = updateUiAfterFinishedHelper();
-    AnalyzerManager::showPermanentStatusMessage(issuesFound > 0
-        ? AnalyzerManager::tr("Log file processed, %n issues were found.", 0, issuesFound)
-        : AnalyzerManager::tr("Log file processed, no issues were found."));
+    Debugger::showPermanentStatusMessage(
+        tr("Log file processed, %n issues were found.", 0, issuesFound));
 }
 
 void MemcheckTool::setBusyCursor(bool busy)

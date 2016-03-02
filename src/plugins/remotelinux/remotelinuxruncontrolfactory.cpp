@@ -48,7 +48,6 @@
 #include <utils/portlist.h>
 #include <utils/qtcassert.h>
 
-using namespace Analyzer;
 using namespace Debugger;
 using namespace ProjectExplorer;
 
@@ -139,7 +138,7 @@ RunControl *RemoteLinuxRunControlFactory::create(RunConfiguration *runConfig, Co
     }
 
     if (mode == ProjectExplorer::Constants::QML_PROFILER_RUN_MODE) {
-        auto runControl = AnalyzerManager::createRunControl(runConfig, mode);
+        auto runControl = Debugger::createAnalyzerRunControl(runConfig, mode);
         AnalyzerConnection connection;
         connection.connParams =
             DeviceKitInformation::device(runConfig->target()->kit())->sshParameters();

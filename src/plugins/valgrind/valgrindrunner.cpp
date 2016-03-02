@@ -188,8 +188,8 @@ QString ValgrindRunner::errorString() const
 
 void ValgrindRunner::stop()
 {
-    if (d->process)
-        d->process->close();
+    QTC_ASSERT(d->process, finished(); return);
+    d->process->close();
 }
 
 ValgrindProcess *ValgrindRunner::valgrindProcess() const

@@ -41,7 +41,7 @@ class CallgrindRunControl : public ValgrindRunControl
 public:
     CallgrindRunControl(ProjectExplorer::RunConfiguration *runConfiguration);
 
-    bool startEngine() override;
+    void start() override;
 
     Valgrind::Callgrind::ParseData *takeParserData();
 

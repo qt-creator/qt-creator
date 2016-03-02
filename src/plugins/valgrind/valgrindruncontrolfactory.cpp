@@ -36,7 +36,7 @@
 
 #include <utils/qtcassert.h>
 
-using namespace Analyzer;
+using namespace Debugger;
 using namespace ProjectExplorer;
 
 namespace Valgrind {
@@ -56,7 +56,7 @@ bool ValgrindRunControlFactory::canRun(RunConfiguration *runConfiguration, Core:
 RunControl *ValgrindRunControlFactory::create(RunConfiguration *runConfiguration, Core::Id mode, QString *errorMessage)
 {
     Q_UNUSED(errorMessage);
-    return AnalyzerManager::createRunControl(runConfiguration, mode);
+    return Debugger::createAnalyzerRunControl(runConfiguration, mode);
 }
 
 class ValgrindRunConfigurationAspect : public IRunConfigurationAspect

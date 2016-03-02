@@ -26,15 +26,15 @@
 #ifndef ANALYZERDIAGNOSTIC_H
 #define ANALYZERDIAGNOSTIC_H
 
-#include "analyzerbase_global.h"
+#include <debugger/debugger_global.h>
 
 #include <QDebug>
 #include <QMetaType>
 #include <QString>
 
-namespace Analyzer {
+namespace Debugger {
 
-class ANALYZER_EXPORT DiagnosticLocation
+class DEBUGGER_EXPORT DiagnosticLocation
 {
 public:
     DiagnosticLocation();
@@ -49,12 +49,12 @@ public:
     int column;
 };
 
-ANALYZER_EXPORT bool operator==(const DiagnosticLocation &first, const DiagnosticLocation &second);
-ANALYZER_EXPORT QDebug operator<<(QDebug dbg, const DiagnosticLocation &location);
+DEBUGGER_EXPORT bool operator==(const DiagnosticLocation &first, const DiagnosticLocation &second);
+DEBUGGER_EXPORT QDebug operator<<(QDebug dbg, const DiagnosticLocation &location);
 
-} // namespace Analyzer
+} // namespace Debugger
 
-Q_DECLARE_METATYPE(Analyzer::DiagnosticLocation)
+Q_DECLARE_METATYPE(Debugger::DiagnosticLocation)
 
 #endif // Include guard.
 

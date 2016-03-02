@@ -55,8 +55,8 @@ private:
     void readDiagnosticsDict();
     QList<ExplainingStep> readPathArray();
     ExplainingStep readPathDict();
-    Analyzer::DiagnosticLocation readLocationDict(bool elementIsRead = false);
-    QList<Analyzer::DiagnosticLocation> readRangesArray();
+    Debugger::DiagnosticLocation readLocationDict(bool elementIsRead = false);
+    QList<Debugger::DiagnosticLocation> readRangesArray();
 
     QString readString();
     QStringList readStringArray();
@@ -284,9 +284,9 @@ ExplainingStep ClangStaticAnalyzerLogFileReader::readPathDict()
     return explainingStep;
 }
 
-Analyzer::DiagnosticLocation ClangStaticAnalyzerLogFileReader::readLocationDict(bool elementIsRead)
+Debugger::DiagnosticLocation ClangStaticAnalyzerLogFileReader::readLocationDict(bool elementIsRead)
 {
-    Analyzer::DiagnosticLocation location;
+    Debugger::DiagnosticLocation location;
     if (elementIsRead) {
         QTC_ASSERT(m_xml.isStartElement() && m_xml.name() == QLatin1String("dict"),
                    return location);
@@ -317,14 +317,14 @@ Analyzer::DiagnosticLocation ClangStaticAnalyzerLogFileReader::readLocationDict(
 
     if (lineOk && columnOk && fileIndexOk) {
         QTC_ASSERT(fileIndex < m_referencedFiles.size(), return location);
-        location = Analyzer::DiagnosticLocation(m_referencedFiles.at(fileIndex), line, column);
+        location = Debugger::DiagnosticLocation(m_referencedFiles.at(fileIndex), line, column);
     }
     return location;
 }
 
-QList<Analyzer::DiagnosticLocation> ClangStaticAnalyzerLogFileReader::readRangesArray()
+QList<Debugger::DiagnosticLocation> ClangStaticAnalyzerLogFileReader::readRangesArray()
 {
-    QList<Analyzer::DiagnosticLocation> result;
+    QList<Debugger::DiagnosticLocation> result;
 
     // It's an array of arrays...
     QTC_ASSERT(m_xml.readNextStartElement() && m_xml.name() == QLatin1String("array"),

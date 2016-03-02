@@ -53,8 +53,9 @@
 #include <QSortFilterProxyModel>
 #include <QToolButton>
 
-using namespace Analyzer;
+using namespace Debugger;
 using namespace ProjectExplorer;
+using namespace Utils;
 
 namespace ClangStaticAnalyzer {
 namespace Internal {
@@ -69,14 +70,6 @@ ClangStaticAnalyzerTool::ClangStaticAnalyzerTool(QObject *parent)
     , m_running(false)
 {
     setObjectName(QLatin1String("ClangStaticAnalyzerTool"));
-}
-
-QWidget *ClangStaticAnalyzerTool::createWidgets()
-{
-    QTC_ASSERT(!m_diagnosticView, return 0);
-    QTC_ASSERT(!m_diagnosticModel, return 0);
-    QTC_ASSERT(!m_goBack, return 0);
-    QTC_ASSERT(!m_goNext, return 0);
 
     //
     // Diagnostic View
@@ -104,27 +97,19 @@ QWidget *ClangStaticAnalyzerTool::createWidgets()
                 this, &ClangStaticAnalyzerTool::handleStateUpdate);
     }
 
-    AnalyzerManager::registerDockWidget(ClangStaticAnalyzerDockId, m_diagnosticView);
-
     //
     // Toolbar widget
     //
-    QHBoxLayout *layout = new QHBoxLayout;
-    layout->setMargin(0);
-    layout->setSpacing(0);
 
-    QAction *action = 0;
-    QToolButton *button = 0;
+    m_startAction = Debugger::createStartAction();
+    m_stopAction = Debugger::createStopAction();
 
     // Go to previous diagnostic
-    action = new QAction(this);
+    auto action = new QAction(this);
     action->setDisabled(true);
     action->setIcon(Core::Icons::PREV.icon());
     action->setToolTip(tr("Go to previous bug."));
     connect(action, &QAction::triggered, m_diagnosticView, &DetailedErrorView::goBack);
-    button = new QToolButton;
-    button->setDefaultAction(action);
-    layout->addWidget(button);
     m_goBack = action;
 
     // Go to next diagnostic
@@ -133,17 +118,41 @@ QWidget *ClangStaticAnalyzerTool::createWidgets()
     action->setIcon(Core::Icons::NEXT.icon());
     action->setToolTip(tr("Go to next bug."));
     connect(action, &QAction::triggered, m_diagnosticView, &DetailedErrorView::goNext);
-    button = new QToolButton;
-    button->setDefaultAction(action);
-    layout->addWidget(button);
     m_goNext = action;
 
-    layout->addStretch();
+    const QString toolTip = tr("Clang Static Analyzer uses the analyzer from the clang project "
+                               "to find bugs.");
 
-    QWidget *toolbarWidget = new QWidget;
-    toolbarWidget->setObjectName(QLatin1String("ClangStaticAnalyzerToolBarWidget"));
-    toolbarWidget->setLayout(layout);
-    return toolbarWidget;
+    Debugger::registerPerspective(ClangStaticAnalyzerPerspectiveId, {
+        tr("Clang Static Analyzer"),
+        {{ ClangStaticAnalyzerDockId, m_diagnosticView, {}, Perspective::SplitVertical }}
+    });
+
+    ActionDescription desc;
+    desc.setText(tr("Clang Static Analyzer"));
+    desc.setToolTip(toolTip);
+    desc.setRunMode(Constants::CLANGSTATICANALYZER_RUN_MODE);
+    desc.setPerspectiveId(ClangStaticAnalyzerPerspectiveId);
+    desc.setRunControlCreator([this](RunConfiguration *runConfiguration, Core::Id runMode) {
+        return createRunControl(runConfiguration, runMode);
+    });
+    desc.setCustomToolStarter([this](RunConfiguration *runConfiguration) {
+        startTool(runConfiguration);
+    });
+    desc.setMenuGroup(Debugger::Constants::G_ANALYZER_TOOLS);
+    Debugger::registerAction(ClangStaticAnalyzerActionId, desc, m_startAction);
+
+    ToolbarDescription toolbar;
+    toolbar.addAction(m_startAction);
+    toolbar.addAction(m_stopAction);
+    toolbar.addAction(m_goBack);
+    toolbar.addAction(m_goNext);
+    Debugger::registerToolbar(ClangStaticAnalyzerPerspectiveId, toolbar);
+
+    updateRunActions();
+
+    connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::updateRunActions,
+            this, &ClangStaticAnalyzerTool::updateRunActions);
 }
 
 AnalyzerRunControl *ClangStaticAnalyzerTool::createRunControl(RunConfiguration *runConfiguration,
@@ -171,6 +180,11 @@ AnalyzerRunControl *ClangStaticAnalyzerTool::createRunControl(RunConfiguration *
             this, &ClangStaticAnalyzerTool::onNewDiagnosticsAvailable);
     connect(runControl, &ClangStaticAnalyzerRunControl::finished,
             this, &ClangStaticAnalyzerTool::onEngineFinished);
+
+    connect(m_stopAction, &QAction::triggered, runControl, [runControl] { runControl->stop(); });
+
+    m_toolBusy = true;
+    updateRunActions();
     return runControl;
 }
 
@@ -208,8 +222,6 @@ static bool dontStartAfterHintForDebugMode(Project *project)
 
 void ClangStaticAnalyzerTool::startTool(ProjectExplorer::RunConfiguration *runConfiguration)
 {
-    AnalyzerManager::showMode();
-
     Project *project = SessionManager::startupProject();
     QTC_ASSERT(project, emit finished(false); return);
 
@@ -261,8 +273,28 @@ void ClangStaticAnalyzerTool::onEngineFinished()
     m_running = false;
     handleStateUpdate();
     emit finished(static_cast<ClangStaticAnalyzerRunControl *>(sender())->success());
+    m_toolBusy = false;
+    updateRunActions();
 }
 
+void ClangStaticAnalyzerTool::updateRunActions()
+{
+    if (m_toolBusy) {
+        m_startAction->setEnabled(false);
+        m_startAction->setToolTip(tr("A Clang analysis is still in progress."));
+        m_stopAction->setEnabled(true);
+    } else {
+        const bool projectUsable = SessionManager::startupProject() != 0;
+        m_startAction->setToolTip(tr("Start Qml Profiler."));
+        if (projectUsable) {
+            m_startAction->setEnabled(true);
+            m_stopAction->setEnabled(false);
+        } else {
+            m_startAction->setEnabled(false);
+            m_stopAction->setEnabled(false);
+        }
+    }
+}
 void ClangStaticAnalyzerTool::setBusyCursor(bool busy)
 {
     QTC_ASSERT(m_diagnosticView, return);
@@ -291,7 +323,7 @@ void ClangStaticAnalyzerTool::handleStateUpdate()
         message += tr("%n issues found (%1 suppressed).", 0, issuesFound)
                 .arg(issuesFound - issuesVisible);
     }
-    AnalyzerManager::showPermanentStatusMessage(message);
+    Debugger::showPermanentStatusMessage(message);
 }
 
 } // namespace Internal

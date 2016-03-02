@@ -44,8 +44,8 @@ public:
 
     QString message;
     QString extendedMessage;
-    Analyzer::DiagnosticLocation location;
-    QList<Analyzer::DiagnosticLocation> ranges;
+    Debugger::DiagnosticLocation location;
+    QList<Debugger::DiagnosticLocation> ranges;
     int depth;
 };
 
@@ -59,7 +59,7 @@ public:
     QString type;
     QString issueContextKind;
     QString issueContext;
-    Analyzer::DiagnosticLocation location;
+    Debugger::DiagnosticLocation location;
     QList<ExplainingStep> explainingSteps;
 };
 
