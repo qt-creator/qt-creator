@@ -31,6 +31,7 @@
 #include "testtreemodel.h"
 
 #include <cpptools/cppmodelmanager.h>
+#include <cpptools/projectpart.h>
 
 #include <projectexplorer/project.h>
 #include <projectexplorer/session.h>
@@ -189,6 +190,48 @@ bool TestTreeModel::hasTests() const
             || m_googleTestRootItem->childCount() > 0;
 }
 
+static QString getCMakeDisplayNameIfNecessary(const QString &filePath, const QString &proFile)
+{
+    static const QString CMAKE_LISTS = QLatin1String("CMakeLists.txt");
+    if (!proFile.endsWith(CMAKE_LISTS))
+        return QString();
+
+    const QList<CppTools::ProjectPart::Ptr> &projectParts
+            = CppTools::CppModelManager::instance()->projectPart(filePath);
+    if (projectParts.size())
+        return projectParts.first()->displayName;
+
+    return QString();
+}
+
+// used as key inside getAllTestCases()/getSelectedTestCases() for Google Tests
+class ProFileWithDisplayName
+{
+public:
+    ProFileWithDisplayName(const QString &file, const QString &name)
+        : proFile(file), displayName(name) {}
+    QString proFile;
+    QString displayName;
+
+    bool operator==(const ProFileWithDisplayName &rhs) const
+    {
+        return proFile == rhs.proFile && displayName == rhs.displayName;
+    }
+};
+
+// needed as ProFileWithDisplayName is used as key inside a QHash
+bool operator<(const ProFileWithDisplayName &lhs, const ProFileWithDisplayName &rhs)
+{
+    return lhs.proFile == rhs.proFile ? lhs.displayName < rhs.displayName
+                                      : lhs.proFile < rhs.proFile;
+}
+
+// needed as ProFileWithDisplayName is used as a key inside a QHash
+uint qHash(const ProFileWithDisplayName &lhs)
+{
+    return ::qHash(lhs.proFile) ^ ::qHash(lhs.displayName);
+}
+
 QList<TestConfiguration *> TestTreeModel::getAllTestCases() const
 {
     QList<TestConfiguration *> result;
@@ -205,6 +248,7 @@ QList<TestConfiguration *> TestTreeModel::getAllTestCases() const
                                                       child->childCount());
         tc->setProFile(child->proFile());
         tc->setProject(project);
+        tc->setDisplayName(getCMakeDisplayNameIfNecessary(child->filePath(), child->proFile()));
         result << tc;
     }
 
@@ -237,20 +281,32 @@ QList<TestConfiguration *> TestTreeModel::getAllTestCases() const
     foundProFiles.clear();
 
     // get all Google Tests
+    QHash<ProFileWithDisplayName, int> proFilesWithTestSets;
     for (int row = 0, count = m_googleTestRootItem->childCount(); row < count; ++row) {
-        const TestTreeItem *child = m_googleTestRootItem->childItem(row);
-        for (int childRow = 0, childCount = child->childCount(); childRow < childCount; ++childRow) {
-            const QString &proFilePath = child->childItem(childRow)->proFile();
-            foundProFiles.insert(proFilePath, foundProFiles[proFilePath] + 1);
+        const GoogleTestTreeItem *child = m_googleTestRootItem->childItem(row)->asGoogleTestTreeItem();
+
+        const int grandChildCount = child->childCount();
+        for (int grandChildRow = 0; grandChildRow < grandChildCount; ++grandChildRow) {
+            const TestTreeItem *grandChild = child->childItem(grandChildRow);
+            if (grandChild->checked() == Qt::Checked) {
+                ProFileWithDisplayName key(grandChild->proFile(),
+                                           getCMakeDisplayNameIfNecessary(grandChild->filePath(),
+                                                                          grandChild->proFile()));
+
+                proFilesWithTestSets.insert(key, proFilesWithTestSets[key] + 1);
+            }
         }
     }
 
-    foreach (const QString &proFile, foundProFiles.keys()) {
-        TestConfiguration *tc = new TestConfiguration(QString(), QStringList(),
-                                                      foundProFiles.value(proFile));
-        tc->setProFile(proFile);
-        tc->setProject(project);
+    QHash<ProFileWithDisplayName, int>::Iterator it = proFilesWithTestSets.begin();
+    QHash<ProFileWithDisplayName, int>::Iterator end = proFilesWithTestSets.end();
+    for ( ; it != end; ++it) {
+        const ProFileWithDisplayName &key = it.key();
+        TestConfiguration *tc = new TestConfiguration(QString(), QStringList(), it.value());
         tc->setTestType(TestTypeGTest);
+        tc->setProFile(key.proFile);
+        tc->setDisplayName(key.displayName);
+        tc->setProject(project);
         result << tc;
     }
 
@@ -287,6 +343,8 @@ QList<TestConfiguration *> TestTreeModel::getSelectedTests() const
             testConfiguration = new TestConfiguration(child->name(), QStringList(), child->childCount());
             testConfiguration->setProFile(child->proFile());
             testConfiguration->setProject(project);
+            testConfiguration->setDisplayName(getCMakeDisplayNameIfNecessary(child->filePath(),
+                                                                             child->proFile()));
             result << testConfiguration;
             continue;
         case Qt::PartiallyChecked:
@@ -303,6 +361,8 @@ QList<TestConfiguration *> TestTreeModel::getSelectedTests() const
             testConfiguration = new TestConfiguration(childName, testCases);
             testConfiguration->setProFile(child->proFile());
             testConfiguration->setProject(project);
+            testConfiguration->setDisplayName(getCMakeDisplayNameIfNecessary(child->filePath(),
+                                                                             child->proFile()));
             result << testConfiguration;
         }
     }
@@ -385,29 +445,34 @@ QList<TestConfiguration *> TestTreeModel::getSelectedTests() const
     }
 
     // get selected Google Tests
-    QMap<QString, QStringList> proFilesWithEnabledTestSets;
-
+    QHash<ProFileWithDisplayName, QStringList> proFilesWithCheckedTestSets;
     for (int row = 0, count = m_googleTestRootItem->childCount(); row < count; ++row) {
         const auto child = m_googleTestRootItem->childItem(row)->asGoogleTestTreeItem();
-        if (child->checked() == Qt::Unchecked) // add this test name to disabled list ?
+        if (child->checked() == Qt::Unchecked)
             continue;
 
         int grandChildCount = child->childCount();
         for (int grandChildRow = 0; grandChildRow < grandChildCount; ++grandChildRow) {
             const TestTreeItem *grandChild = child->childItem(grandChildRow);
-            const QString &proFile = grandChild->proFile();
             if (grandChild->checked() == Qt::Checked) {
-                proFilesWithEnabledTestSets[proFile].append(
+                ProFileWithDisplayName key(grandChild->proFile(),
+                                           getCMakeDisplayNameIfNecessary(grandChild->filePath(),
+                                                                          grandChild->proFile()));
+
+                proFilesWithCheckedTestSets[key].append(
                             gtestFilter(child->state()).arg(child->name()).arg(grandChild->name()));
             }
         }
     }
 
-    foreach (const QString &proFile, proFilesWithEnabledTestSets.keys()) {
-        TestConfiguration *tc = new TestConfiguration(QString(),
-                                                      proFilesWithEnabledTestSets.value(proFile));
+    QHash<ProFileWithDisplayName, QStringList>::Iterator it = proFilesWithCheckedTestSets.begin();
+    QHash<ProFileWithDisplayName, QStringList>::Iterator end = proFilesWithCheckedTestSets.end();
+    for ( ; it != end; ++it) {
+        const ProFileWithDisplayName &key = it.key();
+        TestConfiguration *tc = new TestConfiguration(QString(), it.value());
         tc->setTestType(TestTypeGTest);
-        tc->setProFile(proFile);
+        tc->setProFile(key.proFile);
+        tc->setDisplayName(key.displayName);
         tc->setProject(project);
         result << tc;
     }
@@ -439,6 +504,8 @@ TestConfiguration *TestTreeModel::getTestConfiguration(const TestTreeItem *item)
             config = new TestConfiguration(item->name(), QStringList(), item->childCount());
             config->setProFile(item->proFile());
             config->setProject(project);
+            config->setDisplayName(getCMakeDisplayNameIfNecessary(item->filePath(),
+                                                                  item->proFile()));
         } else if (auto gtestItem = item->asGoogleTestTreeItem()) {
             const QString &testSpecifier
                     = gtestFilter(gtestItem->state()).arg(item->name()).arg(QLatin1Char('*'));
@@ -448,6 +515,9 @@ TestConfiguration *TestTreeModel::getTestConfiguration(const TestTreeItem *item)
                 config->setTestCaseCount(childCount);
                 config->setProFile(item->proFile());
                 config->setProject(project);
+                // item has no filePath set - so take it of the first children
+                config->setDisplayName(getCMakeDisplayNameIfNecessary(
+                                           item->childItem(0)->filePath(), item->proFile()));
                 config->setTestType(TestTypeGTest);
             }
         }
@@ -466,6 +536,8 @@ TestConfiguration *TestTreeModel::getTestConfiguration(const TestTreeItem *item)
             config = new TestConfiguration(parent->name(), QStringList() << item->name());
             config->setProFile(parent->proFile());
             config->setProject(project);
+            config->setDisplayName(getCMakeDisplayNameIfNecessary(item->filePath(),
+                                                                  parent->proFile()));
         } else if (auto gtestParent = parent->asGoogleTestTreeItem()) {
             const QString &testSpecifier
                     = gtestFilter(gtestParent->state()).arg(parent->name()).arg(item->name());
@@ -473,6 +545,8 @@ TestConfiguration *TestTreeModel::getTestConfiguration(const TestTreeItem *item)
             config = new TestConfiguration(QString(), QStringList(testSpecifier));
             config->setProFile(item->proFile());
             config->setProject(project);
+            config->setDisplayName(getCMakeDisplayNameIfNecessary(item->filePath(),
+                                                                  parent->proFile()));
             config->setTestType(TestTypeGTest);
         }
         break;
@@ -486,6 +560,7 @@ TestConfiguration *TestTreeModel::getTestConfiguration(const TestTreeItem *item)
         config = new TestConfiguration(parent->name(), QStringList() << functionWithTag);
         config->setProFile(parent->proFile());
         config->setProject(project);
+        config->setDisplayName(getCMakeDisplayNameIfNecessary(item->filePath(), parent->proFile()));
         break;
     }
     // not supported items

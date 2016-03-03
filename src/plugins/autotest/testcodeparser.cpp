@@ -259,7 +259,7 @@ static bool qtTestLibDefined(const CppTools::CppModelManager *cppMM,
 {
     const QList<CppTools::ProjectPart::Ptr> parts = cppMM->projectPart(fileName);
     if (parts.size() > 0)
-        return parts.at(0)->projectDefines.contains("#define QT_TESTLIB_LIB 1");
+        return parts.at(0)->projectDefines.contains("#define QT_TESTLIB_LIB");
     return false;
 }
 
