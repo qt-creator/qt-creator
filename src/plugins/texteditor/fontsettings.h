@@ -29,8 +29,7 @@
 #include "texteditor_global.h"
 
 #include "colorscheme.h"
-
-#include <utils/sizedarray.h>
+#include "textstyles.h"
 
 #include <QHash>
 #include <QList>
@@ -46,13 +45,6 @@ QT_END_NAMESPACE
 namespace TextEditor {
 
 class FormatDescription;
-
-using MixinTextStyles = Utils::SizedArray<TextStyle, 6>;
-
-struct TextStyles {
-    TextStyle mainStyle;
-    MixinTextStyles mixinStyles;
-};
 
 /**
  * Font settings (default font and enumerated list of formats).

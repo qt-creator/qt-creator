@@ -369,7 +369,7 @@ void TranslationUnits::sendDocumentAnnotations(const TranslationUnit &translatio
                                                         translationUnit.skippedSourceRanges().toSourceRangeContainers());
 
         sendDocumentAnnotationsCallback(std::move(diagnosticsMessage),
-                                               std::move(highlightingsMessage));
+                                        std::move(highlightingsMessage));
     }
 }
 

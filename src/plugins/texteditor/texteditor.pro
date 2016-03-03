@@ -216,7 +216,8 @@ HEADERS += texteditorplugin.h \
     codeassist/keywordscompletionassist.h \
     textmarkregistry.h \
     marginsettings.h \
-    blockrange.h
+    blockrange.h \
+    textstyles.h
 
 FORMS += \
     displaysettingspage.ui \

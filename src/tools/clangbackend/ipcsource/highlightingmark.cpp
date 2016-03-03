@@ -50,20 +50,48 @@ HighlightingMark::HighlightingMark(const CXCursor &cxCursor,
     line = start.line();
     column = start.column();
     length = end.offset() - start.offset();
-    type = kind(cxToken, originalCursor);
+    collectKinds(cxToken, originalCursor);
+}
+
+HighlightingMark::HighlightingMark(uint line, uint column, uint length, HighlightingTypes types)
+    : line(line),
+      column(column),
+      length(length),
+      types(types)
+{
 }
 
 HighlightingMark::HighlightingMark(uint line, uint column, uint length, HighlightingType type)
     : line(line),
       column(column),
       length(length),
-      type(type)
+      types(HighlightingTypes())
 {
+    types.mainHighlightingType = type;
 }
 
-bool HighlightingMark::hasType(HighlightingType type) const
+bool HighlightingMark::hasInvalidMainType() const
 {
-    return this->type == type;
+    return types.mainHighlightingType == HighlightingType::Invalid;
+}
+
+bool HighlightingMark::hasMainType(HighlightingType type) const
+{
+    return types.mainHighlightingType == type;
+}
+
+bool HighlightingMark::hasMixinType(HighlightingType type) const
+{
+    auto found = std::find(types.mixinHighlightingTypes.begin(),
+                           types.mixinHighlightingTypes.end(),
+                           type);
+
+    return found != types.mixinHighlightingTypes.end();
+}
+
+bool HighlightingMark::hasOnlyType(HighlightingType type) const
+{
+    return types.mixinHighlightingTypes.size() == 0 && hasMainType(type);
 }
 
 bool HighlightingMark::hasFunctionArguments() const
@@ -80,7 +108,7 @@ QVector<HighlightingMark> HighlightingMark::outputFunctionArguments() const
 
 HighlightingMark::operator HighlightingMarkContainer() const
 {
-    return HighlightingMarkContainer(line, column, length, type);
+    return HighlightingMarkContainer(line, column, length, types);
 }
 
 namespace {
@@ -90,8 +118,8 @@ bool isFinalFunction(const Cursor &cursor)
     auto referencedCursor = cursor.referenced();
     if (referencedCursor.hasFinalFunctionAttribute())
         return true;
-
-    else return false;
+    else
+        return false;
 }
 
 bool isFunctionInFinalClass(const Cursor &cursor)
@@ -104,20 +132,19 @@ bool isFunctionInFinalClass(const Cursor &cursor)
 }
 }
 
-HighlightingType HighlightingMark::memberReferenceKind(const Cursor &cursor) const
+void HighlightingMark::memberReferenceKind(const Cursor &cursor)
 {
     if (cursor.isDynamicCall()) {
         if (isFinalFunction(cursor) || isFunctionInFinalClass(cursor))
-            return HighlightingType::Function;
+            types.mainHighlightingType = HighlightingType::Function;
         else
-            return HighlightingType::VirtualFunction;
+            types.mainHighlightingType = HighlightingType::VirtualFunction;
+    } else {
+        identifierKind(cursor.referenced(), Recursion::RecursivePass);
     }
-
-    return identifierKind(cursor.referenced());
-
 }
 
-HighlightingType HighlightingMark::referencedTypeKind(const Cursor &cursor) const
+void HighlightingMark::referencedTypeKind(const Cursor &cursor)
 {
     const Cursor referencedCursor = cursor.referenced();
 
@@ -128,19 +155,17 @@ HighlightingType HighlightingMark::referencedTypeKind(const Cursor &cursor) cons
         case CXCursor_TypedefDecl:
         case CXCursor_TemplateTypeParameter:
         case CXCursor_TypeAliasDecl:
-        case CXCursor_EnumDecl:              return HighlightingType::Type;
-        default:                             return HighlightingType::Invalid;
+        case CXCursor_EnumDecl:              types.mainHighlightingType = HighlightingType::Type; break;
+        default:                             types.mainHighlightingType = HighlightingType::Invalid; break;
     }
-
-    Q_UNREACHABLE();
 }
 
-HighlightingType HighlightingMark::variableKind(const Cursor &cursor) const
+void HighlightingMark::variableKind(const Cursor &cursor)
 {
     if (cursor.isLocalVariable())
-        return HighlightingType::LocalVariable;
+        types.mainHighlightingType = HighlightingType::LocalVariable;
     else
-        return HighlightingType::GlobalVariable;
+        types.mainHighlightingType = HighlightingType::GlobalVariable;
 }
 
 bool HighlightingMark::isVirtualMethodDeclarationOrDefinition(const Cursor &cursor) const
@@ -157,32 +182,39 @@ bool isNotFinalFunction(const Cursor &cursor)
 }
 bool HighlightingMark::isRealDynamicCall(const Cursor &cursor) const
 {
-
     return originalCursor.isDynamicCall() && isNotFinalFunction(cursor);
 }
 
-HighlightingType HighlightingMark::functionKind(const Cursor &cursor) const
+void HighlightingMark::addExtraTypeIfFirstPass(HighlightingType type,
+                                               Recursion recursion)
 {
-    if (isRealDynamicCall(cursor) || isVirtualMethodDeclarationOrDefinition(cursor))
-        return HighlightingType::VirtualFunction;
-    else
-        return HighlightingType::Function;
+    if (recursion == Recursion::FirstPass)
+        types.mixinHighlightingTypes.push_back(type);
 }
 
-HighlightingType HighlightingMark::identifierKind(const Cursor &cursor) const
+void HighlightingMark::functionKind(const Cursor &cursor, Recursion recursion)
+{
+    if (isRealDynamicCall(cursor) || isVirtualMethodDeclarationOrDefinition(cursor))
+        types.mainHighlightingType = HighlightingType::VirtualFunction;
+    else
+        types.mainHighlightingType = HighlightingType::Function;
+
+    addExtraTypeIfFirstPass(HighlightingType::Declaration, recursion);
+}
+
+void HighlightingMark::identifierKind(const Cursor &cursor, Recursion recursion)
 {
     switch (cursor.kind()) {
         case CXCursor_Destructor:
         case CXCursor_Constructor:
         case CXCursor_FunctionDecl:
         case CXCursor_CallExpr:
-        case CXCursor_CXXMethod:                 return functionKind(cursor);
+        case CXCursor_CXXMethod:                 functionKind(cursor, recursion); break;
         case CXCursor_NonTypeTemplateParameter:
-        case CXCursor_ParmDecl:                  return HighlightingType::LocalVariable;
-        case CXCursor_VarDecl:                   return variableKind(cursor);
-        case CXCursor_VariableRef:
-        case CXCursor_DeclRefExpr:               return identifierKind(cursor.referenced());
-        case CXCursor_MemberRefExpr:             return memberReferenceKind(cursor);
+        case CXCursor_ParmDecl:                  types.mainHighlightingType = HighlightingType::LocalVariable; break;
+        case CXCursor_VarDecl:                   variableKind(cursor); break;
+        case CXCursor_DeclRefExpr:               identifierKind(cursor.referenced(), Recursion::RecursivePass); break;
+        case CXCursor_MemberRefExpr:             memberReferenceKind(cursor); break;
         case CXCursor_FieldDecl:
         case CXCursor_MemberRef:
         case CXCursor_ObjCIvarDecl:
@@ -190,8 +222,8 @@ HighlightingType HighlightingMark::identifierKind(const Cursor &cursor) const
         case CXCursor_ObjCClassMethodDecl:
         case CXCursor_ObjCInstanceMethodDecl:
         case CXCursor_ObjCSynthesizeDecl:
-        case CXCursor_ObjCDynamicDecl:           return HighlightingType::Field;
-        case CXCursor_TypeRef:                   return referencedTypeKind(cursor);
+        case CXCursor_ObjCDynamicDecl:           types.mainHighlightingType = HighlightingType::Field; break;
+        case CXCursor_TypeRef:                   referencedTypeKind(cursor); break;
         case CXCursor_ClassDecl:
         case CXCursor_TemplateTypeParameter:
         case CXCursor_TemplateTemplateParameter:
@@ -215,19 +247,17 @@ HighlightingType HighlightingMark::identifierKind(const Cursor &cursor) const
         case CXCursor_ObjCProtocolDecl:
         case CXCursor_ObjCProtocolRef:
         case CXCursor_ObjCClassRef:
-        case CXCursor_ObjCSuperClassRef:         return HighlightingType::Type;
-        case CXCursor_FunctionTemplate:          return HighlightingType::Function;
-        case CXCursor_EnumConstantDecl:          return HighlightingType::Enumeration;
-        case CXCursor_PreprocessingDirective:    return HighlightingType::Preprocessor;
-        case CXCursor_MacroExpansion:            return HighlightingType::PreprocessorExpansion;
-        case CXCursor_MacroDefinition:           return HighlightingType::PreprocessorDefinition;
-        case CXCursor_InclusionDirective:        return HighlightingType::StringLiteral;
+        case CXCursor_ObjCSuperClassRef:         types.mainHighlightingType = HighlightingType::Type; break;
+        case CXCursor_FunctionTemplate:          types.mainHighlightingType = HighlightingType::Function; break;
+        case CXCursor_EnumConstantDecl:          types.mainHighlightingType = HighlightingType::Enumeration; break;
+        case CXCursor_PreprocessingDirective:    types.mainHighlightingType = HighlightingType::Preprocessor; break;
+        case CXCursor_MacroExpansion:            types.mainHighlightingType = HighlightingType::PreprocessorExpansion; break;
+        case CXCursor_MacroDefinition:           types.mainHighlightingType = HighlightingType::PreprocessorDefinition; break;
+        case CXCursor_InclusionDirective:        types.mainHighlightingType = HighlightingType::StringLiteral; break;
         case CXCursor_LabelRef:
-        case CXCursor_LabelStmt:                 return HighlightingType::Label;
-        default:                                 return HighlightingType::Invalid;
+        case CXCursor_LabelStmt:                 types.mainHighlightingType = HighlightingType::Label; break;
+        default:                                 break;
     }
-
-    Q_UNREACHABLE();
 }
 
 namespace {
@@ -268,25 +298,25 @@ HighlightingType punctationKind(const Cursor &cursor)
 }
 
 }
-HighlightingType HighlightingMark::kind(CXToken *cxToken, const Cursor &cursor) const
+void HighlightingMark::collectKinds(CXToken *cxToken, const Cursor &cursor)
 {
     auto cxTokenKind = clang_getTokenKind(*cxToken);
 
-    switch (cxTokenKind) {
-        case CXToken_Keyword:     return HighlightingType::Keyword;
-        case CXToken_Punctuation: return punctationKind(cursor);
-        case CXToken_Identifier:  return identifierKind(cursor);
-        case CXToken_Comment:     return HighlightingType::Comment;
-        case CXToken_Literal:     return literalKind(cursor);
-    }
+    types = {};
 
-    Q_UNREACHABLE();
+    switch (cxTokenKind) {
+        case CXToken_Keyword:     types.mainHighlightingType = HighlightingType::Keyword; break;
+        case CXToken_Punctuation: types.mainHighlightingType = punctationKind(cursor); break;
+        case CXToken_Identifier:  identifierKind(cursor, Recursion::FirstPass); break;
+        case CXToken_Comment:     types.mainHighlightingType = HighlightingType::Comment; break;
+        case CXToken_Literal:     types.mainHighlightingType = literalKind(cursor); break;
+    }
 }
 
 void PrintTo(const HighlightingMark &information, ::std::ostream *os)
 {
     *os << "type: ";
-    PrintTo(information.type, os);
+    PrintTo(information.types, os);
     *os << " line: " << information.line
         << " column: " << information.column
         << " length: " << information.length;

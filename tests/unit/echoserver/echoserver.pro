@@ -15,6 +15,8 @@ osx:QMAKE_CXXFLAGS = -stdlib=libc++
 include(../../../src/libs/clangbackendipc/clangbackendipc-lib.pri)
 include(../../../src/libs/sqlite/sqlite-lib.pri)
 
+INCLUDEPATH += ../../../src/libs
+
 SOURCES += \
     echoipcserver.cpp \
     echoserverprocessmain.cpp

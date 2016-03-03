@@ -25,57 +25,67 @@
 
 #include "clanghighlightingmarksreporter.h"
 
-#include <cpptools/semantichighlighter.h>
+#include <texteditor/textstyles.h>
 
 #include <QFuture>
 
 namespace {
 
-CppTools::SemanticHighlighter::Kind toCppToolsSemanticHighlighterKind(
-        ClangBackEnd::HighlightingType type)
+TextEditor::TextStyle toTextStyle(ClangBackEnd::HighlightingType type)
 {
     using ClangBackEnd::HighlightingType;
-    using CppTools::SemanticHighlighter;
 
     switch (type) {
-    case HighlightingType::Keyword:
-        return SemanticHighlighter::PseudoKeywordUse;
-    case HighlightingType::Function:
-        return SemanticHighlighter::FunctionUse;
-    case HighlightingType::VirtualFunction:
-        return SemanticHighlighter::VirtualMethodUse;
-    case HighlightingType::Type:
-        return SemanticHighlighter::TypeUse;
-    case HighlightingType::LocalVariable:
-        return SemanticHighlighter::LocalUse;
-    case HighlightingType::Field:
-        return SemanticHighlighter::FieldUse;
-    case HighlightingType::GlobalVariable:
-        return SemanticHighlighter::Unknown;
-    case HighlightingType::Enumeration:
-        return SemanticHighlighter::EnumerationUse;
-    case HighlightingType::Label:
-        return SemanticHighlighter::LabelUse;
-    case HighlightingType::Preprocessor:
-    case HighlightingType::PreprocessorDefinition:
-    case HighlightingType::PreprocessorExpansion:
-        return SemanticHighlighter::MacroUse;
-    default:
-        return SemanticHighlighter::Unknown;
+        case HighlightingType::Keyword:
+            return TextEditor::C_KEYWORD;
+        case HighlightingType::Function:
+            return TextEditor::C_FUNCTION;
+        case HighlightingType::VirtualFunction:
+            return TextEditor::C_VIRTUAL_METHOD;
+        case HighlightingType::Type:
+            return TextEditor::C_TYPE;
+        case HighlightingType::LocalVariable:
+            return TextEditor::C_LOCAL;
+        case HighlightingType::Field:
+            return TextEditor::C_FIELD;
+        case HighlightingType::Enumeration:
+            return TextEditor::C_ENUMERATION;
+        case HighlightingType::Label:
+            return TextEditor::C_LABEL;
+        case HighlightingType::Preprocessor:
+        case HighlightingType::PreprocessorDefinition:
+        case HighlightingType::PreprocessorExpansion:
+            return TextEditor::C_PREPROCESSOR;
+        case HighlightingType::Declaration:
+            return TextEditor::C_DECLARATION;
+        default:
+            return TextEditor::C_TEXT; // never called
     }
 
     Q_UNREACHABLE();
 }
 
+TextEditor::TextStyles toTextStyles(ClangBackEnd::HighlightingTypes types)
+{
+    TextEditor::TextStyles textStyles;
+
+    textStyles.mainStyle = toTextStyle(types.mainHighlightingType);
+
+    for (ClangBackEnd::HighlightingType type : types.mixinHighlightingTypes)
+        textStyles.mixinStyles.push_back(toTextStyle(type));
+
+    return textStyles;
+}
+
 TextEditor::HighlightingResult toHighlightingResult(
         const ClangBackEnd::HighlightingMarkContainer &highlightingMark)
 {
-    const auto highlighterKind = toCppToolsSemanticHighlighterKind(highlightingMark.type());
+    const auto textStyles = toTextStyles(highlightingMark.types());
 
     return TextEditor::HighlightingResult(highlightingMark.line(),
                                           highlightingMark.column(),
                                           highlightingMark.length(),
-                                          highlighterKind);
+                                          textStyles);
 }
 
 } // anonymous

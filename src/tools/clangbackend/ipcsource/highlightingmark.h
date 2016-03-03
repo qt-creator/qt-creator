@@ -39,32 +39,42 @@ class HighlightingMark
     friend bool operator==(const HighlightingMark &first, const HighlightingMark &second);
     friend void PrintTo(const HighlightingMark& highlightingMark, ::std::ostream *os);
 
+    enum class Recursion {
+        FirstPass,
+        RecursivePass
+    };
+
 public:
     HighlightingMark(const CXCursor &cxCursor, CXToken *cxToken, CXTranslationUnit cxTranslationUnit);
+    HighlightingMark(uint line, uint column, uint length, HighlightingTypes types);
     HighlightingMark(uint line, uint column, uint length, HighlightingType type);
 
-    bool hasType(HighlightingType type) const;
+    bool hasInvalidMainType() const;
+    bool hasMainType(HighlightingType type) const;
+    bool hasMixinType(HighlightingType type) const;
+    bool hasOnlyType(HighlightingType type) const;
     bool hasFunctionArguments() const;
     QVector<HighlightingMark> outputFunctionArguments() const;
 
     operator HighlightingMarkContainer() const;
 
 private:
-    HighlightingType identifierKind(const Cursor &cursor) const;
-    HighlightingType referencedTypeKind(const Cursor &cursor) const;
-    HighlightingType variableKind(const Cursor &cursor) const;
+    void identifierKind(const Cursor &cursor, Recursion recursion);
+    void referencedTypeKind(const Cursor &cursor);
+    void variableKind(const Cursor &cursor);
     bool isVirtualMethodDeclarationOrDefinition(const Cursor &cursor) const;
-    HighlightingType functionKind(const Cursor &cursor) const;
-    HighlightingType memberReferenceKind(const Cursor &cursor) const;
-    HighlightingType kind(CXToken *cxToken, const Cursor &cursor) const;
+    void functionKind(const Cursor &cursor, Recursion recursion);
+    void memberReferenceKind(const Cursor &cursor);
+    void collectKinds(CXToken *cxToken, const Cursor &cursor);
     bool isRealDynamicCall(const Cursor &cursor) const;
+    void addExtraTypeIfFirstPass(HighlightingType type, Recursion recursion);
 
 private:
     Cursor originalCursor;
     uint line;
     uint column;
     uint length;
-    HighlightingType type;
+    HighlightingTypes types;
 };
 
 void PrintTo(const HighlightingMark& highlightingMark, ::std::ostream *os);
@@ -74,7 +84,7 @@ inline bool operator==(const HighlightingMark &first, const HighlightingMark &se
     return first.line == second.line
         && first.column == second.column
         && first.length == second.length
-        && first.type == second.type;
+        && first.types == second.types;
 }
 
 } // namespace ClangBackEnd

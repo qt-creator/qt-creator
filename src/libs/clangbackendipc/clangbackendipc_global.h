@@ -26,6 +26,8 @@
 #ifndef CLANGBACKENDIPC_GLOBAL_H
 #define CLANGBACKENDIPC_GLOBAL_H
 
+#include <utils/sizedarray.h>
+
 #include <QtCore/qglobal.h>
 
 #if defined(CLANGBACKENDIPC_BUILD_LIB)
@@ -51,7 +53,7 @@ enum class DiagnosticSeverity // one to one mapping of the clang enum numbers
     Fatal = 4
 };
 
-enum class HighlightingType
+enum class HighlightingType : quint8
 {
     Invalid,
     Keyword,
@@ -70,7 +72,8 @@ enum class HighlightingType
     PreprocessorDefinition,
     PreprocessorExpansion,
     Label,
-    OutputArgument
+    OutputArgument,
+    Declaration
 };
 
 enum class CompletionCorrection
@@ -121,6 +124,13 @@ template<> \
 struct MessageTrait<Message> \
 { \
     static const MessageType enumeration = MessageType::Message; \
+};
+
+using MixinHighlightingTypes = Utils::SizedArray<HighlightingType, 6>;
+
+struct HighlightingTypes {
+    HighlightingType mainHighlightingType;
+    MixinHighlightingTypes mixinHighlightingTypes;
 };
 
 }

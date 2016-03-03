@@ -35,12 +35,23 @@ namespace ClangBackEnd {
 HighlightingMarkContainer::HighlightingMarkContainer(uint line,
                                                      uint column,
                                                      uint length,
-                                                     HighlightingType type)
+                                                     HighlightingTypes types)
     : line_(line),
       column_(column),
       length_(length),
-      type_(type)
+      types_(types)
 {
+}
+
+HighlightingMarkContainer::HighlightingMarkContainer(uint line,
+                                                     uint column,
+                                                     uint length,
+                                                     HighlightingType type)
+    : line_(line),
+      column_(column),
+      length_(length)
+{
+    types_.mainHighlightingType = type;
 }
 
 uint HighlightingMarkContainer::line() const
@@ -58,14 +69,21 @@ uint HighlightingMarkContainer::length() const
     return length_;
 }
 
-HighlightingType HighlightingMarkContainer::type() const
+HighlightingTypes HighlightingMarkContainer::types() const
 {
-    return type_;
+    return types_;
 }
 
-quint32 &HighlightingMarkContainer::typeAsInt()
+QDataStream &operator<<(QDataStream &out, HighlightingTypes highlightingTypes)
 {
-    return reinterpret_cast<quint32&>(type_);
+    out << reinterpret_cast<const quint8&>(highlightingTypes.mainHighlightingType);
+
+    out << highlightingTypes.mixinHighlightingTypes.size();
+
+    for (HighlightingType type : highlightingTypes.mixinHighlightingTypes)
+        out << reinterpret_cast<const quint8&>(type);
+
+    return out;
 }
 
 QDataStream &operator<<(QDataStream &out, const HighlightingMarkContainer &container)
@@ -73,9 +91,25 @@ QDataStream &operator<<(QDataStream &out, const HighlightingMarkContainer &conta
     out << container.line_;
     out << container.column_;
     out << container.length_;
-    out << quint32(container.type_);
+    out << container.types_;
 
     return out;
+}
+
+QDataStream &operator>>(QDataStream &in, HighlightingTypes &highlightingTypes)
+{
+    in >> reinterpret_cast<quint8&>(highlightingTypes.mainHighlightingType);
+
+    quint8 size;
+    in >> size;
+
+    for (int counter = 0; counter < size; ++counter) {
+        HighlightingType type;
+        in >> reinterpret_cast<quint8&>(type);
+        highlightingTypes.mixinHighlightingTypes.push_back(type);
+    }
+
+    return in;
 }
 
 QDataStream &operator>>(QDataStream &in, HighlightingMarkContainer &container)
@@ -83,9 +117,21 @@ QDataStream &operator>>(QDataStream &in, HighlightingMarkContainer &container)
     in >> container.line_;
     in >> container.column_;
     in >> container.length_;
-    in >> container.typeAsInt();
+    in >> container.types_;
 
     return in;
+}
+
+bool operator==(const MixinHighlightingTypes &first, const MixinHighlightingTypes &second)
+{
+    return first.size() == second.size()
+        && std::equal(first.begin(), first.end(), second.begin());
+}
+
+bool operator==(const HighlightingTypes &first, const HighlightingTypes &second)
+{
+    return first.mainHighlightingType == second.mainHighlightingType
+        && first.mixinHighlightingTypes == second.mixinHighlightingTypes;
 }
 
 bool operator==(const HighlightingMarkContainer &first, const HighlightingMarkContainer &second)
@@ -93,7 +139,7 @@ bool operator==(const HighlightingMarkContainer &first, const HighlightingMarkCo
     return first.line_ == second.line_
         && first.column_ == second.column_
         && first.length_ == second.length_
-        && first.type_ == second.type_;
+        && first.types_ == second.types_;
 }
 
 #define RETURN_TEXT_FOR_CASE(enumValue) case HighlightingType::enumValue: return #enumValue
@@ -129,7 +175,7 @@ QDebug operator<<(QDebug debug, const HighlightingMarkContainer &container)
                     << container.line() << ", "
                     << container.column() << ", "
                     << container.length() << ", "
-                    << highlightingTypeToCStringLiteral(container.type()) << ", "
+                    << highlightingTypeToCStringLiteral(container.types().mainHighlightingType) << ", "
                     << ")";
 
     return debug;
@@ -140,13 +186,25 @@ void PrintTo(HighlightingType highlightingType, std::ostream *os)
     *os << highlightingTypeToCStringLiteral(highlightingType);
 }
 
+void PrintTo(const HighlightingTypes &types, std::ostream *os)
+{
+    PrintTo(types.mainHighlightingType, os);
+
+    *os << "[";
+
+    for (HighlightingType type : types.mixinHighlightingTypes)
+        PrintTo(type, os);
+
+     *os << "]";
+}
+
 void PrintTo(const HighlightingMarkContainer& container, ::std::ostream *os)
 {
     *os << "HighlightingMarkContainer("
         << container.line() << ", "
         << container.column() << ", "
         << container.length() << ", ";
-    PrintTo(container.type(), os);
+    PrintTo(container.types(), os);
     *os << ")";
 }
 

@@ -23,51 +23,18 @@
 **
 ****************************************************************************/
 
-#ifndef TEXTEDITOR_SEMANTICHIGHLIGHTER_H
-#define TEXTEDITOR_SEMANTICHIGHLIGHTER_H
+#pragma once
 
-#include <texteditor/textstyles.h>
+#include "texteditorconstants.h"
+
+#include <utils/sizedarray.h>
 
 namespace TextEditor {
+using MixinTextStyles = Utils::SizedArray<TextStyle, 6>;
 
-class HighlightingResult {
-public:
-    unsigned line;
-    unsigned column;
-    unsigned length;
-    union {
-        TextStyles textStyles;
-        int kind;
-    };
-    bool useTextSyles;
-
-    bool isValid() const
-    { return line != 0; }
-
-    bool isInvalid() const
-    { return line == 0; }
-
-    HighlightingResult()
-        : line(0), column(0), length(0), kind(0)
-    {}
-
-    HighlightingResult(unsigned line, unsigned column, unsigned length, int kind)
-        : line(line), column(column), length(length), kind(kind), useTextSyles(false)
-    {}
-
-    HighlightingResult(unsigned line, unsigned column, unsigned length, TextStyles textStyles)
-        : line(line), column(column), length(length), textStyles(textStyles), useTextSyles(true)
-    {}
-
-    bool operator==(const HighlightingResult& other) const
-    {
-        return line == other.line
-                && column == other.column
-                && length == other.length
-                && kind == other.kind;
-    }
+struct TextStyles {
+    TextStyle mainStyle;
+    MixinTextStyles mixinStyles;
 };
 
 } // namespace TextEditor
-
-#endif // TEXTEDITOR_SEMANTICHIGHLIGHTER_H

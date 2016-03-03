@@ -61,7 +61,10 @@ QVector<HighlightingMarkContainer> HighlightingMarks::toHighlightingMarksContain
     containers.reserve(size());
 
     const auto isValidHighlightMark = [] (const HighlightingMark &highlightMark) {
-        return !highlightMark.hasType(HighlightingType::Invalid);
+        return !highlightMark.hasInvalidMainType()
+             && !highlightMark.hasMainType(HighlightingType::StringLiteral)
+             && !highlightMark.hasMainType(HighlightingType::NumberLiteral)
+             && !highlightMark.hasMainType(HighlightingType::Comment);
     };
 
     std::copy_if(begin(), end(), std::back_inserter(containers), isValidHighlightMark);

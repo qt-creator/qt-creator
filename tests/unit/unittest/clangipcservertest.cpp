@@ -81,6 +81,7 @@ using ClangBackEnd::UpdateVisibleTranslationUnitsMessage;
 using ClangBackEnd::RequestHighlightingMessage;
 using ClangBackEnd::HighlightingChangedMessage;
 using ClangBackEnd::HighlightingMarkContainer;
+using ClangBackEnd::HighlightingTypes;
 
 MATCHER_P5(HasDirtyTranslationUnit,
            filePath,
@@ -174,8 +175,10 @@ TEST_F(ClangIpcServer, GetCodeCompletion)
 TEST_F(ClangIpcServer, RequestHighlighting)
 {
     RequestHighlightingMessage requestHighlightingMessage({variableTestFilePath, projectPartId});
-
-    HighlightingMarkContainer highlightingMarkContainer(1, 6, 8, ClangBackEnd::HighlightingType::Function);
+    HighlightingTypes types;
+    types.mainHighlightingType = ClangBackEnd::HighlightingType::Function;
+    types.mixinHighlightingTypes.push_back(ClangBackEnd::HighlightingType::Declaration);
+    HighlightingMarkContainer highlightingMarkContainer(1, 6, 8, types);
 
     EXPECT_CALL(mockIpcClient, highlightingChanged(Property(&HighlightingChangedMessage::highlightingMarks, Contains(highlightingMarkContainer))))
         .Times(1);
