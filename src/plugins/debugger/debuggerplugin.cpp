@@ -2899,7 +2899,7 @@ static QString formatStartParameters(DebuggerRunParameters &sp)
         << "\nABI: " << sp.toolChainAbi.toString() << '\n';
     str << "Languages: ";
     if (sp.languages == AnyLanguage)
-        str << "any";
+        str << "any ";
     if (sp.languages & CppLanguage)
         str << "c++ ";
     if (sp.languages & QmlLanguage)
