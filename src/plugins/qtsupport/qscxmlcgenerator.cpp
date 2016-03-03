@@ -42,13 +42,10 @@ static const char TaskCategory[] = "Task.Category.ExtraCompiler.QScxmlc";
 QScxmlcGenerator::QScxmlcGenerator(const ProjectExplorer::Project *project,
                                    const Utils::FileName &source,
                                    const Utils::FileNameList &targets, QObject *parent) :
-    ProjectExplorer::ExtraCompiler(project, source, targets, parent)
-{
-    connect(&m_process, static_cast<void(QProcess::*)(int)>(&QProcess::finished),
-            this, &QScxmlcGenerator::finishProcess);
-}
+    ProjectExplorer::ProcessExtraCompiler(project, source, targets, parent)
+{ }
 
-void QScxmlcGenerator::parseIssues(const QByteArray &processStderr)
+QList<ProjectExplorer::Task> QScxmlcGenerator::parseIssues(const QByteArray &processStderr)
 {
     QList<ProjectExplorer::Task> issues;
     foreach (const QByteArray &line, processStderr.split('\n')) {
@@ -64,30 +61,13 @@ void QScxmlcGenerator::parseIssues(const QByteArray &processStderr)
             issues.append(ProjectExplorer::Task(type, message, file, line, TaskCategory));
         }
     }
-    setCompileIssues(issues);
+    return issues;
 }
 
-void QScxmlcGenerator::finishProcess()
+
+Utils::FileName QScxmlcGenerator::command() const
 {
-    parseIssues(m_process.readAllStandardError());
-
-    setCompileTime(QDateTime::currentDateTime());
-    foreach (const Utils::FileName &target, targets()) {
-        QFile generated(m_tmpdir.path() + QLatin1Char('/') + target.fileName());
-        if (!generated.open(QIODevice::ReadOnly))
-            continue;
-        setContent(target, generated.readAll());
-    }
-}
-
-void QScxmlcGenerator::run(const QByteArray &sourceContent)
-{
-    if (m_process.state() != QProcess::NotRunning) {
-        m_process.kill();
-        m_process.waitForFinished(3000);
-    }
-
-    QtSupport::BaseQtVersion *version = 0;
+    QtSupport::BaseQtVersion *version = nullptr;
     ProjectExplorer::Target *target;
     if ((target = project()->activeTarget()))
         version = QtSupport::QtKitInformation::qtVersion(target->kit());
@@ -95,28 +75,61 @@ void QScxmlcGenerator::run(const QByteArray &sourceContent)
         version = QtSupport::QtKitInformation::qtVersion(ProjectExplorer::KitManager::defaultKit());
 
     if (!version)
-        return;
+        return Utils::FileName();
 
-    const QString generator = version->qscxmlcCommand();
-    if (!QFileInfo(generator).isExecutable())
-        return;
+    return Utils::FileName::fromString(version->qscxmlcCommand());
+}
 
-    m_process.setProcessEnvironment(buildEnvironment().toProcessEnvironment());
-    m_process.setWorkingDirectory(m_tmpdir.path());
+QStringList QScxmlcGenerator::arguments() const
+{
+    QTC_ASSERT(targets().count() == 2, return QStringList());
 
-    QFile input(m_tmpdir.path() + QLatin1Char('/') + source().fileName());
+    const Utils::FileName fn = tmpFile();
+    const QString header = m_tmpdir.path() + QLatin1Char('/') + targets()[0].fileName();
+    const QString impl = m_tmpdir.path() + QLatin1Char('/') + targets()[1].fileName();
+
+    return QStringList({ QLatin1String("--header"), header, QLatin1String("--impl"), impl,
+                         fn.fileName() });
+}
+
+Utils::FileName QScxmlcGenerator::workingDirectory() const
+{
+    return Utils::FileName::fromString(m_tmpdir.path());
+}
+
+bool QScxmlcGenerator::prepareToRun(const QByteArray &sourceContents)
+{
+    const Utils::FileName fn = tmpFile();
+    QFile input(fn.toString());
     if (!input.open(QIODevice::WriteOnly))
-        return;
-    input.write(sourceContent);
+        return false;
+    input.write(sourceContents);
     input.close();
 
-    qCDebug(log) << "  QScxmlcGenerator::run " << generator << " on "
-                 << sourceContent.size() << " bytes";
+    return true;
+}
 
-    m_process.start(generator, QStringList({
-            QLatin1String("--header"), m_tmpdir.path() + QLatin1Char('/') + targets()[0].fileName(),
-            QLatin1String("--impl"), m_tmpdir.path() + QLatin1Char('/') + targets()[1].fileName(),
-            input.fileName()}));
+QList<QByteArray> QScxmlcGenerator::handleProcessFinished(QProcess *process)
+{
+    Q_UNUSED(process);
+    const Utils::FileName wd = workingDirectory();
+    QList<QByteArray> result;
+    foreach (const Utils::FileName &target, targets()) {
+        Utils::FileName file = wd;
+        file.appendPath(target.fileName());
+        QFile generated(file.toString());
+        if (!generated.open(QIODevice::ReadOnly))
+            continue;
+        result << generated.readAll();
+    }
+    return result;
+}
+
+Utils::FileName QScxmlcGenerator::tmpFile() const
+{
+    Utils::FileName wd = workingDirectory();
+    wd.appendPath(source().fileName());
+    return wd;
 }
 
 ProjectExplorer::FileType QScxmlcGeneratorFactory::sourceType() const

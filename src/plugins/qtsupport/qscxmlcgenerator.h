@@ -33,20 +33,25 @@
 
 namespace QtSupport {
 
-class QScxmlcGenerator : public ProjectExplorer::ExtraCompiler
+class QScxmlcGenerator : public ProjectExplorer::ProcessExtraCompiler
 {
     Q_OBJECT
 public:
     QScxmlcGenerator(const ProjectExplorer::Project *project, const Utils::FileName &source,
                      const Utils::FileNameList &targets, QObject *parent = 0);
 
-private:
-    void finishProcess();
-    void run(const QByteArray &sourceContent) override;
+protected:
+    Utils::FileName command() const override;
+    QStringList arguments() const override;
+    Utils::FileName workingDirectory() const override;
 
-    QProcess m_process;
+private:
+    Utils::FileName tmpFile() const;
+    QList<QByteArray> handleProcessFinished(QProcess *process) override;
+    bool prepareToRun(const QByteArray &sourceContents) override;
+    QList<ProjectExplorer::Task> parseIssues(const QByteArray &processStderr) override;
+
     QTemporaryDir m_tmpdir;
-    void parseIssues(const QByteArray &processStderr);
 };
 
 class QScxmlcGeneratorFactory : public ProjectExplorer::ExtraCompilerFactory

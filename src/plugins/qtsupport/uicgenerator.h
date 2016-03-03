@@ -33,20 +33,17 @@
 
 namespace QtSupport {
 
-class UicGenerator : public ProjectExplorer::ExtraCompiler
+class UicGenerator : public ProjectExplorer::ProcessExtraCompiler
 {
     Q_OBJECT
 public:
     UicGenerator(const ProjectExplorer::Project *project, const Utils::FileName &source,
                  const Utils::FileNameList &targets, QObject *parent = 0);
 
-private slots:
-    void finishProcess();
-    void run(const QByteArray &sourceContent) override;
-
-private:
-    QProcess m_process;
-    static QLoggingCategory m_log;
+protected:
+    Utils::FileName command() const override;
+    void handleProcessStarted(QProcess *process, const QByteArray &sourceContents) override;
+    QList<QByteArray> handleProcessFinished(QProcess *process) override;
 };
 
 class UicGeneratorFactory : public ProjectExplorer::ExtraCompilerFactory
