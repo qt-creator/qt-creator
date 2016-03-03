@@ -61,7 +61,6 @@ public:
     static QColor highlightColor(bool lightColored = false);
     static QColor shadowColor(bool lightColored = false);
     static QColor borderColor(bool lightColored = false);
-    static QColor separatorColor();
     static QColor buttonTextColor() { return QColor(0x4c4c4c); }
     static QColor mergedColors(const QColor &colorA, const QColor &colorB, int factor = 50);
 

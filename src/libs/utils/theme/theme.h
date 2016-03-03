@@ -80,6 +80,7 @@ public:
         DoubleTabWidget2ndTabBackgroundColor,
         DoubleTabWidget2ndTabInactiveTextColor,
         EditorPlaceholderColor,
+        FancyToolBarSeparatorColor,
         FancyTabBarBackgroundColor,
         FancyTabWidgetDisabledSelectedTextColor,
         FancyTabWidgetDisabledUnselectedTextColor,

@@ -275,7 +275,7 @@ void FancyActionBar::paintEvent(QPaintEvent *event)
         painter.fillRect(event->rect(), StyleHelper::isBaseColorDefault()
                          ? creatorTheme()->color(Theme::FancyTabBarBackgroundColor)
                          : StyleHelper::baseColor());
-        painter.setPen(StyleHelper::separatorColor());
+        painter.setPen(creatorTheme()->color(Theme::FancyToolBarSeparatorColor));
         painter.drawLine(borderRect.topLeft(), borderRect.topRight());
     } else {
         painter.setPen(StyleHelper::sidebarShadow());

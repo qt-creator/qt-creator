@@ -840,7 +840,8 @@ void ManhattanStyle::drawControl(ControlElement element, const QStyleOption *opt
                 // toolbar should draw the top or bottom outline
                 // (needed for the find toolbar for instance)
                 const QColor hightLight = creatorTheme()->widgetStyle() == Theme::StyleDefault
-                        ? StyleHelper::sidebarHighlight() : StyleHelper::separatorColor();
+                        ? StyleHelper::sidebarHighlight()
+                        : creatorTheme()->color(Theme::FancyToolBarSeparatorColor);
                 const QColor borderColor = drawLightColored
                         ? QColor(255, 255, 255, 180) : hightLight;
                 if (widget && widget->property("topBorder").toBool()) {
@@ -1018,8 +1019,10 @@ void ManhattanStyle::drawButtonSeparator(QPainter *painter, const QRect &rect, b
 {
     const QRectF borderRect = QRectF(rect).adjusted(0.5, 0.5, -0.5, -0.5);
     if (creatorTheme()->widgetStyle() == Theme::StyleFlat) {
-        painter->setPen(StyleHelper::separatorColor());
-        painter->drawLine(borderRect.topRight(), borderRect.bottomRight());
+        const int margin = 3;
+        painter->setPen(creatorTheme()->color(Theme::FancyToolBarSeparatorColor));
+        painter->drawLine(borderRect.topRight() + QPointF(0, margin),
+                          borderRect.bottomRight() - QPointF(0, margin));
     } else {
         QLinearGradient grad(rect.topRight(), rect.bottomRight());
         grad.setColorAt(0, QColor(255, 255, 255, 20));
