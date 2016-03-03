@@ -42,7 +42,6 @@
 :CMake Wizard.Cancel_QPushButton	{text='Cancel' type='QPushButton' visible='1' window=':CMake Wizard_CMakeProjectManager::Internal::CMakeOpenProjectWizard'}
 :CMake Wizard.Finish_QPushButton	{text~='(Finish|Done)' type='QPushButton' visible='1' window=':CMake Wizard_CMakeProjectManager::Internal::CMakeOpenProjectWizard'}
 :CMake Wizard.Generator:_QLabel	{text='Generator:' type='QLabel' unnamed='1' visible='1' window=':CMake Wizard_CMakeProjectManager::Internal::CMakeOpenProjectWizard'}
-:CMake Wizard.Next_QPushButton	{name='__qt__passive_wizardbutton1' text~='(Next.*|Continue)' type='QPushButton' visible='1' window=':CMake Wizard_CMakeProjectManager::Internal::CMakeOpenProjectWizard'}
 :CMake Wizard.Run CMake_QPushButton	{text='Run CMake' type='QPushButton' unnamed='1' visible='1' window=':CMake Wizard_CMakeProjectManager::Internal::CMakeOpenProjectWizard'}
 :CMake Wizard_CMakeProjectManager::Internal::CMakeOpenProjectWizard	{type='CMakeProjectManager::Internal::CMakeOpenProjectWizard' unnamed='1' visible='1' windowTitle='CMake Wizard'}
 :Cannot Open Project.OK_QPushButton	{text='OK' type='QPushButton' unnamed='1' visible='1' window=':Cannot Open Project_QMessageBox'}
