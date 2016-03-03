@@ -54,7 +54,6 @@ public:
     Analyzer::AnalyzerRunControl *createRunControl(ProjectExplorer::RunConfiguration *runConfiguration = 0);
     void finalizeRunControl(QmlProfilerRunControl *runControl);
 
-    QWidget *createWidgets();
     bool prepareTool();
     void startRemoteTool(ProjectExplorer::RunConfiguration *rc);
 

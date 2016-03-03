@@ -29,7 +29,6 @@
 #include "qmlprofilertool.h"
 #include "qmlprofilertimelinemodel.h"
 
-#include <debugger/analyzer/analyzermanager.h>
 #include <extensionsystem/pluginmanager.h>
 #include <utils/hostosinfo.h>
 
@@ -61,41 +60,10 @@ void QmlProfilerPlugin::extensionsInitialized()
 {
     factory = ExtensionSystem::PluginManager::getObject<QmlProfilerTimelineModelFactory>();
 
-    auto tool = new QmlProfilerTool(this);
-    auto runControlCreator = [tool](ProjectExplorer::RunConfiguration *runConfiguration, Core::Id) {
-        return tool->createRunControl(runConfiguration);
-    };
-
-    QString description = QmlProfilerTool::tr(
-        "The QML Profiler can be used to find performance bottlenecks in "
-        "applications using QML.");
-
-    ActionDescription desc;
-    desc.setText(tr("QML Profiler"));
-    desc.setToolTip(description);
-    desc.setPerspectiveId(Constants::QmlProfilerPerspectiveId);
-    desc.setRunControlCreator(runControlCreator);
-    desc.setToolPreparer([tool] { return tool->prepareTool(); });
-    desc.setRunMode(ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
-    desc.setMenuGroup(Analyzer::Constants::G_ANALYZER_TOOLS);
-    AnalyzerManager::registerAction(Constants::QmlProfilerLocalActionId, desc);
-
-    desc.setText(tr("QML Profiler (External)"));
-    desc.setToolTip(description);
-    desc.setPerspectiveId(Constants::QmlProfilerPerspectiveId);
-    desc.setRunControlCreator(runControlCreator);
-    desc.setCustomToolStarter([tool](ProjectExplorer::RunConfiguration *rc) {
-        tool->startRemoteTool(rc);
-    });
-    desc.setToolPreparer([tool] { return tool->prepareTool(); });
-    desc.setRunMode(ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
-    desc.setMenuGroup(Analyzer::Constants::G_ANALYZER_REMOTE_TOOLS);
-    AnalyzerManager::registerAction(Constants::QmlProfilerRemoteActionId, desc);
+    (void) new QmlProfilerTool(this);
 
     addAutoReleasedObject(new QmlProfilerRunControlFactory());
     addAutoReleasedObject(new Internal::QmlProfilerOptionsPage());
-
-    AnalyzerManager::registerToolbar(Constants::QmlProfilerPerspectiveId, tool->createWidgets());
 }
 
 ExtensionSystem::IPlugin::ShutdownFlag QmlProfilerPlugin::aboutToShutdown()

@@ -94,48 +94,38 @@ namespace Internal {
 class QmlProfilerTool::QmlProfilerToolPrivate
 {
 public:
-    QmlProfilerStateManager *m_profilerState;
-    QmlProfilerClientManager *m_profilerConnections;
-    QmlProfilerModelManager *m_profilerModelManager;
+    QmlProfilerStateManager *m_profilerState = 0;
+    QmlProfilerClientManager *m_profilerConnections = 0;
+    QmlProfilerModelManager *m_profilerModelManager = 0;
 
-    QmlProfilerViewManager *m_viewContainer;
+    QmlProfilerViewManager *m_viewContainer = 0;
     Utils::FileInProjectFinder m_projectFinder;
-    QToolButton *m_recordButton;
-    QMenu *m_recordFeaturesMenu;
+    QToolButton *m_recordButton = 0;
+    QMenu *m_recordFeaturesMenu = 0;
 
-    QToolButton *m_clearButton;
+    QToolButton *m_clearButton = 0;
 
     // elapsed time display
     QTimer m_recordingTimer;
     QTime m_recordingElapsedTime;
-    QLabel *m_timeLabel;
+    QLabel *m_timeLabel = 0;
 
     // open search
-    QToolButton *m_searchButton;
+    QToolButton *m_searchButton = 0;
 
     // hide and show categories
-    QToolButton *m_displayFeaturesButton;
-    QMenu *m_displayFeaturesMenu;
+    QToolButton *m_displayFeaturesButton = 0;
+    QMenu *m_displayFeaturesMenu = 0;
 
     // save and load actions
-    QAction *m_saveQmlTrace;
-    QAction *m_loadQmlTrace;
+    QAction *m_saveQmlTrace = 0;
+    QAction *m_loadQmlTrace = 0;
 };
 
 QmlProfilerTool::QmlProfilerTool(QObject *parent)
     : QObject(parent), d(new QmlProfilerToolPrivate)
 {
     setObjectName(QLatin1String("QmlProfilerTool"));
-
-    d->m_profilerState = 0;
-    d->m_viewContainer = 0;
-    d->m_recordButton = 0;
-    d->m_recordFeaturesMenu = 0;
-    d->m_clearButton = 0;
-    d->m_timeLabel = 0;
-    d->m_searchButton = 0;
-    d->m_displayFeaturesButton = 0;
-    d->m_displayFeaturesMenu = 0;
 
     d->m_profilerState = new QmlProfilerStateManager(this);
     connect(d->m_profilerState, &QmlProfilerStateManager::stateChanged,
@@ -186,72 +176,6 @@ QmlProfilerTool::QmlProfilerTool(QObject *parent)
 
     d->m_recordingTimer.setInterval(100);
     connect(&d->m_recordingTimer, &QTimer::timeout, this, &QmlProfilerTool::updateTimeDisplay);
-}
-
-QmlProfilerTool::~QmlProfilerTool()
-{
-    delete d;
-}
-
-static QString sysroot(RunConfiguration *runConfig)
-{
-    QTC_ASSERT(runConfig, return QString());
-    Kit *k = runConfig->target()->kit();
-    if (k && SysRootKitInformation::hasSysRoot(k))
-        return SysRootKitInformation::sysRoot(runConfig->target()->kit()).toString();
-    return QString();
-}
-
-AnalyzerRunControl *QmlProfilerTool::createRunControl(RunConfiguration *runConfiguration)
-{
-    QmlProfilerRunConfigurationAspect *aspect = static_cast<QmlProfilerRunConfigurationAspect *>(
-                runConfiguration->extraAspect(Constants::SETTINGS));
-    QTC_ASSERT(aspect, return 0);
-
-    QmlProfilerSettings *settings = static_cast<QmlProfilerSettings *>(aspect->currentSettings());
-    QTC_ASSERT(settings, return 0);
-
-    d->m_profilerConnections->setFlushInterval(settings->flushEnabled() ?
-                                                   settings->flushInterval() : 0);
-    d->m_profilerConnections->setAggregateTraces(settings->aggregateTraces());
-
-    return new QmlProfilerRunControl(runConfiguration, this);
-}
-
-void QmlProfilerTool::finalizeRunControl(QmlProfilerRunControl *runControl)
-{
-    runControl->registerProfilerStateManager(d->m_profilerState);
-
-    // FIXME: Check that there's something sensible in sp.connParams
-    auto connection = runControl->connection().as<AnalyzerConnection>();
-    if (!connection.analyzerSocket.isEmpty())
-        d->m_profilerConnections->setLocalSocket(connection.analyzerSocket);
-    else
-        d->m_profilerConnections->setTcpConnection(connection.analyzerHost, connection.analyzerPort);
-
-    //
-    // Initialize m_projectFinder
-    //
-
-    RunConfiguration *runConfiguration = runControl->runConfiguration();
-    QString projectDirectory;
-    if (runConfiguration) {
-        Project *project = runConfiguration->target()->project();
-        projectDirectory = project->projectDirectory().toString();
-    }
-
-    populateFileFinder(projectDirectory, sysroot(runConfiguration));
-
-    if (connection.analyzerSocket.isEmpty())
-        connect(runControl, &QmlProfilerRunControl::processRunning,
-                d->m_profilerConnections, &QmlProfilerClientManager::connectTcpClient);
-    connect(d->m_profilerConnections, &QmlProfilerClientManager::connectionFailed,
-            runControl, &QmlProfilerRunControl::cancelProcess);
-}
-
-QWidget *QmlProfilerTool::createWidgets()
-{
-    QTC_ASSERT(!d->m_viewContainer, return 0);
 
 
     d->m_viewContainer = new QmlProfilerViewManager(this,
@@ -332,7 +256,95 @@ QWidget *QmlProfilerTool::createWidgets()
     // is available, then we can populate the file finder
     populateFileFinder();
 
-    return toolbarWidget;
+    auto runControlCreator = [this](RunConfiguration *runConfiguration, Core::Id) {
+        return createRunControl(runConfiguration);
+    };
+
+    QString description = tr("The QML Profiler can be used to find performance "
+                             "bottlenecks in applications using QML.");
+
+    ActionDescription desc;
+    desc.setText(tr("QML Profiler"));
+    desc.setToolTip(description);
+    desc.setPerspectiveId(Constants::QmlProfilerPerspectiveId);
+    desc.setRunControlCreator(runControlCreator);
+    desc.setToolPreparer([this] { return prepareTool(); });
+    desc.setRunMode(ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
+    desc.setMenuGroup(Analyzer::Constants::G_ANALYZER_TOOLS);
+    AnalyzerManager::registerAction(Constants::QmlProfilerLocalActionId, desc);
+
+    desc.setText(tr("QML Profiler (External)"));
+    desc.setToolTip(description);
+    desc.setPerspectiveId(Constants::QmlProfilerPerspectiveId);
+    desc.setRunControlCreator(runControlCreator);
+    desc.setCustomToolStarter([this](RunConfiguration *rc) { startRemoteTool(rc); });
+    desc.setToolPreparer([this] { return prepareTool(); });
+    desc.setRunMode(ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
+    desc.setMenuGroup(Analyzer::Constants::G_ANALYZER_REMOTE_TOOLS);
+    AnalyzerManager::registerAction(Constants::QmlProfilerRemoteActionId, desc);
+
+    AnalyzerManager::registerToolbar(Constants::QmlProfilerPerspectiveId, toolbarWidget);
+}
+
+QmlProfilerTool::~QmlProfilerTool()
+{
+    delete d;
+}
+
+static QString sysroot(RunConfiguration *runConfig)
+{
+    QTC_ASSERT(runConfig, return QString());
+    Kit *k = runConfig->target()->kit();
+    if (k && SysRootKitInformation::hasSysRoot(k))
+        return SysRootKitInformation::sysRoot(runConfig->target()->kit()).toString();
+    return QString();
+}
+
+AnalyzerRunControl *QmlProfilerTool::createRunControl(RunConfiguration *runConfiguration)
+{
+    QmlProfilerRunConfigurationAspect *aspect = static_cast<QmlProfilerRunConfigurationAspect *>(
+                runConfiguration->extraAspect(Constants::SETTINGS));
+    QTC_ASSERT(aspect, return 0);
+
+    QmlProfilerSettings *settings = static_cast<QmlProfilerSettings *>(aspect->currentSettings());
+    QTC_ASSERT(settings, return 0);
+
+    d->m_profilerConnections->setFlushInterval(settings->flushEnabled() ?
+                                                   settings->flushInterval() : 0);
+    d->m_profilerConnections->setAggregateTraces(settings->aggregateTraces());
+
+    return new QmlProfilerRunControl(runConfiguration, this);
+}
+
+void QmlProfilerTool::finalizeRunControl(QmlProfilerRunControl *runControl)
+{
+    runControl->registerProfilerStateManager(d->m_profilerState);
+
+    // FIXME: Check that there's something sensible in sp.connParams
+    auto connection = runControl->connection().as<AnalyzerConnection>();
+    if (!connection.analyzerSocket.isEmpty())
+        d->m_profilerConnections->setLocalSocket(connection.analyzerSocket);
+    else
+        d->m_profilerConnections->setTcpConnection(connection.analyzerHost, connection.analyzerPort);
+
+    //
+    // Initialize m_projectFinder
+    //
+
+    RunConfiguration *runConfiguration = runControl->runConfiguration();
+    QString projectDirectory;
+    if (runConfiguration) {
+        Project *project = runConfiguration->target()->project();
+        projectDirectory = project->projectDirectory().toString();
+    }
+
+    populateFileFinder(projectDirectory, sysroot(runConfiguration));
+
+    if (connection.analyzerSocket.isEmpty())
+        connect(runControl, &QmlProfilerRunControl::processRunning,
+                d->m_profilerConnections, &QmlProfilerClientManager::connectTcpClient);
+    connect(d->m_profilerConnections, &QmlProfilerClientManager::connectionFailed,
+            runControl, &QmlProfilerRunControl::cancelProcess);
 }
 
 void QmlProfilerTool::populateFileFinder(QString projectDirectory, QString activeSysroot)
