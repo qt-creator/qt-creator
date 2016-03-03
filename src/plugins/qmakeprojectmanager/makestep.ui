@@ -7,16 +7,17 @@
     <x>0</x>
     <y>0</y>
     <width>220</width>
-    <height>46</height>
+    <height>62</height>
    </rect>
   </property>
-  <layout class="QFormLayout" name="formLayout">
-   <property name="fieldGrowthPolicy">
-    <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
-   </property>
-   <property name="margin">
-    <number>0</number>
-   </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="0" column="0">
+    <widget class="QLabel" name="makeLabel">
+     <property name="text">
+      <string>Override %1:</string>
+     </property>
+    </widget>
+   </item>
    <item row="0" column="1">
     <widget class="Utils::PathChooser" name="makePathChooser" native="true"/>
    </item>
@@ -29,13 +30,6 @@
    </item>
    <item row="1" column="1">
     <widget class="QLineEdit" name="makeArgumentsLineEdit"/>
-   </item>
-   <item row="0" column="0">
-    <widget class="QLabel" name="makeLabel">
-     <property name="text">
-      <string>Override %1:</string>
-     </property>
-    </widget>
    </item>
   </layout>
  </widget>

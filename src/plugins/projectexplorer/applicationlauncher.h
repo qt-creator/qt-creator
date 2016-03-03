@@ -69,6 +69,7 @@ signals:
     void error(QProcess::ProcessError error);
 
 private:
+    void handleProcessStarted();
     void guiProcessError();
     void consoleProcessError(const QString &error);
     void readStandardOutput();

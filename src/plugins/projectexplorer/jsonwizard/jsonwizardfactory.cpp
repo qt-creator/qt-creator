@@ -480,7 +480,7 @@ QString JsonWizardFactory::localizedString(const QVariant &value)
         }
         return QString();
     }
-    return QCoreApplication::translate("ProjectExplorer::JsonWizardFactory", value.toByteArray());
+    return QCoreApplication::translate("ProjectExplorer::JsonWizard", value.toByteArray());
 }
 
 bool JsonWizardFactory::isAvailable(Core::Id platformId) const

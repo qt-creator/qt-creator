@@ -259,14 +259,18 @@ void QmlProfilerClientManager::tryToConnect()
         d->connectionTimer.stop();
         d->connectionAttempts = 0;
     } else if (d->connection && d->connection->socketState() != QAbstractSocket::ConnectedState) {
-        // Replace the connection after trying for some time. On some operating systems (OSX) the
-        // very first connection to a TCP server takes a very long time to get established.
+        if (d->connectionAttempts < 3) {
+            // Replace the connection after trying for some time. On some operating systems (OSX) the
+            // very first connection to a TCP server takes a very long time to get established.
 
-        // delete directly here, so that any pending events aren't delivered. We don't want the
-        // connection first to be established and then torn down again.
-        delete d->connection;
-        d->connection = 0;
-        connectTcpClient(d->tcpPort);
+            // delete directly here, so that any pending events aren't delivered. We don't want the
+            // connection first to be established and then torn down again.
+            delete d->connection;
+            d->connection = 0;
+            connectTcpClient(d->tcpPort);
+        } else if (!d->connection->isConnecting()) {
+            d->connection->connectToHost(d->tcpHost, d->tcpPort);
+        }
     } else if (d->connectionAttempts == 50) {
         d->connectionTimer.stop();
         d->connectionAttempts = 0;
