@@ -542,11 +542,21 @@ bool PathChooser::validatePath(FancyLineEdit *edit, QString *errorMessage) const
                 *errorMessage = tr("The path \"%1\" does not exist.").arg(QDir::toNativeSeparators(expandedPath));
             return false;
         }
+        if (!fi.isFile()) {
+            if (errorMessage)
+                *errorMessage = tr("The path <b>%1</b> is not a file.").arg(QDir::toNativeSeparators(expandedPath));
+            return false;
+        }
         break;
     case PathChooser::SaveFile:
         if (!fi.absoluteDir().exists()) {
             if (errorMessage)
                 *errorMessage = tr("The directory \"%1\" does not exist.").arg(QDir::toNativeSeparators(fi.absolutePath()));
+            return false;
+        }
+        if (fi.exists() && fi.isDir()) {
+            if (errorMessage)
+                *errorMessage = tr("The path <b>%1</b> is not a file.").arg(QDir::toNativeSeparators(fi.absolutePath()));
             return false;
         }
         break;
@@ -556,9 +566,9 @@ bool PathChooser::validatePath(FancyLineEdit *edit, QString *errorMessage) const
                 *errorMessage = tr("The path \"%1\" does not exist.").arg(QDir::toNativeSeparators(expandedPath));
             return false;
         }
-        if (!fi.isExecutable()) {
+        if (!fi.isFile() || !fi.isExecutable()) {
             if (errorMessage)
-                *errorMessage = tr("Cannot execute \"%1\".").arg(QDir::toNativeSeparators(expandedPath));
+                *errorMessage = tr("The path <b>%1</b> is not an executable file.").arg(QDir::toNativeSeparators(expandedPath));
             return false;
         }
         break;
@@ -575,49 +585,6 @@ bool PathChooser::validatePath(FancyLineEdit *edit, QString *errorMessage) const
                 *errorMessage = tr("Cannot execute \"%1\".").arg(QDir::toNativeSeparators(expandedPath));
             return false;
         }
-        break;
-
-    default:
-        ;
-    }
-
-    // Check expected kind
-    switch (d->m_acceptingKind) {
-    case PathChooser::ExistingDirectory:
-        if (!fi.isDir()) {
-            if (errorMessage)
-                *errorMessage = tr("The path <b>%1</b> is not a directory.").arg(QDir::toNativeSeparators(expandedPath));
-            return false;
-        }
-        break;
-
-    case PathChooser::File:
-        if (!fi.isFile()) {
-            if (errorMessage)
-                *errorMessage = tr("The path <b>%1</b> is not a file.").arg(QDir::toNativeSeparators(expandedPath));
-            return false;
-        }
-        break;
-
-    case PathChooser::SaveFile:
-        if (fi.exists() && fi.isDir()) {
-            if (errorMessage)
-                *errorMessage = tr("The path <b>%1</b> is not a file.").arg(QDir::toNativeSeparators(fi.absolutePath()));
-            return false;
-        }
-        break;
-
-    case PathChooser::ExistingCommand:
-        if (!fi.isFile() || !fi.isExecutable()) {
-            if (errorMessage)
-                *errorMessage = tr("The path <b>%1</b> is not an executable file.").arg(QDir::toNativeSeparators(expandedPath));
-            return false;
-        }
-
-    case PathChooser::Command:
-        break;
-
-    case PathChooser::Any:
         break;
 
     default:
