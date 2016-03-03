@@ -3338,10 +3338,17 @@ void DebuggerPluginPrivate::updateUiForRunConfiguration(RunConfiguration *rc)
 
 void DebuggerPluginPrivate::updateActiveLanguages()
 {
-//    DebuggerLanguages languages = dd->m_currentEngine->runParameters().languages;
+    const DebuggerLanguages languages = dd->m_currentEngine->runParameters().languages;
 //    Id perspective = (languages & QmlLanguage) && !(languages & CppLanguage)
 //            ? QmlPerspectiveId : CppPerspectiveId;
 //    m_mainWindow->restorePerspective(perspective);
+    for (DebuggerLanguage language: {QmlLanguage, CppLanguage}) {
+        const Context context = m_contextsForLanguage.value(language);
+        if (languages & language)
+            ICore::addAdditionalContext(context);
+        else
+            ICore::removeAdditionalContext(context);
+    }
 }
 
 //bool DockWidgetEventFilter::eventFilter(QObject *obj, QEvent *event)
