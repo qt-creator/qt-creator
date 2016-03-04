@@ -234,7 +234,7 @@ void AndroidToolChain::setSecondaryToolChain(bool b)
     m_secondaryToolChain = b;
 }
 
-QList<Abi> AndroidToolChain::detectSupportedAbis() const
+GccToolChain::DetectedAbisResult AndroidToolChain::detectSupportedAbis() const
 {
     return QList<Abi>() << targetAbi();
 }

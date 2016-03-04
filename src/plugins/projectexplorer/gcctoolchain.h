@@ -54,6 +54,7 @@ public:
     GccToolChain(Core::Id typeId, Detection d);
     QString typeDisplayName() const override;
     Abi targetAbi() const override;
+    QString originalTargetTriple() const override;
     QString version() const;
     QList<Abi> supportedAbis() const;
     void setTargetAbi(const Abi &);
@@ -89,6 +90,19 @@ public:
 
     static void addCommandPathToEnvironment(const Utils::FileName &command, Utils::Environment &env);
 
+    class DetectedAbisResult {
+    public:
+        DetectedAbisResult() = default;
+        DetectedAbisResult(const QList<Abi> &supportedAbis,
+                           const QString &originalTargetTriple = QString())
+            : supportedAbis(supportedAbis)
+            , originalTargetTriple(originalTargetTriple)
+        {}
+
+        QList<Abi> supportedAbis;
+        QString originalTargetTriple;
+    };
+
 protected:
     typedef QList<QPair<QStringList, QByteArray> > GccCache;
 
@@ -98,13 +112,14 @@ protected:
 
     void setCompilerCommand(const Utils::FileName &path);
     void setSupportedAbis(const QList<Abi> &m_abis);
+    void setOriginalTargetTriple(const QString &targetTriple);
     void setMacroCache(const QStringList &allCxxflags, const QByteArray &macroCache) const;
     QByteArray macroCache(const QStringList &allCxxflags) const;
 
     virtual QString defaultDisplayName() const;
     virtual CompilerFlags defaultCompilerFlags() const;
 
-    virtual QList<Abi> detectSupportedAbis() const;
+    virtual DetectedAbisResult detectSupportedAbis() const;
     virtual QString detectVersion() const;
 
     // Reinterpret options for compiler drivers inheriting from GccToolChain (e.g qcc) to apply -Wp option
@@ -139,6 +154,7 @@ private:
 
     Abi m_targetAbi;
     mutable QList<Abi> m_supportedAbis;
+    mutable QString m_originalTargetTriple;
     mutable QList<HeaderPath> m_headerPaths;
     mutable QString m_version;
 

@@ -60,7 +60,7 @@ public:
     void setSecondaryToolChain(bool b);
 
 protected:
-    QList<ProjectExplorer::Abi> detectSupportedAbis() const override;
+    DetectedAbisResult detectSupportedAbis() const override;
 
 private:
     explicit AndroidToolChain(const ProjectExplorer::Abi &abi, const QString &ndkToolChainVersion, Detection d);

@@ -116,7 +116,7 @@ void QnxToolChain::setNdkPath(const QString &ndkPath)
 }
 
 // qcc doesn't support a "-dumpmachine" option to get supported abis
-QList<Abi> QnxToolChain::detectSupportedAbis() const
+GccToolChain::DetectedAbisResult QnxToolChain::detectSupportedAbis() const
 {
     return qccSupportedAbis();
 }
