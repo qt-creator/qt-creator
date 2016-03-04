@@ -37,16 +37,16 @@ public:
     GlslIndenter();
     virtual ~GlslIndenter();
 
-    virtual bool isElectricCharacter(const QChar &ch) const;
+    virtual bool isElectricCharacter(const QChar &ch) const override;
     virtual void indentBlock(QTextDocument *doc,
                              const QTextBlock &block,
                              const QChar &typedChar,
-                             const TextEditor::TabSettings &tabSettings);
+                             const TextEditor::TabSettings &tabSettings) override;
 
     virtual void indent(QTextDocument *doc,
                         const QTextCursor &cursor,
                         const QChar &typedChar,
-                        const TextEditor::TabSettings &tabSettings);
+                        const TextEditor::TabSettings &tabSettings) override;
 
     int indentFor(const QTextBlock &block, const TextEditor::TabSettings &tabSettings) override;
 };

@@ -30,37 +30,42 @@
 #   include <utils/savedaction.h>
 #endif
 
+#include <QCoreApplication>
 #include <QHash>
 #include <QObject>
 #include <QString>
+#include <QSettings>
 #include <QVariant>
 
 namespace FakeVim {
 namespace Internal {
 
-#ifdef FAKEVIM_STANDALONE
-namespace Utils {
-
-class SavedAction : public QObject
+class DummyAction
 {
-    Q_OBJECT
-
 public:
-    SavedAction(QObject *parent);
+    DummyAction(void *parent);
     void setValue(const QVariant &value);
     QVariant value() const;
     void setDefaultValue(const QVariant &value);
     QVariant defaultValue() const;
-    void setSettingsKey(const QString &key);
+    void setSettingsKey(const QString &group, const QString &key);
     QString settingsKey() const;
+    void setCheckable(bool) {}
+
+    void readSettings(QSettings *) {}
+    void writeSettings(QSettings *) {}
 
     QVariant m_value;
     QVariant m_defaultValue;
+    QString m_settingsGroup;
     QString m_settingsKey;
 };
 
-} // namespace Utils
-#endif // FAKEVIM_STANDALONE
+#ifdef FAKEVIM_STANDALONE
+typedef DummyAction FakeVimAction;
+#else
+typedef Utils::SavedAction FakeVimAction;
+#endif
 
 enum FakeVimSettingsCode
 {
@@ -105,34 +110,36 @@ enum FakeVimSettingsCode
     ConfigRelativeNumber
 };
 
-class FakeVimSettings : public QObject
+class FakeVimSettings
 {
-    Q_OBJECT
+    Q_DECLARE_TR_FUNCTIONS(FakeVim)
 
 public:
     FakeVimSettings();
     ~FakeVimSettings();
-    void insertItem(int code, Utils::SavedAction *item,
+    void insertItem(int code, FakeVimAction *item,
         const QString &longname = QString(),
         const QString &shortname = QString());
 
-    Utils::SavedAction *item(int code);
-    Utils::SavedAction *item(const QString &name);
+    FakeVimAction *item(int code);
+    FakeVimAction *item(const QString &name);
     QString trySetValue(const QString &name, const QString &value);
 
-#ifndef FAKEVIM_STANDALONE
     void readSettings(QSettings *settings);
     void writeSettings(QSettings *settings);
-#endif
 
 private:
-    QHash<int, Utils::SavedAction *> m_items;
+    void createAction(int code, const QVariant &value,
+                      const QString &settingsKey = QString(),
+                      const QString &shortKey = QString());
+
+    QHash<int, FakeVimAction *> m_items;
     QHash<QString, int> m_nameToCode;
     QHash<int, QString> m_codeToName;
 };
 
 FakeVimSettings *theFakeVimSettings();
-Utils::SavedAction *theFakeVimSetting(int code);
+FakeVimAction *theFakeVimSetting(int code);
 
 } // namespace Internal
 } // namespace FakeVim

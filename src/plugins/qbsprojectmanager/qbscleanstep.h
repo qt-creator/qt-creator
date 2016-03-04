@@ -62,7 +62,6 @@ public:
     bool dryRun() const;
     bool keepGoing() const;
     int maxJobs() const;
-    bool cleanAll() const;
 
 signals:
     void changed();
@@ -79,7 +78,6 @@ private:
     void setDryRun(bool dr);
     void setKeepGoing(bool kg);
     void setMaxJobs(int jobcount);
-    void setCleanAll(bool ca);
 
     qbs::CleanOptions m_qbsCleanOptions;
 
@@ -106,7 +104,6 @@ public:
 private slots:
     void updateState();
 
-    void changeCleanAll(bool ca);
     void changeDryRun(bool dr);
     void changeKeepGoing(bool kg);
     void changeJobCount(int jobcount);

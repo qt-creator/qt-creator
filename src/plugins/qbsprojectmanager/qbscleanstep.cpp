@@ -38,7 +38,6 @@
 #include <projectexplorer/target.h>
 #include <utils/qtcassert.h>
 
-static const char QBS_CLEAN_ALL[] = "Qbs.CleanAll";
 static const char QBS_DRY_RUN[] = "Qbs.DryRun";
 static const char QBS_KEEP_GOING[] = "Qbs.DryKeepGoing";
 
@@ -146,10 +145,6 @@ int QbsCleanStep::maxJobs() const
     return 1;
 }
 
-bool QbsCleanStep::cleanAll() const
-{
-    return m_qbsCleanOptions.cleanType() == qbs::CleanOptions::CleanupAll;
-}
 
 bool QbsCleanStep::fromMap(const QVariantMap &map)
 {
@@ -158,8 +153,6 @@ bool QbsCleanStep::fromMap(const QVariantMap &map)
 
     m_qbsCleanOptions.setDryRun(map.value(QLatin1String(QBS_DRY_RUN)).toBool());
     m_qbsCleanOptions.setKeepGoing(map.value(QLatin1String(QBS_KEEP_GOING)).toBool());
-    m_qbsCleanOptions.setCleanType(map.value(QLatin1String(QBS_CLEAN_ALL)).toBool()
-            ? qbs::CleanOptions::CleanupAll : qbs::CleanOptions::CleanupTemporaries);
 
     return true;
 }
@@ -169,8 +162,6 @@ QVariantMap QbsCleanStep::toMap() const
     QVariantMap map = ProjectExplorer::BuildStep::toMap();
     map.insert(QLatin1String(QBS_DRY_RUN), m_qbsCleanOptions.dryRun());
     map.insert(QLatin1String(QBS_KEEP_GOING), m_qbsCleanOptions.keepGoing());
-    map.insert(QLatin1String(QBS_CLEAN_ALL),
-               m_qbsCleanOptions.cleanType() == qbs::CleanOptions::CleanupAll);
 
     return map;
 }
@@ -237,15 +228,6 @@ void QbsCleanStep::setMaxJobs(int jobcount)
     emit changed();
 }
 
-void QbsCleanStep::setCleanAll(bool ca)
-{
-    qbs::CleanOptions::CleanType newType = ca
-            ? qbs::CleanOptions::CleanupAll : qbs::CleanOptions::CleanupTemporaries;
-    if (m_qbsCleanOptions.cleanType() == newType)
-        return;
-    m_qbsCleanOptions.setCleanType(newType);
-    emit changed();
-}
 
 // --------------------------------------------------------------------
 // QbsCleanStepConfigWidget:
@@ -262,8 +244,6 @@ QbsCleanStepConfigWidget::QbsCleanStepConfigWidget(QbsCleanStep *step) :
     m_ui = new Ui::QbsCleanStepConfigWidget;
     m_ui->setupUi(this);
 
-    connect(m_ui->cleanAllCheckBox, SIGNAL(toggled(bool)),
-            this, SLOT(changeCleanAll(bool)));
     connect(m_ui->dryRunCheckBox, SIGNAL(toggled(bool)), this, SLOT(changeDryRun(bool)));
     connect(m_ui->keepGoingCheckBox, SIGNAL(toggled(bool)), this, SLOT(changeKeepGoing(bool)));
 
@@ -287,7 +267,6 @@ QString QbsCleanStepConfigWidget::displayName() const
 
 void QbsCleanStepConfigWidget::updateState()
 {
-    m_ui->cleanAllCheckBox->setChecked(m_step->cleanAll());
     m_ui->dryRunCheckBox->setChecked(m_step->dryRun());
     m_ui->keepGoingCheckBox->setChecked(m_step->keepGoing());
 
@@ -299,11 +278,6 @@ void QbsCleanStepConfigWidget::updateState()
         m_summary = summary;
         emit updateSummary();
     }
-}
-
-void QbsCleanStepConfigWidget::changeCleanAll(bool ca)
-{
-    m_step->setCleanAll(ca);
 }
 
 void QbsCleanStepConfigWidget::changeDryRun(bool dr)

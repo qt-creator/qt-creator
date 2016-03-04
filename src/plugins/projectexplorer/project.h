@@ -58,6 +58,7 @@ class ProjectPrivate;
 class PROJECTEXPLORER_EXPORT Project : public QObject
 {
     friend class SessionManager; // for setActiveTarget
+    friend class ProjectExplorerPlugin; // for projectLoaded
     Q_OBJECT
 
 public:
@@ -177,6 +178,7 @@ protected:
     void addProjectLanguage(Core::Id id);
     void removeProjectLanguage(Core::Id id);
     void setProjectLanguage(Core::Id id, bool enabled);
+    virtual void projectLoaded(); // Called when the project is fully loaded.
 
 private:
     void changeEnvironment();

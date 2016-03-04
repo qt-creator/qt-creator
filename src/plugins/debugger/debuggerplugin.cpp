@@ -25,6 +25,7 @@
 
 #include "debuggerplugin.h"
 
+#include "debuggermainwindow.h"
 #include "debuggerstartparameters.h"
 #include "debuggeractions.h"
 #include "debuggerinternalconstants.h"
@@ -72,18 +73,23 @@
 #include "analyzer/analyzerconstants.h"
 #include "analyzer/analyzermanager.h"
 
-#include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
+#include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
-#include <coreplugin/find/itemviewfind.h>
-#include <coreplugin/imode.h>
+#include <coreplugin/coreconstants.h>
 #include <coreplugin/coreicons.h>
+#include <coreplugin/editormanager/documentmodel.h>
+#include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/find/itemviewfind.h>
+#include <coreplugin/findplaceholder.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/imode.h>
 #include <coreplugin/messagebox.h>
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/modemanager.h>
-#include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/editormanager/documentmodel.h>
+#include <coreplugin/navigationwidget.h>
+#include <coreplugin/outputpane.h>
+#include <coreplugin/rightpane.h>
 
 #include <cppeditor/cppeditorconstants.h>
 #include <cpptools/cppmodelmanager.h>
@@ -100,6 +106,7 @@
 #include <projectexplorer/projecttree.h>
 #include <projectexplorer/projectexplorersettings.h>
 #include <projectexplorer/project.h>
+#include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/runnables.h>
 #include <projectexplorer/session.h>
 #include <projectexplorer/taskhub.h>
@@ -110,7 +117,10 @@
 #include <texteditor/fontsettings.h>
 #include <texteditor/texteditorsettings.h>
 
+#include <utils/algorithm.h>
+#include <utils/appmainwindow.h>
 #include <utils/basetreeview.h>
+#include <utils/fancymainwindow.h>
 #include <utils/hostosinfo.h>
 #include <utils/mimetypes/mimedatabase.h>
 #include <utils/proxyaction.h>
@@ -118,23 +128,28 @@
 #include <utils/savedaction.h>
 #include <utils/statuslabel.h>
 #include <utils/styledbar.h>
+#include <utils/styledbar.h>
 #include <utils/winutils.h>
 
+#include <QAction>
 #include <QApplication>
 #include <QCheckBox>
 #include <QComboBox>
+#include <QDebug>
 #include <QDockWidget>
 #include <QFileDialog>
 #include <QHBoxLayout>
 #include <QHeaderView>
 #include <QInputDialog>
+#include <QMenu>
+#include <QMenu>
 #include <QMessageBox>
+#include <QStackedWidget>
 #include <QTextBlock>
 #include <QToolButton>
-#include <QtPlugin>
 #include <QTreeWidget>
 #include <QVBoxLayout>
-#include <QMenu>
+#include <QtPlugin>
 
 #ifdef WITH_TESTS
 #include <QTest>
@@ -565,6 +580,15 @@ static Kit *findUniversalCdbKit()
 
 static DebuggerPluginPrivate *dd = 0;
 
+//class DockWidgetEventFilter : public QObject
+//{
+//public:
+//    DockWidgetEventFilter() {}
+
+//private:
+//    bool eventFilter(QObject *obj, QEvent *event) override;
+//};
+
 /*!
     \class Debugger::Internal::DebuggerCore
 
@@ -610,7 +634,7 @@ public:
     void writeSettings()
     {
         m_debuggerSettings->writeSettings();
-        m_mainWindow->writeSettings();
+//        writeWindowSettings();
     }
 
     void selectThread(int index)
@@ -938,47 +962,83 @@ public slots:
     bool parseArguments(const QStringList &args, QString *errorMessage);
     void parseCommandLineArguments();
 
+public:
+    // Active languages to be debugged.
+    DebuggerLanguages activeDebugLanguages() const;
+
+    // Called when all dependent plugins have loaded.
+    void initialize();
+
+    void onModeChangedHelper(Core::IMode *mode);
+
+    // Dockwidgets are registered to the main window.
+    QDockWidget *createDockWidget(Id dockId, QWidget *widget);
+    QWidget *createContents(Core::IMode *mode);
+
+    void readWindowSettings();
+    void writeWindowSettings() const;
+
+    void createViewsMenuItems();
+
+    QWidget *mainWindow() const { return m_mainWindow; }
+
+    void updateUiForProject(ProjectExplorer::Project *project);
+    void updateUiForTarget(ProjectExplorer::Target *target);
+    void updateUiForRunConfiguration(ProjectExplorer::RunConfiguration *rc);
+    void updateActiveLanguages();
 
 public:
-    DebuggerMainWindow *m_mainWindow;
+    MainWindowBase *m_mainWindow = 0;
+
+//    DockWidgetEventFilter m_resizeEventFilter;
+
+    QHash<DebuggerLanguage, Core::Context> m_contextsForLanguage;
+
+    bool m_inDebugMode = false;
+
+    Core::ActionContainer *m_viewsMenu = 0;
+
+    ProjectExplorer::Project *m_previousProject = 0;
+    ProjectExplorer::Target *m_previousTarget = 0;
+    ProjectExplorer::RunConfiguration *m_previousRunConfiguration = 0;
 
     Id m_previousMode;
     QVector<QPair<DebuggerRunParameters, Kit *>> m_scheduledStarts;
 
-    ProxyAction *m_visibleStartAction;
-    ProxyAction *m_hiddenStopAction;
-    QAction *m_startAction;
-    QAction *m_debugWithoutDeployAction;
-    QAction *m_startAndDebugApplicationAction;
-    QAction *m_startRemoteServerAction;
-    QAction *m_attachToRunningApplication;
-    QAction *m_attachToUnstartedApplication;
-    QAction *m_attachToQmlPortAction;
-    QAction *m_attachToRemoteServerAction;
-    QAction *m_startRemoteCdbAction;
-    QAction *m_attachToCoreAction;
-    QAction *m_detachAction;
-    QAction *m_continueAction;
-    QAction *m_exitAction; // On application output button if "Stop" is possible
-    QAction *m_interruptAction; // On the fat debug button if "Pause" is possible
-    QAction *m_undisturbableAction; // On the fat debug button if nothing can be done
-    QAction *m_abortAction;
-    QAction *m_stepAction;
-    QAction *m_stepOutAction;
-    QAction *m_runToLineAction; // In the debug menu
-    QAction *m_runToSelectedFunctionAction;
-    QAction *m_jumpToLineAction; // In the Debug menu.
-    QAction *m_returnFromFunctionAction;
-    QAction *m_nextAction;
-    QAction *m_watchAction1; // In the Debug menu.
-    QAction *m_watchAction2; // In the text editor context menu.
-    QAction *m_breakAction;
-    QAction *m_reverseDirectionAction;
-    QAction *m_frameUpAction;
-    QAction *m_frameDownAction;
-    QAction *m_resetAction;
+    ProxyAction *m_visibleStartAction = 0;
+    ProxyAction *m_hiddenStopAction = 0;
+    QAction *m_startAction = 0;
+    QAction *m_debugWithoutDeployAction = 0;
+    QAction *m_startAndDebugApplicationAction = 0;
+    QAction *m_startRemoteServerAction = 0;
+    QAction *m_attachToRunningApplication = 0;
+    QAction *m_attachToUnstartedApplication = 0;
+    QAction *m_attachToQmlPortAction = 0;
+    QAction *m_attachToRemoteServerAction = 0;
+    QAction *m_startRemoteCdbAction = 0;
+    QAction *m_attachToCoreAction = 0;
+    QAction *m_detachAction = 0;
+    QAction *m_continueAction = 0;
+    QAction *m_exitAction = 0; // On application output button if "Stop" is possible
+    QAction *m_interruptAction = 0; // On the fat debug button if "Pause" is possible
+    QAction *m_undisturbableAction = 0; // On the fat debug button if nothing can be done
+    QAction *m_abortAction = 0;
+    QAction *m_stepAction = 0;
+    QAction *m_stepOutAction = 0;
+    QAction *m_runToLineAction = 0; // In the debug menu
+    QAction *m_runToSelectedFunctionAction = 0;
+    QAction *m_jumpToLineAction = 0; // In the Debug menu.
+    QAction *m_returnFromFunctionAction = 0;
+    QAction *m_nextAction = 0;
+    QAction *m_watchAction1 = 0; // In the Debug menu.
+    QAction *m_watchAction2 = 0; // In the text editor context menu.
+    QAction *m_breakAction = 0;
+    QAction *m_reverseDirectionAction = 0;
+    QAction *m_frameUpAction = 0;
+    QAction *m_frameDownAction = 0;
+    QAction *m_resetAction = 0;
 
-    QToolButton *m_reverseToolButton;
+    QToolButton *m_reverseToolButton = 0;
 
     QIcon m_startIcon;
     QIcon m_exitIcon;
@@ -987,56 +1047,54 @@ public:
     QIcon m_locationMarkIcon;
     QIcon m_resetIcon;
 
-    StatusLabel *m_statusLabel;
-    QComboBox *m_threadBox;
+    QComboBox *m_threadBox = 0;
 
-    BaseTreeView *m_breakView;
-    BaseTreeView *m_returnView;
-    BaseTreeView *m_localsView;
-    BaseTreeView *m_watchersView;
-    BaseTreeView *m_inspectorView;
-    BaseTreeView *m_registerView;
-    BaseTreeView *m_modulesView;
-    BaseTreeView *m_snapshotView;
-    BaseTreeView *m_sourceFilesView;
-    BaseTreeView *m_stackView;
-    BaseTreeView *m_threadsView;
+    BaseTreeView *m_breakView = 0;
+    BaseTreeView *m_returnView = 0;
+    BaseTreeView *m_localsView = 0;
+    BaseTreeView *m_watchersView = 0;
+    BaseTreeView *m_inspectorView = 0;
+    BaseTreeView *m_registerView = 0;
+    BaseTreeView *m_modulesView = 0;
+    BaseTreeView *m_snapshotView = 0;
+    BaseTreeView *m_sourceFilesView = 0;
+    BaseTreeView *m_stackView = 0;
+    BaseTreeView *m_threadsView = 0;
 
-    QWidget *m_breakWindow;
-    BreakHandler *m_breakHandler;
-    QWidget *m_returnWindow;
-    QWidget *m_localsWindow;
-    QWidget *m_watchersWindow;
-    QWidget *m_inspectorWindow;
-    QWidget *m_registerWindow;
-    QWidget *m_modulesWindow;
-    QWidget *m_snapshotWindow;
-    QWidget *m_sourceFilesWindow;
-    QWidget *m_stackWindow;
-    QWidget *m_threadsWindow;
-    LogWindow *m_logWindow;
-    LocalsAndExpressionsWindow *m_localsAndExpressionsWindow;
+    QWidget *m_breakWindow = 0;
+    BreakHandler *m_breakHandler = 0;
+    QWidget *m_returnWindow = 0;
+    QWidget *m_localsWindow = 0;
+    QWidget *m_watchersWindow = 0;
+    QWidget *m_inspectorWindow = 0;
+    QWidget *m_registerWindow = 0;
+    QWidget *m_modulesWindow = 0;
+    QWidget *m_snapshotWindow = 0;
+    QWidget *m_sourceFilesWindow = 0;
+    QWidget *m_stackWindow = 0;
+    QWidget *m_threadsWindow = 0;
+    LogWindow *m_logWindow = 0;
+    LocalsAndExpressionsWindow *m_localsAndExpressionsWindow = 0;
 
     bool m_busy;
     QString m_lastPermanentStatusMessage;
 
     mutable CPlusPlus::Snapshot m_codeModelSnapshot;
-    DebuggerPlugin *m_plugin;
+    DebuggerPlugin *m_plugin = 0;
 
-    SnapshotHandler *m_snapshotHandler;
-    bool m_shuttingDown;
-    DebuggerEngine *m_currentEngine;
-    DebuggerSettings *m_debuggerSettings;
+    SnapshotHandler *m_snapshotHandler = 0;
+    bool m_shuttingDown = false;
+    DebuggerEngine *m_currentEngine = 0;
+    DebuggerSettings *m_debuggerSettings = 0;
     QStringList m_arguments;
     DebuggerToolTipManager m_toolTipManager;
-    CommonOptionsPage *m_commonOptionsPage;
-    DummyEngine *m_dummyEngine;
+    CommonOptionsPage *m_commonOptionsPage = 0;
+    DummyEngine *m_dummyEngine = 0;
     const QSharedPointer<GlobalDebuggerOptions> m_globalDebuggerOptions;
 };
 
-DebuggerPluginPrivate::DebuggerPluginPrivate(DebuggerPlugin *plugin) :
-    m_dummyEngine(0),
-    m_globalDebuggerOptions(new GlobalDebuggerOptions)
+DebuggerPluginPrivate::DebuggerPluginPrivate(DebuggerPlugin *plugin)
+    : m_globalDebuggerOptions(new GlobalDebuggerOptions)
 {
     qRegisterMetaType<ContextData>("ContextData");
     qRegisterMetaType<DebuggerRunParameters>("DebuggerRunParameters");
@@ -1046,52 +1104,20 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(DebuggerPlugin *plugin) :
 
     m_plugin = plugin;
 
-    m_startRemoteCdbAction = 0;
-    m_shuttingDown = false;
-    m_statusLabel = 0;
-    m_threadBox = 0;
-
-    m_breakWindow = 0;
-    m_breakHandler = 0;
-    m_returnWindow = 0;
-    m_localsWindow = 0;
-    m_watchersWindow = 0;
-    m_inspectorWindow = 0;
-    m_registerWindow = 0;
-    m_modulesWindow = 0;
-    m_snapshotWindow = 0;
-    m_sourceFilesWindow = 0;
-    m_stackWindow = 0;
-    m_threadsWindow = 0;
-    m_logWindow = 0;
-    m_localsAndExpressionsWindow = 0;
-
-    m_mainWindow = 0;
-    m_snapshotHandler = 0;
-    m_currentEngine = 0;
-    m_debuggerSettings = 0;
-
-    m_reverseToolButton = 0;
-    m_startAction = 0;
-    m_debugWithoutDeployAction = 0;
-    m_startAndDebugApplicationAction = 0;
-    m_attachToRemoteServerAction = 0;
-    m_attachToRunningApplication = 0;
-    m_attachToUnstartedApplication = 0;
-    m_attachToQmlPortAction = 0;
-    m_startRemoteCdbAction = 0;
-    m_attachToCoreAction = 0;
-    m_detachAction = 0;
-
-    m_commonOptionsPage = 0;
+//    m_toolBars.insert(CppLanguage, 0);
+//    m_toolBars.insert(QmlLanguage, 0);
+    m_contextsForLanguage.insert(CppLanguage, Context(C_CPPDEBUGGER));
+    m_contextsForLanguage.insert(QmlLanguage, Context(C_QMLDEBUGGER));
 }
 
 DebuggerPluginPrivate::~DebuggerPluginPrivate()
 {
+// Mainwindow will be deleted by debug mode.
+//    delete m_mainWindow;
+//    m_mainWindow = 0;
+
     delete m_debuggerSettings;
     m_debuggerSettings = 0;
-
-    // Mainwindow will be deleted by debug mode.
 
     delete m_snapshotHandler;
     m_snapshotHandler = 0;
@@ -1244,7 +1270,11 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
         connect(KitManager::instance(), &KitManager::kitsLoaded,
                 this, &DebuggerPluginPrivate::parseCommandLineArguments);
 
-    m_mainWindow = new DebuggerMainWindow;
+    m_mainWindow = new MainWindowBase;
+    m_mainWindow->setObjectName(QLatin1String("DebuggerMainWindow"));
+
+    createViewsMenuItems();
+
     m_plugin->addAutoReleasedObject(debuggerConsole());
 
     TaskHub::addCategory(TASK_CATEGORY_DEBUGGER_DEBUGINFO,
@@ -1770,8 +1800,6 @@ void DebuggerPluginPrivate::connectEngine(DebuggerEngine *engine)
 
     engine->watchHandler()->resetWatchers();
     m_localsView->hideProgressIndicator();
-
-    m_mainWindow->setEngineDebugLanguages(engine->runParameters().languages);
 }
 
 static void changeFontSize(QWidget *widget, qreal size)
@@ -1998,7 +2026,7 @@ void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
     m_detachAction->setEnabled(detachable);
 
     if (stopped)
-        QApplication::alert(m_mainWindow, 3000);
+        QApplication::alert(mainWindow(), 3000);
 
     const bool canReverse = engine->hasCapability(ReverseSteppingCapability)
                 && boolSetting(EnableReverseDebugging);
@@ -2075,7 +2103,7 @@ void DebuggerPluginPrivate::updateDebugActions()
 
 void DebuggerPluginPrivate::onCoreAboutToOpen()
 {
-    m_mainWindow->onModeChanged(ModeManager::currentMode());
+    onModeChangedHelper(ModeManager::currentMode());
 }
 
 void DebuggerPluginPrivate::onModeChanged(IMode *mode)
@@ -2084,7 +2112,7 @@ void DebuggerPluginPrivate::onModeChanged(IMode *mode)
      //        different then the debugger mode. E.g. Welcome and Help mode and
      //        also on shutdown.
 
-    m_mainWindow->onModeChanged(mode);
+    onModeChangedHelper(mode);
 
     if (mode->id() != Constants::MODE_DEBUG) {
         m_toolTipManager.leavingDebugMode();
@@ -2095,6 +2123,24 @@ void DebuggerPluginPrivate::onModeChanged(IMode *mode)
         editor->widget()->setFocus();
 
     m_toolTipManager.debugModeEntered();
+}
+
+void DebuggerPluginPrivate::onModeChangedHelper(IMode *mode)
+{
+    m_inDebugMode = (mode && mode->id() == Constants::MODE_DEBUG);
+    m_mainWindow->setDockActionsVisible(m_inDebugMode);
+
+    // Hide all the debugger windows if mode is different.
+    if (m_inDebugMode) {
+//        readWindowSettings();
+        updateActiveLanguages();
+    } else {
+        // Hide dock widgets manually in case they are floating.
+        foreach (QDockWidget *dockWidget, m_mainWindow->dockWidgets()) {
+            if (dockWidget->isFloating())
+                dockWidget->hide();
+        }
+    }
 }
 
 void DebuggerPluginPrivate::updateDebugWithoutDeployMenu()
@@ -2166,7 +2212,7 @@ void DebuggerPluginPrivate::showStatusMessage(const QString &msg0, int timeout)
     showMessage(msg0, LogStatus);
     QString msg = msg0;
     msg.replace(QChar::LineFeed, QLatin1String("; "));
-    m_statusLabel->showStatusMessage(msg, timeout);
+    m_mainWindow->showStatusMessage(msg, timeout);
 }
 
 void DebuggerPluginPrivate::coreShutdown()
@@ -2224,9 +2270,10 @@ void DebuggerPluginPrivate::showMessage(const QString &msg, int channel, int tim
     }
 }
 
-void createNewDock(QWidget *widget)
+static void createNewDock(QWidget *widget)
 {
-    QDockWidget *dockWidget = dd->m_mainWindow->createDockWidget(CppLanguage, widget);
+    dd->createDockWidget(Core::Id::fromString(widget->objectName()), widget);
+    QDockWidget *dockWidget = qobject_cast<QDockWidget *>(widget->parentWidget());
     dockWidget->setWindowTitle(widget->windowTitle());
     dockWidget->setFeatures(QDockWidget::DockWidgetClosable);
     dockWidget->show();
@@ -2372,8 +2419,6 @@ void DebuggerPluginPrivate::extensionsInitialized()
 
     m_busy = false;
 
-    m_statusLabel = new StatusLabel;
-
     m_logWindow = new LogWindow;
     m_logWindow->setObjectName(QLatin1String(DOCKWIDGET_OUTPUT));
 
@@ -2515,25 +2560,23 @@ void DebuggerPluginPrivate::extensionsInitialized()
 
     // Dock widgets
     QDockWidget *dock = 0;
-    dock = m_mainWindow->createDockWidget(CppLanguage, m_modulesWindow);
+    dock = createDockWidget(DOCKWIDGET_MODULES, m_modulesWindow);
     connect(dock->toggleViewAction(), &QAction::toggled,
         this, &DebuggerPluginPrivate::modulesDockToggled, Qt::QueuedConnection);
 
-    dock = m_mainWindow->createDockWidget(CppLanguage, m_registerWindow);
+    dock = createDockWidget(DOCKWIDGET_REGISTER, m_registerWindow);
     connect(dock->toggleViewAction(), &QAction::toggled,
         this, &DebuggerPluginPrivate::registerDockToggled, Qt::QueuedConnection);
 
-    dock = m_mainWindow->createDockWidget(CppLanguage, m_sourceFilesWindow);
+    dock = createDockWidget(DOCKWIDGET_SOURCE_FILES, m_sourceFilesWindow);
     connect(dock->toggleViewAction(), &QAction::toggled,
         this, &DebuggerPluginPrivate::sourceFilesDockToggled, Qt::QueuedConnection);
 
-    dock = m_mainWindow->createDockWidget(AnyLanguage, m_logWindow);
-    dock->setProperty(DOCKWIDGET_DEFAULT_AREA, Qt::TopDockWidgetArea);
-
-    m_mainWindow->createDockWidget(CppLanguage, m_breakWindow);
-    m_mainWindow->createDockWidget(CppLanguage, m_snapshotWindow);
-    m_mainWindow->createDockWidget(CppLanguage, m_stackWindow);
-    m_mainWindow->createDockWidget(CppLanguage, m_threadsWindow);
+    createDockWidget(DOCKWIDGET_OUTPUT, m_logWindow);
+    createDockWidget(DOCKWIDGET_BREAK, m_breakWindow);
+    createDockWidget(DOCKWIDGET_SNAPSHOTS, m_snapshotWindow);
+    createDockWidget(DOCKWIDGET_STACK, m_stackWindow);
+    createDockWidget(DOCKWIDGET_THREADS, m_threadsWindow);
 
     m_localsAndExpressionsWindow = new LocalsAndExpressionsWindow(
                 m_localsWindow, m_inspectorWindow, m_returnWindow,
@@ -2541,10 +2584,9 @@ void DebuggerPluginPrivate::extensionsInitialized()
     m_localsAndExpressionsWindow->setObjectName(QLatin1String(DOCKWIDGET_WATCHERS));
     m_localsAndExpressionsWindow->setWindowTitle(m_localsWindow->windowTitle());
 
-    dock = m_mainWindow->createDockWidget(CppLanguage, m_localsAndExpressionsWindow);
-    dock->setProperty(DOCKWIDGET_DEFAULT_AREA, Qt::RightDockWidgetArea);
+    dock = createDockWidget(DOCKWIDGET_WATCHERS, m_localsAndExpressionsWindow);
 
-    m_mainWindow->addStagedMenuEntries();
+    m_mainWindow->addDockActionsToMenu(m_viewsMenu->menu());
 
     m_plugin->addAutoReleasedObject(createDebuggerRunControlFactory(m_plugin));
 
@@ -2849,7 +2891,7 @@ void DebuggerPluginPrivate::extensionsInitialized()
 
     // Debug mode setup
     DebugMode *debugMode = new DebugMode;
-    QWidget *widget = m_mainWindow->createContents(debugMode);
+    QWidget *widget = createContents(debugMode);
     IContext *modeContextObject = new IContext(this);
     modeContextObject->setContext(Context(CC::C_EDITORMANAGER));
     modeContextObject->setWidget(widget);
@@ -2891,7 +2933,7 @@ void DebuggerPluginPrivate::extensionsInitialized()
             [] { ICore::showOptionsDialog(DEBUGGER_COMMON_SETTINGS_ID); });
 
     // Toolbar
-    QWidget *toolbarContainer = new QWidget;
+    QWidget *toolbarContainer = new QWidget(mainWindow());
 
     QHBoxLayout *hbox = new QHBoxLayout(toolbarContainer);
     hbox->setMargin(0);
@@ -2920,9 +2962,7 @@ void DebuggerPluginPrivate::extensionsInitialized()
     hbox->addWidget(m_threadBox);
     hbox->addSpacerItem(new QSpacerItem(4, 0));
 
-    m_mainWindow->setToolBar(CppLanguage, toolbarContainer);
-
-    QWidget *qmlToolbar = new QWidget(m_mainWindow);
+    QWidget *qmlToolbar = new QWidget(mainWindow());
     hbox = new QHBoxLayout(qmlToolbar);
     hbox->setMargin(0);
     hbox->setSpacing(0);
@@ -2933,9 +2973,32 @@ void DebuggerPluginPrivate::extensionsInitialized()
     hbox->addWidget(toolButton(Constants::QML_SELECTTOOL));
     hbox->addWidget(toolButton(Constants::QML_ZOOMTOOL));
     hbox->addWidget(new StyledSeparator);
-    m_mainWindow->setToolBar(QmlLanguage, qmlToolbar);
 
-    m_mainWindow->setToolBar(AnyLanguage, m_statusLabel);
+    m_mainWindow->registerToolbar(CppPerspectiveId, toolbarContainer);
+    m_mainWindow->registerPerspective(CppPerspectiveId, {
+        { DOCKWIDGET_STACK, Core::Id(), Perspective::SplitVertical },
+        { DOCKWIDGET_BREAK, DOCKWIDGET_STACK, Perspective::SplitHorizontal },
+        { DOCKWIDGET_MODULES, DOCKWIDGET_BREAK, Perspective::AddToTab },
+        { DOCKWIDGET_SOURCE_FILES, DOCKWIDGET_MODULES, Perspective::AddToTab },
+        { DOCKWIDGET_WATCHERS, Core::Id(), Perspective::AddToTab,
+                               true, Qt::RightDockWidgetArea },
+        { DOCKWIDGET_REGISTER, DOCKWIDGET_WATCHERS, Perspective::AddToTab,
+                               true, Qt::RightDockWidgetArea },
+        { DOCKWIDGET_OUTPUT, Core::Id(), Perspective::AddToTab,
+                               false, Qt::TopDockWidgetArea }
+    });
+
+    m_mainWindow->registerToolbar(QmlPerspectiveId, toolbarContainer);
+    m_mainWindow->registerPerspective(QmlPerspectiveId, {
+        { DOCKWIDGET_STACK, Core::Id(), Perspective::SplitVertical },
+        { DOCKWIDGET_BREAK, DOCKWIDGET_STACK, Perspective::SplitHorizontal },
+        { DOCKWIDGET_MODULES, DOCKWIDGET_BREAK, Perspective::AddToTab },
+        { DOCKWIDGET_SOURCE_FILES, DOCKWIDGET_MODULES, Perspective::AddToTab },
+        { DOCKWIDGET_WATCHERS, Core::Id(), Perspective::AddToTab,
+                               true, Qt::RightDockWidgetArea },
+        { DOCKWIDGET_OUTPUT, Core::Id(), Perspective::AddToTab,
+                               false, Qt::TopDockWidgetArea }
+    });
 
     connect(action(EnableReverseDebugging), &SavedAction::valueChanged,
             this, &DebuggerPluginPrivate::enableReverseDebuggingTriggered);
@@ -3090,11 +3153,6 @@ void openTextEditor(const QString &titlePattern0, const QString &contents)
     QTC_ASSERT(editor, return);
 }
 
-bool isActiveDebugLanguage(int language)
-{
-    return dd->m_mainWindow->activeDebugLanguages() & language;
-}
-
 // void runTest(const QString &fileName);
 void showMessage(const QString &msg, int channel, int timeout)
 {
@@ -3118,8 +3176,7 @@ void displayDebugger(DebuggerEngine *engine, bool updateEngine)
 
 DebuggerLanguages activeLanguages()
 {
-    QTC_ASSERT(dd->m_mainWindow, return AnyLanguage);
-    return dd->m_mainWindow->activeDebugLanguages();
+    return dd->activeDebugLanguages();
 }
 
 void synchronizeBreakpoints()
@@ -3129,12 +3186,12 @@ void synchronizeBreakpoints()
 
 QWidget *mainWindow()
 {
-    return dd->m_mainWindow;
+    return dd->mainWindow();
 }
 
 bool isDockVisible(const QString &objectName)
 {
-    QDockWidget *dock = dd->m_mainWindow->findChild<QDockWidget *>(objectName);
+    QDockWidget *dock = dd->findChild<QDockWidget *>(objectName);
     return dock && dock->toggleViewAction()->isChecked();
 }
 
@@ -3180,7 +3237,6 @@ static DebuggerPlugin *m_instance = 0;
 DebuggerPlugin::DebuggerPlugin()
 {
     setObjectName(QLatin1String("DebuggerPlugin"));
-    dd = new DebuggerPluginPrivate(this);
     m_instance = this;
 }
 
@@ -3198,6 +3254,8 @@ DebuggerPlugin *DebuggerPlugin::instance()
 
 bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 {
+    dd = new DebuggerPluginPrivate(this);
+
     addObject(this);
     // Menu groups
     ActionContainer *mstart = ActionManager::actionContainer(PE::M_DEBUG_STARTDEBUGGING);
@@ -3247,8 +3305,211 @@ void DebuggerPlugin::extensionsInitialized()
     dd->extensionsInitialized();
 }
 
-#ifdef WITH_TESTS
+void DebuggerPluginPrivate::updateUiForProject(Project *project)
+{
+    if (m_previousProject) {
+        disconnect(m_previousProject, &Project::activeTargetChanged,
+            this, &DebuggerPluginPrivate::updateUiForTarget);
+    }
+    m_previousProject = project;
+    if (!project) {
+        updateUiForTarget(0);
+        return;
+    }
+    connect(project, &Project::activeTargetChanged,
+            this, &DebuggerPluginPrivate::updateUiForTarget);
+    updateUiForTarget(project->activeTarget());
+}
 
+void DebuggerPluginPrivate::updateUiForTarget(Target *target)
+{
+    if (m_previousTarget) {
+         disconnect(m_previousTarget, &Target::activeRunConfigurationChanged,
+                    this, &DebuggerPluginPrivate::updateUiForRunConfiguration);
+    }
+
+    m_previousTarget = target;
+
+    if (!target) {
+        updateUiForRunConfiguration(0);
+        return;
+    }
+
+    connect(target, &Target::activeRunConfigurationChanged,
+            this, &DebuggerPluginPrivate::updateUiForRunConfiguration);
+    updateUiForRunConfiguration(target->activeRunConfiguration());
+}
+
+// updates default debug language settings per run config.
+void DebuggerPluginPrivate::updateUiForRunConfiguration(RunConfiguration *rc)
+{
+    if (m_previousRunConfiguration)
+        disconnect(m_previousRunConfiguration, &RunConfiguration::requestRunActionsUpdate,
+                   this, &DebuggerPluginPrivate::updateActiveLanguages);
+    m_previousRunConfiguration = rc;
+    updateActiveLanguages();
+    if (m_previousRunConfiguration)
+        connect(m_previousRunConfiguration, &RunConfiguration::requestRunActionsUpdate,
+                this, &DebuggerPluginPrivate::updateActiveLanguages);
+}
+
+void DebuggerPluginPrivate::updateActiveLanguages()
+{
+    if (!(activeDebugLanguages() & QmlLanguage))
+        m_mainWindow->restorePerspective(CppPerspectiveId);
+    else
+        m_mainWindow->restorePerspective(QmlPerspectiveId);
+}
+
+DebuggerLanguages DebuggerPluginPrivate::activeDebugLanguages() const
+{
+    return dd->m_currentEngine->runParameters().languages;
+}
+
+void DebuggerPluginPrivate::createViewsMenuItems()
+{
+    Context debugcontext(Constants::C_DEBUGMODE);
+    m_viewsMenu = ActionManager::actionContainer(Id(Core::Constants::M_WINDOW_VIEWS));
+    QTC_ASSERT(m_viewsMenu, return);
+
+    auto openMemoryEditorAction = new QAction(this);
+    openMemoryEditorAction->setText(DebuggerPluginPrivate::tr("Memory..."));
+    connect(openMemoryEditorAction, &QAction::triggered,
+            this, &Internal::openMemoryEditor);
+
+    // Add menu items
+    Command *cmd = 0;
+    cmd = ActionManager::registerAction(openMemoryEditorAction,
+        "Debugger.Views.OpenMemoryEditor", debugcontext);
+    cmd->setAttribute(Command::CA_Hide);
+    m_viewsMenu->addAction(cmd, Core::Constants::G_DEFAULT_THREE);
+    cmd = ActionManager::registerAction(m_mainWindow->menuSeparator1(),
+        "Debugger.Views.Separator1", debugcontext);
+    cmd->setAttribute(Command::CA_Hide);
+    m_viewsMenu->addAction(cmd, Core::Constants::G_DEFAULT_THREE);
+    cmd = ActionManager::registerAction(m_mainWindow->menuSeparator2(),
+        "Debugger.Views.Separator2", debugcontext);
+    cmd->setAttribute(Command::CA_Hide);
+    m_viewsMenu->addAction(cmd, Core::Constants::G_DEFAULT_THREE);
+}
+
+/*!
+    Keep track of dock widgets so they can be shown/hidden for different languages
+*/
+QDockWidget *DebuggerPluginPrivate::createDockWidget(Core::Id dockId, QWidget *widget)
+{
+    m_mainWindow->registerDockWidget(dockId, widget);
+
+    QDockWidget *dockWidget = qobject_cast<QDockWidget *>(widget->parentWidget());
+
+    QAction *toggleViewAction = dockWidget->toggleViewAction();
+    Command *cmd = ActionManager::registerAction(toggleViewAction,
+             Id("Debugger.").withSuffix(widget->objectName()));
+    cmd->setAttribute(Command::CA_Hide);
+
+    //dockWidget->installEventFilter(&m_resizeEventFilter);
+    return dockWidget;
+}
+
+QWidget *DebuggerPluginPrivate::createContents(IMode *mode)
+{
+    connect(SessionManager::instance(), &SessionManager::startupProjectChanged,
+            this, &DebuggerPluginPrivate::updateUiForProject);
+
+    auto editorHolderLayout = new QVBoxLayout;
+    editorHolderLayout->setMargin(0);
+    editorHolderLayout->setSpacing(0);
+
+    auto editorAndFindWidget = new QWidget;
+    editorAndFindWidget->setLayout(editorHolderLayout);
+    auto editorManagerPlaceHolder = new EditorManagerPlaceHolder(mode);
+    editorHolderLayout->addWidget(editorManagerPlaceHolder);
+    editorHolderLayout->addWidget(new FindToolBarPlaceHolder(editorAndFindWidget));
+
+    auto documentAndRightPane = new MiniSplitter;
+    documentAndRightPane->addWidget(editorAndFindWidget);
+    documentAndRightPane->addWidget(new RightPanePlaceHolder(mode));
+    documentAndRightPane->setStretchFactor(0, 1);
+    documentAndRightPane->setStretchFactor(1, 0);
+
+    auto viewButton = new QToolButton();
+    viewButton->setText(tr("Views"));
+
+    auto debugToolBar = new Utils::StyledBar;
+    debugToolBar->setProperty("topBorder", true);
+    auto debugToolBarLayout = new QHBoxLayout(debugToolBar);
+    debugToolBarLayout->setMargin(0);
+    debugToolBarLayout->setSpacing(0);
+//    debugToolBarLayout->addWidget(m_mainWindow->toolBox());
+    debugToolBarLayout->addWidget(m_mainWindow->controlsStack());
+    debugToolBarLayout->addWidget(m_mainWindow->statusLabel());
+    debugToolBarLayout->addWidget(new Utils::StyledSeparator);
+    debugToolBarLayout->addStretch();
+    debugToolBarLayout->addWidget(viewButton);
+
+    connect(viewButton, &QAbstractButton::clicked, [this, viewButton] {
+        QMenu menu;
+        m_mainWindow->addDockActionsToMenu(&menu);
+        menu.exec(viewButton->mapToGlobal(QPoint()));
+    });
+
+    auto dock = new QDockWidget(DebuggerPluginPrivate::tr("Debugger Toolbar"));
+    dock->setObjectName(QLatin1String("Debugger Toolbar"));
+    dock->setWidget(debugToolBar);
+    dock->setFeatures(QDockWidget::NoDockWidgetFeatures);
+    dock->setAllowedAreas(Qt::BottomDockWidgetArea);
+    dock->setTitleBarWidget(new QWidget(dock));
+    dock->setProperty("managed_dockwidget", QLatin1String("true"));
+    m_mainWindow->addDockWidget(Qt::BottomDockWidgetArea, dock);
+    m_mainWindow->setToolBarDockWidget(dock);
+
+    auto centralWidget = new QWidget;
+    m_mainWindow->setCentralWidget(centralWidget);
+
+    auto centralLayout = new QVBoxLayout(centralWidget);
+    centralWidget->setLayout(centralLayout);
+    centralLayout->setMargin(0);
+    centralLayout->setSpacing(0);
+    centralLayout->addWidget(documentAndRightPane);
+    centralLayout->setStretch(0, 1);
+    centralLayout->setStretch(1, 0);
+
+    // Right-side window with editor, output etc.
+    auto mainWindowSplitter = new MiniSplitter;
+    mainWindowSplitter->addWidget(m_mainWindow);
+    auto outputPane = new OutputPanePlaceHolder(mode, mainWindowSplitter);
+    outputPane->setObjectName(QLatin1String("DebuggerOutputPanePlaceHolder"));
+    mainWindowSplitter->addWidget(outputPane);
+    mainWindowSplitter->setStretchFactor(0, 10);
+    mainWindowSplitter->setStretchFactor(1, 0);
+    mainWindowSplitter->setOrientation(Qt::Vertical);
+
+    // Navigation and right-side window.
+    auto splitter = new MiniSplitter;
+    splitter->setFocusProxy(editorManagerPlaceHolder);
+    splitter->addWidget(new NavigationWidgetPlaceHolder(mode));
+    splitter->addWidget(mainWindowSplitter);
+    splitter->setStretchFactor(0, 0);
+    splitter->setStretchFactor(1, 1);
+    splitter->setObjectName(QLatin1String("DebugModeWidget"));
+    return splitter;
+}
+
+//bool DockWidgetEventFilter::eventFilter(QObject *obj, QEvent *event)
+//{
+//    switch (event->type()) {
+//    case QEvent::Resize:
+//    case QEvent::ZOrderChange:
+//        dd->updateDockWidgetSettings();
+//        break;
+//    default:
+//        break;
+//    }
+//    return QObject::eventFilter(obj, event);
+//}
+
+
+#ifdef WITH_TESTS
 void DebuggerPluginPrivate::testLoadProject(const QString &proFile, const TestCallBack &cb)
 {
     connect(ProjectTree::instance(), &ProjectTree::currentProjectChanged,
@@ -3342,7 +3603,6 @@ void DebuggerPluginPrivate::testFinished()
     QTestEventLoop::instance().exitLoop();
     QVERIFY(m_testSuccess);
 }
-
 
 ///////////////////////////////////////////////////////////////////////////
 

@@ -25,9 +25,8 @@
 ****************************************************************************/
 
 #include "analyzericons.h"
-#include "analyzerruncontrol.h"
-#include "ianalyzertool.h"
 #include "analyzermanager.h"
+#include "analyzerruncontrol.h"
 
 #include <projectexplorer/project.h>
 #include <projectexplorer/runconfigurationaspects.h>

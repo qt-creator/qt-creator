@@ -1,7 +1,6 @@
 /****************************************************************************
 **
 ** Copyright (C) 2016 The Qt Company Ltd.
-** Author: Nicolas Arnaud-Cormos, KDAB (nicolas.arnaud-cormos@kdab.com)
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -24,25 +23,54 @@
 **
 ****************************************************************************/
 
-#ifndef MEMCHECKTOOL_H
-#define MEMCHECKTOOL_H
+#include "qbsinfopage.h"
+#include "ui_qbsinfowidget.h"
 
-#include <QObject>
+#include "qbsconstants.h"
 
-namespace Valgrind {
+#include <qbs.h>
 
-const char MEMCHECK_RUN_MODE[] = "MemcheckTool.MemcheckRunMode";
-const char MEMCHECK_WITH_GDB_RUN_MODE[] = "MemcheckTool.MemcheckWithGdbRunMode";
-
-const char MemcheckPerspectiveId[] = "Memcheck.Perspective";
-const char MemcheckErrorDockId[] = "Memcheck.Dock.Error";
-
+namespace QbsProjectManager {
 namespace Internal {
 
-void initMemcheckTool(QObject *parent);
-void destroyMemcheckTool();
+class QbsInfoWidget : public QWidget
+{
+    Q_OBJECT
+public:
+    QbsInfoWidget(QWidget *parent = 0) : QWidget(parent)
+    {
+        m_ui.setupUi(this);
+        m_ui.versionValueLabel->setText(qbs::LanguageInfo::qbsVersion());
+    }
+
+    Ui::QbsInfoWidget m_ui;
+};
+
+
+QbsInfoPage::QbsInfoPage(QObject *parent) : Core::IOptionsPage(parent), m_widget(nullptr)
+{
+    setId("AB.QbsInfo");
+    setDisplayName(QCoreApplication::translate("QbsProjectManager", "Version Info"));
+    setCategory(Constants::QBS_SETTINGS_CATEGORY);
+    setDisplayCategory(QCoreApplication::translate("QbsProjectManager",
+                                                   Constants::QBS_SETTINGS_TR_CATEGORY));
+    setCategoryIcon(QLatin1String(Constants::QBS_SETTINGS_CATEGORY_ICON));
+}
+
+QWidget *QbsInfoPage::widget()
+{
+    if (!m_widget)
+        m_widget = new QbsInfoWidget;
+    return m_widget;
+}
+
+void QbsInfoPage::finish()
+{
+    delete m_widget;
+    m_widget = nullptr;
+}
 
 } // namespace Internal
-} // namespace Valgrind
+} // namespace QbsProjectManager
 
-#endif // MEMCHECKTOOL_H
+#include "qbsinfopage.moc"

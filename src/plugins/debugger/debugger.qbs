@@ -250,8 +250,6 @@ QtcPlugin {
             "analyzer/detailederrorview.h",
             "analyzer/diagnosticlocation.cpp",
             "analyzer/diagnosticlocation.h",
-            "analyzer/ianalyzertool.cpp",
-            "analyzer/ianalyzertool.h",
             "analyzer/startremotedialog.cpp",
             "analyzer/startremotedialog.h",
         ]

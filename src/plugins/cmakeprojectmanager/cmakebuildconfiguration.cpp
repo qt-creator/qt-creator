@@ -60,19 +60,6 @@ namespace Internal {
 const char INITIAL_ARGUMENTS[] = "CMakeProjectManager.CMakeBuildConfiguration.InitialArgument"; // Obsolete since QtC 3.7
 const char CONFIGURATION_KEY[] = "CMake.Configuration";
 
-static FileName shadowBuildDirectory(const FileName &projectFilePath, const Kit *k,
-                                     const QString &bcName, BuildConfiguration::BuildType buildType)
-{
-    if (projectFilePath.isEmpty())
-        return FileName();
-
-    const QString projectName = projectFilePath.parentDir().fileName();
-    ProjectMacroExpander expander(projectName, k, bcName, buildType);
-    QDir projectDir = QDir(Project::projectDirectory(projectFilePath).toString());
-    QString buildPath = expander.expand(Core::DocumentManager::buildDirectory());
-    return FileName::fromUserInput(projectDir.absoluteFilePath(buildPath));
-}
-
 CMakeBuildConfiguration::CMakeBuildConfiguration(ProjectExplorer::Target *parent) :
     BuildConfiguration(parent, Core::Id(Constants::CMAKE_BC_ID))
 {
@@ -185,6 +172,21 @@ void CMakeBuildConfiguration::resetData()
 bool CMakeBuildConfiguration::persistCMakeState()
 {
     return m_buildDirManager->persistCMakeState();
+}
+
+FileName CMakeBuildConfiguration::shadowBuildDirectory(const FileName &projectFilePath,
+                                                       const Kit *k,
+                                                       const QString &bcName,
+                                                       BuildConfiguration::BuildType buildType)
+{
+    if (projectFilePath.isEmpty())
+        return FileName();
+
+    const QString projectName = projectFilePath.parentDir().fileName();
+    ProjectMacroExpander expander(projectName, k, bcName, buildType);
+    QDir projectDir = QDir(Project::projectDirectory(projectFilePath).toString());
+    QString buildPath = expander.expand(Core::DocumentManager::buildDirectory());
+    return FileName::fromUserInput(projectDir.absoluteFilePath(buildPath));
 }
 
 QList<ConfigModel::DataItem> CMakeBuildConfiguration::completeCMakeConfiguration() const
@@ -363,7 +365,8 @@ QList<ProjectExplorer::BuildInfo *> CMakeBuildConfigurationFactory::availableSet
             info->displayName = info->typeName;
         }
         info->buildDirectory
-                = shadowBuildDirectory(projectPathName, k, info->displayName, info->buildType);
+                = CMakeBuildConfiguration::shadowBuildDirectory(projectPathName, k,
+                                                                info->displayName, info->buildType);
         result << info;
     }
     return result;
@@ -380,8 +383,10 @@ ProjectExplorer::BuildConfiguration *CMakeBuildConfigurationFactory::create(Proj
     CMakeProject *project = static_cast<CMakeProject *>(parent->project());
 
     if (copy.buildDirectory.isEmpty()) {
-        copy.buildDirectory = shadowBuildDirectory(project->projectFilePath(), parent->kit(),
-                                                   copy.displayName, info->buildType);
+        copy.buildDirectory
+                = CMakeBuildConfiguration::shadowBuildDirectory(project->projectFilePath(),
+                                                                parent->kit(),
+                                                                copy.displayName, info->buildType);
     }
 
     auto bc = new CMakeBuildConfiguration(parent);

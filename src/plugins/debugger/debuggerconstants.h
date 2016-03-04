@@ -201,10 +201,12 @@ enum DebuggerEngineType
 
 enum DebuggerLanguage
 {
-    AnyLanguage       = 0x0,
+    NoLanguage       = 0x0,
     CppLanguage      = 0x1,
-    QmlLanguage      = 0x2
+    QmlLanguage      = 0x2,
+    AnyLanguage      = CppLanguage | QmlLanguage
 };
+
 Q_DECLARE_FLAGS(DebuggerLanguages, DebuggerLanguage)
 
 } // namespace Debugger

@@ -29,7 +29,6 @@
 #include "qmlprofilertool.h"
 #include "qmlprofilertimelinemodel.h"
 
-#include <debugger/analyzer/analyzermanager.h>
 #include <extensionsystem/pluginmanager.h>
 #include <utils/hostosinfo.h>
 
@@ -49,51 +48,10 @@ bool QmlProfilerPlugin::initialize(const QStringList &arguments, QString *errorS
 {
     Q_UNUSED(arguments)
 
+    QmlProfilerPlugin::instance = this;
+
     if (!Utils::HostOsInfo::canCreateOpenGLContext(errorString))
         return false;
-
-    auto tool = new QmlProfilerTool(this);
-    auto widgetCreator = [tool] { return tool->createWidgets(); };
-    auto runControlCreator = [tool](ProjectExplorer::RunConfiguration *runConfiguration, Core::Id) {
-        return tool->createRunControl(runConfiguration);
-    };
-
-    AnalyzerAction *action = 0;
-
-    QString description = QmlProfilerTool::tr(
-        "The QML Profiler can be used to find performance bottlenecks in "
-        "applications using QML.");
-
-    action = new AnalyzerAction(this);
-    action->setActionId(Constants::QmlProfilerLocalActionId);
-    action->setToolId(Constants::QmlProfilerToolId);
-    action->setWidgetCreator(widgetCreator);
-    action->setRunControlCreator(runControlCreator);
-    action->setToolPreparer([tool] { return tool->prepareTool(); });
-    action->setRunMode(ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
-    action->setText(tr("QML Profiler"));
-    action->setToolTip(description);
-    action->setMenuGroup(Analyzer::Constants::G_ANALYZER_TOOLS);
-    AnalyzerManager::addAction(action);
-
-    action = new AnalyzerAction(this);
-    action->setActionId(Constants::QmlProfilerRemoteActionId);
-    action->setToolId(Constants::QmlProfilerToolId);
-    action->setWidgetCreator(widgetCreator);
-    action->setRunControlCreator(runControlCreator);
-    action->setCustomToolStarter([tool](ProjectExplorer::RunConfiguration *rc) {
-        tool->startRemoteTool(rc);
-    });
-    action->setToolPreparer([tool] { return tool->prepareTool(); });
-    action->setRunMode(ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
-    action->setText(tr("QML Profiler (External)"));
-    action->setToolTip(description);
-    action->setMenuGroup(Analyzer::Constants::G_ANALYZER_REMOTE_TOOLS);
-    AnalyzerManager::addAction(action);
-
-    addAutoReleasedObject(new QmlProfilerRunControlFactory());
-    addAutoReleasedObject(new Internal::QmlProfilerOptionsPage());
-    QmlProfilerPlugin::instance = this;
 
     return true;
 }
@@ -101,6 +59,11 @@ bool QmlProfilerPlugin::initialize(const QStringList &arguments, QString *errorS
 void QmlProfilerPlugin::extensionsInitialized()
 {
     factory = ExtensionSystem::PluginManager::getObject<QmlProfilerTimelineModelFactory>();
+
+    (void) new QmlProfilerTool(this);
+
+    addAutoReleasedObject(new QmlProfilerRunControlFactory());
+    addAutoReleasedObject(new Internal::QmlProfilerOptionsPage());
 }
 
 ExtensionSystem::IPlugin::ShutdownFlag QmlProfilerPlugin::aboutToShutdown()

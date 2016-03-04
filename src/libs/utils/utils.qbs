@@ -6,8 +6,8 @@ QtcLibrary {
 
     cpp.defines: base.concat([
         "QTCREATOR_UTILS_LIB",
-        "QTC_REL_TOOLS_PATH=\"" + FileInfo.relativePath(project.ide_bin_path,
-                                                        project.ide_libexec_path) + "\""
+        "QTC_REL_TOOLS_PATH=\"" + FileInfo.relativePath('/' + project.ide_bin_path,
+                                                        '/' + project.ide_libexec_path) + "\""
     ])
     cpp.dynamicLibraries: {
         var libs = [];

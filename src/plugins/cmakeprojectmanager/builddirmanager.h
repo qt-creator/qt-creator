@@ -86,6 +86,10 @@ public:
     void clearFiles();
     CMakeConfig configuration() const;
 
+    static CMakeConfig parseConfiguration(const Utils::FileName &cacheFile,
+                                          const Utils::FileName &sourceDir,
+                                          QString *errorMessage);
+
 signals:
     void configurationStarted() const;
     void dataAvailable() const;
@@ -102,7 +106,6 @@ private:
     void processCMakeOutput();
     void processCMakeError();
 
-    CMakeConfig parseConfiguration() const;
 
     bool m_hasData = false;
 

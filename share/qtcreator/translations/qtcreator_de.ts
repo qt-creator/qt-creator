@@ -4556,7 +4556,7 @@ Jetzt Commit durchführen?</translation>
     </message>
     <message>
         <source>Amend Last Commit...</source>
-        <translation>Letzte Abgabe ändern...</translation>
+        <translation>Letzten Commit ändern...</translation>
     </message>
     <message>
         <source>Push</source>
@@ -30960,7 +30960,7 @@ Bitte erstellen Sie die Anwendung qmldump auf der Einstellungsseite der Qt-Versi
     </message>
     <message>
         <source>Replace All</source>
-        <translation>Alles ersetzen</translation>
+        <translation>Alle ersetzen</translation>
     </message>
     <message>
         <source>Case Sensitive</source>

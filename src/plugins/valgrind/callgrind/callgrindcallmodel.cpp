@@ -36,31 +36,17 @@
 namespace Valgrind {
 namespace Callgrind {
 
-//BEGIN CallModel::Private
-
 class CallModel::Private
 {
 public:
-    Private();
-
-    const ParseData *m_data;
+    const ParseData *m_data = 0;
     QVector<const FunctionCall *> m_calls;
-    int m_event;
-    const Function *m_function;
+    int m_event = 0;
+    const Function *m_function = 0;
 };
 
-CallModel::Private::Private()
-    : m_data(0)
-    , m_event(0)
-    , m_function(0)
-{
-}
-
-//END CallModel::Private
-
-//BEGIN CallModel
-CallModel::CallModel(QObject *parent)
-  : QAbstractItemModel(parent), d(new Private)
+CallModel::CallModel()
+  : d(new Private)
 {
 }
 

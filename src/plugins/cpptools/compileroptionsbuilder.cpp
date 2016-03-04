@@ -227,6 +227,12 @@ QString CompilerOptionsBuilder::defineOption() const
     return QLatin1String("-D");
 }
 
+static bool isGccOrMinGwToolchain(const Core::Id &toolchainType)
+{
+    return toolchainType == ProjectExplorer::Constants::GCC_TOOLCHAIN_TYPEID
+        || toolchainType == ProjectExplorer::Constants::MINGW_TOOLCHAIN_TYPEID;
+}
+
 bool CompilerOptionsBuilder::excludeDefineLine(const QByteArray &defineLine) const
 {
     // This is a quick fix for QTCREATORBUG-11501.
@@ -240,8 +246,7 @@ bool CompilerOptionsBuilder::excludeDefineLine(const QByteArray &defineLine) con
     // The right-hand sides are gcc built-ins that clang does not understand, and they'd
     // override clang's own (non-macro, it seems) definitions of the symbols on the left-hand
     // side.
-    const bool isGccToolchain = m_projectPart.toolchainType == ProjectExplorer::Constants::GCC_TOOLCHAIN_TYPEID;
-    if (isGccToolchain && defineLine.contains("has_include"))
+    if (isGccOrMinGwToolchain(m_projectPart.toolchainType) && defineLine.contains("has_include"))
         return true;
 
     return false;

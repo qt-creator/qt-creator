@@ -26,36 +26,23 @@
 #ifndef CALLGRINDTOOL_H
 #define CALLGRINDTOOL_H
 
-#include <debugger/analyzer/ianalyzertool.h>
+#include <QObject>
 
 namespace Valgrind {
 namespace Internal {
 
-const char CallgrindToolId[] = "Callgrind";
-const char CallgrindLocalActionId[] = "Callgrind.Local";
-const char CallgrindRemoteActionId[] = "Callgrind.Remote";
+const char CallgrindPerspectiveId[]       = "Callgrind.Perspective";
+const char CallgrindLocalActionId[]       = "Callgrind.Local.Action";
+const char CallgrindRemoteActionId[]      = "Callgrind.Remote.Action";
+const char CallgrindCallersDockId[]       = "Callgrind.Callers.Dock";
+const char CallgrindCalleesDockId[]       = "Callgrind.Callees.Dock";
+const char CallgrindFlatDockId[]          = "Callgrind.Flat.Dock";
+const char CallgrindVisualizationDockId[] = "Callgrind.Visualization.Dock";
 
-class ValgrindRunControl;
 const char CALLGRIND_RUN_MODE[] = "CallgrindTool.CallgrindRunMode";
 
-class CallgrindToolPrivate;
-
-class CallgrindTool : public QObject
-{
-    Q_OBJECT
-
-public:
-    CallgrindTool(QObject *parent);
-    ~CallgrindTool();
-
-    ValgrindRunControl *createRunControl(ProjectExplorer::RunConfiguration *runConfiguration);
-    QWidget *createWidgets();
-
-    void handleShowCostsOfFunction();
-
-private:
-    CallgrindToolPrivate *d;
-};
+void initCallgrindTool(QObject *parent);
+void destroyCallgrindTool();
 
 } // namespace Internal
 } // namespace Valgrind

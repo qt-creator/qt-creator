@@ -105,9 +105,6 @@
 #endif
 
 using namespace Utils;
-#ifdef FAKEVIM_STANDALONE
-using namespace FakeVim::Internal::Utils;
-#endif
 
 namespace FakeVim {
 namespace Internal {
@@ -5713,7 +5710,7 @@ bool FakeVimHandler::Private::handleExSetCommand(const ExCommand &cmd)
         if (negateOption)
             optionName.remove(0, 2);
 
-        SavedAction *act = theFakeVimSettings()->item(optionName);
+        FakeVimAction *act = theFakeVimSettings()->item(optionName);
         if (!act) {
             showMessage(MessageError, Tr::tr("Unknown option:")
                         + QLatin1Char(' ') + cmd.args);

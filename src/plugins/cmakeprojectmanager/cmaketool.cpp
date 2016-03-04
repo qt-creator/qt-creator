@@ -130,18 +130,6 @@ Utils::FileName CMakeTool::cmakeExecutable() const
     return m_executable;
 }
 
-bool CMakeTool::hasCodeBlocksMsvcGenerator() const
-{
-    if (!isValid())
-        return false;
-    return supportedGenerators().contains(QLatin1String("CodeBlocks - NMake Makefiles"));
-}
-
-bool CMakeTool::hasCodeBlocksNinjaGenerator() const
-{
-    return supportedGenerators().contains(QLatin1String("CodeBlocks - Ninja"));
-}
-
 QStringList CMakeTool::supportedGenerators() const
 {
     if (m_generators.isEmpty()) {

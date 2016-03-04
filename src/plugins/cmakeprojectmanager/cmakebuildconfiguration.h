@@ -77,6 +77,10 @@ public:
     void resetData();
     bool persistCMakeState();
 
+    static Utils::FileName
+    shadowBuildDirectory(const Utils::FileName &projectFilePath, const ProjectExplorer::Kit *k,
+                         const QString &bcName, BuildConfiguration::BuildType buildType);
+
 signals:
     void errorOccured(const QString &message);
 
