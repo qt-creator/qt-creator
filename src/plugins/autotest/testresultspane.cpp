@@ -213,6 +213,8 @@ void TestResultsPane::addTestResult(const TestResultPtr &result)
     m_model->addTestResult(result, m_expandCollapse->isChecked());
     if (!m_treeView->isVisible())
         popup(Core::IOutputPane::NoModeSwitch);
+    setIconBadgeNumber(m_model->resultTypeCount(Result::Fail)
+                       + m_model->resultTypeCount(Result::UnexpectedPass));
     flash();
     navigateStateChanged();
 }
@@ -246,6 +248,7 @@ int TestResultsPane::priorityInStatusBar() const
 void TestResultsPane::clearContents()
 {
     m_filterModel->clearTestResults();
+    setIconBadgeNumber(0);
     navigateStateChanged();
     m_summaryWidget->setVisible(false);
     m_autoScroll = AutotestPlugin::instance()->settings()->autoScroll;
