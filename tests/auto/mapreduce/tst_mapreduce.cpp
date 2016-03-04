@@ -158,7 +158,7 @@ void tst_MapReduce::map()
 class MoveOnlyType
 {
 public:
-    MoveOnlyType() = default;
+    MoveOnlyType() noexcept {} // <- with GCC 5 the defaulted one is noexcept(false)
     MoveOnlyType(const MoveOnlyType &) = delete;
     MoveOnlyType(MoveOnlyType &&) = default;
     MoveOnlyType &operator=(const MoveOnlyType &) = delete;
