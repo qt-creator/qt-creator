@@ -42,7 +42,7 @@ TestTreeItem::TestTreeItem(const QString &name, const QString &filePath, Type ty
       m_filePath(filePath),
       m_type(type),
       m_line(0),
-      m_markedForRemoval(false)
+      m_status(NewlyAdded)
 {
     m_checked = (m_type == TestCase || m_type == TestFunctionOrSet) ? Qt::Checked : Qt::Unchecked;
 }
@@ -207,12 +207,12 @@ Qt::CheckState TestTreeItem::checked() const
 
 void TestTreeItem::markForRemoval(bool mark)
 {
-    m_markedForRemoval = mark;
+    m_status = mark ? MarkedForRemoval : Cleared;
 }
 
 void TestTreeItem::markForRemovalRecursively(bool mark)
 {
-    m_markedForRemoval = mark;
+    markForRemoval(mark);
     for (int row = 0, count = childCount(); row < count; ++row)
         childItem(row)->markForRemovalRecursively(mark);
 }

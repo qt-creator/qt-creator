@@ -703,6 +703,7 @@ bool TestTreeModel::sweepChildren(TestTreeItem *item)
                 continue;
             }
         }
+        hasChanged |= child->newlyAdded();
         child->markForRemoval(false);
     }
     return hasChanged;

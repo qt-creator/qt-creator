@@ -90,7 +90,8 @@ public:
     Type type() const { return m_type; }
     void markForRemoval(bool mark);
     void markForRemovalRecursively(bool mark);
-    bool markedForRemoval() const { return m_markedForRemoval; }
+    bool markedForRemoval() const { return m_status == MarkedForRemoval; }
+    bool newlyAdded() const { return m_status == NewlyAdded; }
     TestTreeItem *parentItem() const;
     TestTreeItem *childItem(int row) const;
 
@@ -114,6 +115,13 @@ private:
     void revalidateCheckState();
     bool modifyName(const QString &name);
 
+    enum Status
+    {
+        NewlyAdded,
+        MarkedForRemoval,
+        Cleared
+    };
+
     QString m_name;
     QString m_filePath;
     Qt::CheckState m_checked;
@@ -121,7 +129,7 @@ private:
     unsigned m_line;
     unsigned m_column;
     QString m_proFile;
-    bool m_markedForRemoval;
+    Status m_status;
 };
 
 typedef QVector<TestCodeLocationAndType> TestCodeLocationList;
