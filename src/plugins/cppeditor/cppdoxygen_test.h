@@ -26,6 +26,8 @@
 #ifndef CPPDOXYGEN_TEST_H
 #define CPPDOXYGEN_TEST_H
 
+#include "cppeditortestcase.h"
+
 #include <cpptools/commentssettings.h>
 
 #include <QObject>
@@ -48,13 +50,17 @@ private slots:
     void testBasic_data();
     void testBasic();
 
+    void testWithMacroFromHeaderBeforeFunction();
+
     void testNoLeadingAsterisks_data();
     void testNoLeadingAsterisks();
 
 private:
     void verifyCleanState() const;
-    void runTest(const QByteArray &original, const QByteArray &expected,
-                 CppTools::CommentsSettings *settings = 0);
+    void runTest(const QByteArray &original,
+                 const QByteArray &expected,
+                 CppTools::CommentsSettings *settings = 0,
+                 const TestDocuments &includedHeaderDocuments = TestDocuments());
 
     QScopedPointer<CppTools::CommentsSettings> oldSettings;
 };

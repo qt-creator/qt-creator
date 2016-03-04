@@ -33,6 +33,8 @@
 QT_FORWARD_DECLARE_CLASS(QTextCursor)
 
 namespace CPlusPlus { class DeclarationAST; }
+namespace CPlusPlus { class Snapshot; }
+namespace Utils { class FileName; }
 
 namespace CppTools {
 
@@ -53,7 +55,9 @@ public:
     void setGenerateBrief(bool gen);
     void setAddLeadingAsterisks(bool add);
 
-    QString generate(QTextCursor cursor);
+    QString generate(QTextCursor cursor,
+                     const CPlusPlus::Snapshot &snapshot,
+                     const Utils::FileName &documentFilePath);
     QString generate(QTextCursor cursor, CPlusPlus::DeclarationAST *decl);
 
 private:

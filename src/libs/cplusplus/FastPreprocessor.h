@@ -51,7 +51,9 @@ class CPLUSPLUS_EXPORT FastPreprocessor: public Client
 public:
     FastPreprocessor(const Snapshot &snapshot);
 
-    QByteArray run(Document::Ptr newDoc, const QByteArray &source);
+    QByteArray run(Document::Ptr newDoc,
+                   const QByteArray &source,
+                   bool mergeDefinedMacrosOfDocument = false);
 
     // CPlusPlus::Client
     virtual void sourceNeeded(unsigned line, const QString &fileName, IncludeType mode,

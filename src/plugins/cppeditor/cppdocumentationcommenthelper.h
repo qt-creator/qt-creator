@@ -29,11 +29,13 @@
 #include "cppeditor_global.h"
 
 namespace TextEditor { class TextEditorWidget; }
+namespace CPlusPlus { class Snapshot; }
 
 namespace CppEditor {
 namespace Internal {
 
-bool trySplitComment(TextEditor::TextEditorWidget *editorWidget);
+bool trySplitComment(TextEditor::TextEditorWidget *editorWidget,
+                     const CPlusPlus::Snapshot &snapshot);
 
 } // namespace Internal
 } // namespace CppEditor

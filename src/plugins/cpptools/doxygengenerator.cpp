@@ -25,14 +25,19 @@
 
 #include "doxygengenerator.h"
 
+#include <texteditor/convenience.h>
+
 #include <cplusplus/BackwardsScanner.h>
 #include <cplusplus/CppDocument.h>
 
+#include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 
 #include <QStringBuilder>
 #include <QTextDocument>
 #include <QDebug>
+
+#include <limits>
 
 using namespace CppTools;
 using namespace CPlusPlus;
@@ -64,8 +69,24 @@ void DoxygenGenerator::setAddLeadingAsterisks(bool add)
     m_addLeadingAsterisks = add;
 }
 
-QString DoxygenGenerator::generate(QTextCursor cursor)
+static int lineBeforeCursor(const QTextCursor &cursor)
 {
+    int line, column;
+    const bool converted = TextEditor::Convenience::convertPosition(cursor.document(),
+                                                                    cursor.position(),
+                                                                    &line,
+                                                                    &column);
+    QTC_ASSERT(converted, return std::numeric_limits<int>::max());
+
+    return line - 1;
+}
+
+QString DoxygenGenerator::generate(QTextCursor cursor,
+                                   const CPlusPlus::Snapshot &snapshot,
+                                   const Utils::FileName &documentFilePath)
+{
+    const QTextCursor initialCursor = cursor;
+
     const QChar &c = cursor.document()->characterAt(cursor.position());
     if (!c.isLetter() && c != QLatin1Char('_'))
         return QString();
@@ -100,8 +121,9 @@ QString DoxygenGenerator::generate(QTextCursor cursor)
     if (declCandidate.endsWith(QLatin1Char('{')))
         declCandidate.append(QLatin1Char('}'));
 
-    Document::Ptr doc = Document::create(QLatin1String("<doxygen>"));
-    doc->setUtf8Source(declCandidate.toUtf8());
+    Document::Ptr doc = snapshot.preprocessedDocument(declCandidate.toUtf8(),
+                                                      documentFilePath,
+                                                      lineBeforeCursor(initialCursor));
     doc->parse(Document::ParseDeclaration);
     doc->check(Document::FastCheck);
 
