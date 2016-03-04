@@ -1257,10 +1257,6 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     connect(buildManager, &BuildManager::buildQueueFinished,
             dd, &ProjectExplorerPluginPrivate::buildQueueFinished, Qt::QueuedConnection);
 
-    connect(ICore::instance(), &ICore::coreAboutToOpen,
-            dd, &ProjectExplorerPluginPrivate::determineSessionToRestoreAtStartup);
-    connect(ICore::instance(), &ICore::coreOpened,
-            dd, &ProjectExplorerPluginPrivate::restoreSession);
     connect(ICore::instance(), &ICore::newItemDialogRunningChanged, updateActions);
     connect(ICore::instance(), &ICore::newItemDialogRunningChanged,
             dd, &ProjectExplorerPluginPrivate::updateContextMenuActions);
@@ -1506,9 +1502,16 @@ void ProjectExplorerPlugin::extensionsInitialized()
     BuildManager::extensionsInitialized();
 
     DeviceManager::instance()->addDevice(IDevice::Ptr(new DesktopDevice));
+}
+
+bool ProjectExplorerPlugin::delayedInitialize()
+{
+    dd->determineSessionToRestoreAtStartup();
     DeviceManager::instance()->load();
     ToolChainManager::restoreToolChains();
     dd->m_kitManager->restoreKits();
+    QTimer::singleShot(0, dd, &ProjectExplorerPluginPrivate::restoreSession); // delay a bit...
+    return true;
 }
 
 void ProjectExplorerPluginPrivate::updateRunWithoutDeployMenu()
