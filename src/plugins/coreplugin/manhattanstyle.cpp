@@ -830,32 +830,34 @@ void ManhattanStyle::drawControl(ControlElement element, const QStyleOption *opt
             else
                 StyleHelper::verticalGradient(painter, gradientSpan, rect, drawLightColored);
 
-            if (!drawLightColored)
-                painter->setPen(StyleHelper::borderColor());
-            else
-                painter->setPen(QColor(0x888888));
+            if (creatorTheme()->flag(Theme::DrawToolBarHighlights)) {
+                if (!drawLightColored)
+                    painter->setPen(StyleHelper::borderColor());
+                else
+                    painter->setPen(QColor(0x888888));
 
-            if (horizontal) {
-                // Note: This is a hack to determine if the
-                // toolbar should draw the top or bottom outline
-                // (needed for the find toolbar for instance)
-                const QColor hightLight = creatorTheme()->widgetStyle() == Theme::StyleDefault
-                        ? StyleHelper::sidebarHighlight()
-                        : creatorTheme()->color(Theme::FancyToolBarSeparatorColor);
-                const QColor borderColor = drawLightColored
-                        ? QColor(255, 255, 255, 180) : hightLight;
-                if (widget && widget->property("topBorder").toBool()) {
-                    painter->drawLine(borderRect.topLeft(), borderRect.topRight());
-                    painter->setPen(borderColor);
-                    painter->drawLine(borderRect.topLeft() + QPointF(0, 1), borderRect.topRight() + QPointF(0, 1));
+                if (horizontal) {
+                    // Note: This is a hack to determine if the
+                    // toolbar should draw the top or bottom outline
+                    // (needed for the find toolbar for instance)
+                    const QColor hightLight = creatorTheme()->widgetStyle() == Theme::StyleDefault
+                            ? StyleHelper::sidebarHighlight()
+                            : creatorTheme()->color(Theme::FancyToolBarSeparatorColor);
+                    const QColor borderColor = drawLightColored
+                            ? QColor(255, 255, 255, 180) : hightLight;
+                    if (widget && widget->property("topBorder").toBool()) {
+                        painter->drawLine(borderRect.topLeft(), borderRect.topRight());
+                        painter->setPen(borderColor);
+                        painter->drawLine(borderRect.topLeft() + QPointF(0, 1), borderRect.topRight() + QPointF(0, 1));
+                    } else {
+                        painter->drawLine(borderRect.bottomLeft(), borderRect.bottomRight());
+                        painter->setPen(borderColor);
+                        painter->drawLine(borderRect.topLeft(), borderRect.topRight());
+                    }
                 } else {
-                    painter->drawLine(borderRect.bottomLeft(), borderRect.bottomRight());
-                    painter->setPen(borderColor);
-                    painter->drawLine(borderRect.topLeft(), borderRect.topRight());
+                    painter->drawLine(borderRect.topLeft(), borderRect.bottomLeft());
+                    painter->drawLine(borderRect.topRight(), borderRect.bottomRight());
                 }
-            } else {
-                painter->drawLine(borderRect.topLeft(), borderRect.bottomLeft());
-                painter->drawLine(borderRect.topRight(), borderRect.bottomRight());
             }
         }
         break;

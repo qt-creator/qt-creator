@@ -165,6 +165,7 @@ DrawIndicatorBranch=false
 DrawProgressBarSunken=true
 DrawSearchResultWidgetFrame=true
 DrawTargetSelectorBottom=true
+DrawToolBarHighlights=true
 ApplyThemePaletteGlobally=false
 FlatSideBarIcons=false
 FlatProjectsMode=false

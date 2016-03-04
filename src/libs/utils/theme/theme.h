@@ -256,6 +256,7 @@ public:
         DrawSearchResultWidgetFrame,
         DrawProgressBarSunken,
         DrawIndicatorBranch,
+        DrawToolBarHighlights,
         ComboBoxDrawTextShadow,
         DerivePaletteFromTheme,
         ApplyThemePaletteGlobally,
