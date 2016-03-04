@@ -63,6 +63,13 @@ FORMS += docsettingspage.ui \
     generalsettingspage.ui \
     remotehelpfilter.ui
 
+!isEmpty(QT.webenginewidgets.name):minQtVersion(5, 6, 0) {
+    QT += webenginewidgets
+    HEADERS += webenginehelpviewer.h
+    SOURCES += webenginehelpviewer.cpp
+    DEFINES += QTC_WEBENGINE_HELPVIEWER
+}
+
 osx {
     DEFINES += QTC_MAC_NATIVE_HELPVIEWER
     QT += macextras
