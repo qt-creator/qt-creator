@@ -167,6 +167,16 @@
     depending on the exact value of the program counter when the sample was
     recorded.
 
+    \section2 Resolving Names for JIT-compiled JavaScript Functions
+
+    From version 5.6.0, Qt can generate perf.map files with information about
+    JavaScript functions. The CPU Usage Analyzer will read them and show the
+    function names in the \uicontrol Timeline and \uicontrol Statistics views.
+    This only works if the process being profiled is running on the host
+    computer, not on the target device. To switch on the generation of perf.map
+    files, add the environment variable \c QV4_PROFILE_WRITE_PERF_MAP to the
+    \uicontrol {Run Environment} and set its value to \c 1.
+
     \section1 Analyzing Collected Data
 
     The \uicontrol Timeline view displays a graphical representation of CPU
