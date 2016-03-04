@@ -39,7 +39,7 @@ TargetSettingsWidget::TargetSettingsWidget(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    if (Utils::creatorTheme()->widgetStyle() == Utils::Theme::StyleFlat) {
+    if (Utils::creatorTheme()->flag(Utils::Theme::FlatProjectsMode)) {
         ui->separator->setVisible(false);
         ui->shadow->setVisible(false);
     } else {

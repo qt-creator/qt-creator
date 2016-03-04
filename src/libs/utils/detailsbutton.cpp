@@ -122,7 +122,7 @@ void DetailsButton::paintEvent(QPaintEvent *e)
         c.setAlpha (int(m_fader * c.alpha()));
 
         QRect r = rect();
-        if (creatorTheme()->widgetStyle() == Theme::StyleDefault)
+        if (!creatorTheme()->flag(Theme::FlatProjectsMode))
             r.adjust(1, 1, -2, -2);
         p.fillRect(r, c);
     }
@@ -158,7 +158,7 @@ QPixmap DetailsButton::cacheRendering(const QSize &size, bool checked)
     p.setRenderHint(QPainter::Antialiasing, true);
     p.translate(0.5, 0.5);
 
-    if (creatorTheme()->widgetStyle() == Theme::StyleDefault) {
+    if (!creatorTheme()->flag(Theme::FlatProjectsMode)) {
         QLinearGradient lg;
         lg.setCoordinateMode(QGradient::ObjectBoundingMode);
         lg.setFinalStop(0, 1);

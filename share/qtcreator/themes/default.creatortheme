@@ -25,7 +25,6 @@ ComboBoxTextColor=ffffffff
 DetailsButtonBackgroundColorHover=b4ffffff
 DetailsWidgetBackgroundColor=28ffffff
 DockWidgetResizeHandleColor=ff000000
-DoubleTabWidget1stEmptyAreaBackgroundColor=ffff0000
 DoubleTabWidget1stSeparatorColor=ffff0000
 DoubleTabWidget1stTabActiveTextColor=ff000000
 DoubleTabWidget1stTabBackgroundColor=ffff0000
@@ -168,6 +167,7 @@ DrawSearchResultWidgetFrame=true
 DrawTargetSelectorBottom=true
 ApplyThemePaletteGlobally=false
 FlatSideBarIcons=false
+FlatProjectsMode=false
 
 [Gradients]
 DetailsWidgetHeaderGradient\1\color=ffffff

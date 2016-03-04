@@ -70,7 +70,6 @@ public:
         DetailsButtonBackgroundColorHover,
         DetailsWidgetBackgroundColor,
         DockWidgetResizeHandleColor,
-        DoubleTabWidget1stEmptyAreaBackgroundColor,
         DoubleTabWidget1stSeparatorColor,
         DoubleTabWidget1stTabActiveTextColor,
         DoubleTabWidget1stTabBackgroundColor,
@@ -260,7 +259,8 @@ public:
         ComboBoxDrawTextShadow,
         DerivePaletteFromTheme,
         ApplyThemePaletteGlobally,
-        FlatSideBarIcons
+        FlatSideBarIcons,
+        FlatProjectsMode
     };
 
     enum WidgetStyle {
