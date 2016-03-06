@@ -57,6 +57,7 @@ const char DEBUGGER_INFORMATION_AUTODETECTED[] = "AutoDetected";
 const char DEBUGGER_INFORMATION_AUTODETECTION_SOURCE[] = "AutoDetectionSource";
 const char DEBUGGER_INFORMATION_VERSION[] = "Version";
 const char DEBUGGER_INFORMATION_ABIS[] = "Abis";
+const char DEBUGGER_INFORMATION_LASTMODIFIED[] = "LastModified";
 
 namespace Debugger {
 
@@ -87,6 +88,7 @@ DebuggerItem::DebuggerItem(const QVariantMap &data)
     m_version = data.value(QLatin1String(DEBUGGER_INFORMATION_VERSION)).toString();
     m_engineType = DebuggerEngineType(data.value(QLatin1String(DEBUGGER_INFORMATION_ENGINETYPE),
                                                  static_cast<int>(NoEngineType)).toInt());
+    m_lastModified = data.value(QLatin1String(DEBUGGER_INFORMATION_LASTMODIFIED)).toDateTime();
 
     foreach (const QString &a, data.value(QLatin1String(DEBUGGER_INFORMATION_ABIS)).toStringList()) {
         Abi abi(a);
@@ -110,7 +112,9 @@ void DebuggerItem::reinitializeFromFile()
     // happy with both -version and --version. So use the "working" -version
     // except for the experimental LLDB-MI which insists on --version.
     const char *version = "-version";
-    if (m_command.toFileInfo().baseName().toLower().contains(QLatin1String("lldb-mi")))
+    const QFileInfo fileInfo = m_command.toFileInfo();
+    m_lastModified = fileInfo.lastModified();
+    if (fileInfo.baseName().toLower().contains(QLatin1String("lldb-mi")))
         version = "--version";
 
     QProcess proc;
@@ -203,6 +207,11 @@ QStringList DebuggerItem::abiNames() const
     return list;
 }
 
+QDateTime DebuggerItem::lastModified() const
+{
+    return m_lastModified;
+}
+
 bool DebuggerItem::isGood() const
 {
     return m_engineType != NoEngineType;
@@ -234,6 +243,7 @@ QVariantMap DebuggerItem::toMap() const
     data.insert(QLatin1String(DEBUGGER_INFORMATION_AUTODETECTION_SOURCE), m_autoDetectionSource);
     data.insert(QLatin1String(DEBUGGER_INFORMATION_VERSION), m_version);
     data.insert(QLatin1String(DEBUGGER_INFORMATION_ABIS), abiNames());
+    data.insert(QLatin1String(DEBUGGER_INFORMATION_LASTMODIFIED), m_lastModified);
     return data;
 }
 

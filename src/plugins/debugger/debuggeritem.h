@@ -33,6 +33,7 @@
 
 #include <utils/fileutils.h>
 
+#include <QDateTime>
 #include <QList>
 #include <QVariant>
 
@@ -92,6 +93,7 @@ public:
     MatchLevel matchTarget(const ProjectExplorer::Abi &targetAbi) const;
 
     QStringList abiNames() const;
+    QDateTime lastModified() const;
 
     bool isGood() const;
     QString validityMessage() const;
@@ -112,6 +114,7 @@ private:
     QString m_autoDetectionSource;
     QString m_version;
     QList<ProjectExplorer::Abi> m_abis;
+    QDateTime m_lastModified;
 
     friend class Internal::DebuggerConfigWidget;
     friend class Internal::DebuggerItemConfigWidget;
