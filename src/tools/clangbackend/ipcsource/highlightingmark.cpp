@@ -295,7 +295,7 @@ void HighlightingMark::collectKinds(CXToken *cxToken, const Cursor &cursor)
 {
     auto cxTokenKind = clang_getTokenKind(*cxToken);
 
-    types = {};
+    types = HighlightingTypes();
 
     switch (cxTokenKind) {
         case CXToken_Keyword:     types.mainHighlightingType = HighlightingType::Keyword; break;
