@@ -41,27 +41,16 @@
 namespace Valgrind {
 namespace Callgrind {
 
-//BEGIN DataModel::Private
-
 class DataModel::Private
 {
 public:
-    Private()
-    : m_data(0)
-    , m_event(0)
-    , m_verboseToolTips(true)
-    , m_cycleDetection(false)
-    , m_shortenTemplates(false)
-    {
-    }
-
     void updateFunctions();
 
-    const ParseData *m_data;
-    int m_event;
-    bool m_verboseToolTips;
-    bool m_cycleDetection;
-    bool m_shortenTemplates;
+    const ParseData *m_data = 0;
+    int m_event = 0;
+    bool m_verboseToolTips = true;
+    bool m_cycleDetection = false;
+    bool m_shortenTemplates = false;
     QVector<const Function *> m_functions;
 };
 
@@ -77,10 +66,8 @@ void DataModel::Private::updateFunctions()
     }
 }
 
-//BEGIN DataModel
-
-DataModel::DataModel(QObject *parent)
-   : QAbstractItemModel(parent), d(new Private)
+DataModel::DataModel()
+   : d(new Private)
 {
 }
 

@@ -39,7 +39,7 @@ def main():
     invokeMenuItem("Tools", "Git", "Actions on Commits...")
     pathEdit = waitForObject(":Select a Git Commit.workingDirectoryEdit_QLineEdit")
     revEdit = waitForObject(":Select a Git Commit.changeNumberEdit_Utils::CompletingLineEdit")
-    test.compare(str(pathEdit.displayText), os.path.join(srcPath, "creator").replace("\\", "/"))
+    test.compare(str(pathEdit.displayText), os.path.join(srcPath, "creator"))
     test.compare(str(revEdit.displayText), "HEAD")
     replaceEditorContent(revEdit, "05c35356abc31549c5db6eba31fb608c0365c2a0") # Initial import
     detailsEdit = waitForObject(":Select a Git Commit.detailsText_QPlainTextEdit")

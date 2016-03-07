@@ -367,20 +367,20 @@ void DebuggerRunControlCreator::enrich(const RunConfiguration *runConfig, const 
 
         if (!abis.isEmpty()) {
             // Try exact abis.
-            m_kit = KitManager::find(KitMatcher(std::function<bool (const Kit *)>([abis](const Kit *k) -> bool {
+            m_kit = KitManager::find(KitMatcher([abis](const Kit *k) -> bool {
                 if (const ToolChain *tc = ToolChainKitInformation::toolChain(k))
                     return abis.contains(tc->targetAbi()) && DebuggerKitInformation::isValidDebugger(k);
                 return false;
-            })));
+            }));
             if (!m_kit) {
                 // Or something compatible.
-                m_kit = KitManager::find(KitMatcher(std::function<bool (const Kit *)>([abis](const Kit *k) -> bool {
+                m_kit = KitManager::find(KitMatcher([abis](const Kit *k) -> bool {
                     if (const ToolChain *tc = ToolChainKitInformation::toolChain(k))
                         foreach (const Abi &a, abis)
                             if (a.isCompatibleWith(tc->targetAbi()) && DebuggerKitInformation::isValidDebugger(k))
                                 return true;
                     return false;
-                })));
+                }));
             }
         }
     }

@@ -66,7 +66,6 @@ QIcon locationMarkIcon();
 const CPlusPlus::Snapshot &cppCodeModelSnapshot();
 bool hasSnapshots();
 void openTextEditor(const QString &titlePattern, const QString &contents);
-bool isActiveDebugLanguage(int language);
 
 // void runTest(const QString &fileName);
 void showMessage(const QString &msg, int channel, int timeout = -1);

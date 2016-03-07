@@ -31,6 +31,7 @@
 #include "qbsinstallstep.h"
 #include "qbsproject.h"
 #include "qbsprojectmanagerconstants.h"
+#include "qbsprojectmanagersettings.h"
 
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/icore.h>
@@ -257,10 +258,6 @@ public:
         return m_qbsBuildStep ? m_qbsBuildStep->maxJobs() : 0;
     }
 
-    bool allArtifacts() const {
-        return m_qbsCleanStep ? m_qbsCleanStep->cleanAll() : false;
-    }
-
     QString installRoot() const {
         return m_qbsInstallStep ? m_qbsInstallStep->absoluteInstallRoot() : QString();
     }
@@ -289,8 +286,10 @@ QString QbsBuildConfiguration::equivalentCommandLine(const BuildStep *buildStep)
     }
     Utils::QtcProcess::addArgs(&commandLine, QStringList() << QLatin1String("-f")
                                << buildStep->project()->projectFilePath().toUserOutput());
-    Utils::QtcProcess::addArgs(&commandLine, QStringList() << QLatin1String("--settings-dir")
-                               << QDir::toNativeSeparators(Core::ICore::userResourcePath()));
+    if (QbsProjectManagerSettings::useCreatorSettingsDirForQbs()) {
+        Utils::QtcProcess::addArgs(&commandLine, QStringList() << QLatin1String("--settings-dir")
+                << QDir::toNativeSeparators(QbsProjectManagerSettings::qbsSettingsBaseDir()));
+    }
     if (stepProxy.dryRun())
         Utils::QtcProcess::addArg(&commandLine, QLatin1String("--dry-run"));
     if (stepProxy.keepGoing())
@@ -308,8 +307,6 @@ QString QbsBuildConfiguration::equivalentCommandLine(const BuildStep *buildStep)
         Utils::QtcProcess::addArgs(&commandLine, QStringList() << QLatin1String("--jobs")
                                    << QString::number(jobCount));
     }
-    if (stepProxy.allArtifacts())
-        Utils::QtcProcess::addArg(&commandLine, QLatin1String("--all-artifacts"));
     const QString installRoot = stepProxy.installRoot();
     if (!installRoot.isEmpty()) {
         Utils::QtcProcess::addArgs(&commandLine, QStringList() << QLatin1String("--install-root")

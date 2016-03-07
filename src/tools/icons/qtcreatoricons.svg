@@ -2462,7 +2462,7 @@
       </g>
     </g>
     <g
-       id="src/plugins/analyzerbase/images/analyzer_overlay_small"
+       id="src/plugins/debugger/analyzer/images/analyzer_overlay_small"
        transform="translate(16,0)">
       <rect
          id="rect4959-4-5"
@@ -3015,7 +3015,7 @@
          inkscape:connector-curvature="0" />
     </g>
     <g
-       id="src/leafsort"
+       id="src/plugins/autotest/images/leafsort"
        transform="translate(16,0)">
       <rect
          y="568"
@@ -3039,7 +3039,7 @@
     </g>
     <g
        style="display:inline"
-       id="src/sort"
+       id="src/plugins/autotest/images/sort"
        transform="translate(32,0)">
       <rect
          y="568"
@@ -3075,7 +3075,7 @@
     </g>
     <g
        style="display:inline"
-       id="src/expand"
+       id="src/plugins/autotest/images/expand"
        transform="translate(48,0)">
       <rect
          y="568"
@@ -3104,7 +3104,7 @@
          inkscape:connector-curvature="0" />
     </g>
     <g
-       id="src/collapse"
+       id="src/plugins/autotest/images/collapse"
        transform="translate(16,0)">
       <rect
          style="display:inline;fill:#ffffff;fill-opacity:1;stroke:none"
@@ -3129,7 +3129,7 @@
          sodipodi:nodetypes="cc" />
     </g>
     <g
-       id="src/runselected_overlay"
+       id="src/plugins/autotest/images/runselected_boxes"
        transform="translate(16,0)">
       <rect
          style="display:inline;fill:#ffffff;fill-opacity:1;stroke:none"
@@ -3141,12 +3141,6 @@
       <g
          id="g4912"
          transform="translate(0,-1)">
-        <path
-           style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-           d="m 897.5,572.5 2,2 3,-4"
-           id="path4853"
-           inkscape:connector-curvature="0"
-           sodipodi:nodetypes="ccc" />
         <rect
            y="571.5"
            x="897.5"
@@ -3163,6 +3157,35 @@
          transform="translate(0,8)"
          width="100%"
          height="100%" />
+    </g>
+    <g
+       id="src/plugins/autotest/images/runselected_tickmarks"
+       transform="translate(32,0)">
+      <rect
+         id="rect4757"
+         y="568"
+         x="888"
+         height="16"
+         width="16"
+         style="display:inline;fill:#ffffff;fill-opacity:1;stroke:none" />
+      <g
+         transform="translate(0,-1)"
+         id="g4759">
+        <path
+           sodipodi:nodetypes="ccc"
+           inkscape:connector-curvature="0"
+           id="path4761"
+           d="m 897.5,572.5 2,2 3,-4"
+           style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+        <use
+           x="0"
+           y="0"
+           xlink:href="#path4761"
+           id="use4767"
+           transform="translate(0,8)"
+           width="100%"
+           height="100%" />
+      </g>
     </g>
   </g>
   <g
@@ -3856,7 +3879,7 @@
     <g
        transform="translate(-44,308)"
        style="display:inline"
-       id="src/plugins/analyzerbase/images/mode_analyze_mask">
+       id="src/plugins/debugger/analyzer/images/mode_analyze_mask">
       <rect
          style="display:inline;fill:#ffffff;fill-opacity:1"
          x="284"

@@ -69,6 +69,7 @@
 #include <texteditor/refactoroverlay.h>
 
 #include <cplusplus/ASTPath.h>
+#include <cplusplus/FastPreprocessor.h>
 #include <utils/qtcassert.h>
 
 #include <QAction>
@@ -603,7 +604,7 @@ void CppEditorWidget::keyPressEvent(QKeyEvent *e)
         return;
 
     if (e->key() == Qt::Key_Return || e->key() == Qt::Key_Enter) {
-        if (trySplitComment(this)) {
+        if (trySplitComment(this, semanticInfo().snapshot)) {
             e->accept();
             return;
         }

@@ -1257,10 +1257,6 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     connect(buildManager, &BuildManager::buildQueueFinished,
             dd, &ProjectExplorerPluginPrivate::buildQueueFinished, Qt::QueuedConnection);
 
-    connect(ICore::instance(), &ICore::coreAboutToOpen,
-            dd, &ProjectExplorerPluginPrivate::determineSessionToRestoreAtStartup);
-    connect(ICore::instance(), &ICore::coreOpened,
-            dd, &ProjectExplorerPluginPrivate::restoreSession);
     connect(ICore::instance(), &ICore::newItemDialogRunningChanged, updateActions);
     connect(ICore::instance(), &ICore::newItemDialogRunningChanged,
             dd, &ProjectExplorerPluginPrivate::updateContextMenuActions);
@@ -1472,7 +1468,10 @@ void ProjectExplorerPlugin::extensionsInitialized()
     QStringList filterStrings;
 
     auto factory = new IDocumentFactory;
-    factory->setOpener([this](const QString &fileName) -> IDocument* {
+    factory->setOpener([this](QString fileName) -> IDocument* {
+        const QFileInfo fi(fileName);
+        if (fi.isDir())
+            fileName = FolderNavigationWidget::projectFilesInDirectory(fi.absoluteFilePath()).value(0, fileName);
 
         OpenProjectResult result = ProjectExplorerPlugin::openProject(fileName);
         if (!result)
@@ -1481,6 +1480,7 @@ void ProjectExplorerPlugin::extensionsInitialized()
     });
 
     Utils::MimeDatabase mdb;
+    factory->addMimeType(QStringLiteral("inode/directory"));
     foreach (IProjectManager *manager, projectManagers) {
         const QString mimeType = manager->mimeType();
         factory->addMimeType(mimeType);
@@ -1502,9 +1502,16 @@ void ProjectExplorerPlugin::extensionsInitialized()
     BuildManager::extensionsInitialized();
 
     DeviceManager::instance()->addDevice(IDevice::Ptr(new DesktopDevice));
+}
+
+bool ProjectExplorerPlugin::delayedInitialize()
+{
+    dd->determineSessionToRestoreAtStartup();
     DeviceManager::instance()->load();
     ToolChainManager::restoreToolChains();
     dd->m_kitManager->restoreKits();
+    QTimer::singleShot(0, dd, &ProjectExplorerPluginPrivate::restoreSession); // delay a bit...
+    return true;
 }
 
 void ProjectExplorerPluginPrivate::updateRunWithoutDeployMenu()
@@ -1633,6 +1640,7 @@ ProjectExplorerPlugin::OpenProjectResult ProjectExplorerPlugin::openProject(cons
         return result;
     dd->addToRecentProjects(fileName, project->displayName());
     SessionManager::setStartupProject(project);
+    project->projectLoaded();
     return result;
 }
 
@@ -1848,7 +1856,6 @@ void ProjectExplorerPluginPrivate::restoreSession()
     //   "filename+45"   and "filename:23".
     if (!arguments.isEmpty()) {
         const QStringList sessions = SessionManager::sessions();
-        QStringList projectGlobs = ProjectExplorerPlugin::projectFileGlobs();
         for (int a = 0; a < arguments.size(); ) {
             const QString &arg = arguments.at(a);
             const QFileInfo fi(arg);
@@ -1860,21 +1867,7 @@ void ProjectExplorerPluginPrivate::restoreSession()
                     dd->m_sessionToRestoreAtStartup = dir.dirName();
                     arguments.removeAt(a);
                     continue;
-                } else {
-                    // Are there project files in that directory?
-                    const QFileInfoList proFiles
-                        = dir.entryInfoList(projectGlobs, QDir::Files);
-                    if (!proFiles.isEmpty()) {
-                        arguments[a] = proFiles.front().absoluteFilePath();
-                        ++a;
-                        continue;
-                    }
                 }
-                // Cannot handle: Avoid mime type warning for directory.
-                qWarning("Skipping directory '%s' passed on to command line.",
-                         qPrintable(QDir::toNativeSeparators(arg)));
-                arguments.removeAt(a);
-                continue;
             } // Done directories.
             // Converts "filename" "+45" or "filename" ":23" into "filename+45" and "filename:23"
             if (a && (arg.startsWith(QLatin1Char('+')) || arg.startsWith(QLatin1Char(':')))) {
@@ -3179,7 +3172,8 @@ void ProjectExplorerPluginPrivate::removeFile()
                                  tr("Could not remove file %1 from project %2.")
                                  .arg(QDir::toNativeSeparators(filePath))
                                  .arg(folderNode->projectNode()->displayName()));
-            return;
+            if (!deleteFile)
+                return;
         }
 
         DocumentManager::expectFileChange(filePath);

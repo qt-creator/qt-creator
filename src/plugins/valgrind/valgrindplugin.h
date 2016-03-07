@@ -28,7 +28,6 @@
 #define VALGRINDPLUGIN_H
 
 #include <extensionsystem/iplugin.h>
-#include <debugger/analyzer/ianalyzertool.h>
 #include <projectexplorer/projectexplorer.h>
 
 namespace Valgrind {
@@ -45,8 +44,9 @@ public:
     ValgrindPlugin() {}
     ~ValgrindPlugin();
 
-    bool initialize(const QStringList &arguments, QString *errorString);
-    void extensionsInitialized();
+    bool initialize(const QStringList &arguments, QString *errorString) override;
+    void extensionsInitialized() override;
+    ShutdownFlag aboutToShutdown() override;
 
     static ValgrindGlobalSettings *globalSettings();
 };

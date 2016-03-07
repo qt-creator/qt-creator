@@ -425,10 +425,16 @@ public:
     Snapshot simplified(Document::Ptr doc) const;
 
     Document::Ptr preprocessedDocument(const QByteArray &source,
-                                       const Utils::FileName &fileName) const;
+                                       const Utils::FileName &fileName,
+                                       int withDefinedMacrosFromDocumentUntilLine = -1) const;
     Document::Ptr preprocessedDocument(const QByteArray &source,
-                                       const QString &fileName) const
-    { return preprocessedDocument(source, Utils::FileName::fromString(fileName)); }
+                                       const QString &fileName,
+                                       int withDefinedMacrosFromDocumentUntilLine = -1) const
+    {
+        return preprocessedDocument(source,
+                                    Utils::FileName::fromString(fileName),
+                                    withDefinedMacrosFromDocumentUntilLine);
+    }
 
     Document::Ptr documentFromSource(const QByteArray &preprocessedDocument,
                                      const QString &fileName) const;

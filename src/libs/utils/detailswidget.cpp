@@ -146,7 +146,7 @@ QPixmap DetailsWidget::createBackground(const QSize &size, int topHeight, QWidge
     else
         p.fillRect(fullRect, creatorTheme()->color(Theme::DetailsWidgetBackgroundColor));
 
-    if (creatorTheme()->widgetStyle () == Theme::StyleDefault) {
+    if (!creatorTheme()->flag(Theme::FlatProjectsMode)) {
         QLinearGradient lg(topRect.topLeft(), topRect.bottomLeft());
         lg.setStops(creatorTheme()->gradient(Theme::DetailsWidgetHeaderGradient));
         p.fillRect(topRect, lg);

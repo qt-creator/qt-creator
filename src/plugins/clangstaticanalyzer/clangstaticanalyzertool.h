@@ -26,13 +26,10 @@
 #ifndef CLANGSTATICANALYZERTOOL_H
 #define CLANGSTATICANALYZERTOOL_H
 
-#include <debugger/analyzer/ianalyzertool.h>
+#include <debugger/analyzer/analyzermanager.h>
 #include <cpptools/projectinfo.h>
 
 #include <QHash>
-
-namespace Analyzer { class DetailedErrorView; }
-namespace ProjectExplorer { class Target; }
 
 namespace ClangStaticAnalyzer {
 namespace Internal {
@@ -41,9 +38,10 @@ class ClangStaticAnalyzerDiagnosticFilterModel;
 class ClangStaticAnalyzerDiagnosticModel;
 class ClangStaticAnalyzerDiagnosticView;
 class Diagnostic;
-class DummyRunConfiguration;
 
-const char ClangStaticAnalyzerToolId[] = "ClangStaticAnalyzer";
+const char ClangStaticAnalyzerPerspectiveId[] = "ClangStaticAnalyzer.Perspective";
+const char ClangStaticAnalyzerActionId[]      = "ClangStaticAnalyzer.Action";
+const char ClangStaticAnalyzerDockId[]        = "ClangStaticAnalyzer.Dock";
 
 class ClangStaticAnalyzerTool : public QObject
 {

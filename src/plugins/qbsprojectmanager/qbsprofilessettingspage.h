@@ -43,6 +43,7 @@ private:
     void finish() override;
 
     QbsProfilesSettingsWidget *m_widget;
+    bool m_useQtcSettingsDirPersistent;
 };
 
 } // namespace Internal

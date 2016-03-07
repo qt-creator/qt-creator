@@ -56,7 +56,6 @@ public:
 
     QUrl source() const;
     void setSource(const QUrl &url);
-    void scrollToAnchor(const QString &anchor);
     void highlightId(const QString &id);
 
     void setHtml(const QString &html);

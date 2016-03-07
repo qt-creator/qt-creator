@@ -276,7 +276,7 @@ void CMakeCbpParser::parseBuildTargetOption()
             const QLatin1String searchSource("SET(CMAKE_RELATIVE_PATH_TOP_SOURCE \"");
             while (!stream.atEnd()) {
                 const QString lineTopSource = stream.readLine().trimmed();
-                if (lineTopSource.startsWith(searchSource)) {
+                if (lineTopSource.startsWith(searchSource, Qt::CaseInsensitive)) {
                     m_buildTarget.sourceDirectory = lineTopSource.mid(searchSource.size());
                     m_buildTarget.sourceDirectory.chop(2); // cut off ")
                     break;

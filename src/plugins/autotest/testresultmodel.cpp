@@ -23,6 +23,7 @@
 **
 ****************************************************************************/
 
+#include "testresultdelegate.h"
 #include "testresultmodel.h"
 
 #include <QFontMetrics>
@@ -74,10 +75,15 @@ static QIcon testResultIcon(Result::Type result) {
 
 QVariant TestResultItem::data(int column, int role) const
 {
-    if (role == Qt::DecorationRole)
+    switch (role) {
+    case Qt::DecorationRole:
         return m_testResult ? testResultIcon(m_testResult->result()) : QVariant();
-
-    return Utils::TreeItem::data(column, role);
+    case Qt::DisplayRole:
+        return m_testResult ? TestResultDelegate::outputString(*m_testResult.data(), true)
+                            : QVariant();
+    default:
+        return Utils::TreeItem::data(column, role);
+    }
 }
 
 void TestResultItem::updateDescription(const QString &description)
@@ -131,8 +137,8 @@ QVariant TestResultModel::data(const QModelIndex &idx, int role) const
     if (!idx.isValid())
         return QVariant();
 
-    if (role == Qt::DecorationRole)
-        return itemForIndex(idx)->data(0, Qt::DecorationRole);
+    if (role == Qt::DecorationRole || role == Qt::DisplayRole)
+        return itemForIndex(idx)->data(0, role);
 
     return QVariant();
 }

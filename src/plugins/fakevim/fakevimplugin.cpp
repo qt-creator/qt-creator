@@ -1025,7 +1025,7 @@ class FakeVimPluginPrivate : public QObject
 
 public:
     FakeVimPluginPrivate(FakeVimPlugin *);
-    ~FakeVimPluginPrivate();
+
     friend class FakeVimPlugin;
     friend class FakeVimExCommandsWidget;
     friend class FakeVimUserCommandsPage;
@@ -1169,11 +1169,6 @@ FakeVimPluginPrivate::FakeVimPluginPrivate(FakeVimPlugin *plugin)
     }
 
     m_statusBar = 0;
-}
-
-FakeVimPluginPrivate::~FakeVimPluginPrivate()
-{
-    theFakeVimSettings()->deleteLater();
 }
 
 void FakeVimPluginPrivate::onCoreAboutToClose()

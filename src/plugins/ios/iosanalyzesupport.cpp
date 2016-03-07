@@ -34,7 +34,6 @@
 #include <debugger/debuggerruncontrol.h>
 #include <debugger/debuggerstartparameters.h>
 #include <debugger/debuggerrunconfigurationaspect.h>
-#include <debugger/analyzer/ianalyzertool.h>
 #include <debugger/analyzer/analyzermanager.h>
 #include <debugger/analyzer/analyzerruncontrol.h>
 #include <projectexplorer/toolchain.h>

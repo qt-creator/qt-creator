@@ -637,6 +637,10 @@ void Project::setProjectLanguage(Core::Id id, bool enabled)
         removeProjectLanguage(id);
 }
 
+void Project::projectLoaded()
+{
+}
+
 Core::Context Project::projectContext() const
 {
     return d->m_projectContext;

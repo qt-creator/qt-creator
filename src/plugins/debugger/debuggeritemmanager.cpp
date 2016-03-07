@@ -256,8 +256,12 @@ void DebuggerItemManager::autoDetectGdbOrLldbDebuggers()
     }
 
     foreach (const FileName &command, suspects) {
-        if (findByCommand(command))
+        DebuggerItem *existingItem = findByCommand(command);
+        if (existingItem) {
+            if (command.toFileInfo().lastModified() != existingItem->lastModified())
+                existingItem->reinitializeFromFile();
             continue;
+        }
         DebuggerItem item;
         item.createId();
         item.setCommand(command);
@@ -309,9 +313,9 @@ void DebuggerItemManager::readLegacyDebuggers(const FileName &file)
     }
 }
 
-const DebuggerItem *DebuggerItemManager::findByCommand(const FileName &command)
+DebuggerItem *DebuggerItemManager::findByCommand(const FileName &command)
 {
-    foreach (const DebuggerItem &item, m_debuggers)
+    for (auto &item: m_debuggers)
         if (item.command() == command)
             return &item;
 

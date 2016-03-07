@@ -27,16 +27,63 @@
 #define DEBUGGERMAINWINDOW_H
 
 #include "debugger_global.h"
-#include "debuggerconstants.h"
+#include "analyzer/analyzerbase_global.h"
+
+#include <coreplugin/id.h>
 
 #include <utils/fancymainwindow.h>
+#include <utils/statuslabel.h>
 
-namespace Core { class IMode; }
+#include <QPointer>
+#include <QSet>
+
+#include <functional>
+#include <initializer_list>
+
+QT_BEGIN_NAMESPACE
+class QComboBox;
+class QStackedWidget;
+QT_END_NAMESPACE
+
+namespace Analyzer {
+
+class ANALYZER_EXPORT Perspective
+{
+public:
+    enum OperationType { SplitVertical, SplitHorizontal, AddToTab, Raise };
+
+    class ANALYZER_EXPORT Operation
+    {
+    public:
+        Operation() = default;
+        Operation(Core::Id dockId, Core::Id existing, OperationType operationType,
+              bool visibleByDefault = true,
+              Qt::DockWidgetArea area = Qt::BottomDockWidgetArea);
+
+        Core::Id dockId;
+        Core::Id existing;
+        OperationType operationType;
+        bool visibleByDefault;
+        Qt::DockWidgetArea area;
+    };
+
+    Perspective() = default;
+    Perspective(std::initializer_list<Operation> operations);
+
+    void addOperation(const Operation &operation);
+
+    QVector<Operation> operations() const { return m_operations; }
+    QVector<Core::Id> docks() const { return m_docks; }
+
+private:
+    QVector<Core::Id> m_docks;
+    QVector<Operation> m_operations;
+};
+
+} // Analyzer
 
 namespace Debugger {
 namespace Internal {
-
-class DebuggerMainWindowPrivate;
 
 // DebuggerMainWindow dock widget names
 const char DOCKWIDGET_BREAK[]         = "Debugger.Docks.Break";
@@ -48,44 +95,56 @@ const char DOCKWIDGET_STACK[]         = "Debugger.Docks.Stack";
 const char DOCKWIDGET_SOURCE_FILES[]  = "Debugger.Docks.SourceFiles";
 const char DOCKWIDGET_THREADS[]       = "Debugger.Docks.Threads";
 const char DOCKWIDGET_WATCHERS[]      = "Debugger.Docks.LocalsAndWatchers";
-const char DOCKWIDGET_QML_INSPECTOR[] = "Debugger.Docks.QmlInspector";
-const char DOCKWIDGET_DEFAULT_AREA[]  = "Debugger.Docks.DefaultArea";
-} // namespace Internal
 
-class DEBUGGER_EXPORT DebuggerMainWindow : public Utils::FancyMainWindow
+const char CppPerspectiveId[]         = "Debugger.Perspective.Cpp";
+const char QmlPerspectiveId[]         = "Debugger.Perspective.Qml";
+
+class MainWindowBase : public Utils::FancyMainWindow
 {
     Q_OBJECT
 
 public:
-    DebuggerMainWindow();
-    ~DebuggerMainWindow();
+    MainWindowBase();
+    ~MainWindowBase() override;
 
-    // Debugger toolbars are registered with this function.
-    void setToolBar(DebuggerLanguage language, QWidget *widget);
+    QComboBox *toolBox() const { return m_toolBox; }
+    QStackedWidget *controlsStack() const { return m_controlsStackWidget; }
+    Utils::StatusLabel *statusLabel() const { return m_statusLabel; }
 
-    // Active languages to be debugged.
-    DebuggerLanguages activeDebugLanguages() const;
-    void setEngineDebugLanguages(DebuggerLanguages languages);
+    void registerPerspective(Core::Id perspectiveId, const Analyzer::Perspective &perspective);
+    void registerToolbar(Core::Id perspectiveId, QWidget *widget);
+    QDockWidget *registerDockWidget(Core::Id dockId, QWidget *widget);
 
-    // Called when all dependent plugins have loaded.
-    void initialize();
+    void saveCurrentPerspective();
+    void closeCurrentPerspective();
+    void resetCurrentPerspective();
+    void restorePerspective(Core::Id perspectiveId);
 
-    void onModeChanged(Core::IMode *mode);
+    void showStatusMessage(const QString &message, int timeoutMS);
 
-    // Dockwidgets are registered to the main window.
-    QDockWidget *createDockWidget(const DebuggerLanguage &language, QWidget *widget);
-    void addStagedMenuEntries();
+    QString lastSettingsName() const;
+    void setLastSettingsName(const QString &lastSettingsName);
 
-    QWidget *createContents(Core::IMode *mode);
-
-    void readSettings();
-    void writeSettings() const;
+    Core::Id currentPerspectiveId() const;
 
 private:
-    friend class Internal::DebuggerMainWindowPrivate;
-    Internal::DebuggerMainWindowPrivate *d;
+    void loadPerspectiveHelper(Core::Id perspectiveId, bool fromStoredSettings = true);
+
+    Core::Id m_currentPerspectiveId;
+    QString m_lastSettingsName;
+    QComboBox *m_toolBox;
+    QStackedWidget *m_controlsStackWidget;
+    Utils::StatusLabel *m_statusLabel;
+    QHash<Core::Id, QDockWidget *> m_dockForDockId;
+    QHash<Core::Id, QWidget *> m_toolbarForPerspectiveId;
+    QHash<Core::Id, Analyzer::Perspective> m_perspectiveForPerspectiveId;
+
+    // list of dock widgets to prevent memory leak
+    typedef QPointer<QDockWidget> DockPtr;
+    QList<DockPtr> m_dockWidgets;
 };
 
+} // namespace Internal
 } // namespace Debugger
 
 #endif // DEBUGGERMAINWINDOW_H

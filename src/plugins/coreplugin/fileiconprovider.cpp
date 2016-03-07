@@ -150,16 +150,25 @@ QIcon icon(QFileIconProvider::IconType type)
 }
 
 /*!
+  Creates a pixmap with baseicon and overlays overlayIcon over it.
+  See platform note in class documentation about recommended usage.
+  */
+QPixmap overlayIcon(const QPixmap &baseIcon, const QIcon &overlayIcon)
+{
+    QPixmap iconPixmap = baseIcon;
+    QPainter painter(&iconPixmap);
+    painter.drawPixmap(0, 0, overlayIcon.pixmap(baseIcon.size()));
+    painter.end();
+    return iconPixmap;
+}
+
+/*!
   Creates a pixmap with baseicon at size and overlays overlayIcon over it.
   See platform note in class documentation about recommended usage.
   */
-QPixmap overlayIcon(QStyle::StandardPixmap baseIcon, const QIcon &overlayIcon, const QSize &size)
+QPixmap overlayIcon(QStyle::StandardPixmap baseIcon, const QIcon &overlay, const QSize &size)
 {
-    QPixmap iconPixmap = qApp->style()->standardIcon(baseIcon).pixmap(size);
-    QPainter painter(&iconPixmap);
-    painter.drawPixmap(0, 0, overlayIcon.pixmap(size));
-    painter.end();
-    return iconPixmap;
+    return overlayIcon(qApp->style()->standardIcon(baseIcon).pixmap(size), overlay);
 }
 
 /*!

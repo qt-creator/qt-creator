@@ -536,11 +536,7 @@ void LldbEngine::selectThread(ThreadId threadId)
     DebuggerCommand cmd("selectThread");
     cmd.arg("id", threadId.raw());
     cmd.callback = [this](const DebuggerResponse &) {
-        DebuggerCommand cmd("fetchStack");
-        cmd.arg("nativemixed", isNativeMixedActive());
-        cmd.arg("stacklimit", action(MaximalStackDepth)->value().toInt());
-        runCommand(cmd);
-        updateLocals();
+        fetchStack(action(MaximalStackDepth)->value().toInt());
     };
     runCommand(cmd);
 }

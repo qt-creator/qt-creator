@@ -757,8 +757,23 @@ void Snapshot::insert(Document::Ptr doc)
     }
 }
 
+static QList<Macro> macrosDefinedUntilLine(const QList<Macro> &macros, int line)
+{
+    QList<Macro> filtered;
+
+    foreach (const Macro &macro, macros) {
+        if (macro.line() <= unsigned(line))
+            filtered.append(macro);
+        else
+            break;
+    }
+
+    return filtered;
+}
+
 Document::Ptr Snapshot::preprocessedDocument(const QByteArray &source,
-                                             const Utils::FileName &fileName) const
+                                             const Utils::FileName &fileName,
+                                             int withDefinedMacrosFromDocumentUntilLine) const
 {
     Document::Ptr newDoc = Document::create(fileName.toString());
     if (Document::Ptr thisDocument = document(fileName)) {
@@ -768,10 +783,15 @@ Document::Ptr Snapshot::preprocessedDocument(const QByteArray &source,
         newDoc->_resolvedIncludes = thisDocument->_resolvedIncludes;
         newDoc->_unresolvedIncludes = thisDocument->_unresolvedIncludes;
         newDoc->setLanguageFeatures(thisDocument->languageFeatures());
+        if (withDefinedMacrosFromDocumentUntilLine != -1) {
+            newDoc->_definedMacros = macrosDefinedUntilLine(thisDocument->_definedMacros,
+                                                            withDefinedMacrosFromDocumentUntilLine);
+        }
     }
 
     FastPreprocessor pp(*this);
-    const QByteArray preprocessedCode = pp.run(newDoc, source);
+    const bool mergeDefinedMacrosOfDocument = !newDoc->_definedMacros.isEmpty();
+    const QByteArray preprocessedCode = pp.run(newDoc, source, mergeDefinedMacrosOfDocument);
     newDoc->setUtf8Source(preprocessedCode);
     return newDoc;
 }

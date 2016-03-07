@@ -43,7 +43,7 @@ class CallModel : public QAbstractItemModel
 {
     Q_OBJECT
 public:
-    explicit CallModel(QObject *parent);
+    CallModel();
     virtual ~CallModel();
 
     void clear();

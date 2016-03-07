@@ -38,7 +38,9 @@ FastPreprocessor::FastPreprocessor(const Snapshot &snapshot)
     , _addIncludesToCurrentDoc(false)
 { }
 
-QByteArray FastPreprocessor::run(Document::Ptr newDoc, const QByteArray &source)
+QByteArray FastPreprocessor::run(Document::Ptr newDoc,
+                                 const QByteArray &source,
+                                 bool mergeDefinedMacrosOfDocument)
 {
     std::swap(newDoc, _currentDoc);
     _addIncludesToCurrentDoc = _currentDoc->resolvedIncludes().isEmpty()
@@ -57,6 +59,9 @@ QByteArray FastPreprocessor::run(Document::Ptr newDoc, const QByteArray &source)
 
         foreach (const Document::Include &i, doc->resolvedIncludes())
             mergeEnvironment(i.resolvedFileName());
+
+        if (mergeDefinedMacrosOfDocument)
+            _env.addMacros(_currentDoc->definedMacros());
     }
 
     const QByteArray preprocessed = _preproc.run(fileName, source);

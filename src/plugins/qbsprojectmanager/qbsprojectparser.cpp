@@ -49,6 +49,7 @@ namespace Internal {
 
 QbsProjectParser::QbsProjectParser(QbsProject *project, QFutureInterface<bool> *fi) :
     m_qbsSetupProjectJob(0),
+    m_ruleExecutionJob(0),
     m_fi(fi),
     m_currentProgressBase(0)
 {
@@ -63,6 +64,12 @@ QbsProjectParser::~QbsProjectParser()
         m_qbsSetupProjectJob->cancel();
         m_qbsSetupProjectJob->deleteLater();
         m_qbsSetupProjectJob = 0;
+    }
+    if (m_ruleExecutionJob) {
+        m_ruleExecutionJob->disconnect(this);
+        m_ruleExecutionJob->cancel();
+        m_ruleExecutionJob->deleteLater();
+        m_ruleExecutionJob = 0;
     }
     m_fi = 0; // we do not own m_fi, do not delete
 }
@@ -81,7 +88,7 @@ void QbsProjectParser::parse(const QVariantMap &config, const Environment &env, 
     params.setTopLevelProfile(profileName);
     specialKey = QLatin1String(Constants::QBS_CONFIG_VARIANT_KEY);
     params.setBuildVariant(userConfig.take(specialKey).toString());
-    params.setSettingsDirectory(QbsManager::settings()->baseDirectoy());
+    params.setSettingsDirectory(QbsManager::settings()->baseDirectory());
     params.setOverriddenValues(userConfig);
 
     // Some people don't like it when files are created as a side effect of opening a project,
@@ -110,7 +117,10 @@ void QbsProjectParser::parse(const QVariantMap &config, const Environment &env, 
 void QbsProjectParser::cancel()
 {
     QTC_ASSERT(m_qbsSetupProjectJob, return);
-    m_qbsSetupProjectJob->cancel();
+    if (m_ruleExecutionJob)
+        m_ruleExecutionJob->cancel();
+    else
+        m_qbsSetupProjectJob->cancel();
 }
 
 qbs::Project QbsProjectParser::qbsProject() const
@@ -133,7 +143,33 @@ void QbsProjectParser::handleQbsParsingDone(bool success)
     // Do not report the operation as canceled here, as we might want to make overlapping
     // parses appear atomic to the user.
 
-    emit done(success);
+    if (!success)
+        emit done(false);
+    else
+        startRuleExecution();
+}
+
+void QbsProjectParser::startRuleExecution()
+{
+    qbs::BuildOptions options;
+    options.setExecuteRulesOnly(true);
+    m_ruleExecutionJob = m_project.buildAllProducts(
+                options, qbs::Project::ProductSelectionWithNonDefault, this);
+    connect(m_ruleExecutionJob, &qbs::AbstractJob::finished,
+            this, &QbsProjectParser::handleRuleExecutionDone);
+    connect(m_ruleExecutionJob, &qbs::AbstractJob::taskStarted,
+            this, &QbsProjectParser::handleQbsParsingTaskSetup);
+    connect(m_ruleExecutionJob, &qbs::AbstractJob::taskProgress,
+            this, &QbsProjectParser::handleQbsParsingProgress);
+}
+
+void QbsProjectParser::handleRuleExecutionDone()
+{
+    QTC_ASSERT(m_ruleExecutionJob, return);
+    // We always report success here, since execution of some very dynamic rules might fail due
+    // to artifacts not being present. No genuine errors will get lost, as they will re-appear
+    // on the next build attempt.
+    emit done(true);
 }
 
 void QbsProjectParser::handleQbsParsingProgress(int progress)

@@ -1,7 +1,6 @@
 /****************************************************************************
 **
 ** Copyright (C) 2016 The Qt Company Ltd.
-** Author: Nicolas Arnaud-Cormos, KDAB (nicolas.arnaud-cormos@kdab.com)
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -24,25 +23,38 @@
 **
 ****************************************************************************/
 
-#ifndef MEMCHECKTOOL_H
-#define MEMCHECKTOOL_H
+#ifndef QBSPROJECTMANAGERSETTINGS_H
+#define QBSPROJECTMANAGERSETTINGS_H
 
 #include <QObject>
 
-namespace Valgrind {
-
-const char MEMCHECK_RUN_MODE[] = "MemcheckTool.MemcheckRunMode";
-const char MEMCHECK_WITH_GDB_RUN_MODE[] = "MemcheckTool.MemcheckWithGdbRunMode";
-
-const char MemcheckPerspectiveId[] = "Memcheck.Perspective";
-const char MemcheckErrorDockId[] = "Memcheck.Dock.Error";
-
+namespace QbsProjectManager {
 namespace Internal {
 
-void initMemcheckTool(QObject *parent);
-void destroyMemcheckTool();
+class QbsProjectManagerSettings : public QObject
+{
+    Q_OBJECT
+public:
+    static QbsProjectManagerSettings &instance();
+
+    static void setUseCreatorSettingsDirForQbs(bool useCreatorDir);
+    static bool useCreatorSettingsDirForQbs();
+    static QString qbsSettingsBaseDir();
+    static void writeSettings() { instance().doWriteSettings(); }
+
+signals:
+    void settingsBaseChanged();
+
+private:
+    QbsProjectManagerSettings();
+
+    void readSettings();
+    void doWriteSettings();
+
+    bool m_useCreatorSettings;
+};
 
 } // namespace Internal
-} // namespace Valgrind
+} // namespace QbsProjectManager
 
-#endif // MEMCHECKTOOL_H
+#endif // Include guard.

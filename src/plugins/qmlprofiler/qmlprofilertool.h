@@ -30,7 +30,7 @@
 #include "qmlprofilerconstants.h"
 #include "qmldebug/qmlprofilereventtypes.h"
 
-#include <debugger/analyzer/ianalyzertool.h>
+#include <debugger/analyzer/analyzermanager.h>
 #include <debugger/analyzer/analyzerruncontrol.h>
 
 QT_BEGIN_NAMESPACE
@@ -54,7 +54,6 @@ public:
     Analyzer::AnalyzerRunControl *createRunControl(ProjectExplorer::RunConfiguration *runConfiguration = 0);
     void finalizeRunControl(QmlProfilerRunControl *runControl);
 
-    QWidget *createWidgets();
     bool prepareTool();
     void startRemoteTool(ProjectExplorer::RunConfiguration *rc);
 

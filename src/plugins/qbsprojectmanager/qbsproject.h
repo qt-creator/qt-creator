@@ -67,6 +67,7 @@ public:
     QbsRootProjectNode *rootProjectNode() const override;
 
     QStringList files(FilesMode fileMode) const override;
+    QStringList filesGeneratedFrom(const QString &sourceFile) const override;
 
     bool isProjectEditable() const;
     bool addFilesToProduct(QbsBaseProjectNode *node, const QStringList &filePaths,
@@ -135,6 +136,7 @@ private:
     void updateApplicationTargets();
     void updateDeploymentInfo();
     void updateBuildTargetData();
+    void projectLoaded() override;
 
     static bool ensureWriteableQbsFile(const QString &file);
 
@@ -164,6 +166,7 @@ private:
 
     QTimer m_parsingDelay;
     QList<ProjectExplorer::ExtraCompiler *> m_extraCompilers;
+    bool m_extraCompilersPending;
 };
 
 } // namespace Internal

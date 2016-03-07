@@ -140,7 +140,7 @@ QRectF FormEditorGraphicsView::rootItemRect() const
 
 void FormEditorGraphicsView::activateCheckboardBackground()
 {
-    const int checkerbordSize= 20;
+    const int checkerbordSize = 20;
     QPixmap tilePixmap(checkerbordSize * 2, checkerbordSize * 2);
     tilePixmap.fill(Qt::white);
     QPainter tilePainter(&tilePixmap);

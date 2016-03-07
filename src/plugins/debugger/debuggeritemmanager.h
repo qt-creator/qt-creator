@@ -55,7 +55,7 @@ public:
     static QVariant registerDebugger(const DebuggerItem &item);
     static void deregisterDebugger(const QVariant &id);
 
-    static const DebuggerItem *findByCommand(const Utils::FileName &command);
+    static DebuggerItem *findByCommand(const Utils::FileName &command);
     static const DebuggerItem *findById(const QVariant &id);
     static const DebuggerItem *findByEngineType(DebuggerEngineType engineType);
 

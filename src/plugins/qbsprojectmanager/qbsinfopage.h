@@ -1,7 +1,6 @@
 /****************************************************************************
 **
 ** Copyright (C) 2016 The Qt Company Ltd.
-** Author: Nicolas Arnaud-Cormos, KDAB (nicolas.arnaud-cormos@kdab.com)
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -24,25 +23,26 @@
 **
 ****************************************************************************/
 
-#ifndef MEMCHECKTOOL_H
-#define MEMCHECKTOOL_H
+#pragma once
 
-#include <QObject>
+#include <coreplugin/dialogs/ioptionspage.h>
 
-namespace Valgrind {
-
-const char MEMCHECK_RUN_MODE[] = "MemcheckTool.MemcheckRunMode";
-const char MEMCHECK_WITH_GDB_RUN_MODE[] = "MemcheckTool.MemcheckWithGdbRunMode";
-
-const char MemcheckPerspectiveId[] = "Memcheck.Perspective";
-const char MemcheckErrorDockId[] = "Memcheck.Dock.Error";
-
+namespace QbsProjectManager {
 namespace Internal {
+class QbsInfoWidget;
 
-void initMemcheckTool(QObject *parent);
-void destroyMemcheckTool();
+class QbsInfoPage : public Core::IOptionsPage
+{
+public:
+    QbsInfoPage(QObject *parent = nullptr);
+
+private:
+    QWidget *widget() override;
+    void apply() override { };
+    void finish() override;
+
+    QbsInfoWidget *m_widget;
+};
 
 } // namespace Internal
-} // namespace Valgrind
-
-#endif // MEMCHECKTOOL_H
+} // namespace QbsProjectManager

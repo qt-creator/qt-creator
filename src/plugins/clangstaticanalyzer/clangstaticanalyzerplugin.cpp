@@ -126,7 +126,8 @@ bool ClangStaticAnalyzerPlugin::initialize(const QStringList &arguments, QString
     addAutoReleasedObject(new ClangStaticAnalyzerRunControlFactory(m_analyzerTool));
     addAutoReleasedObject(new ClangStaticAnalyzerOptionsPage);
 
-    auto widgetCreator = [tool] { return tool->createWidgets(); };
+    AnalyzerManager::registerToolbar(ClangStaticAnalyzerPerspectiveId, tool->createWidgets());
+
     auto runControlCreator = [tool](ProjectExplorer::RunConfiguration *runConfiguration,
                                     Core::Id runMode) {
         return tool->createRunControl(runConfiguration, runMode);
@@ -135,20 +136,21 @@ bool ClangStaticAnalyzerPlugin::initialize(const QStringList &arguments, QString
     const QString toolTip = tr("Clang Static Analyzer uses the analyzer from the clang project "
                                "to find bugs.");
 
-    auto action = new AnalyzerAction(this);
-    action->setRunMode(Constants::CLANGSTATICANALYZER_RUN_MODE);
-    action->setToolId(ClangStaticAnalyzerToolId);
-    action->setActionId("ClangStaticAnalyzer");
-    action->setWidgetCreator(widgetCreator);
-    action->setRunControlCreator(runControlCreator);
-    action->setCustomToolStarter([tool](ProjectExplorer::RunConfiguration *rc) {
+    AnalyzerManager::registerPerspective(ClangStaticAnalyzerPerspectiveId, {
+        { ClangStaticAnalyzerDockId, Core::Id(), Perspective::SplitVertical }
+    });
+
+    ActionDescription desc;
+    desc.setText(tr("Clang Static Analyzer"));
+    desc.setToolTip(toolTip);
+    desc.setRunMode(Constants::CLANGSTATICANALYZER_RUN_MODE);
+    desc.setPerspectiveId(ClangStaticAnalyzerPerspectiveId);
+    desc.setRunControlCreator(runControlCreator);
+    desc.setCustomToolStarter([tool](ProjectExplorer::RunConfiguration *rc) {
         tool->startTool(rc);
     });
-    action->setText(tr("Clang Static Analyzer"));
-    action->setToolTip(toolTip);
-    action->setMenuGroup(Analyzer::Constants::G_ANALYZER_TOOLS);
-    action->setEnabled(false);
-    AnalyzerManager::addAction(action);
+    desc.setMenuGroup(Analyzer::Constants::G_ANALYZER_TOOLS);
+    AnalyzerManager::registerAction(ClangStaticAnalyzerActionId, desc);
 
     return true;
 }

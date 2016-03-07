@@ -31,7 +31,6 @@ ComboBoxTextColor=text
 DetailsButtonBackgroundColorHover=hoverBackground
 DetailsWidgetBackgroundColor=ff4a4a4a
 DockWidgetResizeHandleColor=shadowBackground
-DoubleTabWidget1stEmptyAreaBackgroundColor=normalBackground
 DoubleTabWidget1stSeparatorColor=hoverBackground
 DoubleTabWidget1stTabActiveTextColor=text
 DoubleTabWidget1stTabBackgroundColor=ff4a4a4a
@@ -41,6 +40,7 @@ DoubleTabWidget2ndTabActiveTextColor=text
 DoubleTabWidget2ndTabBackgroundColor=ff434343
 DoubleTabWidget2ndTabInactiveTextColor=textDisabled
 EditorPlaceholderColor=normalBackground
+FancyToolBarSeparatorColor=43ffffff
 FancyTabBarBackgroundColor=shadowBackground
 FancyTabWidgetDisabledSelectedTextColor=textDisabled
 FancyTabWidgetDisabledUnselectedTextColor=textDisabled
@@ -173,6 +173,7 @@ DrawSearchResultWidgetFrame=false
 DrawTargetSelectorBottom=false
 ApplyThemePaletteGlobally=true
 FlatSideBarIcons=true
+FlatProjectsMode=true
 
 [Gradients]
 DetailsWidgetHeaderGradient\1\color=0

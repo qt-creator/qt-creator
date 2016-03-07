@@ -542,24 +542,10 @@ void ManhattanStyle::drawPrimitive(PrimitiveElement element, const QStyleOption 
 
     case PE_IndicatorToolBarSeparator:
         {
-            QColor separatorColor = StyleHelper::borderColor();
-            separatorColor.setAlpha(100);
-            painter->setPen(separatorColor);
-            const int margin = 6;
-            if (option->state & State_Horizontal) {
-                const int offset = rect.width()/2;
-                painter->drawLine(rect.bottomLeft().x() + offset,
-                            rect.bottomLeft().y() - margin,
-                            rect.topLeft().x() + offset,
-                            rect.topLeft().y() + margin);
-            } else { //Draw vertical separator
-                const int offset = rect.height()/2;
-                painter->setPen(QPen(option->palette.background().color().darker(110)));
-                painter->drawLine(rect.topLeft().x() + margin ,
-                            rect.topLeft().y() + offset,
-                            rect.topRight().x() - margin,
-                            rect.topRight().y() + offset);
-            }
+            QRect separatorRect = rect;
+            separatorRect.setLeft(rect.width() / 2);
+            separatorRect.setWidth(1);
+            drawButtonSeparator(painter, separatorRect, false);
         }
         break;
 
@@ -853,16 +839,18 @@ void ManhattanStyle::drawControl(ControlElement element, const QStyleOption *opt
                 // Note: This is a hack to determine if the
                 // toolbar should draw the top or bottom outline
                 // (needed for the find toolbar for instance)
-                QColor lighter(StyleHelper::sidebarHighlight());
-                if (drawLightColored)
-                    lighter = QColor(255, 255, 255, 180);
+                const QColor hightLight = creatorTheme()->widgetStyle() == Theme::StyleDefault
+                        ? StyleHelper::sidebarHighlight()
+                        : creatorTheme()->color(Theme::FancyToolBarSeparatorColor);
+                const QColor borderColor = drawLightColored
+                        ? QColor(255, 255, 255, 180) : hightLight;
                 if (widget && widget->property("topBorder").toBool()) {
                     painter->drawLine(borderRect.topLeft(), borderRect.topRight());
-                    painter->setPen(lighter);
+                    painter->setPen(borderColor);
                     painter->drawLine(borderRect.topLeft() + QPointF(0, 1), borderRect.topRight() + QPointF(0, 1));
                 } else {
                     painter->drawLine(borderRect.bottomLeft(), borderRect.bottomRight());
-                    painter->setPen(lighter);
+                    painter->setPen(borderColor);
                     painter->drawLine(borderRect.topLeft(), borderRect.topRight());
                 }
             } else {
@@ -1030,20 +1018,27 @@ void ManhattanStyle::drawComplexControl(ComplexControl control, const QStyleOpti
 void ManhattanStyle::drawButtonSeparator(QPainter *painter, const QRect &rect, bool reverse) const
 {
     const QRectF borderRect = QRectF(rect).adjusted(0.5, 0.5, -0.5, -0.5);
-    QLinearGradient grad(rect.topRight(), rect.bottomRight());
-    grad.setColorAt(0, QColor(255, 255, 255, 20));
-    grad.setColorAt(0.4, QColor(255, 255, 255, 60));
-    grad.setColorAt(0.7, QColor(255, 255, 255, 50));
-    grad.setColorAt(1, QColor(255, 255, 255, 40));
-    painter->setPen(QPen(grad, 1));
-    painter->drawLine(borderRect.topRight(), borderRect.bottomRight());
-    grad.setColorAt(0, QColor(0, 0, 0, 30));
-    grad.setColorAt(0.4, QColor(0, 0, 0, 70));
-    grad.setColorAt(0.7, QColor(0, 0, 0, 70));
-    grad.setColorAt(1, QColor(0, 0, 0, 40));
-    painter->setPen(QPen(grad, 1));
-    if (!reverse)
-       painter->drawLine(borderRect.topRight() - QPointF(1, 0), borderRect.bottomRight() - QPointF(1, 0));
-    else
-       painter->drawLine(borderRect.topLeft(), borderRect.bottomLeft());
+    if (creatorTheme()->widgetStyle() == Theme::StyleFlat) {
+        const int margin = 3;
+        painter->setPen(creatorTheme()->color(Theme::FancyToolBarSeparatorColor));
+        painter->drawLine(borderRect.topRight() + QPointF(0, margin),
+                          borderRect.bottomRight() - QPointF(0, margin));
+    } else {
+        QLinearGradient grad(rect.topRight(), rect.bottomRight());
+        grad.setColorAt(0, QColor(255, 255, 255, 20));
+        grad.setColorAt(0.4, QColor(255, 255, 255, 60));
+        grad.setColorAt(0.7, QColor(255, 255, 255, 50));
+        grad.setColorAt(1, QColor(255, 255, 255, 40));
+        painter->setPen(QPen(grad, 1));
+        painter->drawLine(borderRect.topRight(), borderRect.bottomRight());
+        grad.setColorAt(0, QColor(0, 0, 0, 30));
+        grad.setColorAt(0.4, QColor(0, 0, 0, 70));
+        grad.setColorAt(0.7, QColor(0, 0, 0, 70));
+        grad.setColorAt(1, QColor(0, 0, 0, 40));
+        painter->setPen(QPen(grad, 1));
+        if (!reverse)
+           painter->drawLine(borderRect.topRight() - QPointF(1, 0), borderRect.bottomRight() - QPointF(1, 0));
+        else
+           painter->drawLine(borderRect.topLeft(), borderRect.bottomLeft());
+    }
  }

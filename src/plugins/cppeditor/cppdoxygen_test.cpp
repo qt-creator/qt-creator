@@ -281,6 +281,18 @@ void DoxygenTest::testBasic_data()
           "*foo /*\n"
           "       \n"
     );
+
+    QTest::newRow("withMacroFromDocumentBeforeFunction") << _(
+          "#define API\n"
+          "/**|\n"
+          "API void f();\n"
+        ) << _(
+          "#define API\n"
+          "/**\n"
+          " * @brief f\n"
+          " */\n"
+          "API void f();\n"
+    );
 }
 
 void DoxygenTest::testBasic()
@@ -288,6 +300,25 @@ void DoxygenTest::testBasic()
     QFETCH(QByteArray, given);
     QFETCH(QByteArray, expected);
     runTest(given, expected);
+}
+
+void DoxygenTest::testWithMacroFromHeaderBeforeFunction()
+{
+    const QByteArray given =
+        "#include \"header.h\"\n"
+        "/**|\n"
+        "API void f();\n";
+
+    const QByteArray expected =
+        "#include \"header.h\"\n"
+        "/**\n"
+        " * @brief f\n"
+        " */\n"
+        "API void f();\n";
+
+    const TestDocument headerDocumentDefiningMacro("header.h", "#define API\n");
+
+    runTest(given, expected, /*settings=*/ 0, { headerDocumentDefiningMacro });
 }
 
 void DoxygenTest::testNoLeadingAsterisks_data()
@@ -323,8 +354,10 @@ void DoxygenTest::verifyCleanState() const
 }
 
 /// The '|' in the input denotes the cursor position.
-void DoxygenTest::runTest(const QByteArray &original, const QByteArray &expected,
-                              CppTools::CommentsSettings *settings)
+void DoxygenTest::runTest(const QByteArray &original,
+                          const QByteArray &expected,
+                          CppTools::CommentsSettings *settings,
+                          const TestDocuments &includedHeaderDocuments)
 {
     // Write files to disk
     CppTools::Tests::TemporaryDir temporaryDir;
@@ -334,6 +367,10 @@ void DoxygenTest::runTest(const QByteArray &original, const QByteArray &expected
     testDocument.m_source.remove(testDocument.m_cursorPosition, 1);
     testDocument.setBaseDirectory(temporaryDir.path());
     QVERIFY(testDocument.writeToDisk());
+    foreach (TestDocument testDocument, includedHeaderDocuments) {
+        testDocument.setBaseDirectory(temporaryDir.path());
+        QVERIFY(testDocument.writeToDisk());
+    }
 
     // Update Code Model
     QVERIFY(TestCase::parseFiles(testDocument.filePath()));

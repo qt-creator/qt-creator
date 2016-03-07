@@ -26,6 +26,7 @@ HEADERS = \
     qbsbuildstep.h \
     qbscleanstep.h \
     qbsdeployconfigurationfactory.h \
+    qbsinfopage.h \
     qbsinstallstep.h \
     qbslogsink.h \
     qbsnodes.h \
@@ -37,6 +38,7 @@ HEADERS = \
     qbsprojectmanager_global.h \
     qbsprojectmanagerconstants.h \
     qbsprojectmanagerplugin.h \
+    qbsprojectmanagersettings.h \
     qbsprojectparser.h \
     qbsrunconfiguration.h \
     qbsconstants.h
@@ -49,6 +51,7 @@ SOURCES = \
     qbsbuildstep.cpp \
     qbscleanstep.cpp \
     qbsdeployconfigurationfactory.cpp \
+    qbsinfopage.cpp \
     qbsinstallstep.cpp \
     qbslogsink.cpp \
     qbsnodes.cpp \
@@ -58,6 +61,7 @@ SOURCES = \
     qbsprojectfile.cpp \
     qbsprojectmanager.cpp \
     qbsprojectmanagerplugin.cpp \
+    qbsprojectmanagersettings.cpp \
     qbsprojectparser.cpp \
     qbsrunconfiguration.cpp
 
@@ -65,6 +69,7 @@ FORMS = \
     customqbspropertiesdialog.ui \
     qbsbuildstepconfigwidget.ui \
     qbscleanstepconfigwidget.ui \
+    qbsinfowidget.ui \
     qbsinstallstepconfigwidget.ui \
     qbsprofilessettingswidget.ui
 

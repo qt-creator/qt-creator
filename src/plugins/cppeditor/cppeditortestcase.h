@@ -30,6 +30,8 @@
 
 #include <cpptools/cpptoolstestcase.h>
 
+#include <QVector>
+
 namespace CppEditor {
 namespace Internal {
 
@@ -54,6 +56,8 @@ public:
     CppEditor *m_editor;
     CppEditorWidget *m_editorWidget;
 };
+
+using TestDocuments = QVector<TestDocument>;
 
 class TestCase : public CppTools::Tests::TestCase
 {

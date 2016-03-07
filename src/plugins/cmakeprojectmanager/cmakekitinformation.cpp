@@ -36,6 +36,7 @@
 #include <projectexplorer/projectexplorerconstants.h>
 
 #include <utils/algorithm.h>
+#include <utils/environment.h>
 #include <utils/qtcassert.h>
 
 using namespace ProjectExplorer;
@@ -168,12 +169,32 @@ QVariant CMakeGeneratorKitInformation::defaultValue(const Kit *k) const
     QStringList known = tool->supportedGenerators();
     auto it = std::find_if(known.constBegin(), known.constEnd(),
                            [](const QString &s) { return s == QLatin1String("CodeBlocks - Ninja"); });
-    if (it == known.constEnd())
-        it = std::find_if(known.constBegin(), known.constEnd(),
-                          [](const QString &s) { return s == QLatin1String("CodeBlocks - Unix Makefiles"); });
-    if (it == known.constEnd())
-        it = std::find_if(known.constBegin(), known.constEnd(),
-                          [](const QString &s) { return s == QLatin1String("CodeBlocks - NMake Makefiles"); });
+    if (it != known.constEnd()) {
+        Utils::Environment env = Utils::Environment::systemEnvironment();
+        k->addToEnvironment(env);
+        const Utils::FileName ninjaExec = env.searchInPath(QLatin1String("ninja"));
+        if (ninjaExec.isEmpty())
+            it = known.constEnd(); // Ignore ninja generator without ninja exectuable
+    }
+    if (Utils::HostOsInfo::isWindowsHost()) {
+        // *sigh* Windows with its zoo of incompatible stuff again...
+        ToolChain *tc = ToolChainKitInformation::toolChain(k);
+        if (tc && tc->typeId() == ProjectExplorer::Constants::MINGW_TOOLCHAIN_TYPEID) {
+            if (it == known.constEnd())
+                it = std::find_if(known.constBegin(), known.constEnd(),
+                                  [](const QString &s) { return s == QLatin1String("CodeBlocks - MinGW Makefiles"); });
+        } else {
+            if (it == known.constEnd())
+                it = std::find_if(known.constBegin(), known.constEnd(),
+                                  [](const QString &s) { return s == QLatin1String("CodeBlocks - NMake Makefiles"); });
+        }
+
+    } else {
+        // Unix-oid OSes:
+        if (it == known.constEnd())
+            it = std::find_if(known.constBegin(), known.constEnd(),
+                              [](const QString &s) { return s == QLatin1String("CodeBlocks - Unix Makefiles"); });
+    }
     if (it == known.constEnd())
         it = known.constBegin(); // Fallback to the first generator...
     if (it != known.constEnd())

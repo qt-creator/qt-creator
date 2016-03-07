@@ -290,12 +290,9 @@ void FolderNavigationWidget::openItem(const QModelIndex &srcIndex, bool openDire
             return;
         // Try to find project files in directory and open those.
         if (openDirectoryAsProject) {
-            QDir dir(path);
-            QStringList proFiles;
-            foreach (const QFileInfo &i, dir.entryInfoList(ProjectExplorerPlugin::projectFileGlobs(), QDir::Files))
-                proFiles.append(i.absoluteFilePath());
-            if (!proFiles.isEmpty())
-                Core::ICore::instance()->openFiles(proFiles);
+            const QStringList projectFiles = FolderNavigationWidget::projectFilesInDirectory(path);
+            if (!projectFiles.isEmpty())
+                Core::ICore::instance()->openFiles(projectFiles);
             return;
         }
         // Change to directory
@@ -426,6 +423,15 @@ void FolderNavigationWidget::ensureCurrentIndex()
         m_listView->setCurrentIndex(index);
     }
     m_listView->scrollTo(index);
+}
+
+QStringList FolderNavigationWidget::projectFilesInDirectory(const QString &path)
+{
+    QDir dir(path);
+    QStringList projectFiles;
+    foreach (const QFileInfo &i, dir.entryInfoList(ProjectExplorerPlugin::projectFileGlobs(), QDir::Files))
+        projectFiles.append(i.absoluteFilePath());
+    return projectFiles;
 }
 
 // --------------------FolderNavigationWidgetFactory

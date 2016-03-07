@@ -4,7 +4,6 @@ QT += network
 # AnalyzerBase files
 
 SOURCES += \
-    $$PWD/ianalyzertool.cpp \
     $$PWD/analyzerruncontrol.cpp \
     $$PWD/analyzermanager.cpp \
     $$PWD/analyzerrunconfigwidget.cpp \
@@ -14,7 +13,6 @@ SOURCES += \
     $$PWD/startremotedialog.cpp
 
 HEADERS += \
-    $$PWD/ianalyzertool.h \
     $$PWD/analyzerbase_global.h \
     $$PWD/analyzerconstants.h \
     $$PWD/analyzerruncontrol.h \

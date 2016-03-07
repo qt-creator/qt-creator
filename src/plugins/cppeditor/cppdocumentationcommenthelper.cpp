@@ -268,7 +268,8 @@ bool handleDoxygenContinuation(QTextCursor &cursor,
 namespace CppEditor {
 namespace Internal {
 
-bool trySplitComment(TextEditor::TextEditorWidget *editorWidget)
+bool trySplitComment(TextEditor::TextEditorWidget *editorWidget,
+                     const CPlusPlus::Snapshot &snapshot)
 {
     const CommentsSettings &settings = CppToolsSettings::instance()->commentsSettings();
     if (!settings.m_enableDoxygen && !settings.m_leadingAsterisks)
@@ -310,7 +311,9 @@ bool trySplitComment(TextEditor::TextEditorWidget *editorWidget)
             }
 
             if (!cursor.atEnd()) {
-                const QString &comment = doxygen.generate(cursor);
+                const QString &comment = doxygen.generate(cursor,
+                                                          snapshot,
+                                                          editorWidget->textDocument()->filePath());
                 if (!comment.isEmpty()) {
                     cursor.beginEditBlock();
                     cursor.setPosition(pos);

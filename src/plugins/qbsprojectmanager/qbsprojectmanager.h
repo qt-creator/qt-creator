@@ -69,7 +69,7 @@ public:
 
     void updateProfileIfNecessary(const ProjectExplorer::Kit *kit);
 
-    static qbs::Settings *settings() { return m_settings; }
+    static qbs::Settings *settings();
     static Internal::QbsLogSink *logSink() { return m_logSink; }
     static QbsManager *instance() { return m_instance; }
 
@@ -77,6 +77,7 @@ private:
     void addProfile(const QString &name, const QVariantMap &data);
     void addQtProfileFromKit(const QString &profileName, const ProjectExplorer::Kit *k);
     void addProfileFromKit(const ProjectExplorer::Kit *k);
+    void updateAllProfiles();
 
     void handleKitUpdate(ProjectExplorer::Kit *kit);
     void handleKitRemoval(ProjectExplorer::Kit *kit);

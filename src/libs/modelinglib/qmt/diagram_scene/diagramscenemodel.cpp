@@ -59,7 +59,7 @@
 #include <QPdfWriter>
 #include <QFile>
 
-#ifndef QT_NO_SCG
+#ifndef QT_NO_SVG
 #include <QtSvg/QSvgGenerator>
 #endif
 

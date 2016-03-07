@@ -255,7 +255,14 @@ CMakeConfig BuildDirManager::configuration() const
     if (!m_hasData)
         return CMakeConfig();
 
-    return parseConfiguration();
+    Utils::FileName cacheFile = workDirectory();
+    cacheFile.appendPath(QLatin1String("CMakeCache.txt"));
+    QString errorMessage;
+    CMakeConfig result = parseConfiguration(cacheFile, sourceDirectory(), &errorMessage);
+    if (!errorMessage.isEmpty())
+        emit errorOccured(errorMessage);
+
+    return result;
 }
 
 void BuildDirManager::stopProcess()
@@ -517,13 +524,17 @@ static CMakeConfigItem::Type fromByteArray(const QByteArray &type) {
     return CMakeConfigItem::INTERNAL;
 }
 
-CMakeConfig BuildDirManager::parseConfiguration() const
+CMakeConfig BuildDirManager::parseConfiguration(const Utils::FileName &cacheFile,
+                                                const Utils::FileName &sourceDir,
+                                                QString *errorMessage)
 {
     CMakeConfig result;
-    const QString cacheFile = QDir(workDirectory().toString()).absoluteFilePath(QLatin1String("CMakeCache.txt"));
-    QFile cache(cacheFile);
-    if (!cache.open(QIODevice::ReadOnly | QIODevice::Text))
+    QFile cache(cacheFile.toString());
+    if (!cache.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        if (errorMessage)
+            *errorMessage = tr("Failed to open %1 for reading.").arg(cacheFile.toUserOutput());
         return CMakeConfig();
+    }
 
     QSet<QByteArray> advancedSet;
     QByteArray documentation;
@@ -557,9 +568,12 @@ CMakeConfig BuildDirManager::parseConfiguration() const
             // Sanity checks:
             if (key == "CMAKE_HOME_DIRECTORY") {
                 const Utils::FileName actualSourceDir = Utils::FileName::fromUserInput(QString::fromUtf8(value));
-                if (actualSourceDir != sourceDirectory())
-                    emit errorOccured(tr("Build directory contains a build of the wrong project (%1).")
-                                      .arg(actualSourceDir.toUserOutput()));
+                if (actualSourceDir != sourceDir) {
+                    if (errorMessage)
+                        *errorMessage = tr("Build directory contains a build of the wrong project (%1).")
+                            .arg(actualSourceDir.toUserOutput());
+                    return CMakeConfig();
+                }
             }
         }
     }

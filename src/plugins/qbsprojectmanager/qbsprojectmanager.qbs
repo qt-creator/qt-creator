@@ -78,6 +78,9 @@ QtcPlugin {
         "qbsconstants.h",
         "qbsdeployconfigurationfactory.cpp",
         "qbsdeployconfigurationfactory.h",
+        "qbsinfopage.cpp",
+        "qbsinfopage.h",
+        "qbsinfowidget.ui",
         "qbsinstallstep.cpp",
         "qbsinstallstep.h",
         "qbsinstallstepconfigwidget.ui",
@@ -101,10 +104,12 @@ QtcPlugin {
         "qbsprojectmanagerconstants.h",
         "qbsprojectmanagerplugin.cpp",
         "qbsprojectmanagerplugin.h",
+        "qbsprojectmanagersettings.cpp",
+        "qbsprojectmanagersettings.h",
         "qbsprojectparser.cpp",
         "qbsprojectparser.h",
         "qbsrunconfiguration.cpp",
-        "qbsrunconfiguration.h"
+        "qbsrunconfiguration.h",
     ]
 }
 

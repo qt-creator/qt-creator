@@ -29,6 +29,7 @@
 #include "qbsparser.h"
 #include "qbsproject.h"
 #include "qbsprojectmanagerconstants.h"
+#include "qbsprojectmanagersettings.h"
 
 #include "ui_qbsbuildstepconfigwidget.h"
 
@@ -455,6 +456,8 @@ QbsBuildStepConfigWidget::QbsBuildStepConfigWidget(QbsBuildStep *step) :
     connect(m_step, SIGNAL(displayNameChanged()), this, SLOT(updateState()));
     connect(m_step, SIGNAL(qbsConfigurationChanged()), this, SLOT(updateState()));
     connect(m_step, SIGNAL(qbsBuildOptionsChanged()), this, SLOT(updateState()));
+    connect(&QbsProjectManagerSettings::instance(), &QbsProjectManagerSettings::settingsBaseChanged,
+            this, &QbsBuildStepConfigWidget::updateState);
 
     setContentsMargins(0, 0, 0, 0);
 

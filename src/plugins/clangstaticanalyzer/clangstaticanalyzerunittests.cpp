@@ -89,7 +89,7 @@ void ClangStaticAnalyzerUnitTests::testProject()
     CppTools::Tests::ProjectOpenerAndCloser projectManager;
     const CppTools::ProjectInfo projectInfo = projectManager.open(projectFilePath, true);
     QVERIFY(projectInfo.isValid());
-    AnalyzerManager::selectAction(ClangStaticAnalyzerToolId, /* alsoRunIt = */ true);
+    AnalyzerManager::selectAction(ClangStaticAnalyzerPerspectiveId, /* alsoRunIt = */ true);
     QSignalSpy waiter(m_analyzerTool, SIGNAL(finished(bool)));
     QVERIFY(waiter.wait(30000));
     const QList<QVariant> arguments = waiter.takeFirst();

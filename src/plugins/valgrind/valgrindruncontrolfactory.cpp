@@ -31,7 +31,6 @@
 #include "callgrindtool.h"
 #include "memchecktool.h"
 
-#include <debugger/analyzer/ianalyzertool.h>
 #include <debugger/analyzer/analyzermanager.h>
 #include <debugger/analyzer/analyzerrunconfigwidget.h>
 
