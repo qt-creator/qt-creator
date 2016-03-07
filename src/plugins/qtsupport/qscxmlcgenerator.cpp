@@ -114,8 +114,8 @@ void QScxmlcGenerator::run(const QByteArray &sourceContent)
                  << sourceContent.size() << " bytes";
 
     m_process.start(generator, QStringList({
-            QLatin1String("-oh"), m_tmpdir.path() + QLatin1Char('/') + targets()[0].fileName(),
-            QLatin1String("-ocpp"), m_tmpdir.path() + QLatin1Char('/') + targets()[1].fileName(),
+            QLatin1String("--header"), m_tmpdir.path() + QLatin1Char('/') + targets()[0].fileName(),
+            QLatin1String("--impl"), m_tmpdir.path() + QLatin1Char('/') + targets()[1].fileName(),
             input.fileName()}));
 }
 
