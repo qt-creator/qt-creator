@@ -62,6 +62,9 @@ OutputPanePlaceHolder::OutputPanePlaceHolder(IMode *mode, QSplitter* parent)
     layout()->setMargin(0);
     connect(ModeManager::instance(), &ModeManager::currentModeChanged,
             this, &OutputPanePlaceHolder::currentModeChanged);
+    // if this is part of a lazily created mode widget,
+    // we need to check if this is the current placeholder
+    currentModeChanged(ModeManager::currentMode());
 }
 
 OutputPanePlaceHolder::~OutputPanePlaceHolder()
