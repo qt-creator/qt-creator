@@ -563,15 +563,17 @@ IEditor *EditorManagerPrivate::openEditor(EditorView *view, const QString &fileN
     int columnNumber = -1;
     if ((flags & EditorManager::CanContainLineAndColumnNumber) && !fi.exists()) {
         const EditorManager::FilePathInfo fp = EditorManager::splitLineAndColumnNumber(fn);
-        fn = fp.filePath;
+        fn = Utils::FileUtils::normalizePathName(fp.filePath);
         lineNumber = fp.lineNumber;
         columnNumber = fp.columnNumber;
-        if (lineNumber != -1)
-            fi.setFile(fn);
+    } else {
+        fn = Utils::FileUtils::normalizePathName(fn);
     }
 
     if (fn.isEmpty())
         return 0;
+    if (fn != fileName)
+        fi.setFile(fn);
 
     if (newEditor)
         *newEditor = false;
