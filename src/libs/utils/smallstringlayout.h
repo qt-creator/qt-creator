@@ -124,8 +124,6 @@ struct ALIGNAS_16 StringDataLayout {
 #endif
     }
 
-
-
     union {
         AllocatedLayout allocated;
         ReferenceLayout reference;
