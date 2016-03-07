@@ -272,7 +272,8 @@ void QMakeParser::putHashStr(ushort *&pTokPtr, const ushort *buf, uint len)
     *tokPtr++ = (ushort)hash;
     *tokPtr++ = (ushort)(hash >> 16);
     *tokPtr++ = (ushort)len;
-    memcpy(tokPtr, buf, len * 2);
+    if (len) // buf may be nullptr; don't pass that to memcpy (-> undefined behavior)
+        memcpy(tokPtr, buf, len * 2);
     pTokPtr = tokPtr + len;
 }
 
