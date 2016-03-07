@@ -734,24 +734,6 @@ TEST_F(HighlightingMarks, HasFunctionArguments)
     ASSERT_TRUE(infos[1].hasFunctionArguments());
 }
 
-TEST_F(HighlightingMarks, NoOutputFunctionArguments)
-{
-    const auto infos = translationUnit.highlightingMarksInRange(sourceRange(285, 13));
-
-    auto outputFunctionArguments = infos[1].outputFunctionArguments();
-
-    ASSERT_THAT(outputFunctionArguments, IsEmpty());
-}
-
-TEST_F(HighlightingMarks, DISABLED_OneOutputFunctionArguments)
-{
-    const auto infos = translationUnit.highlightingMarksInRange(sourceRange(285, 13));
-
-    auto outputFunctionArguments = infos[1].outputFunctionArguments();
-
-    ASSERT_THAT(outputFunctionArguments, SizeIs(1));
-}
-
 TEST_F(HighlightingMarks, PreprocessorInclusionDirectiveWithAngleBrackets )
 {
     const auto infos = translationUnit.highlightingMarksInRange(sourceRange(289, 38));

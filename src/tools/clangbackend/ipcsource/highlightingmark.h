@@ -54,7 +54,6 @@ public:
     bool hasMixinType(HighlightingType type) const;
     bool hasOnlyType(HighlightingType type) const;
     bool hasFunctionArguments() const;
-    QVector<HighlightingMark> outputFunctionArguments() const;
 
     operator HighlightingMarkContainer() const;
 

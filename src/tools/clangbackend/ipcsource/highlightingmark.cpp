@@ -99,13 +99,6 @@ bool HighlightingMark::hasFunctionArguments() const
     return originalCursor.argumentCount() > 0;
 }
 
-QVector<HighlightingMark> HighlightingMark::outputFunctionArguments() const
-{
-    QVector<HighlightingMark> outputFunctionArguments;
-
-    return outputFunctionArguments;
-}
-
 HighlightingMark::operator HighlightingMarkContainer() const
 {
     return HighlightingMarkContainer(line, column, length, types);
