@@ -48,6 +48,8 @@ TextEditor::TextStyle toTextStyle(ClangBackEnd::HighlightingType type)
             return TextEditor::C_LOCAL;
         case HighlightingType::Field:
             return TextEditor::C_FIELD;
+        case HighlightingType::GlobalVariable:
+            return TextEditor::C_GLOBAL;
         case HighlightingType::Enumeration:
             return TextEditor::C_ENUMERATION;
         case HighlightingType::Label:

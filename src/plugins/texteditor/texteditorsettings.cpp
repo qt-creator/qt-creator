@@ -157,6 +157,7 @@ TextEditorSettings::TextEditorSettings(QObject *parent)
     formatDescr.emplace_back(C_LOCAL, tr("Local"), tr("Local variables."));
     formatDescr.emplace_back(C_FIELD, tr("Field"),
                              tr("Class' data members."), Qt::darkRed);
+    formatDescr.emplace_back(C_GLOBAL, tr("Global"), tr("Global variables."));
     formatDescr.emplace_back(C_ENUMERATION, tr("Enumeration"),
                              tr("Applied to enumeration items."), Qt::darkMagenta);
 

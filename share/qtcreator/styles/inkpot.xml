@@ -20,6 +20,7 @@
   <style name="Doxygen.Tag" foreground="#4e5ab3"/>
   <style name="Field" bold="true"/>
   <style name="Function"/>
+  <style name="Global"/>
   <style name="Keyword" foreground="#808bed"/>
   <style name="PrimitiveType" foreground="#808bed"/>
   <style name="Label" foreground="#e76000"/>
