@@ -2216,7 +2216,7 @@
 
     \code
     QString s;
-    s.loLatin1();
+    s.toLatin1();
     \endcode
 
                 as
