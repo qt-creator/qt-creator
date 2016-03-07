@@ -42,23 +42,6 @@ using namespace ProjectExplorer;
 namespace Valgrind {
 namespace Internal {
 
-ValgrindRunControlFactory::ValgrindRunControlFactory(QObject *parent) :
-    IRunControlFactory(parent)
-{
-}
-
-bool ValgrindRunControlFactory::canRun(RunConfiguration *runConfiguration, Core::Id mode) const
-{
-    Q_UNUSED(runConfiguration);
-    return mode == CALLGRIND_RUN_MODE || mode == MEMCHECK_RUN_MODE || mode == MEMCHECK_WITH_GDB_RUN_MODE;
-}
-
-RunControl *ValgrindRunControlFactory::create(RunConfiguration *runConfiguration, Core::Id mode, QString *errorMessage)
-{
-    Q_UNUSED(errorMessage);
-    return Debugger::createAnalyzerRunControl(runConfiguration, mode);
-}
-
 class ValgrindRunConfigurationAspect : public IRunConfigurationAspect
 {
 public:
@@ -80,7 +63,7 @@ public:
     }
 };
 
-IRunConfigurationAspect *ValgrindRunControlFactory::createRunConfigurationAspect(RunConfiguration *rc)
+IRunConfigurationAspect *createValgrindRunConfigurationAspect(RunConfiguration *rc)
 {
     return new ValgrindRunConfigurationAspect(rc);
 }

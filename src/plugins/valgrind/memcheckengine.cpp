@@ -128,8 +128,8 @@ QStringList MemcheckRunControl::suppressionFiles() const
     return m_settings->suppressionFiles();
 }
 
-MemcheckWithGdbRunControl::MemcheckWithGdbRunControl(RunConfiguration *runConfiguration)
-    : MemcheckRunControl(runConfiguration, MEMCHECK_WITH_GDB_RUN_MODE)
+MemcheckWithGdbRunControl::MemcheckWithGdbRunControl(RunConfiguration *runConfiguration, Core::Id runMode)
+    : MemcheckRunControl(runConfiguration, runMode)
 {
     connect(&m_runner, &Memcheck::MemcheckRunner::started,
             this, &MemcheckWithGdbRunControl::startDebugger);

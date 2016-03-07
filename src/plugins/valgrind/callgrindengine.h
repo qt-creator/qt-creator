@@ -38,7 +38,7 @@ class CallgrindRunControl : public ValgrindRunControl
     Q_OBJECT
 
 public:
-    CallgrindRunControl(ProjectExplorer::RunConfiguration *runConfiguration);
+    CallgrindRunControl(ProjectExplorer::RunConfiguration *runConfiguration, Core::Id runMode);
 
     void start() override;
 

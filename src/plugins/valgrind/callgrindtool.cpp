@@ -41,6 +41,7 @@
 #include <valgrind/callgrind/callgrindproxymodel.h>
 #include <valgrind/callgrind/callgrindstackbrowser.h>
 #include <valgrind/valgrindplugin.h>
+#include <valgrind/valgrindruncontrolfactory.h>
 #include <valgrind/valgrindsettings.h>
 
 #include <debugger/debuggerconstants.h>
@@ -64,6 +65,8 @@
 
 #include <cppeditor/cppeditorconstants.h>
 
+#include <extensionsystem/pluginmanager.h>
+
 #include <texteditor/texteditor.h>
 #include <texteditor/textdocument.h>
 
@@ -73,8 +76,13 @@
 
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/projectexplorericons.h>
 #include <projectexplorer/projecttree.h>
 #include <projectexplorer/session.h>
+
+#include <utils/fancymainwindow.h>
+#include <utils/qtcassert.h>
+#include <utils/styledbar.h>
 
 #include <QAction>
 #include <QActionGroup>
@@ -100,6 +108,16 @@ using namespace Utils;
 namespace Valgrind {
 namespace Internal {
 
+const char CallgrindPerspectiveId[]       = "Callgrind.Perspective";
+const char CallgrindLocalActionId[]       = "Callgrind.Local.Action";
+const char CallgrindRemoteActionId[]      = "Callgrind.Remote.Action";
+const char CallgrindCallersDockId[]       = "Callgrind.Callers.Dock";
+const char CallgrindCalleesDockId[]       = "Callgrind.Callees.Dock";
+const char CallgrindFlatDockId[]          = "Callgrind.Flat.Dock";
+const char CallgrindVisualizationDockId[] = "Callgrind.Visualization.Dock";
+
+const char CALLGRIND_RUN_MODE[]           = "CallgrindTool.CallgrindRunMode";
+
 class CallgrindTool : public QObject
 {
     Q_OBJECT
@@ -108,7 +126,7 @@ public:
     CallgrindTool(QObject *parent);
     ~CallgrindTool();
 
-    ValgrindRunControl *createRunControl(RunConfiguration *runConfiguration);
+    ValgrindRunControl *createRunControl(RunConfiguration *runConfiguration, Id runMode);
 
     void setParseData(ParseData *data);
     CostDelegate::CostFormat costFormat() const;
@@ -245,7 +263,7 @@ CallgrindTool::CallgrindTool(QObject *parent)
         desc.setText(tr("Valgrind Function Profiler"));
         desc.setPerspectiveId(CallgrindPerspectiveId);
         desc.setRunControlCreator([this](RunConfiguration *runConfiguration, Id) {
-            return createRunControl(runConfiguration);
+            return createRunControl(runConfiguration, CALLGRIND_RUN_MODE);
         });
         desc.setToolMode(OptimizedMode);
         desc.setRunMode(CALLGRIND_RUN_MODE);
@@ -259,7 +277,7 @@ CallgrindTool::CallgrindTool(QObject *parent)
         StartRemoteDialog dlg;
         if (dlg.exec() != QDialog::Accepted)
             return;
-        ValgrindRunControl *rc = createRunControl(runConfig);
+        ValgrindRunControl *rc = createRunControl(runConfig, CALLGRIND_RUN_MODE);
         QTC_ASSERT(rc, return);
         const auto runnable = dlg.runnable();
         rc->setRunnable(runnable);
@@ -729,9 +747,9 @@ void CallgrindTool::updateEventCombo()
         m_eventCombo->addItem(ParseData::prettyStringForEvent(event));
 }
 
-ValgrindRunControl *CallgrindTool::createRunControl(RunConfiguration *runConfiguration)
+ValgrindRunControl *CallgrindTool::createRunControl(RunConfiguration *runConfiguration, Id runMode)
 {
-    auto runControl = new CallgrindRunControl(runConfiguration);
+    auto runControl = new CallgrindRunControl(runConfiguration, runMode);
 
     connect(runControl, &CallgrindRunControl::parserDataReady, this, &CallgrindTool::takeParserDataFromRunControl);
     connect(runControl, &AnalyzerRunControl::starting, this, &CallgrindTool::engineStarting);
@@ -958,17 +976,47 @@ void CallgrindTool::createTextMarks()
     }
 }
 
-static CallgrindTool *theCallgrindTool;
 
-void initCallgrindTool(QObject *parent)
+class CallgrindRunControlFactory : public IRunControlFactory
 {
-    theCallgrindTool = new CallgrindTool(parent);
+public:
+    CallgrindRunControlFactory() : m_tool(new CallgrindTool(this)) {}
+
+    bool canRun(RunConfiguration *runConfiguration, Core::Id runMode) const override
+    {
+        Q_UNUSED(runConfiguration);
+        return runMode == CALLGRIND_RUN_MODE;
+    }
+
+    RunControl *create(RunConfiguration *runConfiguration, Core::Id runMode, QString *errorMessage) override
+    {
+        Q_UNUSED(errorMessage);
+        return m_tool->createRunControl(runConfiguration, runMode);
+    }
+
+    IRunConfigurationAspect *createRunConfigurationAspect(ProjectExplorer::RunConfiguration *rc) override
+    {
+        return createValgrindRunConfigurationAspect(rc);
+    }
+
+public:
+    CallgrindTool *m_tool;
+};
+
+
+static CallgrindRunControlFactory *theCallgrindRunControlFactory;
+
+void initCallgrindTool()
+{
+    theCallgrindRunControlFactory = new CallgrindRunControlFactory;
+    ExtensionSystem::PluginManager::addObject(theCallgrindRunControlFactory);
 }
 
 void destroyCallgrindTool()
 {
-    delete theCallgrindTool;
-    theCallgrindTool = 0;
+    ExtensionSystem::PluginManager::addObject(theCallgrindRunControlFactory);
+    delete theCallgrindRunControlFactory;
+    theCallgrindRunControlFactory = 0;
 }
 
 } // namespace Internal

@@ -95,15 +95,14 @@ bool ValgrindPlugin::initialize(const QStringList &, QString *)
     theGlobalSettings->readSettings();
 
     addAutoReleasedObject(new ValgrindOptionsPage);
-    addAutoReleasedObject(new ValgrindRunControlFactory);
 
     return true;
 }
 
 void ValgrindPlugin::extensionsInitialized()
 {
-    initMemcheckTool(this);
-    initCallgrindTool(this);
+    initMemcheckTool();
+    initCallgrindTool();
 }
 
 ExtensionSystem::IPlugin::ShutdownFlag ValgrindPlugin::aboutToShutdown()

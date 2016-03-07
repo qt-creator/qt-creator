@@ -30,21 +30,7 @@
 namespace Valgrind {
 namespace Internal {
 
-class ValgrindRunControlFactory : public ProjectExplorer::IRunControlFactory
-{
-    Q_OBJECT
-public:
-    typedef ProjectExplorer::RunConfiguration RunConfiguration;
-
-    explicit ValgrindRunControlFactory(QObject *parent = 0);
-
-    // IRunControlFactory implementation
-    bool canRun(RunConfiguration *runConfiguration, Core::Id mode) const override;
-
-    ProjectExplorer::RunControl *create(RunConfiguration *runConfiguration, Core::Id mode,
-                                        QString *errorMessage) override;
-    ProjectExplorer::IRunConfigurationAspect *createRunConfigurationAspect(ProjectExplorer::RunConfiguration *rc) override;
-};
+ProjectExplorer::IRunConfigurationAspect *createValgrindRunConfigurationAspect(ProjectExplorer::RunConfiguration *rc);
 
 } // namespace Internal
 } // namespace Valgrind

@@ -39,8 +39,8 @@ using namespace Debugger;
 using namespace Valgrind;
 using namespace Valgrind::Internal;
 
-CallgrindRunControl::CallgrindRunControl(ProjectExplorer::RunConfiguration *runConfiguration)
-    : ValgrindRunControl(runConfiguration, CALLGRIND_RUN_MODE)
+CallgrindRunControl::CallgrindRunControl(ProjectExplorer::RunConfiguration *runConfiguration, Core::Id runMode)
+    : ValgrindRunControl(runConfiguration, runMode)
     , m_markAsPaused(false)
 {
     connect(&m_runner, &Callgrind::CallgrindRunner::finished,

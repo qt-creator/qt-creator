@@ -25,22 +25,10 @@
 
 #pragma once
 
-#include <QObject>
-
 namespace Valgrind {
 namespace Internal {
 
-const char CallgrindPerspectiveId[]       = "Callgrind.Perspective";
-const char CallgrindLocalActionId[]       = "Callgrind.Local.Action";
-const char CallgrindRemoteActionId[]      = "Callgrind.Remote.Action";
-const char CallgrindCallersDockId[]       = "Callgrind.Callers.Dock";
-const char CallgrindCalleesDockId[]       = "Callgrind.Callees.Dock";
-const char CallgrindFlatDockId[]          = "Callgrind.Flat.Dock";
-const char CallgrindVisualizationDockId[] = "Callgrind.Visualization.Dock";
-
-const char CALLGRIND_RUN_MODE[] = "CallgrindTool.CallgrindRunMode";
-
-void initCallgrindTool(QObject *parent);
+void initCallgrindTool();
 void destroyCallgrindTool();
 
 } // namespace Internal

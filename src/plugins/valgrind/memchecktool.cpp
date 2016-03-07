@@ -37,6 +37,7 @@
 #include <debugger/analyzer/startremotedialog.h>
 
 #include <valgrind/valgrindsettings.h>
+#include <valgrind/valgrindruncontrolfactory.h>
 #include <valgrind/xmlprotocol/errorlistmodel.h>
 #include <valgrind/xmlprotocol/stackmodel.h>
 #include <valgrind/xmlprotocol/error.h>
@@ -93,6 +94,12 @@ using namespace std::placeholders;
 
 namespace Valgrind {
 namespace Internal {
+
+const char MEMCHECK_RUN_MODE[] = "MemcheckTool.MemcheckRunMode";
+const char MEMCHECK_WITH_GDB_RUN_MODE[] = "MemcheckTool.MemcheckWithGdbRunMode";
+
+const char MemcheckPerspectiveId[] = "Memcheck.Perspective";
+const char MemcheckErrorDockId[] = "Memcheck.Dock.Error";
 
 static ErrorListModel::RelevantFrameFinder makeFrameFinder(const QStringList &projectFiles)
 {
@@ -234,8 +241,7 @@ class MemcheckTool : public QObject
 public:
     MemcheckTool(QObject *parent);
 
-    MemcheckRunControl *createRunControl(ProjectExplorer::RunConfiguration *runConfiguration,
-                                         Core::Id runMode);
+    AnalyzerRunControl *createRunControl(RunConfiguration *runConfiguration, Core::Id runMode);
 
 private:
     void updateRunActions();
@@ -414,7 +420,7 @@ MemcheckTool::MemcheckTool(QObject *parent)
         StartRemoteDialog dlg;
         if (dlg.exec() != QDialog::Accepted)
             return;
-        ValgrindRunControl *rc = createRunControl(runConfig, MEMCHECK_RUN_MODE);
+        AnalyzerRunControl *rc = createRunControl(runConfig, MEMCHECK_RUN_MODE);
         QTC_ASSERT(rc, return);
         const auto runnable = dlg.runnable();
         rc->setRunnable(runnable);
@@ -524,8 +530,7 @@ void MemcheckTool::maybeActiveRunConfigurationChanged()
     updateFromSettings();
 }
 
-MemcheckRunControl *MemcheckTool::createRunControl(RunConfiguration *runConfiguration,
-                                                   Core::Id runMode)
+AnalyzerRunControl *MemcheckTool::createRunControl(RunConfiguration *runConfiguration, Core::Id runMode)
 {
     m_errorModel.setRelevantFrameFinder(makeFrameFinder(runConfiguration
         ? runConfiguration->target()->project()->files(Project::AllFiles) : QStringList()));
@@ -534,7 +539,7 @@ MemcheckRunControl *MemcheckTool::createRunControl(RunConfiguration *runConfigur
     if (runMode == MEMCHECK_RUN_MODE)
         runControl = new MemcheckRunControl(runConfiguration, runMode);
     else
-        runControl = new MemcheckWithGdbRunControl(runConfiguration);
+        runControl = new MemcheckWithGdbRunControl(runConfiguration, runMode);
     connect(runControl, &MemcheckRunControl::starting,
             this, [this, runControl]() { engineStarting(runControl); });
     connect(runControl, &MemcheckRunControl::parserError, this, &MemcheckTool::parserError);
@@ -685,17 +690,47 @@ void MemcheckTool::setBusyCursor(bool busy)
     m_errorView->setCursor(cursor);
 }
 
-static MemcheckTool *theMemcheckTool;
 
-void initMemcheckTool(QObject *parent)
+class MemcheckRunControlFactory : public IRunControlFactory
 {
-    theMemcheckTool = new MemcheckTool(parent);
+public:
+    MemcheckRunControlFactory() : m_tool(new MemcheckTool(this)) {}
+
+    bool canRun(RunConfiguration *runConfiguration, Core::Id mode) const override
+    {
+        Q_UNUSED(runConfiguration);
+        return mode == MEMCHECK_RUN_MODE || mode == MEMCHECK_WITH_GDB_RUN_MODE;
+    }
+
+    RunControl *create(RunConfiguration *runConfiguration, Core::Id mode, QString *errorMessage) override
+    {
+        Q_UNUSED(errorMessage);
+        return m_tool->createRunControl(runConfiguration, mode);
+    }
+
+    IRunConfigurationAspect *createRunConfigurationAspect(ProjectExplorer::RunConfiguration *rc) override
+    {
+        return createValgrindRunConfigurationAspect(rc);
+    }
+
+public:
+    MemcheckTool *m_tool;
+};
+
+
+static MemcheckRunControlFactory *theMemcheckRunControlFactory;
+
+void initMemcheckTool()
+{
+    theMemcheckRunControlFactory = new MemcheckRunControlFactory;
+    ExtensionSystem::PluginManager::addObject(theMemcheckRunControlFactory);
 }
 
 void destroyMemcheckTool()
 {
-    delete theMemcheckTool;
-    theMemcheckTool = 0;
+    ExtensionSystem::PluginManager::addObject(theMemcheckRunControlFactory);
+    delete theMemcheckRunControlFactory;
+    theMemcheckRunControlFactory = 0;
 }
 
 } // namespace Internal
