@@ -89,6 +89,10 @@ def op_failed(details = None):
 
 def is_ignored_windows_file(use_debug, basepath, filename):
     ignore_patterns = ['.lib', '.pdb', '.exp', '.ilk']
+    if use_debug:
+        ignore_patterns.extend(['libEGL.dll', 'libGLESv2.dll'])
+    else:
+        ignore_patterns.extend(['libEGLd.dll', 'libGLESv2d.dll'])
     for ip in ignore_patterns:
         if filename.endswith(ip):
             return True
@@ -120,7 +124,7 @@ def copy_qt_libs(target_qt_prefix_path, qt_libs_dir, qt_plugin_dir, qt_import_di
         os.makedirs(lib_dest)
 
     if common.is_windows_platform():
-        libraries = [lib for lib in libraries if debug_build == is_debug(lib)]
+        libraries = [lib for lib in libraries if not is_ignored_windows_file(debug_build, '', lib)]
 
     for library in libraries:
         print library, '->', lib_dest
