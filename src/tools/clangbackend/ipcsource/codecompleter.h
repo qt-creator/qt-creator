@@ -50,6 +50,8 @@ public: // for tests
     bool hasDotAt(uint line, uint column) const;
 
 private:
+    uint defaultOptions() const;
+
     ClangCodeCompleteResults complete(uint line,
                                       uint column,
                                       CXUnsavedFile *unsavedFiles,

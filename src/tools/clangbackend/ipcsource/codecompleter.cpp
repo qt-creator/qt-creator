@@ -84,15 +84,13 @@ ClangCodeCompleteResults CodeCompleter::complete(uint line,
                                                  CXUnsavedFile *unsavedFiles,
                                                  unsigned unsavedFileCount)
 {
-    const auto options = CXCodeComplete_IncludeMacros | CXCodeComplete_IncludeCodePatterns;
-
     return clang_codeCompleteAt(translationUnit.cxTranslationUnitWithoutReparsing(),
                                 translationUnit.filePath().constData(),
                                 line,
                                 column,
                                 unsavedFiles,
                                 unsavedFileCount,
-                                options);
+                                defaultOptions());
 }
 
 bool CodeCompleter::hasDotAt(uint line, uint column) const
@@ -101,6 +99,17 @@ bool CodeCompleter::hasDotAt(uint line, uint column) const
     const SourceLocation location = translationUnit.sourceLocationAtWithoutReparsing(line, column);
 
     return unsavedFile.hasCharacterAt(location.offset(), '.');
+}
+
+uint CodeCompleter::defaultOptions() const
+{
+    uint options = CXCodeComplete_IncludeMacros
+                 | CXCodeComplete_IncludeCodePatterns;
+
+    if (translationUnit.defaultOptions() & CXTranslationUnit_IncludeBriefCommentsInCodeCompletion)
+        options |= CXCodeComplete_IncludeBriefComments;
+
+    return options;
 }
 
 ClangCodeCompleteResults CodeCompleter::completeWithArrowInsteadOfDot(uint line, uint column)

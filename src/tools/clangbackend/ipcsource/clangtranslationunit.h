@@ -139,6 +139,8 @@ public:
 
     SkippedSourceRanges skippedSourceRanges() const;
 
+    static uint defaultOptions();
+
 private:
     void setDirty();
     void checkIfNull() const;
@@ -152,7 +154,6 @@ private:
     void reparseTranslationUnit() const;
     void reparseTranslationUnitIfFilesAreChanged() const;
     void updateIncludeFilePaths() const;
-    static uint defaultOptions();
     static void includeCallback(CXFile included_file,
                                 CXSourceLocation * /*inclusion_stack*/,
                                 unsigned /*include_len*/,
