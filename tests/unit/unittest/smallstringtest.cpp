@@ -87,12 +87,28 @@ TEST(SmallString, ShortSmallStringIsReference)
     ASSERT_TRUE(longText.isReadOnlyReference());
 }
 
+TEST(SmallString, SmallStringContructorIsNotReference)
+{
+    const char *shortCSmallString = "short string";
+    auto shortText = SmallString(shortCSmallString);
+
+    ASSERT_TRUE(shortText.isShortString());
+}
+
 TEST(SmallString, ShortSmallStringIsNotReference)
 {
     const char *shortCSmallString = "short string";
     auto shortText = SmallString::fromUtf8(shortCSmallString);
 
     ASSERT_FALSE(shortText.isReadOnlyReference());
+}
+
+TEST(SmallString, LongSmallStringConstrutorIsAllocated)
+{
+    const char *longCSmallString = "very very very very very long text";
+    auto longText = SmallString(longCSmallString);
+
+    ASSERT_TRUE(longText.hasAllocatedMemory());
 }
 
 TEST(SmallString, MaximumShortSmallString)
