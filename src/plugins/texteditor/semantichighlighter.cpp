@@ -26,6 +26,7 @@
 #include "semantichighlighter.h"
 
 #include "syntaxhighlighter.h"
+#include "texteditorsettings.h"
 
 #include <utils/qtcassert.h>
 
@@ -34,6 +35,19 @@
 
 using namespace TextEditor;
 using namespace TextEditor::SemanticHighlighter;
+
+namespace {
+
+QTextCharFormat textCharFormatForResult(const HighlightingResult &result,
+                                        const QHash<int, QTextCharFormat> &kindToFormat)
+{
+    if (result.useTextSyles)
+        return TextEditorSettings::fontSettings().toTextCharFormat(result.textStyles);
+    else
+        return kindToFormat.value(result.kind);
+}
+
+}
 
 void SemanticHighlighter::incrementalApplyExtraAdditionalFormats(
         SyntaxHighlighter *highlighter,
@@ -84,7 +98,7 @@ void SemanticHighlighter::incrementalApplyExtraAdditionalFormats(
         forever {
             QTextLayout::FormatRange formatRange;
 
-            formatRange.format = kindToFormat.value(result.kind);
+            formatRange.format = textCharFormatForResult(result, kindToFormat);
             if (formatRange.format.isValid()) {
                 formatRange.start = result.column - 1;
                 formatRange.length = result.length;
