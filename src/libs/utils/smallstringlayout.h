@@ -129,7 +129,7 @@ struct ALIGNAS_16 StringDataLayout {
     union {
         AllocatedLayout allocated;
         ReferenceLayout reference;
-        ShortStringLayout shortString = {};
+        ShortStringLayout shortString = ShortStringLayout();
     };
 };
 
