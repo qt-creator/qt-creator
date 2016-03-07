@@ -123,19 +123,13 @@ def main():
                 continue
             if button == ":Git Repository Clone.Finish_QPushButton":
                 try:
-                    # CMake wizard shown
-                    clickButton(waitForObject(":CMake Wizard.Cancel_QPushButton", 5000))
-                    clickButton(waitForObject(":Cannot Open Project.OK_QPushButton"))
-                    test.passes("The checked out project was being opened with CMake.")
+                    # Projects mode shown
+                    clickButton(waitForObject(":*Qt Creator.Cancel_QPushButton", 5000))
+                    test.passes("The checked out project was being opened.")
                 except:
-                    try:
-                        # QMake Project mode shown
-                        clickButton(waitForObject(":*Qt Creator.Cancel_QPushButton", 5000))
-                        test.passes("The checked out project was being opened with QMake.")
-                    except:
-                        clickButton(waitForObject(":Cannot Open Project.Show Details..._QPushButton"))
-                        test.fail("The checked out project was not being opened.",
-                                  waitForObject(":Cannot Open Project_QTextEdit").plainText)
-                        clickButton(waitForObject(":Cannot Open Project.OK_QPushButton"))
+                    clickButton(waitForObject(":Cannot Open Project.Show Details..._QPushButton"))
+                    test.fail("The checked out project was not being opened.",
+                              waitForObject(":Cannot Open Project_QTextEdit").plainText)
+                    clickButton(waitForObject(":Cannot Open Project.OK_QPushButton"))
         verifyVersionControlView(targetDir, button == "Cancel immediately")
     invokeMenuItem("File", "Exit")

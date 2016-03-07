@@ -79,23 +79,6 @@ def openCmakeProject(projectPath, buildDir):
     __chooseTargets__(Targets.DESKTOP_480_DEFAULT, additionalFunc=additionalFunction)
     clickButton(waitForObject("{text='Configure Project' type='QPushButton' unnamed='1' visible='1'"
                               "window=':Qt Creator_Core::Internal::MainWindow'}"))
-    return __handleCmakeWizardPage__()
-
-def __handleCmakeWizardPage__():
-    generatorText = "Unix Generator (Desktop 480 GCC)"
-    if platform.system() in ('Windows', 'Microsoft'):
-        generatorText = "NMake Generator (Desktop 480 MSVC2010)"
-    selectFromCombo(waitForObject(":Generator:_QComboBox"), generatorText)
-    clickButton(waitForObject(":CMake Wizard.Run CMake_QPushButton"))
-    try:
-        clickButton(waitForObject(":CMake Wizard.Finish_QPushButton", 60000))
-    except LookupError:
-        cmakeOutput = waitForObject("{type='QPlainTextEdit' unnamed='1' visible='1' "
-                                    "window=':CMake Wizard_CMakeProjectManager::Internal::CMakeOpenProjectWizard'}")
-        test.warning("Error while executing cmake - see details for cmake output.",
-                     str(cmakeOutput.plainText))
-        clickButton(waitForObject(":CMake Wizard.Cancel_QPushButton"))
-        return False
     return True
 
 # this function returns a list of available targets - this is not 100% error proof
