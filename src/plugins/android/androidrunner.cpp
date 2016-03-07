@@ -249,15 +249,13 @@ static int extractPid(const QString &exeName, const QByteArray &psOutput)
 
 QByteArray AndroidRunner::runPs()
 {
-    QProcess psProc;
-    QStringList args = m_selector;
-    args << _("shell") << _("ps");
+    QByteArray psLine("ps");
     if (m_isBusyBox)
-        args << _("-w");
-
-    psProc.start(m_adb, args);
-    psProc.waitForFinished();
-    return psProc.readAll();
+        psLine += " -w";
+    psLine += '\n';
+    m_psProc.write(psLine);
+    m_psProc.waitForBytesWritten(psLine.size());
+    return m_psProc.readAllStandardOutput();
 }
 
 void AndroidRunner::checkPID()
@@ -322,6 +320,7 @@ void AndroidRunner::forceStop()
 void AndroidRunner::start()
 {
     m_adbLogcatProcess.start(m_adb, selector() << _("logcat"));
+    m_psProc.start(m_adb, selector() << _("shell"));
     Utils::runAsync(&AndroidRunner::asyncStart, this);
 }
 
@@ -551,6 +550,8 @@ void AndroidRunner::stop()
     //QObject::disconnect(&m_adbLogcatProcess, 0, this, 0);
     m_adbLogcatProcess.kill();
     m_adbLogcatProcess.waitForFinished();
+    m_psProc.kill();
+    m_psProc.waitForFinished();
     foreach (const QStringList &entry, m_androidRunnable.afterFinishADBCommands) {
         QProcess adb;
         adb.start(m_adb, selector() << entry);
