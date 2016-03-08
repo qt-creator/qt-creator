@@ -28,22 +28,26 @@
 #include "outputpane.h"
 #include "outputpanemanager.h"
 
+#include <QResizeEvent>
 #include <QSplitter>
 #include <QVBoxLayout>
 
 namespace Core {
 
-struct OutputPanePlaceHolderPrivate {
+class OutputPanePlaceHolderPrivate {
+public:
     explicit OutputPanePlaceHolderPrivate(IMode *mode, QSplitter *parent);
 
     IMode *m_mode;
     QSplitter *m_splitter;
-    int m_lastNonMaxSize;
+    int m_nonMaximizedSize = 0;
+    bool m_isMaximized = false;
+    bool m_initialized = false;
     static OutputPanePlaceHolder* m_current;
 };
 
 OutputPanePlaceHolderPrivate::OutputPanePlaceHolderPrivate(IMode *mode, QSplitter *parent) :
-    m_mode(mode), m_splitter(parent), m_lastNonMaxSize(0)
+    m_mode(mode), m_splitter(parent)
 {
 }
 
@@ -82,32 +86,42 @@ void OutputPanePlaceHolder::currentModeChanged(IMode *mode)
 {
     if (d->m_current == this) {
         d->m_current = 0;
+        if (d->m_initialized)
+            Internal::OutputPaneManager::setOutputPaneHeightSetting(d->m_nonMaximizedSize);
         Internal::OutputPaneManager *om = Internal::OutputPaneManager::instance();
-        om->setParent(0);
         om->hide();
+        om->setParent(0);
         om->updateStatusButtons(false);
     }
     if (d->m_mode == mode) {
+        if (d->m_current && d->m_current->d->m_initialized)
+            Internal::OutputPaneManager::setOutputPaneHeightSetting(d->m_current->d->m_nonMaximizedSize);
         d->m_current = this;
         Internal::OutputPaneManager *om = Internal::OutputPaneManager::instance();
         layout()->addWidget(om);
         om->show();
         om->updateStatusButtons(isVisible());
+        Internal::OutputPaneManager::updateMaximizeButton(d->m_isMaximized);
     }
 }
 
-void OutputPanePlaceHolder::maximizeOrMinimize(bool maximize)
+void OutputPanePlaceHolder::setMaximized(bool maximize)
 {
+    if (d->m_isMaximized == maximize)
+        return;
     if (!d->m_splitter)
         return;
     int idx = d->m_splitter->indexOf(this);
     if (idx < 0)
         return;
 
+    d->m_isMaximized = maximize;
+    if (d->m_current == this)
+        Internal::OutputPaneManager::updateMaximizeButton(d->m_isMaximized);
     QList<int> sizes = d->m_splitter->sizes();
 
     if (maximize) {
-        d->m_lastNonMaxSize = sizes[idx];
+        d->m_nonMaximizedSize = sizes[idx];
         int sum = 0;
         foreach (int s, sizes)
             sum += s;
@@ -116,7 +130,7 @@ void OutputPanePlaceHolder::maximizeOrMinimize(bool maximize)
         }
         sizes[idx] = sum - (sizes.count()-1) * 32;
     } else {
-        int target = d->m_lastNonMaxSize > 0 ? d->m_lastNonMaxSize : sizeHint().height();
+        int target = d->m_nonMaximizedSize > 0 ? d->m_nonMaximizedSize : sizeHint().height();
         int space = sizes[idx] - target;
         if (space > 0) {
             for (int i = 0; i < sizes.count(); ++i) {
@@ -127,31 +141,31 @@ void OutputPanePlaceHolder::maximizeOrMinimize(bool maximize)
     }
 
     d->m_splitter->setSizes(sizes);
-
 }
 
 bool OutputPanePlaceHolder::isMaximized() const
 {
-    return Internal::OutputPaneManager::instance()->isMaximized();
+    return d->m_isMaximized;
 }
 
-void OutputPanePlaceHolder::setDefaultHeight(int height)
+void OutputPanePlaceHolder::setHeight(int height)
 {
     if (height == 0)
         return;
     if (!d->m_splitter)
         return;
-    int idx = d->m_splitter->indexOf(this);
+    const int idx = d->m_splitter->indexOf(this);
     if (idx < 0)
         return;
 
     d->m_splitter->refresh();
     QList<int> sizes = d->m_splitter->sizes();
-    int difference = height - sizes.at(idx);
-    if (difference <= 0) // is already larger
+    const int difference = height - sizes.at(idx);
+    if (difference == 0)
         return;
+    const int adaption = difference / (sizes.count()-1);
     for (int i = 0; i < sizes.count(); ++i) {
-        sizes[i] += difference / (sizes.count()-1);
+        sizes[i] -= adaption;
     }
     sizes[idx] = height;
     d->m_splitter->setSizes(sizes);
@@ -162,23 +176,33 @@ void OutputPanePlaceHolder::ensureSizeHintAsMinimum()
     Internal::OutputPaneManager *om = Internal::OutputPaneManager::instance();
     int minimum = (d->m_splitter->orientation() == Qt::Vertical
                    ? om->sizeHint().height() : om->sizeHint().width());
-    setDefaultHeight(minimum);
+    if (height() < minimum)
+        setHeight(minimum);
 }
 
-void OutputPanePlaceHolder::unmaximize()
+int OutputPanePlaceHolder::nonMaximizedSize() const
 {
-    if (Internal::OutputPaneManager::instance()->isMaximized())
-        Internal::OutputPaneManager::instance()->slotMinMax();
+    return d->m_nonMaximizedSize;
+}
+
+void OutputPanePlaceHolder::resizeEvent(QResizeEvent *event)
+{
+    if (d->m_isMaximized || event->size().height() == 0)
+        return;
+    d->m_nonMaximizedSize = event->size().height();
+}
+
+void OutputPanePlaceHolder::showEvent(QShowEvent *)
+{
+    if (!d->m_initialized) {
+        d->m_initialized = true;
+        setHeight(Internal::OutputPaneManager::outputPaneHeightSetting());
+    }
 }
 
 OutputPanePlaceHolder *OutputPanePlaceHolder::getCurrent()
 {
     return OutputPanePlaceHolderPrivate::m_current;
-}
-
-bool OutputPanePlaceHolder::canMaximizeOrMinimize() const
-{
-    return d->m_splitter != 0;
 }
 
 bool OutputPanePlaceHolder::isCurrentVisible()

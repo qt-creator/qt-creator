@@ -181,7 +181,7 @@ static void setFocusToEditorViewAndUnmaximizePanes(EditorView *view)
     if (holder && holder->window() == view->window()) {
         // unmaximize output pane if necessary
         if (holder->isVisible() && holder->isMaximized())
-            holder->unmaximize();
+            holder->setMaximized(false);
     }
 }
 
