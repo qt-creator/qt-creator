@@ -466,6 +466,9 @@ MemcheckTool::MemcheckTool(QObject *parent)
     toolbar.addAction(m_goNext);
     toolbar.addWidget(filterButton);
     Debugger::registerToolbar(MemcheckPerspectiveId, toolbar);
+
+    updateFromSettings();
+    maybeActiveRunConfigurationChanged();
 }
 
 void MemcheckTool::updateRunActions()
