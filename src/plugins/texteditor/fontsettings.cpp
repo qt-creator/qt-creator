@@ -219,7 +219,7 @@ void FontSettings::addMixinStyle(QTextCharFormat &textCharFormat,
     };
 }
 
-QTextCharFormat FontSettings::toTextCharFormat(const TextStyles textStyles) const
+QTextCharFormat FontSettings::toTextCharFormat(const TextStyles &textStyles) const
 {
     auto textCharFormatIterator = m_textCharFormatCache.find(textStyles);
     if (textCharFormatIterator != m_textCharFormatCache.end())
