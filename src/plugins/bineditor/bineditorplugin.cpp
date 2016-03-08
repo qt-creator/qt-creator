@@ -243,8 +243,10 @@ public:
     bool setContents(const QByteArray &contents) override
     {
         m_widget->clear();
-        m_widget->setSizes(0, contents.length(), contents.length());
-        m_widget->addData(0, contents);
+        if (!contents.isEmpty()) {
+            m_widget->setSizes(0, contents.length(), contents.length());
+            m_widget->addData(0, contents);
+        }
         return true;
     }
 
