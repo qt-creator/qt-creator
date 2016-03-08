@@ -599,7 +599,8 @@ void AndroidManifestEditorWidget::postSave()
     if (project) {
         if (Target *target = project->activeTarget()) {
             AndroidQtSupport *androidQtSupport = AndroidManager::androidQtSupport(target);
-            androidQtSupport->manifestSaved(target);
+            if (androidQtSupport)
+                androidQtSupport->manifestSaved(target);
         }
     }
 }
