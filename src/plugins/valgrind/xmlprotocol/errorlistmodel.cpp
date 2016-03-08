@@ -42,27 +42,18 @@
 namespace Valgrind {
 namespace XmlProtocol {
 
-class ErrorListModelPrivate
-{
-public:
-    QVariant errorData(const QModelIndex &index, int role) const;
-    QSharedPointer<const ErrorListModel::RelevantFrameFinder> relevantFrameFinder;
-    Frame findRelevantFrame(const Error &error) const;
-    QString errorLocation(const Error &error) const;
-};
-
 class ErrorItem : public Utils::TreeItem
 {
 public:
-    ErrorItem(const ErrorListModelPrivate *modelPrivate, const Error &error);
+    ErrorItem(const ErrorListModel *model, const Error &error);
 
-    const ErrorListModelPrivate *modelPrivate() const { return m_modelPrivate; }
+    const ErrorListModel *modelPrivate() const { return m_model; }
     Error error() const { return m_error; }
 
 private:
     QVariant data(int column, int role) const override;
 
-    const ErrorListModelPrivate * const m_modelPrivate;
+    const ErrorListModel * const m_model;
     const Error m_error;
 };
 
@@ -95,30 +86,14 @@ private:
 
 ErrorListModel::ErrorListModel(QObject *parent)
     : Utils::TreeModel(parent)
-    , d(new ErrorListModelPrivate)
 {
     setHeader(QStringList() << tr("Issue") << tr("Location"));
 }
 
-ErrorListModel::~ErrorListModel()
+Frame ErrorListModel::findRelevantFrame(const Error &error) const
 {
-    delete d;
-}
-
-QSharedPointer<const ErrorListModel::RelevantFrameFinder> ErrorListModel::relevantFrameFinder() const
-{
-    return d->relevantFrameFinder;
-}
-
-void ErrorListModel::setRelevantFrameFinder(const QSharedPointer<const RelevantFrameFinder> &finder)
-{
-    d->relevantFrameFinder = finder;
-}
-
-Frame ErrorListModelPrivate::findRelevantFrame(const Error &error) const
-{
-    if (relevantFrameFinder)
-        return relevantFrameFinder->findRelevant(error);
+    if (m_relevantFrameFinder)
+        return m_relevantFrameFinder(error);
     const QVector<Stack> stacks = error.stacks();
     if (stacks.isEmpty())
         return Frame();
@@ -158,7 +133,7 @@ static QString makeFrameName(const Frame &frame, bool withLocation)
     return QString::fromLatin1("0x%1").arg(frame.instructionPointer(), 0, 16);
 }
 
-QString ErrorListModelPrivate::errorLocation(const Error &error) const
+QString ErrorListModel::errorLocation(const Error &error) const
 {
     return QCoreApplication::translate("Valgrind::Internal", "in %1").
             arg(makeFrameName(findRelevantFrame(error), true));
@@ -166,12 +141,22 @@ QString ErrorListModelPrivate::errorLocation(const Error &error) const
 
 void ErrorListModel::addError(const Error &error)
 {
-    rootItem()->appendChild(new ErrorItem(d, error));
+    rootItem()->appendChild(new ErrorItem(this, error));
+}
+
+ErrorListModel::RelevantFrameFinder ErrorListModel::relevantFrameFinder() const
+{
+    return m_relevantFrameFinder;
+}
+
+void ErrorListModel::setRelevantFrameFinder(const RelevantFrameFinder &relevantFrameFinder)
+{
+    m_relevantFrameFinder = relevantFrameFinder;
 }
 
 
-ErrorItem::ErrorItem(const ErrorListModelPrivate *modelPrivate, const Error &error)
-    : m_modelPrivate(modelPrivate), m_error(error)
+ErrorItem::ErrorItem(const ErrorListModel *model, const Error &error)
+    : m_model(model), m_error(error)
 {
     QTC_ASSERT(!m_error.stacks().isEmpty(), return);
 
@@ -203,7 +188,7 @@ static QVariant location(const Frame &frame, int role)
 QVariant ErrorItem::data(int column, int role) const
 {
     if (column == Debugger::DetailedErrorView::LocationColumn) {
-        const Frame frame = m_modelPrivate->findRelevantFrame(m_error);
+        const Frame frame = m_model->findRelevantFrame(m_error);
         return location(frame, role);
     }
 
@@ -215,7 +200,7 @@ QVariant ErrorItem::data(int column, int role) const
 
         stream << m_error.what() << "\n";
         stream << "  "
-               << m_modelPrivate->errorLocation(m_error)
+               << m_model->errorLocation(m_error)
                << "\n";
 
         foreach (const Stack &stack, m_error.stacks()) {
@@ -241,7 +226,7 @@ QVariant ErrorItem::data(int column, int role) const
         return ErrorListModel::tr("%1 in function %2")
                 .arg(m_error.what(), m_error.stacks().first().frames().first().functionName());
     case Qt::ToolTipRole:
-        return toolTipForFrame(m_modelPrivate->findRelevantFrame(m_error));
+        return toolTipForFrame(m_model->findRelevantFrame(m_error));
     default:
         return QVariant();
     }

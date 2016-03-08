@@ -89,15 +89,14 @@ using namespace Debugger;
 using namespace ProjectExplorer;
 using namespace Utils;
 using namespace Valgrind::XmlProtocol;
+using namespace std::placeholders;
 
 namespace Valgrind {
 namespace Internal {
 
-class FrameFinder : public ErrorListModel::RelevantFrameFinder
+static ErrorListModel::RelevantFrameFinder makeFrameFinder(const QStringList &projectFiles)
 {
-public:
-    Frame findRelevant(const Error &error) const
-    {
+    return [projectFiles](const Error &error) {
         const QVector<Stack> stacks = error.stacks();
         if (stacks.isEmpty())
             return Frame();
@@ -107,14 +106,14 @@ public:
             return Frame();
 
         //find the first frame belonging to the project
-        if (!m_projectFiles.isEmpty()) {
+        if (!projectFiles.isEmpty()) {
             foreach (const Frame &frame, frames) {
                 if (frame.directory().isEmpty() || frame.fileName().isEmpty())
                     continue;
 
                 //filepaths can contain "..", clean them:
                 const QString f = QFileInfo(frame.filePath()).absoluteFilePath();
-                if (m_projectFiles.contains(f))
+                if (projectFiles.contains(f))
                     return frame;
             }
         }
@@ -130,21 +129,12 @@ public:
 
         //else fallback to the first frame
         return frames.first();
-    }
-    void setFiles(const QStringList &files)
-    {
-        m_projectFiles = files;
-    }
-private:
-    QStringList m_projectFiles;
-};
+    };
+}
 
 
 class MemcheckErrorFilterProxyModel : public QSortFilterProxyModel
 {
-public:
-    MemcheckErrorFilterProxyModel(QObject *parent = 0);
-
 public:
     void setAcceptedKinds(const QList<int> &acceptedKinds);
     void setFilterExternalIssues(bool filter);
@@ -152,14 +142,8 @@ public:
 
 private:
     QList<int> m_acceptedKinds;
-    bool m_filterExternalIssues;
+    bool m_filterExternalIssues = false;
 };
-
-MemcheckErrorFilterProxyModel::MemcheckErrorFilterProxyModel(QObject *parent)
-    : QSortFilterProxyModel(parent),
-      m_filterExternalIssues(false)
-{
-}
 
 void MemcheckErrorFilterProxyModel::setAcceptedKinds(const QList<int> &acceptedKinds)
 {
@@ -275,12 +259,11 @@ private:
 
 private:
     ValgrindBaseSettings *m_settings;
-    QMenu *m_filterMenu;
+    QMenu *m_filterMenu = 0;
 
-    FrameFinder *m_frameFinder;
-    Valgrind::XmlProtocol::ErrorListModel *m_errorModel;
-    MemcheckErrorFilterProxyModel *m_errorProxyModel;
-    MemcheckErrorView *m_errorView;
+    Valgrind::XmlProtocol::ErrorListModel m_errorModel;
+    MemcheckErrorFilterProxyModel m_errorProxyModel;
+    MemcheckErrorView *m_errorView = 0;
 
     QList<QAction *> m_errorFilterActions;
     QAction *m_filterProjectAction;
@@ -299,10 +282,6 @@ MemcheckTool::MemcheckTool(QObject *parent)
   : QObject(parent)
 {
     m_settings = ValgrindPlugin::globalSettings();
-    m_errorModel = 0;
-    m_errorProxyModel = 0;
-    m_errorView = 0;
-    m_filterMenu = 0;
 
     setObjectName(QLatin1String("MemcheckTool"));
 
@@ -334,22 +313,14 @@ MemcheckTool::MemcheckTool(QObject *parent)
     initKindFilterAction(a, { InvalidFree,  MismatchedFree });
     m_errorFilterActions.append(a);
 
-
-    using namespace std::placeholders;
-
-    QTC_ASSERT(!m_errorView, return);
-
     m_errorView = new MemcheckErrorView;
     m_errorView->setObjectName(QLatin1String("MemcheckErrorView"));
     m_errorView->setFrameStyle(QFrame::NoFrame);
     m_errorView->setAttribute(Qt::WA_MacShowFocusRect, false);
-    m_errorModel = new ErrorListModel(m_errorView);
-    m_frameFinder = new Internal::FrameFinder;
-    m_errorModel->setRelevantFrameFinder(QSharedPointer<Internal::FrameFinder>(m_frameFinder));
-    m_errorProxyModel = new MemcheckErrorFilterProxyModel(m_errorView);
-    m_errorProxyModel->setSourceModel(m_errorModel);
-    m_errorProxyModel->setDynamicSortFilter(true);
-    m_errorView->setModel(m_errorProxyModel);
+    m_errorModel.setRelevantFrameFinder(makeFrameFinder(QStringList()));
+    m_errorProxyModel.setSourceModel(&m_errorModel);
+    m_errorProxyModel.setDynamicSortFilter(true);
+    m_errorView->setModel(&m_errorProxyModel);
     m_errorView->setSelectionMode(QAbstractItemView::ExtendedSelection);
     // make m_errorView->selectionModel()->selectedRows() return something
     m_errorView->setSelectionBehavior(QAbstractItemView::SelectRows);
@@ -513,12 +484,12 @@ void MemcheckTool::updateFromSettings()
     m_errorView->settingsChanged(m_settings);
 
     connect(m_settings, &ValgrindBaseSettings::visibleErrorKindsChanged,
-            m_errorProxyModel, &MemcheckErrorFilterProxyModel::setAcceptedKinds);
-    m_errorProxyModel->setAcceptedKinds(m_settings->visibleErrorKinds());
+            &m_errorProxyModel, &MemcheckErrorFilterProxyModel::setAcceptedKinds);
+    m_errorProxyModel.setAcceptedKinds(m_settings->visibleErrorKinds());
 
     connect(m_settings, &ValgrindBaseSettings::filterExternalIssuesChanged,
-            m_errorProxyModel, &MemcheckErrorFilterProxyModel::setFilterExternalIssues);
-    m_errorProxyModel->setFilterExternalIssues(m_settings->filterExternalIssues());
+            &m_errorProxyModel, &MemcheckErrorFilterProxyModel::setFilterExternalIssues);
+    m_errorProxyModel.setFilterExternalIssues(m_settings->filterExternalIssues());
 }
 
 void MemcheckTool::maybeActiveRunConfigurationChanged()
@@ -541,7 +512,7 @@ void MemcheckTool::maybeActiveRunConfigurationChanged()
     // disconnect old settings class if any
     if (m_settings) {
         m_settings->disconnect(this);
-        m_settings->disconnect(m_errorProxyModel);
+        m_settings->disconnect(&m_errorProxyModel);
     }
 
     // now make the new settings current, update and connect input widgets
@@ -555,8 +526,8 @@ void MemcheckTool::maybeActiveRunConfigurationChanged()
 MemcheckRunControl *MemcheckTool::createRunControl(RunConfiguration *runConfiguration,
                                                    Core::Id runMode)
 {
-    m_frameFinder->setFiles(runConfiguration ? runConfiguration->target()
-        ->project()->files(Project::AllFiles) : QStringList());
+    m_errorModel.setRelevantFrameFinder(makeFrameFinder(runConfiguration
+        ? runConfiguration->target()->project()->files(Project::AllFiles) : QStringList()));
 
     MemcheckRunControl *runControl = 0;
     if (runMode == MEMCHECK_RUN_MODE)
@@ -640,7 +611,7 @@ void MemcheckTool::loadExternalXmlLogFile()
 
 void MemcheckTool::parserError(const Error &error)
 {
-    m_errorModel->addError(error);
+    m_errorModel.addError(error);
 }
 
 void MemcheckTool::internalParserError(const QString &errorString)
@@ -652,7 +623,7 @@ void MemcheckTool::internalParserError(const QString &errorString)
 void MemcheckTool::clearErrorView()
 {
     QTC_ASSERT(m_errorView, return);
-    m_errorModel->clear();
+    m_errorModel.clear();
 
     qDeleteAll(m_suppressionActions);
     m_suppressionActions.clear();
@@ -682,7 +653,7 @@ void MemcheckTool::updateErrorFilter()
 
 int MemcheckTool::updateUiAfterFinishedHelper()
 {
-    const int issuesFound = m_errorModel->rowCount();
+    const int issuesFound = m_errorModel.rowCount();
     m_goBack->setEnabled(issuesFound > 1);
     m_goNext->setEnabled(issuesFound > 1);
     m_loadExternalLogFile->setEnabled(true);
