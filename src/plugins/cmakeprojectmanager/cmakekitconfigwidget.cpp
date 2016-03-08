@@ -241,6 +241,7 @@ void CMakeGeneratorKitConfigWidget::refresh()
 
     CMakeTool *const tool = CMakeKitInformation::cmakeTool(m_kit);
     if (tool != m_currentTool) {
+        m_currentTool = tool;
         m_comboBox->clear();
         m_comboBox->addItem(tr("<Use Default Generator>"), QString());
         if (tool && tool->isValid()) {
