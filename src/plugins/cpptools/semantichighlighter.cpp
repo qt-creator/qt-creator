@@ -35,14 +35,16 @@
 #include <QLoggingCategory>
 #include <QTextDocument>
 
-using TextEditor::SemanticHighlighter::incrementalApplyExtraAdditionalFormats;
-using TextEditor::SemanticHighlighter::clearExtraAdditionalFormatsUntilEnd;
+using namespace TextEditor;
+
+using SemanticHighlighter::incrementalApplyExtraAdditionalFormats;
+using SemanticHighlighter::clearExtraAdditionalFormatsUntilEnd;
 
 static Q_LOGGING_CATEGORY(log, "qtc.cpptools.semantichighlighter")
 
 namespace CppTools {
 
-SemanticHighlighter::SemanticHighlighter(TextEditor::TextDocument *baseTextDocument)
+SemanticHighlighter::SemanticHighlighter(TextDocument *baseTextDocument)
     : QObject(baseTextDocument)
     , m_baseTextDocument(baseTextDocument)
     , m_revision(0)
@@ -75,7 +77,7 @@ void SemanticHighlighter::run()
         disconnectWatcher();
         m_watcher->cancel();
     }
-    m_watcher.reset(new QFutureWatcher<TextEditor::HighlightingResult>);
+    m_watcher.reset(new QFutureWatcher<HighlightingResult>);
     connectWatcher();
 
     m_revision = documentRevision();
@@ -91,7 +93,7 @@ void SemanticHighlighter::onHighlighterResultAvailable(int from, int to)
 
     qCDebug(log) << "onHighlighterResultAvailable()" << from << to;
 
-    TextEditor::SyntaxHighlighter *highlighter = m_baseTextDocument->syntaxHighlighter();
+    SyntaxHighlighter *highlighter = m_baseTextDocument->syntaxHighlighter();
     QTC_ASSERT(highlighter, return);
     incrementalApplyExtraAdditionalFormats(highlighter, m_watcher->future(), from, to, m_formatMap);
 }
@@ -100,7 +102,7 @@ void SemanticHighlighter::onHighlighterFinished()
 {
     QTC_ASSERT(m_watcher, return);
     if (!m_watcher->isCanceled() && documentRevision() == m_revision) {
-        TextEditor::SyntaxHighlighter *highlighter = m_baseTextDocument->syntaxHighlighter();
+        SyntaxHighlighter *highlighter = m_baseTextDocument->syntaxHighlighter();
         QTC_CHECK(highlighter);
         if (highlighter) {
             qCDebug(log) << "onHighlighterFinished() - clearing formats";
@@ -112,7 +114,7 @@ void SemanticHighlighter::onHighlighterFinished()
 
 void SemanticHighlighter::connectWatcher()
 {
-    typedef QFutureWatcher<TextEditor::HighlightingResult> Watcher;
+    typedef QFutureWatcher<HighlightingResult> Watcher;
     connect(m_watcher.data(), &Watcher::resultsReadyAt,
             this, &SemanticHighlighter::onHighlighterResultAvailable);
     connect(m_watcher.data(), &Watcher::finished,
@@ -121,7 +123,7 @@ void SemanticHighlighter::connectWatcher()
 
 void SemanticHighlighter::disconnectWatcher()
 {
-    typedef QFutureWatcher<TextEditor::HighlightingResult> Watcher;
+    typedef QFutureWatcher<HighlightingResult> Watcher;
     disconnect(m_watcher.data(), &Watcher::resultsReadyAt,
                this, &SemanticHighlighter::onHighlighterResultAvailable);
     disconnect(m_watcher.data(), &Watcher::finished,
@@ -137,18 +139,18 @@ void SemanticHighlighter::updateFormatMapFromFontSettings()
 {
     QTC_ASSERT(m_baseTextDocument, return);
 
-    const TextEditor::FontSettings &fs = m_baseTextDocument->fontSettings();
+    const FontSettings &fs = m_baseTextDocument->fontSettings();
 
-    m_formatMap[TypeUse] = fs.toTextCharFormat(TextEditor::C_TYPE);
-    m_formatMap[LocalUse] = fs.toTextCharFormat(TextEditor::C_LOCAL);
-    m_formatMap[FieldUse] = fs.toTextCharFormat(TextEditor::C_FIELD);
-    m_formatMap[EnumerationUse] = fs.toTextCharFormat(TextEditor::C_ENUMERATION);
-    m_formatMap[VirtualMethodUse] = fs.toTextCharFormat(TextEditor::C_VIRTUAL_METHOD);
-    m_formatMap[LabelUse] = fs.toTextCharFormat(TextEditor::C_LABEL);
-    m_formatMap[MacroUse] = fs.toTextCharFormat(TextEditor::C_PREPROCESSOR);
-    m_formatMap[FunctionUse] = fs.toTextCharFormat(TextEditor::C_FUNCTION);
-    m_formatMap[PseudoKeywordUse] = fs.toTextCharFormat(TextEditor::C_KEYWORD);
-    m_formatMap[StringUse] = fs.toTextCharFormat(TextEditor::C_STRING);
+    m_formatMap[TypeUse] = fs.toTextCharFormat(C_TYPE);
+    m_formatMap[LocalUse] = fs.toTextCharFormat(C_LOCAL);
+    m_formatMap[FieldUse] = fs.toTextCharFormat(C_FIELD);
+    m_formatMap[EnumerationUse] = fs.toTextCharFormat(C_ENUMERATION);
+    m_formatMap[VirtualMethodUse] = fs.toTextCharFormat(C_VIRTUAL_METHOD);
+    m_formatMap[LabelUse] = fs.toTextCharFormat(C_LABEL);
+    m_formatMap[MacroUse] = fs.toTextCharFormat(C_PREPROCESSOR);
+    m_formatMap[FunctionUse] = fs.toTextCharFormat(C_FUNCTION);
+    m_formatMap[PseudoKeywordUse] = fs.toTextCharFormat(C_KEYWORD);
+    m_formatMap[StringUse] = fs.toTextCharFormat(C_STRING);
 }
 
 } // namespace CppTools
