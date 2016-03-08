@@ -958,8 +958,6 @@ public:
     bool showPromptDialog(const QString &title, const QString &text,
         const QString &stopButtonText, const QString &cancelButtonText) const;
 
-    void registerAction(Core::Id actionId, const ActionDescription &desc, QAction *startAction);
-
     // Called when all dependent plugins have loaded.
     void initialize();
 
@@ -971,7 +969,6 @@ public:
 public:
     DebuggerMainWindow *m_mainWindow = 0;
 
-    QHash<Id, QAction *> m_actions;
     QHash<Id, ActionDescription> m_descriptions;
     ActionContainer *m_menu = 0;
 
@@ -3420,31 +3417,6 @@ void DebuggerPluginPrivate::onModeChanged(IMode *mode)
     }
 }
 
-void DebuggerPluginPrivate::registerAction(Id actionId, const ActionDescription &desc, QAction *startAction)
-{
-    auto action = new QAction(this);
-    action->setText(desc.text());
-    action->setToolTip(desc.toolTip());
-    m_actions.insert(actionId, action);
-    m_descriptions.insert(actionId, desc);
-
-    Id menuGroup = desc.menuGroup();
-    if (menuGroup.isValid()) {
-        Command *command = ActionManager::registerAction(action, actionId);
-        m_menu->addAction(command, menuGroup);
-    }
-
-    connect(action, &QAction::triggered, this, [this, desc] { desc.startTool(); });
-
-    if (startAction) {
-        QObject::connect(startAction, &QAction::triggered, action, &QAction::triggered);
-
-        QObject::connect(startAction, &QAction::changed, action, [action, startAction] {
-            action->setEnabled(startAction->isEnabled());
-        });
-    }
-}
-
 } // namespace Internal
 
 bool ActionDescription::isRunnable(QString *reason) const
@@ -3569,7 +3541,26 @@ void ActionDescription::startTool() const
 
 void registerAction(Id actionId, const ActionDescription &desc, QAction *startAction)
 {
-    dd->registerAction(actionId, desc, startAction);
+    auto action = new QAction(dd);
+    action->setText(desc.text());
+    action->setToolTip(desc.toolTip());
+    dd->m_descriptions.insert(actionId, desc);
+
+    Id menuGroup = desc.menuGroup();
+    if (menuGroup.isValid()) {
+        Command *command = ActionManager::registerAction(action, actionId);
+        dd->m_menu->addAction(command, menuGroup);
+    }
+
+    QObject::connect(action, &QAction::triggered, dd, [desc] { desc.startTool(); });
+
+    if (startAction) {
+        QObject::connect(startAction, &QAction::triggered, action, &QAction::triggered);
+
+        QObject::connect(startAction, &QAction::changed, action, [action, startAction] {
+            action->setEnabled(startAction->isEnabled());
+        });
+    }
 }
 
 void registerToolbar(const QByteArray &perspectiveId, const ToolbarDescription &desc)
