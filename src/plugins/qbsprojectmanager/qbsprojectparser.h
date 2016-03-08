@@ -55,6 +55,7 @@ public:
 
 signals:
     void done(bool success);
+    void projectStructureAvailable();
 
 private slots:
     void handleQbsParsingDone(bool success);

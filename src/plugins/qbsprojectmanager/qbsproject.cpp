@@ -431,6 +431,33 @@ bool QbsProject::needsSpecialDeployment() const
     return true;
 }
 
+void QbsProject::handleProjectStructureAvailable()
+{
+    QTC_ASSERT(m_qbsProjectParser, return);
+
+    bool dataChanged = false;
+    m_qbsProject = m_qbsProjectParser->qbsProject();
+    const qbs::ProjectData &projectData = m_qbsProject.projectData();
+    QTC_CHECK(m_qbsProject.isValid());
+
+    if (projectData != m_projectData) {
+        m_projectData = projectData;
+        rootProjectNode()->update();
+        updateDocuments(m_qbsProject.isValid()
+                        ? m_qbsProject.buildSystemFiles() : QSet<QString>() << projectFilePath().toString());
+        dataChanged = true;
+    }
+
+    if (dataChanged) {
+        auto * const futureInterface = m_qbsUpdateFutureInterface;
+        m_qbsUpdateFutureInterface = nullptr; // So that isParsing() returns false;
+        updateCppCodeModel();
+        updateQmlJsCodeModel();
+        emit fileListChanged();
+        m_qbsUpdateFutureInterface = futureInterface;
+    }
+}
+
 void QbsProject::handleQbsParsingDone(bool success)
 {
     QTC_ASSERT(m_qbsProjectParser, return);
@@ -448,20 +475,9 @@ void QbsProject::handleQbsParsingDone(bool success)
 
     generateErrors(m_qbsProjectParser->error());
 
-    bool dataChanged = false;
     if (success) {
-        m_qbsProject = m_qbsProjectParser->qbsProject();
-        const qbs::ProjectData &projectData = m_qbsProject.projectData();
-        QTC_CHECK(m_qbsProject.isValid());
-
-        if (projectData != m_projectData) {
-            m_projectData = projectData;
-            rootProjectNode()->update();
-
-            updateDocuments(m_qbsProject.isValid()
-                            ? m_qbsProject.buildSystemFiles() : QSet<QString>() << projectFilePath().toString());
-            dataChanged = true;
-        }
+        QTC_ASSERT(m_qbsProject.isValid(), return);
+        m_projectData = m_qbsProject.projectData();
     } else {
         m_qbsUpdateFutureInterface->reportCanceled();
     }
@@ -475,13 +491,8 @@ void QbsProject::handleQbsParsingDone(bool success)
         m_qbsUpdateFutureInterface = 0;
     }
 
-    if (dataChanged) { // Do this now when isParsing() is false!
-        updateCppCodeModel();
-        updateQmlJsCodeModel();
+    if (success)
         updateBuildTargetData();
-
-        emit fileListChanged();
-    }
     emit projectParsingDone(success);
 }
 
@@ -593,8 +604,11 @@ void QbsProject::registerQbsProjectParser(QbsProjectParser *p)
 
     m_qbsProjectParser = p;
 
-    if (p)
+    if (p) {
+        connect(m_qbsProjectParser, &QbsProjectParser::projectStructureAvailable,
+                this, &QbsProject::handleProjectStructureAvailable);
         connect(m_qbsProjectParser, SIGNAL(done(bool)), this, SLOT(handleQbsParsingDone(bool)));
+    }
 }
 
 Project::RestoreResult QbsProject::fromMap(const QVariantMap &map, QString *errorMessage)
