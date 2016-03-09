@@ -959,7 +959,6 @@ public:
         const QString &stopButtonText, const QString &cancelButtonText) const;
 
     void registerAction(Core::Id actionId, const ActionDescription &desc, QAction *startAction);
-    void selectPerspective(const QByteArray &perspectiveId);
 
     // Called when all dependent plugins have loaded.
     void initialize();
@@ -3421,11 +3420,6 @@ void DebuggerPluginPrivate::onModeChanged(IMode *mode)
     }
 }
 
-void DebuggerPluginPrivate::selectPerspective(const QByteArray &perspectiveId)
-{
-    m_mainWindow->restorePerspective(perspectiveId);
-}
-
 void DebuggerPluginPrivate::registerAction(Id actionId, const ActionDescription &desc, QAction *startAction)
 {
     auto action = new QAction(this);
@@ -3616,8 +3610,11 @@ void registerPerspective(const QByteArray &perspectiveId, const Perspective &per
 
 void selectPerspective(const QByteArray &perspectiveId)
 {
+    // FIXME: Work-around aslong as the GammaRay integration does not use the same setup,
+    if (perspectiveId.isEmpty())
+        return;
     ModeManager::activateMode(MODE_DEBUG);
-    dd->selectPerspective(perspectiveId);
+    dd->m_mainWindow->restorePerspective(perspectiveId);
 }
 
 void runAction(Id actionId)
