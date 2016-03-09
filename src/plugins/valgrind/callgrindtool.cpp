@@ -782,16 +782,11 @@ void CallgrindTool::updateRunActions()
         m_startAction->setToolTip(tr("A Valgrind Callgrind analysis is still in progress."));
         m_stopAction->setEnabled(true);
     } else {
-        const bool projectUsable = SessionManager::startupProject() != 0;
-        if (projectUsable) {
-            m_startAction->setEnabled(true);
-            m_startAction->setToolTip(tr("Start a Valgrind Callgrind analysis."));
-            m_stopAction->setEnabled(false);
-        } else {
-            m_startAction->setEnabled(false);
-            m_startAction->setToolTip(tr("Start a Valgrind Callgrind analysis."));
-            m_stopAction->setEnabled(false);
-        }
+        QString whyNot = tr("Start a Valgrind Callgrind analysis.");
+        bool canRun = ProjectExplorerPlugin::canRunStartupProject(CALLGRIND_RUN_MODE, &whyNot);
+        m_startAction->setToolTip(whyNot);
+        m_startAction->setEnabled(canRun);
+        m_stopAction->setEnabled(false);
     }
 }
 void CallgrindTool::clearTextMarks()
