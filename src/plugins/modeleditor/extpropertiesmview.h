@@ -31,6 +31,9 @@
 namespace qmt { class ProjectController; }
 namespace Utils { class PathChooser; }
 
+namespace ModelEditor {
+namespace Internal {
+
 class ExtPropertiesMView : public qmt::PropertiesView::MView
 {
     Q_OBJECT
@@ -51,5 +54,8 @@ private:
     Utils::PathChooser *m_configPath = 0;
     QLabel *m_configPathInfo = 0;
 };
+
+} // namespace Interal
+} // namespace ModelEditor
 
 #endif // EXTPROPERTIESMVIEW_H

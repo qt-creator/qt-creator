@@ -35,6 +35,9 @@
 #include <QFileInfo>
 #include <QDir>
 
+namespace ModelEditor {
+namespace Internal {
+
 ExtPropertiesMView::ExtPropertiesMView(qmt::PropertiesView *view)
     : qmt::PropertiesView::MView(view)
 {
@@ -107,3 +110,6 @@ void ExtPropertiesMView::onConfigPathChanged(const QString &path)
     if (modified && m_configPathInfo)
         m_configPathInfo->setText(tr("<font color=red>Model file must be reloaded.</font>"));
 }
+
+} // namespace Interal
+} // namespace ModelEditor
