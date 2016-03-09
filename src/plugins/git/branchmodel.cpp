@@ -634,10 +634,12 @@ void BranchModel::parseOutputLine(const QString &line)
     if (line.size() < 3)
         return;
 
+    // objectname, refname, upstream:short, *objectname
     QStringList lineParts = line.split(QLatin1Char('\t'));
     const QString shaDeref = lineParts.at(3);
     const QString sha = shaDeref.isEmpty() ? lineParts.at(0) : shaDeref;
     const QString fullName = lineParts.at(1);
+    const QString upstream = lineParts.at(2);
 
     bool current = (sha == m_currentSha);
     bool showTags = m_client->settings().boolValue(GitSettings::showTagsKey);
@@ -671,7 +673,7 @@ void BranchModel::parseOutputLine(const QString &line)
     const QString name = nameParts.last();
     nameParts.removeLast();
 
-    auto newNode = new BranchNode(name, sha, lineParts.at(2));
+    auto newNode = new BranchNode(name, sha, upstream);
     root->insert(nameParts, newNode);
     if (current)
         m_currentBranch = newNode;
