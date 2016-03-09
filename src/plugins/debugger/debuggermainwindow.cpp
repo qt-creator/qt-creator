@@ -96,6 +96,16 @@ void DebuggerMainWindow::registerPerspective(const QByteArray &perspectiveId, co
 {
     m_perspectiveForPerspectiveId.insert(perspectiveId, perspective);
     m_perspectiveChooser->addItem(perspective.name(), perspectiveId);
+    // adjust width if necessary
+    const int oldWidth = m_perspectiveChooser->width();
+    const int contentWidth = m_perspectiveChooser->fontMetrics().width(perspective.name());
+    QStyleOptionComboBox option;
+    option.initFrom(m_perspectiveChooser);
+    const QSize sz(contentWidth, 1);
+    const int width = m_perspectiveChooser->style()->sizeFromContents(
+                QStyle::CT_ComboBox, &option, sz).width();
+    if (width > oldWidth)
+        m_perspectiveChooser->setFixedWidth(width);
 }
 
 void DebuggerMainWindow::registerToolbar(const QByteArray &perspectiveId, QWidget *widget)
