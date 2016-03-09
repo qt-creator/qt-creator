@@ -65,9 +65,6 @@ public:
     QAction *resetLayoutAction() const;
     void addDockActionsToMenu(QMenu *menu);
 
-    QDockWidget *toolBarDockWidget() const;
-    void setToolBarDockWidget(QDockWidget *dock);
-
     bool autoHideTitleBars() const;
 
 signals:

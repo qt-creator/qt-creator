@@ -70,16 +70,6 @@ DebuggerMainWindow::DebuggerMainWindow()
 
     connect(this, &FancyMainWindow::resetLayout,
             this, &DebuggerMainWindow::resetCurrentPerspective);
-
-    auto dock = new QDockWidget(tr("Toolbar"));
-    dock->setObjectName(QLatin1String("Toolbar"));
-    dock->setFeatures(QDockWidget::NoDockWidgetFeatures);
-    dock->setAllowedAreas(Qt::BottomDockWidgetArea);
-    dock->setTitleBarWidget(new QWidget(dock)); // hide title bar
-    dock->setProperty("managed_dockwidget", QLatin1String("true"));
-
-    addDockWidget(Qt::BottomDockWidgetArea, dock);
-    setToolBarDockWidget(dock);
 }
 
 DebuggerMainWindow::~DebuggerMainWindow()
@@ -163,8 +153,6 @@ void DebuggerMainWindow::finalizeSetup()
         menu.exec(viewButton->mapToGlobal(QPoint()));
     });
 
-    toolBarDockWidget()->setWidget(toolbar);
-
     Context debugcontext(Debugger::Constants::C_DEBUGMODE);
 
     ActionContainer *viewsMenu = ActionManager::actionContainer(Core::Constants::M_WINDOW_VIEWS);
@@ -186,6 +174,17 @@ void DebuggerMainWindow::finalizeSetup()
     viewsMenu->addAction(cmd, Core::Constants::G_DEFAULT_THREE);
 
     addDockActionsToMenu(viewsMenu->menu());
+
+    auto dock = new QDockWidget(tr("Toolbar"));
+    dock->setObjectName(QLatin1String("Toolbar"));
+    dock->setFeatures(QDockWidget::NoDockWidgetFeatures);
+    dock->setAllowedAreas(Qt::BottomDockWidgetArea);
+    dock->setTitleBarWidget(new QWidget(dock)); // hide title bar
+    dock->setProperty("managed_dockwidget", QLatin1String("true"));
+    dock->setWidget(toolbar);
+    m_toolbarDock = dock;
+
+    addDockWidget(Qt::BottomDockWidgetArea, dock);
 }
 
 void DebuggerMainWindow::loadPerspectiveHelper(const QByteArray &perspectiveId, bool fromStoredSettings)
@@ -240,7 +239,7 @@ void DebuggerMainWindow::loadPerspectiveHelper(const QByteArray &perspectiveId, 
         addDockWidget(operation.area, dock);
         QDockWidget *anchor = m_dockForDockId.value(operation.anchorDockId);
         if (!anchor && operation.area == Qt::BottomDockWidgetArea)
-            anchor = toolBarDockWidget();
+            anchor = m_toolbarDock;
         if (anchor) {
             switch (operation.operationType) {
             case Perspective::AddToTab:

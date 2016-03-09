@@ -61,7 +61,6 @@ struct FancyMainWindowPrivate
     QAction m_menuSeparator1;
     QAction m_menuSeparator2;
     QAction m_resetLayoutAction;
-    QDockWidget *m_toolBarDockWidget;
     QAction m_autoHideTitleBars;
 };
 
@@ -336,7 +335,6 @@ FancyMainWindowPrivate::FancyMainWindowPrivate(FancyMainWindow *parent) :
     m_menuSeparator1(0),
     m_menuSeparator2(0),
     m_resetLayoutAction(FancyMainWindow::tr("Reset to Default Layout"), 0),
-    m_toolBarDockWidget(0),
     m_autoHideTitleBars(FancyMainWindow::tr("Automatically Hide View Title Bars"), 0)
 {
     m_menuSeparator1.setSeparator(true);
@@ -550,16 +548,6 @@ void FancyMainWindow::setDockActionsVisible(bool v)
     d->m_menuSeparator1.setVisible(v);
     d->m_menuSeparator2.setVisible(v);
     d->m_resetLayoutAction.setVisible(v);
-}
-
-QDockWidget *FancyMainWindow::toolBarDockWidget() const
-{
-    return d->m_toolBarDockWidget;
-}
-
-void FancyMainWindow::setToolBarDockWidget(QDockWidget *dock)
-{
-    d->m_toolBarDockWidget = dock;
 }
 
 } // namespace Utils

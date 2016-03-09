@@ -127,6 +127,7 @@ private:
     QComboBox *m_perspectiveChooser;
     QStackedWidget *m_controlsStackWidget;
     Utils::StatusLabel *m_statusLabel;
+    QDockWidget *m_toolbarDock;
 
     QHash<QByteArray, QDockWidget *> m_dockForDockId;
     QHash<QByteArray, QWidget *> m_toolbarForPerspectiveId;
