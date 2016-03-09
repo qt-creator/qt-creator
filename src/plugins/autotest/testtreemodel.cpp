@@ -253,7 +253,7 @@ QList<TestConfiguration *> TestTreeModel::getAllTestCases() const
     }
 
     // get all Quick Tests
-    QMap<QString, int> foundProFiles;
+    QHash<QString, int> foundProFiles;
     for (int row = 0, count = m_quickTestRootItem->childCount(); row < count; ++row) {
         const TestTreeItem *child = m_quickTestRootItem->childItem(row);
         // unnamed Quick Tests must be handled separately
@@ -270,12 +270,15 @@ QList<TestConfiguration *> TestTreeModel::getAllTestCases() const
         foundProFiles.insert(proFile, foundProFiles[proFile] + child->childCount());
     }
     // create TestConfiguration for each project file
-    foreach (const QString &proFile, foundProFiles.keys()) {
-        TestConfiguration *tc = new TestConfiguration(QString(), QStringList(),
-                                                      foundProFiles.value(proFile));
-        tc->setProFile(proFile);
-        tc->setProject(project);
-        result << tc;
+    {
+        QHash<QString, int>::ConstIterator it = foundProFiles.begin();
+        QHash<QString, int>::ConstIterator end = foundProFiles.end();
+        for ( ; it != end; ++it) {
+            TestConfiguration *tc = new TestConfiguration(QString(), QStringList(), it.value());
+            tc->setProFile(it.key());
+            tc->setProject(project);
+            result << tc;
+        }
     }
 
     foundProFiles.clear();
@@ -298,16 +301,18 @@ QList<TestConfiguration *> TestTreeModel::getAllTestCases() const
         }
     }
 
-    QHash<ProFileWithDisplayName, int>::Iterator it = proFilesWithTestSets.begin();
-    QHash<ProFileWithDisplayName, int>::Iterator end = proFilesWithTestSets.end();
-    for ( ; it != end; ++it) {
-        const ProFileWithDisplayName &key = it.key();
-        TestConfiguration *tc = new TestConfiguration(QString(), QStringList(), it.value());
-        tc->setTestType(TestTypeGTest);
-        tc->setProFile(key.proFile);
-        tc->setDisplayName(key.displayName);
-        tc->setProject(project);
-        result << tc;
+    {
+        QHash<ProFileWithDisplayName, int>::ConstIterator it = proFilesWithTestSets.begin();
+        QHash<ProFileWithDisplayName, int>::ConstIterator end = proFilesWithTestSets.end();
+        for ( ; it != end; ++it) {
+            const ProFileWithDisplayName &key = it.key();
+            TestConfiguration *tc = new TestConfiguration(QString(), QStringList(), it.value());
+            tc->setTestType(TestTypeGTest);
+            tc->setProFile(key.proFile);
+            tc->setDisplayName(key.displayName);
+            tc->setProject(project);
+            result << tc;
+        }
     }
 
     return result;
@@ -371,7 +376,7 @@ QList<TestConfiguration *> TestTreeModel::getSelectedTests() const
     // on and on and on...
     // TODO: do this later on for Auto Tests as well to support strange setups? or redo the model
 
-    QMap<QString, TestConfiguration *> foundProFiles;
+    QHash<QString, TestConfiguration *> foundProFiles;
 
     if (TestTreeItem *unnamed = unnamedQuickTests()) {
         for (int childRow = 0, ccount = unnamed->childCount(); childRow < ccount; ++ childRow) {
@@ -437,11 +442,16 @@ QList<TestConfiguration *> TestTreeModel::getSelectedTests() const
         }
     }
 
-    foreach (TestConfiguration *config, foundProFiles.values()) {
-        if (!config->unnamedOnly())
-            result << config;
-        else
-            delete config;
+    {
+        QHash<QString, TestConfiguration *>::ConstIterator it = foundProFiles.begin();
+        QHash<QString, TestConfiguration *>::ConstIterator end = foundProFiles.end();
+        for ( ; it != end; ++it) {
+            TestConfiguration *config = it.value();
+            if (!config->unnamedOnly())
+                result << config;
+            else
+                delete config;
+        }
     }
 
     // get selected Google Tests
@@ -465,16 +475,18 @@ QList<TestConfiguration *> TestTreeModel::getSelectedTests() const
         }
     }
 
-    QHash<ProFileWithDisplayName, QStringList>::Iterator it = proFilesWithCheckedTestSets.begin();
-    QHash<ProFileWithDisplayName, QStringList>::Iterator end = proFilesWithCheckedTestSets.end();
-    for ( ; it != end; ++it) {
-        const ProFileWithDisplayName &key = it.key();
-        TestConfiguration *tc = new TestConfiguration(QString(), it.value());
-        tc->setTestType(TestTypeGTest);
-        tc->setProFile(key.proFile);
-        tc->setDisplayName(key.displayName);
-        tc->setProject(project);
-        result << tc;
+    {
+        QHash<ProFileWithDisplayName, QStringList>::ConstIterator it = proFilesWithCheckedTestSets.begin();
+        QHash<ProFileWithDisplayName, QStringList>::ConstIterator end = proFilesWithCheckedTestSets.end();
+        for ( ; it != end; ++it) {
+            const ProFileWithDisplayName &key = it.key();
+            TestConfiguration *tc = new TestConfiguration(QString(), it.value());
+            tc->setTestType(TestTypeGTest);
+            tc->setProFile(key.proFile);
+            tc->setDisplayName(key.displayName);
+            tc->setProject(project);
+            result << tc;
+        }
     }
 
     return result;
@@ -649,9 +661,9 @@ void TestTreeModel::sweep()
 #endif
 }
 
-QMap<QString, QString> TestTreeModel::testCaseNamesForFiles(QStringList files)
+QHash<QString, QString> TestTreeModel::testCaseNamesForFiles(QStringList files)
 {
-    QMap<QString, QString> result;
+    QHash<QString, QString> result;
     if (!m_autoTestRootItem)
         return result;
 
