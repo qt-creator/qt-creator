@@ -16,3 +16,6 @@ QTC_PLUGIN_DEPENDS += \
     texteditor
 QTC_PLUGIN_RECOMMENDS += \
     cppeditor
+QTC_TEST_DEPENDS += \
+    qmakeprojectmanager
+

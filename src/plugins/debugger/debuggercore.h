@@ -93,6 +93,8 @@ void setSessionValue(const QByteArray &name, const QVariant &value);
 QVariant configValue(const QByteArray &name);
 void setConfigValue(const QByteArray &name, const QVariant &value);
 
+bool isTestRun();
+
 Utils::SavedAction *action(int code);
 bool boolSetting(int code);
 QString stringSetting(int code);

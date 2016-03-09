@@ -141,6 +141,11 @@ SOURCES += registerpostmortemaction.cpp
 LIBS  *= -lole32 \
     -lshell32
 }
+
+equals(TEST, 1) {
+    RESOURCES += debuggerunittests.qrc
+}
+
 include(cdb/cdb.pri)
 include(gdb/gdb.pri)
 include(pdb/pdb.pri)
