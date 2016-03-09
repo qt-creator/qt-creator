@@ -954,10 +954,6 @@ public:
     bool parseArguments(const QStringList &args, QString *errorMessage);
     void parseCommandLineArguments();
 
-    // Ex-Analyzer
-    bool showPromptDialog(const QString &title, const QString &text,
-        const QString &stopButtonText, const QString &cancelButtonText) const;
-
     // Called when all dependent plugins have loaded.
     void initialize();
 
@@ -3359,23 +3355,6 @@ void DebuggerPluginPrivate::updateActiveLanguages()
 //    }
 //    return QObject::eventFilter(obj, event);
 //}
-
-bool DebuggerPluginPrivate::showPromptDialog(const QString &title, const QString &text,
-    const QString &stopButtonText, const QString &cancelButtonText) const
-{
-    CheckableMessageBox messageBox(ICore::mainWindow());
-    messageBox.setWindowTitle(title);
-    messageBox.setText(text);
-    messageBox.setStandardButtons(QDialogButtonBox::Yes|QDialogButtonBox::Cancel);
-    if (!stopButtonText.isEmpty())
-        messageBox.button(QDialogButtonBox::Yes)->setText(stopButtonText);
-    if (!cancelButtonText.isEmpty())
-        messageBox.button(QDialogButtonBox::Cancel)->setText(cancelButtonText);
-    messageBox.setDefaultButton(QDialogButtonBox::Yes);
-    messageBox.setCheckBoxVisible(false);
-    messageBox.exec();
-    return messageBox.clickedStandardButton() == QDialogButtonBox::Yes;
-}
 
 void DebuggerPluginPrivate::onModeChanged(IMode *mode)
 {
