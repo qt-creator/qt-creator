@@ -29,6 +29,7 @@
 
 #include "../gitplugin.h"
 #include "../gitclient.h"
+#include "../gitconstants.h"
 
 #include <QDateTime>
 #include <QDir>
@@ -235,7 +236,7 @@ void GerritPushDialog::setRemoteBranches(bool includeOld)
     foreach (const BranchDate &bd, m_remoteBranches.values(remoteName)) {
         const bool isSuggested = bd.first == m_suggestedRemoteBranch;
         if (includeOld || isSuggested || !bd.second.isValid()
-                || bd.second.daysTo(QDate::currentDate()) <= 60) {
+                || bd.second.daysTo(QDate::currentDate()) <= Git::Constants::OBSOLETE_COMMIT_AGE_IN_DAYS) {
             m_ui->targetBranchComboBox->addItem(bd.first);
             if (isSuggested)
                 m_ui->targetBranchComboBox->setCurrentIndex(i);

@@ -25,11 +25,13 @@
 
 #include "branchmodel.h"
 #include "gitclient.h"
+#include "gitconstants.h"
 
 #include <utils/qtcassert.h>
 #include <vcsbase/vcsoutputwindow.h>
 #include <vcsbase/vcscommand.h>
 
+#include <QDateTime>
 #include <QFont>
 
 using namespace VcsBase;
@@ -348,7 +350,8 @@ bool BranchModel::refresh(const QString &workingDirectory, QString *errorMessage
 
     m_currentSha = m_client->synchronousTopRevision(workingDirectory);
     QStringList args;
-    args << QLatin1String("--format=%(objectname)\t%(refname)\t%(upstream:short)\t%(*objectname)");
+    args << QLatin1String("--format=%(objectname)\t%(refname)\t%(upstream:short)\t"
+                          "%(*objectname)\t%(committerdate:raw)\t%(*committerdate:raw)");
     QString output;
     if (!m_client->synchronousForEachRefCmd(workingDirectory, args, &output, errorMessage))
         VcsOutputWindow::appendError(*errorMessage);
@@ -629,18 +632,34 @@ void BranchModel::setRemoteTracking(const QModelIndex &trackingIndex)
     emit dataChanged(current, current);
 }
 
+void BranchModel::setOldBranchesIncluded(bool value)
+{
+    m_oldBranchesIncluded = value;
+}
+
 void BranchModel::parseOutputLine(const QString &line)
 {
     if (line.size() < 3)
         return;
 
-    // objectname, refname, upstream:short, *objectname
+    // objectname, refname, upstream:short, *objectname, committerdate:raw, *committerdate:raw
     QStringList lineParts = line.split(QLatin1Char('\t'));
     const QString shaDeref = lineParts.at(3);
     const QString sha = shaDeref.isEmpty() ? lineParts.at(0) : shaDeref;
     const QString fullName = lineParts.at(1);
     const QString upstream = lineParts.at(2);
 
+    if (!m_oldBranchesIncluded) {
+        QString strDateTime = lineParts.at(5);
+        if (strDateTime.isEmpty())
+            strDateTime = lineParts.at(4);
+        if (!strDateTime.isEmpty()) {
+            const uint timeT = strDateTime.leftRef(strDateTime.indexOf(QLatin1Char(' '))).toUInt();
+            const int age = QDateTime::fromTime_t(timeT).daysTo(QDateTime::currentDateTime());
+            if (age > Constants::OBSOLETE_COMMIT_AGE_IN_DAYS)
+                return;
+        }
+    }
     bool current = (sha == m_currentSha);
     bool showTags = m_client->settings().boolValue(GitSettings::showTagsKey);
 

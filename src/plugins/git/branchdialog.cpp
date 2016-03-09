@@ -30,6 +30,7 @@
 #include "gitclient.h"
 #include "gitplugin.h"
 #include "gitutils.h"
+#include "gitconstants.h"
 #include "ui_branchdialog.h"
 #include "stashdialog.h" // Label helpers
 
@@ -61,6 +62,9 @@ BranchDialog::BranchDialog(QWidget *parent) :
     setAttribute(Qt::WA_DeleteOnClose, true); // Do not update unnecessarily
 
     m_ui->setupUi(this);
+    m_ui->includeOldCheckBox->setToolTip(
+                tr("Include branches and tags that have not been active for %1 days.")
+                .arg(Constants::OBSOLETE_COMMIT_AGE_IN_DAYS));
 
     connect(m_ui->refreshButton, &QAbstractButton::clicked, this, &BranchDialog::refreshCurrentRepository);
     connect(m_ui->addButton, &QAbstractButton::clicked, this, &BranchDialog::add);
@@ -74,8 +78,13 @@ BranchDialog::BranchDialog(QWidget *parent) :
     connect(m_ui->rebaseButton, &QAbstractButton::clicked, this, &BranchDialog::rebase);
     connect(m_ui->cherryPickButton, &QAbstractButton::clicked, this, &BranchDialog::cherryPick);
     connect(m_ui->trackButton, &QAbstractButton::clicked, this, &BranchDialog::setRemoteTracking);
+    connect(m_ui->includeOldCheckBox, &QCheckBox::toggled, this, [this](bool value) {
+        m_model->setOldBranchesIncluded(value);
+        refreshCurrentRepository();
+    });
 
     m_ui->branchView->setModel(m_model);
+    m_ui->branchView->setFocus();
 
     connect(m_ui->branchView->selectionModel(), &QItemSelectionModel::selectionChanged,
             this, &BranchDialog::enableButtons);
