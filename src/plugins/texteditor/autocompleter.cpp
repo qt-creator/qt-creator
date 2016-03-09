@@ -208,7 +208,6 @@ bool AutoCompleter::autoBackspace(QTextCursor &cursor)
     QTextDocument *doc = cursor.document();
     const QChar lookAhead = doc->characterAt(pos);
     const QChar lookBehind = doc->characterAt(pos - 1);
-    const QChar lookFurtherBehind = doc->characterAt(pos - 2);
 
     const QChar character = lookBehind;
     if (character == QLatin1Char('(') || character == QLatin1Char('[')) {
@@ -237,11 +236,7 @@ bool AutoCompleter::autoBackspace(QTextCursor &cursor)
 
     // ### this code needs to be generalized
     if    ((lookBehind == QLatin1Char('(') && lookAhead == QLatin1Char(')'))
-        || (lookBehind == QLatin1Char('[') && lookAhead == QLatin1Char(']'))
-        || (lookBehind == QLatin1Char('"') && lookAhead == QLatin1Char('"')
-            && lookFurtherBehind != QLatin1Char('\\'))
-        || (lookBehind == QLatin1Char('\'') && lookAhead == QLatin1Char('\'')
-            && lookFurtherBehind != QLatin1Char('\\'))) {
+        || (lookBehind == QLatin1Char('[') && lookAhead == QLatin1Char(']'))) {
         if (! isInComment(c)) {
             cursor.beginEditBlock();
             cursor.deleteChar();
