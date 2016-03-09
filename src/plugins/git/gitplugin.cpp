@@ -686,8 +686,10 @@ void GitPlugin::logRepository()
 
 void GitPlugin::undoFileChanges(bool revertStaging)
 {
-    if (!DocumentManager::saveAllModifiedDocuments())
-        return;
+    if (IDocument *document = EditorManager::currentDocument()) {
+        if (!DocumentManager::saveModifiedDocument(document))
+            return;
+    }
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasFile(), return);
     FileChangeBlocker fcb(state.currentFile());
