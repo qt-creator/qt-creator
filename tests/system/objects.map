@@ -30,10 +30,10 @@
 :Add Bookmark_BookmarkDialog	{name='BookmarkDialog' type='BookmarkDialog' visible='1' windowTitle='Add Bookmark'}
 :Add to Version Control.No_QPushButton	{text='No' type='QPushButton' unnamed='1' visible='1' window=':Add to Version Control_QMessageBox'}
 :Add to Version Control_QMessageBox	{text~='Add the file.*to version control (.*)?' type='QMessageBox' unnamed='1' visible='1'}
-:Analyzer Toolbar.AnalyzerManagerToolBox_QComboBox	{container=':Qt Creator.Analyzer Toolbar_QDockWidget' name='AnalyzerManagerToolBox' type='QComboBox' visible='1'}
-:Analyzer Toolbar.Clear_QToolButton	{container=':Qt Creator.Analyzer Toolbar_QDockWidget' toolTip='Discard data' type='QToolButton' unnamed='1' visible='1'}
-:Analyzer Toolbar.Elapsed:_QLabel	{container=':Qt Creator.Analyzer Toolbar_QDockWidget' text~='Elapsed:    \\\\d+.\\\\d s' type='QLabel' unnamed='1' visible='1'}
-:Analyzer Toolbar.Start_QToolButton	{container=':Qt Creator.Analyzer Toolbar_QDockWidget' text='Start' type='QToolButton' unnamed='1' visible='1'}
+:Analyzer Toolbar.AnalyzerManagerToolBox_QComboBox	{container=':DebugModeWidget.Toolbar_QDockWidget' name='PerspectiveChooser' type='QComboBox' visible='1'}
+:Analyzer Toolbar.Clear_QToolButton	{container=':DebugModeWidget.Toolbar_QDockWidget' toolTip='Discard data' type='QToolButton' unnamed='1' visible='1'}
+:Analyzer Toolbar.Elapsed:_QLabel	{container=':DebugModeWidget.Toolbar_QDockWidget' text~='Elapsed:    \\\\d+.\\\\d s' type='QLabel' unnamed='1' visible='1'}
+:Analyzer Toolbar.Start_QToolButton	{container=':DebugModeWidget.Toolbar_QDockWidget' text='Start' type='QToolButton' unnamed='1' visible='1'}
 :Behavior.Autocomplete common prefix_QCheckBox	{container=':CppTools__Internal__CompletionSettingsPage.Behavior_QGroupBox' name='partiallyComplete' text='Autocomplete common prefix' type='QCheckBox' visible='1'}
 :Behavior.completionTrigger_QComboBox	{container=':CppTools__Internal__CompletionSettingsPage.Behavior_QGroupBox' name='completionTrigger' type='QComboBox' visible='1'}
 :Breakpoints_Debugger::Internal::BreakTreeView	{container=':Debugger.Docks.BreakDockWidget.Debugger.Docks.Break_QFrame' type='Debugger::Internal::BreakTreeView' unnamed='1' visible='1'}
@@ -121,7 +121,6 @@
 :QML Debugging_QMessageBox	{text='The option will only take effect if the project is recompiled. Do you want to recompile now?' type='QMessageBox' unnamed='1' visible='1'}
 :Debugger::Internal::ConsoleEdit	{columnIndex='0' container=':DebugModeWidget_Debugger::Internal::ConsoleView' rowIndex='0' type='Debugger::Internal::ConsoleEdit' unnamed='1' visible='1'}
 :Qt Creator.Add Bookmark_QToolButton	{text='Add Bookmark' type='QToolButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
-:Qt Creator.Analyzer Toolbar_QDockWidget	{name='Analyzer Toolbar' type='QDockWidget' visible='1' window=':Qt Creator_Core::Internal::MainWindow' windowTitle='Analyzer Toolbar'}
 :Qt Creator.CloseDoc_QToolButton	{toolTip?='Close Document *' type='QToolButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator.CloseFind_QToolButton	{name='close' type='QToolButton' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator.Compile Output_Core::OutputWindow	{type='Core::OutputWindow' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow' windowTitle='Compile Output'}
