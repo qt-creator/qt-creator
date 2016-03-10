@@ -75,6 +75,7 @@ public:
     bool isParsing() const;
 
     void parse();
+    void clearCache();
     void forceReparse();
     void resetData();
     bool persistCMakeState();

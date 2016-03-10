@@ -58,10 +58,12 @@ public:
     static QString findCbpFile(const QDir &);
 
 private:
-    void updateRunCmakeAction();
+    void updateCmakeActions();
+    void clearCMakeCache(ProjectExplorer::Project *project);
     void runCMake(ProjectExplorer::Project *project);
 
     QAction *m_runCMakeAction;
+    QAction *m_clearCMakeCacheAction;
     QAction *m_runCMakeActionContextMenu;
 };
 

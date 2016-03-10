@@ -225,6 +225,21 @@ void BuildDirManager::parse()
     }
 }
 
+void BuildDirManager::clearCache()
+{
+    auto cmakeCache = Utils::FileName(buildDirectory()).appendPath(QLatin1String("CMakeCache.txt"));
+    auto cmakeFiles = Utils::FileName(buildDirectory()).appendPath(QLatin1String("CMakeFiles"));
+
+    const bool mustCleanUp = cmakeCache.exists() || cmakeFiles.exists();
+    if (!mustCleanUp)
+        return;
+
+    Utils::FileUtils::removeRecursively(cmakeCache);
+    Utils::FileUtils::removeRecursively(cmakeFiles);
+
+    forceReparse();
+}
+
 bool BuildDirManager::isProjectFile(const Utils::FileName &fileName) const
 {
     return m_watchedFiles.contains(fileName);
