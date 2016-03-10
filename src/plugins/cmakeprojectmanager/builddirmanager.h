@@ -77,6 +77,7 @@ public:
     void parse();
     void clearCache();
     void forceReparse();
+    void maybeForceReparse(); // Only reparse if the configuration has changed...
     void resetData();
     bool persistCMakeState();
 

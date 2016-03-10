@@ -595,5 +595,58 @@ CMakeConfig BuildDirManager::parseConfiguration(const Utils::FileName &cacheFile
     return result;
 }
 
+void BuildDirManager::maybeForceReparse()
+{
+    const QByteArray GENERATOR_KEY = "CMAKE_GENERATOR";
+    const QByteArray EXTRA_GENERATOR_KEY = "CMAKE_EXTRA_GENERATOR";
+    const QByteArray CMAKE_COMMAND_KEY = "CMAKE_COMMAND";
+
+    if (!m_hasData)
+        return;
+
+    const CMakeConfig currentConfig = parsedConfiguration();
+
+    const QString kitGenerator = CMakeGeneratorKitInformation::generator(kit());
+    int pos = kitGenerator.lastIndexOf(QLatin1String(" - "));
+    const QString extraKitGenerator = (pos > 0) ? kitGenerator.left(pos) : QString();
+    const QString mainKitGenerator = (pos > 0) ? kitGenerator.mid(pos + 3) : kitGenerator;
+    CMakeConfig targetConfig = m_buildConfiguration->cmakeConfiguration();
+    targetConfig.append(CMakeConfigItem(GENERATOR_KEY, CMakeConfigItem::INTERNAL,
+                                     QByteArray(), mainKitGenerator.toUtf8()));
+    if (!extraKitGenerator.isEmpty())
+        targetConfig.append(CMakeConfigItem(EXTRA_GENERATOR_KEY, CMakeConfigItem::INTERNAL,
+                                         QByteArray(), extraKitGenerator.toUtf8()));
+    const CMakeTool *tool = CMakeKitInformation::cmakeTool(kit());
+    if (tool)
+        targetConfig.append(CMakeConfigItem(CMAKE_COMMAND_KEY, CMakeConfigItem::INTERNAL,
+                                         QByteArray(), tool->cmakeExecutable().toUserOutput().toUtf8()));
+    Utils::sort(targetConfig, CMakeConfigItem::sortOperator());
+
+    auto ccit = currentConfig.constBegin();
+    auto kcit = targetConfig.constBegin();
+    while (ccit != currentConfig.constEnd() && kcit != targetConfig.constEnd()) {
+        if (ccit->key == kcit->key) {
+            if (ccit->value != kcit->value)
+                break;
+            ++ccit;
+            ++kcit;
+        } else {
+            if (ccit->key < kcit->key)
+                ++ccit;
+            else
+                break;
+        }
+    }
+
+    if (kcit != targetConfig.end()) {
+        if (kcit->key == GENERATOR_KEY
+                || kcit->key == EXTRA_GENERATOR_KEY
+                || kcit->key == CMAKE_COMMAND_KEY)
+            clearCache();
+        else
+            forceReparse();
+    }
+}
+
 } // namespace Internal
 } // namespace CMakeProjectManager
