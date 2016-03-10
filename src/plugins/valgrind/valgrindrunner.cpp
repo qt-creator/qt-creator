@@ -148,7 +148,7 @@ bool ValgrindRunner::start()
     QObject::connect(d->process, &ValgrindProcess::error,
                      this, &ValgrindRunner::processError);
 
-    d->process->run();
+    d->process->run(d->debuggee.runMode);
     return true;
 }
 

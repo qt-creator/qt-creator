@@ -55,7 +55,7 @@ public:
     void setValgrindArguments(const QStringList &valgrindArguments);
     void setDebuggee(const ProjectExplorer::StandardRunnable &debuggee);
 
-    void run();
+    void run(ProjectExplorer::ApplicationLauncher::Mode runMode);
     void close();
 
     QString errorString() const;

@@ -111,7 +111,7 @@ void ValgrindProcess::close()
     }
 }
 
-void ValgrindProcess::run()
+void ValgrindProcess::run(ApplicationLauncher::Mode runMode)
 {
     if (isLocal()) {
         connect(&m_localProcess, &ApplicationLauncher::processExited,
@@ -125,7 +125,7 @@ void ValgrindProcess::run()
 
         StandardRunnable valgrind;
         valgrind.executable = m_valgrindExecutable;
-        valgrind.runMode = m_debuggee.runMode;
+        valgrind.runMode = runMode;
         valgrind.commandLineArguments = argumentString(Utils::HostOsInfo::hostOs());
         valgrind.workingDirectory = m_debuggee.workingDirectory;
         valgrind.environment = m_debuggee.environment;
