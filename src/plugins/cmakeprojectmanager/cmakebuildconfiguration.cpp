@@ -195,7 +195,7 @@ QList<ConfigModel::DataItem> CMakeBuildConfiguration::completeCMakeConfiguration
         return QList<ConfigModel::DataItem>();
 
     if (m_completeConfigurationCache.isEmpty())
-        m_completeConfigurationCache = m_buildDirManager->configuration();
+        m_completeConfigurationCache = m_buildDirManager->parsedConfiguration();
 
     return Utils::transform(m_completeConfigurationCache, [](const CMakeConfigItem &i) {
         ConfigModel::DataItem j;

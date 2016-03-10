@@ -139,7 +139,7 @@ const Utils::FileName BuildDirManager::sourceDirectory() const
     return m_buildConfiguration->target()->project()->projectDirectory();
 }
 
-const CMakeConfig BuildDirManager::cmakeConfiguration() const
+const CMakeConfig BuildDirManager::intendedConfiguration() const
 {
     return m_buildConfiguration->cmakeConfiguration();
 }
@@ -161,7 +161,7 @@ void BuildDirManager::forceReparse()
     QTC_ASSERT(tool, return);
     QTC_ASSERT(!generator.isEmpty(), return);
 
-    startCMake(tool, generator, cmakeConfiguration());
+    startCMake(tool, generator, intendedConfiguration());
 }
 
 void BuildDirManager::resetData()
@@ -208,7 +208,7 @@ void BuildDirManager::parse()
 
     if (!cbpFileFi.exists()) {
         // Initial create:
-        startCMake(tool, generator, cmakeConfiguration());
+        startCMake(tool, generator, intendedConfiguration());
         return;
     }
 
@@ -265,7 +265,7 @@ void BuildDirManager::clearFiles()
     m_files.clear();
 }
 
-CMakeConfig BuildDirManager::configuration() const
+CMakeConfig BuildDirManager::parsedConfiguration() const
 {
     if (!m_hasData)
         return CMakeConfig();
