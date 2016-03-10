@@ -281,18 +281,15 @@ void ClangStaticAnalyzerTool::updateRunActions()
 {
     if (m_toolBusy) {
         m_startAction->setEnabled(false);
-        m_startAction->setToolTip(tr("A Clang analysis is still in progress."));
+        m_startAction->setToolTip(tr("Clang Static Analyzer is still running."));
         m_stopAction->setEnabled(true);
     } else {
-        const bool projectUsable = SessionManager::startupProject() != 0;
-        m_startAction->setToolTip(tr("Start Qml Profiler."));
-        if (projectUsable) {
-            m_startAction->setEnabled(true);
-            m_stopAction->setEnabled(false);
-        } else {
-            m_startAction->setEnabled(false);
-            m_stopAction->setEnabled(false);
-        }
+        QString whyNot = tr("Start Clang Static Analyzer.");
+        bool canRun = ProjectExplorerPlugin::canRunStartupProject(
+            Constants::CLANGSTATICANALYZER_RUN_MODE, &whyNot);
+        m_startAction->setToolTip(whyNot);
+        m_startAction->setEnabled(canRun);
+        m_stopAction->setEnabled(false);
     }
 }
 void ClangStaticAnalyzerTool::setBusyCursor(bool busy)
