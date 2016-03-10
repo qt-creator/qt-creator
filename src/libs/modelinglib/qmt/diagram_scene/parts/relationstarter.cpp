@@ -36,8 +36,6 @@
 #include <QGraphicsScene>
 #include <QPainter>
 
-#include <QDebug>
-
 namespace qmt {
 
 RelationStarter::RelationStarter(IRelationable *owner, DiagramSceneModel *diagramSceneModel, QGraphicsItem *parent)
@@ -93,7 +91,8 @@ void RelationStarter::addArrow(const QString &id, ArrowItem::Shaft shaft,
 
 void RelationStarter::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
-    m_currentPreviewArrow = 0;
+    if (m_currentPreviewArrow)
+        return;
     foreach (ArrowItem *item, m_arrows) {
         if (item->boundingRect().contains(mapToItem(item, event->pos()))) {
             prepareGeometryChange();
@@ -145,6 +144,17 @@ void RelationStarter::keyPressEvent(QKeyEvent *event)
             m_currentPreviewArrowIntermediatePoints.removeLast();
             updateCurrentPreviewArrow(m_currentPreviewArrow->lastLineSegment().p1());
         }
+    }
+}
+
+void RelationStarter::focusOutEvent(QFocusEvent *event)
+{
+    Q_UNUSED(event);
+    if (m_currentPreviewArrow) {
+        m_currentPreviewArrow->scene()->removeItem(m_currentPreviewArrow);
+        delete m_currentPreviewArrow;
+        m_currentPreviewArrow = 0;
+        m_currentPreviewArrowIntermediatePoints.clear();
     }
 }
 
