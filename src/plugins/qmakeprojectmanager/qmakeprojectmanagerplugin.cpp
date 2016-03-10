@@ -257,6 +257,8 @@ bool QmakeProjectManagerPlugin::initialize(const QStringList &arguments, QString
     connect(EditorManager::instance(), &EditorManager::currentEditorChanged,
             this, &QmakeProjectManagerPlugin::updateBuildFileAction);
 
+    updateRunQMakeAction();
+
     return true;
 }
 
