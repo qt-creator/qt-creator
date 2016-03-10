@@ -596,6 +596,7 @@ void ModelEditor::updateSelectedArea(SelectedArea selectedArea)
     bool canSelectAll = false;
     bool canCopyDiagram = false;
     bool canOpenParentDiagram = false;
+    bool canExportDiagram = false;
     QList<qmt::MElement *> propertiesModelElements;
     QList<qmt::DElement *> propertiesDiagramElements;
     qmt::MDiagram *propertiesDiagram = 0;
@@ -604,10 +605,12 @@ void ModelEditor::updateSelectedArea(SelectedArea selectedArea)
     switch (d->selectedArea) {
     case SelectedArea::Nothing:
         canSelectAll = activeDiagram && !activeDiagram->diagramElements().isEmpty();
+        canExportDiagram = activeDiagram != 0;
         break;
     case SelectedArea::Diagram:
     {
         if (activeDiagram) {
+            canExportDiagram = true;
             bool hasSelection = documentController->diagramsManager()->diagramSceneModel(activeDiagram)->hasSelection();
             canCutCopyDelete = hasSelection;
             canRemove = hasSelection;
@@ -631,6 +634,7 @@ void ModelEditor::updateSelectedArea(SelectedArea selectedArea)
     }
     case SelectedArea::TreeView:
     {
+        canExportDiagram = activeDiagram != 0;
         bool hasSelection = !d->modelTreeViewServant->selectedObjects().isEmpty();
         bool hasSingleSelection = d->modelTreeViewServant->selectedObjects().indices().size() == 1;
         canCutCopyDelete = hasSelection && !d->modelTreeViewServant->isRootPackageSelected();
@@ -658,6 +662,7 @@ void ModelEditor::updateSelectedArea(SelectedArea selectedArea)
     d->actionHandler->deleteAction()->setEnabled(canCutCopyDelete);
     d->actionHandler->selectAllAction()->setEnabled(canSelectAll);
     d->actionHandler->openParentDiagramAction()->setEnabled(canOpenParentDiagram);
+    d->actionHandler->exportDiagramAction()->setEnabled(canExportDiagram);
 
     if (!propertiesModelElements.isEmpty())
         showProperties(propertiesModelElements);
