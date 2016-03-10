@@ -2733,8 +2733,9 @@ void ProjectExplorerPluginPrivate::updateDeployActions()
     emit m_instance->updateRunActions();
 }
 
-bool ProjectExplorerPlugin::canRun(Project *project, Core::Id runMode, QString *whyNot)
+bool ProjectExplorerPlugin::canRunStartupProject(Core::Id runMode, QString *whyNot)
 {
+    Project *project = SessionManager::startupProject();
     if (!project) {
         if (whyNot)
             *whyNot = tr("No active project.");
@@ -2798,9 +2799,8 @@ bool ProjectExplorerPlugin::canRun(Project *project, Core::Id runMode, QString *
 
 void ProjectExplorerPluginPrivate::slotUpdateRunActions()
 {
-    Project *project = SessionManager::startupProject();
     QString whyNot;
-    const bool state = ProjectExplorerPlugin::canRun(project, Constants::NORMAL_RUN_MODE, &whyNot);
+    const bool state = ProjectExplorerPlugin::canRunStartupProject(Constants::NORMAL_RUN_MODE, &whyNot);
     m_runAction->setEnabled(state);
     m_runAction->setToolTip(whyNot);
     m_runWithoutDeployAction->setEnabled(state);
