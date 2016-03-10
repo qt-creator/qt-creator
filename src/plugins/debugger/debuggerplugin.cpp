@@ -497,10 +497,24 @@ bool DummyEngine::hasCapability(unsigned cap) const
 //
 ///////////////////////////////////////////////////////////////////////
 
+class DebugModeContext : public IContext
+{
+public:
+    DebugModeContext(DebuggerMainWindow *mainWindow) : m_mainWindow(mainWindow)
+    {
+        setContext(Context(CC::C_EDITORMANAGER));
+        ICore::addContextObject(this);
+    }
+
+    QWidget *widget() const override { return m_mainWindow->modeWindow(); }
+
+    DebuggerMainWindow *m_mainWindow;
+};
+
 class DebugMode : public IMode
 {
 public:
-    DebugMode()
+    DebugMode(DebuggerMainWindow *mainWindow) : m_mainWindow(mainWindow)
     {
         setObjectName(QLatin1String("DebugMode"));
         setContext(Context(C_DEBUGMODE, CC::C_NAVIGATION_PANE));
@@ -513,10 +527,14 @@ public:
         setId(MODE_DEBUG);
     }
 
+    QWidget *widget() const override { return m_mainWindow->modeWindow(); }
+
     ~DebugMode()
     {
 //        delete m_widget;
     }
+
+    DebuggerMainWindow *m_mainWindow;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -1061,8 +1079,6 @@ public:
     CommonOptionsPage *m_commonOptionsPage = 0;
     DummyEngine *m_dummyEngine = 0;
     const QSharedPointer<GlobalDebuggerOptions> m_globalDebuggerOptions;
-
-    DebugMode *m_debugMode = 0;
 };
 
 DebuggerPluginPrivate::DebuggerPluginPrivate(DebuggerPlugin *plugin)
@@ -1742,68 +1758,16 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
         this, &DebuggerPluginPrivate::updateDebugWithoutDeployMenu);
 
     // Debug mode setup
-    m_debugMode = new DebugMode;
+    auto mode = new DebugMode(m_mainWindow);
+
+    (void) new DebugModeContext(m_mainWindow);
+    m_mainWindow->finalizeSetup(mode);
+
+    m_plugin->addAutoReleasedObject(mode);
+
 
     connect(SessionManager::instance(), &SessionManager::startupProjectChanged,
             this, &DebuggerPluginPrivate::updateUiForProject);
-
-    auto editorHolderLayout = new QVBoxLayout;
-    editorHolderLayout->setMargin(0);
-    editorHolderLayout->setSpacing(0);
-
-    auto editorAndFindWidget = new QWidget;
-    editorAndFindWidget->setLayout(editorHolderLayout);
-    auto editorManagerPlaceHolder = new EditorManagerPlaceHolder(m_debugMode);
-    editorHolderLayout->addWidget(editorManagerPlaceHolder);
-    editorHolderLayout->addWidget(new FindToolBarPlaceHolder(editorAndFindWidget));
-
-    auto documentAndRightPane = new MiniSplitter;
-    documentAndRightPane->addWidget(editorAndFindWidget);
-    documentAndRightPane->addWidget(new RightPanePlaceHolder(m_debugMode));
-    documentAndRightPane->setStretchFactor(0, 1);
-    documentAndRightPane->setStretchFactor(1, 0);
-
-    auto centralWidget = new QWidget;
-    m_mainWindow->setCentralWidget(centralWidget);
-
-    m_mainWindow->finalizeSetup();
-
-    auto centralLayout = new QVBoxLayout(centralWidget);
-    centralWidget->setLayout(centralLayout);
-    centralLayout->setMargin(0);
-    centralLayout->setSpacing(0);
-    centralLayout->addWidget(documentAndRightPane);
-    centralLayout->setStretch(0, 1);
-    centralLayout->setStretch(1, 0);
-
-    // Right-side window with editor, output etc.
-    auto mainWindowSplitter = new MiniSplitter;
-    mainWindowSplitter->addWidget(m_mainWindow);
-    mainWindowSplitter->addWidget(new OutputPanePlaceHolder(m_debugMode, mainWindowSplitter));
-    auto outputPane = new OutputPanePlaceHolder(m_debugMode, mainWindowSplitter);
-    outputPane->setObjectName(QLatin1String("DebuggerOutputPanePlaceHolder"));
-    mainWindowSplitter->addWidget(outputPane);
-    mainWindowSplitter->setStretchFactor(0, 10);
-    mainWindowSplitter->setStretchFactor(1, 0);
-    mainWindowSplitter->setOrientation(Qt::Vertical);
-
-    // Navigation and right-side window.
-    auto splitter = new MiniSplitter;
-    splitter->setFocusProxy(editorManagerPlaceHolder);
-    splitter->addWidget(new NavigationWidgetPlaceHolder(m_debugMode));
-    splitter->addWidget(mainWindowSplitter);
-    splitter->setStretchFactor(0, 0);
-    splitter->setStretchFactor(1, 1);
-    splitter->setObjectName(QLatin1String("DebugModeWidget"));
-
-    IContext *modeContextObject = new IContext(this);
-    modeContextObject->setContext(Context(CC::C_EDITORMANAGER));
-    modeContextObject->setWidget(splitter);
-    ICore::addContextObject(modeContextObject);
-    m_debugMode->setWidget(splitter);
-
-    m_plugin->addAutoReleasedObject(m_debugMode);
-
 
     //
     //  Connections

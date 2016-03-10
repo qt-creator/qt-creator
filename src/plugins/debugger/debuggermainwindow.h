@@ -41,6 +41,8 @@ class QComboBox;
 class QStackedWidget;
 QT_END_NAMESPACE
 
+namespace Core { class IMode; }
+
 namespace Utils {
 
 class DEBUGGER_EXPORT Perspective
@@ -98,7 +100,7 @@ private:
     QList<QWidget *> m_widgets;
 };
 
-class DebuggerMainWindow : public FancyMainWindow
+class DEBUGGER_EXPORT DebuggerMainWindow : public FancyMainWindow
 {
     Q_OBJECT
 
@@ -113,11 +115,13 @@ public:
     void resetCurrentPerspective();
     void restorePerspective(const QByteArray &perspectiveId);
 
-    void finalizeSetup();
+    void finalizeSetup(Core::IMode *mode, QWidget *central = 0);
 
     void showStatusMessage(const QString &message, int timeoutMS);
     QDockWidget *dockWidget(const QByteArray &dockId) const;
     QByteArray currentPerspective() const { return m_currentPerspectiveId; }
+
+    QWidget *modeWindow();
 
 private:
     QDockWidget *registerDockWidget(const QByteArray &dockId, QWidget *widget);
@@ -136,6 +140,8 @@ private:
     // list of dock widgets to prevent memory leak
     typedef QPointer<QDockWidget> DockPtr;
     QList<DockPtr> m_dockWidgets;
+
+    QWidget *m_modeWindow = 0;
 };
 
 } // Utils

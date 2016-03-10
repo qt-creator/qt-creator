@@ -32,7 +32,12 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/coreconstants.h>
+#include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/findplaceholder.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/navigationwidget.h>
+#include <coreplugin/outputpane.h>
+#include <coreplugin/rightpane.h>
 
 #include <projectexplorer/projectexplorericons.h>
 
@@ -111,7 +116,12 @@ void DebuggerMainWindow::showStatusMessage(const QString &message, int timeoutMS
 
 QDockWidget *DebuggerMainWindow::dockWidget(const QByteArray &dockId) const
 {
-   return m_dockForDockId.value(dockId);
+    return m_dockForDockId.value(dockId);
+}
+
+QWidget *DebuggerMainWindow::modeWindow()
+{
+    return m_modeWindow;
 }
 
 void DebuggerMainWindow::resetCurrentPerspective()
@@ -130,7 +140,7 @@ void DebuggerMainWindow::restorePerspective(const QByteArray &perspectiveId)
         m_perspectiveChooser->setCurrentIndex(index);
 }
 
-void DebuggerMainWindow::finalizeSetup()
+void DebuggerMainWindow::finalizeSetup(Core::IMode *mode, QWidget *central)
 {
     auto viewButton = new QToolButton;
     viewButton->setText(tr("Views"));
@@ -185,6 +195,56 @@ void DebuggerMainWindow::finalizeSetup()
     m_toolbarDock = dock;
 
     addDockWidget(Qt::BottomDockWidgetArea, dock);
+
+    if (!central)
+        central = new EditorManagerPlaceHolder(mode);
+
+    auto editorHolderLayout = new QVBoxLayout;
+    editorHolderLayout->setMargin(0);
+    editorHolderLayout->setSpacing(0);
+
+    auto editorAndFindWidget = new QWidget;
+    editorAndFindWidget->setLayout(editorHolderLayout);
+    editorHolderLayout->addWidget(central);
+    editorHolderLayout->addWidget(new FindToolBarPlaceHolder(editorAndFindWidget));
+
+    auto documentAndRightPane = new MiniSplitter;
+    documentAndRightPane->addWidget(editorAndFindWidget);
+    documentAndRightPane->addWidget(new RightPanePlaceHolder(mode));
+    documentAndRightPane->setStretchFactor(0, 1);
+    documentAndRightPane->setStretchFactor(1, 0);
+
+    auto centralEditorWidget = new QWidget;
+    auto centralLayout = new QVBoxLayout(centralEditorWidget);
+    centralEditorWidget->setLayout(centralLayout);
+    centralLayout->setMargin(0);
+    centralLayout->setSpacing(0);
+    centralLayout->addWidget(documentAndRightPane);
+    centralLayout->setStretch(0, 1);
+    centralLayout->setStretch(1, 0);
+
+    // Right-side window with editor, output etc.
+    auto mainWindowSplitter = new MiniSplitter;
+    mainWindowSplitter->addWidget(this);
+    mainWindowSplitter->addWidget(new OutputPanePlaceHolder(mode, mainWindowSplitter));
+    auto outputPane = new OutputPanePlaceHolder(mode, mainWindowSplitter);
+    outputPane->setObjectName(QLatin1String("DebuggerOutputPanePlaceHolder"));
+    mainWindowSplitter->addWidget(outputPane);
+    mainWindowSplitter->setStretchFactor(0, 10);
+    mainWindowSplitter->setStretchFactor(1, 0);
+    mainWindowSplitter->setOrientation(Qt::Vertical);
+
+    // Navigation and right-side window.
+    auto splitter = new MiniSplitter;
+    splitter->setFocusProxy(central);
+    splitter->addWidget(new NavigationWidgetPlaceHolder(mode));
+    splitter->addWidget(mainWindowSplitter);
+    splitter->setStretchFactor(0, 0);
+    splitter->setStretchFactor(1, 1);
+    splitter->setObjectName(QLatin1String("DebugModeWidget"));
+    setCentralWidget(centralEditorWidget);
+
+    m_modeWindow  = splitter;
 }
 
 void DebuggerMainWindow::loadPerspectiveHelper(const QByteArray &perspectiveId, bool fromStoredSettings)
@@ -215,8 +275,8 @@ void DebuggerMainWindow::loadPerspectiveHelper(const QByteArray &perspectiveId, 
     ICore::addAdditionalContext(Context(Id::fromName(m_currentPerspectiveId)));
 
     QTC_ASSERT(m_perspectiveForPerspectiveId.contains(m_currentPerspectiveId), return);
-    const auto operations = m_perspectiveForPerspectiveId.value(m_currentPerspectiveId).operations();
-    for (const Perspective::Operation &operation : operations) {
+    const Perspective perspective = m_perspectiveForPerspectiveId.value(m_currentPerspectiveId);
+    for (const Perspective::Operation &operation : perspective.operations()) {
         QDockWidget *dock = m_dockForDockId.value(operation.dockId);
         if (!dock) {
             QTC_CHECK(!operation.widget->objectName().isEmpty());
