@@ -20,7 +20,6 @@ CppApplication {
 
     Group {
         name: "qml test files"
-        qbs.install: true
 
         files: [
             "tst_test1.qml", "tst_test2.qml", "TestDummy.qml",
