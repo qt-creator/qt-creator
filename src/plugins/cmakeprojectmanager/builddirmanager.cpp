@@ -273,9 +273,11 @@ CMakeConfig BuildDirManager::parsedConfiguration() const
     Utils::FileName cacheFile = workDirectory();
     cacheFile.appendPath(QLatin1String("CMakeCache.txt"));
     QString errorMessage;
-    CMakeConfig result = parseConfiguration(cacheFile, sourceDirectory(), &errorMessage);
+    CMakeConfig result = parseConfiguration(cacheFile, &errorMessage);
     if (!errorMessage.isEmpty())
         emit errorOccured(errorMessage);
+    if (CMakeConfigItem::valueOf("CMAKE_HOME_DIRECTORY", result) != sourceDirectory().toString().toUtf8())
+        emit errorOccured(tr("The build directory is not for %1").arg(sourceDirectory().toUserOutput()));
 
     return result;
 }
@@ -542,7 +544,6 @@ static CMakeConfigItem::Type fromByteArray(const QByteArray &type) {
 }
 
 CMakeConfig BuildDirManager::parseConfiguration(const Utils::FileName &cacheFile,
-                                                const Utils::FileName &sourceDir,
                                                 QString *errorMessage)
 {
     CMakeConfig result;
@@ -579,19 +580,7 @@ CMakeConfig BuildDirManager::parseConfiguration(const Utils::FileName &cacheFile
             advancedSet.insert(key.left(key.count() - 9 /* "-ADVANCED" */));
         } else {
             CMakeConfigItem::Type t = fromByteArray(type);
-            if (t != CMakeConfigItem::INTERNAL)
-                result << CMakeConfigItem(key, t, documentation, value);
-
-            // Sanity checks:
-            if (key == "CMAKE_HOME_DIRECTORY") {
-                const Utils::FileName actualSourceDir = Utils::FileName::fromUserInput(QString::fromUtf8(value));
-                if (actualSourceDir != sourceDir) {
-                    if (errorMessage)
-                        *errorMessage = tr("Build directory contains a build of the wrong project (%1).")
-                            .arg(actualSourceDir.toUserOutput());
-                    return CMakeConfig();
-                }
-            }
+            result << CMakeConfigItem(key, t, documentation, value);
         }
     }
 

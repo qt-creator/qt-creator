@@ -88,7 +88,6 @@ public:
     CMakeConfig parsedConfiguration() const;
 
     static CMakeConfig parseConfiguration(const Utils::FileName &cacheFile,
-                                          const Utils::FileName &sourceDir,
                                           QString *errorMessage);
 
 signals:
