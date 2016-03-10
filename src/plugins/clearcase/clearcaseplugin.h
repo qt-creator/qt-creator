@@ -200,7 +200,7 @@ public slots:
 private:
     void annotateVersion(const QString &workingDirectory, const QString &file, const QString &revision, int lineNumber);
     void syncSlot();
-    void updateStatusActions();
+    Q_INVOKABLE void updateStatusActions();
 
     void checkOutCurrentFile();
     void addCurrentFile();
