@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMAKEPROJECTMANAGER_H
-#define QMAKEPROJECTMANAGER_H
+#pragma once
 
 #include "qmakeprojectmanager_global.h"
 
@@ -68,7 +67,6 @@ public:
 
     enum Action { BUILD, REBUILD, CLEAN };
 
-public slots:
     void addLibrary();
     void addLibraryContextMenu();
     void runQMake();
@@ -86,8 +84,8 @@ private:
                                  ProjectExplorer::Project *contextProject,
                                  ProjectExplorer::Node *contextNode,
                                  ProjectExplorer::FileNode *contextFile);
-    void addLibrary(const QString &fileName, TextEditor::BaseTextEditor *editor = 0);
-    void runQMake(ProjectExplorer::Project *p, ProjectExplorer::Node *node);
+    void addLibraryImpl(const QString &fileName, TextEditor::BaseTextEditor *editor);
+    void runQMakeImpl(ProjectExplorer::Project *p, ProjectExplorer::Node *node);
 
     ProjectExplorer::Node *m_contextNode = nullptr;
     ProjectExplorer::Project *m_contextProject = nullptr;
@@ -95,5 +93,3 @@ private:
 };
 
 } // namespace QmakeProjectManager
-
-#endif // QMAKEPROJECTMANAGER_H
