@@ -40,13 +40,13 @@ def usage():
 
 def substitute_file(infile, outfile, substitutions):
     with open(infile, 'r') as f:
-      template = f.read()
+        template = f.read()
     with open(outfile, 'w') as f:
-      f.write(template.format(**substitutions))
+        f.write(template.format(**substitutions))
 
 def ifw_template_dir():
     script_dir = os.path.dirname(inspect.getfile(inspect.currentframe()))
-    source_dir = os.path.normpath(os.path.join(script_dir, '..'));
+    source_dir = os.path.normpath(os.path.join(script_dir, '..'))
     return os.path.normpath(os.path.join(source_dir, 'dist', 'installer', 'ifw'))
 
 def main():
@@ -66,31 +66,31 @@ def main():
     archives = []
     debug = False
     for o, a in opts:
-        if o in ('-h', '--help'):
+        if o in ['-h', '--help']:
             usage()
             sys.exit(0)
-        if o in ('-v', '--version-string'):
+        if o in ['-v', '--version-string']:
             version = a
         if o in ['-d', '--display-version']:
             display_version = a
-        if o in ('-i', '--installer-path'):
+        if o in ['-i', '--installer-path']:
             ifw_location = a
-        if o in ('-a', '--archive'):
+        if o in ['-a', '--archive']:
             archives.append(a)
         if o in ['--debug']:
             debug = True
 
     if (version == ''):
-      raise Exception('Version not specified (--version-string)!')
+        raise Exception('Version not specified (--version-string)!')
 
     if not display_version:
         display_version = version
 
     if (ifw_location == ''):
-      raise Exception('Installer framework location not specified (--installer-path)!')
+        raise Exception('Installer framework location not specified (--installer-path)!')
 
     if not archives:
-      raise ValueError('No archive(s) specified (--archive)!')
+        raise ValueError('No archive(s) specified (--archive)!')
 
     installer_name = args[0]
     config_postfix = ''
