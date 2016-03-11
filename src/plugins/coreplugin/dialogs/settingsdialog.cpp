@@ -83,14 +83,8 @@ public:
 
     bool findPageById(const Id id, int *pageIndex) const
     {
-        for (int j = 0; j < pages.size(); ++j) {
-            IOptionsPage *page = pages.at(j);
-            if (page->id() == id) {
-                *pageIndex = j;
-                return true;
-            }
-        }
-        return false;
+        *pageIndex = Utils::indexOf(pages, Utils::equal(&IOptionsPage::id, id));
+        return *pageIndex != -1;
     }
 
     Id id;

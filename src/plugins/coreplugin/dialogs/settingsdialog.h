@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SETTINGSDIALOG_H
-#define SETTINGSDIALOG_H
+#pragma once
 
 #include "coreplugin/dialogs/ioptionspage.h"
 
@@ -104,5 +103,3 @@ private:
 
 } // namespace Internal
 } // namespace Core
-
-#endif // SETTINGSDIALOG_H
