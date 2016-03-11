@@ -515,7 +515,7 @@ void QmakeProject::updateCppCodeModel()
         // generated files:
         QList<ProjectExplorer::ExtraCompiler *> proGenerators = pro->extraCompilers();
         foreach (ProjectExplorer::ExtraCompiler *ec, proGenerators) {
-            foreach (const FileName &generatedFile, ec->targets()) {
+            ec->forEachTarget([&](const Utils::FileName &generatedFile) {
                 QString name = generatedFile.toString();
                 allFiles << name;
                 ProjectFile::Kind kind = ProjectFile::classify(name);
@@ -535,7 +535,7 @@ void QmakeProject::updateCppCodeModel()
                 default:
                     break;
                 }
-            }
+            });
         }
         generators.append(proGenerators);
 

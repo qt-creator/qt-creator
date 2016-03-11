@@ -43,7 +43,7 @@ public:
 protected:
     Utils::FileName command() const override;
     void handleProcessStarted(QProcess *process, const QByteArray &sourceContents) override;
-    QList<QByteArray> handleProcessFinished(QProcess *process) override;
+    ProjectExplorer::FileNameToContentsHash handleProcessFinished(QProcess *process) override;
 };
 
 class UicGeneratorFactory : public ProjectExplorer::ExtraCompilerFactory

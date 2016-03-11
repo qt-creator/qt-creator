@@ -122,8 +122,9 @@ void GeneratedCodeModelSupport::update(const QList<ProjectExplorer::ExtraCompile
             continue;
 
         extraCompilerCache.insert(generator);
-        foreach (const Utils::FileName &generatedFile, generator->targets())
+        generator->forEachTarget([mm, generator](const Utils::FileName &generatedFile) {
             new GeneratedCodeModelSupport(mm, generator, generatedFile);
+        });
     }
 }
 

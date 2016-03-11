@@ -31,6 +31,8 @@
 #include <projectexplorer/target.h>
 #include <projectexplorer/buildconfiguration.h>
 
+#include <utils/qtcassert.h>
+
 #include <QFileInfo>
 #include <QDir>
 #include <QLoggingCategory>
@@ -44,7 +46,9 @@ namespace QtSupport {
 UicGenerator::UicGenerator(const Project *project, const Utils::FileName &source,
                            const Utils::FileNameList &targets, QObject *parent) :
     ProcessExtraCompiler(project, source, targets, parent)
-{ }
+{
+    QTC_ASSERT(targets.count() == 1, return);
+}
 
 Utils::FileName UicGenerator::command() const
 {
@@ -67,14 +71,19 @@ void UicGenerator::handleProcessStarted(QProcess *process, const QByteArray &sou
     process->closeWriteChannel();
 }
 
-QList<QByteArray> UicGenerator::handleProcessFinished(QProcess *process)
+FileNameToContentsHash UicGenerator::handleProcessFinished(QProcess *process)
 {
+    FileNameToContentsHash result;
     if (process->exitStatus() != QProcess::NormalExit && process->exitCode() != 0)
-        return QList<QByteArray>();
+        return result;
 
+    const Utils::FileNameList targetList = targets();
+    if (targetList.size() != 1)
+        return result;
     // As far as I can discover in the UIC sources, it writes out local 8-bit encoding. The
     // conversion below is to normalize both the encoding, and the line terminators.
-    return { QString::fromLocal8Bit(process->readAllStandardOutput()).toUtf8() };
+    result[targetList.first()] = QString::fromLocal8Bit(process->readAllStandardOutput()).toUtf8();
+    return result;
 }
 
 FileType UicGeneratorFactory::sourceType() const

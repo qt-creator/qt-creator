@@ -47,11 +47,13 @@ protected:
 
 private:
     Utils::FileName tmpFile() const;
-    QList<QByteArray> handleProcessFinished(QProcess *process) override;
+    ProjectExplorer::FileNameToContentsHash handleProcessFinished(QProcess *process) override;
     bool prepareToRun(const QByteArray &sourceContents) override;
     QList<ProjectExplorer::Task> parseIssues(const QByteArray &processStderr) override;
 
     QTemporaryDir m_tmpdir;
+    QString m_header;
+    QString m_impl;
 };
 
 class QScxmlcGeneratorFactory : public ProjectExplorer::ExtraCompilerFactory

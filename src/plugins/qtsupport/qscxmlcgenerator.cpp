@@ -45,7 +45,11 @@ QScxmlcGenerator::QScxmlcGenerator(const Project *project,
                                    const Utils::FileName &source,
                                    const Utils::FileNameList &targets, QObject *parent) :
     ProcessExtraCompiler(project, source, targets, parent)
-{ }
+{
+    QTC_ASSERT(targets.count() == 2, return);
+    m_header = m_tmpdir.path() + QLatin1Char('/') + targets[0].fileName();
+    m_impl = m_tmpdir.path() + QLatin1Char('/') + targets[1].fileName();
+}
 
 QList<Task> QScxmlcGenerator::parseIssues(const QByteArray &processStderr)
 {
@@ -84,14 +88,10 @@ Utils::FileName QScxmlcGenerator::command() const
 
 QStringList QScxmlcGenerator::arguments() const
 {
-    QTC_ASSERT(targets().count() == 2, return QStringList());
+    QTC_ASSERT(!m_header.isEmpty(), return QStringList());
 
-    const Utils::FileName fn = tmpFile();
-    const QString header = m_tmpdir.path() + QLatin1Char('/') + targets()[0].fileName();
-    const QString impl = m_tmpdir.path() + QLatin1Char('/') + targets()[1].fileName();
-
-    return QStringList({ QLatin1String("--header"), header, QLatin1String("--impl"), impl,
-                         fn.fileName() });
+    return QStringList({ QLatin1String("--header"), m_header, QLatin1String("--impl"), m_impl,
+                         tmpFile().fileName() });
 }
 
 Utils::FileName QScxmlcGenerator::workingDirectory() const
@@ -111,19 +111,19 @@ bool QScxmlcGenerator::prepareToRun(const QByteArray &sourceContents)
     return true;
 }
 
-QList<QByteArray> QScxmlcGenerator::handleProcessFinished(QProcess *process)
+FileNameToContentsHash QScxmlcGenerator::handleProcessFinished(QProcess *process)
 {
     Q_UNUSED(process);
     const Utils::FileName wd = workingDirectory();
-    QList<QByteArray> result;
-    foreach (const Utils::FileName &target, targets()) {
+    FileNameToContentsHash result;
+    forEachTarget([&](const Utils::FileName &target) {
         Utils::FileName file = wd;
         file.appendPath(target.fileName());
         QFile generated(file.toString());
         if (!generated.open(QIODevice::ReadOnly))
-            continue;
-        result << generated.readAll();
-    }
+            return;
+        result[target] = generated.readAll();
+    });
     return result;
 }
 
