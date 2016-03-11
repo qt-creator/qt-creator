@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CMAKE_BUILDDIRMANAGER_H
-#define CMAKE_BUILDDIRMANAGER_H
+#pragma once
 
 #include "cmakecbpparser.h"
 #include "cmakeconfigitem.h"
@@ -129,5 +128,3 @@ private:
 
 } // namespace Internal
 } // namespace CMakeProjectManager
-
-#endif // CMAKE_BUILDDIRMANAGER_H
