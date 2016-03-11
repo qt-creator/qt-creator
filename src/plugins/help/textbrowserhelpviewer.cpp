@@ -405,7 +405,7 @@ bool TextBrowserHelpWidget::eventFilter(QObject *obj, QEvent *event)
             QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
             if (keyEvent->key() == Qt::Key_Slash) {
                 keyEvent->accept();
-                Core::FindPlugin::instance()->openFindToolBar(Core::FindPlugin::FindForwardDirection);
+                Core::Find::openFindToolBar(Core::Find::FindForwardDirection);
                 return true;
             }
         } else if (event->type() == QEvent::ToolTip) {

@@ -66,7 +66,6 @@ CorePlugin::CorePlugin()
   : m_mainWindow(0)
   , m_editMode(0)
   , m_designMode(0)
-  , m_findPlugin(0)
   , m_locator(0)
 {
     qRegisterMetaType<Id>();
@@ -75,8 +74,8 @@ CorePlugin::CorePlugin()
 CorePlugin::~CorePlugin()
 {
     IWizardFactory::destroyFeatureProvider();
+    Find::destroy();
 
-    delete m_findPlugin;
     delete m_locator;
 
     if (m_editMode) {
@@ -137,7 +136,6 @@ void CorePlugin::parseArguments(const QStringList &arguments)
     // because they need a valid theme set
     m_mainWindow = new MainWindow;
     ActionManager::setPresentationModeEnabled(presentationMode);
-    m_findPlugin = new FindPlugin;
     m_locator = new Locator;
 
     if (overrideColor.isValid())
@@ -168,7 +166,7 @@ bool CorePlugin::initialize(const QStringList &arguments, QString *errorMessage)
     // Make sure we respect the process's umask when creating new files
     SaveFile::initializeUmask();
 
-    m_findPlugin->initialize(arguments, errorMessage);
+    Find::initialize();
     m_locator->initialize(this, arguments, errorMessage);
 
     MacroExpander *expander = Utils::globalMacroExpander();
@@ -217,7 +215,7 @@ void CorePlugin::extensionsInitialized()
 {
     if (m_designMode->designModeIsRequired())
         addObject(m_designMode);
-    m_findPlugin->extensionsInitialized();
+    Find::extensionsInitialized();
     m_locator->extensionsInitialized();
     m_mainWindow->extensionsInitialized();
     if (ExtensionSystem::PluginManager::hasError()) {
@@ -275,7 +273,7 @@ void CorePlugin::addToPathChooserContextMenu(Utils::PathChooser *pathChooser, QM
 
 ExtensionSystem::IPlugin::ShutdownFlag CorePlugin::aboutToShutdown()
 {
-    m_findPlugin->aboutToShutdown();
+    Find::aboutToShutdown();
     m_mainWindow->aboutToShutdown();
     return SynchronousShutdown;
 }

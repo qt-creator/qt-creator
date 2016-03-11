@@ -1561,12 +1561,9 @@ void FakeVimPluginPrivate::keepOnlyWindow()
 
 void FakeVimPluginPrivate::find(bool reverse)
 {
-    if (FindPlugin *plugin = FindPlugin::instance()) {
-        plugin->setUseFakeVim(true);
-        plugin->openFindToolBar(reverse
-                ? FindPlugin::FindBackwardDirection
-                : FindPlugin::FindForwardDirection);
-    }
+    Find::setUseFakeVim(true);
+    Find::openFindToolBar(reverse ? Find::FindBackwardDirection
+                                  : Find::FindForwardDirection);
 }
 
 void FakeVimPluginPrivate::findNext(bool reverse)
@@ -1873,8 +1870,7 @@ void FakeVimPluginPrivate::setUseFakeVim(const QVariant &value)
 {
     //qDebug() << "SET USE FAKEVIM" << value;
     bool on = value.toBool();
-    if (FindPlugin::instance())
-        FindPlugin::instance()->setUseFakeVim(on);
+    Find::setUseFakeVim(on);
     setUseFakeVimInternal(on);
     setShowRelativeLineNumbers(theFakeVimSetting(ConfigRelativeNumber)->value());
 }

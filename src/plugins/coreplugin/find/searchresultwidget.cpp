@@ -185,10 +185,8 @@ SearchResultWidget::SearchResultWidget(QWidget *parent) :
     m_preserveCaseCheck->setText(tr("Preserve case"));
     m_preserveCaseCheck->setEnabled(false);
 
-    if (FindPlugin * plugin = FindPlugin::instance()) {
-        m_preserveCaseCheck->setChecked(plugin->hasFindFlag(FindPreserveCase));
-        connect(m_preserveCaseCheck, &QAbstractButton::clicked, plugin, &FindPlugin::setPreserveCase);
-    }
+    m_preserveCaseCheck->setChecked(Find::hasFindFlag(FindPreserveCase));
+    connect(m_preserveCaseCheck, &QAbstractButton::clicked, Find::instance(), &Find::setPreserveCase);
 
     m_matchesFoundLabel = new QLabel(topFindWidget);
     updateMatchesFoundLabel();

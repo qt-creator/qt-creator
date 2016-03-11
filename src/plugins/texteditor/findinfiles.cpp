@@ -194,7 +194,7 @@ void FindInFiles::findOnFileSystem(const QString &path)
     const QFileInfo fi(path);
     const QString folder = fi.isDir() ? fi.absoluteFilePath() : fi.absolutePath();
     m_instance->setDirectory(FileName::fromString(folder));
-    FindPlugin::instance()->openFindDialog(m_instance);
+    Find::openFindDialog(m_instance);
 }
 
 FindInFiles *FindInFiles::instance()

@@ -42,7 +42,7 @@ namespace Internal {
     class SearchResultWindowPrivate;
     class SearchResultWidget;
 }
-class FindPlugin;
+class Find;
 class SearchResultWindow;
 
 class CORE_EXPORT SearchResultItem

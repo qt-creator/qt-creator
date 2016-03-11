@@ -489,7 +489,7 @@ void QmlProfilerTool::updateTimeDisplay()
 void QmlProfilerTool::showTimeLineSearch()
 {
     d->m_viewContainer->raiseTimeline();
-    Core::FindPlugin::instance()->openFindToolBar(Core::FindPlugin::FindForwardDirection);
+    Core::Find::openFindToolBar(Core::Find::FindForwardDirection);
 }
 
 void QmlProfilerTool::clearData()

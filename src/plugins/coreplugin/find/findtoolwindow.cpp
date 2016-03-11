@@ -42,9 +42,8 @@ using namespace Core::Internal;
 
 static FindToolWindow *m_instance = 0;
 
-FindToolWindow::FindToolWindow(FindPlugin *plugin, QWidget *parent)
+FindToolWindow::FindToolWindow(QWidget *parent)
     : QWidget(parent),
-    m_plugin(plugin),
     m_findCompleter(new QCompleter(this)),
     m_currentFilter(0),
     m_configWidget(0)
@@ -57,14 +56,14 @@ FindToolWindow::FindToolWindow(FindPlugin *plugin, QWidget *parent)
 
     connect(m_ui.searchButton, &QAbstractButton::clicked, this, &FindToolWindow::search);
     connect(m_ui.replaceButton, &QAbstractButton::clicked, this, &FindToolWindow::replace);
-    connect(m_ui.matchCase, &QAbstractButton::toggled, m_plugin, &FindPlugin::setCaseSensitive);
-    connect(m_ui.wholeWords, &QAbstractButton::toggled, m_plugin, &FindPlugin::setWholeWord);
-    connect(m_ui.regExp, &QAbstractButton::toggled, m_plugin, &FindPlugin::setRegularExpression);
+    connect(m_ui.matchCase, &QAbstractButton::toggled, Find::instance(), &Find::setCaseSensitive);
+    connect(m_ui.wholeWords, &QAbstractButton::toggled, Find::instance(), &Find::setWholeWord);
+    connect(m_ui.regExp, &QAbstractButton::toggled, Find::instance(), &Find::setRegularExpression);
     connect(m_ui.filterList, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated),
             this, static_cast<void (FindToolWindow::*)(int)>(&FindToolWindow::setCurrentFilter));
     connect(m_ui.searchTerm, &QLineEdit::textChanged, this, &FindToolWindow::updateButtonStates);
 
-    m_findCompleter->setModel(m_plugin->findCompletionModel());
+    m_findCompleter->setModel(Find::findCompletionModel());
     m_ui.searchTerm->setSpecialCompleter(m_findCompleter);
     m_ui.searchTerm->installEventFilter(this);
     QVBoxLayout *layout = new QVBoxLayout;
@@ -73,7 +72,7 @@ FindToolWindow::FindToolWindow(FindPlugin *plugin, QWidget *parent)
     m_ui.configWidget->setLayout(layout);
     updateButtonStates();
 
-    connect(m_plugin, &FindPlugin::findFlagsChanged, this, &FindToolWindow::updateFindFlags);
+    connect(Find::instance(), &Find::findFlagsChanged, this, &FindToolWindow::updateFindFlags);
 }
 
 FindToolWindow::~FindToolWindow()
@@ -135,9 +134,9 @@ void FindToolWindow::updateButtonStates()
 
 void FindToolWindow::updateFindFlags()
 {
-    m_ui.matchCase->setChecked(m_plugin->hasFindFlag(FindCaseSensitively));
-    m_ui.wholeWords->setChecked(m_plugin->hasFindFlag(FindWholeWords));
-    m_ui.regExp->setChecked(m_plugin->hasFindFlag(FindRegularExpression));
+    m_ui.matchCase->setChecked(Find::hasFindFlag(FindCaseSensitively));
+    m_ui.wholeWords->setChecked(Find::hasFindFlag(FindWholeWords));
+    m_ui.regExp->setChecked(Find::hasFindFlag(FindRegularExpression));
 }
 
 
@@ -223,7 +222,7 @@ void FindToolWindow::acceptAndGetParameters(QString *term, IFindFilter **filter)
 {
     if (filter)
         *filter = 0;
-    m_plugin->updateFindCompletion(m_ui.searchTerm->text());
+    Find::updateFindCompletion(m_ui.searchTerm->text());
     int index = m_ui.filterList->currentIndex();
     QString searchTerm = m_ui.searchTerm->text();
     if (term)
@@ -240,7 +239,7 @@ void FindToolWindow::search()
     IFindFilter *filter = 0;
     acceptAndGetParameters(&term, &filter);
     QTC_ASSERT(filter, return);
-    filter->findAll(term, m_plugin->findFlags());
+    filter->findAll(term, Find::findFlags());
 }
 
 void FindToolWindow::replace()
@@ -249,7 +248,7 @@ void FindToolWindow::replace()
     IFindFilter *filter = 0;
     acceptAndGetParameters(&term, &filter);
     QTC_ASSERT(filter, return);
-    filter->replaceAll(term, m_plugin->findFlags());
+    filter->replaceAll(term, Find::findFlags());
 }
 
 void FindToolWindow::writeSettings()

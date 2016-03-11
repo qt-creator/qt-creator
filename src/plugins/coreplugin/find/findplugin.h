@@ -36,66 +36,45 @@ QT_END_NAMESPACE
 
 namespace Core {
 class IFindFilter;
-class FindPluginPrivate;
+namespace Internal { class CorePlugin; }
 
-namespace Internal {
-class CorePlugin;
-class FindToolBar;
-class CurrentDocumentFind;
-} // namespace Internal
-
-class CORE_EXPORT FindPlugin : public QObject
+class CORE_EXPORT Find : public QObject
 {
     Q_OBJECT
 
 public:
-    FindPlugin();
-    virtual ~FindPlugin();
-
-    static FindPlugin *instance();
+    static Find *instance();
 
     enum FindDirection {
         FindForwardDirection,
         FindBackwardDirection
     };
 
-    FindFlags findFlags() const;
-    bool hasFindFlag(FindFlag flag);
-    void updateFindCompletion(const QString &text);
-    void updateReplaceCompletion(const QString &text);
-    QStringListModel *findCompletionModel() const;
-    QStringListModel *replaceCompletionModel() const;
-    void setUseFakeVim(bool on);
-    void openFindToolBar(FindDirection direction);
-    void openFindDialog(IFindFilter *filter);
+    static FindFlags findFlags();
+    static bool hasFindFlag(FindFlag flag);
+    static void updateFindCompletion(const QString &text);
+    static void updateReplaceCompletion(const QString &text);
+    static QStringListModel *findCompletionModel();
+    static QStringListModel *replaceCompletionModel();
+    static void setUseFakeVim(bool on);
+    static void openFindToolBar(FindDirection direction);
+    static void openFindDialog(IFindFilter *filter);
 
-    void initialize(const QStringList &, QString *);
-    void extensionsInitialized();
-    void aboutToShutdown();
-
-public slots:
-    void setCaseSensitive(bool sensitive);
-    void setWholeWord(bool wholeOnly);
-    void setBackward(bool backward);
-    void setRegularExpression(bool regExp);
-    void setPreserveCase(bool preserveCase);
+    static void setCaseSensitive(bool sensitive);
+    static void setWholeWord(bool wholeOnly);
+    static void setBackward(bool backward);
+    static void setRegularExpression(bool regExp);
+    static void setPreserveCase(bool preserveCase);
 
 signals:
     void findFlagsChanged();
 
 private:
-    void filterChanged();
-    void displayNameChanged();
-    void openFindFilter();
-    void writeSettings();
-    void setFindFlag(Core::FindFlag flag, bool enabled);
-    void updateCompletion(const QString &text, QStringList &completions, QStringListModel *model);
-    void setupMenu();
-    void setupFilterMenuItems();
-    void readSettings();
-
-    //variables
-    FindPluginPrivate *d;
+    friend class Internal::CorePlugin;
+    static void initialize();
+    static void extensionsInitialized();
+    static void aboutToShutdown();
+    static void destroy();
 };
 
 } // namespace Core

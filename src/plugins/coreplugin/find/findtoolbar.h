@@ -41,7 +41,6 @@ QT_END_NAMESPACE
 namespace Core {
 
 class FindToolBarPlaceHolder;
-class FindPlugin;
 
 namespace Internal {
 
@@ -78,7 +77,7 @@ public:
     };
     Q_DECLARE_FLAGS(OpenFlags, OpenFlag)
 
-    explicit FindToolBar(FindPlugin *plugin, CurrentDocumentFind *currentDocumentFind);
+    explicit FindToolBar(CurrentDocumentFind *currentDocumentFind);
     ~FindToolBar();
 
     void readSettings();
@@ -156,7 +155,6 @@ private:
     void updateIcons();
     void updateFlagMenus();
 
-    FindPlugin *m_plugin;
     CurrentDocumentFind *m_currentDocumentFind;
     Ui::FindWidget m_ui;
     QCompleter *m_findCompleter;

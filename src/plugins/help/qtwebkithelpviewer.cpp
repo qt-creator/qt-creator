@@ -375,7 +375,7 @@ bool QtWebKitHelpWidget::eventFilter(QObject *obj, QEvent *event)
     if (event->type() == QEvent::KeyPress) {
         if (QKeyEvent *keyEvent = static_cast<QKeyEvent*> (event)) {
             if (keyEvent->key() == Qt::Key_Slash)
-                FindPlugin::instance()->openFindToolBar(FindPlugin::FindForwardDirection);
+                Find::openFindToolBar(Find::FindForwardDirection);
         }
     }
     return QWebView::eventFilter(obj, event);
