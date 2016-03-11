@@ -34,20 +34,22 @@
 #include <QUuid>
 #include <QDateTime>
 
+using namespace ProjectExplorer;
+
 namespace QtSupport {
 
 static QLoggingCategory log("qtc.qsxmlcgenerator");
 static const char TaskCategory[] = "Task.Category.ExtraCompiler.QScxmlc";
 
-QScxmlcGenerator::QScxmlcGenerator(const ProjectExplorer::Project *project,
+QScxmlcGenerator::QScxmlcGenerator(const Project *project,
                                    const Utils::FileName &source,
                                    const Utils::FileNameList &targets, QObject *parent) :
-    ProjectExplorer::ProcessExtraCompiler(project, source, targets, parent)
+    ProcessExtraCompiler(project, source, targets, parent)
 { }
 
-QList<ProjectExplorer::Task> QScxmlcGenerator::parseIssues(const QByteArray &processStderr)
+QList<Task> QScxmlcGenerator::parseIssues(const QByteArray &processStderr)
 {
-    QList<ProjectExplorer::Task> issues;
+    QList<Task> issues;
     foreach (const QByteArray &line, processStderr.split('\n')) {
         QByteArrayList tokens = line.split(':');
 
@@ -55,10 +57,10 @@ QList<ProjectExplorer::Task> QScxmlcGenerator::parseIssues(const QByteArray &pro
             Utils::FileName file = Utils::FileName::fromUtf8(tokens[0]);
             int line = tokens[1].toInt();
             // int column = tokens[2].toInt(); <- nice, but not needed for now.
-            ProjectExplorer::Task::TaskType type = tokens[3].trimmed() == "error" ?
-                        ProjectExplorer::Task::Error : ProjectExplorer::Task::Warning;
+            Task::TaskType type = tokens[3].trimmed() == "error" ?
+                        Task::Error : Task::Warning;
             QString message = QString::fromUtf8(tokens.mid(4).join(':').trimmed());
-            issues.append(ProjectExplorer::Task(type, message, file, line, TaskCategory));
+            issues.append(Task(type, message, file, line, TaskCategory));
         }
     }
     return issues;
@@ -68,11 +70,11 @@ QList<ProjectExplorer::Task> QScxmlcGenerator::parseIssues(const QByteArray &pro
 Utils::FileName QScxmlcGenerator::command() const
 {
     QtSupport::BaseQtVersion *version = nullptr;
-    ProjectExplorer::Target *target;
+    Target *target;
     if ((target = project()->activeTarget()))
         version = QtSupport::QtKitInformation::qtVersion(target->kit());
     else
-        version = QtSupport::QtKitInformation::qtVersion(ProjectExplorer::KitManager::defaultKit());
+        version = QtSupport::QtKitInformation::qtVersion(KitManager::defaultKit());
 
     if (!version)
         return Utils::FileName();
@@ -132,9 +134,9 @@ Utils::FileName QScxmlcGenerator::tmpFile() const
     return wd;
 }
 
-ProjectExplorer::FileType QScxmlcGeneratorFactory::sourceType() const
+FileType QScxmlcGeneratorFactory::sourceType() const
 {
-    return ProjectExplorer::StateChartType;
+    return StateChartType;
 }
 
 QString QScxmlcGeneratorFactory::sourceTag() const
@@ -142,8 +144,8 @@ QString QScxmlcGeneratorFactory::sourceTag() const
     return QStringLiteral("scxml");
 }
 
-ProjectExplorer::ExtraCompiler *QScxmlcGeneratorFactory::create(
-        const ProjectExplorer::Project *project, const Utils::FileName &source,
+ExtraCompiler *QScxmlcGeneratorFactory::create(
+        const Project *project, const Utils::FileName &source,
         const Utils::FileNameList &targets)
 {
     return new QScxmlcGenerator(project, source, targets, this);

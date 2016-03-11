@@ -37,21 +37,23 @@
 #include <QProcess>
 #include <QDateTime>
 
+using namespace ProjectExplorer;
+
 namespace QtSupport {
 
-UicGenerator::UicGenerator(const ProjectExplorer::Project *project, const Utils::FileName &source,
+UicGenerator::UicGenerator(const Project *project, const Utils::FileName &source,
                            const Utils::FileNameList &targets, QObject *parent) :
-    ProjectExplorer::ProcessExtraCompiler(project, source, targets, parent)
+    ProcessExtraCompiler(project, source, targets, parent)
 { }
 
 Utils::FileName UicGenerator::command() const
 {
     QtSupport::BaseQtVersion *version = nullptr;
-    ProjectExplorer::Target *target;
+    Target *target;
     if ((target = project()->activeTarget()))
         version = QtSupport::QtKitInformation::qtVersion(target->kit());
     else
-        version = QtSupport::QtKitInformation::qtVersion(ProjectExplorer::KitManager::defaultKit());
+        version = QtSupport::QtKitInformation::qtVersion(KitManager::defaultKit());
 
     if (!version)
         return Utils::FileName();
@@ -75,9 +77,9 @@ QList<QByteArray> UicGenerator::handleProcessFinished(QProcess *process)
     return { QString::fromLocal8Bit(process->readAllStandardOutput()).toUtf8() };
 }
 
-ProjectExplorer::FileType UicGeneratorFactory::sourceType() const
+FileType UicGeneratorFactory::sourceType() const
 {
-    return ProjectExplorer::FormType;
+    return FormType;
 }
 
 QString UicGeneratorFactory::sourceTag() const
@@ -85,9 +87,9 @@ QString UicGeneratorFactory::sourceTag() const
     return QLatin1String("ui");
 }
 
-ProjectExplorer::ExtraCompiler *UicGeneratorFactory::create(const ProjectExplorer::Project *project,
-                                                            const Utils::FileName &source,
-                                                            const Utils::FileNameList &targets)
+ExtraCompiler *UicGeneratorFactory::create(const Project *project,
+                                           const Utils::FileName &source,
+                                           const Utils::FileNameList &targets)
 {
     return new UicGenerator(project, source, targets, this);
 }
