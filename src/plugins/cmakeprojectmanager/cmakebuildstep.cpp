@@ -270,6 +270,7 @@ void CMakeBuildStep::stdOutput(const QString &line)
         int percent = m_percentProgress.cap(1).toInt(&ok);
         if (ok)
             futureInterface()->setProgressValue(percent);
+        return;
     } else if (m_ninjaProgress.indexIn(line) != -1) {
         m_useNinja = true;
         bool ok = false;
@@ -281,6 +282,7 @@ void CMakeBuildStep::stdOutput(const QString &line)
                 futureInterface()->setProgressValue(percent);
             }
         }
+        return;
     }
     if (m_useNinja)
         AbstractProcessStep::stdError(line);
