@@ -513,6 +513,7 @@ void ClangStaticAnalyzerRunControl::finalize()
     }
 
     m_progress.reportFinished();
+    m_running = false;
     emit finished();
 }
 
