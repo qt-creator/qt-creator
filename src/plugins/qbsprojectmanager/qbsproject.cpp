@@ -447,31 +447,15 @@ bool QbsProject::checkCancelStatus()
     return true;
 }
 
-void QbsProject::handleProjectStructureAvailable()
+void QbsProject::updateAfterParse()
 {
-    QTC_ASSERT(m_qbsProjectParser, return);
-    qCDebug(qbsPmLog) << "Project structure available";
-
-    if (checkCancelStatus())
-        return;
-
-    m_qbsProject = m_qbsProjectParser->qbsProject();
-    QTC_ASSERT(m_qbsProject.isValid(), return);
-
-    const qbs::ProjectData &projectData = m_qbsProject.projectData();
-    if (projectData == m_projectData)
-        return;
-
-    qCDebug(qbsPmLog) << "Project data changed.";
-    m_projectData = projectData;
+    qCDebug(qbsPmLog) << "Updating data after parse";
     rootProjectNode()->update();
     updateDocuments(QSet<QString>() << projectFilePath().toString());
-    auto * const futureInterface = m_qbsUpdateFutureInterface;
-    m_qbsUpdateFutureInterface = nullptr; // So that isParsing() returns false;
+    updateBuildTargetData();
     updateCppCodeModel();
     updateQmlJsCodeModel();
     emit fileListChanged();
-    m_qbsUpdateFutureInterface = futureInterface;
 }
 
 void QbsProject::handleQbsParsingDone(bool success)
@@ -479,18 +463,40 @@ void QbsProject::handleQbsParsingDone(bool success)
     QTC_ASSERT(m_qbsProjectParser, return);
     QTC_ASSERT(m_qbsUpdateFutureInterface, return);
 
-    qCDebug(qbsPmLog) << "Parsing done completely, success:" << success;
+    qCDebug(qbsPmLog) << "Parsing done, success:" << success;
 
     if (checkCancelStatus())
         return;
 
     generateErrors(m_qbsProjectParser->error());
 
+    m_qbsProject = m_qbsProjectParser->qbsProject();
+    bool dataChanged = false;
     if (success) {
         QTC_ASSERT(m_qbsProject.isValid(), return);
-        m_projectData = m_qbsProject.projectData();
+        const qbs::ProjectData &projectData = m_qbsProject.projectData();
+        if (projectData != m_projectData) {
+            m_projectData = projectData;
+            dataChanged = true;
+        }
     } else {
         m_qbsUpdateFutureInterface->reportCanceled();
+    }
+
+    bool hasTargetArtifacts = false;
+    if (dataChanged) {
+        qCDebug(qbsPmLog) << "Project data changed.";
+        foreach (const qbs::ProductData &product, m_projectData.allProducts()) {
+            if (!product.targetArtifacts().isEmpty()) {
+                hasTargetArtifacts = true;
+                break;
+            }
+        }
+        if (!hasTargetArtifacts) {
+            qCDebug(qbsPmLog) << "No target artifacts present, executing rules";
+            m_qbsProjectParser->startRuleExecution();
+            return;
+        }
     }
 
     m_qbsProjectParser->deleteLater();
@@ -499,9 +505,28 @@ void QbsProject::handleQbsParsingDone(bool success)
     delete m_qbsUpdateFutureInterface;
     m_qbsUpdateFutureInterface = 0;
 
-    if (success)
-        updateAfterBuild();
+    if (dataChanged)
+        updateAfterParse();
     emit projectParsingDone(success);
+}
+
+void QbsProject::handleRuleExecutionDone()
+{
+    qCDebug(qbsPmLog) << "Rule execution done";
+
+    if (checkCancelStatus())
+        return;
+
+    m_qbsProjectParser->deleteLater();
+    m_qbsProjectParser = 0;
+    m_qbsUpdateFutureInterface->reportFinished();
+    delete m_qbsUpdateFutureInterface;
+    m_qbsUpdateFutureInterface = 0;
+
+    QTC_ASSERT(m_qbsProject.isValid(), return);
+    m_projectData = m_qbsProject.projectData();
+    updateAfterParse();
+    emit projectParsingDone(true);
 }
 
 void QbsProject::targetWasAdded(Target *t)
@@ -613,8 +638,8 @@ void QbsProject::registerQbsProjectParser(QbsProjectParser *p)
     m_qbsProjectParser = p;
 
     if (p) {
-        connect(m_qbsProjectParser, &QbsProjectParser::projectStructureAvailable,
-                this, &QbsProject::handleProjectStructureAvailable);
+        connect(m_qbsProjectParser, &QbsProjectParser::ruleExecutionDone,
+                this, &QbsProject::handleRuleExecutionDone);
         connect(m_qbsProjectParser, SIGNAL(done(bool)), this, SLOT(handleQbsParsingDone(bool)));
     }
 }
