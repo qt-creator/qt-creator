@@ -265,6 +265,9 @@ we thank the authors who made this possible:
   The source code of Botan C++ crypto library can be found in
   QtCreator/src/libs/3rdparty
 
+### SQLite, in-process library that implements a SQL database engine
+
+SQLite (https://www.sqlite.org) is in the Public Domain.
 
 ### ClassView and ImageViewer plugins
 
@@ -304,6 +307,3 @@ we thank the authors who made this possible:
   THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
   (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE."
-
-
-
