@@ -460,7 +460,6 @@ void SettingsDialog::showPage(const Id pageId)
         for (int i = 0; i < categories.size(); ++i) {
             Category *category = categories.at(i);
             if (category->providers.isEmpty()) {  // no providers
-                ensureCategoryWidget(category);
                 if (category->findPageById(initialPageId, &initialPageIndex)) {
                     initialCategoryIndex = i;
                     break;
