@@ -148,7 +148,7 @@ bool ValgrindRunner::start()
     QObject::connect(d->process, &ValgrindProcess::error,
                      this, &ValgrindRunner::processError);
 
-    d->process->run();
+    d->process->run(d->debuggee.runMode);
     return true;
 }
 
@@ -188,8 +188,8 @@ QString ValgrindRunner::errorString() const
 
 void ValgrindRunner::stop()
 {
-    if (d->process)
-        d->process->close();
+    QTC_ASSERT(d->process, finished(); return);
+    d->process->close();
 }
 
 ValgrindProcess *ValgrindRunner::valgrindProcess() const

@@ -27,7 +27,7 @@
 #ifndef ANALYZERRUNCONFIGWIDGET_H
 #define ANALYZERRUNCONFIGWIDGET_H
 
-#include "analyzerbase_global.h"
+#include <debugger/debugger_global.h>
 
 #include <projectexplorer/runconfiguration.h>
 
@@ -38,9 +38,9 @@ QT_END_NAMESPACE
 
 namespace Utils { class DetailsWidget; }
 
-namespace Analyzer {
+namespace Debugger {
 
-class ANALYZER_EXPORT AnalyzerRunConfigWidget : public ProjectExplorer::RunConfigWidget
+class DEBUGGER_EXPORT AnalyzerRunConfigWidget : public ProjectExplorer::RunConfigWidget
 {
     Q_OBJECT
 
@@ -62,6 +62,6 @@ private:
     Utils::DetailsWidget *m_details;
 };
 
-} // namespace Analyzer
+} // namespace Debugger
 
 #endif // ANALYZERRUNCONFIGWIDGET_H

@@ -26,7 +26,7 @@
 #ifndef STARTREMOTEDIALOG_H
 #define STARTREMOTEDIALOG_H
 
-#include "analyzerbase_global.h"
+#include <debugger/debugger_global.h>
 
 #include <QDialog>
 
@@ -34,29 +34,28 @@ namespace QSsh { class SshConnectionParameters; }
 
 namespace ProjectExplorer { class StandardRunnable; }
 
-namespace Analyzer {
+namespace Debugger {
 
 namespace Internal { class StartRemoteDialogPrivate; }
 
-class ANALYZER_EXPORT StartRemoteDialog : public QDialog
+class DEBUGGER_EXPORT StartRemoteDialog : public QDialog
 {
     Q_OBJECT
 
 public:
     explicit StartRemoteDialog(QWidget *parent = 0);
-    ~StartRemoteDialog();
+    ~StartRemoteDialog() override;
 
     QSsh::SshConnectionParameters sshParams() const;
     ProjectExplorer::StandardRunnable runnable() const;
 
-private slots:
-    void validate();
-    virtual void accept();
-
 private:
+    void validate();
+    void accept() override;
+
     Internal::StartRemoteDialogPrivate *d;
 };
 
-} // namespace Analyzer
+} // namespace Debugger
 
 #endif // STARTREMOTEDIALOG_H

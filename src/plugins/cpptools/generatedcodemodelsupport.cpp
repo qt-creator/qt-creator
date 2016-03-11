@@ -98,7 +98,7 @@ void GeneratedCodeModelSupport::onContentsChanged(const Utils::FileName &file)
 void GeneratedCodeModelSupport::init() const
 {
     connect(m_generator, &ProjectExplorer::ExtraCompiler::contentsChanged,
-            this, &GeneratedCodeModelSupport::onContentsChanged);
+            this, &GeneratedCodeModelSupport::onContentsChanged, Qt::QueuedConnection);
 }
 
 QByteArray GeneratedCodeModelSupport::contents() const

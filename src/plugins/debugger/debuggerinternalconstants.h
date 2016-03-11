@@ -29,6 +29,21 @@
 #include <QtGlobal>
 
 namespace Debugger {
+namespace Internal {
+
+// DebuggerMainWindow dock widget names
+const char DOCKWIDGET_BREAK[]         = "Debugger.Docks.Break";
+const char DOCKWIDGET_MODULES[]       = "Debugger.Docks.Modules";
+const char DOCKWIDGET_REGISTER[]      = "Debugger.Docks.Register";
+const char DOCKWIDGET_OUTPUT[]        = "Debugger.Docks.Output";
+const char DOCKWIDGET_SNAPSHOTS[]     = "Debugger.Docks.Snapshots";
+const char DOCKWIDGET_STACK[]         = "Debugger.Docks.Stack";
+const char DOCKWIDGET_SOURCE_FILES[]  = "Debugger.Docks.SourceFiles";
+const char DOCKWIDGET_THREADS[]       = "Debugger.Docks.Threads";
+const char DOCKWIDGET_WATCHERS[]      = "Debugger.Docks.LocalsAndWatchers";
+
+} // namespace Internal
+
 namespace Constants {
 
 const char DEBUGGER_COMMON_SETTINGS_ID[]   = "A.Debugger.General";

@@ -69,11 +69,20 @@ void completeBasicProjectInformation(Project *project, const QString &proFile, Q
     CppTools::CppModelManager *cppMM = CppTools::CppModelManager::instance();
     QList<CppTools::ProjectPart::Ptr> projParts = cppMM->projectInfo(project).projectParts();
 
-    foreach (const CppTools::ProjectPart::Ptr &part, projParts) {
-        if (part->projectFile == proFile) {
-            *displayName = part->displayName;
-            *targetProject = part->project;
-            return;
+    if (displayName->isEmpty()) {
+        foreach (const CppTools::ProjectPart::Ptr &part, projParts) {
+            if (part->projectFile == proFile) {
+                *displayName = part->displayName;
+                *targetProject = part->project;
+                return;
+            }
+        }
+    } else { // for CMake based projects we've got the displayname already
+        foreach (const CppTools::ProjectPart::Ptr &part, projParts) {
+            if (part->displayName == *displayName) {
+                *targetProject = part->project;
+                return;
+            }
         }
     }
 }
@@ -96,7 +105,7 @@ void TestConfiguration::completeTestInformation()
     QString targetFile;
     QString targetName;
     QString workDir;
-    QString displayName;
+    QString displayName = m_displayName;
     QString buildDir;
     Project *targetProject = 0;
     Utils::Environment env;
@@ -111,12 +120,23 @@ void TestConfiguration::completeTestInformation()
         return;
 
     BuildTargetInfoList appTargets = target->applicationTargets();
-    foreach (const BuildTargetInfo &bti, appTargets.list) {
-        // some project manager store line/column information as well inside ProjectPart
-        if (bti.isValid() && m_proFile.startsWith(bti.projectFilePath.toString())) {
-            targetFile = Utils::HostOsInfo::withExecutableSuffix(bti.targetFilePath.toString());
-            targetName = bti.targetName;
-            break;
+    if (m_displayName.isEmpty()) {
+        foreach (const BuildTargetInfo &bti, appTargets.list) {
+            // some project manager store line/column information as well inside ProjectPart
+            if (bti.isValid() && m_proFile.startsWith(bti.projectFilePath.toString())) {
+                targetFile = Utils::HostOsInfo::withExecutableSuffix(bti.targetFilePath.toString());
+                targetName = bti.targetName;
+                break;
+            }
+        }
+    } else { // CMake based projects have no specific pro file, but target name matches displayname
+        foreach (const BuildTargetInfo &bti, appTargets.list) {
+            if (bti.isValid() && m_displayName == bti.targetName) {
+                // for CMake base projects targetFilePath has executable suffix already
+                targetFile = bti.targetFilePath.toString();
+                targetName = m_displayName;
+                break;
+            }
         }
     }
 

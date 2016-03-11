@@ -168,7 +168,7 @@ static QString createExplainingStepToolTipString(const ExplainingStep &step)
     return html;
 }
 
-static QString createLocationString(const Analyzer::DiagnosticLocation &location)
+static QString createLocationString(const Debugger::DiagnosticLocation &location)
 {
     const QString filePath = location.filePath;
     const QString lineNumber = QString::number(location.line);
@@ -224,10 +224,10 @@ DiagnosticItem::DiagnosticItem(const Diagnostic &diag) : m_diagnostic(diag)
         appendChild(new ExplainingStepItem(s));
 }
 
-QVariant locationData(int role, const Analyzer::DiagnosticLocation &location)
+QVariant locationData(int role, const Debugger::DiagnosticLocation &location)
 {
     switch (role) {
-    case Analyzer::DetailedErrorView::LocationRole:
+    case Debugger::DetailedErrorView::LocationRole:
         return QVariant::fromValue(location);
     case Qt::ToolTipRole:
         return location.filePath.isEmpty() ? QVariant() : QVariant(location.filePath);
@@ -238,12 +238,12 @@ QVariant locationData(int role, const Analyzer::DiagnosticLocation &location)
 
 QVariant DiagnosticItem::data(int column, int role) const
 {
-    if (column == Analyzer::DetailedErrorView::LocationColumn)
+    if (column == Debugger::DetailedErrorView::LocationColumn)
         return locationData(role, m_diagnostic.location);
 
     // DiagnosticColumn
     switch (role) {
-    case Analyzer::DetailedErrorView::FullTextRole:
+    case Debugger::DetailedErrorView::FullTextRole:
         return fullText(m_diagnostic);
     case ClangStaticAnalyzerDiagnosticModel::DiagnosticRole:
         return QVariant::fromValue(m_diagnostic);
@@ -262,12 +262,12 @@ ExplainingStepItem::ExplainingStepItem(const ExplainingStep &step) : m_step(step
 
 QVariant ExplainingStepItem::data(int column, int role) const
 {
-    if (column == Analyzer::DetailedErrorView::LocationColumn)
+    if (column == Debugger::DetailedErrorView::LocationColumn)
         return locationData(role, m_step.location);
 
     // DiagnosticColumn
     switch (role) {
-    case Analyzer::DetailedErrorView::FullTextRole:
+    case Debugger::DetailedErrorView::FullTextRole:
         return fullText(static_cast<DiagnosticItem *>(parent())->diagnostic());
     case ClangStaticAnalyzerDiagnosticModel::DiagnosticRole:
         return QVariant::fromValue(static_cast<DiagnosticItem *>(parent())->diagnostic());

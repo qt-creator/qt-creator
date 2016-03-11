@@ -39,43 +39,14 @@
 
 namespace QtSupport {
 
-QLoggingCategory UicGenerator::m_log("qtc.uicgenerator");
-
 UicGenerator::UicGenerator(const ProjectExplorer::Project *project, const Utils::FileName &source,
                            const Utils::FileNameList &targets, QObject *parent) :
-    ProjectExplorer::ExtraCompiler(project, source, targets, parent)
+    ProjectExplorer::ProcessExtraCompiler(project, source, targets, parent)
+{ }
+
+Utils::FileName UicGenerator::command() const
 {
-    connect(&m_process, static_cast<void(QProcess::*)(int)>(&QProcess::finished),
-            this, &UicGenerator::finishProcess);
-}
-
-void UicGenerator::finishProcess()
-{
-    if (!m_process.waitForFinished(3000)
-            && m_process.exitStatus() != QProcess::NormalExit
-            && m_process.exitCode() != 0) {
-
-        qCDebug(m_log) << "finish process: failed" << m_process.readAllStandardError();
-        m_process.kill();
-        return;
-    }
-
-    // As far as I can discover in the UIC sources, it writes out local 8-bit encoding. The
-    // conversion below is to normalize both the encoding, and the line terminators.
-    QByteArray normalized = QString::fromLocal8Bit(m_process.readAllStandardOutput()).toUtf8();
-    qCDebug(m_log) << "finish process: ok" << normalized.size() << "bytes.";
-    setCompileTime(QDateTime::currentDateTime());
-    setContent(targets()[0], normalized);
-}
-
-void UicGenerator::run(const QByteArray &sourceContent)
-{
-    if (m_process.state() != QProcess::NotRunning) {
-        m_process.kill();
-        m_process.waitForFinished(3000);
-    }
-
-    QtSupport::BaseQtVersion *version = 0;
+    QtSupport::BaseQtVersion *version = nullptr;
     ProjectExplorer::Target *target;
     if ((target = project()->activeTarget()))
         version = QtSupport::QtKitInformation::qtVersion(target->kit());
@@ -83,28 +54,25 @@ void UicGenerator::run(const QByteArray &sourceContent)
         version = QtSupport::QtKitInformation::qtVersion(ProjectExplorer::KitManager::defaultKit());
 
     if (!version)
-        return;
+        return Utils::FileName();
 
-    const QString generator = version->uicCommand();
-    if (generator.isEmpty())
-        return;
+    return Utils::FileName::fromString(version->uicCommand());
+}
 
-    m_process.setProcessEnvironment(buildEnvironment().toProcessEnvironment());
+void UicGenerator::handleProcessStarted(QProcess *process, const QByteArray &sourceContents)
+{
+    process->write(sourceContents);
+    process->closeWriteChannel();
+}
 
-    qCDebug(m_log) << "  UicGenerator::run " << generator << " on "
-                 << sourceContent.size() << " bytes";
-    m_process.start(generator, QStringList(), QIODevice::ReadWrite);
-    if (!m_process.waitForStarted())
-        return;
+QList<QByteArray> UicGenerator::handleProcessFinished(QProcess *process)
+{
+    if (process->exitStatus() != QProcess::NormalExit && process->exitCode() != 0)
+        return QList<QByteArray>();
 
-    m_process.write(sourceContent);
-    if (!m_process.waitForBytesWritten(3000)) {
-        qCDebug(m_log) << "failed" << m_process.readAllStandardError();
-        m_process.kill();
-        return;
-    }
-
-    m_process.closeWriteChannel();
+    // As far as I can discover in the UIC sources, it writes out local 8-bit encoding. The
+    // conversion below is to normalize both the encoding, and the line terminators.
+    return { QString::fromLocal8Bit(process->readAllStandardOutput()).toUtf8() };
 }
 
 ProjectExplorer::FileType UicGeneratorFactory::sourceType() const

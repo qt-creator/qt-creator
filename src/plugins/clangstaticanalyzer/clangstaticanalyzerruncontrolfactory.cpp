@@ -47,7 +47,7 @@
 
 #include <utils/qtcassert.h>
 
-using namespace Analyzer;
+using namespace Debugger;
 using namespace ProjectExplorer;
 
 namespace ClangStaticAnalyzer {
@@ -115,7 +115,7 @@ RunControl *ClangStaticAnalyzerRunControlFactory::create(RunConfiguration *runCo
         return 0;
     }
 
-    return AnalyzerManager::createRunControl(runConfiguration, runMode);
+    return Debugger::createAnalyzerRunControl(runConfiguration, runMode);
 }
 
 } // namespace Internal

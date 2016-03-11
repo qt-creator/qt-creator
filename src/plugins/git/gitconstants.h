@@ -49,5 +49,7 @@ const char DIFF_SELECTED[] = "Git.DiffSelectedFilesInLog";
 const char SUBMIT_MIMETYPE[] = "text/vnd.qtcreator.git.submit";
 const char C_GITEDITORID[]  = "Git Editor";
 
+const int OBSOLETE_COMMIT_AGE_IN_DAYS = 90;
+
 } // namespace Constants
 } // namespace Git

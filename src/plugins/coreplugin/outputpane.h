@@ -39,12 +39,11 @@ namespace Core {
 class IMode;
 
 namespace Internal { class OutputPaneManager; }
-struct OutputPanePlaceHolderPrivate;
+class OutputPanePlaceHolderPrivate;
 
 class CORE_EXPORT OutputPanePlaceHolder : public QWidget
 {
     Q_OBJECT
-    friend class Core::Internal::OutputPaneManager; // needs to set m_visible and thus access m_current
 
 public:
     explicit OutputPanePlaceHolder(IMode *mode, QSplitter *parent = 0);
@@ -53,15 +52,18 @@ public:
     static OutputPanePlaceHolder *getCurrent();
     static bool isCurrentVisible();
 
-    void unmaximize();
     bool isMaximized() const;
-    void setDefaultHeight(int height);
+    void setMaximized(bool maximize);
     void ensureSizeHintAsMinimum();
+    int nonMaximizedSize() const;
+
+protected:
+    void resizeEvent(QResizeEvent *event);
+    void showEvent(QShowEvent *);
 
 private:
+    void setHeight(int height);
     void currentModeChanged(IMode *);
-    bool canMaximizeOrMinimize() const;
-    void maximizeOrMinimize(bool maximize);
 
     OutputPanePlaceHolderPrivate *d;
 };

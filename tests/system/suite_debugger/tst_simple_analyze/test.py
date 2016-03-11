@@ -74,9 +74,9 @@ def performTest(workingDir, projectName, targetCount, availableConfigs):
             test.fatal("Compile had errors... Skipping current build config")
             continue
         allowAppThroughWinFW(workingDir, projectName, False)
-        switchViewTo(ViewConstants.ANALYZE)
+        switchViewTo(ViewConstants.DEBUG)
         selectFromCombo(":Analyzer Toolbar.AnalyzerManagerToolBox_QComboBox", "QML Profiler")
-        recordButton = waitForObject("{container=':Qt Creator.Analyzer Toolbar_QDockWidget' "
+        recordButton = waitForObject("{container=':DebugModeWidget.Toolbar_QDockWidget' "
                                      "type='QToolButton' unnamed='1' visible='1' "
                                      "toolTip?='*able profiling'}")
         if not test.verify(recordButton.checked, "Verifying recording is enabled."):

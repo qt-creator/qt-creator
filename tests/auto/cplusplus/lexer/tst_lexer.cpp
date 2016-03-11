@@ -70,6 +70,10 @@ private slots:
     void literals_data();
     void preprocessor();
     void preprocessor_data();
+    void digraph();
+    void digraph_data();
+    void trigraph();
+    void trigraph_data();
 
     void bytes_and_utf16chars();
     void bytes_and_utf16chars_data();
@@ -262,12 +266,6 @@ void tst_SimpleLexer::basic_data()
         << T_INT << T_IDENTIFIER << T_SEMICOLON << T_DOXY_COMMENT
         << T_INT << T_IDENTIFIER << T_SEMICOLON << T_CPP_DOXY_COMMENT
         << T_INT << T_IDENTIFIER << T_SEMICOLON << T_CPP_DOXY_COMMENT << T_CPP_DOXY_COMMENT;
-    QTest::newRow(source) << source << expectedTokenKindList;
-
-    source = "?" "?(?" "?)?" "?<?" "?>a?b:c";
-    expectedTokenKindList = TokenKindList()
-        << T_LBRACKET << T_RBRACKET << T_LBRACE << T_RBRACE
-        << T_IDENTIFIER << T_QUESTION << T_IDENTIFIER << T_COLON << T_IDENTIFIER;
     QTest::newRow(source) << source << expectedTokenKindList;
 }
 
@@ -742,6 +740,82 @@ void tst_SimpleLexer::incremental_data()
     QTest::newRow("escaped_cpp_comment_with_space_and_newline_2")
             << _("bar")
             << (TokenKindList() << T_IDENTIFIER);
+}
+
+void tst_SimpleLexer::digraph()
+{
+    QFETCH(QByteArray, source);
+    QFETCH(TokenKindList, expectedTokenKindList);
+
+    run(source, toTokens(expectedTokenKindList), false, CompareKind);
+}
+
+void tst_SimpleLexer::digraph_data()
+{
+    QTest::addColumn<QByteArray>("source");
+    QTest::addColumn<TokenKindList>("expectedTokenKindList");
+
+    QTest::newRow("lbracket_digraph") << _("<:") << (TokenKindList() << T_LBRACKET);
+
+    QTest::newRow("rbracket_digraph") << _(":>") << (TokenKindList() << T_RBRACKET);
+
+    QTest::newRow("lbrace_digraph") << _("<%") << (TokenKindList() << T_LBRACE);
+
+    QTest::newRow("rbrace_digraph") << _("%>") << (TokenKindList() << T_RBRACE);
+
+    QTest::newRow("pound_digraph") << _("%:") << (TokenKindList() << T_POUND);
+
+    QTest::newRow("pound_pound_digraph") << _("%:%:") << (TokenKindList() << T_POUND_POUND);
+
+    QTest::newRow("pound_pound_mixed_digraph_1") << _("#%:") << (TokenKindList() << T_POUND << T_POUND);
+
+    QTest::newRow("pound_pound_mixed_digraph_2") << _("%:#") << (TokenKindList() << T_POUND << T_POUND);
+
+    QTest::newRow("lbracket_digraph_exception1") << _("<::") << (TokenKindList() << T_LESS << T_COLON_COLON);
+
+    QTest::newRow("lbracket_digraph_exception2") << _("<::x") << (TokenKindList() << T_LESS << T_COLON_COLON << T_IDENTIFIER);
+
+    QTest::newRow("lbracket_digraph_exception3") << _("<:::") << (TokenKindList() << T_LBRACKET << T_COLON_COLON);
+
+    QTest::newRow("lbracket_digraph_exception4") << _("<::>") << (TokenKindList() << T_LBRACKET << T_RBRACKET);
+}
+
+void tst_SimpleLexer::trigraph()
+{
+    QFETCH(QByteArray, source);
+    QFETCH(TokenKindList, expectedTokenKindList);
+
+    run(source, toTokens(expectedTokenKindList), false, CompareKind, true);
+}
+
+void tst_SimpleLexer::trigraph_data()
+{
+    QTest::addColumn<QByteArray>("source");
+    QTest::addColumn<TokenKindList>("expectedTokenKindList");
+
+    QTest::newRow("pound_trigraph") << _("?" "?=") << (TokenKindList() << T_POUND);
+
+    QTest::newRow("caret_trigraph") << _("?" "?'") << (TokenKindList() << T_CARET);
+
+    QTest::newRow("left_bracket_trigraph") << _("?" "?(") << (TokenKindList() << T_LBRACKET);
+
+    QTest::newRow("right_bracket_trigraph") << _("?" "?)") << (TokenKindList() << T_RBRACKET);
+
+    QTest::newRow("pipe_trigraph") << _("?" "?!") << (TokenKindList() << T_PIPE);
+
+    QTest::newRow("left_brace_trigraph") << _("?" "?<") << (TokenKindList() << T_LBRACE);
+
+    QTest::newRow("right_brace_trigraph") << _("?" "?>") << (TokenKindList() << T_RBRACE);
+
+    QTest::newRow("tilde_trigraph") << _("?" "?-") << (TokenKindList() << T_TILDE);
+
+    QTest::newRow("pound_pound_trigraph") << _("?" "?=" "?" "?=") << (TokenKindList() << T_POUND_POUND);
+
+    QTest::newRow("caret_equal_trigraph") << _("?" "?'=") << (TokenKindList() << T_CARET_EQUAL);
+
+    QTest::newRow("pipe_equal_trigraph") << _("?" "?!=") << (TokenKindList() << T_PIPE_EQUAL);
+
+    QTest::newRow("tilde_equal_trigraph") << _("?" "?-=") << (TokenKindList() << T_TILDE_EQUAL);
 }
 
 QTEST_APPLESS_MAIN(tst_SimpleLexer)

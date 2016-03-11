@@ -26,7 +26,7 @@
 #ifndef ANALYZERUTILS_H
 #define ANALYZERUTILS_H
 
-#include "analyzerbase_global.h"
+#include <debugger/debugger_global.h>
 
 #include <projectexplorer/task.h>
 
@@ -34,8 +34,8 @@ namespace CPlusPlus { class Symbol; }
 
 namespace AnalyzerUtils
 {
-    ANALYZER_EXPORT CPlusPlus::Symbol *findSymbolUnderCursor();
-    ANALYZER_EXPORT void logToIssuesPane(ProjectExplorer::Task::TaskType type,
+    DEBUGGER_EXPORT CPlusPlus::Symbol *findSymbolUnderCursor();
+    DEBUGGER_EXPORT void logToIssuesPane(ProjectExplorer::Task::TaskType type,
                                          const QString &message);
 }
 

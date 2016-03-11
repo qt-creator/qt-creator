@@ -48,7 +48,7 @@ struct AnalyzeUnit {
 };
 typedef QList<AnalyzeUnit> AnalyzeUnits;
 
-class ClangStaticAnalyzerRunControl : public Analyzer::AnalyzerRunControl
+class ClangStaticAnalyzerRunControl : public Debugger::AnalyzerRunControl
 {
     Q_OBJECT
 
@@ -57,8 +57,9 @@ public:
                                   Core::Id runMode,
                                   const CppTools::ProjectInfo &projectInfo);
 
-    bool startEngine() override;
-    void stopEngine() override;
+    void start() override;
+    StopResult stop() override;
+    bool isRunning() const override;
 
     bool success() const { return m_success; } // For testing.
 
@@ -93,6 +94,7 @@ private:
     int m_filesAnalyzed;
     int m_filesNotAnalyzed;
     bool m_success;
+    bool m_running = false;
 };
 
 } // namespace Internal

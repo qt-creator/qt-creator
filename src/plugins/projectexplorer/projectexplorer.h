@@ -134,7 +134,7 @@ public:
     static QStringList projectFilePatterns();
     static QList<QPair<QString, QString> > recentProjects();
 
-    static bool canRun(Project *pro, Core::Id runMode, QString *whyNot = 0);
+    static bool canRunStartupProject(Core::Id runMode, QString *whyNot = 0);
     static void runProject(Project *pro, Core::Id, const bool forceSkipDeploy = false);
     static void runStartupProject(Core::Id runMode, bool forceSkipDeploy = false);
     static void runRunConfiguration(RunConfiguration *rc, Core::Id runMode,

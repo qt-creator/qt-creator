@@ -34,8 +34,6 @@
 
 #include <QtPlugin>
 
-using namespace Analyzer;
-
 namespace QmlProfiler {
 namespace Internal {
 

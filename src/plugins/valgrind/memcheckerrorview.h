@@ -36,7 +36,7 @@ namespace Internal {
 
 class ValgrindBaseSettings;
 
-class MemcheckErrorView : public Analyzer::DetailedErrorView
+class MemcheckErrorView : public Debugger::DetailedErrorView
 {
     Q_OBJECT
 

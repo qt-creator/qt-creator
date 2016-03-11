@@ -33,7 +33,7 @@
 
 #include <utils/outputformat.h>
 
-namespace Analyzer { class AnalyzerRunControl; }
+namespace Debugger { class AnalyzerRunControl; }
 
 namespace RemoteLinux {
 
@@ -44,7 +44,7 @@ class REMOTELINUX_EXPORT RemoteLinuxAnalyzeSupport : public AbstractRemoteLinuxR
     Q_OBJECT
 public:
     RemoteLinuxAnalyzeSupport(ProjectExplorer::RunConfiguration *runConfig,
-            Analyzer::AnalyzerRunControl *engine, Core::Id runMode);
+            Debugger::AnalyzerRunControl *engine, Core::Id runMode);
     ~RemoteLinuxAnalyzeSupport();
 
 protected:

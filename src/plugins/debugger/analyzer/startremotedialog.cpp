@@ -41,7 +41,7 @@
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace Analyzer {
+namespace Debugger {
 namespace Internal {
 
 class StartRemoteDialogPrivate
@@ -146,4 +146,4 @@ StandardRunnable StartRemoteDialog::runnable() const
     return r;
 }
 
-} // namespace Analyzer
+} // namespace Debugger

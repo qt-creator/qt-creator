@@ -43,7 +43,7 @@
 
 #define VALGRIND_DEBUG_OUTPUT 0
 
-using namespace Analyzer;
+using namespace Debugger;
 using namespace Core;
 using namespace Utils;
 using namespace ProjectExplorer;
@@ -65,10 +65,9 @@ ValgrindRunControl::ValgrindRunControl(RunConfiguration *runConfiguration, Core:
         m_settings = ValgrindPlugin::globalSettings();
 }
 
-bool ValgrindRunControl::startEngine()
+void ValgrindRunControl::start()
 {
     emit starting();
-
     FutureProgress *fp = ProgressManager::addTimedTask(m_progress, progressTitle(), "valgrind", 100);
     fp->setKeepOnFinish(FutureProgress::HideOnFinish);
     connect(fp, &FutureProgress::canceled,
@@ -86,7 +85,6 @@ bool ValgrindRunControl::startEngine()
     ValgrindRunner *run = runner();
     run->setValgrindExecutable(m_settings->valgrindExecutable());
     run->setValgrindArguments(genericToolArguments() + toolArguments());
-    QTC_ASSERT(!device().isNull(), return false);
     run->setDevice(device());
     run->setDebuggee(runnable().as<StandardRunnable>());
 
@@ -99,15 +97,24 @@ bool ValgrindRunControl::startEngine()
 
     if (!run->start()) {
         m_progress.cancel();
-        return false;
+        emit finished();
+        return;
     }
-    return true;
+
+    m_isRunning = true;
+    emit started();
 }
 
-void ValgrindRunControl::stopEngine()
+RunControl::StopResult ValgrindRunControl::stop()
 {
     m_isStopping = true;
     runner()->stop();
+    return AsynchronousStop;
+}
+
+bool ValgrindRunControl::isRunning() const
+{
+    return m_isRunning;
 }
 
 QString ValgrindRunControl::executable() const
@@ -139,7 +146,6 @@ QStringList ValgrindRunControl::genericToolArguments() const
 
 void ValgrindRunControl::handleProgressCanceled()
 {
-    AnalyzerManager::stopTool();
     m_progress.reportCanceled();
     m_progress.reportFinished();
 }
@@ -151,6 +157,8 @@ void ValgrindRunControl::handleProgressFinished()
 
 void ValgrindRunControl::runnerFinished()
 {
+    m_isRunning = false;
+
     appendMessage(tr("Analyzing finished.") + QLatin1Char('\n'), NormalMessageFormat);
     emit finished();
 

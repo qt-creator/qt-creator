@@ -4422,7 +4422,7 @@ bool Parser::parseNumber(Value *val, int baseOffset)
     char *endptr = const_cast<char *>(json);
     double d = strtod(start, &endptr);
 
-    if (start == endptr || isinf(d)) {
+    if (start == endptr || std::isinf(d)) {
         lastError = JsonParseError::IllegalNumber;
         return false;
     }

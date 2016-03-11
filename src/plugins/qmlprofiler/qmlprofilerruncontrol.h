@@ -35,7 +35,7 @@ namespace QmlProfiler {
 
 namespace Internal { class QmlProfilerTool; }
 
-class QmlProfilerRunControl : public Analyzer::AnalyzerRunControl
+class QmlProfilerRunControl : public Debugger::AnalyzerRunControl
 {
     Q_OBJECT
 
@@ -47,25 +47,22 @@ public:
     void registerProfilerStateManager( QmlProfilerStateManager *profilerState );
 
     void notifyRemoteSetupDone(quint16 port) override;
+    void start() override;
     StopResult stop() override;
-
-signals:
-    void processRunning(quint16 port);
-
-public slots:
-    bool startEngine() override;
-    void stopEngine() override;
+    bool isRunning() const override;
     void cancelProcess();
     void notifyRemoteFinished() override;
     void logApplicationMessage(const QString &msg, Utils::OutputFormat format) override;
 
-private slots:
+signals:
+    void processRunning(quint16 port);
+
+private:
     void wrongSetupMessageBox(const QString &errorMessage);
     void wrongSetupMessageBoxFinished(int);
     void processIsRunning(quint16 port);
     void profilerStateChanged();
 
-private:
     class QmlProfilerRunControlPrivate;
     QmlProfilerRunControlPrivate *d;
 };

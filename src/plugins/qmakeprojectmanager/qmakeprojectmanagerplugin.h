@@ -58,7 +58,13 @@ public:
     bool initialize(const QStringList &arguments, QString *errorMessage);
     void extensionsInitialized();
 
+#ifdef WITH_TESTS
 private slots:
+    void testQmakeOutputParsers_data();
+    void testQmakeOutputParsers();
+#endif
+
+private:
     void projectChanged();
     void activeTargetChanged();
     void updateRunQMakeAction();
@@ -66,12 +72,6 @@ private slots:
     void buildStateChanged(ProjectExplorer::Project *pro);
     void updateBuildFileAction();
 
-#ifdef WITH_TESTS
-    void testQmakeOutputParsers_data();
-    void testQmakeOutputParsers();
-#endif
-
-private:
     QmakeManager *m_qmakeProjectManager = nullptr;
     QmakeProject *m_previousStartupProject = nullptr;
     ProjectExplorer::Target *m_previousTarget = nullptr;

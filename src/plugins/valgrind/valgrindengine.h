@@ -38,7 +38,7 @@
 namespace Valgrind {
 namespace Internal {
 
-class ValgrindRunControl : public Analyzer::AnalyzerRunControl
+class ValgrindRunControl : public Debugger::AnalyzerRunControl
 {
     Q_OBJECT
 
@@ -46,8 +46,9 @@ public:
     ValgrindRunControl(ProjectExplorer::RunConfiguration *runConfiguration,
                        Core::Id runMode);
 
-    bool startEngine() override;
-    void stopEngine() override;
+    void start() override;
+    StopResult stop() override;
+    bool isRunning() const override;
 
     QString executable() const;
 
@@ -70,6 +71,7 @@ private:
     QStringList genericToolArguments() const;
 
 private:
+    bool m_isRunning = false;
     bool m_isStopping = false;
 };
 

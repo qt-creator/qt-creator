@@ -32,6 +32,7 @@
 #include <debugger/breakhandler.h>
 #include <debugger/debuggeractions.h>
 #include <debugger/debuggercore.h>
+#include <debugger/debuggerinternalconstants.h>
 #include <debugger/debuggerprotocol.h>
 #include <debugger/debuggermainwindow.h>
 #include <debugger/debuggerstartparameters.h>

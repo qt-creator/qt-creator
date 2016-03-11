@@ -25,6 +25,7 @@
 
 #include "debuggerruncontrol.h"
 
+#include "analyzer/analyzermanager.h"
 #include "debuggeractions.h"
 #include "debuggercore.h"
 #include "debuggerengine.h"
@@ -140,6 +141,7 @@ QString DebuggerRunControl::displayName() const
 
 void DebuggerRunControl::start()
 {
+    Debugger::selectPerspective(Debugger::Constants::CppPerspectiveId);
     TaskHub::clearTasks(Debugger::Constants::TASK_CATEGORY_DEBUGGER_DEBUGINFO);
     TaskHub::clearTasks(Debugger::Constants::TASK_CATEGORY_DEBUGGER_RUNTIME);
 

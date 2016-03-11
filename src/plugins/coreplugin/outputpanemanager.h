@@ -60,19 +60,20 @@ public:
     static OutputPaneManager *instance();
     QWidget *buttonsWidget();
     void updateStatusButtons(bool visible);
+    static void updateMaximizeButton(bool maximized);
 
-    bool isMaximized()const;
+    static int outputPaneHeightSetting();
+    static void setOutputPaneHeightSetting(int value);
 
 public slots:
     void slotHide();
     void slotNext();
     void slotPrev();
     void shortcutTriggered();
-    void slotMinMax();
+    void toggleMaximized();
 
 protected:
     void focusInEvent(QFocusEvent *e);
-    void resizeEvent(QResizeEvent *e);
 
 private:
     // the only class that is allowed to create and destroy
@@ -126,8 +127,8 @@ private:
     QWidget *m_buttonsWidget;
     QIcon m_minimizeIcon;
     QIcon m_maximizeIcon;
-    bool m_maximised;
-    int m_outputPaneHeight;
+    bool m_maximized;
+    int m_outputPaneHeightSetting;
 };
 
 class BadgeLabel

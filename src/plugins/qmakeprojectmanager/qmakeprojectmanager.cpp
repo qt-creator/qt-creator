@@ -123,17 +123,17 @@ void QmakeManager::setContextFile(ProjectExplorer::FileNode *file)
 void QmakeManager::addLibrary()
 {
     if (auto editor = qobject_cast<BaseTextEditor *>(Core::EditorManager::currentEditor()))
-        addLibrary(editor->document()->filePath().toString(), editor);
+        addLibraryImpl(editor->document()->filePath().toString(), editor);
 }
 
 void QmakeManager::addLibraryContextMenu()
 {
     Node *node = ProjectTree::currentNode();
     if (dynamic_cast<QmakeProFileNode *>(node))
-        addLibrary(node->filePath().toString());
+        addLibraryImpl(node->filePath().toString(), nullptr);
 }
 
-void QmakeManager::addLibrary(const QString &fileName, BaseTextEditor *editor)
+void QmakeManager::addLibraryImpl(const QString &fileName, BaseTextEditor *editor)
 {
     Internal::AddLibraryWizard wizard(fileName, Core::ICore::dialogParent());
     if (wizard.exec() != QDialog::Accepted)
@@ -161,15 +161,15 @@ void QmakeManager::addLibrary(const QString &fileName, BaseTextEditor *editor)
 
 void QmakeManager::runQMake()
 {
-    runQMake(SessionManager::startupProject(), 0);
+    runQMakeImpl(SessionManager::startupProject(), nullptr);
 }
 
 void QmakeManager::runQMakeContextMenu()
 {
-    runQMake(m_contextProject, m_contextNode);
+    runQMakeImpl(m_contextProject, m_contextNode);
 }
 
-void QmakeManager::runQMake(ProjectExplorer::Project *p, ProjectExplorer::Node *node)
+void QmakeManager::runQMakeImpl(ProjectExplorer::Project *p, ProjectExplorer::Node *node)
 {
     if (!ProjectExplorerPlugin::saveModifiedFiles())
         return;

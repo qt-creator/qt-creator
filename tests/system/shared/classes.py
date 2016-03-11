@@ -100,7 +100,7 @@ class ProjectSettings:
 
 # this class defines some constants for the views of the creator's MainWindow
 class ViewConstants:
-    WELCOME, EDIT, DESIGN, DEBUG, PROJECTS, ANALYZE, HELP = range(7)
+    WELCOME, EDIT, DESIGN, DEBUG, PROJECTS, HELP = range(6)
     FIRST_AVAILABLE = 0
     # always adjust the following to the highest value of the available ViewConstants when adding new
     LAST_AVAILABLE = HELP
@@ -120,8 +120,6 @@ class ViewConstants:
             toolTip = ur'Switch to <b>Debug</b> mode <span style="color: gray; font-size: small">(Ctrl\+|\u2303)%d</span>'
         elif viewTab == ViewConstants.PROJECTS:
             toolTip = ur'Switch to <b>Projects</b> mode <span style="color: gray; font-size: small">(Ctrl\+|\u2303)%d</span>'
-        elif viewTab == ViewConstants.ANALYZE:
-            toolTip = ur'Switch to <b>Analyze</b> mode <span style="color: gray; font-size: small">(Ctrl\+|\u2303)%d</span>'
         elif viewTab == ViewConstants.HELP:
             toolTip = ur'Switch to <b>Help</b> mode <span style="color: gray; font-size: small">(Ctrl\+|\u2303)%d</span>'
         else:

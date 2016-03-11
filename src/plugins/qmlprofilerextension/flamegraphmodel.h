@@ -68,6 +68,7 @@ public:
         TimePerCall,
         TimeInPercent,
         RangeType,
+        Location,
         MaxRole
     };
 

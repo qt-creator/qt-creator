@@ -615,9 +615,9 @@ def verifyItemOrder(items, text):
 
 def openVcsLog():
     try:
-        foundObj = waitForObject("{type='QPlainTextEdit' unnamed='1' visible='1' "
+        foundObj = waitForObject("{type='Core::OutputWindow' unnamed='1' visible='1' "
                                  "window=':Qt Creator_Core::Internal::MainWindow'}", 2000)
-        if className(foundObj) != 'QPlainTextEdit':
+        if className(foundObj) != 'Core::OutputWindow':
             raise Exception("Found derived class, but not a pure QPlainTextEdit.")
     except:
         invokeMenuItem("Window", "Output Panes", "Version Control")

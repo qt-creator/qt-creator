@@ -29,15 +29,8 @@
 
 #include <QtGlobal>
 
-namespace Analyzer {
+namespace Debugger {
 namespace Constants {
-
-// Mode and its priority.
-const char MODE_ANALYZE[] = "Mode.Analyze";
-const int  P_MODE_ANALYZE = 76;
-
-// Context.
-const char C_ANALYZEMODE[] = "Analyzer.AnalyzeMode";
 
 // Menu.
 const char M_DEBUG_ANALYZER[] = "Analyzer.Menu.StartAnalyzer";
@@ -51,6 +44,6 @@ const char G_ANALYZER_OPTIONS[] = "Menu.Group.Analyzer.Options";
 const char ANALYZERTASK_ID[] = "Analyzer.TaskId";
 
 } // namespace Constants
-} // namespace Analyzer
+} // namespace Debugger
 
 #endif // ANALYZERCONSTANTS_H

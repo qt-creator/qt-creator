@@ -44,7 +44,7 @@
 
 #include <utils/qtcassert.h>
 
-using namespace Analyzer;
+using namespace Debugger;
 using namespace ProjectExplorer;
 using namespace Valgrind::XmlProtocol;
 
@@ -72,20 +72,20 @@ ValgrindRunner *MemcheckRunControl::runner()
     return &m_runner;
 }
 
-bool MemcheckRunControl::startEngine()
+void MemcheckRunControl::start()
 {
     m_runner.setParser(&m_parser);
 
     appendMessage(tr("Analyzing memory of %1").arg(executable()) + QLatin1Char('\n'),
                         Utils::NormalMessageFormat);
-    return ValgrindRunControl::startEngine();
+    ValgrindRunControl::start();
 }
 
-void MemcheckRunControl::stopEngine()
+RunControl::StopResult MemcheckRunControl::stop()
 {
     disconnect(&m_parser, &ThreadedParser::internalError,
                this, &MemcheckRunControl::internalParserError);
-    ValgrindRunControl::stopEngine();
+    return ValgrindRunControl::stop();
 }
 
 QStringList MemcheckRunControl::toolArguments() const

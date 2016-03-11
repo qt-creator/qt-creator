@@ -92,6 +92,7 @@ private:
 
 private:
     QProcess m_adbLogcatProcess;
+    QProcess m_psProc;
     QTimer m_checkPIDTimer;
     bool m_wasStarted;
     int m_tries;

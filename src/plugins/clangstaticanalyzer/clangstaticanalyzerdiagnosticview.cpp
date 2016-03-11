@@ -36,13 +36,13 @@
 #include <QAction>
 #include <QDebug>
 
-using namespace Analyzer;
+using namespace Debugger;
 
 namespace ClangStaticAnalyzer {
 namespace Internal {
 
 ClangStaticAnalyzerDiagnosticView::ClangStaticAnalyzerDiagnosticView(QWidget *parent)
-    : Analyzer::DetailedErrorView(parent)
+    : Debugger::DetailedErrorView(parent)
 {
     m_suppressAction = new QAction(tr("Suppress this diagnostic"), this);
     connect(m_suppressAction, &QAction::triggered, [this](bool) { suppressCurrentDiagnostic(); });

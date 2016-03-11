@@ -50,7 +50,6 @@
 
 #include <QApplication>
 
-using namespace Analyzer;
 using namespace Debugger;
 using namespace ProjectExplorer;
 

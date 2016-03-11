@@ -44,7 +44,7 @@
 #include <QTimer>
 #include <QtTest>
 
-using namespace Analyzer;
+using namespace Debugger;
 using namespace ProjectExplorer;
 using namespace Utils;
 
@@ -89,7 +89,7 @@ void ClangStaticAnalyzerUnitTests::testProject()
     CppTools::Tests::ProjectOpenerAndCloser projectManager;
     const CppTools::ProjectInfo projectInfo = projectManager.open(projectFilePath, true);
     QVERIFY(projectInfo.isValid());
-    AnalyzerManager::selectAction(ClangStaticAnalyzerPerspectiveId, /* alsoRunIt = */ true);
+    Debugger::runAction(ClangStaticAnalyzerActionId);
     QSignalSpy waiter(m_analyzerTool, SIGNAL(finished(bool)));
     QVERIFY(waiter.wait(30000));
     const QList<QVariant> arguments = waiter.takeFirst();

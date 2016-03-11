@@ -167,6 +167,16 @@
     depending on the exact value of the program counter when the sample was
     recorded.
 
+    \section2 Resolving Names for JIT-compiled JavaScript Functions
+
+    From version 5.6.0, Qt can generate perf.map files with information about
+    JavaScript functions. The CPU Usage Analyzer will read them and show the
+    function names in the \uicontrol Timeline and \uicontrol Statistics views.
+    This only works if the process being profiled is running on the host
+    computer, not on the target device. To switch on the generation of perf.map
+    files, add the environment variable \c QV4_PROFILE_WRITE_PERF_MAP to the
+    \uicontrol {Run Environment} and set its value to \c 1.
+
     \section1 Analyzing Collected Data
 
     The \uicontrol Timeline view displays a graphical representation of CPU
@@ -256,6 +266,36 @@
     indicate that the thread with more samples taken is more likely to be the
     overall bottleneck, and the thread with less samples taken has likely spent
     time waiting for external events such as I/O or a mutex.
+
+    \section1 Viewing Statistics
+
+    The \uicontrol Statistics view displays the number of samples each function
+    in the timeline was contained in, in total and when on the top of the
+    stack (called \c self). This allows you to examine which functions you need
+    to optimize. A high number of occurrences might indicate that a function is
+    triggered unnecessarily or takes very long to execute.
+
+    Click on a row to move to the respective function in the source code in the
+    code editor.
+
+    The \uicontrol Callers and \uicontrol Callees panes show dependencies
+    between functions. They allow you to examine the internal functions of the
+    application. The \uicontrol Callers pane summarizes the functions that
+    called the function selected in the main view.  The \uicontrol Callees pane
+    summarizes the functions called from the function selected in the main
+    view.
+
+    Click on a row to move to the respective function in the source code in the
+    code editor and select it in the main view.
+
+    When you select a stack frame in the \uicontrol Timeline view, information
+    about it is displayed in the \uicontrol Statistics view. To view a time
+    range in the \uicontrol Statistics view, select
+    \uicontrol {Limit Statistics to Selected Range} in the context menu in the
+    \uicontrol Timeline view.
+
+    To copy the contents of one view or row to the clipboard, select
+    \uicontrol {Copy Table} or \uicontrol {Copy Row} in the context menu.
 
     \section1 Loading Perf Data Files
 

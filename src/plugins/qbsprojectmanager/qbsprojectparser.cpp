@@ -143,10 +143,12 @@ void QbsProjectParser::handleQbsParsingDone(bool success)
     // Do not report the operation as canceled here, as we might want to make overlapping
     // parses appear atomic to the user.
 
-    if (!success)
+    if (!success) {
         emit done(false);
-    else
+    } else {
+        emit projectStructureAvailable();
         startRuleExecution();
+    }
 }
 
 void QbsProjectParser::startRuleExecution()

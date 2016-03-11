@@ -122,7 +122,8 @@ void QmlDebugConnection::socketConnected()
 {
     Q_D(QmlDebugConnection);
     QPacket pack(d->currentDataStreamVersion);
-    pack << serverId << 0 << protocolVersion << d->plugins.keys() << d->maximumDataStreamVersion;
+    pack << serverId << 0 << protocolVersion << d->plugins.keys() << d->maximumDataStreamVersion
+         << true; // We accept multiple messages per packet
     d->protocol->send(pack.data());
     d->flush();
 }
@@ -254,14 +255,17 @@ void QmlDebugConnection::protocolReadyRead()
                 qWarning() << "QML Debug Client: Unknown control message id" << op;
             }
         } else {
-            QByteArray message;
-            pack >> message;
-
             QHash<QString, QmlDebugClient *>::Iterator iter = d->plugins.find(name);
-            if (iter == d->plugins.end())
+            if (iter == d->plugins.end()) {
                 qWarning() << "QML Debug Client: Message received for missing plugin" << name;
-            else
-                (*iter)->messageReceived(message);
+            } else {
+                QmlDebugClient *client = *iter;
+                QByteArray message;
+                while (!pack.atEnd()) {
+                    pack >> message;
+                    client->messageReceived(message);
+                }
+            }
         }
     }
 }

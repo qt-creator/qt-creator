@@ -103,8 +103,17 @@ void OutputPaneManager::updateStatusButtons(bool visible)
     QTC_ASSERT(m_panes.size() == m_buttons.size(), return);
     m_buttons.at(idx)->setChecked(visible);
     m_panes.at(idx)->visibilityChanged(visible);
-    OutputPanePlaceHolder *ph = OutputPanePlaceHolder::getCurrent();
-    m_minMaxAction->setVisible(ph && ph->canMaximizeOrMinimize());
+}
+
+void OutputPaneManager::updateMaximizeButton(bool maximized)
+{
+    if (maximized) {
+        m_instance->m_minMaxAction->setIcon(m_instance->m_minimizeIcon);
+        m_instance->m_minMaxAction->setText(tr("Minimize Output Pane"));
+    } else {
+        m_instance->m_minMaxAction->setIcon(m_instance->m_maximizeIcon);
+        m_instance->m_minMaxAction->setText(tr("Maximize Output Pane"));
+    }
 }
 
 OutputPaneManager::OutputPaneManager(QWidget *parent) :
@@ -120,8 +129,7 @@ OutputPaneManager::OutputPaneManager(QWidget *parent) :
     m_opToolBarWidgets(new QStackedWidget),
     m_minimizeIcon(Icons::ARROW_DOWN.icon()),
     m_maximizeIcon(Icons::ARROW_UP.icon()),
-    m_maximised(false),
-    m_outputPaneHeight(0)
+    m_outputPaneHeightSetting(0)
 {
     setWindowTitle(tr("Output"));
 
@@ -231,7 +239,7 @@ void OutputPaneManager::init()
     cmd->setAttribute(Command::CA_UpdateText);
     cmd->setAttribute(Command::CA_UpdateIcon);
     mpanes->addAction(cmd, "Coreplugin.OutputPane.ActionsGroup");
-    connect(m_minMaxAction, &QAction::triggered, this, &OutputPaneManager::slotMinMax);
+    connect(m_minMaxAction, &QAction::triggered, this, &OutputPaneManager::toggleMaximized);
     m_minMaxButton->setDefaultAction(cmd->action());
 
     mpanes->addSeparator("Coreplugin.OutputPane.ActionsGroup");
@@ -334,23 +342,24 @@ void OutputPaneManager::shortcutTriggered()
     }
 }
 
-bool OutputPaneManager::isMaximized()const
+int OutputPaneManager::outputPaneHeightSetting()
 {
-    return m_maximised;
+    return m_instance->m_outputPaneHeightSetting;
 }
 
-void OutputPaneManager::slotMinMax()
+void OutputPaneManager::setOutputPaneHeightSetting(int value)
+{
+    m_instance->m_outputPaneHeightSetting = value;
+}
+
+void OutputPaneManager::toggleMaximized()
 {
     OutputPanePlaceHolder *ph = OutputPanePlaceHolder::getCurrent();
     QTC_ASSERT(ph, return);
 
     if (!ph->isVisible()) // easier than disabling/enabling the action
         return;
-    m_maximised = !m_maximised;
-    ph->maximizeOrMinimize(m_maximised);
-    m_minMaxAction->setIcon(m_maximised ? m_minimizeIcon : m_maximizeIcon);
-    m_minMaxAction->setText(m_maximised ? tr("Minimize Output Pane")
-                                            : tr("Maximize Output Pane"));
+    ph->setMaximized(!ph->isMaximized());
 }
 
 void OutputPaneManager::buttonTriggered(int idx)
@@ -380,7 +389,7 @@ void OutputPaneManager::readSettings()
             m_buttons.at(i)->setVisible(m_buttonVisibility.value(m_ids.at(i)));
     }
 
-    m_outputPaneHeight = settings->value(QLatin1String("OutputPanePlaceHolder/Height"), 0).toInt();
+    m_outputPaneHeightSetting = settings->value(QLatin1String("OutputPanePlaceHolder/Height"), 0).toInt();
 }
 
 void OutputPaneManager::slotNext()
@@ -490,7 +499,6 @@ void OutputPaneManager::showPage(int idx, int flags)
             ICore::raiseWindow(m_outputWidgetPane);
         }
 
-        ph->setDefaultHeight(m_outputPaneHeight);
         if (flags & IOutputPane::EnsureSizeHint)
             ph->ensureSizeHintAsMinimum();
     }
@@ -509,13 +517,6 @@ void OutputPaneManager::focusInEvent(QFocusEvent *e)
 {
     if (QWidget *w = m_outputWidgetPane->currentWidget())
         w->setFocus(e->reason());
-}
-
-void OutputPaneManager::resizeEvent(QResizeEvent *e)
-{
-    if (e->size().height() == 0)
-        return;
-    m_outputPaneHeight = e->size().height();
 }
 
 void OutputPaneManager::setCurrentIndex(int idx)
@@ -586,7 +587,11 @@ void OutputPaneManager::saveSettings() const
                            m_buttonVisibility.value(m_ids.at(i)));
     }
     settings->endArray();
-    settings->setValue(QLatin1String("OutputPanePlaceHolder/Height"), m_outputPaneHeight);
+    int heightSetting = m_outputPaneHeightSetting;
+    // update if possible
+    if (OutputPanePlaceHolder *curr = OutputPanePlaceHolder::getCurrent())
+        heightSetting = curr->nonMaximizedSize();
+    settings->setValue(QLatin1String("OutputPanePlaceHolder/Height"), heightSetting);
 }
 
 void OutputPaneManager::clearPage()

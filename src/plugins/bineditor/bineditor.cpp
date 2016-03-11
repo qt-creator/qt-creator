@@ -376,6 +376,7 @@ bool BinEditorWidget::save(QString *errorString, const QString &oldFileName, con
 void BinEditorWidget::setSizes(quint64 startAddr, int range, int blockSize)
 {
     int newBlockSize = blockSize;
+    QTC_ASSERT(blockSize, return);
     QTC_ASSERT((blockSize/m_bytesPerLine) * m_bytesPerLine == blockSize,
                blockSize = (blockSize/m_bytesPerLine + 1) * m_bytesPerLine);
     // Users can edit data in the range

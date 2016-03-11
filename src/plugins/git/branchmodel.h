@@ -79,6 +79,7 @@ public:
     bool branchIsMerged(const QModelIndex &idx);
     QModelIndex addBranch(const QString &name, bool track, const QModelIndex &trackedBranch);
     void setRemoteTracking(const QModelIndex &trackingIndex);
+    void setOldBranchesIncluded(bool value);
 
 private:
     void parseOutputLine(const QString &line);
@@ -94,6 +95,7 @@ private:
     BranchNode *m_rootNode;
     BranchNode *m_currentBranch = nullptr;
     QString m_currentSha;
+    bool m_oldBranchesIncluded = false;
 };
 
 } // namespace Internal

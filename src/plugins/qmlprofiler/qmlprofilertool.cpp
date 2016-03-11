@@ -82,8 +82,8 @@
 
 using namespace Core;
 using namespace Core::Constants;
-using namespace Analyzer;
-using namespace Analyzer::Constants;
+using namespace Debugger;
+using namespace Debugger::Constants;
 using namespace QmlProfiler::Constants;
 using namespace QmlDebug;
 using namespace ProjectExplorer;
@@ -103,6 +103,8 @@ public:
     QToolButton *m_recordButton = 0;
     QMenu *m_recordFeaturesMenu = 0;
 
+    QAction *m_startAction = 0;
+    QAction *m_stopAction = 0;
     QToolButton *m_clearButton = 0;
 
     // elapsed time display
@@ -120,6 +122,8 @@ public:
     // save and load actions
     QAction *m_saveQmlTrace = 0;
     QAction *m_loadQmlTrace = 0;
+
+    bool m_toolBusy = false;
 };
 
 QmlProfilerTool::QmlProfilerTool(QObject *parent)
@@ -176,8 +180,6 @@ QmlProfilerTool::QmlProfilerTool(QObject *parent)
 
     d->m_recordingTimer.setInterval(100);
     connect(&d->m_recordingTimer, &QTimer::timeout, this, &QmlProfilerTool::updateTimeDisplay);
-
-
     d->m_viewContainer = new QmlProfilerViewManager(this,
                                                     d->m_profilerModelManager,
                                                     d->m_profilerState);
@@ -187,14 +189,7 @@ QmlProfilerTool::QmlProfilerTool(QObject *parent)
     //
     // Toolbar
     //
-    QWidget *toolbarWidget = new QWidget;
-    toolbarWidget->setObjectName(QLatin1String("QmlProfilerToolBarWidget"));
-
-    QHBoxLayout *layout = new QHBoxLayout;
-    layout->setMargin(0);
-    layout->setSpacing(0);
-
-    d->m_recordButton = new QToolButton(toolbarWidget);
+    d->m_recordButton = new QToolButton;
     d->m_recordButton->setCheckable(true);
 
     connect(d->m_recordButton,&QAbstractButton::clicked,
@@ -207,9 +202,8 @@ QmlProfilerTool::QmlProfilerTool(QObject *parent)
             this, &QmlProfilerTool::toggleRequestedFeature);
 
     setRecording(d->m_profilerState->clientRecording());
-    layout->addWidget(d->m_recordButton);
 
-    d->m_clearButton = new QToolButton(toolbarWidget);
+    d->m_clearButton = new QToolButton;
     d->m_clearButton->setIcon(Icons::CLEAN_PANE.icon());
     d->m_clearButton->setToolTip(tr("Discard data"));
 
@@ -218,12 +212,9 @@ QmlProfilerTool::QmlProfilerTool(QObject *parent)
             clearData();
     });
 
-    layout->addWidget(d->m_clearButton);
-
     d->m_searchButton = new QToolButton;
     d->m_searchButton->setIcon(Icons::ZOOM.icon());
     d->m_searchButton->setToolTip(tr("Search timeline event notes."));
-    layout->addWidget(d->m_searchButton);
 
     connect(d->m_searchButton, &QToolButton::clicked, this, &QmlProfilerTool::showTimeLineSearch);
 
@@ -236,7 +227,6 @@ QmlProfilerTool::QmlProfilerTool(QObject *parent)
     d->m_displayFeaturesButton->setMenu(d->m_displayFeaturesMenu);
     connect(d->m_displayFeaturesMenu, &QMenu::triggered,
             this, &QmlProfilerTool::toggleVisibleFeature);
-    layout->addWidget(d->m_displayFeaturesButton);
 
     d->m_timeLabel = new QLabel();
     QPalette palette;
@@ -244,11 +234,7 @@ QmlProfilerTool::QmlProfilerTool(QObject *parent)
     d->m_timeLabel->setPalette(palette);
     d->m_timeLabel->setIndent(10);
     updateTimeDisplay();
-    layout->addWidget(d->m_timeLabel);
 
-    layout->addStretch();
-
-    toolbarWidget->setLayout(layout);
     setAvailableFeatures(d->m_profilerModelManager->availableFeatures());
     setRecordedFeatures(0);
 
@@ -263,6 +249,9 @@ QmlProfilerTool::QmlProfilerTool(QObject *parent)
     QString description = tr("The QML Profiler can be used to find performance "
                              "bottlenecks in applications using QML.");
 
+    d->m_startAction = Debugger::createStartAction();
+    d->m_stopAction = Debugger::createStopAction();
+
     ActionDescription desc;
     desc.setText(tr("QML Profiler"));
     desc.setToolTip(description);
@@ -270,8 +259,8 @@ QmlProfilerTool::QmlProfilerTool(QObject *parent)
     desc.setRunControlCreator(runControlCreator);
     desc.setToolPreparer([this] { return prepareTool(); });
     desc.setRunMode(ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
-    desc.setMenuGroup(Analyzer::Constants::G_ANALYZER_TOOLS);
-    AnalyzerManager::registerAction(Constants::QmlProfilerLocalActionId, desc);
+    desc.setMenuGroup(Debugger::Constants::G_ANALYZER_TOOLS);
+    Debugger::registerAction(Constants::QmlProfilerLocalActionId, desc, d->m_startAction);
 
     desc.setText(tr("QML Profiler (External)"));
     desc.setToolTip(description);
@@ -280,15 +269,42 @@ QmlProfilerTool::QmlProfilerTool(QObject *parent)
     desc.setCustomToolStarter([this](RunConfiguration *rc) { startRemoteTool(rc); });
     desc.setToolPreparer([this] { return prepareTool(); });
     desc.setRunMode(ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
-    desc.setMenuGroup(Analyzer::Constants::G_ANALYZER_REMOTE_TOOLS);
-    AnalyzerManager::registerAction(Constants::QmlProfilerRemoteActionId, desc);
+    desc.setMenuGroup(Debugger::Constants::G_ANALYZER_REMOTE_TOOLS);
+    Debugger::registerAction(Constants::QmlProfilerRemoteActionId, desc);
 
-    AnalyzerManager::registerToolbar(Constants::QmlProfilerPerspectiveId, toolbarWidget);
+    Utils::ToolbarDescription toolbar;
+    toolbar.addAction(d->m_startAction);
+    toolbar.addAction(d->m_stopAction);
+    toolbar.addWidget(d->m_recordButton);
+    toolbar.addWidget(d->m_clearButton);
+    toolbar.addWidget(d->m_searchButton);
+    toolbar.addWidget(d->m_displayFeaturesButton);
+    toolbar.addWidget(d->m_timeLabel);
+    Debugger::registerToolbar(Constants::QmlProfilerPerspectiveId, toolbar);
+
+    connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::updateRunActions,
+            this, &QmlProfilerTool::updateRunActions);
 }
 
 QmlProfilerTool::~QmlProfilerTool()
 {
     delete d;
+}
+
+void QmlProfilerTool::updateRunActions()
+{
+    if (d->m_toolBusy) {
+        d->m_startAction->setEnabled(false);
+        d->m_startAction->setToolTip(tr("A Qml Profiler analysis is still in progress."));
+        d->m_stopAction->setEnabled(true);
+    } else {
+        QString whyNot = tr("Start Qml Profiler analysis.");
+        bool canRun = ProjectExplorerPlugin::canRunStartupProject
+                (ProjectExplorer::Constants::QML_PROFILER_RUN_MODE, &whyNot);
+        d->m_startAction->setToolTip(whyNot);
+        d->m_startAction->setEnabled(canRun);
+        d->m_stopAction->setEnabled(false);
+    }
 }
 
 static QString sysroot(RunConfiguration *runConfig)
@@ -302,6 +318,7 @@ static QString sysroot(RunConfiguration *runConfig)
 
 AnalyzerRunControl *QmlProfilerTool::createRunControl(RunConfiguration *runConfiguration)
 {
+    d->m_toolBusy = true;
     if (runConfiguration) {
         QmlProfilerRunConfigurationAspect *aspect = static_cast<QmlProfilerRunConfigurationAspect *>(
                     runConfiguration->extraAspect(Constants::SETTINGS));
@@ -314,7 +331,16 @@ AnalyzerRunControl *QmlProfilerTool::createRunControl(RunConfiguration *runConfi
         }
     }
 
-    return new QmlProfilerRunControl(runConfiguration, this);
+    auto runControl = new QmlProfilerRunControl(runConfiguration, this);
+    connect(runControl, &RunControl::finished, [this, runControl] {
+        d->m_toolBusy = false;
+        updateRunActions();
+    });
+
+    connect(d->m_stopAction, &QAction::triggered, runControl, [runControl] { runControl->stop(); });
+
+    updateRunActions();
+    return runControl;
 }
 
 void QmlProfilerTool::finalizeRunControl(QmlProfilerRunControl *runControl)
@@ -503,8 +529,6 @@ bool QmlProfilerTool::prepareTool()
 
 void QmlProfilerTool::startRemoteTool(ProjectExplorer::RunConfiguration *rc)
 {
-    AnalyzerManager::showMode();
-
     Id kitId;
     quint16 port;
     Kit *kit = 0;
@@ -596,7 +620,7 @@ void QmlProfilerTool::showSaveDialog()
         if (!filename.endsWith(QLatin1String(TraceFileExtension)))
             filename += QLatin1String(TraceFileExtension);
         saveLastTraceFile(filename);
-        AnalyzerManager::enableMainWindow(false);
+        Debugger::enableMainWindow(false);
         d->m_profilerModelManager->save(filename);
     }
 }
@@ -606,10 +630,7 @@ void QmlProfilerTool::showLoadDialog()
     if (!checkForUnsavedNotes())
         return;
 
-    if (ModeManager::currentMode()->id() != MODE_ANALYZE)
-        AnalyzerManager::showMode();
-
-    AnalyzerManager::selectAction(QmlProfilerRemoteActionId);
+    Debugger::selectPerspective(QmlProfilerPerspectiveId);
 
     QString filename = QFileDialog::getOpenFileName(
                 ICore::mainWindow(), tr("Load QML Trace"),
@@ -618,7 +639,7 @@ void QmlProfilerTool::showLoadDialog()
 
     if (!filename.isEmpty()) {
         saveLastTraceFile(filename);
-        AnalyzerManager::enableMainWindow(false);
+        Debugger::enableMainWindow(false);
         connect(d->m_profilerModelManager, &QmlProfilerModelManager::recordedFeaturesChanged,
                 this, &QmlProfilerTool::setRecordedFeatures);
         d->m_profilerModelManager->load(filename);
@@ -629,7 +650,7 @@ void QmlProfilerTool::onLoadSaveFinished()
 {
     disconnect(d->m_profilerModelManager, &QmlProfilerModelManager::recordedFeaturesChanged,
                this, &QmlProfilerTool::setRecordedFeatures);
-    AnalyzerManager::enableMainWindow(true);
+    Debugger::enableMainWindow(true);
 }
 
 /*!

@@ -147,6 +147,7 @@ UnstartedAppWatcherDialog::UnstartedAppWatcherDialog(QWidget *parent)
     m_watchingPushButton->setCheckable(true);
     m_watchingPushButton->setChecked(false);
     m_watchingPushButton->setEnabled(false);
+    m_watchingPushButton->setDefault(true);
 
     QFormLayout *mainLayout = new QFormLayout(this);
     mainLayout->addRow(new QLabel(tr("Kit: "), this), m_kitChooser);
@@ -170,6 +171,7 @@ UnstartedAppWatcherDialog::UnstartedAppWatcherDialog(QWidget *parent)
     connect(m_kitChooser, &KitChooser::currentIndexChanged,
             this, &UnstartedAppWatcherDialog::kitChanged);
     kitChanged();
+    m_pathChooser->setFocus();
 
     setWaitingState(checkExecutableString() ? NotWatchingState : InvalidWacherState);
 }

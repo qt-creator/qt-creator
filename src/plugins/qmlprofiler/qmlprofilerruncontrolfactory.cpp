@@ -45,7 +45,7 @@
 
 #include <utils/qtcassert.h>
 
-using namespace Analyzer;
+using namespace Debugger;
 using namespace ProjectExplorer;
 
 namespace QmlProfiler {
@@ -94,7 +94,7 @@ RunControl *QmlProfilerRunControlFactory::create(RunConfiguration *runConfigurat
     }
 
     auto runControl = qobject_cast<QmlProfilerRunControl *>
-             (AnalyzerManager::createRunControl(runConfiguration, mode));
+             (Debugger::createAnalyzerRunControl(runConfiguration, mode));
     QTC_ASSERT(runControl, return 0);
 
     runControl->setRunnable(runnable);

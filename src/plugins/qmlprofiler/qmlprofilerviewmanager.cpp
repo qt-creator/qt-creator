@@ -40,7 +40,8 @@
 
 #include <QDockWidget>
 
-using namespace Analyzer;
+using namespace Debugger;
+using namespace Utils;
 
 namespace QmlProfiler {
 namespace Internal {
@@ -80,7 +81,7 @@ void QmlProfilerViewManager::createViews()
     QTC_ASSERT(d->profilerModelManager, return);
     QTC_ASSERT(d->profilerState, return);
 
-    //Utils::FancyMainWindow *mw = AnalyzerManager::mainWindow();
+    //Utils::FancyMainWindow *mw = Debugger::mainWindow();
 
     d->traceView = new QmlProfilerTraceView(0, this, d->profilerModelManager);
     d->traceView->setWindowTitle(tr("Timeline"));
@@ -90,12 +91,12 @@ void QmlProfilerViewManager::createViews()
             this, &QmlProfilerViewManager::typeSelected);
     connect(this, &QmlProfilerViewManager::typeSelected,
             d->traceView, &QmlProfilerTraceView::selectByTypeId);
-    AnalyzerManager::registerDockWidget(Constants::QmlProfilerTimelineDockId, d->traceView);
 
     new QmlProfilerStateWidget(d->profilerState, d->profilerModelManager, d->traceView);
 
-    Perspective perspective;
-    perspective.addOperation({Constants::QmlProfilerTimelineDockId, Core::Id(),
+    Utils::Perspective perspective;
+    perspective.setName(tr("QML Profiler"));
+    perspective.addOperation({Constants::QmlProfilerTimelineDockId, d->traceView, {},
                               Perspective::SplitVertical});
 
     d->eventsViews << new QmlProfilerStatisticsView(0, d->profilerModelManager);
@@ -118,19 +119,17 @@ void QmlProfilerViewManager::createViews()
                 this, &QmlProfilerViewManager::gotoSourceLocation);
         connect(view, &QmlProfilerEventsView::showFullRange,
                 this, [this](){restrictEventsToRange(-1, -1);});
-        Core::Id dockId = Core::Id::fromString(view->objectName());
-        AnalyzerManager::registerDockWidget(dockId, view);
-        perspective.addOperation({dockId, Constants::QmlProfilerTimelineDockId, Perspective::AddToTab});
+        QByteArray dockId = view->objectName().toLatin1();
+        perspective.addOperation({dockId, view, Constants::QmlProfilerTimelineDockId, Perspective::AddToTab});
         new QmlProfilerStateWidget(d->profilerState, d->profilerModelManager, view);
 
-        if (!settings->contains(view->parent()->objectName())) // parent() is QDockWidget.
-            settings->remove(QString());
+//        if (!settings->contains(view->parent()->objectName())) // parent() is QDockWidget.
+//            settings->remove(QString());
     }
-    AnalyzerManager::registerPerspective(Constants::QmlProfilerPerspectiveId, perspective);
+    perspective.addOperation({Constants::QmlProfilerTimelineDockId, 0, {}, Perspective::Raise});
+    Debugger::registerPerspective(Constants::QmlProfilerPerspectiveId, perspective);
 
     settings->endGroup();
-    QTC_ASSERT(qobject_cast<QDockWidget *>(d->traceView->parentWidget()), return);
-    d->traceView->parentWidget()->raise();
 }
 
 bool QmlProfilerViewManager::hasValidSelection() const

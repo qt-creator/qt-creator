@@ -45,7 +45,7 @@
 #include <QPointer>
 
 using namespace QSsh;
-using namespace Analyzer;
+using namespace Debugger;
 using namespace ProjectExplorer;
 using namespace Utils;
 

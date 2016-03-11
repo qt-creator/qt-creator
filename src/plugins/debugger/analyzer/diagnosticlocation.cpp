@@ -25,7 +25,7 @@
 
 #include "diagnosticlocation.h"
 
-namespace Analyzer {
+namespace Debugger {
 
 DiagnosticLocation::DiagnosticLocation() : line(0), column(0)
 {
@@ -56,5 +56,5 @@ QDebug operator<<(QDebug dbg, const DiagnosticLocation &location)
     return dbg.space();
 }
 
-} // namespace Analyzer
+} // namespace Debugger
 

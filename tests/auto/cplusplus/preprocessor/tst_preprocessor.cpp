@@ -405,6 +405,7 @@ private slots:
     void concat();
     void excessive_nesting();
     void multi_byte_code_point_in_expansion();
+    void trigraph();
 };
 
 // Remove all #... lines, and 'simplify' string, to allow easily comparing the result
@@ -2090,6 +2091,29 @@ void tst_Preprocessor::compare_input_output(bool keepComments)
     preprocess.setKeepComments(keepComments);
     QByteArray prep = preprocess.run(QLatin1String("<stdin>"), input);
     QVERIFY(compare(prep, output));
+}
+
+void tst_Preprocessor::trigraph()
+{
+    Environment env;
+    Preprocessor preprocess(0, &env);
+
+    // We cannot use actual trigraphs in strings, they would be replaced by the preprocessor when
+    // compiling the test, so we use strings with 'j' character instead of '?', and perform a
+    // replacement at runtime.
+
+    // Trigraphs in source code are replaced
+    QByteArray prep = preprocess.run(QLatin1String("<stdin>"),
+                                     QByteArray("jj(  jj)  jj<  jj>  jj=  jj=jj=  jj'  jj'=  jj!  jj!=  jj-  jj-=").replace('j', '?'),
+                                     true, false);
+    QCOMPARE(prep.constData(), "[  ]  {  }  #  ##  ^  ^=  |  |=  ~  ~=");
+
+    // Trigraphs that appear after macro expansion are not replaced
+    prep = preprocess.run(QLatin1String("<stdin>"),
+                          "#define TRIGRAPH(x...) ? ## x ## ? ## x ## =\n"
+                          "TRIGRAPH()",
+                          true, false);
+    QCOMPARE(prep.constData(), QByteArray("\njj=").replace('j', '?').data());
 }
 
 QTEST_APPLESS_MAIN(tst_Preprocessor)

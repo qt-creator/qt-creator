@@ -26,14 +26,14 @@
 #ifndef DETAILEDERRORVIEW_H
 #define DETAILEDERRORVIEW_H
 
-#include "analyzerbase_global.h"
+#include <debugger/debugger_global.h>
 
 #include <QTreeView>
 #include <QStyledItemDelegate>
 
-namespace Analyzer {
+namespace Debugger {
 
-class ANALYZER_EXPORT DetailedErrorView : public QTreeView
+class DEBUGGER_EXPORT DetailedErrorView : public QTreeView
 {
     Q_OBJECT
 
@@ -67,6 +67,6 @@ private:
     QAction * const m_copyAction;
 };
 
-} // namespace Analyzer
+} // namespace Debugger
 
 #endif // DETAILEDERRORVIEW_H

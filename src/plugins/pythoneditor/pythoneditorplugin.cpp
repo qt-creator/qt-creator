@@ -405,6 +405,7 @@ private:
     QString m_interpreter;
     QString m_mainScript;
     QString m_commandLineArguments;
+    Utils::Environment m_environment;
     ApplicationLauncher::Mode m_runMode;
     bool m_running;
 };
@@ -1077,6 +1078,7 @@ PythonRunControl::PythonRunControl(PythonRunConfiguration *rc, Core::Id mode)
     m_mainScript = rc->mainScript();
     m_runMode = rc->extraAspect<TerminalAspect>()->runMode();
     m_commandLineArguments = rc->extraAspect<ArgumentsAspect>()->arguments();
+    m_environment = rc->extraAspect<EnvironmentAspect>()->environment();
 
     connect(&m_applicationLauncher, &ApplicationLauncher::appendMessage,
             this, &PythonRunControl::slotAppendMessage);
@@ -1108,6 +1110,7 @@ void PythonRunControl::start()
         QtcProcess::addArgs(&r.commandLineArguments, m_commandLineArguments);
         r.executable = m_interpreter;
         r.runMode = m_runMode;
+        r.environment = m_environment;
         m_applicationLauncher.start(r);
 
         setApplicationProcessHandle(ProcessHandle(m_applicationLauncher.applicationPID()));

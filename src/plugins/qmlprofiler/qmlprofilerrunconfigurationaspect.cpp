@@ -53,7 +53,7 @@ ProjectExplorer::IRunConfigurationAspect *QmlProfilerRunConfigurationAspect::cre
 
 ProjectExplorer::RunConfigWidget *QmlProfilerRunConfigurationAspect::createConfigurationWidget()
 {
-    return new Analyzer::AnalyzerRunConfigWidget(this);
+    return new Debugger::AnalyzerRunConfigWidget(this);
 }
 
 } // Internal

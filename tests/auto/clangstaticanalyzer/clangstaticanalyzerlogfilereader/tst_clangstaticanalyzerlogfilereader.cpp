@@ -31,7 +31,7 @@
 
 enum { debug = 0 };
 
-using namespace Analyzer;
+using namespace Debugger;
 using namespace ClangStaticAnalyzer::Internal;
 
 namespace {

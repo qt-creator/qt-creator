@@ -31,7 +31,7 @@
 namespace ClangStaticAnalyzer {
 namespace Internal {
 
-class ClangStaticAnalyzerDiagnosticView : public Analyzer::DetailedErrorView
+class ClangStaticAnalyzerDiagnosticView : public Debugger::DetailedErrorView
 {
     Q_OBJECT
 

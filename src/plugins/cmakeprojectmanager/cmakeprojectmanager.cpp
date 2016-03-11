@@ -24,6 +24,9 @@
 ****************************************************************************/
 
 #include "cmakeprojectmanager.h"
+#include "builddirmanager.h"
+#include "cmakebuildconfiguration.h"
+#include "cmakekitinformation.h"
 #include "cmakeprojectconstants.h"
 #include "cmakeproject.h"
 #include "cmakesettingspage.h"
@@ -52,6 +55,7 @@ using namespace CMakeProjectManager::Internal;
 
 CMakeManager::CMakeManager() :
     m_runCMakeAction(new QAction(QIcon(), tr("Run CMake"), this)),
+    m_clearCMakeCacheAction(new QAction(QIcon(), tr("Clear CMake Configuration"), this)),
     m_runCMakeActionContextMenu(new QAction(QIcon(), tr("Run CMake"), this))
 {
     Core::ActionContainer *mbuild =
@@ -62,14 +66,22 @@ CMakeManager::CMakeManager() :
             Core::ActionManager::actionContainer(ProjectExplorer::Constants::M_SUBPROJECTCONTEXT);
 
     const Core::Context projectContext(CMakeProjectManager::Constants::PROJECTCONTEXT);
-    const Core::Context globalcontext(Core::Constants::C_GLOBAL);
+    const Core::Context globalContext(Core::Constants::C_GLOBAL);
 
     Core::Command *command = Core::ActionManager::registerAction(m_runCMakeAction,
-                                                                 Constants::RUNCMAKE, globalcontext);
+                                                                 Constants::RUNCMAKE, globalContext);
     command->setAttribute(Core::Command::CA_Hide);
     mbuild->addAction(command, ProjectExplorer::Constants::G_BUILD_DEPLOY);
     connect(m_runCMakeAction, &QAction::triggered, [this]() {
         runCMake(SessionManager::startupProject());
+    });
+
+    command = Core::ActionManager::registerAction(m_clearCMakeCacheAction,
+                                                  Constants::CLEARCMAKECACHE, globalContext);
+    command->setAttribute(Core::Command::CA_Hide);
+    mbuild->addAction(command, ProjectExplorer::Constants::G_BUILD_DEPLOY);
+    connect(m_clearCMakeCacheAction, &QAction::triggered, [this]() {
+        clearCMakeCache(SessionManager::startupProject());
     });
 
     command = Core::ActionManager::registerAction(m_runCMakeActionContextMenu,
@@ -82,16 +94,31 @@ CMakeManager::CMakeManager() :
     });
 
     connect(SessionManager::instance(), &SessionManager::startupProjectChanged,
-            this, &CMakeManager::updateRunCmakeAction);
+            this, &CMakeManager::updateCmakeActions);
     connect(BuildManager::instance(), &BuildManager::buildStateChanged,
-            this, &CMakeManager::updateRunCmakeAction);
+            this, &CMakeManager::updateCmakeActions);
 
+    updateCmakeActions();
 }
 
-void CMakeManager::updateRunCmakeAction()
+void CMakeManager::updateCmakeActions()
 {
     auto project = qobject_cast<CMakeProject *>(SessionManager::startupProject());
-    m_runCMakeAction->setVisible(project && !BuildManager::isBuilding(project));
+    const bool visible = project && !BuildManager::isBuilding(project);
+    m_runCMakeAction->setVisible(visible);
+    m_clearCMakeCacheAction->setVisible(visible);
+}
+
+void CMakeManager::clearCMakeCache(Project *project)
+{
+    if (!project || !project->activeTarget())
+        return;
+    auto bc = qobject_cast<CMakeBuildConfiguration *>(project->activeTarget()->activeBuildConfiguration());
+    if (!bc)
+        return;
+
+    bc->setCMakeConfiguration(CMakeConfigurationKitInformation::configuration(bc->target()->kit()));
+    bc->buildDirManager()->clearCache();
 }
 
 void CMakeManager::runCMake(Project *project)

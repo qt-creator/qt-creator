@@ -31,6 +31,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/dropsupport.h>
+#include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 
 #include <QAbstractItemModel>
@@ -323,7 +324,7 @@ bool DocumentModelPrivate::disambiguateDisplayNames(DocumentModel::Entry *entry)
                 }
                 for (int j = i + 1; j < dupsCount; ++j) {
                     DynamicEntry &e2 = dups[j];
-                    if (e->displayName() == e2->displayName()) {
+                    if (e->displayName().compare(e2->displayName(), Utils::HostOsInfo::fileNameCaseSensitivity()) == 0) {
                         const Utils::FileName otherFileName = e2->document->filePath();
                         if (otherFileName.isEmpty())
                             continue;

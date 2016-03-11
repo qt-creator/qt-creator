@@ -44,7 +44,7 @@
 #include <QSharedPointer>
 #include <QTextDocument>
 
-namespace Analyzer {
+namespace Debugger {
 namespace Internal {
 
 class DetailedErrorDelegate : public QStyledItemDelegate
@@ -138,8 +138,7 @@ DetailedErrorView::DetailedErrorView(QWidget *parent) :
     });
     connect(this, &QAbstractItemView::clicked, [](const QModelIndex &index) {
         if (index.column() == LocationColumn) {
-            const auto loc = index.model()
-                    ->data(index, Analyzer::DetailedErrorView::LocationRole)
+            const auto loc = index.model()->data(index, DetailedErrorView::LocationRole)
                     .value<DiagnosticLocation>();
             if (loc.isValid())
                 Core::EditorManager::openEditorAt(loc.filePath, loc.line, loc.column - 1);
@@ -212,6 +211,6 @@ void DetailedErrorView::setCurrentRow(int row)
     scrollTo(index);
 }
 
-} // namespace Analyzer
+} // namespace Debugger
 
 #include "detailederrorview.moc"

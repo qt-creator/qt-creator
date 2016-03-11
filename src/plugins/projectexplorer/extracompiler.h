@@ -33,6 +33,13 @@
 #include <utils/fileutils.h>
 #include <utils/environment.h>
 
+#include <QByteArray>
+#include <QFuture>
+#include <QList>
+
+QT_FORWARD_DECLARE_CLASS(QProcess);
+QT_FORWARD_DECLARE_CLASS(QThreadPool);
+
 namespace ProjectExplorer {
 
 class ExtraCompilerPrivate;
@@ -42,8 +49,8 @@ class PROJECTEXPLORER_EXPORT ExtraCompiler : public QObject
 public:
 
     ExtraCompiler(const Project *project, const Utils::FileName &source,
-                  const Utils::FileNameList &targets, QObject *parent = 0);
-    virtual ~ExtraCompiler() override;
+                  const Utils::FileNameList &targets, QObject *parent = nullptr);
+    ~ExtraCompiler() override;
 
     const Project *project() const;
     Utils::FileName source() const;
@@ -57,6 +64,8 @@ public:
 
     void setCompileTime(const QDateTime &time);
     QDateTime compileTime() const;
+
+    static QThreadPool *extraCompilerThreadPool();
 
 signals:
     void contentsChanged(const Utils::FileName &file);
@@ -72,16 +81,60 @@ private:
     void onActiveTargetChanged();
     void onActiveBuildConfigurationChanged();
     void setDirty();
+    // This method may not block!
     virtual void run(const QByteArray &sourceContent) = 0;
+    virtual void run(const Utils::FileName &file) = 0;
 
     ExtraCompilerPrivate *const d;
+};
+
+class PROJECTEXPLORER_EXPORT ProcessExtraCompiler : public ExtraCompiler
+{
+    Q_OBJECT
+public:
+
+    ProcessExtraCompiler(const Project *project, const Utils::FileName &source,
+                         const Utils::FileNameList &targets, QObject *parent = nullptr);
+
+protected:
+    // This will run a process in a thread, if
+    //  * command() does not return an empty file name
+    //  * command() is exectuable
+    //  * prepareToRun returns true
+    //  * The process is not yet running
+    void run(const QByteArray &sourceContents) override;
+    void run(const Utils::FileName &fileName) override;
+
+    // Information about the process to run:
+    virtual Utils::FileName workingDirectory() const;
+    virtual Utils::FileName command() const = 0;
+    virtual QStringList arguments() const;
+
+    virtual bool prepareToRun(const QByteArray &sourceContents);
+
+    virtual void handleProcessError(QProcess *process) { Q_UNUSED(process); }
+    virtual void handleProcessStarted(QProcess *process, const QByteArray &sourceContents)
+    { Q_UNUSED(process); Q_UNUSED(sourceContents); }
+    virtual QList<QByteArray> handleProcessFinished(QProcess *process) = 0;
+
+    virtual QList<Task> parseIssues(const QByteArray &stdErr);
+
+private:
+    using ContentProvider = std::function<QByteArray()>;
+    void runImpl(const ContentProvider &sourceContents);
+    QList<QByteArray> runInThread(const Utils::FileName &cmd, const Utils::FileName &workDir,
+                                  const QStringList &args, const ContentProvider &provider,
+                                  const Utils::Environment &env);
+    void cleanUp();
+
+    QFutureWatcher<QList<QByteArray>> *m_watcher = nullptr;
 };
 
 class PROJECTEXPLORER_EXPORT ExtraCompilerFactory : public QObject
 {
     Q_OBJECT
 public:
-    explicit ExtraCompilerFactory(QObject *parent = 0);
+    explicit ExtraCompilerFactory(QObject *parent = nullptr);
 
     virtual FileType sourceType() const = 0;
     virtual QString sourceTag() const = 0;

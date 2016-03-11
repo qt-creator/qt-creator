@@ -45,7 +45,7 @@ class ErrorListModel : public Utils::TreeModel
 
 public:
     enum Role {
-        ErrorRole = Analyzer::DetailedErrorView::FullTextRole + 1,
+        ErrorRole = Debugger::DetailedErrorView::FullTextRole + 1,
     };
 
     class RelevantFrameFinder
