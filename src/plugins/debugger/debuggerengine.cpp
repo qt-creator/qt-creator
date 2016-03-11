@@ -1855,7 +1855,7 @@ void DebuggerEngine::validateExecutable(DebuggerRunParameters *sp)
             if (getPDBFiles(binary, &rc, &errorMessage) && !rc.isEmpty())
                 return;
             if (!errorMessage.isEmpty()) {
-                detailedWarning.append(QLatin1Charr('\n'));
+                detailedWarning.append(QLatin1Char('\n'));
                 detailedWarning.append(errorMessage);
             }
         } else {
