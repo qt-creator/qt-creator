@@ -387,9 +387,7 @@ void ProjectTree::emitFilesAdded(FolderNode *folder)
         Core::IDocument *document = Core::EditorManager::currentDocument();
         const FileName fileName = document ? document->filePath() : FileName();
 
-        int index = Utils::indexOf(m_filesAdded, [&fileName](FileNode *node) {
-                return node->filePath() == fileName;
-        });
+        int index = Utils::indexOf(m_filesAdded, Utils::equal(&FileNode::filePath, fileName));
 
         if (index == -1)
             return;
