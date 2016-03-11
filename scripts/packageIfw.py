@@ -36,7 +36,7 @@ import shutil
 import inspect
 
 def usage():
-    print('Usage: %s [-v|--version-string=versionstring] [-i|--installer-path=/path/to/installerfw] [-a|--archive=archive.7z] [-d|--debug] <outputname>' %  os.path.basename(sys.argv[0]))
+    print('Usage: %s [-v|--version-string=versionstring] [-d|--display-version=versionstring] [-i|--installer-path=/path/to/installerfw] [-a|--archive=archive.7z] [--debug] <outputname>' %  os.path.basename(sys.argv[0]))
 
 def substitute_file(infile, outfile, substitutions):
     with open(infile, 'r') as f:
@@ -51,7 +51,7 @@ def ifw_template_dir():
 
 def main():
     try:
-        opts, args = getopt.gnu_getopt(sys.argv[1:], 'hv:i:a:d', ['help', 'version-string=', 'installer-path=', 'archive', 'debug'])
+        opts, args = getopt.gnu_getopt(sys.argv[1:], 'hv:d:i:a:', ['help', 'version-string=', 'display-version=', 'installer-path=', 'archive', 'debug'])
     except:
         usage()
         sys.exit(2)
@@ -61,6 +61,7 @@ def main():
         sys.exit(2)
 
     version = ''
+    display_version = ''
     ifw_location = ''
     archives = []
     debug = False
@@ -70,15 +71,20 @@ def main():
             sys.exit(0)
         if o in ('-v', '--version-string'):
             version = a
+        if o in ['-d', '--display-version']:
+            display_version = a
         if o in ('-i', '--installer-path'):
             ifw_location = a
         if o in ('-a', '--archive'):
             archives.append(a)
-        if o in ('-d', '--debug'):
+        if o in ['--debug']:
             debug = True
 
     if (version == ''):
       raise Exception('Version not specified (--version-string)!')
+
+    if not display_version:
+        display_version = version
 
     if (ifw_location == ''):
       raise Exception('Installer framework location not specified (--installer-path)!')
@@ -108,6 +114,7 @@ def main():
     try:
         substs = {}
         substs['version'] = version
+        substs['display_version'] = display_version
         substs['date'] = datetime.date.today().isoformat()
         substs['archives'] = ','.join(archives)
 

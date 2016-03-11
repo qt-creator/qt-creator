@@ -2,7 +2,7 @@
 <Installer>
     <Name>Qt Creator</Name>
     <Version>{version}</Version>
-    <Title>Qt Creator {version}</Title>
+    <Title>Qt Creator {display_version}</Title>
     <Publisher>Qt Project</Publisher>
     <ProductUrl>http://www.qt.io</ProductUrl>
 
@@ -11,6 +11,6 @@
     <WizardDefaultHeight>520</WizardDefaultHeight>
     <MaintenanceToolName>QtCreatorUninstaller</MaintenanceToolName>
     <!-- @homeDir@ and @rootDir@ are some of the supported vars -->
-    <TargetDir>@homeDir@/qtcreator-{version}</TargetDir>
-    <AdminTargetDir>/opt/qtcreator-{version}</AdminTargetDir>
+    <TargetDir>@homeDir@/qtcreator-{display_version}</TargetDir>
+    <AdminTargetDir>/opt/qtcreator-{display_version}</AdminTargetDir>
 </Installer>
