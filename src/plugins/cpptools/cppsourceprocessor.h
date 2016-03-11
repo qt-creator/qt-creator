@@ -82,7 +82,8 @@ private:
                          unsigned *revision) const;
     bool checkFile(const QString &absoluteFilePath) const;
     QString resolveFile(const QString &fileName, IncludeType type);
-    QString resolveFile_helper(const QString &fileName, IncludeType type);
+    QString resolveFile_helper(const QString &fileName,
+                               ProjectPartHeaderPaths::Iterator headerPathsIt);
 
     void mergeEnvironment(CPlusPlus::Document::Ptr doc);
 

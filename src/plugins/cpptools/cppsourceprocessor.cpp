@@ -237,23 +237,6 @@ bool CppSourceProcessor::checkFile(const QString &absoluteFilePath) const
     return fileInfo.isFile() && fileInfo.isReadable();
 }
 
-/// Resolve the given file name to its absolute path w.r.t. the include type.
-QString CppSourceProcessor::resolveFile(const QString &fileName, IncludeType type)
-{
-    if (type == IncludeGlobal) {
-        QHash<QString, QString>::ConstIterator it = m_fileNameCache.constFind(fileName);
-        if (it != m_fileNameCache.constEnd())
-            return it.value();
-        const QString fn = resolveFile_helper(fileName, type);
-        if (!fn.isEmpty())
-            m_fileNameCache.insert(fileName, fn);
-        return fn;
-    }
-
-    // IncludeLocal, IncludeNext
-    return resolveFile_helper(fileName, type);
-}
-
 QString CppSourceProcessor::cleanPath(const QString &path)
 {
     QString result = QDir::cleanPath(path);
@@ -263,7 +246,8 @@ QString CppSourceProcessor::cleanPath(const QString &path)
     return result;
 }
 
-QString CppSourceProcessor::resolveFile_helper(const QString &fileName, IncludeType type)
+/// Resolve the given file name to its absolute path w.r.t. the include type.
+QString CppSourceProcessor::resolveFile(const QString &fileName, IncludeType type)
 {
     if (isInjectedFile(fileName))
         return fileName;
@@ -271,8 +255,6 @@ QString CppSourceProcessor::resolveFile_helper(const QString &fileName, IncludeT
     if (QFileInfo(fileName).isAbsolute())
         return checkFile(fileName) ? fileName : QString();
 
-    auto headerPathsIt = m_headerPaths.begin();
-    auto headerPathsEnd = m_headerPaths.end();
     if (m_currentDoc) {
         if (type == IncludeLocal) {
             const QFileInfo currentFileInfo(m_currentDoc->fileName());
@@ -285,15 +267,30 @@ QString CppSourceProcessor::resolveFile_helper(const QString &fileName, IncludeT
         } else if (type == IncludeNext) {
             const QFileInfo currentFileInfo(m_currentDoc->fileName());
             const QString currentDirPath = cleanPath(currentFileInfo.dir().path());
+            auto headerPathsEnd = m_headerPaths.end();
+            auto headerPathsIt = m_headerPaths.begin();
             for (; headerPathsIt != headerPathsEnd; ++headerPathsIt) {
                 if (headerPathsIt->path == currentDirPath) {
                     ++headerPathsIt;
-                    break;
+                    return resolveFile_helper(fileName, headerPathsIt);
                 }
             }
         }
     }
 
+    QHash<QString, QString>::ConstIterator it = m_fileNameCache.constFind(fileName);
+    if (it != m_fileNameCache.constEnd())
+        return it.value();
+    const QString fn = resolveFile_helper(fileName, m_headerPaths.begin());
+    if (!fn.isEmpty())
+        m_fileNameCache.insert(fileName, fn);
+    return fn;
+}
+
+QString CppSourceProcessor::resolveFile_helper(const QString &fileName,
+                                               ProjectPartHeaderPaths::Iterator headerPathsIt)
+{
+    auto headerPathsEnd = m_headerPaths.end();
     for (; headerPathsIt != headerPathsEnd; ++headerPathsIt) {
         if (headerPathsIt->isFrameworkPath())
             continue;
