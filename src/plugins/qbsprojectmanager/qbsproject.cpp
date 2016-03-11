@@ -27,6 +27,7 @@
 
 #include "qbsbuildconfiguration.h"
 #include "qbslogsink.h"
+#include "qbspmlogging.h"
 #include "qbsprojectfile.h"
 #include "qbsprojectmanager.h"
 #include "qbsprojectparser.h"
@@ -176,11 +177,13 @@ static void collectFilesForProject(const qbs::ProjectData &project, QSet<QString
 QStringList QbsProject::files(Project::FilesMode fileMode) const
 {
     Q_UNUSED(fileMode);
+    qCDebug(qbsPmLog) << Q_FUNC_INFO << m_qbsProject.isValid() << isParsing();
     if (!m_qbsProject.isValid() || isParsing())
         return QStringList();
     QSet<QString> result;
     collectFilesForProject(m_projectData, result);
     result.unite(m_qbsProject.buildSystemFiles());
+    qCDebug(qbsPmLog) << "file count:" << result.count();
     return result.toList();
 }
 
@@ -431,47 +434,55 @@ bool QbsProject::needsSpecialDeployment() const
     return true;
 }
 
+bool QbsProject::checkCancelStatus()
+{
+    const CancelStatus cancelStatus = m_cancelStatus;
+    m_cancelStatus = CancelStatusNone;
+    if (cancelStatus != CancelStatusCancelingForReparse)
+        return false;
+    qCDebug(qbsPmLog) << "Cancel request while parsing, starting re-parse";
+    m_qbsProjectParser->deleteLater();
+    m_qbsProjectParser = 0;
+    parseCurrentBuildConfiguration();
+    return true;
+}
+
 void QbsProject::handleProjectStructureAvailable()
 {
     QTC_ASSERT(m_qbsProjectParser, return);
+    qCDebug(qbsPmLog) << "Project structure available";
 
-    bool dataChanged = false;
+    if (checkCancelStatus())
+        return;
+
     m_qbsProject = m_qbsProjectParser->qbsProject();
+    QTC_ASSERT(m_qbsProject.isValid(), return);
+
     const qbs::ProjectData &projectData = m_qbsProject.projectData();
-    QTC_CHECK(m_qbsProject.isValid());
+    if (projectData == m_projectData)
+        return;
 
-    if (projectData != m_projectData) {
-        m_projectData = projectData;
-        rootProjectNode()->update();
-        updateDocuments(m_qbsProject.isValid()
-                        ? m_qbsProject.buildSystemFiles() : QSet<QString>() << projectFilePath().toString());
-        dataChanged = true;
-    }
-
-    if (dataChanged) {
-        auto * const futureInterface = m_qbsUpdateFutureInterface;
-        m_qbsUpdateFutureInterface = nullptr; // So that isParsing() returns false;
-        updateCppCodeModel();
-        updateQmlJsCodeModel();
-        emit fileListChanged();
-        m_qbsUpdateFutureInterface = futureInterface;
-    }
+    qCDebug(qbsPmLog) << "Project data changed.";
+    m_projectData = projectData;
+    rootProjectNode()->update();
+    updateDocuments(QSet<QString>() << projectFilePath().toString());
+    auto * const futureInterface = m_qbsUpdateFutureInterface;
+    m_qbsUpdateFutureInterface = nullptr; // So that isParsing() returns false;
+    updateCppCodeModel();
+    updateQmlJsCodeModel();
+    emit fileListChanged();
+    m_qbsUpdateFutureInterface = futureInterface;
 }
 
 void QbsProject::handleQbsParsingDone(bool success)
 {
     QTC_ASSERT(m_qbsProjectParser, return);
+    QTC_ASSERT(m_qbsUpdateFutureInterface, return);
 
-    const CancelStatus cancelStatus = m_cancelStatus;
-    m_cancelStatus = CancelStatusNone;
+    qCDebug(qbsPmLog) << "Parsing done completely, success:" << success;
 
-    // Start a new one parse operation right away, ignoring the old result.
-    if (cancelStatus == CancelStatusCancelingForReparse) {
-        m_qbsProjectParser->deleteLater();
-        m_qbsProjectParser = 0;
-        parseCurrentBuildConfiguration();
+    if (checkCancelStatus())
         return;
-    }
 
     generateErrors(m_qbsProjectParser->error());
 
@@ -484,15 +495,12 @@ void QbsProject::handleQbsParsingDone(bool success)
 
     m_qbsProjectParser->deleteLater();
     m_qbsProjectParser = 0;
-
-    if (m_qbsUpdateFutureInterface) {
-        m_qbsUpdateFutureInterface->reportFinished();
-        delete m_qbsUpdateFutureInterface;
-        m_qbsUpdateFutureInterface = 0;
-    }
+    m_qbsUpdateFutureInterface->reportFinished();
+    delete m_qbsUpdateFutureInterface;
+    m_qbsUpdateFutureInterface = 0;
 
     if (success)
-        updateBuildTargetData();
+        updateAfterBuild();
     emit projectParsingDone(success);
 }
 

@@ -137,6 +137,7 @@ private:
     void updateDeploymentInfo();
     void updateBuildTargetData();
     void handleProjectStructureAvailable();
+    bool checkCancelStatus();
     void projectLoaded() override;
 
     static bool ensureWriteableQbsFile(const QString &file);
