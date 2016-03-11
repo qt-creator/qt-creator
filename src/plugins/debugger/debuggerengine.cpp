@@ -1836,24 +1836,42 @@ void DebuggerEngine::validateExecutable(DebuggerRunParameters *sp)
         return;
 
     const bool warnOnRelease = boolSetting(WarnOnReleaseBuilds);
+    bool warnOnInappropriateDebugger = false;
     QString detailedWarning;
     switch (sp->toolChainAbi.binaryFormat()) {
     case Abi::PEFormat: {
-        if (!warnOnRelease || (sp->masterEngineType != CdbEngineType))
+        if (sp->masterEngineType != CdbEngineType) {
+            warnOnInappropriateDebugger = true;
+            detailedWarning = tr(
+                        "The inferior is in the Portable Executable format.\n"
+                        "Selecting CDB as debugger would improve the debugging "
+                        "experience for this binary format.");
             return;
-        if (!binary.endsWith(QLatin1String(".exe"), Qt::CaseInsensitive))
-            binary.append(QLatin1String(".exe"));
-        QString errorMessage;
-        QStringList rc;
-        if (getPDBFiles(binary, &rc, &errorMessage) && !rc.isEmpty())
+        } else if (warnOnRelease) {
+            if (!binary.endsWith(QLatin1String(".exe"), Qt::CaseInsensitive))
+                binary.append(QLatin1String(".exe"));
+            QString errorMessage;
+            QStringList rc;
+            if (getPDBFiles(binary, &rc, &errorMessage) && !rc.isEmpty())
+                return;
+            if (!errorMessage.isEmpty()) {
+                detailedWarning.append(QLatin1Charr('\n'));
+                detailedWarning.append(errorMessage);
+            }
+        } else {
             return;
-        if (!errorMessage.isEmpty()) {
-            detailedWarning.append(QLatin1Char('\n'));
-            detailedWarning.append(errorMessage);
         }
         break;
     }
     case Abi::ElfFormat: {
+        if (sp->masterEngineType == CdbEngineType) {
+            warnOnInappropriateDebugger = true;
+            detailedWarning = tr(
+                        "The inferior is in the ELF format.\n"
+                        "Selecting GDB or LLDB as debugger would improve the debugging "
+                        "experience for this binary format.");
+            return;
+        }
 
         Utils::ElfReader reader(binary);
         Utils::ElfData elfData = reader.readHeaders();
@@ -1951,11 +1969,17 @@ void DebuggerEngine::validateExecutable(DebuggerRunParameters *sp)
     default:
         return;
     }
-    if (warnOnRelease) {
+    if (warnOnInappropriateDebugger) {
         AsynchronousMessageBox::information(tr("Warning"),
-                       tr("This does not seem to be a \"Debug\" build.\n"
-                          "Setting breakpoints by file name and line number may fail.")
-                       + QLatin1Char('\n') + detailedWarning);
+                tr("The selected debugger may be inappropiate for the inferior.\n"
+                   "Examining symbols and setting breakpoints by file name and line number "
+                   "may fail.\n")
+               + QLatin1Char('\n') + detailedWarning);
+    } else if (warnOnRelease) {
+        AsynchronousMessageBox::information(tr("Warning"),
+               tr("This does not seem to be a \"Debug\" build.\n"
+                  "Setting breakpoints by file name and line number may fail.")
+               + QLatin1Char('\n') + detailedWarning);
     }
 }
 
