@@ -123,23 +123,12 @@ public:
     void init();
 
 public:
-    const QImage lineeditImage;
-    const QImage lineeditImage_disabled;
     const QPixmap extButtonPixmap;
     const QPixmap closeButtonPixmap;
     StyleAnimator animator;
 };
 
-QString lineEditImageFileName(const QString &pngFileName)
-{
-    return Utils::creatorTheme()->widgetStyle() == Utils::Theme::StyleDefault
-              ? StyleHelper::dpiSpecificImageFile(pngFileName)
-              : QString();
-}
-
 ManhattanStylePrivate::ManhattanStylePrivate() :
-    lineeditImage(lineEditImageFileName(QLatin1String(":/core/images/inputfield.png"))),
-    lineeditImage_disabled(lineEditImageFileName(QLatin1String(":/core/images/inputfield_disabled.png"))),
     extButtonPixmap(Core::Icons::TOOLBAR_EXTENSION.pixmap()),
     closeButtonPixmap(Core::Icons::CLOSE_FOREGROUND.pixmap())
 {
@@ -464,8 +453,13 @@ void ManhattanStyle::drawPrimitive(PrimitiveElement element, const QStyleOption 
                 painter->setBrushOrigin(backgroundRect.topLeft());
                 painter->fillRect(backgroundRect, option->palette.base());
 
+                static const QImage bg(StyleHelper::dpiSpecificImageFile(
+                                           QLatin1String(":/core/images/inputfield.png")));
+                static const QImage bg_disabled(StyleHelper::dpiSpecificImageFile(
+                                                    QLatin1String(":/core/images/inputfield_disabled.png")));
+
                 const bool enabled = option->state & State_Enabled;
-                StyleHelper::drawCornerImage(enabled ? d->lineeditImage : d->lineeditImage_disabled,
+                StyleHelper::drawCornerImage(enabled ? bg : bg_disabled,
                                              painter, option->rect, 5, 5, 5, 5);
             } else {
                 painter->fillRect(backgroundRect, option->palette.base());
