@@ -46,12 +46,12 @@ inline void deallocate(char *memory)
 #ifdef WIN32
     _aligned_free(memory);
 #else
-#if defined(__GNUC__) && !defined(__clang__)
 #pragma GCC diagnostic push
+#if defined(__GNUC__) && !defined(__clang__)
 #pragma GCC diagnostic ignored "-Wfree-nonheap-object"
+#endif
     std::free(memory);
 #pragma GCC diagnostic pop
-#endif
 #endif
 }
 
