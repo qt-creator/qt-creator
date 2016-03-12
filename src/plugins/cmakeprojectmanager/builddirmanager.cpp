@@ -295,6 +295,8 @@ void BuildDirManager::stopProcess()
 
     cleanUpProcess();
 
+    if (!m_future)
+      return;
     m_future->reportCanceled();
     m_future->reportFinished();
     delete m_future;
