@@ -192,7 +192,7 @@ public slots:
     void updateModifiedSourceFiles();
     void GC();
 
-private slots:
+private:
     // This should be executed in the GUI thread.
     friend class Tests::ModelManagerTestHelper;
     void onAboutToLoadSession();
@@ -203,7 +203,6 @@ private slots:
     void onCurrentEditorChanged(Core::IEditor *editor);
     void onCoreAboutToClose();
 
-private:
     void initializeBuiltinModelManagerSupport();
     void delayedGC();
     void recalculateProjectPartMappings();

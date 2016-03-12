@@ -274,8 +274,8 @@ CppCodeStylePreferencesWidget::CppCodeStylePreferencesWidget(QWidget *parent)
         m_previews[i]->setPlainText(QLatin1String(defaultCodeStyleSnippets[i]));
 
     decorateEditors(TextEditorSettings::fontSettings());
-    connect(TextEditorSettings::instance(), SIGNAL(fontSettingsChanged(TextEditor::FontSettings)),
-       this, SLOT(decorateEditors(TextEditor::FontSettings)));
+    connect(TextEditorSettings::instance(), &TextEditorSettings::fontSettingsChanged,
+            this, &CppCodeStylePreferencesWidget::decorateEditors);
 
     setVisualizeWhitespace(true);
 
@@ -339,10 +339,15 @@ void CppCodeStylePreferencesWidget::setCodeStyle(CppTools::CppCodeStylePreferenc
 
     connect(m_preferences, &CppCodeStylePreferences::currentTabSettingsChanged,
             this, &CppCodeStylePreferencesWidget::setTabSettings);
-    connect(m_preferences, SIGNAL(currentCodeStyleSettingsChanged(CppTools::CppCodeStyleSettings)),
-            this, SLOT(setCodeStyleSettings(CppTools::CppCodeStyleSettings)));
-    connect(m_preferences, SIGNAL(currentPreferencesChanged(TextEditor::ICodeStylePreferences*)),
-            this, SLOT(slotCurrentPreferencesChanged(TextEditor::ICodeStylePreferences*)));
+    connect(m_preferences, &CppCodeStylePreferences::currentCodeStyleSettingsChanged,
+            this, [this](const CppTools::CppCodeStyleSettings &codeStyleSettings) {
+        setCodeStyleSettings(codeStyleSettings);
+    });
+
+    connect(m_preferences, &ICodeStylePreferences::currentPreferencesChanged,
+            this, [this](TextEditor::ICodeStylePreferences *currentPreferences) {
+        slotCurrentPreferencesChanged(currentPreferences);
+    });
 
     setTabSettings(m_preferences->tabSettings());
     setCodeStyleSettings(m_preferences->codeStyleSettings(), false);

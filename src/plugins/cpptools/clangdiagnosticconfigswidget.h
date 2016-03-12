@@ -58,14 +58,13 @@ signals:
     void currentConfigChanged(const Core::Id &currentConfigId);
     void customConfigsChanged(const CppTools::ClangDiagnosticConfigs &customConfigs);
 
-private slots:
+private:
     void onCurrentConfigChanged(int);
     void onCopyButtonClicked();
     void onRemoveButtonClicked();
 
     void onDiagnosticOptionsEdited();
 
-private:
     void syncWidgetsToModel(const Core::Id &configToSelect = Core::Id());
     void syncConfigChooserToModel(const Core::Id &configToSelect = Core::Id());
     void syncOtherWidgetsToComboBox();

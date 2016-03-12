@@ -63,13 +63,12 @@ public slots:
     void updateIndex();
     void setSorted(bool sort);
 
-private slots:
+private:
     void updateNow();
     void updateIndexNow();
     void updateToolTip();
     void gotoSymbolInEditor();
 
-private:
     CppEditorOutline();
 
     bool isSorted() const;

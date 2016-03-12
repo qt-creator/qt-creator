@@ -148,8 +148,8 @@ bool CppToolsPlugin::initialize(const QStringList &arguments, QString *error)
 
     // Objects
     CppModelManager *modelManager = CppModelManager::instance();
-    connect(VcsManager::instance(), SIGNAL(repositoryChanged(QString)),
-            modelManager, SLOT(updateModifiedSourceFiles()));
+    connect(VcsManager::instance(), &VcsManager::repositoryChanged,
+            modelManager, &CppModelManager::updateModifiedSourceFiles);
     connect(DocumentManager::instance(), &DocumentManager::filesChangedInternally,
             [=](const QStringList &files) {
         modelManager->updateSourceFiles(files.toSet());

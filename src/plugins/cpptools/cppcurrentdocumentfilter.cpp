@@ -52,12 +52,12 @@ CppCurrentDocumentFilter::CppCurrentDocumentFilter(CppTools::CppModelManager *ma
                                  SymbolSearcher::Functions |
                                  SymbolSearcher::Classes);
 
-    connect(manager, SIGNAL(documentUpdated(CPlusPlus::Document::Ptr)),
-            this,    SLOT(onDocumentUpdated(CPlusPlus::Document::Ptr)));
-    connect(Core::EditorManager::instance(), SIGNAL(currentEditorChanged(Core::IEditor*)),
-            this,          SLOT(onCurrentEditorChanged(Core::IEditor*)));
-    connect(Core::EditorManager::instance(), SIGNAL(editorAboutToClose(Core::IEditor*)),
-            this,          SLOT(onEditorAboutToClose(Core::IEditor*)));
+    connect(manager, &CppModelManager::documentUpdated,
+            this, &CppCurrentDocumentFilter::onDocumentUpdated);
+    connect(Core::EditorManager::instance(), &Core::EditorManager::currentEditorChanged,
+            this, &CppCurrentDocumentFilter::onCurrentEditorChanged);
+    connect(Core::EditorManager::instance(), &Core::EditorManager::editorAboutToClose,
+            this, &CppCurrentDocumentFilter::onEditorAboutToClose);
 }
 
 QList<Core::LocatorFilterEntry> CppCurrentDocumentFilter::matchesFor(

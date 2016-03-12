@@ -123,17 +123,19 @@ CppEditorOutline::CppEditorOutline(TextEditor::TextEditorWidget *editorWidget)
             &CppTools::CppToolsSettings::setSortedEditorDocumentOutline);
     m_combo->addAction(m_sortAction);
 
-    connect(m_combo, SIGNAL(activated(int)), this, SLOT(gotoSymbolInEditor()));
-    connect(m_combo, SIGNAL(currentIndexChanged(int)), this, SLOT(updateToolTip()));
+    connect(m_combo, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated),
+            this, &CppEditorOutline::gotoSymbolInEditor);
+    connect(m_combo, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+            this, &CppEditorOutline::updateToolTip);
 
     // Set up timers
     m_updateTimer = newSingleShotTimer(this, UpdateOutlineIntervalInMs,
                                        QLatin1String("CppEditorOutline::m_updateTimer"));
-    connect(m_updateTimer, SIGNAL(timeout()), this, SLOT(updateNow()));
+    connect(m_updateTimer, &QTimer::timeout, this, &CppEditorOutline::updateNow);
 
     m_updateIndexTimer = newSingleShotTimer(this, UpdateOutlineIntervalInMs,
                                             QLatin1String("CppEditorOutline::m_updateIndexTimer"));
-    connect(m_updateIndexTimer, SIGNAL(timeout()), this, SLOT(updateIndexNow()));
+    connect(m_updateIndexTimer, &QTimer::timeout, this, &CppEditorOutline::updateIndexNow);
 }
 
 void CppEditorOutline::update()

@@ -42,10 +42,9 @@ public:
     void prepareSearch(const QString &entry);
     void refresh(QFutureInterface<void> &future);
 
-private slots:
+private:
     void markOutdated();
 
-private:
     bool m_needsUpdate;
 };
 

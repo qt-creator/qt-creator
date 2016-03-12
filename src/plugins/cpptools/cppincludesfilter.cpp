@@ -175,7 +175,7 @@ void CppIncludesFilter::prepareSearch(const QString &entry)
 void CppIncludesFilter::refresh(QFutureInterface<void> &future)
 {
     Q_UNUSED(future)
-    QTimer::singleShot(0, this, SLOT(markOutdated()));
+    QTimer::singleShot(0, this, &CppIncludesFilter::markOutdated);
 }
 
 void CppIncludesFilter::markOutdated()

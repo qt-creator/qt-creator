@@ -60,10 +60,9 @@ signals:
 protected:
     virtual QString settingsSuffix() const;
 
-private slots:
+private:
     void slotCurrentValueChanged(const QVariant &);
 
-private:
     CppCodeStyleSettings m_data;
 };
 

@@ -59,7 +59,7 @@ public:
 
     void setCodeStyle(CppTools::CppCodeStylePreferences *codeStylePreferences);
 
-private slots:
+private:
     void decorateEditors(const TextEditor::FontSettings &fontSettings);
     void setVisualizeWhitespace(bool on);
     void slotTabSettingsChanged(const TextEditor::TabSettings &settings);
@@ -69,7 +69,6 @@ private slots:
     void setCodeStyleSettings(const CppTools::CppCodeStyleSettings &settings, bool preview = true);
     void slotCurrentPreferencesChanged(TextEditor::ICodeStylePreferences *, bool preview = true);
 
-private:
     CppCodeStyleSettings cppCodeStyleSettings() const;
 
     CppCodeStylePreferences *m_preferences;

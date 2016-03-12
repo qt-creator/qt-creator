@@ -307,8 +307,8 @@ CppModelManager::CppModelManager(QObject *parent)
     d->m_enableGC = true;
 
     qRegisterMetaType<QSet<QString> >();
-    connect(this, SIGNAL(sourceFilesRefreshed(QSet<QString>)),
-            this, SLOT(onSourceFilesRefreshed()));
+    connect(this, &CppModelManager::sourceFilesRefreshed,
+            this, &CppModelManager::onSourceFilesRefreshed);
 
     d->m_findReferences = new CppFindReferences(this);
     d->m_indexerEnabled = qgetenv("QTC_NO_CODE_INDEXER") != "1";
@@ -317,15 +317,15 @@ CppModelManager::CppModelManager(QObject *parent)
 
     d->m_delayedGcTimer.setObjectName(QLatin1String("CppModelManager::m_delayedGcTimer"));
     d->m_delayedGcTimer.setSingleShot(true);
-    connect(&d->m_delayedGcTimer, SIGNAL(timeout()), this, SLOT(GC()));
+    connect(&d->m_delayedGcTimer, &QTimer::timeout, this, &CppModelManager::GC);
 
-    QObject *sessionManager = ProjectExplorer::SessionManager::instance();
-    connect(sessionManager, SIGNAL(projectAdded(ProjectExplorer::Project*)),
-            this, SLOT(onProjectAdded(ProjectExplorer::Project*)));
-    connect(sessionManager, SIGNAL(aboutToRemoveProject(ProjectExplorer::Project*)),
-            this, SLOT(onAboutToRemoveProject(ProjectExplorer::Project*)));
-    connect(sessionManager, SIGNAL(aboutToLoadSession(QString)),
-            this, SLOT(onAboutToLoadSession()));
+    auto sessionManager = ProjectExplorer::SessionManager::instance();
+    connect(sessionManager, &ProjectExplorer::SessionManager::projectAdded,
+            this, &CppModelManager::onProjectAdded);
+    connect(sessionManager, &ProjectExplorer::SessionManager::aboutToRemoveProject,
+            this, &CppModelManager::onAboutToRemoveProject);
+    connect(sessionManager, &ProjectExplorer::SessionManager::aboutToLoadSession,
+            this, &CppModelManager::onAboutToLoadSession);
 
     connect(Core::EditorManager::instance(), &Core::EditorManager::currentEditorChanged,
             this, &CppModelManager::onCurrentEditorChanged);
@@ -333,8 +333,8 @@ CppModelManager::CppModelManager(QObject *parent)
     connect(Core::DocumentManager::instance(), &Core::DocumentManager::allDocumentsRenamed,
             this, &CppModelManager::renameIncludes);
 
-    connect(Core::ICore::instance(), SIGNAL(coreAboutToClose()),
-            this, SLOT(onCoreAboutToClose()));
+    connect(Core::ICore::instance(), &Core::ICore::coreAboutToClose,
+            this, &CppModelManager::onCoreAboutToClose);
 
     qRegisterMetaType<CPlusPlus::Document::Ptr>("CPlusPlus::Document::Ptr");
     qRegisterMetaType<QList<Document::DiagnosticMessage>>(
@@ -1031,7 +1031,7 @@ void CppModelManager::onAboutToRemoveProject(ProjectExplorer::Project *project)
 void CppModelManager::onSourceFilesRefreshed() const
 {
     if (BuiltinIndexingSupport::isFindErrorsIndexingActive()) {
-        QTimer::singleShot(1, QCoreApplication::instance(), SLOT(quit()));
+        QTimer::singleShot(1, QCoreApplication::instance(), &QCoreApplication::quit);
         qDebug("FindErrorsIndexing: Done, requesting Qt Creator to quit.");
     }
 }

@@ -45,11 +45,10 @@ public:
     QString insert(const QString &string);
     void scheduleGC();
 
-private slots:
-    void startGC();
-
 private:
+    void startGC();
     void GC();
+
     class GCRunner: public QRunnable {
         StringTable &m_stringTable;
 

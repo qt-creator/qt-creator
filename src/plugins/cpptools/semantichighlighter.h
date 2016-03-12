@@ -70,11 +70,10 @@ public:
 
     void run();
 
-private slots:
+private:
     void onHighlighterResultAvailable(int from, int to);
     void onHighlighterFinished();
 
-private:
     void connectWatcher();
     void disconnectWatcher();
 
