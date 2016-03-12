@@ -51,6 +51,7 @@ CMake Projects
 
 Qbs Projects
 
+* Improved performance when opening large projects
 * Added support for SCXML files
 
 Qt Support
@@ -117,6 +118,8 @@ Version Control Systems
     * Increased minimum Git version to 1.8.0
     * Fixed missing update of file list in commit editor after merging files
       (QTCREATORBUG-15569)
+    * Added optional hiding of branches without activity for 90 days to Branches
+      dialog (QTCREATORBUG-15544)
 
 Diff Viewer
 
