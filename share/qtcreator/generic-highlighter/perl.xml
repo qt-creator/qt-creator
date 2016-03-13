@@ -39,7 +39,7 @@
 
    Enhance tr/// and y/// support.
 -->
-<language name="Perl" version="1.31" kateversion="2.4" section="Scripts" extensions="*.pl;*.PL;*.pm" mimetype="application/x-perl;text/x-perl" priority="5" author="Anders Lund (anders@alweb.dk)" license="LGPL">
+<language name="Perl" version="1.32" kateversion="2.4" section="Scripts" extensions="*.pl;*.PL;*.pm" mimetype="application/x-perl;text/x-perl" priority="5" author="Anders Lund (anders@alweb.dk)" license="LGPL">
   <highlighting>
     <list name="keywords">
       <item> if </item>
@@ -658,7 +658,7 @@
         <DetectChar attribute="Pattern Internal Operator" context="#stay" char="^" />
         <Detect2Chars attribute="Pattern Character Class" context="#stay" char="\" char1="\" />
         <Detect2Chars attribute="Pattern Character Class" context="#stay" char="\" char1="]" />
-        <RegExpr attribute="Pattern Character Class" context="#stay" String="\[:^?[a-z]+:\]" />
+        <RegExpr attribute="Pattern Character Class" context="#stay" String="\[:\^?[a-z]+:\]" />
         <DetectChar attribute="Pattern Internal Operator" context="#pop" char="]" />
       </context>
 
