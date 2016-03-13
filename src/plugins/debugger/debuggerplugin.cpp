@@ -1738,7 +1738,7 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
     m_modeWindow = createModeWindow(m_mode, m_mainWindow, 0);
     m_mode->setWidget(m_modeWindow);
 
-    (void) new DebugModeContext(m_mainWindow);
+    m_plugin->addAutoReleasedObject(new DebugModeContext(m_mainWindow));
 
     m_plugin->addObject(m_mode);
 
@@ -3523,7 +3523,7 @@ void registerToolbar(const QByteArray &perspectiveId, const ToolbarDescription &
 
 QAction *createStartAction()
 {
-    auto action = new QAction(DebuggerMainWindow::tr("Start"), 0);
+    auto action = new QAction(DebuggerMainWindow::tr("Start"), DebuggerPlugin::instance());
     action->setIcon(Debugger::Icons::ANALYZER_CONTROL_START.icon());
     action->setEnabled(true);
     return action;
@@ -3531,7 +3531,7 @@ QAction *createStartAction()
 
 QAction *createStopAction()
 {
-    auto action = new QAction(DebuggerMainWindow::tr("Stop"), 0);
+    auto action = new QAction(DebuggerMainWindow::tr("Stop"), DebuggerPlugin::instance());
     action->setIcon(ProjectExplorer::Icons::STOP_SMALL.icon());
     action->setEnabled(true);
     return action;
