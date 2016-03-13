@@ -87,22 +87,22 @@ Highlighter::Highlighter(QTextDocument *parent) :
 {
     static QVector<TextStyle> categories;
     if (categories.isEmpty()) {
-        categories << C_TEXT
-                   << C_VISUAL_WHITESPACE
-                   << C_KEYWORD
-                   << C_TYPE
-                   << C_COMMENT
-                   << C_NUMBER
-                   << C_NUMBER
-                   << C_NUMBER
-                   << C_STRING
-                   << C_STRING
-                   << C_WARNING
-                   << C_ERROR
-                   << C_FUNCTION
-                   << C_TEXT
-                   << C_TEXT
-                   << C_LOCAL;
+        categories << C_TEXT              // Normal
+                   << C_VISUAL_WHITESPACE // VisualWhitespace
+                   << C_KEYWORD           // Keyword
+                   << C_TYPE              // DataType
+                   << C_COMMENT           // Comment
+                   << C_NUMBER            // Decimal
+                   << C_NUMBER            // BaseN
+                   << C_NUMBER            // Float
+                   << C_STRING            // Char
+                   << C_STRING            // String
+                   << C_WARNING           // Alert
+                   << C_ERROR             // Error
+                   << C_FUNCTION          // Function
+                   << C_TEXT              // RegionMarker
+                   << C_TEXT              // Others
+                   << C_LOCAL;            // Identifier
     }
 
     setTextFormatCategories(categories);
@@ -123,12 +123,12 @@ KateFormatMap::KateFormatMap()
     m_ids.insert(QLatin1String("dsNormal"), Highlighter::Normal);
     m_ids.insert(QLatin1String("dsKeyword"), Highlighter::Keyword);
     m_ids.insert(QLatin1String("dsDataType"), Highlighter::DataType);
+    m_ids.insert(QLatin1String("dsComment"), Highlighter::Comment);
     m_ids.insert(QLatin1String("dsDecVal"), Highlighter::Decimal);
     m_ids.insert(QLatin1String("dsBaseN"), Highlighter::BaseN);
     m_ids.insert(QLatin1String("dsFloat"), Highlighter::Float);
     m_ids.insert(QLatin1String("dsChar"), Highlighter::Char);
     m_ids.insert(QLatin1String("dsString"), Highlighter::String);
-    m_ids.insert(QLatin1String("dsComment"), Highlighter::Comment);
     m_ids.insert(QLatin1String("dsAlert"), Highlighter::Alert);
     m_ids.insert(QLatin1String("dsError"), Highlighter::Error);
     m_ids.insert(QLatin1String("dsFunction"), Highlighter::Function);
