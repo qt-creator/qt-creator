@@ -97,8 +97,8 @@ Highlighter::Highlighter(QTextDocument *parent) :
                    << C_NUMBER
                    << C_STRING
                    << C_STRING
-                   << C_TEXT // TODO : add style for alert (eg. yellow background)
-                   << C_TEXT // TODO : add style for error (eg. red underline)
+                   << C_WARNING
+                   << C_ERROR
                    << C_FUNCTION
                    << C_TEXT
                    << C_TEXT
