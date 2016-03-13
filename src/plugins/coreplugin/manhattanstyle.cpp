@@ -651,7 +651,7 @@ void ManhattanStyle::drawControl(ControlElement element, const QStyleOption *opt
             const bool act = mbi->state & (State_Sunken | State_Selected);
             const bool dis = !(mbi->state & State_Enabled);
 
-            if (creatorTheme()->widgetStyle() == Theme::StyleFlat)
+            if (creatorTheme()->flag(Theme::FlatMenuBar))
                 painter->fillRect(option->rect, StyleHelper::isBaseColorDefault()
                                   ? creatorTheme()->color(Theme::MenuBarItemBackgroundColor)
                                   : StyleHelper::baseColor());
@@ -784,7 +784,7 @@ void ManhattanStyle::drawControl(ControlElement element, const QStyleOption *opt
         break;
 
     case CE_MenuBarEmptyArea: {
-            if (creatorTheme()->widgetStyle() == Theme::StyleDefault) {
+            if (!creatorTheme()->flag(Theme::FlatMenuBar)) {
                 StyleHelper::menuGradient(painter, option->rect, option->rect);
                 painter->save();
                 painter->setPen(StyleHelper::borderColor());

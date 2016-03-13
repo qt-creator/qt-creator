@@ -77,8 +77,8 @@ InfoBarBackground=ffffffe1
 InfoBarText=text
 MenuBarEmptyAreaBackgroundColor=shadowBackground
 MenuBarItemBackgroundColor=shadowBackground
-MenuBarItemTextColorDisabled=toolBarItemDisabled
-MenuBarItemTextColorNormal=toolBarItem
+MenuBarItemTextColorDisabled=textDisabled
+MenuBarItemTextColorNormal=text
 MenuItemTextColorDisabled=textDisabled
 MenuItemTextColorNormal=text
 MiniProjectTargetSelectorBackgroundColor=shadowBackground
@@ -177,6 +177,7 @@ DrawToolBarHighlights=false
 ApplyThemePaletteGlobally=false
 FlatSideBarIcons=true
 FlatProjectsMode=false
+FlatMenuBar=false
 
 [Gradients]
 DetailsWidgetHeaderGradient\1\color=0

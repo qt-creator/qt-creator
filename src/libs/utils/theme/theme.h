@@ -261,7 +261,8 @@ public:
         DerivePaletteFromTheme,
         ApplyThemePaletteGlobally,
         FlatSideBarIcons,
-        FlatProjectsMode
+        FlatProjectsMode,
+        FlatMenuBar
     };
 
     enum WidgetStyle {

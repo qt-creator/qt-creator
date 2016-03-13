@@ -169,6 +169,7 @@ DrawToolBarHighlights=true
 ApplyThemePaletteGlobally=false
 FlatSideBarIcons=false
 FlatProjectsMode=false
+FlatMenuBar=false
 
 [Gradients]
 DetailsWidgetHeaderGradient\1\color=ffffff
