@@ -889,17 +889,8 @@ void WatchTreeView::contextMenuEvent(QContextMenuEvent *ev)
     } else if (act == &actRemoveAllWatchExpression) {
         handler->clearWatches();
     } else if (act == &actCopy) {
-        QString text;
-        QTextStream str(&text);
-        handler->model()->rootItem()->walkTree([&str](Utils::TreeItem *item) {
-            str << QString(item->level(), QLatin1Char('\t'))
-                << item->data(0, Qt::DisplayRole).toString() << '\t'
-                << item->data(1, Qt::DisplayRole).toString() << '\t'
-                << item->data(2, Qt::DisplayRole).toString() << '\n';
-        });
-        QClipboard *clipboard = QApplication::clipboard();
-        clipboard->setText(text, QClipboard::Selection);
-        clipboard->setText(text, QClipboard::Clipboard);
+        QString contents = handler->editorContents();
+        copyToClipboard(contents);
     } else if (act == &actCopyValue) {
         copyToClipboard(mi1.data().toString());
     } else if (act == &actShowInEditor) {
