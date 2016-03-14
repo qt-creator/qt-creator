@@ -26,18 +26,17 @@
 import QtQuick 2.1
 import widgets 1.0
 
-Item {
+Rectangle {
     id: root
     property var model
-    property int topMargin: 6
     height: content.contentHeight + 200
+    color: creatorTheme.Welcome_BackgroundColor
 
     ListView {
         id: content
         model: root.model
 
         anchors.fill: parent
-        anchors.topMargin: topMargin
         snapMode: ListView.SnapToItem
         clip: true
         interactive: false

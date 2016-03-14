@@ -30,16 +30,9 @@ Rectangle {
     id: projectList
     height: column.height + 200
     width: column.width
-    color: creatorTheme.Welcome_BackgroundColorNormal
+    color: creatorTheme.Welcome_BackgroundColor
 
     property alias model: repeater.model
-//    Behavior on verticalScrollBar.opacity  {
-//        PropertyAnimation {
-
-//        }
-//    }
-
-//    frameVisible: false
 
     Column {
         id: column

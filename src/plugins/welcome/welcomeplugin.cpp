@@ -48,6 +48,7 @@
 
 #include <QDir>
 #include <QQmlPropertyMap>
+#include <QQuickImageProvider>
 
 #ifdef USE_QUICK_WIDGET
     #include <QtQuickWidgets/QQuickWidget>
@@ -81,6 +82,44 @@ static QString resourcePath()
     // normalize paths so QML doesn't freak out if it's wrongly capitalized on Windows
     return FileUtils::normalizePathName(ICore::resourcePath());
 }
+
+class WelcomeImageIconProvider : public QQuickImageProvider
+{
+public:
+    WelcomeImageIconProvider()
+        : QQuickImageProvider(Pixmap)
+    {
+    }
+
+    QPixmap requestPixmap(const QString &id, QSize *size, const QSize &requestedSize) override
+    {
+        Q_UNUSED(requestedSize)
+
+        QString maskFile;
+        Theme::Color themeColor = Theme::Welcome_ForegroundPrimaryColor;
+
+        const QStringList elements = id.split(QLatin1Char('/'));
+
+        if (!elements.empty())
+            maskFile = elements.first();
+
+        if (elements.count() >= 2) {
+            const static QMetaObject &m = Theme::staticMetaObject;
+            const static QMetaEnum e = m.enumerator(m.indexOfEnumerator("Color"));
+            bool success = false;
+            int value = e.keyToValue(elements.at(1).toLatin1(), &success);
+            if (success)
+                themeColor = Theme::Color(value);
+        }
+
+        const QString fileName = QString::fromLatin1(":/welcome/images/%1.png").arg(maskFile);
+        const Icon icon({{fileName, themeColor}}, Icon::Tint);
+        const QPixmap result = icon.pixmap();
+        if (size)
+            *size = result.size();
+        return result;
+    }
+};
 
 class WelcomeMode : public IMode
 {
@@ -202,6 +241,7 @@ void WelcomeMode::facilitateQml(QQmlEngine *engine)
     QStringList importPathList = engine->importPathList();
     importPathList << resourcePath() + QLatin1String("/welcomescreen");
     engine->setImportPathList(importPathList);
+    engine->addImageProvider(QLatin1String("icons"), new WelcomeImageIconProvider);
     if (!debug)
         engine->setOutputWarningsToStandardError(false);
 

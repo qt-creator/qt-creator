@@ -183,27 +183,13 @@ public:
 
         /* Welcome Plugin */
 
-        Welcome_TextColorNormal,
-        Welcome_TextColorHeading,  // #535353 // Sessions, Recent Projects
-        Welcome_BackgroundColorNormal,   // #ffffff
-        Welcome_DividerColor,      // #737373
-        Welcome_Button_BorderColorNormal,
-        Welcome_Button_BorderColorPressed,
-        Welcome_Button_TextColorNormal,
-        Welcome_Button_TextColorPressed,
-        Welcome_Link_TextColorNormal,
-        Welcome_Link_TextColorActive,
-        Welcome_Link_BackgroundColor,
-        Welcome_Caption_TextColorNormal,
-        Welcome_SideBar_BackgroundColor,
-
-        Welcome_ProjectItem_TextColorFilepath,
-        Welcome_ProjectItem_BackgroundColorHover,
-
-        Welcome_SessionItem_BackgroundColorNormal,
-        Welcome_SessionItem_BackgroundColorHover,
-        Welcome_SessionItemExpanded_BackgroundColorNormal,
-        Welcome_SessionItemExpanded_BackgroundColorHover,
+        Welcome_TextColor,
+        Welcome_ForegroundPrimaryColor,
+        Welcome_ForegroundSecondaryColor,
+        Welcome_BackgroundColor,
+        Welcome_DividerColor,
+        Welcome_LinkColor,
+        Welcome_HoverColor,
 
         /* VcsBase Plugin */
         VcsBase_FileStatusUnknown_TextColor,

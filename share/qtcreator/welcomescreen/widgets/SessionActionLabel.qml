@@ -25,30 +25,18 @@
 
 import QtQuick 2.1
 
-Item {
-    id: pageCaption
-    width: 960
-    height: 40
-
-    property int textOffset: captionText.x + captionText.width
-    property alias caption: captionText.text
-
-    NativeText {
-        id: captionText
-        y: 9
-        color: "#515153"
-        anchors.left: parent.left
-        anchors.leftMargin: 8
-        font.pixelSize: 18
-        font.bold: false
-        font.family: "Helvetica"
-    }
-    Rectangle {
-        height: 1
-        color: "#a0a0a0"
-        anchors.bottomMargin: 8
-        anchors.bottom: parent.bottom
-        anchors.left: parent.left
-        anchors.right: parent.right
+NativeText {
+    id: root
+    signal clicked()
+    text: qsTr("Clone")
+    font.pixelSize: 13
+    font.underline: area.containsMouse
+    color: creatorTheme.Welcome_LinkColor
+    MouseArea {
+        id: area
+        anchors.fill: parent
+        hoverEnabled: true
+        onClicked: root.clicked()
+        anchors.margins: -6
     }
 }

@@ -25,54 +25,48 @@
 
 import QtQuick 2.1
 
-Item {
+Rectangle {
     id: projectItem
-    width: row.width + 8
-    height: text.height
+    width: Math.max(projectNameText.width, pathText.width) + projectNameText.x + 11
+    height: 48
 
-    Rectangle { // background shown on hover over project item
-        anchors.fill: parent
-        color: creatorTheme.Welcome_ProjectItem_BackgroundColorHover
-        visible: mouseArea.containsMouse
-    }
+    color: mouseArea.containsMouse
+           ? creatorTheme.Welcome_HoverColor
+           : creatorTheme.Welcome_BackgroundColor
 
     property alias projectName: projectNameText.text
     property alias projectPath: pathText.text
 
-    Row {
-        id: row
-        spacing: 5
+    Image {
+        id: icon
+        x: 11
+        y: 6
+        source: "image://icons/project/Welcome_ForegroundSecondaryColor"
+    }
 
-        Image {
-            y: 3
-            source: "images/project.png"
-        }
+    NativeText {
+        x: 38
+        id: projectNameText
+        font.pixelSize: fonts.linkFont.pixelSize
+        font.family: fonts.linkFont.family
+        font.underline: mouseArea.containsMouse
+        color: creatorTheme.Welcome_LinkColor
+        anchors.verticalCenter: icon.verticalCenter
+    }
 
-        Column {
-            id: text
-
-            LinkedText {
-                id: projectNameText
-                height: 20
-                font.underline: mouseArea.containsMouse
-                font.pixelSize: fonts.linkFont.pixelSize
-                font.family: fonts.linkFont.family
-                enlargeMouseArea: false
-            }
-            NativeText {
-                id: pathText
-                height: 20
-                color: creatorTheme.Welcome_ProjectItem_TextColorFilepath
-                font: fonts.smallPath
-            }
-        }
+    NativeText {
+        id: pathText
+        anchors.left: projectNameText.left
+        anchors.bottom: projectItem.bottom
+        anchors.bottomMargin: 6
+        color: creatorTheme.Welcome_ForegroundPrimaryColor
+        font: fonts.smallPath
     }
 
     MouseArea {
         id: mouseArea
         anchors.fill: parent
         hoverEnabled: true
-        cursorShape: Qt.PointingHandCursor
         onClicked: projectWelcomePage.requestProject(filePath);
     }
 }

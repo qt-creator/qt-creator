@@ -26,49 +26,49 @@
 import QtQuick 2.1
 
 Item {
-    x: 5
     id: delegate
     property bool expanded: false
     height: columns.height
     width: columns.width
-    property alias name: text.text
+    property alias name: titleText.text
 
     Column {
         id: columns
 
-        Row {
-            id: row1
-            height: text.height
+        Rectangle {
+            id: rectangle
+            height: 30
+            width: 260
 
-            spacing: 7
+            color: (titleArea.containsMouse || collapseArea.containsMouse || delegate.expanded)
+                   ? creatorTheme.Welcome_HoverColor
+                   : creatorTheme.Welcome_BackgroundColor
 
             Image {
-                source: "images/sessions.png"
-                anchors.verticalCenter: text.verticalCenter
-                width: 16
-                height: 16
+                id: sessionIcon
+                source: "image://icons/session/Welcome_ForegroundSecondaryColor"
+                x: 11
+                anchors.verticalCenter: parent.verticalCenter
             }
 
-            LinkedText {
-                id: text
-
-                onClicked: projectWelcomePage.requestSession(sessionName);
-
-                width: delegate.ListView.view.width - 80
-                height: 28
+            NativeText {
+                id: titleText
+                anchors.fill: parent
+                anchors.leftMargin: 38
                 elide: Text.ElideRight
+                color: creatorTheme.Welcome_LinkColor
+                verticalAlignment: Text.AlignVCenter
+                font.pixelSize: fonts.linkFont.pixelSize
+                font.family: fonts.linkFont.family
+                font.underline: titleArea.containsMouse
+            }
 
-                enlargeMouseArea: false
-
-                Rectangle {
-                    z: -4
-                    // background of session item
-                    color: creatorTheme.Welcome_SessionItem_BackgroundColorHover
-                    anchors.fill: parent
-                    visible: iArea.containsMouse || text.hovered
-                    anchors.topMargin: 1
-                    anchors.bottomMargin: 1
-                    anchors.leftMargin: -row1.spacing / 2
+            MouseArea {
+                id: titleArea
+                hoverEnabled: true
+                anchors.fill: parent
+                onClicked: {
+                    projectWelcomePage.requestSession(sessionName);
                 }
             }
         }
@@ -76,10 +76,9 @@ Item {
             z: -1
             property int margin: 6
             id: details
-            height: expanded ? innerColumn.height + margin * 2 : 0
-            width: delegate.ListView.view.width - 8 - margin * 2
-            color: "#f1f1f1"
-            radius: 4
+            height: expanded ? innerColumn.height + margin + 16 : 0
+            width: titleArea.width + collapseArea.width
+            color: creatorTheme.Welcome_HoverColor
             clip: true
             visible: false
 
@@ -89,7 +88,7 @@ Item {
                         script: if (expanded) details.visible = true;
                     }
                     NumberAnimation {
-                        duration: 200
+                        duration: 180
                         easing.type: Easing.InOutQuad
                     }
                     ScriptAction {
@@ -99,45 +98,27 @@ Item {
             }
 
             Column {
-                x: parent.margin + 8
+                x: titleText.x
                 y: parent.margin
                 id: innerColumn
                 spacing: 12
-                width: parent.width - 16
 
                 Repeater {
                     model: projectsPath
                     delegate: Column {
+                        spacing: 4
                         NativeText {
                             text: projectsName[index]
-                            font: fonts.boldDescription
-                            color: creatorTheme.Welcome_TextColorNormal
+                            font: fonts.smallPath
+                            color: creatorTheme.Welcome_TextColor
+                            width: titleText.width
                         }
                         NativeText {
-                            x: 4
-                            function multiLinePath(path) {
-                                if (path.length < 42)
-                                    return path;
-                                var index = 0;
-                                var oldIndex = 0;
-                                while (index != -1 && index < 40) {
-                                    oldIndex = index;
-                                    index = path.indexOf("/", oldIndex + 1);
-                                    if (index == -1)
-                                        index = path.indexOf("\\", oldIndex + 1);
-                                }
-                                var newPath = path.substr(0, oldIndex + 1) + "\n"
-                                        + path.substr(oldIndex + 1, path.length - oldIndex - 1);
-                                return newPath;
-                            }
-                            text: multiLinePath(modelData)
+                            text: modelData
                             font: fonts.smallPath
-                            wrapMode: Text.WrapAnywhere
-                            maximumLineCount: 2
                             elide: Text.ElideRight
-                            height: lineCount == 2 ? font.pixelSize * 2 + 4 : font.pixelSize + 2
-                            color: creatorTheme.Welcome_ProjectItem_TextColorFilepath
-                            width: delegate.ListView.view.width - 48
+                            color: creatorTheme.Welcome_ForegroundPrimaryColor
+                            width: titleText.width
                             MouseArea {
                                 anchors.fill: parent
                                 hoverEnabled: true
@@ -147,7 +128,6 @@ Item {
                                 onExited: {
                                     toolTip.hide()
                                 }
-
                             }
                             ToolTip {
                                 x: 10
@@ -160,51 +140,39 @@ Item {
                 }
 
                 Flow {
-                    x: parent.margin
                     width: parent.width - 2 * parent.margin
                     height: 18
-                    spacing: 4
+                    spacing: 6
 
-                    Image { source: "images/icons/clone.png" }
-                    LinkedText {
+                    SessionActionLabel {
                         text: qsTr("Clone")
-                        onClicked: {
-                            root.model.cloneSession(sessionName);
-                        }
+                        onClicked: root.model.cloneSession(sessionName)
                     }
 
-                    Item {
+                    Rectangle {
                         visible: !defaultSession
-                        width: 16;
-                        height: 10;
+                        width: 1;
+                        height: 13;
+                        color: creatorTheme.Welcome_ForegroundSecondaryColor
                     }
-                    Image {
-                        visible: !defaultSession
-                        source: "images/icons/rename.png"
-                    }
-                    LinkedText {
+
+                    SessionActionLabel {
                         visible: !defaultSession
                         text: qsTr("Rename")
-                        onClicked: {
-                            root.model.renameSession(sessionName);
-                        }
+                        onClicked: root.model.renameSession(sessionName)
                     }
 
-                    Item {
+                    Rectangle {
                         visible: y === 0 && !defaultSession
-                        width: 16;
-                        height: 10;
+                        width: 1;
+                        height: 13;
+                        color: creatorTheme.Welcome_ForegroundSecondaryColor
                     }
-                    Image {
-                        visible: !defaultSession
-                        source: "images/icons/delete.png"
-                    }
-                    LinkedText {
+
+                    SessionActionLabel {
                         visible: !defaultSession
                         text: qsTr("Delete")
-                        onClicked: {
-                            root.model.deleteSession(sessionName);
-                        }
+                        onClicked: root.model.deleteSession(sessionName)
                     }
                 }
             }
@@ -212,47 +180,27 @@ Item {
     }
 
     Item {
-        x: delegate.ListView.view.width - 65
-        width: 38
-        height: text.height
-        Item {
+        x: rectangle.width
+        width: 28
+        height: titleArea.height
+        Rectangle {
             id: collapseButton
-            visible: text.hovered || iArea.containsMouse || delegate.expanded
-
-            property color color: iArea.containsMouse ? creatorTheme.Welcome_SessionItemExpanded_BackgroundColorHover
-                                                      : creatorTheme.Welcome_SessionItemExpanded_BackgroundColorNormal
-
             anchors.fill: parent
-            Image {
-                x: 4
-                y: 7
-                source: "images/info.png"
-            }
-            Image {
-                x: 20
-                y: 7
-                source: delegate.expanded ? "images/arrow_up.png" : "images/arrow_down.png"
-            }
-            Rectangle {
-                color: collapseButton.color
-                z: -1
-                radius: creatorTheme.WidgetStyle === 'StyleFlat' ? 0 : 6
-                anchors.fill: parent
-                anchors.topMargin: 1
-                anchors.bottomMargin: 1
-            }
+            color: (collapseArea.containsMouse || delegate.expanded)
+                   ? creatorTheme.Welcome_HoverColor
+                   : creatorTheme.Welcome_BackgroundColor
 
-            Rectangle {
-                color: collapseButton.color
-                z: -1
-                anchors.fill: parent
-                anchors.topMargin: 6
-                visible: details.visible
+            Image {
+                x: 6
+                y: 7
+                visible: (collapseArea.containsMouse || delegate.expanded || titleArea.containsMouse)
+                source: "image://icons/expandarrow/Welcome_ForegroundSecondaryColor"
+                rotation: delegate.expanded ? 180 : 0
             }
         }
 
         MouseArea {
-            id: iArea
+            id: collapseArea
             anchors.fill: parent
             hoverEnabled: true
             onClicked: {

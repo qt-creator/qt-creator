@@ -78,25 +78,15 @@ Item {
 
     Rectangle {
         anchors.fill: parent
-
+        color: creatorTheme.Welcome_BackgroundColor
         border.width: 1
-        smooth: true
-        radius: 2
-        gradient: Gradient {
-            GradientStop {
-                position: 0.00;
-                color: "#ffffff";
-            }
-            GradientStop {
-                position: 1.00;
-                color: "#e4e5f0";
-            }
-        }
+        border.color: creatorTheme.Welcome_ForegroundSecondaryColor
     }
 
     NativeText {
         x: toolTip.margin
         y: toolTip.margin
         id: text
+        color: creatorTheme.Welcome_TextColor
     }
 }

@@ -41,7 +41,6 @@ Item {
         model: exampleSetModel
         textRole: "text"
 
-
         onCurrentIndexChanged: {
             if (comboBox.model === undefined)
                 return;

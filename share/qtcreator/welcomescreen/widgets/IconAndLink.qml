@@ -25,21 +25,39 @@
 
 import QtQuick 2.1
 
-Row {
+Rectangle {
     property string iconSource
     property string title: "title"
     property string openUrl
     property string openHelpUrl
-    spacing: 7
+    height: 30
+    width: 231
+
+    color: mouseArea.containsMouse
+           ? creatorTheme.Welcome_HoverColor
+           : creatorTheme.Welcome_BackgroundColor
+
     Image {
+        id: image
         width: 16
         height: 16
+        x: 34
         source: iconSource
+        anchors.verticalCenter: parent.verticalCenter
     }
-    LinkedText {
+    NativeText {
         text: title
+        anchors.verticalCenter: parent.verticalCenter
+        anchors.left: image.right
+        anchors.leftMargin: 8
+        color: creatorTheme.Welcome_TextColor
         font.pixelSize: 11
-        color: creatorTheme.Welcome_TextColorNormal // 'Qt Account' .. 'User Guide' on lower left
+        font.underline: mouseArea.containsMouse
+    }
+    MouseArea {
+        id: mouseArea
+        anchors.fill: parent
+        hoverEnabled: true
         onClicked: {
             if (openUrl)
                 gettingStarted.openUrl(openUrl);
@@ -48,3 +66,4 @@ Row {
         }
     }
 }
+

@@ -35,115 +35,70 @@ ColumnLayout {
     property alias currentIndex: tabs.currentIndex
     property alias model: tabs.model
 
+    readonly property int lrPadding: 34
+
     Item {
         id: modeArea
 
         z: 1
         Layout.fillWidth: true
-        Layout.preferredWidth: tabs.width + 16 * 2
+        Layout.preferredWidth: tabs.width + lrPadding * 2
         Layout.preferredHeight: tabs.height + screenDependHeightDistance * 2
 
-        Component {
-            id: imageBackground
-            Image {
-                fillMode: Image.Tile
-                source: "images/background.png"
-                anchors.fill: parent
-            }
-        }
-        Component {
-            id: flatBackground
-            Rectangle {
-                color: creatorTheme.Welcome_SideBar_BackgroundColor
-            }
-        }
-        Loader {
-            id: topLeftLoader
+        Rectangle {
+            color: creatorTheme.Welcome_BackgroundColor
             anchors.fill: parent
-            sourceComponent: creatorTheme.WidgetStyle === 'StyleFlat' ? flatBackground : imageBackground;
         }
 
         Tabs {
             anchors.verticalCenter: parent.verticalCenter
-            x: 16
-            width: Math.max(modeArea.width - 16 * 2, implicitWidth)
+            x: lrPadding
+            width: Math.max(modeArea.width - lrPadding * 2, implicitWidth)
 
             id: tabs
             spacing: Math.round((screenDependHeightDistance / count) + 10)
         }
-
-        Rectangle {
-            color: creatorTheme.WidgetStyle === 'StyleFlat' ?
-                       creatorTheme.Welcome_SideBar_BackgroundColor : creatorTheme.Welcome_DividerColor
-            anchors.left: parent.left
-            anchors.right: parent.right
-            anchors.bottom: parent.bottom
-            anchors.bottomMargin: 0
-            height: 1
-        }
-
-        Rectangle {
-            color: creatorTheme.WidgetStyle === 'StyleFlat' ?
-                       creatorTheme.Welcome_SideBar_BackgroundColor : creatorTheme.Welcome_DividerColor
-            anchors.left: parent.left
-            anchors.right: parent.right
-            anchors.bottom: parent.bottom
-            anchors.bottomMargin: -1
-            height: 1
-            opacity: 0.6
-        }
-
-        Rectangle {
-            color: creatorTheme.WidgetStyle === 'StyleFlat' ?
-                       creatorTheme.Welcome_SideBar_BackgroundColor : creatorTheme.Welcome_DividerColor
-            anchors.left: parent.left
-            anchors.right: parent.right
-            anchors.bottom: parent.bottom
-            anchors.bottomMargin: -2
-            height: 1
-            opacity: 0.2
-        }
     }
 
     Rectangle {
-        color: creatorTheme.Welcome_SideBar_BackgroundColor
+        color: creatorTheme.Welcome_BackgroundColor
 
         Layout.fillWidth: true
-        Layout.preferredWidth: innerColumn.width + 20
+        Layout.preferredWidth: upperColumn.width + 20
         Layout.fillHeight: true
 
         ColumnLayout {
-            id: innerColumn
+            id: upperColumn
 
-            x: 12
+            x: lrPadding
 
-            spacing: 4
+            spacing: 8
 
-            property int spacerHeight: screenDependHeightDistance - 14
+            property int spacerHeight: screenDependHeightDistance
 
             Item {
-                Layout.preferredHeight: innerColumn.spacerHeight
+                Layout.preferredHeight: upperColumn.spacerHeight
             }
 
             NativeText {
                 text: qsTr("New to Qt?")
-                color: creatorTheme.Welcome_TextColorNormal
+                color: creatorTheme.Welcome_TextColor
                 font.pixelSize: 18
             }
 
             NativeText {
                 id: gettingStartedText
 
-                Layout.preferredWidth: innerColumn.width
+                Layout.preferredWidth: upperColumn.width
 
                 text: qsTr("Learn how to develop your own applications and explore Qt Creator.")
-                color: creatorTheme.Welcome_TextColorNormal
+                color: creatorTheme.Welcome_ForegroundPrimaryColor
                 font.pixelSize: 12
                 wrapMode: Text.WrapAtWordBoundaryOrAnywhere
             }
 
             Item {
-                Layout.preferredHeight: innerColumn.spacerHeight
+                Layout.preferredHeight: 4
             }
 
             Button {
@@ -156,37 +111,33 @@ ColumnLayout {
             }
 
             Item {
-                Layout.preferredHeight: innerColumn.spacerHeight
+                Layout.preferredHeight: upperColumn.spacerHeight * 2
             }
+        }
 
-            ColumnLayout {
-                spacing: 16
+        ColumnLayout {
+            anchors.top: upperColumn.bottom
+            anchors.topMargin: 8
 
-                IconAndLink {
-                    iconSource: "images/icons/qt_account.png"
-                    title: qsTr("Qt Account")
-                    openUrl: "https://account.qt.io"
-                }
-                IconAndLink {
-                    iconSource: "images/icons/qt_cloud.png"
-                    title: qsTr("Qt Cloud Services")
-                    openUrl: "https://developer.qtcloudservices.com"
-                }
-                IconAndLink {
-                    iconSource: "images/icons/onlineCommunity.png"
-                    title: qsTr("Online Community")
-                    openUrl: "http://forum.qt.io"
-                }
-                IconAndLink {
-                    iconSource: "images/icons/blogs.png"
-                    title: qsTr("Blogs")
-                    openUrl: "http://planet.qt.io"
-                }
-                IconAndLink {
-                    iconSource: "images/icons/userGuide.png"
-                    title: qsTr("User Guide")
-                    openHelpUrl: "qthelp://org.qt-project.qtcreator/doc/index.html"
-                }
+            IconAndLink {
+                iconSource: "image://icons/qtaccount"
+                title: qsTr("Qt Account")
+                openUrl: "https://account.qt.io"
+            }
+            IconAndLink {
+                iconSource: "image://icons/community"
+                title: qsTr("Online Community")
+                openUrl: "http://forum.qt.io"
+            }
+            IconAndLink {
+                iconSource: "image://icons/blogs"
+                title: qsTr("Blogs")
+                openUrl: "http://planet.qt.io"
+            }
+            IconAndLink {
+                iconSource: "image://icons/userguide"
+                title: qsTr("User Guide")
+                openHelpUrl: "qthelp://org.qt-project.qtcreator/doc/index.html"
             }
         }
     }
