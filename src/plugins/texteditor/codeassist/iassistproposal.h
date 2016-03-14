@@ -41,8 +41,8 @@ public:
 
     int basePosition() const;
     virtual bool isFragile() const = 0;
-    virtual bool isCorrective() const = 0;
-    virtual void makeCorrection(TextEditorWidget *editorWidget) = 0;
+    virtual bool isCorrective() const;
+    virtual void makeCorrection(TextEditorWidget *editorWidget);
     virtual IAssistProposalModel *model() const = 0;
     virtual IAssistProposalWidget *createWidget() const = 0;
 

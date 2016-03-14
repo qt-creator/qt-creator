@@ -49,14 +49,6 @@ bool GenericProposal::isFragile() const
     return false;
 }
 
-bool GenericProposal::isCorrective() const
-{
-    return false;
-}
-
-void GenericProposal::makeCorrection(TextEditorWidget *)
-{}
-
 IAssistProposalModel *GenericProposal::model() const
 {
     return m_model;

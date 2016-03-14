@@ -93,11 +93,21 @@ int IAssistProposal::basePosition() const
     is displayed.
 */
 
+bool IAssistProposal::isCorrective() const
+{
+    return false;
+}
+
 /*!
     \fn void TextEditor::IAssistProposal::makeCorrection(BaseTextEditor *editor)
 
     This allows a correction to be made in the case this is a corrective proposal.
 */
+
+void IAssistProposal::makeCorrection(TextEditorWidget *editorWidget)
+{
+    Q_UNUSED(editorWidget);
+}
 
 /*!
     \fn IAssistModel *TextEditor::IAssistProposal::model() const

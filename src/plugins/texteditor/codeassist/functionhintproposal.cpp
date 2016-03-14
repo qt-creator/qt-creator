@@ -42,14 +42,6 @@ bool FunctionHintProposal::isFragile() const
     return true;
 }
 
-bool FunctionHintProposal::isCorrective() const
-{
-    return false;
-}
-
-void FunctionHintProposal::makeCorrection(TextEditorWidget *)
-{}
-
 IAssistProposalModel *FunctionHintProposal::model() const
 {
     return m_model;

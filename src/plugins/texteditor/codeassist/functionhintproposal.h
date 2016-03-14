@@ -39,8 +39,6 @@ public:
     ~FunctionHintProposal();
 
     bool isFragile() const override;
-    bool isCorrective() const override;
-    void makeCorrection(TextEditorWidget *editorWidget) override;
     IAssistProposalModel *model() const override;
     IAssistProposalWidget *createWidget() const override;
 
