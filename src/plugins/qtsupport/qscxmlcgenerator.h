@@ -58,6 +58,8 @@ class QScxmlcGeneratorFactory : public ProjectExplorer::ExtraCompilerFactory
 {
     Q_OBJECT
 public:
+    QScxmlcGeneratorFactory(QObject *parent = 0) : ExtraCompilerFactory(parent) {}
+
     ProjectExplorer::FileType sourceType() const override;
 
     QString sourceTag() const override;

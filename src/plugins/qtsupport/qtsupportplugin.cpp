@@ -89,9 +89,9 @@ bool QtSupportPlugin::initialize(const QStringList &arguments, QString *errorMes
     ProjectExplorer::KitManager::registerKitInformation(new QtKitInformation);
 
     ProjectExplorer::ExtraCompilerFactory::registerExtraCompilerFactory(
-                new UicGeneratorFactory);
+                new UicGeneratorFactory(this));
     ProjectExplorer::ExtraCompilerFactory::registerExtraCompilerFactory(
-                new QScxmlcGeneratorFactory);
+                new QScxmlcGeneratorFactory(this));
 
     QtVersionManager::initialized();
 

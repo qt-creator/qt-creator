@@ -354,7 +354,11 @@ ExtraCompilerFactory::ExtraCompilerFactory(QObject *parent) : QObject(parent)
 
 void ExtraCompilerFactory::registerExtraCompilerFactory(ExtraCompilerFactory *factory)
 {
-    factories()->append(factory);
+    QList<ExtraCompilerFactory *> *factoryList = factories();
+    factoryList->append(factory);
+    connect(factory, &QObject::destroyed, [factoryList, factory]() {
+        factoryList->removeAll(factory);
+    });
 }
 
 QList<ExtraCompilerFactory *> ExtraCompilerFactory::extraCompilerFactories()
