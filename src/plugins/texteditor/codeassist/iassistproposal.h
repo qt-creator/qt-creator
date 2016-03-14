@@ -36,15 +36,18 @@ class TextEditorWidget;
 class TEXTEDITOR_EXPORT IAssistProposal
 {
 public:
-    IAssistProposal();
+    IAssistProposal(int basePosition);
     virtual ~IAssistProposal();
 
+    int basePosition() const;
     virtual bool isFragile() const = 0;
-    virtual int basePosition() const = 0;
     virtual bool isCorrective() const = 0;
     virtual void makeCorrection(TextEditorWidget *editorWidget) = 0;
     virtual IAssistProposalModel *model() const = 0;
     virtual IAssistProposalWidget *createWidget() const = 0;
+
+protected:
+    int m_basePosition;
 };
 
 } // TextEditor

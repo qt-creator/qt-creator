@@ -59,7 +59,8 @@ using namespace TextEditor;
     \sa IAssistProposalWidget, IAssistModel
 */
 
-IAssistProposal::IAssistProposal()
+IAssistProposal::IAssistProposal(int basePosition)
+    : m_basePosition(basePosition)
 {}
 
 IAssistProposal::~IAssistProposal()
@@ -78,6 +79,11 @@ IAssistProposal::~IAssistProposal()
 
     Returns the position from which this proposal starts.
 */
+
+int IAssistProposal::basePosition() const
+{
+    return m_basePosition;
+}
 
 /*!
     \fn bool TextEditor::IAssistProposal::isCorrective() const

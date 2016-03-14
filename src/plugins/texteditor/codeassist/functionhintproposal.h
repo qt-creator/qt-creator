@@ -39,14 +39,12 @@ public:
     ~FunctionHintProposal();
 
     bool isFragile() const override;
-    int basePosition() const override;
     bool isCorrective() const override;
     void makeCorrection(TextEditorWidget *editorWidget) override;
     IAssistProposalModel *model() const override;
     IAssistProposalWidget *createWidget() const override;
 
 private:
-    int m_basePosition;
     IFunctionHintProposalModel *m_model;
 };
 
