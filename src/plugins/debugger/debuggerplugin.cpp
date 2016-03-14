@@ -1527,10 +1527,10 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
     cmd->setAttribute(Command::CA_UpdateText);
     mstart->addAction(cmd, CC::G_DEFAULT_ONE);
     m_visibleStartAction = new ProxyAction(this);
-    m_visibleStartAction->initialize(cmd->action());
+    m_visibleStartAction->initialize(m_startAction);
     m_visibleStartAction->setAttribute(ProxyAction::UpdateText);
     m_visibleStartAction->setAttribute(ProxyAction::UpdateIcon);
-    m_visibleStartAction->setAction(cmd->action());
+    m_visibleStartAction->setAction(m_startAction);
 
     ModeManager::addAction(m_visibleStartAction, Constants::P_ACTION_DEBUG);
 
