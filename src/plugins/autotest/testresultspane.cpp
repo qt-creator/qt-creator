@@ -31,6 +31,7 @@
 #include "testrunner.h"
 #include "testsettings.h"
 #include "testtreemodel.h"
+#include "testcodeparser.h"
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/coreicons.h>
@@ -517,7 +518,8 @@ void TestResultsPane::onScrollBarRangeChanged(int, int max)
 void TestResultsPane::updateRunActions()
 {
     QString whyNot;
-    const bool enable = TestTreeModel::instance()->hasTests()
+    TestTreeModel *model = TestTreeModel::instance();
+    const bool enable = !model->parser()->isParsing() && model->hasTests()
             && ProjectExplorer::ProjectExplorerPlugin::canRunStartupProject(
                 ProjectExplorer::Constants::NORMAL_RUN_MODE, &whyNot);
     m_runAll->setEnabled(enable);
