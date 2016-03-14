@@ -442,6 +442,7 @@ CallgrindTool::CallgrindTool(QObject *parent)
 
     auto button = new QToolButton;
     button->setMenu(menu);
+    menu->setParent(button);
     button->setPopupMode(QToolButton::InstantPopup);
     button->setText(QLatin1String("$"));
     button->setToolTip(tr("Cost Format"));
