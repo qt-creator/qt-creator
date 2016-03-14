@@ -61,6 +61,8 @@ static QString platformName(MsvcToolChain::Platform t)
     switch (t) {
     case MsvcToolChain::x86:
         return QLatin1String("x86");
+    case MsvcToolChain::amd64_x86:
+        return QLatin1String("amd64_x86");
     case MsvcToolChain::amd64:
         return QLatin1String("amd64");
     case MsvcToolChain::x86_amd64:
@@ -83,7 +85,8 @@ static bool hostSupportsPlatform(MsvcToolChain::Platform platform)
 {
     switch (Utils::HostOsInfo::hostArchitecture()) {
     case Utils::HostOsInfo::HostArchitectureAMD64:
-        if (platform == MsvcToolChain::amd64 || platform == MsvcToolChain::amd64_arm)
+        if (platform == MsvcToolChain::amd64 || platform == MsvcToolChain::amd64_arm
+            || platform == MsvcToolChain::amd64_x86)
             return true;
         // fall through (all x86 toolchains are also working on an amd64 host)
     case Utils::HostOsInfo::HostArchitectureX86:
@@ -107,6 +110,7 @@ static Abi findAbiOfMsvc(MsvcToolChain::Type type, MsvcToolChain::Platform platf
     switch (platform)
     {
     case MsvcToolChain::x86:
+    case MsvcToolChain::amd64_x86:
         wordWidth = 32;
         break;
     case MsvcToolChain::ia64:
@@ -630,6 +634,8 @@ QString MsvcToolChainFactory::vcVarsBatFor(const QString &basePath, const QStrin
         return basePath + QLatin1String("/bin/ia64/vcvars64.bat");
     if (toolchainName == QLatin1String("x86_ia64"))
         return basePath + QLatin1String("/bin/x86_ia64/vcvarsx86_ia64.bat");
+    if (toolchainName == QLatin1String("amd64_x86"))
+        return basePath + QLatin1String("/bin/amd64_x86/vcvarsamd64_x86.bat");
 
     return QString();
 }
@@ -809,7 +815,7 @@ QList<ToolChain *> MsvcToolChainFactory::autoDetect(const QList<ToolChain *> &al
             // x86_arm was put before amd64_arm as a workaround for auto detected windows phone
             // toolchains. As soon as windows phone builds support x64 cross builds, this change
             // can be reverted.
-            platforms << MsvcToolChain::x86
+            platforms << MsvcToolChain::x86 << MsvcToolChain::amd64_x86
                       << MsvcToolChain::amd64 << MsvcToolChain::x86_amd64
                       << MsvcToolChain::arm << MsvcToolChain::x86_arm << MsvcToolChain::amd64_arm
                       << MsvcToolChain::ia64 << MsvcToolChain::x86_ia64;

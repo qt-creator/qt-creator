@@ -49,7 +49,8 @@ public:
                     x86_ia64,
                     arm,
                     x86_arm,
-                    amd64_arm
+                    amd64_arm,
+                    amd64_x86
                   };
 
     explicit MsvcToolChain(const QString &name, const Abi &abi,
