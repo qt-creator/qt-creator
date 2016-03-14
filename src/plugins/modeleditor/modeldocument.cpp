@@ -93,12 +93,19 @@ bool ModelDocument::save(QString *errorString, const QString &name, bool autoSav
         return false;
     }
 
-    if (!autoSave) {
+    if (autoSave) {
+        d->documentController->projectController()->setModified();
+    } else {
         setFilePath(Utils::FileName::fromString(d->documentController->projectController()->project()->fileName()));
         emit changed();
     }
 
     return true;
+}
+
+bool ModelDocument::shouldAutoSave() const
+{
+    return isModified();
 }
 
 bool ModelDocument::isModified() const
