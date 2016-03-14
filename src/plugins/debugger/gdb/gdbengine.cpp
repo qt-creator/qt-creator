@@ -3445,7 +3445,7 @@ void GdbEngine::handleMakeSnapshot(const DebuggerResponse &response, const QStri
 
 void GdbEngine::reloadRegisters()
 {
-    if (!Internal::isDockVisible(_(DOCKWIDGET_REGISTER)))
+    if (!Internal::isRegistersWindowVisible())
         return;
 
     if (state() != InferiorStopOk && state() != InferiorUnrunnable)

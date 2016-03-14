@@ -3128,10 +3128,14 @@ QWidget *mainWindow()
     return dd->m_mainWindow;
 }
 
-bool isDockVisible(const QString &objectName)
+bool isRegistersWindowVisible()
 {
-    QDockWidget *dock = dd->findChild<QDockWidget *>(objectName);
-    return dock && dock->toggleViewAction()->isChecked();
+    return dd->m_registerWindow->isVisible();
+}
+
+bool isModulesWindowVisible()
+{
+    return dd->m_modulesWindow->isVisible();
 }
 
 void openMemoryEditor()
