@@ -223,13 +223,12 @@ void CodeAssistantPrivate::requestProposal(AssistReason reason,
             return;
     }
 
+    AssistInterface *assistInterface = m_editorWidget->createAssistInterface(kind, reason);
+    if (!assistInterface)
+        return;
+
     m_assistKind = kind;
     IAssistProcessor *processor = provider->createProcessor();
-    AssistInterface *assistInterface = m_editorWidget->createAssistInterface(kind, reason);
-    if (!assistInterface) {
-        delete processor;
-        return;
-    }
 
     switch (provider->runType()) {
     case IAssistProvider::Synchronous: {
