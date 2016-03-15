@@ -25,6 +25,11 @@
 
 #include <QtTest>
 
+#ifdef HAS_BOOST
+#include <boost/version.hpp>
+#include <boost/unordered/unordered_set.hpp>
+#endif
+
 // Don't do this at home. This is test code, not production.
 #define protected public
 #define private public
@@ -33,11 +38,6 @@
 #include <private/qfile_p.h>
 #include <private/qfileinfo_p.h>
 #include <private/qobject_p.h>
-
-#ifdef HAS_BOOST
-#include <boost/version.hpp>
-#include <boost/unordered/unordered_set.hpp>
-#endif
 
 class tst_offsets : public QObject
 {
@@ -221,6 +221,8 @@ void tst_offsets::offsets_data()
 #ifdef HAS_BOOST
 #if BOOST_VERSION >= (1 * 100000 + 54 * 100)
     {
+#if QT_VERSION < 0x50700
+        // would require #define private public, but doesn't compile.
         boost::unordered::unordered_set<int> *p = 0;
 
         QTest::newRow("boost::unordered::unordered_set::size")
@@ -229,6 +231,7 @@ void tst_offsets::offsets_data()
             << int((char *)&p->table_.bucket_count_ - (char *)p) << 4 << 8;
         QTest::newRow("boost::unordered::unordered_set::buckets_")
             << int((char *)&p->table_.buckets_ - (char *)p) << 20 << 40;
+#endif
     }
 #endif
 #endif
