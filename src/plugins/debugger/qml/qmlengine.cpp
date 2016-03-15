@@ -1121,8 +1121,8 @@ void QmlEngine::executeDebuggerCommand(const QString &command, DebuggerLanguages
     } else if (d->unpausedEvaluate) {
         d->evaluate(command, CB(d->handleExecuteDebuggerCommand));
     } else {
-        d->engine->showMessage(_("The application has to be paused in order to evaluate "
-                                 "expressions").arg(command), ConsoleOutput);
+        d->engine->showMessage(_("The application has to be stopped in a breakpoint in order to "
+                                 "evaluate expressions").arg(command), ConsoleOutput);
     }
 }
 
