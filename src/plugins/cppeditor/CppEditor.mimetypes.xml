@@ -54,7 +54,6 @@
         <!-- Additions to freedesktop: -->
         <glob pattern="*.cp" weight="70"/>
         <glob pattern="*.inl" weight="70"/>
-        <glob pattern="*.qdoc" weight="70"/>
         <glob pattern="*.tcc" weight="70"/>
         <glob pattern="*.tpp" weight="70"/>
         <glob pattern="*.t++" weight="70"/>
@@ -62,6 +61,12 @@
         <magic priority="30">
         <match value="-*- C++ -*-" type="string" offset="0:30"/>
         </magic>
+    </mime-type>
+
+    <mime-type type="text/x-qdoc">
+        <comment>Qt documentation file</comment>
+        <sub-class-of type="text/plain"/>
+        <glob pattern="*.qdoc" weight="70"/>
     </mime-type>
 
     <mime-type type="text/x-moc">

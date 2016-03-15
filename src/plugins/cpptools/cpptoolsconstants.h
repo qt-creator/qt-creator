@@ -42,6 +42,7 @@ const char CPP_SOURCE_MIMETYPE[] = "text/x-c++src";
 const char OBJECTIVE_C_SOURCE_MIMETYPE[] = "text/x-objcsrc";
 const char OBJECTIVE_CPP_SOURCE_MIMETYPE[] = "text/x-objc++src";
 const char CPP_HEADER_MIMETYPE[] = "text/x-c++hdr";
+const char QDOC_MIMETYPE[] = "text/x-qdoc";
 
 // QSettings keys for use by the "New Class" wizards.
 const char CPPTOOLS_SETTINGSGROUP[] = "CppTools";
