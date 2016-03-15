@@ -254,7 +254,6 @@ public:
     enum Flag {
         DrawTargetSelectorBottom,
         DrawSearchResultWidgetFrame,
-        DrawProgressBarSunken,
         DrawIndicatorBranch,
         DrawToolBarHighlights,
         ComboBoxDrawTextShadow,

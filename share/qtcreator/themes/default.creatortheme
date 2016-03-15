@@ -162,7 +162,6 @@ ClangCodeModel_Warning_TextMarkColor=ffc6c132
 ComboBoxDrawTextShadow=true
 DerivePaletteFromTheme=false
 DrawIndicatorBranch=false
-DrawProgressBarSunken=true
 DrawSearchResultWidgetFrame=true
 DrawTargetSelectorBottom=true
 DrawToolBarHighlights=true
