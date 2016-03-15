@@ -314,6 +314,12 @@ void BaseTreeView::mousePressEvent(QMouseEvent *ev)
         d->toggleColumnWidth(columnAt(ev->x()));
 }
 
+void BaseTreeView::showEvent(QShowEvent *ev)
+{
+    emit aboutToShow();
+    TreeView::showEvent(ev);
+}
+
 /*!
     Shows a round spinning progress indicator on top of the tree view.
     Creates a progress indicator widget if necessary.

@@ -687,24 +687,6 @@ public:
         m_returnView->header()->resizeSection(section, newSize);
     }
 
-    void sourceFilesDockToggled(bool on)
-    {
-        if (on && m_currentEngine->state() == InferiorStopOk)
-            m_currentEngine->reloadSourceFiles();
-    }
-
-    void modulesDockToggled(bool on)
-    {
-        if (on && m_currentEngine->state() == InferiorStopOk)
-            m_currentEngine->reloadModules();
-    }
-
-    void registerDockToggled(bool on)
-    {
-        if (on && m_currentEngine->state() == InferiorStopOk)
-            m_currentEngine->reloadRegisters();
-    }
-
     void synchronizeBreakpoints()
     {
         showMessage(QLatin1String("ATTEMPT SYNC"), LogDebug);
@@ -1327,10 +1309,16 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
 
     m_modulesView = new ModulesTreeView;
     m_modulesView->setSettings(settings, "Debugger.ModulesView");
+    connect(m_modulesView, &BaseTreeView::aboutToShow, this, [this] {
+        m_currentEngine->reloadModules();
+    }, Qt::QueuedConnection);
     m_modulesWindow = addSearch(m_modulesView, tr("Modules"), DOCKWIDGET_MODULES);
 
     m_registerView = new RegisterTreeView;
     m_registerView->setSettings(settings, "Debugger.RegisterView");
+    connect(m_registerView, &BaseTreeView::aboutToShow, this, [this] {
+        m_currentEngine->reloadRegisters();
+    }, Qt::QueuedConnection);
     m_registerWindow = addSearch(m_registerView, tr("Registers"), DOCKWIDGET_REGISTER);
 
     m_stackView = new StackTreeView;
@@ -1339,6 +1327,9 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
 
     m_sourceFilesView = new SourceFilesTreeView;
     m_sourceFilesView->setSettings(settings, "Debugger.SourceFilesView");
+    connect(m_sourceFilesView, &BaseTreeView::aboutToShow, this, [this] {
+        m_currentEngine->reloadSourceFiles();
+    }, Qt::QueuedConnection);
     m_sourceFilesWindow = addSearch(m_sourceFilesView, tr("Source Files"), DOCKWIDGET_SOURCE_FILES);
 
     m_threadsView = new ThreadsTreeView;
