@@ -153,8 +153,8 @@ void DebuggerMainWindow::finalizeSetup(Core::IMode *mode, QWidget *central)
     hbox->addWidget(m_perspectiveChooser);
     hbox->addWidget(m_controlsStackWidget);
     hbox->addWidget(m_statusLabel);
-    hbox->addWidget(new Utils::StyledSeparator);
     hbox->addStretch();
+    hbox->addWidget(new Utils::StyledSeparator);
     hbox->addWidget(viewButton);
 
     connect(viewButton, &QAbstractButton::clicked, [this, viewButton] {
