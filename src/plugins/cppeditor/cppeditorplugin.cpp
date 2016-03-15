@@ -141,7 +141,6 @@ CppQuickFixAssistProvider *CppEditorPlugin::quickFixProvider() const
 bool CppEditorPlugin::initialize(const QStringList & /*arguments*/, QString *errorMessage)
 {
     Q_UNUSED(errorMessage)
-    Utils::MimeDatabase::addMimeTypes(QLatin1String(":/cppeditor/CppEditor.mimetypes.xml"));
 
     addAutoReleasedObject(new CppEditorFactory);
     addAutoReleasedObject(new CppOutlineWidgetFactory);
