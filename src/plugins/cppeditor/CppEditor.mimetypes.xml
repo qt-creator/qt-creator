@@ -46,7 +46,6 @@
     <mime-type type="text/x-c++src">
         <comment>C++ source code</comment>
         <sub-class-of type="text/x-csrc"/>
-        <comment>C++ source code</comment>
         <glob pattern="*.cpp" weight="70"/>
         <glob pattern="*.cxx" weight="70"/>
         <glob pattern="*.cc" weight="70"/>
