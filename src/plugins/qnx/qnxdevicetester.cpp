@@ -29,8 +29,8 @@
 #include <ssh/sshremoteprocessrunner.h>
 #include <utils/qtcassert.h>
 
-using namespace Qnx;
-using namespace Qnx::Internal;
+namespace Qnx {
+namespace Internal {
 
 QnxDeviceTester::QnxDeviceTester(QObject *parent)
     : ProjectExplorer::DeviceTester(parent)
@@ -39,14 +39,18 @@ QnxDeviceTester::QnxDeviceTester(QObject *parent)
     , m_currentCommandIndex(-1)
 {
     m_genericTester = new RemoteLinux::GenericLinuxDeviceTester(this);
-    connect(m_genericTester, SIGNAL(progressMessage(QString)), SIGNAL(progressMessage(QString)));
-    connect(m_genericTester, SIGNAL(errorMessage(QString)), SIGNAL(errorMessage(QString)));
-    connect(m_genericTester, SIGNAL(finished(ProjectExplorer::DeviceTester::TestResult)),
-        SLOT(handleGenericTestFinished(ProjectExplorer::DeviceTester::TestResult)));
+    connect(m_genericTester, &DeviceTester::progressMessage,
+            this, &DeviceTester::progressMessage);
+    connect(m_genericTester, &DeviceTester::errorMessage,
+            this, &DeviceTester::errorMessage);
+    connect(m_genericTester, &DeviceTester::finished,
+            this, &QnxDeviceTester::handleGenericTestFinished);
 
     m_processRunner = new QSsh::SshRemoteProcessRunner(this);
-    connect(m_processRunner, SIGNAL(connectionError()), SLOT(handleConnectionError()));
-    connect(m_processRunner, SIGNAL(processClosed(int)), SLOT(handleProcessFinished(int)));
+    connect(m_processRunner, &QSsh::SshRemoteProcessRunner::connectionError,
+            this, &QnxDeviceTester::handleConnectionError);
+    connect(m_processRunner, &QSsh::SshRemoteProcessRunner::processClosed,
+            this, &QnxDeviceTester::handleProcessFinished);
 
     m_commandsToTest << QLatin1String("awk")
                      << QLatin1String("grep")
@@ -168,3 +172,6 @@ QStringList QnxDeviceTester::versionSpecificCommandsToTest(int versionNumber) co
 
     return result;
 }
+
+} // namespace Internal
+} // namespace Qnx

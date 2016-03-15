@@ -44,8 +44,8 @@
 using namespace ProjectExplorer;
 using namespace RemoteLinux;
 
-using namespace Qnx;
-using namespace Qnx::Internal;
+namespace Qnx {
+namespace Internal {
 
 QnxDebugSupport::QnxDebugSupport(QnxRunConfiguration *runConfig, Debugger::DebuggerRunControl *runControl)
     : QnxAbstractRunSupport(runConfig, runControl)
@@ -57,12 +57,12 @@ QnxDebugSupport::QnxDebugSupport(QnxRunConfiguration *runConfig, Debugger::Debug
     , m_useQmlDebugger(runConfig->extraAspect<Debugger::DebuggerRunConfigurationAspect>()->useQmlDebugger())
 {
     const DeviceApplicationRunner *runner = appRunner();
-    connect(runner, SIGNAL(reportError(QString)), SLOT(handleError(QString)));
-    connect(runner, SIGNAL(remoteProcessStarted()), SLOT(handleRemoteProcessStarted()));
-    connect(runner, SIGNAL(finished(bool)), SLOT(handleRemoteProcessFinished(bool)));
-    connect(runner, SIGNAL(reportProgress(QString)), SLOT(handleProgressReport(QString)));
-    connect(runner, SIGNAL(remoteStdout(QByteArray)), SLOT(handleRemoteOutput(QByteArray)));
-    connect(runner, SIGNAL(remoteStderr(QByteArray)), SLOT(handleRemoteOutput(QByteArray)));
+    connect(runner, &DeviceApplicationRunner::reportError, this, &QnxDebugSupport::handleError);
+    connect(runner, &DeviceApplicationRunner::remoteProcessStarted, this, &QnxDebugSupport::handleRemoteProcessStarted);
+    connect(runner, &DeviceApplicationRunner::finished, this, &QnxDebugSupport::handleRemoteProcessFinished);
+    connect(runner, &DeviceApplicationRunner::reportProgress, this, &QnxDebugSupport::handleProgressReport);
+    connect(runner, &DeviceApplicationRunner::remoteStdout, this, &QnxDebugSupport::handleRemoteOutput);
+    connect(runner, &DeviceApplicationRunner::remoteStderr, this, &QnxDebugSupport::handleRemoteOutput);
 
     connect(m_runControl, &Debugger::DebuggerRunControl::requestRemoteSetup,
             this, &QnxDebugSupport::handleAdapterSetupRequested);
@@ -72,10 +72,10 @@ QnxDebugSupport::QnxDebugSupport(QnxRunConfiguration *runConfig, Debugger::Debug
     QnxDeviceConfiguration::ConstPtr qnxDevice = dev.dynamicCast<const QnxDeviceConfiguration>();
 
     m_slog2Info = new Slog2InfoRunner(applicationId, qnxDevice, this);
-    connect(m_slog2Info, SIGNAL(output(QString,Utils::OutputFormat)), this, SLOT(handleApplicationOutput(QString,Utils::OutputFormat)));
-    connect(runner, SIGNAL(remoteProcessStarted()), m_slog2Info, SLOT(start()));
+    connect(m_slog2Info, &Slog2InfoRunner::output, this, &QnxDebugSupport::handleApplicationOutput);
+    connect(runner, &DeviceApplicationRunner::remoteProcessStarted, m_slog2Info, &Slog2InfoRunner::start);
     if (qnxDevice->qnxVersion() > 0x060500)
-        connect(m_slog2Info, SIGNAL(commandMissing()), this, SLOT(printMissingWarning()));
+        connect(m_slog2Info, &Slog2InfoRunner::commandMissing, this, &QnxDebugSupport::printMissingWarning);
 }
 
 void QnxDebugSupport::handleAdapterSetupRequested()
@@ -210,3 +210,6 @@ void QnxDebugSupport::handleApplicationOutput(const QString &msg, Utils::OutputF
     if (m_runControl)
         m_runControl->showMessage(msg, Debugger::AppOutput);
 }
+
+} // namespace Internal
+} // namespace Qnx

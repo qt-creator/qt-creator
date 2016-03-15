@@ -86,7 +86,7 @@ void QnxPlugin::extensionsInitialized()
 
     m_attachToQnxApplication = new QAction(this);
     m_attachToQnxApplication->setText(tr("Attach to remote QNX application..."));
-    connect(m_attachToQnxApplication, SIGNAL(triggered()), debugSupport, SLOT(showProcessesDialog()));
+    connect(m_attachToQnxApplication, &QAction::triggered, debugSupport, &QnxAttachDebugSupport::showProcessesDialog);
 
     Core::ActionContainer *mstart = Core::ActionManager::actionContainer(ProjectExplorer::Constants::M_DEBUG_STARTDEBUGGING);
     mstart->appendGroup(Constants::QNX_DEBUGGING_GROUP);
@@ -95,7 +95,7 @@ void QnxPlugin::extensionsInitialized()
     Core::Command *cmd = Core::ActionManager::registerAction(m_attachToQnxApplication, "Debugger.AttachToQnxApplication");
     mstart->addAction(cmd, Constants::QNX_DEBUGGING_GROUP);
 
-    connect(KitManager::instance(), SIGNAL(kitsChanged()), this, SLOT(updateDebuggerActions()));
+    connect(KitManager::instance(), &KitManager::kitsChanged, this, &QnxPlugin::updateDebuggerActions);
 }
 
 ExtensionSystem::IPlugin::ShutdownFlag QnxPlugin::aboutToShutdown()

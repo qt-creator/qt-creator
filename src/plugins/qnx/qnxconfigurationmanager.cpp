@@ -32,7 +32,6 @@
 namespace Qnx {
 namespace Internal {
 
-
 const QLatin1String QNXConfigDataKey("QNXConfiguration.");
 const QLatin1String QNXConfigCountKey("QNXConfiguration.Count");
 const QLatin1String QNXConfigsFileVersionKey("Version");
@@ -52,8 +51,8 @@ QnxConfigurationManager::QnxConfigurationManager(QObject *parent)
     m_writer = new Utils::PersistentSettingsWriter(qnxConfigSettingsFileName(),
                                                    QLatin1String("QnxConfigurations"));
     restoreConfigurations();
-    connect(Core::ICore::instance(), SIGNAL(saveSettingsRequested()),
-            this, SLOT(saveConfigs()));
+    connect(Core::ICore::instance(), &Core::ICore::saveSettingsRequested,
+            this, &QnxConfigurationManager::saveConfigs);
 }
 
 QnxConfigurationManager *QnxConfigurationManager::instance()

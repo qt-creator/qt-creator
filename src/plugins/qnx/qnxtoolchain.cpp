@@ -32,6 +32,8 @@
 #include <QFormLayout>
 
 using namespace ProjectExplorer;
+using namespace Utils;
+
 namespace Qnx {
 namespace Internal {
 
@@ -46,10 +48,10 @@ static const QList<Abi> qccSupportedAbis()
     return abis;
 }
 
-static void setQnxEnvironment(Utils::Environment &env, const QList<Utils::EnvironmentItem> &qnxEnv)
+static void setQnxEnvironment(Environment &env, const QList<EnvironmentItem> &qnxEnv)
 {
     // We only need to set QNX_HOST and QNX_TARGET needed when running qcc
-    foreach (const Utils::EnvironmentItem &item, qnxEnv) {
+    foreach (const EnvironmentItem &item, qnxEnv) {
         if (item.name == QLatin1String("QNX_HOST") ||
                 item.name == QLatin1String("QNX_TARGET") )
             env.set(item.name, item.value);
@@ -70,7 +72,7 @@ ToolChainConfigWidget *QnxToolChain::configurationWidget()
     return new QnxToolChainConfigWidget(this);
 }
 
-void QnxToolChain::addToEnvironment(Utils::Environment &env) const
+void QnxToolChain::addToEnvironment(Environment &env) const
 {
     if (env.value(QLatin1String("QNX_HOST")).isEmpty()
             || env.value(QLatin1String("QNX_TARGET")).isEmpty())
@@ -79,12 +81,12 @@ void QnxToolChain::addToEnvironment(Utils::Environment &env) const
     GccToolChain::addToEnvironment(env);
 }
 
-Utils::FileNameList QnxToolChain::suggestedMkspecList() const
+FileNameList QnxToolChain::suggestedMkspecList() const
 {
-    Utils::FileNameList mkspecList;
-    mkspecList << Utils::FileName::fromLatin1("qnx-armv7le-qcc");
-    mkspecList << Utils::FileName::fromLatin1("qnx-armle-v7-qcc");
-    mkspecList << Utils::FileName::fromLatin1("qnx-x86-qcc");
+    FileNameList mkspecList;
+    mkspecList << FileName::fromLatin1("qnx-armv7le-qcc");
+    mkspecList << FileName::fromLatin1("qnx-armle-v7-qcc");
+    mkspecList << FileName::fromLatin1("qnx-x86-qcc");
 
     return mkspecList;
 }
@@ -179,16 +181,16 @@ ToolChain *QnxToolChainFactory::create()
 
 QnxToolChainConfigWidget::QnxToolChainConfigWidget(QnxToolChain *tc)
     : ToolChainConfigWidget(tc)
-    , m_compilerCommand(new Utils::PathChooser)
-    , m_ndkPath(new Utils::PathChooser)
+    , m_compilerCommand(new PathChooser)
+    , m_ndkPath(new PathChooser)
     , m_abiWidget(new AbiWidget)
 {
-    m_compilerCommand->setExpectedKind(Utils::PathChooser::ExistingCommand);
+    m_compilerCommand->setExpectedKind(PathChooser::ExistingCommand);
     m_compilerCommand->setHistoryCompleter(QLatin1String("Qnx.ToolChain.History"));
     m_compilerCommand->setFileName(tc->compilerCommand());
     m_compilerCommand->setEnabled(!tc->isAutoDetected());
 
-    m_ndkPath->setExpectedKind(Utils::PathChooser::ExistingDirectory);
+    m_ndkPath->setExpectedKind(PathChooser::ExistingDirectory);
     m_ndkPath->setHistoryCompleter(QLatin1String("Qnx.Ndk.History"));
     m_ndkPath->setPath(tc->ndkPath());
     m_ndkPath->setEnabled(!tc->isAutoDetected());
@@ -201,9 +203,9 @@ QnxToolChainConfigWidget::QnxToolChainConfigWidget(QnxToolChain *tc)
     m_mainLayout->addRow(tr("NDK/SDP path:"), m_ndkPath);
     m_mainLayout->addRow(tr("&ABI:"), m_abiWidget);
 
-    connect(m_compilerCommand, SIGNAL(rawPathChanged(QString)), this, SIGNAL(dirty()));
-    connect(m_ndkPath, SIGNAL(rawPathChanged(QString)), this, SIGNAL(dirty()));
-    connect(m_abiWidget, SIGNAL(abiChanged()), this, SIGNAL(dirty()));
+    connect(m_compilerCommand, &PathChooser::rawPathChanged, this, &ToolChainConfigWidget::dirty);
+    connect(m_ndkPath, &PathChooser::rawPathChanged, this, &ToolChainConfigWidget::dirty);
+    connect(m_abiWidget, &AbiWidget::abiChanged, this, &ToolChainConfigWidget::dirty);
 }
 
 void QnxToolChainConfigWidget::applyImpl()

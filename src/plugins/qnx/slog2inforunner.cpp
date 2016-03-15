@@ -47,17 +47,17 @@ Slog2InfoRunner::Slog2InfoRunner(const QString &applicationId,
     m_applicationId.truncate(63);
 
     m_testProcess = new QnxDeviceProcess(device, this);
-    connect(m_testProcess, &ProjectExplorer::DeviceProcess::finished, this, &Slog2InfoRunner::handleTestProcessCompleted);
+    connect(m_testProcess, &DeviceProcess::finished, this, &Slog2InfoRunner::handleTestProcessCompleted);
 
-    m_launchDateTimeProcess = new ProjectExplorer::SshDeviceProcess(device, this);
-    connect(m_launchDateTimeProcess, &ProjectExplorer::DeviceProcess::finished, this, &Slog2InfoRunner::launchSlog2Info);
+    m_launchDateTimeProcess = new SshDeviceProcess(device, this);
+    connect(m_launchDateTimeProcess, &DeviceProcess::finished, this, &Slog2InfoRunner::launchSlog2Info);
 
     m_logProcess = new QnxDeviceProcess(device, this);
-    connect(m_logProcess, &ProjectExplorer::DeviceProcess::readyReadStandardOutput, this, &Slog2InfoRunner::readLogStandardOutput);
-    connect(m_logProcess, &ProjectExplorer::DeviceProcess::readyReadStandardError, this, &Slog2InfoRunner::readLogStandardError);
-    connect(m_logProcess, &ProjectExplorer::DeviceProcess::error, this, &Slog2InfoRunner::handleLogError);
-    connect(m_logProcess, &ProjectExplorer::DeviceProcess::started, this, &Slog2InfoRunner::started);
-    connect(m_logProcess, &ProjectExplorer::DeviceProcess::finished, this, &Slog2InfoRunner::finished);
+    connect(m_logProcess, &DeviceProcess::readyReadStandardOutput, this, &Slog2InfoRunner::readLogStandardOutput);
+    connect(m_logProcess, &DeviceProcess::readyReadStandardError, this, &Slog2InfoRunner::readLogStandardError);
+    connect(m_logProcess, &DeviceProcess::error, this, &Slog2InfoRunner::handleLogError);
+    connect(m_logProcess, &DeviceProcess::started, this, &Slog2InfoRunner::started);
+    connect(m_logProcess, &DeviceProcess::finished, this, &Slog2InfoRunner::finished);
 }
 
 void Slog2InfoRunner::start()

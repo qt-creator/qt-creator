@@ -34,8 +34,6 @@
 #include <QFileDialog>
 #include <QMessageBox>
 
-#include <qdebug.h>
-
 namespace Qnx {
 namespace Internal {
 
@@ -47,19 +45,19 @@ QnxSettingsWidget::QnxSettingsWidget(QWidget *parent) :
     m_ui->setupUi(this);
 
     populateConfigsCombo();
-    connect(m_ui->addButton, SIGNAL(clicked()),
-            this, SLOT(addConfiguration()));
-    connect(m_ui->removeButton, SIGNAL(clicked()),
-            this, SLOT(removeConfiguration()));
-    connect(m_ui->configsCombo, SIGNAL(currentIndexChanged(QString)),
-            this, SLOT(updateInformation()));
-    connect(m_ui->generateKitsCheckBox, SIGNAL(toggled(bool)),
-            this, SLOT(generateKits(bool)));
-    connect(m_qnxConfigManager, SIGNAL(configurationsListUpdated()),
-            this, SLOT(populateConfigsCombo()));
+    connect(m_ui->addButton, &QAbstractButton::clicked,
+            this, &QnxSettingsWidget::addConfiguration);
+    connect(m_ui->removeButton, &QAbstractButton::clicked,
+            this, &QnxSettingsWidget::removeConfiguration);
+    connect(m_ui->configsCombo, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+            this, &QnxSettingsWidget::updateInformation);
+    connect(m_ui->generateKitsCheckBox, &QAbstractButton::toggled,
+            this, &QnxSettingsWidget::generateKits);
+    connect(m_qnxConfigManager, &QnxConfigurationManager::configurationsListUpdated,
+            this, &QnxSettingsWidget::populateConfigsCombo);
     connect(QtSupport::QtVersionManager::instance(),
-            SIGNAL(qtVersionsChanged(QList<int>,QList<int>,QList<int>)),
-            this, SLOT(updateInformation()));
+            &QtSupport::QtVersionManager::qtVersionsChanged,
+            this, &QnxSettingsWidget::updateInformation);
 }
 
 QnxSettingsWidget::~QnxSettingsWidget()

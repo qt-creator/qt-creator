@@ -38,11 +38,13 @@
 #include <QMessageBox>
 
 using namespace QtSupport;
+using namespace ProjectExplorer;
+using namespace RemoteLinux;
 
 namespace Qnx {
 namespace Internal {
 
-QnxDeployQtLibrariesDialog::QnxDeployQtLibrariesDialog(const ProjectExplorer::IDevice::ConstPtr &device,
+QnxDeployQtLibrariesDialog::QnxDeployQtLibrariesDialog(const IDevice::ConstPtr &device,
                                                        QWidget *parent) :
     QDialog(parent),
     m_ui(new Ui::QnxDeployQtLibrariesDialog),
@@ -67,27 +69,31 @@ QnxDeployQtLibrariesDialog::QnxDeployQtLibrariesDialog(const ProjectExplorer::ID
     m_uploadService = new RemoteLinux::GenericDirectUploadService(this);
     m_uploadService->setDevice(m_device);
 
-    connect(m_uploadService, SIGNAL(progressMessage(QString)), this, SLOT(updateProgress(QString)));
-    connect(m_uploadService, SIGNAL(progressMessage(QString)),
-            m_ui->deployLogWindow, SLOT(appendPlainText(QString)));
-    connect(m_uploadService, SIGNAL(errorMessage(QString)),
-            m_ui->deployLogWindow, SLOT(appendPlainText(QString)));
-    connect(m_uploadService, SIGNAL(warningMessage(QString)),
-            m_ui->deployLogWindow, SLOT(appendPlainText(QString)));
-    connect(m_uploadService, SIGNAL(stdOutData(QString)),
-            m_ui->deployLogWindow, SLOT(appendPlainText(QString)));
-    connect(m_uploadService, SIGNAL(stdErrData(QString)),
-            m_ui->deployLogWindow, SLOT(appendPlainText(QString)));
-    connect(m_uploadService, SIGNAL(finished()), this, SLOT(handleUploadFinished()));
+    connect(m_uploadService, &AbstractRemoteLinuxDeployService::progressMessage,
+            this, &QnxDeployQtLibrariesDialog::updateProgress);
+    connect(m_uploadService, &AbstractRemoteLinuxDeployService::progressMessage,
+            m_ui->deployLogWindow, &QPlainTextEdit::appendPlainText);
+    connect(m_uploadService, &AbstractRemoteLinuxDeployService::errorMessage,
+            m_ui->deployLogWindow, &QPlainTextEdit::appendPlainText);
+    connect(m_uploadService, &AbstractRemoteLinuxDeployService::warningMessage,
+            m_ui->deployLogWindow, &QPlainTextEdit::appendPlainText);
+    connect(m_uploadService, &AbstractRemoteLinuxDeployService::stdOutData,
+            m_ui->deployLogWindow, &QPlainTextEdit::appendPlainText);
+    connect(m_uploadService, &AbstractRemoteLinuxDeployService::stdErrData,
+            m_ui->deployLogWindow, &QPlainTextEdit::appendPlainText);
+    connect(m_uploadService, &AbstractRemoteLinuxDeployService::finished,
+            this, &QnxDeployQtLibrariesDialog::handleUploadFinished);
 
     m_processRunner = new QSsh::SshRemoteProcessRunner(this);
-    connect(m_processRunner, SIGNAL(connectionError()),
-            this, SLOT(handleRemoteProcessError()));
-    connect(m_processRunner, SIGNAL(processClosed(int)),
-            this, SLOT(handleRemoteProcessCompleted()));
+    connect(m_processRunner, &QSsh::SshRemoteProcessRunner::connectionError,
+            this, &QnxDeployQtLibrariesDialog::handleRemoteProcessError);
+    connect(m_processRunner, &QSsh::SshRemoteProcessRunner::processClosed,
+            this, &QnxDeployQtLibrariesDialog::handleRemoteProcessCompleted);
 
-    connect(m_ui->deployButton, SIGNAL(clicked()), this, SLOT(deployLibraries()));
-    connect(m_ui->closeButton, SIGNAL(clicked()), this, SLOT(close()));
+    connect(m_ui->deployButton, &QAbstractButton::clicked,
+            this, &QnxDeployQtLibrariesDialog::deployLibraries);
+    connect(m_ui->closeButton, &QAbstractButton::clicked,
+            this, &QWidget::close);
 }
 
 QnxDeployQtLibrariesDialog::~QnxDeployQtLibrariesDialog()
@@ -147,7 +153,7 @@ void QnxDeployQtLibrariesDialog::startUpload()
 
     m_state = Uploading;
 
-    QList<ProjectExplorer::DeployableFile> filesToUpload = gatherFiles();
+    QList<DeployableFile> filesToUpload = gatherFiles();
 
     m_ui->deployProgress->setRange(0, filesToUpload.count());
 
@@ -214,9 +220,9 @@ void QnxDeployQtLibrariesDialog::handleRemoteProcessCompleted()
     }
 }
 
-QList<ProjectExplorer::DeployableFile> QnxDeployQtLibrariesDialog::gatherFiles()
+QList<DeployableFile> QnxDeployQtLibrariesDialog::gatherFiles()
 {
-    QList<ProjectExplorer::DeployableFile> result;
+    QList<DeployableFile> result;
 
     const int qtVersionId =
             m_ui->qtLibraryCombo->itemData(m_ui->qtLibraryCombo->currentIndex()).toInt();
@@ -243,10 +249,10 @@ QList<ProjectExplorer::DeployableFile> QnxDeployQtLibrariesDialog::gatherFiles()
     return result;
 }
 
-QList<ProjectExplorer::DeployableFile> QnxDeployQtLibrariesDialog::gatherFiles(
+QList<DeployableFile> QnxDeployQtLibrariesDialog::gatherFiles(
         const QString &dirPath, const QString &baseDirPath, const QStringList &nameFilters)
 {
-    QList<ProjectExplorer::DeployableFile> result;
+    QList<DeployableFile> result;
     if (dirPath.isEmpty())
         return result;
 
@@ -270,7 +276,7 @@ QList<ProjectExplorer::DeployableFile> QnxDeployQtLibrariesDialog::gatherFiles(
                 remoteDir = fullRemoteDirectory() + QLatin1Char('/') +
                         baseDir.relativeFilePath(dirPath);
             }
-            result.append(ProjectExplorer::DeployableFile(fileInfo.absoluteFilePath(), remoteDir));
+            result.append(DeployableFile(fileInfo.absoluteFilePath(), remoteDir));
         }
     }
 

@@ -32,29 +32,33 @@
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/target.h>
 
-using namespace Qnx;
-using namespace Qnx::Internal;
+using namespace ProjectExplorer;
 using namespace RemoteLinux;
+using namespace Utils;
 
-QnxRunControl::QnxRunControl(ProjectExplorer::RunConfiguration *runConfig)
+namespace Qnx {
+namespace Internal {
+
+QnxRunControl::QnxRunControl(RunConfiguration *runConfig)
     : RemoteLinuxRunControl(runConfig)
     , m_slog2Info(0)
 {
-    ProjectExplorer::IDevice::ConstPtr dev = ProjectExplorer::DeviceKitInformation::device(runConfig->target()->kit());
+    IDevice::ConstPtr dev = DeviceKitInformation::device(runConfig->target()->kit());
     QnxDeviceConfiguration::ConstPtr qnxDevice = dev.dynamicCast<const QnxDeviceConfiguration>();
 
     QnxRunConfiguration *qnxRunConfig = qobject_cast<QnxRunConfiguration *>(runConfig);
     QTC_CHECK(qnxRunConfig);
 
-    const QString applicationId = Utils::FileName::fromString(qnxRunConfig->remoteExecutableFilePath()).fileName();
+    const QString applicationId = FileName::fromString(qnxRunConfig->remoteExecutableFilePath()).fileName();
     m_slog2Info = new Slog2InfoRunner(applicationId, qnxDevice, this);
-    connect(m_slog2Info, SIGNAL(output(QString,Utils::OutputFormat)), this, SLOT(appendMessage(QString,Utils::OutputFormat)));
-    connect(this, SIGNAL(started()), m_slog2Info, SLOT(start()));
+    connect(m_slog2Info, &Slog2InfoRunner::output,
+            this, static_cast<void(RunControl::*)(const QString &, OutputFormat)>(&RunControl::appendMessage));
+    connect(this, &RunControl::started, m_slog2Info, &Slog2InfoRunner::start);
     if (qnxDevice->qnxVersion() > 0x060500)
-        connect(m_slog2Info, SIGNAL(commandMissing()), this, SLOT(printMissingWarning()));
+        connect(m_slog2Info, &Slog2InfoRunner::commandMissing, this, &QnxRunControl::printMissingWarning);
 }
 
-ProjectExplorer::RunControl::StopResult QnxRunControl::stop()
+RunControl::StopResult QnxRunControl::stop()
 {
     m_slog2Info->stop();
     return RemoteLinuxRunControl::stop();
@@ -62,5 +66,8 @@ ProjectExplorer::RunControl::StopResult QnxRunControl::stop()
 
 void QnxRunControl::printMissingWarning()
 {
-    appendMessage(tr("Warning: \"slog2info\" is not found on the device, debug output not available."), Utils::ErrorMessageFormat);
+    appendMessage(tr("Warning: \"slog2info\" is not found on the device, debug output not available."), ErrorMessageFormat);
 }
+
+} // namespace Internal
+} // namespace Qnx

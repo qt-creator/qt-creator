@@ -68,6 +68,7 @@ signals:
     void warningMessage(const QString &message);
     void stdOutData(const QString &data);
     void stdErrData(const QString &data);
+    void finished(); // Used by Qnx.
 
 protected:
     const ProjectExplorer::Target *target() const;
@@ -86,8 +87,6 @@ private slots:
     void handleConnectionFailure();
 
 private:
-    Q_SIGNAL void finished();
-
     virtual bool isDeploymentNecessary() const = 0;
 
     // Should do things needed *before* connecting. Call handleDeviceSetupDone() afterwards.

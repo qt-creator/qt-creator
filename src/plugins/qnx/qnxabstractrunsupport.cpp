@@ -36,8 +36,8 @@
 using namespace ProjectExplorer;
 using namespace RemoteLinux;
 
-using namespace Qnx;
-using namespace Qnx::Internal;
+namespace Qnx {
+namespace Internal {
 
 QnxAbstractRunSupport::QnxAbstractRunSupport(QnxRunConfiguration *runConfig, QObject *parent)
     : QObject(parent)
@@ -47,8 +47,10 @@ QnxAbstractRunSupport::QnxAbstractRunSupport(QnxRunConfiguration *runConfig, QOb
     m_runner = new DeviceApplicationRunner(this);
     m_portsGatherer = new DeviceUsedPortsGatherer(this);
 
-    connect(m_portsGatherer, SIGNAL(error(QString)), SLOT(handleError(QString)));
-    connect(m_portsGatherer, SIGNAL(portListReady()), SLOT(handlePortListReady()));
+    connect(m_portsGatherer, &DeviceUsedPortsGatherer::error,
+            this, &QnxAbstractRunSupport::handleError);
+    connect(m_portsGatherer, &DeviceUsedPortsGatherer::portListReady,
+            this, &QnxAbstractRunSupport::handlePortListReady);
 }
 
 void QnxAbstractRunSupport::handleAdapterSetupRequested()
@@ -124,3 +126,6 @@ bool QnxAbstractRunSupport::setPort(int &port)
     }
     return true;
 }
+
+} // namespace Internal
+} // namespace Qnx
