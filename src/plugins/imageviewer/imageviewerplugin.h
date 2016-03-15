@@ -32,6 +32,13 @@
 #include <QPointer>
 #include <QtPlugin>
 
+QT_BEGIN_NAMESPACE
+class QAction;
+class QKeySequence;
+QT_END_NAMESPACE
+
+namespace Core { class Id; }
+
 namespace ImageViewer {
 namespace Internal {
 
@@ -49,6 +56,8 @@ public:
     void extensionsInitialized();
 
 private:
+    QAction *registerNewAction(Core::Id id, const QString &title, const QKeySequence &key);
+
     QPointer<ImageViewerFactory> m_factory;
 };
 

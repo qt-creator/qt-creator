@@ -26,7 +26,6 @@
 
 #include "imageviewer.h"
 #include "imageviewerfile.h"
-#include "imagevieweractionhandler.h"
 #include "imageviewerconstants.h"
 #include "imageview.h"
 #include "ui_imageviewertoolbar.h"
