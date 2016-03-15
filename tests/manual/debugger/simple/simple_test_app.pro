@@ -6,9 +6,8 @@ DESTDIR = .
 
 SOURCES +=  simple_test_app.cpp
 
-QT += network
-QT += script
-QT += xml
+QT += network xml
+!isEmpty(QT.script.name): QT += script
 
 CONFIG += c++11
 
