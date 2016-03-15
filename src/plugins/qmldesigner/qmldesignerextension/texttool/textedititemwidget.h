@@ -24,35 +24,35 @@
 ****************************************************************************/
 #pragma once
 
-#include "textedititemwidget.h"
+#include <QGraphicsProxyWidget>
+#include <QScopedPointer>
+
+QT_BEGIN_NAMESPACE
+class QTextEdit;
+class QLineEdit;
+class QGraphicsScene;
+QT_END_NAMESPACE
 
 namespace QmlDesigner {
 
-class FormEditorScene;
-class FormEditorItem;
-
-class TextEditItem : public TextEditItemWidget
+class TextEditItemWidget : public QGraphicsProxyWidget
 {
     Q_OBJECT
 public:
-    TextEditItem(FormEditorScene* scene);
-    ~TextEditItem();
-    int type() const;
+    TextEditItemWidget(QGraphicsScene *scene);
+    ~TextEditItemWidget();
 
-    void setFormEditorItem(FormEditorItem *formEditorItem);
-    FormEditorItem *formEditorItem() const;
+    void activateTextEdit(const QSize &maximumSize);
+    void activateLineEdit();
+    void updateText(const QString &text);
 
-    void updateText();
-    void writeTextToProperty();
+protected:
+    QLineEdit* lineEdit() const;
+    QTextEdit* textEdit() const;
 
-signals:
-    void returnPressed();
+    QString text() const;
 private:
-    FormEditorItem *m_formEditorItem;
+    mutable QScopedPointer<QLineEdit> m_lineEdit;
+    mutable QScopedPointer<QTextEdit> m_textEdit;
 };
-
-inline int TextEditItem::type() const
-{
-    return 0xEAAB;
-}
 } // namespace QmlDesigner
