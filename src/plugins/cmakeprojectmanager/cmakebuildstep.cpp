@@ -361,7 +361,7 @@ QString CMakeBuildStep::allArguments(const CMakeRunConfiguration *rc) const
 
     if (!m_toolArguments.isEmpty()) {
         Utils::QtcProcess::addArg(&arguments, QLatin1String("--"));
-        Utils::QtcProcess::addArg(&arguments, m_toolArguments);
+        arguments += QLatin1Char(' ') + m_toolArguments;
     }
 
     return arguments;
