@@ -164,17 +164,14 @@ void ToolChainInformationConfigWidget::refresh()
 {
     m_ignoreChanges = true;
     m_comboBox->clear();
+    m_comboBox->addItem(tr("<No compiler>"), QByteArray());
     foreach (ToolChain *tc, ToolChainManager::toolChains())
         m_comboBox->addItem(tc->displayName(), tc->id());
 
-    if (m_comboBox->count() == 0) {
-        m_comboBox->addItem(tr("<No compiler available>"), QString());
-        m_comboBox->setEnabled(false);
-    } else {
-        m_comboBox->setEnabled(m_comboBox->count() > 1 && !m_isReadOnly);
-    }
+    m_comboBox->setEnabled(m_comboBox->count() > 1 && !m_isReadOnly);
 
-    m_comboBox->setCurrentIndex(indexOf(ToolChainKitInformation::toolChain(m_kit)));
+    const int index = indexOf(ToolChainKitInformation::toolChain(m_kit));
+    m_comboBox->setCurrentIndex(index);
     m_ignoreChanges = false;
 }
 
