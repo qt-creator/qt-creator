@@ -71,8 +71,6 @@
 
     <mime-type type="text/x-moc">
         <comment>Qt MOC file</comment>
-        <acronym>Qt MOC</acronym>
-        <expanded-acronym>Qt Meta Object Compiler</expanded-acronym>
         <!-- Fix to freedesktop: moc is C++ source -->
         <sub-class-of type="text/x-c++src"/>
         <glob pattern="*.moc" weight="70"/>
