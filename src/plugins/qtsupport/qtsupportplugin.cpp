@@ -123,8 +123,3 @@ void QtSupportPlugin::extensionsInitialized()
            "You probably want %1 instead.").arg(QString::fromLatin1(kHostBins)),
         []() { return qmakeProperty("QT_INSTALL_BINS"); });
 }
-
-bool QtSupportPlugin::delayedInitialize()
-{
-    return QtVersionManager::delayedInitialize();
-}
