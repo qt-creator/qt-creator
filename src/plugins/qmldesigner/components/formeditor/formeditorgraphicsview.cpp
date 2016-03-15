@@ -42,6 +42,7 @@ FormEditorGraphicsView::FormEditorGraphicsView(QWidget *parent) :
     setOptimizationFlags(QGraphicsView::DontSavePainterState);
 //    setViewportUpdateMode(QGraphicsView::NoViewportUpdate);
     setRenderHint(QPainter::Antialiasing, false);
+    setRenderHint(QPainter::SmoothPixmapTransform, true);
 
     setFrameShape(QFrame::NoFrame);
 
