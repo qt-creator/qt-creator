@@ -103,8 +103,8 @@ Test Integration
 * Fixed that additional output of passing tests was ignored
 * Fixed test detection with CMake projects (QTCREATORBUG-15813)
 * Google Test
-  * Added support for typed tests
-  * Fixed parsing of file and line information
+    * Added support for typed tests
+    * Fixed parsing of file and line information
 
 Qt Quick Designer
 
