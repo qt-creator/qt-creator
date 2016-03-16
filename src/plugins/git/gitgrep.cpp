@@ -42,7 +42,6 @@
 #include <utils/synchronousprocess.h>
 #include <utils/textfileformat.h>
 
-#include <QCheckBox>
 #include <QFuture>
 #include <QFutureWatcher>
 #include <QHBoxLayout>
@@ -58,7 +57,6 @@ class GitGrepParameters
 {
 public:
     QString ref;
-    bool isEnabled = false;
 };
 
 using namespace Core;
@@ -67,7 +65,6 @@ using VcsBase::VcsCommand;
 
 namespace {
 
-const char EnableGitGrep[] = "EnableGitGrep";
 const char GitGrepRef[] = "GitGrepRef";
 
 class GitGrepRunner : public QObject
@@ -155,7 +152,7 @@ public:
         else
             arguments << "-F";
         arguments << m_parameters.text;
-        GitGrepParameters params = m_parameters.extensionParameters.value<GitGrepParameters>();
+        GitGrepParameters params = m_parameters.searchEngineParameters.value<GitGrepParameters>();
         if (!params.ref.isEmpty()) {
             arguments << params.ref;
             m_ref = params.ref + ':';
@@ -213,10 +210,6 @@ GitGrep::GitGrep()
     m_widget = new QWidget;
     auto layout = new QHBoxLayout(m_widget);
     layout->setMargin(0);
-    m_enabledCheckBox = new QCheckBox(tr("&Use Git Grep"));
-    m_enabledCheckBox->setToolTip(tr("Use Git Grep for searching. This includes only files "
-                                     "that are managed by Git."));
-    layout->addWidget(m_enabledCheckBox);
     m_treeLineEdit = new FancyLineEdit;
     m_treeLineEdit->setPlaceholderText(tr("Tree (optional)"));
     m_treeLineEdit->setToolTip(tr("Can be HEAD, tag, local or remote branch, or a commit hash.\n"
@@ -230,7 +223,7 @@ GitGrep::GitGrep()
             m_widget, [this](const QString &path) {
         m_widget->setEnabled(validateDirectory(path));
     });
-    findInFiles->setFindExtension(this);
+    findInFiles->addSearchEngine(this);
 }
 
 GitGrep::~GitGrep()
@@ -258,36 +251,28 @@ QWidget *GitGrep::widget() const
 
 bool GitGrep::isEnabled() const
 {
-    return m_widget->isEnabled() && m_enabledCheckBox->isChecked();
-}
-
-bool GitGrep::isEnabled(const TextEditor::FileFindParameters &parameters) const
-{
-    return parameters.extensionParameters.value<GitGrepParameters>().isEnabled;
+    return m_widget->isEnabled();
 }
 
 QVariant GitGrep::parameters() const
 {
     GitGrepParameters params;
-    params.isEnabled = isEnabled();
     params.ref = m_treeLineEdit->text();
     return qVariantFromValue(params);
 }
 
 void GitGrep::readSettings(QSettings *settings)
 {
-    m_enabledCheckBox->setChecked(settings->value(EnableGitGrep, false).toBool());
     m_treeLineEdit->setText(settings->value(GitGrepRef).toString());
 }
 
 void GitGrep::writeSettings(QSettings *settings) const
 {
-    settings->setValue(EnableGitGrep, m_enabledCheckBox->isChecked());
     settings->setValue(GitGrepRef, m_treeLineEdit->text());
 }
 
-QFuture<FileSearchResultList> GitGrep::executeSearch(
-        const TextEditor::FileFindParameters &parameters)
+QFuture<FileSearchResultList> GitGrep::executeSearch(const TextEditor::FileFindParameters &parameters,
+        TextEditor::BaseFileFind * /*baseFileFind*/)
 {
     return Utils::runAsync(GitGrepRunner::run, parameters);
 }
@@ -295,8 +280,8 @@ QFuture<FileSearchResultList> GitGrep::executeSearch(
 IEditor *GitGrep::openEditor(const SearchResultItem &item,
                              const TextEditor::FileFindParameters &parameters)
 {
-    GitGrepParameters params = parameters.extensionParameters.value<GitGrepParameters>();
-    if (!params.isEnabled || params.ref.isEmpty() || item.path.isEmpty())
+    GitGrepParameters params = parameters.searchEngineParameters.value<GitGrepParameters>();
+    if (params.ref.isEmpty() || item.path.isEmpty())
         return nullptr;
     const QString path = QDir::fromNativeSeparators(item.path.first());
     QByteArray content;

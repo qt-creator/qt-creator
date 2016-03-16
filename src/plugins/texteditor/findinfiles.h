@@ -32,7 +32,10 @@
 #include <QPointer>
 #include <QStringListModel>
 
-QT_FORWARD_DECLARE_CLASS(QLabel)
+QT_BEGIN_NAMESPACE
+class QLabel;
+class QStackedWidget;
+QT_END_NAMESPACE
 
 namespace Utils { class PathChooser; }
 
@@ -67,12 +70,16 @@ protected:
     QVariant additionalParameters() const;
     QString label() const;
     QString toolTip() const;
+    void syncSearchEngineCombo(int selectedSearchEngineIndex) override;
 
 private:
+    void searchEnginesSelectionChanged(int index);
     Utils::FileName path() const;
 
     QPointer<QWidget> m_configWidget;
     QPointer<Utils::PathChooser> m_directory;
+    QStackedWidget *m_searchEngineWidget = nullptr;
+    QComboBox *m_searchEngineCombo = nullptr;
 };
 
 } // namespace TextEditor

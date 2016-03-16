@@ -29,14 +29,12 @@
 
 #include <QCoreApplication>
 
-QT_FORWARD_DECLARE_CLASS(QCheckBox)
-
 namespace Utils { class FancyLineEdit; }
 
 namespace Git {
 namespace Internal {
 
-class GitGrep : public TextEditor::FileFindExtension
+class GitGrep : public TextEditor::SearchEngine
 {
     Q_DECLARE_TR_FUNCTIONS(GitGrep)
 
@@ -47,18 +45,17 @@ public:
     QString toolTip() const override;
     QWidget *widget() const override;
     bool isEnabled() const override;
-    bool isEnabled(const TextEditor::FileFindParameters &parameters) const override;
     QVariant parameters() const override;
     void readSettings(QSettings *settings) override;
     void writeSettings(QSettings *settings) const override;
     QFuture<Utils::FileSearchResultList> executeSearch(
-            const TextEditor::FileFindParameters &parameters) override;
+            const TextEditor::FileFindParameters &parameters,
+            TextEditor::BaseFileFind *baseFileFind) override;
     Core::IEditor *openEditor(const Core::SearchResultItem &item,
                               const TextEditor::FileFindParameters &parameters) override;
 
 private:
     QWidget *m_widget;
-    QCheckBox *m_enabledCheckBox;
     Utils::FancyLineEdit *m_treeLineEdit;
 };
 

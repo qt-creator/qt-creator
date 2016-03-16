@@ -41,6 +41,8 @@
 #include <QFileDialog>
 #include <QLabel>
 #include <QHBoxLayout>
+#include <QStackedWidget>
+#include <QComboBox>
 
 using namespace Core;
 using namespace TextEditor;
@@ -64,7 +66,7 @@ FindInFiles::~FindInFiles()
 
 bool FindInFiles::isValid() const
 {
-    return m_directory->isValid();
+    return m_directory->isValid() && currentSearchEngine()->isEnabled();
 }
 
 QString FindInFiles::id() const
@@ -92,11 +94,8 @@ QVariant FindInFiles::additionalParameters() const
 
 QString FindInFiles::label() const
 {
-    QString title = tr("Directory");
-    if (FileFindExtension *ext = extension()) {
-        if (ext->isEnabled())
-            title = ext->title();
-    }
+    QString title = currentSearchEngine()->title();
+
     const QChar slash = QLatin1Char('/');
     const QStringList &nonEmptyComponents = path().toFileInfo().absoluteFilePath()
             .split(slash, QString::SkipEmptyParts);
@@ -107,10 +106,31 @@ QString FindInFiles::label() const
 
 QString FindInFiles::toolTip() const
 {
-    //: %3 is filled by BaseFileFind::runNewSearch
-    return tr("Path: %1\nFilter: %2\n%3")
+    //: the last arg is filled by BaseFileFind::runNewSearch
+    QString tooltip = tr("Path: %1\nFilter: %2\n%3")
             .arg(path().toUserOutput())
             .arg(fileNameFilters().join(QLatin1Char(',')));
+
+    const QString searchEngineToolTip = currentSearchEngine()->toolTip();
+    if (!searchEngineToolTip.isEmpty())
+        tooltip = tooltip.arg(searchEngineToolTip);
+
+    return tooltip;
+}
+
+void FindInFiles::syncSearchEngineCombo(int selectedSearchEngineIndex)
+{
+    QTC_ASSERT(m_searchEngineCombo && selectedSearchEngineIndex >= 0
+               && selectedSearchEngineIndex < searchEngines().size(), return);
+
+    m_searchEngineCombo->setCurrentIndex(selectedSearchEngineIndex);
+    searchEnginesSelectionChanged(selectedSearchEngineIndex);
+}
+
+void FindInFiles::searchEnginesSelectionChanged(int index)
+{
+    setCurrentSearchEngine(index);
+    m_searchEngineWidget->setCurrentIndex(index);
 }
 
 QWidget *FindInFiles::createConfigWidget()
@@ -122,8 +142,22 @@ QWidget *FindInFiles::createConfigWidget()
         m_configWidget->setLayout(gridLayout);
 
         int row = 0;
-        if (FileFindExtension *ext = extension())
-            gridLayout->addWidget(ext->widget(), row++, 1, 1, 2);
+        auto searchEngineLabel = new QLabel(tr("Search engine:"));
+        gridLayout->addWidget(searchEngineLabel, row, 0, Qt::AlignRight);
+
+        m_searchEngineCombo = new QComboBox;
+        auto cc = static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged);
+        connect(m_searchEngineCombo, cc, this, &FindInFiles::searchEnginesSelectionChanged);
+        connect(m_searchEngineCombo, cc, this, &FindInFiles::enabledChanged);
+        searchEngineLabel->setBuddy(m_searchEngineCombo);
+        gridLayout->addWidget(m_searchEngineCombo, row, 1);
+
+        m_searchEngineWidget = new QStackedWidget(m_configWidget);
+        foreach (SearchEngine *searchEngine, searchEngines()) {
+            m_searchEngineWidget->addWidget(searchEngine->widget());
+            m_searchEngineCombo->addItem(searchEngine->title());
+        }
+        gridLayout->addWidget(m_searchEngineWidget, row++, 2);
 
         QLabel *dirLabel = new QLabel(tr("Director&y:"));
         gridLayout->addWidget(dirLabel, row, 0, Qt::AlignRight);
@@ -131,9 +165,10 @@ QWidget *FindInFiles::createConfigWidget()
         m_directory->setExpectedKind(PathChooser::ExistingDirectory);
         m_directory->setPromptDialogTitle(tr("Directory to Search"));
         connect(m_directory.data(), &PathChooser::pathChanged,
-                this, &FindInFiles::pathChanged);
-        connect(m_directory.data(), &PathChooser::validChanged,
-                this, &FindInFiles::enabledChanged);
+                this, [this](const QString &path) {
+            emit FindInFiles::pathChanged(path);
+            emit FindInFiles::enabledChanged(isEnabled());
+        });
         m_directory->setHistoryCompleter(QLatin1String(HistoryKey),
                                          /*restoreLastItemFromHistory=*/ true);
         if (!HistoryCompleter::historyExistsFor(QLatin1String(HistoryKey))) {

@@ -57,25 +57,28 @@ public:
     Core::FindFlags flags;
     QStringList nameFilters;
     QVariant additionalParameters;
-    QVariant extensionParameters;
+    int searchEngineIndex;
+    QVariant searchEngineParameters;
 };
 
-class TEXTEDITOR_EXPORT FileFindExtension : public QObject
+class BaseFileFind;
+
+class TEXTEDITOR_EXPORT SearchEngine : public QObject
 {
 public:
-    virtual ~FileFindExtension() {}
+    virtual ~SearchEngine() {}
     virtual QString title() const = 0;
     virtual QString toolTip() const = 0; // add %1 placeholder where the find flags should be put
     virtual QWidget *widget() const = 0;
     virtual bool isEnabled() const = 0;
-    virtual bool isEnabled(const FileFindParameters &parameters) const = 0;
     virtual QVariant parameters() const = 0;
     virtual void readSettings(QSettings *settings) = 0;
     virtual void writeSettings(QSettings *settings) const = 0;
     virtual QFuture<Utils::FileSearchResultList> executeSearch(
-            const FileFindParameters &parameters) = 0;
+            const FileFindParameters &parameters, BaseFileFind *baseFileFind) = 0;
     virtual Core::IEditor *openEditor(const Core::SearchResultItem &item,
                                       const FileFindParameters &parameters) = 0;
+
 };
 
 class TEXTEDITOR_EXPORT BaseFileFind : public Core::IFindFilter
@@ -90,16 +93,16 @@ public:
     bool isReplaceSupported() const { return true; }
     void findAll(const QString &txt, Core::FindFlags findFlags);
     void replaceAll(const QString &txt, Core::FindFlags findFlags);
-    void setFindExtension(FileFindExtension *extension);
+    void addSearchEngine(SearchEngine *searchEngine);
 
     /* returns the list of unique files that were passed in items */
     static QStringList replaceAll(const QString &txt,
                                   const QList<Core::SearchResultItem> &items,
                                   bool preserveCase = false);
-
-protected:
     virtual Utils::FileIterator *files(const QStringList &nameFilters,
                                        const QVariant &additionalParameters) const = 0;
+
+protected:
     virtual QVariant additionalParameters() const = 0;
     QVariant getAdditionalParameters(Core::SearchResult *search);
     virtual QString label() const = 0; // see Core::SearchResultWindow::startNewSearch
@@ -113,7 +116,11 @@ protected:
     void syncComboWithSettings(QComboBox *combo, const QString &setting);
     void updateComboEntries(QComboBox *combo, bool onTop);
     QStringList fileNameFilters() const;
-    FileFindExtension *extension() const;
+
+    SearchEngine *currentSearchEngine() const;
+    QVector<SearchEngine *> searchEngines() const;
+    void setCurrentSearchEngine(int index);
+    virtual void syncSearchEngineCombo(int /*selectedSearchEngineIndex*/) {}
 
 private:
     void displayResult(int index);
