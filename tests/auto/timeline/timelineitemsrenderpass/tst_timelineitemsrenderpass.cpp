@@ -49,7 +49,7 @@ private slots:
     void update();
 };
 
-DummyModel::DummyModel() : TimelineModel(12, QLatin1String("dings"))
+DummyModel::DummyModel() : TimelineModel(12)
 {
 }
 

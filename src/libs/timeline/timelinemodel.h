@@ -37,7 +37,7 @@ class TIMELINE_EXPORT TimelineModel : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(int modelId READ modelId CONSTANT)
-    Q_PROPERTY(QString displayName READ displayName CONSTANT)
+    Q_PROPERTY(QString displayName READ displayName WRITE setDisplayName NOTIFY displayNameChanged)
     Q_PROPERTY(bool empty READ isEmpty NOTIFY emptyChanged)
     Q_PROPERTY(bool hidden READ hidden WRITE setHidden NOTIFY hiddenChanged)
     Q_PROPERTY(bool expanded READ expanded WRITE setExpanded NOTIFY expandedChanged)
@@ -52,7 +52,7 @@ class TIMELINE_EXPORT TimelineModel : public QObject
 public:
     class TimelineModelPrivate;
 
-    TimelineModel(int modelId, const QString &displayName, QObject *parent = 0);
+    TimelineModel(int modelId, QObject *parent = 0);
     ~TimelineModel();
 
     // Methods implemented by the abstract model itself
@@ -82,6 +82,7 @@ public:
     bool hidden() const;
     void setExpanded(bool expanded);
     void setHidden(bool hidden);
+    void setDisplayName(const QString &displayName);
     QString displayName() const;
     int expandedRowCount() const;
     int collapsedRowCount() const;
@@ -123,6 +124,7 @@ signals:
     void collapsedRowCountChanged();
     void rowCountChanged();
     void labelsChanged();
+    void displayNameChanged();
 
 protected:
     QColor colorBySelectionId(int index) const;

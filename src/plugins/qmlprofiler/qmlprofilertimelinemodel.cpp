@@ -32,11 +32,11 @@ QmlProfilerTimelineModel::QmlProfilerTimelineModel(QmlProfilerModelManager *mode
                                                    QmlDebug::RangeType rangeType,
                                                    QmlDebug::ProfileFeature mainFeature,
                                                    QObject *parent) :
-    TimelineModel(modelManager->registerModelProxy(),
-                  tr(QmlProfilerModelManager::featureName(mainFeature)), parent),
+    TimelineModel(modelManager->registerModelProxy(), parent),
     m_message(message), m_rangeType(rangeType), m_mainFeature(mainFeature),
     m_modelManager(modelManager)
 {
+    setDisplayName(tr(QmlProfilerModelManager::featureName(mainFeature)));
     connect(modelManager, &QmlProfilerModelManager::stateChanged,
             this, &QmlProfilerTimelineModel::dataChanged);
     connect(modelManager, &QmlProfilerModelManager::visibleFeaturesChanged,

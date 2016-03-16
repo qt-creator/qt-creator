@@ -151,8 +151,8 @@ int TimelineModel::row(int index) const
     return expanded() ? expandedRow(index) : collapsedRow(index);
 }
 
-TimelineModel::TimelineModelPrivate::TimelineModelPrivate(int modelId, const QString &displayName) :
-    modelId(modelId), displayName(displayName), expanded(false), hidden(false),
+TimelineModel::TimelineModelPrivate::TimelineModelPrivate(int modelId) :
+    modelId(modelId), expanded(false), hidden(false),
     expandedRowCount(1), collapsedRowCount(1), q_ptr(0)
 {
 }
@@ -163,8 +163,8 @@ TimelineModel::TimelineModel(TimelineModelPrivate &dd, QObject *parent) :
     d_ptr->q_ptr = this;
 }
 
-TimelineModel::TimelineModel(int modelId, const QString &displayName, QObject *parent) :
-    QObject(parent), d_ptr(new TimelineModelPrivate(modelId, displayName))
+TimelineModel::TimelineModel(int modelId, QObject *parent) :
+    QObject(parent), d_ptr(new TimelineModelPrivate(modelId))
 {
     d_ptr->q_ptr = this;
 }
@@ -509,6 +509,15 @@ void TimelineModel::setHidden(bool hidden)
         emit hiddenChanged();
         if (height() != prevHeight)
             emit heightChanged();
+    }
+}
+
+void TimelineModel::setDisplayName(const QString &displayName)
+{
+    Q_D(TimelineModel);
+    if (d->displayName != displayName) {
+        d->displayName = displayName;
+        emit displayNameChanged();
     }
 }
 

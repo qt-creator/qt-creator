@@ -38,7 +38,7 @@ private slots:
 
 class HeightTestModel : public Timeline::TimelineModel {
 public:
-    HeightTestModel() : TimelineModel(2, QString())
+    HeightTestModel() : TimelineModel(2)
     {
         insert(0, 1, 1);
     }
@@ -50,7 +50,7 @@ void tst_TimelineModelAggregator::height()
     QCOMPARE(aggregator.height(), 0);
 
     QSignalSpy heightSpy(&aggregator, SIGNAL(heightChanged()));
-    Timeline::TimelineModel *model = new Timeline::TimelineModel(25, QString());
+    Timeline::TimelineModel *model = new Timeline::TimelineModel(25);
     aggregator.addModel(model);
     QCOMPARE(aggregator.height(), 0);
     QCOMPARE(heightSpy.count(), 0);
@@ -70,8 +70,8 @@ void tst_TimelineModelAggregator::addRemoveModel()
 
     QCOMPARE(aggregator.notes(), &notes);
 
-    Timeline::TimelineModel *model1 = new Timeline::TimelineModel(25, QString());
-    Timeline::TimelineModel *model2 = new Timeline::TimelineModel(26, QString());
+    Timeline::TimelineModel *model1 = new Timeline::TimelineModel(25);
+    Timeline::TimelineModel *model2 = new Timeline::TimelineModel(26);
     aggregator.addModel(model1);
     QCOMPARE(spy.count(), 1);
     QCOMPARE(aggregator.modelCount(), 1);
@@ -99,7 +99,7 @@ void tst_TimelineModelAggregator::addRemoveModel()
 class PrevNextTestModel : public Timeline::TimelineModel
 {
 public:
-    PrevNextTestModel(int x) : TimelineModel(x, QString())
+    PrevNextTestModel(int x) : TimelineModel(x)
     {
         for (int i = 0; i < 20; ++i)
             insert(i + x, i * x, x);
@@ -114,7 +114,7 @@ void tst_TimelineModelAggregator::prevNext()
     aggregator.addModel(new PrevNextTestModel(3));
 
     // Add an empty model to trigger the special code paths that skip it
-    aggregator.addModel(new Timeline::TimelineModel(4, QString()));
+    aggregator.addModel(new Timeline::TimelineModel(4));
     QLatin1String item("item");
     QLatin1String model("model");
     QVariantMap result;

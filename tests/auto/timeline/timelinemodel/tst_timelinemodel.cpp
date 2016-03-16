@@ -33,8 +33,7 @@ static const qint64 ItemSpacing = 1 << 20;
 
 class DummyModelPrivate : public Timeline::TimelineModel::TimelineModelPrivate {
 public:
-    DummyModelPrivate(int modelId) :
-        Timeline::TimelineModel::TimelineModelPrivate(modelId, QLatin1String("horst"))
+    DummyModelPrivate(int modelId) : Timeline::TimelineModel::TimelineModelPrivate(modelId)
     {}
 };
 
@@ -92,8 +91,9 @@ DummyModel::DummyModel(int modelId) :
 }
 
 DummyModel::DummyModel(QString displayName, QObject *parent) :
-    TimelineModel(12, displayName, parent)
+    TimelineModel(12, parent)
 {
+    setDisplayName(displayName);
 }
 
 void DummyModel::loadData()
@@ -353,12 +353,21 @@ void tst_TimelineModel::displayName()
 {
     QLatin1String name("testest");
     DummyModel dummy(name);
+    QSignalSpy spy(&dummy, SIGNAL(displayNameChanged()));
     QCOMPARE(dummy.displayName(), name);
+    QCOMPARE(spy.count(), 0);
+    dummy.setDisplayName(name);
+    QCOMPARE(dummy.displayName(), name);
+    QCOMPARE(spy.count(), 0);
+    name = QLatin1String("testerei");
+    dummy.setDisplayName(name);
+    QCOMPARE(dummy.displayName(), name);
+    QCOMPARE(spy.count(), 1);
 }
 
 void tst_TimelineModel::defaultValues()
 {
-    Timeline::TimelineModel dummy(12, QLatin1String("dings"));
+    Timeline::TimelineModel dummy(12);
     QCOMPARE(dummy.location(0), QVariantMap());
     QCOMPARE(dummy.handlesTypeId(0), false);
     QCOMPARE(dummy.selectionIdForLocation(QString(), 0, 0), -1);

@@ -34,7 +34,7 @@ class DummyRenderer : public TimelineOverviewRenderer {
 
 class DummyModel : public TimelineModel {
 public:
-    DummyModel() : TimelineModel(0, QLatin1String("x")) {}
+    DummyModel() : TimelineModel(0) {}
 
     void loadData()
     {
