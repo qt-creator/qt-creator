@@ -59,7 +59,7 @@ public:
     void setStyle(const QString &key, const QString &value);
     void removeStyle(const QString &key);
     void replaceStyle(const QString &oldKey, const QString &newKey, const QString &value);
-    QString styleFileName(const QString &key) const;
+    virtual QString styleFileName(const QString &key) const;
 
     QString command() const;
     void setCommand(const QString &command);
@@ -73,13 +73,14 @@ protected:
     QMap<QString, QString> m_styles;
     QMap<QString, QVariant> m_settings;
     int m_version;
+    QString m_ending;
+    QDir m_styleDir;
 
     void readDocumentation();
+    virtual void readStyles();
 
 private:
     QString m_name;
-    QString m_ending;
-    QDir m_styleDir;
     QStringList m_stylesToRemove;
     QSet<QString> m_changedStyles;
     QString m_command;
