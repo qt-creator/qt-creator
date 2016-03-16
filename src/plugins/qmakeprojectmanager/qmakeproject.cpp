@@ -95,14 +95,8 @@ namespace Internal {
 class QmakeProjectFile : public Core::IDocument
 {
     Q_OBJECT
-
 public:
     QmakeProjectFile(const QString &filePath);
-
-    bool save(QString *errorString, const QString &fileName, bool autoSave) override;
-
-    bool isModified() const override;
-    bool isSaveAsAllowed() const override;
 
     ReloadBehavior reloadBehavior(ChangeTrigger state, ChangeType type) const override;
     bool reload(QString *errorString, ReloadFlag flag, ChangeType type) override;
@@ -252,22 +246,6 @@ QmakeProjectFile::QmakeProjectFile(const QString &filePath)
     setId("Qmake.ProFile");
     setMimeType(QLatin1String(QmakeProjectManager::Constants::PROFILE_MIMETYPE));
     setFilePath(FileName::fromString(filePath));
-}
-
-bool QmakeProjectFile::save(QString *, const QString &, bool)
-{
-    // This is never used
-    return false;
-}
-
-bool QmakeProjectFile::isModified() const
-{
-    return false; // we save after changing anyway
-}
-
-bool QmakeProjectFile::isSaveAsAllowed() const
-{
-    return false;
 }
 
 Core::IDocument::ReloadBehavior QmakeProjectFile::reloadBehavior(ChangeTrigger state, ChangeType type) const

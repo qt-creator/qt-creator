@@ -41,26 +41,6 @@ CMakeFile::CMakeFile(const FileName &fileName)
     setFilePath(fileName);
 }
 
-bool CMakeFile::save(QString *errorString, const QString &fileName, bool autoSave)
-{
-    // Once we have an texteditor open for this file, we probably do
-    // need to implement this, don't we.
-    Q_UNUSED(errorString)
-    Q_UNUSED(fileName)
-    Q_UNUSED(autoSave)
-    return false;
-}
-
-bool CMakeFile::isModified() const
-{
-    return false;
-}
-
-bool CMakeFile::isSaveAsAllowed() const
-{
-    return false;
-}
-
 Core::IDocument::ReloadBehavior CMakeFile::reloadBehavior(ChangeTrigger state, ChangeType type) const
 {
     Q_UNUSED(state)
@@ -68,12 +48,5 @@ Core::IDocument::ReloadBehavior CMakeFile::reloadBehavior(ChangeTrigger state, C
     return BehaviorSilent;
 }
 
-bool CMakeFile::reload(QString *errorString, ReloadFlag flag, ChangeType type)
-{
-    Q_UNUSED(errorString)
-    Q_UNUSED(flag)
-    Q_UNUSED(type)
-    return true;
-}
 } // namespace Internal
 } // namespace CMakeProjectManager

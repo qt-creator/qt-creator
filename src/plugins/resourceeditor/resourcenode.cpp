@@ -552,24 +552,6 @@ ResourceFileWatcher::ResourceFileWatcher(ResourceTopLevelNode *node)
     setFilePath(node->filePath());
 }
 
-bool ResourceFileWatcher::save(QString *errorString, const QString &fileName, bool autoSave)
-{
-    Q_UNUSED(errorString);
-    Q_UNUSED(fileName);
-    Q_UNUSED(autoSave);
-    return false;
-}
-
-bool ResourceFileWatcher::isModified() const
-{
-    return false;
-}
-
-bool ResourceFileWatcher::isSaveAsAllowed() const
-{
-    return false;
-}
-
 Core::IDocument::ReloadBehavior ResourceFileWatcher::reloadBehavior(ChangeTrigger state, ChangeType type) const
 {
     Q_UNUSED(state)

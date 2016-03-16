@@ -108,14 +108,8 @@ private:
 class GenericProjectFile : public Core::IDocument
 {
     Q_OBJECT
-
 public:
     GenericProjectFile(GenericProject *parent, QString fileName, GenericProject::RefreshOptions options);
-
-    bool save(QString *errorString, const QString &fileName, bool autoSave) override;
-
-    bool isModified() const override;
-    bool isSaveAsAllowed() const override;
 
     ReloadBehavior reloadBehavior(ChangeTrigger state, ChangeType type) const override;
     bool reload(QString *errorString, ReloadFlag flag, ChangeType type) override;

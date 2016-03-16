@@ -115,11 +115,3 @@ Core::IDocument::ReloadBehavior SubmitEditorFile::reloadBehavior(ChangeTrigger s
     Q_UNUSED(type)
     return BehaviorSilent;
 }
-
-bool SubmitEditorFile::reload(QString *errorString, ReloadFlag flag, ChangeType type)
-{
-    Q_UNUSED(errorString)
-    Q_UNUSED(flag)
-    Q_UNUSED(type)
-    return true;
-}

@@ -281,17 +281,6 @@ public:
         setFilePath(FileName::fromString(fileName));
     }
 
-    bool save(QString *errorString, const QString &fileName, bool autoSave) override
-    {
-        Q_UNUSED(errorString)
-        Q_UNUSED(fileName)
-        Q_UNUSED(autoSave)
-        return false;
-    }
-
-    bool isModified() const override { return false; }
-    bool isSaveAsAllowed() const override { return false; }
-
     ReloadBehavior reloadBehavior(ChangeTrigger state, ChangeType type) const override
     {
         Q_UNUSED(state)

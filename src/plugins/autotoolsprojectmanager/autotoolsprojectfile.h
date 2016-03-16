@@ -32,8 +32,6 @@
 namespace AutotoolsProjectManager {
 namespace Internal {
 
-class AutotoolsProject;
-
 /**
  * @brief Implementation of the Core::IDocument interface.
  *
@@ -47,14 +45,8 @@ class AutotoolsProject;
 class AutotoolsProjectFile : public Core::IDocument
 {
     Q_OBJECT
-
 public:
     AutotoolsProjectFile(const QString &fileName);
-
-    bool save(QString *errorString, const QString &fileName, bool autoSave) override;
-    bool isModified() const override;
-    bool isSaveAsAllowed() const override;
-    bool reload(QString *errorString, ReloadFlag flag, ChangeType type) override;
 };
 
 } // namespace Internal
