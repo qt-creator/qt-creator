@@ -11,6 +11,12 @@ QT += network xml
 
 CONFIG += c++11
 
+osx {
+    DEFINES += USE_CXX11
+    QMAKE_CXXFLAGS += -stdlib=libc++
+    QMAKE_LFLAGS += -lc++
+}
+
 contains(QT_CONFIG, webkit)|!isEmpty(QT.webkit.name) {
     QT += webkit
     greaterThan(QT_MAJOR_VERSION, 4) {

@@ -13,3 +13,9 @@ exists(/usr/include/eigen2/Eigen/Core): DEFINES += HAS_EIGEN
     DEFINES += USE_CXX11
     QMAKE_CXXFLAGS += -std=c++0x
 }
+
+osx {
+    DEFINES += USE_CXX11
+    QMAKE_CXXFLAGS += -stdlib=libc++
+    QMAKE_LFLAGS += -lc++
+}
