@@ -313,7 +313,7 @@ void ProgressManagerPrivate::init()
     m_summaryProgressWidget->setVisible(!m_progressViewPinned);
     m_summaryProgressWidget->setGraphicsEffect(m_opacityEffect);
     m_summaryProgressLayout = new QHBoxLayout(m_summaryProgressWidget);
-    m_summaryProgressLayout->setContentsMargins(0, 0, 0, 0);
+    m_summaryProgressLayout->setContentsMargins(0, 0, 0, 2);
     m_summaryProgressLayout->setSpacing(0);
     m_summaryProgressWidget->setLayout(m_summaryProgressLayout);
     m_summaryProgressBar = new ProgressBar(m_summaryProgressWidget);

@@ -8,7 +8,7 @@
         <!ENTITY noword   "(?![\w$+-])">                <!-- no word, $, + or - following -->
         <!ENTITY pathpart "([\w_@.&#37;*?+-]|\\ )">     <!-- valid character in a file name -->
 ]>
-<language name="Bash" version="2.17" kateversion="2.4" section="Scripts" extensions="*.sh;*.bash;*.ebuild;*.eclass;.bashrc;.bash_profile;.bash_login;.profile" mimetype="application/x-shellscript" casesensitive="1" author="Wilbert Berendsen (wilbert@kde.nl)" license="LGPL">
+<language name="Bash" version="2.18" kateversion="5.0" section="Scripts" extensions="*.sh;*.bash;*.ebuild;*.eclass;.bashrc;.bash_profile;.bash_login;.profile" mimetype="application/x-shellscript" casesensitive="1" author="Wilbert Berendsen (wilbert@kde.nl)" license="LGPL">
 
 <!-- (c) 2004 by Wilbert Berendsen (wilbert@kde.nl)
     Changes by Matthew Woehlke (mw_triad@users.sourceforge.net)
@@ -929,17 +929,17 @@
       <itemData name="Comment"		defStyleNum="dsComment" />
       <itemData name="Keyword"		defStyleNum="dsKeyword" />
       <itemData name="Control"		defStyleNum="dsKeyword" />
-      <itemData name="Builtin"		defStyleNum="dsKeyword" color="#808" />
-      <itemData name="Command"		defStyleNum="dsKeyword" color="#c0c" />
-      <itemData name="OtherCommand"	defStyleNum="dsKeyword" color="#303" />
-      <itemData name="Redirection"	defStyleNum="dsKeyword" color="#238" />
+      <itemData name="Builtin"		defStyleNum="dsBuiltIn" />
+      <itemData name="Command"		defStyleNum="dsFunction" />
+      <itemData name="OtherCommand"	defStyleNum="dsExtension" />
+      <itemData name="Redirection"	defStyleNum="dsOperator" />
       <itemData name="Escape"		defStyleNum="dsDataType" />
       <itemData name="String SingleQ"	defStyleNum="dsString" />
       <itemData name="String DoubleQ"	defStyleNum="dsString" />
       <itemData name="Backquote"	defStyleNum="dsKeyword" />
       <itemData name="String Transl."	defStyleNum="dsString" />
       <itemData name="String Escape"	defStyleNum="dsDataType" />
-      <itemData name="Variable" 	defStyleNum="dsOthers" />
+      <itemData name="Variable" 	defStyleNum="dsVariable" />
       <itemData name="Expression"	defStyleNum="dsOthers" />
       <itemData name="Function" 	defStyleNum="dsFunction" />
       <itemData name="Path"		defStyleNum="dsNormal" />

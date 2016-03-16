@@ -507,7 +507,7 @@ static void handleGTest(QFutureInterface<TestParseResult> futureInterface, const
 
 static void checkDocumentForTestCode(QFutureInterface<TestParseResult> futureInterface,
                                      CPlusPlus::Document::Ptr document,
-                                     QMap<QString, QString> testCaseNames)
+                                     QHash<QString, QString> testCaseNames)
 {
     const QString fileName = document->fileName();
     const CppTools::CppModelManager *modelManager = CppTools::CppModelManager::instance();
@@ -567,7 +567,7 @@ static void checkDocumentForTestCode(QFutureInterface<TestParseResult> futureInt
 static bool parsingHasFailed;
 
 static void performParse(QFutureInterface<TestParseResult> &futureInterface,
-                         const QStringList &list, const QMap<QString, QString> testCaseNames)
+                         const QStringList &list, const QHash<QString, QString> testCaseNames)
 {
     int progressValue = 0;
     futureInterface.setProgressRange(0, list.size());
@@ -718,7 +718,7 @@ void TestCodeParser::scanForTests(const QStringList &fileList)
 
     parsingHasFailed = false;
 
-    QMap<QString, QString> testCaseNames;
+    QHash<QString, QString> testCaseNames;
     if (isFullParse) {
         // remove qml files as they will be found automatically by the referencing cpp file
         list = Utils::filtered(list, [] (const QString &fn) {

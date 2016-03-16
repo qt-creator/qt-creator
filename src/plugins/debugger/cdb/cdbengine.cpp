@@ -2008,9 +2008,9 @@ void CdbEngine::processStop(const GdbMi &stopReason, bool conditionalBreakPointT
         // Fire off remaining commands asynchronously
         if (!m_pendingBreakpointMap.isEmpty() && !m_pendingSubBreakpointMap.isEmpty())
             listBreakpoints();
-        if (Internal::isDockVisible(QLatin1String(DOCKWIDGET_REGISTER)))
+        if (Internal::isRegistersWindowVisible())
             reloadRegisters();
-        if (Internal::isDockVisible(QLatin1String(DOCKWIDGET_MODULES)))
+        if (Internal::isModulesWindowVisible())
             reloadModules();
     }
     // After the sequence has been sent off and CDB is pondering the commands,

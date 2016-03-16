@@ -87,22 +87,33 @@ Highlighter::Highlighter(QTextDocument *parent) :
 {
     static QVector<TextStyle> categories;
     if (categories.isEmpty()) {
-        categories << C_TEXT
-                   << C_VISUAL_WHITESPACE
-                   << C_KEYWORD
-                   << C_TYPE
-                   << C_COMMENT
-                   << C_NUMBER
-                   << C_NUMBER
-                   << C_NUMBER
-                   << C_STRING
-                   << C_STRING
-                   << C_TEXT // TODO : add style for alert (eg. yellow background)
-                   << C_TEXT // TODO : add style for error (eg. red underline)
-                   << C_FUNCTION
-                   << C_TEXT
-                   << C_TEXT
-                   << C_LOCAL;
+        categories << C_TEXT              // Normal
+                   << C_VISUAL_WHITESPACE // VisualWhitespace
+                   << C_KEYWORD           // Keyword
+                   << C_TYPE              // DataType
+                   << C_COMMENT           // Comment
+                   << C_NUMBER            // Decimal
+                   << C_NUMBER            // BaseN
+                   << C_NUMBER            // Float
+                   << C_STRING            // Char
+                   << C_STRING            // SpecialChar
+                   << C_STRING            // String
+                   << C_WARNING           // Alert
+                   << C_TEXT              // Information
+                   << C_WARNING           // Warning
+                   << C_ERROR             // Error
+                   << C_FUNCTION          // Function
+                   << C_TEXT              // RegionMarker
+                   << C_PREPROCESSOR      // BuiltIn
+                   << C_PRIMITIVE_TYPE    // Extension
+                   << C_OPERATOR          // Operator
+                   << C_LOCAL             // Variable
+                   << C_LABEL             // Attribute
+                   << C_TEXT              // Annotation
+                   << C_COMMENT           // CommentVar
+                   << C_PREPROCESSOR      // Import
+                   << C_TEXT              // Others
+                   << C_LOCAL;            // Identifier
     }
 
     setTextFormatCategories(categories);
@@ -123,16 +134,27 @@ KateFormatMap::KateFormatMap()
     m_ids.insert(QLatin1String("dsNormal"), Highlighter::Normal);
     m_ids.insert(QLatin1String("dsKeyword"), Highlighter::Keyword);
     m_ids.insert(QLatin1String("dsDataType"), Highlighter::DataType);
+    m_ids.insert(QLatin1String("dsComment"), Highlighter::Comment);
     m_ids.insert(QLatin1String("dsDecVal"), Highlighter::Decimal);
     m_ids.insert(QLatin1String("dsBaseN"), Highlighter::BaseN);
     m_ids.insert(QLatin1String("dsFloat"), Highlighter::Float);
     m_ids.insert(QLatin1String("dsChar"), Highlighter::Char);
+    m_ids.insert(QLatin1String("dsSpecialChar"), Highlighter::SpecialChar);
     m_ids.insert(QLatin1String("dsString"), Highlighter::String);
-    m_ids.insert(QLatin1String("dsComment"), Highlighter::Comment);
     m_ids.insert(QLatin1String("dsAlert"), Highlighter::Alert);
+    m_ids.insert(QLatin1String("dsInformation"), Highlighter::Information);
+    m_ids.insert(QLatin1String("dsWarning"), Highlighter::Warning);
     m_ids.insert(QLatin1String("dsError"), Highlighter::Error);
     m_ids.insert(QLatin1String("dsFunction"), Highlighter::Function);
     m_ids.insert(QLatin1String("dsRegionMarker"), Highlighter::RegionMarker);
+    m_ids.insert(QLatin1String("dsBuiltIn"), Highlighter::BuiltIn);
+    m_ids.insert(QLatin1String("dsExtension"), Highlighter::Extension);
+    m_ids.insert(QLatin1String("dsOperator"), Highlighter::Operator);
+    m_ids.insert(QLatin1String("dsVariable"), Highlighter::Variable);
+    m_ids.insert(QLatin1String("dsAttribute"), Highlighter::Attribute);
+    m_ids.insert(QLatin1String("dsAnnotation"), Highlighter::Annotation);
+    m_ids.insert(QLatin1String("dsCommentVar"), Highlighter::CommentVar);
+    m_ids.insert(QLatin1String("dsImport"), Highlighter::Import);
     m_ids.insert(QLatin1String("dsOthers"), Highlighter::Others);
     m_ids.insert(QLatin1String("dsIdentifier"), Highlighter::Identifier);
 }

@@ -29,8 +29,8 @@
  -->
 
 <language name="Doxygen"
-          version="1.38"
-          kateversion="2.4"
+          version="1.39"
+          kateversion="5.0"
           section="Markup"
           extensions="*.dox;*.doxygen"
           mimetype="text/x-doxygen"
@@ -485,9 +485,9 @@
   </contexts>
     <itemDatas>
       <itemData name="Normal Text"  defStyleNum="dsNormal" />
-      <itemData name="Tags"         defStyleNum="dsKeyword" color="#ca60ca" bold="1" italic="0" />
+      <itemData name="Tags"         defStyleNum="dsAnnotation" bold="1" italic="0" />
       <itemData name="Custom Tags"  defStyleNum="dsNormal"  color="#458C61" bold="1" italic="0" />
-      <itemData name="Word"         defStyleNum="dsKeyword" color="#0095ff" bold="1" italic="0" />
+      <itemData name="Word"         defStyleNum="dsCommentVar" bold="1" italic="0" />
       <itemData name="HTML Tag"     defStyleNum="dsKeyword" color="#000000" bold="1" italic="0" />
       <itemData name="Entities"     defStyleNum="dsOthers" color="#4086C0" bold="1" italic="1" />
       <itemData name="Description"  defStyleNum="dsString"  color="#ff0000" />
@@ -501,10 +501,10 @@
       <itemData name="Formulas"     defStyleNum="dsComment" color="#00A000" selColor="#ffffff" italic="1" />
       <itemData name="Message Sequence Chart" defStyleNum="dsComment" color="#00A000" selColor="#ffffff" italic="1" />
       <itemData name="Verbatim"     defStyleNum="dsComment" />
-      <itemData name="Note"         defStyleNum="dsKeyword" color="#81ca2d" selColor="#81ca2d" bold="1" italic="0" />
-      <itemData name="Warning"      defStyleNum="dsKeyword" color="#ca9219" selColor="#ca9219" bold="1" italic="0" />
-      <itemData name="Attention"    defStyleNum="dsKeyword" color="#e85848" selColor="#e85848" bold="1" italic="0" />
-      <itemData name="Todo"         defStyleNum="dsKeyword" color="#ca60ca" selColor="#ffffff" bold="1" italic="0" />
+      <itemData name="Note"         defStyleNum="dsInformation" bold="1" italic="0" />
+      <itemData name="Warning"      defStyleNum="dsWarning" bold="1" italic="0" />
+      <itemData name="Attention"    defStyleNum="dsAnnotation" bold="1" italic="0" />
+      <itemData name="Todo"         defStyleNum="dsAnnotation" bold="1" italic="0" />
     </itemDatas>
   </highlighting>
   <general>

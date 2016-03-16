@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CMAKE_BUILDDIRMANAGER_H
-#define CMAKE_BUILDDIRMANAGER_H
+#pragma once
 
 #include "cmakecbpparser.h"
 #include "cmakeconfigitem.h"
@@ -71,12 +70,13 @@ public:
     const Utils::FileName buildDirectory() const;
     const Utils::FileName workDirectory() const;
     const Utils::FileName sourceDirectory() const;
-    const CMakeConfig cmakeConfiguration() const;
+    const CMakeConfig intendedConfiguration() const;
     bool isParsing() const;
 
     void parse();
     void clearCache();
     void forceReparse();
+    void maybeForceReparse(); // Only reparse if the configuration has changed...
     void resetData();
     bool persistCMakeState();
 
@@ -85,10 +85,9 @@ public:
     QList<CMakeBuildTarget> buildTargets() const;
     QList<ProjectExplorer::FileNode *> files();
     void clearFiles();
-    CMakeConfig configuration() const;
+    CMakeConfig parsedConfiguration() const;
 
     static CMakeConfig parseConfiguration(const Utils::FileName &cacheFile,
-                                          const Utils::FileName &sourceDir,
                                           QString *errorMessage);
 
 signals:
@@ -129,5 +128,3 @@ private:
 
 } // namespace Internal
 } // namespace CMakeProjectManager
-
-#endif // CMAKE_BUILDDIRMANAGER_H

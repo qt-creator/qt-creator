@@ -139,7 +139,7 @@ const Utils::FileName BuildDirManager::sourceDirectory() const
     return m_buildConfiguration->target()->project()->projectDirectory();
 }
 
-const CMakeConfig BuildDirManager::cmakeConfiguration() const
+const CMakeConfig BuildDirManager::intendedConfiguration() const
 {
     return m_buildConfiguration->cmakeConfiguration();
 }
@@ -161,7 +161,7 @@ void BuildDirManager::forceReparse()
     QTC_ASSERT(tool, return);
     QTC_ASSERT(!generator.isEmpty(), return);
 
-    startCMake(tool, generator, cmakeConfiguration());
+    startCMake(tool, generator, intendedConfiguration());
 }
 
 void BuildDirManager::resetData()
@@ -208,7 +208,7 @@ void BuildDirManager::parse()
 
     if (!cbpFileFi.exists()) {
         // Initial create:
-        startCMake(tool, generator, cmakeConfiguration());
+        startCMake(tool, generator, intendedConfiguration());
         return;
     }
 
@@ -265,7 +265,7 @@ void BuildDirManager::clearFiles()
     m_files.clear();
 }
 
-CMakeConfig BuildDirManager::configuration() const
+CMakeConfig BuildDirManager::parsedConfiguration() const
 {
     if (!m_hasData)
         return CMakeConfig();
@@ -273,9 +273,11 @@ CMakeConfig BuildDirManager::configuration() const
     Utils::FileName cacheFile = workDirectory();
     cacheFile.appendPath(QLatin1String("CMakeCache.txt"));
     QString errorMessage;
-    CMakeConfig result = parseConfiguration(cacheFile, sourceDirectory(), &errorMessage);
+    CMakeConfig result = parseConfiguration(cacheFile, &errorMessage);
     if (!errorMessage.isEmpty())
         emit errorOccured(errorMessage);
+    if (CMakeConfigItem::valueOf("CMAKE_HOME_DIRECTORY", result) != sourceDirectory().toString().toUtf8())
+        emit errorOccured(tr("The build directory is not for %1").arg(sourceDirectory().toUserOutput()));
 
     return result;
 }
@@ -295,6 +297,8 @@ void BuildDirManager::stopProcess()
 
     cleanUpProcess();
 
+    if (!m_future)
+      return;
     m_future->reportCanceled();
     m_future->reportFinished();
     delete m_future;
@@ -540,7 +544,6 @@ static CMakeConfigItem::Type fromByteArray(const QByteArray &type) {
 }
 
 CMakeConfig BuildDirManager::parseConfiguration(const Utils::FileName &cacheFile,
-                                                const Utils::FileName &sourceDir,
                                                 QString *errorMessage)
 {
     CMakeConfig result;
@@ -577,19 +580,7 @@ CMakeConfig BuildDirManager::parseConfiguration(const Utils::FileName &cacheFile
             advancedSet.insert(key.left(key.count() - 9 /* "-ADVANCED" */));
         } else {
             CMakeConfigItem::Type t = fromByteArray(type);
-            if (t != CMakeConfigItem::INTERNAL)
-                result << CMakeConfigItem(key, t, documentation, value);
-
-            // Sanity checks:
-            if (key == "CMAKE_HOME_DIRECTORY") {
-                const Utils::FileName actualSourceDir = Utils::FileName::fromUserInput(QString::fromUtf8(value));
-                if (actualSourceDir != sourceDir) {
-                    if (errorMessage)
-                        *errorMessage = tr("Build directory contains a build of the wrong project (%1).")
-                            .arg(actualSourceDir.toUserOutput());
-                    return CMakeConfig();
-                }
-            }
+            result << CMakeConfigItem(key, t, documentation, value);
         }
     }
 
@@ -602,6 +593,59 @@ CMakeConfig BuildDirManager::parseConfiguration(const Utils::FileName &cacheFile
     Utils::sort(result, CMakeConfigItem::sortOperator());
 
     return result;
+}
+
+void BuildDirManager::maybeForceReparse()
+{
+    const QByteArray GENERATOR_KEY = "CMAKE_GENERATOR";
+    const QByteArray EXTRA_GENERATOR_KEY = "CMAKE_EXTRA_GENERATOR";
+    const QByteArray CMAKE_COMMAND_KEY = "CMAKE_COMMAND";
+
+    if (!m_hasData)
+        return;
+
+    const CMakeConfig currentConfig = parsedConfiguration();
+
+    const QString kitGenerator = CMakeGeneratorKitInformation::generator(kit());
+    int pos = kitGenerator.lastIndexOf(QLatin1String(" - "));
+    const QString extraKitGenerator = (pos > 0) ? kitGenerator.left(pos) : QString();
+    const QString mainKitGenerator = (pos > 0) ? kitGenerator.mid(pos + 3) : kitGenerator;
+    CMakeConfig targetConfig = m_buildConfiguration->cmakeConfiguration();
+    targetConfig.append(CMakeConfigItem(GENERATOR_KEY, CMakeConfigItem::INTERNAL,
+                                     QByteArray(), mainKitGenerator.toUtf8()));
+    if (!extraKitGenerator.isEmpty())
+        targetConfig.append(CMakeConfigItem(EXTRA_GENERATOR_KEY, CMakeConfigItem::INTERNAL,
+                                         QByteArray(), extraKitGenerator.toUtf8()));
+    const CMakeTool *tool = CMakeKitInformation::cmakeTool(kit());
+    if (tool)
+        targetConfig.append(CMakeConfigItem(CMAKE_COMMAND_KEY, CMakeConfigItem::INTERNAL,
+                                         QByteArray(), tool->cmakeExecutable().toUserOutput().toUtf8()));
+    Utils::sort(targetConfig, CMakeConfigItem::sortOperator());
+
+    auto ccit = currentConfig.constBegin();
+    auto kcit = targetConfig.constBegin();
+    while (ccit != currentConfig.constEnd() && kcit != targetConfig.constEnd()) {
+        if (ccit->key == kcit->key) {
+            if (ccit->value != kcit->value)
+                break;
+            ++ccit;
+            ++kcit;
+        } else {
+            if (ccit->key < kcit->key)
+                ++ccit;
+            else
+                break;
+        }
+    }
+
+    if (kcit != targetConfig.end()) {
+        if (kcit->key == GENERATOR_KEY
+                || kcit->key == EXTRA_GENERATOR_KEY
+                || kcit->key == CMAKE_COMMAND_KEY)
+            clearCache();
+        else
+            forceReparse();
+    }
 }
 
 } // namespace Internal

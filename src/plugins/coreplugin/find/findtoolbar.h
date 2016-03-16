@@ -155,40 +155,40 @@ private:
     void updateIcons();
     void updateFlagMenus();
 
-    CurrentDocumentFind *m_currentDocumentFind;
+    CurrentDocumentFind *m_currentDocumentFind = nullptr;
     Ui::FindWidget m_ui;
-    QCompleter *m_findCompleter;
-    QCompleter *m_replaceCompleter;
-    QAction *m_goToCurrentFindAction;
-    QAction *m_findInDocumentAction;
-    QAction *m_findNextSelectedAction;
-    QAction *m_findPreviousSelectedAction;
-    QAction *m_enterFindStringAction;
-    QAction *m_findNextAction;
-    QAction *m_findPreviousAction;
-    QAction *m_replaceAction;
-    QAction *m_replaceNextAction;
-    QAction *m_replacePreviousAction;
-    QAction *m_replaceAllAction;
-    QAction *m_caseSensitiveAction;
-    QAction *m_wholeWordAction;
-    QAction *m_regularExpressionAction;
-    QAction *m_preserveCaseAction;
+    QCompleter *m_findCompleter = nullptr;
+    QCompleter *m_replaceCompleter = nullptr;
+    QAction *m_goToCurrentFindAction = nullptr;
+    QAction *m_findInDocumentAction = nullptr;
+    QAction *m_findNextSelectedAction = nullptr;
+    QAction *m_findPreviousSelectedAction = nullptr;
+    QAction *m_enterFindStringAction = nullptr;
+    QAction *m_findNextAction = nullptr;
+    QAction *m_findPreviousAction = nullptr;
+    QAction *m_replaceAction = nullptr;
+    QAction *m_replaceNextAction = nullptr;
+    QAction *m_replacePreviousAction = nullptr;
+    QAction *m_replaceAllAction = nullptr;
+    QAction *m_caseSensitiveAction = nullptr;
+    QAction *m_wholeWordAction = nullptr;
+    QAction *m_regularExpressionAction = nullptr;
+    QAction *m_preserveCaseAction = nullptr;
 
-    QAction *m_localFindNextAction;
-    QAction *m_localFindPreviousAction;
-    QAction *m_localReplaceAction;
-    QAction *m_localReplaceNextAction;
-    QAction *m_localReplacePreviousAction;
-    QAction *m_localReplaceAllAction;
+    QAction *m_localFindNextAction = nullptr;
+    QAction *m_localFindPreviousAction = nullptr;
+    QAction *m_localReplaceAction = nullptr;
+    QAction *m_localReplaceNextAction = nullptr;
+    QAction *m_localReplacePreviousAction = nullptr;
+    QAction *m_localReplaceAllAction = nullptr;
 
     FindFlags m_findFlags;
 
     QTimer m_findIncrementalTimer;
     QTimer m_findStepTimer;
-    IFindSupport::Result m_lastResult;
-    bool m_useFakeVim;
-    bool m_eventFiltersInstalled;
+    IFindSupport::Result m_lastResult = IFindSupport::NotYetFound;
+    bool m_useFakeVim = false;
+    bool m_eventFiltersInstalled = false;
 };
 
 } // namespace Internal

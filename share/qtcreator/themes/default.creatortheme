@@ -162,12 +162,13 @@ ClangCodeModel_Warning_TextMarkColor=ffc6c132
 ComboBoxDrawTextShadow=true
 DerivePaletteFromTheme=false
 DrawIndicatorBranch=false
-DrawProgressBarSunken=true
 DrawSearchResultWidgetFrame=true
 DrawTargetSelectorBottom=true
+DrawToolBarHighlights=true
 ApplyThemePaletteGlobally=false
 FlatSideBarIcons=false
 FlatProjectsMode=false
+FlatMenuBar=false
 
 [Gradients]
 DetailsWidgetHeaderGradient\1\color=ffffff

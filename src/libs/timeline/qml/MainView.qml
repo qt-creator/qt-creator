@@ -44,6 +44,10 @@ Rectangle {
     property bool selectionRangeMode: false
     property bool selectionRangeReady: selectionRange.ready
     property int typeId: content.typeId
+    onWidthChanged: {
+        zoomSliderToolBar.updateZoomLevel();
+        content.scroll();
+    }
 
     color: "#dcdcdc"
 

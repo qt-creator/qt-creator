@@ -29,7 +29,7 @@ namespace QmlProfilerExtension {
 namespace Internal {
 
 FlameGraph::FlameGraph(QQuickItem *parent) :
-    QQuickItem(parent), m_delegate(0), m_model(0), m_depth(0), m_sizeThreshold(0)
+    QQuickItem(parent)
 {
 }
 

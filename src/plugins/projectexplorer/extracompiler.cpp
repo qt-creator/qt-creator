@@ -58,8 +58,7 @@ class ExtraCompilerPrivate
 public:
     const Project *project;
     Utils::FileName source;
-    QHash<Utils::FileName, QByteArray> contents;
-    Utils::FileNameList targets;
+    FileNameToContentsHash contents;
     QList<Task> issues;
     QDateTime compileTime;
     Core::IEditor *lastEditor = nullptr;
@@ -77,7 +76,6 @@ ExtraCompiler::ExtraCompiler(const Project *project, const Utils::FileName &sour
 {
     d->project = project;
     d->source = source;
-    d->targets = targets;
     foreach (const Utils::FileName &target, targets)
         d->contents.insert(target, QByteArray());
     d->timer.setSingleShot(true);
@@ -156,7 +154,13 @@ QByteArray ExtraCompiler::content(const Utils::FileName &file) const
 
 Utils::FileNameList ExtraCompiler::targets() const
 {
-    return d->targets;
+    return d->contents.keys();
+}
+
+void ExtraCompiler::forEachTarget(std::function<void (const Utils::FileName &)> func)
+{
+    for (auto it = d->contents.constBegin(), end = d->contents.constEnd(); it != end; ++it)
+        func(it.key());
 }
 
 void ExtraCompiler::setCompileTime(const QDateTime &time)
@@ -185,12 +189,12 @@ void ExtraCompiler::onTargetsBuilt(Project *project)
     if (d->compileTime.isValid() && d->compileTime >= sourceTime)
         return;
 
-    foreach (const Utils::FileName &target, d->targets) {
+    forEachTarget([&](const Utils::FileName &target) {
         QFileInfo fi(target.toFileInfo());
         QDateTime generateTime = fi.exists() ? fi.lastModified() : QDateTime();
         if (generateTime.isValid() && (generateTime > sourceTime)) {
             if (d->compileTime >= generateTime)
-                continue;
+                return;
 
             QFile file(target.toString());
             if (file.open(QFile::ReadOnly | QFile::Text)) {
@@ -198,7 +202,7 @@ void ExtraCompiler::onTargetsBuilt(Project *project)
                 setContent(target, file.readAll());
             }
         }
-    }
+    });
 }
 
 void ExtraCompiler::onEditorChanged(Core::IEditor *editor)
@@ -354,7 +358,11 @@ ExtraCompilerFactory::ExtraCompilerFactory(QObject *parent) : QObject(parent)
 
 void ExtraCompilerFactory::registerExtraCompilerFactory(ExtraCompilerFactory *factory)
 {
-    factories()->append(factory);
+    QList<ExtraCompilerFactory *> *factoryList = factories();
+    factoryList->append(factory);
+    connect(factory, &QObject::destroyed, [factoryList, factory]() {
+        factoryList->removeAll(factory);
+    });
 }
 
 QList<ExtraCompilerFactory *> ExtraCompilerFactory::extraCompilerFactories()
@@ -411,8 +419,8 @@ void ProcessExtraCompiler::runImpl(const ContentProvider &provider)
     if (m_watcher)
         delete m_watcher;
 
-    m_watcher = new QFutureWatcher<QList<QByteArray>>();
-    connect(m_watcher, &QFutureWatcher<QList<QByteArray>>::finished,
+    m_watcher = new QFutureWatcher<FileNameToContentsHash>();
+    connect(m_watcher, &QFutureWatcher<FileNameToContentsHash>::finished,
             this, &ProcessExtraCompiler::cleanUp);
 
     m_watcher->setFuture(Utils::runAsync(extraCompilerThreadPool(),
@@ -421,16 +429,17 @@ void ProcessExtraCompiler::runImpl(const ContentProvider &provider)
                                          buildEnvironment()));
 }
 
-QList<QByteArray> ProcessExtraCompiler::runInThread(const Utils::FileName &cmd, const Utils::FileName &workDir,
-                                                    const QStringList &args, const ContentProvider &provider,
-                                                    const Utils::Environment &env)
+FileNameToContentsHash ProcessExtraCompiler::runInThread(
+        const Utils::FileName &cmd, const Utils::FileName &workDir,
+        const QStringList &args, const ContentProvider &provider,
+        const Utils::Environment &env)
 {
     if (cmd.isEmpty() || !cmd.toFileInfo().isExecutable())
-        return QList<QByteArray>();
+        return FileNameToContentsHash();
 
     const QByteArray sourceContents = provider();
     if (sourceContents.isNull() || !prepareToRun(sourceContents))
-        return QList<QByteArray>();
+        return FileNameToContentsHash();
 
     QProcess process;
 
@@ -440,7 +449,7 @@ QList<QByteArray> ProcessExtraCompiler::runInThread(const Utils::FileName &cmd, 
     process.start(cmd.toString(), args, QIODevice::ReadWrite);
     if (!process.waitForStarted()) {
         handleProcessError(&process);
-        return QList<QByteArray>();
+        return FileNameToContentsHash();
     }
     handleProcessStarted(&process, sourceContents);
     process.waitForFinished();
@@ -456,18 +465,15 @@ QList<QByteArray> ProcessExtraCompiler::runInThread(const Utils::FileName &cmd, 
 void ProcessExtraCompiler::cleanUp()
 {
     QTC_ASSERT(m_watcher, return);
-    const QList<QByteArray> data = m_watcher->future().result();
+    const FileNameToContentsHash data = m_watcher->future().result();
     delete m_watcher;
     m_watcher = nullptr;
 
     if (data.isEmpty())
         return; // There was some kind of error...
 
-    const Utils::FileNameList targetList = targets();
-    QTC_ASSERT(data.count() == targetList.count(), return);
-
-    for (int i = 0; i < targetList.count(); ++i)
-        setContent(targetList.at(i), data.at(i));
+    for (auto it = data.constBegin(), end = data.constEnd(); it != end; ++it)
+        setContent(it.key(), it.value());
 
     setCompileTime(QDateTime::currentDateTime());
 }

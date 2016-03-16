@@ -108,7 +108,7 @@ private:
     void onTestRunStarted();
     void onTestRunFinished();
     void onScrollBarRangeChanged(int, int max);
-    void onTestTreeModelChanged();
+    void updateRunActions();
     void onCustomContextMenuRequested(const QPoint &pos);
     void onCopyItemTriggered(const QModelIndex &idx);
     void onCopyWholeTriggered();

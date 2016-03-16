@@ -76,7 +76,6 @@ protected:
 private:
     QFont titleFont() const;
 
-    QImage bar;
     QString m_text;
     QString m_title;
     bool m_titleVisible;

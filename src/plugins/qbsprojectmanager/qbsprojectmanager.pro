@@ -31,6 +31,7 @@ HEADERS = \
     qbslogsink.h \
     qbsnodes.h \
     qbsparser.h \
+    qbspmlogging.h \
     qbsprofilessettingspage.h \
     qbsproject.h \
     qbsprojectfile.h \
@@ -56,6 +57,7 @@ SOURCES = \
     qbslogsink.cpp \
     qbsnodes.cpp \
     qbsparser.cpp \
+    qbspmlogging.cpp \
     qbsprofilessettingspage.cpp \
     qbsproject.cpp \
     qbsprojectfile.cpp \

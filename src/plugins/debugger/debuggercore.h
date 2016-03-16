@@ -77,7 +77,8 @@ void displayDebugger(DebuggerEngine *engine, bool updateEngine);
 void synchronizeBreakpoints();
 
 QWidget *mainWindow();
-bool isDockVisible(const QString &objectName);
+bool isRegistersWindowVisible();
+bool isModulesWindowVisible();
 void showModuleSymbols(const QString &moduleName, const QVector<Internal::Symbol> &symbols);
 void showModuleSections(const QString &moduleName, const QVector<Internal::Section> &sections);
 void openMemoryEditor();

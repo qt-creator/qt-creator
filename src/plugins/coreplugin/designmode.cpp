@@ -56,6 +56,7 @@ class DesignModePrivate
 {
 public:
     DesignModePrivate();
+    ~DesignModePrivate();
 
 public:
     QPointer<IEditor> m_currentEditor;
@@ -71,6 +72,11 @@ DesignModePrivate::DesignModePrivate()
       m_isRequired(false),
       m_stackWidget(new QStackedWidget)
 {}
+
+DesignModePrivate::~DesignModePrivate()
+{
+    delete m_stackWidget;
+}
 
 DesignMode::DesignMode()
     : d(new DesignModePrivate)

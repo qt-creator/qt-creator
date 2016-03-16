@@ -76,8 +76,7 @@ void TestTreeView::changeCheckStateAll(const Qt::CheckState checkState)
 {
     const TestTreeModel *model = TestTreeModel::instance();
 
-    // 3 == Auto Tests, Quick Tests and Google Tests - must be raised if there will be others
-    for (int rootRow = 0; rootRow < 3; ++rootRow) {
+    for (int rootRow = 0; rootRow < model->rowCount(rootIndex()); ++rootRow) {
         QModelIndex currentRootIndex = model->index(rootRow, 0, rootIndex());
         if (!currentRootIndex.isValid())
             return;

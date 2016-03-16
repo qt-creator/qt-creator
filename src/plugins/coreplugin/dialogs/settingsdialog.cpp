@@ -83,14 +83,8 @@ public:
 
     bool findPageById(const Id id, int *pageIndex) const
     {
-        for (int j = 0; j < pages.size(); ++j) {
-            IOptionsPage *page = pages.at(j);
-            if (page->id() == id) {
-                *pageIndex = j;
-                return true;
-            }
-        }
-        return false;
+        *pageIndex = Utils::indexOf(pages, Utils::equal(&IOptionsPage::id, id));
+        return *pageIndex != -1;
     }
 
     Id id;
@@ -460,7 +454,6 @@ void SettingsDialog::showPage(const Id pageId)
         for (int i = 0; i < categories.size(); ++i) {
             Category *category = categories.at(i);
             if (category->providers.isEmpty()) {  // no providers
-                ensureCategoryWidget(category);
                 if (category->findPageById(initialPageId, &initialPageIndex)) {
                     initialCategoryIndex = i;
                     break;

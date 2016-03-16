@@ -1,6 +1,6 @@
 [General]
 ThemeName=Dark Frame
-PreferredStyles=Fusion
+PreferredStyles=
 
 [Palette]
 shadowBackground=ff404244
@@ -22,10 +22,10 @@ BackgroundColorHover=hoverBackground
 BackgroundColorNormal=normalBackground
 BackgroundColorDisabled=ff444444
 BackgroundColorSelected=ff909090
-BadgeLabelBackgroundColorChecked=normalBackground
-BadgeLabelBackgroundColorUnchecked=selectedBackground
-BadgeLabelTextColorChecked=text
-BadgeLabelTextColorUnchecked=text
+BadgeLabelBackgroundColorChecked=ffe0e0e0
+BadgeLabelBackgroundColorUnchecked=ff808080
+BadgeLabelTextColorChecked=ff606060
+BadgeLabelTextColorUnchecked=ffffffff
 CanceledSearchTextColor=ff0000
 ComboBoxArrowColor=toolBarItem
 ComboBoxArrowColorDisabled=toolBarItemDisabled
@@ -41,7 +41,7 @@ DoubleTabWidget2ndSeparatorColor=ffff0000
 DoubleTabWidget2ndTabActiveTextColor=ffffffff
 DoubleTabWidget2ndTabBackgroundColor=ffff0000
 DoubleTabWidget2ndTabInactiveTextColor=ff000000
-EditorPlaceholderColor=normalBackground
+EditorPlaceholderColor=ffdddddd
 FancyToolBarSeparatorColor=43ffffff
 FancyTabBarBackgroundColor=shadowBackground
 FancyTabWidgetDisabledSelectedTextColor=toolBarItemDisabled
@@ -77,8 +77,8 @@ InfoBarBackground=ffffffe1
 InfoBarText=text
 MenuBarEmptyAreaBackgroundColor=shadowBackground
 MenuBarItemBackgroundColor=shadowBackground
-MenuBarItemTextColorDisabled=toolBarItemDisabled
-MenuBarItemTextColorNormal=toolBarItem
+MenuBarItemTextColorDisabled=textDisabled
+MenuBarItemTextColorNormal=text
 MenuItemTextColorDisabled=textDisabled
 MenuItemTextColorNormal=text
 MiniProjectTargetSelectorBackgroundColor=shadowBackground
@@ -91,9 +91,9 @@ PanelsWidgetSeparatorLineColor=0
 PanelTextColorDark=text
 PanelTextColorMid=ff666666
 PanelTextColorLight=toolBarItem
-ProgressBarColorError=error
-ProgressBarColorFinished=ff5aaa3c
-ProgressBarColorNormal=hoverBackground
+ProgressBarColorError=ffdb6f71
+ProgressBarColorFinished=dda4d576
+ProgressBarColorNormal=ff999999
 ProgressBarTitleColor=toolBarItem
 SplitterColor=splitter
 TextColorDisabled=textDisabled
@@ -109,13 +109,13 @@ TreeViewArrowColorNormal=hoverBackground
 TreeViewArrowColorSelected=text
 
 OutputPanes_DebugTextColor=text
-OutputPanes_ErrorMessageTextColor=ffff6c6c
-OutputPanes_MessageOutput=ff008787
-OutputPanes_NormalMessageTextColor=text
-OutputPanes_StdErrTextColor=ffff6666
-OutputPanes_StdOutTextColor=text
-OutputPanes_WarningMessageTextColor=fff3c300
-OutputPaneButtonFlashColor=error
+OutputPanes_ErrorMessageTextColor=ffaa0000
+OutputPanes_MessageOutput=ff0000aa
+OutputPanes_NormalMessageTextColor=ff0000aa
+OutputPanes_StdErrTextColor=ffaa0000
+OutputPanes_StdOutTextColor=ff000000
+OutputPanes_WarningMessageTextColor=ff808000
+OutputPaneButtonFlashColor=ffff0000
 OutputPaneToggleButtonTextColorChecked=toolBarItem
 OutputPaneToggleButtonTextColorUnchecked=toolBarItem
 
@@ -149,33 +149,34 @@ Welcome_SideBar_BackgroundColor=normalBackground
 Welcome_TextColorHeading=text
 Welcome_TextColorNormal=text
 
-VcsBase_FileStatusUnknown_TextColor=text
-VcsBase_FileAdded_TextColor=ff00ff00
-VcsBase_FileModified_TextColor=ff8ee0ff
-VcsBase_FileDeleted_TextColor=fffff6c6c
-VcsBase_FileRenamed_TextColor=ffffa500
+VcsBase_FileStatusUnknown_TextColor=ff000000
+VcsBase_FileAdded_TextColor=ff00aa00
+VcsBase_FileModified_TextColor=ff0000ee
+VcsBase_FileDeleted_TextColor=ffee0000
+VcsBase_FileRenamed_TextColor=ffd77d00
 
-Bookmarks_TextMarkColor=ff8080ff
+Bookmarks_TextMarkColor=ffa0a0ff
 
 TextEditor_SearchResult_ScrollBarColor=ff00c000
-TextEditor_CurrentLine_ScrollBarColor=ffffffff
+TextEditor_CurrentLine_ScrollBarColor=ff404040
 
-ProjectExplorer_TaskError_TextMarkColor=ffff4040
-ProjectExplorer_TaskWarn_TextMarkColor=ffffff40
+ProjectExplorer_TaskError_TextMarkColor=ffff0000
+ProjectExplorer_TaskWarn_TextMarkColor=ffffa500
 
 ClangCodeModel_Error_TextMarkColor=ffff882f
-ClangCodeModel_Warning_TextMarkColor=ffceff40
+ClangCodeModel_Warning_TextMarkColor=ffc6c132
 
 [Flags]
 ComboBoxDrawTextShadow=false
 DerivePaletteFromTheme=false
 DrawIndicatorBranch=true
-DrawProgressBarSunken=false
 DrawSearchResultWidgetFrame=false
 DrawTargetSelectorBottom=false
+DrawToolBarHighlights=false
 ApplyThemePaletteGlobally=false
 FlatSideBarIcons=true
 FlatProjectsMode=false
+FlatMenuBar=false
 
 [Gradients]
 DetailsWidgetHeaderGradient\1\color=0

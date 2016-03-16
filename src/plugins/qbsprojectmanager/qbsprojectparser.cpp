@@ -143,12 +143,7 @@ void QbsProjectParser::handleQbsParsingDone(bool success)
     // Do not report the operation as canceled here, as we might want to make overlapping
     // parses appear atomic to the user.
 
-    if (!success) {
-        emit done(false);
-    } else {
-        emit projectStructureAvailable();
-        startRuleExecution();
-    }
+    emit done(success);
 }
 
 void QbsProjectParser::startRuleExecution()
@@ -168,10 +163,11 @@ void QbsProjectParser::startRuleExecution()
 void QbsProjectParser::handleRuleExecutionDone()
 {
     QTC_ASSERT(m_ruleExecutionJob, return);
-    // We always report success here, since execution of some very dynamic rules might fail due
+
+    // Execution of some very dynamic rules might fail due
     // to artifacts not being present. No genuine errors will get lost, as they will re-appear
     // on the next build attempt.
-    emit done(true);
+    emit ruleExecutionDone();
 }
 
 void QbsProjectParser::handleQbsParsingProgress(int progress)

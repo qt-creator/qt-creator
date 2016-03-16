@@ -1,5 +1,4 @@
-#ifndef %PluginName:u%_%CppHeaderSuffix:u%
-#define %PluginName:u%_%CppHeaderSuffix:u%
+#pragma once
 
 #include "%PluginName:l%_global.%CppHeaderSuffix%"
 
@@ -27,5 +26,3 @@ private slots:
 
 } // namespace Internal
 } // namespace %PluginName%
-
-#endif // %PluginName:u%_%CppHeaderSuffix:u%

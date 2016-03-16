@@ -350,6 +350,8 @@ Abi::Abi(const QString &abiString) :
             m_architecture = UnknownArchitecture;
         else if (abiParts.at(0) == QLatin1String("arm"))
             m_architecture = ArmArchitecture;
+        else if (abiParts.at(0) == QLatin1String("aarch64"))
+            m_architecture = ArmArchitecture;
         else if (abiParts.at(0) == QLatin1String("x86"))
             m_architecture = X86Architecture;
         else if (abiParts.at(0) == QLatin1String("mips"))
@@ -482,6 +484,9 @@ Abi Abi::abiFromTargetTriplet(const QString &triple)
         } else if (p.startsWith(QLatin1String("arm"))) {
             arch = Abi::ArmArchitecture;
             width = p.contains(QLatin1String("64")) ? 64 : 32;
+        } else if (p.startsWith(QLatin1String("aarch64"))) {
+            arch = Abi::ArmArchitecture;
+            width = 64;
         } else if (p.startsWith(QLatin1String("mips"))) {
             arch = Abi::MipsArchitecture;
             width = p.contains(QLatin1String("64")) ? 64 : 32;
@@ -1131,6 +1136,10 @@ void ProjectExplorer::ProjectExplorerPlugin::testAbiFromTargetTriplet_data()
     QTest::newRow("x86_64-unknown-openbsd") << int(Abi::X86Architecture)
                                             << int(Abi::BsdOS) << int(Abi::OpenBsdFlavor)
                                             << int(Abi::ElfFormat) << 64;
+
+    QTest::newRow("aarch64-unknown-linux-gnu") << int(Abi::ArmArchitecture)
+                                               << int(Abi::LinuxOS) << int(Abi::GenericLinuxFlavor)
+                                               << int(Abi::ElfFormat) << 64;
 }
 
 void ProjectExplorer::ProjectExplorerPlugin::testAbiFromTargetTriplet()

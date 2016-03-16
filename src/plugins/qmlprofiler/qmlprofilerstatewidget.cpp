@@ -26,6 +26,7 @@
 #include "qmlprofilerstatewidget.h"
 
 #include <utils/qtcassert.h>
+#include <utils/theme/theme.h>
 
 #include <QPainter>
 #include <QVBoxLayout>
@@ -162,8 +163,7 @@ void QmlProfilerStateWidget::paintEvent(QPaintEvent *event)
 
 
     // Background
-    painter.setBrush(QColor("#E0E0E0"));
-    painter.setPen(QColor("#666666"));
+    painter.setBrush(Utils::creatorTheme()->color(Utils::Theme::BackgroundColorNormal));
     painter.drawRoundedRect(QRect(borderWidth, 0, width()-2*borderWidth, height()-borderWidth), 6, 6);
 
     // restore painter

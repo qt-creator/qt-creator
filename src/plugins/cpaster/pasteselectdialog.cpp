@@ -42,14 +42,13 @@ PasteSelectDialog::PasteSelectDialog(const QList<Protocol*> &protocols,
     m_ui.setupUi(this);
     foreach (const Protocol *protocol, protocols) {
         m_ui.protocolBox->addItem(protocol->name());
-        connect(protocol, SIGNAL(listDone(QString,QStringList)),
-                this, SLOT(listDone(QString,QStringList)));
+        connect(protocol, &Protocol::listDone, this, &PasteSelectDialog::listDone);
     }
-    connect(m_ui.protocolBox, SIGNAL(currentIndexChanged(int)),
-            this, SLOT(protocolChanged(int)));
+    connect(m_ui.protocolBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+            this, &PasteSelectDialog::protocolChanged);
 
     m_refreshButton = m_ui.buttons->addButton(tr("Refresh"), QDialogButtonBox::ActionRole);
-    connect(m_refreshButton, SIGNAL(clicked()), this, SLOT(list()));
+    connect(m_refreshButton, &QPushButton::clicked, this, &PasteSelectDialog::list);
 
     m_ui.listWidget->setSelectionMode(QAbstractItemView::SingleSelection);
     if (!Utils::HostOsInfo::isMacHost())

@@ -28,7 +28,7 @@ public:
 //! [plugin functions]
 
 //! [slot]
-private slots:
+private:
     void triggerAction();
 //! [slot]
 };

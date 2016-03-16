@@ -956,7 +956,7 @@ void LldbEngine::handleLocationNotification(const GdbMi &reportedLocation)
 
 void LldbEngine::reloadRegisters()
 {
-    if (!Internal::isDockVisible(QLatin1String(DOCKWIDGET_REGISTER)))
+    if (!Internal::isRegistersWindowVisible())
         return;
 
     DebuggerCommand cmd("fetchRegisters");

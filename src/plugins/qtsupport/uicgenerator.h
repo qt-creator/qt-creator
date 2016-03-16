@@ -43,13 +43,15 @@ public:
 protected:
     Utils::FileName command() const override;
     void handleProcessStarted(QProcess *process, const QByteArray &sourceContents) override;
-    QList<QByteArray> handleProcessFinished(QProcess *process) override;
+    ProjectExplorer::FileNameToContentsHash handleProcessFinished(QProcess *process) override;
 };
 
 class UicGeneratorFactory : public ProjectExplorer::ExtraCompilerFactory
 {
     Q_OBJECT
 public:
+    UicGeneratorFactory(QObject *parent = 0) : ExtraCompilerFactory(parent) {}
+
     ProjectExplorer::FileType sourceType() const override;
 
     QString sourceTag() const override;

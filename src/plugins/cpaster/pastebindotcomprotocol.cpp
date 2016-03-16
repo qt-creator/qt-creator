@@ -39,7 +39,7 @@ enum { debug = 0 };
 
 static const char PASTEBIN_BASE[]="http://pastebin.com/";
 static const char PASTEBIN_API[]="api/api_post.php";
-static const char PASTEBIN_RAW[]="raw.php";
+static const char PASTEBIN_RAW[]="raw/";
 static const char PASTEBIN_ARCHIVE[]="archive";
 
 static const char API_KEY[]="api_dev_key=516686fc461fb7f9341fd7cf2af6f829&"; // user: qtcreator_apikey
@@ -142,7 +142,6 @@ void PasteBinDotComProtocol::fetch(const QString &id)
 {
     // Did we get a complete URL or just an id. Insert a call to the php-script
     QString link = QLatin1String(PASTEBIN_BASE) + QLatin1String(PASTEBIN_RAW);
-    link.append(QLatin1String("?i="));
 
     if (id.startsWith(QLatin1String("http://")))
         link.append(id.mid(id.lastIndexOf(QLatin1Char('/')) + 1));
@@ -168,18 +167,7 @@ void PasteBinDotComProtocol::fetchFinished()
             qDebug() << "fetchFinished: error" << m_fetchId << content;
     } else {
         title = QLatin1String(PROTOCOL_NAME) + QLatin1String(": ") + m_fetchId;
-        content = QString::fromLatin1(m_fetchReply->readAll());
-        // Cut out from '<pre>' formatting
-        const int preEnd = content.lastIndexOf(QLatin1String("</pre>"));
-        if (preEnd != -1)
-            content.truncate(preEnd);
-        const int preStart = content.indexOf(QLatin1String("<pre>"));
-        if (preStart != -1)
-            content.remove(0, preStart + 5);
-        // Make applicable as patch.
-        content = Protocol::textFromHtml(content);
-        content += QLatin1Char('\n');
-        // -------------
+        content = QString::fromUtf8(m_fetchReply->readAll());
         if (debug) {
             QDebug nsp = qDebug().nospace();
             nsp << "fetchFinished: " << content.size() << " Bytes";
@@ -203,9 +191,9 @@ void PasteBinDotComProtocol::list()
         qDebug() << "list: sending " << url << m_listReply;
 }
 
-/* Quick & dirty: Parse out the 'archive' table as of 16.3.2011:
+/* Quick & dirty: Parse out the 'archive' table as of 16.3.2016:
  \code
-<table class="maintable" cellspacing="0">
+<table class="maintable">
     <tr class="top">
         <th scope="col" align="left">Name / Title</th>
         <th scope="col" align="left">Posted</th>
@@ -307,7 +295,7 @@ static inline QStringList parseLists(QIODevice *io, QString *errorMessage)
     // Read answer and delete part up to the main table since the input form has
     // parts that can no longer be parsed using XML parsers (<input type="text" x-webkit-speech />)
     QByteArray data = io->readAll();
-    const int tablePos = data.indexOf("<table class=\"maintable\" cellspacing=\"0\">");
+    const int tablePos = data.indexOf("<table class=\"maintable\">");
     if (tablePos < 0) {
         *errorMessage = QLatin1String("Could not locate beginning of table.");
         return rc;

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE language SYSTEM "language.dtd">
-<language name="Java" version="1.21" kateversion="2.4" section="Sources" extensions="*.java" mimetype="text/x-java" license="LGPL" author="Alfredo Luiz Foltran Fialho (alfoltran@ig.com.br)">
+<language name="Java" version="1.22" kateversion="5.0" section="Sources" extensions="*.java" mimetype="text/x-java" license="LGPL" author="Alfredo Luiz Foltran Fialho (alfoltran@ig.com.br)">
 	<highlighting>
 		<list name="java15">
 			<item> ACTIVE </item>
@@ -3828,24 +3828,24 @@
 			</context>
 		</contexts>
 		<itemDatas>
-			<itemData name="Normal Text"  defStyleNum="dsNormal"/>
-			<itemData name="Keyword"      defStyleNum="dsKeyword"/>
-			<itemData name="Annotation"   defStyleNum="dsFunction"/>
-			<itemData name="Function"     defStyleNum="dsFunction"/>
-			<itemData name="StaticImports"      defStyleNum="dsKeyword" color="#800080" selColor="#FFFFFF" bold="0" italic="0"/>
-			<itemData name="Imports"      defStyleNum="dsKeyword" color="#808000" selColor="#FFFFFF" bold="0" italic="0"/>
-			<itemData name="Data Type"    defStyleNum="dsDataType"/>
-			<itemData name="Decimal"      defStyleNum="dsDecVal"/>
-			<itemData name="Octal"        defStyleNum="dsBaseN"/>
-			<itemData name="Hex"          defStyleNum="dsBaseN"/>
-			<itemData name="Float"        defStyleNum="dsFloat"/>
-			<itemData name="Char"         defStyleNum="dsChar"/>
+			<itemData name="Normal Text"  defStyleNum="dsNormal" spellChecking="false"/>
+			<itemData name="Keyword"      defStyleNum="dsKeyword" spellChecking="false"/>
+			<itemData name="Annotation"   defStyleNum="dsAttribute" spellChecking="false"/>
+			<itemData name="Function"     defStyleNum="dsFunction" spellChecking="false"/>
+			<itemData name="StaticImports" defStyleNum="dsImport" spellChecking="false"/>
+			<itemData name="Imports"      defStyleNum="dsImport" spellChecking="false"/>
+			<itemData name="Data Type"    defStyleNum="dsDataType" spellChecking="false"/>
+			<itemData name="Decimal"      defStyleNum="dsDecVal" spellChecking="false"/>
+			<itemData name="Octal"        defStyleNum="dsBaseN" spellChecking="false"/>
+			<itemData name="Hex"          defStyleNum="dsBaseN" spellChecking="false"/>
+			<itemData name="Float"        defStyleNum="dsFloat" spellChecking="false"/>
+			<itemData name="Char"         defStyleNum="dsChar" spellChecking="false"/>
 			<itemData name="String"       defStyleNum="dsString"/>
-			<itemData name="String Char"  defStyleNum="dsChar"/>
+			<itemData name="String Char"  defStyleNum="dsSpecialChar" spellChecking="false"/>
 			<itemData name="PrintfString" defStyleNum="dsString"/>
 			<itemData name="Comment"      defStyleNum="dsComment"/>
-			<itemData name="Symbol"       defStyleNum="dsNormal"/>
-			<itemData name="Java15"       defStyleNum="dsNormal" color="#0095FF" selColor="#FFFFFF" bold="1" italic="0"/>
+			<itemData name="Symbol"       defStyleNum="dsNormal" spellChecking="false"/>
+			<itemData name="Java15"       defStyleNum="dsBuiltIn" spellChecking="false"/>
 		</itemDatas>
 	</highlighting>
 	<general>

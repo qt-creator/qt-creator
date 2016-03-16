@@ -112,10 +112,8 @@
 #define USE_EIGEN 1
 #endif
 
-#ifdef QT_SCRIPT_LIB
+#ifdef HAS_SCRIPT
 #define USE_SCRIPTLIB 1
-#else
-#define USE_SCRIPTLIB 0
 #endif
 
 #ifdef QT_WEBKIT_LIB

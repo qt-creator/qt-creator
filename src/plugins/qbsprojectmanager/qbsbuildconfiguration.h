@@ -85,7 +85,7 @@ signals:
 protected:
     QbsBuildConfiguration(ProjectExplorer::Target *target, QbsBuildConfiguration *source);
     QbsBuildConfiguration(ProjectExplorer::Target *target, Core::Id id);
-    bool fromMap(const QVariantMap &map);
+    bool fromMap(const QVariantMap &map) override;
 
 private slots:
     void buildStepInserted(int pos);

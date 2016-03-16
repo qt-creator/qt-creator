@@ -147,12 +147,8 @@ void QtVersionManager::triggerQtVersionRestore()
         m_configFileWatcher->addFile(configFileName.toString(),
                                      FileSystemWatcher::WatchModifiedDate);
     } // exists
-}
 
-bool QtVersionManager::delayedInitialize()
-{
     updateDocumentation();
-    return true;
 }
 
 bool QtVersionManager::isLoaded()

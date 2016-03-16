@@ -23,37 +23,15 @@
 **
 ****************************************************************************/
 
-#pragma once
+#ifndef QBSPMLOGGING_P_H
+#define QBSPMLOGGING_P_H
 
-#include <QByteArray>
-#include <QList>
+#include <QLoggingCategory>
 
-#include <functional>
+namespace QbsProjectManager {
+namespace Internal {
+Q_DECLARE_LOGGING_CATEGORY(qbsPmLog)
+}
+}
 
-namespace CMakeProjectManager {
-
-class CMakeConfigItem {
-public:
-    enum Type { FILEPATH, PATH, BOOL, STRING, INTERNAL };
-    CMakeConfigItem();
-    CMakeConfigItem(const CMakeConfigItem &other);
-    CMakeConfigItem(const QByteArray &k, Type t, const QByteArray &d, const QByteArray &v);
-    CMakeConfigItem(const QByteArray &k, const QByteArray &v);
-
-    static QByteArray valueOf(const QByteArray &key, const QList<CMakeConfigItem> &input);
-
-    bool isNull() const { return key.isEmpty(); }
-
-    static std::function<bool(const CMakeConfigItem &a, const CMakeConfigItem &b)> sortOperator();
-    static CMakeConfigItem fromString(const QString &s);
-    QString toString() const;
-
-    QByteArray key;
-    Type type = STRING;
-    bool isAdvanced = false;
-    QByteArray value; // converted to string as needed
-    QByteArray documentation;
-};
-using CMakeConfig = QList<CMakeConfigItem>;
-
-} // namespace CMakeProjectManager
+#endif // Include guard

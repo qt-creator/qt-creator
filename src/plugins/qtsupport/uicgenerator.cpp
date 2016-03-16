@@ -31,27 +31,33 @@
 #include <projectexplorer/target.h>
 #include <projectexplorer/buildconfiguration.h>
 
+#include <utils/qtcassert.h>
+
 #include <QFileInfo>
 #include <QDir>
 #include <QLoggingCategory>
 #include <QProcess>
 #include <QDateTime>
 
+using namespace ProjectExplorer;
+
 namespace QtSupport {
 
-UicGenerator::UicGenerator(const ProjectExplorer::Project *project, const Utils::FileName &source,
+UicGenerator::UicGenerator(const Project *project, const Utils::FileName &source,
                            const Utils::FileNameList &targets, QObject *parent) :
-    ProjectExplorer::ProcessExtraCompiler(project, source, targets, parent)
-{ }
+    ProcessExtraCompiler(project, source, targets, parent)
+{
+    QTC_ASSERT(targets.count() == 1, return);
+}
 
 Utils::FileName UicGenerator::command() const
 {
     QtSupport::BaseQtVersion *version = nullptr;
-    ProjectExplorer::Target *target;
+    Target *target;
     if ((target = project()->activeTarget()))
         version = QtSupport::QtKitInformation::qtVersion(target->kit());
     else
-        version = QtSupport::QtKitInformation::qtVersion(ProjectExplorer::KitManager::defaultKit());
+        version = QtSupport::QtKitInformation::qtVersion(KitManager::defaultKit());
 
     if (!version)
         return Utils::FileName();
@@ -65,19 +71,24 @@ void UicGenerator::handleProcessStarted(QProcess *process, const QByteArray &sou
     process->closeWriteChannel();
 }
 
-QList<QByteArray> UicGenerator::handleProcessFinished(QProcess *process)
+FileNameToContentsHash UicGenerator::handleProcessFinished(QProcess *process)
 {
+    FileNameToContentsHash result;
     if (process->exitStatus() != QProcess::NormalExit && process->exitCode() != 0)
-        return QList<QByteArray>();
+        return result;
 
+    const Utils::FileNameList targetList = targets();
+    if (targetList.size() != 1)
+        return result;
     // As far as I can discover in the UIC sources, it writes out local 8-bit encoding. The
     // conversion below is to normalize both the encoding, and the line terminators.
-    return { QString::fromLocal8Bit(process->readAllStandardOutput()).toUtf8() };
+    result[targetList.first()] = QString::fromLocal8Bit(process->readAllStandardOutput()).toUtf8();
+    return result;
 }
 
-ProjectExplorer::FileType UicGeneratorFactory::sourceType() const
+FileType UicGeneratorFactory::sourceType() const
 {
-    return ProjectExplorer::FormType;
+    return FormType;
 }
 
 QString UicGeneratorFactory::sourceTag() const
@@ -85,9 +96,9 @@ QString UicGeneratorFactory::sourceTag() const
     return QLatin1String("ui");
 }
 
-ProjectExplorer::ExtraCompiler *UicGeneratorFactory::create(const ProjectExplorer::Project *project,
-                                                            const Utils::FileName &source,
-                                                            const Utils::FileNameList &targets)
+ExtraCompiler *UicGeneratorFactory::create(const Project *project,
+                                           const Utils::FileName &source,
+                                           const Utils::FileNameList &targets)
 {
     return new UicGenerator(project, source, targets, this);
 }

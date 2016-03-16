@@ -90,6 +90,8 @@ QtcPlugin {
         "qbsnodes.h",
         "qbsparser.cpp",
         "qbsparser.h",
+        "qbspmlogging.cpp",
+        "qbspmlogging.h",
         "qbsprofilessettingspage.cpp",
         "qbsprofilessettingspage.h",
         "qbsprofilessettingswidget.ui",

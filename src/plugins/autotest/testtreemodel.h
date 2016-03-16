@@ -81,7 +81,7 @@ public:
     void markAllForRemoval();
     void markForRemoval(const QString &filePath);
     void sweep();
-    QMap<QString, QString> testCaseNamesForFiles(QStringList files);
+    QHash<QString, QString> testCaseNamesForFiles(QStringList files);
 
 signals:
     void testTreeModelChanged();

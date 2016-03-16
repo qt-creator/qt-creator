@@ -35,7 +35,10 @@
 
 #include <QByteArray>
 #include <QFuture>
+#include <QHash>
 #include <QList>
+
+#include <functional>
 
 QT_FORWARD_DECLARE_CLASS(QProcess);
 QT_FORWARD_DECLARE_CLASS(QThreadPool);
@@ -43,6 +46,8 @@ QT_FORWARD_DECLARE_CLASS(QThreadPool);
 namespace ProjectExplorer {
 
 class ExtraCompilerPrivate;
+using FileNameToContentsHash = QHash<Utils::FileName, QByteArray>;
+
 class PROJECTEXPLORER_EXPORT ExtraCompiler : public QObject
 {
     Q_OBJECT
@@ -61,6 +66,7 @@ public:
     QByteArray content(const Utils::FileName &file) const;
 
     Utils::FileNameList targets() const;
+    void forEachTarget(std::function<void(const Utils::FileName &)> func);
 
     void setCompileTime(const QDateTime &time);
     QDateTime compileTime() const;
@@ -115,19 +121,19 @@ protected:
     virtual void handleProcessError(QProcess *process) { Q_UNUSED(process); }
     virtual void handleProcessStarted(QProcess *process, const QByteArray &sourceContents)
     { Q_UNUSED(process); Q_UNUSED(sourceContents); }
-    virtual QList<QByteArray> handleProcessFinished(QProcess *process) = 0;
+    virtual FileNameToContentsHash handleProcessFinished(QProcess *process) = 0;
 
     virtual QList<Task> parseIssues(const QByteArray &stdErr);
 
 private:
     using ContentProvider = std::function<QByteArray()>;
     void runImpl(const ContentProvider &sourceContents);
-    QList<QByteArray> runInThread(const Utils::FileName &cmd, const Utils::FileName &workDir,
-                                  const QStringList &args, const ContentProvider &provider,
-                                  const Utils::Environment &env);
+    FileNameToContentsHash runInThread(const Utils::FileName &cmd, const Utils::FileName &workDir,
+                                      const QStringList &args, const ContentProvider &provider,
+                                      const Utils::Environment &env);
     void cleanUp();
 
-    QFutureWatcher<QList<QByteArray>> *m_watcher = nullptr;
+    QFutureWatcher<FileNameToContentsHash> *m_watcher = nullptr;
 };
 
 class PROJECTEXPLORER_EXPORT ExtraCompilerFactory : public QObject

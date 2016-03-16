@@ -49,6 +49,8 @@ class Style;
 
 class ClassItem : public ObjectItem, public IRelationable
 {
+    Q_DECLARE_TR_FUNCTIONS(qmt::ClassItem)
+
 public:
     ClassItem(DClass *klass, DiagramSceneModel *diagramSceneModel, QGraphicsItem *parent = 0);
     ~ClassItem() override;

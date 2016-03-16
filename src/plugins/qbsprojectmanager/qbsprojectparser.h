@@ -48,6 +48,7 @@ public:
     ~QbsProjectParser();
 
     void parse(const QVariantMap &config, const Utils::Environment &env, const QString &dir);
+    void startRuleExecution();
     void cancel();
 
     qbs::Project qbsProject() const;
@@ -55,7 +56,7 @@ public:
 
 signals:
     void done(bool success);
-    void projectStructureAvailable();
+    void ruleExecutionDone();
 
 private slots:
     void handleQbsParsingDone(bool success);
@@ -67,7 +68,6 @@ private:
     QString resourcesBaseDirectory() const;
     QString libExecDirectory() const;
 
-    void startRuleExecution();
     void handleRuleExecutionDone();
 
     QString m_projectFilePath;

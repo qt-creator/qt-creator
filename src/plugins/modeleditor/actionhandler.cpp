@@ -145,7 +145,7 @@ void ActionHandler::createActions()
     menuTools->addMenu(menuModelEditor);
 
     Core::Command *exportDiagramCommand = registerCommand(
-                Constants::EXPORT_DIAGRAM, [this]() { exportDiagram(); }, Core::Context(), true,
+                Constants::EXPORT_DIAGRAM, [this]() { exportDiagram(); }, d->context, true,
                 tr("Export Diagram..."));
     menuModelEditor->addAction(exportDiagramCommand);
     d->exportDiagramAction = exportDiagramCommand->action();

@@ -42,7 +42,6 @@ public:
     QtVersionManager();
     ~QtVersionManager();
     static void initialized();
-    static bool delayedInitialize();
 
     static bool isLoaded();
 

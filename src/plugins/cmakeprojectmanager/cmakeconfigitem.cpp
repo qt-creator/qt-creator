@@ -42,7 +42,7 @@ CMakeConfigItem::CMakeConfigItem(const CMakeConfigItem &other) :
     value(other.value), documentation(other.documentation)
 { }
 
-CMakeConfigItem::CMakeConfigItem(const QByteArray &k, CMakeConfigItem::Type &t,
+CMakeConfigItem::CMakeConfigItem(const QByteArray &k, Type t,
                                  const QByteArray &d, const QByteArray &v) :
     key(k), type(t), value(v), documentation(d)
 { }
@@ -50,6 +50,15 @@ CMakeConfigItem::CMakeConfigItem(const QByteArray &k, CMakeConfigItem::Type &t,
 CMakeConfigItem::CMakeConfigItem(const QByteArray &k, const QByteArray &v) :
     key(k), value(v)
 { }
+
+QByteArray CMakeConfigItem::valueOf(const QByteArray &key, const QList<CMakeConfigItem> &input)
+{
+    for (auto it = input.constBegin(); it != input.constEnd(); ++it) {
+        if (it->key == key)
+            return it->value;
+    }
+    return QByteArray();
+}
 
 std::function<bool (const CMakeConfigItem &a, const CMakeConfigItem &b)> CMakeConfigItem::sortOperator()
 {

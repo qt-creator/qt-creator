@@ -80,7 +80,13 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(ProjectExplorer::Target *parent
             m_buildDirManager, &BuildDirManager::forceReparse);
     connect(this, &CMakeBuildConfiguration::buildDirectoryChanged,
             m_buildDirManager, &BuildDirManager::forceReparse);
-    connect(target(), &Target::kitChanged, m_buildDirManager, &BuildDirManager::forceReparse);
+    connect(target(), &Target::kitChanged, this, [this]() {
+        ProjectExplorer::Kit *k = target()->kit();
+        CMakeConfig config = cmakeConfiguration();
+        config.append(CMakeConfigurationKitInformation::configuration(k));  // last value wins...
+        setCMakeConfiguration(config);
+        m_buildDirManager->maybeForceReparse();
+    });
 
     connect(this, &CMakeBuildConfiguration::parsingStarted, project, &CMakeProject::handleParsingStarted);
     connect(this, &CMakeBuildConfiguration::dataAvailable, project, &CMakeProject::parseCMakeOutput);
@@ -195,9 +201,11 @@ QList<ConfigModel::DataItem> CMakeBuildConfiguration::completeCMakeConfiguration
         return QList<ConfigModel::DataItem>();
 
     if (m_completeConfigurationCache.isEmpty())
-        m_completeConfigurationCache = m_buildDirManager->configuration();
+        m_completeConfigurationCache = m_buildDirManager->parsedConfiguration();
 
-    return Utils::transform(m_completeConfigurationCache, [](const CMakeConfigItem &i) {
+    CMakeConfig cache = Utils::filtered(m_completeConfigurationCache,
+                                        [](const CMakeConfigItem &i) { return i.type != CMakeConfigItem::INTERNAL; });
+    return Utils::transform(cache, [](const CMakeConfigItem &i) {
         ConfigModel::DataItem j;
         j.key = QString::fromUtf8(i.key);
         j.value = QString::fromUtf8(i.value);

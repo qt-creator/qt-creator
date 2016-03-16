@@ -29,7 +29,7 @@
 #include <designer/qtdesignerformclasscodegenerator.h>
 #include <qtsupport/qtsupportconstants.h>
 
-#include <cppeditor/cppeditorconstants.h>
+#include <cpptools/cpptoolsconstants.h>
 
 #include <QDebug>
 
@@ -43,12 +43,12 @@ FormClassWizard::FormClassWizard()
 
 QString FormClassWizard::headerSuffix() const
 {
-    return preferredSuffix(QLatin1String(CppEditor::Constants::CPP_HEADER_MIMETYPE));
+    return preferredSuffix(QLatin1String(CppTools::Constants::CPP_HEADER_MIMETYPE));
 }
 
 QString FormClassWizard::sourceSuffix() const
 {
-    return preferredSuffix(QLatin1String(CppEditor::Constants::CPP_SOURCE_MIMETYPE));
+    return preferredSuffix(QLatin1String(CppTools::Constants::CPP_SOURCE_MIMETYPE));
 }
 
 QString FormClassWizard::formSuffix() const

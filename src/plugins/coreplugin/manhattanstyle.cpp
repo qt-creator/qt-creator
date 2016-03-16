@@ -123,23 +123,12 @@ public:
     void init();
 
 public:
-    const QImage lineeditImage;
-    const QImage lineeditImage_disabled;
     const QPixmap extButtonPixmap;
     const QPixmap closeButtonPixmap;
     StyleAnimator animator;
 };
 
-QString lineEditImageFileName(const QString &pngFileName)
-{
-    return Utils::creatorTheme()->widgetStyle() == Utils::Theme::StyleDefault
-              ? StyleHelper::dpiSpecificImageFile(pngFileName)
-              : QString();
-}
-
 ManhattanStylePrivate::ManhattanStylePrivate() :
-    lineeditImage(lineEditImageFileName(QLatin1String(":/core/images/inputfield.png"))),
-    lineeditImage_disabled(lineEditImageFileName(QLatin1String(":/core/images/inputfield_disabled.png"))),
     extButtonPixmap(Core::Icons::TOOLBAR_EXTENSION.pixmap()),
     closeButtonPixmap(Core::Icons::CLOSE_FOREGROUND.pixmap())
 {
@@ -464,8 +453,13 @@ void ManhattanStyle::drawPrimitive(PrimitiveElement element, const QStyleOption 
                 painter->setBrushOrigin(backgroundRect.topLeft());
                 painter->fillRect(backgroundRect, option->palette.base());
 
+                static const QImage bg(StyleHelper::dpiSpecificImageFile(
+                                           QLatin1String(":/core/images/inputfield.png")));
+                static const QImage bg_disabled(StyleHelper::dpiSpecificImageFile(
+                                                    QLatin1String(":/core/images/inputfield_disabled.png")));
+
                 const bool enabled = option->state & State_Enabled;
-                StyleHelper::drawCornerImage(enabled ? d->lineeditImage : d->lineeditImage_disabled,
+                StyleHelper::drawCornerImage(enabled ? bg : bg_disabled,
                                              painter, option->rect, 5, 5, 5, 5);
             } else {
                 painter->fillRect(backgroundRect, option->palette.base());
@@ -657,7 +651,7 @@ void ManhattanStyle::drawControl(ControlElement element, const QStyleOption *opt
             const bool act = mbi->state & (State_Sunken | State_Selected);
             const bool dis = !(mbi->state & State_Enabled);
 
-            if (creatorTheme()->widgetStyle() == Theme::StyleFlat)
+            if (creatorTheme()->flag(Theme::FlatMenuBar))
                 painter->fillRect(option->rect, StyleHelper::isBaseColorDefault()
                                   ? creatorTheme()->color(Theme::MenuBarItemBackgroundColor)
                                   : StyleHelper::baseColor());
@@ -790,7 +784,7 @@ void ManhattanStyle::drawControl(ControlElement element, const QStyleOption *opt
         break;
 
     case CE_MenuBarEmptyArea: {
-            if (creatorTheme()->widgetStyle() == Theme::StyleDefault) {
+            if (!creatorTheme()->flag(Theme::FlatMenuBar)) {
                 StyleHelper::menuGradient(painter, option->rect, option->rect);
                 painter->save();
                 painter->setPen(StyleHelper::borderColor());
@@ -830,32 +824,34 @@ void ManhattanStyle::drawControl(ControlElement element, const QStyleOption *opt
             else
                 StyleHelper::verticalGradient(painter, gradientSpan, rect, drawLightColored);
 
-            if (!drawLightColored)
-                painter->setPen(StyleHelper::borderColor());
-            else
-                painter->setPen(QColor(0x888888));
+            if (creatorTheme()->flag(Theme::DrawToolBarHighlights)) {
+                if (!drawLightColored)
+                    painter->setPen(StyleHelper::borderColor());
+                else
+                    painter->setPen(QColor(0x888888));
 
-            if (horizontal) {
-                // Note: This is a hack to determine if the
-                // toolbar should draw the top or bottom outline
-                // (needed for the find toolbar for instance)
-                const QColor hightLight = creatorTheme()->widgetStyle() == Theme::StyleDefault
-                        ? StyleHelper::sidebarHighlight()
-                        : creatorTheme()->color(Theme::FancyToolBarSeparatorColor);
-                const QColor borderColor = drawLightColored
-                        ? QColor(255, 255, 255, 180) : hightLight;
-                if (widget && widget->property("topBorder").toBool()) {
-                    painter->drawLine(borderRect.topLeft(), borderRect.topRight());
-                    painter->setPen(borderColor);
-                    painter->drawLine(borderRect.topLeft() + QPointF(0, 1), borderRect.topRight() + QPointF(0, 1));
+                if (horizontal) {
+                    // Note: This is a hack to determine if the
+                    // toolbar should draw the top or bottom outline
+                    // (needed for the find toolbar for instance)
+                    const QColor hightLight = creatorTheme()->widgetStyle() == Theme::StyleDefault
+                            ? StyleHelper::sidebarHighlight()
+                            : creatorTheme()->color(Theme::FancyToolBarSeparatorColor);
+                    const QColor borderColor = drawLightColored
+                            ? QColor(255, 255, 255, 180) : hightLight;
+                    if (widget && widget->property("topBorder").toBool()) {
+                        painter->drawLine(borderRect.topLeft(), borderRect.topRight());
+                        painter->setPen(borderColor);
+                        painter->drawLine(borderRect.topLeft() + QPointF(0, 1), borderRect.topRight() + QPointF(0, 1));
+                    } else {
+                        painter->drawLine(borderRect.bottomLeft(), borderRect.bottomRight());
+                        painter->setPen(borderColor);
+                        painter->drawLine(borderRect.topLeft(), borderRect.topRight());
+                    }
                 } else {
-                    painter->drawLine(borderRect.bottomLeft(), borderRect.bottomRight());
-                    painter->setPen(borderColor);
-                    painter->drawLine(borderRect.topLeft(), borderRect.topRight());
+                    painter->drawLine(borderRect.topLeft(), borderRect.bottomLeft());
+                    painter->drawLine(borderRect.topRight(), borderRect.bottomRight());
                 }
-            } else {
-                painter->drawLine(borderRect.topLeft(), borderRect.bottomLeft());
-                painter->drawLine(borderRect.topRight(), borderRect.bottomRight());
             }
         }
         break;

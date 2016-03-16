@@ -1,5 +1,4 @@
-#ifndef %PluginName:u%CONSTANTS_%CppHeaderSuffix:u%
-#define %PluginName:u%CONSTANTS_%CppHeaderSuffix:u%
+#pragma once
 
 namespace %PluginName% {
 namespace Constants {
@@ -9,5 +8,3 @@ const char MENU_ID[] = "%PluginName%.Menu";
 
 } // namespace %PluginName%
 } // namespace Constants
-
-#endif // %PluginName:u%CONSTANTS_%CppHeaderSuffix:u%

@@ -46,7 +46,6 @@
     <mime-type type="text/x-c++src">
         <comment>C++ source code</comment>
         <sub-class-of type="text/x-csrc"/>
-        <comment>C++ source code</comment>
         <glob pattern="*.cpp" weight="70"/>
         <glob pattern="*.cxx" weight="70"/>
         <glob pattern="*.cc" weight="70"/>
@@ -55,7 +54,6 @@
         <!-- Additions to freedesktop: -->
         <glob pattern="*.cp" weight="70"/>
         <glob pattern="*.inl" weight="70"/>
-        <glob pattern="*.qdoc" weight="70"/>
         <glob pattern="*.tcc" weight="70"/>
         <glob pattern="*.tpp" weight="70"/>
         <glob pattern="*.t++" weight="70"/>
@@ -65,14 +63,18 @@
         </magic>
     </mime-type>
 
-  <mime-type type="text/x-moc">
-    <comment>Qt MOC file</comment>
-    <acronym>Qt MOC</acronym>
-    <expanded-acronym>Qt Meta Object Compiler</expanded-acronym>
-    <!-- Fix to freedesktop: moc is C++ source -->
-    <sub-class-of type="text/x-c++src"/>
-    <glob pattern="*.moc" weight="70"/>
-  </mime-type>
+    <mime-type type="text/x-qdoc">
+        <comment>Qt documentation file</comment>
+        <sub-class-of type="text/plain"/>
+        <glob pattern="*.qdoc" weight="70"/>
+    </mime-type>
+
+    <mime-type type="text/x-moc">
+        <comment>Qt MOC file</comment>
+        <!-- Fix to freedesktop: moc is C++ source -->
+        <sub-class-of type="text/x-c++src"/>
+        <glob pattern="*.moc" weight="70"/>
+    </mime-type>
 
     <mime-type type="text/x-objc++src">
          <comment>Objective-C++ source code</comment>

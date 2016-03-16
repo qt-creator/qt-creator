@@ -39,6 +39,7 @@
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
 
+#include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorericons.h>
 
 #include <texteditor/texteditor.h>
@@ -137,6 +138,9 @@ TestResultsPane::TestResultsPane(QObject *parent) :
             this, &TestResultsPane::onTestRunFinished);
     connect(TestRunner::instance(), &TestRunner::testResultReady,
             this, &TestResultsPane::addTestResult);
+    connect(ProjectExplorer::ProjectExplorerPlugin::instance(),
+            &ProjectExplorer::ProjectExplorerPlugin::updateRunActions,
+            this, &TestResultsPane::updateRunActions);
 }
 
 void TestResultsPane::createToolButtons()
@@ -209,6 +213,8 @@ void TestResultsPane::addTestResult(const TestResultPtr &result)
     m_model->addTestResult(result, m_expandCollapse->isChecked());
     if (!m_treeView->isVisible())
         popup(Core::IOutputPane::NoModeSwitch);
+    setIconBadgeNumber(m_model->resultTypeCount(Result::Fail)
+                       + m_model->resultTypeCount(Result::UnexpectedPass));
     flash();
     navigateStateChanged();
 }
@@ -242,6 +248,7 @@ int TestResultsPane::priorityInStatusBar() const
 void TestResultsPane::clearContents()
 {
     m_filterModel->clearTestResults();
+    setIconBadgeNumber(0);
     navigateStateChanged();
     m_summaryWidget->setVisible(false);
     m_autoScroll = AutotestPlugin::instance()->settings()->autoScroll;
@@ -255,13 +262,13 @@ void TestResultsPane::visibilityChanged(bool visible)
         return;
     if (visible) {
         connect(TestTreeModel::instance(), &TestTreeModel::testTreeModelChanged,
-                this, &TestResultsPane::onTestTreeModelChanged);
+                this, &TestResultsPane::updateRunActions);
         // make sure run/run all are in correct state
-        onTestTreeModelChanged();
+        updateRunActions();
         TestTreeModel::instance()->enableParsing();
     } else {
         disconnect(TestTreeModel::instance(), &TestTreeModel::testTreeModelChanged,
-                   this, &TestResultsPane::onTestTreeModelChanged);
+                   this, &TestResultsPane::updateRunActions);
         TestTreeModel::instance()->disableParsing();
     }
     m_wasVisibleBefore = visible;
@@ -507,9 +514,12 @@ void TestResultsPane::onScrollBarRangeChanged(int, int max)
         m_treeView->verticalScrollBar()->setValue(max);
 }
 
-void TestResultsPane::onTestTreeModelChanged()
+void TestResultsPane::updateRunActions()
 {
-    const bool enable = TestTreeModel::instance()->hasTests();
+    QString whyNot;
+    const bool enable = TestTreeModel::instance()->hasTests()
+            && ProjectExplorer::ProjectExplorerPlugin::canRunStartupProject(
+                ProjectExplorer::Constants::NORMAL_RUN_MODE, &whyNot);
     m_runAll->setEnabled(enable);
     m_runSelected->setEnabled(enable);
 }

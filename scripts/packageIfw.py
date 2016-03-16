@@ -36,22 +36,22 @@ import shutil
 import inspect
 
 def usage():
-    print('Usage: %s [-v|--version-string=versionstring] [-i|--installer-path=/path/to/installerfw] [-a|--archive=archive.7z] [-d|--debug] <outputname>' %  os.path.basename(sys.argv[0]))
+    print('Usage: %s [-v|--version-string=versionstring] [-d|--display-version=versionstring] [-i|--installer-path=/path/to/installerfw] [-a|--archive=archive.7z] [--debug] <outputname>' %  os.path.basename(sys.argv[0]))
 
 def substitute_file(infile, outfile, substitutions):
     with open(infile, 'r') as f:
-      template = f.read()
+        template = f.read()
     with open(outfile, 'w') as f:
-      f.write(template.format(**substitutions))
+        f.write(template.format(**substitutions))
 
 def ifw_template_dir():
     script_dir = os.path.dirname(inspect.getfile(inspect.currentframe()))
-    source_dir = os.path.normpath(os.path.join(script_dir, '..'));
+    source_dir = os.path.normpath(os.path.join(script_dir, '..'))
     return os.path.normpath(os.path.join(source_dir, 'dist', 'installer', 'ifw'))
 
 def main():
     try:
-        opts, args = getopt.gnu_getopt(sys.argv[1:], 'hv:i:a:d', ['help', 'version-string=', 'installer-path=', 'archive', 'debug'])
+        opts, args = getopt.gnu_getopt(sys.argv[1:], 'hv:d:i:a:', ['help', 'version-string=', 'display-version=', 'installer-path=', 'archive', 'debug'])
     except:
         usage()
         sys.exit(2)
@@ -61,30 +61,36 @@ def main():
         sys.exit(2)
 
     version = ''
+    display_version = ''
     ifw_location = ''
     archives = []
     debug = False
     for o, a in opts:
-        if o in ('-h', '--help'):
+        if o in ['-h', '--help']:
             usage()
             sys.exit(0)
-        if o in ('-v', '--version-string'):
+        if o in ['-v', '--version-string']:
             version = a
-        if o in ('-i', '--installer-path'):
+        if o in ['-d', '--display-version']:
+            display_version = a
+        if o in ['-i', '--installer-path']:
             ifw_location = a
-        if o in ('-a', '--archive'):
+        if o in ['-a', '--archive']:
             archives.append(a)
-        if o in ('-d', '--debug'):
+        if o in ['--debug']:
             debug = True
 
     if (version == ''):
-      raise Exception('Version not specified (--version-string)!')
+        raise Exception('Version not specified (--version-string)!')
+
+    if not display_version:
+        display_version = version
 
     if (ifw_location == ''):
-      raise Exception('Installer framework location not specified (--installer-path)!')
+        raise Exception('Installer framework location not specified (--installer-path)!')
 
     if not archives:
-      raise ValueError('No archive(s) specified (--archive)!')
+        raise ValueError('No archive(s) specified (--archive)!')
 
     installer_name = args[0]
     config_postfix = ''
@@ -108,6 +114,7 @@ def main():
     try:
         substs = {}
         substs['version'] = version
+        substs['display_version'] = display_version
         substs['date'] = datetime.date.today().isoformat()
         substs['archives'] = ','.join(archives)
 

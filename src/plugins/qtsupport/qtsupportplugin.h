@@ -41,7 +41,6 @@ class QtSupportPlugin : public ExtensionSystem::IPlugin
 public:
     bool initialize(const QStringList &arguments, QString *errorMessage);
     void extensionsInitialized();
-    bool delayedInitialize();
 
 #ifdef WITH_TESTS
 private slots:

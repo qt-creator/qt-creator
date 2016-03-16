@@ -83,10 +83,11 @@ public:
     {
         setId(Constants::CPPEDITOR_ID);
         setDisplayName(qApp->translate("OpenWith::Editors", Constants::CPPEDITOR_DISPLAY_NAME));
-        addMimeType(Constants::C_SOURCE_MIMETYPE);
-        addMimeType(Constants::C_HEADER_MIMETYPE);
-        addMimeType(Constants::CPP_SOURCE_MIMETYPE);
-        addMimeType(Constants::CPP_HEADER_MIMETYPE);
+        addMimeType(CppTools::Constants::C_SOURCE_MIMETYPE);
+        addMimeType(CppTools::Constants::C_HEADER_MIMETYPE);
+        addMimeType(CppTools::Constants::CPP_SOURCE_MIMETYPE);
+        addMimeType(CppTools::Constants::CPP_HEADER_MIMETYPE);
+        addMimeType(CppTools::Constants::QDOC_MIMETYPE);
 
         setDocumentCreator([]() { return new CppEditorDocument; });
         setEditorWidgetCreator([]() { return new CppEditorWidget; });
@@ -140,7 +141,6 @@ CppQuickFixAssistProvider *CppEditorPlugin::quickFixProvider() const
 bool CppEditorPlugin::initialize(const QStringList & /*arguments*/, QString *errorMessage)
 {
     Q_UNUSED(errorMessage)
-    Utils::MimeDatabase::addMimeTypes(QLatin1String(":/cppeditor/CppEditor.mimetypes.xml"));
 
     addAutoReleasedObject(new CppEditorFactory);
     addAutoReleasedObject(new CppOutlineWidgetFactory);
@@ -268,13 +268,13 @@ void CppEditorPlugin::extensionsInitialized()
     if (!HostOsInfo::isMacHost() && !HostOsInfo::isWindowsHost()) {
         FileIconProvider::registerIconOverlayForMimeType(
                     QIcon(creatorTheme()->imageFile(Theme::IconOverlayCppSource, QLatin1String(":/cppeditor/images/qt_cpp.png"))),
-                    Constants::CPP_SOURCE_MIMETYPE);
+                    CppTools::Constants::CPP_SOURCE_MIMETYPE);
         FileIconProvider::registerIconOverlayForMimeType(
                     QIcon(creatorTheme()->imageFile(Theme::IconOverlayCSource, QLatin1String(":/cppeditor/images/qt_c.png"))),
-                    Constants::C_SOURCE_MIMETYPE);
+                    CppTools::Constants::C_SOURCE_MIMETYPE);
         FileIconProvider::registerIconOverlayForMimeType(
                     QIcon(creatorTheme()->imageFile(Theme::IconOverlayCppHeader, QLatin1String(":/cppeditor/images/qt_h.png"))),
-                    Constants::CPP_HEADER_MIMETYPE);
+                    CppTools::Constants::CPP_HEADER_MIMETYPE);
     }
 }
 

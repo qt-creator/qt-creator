@@ -51,13 +51,18 @@ public:
     void setSettings(QSettings *settings, const QByteArray &key);
     QModelIndexList activeRows() const;
 
-    void setModel(QAbstractItemModel *model);
     virtual void rowActivated(const QModelIndex &) {}
     virtual void rowClicked(const QModelIndex &) {}
-    void mousePressEvent(QMouseEvent *ev);
+
+    void setModel(QAbstractItemModel *model) override;
+    void mousePressEvent(QMouseEvent *ev) override;
+    void showEvent(QShowEvent *ev) override;
 
     void showProgressIndicator();
     void hideProgressIndicator();
+
+signals:
+    void aboutToShow();
 
 public slots:
     void setAlternatingRowColorsHelper(bool on) { setAlternatingRowColors(on); }

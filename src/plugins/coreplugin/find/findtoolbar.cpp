@@ -67,15 +67,8 @@ FindToolBar::FindToolBar(CurrentDocumentFind *currentDocumentFind)
     : m_currentDocumentFind(currentDocumentFind),
       m_findCompleter(new QCompleter(this)),
       m_replaceCompleter(new QCompleter(this)),
-      m_enterFindStringAction(0),
-      m_findNextAction(0),
-      m_findPreviousAction(0),
-      m_replaceAction(0),
-      m_replaceNextAction(0),
-      m_replacePreviousAction(0),
-      m_findIncrementalTimer(this), m_findStepTimer(this),
-      m_useFakeVim(false),
-      m_eventFiltersInstalled(false)
+      m_findIncrementalTimer(this),
+      m_findStepTimer(this)
 {
     //setup ui
     m_ui.setupUi(this);
@@ -392,7 +385,7 @@ void FindToolBar::updateGlobalActions()
     m_findInDocumentAction->setEnabled(enabled || (toolBarHasFocus() && isEnabled()));
     m_findNextSelectedAction->setEnabled(enabled);
     m_findPreviousSelectedAction->setEnabled(enabled);
-    if (QApplication::clipboard()->supportsFindBuffer())
+    if (m_enterFindStringAction)
         m_enterFindStringAction->setEnabled(enabled);
     m_findNextAction->setEnabled(enabled);
     m_findPreviousAction->setEnabled(enabled);

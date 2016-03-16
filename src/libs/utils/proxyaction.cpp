@@ -72,7 +72,8 @@ void ProxyAction::disconnectAction()
 void ProxyAction::connectAction()
 {
     if (m_action) {
-        connect(m_action.data(), &QAction::changed, this, &ProxyAction::actionChanged);
+        connect(m_action.data(), &QAction::changed, this, &ProxyAction::actionChanged,
+                Qt::QueuedConnection);
         connect(this, &QAction::triggered, m_action.data(), &QAction::triggered);
         connect(this, &ProxyAction::toggled, m_action.data(), &QAction::setChecked);
     }

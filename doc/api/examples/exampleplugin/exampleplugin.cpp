@@ -15,7 +15,8 @@
 
 #include <QtPlugin>
 
-using namespace Example::Internal;
+namespace Example {
+namespace Internal {
 
 ExamplePlugin::ExamplePlugin()
 {
@@ -45,7 +46,7 @@ bool ExamplePlugin::initialize(const QStringList &arguments, QString *errorStrin
     Core::Command *cmd = Core::ActionManager::registerAction(action, Constants::ACTION_ID,
                                             Core::Context(Core::Constants::C_GLOBAL));
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Alt+Meta+A")));
-    connect(action, SIGNAL(triggered()), this, SLOT(triggerAction()));
+    connect(action, &QAction::triggered, this, &ExamplePlugin::triggerAction);
 //! [add action]
 //! [add menu]
     Core::ActionContainer *menu = Core::ActionManager::createMenu(Constants::MENU_ID);
@@ -80,3 +81,6 @@ void ExamplePlugin::triggerAction()
                              tr("This is an action from Example."));
 }
 //! [slot implementation]
+
+} // namespace Internal
+} // namespace Example

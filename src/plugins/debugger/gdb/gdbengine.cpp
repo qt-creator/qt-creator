@@ -3445,7 +3445,7 @@ void GdbEngine::handleMakeSnapshot(const DebuggerResponse &response, const QStri
 
 void GdbEngine::reloadRegisters()
 {
-    if (!Internal::isDockVisible(_(DOCKWIDGET_REGISTER)))
+    if (!Internal::isRegistersWindowVisible())
         return;
 
     if (state() != InferiorStopOk && state() != InferiorUnrunnable)
@@ -3608,9 +3608,13 @@ void GdbEngine::handleRegisterListValues(const DebuggerResponse &response)
             // v4_int32 = {0x00000000, 0x00000000, 0x00000000, 0x00000000},
             // v2_int64 = {0x0000000000000000, 0x0000000000000000},
             // uint128 = <error reading variable>}"}
-            // Try to make sense of it using the int32 chunks:
+            // Try to make sense of it using the int32 chunks.
+            // Android gdb 7.10 has u32 = {0x00000000, 0x40340000}.
+            // Use that if available.
             QByteArray result;
-            const int pos1 = data.indexOf("_int32");
+            int pos1 = data.indexOf("_int32");
+            if (pos1 == -1)
+                pos1 = data.indexOf("u32");
             const int pos2 = data.indexOf('{', pos1) + 1;
             const int pos3 = data.indexOf('}', pos2);
             QByteArray inner = data.mid(pos2, pos3 - pos2);

@@ -254,13 +254,14 @@ public:
     enum Flag {
         DrawTargetSelectorBottom,
         DrawSearchResultWidgetFrame,
-        DrawProgressBarSunken,
         DrawIndicatorBranch,
+        DrawToolBarHighlights,
         ComboBoxDrawTextShadow,
         DerivePaletteFromTheme,
         ApplyThemePaletteGlobally,
         FlatSideBarIcons,
-        FlatProjectsMode
+        FlatProjectsMode,
+        FlatMenuBar
     };
 
     enum WidgetStyle {

@@ -141,11 +141,11 @@ private slots:
     void rebuild();
 
 private:
-    QQmlComponent *m_delegate;
-    QAbstractItemModel *m_model;
-    int m_sizeRole;
-    int m_depth;
-    qreal m_sizeThreshold;
+    QQmlComponent *m_delegate = nullptr;
+    QAbstractItemModel *m_model = nullptr;
+    int m_sizeRole = 0;
+    int m_depth = 0;
+    qreal m_sizeThreshold = 0;
 
     int buildNode(const QModelIndex &parentIndex, QObject *parentObject, int depth);
     QObject *appendChild(QObject *parentObject, QQuickItem *parentItem, QQmlContext *context,

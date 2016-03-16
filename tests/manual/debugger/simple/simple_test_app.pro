@@ -6,11 +6,16 @@ DESTDIR = .
 
 SOURCES +=  simple_test_app.cpp
 
-QT += network
-QT += script
-QT += xml
+QT += network xml
+!isEmpty(QT.script.name): QT += script
 
 CONFIG += c++11
+
+osx {
+    DEFINES += USE_CXX11
+    QMAKE_CXXFLAGS += -stdlib=libc++
+    QMAKE_LFLAGS += -lc++
+}
 
 contains(QT_CONFIG, webkit)|!isEmpty(QT.webkit.name) {
     QT += webkit

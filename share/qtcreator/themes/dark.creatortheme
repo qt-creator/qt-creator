@@ -91,7 +91,7 @@ PanelTextColorMid=ffa0a0a0
 PanelTextColorLight=text
 ProgressBarColorError=error
 ProgressBarColorFinished=ff5aaa3c
-ProgressBarColorNormal=hoverBackground
+ProgressBarColorNormal=ff808080
 ProgressBarTitleColor=text
 SplitterColor=ff313131
 TextColorDisabled=textDisabled
@@ -168,12 +168,13 @@ ClangCodeModel_Warning_TextMarkColor=ffceff40
 ComboBoxDrawTextShadow=false
 DerivePaletteFromTheme=true
 DrawIndicatorBranch=true
-DrawProgressBarSunken=false
 DrawSearchResultWidgetFrame=false
 DrawTargetSelectorBottom=false
+DrawToolBarHighlights=true
 ApplyThemePaletteGlobally=true
 FlatSideBarIcons=true
 FlatProjectsMode=true
+FlatMenuBar=true
 
 [Gradients]
 DetailsWidgetHeaderGradient\1\color=0

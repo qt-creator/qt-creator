@@ -47,11 +47,6 @@ const char OPEN_TYPE_HIERARCHY[] = "CppEditor.OpenTypeHierarchy";
 const char INCLUDE_HIERARCHY_ID[] = "CppEditor.IncludeHierarchy";
 const char OPEN_INCLUDE_HIERARCHY[] = "CppEditor.OpenIncludeHierarchy";
 
-const char C_SOURCE_MIMETYPE[] = "text/x-csrc";
-const char C_HEADER_MIMETYPE[] = "text/x-chdr";
-const char CPP_SOURCE_MIMETYPE[] = "text/x-c++src";
-const char CPP_HEADER_MIMETYPE[] = "text/x-c++hdr";
-
 const char CPP_SNIPPETS_GROUP_ID[] = "C++";
 
 const char CPP_PREPROCESSOR_PROJECT_PREFIX[] = "CppPreprocessorProject-";

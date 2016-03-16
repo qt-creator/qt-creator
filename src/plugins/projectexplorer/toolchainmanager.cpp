@@ -66,7 +66,7 @@ namespace Internal {
 class ToolChainManagerPrivate
 {
 public:
-    ToolChainManagerPrivate() : m_writer(0) {}
+    ToolChainManagerPrivate() : m_writer(nullptr) {}
     ~ToolChainManagerPrivate();
 
     QMap<QString, FileName> m_abiToDebugger;
@@ -82,7 +82,7 @@ ToolChainManagerPrivate::~ToolChainManagerPrivate()
     delete m_writer;
 }
 
-static ToolChainManager *m_instance = 0;
+static ToolChainManager *m_instance = nullptr;
 static ToolChainManagerPrivate *d;
 
 } // namespace Internal
@@ -111,7 +111,7 @@ ToolChainManager::ToolChainManager(QObject *parent) :
 ToolChainManager::~ToolChainManager()
 {
     delete d;
-    m_instance = 0;
+    m_instance = nullptr;
 }
 
 ToolChainManager *ToolChainManager::instance()
@@ -349,7 +349,7 @@ QList<ToolChain *> ToolChainManager::findToolChains(const Abi &abi)
 ToolChain *ToolChainManager::findToolChain(const QByteArray &id)
 {
     if (id.isEmpty())
-        return 0;
+        return nullptr;
 
     ToolChain *tc = Utils::findOrDefault(d->m_toolChains, Utils::equal(&ToolChain::id, id));
 
@@ -446,8 +446,8 @@ public:
     void addToEnvironment(Environment &env) const override { Q_UNUSED(env); }
     QString makeCommand(const Environment &env) const override { Q_UNUSED(env); return QLatin1String("make"); }
     FileName compilerCommand() const override { return Utils::FileName::fromString(QLatin1String("/tmp/test/gcc")); }
-    IOutputParser *outputParser() const override { return 0; }
-    ToolChainConfigWidget *configurationWidget() override { return 0; }
+    IOutputParser *outputParser() const override { return nullptr; }
+    ToolChainConfigWidget *configurationWidget() override { return nullptr; }
     TTC *clone() const override { return new TTC(*this); }
     bool operator ==(const ToolChain &other) const override {
         if (!ToolChain::operator==(other))
@@ -487,19 +487,19 @@ void ProjectExplorerPlugin::testToolChainManager_data()
     QTest::addColumn<TCList>("toDemote");
     QTest::addColumn<TCList>("toRegister");
 
-    TTC *system1 = 0;
-    TTC *system1c = 0;
-    TTC *system2 = 0;
-    TTC *system3i = 0;
-    TTC *user1 = 0;
-    TTC *user1c = 0;
-    TTC *user3i = 0;
-    TTC *user2 = 0;
-    TTC *auto1 = 0;
-    TTC *auto1c = 0;
-    TTC *auto1_2 = 0;
-    TTC *auto2 = 0;
-    TTC *auto3i = 0;
+    TTC *system1 = nullptr;
+    TTC *system1c = nullptr;
+    TTC *system2 = nullptr;
+    TTC *system3i = nullptr;
+    TTC *user1 = nullptr;
+    TTC *user1c = nullptr;
+    TTC *user3i = nullptr;
+    TTC *user2 = nullptr;
+    TTC *auto1 = nullptr;
+    TTC *auto1c = nullptr;
+    TTC *auto1_2 = nullptr;
+    TTC *auto2 = nullptr;
+    TTC *auto3i = nullptr;
 
     if (!TTC::hasToolChains()) {
         system1 = new TTC(ToolChain::AutoDetection, "system1"); Q_UNUSED(system1);

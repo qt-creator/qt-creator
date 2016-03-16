@@ -89,9 +89,9 @@ bool QtSupportPlugin::initialize(const QStringList &arguments, QString *errorMes
     ProjectExplorer::KitManager::registerKitInformation(new QtKitInformation);
 
     ProjectExplorer::ExtraCompilerFactory::registerExtraCompilerFactory(
-                new UicGeneratorFactory);
+                new UicGeneratorFactory(this));
     ProjectExplorer::ExtraCompilerFactory::registerExtraCompilerFactory(
-                new QScxmlcGeneratorFactory);
+                new QScxmlcGeneratorFactory(this));
 
     QtVersionManager::initialized();
 
@@ -122,9 +122,4 @@ void QtSupportPlugin::extensionsInitialized()
         tr("Full path to the target bin directory of the current project's Qt version.<br>"
            "You probably want %1 instead.").arg(QString::fromLatin1(kHostBins)),
         []() { return qmakeProperty("QT_INSTALL_BINS"); });
-}
-
-bool QtSupportPlugin::delayedInitialize()
-{
-    return QtVersionManager::delayedInitialize();
 }
