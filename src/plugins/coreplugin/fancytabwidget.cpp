@@ -33,7 +33,6 @@
 
 #include <QDebug>
 
-#include <QColorDialog>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 #include <QMouseEvent>
@@ -393,23 +392,22 @@ bool FancyTabBar::isTabEnabled(int index) const
 
 class FancyColorButton : public QWidget
 {
+    Q_OBJECT
+
 public:
-    FancyColorButton(QWidget *parent)
-      : m_parent(parent)
+    explicit FancyColorButton(QWidget *parent = 0)
+      : QWidget(parent)
     {
         setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred);
     }
 
     void mousePressEvent(QMouseEvent *ev)
     {
-        if (ev->modifiers() & Qt::ShiftModifier) {
-            QColor color = QColorDialog::getColor(StyleHelper::requestedBaseColor(), m_parent);
-            if (color.isValid())
-                StyleHelper::setBaseColor(color);
-        }
+        emit clicked(ev->button(), ev->modifiers());
     }
-private:
-    QWidget *m_parent;
+
+signals:
+    void clicked(Qt::MouseButton button, Qt::KeyboardModifiers modifiers);
 };
 
 //////
@@ -430,7 +428,9 @@ FancyTabWidget::FancyTabWidget(QWidget *parent)
     QHBoxLayout *layout = new QHBoxLayout(bar);
     layout->setMargin(0);
     layout->setSpacing(0);
-    layout->addWidget(new FancyColorButton(this));
+    auto fancyButton = new FancyColorButton(this);
+    connect(fancyButton, &FancyColorButton::clicked, this, &FancyTabWidget::topAreaClicked);
+    layout->addWidget(fancyButton);
     selectionLayout->addWidget(bar);
 
     selectionLayout->addWidget(m_tabBar, 1);
@@ -571,3 +571,5 @@ bool FancyTabWidget::isTabEnabled(int index) const
 {
     return m_tabBar->isTabEnabled(index);
 }
+
+#include "fancytabwidget.moc"
