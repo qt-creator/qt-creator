@@ -212,6 +212,12 @@ void ToolChainKitInformation::addToMacroExpander(Kit *kit, Utils::MacroExpander 
                                    const ToolChain *tc = toolChain(kit);
                                    return tc ? tc->displayName() : tr("None");
                                });
+
+    expander->registerVariable("Compiler:Executable", tr("Path to the compiler executable"),
+                               [this, kit]() -> QString {
+                                   const ToolChain *tc = toolChain(kit);
+                                   return tc ? tc->compilerCommand().toString() : QString();
+                               });
 }
 
 
