@@ -60,8 +60,8 @@
 namespace CMakeProjectManager {
 namespace Internal {
 
-static QStringList toArguments(const CMakeConfig &config) {
-    return Utils::transform(config, [](const CMakeConfigItem &i) -> QString {
+static QStringList toArguments(const CMakeConfig &config, const ProjectExplorer::Kit *k) {
+    return Utils::transform(config, [k](const CMakeConfigItem &i) -> QString {
                                  QString a = QString::fromLatin1("-D");
                                  a.append(QString::fromUtf8(i.key));
                                  switch (i.type) {
@@ -81,7 +81,7 @@ static QStringList toArguments(const CMakeConfig &config) {
                                      a.append(QLatin1String(":INTERNAL="));
                                      break;
                                  }
-                                 a.append(QString::fromUtf8(i.value));
+                                 a.append(QString::fromUtf8(k->macroExpander()->expand(i.value)));
 
                                  return a;
                              });
@@ -424,7 +424,7 @@ void BuildDirManager::startCMake(CMakeTool *tool, const QString &generator,
     Utils::QtcProcess::addArg(&args, srcDir);
     if (!generator.isEmpty())
         Utils::QtcProcess::addArg(&args, QString::fromLatin1("-G%1").arg(generator));
-    Utils::QtcProcess::addArgs(&args, toArguments(config));
+    Utils::QtcProcess::addArgs(&args, toArguments(config, kit()));
 
     ProjectExplorer::TaskHub::clearTasks(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM);
 

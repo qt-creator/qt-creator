@@ -316,14 +316,12 @@ void CMakeConfigurationKitInformation::fromStringList(Kit *k, const QStringList 
 
 QVariant CMakeConfigurationKitInformation::defaultValue(const Kit *k) const
 {
+    Q_UNUSED(k);
+
     // FIXME: Convert preload scripts
     CMakeConfig config;
-    const QtSupport::BaseQtVersion *const version = QtSupport::QtKitInformation::qtVersion(k);
-    if (version && version->isValid())
-        config << CMakeConfigItem(CMAKE_QMAKE_KEY, version->qmakeCommand().toString().toUtf8());
-    const ToolChain *const tc = ToolChainKitInformation::toolChain(k);
-    if (tc && tc->isValid())
-        config << CMakeConfigItem(CMAKE_TOOLCHAIN_KEY, tc->compilerCommand().toString().toUtf8());
+    config << CMakeConfigItem(CMAKE_QMAKE_KEY, "%{Qt:qmakeExecutable}");
+    config << CMakeConfigItem(CMAKE_TOOLCHAIN_KEY, "%{Compiler:Executable}");
 
     const QStringList tmp
             = Utils::transform(config, [](const CMakeConfigItem &i) { return i.toString(); });
@@ -339,10 +337,12 @@ QList<Task> CMakeConfigurationKitInformation::validate(const Kit *k) const
     QByteArray qmakePath;
     QByteArray tcPath;
     foreach (const CMakeConfigItem &i, config) {
+        // Do not use expand(QByteArray) as we can not be sure the input is latin1
+        const QByteArray expandedValue = k->macroExpander()->expand(QString::fromUtf8(i.value)).toUtf8();
         if (i.key == CMAKE_QMAKE_KEY)
-            qmakePath = i.value;
+            qmakePath = expandedValue;
         else if (i.key == CMAKE_TOOLCHAIN_KEY)
-            tcPath = i.value;
+            tcPath = expandedValue;
     }
 
     QList<Task> result;
@@ -397,31 +397,7 @@ void CMakeConfigurationKitInformation::setup(Kit *k)
 
 void CMakeConfigurationKitInformation::fix(Kit *k)
 {
-    const QtSupport::BaseQtVersion *const version = QtSupport::QtKitInformation::qtVersion(k);
-    const QByteArray qmakePath
-            = (version && version->isValid()) ? version->qmakeCommand().toString().toUtf8() : QByteArray();
-    const ToolChain *const tc = ToolChainKitInformation::toolChain(k);
-    const QByteArray tcPath
-            = (tc && tc->isValid()) ? tc->compilerCommand().toString().toUtf8() : QByteArray();
-
-    CMakeConfig result;
-    bool haveQmake = false;
-    bool haveToolChain = false;
-
-    foreach (const CMakeConfigItem &i, configuration(k)) {
-        if (i.key == CMAKE_QMAKE_KEY)
-            haveQmake = true;
-        else if (i.key == CMAKE_TOOLCHAIN_KEY)
-            haveToolChain = true;
-        result << i;
-    }
-
-    if (!haveQmake && !qmakePath.isEmpty())
-        result << CMakeConfigItem(CMAKE_QMAKE_KEY, qmakePath);
-    if (!haveToolChain && !tcPath.isEmpty())
-        result << CMakeConfigItem(CMAKE_TOOLCHAIN_KEY, tcPath);
-
-    setConfiguration(k, result);
+    Q_UNUSED(k);
 }
 
 KitInformation::ItemList CMakeConfigurationKitInformation::toUserOutput(const Kit *k) const
