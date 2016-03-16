@@ -97,7 +97,6 @@ private:
 
     void setError(const QString &message);
 
-    QString m_initialArguments;
     CMakeConfig m_configuration;
     QString m_error;
 
