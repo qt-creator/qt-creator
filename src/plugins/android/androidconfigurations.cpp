@@ -523,6 +523,10 @@ FileName AndroidConfig::gccPath(const Abi &abi, const QString &ndkToolChainVersi
 
 FileName AndroidConfig::gdbPath(const Abi &abi, const QString &ndkToolChainVersion) const
 {
+    const auto gdbPath = QString::fromLatin1("%1/prebuilt/%2/bin/gdb" QTC_HOST_EXE_SUFFIX).arg(m_ndkLocation.toString()).arg(toolchainHost());
+    if (QFile::exists(gdbPath))
+        return FileName::fromString(gdbPath);
+
     return toolPath(abi, ndkToolChainVersion).appendString(QLatin1String("-gdb" QTC_HOST_EXE_SUFFIX));
 }
 
