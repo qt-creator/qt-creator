@@ -154,6 +154,9 @@ bool BuildDirManager::isParsing() const
 
 void BuildDirManager::forceReparse()
 {
+    if (m_buildConfiguration->target()->activeBuildConfiguration() != m_buildConfiguration)
+        return;
+
     stopProcess();
 
     CMakeTool *tool = CMakeKitInformation::cmakeTool(kit());
