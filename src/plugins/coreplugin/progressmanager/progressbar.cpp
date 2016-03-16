@@ -300,7 +300,7 @@ void ProgressBar::paintEvent(QPaintEvent *)
     //draw the progress bar
     if (creatorTheme()->widgetStyle() == Theme::StyleFlat) {
         p.fillRect(rect.adjusted(2, 2, -2, -2),
-                   creatorTheme()->color(Theme::FancyToolButtonHoverColor));
+                   creatorTheme()->color(Theme::ProgressBarBackgroundColor));
         p.fillRect(inner, c);
     } else {
         const static QImage bar(StyleHelper::dpiSpecificImageFile(

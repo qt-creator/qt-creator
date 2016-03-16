@@ -86,6 +86,7 @@ ProgressBarColorError=d2ff3c00
 ProgressBarColorFinished=ff5aaa3c
 ProgressBarColorNormal=b4ffffff
 ProgressBarTitleColor=ffffffff
+ProgressBarBackgroundColor=18ffffff
 SplitterColor=ff151515
 TextColorDisabled=ff000000
 TextColorError=ffff0000

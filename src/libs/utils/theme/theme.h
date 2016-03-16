@@ -112,6 +112,7 @@ public:
         ProgressBarColorFinished,
         ProgressBarColorNormal,
         ProgressBarTitleColor,
+        ProgressBarBackgroundColor,
         SplitterColor,
         TextColorDisabled,
         TextColorError,
