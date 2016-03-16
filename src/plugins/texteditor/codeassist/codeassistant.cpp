@@ -329,10 +329,7 @@ void CodeAssistantPrivate::displayProposal(IAssistProposal *newProposal, AssistR
     m_proposalWidget->setUnderlyingWidget(m_editorWidget);
     m_proposalWidget->setModel(m_proposal->model());
     m_proposalWidget->setDisplayRect(m_editorWidget->cursorRect(basePosition));
-    if (m_receivedContentWhileWaiting)
-        m_proposalWidget->setIsSynchronized(false);
-    else
-        m_proposalWidget->setIsSynchronized(true);
+    m_proposalWidget->setIsSynchronized(!m_receivedContentWhileWaiting);
     m_proposalWidget->showProposal(m_editorWidget->textAt(
                                        basePosition,
                                        m_editorWidget->position() - basePosition));
