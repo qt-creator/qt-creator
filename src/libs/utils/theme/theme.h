@@ -103,7 +103,6 @@ public:
         OutputPaneButtonFlashColor,
         OutputPaneToggleButtonTextColorChecked,
         OutputPaneToggleButtonTextColorUnchecked,
-        PanelButtonToolBackgroundColorHover,
         PanelStatusBarBackgroundColor,
         PanelsWidgetSeparatorLineColor,
         PanelTextColorDark,

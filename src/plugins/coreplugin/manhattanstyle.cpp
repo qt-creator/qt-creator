@@ -488,15 +488,14 @@ void ManhattanStyle::drawPrimitive(PrimitiveElement element, const QStyleOption 
                 QColor shadow(0, 0, 0, 30);
                 painter->setPen(shadow);
                 if (pressed) {
-                    QColor shade = option->palette.base().color();
-                    shade.setHsv(shade.hue(), shade.saturation(), 255 - shade.value(), 40);
+                    const QColor shade = creatorTheme()->color(Theme::FancyToolButtonSelectedColor);
                     painter->fillRect(rect, shade);
                     const QRectF borderRect = QRectF(rect).adjusted(0.5, 0.5, -0.5, -0.5);
                     painter->drawLine(borderRect.topLeft() + QPointF(1, 0), borderRect.topRight() - QPointF(1, 0));
                     painter->drawLine(borderRect.topLeft(), borderRect.bottomLeft());
                     painter->drawLine(borderRect.topRight(), borderRect.bottomRight());
                 } else if (option->state & State_Enabled && option->state & State_MouseOver) {
-                    painter->fillRect(rect, creatorTheme()->color(Theme::PanelButtonToolBackgroundColorHover));
+                    painter->fillRect(rect, creatorTheme()->color(Theme::FancyToolButtonHoverColor));
                 } else if (widget && widget->property("highlightWidget").toBool()) {
                     QColor shade(0, 0, 0, 128);
                     painter->fillRect(rect, shade);
@@ -529,7 +528,9 @@ void ManhattanStyle::drawPrimitive(PrimitiveElement element, const QStyleOption 
                 painter->drawLine(borderRect.topLeft(), borderRect.topRight());
                 painter->restore();
             } else {
-                painter->fillRect(rect, creatorTheme()->color(Theme::PanelStatusBarBackgroundColor));
+                painter->fillRect(rect, StyleHelper::isBaseColorDefault()
+                                  ? creatorTheme()->color(Theme::PanelStatusBarBackgroundColor)
+                                  : StyleHelper::baseColor());
             }
         }
         break;

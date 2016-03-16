@@ -72,9 +72,9 @@ void MiniSplitterHandle::resizeEvent(QResizeEvent *event)
 void MiniSplitterHandle::paintEvent(QPaintEvent *event)
 {
     QPainter painter(this);
-    const QColor color = m_lightColored
-            ? Utils::StyleHelper::borderColor(m_lightColored)
-            : Utils::creatorTheme()->color(Utils::Theme::SplitterColor);
+    const QColor color = Utils::creatorTheme()->color(
+                m_lightColored ? Utils::Theme::FancyToolBarSeparatorColor
+                               : Utils::Theme::SplitterColor);
     painter.fillRect(event->rect(), color);
 }
 
