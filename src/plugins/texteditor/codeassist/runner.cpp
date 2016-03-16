@@ -65,16 +65,6 @@ IAssistProposal *ProcessorRunner::proposal() const
     return m_proposal;
 }
 
-void ProcessorRunner::setReason(AssistReason reason)
-{
-    m_reason = reason;
-}
-
-AssistReason ProcessorRunner::reason() const
-{
-    return m_reason;
-}
-
 void ProcessorRunner::setDiscardProposal(bool discard)
 {
     m_discardProposal = discard;

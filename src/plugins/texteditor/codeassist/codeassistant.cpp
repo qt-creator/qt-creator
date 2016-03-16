@@ -85,7 +85,6 @@ public:
     virtual bool eventFilter(QObject *o, QEvent *e);
 
 private:
-    void proposalComputed();
     void processProposalItem(AssistProposalItemInterface *proposalItem);
     void handlePrefixExpansion(const QString &newPrefix);
     void finalizeProposal();
@@ -95,6 +94,7 @@ private:
     CodeAssistant *q;
     TextEditorWidget *m_editorWidget;
     Internal::ProcessorRunner *m_requestRunner;
+    QMetaObject::Connection m_runnerConnection;
     IAssistProvider *m_requestProvider;
     IAssistProcessor *m_asyncProcessor;
     AssistKind m_assistKind;
@@ -226,14 +226,21 @@ void CodeAssistantPrivate::requestProposal(AssistReason reason,
 
         m_requestProvider = provider;
         m_requestRunner = new ProcessorRunner;
+        m_runnerConnection = connect(m_requestRunner, &ProcessorRunner::finished,
+                                     this, [this, reason](){
+            // Since the request runner is a different thread, there's still a gap in which the
+            // queued signal could be processed after an invalidation of the current request.
+            if (!m_requestRunner || m_requestRunner != sender())
+                return;
+
+            IAssistProposal *proposal = m_requestRunner->proposal();
+            invalidateCurrentRequestData();
+            displayProposal(proposal, reason);
+            emit q->finished();
+        });
         connect(m_requestRunner, &ProcessorRunner::finished,
-                this, &CodeAssistantPrivate::proposalComputed);
-        connect(m_requestRunner, &ProcessorRunner::finished,
-                m_requestRunner, &QObject::deleteLater);
-        connect(m_requestRunner, &ProcessorRunner::finished,
-                q, &CodeAssistant::finished);
+                m_requestRunner, &ProcessorRunner::deleteLater);
         assistInterface->prepareForAsyncUse();
-        m_requestRunner->setReason(reason);
         m_requestRunner->setProcessor(processor);
         m_requestRunner->setAssistInterface(assistInterface);
         m_requestRunner->start();
@@ -268,23 +275,9 @@ void CodeAssistantPrivate::cancelCurrentRequest()
 {
     if (m_requestRunner) {
         m_requestRunner->setDiscardProposal(true);
-        disconnect(m_requestRunner, &ProcessorRunner::finished,
-                   this, &CodeAssistantPrivate::proposalComputed);
+        disconnect(m_runnerConnection);
     }
     invalidateCurrentRequestData();
-}
-
-void CodeAssistantPrivate::proposalComputed()
-{
-    // Since the request runner is a different thread, there's still a gap in which the queued
-    // signal could be processed after an invalidation of the current request.
-    if (!m_requestRunner || m_requestRunner != sender())
-        return;
-
-    IAssistProposal *newProposal = m_requestRunner->proposal();
-    AssistReason reason = m_requestRunner->reason();
-    invalidateCurrentRequestData();
-    displayProposal(newProposal, reason);
 }
 
 void CodeAssistantPrivate::displayProposal(IAssistProposal *newProposal, AssistReason reason)

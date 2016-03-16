@@ -49,10 +49,6 @@ public:
     void setAssistInterface(AssistInterface *interface);
     void setDiscardProposal(bool discard);
 
-    // @TODO: Not really necessary...
-    void setReason(AssistReason reason);
-    AssistReason reason() const;
-
     virtual void run();
 
     IAssistProposal *proposal() const;
