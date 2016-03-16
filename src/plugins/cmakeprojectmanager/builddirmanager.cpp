@@ -110,6 +110,7 @@ BuildDirManager::BuildDirManager(const CMakeBuildConfiguration *bc) :
 
 BuildDirManager::~BuildDirManager()
 {
+    stopProcess();
     resetData();
     delete m_tempDir;
 }
