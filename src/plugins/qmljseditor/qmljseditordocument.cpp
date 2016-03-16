@@ -27,7 +27,9 @@
 
 #include "qmljseditorconstants.h"
 #include "qmljseditordocument_p.h"
+#include "qmljseditorplugin.h"
 #include "qmljshighlighter.h"
+#include "qmljsquickfixassist.h"
 #include "qmljssemantichighlighter.h"
 #include "qmljssemanticinfoupdater.h"
 #include "qmloutlinemodel.h"
@@ -578,6 +580,11 @@ QVector<QTextLayout::FormatRange> QmlJSEditorDocument::diagnosticRanges() const
 Internal::QmlOutlineModel *QmlJSEditorDocument::outlineModel() const
 {
     return d->m_outlineModel;
+}
+
+TextEditor::QuickFixAssistProvider *QmlJSEditorDocument::quickFixAssistProvider() const
+{
+    return Internal::QmlJSEditorPlugin::instance()->quickFixAssistProvider();
 }
 
 void QmlJSEditorDocument::setDiagnosticRanges(const QVector<QTextLayout::FormatRange> &ranges)

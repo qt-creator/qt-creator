@@ -182,8 +182,7 @@ bool QmlJSEditorPlugin::initialize(const QStringList & /*arguments*/, QString *e
     cmd = ActionManager::command(TextEditor::Constants::UN_COMMENT_SELECTION);
     contextMenu->addAction(cmd);
 
-    m_quickFixAssistProvider = new QmlJSQuickFixAssistProvider;
-    addAutoReleasedObject(m_quickFixAssistProvider);
+    m_quickFixAssistProvider = new QmlJSQuickFixAssistProvider(this);
 
     errorMessage->clear();
 

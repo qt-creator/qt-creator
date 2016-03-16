@@ -66,7 +66,8 @@ QmlJSRefactoringFilePtr QmlJSQuickFixAssistInterface::currentFile() const
 // ---------------------------
 // QmlJSQuickFixAssistProvider
 // ---------------------------
-QmlJSQuickFixAssistProvider::QmlJSQuickFixAssistProvider()
+QmlJSQuickFixAssistProvider::QmlJSQuickFixAssistProvider(QObject *parent)
+    : TextEditor::QuickFixAssistProvider(parent)
 {}
 
 QmlJSQuickFixAssistProvider::~QmlJSQuickFixAssistProvider()

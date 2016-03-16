@@ -39,7 +39,7 @@ class TEXTEDITOR_EXPORT IAssistProvider : public QObject
     Q_OBJECT
 
 public:
-    IAssistProvider() {}
+    IAssistProvider(QObject *parent = 0) : QObject(parent) {}
 
     enum RunType {
         Synchronous,

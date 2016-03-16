@@ -29,7 +29,8 @@
 
 using namespace TextEditor;
 
-CompletionAssistProvider::CompletionAssistProvider()
+CompletionAssistProvider::CompletionAssistProvider(QObject *parent)
+    : IAssistProvider(parent)
 {}
 
 CompletionAssistProvider::~CompletionAssistProvider()

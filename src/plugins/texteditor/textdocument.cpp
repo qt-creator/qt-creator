@@ -370,6 +370,11 @@ CompletionAssistProvider *TextDocument::completionAssistProvider() const
     return d->m_completionAssistProvider;
 }
 
+QuickFixAssistProvider *TextDocument::quickFixAssistProvider() const
+{
+    return 0;
+}
+
 void TextDocument::applyFontSettings()
 {
     d->m_fontSettingsNeedsApply = false;

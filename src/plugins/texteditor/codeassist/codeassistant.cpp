@@ -94,7 +94,6 @@ private:
 private:
     CodeAssistant *q;
     TextEditorWidget *m_editorWidget;
-    QList<QuickFixAssistProvider *> m_quickFixProviders;
     Internal::ProcessorRunner *m_requestRunner;
     IAssistProvider *m_requestProvider;
     IAssistProcessor *m_asyncProcessor;
@@ -137,23 +136,7 @@ CodeAssistantPrivate::CodeAssistantPrivate(CodeAssistant *assistant)
 
 void CodeAssistantPrivate::configure(TextEditorWidget *editorWidget)
 {
-    // @TODO: There's a list of providers but currently only the first one is used. Perhaps we
-    // should implement a truly mechanism to support multiple providers for an editor (either
-    // merging or not proposals) or just leave it as not extensible and store directly the one
-    // completion and quick-fix provider (getting rid of the list).
-
     m_editorWidget = editorWidget;
-    m_quickFixProviders = ExtensionSystem::PluginManager::getObjects<QuickFixAssistProvider>();
-
-    Core::Id editorId = m_editorWidget->textDocument()->id();
-    auto it = m_quickFixProviders.begin();
-    while (it != m_quickFixProviders.end()) {
-        if ((*it)->supportsEditor(editorId))
-            ++it;
-        else
-            it = m_quickFixProviders.erase(it);
-    }
-
     m_editorWidget->installEventFilter(this);
 }
 
@@ -216,8 +199,8 @@ void CodeAssistantPrivate::requestProposal(AssistReason reason,
     if (!provider) {
         if (kind == Completion)
             provider = m_editorWidget->textDocument()->completionAssistProvider();
-        else if (!m_quickFixProviders.isEmpty())
-            provider = m_quickFixProviders.at(0);
+        else
+            provider = m_editorWidget->textDocument()->quickFixAssistProvider();
 
         if (!provider)
             return;

@@ -26,7 +26,9 @@
 #include "cppeditordocument.h"
 
 #include "cppeditorconstants.h"
+#include "cppeditorplugin.h"
 #include "cpphighlighter.h"
+#include "cppquickfixassistant.h"
 
 #include <cpptools/baseeditordocumentparser.h>
 #include <cpptools/builtineditordocumentprocessor.h>
@@ -119,6 +121,11 @@ bool CppEditorDocument::isObjCEnabled() const
 TextEditor::CompletionAssistProvider *CppEditorDocument::completionAssistProvider() const
 {
     return m_completionAssistProvider;
+}
+
+TextEditor::QuickFixAssistProvider *CppEditorDocument::quickFixAssistProvider() const
+{
+    return CppEditorPlugin::instance()->quickFixProvider();
 }
 
 void CppEditorDocument::recalculateSemanticInfoDetached()

@@ -27,7 +27,8 @@
 
 using namespace TextEditor;
 
-QuickFixAssistProvider::QuickFixAssistProvider()
+QuickFixAssistProvider::QuickFixAssistProvider(QObject *parent)
+    : IAssistProvider(parent)
 {}
 
 QuickFixAssistProvider::~QuickFixAssistProvider()

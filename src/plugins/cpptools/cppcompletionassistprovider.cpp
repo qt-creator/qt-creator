@@ -37,6 +37,10 @@ using namespace CppTools;
 // ---------------------------
 // CppCompletionAssistProvider
 // ---------------------------
+CppCompletionAssistProvider::CppCompletionAssistProvider(QObject *parent)
+    : TextEditor::CompletionAssistProvider(parent)
+{}
+
 bool CppCompletionAssistProvider::supportsEditor(Core::Id editorId) const
 {
     return editorId == CppEditor::Constants::CPPEDITOR_ID;

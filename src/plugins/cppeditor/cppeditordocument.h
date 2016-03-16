@@ -50,6 +50,7 @@ public:
 
     bool isObjCEnabled() const;
     TextEditor::CompletionAssistProvider *completionAssistProvider() const override;
+    TextEditor::QuickFixAssistProvider *quickFixAssistProvider() const override;
 
     void recalculateSemanticInfoDetached();
     CppTools::SemanticInfo recalculateSemanticInfo(); // TODO: Remove me

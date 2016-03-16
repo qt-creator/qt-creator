@@ -149,8 +149,7 @@ bool CppEditorPlugin::initialize(const QStringList & /*arguments*/, QString *err
     addAutoReleasedObject(new CppIncludeHierarchyFactory);
     addAutoReleasedObject(new CppSnippetProvider);
 
-    m_quickFixProvider = new CppQuickFixAssistProvider;
-    addAutoReleasedObject(m_quickFixProvider);
+    m_quickFixProvider = new CppQuickFixAssistProvider(this);
     registerQuickFixes(this);
 
     Context context(Constants::CPPEDITOR_ID);

@@ -38,7 +38,7 @@ class TEXTEDITOR_EXPORT QuickFixAssistProvider : public IAssistProvider
     Q_OBJECT
 
 public:
-    QuickFixAssistProvider();
+    QuickFixAssistProvider(QObject *parent = 0);
     ~QuickFixAssistProvider();
 
     virtual QList<QuickFixFactory *> quickFixFactories() const;
