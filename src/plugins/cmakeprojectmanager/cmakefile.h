@@ -34,7 +34,6 @@ namespace Internal {
 
 class CMakeFile : public Core::IDocument
 {
-    Q_OBJECT
 public:
     CMakeFile(const Utils::FileName &fileName);
 

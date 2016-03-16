@@ -36,7 +36,6 @@ namespace Internal {
 
 class SubmitEditorFile : public Core::IDocument
 {
-    Q_OBJECT
 public:
     explicit SubmitEditorFile(const VcsBaseSubmitEditorParameters *parameters,
                               VcsBaseSubmitEditor *parent = 0);

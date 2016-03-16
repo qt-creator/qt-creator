@@ -107,7 +107,6 @@ private:
 
 class GenericProjectFile : public Core::IDocument
 {
-    Q_OBJECT
 public:
     GenericProjectFile(GenericProject *parent, QString fileName, GenericProject::RefreshOptions options);
 

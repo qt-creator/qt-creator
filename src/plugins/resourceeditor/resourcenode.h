@@ -165,7 +165,6 @@ private:
 
 class ResourceFileWatcher : public Core::IDocument
 {
-    Q_OBJECT
 public:
     ResourceFileWatcher(ResourceTopLevelNode *node);
 

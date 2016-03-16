@@ -36,7 +36,6 @@ namespace Internal {
 
 class QmlProjectFile : public Core::IDocument
 {
-    Q_OBJECT
 public:
     QmlProjectFile(QmlProject *parent, const Utils::FileName &fileName);
 

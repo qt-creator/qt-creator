@@ -238,7 +238,6 @@ private:
 namespace Internal {
 class QmakePriFile : public Core::IDocument
 {
-    Q_OBJECT
 public:
     QmakePriFile(QmakePriFileNode *qmakePriFile);
 

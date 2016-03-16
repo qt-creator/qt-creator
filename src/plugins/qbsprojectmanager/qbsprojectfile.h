@@ -35,7 +35,6 @@ class QbsProject;
 
 class QbsProjectFile : public Core::IDocument
 {
-    Q_OBJECT
 public:
     QbsProjectFile(QbsProject *parent, QString fileName);
 

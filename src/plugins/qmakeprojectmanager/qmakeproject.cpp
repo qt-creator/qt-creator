@@ -94,7 +94,6 @@ namespace Internal {
 
 class QmakeProjectFile : public Core::IDocument
 {
-    Q_OBJECT
 public:
     QmakeProjectFile(const QString &filePath);
 

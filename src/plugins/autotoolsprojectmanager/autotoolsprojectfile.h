@@ -44,7 +44,6 @@ namespace Internal {
  */
 class AutotoolsProjectFile : public Core::IDocument
 {
-    Q_OBJECT
 public:
     AutotoolsProjectFile(const QString &fileName);
 };
