@@ -329,7 +329,7 @@ void FancyTabBar::paintTab(QPainter *painter, int tabIndex) const
         painter->restore();
     }
 
-    if (!enabled)
+    if (!enabled && creatorTheme()->widgetStyle() == Theme::StyleDefault)
         painter->setOpacity(0.7);
 
     if (drawIcon) {
