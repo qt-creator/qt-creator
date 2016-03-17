@@ -1889,19 +1889,17 @@ void ProjectExplorerPluginPrivate::restoreSession()
     connect(dd->m_welcomePage, &ProjectWelcomePage::requestProject,
             m_instance, &ProjectExplorerPlugin::openProjectWelcomePage);
     dd->m_arguments = arguments;
-    QTimer::singleShot(0, m_instance, &ProjectExplorerPlugin::restoreSession2);
+    // delay opening projects from the command line even more
+    QTimer::singleShot(0, m_instance, []() {
+        ICore::openFiles(dd->m_arguments, ICore::OpenFilesFlags(ICore::CanContainLineAndColumnNumbers | ICore::SwitchMode));
+        m_instance->finishedInitialization();
+    });
     updateActions();
 }
 
 void ProjectExplorerPluginPrivate::loadSession(const QString &session)
 {
     SessionManager::loadSession(session);
-}
-
-void ProjectExplorerPlugin::restoreSession2()
-{
-    QApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
-    ICore::openFiles(dd->m_arguments, ICore::OpenFilesFlags(ICore::CanContainLineAndColumnNumbers | ICore::SwitchMode));
 }
 
 void ProjectExplorerPluginPrivate::buildStateChanged(Project * pro)

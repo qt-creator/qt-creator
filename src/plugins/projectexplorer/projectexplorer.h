@@ -161,6 +161,7 @@ public:
     static void openOpenProjectDialog();
 
 signals:
+    void finishedInitialization();
     void runControlStarted(ProjectExplorer::RunControl *rc);
     void runControlFinished(ProjectExplorer::RunControl *rc);
 
@@ -177,7 +178,6 @@ signals:
 
 private:
     static bool coreAboutToClose();
-    static void restoreSession2();
 
 #ifdef WITH_TESTS
 private slots:

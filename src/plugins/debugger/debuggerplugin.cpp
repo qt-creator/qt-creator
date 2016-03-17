@@ -1199,7 +1199,7 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
 
     m_arguments = arguments;
     if (!m_arguments.isEmpty())
-        connect(KitManager::instance(), &KitManager::kitsLoaded,
+        connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::finishedInitialization,
                 this, &DebuggerPluginPrivate::parseCommandLineArguments);
 
     m_mainWindow = new DebuggerMainWindow;
@@ -2523,7 +2523,6 @@ void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
         setProxyAction(m_visibleStartAction, Id(Constants::INTERRUPT));
         m_hiddenStopAction->setAction(m_interruptAction);
         m_localsAndExpressionsWindow->setShowLocals(false);
-        activateDebugMode();
     } else if (state == DebuggerFinished) {
         const bool canRun = ProjectExplorerPlugin::canRunStartupProject(ProjectExplorer::Constants::DEBUG_RUN_MODE);
         // We don't want to do anything anymore.
@@ -2548,7 +2547,6 @@ void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
         m_hiddenStopAction->setAction(m_exitAction);
         // show locals in core dumps
         m_localsAndExpressionsWindow->setShowLocals(true);
-        activateDebugMode();
     } else {
         // Everything else is "undisturbable".
         m_interruptAction->setEnabled(false);
