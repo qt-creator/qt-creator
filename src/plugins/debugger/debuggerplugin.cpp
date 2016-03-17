@@ -934,7 +934,7 @@ public:
     QHash<DebuggerLanguage, Core::Context> m_contextsForLanguage;
 
     Project *m_previousProject = 0;
-    Target *m_previousTarget = 0;
+    QPointer<Target> m_previousTarget;
     QPointer<RunConfiguration> m_previousRunConfiguration;
 
     Id m_previousMode;
@@ -3212,7 +3212,7 @@ void DebuggerPluginPrivate::updateUiForProject(Project *project)
 void DebuggerPluginPrivate::updateUiForTarget(Target *target)
 {
     if (m_previousTarget) {
-         disconnect(m_previousTarget, &Target::activeRunConfigurationChanged,
+         disconnect(m_previousTarget.data(), &Target::activeRunConfigurationChanged,
                     this, &DebuggerPluginPrivate::updateUiForRunConfiguration);
     }
 
