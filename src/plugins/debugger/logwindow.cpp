@@ -175,7 +175,6 @@ public:
         menu->addAction(m_clearContentsAction);
         menu->addAction(m_saveContentsAction); // X11 clipboard is unreliable for long texts
         menu->addAction(action(LogTimeStamps));
-        menu->addAction(action(VerboseLog));
         menu->addAction(m_reloadDebuggingHelpersAction);
         menu->addSeparator();
         menu->addAction(action(SettingsDialog));

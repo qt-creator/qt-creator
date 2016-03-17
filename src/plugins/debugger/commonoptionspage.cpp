@@ -211,7 +211,6 @@ CommonOptionsPageWidget::CommonOptionsPageWidget
     m_group->insert(action(ShowQObjectNames), 0);
     m_group->insert(action(SortStructMembers), 0);
     m_group->insert(action(LogTimeStamps), 0);
-    m_group->insert(action(VerboseLog), 0);
     m_group->insert(action(BreakOnThrow), 0);
     m_group->insert(action(BreakOnCatch), 0);
     if (Utils::HostOsInfo::isWindowsHost()) {
