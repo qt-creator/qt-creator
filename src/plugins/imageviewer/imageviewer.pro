@@ -1,6 +1,7 @@
 include(../../qtcreatorplugin.pri)
 
 HEADERS += \
+    exportdialog.h \
     imageviewerplugin.h \
     imageviewerfactory.h \
     imageviewerfile.h \
@@ -9,6 +10,7 @@ HEADERS += \
     imageviewerconstants.h
 
 SOURCES += \
+    exportdialog.cpp \
     imageviewerplugin.cpp \
     imageviewerfactory.cpp \
     imageviewerfile.cpp \

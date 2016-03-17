@@ -113,6 +113,13 @@ void ImageViewerPlugin::extensionsInitialized()
         if (ImageViewer *iv = currentImageViewer())
             iv->togglePlay();
     });
+
+    a = registerNewAction(Constants::ACTION_EXPORT_IMAGE, tr("Export Image"),
+                          QKeySequence());
+    connect(a, &QAction::triggered, this, [this]() {
+        if (ImageViewer *iv = currentImageViewer())
+            iv->exportImage();
+    });
 }
 
 QAction *ImageViewerPlugin::registerNewAction(Core::Id id,

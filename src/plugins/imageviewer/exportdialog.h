@@ -1,6 +1,5 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 Denis Mingulov.
 ** Copyright (C) 2016 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
@@ -24,25 +23,49 @@
 **
 ****************************************************************************/
 
-#ifndef IMAGEVIEWERCONSTANTS_H
-#define IMAGEVIEWERCONSTANTS_H
+#ifndef EXPORTDIALOG_H
+#define EXPORTDIALOG_H
+
+#include <QDialog>
+
+QT_FORWARD_DECLARE_CLASS(QSpinBox)
+
+namespace Utils { class PathChooser; }
 
 namespace ImageViewer {
-namespace Constants {
+namespace Internal {
 
-const char IMAGEVIEWER_ID[] = "Editors.ImageViewer";
-const char IMAGEVIEWER_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("OpenWith::Editors", "Image Viewer");
+class ExportDialog : public QDialog
+{
+    Q_OBJECT
+public:
+    explicit ExportDialog(QWidget *parent = nullptr);
 
-const char ACTION_EXPORT_IMAGE[] = "ImageViewer.ExportImage";
-const char ACTION_ZOOM_IN[] = "ImageViewer.ZoomIn";
-const char ACTION_ZOOM_OUT[] = "ImageViewer.ZoomOut";
-const char ACTION_ORIGINAL_SIZE[] = "ImageViewer.OriginalSize";
-const char ACTION_FIT_TO_SCREEN[] = "ImageViewer.FitToScreen";
-const char ACTION_BACKGROUND[] = "ImageViewer.Background";
-const char ACTION_OUTLINE[] = "ImageViewer.Outline";
-const char ACTION_TOGGLE_ANIMATION[] = "ImageViewer.ToggleAnimation";
+    QSize exportSize() const;
+    void setExportSize(const QSize &);
 
-} // namespace Constants
+    QString exportFileName() const;
+    void setExportFileName(const QString &);
+
+    void accept() override;
+
+private slots:
+    void resetExportSize();
+    void exportWidthChanged(int width);
+    void exportHeightChanged(int height);
+
+private:
+    void setExportWidthBlocked(int width);
+    void setExportHeightBlocked(int height);
+
+    Utils::PathChooser *m_pathChooser;
+    QSpinBox *m_widthSpinBox;
+    QSpinBox *m_heightSpinBox;
+    QSize m_defaultSize;
+    qreal m_aspectRatio;
+};
+
+} // namespace Internal
 } // namespace ImageViewer
 
-#endif // IMAGEVIEWERCONSTANTS_H
+#endif // EXPORTDIALOG_H
