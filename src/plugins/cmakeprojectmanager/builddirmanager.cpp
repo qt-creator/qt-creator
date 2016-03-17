@@ -432,7 +432,7 @@ void BuildDirManager::startCMake(CMakeTool *tool, const QString &generator,
 
     ProjectExplorer::TaskHub::clearTasks(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM);
 
-    Core::MessageManager::write(tr("Running '%1 %2' in %3.")
+    Core::MessageManager::write(tr("Running \"%1 %2\" in %3.")
                                 .arg(tool->cmakeExecutable().toUserOutput())
                                 .arg(args)
                                 .arg(workDirectory().toUserOutput()));
