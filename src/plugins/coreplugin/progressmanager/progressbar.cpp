@@ -229,11 +229,7 @@ void ProgressBar::paintEvent(QPaintEvent *)
     double range = maximum() - minimum();
     double percent = 0.;
     if (!qFuzzyIsNull(range))
-        percent = (value() - minimum()) / range;
-    if (percent > 1)
-        percent = 1;
-    else if (percent < 0)
-        percent = 0;
+        percent = qBound(0., (value() - minimum()) / range, 1.);
 
     if (finished())
         percent = 1;
@@ -285,17 +281,15 @@ void ProgressBar::paintEvent(QPaintEvent *)
     QRectF inner = rect.adjusted(2, 2, -2, -2);
     inner.adjust(0, 0, qRound((percent - 1) * inner.width()), 0);
 
-    QColor c;
-    if (m_error) {
-        c = creatorTheme()->color(Theme::ProgressBarColorError);
-        // avoid too small red bar
-        if (inner.width() < 10)
-            inner.adjust(0, 0, 10 - inner.width(), 0);
-    } else if (m_finished) {
-        c = creatorTheme()->color(Theme::ProgressBarColorFinished);
-    } else {
-        c = creatorTheme()->color(Theme::ProgressBarColorNormal);
-    }
+    // Show at least a hint of progress. Non-flat needs more pixels due to the borders.
+    inner.setWidth(qMax(qMin(3.0, qreal(rect.width())), inner.width()));
+
+    Theme::Color themeColor = Theme::ProgressBarColorNormal;
+    if (m_error)
+        themeColor = Theme::ProgressBarColorError;
+    else if (m_finished)
+        themeColor = Theme::ProgressBarColorFinished;
+    const QColor c = creatorTheme()->color(themeColor);
 
     //draw the progress bar
     if (creatorTheme()->widgetStyle() == Theme::StyleFlat) {
