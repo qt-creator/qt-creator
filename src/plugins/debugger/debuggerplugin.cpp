@@ -2691,7 +2691,6 @@ void DebuggerPluginPrivate::activateDebugMode()
 {
     m_reverseDirectionAction->setChecked(false);
     m_reverseDirectionAction->setEnabled(false);
-    m_previousMode = ModeManager::currentMode()->id();
     ModeManager::activateMode(MODE_DEBUG);
 }
 
@@ -3313,6 +3312,11 @@ void DebuggerPluginPrivate::onModeChanged(IMode *mode)
                 dockWidget->hide();
         }
     }
+}
+
+void saveModeToRestore()
+{
+    dd->m_previousMode = ModeManager::currentMode()->id();
 }
 
 } // namespace Internal

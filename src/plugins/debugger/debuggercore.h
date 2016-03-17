@@ -76,6 +76,7 @@ void runControlFinished(DebuggerEngine *engine);
 void displayDebugger(DebuggerEngine *engine, bool updateEngine);
 void synchronizeBreakpoints();
 
+void saveModeToRestore();
 QWidget *mainWindow();
 bool isRegistersWindowVisible();
 bool isModulesWindowVisible();

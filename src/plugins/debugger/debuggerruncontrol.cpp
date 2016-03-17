@@ -141,6 +141,7 @@ QString DebuggerRunControl::displayName() const
 
 void DebuggerRunControl::start()
 {
+    Debugger::Internal::saveModeToRestore();
     Debugger::selectPerspective(Debugger::Constants::CppPerspectiveId);
     TaskHub::clearTasks(Debugger::Constants::TASK_CATEGORY_DEBUGGER_DEBUGINFO);
     TaskHub::clearTasks(Debugger::Constants::TASK_CATEGORY_DEBUGGER_RUNTIME);
