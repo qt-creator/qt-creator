@@ -477,6 +477,7 @@ void DebuggerRunControlCreator::enrich(const RunConfiguration *runConfig, const 
     if (m_debuggerAspect) {
         m_rp.multiProcess = m_debuggerAspect->useMultiProcess();
 
+        m_rp.languages = NoLanguage;
         if (m_debuggerAspect->useCppDebugger())
             m_rp.languages |= CppLanguage;
 
