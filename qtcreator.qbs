@@ -56,7 +56,7 @@ Project {
         "QT_CREATOR",
         'IDE_LIBRARY_BASENAME="' + libDirName + '"',
         "QT_NO_CAST_TO_ASCII",
-        "QT_NO_CAST_FROM_ASCII"
+        "QT_RESTRICTED_CAST_FROM_ASCII"
     ].concat(testsEnabled ? ["WITH_TESTS"] : [])
     qbsSearchPaths: "qbs"
 
