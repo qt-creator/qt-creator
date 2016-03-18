@@ -172,7 +172,7 @@ void ThemeChooser::apply()
     const QString themeId = d->m_themeListModel->themeAt(index).id().toString();
     QSettings *settings = ICore::settings();
     const QString currentThemeId = settings->value(QLatin1String(Constants::SETTINGS_THEME),
-                                                   QLatin1String("default")).toString();
+                                                   QLatin1String(Constants::DEFAULT_THEME)).toString();
     if (currentThemeId != themeId) {
         QMessageBox::information(ICore::mainWindow(), tr("Restart Required"),
                                  tr("The theme change will take effect after a restart of Qt Creator."));
@@ -206,7 +206,7 @@ QList<ThemeEntry> ThemeEntry::availableThemes()
         qWarning() << "Warning: No themes found in installation: "
                    << QDir::toNativeSeparators(installThemeDir);
     // move default theme to front
-    int defaultIndex = Utils::indexOf(themes, Utils::equal(&ThemeEntry::id, Id("default")));
+    int defaultIndex = Utils::indexOf(themes, Utils::equal(&ThemeEntry::id, Id(Constants::DEFAULT_THEME)));
     if (defaultIndex > 0) { // == exists and not at front
         ThemeEntry defaultEntry = themes.takeAt(defaultIndex);
         themes.prepend(defaultEntry);
