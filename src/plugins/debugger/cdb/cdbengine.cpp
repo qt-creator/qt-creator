@@ -544,9 +544,6 @@ bool CdbEngine::launchCDB(const DebuggerRunParameters &sp, QString *errorMessage
     if (boolSetting(IgnoreFirstChanceAccessViolation))
         arguments << QLatin1String("-x");
 
-    const QStringList &symbolPaths = stringListSetting(CdbSymbolPaths);
-    if (!symbolPaths.isEmpty())
-        arguments << QLatin1String("-y") << symbolPaths.join(QLatin1Char(';'));
     const QStringList &sourcePaths = stringListSetting(CdbSourcePaths);
     if (!sourcePaths.isEmpty())
         arguments << QLatin1String("-srcpath") << sourcePaths.join(QLatin1Char(';'));
@@ -642,6 +639,18 @@ void CdbEngine::setupInferior()
         runCommand({cdbAddBreakpointCommand(bp, m_sourcePathMappings, id, true), BuiltinCommand,
                     [this, id](const DebuggerResponse &r) { handleBreakInsert(r, id); }});
     }
+
+    // setting up symbol search path
+    QStringList symbolPaths = stringListSetting(CdbSymbolPaths);
+    const QProcessEnvironment &env = QProcessEnvironment::systemEnvironment();
+    QString symbolPath = env.value(QLatin1String("_NT_ALT_SYMBOL_PATH"));
+    if (!symbolPath.isEmpty())
+        symbolPaths += symbolPath;
+    symbolPath = env.value(QLatin1String("_NT_SYMBOL_PATH"));
+    if (!symbolPath.isEmpty())
+        symbolPaths += symbolPath;
+    runCommand({".sympath \"" + symbolPaths.join(QLatin1Char(';')).toLatin1() + '"', NoFlags});
+
     runCommand({"!sym noisy", NoFlags}); // Show symbol load information.
     runCommand({"sxn 0x4000001f", NoFlags}); // Do not break on WowX86 exceptions.
     runCommand({"sxn ibp", NoFlags}); // Do not break on initial breakpoints.
