@@ -70,7 +70,6 @@ SOURCES += $$PWD/environment.cpp \
     $$PWD/completingtextedit.cpp \
     $$PWD/json.cpp \
     $$PWD/portlist.cpp \
-    $$PWD/tcpportsgatherer.cpp \
     $$PWD/appmainwindow.cpp \
     $$PWD/sleep.cpp \
     $$PWD/basetreeview.cpp \
@@ -170,7 +169,6 @@ HEADERS += \
     $$PWD/json.h \
     $$PWD/runextensions.h \
     $$PWD/portlist.h \
-    $$PWD/tcpportsgatherer.h \
     $$PWD/appmainwindow.h \
     $$PWD/sleep.h \
     $$PWD/basetreeview.h \
