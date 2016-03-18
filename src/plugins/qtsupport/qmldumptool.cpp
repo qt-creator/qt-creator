@@ -55,12 +55,6 @@ static inline QStringList validPrebuiltFilenames(bool debugBuild)
     return list;
 }
 
-static bool hasPrivateHeaders(const QString &qtInstallHeaders) {
-    const QString header = qtInstallHeaders
-            + QLatin1String("/QtDeclarative/private/qdeclarativemetatype_p.h");
-    return QFile::exists(header);
-}
-
 QString QmlDumpTool::toolForVersion(BaseQtVersion *version, bool debugDump)
 {
     if (version) {
