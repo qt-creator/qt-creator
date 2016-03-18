@@ -41,8 +41,6 @@ using namespace Utils;
 namespace FakeVim {
 namespace Internal {
 
-typedef QLatin1String _;
-
 DummyAction::DummyAction(void *)
 {
 }
@@ -81,39 +79,39 @@ QString DummyAction::settingsKey() const
 FakeVimSettings::FakeVimSettings()
 {
     // Specific FakeVim settings
-    createAction(ConfigReadVimRc,  false,     _("ReadVimRc"));
-    createAction(ConfigVimRcPath,  QString(), _("VimRcPath"));
+    createAction(ConfigReadVimRc,  false,     "ReadVimRc");
+    createAction(ConfigVimRcPath,  QString(), "VimRcPath");
 #ifndef FAKEVIM_STANDALONE
-    createAction( ConfigUseFakeVim, false,     _("UseFakeVim"));
+    createAction(ConfigUseFakeVim, false,     "UseFakeVim");
     item(ConfigUseFakeVim)->setText(tr("Use Vim-style Editing"));
     item(ConfigReadVimRc)->setText(tr("Read .vimrc"));
     item(ConfigVimRcPath)->setText(tr("Path to .vimrc"));
 #endif
-    createAction(ConfigShowMarks,      false, _("ShowMarks"),      _("sm"));
-    createAction(ConfigPassControlKey, false, _("PassControlKey"), _("pck"));
-    createAction(ConfigPassKeys,       true,  _("PassKeys"),       _("pk"));
+    createAction(ConfigShowMarks,      false, "ShowMarks",      "sm");
+    createAction(ConfigPassControlKey, false, "PassControlKey", "pck");
+    createAction(ConfigPassKeys,       true,  "PassKeys",       "pk");
 
     // Emulated Vsetting
-    createAction(ConfigStartOfLine,    true,  _("StartOfLine"),   _("sol"));
-    createAction(ConfigTabStop,        8,     _("TabStop"),       _("ts"));
-    createAction(ConfigSmartTab,       false, _("SmartTab"),      _("sta"));
-    createAction(ConfigHlSearch,       true,  _("HlSearch"),      _("hls"));
-    createAction(ConfigShiftWidth,     8,     _("ShiftWidth"),    _("sw"));
-    createAction(ConfigExpandTab,      false, _("ExpandTab"),     _("et"));
-    createAction(ConfigAutoIndent,     false, _("AutoIndent"),    _("ai"));
-    createAction(ConfigSmartIndent,    false, _("SmartIndent"),   _("si"));
-    createAction(ConfigIncSearch,      true,  _("IncSearch"),     _("is"));
-    createAction(ConfigUseCoreSearch,  false, _("UseCoreSearch"), _("ucs"));
-    createAction(ConfigSmartCase,      false, _("SmartCase"),     _("scs"));
-    createAction(ConfigIgnoreCase,     false, _("IgnoreCase"),    _("ic"));
-    createAction(ConfigWrapScan,       true,  _("WrapScan"),      _("ws"));
-    createAction(ConfigTildeOp,        false, _("TildeOp"),       _("top"));
-    createAction(ConfigShowCmd,        true,  _("ShowCmd"),       _("sc"));
-    createAction(ConfigRelativeNumber, false, _("RelativeNumber"),_("rnu"));
-    createAction(ConfigScrollOff,      0,     _("ScrollOff"),     _("so"));
-    createAction(ConfigBackspace,      _("indent,eol,start"), _("ConfigBackspace"), _("bs"));
-    createAction(ConfigIsKeyword,      _("@,48-57,_,192-255,a-z,A-Z"), _("IsKeyword"), _("isk"));
-    createAction(ConfigClipboard,      QString(), _("Clipboard"), _("cb"));
+    createAction(ConfigStartOfLine,    true,  "StartOfLine",    "sol");
+    createAction(ConfigTabStop,        8,     "TabStop",        "ts");
+    createAction(ConfigSmartTab,       false, "SmartTab",       "sta");
+    createAction(ConfigHlSearch,       true,  "HlSearch",       "hls");
+    createAction(ConfigShiftWidth,     8,     "ShiftWidth",     "sw");
+    createAction(ConfigExpandTab,      false, "ExpandTab",      "et");
+    createAction(ConfigAutoIndent,     false, "AutoIndent",     "ai");
+    createAction(ConfigSmartIndent,    false, "SmartIndent",    "si");
+    createAction(ConfigIncSearch,      true,  "IncSearch",      "is");
+    createAction(ConfigUseCoreSearch,  false, "UseCoreSearch",  "ucs");
+    createAction(ConfigSmartCase,      false, "SmartCase",      "scs");
+    createAction(ConfigIgnoreCase,     false, "IgnoreCase",     "ic");
+    createAction(ConfigWrapScan,       true,  "WrapScan",       "ws");
+    createAction(ConfigTildeOp,        false, "TildeOp",        "top");
+    createAction(ConfigShowCmd,        true,  "ShowCmd",        "sc");
+    createAction(ConfigRelativeNumber, false, "RelativeNumber", "rnu");
+    createAction(ConfigScrollOff,      0,     "ScrollOff",      "so");
+    createAction(ConfigBackspace,      QString("indent,eol,start"), "ConfigBackspace", "bs");
+    createAction(ConfigIsKeyword,      QString("@,48-57,_,192-255,a-z,A-Z"), "IsKeyword", "isk");
+    createAction(ConfigClipboard,      QString(), "Clipboard", "cb");
 }
 
 FakeVimSettings::~FakeVimSettings()
@@ -180,7 +178,7 @@ void FakeVimSettings::createAction(int code, const QVariant &value,
 {
     FakeVimAction *item = new FakeVimAction(0);
     item->setValue(value);
-    item->setSettingsKey(_("FakeVim"), settingsKey);
+    item->setSettingsKey("FakeVim", settingsKey);
     item->setDefaultValue(value);
     item->setCheckable(value.canConvert<bool>());
     insertItem(code, item, settingsKey.toLower(), shortKey);
