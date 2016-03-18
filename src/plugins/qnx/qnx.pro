@@ -79,7 +79,7 @@ FORMS += \
     qnxdeployqtlibrariesdialog.ui
 
 
-DEFINES += QT_NO_CAST_TO_ASCII QT_NO_CAST_FROM_ASCII QNX_LIBRARY
+DEFINES += QNX_LIBRARY
 
 RESOURCES += \
     qnx.qrc
