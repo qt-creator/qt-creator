@@ -2277,6 +2277,14 @@ ImportInfo ImportInfo::implicitDirectoryImport(const QString &directory)
     return info;
 }
 
+ImportInfo ImportInfo::qrcDirectoryImport(const QString &directory)
+{
+    ImportInfo info;
+    info.m_type = ImportType::QrcDirectory;
+    info.m_path = directory;
+    return info;
+}
+
 bool ImportInfo::isValid() const
 {
     return m_type != ImportType::Invalid;

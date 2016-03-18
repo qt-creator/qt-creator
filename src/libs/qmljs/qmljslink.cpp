@@ -575,16 +575,23 @@ void LinkPrivate::loadQmldirComponents(ObjectValue *import, ComponentVersion ver
 
 void LinkPrivate::loadImplicitDirectoryImports(Imports *imports, Document::Ptr doc)
 {
-    ImportInfo implcitDirectoryImportInfo = ImportInfo::implicitDirectoryImport(doc->path());
-
-    Import directoryImport = importCache.value(ImportCacheKey(implcitDirectoryImportInfo));
-    if (!directoryImport.object) {
-        directoryImport = importFileOrDirectory(doc, implcitDirectoryImportInfo);
+    auto processImport = [this, imports, doc](const ImportInfo &importInfo){
+        Import directoryImport = importCache.value(ImportCacheKey(importInfo));
+        if (!directoryImport.object) {
+            directoryImport = importFileOrDirectory(doc, importInfo);
+            if (directoryImport.object)
+                importCache.insert(ImportCacheKey(importInfo), directoryImport);
+        }
         if (directoryImport.object)
-            importCache.insert(ImportCacheKey(implcitDirectoryImportInfo), directoryImport);
+            imports->append(directoryImport);
+    };
+
+    processImport(ImportInfo::implicitDirectoryImport(doc->path()));
+    foreach (const QString &path,
+             ModelManagerInterface::instance()->qrcPathsForFile(doc->fileName())) {
+        processImport(ImportInfo::qrcDirectoryImport(
+                          QrcParser::qrcDirectoryPathForQrcFilePath(path)));
     }
-    if (directoryImport.object)
-        imports->append(directoryImport);
 }
 
 void LinkPrivate::loadImplicitDefaultImports(Imports *imports)

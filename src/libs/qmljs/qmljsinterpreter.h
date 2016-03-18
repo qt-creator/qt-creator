@@ -1002,6 +1002,7 @@ public:
                                  const QString &as, AST::UiImport *ast = 0);
     static ImportInfo invalidImport(AST::UiImport *ast = 0);
     static ImportInfo implicitDirectoryImport(const QString &directory);
+    static ImportInfo qrcDirectoryImport(const QString &directory);
 
     bool isValid() const;
     ImportType::Enum type() const;
