@@ -187,6 +187,7 @@ public:
         Welcome_ForegroundPrimaryColor,
         Welcome_ForegroundSecondaryColor,
         Welcome_BackgroundColor,
+        Welcome_ButtonBackgroundColor,
         Welcome_DividerColor,
         Welcome_LinkColor,
         Welcome_HoverColor,

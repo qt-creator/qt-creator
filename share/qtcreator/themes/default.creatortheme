@@ -130,11 +130,12 @@ Debugger_WatchItem_ValueChanged=ffc80000
 Debugger_Breakpoint_TextMarkColor=ffff4040
 
 Welcome_TextColor=ff000000
-Welcome_ForegroundPrimaryColor=ff404244
+Welcome_ForegroundPrimaryColor=ff555759
 Welcome_ForegroundSecondaryColor=ff727476
-Welcome_BackgroundColor=ffffffff
+Welcome_BackgroundColor=fff8f8f8
+Welcome_ButtonBackgroundColor=ffdfdfdf
 Welcome_DividerColor=ffd6d6d6
-Welcome_HoverColor=fff6f6f6
+Welcome_HoverColor=ffe8e8e8
 Welcome_LinkColor=ff5caa15
 
 VcsBase_FileStatusUnknown_TextColor=ff000000

@@ -59,11 +59,12 @@ Button {
                            ? creatorTheme.Welcome_ForegroundPrimaryColor
                            : (button.hovered
                               ? creatorTheme.Welcome_HoverColor
-                              : creatorTheme.Welcome_BackgroundColor)
+                              : creatorTheme.Welcome_ButtonBackgroundColor)
                     border.width: 1
                     border.color: (button.checked || button.pressed)
                                   ? creatorTheme.Welcome_ForegroundPrimaryColor
                                   : creatorTheme.Welcome_ForegroundSecondaryColor
+                    radius: (creatorTheme.WidgetStyle === 'StyleFlat') ? 0 : 4
                 }
             }
 

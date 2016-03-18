@@ -139,6 +139,7 @@ Welcome_TextColor=text
 Welcome_ForegroundPrimaryColor=ff999999
 Welcome_ForegroundSecondaryColor=ff808080
 Welcome_BackgroundColor=normalBackground
+Welcome_ButtonBackgroundColor=normalBackground
 Welcome_DividerColor=ff555555
 Welcome_HoverColor=ff444444
 Welcome_LinkColor=ff5caa15

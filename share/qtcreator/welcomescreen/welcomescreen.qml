@@ -62,6 +62,6 @@ Item  {
         anchors.right: parent.right
         anchors.bottom: parent.bottom
 
-        color: creatorTheme.BackgroundColorNormal
+        color: creatorTheme.Welcome_BackgroundColor
     }
 }
