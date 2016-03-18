@@ -276,10 +276,8 @@ void QmlDesigner::Qt5TestNodeInstanceServer::collectItemChangesAndSendChangeComm
 
         foreach (const InstancePropertyPair& property, changedPropertyList()) {
             const ServerNodeInstance instance = property.first;
-            const QString propertyName = property.second;
-
             if (instance.isValid()) {
-                if (propertyName.contains("anchors"))
+                if (property.second.contains("anchors"))
                     informationChangedInstanceSet.insert(instance);
 
                 propertyChangedList.append(property);

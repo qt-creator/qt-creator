@@ -690,7 +690,7 @@ void QuickItemNodeInstance::resetProperty(const PropertyName &name)
     if (name == "y")
         m_y = 0.0;
 
-    DesignerSupport::resetAnchor(quickItem(), name);
+    DesignerSupport::resetAnchor(quickItem(), QString::fromUtf8(name));
 
     if (name == "anchors.fill") {
         resetHorizontal();
@@ -727,7 +727,7 @@ bool QuickItemNodeInstance::isAnchoredByChildren() const
 
 bool QuickItemNodeInstance::hasAnchor(const PropertyName &name) const
 {
-    return DesignerSupport::hasAnchor(quickItem(), name);
+    return DesignerSupport::hasAnchor(quickItem(), QString::fromUtf8(name));
 }
 
 static bool isValidAnchorName(const PropertyName &name)
@@ -747,10 +747,11 @@ static bool isValidAnchorName(const PropertyName &name)
 
 QPair<PropertyName, ServerNodeInstance> QuickItemNodeInstance::anchor(const PropertyName &name) const
 {
-    if (!isValidAnchorName(name) || !DesignerSupport::hasAnchor(quickItem(), name))
+    if (!isValidAnchorName(name) || !DesignerSupport::hasAnchor(quickItem(), QString::fromUtf8(name)))
         return ObjectNodeInstance::anchor(name);
 
-    QPair<QString, QObject*> nameObjectPair = DesignerSupport::anchorLineTarget(quickItem(), name, context());
+    QPair<QString, QObject*> nameObjectPair =
+            DesignerSupport::anchorLineTarget(quickItem(), QString::fromUtf8(name), context());
 
     QObject *targetObject = nameObjectPair.second;
     PropertyName targetName = nameObjectPair.first.toUtf8();

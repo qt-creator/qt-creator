@@ -821,7 +821,7 @@ void NodeInstanceServer::resetInstanceProperty(const PropertyAbstractContainer &
         }
 
         if (propertyContainer.isDynamic() && propertyContainer.instanceId() == 0 && engine())
-            rootContext()->setContextProperty(name, QVariant());
+            rootContext()->setContextProperty(QString::fromUtf8(name), QVariant());
     }
 }
 
@@ -839,12 +839,14 @@ void NodeInstanceServer::setInstancePropertyBinding(const PropertyBindingContain
             bool stateBindingWasUpdated = activeStateInstance().updateStateBinding(instance, name, expression);
             if (!stateBindingWasUpdated) {
                 if (bindingContainer.isDynamic())
-                    Internal::QmlPrivateGate::createNewDynamicProperty(instance.internalInstance()->object(), engine(), name);
+                    Internal::QmlPrivateGate::createNewDynamicProperty(instance.internalInstance()->object(), engine(),
+                                                                       QString::fromUtf8(name));
                 instance.setPropertyBinding(name, expression);
             }
         } else {
             if (bindingContainer.isDynamic())
-                Internal::QmlPrivateGate::createNewDynamicProperty(instance.internalInstance()->object(), engine(), name);
+                Internal::QmlPrivateGate::createNewDynamicProperty(instance.internalInstance()->object(), engine(),
+                                                                   QString::fromUtf8(name));
             instance.setPropertyBinding(name, expression);
         }
     }
@@ -871,17 +873,17 @@ void NodeInstanceServer::setInstancePropertyVariant(const PropertyValueContainer
             bool stateValueWasUpdated = activeStateInstance().updateStateVariant(instance, name, value);
             if (!stateValueWasUpdated) {
                 if (valueContainer.isDynamic())
-                    Internal::QmlPrivateGate::createNewDynamicProperty(instance.internalInstance()->object(), engine(), name);
+                    Internal::QmlPrivateGate::createNewDynamicProperty(instance.internalInstance()->object(), engine(), QString::fromUtf8(name));
                 instance.setPropertyVariant(name, value);
             }
         } else { //base state
             if (valueContainer.isDynamic())
-                Internal::QmlPrivateGate::createNewDynamicProperty(instance.internalInstance()->object(), engine(), name);
+                Internal::QmlPrivateGate::createNewDynamicProperty(instance.internalInstance()->object(), engine(), QString::fromUtf8(name));
             instance.setPropertyVariant(name, value);
         }
 
         if (valueContainer.isDynamic() && valueContainer.instanceId() == 0 && engine())
-            rootContext()->setContextProperty(name, Internal::QmlPrivateGate::fixResourcePaths(value));
+            rootContext()->setContextProperty(QString::fromUtf8(name), Internal::QmlPrivateGate::fixResourcePaths(value));
     }
 }
 

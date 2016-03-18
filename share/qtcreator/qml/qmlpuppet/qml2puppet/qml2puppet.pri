@@ -20,7 +20,6 @@ QT_BREAKPAD_ROOT_PATH = $$(QT_BREAKPAD_ROOT_PATH)
 
 SOURCES +=  $$PWD/qml2puppetmain.cpp
 RESOURCES +=  $$PWD/../qmlpuppet.qrc
-DEFINES -= QT_RESTRICTED_CAST_FROM_ASCII
 
 DISTFILES += Info.plist
 

@@ -301,7 +301,7 @@ static void removeObjectFromList(const QQmlProperty &property, QObject *objectTo
 
 void ObjectNodeInstance::removeFromOldProperty(QObject *object, QObject *oldParent, const PropertyName &oldParentProperty)
 {
-    QQmlProperty property(oldParent, oldParentProperty, context());
+    QQmlProperty property(oldParent, QString::fromUtf8(oldParentProperty), context());
 
     if (!property.isValid())
         return;
@@ -320,7 +320,7 @@ void ObjectNodeInstance::removeFromOldProperty(QObject *object, QObject *oldPare
 
 void ObjectNodeInstance::addToNewProperty(QObject *object, QObject *newParent, const PropertyName &newParentProperty)
 {
-    QQmlProperty property(newParent, newParentProperty, context());
+    QQmlProperty property(newParent, QString::fromUtf8(newParentProperty), context());
 
     if (object)
         object->setParent(newParent);
@@ -400,7 +400,7 @@ void ObjectNodeInstance::setPropertyVariant(const PropertyName &name, const QVar
     if (ignoredProperties().contains(name))
         return;
 
-    QQmlProperty property(object(), name, context());
+    QQmlProperty property(object(), QString::fromUtf8(name), context());
 
     if (!property.isValid())
         return;
@@ -482,7 +482,7 @@ void ObjectNodeInstance::resetProperty(const PropertyName &name)
 
 void ObjectNodeInstance::refreshProperty(const PropertyName &name)
 {
-    QQmlProperty property(object(), name, context());
+    QQmlProperty property(object(), QString::fromUtf8(name), context());
 
     if (!property.isValid())
         return;
@@ -523,7 +523,7 @@ QVariant ObjectNodeInstance::property(const PropertyName &name) const
     if (QmlPrivateGate::isPropertyBlackListed(name))
         return QVariant();
 
-    QQmlProperty property(object(), name, context());
+    QQmlProperty property(object(), QString::fromUtf8(name), context());
     if (property.property().isEnumType()) {
         QVariant value = property.read();
         return property.property().enumerator().valueToKey(value.toInt());
@@ -555,10 +555,10 @@ QString ObjectNodeInstance::instanceType(const PropertyName &name) const
     if (QmlPrivateGate::isPropertyBlackListed(name))
         return QLatin1String("undefined");
 
-    QQmlProperty property(object(), name, context());
+    QQmlProperty property(object(), QString::fromUtf8(name), context());
     if (!property.isValid())
         return QLatin1String("undefined");
-    return property.propertyTypeName();
+    return QString::fromUtf8(property.propertyTypeName());
 }
 
 QList<ServerNodeInstance> ObjectNodeInstance::childItems() const

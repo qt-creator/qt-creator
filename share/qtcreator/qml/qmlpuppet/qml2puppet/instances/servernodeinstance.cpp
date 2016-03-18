@@ -205,7 +205,7 @@ ServerNodeInstance ServerNodeInstance::create(NodeInstanceServer *nodeInstanceSe
         if (object == 0)
             nodeInstanceServer->sendDebugOutput(DebugOutputCommand::ErrorType, QString("Component with path %1 could not be created.").arg(instanceContainer.componentPath()), instanceContainer.instanceId());
     } else {
-        object = Internal::ObjectNodeInstance::createPrimitive(instanceContainer.type(), instanceContainer.majorNumber(), instanceContainer.minorNumber(), nodeInstanceServer->context());
+        object = Internal::ObjectNodeInstance::createPrimitive(QString::fromUtf8(instanceContainer.type()), instanceContainer.majorNumber(), instanceContainer.minorNumber(), nodeInstanceServer->context());
         if (object == 0)
             nodeInstanceServer->sendDebugOutput(DebugOutputCommand::ErrorType, QLatin1String("Item could not be created."), instanceContainer.instanceId());
     }

@@ -295,7 +295,8 @@ void SharedMemory::setErrorString(const QString &function)
         m_error = QSharedMemory::OutOfResources;
         break;
     default:
-        m_errorString = QStringLiteral("%1: unknown error %2").arg(function).arg(strerror(errno));
+        m_errorString = QStringLiteral("%1: unknown error %2")
+                .arg(function).arg(QString::fromLocal8Bit(strerror(errno)));
         m_error = QSharedMemory::UnknownError;
     }
 }
