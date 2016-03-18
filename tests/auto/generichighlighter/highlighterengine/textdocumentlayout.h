@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef TEXTDOCUMENTLAYOUT_H
-#define TEXTDOCUMENTLAYOUT_H
+#pragma once
 
 #include <QTextBlockUserData>
 
@@ -66,5 +65,3 @@ void setParentheses(const QTextBlock &, const Parentheses &);
 }
 
 } // namespace TextEditor
-
-#endif // TEXTDOCUMENTLAYOUT_H

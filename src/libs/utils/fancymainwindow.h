@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef FANCYMAINWINDOW_H
-#define FANCYMAINWINDOW_H
+#pragma once
 
 #include "utils_global.h"
 
@@ -90,5 +89,3 @@ private:
 };
 
 } // namespace Utils
-
-#endif // FANCYMAINWINDOW_H

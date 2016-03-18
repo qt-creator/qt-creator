@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PROFILEHOVERHANDLER_H
-#define PROFILEHOVERHANDLER_H
+#pragma once
 
 #include <texteditor/basehoverhandler.h>
 #include <texteditor/codeassist/keywordscompletionassist.h>
@@ -67,5 +66,3 @@ private:
 
 } // namespace Internal
 } // namespace QmakeProjectManager
-
-#endif // PROFILEHOVERHANDLER_H

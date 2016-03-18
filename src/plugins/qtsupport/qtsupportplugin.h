@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QTSUPPORTPLUGIN_H
-#define QTSUPPORTPLUGIN_H
+#pragma once
 
 #include <extensionsystem/iplugin.h>
 
@@ -56,5 +55,3 @@ private slots:
 
 } // namespace Internal
 } // namespace QtSupport
-
-#endif // QTSUPPORTPLUGIN_H

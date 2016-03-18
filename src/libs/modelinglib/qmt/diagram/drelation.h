@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_DRELATION_H
-#define QMT_DRELATION_H
+#pragma once
 
 #include "delement.h"
 
@@ -86,5 +85,3 @@ inline bool operator!=(const DRelation::IntermediatePoint &lhs,
 }
 
 } // namespace qmt
-
-#endif // QMT_DRELATION_H

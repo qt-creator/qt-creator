@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLPROFILERVIEWMANAGER_H
-#define QMLPROFILERVIEWMANAGER_H
+#pragma once
 
 #include <QObject>
 
@@ -71,5 +70,3 @@ private:
 
 } // namespace Internal
 } // namespace QmlProfiler
-
-#endif // QMLPROFILERVIEWMANAGER_H

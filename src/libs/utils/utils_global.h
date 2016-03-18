@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef UTILS_GLOBAL_H
-#define UTILS_GLOBAL_H
+#pragma once
 
 #include <qglobal.h>
 
@@ -35,5 +34,3 @@
 #else
 #  define QTCREATOR_UTILS_EXPORT Q_DECL_IMPORT
 #endif
-
-#endif // UTILS_GLOBAL_H

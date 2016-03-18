@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CORE_ID_H
-#define CORE_ID_H
+#pragma once
 
 #include "core_global.h"
 
@@ -92,5 +91,3 @@ QDataStream &operator<<(QDataStream &ds, Core::Id id);
 QDataStream &operator>>(QDataStream &ds, Core::Id &id);
 CORE_EXPORT QDebug operator<<(QDebug dbg, const Core::Id &id);
 QT_END_NAMESPACE
-
-#endif // CORE_ID_H

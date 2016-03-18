@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_PALETTEBOX_H
-#define QMT_PALETTEBOX_H
+#pragma once
 
 #include <QWidget>
 #include "qmt/infrastructure/qmt_global.h"
@@ -67,5 +66,3 @@ private:
 };
 
 } // namespace qmt
-
-#endif // QMT_PALETTEBOX_H

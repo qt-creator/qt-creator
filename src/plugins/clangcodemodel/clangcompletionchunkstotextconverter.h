@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CLANGCODEMODEL_INTERNAL_COMPLETIONCHUNKSTOTEXTCONVERTER_H
-#define CLANGCODEMODEL_INTERNAL_COMPLETIONCHUNKSTOTEXTCONVERTER_H
+#pragma once
 
 #include <clangbackendipc/codecompletionchunk.h>
 
@@ -106,5 +105,3 @@ private:
 
 } // namespace Internal
 } // namespace ClangCodeModel
-
-#endif // CLANGCODEMODEL_INTERNAL_COMPLETIONCHUNKSTOTEXTCONVERTER_H

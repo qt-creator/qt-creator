@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLSTATE_H
-#define QMLSTATE_H
+#pragma once
 
 #include <qmldesignercorelib_global.h>
 #include "qmlmodelnodefacade.h"
@@ -77,6 +76,3 @@ protected:
 };
 
 } //QmlDesigner
-
-
-#endif // QMLSTATE_H

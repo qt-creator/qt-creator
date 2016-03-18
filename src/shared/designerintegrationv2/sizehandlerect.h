@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SIZEHANDLERECT_H
-#define SIZEHANDLERECT_H
+#pragma once
 
 #include "widgethostconstants.h"
 
@@ -71,7 +70,3 @@ private:
 
 }
 } // namespace SharedTools
-
-
-#endif // SIZEHANDLERECT_H
-

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CALLGRINDCOSTDELEGATE_H
-#define CALLGRINDCOSTDELEGATE_H
+#pragma once
 
 #include <QStyledItemDelegate>
 
@@ -64,5 +63,3 @@ private:
 } // namespace Valgrind
 
 Q_DECLARE_METATYPE(Valgrind::Internal::CostDelegate::CostFormat)
-
-#endif // CALLGRINDCOSTDELEGATE_H

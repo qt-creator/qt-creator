@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_ANNOTATIONITEM_H
-#define QMT_ANNOTATIONITEM_H
+#pragma once
 
 #include <QGraphicsItem>
 
@@ -111,5 +110,3 @@ private:
 };
 
 } // namespace qmt
-
-#endif // QMT_ANNOTATIONITEM_H

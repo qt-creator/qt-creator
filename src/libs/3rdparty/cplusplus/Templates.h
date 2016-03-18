@@ -18,8 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#ifndef CPLUSPLUS_TEMPLATES_H
-#define CPLUSPLUS_TEMPLATES_H
+#pragma once
 
 #include "CPlusPlusForwardDeclarations.h"
 #include "TypeVisitor.h"
@@ -207,5 +206,3 @@ private:
 };
 
 } // end of namespace CPlusPlus
-
-#endif // CPLUSPLUS_TEMPLATES_H

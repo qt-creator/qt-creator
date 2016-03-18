@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SEMANTICHIGHLIGHTER_H
-#define SEMANTICHIGHLIGHTER_H
+#pragma once
 
 #include "cpptools_global.h"
 
@@ -92,5 +91,3 @@ private:
 };
 
 } // namespace CppTools
-
-#endif // SEMANTICHIGHLIGHTER_H

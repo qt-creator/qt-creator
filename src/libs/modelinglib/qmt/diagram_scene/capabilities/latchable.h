@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_LATCHABLE_H
-#define QMT_LATCHABLE_H
+#pragma once
 
 #include <QList>
 
@@ -82,5 +81,3 @@ public:
 };
 
 } // namespace qmt
-
-#endif // QMT_LATCHABLE_H

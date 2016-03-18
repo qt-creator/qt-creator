@@ -24,8 +24,7 @@
 **
 ****************************************************************************/
 
-#ifndef ANALYZERCONSTANTS_H
-#define ANALYZERCONSTANTS_H
+#pragma once
 
 #include <QtGlobal>
 
@@ -45,5 +44,3 @@ const char ANALYZERTASK_ID[] = "Analyzer.TaskId";
 
 } // namespace Constants
 } // namespace Debugger
-
-#endif // ANALYZERCONSTANTS_H

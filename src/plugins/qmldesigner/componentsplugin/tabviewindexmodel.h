@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef TABVIEWINDEXMODEL_H
-#define TABVIEWINDEXMODEL_H
+#pragma once
 
 #include <qmlitemnode.h>
 
@@ -59,5 +58,3 @@ private:
 };
 
 QML_DECLARE_TYPE(TabViewIndexModel)
-
-#endif // TABVIEWINDEXMODEL_H

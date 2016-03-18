@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CPPTOOLSJSEXTENSION_H
-#define CPPTOOLSJSEXTENSION_H
+#pragma once
 
 #include <QObject>
 
@@ -61,5 +60,3 @@ public:
 
 } // namespace Internal
 } // namespace CppTools
-
-#endif // CPPTOOLSJSEXTENSION_H

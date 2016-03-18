@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef LOCATORCONSTANTS_H
-#define LOCATORCONSTANTS_H
+#pragma once
 
 #include <QtGlobal>
 
@@ -38,5 +37,3 @@ const char TASK_INDEX[] = "Locator.Task.Index";
 
 } // namespace Constants
 } // namespace Core
-
-#endif // LOCATORCONSTANTS_H

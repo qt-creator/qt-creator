@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLREFACTORING_H
-#define QMLREFACTORING_H
+#pragma once
 
 #include <import.h>
 #include <textmodifier.h>
@@ -75,5 +74,3 @@ private:
 };
 
 } // namespace QmlDesigner
-
-#endif // QMLREFACTORING_H

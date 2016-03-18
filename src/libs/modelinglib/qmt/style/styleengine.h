@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_STYLEENGINE_H
-#define QMT_STYLEENGINE_H
+#pragma once
 
 #include "qmt/infrastructure/qmt_global.h"
 
@@ -81,5 +80,3 @@ public:
 };
 
 } // namespace qmt
-
-#endif // QMT_STYLEENGINE_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef ICODESTYLEPREFERENCES_H
-#define ICODESTYLEPREFERENCES_H
+#pragma once
 
 #include "texteditor_global.h"
 
@@ -107,5 +106,3 @@ private:
 
 
 } // namespace TextEditor
-
-#endif // ICODESTYLEPREFERENCES_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef GDBPLAINENGINE_H
-#define GDBPLAINENGINE_H
+#pragma once
 
 #include "gdbengine.h"
 #include <debugger/outputcollector.h>
@@ -60,5 +59,3 @@ private:
 
 } // namespace Debugger
 } // namespace Internal
-
-#endif // GDBPLAINENGINE_H

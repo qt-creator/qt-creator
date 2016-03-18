@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef TESTRESULTMODEL_H
-#define TESTRESULTMODEL_H
+#pragma once
 
 #include "testresult.h"
 
@@ -101,5 +100,3 @@ private:
 
 } // namespace Internal
 } // namespace Autotest
-
-#endif // TESTRESULTMODEL_H

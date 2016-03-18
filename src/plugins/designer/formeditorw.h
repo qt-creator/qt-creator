@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef FORMEDITORW_H
-#define FORMEDITORW_H
+#pragma once
 
 #include "designerconstants.h"
 
@@ -90,5 +89,3 @@ public:
 
 } // namespace Internal
 } // namespace Designer
-
-#endif // FORMEDITORW_H

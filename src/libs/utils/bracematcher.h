@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef BRACEMATCHER_H
-#define BRACEMATCHER_H
+#pragma once
 
 #include "utils_global.h"
 
@@ -65,5 +64,3 @@ private:
 };
 
 }  // namespace Utils
-
-#endif // BRACEMATCHER_H

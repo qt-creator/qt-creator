@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CLANGBACKEND_CONNECTIONSERVER_H
-#define CLANGBACKEND_CONNECTIONSERVER_H
+#pragma once
 
 #include <ipcclientproxy.h>
 
@@ -76,5 +75,3 @@ private:
 };
 
 } // namespace ClangBackEnd
-
-#endif // CLANGBACKEND_CONNECTIONSERVER_H

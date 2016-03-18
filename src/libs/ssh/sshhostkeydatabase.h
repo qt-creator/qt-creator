@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SSHHOSTKEYDATABASE_H
-#define SSHHOSTKEYDATABASE_H
+#pragma once
 
 #include "ssh_global.h"
 
@@ -65,5 +64,3 @@ private:
 };
 
 } // namespace QSsh
-
-#endif // Include guard.

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PIXMAPCHANGEDCOMMAND_H
-#define PIXMAPCHANGEDCOMMAND_H
+#pragma once
 
 #include <QMetaType>
 #include "imagecontainer.h"
@@ -57,5 +56,3 @@ QDebug operator <<(QDebug debug, const PixmapChangedCommand &command);
 } // namespace QmlDesigner
 
 Q_DECLARE_METATYPE(QmlDesigner::PixmapChangedCommand)
-
-#endif // PIXMAPCHANGEDCOMMAND_H

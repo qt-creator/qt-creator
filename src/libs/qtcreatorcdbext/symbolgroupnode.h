@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SYMBOLGROUPNODE_H
-#define SYMBOLGROUPNODE_H
+#pragma once
 
 #include "common.h"
 
@@ -432,5 +431,3 @@ private:
     const DumpParameters &m_parameters;
     unsigned m_lastDepth;
 };
-
-#endif // SYMBOLGROUPNODE_H

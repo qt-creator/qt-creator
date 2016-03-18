@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef JSONCHECK_H
-#define JSONCHECK_H
+#pragma once
 
 #include "qmljs_global.h"
 
@@ -83,5 +82,3 @@ private:
 };
 
 } // QmlJs
-
-#endif // JSONCHECK_H

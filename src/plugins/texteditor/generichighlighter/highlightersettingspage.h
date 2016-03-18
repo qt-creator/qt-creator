@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef HIGHLIGHTERSETTINGSPAGE_H
-#define HIGHLIGHTERSETTINGSPAGE_H
+#pragma once
 
 #include "highlightdefinitionmetadata.h"
 #include "../texteditoroptionspage.h"
@@ -72,5 +71,3 @@ private:
 };
 
 } // namespace TextEditor
-
-#endif // HIGHLIGHTERSETTINGSPAGE_H

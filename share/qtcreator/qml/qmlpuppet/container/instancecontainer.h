@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef INSTANCECONTAINER_H
-#define INSTANCECONTAINER_H
+#pragma once
 
 #include <qmetatype.h>
 #include <QString>
@@ -83,4 +82,3 @@ QDebug operator <<(QDebug debug, const InstanceContainer &command);
 } // namespace QmlDesigner
 
 Q_DECLARE_METATYPE(QmlDesigner::InstanceContainer)
-#endif // INSTANCECONTAINER_H

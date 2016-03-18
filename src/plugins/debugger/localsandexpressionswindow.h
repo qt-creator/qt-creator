@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef LOCALSANDEXPRESSIONSWINDOW_H
-#define LOCALSANDEXPRESSIONSWINDOW_H
+#pragma once
 
 #include <QWidget>
 #include <QTimer>
@@ -56,5 +55,3 @@ private:
 
 } // namespace Internal
 } // namespace Debugger
-
-#endif // LOCALSANDEXPRESSIONSWINDOW_H

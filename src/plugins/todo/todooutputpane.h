@@ -24,8 +24,7 @@
 **
 ****************************************************************************/
 
-#ifndef TODOOUTPUTPANE_H
-#define TODOOUTPUTPANE_H
+#pragma once
 
 #include "settings.h"
 
@@ -101,5 +100,3 @@ private:
 
 } // namespace Internal
 } // namespace Todo
-
-#endif // TODOOUTPUTPANE_H

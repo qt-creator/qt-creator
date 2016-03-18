@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CLANGSTATICANALYZERPROJECTSETTINGSMANAGER_H
-#define CLANGSTATICANALYZERPROJECTSETTINGSMANAGER_H
+#pragma once
 
 namespace ProjectExplorer { class Project; }
 
@@ -51,5 +50,3 @@ private:
 
 } // namespace Internal
 } // namespace ClangStaticAnalyzer
-
-#endif // Include guard.

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLENGINEDEBUGCLIENT_H
-#define QMLENGINEDEBUGCLIENT_H
+#pragma once
 
 #include "baseenginedebugclient.h"
 
@@ -43,5 +42,3 @@ public:
 };
 
 } // namespace QmlDebug
-
-#endif // QMLENGINEDEBUGCLIENT_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLJSLINEINFO_H
-#define QMLJSLINEINFO_H
+#pragma once
 
 #include <qmljs/qmljs_global.h>
 
@@ -117,6 +116,3 @@ protected:
 };
 
 } // namespace QmlJS
-
-#endif // QMLJSLINEINFO_H
-

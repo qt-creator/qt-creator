@@ -18,8 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#ifndef CPLUSPLUS_NAMEVISITOR_H
-#define CPLUSPLUS_NAMEVISITOR_H
+#pragma once
 
 #include "CPlusPlusForwardDeclarations.h"
 
@@ -51,6 +50,3 @@ public:
 };
 
 } // namespace CPlusPlus
-
-
-#endif // CPLUSPLUS_NAMEVISITOR_H

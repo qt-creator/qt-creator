@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef REMOVEPROPERTYVISITOR_H
-#define REMOVEPROPERTYVISITOR_H
+#pragma once
 
 #include <QString>
 
@@ -58,5 +57,3 @@ private:
 
 } // namespace Internal
 } // namespace QmlDesigner
-
-#endif // REMOVEPROPERTYVISITOR_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CLANGBACKEND_IPCINTERFACE_H
-#define CLANGBACKEND_IPCINTERFACE_H
+#pragma once
 
 #include "clangbackendipc_global.h"
 
@@ -42,5 +41,3 @@ public:
 };
 
 } // namespace ClangBackEnd
-
-#endif // CLANGBACKEND_IPCINTERFACE_H

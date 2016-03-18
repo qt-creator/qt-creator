@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef DesignDocumentVIEW_H
-#define DesignDocumentVIEW_H
+#pragma once
 
 #include <abstractview.h>
 #include <modelmerger.h>
@@ -54,5 +53,3 @@ private:
 };
 
 }// namespace QmlDesigner
-
-#endif // DesignDocumentVIEW_H

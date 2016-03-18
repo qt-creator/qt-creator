@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef REMOTEHELPFILTER_H
-#define REMOTEHELPFILTER_H
+#pragma once
 
 #include "ui_remotehelpfilter.h"
 
@@ -82,5 +81,3 @@ private:
 
     } // namespace Internal
 } // namespace Help
-
-#endif // REMOTEHELPFILTER_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLDESIGNER_PATHSELECTIONMANIPULATOR_H
-#define QMLDESIGNER_PATHSELECTIONMANIPULATOR_H
+#pragma once
 
 #include <QList>
 #include <QPair>
@@ -99,5 +98,3 @@ private:
 bool operator ==(const SelectionPoint& firstSelectionPoint, const SelectionPoint& secondSelectionPoint);
 
 } // namespace QmlDesigner
-
-#endif // QMLDESIGNER_PATHSELECTIONMANIPULATOR_H

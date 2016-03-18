@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CDBOPTIONSPAGE_H
-#define CDBOPTIONSPAGE_H
+#pragma once
 
 #include <coreplugin/dialogs/ioptionspage.h>
 #include <utils/savedaction.h>
@@ -128,5 +127,3 @@ private:
 
 } // namespace Internal
 } // namespace Debugger
-
-#endif // CDBOPTIONSPAGE_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef FINDINOPENFILES_H
-#define FINDINOPENFILES_H
+#pragma once
 
 #include "basefilefind.h"
 
@@ -57,5 +56,3 @@ private:
 
 } // namespace Internal
 } // namespace TextEditor
-
-#endif // FINDINOPENFILES_H

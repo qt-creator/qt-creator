@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef WINRTPACKAGEDEPLOYMENTSTEP_H
-#define WINRTPACKAGEDEPLOYMENTSTEP_H
+#pragma once
 
 #include <projectexplorer/abstractprocessstep.h>
 
@@ -66,5 +65,3 @@ private:
 
 } // namespace Internal
 } // namespace WinRt
-
-#endif // WINRTPACKAGEDEPLOYMENTSTEP_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef KEYWORDLIST_H
-#define KEYWORDLIST_H
+#pragma once
 
 #include <QString>
 #include <QSet>
@@ -45,5 +44,3 @@ private:
 
 } // namespace Internal
 } // namespace TextEditor
-
-#endif // KEYWORDLIST_H

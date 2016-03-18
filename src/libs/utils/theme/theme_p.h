@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef THEME_P_H
-#define THEME_P_H
+#pragma once
 
 #include "theme.h"
 #include "../utils_global.h"
@@ -55,5 +54,3 @@ public:
 QTCREATOR_UTILS_EXPORT void setCreatorTheme(Theme *theme);
 
 } // namespace Utils
-
-#endif // THEME_P_H

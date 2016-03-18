@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PROPERTYBINDINGCONTAINER_H
-#define PROPERTYBINDINGCONTAINER_H
+#pragma once
 
 #include <QDataStream>
 #include <qmetatype.h>
@@ -63,4 +62,3 @@ QDebug operator <<(QDebug debug, const PropertyBindingContainer &container);
 } // namespace QmlDesigner
 
 Q_DECLARE_METATYPE(QmlDesigner::PropertyBindingContainer)
-#endif // PROPERTYBINDINGCONTAINER_H

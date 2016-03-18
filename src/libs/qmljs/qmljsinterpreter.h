@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLJS_INTERPRETER_H
-#define QMLJS_INTERPRETER_H
+#pragma once
 
 #include <qmljs/qmljs_global.h>
 #include <qmljs/qmljsconstants.h>
@@ -1129,5 +1128,3 @@ public:
 };
 
 } // namespace QmlJS
-
-#endif // QMLJS_INTERPRETER_H

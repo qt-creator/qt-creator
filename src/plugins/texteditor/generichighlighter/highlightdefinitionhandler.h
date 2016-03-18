@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef HIGHLIGHTDEFINITIONHANDLER_H
-#define HIGHLIGHTDEFINITIONHANDLER_H
+#pragma once
 
 #include <QString>
 #include <QSharedPointer>
@@ -98,5 +97,3 @@ private:
 
 } // namespace Internal
 } // namespace TextEditor
-
-#endif // HIGHLIGHTDEFINITIONHANDLER_H

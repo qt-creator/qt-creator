@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef DESIGNMODECONTEXT_H
-#define DESIGNMODECONTEXT_H
+#pragma once
 
 #include <coreplugin/icontext.h>
 
@@ -57,5 +56,3 @@ public:
 
 }
 }
-
-#endif // DESIGNMODECONTEXT_H

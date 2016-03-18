@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SSHLOGGING_P_H
-#define SSHLOGGING_P_H
+#pragma once
 
 #include <QLoggingCategory>
 
@@ -33,5 +32,3 @@ namespace Internal {
 Q_DECLARE_LOGGING_CATEGORY(sshLog)
 } // namespace Internal
 } // namespace QSsh
-
-#endif // Include guard

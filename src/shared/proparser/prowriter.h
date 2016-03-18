@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PROWRITER_H
-#define PROWRITER_H
+#pragma once
 
 #include "qmake_global.h"
 #include <QStringList>
@@ -70,5 +69,3 @@ Q_DECLARE_OPERATORS_FOR_FLAGS(ProWriter::PutFlags)
 
 } // namespace Internal
 } // namespace QmakeProjectManager
-
-#endif // PROWRITER_H

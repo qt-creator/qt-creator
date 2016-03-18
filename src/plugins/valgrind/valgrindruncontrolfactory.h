@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef VALGRINDRUNCONTROLFACTORY_H
-#define VALGRINDRUNCONTROLFACTORY_H
+#pragma once
 
 #include <projectexplorer/runconfiguration.h>
 
@@ -49,5 +48,3 @@ public:
 
 } // namespace Internal
 } // namespace Valgrind
-
-#endif // VALGRINDRUNCONTROLFACTORY_H

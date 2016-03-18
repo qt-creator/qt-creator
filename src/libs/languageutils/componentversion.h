@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef COMPONENTVERSION_H
-#define COMPONENTVERSION_H
+#pragma once
 
 #include "languageutils_global.h"
 
@@ -66,5 +65,3 @@ bool LANGUAGEUTILS_EXPORT operator==(const ComponentVersion &lhs, const Componen
 bool LANGUAGEUTILS_EXPORT operator!=(const ComponentVersion &lhs, const ComponentVersion &rhs);
 
 } // namespace LanguageUtils
-
-#endif // COMPONENTVERSION_H

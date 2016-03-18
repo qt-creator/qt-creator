@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SNIPPETASSISTCOLLECTOR_H
-#define SNIPPETASSISTCOLLECTOR_H
+#pragma once
 
 #include <texteditor/texteditor_global.h>
 
@@ -51,5 +50,3 @@ private:
 };
 
 } // TextEditor
-
-#endif // SNIPPETASSISTCOLLECTOR_H

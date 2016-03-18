@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef METAINFOREADER_H
-#define METAINFOREADER_H
+#pragma once
 
 #include "qmldesignercorelib_global.h"
 #include <metainfo.h>
@@ -117,4 +116,3 @@ private:
 
 }
 }
-#endif // METAINFOREADER_H

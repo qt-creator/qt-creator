@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CORE_SHELLCOMMAND_H
-#define CORE_SHELLCOMMAND_H
+#pragma once
 
 #include "core_global.h"
 
@@ -46,5 +45,3 @@ protected:
 };
 
 } // namespace Core
-
-#endif // CORE_SHELLCOMMAND_H

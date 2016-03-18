@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QBSBUILDSTEP_H
-#define QBSBUILDSTEP_H
+#pragma once
 
 #include "qbsbuildconfiguration.h"
 
@@ -184,5 +183,3 @@ public:
 
 } // namespace Internal
 } // namespace QbsProjectManager
-
-#endif // QBSBUILDSTEP_H

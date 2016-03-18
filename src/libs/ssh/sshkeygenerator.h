@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SSHKEYGENERATOR_H
-#define SSHKEYGENERATOR_H
+#pragma once
 
 #include "ssh_global.h"
 
@@ -74,5 +73,3 @@ private:
 };
 
 } // namespace QSsh
-
-#endif // SSHKEYGENERATOR_H

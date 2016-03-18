@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef HELPVIEWER_H
-#define HELPVIEWER_H
+#pragma once
 
 #include <coreplugin/find/textfindconstants.h>
 
@@ -105,5 +104,3 @@ protected slots:
 
 }   // namespace Internal
 }   // namespace Help
-
-#endif  // HELPVIEWER_H

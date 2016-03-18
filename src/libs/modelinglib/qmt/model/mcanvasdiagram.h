@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_MCANVASDIAGRAM_H
-#define QMT_MCANVASDIAGRAM_H
+#pragma once
 
 #include "mdiagram.h"
 
@@ -41,5 +40,3 @@ public:
 };
 
 } // namespace qmt
-
-#endif // QMT_MCANVASDIAGRAM_H

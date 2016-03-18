@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef BAREMETALGDBCOMMANDSDEPLOYSTEP_H
-#define BAREMETALGDBCOMMANDSDEPLOYSTEP_H
+#pragma once
 
 #include <projectexplorer/buildstep.h>
 
@@ -83,5 +82,3 @@ private:
 
 } // namespace Internal
 } // namespace BareMetal
-
-#endif // BAREMETALGDBCOMMANDSDEPLOYSTEP_H

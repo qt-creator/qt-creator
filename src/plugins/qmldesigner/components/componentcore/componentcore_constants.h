@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef COMPONENTCORE_CONSTANTS_H
-#define COMPONENTCORE_CONSTANTS_H
+#pragma once
 
 #include <QtGlobal>
 
@@ -112,5 +111,3 @@ const int priorityLast = 60;
 } //ComponentCoreConstants
 
 } //QmlDesigner
-
-#endif //COMPONENTCORE_CONSTANTS_H

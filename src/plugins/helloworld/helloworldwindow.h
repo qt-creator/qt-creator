@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef HELLOWORLDWINDOW_H
-#define HELLOWORLDWINDOW_H
+#pragma once
 
 #include <QWidget>
 
@@ -41,5 +40,3 @@ public:
 
 } // namespace Internal
 } // namespace HelloWorld
-
-#endif // HELLOWORLDWINDOW_H

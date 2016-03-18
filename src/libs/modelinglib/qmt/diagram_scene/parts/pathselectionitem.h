@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_GRAPHICSPATHSELECTIONITEM_H
-#define QMT_GRAPHICSPATHSELECTIONITEM_H
+#pragma once
 
 #include <QGraphicsItem>
 
@@ -82,5 +81,3 @@ private:
 };
 
 } // namespace qmt
-
-#endif // QMT_GRAPHICSPATHSELECTIONITEM_H

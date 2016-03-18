@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef  SSHDIRECTTCPIPTUNNEL_H
-#define  SSHDIRECTTCPIPTUNNEL_H
+#pragma once
 
 #include "ssh_global.h"
 
@@ -79,5 +78,3 @@ private:
 };
 
 } // namespace QSsh
-
-#endif // SSHDIRECTTCPIPTUNNEL_H

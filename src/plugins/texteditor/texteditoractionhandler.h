@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef TEXTEDITORACTIONHANDLER_H
-#define TEXTEDITORACTIONHANDLER_H
+#pragma once
 
 #include "texteditor_global.h"
 
@@ -68,5 +67,3 @@ private:
 };
 
 } // namespace TextEditor
-
-#endif // TEXTEDITORACTIONHANDLER_H

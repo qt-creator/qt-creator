@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLV8DEBUGGERCLIENTCONSTANTS_H
-#define QMLV8DEBUGGERCLIENTCONSTANTS_H
+#pragma once
 
 namespace Debugger {
 namespace Internal {
@@ -115,4 +114,3 @@ const char INTERNAL_FUNCTION[] = "(function(method) { "\
     "})";
 } //Internal
 } //Debugger
-#endif // QMLV8DEBUGGERCLIENTCONSTANTS_H

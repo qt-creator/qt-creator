@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef NODEINSTANCECLIENTINTERFACE_H
-#define NODEINSTANCECLIENTINTERFACE_H
+#pragma once
 
 #include <QtGlobal>
 
@@ -59,5 +58,3 @@ public:
 };
 
 }
-
-#endif // NODEINSTANCECLIENTINTERFACE_H

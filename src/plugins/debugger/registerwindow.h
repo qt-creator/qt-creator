@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef DEBUGGER_REGISTERWINDOW_H
-#define DEBUGGER_REGISTERWINDOW_H
+#pragma once
 
 #include <utils/basetreeview.h>
 
@@ -47,5 +46,3 @@ private:
 
 } // namespace Internal
 } // namespace Debugger
-
-#endif // DEBUGGER_REGISTERWINDOW_H

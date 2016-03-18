@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLJSSCOPEASTPATH_H
-#define QMLJSSCOPEASTPATH_H
+#pragma once
 
 #include "qmljs_global.h"
 #include "parser/qmljsastvisitor_p.h"
@@ -61,5 +60,3 @@ private:
 };
 
 } // namespace QmlJS
-
-#endif // QMLJSSCOPEASTPATH_H

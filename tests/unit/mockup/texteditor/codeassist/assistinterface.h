@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef ASSISTINTERFACE_H
-#define ASSISTINTERFACE_H
+#pragma once
 
 #include <QTextCursor>
 
@@ -109,6 +108,3 @@ inline QString AssistInterface::fileName() const
     return fileName_;
 }
 }
-
-#endif // ASSISTINTERFACE_H
-

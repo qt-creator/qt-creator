@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLJS_QMLJSUTILS_H
-#define QMLJS_QMLJSUTILS_H
+#pragma once
 
 #include "qmljs_global.h"
 #include "qmljsconstants.h"
@@ -70,5 +69,3 @@ DiagnosticMessage errorMessage(const T *node, const QString &message)
 }
 
 } // namespace QmlJS
-
-#endif // QMLJS_QMLJSUTILS_H

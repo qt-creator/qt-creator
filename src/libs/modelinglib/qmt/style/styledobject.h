@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_STYLEDOBJECT_H
-#define QMT_STYLEDOBJECT_H
+#pragma once
 
 #include "objectvisuals.h"
 
@@ -52,5 +51,3 @@ private:
 };
 
 } // namespace qmt
-
-#endif // QMT_ STYLEDOBJECT_H

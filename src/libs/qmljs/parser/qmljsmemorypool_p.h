@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLJSMEMORYPOOL_P_H
-#define QMLJSMEMORYPOOL_P_H
+#pragma once
 
 //
 //  W A R N I N G
@@ -153,5 +152,3 @@ public:
 } // namespace QmlJS
 
 QT_QML_END_NAMESPACE
-
-#endif

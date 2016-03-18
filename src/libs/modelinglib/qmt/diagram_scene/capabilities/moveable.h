@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_MOVEABLE_H
-#define QMT_MOVEABLE_H
+#pragma once
 
 #include <QtGlobal>
 
@@ -44,5 +43,3 @@ public:
 };
 
 } // namespace qmt
-
-#endif // QMT_MOVEABLE_H

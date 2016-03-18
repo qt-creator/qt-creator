@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef RESOURCENODE_H
-#define RESOURCENODE_H
+#pragma once
 
 #include "resource_global.h"
 #include <projectexplorer/projectnodes.h>
@@ -175,5 +174,3 @@ private:
 };
 } // namespace Internal
 } // namespace ResourceEditor
-
-#endif // RESOUCENODE_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef DEBUGGERCORE_H
-#define DEBUGGERCORE_H
+#pragma once
 
 #include "debuggerconstants.h"
 
@@ -111,5 +110,3 @@ bool isReverseDebuggingEnabled();
 
 } // namespace Internal
 } // namespace Debugger
-
-#endif // DEBUGGERPLUGIN_H

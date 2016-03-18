@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef MODEMANAGER_H
-#define MODEMANAGER_H
+#pragma once
 
 #include <coreplugin/core_global.h>
 #include <QObject>
@@ -86,5 +85,3 @@ private:
 };
 
 } // namespace Core
-
-#endif // MODEMANAGER_H

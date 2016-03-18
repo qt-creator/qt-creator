@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef STATESEDITORMODEL_H
-#define STATESEDITORMODEL_H
+#pragma once
 
 #include <QAbstractListModel>
 #include <QPointer>
@@ -72,5 +71,3 @@ private:
 };
 
 } // namespace QmlDesigner
-
-#endif // STATESEDITORMODEL_H

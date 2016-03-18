@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SQLITEWORKERTHREAD_H
-#define SQLITEWORKERTHREAD_H
+#pragma once
 
 #include <QMutex>
 #include <QPointer>
@@ -48,5 +47,3 @@ private:
     mutable QWaitCondition connectionChanged;
     QPointer<SqliteDatabaseConnection> connection;
 };
-
-#endif // SQLITEWORKERTHREAD_H

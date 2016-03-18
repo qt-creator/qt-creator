@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef TESTREWRITERVIEW_H
-#define TESTREWRITERVIEW_H
+#pragma once
 
 #include <rewriterview.h>
 #include <model/modeltotextmerger.h>
@@ -61,5 +60,3 @@ public:
 };
 
 } // QmlDesigner
-
-#endif // TESTREWRITERVIEW_H

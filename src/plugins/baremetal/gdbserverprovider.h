@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef GDBSERVERPROVIDER_H
-#define GDBSERVERPROVIDER_H
+#pragma once
 
 #include <QObject>
 #include <QVariantMap>
@@ -197,5 +196,3 @@ private:
 
 } // namespace Internal
 } // namespace BareMetal
-
-#endif // GDBSERVERPROVIDER_H

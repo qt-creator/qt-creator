@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PLUGINFILEFACTORY_H
-#define PLUGINFILEFACTORY_H
+#pragma once
 
 #include <coreplugin/idocumentfactory.h>
 
@@ -54,5 +53,3 @@ private:
 
 } // namespace Internal
 } // namespace ProjectExplorer
-
-#endif // PLUGINFILEFACTORY

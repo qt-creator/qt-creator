@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef COMMANDBUTTON_H
-#define COMMANDBUTTON_H
+#pragma once
 
 #include <coreplugin/core_global.h>
 
@@ -56,5 +55,3 @@ private:
 };
 
 }
-
-#endif // COMMANDBUTTON_H

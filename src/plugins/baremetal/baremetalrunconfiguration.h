@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef BAREMETALRUNCONFIGURATION_H
-#define BAREMETALRUNCONFIGURATION_H
+#pragma once
 
 #include <projectexplorer/runconfiguration.h>
 
@@ -87,5 +86,3 @@ private:
 
 } // namespace Internal
 } // namespace BareMetal
-
-#endif // BAREMETALRUNCONFIGURATION_H

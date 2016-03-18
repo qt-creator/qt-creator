@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QNX_INTERNAL_QNXRUNCONTROLFACTORY_H
-#define QNX_INTERNAL_QNXRUNCONTROLFACTORY_H
+#pragma once
 
 #include <projectexplorer/runconfiguration.h>
 
@@ -46,5 +45,3 @@ public:
 
 } // namespace Internal
 } // namespace Qnx
-
-#endif // QNX_INTERNAL_QNXRUNCONTROLFACTORY_H

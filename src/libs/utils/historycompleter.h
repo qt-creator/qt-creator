@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef HISTORYCOMPLETER_H
-#define HISTORYCOMPLETER_H
+#pragma once
 
 #include "utils_global.h"
 
@@ -64,5 +63,3 @@ private:
 };
 
 } // namespace Utils
-
-#endif // HISTORYCOMPLETER_H

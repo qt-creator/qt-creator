@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef UNCOMMENTSELECTION_H
-#define UNCOMMENTSELECTION_H
+#pragma once
 
 #include "utils_global.h"
 
@@ -60,5 +59,3 @@ void unCommentSelection(QPlainTextEdit *edit,
                         const CommentDefinition &definiton = CommentDefinition());
 
 } // namespace Utils
-
-#endif // UNCOMMENTSELECTION_H

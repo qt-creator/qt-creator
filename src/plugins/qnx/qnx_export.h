@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QNX_EXPORT_H
-#define QNX_EXPORT_H
+#pragma once
 
 #include <qglobal.h>
 
@@ -33,5 +32,3 @@
 #else
 #  define QNX_EXPORT Q_DECL_IMPORT
 #endif
-
-#endif // QNX_EXPORT_H

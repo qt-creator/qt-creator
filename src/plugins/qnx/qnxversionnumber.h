@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QNX_VERSION_NUMBER_H
-#define QNX_VERSION_NUMBER_H
+#pragma once
 
 #include <QStringList>
 
@@ -54,5 +53,3 @@ private:
 
 } // namespace Internal
 } // namespace Qnx
-
-#endif // QNX_VERSION_NUMBER_H

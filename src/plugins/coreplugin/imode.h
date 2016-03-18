@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef IMODE_H
-#define IMODE_H
+#pragma once
 
 #include "icontext.h"
 #include "id.h"
@@ -65,5 +64,3 @@ private:
 };
 
 } // namespace Core
-
-#endif // IMODE_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef DEBUGGER_COREGDBADAPTER_H
-#define DEBUGGER_COREGDBADAPTER_H
+#pragma once
 
 #include "gdbengine.h"
 
@@ -76,5 +75,3 @@ private:
 
 } // namespace Internal
 } // namespace Debugger
-
-#endif // DEBUGGER_COREDBADAPTER_H

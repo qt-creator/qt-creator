@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CLANGBACKEND_UNREGISTERPROJECTSFOREDITOR_H
-#define CLANGBACKEND_UNREGISTERPROJECTSFOREDITOR_H
+#pragma once
 
 #include "clangbackendipc_global.h"
 
@@ -58,5 +57,3 @@ void PrintTo(const UnregisterProjectPartsForEditorMessage &message, ::std::ostre
 
 DECLARE_MESSAGE(UnregisterProjectPartsForEditorMessage);
 } // namespace ClangBackEnd
-
-#endif // CLANGBACKEND_UNREGISTERPROJECTSFOREDITOR_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef REMOTELINUXUTILS_H
-#define REMOTELINUXUTILS_H
+#pragma once
 
 #include "remotelinux_export.h"
 
@@ -36,5 +35,3 @@ public:
 };
 
 } // namespace RemoteLinux
-
-#endif // REMOTELINUXUTILS_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QBSPROJECT_H
-#define QBSPROJECT_H
+#pragma once
 
 #include "qbsprojectmanager.h"
 
@@ -174,5 +173,3 @@ private:
 
 } // namespace Internal
 } // namespace QbsProjectManager
-
-#endif // QBSPROJECT_H

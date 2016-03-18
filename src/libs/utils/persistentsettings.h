@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PERSISTENTSETTINGS_H
-#define PERSISTENTSETTINGS_H
+#pragma once
 
 #include "fileutils.h"
 
@@ -67,5 +66,3 @@ private:
 };
 
 } // namespace Utils
-
-#endif // PERSISTENTSETTINGS_H

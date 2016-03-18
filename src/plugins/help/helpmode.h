@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef HELPMODE_H
-#define HELPMODE_H
+#pragma once
 
 #include <coreplugin/imode.h>
 
@@ -42,5 +41,3 @@ public:
 
 } // namespace Internal
 } // namespace Help
-
-#endif // HELPMODE_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef DIFFEDITORDOCUMENT_H
-#define DIFFEDITORDOCUMENT_H
+#pragma once
 
 #include "diffutils.h"
 
@@ -107,5 +106,3 @@ private:
 
 } // namespace Internal
 } // namespace DiffEditor
-
-#endif // DIFFEDITORDOCUMENT_H

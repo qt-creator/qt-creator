@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLJSWRAPINLOADER_H
-#define QMLJSWRAPINLOADER_H
+#pragma once
 
 #include "qmljsquickfix.h"
 
@@ -38,5 +37,3 @@ class WrapInLoader: public QmlJSQuickFixFactory
 
 } // namespace Internal
 } // namespace QmlJSEditor
-
-#endif // QMLJSWRAPINLOADER_H

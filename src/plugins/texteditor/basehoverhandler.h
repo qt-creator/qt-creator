@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef BASEHOVERHANDLER_H
-#define BASEHOVERHANDLER_H
+#pragma once
 
 #include "texteditor_global.h"
 #include "helpitem.h"
@@ -86,5 +85,3 @@ private:
 };
 
 } // namespace TextEditor
-
-#endif // BASEHOVERHANDLER_H

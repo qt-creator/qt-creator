@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMAKEBUILDCONFIGURATION_H
-#define QMAKEBUILDCONFIGURATION_H
+#pragma once
 
 #include "qmakeprojectmanager_global.h"
 
@@ -180,5 +179,3 @@ private:
 };
 
 } // namespace QmakeProjectManager
-
-#endif // QMAKEBUILDCONFIGURATION_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLCHANGESET_H
-#define QMLCHANGESET_H
+#pragma once
 
 #include <qmldesignercorelib_global.h>
 #include <modelnode.h>
@@ -55,5 +54,3 @@ public:
 };
 
 } //QmlDesigner
-
-#endif // QMLCHANGESET_H

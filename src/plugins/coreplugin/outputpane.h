@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef OUTPUTPANE_H
-#define OUTPUTPANE_H
+#pragma once
 
 #include "core_global.h"
 
@@ -69,5 +68,3 @@ private:
 };
 
 } // namespace Core
-
-#endif // OUTPUTPANE_H

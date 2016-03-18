@@ -18,8 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#ifndef CPLUSPLUS_AST_H
-#define CPLUSPLUS_AST_H
+#pragma once
 
 #include "CPlusPlusForwardDeclarations.h"
 #include "ASTfwd.h"
@@ -4688,5 +4687,3 @@ protected:
 };
 
 } // namespace CPlusPlus
-
-#endif // CPLUSPLUS_AST_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CURRENTDOCUMENTFIND_H
-#define CURRENTDOCUMENTFIND_H
+#pragma once
 
 #include "ifindsupport.h"
 
@@ -83,5 +82,3 @@ private:
 
 } // namespace Internal
 } // namespace Core
-
-#endif // CURRENTDOCUMENTFIND_H

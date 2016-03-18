@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef EXTERNALTOOLCONFIG_H
-#define EXTERNALTOOLCONFIG_H
+#pragma once
 
 #include "coreplugin/externaltool.h"
 
@@ -125,6 +124,3 @@ private:
 
 } // Internal
 } // Core
-
-
-#endif // EXTERNALTOOLCONFIG_H

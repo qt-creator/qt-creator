@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef MODELEDITORCONSTANTS_H
-#define MODELEDITORCONSTANTS_H
+#pragma once
 
 namespace ModelEditor {
 namespace Constants {
@@ -63,5 +62,3 @@ const char SETTINGS_RIGHT_HORIZ_SPLITTER[] = "RightHorizSplitter";
 
 } // namespace Constants
 } // namespace ModelEditor
-
-#endif // MODELEDITORCONSTANTS_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef COMPLETIONASSISTPROVIDER_H
-#define COMPLETIONASSISTPROVIDER_H
+#pragma once
 
 #include "iassistprovider.h"
 
@@ -46,5 +45,3 @@ public:
 };
 
 } // TextEditor
-
-#endif // COMPLETIONASSISTPROVIDER_H

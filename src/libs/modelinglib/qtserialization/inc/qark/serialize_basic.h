@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QARK_SERIALIZE_BASIC_H
-#define QARK_SERIALIZE_BASIC_H
+#pragma once
 
 #include "parameters.h"
 #include "qstringparser/qstringparser.h"
@@ -126,5 +125,3 @@ inline void load(Archive &archive, QDateTime &dateTime, const Parameters &)
 }
 
 } // namespace qark
-
-#endif // QARK_SERIALIZE_BASIC_H

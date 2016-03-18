@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef TABSETTINGS_H
-#define TABSETTINGS_H
+#pragma once
 
 #include <QString>
 
@@ -39,5 +38,3 @@ public:
 };
 
 }
-
-#endif // TABSETTINGS_H

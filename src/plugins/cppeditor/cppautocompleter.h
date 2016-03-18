@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CPPAUTOCOMPLETER_H
-#define CPPAUTOCOMPLETER_H
+#pragma once
 
 #include <texteditor/autocompleter.h>
 
@@ -50,5 +49,3 @@ public:
 
 } // Internal
 } // CppEditor
-
-#endif // CPPAUTOCOMPLETER_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef WINRTPACKAGEDEPLOYMENTSTEPWIDGET_H
-#define WINRTPACKAGEDEPLOYMENTSTEPWIDGET_H
+#pragma once
 
 #include "winrtpackagedeploymentstep.h"
 
@@ -56,5 +55,3 @@ private:
 
 } // namespace Internal
 } // namespace WinRt
-
-#endif // WINRTPACKAGEDEPLOYMENTSTEPWIDGET_H

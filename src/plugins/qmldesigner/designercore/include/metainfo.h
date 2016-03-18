@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef METAINFO_H
-#define METAINFO_H
+#pragma once
 
 #include "qmldesignercorelib_global.h"
 
@@ -83,5 +82,3 @@ private:
 };
 
 } //namespace QmlDesigner
-
-#endif // METAINFO_H

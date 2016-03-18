@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QTOPTIONSPAGE_H
-#define QTOPTIONSPAGE_H
+#pragma once
 
 #include <coreplugin/dialogs/ioptionspage.h>
 #include <utils/fileutils.h>
@@ -141,6 +140,3 @@ private:
 
 } //namespace Internal
 } //namespace QtSupport
-
-
-#endif // QTOPTIONSPAGE_H

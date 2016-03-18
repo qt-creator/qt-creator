@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef MOVEOBJECTVISITOR_H
-#define MOVEOBJECTVISITOR_H
+#pragma once
 
 #include "qmlrewriter.h"
 
@@ -64,5 +63,3 @@ private:
 
 } // namespace Internal
 } // namespace QmlDesigner
-
-#endif // MOVEOBJECTVISITOR_H

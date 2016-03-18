@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef WINRTRUNCONFIGURATION_H
-#define WINRTRUNCONFIGURATION_H
+#pragma once
 
 #include <projectexplorer/runconfiguration.h>
 
@@ -61,5 +60,3 @@ private:
 
 } // namespace Internal
 } // namespace WinRt
-
-#endif // WINRTRUNCONFIGURATION_H

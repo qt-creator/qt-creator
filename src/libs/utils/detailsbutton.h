@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef DETAILSBUTTON_H
-#define DETAILSBUTTON_H
+#pragma once
 
 #include "utils_global.h"
 
@@ -80,4 +79,3 @@ private:
     float m_fader;
 };
 } // namespace Utils
-#endif // DETAILSBUTTON_H

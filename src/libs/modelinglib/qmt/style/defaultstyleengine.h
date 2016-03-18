@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_DEFAULTSTYLEENGINE_H
-#define QMT_DEFAULTSTYLEENGINE_H
+#pragma once
 
 #include "styleengine.h"
 
@@ -91,5 +90,3 @@ private:
 };
 
 } // namespace qmt
-
-#endif // QMT_DEFAULTSTYLEENGINE_H

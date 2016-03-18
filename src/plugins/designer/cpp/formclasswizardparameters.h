@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef FORMCLASSWIZARDPARAMETERS_H
-#define FORMCLASSWIZARDPARAMETERS_H
+#pragma once
 
 #include <QString>
 #include <QMetaType>
@@ -48,5 +47,3 @@ public:
 } // namespace Designer
 
 Q_DECLARE_METATYPE(Designer::FormClassWizardParameters)
-
-#endif // FORMCLASSWIZARDPARAMETERS_H

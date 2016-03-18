@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef JSONWIZARD_H
-#define JSONWIZARD_H
+#pragma once
 
 #include "../projectexplorer_export.h"
 
@@ -129,5 +128,3 @@ private:
 };
 
 } // namespace ProjectExplorer
-
-#endif // JSONWIZARD_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef REPARENTCONTAINER_H
-#define REPARENTCONTAINER_H
+#pragma once
 
 #include <qmetatype.h>
 #include <QString>
@@ -65,5 +64,3 @@ QDataStream &operator>>(QDataStream &in, ReparentContainer &container);
 QDebug operator <<(QDebug debug, const ReparentContainer &container);
 
 } // namespace QmlDesigner
-
-#endif // REPARENTCONTAINER_H

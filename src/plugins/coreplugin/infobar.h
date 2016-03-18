@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef INFOBAR_H
-#define INFOBAR_H
+#pragma once
 
 #include "core_global.h"
 #include <coreplugin/id.h>
@@ -120,5 +119,3 @@ private:
 };
 
 } // namespace Core
-
-#endif // INFOBAR_H

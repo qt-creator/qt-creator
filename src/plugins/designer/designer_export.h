@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef DESIGNER_EXPORT_H
-#define DESIGNER_EXPORT_H
+#pragma once
 
 #include <qglobal.h>
 
@@ -33,5 +32,3 @@
 #else
 #  define DESIGNER_EXPORT Q_DECL_IMPORT
 #endif
-
-#endif // DESIGNER_EXPORT_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLDESIGNER_DEFAULTDESIGNERACTION_H
-#define QMLDESIGNER_DEFAULTDESIGNERACTION_H
+#pragma once
 
 #include "actioninterface.h"
 
@@ -74,5 +73,3 @@ private:
 };
 
 } // namespace QmlDesigner
-
-#endif // QMLDESIGNER_DEFAULTDESIGNERACTION_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef DEBUGGER_WATCHHANDLER_H
-#define DEBUGGER_WATCHHANDLER_H
+#pragma once
 
 #include "watchdata.h"
 
@@ -128,5 +127,3 @@ private:
 } // namespace Debugger
 
 Q_DECLARE_METATYPE(Debugger::Internal::DisplayFormat)
-
-#endif // DEBUGGER_WATCHHANDLER_H

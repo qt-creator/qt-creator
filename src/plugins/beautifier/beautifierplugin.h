@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef BEAUTIFIER_BEAUTIFIER_H
-#define BEAUTIFIER_BEAUTIFIER_H
+#pragma once
 
 #include "command.h"
 
@@ -102,6 +101,3 @@ private:
 
 } // namespace Internal
 } // namespace Beautifier
-
-#endif // BEAUTIFIER_BEAUTIFIER_H
-

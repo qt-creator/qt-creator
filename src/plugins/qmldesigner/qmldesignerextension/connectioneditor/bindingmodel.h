@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef BINDINGMODEL_H
-#define BINDINGMODEL_H
+#pragma once
 
 #include <modelnode.h>
 #include <nodemetainfo.h>
@@ -118,5 +117,3 @@ public:
 } // namespace Internal
 
 } // namespace QmlDesigner
-
-#endif // BINDINGMODEL_H

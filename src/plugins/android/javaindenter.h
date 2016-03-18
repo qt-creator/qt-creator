@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef JAVAINDENTER_H
-#define JAVAINDENTER_H
+#pragma once
 
 #include <texteditor/indenter.h>
 
@@ -47,5 +46,3 @@ public:
 };
 } // namespace Internal
 } // namespace Android
-
-#endif // JAVAINDENTER_H

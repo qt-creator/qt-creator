@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef TEXTEDITOR_MARGINSETTINGS_H
-#define TEXTEDITOR_MARGINSETTINGS_H
+#pragma once
 
 #include "texteditor_global.h"
 
@@ -59,5 +58,3 @@ inline bool operator!=(const MarginSettings &one, const MarginSettings &two)
 { return !one.equals(two); }
 
 } // namespace TextEditor
-
-#endif // TEXTEDITOR_MARGINSETTINGS_H

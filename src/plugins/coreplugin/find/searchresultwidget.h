@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SEARCHRESULTWIDGET_H
-#define SEARCHRESULTWIDGET_H
+#pragma once
 
 #include "searchresultwindow.h"
 
@@ -142,5 +141,3 @@ private:
 
 } // Internal
 } // Find
-
-#endif // SEARCHRESULTWIDGET_H

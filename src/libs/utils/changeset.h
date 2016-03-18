@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CHANGESET_H
-#define CHANGESET_H
+#pragma once
 
 #include "utils_global.h"
 
@@ -124,5 +123,3 @@ private:
 };
 
 } // namespace Utils
-
-#endif // CHANGESET_H

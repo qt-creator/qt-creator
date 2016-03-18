@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef DEBUGGER_LOGWINDOW_H
-#define DEBUGGER_LOGWINDOW_H
+#pragma once
 
 #include "debuggerconstants.h"
 
@@ -90,6 +89,3 @@ private:
 
 } // namespace Internal
 } // namespace Debugger
-
-#endif // DEBUGGER_LOGWINDOW_H
-

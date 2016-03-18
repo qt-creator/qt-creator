@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QNX_INTERNAL_QNXRUNCONTROL_H
-#define QNX_INTERNAL_QNXRUNCONTROL_H
+#pragma once
 
 #include <remotelinux/remotelinuxruncontrol.h>
 
@@ -50,5 +49,3 @@ private:
 
 } // namespace Internal
 } // namespace Qnx
-
-#endif // QNX_INTERNAL_QNXRUNCONTROL_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_DOBJECT_H
-#define QMT_DOBJECT_H
+#pragma once
 
 #include "delement.h"
 
@@ -120,5 +119,3 @@ private:
 };
 
 } // namespace qmt
-
-#endif // QMT_DOBJECT_H

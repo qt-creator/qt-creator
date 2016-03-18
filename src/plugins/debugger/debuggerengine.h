@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef DEBUGGER_DEBUGGERENGINE_H
-#define DEBUGGER_DEBUGGERENGINE_H
+#pragma once
 
 #include "debugger_global.h"
 #include "debuggerconstants.h"
@@ -484,5 +483,3 @@ DebuggerRunControl *createAndScheduleRun(const DebuggerRunParameters &rp, const 
 
 Q_DECLARE_METATYPE(Debugger::Internal::UpdateParameters)
 Q_DECLARE_METATYPE(Debugger::Internal::ContextData)
-
-#endif // DEBUGGER_DEBUGGERENGINE_H

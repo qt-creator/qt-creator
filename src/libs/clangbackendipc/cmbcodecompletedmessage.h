@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CLANGBACKEND_CODECOMPLETEDMESSAGE_H
-#define CLANGBACKEND_CODECOMPLETEDMESSAGE_H
+#pragma once
 
 #include "codecompletion.h"
 
@@ -68,5 +67,3 @@ void PrintTo(const CodeCompletedMessage &message, ::std::ostream* os);
 
 DECLARE_MESSAGE(CodeCompletedMessage)
 } // namespace ClangBackEnd
-
-#endif // CLANGBACKEND_CODECOMPLETEDMESSAGE_H

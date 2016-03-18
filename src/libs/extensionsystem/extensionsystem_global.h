@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef EXTENSIONSYSTEM_GLOBAL_H
-#define EXTENSIONSYSTEM_GLOBAL_H
+#pragma once
 
 #include <QLoggingCategory>
 #include <qglobal.h>
@@ -36,5 +35,3 @@
 #endif
 
 Q_DECLARE_LOGGING_CATEGORY(pluginLog)
-
-#endif // EXTENSIONSYSTEM_GLOBAL_H

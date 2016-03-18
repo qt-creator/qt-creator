@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef DEBUGGERPLUGIN_H
-#define DEBUGGERPLUGIN_H
+#pragma once
 
 #include "debugger_global.h"
 #include <extensionsystem/iplugin.h>
@@ -62,5 +61,3 @@ private:
 
 } // namespace Internal
 } // namespace Debugger
-
-#endif // DEBUGGERPLUGIN_H

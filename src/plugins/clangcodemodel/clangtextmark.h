@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CLANGCODEMODEL_CLANGTEXTMARK_H
-#define CLANGCODEMODEL_CLANGTEXTMARK_H
+#pragma once
 
 #include <clangbackendipc_global.h>
 
@@ -47,5 +46,3 @@ private:
 };
 
 } // namespace ClangCodeModel
-
-#endif // CLANGCODEMODEL_CLANGTEXTMARK_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef JSONSUMMARYPAGE_H
-#define JSONSUMMARYPAGE_H
+#pragma once
 
 #include "../projectwizardpage.h"
 #include "jsonwizard.h"
@@ -63,5 +62,3 @@ private:
 };
 
 } // namespace ProjectExplorer
-
-#endif // JSONSUMMARYPAGE_H

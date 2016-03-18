@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef FILENAMEVALIDATINGLINEEDIT_H
-#define FILENAMEVALIDATINGLINEEDIT_H
+#pragma once
 
 #include "fancylineedit.h"
 
@@ -79,5 +78,3 @@ private:
 };
 
 } // namespace Utils
-
-#endif // FILENAMEVALIDATINGLINEEDIT_H

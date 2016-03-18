@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef TABSETTINGS_H
-#define TABSETTINGS_H
+#pragma once
 
 #include "texteditor_global.h"
 
@@ -104,5 +103,3 @@ inline bool operator!=(const TabSettings &t1, const TabSettings &t2) { return !t
 Q_DECLARE_METATYPE(TextEditor::TabSettings)
 Q_DECLARE_METATYPE(TextEditor::TabSettings::TabPolicy)
 Q_DECLARE_METATYPE(TextEditor::TabSettings::ContinuationAlignBehavior)
-
-#endif // TABSETTINGS_H

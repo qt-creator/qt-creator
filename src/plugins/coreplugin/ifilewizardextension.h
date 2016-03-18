@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef IFILEWIZARDEXTENSION_H
-#define IFILEWIZARDEXTENSION_H
+#pragma once
 
 #include <coreplugin/core_global.h>
 
@@ -72,5 +71,3 @@ public slots:
 };
 
 } // namespace Core
-
-#endif // IFILEWIZARDEXTENSION_H

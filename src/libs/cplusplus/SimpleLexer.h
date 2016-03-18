@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CPLUSPLUS_SIMPLELEXER_H
-#define CPLUSPLUS_SIMPLELEXER_H
+#pragma once
 
 #include <cplusplus/CPlusPlusForwardDeclarations.h>
 #include <cplusplus/Token.h>
@@ -77,5 +76,3 @@ private:
 };
 
 } // namespace CPlusPlus
-
-#endif // CPLUSPLUS_SIMPLELEXER_H

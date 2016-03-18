@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLDESIGNER_ENDPUPPETCOMMAND_H
-#define QMLDESIGNER_ENDPUPPETCOMMAND_H
+#pragma once
 
 #include <qmetatype.h>
 
@@ -44,5 +43,3 @@ QDebug operator <<(QDebug debug, const EndPuppetCommand &command);
 } // namespace QmlDesigner
 
 Q_DECLARE_METATYPE(QmlDesigner::EndPuppetCommand)
-
-#endif // QMLDESIGNER_ENDPUPPETCOMMAND_H

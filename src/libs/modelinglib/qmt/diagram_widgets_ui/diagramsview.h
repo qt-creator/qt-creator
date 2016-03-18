@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_DIAGRAMSVIEW_H
-#define QMT_DIAGRAMSVIEW_H
+#pragma once
 
 #include <QTabWidget>
 
@@ -75,5 +74,3 @@ private:
 };
 
 } // namespace qmt
-
-#endif // DIAGRAMSVIEW_H

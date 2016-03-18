@@ -37,8 +37,7 @@
 **
 ****************************************************************************/
 
-#ifndef MIMEGLOBPATTERN_P_H
-#define MIMEGLOBPATTERN_P_H
+#pragma once
 
 //
 //  W A R N I N G
@@ -153,5 +152,3 @@ public:
 
 } // Internal
 } // Utils
-
-#endif // MIMEGLOBPATTERN_P_H

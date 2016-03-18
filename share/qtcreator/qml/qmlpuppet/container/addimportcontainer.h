@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef ADDIMPORTCONTAINER_H
-#define ADDIMPORTCONTAINER_H
+#pragma once
 
 #include <QMetaType>
 #include <QUrl>
@@ -62,5 +61,3 @@ QDebug operator <<(QDebug debug, const AddImportContainer &container);
 } // namespace QmlDesigner
 
 Q_DECLARE_METATYPE(QmlDesigner::AddImportContainer)
-
-#endif // ADDIMPORTCONTAINER_H

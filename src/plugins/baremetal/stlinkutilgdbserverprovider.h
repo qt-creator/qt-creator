@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef STLINKUTILGDBSERVERPROVIDER_H
-#define STLINKUTILGDBSERVERPROVIDER_H
+#pragma once
 
 #include "gdbserverprovider.h"
 
@@ -128,5 +127,3 @@ private:
 
 } // namespace Internal
 } // namespace BareMetal
-
-#endif // STLINKUTILGDBSERVERPROVIDER_H

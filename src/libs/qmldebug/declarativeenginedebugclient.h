@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef DECLARATIVEENGINEDEBUGCLIENT_H
-#define DECLARATIVEENGINEDEBUGCLIENT_H
+#pragma once
 
 #include "baseenginedebugclient.h"
 
@@ -51,5 +50,3 @@ protected:
 };
 
 } // namespace QmlDebug
-
-#endif // DECLARATIVEENGINEDEBUGCLIENT_H

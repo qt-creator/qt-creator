@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef REMOTELINUXRUNCONTROL_H
-#define REMOTELINUXRUNCONTROL_H
+#pragma once
 
 #include "remotelinux_export.h"
 
@@ -58,5 +57,3 @@ private:
 };
 
 } // namespace RemoteLinux
-
-#endif // REMOTELINUXRUNCONTROL_H

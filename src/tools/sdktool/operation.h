@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef OPERATION_H
-#define OPERATION_H
+#pragma once
 
 #include <utils/fileutils.h>
 
@@ -66,5 +65,3 @@ public:
     static QVariant valueFromString(const QString &v);
     static QString makeUnique(const QString &name, const QStringList &inUse);
 };
-
-#endif // OPERATION_H

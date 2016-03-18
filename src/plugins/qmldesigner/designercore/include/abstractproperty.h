@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef ABSTRACTPROPERTY_H
-#define ABSTRACTPROPERTY_H
+#pragma once
 
 #include <QPointer>
 #include <QSharedPointer>
@@ -122,5 +121,3 @@ QMLDESIGNERCORE_EXPORT uint qHash(const AbstractProperty& property);
 QMLDESIGNERCORE_EXPORT QTextStream& operator<<(QTextStream &stream, const AbstractProperty &property);
 QMLDESIGNERCORE_EXPORT QDebug operator<<(QDebug debug, const AbstractProperty &AbstractProperty);
 }
-
-#endif //ABSTRACTPROPERTY_H

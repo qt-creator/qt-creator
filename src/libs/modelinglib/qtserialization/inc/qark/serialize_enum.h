@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QARK_SERIALIZE_ENUM_H
-#define QARK_SERIALIZE_ENUM_H
+#pragma once
 
 #include "parameters.h"
 
@@ -81,5 +80,3 @@ inline void load(Archive &archive, QFlags<T> &flags, const Parameters &)
 }
 
 } // namespace qark
-
-#endif // QARK_SERIALIZE_ENUM_H

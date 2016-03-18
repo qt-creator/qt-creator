@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CHANGEFILEURLCOMMAND_H
-#define CHANGEFILEURLCOMMAND_H
+#pragma once
 
 #include <qmetatype.h>
 #include <QUrl>
@@ -53,5 +52,3 @@ QDebug operator <<(QDebug debug, const ChangeFileUrlCommand &command);
 } // namespace QmlDesigner
 
 Q_DECLARE_METATYPE(QmlDesigner::ChangeFileUrlCommand)
-
-#endif // CHANGEFILEURLCOMMAND_H

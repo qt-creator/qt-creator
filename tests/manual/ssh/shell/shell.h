@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SHELL_H
-#define SHELL_H
+#pragma once
 
 #include <QObject>
 #include <QSharedPointer>
@@ -65,5 +64,3 @@ private:
     QSharedPointer<QSsh::SshRemoteProcess> m_shell;
     QFile * const m_stdin;
 };
-
-#endif // SHELL_H

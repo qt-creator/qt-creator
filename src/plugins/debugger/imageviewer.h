@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef IMAGEVIEWER_H
-#define IMAGEVIEWER_H
+#pragma once
 
 #include <QWidget>
 
@@ -77,5 +76,3 @@ private:
     Data m_data;
     QString m_info;
 };
-
-#endif // IMAGEVIEWER_H

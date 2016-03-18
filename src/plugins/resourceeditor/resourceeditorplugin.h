@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef RESOURCEEDITORPLUGIN_H
-#define RESOURCEEDITORPLUGIN_H
+#pragma once
 
 #include <extensionsystem/iplugin.h>
 
@@ -108,5 +107,3 @@ private:
 
 } // namespace Internal
 } // namespace ResourceEditor
-
-#endif // RESOURCEEDITORPLUGIN_H

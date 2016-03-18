@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef APPMAINWINDOW_H
-#define APPMAINWINDOW_H
+#pragma once
 
 #include "utils_global.h"
 #include <QMainWindow>
@@ -54,5 +53,3 @@ private:
 };
 
 } // Utils
-
-#endif // APPMAINWINDOW_H

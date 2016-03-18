@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef EDITORTOOLBAR_H
-#define EDITORTOOLBAR_H
+#pragma once
 
 #include "core_global.h"
 
@@ -114,5 +113,3 @@ private:
 };
 
 } // namespace Core
-
-#endif // EDITORTOOLBAR_H

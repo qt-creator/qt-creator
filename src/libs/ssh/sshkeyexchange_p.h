@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SSHKEYEXCHANGE_P_H
-#define SSHKEYEXCHANGE_P_H
+#pragma once
 
 #include "sshconnection.h"
 
@@ -92,5 +91,3 @@ private:
 
 } // namespace Internal
 } // namespace QSsh
-
-#endif // SSHKEYEXCHANGE_P_H

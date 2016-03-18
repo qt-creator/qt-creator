@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef GERRIT_INTERNAL_GERRITDIALOG_H
-#define GERRIT_INTERNAL_GERRITDIALOG_H
+#pragma once
 
 #include <utils/pathchooser.h>
 
@@ -115,5 +114,3 @@ private:
 
 } // namespace Internal
 } // namespace Gerrit
-
-#endif // GERRIT_INTERNAL_GERRITDIALOG_H

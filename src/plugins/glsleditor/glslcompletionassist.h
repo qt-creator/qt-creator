@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef GLSLCOMPLETIONASSIST_H
-#define GLSLCOMPLETIONASSIST_H
+#pragma once
 
 #include "glsleditor.h"
 
@@ -138,5 +137,3 @@ private:
 
 } // namespace Internal
 } // namespace GlslEditor
-
-#endif // GLSLCOMPLETIONASSIST_H

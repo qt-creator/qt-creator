@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef HIGHLIGHTER_H
-#define HIGHLIGHTER_H
+#pragma once
 
 #include "context.h"
 
@@ -192,5 +191,3 @@ private:
 };
 
 } // namespace TextEditor
-
-#endif // HIGHLIGHTER_H

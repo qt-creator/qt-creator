@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef TIMELINERENDERER_H
-#define TIMELINERENDERER_H
+#pragma once
 
 #include "timelinezoomcontrol.h"
 #include "timelinemodel.h"
@@ -71,5 +70,3 @@ private:
 } // namespace Timeline
 
 QML_DECLARE_TYPE(Timeline::TimelineRenderer)
-
-#endif // TIMELINERENDERER_H

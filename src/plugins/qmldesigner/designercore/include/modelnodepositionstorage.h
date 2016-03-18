@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef MODELNODEPOSITIONSTORAGE_H
-#define MODELNODEPOSITIONSTORAGE_H
+#pragma once
 
 #include "modelnode.h"
 
@@ -74,5 +73,3 @@ private:
 
 } // namespace Internal
 } // namespace QmlDesigner
-
-#endif // MODELNODEPOSITIONSTORAGE_H

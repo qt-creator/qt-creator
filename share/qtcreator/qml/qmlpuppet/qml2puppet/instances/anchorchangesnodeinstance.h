@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLDESIGNER_ANCHORCHANGESNODEINSTANCE_H
-#define QMLDESIGNER_ANCHORCHANGESNODEINSTANCE_H
+#pragma once
 
 #include "objectnodeinstance.h"
 
@@ -64,5 +63,3 @@ protected:
 
 } // namespace Internal
 } // namespace QmlDesigner
-
-#endif // QMLDESIGNER_ANCHORCHANGESNODEINSTANCE_H

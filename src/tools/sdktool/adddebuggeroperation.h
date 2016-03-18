@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef ADDDEBUGGEROPERATION_H
-#define ADDDEBUGGEROPERATION_H
+#pragma once
 
 #include "operation.h"
 
@@ -62,5 +61,3 @@ private:
     QStringList m_abis;
     KeyValuePairList m_extra;
 };
-
-#endif // ADDDEBUGGEROPERATION_H

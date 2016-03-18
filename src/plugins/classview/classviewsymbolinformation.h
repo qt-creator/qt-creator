@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CLASSVIEWSYMBOLINFORMATION_H
-#define CLASSVIEWSYMBOLINFORMATION_H
+#pragma once
 
 #include <QMetaType>
 #include <QString>
@@ -73,5 +72,3 @@ inline uint qHash(const SymbolInformation &information)
 } // namespace ClassView
 
 Q_DECLARE_METATYPE(ClassView::Internal::SymbolInformation)
-
-#endif // CLASSVIEWSYMBOLINFORMATION_H

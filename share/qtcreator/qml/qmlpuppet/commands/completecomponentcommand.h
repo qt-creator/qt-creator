@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef COMPLETECOMPONENT_H
-#define COMPLETECOMPONENT_H
+#pragma once
 
 #include <QMetaType>
 #include <QVector>
@@ -55,5 +54,3 @@ QDebug operator <<(QDebug debug, const CompleteComponentCommand &command);
 } // namespace QmlDesigner
 
 Q_DECLARE_METATYPE(QmlDesigner::CompleteComponentCommand)
-
-#endif // COMPLETECOMPONENT_H

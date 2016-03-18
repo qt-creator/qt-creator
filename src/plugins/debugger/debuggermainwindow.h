@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef DEBUGGERMAINWINDOW_H
-#define DEBUGGERMAINWINDOW_H
+#pragma once
 
 #include "debugger_global.h"
 
@@ -145,5 +144,3 @@ private:
 };
 
 } // Utils
-
-#endif // DEBUGGERMAINWINDOW_H

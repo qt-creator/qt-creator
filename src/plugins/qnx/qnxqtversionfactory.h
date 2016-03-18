@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QNX_INTERNAL_QNXQTVERSIONFACTORY_H
-#define QNX_INTERNAL_QNXQTVERSIONFACTORY_H
+#pragma once
 
 #include <qtsupport/qtversionfactory.h>
 
@@ -50,5 +49,3 @@ public:
 
 } // namespace Internal
 } // namespace Qnx
-
-#endif // QNX_INTERNAL_QNXQTVERSIONFACTORY_H

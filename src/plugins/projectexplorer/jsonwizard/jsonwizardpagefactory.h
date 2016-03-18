@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef JSONWIZARDPAGEFACTORY_H
-#define JSONWIZARDPAGEFACTORY_H
+#pragma once
 
 #include "../projectexplorer_export.h"
 
@@ -61,5 +60,3 @@ private:
 };
 
 } // namespace ProjectExplorer
-
-#endif // JSONWIZARDPAGEFACTORY_H

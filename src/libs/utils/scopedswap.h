@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SCOPEDSWAP_H
-#define SCOPEDSWAP_H
+#pragma once
 
 #if !(__cplusplus > 199711L || __GXX_EXPERIMENTAL_CXX0X__ || _MSC_VER >= 1600 || defined( _LIBCPP_VERSION )) || \
     (defined(__GNUC_LIBSTD__) && ((__GNUC_LIBSTD__-0) * 100 + __GNUC_LIBSTD_MINOR__-0 <= 402))
@@ -59,5 +58,3 @@ public:
 typedef ScopedSwap<bool> ScopedBoolSwap;
 
 } // Utils namespace
-
-#endif // SCOPEDSWAP_H

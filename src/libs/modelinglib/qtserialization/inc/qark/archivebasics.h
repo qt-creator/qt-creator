@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QARK_ARCHIVEBASICS_H
-#define QARK_ARCHIVEBASICS_H
+#pragma once
 
 #include "flag.h"
 
@@ -84,5 +83,3 @@ private:
 };
 
 } // namespace qark
-
-#endif // QARK_ARCHIVEBASICS_H

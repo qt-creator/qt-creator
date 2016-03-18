@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef BINDINGPROPERTY_H
-#define BINDINGPROPERTY_H
+#pragma once
 
 #include "qmldesignercorelib_global.h"
 #include "abstractproperty.h"
@@ -58,5 +57,3 @@ protected:
 };
 
 } // namespace QmlDesigner
-
-#endif // BINDINGPROPERTY_H

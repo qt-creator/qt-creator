@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PYTHONEDITOR_EDITOR_H
-#define PYTHONEDITOR_EDITOR_H
+#pragma once
 
 #include <texteditor/texteditor.h>
 
@@ -41,5 +40,3 @@ public:
 
 } // namespace Internal
 } // namespace PythonEditor
-
-#endif // PYTHONEDITOR_EDITOR_H

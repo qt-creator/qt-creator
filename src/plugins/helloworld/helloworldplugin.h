@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef HELLOWORLDPLUGIN_H
-#define HELLOWORLDPLUGIN_H
+#pragma once
 
 #include <extensionsystem/iplugin.h>
 
@@ -51,5 +50,3 @@ private slots:
 
 } // namespace Internal
 } // namespace HelloWorld
-
-#endif // HELLOWORLDPLUGIN_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef MANHATTANSTYLE_H
-#define MANHATTANSTYLE_H
+#pragma once
 
 #include "core_global.h"
 
@@ -72,5 +71,3 @@ private:
 
     ManhattanStylePrivate *d;
 };
-
-#endif // MANHATTANSTYLE_H

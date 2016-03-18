@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef IWIZARDFACTORY_H
-#define IWIZARDFACTORY_H
+#pragma once
 
 #include <coreplugin/core_global.h>
 #include <coreplugin/featureprovider.h>
@@ -139,5 +138,3 @@ private:
 } // namespace Core
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(Core::IWizardFactory::WizardFlags)
-
-#endif // IWIZARDFACTORY_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CPPCANONICALSYMBOL_H
-#define CPPCANONICALSYMBOL_H
+#pragma once
 
 #include <cplusplus/LookupContext.h>
 #include <cplusplus/Symbol.h>
@@ -61,5 +60,3 @@ private:
 
 } // namespace Internal
 } // namespace CppEditor
-
-#endif // CPPCANONICALSYMBOL_H

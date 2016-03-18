@@ -24,8 +24,7 @@
 **
 ****************************************************************************/
 
-#ifndef LIBVALGRIND_PROTOCOL_STATUS_H
-#define LIBVALGRIND_PROTOCOL_STATUS_H
+#pragma once
 
 #include <QMetaType>
 #include <QSharedDataPointer>
@@ -63,5 +62,3 @@ private:
 } // namespace Valgrind
 
 Q_DECLARE_METATYPE(Valgrind::XmlProtocol::Status)
-
-#endif // LIBVALGRIND_PROTOCOL_STATUS_H

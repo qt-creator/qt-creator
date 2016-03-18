@@ -1,12 +1,9 @@
 // Copyright header
 
-#ifndef BAR_H
-#define BAR_H
+#pragma once
 
 class Bar
 {
 public:
     Bar();
 };
-
-#endif // BAR_H

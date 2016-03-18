@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QTSUPPORT_GLOBAL_H
-#define QTSUPPORT_GLOBAL_H
+#pragma once
 
 #include <qglobal.h>
 
@@ -32,6 +31,4 @@
 #  define QTSUPPORT_EXPORT Q_DECL_EXPORT
 #else
 #  define QTSUPPORT_EXPORT Q_DECL_IMPORT
-#endif
-
 #endif

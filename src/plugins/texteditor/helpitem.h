@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef TEXTEDITORHELPITEM_H
-#define TEXTEDITORHELPITEM_H
+#pragma once
 
 #include "texteditor_global.h"
 
@@ -81,5 +80,3 @@ private:
 };
 
 } // namespace TextEditor
-
-#endif // TEXTEDITORHELPITEM_H

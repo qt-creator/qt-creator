@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_GRAPHICSRELATIONITEM_H
-#define QMT_GRAPHICSRELATIONITEM_H
+#pragma once
 
 #include <QGraphicsItem>
 #include "qmt/diagram_scene/capabilities/moveable.h"
@@ -109,5 +108,3 @@ protected:
 };
 
 } // namespace qmt
-
-#endif // QMT_GRAPHICSRELATIONITEM_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_MODELCONTROLLER_H
-#define QMT_MODELCONTROLLER_H
+#pragma once
 
 #include "qmt/infrastructure/uid.h"
 
@@ -162,5 +161,3 @@ private:
 };
 
 } // namespace qmt
-
-#endif // QMT_MODELCONTROLLER_H

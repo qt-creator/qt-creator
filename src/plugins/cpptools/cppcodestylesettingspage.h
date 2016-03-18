@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CPPCODESTYLESETTINGSPAGE_H
-#define CPPCODESTYLESETTINGSPAGE_H
+#pragma once
 
 #include "cpptools_global.h"
 #include "cppcodestylesettings.h"
@@ -98,5 +97,3 @@ private:
 
 } // namespace Internal
 } // namespace CppTools
-
-#endif // CPPCODESTYLESETTINGSPAGE_H

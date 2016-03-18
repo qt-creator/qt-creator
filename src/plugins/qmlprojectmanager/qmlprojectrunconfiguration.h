@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLPROJECTRUNCONFIGURATION_H
-#define QMLPROJECTRUNCONFIGURATION_H
+#pragma once
 
 #include "qmlprojectmanager_global.h"
 
@@ -113,5 +112,3 @@ private:
 };
 
 } // namespace QmlProjectManager
-
-#endif // QMLPROJECTRUNCONFIGURATION_H

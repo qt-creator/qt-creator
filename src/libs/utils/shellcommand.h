@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef UTILS_SHELLCOMMAND_H
-#define UTILS_SHELLCOMMAND_H
+#pragma once
 
 #include "utils_global.h"
 
@@ -179,5 +178,3 @@ private:
 };
 
 } // namespace Utils
-
-#endif // UTILS_SHELLCOMMAND_H

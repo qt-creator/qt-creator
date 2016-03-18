@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_STEREOTYPEDEFINITIONPARSER_H
-#define QMT_STEREOTYPEDEFINITIONPARSER_H
+#pragma once
 
 #include <QObject>
 #include "qmt/infrastructure/exceptions.h"
@@ -119,5 +118,3 @@ private:
 };
 
 } // namespace qmt
-
-#endif // QMT_STEREOTYPEDEFINITIONPARSER_H

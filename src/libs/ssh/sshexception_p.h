@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SSHEXCEPTION_P_H
-#define SSHEXCEPTION_P_H
+#pragma once
 
 #include "ssherrors.h"
 
@@ -81,5 +80,3 @@ struct SshClientException
 
 } // namespace Internal
 } // namespace QSsh
-
-#endif // SSHEXCEPTION_P_H

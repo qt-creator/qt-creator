@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef ITEMLIBRARYCOMPONENTS_H
-#define ITEMLIBRARYCOMPONENTS_H
+#pragma once
 
 #include <QTreeView>
 #include <QStyledItemDelegate>
@@ -61,6 +60,3 @@ private:
 };
 
 } // namespace QmlDesigner
-
-#endif // ITEMLIBRARYCOMPONENTS_H
-

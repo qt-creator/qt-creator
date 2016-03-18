@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMAKEPROJECTIMPORTER_H
-#define QMAKEPROJECTIMPORTER_H
+#pragma once
 
 #include "qmakestep.h"
 
@@ -61,5 +60,3 @@ private:
 
 } // namespace Internal
 } // namespace QmakeProjectManager
-
-#endif // QMAKEPROJECTIMPORTER_H

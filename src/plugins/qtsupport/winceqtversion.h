@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef WINCEQTVERSION_H
-#define WINCEQTVERSION_H
+#pragma once
 
 #include "baseqtversion.h"
 
@@ -56,5 +55,3 @@ private:
 
 } // Internal
 } // QtSupport
-
-#endif // WINCEQTVERSION_H

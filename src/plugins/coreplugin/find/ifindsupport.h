@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef IFINDSUPPORT_H
-#define IFINDSUPPORT_H
+#pragma once
 
 #include "textfindconstants.h"
 
@@ -72,5 +71,3 @@ signals:
 inline void IFindSupport::highlightAll(const QString &, FindFlags) {}
 
 } // namespace Core
-
-#endif // IFINDSUPPORT_H

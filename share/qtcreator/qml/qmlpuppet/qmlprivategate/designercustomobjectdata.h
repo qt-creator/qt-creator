@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef DESIGNERCUSTOMOBJECTDATA_H
-#define DESIGNERCUSTOMOBJECTDATA_H
+#pragma once
 
 #include "nodeinstanceglobal.h"
 
@@ -81,5 +80,3 @@ private:
 } // namespace QmlPrivateGate
 } // namespace Internal
 } // namespace QmlDesigner
-
-#endif // DESIGNERCUSTOMOBJECTDATA_H

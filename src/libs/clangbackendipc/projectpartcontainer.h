@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CLANGBACKEND_PROJECTCONTAINER_H
-#define CLANGBACKEND_PROJECTCONTAINER_H
+#pragma once
 
 #include <clangbackendipc_global.h>
 
@@ -58,5 +57,3 @@ QDebug operator<<(QDebug debug, const ProjectPartContainer &container);
 void PrintTo(const ProjectPartContainer &container, ::std::ostream* os);
 
 } // namespace ClangBackEnd
-
-#endif // CLANGBACKEND_PROJECTCONTAINER_H

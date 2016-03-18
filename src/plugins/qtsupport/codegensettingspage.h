@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CODEGENSETTINGSPAGE_H
-#define CODEGENSETTINGSPAGE_H
+#pragma once
 
 #include "ui_codegensettingspagewidget.h"
 
@@ -69,5 +68,3 @@ private:
 
 } // namespace Internal
 } // namespace QtSupport
-
-#endif // CODEGENSETTINGSPAGE_H

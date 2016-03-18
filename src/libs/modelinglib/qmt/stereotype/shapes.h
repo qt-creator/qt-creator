@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_SHAPES_H
-#define QMT_SHAPES_H
+#pragma once
 
 #include "shape.h"
 #include "qmt/infrastructure/qmt_global.h"
@@ -231,5 +230,3 @@ private:
 };
 
 } // namespace qmt
-
-#endif // QMT_SHAPES_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef NODEINSTANCESERVER_H
-#define NODEINSTANCESERVER_H
+#pragma once
 
 #include <QUrl>
 #include <QVector>
@@ -225,5 +224,3 @@ private:
 };
 
 }
-
-#endif // NODEINSTANCESERVER_H

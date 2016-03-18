@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CLANGBACKEND_CODECOMPLETIONCHUNK_H
-#define CLANGBACKEND_CODECOMPLETIONCHUNK_H
+#pragma once
 
 #include "clangbackendipc_global.h"
 
@@ -99,5 +98,3 @@ void PrintTo(const CodeCompletionChunk::Kind &kind, ::std::ostream* os);
 } // namespace ClangBackEnd
 
 Q_DECLARE_METATYPE(ClangBackEnd::CodeCompletionChunk)
-
-#endif // CLANGBACKEND_CODECOMPLETIONCHUNK_H

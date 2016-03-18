@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef COMPONENTVIEWCONTROLLER_H
-#define COMPONENTVIEWCONTROLLER_H
+#pragma once
 
 #include <QObject>
 
@@ -64,5 +63,3 @@ private:
 
 } // namespace Internal
 } // namespace ModelEditor
-
-#endif // COMPONENTVIEWCONTROLLER_H

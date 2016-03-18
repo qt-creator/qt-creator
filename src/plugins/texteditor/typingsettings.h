@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef TYPINGSETTINGS_H
-#define TYPINGSETTINGS_H
+#pragma once
 
 #include "texteditor_global.h"
 
@@ -78,5 +77,3 @@ inline bool operator!=(const TypingSettings &t1, const TypingSettings &t2) { ret
 } // namespace TextEditor
 
 Q_DECLARE_METATYPE(TextEditor::TypingSettings)
-
-#endif // TYPINGSETTINGS_H

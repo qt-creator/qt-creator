@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QUICKFIXASSISTPROVIDER_H
-#define QUICKFIXASSISTPROVIDER_H
+#pragma once
 
 #include "iassistprovider.h"
 
@@ -46,5 +45,3 @@ public:
 };
 
 } // TextEditor
-
-#endif // QUICKFIXASSISTPROVIDER_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef POSITIONERNODEINSTANCE_H
-#define POSITIONERNODEINSTANCE_H
+#pragma once
 
 #include "quickitemnodeinstance.h"
 
@@ -58,5 +57,3 @@ protected:
 
 } // namespace Internal
 } // namespace QmlDesigner
-
-#endif // POSITIONERNODEINSTANCE_H

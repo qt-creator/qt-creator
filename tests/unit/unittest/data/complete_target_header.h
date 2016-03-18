@@ -1,7 +1,3 @@
-#ifndef COMPLETE_TARGET_HEADER_H
-#define COMPLETE_TARGET_HEADER_H
+#pragma once
 
 void FunctionInIncludedHeader();
-
-#endif // COMPLETE_TARGET_HEADER_H
-

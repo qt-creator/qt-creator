@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SCREENSHOTCROPPERWINDOW_H
-#define SCREENSHOTCROPPERWINDOW_H
+#pragma once
 
 #include <QMainWindow>
 #include "screenshotcropper.h"
@@ -54,5 +53,3 @@ private:
     QString m_imagesFolder;
     Ui::ScreenShotCropperWindow *ui;
 };
-
-#endif // SCREENSHOTCROPPERWINDOW_H

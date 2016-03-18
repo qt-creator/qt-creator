@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef BEAUTIFIER_UNCRUSTIFYOPTIONSPAGE_H
-#define BEAUTIFIER_UNCRUSTIFYOPTIONSPAGE_H
+#pragma once
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
@@ -72,6 +71,3 @@ private:
 } // namespace Uncrustify
 } // namespace Internal
 } // namespace Beautifier
-
-
-#endif // BEAUTIFIER_UNCRUSTIFYOPTIONSPAGE_H

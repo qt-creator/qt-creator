@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PLUGINVIEW_H
-#define PLUGINVIEW_H
+#pragma once
 
 #include "extensionsystem_global.h"
 
@@ -82,5 +81,3 @@ private:
 };
 
 } // namespae ExtensionSystem
-
-#endif // PLUGIN_VIEW_H

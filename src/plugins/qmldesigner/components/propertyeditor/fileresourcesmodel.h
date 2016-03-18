@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef FILERESOURCESMODEL_H
-#define FILERESOURCESMODEL_H
+#pragma once
 
 #include <qmlitemnode.h>
 
@@ -83,5 +82,3 @@ private:
 };
 
 QML_DECLARE_TYPE(FileResourcesModel)
-
-#endif // FILERESOURCESMODEL_H

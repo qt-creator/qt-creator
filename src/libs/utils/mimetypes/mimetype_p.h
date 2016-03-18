@@ -37,8 +37,7 @@
 **
 ****************************************************************************/
 
-#ifndef MIMETYPE_P_H
-#define MIMETYPE_P_H
+#pragma once
 
 //
 //  W A R N I N G
@@ -119,5 +118,3 @@ public:
     } \
     QT_END_NAMESPACE
 #endif
-
-#endif   // MIMETYPE_P_H

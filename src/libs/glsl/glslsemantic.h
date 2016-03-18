@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef GLSLSEMANTIC_H
-#define GLSLSEMANTIC_H
+#pragma once
 
 #include "glslastvisitor.h"
 #include "glsltype.h"
@@ -127,5 +126,3 @@ private:
 };
 
 } // namespace GLSL
-
-#endif // GLSLSEMANTIC_H

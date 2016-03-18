@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef REMOTELINUXPLUGIN_H
-#define REMOTELINUXPLUGIN_H
+#pragma once
 
 #include <extensionsystem/iplugin.h>
 
@@ -46,5 +45,3 @@ public:
 
 } // namespace Internal
 } // namespace RemoteLinux
-
-#endif // REMOTELINUXPLUGIN_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_SOURCEPOS_H
-#define QMT_SOURCEPOS_H
+#pragma once
 
 #include "qmt/infrastructure/qmt_global.h"
 
@@ -49,5 +48,3 @@ private:
 };
 
 } // namespace qmt
-
-#endif // QMT_SOURCEPOS_H

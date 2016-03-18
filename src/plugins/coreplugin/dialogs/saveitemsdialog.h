@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SAVEITEMSDIALOG_H
-#define SAVEITEMSDIALOG_H
+#pragma once
 
 #include <QList>
 #include <QDialog>
@@ -68,5 +67,3 @@ private:
 
 } // namespace Internal
 } // namespace Core
-
-#endif // SAVEITEMSDIALOG_H

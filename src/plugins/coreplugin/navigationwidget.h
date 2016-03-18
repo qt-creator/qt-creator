@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef NAVIGATIONWIDGET_H
-#define NAVIGATIONWIDGET_H
+#pragma once
 
 #include <coreplugin/minisplitter.h>
 #include <coreplugin/id.h>
@@ -115,5 +114,3 @@ private:
 };
 
 } // namespace Core
-
-#endif // NAVIGATIONWIDGET_H

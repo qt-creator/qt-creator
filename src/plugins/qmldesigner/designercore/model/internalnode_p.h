@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef INTERNALNODE_H
-#define INTERNALNODE_H
+#pragma once
 
 #include <QMap>
 #include <QHash>
@@ -158,5 +157,3 @@ uint qHash(const InternalNodePointer& node);
 bool operator <(const InternalNodePointer &firstNode, const InternalNodePointer &secondNode);
 } // Internal
 } // QtQmlDesigner
-
-#endif // INTERNALNODE_H

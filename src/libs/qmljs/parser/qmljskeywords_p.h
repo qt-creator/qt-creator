@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLJSKEYWORDS_P_H
-#define QMLJSKEYWORDS_P_H
+#pragma once
 
 //
 //  W A R N I N G
@@ -875,5 +874,3 @@ int Lexer::classify(const QChar *s, int n, bool qmlMode) {
 } // namespace QmlJS
 
 QT_QML_END_NAMESPACE
-
-#endif // QMLJSKEYWORDS_P_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef JSONWIZARDGENERATORFACTORY_H
-#define JSONWIZARDGENERATORFACTORY_H
+#pragma once
 
 #include "../projectexplorer_export.h"
 
@@ -119,5 +118,3 @@ public:
 
 } // namespace Internal
 } // namespace ProjectExplorer
-
-#endif // JSONWIZARDGENERATORFACTORY_H

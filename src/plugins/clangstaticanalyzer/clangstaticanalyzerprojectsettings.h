@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CLANGSTATICANALYZERPROJECTSETTINGS_H
-#define CLANGSTATICANALYZERPROJECTSETTINGS_H
+#pragma once
 
 #include <projectexplorer/project.h>
 #include <utils/fileutils.h>
@@ -91,5 +90,3 @@ private:
 
 } // namespace Internal
 } // namespace ClangStaticAnalyzer
-
-#endif // Include guard.

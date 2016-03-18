@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef COMPLETINGTEXTEDIT_H
-#define COMPLETINGTEXTEDIT_H
+#pragma once
 
 #include "utils_global.h"
 
@@ -63,5 +62,3 @@ private:
 };
 
 } // namespace Utils
-
-#endif // COMPLETINGTEXTEDIT_H

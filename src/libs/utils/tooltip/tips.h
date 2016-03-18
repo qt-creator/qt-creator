@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef TIPS_H
-#define TIPS_H
+#pragma once
 
 #include "../utils_global.h"
 
@@ -117,5 +116,3 @@ private:
 } // namespace Internal
 } // namespace Utils
 #endif
-
-#endif // TIPS_H

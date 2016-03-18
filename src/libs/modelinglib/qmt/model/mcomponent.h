@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_MCOMPONENT_H
-#define QMT_MCOMPONENT_H
+#pragma once
 
 #include "mobject.h"
 
@@ -41,5 +40,3 @@ public:
 };
 
 } // namespace qmt
-
-#endif // QMT_MCOMPONENT_H

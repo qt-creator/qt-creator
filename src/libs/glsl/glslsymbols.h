@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef GLSLSYMBOLS_H
-#define GLSLSYMBOLS_H
+#pragma once
 
 #include "glsltype.h"
 #include "glslsymbol.h"
@@ -103,5 +102,3 @@ private:
 };
 
 } // namespace GLSL
-
-#endif // GLSLSYMBOLS_H

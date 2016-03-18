@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PROPERTYPROVIDER_H
-#define PROPERTYPROVIDER_H
+#pragma once
 
 #include "qbsprojectmanager_global.h"
 
@@ -45,5 +44,3 @@ public:
 };
 
 } // namespace QbsProjectManager
-
-#endif // PROPERTYPROVIDER_H

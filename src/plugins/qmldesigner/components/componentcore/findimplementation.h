@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef FINDIMPLEMENTATION_H
-#define FINDIMPLEMENTATION_H
+#pragma once
 
 #include <QList>
 
@@ -36,5 +35,3 @@ public:
     FindImplementation();
     static QList<QmlJSEditor::FindReferences::Usage> run(const QString &fileName, const QString &typeName, const QString &itemName);
 };
-
-#endif // FINDIMPLEMENTATION_H

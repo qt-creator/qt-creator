@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QBSPROJECTMANAGERSETTINGS_H
-#define QBSPROJECTMANAGERSETTINGS_H
+#pragma once
 
 #include <QObject>
 
@@ -56,5 +55,3 @@ private:
 
 } // namespace Internal
 } // namespace QbsProjectManager
-
-#endif // Include guard.

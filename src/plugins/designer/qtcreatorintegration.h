@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QTCREATORINTEGRATION_H
-#define QTCREATORINTEGRATION_H
+#pragma once
 
 #include <QtGlobal>
 #include <QDesignerIntegration>
@@ -65,5 +64,3 @@ private:
 
 } // namespace Internal
 } // namespace Designer
-
-#endif // QTCREATORINTEGRATION_H

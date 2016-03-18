@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QUICKTOOLBAR_H
-#define QUICKTOOLBAR_H
+#pragma once
 
 #include <qmljs/qmljsicontextpane.h>
 
@@ -70,5 +69,3 @@ private:
 };
 
 } //QmlDesigner
-
-#endif // QUICKTOOLBAR_H

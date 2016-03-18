@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMAKEGLOBALS_H
-#define QMAKEGLOBALS_H
+#pragma once
 
 #include "qmake_global.h"
 #include "proitems.h"
@@ -159,5 +158,3 @@ private:
 };
 
 QT_END_NAMESPACE
-
-#endif // QMAKEGLOBALS_H

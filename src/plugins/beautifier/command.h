@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef BEAUTIFIER_COMMAND_H
-#define BEAUTIFIER_COMMAND_H
+#pragma once
 
 #include <QString>
 #include <QStringList>
@@ -67,5 +66,3 @@ private:
 
 } // namespace Internal
 } // namespace Beautifier
-
-#endif // BEAUTIFIER_COMMAND_H

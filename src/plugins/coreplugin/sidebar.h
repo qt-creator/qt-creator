@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SIDEBAR_H
-#define SIDEBAR_H
+#pragma once
 
 #include "core_global.h"
 #include "minisplitter.h"
@@ -126,5 +125,3 @@ private:
 };
 
 } // namespace Core
-
-#endif // SIDEBAR_H

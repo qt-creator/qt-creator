@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CPPTOOLS_CPPINDEXINGSUPPORT_H
-#define CPPTOOLS_CPPINDEXINGSUPPORT_H
+#pragma once
 
 #include "cpptools_global.h"
 
@@ -90,5 +89,3 @@ public:
 Q_DECLARE_METATYPE(CppTools::SymbolSearcher::SearchScope)
 Q_DECLARE_METATYPE(CppTools::SymbolSearcher::Parameters)
 Q_DECLARE_METATYPE(CppTools::SymbolSearcher::SymbolTypes)
-
-#endif // CPPTOOLS_CPPINDEXINGSUPPORT_H

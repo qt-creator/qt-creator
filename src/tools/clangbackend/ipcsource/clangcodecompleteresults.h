@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CLANGBACKEND_CLANGCODECOMPLETERESULTS_H
-#define CLANGBACKEND_CLANGCODECOMPLETERESULTS_H
+#pragma once
 
 #include <clang-c/Index.h>
 
@@ -61,5 +60,3 @@ private:
 };
 
 } // namespace ClangBackEnd
-
-#endif // CLANGBACKEND_CLANGCODECOMPLETERESULTS_H

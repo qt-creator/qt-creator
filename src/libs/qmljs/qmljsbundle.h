@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLJSBUNDLE_H
-#define QMLJSBUNDLE_H
+#pragma once
 
 #include <qmljs/qmljs_global.h>
 #include <qmljs/persistenttrie.h>
@@ -104,5 +103,3 @@ private:
     QHash<Dialect,QmlBundle> m_bundles;
 };
 } // namespace QmlJS
-
-#endif // QMLJSBUNDLE_H

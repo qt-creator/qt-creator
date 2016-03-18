@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLJSCOMPLETIONASSIST_H
-#define QMLJSCOMPLETIONASSIST_H
+#pragma once
 
 #include "qmljseditor.h"
 
@@ -136,5 +135,3 @@ private:
 };
 
 } // QmlJSEditor
-
-#endif // QMLJSCOMPLETIONASSIST_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef DEBUGGER_REGISTERHANDLER_H
-#define DEBUGGER_REGISTERHANDLER_H
+#pragma once
 
 #include <utils/treemodel.h>
 
@@ -144,5 +143,3 @@ private:
 
 } // namespace Internal
 } // namespace Debugger
-
-#endif // DEBUGGER_REGISTERHANDLER_H

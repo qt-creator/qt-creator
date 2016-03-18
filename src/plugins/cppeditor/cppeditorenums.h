@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CPPEDITORENUMS_H
-#define CPPEDITORENUMS_H
+#pragma once
 
 namespace CppEditor {
 namespace Internal {
@@ -52,5 +51,3 @@ enum CppFormats {
 
 } // namespace Internal
 } // namespace CppEditor
-
-#endif // CPPEDITORENUMS_H

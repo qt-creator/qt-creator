@@ -24,8 +24,7 @@
 **
 ****************************************************************************/
 
-#ifndef ANALYZERRUNCONTROL_H
-#define ANALYZERRUNCONTROL_H
+#pragma once
 
 #include <debugger/debugger_global.h>
 
@@ -66,5 +65,3 @@ private:
 };
 
 } // namespace Debugger
-
-#endif // ANALYZERRUNCONTROL_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef STARTREMOTEDIALOG_H
-#define STARTREMOTEDIALOG_H
+#pragma once
 
 #include <debugger/debugger_global.h>
 
@@ -57,5 +56,3 @@ private:
 };
 
 } // namespace Debugger
-
-#endif // STARTREMOTEDIALOG_H

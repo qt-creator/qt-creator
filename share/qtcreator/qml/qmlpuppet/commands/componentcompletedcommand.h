@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef COMPONENTCOMPLETEDCOMMAND_H
-#define COMPONENTCOMPLETEDCOMMAND_H
+#pragma once
 #include <QMetaType>
 #include <QVector>
 #include <QDataStream>
@@ -57,5 +56,3 @@ QDebug operator <<(QDebug debug, const ComponentCompletedCommand &command);
 } // namespace QmlDesigner
 
 Q_DECLARE_METATYPE(QmlDesigner::ComponentCompletedCommand)
-
-#endif // COMPONENTCOMPLETEDCOMMAND_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef UTILS_ENVIRONMENT_H
-#define UTILS_ENVIRONMENT_H
+#pragma once
 
 #include "fileutils.h"
 #include "hostosinfo.h"
@@ -115,5 +114,3 @@ private:
 };
 
 } // namespace Utils
-
-#endif // UTILS_ENVIRONMENT_H

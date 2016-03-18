@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef LIBRARYPARAMETERS_H
-#define LIBRARYPARAMETERS_H
+#pragma once
 
 #include "qtprojectparameters.h"
 
@@ -61,5 +60,3 @@ struct LibraryParameters {
 
 } // namespace Internal
 } // namespace QmakeProjectManager
-
-#endif // LIBRARYPARAMETERS_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_DDEPENDENCY_H
-#define QMT_DDEPENDENCY_H
+#pragma once
 
 #include "drelation.h"
 
@@ -55,5 +54,3 @@ private:
 };
 
 } // namespace qmt
-
-#endif // QMT_DDEPENDENCY_H

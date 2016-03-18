@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef MODELTOTEXTMERGER_H
-#define MODELTOTEXTMERGER_H
+#pragma once
 
 #include "qmldesignercorelib_global.h"
 #include <modelnode.h>
@@ -96,5 +95,3 @@ private:
 
 } //Internal
 } //QmlDesigner
-
-#endif // MODELTOTEXTMERGER_H

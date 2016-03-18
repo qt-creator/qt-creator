@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef DEBUGGER_CONSOLEITEMMODEL_H
-#define DEBUGGER_CONSOLEITEMMODEL_H
+#pragma once
 
 #include "consoleitem.h"
 #include <utils/treemodel.h>
@@ -64,5 +63,3 @@ private:
 
 } // Internal
 } // Debugger
-
-#endif // DEBUGGER_CONSOLEITEMMODEL_H

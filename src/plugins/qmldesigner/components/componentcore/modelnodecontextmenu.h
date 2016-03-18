@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef MODELNODECONTEXTMENU_H
-#define MODELNODECONTEXTMENU_H
+#pragma once
 
 #include <QPoint>
 #include <QCoreApplication>
@@ -50,5 +49,3 @@ private:
 };
 
 } // namespace QmlDesigner
-
-#endif // MODELNODECONTEXTMENU_H

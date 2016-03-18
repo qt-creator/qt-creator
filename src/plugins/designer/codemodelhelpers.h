@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CODEMODELHELPERS_H
-#define CODEMODELHELPERS_H
+#pragma once
 
 #include <QtGlobal>
 
@@ -46,5 +45,3 @@ bool navigateToSlot(const QString &uiFileName,
 
 } // namespace Internal
 } // namespace Designer
-
-#endif // CODEMODELHELPERS_H

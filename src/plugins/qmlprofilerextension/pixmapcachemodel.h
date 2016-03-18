@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PIXMAPCACHEMODEL_H
-#define PIXMAPCACHEMODEL_H
+#pragma once
 
 #include "qmlprofiler/qmlprofilertimelinemodel.h"
 #include "qmlprofiler/qmlprofilerdatamodel.h"
@@ -126,5 +125,3 @@ private:
 
 } // namespace Internal
 } // namespace QmlProfilerExtension
-
-#endif // PIXMAPCACHEMODEL_H

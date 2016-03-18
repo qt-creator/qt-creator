@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef REMOTELINUXENVIRONMENTASPECT_H
-#define REMOTELINUXENVIRONMENTASPECT_H
+#pragma once
 
 #include "remotelinux_export.h"
 
@@ -61,5 +60,3 @@ private:
 };
 
 } // namespace RemoteLinux
-
-#endif // REMOTELINUXENVIRONMENTASPECT_H

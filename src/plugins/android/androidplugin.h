@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef ANDROIDPLUGIN_H
-#define ANDROIDPLUGIN_H
+#pragma once
 
 #include <extensionsystem/iplugin.h>
 
@@ -47,5 +46,3 @@ private slots:
 };
 
 } // namespace Android
-
-#endif // ANDROIDPLUGIN_H

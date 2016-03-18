@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef DEBUGGER_DEBUGGERTOOLTIPMANAGER_H
-#define DEBUGGER_DEBUGGERTOOLTIPMANAGER_H
+#pragma once
 
 #include "debuggerconstants.h"
 
@@ -102,5 +101,3 @@ public slots:
 
 } // namespace Internal
 } // namespace Debugger
-
-#endif // DEBUGGER_INTERNAL_DEBUGGERTOOLTIPMANAGER_H

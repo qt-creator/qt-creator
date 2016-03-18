@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef TESTVISITOR_H
-#define TESTVISITOR_H
+#pragma once
 
 #include "testtreeitem.h"
 
@@ -164,5 +163,3 @@ private:
 
 } // namespace Internal
 } // namespace Autotest
-
-#endif // TESTVISITOR_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CPLUSPLUS_EXPRESSIONUNDERCURSOR_H
-#define CPLUSPLUS_EXPRESSIONUNDERCURSOR_H
+#pragma once
 
 #include <cplusplus/CPlusPlusForwardDeclarations.h>
 #include <cplusplus/Token.h>
@@ -59,5 +58,3 @@ private:
 };
 
 } // namespace CPlusPlus
-
-#endif // CPLUSPLUS_EXPRESSIONUNDERCURSOR_H

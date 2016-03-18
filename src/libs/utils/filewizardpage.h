@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef FILEWIZARDPAGE_H
-#define FILEWIZARDPAGE_H
+#pragma once
 
 #include "utils_global.h"
 
@@ -75,5 +74,3 @@ private:
 };
 
 } // namespace Utils
-
-#endif // FILEWIZARDPAGE_H

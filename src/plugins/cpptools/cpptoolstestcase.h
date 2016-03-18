@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CPPTOOLSTESTCASE_H
-#define CPPTOOLSTESTCASE_H
+#pragma once
 
 #include "cpptools_global.h"
 
@@ -186,5 +185,3 @@ public:
 
 } // namespace Tests
 } // namespace CppTools
-
-#endif // CPPTOOLSTESTCASE_H

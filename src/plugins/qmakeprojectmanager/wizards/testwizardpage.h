@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef TESTWIZARDPAGE_H
-#define TESTWIZARDPAGE_H
+#pragma once
 
 #include <QWizardPage>
 
@@ -68,5 +67,3 @@ private:
 
 } // namespace Internal
 } // namespace QmakeProjectManager
-
-#endif // TESTWIZARDPAGE_H

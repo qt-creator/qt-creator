@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef KEYPASSWORDRETRIEVER_H
-#define KEYPASSWORDRETRIEVER_H
+#pragma once
 
 #include <botan/botan.h>
 
@@ -42,5 +41,3 @@ public:
 
 } // namespace Internal
 } // namespace QSsh
-
-#endif // KEYPASSWORDRETRIEVER_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef TOPICCHOOSER_H
-#define TOPICCHOOSER_H
+#pragma once
 
 #include "ui_topicchooser.h"
 
@@ -62,5 +61,3 @@ private:
     QModelIndex m_activedIndex;
     QSortFilterProxyModel *m_filterModel;
 };
-
-#endif // TOPICCHOOSER_H

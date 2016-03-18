@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SYMBOLPATHSDIALOG_H
-#define SYMBOLPATHSDIALOG_H
+#pragma once
 
 #include <QDialog>
 #include <QString>
@@ -60,5 +59,3 @@ private:
 
 } // namespace Internal
 } // namespace Debugger
-
-#endif // SYMBOLPATHSDIALOG_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef DEBUGGER_WATCHWINDOW_H
-#define DEBUGGER_WATCHWINDOW_H
+#pragma once
 
 #include <utils/basetreeview.h>
 
@@ -92,5 +91,3 @@ private:
 
 } // namespace Internal
 } // namespace Debugger
-
-#endif // DEBUGGER_WATCHWINDOW_H

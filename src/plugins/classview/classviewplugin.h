@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CLASSVIEWPLUGIN_H
-#define CLASSVIEWPLUGIN_H
+#pragma once
 
 #include <extensionsystem/iplugin.h>
 
@@ -49,5 +48,3 @@ public:
 
 } // namespace Internal
 } // namespace ClassView
-
-#endif // CLASSVIEWPLUGIN_H

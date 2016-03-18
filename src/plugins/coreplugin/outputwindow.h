@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef OUTPUTWINDOW_H
-#define OUTPUTWINDOW_H
+#pragma once
 
 #include "core_global.h"
 #include "icontext.h"
@@ -98,5 +97,3 @@ private:
 };
 
 } // namespace Core
-
-#endif // OUTPUTWINDOW_H

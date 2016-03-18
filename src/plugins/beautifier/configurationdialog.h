@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef BEAUTIFIER_CONFIGURATIONDIALOG_H
-#define BEAUTIFIER_CONFIGURATIONDIALOG_H
+#pragma once
 
 #include <QDialog>
 #include <QString>
@@ -63,5 +62,3 @@ private:
 
 } // namespace Internal
 } // namespace Beautifier
-
-#endif // BEAUTIFIER_CONFIGURATIONDIALOG_H

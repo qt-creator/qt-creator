@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef GLSLEDITORPLUGIN_H
-#define GLSLEDITORPLUGIN_H
+#pragma once
 
 #include <extensionsystem/iplugin.h>
 #include <glsl/glsl.h>
@@ -67,5 +66,3 @@ public:
 
 } // namespace Internal
 } // namespace GlslEditor
-
-#endif // GLSLEDITORPLUGIN_H

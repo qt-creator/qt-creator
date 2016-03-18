@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef VALUESCHANGEDCOMMAND_H
-#define VALUESCHANGEDCOMMAND_H
+#pragma once
 
 #include <QMetaType>
 #include <QVector>
@@ -63,6 +62,3 @@ QDebug operator <<(QDebug debug, const ValuesChangedCommand &instance);
 } // namespace QmlDesigner
 
 Q_DECLARE_METATYPE(QmlDesigner::ValuesChangedCommand)
-
-
-#endif // VALUESCHANGEDCOMMAND_H

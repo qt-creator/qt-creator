@@ -1,5 +1,4 @@
-#ifndef EXAMPLE_H
-#define EXAMPLE_H
+#pragma once
 
 #include "example_global.h"
 
@@ -35,6 +34,3 @@ private:
 
 } // namespace Internal
 } // namespace Example
-
-#endif // EXAMPLE_H
-

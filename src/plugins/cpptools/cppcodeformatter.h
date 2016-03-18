@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CPPCODEFORMATTER_H
-#define CPPCODEFORMATTER_H
+#pragma once
 
 #include "cpptools_global.h"
 #include "cppcodestylesettings.h"
@@ -288,5 +287,3 @@ private:
 };
 
 } // namespace CppTools
-
-#endif // CPPCODEFORMATTER_H

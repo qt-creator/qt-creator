@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef ANALYZERICONS_H
-#define ANALYZERICONS_H
+#pragma once
 
 #include <utils/icon.h>
 
@@ -43,5 +42,3 @@ const Utils::Icon MODE_ANALYZE_FLAT_ACTIVE({
 
 } // namespace Icons
 } // namespace Debugger
-
-#endif // ANALYZERICONS_H

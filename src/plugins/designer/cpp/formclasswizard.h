@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef FORMCLASSWIZARD_H
-#define FORMCLASSWIZARD_H
+#pragma once
 
 #include "formclasswizardparameters.h"
 
@@ -52,5 +51,3 @@ private:
 
 } // namespace Internal
 } // namespace Designer
-
-#endif // FORMCLASSWIZARD_H

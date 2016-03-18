@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SCENEGRAPHTIMELINEMODEL_H
-#define SCENEGRAPHTIMELINEMODEL_H
+#pragma once
 
 #include "qmlprofiler/qmlprofilertimelinemodel.h"
 #include "qmlprofiler/qmlprofilermodelmanager.h"
@@ -110,5 +109,3 @@ private:
 
 } // namespace Internal
 } // namespace QmlProfilerExtension
-
-#endif // SCENEGRAPHTIMELINEMODEL_H

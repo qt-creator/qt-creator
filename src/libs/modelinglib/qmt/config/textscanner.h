@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_TEXTSCANNER_H
-#define QMT_TEXTSCANNER_H
+#pragma once
 
 #include <QObject>
 
@@ -82,5 +81,3 @@ private:
 };
 
 } // namespace qmt
-
-#endif // QMT_TEXTSCANNER_H

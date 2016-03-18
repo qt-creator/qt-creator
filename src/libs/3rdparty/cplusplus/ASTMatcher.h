@@ -18,8 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#ifndef ASTMATCHER_H
-#define ASTMATCHER_H
+#pragma once
 
 #include "ASTfwd.h"
 
@@ -184,5 +183,3 @@ public:
 };
 
 } // namespace CPlusPlus
-
-#endif // CPLUSPLUS_ASTMATCHER_H

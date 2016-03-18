@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLJSINTERPRETER_H
-#define QMLJSINTERPRETER_H
+#pragma once
 
 #include <qmljs/parser/qmljslexer_p.h>
 #include <qmljs/parser/qmljsengine_p.h>
@@ -55,5 +54,3 @@ private:
 
 } // namespace Internal
 } // namespace QmlJSTools
-
-#endif // QMLJSINTERPRETER_H

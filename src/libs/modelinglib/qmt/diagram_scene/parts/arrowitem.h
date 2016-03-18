@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_GRAPHICSARROWITEM_H
-#define QMT_GRAPHICSARROWITEM_H
+#pragma once
 
 #include <QGraphicsItem>
 
@@ -101,5 +100,3 @@ private:
 };
 
 } // namespace qmt
-
-#endif // QMT_GRAPHICSARROWITEM_H

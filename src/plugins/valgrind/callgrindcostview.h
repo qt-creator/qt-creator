@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CALLGRINDCOSTVIEW_H
-#define CALLGRINDCOSTVIEW_H
+#pragma once
 
 #include "callgrindcostdelegate.h"
 
@@ -63,5 +62,3 @@ private:
 
 } // namespace Internal
 } // namespace Valgrind
-
-#endif // CALLGRINDCOSTVIEW_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SQLITETABLE_H
-#define SQLITETABLE_H
+#pragma once
 
 #include "sqliteglobal.h"
 #include "tablewriteworkerproxy.h"
@@ -75,5 +74,3 @@ private:
     SqliteDatabase *sqliteDatabase;
     bool withoutRowId;
 };
-
-#endif // SQLITETABLE_H

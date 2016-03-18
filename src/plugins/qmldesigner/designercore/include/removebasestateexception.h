@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef REMOVEBASESTATEEXCEPTION_H
-#define REMOVEBASESTATEEXCEPTION_H
+#pragma once
 
 #include <exception.h>
 
@@ -41,5 +40,3 @@ public:
 
 };
 } // namespace QmlDesigner
-
-#endif // REMOVEBASESTATEEXCEPTION_H

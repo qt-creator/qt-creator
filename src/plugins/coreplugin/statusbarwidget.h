@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef STATUSBARWIDGET_H
-#define STATUSBARWIDGET_H
+#pragma once
 
 #include "core_global.h"
 #include "icontext.h"
@@ -49,5 +48,3 @@ private:
 };
 
 } // namespace Core
-
-#endif // STATUSBARWIDGET_H

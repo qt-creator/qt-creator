@@ -37,8 +37,7 @@
 **
 ****************************************************************************/
 
-#ifndef MIMEMAGICRULE_P_H
-#define MIMEMAGICRULE_P_H
+#pragma once
 
 //
 //  W A R N I N G
@@ -107,5 +106,3 @@ private:
 QT_BEGIN_NAMESPACE
 Q_DECLARE_TYPEINFO(Utils::Internal::MimeMagicRule, Q_MOVABLE_TYPE);
 QT_END_NAMESPACE
-
-#endif // MIMEMAGICRULE_H

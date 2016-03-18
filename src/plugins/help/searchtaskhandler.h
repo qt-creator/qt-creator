@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef HELP_SEARCHTASKHANDLER_H
-#define HELP_SEARCHTASKHANDLER_H
+#pragma once
 
 #include <projectexplorer/itaskhandler.h>
 
@@ -50,5 +49,3 @@ signals:
 
 } // namespace Internal
 } // namespace Help
-
-#endif // HELP_SEARCHTASKHANDLER_H

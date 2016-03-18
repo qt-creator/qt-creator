@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLJSOUTLINE_H
-#define QMLJSOUTLINE_H
+#pragma once
 
 #include "qmljseditor.h"
 
@@ -104,5 +103,3 @@ public:
 
 } // namespace Internal
 } // namespace QmlJSEditor
-
-#endif // QMLJSOUTLINE_H

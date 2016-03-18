@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef UICONTROLLER_H
-#define UICONTROLLER_H
+#pragma once
 
 #include <QObject>
 
@@ -67,5 +66,3 @@ private:
 
 } // namespace Internal
 } // namespace ModelEditor
-
-#endif // UICONTROLLER_H

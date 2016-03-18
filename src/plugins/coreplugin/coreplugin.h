@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef COREPLUGIN_H
-#define COREPLUGIN_H
+#pragma once
 
 #include <extensionsystem/iplugin.h>
 
@@ -90,5 +89,3 @@ private:
 
 } // namespace Internal
 } // namespace Core
-
-#endif // COREPLUGIN_H

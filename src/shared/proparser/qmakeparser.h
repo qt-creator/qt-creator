@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMAKEPARSER_H
-#define QMAKEPARSER_H
+#pragma once
 
 #include "qmake_global.h"
 #include "proitems.h"
@@ -226,5 +225,3 @@ Q_DECLARE_TYPEINFO(QMakeParser::Context, Q_PRIMITIVE_TYPE);
 #endif
 
 QT_END_NAMESPACE
-
-#endif // PROFILEPARSER_H

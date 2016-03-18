@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef DEMANGLEREXCEPTIONS_H
-#define DEMANGLEREXCEPTIONS_H
+#pragma once
 
 #include <QtGlobal>
 #include <QSharedPointer>
@@ -75,5 +74,3 @@ template <typename T> QSharedPointer<T> demanglerCast(const QSharedPointer<Parse
 
 } // namespace Internal
 } // namespace Debugger
-
-#endif // DEMANGLEREXCEPTIONS_H

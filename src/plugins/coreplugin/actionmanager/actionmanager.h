@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef ACTIONMANAGER_H
-#define ACTIONMANAGER_H
+#pragma once
 
 #include "coreplugin/core_global.h"
 #include "coreplugin/coreconstants.h"
@@ -89,5 +88,3 @@ private:
 };
 
 } // namespace Core
-
-#endif // ACTIONMANAGER_H

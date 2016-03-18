@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef NODEANCHORS_H
-#define NODEANCHORS_H
+#pragma once
 
 
 #include <QPointer>
@@ -106,5 +105,3 @@ CORESHARED_EXPORT QDebug operator<<(QDebug debug, const NodeAnchors &anchors);
 CORESHARED_EXPORT QTextStream& operator<<(QTextStream &stream, const NodeAnchors &anchors);
 
 } // namespace QmlDesigner
-
-#endif // NODEANCHORS_H

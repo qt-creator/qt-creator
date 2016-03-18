@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CONNECTIONVIEW_H
-#define CONNECTIONVIEW_H
+#pragma once
 
 #include <abstractview.h>
 #include <qmlitemnode.h>
@@ -92,5 +91,3 @@ private: //variables
 } // namespace Internal
 
 } // namespace QmlDesigner
-
-#endif //CONNECTIONVIEW_H

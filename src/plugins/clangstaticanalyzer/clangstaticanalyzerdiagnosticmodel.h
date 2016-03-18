@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CLANGSTATICANALYZERDIAGNOSTICMODEL_H
-#define CLANGSTATICANALYZERDIAGNOSTICMODEL_H
+#pragma once
 
 #include "clangstaticanalyzerdiagnostic.h"
 #include "clangstaticanalyzerprojectsettings.h"
@@ -78,5 +77,3 @@ private:
 
 } // namespace Internal
 } // namespace ClangStaticAnalyzer
-
-#endif // CLANGSTATICANALYZERDIAGNOSTICMODEL_H

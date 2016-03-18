@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CLANGBACKEND_SOURCERANGE_H
-#define CLANGBACKEND_SOURCERANGE_H
+#pragma once
 
 #include "sourcelocation.h"
 
@@ -62,5 +61,3 @@ private:
 bool operator==(const SourceRange &first, const SourceRange &second);
 void PrintTo(const SourceRange &sourceRange, ::std::ostream* os);
 } // namespace ClangBackEnd
-
-#endif // CLANGBACKEND_SOURCERANGE_H

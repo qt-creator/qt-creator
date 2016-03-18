@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef WIDGETHOST_H
-#define WIDGETHOST_H
+#pragma once
 
 #include <QScrollArea>
 
@@ -67,5 +66,3 @@ private:
 };
 
 } // namespace SharedTools
-
-#endif // WIDGETHOST_H

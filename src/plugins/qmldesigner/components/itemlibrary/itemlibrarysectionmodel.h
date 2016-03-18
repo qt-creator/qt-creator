@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLDESIGNER_ITEMLIBRARYSECTIONMODEL_H
-#define QMLDESIGNER_ITEMLIBRARYSECTIONMODEL_H
+#pragma once
 
 #include "itemlibrarymodel.h"
 
@@ -66,5 +65,3 @@ private: // variables
 } // namespace QmlDesigner
 
 QML_DECLARE_TYPE(QmlDesigner::ItemLibrarySectionModel)
-
-#endif // QMLDESIGNER_ITEMLIBRARYSECTIONMODEL_H

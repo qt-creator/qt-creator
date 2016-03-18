@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SETTINGSSELECTORWIDGET_H
-#define SETTINGSSELECTORWIDGET_H
+#pragma once
 
 #include "utils_global.h"
 
@@ -82,5 +81,3 @@ private:
 };
 
 } // namespace Utils
-
-#endif // SETTINGSSELECTORWIDGET_H

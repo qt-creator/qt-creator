@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CORE_GLOBAL_H
-#define CORE_GLOBAL_H
+#pragma once
 
 #include <qglobal.h>
 
@@ -33,5 +32,3 @@
 #else
 #  define CORE_EXPORT Q_DECL_IMPORT
 #endif
-
-#endif // CORE_GLOBAL_H

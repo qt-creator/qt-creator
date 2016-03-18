@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CPPFOLLOWSYMBOLUNDERCURSOR_H
-#define CPPFOLLOWSYMBOLUNDERCURSOR_H
+#pragma once
 
 #include <cplusplus/CppDocument.h>
 #include <texteditor/texteditor.h>
@@ -64,5 +63,3 @@ private:
 
 } // namespace Internal
 } // namespace CppEditor
-
-#endif // CPPFOLLOWSYMBOLUNDERCURSOR_H

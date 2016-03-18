@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef OPENDOCUMENTSTREEVIEW_H
-#define OPENDOCUMENTSTREEVIEW_H
+#pragma once
 
 #include "core_global.h"
 
@@ -53,5 +52,3 @@ private:
 };
 
 } // namespace Core
-
-#endif // OPENDOCUMENTSTREEVIEW_H

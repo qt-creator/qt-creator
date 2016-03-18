@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef FILESYSTEMFILTER_H
-#define FILESYSTEMFILTER_H
+#pragma once
 
 #include "ilocatorfilter.h"
 #include "ui_filesystemfilter.h"
@@ -61,5 +60,3 @@ private:
 
 } // namespace Internal
 } // namespace Core
-
-#endif // FILESYSTEMFILTER_H

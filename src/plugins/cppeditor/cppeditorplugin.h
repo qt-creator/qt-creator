@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CPPEDITORPLUGIN_H
-#define CPPEDITORPLUGIN_H
+#pragma once
 
 #include <coreplugin/editormanager/ieditorfactory.h>
 
@@ -252,5 +251,3 @@ private:
 
 } // namespace Internal
 } // namespace CppEditor
-
-#endif // CPPEDITORPLUGIN_H

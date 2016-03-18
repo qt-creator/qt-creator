@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SQLSTATEMENTBUILDEREXCEPTION_H
-#define SQLSTATEMENTBUILDEREXCEPTION_H
+#pragma once
 
 #include "sqliteexception.h"
 
@@ -33,5 +32,3 @@ class SQLITE_EXPORT SqlStatementBuilderException : public SqliteException
 public:
     SqlStatementBuilderException(const char *whatErrorHasHappen, const char *errorMessage = 0);
 };
-
-#endif // SQLSTATEMENTBUILDEREXCEPTION_H

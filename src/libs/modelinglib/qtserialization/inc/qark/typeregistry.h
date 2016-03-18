@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QARK_TYPEREGISTRY_H
-#define QARK_TYPEREGISTRY_H
+#pragma once
 
 #include "parameters.h"
 
@@ -308,5 +307,3 @@ typename registry::TypeRegistry<Archive,T>::TypeInfo typeInfo(const QString &uid
     int qark::registry::DerivedTypeRegistry<OUTARCHIVE, typename std::add_const<BASE>::type, typename std::add_const<DERIVED>::type>::staticInit = \
             qark::registry::DerivedTypeRegistry<OUTARCHIVE, typename std::add_const<BASE>::type, typename std::add_const<DERIVED>::type>:: \
                 init(qark::registry::savePointer<OUTARCHIVE, typename std::add_const<BASE>::type, typename std::add_const<DERIVED>::type>, 0);
-
-#endif // QARK_TYPEREGISTRY_H

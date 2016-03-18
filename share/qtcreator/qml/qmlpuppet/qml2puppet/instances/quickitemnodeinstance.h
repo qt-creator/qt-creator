@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QuickITEMNODEINSTANCE_H
-#define QuickITEMNODEINSTANCE_H
+#pragma once
 
 #include <QtGlobal>
 
@@ -134,6 +133,3 @@ private: //variables
 
 } // namespace Internal
 } // namespace QmlDesigner
-
-#endif  // QuickITEMNODEINSTANCE_H
-

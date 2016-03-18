@@ -24,8 +24,7 @@
 **
 ****************************************************************************/
 
-#ifndef MODELDEMO_H
-#define MODELDEMO_H
+#pragma once
 
 #include <QObject>
 #include <QDebug>
@@ -67,5 +66,3 @@ public Q_SLOTS:
 private:
     Valgrind::Memcheck::MemcheckRunner *runner;
 };
-
-#endif // MODELDEMO_H

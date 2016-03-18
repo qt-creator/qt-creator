@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PROGRESSMANAGER_H
-#define PROGRESSMANAGER_H
+#pragma once
 
 #include <coreplugin/core_global.h>
 #include <coreplugin/id.h>
@@ -90,5 +89,3 @@ private:
 } // namespace Core
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(Core::ProgressManager::ProgressFlags)
-
-#endif //PROGRESSMANAGER_H

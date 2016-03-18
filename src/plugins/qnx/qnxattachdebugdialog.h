@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QNX_INTERNAL_QNXATTACHDEBUGDIALOG_H
-#define QNX_INTERNAL_QNXATTACHDEBUGDIALOG_H
+#pragma once
 
 #include <projectexplorer/devicesupport/deviceprocessesdialog.h>
 
@@ -50,5 +49,3 @@ private:
 
 } // namespace Internal
 } // namespace Qnx
-
-#endif // QNX_INTERNAL_QNXATTACHDEBUGDIALOG_H

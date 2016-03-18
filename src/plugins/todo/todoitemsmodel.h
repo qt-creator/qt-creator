@@ -24,8 +24,7 @@
 **
 ****************************************************************************/
 
-#ifndef TODOITEMSMODEL_H
-#define TODOITEMSMODEL_H
+#pragma once
 
 #include "todoitem.h"
 
@@ -62,5 +61,3 @@ private:
 
 }
 }
-
-#endif // TODOITEMSMODEL_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef OUTPUTPANEMANAGER_H
-#define OUTPUTPANEMANAGER_H
+#pragma once
 
 #include <coreplugin/id.h>
 
@@ -182,5 +181,3 @@ public:
 
 } // namespace Internal
 } // namespace Core
-
-#endif // OUTPUTPANEMANAGER_H

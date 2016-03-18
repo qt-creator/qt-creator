@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef UTILS_ELFREADER_H
-#define UTILS_ELFREADER_H
+#pragma once
 
 #include "utils_global.h"
 
@@ -189,5 +188,3 @@ public:
 };
 
 } // namespace Utils
-
-#endif // UTILS_ELFREADER_H

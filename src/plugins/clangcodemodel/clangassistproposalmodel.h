@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CLANGCODEMODEL_INTERNAL_CLANGASSISTPROPOSALMODEL_H
-#define CLANGCODEMODEL_INTERNAL_CLANGASSISTPROPOSALMODEL_H
+#pragma once
 
 #include <cplusplus/Token.h>
 
@@ -51,5 +50,3 @@ private:
 
 } // namespace Internal
 } // namespace ClangCodeModel
-
-#endif // CLANGCODEMODEL_INTERNAL_CLANGASSISTPROPOSALMODEL_H

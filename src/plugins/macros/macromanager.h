@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef MACROSPLUGIN_MACROMANAGER_H
-#define MACROSPLUGIN_MACROMANAGER_H
+#pragma once
 
 #include <QObject>
 #include <QMap>
@@ -80,5 +79,3 @@ private:
 
 } // namespace Internal
 } // namespace Macros
-
-#endif // MACROSPLUGIN_MACROMANAGER_H

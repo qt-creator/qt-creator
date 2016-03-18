@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef WINRTQTVERSIONFACTORY_H
-#define WINRTQTVERSIONFACTORY_H
+#pragma once
 
 #include <qtsupport/qtversionfactory.h>
 
@@ -47,5 +46,3 @@ public:
 
 } // Internal
 } // WinRt
-
-#endif // WINRTQTVERSIONFACTORY_H

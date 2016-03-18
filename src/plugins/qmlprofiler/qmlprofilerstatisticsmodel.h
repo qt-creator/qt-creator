@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLPROFILERSTATISTICSMODEL_H
-#define QMLPROFILERSTATISTICSMODEL_H
+#pragma once
 
 #include "qmlprofilerdatamodel.h"
 #include "qmlprofilernotesmodel.h"
@@ -155,5 +154,3 @@ protected:
 };
 
 }
-
-#endif // QMLPROFILERSTATISTICSMODEL_H

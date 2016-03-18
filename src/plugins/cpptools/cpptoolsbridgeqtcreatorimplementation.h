@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CPPTOOLS_CPPTOOLSBRIDGEQTCREATORIMPLEMENTATION_H
-#define CPPTOOLS_CPPTOOLSBRIDGEQTCREATORIMPLEMENTATION_H
+#pragma once
 
 #include "cpptoolsbridgeinterface.h"
 
@@ -44,5 +43,3 @@ public:
 
 } // namespace Internal
 } // namespace CppTools
-
-#endif // CPPTOOLS_CPPTOOLSBRIDGEQTCREATORIMPLEMENTATION_H

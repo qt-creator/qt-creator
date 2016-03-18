@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLPROFILERBINDINGLOOPSRENDERPASS_H
-#define QMLPROFILERBINDINGLOOPSRENDERPASS_H
+#pragma once
 
 #include "timeline/timelineabstractrenderer.h"
 #include "timeline/timelinerenderpass.h"
@@ -49,6 +48,3 @@ protected:
 
 }
 }
-
-#endif // QMLPROFILERBINDINGLOOPSRENDERPASS_H
-

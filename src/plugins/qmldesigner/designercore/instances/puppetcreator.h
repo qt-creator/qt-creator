@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLDESIGNER_PUPPETCREATOR_H
-#define QMLDESIGNER_PUPPETCREATOR_H
+#pragma once
 
 #include <QString>
 #include <QProcessEnvironment>
@@ -120,5 +119,3 @@ private:
 };
 
 } // namespace QmlDesigner
-
-#endif // QMLDESIGNER_PUPPETCREATOR_H

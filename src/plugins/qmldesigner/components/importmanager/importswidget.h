@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLDESIGNER_IMPORTSWIDGET_H
-#define QMLDESIGNER_IMPORTSWIDGET_H
+#pragma once
 
 #include <import.h>
 
@@ -69,5 +68,3 @@ private:
 };
 
 } // namespace QmlDesigner
-
-#endif // QMLDESIGNER_IMPORTSWIDGET_H

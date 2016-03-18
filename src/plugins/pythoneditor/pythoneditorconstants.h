@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PYTHONEDITOR_CONSTANTS_H
-#define PYTHONEDITOR_CONSTANTS_H
+#pragma once
 
 #include <QtGlobal>
 
@@ -43,5 +42,3 @@ const char C_PY_MIME_ICON[] = "text-x-python";
 
 } // namespace Constants
 } // namespace PythonEditor
-
-#endif // PYTHONEDITOR_CONSTANTS_H

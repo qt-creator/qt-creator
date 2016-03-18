@@ -24,8 +24,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMAKEANDROIDBUILDAPKSTEP_H
-#define QMAKEANDROIDBUILDAPKSTEP_H
+#pragma once
 
 #include <android/androidbuildapkstep.h>
 
@@ -90,5 +89,3 @@ private:
 
 } // namespace Internal
 } // namespace QmakeAndroidSupport
-
-#endif // QMAKEANDROIDBUILDAPKSTEP_H

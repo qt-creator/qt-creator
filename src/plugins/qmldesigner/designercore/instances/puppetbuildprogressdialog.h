@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PUPPETBUILDPROGRESSDIALOG_H
-#define PUPPETBUILDPROGRESSDIALOG_H
+#pragma once
 
 #include <QDialog>
 
@@ -59,4 +58,3 @@ private:
 };
 
 }
-#endif // PUPPETBUILDPROGRESSDIALOG_H

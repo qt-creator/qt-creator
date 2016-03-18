@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLJS_VALUEOWNER_H
-#define QMLJS_VALUEOWNER_H
+#pragma once
 
 #include "qmljs_global.h"
 #include "qmljsinterpreter.h"
@@ -155,5 +154,3 @@ protected:
 };
 
 } // namespace QmlJS
-
-#endif // QMLJS_VALUEOWNER_H

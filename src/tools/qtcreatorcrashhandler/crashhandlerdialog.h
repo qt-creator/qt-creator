@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CRASHHANDLERDIALOG_H
-#define CRASHHANDLERDIALOG_H
+#pragma once
 
 #include <QDialog>
 
@@ -61,5 +60,3 @@ private:
     CrashHandler *m_crashHandler;
     Ui::CrashHandlerDialog *m_ui;
 };
-
-#endif // CRASHHANDLERDIALOG_H

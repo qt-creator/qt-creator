@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef BEAUTIFIER_ARTISTICSTYLECONSTANTS_H
-#define BEAUTIFIER_ARTISTICSTYLECONSTANTS_H
+#pragma once
 
 namespace Beautifier {
 namespace Constants {
@@ -39,5 +38,3 @@ const char SETTINGS_NAME[]         = "artisticstyle";
 } // namespace ArtisticStyle
 } // namespace Constants
 } // namespace Beautifier
-
-#endif // BEAUTIFIER_ARTISTICSTYLECONSTANTS_H

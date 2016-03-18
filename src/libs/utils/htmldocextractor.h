@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef HTMLDOCEXTRACTOR_H
-#define HTMLDOCEXTRACTOR_H
+#pragma once
 
 #include "utils_global.h"
 
@@ -87,5 +86,3 @@ private:
 };
 
 } // namespace Utils
-
-#endif // HTMLDOCEXTRACTOR_H

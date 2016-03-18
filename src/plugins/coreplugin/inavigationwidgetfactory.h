@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef INAVIGATIONWIDGET_H
-#define INAVIGATIONWIDGET_H
+#pragma once
 
 #include "id.h"
 
@@ -81,5 +80,3 @@ private:
 };
 
 } // namespace Core
-
-#endif // INAVIGATIONWIDGET_H

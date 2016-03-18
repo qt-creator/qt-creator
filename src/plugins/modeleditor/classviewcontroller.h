@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CLASSVIEWCONTROLLER_H
-#define CLASSVIEWCONTROLLER_H
+#pragma once
 
 #include <QObject>
 
@@ -50,5 +49,3 @@ public:
 
 } // namespace Internal
 } // namespace ModelEditor
-
-#endif // CLASSVIEWCONTROLLER_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef DIFFER_H
-#define DIFFER_H
+#pragma once
 
 #include "diffeditor_global.h"
 #include <QString>
@@ -114,5 +113,3 @@ private:
 };
 
 } // namespace DiffEditor
-
-#endif // DIFF_H

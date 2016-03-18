@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef TESTNAVIGATIONWIDGETTREEVIEW_H
-#define TESTNAVIGATIONWIDGETTREEVIEW_H
+#pragma once
 
 #include <coreplugin/inavigationwidgetfactory.h>
 
@@ -102,5 +101,3 @@ private:
 
 } // namespace Internal
 } // namespace Autotest
-
-#endif // TESTNAVIGATIONWIDGETTREEVIEW_H

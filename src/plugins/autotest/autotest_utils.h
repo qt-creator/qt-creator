@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef AUTOTEST_UTILS_H
-#define AUTOTEST_UTILS_H
+#pragma once
 
 #include <QStringList>
 
@@ -68,5 +67,3 @@ public:
 
 } // namespace Internal
 } // namespace Autotest
-
-#endif // AUTOTEST_UTILS_H

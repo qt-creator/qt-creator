@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QNXDEVICEPROCESS_H
-#define QNXDEVICEPROCESS_H
+#pragma once
 
 #include "qnx_export.h"
 #include <remotelinux/linuxdevice.h>
@@ -50,5 +49,3 @@ private:
 
 } // namespace Internal
 } // namespace Qnx
-
-#endif // QNXDEVICEPROCESS_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef COMMANDMAPPINGS_H
-#define COMMANDMAPPINGS_H
+#pragma once
 
 #include <coreplugin/core_global.h>
 
@@ -80,5 +79,3 @@ private:
 };
 
 } // namespace Core
-
-#endif // COMMANDMAPPINGS_H

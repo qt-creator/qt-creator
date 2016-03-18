@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLPROJECTMANAGER_H
-#define QMLPROJECTMANAGER_H
+#pragma once
 
 #include <projectexplorer/iprojectmanager.h>
 #include <coreplugin/icontext.h>
@@ -56,5 +55,3 @@ private:
 
 } // namespace Internal
 } // namespace QmlProjectManager
-
-#endif // QMLPROJECTMANAGER_H

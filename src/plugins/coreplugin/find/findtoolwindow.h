@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef FINDTOOLWINDOW_H
-#define FINDTOOLWINDOW_H
+#pragma once
 
 #include "ui_finddialog.h"
 #include "findplugin.h"
@@ -78,5 +77,3 @@ private:
 
 } // namespace Internal
 } // namespace Core
-
-#endif // FINDTOOLWINDOW_H

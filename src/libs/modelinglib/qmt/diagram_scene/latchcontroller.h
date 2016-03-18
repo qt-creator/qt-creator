@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_LATCHCONTROLLER_H
-#define QMT_LATCHCONTROLLER_H
+#pragma once
 
 #include <QObject>
 #include "qmt/infrastructure/qmt_global.h"
@@ -80,5 +79,3 @@ private:
 };
 
 } // namespace qmt
-
-#endif // QMT_LATCHCONTROLLER_H

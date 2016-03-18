@@ -24,8 +24,7 @@
 **
 ****************************************************************************/
 
-#ifndef BAREMETALDEVICECONFIGURATIONWIZARDPAGES_H
-#define BAREMETALDEVICECONFIGURATIONWIZARDPAGES_H
+#pragma once
 
 #include <QWizardPage>
 
@@ -59,5 +58,3 @@ private:
 
 } // namespace Internal
 } // namespace BareMetal
-
-#endif // BAREMETALDEVICECONFIGURATIONWIZARDPAGES_H

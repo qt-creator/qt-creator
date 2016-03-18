@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef BASEQTVERSION_H
-#define BASEQTVERSION_H
+#pragma once
 
 #include "qtsupport_global.h"
 
@@ -304,4 +303,3 @@ private:
 }
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(QtSupport::BaseQtVersion::QmakeBuildConfigs)
-#endif // BASEQTVERSION_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLJSFUNCTIONFILTER_H
-#define QMLJSFUNCTIONFILTER_H
+#pragma once
 
 #include <coreplugin/locator/ilocatorfilter.h>
 
@@ -51,5 +50,3 @@ private:
 
 } // namespace Internal
 } // namespace QmlJSTools
-
-#endif // QMLJSFUNCTIONFILTER_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMAKEPROJECTCONFIGWIDGET_H
-#define QMAKEPROJECTCONFIGWIDGET_H
+#pragma once
 
 #include <projectexplorer/namedwidget.h>
 
@@ -73,5 +72,3 @@ private:
 
 } // namespace Internal
 } // namespace QmakeProjectManager
-
-#endif // QMAKEPROJECTCONFIGWIDGET_H

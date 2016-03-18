@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef NODEINSTANCEGLOBAL_H
-#define NODEINSTANCEGLOBAL_H
+#pragma once
 
 #include <QByteArray>
 #include <QList>
@@ -36,5 +35,3 @@ typedef QList<PropertyName> PropertyNameList;
 typedef QByteArray TypeName;
 
 }
-
-#endif // NODEINSTANCEGLOBAL_H

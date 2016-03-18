@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef MAIN_H
-#define MAIN_H
+#pragma once
 
 #include "myinterfaces.h"
 #include "ui_main.h"
@@ -51,5 +50,3 @@ private:
 
     QList<IComboEntry *> m_entries;
 };
-
-#endif // MAIN_H

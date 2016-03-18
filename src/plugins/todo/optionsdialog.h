@@ -24,8 +24,7 @@
 **
 ****************************************************************************/
 
-#ifndef OPTIONSDIALOG_H
-#define OPTIONSDIALOG_H
+#pragma once
 
 #include <QWidget>
 
@@ -71,5 +70,3 @@ private:
 
 } // namespace Internal
 } // namespace Todo
-
-#endif // OPTIONSDIALOG_H

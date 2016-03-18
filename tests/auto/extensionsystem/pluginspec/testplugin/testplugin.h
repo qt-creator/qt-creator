@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef TESTPLUGIN_H
-#define TESTPLUGIN_H
+#pragma once
 
 #include "testplugin_global.h"
 #include <extensionsystem/iplugin.h>
@@ -54,5 +53,3 @@ private:
 };
 
 } // namespace
-
-#endif // TESTPLUGIN_H

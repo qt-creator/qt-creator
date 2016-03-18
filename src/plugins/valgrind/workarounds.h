@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef WORKAROUNDS_H
-#define WORKAROUNDS_H
+#pragma once
 
 #include <qglobal.h>
 
@@ -34,5 +33,3 @@ QT_END_NAMESPACE
 
 ///FIXME: remove this once https://bugreports.qt.io/browse/QTCREATORBUG-3247 gets fixed
 QPalette panelPalette(const QPalette &oldPalette, bool lightColored = false);
-
-#endif // WORKAROUNDS_H

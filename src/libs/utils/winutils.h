@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef WINUTILS_H
-#define WINUTILS_H
+#pragma once
 
 #include "utils_global.h"
 
@@ -63,5 +62,3 @@ private:
 };
 
 } // namespace Utils
-
-#endif // WINUTILS_H

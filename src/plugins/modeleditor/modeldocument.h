@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef MODELDOCUMENT_H
-#define MODELDOCUMENT_H
+#pragma once
 
 #include <coreplugin/idocument.h>
 
@@ -66,5 +65,3 @@ private:
 
 } // namespace Internal
 } // namespace ModelEditor
-
-#endif // MODELDOCUMENT_H

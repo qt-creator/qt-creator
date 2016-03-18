@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_SHAPEPAINTVISITOR_H
-#define QMT_SHAPEPAINTVISITOR_H
+#pragma once
 
 #include "shapevisitor.h"
 #include "qmt/infrastructure/qmt_global.h"
@@ -82,5 +81,3 @@ private:
 };
 
 } // namespace qmt
-
-#endif // QMT_SHAPEPAINTVISITOR_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QARK_OBJECTID_H
-#define QARK_OBJECTID_H
+#pragma once
 
 namespace qark {
 namespace impl {
@@ -51,5 +50,3 @@ inline bool operator<(const ObjectId &lhs, const ObjectId &rhs)
 
 } // namespace impl
 } // namespace qark
-
-#endif // QARK_OBJECTID_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef NODEABSTRACTPROPERTY_H
-#define NODEABSTRACTPROPERTY_H
+#pragma once
 
 #include "abstractproperty.h"
 
@@ -71,5 +70,3 @@ QMLDESIGNERCORE_EXPORT QTextStream& operator<<(QTextStream &stream, const NodeAb
 QMLDESIGNERCORE_EXPORT QDebug operator<<(QDebug debug, const NodeAbstractProperty &property);
 
 } // namespace QmlDesigner
-
-#endif // NODEABSTRACTPROPERTY_H

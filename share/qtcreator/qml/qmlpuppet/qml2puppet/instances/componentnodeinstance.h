@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef COMPONENTNODEINSTANCE_H
-#define COMPONENTNODEINSTANCE_H
+#pragma once
 
 #include "objectnodeinstance.h"
 
@@ -54,5 +53,3 @@ private: //function
 
 } // Internal
 } // QmlDesigner
-
-#endif // COMPONENTNODEINSTANCE_H

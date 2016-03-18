@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PXNODEUTILITIES_H
-#define PXNODEUTILITIES_H
+#pragma once
 
 #include <QObject>
 
@@ -63,5 +62,3 @@ private:
 
 } // namespace Internal
 } // namespace ModelEditor
-
-#endif // PXNODEUTILITIES_H

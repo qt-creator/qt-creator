@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QNXCONFIGURATIONMANAGER_H
-#define QNXCONFIGURATIONMANAGER_H
+#pragma once
 
 #include <utils/fileutils.h>
 
@@ -64,5 +63,3 @@ private:
 
 }
 }
-
-#endif // QNXCONFIGURATIONMANAGER_H

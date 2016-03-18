@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLPROJECTRUNCONFIGURATIONWIDGET_H
-#define QMLPROJECTRUNCONFIGURATIONWIDGET_H
+#pragma once
 
 #include <QWidget>
 
@@ -59,5 +58,3 @@ private:
 
 } // namespace Internal
 } // namespace QmlProjectManager
-
-#endif // QMLPROJECTRUNCONFIGURATIONWIDGET_H

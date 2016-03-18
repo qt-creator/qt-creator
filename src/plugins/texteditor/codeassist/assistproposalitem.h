@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef IASSISTPROPOSALITEM_H
-#define IASSISTPROPOSALITEM_H
+#pragma once
 
 #include <texteditor/texteditor_global.h>
 
@@ -74,5 +73,3 @@ private:
 };
 
 } // namespace TextEditor
-
-#endif // BASICPROPOSALITEM_H

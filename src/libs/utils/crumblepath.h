@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CRUMBLEPATH_H
-#define CRUMBLEPATH_H
+#pragma once
 
 #include "utils_global.h"
 
@@ -73,5 +72,3 @@ private:
 };
 
 } // namespace Utils
-
-#endif // CRUMBLEPATH_H

@@ -18,8 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#ifndef CPLUSPLUS_MEMORYPOOL_H
-#define CPLUSPLUS_MEMORYPOOL_H
+#pragma once
 
 #include "CPlusPlusForwardDeclarations.h"
 #include <new>
@@ -82,5 +81,3 @@ public:
 };
 
 } // namespace CPlusPlus
-
-#endif // CPLUSPLUS_MEMORYPOOL_H

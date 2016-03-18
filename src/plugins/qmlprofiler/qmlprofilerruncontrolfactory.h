@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLPROFILERRUNCONTROLFACTORY_H
-#define QMLPROFILERRUNCONTROLFACTORY_H
+#pragma once
 
 #include <projectexplorer/runconfiguration.h>
 
@@ -51,5 +50,3 @@ public:
 
 } // namespace Internal
 } // namespace QmlProfiler
-
-#endif // QMLPROFILERRUNCONTROLFACTORY_H

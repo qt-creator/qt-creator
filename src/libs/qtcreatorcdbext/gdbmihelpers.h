@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef GDBMIHELPERS_H
-#define GDBMIHELPERS_H
+#pragma once
 
 #include "common.h"
 #include <vector>
@@ -177,5 +176,3 @@ bool evaluateExpression(CIDebugControl *control, const std::string expression,
 
 bool evaluateInt64Expression(CIDebugControl *control, const std::string expression,
                              LONG64 *, std::string *errorMessage);
-
-#endif // GDBMIHELPERS_H

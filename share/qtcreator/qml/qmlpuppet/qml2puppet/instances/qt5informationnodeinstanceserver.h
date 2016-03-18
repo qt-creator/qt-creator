@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLDESIGNER_QT5INFORMATIONNODEINSTANCESERVER_H
-#define QMLDESIGNER_QT5INFORMATIONNODEINSTANCESERVER_H
+#pragma once
 
 #include "qt5nodeinstanceserver.h"
 #include "tokencommand.h"
@@ -58,5 +57,3 @@ private:
 };
 
 } // namespace QmlDesigner
-
-#endif // QMLDESIGNER_QT5INFORMATIONNODEINSTANCESERVER_H

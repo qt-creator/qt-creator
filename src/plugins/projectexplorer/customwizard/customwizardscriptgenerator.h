@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CUSTOMWIZARDSCRIPTGENERATOR_H
-#define CUSTOMWIZARDSCRIPTGENERATOR_H
+#pragma once
 
 #include <QMap>
 #include <QStringList>
@@ -56,5 +55,3 @@ bool runCustomWizardGeneratorScript(const QString &targetPath,
 
 } // namespace Internal
 } // namespace ProjectExplorer
-
-#endif // CUSTOMWIZARDSCRIPTGENERATOR_H

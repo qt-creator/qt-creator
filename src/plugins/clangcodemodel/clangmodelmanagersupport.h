@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CLANGCODEMODEL_INTERNAL_CLANGMODELMANAGERSUPPORT_H
-#define CLANGCODEMODEL_INTERNAL_CLANGMODELMANAGERSUPPORT_H
+#pragma once
 
 #include "clangcompletionassistprovider.h"
 
@@ -112,5 +111,3 @@ public:
 
 } // namespace Internal
 } // namespace ClangCodeModel
-
-#endif // CLANGCODEMODEL_INTERNAL_CLANGMODELMANAGERSUPPORT_H

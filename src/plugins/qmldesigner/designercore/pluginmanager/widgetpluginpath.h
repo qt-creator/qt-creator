@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef WIDGETPLUGINPATH_H
-#define WIDGETPLUGINPATH_H
+#pragma once
 
 #include <QObject>
 #include <QPointer>
@@ -94,4 +93,3 @@ private:
 
 } // namespace Internal
 } // namespace QmlDesigner
-#endif // WIDGETPLUGINPATH_H

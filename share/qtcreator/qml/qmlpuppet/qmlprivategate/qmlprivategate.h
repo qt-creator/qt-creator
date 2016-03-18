@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLPRIVATEGATE_H
-#define QMLPRIVATEGATE_H
+#pragma once
 
 #include "nodeinstanceglobal.h"
 
@@ -131,5 +130,3 @@ public:
 } // namespace QmlPrivateGate
 } // namespace Internal
 } // namespace QmlDesigner
-
-#endif // QMLPRIVATEGATE_H

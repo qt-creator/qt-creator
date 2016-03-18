@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CALLGRINDTOOL_H
-#define CALLGRINDTOOL_H
+#pragma once
 
 #include <QObject>
 
@@ -46,5 +45,3 @@ void destroyCallgrindTool();
 
 } // namespace Internal
 } // namespace Valgrind
-
-#endif // CALLGRINDTOOL_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef DEBUGGERINTERNALCONSTANTS_H
-#define DEBUGGERINTERNALCONSTANTS_H
+#pragma once
 
 #include <QtGlobal>
 
@@ -99,6 +98,3 @@ enum ModelRoles
 };
 
 } // namespace Debugger
-
-#endif // DEBUGGERINTERNALCONSTANTS_H
-

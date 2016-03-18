@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef IOSRUNFACTORIES_H
-#define IOSRUNFACTORIES_H
+#pragma once
 
 #include <projectexplorer/runconfiguration.h>
 #include <qmakeprojectmanager/qmakerunconfigurationfactory.h>
@@ -87,5 +86,3 @@ private:
 
 } // namespace Internal
 } // namespace Ios
-
-#endif  // IOSRUNFACTORIES_H

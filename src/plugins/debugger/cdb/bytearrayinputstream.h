@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef BYTEARRAYINPUTSTREAM_H
-#define BYTEARRAYINPUTSTREAM_H
+#pragma once
 
 #include <QString>
 
@@ -100,5 +99,3 @@ QByteArray simplify(const QByteArray &inIn);
 
 } // namespace Internal
 } // namespace Debugger
-
-#endif // BYTEARRAYINPUTSTREAM_H

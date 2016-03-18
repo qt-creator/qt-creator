@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef ALGORITHM_H
-#define ALGORITHM_H
+#pragma once
 
 #include <qcompilerdetection.h> // for Q_REQUIRED_RESULT
 
@@ -430,5 +429,3 @@ inline void sort(Container &c, Predicate p)
 }
 
 }
-
-#endif // ALGORITHM_H

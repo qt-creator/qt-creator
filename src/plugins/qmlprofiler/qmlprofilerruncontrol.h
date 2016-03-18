@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLPROFILERRUNCONTROL_H
-#define QMLPROFILERRUNCONTROL_H
+#pragma once
 
 #include "qmlprofilerstatemanager.h"
 
@@ -68,5 +67,3 @@ private:
 };
 
 } // namespace QmlProfiler
-
-#endif // QMLPROFILERRUNCONTROL_H

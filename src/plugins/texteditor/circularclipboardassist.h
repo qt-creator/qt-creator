@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CIRCULARCLIPBOARDASSIST_H
-#define CIRCULARCLIPBOARDASSIST_H
+#pragma once
 
 #include "codeassist/iassistprovider.h"
 
@@ -42,5 +41,3 @@ public:
 
 } // namespace Internal
 } // namespace TextEditor
-
-#endif // CIRCULARCLIPBOARDASSIST_H

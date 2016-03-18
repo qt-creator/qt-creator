@@ -18,8 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#ifndef CPLUSPLUS_TOKEN_H
-#define CPLUSPLUS_TOKEN_H
+#pragma once
 
 #include "CPlusPlusForwardDeclarations.h"
 
@@ -422,5 +421,3 @@ struct LanguageFeatures
 };
 
 } // namespace CPlusPlus
-
-#endif // CPLUSPLUS_TOKEN_H

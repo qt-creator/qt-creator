@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QARK_FLAG_H
-#define QARK_FLAG_H
+#pragma once
 
 namespace qark {
 
@@ -43,5 +42,3 @@ private:
 };
 
 } // namespace qark
-
-#endif // QARK_FLAG_H

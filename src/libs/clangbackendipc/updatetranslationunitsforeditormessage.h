@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CLANGBACKEND_UPDATEFILEFOREDITOR_H
-#define CLANGBACKEND_UPDATEFILEFOREDITOR_H
+#pragma once
 
 #include "filecontainer.h"
 
@@ -57,5 +56,3 @@ void PrintTo(const UpdateTranslationUnitsForEditorMessage &message, ::std::ostre
 
 DECLARE_MESSAGE(UpdateTranslationUnitsForEditorMessage)
 } // namespace ClangBackEnd
-
-#endif // CLANGBACKEND_UPDATEFILEFOREDITOR_H

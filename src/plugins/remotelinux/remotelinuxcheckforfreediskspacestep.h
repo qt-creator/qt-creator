@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef REMOTELINUXCHECKFORFREEDISKSPACESTEP_H
-#define REMOTELINUXCHECKFORFREEDISKSPACESTEP_H
+#pragma once
 
 #include "abstractremotelinuxdeploystep.h"
 
@@ -65,5 +64,3 @@ private:
 };
 
 } // namespace RemoteLinux
-
-#endif // REMOTELINUXCHECKFORFREEDISKSPACESTEP_H

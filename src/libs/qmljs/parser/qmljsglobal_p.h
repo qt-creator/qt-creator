@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLJSGLOBAL_P_H
-#define QMLJSGLOBAL_P_H
+#pragma once
 
 #include <QtCore/qglobal.h>
 
@@ -52,5 +51,3 @@
 #    define QML_PARSER_EXPORT
 #  endif
 #endif // QT_CREATOR
-
-#endif // QMLJSGLOBAL_P_H

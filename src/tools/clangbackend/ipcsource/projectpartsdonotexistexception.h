@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CLANGBACKEND_PROJECTDONOTEXISTSEXCEPTION_H
-#define CLANGBACKEND_PROJECTDONOTEXISTSEXCEPTION_H
+#pragma once
 
 #include <utf8stringvector.h>
 
@@ -53,5 +52,3 @@ private:
 };
 
 } // namespace ClangBackEnd
-
-#endif // CLANGBACKEND_PROJECTDONOTEXISTSEXCEPTION_H

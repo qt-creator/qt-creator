@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QTSUPPORT_QTKITCONFIGWIDGET_H
-#define QTSUPPORT_QTKITCONFIGWIDGET_H
+#pragma once
 
 #include <projectexplorer/kitconfigwidget.h>
 
@@ -67,5 +66,3 @@ private:
 
 } // namespace Internal
 } // namespace Debugger
-
-#endif // QTSUPPORT_QTYSTEMCONFIGWIDGET_H

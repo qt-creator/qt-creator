@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef EDITORDOCUMENTHANDLE_H
-#define EDITORDOCUMENTHANDLE_H
+#pragma once
 
 #include "cpptools_global.h"
 #include "senddocumenttracker.h"
@@ -61,5 +60,3 @@ private:
 };
 
 } // namespace CppTools
-
-#endif // EDITORDOCUMENTHANDLE_H

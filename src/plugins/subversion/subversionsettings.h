@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SUBVERSIONSETTINGS_H
-#define SUBVERSIONSETTINGS_H
+#pragma once
 
 #include <vcsbase/vcsbaseclientsettings.h>
 
@@ -50,5 +49,3 @@ protected:
 
 } // namespace Internal
 } // namespace Subversion
-
-#endif // SUBVERSIONSETTINGS_H

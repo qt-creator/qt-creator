@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QARK_SAVINGREFMAP_H
-#define QARK_SAVINGREFMAP_H
+#pragma once
 
 #include "objectid.h"
 
@@ -73,5 +72,3 @@ private:
 
 } // namespace impl
 } // namespace qark
-
-#endif // QARK_SAVINGREFMAP_H

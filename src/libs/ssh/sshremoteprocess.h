@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SSHREMOTEPROCESS_H
-#define SSHREMOTEPROCESS_H
+#pragma once
 
 #include "ssh_global.h"
 
@@ -120,5 +119,3 @@ private:
 };
 
 } // namespace QSsh
-
-#endif // SSHREMOTEPROCESS_H

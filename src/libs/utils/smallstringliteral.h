@@ -134,4 +134,3 @@ private:
 
 #pragma pop_macro("noexcept")
 #pragma pop_macro("constexpr")
-

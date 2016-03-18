@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SSHKEYDEPLOYER_H
-#define SSHKEYDEPLOYER_H
+#pragma once
 
 #include "remotelinux_export.h"
 
@@ -62,5 +61,3 @@ private:
 };
 
 } // namespace RemoteLinux
-
-#endif // SSHKEYDEPLOYER_H

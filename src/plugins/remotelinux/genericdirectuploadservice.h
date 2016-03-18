@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef GERNERICDIRECTDEVICEUPLOADSERVICE_H
-#define GERNERICDIRECTDEVICEUPLOADSERVICE_H
+#pragma once
 
 #include "abstractremotelinuxdeployservice.h"
 #include "remotelinux_export.h"
@@ -79,5 +78,3 @@ private:
 };
 
 } //namespace RemoteLinux
-
-#endif // GERNERICDIRECTDEVICEUPLOADSERVICE_H

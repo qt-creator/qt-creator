@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef UPLOADANDINSTALLTARPACKAGESTEP_H
-#define UPLOADANDINSTALLTARPACKAGESTEP_H
+#pragma once
 
 #include "abstractuploadandinstallpackageservice.h"
 #include "abstractremotelinuxdeploystep.h"
@@ -74,5 +73,3 @@ private:
 };
 
 } //namespace RemoteLinux
-
-#endif // UPLOADANDINSTALLTARPACKAGESTEP_H

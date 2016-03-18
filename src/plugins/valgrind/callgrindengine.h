@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CALLGRINDENGINE_H
-#define CALLGRINDENGINE_H
+#pragma once
 
 #include <valgrind/valgrindengine.h>
 
@@ -79,5 +78,3 @@ private:
 
 } // namespace Internal
 } // namespace Valgrind
-
-#endif // CALLGRINDENGINE_H

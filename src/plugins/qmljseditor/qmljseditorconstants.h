@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLJSEDITOR_CONSTANTS_H
-#define QMLJSEDITOR_CONSTANTS_H
+#pragma once
 
 #include <QtGlobal>
 
@@ -60,5 +59,3 @@ const char QML_UI_FILE_WARNING[] = "QmlJSEditor.QmlUiFileWarning";
 
 } // namespace Constants
 } // namespace QmlJSEditor
-
-#endif // QMLJSEDITOR_CONSTANTS_H

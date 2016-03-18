@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef HELPWIDGET_H
-#define HELPWIDGET_H
+#pragma once
 
 #include <coreplugin/icontext.h>
 
@@ -147,5 +146,3 @@ private:
 
 } // Internal
 } // Help
-
-#endif // HELPWIDGET_H

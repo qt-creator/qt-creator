@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SETTINGSUTILS_H
-#define SETTINGSUTILS_H
+#pragma once
 
 #include <QSettings>
 #include <QString>
@@ -70,5 +69,3 @@ void toSettings(const QString &postFix,
 }
 
 } // Utils
-
-#endif // SETTINGSUTILS_H

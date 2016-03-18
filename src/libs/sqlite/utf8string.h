@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef UTF8STRING_H
-#define UTF8STRING_H
+#pragma once
 
 #include "sqliteglobal.h"
 
@@ -127,5 +126,3 @@ SQLITE_EXPORT uint qHash(const Utf8String &utf8String);
 #define Utf8StringLiteral(str) Utf8String::fromByteArray(QByteArrayLiteral(str))
 
 Q_DECLARE_METATYPE(Utf8String)
-
-#endif // UTF8STRING_H

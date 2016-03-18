@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLDESIGNER_DEBUGOUTPUTCOMMAND_H
-#define QMLDESIGNER_DEBUGOUTPUTCOMMAND_H
+#pragma once
 
 #include <QMetaType>
 #include <QString>
@@ -68,5 +67,3 @@ QDebug operator <<(QDebug debug, const DebugOutputCommand &command);
 } // namespace QmlDesigner
 
 Q_DECLARE_METATYPE(QmlDesigner::DebugOutputCommand)
-
-#endif // QMLDESIGNER_DEBUGOUTPUTCOMMAND_H

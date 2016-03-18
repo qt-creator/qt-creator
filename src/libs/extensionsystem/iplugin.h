@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef IPLUGIN_H
-#define IPLUGIN_H
+#pragma once
 
 #include "extensionsystem_global.h"
 
@@ -79,5 +78,3 @@ private:
 };
 
 } // namespace ExtensionSystem
-
-#endif // IPLUGIN_H

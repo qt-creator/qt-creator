@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef FANCYLINEEDIT_H
-#define FANCYLINEEDIT_H
+#pragma once
 
 #include "utils_global.h"
 #include "completinglineedit.h"
@@ -182,5 +181,3 @@ private:
 };
 
 } // namespace Utils
-
-#endif // FANCYLINEEDIT_H

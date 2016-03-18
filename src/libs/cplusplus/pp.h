@@ -43,13 +43,10 @@
   CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef CPLUSPLUS_PREPROCESSOR_H
-#define CPLUSPLUS_PREPROCESSOR_H
+#pragma once
 
 #include "Macro.h"
 #include "PreprocessorClient.h"
 #include "PreprocessorEnvironment.h"
 #include "pp-scanner.h"
 #include "pp-engine.h"
-
-#endif // CPLUSPLUS_PREPROCESSOR_H

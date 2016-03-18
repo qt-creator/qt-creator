@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef DEBUGGERRUNCONTROL_H
-#define DEBUGGERRUNCONTROL_H
+#pragma once
 
 #include "debugger_global.h"
 #include "debuggerconstants.h"
@@ -92,5 +91,3 @@ private:
 };
 
 } // namespace Debugger
-
-#endif // DEBUGGERRUNCONTROL_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLDESIGNER_RESOURCEITEMDELEGATE_H
-#define QMLDESIGNER_RESOURCEITEMDELEGATE_H
+#pragma once
 
 #include <QStyledItemDelegate>
 #include <QFileSystemModel>
@@ -50,5 +49,3 @@ private:
 };
 
 } // namespace QmlDesigner
-
-#endif // QMLDESIGNER_RESOURCEITEMDELEGATE_H

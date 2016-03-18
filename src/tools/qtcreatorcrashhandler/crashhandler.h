@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CRASHHANDLER_H
-#define CRASHHANDLER_H
+#pragma once
 
 #include <QObject>
 
@@ -61,5 +60,3 @@ private:
 
     CrashHandlerPrivate *d;
 };
-
-#endif // CRASHHANDLER_H

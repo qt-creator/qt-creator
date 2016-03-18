@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef LIBVALGRIND_CALLGRINDFUNCTION_P_H
-#define LIBVALGRIND_CALLGRINDFUNCTION_P_H
+#pragma once
 
 #include "callgrindfunction.h"
 #include "callgrindparsedata.h"
@@ -71,5 +70,3 @@ public:
 
 } // namespace Callgrind
 } // namespace Valgrind
-
-#endif // LIBVALGRIND_CALLGRINDFUNCTION_P_H

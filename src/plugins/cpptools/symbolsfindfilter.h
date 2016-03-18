@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SYMBOLSFINDFILTER_H
-#define SYMBOLSFINDFILTER_H
+#pragma once
 
 #include "searchsymbols.h"
 
@@ -123,5 +122,3 @@ private:
 
 } // Internal
 } // CppTools
-
-#endif // SYMBOLSFINDFILTER_H

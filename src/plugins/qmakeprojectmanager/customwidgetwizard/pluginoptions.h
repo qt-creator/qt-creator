@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PLUGINOPTIONS_H
-#define PLUGINOPTIONS_H
+#pragma once
 
 #include <QString>
 #include <QList>
@@ -66,5 +65,3 @@ struct PluginOptions {
 
 }
 }
-
-#endif

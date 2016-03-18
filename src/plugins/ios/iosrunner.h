@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef IOSRUNNER_H
-#define IOSRUNNER_H
+#pragma once
 
 #include "iosconfigurations.h"
 #include "iostoolhandler.h"
@@ -100,5 +99,3 @@ private:
 
 } // namespace Internal
 } // namespace Ios
-
-#endif // IOSRUNNER_H

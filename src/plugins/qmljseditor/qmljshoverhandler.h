@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLJSHOVERHANDLER_H
-#define QMLJSHOVERHANDLER_H
+#pragma once
 
 #include <qmljs/qmljsmodelmanagerinterface.h>
 #include <texteditor/basehoverhandler.h>
@@ -86,5 +85,3 @@ private:
 
 } // namespace Internal
 } // namespace QmlJSEditor
-
-#endif // QMLJSHOVERHANDLER_H

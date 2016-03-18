@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CPPTOOLS_SENDDOCUMENTTRACKER_H
-#define CPPTOOLS_SENDDOCUMENTTRACKER_H
+#pragma once
 
 #include "cpptools_global.h"
 
@@ -57,5 +56,3 @@ private:
 };
 
 } // namespace CppTools
-
-#endif // CPPTOOLS_SENDDOCUMENTTRACKER_H

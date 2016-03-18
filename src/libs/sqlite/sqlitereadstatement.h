@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SQLITEREADSTATEMENT_H
-#define SQLITEREADSTATEMENT_H
+#pragma once
 
 #include "sqlitestatement.h"
 
@@ -50,5 +49,3 @@ public:
 protected:
     void checkIsReadOnlyStatement();
 };
-
-#endif // SQLITEREADSTATEMENT_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SYMBOLFINDER_H
-#define SYMBOLFINDER_H
+#pragma once
 
 #include "cpptools_global.h"
 
@@ -84,6 +83,3 @@ private:
 };
 
 } // namespace CppTools
-
-#endif // SYMBOLFINDER_H
-

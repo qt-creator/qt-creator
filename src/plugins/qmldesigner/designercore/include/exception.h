@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef EXCEPTION_H
-#define EXCEPTION_H
+#pragma once
 
 #include <qmldesignercorelib_global.h>
 
@@ -67,6 +66,3 @@ private:
 QMLDESIGNERCORE_EXPORT QDebug operator<<(QDebug debug, const Exception &exception);
 
 }
-
-
-#endif // EXCEPTION_H

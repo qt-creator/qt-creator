@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CIRCULARCLIPBOARD_H
-#define CIRCULARCLIPBOARD_H
+#pragma once
 
 #include <QList>
 #include <QMimeData>
@@ -55,5 +54,3 @@ private:
 
 } // namespace Internal
 } // namespace TextEditor
-
-#endif // CIRCULARCLIPBOARD_H

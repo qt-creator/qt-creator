@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef REMOVEPROPERTIESCOMMAND_H
-#define REMOVEPROPERTIESCOMMAND_H
+#pragma once
 
 #include <QMetaType>
 #include <QVector>
@@ -56,5 +55,3 @@ QDebug operator <<(QDebug debug, const RemovePropertiesCommand &command);
 }
 
 Q_DECLARE_METATYPE(QmlDesigner::RemovePropertiesCommand)
-
-#endif // REMOVEPROPERTIESCOMMAND_H

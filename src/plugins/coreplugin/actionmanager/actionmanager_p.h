@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef ACTIONMANAGERPRIVATE_H
-#define ACTIONMANAGERPRIVATE_H
+#pragma once
 
 #include <coreplugin/actionmanager/command_p.h>
 #include <coreplugin/actionmanager/actioncontainer_p.h>
@@ -84,5 +83,3 @@ public:
 
 } // namespace Internal
 } // namespace Core
-
-#endif // ACTIONMANAGERPRIVATE_H

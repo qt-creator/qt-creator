@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef LOCALHELPMANAGER_H
-#define LOCALHELPMANAGER_H
+#pragma once
 
 #include <coreplugin/helpmanager.h>
 
@@ -129,5 +128,3 @@ private:
 }   // Help
 
 Q_DECLARE_METATYPE(Help::Internal::LocalHelpManager::HelpData)
-
-#endif  // LOCALHELPMANAGER_H

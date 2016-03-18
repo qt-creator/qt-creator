@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PROFILEREADER_H
-#define PROFILEREADER_H
+#pragma once
 
 #include "qtsupport_global.h"
 
@@ -113,5 +112,3 @@ private:
 };
 
 } // namespace QtSupport
-
-#endif // PROFILEREADER_H

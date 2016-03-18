@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef COREJSEXTENSIONS_H
-#define COREJSEXTENSIONS_H
+#pragma once
 
 #include <utils/stringutils.h>
 
@@ -73,5 +72,3 @@ public:
 
 } // namespace Internal
 } // namespace Core
-
-#endif // COREJSEXTENSIONS_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CPPWORKINGCOPY_H
-#define CPPWORKINGCOPY_H
+#pragma once
 
 #include "cpptools_global.h"
 
@@ -83,5 +82,3 @@ private:
 };
 
 } // namespace CppTools
-
-#endif // CPPWORKINGCOPY_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef MODIFICATIONGROUPTOKEN_H
-#define MODIFICATIONGROUPTOKEN_H
+#pragma once
 
 #include <corelib_global.h>
 
@@ -67,5 +66,3 @@ private:
 };
 
 }
-
-#endif // MODIFICATIONGROUPTOKEN_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CPPLOCALSYMBOLS_H
-#define CPPLOCALSYMBOLS_H
+#pragma once
 
 #include "cpptools_global.h"
 #include "cppsemanticinfo.h"
@@ -42,5 +41,3 @@ public:
 };
 
 } // namespace CppTools
-
-#endif // CPPLOCALSYMBOLS_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SETTINGSPAGE_H
-#define SETTINGSPAGE_H
+#pragma once
 
 #include "ui_settingspage.h"
 
@@ -66,5 +65,3 @@ public:
 
 } // namespace Subversion
 } // namespace Internal
-
-#endif  // SETTINGSPAGE_H

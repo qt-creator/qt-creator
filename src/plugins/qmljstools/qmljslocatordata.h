@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLJSLOCATORDATA_H
-#define QMLJSLOCATORDATA_H
+#pragma once
 
 #include <qmljs/qmljsdocument.h>
 
@@ -72,5 +71,3 @@ private:
 
 } // namespace Internal
 } // namespace QmlJSTools
-
-#endif // QMLJSLOCATORDATA_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLJSCOMPONENTNAMEDIALOG_H
-#define QMLJSCOMPONENTNAMEDIALOG_H
+#pragma once
 
 #include <QDialog>
 
@@ -56,5 +55,3 @@ private:
 
 } // namespace Internal
 } // namespace QmlJSEditor
-
-#endif // QMLJSCOMPONENTNAMEDIALOG_H

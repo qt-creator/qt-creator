@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef UNIXUTILS_H
-#define UNIXUTILS_H
+#pragma once
 
 #include "utils_global.h"
 
@@ -46,5 +45,3 @@ public:
 };
 
 }
-
-#endif // UNIXUTILS_H

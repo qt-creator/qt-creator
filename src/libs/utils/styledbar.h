@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef STYLEDBAR_H
-#define STYLEDBAR_H
+#pragma once
 
 #include "utils_global.h"
 
@@ -57,5 +56,3 @@ protected:
 };
 
 } // Utils
-
-#endif // STYLEDBAR_H

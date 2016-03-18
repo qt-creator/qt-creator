@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CLANGBACKEND_TRANSLATIONUNITISNULLEXCEPTION_H
-#define CLANGBACKEND_TRANSLATIONUNITISNULLEXCEPTION_H
+#pragma once
 
 #include <QtGlobal>
 
@@ -45,5 +44,3 @@ public:
 };
 
 } // namespace ClangBackEnd
-
-#endif // CLANGBACKEND_TRANSLATIONUNITISNULLEXCEPTION_H

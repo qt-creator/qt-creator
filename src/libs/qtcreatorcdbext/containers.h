@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CONTAINERS_H
-#define CONTAINERS_H
+#pragma once
 
 struct SymbolGroupValueContext;
 class AbstractSymbolGroupNode;
@@ -45,5 +44,3 @@ std::vector<AbstractSymbolGroupNode *> containerChildren(SymbolGroupNode *node,
                                                          int type,
                                                          unsigned size,
                                                          const SymbolGroupValueContext &ctx);
-
-#endif // CONTAINERS_H

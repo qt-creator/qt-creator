@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLMODELNODEFACADE_H
-#define QMLMODELNODEFACADE_H
+#pragma once
 
 #include <qmldesignercorelib_global.h>
 #include <modelnode.h>
@@ -59,5 +58,3 @@ private:
 };
 
 } //QmlDesigner
-
-#endif // QMLMODELNODEFACADE_H

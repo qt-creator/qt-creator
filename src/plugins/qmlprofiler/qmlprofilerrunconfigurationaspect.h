@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLPROFILERRUNCONFIGURATIONASPECT_H
-#define QMLPROFILERRUNCONFIGURATIONASPECT_H
+#pragma once
 
 #include <projectexplorer/runconfiguration.h>
 
@@ -44,5 +43,3 @@ public:
 
 } // Internal
 } // QmlProfiler
-
-#endif // QMLPROFILERRUNCONFIGURATIONASPECT_H

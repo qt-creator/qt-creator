@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_CUSTOMICONITEM_H
-#define QMT_CUSTOMICONITEM_H
+#pragma once
 
 #include <QGraphicsItem>
 
@@ -67,5 +66,3 @@ private:
 };
 
 } // namespace qmt
-
-#endif // QMT_CUSTOMICONITEM_H

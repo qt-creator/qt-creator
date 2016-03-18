@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CPPTOOLS_INTERNAL_MODELMANAGERTESTHELPER_H
-#define CPPTOOLS_INTERNAL_MODELMANAGERTESTHELPER_H
+#pragma once
 
 #include "cpptools_global.h"
 #include "cppmodelmanager.h"
@@ -90,5 +89,3 @@ private:
 
 } // namespace Tests
 } // namespace CppTools
-
-#endif // CPPTOOLS_INTERNAL_MODELMANAGERTESTHELPER_H

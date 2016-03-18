@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef TESTCODEPARSER_H
-#define TESTCODEPARSER_H
+#pragma once
 
 #include "testtreeitem.h"
 #include "testtreemodel.h"
@@ -107,5 +106,3 @@ private:
 
 } // namespace Internal
 } // Autotest
-
-#endif // TESTCODEPARSER_H

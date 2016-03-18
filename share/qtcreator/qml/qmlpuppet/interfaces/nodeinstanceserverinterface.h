@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef NODEINSTANCESERVERINTERFACE_H
-#define NODEINSTANCESERVERINTERFACE_H
+#pragma once
 
 #include <QObject>
 
@@ -83,4 +82,3 @@ public:
 };
 
 }
-#endif // NODEINSTANCESERVERINTERFACE_H

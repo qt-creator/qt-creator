@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef BUILTINEDITORDOCUMENTPARSER_H
-#define BUILTINEDITORDOCUMENTPARSER_H
+#pragma once
 
 #include "baseeditordocumentparser.h"
 #include "cpptools_global.h"
@@ -82,5 +81,3 @@ private:
 };
 
 } // namespace CppTools
-
-#endif // BUILTINEDITORDOCUMENTPARSER_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SETTINGSMANAGER_H
-#define SETTINGSMANAGER_H
+#pragma once
 
 #include <QDesignerSettingsInterface>
 
@@ -51,5 +50,3 @@ private:
 
 } // namespace Internal
 } // namespace Designer
-
-#endif // SETTINGSMANAGER_H

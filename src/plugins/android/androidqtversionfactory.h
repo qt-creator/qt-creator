@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef ANDROIDQTVERSIONFACTORY_H
-#define ANDROIDQTVERSIONFACTORY_H
+#pragma once
 
 #include <qtsupport/qtversionfactory.h>
 
@@ -46,5 +45,3 @@ public:
 
 } // namespace Internal
 } // namespace Android
-
-#endif // ANDROIDQTVERSIONFACTORY_H

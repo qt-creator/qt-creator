@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef AGGREGATION_GLOBAL_H
-#define AGGREGATION_GLOBAL_H
+#pragma once
 
 #include <qglobal.h>
 
@@ -33,5 +32,3 @@
 #else
 #  define AGGREGATION_EXPORT Q_DECL_IMPORT
 #endif
-
-#endif // AGGREGATION_GLOBAL_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef BEAUTIFIER_ARTISTICSTYLESETTINGS_H
-#define BEAUTIFIER_ARTISTICSTYLESETTINGS_H
+#pragma once
 
 #include "../abstractsettings.h"
 
@@ -75,5 +74,3 @@ private:
 } // namespace ArtisticStyle
 } // namespace Internal
 } // namespace Beautifier
-
-#endif // BEAUTIFIER_ARTISTICSTYLESETTINGS_H

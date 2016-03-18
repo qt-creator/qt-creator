@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef COLUMNDEFINITION_H
-#define COLUMNDEFINITION_H
+#pragma once
 
 #include "sqliteglobal.h"
 #include "utf8string.h"
@@ -51,5 +50,3 @@ private:
 };
 
 }
-
-#endif // COLUMNDEFINITION_H

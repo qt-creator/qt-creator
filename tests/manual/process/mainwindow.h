@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
+#pragma once
 
 #include <QMainWindow>
 
@@ -47,5 +46,3 @@ public slots:
 private:
     QPlainTextEdit *m_logWindow;
 };
-
-#endif // MAINWINDOW_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SFTPCHANNEL_H
-#define SFTPCHANNEL_H
+#pragma once
 
 #include "sftpdefs.h"
 #include "sftpincomingpacket_p.h"
@@ -102,5 +101,3 @@ private:
 };
 
 } // namespace QSsh
-
-#endif // SFTPCHANNEL_H

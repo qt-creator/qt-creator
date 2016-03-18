@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CPPEDITOROUTLINE_H
-#define CPPEDITOROUTLINE_H
+#pragma once
 
 #include "cpptools_global.h"
 
@@ -90,5 +89,3 @@ private:
 };
 
 } // namespace CppTools
-
-#endif // CPPEDITOROUTLINE_H

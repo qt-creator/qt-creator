@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SQLITEEXCEPTION_H
-#define SQLITEEXCEPTION_H
+#pragma once
 
 #include "sqliteglobal.h"
 
@@ -41,5 +40,3 @@ private:
     const char *whatErrorHasHappen;
     QByteArray sqliteErrorMessage_;
 };
-
-#endif // SQLITEEXCEPTION_H

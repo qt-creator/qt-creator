@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QNXTOOLCHAIN_H
-#define QNXTOOLCHAIN_H
+#pragma once
 
 #include <projectexplorer/gcctoolchain.h>
 #include <projectexplorer/gcctoolchainfactories.h>
@@ -102,5 +101,3 @@ private:
 
 } // namespace Internal
 } // namespace Qnx
-
-#endif // QNXTOOLCHAIN_H

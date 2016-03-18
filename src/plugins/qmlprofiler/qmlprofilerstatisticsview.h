@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLPROFILERSTATISTICSVIEW_H
-#define QMLPROFILERSTATISTICSVIEW_H
+#pragma once
 
 #include "qmlprofilermodelmanager.h"
 #include "qmlprofilerstatisticsmodel.h"
@@ -177,5 +176,3 @@ private:
 
 } // namespace Internal
 } // namespace QmlProfiler
-
-#endif // QMLPROFILERSTATISTICSVIEW_H

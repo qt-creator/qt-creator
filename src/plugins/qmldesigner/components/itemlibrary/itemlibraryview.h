@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef ITEMLIBRARYVIEW_H
-#define ITEMLIBRARYVIEW_H
+#pragma once
 
 #include <abstractview.h>
 
@@ -63,4 +62,3 @@ private:
 };
 
 }
-#endif // ITEMLIBRARYVIEW_H

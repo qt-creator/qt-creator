@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef FINDPLUGIN_H
-#define FINDPLUGIN_H
+#pragma once
 
 #include "textfindconstants.h"
 
@@ -78,5 +77,3 @@ private:
 };
 
 } // namespace Core
-
-#endif // FINDPLUGIN_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef IFUNCTIONHINTPROPOSALMODEL_H
-#define IFUNCTIONHINTPROPOSALMODEL_H
+#pragma once
 
 #include "iassistproposalmodel.h"
 
@@ -42,5 +41,3 @@ public:
 };
 
 } // TextEditor
-
-#endif // IFUNCTIONHINTPROPOSALMODEL_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef DEBUGGER_BREAKPOINT_H
-#define DEBUGGER_BREAKPOINT_H
+#pragma once
 
 #include <QMetaType>
 #include <QString>
@@ -232,6 +231,3 @@ inline uint qHash(const Debugger::Internal::BreakpointModelId &id)
 
 Q_DECLARE_METATYPE(Debugger::Internal::BreakpointModelId)
 Q_DECLARE_METATYPE(Debugger::Internal::BreakpointResponseId)
-
-
-#endif // DEBUGGER_BREAKPOINT_H

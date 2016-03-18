@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CUSTOMEXECUTABLERUNCONFIGURATION_H
-#define CUSTOMEXECUTABLERUNCONFIGURATION_H
+#pragma once
 
 #include "qtsupport_global.h"
 
@@ -123,5 +122,3 @@ private:
 };
 
 } // namespace QtSupport
-
-#endif // CUSTOMEXECUTABLERUNCONFIGURATION_H

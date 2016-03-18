@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CPPFUNCTIONDECLDEFLINK_H
-#define CPPFUNCTIONDECLDEFLINK_H
+#pragma once
 
 #include "cppquickfix.h"
 
@@ -118,5 +117,3 @@ private:
 } // namespace CppEditor
 
 Q_DECLARE_METATYPE(CppEditor::Internal::FunctionDeclDefLink::Marker)
-
-#endif // CPPFUNCTIONDECLDEFLINK_H

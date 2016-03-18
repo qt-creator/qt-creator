@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLDESIGNER_CUBICSEGMENT_H
-#define QMLDESIGNER_CUBICSEGMENT_H
+#pragma once
 
 #include "controlpoint.h"
 
@@ -126,5 +125,3 @@ bool operator ==(const CubicSegment& firstCubicSegment, const CubicSegment& seco
 QDebug operator<<(QDebug debug, const CubicSegment &cubicSegment);
 
 } // namespace QmlDesigner
-
-#endif // QMLDESIGNER_CUBICSEGMENT_H

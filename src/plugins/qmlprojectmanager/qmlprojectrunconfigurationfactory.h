@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLPROJECTRUNCONFIGURATIONFACTORY_H
-#define QMLPROJECTRUNCONFIGURATIONFACTORY_H
+#pragma once
 
 #include <projectexplorer/runconfiguration.h>
 
@@ -56,6 +55,3 @@ private:
 
 } // namespace Internal
 } // namespace QmlProjectManager
-
-
-#endif // QMLPROJECTRUNCONFIGURATIONFACTORY_H

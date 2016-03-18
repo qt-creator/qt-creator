@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CPPVIRTUALFUNCTIONPROPOSALITEM_H
-#define CPPVIRTUALFUNCTIONPROPOSALITEM_H
+#pragma once
 
 #include <texteditor/texteditor.h>
 #include <texteditor/codeassist/assistproposalitem.h>
@@ -49,5 +48,3 @@ private:
 
 } // namespace Internal
 } // namespace CppEditor
-
-#endif // CPPVIRTUALFUNCTIONPROPOSALITEM_H

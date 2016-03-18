@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef IOSDEPLOYSTEPFACTORY_H
-#define IOSDEPLOYSTEPFACTORY_H
+#pragma once
 
 #include <projectexplorer/buildstep.h>
 
@@ -55,5 +54,3 @@ public:
 
 } // namespace Internal
 } // namespace Ios
-
-#endif // IOSDEPLOYSTEPFACTORY_H

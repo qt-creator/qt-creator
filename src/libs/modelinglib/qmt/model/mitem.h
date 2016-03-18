@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_MITEM_H
-#define QMT_MITEM_H
+#pragma once
 
 #include "mobject.h"
 
@@ -53,5 +52,3 @@ private:
 };
 
 } // namespace qmt
-
-#endif // QMT_MITEM_H

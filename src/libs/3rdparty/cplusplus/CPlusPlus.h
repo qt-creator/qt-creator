@@ -18,8 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#ifndef CPLUSPLUS_CPLUSPLUS_H
-#define CPLUSPLUS_CPLUSPLUS_H
+#pragma once
 
 #include "AST.h"
 #include "ASTMatcher.h"
@@ -52,5 +51,3 @@
 #include "Matcher.h"
 #include "TypeVisitor.h"
 #include "Templates.h"
-
-#endif // CPLUSPLUS_CPLUSPLUS_H

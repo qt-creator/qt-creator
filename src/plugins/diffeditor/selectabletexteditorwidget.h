@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SELECTABLETEXTEDITORWIDGET_H
-#define SELECTABLETEXTEDITORWIDGET_H
+#pragma once
 
 #include <texteditor/texteditor.h>
 
@@ -66,5 +65,3 @@ private:
 
 } // namespace Internal
 } // namespace DiffEditor
-
-#endif // SELECTABLETEXTEDITORWIDGET_H

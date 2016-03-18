@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLJSPROPERTYREADER_H
-#define QMLJSPROPERTYREADER_H
+#pragma once
 
 #include <qmljs/qmljsdocument.h>
 
@@ -71,5 +70,3 @@ private:
 };
 
 } //QmlJS
-
-#endif // QMLJSPROPERTYREADER_H

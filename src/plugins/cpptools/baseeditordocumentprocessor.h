@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef BASEEDITORDOCUMENTPROCESSOR_H
-#define BASEEDITORDOCUMENTPROCESSOR_H
+#pragma once
 
 #include "baseeditordocumentparser.h"
 #include "cppsemanticinfo.h"
@@ -99,6 +98,3 @@ private:
 };
 
 } // namespace CppTools
-
-#endif // BASEEDITORDOCUMENTPROCESSOR_H
-

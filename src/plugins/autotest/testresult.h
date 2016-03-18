@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef TESTRESULT_H
-#define TESTRESULT_H
+#pragma once
 
 #include "autotestconstants.h"
 
@@ -132,5 +131,3 @@ bool operator==(const TestResult &t1, const TestResult &t2);
 
 Q_DECLARE_METATYPE(Autotest::Internal::TestResult)
 Q_DECLARE_METATYPE(Autotest::Internal::Result::Type)
-
-#endif // TESTRESULT_H

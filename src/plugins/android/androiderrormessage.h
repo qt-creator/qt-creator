@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef ANDROIDERRORMESSAGE_H
-#define ANDROIDERRORMESSAGE_H
+#pragma once
 
 #include <QVariantList>
 #include <QCoreApplication>
@@ -53,5 +52,3 @@ public:
 
 } // namespace Internal
 } // namespace Android
-
-#endif // ANDROIDERRORMESSAGE_H

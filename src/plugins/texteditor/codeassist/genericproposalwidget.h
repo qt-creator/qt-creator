@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef GENERICPROPOSALWIDGET_H
-#define GENERICPROPOSALWIDGET_H
+#pragma once
 
 #include "iassistproposalwidget.h"
 
@@ -75,5 +74,3 @@ private:
 };
 
 } // TextEditor
-
-#endif // GENERICPROPOSALWIDGET_H

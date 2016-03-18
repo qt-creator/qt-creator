@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef NAVIGATORWIDGET_H
-#define NAVIGATORWIDGET_H
+#pragma once
 
 #include <QFrame>
 #include <QPointer>
@@ -64,5 +63,3 @@ private: // variables
 };
 
 }
-
-#endif // NAVIGATORWIDGET_H

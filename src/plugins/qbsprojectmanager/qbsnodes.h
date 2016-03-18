@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QBSNODES_H
-#define QBSNODES_H
+#pragma once
 
 #include <projectexplorer/projectnodes.h>
 
@@ -199,5 +198,3 @@ private:
 
 } // namespace Internal
 } // namespace QbsProjectManager
-
-#endif // QBSNODES_H

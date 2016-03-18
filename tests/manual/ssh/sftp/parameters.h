@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PARAMETERS_H
-#define PARAMETERS_H
+#pragma once
 
 #include <ssh/sshconnection.h>
 
@@ -33,5 +32,3 @@ struct Parameters {
     int smallFileCount;
     int bigFileSize;
 };
-
-#endif // PARAMETERS_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SETTINGS_H
-#define SETTINGS_H
+#pragma once
 
 #include <utils/fileutils.h>
 
@@ -47,5 +46,3 @@ public:
 private:
     static Settings *m_instance;
 };
-
-#endif // SETTINGS_H

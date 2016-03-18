@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef XUIFILEDIALOG_H
-#define XUIFILEDIALOG_H
+#pragma once
 
 #include <QString>
 #include <QStringList>
@@ -57,5 +56,3 @@ signals:
 
 } // namespace Internal
 } // namespace QmlDesigner
-
-#endif // XUIFILEDIALOG_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QTCONFIGWIDGET_H
-#define QTCONFIGWIDGET_H
+#pragma once
 
 #include "qtsupport_global.h"
 
@@ -41,5 +40,3 @@ signals:
     void changed();
 };
 } // namespace QtSupport
-
-#endif // QTCONFIGWIDGET_H

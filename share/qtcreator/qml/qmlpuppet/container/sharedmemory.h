@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLDESIGNER_SHAREDMEMORY_H
-#define QMLDESIGNER_SHAREDMEMORY_H
+#pragma once
 
 #include <QSharedMemory>
 #include <QSystemSemaphore>
@@ -88,5 +87,3 @@ private:
 };
 
 } // namespace QmlDesigner
-
-#endif // QMLDESIGNER_SHAREDMEMORY_H

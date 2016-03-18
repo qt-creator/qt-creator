@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef OPENEDITORSWINDOW_H
-#define OPENEDITORSWINDOW_H
+#pragma once
 
 #include "documentmodel.h"
 #include "editorview.h"
@@ -96,5 +95,3 @@ private:
 
 } // namespace Internal
 } // namespace Core
-
-#endif // OPENEDITORSWINDOW_H

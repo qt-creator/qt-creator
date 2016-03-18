@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef REUSE_H
-#define REUSE_H
+#pragma once
 
 #include <QString>
 #include <QLatin1String>
@@ -51,5 +50,3 @@ inline QString fromBool(bool b)
 
 } // Internal
 } // TextEditor
-
-#endif // REUSE_H

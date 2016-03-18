@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef THEMECHOOSER_H
-#define THEMECHOOSER_H
+#pragma once
 
 #include "id.h"
 
@@ -70,5 +69,3 @@ private:
 
 } // namespace Internal
 } // namespace Core
-
-#endif // THEMESETTINGS_H

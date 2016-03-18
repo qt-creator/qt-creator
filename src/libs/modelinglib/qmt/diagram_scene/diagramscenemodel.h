@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_DIAGRAMSCENEMODEL_H
-#define QMT_DIAGRAMSCENEMODEL_H
+#pragma once
 
 #include <QObject>
 #include "qmt/infrastructure/qmt_global.h"
@@ -184,5 +183,3 @@ private:
 };
 
 } // namespace qmt
-
-#endif // QMT_DIAGRAMSCENEMODEL_H

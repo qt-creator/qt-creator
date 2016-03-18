@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef INVALIDMODELSTATEEXCEPTION_H
-#define INVALIDMODELSTATEEXCEPTION_H
+#pragma once
 
 #include "exception.h"
 
@@ -42,5 +41,3 @@ public:
 };
 
 } // namespace QmlDesigner
-
-#endif // INVALIDMODELSTATEEXCEPTION_H

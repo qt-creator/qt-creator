@@ -1,5 +1,4 @@
-#ifndef MYTYPE_H
-#define MYTYPE_H
+#pragma once
 
 #include <QObject>
 #include <QString>
@@ -30,6 +29,3 @@ private:
 
     Q_DISABLE_COPY(MyType)
 };
-
-#endif // MYTYPE_H
-

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CHANGEAUXILIARYCOMMAND_H
-#define CHANGEAUXILIARYCOMMAND_H
+#pragma once
 
 #include <QMetaType>
 #include <QVector>
@@ -56,5 +55,3 @@ QDebug operator <<(QDebug debug, const ChangeAuxiliaryCommand &command);
 } // namespace QmlDesigner
 
 Q_DECLARE_METATYPE(QmlDesigner::ChangeAuxiliaryCommand)
-
-#endif // CHANGEAUXILIARYCOMMAND_H

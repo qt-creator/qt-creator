@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CPPUSESELECTIONSUPDATER_H
-#define CPPUSESELECTIONSUPDATER_H
+#pragma once
 
 #include <cpptools/cppsemanticinfo.h>
 #include <texteditor/texteditorconstants.h>
@@ -114,5 +113,3 @@ private:
 
 } // namespace Internal
 } // namespace CppEditor
-
-#endif // CPPUSESELECTIONSUPDATER_H

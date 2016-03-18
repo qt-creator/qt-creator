@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PLAINTEXTEDITORFACTORY_H
-#define PLAINTEXTEDITORFACTORY_H
+#pragma once
 
 #include <texteditor/texteditor.h>
 
@@ -41,5 +40,3 @@ public:
 };
 
 } // namespace TextEditor
-
-#endif // PLAINTEXTEDITORFACTORY_H

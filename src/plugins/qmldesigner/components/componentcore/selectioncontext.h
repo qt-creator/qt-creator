@@ -28,8 +28,7 @@
 #include <QPointF>
 #include <QPointer>
 
-#ifndef SELECTIONCONTEXT_H
-#define SELECTIONCONTEXT_H
+#pragma once
 
 namespace QmlDesigner {
 
@@ -72,5 +71,3 @@ private:
 };
 
 } //QmlDesigner
-
-#endif //SELECTIONCONTEXT_H

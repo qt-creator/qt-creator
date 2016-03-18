@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CLASSVIEWPARSERTREEITEM_H
-#define CLASSVIEWPARSERTREEITEM_H
+#pragma once
 
 #include "classviewsymbollocation.h"
 #include "classviewsymbolinformation.h"
@@ -99,5 +98,3 @@ private:
 
 } // namespace Internal
 } // namespace ClassView
-
-#endif // CLASSVIEWPARSERTREEITEM_H

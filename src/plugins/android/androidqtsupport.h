@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef ANDROIDSUPPORT_H
-#define ANDROIDSUPPORT_H
+#pragma once
 
 #include "android_global.h"
 
@@ -66,6 +65,3 @@ public:
 };
 
 } // namespace Android
-
-
-#endif // ANDROIDSUPPORT_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef WINRTDEVICE_H
-#define WINRTDEVICE_H
+#pragma once
 
 #include <QList>
 #include <QUuid>
@@ -70,5 +69,3 @@ private:
 
 } // Internal
 } // WinRt
-
-#endif // WINRTDEVICE_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SSHCRYPTOFACILITY_P_H
-#define SSHCRYPTOFACILITY_P_H
+#pragma once
 
 #include <botan/botan.h>
 
@@ -137,5 +136,3 @@ private:
 
 } // namespace Internal
 } // namespace QSsh
-
-#endif // SSHCRYPTOFACILITY_P_H

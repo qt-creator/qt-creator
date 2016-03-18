@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_SELECTABLE_H
-#define QMT_SELECTABLE_H
+#pragma once
 
 namespace qmt {
 
@@ -40,5 +39,3 @@ public:
 };
 
 } // namespace qmt
-
-#endif // QMT_SELECTABLE_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_SORTEDTREEMODEL_H
-#define QMT_SORTEDTREEMODEL_H
+#pragma once
 
 #include <QSortFilterProxyModel>
 #include "qmt/infrastructure/qmt_global.h"
@@ -61,5 +60,3 @@ private:
 };
 
 } // namespace qmt
-
-#endif // QMT_SORTEDTREEMODEL_H

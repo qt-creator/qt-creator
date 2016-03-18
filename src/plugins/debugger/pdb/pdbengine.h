@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef DEBUGGER_PDBENGINE_H
-#define DEBUGGER_PDBENGINE_H
+#pragma once
 
 #include <debugger/debuggerengine.h>
 
@@ -123,5 +122,3 @@ private:
 
 } // namespace Internal
 } // namespace Debugger
-
-#endif // DEBUGGER_PDBENGINE_H

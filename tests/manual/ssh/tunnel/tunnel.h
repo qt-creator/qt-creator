@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef TUNNEL_H
-#define TUNNEL_H
+#pragma once
 
 #include <QObject>
 #include <QSharedPointer>
@@ -71,5 +70,3 @@ private:
     QByteArray m_dataReceivedFromClient;
     bool m_expectingChannelClose;
 };
-
-#endif // TUNNEL_H

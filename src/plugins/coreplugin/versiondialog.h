@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef VERSIONDIALOG_H
-#define VERSIONDIALOG_H
+#pragma once
 
 #include <QDialog>
 
@@ -47,5 +46,3 @@ public:
 
 } // namespace Internal
 } // namespace Core
-
-#endif // VERSIONDIALOG_H

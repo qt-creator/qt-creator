@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef OPTIONSPARSER_H
-#define OPTIONSPARSER_H
+#pragma once
 
 #include <QStringList>
 #include <QMap>
@@ -81,5 +80,3 @@ private:
 
 } // namespace Internal
 } // namespace ExtensionSystem
-
-#endif // OPTIONSPARSER_H

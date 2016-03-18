@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef BEAUTIFIER_CONFIGURATIONPANEL_H
-#define BEAUTIFIER_CONFIGURATIONPANEL_H
+#pragma once
 
 #include <QWidget>
 
@@ -62,5 +61,3 @@ private:
 
 } // namespace Internal
 } // namespace Beautifier
-
-#endif // BEAUTIFIER_CONFIGURATIONPANEL_H

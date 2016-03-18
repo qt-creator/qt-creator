@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef ADDKEYSOPERATION_H
-#define ADDKEYSOPERATION_H
+#pragma once
 
 #include "operation.h"
 
@@ -50,5 +49,3 @@ private:
 
     QList<KeyValuePair> m_data;
 };
-
-#endif // ADDKEYSOPERATION_H

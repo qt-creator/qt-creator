@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef GRADIENTLINE_H
-#define GRADIENTLINE_H
+#pragma once
 
 #include "qmleditorwidgets_global.h"
 #include <QWidget>
@@ -90,5 +89,3 @@ private:
 };
 
 } //QmlEditorWidgets
-
-#endif //GRADIENTLINE_H

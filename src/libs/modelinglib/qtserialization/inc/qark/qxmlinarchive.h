@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QARK_QXMLINARCHIVE_H
-#define QARK_QXMLINARCHIVE_H
+#pragma once
 
 #include "archivebasics.h"
 #include "tag.h"
@@ -925,5 +924,3 @@ void QXmlInArchive::skipUntilEndOfTag(const XmlTag &xmlTag)
 }
 
 } // namespace qark
-
-#endif // QARK_XMLINARCHIVE_H

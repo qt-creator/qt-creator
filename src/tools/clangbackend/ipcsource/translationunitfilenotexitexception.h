@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CLANGBACKEND_TRANSLATIONUNITFILENOTEXITS_H
-#define CLANGBACKEND_TRANSLATIONUNITFILENOTEXITS_H
+#pragma once
 
 #include <utf8string.h>
 
@@ -53,5 +52,3 @@ private:
 };
 
 } // namespace ClangBackEnd
-
-#endif // CLANGBACKEND_TRANSLATIONUNITFILENOTEXITS_H

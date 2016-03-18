@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLJSBUNDLEPROVIDER_H
-#define QMLJSBUNDLEPROVIDER_H
+#pragma once
 
 #include <QObject>
 #include <QHash>
@@ -75,5 +74,3 @@ public:
 };
 
 } // end QmlJSTools namespace
-
-#endif // QMLJSBUNDLEPROVIDER_H

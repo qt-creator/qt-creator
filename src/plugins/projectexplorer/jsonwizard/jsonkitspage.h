@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef JSONKITSPAGE_H
-#define JSONKITSPAGE_H
+#pragma once
 
 #include "jsonwizard.h"
 #include "../targetsetuppage.h"
@@ -75,5 +74,3 @@ private:
 };
 
 } // namespace ProjectExplorer
-
-#endif // JSONKITSPAGE_H

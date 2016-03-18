@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef REMOTELINUXCUSTOMRUNCONFIGURATION_H
-#define REMOTELINUXCUSTOMRUNCONFIGURATION_H
+#pragma once
 
 #include <projectexplorer/runconfiguration.h>
 
@@ -69,5 +68,3 @@ private:
 
 } // namespace Internal
 } // namespace RemoteLinux
-
-#endif // Include guard.

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PROPERTYCONTAINER_H
-#define PROPERTYCONTAINER_H
+#pragma once
 
 #include "qmldesignercorelib_global.h"
 
@@ -72,7 +71,3 @@ QMLDESIGNERCORE_EXPORT QDataStream &operator>>(QDataStream &stream, QList<Proper
 QMLDESIGNERCORE_EXPORT QDebug operator<<(QDebug debug, QList<PropertyContainer> &propertyContainerList);
 
 } //namespace QmlDesigner
-
-
-
-#endif //PROPERTYCONTAINER_H

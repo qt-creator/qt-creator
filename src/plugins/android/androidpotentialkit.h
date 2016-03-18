@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef ANDROIDPOTENTIALKIT_H
-#define ANDROIDPOTENTIALKIT_H
+#pragma once
 
 #include <projectexplorer/ipotentialkit.h>
 #include <utils/detailswidget.h>
@@ -56,5 +55,3 @@ private slots:
 
 }
 }
-
-#endif // ANDROIDPOTENTIALKIT_H

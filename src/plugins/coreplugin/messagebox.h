@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef MESSAGEBOX_H
-#define MESSAGEBOX_H
+#pragma once
 
 #include "core_global.h"
 
@@ -40,6 +39,3 @@ namespace AsynchronousMessageBox {
     CORE_EXPORT void critical(const QString &title, const QString &desciption);
 }
 }
-
-#endif // MESSAGEBOX_H
-

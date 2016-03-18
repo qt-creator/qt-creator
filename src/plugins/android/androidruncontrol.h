@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef ANDROIDRUNCONTROL_H
-#define ANDROIDRUNCONTROL_H
+#pragma once
 
 #include <projectexplorer/runconfiguration.h>
 
@@ -59,5 +58,3 @@ private:
 
 } // namespace Internal
 } // namespace Android
-
-#endif // ANDROIDRUNCONTROL_H

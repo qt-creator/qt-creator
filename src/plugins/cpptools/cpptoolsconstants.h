@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CPPTOOLSCONSTANTS_H
-#define CPPTOOLSCONSTANTS_H
+#pragma once
 
 #include <QtGlobal>
 
@@ -70,5 +69,3 @@ const char CPP_SETTINGS_NAME[] = QT_TRANSLATE_NOOP("CppTools", "C++");
 
 } // namespace Constants
 } // namespace CppTools
-
-#endif // CPPTOOLSCONSTANTS_H

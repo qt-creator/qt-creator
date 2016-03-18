@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CODESTYLEEDITOR_H
-#define CODESTYLEEDITOR_H
+#pragma once
 
 #include "texteditor_global.h"
 
@@ -59,5 +58,3 @@ private:
 };
 
 } // namespace TextEditor
-
-#endif // CODESTYLEEDITOR_H

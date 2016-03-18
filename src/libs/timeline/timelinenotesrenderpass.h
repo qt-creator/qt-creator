@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef TIMELINENOTESRENDERPASS_H
-#define TIMELINENOTESRENDERPASS_H
+#pragma once
 
 #include "timelineabstractrenderer.h"
 #include <QSGMaterial>
@@ -45,6 +44,3 @@ private:
 };
 
 } // namespace Timeline
-
-#endif // TIMELINENOTESRENDERPASS_H
-

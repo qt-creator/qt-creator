@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef JAVACOMPLETIONASSISTPROVIDER_H
-#define JAVACOMPLETIONASSISTPROVIDER_H
+#pragma once
 
 #include <texteditor/codeassist/completionassistprovider.h>
 
@@ -52,5 +51,3 @@ private:
 
 } // namespace Internal
 } // namespace Android
-
-#endif // JAVACOMPLETIONASSISTPROVIDER_H

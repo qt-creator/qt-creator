@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef TEXTEDITOR_SEMANTICHIGHLIGHTER_H
-#define TEXTEDITOR_SEMANTICHIGHLIGHTER_H
+#pragma once
 
 #include <texteditor/textstyles.h>
 
@@ -69,5 +68,3 @@ public:
 };
 
 } // namespace TextEditor
-
-#endif // TEXTEDITOR_SEMANTICHIGHLIGHTER_H

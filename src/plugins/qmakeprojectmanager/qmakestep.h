@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMAKESTEP_H
-#define QMAKESTEP_H
+#pragma once
 
 #include "qmakeprojectmanager_global.h"
 #include <projectexplorer/abstractprocessstep.h>
@@ -224,5 +223,3 @@ private:
 };
 
 } // namespace QmakeProjectManager
-
-#endif // QMAKESTEP_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SIMPLECODESTYLEPREFERENCESWIDGET_H
-#define SIMPLECODESTYLEPREFERENCESWIDGET_H
+#pragma once
 
 #include "texteditor_global.h"
 
@@ -59,4 +58,3 @@ private:
 };
 
 } // namespace TextEditor
-#endif // SIMPLECODESTYLEPREFERENCESWIDGET_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef DEBUGGER_PROTOCOL_H
-#define DEBUGGER_PROTOCOL_H
+#pragma once
 
 #include <QByteArray>
 #include <QList>
@@ -255,6 +254,3 @@ enum DebuggerDisplay
 
 } // namespace Internal
 } // namespace Debugger
-
-
-#endif // DEBUGGER_PROTOCOL_H

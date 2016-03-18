@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef JAVAAUTOCOMPLETER_H
-#define JAVAAUTOCOMPLETER_H
+#pragma once
 
 #include <texteditor/autocompleter.h>
 
@@ -42,6 +41,3 @@ public:
 };
 }
 }
-
-
-#endif // JAVAAUTOCOMPLETER_H

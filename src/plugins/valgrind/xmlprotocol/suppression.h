@@ -24,8 +24,7 @@
 **
 ****************************************************************************/
 
-#ifndef LIBVALGRIND_PROTOCOL_SUPPRESSION_H
-#define LIBVALGRIND_PROTOCOL_SUPPRESSION_H
+#pragma once
 
 #include <QSharedDataPointer>
 
@@ -103,5 +102,3 @@ private:
 
 } // namespace XmlProtocol
 } // namespace Valgrind
-
-#endif // LIBVALGRIND_PROTOCOL_SUPPRESSION_H

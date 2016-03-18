@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef IOSDEPLOYSTEP_H
-#define IOSDEPLOYSTEP_H
+#pragma once
 
 #include "iosconfigurations.h"
 #include "iosdevice.h"
@@ -110,5 +109,3 @@ private:
 
 } // namespace Internal
 } // namespace Ios
-
-#endif // IOSDEPLOYSTEP_H

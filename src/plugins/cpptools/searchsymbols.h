@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SEARCHSYMBOLS_H
-#define SEARCHSYMBOLS_H
+#pragma once
 
 #include "cpptools_global.h"
 #include "cppindexingsupport.h"
@@ -116,5 +115,3 @@ private:
 } // namespace CppTools
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(CppTools::SearchSymbols::SymbolTypes)
-
-#endif // SEARCHSYMBOLS_H

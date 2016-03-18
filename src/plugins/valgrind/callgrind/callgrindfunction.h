@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef LIBVALGRIND_CALLGRIND_FUNCTION_H
-#define LIBVALGRIND_CALLGRIND_FUNCTION_H
+#pragma once
 
 #include <QMetaType>
 #include <QVector>
@@ -145,5 +144,3 @@ private:
 } // namespace Valgrind
 
 Q_DECLARE_METATYPE(const Valgrind::Callgrind::Function *)
-
-#endif // LIBVALGRIND_CALLGRIND_FUNCTION_H

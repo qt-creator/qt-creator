@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef OPENDOCUMENTSFILTER_H
-#define OPENDOCUMENTSFILTER_H
+#pragma once
 
 #include "ilocatorfilter.h"
 
@@ -67,5 +66,3 @@ private:
 
 } // namespace Internal
 } // namespace Core
-
-#endif // OPENDOCUMENTSFILTER_H

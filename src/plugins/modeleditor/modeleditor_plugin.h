@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef MODELEDITORPLUGIN_H
-#define MODELEDITORPLUGIN_H
+#pragma once
 
 #include "modeleditor_global.h"
 
@@ -58,5 +57,3 @@ private:
 
 } // namespace Internal
 } // namespace ModelEditor
-
-#endif // MODELEDITORPLUGIN_H

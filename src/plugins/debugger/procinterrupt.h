@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef DEBUGGER_PROCINTERRUPT_H
-#define DEBUGGER_PROCINTERRUPT_H
+#pragma once
 
 #include <QString>
 
@@ -36,5 +35,3 @@ bool interruptProcess(qint64 pID, int engineType, QString *errorMessage,
 
 } // Internal
 } // GdbDebugger
-
-#endif // DEBUGGER_PROCINTERRUPT_H

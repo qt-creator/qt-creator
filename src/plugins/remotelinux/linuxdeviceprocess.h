@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QTC_LINUXDEVICEPROCESS_H
-#define QTC_LINUXDEVICEPROCESS_H
+#pragma once
 
 #include "remotelinux_export.h"
 
@@ -53,5 +52,3 @@ private:
 };
 
 } // namespace RemoteLinux
-
-#endif // Include guard.

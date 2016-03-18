@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_DANNOTATION_H
-#define QMT_DANNOTATION_H
+#pragma once
 
 #include "delement.h"
 
@@ -75,5 +74,3 @@ private:
 };
 
 } // namespace qmt
-
-#endif // QMT_DANNOTATION_H

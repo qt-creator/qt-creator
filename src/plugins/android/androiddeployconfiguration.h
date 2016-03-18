@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef ANDROIDDEPLOYCONFIGURATION_H
-#define ANDROIDDEPLOYCONFIGURATION_H
+#pragma once
 
 #include <projectexplorer/deployconfiguration.h>
 
@@ -65,5 +64,3 @@ public:
 
 } // namespace Internal
 } // namespace Android
-
-#endif // ANDROIDDEPLOYCONFIGURATION_H

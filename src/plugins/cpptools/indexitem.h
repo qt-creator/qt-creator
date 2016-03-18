@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CPPTOOLS_INDEXITEM_H
-#define CPPTOOLS_INDEXITEM_H
+#pragma once
 
 #include "cpptools_global.h"
 
@@ -133,5 +132,3 @@ private:
 } // CppTools namespace
 
 Q_DECLARE_METATYPE(CppTools::IndexItem::Ptr)
-
-#endif // CPPTOOLS_INDEXITEM_H

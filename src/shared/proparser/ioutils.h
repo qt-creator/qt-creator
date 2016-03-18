@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef IOUTILS_H
-#define IOUTILS_H
+#pragma once
 
 #include <qstring.h>
 
@@ -64,5 +63,3 @@ public:
 } // namespace ProFileEvaluatorInternal
 
 QT_END_NAMESPACE
-
-#endif // IOUTILS_H

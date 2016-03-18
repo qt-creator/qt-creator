@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CPLUSPLUS_SYMBOLNAMEVISITOR_H
-#define CPLUSPLUS_SYMBOLNAMEVISITOR_H
+#pragma once
 
 #include <cplusplus/NameVisitor.h>
 
@@ -44,5 +43,3 @@ private:
 };
 
 } // namespace CPlusPlus
-
-#endif // CPLUSPLUS_SYMBOLNAMEVISITOR_H

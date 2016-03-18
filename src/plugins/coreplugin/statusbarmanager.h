@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef STATUSBARMANAGER_H
-#define STATUSBARMANAGER_H
+#pragma once
 
 #include "minisplitter.h"
 
@@ -75,5 +74,3 @@ private:
 
 } // namespace Internal
 } // namespace Core
-
-#endif // STATUSBARMANAGER_H

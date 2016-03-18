@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CPPTOOLS_CLANGUTILS_H
-#define CPPTOOLS_CLANGUTILS_H
+#pragma once
 
 #include <cpptools/projectpart.h>
 
@@ -44,5 +43,3 @@ QString projectPartIdForFile(const QString &filePath);
 
 } // namespace Utils
 } // namespace Clang
-
-#endif // CPPTOOLS_CLANGUTILS_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_RESIZABLE_H
-#define QMT_RESIZABLE_H
+#pragma once
 
 #include <QtGlobal>
 
@@ -58,5 +57,3 @@ public:
 };
 
 } // namespace qmt
-
-#endif // QMT_RESIZABLE_H

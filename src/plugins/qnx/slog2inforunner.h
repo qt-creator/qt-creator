@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QNX_INTERNAL_SLOG2INFORUNNER_H
-#define QNX_INTERNAL_SLOG2INFORUNNER_H
+#pragma once
 
 #include <QObject>
 
@@ -86,5 +85,3 @@ private:
 
 } // namespace Internal
 } // namespace Qnx
-
-#endif // QNX_INTERNAL_SLOG2INFORUNNER_H

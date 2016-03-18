@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CPPTOOLSREUSE_H
-#define CPPTOOLSREUSE_H
+#pragma once
 
 #include "cpptools_global.h"
 
@@ -77,5 +76,3 @@ int fileSizeLimit();
 bool skipFileDueToSizeLimit(const QFileInfo &fileInfo, int limitInMB = fileSizeLimit());
 
 } // CppTools
-
-#endif // CPPTOOLSREUSE_H

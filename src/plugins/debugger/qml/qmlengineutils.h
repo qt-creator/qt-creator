@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLENGINEUTILS_H
-#define QMLENGINEUTILS_H
+#pragma once
 
 #include <qmldebug/qdebugmessageclient.h>
 #include <qmldebug/qmloutputparser.h>
@@ -39,5 +38,3 @@ QStringList highlightExceptionCode(int lineNumber, const QString &filePath, cons
 
 } // namespace Internal
 } // namespace Debugger
-
-#endif // QMLENGINEUTILS_H

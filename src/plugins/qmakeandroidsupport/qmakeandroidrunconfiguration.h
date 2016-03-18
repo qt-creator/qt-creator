@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMAKE_ANDROIDRUNCONFIGURATION_H
-#define QMAKE_ANDROIDRUNCONFIGURATION_H
+#pragma once
 
 #include <android/androidrunconfiguration.h>
 
@@ -69,5 +68,3 @@ private:
 
 } // namespace Internal
 } // namespace QmakeAndroidSupport
-
-#endif // QMAKE_ANDROIDRUNCONFIGURATION_H

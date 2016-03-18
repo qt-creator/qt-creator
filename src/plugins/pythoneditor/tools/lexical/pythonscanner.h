@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PYTHONSCANNER_H
-#define PYTHONSCANNER_H
+#pragma once
 
 #include "pythonformattoken.h"
 #include "sourcecodestream.h"
@@ -85,5 +84,3 @@ private:
 
 } // namespace Internal
 } // namespace PythonEditor
-
-#endif // PYTHONSCANNER_H

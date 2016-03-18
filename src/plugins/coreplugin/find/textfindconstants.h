@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef TEXTFINDCONSTANTS_H
-#define TEXTFINDCONSTANTS_H
+#pragma once
 
 #include <coreplugin/core_global.h>
 
@@ -78,5 +77,3 @@ QTextDocument::FindFlags CORE_EXPORT textDocumentFlagsForFindFlags(FindFlags fla
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(Core::FindFlags)
 Q_DECLARE_METATYPE(Core::FindFlags)
-
-#endif // TEXTFINDCONSTANTS_H

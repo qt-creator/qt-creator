@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef HEADERVIEWSTRETCHER_H
-#define HEADERVIEWSTRETCHER_H
+#pragma once
 
 #include "utils_global.h"
 #include <QObject>
@@ -46,5 +45,3 @@ public:
 };
 
 } // namespace Utils
-
-#endif // HEADERVIEWSTRETCHER_H

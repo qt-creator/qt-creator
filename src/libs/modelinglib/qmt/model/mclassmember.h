@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_MCLASSMEMBER_H
-#define QMT_MCLASSMEMBER_H
+#pragma once
 
 #include "qmt/infrastructure/uid.h"
 
@@ -104,5 +103,3 @@ private:
 bool operator==(const MClassMember &lhs, const MClassMember &rhs);
 
 } // namespace qmt
-
-#endif // QMT_MCLASSMEMBER_H

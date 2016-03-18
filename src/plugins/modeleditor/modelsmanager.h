@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef MODELSMANAGER_H
-#define MODELSMANAGER_H
+#pragma once
 
 #include <QObject>
 
@@ -75,5 +74,3 @@ private:
 
 } // namespace Internal
 } // namespace ModelEditor
-
-#endif // MODELSMANAGER_H

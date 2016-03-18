@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CPLUSPLUSCHECKSYMBOLS_H
-#define CPLUSPLUSCHECKSYMBOLS_H
+#pragma once
 
 #include "cpptools_global.h"
 #include "cppsemanticinfo.h"
@@ -193,5 +192,3 @@ private:
 };
 
 } // namespace CppTools
-
-#endif // CPLUSPLUSCHECKSYMBOLS_H

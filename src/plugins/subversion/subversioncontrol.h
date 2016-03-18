@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SUBVERSIONCONTROL_H
-#define SUBVERSIONCONTROL_H
+#pragma once
 
 #include <coreplugin/iversioncontrol.h>
 
@@ -69,5 +68,3 @@ private:
 
 } // namespace Internal
 } // namespace Subversion
-
-#endif // SUBVERSIONCONTROL_H

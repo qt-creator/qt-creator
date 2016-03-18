@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef LINENUMBERFILTER_H
-#define LINENUMBERFILTER_H
+#pragma once
 
 #include <coreplugin/locator/ilocatorfilter.h>
 
@@ -55,5 +54,3 @@ private:
 
 } // namespace Internal
 } // namespace TextEditor
-
-#endif // LINENUMBERFILTER_H

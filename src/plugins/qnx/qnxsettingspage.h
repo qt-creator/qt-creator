@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QNXSETTINGSPAGE_H
-#define QNXSETTINGSPAGE_H
+#pragma once
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
@@ -50,5 +49,3 @@ private:
 
 } // namespace Internal
 } // namespace Qnx
-
-#endif // QNXSETTINGSPAGE_H

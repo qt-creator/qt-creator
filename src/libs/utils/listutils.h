@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef LISTUTILS_H
-#define LISTUTILS_H
+#pragma once
 
 #include <QList>
 
@@ -41,5 +40,3 @@ QList<T1> qwConvertList(const QList<T2> &list)
 }
 
 } // namespace Utils
-
-#endif // LISTUTILS_H

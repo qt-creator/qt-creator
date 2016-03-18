@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef LOCATORSEARCHUTILS_H
-#define LOCATORSEARCHUTILS_H
+#pragma once
 
 #include "ilocatorfilter.h"
 
@@ -37,6 +36,3 @@ void CORE_EXPORT runSearch(QFutureInterface<LocatorFilterEntry> &future,
 
 } // namespace Internal
 } // namespace Core
-
-#endif // LOCATORSEARCHUTILS_H
-

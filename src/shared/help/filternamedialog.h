@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef FILTERNAMEDIALOG_H
-#define FILTERNAMEDIALOG_H
+#pragma once
 
 #include <QDialog>
 #include "ui_filternamedialog.h"
@@ -43,5 +42,3 @@ private slots:
 private:
     Ui::FilterNameDialogClass m_ui;
 };
-
-#endif // FILTERNAMEDIALOG_H

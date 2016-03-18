@@ -30,8 +30,7 @@
 
 #include <iostream>
 
-#ifndef GTESTQTPRINTING_H
-#define GTESTQTPRINTING_H
+#pragma once
 
 QT_BEGIN_NAMESPACE
 class QVariant;
@@ -59,5 +58,3 @@ QT_END_NAMESPACE
 
 //}
 //}
-#endif // GTESTQTPRINTING_H
-

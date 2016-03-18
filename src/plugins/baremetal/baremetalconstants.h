@@ -24,8 +24,7 @@
 **
 ****************************************************************************/
 
-#ifndef BAREMETALCONSTANTS_H
-#define BAREMETALCONSTANTS_H
+#pragma once
 
 namespace BareMetal {
 namespace Constants {
@@ -48,5 +47,3 @@ const char STLINK_UTIL_PROVIDER_ID[] = "BareMetal.GdbServerProvider.STLinkUtil";
 
 } // namespace BareMetal
 } // namespace Constants
-
-#endif // BAREMETALCONSTANTS_H

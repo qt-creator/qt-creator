@@ -24,8 +24,7 @@
 **
 ****************************************************************************/
 
-#ifndef LIBVALGRIND_PROTOCOL_STACKMODEL_H
-#define LIBVALGRIND_PROTOCOL_STACKMODEL_H
+#pragma once
 
 #include <QAbstractItemModel>
 
@@ -79,5 +78,3 @@ private:
 
 } // namespace XmlProtocol
 } // namespace Valgrind
-
-#endif // LIBVALGRIND_PROTOCOL_STACKMODEL_H

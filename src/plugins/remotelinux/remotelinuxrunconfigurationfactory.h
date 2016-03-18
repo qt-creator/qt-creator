@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef REMOTELINUXRUNCONFIGURATIONFACTORY_H
-#define REMOTELINUXRUNCONFIGURATIONFACTORY_H
+#pragma once
 
 #include <projectexplorer/runconfiguration.h>
 
@@ -59,5 +58,3 @@ private:
 
 } // namespace Internal
 } // namespace RemoteLinux
-
-#endif // REMOTELINUXRUNCONFIGURATIONFACTORY_H

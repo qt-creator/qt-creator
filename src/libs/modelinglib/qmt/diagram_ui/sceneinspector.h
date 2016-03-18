@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_SCENEINSPECTOR_H
-#define QMT_SCENEINSPECTOR_H
+#pragma once
 
 #include <QObject>
 #include "qmt/tasks/isceneinspector.h"
@@ -52,5 +51,3 @@ private:
 };
 
 } // namespace qmt
-
-#endif // QMT_SCENEINSPECTOR_H

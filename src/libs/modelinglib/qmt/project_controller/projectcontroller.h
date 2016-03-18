@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_PROJECTCONTROLLER_H
-#define QMT_PROJECTCONTROLLER_H
+#pragma once
 
 #include "qmt/infrastructure/exceptions.h"
 #include "qmt/infrastructure/qmt_global.h"
@@ -78,5 +77,3 @@ private:
 };
 
 } // namespace qmt
-
-#endif // PROJECTCONTROLLER_H

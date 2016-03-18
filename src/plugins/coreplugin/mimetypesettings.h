@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef MIMETYPESETTINGSPAGE_H
-#define MIMETYPESETTINGSPAGE_H
+#pragma once
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
@@ -52,5 +51,3 @@ private:
 
 } // Internal
 } // Core
-
-#endif // MIMETYPESETTINGSPAGE_H

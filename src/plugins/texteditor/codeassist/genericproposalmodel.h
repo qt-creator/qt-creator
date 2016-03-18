@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef IGENERICPROPOSALMODEL_H
-#define IGENERICPROPOSALMODEL_H
+#pragma once
 
 #include "iassistproposalmodel.h"
 #include "assistenums.h"
@@ -75,5 +74,3 @@ private:
     QList<AssistProposalItemInterface *> m_originalItems;
 };
 } // TextEditor
-
-#endif // IGENERICPROPOSALMODEL_H

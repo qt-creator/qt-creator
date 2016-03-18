@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLDESIGNER_QT5RENDERNODEINSTANCESERVER_H
-#define QMLDESIGNER_QT5RENDERNODEINSTANCESERVER_H
+#pragma once
 
 #include "qt5nodeinstanceserver.h"
 
@@ -50,5 +49,3 @@ private:
 };
 
 } // namespace QmlDesigner
-
-#endif // QMLDESIGNER_QT5RENDERNODEINSTANCESERVER_H

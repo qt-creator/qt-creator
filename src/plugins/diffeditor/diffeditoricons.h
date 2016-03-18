@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef DIFFEDITORICONS_H
-#define DIFFEDITORICONS_H
+#pragma once
 
 #include <utils/icon.h>
 
@@ -40,5 +39,3 @@ const Utils::Icon SIDEBYSIDE_DIFF({
 
 } // namespace Icons
 } // namespace DiffEditor
-
-#endif // DIFFEDITORICONS_H

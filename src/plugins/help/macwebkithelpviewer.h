@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef MACWEBKITHELPVIEWER_H
-#define MACWEBKITHELPVIEWER_H
+#pragma once
 
 #include "helpviewer.h"
 
@@ -135,5 +134,3 @@ private:
 
 }   // namespace Internal
 }   // namespace Help
-
-#endif // MACWEBKITHELPVIEWER_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLJSICONS_H
-#define QMLJSICONS_H
+#pragma once
 
 #include <qmljs/qmljs_global.h>
 #include <qmljs/parser/qmljsast_p.h>
@@ -59,5 +58,3 @@ private:
 };
 
 } // namespace QmlJS
-
-#endif // QMLJSICONS_H

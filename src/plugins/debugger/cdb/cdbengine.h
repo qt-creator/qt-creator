@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef DEBUGGER_CDBENGINE_H
-#define DEBUGGER_CDBENGINE_H
+#pragma once
 
 #include <debugger/debuggerengine.h>
 #include <debugger/breakhandler.h>
@@ -265,5 +264,3 @@ private:
 
 } // namespace Internal
 } // namespace Debugger
-
-#endif // DEBUGGER_CDBENGINE_H

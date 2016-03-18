@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef BINEDITOR_H
-#define BINEDITOR_H
+#pragma once
 
 #include "markup.h"
 
@@ -244,5 +243,3 @@ private:
 };
 
 } // namespace BinEditor
-
-#endif // BINEDITOR_H

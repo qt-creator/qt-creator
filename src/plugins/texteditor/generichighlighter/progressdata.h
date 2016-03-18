@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PROGRESSDATA_H
-#define PROGRESSDATA_H
+#pragma once
 
 #include <QStringList>
 
@@ -80,5 +79,3 @@ private:
 
 } // namespace Internal
 } // namespace TextEditor
-
-#endif // PROGRESSDATA_H

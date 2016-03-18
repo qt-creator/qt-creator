@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QBSPARSER_H
-#define QBSPARSER_H
+#pragma once
 
 #include "qbsprojectmanager_global.h"
 
@@ -53,5 +52,3 @@ private:
 
 } // namespace Internal
 } // namespace QbsProjectManager
-
-#endif // QBSPARSER_H

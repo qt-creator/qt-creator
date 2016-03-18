@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SPYDUMMY_H
-#define SPYDUMMY_H
+#pragma once
 
 #include <QObject>
 
@@ -40,5 +39,3 @@ signals:
     void databaseIsOpened();
     void databaseIsClosed();
 };
-
-#endif // SPYDUMMY_H

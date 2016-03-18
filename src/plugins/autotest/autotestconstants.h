@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef AUTOTESTCONSTANTS_H
-#define AUTOTESTCONSTANTS_H
+#pragma once
 
 #include <QtGlobal>
 
@@ -54,6 +53,3 @@ enum TestType
 
 } // namespace Internal
 } // namespace Autotest
-
-#endif // AUTOTESTCONSTANTS_H
-

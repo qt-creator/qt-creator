@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SEARCHRESULTTREEVIEW_H
-#define SEARCHRESULTTREEVIEW_H
+#pragma once
 
 #include "searchresultwindow.h"
 
@@ -64,5 +63,3 @@ protected:
 
 } // namespace Internal
 } // namespace Core
-
-#endif // SEARCHRESULTTREEVIEW_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef IOSDSYMBUILDSTEP_H
-#define IOSDSYMBUILDSTEP_H
+#pragma once
 
 #include <projectexplorer/abstractprocessstep.h>
 
@@ -138,5 +137,3 @@ public:
 
 } // namespace Internal
 } // namespace Ios
-
-#endif // IOSDSYMBUILDSTEP_H

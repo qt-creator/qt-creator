@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SSHCHANNEL_P_H
-#define SSHCHANNEL_P_H
+#pragma once
 
 #include <QByteArray>
 #include <QObject>
@@ -116,5 +115,3 @@ private:
 
 } // namespace Internal
 } // namespace QSsh
-
-#endif // SSHCHANNEL_P_H

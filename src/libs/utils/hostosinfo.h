@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef HOSTOSINFO_H
-#define HOSTOSINFO_H
+#pragma once
 
 #include "utils_global.h"
 
@@ -114,5 +113,3 @@ bool HostOsInfo::isAnyUnixHost()
 }
 
 } // namespace Utils
-
-#endif // HOSTOSINFO_H

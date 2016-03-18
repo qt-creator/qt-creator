@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef FUNCTIONHINTPROPOSAL_H
-#define FUNCTIONHINTPROPOSAL_H
+#pragma once
 
 #include "iassistproposal.h"
 
@@ -52,5 +51,3 @@ private:
 };
 
 } // TextEditor
-
-#endif // FUNCTIONHINTPROPOSAL_H

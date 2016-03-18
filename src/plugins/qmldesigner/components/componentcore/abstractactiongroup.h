@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef MENUDESIGNERACTION_H
-#define MENUDESIGNERACTION_H
+#pragma once
 
 #include "actioninterface.h"
 
@@ -57,5 +56,3 @@ private:
 };
 
 } // namespace QmlDesigner
-
-#endif // MENUDESIGNERACTION_H

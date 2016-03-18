@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QTC_OSSPECIFICASPECTS_H
-#define QTC_OSSPECIFICASPECTS_H
+#pragma once
 
 #include "utils_global.h"
 
@@ -66,5 +65,3 @@ private:
 };
 
 } // namespace Utils
-
-#endif // Include guard.

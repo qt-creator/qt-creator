@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SYNCHRONIZECOMMAND_H
-#define SYNCHRONIZECOMMAND_H
+#pragma once
 
 #include <QMetaType>
 #include <QVector>
@@ -57,5 +56,3 @@ QDebug operator <<(QDebug debug, const SynchronizeCommand &command);
 } // namespace QmlDesigner
 
 Q_DECLARE_METATYPE(QmlDesigner::SynchronizeCommand)
-
-#endif // SYNCHRONIZECOMMAND_H

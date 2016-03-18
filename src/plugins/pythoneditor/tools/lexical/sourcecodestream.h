@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PYTHONEDITOR_SOURCECODESTREAM_H
-#define PYTHONEDITOR_SOURCECODESTREAM_H
+#pragma once
 
 #include <QString>
 
@@ -94,5 +93,3 @@ private:
 
 } // namespace Internal
 } // namespace PythonEditor
-
-#endif // PYTHONEDITOR_SOURCECODESTREAM_H

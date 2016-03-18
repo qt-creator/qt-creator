@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef FORMCLASSWIZARDPAGE_H
-#define FORMCLASSWIZARDPAGE_H
+#pragma once
 
 #include <QWizardPage>
 
@@ -75,5 +74,3 @@ private:
 
 } // namespace Internal
 } // namespace Designer
-
-#endif //FORMCLASSWIZARDPAGE_H

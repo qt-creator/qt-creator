@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef TASKLISTPLUGIN_H
-#define TASKLISTPLUGIN_H
+#pragma once
 
 #include <coreplugin/idocumentfactory.h>
 #include <extensionsystem/iplugin.h>
@@ -64,5 +63,3 @@ private:
 
 } // namespace Internal
 } // namespace TaskList
-
-#endif // TASKLISTPLUGIN_H

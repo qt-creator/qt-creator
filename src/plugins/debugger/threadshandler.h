@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef THREADSHANDLER_H
-#define THREADSHANDLER_H
+#pragma once
 
 #include "threaddata.h"
 
@@ -90,5 +89,3 @@ private:
 
 } // namespace Internal
 } // namespace Debugger
-
-#endif // THREADSHANDLER_H

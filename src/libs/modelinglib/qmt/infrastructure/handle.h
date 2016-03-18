@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_HANDLE_H
-#define QMT_HANDLE_H
+#pragma once
 
 #include "uid.h"
 #include "qmtassert.h"
@@ -99,5 +98,3 @@ Handle<T> handle_dynamic_cast(const Handle<U> &handle)
 }
 
 } // namespace qmt
-
-#endif // QMT_HANDLE_H

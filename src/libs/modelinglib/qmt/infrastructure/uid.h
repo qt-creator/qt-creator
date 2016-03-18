@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_UID_H
-#define QMT_UID_H
+#pragma once
 
 #include "qmt_global.h"
 
@@ -87,5 +86,3 @@ inline QDataStream &operator>>(QDataStream &stream, Uid &uid)
 } // namespace qmt
 
 Q_DECLARE_METATYPE(qmt::Uid)
-
-#endif // QMT_UID_H

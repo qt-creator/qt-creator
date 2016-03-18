@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef DEFAULTGDBSERVERPROVIDER_H
-#define DEFAULTGDBSERVERPROVIDER_H
+#pragma once
 
 #include "gdbserverprovider.h"
 
@@ -104,5 +103,3 @@ private:
 
 } // namespace Internal
 } // namespace BareMetal
-
-#endif // DEFAULTGDBSERVERPROVIDER_H

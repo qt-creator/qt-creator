@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef ANDROIDPACKAGEINSTALLATIONSTEP_H
-#define ANDROIDPACKAGEINSTALLATIONSTEP_H
+#pragma once
 
 #include <projectexplorer/buildstep.h>
 #include <projectexplorer/abstractprocessstep.h>
@@ -67,5 +66,3 @@ private:
 
 } // namespace Internal
 } // namespace QmakeAndroidSupport
-
-#endif // ANDROIDPACKAGEINSTALLATIONSTEP_H

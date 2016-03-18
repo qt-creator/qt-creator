@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef MOCKIPCLIENT_H
-#define MOCKIPCLIENT_H
+#pragma once
 
 #include <ipcclientinterface.h>
 
@@ -50,6 +49,3 @@ public:
     MOCK_METHOD1(highlightingChanged,
                  void(const ClangBackEnd::HighlightingChangedMessage &message));
 };
-
-#endif // MOCKIPCLIENT_H
-

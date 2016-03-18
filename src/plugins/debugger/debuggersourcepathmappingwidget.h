@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef DEBUGGERSOURCEPATHMAPPINGWIDGET_H
-#define DEBUGGERSOURCEPATHMAPPINGWIDGET_H
+#pragma once
 
 #include <QGroupBox>
 #include <QMap>
@@ -91,5 +90,3 @@ private:
 
 } // namespace Internal
 } // namespace Debugger
-
-#endif // DEBUGGERSOURCEPATHMAPPINGWIDGET_H

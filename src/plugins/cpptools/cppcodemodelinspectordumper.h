@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CPPCODEMODELINSPECTORDUMPER_H
-#define CPPCODEMODELINSPECTORDUMPER_H
+#pragma once
 
 #include "cpptools_global.h"
 
@@ -88,5 +87,3 @@ private:
 
 } // namespace CppCodeModelInspector
 } // namespace CppTools
-
-#endif // CPPCODEMODELINSPECTORDUMPER_H

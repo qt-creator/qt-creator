@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLJSAUTOCOMPLETER_H
-#define QMLJSAUTOCOMPLETER_H
+#pragma once
 
 #include <texteditor/autocompleter.h>
 
@@ -50,5 +49,3 @@ public:
 
 } // Internal
 } // QmlJSEditor
-
-#endif // QMLJSAUTOCOMPLETER_H

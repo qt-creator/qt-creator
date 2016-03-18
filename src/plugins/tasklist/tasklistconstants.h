@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef TASKLIST_TASKLISTCONSTANTS_H
-#define TASKLIST_TASKLISTCONSTANTS_H
+#pragma once
 
 namespace TaskList {
 namespace Constants {
@@ -33,5 +32,3 @@ const char TASKLISTTASK_ID[] = "TaskList.TaskListTaskId";
 
 } // namespace Constants
 } // namespace TaskList
-
-#endif // TASKLIST_TASKLISTCONSTANTS_H

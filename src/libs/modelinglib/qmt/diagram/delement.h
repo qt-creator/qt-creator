@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_DELEMENT_H
-#define QMT_DELEMENT_H
+#pragma once
 
 #include "qmt/infrastructure/uid.h"
 
@@ -54,5 +53,3 @@ private:
 };
 
 } // namespace qmt
-
-#endif // QMT_DELEMENT_H

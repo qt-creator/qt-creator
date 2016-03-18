@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef BUILDABLEHELPERLIBRARY_H
-#define BUILDABLEHELPERLIBRARY_H
+#pragma once
 
 #include "environment.h"
 #include "fileutils.h"
@@ -79,5 +78,3 @@ public:
 };
 
 }
-
-#endif // BUILDABLEHELPERLIBRARY_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SIDEBYSIDEDIFFEDITORWIDGET_H
-#define SIDEBYSIDEDIFFEDITORWIDGET_H
+#pragma once
 
 #include "diffutils.h"
 
@@ -119,5 +118,3 @@ private:
 
 } // namespace Internal
 } // namespace DiffEditor
-
-#endif // SIDEBYSIDEDIFFEDITORWIDGET_H

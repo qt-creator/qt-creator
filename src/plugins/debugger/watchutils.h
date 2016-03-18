@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef WATCHUTILS_H
-#define WATCHUTILS_H
+#pragma once
 
 // NOTE: Don't add dependencies to other files.
 // This is used in the debugger auto-tests.
@@ -54,5 +53,3 @@ QString removeObviousSideEffects(const QString &exp);
 
 } // namespace Internal
 } // namespace Debugger
-
-#endif // WATCHUTILS_H

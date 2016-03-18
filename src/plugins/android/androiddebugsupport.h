@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef ANDROIDDEBUGSUPPORT_H
-#define ANDROIDDEBUGSUPPORT_H
+#pragma once
 
 #include "androidrunconfiguration.h"
 
@@ -58,5 +57,3 @@ private:
 
 } // namespace Internal
 } // namespace Android
-
-#endif // ANDROIDDEBUGSUPPORT_H

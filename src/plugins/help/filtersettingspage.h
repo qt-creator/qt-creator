@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef FILTERSETTINGSPAGE_H
-#define FILTERSETTINGSPAGE_H
+#pragma once
 
 #include "ui_filtersettingspage.h"
 #include <coreplugin/dialogs/ioptionspage.h>
@@ -72,5 +71,3 @@ private:
 
 } // namespace Help
 } // namespace Internal
-
-#endif // DOCSETTINGSPAGE_H

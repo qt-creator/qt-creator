@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLOUTPUTPARSER_H
-#define QMLOUTPUTPARSER_H
+#pragma once
 
 #include "qmldebug_global.h"
 
@@ -55,5 +54,3 @@ private:
 };
 
 } // namespace QmlDebug
-
-#endif // QMLOUTPUTPARSER_H

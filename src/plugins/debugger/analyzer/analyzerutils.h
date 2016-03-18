@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef ANALYZERUTILS_H
-#define ANALYZERUTILS_H
+#pragma once
 
 #include <debugger/debugger_global.h>
 
@@ -38,5 +37,3 @@ namespace AnalyzerUtils
     DEBUGGER_EXPORT void logToIssuesPane(ProjectExplorer::Task::TaskType type,
                                          const QString &message);
 }
-
-#endif // ANALYZERUTILS_H

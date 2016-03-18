@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLJSTOOLSSETTINGS_H
-#define QMLJSTOOLSSETTINGS_H
+#pragma once
 
 #include "qmljstools_global.h"
 
@@ -49,5 +48,3 @@ public:
 };
 
 } // namespace QmlJSTools
-
-#endif // QMLJSTOOLSSETTINGS_H

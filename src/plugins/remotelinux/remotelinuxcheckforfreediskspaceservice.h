@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef REMOTELINUXCHECKFORFREEDISKSPACESERVICE_H
-#define REMOTELINUXCHECKFORFREEDISKSPACESERVICE_H
+#pragma once
 
 #include "abstractremotelinuxdeployservice.h"
 
@@ -60,5 +59,3 @@ private:
 };
 
 } // namespace RemoteLinux
-
-#endif // REMOTELINUXCHECKFORFREEDISKSPACESERVICE_H

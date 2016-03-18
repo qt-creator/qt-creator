@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_MREFERENCES_H
-#define QMT_MREFERENCES_H
+#pragma once
 
 #include "qmt/controller/references.h"
 #include "qmt/infrastructure/qmt_global.h"
@@ -38,5 +37,3 @@ class QMT_EXPORT MReferences : public References<MElement>
 };
 
 } // namespace qmt
-
-#endif // QMT_MREFERENCES_H

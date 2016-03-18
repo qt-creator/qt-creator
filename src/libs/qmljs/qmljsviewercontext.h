@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef VIEWERCONTEXT_H
-#define VIEWERCONTEXT_H
+#pragma once
 
 #include "qmljs_global.h"
 #include "qmljsdialect.h"
@@ -59,4 +58,3 @@ public:
 };
 
 } // namespace QmlJS
-#endif // VIEWERCONTEXT_H

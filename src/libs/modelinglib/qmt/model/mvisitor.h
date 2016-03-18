@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_MVISITOR_H
-#define QMT_MVISITOR_H
+#pragma once
 
 namespace qmt {
 
@@ -63,5 +62,3 @@ public:
 };
 
 } // namespace qmt
-
-#endif // QMT_MVISITOR_H

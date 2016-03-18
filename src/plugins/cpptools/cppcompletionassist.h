@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CPPCOMPLETIONASSIST_H
-#define CPPCOMPLETIONASSIST_H
+#pragma once
 
 #include "builtineditordocumentparser.h"
 #include "cppcompletionassistprocessor.h"
@@ -214,5 +213,3 @@ private:
 } // CppTools
 
 Q_DECLARE_METATYPE(CPlusPlus::Symbol *)
-
-#endif // CPPCOMPLETIONASSIST_H

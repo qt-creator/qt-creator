@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PLUGINERROROVERVIEW_H
-#define PLUGINERROROVERVIEW_H
+#pragma once
 
 #include "extensionsystem_global.h"
 
@@ -56,5 +55,3 @@ private:
 };
 
 } // ExtensionSystem
-
-#endif // PLUGINERROROVERVIEW_H

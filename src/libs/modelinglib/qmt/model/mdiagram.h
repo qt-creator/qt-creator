@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_MDIAGRAM_H
-#define QMT_MDIAGRAM_H
+#pragma once
 
 #include "mobject.h"
 
@@ -69,5 +68,3 @@ private:
 };
 
 } // namespace qmt
-
-#endif // QMT_MDIAGRAM_H

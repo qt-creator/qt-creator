@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CLASSVIEWTREEITEMMODEL_H
-#define CLASSVIEWTREEITEMMODEL_H
+#pragma once
 
 #include <QStandardItemModel>
 
@@ -59,5 +58,3 @@ private:
 
 } // namespace Internal
 } // namespace ClassView
-
-#endif // CLASSVIEWTREEMODEL_H

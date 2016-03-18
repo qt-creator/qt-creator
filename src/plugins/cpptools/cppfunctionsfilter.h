@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CPPFUNCTIONSFILTER_H
-#define CPPFUNCTIONSFILTER_H
+#pragma once
 
 #include "cpplocatordata.h"
 #include "cpplocatorfilter.h"
@@ -48,5 +47,3 @@ protected:
 
 } // namespace Internal
 } // namespace CppTools
-
-#endif // CPPFUNCTIONSFILTER_H

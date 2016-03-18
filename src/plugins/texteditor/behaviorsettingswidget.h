@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef BEHAVIORSETTINGSWIDGET_H
-#define BEHAVIORSETTINGSWIDGET_H
+#pragma once
 
 #include "texteditor_global.h"
 
@@ -93,5 +92,3 @@ private:
 };
 
 } // TextEditor
-
-#endif // BEHAVIORSETTINGSWIDGET_H

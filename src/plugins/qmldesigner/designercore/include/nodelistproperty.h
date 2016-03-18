@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef NODELISTPROPERTY_H
-#define NODELISTPROPERTY_H
+#pragma once
 
 
 #include "qmldesignercorelib_global.h"
@@ -60,5 +59,3 @@ protected:
     NodeListProperty(const Internal::InternalNodeListPropertyPointer &internalNodeListProperty, Model* model, AbstractView *view);
 };
 }
-
-#endif //NODELISTROPERTY_H

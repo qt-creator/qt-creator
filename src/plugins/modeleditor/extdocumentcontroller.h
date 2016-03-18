@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef EXTDOCUMENTCONTROLLER_H
-#define EXTDOCUMENTCONTROLLER_H
+#pragma once
 
 #include "qmt/document_controller/documentcontroller.h"
 
@@ -56,5 +55,3 @@ private:
 
 } // namespace Internal
 } // namespace ModelEditor
-
-#endif // EXTDOCUMENTCONTROLLER_H

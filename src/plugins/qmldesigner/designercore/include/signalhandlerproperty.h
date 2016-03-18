@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SIGNALHANDLERPROPERTY_H
-#define SIGNALHANDLERPROPERTY_H
+#pragma once
 
 #include "qmldesignercorelib_global.h"
 #include "abstractproperty.h"
@@ -49,5 +48,3 @@ protected:
 };
 
 } // namespace QmlDesigner
-
-#endif // SIGNALHANDLERPROPERTY_H

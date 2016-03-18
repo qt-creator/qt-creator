@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef COMMANDSFILE_H
-#define COMMANDSFILE_H
+#pragma once
 
 #include <QObject>
 #include <QString>
@@ -53,5 +52,3 @@ private:
 
 } // namespace Internal
 } // namespace Core
-
-#endif //COMMANDSFILE_H

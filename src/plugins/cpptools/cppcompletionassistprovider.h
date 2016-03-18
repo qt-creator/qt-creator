@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CPPTOOLS_CPPCOMPLETIONASSISTPROVIDER_H
-#define CPPTOOLS_CPPCOMPLETIONASSISTPROVIDER_H
+#pragma once
 
 #include "cpptools_global.h"
 
@@ -67,5 +66,3 @@ public:
 };
 
 } // namespace CppTools
-
-#endif // CPPTOOLS_CPPCOMPLETIONASSISTPROVIDER_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef VARIABLECHOOSER_H
-#define VARIABLECHOOSER_H
+#pragma once
 
 #include "core_global.h"
 
@@ -59,5 +58,3 @@ private:
 };
 
 } // namespace Core
-
-#endif // VARIABLECHOOSER_H

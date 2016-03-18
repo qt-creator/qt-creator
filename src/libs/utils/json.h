@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef JSON_H
-#define JSON_H
+#pragma once
 
 #include "utils_global.h"
 
@@ -417,5 +416,3 @@ private:
 };
 
 } // namespace Utils
-
-#endif // JSON_H

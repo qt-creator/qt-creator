@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_MINHERITANCE_H
-#define QMT_MINHERITANCE_H
+#pragma once
 
 #include "mrelation.h"
 #include "qmt/infrastructure/handle.h"
@@ -50,5 +49,3 @@ public:
 };
 
 } // namespace qmt
-
-#endif // QMT_MINHERITANCE_H

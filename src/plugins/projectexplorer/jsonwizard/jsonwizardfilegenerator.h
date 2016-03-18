@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef JSONWIZARDFILEGENERATOR_H
-#define JSONWIZARDFILEGENERATOR_H
+#pragma once
 
 #include "jsonwizardgeneratorfactory.h"
 
@@ -68,5 +67,3 @@ private:
 
 } // namespace Internal
 } // namespace ProjectExplorer
-
-#endif // JSONWIZARDFILEGENERATOR_H

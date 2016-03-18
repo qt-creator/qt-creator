@@ -18,8 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#ifndef CPLUSPLUS_LEXER_H
-#define CPLUSPLUS_LEXER_H
+#pragma once
 
 #include "CPlusPlusForwardDeclarations.h"
 #include "Token.h"
@@ -158,5 +157,3 @@ private:
 };
 
 } // namespace CPlusPlus
-
-#endif // CPLUSPLUS_LEXER_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef MACROSPLUGIN_MACROLOCATORFILTER_H
-#define MACROSPLUGIN_MACROLOCATORFILTER_H
+#pragma once
 
 #include <coreplugin/locator/ilocatorfilter.h>
 
@@ -54,5 +53,3 @@ private:
 
 } // namespace Internal
 } // namespace Macros
-
-#endif // MACROSPLUGIN_MACROLOCATORFILTER_H

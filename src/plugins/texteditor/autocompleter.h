@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef AUTOCOMPLETER_H
-#define AUTOCOMPLETER_H
+#pragma once
 
 #include "texteditor_global.h"
 
@@ -90,5 +89,3 @@ private:
 };
 
 } // TextEditor
-
-#endif // AUTOCOMPLETER_H

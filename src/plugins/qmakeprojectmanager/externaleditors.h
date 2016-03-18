@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef EXTERNALEDITORS_H
-#define EXTERNALEDITORS_H
+#pragma once
 
 #include <coreplugin/editormanager/iexternaleditor.h>
 #include <coreplugin/id.h>
@@ -139,5 +138,3 @@ private:
 
 } // namespace Internal
 } // namespace QmakeProjectManager
-
-#endif // EXTERNALEDITORS_H

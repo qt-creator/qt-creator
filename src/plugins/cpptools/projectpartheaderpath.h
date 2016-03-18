@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PROJECTPARTHEADERPATH_H
-#define PROJECTPARTHEADERPATH_H
+#pragma once
 
 #include <QVector>
 
@@ -79,4 +78,3 @@ inline uint qHash(const ProjectPartHeaderPath &key, uint seed = 0)
     return ((qHash(key.path) << 2) | key.type) ^ seed;
 }
 } // namespace CppTools
-#endif // PROJECTPARTHEADERPATH_H

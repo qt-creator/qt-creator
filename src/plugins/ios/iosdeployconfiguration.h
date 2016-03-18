@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef IOSDEPLOYCONFIGURATION_H
-#define IOSDEPLOYCONFIGURATION_H
+#pragma once
 
 #include <projectexplorer/deployconfiguration.h>
 
@@ -69,5 +68,3 @@ public:
 
 } // namespace Internal
 } // namespace Ios
-
-#endif // IOSDEPLOYCONFIGURATION_H

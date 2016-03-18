@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef TESTSETTINGS_H
-#define TESTSETTINGS_H
+#pragma once
 
 #include <QtGlobal>
 
@@ -70,5 +69,3 @@ inline bool operator!=(const TestSettings &s1, const TestSettings &s2) { return 
 
 } // namespace Internal
 } // namespace Autotest
-
-#endif // TESTSETTINGS_H

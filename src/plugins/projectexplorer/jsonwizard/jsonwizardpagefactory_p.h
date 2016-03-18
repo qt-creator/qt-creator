@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef JSONWIZARDPAGEFACTORY_P_H
-#define JSONWIZARDPAGEFACTORY_P_H
+#pragma once
 
 #include "jsonwizardpagefactory.h"
 
@@ -78,5 +77,3 @@ public:
 
 } // namespace Internal
 } // namespace ProjectExplorer
-
-#endif // JSONWIZARDPAGEFACTORY_P_H

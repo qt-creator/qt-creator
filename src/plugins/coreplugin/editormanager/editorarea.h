@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef EDITORAREA_H
-#define EDITORAREA_H
+#pragma once
 
 #include "editorview.h"
 
@@ -62,5 +61,3 @@ private:
 
 } // Internal
 } // Core
-
-#endif // EDITORAREA_H

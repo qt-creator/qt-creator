@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QARK_SERIALIZE_CONTAINER_H
-#define QARK_SERIALIZE_CONTAINER_H
+#pragma once
 
 #include "parameters.h"
 
@@ -201,5 +200,3 @@ inline void load(Archive &archive, QHash<KEY, VALUE> &hash, const Parameters &)
 }
 
 } // namespace qark
-
-#endif // QARK_SERIALIZE_CONTAINER_H

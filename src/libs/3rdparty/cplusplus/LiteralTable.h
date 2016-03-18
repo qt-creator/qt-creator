@@ -18,8 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#ifndef CPLUSPLUS_LITERALTABLE_H
-#define CPLUSPLUS_LITERALTABLE_H
+#pragma once
 
 #include "CPlusPlusForwardDeclarations.h"
 #include <cstring>
@@ -164,6 +163,3 @@ protected:
 };
 
 } // namespace CPlusPlus
-
-
-#endif // CPLUSPLUS_LITERALTABLE_H

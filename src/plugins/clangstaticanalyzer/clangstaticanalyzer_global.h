@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CLANGSTATICANALYZER_GLOBAL_H
-#define CLANGSTATICANALYZER_GLOBAL_H
+#pragma once
 
 #include <QtGlobal>
 
@@ -33,6 +32,3 @@
 #else
 #  define CLANGSTATICANALYZER_EXPORT Q_DECL_IMPORT
 #endif
-
-#endif // CLANGSTATICANALYZER_GLOBAL_H
-

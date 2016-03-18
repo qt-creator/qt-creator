@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef ADDQTOPERATION_H
-#define ADDQTOPERATION_H
+#pragma once
 
 #include "operation.h"
 
@@ -61,5 +60,3 @@ private:
     QString m_qmake;
     KeyValuePairList m_extra;
 };
-
-#endif // ADDQTOPERATION_H

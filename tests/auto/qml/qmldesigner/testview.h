@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef TESTVIEW_H
-#define TESTVIEW_H
+#pragma once
 
 #include <qmlmodelview.h>
 #include <QVariant>
@@ -84,5 +83,3 @@ private:
 
 bool operator==(TestView::MethodCall call1, TestView::MethodCall call2);
 QDebug operator<<(QDebug debug, TestView::MethodCall call);
-
-#endif // TESTVIEW_H

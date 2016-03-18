@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef ABSTRACTREMOTELINUXRUNSUPPORT_H
-#define ABSTRACTREMOTELINUXRUNSUPPORT_H
+#pragma once
 
 #include "remotelinux_export.h"
 
@@ -94,5 +93,3 @@ private:
 };
 
 } // namespace RemoteLinux
-
-#endif // ABSTRACTREMOTELINUXRUNSUPPORT_H

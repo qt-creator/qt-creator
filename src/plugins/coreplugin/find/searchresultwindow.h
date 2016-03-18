@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SEARCHRESULTWINDOW_H
-#define SEARCHRESULTWINDOW_H
+#pragma once
 
 #include <coreplugin/ioutputpane.h>
 
@@ -194,5 +193,3 @@ private:
 } // namespace Core
 
 Q_DECLARE_METATYPE(Core::SearchResultItem)
-
-#endif // SEARCHRESULTWINDOW_H

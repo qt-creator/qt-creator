@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef EXECUTEFILTER_H
-#define EXECUTEFILTER_H
+#pragma once
 
 #include "ilocatorfilter.h"
 
@@ -73,5 +72,3 @@ private:
 
 } // namespace Internal
 } // namespace Core
-
-#endif // EXECUTEFILTER_H

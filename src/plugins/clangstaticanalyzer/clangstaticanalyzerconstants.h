@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CLANGSTATICANALYZERCONSTANTS_H
-#define CLANGSTATICANALYZERCONSTANTS_H
+#pragma once
 
 namespace ClangStaticAnalyzer {
 namespace Constants {
@@ -34,5 +33,3 @@ const char CLANGSTATICANALYZER_RUN_MODE[] = "ClangStaticAnalyzer.RunMode";
 
 } // Constants
 } // ClangStaticAnalyzer
-
-#endif // CLANGSTATICANALYZERCONSTANTS_H

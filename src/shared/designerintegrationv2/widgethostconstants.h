@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef WIDGETHOST_CONSTANTS_H
-#define WIDGETHOST_CONSTANTS_H
+#pragma once
 
 namespace SharedTools {
    namespace Internal {
@@ -32,6 +31,3 @@ namespace SharedTools {
        enum SelectionHandleState { SelectionHandleOff, SelectionHandleInactive, SelectionHandleActive };
    }
 }
-
-#endif // WIDGETHOST_CONSTANTS_H
-

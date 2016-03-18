@@ -24,8 +24,7 @@
 **
 ****************************************************************************/
 
-#ifndef VALGRIND_RUNNER_H
-#define VALGRIND_RUNNER_H
+#pragma once
 
 #include <debugger/analyzer/analyzerconstants.h>
 
@@ -87,5 +86,3 @@ private:
 };
 
 } // namespace Valgrind
-
-#endif // VALGRIND_RUNNER_H

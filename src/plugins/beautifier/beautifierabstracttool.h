@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef BEAUTIFIER_BEAUTIFIERABSTRACTTOOL_H
-#define BEAUTIFIER_BEAUTIFIERABSTRACTTOOL_H
+#pragma once
 
 #include <QList>
 #include <QObject>
@@ -49,5 +48,3 @@ public:
 
 } // namespace Internal
 } // namespace Beautifier
-
-#endif // BEAUTIFIER_BEAUTIFIERABSTRACTTOOL_H

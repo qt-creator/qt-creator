@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CPPPOINTERDECLARATIONFORMATTER_H
-#define CPPPOINTERDECLARATIONFORMATTER_H
+#pragma once
 
 #include "cpptools_global.h"
 #include "cpprefactoringchanges.h"
@@ -120,5 +119,3 @@ private:
 };
 
 } // namespace CppTools
-
-#endif // CPPPOINTERDECLARATIONFORMATTER_H

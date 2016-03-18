@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef GLSLASTVISITOR_H
-#define GLSLASTVISITOR_H
+#pragma once
 
 #include "glslast.h"
 
@@ -154,5 +153,3 @@ public:
 };
 
 } // namespace GLSL
-
-#endif // GLSLASTVISITOR_H

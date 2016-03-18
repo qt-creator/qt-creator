@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CLANGEDITORDOCUMENTPARSER_H
-#define CLANGEDITORDOCUMENTPARSER_H
+#pragma once
 
 #include <cpptools/baseeditordocumentparser.h>
 
@@ -42,5 +41,3 @@ private:
 };
 
 } // namespace ClangCodeModel
-
-#endif // CLANGEDITORDOCUMENTPARSER_H

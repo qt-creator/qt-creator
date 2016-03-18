@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CLANGBACKEND_COMMANDLINEARGUMENTS_H
-#define CLANGBACKEND_COMMANDLINEARGUMENTS_H
+#pragma once
 
 #include <utf8stringvector.h>
 
@@ -51,5 +50,3 @@ private:
 };
 
 } // namespace ClangBackEnd
-
-#endif // CLANGBACKEND_COMMANDLINEARGUMENTS_H

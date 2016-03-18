@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CLASSDEFINITION_H
-#define CLASSDEFINITION_H
+#pragma once
 
 #include "ui_classdefinition.h"
 #include "filenamingparameters.h"
@@ -67,5 +66,3 @@ private:
 
 }
 }
-
-#endif

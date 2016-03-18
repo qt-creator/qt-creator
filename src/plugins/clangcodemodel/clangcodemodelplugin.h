@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CLANGCODEMODELPLUGIN_H
-#define CLANGCODEMODELPLUGIN_H
+#pragma once
 
 #include "clangmodelmanagersupport.h"
 
@@ -52,5 +51,3 @@ private:
 
 } // namespace Internal
 } // namespace Clang
-
-#endif // CLANGCODEMODELPLUGIN_H

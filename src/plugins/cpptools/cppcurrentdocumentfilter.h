@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CPPCURRENTDOCUMENTFILTER_H
-#define CPPCURRENTDOCUMENTFILTER_H
+#pragma once
 
 #include "searchsymbols.h"
 
@@ -69,5 +68,3 @@ private:
 
 } // namespace Internal
 } // namespace CppTools
-
-#endif // CPPCURRENTDOCUMENTFILTER_H

@@ -24,8 +24,7 @@
 **
 ****************************************************************************/
 
-#ifndef VALGRIND_PROTOCOL_STACK_H
-#define VALGRIND_PROTOCOL_STACK_H
+#pragma once
 
 #include <QSharedDataPointer>
 
@@ -75,5 +74,3 @@ private:
 
 } // namespace XmlProtocol
 } // namespace Stack
-
-#endif // VALGRIND_PROTOCOL_STACK_H

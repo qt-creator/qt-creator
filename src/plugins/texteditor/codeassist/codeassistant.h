@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CODEASSISTANT_H
-#define CODEASSISTANT_H
+#pragma once
 
 #include "assistenums.h"
 
@@ -65,5 +64,3 @@ private:
 };
 
 } //TextEditor
-
-#endif // CODEASSISTANT_H

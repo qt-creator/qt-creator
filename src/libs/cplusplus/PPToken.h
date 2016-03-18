@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CPLUSPLUS_INTERNAL_PPTOKEN_H
-#define CPLUSPLUS_INTERNAL_PPTOKEN_H
+#pragma once
 
 #include <cplusplus/CPlusPlus.h>
 #include <cplusplus/Token.h>
@@ -136,5 +135,3 @@ private:
 
 } // namespace Internal
 } // namespace CPlusPlus
-
-#endif // CPLUSPLUS_INTERNAL_PPTOKEN_H

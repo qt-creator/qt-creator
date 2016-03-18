@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef TESTXMLOUTPUTREADER_H
-#define TESTXMLOUTPUTREADER_H
+#pragma once
 
 #include "testresult.h"
 
@@ -106,5 +105,3 @@ private:
 
 } // namespace Internal
 } // namespace Autotest
-
-#endif // TESTOUTPUTREADER_H

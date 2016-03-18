@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CPPDOXYGEN_TEST_H
-#define CPPDOXYGEN_TEST_H
+#pragma once
 
 #include "cppeditortestcase.h"
 
@@ -68,5 +67,3 @@ private:
 } // namespace Tests
 } // namespace Internal
 } // namespace CppEditor
-
-#endif // CPPDOXYGEN_TEST_H

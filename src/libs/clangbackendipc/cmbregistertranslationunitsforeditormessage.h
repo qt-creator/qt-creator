@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CLANGBACKEND_REGISTERFILEFOREDITOR_H
-#define CLANGBACKEND_REGISTERFILEFOREDITOR_H
+#pragma once
 
 #include "filecontainer.h"
 
@@ -63,5 +62,3 @@ void PrintTo(const RegisterTranslationUnitForEditorMessage &message, ::std::ostr
 
 DECLARE_MESSAGE(RegisterTranslationUnitForEditorMessage);
 } // namespace ClangBackEnd
-
-#endif // CLANGBACKEND_REGISTERFILEFORCODECOMPLITION_H

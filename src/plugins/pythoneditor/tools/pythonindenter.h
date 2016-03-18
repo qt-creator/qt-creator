@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PYTHONINDENTER_H
-#define PYTHONINDENTER_H
+#pragma once
 
 #include <texteditor/indenter.h>
 #include <QStringList>
@@ -51,5 +50,3 @@ private:
 };
 
 } // namespace PythonEditor
-
-#endif // PYTHONINDENTER_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLDESIGNER_ICONCHECKBOXITEMDELEGATE_H
-#define QMLDESIGNER_ICONCHECKBOXITEMDELEGATE_H
+#pragma once
 
 #include <QStyledItemDelegate>
 
@@ -53,5 +52,3 @@ private:
     NavigatorTreeModel *m_navigatorTreeModel;
 };
 } // namespace QmlDesigner
-
-#endif // QMLDESIGNER_ICONCHECKBOXITEMDELEGATE_H

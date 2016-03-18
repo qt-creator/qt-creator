@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef EXTERNALTOOLSFILTER_H
-#define EXTERNALTOOLSFILTER_H
+#pragma once
 
 #include "ilocatorfilter.h"
 
@@ -49,5 +48,3 @@ private:
 
 } // namespace Internal
 } // namespace Core
-
-#endif // EXTERNALTOOLSFILTER_H

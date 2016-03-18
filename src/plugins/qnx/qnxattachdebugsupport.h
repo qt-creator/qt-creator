@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QNX_INTERNAL_QNXATTACHDEBUGSUPPORT_H
-#define QNX_INTERNAL_QNXATTACHDEBUGSUPPORT_H
+#pragma once
 
 #include <debugger/debuggerconstants.h>
 #include <projectexplorer/devicesupport/deviceprocesslist.h>
@@ -79,5 +78,3 @@ private:
 
 } // namespace Internal
 } // namespace Qnx
-
-#endif // QNX_INTERNAL_QNXATTACHDEBUGSUPPORT_H

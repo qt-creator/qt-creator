@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef LOCATORSETTINGSPAGE_H
-#define LOCATORSETTINGSPAGE_H
+#pragma once
 
 #include "ui_locatorsettingspage.h"
 
@@ -91,5 +90,3 @@ private:
 
 } // namespace Internal
 } // namespace Core
-
-#endif // LOCATORSETTINGSPAGE_H

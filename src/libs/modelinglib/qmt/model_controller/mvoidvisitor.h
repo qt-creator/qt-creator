@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_MVOIDVISITOR_H
-#define QMT_MVOIDVISITOR_H
+#pragma once
 
 #include "qmt/model/mvisitor.h"
 #include "qmt/model/mconstvisitor.h"
@@ -67,5 +66,3 @@ public:
 };
 
 } // namespace qmt
-
-#endif // QMT_MVOIDVISITOR_H

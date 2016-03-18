@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef TIMELINERENDERPASS_H
-#define TIMELINERENDERPASS_H
+#pragma once
 
 #include "timeline_global.h"
 #include <QVector>
@@ -54,5 +53,3 @@ public:
 };
 
 } // namespace Timeline
-
-#endif // TIMELINERENDERPASS_H

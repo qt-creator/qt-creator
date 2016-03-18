@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef ANDROIDGLOBAL_H
-#define ANDROIDGLOBAL_H
+#pragma once
 
 #include <utils/environment.h>
 
@@ -74,5 +73,3 @@ public:
 };
 
 } // namespace Android
-
-#endif // ANDROIDGLOBAL_H

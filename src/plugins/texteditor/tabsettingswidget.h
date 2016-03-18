@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef TEXTEDITOR_TABSETTINGSWIDGET_H
-#define TEXTEDITOR_TABSETTINGSWIDGET_H
+#pragma once
 
 #include "texteditor_global.h"
 
@@ -67,4 +66,3 @@ private:
 };
 
 } // namespace TextEditor
-#endif // TEXTEDITOR_TABSETTINGSWIDGET_H

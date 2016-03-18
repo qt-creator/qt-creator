@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef REMOTELINUXSIGNALOPERATION_H
-#define REMOTELINUXSIGNALOPERATION_H
+#pragma once
 
 #include "remotelinux_export.h"
 
@@ -68,5 +67,3 @@ private:
 };
 
 }
-
-#endif // REMOTELINUXSIGNALOPERATION_H

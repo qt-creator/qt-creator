@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef ELEMENTTASKS_H
-#define ELEMENTTASKS_H
+#pragma once
 
 #include "qmt/tasks/ielementtasks.h"
 
@@ -89,5 +88,3 @@ private:
 
 } // namespace Internal
 } // namespace ModelEditor
-
-#endif // ELEMENTTASKS_H

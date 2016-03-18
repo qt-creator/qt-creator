@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PROPERTYABSTRACTCONTAINER_H
-#define PROPERTYABSTRACTCONTAINER_H
+#pragma once
 
 #include <QDataStream>
 #include <qmetatype.h>
@@ -65,4 +64,3 @@ QDebug operator <<(QDebug debug, const PropertyAbstractContainer &container);
 } // namespace QmlDesigner
 
 Q_DECLARE_METATYPE(QmlDesigner::PropertyAbstractContainer)
-#endif // PROPERTYABSTRACTCONTAINER_H

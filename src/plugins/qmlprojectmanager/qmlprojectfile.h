@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLPROJECTFILE_H
-#define QMLPROJECTFILE_H
+#pragma once
 
 #include <coreplugin/idocument.h>
 
@@ -48,5 +47,3 @@ private:
 
 } // namespace Internal
 } // namespace QmlProjectManager
-
-#endif // QMLPROJECTFILE_H

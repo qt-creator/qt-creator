@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QTLOCKEDFILE_H
-#define QTLOCKEDFILE_H
+#pragma once
 
 #include <QFile>
 
@@ -69,5 +68,3 @@ private:
 };
 
 } // namespace SharedTools
-
-#endif // QTLOCKEDFILE_H

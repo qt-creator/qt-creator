@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PROMPTOVERWRITEDIALOG_H
-#define PROMPTOVERWRITEDIALOG_H
+#pragma once
 
 #include "../core_global.h"
 
@@ -67,5 +66,3 @@ private:
 };
 
 } // namespace Core
-
-#endif // PROMPTOVERWRITEDIALOG_H

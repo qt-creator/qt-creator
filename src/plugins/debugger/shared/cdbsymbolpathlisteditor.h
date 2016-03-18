@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SYMBOLPATHLISTEDITOR_H
-#define SYMBOLPATHLISTEDITOR_H
+#pragma once
 
 #include <utils/pathlisteditor.h>
 
@@ -95,5 +94,3 @@ private:
 
 } // namespace Internal
 } // namespace Debugger
-
-#endif // SYMBOLPATHLISTEDITOR_H

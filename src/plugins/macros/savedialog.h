@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef MACROSPLUGIN_SAVEDIALOG_H
-#define MACROSPLUGIN_SAVEDIALOG_H
+#pragma once
 
 #include <QDialog>
 
@@ -51,5 +50,3 @@ private:
 
 } // namespace Internal
 } // namespace Macros
-
-#endif // MACROSPLUGIN_SAVEDIALOG_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef STYLEANIMATOR_H
-#define STYLEANIMATOR_H
+#pragma once
 
 #include <QPointer>
 #include <QTime>
@@ -93,5 +92,3 @@ private:
     QBasicTimer animationTimer;
     QList <Animation*> animations;
 };
-
-#endif // STYLEANIMATOR_H

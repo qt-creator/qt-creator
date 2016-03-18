@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef MANAGER_H
-#define MANAGER_H
+#pragma once
 
 #include "highlightdefinitionmetadata.h"
 
@@ -118,5 +117,3 @@ signals:
 
 } // namespace Internal
 } // namespace TextEditor
-
-#endif // MANAGER_H

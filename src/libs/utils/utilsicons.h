@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef UTILSICONS_H
-#define UTILSICONS_H
+#pragma once
 
 #include "icon.h"
 
@@ -36,5 +35,3 @@ const Utils::Icon EDIT_CLEAR({
 
 } // namespace Icons
 } // namespace Utils
-
-#endif // UTILSICONS_H

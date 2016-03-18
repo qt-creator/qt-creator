@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLDEBUGCLIENT_H
-#define QMLDEBUGCLIENT_H
+#pragma once
 
 #include "qmldebug_global.h"
 #include <qtcpsocket.h>
@@ -111,5 +110,3 @@ private:
 };
 
 } // namespace QmlDebug
-
-#endif // QMLDEBUGCLIENT_H

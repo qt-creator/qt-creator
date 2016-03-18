@@ -24,8 +24,7 @@
 **
 ****************************************************************************/
 
-#ifndef IMAGEVIEWERFACTORY_H
-#define IMAGEVIEWERFACTORY_H
+#pragma once
 
 #include <coreplugin/editormanager/ieditorfactory.h>
 #include <coreplugin/editormanager/ieditor.h>
@@ -45,5 +44,3 @@ public:
 
 } // namespace Internal
 } // namespace ImageViewer
-
-#endif // IMAGEVIEWERFACTORY_H

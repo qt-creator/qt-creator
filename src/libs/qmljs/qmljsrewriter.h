@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLJSREWRITER_H
-#define QMLJSREWRITER_H
+#pragma once
 
 #include <qmljs/qmljs_global.h>
 #include <qmljs/parser/qmljsastfwd_p.h>
@@ -112,5 +111,3 @@ private:
 };
 
 } // namespace QmlJS
-
-#endif // QMLJSREWRITER_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLJS_CONTEXT_H
-#define QMLJS_CONTEXT_H
+#pragma once
 
 #include "qmljs_global.h"
 #include "qmljsdocument.h"
@@ -97,5 +96,3 @@ private:
 };
 
 } // namespace QmlJS
-
-#endif // QMLJS_CONTEXT_H

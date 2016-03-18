@@ -18,8 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#ifndef SYMBOLVISITOR_H
-#define SYMBOLVISITOR_H
+#pragma once
 
 #include "Symbol.h"
 
@@ -71,6 +70,3 @@ public:
 };
 
 } // namespace CPlusPlus
-
-
-#endif // SYMBOLVISITOR_H

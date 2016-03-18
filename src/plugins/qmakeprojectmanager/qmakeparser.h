@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMAKEPARSER_H
-#define QMAKEPARSER_H
+#pragma once
 
 #include "qmakeprojectmanager_global.h"
 
@@ -47,5 +46,3 @@ private:
 };
 
 } // namespace QmakeProjectManager
-
-#endif // QMAKEPARSER_H

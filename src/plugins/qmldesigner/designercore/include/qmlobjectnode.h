@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLOBJECTNODE_H
-#define QMLOBJECTNODE_H
+#pragma once
 
 #include <qmldesignercorelib_global.h>
 #include "qmlmodelnodefacade.h"
@@ -126,5 +125,3 @@ QMLDESIGNERCORE_EXPORT uint qHash(const QmlObjectNode &node);
 QMLDESIGNERCORE_EXPORT QList<ModelNode> toModelNodeList(const QList<QmlObjectNode> &fxObjectNodeList);
 QMLDESIGNERCORE_EXPORT QList<QmlObjectNode> toQmlObjectNodeList(const QList<ModelNode> &modelNodeList);
 }// QmlDesigner
-
-#endif // QMLOBJECTNODE_H

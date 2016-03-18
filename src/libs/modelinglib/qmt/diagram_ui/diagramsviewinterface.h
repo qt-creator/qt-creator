@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_DIAGRAMSVIEWINTERFACE_H
-#define QMT_DIAGRAMSVIEWINTERFACE_H
+#pragma once
 
 namespace qmt {
 
@@ -43,5 +42,3 @@ public:
 };
 
 } // namespace qmt
-
-#endif // QMT_DIAGRAMSVIEWINTERFACE_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_STYLECONTROLLER_H
-#define QMT_STYLECONTROLLER_H
+#pragma once
 
 #include <QObject>
 
@@ -71,5 +70,3 @@ private:
 };
 
 } // namespace qmt
-
-#endif // QMT_STYLECONTROLLER_H

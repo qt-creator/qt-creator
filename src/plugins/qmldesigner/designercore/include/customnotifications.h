@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CUSTOMNOTIFICATIONS_H
-#define CUSTOMNOTIFICATIONS_H
+#pragma once
 
 #include <QString>
 
@@ -34,5 +33,3 @@ const QString StartRewriterAmend = QStringLiteral("__start rewriter amend__");
 const QString EndRewriterAmend = QStringLiteral("__end rewriter amend__");
 
 }
-
-#endif //CUSTOMNOTIFICATIONS_H

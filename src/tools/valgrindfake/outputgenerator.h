@@ -24,8 +24,7 @@
 **
 ****************************************************************************/
 
-#ifndef LIBVALGRIND_FAKE_OUTPUTGENERATOR_H
-#define LIBVALGRIND_FAKE_OUTPUTGENERATOR_H
+#pragma once
 
 #include <QObject>
 #include <QTimer>
@@ -71,5 +70,3 @@ private:
 
 } // namespace Fake
 } // namespace Valgrind
-
-#endif // LIBVALGRIND_FAKE_OUTPUTGENERATOR_H

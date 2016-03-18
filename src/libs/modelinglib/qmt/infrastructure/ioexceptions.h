@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_IOEXCEPTIONS_H
-#define QMT_IOEXCEPTIONS_H
+#pragma once
 
 #include "exceptions.h"
 
@@ -87,5 +86,3 @@ public:
 };
 
 } // namespace qmt
-
-#endif // QMT_IOEXCEPTIONS_H

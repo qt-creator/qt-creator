@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLPROFILERPLUGIN_H
-#define QMLPROFILERPLUGIN_H
+#pragma once
 
 #include "qmlprofiler_global.h"
 #include "qmlprofilertimelinemodelfactory.h"
@@ -60,6 +59,3 @@ private:
 
 } // namespace Internal
 } // namespace QmlProfiler
-
-#endif // QMLPROFILERPLUGIN_H
-

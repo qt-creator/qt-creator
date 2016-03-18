@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef DOXYGENGENERATOR_H
-#define DOXYGENGENERATOR_H
+#pragma once
 
 #include "cpptools_global.h"
 
@@ -95,5 +94,3 @@ private:
 };
 
 } // namespace CppTools
-
-#endif // DOXYGENGENERATOR_H

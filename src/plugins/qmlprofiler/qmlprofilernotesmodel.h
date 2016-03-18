@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLPROFILERNOTESMODEL_H
-#define QMLPROFILERNOTESMODEL_H
+#pragma once
 
 #include "qmlprofilermodelmanager.h"
 #include "timeline/timelinenotesmodel.h"
@@ -47,4 +46,3 @@ protected:
     int add(int typeId, qint64 startTime, qint64 duration, const QString &text);
 };
 } // namespace QmlProfiler
-#endif // QMLPROFILERNOTESMODEL_H

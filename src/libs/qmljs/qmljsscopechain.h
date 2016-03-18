@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLJS_SCOPECHAIN_H
-#define QMLJS_SCOPECHAIN_H
+#pragma once
 
 #include "qmljs_global.h"
 #include "qmljsdocument.h"
@@ -123,5 +122,3 @@ private:
 };
 
 } // namespace QmlJS
-
-#endif // QMLJS_SCOPECHAIN_H

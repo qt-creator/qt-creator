@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CLASSVIEWNAVIGATIONWIDGETFACTORY_H
-#define CLASSVIEWNAVIGATIONWIDGETFACTORY_H
+#pragma once
 
 #include <coreplugin/inavigationwidgetfactory.h>
 
@@ -50,5 +49,3 @@ public:
 
 } // namespace Internal
 } // namespace ClassView
-
-#endif // CLASSVIEWNAVIGATIONWIDGETFACTORY_H

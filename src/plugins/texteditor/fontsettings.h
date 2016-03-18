@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef FONTSETTINGS_H
-#define FONTSETTINGS_H
+#pragma once
 
 #include "texteditor_global.h"
 
@@ -119,5 +118,3 @@ inline bool operator==(const FontSettings &f1, const FontSettings &f2) { return 
 inline bool operator!=(const FontSettings &f1, const FontSettings &f2) { return !f1.equals(f2); }
 
 } // namespace TextEditor
-
-#endif // FONTSETTINGS_H

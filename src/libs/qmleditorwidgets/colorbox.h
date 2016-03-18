@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef COLORBOX_H
-#define COLORBOX_H
+#pragma once
 
 #include "qmleditorwidgets_global.h"
 #include <QWidget>
@@ -86,5 +85,3 @@ private:
 };
 
 } //QmlEditorWidgets
-
-#endif //COLORBOX_H

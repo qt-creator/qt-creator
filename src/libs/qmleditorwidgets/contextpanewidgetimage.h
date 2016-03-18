@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CONTEXTPANEWIDGETIMAGE_H
-#define CONTEXTPANEWIDGETIMAGE_H
+#pragma once
 
 #include "qmleditorwidgets_global.h"
 #include "contextpanewidget.h"
@@ -186,5 +185,3 @@ protected:
 
 
 } //QmlDesigner
-
-#endif // CONTEXTPANEWIDGETIMAGE_H

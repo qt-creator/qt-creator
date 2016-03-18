@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CPPFILESETTINGSPAGE_H
-#define CPPFILESETTINGSPAGE_H
+#pragma once
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
@@ -103,5 +102,3 @@ private:
 
 } // namespace Internal
 } // namespace CppTools
-
-#endif // CPPFILESETTINGSPAGE_H

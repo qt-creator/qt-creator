@@ -18,8 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#ifndef CPLUSPLUS_BIND_H
-#define CPLUSPLUS_BIND_H
+#pragma once
 
 #include "ASTVisitor.h"
 #include "FullySpecifiedType.h"
@@ -291,5 +290,3 @@ private:
 };
 
 } // namespace CPlusPlus
-
-#endif // CPLUSPLUS_BIND_H

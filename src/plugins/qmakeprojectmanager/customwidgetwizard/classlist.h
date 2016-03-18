@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CLASSLIST_H
-#define CLASSLIST_H
+#pragma once
 
 #include <QListView>
 
@@ -68,4 +67,3 @@ private:
 
 } // namespace Internal
 } // namespace QmakeProjectManager
-#endif

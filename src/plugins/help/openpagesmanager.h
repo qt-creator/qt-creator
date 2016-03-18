@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef OPENPAGESMANAGER_H
-#define OPENPAGESMANAGER_H
+#pragma once
 
 #include <QObject>
 
@@ -94,5 +93,3 @@ private:
 
     } // namespace Internal
 } // namespace Help
-
-#endif // OPENPAGESMANAGER_H

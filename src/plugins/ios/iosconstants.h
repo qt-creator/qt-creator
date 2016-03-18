@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef IOSCONSTANTS_H
-#define IOSCONSTANTS_H
+#pragma once
 
 #include <QtGlobal>
 #include <QLoggingCategory>
@@ -56,5 +55,3 @@ const char EXTRA_INFO_KEY[] = "extraInfo";
 
 } // namespace Constants;
 } // namespace Ios
-
-#endif  // IOSCONSTANTS_H

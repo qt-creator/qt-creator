@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef RUNEXTENSIONS_H
-#define RUNEXTENSIONS_H
+#pragma once
 
 #include "functiontraits.h"
 #include "utils_global.h"
@@ -509,5 +508,3 @@ runAsync(QThreadPool *pool, Function &&function, Args&&... args)
 }
 
 } // Utils
-
-#endif // RUNEXTENSIONS_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef LIBRARYDETAILSCONTROLLER_H
-#define LIBRARYDETAILSCONTROLLER_H
+#pragma once
 
 #include "addlibrarywizard.h"
 
@@ -198,5 +197,3 @@ private:
 
 } // namespace Internal
 } // namespace QmakeProjectManager
-
-#endif // LIBRARYDETAILSCONTROLLER_H

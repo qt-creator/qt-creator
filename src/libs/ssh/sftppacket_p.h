@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SFTPPACKET_P_H
-#define SFTPPACKET_P_H
+#pragma once
 
 #include <QByteArray>
 #include <QList>
@@ -108,5 +107,3 @@ protected:
 
 } // namespace Internal
 } // namespace QSsh
-
-#endif // SFTPPACKET_P_H

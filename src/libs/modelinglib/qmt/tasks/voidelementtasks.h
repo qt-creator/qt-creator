@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_VOIDELEMENTTASKS_H
-#define QMT_VOIDELEMENTTASKS_H
+#pragma once
 
 #include "ielementtasks.h"
 #include "qmt/infrastructure/qmt_global.h"
@@ -76,5 +75,3 @@ public:
 };
 
 } // namespace qmt
-
-#endif // QMT_VOIDELEMENTTASKS_H

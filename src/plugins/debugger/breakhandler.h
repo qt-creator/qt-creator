@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef DEBUGGER_BREAKHANDLER_H
-#define DEBUGGER_BREAKHANDLER_H
+#pragma once
 
 #include "breakpoint.h"
 #include "debuggerprotocol.h"
@@ -233,5 +232,3 @@ private:
 } // namespace Debugger
 
 Q_DECLARE_METATYPE(Debugger::Internal::Breakpoint)
-
-#endif // DEBUGGER_BREAKHANDLER_H

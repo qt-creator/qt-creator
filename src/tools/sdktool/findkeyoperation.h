@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef FINDKEYOPERATION_H
-#define FINDKEYOPERATION_H
+#pragma once
 
 #include "operation.h"
 
@@ -50,5 +49,3 @@ private:
     QString m_file;
     QStringList m_keys;
 };
-
-#endif // FINDKEYOPERATION_H

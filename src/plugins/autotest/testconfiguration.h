@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef TESTCONFIGURATION_H
-#define TESTCONFIGURATION_H
+#pragma once
 
 #include "autotestconstants.h"
 
@@ -98,5 +97,3 @@ private:
 
 } // namespace Internal
 } // namespace Autotest
-
-#endif // TESTCONFIGURATION_H

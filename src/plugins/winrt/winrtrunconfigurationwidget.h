@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef WINRTRUNCONFIGURATIONWIDGET_H
-#define WINRTRUNCONFIGURATIONWIDGET_H
+#pragma once
 
 #include <utils/detailswidget.h>
 
@@ -48,5 +47,3 @@ private:
 
 } // namespace Internal
 } // namespace WinRt
-
-#endif // WINRTRUNCONFIGURATIONWIDGET_H

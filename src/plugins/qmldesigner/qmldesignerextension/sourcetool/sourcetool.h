@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SOURCETOOL_H
-#define SOURCETOOL_H
+#pragma once
 
 #include <abstractcustomtool.h>
 #include "selectionindicator.h"
@@ -89,4 +88,3 @@ private:
 };
 
 }
-#endif // SOURCETOOL_H

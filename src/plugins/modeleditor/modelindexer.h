@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef MODELINDEXER_H
-#define MODELINDEXER_H
+#pragma once
 
 #include <QObject>
 
@@ -86,5 +85,3 @@ private:
 
 } // namespace Internal
 } // namespace ModelEditor
-
-#endif // MODELINDEXER_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef DOCSETTINGSPAGE_H
-#define DOCSETTINGSPAGE_H
+#pragma once
 
 #include "ui_docsettingspage.h"
 #include <coreplugin/dialogs/ioptionspage.h>
@@ -77,5 +76,3 @@ private:
 
 } // namespace Help
 } // namespace Internal
-
-#endif // DOCSETTINGSPAGE_H

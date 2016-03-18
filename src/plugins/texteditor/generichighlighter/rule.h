@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef RULE_H
-#define RULE_H
+#pragma once
 
 #include <QString>
 #include <QList>
@@ -156,5 +155,3 @@ private:
 
 } // namespace Internal
 } // namespace TextEditor
-
-#endif // RULE_H

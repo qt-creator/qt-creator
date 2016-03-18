@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef DEBUGGER_PEUTILS_H
-#define DEBUGGER_PEUTILS_H
+#pragma once
 
 #include <qnamespace.h>
 
@@ -43,5 +42,3 @@ bool getPDBFiles(const QString &peExecutableFileName, QStringList *rc, QString *
 
 } // namespace Internal
 } // namespace Debugger
-
-#endif // DEBUGGER_PEUTILS_H

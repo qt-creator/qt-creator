@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef TEXTEDITOR_SYNTAXHIGHLIGHTER_H
-#define TEXTEDITOR_SYNTAXHIGHLIGHTER_H
+#pragma once
 
 #include "texteditor_global.h"
 #include <texteditor/texteditorconstants.h>
@@ -98,5 +97,3 @@ private:
 };
 
 } // namespace TextEditor
-
-#endif // TEXTEDITOR_SYNTAXHIGHLIGHTER_H

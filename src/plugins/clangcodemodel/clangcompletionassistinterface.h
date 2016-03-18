@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CLANGCODEMODEL_INTERNAL_CLANGCOMPLETIONASSISTINTERFACE_H
-#define CLANGCODEMODEL_INTERNAL_CLANGCOMPLETIONASSISTINTERFACE_H
+#pragma once
 
 #include "clangbackendipcintegration.h"
 #include "clangutils.h"
@@ -63,5 +62,3 @@ private:
 
 } // namespace Internal
 } // namespace ClangCodeModel
-
-#endif // CLANGCODEMODEL_INTERNAL_CLANGCOMPLETIONASSISTINTERFACE_H

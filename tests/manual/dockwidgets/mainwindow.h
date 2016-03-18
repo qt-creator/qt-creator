@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
+#pragma once
 
 #include <QMainWindow>
 
@@ -42,5 +41,3 @@ private:
 
     QLabel *centralWidget;
 };
-
-#endif // MAINWINDOW_H

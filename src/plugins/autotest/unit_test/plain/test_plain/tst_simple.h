@@ -1,4 +1,2 @@
-#ifndef TST_SIMPLE_H
-#define TST_SIMPLE_H
+#pragma once
 #include <QTest>
-#endif // TST_SIMPLE_H

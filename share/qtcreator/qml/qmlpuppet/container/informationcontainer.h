@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef INFORMATIONCONTAINER_H
-#define INFORMATIONCONTAINER_H
+#pragma once
 
 #include <QDataStream>
 #include <QMetaType>
@@ -74,5 +73,3 @@ QDebug operator <<(QDebug debug, const InformationContainer &container);
 } // namespace QmlDesigner
 
 Q_DECLARE_METATYPE(QmlDesigner::InformationContainer)
-
-#endif // INFORMATIONCONTAINER_H

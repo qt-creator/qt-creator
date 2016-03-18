@@ -24,8 +24,7 @@
 **
 ****************************************************************************/
 
-#ifndef BAREMETALDEVICECONFIGURATIONWIDGET_H
-#define BAREMETALDEVICECONFIGURATIONWIDGET_H
+#pragma once
 
 #include <projectexplorer/devicesupport/idevicewidget.h>
 
@@ -54,5 +53,3 @@ private:
 
 } // namespace Internal
 } // namespace BareMetal
-
-#endif // BAREMETALDEVICECONFIGURATIONWIDGET_H

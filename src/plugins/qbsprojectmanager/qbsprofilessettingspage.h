@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QBSPROFILESSETTINGSPAGE_H
-#define QBSPROFILESSETTINGSPAGE_H
+#pragma once
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
@@ -48,5 +47,3 @@ private:
 
 } // namespace Internal
 } // namespace QbsProjectManager
-
-#endif // Include guard.

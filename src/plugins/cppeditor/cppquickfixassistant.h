@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CPPQUICKFIXASSISTANT_H
-#define CPPQUICKFIXASSISTANT_H
+#pragma once
 
 #include <cpptools/cppsemanticinfo.h>
 #include <texteditor/codeassist/assistinterface.h>
@@ -81,5 +80,3 @@ public:
 
 } // Internal
 } // CppEditor
-
-#endif // CPPQUICKFIXASSISTANT_H

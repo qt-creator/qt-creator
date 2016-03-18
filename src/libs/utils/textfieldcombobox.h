@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef TEXTFIELDCOMBOBOX_H
-#define TEXTFIELDCOMBOBOX_H
+#pragma once
 
 #include "utils_global.h"
 
@@ -55,5 +54,3 @@ private:
 };
 
 } // namespace Utils
-
-#endif // TEXTFIELDCOMBOBOX_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PROXYCREDENTIALSDIALOG_H
-#define PROXYCREDENTIALSDIALOG_H
+#pragma once
 
 #include "utils_global.h"
 #include <QDialog>
@@ -55,5 +54,3 @@ private:
 };
 
 } // namespace Utils
-
-#endif // PROXYCREDENTIALSDIALOG_H

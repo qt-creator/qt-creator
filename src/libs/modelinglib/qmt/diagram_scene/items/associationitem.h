@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_GRAPHICSASSOCIATIONITEM_H
-#define QMT_GRAPHICSASSOCIATIONITEM_H
+#pragma once
 
 #include "relationitem.h"
 
@@ -63,5 +62,3 @@ private:
 };
 
 } // namespace qmt
-
-#endif // QMT_GRAPHICSASSOCIATIONITEM_H

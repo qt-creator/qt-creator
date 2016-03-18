@@ -24,8 +24,7 @@
 **
 ****************************************************************************/
 
-#ifndef ANALYZER_VALGRIND_SUPPRESSIONDIALOG_H
-#define ANALYZER_VALGRIND_SUPPRESSIONDIALOG_H
+#pragma once
 
 #include "xmlprotocol/error.h"
 
@@ -72,5 +71,3 @@ private:
 
 } // namespace Internal
 } // namespace Valgrind
-
-#endif // ANALYZER_VALGRIND_SUPPRESSIONDIALOG_H

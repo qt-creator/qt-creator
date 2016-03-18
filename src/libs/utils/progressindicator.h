@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PROGRESSINDICATOR_H
-#define PROGRESSINDICATOR_H
+#pragma once
 
 #include "utils_global.h"
 
@@ -72,5 +71,3 @@ private:
 };
 
 } // Utils
-
-#endif // PROGRESSINDICATOR_H

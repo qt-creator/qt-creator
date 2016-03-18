@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef DEBUGGERRUNCONFIGURATIONASPECT_H
-#define DEBUGGERRUNCONFIGURATIONASPECT_H
+#pragma once
 
 #include "debugger_global.h"
 #include "debuggerconstants.h"
@@ -82,5 +81,3 @@ private:
 };
 
 } // namespace Debugger
-
-#endif // DEBUGGERRUNCONFIGURATIONASPECT_H

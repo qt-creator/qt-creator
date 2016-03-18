@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CLANGCODEMODEL_CLANGFIXITOPERATION_H
-#define CLANGCODEMODEL_CLANGFIXITOPERATION_H
+#pragma once
 
 #include <texteditor/quickfix.h>
 
@@ -66,5 +65,3 @@ private:
 };
 
 } // namespace ClangCodeModel
-
-#endif // CLANGCODEMODEL_CLANGFIXITOPERATION_H

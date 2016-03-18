@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_STYLEDRELATION_H
-#define QMT_STYLEDRELATION_H
+#pragma once
 
 #include "qmt/infrastructure/qmt_global.h"
 
@@ -50,5 +49,3 @@ private:
 };
 
 } // namespace qmt
-
-#endif // QMT_STYLEDRELATION_H

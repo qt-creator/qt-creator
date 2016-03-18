@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef ITEMLIBRARYINFO_H
-#define ITEMLIBRARYINFO_H
+#pragma once
 
 #include "qmldesignercorelib_global.h"
 
@@ -120,5 +119,3 @@ private: // variables
 } // namespace QmlDesigner
 
 Q_DECLARE_METATYPE(QmlDesigner::ItemLibraryEntry)
-
-#endif // ITEMLIBRARYINFO_H

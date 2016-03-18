@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QNX_INTERNAL_QNXPLUGIN_H
-#define QNX_INTERNAL_QNXPLUGIN_H
+#pragma once
 
 #include <extensionsystem/iplugin.h>
 
@@ -57,5 +56,3 @@ private:
 
 } // namespace Internal
 } // namespace Qnx
-
-#endif // QNX_INTERNAL_QNXPLUGIN_H

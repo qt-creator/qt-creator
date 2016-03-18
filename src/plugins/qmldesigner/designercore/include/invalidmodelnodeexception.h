@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef INVALIDMODELNODEEXCEPTION_H
-#define INVALIDMODELNODEEXCEPTION_H
+#pragma once
 
 #include "exception.h"
 
@@ -42,5 +41,3 @@ public:
 };
 
 }
-
-#endif // INVALIDMODELNODEEXCEPTION_H

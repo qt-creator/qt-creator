@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CLASSVIEWCONSTANTS_H
-#define CLASSVIEWCONSTANTS_H
+#pragma once
 
 namespace ClassView {
 namespace Constants {
@@ -40,5 +39,3 @@ enum ItemRole
 
 } // namespace Constants
 } // namespace ClassView
-
-#endif // CLASSVIEWCONSTANTS_H

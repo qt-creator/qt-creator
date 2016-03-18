@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef NAVIGATIONTREEVIEW_H
-#define NAVIGATIONTREEVIEW_H
+#pragma once
 
 #include "utils_global.h"
 
@@ -45,5 +44,3 @@ protected:
 };
 
 } // Utils
-
-#endif // NAVIGATIONTREEVIEW_H

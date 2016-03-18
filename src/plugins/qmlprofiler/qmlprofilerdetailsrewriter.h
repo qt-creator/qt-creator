@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLPROFILERDETAILSREWRITER_H
-#define QMLPROFILERDETAILSREWRITER_H
+#pragma once
 
 #include <QObject>
 
@@ -62,5 +61,3 @@ private:
 
 } // namespace Internal
 } // namespace QmlProfiler
-
-#endif // QMLPROFILERDETAILSREWRITER_H

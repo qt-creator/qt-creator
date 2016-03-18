@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CLANGBACKEND_ECHOMESSAGE_H
-#define CLANGBACKEND_ECHOMESSAGE_H
+#pragma once
 
 #include "clangbackendipc_global.h"
 
@@ -55,5 +54,3 @@ void PrintTo(const EchoMessage &message, ::std::ostream* os);
 
 DECLARE_MESSAGE(EchoMessage)
 } // namespace ClangBackEnd
-
-#endif // CLANGBACKEND_ECHOMESSAGE_H

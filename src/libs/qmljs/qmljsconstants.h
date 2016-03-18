@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLJSCONSTANTS_H
-#define QMLJSCONSTANTS_H
+#pragma once
 
 #include "qmljs_global.h"
 
@@ -91,4 +90,3 @@ const char TASK_IMPORT_SCAN[] = "QmlJSEditor.TaskImportScan";
 QMLJS_EXPORT Q_DECLARE_LOGGING_CATEGORY(qmljsLog)
 
 } // namespace QmlJS
-#endif // QMLJSCONSTANTS_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CPLUSPLUS_MATCHINGTEXT_H
-#define CPLUSPLUS_MATCHINGTEXT_H
+#pragma once
 
 #include <QtGlobal>
 #include <cplusplus/CPlusPlusForwardDeclarations.h>
@@ -46,5 +45,3 @@ public:
 };
 
 } // namespace CPlusPlus
-
-#endif // MATCHINGTEXT_H

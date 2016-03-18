@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_DIAGRAMGRAPHICSSCENE_H
-#define QMT_DIAGRAMGRAPHICSSCENE_H
+#pragma once
 
 #include <QGraphicsScene>
 #include "qmt/infrastructure/qmt_global.h"
@@ -69,5 +68,3 @@ private:
 };
 
 } // namespace qmt
-
-#endif // QMT_DIAGRAMGRAPHICSSCENE_H

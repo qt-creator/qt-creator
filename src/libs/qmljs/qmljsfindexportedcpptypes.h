@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLJS_QMLJSFINDEXPORTEDCPPTYPES_H
-#define QMLJS_QMLJSFINDEXPORTEDCPPTYPES_H
+#pragma once
 
 #include "qmljs_global.h"
 #include <cplusplus/CppDocument.h>
@@ -56,5 +55,3 @@ private:
 };
 
 } // namespace QmlJS
-
-#endif // QMLJS_QMLJSFINDEXPORTEDCPPTYPES_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QBSLOGSINK_H
-#define QBSLOGSINK_H
+#pragma once
 
 #include <projectexplorer/task.h>
 
@@ -59,5 +58,3 @@ private:
 
 } // namespace Internal
 } // namespace QbsProjectManager
-
-#endif // QBSLOGSINK_H

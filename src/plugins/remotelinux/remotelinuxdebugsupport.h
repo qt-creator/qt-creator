@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef REMOTELINUXDEBUGSUPPORT_H
-#define REMOTELINUXDEBUGSUPPORT_H
+#pragma once
 
 #include "abstractremotelinuxrunsupport.h"
 
@@ -66,5 +65,3 @@ private:
 };
 
 } // namespace RemoteLinux
-
-#endif // REMOTELINUXDEBUGSUPPORT_H

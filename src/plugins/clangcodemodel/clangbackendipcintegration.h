@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CLANGCODEMODEL_INTERNAL_CLANGBACKENDIPCINTEGRATION_H
-#define CLANGCODEMODEL_INTERNAL_CLANGBACKENDIPCINTEGRATION_H
+#pragma once
 
 #include <cpptools/projectpart.h>
 
@@ -187,5 +186,3 @@ private:
 
 } // namespace Internal
 } // namespace ClangCodeModel
-
-#endif // CLANGCODEMODEL_INTERNAL_CLANGBACKENDIPCINTEGRATION_H

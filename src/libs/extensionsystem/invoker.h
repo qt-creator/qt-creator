@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef EXTENSIONSYSTEM_INVOKER_H
-#define EXTENSIONSYSTEM_INVOKER_H
+#pragma once
 
 #include "extensionsystem_global.h"
 
@@ -202,5 +201,3 @@ Result invoke(QObject *target, const char *slot,
 }
 
 } // namespace ExtensionSystem
-
-#endif // EXTENSIONSYSTEM_INVOKER_H

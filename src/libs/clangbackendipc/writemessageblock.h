@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CLANGBACKEND_WRITEMESSAGEBLOCK_H
-#define CLANGBACKEND_WRITEMESSAGEBLOCK_H
+#pragma once
 
 #include <QtGlobal>
 
@@ -55,5 +54,3 @@ private:
 };
 
 } // namespace ClangBackEnd
-
-#endif // CLANGBACKEND_WRITEMESSAGEBLOCK_H

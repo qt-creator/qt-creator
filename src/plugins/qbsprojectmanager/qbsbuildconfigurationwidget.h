@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QBSBUILDCONFIGURATIONWIDGET_H
-#define QBSBUILDCONFIGURATIONWIDGET_H
+#pragma once
 
 #include <projectexplorer/namedwidget.h>
 
@@ -59,5 +58,3 @@ private:
 
 } // namespace Internal
 } // namespace QbsProjectManager
-
-#endif // QBSBUILDCONFIGURATIONWIDGET_H

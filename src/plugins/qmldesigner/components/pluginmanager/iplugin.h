@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef IPLUGIN_H
-#define IPLUGIN_H
+#pragma once
 
 #include <QObject>
 
@@ -50,5 +49,3 @@ public:
 QT_BEGIN_NAMESPACE
 Q_DECLARE_INTERFACE(QmlDesigner::IPlugin, QMLDESIGNER_PLUGIN_INTERFACE)
 QT_END_NAMESPACE
-
-#endif // IPLUGIN_H

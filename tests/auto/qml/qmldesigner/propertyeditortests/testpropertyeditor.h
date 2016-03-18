@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef TESTPROPERTYEDITOR_H
-#define TESTPROPERTYEDITOR_H
+#pragma once
 
 #include <QObject>
 
@@ -49,5 +48,3 @@ private slots:
     void loadWelcomeScreen();
     void loadHelloWorld();
 };
-
-#endif // TESTPROPERTYEDITOR_H

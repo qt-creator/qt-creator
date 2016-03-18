@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef MACROSPLUGIN_MACROTEXTFIND_H
-#define MACROSPLUGIN_MACROTEXTFIND_H
+#pragma once
 
 #include <coreplugin/find/ifindsupport.h>
 
@@ -74,5 +73,3 @@ private:
 
 } // namespace Internal
 } // namespace Macros
-
-#endif // MACROSPLUGIN_MACROTEXTFIND_H

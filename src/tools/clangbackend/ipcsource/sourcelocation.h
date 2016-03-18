@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CLANGBACKEND_SOURCELOCATION_H
-#define CLANGBACKEND_SOURCELOCATION_H
+#pragma once
 
 #include <clang-c/Index.h>
 
@@ -75,5 +74,3 @@ bool operator==(const SourceLocation &first, const SourceLocation &second);
 void PrintTo(const SourceLocation &sourceLocation, ::std::ostream* os);
 
 } // namespace ClangBackEnd
-
-#endif // CLANGBACKEND_SOURCELOCATION_H

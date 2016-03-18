@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_REFERENCES_H
-#define QMT_REFERENCES_H
+#pragma once
 
 #include <QList>
 
@@ -51,5 +50,3 @@ private:
 };
 
 } // namespace qmt
-
-#endif // QMT_REFERENCES_H

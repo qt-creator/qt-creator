@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef COMPONENTTEXTMODIFIER_H
-#define COMPONENTTEXTMODIFIER_H
+#pragma once
 
 #include "textmodifier.h"
 
@@ -68,5 +67,3 @@ private:
 };
 
 } // namespace QmlDesigner
-
-#endif // COMPONENTTEXTMODIFIER_H

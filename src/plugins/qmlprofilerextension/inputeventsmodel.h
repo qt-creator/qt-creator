@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef INPUTEVENTSMODEL_H
-#define INPUTEVENTSMODEL_H
+#pragma once
 
 #include "qmlprofiler/qmlprofilertimelinemodel.h"
 
@@ -68,4 +67,3 @@ private:
 
 }
 }
-#endif // INPUTEVENTSMODEL_H

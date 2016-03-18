@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef FILEINPROJECTFINDER_H
-#define FILEINPROJECTFINDER_H
+#pragma once
 
 #include <utils/utils_global.h>
 
@@ -66,5 +65,3 @@ private:
 };
 
 } // namespace Utils
-
-#endif // FILEINPROJECTFINDER_H

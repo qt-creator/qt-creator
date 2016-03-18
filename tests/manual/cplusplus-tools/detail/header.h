@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef HEADER_H
-#define HEADER_H
+#pragma once
 
 #include <QtGlobal>
 
@@ -51,5 +50,3 @@ void freefunc3(T)
 template <class T>
 void freefunc3(T, int)
 {}
-
-#endif //HEADER_H

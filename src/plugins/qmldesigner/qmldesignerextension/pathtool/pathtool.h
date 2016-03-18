@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PATHTOOL_H
-#define PATHTOOL_H
+#pragma once
 
 #include "abstractcustomtool.h"
 #include "selectionindicator.h"
@@ -90,5 +89,3 @@ private:
 };
 
 }
-#endif // PATHTOOL_H
-

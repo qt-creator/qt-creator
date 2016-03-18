@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CREATETABLESQLSTATEMENTBUILDER_H
-#define CREATETABLESQLSTATEMENTBUILDER_H
+#pragma once
 
 #include "columndefinition.h"
 #include "sqlstatementbuilder.h"
@@ -62,5 +61,3 @@ private:
 };
 
 }
-
-#endif // CREATETABLESQLSTATEMENTBUILDER_H

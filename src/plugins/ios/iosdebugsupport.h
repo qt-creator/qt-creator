@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef IOSDEBUGSUPPORT_H
-#define IOSDEBUGSUPPORT_H
+#pragma once
 
 #include "iosrunconfiguration.h"
 #include <QProcess>
@@ -65,5 +64,3 @@ private:
 
 } // namespace Internal
 } // namespace Ios
-
-#endif // IOSDEBUGSUPPORT_H

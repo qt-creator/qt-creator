@@ -48,8 +48,7 @@
 **
 ****************************************************************************/
 
-#ifndef TEXTFINDER_H
-#define TEXTFINDER_H
+#pragma once
 
 #include "ui_textfinder.h"
 
@@ -77,5 +76,3 @@ private:
     void loadTextFile();
 //! [0]
 };
-
-#endif // TEXTFINDER_H

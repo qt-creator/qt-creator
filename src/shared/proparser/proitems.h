@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PROITEMS_H
-#define PROITEMS_H
+#pragma once
 
 #include "qmake_global.h"
 
@@ -387,5 +386,3 @@ struct ProFunctionDefs {
 };
 
 QT_END_NAMESPACE
-
-#endif // PROITEMS_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PYTHONHIGHLIGHTER_H
-#define PYTHONHIGHLIGHTER_H
+#pragma once
 
 #include <texteditor/syntaxhighlighter.h>
 
@@ -48,5 +47,3 @@ private:
 
 } // namespace Internal
 } // namespace PythonEditor
-
-#endif // PYTHONHIGHLIGHTER_H

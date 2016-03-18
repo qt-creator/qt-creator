@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CPPINCLUDEHIERARCHYMODEL_H
-#define CPPINCLUDEHIERARCHYMODEL_H
+#pragma once
 
 #include <QAbstractItemModel>
 
@@ -89,5 +88,3 @@ private:
 
 } // namespace Internal
 } // namespace CppEditor
-
-#endif // CPPINCLUDEHIERARCHYMODEL_H

@@ -22,8 +22,7 @@
 **
 ****************************************************************************/
 
-#ifndef EMACSKEYS_H
-#define EMACSKEYS_H
+#pragma once
 
 #include <extensionsystem/iplugin.h>
 
@@ -102,5 +101,3 @@ private:
 
 } // namespace Internal
 } // namespace EmacsKeys
-
-#endif // EMACSKEYS_H

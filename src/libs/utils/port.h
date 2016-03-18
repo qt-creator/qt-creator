@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef UTILS_PORT_H
-#define UTILS_PORT_H
+#pragma once
 
 #include "utils_global.h"
 
@@ -44,5 +43,3 @@ private:
 };
 
 } // Utils
-
-#endif // UTILS_PORT_H

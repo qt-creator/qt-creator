@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLJSSEMANTICHIGHLIGHTER_H
-#define QMLJSSEMANTICHIGHLIGHTER_H
+#pragma once
 
 #include <texteditor/semantichighlighter.h>
 #include <QFutureWatcher>
@@ -98,5 +97,3 @@ private:
 
 } // namespace Internal
 } // namespace QmlJSEditor
-
-#endif // QMLJSSEMANTICHIGHLIGHTER_H

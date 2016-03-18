@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef LOCALQMLPROFILERRUNNER_H
-#define LOCALQMLPROFILERRUNNER_H
+#pragma once
 
 #include "qmlprofiler_global.h"
 #include <utils/environment.h>
@@ -66,5 +65,3 @@ private:
 };
 
 } // namespace QmlProfiler
-
-#endif // LOCALQMLPROFILERRUNNER_H

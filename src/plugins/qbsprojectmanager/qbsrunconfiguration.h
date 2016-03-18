@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QBSRUNCONFIGURATION_H
-#define QBSRUNCONFIGURATION_H
+#pragma once
 
 #include <projectexplorer/runnables.h>
 
@@ -153,5 +152,3 @@ private:
 
 } // namespace Internal
 } // namespace QbsProjectManager
-
-#endif // QBSRUNCONFIGURATION_H

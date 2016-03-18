@@ -201,8 +201,7 @@
 //    qlalr --no-debug --no-lines --qt qmljs.g
 //
 
-#ifndef QMLJSPARSER_P_H
-#define QMLJSPARSER_P_H
+#prama once
 
 #include "qmljsglobal_p.h"
 #include "qmljsgrammar_p.h"
@@ -3114,6 +3113,4 @@ QT_QML_END_NAMESPACE
 QT_QML_END_NAMESPACE
 
 
-
-#endif // QMLJSPARSER_P_H
 :/

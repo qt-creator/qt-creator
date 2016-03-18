@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLPROFILERTRACEVIEW_H
-#define QMLPROFILERTRACEVIEW_H
+#pragma once
 
 #include "qmlprofilermodelmanager.h"
 
@@ -107,6 +106,3 @@ private:
 
 } // namespace Internal
 } // namespace QmlProfiler
-
-#endif // QMLPROFILERTRACEVIEW_H
-

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QmlItemNode_H
-#define QmlItemNode_H
+#pragma once
 
 #include <qmldesignercorelib_global.h>
 #include <modelnode.h>
@@ -152,6 +151,3 @@ QMLDESIGNERCORE_EXPORT QList<ModelNode> toModelNodeList(const QList<QmlItemNode>
 QMLDESIGNERCORE_EXPORT QList<QmlItemNode> toQmlItemNodeList(const QList<ModelNode> &modelNodeList);
 
 } //QmlDesigner
-
-
-#endif // QmlItemNode_H

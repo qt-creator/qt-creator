@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_DCOMPONENT_H
-#define QMT_DCOMPONENT_H
+#pragma once
 
 #include "dobject.h"
 
@@ -47,5 +46,3 @@ private:
 };
 
 } // namespace qmt
-
-#endif // QMT_DCOMPONENT_H

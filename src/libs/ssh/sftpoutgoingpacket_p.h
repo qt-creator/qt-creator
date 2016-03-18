@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SFTPOUTGOINGPACKET_P_H
-#define SFTPOUTGOINGPACKET_P_H
+#pragma once
 
 #include "sftppacket_p.h"
 #include "sftpdefs.h"
@@ -83,5 +82,3 @@ private:
 
 } // namespace Internal
 } // namespace QSsh
-
-#endif // SFTPOUTGOINGPACKET_P_H

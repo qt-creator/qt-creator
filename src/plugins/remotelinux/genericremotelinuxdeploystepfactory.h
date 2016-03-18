@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef GENERICREMOTELINUXDEPLOYSTEPFACTORY_H
-#define GENERICREMOTELINUXDEPLOYSTEPFACTORY_H
+#pragma once
 
 #include <projectexplorer/buildstep.h>
 
@@ -52,5 +51,3 @@ public:
 
 } // namespace Internal
 } // namespace RemoteLinux
-
-#endif // GENERICREMOTELINUXDEPLOYSTEPFACTORY_H

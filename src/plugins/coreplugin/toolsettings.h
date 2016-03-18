@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef TOOLSETTINGS_H
-#define TOOLSETTINGS_H
+#pragma once
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
@@ -52,5 +51,3 @@ private:
 
 } // namespace Internal
 } // namespace Core
-
-#endif // TOOLSETTINGS_H

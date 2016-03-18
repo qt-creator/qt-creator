@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CPLUSPLUS_LOOKUPITEM_H
-#define CPLUSPLUS_LOOKUPITEM_H
+#pragma once
 
 #include <cplusplus/FullySpecifiedType.h>
 
@@ -80,5 +79,3 @@ uint qHash(const CPlusPlus::LookupItem &result);
 //it also a workaround for some compilers
 inline uint qHash(const CPlusPlus::LookupItem &item) { return CPlusPlus::qHash(item); }
 #endif
-
-#endif // CPLUSPLUS_LOOKUPITEM_H

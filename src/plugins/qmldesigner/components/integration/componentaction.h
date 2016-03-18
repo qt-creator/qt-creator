@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef COMPONENTACTION_H
-#define COMPONENTACTION_H
+#pragma once
 
 #include <QWidgetAction>
 #include <QPointer>
@@ -64,5 +63,3 @@ private:
 };
 
 } // namespace QmlDesigner
-
-#endif // COMPONENTACTION_H

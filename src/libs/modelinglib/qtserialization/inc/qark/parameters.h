@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QARK_PARAMETER_H
-#define QARK_PARAMETER_H
+#pragma once
 
 #include "flag.h"
 
@@ -56,5 +55,3 @@ private:
 };
 
 } // namespace qark
-
-#endif // QARK_PARAMETER_H

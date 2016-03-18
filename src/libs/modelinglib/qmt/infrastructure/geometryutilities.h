@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_GEOMETRYUTILITIES_H
-#define QMT_GEOMETRYUTILITIES_H
+#pragma once
 
 #include <QtGlobal>
 
@@ -69,5 +68,3 @@ public:
 };
 
 } // namespace qmt
-
-#endif // QMT_GEOMETRYUTILITIES_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CPLUSPLUS_FASTPREPROCESSOR_H
-#define CPLUSPLUS_FASTPREPROCESSOR_H
+#pragma once
 
 #include "PreprocessorClient.h"
 #include "CppDocument.h"
@@ -79,5 +78,3 @@ public:
 };
 
 } // namespace CPlusPlus
-
-#endif // CPLUSPLUS_FASTPREPROCESSOR_H

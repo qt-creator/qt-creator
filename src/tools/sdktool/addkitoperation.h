@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef ADDKITOPERATION_H
-#define ADDKITOPERATION_H
+#pragma once
 
 #include "operation.h"
 
@@ -82,5 +81,3 @@ private:
     QStringList m_env;
     KeyValuePairList m_extra;
 };
-
-#endif // ADDKITOPERATION_H

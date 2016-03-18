@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QNX_INTERNAL_QNXBASEQTCONFIGWIDGET_H
-#define QNX_INTERNAL_QNXBASEQTCONFIGWIDGET_H
+#pragma once
 
 #include <qtsupport/qtconfigwidget.h>
 
@@ -52,5 +51,3 @@ private:
 
 } // namespace Internal
 } // namespace Qnx
-
-#endif // QNX_INTERNAL_QNXBASEQTCONFIGWIDGET_H

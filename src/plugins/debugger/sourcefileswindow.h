@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SOURCEFILESWINDOW_H
-#define SOURCEFILESWINDOW_H
+#pragma once
 
 #include <utils/basetreeview.h>
 
@@ -45,6 +44,3 @@ private:
 
 } // namespace Internal
 } // namespace Debugger
-
-#endif // SOURCEFILESWINDOW_H
-

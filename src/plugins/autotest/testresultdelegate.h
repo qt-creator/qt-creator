@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef TESTRESULTDELEGATE_H
-#define TESTRESULTDELEGATE_H
+#pragma once
 
 #include "testresultmodel.h"
 
@@ -127,5 +126,3 @@ private:
 
 } // namespace Internal
 } // namespace Autotest
-
-#endif // TESTRESULTDELEGATE_H

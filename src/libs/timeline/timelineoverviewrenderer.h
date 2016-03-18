@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef TIMELINEOVERVIEWRENDERER_H
-#define TIMELINEOVERVIEWRENDERER_H
+#pragma once
 
 #include "timelineabstractrenderer.h"
 
@@ -45,5 +44,3 @@ protected:
 } // namespace Timeline
 
 QML_DECLARE_TYPE(Timeline::TimelineOverviewRenderer)
-
-#endif // TIMELINEOVERVIEWRENDERER_H

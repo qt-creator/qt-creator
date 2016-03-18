@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QTCOLORBUTTON_H
-#define QTCOLORBUTTON_H
+#pragma once
 
 #include "utils_global.h"
 
@@ -70,5 +69,3 @@ private:
 };
 
 } // namespace Utils
-
-#endif // QTCOLORBUTTON_H

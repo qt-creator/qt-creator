@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef COLORTOOL_H
-#define COLORTOOL_H
+#pragma once
 
 #include "abstractcustomtool.h"
 #include "selectionindicator.h"
@@ -88,5 +87,3 @@ private:
 };
 
 }
-#endif // COLORTOOL_H
-

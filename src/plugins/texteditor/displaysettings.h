@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef DISPLAYSETTINGS_H
-#define DISPLAYSETTINGS_H
+#pragma once
 
 #include "texteditor_global.h"
 
@@ -65,5 +64,3 @@ inline bool operator==(const DisplaySettings &t1, const DisplaySettings &t2) { r
 inline bool operator!=(const DisplaySettings &t1, const DisplaySettings &t2) { return !t1.equals(t2); }
 
 } // namespace TextEditor
-
-#endif // DISPLAYSETTINGS_H

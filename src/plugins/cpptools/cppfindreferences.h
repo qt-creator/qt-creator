@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CPPFINDREFERENCES_H
-#define CPPFINDREFERENCES_H
+#pragma once
 
 #include <cplusplus/FindUsages.h>
 
@@ -100,5 +99,3 @@ private:
 } // namespace CppTools
 
 Q_DECLARE_METATYPE(CppTools::Internal::CppFindReferencesParameters)
-
-#endif // CPPFINDREFERENCES_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef LOCATORPLUGIN_H
-#define LOCATORPLUGIN_H
+#pragma once
 
 #include "ilocatorfilter.h"
 #include "directoryfilter.h"
@@ -125,5 +124,3 @@ void Locator::loadSettingsHelper(S *settings)
 
 } // namespace Internal
 } // namespace Core
-
-#endif // LOCATORPLUGIN_H

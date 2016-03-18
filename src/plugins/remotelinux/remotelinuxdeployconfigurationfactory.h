@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef REMOTELINUXDEPLOYCONFIGURATIONFACTORY_H
-#define REMOTELINUXDEPLOYCONFIGURATIONFACTORY_H
+#pragma once
 
 #include <projectexplorer/deployconfiguration.h>
 
@@ -53,5 +52,3 @@ public:
 
 } // namespace Internal
 } // namespace RemoteLinux
-
-#endif // REMOTELINUXDEPLOYCONFIGURATIONFACTORY_H

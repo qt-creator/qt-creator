@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLJSCODESTYLEPREFERENCESFACTORY_H
-#define QMLJSCODESTYLEPREFERENCESFACTORY_H
+#pragma once
 
 #include <texteditor/icodestylepreferencesfactory.h>
 
@@ -46,5 +45,3 @@ public:
 };
 
 } // namespace QmlJSTools
-
-#endif // QMLJSCODESTYLEPREFERENCESFACTORY_H

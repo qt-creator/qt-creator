@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef TEXTDOCUMENTLAYOUT_H
-#define TEXTDOCUMENTLAYOUT_H
+#pragma once
 
 #include "texteditor_global.h"
 
@@ -223,5 +222,3 @@ signals:
 };
 
 } // namespace TextEditor
-
-#endif // TEXTDOCUMENTLAYOUT_H

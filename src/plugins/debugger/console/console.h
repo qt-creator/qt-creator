@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef DEBUGGER_CONSOLE_H
-#define DEBUGGER_CONSOLE_H
+#pragma once
 
 #include "consoleitem.h"
 
@@ -103,5 +102,3 @@ Console *debuggerConsole();
 
 } // namespace Internal
 } // namespace Debugger
-
-#endif // DEBUGGER_CONSOLE_H

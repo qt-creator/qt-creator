@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef BEAUTIFIER_CLANGFORMATSETTINGS_H
-#define BEAUTIFIER_CLANGFORMATSETTINGS_H
+#pragma once
 
 #include "../abstractsettings.h"
 
@@ -62,5 +61,3 @@ public:
 } // namespace ClangFormat
 } // namespace Internal
 } // namespace Beautifier
-
-#endif // BEAUTIFIER_CLANGFORMATSETTINGS_H

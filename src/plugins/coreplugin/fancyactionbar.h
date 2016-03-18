@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef FANCYACTIONBAR_H
-#define FANCYACTIONBAR_H
+#pragma once
 
 #include <QToolButton>
 
@@ -78,5 +77,3 @@ private:
 
 } // namespace Internal
 } // namespace Core
-
-#endif // FANCYACTIONBAR_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef GLSLHIGHLIGHTER_H
-#define GLSLHIGHLIGHTER_H
+#pragma once
 
 #include <texteditor/syntaxhighlighter.h>
 
@@ -62,5 +61,3 @@ protected:
 
 } // namespace Internal
 } // namespace GlslEditor
-
-#endif // GLSLHIGHLIGHTER_H

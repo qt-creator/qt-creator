@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_TEMPLATEPARAMETERBOX_H
-#define QMT_TEMPLATEPARAMETERBOX_H
+#pragma once
 
 #include <QGraphicsRectItem>
 
@@ -51,5 +50,3 @@ private:
 };
 
 } // namespace qmt
-
-#endif // QMT_TEMPLATEPARAMETERBOX_H

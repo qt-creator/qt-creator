@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef BEAUTIFIER_ARTISTICSTYLEOPTIONSPAGE_H
-#define BEAUTIFIER_ARTISTICSTYLEOPTIONSPAGE_H
+#pragma once
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
@@ -72,6 +71,3 @@ private:
 } // namespace ArtisticStyle
 } // namespace Internal
 } // namespace Beautifier
-
-
-#endif // BEAUTIFIER_ARTISTICSTYLEOPTIONSPAGE_H

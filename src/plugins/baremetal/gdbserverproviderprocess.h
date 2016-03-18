@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef GDBSERVERPROVIDERPROCESS_H
-#define GDBSERVERPROVIDERPROCESS_H
+#pragma once
 
 #include <projectexplorer/devicesupport/deviceprocess.h>
 
@@ -63,5 +62,3 @@ private:
 
 } // namespace Internal
 } // namespace BareMetal
-
-#endif // GDBSERVERPROVIDERPROCESS_H

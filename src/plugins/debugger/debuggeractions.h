@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef DEBUGGER_ACTIONS_H
-#define DEBUGGER_ACTIONS_H
+#pragma once
 
 #include <QObject>
 #include <QHash>
@@ -181,5 +180,3 @@ enum DebuggerActionCode
 
 } // namespace Internal
 } // namespace Debugger
-
-#endif // DEBUGGER_WATCHWINDOW_H

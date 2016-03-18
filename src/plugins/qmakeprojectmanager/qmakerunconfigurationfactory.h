@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMAKERUNCONFIGURATIONFACTORY_H
-#define QMAKERUNCONFIGURATIONFACTORY_H
+#pragma once
 
 #include "qmakeprojectmanager_global.h"
 
@@ -49,5 +48,3 @@ public:
 };
 
 } // namespace QmakeProjectManager
-
-#endif // QMAKERUNCONFIGURATIONFACTORY_H

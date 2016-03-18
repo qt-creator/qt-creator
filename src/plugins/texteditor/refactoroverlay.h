@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef REFACTOROVERLAY_H
-#define REFACTOROVERLAY_H
+#pragma once
 
 #include "texteditor_global.h"
 
@@ -70,5 +69,3 @@ private:
 };
 
 } // namespace TextEditor
-
-#endif // REFACTOROVERLAY_H

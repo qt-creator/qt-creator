@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SYNCHRONOUSPROCESS_H
-#define SYNCHRONOUSPROCESS_H
+#pragma once
 
 #include "utils_global.h"
 
@@ -171,5 +170,3 @@ private:
 };
 
 } // namespace Utils
-
-#endif

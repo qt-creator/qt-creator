@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CPPPREPROCESSORDIALOG_H
-#define CPPPREPROCESSORDIALOG_H
+#pragma once
 
 #include <cpptools/cppmodelmanager.h>
 
@@ -65,5 +64,3 @@ private:
 
 } // namespace Internal
 } // namespace CppEditor
-
-#endif // CPPPREPROCESSORDIALOG_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef GDBSERVERPROVIDERSSETTINGSPAGE_H
-#define GDBSERVERPROVIDERSSETTINGSPAGE_H
+#pragma once
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
@@ -95,5 +94,3 @@ private:
 
 } // namespace Internal
 } // namespace BareMetal
-
-#endif // GDBSERVERPROVIDERSSETTINGSPAGE_H

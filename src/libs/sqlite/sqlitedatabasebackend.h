@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SQLITEDATABASEBACKEND_H
-#define SQLITEDATABASEBACKEND_H
+#pragma once
 
 #include "sqliteglobal.h"
 
@@ -107,5 +106,3 @@ private:
     TextEncoding cachedTextEncoding;
 
 };
-
-#endif // SQLITEDATABASEBACKEND_H

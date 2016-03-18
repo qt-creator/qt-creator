@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CODECOMPLETEFAILEDEXCEPTION_H
-#define CODECOMPLETEFAILEDEXCEPTION_H
+#pragma once
 
 
 class CodeCompleteFailedException
@@ -32,5 +31,3 @@ class CodeCompleteFailedException
 public:
     CodeCompleteFailedException();
 };
-
-#endif // CODECOMPLETEFAILEDEXCEPTION_H

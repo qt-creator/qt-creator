@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QBSDEPLOYCONFIGURATIONFACTORY_H
-#define QBSDEPLOYCONFIGURATIONFACTORY_H
+#pragma once
 
 #include <projectexplorer/deployconfiguration.h>
 
@@ -71,5 +70,3 @@ public:
 
 } // namespace Internal
 } // namespace QbsProjectManager
-
-#endif // QBSDEPLOYCONFIGURATIONFACTORY_H

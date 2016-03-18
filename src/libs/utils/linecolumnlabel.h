@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef LINECOLUMNLABEL_H
-#define LINECOLUMNLABEL_H
+#pragma once
 
 #include "utils_global.h"
 #include <QLabel>
@@ -58,5 +57,3 @@ private:
 };
 
 } // namespace Utils
-
-#endif // LINECOLUMNLABEL_H

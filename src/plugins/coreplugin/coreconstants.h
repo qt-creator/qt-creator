@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CORECONSTANTS_H
-#define CORECONSTANTS_H
+#pragma once
 
 #include <QtGlobal>
 
@@ -210,5 +209,3 @@ const int TARGET_ICON_SIZE = 32;
 
 } // namespace Constants
 } // namespace Core
-
-#endif // CORECONSTANTS_H

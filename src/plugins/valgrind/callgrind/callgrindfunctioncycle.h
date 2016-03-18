@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef LIBVALGRIND_CALLGRINDFUNCTIONCYCLE_H
-#define LIBVALGRIND_CALLGRINDFUNCTIONCYCLE_H
+#pragma once
 
 #include "callgrindfunction.h"
 
@@ -57,5 +56,3 @@ private:
 
 } // namespace Callgrind
 } // namespace Valgrind
-
-#endif // LIBVALGRIND_CALLGRINDFUNCTIONCYCLE_H

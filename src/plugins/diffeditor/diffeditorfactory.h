@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef DIFFEDITORFACTORY_H
-#define DIFFEDITORFACTORY_H
+#pragma once
 
 #include "diffeditor_global.h"
 
@@ -46,5 +45,3 @@ public:
 
 } // namespace Internal
 } // namespace DiffEditor
-
-#endif // DIFFEDITORFACTORY_H

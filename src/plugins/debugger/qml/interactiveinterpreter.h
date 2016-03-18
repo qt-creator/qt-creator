@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef INTERACTIVEINTERPRETER_H
-#define INTERACTIVEINTERPRETER_H
+#pragma once
 
 #include <qmljs/parser/qmljslexer_p.h>
 #include <qmljs/parser/qmljsengine_p.h>
@@ -57,4 +56,3 @@ private:
 
 }
 }
-#endif // INTERACTIVEINTERPRETER_H

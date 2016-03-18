@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef BASEFILEFIND_H
-#define BASEFILEFIND_H
+#pragma once
 
 #include "texteditor_global.h"
 #include "utils/filesearch.h"
@@ -139,5 +138,3 @@ private:
 } // namespace TextEditor
 
 Q_DECLARE_METATYPE(TextEditor::FileFindParameters)
-
-#endif // BASEFILEFIND_H

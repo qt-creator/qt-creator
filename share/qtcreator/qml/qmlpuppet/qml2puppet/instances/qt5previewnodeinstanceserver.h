@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLDESIGNER_QT5PREVIEWNODEINSTANCESERVER_H
-#define QMLDESIGNER_QT5PREVIEWNODEINSTANCESERVER_H
+#pragma once
 
 #include "qt5nodeinstanceserver.h"
 
@@ -51,5 +50,3 @@ private:
 };
 
 } // namespace QmlDesigner
-
-#endif // QMLDESIGNER_QT5PREVIEWNODEINSTANCESERVER_H

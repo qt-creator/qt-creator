@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QTDESIGNERFORMCLASSCODEGENERATOR_H
-#define QTDESIGNERFORMCLASSCODEGENERATOR_H
+#pragma once
 
 #include <QString>
 #include <QVariant>
@@ -52,5 +51,3 @@ public:
     Q_INVOKABLE QVariant generateFormClassCode(const Designer::FormClassWizardParameters &parameters);
 };
 } // namespace Designer
-
-#endif // QTDESIGNERFORMCLASSCODEGENERATOR_H

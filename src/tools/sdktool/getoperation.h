@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef GETOPERATION_H
-#define GETOPERATION_H
+#pragma once
 
 #include "operation.h"
 
@@ -49,5 +48,3 @@ private:
     QStringList m_keys;
     QString m_file;
 };
-
-#endif // GETOPERATION_H

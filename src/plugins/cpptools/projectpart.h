@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CPPTOOLS_PROJECTPART_H
-#define CPPTOOLS_PROJECTPART_H
+#pragma once
 
 #include "cpptools_global.h"
 
@@ -115,5 +114,3 @@ public: // fields
 };
 
 } // namespace CppTools
-
-#endif // CPPTOOLS_PROJECTPART_H

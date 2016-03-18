@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef LINUXDEVICETESTER_H
-#define LINUXDEVICETESTER_H
+#pragma once
 
 #include "remotelinux_export.h"
 
@@ -65,5 +64,3 @@ private:
 };
 
 } // namespace RemoteLinux
-
-#endif // LINUXDEVICETESTER_H

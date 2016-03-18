@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef EXTERNALTOOL_H
-#define EXTERNALTOOL_H
+#pragma once
 
 #include <utils/fileutils.h>
 #include <utils/environment.h>
@@ -159,5 +158,3 @@ private:
 } // Core
 
 Q_DECLARE_METATYPE(Core::Internal::ExternalTool *)
-
-#endif // EXTERNALTOOL_H

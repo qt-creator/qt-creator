@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef UTILS_STATUSLABEL_H
-#define UTILS_STATUSLABEL_H
+#pragma once
 
 #include "utils_global.h"
 
@@ -55,5 +54,3 @@ private:
 };
 
 } // namespace Utils
-
-#endif // UTILS_STATUSLABEL_H

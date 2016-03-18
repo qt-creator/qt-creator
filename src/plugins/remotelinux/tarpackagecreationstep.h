@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef TARPACKAGECREATIONSTEP_H
-#define TARPACKAGECREATIONSTEP_H
+#pragma once
 
 #include "abstractpackagingstep.h"
 #include "remotelinux_export.h"
@@ -74,5 +73,3 @@ private:
 };
 
 } // namespace RemoteLinux
-
-#endif // TARPACKAGECREATIONSTEP_H

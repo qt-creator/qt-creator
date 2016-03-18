@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_SHAPE_H
-#define QMT_SHAPE_H
+#pragma once
 
 namespace qmt {
 
@@ -42,5 +41,3 @@ public:
 };
 
 } // namespace qmt
-
-#endif // QMT_SHAPE_H

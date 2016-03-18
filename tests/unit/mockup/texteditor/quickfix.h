@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef TEXTEDITORQUICKFIX_H
-#define TEXTEDITORQUICKFIX_H
+#pragma once
 
 #include <QString>
 
@@ -55,6 +54,3 @@ private:
 };
 
 }
-
-#endif // TEXTEDITORQUICKFIX_H
-

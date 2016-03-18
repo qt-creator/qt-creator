@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CPPSOURCEPROCESSOR_H
-#define CPPSOURCEPROCESSOR_H
+#pragma once
 
 #include "cppmodelmanager.h"
 #include "cppworkingcopy.h"
@@ -124,5 +123,3 @@ private:
 
 } // namespace Internal
 } // namespace CppTools
-
-#endif // CPPSOURCEPROCESSOR_H

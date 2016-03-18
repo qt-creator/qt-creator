@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PYTHONEDITOR_PLUGIN_H
-#define PYTHONEDITOR_PLUGIN_H
+#pragma once
 
 #include <extensionsystem/iplugin.h>
 #include <projectexplorer/runconfiguration.h>
@@ -59,5 +58,3 @@ private:
 
 } // namespace Internal
 } // namespace PythonEditor
-
-#endif // PYTHONEDITOR_PLUGIN_H

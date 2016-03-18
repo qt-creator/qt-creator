@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef COMMAND_H
-#define COMMAND_H
+#pragma once
 
 #include <coreplugin/core_global.h>
 #include <coreplugin/id.h>
@@ -97,5 +96,3 @@ signals:
 } // namespace Core
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(Core::Command::CommandAttributes)
-
-#endif // COMMAND_H

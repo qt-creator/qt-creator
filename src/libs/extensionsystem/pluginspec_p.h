@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PLUGINSPEC_P_H
-#define PLUGINSPEC_P_H
+#pragma once
 
 #include "pluginspec.h"
 #include "iplugin.h"
@@ -115,5 +114,3 @@ private:
 
 } // namespace Internal
 } // namespace ExtensionSystem
-
-#endif // PLUGINSPEC_P_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef GLOBAL_PARSE_STATE_H
-#define GLOBAL_PARSE_STATE_H
+#pragma once
 
 #include <QByteArray>
 #include <QSharedPointer>
@@ -68,5 +67,3 @@ private:
 
 } // namespace Internal
 } // namespace Debugger
-
-#endif // GLOBAL_PARSE_STATE_H

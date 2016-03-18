@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef DIFFEDITOR_H
-#define DIFFEDITOR_H
+#pragma once
 
 #include "diffeditorcontroller.h"
 
@@ -111,5 +110,3 @@ private:
 
 } // namespace Internal
 } // namespace DiffEditor
-
-#endif // DIFFEDITOR_H

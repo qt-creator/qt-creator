@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef JSEXPANDER_H
-#define JSEXPANDER_H
+#pragma once
 
 #include "core_global.h"
 
@@ -52,5 +51,3 @@ private:
 };
 
 } // namespace Core
-
-#endif // JSEXPANDER_H

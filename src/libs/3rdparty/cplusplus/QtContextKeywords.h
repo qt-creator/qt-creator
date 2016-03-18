@@ -1,6 +1,5 @@
 
-#ifndef QTCONTEXTKEYWORDS_H
-#define QTCONTEXTKEYWORDS_H
+#pragma once
 
 #include "CPlusPlusForwardDeclarations.h"
 
@@ -24,5 +23,3 @@ enum {
 
 CPLUSPLUS_EXPORT int classifyQtContextKeyword(const char *s, int n);
 } // namespace CPlusPlus;
-
-#endif // QTCONTEXTKEYWORDS_H

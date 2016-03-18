@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QTSUPPORTCONSTANTS_H
-#define QTSUPPORTCONSTANTS_H
+#pragma once
 
 namespace QtSupport {
 namespace Constants {
@@ -64,5 +63,3 @@ const char ICON_QT_PROJECT[] = ":/qtsupport/images/qt_project.png";
 
 } // namepsace Constants
 } // namepsace QtSupport
-
-#endif // QTSUPPORTCONSTANTS_H

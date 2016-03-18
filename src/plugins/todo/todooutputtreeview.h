@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef TODO_INTERNAL_TODOOUTPUTTREEVIEW_H
-#define TODO_INTERNAL_TODOOUTPUTTREEVIEW_H
+#pragma once
 
 #include <utils/itemviews.h>
 
@@ -53,5 +52,3 @@ private:
 
 } // namespace Internal
 } // namespace Todo
-
-#endif // TODO_INTERNAL_TODOOUTPUTTREEVIEW_H

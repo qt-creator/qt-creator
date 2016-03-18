@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QTC_ASSERT_H
-#define QTC_ASSERT_H
+#pragma once
 
 #include "utils_global.h"
 
@@ -40,6 +39,3 @@ namespace Utils { QTCREATOR_UTILS_EXPORT void writeAssertLocation(const char *ms
 
 #define QTC_ASSERT(cond, action) if (cond) {} else { QTC_ASSERT_STRING(#cond); action; } do {} while (0)
 #define QTC_CHECK(cond) if (cond) {} else { QTC_ASSERT_STRING(#cond); } do {} while (0)
-
-#endif // QTC_ASSERT_H
-

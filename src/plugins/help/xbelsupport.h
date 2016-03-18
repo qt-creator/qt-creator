@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef XBELSUPPORT_H
-#define XBELSUPPORT_H
+#pragma once
 
 #include <QIcon>
 #include <QXmlStreamReader>
@@ -75,5 +74,3 @@ private:
 
     }   // Internal
 }   // Help
-
-#endif  // XBELSUPPORT_H

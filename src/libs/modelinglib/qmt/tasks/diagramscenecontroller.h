@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_DIAGRAMSCENECONTROLLER_H
-#define QMT_DIAGRAMSCENECONTROLLER_H
+#pragma once
 
 #include <QObject>
 #include "qmt/infrastructure/qmt_global.h"
@@ -133,5 +132,3 @@ private:
 };
 
 } // namespace qmt
-
-#endif // QMT_DIAGRAMSCENECONTROLLER_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_PROPERTIESVIEW_H
-#define QMT_PROPERTIESVIEW_H
+#pragma once
 
 #include <QObject>
 
@@ -130,5 +129,3 @@ private:
 };
 
 } // namespace qmt
-
-#endif // QMT_PROPERTIESVIEW_H

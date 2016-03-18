@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMAKEPROJECTMANAGER_GLOBAL_H
-#define QMAKEPROJECTMANAGER_GLOBAL_H
+#pragma once
 
 #include <qglobal.h>
 
@@ -33,5 +32,3 @@
 #else
 #  define QMAKEPROJECTMANAGER_EXPORT Q_DECL_IMPORT
 #endif
-
-#endif // QMAKEPROJECTMANAGER_GLOBAL_H

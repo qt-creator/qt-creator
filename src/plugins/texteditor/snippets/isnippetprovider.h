@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef ISNIPPETPROVIDER_H
-#define ISNIPPETPROVIDER_H
+#pragma once
 
 #include <texteditor/texteditor_global.h>
 
@@ -49,5 +48,3 @@ protected:
 };
 
 } // TextEditor
-
-#endif // ISNIPPETPROVIDER_H

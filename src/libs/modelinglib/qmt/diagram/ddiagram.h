@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_DDIAGRAM_H
-#define QMT_DDIAGRAM_H
+#pragma once
 
 #include "dobject.h"
 
@@ -41,5 +40,3 @@ public:
 };
 
 } // namespace qmt
-
-#endif // QMT_DDIAGRAM_H

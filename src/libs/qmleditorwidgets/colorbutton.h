@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef COLORBUTTON_H
-#define COLORBUTTON_H
+#pragma once
 
 #include "qmleditorwidgets_global.h"
 #include <QToolButton>
@@ -68,5 +67,3 @@ private:
 };
 
 } //QmlEditorWidgets
-
-#endif //COLORBUTTON_H

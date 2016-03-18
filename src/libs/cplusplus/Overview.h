@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CPLUSPLUS_OVERVIEW_H
-#define CPLUSPLUS_OVERVIEW_H
+#pragma once
 
 #include <cplusplus/CPlusPlusForwardDeclarations.h>
 
@@ -76,5 +75,3 @@ public:
 };
 
 } // namespace CPlusPlus
-
-#endif // CPLUSPLUS_OVERVIEW_H

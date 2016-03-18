@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PLAINTEXTSNIPPETPROVIDER_H
-#define PLAINTEXTSNIPPETPROVIDER_H
+#pragma once
 
 #include "isnippetprovider.h"
 
@@ -45,5 +44,3 @@ public:
 
 } // Internal
 } // TextEditor
-
-#endif // PLAINTEXTSNIPPETPROVIDER_H

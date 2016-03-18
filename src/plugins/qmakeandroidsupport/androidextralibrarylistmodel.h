@@ -24,8 +24,7 @@
 **
 ****************************************************************************/
 
-#ifndef ANDROIDEXTRALIBRARYLISTMODEL_H
-#define ANDROIDEXTRALIBRARYLISTMODEL_H
+#pragma once
 
 #include <QAbstractItemModel>
 #include <QStringList>
@@ -73,5 +72,3 @@ private:
 
 } // namespace Internal
 } // namespace QmakeAndroidSupport
-
-#endif // ANDROIDEXTRALIBRARYLISTMODEL_H

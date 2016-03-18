@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef DIAGRAMSVIEWMANAGER_H
-#define DIAGRAMSVIEWMANAGER_H
+#pragma once
 
 #include <QObject>
 #include "qmt/diagram_ui/diagramsviewinterface.h"
@@ -65,5 +64,3 @@ public:
 
 } // namespace Internal
 } // namespace ModelEditor
-
-#endif // DIAGRAMSVIEWMANAGER_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef ANDROIDSETTINGSWIDGET_H
-#define ANDROIDSETTINGSWIDGET_H
+#pragma once
 
 #include "androidconfigurations.h"
 
@@ -124,5 +123,3 @@ private:
 
 } // namespace Internal
 } // namespace Android
-
-#endif // ANDROIDSETTINGSWIDGET_H

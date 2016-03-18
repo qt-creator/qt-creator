@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PROXYNODEINSTANCE_H
-#define PROXYNODEINSTANCE_H
+#pragma once
 
 #include <QSharedPointer>
 #include <QTransform>
@@ -131,5 +130,3 @@ private:
 bool operator ==(const NodeInstance &first, const NodeInstance &second);
 
 }
-
-#endif // PROXYNODEINSTANCE_H

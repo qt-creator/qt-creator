@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef HIGHLIGHTDEFINITION_H
-#define HIGHLIGHTDEFINITION_H
+#pragma once
 
 #include <QString>
 #include <QHash>
@@ -107,5 +106,3 @@ private:
 
 } // namespace Internal
 } // namespace TextEditor
-
-#endif // HIGHLIGHTDEFINITION_H

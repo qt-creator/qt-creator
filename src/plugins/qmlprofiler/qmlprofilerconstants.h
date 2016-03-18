@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLPROFILERCONSTANTS_H
-#define QMLPROFILERCONSTANTS_H
+#pragma once
 
 namespace QmlProfiler {
 namespace Constants {
@@ -53,5 +52,3 @@ const char QmlProfilerSaveActionId[] =
 
 } // namespace Constants
 } // namespace QmlProfiler
-
-#endif // QMLPROFILERCONSTANTS_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QTWIZARD_H
-#define QTWIZARD_H
+#pragma once
 
 #include "qtprojectparameters.h"
 #include <projectexplorer/baseprojectwizarddialog.h>
@@ -146,5 +145,3 @@ private:
 
 } // namespace Internal
 } // namespace QmakeProjectManager
-
-#endif // QTWIZARD_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CLANGFILESYSTEMWATCHER_H
-#define CLANGFILESYSTEMWATCHER_H
+#pragma once
 
 #include <QFileSystemWatcher>
 #include <QSet>
@@ -56,5 +55,3 @@ private:
 };
 
 } // namespace ClangBackEnd
-
-#endif // CLANGFILESYSTEMWATCHER_H

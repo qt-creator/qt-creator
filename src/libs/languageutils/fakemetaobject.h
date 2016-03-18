@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef FAKEMETAOBJECT_H
-#define FAKEMETAOBJECT_H
+#pragma once
 
 #include "languageutils_global.h"
 #include "componentversion.h"
@@ -230,5 +229,3 @@ public:
 };
 
 } // namespace LanguageUtils
-
-#endif // FAKEMETAOBJECT_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef TIMELINERENDERSTATE_P_H
-#define TIMELINERENDERSTATE_P_H
+#pragma once
 
 #include "timelinerenderstate.h"
 
@@ -46,6 +45,3 @@ public:
 };
 
 } // namespace Timeline
-
-#endif // TIMELINERENDERSTATE_P_H
-

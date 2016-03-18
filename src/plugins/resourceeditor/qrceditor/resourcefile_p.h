@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef RESOURCEFILE_P_H
-#define RESOURCEFILE_P_H
+#pragma once
 
 #include <QAbstractItemModel>
 #include <QCoreApplication>
@@ -328,5 +327,3 @@ private:
 
 } // namespace Internal
 } // namespace ResourceEditor
-
-#endif // RESOURCEFILE_P_H

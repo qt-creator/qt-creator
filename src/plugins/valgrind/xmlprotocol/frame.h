@@ -24,8 +24,7 @@
 **
 ****************************************************************************/
 
-#ifndef LIBVALGRIND_PROTOCOL_FRAME_H
-#define LIBVALGRIND_PROTOCOL_FRAME_H
+#pragma once
 
 #include <QSharedDataPointer>
 
@@ -72,5 +71,3 @@ private:
 
 } // namespace XmlProtocol
 } // namespace Valgrind
-
-#endif

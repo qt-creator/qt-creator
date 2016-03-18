@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CLASSVIEWPARSER_H
-#define CLASSVIEWPARSER_H
+#pragma once
 
 #include <QObject>
 
@@ -128,5 +127,3 @@ private:
 
 } // namespace Internal
 } // namespace ClassView
-
-#endif // CLASSVIEWPARSER_H

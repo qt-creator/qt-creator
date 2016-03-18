@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef FORMEDITORFACTORY_H
-#define FORMEDITORFACTORY_H
+#pragma once
 
 #include <coreplugin/editormanager/ieditorfactory.h>
 
@@ -43,5 +42,3 @@ public:
 
 } // namespace Internal
 } // namespace Designer
-
-#endif // FORMEDITORFACTORY_H

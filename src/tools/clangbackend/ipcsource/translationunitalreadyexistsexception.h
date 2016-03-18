@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CLANGBACKEND_TRANSLATIONUNITALREADYEXISTS_H
-#define CLANGBACKEND_TRANSLATIONUNITALREADYEXISTS_H
+#pragma once
 
 #include <filecontainer.h>
 
@@ -52,5 +51,3 @@ private:
 };
 
 } // namespace ClangBackEnd
-
-#endif // CLANGBACKEND_TRANSLATIONUNITALREADYEXISTS_H

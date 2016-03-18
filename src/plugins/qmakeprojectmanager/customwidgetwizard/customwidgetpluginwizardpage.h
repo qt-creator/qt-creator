@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CUSTOMWIDGETPLUGINWIZARDPAGE_H
-#define CUSTOMWIDGETPLUGINWIZARDPAGE_H
+#pragma once
 
 #include "filenamingparameters.h"
 
@@ -75,5 +74,3 @@ private:
 
 } // namespace Internal
 } // namespace QmakeProjectManager
-
-#endif // CUSTOMWIDGETPLUGINWIZARDPAGE_H

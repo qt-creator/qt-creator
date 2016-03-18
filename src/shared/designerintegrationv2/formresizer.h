@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef FORMRESIZER_H
-#define FORMRESIZER_H
+#pragma once
 
 #include "widgethostconstants.h"
 
@@ -90,5 +89,3 @@ private:
 
 }
 } // namespace SharedTools
-
-#endif // FORMRESIZER_H

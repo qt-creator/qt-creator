@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CGI_H
-#define CGI_H
+#pragma once
 
 #include <QString>
 
@@ -47,5 +46,3 @@ private:
     inline short charToHex(const QChar &ch);
     inline QChar hexToChar(const QString &hx);
 };
-
-#endif // CGI_H

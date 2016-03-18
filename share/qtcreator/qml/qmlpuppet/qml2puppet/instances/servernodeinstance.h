@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SERVERNODEINSTANCE_H
-#define SERVERNODEINSTANCE_H
+#pragma once
 
 #include <QSharedPointer>
 #include <QHash>
@@ -214,5 +213,3 @@ QDebug operator <<(QDebug debug, const ServerNodeInstance &instance);
 }
 
 Q_DECLARE_METATYPE(QmlDesigner::ServerNodeInstance)
-
-#endif // SERVERNODEINSTANCE_H

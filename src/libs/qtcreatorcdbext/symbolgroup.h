@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SYMBOLGROUP_H
-#define SYMBOLGROUP_H
+#pragma once
 
 #include "common.h"
 #include "symbolgroupnode.h"
@@ -170,5 +169,3 @@ private:
     static inline std::string fixWatchExpressionI(CIDebugSymbols *s, const std::string &ex);
     bool collapsePointerItems(std::string *errorMessage);
 };
-
-#endif // SYMBOLGROUP_H

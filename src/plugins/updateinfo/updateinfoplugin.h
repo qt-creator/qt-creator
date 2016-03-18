@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef UPDATEINFOPLUGIN_H
-#define UPDATEINFOPLUGIN_H
+#pragma once
 
 #include <extensionsystem/iplugin.h>
 
@@ -97,5 +96,3 @@ private:
 
 } // namespace Internal
 } // namespace UpdateInfo
-
-#endif // UPDATEINFOPLUGIN_H

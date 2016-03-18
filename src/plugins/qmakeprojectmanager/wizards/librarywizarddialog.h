@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef LIBRARYWIZARDDIALOG_H
-#define LIBRARYWIZARDDIALOG_H
+#pragma once
 
 #include "qtwizard.h"
 
@@ -77,5 +76,3 @@ private:
 
 } // namespace Internal
 } // namespace QmakeProjectManager
-
-#endif // LIBRARYWIZARDDIALOG_H

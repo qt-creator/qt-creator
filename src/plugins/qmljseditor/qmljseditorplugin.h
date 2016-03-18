@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLJSEDITORPLUGIN_H
-#define QMLJSEDITORPLUGIN_H
+#pragma once
 
 #include <extensionsystem/iplugin.h>
 #include <coreplugin/icontext.h>
@@ -103,5 +102,3 @@ private:
 
 } // namespace Internal
 } // namespace QmlJSEditor
-
-#endif // QMLJSEDITORPLUGIN_H

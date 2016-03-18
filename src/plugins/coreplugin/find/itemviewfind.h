@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef ITEMVIEWFIND_H
-#define ITEMVIEWFIND_H
+#pragma once
 
 #include "ifindsupport.h"
 
@@ -81,5 +80,3 @@ private:
 };
 
 } // namespace Core
-
-#endif // ITEMVIEWFIND_H

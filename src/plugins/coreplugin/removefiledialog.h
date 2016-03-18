@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef REMOVEFILEDIALOG_H
-#define REMOVEFILEDIALOG_H
+#pragma once
 
 #include "core_global.h"
 
@@ -50,5 +49,3 @@ private:
 };
 
 } // namespace Core
-
-#endif // REMOVEFILEDIALOG_H

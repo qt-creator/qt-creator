@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef COLORSCHEME_H
-#define COLORSCHEME_H
+#pragma once
 
 #include "texteditor_global.h"
 #include "texteditorconstants.h"
@@ -127,5 +126,3 @@ inline bool operator==(const ColorScheme &cs1, const ColorScheme &cs2) { return 
 inline bool operator!=(const ColorScheme &cs1, const ColorScheme &cs2) { return !cs1.equals(cs2); }
 
 } // namespace TextEditor
-
-#endif // COLORSCHEME_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef DEBUGGER_DIALOGS_H
-#define DEBUGGER_DIALOGS_H
+#pragma once
 
 #include "watchhandler.h"
 
@@ -192,5 +191,3 @@ private:
 
 } // namespace Debugger
 } // namespace Internal
-
-#endif // DEBUGGER_DIALOGS_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef LOADCOREDIALOG_H
-#define LOADCOREDIALOG_H
+#pragma once
 
 #include <QDialog>
 
@@ -74,5 +73,3 @@ private:
 
 } // namespace Debugger
 } // namespace Internal
-
-#endif // LOADCOREDIALOG_H

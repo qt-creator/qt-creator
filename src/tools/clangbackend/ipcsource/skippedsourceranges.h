@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CLANGBACKEND_SKIPPEDSOURCERANGES_H
-#define CLANGBACKEND_SKIPPEDSOURCERANGES_H
+#pragma once
 
 #include "sourcerange.h"
 
@@ -55,5 +54,3 @@ private:
 };
 
 } // namespace ClangBackEnd
-
-#endif // CLANGBACKEND_SKIPPEDSOURCERANGES_H

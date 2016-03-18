@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef FAKETOOLTIP_H
-#define FAKETOOLTIP_H
+#pragma once
 
 #include "utils_global.h"
 
@@ -45,5 +44,3 @@ protected:
 };
 
 } // namespace Utils
-
-#endif // FAKETOOLTIP_H

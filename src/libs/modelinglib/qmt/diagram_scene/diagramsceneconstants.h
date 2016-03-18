@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_DIAGRAMSCENECONSTANTS_H
-#define QMT_DIAGRAMSCENECONSTANTS_H
+#pragma once
 
 namespace qmt {
 
@@ -45,5 +44,3 @@ const double CUSTOM_ICON_MINIMUM_AUTO_WIDTH = 40.0; // must be n * 2 * RASTER_WI
 const double CUSTOM_ICON_MINIMUM_AUTO_HEIGHT = 40.0; // must be n * 2 * RASTER_HEIGHT
 
 } // namespace qmt
-
-#endif // QMT_DIAGRAMSCENECONSTANTS_H

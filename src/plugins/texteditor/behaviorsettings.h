@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef BEHAVIORSETTINGS_H
-#define BEHAVIORSETTINGS_H
+#pragma once
 
 #include "texteditor_global.h"
 
@@ -66,5 +65,3 @@ inline bool operator==(const BehaviorSettings &t1, const BehaviorSettings &t2) {
 inline bool operator!=(const BehaviorSettings &t1, const BehaviorSettings &t2) { return !t1.equals(t2); }
 
 } // namespace TextEditor
-
-#endif // BEHAVIORSETTINGS_H

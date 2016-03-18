@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QARK_BASECLASS_H
-#define QARK_BASECLASS_H
+#pragma once
 
 #include "typeregistry.h"
 #include "parameters.h"
@@ -99,5 +98,3 @@ Base<BASE, DERIVED> base(DERIVED &obj, const Parameters &parameters)
 }
 
 } // namespace qark
-
-#endif // QARK_BASECLASS_H

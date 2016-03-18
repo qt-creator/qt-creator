@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef WINRTDEPLOYCONFIGURATION_H
-#define WINRTDEPLOYCONFIGURATION_H
+#pragma once
 
 #include <projectexplorer/deployconfiguration.h>
 #include <projectexplorer/buildstep.h>
@@ -72,5 +71,3 @@ private:
 
 } // namespace Internal
 } // namespace WinRt
-
-#endif // WINRTDEPLOYCONFIGURATION_H

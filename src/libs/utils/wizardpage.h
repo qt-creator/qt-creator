@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef WIZARDPAGE_H
-#define WIZARDPAGE_H
+#pragma once
 
 #include "utils_global.h"
 
@@ -59,5 +58,3 @@ private:
 };
 
 } // namespace Utils
-
-#endif // WIZARDPAGE_H

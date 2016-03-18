@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SSHOUTGOINGPACKET_P_H
-#define SSHOUTGOINGPACKET_P_H
+#pragma once
 
 #include "sshpacket_p.h"
 
@@ -106,5 +105,3 @@ private:
 
 } // namespace Internal
 } // namespace QSsh
-
-#endif // SSHOUTGOINGPACKET_P_H

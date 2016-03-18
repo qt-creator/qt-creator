@@ -1,5 +1,4 @@
-#ifndef MYPLUGIN_H
-#define MYPLUGIN_H
+#pragma once
 
 #include <qdeclarative.h>
 #include <QDeclarativeExtensionPlugin>
@@ -11,5 +10,3 @@ class MyPlugin : public QDeclarativeExtensionPlugin
 public:
     void registerTypes(const char *uri);
 };
-
-#endif // MYPLUGIN_H

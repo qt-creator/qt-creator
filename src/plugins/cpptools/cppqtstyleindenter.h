@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CPPQTSTYLEINDENTER_H
-#define CPPQTSTYLEINDENTER_H
+#pragma once
 
 #include "cpptools_global.h"
 
@@ -65,5 +64,3 @@ private:
 };
 
 } // CppTools
-
-#endif // CPPQTSTYLEINDENTER_H

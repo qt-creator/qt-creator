@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef VALGRIND_CALLGRIND_CALLGRINDPROXYMODEL_H
-#define VALGRIND_CALLGRIND_CALLGRINDPROXYMODEL_H
+#pragma once
 
 #include <QSortFilterProxyModel>
 
@@ -78,5 +77,3 @@ private:
 
 } // namespace Callgrind
 } // namespace Valgrind
-
-#endif // VALGRIND_CALLGRIND_CALLGRINDPROXYMODEL_H

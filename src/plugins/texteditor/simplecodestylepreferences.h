@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SIMPLECODESTYLEPREFERENCES_H
-#define SIMPLECODESTYLEPREFERENCES_H
+#pragma once
 
 #include "icodestylepreferences.h"
 
@@ -45,5 +44,3 @@ protected:
 };
 
 } // namespace TextEditor
-
-#endif // SIMPLECODESTYLEPREFERENCES_H

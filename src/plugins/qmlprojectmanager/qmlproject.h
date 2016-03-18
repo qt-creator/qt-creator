@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLPROJECT_H
-#define QMLPROJECT_H
+#pragma once
 
 #include "qmlprojectmanager_global.h"
 
@@ -116,5 +115,3 @@ private:
 } // namespace QmlProjectManager
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(QmlProjectManager::QmlProject::RefreshOptions)
-
-#endif // QMLPROJECT_H

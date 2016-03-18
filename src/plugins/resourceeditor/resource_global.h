@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef RESOUCE_GLOBAL_H
-#define RESOUCE_GLOBAL_H
+#pragma once
 
 #include <qglobal.h>
 
@@ -33,5 +32,3 @@
 #else
 #  define RESOURCE_EXPORT Q_DECL_IMPORT
 #endif
-
-#endif // RESOUCE_GLOBAL_H

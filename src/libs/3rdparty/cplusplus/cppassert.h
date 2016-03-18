@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SOFT_ASSERT_H
-#define SOFT_ASSERT_H
+#pragma once
 
 #include <iostream>
 
@@ -36,7 +35,3 @@
 
 #define CPP_ASSERT(cond, action) if (cond) {} else { CPP_ASSERT_STRING(#cond); action; } do {} while (0)
 #define CPP_CHECK(cond) if (cond) {} else { CPP_ASSERT_STRING(#cond); } do {} while (0)
-
-#endif // SOFT_ASSERT_H
-
-

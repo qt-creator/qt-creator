@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLPROJECTCONSTANTS_H
-#define QMLPROJECTCONSTANTS_H
+#pragma once
 
 #include <qmljstools/qmljstoolsconstants.h>
 
@@ -36,5 +35,3 @@ const char * const QMLPROJECT_MIMETYPE = QmlJSTools::Constants::QMLPROJECT_MIMET
 
 } // namespace Constants
 } // namespace QmlProjectManager
-
-#endif // QMLPROJECTCONSTANTS_H

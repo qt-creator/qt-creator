@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CLANGCOMPLETIONCONTEXTANALYZER_H
-#define CLANGCOMPLETIONCONTEXTANALYZER_H
+#pragma once
 
 #include <cplusplus/Token.h>
 
@@ -89,5 +88,3 @@ private:
 
 } // namespace Internal
 } // namespace ClangCodeModel
-
-#endif // CLANGCOMPLETIONCONTEXTANALYZER_H

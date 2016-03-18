@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CLANGCODEMODEL_HIGHLIGHTINGMARKSREPORTER_H
-#define CLANGCODEMODEL_HIGHLIGHTINGMARKSREPORTER_H
+#pragma once
 
 #include <QFutureInterface>
 #include <QObject>
@@ -69,5 +68,3 @@ private:
 };
 
 } // namespace ClangCodeModel
-
-#endif // CLANGCODEMODEL_HIGHLIGHTINGMARKSREPORTER_H

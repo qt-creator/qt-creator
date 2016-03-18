@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CPLUSPLUS_LOOKUPCONTEXT_H
-#define CPLUSPLUS_LOOKUPCONTEXT_H
+#pragma once
 
 #include "CppDocument.h"
 #include "LookupItem.h"
@@ -349,5 +348,3 @@ bool CPLUSPLUS_EXPORT compareFullyQualifiedName(const QList<const Name *> &path,
 
 
 } // namespace CPlusPlus
-
-#endif // CPLUSPLUS_LOOKUPCONTEXT_H

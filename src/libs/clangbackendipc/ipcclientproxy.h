@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CODELMODELBACKEND_IPCCLIENTPROXY_H
-#define CODELMODELBACKEND_IPCCLIENTPROXY_H
+#pragma once
 
 #include "clangbackendipc_global.h"
 #include "ipcclientinterface.h"
@@ -72,5 +71,3 @@ private:
 };
 
 } // namespace ClangBackEnd
-
-#endif // CODELMODELBACKEND_IPCCLIENTPROXY_H

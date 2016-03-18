@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SYMBOLGROUPVALUE_H
-#define SYMBOLGROUPVALUE_H
+#pragma once
 
 #include "common.h"
 #include "knowntype.h"
@@ -274,5 +273,3 @@ bool assignType(SymbolGroupNode  *n, int valueEncoding, const std::string &value
 std::vector<AbstractSymbolGroupNode *>
     dumpComplexType(SymbolGroupNode *node, int type, void *specialInfo,
                     const SymbolGroupValueContext &ctx);
-
-#endif // SYMBOLGROUPVALUE_H

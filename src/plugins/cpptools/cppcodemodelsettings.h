@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CPPTOOLS_CPPCODEMODELSETTINGS_H
-#define CPPTOOLS_CPPCODEMODELSETTINGS_H
+#pragma once
 
 #include "cpptools_global.h"
 
@@ -78,5 +77,3 @@ private:
 };
 
 } // namespace CppTools
-
-#endif // CPPTOOLS_CPPCODEMODELSETTINGS_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CLANGBACKEND_CODECOMPLETER_H
-#define CLANGBACKEND_CODECOMPLETER_H
+#pragma once
 
 #include "clangtranslationunit.h"
 
@@ -66,5 +65,3 @@ private:
 };
 
 } // namespace ClangBackEnd
-
-#endif // CLANGBACKEND_CODECOMPLETER_H

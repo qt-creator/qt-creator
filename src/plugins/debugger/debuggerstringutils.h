@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef DEBUGGERSTRINGUTILS_H
-#define DEBUGGERSTRINGUTILS_H
+#pragma once
 
 #ifndef qdoc
 
@@ -43,5 +42,3 @@ inline QString _(const QByteArray &ba) { return QString::fromLatin1(ba, ba.size(
 } // namespace Debugger
 
 #endif // qdoc
-
-#endif // DEBUGGERSTRINGUTILS_H

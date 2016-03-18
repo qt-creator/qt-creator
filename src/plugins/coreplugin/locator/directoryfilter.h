@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef DIRECTORYFILTER_H
-#define DIRECTORYFILTER_H
+#pragma once
 
 #include "ui_directoryfilter.h"
 #include "basefilefilter.h"
@@ -67,5 +66,3 @@ private:
 
 } // namespace Internal
 } // namespace Core
-
-#endif // DIRECTORYFILTER_H

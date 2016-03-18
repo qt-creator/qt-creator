@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CONNECTIONVIEWWIDGET_H
-#define CONNECTIONVIEWWIDGET_H
+#pragma once
 
 #include <QFrame>
 #include <QAbstractItemView>
@@ -99,5 +98,3 @@ private:
 } // namespace Internal
 
 } // namespace QmlDesigner
-
-#endif // CONNECTIONVIEWWIDGET_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef ICORE_H
-#define ICORE_H
+#pragma once
 
 #include "core_global.h"
 #include "id.h"
@@ -156,5 +155,3 @@ private:
 };
 
 } // namespace Core
-
-#endif // ICORE_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLWARNINGDIALOG_H
-#define QMLWARNINGDIALOG_H
+#pragma once
 
 #include <QDialog>
 
@@ -58,5 +57,3 @@ private:
 } //Internal
 
 } //QmlDesigner
-
-#endif // QMLWARNINGDIALOG_H

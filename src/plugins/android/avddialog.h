@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef AVDDIALOG_H
-#define AVDDIALOG_H
+#pragma once
 
 #include "ui_addnewavddialog.h"
 
@@ -62,5 +61,3 @@ private:
 };
 }
 }
-
-#endif // AVDDIALOG_H

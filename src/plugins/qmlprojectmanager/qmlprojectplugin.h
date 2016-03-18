@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLPROJECTPLUGIN_H
-#define QMLPROJECTPLUGIN_H
+#pragma once
 
 #include "qmlprojectmanager_global.h"
 
@@ -46,5 +45,3 @@ public:
 };
 
 } // namespace QmlProject
-
-#endif // QMLPROJECTPLUGIN_H

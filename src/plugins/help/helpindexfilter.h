@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef HELPINDEXFILTER_H
-#define HELPINDEXFILTER_H
+#pragma once
 
 #include <coreplugin/locator/ilocatorfilter.h>
 
@@ -68,5 +67,3 @@ private:
 
 } // namespace Internal
 } // namespace Help
-
-#endif // HELPINDEXFILTER_H

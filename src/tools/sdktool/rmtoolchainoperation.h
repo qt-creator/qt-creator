@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef RMTOOLCHAINOPERATION_H
-#define RMTOOLCHAINOPERATION_H
+#pragma once
 
 #include "operation.h"
 
@@ -50,5 +49,3 @@ public:
 private:
     QString m_id;
 };
-
-#endif // RMTOOLCHAINOPERATION_H

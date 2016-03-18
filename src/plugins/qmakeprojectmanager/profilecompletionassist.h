@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PROFILECOMPLETIONASSIST_H
-#define PROFILECOMPLETIONASSIST_H
+#pragma once
 
 #include <texteditor/codeassist/completionassistprovider.h>
 
@@ -53,5 +52,3 @@ private:
 
 } // namespace Internal
 } // namespace QmakeProjectManager
-
-#endif // PROFILECOMPLETIONASSIST_H

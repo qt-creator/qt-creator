@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CHANGEIMPORTSVISITOR_H
-#define CHANGEIMPORTSVISITOR_H
+#pragma once
 
 #include "import.h"
 #include "qmlrewriter.h"
@@ -48,5 +47,3 @@ private:
 
 } // namespace Internal
 } // namespace QmlDesigner
-
-#endif // CHANGEIMPORTSVISITOR_H

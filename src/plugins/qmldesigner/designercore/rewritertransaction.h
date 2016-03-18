@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef REWRITERTRANSACTION_H
-#define REWRITERTRANSACTION_H
+#pragma once
 
 #include <qmldesignercorelib_global.h>
 
@@ -59,5 +58,3 @@ private:
 };
 
 } //QmlDesigner
-
-#endif // REWRITERTRANSACTION_H

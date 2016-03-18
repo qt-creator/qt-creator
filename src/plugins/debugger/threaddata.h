@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef THREADDATA_H
-#define THREADDATA_H
+#pragma once
 
 #include <QString>
 #include <QVector>
@@ -111,5 +110,3 @@ typedef QVector<ThreadData> Threads;
 
 } // namespace Internal
 } // namespace Debugger
-
-#endif // THREADDATA_H

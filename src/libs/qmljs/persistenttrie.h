@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PERSISTENTTRIE_H
-#define PERSISTENTTRIE_H
+#pragma once
 
 #include <qmljs/qmljs_global.h>
 
@@ -128,5 +127,3 @@ QMLJS_EXPORT QDebug &operator<<(QDebug &dbg, const Trie &trie);
 
 } // end namespace PersistentTrie
 } // end namespace QmlJS
-
-#endif // PERSISTENTTRIE_H

@@ -37,8 +37,7 @@
 **
 ****************************************************************************/
 
-#ifndef MIMETYPEPARSER_P_H
-#define MIMETYPEPARSER_P_H
+#pragma once
 
 //
 //  W A R N I N G
@@ -130,5 +129,3 @@ private:
 
 } // Internal
 } // Utils
-
-#endif // MIMETYPEPARSER_P_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLDESIGNERICONS_H
-#define QMLDESIGNERICONS_H
+#pragma once
 
 #include <utils/icon.h>
 
@@ -60,5 +59,3 @@ const Utils::Icon RESET({
 
 } // Icons
 } // QmlDesigner
-
-#endif // QMLDESIGNERICONS_H

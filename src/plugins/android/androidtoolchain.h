@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef ANDROIDTOOLCHAIN_H
-#define ANDROIDTOOLCHAIN_H
+#pragma once
 
 #include <projectexplorer/gcctoolchain.h>
 #include <projectexplorer/toolchainconfigwidget.h>
@@ -124,5 +123,3 @@ private:
 
 } // namespace Internal
 } // namespace Android
-
-#endif // ANDROIDTOOLCHAIN_H

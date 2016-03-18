@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLDESIGNER_DESIGNERACTIONMANAGERVIEW_H
-#define QMLDESIGNER_DESIGNERACTIONMANAGERVIEW_H
+#pragma once
 
 #include <abstractview.h>
 
@@ -78,5 +77,3 @@ private:
 
 
 } // namespace QmlDesigner
-
-#endif // QMLDESIGNER_DESIGNERACTIONMANAGERVIEW_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef INVALIDPROPERTYEXCEPTION_H
-#define INVALIDPROPERTYEXCEPTION_H
+#pragma once
 
 #include "exception.h"
 
@@ -46,5 +45,3 @@ private:
 };
 
 } // namespace QmlDesigner
-
-#endif // INVALIDPROPERTYEXCEPTION_H

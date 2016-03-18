@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CLANGCODEMODEL_PREPROCESSORASSISTPROPOSALITEM_H
-#define CLANGCODEMODEL_PREPROCESSORASSISTPROPOSALITEM_H
+#pragma once
 
 #include <texteditor/codeassist/assistproposaliteminterface.h>
 
@@ -70,5 +69,3 @@ private:
 };
 
 } // namespace ClangCodeModel
-
-#endif // CLANGCODEMODEL_PREPROCESSORASSISTPROPOSALITEM_H

@@ -24,8 +24,7 @@
 **
 ****************************************************************************/
 
-#ifndef ANALYZER_INTERNAL_VALGRINDSETTINGS_H
-#define ANALYZER_INTERNAL_VALGRINDSETTINGS_H
+#pragma once
 
 #include "callgrindcostdelegate.h"
 #include <projectexplorer/runconfiguration.h>
@@ -275,5 +274,3 @@ private:
 
 } // namespace Internal
 } // namespace Valgrind
-
-#endif // VALGRIND_INTERNAL_ANALZYZERSETTINGS_H

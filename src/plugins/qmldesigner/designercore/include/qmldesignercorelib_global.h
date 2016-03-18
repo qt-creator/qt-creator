@@ -23,12 +23,10 @@
 **
 ****************************************************************************/
 
-#ifndef CORELIB_GLOBAL_H
-#define CORELIB_GLOBAL_H
+#pragma once
 
 #include <QtGlobal>
 #include <QList>
-
 
 // Unnecessary since core isn't a dll any more.
 
@@ -75,5 +73,3 @@ enum AnchorLineType {
 //#endif
 
 #include <qglobal.h>
-
-#endif // CORELIB_GLOBAL_H

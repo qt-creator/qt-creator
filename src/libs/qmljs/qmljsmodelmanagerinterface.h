@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLJSMODELMANAGERINTERFACE_H
-#define QMLJSMODELMANAGERINTERFACE_H
+#pragma once
 
 #include "qmljs_global.h"
 #include "qmljsbundle.h"
@@ -284,5 +283,3 @@ private:
 };
 
 } // namespace QmlJS
-
-#endif // QMLJSMODELMANAGERINTERFACE_H

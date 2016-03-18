@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CPPELEMENTEVALUATOR_H
-#define CPPELEMENTEVALUATOR_H
+#pragma once
 
 #include <texteditor/texteditor.h>
 #include <texteditor/helpitem.h>
@@ -193,5 +192,3 @@ public:
 
 } // namespace Internal
 } // namespace CppEditor
-
-#endif // CPPELEMENTEVALUATOR_H

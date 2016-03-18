@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CPPTOOLS_INTERNAL_CPPMODELMANAGERSUPPORTINTERNAL_H
-#define CPPTOOLS_INTERNAL_CPPMODELMANAGERSUPPORTINTERNAL_H
+#pragma once
 
 #include "cppmodelmanagersupport.h"
 
@@ -60,5 +59,3 @@ public:
 
 } // Internal namespace
 } // CppTools namespace
-
-#endif // CPPTOOLS_INTERNAL_CPPMODELMANAGERSUPPORTINTERNAL_H

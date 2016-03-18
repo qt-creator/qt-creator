@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef MODELNODEOPERATIONS_H
-#define MODELNODEOPERATIONS_H
+#pragma once
 
 #include "selectioncontext.h"
 
@@ -71,5 +70,3 @@ void removePositioner(const SelectionContext &selectionContext);
 
 } // namespace ModelNodeOperationso
 } //QmlDesigner
-
-#endif //MODELNODEOPERATIONS_H

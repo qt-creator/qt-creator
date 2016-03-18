@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CLANGSTATICANALZYERDIAGNOSTIC_H
-#define CLANGSTATICANALZYERDIAGNOSTIC_H
+#pragma once
 
 #include <debugger/analyzer/diagnosticlocation.h>
 
@@ -67,5 +66,3 @@ public:
 } // namespace ClangStaticAnalyzer
 
 Q_DECLARE_METATYPE(ClangStaticAnalyzer::Internal::Diagnostic)
-
-#endif // CLANGSTATICANALZYERDIAGNOSTIC_H

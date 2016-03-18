@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef TIMELINEOVERVIEWRENDERER_P_H
-#define TIMELINEOVERVIEWRENDERER_P_H
+#pragma once
 
 #include "timelineoverviewrenderer.h"
 #include "timelineabstractrenderer_p.h"
@@ -42,6 +41,3 @@ public:
 };
 
 } // namespace Timeline
-
-#endif // TIMELINEOVERVIEWRENDERER_P_H
-

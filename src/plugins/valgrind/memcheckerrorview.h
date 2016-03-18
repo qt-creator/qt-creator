@@ -24,8 +24,7 @@
 **
 ****************************************************************************/
 
-#ifndef MEMCHECKERRORVIEW_H
-#define MEMCHECKERRORVIEW_H
+#pragma once
 
 #include <debugger/analyzer/detailederrorview.h>
 
@@ -64,5 +63,3 @@ private:
 
 } // namespace Internal
 } // namespace Valgrind
-
-#endif // MEMCHECKERRORVIEW_H

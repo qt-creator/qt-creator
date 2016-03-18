@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef NOTIMPLEMENTEDEXCEPTION_H
-#define NOTIMPLEMENTEDEXCEPTION_H
+#pragma once
 
 #include "exception.h"
 
@@ -42,5 +41,3 @@ public:
 };
 
 }
-
-#endif // NOTIMPLEMENTEDEXCEPTION_H

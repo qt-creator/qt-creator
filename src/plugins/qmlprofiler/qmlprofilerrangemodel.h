@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLPROFILERRANGEMODEL_H
-#define QMLPROFILERRANGEMODEL_H
+#pragma once
 
 #include "qmlprofilertimelinemodel.h"
 #include <qmldebug/qmlprofilereventtypes.h>
@@ -89,5 +88,3 @@ private:
 
 }
 }
-
-#endif // QMLPROFILERRANGEMODEL_H

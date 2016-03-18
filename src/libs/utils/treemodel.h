@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef UTILS_TREEMODEL_H
-#define UTILS_TREEMODEL_H
+#pragma once
 
 #include "utils_global.h"
 
@@ -300,5 +299,3 @@ private:
 };
 
 } // namespace Utils
-
-#endif // UTILS_TREEMODEL_H

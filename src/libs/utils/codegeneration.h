@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CODEGENERATION_H
-#define CODEGENERATION_H
+#pragma once
 
 #include "utils_global.h"
 
@@ -69,5 +68,3 @@ void writeClosingNameSpaces(const QStringList &namespaces,
                             QTextStream &str);
 
 } // namespace Utils
-
-#endif // CODEGENERATION_H

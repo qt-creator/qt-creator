@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QARK_ATTRIBUTE_H
-#define QARK_ATTRIBUTE_H
+#pragma once
 
 #include "parameters.h"
 
@@ -368,5 +367,3 @@ GetSetFuncAttr<U, T, V> attr(const QString &qualifiedName, U &u, T (*func)(const
 }
 
 } // namespace qark
-
-#endif // QARK_ATTRIBUTE_H

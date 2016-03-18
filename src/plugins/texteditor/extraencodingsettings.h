@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef ENCODINGSETTINGS_H
-#define ENCODINGSETTINGS_H
+#pragma once
 
 #include "texteditor_global.h"
 
@@ -65,5 +64,3 @@ inline bool operator!=(const ExtraEncodingSettings &a, const ExtraEncodingSettin
 { return !a.equals(b); }
 
 } // TextEditor
-
-#endif // ENCODINGSETTINGS_H

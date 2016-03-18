@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef FAKEVIM_ACTIONS_H
-#define FAKEVIM_ACTIONS_H
+#pragma once
 
 #ifndef FAKEVIM_STANDALONE
 #   include <utils/savedaction.h>
@@ -143,5 +142,3 @@ FakeVimAction *theFakeVimSetting(int code);
 
 } // namespace Internal
 } // namespace FakeVim
-
-#endif // FAKEVIM_ACTTIONS_H

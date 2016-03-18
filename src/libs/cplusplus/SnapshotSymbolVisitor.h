@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CPLUSPLUS_SNAPSHOTSYMBOLVISITOR_H
-#define CPLUSPLUS_SNAPSHOTSYMBOLVISITOR_H
+#pragma once
 
 #include "CppDocument.h"
 
@@ -51,5 +50,3 @@ private:
 };
 
 } // namespace CPlusPlus
-
-#endif // CPLUSPLUS_SNAPSHOTSYMBOLVISITOR_H

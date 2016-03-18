@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef IOSSETTINGSPAGE_H
-#define IOSSETTINGSPAGE_H
+#pragma once
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
@@ -52,5 +51,3 @@ private:
 
 } // namespace Internal
 } // namespace Ios
-
-#endif // IOSSETTINGSPAGE_H

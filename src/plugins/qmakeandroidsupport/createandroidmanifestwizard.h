@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CREATEANDROIDMANIFESTWIZARD_H
-#define CREATEANDROIDMANIFESTWIZARD_H
+#pragma once
 
 #include <utils/fileutils.h>
 #include <utils/pathchooser.h>
@@ -120,5 +119,3 @@ private:
 
 } //namespace QmakeAndroidSupport
 } //namespace Internal
-
-#endif // CREATEANDROIDMANIFESTWIZARD_H

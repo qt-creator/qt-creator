@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef TEXTEDITOR_P_H
-#define TEXTEDITOR_P_H
+#pragma once
 
 
 #include "texteditor_global.h"
@@ -91,5 +90,3 @@ struct TextEditorPrivateHighlightBlocks
 
 } // namespace Internal
 } // namespace TextEditor
-
-#endif // TEXTEDITOR_P_H

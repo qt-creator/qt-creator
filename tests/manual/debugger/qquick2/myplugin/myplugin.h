@@ -1,5 +1,4 @@
-#ifndef MYPLUGIN_H
-#define MYPLUGIN_H
+#pragma once
 
 #include <QQmlExtensionPlugin>
 
@@ -10,5 +9,3 @@ class MyPlugin : public QQmlExtensionPlugin
 public:
     void registerTypes(const char *uri);
 };
-
-#endif // MYPLUGIN_H

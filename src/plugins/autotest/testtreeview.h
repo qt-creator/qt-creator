@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef TESTTREEVIEW_H
-#define TESTTREEVIEW_H
+#pragma once
 
 #include <utils/navigationtreeview.h>
 
@@ -52,5 +51,3 @@ private:
 
 } // namespace Internal
 } // namespace Autotest
-
-#endif // TESTTREEVIEW_H

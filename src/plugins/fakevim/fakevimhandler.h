@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef FAKEVIM_HANDLER_H
-#define FAKEVIM_HANDLER_H
+#pragma once
 
 #include <QObject>
 #include <QTextEdit>
@@ -169,6 +168,3 @@ private:
 } // namespace FakeVim
 
 Q_DECLARE_METATYPE(FakeVim::Internal::ExCommand)
-
-
-#endif // FAKEVIM_HANDLER_H

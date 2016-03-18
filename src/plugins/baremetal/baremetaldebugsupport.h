@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef BAREMETALDEBUGSUPPORT_H
-#define BAREMETALDEBUGSUPPORT_H
+#pragma once
 
 #include <QObject>
 #include <QPointer>
@@ -82,5 +81,3 @@ private:
 
 } // namespace Internal
 } // namespace BareMetal
-
-#endif // BAREMETALDEBUGSUPPORT_H

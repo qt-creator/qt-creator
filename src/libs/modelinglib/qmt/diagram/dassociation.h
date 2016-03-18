@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_DASSOCIATION_H
-#define QMT_DASSOCIATION_H
+#pragma once
 
 #include "drelation.h"
 
@@ -81,5 +80,3 @@ private:
 };
 
 } // namespace qmt
-
-#endif // QMT_DASSOCIATION_H

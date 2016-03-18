@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef IMPORTMANAGERCOMBOBOX_H
-#define IMPORTMANAGERCOMBOBOX_H
+#pragma once
 
 #include <QComboBox>
 
@@ -37,5 +36,3 @@ public:
 protected:
     void paintEvent(QPaintEvent *e);
 };
-
-#endif // IMPORTMANAGERCOMBOBOX_H

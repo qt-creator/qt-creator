@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef BEAUTIFIER_UNCRUSTIFYCONSTANTS_H
-#define BEAUTIFIER_UNCRUSTIFYCONSTANTS_H
+#pragma once
 
 namespace Beautifier {
 namespace Constants {
@@ -40,5 +39,3 @@ const char SETTINGS_NAME[]         = "uncrustify";
 } // namespace Uncrustify
 } // namespace Constants
 } // namespace Beautifier
-
-#endif // BEAUTIFIER_UNCRUSTIFYCONSTANTS_H

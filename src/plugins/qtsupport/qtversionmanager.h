@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QTVERSIONMANAGER_H
-#define QTVERSIONMANAGER_H
+#pragma once
 
 #include "qtsupport_global.h"
 #include "baseqtversion.h"
@@ -86,5 +85,3 @@ private:
 };
 
 } // namespace QtSupport
-
-#endif // QTVERSIONMANAGER_H

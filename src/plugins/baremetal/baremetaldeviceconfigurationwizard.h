@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef BAREMETALDEVICECONFIGURATIONWIZARD_H
-#define BAREMETALDEVICECONFIGURATIONWIZARD_H
+#pragma once
 
 #include <projectexplorer/devicesupport/idevice.h>
 #include <utils/wizard.h>
@@ -49,5 +48,3 @@ private:
 
 } // namespace Internal
 } // namespace BareMetal
-
-#endif // BAREMETALDEVICECONFIGURATIONWIZARD_H

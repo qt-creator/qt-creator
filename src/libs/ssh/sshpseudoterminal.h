@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SSHPSEUDOTERMINAL_H
-#define SSHPSEUDOTERMINAL_H
+#pragma once
 
 #include "ssh_global.h"
 
@@ -109,5 +108,3 @@ class QSSH_EXPORT SshPseudoTerminal
 };
 
 } // namespace QSsh
-
-#endif // SSHPSEUDOTERMINAL_H

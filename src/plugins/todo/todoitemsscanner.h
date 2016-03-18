@@ -24,8 +24,7 @@
 **
 ****************************************************************************/
 
-#ifndef TODOITEMSSCANNER_H
-#define TODOITEMSSCANNER_H
+#pragma once
 
 #include "todoitem.h"
 #include "keyword.h"
@@ -60,5 +59,3 @@ protected:
 
 }
 }
-
-#endif // TODOITEMSSCANNER_H

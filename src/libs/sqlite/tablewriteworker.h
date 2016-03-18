@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef INTERNAL_TABLEWRITEWORKER_H
-#define INTERNAL_TABLEWRITEWORKER_H
+#pragma once
 
 #include "createtablecommand.h"
 
@@ -47,5 +46,3 @@ signals:
 };
 
 } // namespace Internal
-
-#endif // INTERNAL_TABLEWRITEWORKER_H

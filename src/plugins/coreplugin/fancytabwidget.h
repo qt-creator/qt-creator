@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef FANCYTABWIDGET_H
-#define FANCYTABWIDGET_H
+#pragma once
 
 #include <QIcon>
 #include <QWidget>
@@ -180,5 +179,3 @@ private:
 
 } // namespace Internal
 } // namespace Core
-
-#endif // FANCYTABWIDGET_H

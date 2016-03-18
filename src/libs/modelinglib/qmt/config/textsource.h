@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_TEXTSOURCE_H
-#define QMT_TEXTSOURCE_H
+#pragma once
 
 #include "sourcepos.h"
 
@@ -55,5 +54,3 @@ public:
 };
 
 } // namespace qmt
-
-#endif // QMT_TEXTSOURCE_H

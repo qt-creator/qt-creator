@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef BOOKMARKMANAGER_H
-#define BOOKMARKMANAGER_H
+#pragma once
 
 #include <utils/itemviews.h>
 #include <coreplugin/editormanager/ieditor.h>
@@ -188,5 +187,3 @@ private:
 
 } // namespace Internal
 } // namespace Bookmarks
-
-#endif // BOOKMARKMANAGER_H

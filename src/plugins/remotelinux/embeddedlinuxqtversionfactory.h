@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef EMBEDDEDLINUXQTVERSIONFACTORY_H
-#define EMBEDDEDLINUXQTVERSIONFACTORY_H
+#pragma once
 
 #include <qtsupport/qtversionfactory.h>
 
@@ -48,5 +47,3 @@ public:
 
 } // Internal
 } // RemoteLinux
-
-#endif // EMBEDDEDLINUXQTVERSIONFACTORY_H

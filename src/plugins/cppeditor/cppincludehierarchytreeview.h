@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CPPINCLUDEHIERARCHYTREEVIEW_H
-#define CPPINCLUDEHIERARCHYTREEVIEW_H
+#pragma once
 
 #include <utils/navigationtreeview.h>
 
@@ -41,5 +40,3 @@ protected:
 
 } // namespace Internal
 } // namespace CppEditor
-
-#endif // CPPINCLUDEHIERARCHYTREEVIEW_H

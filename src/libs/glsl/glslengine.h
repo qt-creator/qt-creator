@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef GLSLENGINE_H
-#define GLSLENGINE_H
+#pragma once
 
 #include "glsl.h"
 #include "glslmemorypool.h"
@@ -142,5 +141,3 @@ private:
 };
 
 } // namespace GLSL
-
-#endif // GLSLENGINE_H

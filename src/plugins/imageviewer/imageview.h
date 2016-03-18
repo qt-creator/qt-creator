@@ -48,8 +48,7 @@
 **
 ****************************************************************************/
 
-#ifndef IMAGEVIEW_H
-#define IMAGEVIEW_H
+#pragma once
 
 #include <QGraphicsView>
 
@@ -104,5 +103,3 @@ private:
 
 } // namespace Internal
 } // namespace ImageViewer
-
-#endif // IMAGEVIEW_H

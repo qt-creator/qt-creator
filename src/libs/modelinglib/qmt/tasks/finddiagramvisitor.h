@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_FINDDIAGRAMVISITOR_H
-#define QMT_FINDDIAGRAMVISITOR_H
+#pragma once
 
 #include "qmt/model_controller/mvoidvisitor.h"
 
@@ -46,5 +45,3 @@ private:
 };
 
 } // namespace qmt
-
-#endif // QMT_FINDDIAGRAMVISITOR_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_MSOURCEEXPANSION_H
-#define QMT_MSOURCEEXPANSION_H
+#pragma once
 
 #include "melement.h"
 
@@ -52,5 +51,3 @@ private:
 };
 
 } // namespace qmt
-
-#endif // QMT_MSOURCEEXPANSION_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef DESIGNERMODEL_H
-#define DESIGNERMODEL_H
+#pragma once
 
 #include <qmldesignercorelib_global.h>
 #include <QObject>
@@ -118,5 +117,3 @@ public:
 };
 
 }
-
-#endif // DESIGNERMODEL_H

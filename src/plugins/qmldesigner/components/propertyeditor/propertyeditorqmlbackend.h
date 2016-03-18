@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PROPERTYEDITORQMLBACKEND_H
-#define PROPERTYEDITORQMLBACKEND_H
+#pragma once
 
 #include "qmlanchorbindingproxy.h"
 #include "designerpropertymap.h"
@@ -105,5 +104,3 @@ private:
 };
 
 } //QmlDesigner
-
-#endif //PROPERTYEDITORQMLBACKEND_H

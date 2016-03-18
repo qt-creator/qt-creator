@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CPLUSPLUS_DEPENDENCYTABLE_H
-#define CPLUSPLUS_DEPENDENCYTABLE_H
+#pragma once
 
 #include <cplusplus/CPlusPlusForwardDeclarations.h>
 
@@ -54,5 +53,3 @@ private:
 };
 
 } // namespace CPlusPlus
-
-#endif // CPLUSPLUS_DEPENDENCYTABLE_H

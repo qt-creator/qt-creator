@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SLEEP_H
-#define SLEEP_H
+#pragma once
 
 #include "utils_global.h"
 
@@ -33,5 +32,3 @@ namespace Utils {
 void QTCREATOR_UTILS_EXPORT sleep(int msec);
 
 }
-
-#endif // SLEEP_H

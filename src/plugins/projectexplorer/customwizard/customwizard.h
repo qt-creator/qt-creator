@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CUSTOMWIZARD_H
-#define CUSTOMWIZARD_H
+#pragma once
 
 #include "../projectexplorer_export.h"
 
@@ -151,5 +150,3 @@ private:
 };
 
 } // namespace ProjectExplorer
-
-#endif // CUSTOMWIZARD_H

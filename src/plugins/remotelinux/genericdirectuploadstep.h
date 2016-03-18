@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef DIRECTUPLOADSTEP_H
-#define DIRECTUPLOADSTEP_H
+#pragma once
 
 #include "abstractremotelinuxdeploystep.h"
 #include "genericdirectuploadservice.h"
@@ -65,5 +64,3 @@ private:
 };
 
 } //namespace RemoteLinux
-
-#endif // DIRECTUPLOADSTEP_H

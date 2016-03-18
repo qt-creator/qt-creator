@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PREPROCESSORCLIENT_H
-#define PREPROCESSORCLIENT_H
+#pragma once
 
 #include <cplusplus/CPlusPlusForwardDeclarations.h>
 
@@ -118,5 +117,3 @@ public:
 };
 
 } // namespace CPlusPlus
-
-#endif // PREPROCESSORCLIENT_H

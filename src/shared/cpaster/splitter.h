@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SPLITTER_H
-#define SPLITTER_H
+#pragma once
 
 #include <QByteArray>
 #include <QList>
@@ -42,5 +41,3 @@ struct FileData
 typedef QList<FileData> FileDataList;
 
 FileDataList splitDiffToFiles(const QString &data);
-
-#endif // SPLITTER_H

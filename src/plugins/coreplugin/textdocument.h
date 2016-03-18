@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CORE_TEXTDOCUMENT_H
-#define CORE_TEXTDOCUMENT_H
+#pragma once
 
 #include "idocument.h"
 
@@ -64,5 +63,3 @@ private:
 };
 
 } // namespace Core
-
-#endif // CORE_TEXTDOCUMENT_H

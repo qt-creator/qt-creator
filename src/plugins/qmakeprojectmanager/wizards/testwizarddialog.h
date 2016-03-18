@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef TESTWIZARDDIALOG_H
-#define TESTWIZARDDIALOG_H
+#pragma once
 
 #include "qtwizard.h"
 
@@ -74,5 +73,3 @@ private:
 
 } // namespace Internal
 } // namespace QmakeProjectManager
-
-#endif // TESTWIZARDDIALOG_H

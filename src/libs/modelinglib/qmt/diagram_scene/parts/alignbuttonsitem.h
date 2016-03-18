@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_ALIGNBUTTONSITEM_H
-#define QMT_ALIGNBUTTONSITEM_H
+#pragma once
 
 #include "qmt/diagram_scene/capabilities/alignable.h"
 
@@ -64,5 +63,3 @@ private:
 };
 
 } // namespace qmt
-
-#endif // QMT_ALIGNBUTTONSITEM_H

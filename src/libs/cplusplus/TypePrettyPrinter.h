@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CPLUSPLUS_TYPEPRETTYPRINTER_H
-#define CPLUSPLUS_TYPEPRETTYPRINTER_H
+#pragma once
 
 #include <cplusplus/TypeVisitor.h>
 #include <cplusplus/FullySpecifiedType.h>
@@ -93,5 +92,3 @@ private:
 };
 
 } // namespace CPlusPlus
-
-#endif // CPLUSPLUS_TYPEPRETTYPRINTER_H

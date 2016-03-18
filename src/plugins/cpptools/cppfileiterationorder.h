@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef FILEITERATIONORDER_H
-#define FILEITERATIONORDER_H
+#pragma once
 
 #include "cpptools_global.h"
 
@@ -75,5 +74,3 @@ CPPTOOLS_EXPORT bool operator<(const FileIterationOrder::Entry &first,
                                const FileIterationOrder::Entry &second);
 
 } // namespace CppTools
-
-#endif // FILEITERATIONORDER_H

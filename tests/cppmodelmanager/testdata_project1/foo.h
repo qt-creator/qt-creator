@@ -1,12 +1,9 @@
 // Copyright header
 
-#ifndef FOO_H
-#define FOO_H
+#pragma once
 
 class Foo
 {
 public:
     Foo();
 };
-
-#endif // FOO_H

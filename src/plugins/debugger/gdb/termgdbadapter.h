@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef DEBUGGER_TERMGDBADAPTER_H
-#define DEBUGGER_TERMGDBADAPTER_H
+#pragma once
 
 #include "gdbengine.h"
 
@@ -66,5 +65,3 @@ private:
 
 } // namespace Internal
 } // namespace Debugger
-
-#endif // DEBUGGER_TERMGDBADAPTER_H

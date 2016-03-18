@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef FIRSTDEFINITIONFINDER_H
-#define FIRSTDEFINITIONFINDER_H
+#pragma once
 
 #include <qmljs/parser/qmljsastvisitor_p.h>
 #include <qmljs/qmljsdocument.h>
@@ -54,5 +53,3 @@ private:
 };
 
 } // namespace QmlDesigner
-
-#endif // FIRSTDEFINITIONFINDER_H

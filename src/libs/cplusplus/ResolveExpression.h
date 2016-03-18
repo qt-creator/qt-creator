@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CPLUSPLUS_RESOLVEEXPRESSION_H
-#define CPLUSPLUS_RESOLVEEXPRESSION_H
+#pragma once
 
 #include "LookupContext.h"
 
@@ -134,5 +133,3 @@ private:
 };
 
 } // namespace CPlusPlus
-
-#endif // CPLUSPLUS_RESOLVEEXPRESSION_H

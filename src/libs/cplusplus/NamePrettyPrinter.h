@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CPLUSPLUS_NAMEPRETTYPRINTER_H
-#define CPLUSPLUS_NAMEPRETTYPRINTER_H
+#pragma once
 
 #include <cplusplus/NameVisitor.h>
 
@@ -61,5 +60,3 @@ private:
 };
 
 } // namespace CPlusPlus
-
-#endif // CPLUSPLUS_NAMEPRETTYPRINTER_H

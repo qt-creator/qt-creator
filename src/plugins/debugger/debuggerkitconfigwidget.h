@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef DEBUGGER_DEBUGGERKITCONFIGWIDGET_H
-#define DEBUGGER_DEBUGGERKITCONFIGWIDGET_H
+#pragma once
 
 #include <coreplugin/dialogs/ioptionspage.h>
 #include <projectexplorer/kitconfigwidget.h>
@@ -81,5 +80,3 @@ private:
 
 } // namespace Internal
 } // namespace Debugger
-
-#endif // DEBUGGER_DEBUGGERKITCONFIGWIDGET_H

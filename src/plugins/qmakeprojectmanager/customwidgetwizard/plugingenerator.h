@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PLUGINGENERATOR_H
-#define PLUGINGENERATOR_H
+#pragma once
 
 #include <QObject>
 #include <QString>
@@ -65,5 +64,3 @@ private:
 
 }
 }
-
-#endif

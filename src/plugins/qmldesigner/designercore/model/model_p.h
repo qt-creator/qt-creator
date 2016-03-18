@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef MODEL_P_H
-#define MODEL_P_H
+#pragma once
 
 #include <QList>
 #include <QPointer>
@@ -254,4 +253,3 @@ private:
 
 }
 }
-#endif // MODEL_P_H

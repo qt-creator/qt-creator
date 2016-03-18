@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SQLITECOLUMN_H
-#define SQLITECOLUMN_H
+#pragma once
 
 #include "columndefinition.h"
 #include "utf8string.h"
@@ -55,5 +54,3 @@ private:
     ColumnType type_;
     bool isPrimaryKey_;
 };
-
-#endif // SQLITECOLUMN_H

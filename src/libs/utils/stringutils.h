@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef STRINGUTILS_H
-#define STRINGUTILS_H
+#pragma once
 
 #include "utils_global.h"
 
@@ -75,5 +74,3 @@ QTCREATOR_UTILS_EXPORT void expandMacros(QString *str, AbstractMacroExpander *mx
 QTCREATOR_UTILS_EXPORT QString expandMacros(const QString &str, AbstractMacroExpander *mx);
 
 } // namespace Utils
-
-#endif // STRINGUTILS_H

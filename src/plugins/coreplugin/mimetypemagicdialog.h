@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef MIMETYPEMAGICDIALOG_H
-#define MIMETYPEMAGICDIALOG_H
+#pragma once
 
 #include "ui_mimetypemagicdialog.h"
 
@@ -82,5 +81,3 @@ private:
 } // Core
 
 Q_DECLARE_METATYPE(Core::Internal::MagicData)
-
-#endif // MIMETYPEMAGICDIALOG_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef ANDROIDGDBSERVERKITINFORMATION_H
-#define ANDROIDGDBSERVERKITINFORMATION_H
+#pragma once
 
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/kitconfigwidget.h>
@@ -85,5 +84,3 @@ public:
 
 } // namespace Internal
 } // namespace Android
-
-#endif // ANDROIDGDBSERVERKITINFORMATION_H

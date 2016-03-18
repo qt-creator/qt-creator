@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef NAME_DEMANGLER_H
-#define NAME_DEMANGLER_H
+#pragma once
 
 #include <QtGlobal>
 
@@ -70,5 +69,3 @@ private:
 
 } // namespace Internal
 } // namespace Debugger
-
-#endif // Include guard.

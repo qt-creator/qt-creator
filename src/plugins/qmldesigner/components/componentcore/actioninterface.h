@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef ABSTRACTDESIGNERACTION_H
-#define ABSTRACTDESIGNERACTION_H
+#pragma once
 
 #include "componentcore_constants.h"
 #include "selectioncontext.h"
@@ -62,5 +61,3 @@ public:
 };
 
 } //QmlDesigner
-
-#endif //ABSTRACTDESIGNERACTION_H

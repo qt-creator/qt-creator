@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CPPTOOLS_INTERNAL_CPPCODEMODELSETTINGSPAGE_H
-#define CPPTOOLS_INTERNAL_CPPCODEMODELSETTINGSPAGE_H
+#pragma once
 
 #include "cppcodemodelsettings.h"
 
@@ -85,5 +84,3 @@ private:
 
 } // Internal namespace
 } // CppTools namespace
-
-#endif // CPPTOOLS_INTERNAL_CPPCODEMODELSETTINGSPAGE_H

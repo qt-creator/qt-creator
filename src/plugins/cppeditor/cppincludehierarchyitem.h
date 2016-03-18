@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CPPINCLUDEHIERARCHYITEM_H
-#define CPPINCLUDEHIERARCHYITEM_H
+#pragma once
 
 #include <QList>
 #include <QString>
@@ -67,5 +66,3 @@ private:
 
 } // namespace Internal
 } // namespace CppEditor
-
-#endif // CPPINCLUDEHIERARCHYITEM_H

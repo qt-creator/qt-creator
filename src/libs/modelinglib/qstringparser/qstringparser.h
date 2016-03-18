@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QSTRINGPARSER_H
-#define QSTRINGPARSER_H
+#pragma once
 
 #include <QString>
 #include <QList>
@@ -138,5 +137,3 @@ public:
 private:
     const QString m_source;
 };
-
-#endif // QSTRINGPARSER_H

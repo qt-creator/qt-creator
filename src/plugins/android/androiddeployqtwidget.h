@@ -24,8 +24,7 @@
 **
 ****************************************************************************/
 
-#ifndef ANDROIDDEPLOYQTWIDGET_H
-#define ANDROIDDEPLOYQTWIDGET_H
+#pragma once
 
 #include <projectexplorer/buildstep.h>
 
@@ -62,4 +61,3 @@ private:
 
 }
 }
-#endif // ANDROIDDEPLOYQTWIDGET_H

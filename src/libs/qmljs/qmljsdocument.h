@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLJSDOCUMENT_H
-#define QMLJSDOCUMENT_H
+#pragma once
 
 #include <QList>
 #include <QSharedPointer>
@@ -246,5 +245,3 @@ public:
 };
 
 } // namespace QmlJS
-
-#endif // QMLJSDOCUMENT_H

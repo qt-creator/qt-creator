@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef TEXTDOCUMENTMANIPULATORINTERFACE_H
-#define TEXTDOCUMENTMANIPULATORINTERFACE_H
+#pragma once
 
 #include <texteditor/texteditor_global.h>
 
@@ -56,5 +55,3 @@ public:
 };
 
 } // namespace TextEditor
-
-#endif // TEXTDOCUMENTMANIPULATORINTERFACE_H

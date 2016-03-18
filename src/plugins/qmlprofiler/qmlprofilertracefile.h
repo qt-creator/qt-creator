@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLPROFILERTRACEFILE_H
-#define QMLPROFILERTRACEFILE_H
+#pragma once
 
 #include <QFutureInterface>
 #include <QObject>
@@ -113,5 +112,3 @@ private:
 
 } // namespace Internal
 } // namespace QmlProfiler
-
-#endif // QMLPROFILERTRACEFILE_H

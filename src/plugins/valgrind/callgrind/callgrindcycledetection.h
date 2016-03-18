@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef LIBVALGRIND_CALLGRINDCYCLEDETECTION_H
-#define LIBVALGRIND_CALLGRINDCYCLEDETECTION_H
+#pragma once
 
 #include <QHash>
 #include <QStack>
@@ -75,5 +74,3 @@ private:
 
 } // namespace Callgrind
 } // namespace Valgrind
-
-#endif // LIBVALGRIND_CALLGRINDCYCLEDETECTION_H

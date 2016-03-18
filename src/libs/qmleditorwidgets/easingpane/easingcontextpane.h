@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef EASINGCONTEXTPANE_H
-#define EASINGCONTEXTPANE_H
+#pragma once
 
 #include "easinggraph.h"
 
@@ -86,4 +85,3 @@ private slots:
 };
 
 }
-#endif // EASINGCONTEXTPANE_H

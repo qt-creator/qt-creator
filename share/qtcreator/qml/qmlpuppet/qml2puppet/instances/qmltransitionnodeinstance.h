@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLTRANSITIONNODEINSTANCE_H
-#define QMLTRANSITIONNODEINSTANCE_H
+#pragma once
 
 #include "objectnodeinstance.h"
 
@@ -48,4 +47,3 @@ private:
 };
 }
 }
-#endif // QMLTRANSITIONNODEINSTANCE_H

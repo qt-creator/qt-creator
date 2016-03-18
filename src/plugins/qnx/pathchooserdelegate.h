@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QNX_INTERNAL_PATHCHOOSERDELEGATE_H
-#define QNX_INTERNAL_PATHCHOOSERDELEGATE_H
+#pragma once
 
 #include <QStyledItemDelegate>
 
@@ -67,5 +66,3 @@ private:
 
 } // namespace Internal
 } // namespace Qnx
-
-#endif // QNX_INTERNAL_PATHCHOOSERDELEGATE_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SAVED_ACTION_H
-#define SAVED_ACTION_H
+#pragma once
 
 #include "utils_global.h"
 
@@ -103,5 +102,3 @@ private:
 };
 
 } // namespace Utils
-
-#endif // SAVED_ACTION_H

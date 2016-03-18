@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef STATEPREVIEWIMAGECHANGEDCOMMAND_H
-#define STATEPREVIEWIMAGECHANGEDCOMMAND_H
+#pragma once
 
 #include <QMetaType>
 
@@ -58,5 +57,3 @@ QDebug operator <<(QDebug debug, const StatePreviewImageChangedCommand &command)
 } // namespace QmlDesigner
 
 Q_DECLARE_METATYPE(QmlDesigner::StatePreviewImageChangedCommand)
-
-#endif // STATEPREVIEWIMAGECHANGEDCOMMAND_H

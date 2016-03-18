@@ -24,8 +24,7 @@
 **
 ****************************************************************************/
 
-#ifndef KEYWORDDIALOG_H
-#define KEYWORDDIALOG_H
+#pragma once
 
 #include <QDialog>
 #include <QSet>
@@ -67,5 +66,3 @@ private:
 
 } // namespace Internal
 } // namespace Todo
-
-#endif // KEYWORDDIALOG_H

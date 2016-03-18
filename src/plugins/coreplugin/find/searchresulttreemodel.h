@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SEARCHRESULTTREEMODEL_H
-#define SEARCHRESULTTREEMODEL_H
+#pragma once
 
 #include "searchresultwindow.h"
 #include "searchresultcolor.h"
@@ -91,5 +90,3 @@ private:
 
 } // namespace Internal
 } // namespace Core
-
-#endif // SEARCHRESULTTREEMODEL_H

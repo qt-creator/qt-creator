@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef STYLEDOUTPUTPANEPLACEHOLDER_H
-#define STYLEDOUTPUTPANEPLACEHOLDER_H
+#pragma once
 
 #include <coreplugin/outputpane.h>
 
@@ -45,5 +44,3 @@ private:
 
 } // namespace Internal
 } // namespace QmlDesigner
-
-#endif // STYLEDOUTPUTPANEPLACEHOLDER_H

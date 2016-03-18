@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PROGRESSMANAGER_P_H
-#define PROGRESSMANAGER_P_H
+#pragma once
 
 #include "progressmanager.h"
 
@@ -122,5 +121,3 @@ public:
 
 } // namespace Internal
 } // namespace Core
-
-#endif // PROGRESSMANAGER_P_H

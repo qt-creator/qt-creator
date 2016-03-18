@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QNXSETTINGSWIDGET_H
-#define QNXSETTINGSWIDGET_H
+#pragma once
 
 #include <QWidget>
 
@@ -89,5 +88,3 @@ private:
 
 }
 }
-
-#endif // QNXSETTINGSWIDGET_H

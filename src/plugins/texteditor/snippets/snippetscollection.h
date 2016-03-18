@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SNIPPETSCOLLECTION_H
-#define SNIPPETSCOLLECTION_H
+#pragma once
 
 #include "snippet.h"
 
@@ -137,5 +136,3 @@ private:
 
 } // Internal
 } // TextEditor
-
-#endif // SNIPPETSCOLLECTION_H

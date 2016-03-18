@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CONTEXTPANEWIDGETRECTANGLE_H
-#define CONTEXTPANEWIDGETRECTANGLE_H
+#pragma once
 
 #include "qmleditorwidgets_global.h"
 #include <QWidget>
@@ -82,5 +81,3 @@ private:
 };
 
 } //QmlDesigner
-
-#endif // CONTEXTPANEWIDGETRECTANGLE_H

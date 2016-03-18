@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef WATCHDELEGATEWIDGETS_H
-#define WATCHDELEGATEWIDGETS_H
+#pragma once
 
 #include <QLineEdit>
 #include <QComboBox>
@@ -109,5 +108,3 @@ public:
 
 } // namespace Internal
 } // namespace Debugger
-
-#endif // WATCHDELEGATEWIDGETS_H

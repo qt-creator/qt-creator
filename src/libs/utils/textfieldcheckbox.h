@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef TEXTFIELDCHECKBOX_H
-#define TEXTFIELDCHECKBOX_H
+#pragma once
 
 #include "utils_global.h"
 
@@ -61,5 +60,3 @@ private:
 };
 
 } // namespace Utils
-
-#endif // TEXTFIELDCHECKBOX_H

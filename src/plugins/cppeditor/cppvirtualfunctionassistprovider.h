@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CPPFOLLOWVIRTUALSYMBOLS_H
-#define CPPFOLLOWVIRTUALSYMBOLS_H
+#pragma once
 
 #include <texteditor/codeassist/iassistprovider.h>
 
@@ -68,5 +67,3 @@ private:
 
 } // namespace Internal
 } // namespace CppEditor
-
-#endif // CPPFOLLOWVIRTUALSYMBOLS_H

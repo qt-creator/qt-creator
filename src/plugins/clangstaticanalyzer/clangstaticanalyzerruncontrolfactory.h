@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CLANGSTATICANALYZERRUNCONTROLFACTORY_H
-#define CLANGSTATICANALYZERRUNCONTROLFACTORY_H
+#pragma once
 
 #include "clangstaticanalyzertool.h"
 
@@ -53,5 +52,3 @@ private:
 
 } // namespace Internal
 } // namespace ClangStaticAnalyzer
-
-#endif // CLANGSTATICANALYZERRUNCONTROLFACTORY_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PUBLICKEYDEPLOYMENTDIALOG_H
-#define PUBLICKEYDEPLOYMENTDIALOG_H
+#pragma once
 
 #include "remotelinux_export.h"
 
@@ -59,5 +58,3 @@ private:
 };
 
 } // namespace RemoteLinux
-
-#endif // PUBLICKEYDEPLOYMENTDIALOG_H

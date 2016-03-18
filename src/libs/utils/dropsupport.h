@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef UTILS_DROPSUPPORT_H
-#define UTILS_DROPSUPPORT_H
+#pragma once
 
 #include "utils_global.h"
 
@@ -105,5 +104,3 @@ private:
 };
 
 } // namespace Utils
-
-#endif // UTILS_DROPSUPPORT_H

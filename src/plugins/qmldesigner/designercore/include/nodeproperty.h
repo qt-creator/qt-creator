@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef NODEPROPERTY_H
-#define NODEPROPERTY_H
+#pragma once
 
 #include "qmldesignercorelib_global.h"
 #include "nodeabstractproperty.h"
@@ -51,5 +50,3 @@ protected:
 };
 
 } // namespace QmlDesigner
-
-#endif // NODEPROPERTY_H

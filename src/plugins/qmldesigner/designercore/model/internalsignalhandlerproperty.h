@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef INTERNALSIGNALHANDLERPROPERTY_H
-#define INTERNALSIGNALHANDLERPROPERTY_H
+#pragma once
 
 #include "internalproperty.h"
 
@@ -54,5 +53,3 @@ private:
 
 } // namespace Internal
 } // namespace QmlDesigner
-
-#endif // INTERNALSIGNALHANDLERPROPERTY_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QNXCONFIGURATION_H
-#define QNXCONFIGURATION_H
+#pragma once
 
 #include "qnxconstants.h"
 #include "qnxutils.h"
@@ -108,5 +107,3 @@ private:
 
 } // Internal
 } // Qnx
-
-#endif // QNXCONFIGURATION_H

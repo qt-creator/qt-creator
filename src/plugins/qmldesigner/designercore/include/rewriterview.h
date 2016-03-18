@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef REWRITERVIEW_H
-#define REWRITERVIEW_H
+#pragma once
 
 #include "qmldesignercorelib_global.h"
 #include "abstractview.h"
@@ -215,5 +214,3 @@ private: //variables
 };
 
 } //QmlDesigner
-
-#endif // REWRITERVIEW_H

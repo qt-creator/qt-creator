@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PROPERTYNODE_H
-#define PROPERTYNODE_H
+#pragma once
 
 #include "qmldesignercorelib_global.h"
 
@@ -40,5 +39,3 @@ public:
 };
 
 } // namespace QmlDesigner
-
-#endif // PROPERTYNODE_H

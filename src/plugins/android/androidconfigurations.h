@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef ANDROIDCONFIGURATIONS_H
-#define ANDROIDCONFIGURATIONS_H
+#pragma once
 
 #include "android_global.h"
 
@@ -248,5 +247,3 @@ private:
 };
 
 } // namespace Android
-
-#endif // ANDROIDCONFIGURATIONS_H

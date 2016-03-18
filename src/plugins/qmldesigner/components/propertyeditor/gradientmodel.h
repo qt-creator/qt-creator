@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef GRADIENTMODEL_H
-#define GRADIENTMODEL_H
+#pragma once
 
 #include <qmlitemnode.h>
 
@@ -88,5 +87,3 @@ private:
 };
 
 QML_DECLARE_TYPE(GradientModel)
-
-#endif // GRADIENTMODEL_H

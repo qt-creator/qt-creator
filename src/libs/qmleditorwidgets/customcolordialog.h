@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CUSTOMCOLORDIALOG_H
-#define CUSTOMCOLORDIALOG_H
+#pragma once
 
 #include "qmleditorwidgets_global.h"
 #include <QFrame>
@@ -103,5 +102,3 @@ private:
 };
 
 } //QmlEditorWidgets
-
-#endif //CUSTOMCOLORDIALOG_H

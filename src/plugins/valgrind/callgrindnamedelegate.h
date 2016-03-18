@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CALLGRINDNAMEDELEGATE_H
-#define CALLGRINDNAMEDELEGATE_H
+#pragma once
 
 #include <QStyledItemDelegate>
 
@@ -42,5 +41,3 @@ public:
 
 } // namespace Internal
 } // namespace Valgrind
-
-#endif // CALLGRINDNAMEDELEGATE_H

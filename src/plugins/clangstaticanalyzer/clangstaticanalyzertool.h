@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CLANGSTATICANALYZERTOOL_H
-#define CLANGSTATICANALYZERTOOL_H
+#pragma once
 
 #include <debugger/analyzer/analyzermanager.h>
 #include <cpptools/projectinfo.h>
@@ -89,5 +88,3 @@ private:
 
 } // namespace Internal
 } // namespace ClangStaticAnalyzer
-
-#endif // CLANGSTATICANALYZERTOOL_H

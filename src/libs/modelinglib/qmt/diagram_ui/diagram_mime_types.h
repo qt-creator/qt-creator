@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_DIAGRAM_MIME_TYPES_H
-#define QMT_DIAGRAM_MIME_TYPES_H
+#pragma once
 
 namespace qmt {
 
@@ -41,5 +40,3 @@ static const char ELEMENT_TYPE_ANNOTATION[] = "annotation";
 static const char ELEMENT_TYPE_BOUNDARY[] = "boundary";
 
 } // namespace qmt
-
-#endif // QMT_DIAGRAM_MIME_TYPES_H

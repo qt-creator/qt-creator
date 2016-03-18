@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef WINRTPHONEQTVERSION_H
-#define WINRTPHONEQTVERSION_H
+#pragma once
 
 #include "winrtqtversion.h"
 
@@ -47,5 +46,3 @@ public:
 
 } // Internal
 } // WinRt
-
-#endif // WINRTPHONEQTVERSION_H

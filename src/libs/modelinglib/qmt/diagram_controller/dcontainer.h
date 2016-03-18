@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_DCONTAINER_H
-#define QMT_DCONTAINER_H
+#pragma once
 
 #include "qmt/controller/container.h"
 #include "qmt/diagram/delement.h"
@@ -36,5 +35,3 @@ class QMT_EXPORT DContainer : public Container<DElement>
 };
 
 } // namespace qmt
-
-#endif // QMT_DCONTAINER_H

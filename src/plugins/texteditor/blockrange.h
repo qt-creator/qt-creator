@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef BLOCKRANGE_H
-#define BLOCKRANGE_H
+#pragma once
 
 namespace TextEditor {
 
@@ -58,5 +57,3 @@ private:
 };
 
 } // namespace TextEditor
-
-#endif // BLOCKRANGE_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef OPENOCDGDBSERVERPROVIDER_H
-#define OPENOCDGDBSERVERPROVIDER_H
+#pragma once
 
 #include "gdbserverprovider.h"
 
@@ -116,5 +115,3 @@ private:
 
 } // namespace Internal
 } // namespace BareMetal
-
-#endif // OPENOCDGDBSERVERPROVIDER_H

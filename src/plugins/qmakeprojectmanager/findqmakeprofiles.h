@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef FINDQMAKEPROFILES_H
-#define FINDQMAKEPROFILES_H
+#pragma once
 
 #include <projectexplorer/nodesvisitor.h>
 
@@ -44,6 +43,3 @@ private:
 
 } // namespace Internal
 } // namespace QmakeProjectManager
-
-#endif // FINDQMAKEPROFILES_H
-

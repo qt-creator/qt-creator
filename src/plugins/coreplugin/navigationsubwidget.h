@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef NAVIGATIONSUBWIDGET_H
-#define NAVIGATIONSUBWIDGET_H
+#pragma once
 
 #include <QComboBox>
 
@@ -122,5 +121,3 @@ private:
 
 } // namespace Internal
 } // namespace Core
-
-#endif // NAVIGATIONSUBWIDGET_H

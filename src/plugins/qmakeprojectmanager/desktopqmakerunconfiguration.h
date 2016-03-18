@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef DESKTOPQMAKERUNCONFIGURATION_H
-#define DESKTOPQMAKERUNCONFIGURATION_H
+#pragma once
 
 #include <qmakeprojectmanager/qmakerunconfigurationfactory.h>
 
@@ -171,5 +170,3 @@ private:
 
 } // namespace Internal
 } // namespace QmakeProjectManager
-
-#endif // DESKTOPQMAKERUNCONFIGURATION_H

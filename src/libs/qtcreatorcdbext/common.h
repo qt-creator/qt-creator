@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef COMMON_H
-#define COMMON_H
+#pragma once
 
 // Define KDEXT_64BIT to make all wdbgexts APIs recognize 64 bit addresses
 // It is recommended for extensions to use 64 bit headers from wdbgexts so
@@ -76,5 +75,3 @@ std::string sourceFileNameByOffset(CIDebugSymbols *symbols, ULONG64 offset, PULO
 #  define QTC_TRACE_IN
 #  define QTC_TRACE_OUT
 #endif
-
-#endif // COMMON_H

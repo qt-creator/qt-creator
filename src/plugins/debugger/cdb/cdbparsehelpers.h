@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CDBPARSEHELPERS_H
-#define CDBPARSEHELPERS_H
+#pragma once
 
 #include <debugger/breakpoint.h>
 
@@ -98,5 +97,3 @@ QDebug operator<<(QDebug s, const WinException &e);
 
 } // namespace Internal
 } // namespace Debugger
-
-#endif // CDBPARSEHELPERS_H

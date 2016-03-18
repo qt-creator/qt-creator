@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CLANGBACKEND_CODECOMPLETIONCHUNKCONVERTER_H
-#define CLANGBACKEND_CODECOMPLETIONCHUNKCONVERTER_H
+#pragma once
 
 #include <codecompletionchunk.h>
 
@@ -51,5 +50,3 @@ private:
 };
 
 } // namespace ClangBackEnd
-
-#endif // CLANGBACKEND_CODECOMPLETIONCHUNKCONVERTER_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CAPABILITIES_P_H
-#define CAPABILITIES_P_H
+#pragma once
 
 #include <QByteArray>
 #include <QList>
@@ -82,5 +81,3 @@ public:
 
 } // namespace Internal
 } // namespace QSsh
-
-#endif // CAPABILITIES_P_H

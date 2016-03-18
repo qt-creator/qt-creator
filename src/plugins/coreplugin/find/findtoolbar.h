@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef FINDTOOLBAR_H
-#define FINDTOOLBAR_H
+#pragma once
 
 #include "ui_findwidget.h"
 #include "currentdocumentfind.h"
@@ -193,5 +192,3 @@ private:
 
 } // namespace Internal
 } // namespace Core
-
-#endif // FINDTOOLBAR_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef RESOURCEVIEW_H
-#define RESOURCEVIEW_H
+#pragma once
 
 #include "resourcefile_p.h"
 
@@ -116,5 +115,3 @@ private:
 
 } // namespace Internal
 } // namespace ResourceEditor
-
-#endif // RESOURCEVIEW_H

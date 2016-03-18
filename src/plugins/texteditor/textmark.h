@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef TextMark_H
-#define TextMark_H
+#pragma once
 
 #include "texteditor_global.h"
 
@@ -110,5 +109,3 @@ private:
 };
 
 } // namespace TextEditor
-
-#endif // TextMark_H

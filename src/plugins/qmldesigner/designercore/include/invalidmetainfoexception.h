@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef INVALIDMETAINFOEXCEPTION_H
-#define INVALIDMETAINFOEXCEPTION_H
+#pragma once
 
 #include "exception.h"
 
@@ -42,5 +41,3 @@ public:
 };
 
 }
-
-#endif // INVALIDMETAINFOEXCEPTION_H

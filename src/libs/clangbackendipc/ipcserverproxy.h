@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CLANGBACKEND_IPCSERVERPROXY_H
-#define CLANGBACKEND_IPCSERVERPROXY_H
+#pragma once
 #include "ipcserverinterface.h"
 #include "readmessageblock.h"
 #include "writemessageblock.h"
@@ -74,5 +73,3 @@ private:
 };
 
 } // namespace ClangBackEnd
-
-#endif // CLANGBACKEND_IPCSERVERPROXY_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef IOUTPUTPANE_H
-#define IOUTPUTPANE_H
+#pragma once
 
 #include "core_global.h"
 
@@ -88,5 +87,3 @@ signals:
 } // namespace Core
 
  Q_DECLARE_OPERATORS_FOR_FLAGS(Core::IOutputPane::Flags)
-
-#endif // IOUTPUTPANE_H

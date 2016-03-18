@@ -24,8 +24,7 @@
 **
 ****************************************************************************/
 
-#ifndef ANDROIDBUILDAPKSTEP_H
-#define ANDROIDBUILDAPKSTEP_H
+#pragma once
 
 #include "android_global.h"
 #include <projectexplorer/abstractprocessstep.h>
@@ -114,5 +113,3 @@ protected:
 };
 
 } // namespace Android
-
-#endif // ANDROIDBUILDAPKSTEP_H

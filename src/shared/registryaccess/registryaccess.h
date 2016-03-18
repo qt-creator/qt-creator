@@ -27,8 +27,7 @@
 // qtcdebugger is currently registered for post-mortem debugging.
 // This is only needed on Windows.
 
-#ifndef REGISTRYACCESS_H
-#define REGISTRYACCESS_H
+#pragma once
 
 #include <QString>
 #include <QLatin1String>
@@ -75,5 +74,3 @@ QString debuggerCall(const QString &additionalOption = QString());
 bool isRegistered(HKEY handle, const QString &call, QString *errorMessage, QString *oldDebugger = 0);
 
 } // namespace RegistryAccess
-
-#endif // REGISTRYACCESS_H

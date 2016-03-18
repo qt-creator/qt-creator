@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CONSOLEPROCESS_P_H
-#define CONSOLEPROCESS_P_H
+#pragma once
 
 #include "consoleprocess.h"
 #include "environment.h"
@@ -79,5 +78,3 @@ struct ConsoleProcessPrivate {
 };
 
 } //namespace Utils
-
-#endif

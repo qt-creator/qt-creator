@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef FILENAMINGPARAMETERS_H
-#define FILENAMINGPARAMETERS_H
+#pragma once
 
 #include <QString>
 #include <QFileInfo>
@@ -79,4 +78,3 @@ struct FileNamingParameters
 
 }
 }
-#endif // FILENAMINGPARAMETERS_H

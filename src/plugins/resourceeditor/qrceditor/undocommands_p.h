@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef UNDO_COMMANDS_H
-#define UNDO_COMMANDS_H
+#pragma once
 
 #include "resourceview.h"
 
@@ -173,5 +172,3 @@ private:
 
 } // namespace Internal
 } // namespace ResourceEditor
-
-#endif // UNDO_COMMANDS_H

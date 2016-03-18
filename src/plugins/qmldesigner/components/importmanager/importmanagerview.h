@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLDESIGNER_IMPORTMANAGERVIEW_H
-#define QMLDESIGNER_IMPORTMANAGERVIEW_H
+#pragma once
 
 #include <abstractview.h>
 #include <QPointer>
@@ -60,5 +59,3 @@ private:
 };
 
 } // namespace QmlDesigner
-
-#endif // QMLDESIGNER_IMPORTMANAGERVIEW_H

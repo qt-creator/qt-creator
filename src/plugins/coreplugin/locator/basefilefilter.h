@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef BASEFILEFILTER_H
-#define BASEFILEFILTER_H
+#pragma once
 
 #include "ilocatorfilter.h"
 
@@ -85,5 +84,3 @@ private:
 };
 
 } // namespace Core
-
-#endif // BASEFILEFILTER_H

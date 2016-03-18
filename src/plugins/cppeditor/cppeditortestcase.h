@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CPPEDITORTESTCASE_H
-#define CPPEDITORTESTCASE_H
+#pragma once
 
 #include "cppeditor.h"
 
@@ -76,5 +75,3 @@ public:
 } // namespace Tests
 } // namespace Internal
 } // namespace CppEditor
-
-#endif // CPPEDITORTESTCASE_H

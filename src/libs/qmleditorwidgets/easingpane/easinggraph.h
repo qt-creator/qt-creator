@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef EASINGGRAPH_H
-#define EASINGGRAPH_H
+#pragma once
 
 #include <QWidget>
 #include <QEasingCurve>
@@ -105,5 +104,3 @@ private:
 QT_END_NAMESPACE
 
 //QML_DECLARE_TYPE(EasingGraph)
-
-#endif // EASINGGRAPH_H

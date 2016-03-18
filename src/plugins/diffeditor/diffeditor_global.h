@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef DIFFEDITOR_GLOBAL_H
-#define DIFFEDITOR_GLOBAL_H
+#pragma once
 
 #include <QtGlobal>
 
@@ -33,5 +32,3 @@
 #else
 #  define DIFFEDITOR_EXPORT Q_DECL_IMPORT
 #endif
-
-#endif // DIFFEDITOR_GLOBAL_H

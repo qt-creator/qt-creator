@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLJSCHECK_H
-#define QMLJSCHECK_H
+#pragma once
 
 #include <qmljs/qmljsscopebuilder.h>
 #include <qmljs/qmljsscopechain.h>
@@ -155,5 +154,3 @@ private:
 };
 
 } // namespace QmlJS
-
-#endif // QMLJSCHECK_H

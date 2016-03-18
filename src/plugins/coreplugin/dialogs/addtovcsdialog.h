@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef ADDTOVCSDIALOG_H
-#define ADDTOVCSDIALOG_H
+#pragma once
 
 #include <QDialog>
 
@@ -49,4 +48,3 @@ private:
 
 } // namespace Internal
 } // namespace Core
-#endif // ADDTOVCSDIALOG_H

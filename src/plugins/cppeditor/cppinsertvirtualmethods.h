@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef INSERTVIRTUALMETHODS_H
-#define INSERTVIRTUALMETHODS_H
+#pragma once
 
 #include "cppquickfix.h"
 
@@ -50,5 +49,3 @@ private:
 
 } // namespace Internal
 } // namespace CppEditor
-
-#endif // INSERTVIRTUALMETHODS_H

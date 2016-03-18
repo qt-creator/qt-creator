@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CONVENIENCE_H
-#define CONVENIENCE_H
+#pragma once
 
 #include "texteditor_global.h"
 
@@ -48,5 +47,3 @@ TEXTEDITOR_EXPORT QTextCursor flippedCursor(const QTextCursor &cursor);
 
 } // Util
 } // TextEditor
-
-#endif // CONVENIENCE_H

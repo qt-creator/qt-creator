@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMAKEEVALUATOR_P_H
-#define QMAKEEVALUATOR_P_H
+#pragma once
 
 #include "proitems.h"
 
@@ -90,5 +89,3 @@ extern QMakeStatics statics;
 }
 
 QT_END_NAMESPACE
-
-#endif // QMAKEEVALUATOR_P_H

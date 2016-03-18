@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CLANGBACKEND_UNRegisterTranslationUnitForEditorMessage_H
-#define CLANGBACKEND_UNRegisterTranslationUnitForEditorMessage_H
+#pragma once
 
 #include "clangbackendipc_global.h"
 
@@ -62,5 +61,3 @@ void PrintTo(const UnregisterTranslationUnitsForEditorMessage &message, ::std::o
 
 DECLARE_MESSAGE(UnregisterTranslationUnitsForEditorMessage);
 } // namespace ClangBackEnd
-
-#endif // CLANGBACKEND_UNRegisterTranslationUnitForEditorMessage_H

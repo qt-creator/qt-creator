@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef IOSSETTINGSWIDGET_H
-#define IOSSETTINGSWIDGET_H
+#pragma once
 
 #include "iosconfigurations.h"
 
@@ -61,5 +60,3 @@ private:
 
 } // namespace Internal
 } // namespace Ios
-
-#endif // IOSSETTINGSWIDGET_H

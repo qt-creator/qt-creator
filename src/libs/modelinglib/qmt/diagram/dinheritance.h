@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_DINHERITANCE_H
-#define QMT_DINHERITANCE_H
+#pragma once
 
 #include "drelation.h"
 
@@ -48,5 +47,3 @@ public:
 };
 
 } // namespace qmt
-
-#endif // QMT_DINHERITANCE_H

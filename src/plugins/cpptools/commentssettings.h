@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef COMMENTSSETTINGS_H
-#define COMMENTSSETTINGS_H
+#pragma once
 
 #include "cpptools_global.h"
 
@@ -56,5 +55,3 @@ inline bool operator!=(const CommentsSettings &a, const CommentsSettings &b)
 { return !(a == b); }
 
 } // namespace CppTools
-
-#endif // COMMENTSSETTINGS_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef WELCOMEPLUGIN_H
-#define WELCOMEPLUGIN_H
+#pragma once
 
 #include <extensionsystem/iplugin.h>
 
@@ -54,5 +53,3 @@ private:
 
 } // namespace Welcome
 } // namespace Internal
-
-#endif // WELCOMEPLUGIN_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef TESTRESULTSPANE_H
-#define TESTRESULTSPANE_H
+#pragma once
 
 #include "testresult.h"
 
@@ -136,5 +135,3 @@ private:
 
 } // namespace Internal
 } // namespace Autotest
-
-#endif // TESTRESULTSPANE_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
+#pragma once
 
 #include "icontext.h"
 #include "icore.h"
@@ -204,5 +203,3 @@ private:
 
 } // namespace Internal
 } // namespace Core
-
-#endif // MAINWINDOW_H

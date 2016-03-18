@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLDESIGNER_ITEMLIBRARYSECTION_H
-#define QMLDESIGNER_ITEMLIBRARYSECTION_H
+#pragma once
 
 #include "itemlibrarysectionmodel.h"
 
@@ -68,5 +67,3 @@ private:
 };
 
 } // namespace QmlDesigner
-
-#endif // QMLDESIGNER_ITEMLIBRARYSECTION_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_DFACTORY_H
-#define QMT_DFACTORY_H
+#pragma once
 
 #include "qmt/model/mconstvisitor.h"
 #include "qmt/infrastructure/qmt_global.h"
@@ -58,5 +57,3 @@ private:
 };
 
 } // namespace qmt
-
-#endif // QMT_DFACTORY_H

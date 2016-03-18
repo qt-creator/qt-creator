@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SHORTCUTSETTINGS_H
-#define SHORTCUTSETTINGS_H
+#pragma once
 
 #include <coreplugin/actionmanager/commandmappings.h>
 #include <coreplugin/dialogs/ioptionspage.h>
@@ -131,5 +130,3 @@ private:
 
 } // namespace Internal
 } // namespace Core
-
-#endif // SHORTCUTSETTINGS_H

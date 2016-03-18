@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef INCLUDERULESINSTRUCTION_H
-#define INCLUDERULESINSTRUCTION_H
+#pragma once
 
 #include <QString>
 
@@ -48,5 +47,3 @@ private:
 
 } // namespace Internal
 } // namespace TextEditor
-
-#endif // INCLUDERULESINSTRUCTION_H

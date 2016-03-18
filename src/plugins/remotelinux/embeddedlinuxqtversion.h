@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef EMBEDDEDLINUXQTVERSION_H
-#define EMBEDDEDLINUXQTVERSION_H
+#pragma once
 
 #include <qtsupport/baseqtversion.h>
 
@@ -50,5 +49,3 @@ public:
 
 } // namespace Internal
 } // namespace RemoteLinux
-
-#endif // EMBEDDEDLINUXQTVERSION_H

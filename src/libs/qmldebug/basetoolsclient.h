@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef BASETOOLSCLIENT_H
-#define BASETOOLSCLIENT_H
+#pragma once
 
 #include "qmldebugclient.h"
 #include "baseenginedebugclient.h"
@@ -72,5 +71,3 @@ protected:
 };
 
 } // namespace QmlDebug
-
-#endif // BASETOOLSCLIENT_H

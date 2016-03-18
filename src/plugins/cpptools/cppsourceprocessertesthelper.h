@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CPPPSOURCEPROCESSERTESTHELPER_H
-#define CPPPSOURCEPROCESSERTESTHELPER_H
+#pragma once
 
 #include "cpptools_global.h"
 
@@ -50,5 +49,3 @@ public:
 
 } // namespace Tests
 } // namespace CppTools
-
-#endif // CPPPSOURCEPROCESSERTESTHELPER_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CPPMODELMANAGERBASE_H
-#define CPPMODELMANAGERBASE_H
+#pragma once
 
 #include <cplusplus/CppDocument.h>
 
@@ -54,5 +53,3 @@ public:
 };
 
 } // namespace CPlusPlus
-
-#endif // CPPMODELMANAGERBASE_H

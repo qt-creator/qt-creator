@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef DEBUGGER_HOSTUTILS_H
-#define DEBUGGER_HOSTUTILS_H
+#pragma once
 
 #include <QList>
 
@@ -68,5 +67,3 @@ bool isDebuggerWinException(unsigned long code);
 
 } // namespace Internal
 } // namespace Debugger
-
-#endif // DEBUGGER_HOSTUTILS_H

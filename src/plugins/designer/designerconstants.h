@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef DESIGNERCONSTANTS_H
-#define DESIGNERCONSTANTS_H
+#pragma once
 
 #include <QtGlobal>
 
@@ -73,5 +72,3 @@ namespace Internal {
 }
 } // Constants
 } // Designer
-
-#endif //DESIGNERCONSTANTS_H

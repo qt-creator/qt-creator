@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CLANGCODEMODEL_INTERNAL_CLANGASSISTPROPOSAL_H
-#define CLANGCODEMODEL_INTERNAL_CLANGASSISTPROPOSAL_H
+#pragma once
 
 #include "clangassistproposalmodel.h"
 
@@ -44,5 +43,3 @@ public:
 
 } // namespace Internal
 } // namespace ClangCodeModel
-
-#endif // CLANGCODEMODEL_INTERNAL_CLANGASSISTPROPOSAL_H

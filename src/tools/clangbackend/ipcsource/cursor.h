@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CLANGBACKEND_CURSOR_H
-#define CLANGBACKEND_CURSOR_H
+#pragma once
 
 #include "clangtype.h"
 
@@ -119,6 +118,3 @@ bool operator==(const Cursor &first, const Cursor &second);
 void PrintTo(CXCursorKind cursorKind, ::std::ostream *os);
 void PrintTo(const Cursor &cursor, ::std::ostream* os);
 } // namespace ClangBackEnd
-
-
-#endif // CLANGBACKEND_CURSOR_H

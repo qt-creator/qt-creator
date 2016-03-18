@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef NAVIGATORTREEVIEW_H
-#define NAVIGATORTREEVIEW_H
+#pragma once
 
 #include <QTreeView>
 
@@ -38,5 +37,3 @@ public:
     static void drawSelectionBackground(QPainter *painter, const QStyleOption &option);
 };
 }
-
-#endif // NAVIGATORTREEVIEW_H

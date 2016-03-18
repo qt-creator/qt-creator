@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QTWEBKITHELPVIEWER_H
-#define QTWEBKITHELPVIEWER_H
+#pragma once
 
 #include "helpviewer.h"
 
@@ -157,5 +156,3 @@ private:
 }   // namespace Help
 
 #endif // !QT_NO_WEBKIT
-
-#endif // QTWEBKITHELPVIEWER_H

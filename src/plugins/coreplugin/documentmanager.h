@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef DOCUMENTMANAGER_H
-#define DOCUMENTMANAGER_H
+#pragma once
 
 #include <coreplugin/id.h>
 
@@ -184,5 +183,3 @@ private:
 } // namespace Core
 
 Q_DECLARE_METATYPE(Core::DocumentManager::RecentFile)
-
-#endif // DOCUMENTMANAGER_H

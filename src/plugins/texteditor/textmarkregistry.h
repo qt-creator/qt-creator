@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef BASETEXTMARKREGISTRY_H
-#define BASETEXTMARKREGISTRY_H
+#pragma once
 
 #include <utils/fileutils.h>
 
@@ -67,5 +66,3 @@ private:
 
 } // namespace Internal
 } // namespace TextEditor
-
-#endif // BASETEXTMARKREGISTRY_H

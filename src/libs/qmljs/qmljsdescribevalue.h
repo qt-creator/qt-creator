@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLJSDESCRIBEVALUE_H
-#define QMLJSDESCRIBEVALUE_H
+#pragma once
 
 #include "qmljs_global.h"
 #include "qmljsinterpreter.h"
@@ -73,4 +72,3 @@ private:
 };
 
 } // namespace QmlJS
-#endif // QMLJSDESCRIBEVALUE_H

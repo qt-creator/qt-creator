@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CPPTOOLS_COMPILEROPTIONSBUILDER_H
-#define CPPTOOLS_COMPILEROPTIONSBUILDER_H
+#pragma once
 
 #include "cpptools_global.h"
 
@@ -66,5 +65,3 @@ private:
 };
 
 } // namespace CppTools
-
-#endif // CPPTOOLS_COMPILEROPTIONSBUILDER_H

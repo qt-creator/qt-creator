@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef LANGUAGEUTILS_GLOBAL_H
-#define LANGUAGEUTILS_GLOBAL_H
+#pragma once
 
 #include <qglobal.h>
 
@@ -35,5 +34,3 @@
 #else
 #  define LANGUAGEUTILS_EXPORT Q_DECL_IMPORT
 #endif
-
-#endif // LANGUAGEUTILS_GLOBAL_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CLANGSTATICANALYZERUNITTESTS_H
-#define CLANGSTATICANALYZERUNITTESTS_H
+#pragma once
 
 #include <QObject>
 #include <QTemporaryDir>
@@ -55,6 +54,3 @@ private:
 
 } // namespace Internal
 } // namespace ClangStaticAnalyzerPlugin
-
-#endif // Include guard
-

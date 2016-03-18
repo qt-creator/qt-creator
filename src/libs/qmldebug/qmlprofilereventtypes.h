@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLPROFILEREVENTTYPES_H
-#define QMLPROFILEREVENTTYPES_H
+#pragma once
 
 #include <QtGlobal>
 
@@ -181,5 +180,3 @@ const quint64 QML_JS_RANGE_FEATURES = (1 << ProfileCompiling) |
 }
 
 } // namespace QmlDebug
-
-#endif //QMLPROFILEREVENTTYPES_H

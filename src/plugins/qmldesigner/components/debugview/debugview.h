@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef DEBUGVIEW_H
-#define DEBUGVIEW_H
+#pragma once
 
 #include <abstractview.h>
 #include <QPointer>
@@ -101,5 +100,3 @@ private: //variables
 } // namespace Internal
 
 } // namespace QmlDesigner
-
-#endif // DEBUGVIEW_H

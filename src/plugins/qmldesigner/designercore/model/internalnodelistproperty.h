@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef INTERNALNODELISTPROPERTY_H
-#define INTERNALNODELISTPROPERTY_H
+#pragma once
 
 #include "internalnodeabstractproperty.h"
 
@@ -66,5 +65,3 @@ private:
 
 } // namespace Internal
 } // namespace QmlDesigner
-
-#endif // INTERNALNODELISTPROPERTY_H

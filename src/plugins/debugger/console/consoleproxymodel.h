@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef DEBUGGER_CONSOLEPROXYMODEL_H
-#define DEBUGGER_CONSOLEPROXYMODEL_H
+#pragma once
 
 #include "consoleitem.h"
 
@@ -62,5 +61,3 @@ private:
 
 } // Internal
 } // Debugger
-
-#endif // DEBUGGER_CONSOLEPROXYMODEL_H

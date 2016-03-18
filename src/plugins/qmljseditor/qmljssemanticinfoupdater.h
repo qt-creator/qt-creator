@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SEMANTICINFOUPDATER_H
-#define SEMANTICINFOUPDATER_H
+#pragma once
 
 #include "qmljseditor.h"
 
@@ -69,5 +68,3 @@ private:
 
 } // namespace Internal
 } // namespace QmlJSEditor
-
-#endif // SEMANTICINFOUPDATER_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PROGRESSBAR_H
-#define PROGRESSBAR_H
+#pragma once
 
 #include <QString>
 #include <QWidget>
@@ -93,5 +92,3 @@ private:
 
 } // namespace Internal
 } // namespace Core
-
-#endif // PROGRESSBAR_H

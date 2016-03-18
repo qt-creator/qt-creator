@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef TEXTEDITORPLUGIN_H
-#define TEXTEDITORPLUGIN_H
+#pragma once
 
 #include <extensionsystem/iplugin.h>
 
@@ -88,5 +87,3 @@ private slots:
 
 } // namespace Internal
 } // namespace TextEditor
-
-#endif // TEXTEDITORPLUGIN_H

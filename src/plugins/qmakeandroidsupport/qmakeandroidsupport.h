@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMAKEANDROIDSUPPORT_H
-#define QMAKEANDROIDSUPPORT_H
+#pragma once
 
 #include <android/androidqtsupport.h>
 
@@ -49,5 +48,3 @@ public:
 
 } // namespace Internal
 } // namespace QmakeAndroidSupport
-
-#endif // QMAKEANDROIDSUPPORT_H

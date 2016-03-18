@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef INTERNALBINDINGPROPERTY_H
-#define INTERNALBINDINGPROPERTY_H
+#pragma once
 
 #include "internalproperty.h"
 
@@ -57,5 +56,3 @@ private:
 
 } // namespace Internal
 } // namespace QmlDesigner
-
-#endif // INTERNALBINDINGPROPERTY_H

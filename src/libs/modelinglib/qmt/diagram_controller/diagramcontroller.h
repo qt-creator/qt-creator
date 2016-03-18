@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_DIAGRAMCONTROLLER_H
-#define QMT_DIAGRAMCONTROLLER_H
+#pragma once
 
 #include "qmt/infrastructure/uid.h"
 
@@ -170,5 +169,3 @@ private:
 };
 
 } // namespace qmt
-
-#endif // DIAGRAMCONTROLLER_H

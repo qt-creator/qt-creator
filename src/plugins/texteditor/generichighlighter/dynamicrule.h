@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef DYNAMICRULE_H
-#define DYNAMICRULE_H
+#pragma once
 
 #include "rule.h"
 
@@ -56,5 +55,3 @@ void updateDynamicRules(const QList<QSharedPointer<Rule> > &rules, const QString
 
 } // namespace Internal
 } // namespace TextEditor
-
-#endif // DYNAMICRULE_H

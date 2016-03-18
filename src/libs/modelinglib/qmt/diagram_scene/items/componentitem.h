@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_GRAPHICSCOMPONENTITEM_H
-#define QMT_GRAPHICSCOMPONENTITEM_H
+#pragma once
 
 #include "objectitem.h"
 
@@ -79,5 +78,3 @@ private:
 };
 
 } // namespace qmt
-
-#endif // QMT_GRAPHICSCOMPONENTITEM_H

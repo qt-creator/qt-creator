@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef EXTERNALTOOLMANAGER_H
-#define EXTERNALTOOLMANAGER_H
+#pragma once
 
 #include "core_global.h"
 
@@ -56,6 +55,3 @@ signals:
 };
 
 } // namespace Core
-
-
-#endif // EXTERNALTOOLMANAGER_H

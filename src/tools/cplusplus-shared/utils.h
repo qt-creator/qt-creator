@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CPLUSPLUSTOOLSUTILS_H
-#define CPLUSPLUSTOOLSUTILS_H
+#pragma once
 
 #include <QString>
 #include <QStringList>
@@ -53,5 +52,3 @@ private:
 };
 
 } // namespace
-
-#endif // CPLUSPLUSTOOLSUTILS_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef IOSMANAGER_H
-#define IOSMANAGER_H
+#pragma once
 
 #include <utils/fileutils.h>
 
@@ -48,5 +47,3 @@ public:
 
 } // namespace Internal
 } // namespace Ios
-
-#endif // IOSMANAGER_H

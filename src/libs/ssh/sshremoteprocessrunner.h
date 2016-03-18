@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SSHREMOTEPROCESSRUNNER_H
-#define SSHREMOTEPROCESSRUNNER_H
+#pragma once
 
 #include "sshconnection.h"
 #include "sshremoteprocess.h"
@@ -83,5 +82,3 @@ private:
 };
 
 } // namespace QSsh
-
-#endif // SSHREMOTEPROCESSRUNNER_H

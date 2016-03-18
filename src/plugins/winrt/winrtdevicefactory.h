@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef WINRTDEVICEFACTORY_H
-#define WINRTDEVICEFACTORY_H
+#pragma once
 
 #include <projectexplorer/devicesupport/idevicefactory.h>
 #include <utils/qtcprocess.h>
@@ -63,5 +62,3 @@ private:
 
 } // Internal
 } // WinRt
-
-#endif // WINRTDEVICEFACTORY_H

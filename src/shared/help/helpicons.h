@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef HELPICONS_H
-#define HELPICONS_H
+#pragma once
 
 #include <utils/icon.h>
 
@@ -44,5 +43,3 @@ const Utils::Icon MODE_HELP_FLAT_ACTIVE({
 
 } // namespace Icons
 } // namespace Help
-
-#endif // HELPICONS_H

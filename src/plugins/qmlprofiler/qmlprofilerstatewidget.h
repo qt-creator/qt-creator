@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLPROFILERSTATEWIDGET_H
-#define QMLPROFILERSTATEWIDGET_H
+#pragma once
 
 #include <QWidget>
 
@@ -57,5 +56,3 @@ private:
 
 }
 }
-
-#endif // QMLPROFILERSTATEWIDGET_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_GRAPHICSSTEREOTYPESITEM_H
-#define QMT_GRAPHICSSTEREOTYPESITEM_H
+#pragma once
 
 #include <QGraphicsSimpleTextItem>
 #include <QList>
@@ -43,5 +42,3 @@ public:
 };
 
 } // namespace qmt
-
-#endif // QMT_GRAPHICSSTEREOTYPESITEM_H

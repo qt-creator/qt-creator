@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef MATHUTILS_H
-#define MATHUTILS_H
+#pragma once
 
 #include <QtGlobal>
 
@@ -38,5 +37,3 @@ inline double round(double value, int digits)
 
 
 }
-
-#endif // MATHUTILS_H

@@ -1,10 +1,7 @@
-#ifndef GLUE_H
-#define GLUE_H
+#pragma once
 
 struct Glue {
     struct it {
         static void together();
     };
 };
-
-#endif // GLUE_H

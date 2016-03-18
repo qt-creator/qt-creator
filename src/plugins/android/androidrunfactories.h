@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef ANDROIDRUNFACTORIES_H
-#define ANDROIDRUNFACTORIES_H
+#pragma once
 
 #include "android_global.h"
 #include <projectexplorer/runconfiguration.h>
@@ -55,5 +54,3 @@ public:
 
 } // namespace Internal
 } // namespace Android
-
-#endif  // ANDROIDRUNFACTORIES_H

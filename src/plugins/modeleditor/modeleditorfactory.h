@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef STRUCTUREDIAGRAMEDITORFACTORY_H
-#define STRUCTUREDIAGRAMEDITORFACTORY_H
+#pragma once
 
 #include <coreplugin/editormanager/ieditorfactory.h>
 
@@ -53,5 +52,3 @@ private:
 
 } // namespace Internal
 } // namespace ModelEditor
-
-#endif // STRUCTUREDIAGRAMEDITORFACTORY_H

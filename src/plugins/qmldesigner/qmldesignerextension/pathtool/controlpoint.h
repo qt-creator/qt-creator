@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLDESIGNER_CONTROLPOINT_H
-#define QMLDESIGNER_CONTROLPOINT_H
+#pragma once
 
 #include <modelnode.h>
 
@@ -92,5 +91,3 @@ bool operator ==(const ControlPoint& firstControlPoint, const ControlPoint& seco
 QDebug operator<<(QDebug debug, const ControlPoint &controlPoint);
 
 } // namespace QmlDesigner
-
-#endif // QMLDESIGNER_CONTROLPOINT_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef KEYWORDSCOMPLETIONASSIST_H
-#define KEYWORDSCOMPLETIONASSIST_H
+#pragma once
 
 #include "iassistprocessor.h"
 #include "assistproposalitem.h"
@@ -105,5 +104,3 @@ private:
 };
 
 } // TextEditor
-
-#endif // KEYWORDSCOMPLETIONASSISTPROCESSOR_H

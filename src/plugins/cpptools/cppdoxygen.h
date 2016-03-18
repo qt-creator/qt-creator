@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CPPDOXYGEN_H
-#define CPPDOXYGEN_H
+#pragma once
 
 #include "cpptools_global.h"
 
@@ -258,5 +257,3 @@ CPPTOOLS_EXPORT int classifyDoxygenTag(const QChar *s, int n);
 CPPTOOLS_EXPORT const char *doxygenTagSpell(int index);
 
 } // namespace ::CppTools
-
-#endif // CPPDOXYGEN_H

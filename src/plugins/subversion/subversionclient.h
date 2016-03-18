@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SUBVERSIONCLIENT_H
-#define SUBVERSIONCLIENT_H
+#pragma once
 
 #include "subversionsettings.h"
 #include <vcsbase/vcsbaseclient.h>
@@ -85,5 +84,3 @@ private:
 
 } // namespace Internal
 } // namespace Subversion
-
-#endif // SUBVERSIONCLIENT_H

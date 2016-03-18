@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef MANAGEDEFINITIONSDIALOG_H
-#define MANAGEDEFINITIONSDIALOG_H
+#pragma once
 
 #include "ui_managedefinitionsdialog.h"
 #include "highlightdefinitionmetadata.h"
@@ -54,5 +53,3 @@ private:
 
 } // namespace Internal
 } // namespace TextEditor
-
-#endif // MANAGEDEFINITIONSDIALOG_H

@@ -37,8 +37,7 @@
 **
 ****************************************************************************/
 
-#ifndef MIMEPROVIDER_P_H
-#define MIMEPROVIDER_P_H
+#pragma once
 
 //
 //  W A R N I N G
@@ -191,5 +190,3 @@ private:
 
 } // Internal
 } // Utils
-
-#endif // MIMEPROVIDER_P_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SFTPINCOMINGPACKET_P_H
-#define SFTPINCOMINGPACKET_P_H
+#pragma once
 
 #include "sftppacket_p.h"
 
@@ -103,5 +102,3 @@ private:
 
 } // namespace Internal
 } // namespace QSsh
-
-#endif // SFTPINCOMINGPACKET_P_H

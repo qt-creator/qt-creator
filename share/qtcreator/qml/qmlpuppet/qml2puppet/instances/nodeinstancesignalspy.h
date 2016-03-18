@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef NODEINSTANCESIGNALSPY_H
-#define NODEINSTANCESIGNALSPY_H
+#pragma once
 
 #include <QObject>
 #include <QHash>
@@ -63,5 +62,3 @@ private:
 
 } // namespace Internal
 } // namespace QmlDesigner
-
-#endif // NODEINSTANCESIGNALSPY_H

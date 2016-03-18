@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef BINEDITORPLUGIN_H
-#define BINEDITORPLUGIN_H
+#pragma once
 
 #include <extensionsystem/iplugin.h>
 #include <coreplugin/editormanager/ieditorfactory.h>
@@ -92,5 +91,3 @@ private:
 
 } // namespace Internal
 } // namespace BinEditor
-
-#endif // BINEDITORPLUGIN_H

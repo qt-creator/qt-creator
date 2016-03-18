@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef ADDLIBRARYWIZARD_H
-#define ADDLIBRARYWIZARD_H
+#pragma once
 
 #include <utils/wizard.h>
 #include <utils/pathchooser.h>
@@ -141,5 +140,3 @@ private:
 
 } // namespace Internal
 } // namespace QmakeProjectManager
-
-#endif // ADDLIBRARYWIZARD_H

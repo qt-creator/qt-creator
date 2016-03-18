@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef RMQTOPERATION_H
-#define RMQTOPERATION_H
+#pragma once
 
 #include "operation.h"
 
@@ -50,5 +49,3 @@ public:
 private:
     QString m_id;
 };
-
-#endif // RMQTOPERATION_H

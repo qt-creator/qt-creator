@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLDESIGNER_NAMEITEMDELEGATE_H
-#define QMLDESIGNER_NAMEITEMDELEGATE_H
+#pragma once
 
 #include <QStyledItemDelegate>
 
@@ -53,5 +52,3 @@ private:
 };
 
 } // namespace QmlDesigner
-
-#endif // QMLDESIGNER_NAMEITEMDELEGATE_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLDESIGNEREXTENSION_GLOBAL_H
-#define QMLDESIGNEREXTENSION_GLOBAL_H
+#pragma once
 
 #include <QtGlobal>
 
@@ -33,6 +32,3 @@
 #else
 #  define QMLDESIGNEREXTENSIONSHARED_EXPORT Q_DECL_IMPORT
 #endif
-
-#endif // QMLDESIGNEREXTENSION_GLOBAL_H
-

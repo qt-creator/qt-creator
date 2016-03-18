@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SNIPPET_H
-#define SNIPPET_H
+#pragma once
 
 #include <texteditor/texteditor_global.h>
 
@@ -103,5 +102,3 @@ private:
 };
 
 } // TextEditor
-
-#endif // SNIPPET_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef COMPLETINGLINEEDIT_H
-#define COMPLETINGLINEEDIT_H
+#pragma once
 
 #include "utils_global.h"
 #include <QLineEdit>
@@ -44,5 +43,3 @@ protected:
 };
 
 } // namespace Utils
-
-#endif // COMPLETINGLINEEDIT_H

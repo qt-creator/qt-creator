@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef MODELTEST_H
-#define MODELTEST_H
+#pragma once
 
 #include <QWidget>
 
@@ -64,5 +63,3 @@ public:
     QComboBox *m_event;
     Callgrind::Internal::CallgrindWidgetHandler *m_handler;
 };
-
-#endif // MODELTEST_H

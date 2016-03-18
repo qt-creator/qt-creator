@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PACKAGEUPLOADER_H
-#define PACKAGEUPLOADER_H
+#pragma once
 
 #include <QObject>
 #include <QSharedPointer>
@@ -77,5 +76,3 @@ private:
 
 } // namespace Internal
 } // namespace RemoteLinux
-
-#endif // PACKAGEUPLOADER_H

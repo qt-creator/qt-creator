@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef IINTERFACEPOINTER_H
-#define IINTERFACEPOINTER_H
+#pragma once
 
 #include "common.h"
 
@@ -80,5 +79,3 @@ private:
     IInterface *m_instance;
     HRESULT m_hr;
 };
-
-#endif // IINTERFACEPOINTER_H

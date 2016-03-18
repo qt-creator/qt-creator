@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef MODULESPAGE_H
-#define MODULESPAGE_H
+#pragma once
 
 #include <QMap>
 #include <QStringList>
@@ -60,5 +59,3 @@ private:
 
 } // namespace Internal
 } // namespace QmakeProjectManager
-
-#endif // MODULESPAGE_H

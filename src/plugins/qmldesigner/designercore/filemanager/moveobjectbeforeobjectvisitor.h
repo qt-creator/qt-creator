@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef MOVEOBJECTBEFOREOBJECTVISITOR_H
-#define MOVEOBJECTBEFOREOBJECTVISITOR_H
+#pragma once
 
 #include "qmlrewriter.h"
 
@@ -75,5 +74,3 @@ private:
 
 } // namespace Internal
 } // namespace QmlDesigner
-
-#endif // MOVEOBJECTBEFOREOBJECTVISITOR_H

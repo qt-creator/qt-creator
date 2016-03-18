@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CUSTOMWIDGETS_H
-#define CUSTOMWIDGETS_H
+#pragma once
 
 #include "customwidget.h"
 
@@ -289,5 +288,3 @@ public:
 private:
     QList<QDesignerCustomWidgetInterface*> m_plugins;
 };
-
-#endif // CUSTOMWIDGETS_H

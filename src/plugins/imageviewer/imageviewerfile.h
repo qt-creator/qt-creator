@@ -24,8 +24,7 @@
 **
 ****************************************************************************/
 
-#ifndef IMAGEVIEWERFILE_H
-#define IMAGEVIEWERFILE_H
+#pragma once
 
 #include <coreplugin/idocument.h>
 
@@ -94,5 +93,3 @@ private:
 
 } // namespace Internal
 } // namespace ImageViewer
-
-#endif // IMAGEVIEWERFILE_H

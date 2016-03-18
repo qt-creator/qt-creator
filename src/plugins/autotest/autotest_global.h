@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef AUTOTEST_GLOBAL_H
-#define AUTOTEST_GLOBAL_H
+#pragma once
 
 #include <QtGlobal>
 
@@ -33,6 +32,3 @@
 #else
 #  define AUTOTESTSHARED_EXPORT Q_DECL_IMPORT
 #endif
-
-#endif // AUTOTEST_GLOBAL_H
-

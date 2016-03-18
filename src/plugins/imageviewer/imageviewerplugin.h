@@ -24,8 +24,7 @@
 **
 ****************************************************************************/
 
-#ifndef IMAGEVIEWERPLUGIN_H
-#define IMAGEVIEWERPLUGIN_H
+#pragma once
 
 #include <extensionsystem/iplugin.h>
 
@@ -63,5 +62,3 @@ private:
 
 } // namespace Internal
 } // namespace ImageViewer
-
-#endif // IMAGEVIEWERPLUGIN_H

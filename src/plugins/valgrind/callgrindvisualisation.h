@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CALLGRINDVISUALISATION_H
-#define CALLGRINDVISUALISATION_H
+#pragma once
 
 #include <QGraphicsView>
 
@@ -80,5 +79,3 @@ private:
 
 } // namespace Internal
 } // namespace Valgrind
-
-#endif // VALGRIND_CALLGRIND_CALLGRINDVISUALISATION_H

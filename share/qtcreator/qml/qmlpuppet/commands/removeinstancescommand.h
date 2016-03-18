@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef REMOVEINSTANCESCOMMAND_H
-#define REMOVEINSTANCESCOMMAND_H
+#pragma once
 
 #include <QMetaType>
 #include <QVector>
@@ -57,5 +56,3 @@ QDebug operator <<(QDebug debug, const RemoveInstancesCommand &command);
 } // namespace QmlDesigner
 
 Q_DECLARE_METATYPE(QmlDesigner::RemoveInstancesCommand)
-
-#endif // REMOVEINSTANCESCOMMAND_H

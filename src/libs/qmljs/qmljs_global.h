@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLJS_GLOBAL_H
-#define QMLJS_GLOBAL_H
+#pragma once
 
 #include <qglobal.h>
 
@@ -35,5 +34,3 @@
 #else
 #  define QMLJS_EXPORT Q_DECL_IMPORT
 #endif
-
-#endif // QMLJS_GLOBAL_H

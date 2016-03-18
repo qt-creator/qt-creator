@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CONNECTIONMODEL_H
-#define CONNECTIONMODEL_H
+#pragma once
 
 #include <modelnode.h>
 #include <nodemetainfo.h>
@@ -119,5 +118,3 @@ public:
 } // namespace Internal
 
 } // namespace QmlDesigner
-
-#endif // CONNECTIONMODEL_H

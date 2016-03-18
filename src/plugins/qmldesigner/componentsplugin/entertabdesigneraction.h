@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef ENTERTABDESIGNERACTION_H
-#define ENTERTABDESIGNERACTION_H
+#pragma once
 
 #include <abstractactiongroup.h>
 
@@ -53,5 +52,3 @@ private:
 };
 
 } // namespace QmlDesigner
-
-#endif // ENTERTABDESIGNERACTION_H

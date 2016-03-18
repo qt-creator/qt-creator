@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CPLUSPLUS_BACKWARDSSCANNER_H
-#define CPLUSPLUS_BACKWARDSSCANNER_H
+#pragma once
 
 #include "SimpleLexer.h"
 
@@ -85,5 +84,3 @@ private:
 };
 
 } // namespace CPlusPlus
-
-#endif // CPLUSPLUS_BACKWARDSSCANNER_H

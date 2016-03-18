@@ -18,8 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#ifndef CPLUSPLUS_ASTFWD_H
-#define CPLUSPLUS_ASTFWD_H
+#pragma once
 
 #include "CPlusPlusForwardDeclarations.h"
 
@@ -225,6 +224,3 @@ typedef List<ObjCSynthesizedPropertyAST *> ObjCSynthesizedPropertyListAST;
 typedef List<DesignatorAST *> DesignatorListAST;
 
 } // namespace CPlusPlus
-
-
-#endif // CPLUSPLUS_ASTFWD_H

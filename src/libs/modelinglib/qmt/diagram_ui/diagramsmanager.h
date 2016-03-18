@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_DIAGRAMSMANAGER_H
-#define QMT_DIAGRAMSMANAGER_H
+#pragma once
 
 #include <QObject>
 
@@ -94,5 +93,3 @@ private:
 };
 
 } // namespace qmt
-
-#endif // QMT_DIAGRAMSMANAGER_H

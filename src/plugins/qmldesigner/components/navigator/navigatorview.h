@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef NAVIGATORVIEW_H
-#define NAVIGATORVIEW_H
+#pragma once
 
 #include <abstractview.h>
 
@@ -99,4 +98,3 @@ private:
 };
 
 }
-#endif // NAVIGATORVIEW_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SNIPPETSSETTINGS_H
-#define SNIPPETSSETTINGS_H
+#pragma once
 
 #include <QString>
 
@@ -58,5 +57,3 @@ inline bool operator!=(const SnippetsSettings &a, const SnippetsSettings &b)
 { return !a.equals(b); }
 
 } // TextEditor
-
-#endif // SNIPPETSSETTINGS_H

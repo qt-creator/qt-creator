@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLJSMODELMANAGER_H
-#define QMLJSMODELMANAGER_H
+#pragma once
 
 #include "qmljstools_global.h"
 
@@ -68,5 +67,3 @@ private:
 QMLJSTOOLS_EXPORT void setupProjectInfoQmlBundles(QmlJS::ModelManagerInterface::ProjectInfo &projectInfo);
 
 } // namespace QmlJSTools
-
-#endif // QMLJSMODELMANAGER_H

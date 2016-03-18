@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CPPCLASSESFILTER_H
-#define CPPCLASSESFILTER_H
+#pragma once
 
 #include "cpptools_global.h"
 #include "cpplocatorfilter.h"
@@ -48,5 +47,3 @@ protected:
 };
 
 } // namespace CppTools
-
-#endif // CPPCLASSESFILTER_H

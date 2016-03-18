@@ -24,8 +24,7 @@
 **
 ****************************************************************************/
 
-#ifndef ANALYZERMANAGER_H
-#define ANALYZERMANAGER_H
+#pragma once
 
 #include "analyzerconstants.h"
 
@@ -150,5 +149,3 @@ DEBUGGER_EXPORT AnalyzerRunControl *createAnalyzerRunControl(
     ProjectExplorer::RunConfiguration *runConfiguration, Core::Id runMode);
 
 } // namespace Debugger
-
-#endif // ANALYZERMANAGER_H

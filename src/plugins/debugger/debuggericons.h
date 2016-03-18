@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef DEBUGGERICONS_H
-#define DEBUGGERICONS_H
+#pragma once
 
 #include <utils/icon.h>
 
@@ -90,5 +89,3 @@ const Utils::Icon MODE_DEBUGGER_FLAT_ACTIVE({
 
 } // namespace Icons
 } // namespace Debugger
-
-#endif // DEBUGGERICONS_H

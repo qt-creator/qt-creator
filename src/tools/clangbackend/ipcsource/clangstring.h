@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CLANGBACKEND_CLANGSTRING_H
-#define CLANGBACKEND_CLANGSTRING_H
+#pragma once
 
 #include <clang-c/CXString.h>
 
@@ -55,5 +54,3 @@ private:
 };
 
 } // namespace ClangBackEnd
-
-#endif // CLANGBACKEND_CLANGSTRING_H

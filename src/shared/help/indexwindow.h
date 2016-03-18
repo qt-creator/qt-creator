@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef INDEXWINDOW_H
-#define INDEXWINDOW_H
+#pragma once
 
 #include <QAbstractProxyModel>
 #include <QList>
@@ -108,5 +107,3 @@ private:
 
 } // Internal
 } // Help
-
-#endif // INDEXWINDOW_H

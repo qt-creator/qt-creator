@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef STATESEDITORIMAGEPROVIDER_H
-#define STATESEDITORIMAGEPROVIDER_H
+#pragma once
 
 #include"abstractview.h"
 
@@ -51,6 +50,3 @@ private:
 
 } // namespace Internal
 } // namespace QmlDesigner
-
-#endif // STATESEDITORIMAGEPROVIDER_H
-

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CPPINCLUDESFILTER_H
-#define CPPINCLUDESFILTER_H
+#pragma once
 
 #include <coreplugin/locator/basefilefilter.h>
 
@@ -52,5 +51,3 @@ private:
 
 } // namespace Internal
 } // namespace CppTools
-
-#endif // CPPINCLUDESFILTER_H

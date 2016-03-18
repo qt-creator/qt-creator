@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef MARKUP_H
-#define MARKUP_H
+#pragma once
 
 #include <QColor>
 #include <QString>
@@ -49,5 +48,3 @@ public:
 } // namespace BinEditor
 
 Q_DECLARE_METATYPE(BinEditor::Markup)
-
-#endif // MARKUP_H

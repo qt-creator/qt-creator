@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CPPTOOLS_TYPEHIERARCHYBUILDER_H
-#define CPPTOOLS_TYPEHIERARCHYBUILDER_H
+#pragma once
 
 #include "cpptools_global.h"
 
@@ -77,5 +76,3 @@ private:
 };
 
 } // CppTools
-
-#endif // CPPTOOLS_TYPEHIERARCHYBUILDER_H

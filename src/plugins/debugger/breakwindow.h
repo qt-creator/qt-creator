@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef DEBUGGER_BREAKWINDOW_H
-#define DEBUGGER_BREAKWINDOW_H
+#pragma once
 
 #include "breakhandler.h"
 #include <utils/basetreeview.h>
@@ -58,6 +57,3 @@ private:
 
 } // namespace Internal
 } // namespace Debugger
-
-#endif // DEBUGGER_BREAKWINDOW
-

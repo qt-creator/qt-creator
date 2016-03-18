@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef EXTENSIONSYSTEM_PLUGINMANAGER_H
-#define EXTENSIONSYSTEM_PLUGINMANAGER_H
+#pragma once
 
 #include "extensionsystem_global.h"
 #include <aggregation/aggregate.h>
@@ -163,5 +162,3 @@ public slots:
 };
 
 } // namespace ExtensionSystem
-
-#endif // EXTENSIONSYSTEM_PLUGINMANAGER_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CPPSEMANTICINFOUPDATER_H
-#define CPPSEMANTICINFOUPDATER_H
+#pragma once
 
 #include "cppsemanticinfo.h"
 
@@ -56,5 +55,3 @@ private:
 };
 
 } // namespace CppTools
-
-#endif // CPPSEMANTICINFOUPDATER_H

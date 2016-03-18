@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLJSLINK_H
-#define QMLJSLINK_H
+#pragma once
 
 #include <qmljs/qmljscontext.h>
 
@@ -61,5 +60,3 @@ private:
 };
 
 } // namespace QmlJS
-
-#endif // QMLJSLINK_H

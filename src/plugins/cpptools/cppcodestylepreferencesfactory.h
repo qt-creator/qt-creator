@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CPPCODESTYLEPREFERENCESFACTORY_H
-#define CPPCODESTYLEPREFERENCESFACTORY_H
+#pragma once
 
 #include <texteditor/icodestylepreferencesfactory.h>
 
@@ -46,5 +45,3 @@ public:
 };
 
 } // namespace CppTools
-
-#endif // CPPCODESTYLEPREFERENCESFACTORY_H

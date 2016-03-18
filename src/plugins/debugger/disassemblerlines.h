@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef DEBUGGER_DISASSEMBLERLINES_H
-#define DEBUGGER_DISASSEMBLERLINES_H
+#pragma once
 
 #include <QStringList>
 #include <QHash>
@@ -92,5 +91,3 @@ private:
 
 } // namespace Internal
 } // namespace Debugger
-
-#endif // DEBUGGER_DISASSEMBLERLINES_H

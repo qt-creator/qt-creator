@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CPPLOCATORDATA_H
-#define CPPLOCATORDATA_H
+#pragma once
 
 #include <functional>
 #include <QHash>
@@ -84,5 +83,3 @@ private:
 };
 
 } // CppTools namespace
-
-#endif // CPPLOCATORDATA_H

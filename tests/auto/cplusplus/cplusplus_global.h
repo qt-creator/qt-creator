@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CPLUSPLUS_GLOBAL_H
-#define CPLUSPLUS_GLOBAL_H
+#pragma once
 
 //
 // The following "non-latin1" code points are used in the tests:
@@ -38,5 +37,3 @@
 #define UC_U4E8C "\xe4\xba\x8c"
 #define UC_U10302 "\xf0\x90\x8c\x82"
 #define TEST_UNICODE_IDENTIFIER UC_U00FC UC_U4E8C UC_U10302
-
-#endif // CPLUSPLUS_GLOBAL_H

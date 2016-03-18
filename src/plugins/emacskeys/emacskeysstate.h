@@ -22,8 +22,7 @@
 **
 ****************************************************************************/
 
-#ifndef EMACSKEYSSTATE_H
-#define EMACSKEYSSTATE_H
+#pragma once
 
 #include <QObject>
 
@@ -71,5 +70,3 @@ private:
 
 } // namespace Internal
 } // namespace EmacsKeys
-
-#endif // EMACSKEYSSTATE_H

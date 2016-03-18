@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLJSEDITORDOCUMENT_H
-#define QMLJSEDITORDOCUMENT_H
+#pragma once
 
 #include "qmljseditor_global.h"
 
@@ -67,5 +66,3 @@ private:
 };
 
 } // QmlJSEditor
-
-#endif // QMLJSEDITORDOCUMENT_H

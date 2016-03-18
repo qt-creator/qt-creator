@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SQLITESTATEMENT_H
-#define SQLITESTATEMENT_H
+#pragma once
 
 #include "sqliteglobal.h"
 
@@ -127,5 +126,3 @@ private:
     int columnCount_;
     mutable bool isReadyToFetchValues;
 };
-
-#endif // SQLITESTATEMENT_H

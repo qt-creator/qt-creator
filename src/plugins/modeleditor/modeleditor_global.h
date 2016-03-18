@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef MODELEDITOR_GLOBAL_H
-#define MODELEDITOR_GLOBAL_H
+#pragma once
 
 #include <QtGlobal>
 
@@ -33,5 +32,3 @@
 #else
 #  define MODELEDITOR_EXPORT Q_DECL_IMPORT
 #endif
-
-#endif // MODELEDITOR_GLOBAL_H

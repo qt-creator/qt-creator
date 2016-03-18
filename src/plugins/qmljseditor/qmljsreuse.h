@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLJSREUSE_H
-#define QMLJSREUSE_H
+#pragma once
 
 #include <QtGlobal>
 #include <QIcon>
@@ -46,5 +45,3 @@ QIcon iconForColor(const QColor &color);
 
 } // Internal
 } // QmlJSEditor
-
-#endif // QMLJSREUSE_H

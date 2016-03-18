@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef GLSLSYMBOL_H
-#define GLSLSYMBOL_H
+#pragma once
 
 #include "glsl.h"
 #include <QString>
@@ -77,5 +76,3 @@ public:
 };
 
 } // namespace GLSL
-
-#endif // GLSLSYMBOL_H

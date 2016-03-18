@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SNIPPETEDITOR_H
-#define SNIPPETEDITOR_H
+#pragma once
 
 #include <texteditor/texteditor_global.h>
 #include <texteditor/texteditor.h>
@@ -48,5 +47,3 @@ protected:
 };
 
 } // namespace TextEditor
-
-#endif // SNIPPETEDITOR_H

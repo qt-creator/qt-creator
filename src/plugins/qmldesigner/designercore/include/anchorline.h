@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLDESIGNER_ANCHORLINE_H
-#define QMLDESIGNER_ANCHORLINE_H
+#pragma once
 
 #include <qmldesignercorelib_global.h>
 
@@ -51,5 +50,3 @@ private:
 };
 
 } // namespace QmlDesigner
-
-#endif // QMLDESIGNER_ANCHORLINE_H

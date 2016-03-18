@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CODESTYLEPOOL_H
-#define CODESTYLEPOOL_H
+#pragma once
 
 #include "texteditor_global.h"
 
@@ -81,5 +80,3 @@ private:
 };
 
 } // namespace TextEditor
-
-#endif // CODESTYLEPOOL_H

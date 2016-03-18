@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef DEBUGGER_COMMONOPTIONSPAGE_H
-#define DEBUGGER_COMMONOPTIONSPAGE_H
+#pragma once
 
 #include "debuggersourcepathmappingwidget.h"
 
@@ -99,5 +98,3 @@ private:
 
 } // namespace Internal
 } // namespace Debugger
-
-#endif // DEBUGGER_COMMONOPTIONSPAGE_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef MAKEFILEPARSE_H
-#define MAKEFILEPARSE_H
+#pragma once
 
 #include <utils/fileutils.h>
 #include <qtsupport/baseqtversion.h>
@@ -87,6 +86,3 @@ private:
 
 } // namespace Internal
 } // namespace QmakeProjectManager
-
-
-#endif // MAKEFILEPARSE_H

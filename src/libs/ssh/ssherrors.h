@@ -23,7 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SSHERRORS_P_H
+#pragma once
 #define SSHERRORS_P_H
 
 namespace QSsh {
@@ -35,5 +35,3 @@ enum SshError {
 };
 
 } // namespace QSsh
-
-#endif // SSHERRORS_P_H

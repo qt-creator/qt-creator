@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CODEGENERATOR_H
-#define CODEGENERATOR_H
+#pragma once
 
 #include "qtsupport_global.h"
 
@@ -54,5 +53,3 @@ public:
 };
 
 } // namespace QtSupport
-
-#endif // CODEGENERATOR_H

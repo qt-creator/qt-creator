@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef FILESPAGE_H
-#define FILESPAGE_H
+#pragma once
 
 #include <QWizard>
 
@@ -83,5 +82,3 @@ private:
 
 } // namespace Internal
 } // namespace QmakeProjectManager
-
-#endif // FILESPAGE_H

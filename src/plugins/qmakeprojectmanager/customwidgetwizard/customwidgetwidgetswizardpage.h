@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CUSTOMWIDGETWIDGETSWIZARDPAGE_H
-#define CUSTOMWIDGETWIDGETSWIZARDPAGE_H
+#pragma once
 
 #include "pluginoptions.h"
 #include "filenamingparameters.h"
@@ -83,5 +82,3 @@ private:
 
 }
 }
-
-#endif // CUSTOMWIDGETWIDGETSWIZARDPAGE_H

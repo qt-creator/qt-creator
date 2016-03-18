@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CPPTOOLS_CPPPROJECTFILE_H
-#define CPPTOOLS_CPPPROJECTFILE_H
+#pragma once
 
 #include "cpptools_global.h"
 
@@ -66,5 +65,3 @@ public:
 QDebug operator<<(QDebug stream, const CppTools::ProjectFile &cxxFile);
 
 } // namespace CppTools
-
-#endif // CPPTOOLS_CPPPROJECTFILE_H

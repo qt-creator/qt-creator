@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef COMMONDEFINES_H
-#define COMMONDEFINES_H
+#pragma once
 
 #include <QMetaType>
 #include <QPair>
@@ -57,5 +56,3 @@ enum InformationName
 };
 
 }
-
-#endif // COMMONDEFINES_H

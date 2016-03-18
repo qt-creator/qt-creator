@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef STORAGESETTINGS_H
-#define STORAGESETTINGS_H
+#pragma once
 
 #include "texteditor_global.h"
 
@@ -59,5 +58,3 @@ inline bool operator==(const StorageSettings &t1, const StorageSettings &t2) { r
 inline bool operator!=(const StorageSettings &t1, const StorageSettings &t2) { return !t1.equals(t2); }
 
 } // namespace TextEditor
-
-#endif // STORAGESETTINGS_H

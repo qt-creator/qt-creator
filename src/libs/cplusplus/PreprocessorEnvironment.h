@@ -43,8 +43,7 @@
   CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef PREPROCESSORENVIRONMENT_H
-#define PREPROCESSORENVIRONMENT_H
+#pragma once
 
 #include "PPToken.h"
 
@@ -101,5 +100,3 @@ private:
 };
 
 } // namespace CPlusPlus
-
-#endif // PREPROCESSORENVIRONMENT_H

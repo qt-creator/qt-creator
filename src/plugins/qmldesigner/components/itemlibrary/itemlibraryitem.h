@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLDESIGNER_ITEMLIBRARYITEMMODEL_H
-#define QMLDESIGNER_ITEMLIBRARYITEMMODEL_H
+#pragma once
 
 #include <QObject>
 #include <QString>
@@ -66,5 +65,3 @@ private:
 };
 
 } // namespace QmlDesigner
-
-#endif // QMLDESIGNER_ITEMLIBRARYITEMMODEL_H

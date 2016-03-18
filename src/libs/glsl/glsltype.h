@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef GLSLTYPE_H
-#define GLSLTYPE_H
+#pragma once
 
 #include "glsl.h"
 
@@ -60,5 +59,3 @@ public:
 };
 
 } // namespace GLSL
-
-#endif // GLSLTYPE_H

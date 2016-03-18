@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QNX_INTERNAL_QNXDEVICECONFIGURATIONFACTORY_H
-#define QNX_INTERNAL_QNXDEVICECONFIGURATIONFACTORY_H
+#pragma once
 
 #include <projectexplorer/devicesupport/idevicefactory.h>
 
@@ -51,5 +50,3 @@ public:
 
 } // namespace Internal
 } // namespace Qnx
-
-#endif // QNX_INTERNAL_QNXDEVICECONFIGURATIONFACTORY_H

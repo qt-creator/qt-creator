@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CPPEDITOR_H
-#define CPPEDITOR_H
+#pragma once
 
 #include "cppfunctiondecldeflink.h"
 
@@ -145,5 +144,3 @@ private:
 
 } // namespace Internal
 } // namespace CppEditor
-
-#endif // CPPEDITOR_H

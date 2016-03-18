@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef  CLANGBACKEND_REQUESTHIGHLIGHTING_H
-#define  CLANGBACKEND_REQUESTHIGHLIGHTING_H
+#pragma once
 
 #include "filecontainer.h"
 
@@ -57,5 +56,3 @@ void PrintTo(const RequestHighlightingMessage &message, ::std::ostream* os);
 
 DECLARE_MESSAGE(RequestHighlightingMessage)
 } // namespace ClangBackEnd
-
-#endif //  CLANGBACKEND_REQUESTHIGHLIGHTING_H

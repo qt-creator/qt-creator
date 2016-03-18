@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef ANDROIDSIGNALOPERATION_H
-#define ANDROIDSIGNALOPERATION_H
+#pragma once
 
 #include <projectexplorer/devicesupport/idevice.h>
 
@@ -74,5 +73,3 @@ private:
 
 } // namespace Internal
 } // namespace Android
-
-#endif // ANDROIDSIGNALOPERATION_H

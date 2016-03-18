@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef HIGHLIGHTERUTILS_H
-#define HIGHLIGHTERUTILS_H
+#pragma once
 
 #include <QString>
 #include "texteditor_global.h"
@@ -44,5 +43,3 @@ void setMimeTypeForHighlighter(Highlighter *highlighter, const Utils::MimeType &
                                QString *foundDefinitionId = 0);
 
 } // namespace TextEditor
-
-#endif // HIGHLIGHTERUTILS_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLPROFILERTIMELINEMODEL_H
-#define QMLPROFILERTIMELINEMODEL_H
+#pragma once
 
 #include "qmlprofiler_global.h"
 #include "qmlprofilermodelmanager.h"
@@ -74,5 +73,3 @@ private:
 };
 
 }
-
-#endif // QMLPROFILERTIMELINEMODEL_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SPECIFICRULES_H
-#define SPECIFICRULES_H
+#pragma once
 
 #include "rule.h"
 #include "dynamicrule.h"
@@ -289,5 +288,3 @@ private:
 
 } // namespace Internal
 } // namespace TextEditor
-
-#endif // SPECIFICRULES_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLJSAST_P_H
-#define QMLJSAST_P_H
+#pragma once
 
 //
 //  W A R N I N G
@@ -2759,5 +2758,3 @@ public:
 
 
 QT_QML_END_NAMESPACE
-
-#endif

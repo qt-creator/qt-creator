@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef REPARENTINSTANCESCOMMAND_H
-#define REPARENTINSTANCESCOMMAND_H
+#pragma once
 
 #include <QMetaType>
 #include <QVector>
@@ -56,5 +55,3 @@ QDebug operator <<(QDebug debug, const ReparentInstancesCommand &command);
 } //
 
 Q_DECLARE_METATYPE(QmlDesigner::ReparentInstancesCommand)
-
-#endif // REPARENTINSTANCESCOMMAND_H

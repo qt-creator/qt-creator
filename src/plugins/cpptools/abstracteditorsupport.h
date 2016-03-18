@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef ABSTRACTEDITORSUPPORT_H
-#define ABSTRACTEDITORSUPPORT_H
+#pragma once
 
 #include "cpptools_global.h"
 
@@ -57,5 +56,3 @@ private:
 };
 
 } // namespace CppTools
-
-#endif // ABSTRACTEDITORSUPPORT_H

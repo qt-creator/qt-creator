@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QARK_SERIALIZE_H
-#define QARK_SERIALIZE_H
+#pragma once
 
 #include "tag.h"
 #include "baseclass.h"
@@ -494,5 +493,3 @@ typename std::enable_if<Archive::inArchive, Archive &>::type operator||(
 }
 
 } // namespace qark
-
-#endif // QARK_SERIALIZE_H

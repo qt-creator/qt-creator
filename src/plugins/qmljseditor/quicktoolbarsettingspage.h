@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QUICKTOOLBARSETTINGSPAGE_H
-#define QUICKTOOLBARSETTINGSPAGE_H
+#pragma once
 
 #include "ui_quicktoolbarsettingspage.h"
 #include <coreplugin/dialogs/ioptionspage.h>
@@ -96,5 +95,3 @@ private:
 
 } // namespace Internal
 } // namespace QmlDesigner
-
-#endif // QUICKTOOLBARSETTINGSPAGE_H

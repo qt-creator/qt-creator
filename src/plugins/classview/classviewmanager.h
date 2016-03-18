@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CLASSVIEWMANAGER_H
-#define CLASSVIEWMANAGER_H
+#pragma once
 
 #include <QObject>
 #include <QSharedPointer>
@@ -106,5 +105,3 @@ private:
 
 } // namespace Internal
 } // namespace ClassView
-
-#endif // CLASSVIEWMANAGER_H

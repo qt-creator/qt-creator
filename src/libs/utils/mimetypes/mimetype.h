@@ -37,8 +37,7 @@
 **
 ****************************************************************************/
 
-#ifndef MIMETYPE_H
-#define MIMETYPE_H
+#pragma once
 
 #include <utils/utils_global.h>
 
@@ -132,5 +131,3 @@ class QDebug;
 QTCREATOR_UTILS_EXPORT QDebug operator<<(QDebug debug, const Utils::MimeType &mime);
 QT_END_NAMESPACE
 #endif
-
-#endif   // MIMETYPE_H

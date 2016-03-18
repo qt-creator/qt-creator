@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef EDITORVIEW_H
-#define EDITORVIEW_H
+#pragma once
 
 #include "coreplugin/id.h"
 
@@ -213,4 +212,3 @@ private:
 
 }
 }
-#endif // EDITORVIEW_H

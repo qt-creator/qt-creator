@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef WINRTQTVERSION_H
-#define WINRTQTVERSION_H
+#pragma once
 
 #include <qtsupport/baseqtversion.h>
 
@@ -50,5 +49,3 @@ public:
 
 } // Internal
 } // WinRt
-
-#endif // WINRTQTVERSION_H

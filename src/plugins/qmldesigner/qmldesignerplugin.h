@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLDESIGNERPLUGIN_H
-#define QMLDESIGNERPLUGIN_H
+#pragma once
 
 #include <qmldesigner/designersettings.h>
 #include <qmldesigner/components/pluginmanager/pluginmanager.h>
@@ -113,5 +112,3 @@ private: // variables
 };
 
 } // namespace QmlDesigner
-
-#endif // QMLDESIGNERPLUGIN_H

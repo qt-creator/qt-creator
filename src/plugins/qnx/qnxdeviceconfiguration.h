@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QNX_INTERNAL_QNXDEVICECONFIGURATION_H
-#define QNX_INTERNAL_QNXDEVICECONFIGURATION_H
+#pragma once
 
 #include "qnx_export.h"
 
@@ -79,5 +78,3 @@ private:
 };
 
 } // namespace Qnx
-
-#endif // QNX_INTERNAL_QNXDEVICECONFIGURATION_H

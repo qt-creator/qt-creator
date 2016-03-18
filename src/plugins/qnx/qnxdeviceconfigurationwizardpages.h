@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QNX_INTERNAL_QNXDEVICECONFIGURATIONWIZARDPAGES_H
-#define QNX_INTERNAL_QNXDEVICECONFIGURATIONWIZARDPAGES_H
+#pragma once
 
 #include <remotelinux/genericlinuxdeviceconfigurationwizardpages.h>
 
@@ -42,5 +41,3 @@ public:
 
 } // namespace Internal
 } // namespace Qnx
-
-#endif // QNX_INTERNAL_QNXDEVICECONFIGURATIONWIZARDPAGES_H

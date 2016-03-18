@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_CONTEXTMENUACTION_H
-#define QMT_CONTEXTMENUACTION_H
+#pragma once
 
 #include <QAction>
 
@@ -45,5 +44,3 @@ private:
 };
 
 } // namespace qmt
-
-#endif // QMT_CONTEXTMENUACTION_H

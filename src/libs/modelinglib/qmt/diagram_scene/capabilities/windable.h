@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_WINDABLE_H
-#define QMT_WINDABLE_H
+#pragma once
 
 #include <QtGlobal>
 
@@ -47,5 +46,3 @@ public:
 };
 
 } // namespace qmt
-
-#endif // QMT_WINDABLE_H

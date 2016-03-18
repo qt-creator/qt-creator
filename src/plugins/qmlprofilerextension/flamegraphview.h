@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef FLAMEGRAPHVIEW_H
-#define FLAMEGRAPHVIEW_H
+#pragma once
 
 #include "flamegraphmodel.h"
 
@@ -60,5 +59,3 @@ private:
 
 }
 }
-
-#endif // FLAMEGRAPHVIEW_H

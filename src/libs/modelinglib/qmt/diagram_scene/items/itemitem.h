@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_ITEMITEM_H
-#define QMT_ITEMITEM_H
+#pragma once
 
 #include "objectitem.h"
 
@@ -75,5 +74,3 @@ private:
 };
 
 } // namespace qmt
-
-#endif // QMT_ITEMITEM_H

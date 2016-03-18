@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef IOSTOOLHANDLER_H
-#define IOSTOOLHANDLER_H
+#pragma once
 
 #include <QObject>
 #include <QMap>
@@ -95,5 +94,3 @@ private:
 };
 
 } // namespace Ios
-
-#endif // IOSTOOLHANDLER_H

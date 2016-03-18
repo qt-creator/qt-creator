@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLDESIGNER_QT5NODEINSTANCECLIENTPROXY_H
-#define QMLDESIGNER_QT5NODEINSTANCECLIENTPROXY_H
+#pragma once
 
 #include "nodeinstanceclientproxy.h"
 
@@ -38,5 +37,3 @@ public:
 };
 
 } // namespace QmlDesigner
-
-#endif // QMLDESIGNER_QT5NODEINSTANCECLIENTPROXY_H

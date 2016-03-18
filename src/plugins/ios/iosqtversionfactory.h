@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef IOSQTVERSIONFACTORY_H
-#define IOSQTVERSIONFACTORY_H
+#pragma once
 
 #include <qtsupport/qtversionfactory.h>
 
@@ -47,5 +46,3 @@ public:
 
 } // namespace Internal
 } // namespace Ios
-
-#endif // IOSQTVERSIONFACTORY_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QARK_TAG_H
-#define QARK_TAG_H
+#pragma once
 
 #include "typeregistry.h"
 #include "parameters.h"
@@ -150,5 +149,3 @@ inline End end(const Parameters &parameters)
 }
 
 } // namespace qark
-
-#endif // QARK_TAG_H

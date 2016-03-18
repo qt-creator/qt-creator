@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef TESTSETTINGSPAGE_H
-#define TESTSETTINGSPAGE_H
+#pragma once
 
 #include "ui_testsettingspage.h"
 
@@ -69,5 +68,3 @@ private:
 
 } // namespace Internal
 } // namespace Autotest
-
-#endif // TESTSETTINGSPAGE_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef GETTINGSTARTEDWELCOMEPAGE_H
-#define GETTINGSTARTEDWELCOMEPAGE_H
+#pragma once
 
 #include <coreplugin/iwelcomepage.h>
 
@@ -72,5 +71,3 @@ private:
 
 } // namespace Internal
 } // namespace QtSupport
-
-#endif // GETTINGSTARTEDWELCOMEPAGE_H

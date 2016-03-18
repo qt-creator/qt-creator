@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CALLGRINDTEXTMARK_H
-#define CALLGRINDTEXTMARK_H
+#pragma once
 
 #include <texteditor/textmark.h>
 
@@ -58,5 +57,3 @@ private:
 
 } // namespace Internal
 } // namespace Valgrind
-
-#endif // CALLGRINDTEXTMARK_H

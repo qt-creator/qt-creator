@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef MACROSPLUGIN_MACROEVENT_H
-#define MACROSPLUGIN_MACROEVENT_H
+#pragma once
 
 #include <coreplugin/id.h>
 
@@ -60,5 +59,3 @@ private:
 
 } // namespace Internal
 } // namespace Macros
-
-#endif // MACROSPLUGIN_MACROEVENT_H

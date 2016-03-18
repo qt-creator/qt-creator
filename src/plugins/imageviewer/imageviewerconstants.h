@@ -24,8 +24,7 @@
 **
 ****************************************************************************/
 
-#ifndef IMAGEVIEWERCONSTANTS_H
-#define IMAGEVIEWERCONSTANTS_H
+#pragma once
 
 namespace ImageViewer {
 namespace Constants {
@@ -44,5 +43,3 @@ const char ACTION_TOGGLE_ANIMATION[] = "ImageViewer.ToggleAnimation";
 
 } // namespace Constants
 } // namespace ImageViewer
-
-#endif // IMAGEVIEWERCONSTANTS_H

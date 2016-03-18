@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QNX_INTERNAL_QNXDEPLOYQTLIBRARIESDIALOG_H
-#define QNX_INTERNAL_QNXDEPLOYQTLIBRARIESDIALOG_H
+#pragma once
 
 #include <QDialog>
 
@@ -100,4 +99,3 @@ private:
 
 } // namespace Internal
 } // namespace Qnx
-#endif // QNX_INTERNAL_QNXDEPLOYQTLIBRARIESDIALOG_H

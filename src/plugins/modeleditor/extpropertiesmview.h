@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef EXTPROPERTIESMVIEW_H
-#define EXTPROPERTIESMVIEW_H
+#pragma once
 
 #include "qmt/model_widgets_ui/propertiesviewmview.h"
 
@@ -57,5 +56,3 @@ private:
 
 } // namespace Interal
 } // namespace ModelEditor
-
-#endif // EXTPROPERTIESMVIEW_H

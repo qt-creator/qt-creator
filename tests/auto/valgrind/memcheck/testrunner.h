@@ -24,8 +24,7 @@
 **
 ****************************************************************************/
 
-#ifndef TESTRUNNER_H
-#define TESTRUNNER_H
+#pragma once
 
 #include <QObject>
 #include <QStringList>
@@ -86,5 +85,3 @@ private:
 };
 
 } // namespace Valgrind
-
-#endif // TESTRUNNER_H

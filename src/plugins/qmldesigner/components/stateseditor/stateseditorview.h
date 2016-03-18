@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef STATESEDITORVIEW_H
-#define STATESEDITORVIEW_H
+#pragma once
 
 #include <abstractview.h>
 
@@ -97,5 +96,3 @@ private:
 };
 
 } // namespace QmlDesigner
-
-#endif // STATESEDITORVIEW_H

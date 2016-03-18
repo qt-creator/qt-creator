@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef REFACTORINGCHANGES_H
-#define REFACTORINGCHANGES_H
+#pragma once
 
 #include <QFile>
 #include <QSharedPointer>
@@ -126,5 +125,3 @@ public:
 };
 
 } // namespace TextEditor
-
-#endif // REFACTORINGCHANGES_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef EXECUTEONDESTRUCTION_H
-#define EXECUTEONDESTRUCTION_H
+#pragma once
 
 #include <functional>
 
@@ -41,5 +40,3 @@ private:
 };
 
 } // Utils
-
-#endif // EXECUTEONDESTRUCTION_H

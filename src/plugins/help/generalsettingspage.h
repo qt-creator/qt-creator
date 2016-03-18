@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef GENERALSETTINGSPAGE_H
-#define GENERALSETTINGSPAGE_H
+#pragma once
 
 #include "ui_generalsettingspage.h"
 #include <coreplugin/dialogs/ioptionspage.h>
@@ -79,5 +78,3 @@ private:
 
     }   // Internal
 }   // Help
-
-#endif  // GENERALSETTINGSPAGE_H

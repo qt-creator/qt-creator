@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMAKEANDROIDSUPPORTPLUGIN_H
-#define QMAKEANDROIDSUPPORTPLUGIN_H
+#pragma once
 
 #include <extensionsystem/iplugin.h>
 
@@ -45,5 +44,3 @@ public:
 
 } // namespace Internal
 } // namespace QmakeAndroidSupport
-
-#endif // QMAKEANDROIDSUPPORTPLUGIN_H

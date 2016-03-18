@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLTASKMANAGER_H
-#define QMLTASKMANAGER_H
+#pragma once
 
 #include <projectexplorer/task.h>
 #include <qmljs/qmljsdocument.h>
@@ -85,5 +84,3 @@ private:
 
 } // Internal
 } // QmlJSEditor
-
-#endif // QMLTASKMANAGER_H

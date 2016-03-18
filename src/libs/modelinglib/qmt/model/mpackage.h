@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_MPACKAGE_H
-#define QMT_MPACKAGE_H
+#pragma once
 
 #include "mobject.h"
 #include "qmt/infrastructure/handles.h"
@@ -42,5 +41,3 @@ public:
 };
 
 } // namespace qmt
-
-#endif // QMT_MPACKAGE_H

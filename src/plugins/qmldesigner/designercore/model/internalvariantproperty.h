@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef INTERNALVARIANTPROPERTY_H
-#define INTERNALVARIANTPROPERTY_H
+#pragma once
 
 #include "internalproperty.h"
 
@@ -56,5 +55,3 @@ private:
 
 } // namespace Internal
 } // namespace QmlDesigner
-
-#endif // INTERNALVARIANTPROPERTY_H

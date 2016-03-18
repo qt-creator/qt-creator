@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLDESIGNER_FORMEDITORCRUMBLEBAR_H
-#define QMLDESIGNER_FORMEDITORCRUMBLEBAR_H
+#pragma once
 
 #include <QObject>
 #include <utils/crumblepath.h>
@@ -70,5 +69,3 @@ bool operator !=(const CrumbleBarInfo &first, const CrumbleBarInfo &second);
 } // namespace QmlDesigner
 
 Q_DECLARE_METATYPE(QmlDesigner::CrumbleBarInfo)
-
-#endif // QMLDESIGNER_FORMEDITORCRUMBLEBAR_H

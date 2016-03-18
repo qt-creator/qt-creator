@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef ACTIONCONTAINER_H
-#define ACTIONCONTAINER_H
+#pragma once
 
 #include "coreplugin/core_global.h"
 #include "coreplugin/icontext.h"
@@ -75,5 +74,3 @@ public:
 };
 
 } // namespace Core
-
-#endif // ACTIONCONTAINER_H

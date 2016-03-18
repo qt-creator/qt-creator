@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_STACKEDDIAGRAMSVIEW_H
-#define QMT_STACKEDDIAGRAMSVIEW_H
+#pragma once
 
 #include <QStackedWidget>
 
@@ -73,5 +72,3 @@ private:
 };
 
 } // namespace qmt
-
-#endif // QMT_STACKEDDIAGRAMSVIEW_H

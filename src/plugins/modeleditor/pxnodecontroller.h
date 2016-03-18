@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PXNODECONTROLLER_H
-#define PXNODECONTROLLER_H
+#pragma once
 
 #include <QObject>
 
@@ -71,5 +70,3 @@ private:
 
 } // namespace Internal
 } // namespace ModelEditor
-
-#endif // PXNODECONTROLLER_H

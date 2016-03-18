@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef LIBVALGRIND_CALLGRIND_COSTITEM_H
-#define LIBVALGRIND_CALLGRIND_COSTITEM_H
+#pragma once
 
 #include <QtGlobal>
 
@@ -92,5 +91,3 @@ private:
 
 } // namespace Callgrind
 } // namespace Valgrind
-
-#endif // LIBVALGRIND_CALLGRIND_COSTITEM_H

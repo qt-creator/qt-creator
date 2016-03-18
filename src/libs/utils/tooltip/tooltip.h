@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef TOOLTIP_H
-#define TOOLTIP_H
+#pragma once
 
 #include "../utils_global.h"
 
@@ -116,5 +115,3 @@ private:
 };
 
 } // namespace Utils
-
-#endif // TOOLTIP_H

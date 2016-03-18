@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CLANGBACKEND_COMPLETECODEMESSAGE_H
-#define CLANGBACKEND_COMPLETECODEMESSAGE_H
+#pragma once
 
 #include "clangbackendipc_global.h"
 
@@ -72,6 +71,5 @@ CMBIPC_EXPORT QDebug operator<<(QDebug debug, const CompleteCodeMessage &message
 void PrintTo(const CompleteCodeMessage &message, ::std::ostream* os);
 
 DECLARE_MESSAGE(CompleteCodeMessage);
-} // namespace ClangBackEnd
 
-#endif // CLANGBACKEND_COMPLETECODEMESSAGE_H
+} // namespace ClangBackEnd

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_SHAPEVISITOR_H
-#define QMT_SHAPEVISITOR_H
+#pragma once
 
 namespace qmt {
 
@@ -65,5 +64,3 @@ public:
 };
 
 } // namespace qmt
-
-#endif // QMT_SHAPEVISITOR_H

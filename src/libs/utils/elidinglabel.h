@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef ELIDINGLABEL_H
-#define ELIDINGLABEL_H
+#pragma once
 
 #include "utils_global.h"
 #include <QLabel>
@@ -51,5 +50,3 @@ private:
 };
 
 } // namespace Utils
-
-#endif // ELIDINGLABEL_H

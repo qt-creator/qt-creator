@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CHILDRENCHANGEDCOMMAND_H
-#define CHILDRENCHANGEDCOMMAND_H
+#pragma once
 
 #include <QMetaType>
 #include <QVector>
@@ -62,5 +61,3 @@ QDebug operator <<(QDebug debug, const ChildrenChangedCommand &command);
 } // namespace QmlDesigner
 
 Q_DECLARE_METATYPE(QmlDesigner::ChildrenChangedCommand)
-
-#endif // CHILDRENCHANGEDCOMMAND_H

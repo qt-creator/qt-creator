@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef DUMMY_H
-#define DUMMY_H
+#pragma once
 
 #include <QString>
 
@@ -71,5 +70,3 @@ class ChildDummy : public Dummy {};
 class GrandChildDummy : public Dummy {};
 
 } // namespace test
-
-#endif // DUMMY_H

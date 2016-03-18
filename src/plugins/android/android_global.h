@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef ANDROID_GLOBAL_H
-#define ANDROID_GLOBAL_H
+#pragma once
 
 #include <qglobal.h>
 
@@ -33,5 +32,3 @@
 #else
 #  define ANDROID_EXPORT Q_DECL_IMPORT
 #endif
-
-#endif // ANDROID_GLOBAL_H

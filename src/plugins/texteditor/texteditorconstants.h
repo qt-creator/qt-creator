@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef TEXTEDITORCONSTANTS_H
-#define TEXTEDITORCONSTANTS_H
+#pragma once
 
 #include <QtGlobal>
 
@@ -208,5 +207,3 @@ const unsigned COMPLETION_ASSIST_TOOLTIP_DELAY = 100;
 
 } // namespace Constants
 } // namespace TextEditor
-
-#endif // TEXTEDITORCONSTANTS_H

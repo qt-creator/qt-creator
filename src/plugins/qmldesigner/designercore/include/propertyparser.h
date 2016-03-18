@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PROPERTYPARSER_H
-#define PROPERTYPARSER_H
+#pragma once
 
 #include <QVariant>
 
@@ -42,5 +41,3 @@ QVariant variantFromString(const QString &s);
 } // namespace PropertyParser
 } // namespace Internal
 } // namespace Designer
-
-#endif // PROPERTYPARSER_H

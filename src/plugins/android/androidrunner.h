@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef ANDROIDRUNNER_H
-#define ANDROIDRUNNER_H
+#pragma once
 
 #include "androidconfigurations.h"
 #include "androidrunnable.h"
@@ -120,5 +119,3 @@ private:
 
 } // namespace Internal
 } // namespace Android
-
-#endif // ANDROIDRUNNER_H

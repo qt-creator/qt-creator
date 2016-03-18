@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLJSDIALECT_H
-#define QMLJSDIALECT_H
+#pragma once
 
 #include "qmljs_global.h"
 
@@ -168,4 +167,3 @@ private:
 };
 
 } // namespace QmlJS
-#endif // QMLJSDIALECT_H

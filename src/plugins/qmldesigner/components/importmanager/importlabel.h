@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef IMPORTLABEL_H
-#define IMPORTLABEL_H
+#pragma once
 
 #include <QLabel>
 #include <QPushButton>
@@ -56,4 +55,3 @@ private:
 };
 
 }
-#endif // IMPORTLABEL_H

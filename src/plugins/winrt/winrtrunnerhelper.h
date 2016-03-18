@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef WINRTRUNNERHELPER_H
-#define WINRTRUNNERHELPER_H
+#pragma once
 
 #include "winrtdevice.h"
 
@@ -92,5 +91,3 @@ private:
 
 } // namespace WinRt
 } // namespace Internal
-
-#endif // WINRTRUNNERHELPER_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SSHCONNECTIONMANAGER_H
-#define SSHCONNECTIONMANAGER_H
+#pragma once
 
 #include "ssh_global.h"
 
@@ -40,5 +39,3 @@ QSSH_EXPORT void releaseConnection(SshConnection *connection);
 QSSH_EXPORT void forceNewConnection(const SshConnectionParameters &sshParams);
 
 } // namespace QSsh
-
-#endif // SSHCONNECTIONMANAGER_H

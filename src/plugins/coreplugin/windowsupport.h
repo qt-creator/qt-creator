@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef WINDOWSUPPORT_H
-#define WINDOWSUPPORT_H
+#pragma once
 
 #include "icontext.h"
 
@@ -84,5 +83,3 @@ private:
 
 } // Internal
 } // Core
-
-#endif // WINDOWSUPPORT_H

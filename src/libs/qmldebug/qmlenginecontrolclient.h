@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLENGINECONTROLCLIENT_H
-#define QMLENGINECONTROLCLIENT_H
+#pragma once
 
 #include "qmldebugclient.h"
 
@@ -73,5 +72,3 @@ protected:
 };
 
 }
-
-#endif // QMLENGINECONTROLCLIENT_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef IOSSIMULATOR_H
-#define IOSSIMULATOR_H
+#pragma once
 
 #include <projectexplorer/devicesupport/idevice.h>
 #include <utils/fileutils.h>
@@ -103,5 +102,3 @@ IosSimulator::ConstPtr simulator(ProjectExplorer::Kit *kit);
 } // namespace Ios
 
 Q_DECLARE_METATYPE(Ios::Internal::IosDeviceType)
-
-#endif // IOSSIMULATOR_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SPOTLIGHTLOCATORFILTER_H
-#define SPOTLIGHTLOCATORFILTER_H
+#pragma once
 
 #include "basefilefilter.h"
 
@@ -42,6 +41,3 @@ public:
 
 } // Internal
 } // Core
-
-#endif // SPOTLIGHTLOCATORFILTER_H
-

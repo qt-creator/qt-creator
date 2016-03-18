@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef MODIFICATIONGROUPEXCEPTION_H
-#define MODIFICATIONGROUPEXCEPTION_H
+#pragma once
 
 #include "exception.h"
 
@@ -39,5 +38,3 @@ public:
 };
 
 }
-
-#endif // MODIFICATIONGROUPEXCEPTION_H

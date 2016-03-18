@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef NODEINSTANCEMETAOBJECT_H
-#define NODEINSTANCEMETAOBJECT_H
+#pragma once
 
 #include <QQmlContext>
 #include <QScopedPointer>
@@ -94,5 +93,3 @@ private:
 } // namespace QmlPrivateGate
 } // namespace Internal
 } // namespace QmlDesigner
-
-#endif // NODEINSTANCEMETAOBJECT_H

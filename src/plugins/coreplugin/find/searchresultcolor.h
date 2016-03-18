@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SEARCHRESULTCOLOR_H
-#define SEARCHRESULTCOLOR_H
+#pragma once
 
 #include <QColor>
 
@@ -41,5 +40,3 @@ public:
 
 } // namespace Internal
 } // namespace Core
-
-#endif // SEARCHRESULTCOLOR_H

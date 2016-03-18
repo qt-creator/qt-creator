@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CLANGSTATICANALYZERPROJECTSETTINGSWIDGET_H
-#define CLANGSTATICANALYZERPROJECTSETTINGSWIDGET_H
+#pragma once
 
 #include <QWidget>
 
@@ -56,5 +55,3 @@ private:
 
 } // namespace Internal
 } // namespace ClangStaticAnalyzer
-
-#endif // Include guard.

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef TIMELINE_GLOBAL_H
-#define TIMELINE_GLOBAL_H
+#pragma once
 
 #include <QtGlobal>
 
@@ -33,6 +32,3 @@
 #else
 #  define TIMELINE_EXPORT Q_DECL_IMPORT
 #endif
-
-#endif // TIMELINE_GLOBAL_H
-

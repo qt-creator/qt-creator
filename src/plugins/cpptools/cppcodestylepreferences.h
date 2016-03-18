@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CPPCODESTYLEPREFERENCES_H
-#define CPPCODESTYLEPREFERENCES_H
+#pragma once
 
 #include "cpptools_global.h"
 #include "cppcodestylesettings.h"
@@ -69,5 +68,3 @@ private:
 };
 
 } // namespace CppTools
-
-#endif // CPPCODESTYLEPREFERENCES_H

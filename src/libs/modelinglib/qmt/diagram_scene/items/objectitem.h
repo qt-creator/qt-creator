@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_OBJECTITEM_H
-#define QMT_OBJECTITEM_H
+#pragma once
 
 #include <QGraphicsItem>
 
@@ -175,5 +174,3 @@ private:
 };
 
 } // namespace qmt
-
-#endif // QMT_OBJECTITEM_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PROJECTINTROPAGE_H
-#define PROJECTINTROPAGE_H
+#pragma once
 
 #include "utils_global.h"
 #include "wizardpage.h"
@@ -89,5 +88,3 @@ private:
 };
 
 } // namespace Utils
-
-#endif // PROJECTINTROPAGE_H

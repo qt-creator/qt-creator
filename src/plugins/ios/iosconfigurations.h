@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef IOSCONFIGURATIONS_H
-#define IOSCONFIGURATIONS_H
+#pragma once
 
 #include <projectexplorer/abi.h>
 #include <projectexplorer/toolchain.h>
@@ -81,5 +80,3 @@ private:
 
 } // namespace Internal
 } // namespace Ios
-
-#endif // IOSCONFIGURATIONS_H

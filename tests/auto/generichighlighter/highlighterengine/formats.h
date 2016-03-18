@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef FORMATS_H
-#define FORMATS_H
+#pragma once
 
 #include <QTextCharFormat>
 
@@ -67,5 +66,3 @@ private:
     QTextCharFormat m_regionMarkerFormat;
     QTextCharFormat m_othersFormat;
 };
-
-#endif // FORMATS_H

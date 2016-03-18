@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef FINDPLACEHOLDER_H
-#define FINDPLACEHOLDER_H
+#pragma once
 
 #include "core_global.h"
 
@@ -59,5 +58,3 @@ private:
 };
 
 } // namespace Core
-
-#endif // FINDPLACEHOLDER_H

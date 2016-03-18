@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLDESIGNER_REMOVESHAREDMEMORYCOMMAND_H
-#define QMLDESIGNER_REMOVESHAREDMEMORYCOMMAND_H
+#pragma once
 
 #include <QMetaType>
 #include <QString>
@@ -57,5 +56,3 @@ QDebug operator <<(QDebug debug, const RemoveSharedMemoryCommand &command);
 } // namespace QmlDesigner
 
 Q_DECLARE_METATYPE(QmlDesigner::RemoveSharedMemoryCommand)
-
-#endif // QMLDESIGNER_REMOVESHAREDMEMORYCOMMAND_H

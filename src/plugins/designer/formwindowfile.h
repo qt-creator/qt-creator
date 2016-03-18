@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef FORMWINDOWFILE_H
-#define FORMWINDOWFILE_H
+#pragma once
 
 #include <texteditor/textdocument.h>
 
@@ -89,5 +88,3 @@ private:
 
 } // namespace Internal
 } // namespace Designer
-
-#endif // FORMWINDOWFILE_H

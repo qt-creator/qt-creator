@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef DEBUGGER_TERMINAL_H
-#define DEBUGGER_TERMINAL_H
+#pragma once
 
 #include <QCoreApplication>
 #include <QSocketNotifier>
@@ -63,5 +62,3 @@ private:
 
 } // namespace Internal
 } // namespace Debugger
-
-#endif // DEBUGGER_TERMINAL_H

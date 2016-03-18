@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SEARCHRESULTTREEITEMROLES_H
-#define SEARCHRESULTTREEITEMROLES_H
+#pragma once
 
 #include <QAbstractItemView>
 
@@ -48,5 +47,3 @@ enum Roles
 } // namespace Internal
 } // namespace Core
 } // namespace ItemDataRoles
-
-#endif // SEARCHRESULTTREEITEMROLES_H

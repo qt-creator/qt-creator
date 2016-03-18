@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef NODEMETAINFO_H
-#define NODEMETAINFO_H
+#pragma once
 
 #include <QList>
 #include <QString>
@@ -112,5 +111,3 @@ private:
 };
 
 } //QmlDesigner
-
-#endif // NODEMETAINFO_H

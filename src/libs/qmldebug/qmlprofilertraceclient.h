@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLPROFILERTRACECLIENT_H
-#define QMLPROFILERTRACECLIENT_H
+#pragma once
 
 #include "qmldebugclient.h"
 #include "qmlprofilereventtypes.h"
@@ -86,5 +85,3 @@ private:
 };
 
 } // namespace QmlDebug
-
-#endif // QMLPROFILERTRACECLIENT_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CLANGBACKEND_REQUESTDIAGNOSTICSMESSAGE_H
-#define CLANGBACKEND_REQUESTDIAGNOSTICSMESSAGE_H
+#pragma once
 
 #include "filecontainer.h"
 
@@ -57,5 +56,3 @@ void PrintTo(const RequestDiagnosticsMessage &message, ::std::ostream* os);
 
 DECLARE_MESSAGE(RequestDiagnosticsMessage);
 } // namespace ClangBackEnd
-
-#endif // CLANGBACKEND_REQUESTDIAGNOSTICSMESSAGE_H

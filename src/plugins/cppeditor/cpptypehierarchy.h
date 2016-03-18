@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CPPTYPEHIERARCHY_H
-#define CPPTYPEHIERARCHY_H
+#pragma once
 
 #include <coreplugin/inavigationwidgetfactory.h>
 
@@ -111,5 +110,3 @@ public:
 
 } // namespace Internal
 } // namespace CppEditor
-
-#endif // CPPTYPEHIERARCHY_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PLUGIN2_H
-#define PLUGIN2_H
+#pragma once
 
 #include <extensionsystem/iplugin.h>
 
@@ -52,5 +51,3 @@ public:
 };
 
 } // Plugin2
-
-#endif // PLUGIN2_H

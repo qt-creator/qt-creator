@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef JSONPROJECTPAGE_H
-#define JSONPROJECTPAGE_H
+#pragma once
 
 #include <utils/projectintropage.h>
 
@@ -45,5 +44,3 @@ public:
 };
 
 } // namespace ProjectExplorer
-
-#endif // JSONPROJECTPAGE_H

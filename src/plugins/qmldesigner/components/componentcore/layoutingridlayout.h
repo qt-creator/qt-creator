@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef LAYOUTINGRIDLAYOUT_H
-#define LAYOUTINGRIDLAYOUT_H
+#pragma once
 
 #include "selectioncontext.h"
 
@@ -82,5 +81,3 @@ private:
 };
 
 } //QmlDesigner
-
-#endif // LAYOUTINGRIDLAYOUT_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLJSREFACTORINGCHANGES_H
-#define QMLJSREFACTORINGCHANGES_H
+#pragma once
 
 #include "qmljstools_global.h"
 
@@ -86,5 +85,3 @@ private:
 };
 
 } // namespace QmlJSTools
-
-#endif // QMLJSREFACTORINGCHANGES_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMAKEEVALUATOR_H
-#define QMAKEEVALUATOR_H
+#pragma once
 
 #if defined(PROEVALUATOR_FULL) && defined(PROEVALUATOR_THREAD_SAFE)
 #  error PROEVALUATOR_FULL is incompatible with PROEVALUATOR_THREAD_SAFE due to cache() implementation
@@ -310,5 +309,3 @@ Q_DECLARE_TYPEINFO(QMakeEvaluator::Location, Q_PRIMITIVE_TYPE);
 Q_DECLARE_OPERATORS_FOR_FLAGS(QMakeEvaluator::LoadFlags)
 
 QT_END_NAMESPACE
-
-#endif // QMAKEEVALUATOR_H

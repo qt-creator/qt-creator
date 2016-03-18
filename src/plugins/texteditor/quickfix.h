@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef TEXTEDITORQUICKFIX_H
-#define TEXTEDITORQUICKFIX_H
+#pragma once
 
 #include "texteditor_global.h"
 
@@ -120,5 +119,3 @@ public:
 } // namespace TextEditor
 
 Q_DECLARE_METATYPE(TextEditor::QuickFixOperation::Ptr)
-
-#endif // TEXTEDITORQUICKFIX_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CLANGBACKEND_REGISTERPROJECTSFOREDITORMESSAGE_H
-#define CLANGBACKEND_REGISTERPROJECTSFOREDITORMESSAGE_H
+#pragma once
 
 #include "projectpartcontainer.h"
 
@@ -57,5 +56,3 @@ void PrintTo(const RegisterProjectPartsForEditorMessage &message, ::std::ostream
 
 DECLARE_MESSAGE(RegisterProjectPartsForEditorMessage);
 } // namespace ClangBackEnd
-
-#endif // CLANGBACKEND_REGISTERPROJECTSFOREDITORMESSAGE_H

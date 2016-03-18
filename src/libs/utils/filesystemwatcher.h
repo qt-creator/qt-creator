@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef FILESYSTEMWATCHER_H
-#define FILESYSTEMWATCHER_H
+#pragma once
 
 #include "utils_global.h"
 
@@ -82,5 +81,3 @@ private:
 };
 
 } // namespace Utils
-
-#endif // FILESYSTEMWATCHER_H

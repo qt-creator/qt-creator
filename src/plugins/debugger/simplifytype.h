@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef DEBUGGER_SIMPLIFY_TYPE_H
-#define DEBUGGER_SIMPLIFY_TYPE_H
+#pragma once
 
 #include <QString>
 
@@ -38,6 +37,3 @@ QString simplifyType(const QString &typeIn);
 
 } // namespace Internal
 } // namespace Debugger
-
-
-#endif // DEBUGGER_SIMPLIFY_TYPE_H

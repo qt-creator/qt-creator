@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef IASSISTPROPOSALWIDGET_H
-#define IASSISTPROPOSALWIDGET_H
+#pragma once
 
 #include "assistenums.h"
 
@@ -65,5 +64,3 @@ signals:
 };
 
 } // TextEditor
-
-#endif // IASSISTPROPOSALWIDGET_H

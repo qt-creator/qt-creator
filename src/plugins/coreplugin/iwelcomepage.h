@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef IWELCOMEPAGE_H
-#define IWELCOMEPAGE_H
+#pragma once
 
 #include "core_global.h"
 
@@ -59,5 +58,3 @@ public:
 };
 
 } // Core
-
-#endif // IWELCOMEPAGE_H

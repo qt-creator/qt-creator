@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef DESIGNERPROPERTYMAP_H
-#define DESIGNERPROPERTYMAP_H
+#pragma once
 
 #include <QQmlPropertyMap>
 #include <QtQml>
@@ -44,5 +43,3 @@ public:
 };
 
 } //QmlDesigner
-
-#endif // DESIGNERPROPERTYMAP_H

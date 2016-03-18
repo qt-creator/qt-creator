@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CPLUSPLUS_ALREADYCONSIDEREDCLASSCONTAINER_H
-#define CPLUSPLUS_ALREADYCONSIDEREDCLASSCONTAINER_H
+#pragma once
 
 #include <cplusplus/SafeMatcher.h>
 
@@ -69,5 +68,3 @@ private:
 };
 
 } // namespace CPlusPlus
-
-#endif // CPLUSPLUS_ALREADYCONSIDEREDCLASSCONTAINER_H

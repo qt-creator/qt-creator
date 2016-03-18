@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef IOSQTVERSION_H
-#define IOSQTVERSION_H
+#pragma once
 
 #include <qtsupport/baseqtversion.h>
 
@@ -59,5 +58,3 @@ public:
 
 } // namespace Internal
 } // namespace Ios
-
-#endif // IOSQTVERSION_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef TIMELINEMODEL_P_H
-#define TIMELINEMODEL_P_H
+#pragma once
 
 #include "timelinemodel.h"
 
@@ -146,5 +145,3 @@ private:
 };
 
 } // namespace Timeline
-
-#endif // TIMELINEMODEL_P_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLJSEDITOR_GLOBAL_H
-#define QMLJSEDITOR_GLOBAL_H
+#pragma once
 
 #include <QtGlobal>
 
@@ -33,5 +32,3 @@
 #else
 #  define QMLJSEDITOR_EXPORT Q_DECL_IMPORT
 #endif
-
-#endif // QMLJSEDITOR_GLOBAL_H

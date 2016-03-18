@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QBSPROJECTFILE_H
-#define QBSPROJECTFILE_H
+#pragma once
 
 #include <coreplugin/idocument.h>
 
@@ -47,5 +46,3 @@ private:
 
 } // namespace Internal
 } // namespace QbsProjectManager
-
-#endif // QBSPROJECTFILE_H

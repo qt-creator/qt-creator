@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CPPHOVERHANDLER_H
-#define CPPHOVERHANDLER_H
+#pragma once
 
 #include <texteditor/basehoverhandler.h>
 
@@ -44,5 +43,3 @@ private:
 
 } // namespace Internal
 } // namespace CppEditor
-
-#endif // CPPHOVERHANDLER_H

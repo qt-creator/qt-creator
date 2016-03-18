@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CONSOLEITEM_H
-#define CONSOLEITEM_H
+#pragma once
 
 #include <utils/treemodel.h>
 
@@ -82,5 +81,3 @@ private:
 
 } // Internal
 } // Debugger
-
-#endif // CONSOLEITEM_H

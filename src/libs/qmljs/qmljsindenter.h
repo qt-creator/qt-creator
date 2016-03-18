@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLJSINDENTER_H
-#define QMLJSINDENTER_H
+#pragma once
 
 #include <qmljs/qmljs_global.h>
 #include <qmljs/qmljslineinfo.h>
@@ -72,6 +71,3 @@ private:
 };
 
 } // namespace QmlJS
-
-#endif // QMLJSINDENTER_H
-

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef RESOURCEHANDLER_H
-#define RESOURCEHANDLER_H
+#pragma once
 
 #include <QObject>
 #include <QStringList>
@@ -71,5 +70,3 @@ private:
 
 } // namespace Internal
 } // namespace Designer
-
-#endif // RESOURCEHANDLER_H

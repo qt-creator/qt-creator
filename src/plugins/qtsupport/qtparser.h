@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QTPARSER_H
-#define QTPARSER_H
+#pragma once
 
 #include "qtsupport_global.h"
 #include <projectexplorer/ioutputparser.h>
@@ -47,5 +46,3 @@ private:
 };
 
 } // namespace ProjectExplorer
-
-#endif // QTPARSER_H

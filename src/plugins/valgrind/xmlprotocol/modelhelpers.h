@@ -24,8 +24,7 @@
 **
 ****************************************************************************/
 
-#ifndef LIBVALGRIND_PROTOCOL_MODELHELPERS_H
-#define LIBVALGRIND_PROTOCOL_MODELHELPERS_H
+#pragma once
 
 #include <QtGlobal>
 
@@ -42,5 +41,3 @@ QString toolTipForFrame(const Frame &frame);
 
 } // namespace XmlProtocol
 } // namespace Valgrind
-
-#endif // LIBVALGRIND_PROTOCOL_MODELHELPERS_H

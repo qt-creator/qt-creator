@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_MSELECTION_H
-#define QMT_MSELECTION_H
+#pragma once
 
 #include "qmt/controller/selection.h"
 
@@ -35,5 +34,3 @@ class QMT_EXPORT MSelection : public Selection
 };
 
 } // namespace qmt
-
-#endif // QMT_MSELECTION_H

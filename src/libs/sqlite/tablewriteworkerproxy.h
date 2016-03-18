@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef INTERNAL_TABLEWRITEWORKERPROXY_H
-#define INTERNAL_TABLEWRITEWORKERPROXY_H
+#pragma once
 
 #include "createtablecommand.h"
 
@@ -62,5 +61,3 @@ private:
 };
 
 } // namespace Internal
-
-#endif // INTERNAL_TABLEWRITEWORKERPROXY_H

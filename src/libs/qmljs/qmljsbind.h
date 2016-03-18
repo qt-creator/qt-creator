@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLJSBIND_H
-#define QMLJSBIND_H
+#pragma once
 
 #include <qmljs/parser/qmljsastvisitor_p.h>
 #include <qmljs/qmljsvalueowner.h>
@@ -104,5 +103,3 @@ private:
 };
 
 } // namespace Qml
-
-#endif // QMLJSBIND_H

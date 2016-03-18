@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef DETAILEDERRORVIEW_H
-#define DETAILEDERRORVIEW_H
+#pragma once
 
 #include <debugger/debugger_global.h>
 
@@ -68,5 +67,3 @@ private:
 };
 
 } // namespace Debugger
-
-#endif // DETAILEDERRORVIEW_H

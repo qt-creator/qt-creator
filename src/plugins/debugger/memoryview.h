@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef DEBUGGER_INTERNAL_MEMORYVIEW_H
-#define DEBUGGER_INTERNAL_MEMORYVIEW_H
+#pragma once
 
 #include <QWidget>
 
@@ -80,5 +79,3 @@ private:
 
 } // namespace Internal
 } // namespace Debugger
-
-#endif // DEBUGGER_INTERNAL_MEMORYVIEW_H

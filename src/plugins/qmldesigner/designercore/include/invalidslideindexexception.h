@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef INVALIDSLIDEINDEXEXCEPTION_H
-#define INVALIDSLIDEINDEXEXCEPTION_H
+#pragma once
 
 #include "exception.h"
 
@@ -40,5 +39,3 @@ public:
 };
 
 } // namespace QmlDesigner
-
-#endif // INVALIDSLIDEINDEXEXCEPTION_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef ACTIOMACROHANDLER_H
-#define ACTIOMACROHANDLER_H
+#pragma once
 
 #include "imacrohandler.h"
 
@@ -65,5 +64,3 @@ private:
 
 } // namespace Internal
 } // namespace Macros
-
-#endif // ACTIOMACROHANDLER_H

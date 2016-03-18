@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLJSPLUGINDUMPER_H
-#define QMLJSPLUGINDUMPER_H
+#pragma once
 
 #include <qmljs/qmljsmodelmanagerinterface.h>
 
@@ -97,5 +96,3 @@ private:
 };
 
 } // namespace QmlJS
-
-#endif // QMLJSPLUGINDUMPER_H

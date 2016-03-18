@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef ANDROIDRUNCONFIGURATION_H
-#define ANDROIDRUNCONFIGURATION_H
+#pragma once
 
 #include "android_global.h"
 
@@ -47,5 +46,3 @@ protected:
 };
 
 } // namespace Android
-
-#endif // ANDROIDRUNCONFIGURATION_H

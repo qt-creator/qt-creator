@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CORE_PATCHTOOL_H
-#define CORE_PATCHTOOL_H
+#pragma once
 
 #include "coreplugin/core_global.h"
 
@@ -44,5 +43,3 @@ public:
 };
 
 } // namespace Core
-
-#endif // CORE_PATCHTOOL_H

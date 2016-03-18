@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef UTF8STRINGVECTOR_H
-#define UTF8STRINGVECTOR_H
+#pragma once
 
 #include "sqliteglobal.h"
 #include "utf8string.h"
@@ -69,5 +68,3 @@ SQLITE_EXPORT QDebug operator<<(QDebug debug, const Utf8StringVector &textVector
 SQLITE_EXPORT void PrintTo(const Utf8StringVector &textVector, ::std::ostream* os);
 
 Q_DECLARE_METATYPE(Utf8StringVector)
-
-#endif // UTF8STRINGVECTOR_H

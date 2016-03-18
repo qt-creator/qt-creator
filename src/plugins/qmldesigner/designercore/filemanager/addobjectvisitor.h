@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef ADDOBJECTVISITOR_H
-#define ADDOBJECTVISITOR_H
+#pragma once
 
 #include "qmlrewriter.h"
 
@@ -54,5 +53,3 @@ private:
 
 } // namespace Internal
 } // namespace QmlDesigner
-
-#endif // ADDOBJECTVISITOR_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QTSUPPORT_QTKITINFORMATION_H
-#define QTSUPPORT_QTKITINFORMATION_H
+#pragma once
 
 #include "qtsupport_global.h"
 
@@ -80,5 +79,3 @@ private slots:
 };
 
 } // namespace QtSupport
-
-#endif // QTSUPPORT_QTKITINFORMATION_H

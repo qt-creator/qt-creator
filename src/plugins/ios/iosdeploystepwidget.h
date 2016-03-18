@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef IOSDEPLOYSTEPWIDGET_H
-#define IOSDEPLOYSTEPWIDGET_H
+#pragma once
 
 #include <projectexplorer/buildstep.h>
 
@@ -54,5 +53,3 @@ private:
 
 } // namespace Internal
 } // namespace Ios
-
-#endif // IOSDEPLOYSTEPWIDGET_H

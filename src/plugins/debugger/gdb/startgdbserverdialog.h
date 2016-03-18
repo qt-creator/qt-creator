@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef STARTGDBSERVERDIALOG_H
-#define STARTGDBSERVERDIALOG_H
+#pragma once
 
 #include <QObject>
 
@@ -65,5 +64,3 @@ private:
 
 } // namespace Internal
 } // namespace Debugger
-
-#endif // STARTGDBSERVERDIALOG_H

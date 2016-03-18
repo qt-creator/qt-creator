@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef LOCATORFILTERSFILTER_H
-#define LOCATORFILTERSFILTER_H
+#pragma once
 
 #include "ilocatorfilter.h"
 
@@ -64,5 +63,3 @@ private:
 
 } // namespace Internal
 } // namespace Core
-
-#endif // LOCATORFILTERSFILTER_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef BYTEARRAYMODIFIER_H
-#define BYTEARRAYMODIFIER_H
+#pragma once
 
 #include <QPlainTextEdit>
 
@@ -50,5 +49,3 @@ private:
 };
 
 }
-
-#endif // BYTEARRAYMODIFIER_H

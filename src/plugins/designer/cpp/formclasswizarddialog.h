@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef FORMCLASSWIZARDDIALOG_H
-#define FORMCLASSWIZARDDIALOG_H
+#pragma once
 
 #include <coreplugin/basefilewizard.h>
 
@@ -66,5 +65,3 @@ private:
 
 } // namespace Internal
 } // namespace Designer
-
-#endif // FORMCLASSWIZARDDIALOG_H

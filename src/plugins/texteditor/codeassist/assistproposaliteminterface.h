@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef TEXTEDITOR_ASSISTPROPOSALITEMINTERFACE_H
-#define TEXTEDITOR_ASSISTPROPOSALITEMINTERFACE_H
+#pragma once
 
 #include "textdocumentmanipulatorinterface.h"
 
@@ -68,5 +67,3 @@ private:
 };
 
 } // namespace TextEditor
-
-#endif // TEXTEDITOR_ASSISTPROPOSALITEMINTERFACE_H

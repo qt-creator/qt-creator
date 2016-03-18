@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLJSICONTEXTPANE_H
-#define QMLJSICONTEXTPANE_H
+#pragma once
 
 #include <QObject>
 
@@ -55,5 +54,3 @@ signals:
 };
 
 } // namespace QmlJS
-
-#endif // QMLJSICONTEXTPANE_H

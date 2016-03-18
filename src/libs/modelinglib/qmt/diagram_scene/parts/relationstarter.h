@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_GRAPHICSRELATIONSTARTER_H
-#define QMT_GRAPHICSRELATIONSTARTER_H
+#pragma once
 
 #include <QGraphicsRectItem>
 
@@ -71,5 +70,3 @@ private:
 };
 
 } // namespace qmt
-
-#endif // QMT_GRAPHICSRELATIONSTARTER_H

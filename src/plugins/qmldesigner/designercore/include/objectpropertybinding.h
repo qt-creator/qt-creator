@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef OBJECTPROPERTYBINDING_H
-#define OBJECTPROPERTYBINDING_H
+#pragma once
 
 #include <modelnode.h>
 
@@ -47,5 +46,3 @@ private:
 } // namespace QmlDesigner
 
 Q_DECLARE_METATYPE(QmlDesigner::ObjectPropertyBinding);
-
-#endif // OBJECTPROPERTYBINDING_H

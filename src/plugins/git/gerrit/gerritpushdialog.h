@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef GERRITPUSHDIALOG_H
-#define GERRITPUSHDIALOG_H
+#pragma once
 
 #include <QDialog>
 #include <QMultiMap>
@@ -76,5 +75,3 @@ private:
 
 } // namespace Internal
 } // namespace Gerrit
-
-#endif // GERRITPUSHDIALOG_H

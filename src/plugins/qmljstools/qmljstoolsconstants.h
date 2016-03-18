@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLJSTOOLS_CONSTANTS_H
-#define QMLJSTOOLS_CONSTANTS_H
+#pragma once
 
 #include <QtGlobal>
 
@@ -52,5 +51,3 @@ const char SETTINGS_CATEGORY_QML_ICON[] = ":/qmljstools/images/category_qml.png"
 
 } // namespace Constants
 } // namespace QmlJSTools
-
-#endif // QMLJSTOOLS_CONSTANTS_H

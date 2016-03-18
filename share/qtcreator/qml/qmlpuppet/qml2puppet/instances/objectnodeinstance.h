@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef OBJECTNODEINSTANCE_H
-#define OBJECTNODEINSTANCE_H
+#pragma once
 
 #include "nodeinstanceserver.h"
 #include "nodeinstancesignalspy.h"
@@ -221,5 +220,3 @@ private:
 
 } // namespace Internal
 } // namespace QmlDesigner
-
-#endif // OBJECTNODEINSTANCE_H

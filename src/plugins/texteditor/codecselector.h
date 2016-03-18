@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CODECSELECTOR_H
-#define CODECSELECTOR_H
+#pragma once
 
 #include <QDialog>
 #include <QLabel>
@@ -70,5 +69,3 @@ private:
 
 } // namespace Internal
 } // namespace TextEditor
-
-#endif // CODECSELECTOR_H

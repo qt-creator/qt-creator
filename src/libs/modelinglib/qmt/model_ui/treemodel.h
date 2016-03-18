@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_TREEMODEL_H
-#define QMT_TREEMODEL_H
+#pragma once
 
 #include <QStandardItemModel>
 #include "qmt/infrastructure/qmt_global.h"
@@ -145,5 +144,3 @@ private:
 };
 
 } // namespace qmt
-
-#endif // QMT_TREEMODEL_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef ASSISTENUMS_H
-#define ASSISTENUMS_H
+#pragma once
 
 namespace TextEditor {
 
@@ -43,5 +42,3 @@ enum AssistReason
 };
 
 } // TextEditor
-
-#endif // ASSISTENUMS_H

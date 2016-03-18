@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef COLORPREVIEWHOVERHANDLER_H
-#define COLORPREVIEWHOVERHANDLER_H
+#pragma once
 
 #include "texteditor_global.h"
 #include "basehoverhandler.h"
@@ -50,5 +49,3 @@ private:
 };
 
 } // namespace TextEditor
-
-#endif // COLORPREVIEWHOVERHANDLER_H

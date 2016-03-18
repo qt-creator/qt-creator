@@ -24,8 +24,7 @@
 **
 ****************************************************************************/
 
-#ifndef TODOITEM_H
-#define TODOITEM_H
+#pragma once
 
 #include "constants.h"
 #include "todoicons.h"
@@ -94,5 +93,3 @@ private:
 } // namespace Todo
 
 Q_DECLARE_METATYPE(Todo::Internal::TodoItem)
-
-#endif // TODOITEM_H

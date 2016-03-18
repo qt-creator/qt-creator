@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLJSTOOLS_GLOBAL_H
-#define QMLJSTOOLS_GLOBAL_H
+#pragma once
 
 #include <QtGlobal>
 
@@ -35,5 +34,3 @@
 #else
 #  define QMLJSTOOLS_EXPORT Q_DECL_IMPORT
 #endif
-
-#endif // QMLJSTOOLS_GLOBAL_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef DESIGNERCONTEXT_H
-#define DESIGNERCONTEXT_H
+#pragma once
 
 #include <coreplugin/icontext.h>
 
@@ -43,5 +42,3 @@ public:
 
 } // namespace Internal
 } // namespace Designer
-
-#endif // DESIGNERCONTEXT_H

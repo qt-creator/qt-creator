@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef FORMWINDOWEDITOR_H
-#define FORMWINDOWEDITOR_H
+#pragma once
 
 #include "designer_export.h"
 #include <texteditor/texteditor.h>
@@ -60,5 +59,3 @@ public:
 };
 
 } // namespace Designer
-
-#endif // FORMWINDOWEDITOR_H

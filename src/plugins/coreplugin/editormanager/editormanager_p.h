@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef EDITORMANAGER_P_H
-#define EDITORMANAGER_P_H
+#pragma once
 
 #include "documentmodel.h"
 #include "editorarea.h"
@@ -259,5 +258,3 @@ private:
 
 } // Internal
 } // Core
-
-#endif // EDITORMANAGER_P_H

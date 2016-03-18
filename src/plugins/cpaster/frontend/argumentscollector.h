@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef ARGUMENTSCOLLECTOR_H
-#define ARGUMENTSCOLLECTOR_H
+#pragma once
 
 #include <QStringList>
 
@@ -56,5 +55,3 @@ private:
     QString m_protocol;
     QString m_errorString;
 };
-
-#endif // ARGUMENTSCOLLECTOR_H

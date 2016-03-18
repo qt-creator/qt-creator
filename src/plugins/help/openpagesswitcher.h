@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef OPENPAGESSWITCHER_H
-#define OPENPAGESSWITCHER_H
+#pragma once
 
 #include <QFrame>
 
@@ -68,5 +67,3 @@ private:
 
     }   // namespace Internal
 }   // namespace Help
-
-#endif  // OPENPAGESSWITCHER_H

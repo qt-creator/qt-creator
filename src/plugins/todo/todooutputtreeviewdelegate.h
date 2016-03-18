@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef TODO_INTERNAL_TODOOUTPUTTREEVIEWDELEGATE_H
-#define TODO_INTERNAL_TODOOUTPUTTREEVIEWDELEGATE_H
+#pragma once
 
 #include <QStyledItemDelegate>
 
@@ -41,5 +40,3 @@ public:
 
 } // namespace Internal
 } // namespace Todo
-
-#endif // TODO_INTERNAL_TODOOUTPUTTREEVIEWDELEGATE_H

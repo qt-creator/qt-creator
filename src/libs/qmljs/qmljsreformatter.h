@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLJSREFORMATTER_H
-#define QMLJSREFORMATTER_H
+#pragma once
 
 #include "qmljs_global.h"
 
@@ -33,5 +32,3 @@
 namespace QmlJS {
 QMLJS_EXPORT QString reformat(const Document::Ptr &doc);
 }
-
-#endif // QMLJSREFORMATTER_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef ITEMLIBRARYMODEL_H
-#define ITEMLIBRARYMODEL_H
+#pragma once
 
 #include <QMap>
 #include <QIcon>
@@ -96,5 +95,3 @@ private: // variables
 } // namespace QmlDesigner
 
 QML_DECLARE_TYPE(QmlDesigner::ItemLibraryModel)
-#endif // ITEMLIBRARYMODEL_H
-

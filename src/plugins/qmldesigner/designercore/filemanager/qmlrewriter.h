@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLREWRITER_H
-#define QMLREWRITER_H
+#pragma once
 
 #include "textmodifier.h"
 
@@ -92,5 +91,3 @@ private:
 
 } // namespace Internal
 } // namespace QmlDesigner
-
-#endif // QMLREWRITER_H

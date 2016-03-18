@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QLOGGER_H
-#define QLOGGER_H
+#pragma once
 
 #include <QString>
 #include <QStringList>
@@ -73,5 +72,3 @@ private:
     QTime *m_timer;
 
 };
-
-#endif // QLOGGER_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef ANDROIDDEVICE_H
-#define ANDROIDDEVICE_H
+#pragma once
 
 #include <projectexplorer/devicesupport/idevice.h>
 
@@ -58,5 +57,3 @@ protected:
 
 } // namespace Internal
 } // namespace Android
-
-#endif // ANDROIDDEVICE_H

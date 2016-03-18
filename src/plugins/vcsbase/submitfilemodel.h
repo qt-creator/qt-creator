@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SUBMITFILEMODEL_H
-#define SUBMITFILEMODEL_H
+#pragma once
 
 #include "vcsbase_global.h"
 
@@ -94,5 +93,3 @@ private:
 };
 
 } // namespace VcsBase
-
-#endif // SUBMITFILEMODEL_H

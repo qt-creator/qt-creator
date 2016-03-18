@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_MELEMENT_H
-#define QMT_MELEMENT_H
+#pragma once
 
 #include "qmt/infrastructure/uid.h"
 
@@ -91,5 +90,3 @@ private:
 Q_DECLARE_OPERATORS_FOR_FLAGS(MElement::Flags)
 
 } // namespace qmt
-
-#endif // QMT_MELEMENT_H

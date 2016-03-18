@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef LOCATORMANAGER_H
-#define LOCATORMANAGER_H
+#pragma once
 
 #include <coreplugin/core_global.h>
 
@@ -46,5 +45,3 @@ public:
 };
 
 } // namespace Core
-
-#endif // LOCATORMANAGER_H

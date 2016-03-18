@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef REMOTELINUXCUSTOMCOMMANDDEPLOYMENTSTEP_H
-#define REMOTELINUXCUSTOMCOMMANDDEPLOYMENTSTEP_H
+#pragma once
 
 #include "abstractremotelinuxdeploystep.h"
 #include "remotelinuxcustomcommanddeployservice.h"
@@ -87,5 +86,3 @@ private:
 };
 
 } // namespace RemoteLinux
-
-#endif // REMOTELINUXCUSTOMCOMMANDDEPLOYMENTSTEP_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef DEBUGGER_CONSOLEITEMDELEGATE_H
-#define DEBUGGER_CONSOLEITEMDELEGATE_H
+#pragma once
 
 #include "consoleitemmodel.h"
 #include "console.h"
@@ -173,5 +172,3 @@ public:
 
 } // namespace Internal
 } // namespace Debugger
-
-#endif // DEBUGGER_CONSOLEITEMDELEGATE_H

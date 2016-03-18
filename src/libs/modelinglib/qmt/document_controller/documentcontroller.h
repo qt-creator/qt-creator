@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_DOCUMENTCONTROLLER_H
-#define QMT_DOCUMENTCONTROLLER_H
+#pragma once
 
 #include <QObject>
 #include "qmt/infrastructure/qmt_global.h"
@@ -124,5 +123,3 @@ private:
 };
 
 } // namespace qmt
-
-#endif // QMT_DOCUMENTCONTROLLER_H

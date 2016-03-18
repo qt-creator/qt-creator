@@ -24,8 +24,7 @@
 **
 ****************************************************************************/
 
-#ifndef ANDROIDBUILDAPKWIDGET_H
-#define ANDROIDBUILDAPKWIDGET_H
+#pragma once
 
 #include "android_global.h"
 
@@ -76,5 +75,3 @@ private:
 };
 
 }
-
-#endif // ANDROIDBUILDAPKWIDGET_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef REMOTELINUX_CONSTANTS_H
-#define REMOTELINUX_CONSTANTS_H
+#pragma once
 
 namespace RemoteLinux {
 namespace Constants {
@@ -37,5 +36,3 @@ const char EMBEDDED_LINUX_QT[] = "RemoteLinux.EmbeddedLinuxQt";
 
 } // Constants
 } // RemoteLinux
-
-#endif // REMOTELINUX_CONSTANTS_H

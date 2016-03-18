@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef ITEMLIBRARYIMAGEPROVIDER_H
-#define ITEMLIBRARYIMAGEPROVIDER_H
+#pragma once
 
 #include <QQuickImageProvider>
 
@@ -43,5 +42,3 @@ public:
 }
 
 }
-
-#endif // ITEMLIBRARYIMAGEPROVIDER_H

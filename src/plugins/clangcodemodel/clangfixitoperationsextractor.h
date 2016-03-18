@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CLANGFIXITOPERATIONSEXTRACTOR_H
-#define CLANGFIXITOPERATIONSEXTRACTOR_H
+#pragma once
 
 #include <texteditor/quickfix.h>
 
@@ -52,5 +51,3 @@ private:
 };
 
 } // namespace ClangCodeModel
-
-#endif // CLANGFIXITOPERATIONSEXTRACTOR_H

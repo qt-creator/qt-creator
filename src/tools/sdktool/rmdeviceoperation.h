@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef RMDEVICEOPERATION_H
-#define RMDEVICEOPERATION_H
+#pragma once
 
 #include "operation.h"
 
@@ -50,5 +49,3 @@ public:
 private:
     QString m_id;
 };
-
-#endif // RMDEVICEOPERATION_H

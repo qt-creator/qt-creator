@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CHANGESTATECOMMAND_H
-#define CHANGESTATECOMMAND_H
+#pragma once
 
 #include <QMetaType>
 #include <QVector>
@@ -56,5 +55,3 @@ QDebug operator <<(QDebug debug, const ChangeStateCommand &command);
 } // namespace QmlDesigner
 
 Q_DECLARE_METATYPE(QmlDesigner::ChangeStateCommand)
-
-#endif // CHANGESTATECOMMAND_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CLANGBACKEND_IPCCLIENTDISPATCHER_H
-#define CLANGBACKEND_IPCCLIENTDISPATCHER_H
+#pragma once
 
 #include "ipcclientinterface.h"
 
@@ -51,5 +50,3 @@ private:
 };
 
 } // namespace ClangBackEnd
-
-#endif // CLANGBACKEND_IPCCLIENTDISPATCHER_H

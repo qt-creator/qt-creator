@@ -1,5 +1,4 @@
-#ifndef EXAMPLECONSTANTS_H
-#define EXAMPLECONSTANTS_H
+#pragma once
 
 namespace Example {
 namespace Constants {
@@ -9,6 +8,3 @@ const char MENU_ID[] = "Example.Menu";
 
 } // namespace Example
 } // namespace Constants
-
-#endif // EXAMPLECONSTANTS_H
-

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef GERRIT_INTERNAL_GERRITPLUGIN_H
-#define GERRIT_INTERNAL_GERRITPLUGIN_H
+#pragma once
 
 #include <utils/fileutils.h>
 
@@ -89,5 +88,3 @@ private:
 
 } // namespace Internal
 } // namespace Gerrit
-
-#endif // GERRIT_INTERNAL_GERRITPLUGIN_H

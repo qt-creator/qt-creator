@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef DESKTOPQTVERSIONFACTORY_H
-#define DESKTOPQTVERSIONFACTORY_H
+#pragma once
 
 #include "qtversionfactory.h"
 
@@ -46,5 +45,3 @@ public:
 
 } // Internal
 } // QtSupport
-
-#endif // DESKTOPQTVERSIONFACTORY_H

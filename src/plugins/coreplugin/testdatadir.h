@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef TESTDATADIR_H
-#define TESTDATADIR_H
+#pragma once
 
 #include "core_global.h"
 
@@ -57,5 +56,3 @@ private:
 
 } // namespace Tests
 } // namespace Core
-
-#endif // TESTDATADIR_H

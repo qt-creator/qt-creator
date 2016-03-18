@@ -37,8 +37,7 @@
 **
 ****************************************************************************/
 
-#ifndef XMIMEDATABASE_H
-#define XMIMEDATABASE_H
+#pragma once
 
 #include "mimetype.h"
 #include "mimemagicrule_p.h"
@@ -103,5 +102,3 @@ private:
 };
 
 } // Utils
-
-#endif   // MIMEDATABASE_H

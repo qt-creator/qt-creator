@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef FUTUREPROGRESS_H
-#define FUTUREPROGRESS_H
+#pragma once
 
 #include <coreplugin/core_global.h>
 
@@ -102,5 +101,3 @@ private:
 };
 
 } // namespace Core
-
-#endif // FUTUREPROGRESS_H

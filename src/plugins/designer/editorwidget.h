@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef DESIGNER_EDITORWIDGET_H
-#define DESIGNER_EDITORWIDGET_H
+#pragma once
 
 #include "designerconstants.h"
 
@@ -75,5 +74,3 @@ private:
 
 } // namespace Internal
 } // namespace Designer
-
-#endif // DESIGNER_EDITORWIDGET_H

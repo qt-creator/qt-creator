@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef INTERNALPROPERTY_H
-#define INTERNALPROPERTY_H
+#pragma once
 
 #include "qmldesignercorelib_global.h"
 
@@ -97,5 +96,3 @@ private:
 
 } // namespace Internal
 } // namespace QmlDesigner
-
-#endif // INTERNALPROPERTY_H

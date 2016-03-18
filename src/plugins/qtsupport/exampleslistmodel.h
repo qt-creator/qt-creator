@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef EXAMPLESLISTMODEL_H
-#define EXAMPLESLISTMODEL_H
+#pragma once
 
 #include <QAbstractListModel>
 #include <QSortFilterProxyModel>
@@ -236,7 +235,3 @@ private:
 
 } // namespace Internal
 } // namespace QtSupport
-
-#endif // EXAMPLESLISTMODEL_H
-
-

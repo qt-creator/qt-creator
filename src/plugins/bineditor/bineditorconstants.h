@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef BINEDITORCONSTANTS_H
-#define BINEDITORCONSTANTS_H
+#pragma once
 
 namespace BinEditor {
 namespace Constants {
@@ -35,5 +34,3 @@ const char C_BINEDITOR_MIMETYPE[] = "application/octet-stream";
 
 } // namespace Constants
 } // namespace BinEditor
-
-#endif // BINEDITORCONSTANTS_H

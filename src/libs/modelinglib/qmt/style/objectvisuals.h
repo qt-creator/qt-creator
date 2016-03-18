@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_OBJECTVISUALS_H
-#define QMT_OBJECTVISUALS_H
+#pragma once
 
 #include "qmt/diagram/dobject.h"
 
@@ -64,5 +63,3 @@ bool operator==(const ObjectVisuals &lhs, const ObjectVisuals &rhs);
 uint qHash(const ObjectVisuals &objectVisuals);
 
 } // namespace qmt
-
-#endif // QMT_OBJECTVISUALS_H

@@ -24,8 +24,7 @@
 **
 ****************************************************************************/
 
-#ifndef KEYWORD_H
-#define KEYWORD_H
+#pragma once
 
 #include "todoicons.h"
 
@@ -55,5 +54,3 @@ bool operator !=(Keyword &k1, Keyword &k2);
 
 } // namespace Internal
 } // namespace Todo
-
-#endif // KEYWORD_H

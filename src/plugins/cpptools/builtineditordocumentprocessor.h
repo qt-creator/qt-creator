@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef BUILTINEDITORDOCUMENTPROCESSOR_H
-#define BUILTINEDITORDOCUMENTPROCESSOR_H
+#pragma once
 
 #include "baseeditordocumentprocessor.h"
 #include "builtineditordocumentparser.h"
@@ -73,5 +72,3 @@ private:
 };
 
 } // namespace CppTools
-
-#endif // BUILTINEDITORDOCUMENTPROCESSOR_H

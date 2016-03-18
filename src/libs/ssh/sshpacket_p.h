@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SSHPACKET_P_H
-#define SSHPACKET_P_H
+#pragma once
 
 #include "sshexception_p.h"
 
@@ -139,5 +138,3 @@ protected:
 
 } // namespace Internal
 } // namespace QSsh
-
-#endif // SSHPACKET_P_H

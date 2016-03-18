@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef TIMELINEABSTRACTRENDERER_P_H
-#define TIMELINEABSTRACTRENDERER_P_H
+#pragma once
 
 #include "timelineabstractrenderer.h"
 
@@ -49,6 +48,3 @@ public:
 };
 
 }
-
-#endif // TIMELINEABSTRACTRENDERER_P_H
-

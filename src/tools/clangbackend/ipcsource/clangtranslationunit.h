@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CLANGBACKEND_TRANSLATIONUNIT_H
-#define CLANGBACKEND_TRANSLATIONUNIT_H
+#pragma once
 
 #include <utf8stringvector.h>
 
@@ -166,5 +165,3 @@ private:
 bool operator==(const TranslationUnit &first, const TranslationUnit &second);
 void PrintTo(const TranslationUnit &translationUnit, ::std::ostream *os);
 } // namespace ClangBackEnd
-
-#endif // CLANGBACKEND_TRANSLATIONUNIT_H

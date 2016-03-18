@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_DITEM_H
-#define QMT_DITEM_H
+#pragma once
 
 #include "dobject.h"
 
@@ -53,5 +52,3 @@ private:
 };
 
 } // namespace qmt
-
-#endif // QMT_DITEM_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef DEBUGGER_SNAPSHOTHANDLER_H
-#define DEBUGGER_SNAPSHOTHANDLER_H
+#pragma once
 
 #include <QAbstractTableModel>
 #include <QPointer>
@@ -79,5 +78,3 @@ private:
 
 } // namespace Internal
 } // namespace Debugger
-
-#endif // DEBUGGER_SNAPSHOTHANDLER_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef VALGRIND_CALLGRIND_CALLGRINDCALLMODEL_H
-#define VALGRIND_CALLGRIND_CALLGRINDCALLMODEL_H
+#pragma once
 
 #include <QAbstractItemModel>
 
@@ -86,5 +85,3 @@ private:
 
 } // namespace Callgrind
 } // namespace Valgrind
-
-#endif // VALGRIND_CALLGRIND_CALLGRINDCALLMODEL_H

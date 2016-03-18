@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CLANGBACKEND_TRANSLATIONUNITDOESNOTEXISTSMESSAGE_H
-#define CLANGBACKEND_TRANSLATIONUNITDOESNOTEXISTSMESSAGE_H
+#pragma once
 
 #include "filecontainer.h"
 
@@ -59,5 +58,3 @@ void PrintTo(const TranslationUnitDoesNotExistMessage &message, ::std::ostream* 
 
 DECLARE_MESSAGE(TranslationUnitDoesNotExistMessage)
 } // namespace ClangBackEnd
-
-#endif // CLANGBACKEND_TRANSLATIONUNITDOESNOTEXISTSMESSAGE_H

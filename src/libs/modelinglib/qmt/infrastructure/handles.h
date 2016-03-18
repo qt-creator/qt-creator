@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_HANDLES_H
-#define QMT_HANDLES_H
+#pragma once
 
 #include "handle.h"
 #include "qmt/infrastructure/qmtassert.h"
@@ -240,5 +239,3 @@ template<typename T>
 bool operator!=(const Handles<T> &lhs, const Handles<T> &rhs) { return !(lhs == rhs); }
 
 } // namespace qmt
-
-#endif // QMT_HANDLES_H

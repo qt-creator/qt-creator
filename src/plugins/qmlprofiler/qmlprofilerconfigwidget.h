@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLPROFILERCONFIGWIDGET_H
-#define QMLPROFILERCONFIGWIDGET_H
+#pragma once
 
 #include "qmlprofilersettings.h"
 #include <QWidget>
@@ -55,5 +54,3 @@ private:
 
 } // Internal
 } // QmlProfiler
-
-#endif // QMLPROFILERCONFIGWIDGET_H

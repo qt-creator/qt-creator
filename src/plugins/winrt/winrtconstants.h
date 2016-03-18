@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef WINRTCONSTANTS_H
-#define WINRTCONSTANTS_H
+#pragma once
 
 namespace WinRt {
 namespace Internal {
@@ -45,5 +44,3 @@ const char WINRT_RC_PREFIX[] = "WinRt.WinRtRunConfiguration:";
 } // Constants
 } // Internal
 } // WinRt
-
-#endif // WINRTCONSTANTS_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef IEXTERNALEDITOR_H
-#define IEXTERNALEDITOR_H
+#pragma once
 
 #include <coreplugin/core_global.h>
 
@@ -48,5 +47,3 @@ public:
 };
 
 } // namespace Core
-
-#endif // IEXTERNALEDITOR_H

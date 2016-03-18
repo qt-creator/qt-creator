@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLINSPECTORAGENT_H
-#define QMLINSPECTORAGENT_H
+#pragma once
 
 #include <QStack>
 #include <QPointer>
@@ -161,5 +160,3 @@ private:
 
 } // Internal
 } // Debugger
-
-#endif // QMLINSPECTORAGENT_H

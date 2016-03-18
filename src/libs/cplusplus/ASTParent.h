@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CPLUSPLUS_ASTPARENT_H
-#define CPLUSPLUS_ASTPARENT_H
+#pragma once
 
 #include <cplusplus/ASTVisitor.h>
 
@@ -56,5 +55,3 @@ private:
 };
 
 } // namespace CPlusPlus
-
-#endif // CPLUSPLUS_ASTPARENT_H

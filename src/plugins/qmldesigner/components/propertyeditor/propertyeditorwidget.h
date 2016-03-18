@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PROPERTYEDITORWIDGET_H
-#define PROPERTYEDITORWIDGET_H
+#pragma once
 
 #include <QStackedWidget>
 
@@ -46,5 +45,3 @@ protected:
 };
 
 } //QmlDesigner
-
-#endif //PROPERTYEDITORWIDGET_H

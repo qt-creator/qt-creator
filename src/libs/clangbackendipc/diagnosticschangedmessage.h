@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CLANGBACKEND_DIAGNOSTICSCHANGEDMESSAGE_H
-#define CLANGBACKEND_DIAGNOSTICSCHANGEDMESSAGE_H
+#pragma once
 
 #include "clangbackendipc_global.h"
 #include "diagnosticcontainer.h"
@@ -64,5 +63,3 @@ void PrintTo(const DiagnosticsChangedMessage &message, ::std::ostream* os);
 
 DECLARE_MESSAGE(DiagnosticsChangedMessage)
 } // namespace ClangBackEnd
-
-#endif // CLANGBACKEND_DIAGNOSTICSCHANGEDMESSAGE_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef BUILTININDEXINGSUPPORT_H
-#define BUILTININDEXINGSUPPORT_H
+#pragma once
 
 #include "cppindexingsupport.h"
 #include "cppmodelmanager.h"
@@ -53,5 +52,3 @@ private:
 
 } // namespace Internal
 } // namespace CppTools
-
-#endif // BUILTININDEXINGSUPPORT_H

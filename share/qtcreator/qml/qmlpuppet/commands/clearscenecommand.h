@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CLEARSCENECOMMAND_H
-#define CLEARSCENECOMMAND_H
+#pragma once
 
 #include <qmetatype.h>
 
@@ -44,5 +43,3 @@ QDebug operator <<(QDebug debug, const ClearSceneCommand &command);
 } // namespace QmlDesigner
 
 Q_DECLARE_METATYPE(QmlDesigner::ClearSceneCommand)
-
-#endif // CLEARSCENECOMMAND_H

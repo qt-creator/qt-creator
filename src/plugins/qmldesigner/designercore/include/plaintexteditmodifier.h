@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PLAINTEXTEDITMODIFIER_H
-#define PLAINTEXTEDITMODIFIER_H
+#pragma once
 
 #include "qmldesignercorelib_global.h"
 #include "textmodifier.h"
@@ -104,5 +103,3 @@ public:
 };
 
 }
-
-#endif // PLAINTEXTEDITMODIFIER_H

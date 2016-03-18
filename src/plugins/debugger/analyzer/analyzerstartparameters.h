@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef ANALYZERSTARTPARAMETERS_H
-#define ANALYZERSTARTPARAMETERS_H
+#pragma once
 
 #include <debugger/debugger_global.h>
 
@@ -47,5 +46,3 @@ public:
 DEBUGGER_EXPORT bool operator==(const AnalyzerConnection &c1, const AnalyzerConnection &c2);
 
 } // namespace Debugger
-
-#endif // ANALYZERSTARTPARAMETERS_H

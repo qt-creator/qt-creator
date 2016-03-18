@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_SELECTION_H
-#define QMT_SELECTION_H
+#pragma once
 
 #include "qmt/infrastructure/uid.h"
 
@@ -71,5 +70,3 @@ private:
 };
 
 } // namespace qmt
-
-#endif // QMT_SELECTION_H

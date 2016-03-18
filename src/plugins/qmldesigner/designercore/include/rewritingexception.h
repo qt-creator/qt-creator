@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef REWRITINGEXCEPTION_H
-#define REWRITINGEXCEPTION_H
+#pragma once
 
 #include "exception.h"
 
@@ -48,5 +47,3 @@ private:
 };
 
 } // namespace QmlDesigner
-
-#endif // REWRITINGEXCEPTION_H

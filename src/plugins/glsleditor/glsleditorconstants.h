@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef GLSLEDITOR_CONSTANTS_H
-#define GLSLEDITOR_CONSTANTS_H
+#pragma once
 
 #include <QtGlobal>
 
@@ -50,5 +49,3 @@ const char WIZARD_TR_CATEGORY_GLSL[] = QT_TRANSLATE_NOOP("GLSLEditor", "GLSL");
 
 } // namespace Constants
 } // namespace GlslEditor
-
-#endif // GLSLEDITOR_CONSTANTS_H

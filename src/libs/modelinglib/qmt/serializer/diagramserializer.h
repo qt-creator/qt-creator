@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_DIAGRAMSERIALIZER_H
-#define QMT_DIAGRAMSERIALIZER_H
+#pragma once
 
 #include "qmt/diagram/dannotation.h"
 #include "qmt/diagram/dobject.h"
@@ -41,5 +40,3 @@ QARK_SERIALIZE_ENUM(qmt::DClass::TemplateDisplay)
 QARK_SERIALIZE_ENUM(qmt::DAnnotation::VisualRole)
 
 } // namespace qark
-
-#endif // QMT_DIAGRAMSERIALIZER_H

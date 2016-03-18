@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef TREEVIEW_H
-#define TREEVIEW_H
+#pragma once
 
 #include "utils_global.h"
 
@@ -122,7 +121,4 @@ public:
     {}
 };
 
-
-}
-
-#endif // TREEVIEW_H
+} // Utils

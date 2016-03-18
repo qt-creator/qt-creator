@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef FILEICONPROVIDER_H
-#define FILEICONPROVIDER_H
+#pragma once
 
 #include <coreplugin/core_global.h>
 
@@ -51,5 +50,3 @@ CORE_EXPORT void registerIconOverlayForMimeType(const QIcon &icon, const char *m
 
 } // namespace FileIconProvider
 } // namespace Core
-
-#endif // FILEICONPROVIDER_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CLANGBACKEND_CHUNKSREPORTEDMONITOR_H
-#define CLANGBACKEND_CHUNKSREPORTEDMONITOR_H
+#pragma once
 
 #include <QObject>
 #include <QFuture>
@@ -54,5 +53,3 @@ private:
 };
 
 } // namespace ClangBackEnd
-
-#endif // CLANGBACKEND_CHUNKSREPORTEDMONITOR_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLJSSCANNER_H
-#define QMLJSSCANNER_H
+#pragma once
 
 #include <qmljs/qmljs_global.h>
 
@@ -100,5 +99,3 @@ private:
 };
 
 } // namespace QmlJS
-
-#endif // QMLJSSCANNER_H

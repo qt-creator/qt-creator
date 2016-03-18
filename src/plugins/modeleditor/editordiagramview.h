@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef EDITORDIAGRAMVIEW_H
-#define EDITORDIAGRAMVIEW_H
+#pragma once
 
 #include "qmt/diagram_widgets_ui/diagramview.h"
 
@@ -53,5 +52,3 @@ private:
 
 } // namespace Internal
 } // namespace ModelEditor
-
-#endif // EDITORDIAGRAMVIEW_H

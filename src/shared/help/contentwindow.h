@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CONTENTWINDOW_H
-#define CONTENTWINDOW_H
+#pragma once
 
 #include <QUrl>
 #include <QModelIndex>
@@ -66,5 +65,3 @@ private:
     int m_expandDepth;
     bool m_isOpenInNewPageActionVisible;
 };
-
-#endif // CONTENTWINDOW_H

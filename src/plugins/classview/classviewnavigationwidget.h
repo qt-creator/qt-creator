@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CLASSVIEWNAVIGATIONWIDGET_H
-#define CLASSVIEWNAVIGATIONWIDGET_H
+#pragma once
 
 #include "classviewtreeitemmodel.h"
 
@@ -90,5 +89,3 @@ private:
 
 } // namespace Internal
 } // namespace ClassView
-
-#endif // CLASSVIEWNAVIGATIONWIDGET_H

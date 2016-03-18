@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QNX_INTERNAL_QNXQTVERSION_H
-#define QNX_INTERNAL_QNXQTVERSION_H
+#pragma once
 
 #include "qnxconstants.h"
 #include "qnxqtversion.h"
@@ -88,5 +87,3 @@ private:
 
 } // namespace Internal
 } // namespace Qnx
-
-#endif // QNX_INTERNAL_QNXQTVERSION_H

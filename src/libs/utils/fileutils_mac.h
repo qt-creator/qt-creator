@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef FILEUTILS_MAC_H
-#define FILEUTILS_MAC_H
+#pragma once
 
 #include <QUrl>
 
@@ -36,6 +35,3 @@ QString normalizePathName(const QString &filePath);
 
 } // Internal
 } // Utils
-
-#endif // FILEUTILS_MAC_H
-

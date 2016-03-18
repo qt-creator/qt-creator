@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QmlAnchors_H
-#define QmlAnchors_H
+#pragma once
 
 #include <qmldesignercorelib_global.h>
 #include <qmlitemnode.h>
@@ -84,5 +83,3 @@ private:
 };
 
 } //QmlDesigner
-
-#endif // QmlAnchors_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef DEBUGGER_SOURCE_AGENT_H
-#define DEBUGGER_SOURCE_AGENT_H
+#pragma once
 
 #include <QString>
 
@@ -49,5 +48,3 @@ private:
 
 } // namespace Internal
 } // namespace Debugger
-
-#endif

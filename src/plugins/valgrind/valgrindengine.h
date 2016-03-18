@@ -24,8 +24,7 @@
 **
 ****************************************************************************/
 
-#ifndef VALGRINDENGINE_H
-#define VALGRINDENGINE_H
+#pragma once
 
 #include <debugger/analyzer/analyzerruncontrol.h>
 #include <utils/environment.h>
@@ -77,5 +76,3 @@ private:
 
 } // namespace Internal
 } // namespace Valgrind
-
-#endif // VALGRINDENGINE_H

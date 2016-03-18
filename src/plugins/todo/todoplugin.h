@@ -24,8 +24,7 @@
 **
 ****************************************************************************/
 
-#ifndef TODOPLUGIN_H
-#define TODOPLUGIN_H
+#pragma once
 
 #include "settings.h"
 
@@ -69,6 +68,3 @@ private:
 
 } // namespace Internal
 } // namespace Todo
-
-#endif // TODOPLUGIN_H
-

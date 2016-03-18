@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef BAREMETALDEVICECONFIGURATIONFACTORY_H
-#define BAREMETALDEVICECONFIGURATIONFACTORY_H
+#pragma once
 
 #include <projectexplorer/devicesupport/idevicefactory.h>
 
@@ -49,5 +48,3 @@ public:
 
 } // namespace Internal
 } // namespace BareMetal
-
-#endif // BAREMETALDEVICECONFIGURATIONFACTORY_H

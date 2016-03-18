@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef VALGRIND_CALLGRIND_CALLGRINDRUNNER_H
-#define VALGRIND_CALLGRIND_CALLGRINDRUNNER_H
+#pragma once
 
 #include "../valgrindrunner.h"
 
@@ -68,5 +67,3 @@ private:
 
 } // namespace Callgrind
 } // namespace Valgrind
-
-#endif // VALGRIND_CALLGRIND_CALLGRINDRUNNER_H

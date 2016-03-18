@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef AUTOTESTPLUGIN_H
-#define AUTOTESTPLUGIN_H
+#pragma once
 
 #include "autotest_global.h"
 
@@ -64,6 +63,3 @@ private:
 
 } // namespace Internal
 } // namespace Autotest
-
-#endif // AUTOTESTPLUGIN_H
-

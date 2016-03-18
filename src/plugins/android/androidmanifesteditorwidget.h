@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef ANDROIDMANIFESTEDITORWIDGET_H
-#define ANDROIDMANIFESTEDITORWIDGET_H
+#pragma once
 
 #include <texteditor/texteditor.h>
 
@@ -191,6 +190,3 @@ private:
 };
 } // namespace Internal
 } // namespace Android
-
-
-#endif // ANDROIDMANIFESTEDITORWIDGET_H

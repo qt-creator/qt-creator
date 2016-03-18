@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef BEAUTIFIER_UNCRUSTIFYSETTINGS_H
-#define BEAUTIFIER_UNCRUSTIFYSETTINGS_H
+#pragma once
 
 #include "../abstractsettings.h"
 
@@ -60,5 +59,3 @@ public:
 } // namespace Uncrustify
 } // namespace Internal
 } // namespace Beautifier
-
-#endif // BEAUTIFIER_UNCRUSTIFYSETTINGS_H

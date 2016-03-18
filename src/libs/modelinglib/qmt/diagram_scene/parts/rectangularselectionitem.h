@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_RECTENGULARSELECTIONITEM_H
-#define QMT_RECTENGULARSELECTIONITEM_H
+#pragma once
 
 #include <QGraphicsItem>
 #include <QVector>
@@ -114,5 +113,3 @@ private:
 };
 
 } // namespace qmt
-
-#endif // QMT_RECTENGULARSELECTIONITEM_H

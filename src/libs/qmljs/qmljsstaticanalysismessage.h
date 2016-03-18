@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLJS_STATICANALYSIS_QMLJSSTATICANALYSISMESSAGE_H
-#define QMLJS_STATICANALYSIS_QMLJSSTATICANALYSISMESSAGE_H
+#pragma once
 
 #include "qmljs_global.h"
 #include "qmljsconstants.h"
@@ -166,5 +165,3 @@ public:
 
 } // namespace StaticAnalysis
 } // namespace QmlJS
-
-#endif // QMLJS_STATICANALYSIS_QMLJSSTATICANALYSISMESSAGE_H

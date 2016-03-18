@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef GENERALSETTINGS_H
-#define GENERALSETTINGS_H
+#pragma once
 
 #include <coreplugin/dialogs/ioptionspage.h>
 #include <QPointer>
@@ -65,5 +64,3 @@ private:
 
 } // namespace Internal
 } // namespace Core
-
-#endif // GENERALSETTINGS_H

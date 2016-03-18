@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SSHCONNECTION_H
-#define SSHCONNECTION_H
+#pragma once
 
 #include "ssherrors.h"
 #include "sshhostkeydatabase.h"
@@ -141,5 +140,3 @@ private:
 };
 
 } // namespace QSsh
-
-#endif // SSHCONNECTION_H

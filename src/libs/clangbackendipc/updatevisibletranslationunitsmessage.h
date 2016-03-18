@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CLANGBACKEND_UPDATEVISIBLETRANSLATIONUNITSMESSAGE_H
-#define CLANGBACKEND_UPDATEVISIBLETRANSLATIONUNITSMESSAGE_H
+#pragma once
 
 #include <clangbackendipc_global.h>
 
@@ -59,5 +58,3 @@ void PrintTo(const UpdateVisibleTranslationUnitsMessage &message, ::std::ostream
 
 DECLARE_MESSAGE(UpdateVisibleTranslationUnitsMessage)
 } // namespace ClangBackEnd
-
-#endif // CLANGBACKEND_UPDATEVISIBLETRANSLATIONUNITSMESSAGE_H

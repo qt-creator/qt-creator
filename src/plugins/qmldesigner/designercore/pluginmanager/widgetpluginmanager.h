@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef WIDGETPLUGINMANAGER_H
-#define WIDGETPLUGINMANAGER_H
+#pragma once
 
 #include <QObject>
 #include <QList>
@@ -70,4 +69,3 @@ private:
 
 } // namespace Internal
 } // namespace QmlDesigner
-#endif // WIDGETPLUGINMANAGER_H

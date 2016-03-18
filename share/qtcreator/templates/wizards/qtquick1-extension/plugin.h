@@ -1,5 +1,4 @@
-#ifndef %ProjectName:h%_PLUGIN_H
-#define %ProjectName:h%_PLUGIN_H
+#pragma once
 
 #include <QDeclarativeExtensionPlugin>
 
@@ -13,5 +12,3 @@ class %ProjectName:s%Plugin : public QDeclarativeExtensionPlugin
 public:
     void registerTypes(const char *uri);
 };
-
-#endif // %ProjectName:h%_PLUGIN_H

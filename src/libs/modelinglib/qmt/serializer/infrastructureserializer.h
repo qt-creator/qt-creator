@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_INFRASTRUCTURESERIALIZER_H
-#define QMT_INFRASTRUCTURESERIALIZER_H
+#pragma once
 
 #include "qmt/infrastructure/handle.h"
 #include "qmt/infrastructure/handles.h"
@@ -75,5 +74,3 @@ inline void serialize(Archive &archive, qmt::Handles<T> &handles)
 }
 
 } // namespace qark
-
-#endif // QMT_INFRASTRUCTURESERIALIZER_H

@@ -24,8 +24,7 @@
 **
 ****************************************************************************/
 
-#ifndef LIBVALGRIND_PROTOCOL_PARSER_H
-#define LIBVALGRIND_PROTOCOL_PARSER_H
+#pragma once
 
 #include <QObject>
 
@@ -79,5 +78,3 @@ private:
 
 } // XmlProtocol
 } // Valgrind
-
-#endif //LIBVALGRIND_PROTOCOL_PARSER_H

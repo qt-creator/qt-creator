@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SETTINGSPAGE_H
-#define SETTINGSPAGE_H
+#pragma once
 
 #include "ui_settingspage.h"
 #include "updateinfoplugin.h"
@@ -66,5 +65,3 @@ private:
 
 } // namespace Internal
 } // namespace UpdateInfo
-
-#endif // SETTINGSPAGE_H

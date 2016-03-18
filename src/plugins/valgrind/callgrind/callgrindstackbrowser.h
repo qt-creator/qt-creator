@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CALLGRINDSTACKBROWSER_H
-#define CALLGRINDSTACKBROWSER_H
+#pragma once
 
 #include <QObject>
 #include <QStack>
@@ -61,5 +60,3 @@ private:
 
 } // namespace Callgrind
 } // namespace Valgrind
-
-#endif // CALLGRINDSTACKBROWSER_H

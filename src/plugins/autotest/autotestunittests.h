@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef AUTOTESTUNITTESTS_H
-#define AUTOTESTUNITTESTS_H
+#pragma once
 
 #include <QObject>
 #include <QTemporaryDir>
@@ -62,5 +61,3 @@ private:
 
 } // namespace Internal
 } // namespace Autotest
-
-#endif // AUTOTESTUNITTESTS_H

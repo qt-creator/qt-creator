@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CLANGBACKEND_ECHOIPCSERVER_H
-#define CLANGBACKEND_ECHOIPCSERVER_H
+#pragma once
 
 #include <ipcserverinterface.h>
 
@@ -52,5 +51,3 @@ private:
 };
 
 } // namespace ClangBackEnd
-
-#endif // CLANGBACKEND_ECHOIPCSERVER_H

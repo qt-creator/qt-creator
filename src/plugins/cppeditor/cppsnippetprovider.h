@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CPPSNIPPETPROVIDER_H
-#define CPPSNIPPETPROVIDER_H
+#pragma once
 
 #include <texteditor/snippets/isnippetprovider.h>
 
@@ -45,5 +44,3 @@ public:
 
 } // Internal
 } // CppEditor
-
-#endif // CPPSNIPPETPROVIDER_H

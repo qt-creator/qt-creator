@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CLANGCODEMODEL_INTERNAL_CLANGFUNCTIONHINTMODEL_H
-#define CLANGCODEMODEL_INTERNAL_CLANGFUNCTIONHINTMODEL_H
+#pragma once
 
 #include <codecompletion.h>
 
@@ -50,5 +49,3 @@ private:
 
 } // namespace Internal
 } // namespace ClangCodeModel
-
-#endif // CLANGCODEMODEL_INTERNAL_CLANGFUNCTIONHINTMODEL_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef MACROSPLUGIN_MACROOPTIONSWIDGET_H
-#define MACROSPLUGIN_MACROOPTIONSWIDGET_H
+#pragma once
 
 #include <QWidget>
 
@@ -73,5 +72,3 @@ private:
 
 } // namespace Internal
 } // namespace Macros
-
-#endif // MACROSPLUGIN_MACROOPTIONSWIDGET_H

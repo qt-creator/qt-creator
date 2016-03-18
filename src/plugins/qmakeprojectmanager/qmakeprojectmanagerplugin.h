@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMAKEPROJECTMANAGERPLUGIN_H
-#define QMAKEPROJECTMANAGERPLUGIN_H
+#pragma once
 
 #include <extensionsystem/iplugin.h>
 #include <coreplugin/icontext.h>
@@ -94,5 +93,3 @@ private:
 
 } // namespace Internal
 } // namespace QmakeProjectManager
-
-#endif // QMAKEPROJECTMANAGERPLUGIN_H

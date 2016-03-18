@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef EXTENSIONCONTEXT_H
-#define EXTENSIONCONTEXT_H
+#pragma once
 
 #include "common.h"
 #include "iinterfacepointer.h"
@@ -187,5 +186,3 @@ private:
     IInterfacePointer<CIDebugRegisters> m_registers;
     IInterfacePointer<CIDebugDataSpaces> m_dataSpaces;
 };
-
-#endif // EXTENSIONCONTEXT_H

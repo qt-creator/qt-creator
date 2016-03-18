@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef IOSPLUGIN_H
-#define IOSPLUGIN_H
+#pragma once
 
 #include <extensionsystem/iplugin.h>
 
@@ -45,5 +44,3 @@ private slots:
 };
 
 } // namespace Ios
-
-#endif // IOSPLUGIN_H

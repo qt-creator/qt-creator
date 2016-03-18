@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_RELATIONSTARTERSTYLE_H
-#define QMT_RELATIONSTARTERSTYLE_H
+#pragma once
 
 #include "style.h"
 
@@ -38,5 +37,3 @@ public:
 };
 
 } // namespace qmt
-
-#endif // QMT_RELATIONSTARTERSTYLE_H

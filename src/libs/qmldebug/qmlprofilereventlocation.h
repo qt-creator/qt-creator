@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLPROFILEREVENTLOCATION_H
-#define QMLPROFILEREVENTLOCATION_H
+#pragma once
 
 #include "qmldebug_global.h"
 
@@ -42,5 +41,3 @@ struct QMLDEBUG_EXPORT QmlEventLocation
 };
 
 }
-
-#endif // QMLPROFILEREVENTLOCATION_H

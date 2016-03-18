@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef REWRITEACTIONCOMPRESSOR_H
-#define REWRITEACTIONCOMPRESSOR_H
+#pragma once
 
 #include "rewriteaction.h"
 
@@ -54,5 +53,3 @@ private:
 
 } // namespace Internal
 } // namespace QmlDesigner
-
-#endif // REWRITEACTIONCOMPRESSOR_H

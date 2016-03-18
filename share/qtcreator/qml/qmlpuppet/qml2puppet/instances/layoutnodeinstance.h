@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef LAYOUTNODEINSTANCE_H
-#define LAYOUTNODEINSTANCE_H
+#pragma once
 
 #include "quickitemnodeinstance.h"
 
@@ -54,5 +53,3 @@ protected:
 
 } // namespace Internal
 } // namespace QmlDesigner
-
-#endif // LAYOUTNODEINSTANCE_H

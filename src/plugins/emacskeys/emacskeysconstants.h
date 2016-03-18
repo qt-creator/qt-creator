@@ -22,8 +22,7 @@
 **
 ****************************************************************************/
 
-#ifndef EMACSKEYSCONSTANTS_H
-#define EMACSKEYSCONSTANTS_H
+#pragma once
 
 namespace EmacsKeys {
 namespace Constants {
@@ -55,5 +54,3 @@ const char SCROLL_HALF_UP[]           = "EmacsKeys.ScrollHalfUp";
 
 } // namespace EmacsKeys
 } // namespace Constants
-
-#endif // EMACSKEYSCONSTANTS_H

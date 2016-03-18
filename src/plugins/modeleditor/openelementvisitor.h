@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef OPENELEMENTVISITOR_H
-#define OPENELEMENTVISITOR_H
+#pragma once
 
 #include "qmt/diagram/dconstvisitor.h"
 #include "qmt/model/mconstvisitor.h"
@@ -87,5 +86,3 @@ private:
 
 } // namespace Internal
 } // namespace ModelEditor
-
-#endif // OPENELEMENTVISITOR_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLPROFILERCLIENTMANAGER_H
-#define QMLPROFILERCLIENTMANAGER_H
+#pragma once
 
 #include "qmlprofilerstatemanager.h"
 #include <qmldebug/qmlprofilereventlocation.h>
@@ -97,5 +96,3 @@ private:
 
 }
 }
-
-#endif // QMLPROFILERCLIENTMANAGER_H

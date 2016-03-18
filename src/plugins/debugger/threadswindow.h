@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef THREADSWINDOW_H
-#define THREADSWINDOW_H
+#pragma once
 
 #include <utils/basetreeview.h>
 
@@ -45,5 +44,3 @@ private:
 
 } // namespace Internal
 } // namespace Debugger
-
-#endif // THREADSWINDOW_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef ANNOTATEDITEMDELEGATE_H
-#define ANNOTATEDITEMDELEGATE_H
+#pragma once
 
 #include "utils_global.h"
 
@@ -56,5 +55,3 @@ private:
 };
 
 } // Utils
-
-#endif // ANNOTATEDITEMDELEGATE_H

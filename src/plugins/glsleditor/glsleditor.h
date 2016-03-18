@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef GLSLEDITOR_H
-#define GLSLEDITOR_H
+#pragma once
 
 #include <texteditor/texteditor.h>
 
@@ -43,5 +42,3 @@ public:
 
 } // namespace Internal
 } // namespace GlslEditor
-
-#endif // GLSLEDITOR_H

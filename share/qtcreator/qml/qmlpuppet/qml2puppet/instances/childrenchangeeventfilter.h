@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CHILDRENCHANGEEVENTFILTER_H
-#define CHILDRENCHANGEEVENTFILTER_H
+#pragma once
 
 #include <QObject>
 
@@ -48,5 +47,3 @@ protected:
 
 } // namespace Internal
 } // namespace QmlDesigner
-
-#endif // CHILDRENCHANGEEVENTFILTER_H

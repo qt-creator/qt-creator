@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CONSOLEPROCESS_H
-#define CONSOLEPROCESS_H
+#pragma once
 
 #include "utils_global.h"
 
@@ -135,5 +134,3 @@ private:
 };
 
 } //namespace Utils
-
-#endif

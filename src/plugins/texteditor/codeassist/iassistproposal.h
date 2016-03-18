@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef IASSISTPROPOSAL_H
-#define IASSISTPROPOSAL_H
+#pragma once
 
 #include <texteditor/texteditor_global.h>
 
@@ -49,5 +48,3 @@ public:
 };
 
 } // TextEditor
-
-#endif // IASSISTPROPOSAL_H

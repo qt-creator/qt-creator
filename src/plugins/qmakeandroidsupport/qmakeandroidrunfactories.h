@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMAKE_ANDROIDRUNFACTORIES_H
-#define QMAKE_ANDROIDRUNFACTORIES_H
+#pragma once
 
 #include <android/androidrunfactories.h>
 #include <projectexplorer/runconfiguration.h>
@@ -70,5 +69,3 @@ private:
 
 } // namespace Internal
 } // namespace QmakeAndroidSupport
-
-#endif  // ANDROIDRUNFACTORIES_H

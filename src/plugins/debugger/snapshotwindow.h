@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef DEBUGGER_SNAPSHOTWINDOW_H
-#define DEBUGGER_SNAPSHOTWINDOW_H
+#pragma once
 
 #include <utils/basetreeview.h>
 
@@ -51,6 +50,3 @@ private:
 
 } // namespace Internal
 } // namespace Debugger
-
-#endif // DEBUGGER_SNAPSHOTWINDOW_H
-

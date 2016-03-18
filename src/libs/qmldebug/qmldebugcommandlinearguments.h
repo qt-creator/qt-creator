@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLDEBUGCOMMANDLINEARGUMENTS_H
-#define QMLDEBUGCOMMANDLINEARGUMENTS_H
+#pragma once
 
 #include <QString>
 
@@ -83,6 +82,3 @@ static inline QString qmlDebugLocalArguments(QmlDebugServicesPreset services, co
 }
 
 } // namespace QmlDebug
-
-#endif // QMLDEBUGCOMMANDLINEARGUMENTS_H
-

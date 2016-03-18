@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef ANDROIDQMAKEBUILDCONFIGURATIONFACTORY_H
-#define ANDROIDQMAKEBUILDCONFIGURATIONFACTORY_H
+#pragma once
 
 #include <qmakeprojectmanager/qmakebuildconfiguration.h>
 
@@ -65,6 +64,3 @@ private:
 
 } // namespace Internal
 } // namespace QmakeAndroidSupport
-
-
-#endif // ANDROIDQMAKEBUILDCONFIGURATIONFACTORY_H

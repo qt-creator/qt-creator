@@ -24,8 +24,7 @@
 **
 ****************************************************************************/
 
-#ifndef BAREMETAL_H
-#define BAREMETAL_H
+#pragma once
 
 #include <extensionsystem/iplugin.h>
 
@@ -47,5 +46,3 @@ public:
 
 } // namespace Internal
 } // namespace BareMetal
-
-#endif // BAREMETAL_H

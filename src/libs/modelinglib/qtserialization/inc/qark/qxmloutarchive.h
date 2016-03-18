@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QARK_QXMLOUTARCHIVE_H
-#define QARK_QXMLOUTARCHIVE_H
+#pragma once
 
 #include "archivebasics.h"
 #include "tag.h"
@@ -327,5 +326,3 @@ private:
 };
 
 } // namespace qark
-
-#endif // QARK_QXMLOUTARCHIVE_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef IOSDEVICE_H
-#define IOSDEVICE_H
+#pragma once
 
 #include "iostoolhandler.h"
 
@@ -116,5 +115,3 @@ IosDevice::ConstPtr device(ProjectExplorer::Kit *);
 } // namespace Internal
 
 } // namespace Ios
-
-#endif // IOSDEVICE_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef INVALIDIDEXCEPTION_H
-#define INVALIDIDEXCEPTION_H
+#pragma once
 
 #include "invalidargumentexception.h"
 
@@ -56,5 +55,3 @@ private:
 };
 
 }
-
-#endif // INVALIDIDEXCEPTION_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMAKE_GLOBAL_H
-#define QMAKE_GLOBAL_H
+#pragma once
 
 #include <qglobal.h>
 
@@ -50,6 +49,4 @@
 
 #ifdef PROEVALUATOR_FULL
 #  define PROEVALUATOR_DEBUG
-#endif
-
 #endif

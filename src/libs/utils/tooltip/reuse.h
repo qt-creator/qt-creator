@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef TOOLTIPREUSE_H
-#define TOOLTIPREUSE_H
+#pragma once
 
 #include <utils/hostosinfo.h>
 
@@ -54,5 +53,3 @@ inline QRect screenGeometry(const QPoint &pos, QWidget *w)
 
 } // namespace Internal
 } // namespace Utils
-
-#endif // TOOLTIPREUSE_H

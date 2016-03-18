@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef DEBUGGER_GDBENGINE_H
-#define DEBUGGER_GDBENGINE_H
+#pragma once
 
 #include <debugger/debuggerengine.h>
 
@@ -465,5 +464,3 @@ protected:
 } // namespace Debugger
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(Debugger::Internal::GdbEngine::GdbCommandFlags)
-
-#endif // DEBUGGER_GDBENGINE_H

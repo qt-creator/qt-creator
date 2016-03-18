@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLDESIGNER_VIEWMANAGER_H
-#define QMLDESIGNER_VIEWMANAGER_H
+#pragma once
 
 #include "abstractview.h"
 
@@ -107,5 +106,3 @@ private: // variables
 };
 
 } // namespace QmlDesigner
-
-#endif // QMLDESIGNER_VIEWMANAGER_H

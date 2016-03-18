@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef APP_VERSION_H
-#define APP_VERSION_H
+#pragma once
 
 namespace Core {
 namespace Constants {
@@ -76,5 +75,3 @@ const char * const IDE_COPY_SETTINGS_FROM_VARIANT_STR = \"Nokia\";
 
 } // Constants
 } // Core
-
-#endif //APP_VERSION_H

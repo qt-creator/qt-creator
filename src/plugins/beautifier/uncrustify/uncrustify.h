@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef BEAUTIFIER_UNCRUSTIFY_H
-#define BEAUTIFIER_UNCRUSTIFY_H
+#pragma once
 
 #include "../beautifierabstracttool.h"
 #include "../command.h"
@@ -67,5 +66,3 @@ private:
 } // namespace Uncrustify
 } // namespace Internal
 } // namespace Beautifier
-
-#endif // BEAUTIFIER_UNCRUSTIFY_H

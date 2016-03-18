@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef MESSAGEOUTPUTWINDOW_H
-#define MESSAGEOUTPUTWINDOW_H
+#pragma once
 
 #include "ioutputpane.h"
 
@@ -66,5 +65,3 @@ private:
 
 } // namespace Internal
 } // namespace Core
-
-#endif // MESSAGEOUTPUTWINDOW_H

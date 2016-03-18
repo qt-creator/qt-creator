@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_TOKEN_H
-#define QMT_TOKEN_H
+#pragma once
 
 #include "sourcepos.h"
 
@@ -70,5 +69,3 @@ private:
 };
 
 } // namespace qmt
-
-#endif // QMT_TOKEN_H

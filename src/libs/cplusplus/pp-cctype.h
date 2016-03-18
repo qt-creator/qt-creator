@@ -43,8 +43,7 @@
   CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef CPLUSPLUS_PP_CCTYPE_H
-#define CPLUSPLUS_PP_CCTYPE_H
+#pragma once
 
 #include <cplusplus/CPlusPlusForwardDeclarations.h>
 
@@ -65,5 +64,3 @@ inline bool CPLUSPLUS_EXPORT pp_isspace (int ch)
 { return std::isspace ((unsigned char) ch) != 0; }
 
 } // namespace CPlusPlus
-
-#endif // CPLUSPLUS_PP_CCTYPE_H

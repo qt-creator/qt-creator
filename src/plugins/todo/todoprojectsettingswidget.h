@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef TODO_INTERNAL_TODOPROJECTSETTINGSWIDGET_H
-#define TODO_INTERNAL_TODOPROJECTSETTINGSWIDGET_H
+#pragma once
 
 #include <QWidget>
 
@@ -73,4 +72,3 @@ private:
 
 } // namespace Internal
 } // namespace Todo
-#endif // TODO_INTERNAL_TODOPROJECTSETTINGSWIDGET_H

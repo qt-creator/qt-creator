@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef MEMORYUSAGEMODEL_H
-#define MEMORYUSAGEMODEL_H
+#pragma once
 
 #include "qmlprofiler/qmlprofilertimelinemodel.h"
 #include "qmlprofiler/qmlprofilerdatamodel.h"
@@ -81,5 +80,3 @@ private:
 
 } // namespace Internal
 } // namespace QmlProfilerExtension
-
-#endif // MEMORYUSAGEMODEL_H

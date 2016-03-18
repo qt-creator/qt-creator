@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLPROJECTENVIRONMENTASPECT_H
-#define QMLPROJECTENVIRONMENTASPECT_H
+#pragma once
 
 #include <projectexplorer/environmentaspect.h>
 
@@ -50,5 +49,3 @@ private:
 };
 
 } // namespace QmlProjectManager
-
-#endif // QMLPROJECTENVIRONMENTASPECT_H

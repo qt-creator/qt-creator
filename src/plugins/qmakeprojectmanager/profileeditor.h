@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PROFILEEDITOR_H
-#define PROFILEEDITOR_H
+#pragma once
 
 #include <texteditor/texteditor.h>
 
@@ -41,5 +40,3 @@ public:
 
 } // namespace Internal
 } // namespace QmakeProjectManager
-
-#endif // PROFILEEDITOR_H

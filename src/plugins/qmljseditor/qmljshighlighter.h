@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLJSHIGHLIGHTER_H
-#define QMLJSHIGHLIGHTER_H
+#pragma once
 
 #include "qmljseditor_global.h"
 
@@ -82,5 +81,3 @@ private:
 };
 
 } // namespace QmlJSEditor
-
-#endif // QMLJSHIGHLIGHTER_H

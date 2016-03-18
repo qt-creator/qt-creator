@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef DIFFEDITORPLUGIN_H
-#define DIFFEDITORPLUGIN_H
+#pragma once
 
 #include "diffeditor_global.h"
 
@@ -55,5 +54,3 @@ private slots:
 
 } // namespace Internal
 } // namespace DiffEditor
-
-#endif // DIFFEDITORPLUGIN_H

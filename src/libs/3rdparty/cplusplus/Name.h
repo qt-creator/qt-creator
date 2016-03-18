@@ -18,8 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#ifndef CPLUSPLUS_NAME_H
-#define CPLUSPLUS_NAME_H
+#pragma once
 
 #include "CPlusPlusForwardDeclarations.h"
 #include "Matcher.h"
@@ -73,6 +72,3 @@ protected: // for Matcher
 };
 
 } // namespace CPlusPlus
-
-
-#endif // CPLUSPLUS_NAME_H

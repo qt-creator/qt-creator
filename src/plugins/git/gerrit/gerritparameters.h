@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef GERRITPARAMETERS_H
-#define GERRITPARAMETERS_H
+#pragma once
 
 #include <QStringList>
 
@@ -63,5 +62,3 @@ inline bool operator!=(const GerritParameters &p1, const GerritParameters &p2)
 
 } // namespace Internal
 } // namespace Gerrit
-
-#endif // GERRITPARAMETERS_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_CONTAINER_H
-#define QMT_CONTAINER_H
+#pragma once
 
 #include <QList>
 
@@ -90,5 +89,3 @@ private:
 };
 
 } // namespace qmt
-
-#endif // QMT_CONTAINER_H

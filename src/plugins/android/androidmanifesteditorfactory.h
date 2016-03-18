@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef ANDROIDMANIFESTEDITORFACTORY_H
-#define ANDROIDMANIFESTEDITORFACTORY_H
+#pragma once
 
 #include <coreplugin/editormanager/ieditorfactory.h>
 
@@ -43,5 +42,3 @@ public:
 
 } // namespace Internal
 } // namespace Android
-
-#endif // ANDROIDMANIFESTEDITORFACTORY_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef EXECMENU_H
-#define EXECMENU_H
+#pragma once
 
 #include "utils_global.h"
 
@@ -39,5 +38,3 @@ namespace Utils {
 QTCREATOR_UTILS_EXPORT QAction *execMenuAtWidget(QMenu *menu, QWidget *widget);
 
 } // namespace Utils
-
-#endif // EXECMENU_H

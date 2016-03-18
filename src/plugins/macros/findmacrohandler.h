@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef FINDMACROHANDLER_H
-#define FINDMACROHANDLER_H
+#pragma once
 
 #include "imacrohandler.h"
 
@@ -61,5 +60,3 @@ private slots:
 
 } // namespace Internal
 } // namespace Macros
-
-#endif // FINDMACROHANDLER_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef ACTIONCONTAINER_P_H
-#define ACTIONCONTAINER_P_H
+#pragma once
 
 #include "actionmanager_p.h"
 
@@ -141,5 +140,3 @@ private:
 
 } // namespace Internal
 } // namespace Core
-
-#endif // ACTIONCONTAINER_P_H

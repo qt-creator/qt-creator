@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef MACROSPLUGIN_MACRO_H
-#define MACROSPLUGIN_MACRO_H
+#pragma once
 
 #include <QList>
 #include <QString>
@@ -69,5 +68,3 @@ private:
 
 } // namespace Internal
 } // namespace Macros
-
-#endif // MACROSPLUGIN_MACRO_H

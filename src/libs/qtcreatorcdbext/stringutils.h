@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef STRINGUTILS_H
-#define STRINGUTILS_H
+#pragma once
 
 #include <string>
 #include <sstream>
@@ -222,5 +221,3 @@ void formatGdbmiHash(std::ostream &os, const std::map<std::string, std::string> 
 
 // Hex encoding helpers
 void hexEncode(std::ostream &str, const unsigned char *source, size_t sourcelen);
-
-#endif // STRINGUTILS_H

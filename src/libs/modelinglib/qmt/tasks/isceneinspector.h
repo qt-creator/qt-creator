@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_ISCENEINSPECTOR_H
-#define QMT_ISCENEINSPECTOR_H
+#pragma once
 
 #include <QtGlobal>
 
@@ -51,5 +50,3 @@ public:
 };
 
 } // namespace qmt
-
-#endif // QMT_ISCENEINSPECTOR_H

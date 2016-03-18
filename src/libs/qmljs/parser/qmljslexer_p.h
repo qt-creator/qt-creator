@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLJSLEXER_P_H
-#define QMLJSLEXER_P_H
+#pragma once
 
 //
 //  W A R N I N G
@@ -233,5 +232,3 @@ private:
 } // end of namespace QmlJS
 
 QT_QML_END_NAMESPACE
-
-#endif // LEXER_H

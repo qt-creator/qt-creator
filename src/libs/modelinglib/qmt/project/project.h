@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_PROJECT_H
-#define QMT_PROJECT_H
+#pragma once
 
 #include "qmt/infrastructure/uid.h"
 
@@ -58,5 +57,3 @@ private:
 };
 
 } // namespace qmt
-
-#endif // QMT_PROJECT_H

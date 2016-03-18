@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef BEHAVIORSETTINGSPAGE_H
-#define BEHAVIORSETTINGSPAGE_H
+#pragma once
 
 #include "texteditor_global.h"
 
@@ -90,5 +89,3 @@ private:
 };
 
 } // namespace TextEditor
-
-#endif // BEHAVIORSETTINGSPAGE_H

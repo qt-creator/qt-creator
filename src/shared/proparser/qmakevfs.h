@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMAKEVFS_H
-#define QMAKEVFS_H
+#pragma once
 
 #include "qmake_global.h"
 
@@ -65,5 +64,3 @@ private:
 };
 
 QT_END_NAMESPACE
-
-#endif // QMAKEVFS_H

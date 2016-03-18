@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef FILEUTILS_H
-#define FILEUTILS_H
+#pragma once
 
 #include "utils_global.h"
 
@@ -207,5 +206,3 @@ QTCREATOR_UTILS_EXPORT uint qHash(const Utils::FileName &a);
 QT_END_NAMESPACE
 
 Q_DECLARE_METATYPE(Utils::FileName)
-
-#endif // FILEUTILS_H

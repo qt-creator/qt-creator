@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef STYLEHELPER_H
-#define STYLEHELPER_H
+#pragma once
 
 #include "utils_global.h"
 
@@ -100,4 +99,3 @@ private:
 };
 
 } // namespace Utils
-#endif // STYLEHELPER_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef HIGHLIGHTDEFINITIONMETADATA_H
-#define HIGHLIGHTDEFINITIONMETADATA_H
+#pragma once
 
 #include <QSharedPointer>
 #include <QStringList>
@@ -53,5 +52,3 @@ typedef QSharedPointer<HighlightDefinitionMetaData> DefinitionMetaDataPtr;
 
 } // namespace Internal
 } // namespace TextEditor
-
-#endif // HIGHLIGHTDEFINITIONMETADATA_H

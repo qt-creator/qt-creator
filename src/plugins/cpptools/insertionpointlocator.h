@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef INSERTIONPOINTLOCATOR_H
-#define INSERTIONPOINTLOCATOR_H
+#pragma once
 
 #include "cpptools_global.h"
 #include "cpprefactoringchanges.h"
@@ -103,5 +102,3 @@ private:
 };
 
 } // namespace CppTools
-
-#endif // INSERTIONPOINTLOCATOR_H

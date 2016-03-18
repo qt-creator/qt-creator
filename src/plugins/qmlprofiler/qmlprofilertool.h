@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLPROFILERTOOL_H
-#define QMLPROFILERTOOL_H
+#pragma once
 
 #include "qmlprofiler_global.h"
 #include "qmlprofilerconstants.h"
@@ -111,5 +110,3 @@ private:
 
 } // namespace Internal
 } // namespace QmlProfiler
-
-#endif // QMLPROFILERTOOL_H

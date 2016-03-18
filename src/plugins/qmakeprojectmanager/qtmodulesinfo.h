@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QTMODULESINFO_H
-#define QTMODULESINFO_H
+#pragma once
 
 #include <QStringList>
 
@@ -42,5 +41,3 @@ public:
 
 } // namespace Internal
 } // namespace QmakeProjectManager
-
-#endif // QTMODULESINFO_H

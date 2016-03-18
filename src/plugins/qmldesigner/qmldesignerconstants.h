@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLDESIGNERCONSTANTS_H
-#define QMLDESIGNERCONSTANTS_H
+#pragma once
 
 namespace QmlDesigner {
 namespace Constants {
@@ -55,5 +54,3 @@ namespace Internal {
 
 } // Constants
 } // QmlDesigner
-
-#endif //QMLDESIGNERCONSTANTS_H

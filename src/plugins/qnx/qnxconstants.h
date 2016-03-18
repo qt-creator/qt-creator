@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QNX_QNXCONSTANTS_H
-#define QNX_QNXCONSTANTS_H
+#pragma once
 
 #include <QtGlobal>
 
@@ -67,5 +66,3 @@ const char QNX_DEBUGGING_GROUP[] = "Debugger.Group.Qnx";
 
 } // namespace Constants
 } // namespace Qnx
-
-#endif // QNX_QNXCONSTANTS_H

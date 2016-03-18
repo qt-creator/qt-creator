@@ -1,7 +1,3 @@
-#ifndef TRANSLATIONUNITS_H
-#define TRANSLATIONUNITS_H
+#pragma once
 
 void FunctionInIncludedHeader();
-
-#endif // TRANSLATIONUNITS_H
-

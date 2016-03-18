@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SETTINGS_H
-#define SETTINGS_H
+#pragma once
 
 #include <QObject>
 
@@ -56,5 +55,3 @@ public:
 
 } // namespace Internal
 } // namespace ModelEditor
-
-#endif // SETTINGS_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QBSPROJECTPARSER_H
-#define QBSPROJECTPARSER_H
+#pragma once
 
 #include <utils/environment.h>
 
@@ -82,5 +81,3 @@ private:
 
 } // namespace Internal
 } // namespace QbsProjectManager
-
-#endif // QBSPROJECTPARSER_H

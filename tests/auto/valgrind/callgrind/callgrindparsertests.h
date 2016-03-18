@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CALLGRINDPARSERTESTS_H
-#define CALLGRINDPARSERTESTS_H
+#pragma once
 
 #include <QObject>
 #include <QPair>
@@ -54,5 +53,3 @@ private Q_SLOTS:
 
     void testRecursion();
 };
-
-#endif // CALLGRINDPARSERTESTS_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef IDOCUMENTFACTORY_H
-#define IDOCUMENTFACTORY_H
+#pragma once
 
 #include "id.h"
 
@@ -62,5 +61,3 @@ private:
 };
 
 } // namespace Core
-
-#endif // IDOCUMENTFACTORY_H

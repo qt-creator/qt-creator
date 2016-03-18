@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CLANGCODEMODEL_INTERNAL_CLANGCOMPLETIONASSISTPROVIDER_H
-#define CLANGCODEMODEL_INTERNAL_CLANGCOMPLETIONASSISTPROVIDER_H
+#pragma once
 
 #include "clangbackendipcintegration.h"
 
@@ -58,5 +57,3 @@ private:
 
 } // namespace Internal
 } // namespace ClangCodeModel
-
-#endif // CLANGCODEMODEL_INTERNAL_CLANGCOMPLETIONASSISTPROVIDER_H

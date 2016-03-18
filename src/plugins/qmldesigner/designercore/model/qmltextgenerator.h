@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLTEXTGENERATOR_H
-#define QMLTEXTGENERATOR_H
+#pragma once
 
 #include <QString>
 
@@ -60,5 +59,3 @@ private:
 
 } // namespace Internal
 } // namespace QmlDesigner
-
-#endif // QMLTEXTGENERATOR_H

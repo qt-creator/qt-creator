@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef DESIGNERACTIONMANAGER_H
-#define DESIGNERACTIONMANAGER_H
+#pragma once
 
 #include <qmldesignercorelib_global.h>
 #include "actioninterface.h"
@@ -51,5 +50,3 @@ private:
 };
 
 } //QmlDesigner
-
-#endif //DESIGNERACTIONMANAGER_H

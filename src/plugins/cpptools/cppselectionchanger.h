@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CPPSELECTIONCHANGER_H
-#define CPPSELECTIONCHANGER_H
+#pragma once
 
 #include "cpptools_global.h"
 
@@ -124,5 +123,3 @@ private:
 };
 
 } // namespace CppTools
-
-#endif // CPPSELECTIONCHANGER_H

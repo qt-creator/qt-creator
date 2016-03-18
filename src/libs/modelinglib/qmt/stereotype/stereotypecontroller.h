@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_STEREOTYPECONTROLLER_H
-#define QMT_STEREOTYPECONTROLLER_H
+#pragma once
 
 #include <QObject>
 
@@ -67,5 +66,3 @@ private:
 };
 
 } // namespace qmt
-
-#endif // QMT_STEREOTYPECONTROLLER_H

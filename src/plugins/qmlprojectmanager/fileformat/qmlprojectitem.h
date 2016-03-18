@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLPROJECTITEM_H
-#define QMLPROJECTITEM_H
+#pragma once
 
 #include <QObject>
 #include <QSet>
@@ -80,5 +79,3 @@ protected:
 };
 
 } // namespace QmlProjectManager
-
-#endif // QMLPROJECTITEM_H

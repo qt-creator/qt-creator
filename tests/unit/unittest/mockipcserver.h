@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef MOCKIPCSERVER_H
-#define MOCKIPCSERVER_H
+#pragma once
 
 #include <ipcserverinterface.h>
 
@@ -60,6 +59,3 @@ public:
     MOCK_METHOD1(updateVisibleTranslationUnits,
                  void(const ClangBackEnd::UpdateVisibleTranslationUnitsMessage &message));
 };
-
-#endif // MOCKIPCSERVER_H
-

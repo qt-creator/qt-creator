@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef DEBUGGERCONSTANTS_H
-#define DEBUGGERCONSTANTS_H
+#pragma once
 
 #include <QFlags>
 
@@ -213,5 +212,3 @@ enum DebuggerLanguage
 Q_DECLARE_FLAGS(DebuggerLanguages, DebuggerLanguage)
 
 } // namespace Debugger
-
-#endif // DEBUGGERCONSTANTS_H

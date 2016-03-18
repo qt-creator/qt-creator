@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef DESIGNER_SETTINGSPAGE_H
-#define DESIGNER_SETTINGSPAGE_H
+#pragma once
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
@@ -73,5 +72,3 @@ private:
 
 } // namespace Internal
 } // namespace Designer
-
-#endif // DESIGNER_SETTINGSPAGE_H

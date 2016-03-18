@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef REMOTELINUXDEPLOYCONFIGURATION_H
-#define REMOTELINUXDEPLOYCONFIGURATION_H
+#pragma once
 
 #include "remotelinux_export.h"
 
@@ -64,5 +63,3 @@ private:
 };
 
 } // namespace RemoteLinux
-
-#endif // REMOTELINUXDEPLOYCONFIGURATION_H

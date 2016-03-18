@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QPACKETPROTOCOL_H
-#define QPACKETPROTOCOL_H
+#pragma once
 
 #include "qmldebug_global.h"
 
@@ -72,5 +71,3 @@ private:
 };
 
 } // QmlDebug
-
-#endif

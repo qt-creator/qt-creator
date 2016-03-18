@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QQMLERROR_H
-#define QQMLERROR_H
+#pragma once
 
 
 
@@ -66,5 +65,3 @@ QDebug operator<<(QDebug debug, const QmlError &error);
 Q_DECLARE_TYPEINFO(QmlError, Q_MOVABLE_TYPE);
 
 QT_END_NAMESPACE
-
-#endif // QQMLERROR_H

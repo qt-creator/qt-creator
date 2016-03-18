@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLPROFILERATTACHDIALOG_H
-#define QMLPROFILERATTACHDIALOG_H
+#pragma once
 
 #include <QDialog>
 
@@ -55,5 +54,3 @@ private:
 
 } // namespace Internal
 } // namespace QmlProfiler
-
-#endif // QMLPROFILERATTACHDIALOG_H

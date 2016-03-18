@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef ICONTEXT_H
-#define ICONTEXT_H
+#pragma once
 
 #include <coreplugin/core_global.h>
 #include <coreplugin/id.h>
@@ -85,5 +84,3 @@ protected:
 };
 
 } // namespace Core
-
-#endif //ICONTEXT_H

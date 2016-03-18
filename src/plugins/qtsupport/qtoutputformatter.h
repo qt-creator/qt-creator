@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QTOUTPUTFORMATTER_H
-#define QTOUTPUTFORMATTER_H
+#pragma once
 
 #include "qtsupport_global.h"
 
@@ -83,5 +82,3 @@ private:
 
 
 } // namespace QtSupport
-
-#endif // QTOUTPUTFORMATTER_H

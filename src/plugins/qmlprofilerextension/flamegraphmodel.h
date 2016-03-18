@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLPROFILEREVENTSMODEL_H
-#define QMLPROFILEREVENTSMODEL_H
+#pragma once
 
 #include <qmlprofiler/qmlprofilerdatamodel.h>
 #include <qmlprofiler/qmlprofilernotesmodel.h>
@@ -110,5 +109,3 @@ private:
 
 } // namespace Internal
 } // namespace QmlprofilerExtension
-
-#endif // QMLPROFILEREVENTSMODEL_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef OPENEDITORSVIEW_H
-#define OPENEDITORSVIEW_H
+#pragma once
 
 #include <coreplugin/inavigationwidgetfactory.h>
 #include <coreplugin/opendocumentstreeview.h>
@@ -94,6 +93,3 @@ public:
 
 } // namespace Internal
 } // namespace Core
-
-
-#endif // OPENEDITORSVIEW_H

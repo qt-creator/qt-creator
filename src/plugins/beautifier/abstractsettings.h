@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef BEAUTIFIER_ABSTRACTSETTINGS_H
-#define BEAUTIFIER_ABSTRACTSETTINGS_H
+#pragma once
 
 #include <QCoreApplication>
 #include <QDir>
@@ -89,5 +88,3 @@ private:
 
 } // namespace Internal
 } // namespace Beautifier
-
-#endif // BEAUTIFIER_ABSTRACTSETTINGS_H

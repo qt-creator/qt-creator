@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SSHREMOTEPROCESS_P_H
-#define SSHREMOTEPROCESS_P_H
+#pragma once
 
 #include "sshpseudoterminal.h"
 
@@ -102,5 +101,3 @@ private:
 
 } // namespace Internal
 } // namespace QSsh
-
-#endif // SSHREMOTEPROCESS_P_H

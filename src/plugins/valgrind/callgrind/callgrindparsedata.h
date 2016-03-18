@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef LIBVALGRIND_CALLGRIND_PARSEDATA_P_H
-#define LIBVALGRIND_CALLGRIND_PARSEDATA_P_H
+#pragma once
 
 #include <QtGlobal>
 
@@ -135,5 +134,3 @@ private:
 
 } // namespace Callgrind
 } // namespace Valgrind
-
-#endif // LIBVALGRIND_CALLGRIND_PARSEDATA_P_H

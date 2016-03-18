@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CHECKABLEMESSAGEBOX_H
-#define CHECKABLEMESSAGEBOX_H
+#pragma once
 
 #include "utils_global.h"
 
@@ -130,5 +129,3 @@ private:
 };
 
 } // namespace Utils
-
-#endif // CHECKABLEMESSAGEBOX_H

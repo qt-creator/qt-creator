@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef LOCATORWIDGET_H
-#define LOCATORWIDGET_H
+#pragma once
 
 #include "locator.h"
 
@@ -100,5 +99,3 @@ private:
 
 } // namespace Internal
 } // namespace Core
-
-#endif // LOCATORWIDGET_H

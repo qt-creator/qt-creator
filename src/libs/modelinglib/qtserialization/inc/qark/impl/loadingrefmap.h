@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QARK_LOADINGREFMAP_H
-#define QARK_LOADINGREFMAP_H
+#pragma once
 
 #include "objectid.h"
 
@@ -63,5 +62,3 @@ private:
 
 } // namespace impl
 } // namespace qark
-
-#endif // QARK_LOADINGREFMAP_H

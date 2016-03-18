@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef JAVAPARSER_H
-#define JAVAPARSER_H
+#pragma once
 
 #include <projectexplorer/ioutputparser.h>
 #include <utils/fileutils.h>
@@ -56,5 +55,3 @@ private:
 
 } // namespace Internal
 } // namespace Android
-
-#endif // JAVAPARSER_H

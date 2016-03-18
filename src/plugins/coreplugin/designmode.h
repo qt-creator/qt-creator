@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef DESIGNMODE_H
-#define DESIGNMODE_H
+#pragma once
 
 #include <coreplugin/imode.h>
 
@@ -77,5 +76,3 @@ private:
 };
 
 } // namespace Core
-
-#endif // DESIGNMODE_H

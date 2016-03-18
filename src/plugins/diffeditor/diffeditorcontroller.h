@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef DIFFEDITORCONTROLLER_H
-#define DIFFEDITORCONTROLLER_H
+#pragma once
 
 #include "diffeditor_global.h"
 #include "diffutils.h"
@@ -96,5 +95,3 @@ private:
 };
 
 } // namespace DiffEditor
-
-#endif // DIFFEDITORCONTROLLER_H

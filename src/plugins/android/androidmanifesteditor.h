@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef ANDROIDMANIFESTEDITOR_H
-#define ANDROIDMANIFESTEDITOR_H
+#pragma once
 
 #include "androidmanifestdocument.h"
 #include "androidmanifesteditorwidget.h"
@@ -69,5 +68,3 @@ private:
 
 } // namespace Internal
 } // namespace Android
-
-#endif // ANDROIDMANIFESTEDITOR_H

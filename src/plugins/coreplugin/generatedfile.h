@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CORE_GENERATEDFILE_H
-#define CORE_GENERATEDFILE_H
+#pragma once
 
 #include "coreplugin/id.h"
 
@@ -88,5 +87,3 @@ private:
 typedef QList<GeneratedFile> GeneratedFiles;
 
 } // namespace Core
-
-#endif // CORE_GENERATEDFILE_H

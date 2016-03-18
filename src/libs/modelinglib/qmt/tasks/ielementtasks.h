@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_IELEMENTTASKS_H
-#define QMT_IELEMENTTASKS_H
+#pragma once
 
 namespace qmt {
 
@@ -77,5 +76,3 @@ public:
 };
 
 } // namespace qmt
-
-#endif // QMT_IELEMENTTASKS_H

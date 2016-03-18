@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef DEBUGGER_WATCHDATA_H
-#define DEBUGGER_WATCHDATA_H
+#pragma once
 
 #include "debuggerprotocol.h"
 
@@ -129,5 +128,3 @@ private:
 
 } // namespace Internal
 } // namespace Debugger
-
-#endif // DEBUGGER_WATCHDATA_H

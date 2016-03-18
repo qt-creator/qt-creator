@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef FONTSETTINGSPAGE_H
-#define FONTSETTINGSPAGE_H
+#pragma once
 
 #include "texteditor_global.h"
 
@@ -152,5 +151,3 @@ private:
 };
 
 } // namespace TextEditor
-
-#endif // FONTSETTINGSPAGE_H

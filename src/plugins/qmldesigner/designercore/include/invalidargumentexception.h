@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef INVALIDARGUMENTEXCEPTION_H
-#define INVALIDARGUMENTEXCEPTION_H
+#pragma once
 
 #include "exception.h"
 
@@ -48,5 +47,3 @@ private:
 };
 
 }
-
-#endif // INVALIDARGUMENTEXCEPTION_H

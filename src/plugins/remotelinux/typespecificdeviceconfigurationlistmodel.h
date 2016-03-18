@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef TYPESPECIFICDEVICECONFIGURATIONLISTMODEL_H
-#define TYPESPECIFICDEVICECONFIGURATIONLISTMODEL_H
+#pragma once
 
 #include <projectexplorer/devicesupport/idevice.h>
 
@@ -56,5 +55,3 @@ private:
 
 } // namespace Internal
 } // namespace RemoteLinux
-
-#endif // TYPESPECIFICDEVICECONFIGURATIONLISTMODEL_H

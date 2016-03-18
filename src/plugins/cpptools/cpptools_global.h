@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CPPTOOLS_GLOBAL_H
-#define CPPTOOLS_GLOBAL_H
+#pragma once
 
 #include <QtGlobal>
 
@@ -35,5 +34,3 @@
 #else
 #  define CPPTOOLS_EXPORT Q_DECL_IMPORT
 #endif
-
-#endif // CPPTOOLS_GLOBAL_H

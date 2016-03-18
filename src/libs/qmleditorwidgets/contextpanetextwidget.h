@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CONTEXTPANETEXTWIDGET_H
-#define CONTEXTPANETEXTWIDGET_H
+#pragma once
 
 #include "qmleditorwidgets_global.h"
 #include <QWidget>
@@ -84,5 +83,3 @@ private:
 };
 
 } //QmlDesigner
-
-#endif // CONTEXTPANETEXTWIDGET_H

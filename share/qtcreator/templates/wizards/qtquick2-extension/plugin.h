@@ -1,5 +1,4 @@
-#ifndef %ProjectName:h%_PLUGIN_H
-#define %ProjectName:h%_PLUGIN_H
+#pragma once
 
 #include <QQmlExtensionPlugin>
 
@@ -11,5 +10,3 @@ class %ProjectName:s%Plugin : public QQmlExtensionPlugin
 public:
     void registerTypes(const char *uri);
 };
-
-#endif // %ProjectName:h%_PLUGIN_H

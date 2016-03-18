@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef MODELNODECONTEXTMENU_HELPER_H
-#define MODELNODECONTEXTMENU_HELPER_H
+#pragma once
 
 #include "modelnodeoperations.h"
 #include "abstractaction.h"
@@ -191,5 +190,3 @@ private:
 
 
 } //QmlDesigner
-
-#endif // MODELNODECONTEXTMENU_HELPER_H

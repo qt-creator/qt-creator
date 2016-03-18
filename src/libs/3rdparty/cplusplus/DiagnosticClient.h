@@ -18,8 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#ifndef CPLUSPLUS_DIAGNOSTICCLIENT_H
-#define CPLUSPLUS_DIAGNOSTICCLIENT_H
+#pragma once
 
 #include "CPlusPlusForwardDeclarations.h"
 #include <cstdarg>
@@ -48,6 +47,3 @@ public:
 };
 
 } // namespace CPlusPlus
-
-
-#endif // CPLUSPLUS_DIAGNOSTICCLIENT_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLDEBUG_GLOBAL_H
-#define QMLDEBUG_GLOBAL_H
+#pragma once
 
 #if defined(QMLDEBUG_LIB)
 #  define QMLDEBUG_EXPORT Q_DECL_EXPORT
@@ -33,5 +32,3 @@
 #else
 #  define QMLDEBUG_EXPORT Q_DECL_IMPORT
 #endif
-
-#endif // QMLDEBUG_GLOBAL_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SQLITETRANSACTION_H
-#define SQLITETRANSACTION_H
+#pragma once
 
 #include "sqliteglobal.h"
 
@@ -60,6 +59,3 @@ public:
     SqliteExclusiveTransaction();
 
 };
-
-
-#endif // SQLITETRANSACTION_H

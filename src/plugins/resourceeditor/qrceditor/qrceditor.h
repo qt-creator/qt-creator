@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QRCEDITOR_H
-#define QRCEDITOR_H
+#pragma once
 
 #include "ui_qrceditor.h"
 #include "resourceview.h"
@@ -95,5 +94,3 @@ private:
 
 } // namespace Internal
 } // namespace ResourceEditor
-
-#endif

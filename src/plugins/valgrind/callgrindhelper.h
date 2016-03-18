@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CALLGRINDHELPER_H
-#define CALLGRINDHELPER_H
+#pragma once
 
 #include <QLocale>
 
@@ -57,5 +56,3 @@ namespace CallgrindHelper
 
 } // namespace Internal
 } // namespace Valgrind
-
-#endif // CALLGRINDHELPER_H

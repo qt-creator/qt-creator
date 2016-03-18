@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PROPERTYEDITORVALUE_H
-#define PROPERTYEDITORVALUE_H
+#pragma once
 
 #include <qmldesignercorelib_global.h>
 
@@ -155,6 +154,3 @@ private: //variables
 QML_DECLARE_TYPE(PropertyEditorValue)
 QML_DECLARE_TYPE(PropertyEditorNodeWrapper)
 QML_DECLARE_TYPE(QQmlPropertyMap)
-
-
-#endif // PROPERTYEDITORVALUE_H

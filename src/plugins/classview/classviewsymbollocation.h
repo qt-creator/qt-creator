@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CLASSVIEWSYMBOLLOCATION_H
-#define CLASSVIEWSYMBOLLOCATION_H
+#pragma once
 
 #include <QMetaType>
 #include <QString>
@@ -68,5 +67,3 @@ inline uint qHash(const SymbolLocation &location)
 } // namespace ClassView
 
 Q_DECLARE_METATYPE(ClassView::Internal::SymbolLocation)
-
-#endif // CLASSVIEWSYMBOLLOCATION_H

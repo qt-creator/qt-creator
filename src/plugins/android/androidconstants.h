@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef ANDROIDCONSTANTS_H
-#define ANDROIDCONSTANTS_H
+#pragma once
 
 #include <QtGlobal>
 
@@ -71,5 +70,3 @@ const char ANDROID_EXTRA_LIBS[] = "AndroidExtraLibs";
 
 } // namespace Constants;
 } // namespace Android
-
-#endif  // ANDROIDCONSTANTS_H

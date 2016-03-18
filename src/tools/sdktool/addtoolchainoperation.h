@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef ADDTOOLCHAINOPERATION_H
-#define ADDTOOLCHAINOPERATION_H
+#pragma once
 
 #include "operation.h"
 
@@ -63,5 +62,3 @@ private:
     QString m_supportedAbis;
     KeyValuePairList m_extra;
 };
-
-#endif // ADDTOOLCHAINOPERATION_H

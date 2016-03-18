@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_EDITABLE_H
-#define QMT_EDITABLE_H
+#pragma once
 
 namespace qmt {
 
@@ -39,5 +38,3 @@ public:
 };
 
 } // namespace qmt
-
-#endif // QMT_EDITABLE_H

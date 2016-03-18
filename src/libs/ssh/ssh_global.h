@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SSH_GLOBAL_H
-#define SSH_GLOBAL_H
+#pragma once
 
 #include <QtGlobal>
 
@@ -38,5 +37,3 @@
 #define QSSH_ASSERT(cond) do { if (!(cond)) { QSSH_PRINT_WARNING; } } while (false)
 #define QSSH_ASSERT_AND_RETURN(cond) do { if (!(cond)) { QSSH_PRINT_WARNING; return; } } while (false)
 #define QSSH_ASSERT_AND_RETURN_VALUE(cond, value) do { if (!(cond)) { QSSH_PRINT_WARNING; return value; } } while (false)
-
-#endif // SSH_GLOBAL_H

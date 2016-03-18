@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef TIMELINEITEMSRENDERPASS_H
-#define TIMELINEITEMSRENDERPASS_H
+#pragma once
 
 #include "timelineabstractrenderer.h"
 #include "timelinerenderpass.h"
@@ -81,5 +80,3 @@ protected:
 };
 
 } // namespace Timeline
-
-#endif // TIMELINEITEMSRENDERPASS_H

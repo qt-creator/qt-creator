@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CLANGBACKEND_UNSAVEDFILES_H
-#define CLANGBACKEND_UNSAVEDFILES_H
+#pragma once
 
 #include <filecontainer.h>
 
@@ -76,5 +75,3 @@ private:
 };
 
 } // namespace ClangBackEnd
-
-#endif // CLANGBACKEND_UNSAVEDFILES_H

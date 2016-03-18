@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef DEBUGGER_DEBUGGERSTARTPARAMETERS_H
-#define DEBUGGER_DEBUGGERSTARTPARAMETERS_H
+#pragma once
 
 #include "debugger_global.h"
 #include "debuggerconstants.h"
@@ -110,6 +109,3 @@ public:
 
 Q_DECLARE_METATYPE(Debugger::RemoteSetupResult)
 Q_DECLARE_METATYPE(Debugger::DebuggerStartParameters)
-
-#endif // DEBUGGER_DEBUGGERSTARTPARAMETERS_H
-

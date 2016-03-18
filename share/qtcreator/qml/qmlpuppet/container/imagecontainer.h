@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef IMAGECONTAINER_H
-#define IMAGECONTAINER_H
+#pragma once
 
 #include <QMetaType>
 #include <QImage>
@@ -65,5 +64,3 @@ QDebug operator <<(QDebug debug, const ImageContainer &container);
 } // namespace QmlDesigner
 
 Q_DECLARE_METATYPE(QmlDesigner::ImageContainer)
-
-#endif // IMAGECONTAINER_H

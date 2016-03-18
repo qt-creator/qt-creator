@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SFTPFILESYSTEMMODEL_H
-#define SFTPFILESYSTEMMODEL_H
+#pragma once
 
 #include "sftpdefs.h"
 
@@ -100,5 +99,3 @@ private:
 };
 
 } // namespace QSsh;
-
-#endif // SFTPFILESYSTEMMODEL_H

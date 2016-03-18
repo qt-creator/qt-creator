@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_STRINGTEXTSOURCE_H
-#define QMT_STRINGTEXTSOURCE_H
+#pragma once
 
 #include "textsource.h"
 
@@ -54,5 +53,3 @@ private:
 };
 
 } // namespace qmt
-
-#endif // QMT_STRINGTEXTSOURCE_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef BEAUTIFIER_CLANGFORMATOPTIONSPAGE_H
-#define BEAUTIFIER_CLANGFORMATOPTIONSPAGE_H
+#pragma once
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
@@ -72,5 +71,3 @@ private:
 } // namespace ClangFormat
 } // namespace Internal
 } // namespace Beautifier
-
-#endif // BEAUTIFIER_CLANGFORMATOPTIONSPAGE_H

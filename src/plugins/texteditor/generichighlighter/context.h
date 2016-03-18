@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CONTEXT_H
-#define CONTEXT_H
+#pragma once
 
 #include "includerulesinstruction.h"
 
@@ -102,5 +101,3 @@ private:
 
 } // namespace Internal
 } // namespace TextEditor
-
-#endif // CONTEXT_H

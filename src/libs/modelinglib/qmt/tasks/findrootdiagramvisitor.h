@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_FINDROOTDIAGRAMVISITOR_H
-#define QMT_FINDROOTDIAGRAMVISITOR_H
+#pragma once
 
 #include "qmt/model_controller/mvoidvisitor.h"
 
@@ -47,5 +46,3 @@ private:
 };
 
 } // namespace qmt
-
-#endif // QMT_FINDROOTDIAGRAMVISITOR_H

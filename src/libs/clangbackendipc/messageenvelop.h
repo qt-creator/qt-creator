@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CLANGBACKEND_MESSAGEENVELOP_H
-#define CLANGBACKEND_MESSAGEENVELOP_H
+#pragma once
 
 #include "clangbackendipc_global.h"
 
@@ -108,5 +107,3 @@ private:
 };
 
 } // namespace ClangBackEnd
-
-#endif // CLANGBACKEND_MESSAGEENVELOP_H

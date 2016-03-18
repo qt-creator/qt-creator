@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef ANDROIDMANIFESTDOCUMENT_H
-#define ANDROIDMANIFESTDOCUMENT_H
+#pragma once
 
 #include <texteditor/textdocument.h>
 
@@ -49,5 +48,3 @@ private:
 
 } // namespace Internal
 } // namespace Android
-
-#endif // ANDROIDMANIFESTDOCUMENT_H

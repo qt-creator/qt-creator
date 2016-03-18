@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef BEHAVIORNODEINSTANCE_H
-#define BEHAVIORNODEINSTANCE_H
+#pragma once
 
 #include "objectnodeinstance.h"
 
@@ -52,5 +51,3 @@ private:
 
 } // namespace Internal
 } // namespace QmlDesigner
-
-#endif // BEHAVIORNODEINSTANCE_H

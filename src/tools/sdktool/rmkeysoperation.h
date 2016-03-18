@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef RMKEYSOPERATION_H
-#define RMKEYSOPERATION_H
+#pragma once
 
 #include "operation.h"
 
@@ -49,5 +48,3 @@ private:
     QStringList m_keys;
     QString m_file;
 };
-
-#endif // RMKEYSOPERATION_H

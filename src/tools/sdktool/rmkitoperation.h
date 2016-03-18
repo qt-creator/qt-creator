@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef RMKITOPERATION_H
-#define RMKITOPERATION_H
+#pragma once
 
 #include "operation.h"
 
@@ -50,5 +49,3 @@ public:
 private:
     QString m_id;
 };
-
-#endif // RMKITOPERATION_H

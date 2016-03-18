@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef EDITORWINDOW_H
-#define EDITORWINDOW_H
+#pragma once
 
 #include <QWidget>
 
@@ -50,5 +49,3 @@ private:
 
 } // Internal
 } // Core
-
-#endif // EDITORWINDOW_H

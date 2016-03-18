@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CLANGBACKEND_CODECOMPLETION_H
-#define CLANGBACKEND_CODECOMPLETION_H
+#pragma once
 
 #include "clangbackendipc_global.h"
 #include "codecompletionchunk.h"
@@ -129,5 +128,3 @@ void PrintTo(const CodeCompletion &message, ::std::ostream* os);
 void PrintTo(CodeCompletion::Kind kind, ::std::ostream *os);
 void PrintTo(CodeCompletion::Availability availability, ::std::ostream *os);
 } // namespace ClangBackEnd
-
-#endif // CLANGBACKEND_CODECOMPLETION_H

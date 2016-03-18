@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_EXCEPTIONS_H
-#define QMT_EXCEPTIONS_H
+#pragma once
 
 #include "qmt_global.h"
 
@@ -55,5 +54,3 @@ public:
 };
 
 } // namespace qmt
-
-#endif // QMT_EXCEPTIONS_H

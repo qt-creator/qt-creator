@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef GERRIT_INTERNAL_GERRITOPTIONSPAGE_H
-#define GERRIT_INTERNAL_GERRITOPTIONSPAGE_H
+#pragma once
 
 #include <vcsbase/vcsbaseoptionspage.h>
 
@@ -81,5 +80,3 @@ private:
 
 } // namespace Internal
 } // namespace Gerrit
-
-#endif // GERRIT_INTERNAL_GERRITOPTIONSPAGE_H

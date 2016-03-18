@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef GENERICLINUXDEVICECONFIGURATIONFACTORY_H
-#define GENERICLINUXDEVICECONFIGURATIONFACTORY_H
+#pragma once
 
 #include "remotelinux_export.h"
 
@@ -49,5 +48,3 @@ public:
 };
 
 } // namespace RemoteLinux
-
-#endif // GENERICLINUXDEVICECONFIGURATIONFACTORY_H

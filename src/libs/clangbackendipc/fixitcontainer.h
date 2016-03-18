@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CLANGBACKEND_FIXITCONTAINER_H
-#define CLANGBACKEND_FIXITCONTAINER_H
+#pragma once
 
 #include "sourcerangecontainer.h"
 
@@ -58,5 +57,3 @@ void PrintTo(const FixItContainer &container, ::std::ostream* os);
 } // namespace ClangBackEnd
 
 Q_DECLARE_METATYPE(ClangBackEnd::FixItContainer)
-
-#endif // CLANGBACKEND_FIXITCONTAINER_H

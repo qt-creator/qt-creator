@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CLANGBACKENDIPC_GLOBAL_H
-#define CLANGBACKENDIPC_GLOBAL_H
+#pragma once
 
 #include <utils/sizedarray.h>
 
@@ -134,4 +133,3 @@ struct HighlightingTypes {
 };
 
 }
-#endif // CLANGBACKENDIPC_GLOBAL_H

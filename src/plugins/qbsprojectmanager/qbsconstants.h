@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QBSCONSTANTS_H
-#define QBSCONSTANTS_H
+#pragma once
 
 namespace QbsProjectManager {
 namespace Constants {
@@ -54,5 +53,3 @@ const char QBS_PROPERTIES_KEY_FOR_KITS[] = "QbsProjectManager.qbs-properties";
 
 } // namespace Constants
 } // namespace QbsProjectManager
-
-#endif // QBSCONSTANTS_H

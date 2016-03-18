@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef FORMEDITORPLUGIN_H
-#define FORMEDITORPLUGIN_H
+#pragma once
 
 #include <extensionsystem/iplugin.h>
 
@@ -63,5 +62,3 @@ private:
 
 } // namespace Internal
 } // namespace Designer
-
-#endif // FORMEDITORPLUGIN_H

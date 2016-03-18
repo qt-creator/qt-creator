@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CPPHIGHLIGHTER_H
-#define CPPHIGHLIGHTER_H
+#pragma once
 
 #include <texteditor/syntaxhighlighter.h>
 
@@ -58,5 +57,3 @@ private:
 
 } // namespace Internal
 } // namespace CppEditor
-
-#endif // CPPHIGHLIGHTER_H

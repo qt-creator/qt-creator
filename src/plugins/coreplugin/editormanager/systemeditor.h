@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SYSTEMEDITOR_H
-#define SYSTEMEDITOR_H
+#pragma once
 
 #include "iexternaleditor.h"
 
@@ -47,5 +46,3 @@ public:
 
 } // namespace Internal
 } // namespace Core
-
-#endif // SYSTEMEDITOR_H

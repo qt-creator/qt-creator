@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef UICGENERATOR_H
-#define UICGENERATOR_H
+#pragma once
 
 #include <projectexplorer/extracompiler.h>
 #include <utils/fileutils.h>
@@ -62,4 +61,3 @@ public:
 };
 
 } // QtSupport
-#endif // UICGENERATOR_H

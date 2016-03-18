@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef INDENTER_H
-#define INDENTER_H
+#pragma once
 
 #include "texteditor_global.h"
 
@@ -73,5 +72,3 @@ public:
 };
 
 } // namespace TextEditor
-
-#endif // INDENTER_H

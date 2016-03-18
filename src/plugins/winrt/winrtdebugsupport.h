@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef WINRT_INTERNAL_WINRTDEBUGSUPPORT_H
-#define WINRT_INTERNAL_WINRTDEBUGSUPPORT_H
+#pragma once
 
 #include <projectexplorer/runconfiguration.h>
 
@@ -60,5 +59,3 @@ private slots:
 
 } // namespace Internal
 } // namespace WinRt
-
-#endif // WINRT_INTERNAL_WINRTDEBUGSUPPORT_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMAKENODES_H
-#define QMAKENODES_H
+#pragma once
 
 #include "qmakeprojectmanager_global.h"
 #include "proparser/prowriter.h"
@@ -419,5 +418,3 @@ private:
 };
 
 } // namespace QmakeProjectManager
-
-#endif // QMAKENODES_H

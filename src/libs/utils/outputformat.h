@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef OUTPUTFORMAT_H
-#define OUTPUTFORMAT_H
+#pragma once
 
 namespace Utils {
 
@@ -41,5 +40,3 @@ enum OutputFormat
 };
 
 } // namespace Utils
-
-#endif // OUTPUTFORMATR_H

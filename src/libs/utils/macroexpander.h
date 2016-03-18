@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef UTILS_MACROEXPANDER_H
-#define UTILS_MACROEXPANDER_H
+#pragma once
 
 #include "utils_global.h"
 
@@ -103,5 +102,3 @@ private:
 QTCREATOR_UTILS_EXPORT MacroExpander *globalMacroExpander();
 
 } // namespace Utils
-
-#endif // UTILS_MACROEXPANDER_H

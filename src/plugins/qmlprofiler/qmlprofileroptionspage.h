@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLPROFILEROPTIONSPAGE_H
-#define QMLPROFILEROPTIONSPAGE_H
+#pragma once
 
 #include <coreplugin/dialogs/ioptionspage.h>
 #include <QPointer>
@@ -48,5 +47,3 @@ private:
 
 } // Internal
 } // QmlProfiler
-
-#endif // QMLPROFILEROPTIONSPAGE_H

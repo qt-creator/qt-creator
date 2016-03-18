@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef BASETEXTEDITMODIFIER_H
-#define BASETEXTEDITMODIFIER_H
+#pragma once
 
 #include "qmldesignercorelib_global.h"
 #include "plaintexteditmodifier.h"
@@ -50,5 +49,3 @@ public:
 };
 
 } // namespace QmlDesigner
-
-#endif // BASETEXTEDITMODIFIER_H

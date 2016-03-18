@@ -18,8 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#ifndef CPLUSPLUS_FULLYSPECIFIEDTYPE_H
-#define CPLUSPLUS_FULLYSPECIFIEDTYPE_H
+#pragma once
 
 #include "CPlusPlusForwardDeclarations.h"
 
@@ -149,5 +148,3 @@ private:
 };
 
 } // namespace CPlusPlus
-
-#endif // CPLUSPLUS_FULLYSPECIFIEDTYPE_H

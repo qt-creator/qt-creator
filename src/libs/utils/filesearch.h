@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef FILESEARCH_H
-#define FILESEARCH_H
+#pragma once
 
 #include "utils_global.h"
 
@@ -178,5 +177,3 @@ QTCREATOR_UTILS_EXPORT QString expandRegExpReplacement(const QString &replaceTex
 QTCREATOR_UTILS_EXPORT QString matchCaseReplacement(const QString &originalText, const QString &replaceText);
 
 } // namespace Utils
-
-#endif // FILESEARCH_H

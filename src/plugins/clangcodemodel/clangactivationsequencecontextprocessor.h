@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CLANGCODEMODEL_INTERNAL_ACTIVATIONSEQUENCECONTEXTPROCESSOR_H
-#define CLANGCODEMODEL_INTERNAL_ACTIVATIONSEQUENCECONTEXTPROCESSOR_H
+#pragma once
 
 #include <clangcodemodel/clangcompletionassistinterface.h>
 
@@ -87,5 +86,3 @@ private:
 
 } // namespace Internal
 } // namespace ClangCodeModel
-
-#endif // CLANGCODEMODEL_INTERNAL_ACTIVATIONSEQUENCECONTEXTPROCESSOR_H

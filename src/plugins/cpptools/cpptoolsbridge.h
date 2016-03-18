@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CPPTOOLS_CPPTOOLSBRIDGE_H
-#define CPPTOOLS_CPPTOOLSBRIDGE_H
+#pragma once
 
 #include "cpptools_global.h"
 
@@ -58,5 +57,3 @@ private:
 };
 
 } // namespace CppTools
-
-#endif // CPPTOOLS_CPPTOOLSBRIDGE_H

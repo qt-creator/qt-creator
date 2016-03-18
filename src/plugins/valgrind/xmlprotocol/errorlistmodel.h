@@ -24,8 +24,7 @@
 **
 ****************************************************************************/
 
-#ifndef LIBVALGRIND_PROTOCOL_ERRORLISTMODEL_H
-#define LIBVALGRIND_PROTOCOL_ERRORLISTMODEL_H
+#pragma once
 
 #include <debugger/analyzer/detailederrorview.h>
 #include <utils/treemodel.h>
@@ -70,5 +69,3 @@ private:
 
 } // namespace XmlProtocol
 } // namespace Valgrind
-
-#endif // LIBVALGRIND_PROTOCOL_ERRORLISTMODEL_H

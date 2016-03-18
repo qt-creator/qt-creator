@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef GLSLINDENTER_H
-#define GLSLINDENTER_H
+#pragma once
 
 #include <texteditor/indenter.h>
 
@@ -53,5 +52,3 @@ public:
 
 } // namespace Internal
 } // namespace GlslEditor
-
-#endif // GLSLINDENTER_H

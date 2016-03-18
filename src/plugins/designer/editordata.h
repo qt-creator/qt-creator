@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef EDITORDATA_H
-#define EDITORDATA_H
+#pragma once
 
 namespace SharedTools { class WidgetHost; }
 
@@ -45,5 +44,3 @@ public:
 
 } // namespace Internal
 } // namespace Designer
-
-#endif // EDITORDATA_H

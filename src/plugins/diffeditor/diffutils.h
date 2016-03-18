@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef DIFFUTILS_H
-#define DIFFUTILS_H
+#pragma once
 
 #include "diffeditor_global.h"
 
@@ -149,5 +148,3 @@ public:
 };
 
 } // namespace DiffEditor
-
-#endif // DIFFUTILS_H

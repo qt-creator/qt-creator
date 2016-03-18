@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SIDEBARWIDGET_H
-#define SIDEBARWIDGET_H
+#pragma once
 
 #include <QWidget>
 
@@ -80,5 +79,3 @@ private:
 
 } // namespace Internal
 } // namespace Core
-
-#endif // SIDEBARWIDGET_H

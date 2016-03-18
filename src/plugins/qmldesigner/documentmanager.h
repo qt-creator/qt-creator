@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLDESIGNER_DOCUMENTMANAGER_H
-#define QMLDESIGNER_DOCUMENTMANAGER_H
+#pragma once
 
 #include <QObject>
 #include <QList>
@@ -71,5 +70,3 @@ private:
 };
 
 } // namespace QmlDesigner
-
-#endif // QMLDESIGNER_DOCUMENTMANAGER_H

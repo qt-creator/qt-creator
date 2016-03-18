@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef IOPTIONSPAGE_H
-#define IOPTIONSPAGE_H
+#pragma once
 
 #include <coreplugin/id.h>
 
@@ -107,5 +106,3 @@ protected:
 };
 
 } // namespace Core
-
-#endif // IOPTIONSPAGE_H

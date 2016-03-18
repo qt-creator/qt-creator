@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PROXYACTION_H
-#define PROXYACTION_H
+#pragma once
 
 #include "utils_global.h"
 
@@ -80,5 +79,3 @@ private:
 } // namespace Utils
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(Utils::ProxyAction::Attributes)
-
-#endif // PROXYACTION_H

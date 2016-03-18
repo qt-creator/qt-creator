@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef COMMANDLOCATOR_H
-#define COMMANDLOCATOR_H
+#pragma once
 
 #include "ilocatorfilter.h"
 
@@ -55,5 +54,3 @@ private:
 };
 
 } // namespace Core
-
-#endif // COMMANDLOCATOR_H

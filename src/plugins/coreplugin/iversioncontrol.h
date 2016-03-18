@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef IVERSIONCONTROL_H
-#define IVERSIONCONTROL_H
+#pragma once
 
 #include "core_global.h"
 #include "id.h"
@@ -264,6 +263,3 @@ private:
 
 } // namespace Core
 #endif
-
-
-#endif // IVERSIONCONTROL_H

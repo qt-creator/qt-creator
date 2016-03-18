@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QBSCLEANSTEP_H
-#define QBSCLEANSTEP_H
+#pragma once
 
 #include "qbsbuildconfiguration.h"
 
@@ -138,5 +137,3 @@ public:
 
 } // namespace Internal
 } // namespace QbsProjectManager
-
-#endif // QBSCLEANSTEP_H

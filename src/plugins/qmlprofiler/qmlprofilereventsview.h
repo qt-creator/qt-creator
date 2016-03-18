@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLPROFILEREVENTSVIEW_H
-#define QMLPROFILEREVENTSVIEW_H
+#pragma once
 
 #include "qmlprofiler_global.h"
 #include "qmlprofilermodelmanager.h"
@@ -63,5 +62,3 @@ public:
 };
 
 }
-
-#endif // QMLPROFILEREVENTSVIEW_H

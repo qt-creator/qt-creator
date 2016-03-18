@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef HUECONTROL_H
-#define HUECONTROL_H
+#pragma once
 
 #include "qmleditorwidgets_global.h"
 #include <QWidget>
@@ -63,5 +62,3 @@ private:
 };
 
 } //QmlEditorWidgets
-
-#endif //HUECONTROL_H

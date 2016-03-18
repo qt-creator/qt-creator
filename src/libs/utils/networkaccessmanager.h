@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef NETWORKACCESSMANAGER_H
-#define NETWORKACCESSMANAGER_H
+#pragma once
 
 #include "utils_global.h"
 
@@ -48,5 +47,3 @@ protected:
 
 
 } // namespace utils
-
-#endif // NETWORKACCESSMANAGER_H

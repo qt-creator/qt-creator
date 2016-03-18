@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PLUGINPATH_H
-#define PLUGINPATH_H
+#pragma once
 
 #include <QObject>
 #include <QPointer>
@@ -91,4 +90,3 @@ private:
     PluginDataList m_plugins;
 };
 } // namespace QmlDesigner
-#endif // PLUGINPATH_H

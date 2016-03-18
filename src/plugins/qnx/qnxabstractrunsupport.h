@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QNXABSTRACTRUNSUPPORT_H
-#define QNXABSTRACTRUNSUPPORT_H
+#pragma once
 
 #include <projectexplorer/devicesupport/idevice.h>
 #include <utils/environment.h>
@@ -90,5 +89,3 @@ private:
 
 } // namespace Internal
 } // namespace Qnx
-
-#endif // QNXABSTRACTRUNSUPPORT_H

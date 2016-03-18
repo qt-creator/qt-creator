@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef REWRITEACTION_H
-#define REWRITEACTION_H
+#pragma once
 
 #include "abstractproperty.h"
 #include "modelnodepositionstorage.h"
@@ -301,5 +300,3 @@ private:
 
 } // namespace Internal
 } // namespace QmlDesigner
-
-#endif // REWRITEACTION_H

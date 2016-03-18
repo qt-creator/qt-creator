@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef REMOTELINUX_GENERICLINUXDEVICECONFIGURATIONWIDGET_H
-#define REMOTELINUX_GENERICLINUXDEVICECONFIGURATIONWIDGET_H
+#pragma once
 
 #include <projectexplorer/devicesupport/idevicewidget.h>
 
@@ -68,5 +67,3 @@ private:
 };
 
 } // namespace RemoteLinux
-
-#endif // REMOTELINUX_GENERICLINUXDEVICECONFIGURATIONWIDGET_H

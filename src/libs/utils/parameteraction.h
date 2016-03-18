@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PARAMETERACTION_H
-#define PARAMETERACTION_H
+#pragma once
 
 #include "utils_global.h"
 
@@ -66,5 +65,3 @@ private:
 };
 
 } // namespace Utils
-
-#endif // PARAMETERACTION_H

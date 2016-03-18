@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef DEBUGGER_BACKTRACE_H
-#define DEBUGGER_BACKTRACE_H
+#pragma once
 
 namespace Debugger {
 namespace Internal {
@@ -33,5 +32,3 @@ void dumpBacktrace(int maxdepth = -1);
 
 } // namespace Internal
 } // namespace Debugger
-
-#endif // DEBUGGER_BACKTRACE_H

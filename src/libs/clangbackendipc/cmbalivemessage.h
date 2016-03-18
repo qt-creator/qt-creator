@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CMBALIVEMESSAGE_H
-#define CMBALIVEMESSAGE_H
+#pragma once
 
 #include "clangbackendipc_global.h"
 
@@ -42,5 +41,3 @@ CMBIPC_EXPORT QDebug operator<<(QDebug debug, const AliveMessage &message);
 
 DECLARE_MESSAGE(AliveMessage)
 }
-
-#endif // CMBALIVEMESSAGE_H

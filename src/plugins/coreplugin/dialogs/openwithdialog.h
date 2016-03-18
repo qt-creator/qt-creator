@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef OPENWITHDIALOG_H
-#define OPENWITHDIALOG_H
+#pragma once
 
 #include <QDialog>
 #include "ui_openwithdialog.h"
@@ -56,5 +55,3 @@ private:
 
 } // namespace Internal
 } // namespace Core
-
-#endif // OPENWITHDIALOG_H

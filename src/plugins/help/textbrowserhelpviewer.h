@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef TEXTBROWSERHELPVIEWER_H
-#define TEXTBROWSERHELPVIEWER_H
+#pragma once
 
 #include "centralwidget.h"
 #include "helpviewer.h"
@@ -119,5 +118,3 @@ public:
 
 }   // namespace Internal
 }   // namespace Help
-
-#endif // TEXTBROWSERHELPVIEWER_H

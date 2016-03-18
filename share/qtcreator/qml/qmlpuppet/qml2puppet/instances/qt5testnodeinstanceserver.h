@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLDESIGNER_QT5TESTNODEINSTANCESERVER_H
-#define QMLDESIGNER_QT5TESTNODEINSTANCESERVER_H
+#pragma once
 
 #include "qt5nodeinstanceserver.h"
 
@@ -61,5 +60,3 @@ protected:
 };
 
 } // namespace QmlDesigner
-
-#endif // QMLDESIGNER_QT5TESTNODEINSTANCESERVER_H

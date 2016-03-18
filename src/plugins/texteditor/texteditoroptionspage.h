@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef TEXTEDITOROPTIONSPAGE_H
-#define TEXTEDITOROPTIONSPAGE_H
+#pragma once
 
 #include "texteditor_global.h"
 
@@ -44,5 +43,3 @@ public:
 };
 
 } // namespace TextEditor
-
-#endif // TEXTEDITOROPTIONSPAGE_H

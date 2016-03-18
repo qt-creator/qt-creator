@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SOURCE_UTILS_H
-#define SOURCE_UTILS_H
+#pragma once
 
 #include <QString>
 
@@ -58,5 +57,3 @@ ContextData getLocationContext(TextEditor::TextDocument *document, int lineNumbe
 
 } // namespace Internal
 } // namespace Debugger
-
-#endif // SOURCE_UTILS_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef THEMEHELPER_H
-#define THEMEHELPER_H
+#pragma once
 
 #include "utils_global.h"
 #include "theme/theme.h"
@@ -86,5 +85,3 @@ private:
 } // namespace Utils
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(Utils::Icon::IconStyleOptions)
-
-#endif // THEMEHELPER_H

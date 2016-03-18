@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef GDBSERVERPROVIDERCHOOSER_H
-#define GDBSERVERPROVIDERCHOOSER_H
+#pragma once
 
 #include <QWidget>
 
@@ -72,5 +71,3 @@ private:
 
 } // namespace Internal
 } // namespace BareMetal
-
-#endif // GDBSERVERPROVIDERCHOOSER_H

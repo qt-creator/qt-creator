@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SUBVERSIONEDITOR_H
-#define SUBVERSIONEDITOR_H
+#pragma once
 
 #include <vcsbase/vcsbaseeditor.h>
 
@@ -53,5 +52,3 @@ private:
 
 } // namespace Internal
 } // namespace Subversion
-
-#endif // SUBVERSIONEDITOR_H

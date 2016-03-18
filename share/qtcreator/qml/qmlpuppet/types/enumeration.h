@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLDESIGNER_ENUMERATION_H
-#define QMLDESIGNER_ENUMERATION_H
+#pragma once
 
 #include <QByteArray>
 #include <QDataStream>
@@ -69,5 +68,3 @@ QDebug operator <<(QDebug debug, const Enumeration &enumeration);
 } // namespace QmlDesigner
 
 Q_DECLARE_METATYPE(QmlDesigner::Enumeration)
-
-#endif // QMLDESIGNER_ENUMERATION_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SNIPPETSSETTINGSPAGE_H
-#define SNIPPETSSETTINGSPAGE_H
+#pragma once
 
 #include "../texteditoroptionspage.h"
 
@@ -51,5 +50,3 @@ private:
 
 } // Internal
 } // TextEditor
-
-#endif // SNIPPETSSETTINGSPAGE_H

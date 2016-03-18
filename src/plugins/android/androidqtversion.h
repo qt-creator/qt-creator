@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef ANDROIDQTVERSION_H
-#define ANDROIDQTVERSION_H
+#pragma once
 
 #include <qtsupport/baseqtversion.h>
 
@@ -64,5 +63,3 @@ private:
 
 } // namespace Internal
 } // namespace Android
-
-#endif // ANDROIDQTVERSION_H

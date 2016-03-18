@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CLANGBACKEND_DIAGNOSTIC_H
-#define CLANGBACKEND_DIAGNOSTIC_H
+#pragma once
 
 #include <clangbackendipc_global.h>
 
@@ -88,5 +87,3 @@ inline bool operator==(Diagnostic first, Diagnostic second)
 }
 
 } // namespace ClangBackEnd
-
-#endif // CLANGBACKEND_DIAGNOSTIC_H

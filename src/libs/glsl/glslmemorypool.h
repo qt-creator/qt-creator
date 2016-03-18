@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef GLSLMEMORYPOOL_H
-#define GLSLMEMORYPOOL_H
+#pragma once
 
 #include "glsl.h"
 #include <new>
@@ -87,6 +86,3 @@ public:
 };
 
 } // namespace GLSL
-
-
-#endif // GLSLMEMORYPOOL_H

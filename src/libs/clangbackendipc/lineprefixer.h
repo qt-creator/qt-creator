@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PRINTLINESWITHPREFIX_H
-#define PRINTLINESWITHPREFIX_H
+#pragma once
 
 #include <QString>
 #include <QTextStream>
@@ -45,5 +44,3 @@ private:
 };
 
 } // namespace ClangBackEnd
-
-#endif // PRINTLINESWITHPREFIX_H

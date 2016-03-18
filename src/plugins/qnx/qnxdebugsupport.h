@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QNX_INTERNAL_QNXDEBUGSUPPORT_H
-#define QNX_INTERNAL_QNXDEBUGSUPPORT_H
+#pragma once
 
 #include "qnxabstractrunsupport.h"
 
@@ -83,5 +82,3 @@ private:
 
 } // namespace Internal
 } // namespace Qnx
-
-#endif // QNX_INTERNAL_QNXDEBUGSUPPORT_H

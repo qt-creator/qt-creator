@@ -24,8 +24,7 @@
 **
 ****************************************************************************/
 
-#ifndef CPPTODOITEMSSCANNER_H
-#define CPPTODOITEMSSCANNER_H
+#pragma once
 
 #include "todoitemsscanner.h"
 
@@ -53,5 +52,3 @@ private:
 
 }
 }
-
-#endif // CPPTODOITEMSSCANNER_H

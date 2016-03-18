@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef DESIGNMODEWIDGET_H
-#define DESIGNMODEWIDGET_H
+#pragma once
 
 #include <coreplugin/minisplitter.h>
 #include <utils/faketooltip.h>
@@ -158,5 +157,3 @@ private: // variables
 
 } // namespace Internal
 } // namespace Designer
-
-#endif // DESIGNMODEWIDGET_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QTQUICKPLUGIN_H
-#define QTQUICKPLUGIN_H
+#pragma once
 
 #include <iwidgetplugin.h>
 
@@ -51,6 +50,3 @@ public:
 };
 
 } // namespace QmlDesigner
-
-
-#endif // QTQUICKPLUGIN_H

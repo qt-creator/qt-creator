@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SEARCHRESULTTREEITEMS_H
-#define SEARCHRESULTTREEITEMS_H
+#pragma once
 
 #include "searchresultwindow.h"
 
@@ -70,5 +69,3 @@ private:
 
 } // namespace Internal
 } // namespace Core
-
-#endif // SEARCHRESULTTREEITEMS_H

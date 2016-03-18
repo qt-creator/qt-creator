@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef TEXTEDITORSETTINGS_H
-#define TEXTEDITORSETTINGS_H
+#pragma once
 
 #include "texteditor_global.h"
 
@@ -113,5 +112,3 @@ signals:
 };
 
 } // namespace TextEditor
-
-#endif // TEXTEDITORSETTINGS_H

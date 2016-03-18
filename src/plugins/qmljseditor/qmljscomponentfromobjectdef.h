@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLJSCOMPONENTFROMOBJECTDEF_H
-#define QMLJSCOMPONENTFROMOBJECTDEF_H
+#pragma once
 
 #include "qmljsquickfix.h"
 
@@ -39,5 +38,3 @@ public:
 
 } // namespace Internal
 } // namespace QmlJSEditor
-
-#endif // QMLJSCOMPONENTFROMOBJECTDEF_H

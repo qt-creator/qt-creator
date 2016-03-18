@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLSTATENODEINSTANCE_H
-#define QMLSTATENODEINSTANCE_H
+#pragma once
 
 #include "objectnodeinstance.h"
 
@@ -57,5 +56,3 @@ protected:
 
 } // namespace Internal
 } // namespace QmlDesigner
-
-#endif // QMLSTATENODEINSTANCE_H

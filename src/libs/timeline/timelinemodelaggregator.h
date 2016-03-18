@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef TIMELINEMODELAGGREGATOR_H
-#define TIMELINEMODELAGGREGATOR_H
+#pragma once
 
 #include "timelinemodel.h"
 #include "timelinenotesmodel.h"
@@ -68,5 +67,3 @@ private:
 };
 
 } // namespace Timeline
-
-#endif // TIMELINEMODELAGGREGATOR_H

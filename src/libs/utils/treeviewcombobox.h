@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef TREEVIEWCOMBOBOX_H
-#define TREEVIEWCOMBOBOX_H
+#pragma once
 
 #include "utils_global.h"
 
@@ -65,5 +64,3 @@ private:
     bool m_skipNextHide;
 };
 }
-
-#endif // TREEVIEWCOMBOBOX_H

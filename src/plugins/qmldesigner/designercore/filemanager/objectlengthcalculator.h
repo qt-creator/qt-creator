@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef OBJECTLENGTHCALCULATOR_H
-#define OBJECTLENGTHCALCULATOR_H
+#pragma once
 
 #include <qmljs/parser/qmljsastvisitor_p.h>
 #include <qmljs/qmljsdocument.h>
@@ -51,5 +50,3 @@ private:
 };
 
 } // namespace QmlDesigner
-
-#endif // OBJECTLENGTHCALCULATOR_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef TESTBAUHAUS_H
-#define TESTBAUHAUS_H
+#pragma once
 
 #include <QObject>
 
@@ -51,5 +50,3 @@ private:
     QString m_creatorDir;
     QString m_qtDir;
 };
-
-#endif // TESTBAUHAUS_H

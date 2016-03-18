@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef IOSDEVICEFACTORY_H
-#define IOSDEVICEFACTORY_H
+#pragma once
 
 #include <projectexplorer/devicesupport/idevicefactory.h>
 
@@ -52,5 +51,3 @@ public:
 
 } // namespace Internal
 } // namespace Ios
-
-#endif // IOSDEVICEFACTORY_H

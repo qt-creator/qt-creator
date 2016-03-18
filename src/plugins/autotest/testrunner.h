@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef TESTRUNNER_H
-#define TESTRUNNER_H
+#pragma once
 
 #include "testconfiguration.h"
 #include "testresult.h"
@@ -79,5 +78,3 @@ private:
 
 } // namespace Internal
 } // namespace Autotest
-
-#endif // TESTRUNNER_H

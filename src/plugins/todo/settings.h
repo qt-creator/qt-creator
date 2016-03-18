@@ -24,8 +24,7 @@
 **
 ****************************************************************************/
 
-#ifndef SETTINGS_H
-#define SETTINGS_H
+#pragma once
 
 #include "keyword.h"
 
@@ -57,5 +56,3 @@ bool operator !=(Settings &s1, Settings &s2);
 } // namespace Todo
 
 Q_DECLARE_METATYPE(Todo::Internal::ScanningScope)
-
-#endif // SETTINGS_H

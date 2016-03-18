@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_MODELTREEVIEWINTERFACE_H
-#define QMT_MODELTREEVIEWINTERFACE_H
+#pragma once
 
 #include <QList>
 
@@ -44,5 +43,3 @@ public:
 };
 
 } // namespace qmt
-
-#endif // QMT_MODELTREEVIEWINTERFACE_H

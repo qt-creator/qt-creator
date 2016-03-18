@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SETTINGSPAGE_H
-#define SETTINGSPAGE_H
+#pragma once
 
 #include "ui_settingspage.h"
 
@@ -75,5 +74,3 @@ private:
 
 } // namespace Internal
 } // namespace QmlDesigner
-
-#endif // SETTINGSPAGE_H

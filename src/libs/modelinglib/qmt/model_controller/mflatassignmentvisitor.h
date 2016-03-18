@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_MFLATASSIGNMENTVISITOR_H
-#define QMT_MFLATASSIGNMENTVISITOR_H
+#pragma once
 
 #include "qmt/model/mconstvisitor.h"
 #include "qmt/infrastructure/qmt_global.h"
@@ -56,5 +55,3 @@ private:
 };
 
 } // namespace qmt
-
-#endif // QMT_MFLATASSIGNMENTVISITOR_H

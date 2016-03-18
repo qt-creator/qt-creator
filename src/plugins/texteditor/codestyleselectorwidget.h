@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CODESTYLESELECTORWIDGET_H
-#define CODESTYLESELECTORWIDGET_H
+#pragma once
 
 #include "texteditor_global.h"
 
@@ -78,5 +77,3 @@ private:
 };
 
 } // namespace TextEditor
-
-#endif // CODESTYLESELECTORWIDGET_H

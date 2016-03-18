@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef BEAUTIFIER_BEAUTIFIERCONSTANTS_H
-#define BEAUTIFIER_BEAUTIFIERCONSTANTS_H
+#pragma once
 
 #include <QtGlobal>
 
@@ -47,6 +46,3 @@ const char DOCUMENTATION_XMLDOC[]   = "doc";
 
 } // namespace Constants
 } // namespace Beautifier
-
-#endif // BEAUTIFIER_BEAUTIFIERCONSTANTS_H
-

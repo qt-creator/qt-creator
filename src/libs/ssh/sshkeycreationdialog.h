@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SSHKEYCREATIONDIALOG_H
-#define SSHKEYCREATIONDIALOG_H
+#pragma once
 
 #include "ssh_global.h"
 
@@ -61,5 +60,3 @@ private:
 };
 
 } // namespace QSsh
-
-#endif  // SSHKEYCREATIONDIALOG_H

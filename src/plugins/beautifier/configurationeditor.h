@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef BEAUTIFIER_CONFIGURATIONEDITOR_H
-#define BEAUTIFIER_CONFIGURATIONEDITOR_H
+#pragma once
 
 
 #include <QPlainTextEdit>
@@ -97,5 +96,3 @@ private:
 
 } // namespace Internal
 } // namespace Beautifier
-
-#endif // BEAUTIFIER_CONFIGURATIONEDITOR_H

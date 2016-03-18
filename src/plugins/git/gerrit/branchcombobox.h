@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef BRANCHCOMBOBOX_H
-#define BRANCHCOMBOBOX_H
+#pragma once
 
 #include <QComboBox>
 
@@ -48,5 +47,3 @@ private:
 
 } // namespace Internal
 } // namespace Gerrit
-
-#endif // BRANCHCOMBOBOX_H

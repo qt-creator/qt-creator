@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef ADDARRAYMEMBERVISITOR_H
-#define ADDARRAYMEMBERVISITOR_H
+#pragma once
 
 #include "qmlrewriter.h"
 
@@ -64,5 +63,3 @@ private:
 
 } // namespace Internal
 } // namespace QmlDesigner
-
-#endif // ADDARRAYMEMBERVISITOR_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SUBDIRSPROJECTWIZARD_H
-#define SUBDIRSPROJECTWIZARD_H
+#pragma once
 
 #include "qtwizard.h"
 
@@ -49,5 +48,3 @@ private:
 
 } // namespace Internal
 } // namespace QmakeProjectManager
-
-#endif // SUBDIRSPROJECTWIZARD_H

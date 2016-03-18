@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef DEBUGGER_MEMORYAGENT_H
-#define DEBUGGER_MEMORYAGENT_H
+#pragma once
 
 #include "debuggerconstants.h"
 
@@ -116,5 +115,3 @@ private:
 
 } // namespace Internal
 } // namespace Debugger
-
-#endif // DEBUGGER_MEMORYAGENT_H

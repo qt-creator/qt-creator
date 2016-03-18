@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef TEXTEDITOR_SEMANTICHIGHLIGHTER_H
-#define TEXTEDITOR_SEMANTICHIGHLIGHTER_H
+#pragma once
 
 #include "texteditor_global.h"
 
@@ -103,5 +102,3 @@ void TEXTEDITOR_EXPORT clearExtraAdditionalFormatsUntilEnd(
 
 } // namespace SemanticHighlighter
 } // namespace TextEditor
-
-#endif // TEXTEDITOR_SEMANTICHIGHLIGHTER_H

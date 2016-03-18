@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLMODELNODEPROXY_H
-#define QMLMODELNODEPROXY_H
+#pragma once
 
 #include <qmlitemnode.h>
 
@@ -64,5 +63,3 @@ private:
 };
 
 } //QmlDesigner
-
-#endif // QMLMODELNODEPROXY_H

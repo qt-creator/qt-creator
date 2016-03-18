@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef JSEXTENSION_H
-#define JSEXTENSION_H
+#pragma once
 
 #include <QObject>
 
@@ -44,5 +43,3 @@ public:
 
 } // namespace Internal
 } // namespace ModelEditor
-
-#endif // JSEXTENSION_H

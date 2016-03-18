@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef MODELNODEPOSITIONRECALCULATOR_H
-#define MODELNODEPOSITIONRECALCULATOR_H
+#pragma once
 
 #include <QMap>
 #include <QObject>
@@ -62,5 +61,3 @@ private:
 
 } // namespace Internal
 } // namespace QmlDesigner
-
-#endif // MODELNODEPOSITIONRECALCULATOR_H

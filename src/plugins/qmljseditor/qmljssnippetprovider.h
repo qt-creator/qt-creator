@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLJSSNIPPETPROVIDER_H
-#define QMLJSSNIPPETPROVIDER_H
+#pragma once
 
 #include <texteditor/snippets/isnippetprovider.h>
 
@@ -45,5 +44,3 @@ public:
 
 } // Internal
 } // QmlJSEditor
-
-#endif // QMLJSSNIPPETPROVIDER_H

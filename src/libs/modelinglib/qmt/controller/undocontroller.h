@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_UNDOCONTROLLER_H
-#define QMT_UNDOCONTROLLER_H
+#pragma once
 
 #include <QObject>
 #include "qmt/infrastructure/qmt_global.h"
@@ -60,5 +59,3 @@ private:
 };
 
 } // namespace qmt
-
-#endif // QMT_UNDOCONTROLLER_H

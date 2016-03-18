@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef INCLUDEUTILS_H
-#define INCLUDEUTILS_H
+#pragma once
 
 #include "cpptools_global.h"
 
@@ -108,5 +107,3 @@ private:
 
 } // namespace IncludeUtils
 } // namespace CppTools
-
-#endif // INCLUDEUTILS_H

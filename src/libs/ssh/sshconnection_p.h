@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SSHCONNECTION_P_H
-#define SSHCONNECTION_P_H
+#pragma once
 
 #include "sshconnection.h"
 #include "sshexception_p.h"
@@ -172,5 +171,3 @@ private:
 
 } // namespace Internal
 } // namespace QSsh
-
-#endif // SSHCONNECTION_P_H

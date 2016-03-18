@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef INVALIDREPARENTINGEXCEPTION_H
-#define INVALIDREPARENTINGEXCEPTION_H
+#pragma once
 
 #include "exception.h"
 
@@ -41,5 +40,3 @@ public:
 };
 
 } // namespace QmlDesigner
-
-#endif // INVALIDREPARENTINGEXCEPTION_H

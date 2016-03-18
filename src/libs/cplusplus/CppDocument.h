@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CPLUSPLUS_CPPDOCUMENT_H
-#define CPLUSPLUS_CPPDOCUMENT_H
+#pragma once
 
 #include "Macro.h"
 
@@ -457,5 +456,3 @@ private:
 };
 
 } // namespace CPlusPlus
-
-#endif // CPLUSPLUS_CPPDOCUMENT_H

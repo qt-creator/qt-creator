@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef TEMPLATEENGINE_H
-#define TEMPLATEENGINE_H
+#pragma once
 
 #include "utils_global.h"
 
@@ -48,5 +47,3 @@ public:
 };
 
 } // namespace Utils
-
-#endif // TEMPLATEENGINE_H

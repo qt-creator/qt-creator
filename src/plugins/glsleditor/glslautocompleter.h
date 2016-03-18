@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef GLSLAUTOCOMPLETER_H
-#define GLSLAUTOCOMPLETER_H
+#pragma once
 
 #include <texteditor/autocompleter.h>
 
@@ -50,5 +49,3 @@ public:
 
 } // namespace Internal
 } // namespace GlslEditor
-
-#endif // GLSLAUTOCOMPLETER_H

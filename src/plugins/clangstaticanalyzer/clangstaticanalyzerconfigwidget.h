@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CLANGSTATICANALYZERCONFIGWIDGET_H
-#define CLANGSTATICANALYZERCONFIGWIDGET_H
+#pragma once
 
 #include "clangstaticanalyzersettings.h"
 
@@ -51,5 +50,3 @@ private:
 
 } // namespace Internal
 } // namespace ClangStaticAnalyzer
-
-#endif // CLANGSTATICANALYZERCONFIGWIDGET_H

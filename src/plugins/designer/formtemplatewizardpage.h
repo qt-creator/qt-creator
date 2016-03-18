@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef FORMTEMPLATEWIZARDPAGE_H
-#define FORMTEMPLATEWIZARDPAGE_H
+#pragma once
 
 #include <projectexplorer/jsonwizard/jsonwizardpagefactory.h>
 
@@ -80,5 +79,3 @@ private:
 
 } // namespace Internal
 } // namespace Designer
-
-#endif // FORMTEMPLATEWIZARDPAGE_H

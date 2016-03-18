@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CUSTOMEXECUTABLECONFIGURATIONWIDGET_H
-#define CUSTOMEXECUTABLECONFIGURATIONWIDGET_H
+#pragma once
 
 #include <QWidget>
 
@@ -83,5 +82,3 @@ private:
 
 } // namespace Internal
 } // namespace QtSupport
-
-#endif // CUSTOMEXECUTABLECONFIGURATIONWIDGET_H

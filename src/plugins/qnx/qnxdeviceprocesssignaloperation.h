@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QNXDEVICEPROCESSSIGNALOPERATION_H
-#define QNXDEVICEPROCESSSIGNALOPERATION_H
+#pragma once
 
 #include <remotelinux/remotelinuxsignaloperation.h>
 
@@ -48,5 +47,3 @@ private:
 
 } // namespace Internal
 } // namespace Qnx
-
-#endif // QNXDEVICEPROCESSSIGNALOPERATION_H

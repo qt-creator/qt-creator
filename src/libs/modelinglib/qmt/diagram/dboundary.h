@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_DBOUNDARY_H
-#define QMT_DBOUNDARY_H
+#pragma once
 
 #include "delement.h"
 
@@ -60,5 +59,3 @@ private:
 };
 
 } // namespace qmt
-
-#endif // QMT_DBOUNDARY_H

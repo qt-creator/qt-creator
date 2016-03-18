@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SUBVERSIONPLUGIN_H
-#define SUBVERSIONPLUGIN_H
+#pragma once
 
 #include "subversionsettings.h"
 
@@ -181,5 +180,3 @@ private:
 
 } // namespace Subversion
 } // namespace Internal
-
-#endif // SUBVERSIONPLUGIN_H

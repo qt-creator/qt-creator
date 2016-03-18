@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef GENERICLINUXDEVICECONFIGURATIONWIZARDPAGES_H
-#define GENERICLINUXDEVICECONFIGURATIONWIZARDPAGES_H
+#pragma once
 
 #include "remotelinux_export.h"
 
@@ -85,5 +84,3 @@ private:
 };
 
 } // namespace RemoteLinux
-
-#endif // GENERICLINUXDEVICECONFIGURATIONWIZARDPAGES_H

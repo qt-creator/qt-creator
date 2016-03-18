@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CLANGBACKEND_TRANSLATIONUNITS_H
-#define CLANGBACKEND_TRANSLATIONUNITS_H
+#pragma once
 
 #include "clangfilesystemwatcher.h"
 #include "clangtranslationunit.h"
@@ -119,5 +118,3 @@ private:
 };
 
 } // namespace ClangBackEnd
-
-#endif // CLANGBACKEND_TRANSLATIONUNITS_H

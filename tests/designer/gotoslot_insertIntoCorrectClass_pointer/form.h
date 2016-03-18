@@ -1,7 +1,6 @@
 // Copyright header
 
-#ifndef FORM_H
-#define FORM_H
+#pragma once
 
 #include <QWidget>
 
@@ -26,5 +25,3 @@ public:
 private:
     Ui::Form *ui;
 };
-
-#endif // FORM_H

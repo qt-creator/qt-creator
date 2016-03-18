@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_DIAGRAMSCENEMODELITEMVISITORS_H
-#define QMT_DIAGRAMSCENEMODELITEMVISITORS_H
+#pragma once
 
 #include "diagramscenemodel.h"
 
@@ -85,5 +84,3 @@ private:
 };
 
 } // namespace qmt
-
-#endif // QMT_DIAGRAMSCENEMODELITEMVISITORS_H

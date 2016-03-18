@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLJSPREVIEWRUNNER_H
-#define QMLJSPREVIEWRUNNER_H
+#pragma once
 
 #include <QObject>
 
@@ -51,6 +50,3 @@ private:
 
 } // namespace Internal
 } // namespace QmlJSEditor
-
-
-#endif // QMLJSPREVIEWRUNNER_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CPPOUTLINE_H
-#define CPPOUTLINE_H
+#pragma once
 
 #include "cppeditor.h"
 
@@ -100,5 +99,3 @@ public:
 
 } // namespace Internal
 } // namespace CppEditor
-
-#endif // CPPOUTLINE_H

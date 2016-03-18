@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef COLORSCHEMEEDIT_H
-#define COLORSCHEMEEDIT_H
+#pragma once
 
 #include "colorscheme.h"
 #include "fontsettingspage.h"
@@ -91,5 +90,3 @@ private:
 
 } // namespace Internal
 } // namespace TextEditor
-
-#endif // COLORSCHEMEEDIT_H

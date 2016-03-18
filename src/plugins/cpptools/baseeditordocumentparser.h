@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef BASEEDITORDOCUMENTPARSER_H
-#define BASEEDITORDOCUMENTPARSER_H
+#pragma once
 
 #include "cpptools_global.h"
 #include "cppworkingcopy.h"
@@ -86,5 +85,3 @@ private:
 };
 
 } // namespace CppTools
-
-#endif // BASEEDITORDOCUMENTPARSER_H

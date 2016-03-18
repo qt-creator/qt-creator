@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef ITEMDATA_H
-#define ITEMDATA_H
+#pragma once
 
 #include <QString>
 #include <QColor>
@@ -81,5 +80,3 @@ private:
 
 } // namespace Internal
 } // namespace TextEditor
-
-#endif // ITEMDATA_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef TEXTTOOL_H
-#define TEXTTOOL_H
+#pragma once
 
 #include "abstractcustomtool.h"
 #include "selectionindicator.h"
@@ -86,5 +85,3 @@ private:
 };
 
 }
-#endif // TEXTTOOL_H
-

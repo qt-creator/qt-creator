@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef IEDITORFACTORY_H
-#define IEDITORFACTORY_H
+#pragma once
 
 #include <coreplugin/core_global.h>
 #include <coreplugin/id.h>
@@ -61,5 +60,3 @@ private:
 };
 
 } // namespace Core
-
-#endif // IEDITORFACTORY_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef REUSE_H
-#define REUSE_H
+#pragma once
 
 #include <Qt>
 #include <QString>
@@ -92,5 +91,3 @@ inline void setStartCharacter(QChar *c, const QString &character)
 
 } // namespace Internal
 } // namespace TextEditor
-
-#endif // REUSE_H

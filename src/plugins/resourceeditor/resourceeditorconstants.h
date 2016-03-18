@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef RESOURCEEDITOR_CONSTANTS_H
-#define RESOURCEEDITOR_CONSTANTS_H
+#pragma once
 
 namespace ResourceEditor {
 namespace Constants {
@@ -50,8 +49,5 @@ const char C_OPEN_EDITOR[] = "ResourceEditor.OpenEditor";
 const char C_COPY_PATH[] = "ResourceEditor.CopyPath";
 const char C_COPY_URL[] = "ResourceEditor.CopyUrl";
 
-
 } // namespace Constants
 } // namespace ResourceEditor
-
-#endif // RESOURCEEDITOR_CONSTANTS_H

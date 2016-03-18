@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SYSTEMSETTINGS_H
-#define SYSTEMSETTINGS_H
+#pragma once
 
 #include <coreplugin/dialogs/ioptionspage.h>
 #include <QPointer>
@@ -63,5 +62,3 @@ private:
 
 } // namespace Internal
 } // namespace Core
-
-#endif // SYSTEMSETTINGS_H

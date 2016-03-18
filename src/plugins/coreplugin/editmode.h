@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef EDITMODE_H
-#define EDITMODE_H
+#pragma once
 
 #include <coreplugin/imode.h>
 
@@ -56,5 +55,3 @@ private:
 
 } // namespace Internal
 } // namespace Core
-
-#endif // EDITMODE_H

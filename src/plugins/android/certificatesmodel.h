@@ -24,8 +24,7 @@
 **
 ****************************************************************************/
 
-#ifndef CERTIFICATESMODEL_H
-#define CERTIFICATESMODEL_H
+#pragma once
 
 #include <QAbstractListModel>
 #include <QVector>
@@ -50,5 +49,3 @@ private:
 
 }
 }
-
-#endif // CERTIFICATESMODEL_H

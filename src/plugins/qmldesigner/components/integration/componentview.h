@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef COMPONENTVIEW_H
-#define COMPONENTVIEW_H
+#pragma once
 
 #include <abstractview.h>
 #include <modelnode.h>
@@ -94,5 +93,3 @@ private:
 };
 
 } // namespace QmlDesigner
-
-#endif // COMPONENTVIEW_H

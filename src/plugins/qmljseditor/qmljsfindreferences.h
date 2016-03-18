@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLJSFINDREFERENCES_H
-#define QMLJSFINDREFERENCES_H
+#pragma once
 
 #include "qmljseditor_global.h"
 
@@ -92,5 +91,3 @@ private:
 };
 
 } // namespace QmlJSEditor
-
-#endif // QMLJSFINDREFERENCES_H

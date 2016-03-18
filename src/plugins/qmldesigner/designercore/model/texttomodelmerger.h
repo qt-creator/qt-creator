@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef TEXTTOMODELMERGER_H
-#define TEXTTOMODELMERGER_H
+#pragma once
 
 #include "qmldesignercorelib_global.h"
 #include "import.h"
@@ -308,5 +307,3 @@ public:
 
 } //Internal
 } //QmlDesigner
-
-#endif // TEXTTOMODELMERGER_H

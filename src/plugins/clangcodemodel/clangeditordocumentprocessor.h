@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CLANGEDITORDOCUMENTPROCESSOR_H
-#define CLANGEDITORDOCUMENTPROCESSOR_H
+#pragma once
 
 #include "clangdiagnosticmanager.h"
 #include "clangeditordocumentparser.h"
@@ -114,5 +113,3 @@ private:
 
 } // namespace Internal
 } // namespace ClangCodeModel
-
-#endif // CLANGEDITORDOCUMENTPROCESSOR_H

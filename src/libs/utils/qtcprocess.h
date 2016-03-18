@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QTCPROCESS_H
-#define QTCPROCESS_H
+#pragma once
 
 #include "environment.h"
 
@@ -153,5 +152,3 @@ private:
 };
 
 } // namespace Utils
-
-#endif // QTCPROCESS_H

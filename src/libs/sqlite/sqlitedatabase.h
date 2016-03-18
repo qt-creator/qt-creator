@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SQLITEDATABASE_H
-#define SQLITEDATABASE_H
+#pragma once
 
 #include "sqlitedatabaseconnectionproxy.h"
 #include "sqliteglobal.h"
@@ -78,5 +77,3 @@ private:
     QString databaseFilePath_;
     JournalMode journalMode_;
 };
-
-#endif // SQLITEDATABASE_H

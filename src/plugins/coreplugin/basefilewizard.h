@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef BASEFILEWIZARD_H
-#define BASEFILEWIZARD_H
+#pragma once
 
 #include "core_global.h"
 
@@ -64,5 +63,3 @@ private:
 };
 
 } // namespace Core
-
-#endif // BASEFILEWIZARD_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef ITEMLIBRARYWIDGET_H
-#define ITEMLIBRARYWIDGET_H
+#pragma once
 
 #include "itemlibraryinfo.h"
 #include "itemlibrarytreeview.h"
@@ -138,6 +137,3 @@ private:
 };
 
 }
-
-#endif // ITEMLIBRARYWIDGET_H
-

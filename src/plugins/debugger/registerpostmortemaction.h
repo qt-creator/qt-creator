@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef REGISTERPOSTMORTEMACTION_H
-#define REGISTERPOSTMORTEMACTION_H
+#pragma once
 
 #include <utils/savedaction.h>
 
@@ -44,5 +43,3 @@ private:
 
 } // namespace Internal
 } // namespace Debugger
-
-#endif // REGISTERPOSTMORTEMACTION_H

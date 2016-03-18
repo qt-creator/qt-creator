@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef DEBUGGER_SOURCEFILESHANDLER_H
-#define DEBUGGER_SOURCEFILESHANDLER_H
+#pragma once
 
 #include <QAbstractItemModel>
 #include <QStringList>
@@ -65,5 +64,3 @@ private:
 
 } // namespace Internal
 } // namespace Debugger
-
-#endif // DEBUGGER_SOURCEFILESHANDLER_H

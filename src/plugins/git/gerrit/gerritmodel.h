@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef GERRIT_INTERNAL_GERRITMODEL_H
-#define GERRIT_INTERNAL_GERRITMODEL_H
+#pragma once
 
 #include <QStandardItemModel>
 #include <QSharedPointer>
@@ -147,5 +146,3 @@ private:
 } // namespace Gerrit
 
 Q_DECLARE_METATYPE(Gerrit::Internal::GerritChangePtr)
-
-#endif // GERRIT_INTERNAL_GERRITMODEL_H

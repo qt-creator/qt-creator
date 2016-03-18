@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef DEBUGGER_MODULESHANDLER_H
-#define DEBUGGER_MODULESHANDLER_H
+#pragma once
 
 #include <utils/elfreader.h>
 #include <utils/treemodel.h>
@@ -136,5 +135,3 @@ private:
 
 } // namespace Internal
 } // namespace Debugger
-
-#endif // DEBUGGER_MODULESHANDLER_H

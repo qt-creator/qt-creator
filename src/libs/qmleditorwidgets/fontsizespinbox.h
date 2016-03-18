@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef FONTSIZESPINBOX_H
-#define FONTSIZESPINBOX_H
+#pragma once
 
 #include "qmleditorwidgets_global.h"
 #include <QAbstractSpinBox>
@@ -92,5 +91,3 @@ private:
 };
 
 } //QmlDesigner
-
-#endif // FONTSIZESPINBOX_H

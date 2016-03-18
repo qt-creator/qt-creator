@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CPPCODESTYLESETTINGS_H
-#define CPPCODESTYLESETTINGS_H
+#pragma once
 
 #include "cpptools_global.h"
 
@@ -110,5 +109,3 @@ public:
 } // namespace CppTools
 
 Q_DECLARE_METATYPE(CppTools::CppCodeStyleSettings)
-
-#endif // CPPCODESTYLESETTINGS_H

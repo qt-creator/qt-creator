@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PROPERTYEDITORCONTEXTOBJECT_H
-#define PROPERTYEDITORCONTEXTOBJECT_H
+#pragma once
 
 #include <QObject>
 #include <QUrl>
@@ -132,5 +131,3 @@ private:
 };
 
 } //QmlDesigner {
-
-#endif // PROPERTYEDITORCONTEXTOBJECT_H

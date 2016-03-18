@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef WIZARD_H
-#define WIZARD_H
+#pragma once
 
 #include "utils_global.h"
 
@@ -170,5 +169,3 @@ private:
 };
 
 } // namespace Utils
-
-#endif // WIZARD_H

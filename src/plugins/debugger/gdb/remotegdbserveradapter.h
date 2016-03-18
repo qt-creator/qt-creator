@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef REMOTEGDBSERVERADAPTER_H
-#define REMOTEGDBSERVERADAPTER_H
+#pragma once
 
 #include "gdbengine.h"
 
@@ -71,5 +70,3 @@ private:
 
 } // namespace Internal
 } // namespace Debugger
-
-#endif // REMOTEGDBSERVERADAPTER_H

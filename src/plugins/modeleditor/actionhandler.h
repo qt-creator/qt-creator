@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef ACTIONHANDLER_H
-#define ACTIONHANDLER_H
+#pragma once
 
 #include <QObject>
 
@@ -94,5 +93,3 @@ private:
 
 } // namespace Internal
 } // namespace ModelEditor
-
-#endif // ACTIONHANDLER_H

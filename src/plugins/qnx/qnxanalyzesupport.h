@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QNXANALYZESUPPORT_H
-#define QNXANALYZESUPPORT_H
+#pragma once
 
 #include "qnxabstractrunsupport.h"
 
@@ -75,5 +74,3 @@ private:
 
 } // namespace Internal
 } // namespace Qnx
-
-#endif // QNXANALYZESUPPORT_H

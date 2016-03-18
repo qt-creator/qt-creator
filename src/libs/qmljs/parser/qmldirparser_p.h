@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QQMLDIRPARSER_P_H
-#define QQMLDIRPARSER_P_H
+#pragma once
 
 //
 //  W A R N I N G
@@ -146,5 +145,3 @@ QDebug &operator<< (QDebug &, const QmlDirParser::Component &);
 QDebug &operator<< (QDebug &, const QmlDirParser::Script &);
 
 QT_END_NAMESPACE
-
-#endif // QQMLDIRPARSER_P_H

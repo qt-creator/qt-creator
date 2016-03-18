@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef DEBUGMESSAGESMODEL_H
-#define DEBUGMESSAGESMODEL_H
+#pragma once
 
 #include "qmlprofiler/qmlprofilertimelinemodel.h"
 
@@ -67,5 +66,3 @@ private:
 
 }
 }
-
-#endif // DEBUGMESSAGESMODEL_H

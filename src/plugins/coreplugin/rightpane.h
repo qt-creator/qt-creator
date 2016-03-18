@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef RIGHTPANE_H
-#define RIGHTPANE_H
+#pragma once
 
 #include "core_global.h"
 
@@ -89,5 +88,3 @@ private:
 };
 
 } // namespace Core
-
-#endif // RIGHTPANE_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef TESTWIZARD_H
-#define TESTWIZARD_H
+#pragma once
 
 #include "qtwizard.h"
 
@@ -46,5 +45,3 @@ protected:
 
 } // namespace Internal
 } // namespace QmakeProjectManager
-
-#endif // TESTWIZARD_H

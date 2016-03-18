@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef MYINTERFACES_H
-#define MYINTERFACES_H
+#pragma once
 
 #include <aggregate.h>
 
@@ -80,5 +79,3 @@ public:
 private:
     QString m_text;
 };
-
-#endif // MYINTERFACES_H

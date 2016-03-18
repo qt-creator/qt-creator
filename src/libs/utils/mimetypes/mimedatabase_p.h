@@ -37,8 +37,7 @@
 **
 ****************************************************************************/
 
-#ifndef MIMEDATABASE_P_H
-#define MIMEDATABASE_P_H
+#pragma once
 
 //
 //  W A R N I N G
@@ -101,5 +100,3 @@ public:
 
 } // Internal
 } // Utils
-
-#endif   // MIMEDATABASE_P_H

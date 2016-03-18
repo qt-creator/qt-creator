@@ -18,8 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#ifndef CPLUSPLUS_LITERALS_H
-#define CPLUSPLUS_LITERALS_H
+#pragma once
 
 #include "CPlusPlusForwardDeclarations.h"
 #include "Token.h"
@@ -124,6 +123,3 @@ protected:
 };
 
 } // namespace CPlusPlus
-
-
-#endif // CPLUSPLUS_LITERALS_H

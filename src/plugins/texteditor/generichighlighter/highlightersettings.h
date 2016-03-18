@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef HIGHLIGHTERSETTINGS_H
-#define HIGHLIGHTERSETTINGS_H
+#pragma once
 
 #include <QString>
 #include <QStringList>
@@ -84,5 +83,3 @@ QString findFallbackDefinitionsLocation();
 }
 
 } // namespace TextEditor
-
-#endif // HIGHLIGHTERSETTINGS_H

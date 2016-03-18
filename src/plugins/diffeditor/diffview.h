@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef DIFFVIEW_H
-#define DIFFVIEW_H
+#pragma once
 
 #include <coreplugin/id.h>
 
@@ -133,5 +132,3 @@ private:
 
 } // namespace Internal
 } // namespace DiffEditor
-
-#endif // DIFFVIEW_H

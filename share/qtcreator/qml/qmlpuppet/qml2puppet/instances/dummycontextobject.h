@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef DUMMYCONTEXTOBJECT_H
-#define DUMMYCONTEXTOBJECT_H
+#pragma once
 
 #include <QObject>
 #include <QPointer>
@@ -53,4 +52,3 @@ private:
 } // namespace QmlDesigner
 
 QML_DECLARE_TYPE(QmlDesigner::DummyContextObject)
-#endif // DUMMYCONTEXTOBJECT_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CPPTOOLS_CPPMODELMANAGERSUPPORT_H
-#define CPPTOOLS_CPPMODELMANAGERSUPPORT_H
+#pragma once
 
 #include "cpptools_global.h"
 
@@ -63,5 +62,3 @@ public:
 };
 
 } // CppTools namespace
-
-#endif // CPPTOOLS_CPPMODELMANAGERSUPPORT_H

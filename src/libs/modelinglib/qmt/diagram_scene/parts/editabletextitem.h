@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_EDITABLETEXTITEM_H
-#define QMT_EDITABLETEXTITEM_H
+#pragma once
 
 #include <QGraphicsTextItem>
 
@@ -63,5 +62,3 @@ private:
 };
 
 } // namespace qmt
-
-#endif // QMT_EDITABLETEXTITEM_H

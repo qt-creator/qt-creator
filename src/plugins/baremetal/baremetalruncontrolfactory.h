@@ -24,8 +24,7 @@
 **
 ****************************************************************************/
 
-#ifndef BAREMETALRUNCONTROLFACTORY_H
-#define BAREMETALRUNCONTROLFACTORY_H
+#pragma once
 
 #include "baremetalrunconfiguration.h"
 
@@ -49,5 +48,3 @@ public:
 
 } // namespace Internal
 } // namespace BareMetal
-
-#endif // BAREMETALRUNCONTROLFACTORY_H

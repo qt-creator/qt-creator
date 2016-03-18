@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef NODEINSTANCEVIEW_H
-#define NODEINSTANCEVIEW_H
+#pragma once
 
 #include "qmldesignercorelib_global.h"
 #include "abstractview.h"
@@ -205,5 +204,3 @@ private: //variables
 };
 
 } // namespace ProxyNodeInstanceView
-
-#endif // NODEINSTANCEVIEW_H

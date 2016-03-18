@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef GLSLHOVERHANDLER_H
-#define GLSLHOVERHANDLER_H
+#pragma once
 
 #include <texteditor/basehoverhandler.h>
 
@@ -43,5 +42,3 @@ private:
 
 } // namespace Internal
 } // namespace GlslEditor
-
-#endif // GLSLHOVERHANDLER_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef MODELNODE_H
-#define MODELNODE_H
+#pragma once
 
 #include "qmldesignercorelib_global.h"
 #include <QPointer>
@@ -210,5 +209,3 @@ QMLDESIGNERCORE_EXPORT QTextStream& operator<<(QTextStream &stream, const ModelN
 }
 
 Q_DECLARE_METATYPE(QmlDesigner::ModelNode)
-
-#endif // MODELNODE_H

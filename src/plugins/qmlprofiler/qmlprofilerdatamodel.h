@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLPROFILERDATAMODEL_H
-#define QMLPROFILERDATAMODEL_H
+#pragma once
 
 #include "qmlprofilermodelmanager.h"
 
@@ -237,5 +236,3 @@ private:
 };
 
 }
-
-#endif

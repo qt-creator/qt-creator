@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLJSCOMPLETIONCONTEXTFINDER_H
-#define QMLJSCOMPLETIONCONTEXTFINDER_H
+#pragma once
 
 #include "qmljs_global.h"
 #include <qmljs/qmljslineinfo.h>
@@ -70,5 +69,3 @@ private:
 };
 
 } // namespace QmlJS
-
-#endif // QMLJSCOMPLETIONCONTEXTFINDER_H

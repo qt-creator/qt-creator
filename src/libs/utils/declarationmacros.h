@@ -30,4 +30,3 @@
     Class &operator=(const Class&) = delete; \
     Class(Class&&) = delete; \
     Class &operator=(Class&&) = delete;
-

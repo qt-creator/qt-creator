@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLJSQUICKFIX_H
-#define QMLJSQUICKFIX_H
+#pragma once
 
 #include "qmljseditor.h"
 
@@ -94,5 +93,3 @@ protected:
 };
 
 } // namespace QmlJSEditor
-
-#endif // QMLJSQUICKFIX_H

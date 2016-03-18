@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef OPENPAGESMODEL_H
-#define OPENPAGESMODEL_H
+#pragma once
 
 #include <QList>
 #include <QAbstractTableModel>
@@ -60,5 +59,3 @@ private:
 
     } // namespace Internal
 } // namespace Help
-
-#endif // OPENPAGESMODEL_H

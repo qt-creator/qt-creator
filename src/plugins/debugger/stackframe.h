@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef DEBUGGER_STACKFRAME_H
-#define DEBUGGER_STACKFRAME_H
+#pragma once
 
 #include "debuggerconstants.h"
 
@@ -74,5 +73,3 @@ typedef QList<StackFrame> StackFrames;
 } // namespace Debugger
 
 Q_DECLARE_METATYPE(Debugger::Internal::StackFrame)
-
-#endif // DEBUGGER_STACKFRAME_H

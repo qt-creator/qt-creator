@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef COREICONS_H
-#define COREICONS_H
+#pragma once
 
 #include "core_global.h"
 
@@ -99,5 +98,3 @@ CORE_EXPORT extern const Utils::Icon MODE_DESIGN_FLAT_ACTIVE;
 
 } // namespace Icons
 } // namespace Core
-
-#endif // COREICONS_H

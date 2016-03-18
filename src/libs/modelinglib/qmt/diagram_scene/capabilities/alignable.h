@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_ALIGNABLE_H
-#define QMT_ALIGNABLE_H
+#pragma once
 
 #include <QString>
 
@@ -51,5 +50,3 @@ public:
 };
 
 } // namespace qmt
-
-#endif // QMT_ALIGNABLE_H

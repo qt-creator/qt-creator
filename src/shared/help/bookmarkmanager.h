@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef BOOKMARKMANAGER_H
-#define BOOKMARKMANAGER_H
+#pragma once
 
 #include "ui_bookmarkdialog.h"
 
@@ -188,5 +187,3 @@ private:
     BookmarkModel *listModel;
     QStandardItem *renameItem;
 };
-
-#endif

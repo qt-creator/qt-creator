@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CROPIMAGEVIEW_H
-#define CROPIMAGEVIEW_H
+#pragma once
 
 #include <QWidget>
 
@@ -51,5 +50,3 @@ private:
     QImage m_image;
     QRect m_area;
 };
-
-#endif // CROPIMAGEVIEW_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CPLUSPLUS_TYPEOFEXPRESSION_H
-#define CPLUSPLUS_TYPEOFEXPRESSION_H
+#pragma once
 
 #include "CppDocument.h"
 #include "LookupContext.h"
@@ -159,5 +158,3 @@ ExpressionAST CPLUSPLUS_EXPORT *extractExpressionAST(Document::Ptr doc);
 Document::Ptr CPLUSPLUS_EXPORT documentForExpression(const QByteArray &utf8code);
 
 } // namespace CPlusPlus
-
-#endif // CPLUSPLUS_TYPEOFEXPRESSION_H

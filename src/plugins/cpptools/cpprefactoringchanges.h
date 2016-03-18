@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CPPREFACTORINGCHANGES_H
-#define CPPREFACTORINGCHANGES_H
+#pragma once
 
 #include "cpptools_global.h"
 
@@ -98,5 +97,3 @@ private:
 };
 
 } // namespace CppTools
-
-#endif // CPPREFACTORINGCHANGES_H

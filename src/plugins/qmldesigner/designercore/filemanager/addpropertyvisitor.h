@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef ADDPROPERTYVISITOR_H
-#define ADDPROPERTYVISITOR_H
+#pragma once
 
 #include "qmlrefactoring.h"
 #include "qmlrewriter.h"
@@ -62,5 +61,3 @@ private:
 
 } // namespace Internal
 } // namespace QmlDesigner
-
-#endif // ADDPROPERTYVISITOR_H

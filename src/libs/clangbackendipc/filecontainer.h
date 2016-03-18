@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CLANGBACKEND_FILECONTAINER_H
-#define CLANGBACKEND_FILECONTAINER_H
+#pragma once
 
 #include <clangbackendipc_global.h>
 
@@ -74,5 +73,3 @@ CMBIPC_EXPORT QDebug operator<<(QDebug debug, const FileContainer &container);
 void PrintTo(const FileContainer &container, ::std::ostream* os);
 
 } // namespace ClangBackEnd
-
-#endif // CLANGBACKEND_FILECONTAINER_H

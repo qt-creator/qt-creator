@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef DEBUGGER_CONSOLEEDIT_H
-#define DEBUGGER_CONSOLEEDIT_H
+#pragma once
 
 #include <QModelIndex>
 #include <QString>
@@ -60,5 +59,3 @@ private:
 
 } // Debugger
 } // Internal
-
-#endif // DEBUGGER_CONSOLEEDIT_H

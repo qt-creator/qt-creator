@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_UNDOCOMMAND_H
-#define QMT_UNDOCOMMAND_H
+#pragma once
 
 #include <QUndoCommand>
 #include "qmt/infrastructure/qmt_global.h"
@@ -53,5 +52,3 @@ private:
 };
 
 } // namespace qmt
-
-#endif // QMT_UNDOCOMMAND_H

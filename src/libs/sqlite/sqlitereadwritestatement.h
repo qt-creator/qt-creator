@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SQLITEREADWRITESTATEMENT_H
-#define SQLITEREADWRITESTATEMENT_H
+#pragma once
 
 #include "sqlitestatement.h"
 
@@ -49,5 +48,3 @@ public:
     using SqliteStatement::toValue;
     using SqliteStatement::execute;
 };
-
-#endif // SQLITEREADWRITESTATEMENT_H

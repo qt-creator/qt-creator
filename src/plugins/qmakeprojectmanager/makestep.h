@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef MAKESTEP_H
-#define MAKESTEP_H
+#pragma once
 
 #include "qmakeprojectmanager_global.h"
 
@@ -137,5 +136,3 @@ private:
 };
 
 } // QmakeProjectManager
-
-#endif // MAKESTEP_H

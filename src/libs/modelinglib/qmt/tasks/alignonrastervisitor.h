@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_ALIGNONRASTERVISITOR_H
-#define QMT_ALIGNONRASTERVISITOR_H
+#pragma once
 
 #include "qmt/diagram/dvisitor.h"
 #include "qmt/infrastructure/qmt_global.h"
@@ -66,5 +65,3 @@ private:
 };
 
 } // namespace qmt
-
-#endif // QMT_ALIGNONRASTERVISITOR_H

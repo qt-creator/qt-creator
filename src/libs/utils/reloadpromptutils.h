@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef RELOADPROMPTUTILS_H
-#define RELOADPROMPTUTILS_H
+#pragma once
 
 #include "utils_global.h"
 
@@ -63,5 +62,3 @@ QTCREATOR_UTILS_EXPORT FileDeletedPromptAnswer fileDeletedPrompt(const QString &
                                                                  QWidget *parent);
 
 } // namespace Utils
-
-#endif // RELOADPROMPTUTILS_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef IOSANALYZESUPPORT_H
-#define IOSANALYZESUPPORT_H
+#pragma once
 
 #include "iosrunconfiguration.h"
 
@@ -67,5 +66,3 @@ private:
 
 } // namespace Internal
 } // namespace Ios
-
-#endif // IOSANALYZESUPPORT_H

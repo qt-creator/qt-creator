@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef READONLYFILESDIALOG_H
-#define READONLYFILESDIALOG_H
+#pragma once
 
 #include <coreplugin/core_global.h>
 
@@ -81,5 +80,3 @@ private:
 };
 
 } // namespace Core
-
-#endif // READONLYFILESDIALOG_H

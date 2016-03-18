@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef WINRTRUNCONTROL_H
-#define WINRTRUNCONTROL_H
+#pragma once
 
 #include "winrtdevice.h"
 
@@ -72,5 +71,3 @@ private:
 
 } // namespace Internal
 } // namespace WinRt
-
-#endif // WINRTRUNCONTROL_H

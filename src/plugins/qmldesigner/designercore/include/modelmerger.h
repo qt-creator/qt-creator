@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef MODELMERGER_H
-#define MODELMERGER_H
+#pragma once
 
 
 #include <QPointer>
@@ -51,5 +50,3 @@ private:
 };
 
 } //namespace QmlDesigner
-
-#endif // MODELMERGER_H

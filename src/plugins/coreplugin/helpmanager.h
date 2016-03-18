@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef HELPMANAGER_H
-#define HELPMANAGER_H
+#pragma once
 
 #include "core_global.h"
 
@@ -109,5 +108,3 @@ private:
 };
 
 }   // Core
-
-#endif  // HELPMANAGER_H

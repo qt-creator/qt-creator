@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLJSEDITOR_H
-#define QMLJSEDITOR_H
+#pragma once
 
 #include "qmljseditor_global.h"
 
@@ -157,5 +156,3 @@ public:
 
 } // namespace Internal
 } // namespace QmlJSEditor
-
-#endif // QMLJSEDITOR_H

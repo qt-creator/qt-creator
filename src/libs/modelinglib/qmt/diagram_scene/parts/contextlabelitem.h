@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_CONTEXTLABELITEM_H
-#define QMT_CONTEXTLABELITEM_H
+#pragma once
 
 #include <QGraphicsSimpleTextItem>
 
@@ -49,5 +48,3 @@ private:
 };
 
 } // namespace qmt
-
-#endif // QMT_CONTEXTLABELITEM_H

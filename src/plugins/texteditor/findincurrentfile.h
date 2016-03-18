@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef FINDINCURRENTFILE_H
-#define FINDINCURRENTFILE_H
+#pragma once
 
 #include "basefilefind.h"
 
@@ -66,5 +65,3 @@ private:
 
 } // namespace Internal
 } // namespace TextEditor
-
-#endif // FINDINCURRENTFILE_H

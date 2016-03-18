@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef FAKEVIMTR_H
-#define FAKEVIMTR_H
+#pragma once
 
 #include <QCoreApplication>
 
@@ -36,5 +35,3 @@ struct Tr
 };
 
 } // namespace FakeVim
-
-#endif // FAKEVIMTR

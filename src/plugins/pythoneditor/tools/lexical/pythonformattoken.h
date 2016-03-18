@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PYTHONFORMATTOKEN_H
-#define PYTHONFORMATTOKEN_H
+#pragma once
 
 #include <stdlib.h>
 
@@ -73,5 +72,3 @@ private:
 
 } // namespace Internal
 } // namespace PythonEditor
-
-#endif // PYTHONFORMATTOKEN_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CLANGSTATICANALYZERSETTINGS_H
-#define CLANGSTATICANALYZERSETTINGS_H
+#pragma once
 
 #include <QString>
 
@@ -55,5 +54,3 @@ private:
 
 } // namespace Internal
 } // namespace ClangStaticAnalyzer
-
-#endif // CLANGSTATICANALYZERSETTINGS_H

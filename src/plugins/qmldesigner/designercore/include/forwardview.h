@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef FORWARDVIEW_H
-#define FORWARDVIEW_H
+#pragma once
 
 #include <abstractview.h>
 
@@ -286,5 +285,3 @@ ViewType *ForwardView<ViewType>::firstView() const
 
 
 } // namespace QmlDesigner
-
-#endif // FORWARDVIEW_H

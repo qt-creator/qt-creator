@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLJSASTVISITOR_P_H
-#define QMLJSASTVISITOR_P_H
+#pragma once
 
 //
 //  W A R N I N G
@@ -321,5 +320,3 @@ public:
 } } // namespace AST
 
 QT_QML_END_NAMESPACE
-
-#endif // QMLJSASTVISITOR_P_H

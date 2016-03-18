@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef EDITORMANAGER_H
-#define EDITORMANAGER_H
+#pragma once
 
 #include "../core_global.h"
 #include "../idocument.h"
@@ -210,5 +209,3 @@ private:
 } // namespace Core
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(Core::EditorManager::OpenEditorFlags)
-
-#endif // EDITORMANAGER_H

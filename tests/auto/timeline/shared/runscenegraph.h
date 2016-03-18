@@ -23,11 +23,8 @@
 **
 ****************************************************************************/
 
-#ifndef RUNSCENEGRAPH_H
-#define RUNSCENEGRAPH_H
+#pragma once
 
 #include <QSGNode>
 
 void runSceneGraph(QSGNode *node);
-
-#endif //RUNSCENEGRAPH_H

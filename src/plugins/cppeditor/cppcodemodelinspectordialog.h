@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CPPCODEMODELINSPECTORDIALOG_H
-#define CPPCODEMODELINSPECTORDIALOG_H
+#pragma once
 
 #include <cpptools/cppmodelmanager.h>
 
@@ -121,5 +120,3 @@ private:
 
 } // namespace Internal
 } // namespace CppEditor
-
-#endif // CPPCODEMODELINSPECTORDIALOG_H

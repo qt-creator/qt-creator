@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CRASHHANDLERSETUP_H
-#define CRASHHANDLERSETUP_H
+#pragma once
 
 class CrashHandlerSetup
 {
@@ -32,5 +31,3 @@ public:
     CrashHandlerSetup();
     ~CrashHandlerSetup();
 };
-
-#endif // CRASHHANDLERSETUP_H

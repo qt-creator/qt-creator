@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CODEGENSETTINGS_H
-#define CODEGENSETTINGS_H
+#pragma once
 
 #include "qtsupport_global.h"
 
@@ -59,5 +58,3 @@ inline bool operator==(const CodeGenSettings &p1, const CodeGenSettings &p2) { r
 inline bool operator!=(const CodeGenSettings &p1, const CodeGenSettings &p2) { return !p1.equals(p2); }
 
 } // namespace QtSupport
-
-#endif // CODEGENSETTINGS_H

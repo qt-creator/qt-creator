@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PROFILEHIGHLIGHTER_H
-#define PROFILEHIGHLIGHTER_H
+#pragma once
 
 #include <texteditor/syntaxhighlighter.h>
 #include <texteditor/codeassist/keywordscompletionassist.h>
@@ -52,5 +51,3 @@ private:
 
 } // namespace Internal
 } // namespace QmakeProjectManager
-
-#endif // PROFILEHIGHLIGHTER_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CPPEDITORCONSTANTS_H
-#define CPPEDITORCONSTANTS_H
+#pragma once
 
 namespace CppEditor {
 namespace Constants {
@@ -53,5 +52,3 @@ const char CPP_PREPROCESSOR_PROJECT_PREFIX[] = "CppPreprocessorProject-";
 
 } // namespace Constants
 } // namespace CppEditor
-
-#endif // CPPEDITORCONSTANTS_H

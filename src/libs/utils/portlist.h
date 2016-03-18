@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PORTLIST_H
-#define PORTLIST_H
+#pragma once
 
 #include "utils_global.h"
 
@@ -57,5 +56,3 @@ private:
 };
 
 } // namespace Utils
-
-#endif // PORTLIST_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CPPTOOLS_PROJECTPARTBUILDER_H
-#define CPPTOOLS_PROJECTPARTBUILDER_H
+#pragma once
 
 #include "cpptools_global.h"
 
@@ -78,5 +77,3 @@ private:
 };
 
 } // namespace CppTools
-
-#endif // CPPTOOLS_PROJECTPARTBUILDER_H

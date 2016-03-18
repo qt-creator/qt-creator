@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef INTERNAL_CREATETABLECOMMAND_H
-#define INTERNAL_CREATETABLECOMMAND_H
+#pragma once
 
 #include "columndefinition.h"
 #include "utf8string.h"
@@ -48,5 +47,3 @@ public:
 } // namespace Internal
 
 Q_DECLARE_METATYPE(Internal::CreateTableCommand)
-
-#endif // INTERNAL_CREATETABLECOMMAND_H

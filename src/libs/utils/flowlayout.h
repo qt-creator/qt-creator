@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef FLOWLAYOUT_H
-#define FLOWLAYOUT_H
+#pragma once
 
 #include "utils_global.h"
 
@@ -63,5 +62,3 @@ private:
 };
 
 } // namespace Utils
-
-#endif // FLOWLAYOUT_H

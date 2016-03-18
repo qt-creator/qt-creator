@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLEXPRESSIONUNDERCURSOR_H
-#define QMLEXPRESSIONUNDERCURSOR_H
+#pragma once
 
 #include <qmljs/parser/qmljsastfwd_p.h>
 #include <qmljs/qmljsdocument.h>
@@ -67,5 +66,3 @@ private:
 
 } // namespace Internal
 } // namespace QmlJSEditor
-
-#endif // QMLEXPRESSIONUNDERCURSOR_H

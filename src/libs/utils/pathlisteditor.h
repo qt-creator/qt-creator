@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PATHLISTEDITOR_H
-#define PATHLISTEDITOR_H
+#pragma once
 
 #include "utils_global.h"
 
@@ -78,5 +77,3 @@ private:
 };
 
 } // namespace Utils
-
-#endif // PATHLISTEDITOR_H

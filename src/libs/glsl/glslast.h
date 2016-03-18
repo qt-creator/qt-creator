@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef GLSLAST_H
-#define GLSLAST_H
+#pragma once
 
 #include "glsl.h"
 #include "glslmemorypool.h"
@@ -992,5 +991,3 @@ public: // attributes
 };
 
 } // namespace GLSL
-
-#endif // GLSLAST_H

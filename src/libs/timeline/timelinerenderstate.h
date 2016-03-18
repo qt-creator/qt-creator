@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef TIMELINERENDERSTATE_H
-#define TIMELINERENDERSTATE_H
+#pragma once
 
 #include <QSGNode>
 #include "timelinerenderpass.h"
@@ -68,5 +67,3 @@ private:
 };
 
 } // namespace Timeline
-
-#endif // TIMELINERENDERSTATE_H

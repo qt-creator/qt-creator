@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef GUIAPPWIZARD_H
-#define GUIAPPWIZARD_H
+#pragma once
 
 #include "qtwizard.h"
 
@@ -53,5 +52,3 @@ private:
 
 } // namespace Internal
 } // namespace QmakeProjectManager
-
-#endif // GUIAPPWIZARD_H

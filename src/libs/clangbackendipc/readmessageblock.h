@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CLANGBACKEND_READMESSAGEBLOCK_H
-#define CLANGBACKEND_READMESSAGEBLOCK_H
+#pragma once
 
 #include <QtGlobal>
 
@@ -58,5 +57,3 @@ private:
 };
 
 } // namespace ClangBackEnd
-
-#endif // CLANGBACKEND_READMESSAGEBLOCK_H

@@ -24,8 +24,7 @@
 **
 ****************************************************************************/
 
-#ifndef PARSERTESTS_H
-#define PARSERTESTS_H
+#pragma once
 
 #include <QObject>
 #include <QPair>
@@ -164,5 +163,3 @@ private:
     QProcess *m_process;
     QTcpSocket *m_socket;
 };
-
-#endif // PARSERTESTS_H

@@ -24,8 +24,7 @@
 **
 ****************************************************************************/
 
-#ifndef ANALYZER_VALGRINDCONFIGWIDGET_H
-#define ANALYZER_VALGRINDCONFIGWIDGET_H
+#pragma once
 
 #include <QWidget>
 
@@ -69,5 +68,3 @@ private:
 
 } // namespace Internal
 } // namespace Valgrind
-
-#endif // ANALYZER_VALGRINDCONFIGWIDGET_H

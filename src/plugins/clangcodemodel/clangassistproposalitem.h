@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CLANGCODEMODEL_INTERNAL_CLANGASSISTPROPOSALITEM_H
-#define CLANGCODEMODEL_INTERNAL_CLANGASSISTPROPOSALITEM_H
+#pragma once
 
 #include <codecompletion.h>
 
@@ -70,5 +69,3 @@ private:
 
 } // namespace Internal
 } // namespace ClangCodeModel
-
-#endif // CLANGCODEMODEL_INTERNAL_CLANGASSISTPROPOSALITEM_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef DEBUGGER_CONSOLEVIEW_H
-#define DEBUGGER_CONSOLEVIEW_H
+#pragma once
 
 #include <utils/itemviews.h>
 
@@ -61,5 +60,3 @@ private:
 
 } // Internal
 } // Debugger
-
-#endif // DEBUGGER_CONSOLEVIEW_H

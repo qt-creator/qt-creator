@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef WINRTPLUGIN_H
-#define WINRTPLUGIN_H
+#pragma once
 
 #include <extensionsystem/iplugin.h>
 
@@ -47,5 +46,3 @@ public:
 
 } // namespace Internal
 } // namespace WinRt
-
-#endif // WINRTPLUGIN_H

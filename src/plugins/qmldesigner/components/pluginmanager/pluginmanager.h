@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PLUGINMANAGER_H
-#define PLUGINMANAGER_H
+#pragma once
 
 #include "pluginpath.h"
 
@@ -72,4 +71,3 @@ private: // variables
 };
 
 } // namespace QmlDesigner
-#endif // PLUGINMANAGER_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CUSTOMWIDGETWIZARD_H
-#define CUSTOMWIDGETWIZARD_H
+#pragma once
 
 #include "../wizards/qtwizard.h"
 
@@ -46,5 +45,3 @@ protected:
 
 } // namespace Internal
 } // namespace QmakeProjectManager
-
-#endif // CUSTOMWIDGETWIZARD_H

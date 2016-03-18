@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef IOSRUNCONFIGURATION_H
-#define IOSRUNCONFIGURATION_H
+#pragma once
 
 #include "iosconstants.h"
 #include "iosconfigurations.h"
@@ -93,5 +92,3 @@ private:
 
 } // namespace Internal
 } // namespace Ios
-
-#endif // IOSRUNCONFIGURATION_H

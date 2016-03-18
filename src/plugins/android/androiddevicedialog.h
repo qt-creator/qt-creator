@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef ANDROIDDEVICEDIALOG_H
-#define ANDROIDDEVICEDIALOG_H
+#pragma once
 
 #include "androidconfigurations.h"
 
@@ -83,5 +82,3 @@ private:
 
 }
 }
-
-#endif // ANDROIDDEVICEDIALOG_H

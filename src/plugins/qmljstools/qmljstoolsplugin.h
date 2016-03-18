@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLJSTOOLS_H
-#define QMLJSTOOLS_H
+#pragma once
 
 #include <coreplugin/id.h>
 #include <extensionsystem/iplugin.h>
@@ -77,5 +76,3 @@ private:
 
 } // namespace Internal
 } // namespace CppTools
-
-#endif // QMLJSTOOLS_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef BAREMETALCUSTOMRUNCONFIGURATION_H
-#define BAREMETALCUSTOMRUNCONFIGURATION_H
+#pragma once
 
 #include "baremetalrunconfiguration.h"
 
@@ -63,5 +62,3 @@ private:
 
 } // namespace Internal
 } // namespace BareMetal
-
-#endif // Include guard.

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CLASSVIEWUTILS_H
-#define CLASSVIEWUTILS_H
+#pragma once
 
 #include "classviewsymbollocation.h"
 #include "classviewsymbolinformation.h"
@@ -61,5 +60,3 @@ public:
 
 } // namespace Internal
 } // namespace ClassView
-
-#endif // CLASSVIEWUTILS_H

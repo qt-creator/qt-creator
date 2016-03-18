@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CLANGBACKEND_REGISTERUNSAVEDFILESFOREDITORMESSAGE_H
-#define CLANGBACKEND_REGISTERUNSAVEDFILESFOREDITORMESSAGE_H
+#pragma once
 
 #include "filecontainer.h"
 
@@ -57,5 +56,3 @@ void PrintTo(const RegisterUnsavedFilesForEditorMessage &message, ::std::ostream
 
 DECLARE_MESSAGE(RegisterUnsavedFilesForEditorMessage);
 } // namespace ClangBackEnd
-
-#endif // CLANGBACKEND_REGISTERUNSAVEDFILESFOREDITORMESSAGE_H

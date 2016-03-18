@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef APPLICATIONLAUNCHER_H
-#define APPLICATIONLAUNCHER_H
+#pragma once
 
 #include <QObject>
 #include <QStringList>
@@ -77,5 +76,3 @@ private:
 
 } // namespace Internal
 } // namespace QmakeProjectManager
-
-#endif // APPLICATIONLAUNCHER_H

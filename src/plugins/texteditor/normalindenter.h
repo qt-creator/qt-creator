@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef NORMALINDENTER_H
-#define NORMALINDENTER_H
+#pragma once
 
 #include "indenter.h"
 
@@ -40,5 +39,3 @@ public:
 };
 
 } // namespace TextEditor
-
-#endif // NORMALINDENTER_H

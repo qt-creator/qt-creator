@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_STEREOTYPEDISPLAYVISITOR_H
-#define QMT_STEREOTYPEDISPLAYVISITOR_H
+#pragma once
 
 #include "qmt/diagram_controller/dvoidvisitor.h"
 
@@ -67,5 +66,3 @@ private:
 };
 
 } // namespace qmt
-
-#endif // QMT_STEREOTYPEDISPLAYVISITOR_H

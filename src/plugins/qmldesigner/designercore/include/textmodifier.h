@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef TEXTMODIFIER_H
-#define TEXTMODIFIER_H
+#pragma once
 
 #include "qmldesignercorelib_global.h"
 
@@ -91,5 +90,3 @@ signals:
 };
 
 }
-
-#endif // TEXTMODIFIER_H

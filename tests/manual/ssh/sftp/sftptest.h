@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SFTPTEST_H
-#define SFTPTEST_H
+#pragma once
 
 #include "parameters.h"
 
@@ -102,6 +101,3 @@ private:
     QSsh::SftpFileInfo m_dirInfo;
     QList<QSsh::SftpFileInfo> m_dirContents;
 };
-
-
-#endif // SFTPTEST_H

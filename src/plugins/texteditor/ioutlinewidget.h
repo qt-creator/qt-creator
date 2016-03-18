@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef IOUTLINEWIDGET_H
-#define IOUTLINEWIDGET_H
+#pragma once
 
 #include <texteditor/texteditor_global.h>
 #include <QWidget>
@@ -55,5 +54,3 @@ public:
 };
 
 } // namespace TextEditor
-
-#endif // IOUTLINEWIDGET_H

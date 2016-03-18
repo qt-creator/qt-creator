@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CLANGBACKEND_SOURCELOCATIONCONTAINER_H
-#define CLANGBACKEND_SOURCELOCATIONCONTAINER_H
+#pragma once
 
 #include <clangbackendipc_global.h>
 
@@ -63,5 +62,3 @@ CMBIPC_EXPORT QDebug operator<<(QDebug debug, const SourceLocationContainer &con
 void PrintTo(const SourceLocationContainer &container, ::std::ostream* os);
 
 } // namespace ClangBackEnd
-
-#endif // CLANGBACKEND_SOURCELOCATIONCONTAINER_H

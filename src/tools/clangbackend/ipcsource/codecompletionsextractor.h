@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CLANGBACKEND_CODECOMPLETIONSEXTRACTOR_H
-#define CLANGBACKEND_CODECOMPLETIONSEXTRACTOR_H
+#pragma once
 
 #include <codecompletion.h>
 
@@ -83,5 +82,3 @@ private:
 void PrintTo(const CodeCompletionsExtractor &extractor, ::std::ostream* os);
 #endif
 } // namespace ClangBackEnd
-
-#endif // CLANGBACKEND_CODECOMPLETIONSEXTRACTOR_H

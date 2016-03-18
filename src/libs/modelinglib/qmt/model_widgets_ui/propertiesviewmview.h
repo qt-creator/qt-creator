@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_PROPERTIESVIEWMVIEW_H
-#define QMT_PROPERTIESVIEWMVIEW_H
+#pragma once
 
 #include <QObject>
 
@@ -248,5 +247,3 @@ protected:
 };
 
 } // namespace qmt
-
-#endif // QMT_PROPERTIESVIEWMVIEW_H

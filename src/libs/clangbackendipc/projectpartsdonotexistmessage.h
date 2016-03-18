@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CLANGBACKEND_PROJECTPARTSDONOTEXISTMESSAGE_H
-#define CLANGBACKEND_PROJECTPARTSDONOTEXISTMESSAGE_H
+#pragma once
 
 #include "clangbackendipc_global.h"
 
@@ -58,5 +57,3 @@ void PrintTo(const ProjectPartsDoNotExistMessage &message, ::std::ostream* os);
 
 DECLARE_MESSAGE(ProjectPartsDoNotExistMessage)
 } // namespace ClangBackEnd
-
-#endif // CLANGBACKEND_PROJECTPARTSDONOTEXISTMESSAGE_H

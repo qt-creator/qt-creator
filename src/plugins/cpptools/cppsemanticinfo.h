@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CPPSEMANTICINFO_H
-#define CPPSEMANTICINFO_H
+#pragma once
 
 #include "cpptools_global.h"
 
@@ -81,5 +80,3 @@ public:
 };
 
 } // namespace CppTools
-
-#endif // CPPSEMANTICINFO_H

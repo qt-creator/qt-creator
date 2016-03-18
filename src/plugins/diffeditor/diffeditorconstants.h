@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef DIFFEDITORCONSTANTS_H
-#define DIFFEDITORCONSTANTS_H
+#pragma once
 
 #include <QtGlobal>
 
@@ -40,5 +39,3 @@ const char EXPAND_BRANCHES[] = "Branches: <Expand>";
 
 } // namespace Constants
 } // namespace DiffEditor
-
-#endif // DIFFEDITORCONSTANTS_H

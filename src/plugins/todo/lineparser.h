@@ -24,8 +24,7 @@
 **
 ****************************************************************************/
 
-#ifndef LINEPARSER_H
-#define LINEPARSER_H
+#pragma once
 
 #include "keyword.h"
 #include "todoitem.h"
@@ -71,5 +70,3 @@ private:
 
 } // namespace Internal
 } // namespace Todo
-
-#endif // LINEPARSER_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef FLAMEGRAPH_H
-#define FLAMEGRAPH_H
+#pragma once
 
 #include <QQuickItem>
 #include <QAbstractItemModel>
@@ -156,5 +155,3 @@ private:
 }
 
 QML_DECLARE_TYPEINFO(QmlProfilerExtension::Internal::FlameGraph, QML_HAS_ATTACHED_PROPERTIES)
-
-#endif // FLAMEGRAPH_H

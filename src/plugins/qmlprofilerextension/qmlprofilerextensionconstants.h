@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLPROFILEREXTENSIONCONSTANTS_H
-#define QMLPROFILEREXTENSIONCONSTANTS_H
+#pragma once
 
 namespace QmlProfilerExtension {
 namespace Constants {
@@ -34,6 +33,3 @@ const char MENU_ID[] = "QmlProfilerExtension.Menu";
 
 } // namespace QmlProfilerExtension
 } // namespace Constants
-
-#endif // QMLPROFILEREXTENSIONCONSTANTS_H
-

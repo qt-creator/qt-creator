@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef LOCATORFILTERTEST_H
-#define LOCATORFILTERTEST_H
+#pragma once
 
 #include "ilocatorfilter.h"
 
@@ -86,5 +85,3 @@ template<> inline char *toString(const Core::Tests::ResultData &data)
 
 } // namespace QTest
 QT_END_NAMESPACE
-
-#endif // LOCATORFILTERTEST_H

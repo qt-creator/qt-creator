@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CLANGBACKEND_TYPE_H
-#define CLANGBACKEND_TYPE_H
+#pragma once
 
 #include <clang-c/Index.h>
 
@@ -78,5 +77,3 @@ bool operator==(Type first, Type second);
 void PrintTo(CXTypeKind typeKind, ::std::ostream* os);
 void PrintTo(const Type &type, ::std::ostream* os);
 } // namespace ClangBackEnd
-
-#endif // CLANGBACKEND_TYPE_H

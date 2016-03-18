@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef BASEFILEWIZARDFACTORY_H
-#define BASEFILEWIZARDFACTORY_H
+#pragma once
 
 #include "core_global.h"
 #include "generatedfile.h"
@@ -126,5 +125,3 @@ private:
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(Core::GeneratedFile::Attributes)
 Q_DECLARE_OPERATORS_FOR_FLAGS(Core::WizardDialogParameters::DialogParameterFlags)
-
-#endif // BASEFILEWIZARDFACTORY_H

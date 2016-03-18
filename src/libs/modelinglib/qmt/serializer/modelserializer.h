@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_MODELSERIALIZER_H
-#define QMT_MODELSERIALIZER_H
+#pragma once
 
 #include "qmt/model/melement.h"
 #include "qmt/model/mclassmember.h"
@@ -42,5 +41,3 @@ QARK_SERIALIZE_ENUM(qmt::MDependency::Direction)
 QARK_SERIALIZE_ENUM(qmt::MAssociationEnd::Kind)
 
 } // namespace qark
-
-#endif // QMT_MODELSERIALIZER_H

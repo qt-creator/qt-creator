@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QT5NODEINSTANCESERVER_H
-#define QT5NODEINSTANCESERVER_H
+#pragma once
 
 #include <QtGlobal>
 
@@ -68,5 +67,3 @@ private:
 };
 
 } // QmlDesigner
-
-#endif // QT5NODEINSTANCESERVER_H

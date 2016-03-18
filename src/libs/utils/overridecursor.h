@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef OVERRIDECURSOR_H
-#define OVERRIDECURSOR_H
+#pragma once
 
 #include "utils_global.h"
 
@@ -45,5 +44,3 @@ private:
 };
 
 }
-
-#endif // OVERRIDECURSOR_H

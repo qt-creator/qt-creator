@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef REMOTELINUXPACKAGEINSTALLER_H
-#define REMOTELINUXPACKAGEINSTALLER_H
+#pragma once
 
 #include "remotelinux_export.h"
 
@@ -85,5 +84,3 @@ private:
 
 
 } // namespace RemoteLinux
-
-#endif // REMOTELINUXPACKAGEINSTALLER_H

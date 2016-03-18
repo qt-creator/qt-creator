@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CUSTOMWIZARDPAGE_H
-#define CUSTOMWIZARDPAGE_H
+#pragma once
 
 #include <QComboBox>
 #include <QCheckBox>
@@ -135,5 +134,3 @@ private:
 
 } // namespace Internal
 } // namespace ProjectExplorer
-
-#endif // CUSTOMWIZARDPAGE_H

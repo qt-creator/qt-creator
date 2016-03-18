@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef ICODESTYLEPREFERENCESFACTORY_H
-#define ICODESTYLEPREFERENCESFACTORY_H
+#pragma once
 
 #include "texteditor_global.h"
 
@@ -54,5 +53,3 @@ public:
 };
 
 } // namespace TextEditor
-
-#endif // ICODESTYLEPREFERENCESFACTORY_H

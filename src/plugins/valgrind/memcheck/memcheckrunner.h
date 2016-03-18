@@ -24,8 +24,7 @@
 **
 ****************************************************************************/
 
-#ifndef VALGRIND_PROTOCOL_MEMCHECKRUNNER_H
-#define VALGRIND_PROTOCOL_MEMCHECKRUNNER_H
+#pragma once
 
 #include "../valgrindrunner.h"
 
@@ -69,5 +68,3 @@ private:
 
 } // namespace Memcheck
 } // namespace Valgrind
-
-#endif // VALGRIND_PROTOCOL_MEMCHECKRUNNER_H

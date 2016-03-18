@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef TEXTEDITOROVERLAY_H
-#define TEXTEDITOROVERLAY_H
+#pragma once
 
 #include <QObject>
 #include <QList>
@@ -124,5 +123,3 @@ private:
 
 } // namespace Internal
 } // namespace TextEditor
-
-#endif // TEXTEDITOROVERLAY_H

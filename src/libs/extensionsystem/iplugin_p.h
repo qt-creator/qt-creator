@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef IPLUGIN_P_H
-#define IPLUGIN_P_H
+#pragma once
 
 #include "iplugin.h"
 
@@ -47,5 +46,3 @@ public:
 
 } // namespace Internal
 } // namespace ExtensionSystem
-
-#endif // IPLUGIN_P_H

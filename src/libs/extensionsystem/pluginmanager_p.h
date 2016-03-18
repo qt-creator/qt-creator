@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PLUGINMANAGER_P_H
-#define PLUGINMANAGER_P_H
+#pragma once
 
 #include "pluginspec.h"
 
@@ -154,5 +153,3 @@ private:
 
 } // namespace Internal
 } // namespace ExtensionSystem
-
-#endif // PLUGINMANAGER_P_H

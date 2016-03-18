@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef OPENPAGESWIDGET_H
-#define OPENPAGESWIDGET_H
+#pragma once
 
 #include <coreplugin/opendocumentstreeview.h>
 
@@ -62,5 +61,3 @@ private:
 
     } // namespace Internal
 } // namespace Help
-
-#endif // OPENPAGESWIDGET_H

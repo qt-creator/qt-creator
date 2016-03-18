@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef STOPMONITORINGHANDLER_H
-#define STOPMONITORINGHANDLER_H
+#pragma once
 
 #include <projectexplorer/itaskhandler.h>
 
@@ -43,5 +42,3 @@ public:
 
 } // namespace Internal
 } // namespace TaskList
-
-#endif // STOPMONITORINGHANDLER_H

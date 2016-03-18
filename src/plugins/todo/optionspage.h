@@ -24,8 +24,7 @@
 **
 ****************************************************************************/
 
-#ifndef OPTIONSPAGE_H
-#define OPTIONSPAGE_H
+#pragma once
 
 #include "settings.h"
 
@@ -61,5 +60,3 @@ private:
 
 } // namespace Internal
 } // namespace Todo
-
-#endif // OPTIONSPAGE_H

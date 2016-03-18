@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef NAVIGATORTREEMODEL_H
-#define NAVIGATORTREEMODEL_H
+#pragma once
 
 #include <modelnode.h>
 #include <nodemetainfo.h>
@@ -147,5 +146,3 @@ private:
 };
 
 } // namespace QmlDesigner
-
-#endif // NAVIGATORTREEMODEL_H

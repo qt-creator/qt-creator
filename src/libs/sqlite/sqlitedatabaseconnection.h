@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SQLITEDATABASECONNECTIONCONTROLLER_H
-#define SQLITEDATABASECONNECTIONCONTROLLER_H
+#pragma once
 
 #include "sqlitedatabasebackend.h"
 
@@ -56,5 +55,3 @@ signals:
 private:
     SqliteDatabaseBackend databaseBackend;
 };
-
-#endif // SQLITEDATABASECONNECTIONCONTROLLER_H

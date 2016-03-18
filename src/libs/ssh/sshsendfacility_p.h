@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SSHSENDFACILITY_P_H
-#define SSHSENDFACILITY_P_H
+#pragma once
 
 #include "sshcryptofacility_p.h"
 #include "sshoutgoingpacket_p.h"
@@ -99,5 +98,3 @@ private:
 
 } // namespace Internal
 } // namespace QSsh
-
-#endif // SSHSENDFACILITY_P_H

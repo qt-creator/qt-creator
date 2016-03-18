@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QUICK2PROERTYEDITORVIEW_H
-#define QUICK2PROERTYEDITORVIEW_H
+#pragma once
 
 #include <QQuickWidget>
 
@@ -42,5 +41,3 @@ public:
 };
 
 } //QmlDesigner
-
-#endif // QUICK2PROERTYEDITORVIEW_H

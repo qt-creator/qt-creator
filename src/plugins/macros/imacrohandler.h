@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef MACROSPLUGIN_IMACROHANDLER_H
-#define MACROSPLUGIN_IMACROHANDLER_H
+#pragma once
 
 #include <QObject>
 
@@ -65,5 +64,3 @@ private:
 
 } // namespace Internal
 } // namespace Macros
-
-#endif // MACROSPLUGIN_IMACROHANDLER_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CPPDOCUMENTATIONCOMMENTHELPER_H
-#define CPPDOCUMENTATIONCOMMENTHELPER_H
+#pragma once
 
 #include "cppeditor_global.h"
 
@@ -39,5 +38,3 @@ bool trySplitComment(TextEditor::TextEditorWidget *editorWidget,
 
 } // namespace Internal
 } // namespace CppEditor
-
-#endif // CPPDOCUMENTATIONCOMMENTHELPER_H

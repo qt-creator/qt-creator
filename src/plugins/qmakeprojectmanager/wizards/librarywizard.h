@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef LIBRARYWIZARD_H
-#define LIBRARYWIZARD_H
+#pragma once
 
 #include "qtwizard.h"
 #include "libraryparameters.h"
@@ -47,5 +46,3 @@ protected:
 
 } // namespace Internal
 } // namespace QmakeProjectManager
-
-#endif // LIBRARYWIZARD_H

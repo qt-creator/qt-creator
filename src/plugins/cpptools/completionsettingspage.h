@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef COMPLETIONSETTINGSPAGE_H
-#define COMPLETIONSETTINGSPAGE_H
+#pragma once
 
 #include "commentssettings.h"
 
@@ -67,5 +66,3 @@ private:
 
 } // namespace Internal
 } // namespace CppTools
-
-#endif // COMPLETIONSETTINGSPAGE_H

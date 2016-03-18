@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLPROFILEREXTENSION_GLOBAL_H
-#define QMLPROFILEREXTENSION_GLOBAL_H
+#pragma once
 
 #include <QtGlobal>
 
@@ -33,6 +32,3 @@
 #else
 #  define QMLPROFILEREXTENSIONSHARED_EXPORT Q_DECL_IMPORT
 #endif
-
-#endif // QMLPROFILEREXTENSION_GLOBAL_H
-

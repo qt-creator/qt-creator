@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef JSONFILEPAGE_H
-#define JSONFILEPAGE_H
+#pragma once
 
 #include <utils/filewizardpage.h>
 
@@ -43,5 +42,3 @@ public:
 };
 
 } // namespace ProjectExplorer
-
-#endif // JSONFILEPAGE_H

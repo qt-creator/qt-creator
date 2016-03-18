@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLEDITORWIDGETS_GLOBAL_H
-#define QMLEDITORWIDGETS_GLOBAL_H
+#pragma once
 
 #include <qglobal.h>
 
@@ -35,5 +34,3 @@
 # else
 #    define QMLEDITORWIDGETS_EXPORT Q_DECL_IMPORT
 #endif
-
-#endif // QMLEDITORWIDGETS_GLOBAL_H

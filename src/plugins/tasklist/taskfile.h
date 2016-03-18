@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef TASKFILE_H
-#define TASKFILE_H
+#pragma once
 
 #include <coreplugin/idocument.h>
 
@@ -46,5 +45,3 @@ public:
 
 } // namespace Internal
 } // namespace TaskList
-
-#endif // TASKFILE_H

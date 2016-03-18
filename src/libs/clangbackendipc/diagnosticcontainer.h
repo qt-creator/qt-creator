@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CLANGBACKEND_DIAGNOSTICCONTAINER_H
-#define CLANGBACKEND_DIAGNOSTICCONTAINER_H
+#pragma once
 
 #include "sourcerangecontainer.h"
 #include "fixitcontainer.h"
@@ -85,5 +84,3 @@ CMBIPC_EXPORT QDebug operator<<(QDebug debug, const DiagnosticContainer &contain
 void PrintTo(const DiagnosticContainer &container, ::std::ostream* os);
 
 } // namespace ClangBackEnd
-
-#endif // CLANGBACKEND_DIAGNOSTICCONTAINER_H

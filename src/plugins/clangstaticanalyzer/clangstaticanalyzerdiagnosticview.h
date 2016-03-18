@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CLANGSTATICANALYZERDIAGNOSTICVIEW_H
-#define CLANGSTATICANALYZERDIAGNOSTICVIEW_H
+#pragma once
 
 #include <debugger/analyzer/detailederrorview.h>
 
@@ -48,5 +47,3 @@ private:
 
 } // namespace Internal
 } // namespace ClangStaticAnalyzer
-
-#endif // CLANGSTATICANALYZERDIAGNOSTICVIEW_H

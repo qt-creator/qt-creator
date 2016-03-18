@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef BACKTRACECOLLECTOR_H
-#define BACKTRACECOLLECTOR_H
+#pragma once
 
 #include <QProcess>
 
@@ -56,5 +55,3 @@ private:
 
     BacktraceCollectorPrivate *d;
 };
-
-#endif // BACKTRACECOLLECTOR_H

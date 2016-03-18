@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef LIBVALGRIND_CALLGRINDABSTRACTMODEL_H
-#define LIBVALGRIND_CALLGRINDABSTRACTMODEL_H
+#pragma once
 
 #include <QAbstractItemView>
 
@@ -43,5 +42,3 @@ enum AbstractModelRoles
 
 } // Callgrind
 } // Valgrind
-
-#endif // LIBVALGRIND_CALLGRINDABSTRACTMODEL_H

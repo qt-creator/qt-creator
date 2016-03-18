@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CLANGCODEMODEL_INTERNAL_CLANGDIAGNOSTICMANAGER_H
-#define CLANGCODEMODEL_INTERNAL_CLANGDIAGNOSTICMANAGER_H
+#pragma once
 
 #include "clangtextmark.h"
 
@@ -83,5 +82,3 @@ private:
 
 } // namespace Internal
 } // namespace ClangCodeModel
-
-#endif // CLANGCODEMODEL_INTERNAL_CLANGDIAGNOSTICMANAGER_H

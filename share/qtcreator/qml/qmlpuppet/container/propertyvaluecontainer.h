@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PROPERTYVALUECONTAINER_H
-#define PROPERTYVALUECONTAINER_H
+#pragma once
 
 #include <QDataStream>
 #include <QMetaType>
@@ -68,5 +67,3 @@ QDebug operator <<(QDebug debug, const PropertyValueContainer &container);
 } // namespace QmlDesigner
 
 Q_DECLARE_METATYPE(QmlDesigner::PropertyValueContainer)
-
-#endif // PROPERTYVALUECONTAINER_H

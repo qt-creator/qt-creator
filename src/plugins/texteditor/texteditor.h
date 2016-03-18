@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef TEXTEDITOR_H
-#define TEXTEDITOR_H
+#pragma once
 
 #include "texteditor_global.h"
 #include "blockrange.h"
@@ -666,5 +665,3 @@ private:
 } // namespace TextEditor
 
 Q_DECLARE_METATYPE(TextEditor::TextEditorWidget::Link)
-
-#endif // TEXTEDITOR_H

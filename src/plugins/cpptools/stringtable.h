@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef STRINGTABLE_H
-#define STRINGTABLE_H
+#pragma once
 
 #include <QAtomicInt>
 #include <QMutex>
@@ -69,5 +68,3 @@ private:
 
 } // Internal namespace
 } // CppTools namespace
-
-#endif // STRINGTABLE_H

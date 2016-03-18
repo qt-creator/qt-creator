@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PATHITEM_H
-#define PATHITEM_H
+#pragma once
 
 #include <QGraphicsObject>
 #include <QWeakPointer>
@@ -139,5 +138,3 @@ inline int PathItem::type() const
     return Type;
 }
 }
-
-#endif // PATHITEM_H

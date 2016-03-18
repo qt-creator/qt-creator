@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef ANDROIDSETTINGSPAGE_H
-#define ANDROIDSETTINGSPAGE_H
+#pragma once
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
@@ -52,5 +51,3 @@ private:
 
 } // namespace Internal
 } // namespace Android
-
-#endif // ANDROIDSETTINGSPAGE_H

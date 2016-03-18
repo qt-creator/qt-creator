@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CLANGBACKEND_PROJECT_H
-#define CLANGBACKEND_PROJECT_H
+#pragma once
 
 #include <utf8string.h>
 
@@ -79,5 +78,3 @@ private:
 bool operator==(const ProjectPart &first, const ProjectPart &second);
 
 } // namespace ClangBackEnd
-
-#endif // CLANGBACKEND_PROJECT_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef TYPEMATCHER_H
-#define TYPEMATCHER_H
+#pragma once
 
 #include "CPlusPlusForwardDeclarations.h"
 
@@ -75,5 +74,3 @@ public:
 };
 
 } // namespace CPlusPlus
-
-#endif // TYPEMATCHER_H

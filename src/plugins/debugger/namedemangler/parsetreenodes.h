@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PARSETREENODES_H
-#define PARSETREENODES_H
+#pragma once
 
 #include "globalparsestate.h"
 
@@ -829,5 +828,3 @@ private:
 
 } // namespace Internal
 } // namespace Debugger
-
-#endif // PARSETREENODES_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PLUGINDETAILSVIEW_H_
-#define PLUGINDETAILSVIEW_H_
+#pragma once
 
 #include "extensionsystem_global.h"
 
@@ -54,5 +53,3 @@ private:
 };
 
 } // namespace ExtensionSystem
-
-#endif

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef NEWDIALOG_H
-#define NEWDIALOG_H
+#pragma once
 
 #include "../iwizardfactory.h"
 
@@ -94,5 +93,3 @@ private:
 
 } // namespace Internal
 } // namespace Core
-
-#endif // NEWDIALOG_H

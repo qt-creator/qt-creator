@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef HIGHLIGHTEREXCEPTION_H
-#define HIGHLIGHTEREXCEPTION_H
+#pragma once
 
 #include <QString>
 
@@ -41,5 +40,3 @@ private:
 };
 }
 } // namespace TextEditor
-
-#endif // HIGHLIGHTEREXCEPTION_H

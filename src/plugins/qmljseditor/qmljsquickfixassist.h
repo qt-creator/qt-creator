@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLJSQUICKFIXASSIST_H
-#define QMLJSQUICKFIXASSIST_H
+#pragma once
 
 #include "qmljseditor.h"
 
@@ -68,5 +67,3 @@ public:
 
 } // Internal
 } // QmlJSEditor
-
-#endif // QMLJSQUICKFIXASSIST_H

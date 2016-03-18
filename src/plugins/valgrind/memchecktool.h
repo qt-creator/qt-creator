@@ -24,8 +24,7 @@
 **
 ****************************************************************************/
 
-#ifndef MEMCHECKTOOL_H
-#define MEMCHECKTOOL_H
+#pragma once
 
 #include <QObject>
 
@@ -44,5 +43,3 @@ void destroyMemcheckTool();
 
 } // namespace Internal
 } // namespace Valgrind
-
-#endif // MEMCHECKTOOL_H

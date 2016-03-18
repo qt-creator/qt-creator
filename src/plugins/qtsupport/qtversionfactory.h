@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QTVERSIONFACTORY_H
-#define QTVERSIONFACTORY_H
+#pragma once
 
 #include "qtsupport_global.h"
 
@@ -63,5 +62,3 @@ public:
 };
 
 } // namespace QtSupport
-
-#endif // QTVERSIONFACTORY_H

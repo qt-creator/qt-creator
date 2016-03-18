@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SEARCHRESULTTREEITEMDELEGATE_H
-#define SEARCHRESULTTREEITEMDELEGATE_H
+#pragma once
 
 #include <QItemDelegate>
 
@@ -49,5 +48,3 @@ private:
 
 } // namespace Internal
 } // namespace Core
-
-#endif // SEARCHRESULTTREEITEMDELEGATE_H

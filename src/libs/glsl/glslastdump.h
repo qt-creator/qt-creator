@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef GLSLASTDUMP_H
-#define GLSLASTDUMP_H
+#pragma once
 
 #include "glslastvisitor.h"
 
@@ -49,5 +48,3 @@ private:
 };
 
 } // namespace GLSL
-
-#endif // GLSLASTDUMP_H

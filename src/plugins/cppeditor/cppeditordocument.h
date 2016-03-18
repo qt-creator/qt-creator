@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CPPEDITORDOCUMENT_H
-#define CPPEDITORDOCUMENT_H
+#pragma once
 
 #include <cpptools/baseeditordocumentprocessor.h>
 #include <cpptools/cppcompletionassistprovider.h>
@@ -119,5 +118,3 @@ private:
 
 } // namespace Internal
 } // namespace CppEditor
-
-#endif // CPPEDITORDOCUMENT_H

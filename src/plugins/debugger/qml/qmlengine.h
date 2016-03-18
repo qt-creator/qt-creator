@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLENGINE_H
-#define QMLENGINE_H
+#pragma once
 
 #include <debugger/debuggerengine.h>
 
@@ -150,5 +149,3 @@ private:
 
 } // namespace Internal
 } // namespace Debugger
-
-#endif // QMLENGINE_H

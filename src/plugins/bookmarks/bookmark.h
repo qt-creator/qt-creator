@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef BOOKMARK_H
-#define BOOKMARK_H
+#pragma once
 
 #include <texteditor/textmark.h>
 
@@ -57,5 +56,3 @@ private:
 
 } // namespace Internal
 } // namespace Bookmarks
-
-#endif // BOOKMARK_H

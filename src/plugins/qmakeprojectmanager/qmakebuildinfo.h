@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMAKEBUILDINFO_H
-#define QMAKEBUILDINFO_H
+#pragma once
 
 #include "qmakebuildconfiguration.h"
 #include "qmakestep.h"
@@ -63,5 +62,3 @@ public:
 };
 
 } // namespace QmakeProjectManager
-
-#endif // QMAKEBUILDINFO_H

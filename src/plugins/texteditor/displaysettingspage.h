@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef DISPLAYSETTINGSPAGE_H
-#define DISPLAYSETTINGSPAGE_H
+#pragma once
 
 #include "texteditor_global.h"
 
@@ -73,5 +72,3 @@ private:
 };
 
 } // namespace TextEditor
-
-#endif // DISPLAYSETTINGSPAGE_H

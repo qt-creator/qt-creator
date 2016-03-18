@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef TIMELINEZOOMCONTROL_H
-#define TIMELINEZOOMCONTROL_H
+#pragma once
 
 #include "timeline_global.h"
 #include <QTimer>
@@ -117,5 +116,3 @@ protected:
 };
 
 } // namespace Timeline
-
-#endif // TIMELINEZOOMCONTROL_H

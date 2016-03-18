@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_GLOBAL_H
-#define QMT_GLOBAL_H
+#pragma once
 
 #include <QtCore/QtGlobal>
 
@@ -33,6 +32,3 @@
 #else
 #  define QMT_EXPORT Q_DECL_IMPORT
 #endif
-
-#endif // QMT_GLOBAL_H
-

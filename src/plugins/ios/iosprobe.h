@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef IOSPROBE_H
-#define IOSPROBE_H
+#pragma once
 #include <QSettings>
 #include <QSharedPointer>
 #include <QString>
@@ -76,5 +75,3 @@ private:
     QStringList m_developerPaths;
 };
 } // namespace Ios
-
-#endif // IOSPROBE_H

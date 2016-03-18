@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SAVEFILE_H
-#define SAVEFILE_H
+#pragma once
 
 #include "utils_global.h"
 
@@ -55,5 +54,3 @@ private:
 };
 
 } // namespace Utils
-
-#endif // SAVEFILE_H

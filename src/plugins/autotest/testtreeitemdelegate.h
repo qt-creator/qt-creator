@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef TESTTREEITEMDELEGATE_H
-#define TESTTREEITEMDELEGATE_H
+#pragma once
 
 #include <QStyledItemDelegate>
 
@@ -44,5 +43,3 @@ public:
 
 } // namespace Internal
 } // namespace Autotest
-
-#endif // TESTTREEITEMDELEGATE_H

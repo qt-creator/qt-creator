@@ -24,8 +24,7 @@
 **
 ****************************************************************************/
 
-#ifndef BAREMETALDEVICE_H
-#define BAREMETALDEVICE_H
+#pragma once
 
 #include <projectexplorer/devicesupport/idevice.h>
 
@@ -74,5 +73,3 @@ private:
 
 } //namespace Internal
 } //namespace BareMetal
-
-#endif // BAREMETALDEVICE_H

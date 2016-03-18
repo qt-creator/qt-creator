@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef MESSAGEMANAGER_H
-#define MESSAGEMANAGER_H
+#pragma once
 
 #include "core_global.h"
 #include "ioutputpane.h"
@@ -71,5 +70,3 @@ private:
 } // namespace Core
 
 Q_DECLARE_METATYPE(Core::MessageManager::PrintToOutputPaneFlags)
-
-#endif // MESSAGEMANAGER_H

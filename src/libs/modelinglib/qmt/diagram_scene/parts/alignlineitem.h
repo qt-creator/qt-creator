@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_ALIGNLINEITEM_H
-#define QMT_ALIGNLINEITEM_H
+#pragma once
 
 #include <QGraphicsItem>
 
@@ -54,5 +53,3 @@ public:
 };
 
 } // namespace qmt
-
-#endif // QMT_ALIGNLINEITEM_H

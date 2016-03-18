@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SETTINGSDATABASE_H
-#define SETTINGSDATABASE_H
+#pragma once
 
 #include "core_global.h"
 
@@ -63,5 +62,3 @@ private:
 };
 
 } // namespace Core
-
-#endif // SETTINGSDATABASE_H

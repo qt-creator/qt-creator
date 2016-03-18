@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLJSAST_FWD_P_H
-#define QMLJSAST_FWD_P_H
+#pragma once
 
 #include "qmljsglobal_p.h"
 
@@ -171,5 +170,3 @@ class UiHeaderItemList;
 } } // namespace AST
 
 QT_QML_END_NAMESPACE
-
-#endif

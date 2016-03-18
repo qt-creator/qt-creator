@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef REMOVEUIOBJECTMEMBERVISITOR_H
-#define REMOVEUIOBJECTMEMBERVISITOR_H
+#pragma once
 
 #include <QStack>
 
@@ -67,5 +66,3 @@ private:
 
 } // namespace Internal
 } // namespace QmlDesigner
-
-#endif // REMOVEUIOBJECTMEMBERVISITOR_H

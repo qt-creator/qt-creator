@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMAKEPROJECTMANAGERCONSTANTS_H
-#define QMAKEPROJECTMANAGERCONSTANTS_H
+#pragma once
 
 #include <QtGlobal>
 
@@ -69,5 +68,3 @@ const char ICON_QTQUICK_APP[] = ":/wizards/images/qtquickapp.png";
 
 } // namespace Constants
 } // namespace QmakeProjectManager
-
-#endif // QMAKEPROJECTMANAGERCONSTANTS_H

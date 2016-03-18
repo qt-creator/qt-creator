@@ -43,8 +43,7 @@
   CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef CPLUSPLUS_PP_MACRO_H
-#define CPLUSPLUS_PP_MACRO_H
+#pragma once
 
 #include "PPToken.h"
 
@@ -179,5 +178,3 @@ private:
 };
 
 } // namespace CPlusPlus
-
-#endif // CPLUSPLUS_PP_MACRO_H

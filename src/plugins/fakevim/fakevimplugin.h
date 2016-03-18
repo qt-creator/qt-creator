@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef FAKEVIMPLUGIN_H
-#define FAKEVIMPLUGIN_H
+#pragma once
 
 #include <extensionsystem/iplugin.h>
 
@@ -184,5 +183,3 @@ private:
 
 } // namespace Internal
 } // namespace FakeVim
-
-#endif // FAKEVIMPLUGIN_H

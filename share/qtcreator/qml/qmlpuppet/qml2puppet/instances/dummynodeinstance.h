@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef DUMMYNODEINSTANCE_H
-#define DUMMYNODEINSTANCE_H
+#pragma once
 
 #include <QWeakPointer>
 
@@ -61,4 +60,3 @@ protected:
 
 }
 }
-#endif // DUMMYNODEINSTANCE_H

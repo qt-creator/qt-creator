@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef ANDROIDCREATEKEYSTORECERTIFICATE_H
-#define ANDROIDCREATEKEYSTORECERTIFICATE_H
+#pragma once
 
 #include <utils/fileutils.h>
 
@@ -73,5 +72,3 @@ private:
 
 } // namespace Internal
 } // namespace Android
-
-#endif // ANDROIDCREATEKEYSTORECERTIFICATE_H

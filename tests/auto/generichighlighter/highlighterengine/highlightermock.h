@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef HIGHLIGHTERMOCK_H
-#define HIGHLIGHTERMOCK_H
+#pragma once
 
 #include <texteditor/generichighlighter/highlighter.h>
 
@@ -76,5 +75,3 @@ private:
     bool m_noTestCall;
     bool m_considerEmptyLines;
 };
-
-#endif // HIGHLIGHTERMOCK_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CHANGEBINDINGSCOMMAND_H
-#define CHANGEBINDINGSCOMMAND_H
+#pragma once
 
 #include <QMetaType>
 #include <QVector>
@@ -56,5 +55,3 @@ QDebug operator <<(QDebug debug, const ChangeBindingsCommand &command);
 } // namespace QmlDesigner
 
 Q_DECLARE_METATYPE(QmlDesigner::ChangeBindingsCommand)
-
-#endif // CHANGEBINDINGSCOMMAND_H

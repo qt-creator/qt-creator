@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef STATESEDITORWIDGET_H
-#define STATESEDITORWIDGET_H
+#pragma once
 
 #include <QQuickWidget>
 #include <QPointer>
@@ -70,5 +69,3 @@ private:
 };
 
 }
-
-#endif // STATESEDITORWIDGET_H

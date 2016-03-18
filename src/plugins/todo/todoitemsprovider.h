@@ -24,8 +24,7 @@
 **
 ****************************************************************************/
 
-#ifndef TODOITEMSPROVIDER_H
-#define TODOITEMSPROVIDER_H
+#pragma once
 
 #include "todoitem.h"
 #include "settings.h"
@@ -93,5 +92,3 @@ private slots:
 
 }
 }
-
-#endif // TODOITEMSPROVIDER_H

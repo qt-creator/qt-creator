@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QUICKFIXASSISTPROCESSOR_H
-#define QUICKFIXASSISTPROCESSOR_H
+#pragma once
 
 #include "iassistprocessor.h"
 
@@ -45,5 +44,3 @@ private:
 };
 
 } // TextEditor
-
-#endif // QUICKFIXASSISTPROCESSOR_H

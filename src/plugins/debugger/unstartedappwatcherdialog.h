@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef UNSTARTEDAPPWATCHERDIALOG_H
-#define UNSTARTEDAPPWATCHERDIALOG_H
+#pragma once
 
 #include <QDialog>
 #include <QTimer>
@@ -96,5 +95,3 @@ private:
 
 } // namespace Internal
 } // namespace Debugger
-
-#endif // UNSTARTEDAPPWATCHERDIALOG_H

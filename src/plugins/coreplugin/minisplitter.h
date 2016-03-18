@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef MINISPLITTER_H
-#define MINISPLITTER_H
+#pragma once
 
 #include "core_global.h"
 
@@ -53,5 +52,3 @@ private:
 };
 
 } // namespace Core
-
-#endif // MINISPLITTER_H

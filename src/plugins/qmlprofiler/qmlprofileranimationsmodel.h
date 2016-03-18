@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLPROFILERANIMATIONSMODEL_H
-#define QMLPROFILERANIMATIONSMODEL_H
+#pragma once
 
 #include <QObject>
 #include "qmlprofilertimelinemodel.h"
@@ -83,5 +82,3 @@ private:
 
 }
 }
-
-#endif // QMLPROFILERANIMATIONSMODEL_H

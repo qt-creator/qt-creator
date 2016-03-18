@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_MASSOCIATION_H
-#define QMT_MASSOCIATION_H
+#pragma once
 
 #include "mrelation.h"
 #include "qmt/infrastructure/handle.h"
@@ -95,5 +94,3 @@ private:
 };
 
 } // namespace qmt
-
-#endif // QMT_MASSOCIATION_H

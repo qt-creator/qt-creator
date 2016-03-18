@@ -24,8 +24,7 @@
 **
 ****************************************************************************/
 
-#ifndef MEMCHECKENGINE_H
-#define MEMCHECKENGINE_H
+#pragma once
 
 #include "valgrindengine.h"
 
@@ -78,5 +77,3 @@ protected:
 
 } // namespace Internal
 } // namespace Valgrind
-
-#endif // MEMCHECKENGINE_H

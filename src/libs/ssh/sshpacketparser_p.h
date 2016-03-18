@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SSHPACKETPARSER_P_H
-#define SSHPACKETPARSER_P_H
+#pragma once
 
 #include <botan/botan.h>
 
@@ -73,5 +72,3 @@ public:
 
 } // namespace Internal
 } // namespace QSsh
-
-#endif // SSHPACKETPARSER_P_H

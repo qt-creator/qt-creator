@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef MACROSPLUGIN_MACROSPLUGIN_H
-#define MACROSPLUGIN_MACROSPLUGIN_H
+#pragma once
 
 #include <extensionsystem/iplugin.h>
 
@@ -51,5 +50,3 @@ private:
 
 } // namespace Internal
 } // namespace Macros
-
-#endif // MACROSPLUGIN_MACROSPLUGIN_H

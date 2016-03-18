@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLJSCODESTYLESETTINGSPAGE_H
-#define QMLJSCODESTYLESETTINGSPAGE_H
+#pragma once
 
 #include <coreplugin/dialogs/ioptionspage.h>
 #include <QWidget>
@@ -86,5 +85,3 @@ private:
 
 } // namespace Internal
 } // namespace CppTools
-
-#endif // QMLJSCODESTYLESETTINGSPAGE_H

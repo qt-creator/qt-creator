@@ -24,8 +24,7 @@
 **
 ****************************************************************************/
 
-#ifndef LIBVALGRIND_PROTOCOL_ERROR_H
-#define LIBVALGRIND_PROTOCOL_ERROR_H
+#pragma once
 
 #include <QMetaType>
 #include <QSharedDataPointer>
@@ -138,5 +137,3 @@ private:
 } // namespace Valgrind
 
 Q_DECLARE_METATYPE(Valgrind::XmlProtocol::Error)
-
-#endif // LIBVALGRIND_PROTOCOL_ERROR_H

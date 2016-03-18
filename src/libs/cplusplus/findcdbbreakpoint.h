@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef FINDCDBBREAKPOINT_H
-#define FINDCDBBREAKPOINT_H
+#pragma once
 
 #include <cplusplus/CPlusPlusForwardDeclarations.h>
 #include <cplusplus/ASTVisitor.h>
@@ -93,5 +92,3 @@ private:
 };
 
 } // namespace CPlusPlus
-
-#endif // FINDCDBBREAKPOINT_H

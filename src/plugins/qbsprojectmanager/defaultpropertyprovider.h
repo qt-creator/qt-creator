@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef DEFAULTPROPERTYPROVIDER_H
-#define DEFAULTPROPERTYPROVIDER_H
+#pragma once
 
 #include "propertyprovider.h"
 
@@ -46,5 +45,3 @@ private:
 
 } // namespace Internal
 } // namespace QbsProjectManager
-
-#endif // DEFAULTPROPERTYPROVIDER_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PROCESSORRUNNER_H
-#define PROCESSORRUNNER_H
+#pragma once
 
 #include "iassistproposalwidget.h"
 
@@ -68,5 +67,3 @@ private:
 
 } // Internal
 } // TextEditor
-
-#endif // PROCESSORRUNNER_H

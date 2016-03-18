@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLPROFILERSTATEMANAGER_H
-#define QMLPROFILERSTATEMANAGER_H
+#pragma once
 
 #include <QObject>
 
@@ -72,5 +71,3 @@ private:
 };
 
 }
-
-#endif // QMLPROFILERSTATEMANAGER_H

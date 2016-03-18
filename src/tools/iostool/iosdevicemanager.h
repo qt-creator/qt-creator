@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef IOSMANAGER_H
-#define IOSMANAGER_H
+#pragma once
 
 #include <QObject>
 #include <QString>
@@ -105,5 +104,3 @@ public:
 };
 
 } // namespace Ios
-
-#endif // IOSMANAGER_H

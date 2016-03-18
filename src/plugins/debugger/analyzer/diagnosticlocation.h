@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef ANALYZERDIAGNOSTIC_H
-#define ANALYZERDIAGNOSTIC_H
+#pragma once
 
 #include <debugger/debugger_global.h>
 
@@ -55,6 +54,3 @@ DEBUGGER_EXPORT QDebug operator<<(QDebug dbg, const DiagnosticLocation &location
 } // namespace Debugger
 
 Q_DECLARE_METATYPE(Debugger::DiagnosticLocation)
-
-#endif // Include guard.
-

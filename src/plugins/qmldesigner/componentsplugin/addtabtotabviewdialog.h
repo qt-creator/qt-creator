@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef ADDTABTOTABVIEWDIALOG_H
-#define ADDTABTOTABVIEWDIALOG_H
+#pragma once
 
 #include <QDialog>
 
@@ -46,5 +45,3 @@ private:
 };
 
 } // namespace QmlDesigner
-
-#endif // ADDTABTOTABVIEWDIALOG_H

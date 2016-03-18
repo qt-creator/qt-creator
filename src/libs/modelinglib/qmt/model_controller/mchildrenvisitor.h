@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_MCHILDRENVISITOR_H
-#define QMT_MCHILDRENVISITOR_H
+#pragma once
 
 #include "qmt/model/mvisitor.h"
 #include "qmt/infrastructure/qmt_global.h"
@@ -49,5 +48,3 @@ public:
 };
 
 } // namespace qmt
-
-#endif // QMT_MCHILDRENVISITOR_H

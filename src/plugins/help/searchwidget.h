@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SEARCHWIDGET_H
-#define SEARCHWIDGET_H
+#pragma once
 
 #include <coreplugin/sidebar.h>
 
@@ -103,5 +102,3 @@ private:
 
 } // namespace Internal
 } // namespace Help
-
-#endif // SEARCHWIDGET_H

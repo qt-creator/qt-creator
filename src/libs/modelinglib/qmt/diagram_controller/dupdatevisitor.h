@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_DUPDATEVISITOR_H
-#define QMT_DUPDATEVISITOR_H
+#pragma once
 
 #include "qmt/model/mconstvisitor.h"
 #include "qmt/infrastructure/qmt_global.h"
@@ -64,5 +63,3 @@ private:
 };
 
 } // namespace qmt
-
-#endif // QMT_DUPDATEVISITOR_H

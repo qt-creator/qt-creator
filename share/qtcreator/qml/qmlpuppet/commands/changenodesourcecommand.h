@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CHANGENODESOURCECOMMAND_H
-#define CHANGENODESOURCECOMMAND_H
+#pragma once
 
 #include <QMetaType>
 #include <QString>
@@ -56,5 +55,3 @@ QDebug operator <<(QDebug debug, const ChangeNodeSourceCommand &command);
 } // namespace QmlDesigner
 
 Q_DECLARE_METATYPE(QmlDesigner::ChangeNodeSourceCommand)
-
-#endif // CHANGENODESOURCECOMMAND_H

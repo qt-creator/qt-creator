@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLDESIGNEREXTENSIONCONSTANTS_H
-#define QMLDESIGNEREXTENSIONCONSTANTS_H
+#pragma once
 
 namespace QmlDesignerExtension {
 namespace Constants {
@@ -34,6 +33,3 @@ const char MENU_ID[] = "QmlDesignerExtension.Menu";
 
 } // namespace QmlDesignerExtension
 } // namespace Constants
-
-#endif // QMLDESIGNEREXTENSIONCONSTANTS_H
-

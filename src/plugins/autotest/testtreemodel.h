@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef TESTTREEMODEL_H
-#define TESTTREEMODEL_H
+#pragma once
 
 #include "testconfiguration.h"
 #include "testtreeitem.h"
@@ -170,5 +169,3 @@ struct TestParseResult
 
 Q_DECLARE_METATYPE(Autotest::Internal::TestTreeModel::Type)
 Q_DECLARE_METATYPE(Autotest::Internal::TestParseResult)
-
-#endif // TESTTREEMODEL_H

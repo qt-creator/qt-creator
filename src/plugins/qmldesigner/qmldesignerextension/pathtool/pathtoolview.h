@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLDESIGNER_PATHTOOLVIEW_H
-#define QMLDESIGNER_PATHTOOLVIEW_H
+#pragma once
 
 #include <abstractview.h>
 
@@ -46,5 +45,3 @@ private:
 };
 
 } // namespace QmlDesigner
-
-#endif // QMLDESIGNER_PATHTOOLVIEW_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef BASETEXTDOCUMENT_H
-#define BASETEXTDOCUMENT_H
+#pragma once
 
 #include "texteditor_global.h"
 
@@ -157,5 +156,3 @@ private:
 typedef QSharedPointer<TextDocument> TextDocumentPtr;
 
 } // namespace TextEditor
-
-#endif // BASETEXTDOCUMENT_H

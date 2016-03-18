@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CLANGBACKEND_PROJECTS_H
-#define CLANGBACKEND_PROJECTS_H
+#pragma once
 
 #include "projectpart.h"
 
@@ -57,5 +56,3 @@ private:
 };
 
 } // namespace ClangBackEnd
-
-#endif // CLANGBACKEND_PROJECTS_H

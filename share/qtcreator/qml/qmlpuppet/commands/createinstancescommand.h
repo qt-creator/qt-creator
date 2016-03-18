@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CREATEINSTANCESCOMMAND_H
-#define CREATEINSTANCESCOMMAND_H
+#pragma once
 
 #include <QMetaType>
 #include <QVector>
@@ -55,5 +54,3 @@ QDebug operator <<(QDebug debug, const CreateInstancesCommand &command);
 } // namespace QmlDesigner
 
 Q_DECLARE_METATYPE(QmlDesigner::CreateInstancesCommand)
-
-#endif // CREATEINSTANCESCOMMAND_H

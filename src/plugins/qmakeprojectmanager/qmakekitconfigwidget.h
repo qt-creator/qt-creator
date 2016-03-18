@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMAKEKITCONFIGWIDGET_H
-#define QMAKEKITCONFIGWIDGET_H
+#pragma once
 
 #include <projectexplorer/kitconfigwidget.h>
 
@@ -62,5 +61,3 @@ private:
 
 } // namespace Internal
 } // namespace QmakeProjectManager
-
-#endif // QMAKEKITCONFIGWIDGET_H

@@ -24,8 +24,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLJSTODOITEMSSCANNER_H
-#define QMLJSTODOITEMSSCANNER_H
+#pragma once
 
 #include "todoitemsscanner.h"
 
@@ -54,4 +53,3 @@ private:
 
 }
 }
-#endif // QMLJSTODOITEMSSCANNER_H

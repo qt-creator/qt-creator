@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef OUTLINE_H
-#define OUTLINE_H
+#pragma once
 
 #include <texteditor/ioutlinewidget.h>
 #include <coreplugin/inavigationwidgetfactory.h>
@@ -86,5 +85,3 @@ private:
 
 } // namespace Internal
 } // namespace TextEditor
-
-#endif // OUTLINE_H

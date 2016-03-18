@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef IFINDFILTER_H
-#define IFINDFILTER_H
+#pragma once
 
 #include "textfindconstants.h"
 
@@ -69,5 +68,3 @@ signals:
 };
 
 } // namespace Core
-
-#endif // IFINDFILTER_H

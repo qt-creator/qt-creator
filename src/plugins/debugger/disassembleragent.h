@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef DEBUGGER_DISASSEMBLERAGENT_H
-#define DEBUGGER_DISASSEMBLERAGENT_H
+#pragma once
 
 #include <QObject>
 
@@ -75,5 +74,3 @@ private:
 
 } // namespace Internal
 } // namespace Debugger
-
-#endif // DEBUGGER_DISASSEMBLERAGENT_H

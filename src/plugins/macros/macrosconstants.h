@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef MACROSPLUGIN_MACROSCONSTANTS_H
-#define MACROSPLUGIN_MACROSCONSTANTS_H
+#pragma once
 
 namespace Macros {
 namespace Constants {
@@ -46,5 +45,3 @@ const char M_EXTENSION[] = "mac";
 
 } // namespace Constants
 } // namespace Macros
-
-#endif // MACROSPLUGIN_MACROSCONSTANTS_H

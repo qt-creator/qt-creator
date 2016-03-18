@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_MODELTREEVIEW_H
-#define QMT_MODELTREEVIEW_H
+#pragma once
 
 #include <QTreeView>
 #include "qmt/infrastructure/qmt_global.h"
@@ -75,5 +74,3 @@ private:
 };
 
 } // namespace qmt
-
-#endif // QMT_MODELTREEVIEW_H

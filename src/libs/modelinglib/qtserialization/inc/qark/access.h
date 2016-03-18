@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QARK_ACCESS_H
-#define QARK_ACCESS_H
+#pragma once
 
 namespace qark {
 
@@ -106,5 +105,3 @@ void serializeHelper(Archive &archive, T &t)
 #define QARK_ACCESS_SPECIALIZE(INARCHIVE, OUTARCHIVE, TYPE) \
     template class Access<INARCHIVE, TYPE>; \
     template class Access<OUTARCHIVE, TYPE>;
-
-#endif // QARK_ACCESS_H

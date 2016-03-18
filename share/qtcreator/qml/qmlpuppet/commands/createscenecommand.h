@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CREATESCENECOMMAND_H
-#define CREATESCENECOMMAND_H
+#pragma once
 
 #include <qmetatype.h>
 #include <QUrl>
@@ -81,5 +80,3 @@ QDebug operator <<(QDebug debug, const CreateSceneCommand &command);
 }
 
 Q_DECLARE_METATYPE(QmlDesigner::CreateSceneCommand)
-
-#endif // CREATESCENECOMMAND_H

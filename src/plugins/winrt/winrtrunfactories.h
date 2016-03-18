@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef WINRTRUNCONFIGURATIONFACTORY_H
-#define WINRTRUNCONFIGURATIONFACTORY_H
+#pragma once
 
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/devicesupport/idevicefactory.h>
@@ -67,5 +66,3 @@ public:
 
 } // namespace Internal
 } // namespace WinRt
-
-#endif // WINRTRUNCONFIGURATIONFACTORY_H

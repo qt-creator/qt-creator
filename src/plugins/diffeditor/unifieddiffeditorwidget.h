@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef UNIFIEDDIFFEDITORWIDGET_H
-#define UNIFIEDDIFFEDITORWIDGET_H
+#pragma once
 
 #include "diffutils.h"
 #include "selectabletexteditorwidget.h"
@@ -141,5 +140,3 @@ private:
 
 } // namespace Internal
 } // namespace DiffEditor
-
-#endif // UNIFIEDDIFFEDITORWIDGET_H

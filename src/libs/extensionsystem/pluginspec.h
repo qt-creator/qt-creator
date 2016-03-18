@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PLUGINSPEC_H
-#define PLUGINSPEC_H
+#pragma once
 
 #include "extensionsystem_global.h"
 
@@ -139,6 +138,3 @@ private:
 };
 
 } // namespace ExtensionSystem
-
-#endif // PLUGINSPEC_H
-

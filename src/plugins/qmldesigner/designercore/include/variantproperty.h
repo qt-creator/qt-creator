@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef VARIANTPROPERTY_H
-#define VARIANTPROPERTY_H
+#pragma once
 
 #include "qmldesignercorelib_global.h"
 #include "abstractproperty.h"
@@ -67,5 +66,3 @@ QMLDESIGNERCORE_EXPORT QTextStream& operator<<(QTextStream &stream, const Varian
 QMLDESIGNERCORE_EXPORT QDebug operator<<(QDebug debug, const VariantProperty &VariantProperty);
 
 }
-
-#endif //VARIANTPROPERTY_H

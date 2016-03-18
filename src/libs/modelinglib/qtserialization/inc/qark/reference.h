@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QARK_REFERENCE_H
-#define QARK_REFERENCE_H
+#pragma once
 
 #include "parameters.h"
 
@@ -422,5 +421,3 @@ GetSetFuncRef<U, T *, V * const &> ref(const QString &qualifiedName, U &u, T *(*
 }
 
 } // namespace qark
-
-#endif // QARK_REFERENCE_H

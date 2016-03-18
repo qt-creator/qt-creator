@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef ANDROIDMANAGER_H
-#define ANDROIDMANAGER_H
+#pragma once
 
 #include "android_global.h"
 
@@ -90,5 +89,3 @@ public:
 };
 
 } // namespace Android
-
-#endif // ANDROIDMANAGER_H

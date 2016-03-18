@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef DEBUGVIEWWIDGET_H
-#define DEBUGVIEWWIDGET_H
+#pragma once
 
 #include <QWidget>
 
@@ -56,6 +55,3 @@ private:
 } //namespace Internal
 
 } //namespace QmlDesigner
-
-#endif //DEBUGVIEWWIDGET_H
-

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef FADINGINDICATOR_H
-#define FADINGINDICATOR_H
+#pragma once
 
 #include "utils_global.h"
 
@@ -45,6 +44,3 @@ QTCREATOR_UTILS_EXPORT void showPixmap(QWidget *parent, const QString &pixmap);
 
 } // FadingIndicator
 } // Utils
-
-#endif // FADINGINDICATOR_H
-

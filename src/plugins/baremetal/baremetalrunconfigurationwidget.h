@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef BAREMETALRUNCONFIGURATIONWIDGET_H
-#define BAREMETALRUNCONFIGURATIONWIDGET_H
+#pragma once
 
 #include <QWidget>
 
@@ -63,5 +62,3 @@ private:
 
 } // namespace Internal
 } // namespace BareMetal
-
-#endif // BAREMETALRUNCONFIGURATIONWIDGET_H

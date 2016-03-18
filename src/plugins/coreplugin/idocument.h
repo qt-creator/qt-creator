@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef IDOCUMENT_H
-#define IDOCUMENT_H
+#pragma once
 
 #include "core_global.h"
 
@@ -148,5 +147,3 @@ private:
 };
 
 } // namespace Core
-
-#endif // IDOCUMENT_H

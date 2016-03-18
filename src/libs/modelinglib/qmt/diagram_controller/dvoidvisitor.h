@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_DVOIDVISITOR_H
-#define QMT_DVOIDVISITOR_H
+#pragma once
 
 #include "qmt/diagram/dvisitor.h"
 #include "qmt/diagram/dconstvisitor.h"
@@ -73,5 +72,3 @@ public:
 };
 
 } // namespace qmt
-
-#endif // DVOIDVISITOR_H

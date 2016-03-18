@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef DESKTOPQTVERSION_H
-#define DESKTOPQTVERSION_H
+#pragma once
 
 #include "baseqtversion.h"
 
@@ -52,5 +51,3 @@ public:
 
 } // Internal
 } // QtSupport
-
-#endif // DESKTOPQTVERSION_H

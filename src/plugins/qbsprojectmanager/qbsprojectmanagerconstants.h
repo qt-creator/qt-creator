@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QBSPROJECTMANAGERCONSTANTS_H
-#define QBSPROJECTMANAGERCONSTANTS_H
+#pragma once
 
 #include <QtGlobal>
 
@@ -67,6 +66,3 @@ static const char QBS_PRODUCT_OVERLAY_ICON[] = ":/qbsprojectmanager/images/produ
 
 } // namespace Constants
 } // namespace QbsProjectManager
-
-#endif // QBSPROJECTMANAGERCONSTANTS_H
-

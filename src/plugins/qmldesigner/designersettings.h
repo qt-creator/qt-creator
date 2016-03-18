@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef DESIGNERSETTINGS_H
-#define DESIGNERSETTINGS_H
+#pragma once
 
 #include <QtGlobal>
 #include <QHash>
@@ -74,5 +73,3 @@ private:
 };
 
 } // namespace QmlDesigner
-
-#endif // DESIGNERSETTINGS_H

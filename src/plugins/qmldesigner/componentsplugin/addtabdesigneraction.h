@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLDESIGNER_TABVIEWDESIGNERACTION_H
-#define QMLDESIGNER_TABVIEWDESIGNERACTION_H
+#pragma once
 
 #include "abstractaction.h"
 
@@ -50,5 +49,3 @@ private slots:
 };
 
 } // namespace QmlDesigner
-
-#endif // QMLDESIGNER_TABVIEWDESIGNERACTION_H

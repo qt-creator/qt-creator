@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef OUTPUTFORMATTER_H
-#define OUTPUTFORMATTER_H
+#pragma once
 
 #include "utils_global.h"
 #include "outputformat.h"
@@ -73,5 +72,3 @@ private:
 };
 
 } // namespace Utils
-
-#endif // OUTPUTFORMATTER_H

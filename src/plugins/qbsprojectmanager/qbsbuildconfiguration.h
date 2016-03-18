@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QBSBUILDCONFIGURATION_H
-#define QBSBUILDCONFIGURATION_H
+#pragma once
 
 #include "qbsprojectmanager_global.h"
 
@@ -135,5 +134,3 @@ private:
 
 } // namespace Internal
 } // namespace QbsProjectManager
-
-#endif // QBSBUILDCONFIGURATION_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CLANGBACKEND_IPCSERVERINTERFACE_H
-#define CLANGBACKEND_IPCSERVERINTERFACE_H
+#pragma once
 
 #include "ipcinterface.h"
 
@@ -62,5 +61,3 @@ private:
 };
 
 } // namespace ClangBackEnd
-
-#endif // CLANGBACKEND_IPCSERVERINTERFACE_H

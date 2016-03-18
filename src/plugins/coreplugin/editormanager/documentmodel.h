@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef DOCUMENTMODEL_H
-#define DOCUMENTMODEL_H
+#pragma once
 
 #include "../core_global.h"
 #include "../id.h"
@@ -96,5 +95,3 @@ private:
 } // namespace Core
 
 Q_DECLARE_METATYPE(Core::DocumentModel::Entry *)
-
-#endif // DOCUMENTMODEL_H

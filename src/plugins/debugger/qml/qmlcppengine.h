@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLCPPENGINE_H
-#define QMLCPPENGINE_H
+#pragma once
 
 #include <debugger/debuggerengine.h>
 
@@ -139,5 +138,3 @@ private:
 
 } // namespace Internal
 } // namespace Debugger
-
-#endif // QMLCPPENGINE_H

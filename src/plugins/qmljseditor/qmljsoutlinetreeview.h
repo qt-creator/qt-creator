@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLJSOUTLINETREEVIEW_H
-#define QMLJSOUTLINETREEVIEW_H
+#pragma once
 
 #include <utils/navigationtreeview.h>
 
@@ -45,5 +44,3 @@ private slots:
 
 } // namespace Internal
 } // namespace QmlJSEditor
-
-#endif // QMLJSOUTLINETREEVIEW_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLJSCODEFORMATTER_H
-#define QMLJSCODEFORMATTER_H
+#pragma once
 
 #include "qmljs_global.h"
 
@@ -328,5 +327,3 @@ private:
 };
 
 } // namespace QmlJS
-
-#endif // QMLJSCODEFORMATTER_H

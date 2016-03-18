@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CLANGSTATICANALYZERUTILS_H
-#define CLANGSTATICANALYZERUTILS_H
+#pragma once
 
 #include <coreplugin/id.h>
 
@@ -48,5 +47,3 @@ QString createFullLocationString(const Debugger::DiagnosticLocation &location);
 
 } // namespace Internal
 } // namespace ClangStaticAnalyzer
-
-#endif // CLANGSTATICANALYZERUTILS_H

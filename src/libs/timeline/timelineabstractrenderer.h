@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef TIMELINEABSTRACTRENDERER_H
-#define TIMELINEABSTRACTRENDERER_H
+#pragma once
 
 #include "timelinezoomcontrol.h"
 #include "timelinemodel.h"
@@ -93,6 +92,3 @@ protected:
 };
 
 } // namespace Timeline
-
-
-#endif // TIMELINEABSTRACTRENDERER_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_DSELECTION_H
-#define QMT_DSELECTION_H
+#pragma once
 
 #include "qmt/controller/selection.h"
 #include "qmt/infrastructure/qmt_global.h"
@@ -36,5 +35,3 @@ class QMT_EXPORT DSelection : public Selection
 };
 
 } // namespace qmt
-
-#endif // QMT_DSELECTION_H

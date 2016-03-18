@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef TCPPORTSGATHERER_H
-#define TCPPORTSGATHERER_H
+#pragma once
 
 #include "portlist.h"
 
@@ -49,5 +48,3 @@ private:
 };
 
 } // namespace Utils
-
-#endif // TCPPORTSGATHERER_H

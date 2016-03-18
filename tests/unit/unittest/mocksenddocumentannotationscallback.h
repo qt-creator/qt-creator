@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef MOCKSENDDOCUMENTANNOTATIONSCALLBACK_H
-#define MOCKSENDDOCUMENTANNOTATIONSCALLBACK_H
+#pragma once
 
 #include <gmock/gmock.h>
 #include <gmock/gmock-matchers.h>
@@ -45,5 +44,3 @@ public:
     MOCK_METHOD0(sendDocumentAnnotations,
                  void());
 };
-
-#endif // MOCKSENDDOCUMENTANNOTATIONSCALLBACK_H

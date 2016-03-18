@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLPROFILERSETTINGS_H
-#define QMLPROFILERSETTINGS_H
+#pragma once
 
 #include <projectexplorer/runconfiguration.h>
 
@@ -69,5 +68,3 @@ private:
 
 } // Internal
 } // QmlProfiler
-
-#endif // QMLPROFILERSETTINGS_H

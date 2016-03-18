@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef FORMEDITORSTACK_H
-#define FORMEDITORSTACK_H
+#pragma once
 
 #include "editordata.h"
 
@@ -82,5 +81,3 @@ private:
 
 } // namespace Internal
 } // namespace Designer
-
-#endif // FORMEDITORSTACK_H

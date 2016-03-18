@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SQLITEGLOBAL_H
-#define SQLITEGLOBAL_H
+#pragma once
 
 #include <QtGlobal>
 
@@ -86,6 +85,3 @@ class Utf8StringVector;
 
 typedef QMap<Utf8String, QVariant> RowDictionary;
 typedef QVector<RowDictionary> RowDictionaries;
-
-
-#endif // SQLITEGLOBAL_H

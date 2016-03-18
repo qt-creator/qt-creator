@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef JAVAEDITOR_H
-#define JAVAEDITOR_H
+#pragma once
 
 #include <texteditor/texteditor.h>
 
@@ -41,5 +40,3 @@ public:
 
 } // namespace Internal
 } // namespace Android
-
-#endif // JAVAEDITOR_H

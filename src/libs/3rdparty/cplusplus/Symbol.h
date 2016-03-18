@@ -18,8 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#ifndef CPLUSPLUS_SYMBOL_H
-#define CPLUSPLUS_SYMBOL_H
+#pragma once
 
 #include "CPlusPlusForwardDeclarations.h"
 
@@ -325,6 +324,3 @@ private:
 };
 
 } // namespace CPlusPlus
-
-
-#endif // CPLUSPLUS_SYMBOL_H

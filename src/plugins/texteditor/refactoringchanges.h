@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef REFACTORINGCHANGES_H
-#define REFACTORINGCHANGES_H
+#pragma once
 
 #include <utils/changeset.h>
 #include <utils/textfileformat.h>
@@ -163,5 +162,3 @@ public:
 };
 
 } // namespace TextEditor
-
-#endif // REFACTORINGCHANGES_H

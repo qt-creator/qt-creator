@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLJSQTSTYLECODEFORMATTER_H
-#define QMLJSQTSTYLECODEFORMATTER_H
+#pragma once
 
 #include "qmljstools_global.h"
 
@@ -57,5 +56,3 @@ private:
 };
 
 } // namespace QmlJSTools
-
-#endif // QMLJSQTSTYLECODEFORMATTER_H

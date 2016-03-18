@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SUBVERSION_CONSTANTS_H
-#define SUBVERSION_CONSTANTS_H
+#pragma once
 
 #include <QtGlobal>
 
@@ -53,5 +52,3 @@ const char DIFF_SELECTED[] = "Subversion.DiffSelectedFilesInLog";
 
 } // namespace Constants
 } // namespace Subversion
-
-#endif // SUBVERSION_CONSTANTS_H

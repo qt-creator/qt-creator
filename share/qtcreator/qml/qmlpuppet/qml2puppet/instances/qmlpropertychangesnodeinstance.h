@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLPROPERTYCHANGESNODEINSTANCE_H
-#define QMLPROPERTYCHANGESNODEINSTANCE_H
+#pragma once
 
 #include "objectnodeinstance.h"
 
@@ -60,5 +59,3 @@ protected:
 } // namespace QmlDesigner
 
 //QML_DECLARE_TYPE(QmlDesigner::Internal::QmlPropertyChangesObject)
-
-#endif // QMLPROPERTYCHANGESNODEINSTANCE_H

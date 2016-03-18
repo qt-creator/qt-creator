@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef FILEWIDGET_H
-#define FILEWIDGET_H
+#pragma once
 
 #include "qmleditorwidgets_global.h"
 
@@ -117,6 +116,3 @@ private:
 };
 
 } //QmlEditorWidgets
-
-#endif
-

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLJSSCOPEBUILDER_H
-#define QMLJSSCOPEBUILDER_H
+#pragma once
 
 #include <qmljs/qmljsdocument.h>
 
@@ -64,5 +63,3 @@ private:
 };
 
 } // namespace QmlJS
-
-#endif // QMLJSSCOPEBUILDER_H

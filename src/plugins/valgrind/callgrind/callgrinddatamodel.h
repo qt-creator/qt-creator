@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef VALGRIND_CALLGRIND_CALLGRINDDATAMODEL_H
-#define VALGRIND_CALLGRIND_CALLGRINDDATAMODEL_H
+#pragma once
 
 #include "callgrindabstractmodel.h"
 
@@ -95,5 +94,3 @@ private:
 
 } // namespace Callgrind
 } // namespace Valgrind
-
-#endif // VALGRIND_CALLGRIND_CALLGRINDDATAMODEL_H

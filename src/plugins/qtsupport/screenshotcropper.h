@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SCREENSHOTCROPPER_H
-#define SCREENSHOTCROPPER_H
+#pragma once
 
 #include <QMap>
 #include <QRect>
@@ -43,5 +42,3 @@ public:
 
 } // namespace Internal
 } // namespace QtSupport
-
-#endif // SCREENSHOTCROPPER_H

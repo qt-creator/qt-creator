@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CHANGEIDSCOMMAND_H
-#define CHANGEIDSCOMMAND_H
+#pragma once
 
 #include <QMetaType>
 #include <QVector>
@@ -57,5 +56,3 @@ QDebug operator <<(QDebug debug, const ChangeIdsCommand &command);
 } // namespace QmlDesigner
 
 Q_DECLARE_METATYPE(QmlDesigner::ChangeIdsCommand)
-
-#endif // CHANGEIDSCOMMAND_H

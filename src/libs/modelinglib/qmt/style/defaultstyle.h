@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_DEFAULTSTYLE_H
-#define QMT_DEFAULTSTYLE_H
+#pragma once
 
 #include "style.h"
 
@@ -38,5 +37,3 @@ public:
 };
 
 } // namespace qmt
-
-#endif // QMT_DEFAULTSTYLE_H

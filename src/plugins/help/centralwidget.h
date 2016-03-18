@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CENTRALWIDGET_H
-#define CENTRALWIDGET_H
+#pragma once
 
 #include "helpwidget.h"
 
@@ -49,5 +48,3 @@ public:
 
 } // namespace Internal
 } // namespace Help
-
-#endif  // CENTRALWIDGET_H

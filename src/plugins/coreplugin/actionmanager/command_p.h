@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef COMMAND_P_H
-#define COMMAND_P_H
+#pragma once
 
 #include "command.h"
 
@@ -100,5 +99,3 @@ private:
 
 } // namespace Internal
 } // namespace Core
-
-#endif // COMMAND_P_H

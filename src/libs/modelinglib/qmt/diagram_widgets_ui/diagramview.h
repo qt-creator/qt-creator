@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_DIAGRAMVIEW_H
-#define QMT_DIAGRAMVIEW_H
+#pragma once
 
 #include <QGraphicsView>
 #include "qmt/infrastructure/qmt_global.h"
@@ -56,5 +55,3 @@ private:
 };
 
 } // namespace qmt
-
-#endif // QMT_DIAGRAMVIEW_H

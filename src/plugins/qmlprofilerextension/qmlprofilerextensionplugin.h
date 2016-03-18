@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLPROFILEREXTENSION_H
-#define QMLPROFILEREXTENSION_H
+#pragma once
 
 #include "qmlprofilerextension_global.h"
 
@@ -52,6 +51,3 @@ private slots:
 
 } // namespace Internal
 } // namespace QmlProfilerExtension
-
-#endif // QMLPROFILEREXTENSION_H
-

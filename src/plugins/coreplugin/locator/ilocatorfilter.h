@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef ILOCATORFILTER_H
-#define ILOCATORFILTER_H
+#pragma once
 
 #include <coreplugin/id.h>
 
@@ -171,5 +170,3 @@ private:
 };
 
 } // namespace Core
-
-#endif // ILOCATORFILTER_H

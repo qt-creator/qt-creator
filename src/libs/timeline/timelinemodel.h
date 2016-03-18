@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef TIMELINEMODEL_H
-#define TIMELINEMODEL_H
+#pragma once
 
 #include "timeline_global.h"
 #include "timelinerenderpass.h"
@@ -149,5 +148,3 @@ private:
 };
 
 } // namespace Timeline
-
-#endif // TIMELINEMODEL_H

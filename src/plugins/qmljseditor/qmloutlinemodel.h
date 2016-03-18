@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLOUTLINEMODEL_H
-#define QMLOUTLINEMODEL_H
+#pragma once
 
 #include "qmljseditordocument.h"
 #include <utils/changeset.h>
@@ -165,5 +164,3 @@ private:
 
 } // namespace Internal
 } // namespace QmlJSEditor
-
-#endif // QMLOUTLINEMODEL_H

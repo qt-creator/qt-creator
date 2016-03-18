@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SSHCHANNELMANAGER_P_H
-#define SSHCHANNELMANAGER_P_H
+#pragma once
 
 #include <QHash>
 #include <QObject>
@@ -91,5 +90,3 @@ private:
 
 } // namespace Internal
 } // namespace QSsh
-
-#endif // SSHCHANNELMANAGER_P_H

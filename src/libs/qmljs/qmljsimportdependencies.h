@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLJSIMPORTCACHE_H
-#define QMLJSIMPORTCACHE_H
+#pragma once
 
 #include "qmljsconstants.h"
 #include "qmljsdialect.h"
@@ -232,5 +231,3 @@ private:
 };
 
 } // namespace QmlJS
-
-#endif // QMLJSIMPORTCACHE_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef DYNCAMICPROPERTIESMODEL_H
-#define DYNCAMICPROPERTIESMODEL_H
+#pragma once
 
 #include <modelnode.h>
 #include <nodemetainfo.h>
@@ -130,7 +129,4 @@ public:
 };
 
 } // namespace Internal
-
 } // namespace QmlDesigner
-
-#endif // DYNCAMICPROPERTIESMODEL_Hs

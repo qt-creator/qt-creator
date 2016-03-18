@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef ANDROIDDEVICEFACTORY_H
-#define ANDROIDDEVICEFACTORY_H
+#pragma once
 
 #include <projectexplorer/devicesupport/idevicefactory.h>
 
@@ -48,5 +47,3 @@ public:
 
 } // namespace Internal
 } // namespace Android
-
-#endif // ANDROIDDEVICEFACTORY_H

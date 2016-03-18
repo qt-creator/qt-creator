@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_STEREOTYPEICON_H
-#define QMT_STEREOTYPEICON_H
+#pragma once
 
 #include "iconshape.h"
 
@@ -117,5 +116,3 @@ private:
 };
 
 } // namespace qmt
-
-#endif // QMT_STEREOTYPEICON_H

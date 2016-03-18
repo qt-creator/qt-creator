@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PLUGIN1_H
-#define PLUGIN1_H
+#pragma once
 
 #include <extensionsystem/iplugin.h>
 
@@ -55,5 +54,3 @@ private:
 };
 
 } // namespace Plugin1
-
-#endif // PLUGIN1_H

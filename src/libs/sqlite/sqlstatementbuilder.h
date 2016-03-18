@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SQLSTATEMENTBUILDER_H
-#define SQLSTATEMENTBUILDER_H
+#pragma once
 
 #include "utf8string.h"
 
@@ -77,5 +76,3 @@ private:
     mutable Utf8String sqlStatement_;
     mutable std::vector<BindingPair> bindings;
 };
-
-#endif // SQLSTATEMENTBUILDER_H

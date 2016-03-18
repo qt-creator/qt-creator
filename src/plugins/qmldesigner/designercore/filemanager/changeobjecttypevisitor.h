@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CHANGEOBJECTTYPEVISITOR_H
-#define CHANGEOBJECTTYPEVISITOR_H
+#pragma once
 
 #include "qmlrewriter.h"
 
@@ -52,5 +51,3 @@ private:
 
 } // namespace Internal
 } // namespace QmlDesigner
-
-#endif // CHANGEOBJECTTYPEVISITOR_H

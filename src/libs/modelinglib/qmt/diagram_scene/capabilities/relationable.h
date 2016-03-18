@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_RELATIONABLE_H
-#define QMT_RELATIONABLE_H
+#pragma once
 
 #include <QList>
 
@@ -46,5 +45,3 @@ public:
 };
 
 } // namespace qmt
-
-#endif // QMT_RELATIONABLE_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLJSINDENTER_H
-#define QMLJSINDENTER_H
+#pragma once
 
 #include "qmljstools_global.h"
 
@@ -51,5 +50,3 @@ public:
 
 } // Internal
 } // QmlJSEditor
-
-#endif // QMLJSINDENTER_H

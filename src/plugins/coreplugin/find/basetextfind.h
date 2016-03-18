@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef BASETEXTFIND_H
-#define BASETEXTFIND_H
+#pragma once
 
 #include "ifindsupport.h"
 
@@ -85,5 +84,3 @@ private:
 };
 
 } // namespace Core
-
-#endif // BASETEXTFIND_H

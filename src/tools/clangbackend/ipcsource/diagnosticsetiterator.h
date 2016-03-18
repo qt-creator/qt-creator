@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef DIAGNOSTICSETITERATOR_H
-#define DIAGNOSTICSETITERATOR_H
+#pragma once
 
 #include <iterator>
 
@@ -83,6 +82,3 @@ private:
 };
 
 }
-
-#endif // DIAGNOSTICSETITERATOR_H
-

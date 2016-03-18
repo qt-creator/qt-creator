@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CLANGBACKEND_HIGHLIGHTINGCHANGEDMESSAGE_H
-#define CLANGBACKEND_HIGHLIGHTINGCHANGEDMESSAGE_H
+#pragma once
 
 #include "clangbackendipc_global.h"
 #include "filecontainer.h"
@@ -68,5 +67,3 @@ void PrintTo(const HighlightingChangedMessage &message, ::std::ostream* os);
 
 DECLARE_MESSAGE(HighlightingChangedMessage)
 } // namespace ClangBackEnd
-
-#endif // CLANGBACKEND_HIGHLIGHTINGCHANGEDMESSAGE_H

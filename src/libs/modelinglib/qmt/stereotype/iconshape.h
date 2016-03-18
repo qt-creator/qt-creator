@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_ICONSHAPE_H
-#define QMT_ICONSHAPE_H
+#pragma once
 
 #include "qmt/infrastructure/qmt_global.h"
 #include <QSizeF>
@@ -72,5 +71,3 @@ private:
 };
 
 } // namespace qmt
-
-#endif // QMT_ICONSHAPE_H

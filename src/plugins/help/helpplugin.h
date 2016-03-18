@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef HELPPLUGIN_H
-#define HELPPLUGIN_H
+#pragma once
 
 #include "helpwidget.h"
 
@@ -135,5 +134,3 @@ private:
 
 } // namespace Internal
 } // namespace Help
-
-#endif // HELPPLUGIN_H

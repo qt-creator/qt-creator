@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CLANGBACKEND_TRANSLATIONUNITDONOTEXISTS_H
-#define CLANGBACKEND_TRANSLATIONUNITDONOTEXISTS_H
+#pragma once
 
 #include <filecontainer.h>
 
@@ -52,5 +51,3 @@ private:
 };
 
 } // namespace ClangBackEnd
-
-#endif // CLANGBACKEND_TRANSLATIONUNITDONOTEXISTS_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CLANGBACKEND_DIAGNOSTICSET_H
-#define CLANGBACKEND_DIAGNOSTICSET_H
+#pragma once
 
 #include "diagnostic.h"
 #include "diagnosticsetiterator.h"
@@ -80,5 +79,3 @@ private:
 };
 
 } // namespace ClangBackEnd
-
-#endif // CLANGBACKEND_DIAGNOSTICSET_H

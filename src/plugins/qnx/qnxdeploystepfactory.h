@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QNX_INTERNAL_QNXDEPLOYSTEPFACTORY_H
-#define QNX_INTERNAL_QNXDEPLOYSTEPFACTORY_H
+#pragma once
 
 #include <projectexplorer/buildstep.h>
 
@@ -55,5 +54,3 @@ public:
 
 } // namespace Internal
 } // namespace Qnx
-
-#endif // QNX_INTERNAL_QNXDEPLOYSTEPFACTORY_H

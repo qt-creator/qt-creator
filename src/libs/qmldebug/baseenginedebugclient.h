@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef BASEENGINEDEBUGCLIENT_H
-#define BASEENGINEDEBUGCLIENT_H
+#pragma once
 
 #include "qmldebug_global.h"
 #include "qmldebugclient.h"
@@ -259,5 +258,3 @@ inline QDebug operator<<(QDebug dbg, const QmlDebug::ObjectReference &ref) {
     return dbg.space();
 }
 QT_END_NAMESPACE
-
-#endif // BASEENGINEDEBUGCLIENT_H

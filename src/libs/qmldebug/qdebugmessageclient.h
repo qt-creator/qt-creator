@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QDEBUGMESSAGECLIENT_H
-#define QDEBUGMESSAGECLIENT_H
+#pragma once
 
 #include "qmldebugclient.h"
 #include "qmldebug_global.h"
@@ -64,5 +63,3 @@ private:
 };
 
 } // namespace QmlDebug
-
-#endif // QDEBUGMESSAGECLIENT_H

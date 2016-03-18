@@ -37,8 +37,7 @@
 **
 ****************************************************************************/
 
-#ifndef MIMEMAGICRULEMATCHER_P_H
-#define MIMEMAGICRULEMATCHER_P_H
+#pragma once
 
 //
 //  W A R N I N G
@@ -86,5 +85,3 @@ private:
 
 } // Internal
 } // Utils
-
-#endif // MIMEMAGICRULEMATCHER_P_H

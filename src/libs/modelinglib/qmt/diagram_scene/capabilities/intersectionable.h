@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_INTERSECTIONABLE_H
-#define QMT_INTERSECTIONABLE_H
+#pragma once
 
 #include <QtGlobal>
 
@@ -45,5 +44,3 @@ public:
 };
 
 } // namespace qmt
-
-#endif // QMT_INTERSECTIONABLE_H

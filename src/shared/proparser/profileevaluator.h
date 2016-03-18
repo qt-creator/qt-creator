@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PROFILEEVALUATOR_H
-#define PROFILEEVALUATOR_H
+#pragma once
 
 #include "qmake_global.h"
 #include "qmakeglobals.h"
@@ -96,5 +95,3 @@ private:
 };
 
 QT_END_NAMESPACE
-
-#endif // PROFILEEVALUATOR_H

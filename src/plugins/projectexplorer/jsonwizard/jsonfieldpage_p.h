@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef JSONFIELDPAGE_P_H
-#define JSONFIELDPAGE_P_H
+#pragma once
 
 #include "jsonfieldpage.h"
 
@@ -208,5 +207,3 @@ private:
 };
 
 } // namespace ProjectExplorer
-
-#endif // JSONFIELDPAGE_P_H

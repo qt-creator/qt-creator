@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef REMOTE_LINUX_EXPORT_H
-#define REMOTE_LINUX_EXPORT_H
+#pragma once
 
 #include <qglobal.h>
 
@@ -33,5 +32,3 @@
 #else
 #  define REMOTELINUX_EXPORT Q_DECL_IMPORT
 #endif
-
-#endif // REMOTE_LINUX_EXPORT_H

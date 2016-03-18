@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef IEDITOR_H
-#define IEDITOR_H
+#pragma once
 
 #include <coreplugin/core_global.h>
 #include <coreplugin/icontext.h>
@@ -67,5 +66,3 @@ private:
 } // namespace Core
 
 Q_DECLARE_METATYPE(Core::IEditor*)
-
-#endif // IEDITOR_H

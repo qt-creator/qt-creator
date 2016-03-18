@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLTOOLSCLIENT_H
-#define QMLTOOLSCLIENT_H
+#pragma once
 
 #include "basetoolsclient.h"
 
@@ -59,5 +58,3 @@ private:
 };
 
 } // namespace QmlDebug
-
-#endif // QMLTOOLSCLIENT_H

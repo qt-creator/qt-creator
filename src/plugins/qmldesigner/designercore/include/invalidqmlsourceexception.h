@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef INVALIDQMLSOURCEEXCEPTION_H
-#define INVALIDQMLSOURCEEXCEPTION_H
+#pragma once
 
 #include <exception.h>
 
@@ -46,5 +45,3 @@ private:
 };
 
 } // namespace QmlDesigner
-
-#endif // INVALIDQMLSOURCEEXCEPTION_H

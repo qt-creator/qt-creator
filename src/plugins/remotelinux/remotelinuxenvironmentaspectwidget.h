@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef REMOTELINUXENVIRONMENTASPECTWIDGET_H
-#define REMOTELINUXENVIRONMENTASPECTWIDGET_H
+#pragma once
 
 #include "remotelinuxenvironmentaspect.h"
 
@@ -57,5 +56,3 @@ private:
 };
 
 } // namespace RemoteLinux
-
-#endif // REMOTELINUXENVIRONMENTASPECTWIDGET_H

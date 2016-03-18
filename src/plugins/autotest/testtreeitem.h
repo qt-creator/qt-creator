@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef TESTTREEITEM_H
-#define TESTTREEITEM_H
+#pragma once
 
 #include <utils/treemodel.h>
 
@@ -228,5 +227,3 @@ struct GTestCaseSpec
 
 Q_DECLARE_METATYPE(Autotest::Internal::TestTreeItem *)
 Q_DECLARE_METATYPE(Autotest::Internal::TestCodeLocationAndType)
-
-#endif // TESTTREEITEM_H

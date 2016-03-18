@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_GRAPHICSDIAGRAMITEM_H
-#define QMT_GRAPHICSDIAGRAMITEM_H
+#pragma once
 
 #include "objectitem.h"
 
@@ -58,5 +57,3 @@ private:
 };
 
 } // namespace qmt
-
-#endif // QMT_GRAPHICSDIAGRAMITEM_H

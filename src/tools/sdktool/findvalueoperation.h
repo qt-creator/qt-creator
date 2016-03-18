@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef FINDVALUEOPERATION_H
-#define FINDVALUEOPERATION_H
+#pragma once
 
 #include "operation.h"
 
@@ -50,5 +49,3 @@ private:
     QString m_file;
     QVariantList m_values;
 };
-
-#endif // FINDVALUEOPERATION_H

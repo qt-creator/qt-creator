@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef BOOKMARKSPLUGIN_H
-#define BOOKMARKSPLUGIN_H
+#pragma once
 
 #include <extensionsystem/iplugin.h>
 
@@ -81,5 +80,3 @@ private:
 
 } // namespace Internal
 } // namespace Bookmarks
-
-#endif // BOOKMARKS_H

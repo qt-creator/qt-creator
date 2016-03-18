@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef DRAGTOOL_H
-#define DRAGTOOL_H
+#pragma once
 
 #include <QWidget>
 #include <QIcon>
@@ -58,5 +57,3 @@ private:
 
 } // namespace Internal
 } // namespace ModelEditor
-
-#endif // DRAGTOOL_H

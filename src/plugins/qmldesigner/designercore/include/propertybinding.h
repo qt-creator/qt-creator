@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PROPERTYBINDING_H
-#define PROPERTYBINDING_H
+#pragma once
 
 #include <QMetaType>
 #include <QSharedPointer>
@@ -54,5 +53,3 @@ private:
 } // namespace QmlDesigner
 
 Q_DECLARE_METATYPE(QmlDesigner::PropertyBinding);
-
-#endif // PROPERTYBINDING_H

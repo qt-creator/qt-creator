@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef LIBVALGRIND_CALLGRIND_PARSER_H
-#define LIBVALGRIND_CALLGRIND_PARSER_H
+#pragma once
 
 #include <QObject>
 
@@ -71,5 +70,3 @@ private:
 
 } // Callgrind
 } // Valgrind
-
-#endif // LIBVALGRIND_CALLGRIND_PARSER_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef ARGUMENTSCOLLECTOR_H
-#define ARGUMENTSCOLLECTOR_H
+#pragma once
 
 #include <ssh/sshconnection.h>
 
@@ -50,5 +49,3 @@ private:
 
     const QStringList m_arguments;
 };
-
-#endif // ARGUMENTSCOLLECTOR_H

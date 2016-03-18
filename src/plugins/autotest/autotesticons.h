@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef AUTOTESTICONS_H
-#define AUTOTESTICONS_H
+#pragma once
 
 #include <utils/icon.h>
 
@@ -45,5 +44,3 @@ const Utils::Icon RUN_SELECTED_OVERLAY({
 
 } // namespace Icons
 } // namespace Autotest
-
-#endif // AUTOTESTICONS_H

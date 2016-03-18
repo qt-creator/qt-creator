@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef MODELDIAGRAMEDITOR_H
-#define MODELDIAGRAMEDITOR_H
+#pragma once
 
 #include <coreplugin/editormanager/ieditor.h>
 
@@ -154,5 +153,3 @@ private:
 
 } // namespace Internal
 } // namespace ModelEditor
-
-#endif // MODELDIAGRAMEDITOR_H

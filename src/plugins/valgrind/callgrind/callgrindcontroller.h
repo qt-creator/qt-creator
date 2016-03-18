@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CALLGRINDCONTROLLER_H
-#define CALLGRINDCONTROLLER_H
+#pragma once
 
 #include <QObject>
 
@@ -105,5 +104,3 @@ private:
 
 } // namespace Callgrind
 } // namespace Valgrind
-
-#endif // CALLGRINDCONTROLLER_H

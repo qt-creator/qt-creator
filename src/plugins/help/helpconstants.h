@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef HELPCONSTANTS_H
-#define HELPCONSTANTS_H
+#pragma once
 
 #include <QtGlobal>
 #include <QLatin1String>
@@ -66,5 +65,3 @@ static const char SB_SEARCH[] = QT_TRANSLATE_NOOP("Help::Internal::HelpPlugin", 
 
 } // Constants
 } // Help
-
-#endif // HELPCONSTANTS_H

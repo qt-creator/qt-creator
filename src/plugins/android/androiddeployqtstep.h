@@ -24,8 +24,7 @@
 **
 ****************************************************************************/
 
-#ifndef ANDROIDDEPLOYQTSTEP_H
-#define ANDROIDDEPLOYQTSTEP_H
+#pragma once
 
 #include "androidbuildapkstep.h"
 #include "androidconfigurations.h"
@@ -143,5 +142,3 @@ private:
 
 }
 } // namespace Android
-
-#endif // ANDROIDDEPLOYQTSTEP_H

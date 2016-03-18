@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef REMOTEPROCESSTEST_H
-#define REMOTEPROCESSTEST_H
+#pragma once
 
 #include <ssh/sshremoteprocessrunner.h>
 
@@ -76,6 +75,3 @@ private:
     State m_state;
     bool m_started;
 };
-
-
-#endif // REMOTEPROCESSTEST_H

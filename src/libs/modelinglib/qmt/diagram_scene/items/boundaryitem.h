@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_BOUNDARYITEM_H
-#define QMT_BOUNDARYITEM_H
+#pragma once
 
 #include <QGraphicsItem>
 
@@ -110,5 +109,3 @@ private:
 };
 
 } // namespace qmt
-
-#endif // QMT_BOUNDARYITEM_H

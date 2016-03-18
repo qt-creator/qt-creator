@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef TESTPLUGIN_GLOBAL_H
-#define TESTPLUGIN_GLOBAL_H
+#pragma once
 
 #include <qglobal.h>
 
@@ -33,5 +32,3 @@
 #else
 #  define MYPLUGIN_EXPORT Q_DECL_IMPORT
 #endif
-
-#endif // TESTPLUGIN_GLOBAL_H

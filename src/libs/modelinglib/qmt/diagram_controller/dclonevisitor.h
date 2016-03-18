@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_DCLONEVISITOR_H
-#define QMT_DCLONEVISITOR_H
+#pragma once
 
 #include "qmt/diagram/dconstvisitor.h"
 #include "qmt/infrastructure/qmt_global.h"
@@ -82,5 +81,3 @@ private:
 };
 
 } // namespace qmt
-
-#endif // QMT_DCLONEVISITOR_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CPPQUICKFIXES_H
-#define CPPQUICKFIXES_H
+#pragma once
 
 #include "cppeditor_global.h"
 #include "cppquickfix.h"
@@ -567,5 +566,3 @@ public:
 
 } // namespace Internal
 } // namespace CppEditor
-
-#endif // CPPQUICKFIXES_H

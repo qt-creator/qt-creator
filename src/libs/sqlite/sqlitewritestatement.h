@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SQLITEWRITESTATEMENT_H
-#define SQLITEWRITESTATEMENT_H
+#pragma once
 
 #include "sqlitestatement.h"
 
@@ -47,5 +46,3 @@ public:
 protected:
     void checkIsWritableStatement();
 };
-
-#endif // SQLITEWRITESTATEMENT_H

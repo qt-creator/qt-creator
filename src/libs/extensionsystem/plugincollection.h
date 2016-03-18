@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PLUGINCOLLECTION_H
-#define PLUGINCOLLECTION_H
+#pragma once
 
 #include "extensionsystem_global.h"
 
@@ -52,5 +51,3 @@ private:
 };
 
 } // namespace ExtensionSystem
-
-#endif // PLUGINCOLLECTION_H

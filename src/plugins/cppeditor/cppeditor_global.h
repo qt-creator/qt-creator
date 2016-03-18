@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CPPEDITOR_GLOBAL_H
-#define CPPEDITOR_GLOBAL_H
+#pragma once
 
 #include <qglobal.h>
 
@@ -33,5 +32,3 @@
 #else
 #  define CPPEDITOR_EXPORT Q_DECL_IMPORT
 #endif
-
-#endif // CPPEDITOR_GLOBAL_H

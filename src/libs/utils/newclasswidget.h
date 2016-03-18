@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef NEWCLASSWIDGET_H
-#define NEWCLASSWIDGET_H
+#pragma once
 
 #include "utils_global.h"
 
@@ -166,5 +165,3 @@ private:
 };
 
 } // namespace Utils
-
-#endif // NEWCLASSWIDGET_H

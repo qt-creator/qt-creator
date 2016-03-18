@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef GLSL_H
-#define GLSL_H
+#pragma once
 
 #include <qglobal.h>
 #include <cstdlib>
@@ -75,5 +74,3 @@ class AST;
 class TranslationUnitAST;
 template <typename T> class List;
 }
-
-#endif // GLSL_H

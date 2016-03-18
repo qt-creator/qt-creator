@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PUPPETALIVECOMMAND_H
-#define PUPPETALIVECOMMAND_H
+#pragma once
 
 #include <QMetaType>
 #include <QDebug>
@@ -48,5 +47,3 @@ QDebug operator <<(QDebug debug, const PuppetAliveCommand &command);
 } // namespace QmlDesigner
 
 Q_DECLARE_METATYPE(QmlDesigner::PuppetAliveCommand)
-
-#endif // PUPPETALIVECOMMAND_H

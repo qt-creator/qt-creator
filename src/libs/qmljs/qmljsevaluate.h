@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLJSEVALUATE_H
-#define QMLJSEVALUATE_H
+#pragma once
 
 #include "parser/qmljsastvisitor_p.h"
 #include "qmljsdocument.h"
@@ -164,5 +163,3 @@ private:
 };
 
 } // namespace Qml
-
-#endif // QMLJSEVALUATE_H

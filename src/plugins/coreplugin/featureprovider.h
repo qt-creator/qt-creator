@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef FEATUREPROVIDER_H
-#define FEATUREPROVIDER_H
+#pragma once
 
 #include "core_global.h"
 
@@ -48,5 +47,3 @@ public:
 };
 
 } // namespace Core
-
-#endif // FEATUREPROVIDER_H

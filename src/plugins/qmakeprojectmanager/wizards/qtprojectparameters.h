@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QTPROJECTPARAMETERS_H
-#define QTPROJECTPARAMETERS_H
+#pragma once
 
 #include <QStringList>
 
@@ -71,5 +70,3 @@ struct QtProjectParameters {
 
 } // namespace Internal
 } // namespace QmakeProjectManager
-
-#endif // QTPROJECTPARAMETERS_H

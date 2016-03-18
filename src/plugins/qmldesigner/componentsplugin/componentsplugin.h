@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef COMPONENTSPLUGIN_H
-#define COMPONENTSPLUGIN_H
+#pragma once
 
 #include <iwidgetplugin.h>
 
@@ -51,6 +50,3 @@ public:
 };
 
 } // namespace QmlDesigner
-
-
-#endif //COMPONENTSPLUGIN_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CLANGSTATICANALYZERLOGFILEREADER_H
-#define CLANGSTATICANALYZERLOGFILEREADER_H
+#pragma once
 
 #include "clangstaticanalyzerdiagnostic.h"
 
@@ -41,5 +40,3 @@ public:
 
 } // namespace Internal
 } // namespace ClangStaticAnalyzer
-
-#endif // CLANGSTATICANALYZERLOGFILEREADER_H

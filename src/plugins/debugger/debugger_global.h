@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef DEBUGGERGLOBAL_H
-#define DEBUGGERGLOBAL_H
+#pragma once
 
 #include <QtGlobal>
 
@@ -33,5 +32,3 @@
 #else
 #  define DEBUGGER_EXPORT Q_DECL_IMPORT
 #endif
-
-#endif // DEBUGGERGLOBAL_H

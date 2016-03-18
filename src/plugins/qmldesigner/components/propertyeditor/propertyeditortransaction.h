@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PROPERTYEDITORTRANSACTION_H
-#define PROPERTYEDITORTRANSACTION_H
+#pragma once
 
 #include "propertyeditorview.h"
 
@@ -49,5 +48,3 @@ private:
 };
 
 } //QmlDesigner
-
-#endif // PROPERTYEDITORTRANSACTION_H

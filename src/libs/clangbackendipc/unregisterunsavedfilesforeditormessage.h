@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CLANGBACKEND_UNREGISTERTRANSLATIONUNITSFOREDITORMESSAGE_H
-#define CLANGBACKEND_UNREGISTERTRANSLATIONUNITSFOREDITORMESSAGE_H
+#pragma once
 
 #include "filecontainer.h"
 
@@ -57,5 +56,3 @@ void PrintTo(const UnregisterUnsavedFilesForEditorMessage &message, ::std::ostre
 
 DECLARE_MESSAGE(UnregisterUnsavedFilesForEditorMessage)
 } // namespace ClangBackEnd
-
-#endif // CLANGBACKEND_UNREGISTERTRANSLATIONUNITSFOREDITORMESSAGE_H

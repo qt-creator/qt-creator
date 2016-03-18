@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CPPTOOLSBRIDGEINTERFACE_H
-#define CPPTOOLSBRIDGEINTERFACE_H
+#pragma once
 
 #include <QtGlobal>
 
@@ -53,5 +52,3 @@ public:
 };
 
 } // namespace CppTools
-
-#endif // CPPTOOLSBRIDGEINTERFACE_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLDUMPTOOL_H
-#define QMLDUMPTOOL_H
+#pragma once
 
 #include "qtsupport_global.h"
 
@@ -52,5 +51,3 @@ public:
 };
 
 } // namespace
-
-#endif // QMLDUMPTOOL_H

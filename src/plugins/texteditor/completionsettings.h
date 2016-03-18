@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef COMPLETIONSETTINGS_H
-#define COMPLETIONSETTINGS_H
+#pragma once
 
 #include "texteditor_global.h"
 
@@ -73,5 +72,3 @@ inline bool operator==(const CompletionSettings &t1, const CompletionSettings &t
 inline bool operator!=(const CompletionSettings &t1, const CompletionSettings &t2) { return !t1.equals(t2); }
 
 } // namespace TextEditor
-
-#endif // COMPLETIONSETTINGS_H

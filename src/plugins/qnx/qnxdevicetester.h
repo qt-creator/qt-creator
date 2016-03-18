@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QNX_INTERNAL_QNXDEVICETESTER_H
-#define QNX_INTERNAL_QNXDEVICETESTER_H
+#pragma once
 
 #include <remotelinux/linuxdevicetester.h>
 
@@ -74,5 +73,3 @@ private:
 
 } // namespace Internal
 } // namespace Qnx
-
-#endif // QNX_INTERNAL_QNXDEVICETESTER_H

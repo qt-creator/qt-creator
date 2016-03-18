@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLDEBUGCONSTANTS_H
-#define QMLDEBUGCONSTANTS_H
+#pragma once
 
 namespace QmlDebug {
 namespace Constants {
@@ -40,5 +39,3 @@ const char QDECLARATIVE_ENGINE[] = "QDeclarativeEngine";
 
 } // namespace Constants
 } // namespace QmlDebug
-
-#endif // QMLDEBUGCONSTANTS_H

@@ -24,8 +24,7 @@
 **
 ****************************************************************************/
 
-#ifndef CONSTANTS_H
-#define CONSTANTS_H
+#pragma once
 
 #include <QtGlobal>
 
@@ -71,5 +70,3 @@ const char OUTPUT_PANE_TITLE[] = QT_TRANSLATE_NOOP("Todo::Internal::TodoOutputPa
 
 } // namespace Constants
 } // namespace Todo
-
-#endif // CONSTANTS_H

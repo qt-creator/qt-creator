@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SQLITEDATABASECONNECTION_H
-#define SQLITEDATABASECONNECTION_H
+#pragma once
 
 #include <sqliteglobal.h>
 
@@ -62,5 +61,3 @@ private:
     QPointer<SqliteWorkerThread> databaseConnectionThread;
     bool databaseConnectionIsOpen;
 };
-
-#endif // SQLITEDATABASECONNECTION_H

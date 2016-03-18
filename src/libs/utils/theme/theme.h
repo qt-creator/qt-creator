@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef THEME_H
-#define THEME_H
+#pragma once
 
 #include "../utils_global.h"
 
@@ -293,5 +292,3 @@ private:
 QTCREATOR_UTILS_EXPORT Theme *creatorTheme();
 
 } // namespace Utils
-
-#endif // THEME_H

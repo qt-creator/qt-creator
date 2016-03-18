@@ -24,8 +24,7 @@
 **
 ****************************************************************************/
 
-#ifndef TODOICONS_H
-#define TODOICONS_H
+#pragma once
 
 #include <QIcon>
 
@@ -42,5 +41,3 @@ QIcon icon(IconType type);
 
 } // namespace Internal
 } // namespace Todo
-
-#endif // TODOICONS_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QCOMPRESSEDDEVICE_H
-#define QCOMPRESSEDDEVICE_H
+#pragma once
 
 #include <QIODevice>
 #include <QByteArray>
@@ -60,5 +59,3 @@ private:
 };
 
 } // namespace qmt
-
-#endif // QCOMPRESSEDDEVICE_H

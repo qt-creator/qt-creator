@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CPLUSPLUS_ASTPATH_H
-#define CPLUSPLUS_ASTPATH_H
+#pragma once
 
 #include <cplusplus/ASTfwd.h>
 #include <cplusplus/ASTVisitor.h>
@@ -71,5 +70,3 @@ private:
 };
 
 } // namespace CppTools
-
-#endif // CPLUSPLUS_ASTPATH_H

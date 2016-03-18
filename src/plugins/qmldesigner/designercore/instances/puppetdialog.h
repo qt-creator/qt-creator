@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PUPPETDIALOG_H
-#define PUPPETDIALOG_H
+#pragma once
 
 #include <QDialog>
 
@@ -56,5 +55,3 @@ private:
 };
 
 } //QmlDesigner
-
-#endif // PUPPETDIALOG_H

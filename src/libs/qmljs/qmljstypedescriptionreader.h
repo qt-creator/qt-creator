@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLJSTYPEDESCRIPTIONREADER_H
-#define QMLJSTYPEDESCRIPTIONREADER_H
+#pragma once
 
 #include "qmljs_global.h"
 #include <qmljs/parser/qmljsastfwd_p.h>
@@ -94,5 +93,3 @@ private:
 };
 
 } // namespace QmlJS
-
-#endif // QMLJSTYPEDESCRIPTIONREADER_H

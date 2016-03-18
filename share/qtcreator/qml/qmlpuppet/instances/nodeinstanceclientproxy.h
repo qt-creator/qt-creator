@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef NODEINSTANCECLIENTPROXY_H
-#define NODEINSTANCECLIENTPROXY_H
+#pragma once
 
 #include "nodeinstanceclientinterface.h"
 
@@ -123,5 +122,3 @@ private:
 };
 
 } // namespace QmlDesigner
-
-#endif // NODEINSTANCECLIENTPROXY_H

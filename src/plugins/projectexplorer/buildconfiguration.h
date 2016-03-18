@@ -152,4 +152,3 @@ signals:
 };
 
 } // namespace ProjectExplorer
-

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMAKEKITINFORMATION_H
-#define QMAKEKITINFORMATION_H
+#pragma once
 
 #include "qmakeprojectmanager_global.h"
 
@@ -56,5 +55,3 @@ public:
 };
 
 } // namespace QmakeProjectManager
-
-#endif // QMAKEKITINFORMATION_H

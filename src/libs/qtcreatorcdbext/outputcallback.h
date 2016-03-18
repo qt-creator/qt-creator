@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef OUTPUTCALLBACK_H
-#define OUTPUTCALLBACK_H
+#pragma once
 
 #include "common.h"
 
@@ -63,5 +62,3 @@ private:
     bool m_recording;
     std::wstring m_recorded;
 };
-
-#endif // OUTPUTCALLBACK_H

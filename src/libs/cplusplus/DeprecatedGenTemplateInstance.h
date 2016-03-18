@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CPLUSPLUS_DEPRECATEDGENTEMPLATEINSTANCE_H
-#define CPLUSPLUS_DEPRECATEDGENTEMPLATEINSTANCE_H
+#pragma once
 
 #include <cplusplus/TypeVisitor.h>
 #include <cplusplus/NameVisitor.h>
@@ -54,5 +53,3 @@ private:
 };
 
 } // namespace CPlusPlus
-
-#endif // CPLUSPLUS_DEPRECATEDGENTEMPLATEINSTANCE_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef BEAUTIFIER_CLANGFORMATCONSTANTS_H
-#define BEAUTIFIER_CLANGFORMATCONSTANTS_H
+#pragma once
 
 namespace Beautifier {
 namespace Constants {
@@ -40,5 +39,3 @@ const char SETTINGS_NAME[]         = "clangformat";
 } // namespace ClangFormat
 } // namespace Constants
 } // namespace Beautifier
-
-#endif // BEAUTIFIER_CLANGFORMATCONSTANTS_H

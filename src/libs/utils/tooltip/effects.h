@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef EFFECTS_H
-#define EFFECTS_H
+#pragma once
 
 #include <QtGlobal>
 
@@ -50,5 +49,3 @@ extern void Q_GUI_EXPORT qScrollEffect(QWidget*, QEffects::DirFlags dir = QEffec
 extern void Q_GUI_EXPORT qFadeEffect(QWidget*, int time = -1);
 
 QT_END_NAMESPACE
-
-#endif // EFFECTS_H

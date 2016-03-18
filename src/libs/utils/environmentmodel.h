@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef UTILS_ENVIRONMENTMODEL_H
-#define UTILS_ENVIRONMENTMODEL_H
+#pragma once
 
 #include "utils_global.h"
 
@@ -76,5 +75,3 @@ private:
 };
 
 } // namespace Utils
-
-#endif // UTILS_ENVIRONMENTMODEL_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef IWIDGETPLUGIN_H
-#define IWIDGETPLUGIN_H
+#pragma once
 
 #include <QObject>
 
@@ -46,5 +45,3 @@ public:
 QT_BEGIN_NAMESPACE
 Q_DECLARE_INTERFACE(QmlDesigner::IWidgetPlugin, QMLDESIGNER_WIDGETPLUGIN_INTERFACE)
 QT_END_NAMESPACE
-
-#endif // IWIDGETPLUGIN_H

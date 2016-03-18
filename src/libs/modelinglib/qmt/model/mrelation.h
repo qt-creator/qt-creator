@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_MRELATION_H
-#define QMT_MRELATION_H
+#pragma once
 
 #include "melement.h"
 
@@ -60,5 +59,3 @@ private:
 };
 
 } // namespace qmt
-
-#endif // QMT_MRELATION_H

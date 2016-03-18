@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLDESIGNER_SHORTCUTMANAGER_H
-#define QMLDESIGNER_SHORTCUTMANAGER_H
+#pragma once
 
 #include <QObject>
 #include <QAction>
@@ -95,5 +94,3 @@ private:
 };
 
 } // namespace QmlDesigner
-
-#endif // QMLDESIGNER_SHORTCUTMANAGER_H

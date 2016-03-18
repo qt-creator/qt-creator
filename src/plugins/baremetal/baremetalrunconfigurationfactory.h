@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef BAREMETALRUNCONFIGURATIONFACTORY_H
-#define BAREMETALRUNCONFIGURATIONFACTORY_H
+#pragma once
 
 #include <projectexplorer/runconfiguration.h>
 
@@ -58,5 +57,3 @@ private:
 
 } // namespace Internal
 } // namespace RemoteLinux
-
-#endif // BAREMETALRUNCONFIGURATIONFACTORY_H

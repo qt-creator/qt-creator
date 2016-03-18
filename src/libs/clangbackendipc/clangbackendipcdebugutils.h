@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CLANGBACKENDIPCDEBUGUTILS_H
-#define CLANGBACKENDIPCDEBUGUTILS_H
+#pragma once
 
 #include "clangbackendipc_global.h"
 
@@ -52,5 +51,3 @@ private:
 } // namespace ClangBackEnd
 
 #define TIME_SCOPE_DURATION(id) ClangBackEnd::VerboseScopeDurationTimer scopeDurationTimer(id)
-
-#endif // CLANGBACKENDIPCDEBUGUTILS_H

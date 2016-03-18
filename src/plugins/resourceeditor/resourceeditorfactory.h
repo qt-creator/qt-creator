@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef RRESOURCEEDITORFACTORY_H
-#define RRESOURCEEDITORFACTORY_H
+#pragma once
 
 #include <coreplugin/editormanager/ieditorfactory.h>
 #include <coreplugin/icontext.h>
@@ -51,5 +50,3 @@ private:
 
 } // namespace Internal
 } // namespace ResourceEditor
-
-#endif // RRESOURCEEDITORFACTORY_H

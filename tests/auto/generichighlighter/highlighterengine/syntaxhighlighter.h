@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SYNTAXHIGHLIGHTER_H
-#define SYNTAXHIGHLIGHTER_H
+#pragma once
 
 // Replaces the "real" syntaxhighlighter.h file. The scope of this test is restricted to the
 // highlight definition's context engine. Using a mock derived from QSyntaxHighlighter as a
@@ -51,5 +50,3 @@ protected:
 };
 
 }
-
-#endif //SYNTAXHIGHLIGHTER_H

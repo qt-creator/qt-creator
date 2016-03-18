@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef GLSLLEXER_H
-#define GLSLLEXER_H
+#pragma once
 
 #include "glsl.h"
 #include <qstring.h>
@@ -129,5 +128,3 @@ private:
 };
 
 } // namespace GLSL
-
-#endif // GLSLLEXER_H

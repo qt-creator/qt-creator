@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CPPREWRITER_H
-#define CPPREWRITER_H
+#pragma once
 
 #include "CppDocument.h"
 #include "LookupContext.h"
@@ -110,5 +109,3 @@ CPLUSPLUS_EXPORT const Name *rewriteName(const Name *name,
                                          Control *control);
 
 } // namespace CPlusPlus
-
-#endif // CPPREWRITER_H

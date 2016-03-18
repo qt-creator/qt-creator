@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef TEXTEDITOR_GLOBAL_H
-#define TEXTEDITOR_GLOBAL_H
+#pragma once
 
 #include <qglobal.h>
 
@@ -46,5 +45,3 @@ enum TextPositionOperation
 };
 
 } // namespace TextEditor
-
-#endif // TEXTEDITOR_GLOBAL_H

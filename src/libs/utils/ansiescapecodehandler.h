@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef UTILS_ANSIESCAPECODEHANDLER_H
-#define UTILS_ANSIESCAPECODEHANDLER_H
+#pragma once
 
 #include "utils_global.h"
 
@@ -60,5 +59,3 @@ private:
 };
 
 } // namespace Utils
-
-#endif // UTILS_ANSIESCAPECODEHANDLER_H

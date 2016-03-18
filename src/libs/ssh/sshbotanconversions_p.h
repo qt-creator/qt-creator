@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SSHBOTANCONVERSIONS_P_H
-#define SSHBOTANCONVERSIONS_P_H
+#pragma once
 
 #include "sshcapabilities_p.h"
 #include "sshexception_p.h"
@@ -131,5 +130,3 @@ inline quint32 botanHMacKeyLen(const QByteArray &rfcAlgoName)
 
 } // namespace Internal
 } // namespace QSsh
-
-#endif // SSHBOTANCONVERSIONS_P_H

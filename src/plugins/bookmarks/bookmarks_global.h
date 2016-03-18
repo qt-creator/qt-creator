@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef BOOKMARKS_GLOBAL_H
-#define BOOKMARKS_GLOBAL_H
+#pragma once
 
 namespace Bookmarks {
 namespace Constants {
@@ -46,6 +45,3 @@ const char BOOKMARKS_CONTEXT[]            = "Bookmarks";
 
 } // namespace Constants
 } // namespace Bookmarks
-
-#endif // BOOKMARKS_GLOBAL_H
-

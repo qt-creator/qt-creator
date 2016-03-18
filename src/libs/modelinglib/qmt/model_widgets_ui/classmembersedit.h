@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_CLASSMEMBERSEDIT_H
-#define QMT_CLASSMEMBERSEDIT_H
+#pragma once
 
 #include <QPlainTextEdit>
 #include "qmt/infrastructure/qmt_global.h"
@@ -63,5 +62,3 @@ private:
 };
 
 } // namespace qmt
-
-#endif // QMT_CLASSMEMBERSEDIT_H

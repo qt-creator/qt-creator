@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PATHCHOOSER_H
-#define PATHCHOOSER_H
+#pragma once
 
 #include "fancylineedit.h"
 #include "fileutils.h"
@@ -178,6 +177,3 @@ private:
 };
 
 } // namespace Utils
-
-
-#endif // PATHCHOOSER_H

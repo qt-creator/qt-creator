@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CLANGSTATICANALYZERRUNCONTROL_H
-#define CLANGSTATICANALYZERRUNCONTROL_H
+#pragma once
 
 #include <debugger/analyzer/analyzerruncontrol.h>
 #include <cpptools/projectinfo.h>
@@ -99,5 +98,3 @@ private:
 
 } // namespace Internal
 } // namespace ClangStaticAnalyzer
-
-#endif // CLANGSTATICANALYZERRUNCONTROL_H

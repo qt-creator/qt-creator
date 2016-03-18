@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_DPACKAGE_H
-#define QMT_DPACKAGE_H
+#pragma once
 
 #include "dobject.h"
 
@@ -41,5 +40,3 @@ public:
 };
 
 } // namespace qmt
-
-#endif // QMT_DPACKAGE_H

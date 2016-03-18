@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CATEGORYSORTFILTERMODEL_H
-#define CATEGORYSORTFILTERMODEL_H
+#pragma once
 
 #include "utils_global.h"
 
@@ -42,5 +41,3 @@ protected:
 };
 
 } // Utils
-
-#endif // CATEGORYSORTFILTERMODEL_H

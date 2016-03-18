@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_MCLASS_H
-#define QMT_MCLASS_H
+#pragma once
 
 #include "mobject.h"
 #include "mclassmember.h"
@@ -64,5 +63,3 @@ private:
 };
 
 } // namespace qmt
-
-#endif // QMT_MCLASS_H

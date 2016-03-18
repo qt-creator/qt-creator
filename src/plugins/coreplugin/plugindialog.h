@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PLUGINDIALOG_H
-#define PLUGINDIALOG_H
+#pragma once
 
 #include <QDialog>
 
@@ -65,5 +64,3 @@ private:
 
 } // namespace Internal
 } // namespace Core
-
-#endif // PLUGINDIALOG_H

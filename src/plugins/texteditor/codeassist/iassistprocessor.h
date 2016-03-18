@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef IASSISTPROCESSOR_H
-#define IASSISTPROCESSOR_H
+#pragma once
 
 #include <texteditor/texteditor_global.h>
 
@@ -60,5 +59,3 @@ private:
 };
 
 } // TextEditor
-
-#endif // IASSISTPROCESSOR_H

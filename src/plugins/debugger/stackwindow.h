@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef DEBUGGER_STACKWINDOW_H
-#define DEBUGGER_STACKWINDOW_H
+#pragma once
 
 #include <utils/basetreeview.h>
 #include <QCoreApplication>
@@ -50,6 +49,3 @@ private:
 
 } // namespace Internal
 } // namespace Debugger
-
-#endif // DEBUGGER_STACKWINDOW_H
-

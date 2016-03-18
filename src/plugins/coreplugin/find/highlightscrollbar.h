@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef HIGHLIGHTSCROLLBAR_H
-#define HIGHLIGHTSCROLLBAR_H
+#pragma once
 
 #include <QMap>
 #include <QScrollBar>
@@ -116,5 +115,3 @@ private:
 };
 
 } // namespace Core
-
-#endif // HIGHLIGHTSCROLLBAR_H

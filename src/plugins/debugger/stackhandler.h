@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef DEBUGGER_STACKHANDLER_H
-#define DEBUGGER_STACKHANDLER_H
+#pragma once
 
 #include "stackframe.h"
 
@@ -98,5 +97,3 @@ private:
 
 } // namespace Internal
 } // namespace Debugger
-
-#endif // DEBUGGER_STACKHANDLER_H

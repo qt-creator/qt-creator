@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef DEFINITIONDOWNLOADER_H
-#define DEFINITIONDOWNLOADER_H
+#pragma once
 
 #include <QObject>
 #include <QString>
@@ -77,5 +76,3 @@ struct DownloaderStarter
 
 } // namespace Internal
 } // namespace TextEditor
-
-#endif // DEFINITIONDOWNLOADER_H

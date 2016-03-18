@@ -1,7 +1,6 @@
 // Copyright header
 
-#ifndef FORM_H
-#define FORM_H
+#pragma once
 
 #include "ui_form.h"
 
@@ -23,5 +22,3 @@ public:
 private:
     Ui::Form ui;
 };
-
-#endif // FORM_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QARK_SERIALIZE_POINTER_H
-#define QARK_SERIALIZE_POINTER_H
+#pragma once
 
 #include "typeregistry.h"
 
@@ -86,6 +85,3 @@ void load(Archive &archive, T *&p, const Parameters &)
 }
 
 } // namespace qark
-
-#endif // QARK_SERIALIZE_POINTER_H
-

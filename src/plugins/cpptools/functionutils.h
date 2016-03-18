@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef FUNCTIONUTILS_H
-#define FUNCTIONUTILS_H
+#pragma once
 
 #include "cpptools_global.h"
 
@@ -60,5 +59,3 @@ public:
 };
 
 } // namespace CppTools
-
-#endif // FUNCTIONUTILS_H

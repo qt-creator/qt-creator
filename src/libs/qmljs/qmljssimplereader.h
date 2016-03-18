@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMLJS_SIMPLEREADER_H
-#define QMLJS_SIMPLEREADER_H
+#pragma once
 
 #include <qmljs/qmljs_global.h>
 #include <qmljs/parser/qmljsastfwd_p.h>
@@ -127,5 +126,3 @@ private:
 };
 
 }  // namespace QmlJS
-
-#endif // QMLJS_SIMPLEREADER_H

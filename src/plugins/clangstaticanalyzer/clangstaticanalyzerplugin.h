@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CLANGSTATICANALYZERPLUGIN_H
-#define CLANGSTATICANALYZERPLUGIN_H
+#pragma once
 
 #include <extensionsystem/iplugin.h>
 
@@ -56,6 +55,3 @@ private:
 
 } // namespace Internal
 } // namespace ClangStaticAnalyzerPlugin
-
-#endif // CLANGSTATICANALYZERPLUGIN_H
-

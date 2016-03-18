@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef PLUGINDIALOG_H
-#define PLUGINDIALOG_H
+#pragma once
 
 #include <extensionsystem/pluginview.h>
 #include <extensionsystem/pluginmanager.h>
@@ -51,5 +50,3 @@ private:
     QPushButton *m_detailsButton;
     QPushButton *m_errorDetailsButton;
 };
-
-#endif // PLUGINDIALOG_H

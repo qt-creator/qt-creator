@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef IOSRUNCONTROL_H
-#define IOSRUNCONTROL_H
+#pragma once
 
 #include <projectexplorer/runconfiguration.h>
 
@@ -60,5 +59,3 @@ private:
 
 } // namespace Internal
 } // namespace Ios
-
-#endif // IOSRUNCONTROL_H
