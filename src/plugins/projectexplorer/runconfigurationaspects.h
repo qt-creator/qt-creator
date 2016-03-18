@@ -34,6 +34,7 @@ QT_BEGIN_NAMESPACE
 class QCheckBox;
 class QFormLayout;
 class QLineEdit;
+class QToolButton;
 QT_END_NAMESPACE
 
 namespace Utils {
@@ -105,6 +106,7 @@ private:
     Utils::FileName m_workingDirectory;
     Utils::FileName m_defaultWorkingDirectory;
     QPointer<Utils::PathChooser> m_chooser;
+    QPointer<QToolButton> m_resetButton;
     QString m_key;
 };
 
