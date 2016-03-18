@@ -585,8 +585,8 @@ void tst_QtcProcess::expandMacros_data()
                                << QString::fromLatin1(vals[i].out)
                                << vals[i].os;
             sprintf(buf, "padded %s: %s", title, vals[i].in);
-            QTest::newRow(buf) << (sp + QString::fromLatin1(vals[i].in) + sp)
-                               << (sp + QString::fromLatin1(vals[i].out) + sp)
+            QTest::newRow(buf) << QString(sp + QString::fromLatin1(vals[i].in) + sp)
+                               << QString(sp + QString::fromLatin1(vals[i].out) + sp)
                                << vals[i].os;
         }
     }
