@@ -26,7 +26,6 @@ QtcAutotest {
     cpp.defines: base.concat([
         'CDBEXT_PATH="' + project.buildDirectory + '\\\\lib"',
         'DUMPERDIR="' + path + '/../../../share/qtcreator/debugger"',
-        'QT_NO_CAST_FROM_ASCII',
     ])
     cpp.includePaths: base.concat([project.debuggerDir])
 }
