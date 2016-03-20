@@ -1106,6 +1106,8 @@ class DumperBase:
         typeName = str(value.type)
 
         (dereferencable, pointerValue) = self.pointerInfo(value)
+        self.putAddress(pointerValue)
+        self.putOriginalAddress(value)
         if not dereferencable:
             # Failure to dereference a pointer should at least
             # show the value of a pointer.
