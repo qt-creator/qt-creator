@@ -266,12 +266,14 @@ bool CMakeBuildStep::immutable() const
 void CMakeBuildStep::stdOutput(const QString &line)
 {
     if (m_percentProgress.indexIn(line) != -1) {
+        AbstractProcessStep::stdOutput(line);
         bool ok = false;
         int percent = m_percentProgress.cap(1).toInt(&ok);
         if (ok)
             futureInterface()->setProgressValue(percent);
         return;
     } else if (m_ninjaProgress.indexIn(line) != -1) {
+        AbstractProcessStep::stdOutput(line);
         m_useNinja = true;
         bool ok = false;
         int done = m_ninjaProgress.cap(1).toInt(&ok);
