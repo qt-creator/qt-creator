@@ -213,7 +213,7 @@ void WatchItem::setType(const QByteArray &str, bool guessChildrenFromType)
         else if (type.startsWith("class "))
             type = type.mid(6);
         else if (type.startsWith("struct "))
-            type = type.mid(6);
+            type = type.mid(7);
         else if (type.startsWith(' '))
             type = type.mid(1);
         else
