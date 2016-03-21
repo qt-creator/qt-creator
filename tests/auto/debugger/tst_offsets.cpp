@@ -27,7 +27,14 @@
 
 #ifdef HAS_BOOST
 #include <boost/version.hpp>
+#if BOOST_VERSION >= (1 * 100000 + 54 * 100)
+#ifdef Q_CC_CLANG
+#pragma clang diagnostic ignored "-Wunused-local-typedef"
+#endif
 #include <boost/unordered/unordered_set.hpp>
+#else
+#undef HAS_BOOST
+#endif
 #endif
 
 // Don't do this at home. This is test code, not production.
@@ -38,6 +45,29 @@
 #include <private/qfile_p.h>
 #include <private/qfileinfo_p.h>
 #include <private/qobject_p.h>
+
+#ifdef HAS_BOOST
+namespace {
+// Based on http://bloglitb.blogspot.com/2011/12/access-to-private-members-safer.html
+template<typename Tag, typename Tag::type M>
+struct Rob {
+  friend typename Tag::type get(Tag) {
+    return M;
+  }
+};
+
+typedef boost::unordered_set<int> uset;
+typedef boost::unordered::detail::set<uset::allocator_type, uset::key_type,
+                                      uset::hasher, uset::key_equal> uset_types;
+
+struct Table {
+  typedef uset_types::table uset::*type;
+  friend type get(Table);
+};
+
+template struct Rob<Table, &uset::table_>;
+} // anon namespace
+#endif
 
 class tst_offsets : public QObject
 {
@@ -219,21 +249,17 @@ void tst_offsets::offsets_data()
     }
 
 #ifdef HAS_BOOST
-#if BOOST_VERSION >= (1 * 100000 + 54 * 100)
     {
-#if QT_VERSION < 0x50700
-        // would require #define private public, but doesn't compile.
         boost::unordered::unordered_set<int> *p = 0;
 
+        auto &table = p->*get(Table());
         QTest::newRow("boost::unordered::unordered_set::size")
-            << int((char *)&p->table_.size_ - (char *)p) << 8 << 16;
+            << int((char *)&table.size_ - (char *)p) << 8 << 16;
         QTest::newRow("boost::unordered::unordered_set::bucket_count")
-            << int((char *)&p->table_.bucket_count_ - (char *)p) << 4 << 8;
+            << int((char *)&table.bucket_count_ - (char *)p) << 4 << 8;
         QTest::newRow("boost::unordered::unordered_set::buckets_")
-            << int((char *)&p->table_.buckets_ - (char *)p) << 20 << 40;
-#endif
+            << int((char *)&table.buckets_ - (char *)p) << 20 << 40;
     }
-#endif
 #endif
 }
 
