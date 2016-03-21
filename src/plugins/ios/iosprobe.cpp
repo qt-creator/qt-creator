@@ -137,7 +137,7 @@ void IosProbe::setupDefaultToolchains(const QString &devPath, const QString &xco
             if (name != QLatin1String("macosx") && name != QLatin1String("iphoneos")
                     && name != QLatin1String("iphonesimulator"))
             {
-                qCWarning(probeLog) << indent << QString::fromLatin1("Skipping unknown platform %1").arg(name);
+                qCDebug(probeLog) << indent << QString::fromLatin1("Skipping unknown platform %1").arg(name);
                 continue;
             }
 
