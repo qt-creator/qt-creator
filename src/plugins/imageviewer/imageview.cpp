@@ -58,9 +58,6 @@
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 
-#include <QSvgRenderer>
-#include <QGraphicsSvgItem>
-
 #include <QMessageBox>
 #include <QGraphicsRectItem>
 
@@ -74,6 +71,11 @@
 #include <QFileInfo>
 
 #include <qmath.h>
+
+#ifndef QT_NO_SVG
+#include <QGraphicsSvgItem>
+#include <QSvgRenderer>
+#endif
 
 namespace ImageViewer {
 namespace Constants {
