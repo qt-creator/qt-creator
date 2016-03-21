@@ -156,7 +156,7 @@ void WorkingDirectoryAspect::addToMainConfigurationWidget(QWidget *parent, QForm
     m_resetButton = new QToolButton(parent);
     m_resetButton->setToolTip(tr("Reset to Default"));
     m_resetButton->setIcon(Core::Icons::RESET.icon());
-    connect(m_resetButton, &QAbstractButton::clicked, this, &WorkingDirectoryAspect::resetPath);
+    connect(m_resetButton.data(), &QAbstractButton::clicked, this, &WorkingDirectoryAspect::resetPath);
 
     m_chooser = new PathChooser(parent);
     m_chooser->setHistoryCompleter(m_key);
