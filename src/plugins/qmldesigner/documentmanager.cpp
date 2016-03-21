@@ -283,7 +283,7 @@ void DocumentManager::setCurrentDesignDocument(Core::IEditor *editor)
             m_designDocumentHash.insert(editor, m_currentDesignDocument);
             m_currentDesignDocument->setEditor(editor);
         }
-    } else {
+    } else if (!m_currentDesignDocument.isNull()) {
         m_currentDesignDocument->resetToDocumentModel();
         m_currentDesignDocument.clear();
     }
