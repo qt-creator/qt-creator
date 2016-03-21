@@ -118,9 +118,7 @@ void FancyTabBar::paintEvent(QPaintEvent *event)
     if (creatorTheme()->widgetStyle() == Theme::StyleFlat) {
         // draw background of upper part of left tab widget
         // (Welcome, ... Help)
-        p.fillRect(event->rect(), StyleHelper::isBaseColorDefault()
-                   ? creatorTheme()->color(Theme::FancyTabBarBackgroundColor)
-                   : StyleHelper::baseColor());
+        p.fillRect(event->rect(), StyleHelper::baseColor());
     }
 
     for (int i = 0; i < count(); ++i)

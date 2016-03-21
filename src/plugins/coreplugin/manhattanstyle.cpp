@@ -528,9 +528,7 @@ void ManhattanStyle::drawPrimitive(PrimitiveElement element, const QStyleOption 
                 painter->drawLine(borderRect.topLeft(), borderRect.topRight());
                 painter->restore();
             } else {
-                painter->fillRect(rect, StyleHelper::isBaseColorDefault()
-                                  ? creatorTheme()->color(Theme::PanelStatusBarBackgroundColor)
-                                  : StyleHelper::baseColor());
+                painter->fillRect(rect, StyleHelper::baseColor());
             }
         }
         break;
@@ -653,9 +651,7 @@ void ManhattanStyle::drawControl(ControlElement element, const QStyleOption *opt
             const bool dis = !(mbi->state & State_Enabled);
 
             if (creatorTheme()->flag(Theme::FlatMenuBar))
-                painter->fillRect(option->rect, StyleHelper::isBaseColorDefault()
-                                  ? creatorTheme()->color(Theme::MenuBarItemBackgroundColor)
-                                  : StyleHelper::baseColor());
+                painter->fillRect(option->rect, StyleHelper::baseColor());
             else
                 StyleHelper::menuGradient(painter, option->rect, option->rect);
 
@@ -793,9 +789,7 @@ void ManhattanStyle::drawControl(ControlElement element, const QStyleOption *opt
                                   option->rect.bottomRight() + QPointF(0.5, 0.5));
                 painter->restore();
             } else {
-                painter->fillRect(option->rect, StyleHelper::isBaseColorDefault()
-                                  ? creatorTheme()->color(Theme::MenuBarEmptyAreaBackgroundColor)
-                                  : StyleHelper::baseColor());
+                painter->fillRect(option->rect, StyleHelper::baseColor());
             }
         }
         break;
@@ -817,9 +811,7 @@ void ManhattanStyle::drawControl(ControlElement element, const QStyleOption *opt
             bool drawLightColored = lightColored(widget);
             // draws the background of the 'Type hierarchy', 'Projects' headers
             if (creatorTheme()->widgetStyle() == Theme::StyleFlat)
-                painter->fillRect(rect, StyleHelper::isBaseColorDefault()
-                                  ? creatorTheme()->color(Theme::ToolBarBackgroundColor)
-                                  : StyleHelper::baseColor(drawLightColored));
+                painter->fillRect(rect, StyleHelper::baseColor(drawLightColored));
             else if (horizontal)
                 StyleHelper::horizontalGradient(painter, gradientSpan, rect, drawLightColored);
             else

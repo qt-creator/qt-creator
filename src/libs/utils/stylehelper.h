@@ -56,7 +56,6 @@ public:
     // This is our color table, all colors derive from baseColor
     static QColor requestedBaseColor() { return m_requestedBaseColor; }
     static QColor baseColor(bool lightColored = false);
-    static bool isBaseColorDefault();
     static QColor panelTextColor(bool lightColored = false);
     static QColor highlightColor(bool lightColored = false);
     static QColor shadowColor(bool lightColored = false);

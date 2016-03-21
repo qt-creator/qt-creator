@@ -25,6 +25,7 @@
 
 #include "stylehelper.h"
 
+#include "theme/theme.h"
 #include "hostosinfo.h"
 
 #include <QPixmapCache>
@@ -108,11 +109,6 @@ QColor StyleHelper::baseColor(bool lightColored)
         return m_baseColor.lighter(230);
 }
 
-bool StyleHelper::isBaseColorDefault()
-{
-    return m_requestedBaseColor == DEFAULT_BASE_COLOR;
-}
-
 QColor StyleHelper::highlightColor(bool lightColored)
 {
     QColor result = baseColor(lightColored);
@@ -152,10 +148,20 @@ void StyleHelper::setBaseColor(const QColor &newcolor)
 {
     m_requestedBaseColor = newcolor;
 
+    const QColor themeBaseColor = creatorTheme()->color(Theme::PanelStatusBarBackgroundColor);
+    const QColor defaultBaseColor = QColor(DEFAULT_BASE_COLOR);
     QColor color;
-    color.setHsv(newcolor.hue(),
-                 newcolor.saturation() * 0.7,
-                 64 + newcolor.value() / 3);
+
+    if (defaultBaseColor == newcolor) {
+        color = themeBaseColor;
+    } else {
+        const int valueDelta = (newcolor.value() - defaultBaseColor.value()) / 3;
+        const int value = qBound(0, themeBaseColor.value() + valueDelta, 255);
+
+        color.setHsv(newcolor.hue(),
+                     newcolor.saturation() * 0.7,
+                     value);
+    }
 
     if (color.isValid() && color != m_baseColor) {
         m_baseColor = color;

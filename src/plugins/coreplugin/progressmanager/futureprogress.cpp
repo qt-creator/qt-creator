@@ -296,9 +296,7 @@ void FutureProgress::paintEvent(QPaintEvent *)
 {
     QPainter p(this);
     if (creatorTheme()->widgetStyle() == Theme::StyleFlat) {
-        p.fillRect(rect(), StyleHelper::isBaseColorDefault()
-                   ? creatorTheme()->color(Theme::FutureProgressBackgroundColor)
-                   : StyleHelper::baseColor());
+        p.fillRect(rect(), StyleHelper::baseColor());
     } else {
       QLinearGradient grad = StyleHelper::statusBarGradient(rect());
         p.fillRect(rect(), grad);
