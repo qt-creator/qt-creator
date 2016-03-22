@@ -341,7 +341,7 @@ void DebuggerRunControlCreator::enrich(const RunConfiguration *runConfig, const 
         m_kit = m_target->kit();
 
     // Make sure we have something sensible to start with.
-    m_rp.inferior.runMode == ApplicationLauncher::Console;
+    m_rp.inferior.runMode = ApplicationLauncher::Console;
     m_rp.useTerminal = false;
 
     // Extract as much as possible from available RunConfiguration.
