@@ -15,13 +15,13 @@ QtcPlugin {
     }
 
     files: [
+        "exportdialog.cpp",
+        "exportdialog.h",
         "imageview.cpp",
         "imageview.h",
         "imageviewer.cpp",
         "imageviewer.h",
         "imageviewer.qrc",
-        "imagevieweractionhandler.cpp",
-        "imagevieweractionhandler.h",
         "imageviewerconstants.h",
         "imageviewerfactory.cpp",
         "imageviewerfactory.h",
