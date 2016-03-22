@@ -70,8 +70,12 @@ namespace Internal {
 static char outputPaneSettingsKeyC[] = "OutputPaneVisibility";
 static char outputPaneIdKeyC[] = "id";
 static char outputPaneVisibleKeyC[] = "visible";
-static const int numberAreaWidth = 19;
 static const int buttonBorderWidth = 3;
+
+static int numberAreaWidth()
+{
+    return creatorTheme()->widgetStyle() == Theme::StyleDefault ? 19 : 15;
+}
 
 ////
 // OutputPaneManager
@@ -185,7 +189,8 @@ OutputPaneManager::OutputPaneManager(QWidget *parent) :
     m_buttonsWidget = new QWidget;
     m_buttonsWidget->setLayout(new QHBoxLayout);
     m_buttonsWidget->layout()->setContentsMargins(5,0,0,0);
-    m_buttonsWidget->layout()->setSpacing(4);
+    m_buttonsWidget->layout()->setSpacing(
+            creatorTheme()->widgetStyle() == Theme::StyleDefault ? 4 : 9);
 }
 
 OutputPaneManager::~OutputPaneManager()
@@ -650,7 +655,7 @@ QSize OutputPaneToggleButton::sizeHint() const
     QSize s = fontMetrics().size(Qt::TextSingleLine, m_text);
 
     // Expand to account for border image
-    s.rwidth() += numberAreaWidth + 1 + buttonBorderWidth + buttonBorderWidth;
+    s.rwidth() += numberAreaWidth() + 1 + buttonBorderWidth + buttonBorderWidth;
 
     if (!m_badgeNumberLabel.text().isNull())
         s.rwidth() += m_badgeNumberLabel.sizeHint().width() + 1;
@@ -685,7 +690,7 @@ void OutputPaneToggleButton::paintEvent(QPaintEvent*)
         else
             image = hovered ? &panelButtonHover : &panelButton;
         if (image)
-            StyleHelper::drawCornerImage(*image, &p, rect(), numberAreaWidth, buttonBorderWidth, buttonBorderWidth, buttonBorderWidth);
+            StyleHelper::drawCornerImage(*image, &p, rect(), numberAreaWidth(), buttonBorderWidth, buttonBorderWidth, buttonBorderWidth);
     } else {
         Theme::Color c = Theme::BackgroundColorDark;
 
@@ -703,16 +708,16 @@ void OutputPaneToggleButton::paintEvent(QPaintEvent*)
         QColor c = creatorTheme()->color(Theme::OutputPaneButtonFlashColor);
         c.setAlpha (m_flashTimer->currentFrame());
         QRect r = (creatorTheme()->widgetStyle() == Theme::StyleFlat)
-                  ? rect() : rect().adjusted(numberAreaWidth, 1, -1, -1);
+                  ? rect() : rect().adjusted(numberAreaWidth(), 1, -1, -1);
         p.fillRect(r, c);
     }
 
     p.setFont(font());
     p.setPen(creatorTheme()->color(Theme::OutputPaneToggleButtonTextColorChecked));
-    p.drawText((numberAreaWidth - numberWidth) / 2, baseLine, m_number);
+    p.drawText((numberAreaWidth() - numberWidth) / 2, baseLine, m_number);
     if (!isChecked())
         p.setPen(creatorTheme()->color(Theme::OutputPaneToggleButtonTextColorUnchecked));
-    int leftPart = numberAreaWidth + buttonBorderWidth;
+    int leftPart = numberAreaWidth() + buttonBorderWidth;
     int labelWidth = 0;
     if (!m_badgeNumberLabel.text().isEmpty()) {
         const QSize labelSize = m_badgeNumberLabel.sizeHint();
@@ -765,7 +770,7 @@ OutputPaneManageButton::OutputPaneManageButton()
 QSize OutputPaneManageButton::sizeHint() const
 {
     ensurePolished();
-    return QSize(numberAreaWidth, QApplication::globalStrut().height());
+    return QSize(numberAreaWidth(), QApplication::globalStrut().height());
 }
 
 void OutputPaneManageButton::paintEvent(QPaintEvent*)
