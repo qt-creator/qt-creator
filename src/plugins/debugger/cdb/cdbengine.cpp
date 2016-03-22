@@ -642,7 +642,7 @@ void CdbEngine::setupInferior()
 
     // setting up symbol search path
     QStringList symbolPaths = stringListSetting(CdbSymbolPaths);
-    const QProcessEnvironment &env = QProcessEnvironment::systemEnvironment();
+    const QProcessEnvironment &env = m_process.processEnvironment();
     QString symbolPath = env.value(QLatin1String("_NT_ALT_SYMBOL_PATH"));
     if (!symbolPath.isEmpty())
         symbolPaths += symbolPath;
