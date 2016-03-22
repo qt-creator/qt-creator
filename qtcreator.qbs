@@ -4,7 +4,7 @@ import qbs.FileInfo
 
 Project {
     name: "Qt Creator"
-    minimumQbsVersion: "1.4.3"
+    minimumQbsVersion: "1.5.0"
     property bool withAutotests: qbs.buildVariant === "debug"
     property string ide_version_major: '4'
     property string ide_version_minor: '0'
