@@ -321,6 +321,7 @@ void DebuggerRunControlCreator::initialize(const DebuggerStartParameters &sp)
 void DebuggerRunControlCreator::enrich(const RunConfiguration *runConfig, const Kit *kit)
 {
     m_runConfig = runConfig;
+    QTC_ASSERT(kit, return);
 
     Target *target = 0;
     Project *project = 0;
@@ -328,9 +329,6 @@ void DebuggerRunControlCreator::enrich(const RunConfiguration *runConfig, const 
     // Find a Kit and Target. Either could be missing.
     if (m_runConfig)
         target = m_runConfig->target();
-
-    if (!kit && target)
-        kit = target->kit();
 
     // Extract as much as possible from available RunConfiguration.
     if (m_runConfig && m_runConfig->runnable().is<StandardRunnable>()) {
@@ -345,46 +343,6 @@ void DebuggerRunControlCreator::enrich(const RunConfiguration *runConfig, const 
         foreach (const DeviceProcessItem &p, DeviceProcessList::localProcesses())
             if (p.pid == m_rp.attachPID)
                 m_rp.inferior.executable = p.exe;
-    }
-
-    if (!kit) {
-        // This code can only be reached when starting via the command line
-        // (-debug pid or executable) or attaching from runconfiguration
-        // without specifying a kit. Try to find a kit via ABI.
-        QList<Abi> abis;
-        if (m_rp.toolChainAbi.isValid()) {
-            abis.push_back(m_rp.toolChainAbi);
-        } else if (!m_rp.inferior.executable.isEmpty()) {
-            abis = Abi::abisOfBinary(FileName::fromString(m_rp.inferior.executable));
-        }
-
-        if (!abis.isEmpty()) {
-            // Try exact abis.
-            kit = KitManager::find(KitMatcher([abis](const Kit *k) -> bool {
-                if (const ToolChain *tc = ToolChainKitInformation::toolChain(k))
-                    return abis.contains(tc->targetAbi()) && DebuggerKitInformation::isValidDebugger(k);
-                return false;
-            }));
-            if (!kit) {
-                // Or something compatible.
-                kit = KitManager::find(KitMatcher([abis](const Kit *k) -> bool {
-                    if (const ToolChain *tc = ToolChainKitInformation::toolChain(k))
-                        foreach (const Abi &a, abis)
-                            if (a.isCompatibleWith(tc->targetAbi()) && DebuggerKitInformation::isValidDebugger(k))
-                                return true;
-                    return false;
-                }));
-            }
-        }
-    }
-
-    if (!kit)
-        kit = KitManager::defaultKit();
-
-    // We really should have a kit now.
-    if (!kit) {
-        m_errors.append(DebuggerKitInformation::tr("No kit found."));
-        return;
     }
 
     if (m_runConfig) {
@@ -410,7 +368,7 @@ void DebuggerRunControlCreator::enrich(const RunConfiguration *runConfig, const 
     if (project && m_rp.projectSourceFiles.isEmpty())
         m_rp.projectSourceFiles = project->files(Project::SourceFiles);
 
-    if (false && project && kit) {
+    if (false && project) {
         const QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(kit);
         m_rp.nativeMixedEnabled = version && version->qtVersion() >= QtSupport::QtVersionNumber(5, 7, 0);
     }
@@ -616,7 +574,7 @@ public:
         // We cover only local setup here. Remote setups are handled by the
         // RunControl factories in the target specific plugins.
         DebuggerRunControlCreator creator;
-        creator.enrich(runConfig, 0);
+        creator.enrich(runConfig, runConfig->target()->kit());
         creator.createRunControl(mode);
         if (errorMessage)
             *errorMessage = creator.fullError();
@@ -654,6 +612,7 @@ QObject *createDebuggerRunControlFactory(QObject *parent)
  */
 DebuggerRunControl *createAndScheduleRun(const DebuggerRunParameters &rp, const Kit *kit)
 {
+    QTC_ASSERT(kit, return 0); // Caller needs to look for a suitable kit.
     DebuggerRunControlCreator creator;
     creator.m_rp = rp;
     creator.enrich(0, kit);
@@ -677,9 +636,10 @@ DebuggerRunControl *createDebuggerRunControl(const DebuggerStartParameters &sp,
                                              QString *errorMessage,
                                              Core::Id runMode)
 {
+    QTC_ASSERT(runConfig, return 0);
     DebuggerRunControlCreator creator;
     creator.initialize(sp);
-    creator.enrich(runConfig, 0);
+    creator.enrich(runConfig, runConfig->target()->kit());
     creator.createRunControl(runMode);
     if (errorMessage)
         *errorMessage = creator.fullError();

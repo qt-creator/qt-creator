@@ -1073,6 +1073,42 @@ static QString msgParameterMissing(const QString &a)
     return DebuggerPlugin::tr("Option \"%1\" is missing the parameter.").arg(a);
 }
 
+static Kit *guessKitFromParameters(const DebuggerRunParameters &rp)
+{
+    Kit *kit = 0;
+
+    // Try to find a kit via ABI.
+    QList<Abi> abis;
+    if (rp.toolChainAbi.isValid())
+        abis.push_back(rp.toolChainAbi);
+    else if (!rp.inferior.executable.isEmpty())
+        abis = Abi::abisOfBinary(FileName::fromString(rp.inferior.executable));
+
+    if (!abis.isEmpty()) {
+        // Try exact abis.
+        kit = KitManager::find(KitMatcher([abis](const Kit *k) -> bool {
+            if (const ToolChain *tc = ToolChainKitInformation::toolChain(k))
+                return abis.contains(tc->targetAbi()) && DebuggerKitInformation::isValidDebugger(k);
+            return false;
+        }));
+        if (!kit) {
+            // Or something compatible.
+            kit = KitManager::find(KitMatcher([abis](const Kit *k) -> bool {
+                if (const ToolChain *tc = ToolChainKitInformation::toolChain(k))
+                    foreach (const Abi &a, abis)
+                        if (a.isCompatibleWith(tc->targetAbi()) && DebuggerKitInformation::isValidDebugger(k))
+                            return true;
+                return false;
+            }));
+        }
+    }
+
+    if (!kit)
+        kit = KitManager::defaultKit();
+
+    return kit;
+}
+
 bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
     const QStringList::const_iterator &cend, QString *errorMessage)
 {
@@ -1135,6 +1171,9 @@ bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
         rp.inferior.environment = Utils::Environment::systemEnvironment();
         rp.stubEnvironment = Utils::Environment::systemEnvironment();
         rp.debuggerEnvironment = Utils::Environment::systemEnvironment();
+
+        if (!kit)
+            kit = guessKitFromParameters(rp);
         m_scheduledStarts.append(QPair<DebuggerRunParameters, Kit *>(rp, kit));
         return true;
     }
@@ -2074,6 +2113,8 @@ void DebuggerPlugin::attachExternalApplication(RunControl *rc)
     if (const RunConfiguration *runConfiguration = rc->runConfiguration())
         if (const Target *target = runConfiguration->target())
             kit = target->kit();
+    if (!kit)
+        kit = guessKitFromParameters(rp);
     createAndScheduleRun(rp, kit);
 }
 
