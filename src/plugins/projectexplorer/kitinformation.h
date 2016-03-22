@@ -56,6 +56,7 @@ public:
     KitConfigWidget *createConfigWidget(Kit *k) const override;
 
     ItemList toUserOutput(const Kit *k) const override;
+    void addToMacroExpander(Kit *kit, Utils::MacroExpander *expander) const override;
 
     static Core::Id id();
     static bool hasSysRoot(const Kit *k);

@@ -83,6 +83,13 @@ KitInformation::ItemList SysRootKitInformation::toUserOutput(const Kit *k) const
     return ItemList() << qMakePair(tr("Sys Root"), sysRoot(k).toUserOutput());
 }
 
+void SysRootKitInformation::addToMacroExpander(Kit *kit, Utils::MacroExpander *expander) const
+{
+    expander->registerFileVariables("SysRoot", tr("Sys Root"), [this, kit]() -> QString {
+        return SysRootKitInformation::sysRoot(kit).toString();
+    });
+}
+
 Core::Id SysRootKitInformation::id()
 {
     return "PE.Profile.SysRoot";
