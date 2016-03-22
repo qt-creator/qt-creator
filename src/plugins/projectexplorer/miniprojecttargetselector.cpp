@@ -28,6 +28,7 @@
 #include "kitconfigwidget.h"
 #include "kitmanager.h"
 #include "target.h"
+#include "projectexplorericons.h"
 
 #include <utils/algorithm.h>
 #include <utils/styledbar.h>
@@ -664,7 +665,9 @@ MiniProjectTargetSelector::MiniProjectTargetSelector(QAction *targetSelectorActi
     setContentsMargins(QMargins(0, 1, 1, 8));
     setWindowFlags(Qt::Popup);
 
-    targetSelectorAction->setIcon(style()->standardIcon(QStyle::SP_ComputerIcon));
+    targetSelectorAction->setIcon(creatorTheme()->flag(Theme::FlatSideBarIcons)
+                                  ? Icons::DESKTOP_DEVICE.icon()
+                                  : style()->standardIcon(QStyle::SP_ComputerIcon));
     targetSelectorAction->setProperty("titledAction", true);
 
     m_kitAreaWidget = new KitAreaWidget(this);
@@ -1500,7 +1503,9 @@ void MiniProjectTargetSelector::updateActionAndSummary()
     QString buildConfig;
     QString deployConfig;
     QString runConfig;
-    QIcon targetIcon = style()->standardIcon(QStyle::SP_ComputerIcon);
+    QIcon targetIcon = creatorTheme()->flag(Theme::FlatSideBarIcons)
+            ? Icons::DESKTOP_DEVICE.icon()
+            : style()->standardIcon(QStyle::SP_ComputerIcon);
 
     Project *project = SessionManager::startupProject();
     if (project) {

@@ -4173,5 +4173,36 @@
            id="polygon5757-3-4" />
       </g>
     </g>
+    <g
+       transform="translate(6.5,297)"
+       id="src/plugins/projectexplorer/images/desktopdevice">
+      <rect
+         style="display:inline;fill:#ffffff;fill-opacity:1"
+         x="499.5"
+         y="50"
+         width="32"
+         height="32"
+         id="rect5759-5-9-0" />
+      <path
+         d="m 525.5,54 -20,0 c -1.1,0 -2,0.9 -2,2 l 0,14 c 0,1.1 0.9,2 2,2 l 20,0 c 1.1,0 2,-0.9 2,-2 l 0,-14 c 0,-1.1 -0.9,-2 -2,-2 l 0,0 z"
+         id="path5514" />
+      <path
+         d="m 521,78 -3.5,-7 -4,0 -3.5,7 z"
+         id="polygon5516"
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="ccccc" />
+      <path
+         d="m 525.5,56 0,14 -20,0 0,-14 20,0"
+         id="path4825"
+         style="fill:#b3b3b3" />
+    </g>
+    <use
+       x="0"
+       y="0"
+       xlink:href="#src/plugins/projectexplorer/images/desktopdevice"
+       id="src/plugins/projectexplorer/images/desktopdevicesmall"
+       transform="matrix(0.5,0,0,0.5,285,189.5)"
+       width="100%"
+       height="100%" />
   </g>
 </svg>

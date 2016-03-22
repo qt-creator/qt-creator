@@ -253,7 +253,7 @@ void FancyToolButton::paintEvent(QPaintEvent *event)
         }
 
         // pop up arrow next to icon
-        if (!icon().isNull()) {
+        if (isEnabled() && !icon().isNull()) {
             QStyleOption opt;
             opt.initFrom(this);
             opt.rect = rect().adjusted(rect().width() - 16, 0, -8, 0);
