@@ -82,8 +82,6 @@ private slots:
     void goToHistoryItem();
 
 private:
-    QVariant loadResource(int type, const QUrl &name);
-
     TextBrowserHelpWidget *m_textBrowser;
 };
 
@@ -110,11 +108,11 @@ private:
     QString linkAt(const QPoint& pos);
     void openLink(const QUrl &url, bool newPage);
 
-public:
     int zoomCount;
     bool forceFont;
     bool m_openInNewPageActionVisible;
     TextBrowserHelpViewer *m_parent;
+    friend class Help::Internal::TextBrowserHelpViewer;
 };
 
 }   // namespace Internal
