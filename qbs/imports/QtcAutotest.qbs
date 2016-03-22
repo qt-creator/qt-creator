@@ -16,7 +16,7 @@ QtcProduct {
         project.buildDirectory + '/' + project.ide_plugin_path
     ]
     cpp.minimumOsxVersion: "10.7"
-    cpp.defines: base.filter(function(d) { return d != "QT_NO_CAST_FROM_ASCII"; })
+    cpp.defines: base.filter(function(d) { return d != "QT_RESTRICTED_CAST_FROM_ASCII"; })
 
     Group {
         fileTagsFilter: product.type
