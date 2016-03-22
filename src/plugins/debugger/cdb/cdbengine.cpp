@@ -549,7 +549,7 @@ bool CdbEngine::launchCDB(const DebuggerRunParameters &sp, QString *errorMessage
         arguments << QLatin1String("-srcpath") << sourcePaths.join(QLatin1Char(';'));
 
     // Compile argument string preserving quotes
-    QString nativeArguments = stringSetting(CdbAdditionalArguments);
+    QString nativeArguments = expand(stringSetting(CdbAdditionalArguments));
     switch (sp.startMode) {
     case StartInternal:
     case StartExternal:

@@ -4186,7 +4186,7 @@ void GdbEngine::loadInitScript()
               ).arg(script));
         }
     } else {
-        const QString commands = stringSetting(GdbStartupCommands);
+        const QString commands = expand(stringSetting(GdbStartupCommands));
         if (!commands.isEmpty())
             runCommand({commands.toLocal8Bit(), NoFlags});
     }
@@ -4258,7 +4258,7 @@ void GdbEngine::abortDebugger()
 void GdbEngine::resetInferior()
 {
     if (!runParameters().commandsForReset.isEmpty()) {
-        QByteArray commands = globalMacroExpander()->expand(runParameters().commandsForReset);
+        const QByteArray commands = expand(runParameters().commandsForReset);
         foreach (QByteArray command, commands.split('\n')) {
             command = command.trimmed();
             if (!command.isEmpty())
@@ -4300,7 +4300,7 @@ void GdbEngine::handleInferiorPrepared()
     CHECK_STATE(InferiorSetupRequested);
 
     if (!rp.commandsAfterConnect.isEmpty()) {
-        QByteArray commands = globalMacroExpander()->expand(rp.commandsAfterConnect);
+        const QByteArray commands = expand(rp.commandsAfterConnect);
         foreach (QByteArray command, commands.split('\n'))
             runCommand({command, NoFlags});
     }

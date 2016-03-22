@@ -2929,8 +2929,7 @@ bool boolSetting(int code)
 
 QString stringSetting(int code)
 {
-    QString raw = dd->m_debuggerSettings->item(code)->value().toString();
-    return globalMacroExpander()->expand(raw);
+    return dd->m_debuggerSettings->item(code)->value().toString();
 }
 
 QStringList stringListSetting(int code)

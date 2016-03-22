@@ -1340,6 +1340,16 @@ void DebuggerEngine::removeBreakpointMarker(const Breakpoint &bp)
     d->m_disassemblerAgent.removeBreakpointMarker(bp);
 }
 
+QString DebuggerEngine::expand(const QString &string) const
+{
+    return d->m_runParameters.macroExpander->expand(string);
+}
+
+QByteArray DebuggerEngine::expand(const QByteArray &string) const
+{
+    return d->m_runParameters.macroExpander->expand(string);
+}
+
 void DebuggerEngine::updateBreakpointMarker(const Breakpoint &bp)
 {
     d->m_disassemblerAgent.updateBreakpointMarker(bp);

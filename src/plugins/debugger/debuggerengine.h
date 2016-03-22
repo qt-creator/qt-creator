@@ -44,6 +44,7 @@ class QAbstractItemModel;
 QT_END_NAMESPACE
 
 namespace Core { class IOptionsPage; }
+namespace Utils { class MacroExpander; }
 
 namespace Debugger {
 
@@ -111,6 +112,8 @@ public:
     QString crashParameter;
 
     bool nativeMixedEnabled = false;
+
+    Utils::MacroExpander *macroExpander = 0;
 
     // For Debugger testing.
     int testCase = 0;
@@ -318,6 +321,9 @@ public:
     QString toFileInProject(const QUrl &fileUrl);
     void updateBreakpointMarker(const Breakpoint &bp);
     void removeBreakpointMarker(const Breakpoint &bp);
+
+    QString expand(const QString &string) const;
+    QByteArray expand(const QByteArray &string) const;
 
 signals:
     void stateChanged(Debugger::DebuggerState state);
