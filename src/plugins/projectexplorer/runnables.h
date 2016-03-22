@@ -41,7 +41,7 @@ public:
     QString commandLineArguments;
     QString workingDirectory;
     Utils::Environment environment;
-    ApplicationLauncher::Mode runMode;
+    ApplicationLauncher::Mode runMode = ApplicationLauncher::Gui;
 };
 
 PROJECTEXPLORER_EXPORT bool operator==(const StandardRunnable &r1, const StandardRunnable &r2);
