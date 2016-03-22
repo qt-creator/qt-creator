@@ -307,15 +307,10 @@ public:
 
     // Result.
     DebuggerRunParameters m_rp;
-
-    // Scratch data.
-    const Kit *m_kit = 0;
-    const RunConfiguration *m_runConfig = 0;
-    Target *m_target = 0;
-    Project *m_project = 0;
-
     QStringList m_errors;
     DebuggerRunControl *m_runControl = 0;
+
+    const RunConfiguration *m_runConfig = 0;
 };
 
 void DebuggerRunControlCreator::initialize(const DebuggerStartParameters &sp)
@@ -325,19 +320,17 @@ void DebuggerRunControlCreator::initialize(const DebuggerStartParameters &sp)
 
 void DebuggerRunControlCreator::enrich(const RunConfiguration *runConfig, const Kit *kit)
 {
-    QTC_ASSERT(!m_kit, return);
-    QTC_ASSERT(!m_target, return);
-    QTC_ASSERT(!m_runConfig, return);
-
-    m_kit = kit;
     m_runConfig = runConfig;
+
+    Target *target = 0;
+    Project *project = 0;
 
     // Find a Kit and Target. Either could be missing.
     if (m_runConfig)
-        m_target = m_runConfig->target();
+        target = m_runConfig->target();
 
-    if (!m_kit && m_target)
-        m_kit = m_target->kit();
+    if (!kit && target)
+        kit = target->kit();
 
     // Make sure we have something sensible to start with.
     m_rp.inferior.runMode = ApplicationLauncher::Console;
@@ -358,7 +351,7 @@ void DebuggerRunControlCreator::enrich(const RunConfiguration *runConfig, const 
                 m_rp.inferior.executable = p.exe;
     }
 
-    if (!m_kit) {
+    if (!kit) {
         // This code can only be reached when starting via the command line
         // (-debug pid or executable) or attaching from runconfiguration
         // without specifying a kit. Try to find a kit via ABI.
@@ -371,14 +364,14 @@ void DebuggerRunControlCreator::enrich(const RunConfiguration *runConfig, const 
 
         if (!abis.isEmpty()) {
             // Try exact abis.
-            m_kit = KitManager::find(KitMatcher([abis](const Kit *k) -> bool {
+            kit = KitManager::find(KitMatcher([abis](const Kit *k) -> bool {
                 if (const ToolChain *tc = ToolChainKitInformation::toolChain(k))
                     return abis.contains(tc->targetAbi()) && DebuggerKitInformation::isValidDebugger(k);
                 return false;
             }));
-            if (!m_kit) {
+            if (!kit) {
                 // Or something compatible.
-                m_kit = KitManager::find(KitMatcher([abis](const Kit *k) -> bool {
+                kit = KitManager::find(KitMatcher([abis](const Kit *k) -> bool {
                     if (const ToolChain *tc = ToolChainKitInformation::toolChain(k))
                         foreach (const Abi &a, abis)
                             if (a.isCompatibleWith(tc->targetAbi()) && DebuggerKitInformation::isValidDebugger(k))
@@ -389,11 +382,11 @@ void DebuggerRunControlCreator::enrich(const RunConfiguration *runConfig, const 
         }
     }
 
-    if (!m_kit)
-        m_kit = KitManager::defaultKit();
+    if (!kit)
+        kit = KitManager::defaultKit();
 
     // We really should have a kit now.
-    if (!m_kit) {
+    if (!kit) {
         m_errors.append(DebuggerKitInformation::tr("No kit found."));
         return;
     }
@@ -406,23 +399,23 @@ void DebuggerRunControlCreator::enrich(const RunConfiguration *runConfig, const 
         }
     }
 
-    if (ToolChain *tc = ToolChainKitInformation::toolChain(m_kit))
+    if (ToolChain *tc = ToolChainKitInformation::toolChain(kit))
         m_rp.toolChainAbi = tc->targetAbi();
 
-    if (m_target)
-        m_project = m_target->project();
+    if (target)
+        project = target->project();
 
-    if (m_project && m_rp.projectSourceDirectory.isEmpty())
-        m_rp.projectSourceDirectory = m_project->projectDirectory().toString();
+    if (project && m_rp.projectSourceDirectory.isEmpty())
+        m_rp.projectSourceDirectory = project->projectDirectory().toString();
 
-    if (m_project && m_rp.projectSourceFiles.isEmpty())
-        m_rp.projectSourceFiles = m_project->files(Project::SourceFiles);
+    if (project && m_rp.projectSourceFiles.isEmpty())
+        m_rp.projectSourceFiles = project->files(Project::SourceFiles);
 
-    if (m_project && m_rp.projectSourceFiles.isEmpty())
-        m_rp.projectSourceFiles = m_project->files(Project::SourceFiles);
+    if (project && m_rp.projectSourceFiles.isEmpty())
+        m_rp.projectSourceFiles = project->files(Project::SourceFiles);
 
-    if (false && m_project && m_kit) {
-        const QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(m_kit);
+    if (false && project && kit) {
+        const QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(kit);
         m_rp.nativeMixedEnabled = version && version->qtVersion() >= QtSupport::QtVersionNumber(5, 7, 0);
     }
 
@@ -431,26 +424,26 @@ void DebuggerRunControlCreator::enrich(const RunConfiguration *runConfig, const 
     if (ok)
         m_rp.nativeMixedEnabled = bool(nativeMixedOverride);
 
-    m_rp.cppEngineType = DebuggerKitInformation::engineType(m_kit);
-    m_rp.sysRoot = SysRootKitInformation::sysRoot(m_kit).toString();
-    m_rp.debuggerCommand = DebuggerKitInformation::debuggerCommand(m_kit).toString();
-    m_rp.device = DeviceKitInformation::device(m_kit);
+    m_rp.cppEngineType = DebuggerKitInformation::engineType(kit);
+    m_rp.sysRoot = SysRootKitInformation::sysRoot(kit).toString();
+    m_rp.debuggerCommand = DebuggerKitInformation::debuggerCommand(kit).toString();
+    m_rp.device = DeviceKitInformation::device(kit);
 
-    if (m_project) {
-        m_rp.projectSourceDirectory = m_project->projectDirectory().toString();
-        m_rp.projectSourceFiles = m_project->files(Project::SourceFiles);
+    if (project) {
+        m_rp.projectSourceDirectory = project->projectDirectory().toString();
+        m_rp.projectSourceFiles = project->files(Project::SourceFiles);
     }
 
     if (m_rp.displayName.isEmpty() && m_runConfig)
         m_rp.displayName = m_runConfig->displayName();
 
-    if (runConfig && runConfig->property("supportsDebugger").toBool()) {
-        QString mainScript = runConfig->property("mainScript").toString();
-        QString interpreter = runConfig->property("interpreter").toString();
+    if (m_runConfig && m_runConfig->property("supportsDebugger").toBool()) {
+        QString mainScript = m_runConfig->property("mainScript").toString();
+        QString interpreter = m_runConfig->property("interpreter").toString();
         if (!interpreter.isEmpty() && mainScript.endsWith(_(".py"))) {
             m_rp.mainScript = mainScript;
             m_rp.interpreter = interpreter;
-            QString args = runConfig->property("arguments").toString();
+            QString args = m_runConfig->property("arguments").toString();
             if (!args.isEmpty()) {
                 if (!m_rp.inferior.commandLineArguments.isEmpty())
                     m_rp.inferior.commandLineArguments.append(QLatin1Char(' '));
@@ -481,7 +474,7 @@ void DebuggerRunControlCreator::enrich(const RunConfiguration *runConfig, const 
 
     // validate debugger if C++ debugging is enabled
     if (m_rp.languages & CppLanguage) {
-        const QList<Task> tasks = DebuggerKitInformation::validateDebugger(m_kit);
+        const QList<Task> tasks = DebuggerKitInformation::validateDebugger(kit);
         if (!tasks.isEmpty()) {
             foreach (const Task &t, tasks)
                 m_errors.append(t.description);
