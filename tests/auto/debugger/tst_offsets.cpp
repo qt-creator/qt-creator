@@ -126,7 +126,7 @@ void tst_offsets::offsets_data()
             data << 164 << 248;
 #   endif
 #else
-            data << 156 << 248;
+            data << 164 << 248;
 #endif
         else if (qtVersion >= 0x50400)
 #ifdef Q_OS_WIN
