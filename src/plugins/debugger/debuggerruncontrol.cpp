@@ -515,13 +515,10 @@ void DebuggerRunControlCreator::enrich(const RunConfiguration *runConfig, const 
         }
     }
 
-    if (m_rp.masterEngineType == NoEngineType && m_debuggerAspect) {
-        const bool wantCppDebugger = m_debuggerAspect->useCppDebugger() && (m_rp.languages & CppLanguage);
-        const bool wantQmlDebugger = m_debuggerAspect->useQmlDebugger() && (m_rp.languages & QmlLanguage);
-
-        if (wantQmlDebugger) {
+    if (m_rp.masterEngineType == NoEngineType) {
+        if (m_rp.languages & QmlLanguage) {
             QmlDebug::QmlDebugServicesPreset service;
-            if (wantCppDebugger) {
+            if (m_rp.languages & CppLanguage) {
                 if (m_rp.nativeMixedEnabled) {
                     service = QmlDebug::QmlNativeDebuggerServices;
                 } else {
@@ -534,7 +531,7 @@ void DebuggerRunControlCreator::enrich(const RunConfiguration *runConfig, const 
             }
             if (m_rp.startMode != AttachExternal)
                 QtcProcess::addArg(&m_rp.inferior.commandLineArguments,
-                                   wantCppDebugger && m_rp.nativeMixedEnabled ?
+                                   (m_rp.languages & CppLanguage) && m_rp.nativeMixedEnabled ?
                                        QmlDebug::qmlDebugNativeArguments(service, false) :
                                        QmlDebug::qmlDebugTcpArguments(service, m_rp.qmlServerPort));
         }
