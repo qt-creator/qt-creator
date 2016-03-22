@@ -634,11 +634,12 @@ OutputPaneToggleButton::OutputPaneToggleButton(int number, const QString &text,
     auto updateSlot = static_cast<void (QWidget::*)()>(&QWidget::update);
     connect(m_flashTimer, &QTimeLine::valueChanged, this, updateSlot);
     connect(m_flashTimer, &QTimeLine::finished, this, updateSlot);
+    updateToolTip();
 }
 
 void OutputPaneToggleButton::updateToolTip()
 {
-    Q_ASSERT(m_action);
+    QTC_ASSERT(m_action, return);
     setToolTip(m_action->toolTip());
 }
 
