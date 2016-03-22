@@ -199,7 +199,7 @@ static void allSubObject(QObject *object, QObjectList &objectList)
         if (metaProperty.isReadable()
                 && metaProperty.isWritable()
                 && QQmlMetaType::isQObject(metaProperty.userType())) {
-            if (metaProperty.name() != QLatin1String("parent")) {
+            if (metaProperty.name() != "parent") {
                 QObject *propertyObject = QQmlMetaType::toQObject(metaProperty.read(object));
                 allSubObject(propertyObject, objectList);
             }
@@ -242,7 +242,7 @@ static void fixResourcePathsForObject(QObject *object)
     PropertyNameList propertyNameList = propertyNameListForWritableProperties(object);
 
     foreach (const PropertyName &propertyName, propertyNameList) {
-        QQmlProperty property(object, propertyName, QQmlEngine::contextForObject(object));
+        QQmlProperty property(object, QString::fromUtf8(propertyName), QQmlEngine::contextForObject(object));
 
         const QVariant value  = property.read();
         const QVariant fixedValue = fixResourcePaths(value);
@@ -289,7 +289,7 @@ static bool isWindow(QObject *object) {
 
 static QQmlType *getQmlType(const QString &typeName, int majorNumber, int minorNumber)
 {
-     return QQmlMetaType::qmlType(typeName.toUtf8(), majorNumber, minorNumber);
+     return QQmlMetaType::qmlType(typeName, majorNumber, minorNumber);
 }
 
 static bool isCrashingType(QQmlType *type)
@@ -380,7 +380,7 @@ QVariant fixResourcePaths(const QVariant &value)
         const QUrl url = value.toUrl();
         if (url.scheme() == QLatin1String("qrc")) {
             const QString path = QLatin1String("qrc:") +  url.path();
-            QString qrcSearchPath = qgetenv("QMLDESIGNER_RC_PATHS");
+            QString qrcSearchPath = QString::fromLocal8Bit(qgetenv("QMLDESIGNER_RC_PATHS"));
             if (!qrcSearchPath.isEmpty()) {
                 const QStringList searchPaths = qrcSearchPath.split(QLatin1Char(';'));
                 foreach (const QString &qrcPath, searchPaths) {
@@ -401,7 +401,7 @@ QVariant fixResourcePaths(const QVariant &value)
     if (value.type() == QVariant::String) {
         const QString str = value.toString();
         if (str.contains(QLatin1String("qrc:"))) {
-            QString qrcSearchPath = qgetenv("QMLDESIGNER_RC_PATHS");
+            QString qrcSearchPath = QString::fromLocal8Bit(qgetenv("QMLDESIGNER_RC_PATHS"));
             if (!qrcSearchPath.isEmpty()) {
                 const QStringList searchPaths = qrcSearchPath.split(QLatin1Char(';'));
                 foreach (const QString &qrcPath, searchPaths) {
@@ -695,7 +695,7 @@ void removeProperty(QObject *propertyChanges, const PropertyName &propertyName)
     if (!propertyChange)
         return;
 
-    propertyChange->removeProperty(propertyName);
+    propertyChange->removeProperty(QString::fromUtf8(propertyName));
 }
 
 QVariant getProperty(QObject *propertyChanges, const PropertyName &propertyName)
@@ -705,7 +705,7 @@ QVariant getProperty(QObject *propertyChanges, const PropertyName &propertyName)
     if (!propertyChange)
         return QVariant();
 
-    return propertyChange->property(propertyName);
+    return propertyChange->property(QString::fromUtf8(propertyName));
 }
 
 void changeValue(QObject *propertyChanges, const PropertyName &propertyName, const QVariant &value)
@@ -715,7 +715,7 @@ void changeValue(QObject *propertyChanges, const PropertyName &propertyName, con
     if (!propertyChange)
         return;
 
-    propertyChange->changeValue(propertyName, value);
+    propertyChange->changeValue(QString::fromUtf8(propertyName), value);
 }
 
 void changeExpression(QObject *propertyChanges, const PropertyName &propertyName, const QString &expression)
@@ -725,7 +725,7 @@ void changeExpression(QObject *propertyChanges, const PropertyName &propertyName
     if (!propertyChange)
         return;
 
-    propertyChange->changeExpression(propertyName, expression);
+    propertyChange->changeExpression(QString::fromUtf8(propertyName), expression);
 }
 
 QObject *stateObject(QObject *propertyChanges)

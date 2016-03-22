@@ -121,7 +121,7 @@ void DesignerCustomObjectData::populateResetHashes()
     PropertyNameList propertyNameList = QmlPrivateGate::propertyNameListForWritableProperties(object());
 
     foreach (const PropertyName &propertyName, propertyNameList) {
-        QQmlProperty property(object(), propertyName, QQmlEngine::contextForObject(object()));
+        QQmlProperty property(object(), QString::fromUtf8(propertyName), QQmlEngine::contextForObject(object()));
 
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 6, 0))
         QQmlAbstractBinding::Ptr binding = QQmlAbstractBinding::Ptr(QQmlPropertyPrivate::binding(property));
@@ -154,7 +154,7 @@ QVariant DesignerCustomObjectData::getResetValue(const PropertyName &propertyNam
 
 void DesignerCustomObjectData::doResetProperty(QQmlContext *context, const PropertyName &propertyName)
 {
-    QQmlProperty property(object(), propertyName, context);
+    QQmlProperty property(object(), QString::fromUtf8(propertyName), context);
 
     if (!property.isValid())
         return;
@@ -230,7 +230,7 @@ bool DesignerCustomObjectData::hasBindingForProperty(QQmlContext *context, const
     if (QmlPrivateGate::isPropertyBlackListed(propertyName))
         return false;
 
-    QQmlProperty property(object(), propertyName, context);
+    QQmlProperty property(object(), QString::fromUtf8(propertyName), context);
 
     bool hasBinding = QQmlPropertyPrivate::binding(property);
 
@@ -245,7 +245,7 @@ bool DesignerCustomObjectData::hasBindingForProperty(QQmlContext *context, const
 
 void DesignerCustomObjectData::setPropertyBinding(QQmlContext *context, const PropertyName &propertyName, const QString &expression)
 {
-    QQmlProperty property(object(), propertyName, context);
+    QQmlProperty property(object(), QString::fromUtf8(propertyName), context);
 
     if (!property.isValid())
         return;
@@ -281,7 +281,7 @@ void DesignerCustomObjectData::keepBindingFromGettingDeleted(QQmlContext *contex
     Q_UNUSED(context)
     Q_UNUSED(propertyName)
 #else
-    QQmlProperty property(object(), propertyName, context);
+    QQmlProperty property(object(), QString::fromUtf8(propertyName), context);
     QQmlPropertyPrivate::setBinding(property, 0, QQmlPropertyPrivate::BypassInterceptor
                                     | QQmlPropertyPrivate::DontRemoveBinding);
 #endif
