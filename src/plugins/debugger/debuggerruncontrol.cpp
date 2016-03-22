@@ -340,14 +340,16 @@ void DebuggerRunControlCreator::enrich(const RunConfiguration *runConfig, const 
     if (!m_kit && m_target)
         m_kit = m_target->kit();
 
+    // Make sure we have something sensible to start with.
+    m_rp.inferior.runMode == ApplicationLauncher::Console;
+    m_rp.useTerminal = false;
+
     // Extract as much as possible from available RunConfiguration.
     if (m_runConfig && m_runConfig->runnable().is<StandardRunnable>()) {
-        auto runnable = m_runConfig->runnable().as<StandardRunnable>();
-        m_rp.inferior.executable = runnable.executable;
-        m_rp.inferior.commandLineArguments = runnable.commandLineArguments;
-        m_rp.useTerminal = runnable.runMode == ApplicationLauncher::Console;
+        m_rp.inferior = m_runConfig->runnable().as<StandardRunnable>();
+        m_rp.useTerminal = m_rp.inferior.runMode == ApplicationLauncher::Console;
         // Normalize to work around QTBUG-17529 (QtDeclarative fails with 'File name case mismatch'...)
-        m_rp.inferior.workingDirectory = FileUtils::normalizePathName(runnable.workingDirectory);
+        m_rp.inferior.workingDirectory = FileUtils::normalizePathName(m_rp.inferior.workingDirectory);
     }
 
     // We might get an executable from a local PID.
