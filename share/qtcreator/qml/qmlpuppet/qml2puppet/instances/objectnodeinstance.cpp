@@ -814,14 +814,8 @@ QObject *ObjectNodeInstance::parent() const
 QObject *ObjectNodeInstance::parentObject(QObject *object)
 {
     QQuickItem *quickItem = qobject_cast<QQuickItem*>(object);
-    if (quickItem && quickItem->parentItem()) {
-
-        //QQuickRootItem is used by Window and we want to return the Window as parent
-        if (strcmp(quickItem->metaObject()->className(), "QQuickRootItem"))
-            return object->parent();
-
+    if (quickItem && quickItem->parentItem())
         return quickItem->parentItem();
-    }
 
     return object->parent();
 }
