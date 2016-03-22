@@ -119,7 +119,11 @@
 
             \li Qt Quick Controls Application
 
-                Create a Qt Quick application using Qt Quick Controls
+                Create a Qt Quick application using
+                \l{http://doc.qt.io/qt-5/qtquickcontrols-index.html}
+                {Qt Quick Controls} or
+                \l{http://doc.qt.io/qt-5/qtlabscontrols-index.html}
+                {Qt Labs Controls}
 
             \li Qt Canvas 3D Application
 

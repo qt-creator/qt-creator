@@ -84,6 +84,12 @@
     creating classic desktop-style user interfaces using Qt Quick 2.1. You can
     use the Qt Quick Controls Styles to customize Qt Quick Controls.
 
+    Since Qt 5.6, Qt Labs Controls provide lightweight QML types for creating
+    performant user interfaces for embedded and mobile devices. These controls
+    achieve improved efficiency by employing a simplified styling architecture
+    when compared to Qt Quick Controls, on which the module is based. These
+    types work in conjunction with Qt Quick and Qt Quick Layouts.
+
     Some ready-made controls, such as a gauge, dial, status indicator, and
     tumbler, are provided by the \l {Qt Quick Extras} module.
 
