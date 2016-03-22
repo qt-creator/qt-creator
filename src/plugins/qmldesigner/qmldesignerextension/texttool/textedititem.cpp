@@ -26,31 +26,22 @@
 #include "textedititem.h"
 
 #include <formeditorscene.h>
-#include <QTextEdit>
-#include <QLineEdit>
 #include <nodemetainfo.h>
 
+#include <QLineEdit>
+#include <QTextEdit>
 
 namespace QmlDesigner {
 
 TextEditItem::TextEditItem(FormEditorScene* scene)
-            : QGraphicsProxyWidget(),
-              m_lineEdit(new QLineEdit),
-              m_textEdit(new QTextEdit),
-              m_formEditorItem(0)
+            : TextEditItemWidget(scene)
+            , m_formEditorItem(0)
 {
-    scene->addItem(this);
-    setFlag(QGraphicsItem::ItemIsMovable, false);
-
-    setWidget(m_lineEdit.data());
-    m_lineEdit->setAlignment(Qt::AlignVCenter | Qt::AlignHCenter);
-    m_lineEdit->setFocus();
-    connect(m_lineEdit.data(), &QLineEdit::returnPressed, this, &TextEditItem::returnPressed);
+    connect(lineEdit(), &QLineEdit::returnPressed, this, &TextEditItem::returnPressed);
 }
 
 TextEditItem::~TextEditItem()
 {
-    setWidget(0);
     m_formEditorItem = 0;
 }
 
@@ -66,28 +57,20 @@ void TextEditItem::writeTextToProperty()
     }
 }
 
-QString TextEditItem::text() const
-{
-    if (widget() == m_lineEdit.data())
-        return m_lineEdit->text();
-    else if (widget() == m_textEdit.data())
-        return m_textEdit->toPlainText();
-    return QString();
-}
-
 void TextEditItem::setFormEditorItem(FormEditorItem *formEditorItem)
 {
     m_formEditorItem = formEditorItem;
     QRectF rect = formEditorItem->qmlItemNode().instancePaintedBoundingRect().united(formEditorItem->qmlItemNode().instanceBoundingRect()).adjusted(-12, -4, 12 ,4);
     setGeometry(rect);
-    m_textEdit->setMaximumSize(rect.size().toSize());
 
     NodeMetaInfo metaInfo = m_formEditorItem->qmlItemNode().modelNode().metaInfo();
     if (metaInfo.isValid() &&
             (metaInfo.isSubclassOf("QtQuick.TextEdit", -1, -1)
              || metaInfo.isSubclassOf("QtQuick.Controls.TextArea", -1, -1))) {
-        setWidget(m_textEdit.data());
-        m_textEdit->setFocus();
+        QSize maximumSize = rect.size().toSize();
+        activateTextEdit(maximumSize);
+    } else {
+        activateLineEdit();
     }
 
     setTransform(formEditorItem->sceneTransform());
@@ -102,15 +85,8 @@ FormEditorItem *TextEditItem::formEditorItem() const
 void TextEditItem::updateText()
 {
     if (formEditorItem()) {
-        if (widget() == m_lineEdit.data()) {
-            m_lineEdit->setText(formEditorItem()->qmlItemNode().stripedTranslatableText("text"));
-            m_lineEdit->selectAll();
-        } else if (widget() == m_textEdit.data()) {
-            m_textEdit->setText(formEditorItem()->qmlItemNode().stripedTranslatableText("text"));
-            m_textEdit->selectAll();
-        }
+        TextEditItemWidget::updateText(formEditorItem()->qmlItemNode().
+            stripedTranslatableText("text"));
     }
 }
-
-
-}
+} // namespace QmlDesigner

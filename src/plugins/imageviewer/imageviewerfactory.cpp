@@ -57,10 +57,5 @@ Core::IEditor *ImageViewerFactory::createEditor()
     return new ImageViewer();
 }
 
-void ImageViewerFactory::extensionsInitialized()
-{
-    m_actionHandler.createActions();
-}
-
 } // namespace Internal
 } // namespace ImageViewer

@@ -37,14 +37,8 @@ namespace Internal {
 class QmlProjectFile : public Core::IDocument
 {
     Q_OBJECT
-
 public:
     QmlProjectFile(QmlProject *parent, const Utils::FileName &fileName);
-
-    bool save(QString *errorString, const QString &fileName, bool autoSave) override;
-
-    bool isModified() const override;
-    bool isSaveAsAllowed() const override;
 
     ReloadBehavior reloadBehavior(ChangeTrigger state, ChangeType type) const override;
     bool reload(QString *errorString, ReloadFlag flag, ChangeType type) override;

@@ -96,7 +96,7 @@ CorePlugin::~CorePlugin()
 void CorePlugin::parseArguments(const QStringList &arguments)
 {
     const Id settingsThemeId = Id::fromSetting(ICore::settings()->value(
-                QLatin1String(Constants::SETTINGS_THEME), QLatin1String("default")));
+                QLatin1String(Constants::SETTINGS_THEME), QLatin1String(Constants::DEFAULT_THEME)));
     Id themeId = settingsThemeId;
     QColor overrideColor;
     bool presentationMode = false;

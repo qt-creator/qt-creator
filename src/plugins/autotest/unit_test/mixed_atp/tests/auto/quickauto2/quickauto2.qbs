@@ -6,14 +6,11 @@ CppApplication {
 
     Depends { name: "cpp" }
     Depends { name: "Qt.core" }
-    Depends {
-        condition: Qt.core.versionMajor > 4
-        name: "Qt.qmltest"
-    }
+    Depends { name: "Qt.qmltest" }
 
     Group {
-        condition: Qt.core.versionMajor > 4
         name: "main application"
+
         files: [ "main.cpp" ]
     }
 

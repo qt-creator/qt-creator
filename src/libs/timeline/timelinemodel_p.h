@@ -64,7 +64,7 @@ public:
         inline qint64 timestamp() const {return end;}
     };
 
-    TimelineModelPrivate(int modelId, const QString &displayName);
+    TimelineModelPrivate(int modelId);
     void init(TimelineModel *q);
 
     int firstIndexNoParents(qint64 startTime) const;
@@ -131,7 +131,7 @@ public:
 
     QVector<int> rowOffsets;
     const int modelId;
-    const QString displayName;
+    QString displayName;
 
     bool expanded;
     bool hidden;

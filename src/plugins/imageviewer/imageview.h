@@ -74,6 +74,7 @@ signals:
     void imageSizeChanged(const QSize &size);
 
 public slots:
+    void exportImage();
     void setViewBackground(bool enable);
     void setViewOutline(bool enable);
     void zoomIn();

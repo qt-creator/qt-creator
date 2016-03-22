@@ -32,6 +32,7 @@
 #include <app/app_version.h>
 #include <coreplugin/icore.h>
 #include <utils/algorithm.h>
+#include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 
 #include <QMutexLocker>
@@ -56,13 +57,39 @@ QString LocalHelpManager::m_currentFilter = QString();
 int LocalHelpManager::m_currentFilterIndex = -1;
 
 static const char kHelpHomePageKey[] = "Help/HomePage";
-static const char kFontKey[] = "Help/Font";
+static const char kFontFamilyKey[] = "Help/FallbackFontFamily";
+static const char kFontStyleKey[] = "Help/FallbackFontStyle";
+static const char kFontWeightKey[] = "Help/FallbackFontWeight";
+static const char kFontSizeKey[] = "Help/FallbackFontSize";
 static const char kStartOptionKey[] = "Help/StartOption";
 static const char kContextHelpOptionKey[] = "Help/ContextHelpOption";
 static const char kReturnOnCloseKey[] = "Help/ReturnOnClose";
 static const char kLastShownPagesKey[] = "Help/LastShownPages";
 static const char kLastShownPagesZoomKey[] = "Help/LastShownPagesZoom";
 static const char kLastSelectedTabKey[] = "Help/LastSelectedTab";
+
+static const QFont::Style kDefaultFallbackFontStyle = QFont::StyleNormal;
+static const int kDefaultFallbackFontWeight = QFont::Normal;
+static const int kDefaultFallbackFontSize = 14;
+
+static QString defaultFallbackFontFamily()
+{
+    if (Utils::HostOsInfo::isMacHost())
+        return QLatin1String("Helvetica");
+    if (Utils::HostOsInfo::isAnyUnixHost())
+        return QLatin1String("sans-serif");
+    return QLatin1String("Arial");
+}
+
+template <typename T>
+static void setOrRemoveSetting(const char *key, const T &value, const T &defaultValue)
+{
+    QSettings *settings = Core::ICore::settings();
+    if (value == defaultValue)
+        settings->remove(QLatin1String(key));
+    else
+        settings->setValue(QLatin1String(key), value);
+}
 
 // TODO remove some time after Qt Creator 3.5
 static QVariant getSettingWithFallback(const QString &settingsKey,
@@ -123,14 +150,22 @@ void LocalHelpManager::setHomePage(const QString &page)
 
 QFont LocalHelpManager::fallbackFont()
 {
-    const QVariant value = getSettingWithFallback(QLatin1String(kFontKey),
-                                                  QLatin1String("font"), QVariant());
-    return value.value<QFont>();
+    QSettings *settings = Core::ICore::settings();
+    const QString family = settings->value(QLatin1String(kFontFamilyKey), defaultFallbackFontFamily()).toString();
+    const QFont::Style style = QFont::Style(settings->value(QLatin1String(kFontStyleKey), kDefaultFallbackFontStyle).toInt());
+    const int weight = settings->value(QLatin1String(kFontWeightKey), kDefaultFallbackFontWeight).toInt();
+    const int size = settings->value(QLatin1String(kFontSizeKey), kDefaultFallbackFontSize).toInt();
+    QFont font(family, size, weight);
+    font.setStyle(style);
+    return font;
 }
 
 void LocalHelpManager::setFallbackFont(const QFont &font)
 {
-    Core::ICore::settings()->setValue(QLatin1String(kFontKey), font);
+    setOrRemoveSetting(kFontFamilyKey, font.family(), defaultFallbackFontFamily());
+    setOrRemoveSetting(kFontStyleKey, font.style(), kDefaultFallbackFontStyle);
+    setOrRemoveSetting(kFontWeightKey, font.weight(), kDefaultFallbackFontWeight);
+    setOrRemoveSetting(kFontSizeKey, font.pointSize(), kDefaultFallbackFontSize);
     emit m_instance->fallbackFontChanged(font);
 }
 

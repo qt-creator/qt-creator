@@ -26,8 +26,11 @@
 #include "formeditorgraphicsview.h"
 
 #include <QWheelEvent>
-#include <QDebug>
 #include <QScrollBar>
+#include <QGraphicsItem>
+#include <QGraphicsWidget>
+#include <QGraphicsProxyWidget>
+#include <QCoreApplication>
 
 namespace QmlDesigner {
 
@@ -40,8 +43,8 @@ FormEditorGraphicsView::FormEditorGraphicsView(QWidget *parent) :
     setCacheMode(QGraphicsView::CacheNone);
     setViewportUpdateMode(QGraphicsView::MinimalViewportUpdate);
     setOptimizationFlags(QGraphicsView::DontSavePainterState);
-//    setViewportUpdateMode(QGraphicsView::NoViewportUpdate);
     setRenderHint(QPainter::Antialiasing, false);
+    setRenderHint(QPainter::SmoothPixmapTransform, true);
 
     setFrameShape(QFrame::NoFrame);
 
@@ -50,7 +53,32 @@ FormEditorGraphicsView::FormEditorGraphicsView(QWidget *parent) :
 
     activateCheckboardBackground();
 
-    viewport()->setMouseTracking(true);
+    // as mousetracking only works for mouse key it is better to handle it in the
+    // eventFilter method so it works also for the space scrolling case as expected
+    QCoreApplication::instance()->installEventFilter(this);
+}
+
+bool FormEditorGraphicsView::eventFilter(QObject *watched, QEvent *event)
+{
+    if (m_isPanning != Panning::NotStarted) {
+        if (event->type() == QEvent::Leave && m_isPanning == Panning::SpaceKeyStarted) {
+            // there is no way to keep the cursor so we stop panning here
+            stopPanning(event);
+        }
+        if (event->type() == QEvent::MouseMove) {
+            QMouseEvent* mouseEvent = static_cast<QMouseEvent*>(event);
+            if (!m_panningStartPosition.isNull()) {
+                horizontalScrollBar()->setValue(horizontalScrollBar()->value() -
+                    (mouseEvent->x() - m_panningStartPosition.x()));
+                verticalScrollBar()->setValue(verticalScrollBar()->value() -
+                    (mouseEvent->y() - m_panningStartPosition.y()));
+            }
+            m_panningStartPosition = mouseEvent->pos();
+            event->accept();
+            return true;
+        }
+    }
+    return QGraphicsView::eventFilter(watched, event);
 }
 
 void FormEditorGraphicsView::wheelEvent(QWheelEvent *event)
@@ -63,50 +91,55 @@ void FormEditorGraphicsView::wheelEvent(QWheelEvent *event)
 
 void FormEditorGraphicsView::mousePressEvent(QMouseEvent *event)
 {
-    if (event->buttons().testFlag(Qt::MiddleButton) && m_isPanning == Panning::NotStarted)
-        startPanning(event);
-    else
-        QGraphicsView::mousePressEvent(event);
-}
-
-void FormEditorGraphicsView::mouseMoveEvent(QMouseEvent *event)
-{
-    if (m_isPanning != Panning::NotStarted) {
-        if (!m_panningStartPosition.isNull()) {
-            horizontalScrollBar()->setValue(horizontalScrollBar()->value() -
-                (event->x() - m_panningStartPosition.x()));
-            verticalScrollBar()->setValue(verticalScrollBar()->value() -
-                (event->y() - m_panningStartPosition.y()));
-        }
-        m_panningStartPosition = event->pos();
-        event->accept();
-    }else {
-        QGraphicsView::mouseMoveEvent(event);
+    if (m_isPanning == Panning::NotStarted) {
+        if (event->buttons().testFlag(Qt::MiddleButton))
+            startPanning(event);
+        else
+            QGraphicsView::mousePressEvent(event);
     }
 }
 
 void FormEditorGraphicsView::mouseReleaseEvent(QMouseEvent *event)
 {
-    if (m_isPanning == Panning::MouseWheelStarted)
+    // not sure why buttons() are empty here, but we have that information from the enum
+    if (/*event->buttons().testFlag(Qt::MiddleButton) && */m_isPanning == Panning::MouseWheelStarted)
         stopPanning(event);
     else
         QGraphicsView::mouseReleaseEvent(event);
 }
 
+bool isTextInputItem(QGraphicsItem* item)
+{
+    if (item && item->isWidget()) {
+        QGraphicsWidget *graphicsWidget = static_cast<QGraphicsWidget *>(item);
+        QGraphicsProxyWidget * textInputProxyWidget = qobject_cast<QGraphicsProxyWidget *>(graphicsWidget);
+        if (textInputProxyWidget && textInputProxyWidget->widget() && (
+                strcmp(textInputProxyWidget->widget()->metaObject()->className(), "QLineEdit") == 0 ||
+                strcmp(textInputProxyWidget->widget()->metaObject()->className(), "QTextEdit") == 0)) {
+            return true;
+        }
+
+    }
+    return false;
+}
+
 void FormEditorGraphicsView::keyPressEvent(QKeyEvent *event)
 {
-    if (event->key() == Qt::Key_Space && m_isPanning == Panning::NotStarted)
+    // check for autorepeat to avoid a stoped space panning by leave event to be restarted
+    if (!event->isAutoRepeat() && m_isPanning == Panning::NotStarted && event->key() == Qt::Key_Space &&
+            !isTextInputItem(scene()->focusItem())) {
         startPanning(event);
-    else
-        QGraphicsView::keyPressEvent(event);
+        return;
+    }
+    QGraphicsView::keyPressEvent(event);
 }
 
 void FormEditorGraphicsView::keyReleaseEvent(QKeyEvent *event)
 {
-    if (event->key() == Qt::Key_Space && !event->isAutoRepeat())
+    if (event->key() == Qt::Key_Space && !event->isAutoRepeat() && m_isPanning == Panning::SpaceKeyStarted)
         stopPanning(event);
-    else
-        QGraphicsView::keyReleaseEvent(event);
+
+    QGraphicsView::keyReleaseEvent(event);
 }
 
 void FormEditorGraphicsView::startPanning(QEvent *event)
@@ -115,7 +148,7 @@ void FormEditorGraphicsView::startPanning(QEvent *event)
         m_isPanning = Panning::SpaceKeyStarted;
     else
         m_isPanning = Panning::MouseWheelStarted;
-    setCursor(Qt::ClosedHandCursor);
+    viewport()->setCursor(Qt::ClosedHandCursor);
     event->accept();
 }
 
@@ -123,7 +156,7 @@ void FormEditorGraphicsView::stopPanning(QEvent *event)
 {
     m_isPanning = Panning::NotStarted;
     m_panningStartPosition = QPoint();
-    setCursor(Qt::ArrowCursor);
+    viewport()->unsetCursor();
     event->accept();
 }
 

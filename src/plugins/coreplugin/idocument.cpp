@@ -145,6 +145,14 @@ IDocument::OpenResult IDocument::open(QString *errorString, const QString &fileN
     return OpenResult::CannotHandle;
 }
 
+bool IDocument::save(QString *errorString, const QString &fileName, bool autoSave)
+{
+    Q_UNUSED(errorString)
+    Q_UNUSED(fileName)
+    Q_UNUSED(autoSave)
+    return false;
+}
+
 /*!
  * Returns the current contents of the document. The base implementation returns an empty
  * QByteArray.
@@ -180,11 +188,29 @@ IDocument::ReloadBehavior IDocument::reloadBehavior(ChangeTrigger state, ChangeT
     return BehaviorAsk;
 }
 
+bool IDocument::reload(QString *errorString, ReloadFlag flag, ChangeType type)
+{
+    Q_UNUSED(errorString)
+    Q_UNUSED(flag)
+    Q_UNUSED(type)
+    return true;
+}
+
 void IDocument::checkPermissions()
 {
 }
 
 bool IDocument::shouldAutoSave() const
+{
+    return false;
+}
+
+bool IDocument::isModified() const
+{
+    return false;
+}
+
+bool IDocument::isSaveAsAllowed() const
 {
     return false;
 }

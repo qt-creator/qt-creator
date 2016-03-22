@@ -56,6 +56,7 @@ public:
     IEditor *duplicate() override;
 
 public slots:
+    void exportImage();
     void imageSizeUpdated(const QSize &size);
     void scaleFactorUpdate(qreal factor);
 

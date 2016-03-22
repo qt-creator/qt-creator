@@ -29,7 +29,7 @@ Rectangle {
     id: delegate
     height: 240
     width: 216
-    color: creatorTheme.Welcome_BackgroundColorNormal
+    color: creatorTheme.Welcome_BackgroundColor
 
     property alias caption: captionItem.text
     property alias imageSource: imageItem.source
@@ -102,7 +102,7 @@ Rectangle {
         y: 161
         width: 200
         height: 69
-        color: creatorTheme.Welcome_BackgroundColorNormal
+        color: creatorTheme.Welcome_BackgroundColor
         anchors.bottom: parent.bottom
         anchors.right: parent.right
         anchors.left: parent.left
@@ -112,7 +112,7 @@ Rectangle {
         id: captionItem
         x: 16
         y: 170
-        color: creatorTheme.Welcome_Caption_TextColorNormal
+        color: creatorTheme.Welcome_TextColor
         text: qsTr("2D PAINTING EXAMPLE long description")
         elide: Text.ElideRight
         anchors.right: parent.right
@@ -127,7 +127,7 @@ Rectangle {
     NativeText {
         id: descriptionItem
         height: 43
-        color: "#7e7e7e"
+        color: creatorTheme.Welcome_ForegroundPrimaryColor
         text: qsTr("The 2D Painting example shows how QPainter and QGLWidget work together.")
         anchors.top: captionItem.bottom
         anchors.topMargin: 10
@@ -159,7 +159,7 @@ Rectangle {
         x: 16
         y: 198
         text: qsTr("Tags:")
-        color: creatorTheme.Welcome_TextColorNormal
+        color: creatorTheme.Welcome_ForegroundSecondaryColor
         smooth: true
         font.italic: false
         font.pixelSize: 11
@@ -187,7 +187,7 @@ Rectangle {
     Rectangle {
         id: border
         color: "#00000000"
-        radius: 6
+        radius: creatorTheme.WidgetStyle === 'StyleFlat' ? 0 : 6
         anchors.rightMargin: 4
         anchors.leftMargin: 4
         anchors.bottomMargin: 4
@@ -268,11 +268,6 @@ Rectangle {
                 target: border
                 visible: true
             }
-
-            PropertyChanges {
-                target: highlight
-                opacity: 0
-            }
         }
     ]
 
@@ -339,25 +334,26 @@ Rectangle {
         Repeater {
             id: repeater
             model: mockupTags
-            LinkedText {
+            NativeText {
                 id: text4
-                color: "#777777"
                 text: modelData
                 smooth: true
                 font.pixelSize: 11
                 height: 12
                 font.family: "Helvetica" //setting the pixelSize will set the family back to the default
+                font.underline: tagMouseArea.containsMouse
+                color: creatorTheme.Welcome_LinkColor
                 wrapMode: Text.WordWrap
-                onEntered: {
-                    delegate.state="hover"
-                }
-                onExited: {
-                    delegate.state=""
-                }
-                onClicked: appendTag(modelData)
                 property bool hugeTag: (text.length > 12) && index > 1
                 property bool isExampleTag: text === "example"
                 visible: !hugeTag && !isExampleTag && index < 8 && y < 32
+                MouseArea {
+                    id: tagMouseArea
+                    anchors.fill: parent
+                    onClicked: appendTag(modelData)
+                    // hoverEnabled: true
+                    cursorShape: Qt.PointingHandCursor
+                }
             }
         }
     }
@@ -372,6 +368,5 @@ Rectangle {
         ListElement {
             modelData: "OpenGl"
         }
-
     }
 }

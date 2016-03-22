@@ -31,10 +31,9 @@ Rectangle {
     id: searchBar
 
     width: 930
-    height: 27
-    color: creatorTheme.Welcome_BackgroundColorNormal
-    radius: 6
-    border.color: "#cccccc" // FIXME: make themable
+    height: 30
+    color: creatorTheme.Welcome_BackgroundColor
+    border.color: creatorTheme.Welcome_ForegroundSecondaryColor
 
     property alias placeholderText: lineEdit.placeholderText
     property alias text: lineEdit.text
@@ -51,8 +50,8 @@ Rectangle {
         font.pixelSize: 14
         placeholderText:  qsTr("Search...")
         style: TextFieldStyle {
-            placeholderTextColor: creatorTheme.Welcome_TextColorNormal
-            textColor: creatorTheme.Welcome_TextColorNormal
+            placeholderTextColor: creatorTheme.Welcome_ForegroundSecondaryColor
+            textColor: creatorTheme.Welcome_TextColor
             background: Item {
             }
         }

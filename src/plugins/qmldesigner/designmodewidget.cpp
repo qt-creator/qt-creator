@@ -84,7 +84,10 @@ DocumentWarningWidget::DocumentWarningWidget(DesignModeWidget *parent) :
     m_errorMessage->setForegroundRole(QPalette::ToolTipText);
     m_goToError->setText(tr("<a href=\"goToError\">Go to error</a>"));
     m_goToError->setForegroundRole(QPalette::Link);
-    connect(m_goToError, &QLabel::linkActivated, this, &DocumentWarningWidget::goToError);
+    connect(m_goToError, &QLabel::linkActivated, this, [=]() {
+        m_designModeWidget->textEditor()->gotoLine(m_error.line(), m_error.column() - 1);
+        Core::ModeManager::activateMode(Core::Constants::MODE_EDIT);
+    });
 
     QVBoxLayout *layout = new QVBoxLayout(this);
     layout->setMargin(20);
@@ -161,12 +164,6 @@ QList<QToolButton *> DesignerSideBarItem::createToolBarWidgets()
         return m_toolBarWidgetFactory->createToolBarWidgets();
 
     return QList<QToolButton *>();
-}
-
-void DocumentWarningWidget::goToError()
-{
-    m_designModeWidget->textEditor()->gotoLine(m_error.line(), m_error.column() - 1);
-    Core::ModeManager::activateMode(Core::Constants::MODE_EDIT);
 }
 
 // ---------- DesignModeWidget

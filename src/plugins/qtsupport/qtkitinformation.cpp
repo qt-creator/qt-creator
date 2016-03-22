@@ -146,6 +146,11 @@ void QtKitInformation::addToMacroExpander(Kit *kit, MacroExpander *expander) con
                    BaseQtVersion *version = qtVersion(kit);
                    return version ? version->displayName() : tr("unknown");
                 });
+    expander->registerVariable("Qt:qmakeExecutable", tr("Path to the qmake executable"),
+                [this, kit]() -> QString {
+                    BaseQtVersion *version = qtVersion(kit);
+                    return version ? version->qmakeCommand().toString() : QString();
+                });
 }
 
 Core::Id QtKitInformation::id()

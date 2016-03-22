@@ -70,9 +70,6 @@ public:
 
     void setError(const RewriterError &error);
 
-private slots:
-    void goToError();
-
 private:
     QLabel *m_errorMessage;
     QLabel *m_goToError;

@@ -79,6 +79,7 @@
 
 #include <QApplication>
 #include <QCloseEvent>
+#include <QColorDialog>
 #include <QDebug>
 #include <QDir>
 #include <QFileInfo>
@@ -175,6 +176,13 @@ MainWindow::MainWindow() :
     setCorner(Qt::BottomRightCorner, Qt::BottomDockWidgetArea);
 
     m_modeManager = new ModeManager(this, m_modeStack);
+    connect(m_modeStack, &FancyTabWidget::topAreaClicked, this, [](Qt::MouseButton, Qt::KeyboardModifiers modifiers) {
+        if (modifiers & Qt::ShiftModifier) {
+            QColor color = QColorDialog::getColor(StyleHelper::requestedBaseColor(), ICore::dialogParent());
+            if (color.isValid())
+                StyleHelper::setBaseColor(color);
+        }
+    });
 
     registerDefaultContainers();
     registerDefaultActions();

@@ -442,21 +442,6 @@ GenericProjectFile::GenericProjectFile(GenericProject *parent, QString fileName,
     setFilePath(Utils::FileName::fromString(fileName));
 }
 
-bool GenericProjectFile::save(QString *, const QString &, bool)
-{
-    return false;
-}
-
-bool GenericProjectFile::isModified() const
-{
-    return false;
-}
-
-bool GenericProjectFile::isSaveAsAllowed() const
-{
-    return false;
-}
-
 IDocument::ReloadBehavior GenericProjectFile::reloadBehavior(ChangeTrigger state, ChangeType type) const
 {
     Q_UNUSED(state);

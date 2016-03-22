@@ -18,6 +18,13 @@
     <number>0</number>
    </property>
    <item>
+    <widget class="Core::CommandButton" name="toolButtonExportImage">
+     <property name="toolTipBase">
+      <string>Export as Image</string>
+     </property>
+    </widget>
+   </item>
+   <item>
     <widget class="Core::CommandButton" name="toolButtonBackground">
      <property name="toolTipBase">
       <string>Show Background</string>

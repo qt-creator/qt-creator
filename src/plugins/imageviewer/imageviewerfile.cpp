@@ -249,23 +249,5 @@ void ImageViewerFile::cleanUp()
     m_type = TypeInvalid;
 }
 
-bool ImageViewerFile::save(QString *errorString, const QString &fileName, bool autoSave)
-{
-    Q_UNUSED(errorString)
-    Q_UNUSED(fileName);
-    Q_UNUSED(autoSave)
-    return false;
-}
-
-bool ImageViewerFile::isModified() const
-{
-    return false;
-}
-
-bool ImageViewerFile::isSaveAsAllowed() const
-{
-    return false;
-}
-
 } // namespace Internal
 } // namespace ImageViewer

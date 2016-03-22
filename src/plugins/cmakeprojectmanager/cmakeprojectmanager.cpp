@@ -117,7 +117,6 @@ void CMakeManager::clearCMakeCache(Project *project)
     if (!bc)
         return;
 
-    bc->setCMakeConfiguration(CMakeConfigurationKitInformation::configuration(bc->target()->kit()));
     bc->buildDirManager()->clearCache();
 }
 

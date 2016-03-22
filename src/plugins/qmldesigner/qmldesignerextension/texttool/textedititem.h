@@ -22,32 +22,19 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
+#pragma once
 
-#ifndef TEXTEDITITEM_H
-#define TEXTEDITITEM_H
-
-#include <QGraphicsProxyWidget>
-#include <QWeakPointer>
-#include <QScopedPointer>
-
-QT_BEGIN_NAMESPACE
-class QTextEdit;
-class QLineEdit;
-QT_END_NAMESPACE
+#include "textedititemwidget.h"
 
 namespace QmlDesigner {
 
 class FormEditorScene;
 class FormEditorItem;
 
-class TextEditItem : public QGraphicsProxyWidget
+class TextEditItem : public TextEditItemWidget
 {
     Q_OBJECT
 public:
-    enum
-    {
-        Type = 0xEAAB
-    };
     TextEditItem(FormEditorScene* scene);
     ~TextEditItem();
     int type() const;
@@ -55,27 +42,17 @@ public:
     void setFormEditorItem(FormEditorItem *formEditorItem);
     FormEditorItem *formEditorItem() const;
 
-    QList<QGraphicsItem*> findAllChildItems() const;
-
     void updateText();
     void writeTextToProperty();
 
 signals:
-    void textChanged(const QString &text);
     void returnPressed();
-
 private:
-    QString text() const;
-
-    QScopedPointer<QLineEdit> m_lineEdit;
-    QScopedPointer<QTextEdit> m_textEdit;
     FormEditorItem *m_formEditorItem;
 };
 
 inline int TextEditItem::type() const
 {
-    return Type;
+    return 0xEAAB;
 }
-}
-
-#endif // TEXTEDITITEM_H
+} // namespace QmlDesigner

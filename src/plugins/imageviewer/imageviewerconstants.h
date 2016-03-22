@@ -33,6 +33,7 @@ namespace Constants {
 const char IMAGEVIEWER_ID[] = "Editors.ImageViewer";
 const char IMAGEVIEWER_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("OpenWith::Editors", "Image Viewer");
 
+const char ACTION_EXPORT_IMAGE[] = "ImageViewer.ExportImage";
 const char ACTION_ZOOM_IN[] = "ImageViewer.ZoomIn";
 const char ACTION_ZOOM_OUT[] = "ImageViewer.ZoomOut";
 const char ACTION_ORIGINAL_SIZE[] = "ImageViewer.OriginalSize";

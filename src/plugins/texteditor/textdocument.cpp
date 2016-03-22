@@ -126,7 +126,8 @@ QTextCursor TextDocumentPrivate::indentOrUnindent(const QTextCursor &textCursor,
 
     QTextBlock startBlock = m_document.findBlock(start);
     QTextBlock endBlock = m_document.findBlock(blockSelection ? end : end - 1).next();
-
+    const bool cursorAtBlockStart = (textCursor.position() == startBlock.position());
+    const bool anchorAtBlockStart = (textCursor.anchor() == startBlock.position());
     const bool oneLinePartial = (startBlock.next() == endBlock)
                               && (start > startBlock.position() || end < endBlock.position() - 1);
 
@@ -146,6 +147,17 @@ QTextCursor TextDocumentPrivate::indentOrUnindent(const QTextCursor &textCursor,
             cursor.setPosition(block.position());
             cursor.setPosition(block.position() + indentPosition, QTextCursor::KeepAnchor);
             cursor.removeSelectedText();
+        }
+        // make sure that selection that begins in first column stays at first column
+        // even if we insert text at first column
+        if (cursorAtBlockStart) {
+            cursor = textCursor;
+            cursor.setPosition(startBlock.position(), QTextCursor::KeepAnchor);
+        } else if (anchorAtBlockStart) {
+            cursor = textCursor;
+            cursor.setPosition(startBlock.position(), QTextCursor::MoveAnchor);
+            cursor.setPosition(textCursor.position(), QTextCursor::KeepAnchor);
+        } else {
             modified = false;
         }
     } else if (cursor.hasSelection() && !blockSelection && oneLinePartial) {

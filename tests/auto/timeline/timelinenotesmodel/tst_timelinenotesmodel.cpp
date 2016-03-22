@@ -41,7 +41,7 @@ private slots:
 
 class TestModel : public Timeline::TimelineModel {
 public:
-    TestModel(int modelId = 10) : TimelineModel(modelId, QString())
+    TestModel(int modelId = 10) : TimelineModel(modelId)
     {
         insert(0, 10, 10);
     }

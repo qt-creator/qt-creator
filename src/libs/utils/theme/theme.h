@@ -103,7 +103,6 @@ public:
         OutputPaneButtonFlashColor,
         OutputPaneToggleButtonTextColorChecked,
         OutputPaneToggleButtonTextColorUnchecked,
-        PanelButtonToolBackgroundColorHover,
         PanelStatusBarBackgroundColor,
         PanelsWidgetSeparatorLineColor,
         PanelTextColorDark,
@@ -113,6 +112,7 @@ public:
         ProgressBarColorFinished,
         ProgressBarColorNormal,
         ProgressBarTitleColor,
+        ProgressBarBackgroundColor,
         SplitterColor,
         TextColorDisabled,
         TextColorError,
@@ -160,6 +160,14 @@ public:
         OutputPanes_StdErrTextColor,
         OutputPanes_StdOutTextColor,
         OutputPanes_WarningMessageTextColor,
+        OutputPanes_TestPassTextColor,
+        OutputPanes_TestFailTextColor,
+        OutputPanes_TestXFailTextColor,
+        OutputPanes_TestXPassTextColor,
+        OutputPanes_TestSkipTextColor,
+        OutputPanes_TestWarnTextColor,
+        OutputPanes_TestFatalTextColor,
+        OutputPanes_TestDebugTextColor,
 
         /* Debugger Log Window */
 
@@ -175,27 +183,14 @@ public:
 
         /* Welcome Plugin */
 
-        Welcome_TextColorNormal,
-        Welcome_TextColorHeading,  // #535353 // Sessions, Recent Projects
-        Welcome_BackgroundColorNormal,   // #ffffff
-        Welcome_DividerColor,      // #737373
-        Welcome_Button_BorderColorNormal,
-        Welcome_Button_BorderColorPressed,
-        Welcome_Button_TextColorNormal,
-        Welcome_Button_TextColorPressed,
-        Welcome_Link_TextColorNormal,
-        Welcome_Link_TextColorActive,
-        Welcome_Link_BackgroundColor,
-        Welcome_Caption_TextColorNormal,
-        Welcome_SideBar_BackgroundColor,
-
-        Welcome_ProjectItem_TextColorFilepath,
-        Welcome_ProjectItem_BackgroundColorHover,
-
-        Welcome_SessionItem_BackgroundColorNormal,
-        Welcome_SessionItem_BackgroundColorHover,
-        Welcome_SessionItemExpanded_BackgroundColorNormal,
-        Welcome_SessionItemExpanded_BackgroundColorHover,
+        Welcome_TextColor,
+        Welcome_ForegroundPrimaryColor,
+        Welcome_ForegroundSecondaryColor,
+        Welcome_BackgroundColor,
+        Welcome_ButtonBackgroundColor,
+        Welcome_DividerColor,
+        Welcome_LinkColor,
+        Welcome_HoverColor,
 
         /* VcsBase Plugin */
         VcsBase_FileStatusUnknown_TextColor,

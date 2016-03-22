@@ -141,6 +141,7 @@ QString DebuggerRunControl::displayName() const
 
 void DebuggerRunControl::start()
 {
+    Debugger::Internal::saveModeToRestore();
     Debugger::selectPerspective(Debugger::Constants::CppPerspectiveId);
     TaskHub::clearTasks(Debugger::Constants::TASK_CATEGORY_DEBUGGER_DEBUGINFO);
     TaskHub::clearTasks(Debugger::Constants::TASK_CATEGORY_DEBUGGER_RUNTIME);
@@ -339,14 +340,16 @@ void DebuggerRunControlCreator::enrich(const RunConfiguration *runConfig, const 
     if (!m_kit && m_target)
         m_kit = m_target->kit();
 
+    // Make sure we have something sensible to start with.
+    m_rp.inferior.runMode == ApplicationLauncher::Console;
+    m_rp.useTerminal = false;
+
     // Extract as much as possible from available RunConfiguration.
     if (m_runConfig && m_runConfig->runnable().is<StandardRunnable>()) {
-        auto runnable = m_runConfig->runnable().as<StandardRunnable>();
-        m_rp.inferior.executable = runnable.executable;
-        m_rp.inferior.commandLineArguments = runnable.commandLineArguments;
-        m_rp.useTerminal = runnable.runMode == ApplicationLauncher::Console;
+        m_rp.inferior = m_runConfig->runnable().as<StandardRunnable>();
+        m_rp.useTerminal = m_rp.inferior.runMode == ApplicationLauncher::Console;
         // Normalize to work around QTBUG-17529 (QtDeclarative fails with 'File name case mismatch'...)
-        m_rp.inferior.workingDirectory = FileUtils::normalizePathName(runnable.workingDirectory);
+        m_rp.inferior.workingDirectory = FileUtils::normalizePathName(m_rp.inferior.workingDirectory);
     }
 
     // We might get an executable from a local PID.
@@ -474,6 +477,7 @@ void DebuggerRunControlCreator::enrich(const RunConfiguration *runConfig, const 
     if (m_debuggerAspect) {
         m_rp.multiProcess = m_debuggerAspect->useMultiProcess();
 
+        m_rp.languages = NoLanguage;
         if (m_debuggerAspect->useCppDebugger())
             m_rp.languages |= CppLanguage;
 

@@ -62,6 +62,7 @@ public:
     virtual ~TestCodeParser();
     void setState(State state);
     State state() const { return m_parserState; }
+    bool isParsing() const { return m_parserState == PartialParse || m_parserState == FullParse; }
     void setDirty() { m_dirty = true; }
 #ifdef WITH_TESTS
     bool furtherParsingExpected() const

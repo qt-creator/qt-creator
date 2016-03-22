@@ -25,6 +25,8 @@
 
 #include "testresult.h"
 
+#include <utils/theme/theme.h>
+
 namespace Autotest {
 namespace Internal {
 
@@ -119,29 +121,28 @@ QColor TestResult::colorForType(const Result::Type type)
     if (type >= Result::INTERNAL_MESSAGES_BEGIN && type <= Result::INTERNAL_MESSAGES_END)
         return QColor("transparent");
 
+    Utils::Theme *creatorTheme = Utils::creatorTheme();
     switch (type) {
     case Result::Pass:
-        return QColor("#009900");
+        return creatorTheme->color(Utils::Theme::OutputPanes_TestPassTextColor);
     case Result::Fail:
-        return QColor("#a00000");
+        return creatorTheme->color(Utils::Theme::OutputPanes_TestFailTextColor);
     case Result::ExpectedFail:
-        return QColor("#00ff00");
+        return creatorTheme->color(Utils::Theme::OutputPanes_TestXFailTextColor);
     case Result::UnexpectedPass:
-        return QColor("#ff0000");
+        return creatorTheme->color(Utils::Theme::OutputPanes_TestXPassTextColor);
     case Result::Skip:
-        return QColor("#787878");
-    case Result::BlacklistedPass:
-        return QColor(0, 0, 0);
-    case Result::BlacklistedFail:
-        return QColor(0, 0, 0);
+        return creatorTheme->color(Utils::Theme::OutputPanes_TestSkipTextColor);
     case Result::MessageDebug:
-        return QColor("#329696");
+        return creatorTheme->color(Utils::Theme::OutputPanes_TestDebugTextColor);
     case Result::MessageWarn:
-        return QColor("#d0bb00");
+        return creatorTheme->color(Utils::Theme::OutputPanes_TestWarnTextColor);
     case Result::MessageFatal:
-        return QColor("#640000");
+        return creatorTheme->color(Utils::Theme::OutputPanes_TestFatalTextColor);
+    case Result::BlacklistedPass:
+    case Result::BlacklistedFail:
     default:
-        return QColor("#000000");
+        return creatorTheme->color(Utils::Theme::OutputPanes_StdOutTextColor);
     }
 }
 

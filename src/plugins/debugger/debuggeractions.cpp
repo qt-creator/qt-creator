@@ -162,13 +162,6 @@ DebuggerSettings::DebuggerSettings()
     insertItem(LogTimeStamps, item);
 
     item = new SavedAction(this);
-    item->setText(tr("Verbose Log"));
-    item->setSettingsKey(debugModeGroup, QLatin1String("VerboseLog"));
-    item->setCheckable(true);
-    item->setDefaultValue(false);
-    insertItem(VerboseLog, item);
-
-    item = new SavedAction(this);
     item->setText(tr("Operate by Instruction"));
     item->setCheckable(true);
     item->setDefaultValue(false);

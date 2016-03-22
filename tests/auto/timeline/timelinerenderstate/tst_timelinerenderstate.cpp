@@ -140,7 +140,7 @@ void tst_TimelineRenderState::emptyRoots()
 
 void tst_TimelineRenderState::assembleNodeTree()
 {
-    TimelineModel model(3, QString());
+    TimelineModel model(3);
     TimelineRenderState state1(1, 2, 0.5, 3);
     state1.assembleNodeTree(&model, 30, 30);
     QSGTransformNode *node = state1.finalize(0, true, QMatrix4x4());

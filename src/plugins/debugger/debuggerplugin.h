@@ -57,14 +57,7 @@ private:
     // Called from AppOutputPane::attachToRunControl().
     Q_SLOT void attachExternalApplication(ProjectExplorer::RunControl *rc);
 
-#ifdef WITH_TESTS
-private slots:
-    void testDebuggerMatching_data();
-    void testDebuggerMatching();
-
-    void testBenchmark();
-//    void testStateMachine();
-#endif
+    QList<QObject *> createTestObjects() const override;
 };
 
 } // namespace Internal

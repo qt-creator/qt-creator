@@ -41,21 +41,6 @@ QmlProjectFile::QmlProjectFile(QmlProject *parent, const Utils::FileName &fileNa
     setFilePath(fileName);
 }
 
-bool QmlProjectFile::save(QString *, const QString &, bool)
-{
-    return false;
-}
-
-bool QmlProjectFile::isModified() const
-{
-    return false;
-}
-
-bool QmlProjectFile::isSaveAsAllowed() const
-{
-    return false;
-}
-
 Core::IDocument::ReloadBehavior QmlProjectFile::reloadBehavior(ChangeTrigger state, ChangeType type) const
 {
     Q_UNUSED(state)

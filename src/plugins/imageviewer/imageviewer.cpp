@@ -26,7 +26,6 @@
 
 #include "imageviewer.h"
 #include "imageviewerfile.h"
-#include "imagevieweractionhandler.h"
 #include "imageviewerconstants.h"
 #include "imageview.h"
 #include "ui_imageviewertoolbar.h"
@@ -101,10 +100,11 @@ void ImageViewer::ctor()
     // toolbar
     d->toolbar = new QWidget();
     d->ui_toolbar.setupUi(d->toolbar);
+    d->ui_toolbar.toolButtonExportImage->setIcon(QIcon::fromTheme(QLatin1String("document-save"),
+                                                                  Core::Icons::SAVEFILE.icon()));
     d->ui_toolbar.toolButtonZoomIn->setIcon(Core::Icons::PLUS.icon());
     d->ui_toolbar.toolButtonZoomOut->setIcon(Core::Icons::MINUS.icon());
     d->ui_toolbar.toolButtonFitToScreen->setIcon(Core::Icons::ZOOM.icon());
-
     // icons update - try to use system theme
     updateButtonIconByTheme(d->ui_toolbar.toolButtonZoomIn, QLatin1String("zoom-in"));
     updateButtonIconByTheme(d->ui_toolbar.toolButtonZoomOut, QLatin1String("zoom-out"));
@@ -116,6 +116,7 @@ void ImageViewer::ctor()
     // (photograph has outline - piece of paper)
     updateButtonIconByTheme(d->ui_toolbar.toolButtonOutline, QLatin1String("emblem-photos"));
 
+    d->ui_toolbar.toolButtonExportImage->setCommandId(Constants::ACTION_EXPORT_IMAGE);
     d->ui_toolbar.toolButtonZoomIn->setCommandId(Constants::ACTION_ZOOM_IN);
     d->ui_toolbar.toolButtonZoomOut->setCommandId(Constants::ACTION_ZOOM_OUT);
     d->ui_toolbar.toolButtonOriginalSize->setCommandId(Constants::ACTION_ORIGINAL_SIZE);
@@ -125,6 +126,8 @@ void ImageViewer::ctor()
     d->ui_toolbar.toolButtonPlayPause->setCommandId(Constants::ACTION_TOGGLE_ANIMATION);
 
     // connections
+    connect(d->ui_toolbar.toolButtonExportImage, &QAbstractButton::clicked,
+            d->imageView, &ImageView::exportImage);
     connect(d->ui_toolbar.toolButtonZoomIn, &QAbstractButton::clicked,
             d->imageView, &ImageView::zoomIn);
     connect(d->ui_toolbar.toolButtonZoomOut, &QAbstractButton::clicked,
@@ -151,6 +154,12 @@ void ImageViewer::ctor()
             this, &ImageViewer::updatePauseAction);
     connect(d->imageView, &ImageView::scaleFactorChanged,
             this, &ImageViewer::scaleFactorUpdate);
+
+    connect(d->file.data(), &ImageViewerFile::openFinished,
+            this, [this](bool success)
+            {
+                d->ui_toolbar.toolButtonExportImage->setEnabled(success && d->file->type() == ImageViewerFile::TypeSvg);
+            });
 }
 
 ImageViewer::~ImageViewer()
@@ -175,6 +184,12 @@ Core::IEditor *ImageViewer::duplicate()
     auto other = new ImageViewer(d->file);
     other->d->imageView->createScene();
     return other;
+}
+
+void ImageViewer::exportImage()
+{
+    if (d->file->type() == ImageViewerFile::TypeSvg)
+        d->ui_toolbar.toolButtonExportImage->click();
 }
 
 void ImageViewer::imageSizeUpdated(const QSize &size)

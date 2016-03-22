@@ -268,24 +268,6 @@ QmakePriFile::QmakePriFile(QmakeProjectManager::QmakePriFileNode *qmakePriFile)
     setFilePath(m_priFile->filePath());
 }
 
-bool QmakePriFile::save(QString *errorString, const QString &fileName, bool autoSave)
-{
-    Q_UNUSED(errorString);
-    Q_UNUSED(fileName);
-    Q_UNUSED(autoSave);
-    return false;
-}
-
-bool QmakePriFile::isModified() const
-{
-    return false;
-}
-
-bool QmakePriFile::isSaveAsAllowed() const
-{
-    return false;
-}
-
 Core::IDocument::ReloadBehavior QmakePriFile::reloadBehavior(ChangeTrigger state, ChangeType type) const
 {
     Q_UNUSED(state)

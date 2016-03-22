@@ -25,12 +25,14 @@
 
 import QtQuick 2.1
 import widgets 1.0
-import QtQuick.Controls 1.2 as Controls
+import QtQuick.Controls 1.0 as Controls
 
 
 Controls.ScrollView {
     id: rectangle1
 
+    readonly property int buttonWidth: 190
+    readonly property int titleY: 50
 
     Item {
         id: canvas
@@ -40,90 +42,68 @@ Controls.ScrollView {
 
         Button {
             y: screenDependHeightDistance
+            width: buttonWidth
             text: qsTr("New Project")
             anchors.left: sessionsTitle.left
             onClicked: projectWelcomePage.newProject();
-            iconSource: "widgets/images/new.png"
-
+            iconSource: "image://icons/new/"
+                        + ((checked || pressed)
+                           ? "Welcome_DividerColor"
+                           : "Welcome_ForegroundSecondaryColor")
         }
 
         Button {
             y: screenDependHeightDistance
+            width: buttonWidth
             text: qsTr("Open Project")
             anchors.left: recentProjectsTitle.left
             onClicked: projectWelcomePage.openProject();
-            iconSource: "widgets/images/open.png"
+            iconSource: "image://icons/open/" +
+                        ((checked || pressed)
+                         ? "Welcome_DividerColor"
+                         : "Welcome_ForegroundSecondaryColor")
         }
 
         NativeText {
             id: sessionsTitle
 
             x: 32
-            y: screenDependHeightDistance + 77
+            y: screenDependHeightDistance + titleY
 
-            color: creatorTheme.Welcome_TextColorHeading
+            color: creatorTheme.Welcome_TextColor
             text: qsTr("Sessions")
             font.pixelSize: 16
             font.family: "Helvetica"
-            font.bold: true
         }
 
         NativeText {
             id: recentProjectsTitle
             x: 406
 
-            y: screenDependHeightDistance + 77
-            color: creatorTheme.Welcome_TextColorHeading
+            y: screenDependHeightDistance + titleY
+            color: creatorTheme.Welcome_TextColor
             text: qsTr("Recent Projects")
             anchors.left: sessionsTitle.right
             anchors.leftMargin: 280
-            font.bold: true
             font.family: "Helvetica"
             font.pixelSize: 16
         }
 
-        RecentProjects {
-            x: screenDependLeftMargin
-
-            id: recentProjects
-
-            anchors.leftMargin: 12
-            anchors.left: recentProjectsTitle.left
-
-            anchors.top: recentProjectsTitle.bottom
-            anchors.topMargin: 20
-
-            model: projectList
-        }
-
-        Item {
-            id: actions
-            x: pageCaption.x + pageCaption.textOffset
-
-            y: screenDependHeightDistance + 244
-            width: 140
-            height: 70
-
-            anchors.topMargin: 42
-            anchors.top: sessions.bottom
-        }
-
-
         Sessions {
-            id: sessions
-
-            x: 96
-            y: 144
-            width: 274
-
-            anchors.leftMargin: 12
             anchors.left: sessionsTitle.left
             anchors.right: recentProjectsTitle.left
-            anchors.rightMargin: 40
             anchors.top: sessionsTitle.bottom
             anchors.topMargin: 20
 
             model: sessionList
+        }
+
+        RecentProjects {
+            anchors.left: recentProjectsTitle.left
+            anchors.top: recentProjectsTitle.bottom
+            anchors.topMargin: 20
+
+            model: projectList
         }
     }
 }

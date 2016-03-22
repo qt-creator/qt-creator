@@ -272,9 +272,7 @@ void FancyActionBar::paintEvent(QPaintEvent *event)
     if (creatorTheme()->widgetStyle () == Theme::StyleFlat) {
         // this paints the background of the bottom portion of the
         // left tab bar
-        painter.fillRect(event->rect(), StyleHelper::isBaseColorDefault()
-                         ? creatorTheme()->color(Theme::FancyTabBarBackgroundColor)
-                         : StyleHelper::baseColor());
+        painter.fillRect(event->rect(), StyleHelper::baseColor());
         painter.setPen(creatorTheme()->color(Theme::FancyToolBarSeparatorColor));
         painter.drawLine(borderRect.topLeft(), borderRect.topRight());
     } else {

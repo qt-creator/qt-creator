@@ -50,13 +50,32 @@
 
 #include "imageview.h"
 
+#include "exportdialog.h"
 #include "imageviewerfile.h"
+
+#include <coreplugin/messagemanager.h>
+
+#include <utils/fileutils.h>
+#include <utils/qtcassert.h>
+
+#include <QMessageBox>
+#include <QGraphicsRectItem>
 
 #include <QWheelEvent>
 #include <QMouseEvent>
-#include <QGraphicsRectItem>
+#include <QImage>
+#include <QPainter>
 #include <QPixmap>
+
+#include <QDir>
+#include <QFileInfo>
+
 #include <qmath.h>
+
+#ifndef QT_NO_SVG
+#include <QGraphicsSvgItem>
+#include <QSvgRenderer>
+#endif
 
 namespace ImageViewer {
 namespace Constants {
@@ -135,6 +154,48 @@ void ImageView::drawBackground(QPainter *p, const QRectF &)
     p->resetTransform();
     p->drawTiledPixmap(viewport()->rect(), backgroundBrush().texture());
     p->restore();
+}
+
+void ImageView::exportImage()
+{
+#ifndef QT_NO_SVG
+    QGraphicsSvgItem *svgItem = qgraphicsitem_cast<QGraphicsSvgItem *>(m_imageItem);
+    QTC_ASSERT(svgItem, return);
+
+    const QFileInfo origFi = m_file->filePath().toFileInfo();
+    const QString suggestedFileName = origFi.absolutePath() + QLatin1Char('/')
+        + origFi.baseName() + QStringLiteral(".png");
+
+    ExportDialog exportDialog(this);
+    exportDialog.setWindowTitle(tr("Export %1").arg(origFi.fileName()));
+    exportDialog.setExportSize(svgItem->boundingRect().size().toSize());
+    exportDialog.setExportFileName(suggestedFileName);
+
+    while (true) {
+        if (exportDialog.exec() != QDialog::Accepted)
+            break;
+
+        const QSize imageSize = exportDialog.exportSize();
+        QImage image(imageSize, QImage::Format_ARGB32);
+        image.fill(Qt::transparent);
+        QPainter painter;
+        painter.begin(&image);
+        svgItem->renderer()->render(&painter, QRectF(QPointF(), QSizeF(imageSize)));
+        painter.end();
+
+        const QString fileName = exportDialog.exportFileName();
+        if (image.save(fileName)) {
+            const QString message = tr("Exported \"%1\", %2x%3, %4 bytes")
+                .arg(QDir::toNativeSeparators(fileName)).arg(imageSize.width()).arg(imageSize.height())
+                .arg(QFileInfo(fileName).size());
+            Core::MessageManager::write(message);
+            break;
+        } else {
+            QMessageBox::critical(this, tr("Export Image"),
+                                  tr("Could not write file \"%1\".").arg(QDir::toNativeSeparators(fileName)));
+        }
+    }
+#endif // !QT_NO_SVG
 }
 
 void ImageView::setViewBackground(bool enable)

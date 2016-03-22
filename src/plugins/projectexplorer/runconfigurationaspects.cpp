@@ -153,19 +153,24 @@ WorkingDirectoryAspect *WorkingDirectoryAspect::clone(RunConfiguration *runConfi
 void WorkingDirectoryAspect::addToMainConfigurationWidget(QWidget *parent, QFormLayout *layout)
 {
     QTC_CHECK(!m_chooser);
+    m_resetButton = new QToolButton(parent);
+    m_resetButton->setToolTip(tr("Reset to Default"));
+    m_resetButton->setIcon(Core::Icons::RESET.icon());
+    connect(m_resetButton.data(), &QAbstractButton::clicked, this, &WorkingDirectoryAspect::resetPath);
+
     m_chooser = new PathChooser(parent);
     m_chooser->setHistoryCompleter(m_key);
     m_chooser->setExpectedKind(Utils::PathChooser::Directory);
     m_chooser->setPromptDialogTitle(tr("Select Working Directory"));
-    m_chooser->lineEdit()->setPlaceholderText(m_defaultWorkingDirectory.toUserOutput());
-    m_chooser->setFileName(m_workingDirectory);
+    m_chooser->setBaseFileName(m_defaultWorkingDirectory);
+    m_chooser->setFileName(m_workingDirectory.isEmpty() ? m_defaultWorkingDirectory : m_workingDirectory);
     connect(m_chooser.data(), &PathChooser::pathChanged, this,
-            [this]() { m_workingDirectory = m_chooser->rawFileName(); });
+            [this]() {
+                m_workingDirectory = m_chooser->rawFileName();
+                m_resetButton->setEnabled(m_workingDirectory != m_defaultWorkingDirectory);
+            });
 
-    auto resetButton = new QToolButton(parent);
-    resetButton->setToolTip(tr("Reset to Default"));
-    resetButton->setIcon(Core::Icons::RESET.icon());
-    connect(resetButton, &QAbstractButton::clicked, this, &WorkingDirectoryAspect::resetPath);
+    m_resetButton->setEnabled(m_workingDirectory != m_defaultWorkingDirectory);
 
     if (auto envAspect = runConfiguration()->extraAspect<EnvironmentAspect>()) {
         connect(envAspect, &EnvironmentAspect::environmentChanged, m_chooser.data(), [this, envAspect] {
@@ -176,7 +181,7 @@ void WorkingDirectoryAspect::addToMainConfigurationWidget(QWidget *parent, QForm
 
     auto hbox = new QHBoxLayout;
     hbox->addWidget(m_chooser);
-    hbox->addWidget(resetButton);
+    hbox->addWidget(m_resetButton);
     layout->addRow(tr("Working directory:"), hbox);
 }
 
@@ -187,29 +192,30 @@ QString WorkingDirectoryAspect::keyForDefaultWd() const
 
 void WorkingDirectoryAspect::resetPath()
 {
-    m_chooser->setPath(QString());
+    m_chooser->setFileName(m_defaultWorkingDirectory);
 }
 
 void WorkingDirectoryAspect::fromMap(const QVariantMap &map)
 {
     m_workingDirectory = FileName::fromString(map.value(m_key).toString());
     m_defaultWorkingDirectory = FileName::fromString(map.value(keyForDefaultWd()).toString());
+
+    if (m_workingDirectory.isEmpty())
+        m_workingDirectory = m_defaultWorkingDirectory;
 }
 
 void WorkingDirectoryAspect::toMap(QVariantMap &data) const
 {
-    data.insert(m_key, m_workingDirectory.toString());
+    const QString wd
+            = (m_workingDirectory == m_defaultWorkingDirectory) ? QString() : m_workingDirectory.toString();
+    data.insert(m_key, wd);
     data.insert(keyForDefaultWd(), m_defaultWorkingDirectory.toString());
 }
 
 FileName WorkingDirectoryAspect::workingDirectory() const
 {
-    if (m_workingDirectory.isEmpty())
-        return m_defaultWorkingDirectory;
-
     if (m_chooser) {
-        return FileName::fromString(
-                runConfiguration()->macroExpander()->expandProcessArgs(m_chooser->path()));
+        return m_chooser->fileName();
     } else {
         auto envAspect = runConfiguration()->extraAspect<EnvironmentAspect>();
         const Utils::Environment env = envAspect ? envAspect->environment()
@@ -232,9 +238,18 @@ FileName WorkingDirectoryAspect::unexpandedWorkingDirectory() const
 
 void WorkingDirectoryAspect::setDefaultWorkingDirectory(const FileName &defaultWorkingDir)
 {
+    if (defaultWorkingDir == m_defaultWorkingDirectory)
+        return;
+
+    Utils::FileName oldDefaultDir = m_defaultWorkingDirectory;
     m_defaultWorkingDirectory = defaultWorkingDir;
-    if (m_chooser)
-        m_chooser->lineEdit()->setPlaceholderText(m_defaultWorkingDirectory.toUserOutput());
+    if (m_chooser) {
+        if (m_chooser->fileName() == oldDefaultDir)
+            m_chooser->setFileName(m_defaultWorkingDirectory);
+        m_chooser->setBaseFileName(m_defaultWorkingDirectory);
+    }
+    if (m_workingDirectory.isEmpty() || m_workingDirectory == oldDefaultDir)
+        m_workingDirectory = defaultWorkingDir;
 }
 
 PathChooser *WorkingDirectoryAspect::pathChooser() const

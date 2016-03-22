@@ -235,8 +235,6 @@ CdbEngine::CdbEngine(const DebuggerRunParameters &sp) :
     m_extensionCommandPrefixBA("!" QT_CREATOR_CDB_EXT "."),
     m_operateByInstructionPending(true),
     m_operateByInstruction(true), // Default CDB setting
-    m_verboseLogPending(true),
-    m_verboseLog(false), // Default CDB setting
     m_hasDebuggee(false),
     m_wow64State(wow64Uninitialized),
     m_elapsedLogTime(0),
@@ -249,8 +247,6 @@ CdbEngine::CdbEngine(const DebuggerRunParameters &sp) :
 
     connect(action(OperateByInstruction), &QAction::triggered,
             this, &CdbEngine::operateByInstructionTriggered);
-    connect(action(VerboseLog), &QAction::triggered,
-            this, &CdbEngine::verboseLogTriggered);
     connect(action(CreateFullBacktrace), &QAction::triggered,
             this, &CdbEngine::createFullBacktrace);
     connect(&m_process, static_cast<void(QProcess::*)(int)>(&QProcess::finished),
@@ -272,9 +268,7 @@ void CdbEngine::init()
     m_nextCommandToken  = 0;
     m_currentBuiltinResponseToken = -1;
     m_operateByInstructionPending = action(OperateByInstruction)->isChecked();
-    m_verboseLogPending = boolSetting(VerboseLog);
     m_operateByInstruction = true; // Default CDB setting
-    m_verboseLog = false; // Default CDB setting
     m_hasDebuggee = false;
     m_sourceStepInto = false;
     m_watchPointX = m_watchPointY = 0;
@@ -321,13 +315,6 @@ void CdbEngine::operateByInstructionTriggered(bool operateByInstruction)
         syncOperateByInstruction(operateByInstruction);
 }
 
-void CdbEngine::verboseLogTriggered(bool verboseLog)
-{
-    m_verboseLogPending = verboseLog;
-    if (state() == InferiorStopOk)
-        syncVerboseLog(verboseLog);
-}
-
 void CdbEngine::syncOperateByInstruction(bool operateByInstruction)
 {
     if (debug)
@@ -338,15 +325,6 @@ void CdbEngine::syncOperateByInstruction(bool operateByInstruction)
     m_operateByInstruction = operateByInstruction;
     runCommand({m_operateByInstruction ? "l-t" : "l+t", NoFlags});
     runCommand({m_operateByInstruction ? "l-s" : "l+s", NoFlags});
-}
-
-void CdbEngine::syncVerboseLog(bool verboseLog)
-{
-    if (m_verboseLog == verboseLog)
-        return;
-    QTC_ASSERT(m_accessible, return);
-    m_verboseLog = verboseLog;
-    runCommand({m_verboseLog ? "!sym noisy" : "!sym quiet", NoFlags});
 }
 
 bool CdbEngine::canHandleToolTip(const DebuggerToolTipContext &context) const
@@ -566,9 +544,6 @@ bool CdbEngine::launchCDB(const DebuggerRunParameters &sp, QString *errorMessage
     if (boolSetting(IgnoreFirstChanceAccessViolation))
         arguments << QLatin1String("-x");
 
-    const QStringList &symbolPaths = stringListSetting(CdbSymbolPaths);
-    if (!symbolPaths.isEmpty())
-        arguments << QLatin1String("-y") << symbolPaths.join(QLatin1Char(';'));
     const QStringList &sourcePaths = stringListSetting(CdbSourcePaths);
     if (!sourcePaths.isEmpty())
         arguments << QLatin1String("-srcpath") << sourcePaths.join(QLatin1Char(';'));
@@ -664,6 +639,19 @@ void CdbEngine::setupInferior()
         runCommand({cdbAddBreakpointCommand(bp, m_sourcePathMappings, id, true), BuiltinCommand,
                     [this, id](const DebuggerResponse &r) { handleBreakInsert(r, id); }});
     }
+
+    // setting up symbol search path
+    QStringList symbolPaths = stringListSetting(CdbSymbolPaths);
+    const QProcessEnvironment &env = m_process.processEnvironment();
+    QString symbolPath = env.value(QLatin1String("_NT_ALT_SYMBOL_PATH"));
+    if (!symbolPath.isEmpty())
+        symbolPaths += symbolPath;
+    symbolPath = env.value(QLatin1String("_NT_SYMBOL_PATH"));
+    if (!symbolPath.isEmpty())
+        symbolPaths += symbolPath;
+    runCommand({".sympath \"" + symbolPaths.join(QLatin1Char(';')).toLatin1() + '"', NoFlags});
+
+    runCommand({"!sym noisy", NoFlags}); // Show symbol load information.
     runCommand({"sxn 0x4000001f", NoFlags}); // Do not break on WowX86 exceptions.
     runCommand({"sxn ibp", NoFlags}); // Do not break on initial breakpoints.
     runCommand({".asm source_line", NoFlags}); // Source line in assembly
@@ -1261,8 +1249,7 @@ void CdbEngine::doUpdateLocals(const UpdateParameters &updateParameters)
             }
         }
     }
-    if (boolSetting(VerboseLog))
-        str << blankSeparator << "-v";
+    str << blankSeparator << "-v";
     if (boolSetting(UseDebuggingHelpers))
         str << blankSeparator << "-c";
     if (boolSetting(SortStructMembers))
@@ -1668,8 +1655,7 @@ void CdbEngine::handleRegistersExt(const DebuggerResponse &response)
 void CdbEngine::handleLocals(const DebuggerResponse &response, bool partialUpdate)
 {
     if (response.resultClass == ResultDone) {
-        if (boolSetting(VerboseLog))
-            showMessage(QLatin1String(response.data.toString()), LogDebug);
+        showMessage(QLatin1String(response.data.toString()), LogDebug);
 
         GdbMi partial;
         partial.m_name = "partial";
@@ -1886,8 +1872,6 @@ void CdbEngine::handleSessionIdle(const QByteArray &messageBA)
         qDebug("CdbEngine::handleSessionIdle %dms '%s' in state '%s', special mode %d",
                elapsedLogTime(), messageBA.constData(),
                stateName(state()), m_specialStopMode);
-
-    syncVerboseLog(m_verboseLogPending);
 
     // Switch source level debugging
     syncOperateByInstruction(m_operateByInstructionPending);
@@ -2392,8 +2376,7 @@ void CdbEngine::parseOutputLine(QByteArray line)
                        command.function.data(), m_currentBuiltinResponseToken,
                        m_currentBuiltinResponse.count('\n'), m_commandForToken.size() - 1);
             QTC_ASSERT(token == m_currentBuiltinResponseToken, return);
-            if (boolSetting(VerboseLog))
-                showMessage(QLatin1String(m_currentBuiltinResponse), LogMisc);
+            showMessage(QLatin1String(m_currentBuiltinResponse), LogMisc);
             if (command.callback) {
                 DebuggerResponse response;
                 response.token = token;

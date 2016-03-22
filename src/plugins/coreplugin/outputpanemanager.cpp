@@ -686,17 +686,15 @@ void OutputPaneToggleButton::paintEvent(QPaintEvent*)
         if (image)
             StyleHelper::drawCornerImage(*image, &p, rect(), numberAreaWidth, buttonBorderWidth, buttonBorderWidth, buttonBorderWidth);
     } else {
-        QColor c;
-        if (isChecked()) {
-            c = creatorTheme()->color(hovered ? Theme::BackgroundColorHover
-                                              : Theme::BackgroundColorSelected);
-        } else if (isDown()) {
-            c = creatorTheme()->color(Theme::BackgroundColorSelected);
-        } else {
-            c = creatorTheme()->color(hovered ? Theme::BackgroundColorHover
-                                              : Theme::BackgroundColorDark);
-        }
-        p.fillRect(rect(), c);
+        Theme::Color c = Theme::BackgroundColorDark;
+
+        if (hovered)
+            c = Theme::BackgroundColorHover;
+        else if (isDown() || isChecked())
+            c = Theme::BackgroundColorSelected;
+
+        if (c != Theme::BackgroundColorDark)
+            p.fillRect(rect(), creatorTheme()->color(c));
     }
 
     if (m_flashTimer->state() == QTimeLine::Running)

@@ -85,7 +85,7 @@ void tst_TimelineAbstractRenderer::model()
     QSignalSpy spy(&renderer, SIGNAL(modelChanged(TimelineModel*)));
     QVERIFY(!renderer.modelDirty());
     QCOMPARE(spy.count(), 0);
-    TimelineModel model(0, QLatin1String("model"));
+    TimelineModel model(0);
     QCOMPARE(renderer.model(), static_cast<TimelineModel *>(0));
     renderer.setModel(&model);
     QVERIFY(renderer.modelDirty());

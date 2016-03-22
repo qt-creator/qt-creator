@@ -2152,15 +2152,23 @@ def qdump__QVariant(d, value):
         data = value["d"]["data"]
         ns = d.qtNamespace()
         inner = ns + innert
-        if d.isLldb:
-            # Looking up typedefs is problematic.
+        innerType = d.lookupType(inner)
+
+        if innerType is None:
+            # Looking up typedefs is problematic with LLDB, and can also
+            # happen with GDB e.g. in the QVariant2 dumper test on x86
+            # unless further use of the empty QVariantHash is added.
             if innert == "QVariantMap":
                 inner = "%sQMap<%sQString, %sQVariant>" % (ns, ns, ns)
             elif innert == "QVariantHash":
                 inner = "%sQHash<%sQString, %sQVariant>" % (ns, ns, ns)
             elif innert == "QVariantList":
                 inner = "%sQList<%sQVariant>" % (ns, ns)
-        innerType = d.lookupType(inner)
+            innerType = d.lookupType(inner)
+
+        if innerType is None:
+            self.putSpecialValue("notaccessible")
+            return innert
 
         if toInteger(value["d"]["is_shared"]):
             val = data["ptr"].cast(innerType.pointer().pointer()).dereference().dereference()

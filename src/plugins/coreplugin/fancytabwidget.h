@@ -162,6 +162,7 @@ public:
 signals:
     void currentAboutToShow(int index);
     void currentChanged(int index);
+    void topAreaClicked(Qt::MouseButton button, Qt::KeyboardModifiers modifiers);
 
 public slots:
     void setCurrentIndex(int index);

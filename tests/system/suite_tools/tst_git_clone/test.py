@@ -76,7 +76,7 @@ def verifyVersionControlView(targetDir, canceled):
 
 def verifyFiles(targetDir):
     for file in [".gitignore", "CMakeLists.txt", "jom.pro",
-                 os.path.join("bin", "ibjom.cmd"),
+                 os.path.join("bin", "ibjom.bat"),
                  os.path.join("src", "app", "main.cpp")]:
         test.verify(os.path.exists(os.path.join(targetDir, cloneDir, file)),
                     "Verify the existence of %s" % file)

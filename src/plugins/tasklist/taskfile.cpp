@@ -41,24 +41,6 @@ TaskFile::TaskFile(QObject *parent) : Core::IDocument(parent)
     setId("TaskList.TaskFile");
 }
 
-bool TaskFile::save(QString *errorString, const QString &fileName, bool autoSave)
-{
-    Q_UNUSED(errorString)
-    Q_UNUSED(fileName);
-    Q_UNUSED(autoSave)
-    return false;
-}
-
-bool TaskFile::isModified() const
-{
-    return false;
-}
-
-bool TaskFile::isSaveAsAllowed() const
-{
-    return false;
-}
-
 Core::IDocument::ReloadBehavior TaskFile::reloadBehavior(ChangeTrigger state, ChangeType type) const
 {
     Q_UNUSED(state);

@@ -18,6 +18,16 @@ QtcPlugin {
     Depends { name: "QtSupport" }
     Depends { name: "TextEditor" }
 
+
+    Depends {
+        name: "Qt.test"
+        condition: project.testsEnabled
+    }
+
+    pluginTestDepends: [
+        "QmakeProjectManager"
+    ]
+
     cpp.includePaths: base.concat([project.sharedSourcesDir + "/registryaccess"])
 
     pluginRecommends: [
@@ -251,6 +261,21 @@ QtcPlugin {
             "analyzer/startremotedialog.cpp",
             "analyzer/startremotedialog.h",
         ]
+    }
+
+    Group {
+        name: "Unit tests"
+        condition: project.testsEnabled
+        files: [
+            "debuggerunittests.qrc",
+        ]
+    }
+
+    Group {
+        name: "Unit test resources"
+        prefix: "unit-tests/"
+        fileTags: []
+        files: ["**/*"]
     }
 
     Export {

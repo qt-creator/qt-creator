@@ -39,21 +39,6 @@ QbsProjectFile::QbsProjectFile(QbsProject *parent, QString fileName) : Core::IDo
     setFilePath(Utils::FileName::fromString(fileName));
 }
 
-bool QbsProjectFile::save(QString *, const QString &, bool)
-{
-    return false;
-}
-
-bool QbsProjectFile::isModified() const
-{
-    return false;
-}
-
-bool QbsProjectFile::isSaveAsAllowed() const
-{
-    return false;
-}
-
 Core::IDocument::ReloadBehavior QbsProjectFile::reloadBehavior(ChangeTrigger state, ChangeType type) const
 {
     Q_UNUSED(state);

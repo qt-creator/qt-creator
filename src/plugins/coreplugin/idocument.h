@@ -89,7 +89,7 @@ public:
     // required to be re-implemented for documents of IEditors
     virtual OpenResult open(QString *errorString, const QString &fileName, const QString &realFileName);
 
-    virtual bool save(QString *errorString, const QString &fileName = QString(), bool autoSave = false) = 0;
+    virtual bool save(QString *errorString, const QString &fileName = QString(), bool autoSave = false);
 
     virtual QByteArray contents() const;
     virtual bool setContents(const QByteArray &contents);
@@ -112,11 +112,11 @@ public:
     void setMimeType(const QString &mimeType);
 
     virtual bool shouldAutoSave() const;
-    virtual bool isModified() const = 0;
-    virtual bool isSaveAsAllowed() const = 0;
+    virtual bool isModified() const;
+    virtual bool isSaveAsAllowed() const;
 
     virtual ReloadBehavior reloadBehavior(ChangeTrigger state, ChangeType type) const;
-    virtual bool reload(QString *errorString, ReloadFlag flag, ChangeType type) = 0;
+    virtual bool reload(QString *errorString, ReloadFlag flag, ChangeType type);
 
     virtual void checkPermissions();
 

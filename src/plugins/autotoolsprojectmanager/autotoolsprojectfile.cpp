@@ -29,8 +29,8 @@
 #include "autotoolsproject.h"
 #include "autotoolsprojectconstants.h"
 
-using namespace AutotoolsProjectManager;
-using namespace AutotoolsProjectManager::Internal;
+namespace AutotoolsProjectManager {
+namespace Internal {
 
 AutotoolsProjectFile::AutotoolsProjectFile(const QString &fileName)
 {
@@ -39,30 +39,5 @@ AutotoolsProjectFile::AutotoolsProjectFile(const QString &fileName)
     setFilePath(Utils::FileName::fromString(fileName));
 }
 
-bool AutotoolsProjectFile::save(QString *errorString, const QString &fileName, bool autoSave)
-{
-    Q_UNUSED(errorString);
-    Q_UNUSED(fileName);
-    Q_UNUSED(autoSave);
-
-    return false;
-}
-
-bool AutotoolsProjectFile::isModified() const
-{
-    return false;
-}
-
-bool AutotoolsProjectFile::isSaveAsAllowed() const
-{
-    return false;
-}
-
-bool AutotoolsProjectFile::reload(QString *errorString, ReloadFlag flag, ChangeType type)
-{
-    Q_UNUSED(errorString);
-    Q_UNUSED(flag);
-    Q_UNUSED(type);
-
-    return false;
-}
+} // namespace Internal
+} // namespace AutotoolsProjectManager

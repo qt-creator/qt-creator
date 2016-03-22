@@ -109,15 +109,6 @@ private:
     QHash<QString, DocumentModel::Entry *> m_entryByFixedPath;
 };
 
-class SuspendedDocument : public IDocument
-{
-public:
-    bool save(QString *, const QString &, bool) override { return false; }
-    bool isModified() const override { return false; }
-    bool isSaveAsAllowed() const override { return false; }
-    bool reload(QString *, ReloadFlag, ChangeType) override { return true; }
-};
-
 DocumentModelPrivate::DocumentModelPrivate() :
     m_lockedIcon(Icons::LOCKED.icon()),
     m_unlockedIcon(Icons::UNLOCKED.icon())
@@ -226,7 +217,7 @@ void DocumentModel::addEditor(IEditor *editor, bool *isNewDocument)
 void DocumentModel::addSuspendedDocument(const QString &fileName, const QString &displayName, Id id)
 {
     Entry *entry = new Entry;
-    entry->document = new SuspendedDocument;
+    entry->document = new IDocument;
     entry->document->setFilePath(Utils::FileName::fromString(fileName));
     entry->document->setPreferredDisplayName(displayName);
     entry->document->setId(id);
