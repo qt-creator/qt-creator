@@ -311,7 +311,6 @@ public:
     // Scratch data.
     const Kit *m_kit = 0;
     const RunConfiguration *m_runConfig = 0;
-    DebuggerRunConfigurationAspect *m_debuggerAspect = 0;
     Target *m_target = 0;
     Project *m_project = 0;
 
@@ -432,16 +431,6 @@ void DebuggerRunControlCreator::enrich(const RunConfiguration *runConfig, const 
     if (ok)
         m_rp.nativeMixedEnabled = bool(nativeMixedOverride);
 
-    // validate debugger if C++ debugging is enabled
-    if (m_rp.languages & CppLanguage) {
-        const QList<Task> tasks = DebuggerKitInformation::validateDebugger(m_kit);
-        if (!tasks.isEmpty()) {
-            foreach (const Task &t, tasks)
-                m_errors.append(t.description);
-            return;
-        }
-    }
-
     m_rp.cppEngineType = DebuggerKitInformation::engineType(m_kit);
     m_rp.sysRoot = SysRootKitInformation::sysRoot(m_kit).toString();
     m_rp.debuggerCommand = DebuggerKitInformation::debuggerCommand(m_kit).toString();
@@ -451,9 +440,6 @@ void DebuggerRunControlCreator::enrich(const RunConfiguration *runConfig, const 
         m_rp.projectSourceDirectory = m_project->projectDirectory().toString();
         m_rp.projectSourceFiles = m_project->files(Project::SourceFiles);
     }
-
-    if (m_runConfig)
-        m_debuggerAspect = m_runConfig->extraAspect<DebuggerRunConfigurationAspect>();
 
     if (m_rp.displayName.isEmpty() && m_runConfig)
         m_rp.displayName = m_runConfig->displayName();
@@ -474,32 +460,52 @@ void DebuggerRunControlCreator::enrich(const RunConfiguration *runConfig, const 
         }
     }
 
-    if (m_debuggerAspect) {
-        m_rp.multiProcess = m_debuggerAspect->useMultiProcess();
+    DebuggerRunConfigurationAspect *debuggerAspect = 0;
+    if (m_runConfig)
+        debuggerAspect = m_runConfig->extraAspect<DebuggerRunConfigurationAspect>();
 
+    if (debuggerAspect)
+        m_rp.multiProcess = debuggerAspect->useMultiProcess();
+
+    if (debuggerAspect) {
         m_rp.languages = NoLanguage;
-        if (m_debuggerAspect->useCppDebugger())
+        if (debuggerAspect->useCppDebugger())
             m_rp.languages |= CppLanguage;
-
-        if (m_debuggerAspect->useQmlDebugger()) {
+        if (debuggerAspect->useQmlDebugger())
             m_rp.languages |= QmlLanguage;
-            if (m_rp.device && m_rp.device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
-                QTcpServer server;
-                const bool canListen = server.listen(QHostAddress::LocalHost)
-                        || server.listen(QHostAddress::LocalHostIPv6);
-                if (!canListen) {
-                    m_errors.append(DebuggerPlugin::tr("Not enough free ports for QML debugging.") + QLatin1Char(' '));
-                    return;
-                }
-                m_rp.qmlServerAddress = server.serverAddress().toString();
-                m_rp.qmlServerPort = server.serverPort();
+    }
 
-                // Makes sure that all bindings go through the JavaScript engine, so that
-                // breakpoints are actually hit!
-                const QString optimizerKey = _("QML_DISABLE_OPTIMIZER");
-                if (!m_rp.inferior.environment.hasKey(optimizerKey))
-                    m_rp.inferior.environment.set(optimizerKey, _("1"));
+    // This can happen e.g. when started from the command line.
+    if (m_rp.languages == NoLanguage)
+        m_rp.languages = CppLanguage;
+
+    // validate debugger if C++ debugging is enabled
+    if (m_rp.languages & CppLanguage) {
+        const QList<Task> tasks = DebuggerKitInformation::validateDebugger(m_kit);
+        if (!tasks.isEmpty()) {
+            foreach (const Task &t, tasks)
+                m_errors.append(t.description);
+            return;
+        }
+    }
+
+    if (m_rp.languages & QmlLanguage) {
+        if (m_rp.device && m_rp.device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
+            QTcpServer server;
+            const bool canListen = server.listen(QHostAddress::LocalHost)
+                    || server.listen(QHostAddress::LocalHostIPv6);
+            if (!canListen) {
+                m_errors.append(DebuggerPlugin::tr("Not enough free ports for QML debugging.") + QLatin1Char(' '));
+                return;
             }
+            m_rp.qmlServerAddress = server.serverAddress().toString();
+            m_rp.qmlServerPort = server.serverPort();
+
+            // Makes sure that all bindings go through the JavaScript engine, so that
+            // breakpoints are actually hit!
+            const QString optimizerKey = _("QML_DISABLE_OPTIMIZER");
+            if (!m_rp.inferior.environment.hasKey(optimizerKey))
+                m_rp.inferior.environment.set(optimizerKey, _("1"));
         }
     }
 
