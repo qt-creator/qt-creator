@@ -196,11 +196,8 @@
             \li  Switch to \uicontrol Projects mode
             \li  Ctrl+5
         \row
-            \li  Switch to \uicontrol Analyze mode
-            \li  Ctrl+6
-        \row
             \li  Switch to \uicontrol Help mode
-            \li  Ctrl+7
+            \li  Ctrl+6
         \row
             \li  Toggle \uicontrol{Issues} pane
             \li  Alt+1 (Cmd+1 on OS X)
