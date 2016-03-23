@@ -84,7 +84,7 @@ class PropertyEditorValue : public QObject
     Q_PROPERTY(bool isValid READ isValid NOTIFY isValidChanged FINAL)
     Q_PROPERTY(bool isTranslated READ isTranslated NOTIFY expressionChanged FINAL)
 
-    Q_PROPERTY(QString name READ name FINAL)
+    Q_PROPERTY(QString name READ nameAsQString FINAL)
     Q_PROPERTY(PropertyEditorNodeWrapper* complexNode READ complexNode NOTIFY complexNodeChanged FINAL)
 
 public:
@@ -114,6 +114,7 @@ public:
     bool isTranslated() const;
 
     QmlDesigner::PropertyName name() const;
+    QString nameAsQString() const;
     void setName(const QmlDesigner::PropertyName &name);
 
     QmlDesigner::ModelNode modelNode() const;

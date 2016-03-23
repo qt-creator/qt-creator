@@ -74,7 +74,7 @@ QString idOrTypeNameForNode(const QmlDesigner::ModelNode &modelNode)
 {
     QString idLabel = modelNode.id();
     if (idLabel.isEmpty())
-        idLabel = QString::fromLatin1(modelNode.simplifiedTypeName());
+        idLabel = modelNode.simplifiedTypeName();
 
     return idLabel;
 }
@@ -85,7 +85,7 @@ QmlDesigner::PropertyName unusedProperty(const QmlDesigner::ModelNode &modelNode
     int i = 0;
     if (modelNode.metaInfo().isValid()) {
         while (true) {
-            const QmlDesigner::PropertyName currentPropertyName = QString(QString::fromLatin1(propertyName) + QString::number(i)).toLatin1();
+            const QmlDesigner::PropertyName currentPropertyName = propertyName + QString::number(i).toLatin1();
             if (!modelNode.hasProperty(currentPropertyName) && !modelNode.metaInfo().hasProperty(currentPropertyName))
                 return currentPropertyName;
             i++;
@@ -228,7 +228,7 @@ BindingProperty DynamicPropertiesModel::bindingPropertyForRow(int rowNumber) con
     ModelNode  modelNode = connectionView()->modelNodeForInternalId(internalId);
 
     if (modelNode.isValid())
-        return modelNode.bindingProperty(targetPropertyName.toLatin1());
+        return modelNode.bindingProperty(targetPropertyName.toUtf8());
 
     return BindingProperty();
 }
@@ -241,7 +241,7 @@ VariantProperty DynamicPropertiesModel::variantPropertyForRow(int rowNumber) con
     ModelNode  modelNode = connectionView()->modelNodeForInternalId(internalId);
 
     if (modelNode.isValid())
-        return modelNode.variantProperty(targetPropertyName.toLatin1());
+        return modelNode.variantProperty(targetPropertyName.toUtf8());
 
     return VariantProperty();
 }
@@ -261,7 +261,7 @@ QStringList DynamicPropertiesModel::possibleTargetProperties(const BindingProper
         QStringList possibleProperties;
         foreach (const PropertyName &propertyName, metaInfo.propertyNames()) {
             if (metaInfo.propertyIsWritable(propertyName))
-                possibleProperties << QString::fromLatin1(propertyName);
+                possibleProperties << QString::fromUtf8(propertyName);
         }
 
         return possibleProperties;
@@ -315,7 +315,7 @@ QStringList DynamicPropertiesModel::possibleSourceProperties(const BindingProper
         QStringList possibleProperties;
         foreach (const PropertyName &propertyName, metaInfo.propertyNames()) {
             if (metaInfo.propertyTypeName(propertyName) == typeName) //### todo proper check
-                possibleProperties << QString::fromLatin1(propertyName);
+                possibleProperties << QString::fromUtf8(propertyName);
         }
 
         return possibleProperties;
@@ -377,7 +377,7 @@ void DynamicPropertiesModel::addProperty(const QVariant &propertyValue,
     idItem = new QStandardItem(idOrTypeNameForNode(abstractProperty.parentModelNode()));
     updateCustomData(idItem, abstractProperty);
 
-    propertyNameItem = new QStandardItem(QString::fromLatin1(abstractProperty.name()));
+    propertyNameItem = new QStandardItem(QString::fromUtf8(abstractProperty.name()));
 
     items.append(idItem);
     items.append(propertyNameItem);
@@ -412,10 +412,10 @@ void DynamicPropertiesModel::updateBindingProperty(int rowNumber)
     BindingProperty bindingProperty = bindingPropertyForRow(rowNumber);
 
     if (bindingProperty.isValid()) {
-        QString propertyName = QString::fromLatin1(bindingProperty.name());
+        QString propertyName = QString::fromUtf8(bindingProperty.name());
         updateDisplayRole(rowNumber, PropertyNameRow, propertyName);
         QString value = bindingProperty.expression();
-        QString type = QString::fromLatin1(bindingProperty.dynamicTypeName());
+        QString type = QString::fromUtf8(bindingProperty.dynamicTypeName());
         updateDisplayRole(rowNumber, PropertyTypeRow, type);
         updateDisplayRole(rowNumber, PropertyValueRow, value);
     }
@@ -426,10 +426,10 @@ void DynamicPropertiesModel::updateVariantProperty(int rowNumber)
     VariantProperty variantProperty = variantPropertyForRow(rowNumber);
 
     if (variantProperty.isValid()) {
-        QString propertyName = QString::fromLatin1(variantProperty.name());
+        QString propertyName = QString::fromUtf8(variantProperty.name());
         updateDisplayRole(rowNumber, PropertyNameRow, propertyName);
         QVariant value = variantProperty.value();
-        QString type = QString::fromLatin1(variantProperty.dynamicTypeName());
+        QString type = QString::fromUtf8(variantProperty.dynamicTypeName());
         updateDisplayRole(rowNumber, PropertyTypeRow, type);
 
         updateDisplayRoleFromVariant(rowNumber, PropertyValueRow, value);
@@ -489,7 +489,7 @@ void DynamicPropertiesModel::updateValue(int row)
 
 void DynamicPropertiesModel::updatePropertyName(int rowNumber)
 {
-    const PropertyName newName = data(index(rowNumber, PropertyNameRow)).toString().toLatin1();
+    const PropertyName newName = data(index(rowNumber, PropertyNameRow)).toString().toUtf8();
     if (newName.isEmpty()) {
         qWarning() << "DynamicPropertiesModel::updatePropertyName invalid property name";
         return;

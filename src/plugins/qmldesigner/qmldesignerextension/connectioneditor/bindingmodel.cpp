@@ -152,7 +152,7 @@ QStringList BindingModel::possibleTargetProperties(const BindingProperty &bindin
         QStringList possibleProperties;
         foreach (const PropertyName &propertyName, metaInfo.propertyNames()) {
             if (metaInfo.propertyIsWritable(propertyName))
-                possibleProperties << QString::fromLatin1(propertyName);
+                possibleProperties << QString::fromUtf8(propertyName);
         }
 
         return possibleProperties;
@@ -189,18 +189,18 @@ QStringList BindingModel::possibleSourceProperties(const BindingProperty &bindin
 
     foreach (VariantProperty variantProperty, modelNode.variantProperties()) {
         if (variantProperty.isDynamic())
-            possibleProperties << QString::fromLatin1((variantProperty.name()));
+            possibleProperties << QString::fromUtf8(variantProperty.name());
     }
 
     foreach (BindingProperty bindingProperty, modelNode.bindingProperties()) {
         if (bindingProperty.isDynamic())
-            possibleProperties << QString::fromLatin1((bindingProperty.name()));
+            possibleProperties << QString::fromUtf8((bindingProperty.name()));
     }
 
     if (metaInfo.isValid())  {
         foreach (const PropertyName &propertyName, metaInfo.propertyNames()) {
             if (metaInfo.propertyTypeName(propertyName) == typeName) //### todo proper check
-                possibleProperties << QString::fromLatin1(propertyName);
+                possibleProperties << QString::fromUtf8(propertyName);
         }
     } else {
         qWarning() << " BindingModel::possibleSourcePropertiesForRow no meta info for source node";
@@ -280,10 +280,10 @@ void BindingModel::addBindingProperty(const BindingProperty &property)
 
     QString idLabel = property.parentModelNode().id();
     if (idLabel.isEmpty())
-        idLabel = QString::fromLatin1(property.parentModelNode().simplifiedTypeName());
+        idLabel = property.parentModelNode().simplifiedTypeName();
     idItem = new QStandardItem(idLabel);
     updateCustomData(idItem, property);
-    targetPropertyNameItem = new QStandardItem(QString::fromLatin1(property.name()));
+    targetPropertyNameItem = new QStandardItem(QString::fromUtf8(property.name()));
     QList<QStandardItem*> items;
 
     items.append(idItem);
@@ -306,7 +306,7 @@ void BindingModel::updateBindingProperty(int rowNumber)
     BindingProperty bindingProperty = bindingPropertyForRow(rowNumber);
 
     if (bindingProperty.isValid()) {
-        QString targetPropertyName = QString::fromLatin1(bindingProperty.name());
+        QString targetPropertyName = QString::fromUtf8(bindingProperty.name());
         updateDisplayRole(rowNumber, TargetPropertyNameRow, targetPropertyName);
         QString sourceNodeName;
         QString sourcePropertyName;
@@ -352,7 +352,7 @@ void BindingModel::updatePropertyName(int rowNumber)
 {
     BindingProperty bindingProperty = bindingPropertyForRow(rowNumber);
 
-    const PropertyName newName = data(index(rowNumber, TargetPropertyNameRow)).toString().toLatin1();
+    const PropertyName newName = data(index(rowNumber, TargetPropertyNameRow)).toString().toUtf8();
     const QString expression = bindingProperty.expression();
     const PropertyName dynamicPropertyType = bindingProperty.dynamicTypeName();
     ModelNode targetNode = bindingProperty.parentModelNode();

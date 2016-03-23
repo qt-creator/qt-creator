@@ -101,7 +101,7 @@ private:
             UiObjectMember *member = iter->member;
 
             if (UiArrayBinding *arrayBinding = cast<UiArrayBinding*>(member)) {
-                if (toString(arrayBinding->qualifiedId) == targetPropertyName) {
+                if (toString(arrayBinding->qualifiedId) == QString::fromUtf8(targetPropertyName)) {
                     appendToArray(arrayBinding);
 
                     setDidRewriting(true);
@@ -112,7 +112,7 @@ private:
 
         { // insert (create) a UiObjectBinding:
             UiObjectMemberList *insertAfter = searchMemberToInsertAfter(ast->members, targetPropertyName, propertyOrder);
-            moveInfo.prefixToInsert = QStringLiteral("\n") + targetPropertyName + (targetIsArrayBinding ? QStringLiteral(": [") : QStringLiteral(": "));
+            moveInfo.prefixToInsert = QStringLiteral("\n") + QString::fromUtf8(targetPropertyName) + (targetIsArrayBinding ? QStringLiteral(": [") : QStringLiteral(": "));
             moveInfo.suffixToInsert = targetIsArrayBinding ? QStringLiteral("\n]") : QStringLiteral("");
 
             if (insertAfter && insertAfter->member)

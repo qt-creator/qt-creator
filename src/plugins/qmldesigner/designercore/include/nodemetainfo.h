@@ -82,7 +82,7 @@ public:
     QList<NodeMetaInfo> superClasses() const;
     NodeMetaInfo directSuperClass() const;
 
-    QList<TypeName> superClassNames() const;
+    QStringList superClassNames() const;
 
     bool defaultPropertyIsComponent() const;
 

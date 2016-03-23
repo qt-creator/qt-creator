@@ -102,7 +102,7 @@ void PropertyEditorView::setupPane(const TypeName &typeName)
 {
     NodeMetaInfo metaInfo = model()->metaInfo(typeName);
 
-    QUrl qmlFile = PropertyEditorQmlBackend::getQmlFileUrl(QStringLiteral("Qt/ItemPane"), metaInfo);
+    QUrl qmlFile = PropertyEditorQmlBackend::getQmlFileUrl("Qt/ItemPane", metaInfo);
     QUrl qmlSpecificsFile;
 
     qmlSpecificsFile = PropertyEditorQmlBackend::getQmlFileUrl(typeName + "Specifics", metaInfo);
@@ -144,7 +144,7 @@ void PropertyEditorView::changeValue(const QString &name)
         return;
 
     if (propertyName == "id") {
-        PropertyEditorValue *value = m_qmlBackEndForCurrentType->propertyValueForName(propertyName);
+        PropertyEditorValue *value = m_qmlBackEndForCurrentType->propertyValueForName(QString::fromUtf8(propertyName));
         const QString newId = value->value().toString();
 
         if (newId == m_selectedNode.id())
@@ -166,7 +166,7 @@ void PropertyEditorView::changeValue(const QString &name)
 
     PropertyName underscoreName(propertyName);
     underscoreName.replace('.', '_');
-    PropertyEditorValue *value = m_qmlBackEndForCurrentType->propertyValueForName(underscoreName);
+    PropertyEditorValue *value = m_qmlBackEndForCurrentType->propertyValueForName(QString::fromLatin1(underscoreName));
 
     if (value ==0)
         return;
@@ -242,7 +242,7 @@ void PropertyEditorView::changeExpression(const QString &propertyName)
         underscoreName.replace('.', '_');
 
         QmlObjectNode qmlObjectNode(m_selectedNode);
-        PropertyEditorValue *value = m_qmlBackEndForCurrentType->propertyValueForName(underscoreName);
+        PropertyEditorValue *value = m_qmlBackEndForCurrentType->propertyValueForName(QString::fromLatin1(underscoreName));
 
         if (!value) {
             qWarning() << "PropertyEditor::changeExpression no value for " << underscoreName;
@@ -257,8 +257,9 @@ void PropertyEditorView::changeExpression(const QString &propertyName)
                     return;
                 }
             } else if (qmlObjectNode.modelNode().metaInfo().propertyTypeName(name) == "bool") {
-                if (value->expression().compare("false", Qt::CaseInsensitive) == 0 || value->expression().compare("true", Qt::CaseInsensitive) == 0) {
-                    if (value->expression().compare("true", Qt::CaseInsensitive) == 0)
+                if (value->expression().compare(QLatin1String("false"), Qt::CaseInsensitive) == 0
+                        || value->expression().compare(QLatin1String("true"), Qt::CaseInsensitive) == 0) {
+                    if (value->expression().compare(QLatin1String("true"), Qt::CaseInsensitive) == 0)
                         qmlObjectNode.setVariantProperty(name, true);
                     else
                         qmlObjectNode.setVariantProperty(name, false);
@@ -376,7 +377,7 @@ void PropertyEditorView::setupQmlBackend()
         foreach (const NodeMetaInfo &metaInfo, hierarchy) {
             if (PropertyEditorQmlBackend::checkIfUrlExists(qmlSpecificsFile))
                 break;
-            qmlSpecificsFile = PropertyEditorQmlBackend::getQmlFileUrl(metaInfo.typeName() + QStringLiteral("Specifics"), metaInfo);
+            qmlSpecificsFile = PropertyEditorQmlBackend::getQmlFileUrl(metaInfo.typeName() + "Specifics", metaInfo);
             diffClassName = metaInfo.typeName();
         }
     }

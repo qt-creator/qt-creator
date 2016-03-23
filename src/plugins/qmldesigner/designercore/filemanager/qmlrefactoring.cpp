@@ -85,7 +85,7 @@ bool QmlRefactoring::addToArrayMemberList(int parentLocation, const PropertyName
     if (parentLocation < 0)
         return false;
 
-    AddArrayMemberVisitor visit(*textModifier, (quint32) parentLocation, propertyName, content);
+    AddArrayMemberVisitor visit(*textModifier, (quint32) parentLocation, QString::fromUtf8(propertyName), content);
     visit.setConvertObjectBindingIntoArrayBinding(true);
     return visit(qmlDocument->qmlProgram());
 }
@@ -117,7 +117,11 @@ bool QmlRefactoring::changeProperty(int parentLocation, const PropertyName &name
     if (parentLocation < 0)
         return false;
 
-    ChangePropertyVisitor visit(*textModifier, (quint32) parentLocation, name, value, propertyType);
+    ChangePropertyVisitor visit(*textModifier,
+                                (quint32) parentLocation,
+                                QString::fromUtf8(name),
+                                value,
+                                propertyType);
     return visit(qmlDocument->qmlProgram());
 }
 
@@ -168,6 +172,6 @@ bool QmlRefactoring::removeProperty(int parentLocation, const PropertyName &name
     if (parentLocation < 0 || name.isEmpty())
         return false;
 
-    RemovePropertyVisitor visit(*textModifier, (quint32) parentLocation, name);
+    RemovePropertyVisitor visit(*textModifier, (quint32) parentLocation, QString::fromUtf8(name));
     return visit(qmlDocument->qmlProgram());
 }

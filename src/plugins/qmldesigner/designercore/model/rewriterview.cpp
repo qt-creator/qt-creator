@@ -296,9 +296,9 @@ void RewriterView::importAdded(const Import &import)
     if (textToModelMerger()->isActive())
         return;
 
-    if (import.url() == "Qt")
+    if (import.url() == QLatin1String("Qt"))
         foreach (const Import &import, model()->imports()) {
-            if (import.url() == "QtQuick")
+            if (import.url() == QLatin1String("QtQuick"))
                 return; //QtQuick magic we do not have to add an import for Qt
         }
 
@@ -470,7 +470,7 @@ void RewriterView::applyChanges()
         qDebug() << "Content:" << content;
         if (!errors().isEmpty())
             qDebug() << "Error:" << errors().first().description();
-        throw RewritingException(__LINE__, __FUNCTION__, __FILE__, m_rewritingErrorMessage.toUtf8(), content.toUtf8());
+        throw RewritingException(__LINE__, __FUNCTION__, __FILE__, qPrintable(m_rewritingErrorMessage), content);
     }
 }
 
@@ -611,7 +611,7 @@ bool RewriterView::renameId(const QString& oldId, const QString& newId)
         if (refactoring && hasAliasExport) { //Keep export alias properties
             rootModelNode().removeProperty(propertyName);
             PropertyName newPropertyName = newId.toUtf8();
-            rootModelNode().bindingProperty(newPropertyName).setDynamicTypeNameAndExpression("alias", newPropertyName);
+            rootModelNode().bindingProperty(newPropertyName).setDynamicTypeNameAndExpression("alias", QString::fromUtf8(newPropertyName));
         }
         return refactoring;
     }

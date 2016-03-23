@@ -319,7 +319,7 @@ QmlJS::AST::UiObjectMemberList *QMLRewriter::searchMemberToInsertAfter(QmlJS::AS
         idx = propertyOrder.size() - 1;
 
     for (; idx > 0; --idx) {
-        const QString prop = propertyOrder.at(idx - 1);
+        const QString prop = QString::fromLatin1(propertyOrder.at(idx - 1));
         QmlJS::AST::UiObjectMemberList *candidate = orderedMembers.value(prop, 0);
         if (candidate != 0)
             return candidate;

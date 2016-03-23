@@ -311,16 +311,16 @@ void ModelPrivate::changeNodeId(const InternalNode::Pointer& internalNodePointer
     }
 }
 
-void ModelPrivate::checkPropertyName(const QString &propertyName)
+void ModelPrivate::checkPropertyName(const PropertyName &propertyName)
 {
     if (propertyName.isEmpty()) {
         Q_ASSERT_X(propertyName.isEmpty(), Q_FUNC_INFO, "empty property name");
         throw InvalidPropertyException(__LINE__, __FUNCTION__, __FILE__, "<empty property name>");
     }
 
-    if (propertyName == QLatin1String("id")) {
-        Q_ASSERT_X(propertyName != QLatin1String("id"), Q_FUNC_INFO, "cannot add property id");
-        throw InvalidPropertyException(__LINE__, __FUNCTION__, __FILE__, propertyName.toUtf8());
+    if (propertyName == "id") {
+        Q_ASSERT_X(propertyName != "id", Q_FUNC_INFO, "cannot add property id");
+        throw InvalidPropertyException(__LINE__, __FUNCTION__, __FILE__, propertyName);
     }
 }
 

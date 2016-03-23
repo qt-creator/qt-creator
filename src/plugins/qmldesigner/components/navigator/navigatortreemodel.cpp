@@ -546,8 +546,8 @@ static void appendNodeToEndOfTheRow(const ModelNode &modelNode, const ItemRow &n
     if (modelNode.hasParentProperty()) {
         NodeAbstractProperty parentProperty(modelNode.parentProperty());
         ItemRow parentRow = treeModel->itemRowForNode(parentProperty.parentModelNode());
-        if (parentRow.propertyItems.contains(parentProperty.name())) {
-            QStandardItem *parentPropertyItem = parentRow.propertyItems.value(parentProperty.name());
+        if (parentRow.propertyItems.contains(QString::fromUtf8(parentProperty.name()))) {
+            QStandardItem *parentPropertyItem = parentRow.propertyItems.value(QString::fromUtf8(parentProperty.name()));
             parentPropertyItem->appendRow(newItemRow.toList());
         } else {
             QStandardItem *parentDefaultPropertyItem = parentRow.idItem;
@@ -768,7 +768,7 @@ void NavigatorTreeModel::handleItemLibraryImageDrop(const QMimeData *mimeData, i
     bool foundTarget = computeTarget(rowModelIndex, this, &targetProperty, &targetRowNumber);
 
     if (foundTarget) {
-        QString imageFileName = QString::fromUtf8(mimeData->data("application/vnd.bauhaus.libraryresource"));
+        QString imageFileName = QString::fromUtf8(mimeData->data(QLatin1String("application/vnd.bauhaus.libraryresource")));
         QmlItemNode newQmlItemNode = QmlItemNode::createQmlItemNodeFromImage(m_view, imageFileName, QPointF(), targetProperty);
 
         if (newQmlItemNode.isValid()) {

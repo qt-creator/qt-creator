@@ -42,7 +42,7 @@ ModelNodeContextMenu::ModelNodeContextMenu(AbstractView *view) :
 }
 
 static QSet<ActionInterface* > findMembers(QSet<ActionInterface* > actionInterface,
-                                                          const QString &category)
+                                                          const QByteArray &category)
 {
     QSet<ActionInterface* > ret;
 
@@ -55,7 +55,7 @@ static QSet<ActionInterface* > findMembers(QSet<ActionInterface* > actionInterfa
 
 
 void populateMenu(QSet<ActionInterface* > &actionInterfaces,
-                  const QString &category,
+                  const QByteArray &category,
                   QMenu* menu,
                   const SelectionContext &selectionContext)
 {
@@ -96,7 +96,7 @@ void ModelNodeContextMenu::execute(const QPoint &position, bool selectionMenuBoo
      QSet<ActionInterface* > factories =
              QSet<ActionInterface* >::fromList(QmlDesignerPlugin::instance()->designerActionManager().designerActions());
 
-     populateMenu(factories, QString(""), mainMenu, m_selectionContext);
+     populateMenu(factories, QByteArray(), mainMenu, m_selectionContext);
 
      mainMenu->exec(position);
      mainMenu->deleteLater();

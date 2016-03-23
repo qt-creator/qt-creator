@@ -110,7 +110,7 @@ Exception::Exception(int line,
 
     for (int i = 0; i < nSize; i++)
     {
-        m_backTrace.append(QString("%1\n").arg(symbols[i]));
+        m_backTrace.append(QString("%1\n").arg(QLatin1String(symbols[i])));
     }
 
     free(symbols);

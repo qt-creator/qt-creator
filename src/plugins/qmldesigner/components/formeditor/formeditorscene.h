@@ -71,7 +71,7 @@ public:
 
     void synchronizeTransformation(const QmlItemNode &qmlItemNode);
     void synchronizeParent(const QmlItemNode &qmlItemNode);
-    void synchronizeOtherProperty(const QmlItemNode &qmlItemNode, const QString &propertyName);
+    void synchronizeOtherProperty(const QmlItemNode &qmlItemNode, const QByteArray &propertyName);
     void synchronizeState(const QmlItemNode &qmlItemNode);
 
     FormEditorItem* calulateNewParent(FormEditorItem *widget);

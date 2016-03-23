@@ -194,7 +194,7 @@ public:
     void setDynamicBindingProperty(const InternalNodePointer &internalNodePointer, const PropertyName &name, const TypeName &dynamicPropertyType, const QString &expression);
     void reparentNode(const InternalNodePointer &internalNodePointer, const PropertyName &name, const InternalNodePointer &internalNodeToBeAppended, bool list = true);
     void changeNodeOrder(const InternalNodePointer &internalParentNode, const PropertyName &listPropertyName, int from, int to);
-    void checkPropertyName(const QString &propertyName);
+    void checkPropertyName(const PropertyName &propertyName);
     void clearParent(const InternalNodePointer &internalNodePointer);
     void changeRootNodeType(const TypeName &type, int majorVersion, int minorVersion);
     void setScriptFunctions(const InternalNodePointer &internalNode, const QStringList &scriptFunctionList);

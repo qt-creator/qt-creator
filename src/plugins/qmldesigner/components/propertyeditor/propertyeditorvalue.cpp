@@ -139,7 +139,7 @@ void PropertyEditorValue::setValueWithEmit(const QVariant &value)
 
         setValue(newValue);
         m_isBound = false;
-        emit valueChanged(name(), value);
+        emit valueChanged(nameAsQString(), value);
         emit valueChangedQml();
         emit isBoundChanged();
     }
@@ -175,7 +175,7 @@ void PropertyEditorValue::setExpressionWithEmit(const QString &expression)
 {
     if ( m_expression != expression) {
         setExpression(expression);
-        emit expressionChanged(name());
+        emit expressionChanged(nameAsQString());
     }
 }
 
@@ -212,6 +212,11 @@ bool PropertyEditorValue::isInModel() const
 QmlDesigner::PropertyName PropertyEditorValue::name() const
 {
     return m_name;
+}
+
+QString PropertyEditorValue::nameAsQString() const
+{
+    return QString::fromUtf8(m_name);
 }
 
 void PropertyEditorValue::setName(const QmlDesigner::PropertyName &name)
@@ -274,7 +279,7 @@ void PropertyEditorValue::resetValue()
     if (m_value.isValid() || isBound()) {
         m_value = QVariant();
         m_isBound = false;
-        emit valueChanged(name(), QVariant());
+        emit valueChanged(nameAsQString(), QVariant());
     }
 }
 
@@ -315,7 +320,7 @@ QString PropertyEditorNodeWrapper::type()
     if (!(m_modelNode.isValid()))
         return QString();
 
-    return QString::fromUtf8(m_modelNode.simplifiedTypeName());
+    return m_modelNode.simplifiedTypeName();
 
 }
 
@@ -381,7 +386,7 @@ void PropertyEditorNodeWrapper::changeValue(const QString &propertyName)
     if (m_modelNode.isValid()) {
         QmlDesigner::QmlObjectNode qmlObjectNode(m_modelNode);
 
-        PropertyEditorValue *valueObject = qvariant_cast<PropertyEditorValue *>(m_valuesPropertyMap.value(name));
+        PropertyEditorValue *valueObject = qvariant_cast<PropertyEditorValue *>(m_valuesPropertyMap.value(QString::fromLatin1(name)));
 
         if (valueObject->value().isValid())
             qmlObjectNode.setVariantProperty(name, valueObject->value());
@@ -407,7 +412,7 @@ void PropertyEditorNodeWrapper::setup()
                 valueObject->setName(propertyName);
                 valueObject->setValue(qmlObjectNode.instanceValue(propertyName));
                 connect(valueObject, SIGNAL(valueChanged(QString,QVariant)), &m_valuesPropertyMap, SIGNAL(valueChanged(QString,QVariant)));
-                m_valuesPropertyMap.insert(propertyName, QVariant::fromValue(valueObject));
+                m_valuesPropertyMap.insert(QString::fromUtf8(propertyName), QVariant::fromValue(valueObject));
             }
         }
     }

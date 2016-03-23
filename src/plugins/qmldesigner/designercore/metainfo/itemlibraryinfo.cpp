@@ -170,7 +170,7 @@ void ItemLibraryEntry::setLibraryEntryIconPath(const QString &iconPath)
     m_data->libraryEntryIconPath = iconPath;
 }
 
-static QString getSourceForUrl(const QString &fileURl)
+static QByteArray getSourceForUrl(const QString &fileURl)
 {
     Utils::FileReader fileReader;
 
@@ -184,7 +184,7 @@ void ItemLibraryEntry::setQmlPath(const QString &qml)
 {
     m_data->qml = qml;
 
-    m_data->qmlSource = getSourceForUrl(qml);
+    m_data->qmlSource = QString::fromUtf8(getSourceForUrl(qml));
 }
 
 void ItemLibraryEntry::setRequiredImport(const QString &requiredImport)
@@ -264,7 +264,7 @@ ItemLibraryInfo::ItemLibraryInfo(QObject *parent)
 
 
 
-QList<ItemLibraryEntry> ItemLibraryInfo::entriesForType(const QString &typeName, int majorVersion, int minorVersion) const
+QList<ItemLibraryEntry> ItemLibraryInfo::entriesForType(const QByteArray &typeName, int majorVersion, int minorVersion) const
 {
     QList<ItemLibraryEntry> entries;
 

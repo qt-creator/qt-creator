@@ -136,7 +136,7 @@ QString ModelNode::id() const
 QString ModelNode::validId()
 {
     if (id().isEmpty())
-        setIdWithRefactoring(view()->generateNewId(QString::fromUtf8(simplifiedTypeName())));
+        setIdWithRefactoring(view()->generateNewId(simplifiedTypeName()));
 
     return id();
 }
@@ -236,14 +236,14 @@ int ModelNode::majorVersion() const
 }
 
 /*! \return the short-hand type name of the node. */
-TypeName ModelNode::simplifiedTypeName() const
+QString ModelNode::simplifiedTypeName() const
 {
     if (!isValid()) {
         Q_ASSERT_X(isValid(), Q_FUNC_INFO, "model node is invalid");
         throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
     }
 
-    return type().split('.').last();
+    return QString::fromUtf8(type().split('.').last());
 }
 
 /*! \brief Returns whether the node is valid
@@ -584,7 +584,7 @@ void ModelNode::removeProperty(const PropertyName &name) const
     if (!isValid())
         throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
 
-    model()->d->checkPropertyName(QString::fromUtf8(name));
+    model()->d->checkPropertyName(name);
 
     if (internalNode()->hasProperty(name))
         model()->d->removeProperty(internalNode()->property(name));

@@ -110,7 +110,7 @@ public:
     QPixmap instanceRenderPixmap() const;
     QPixmap instanceBlurredRenderPixmap() const;
 
-    TypeName simplifiedTypeName() const;
+    QString simplifiedTypeName() const;
 
     const QList<QmlItemNode> allDirectSubModelNodes() const;
     const QList<QmlItemNode> allSubModelNodes() const;

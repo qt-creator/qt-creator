@@ -50,7 +50,7 @@ static inline QString componentIdForModelNode(const ModelNode &modelNode)
         if (modelNode.hasParentProperty()
                 && modelNode.parentProperty().name() != "data"
                 && modelNode.parentProperty().name() != "children") {
-            return modelNode.parentProperty().name();
+            return QString::fromUtf8(modelNode.parentProperty().name());
         } else {
             return modelNode.simplifiedTypeName();
         }

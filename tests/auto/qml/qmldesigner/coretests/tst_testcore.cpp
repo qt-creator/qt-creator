@@ -6764,8 +6764,8 @@ void tst_TestCore::testRewriterPropertyChanges()
         ModelNode rootNode = view->rootModelNode();
         QVERIFY(rootNode.isValid());
         QCOMPARE(rootNode.type(), QString("QtQuick.Rectangle"));
-        QVERIFY(rootNode.propertyNames().contains(QLatin1String("data")));
-        QVERIFY(rootNode.propertyNames().contains(QLatin1String("states")));
+        QVERIFY(rootNode.propertyNames().contains("data"));
+        QVERIFY(rootNode.propertyNames().contains("states"));
         QCOMPARE(rootNode.propertyNames().count(), 2);
 
         NodeListProperty statesProperty = rootNode.nodeListProperty("states");

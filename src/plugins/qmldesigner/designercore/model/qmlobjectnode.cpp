@@ -315,9 +315,9 @@ void QmlObjectNode::ensureAliasExport()
 
     if (!isAliasExported()) {
         modelNode().validId();
-        PropertyName modelNodeId = modelNode().id().toUtf8();
         ModelNode rootModelNode = view()->rootModelNode();
-        rootModelNode.bindingProperty(modelNodeId).setDynamicTypeNameAndExpression("alias", modelNodeId);
+        rootModelNode.bindingProperty(modelNode().id().toUtf8()).
+            setDynamicTypeNameAndExpression("alias", modelNode().id());
     }
 }
 
@@ -330,7 +330,7 @@ bool QmlObjectNode::isAliasExported() const
          Q_ASSERT(rootModelNode.isValid());
          if (rootModelNode.hasBindingProperty(modelNodeId)
                  && rootModelNode.bindingProperty(modelNodeId).isDynamic()
-                 && rootModelNode.bindingProperty(modelNodeId).expression().toUtf8() == modelNodeId)
+                 && rootModelNode.bindingProperty(modelNodeId).expression() == modelNode().id())
              return true;
     }
 

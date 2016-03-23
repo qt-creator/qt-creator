@@ -156,7 +156,7 @@ void AddPropertyVisitor::addInMembers(QmlJS::AST::UiObjectInitializer *initializ
         newPropertyTemplate.prepend(QLatin1Char('\n'));
     }
 
-    const QString newPropertyText = addIndentation(newPropertyTemplate.arg(m_name, m_value), depth);
+    const QString newPropertyText = addIndentation(newPropertyTemplate.arg(QString::fromLatin1(m_name), m_value), depth);
     replace(endOfPreviousMember.end(), 0, newPropertyText);
 
     setDidRewriting(true);

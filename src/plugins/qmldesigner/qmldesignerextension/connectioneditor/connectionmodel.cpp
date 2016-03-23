@@ -60,7 +60,7 @@ QStringList propertyNameListToStringList(const QmlDesigner::PropertyNameList &pr
 {
     QStringList stringList;
     foreach (QmlDesigner::PropertyName propertyName, propertyNameList) {
-        stringList << QString::fromLatin1(propertyName);
+        stringList << QString::fromUtf8(propertyName);
     }
     return stringList;
 }
@@ -124,7 +124,7 @@ SignalHandlerProperty ConnectionModel::signalHandlerPropertyForRow(int rowNumber
     ModelNode  modelNode = connectionView()->modelNodeForInternalId(internalId);
 
     if (modelNode.isValid())
-        return modelNode.signalHandlerProperty(targetPropertyName.toLatin1());
+        return modelNode.signalHandlerProperty(targetPropertyName.toUtf8());
 
     return SignalHandlerProperty();
 }
@@ -160,7 +160,7 @@ void ConnectionModel::addSignalHandler(const SignalHandlerProperty &signalHandle
 
     targetItem = new QStandardItem(idLabel);
     updateCustomData(targetItem, signalHandlerProperty);
-    const QString propertyName = QString::fromLatin1(signalHandlerProperty.name());
+    const QString propertyName = QString::fromUtf8(signalHandlerProperty.name());
     const QString source = signalHandlerProperty.source();
 
     signalItem = new QStandardItem(propertyName);
@@ -210,7 +210,7 @@ void ConnectionModel::updateSignalName(int rowNumber)
 {
     SignalHandlerProperty signalHandlerProperty = signalHandlerPropertyForRow(rowNumber);
 
-    const PropertyName newName = data(index(rowNumber, TargetPropertyNameRow)).toString().toLatin1();
+    const PropertyName newName = data(index(rowNumber, TargetPropertyNameRow)).toString().toUtf8();
     const QString source = signalHandlerProperty.source();
     ModelNode connectionNode = signalHandlerProperty.parentModelNode();
 

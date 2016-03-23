@@ -467,12 +467,12 @@ QString AbstractView::generateNewId(const QString &prefixName) const
 {
     int counter = 1;
 
-    QString newId = QString("%1%2").arg(firstCharToLower(prefixName)).arg(counter);
+    QString newId = QString(QStringLiteral("%1%2")).arg(firstCharToLower(prefixName)).arg(counter);
     newId.remove(QRegExp(QStringLiteral("[^a-zA-Z0-9_]")));
 
     while (hasId(newId)) {
         counter += 1;
-        newId = QString("%1%2").arg(firstCharToLower(prefixName)).arg(counter);
+        newId = QString(QStringLiteral("%1%2")).arg(firstCharToLower(prefixName)).arg(counter);
         newId.remove(QRegExp(QStringLiteral("[^a-zA-Z0-9_]")));
     }
 

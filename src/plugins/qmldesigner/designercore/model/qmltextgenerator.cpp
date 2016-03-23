@@ -144,7 +144,7 @@ QString QmlTextGenerator::toQml(const AbstractProperty &property, int indentDept
 
 QString QmlTextGenerator::toQml(const ModelNode &node, int indentDepth) const
 {
-    QString type = node.type();
+    QString type = QString::fromLatin1(node.type());
     QString url;
     if (type.contains('.')) {
         QStringList nameComponents = type.split('.');
@@ -232,13 +232,16 @@ QString QmlTextGenerator::propertyToQml(const AbstractProperty &property, int in
         if (property.isDynamic()) {
             result = QString(indentDepth, QLatin1Char(' '))
                     + QStringLiteral("property ")
-                    + property.dynamicTypeName()
+                    + QString::fromUtf8(property.dynamicTypeName())
                     + QStringLiteral(" ")
-                    + property.name()
+                    + QString::fromUtf8(property.name())
                     + QStringLiteral(": ")
                     + toQml(property, indentDepth);
         } else {
-            result = QString(indentDepth, QLatin1Char(' ')) + property.name() + QStringLiteral(": ") + toQml(property, indentDepth);
+            result = QString(indentDepth, QLatin1Char(' '))
+                    + QString::fromUtf8(property.name())
+                    + QStringLiteral(": ")
+                    + toQml(property, indentDepth);
         }
     }
 

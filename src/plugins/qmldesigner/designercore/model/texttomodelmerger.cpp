@@ -146,7 +146,7 @@ static inline bool isHexDigit(ushort c)
 
 static inline QString fixEscapedUnicodeChar(const QString &value) //convert "\u2939"
 {
-    if (value.count() == 6 && value.at(0) == '\\' && value.at(1) == 'u' &&
+    if (value.count() == 6 && value.at(0) == QLatin1Char('\\') && value.at(1) == QLatin1Char('u') &&
         isHexDigit(value.at(2).unicode()) && isHexDigit(value.at(3).unicode()) &&
         isHexDigit(value.at(4).unicode()) && isHexDigit(value.at(5).unicode())) {
             return convertUnicode(value.at(2).unicode(), value.at(3).unicode(), value.at(4).unicode(), value.at(5).unicode());
@@ -168,9 +168,9 @@ static inline bool isSignalPropertyName(const QString &signalName)
 
 static inline QVariant cleverConvert(const QString &value)
 {
-    if (value == "true")
+    if (value == QLatin1String("true"))
         return QVariant(true);
-    if (value == "false")
+    if (value == QLatin1String("false"))
         return QVariant(false);
     bool flag;
     int i = value.toInt(&flag);
@@ -272,7 +272,7 @@ static bool isComponentType(const QmlDesigner::TypeName &type)
     return type == "Component" || type == "Qt.Component" || type == "QtQuick.Component" || type == "<cpp>.QQmlComponent";
 }
 
-static bool isCustomParserType(const QString &type)
+static bool isCustomParserType(const QmlDesigner::TypeName &type)
 {
     return type == "QtQuick.VisualItemModel" || type == "Qt.VisualItemModel" ||
            type == "QtQuick.VisualDataModel" || type == "Qt.VisualDataModel" ||
@@ -306,7 +306,7 @@ static inline QString extractComponentFromQml(const QString &source)
         return QString();
 
     QString result;
-    if (source.contains("Component")) { //explicit component
+    if (source.contains(QLatin1String("Component"))) { //explicit component
         QmlDesigner::FirstDefinitionFinder firstDefinitionFinder(source);
         int offset = firstDefinitionFinder(0);
         if (offset < 0)
@@ -1099,7 +1099,7 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
             const TypeName &astType = property->memberType.toUtf8();
             AbstractProperty modelProperty = modelNode.property(astName.toUtf8());
             if (!property->statement || isLiteralValue(property->statement)) {
-                const QVariant variantValue = convertDynamicPropertyValueToVariant(astValue, astType);
+                const QVariant variantValue = convertDynamicPropertyValueToVariant(astValue, QString::fromLatin1(astType));
                 syncVariantProperty(modelProperty, variantValue, astType, differenceHandler);
             } else {
                 syncExpressionProperty(modelProperty, astValue, astType, differenceHandler);
@@ -1195,7 +1195,7 @@ QmlDesigner::PropertyName TextToModelMerger::syncScriptBinding(ModelNode &modelN
 {
     QString astPropertyName = toString(script->qualifiedId);
     if (!prefix.isEmpty())
-        astPropertyName.prepend(prefix + QLatin1Char('.'));
+        astPropertyName.prepend(prefix + '.');
 
     QString astValue;
     if (script->statement) {
@@ -1489,7 +1489,7 @@ QStringList TextToModelMerger::syncGroupedProperties(ModelNode &modelNode,
         AST::UiObjectMember *member = iter->member;
 
         if (AST::UiScriptBinding *script = AST::cast<AST::UiScriptBinding *>(member)) {
-            const QString prop = syncScriptBinding(modelNode, name, script, context, differenceHandler);
+            const QString prop = QString::fromLatin1(syncScriptBinding(modelNode, name, script, context, differenceHandler));
             if (!prop.isEmpty())
                 props.append(prop);
         }

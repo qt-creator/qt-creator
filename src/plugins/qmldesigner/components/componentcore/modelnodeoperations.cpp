@@ -627,11 +627,11 @@ static QStringList getSortedSignalNameList(const ModelNode &modelNode)
     if (metaInfo.isValid()) {
         foreach (const PropertyName &signalName, sortedPropertyNameList(metaInfo.signalNames()))
             if (!signalName.contains("Changed"))
-            signalNames.append(signalName);
+                signalNames.append(QString::fromUtf8(signalName));
 
         foreach (const PropertyName &propertyName, sortedPropertyNameList(metaInfo.propertyNames()))
             if (!propertyName.contains("."))
-                signalNames.append(propertyName + "Changed");
+                signalNames.append(QString::fromUtf8(propertyName + "Changed"));
     }
 
     return signalNames;

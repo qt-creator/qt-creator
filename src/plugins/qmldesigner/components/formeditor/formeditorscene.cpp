@@ -173,7 +173,7 @@ void FormEditorScene::synchronizeParent(const QmlItemNode &qmlItemNode)
     reparentItem(qmlItemNode, parentNode);
 }
 
-void FormEditorScene::synchronizeOtherProperty(const QmlItemNode &qmlItemNode, const QString &propertyName)
+void FormEditorScene::synchronizeOtherProperty(const QmlItemNode &qmlItemNode, const QByteArray &propertyName)
 {
     if (hasItemForQmlItemNode(qmlItemNode)) {
         FormEditorItem *item = itemForQmlItemNode(qmlItemNode);

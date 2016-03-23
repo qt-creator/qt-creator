@@ -96,7 +96,7 @@ static ModelNode resolveBinding(const QString &binding, ModelNode currentNode, A
     while (!element.isEmpty())
     {
         if (currentNode.isValid()) {
-            if (element == "parent") {
+            if (element == QLatin1String("parent")) {
                 if (currentNode.hasParentProperty())
                     currentNode = currentNode.parentProperty().toNodeAbstractProperty().parentModelNode();
                 else
@@ -200,7 +200,7 @@ bool BindingProperty::isAliasExport() const
     return parentModelNode() == parentModelNode().view()->rootModelNode()
             && isDynamic()
             && dynamicTypeName() == "alias"
-            && name() == expression()
+            && name() == expression().toUtf8()
             && parentModelNode().view()->modelNodeForId(expression()).isValid();
 }
 
