@@ -133,9 +133,9 @@ static QColor checkColorText(const QString &str)
 // looks backwards through a string for the opening brace of a function
 static int findOpeningBrace(const QString &s, int startIndex)
 {
-    QTC_ASSERT(startIndex >= 0 && startIndex < s.length(), return -1);
+    QTC_ASSERT(startIndex >= 0 && startIndex <= s.length(), return -1);
 
-    int index = startIndex;
+    int index = startIndex == s.length() ? startIndex - 1 : startIndex;
     while (index > 0) {
         const QChar c = s[index];
         if (c == QLatin1Char('(') || c == QLatin1Char('{'))
@@ -149,9 +149,9 @@ static int findOpeningBrace(const QString &s, int startIndex)
 
 static int findClosingBrace(const QString &s, int startIndex)
 {
-    QTC_ASSERT(startIndex >= 0 && startIndex < s.length(), return -1);
+    QTC_ASSERT(startIndex >= 0 && startIndex <= s.length(), return -1);
 
-    int index = startIndex;
+    int index = startIndex == s.length() ? startIndex - 1 : startIndex;
     const int len = s.length();
     while (index < len) {
         const QChar c = s[index];
@@ -167,9 +167,9 @@ static int findClosingBrace(const QString &s, int startIndex)
 // returns the index of the first character of the func, or negative if not valid
 static int findFuncStart(const QString &s, int startIndex)
 {
-    QTC_ASSERT(startIndex >= 0 && startIndex < s.length(), return -1);
+    QTC_ASSERT(startIndex >= 0 && startIndex <= s.length(), return -1);
 
-    int index = startIndex;
+    int index = startIndex == s.length() ? startIndex - 1 : startIndex;
     while (index >= 0) {
         const QChar c = s[index];
         if (!c.isLetterOrNumber()) {
