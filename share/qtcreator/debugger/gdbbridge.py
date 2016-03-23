@@ -168,12 +168,14 @@ class PlainDumper:
         self.typeCache = {}
 
     def __call__(self, d, value):
-        printer = self.printer.invoke(value)
+        printer = self.printer.gen_printer(value)
         lister = getattr(printer, "children", None)
         children = [] if lister is None else list(lister())
         d.putType(self.printer.name)
         val = printer.to_string()
         if isinstance(val, str):
+            d.putValue(val)
+        elif sys.version_info[0] <= 2 and isinstance(val, unicode):
             d.putValue(val)
         else: # Assuming LazyString
             d.putCharArrayHelper(val.address, val.length, val.type.sizeof)
