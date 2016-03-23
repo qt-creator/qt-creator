@@ -391,7 +391,7 @@ void DebuggerRunControlCreator::enrich(const RunConfiguration *runConfig, const 
         return;
     }
 
-    m_rp.macroExpander = m_kit->macroExpander();
+    m_rp.macroExpander = kit->macroExpander();
 
     if (m_runConfig) {
         if (auto envAspect = m_runConfig->extraAspect<EnvironmentAspect>()) {
