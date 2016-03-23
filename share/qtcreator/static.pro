@@ -1,8 +1,11 @@
 TEMPLATE = aux
 
-STATIC_BASE = $$PWD
+include(../../qtcreator.pri)
 
-# files/folders that are conditionally "deployed" to the build directory
+STATIC_BASE = $$PWD
+STATIC_OUTPUT_BASE = $$IDE_DATA_PATH
+STATIC_INSTALL_BASE = $$INSTALL_DATA_PATH
+
 DATA_DIRS = \
     welcomescreen \
     examplebrowser \
@@ -32,49 +35,3 @@ for(data_dir, DATA_DIRS) {
 }
 
 include(../../qtcreatordata.pri)
-
-SRCRESOURCEDIR = $$IDE_SOURCE_TREE/src/share/qtcreator/
-defineReplace(stripSrcResourceDir) {
-    win32 {
-        !contains(1, ^.:.*):1 = $$OUT_PWD/$$1
-    } else {
-        !contains(1, ^/.*):1 = $$OUT_PWD/$$1
-    }
-    out = $$clean_path($$1)
-    out ~= s|^$$re_escape($$SRCRESOURCEDIR)||$$i_flag
-    return($$out)
-}
-
-# files that are to be unconditionally "deployed" to the build dir from src/share to share
-DATA_DIRS = \
-    externaltools
-DATA_FILES_SRC = \
-    externaltools/lrelease.xml \
-    externaltools/lupdate.xml \
-    externaltools/sort.xml \
-    externaltools/qmlviewer.xml \
-    externaltools/qmlscene.xml
-unix {
-    macx:DATA_FILES_SRC += externaltools/vi_mac.xml
-    else:DATA_FILES_SRC += externaltools/vi.xml
-} else {
-    DATA_FILES_SRC += externaltools/notepad_win.xml
-}
-for(file, DATA_FILES_SRC):DATA_FILES += $${SRCRESOURCEDIR}$$file
-unconditionalCopy2build.input = DATA_FILES
-unconditionalCopy2build.output = $$IDE_DATA_PATH/${QMAKE_FUNC_FILE_IN_stripSrcResourceDir}
-isEmpty(vcproj):unconditionalCopy2build.variable_out = PRE_TARGETDEPS
-win32:unconditionalCopy2build.commands = $$QMAKE_COPY \"${QMAKE_FILE_IN}\" \"${QMAKE_FILE_OUT}\"
-unix:unconditionalCopy2build.commands = $$QMAKE_COPY ${QMAKE_FILE_IN} ${QMAKE_FILE_OUT}
-unconditionalCopy2build.name = COPY ${QMAKE_FILE_IN}
-unconditionalCopy2build.CONFIG += no_link
-QMAKE_EXTRA_COMPILERS += unconditionalCopy2build
-
-!macx {
-    for(data_dir, DATA_DIRS) {
-        $${data_dir}.files = $$IDE_DATA_PATH/$$data_dir
-        $${data_dir}.path = $$INSTALL_DATA_PATH
-        $${data_dir}.CONFIG += no_check_exist
-        INSTALLS += $$data_dir
-    }
-}
