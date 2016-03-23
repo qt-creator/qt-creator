@@ -1,25 +1,4 @@
-TEMPLATE = app
-TARGET = phony_target
-CONFIG -= qt sdk separate_debug_info gdb_dwarf_index
-QT =
-LIBS =
-macx:CONFIG -= app_bundle
-
-isEmpty(vcproj) {
-    QMAKE_LINK = @: IGNORE THIS LINE
-    OBJECTS_DIR =
-    win32:CONFIG -= embed_manifest_exe
-} else {
-    CONFIG += console
-    PHONY_DEPS = .
-    phony_src.input = PHONY_DEPS
-    phony_src.output = phony.c
-    phony_src.variable_out = GENERATED_SOURCES
-    phony_src.commands = echo int main() { return 0; } > phony.c
-    phony_src.name = CREATE phony.c
-    phony_src.CONFIG += combine
-    QMAKE_EXTRA_COMPILERS += phony_src
-}
+TEMPLATE = aux
 
 STATIC_BASE = $$PWD
 
