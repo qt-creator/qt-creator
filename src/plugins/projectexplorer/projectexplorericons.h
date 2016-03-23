@@ -67,6 +67,11 @@ const Utils::Icon BUILDSTEP_DISABLE({
 const Utils::Icon BUILDSTEP_REMOVE({
         {QLatin1String(":/projectexplorer/images/buildstepremove.png"), Utils::Theme::PanelTextColorDark}}, Utils::Icon::Tint);
 
+const Utils::Icon DESKTOP_DEVICE({
+        {QLatin1String(":/projectexplorer/images/desktopdevice.png"), Utils::Theme::IconsBaseColor}});
+const Utils::Icon DESKTOP_DEVICE_SMALL({
+        {QLatin1String(":/projectexplorer/images/desktopdevicesmall.png"), Utils::Theme::PanelTextColorDark}}, Utils::Icon::Tint);
+
 const Utils::Icon RUN_SMALL({
         {QLatin1String(":/projectexplorer/images/run_small.png"), Utils::Theme::IconsRunColor}});
 const Utils::Icon STOP_SMALL({

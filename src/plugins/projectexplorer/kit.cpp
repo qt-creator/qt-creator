@@ -29,9 +29,11 @@
 #include "ioutputparser.h"
 #include "osparser.h"
 #include "projectexplorerconstants.h"
+#include "projectexplorericons.h"
 
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
+#include <utils/icon.h>
 #include <utils/macroexpander.h>
 #include <utils/qtcassert.h>
 
@@ -83,7 +85,7 @@ public:
             m_id = Id::fromString(QUuid::createUuid().toString());
 
         m_unexpandedDisplayName = QCoreApplication::translate("ProjectExplorer::Kit", "Unnamed");
-        m_iconPath = FileName::fromLatin1(":///DESKTOP///");
+        m_iconPath = FileName::fromLatin1(Constants::DESKTOP_DEVICE_ICON);
 
         m_macroExpander.setDisplayName(tr("Kit"));
         m_macroExpander.setAccumulating(true);
@@ -373,8 +375,12 @@ QIcon Kit::icon(const FileName &path)
 {
     if (path.isEmpty())
         return QIcon();
-    if (path == FileName::fromLatin1(":///DESKTOP///"))
-        return qApp->style()->standardIcon(QStyle::SP_ComputerIcon);
+
+    if (path == FileName::fromLatin1(Constants::DESKTOP_DEVICE_ICON))
+        return creatorTheme()->flag(Theme::FlatSideBarIcons)
+                ? Icon::combinedIcon({Icons::DESKTOP_DEVICE.icon(),
+                                      Icons::DESKTOP_DEVICE_SMALL.icon()})
+                : QApplication::style()->standardIcon(QStyle::SP_ComputerIcon);
 
     QFileInfo fi = path.toFileInfo();
     if (fi.isFile() && fi.isReadable())

@@ -74,8 +74,8 @@
     \uicontrol Analyze > \uicontrol {Clang Static Analyzer} on the menu bar. The
     Clang Static Analyzer starts automatically.
 
-    However, if you select \uicontrol Analyze in the mode selector to open the
-    \uicontrol Analyze mode and then select \uicontrol {Clang Static Analyzer},
+    However, if you select \uicontrol Debug in the mode selector to open the
+    \uicontrol Debug mode and then select \uicontrol {Clang Static Analyzer},
     you must start the Clang Static Analyzer by selecting the
     \inlineimage qtcreator-analyze-start-button.png
     (\uicontrol Start) button.

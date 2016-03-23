@@ -69,5 +69,9 @@
         <file>images/targetchangebutton@2x.png</file>
         <file>images/targetchangebutton2.png</file>
         <file>images/targetchangebutton2@2x.png</file>
+        <file>images/desktopdevice.png</file>
+        <file>images/desktopdevice@2x.png</file>
+        <file>images/desktopdevicesmall.png</file>
+        <file>images/desktopdevicesmall@2x.png</file>
     </qresource>
 </RCC>

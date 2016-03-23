@@ -93,14 +93,12 @@
             UI files.
 
         \li \uicontrol{\l{Debugging}{Debug}} mode for inspecting the state of your
-            application while debugging.
+            application while debugging and for using code analysis tools
+            to detect memory leaks and profile C++ or QML code.
 
         \li \uicontrol{\l{Specifying Build Settings}{Projects}} mode for configuring
             project building and execution. This mode is available when a
             project is open.
-
-        \li \uicontrol{\l{Analyzing Code}{Analyze}} mode for using code analysis tools
-            to detect memory leaks and profile C++ or QML code.
 
         \li \uicontrol{\l{Getting Help}{Help}} mode for viewing Qt documentation.
 
@@ -375,9 +373,6 @@
 
     \list
 
-        \li \uicontrol Analyzer - Errors encountered while running the
-            \l{Analyzing Code}{Valgrind code analysis tools}.
-
         \li \uicontrol {Build System} - Errors and warnings encountered during a
             build.
 
@@ -386,6 +381,9 @@
 
        \li \uicontrol{Debug Information} - Lists debug information packages that might
             be missing.
+
+        \li \uicontrol Debugger - Errors encountered while running the
+            \l{Analyzing Code}{Valgrind code analysis tools}.
 
        \li \uicontrol{Debugger Runtime} - Errors encountered when starting \QC. For
             example, information about missing DLLs.

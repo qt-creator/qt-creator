@@ -795,7 +795,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 
     // session menu
     ActionContainer *msession = ActionManager::createMenu(Constants::M_SESSION);
-    msession->menu()->setTitle(tr("Sessions"));
+    msession->menu()->setTitle(tr("S&essions"));
     msession->setOnAllDisabledBehavior(ActionContainer::Show);
     mfile->addMenu(msession, Core::Constants::G_FILE_OPEN);
     dd->m_sessionMenu = msession->menu();
