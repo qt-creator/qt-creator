@@ -486,41 +486,27 @@ bool DummyEngine::hasCapability(unsigned cap) const
 class DebugModeContext : public IContext
 {
 public:
-    DebugModeContext(DebuggerMainWindow *mainWindow) : m_mainWindow(mainWindow)
+    DebugModeContext(QWidget *modeWindow)
     {
         setContext(Context(CC::C_EDITORMANAGER));
+        setWidget(modeWindow);
         ICore::addContextObject(this);
     }
-
-    QWidget *widget() const override { return m_mainWindow->modeWindow(); }
-
-    DebuggerMainWindow *m_mainWindow;
 };
 
 class DebugMode : public IMode
 {
 public:
-    DebugMode(DebuggerMainWindow *mainWindow) : m_mainWindow(mainWindow)
+    DebugMode()
     {
         setObjectName(QLatin1String("DebugMode"));
         setContext(Context(C_DEBUGMODE, CC::C_NAVIGATION_PANE));
         setDisplayName(DebuggerPlugin::tr("Debug"));
         setIcon(Utils::Icon::modeIcon(Icons::MODE_DEBUGGER_CLASSIC,
                                       Icons::MODE_DEBUGGER_FLAT, Icons::MODE_DEBUGGER_FLAT_ACTIVE));
-//        setIcon(Utils::Icon::modeIcon(Icons::MODE_ANALYZE_CLASSIC,
-//                                      Icons::MODE_ANALYZE_FLAT, Icons::MODE_ANALYZE_FLAT_ACTIVE));
         setPriority(85);
         setId(MODE_DEBUG);
     }
-
-    QWidget *widget() const override { return m_mainWindow->modeWindow(); }
-
-    ~DebugMode()
-    {
-//        delete m_widget;
-    }
-
-    DebuggerMainWindow *m_mainWindow;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -924,7 +910,9 @@ public:
     void updateActiveLanguages();
 
 public:
-    DebuggerMainWindow *m_mainWindow = 0;
+    QPointer<DebuggerMainWindow> m_mainWindow;
+    QPointer<QWidget> m_modeWindow;
+    QPointer<DebugMode> m_mode;
 
     QHash<Id, ActionDescription> m_descriptions;
     ActionContainer *m_menu = 0;
@@ -1051,11 +1039,6 @@ DebuggerPluginPrivate::~DebuggerPluginPrivate()
 
     delete m_breakHandler;
     m_breakHandler = 0;
-
-//    delete m_debugMode;
-//    m_debugMode = 0;
-    delete m_mainWindow;
-    m_mainWindow = 0;
 }
 
 DebuggerEngine *DebuggerPluginPrivate::dummyEngine()
@@ -1748,13 +1731,16 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
     connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::settingsChanged,
         this, &DebuggerPluginPrivate::updateDebugWithoutDeployMenu);
 
+    m_mainWindow->finalizeSetup();
+
     // Debug mode setup
-    auto mode = new DebugMode(m_mainWindow);
+    m_mode = new DebugMode;
+    m_modeWindow = createModeWindow(m_mode, m_mainWindow, 0);
+    m_mode->setWidget(m_modeWindow);
 
     (void) new DebugModeContext(m_mainWindow);
-    m_mainWindow->finalizeSetup(mode);
 
-    m_plugin->addAutoReleasedObject(mode);
+    m_plugin->addObject(m_mode);
 
 
     connect(SessionManager::instance(), &SessionManager::startupProjectChanged,
@@ -3047,6 +3033,23 @@ void DebuggerPluginPrivate::aboutToShutdown()
     disconnect(SessionManager::instance(),
         SIGNAL(startupProjectChanged(ProjectExplorer::Project*)),
         this, 0);
+
+    m_mainWindow->saveCurrentPerspective();
+    delete m_mainWindow;
+    m_mainWindow = 0;
+
+    // removeObject leads to aboutToRemoveObject, which leads to
+    // ModeManager::aboutToRemove, which leads to the mode manager
+    // removing the mode's widget from the stackwidget
+    // (currently by index, but possibly the stackwidget resets the
+    // parent and stuff on the widget)
+    m_plugin->removeObject(m_mode);
+
+    delete m_modeWindow;
+    m_modeWindow = 0;
+
+    delete m_mode;
+    m_mode = 0;
 }
 
 void updateState(DebuggerEngine *engine)
@@ -3214,7 +3217,6 @@ IPlugin::ShutdownFlag DebuggerPlugin::aboutToShutdown()
 {
     removeObject(this);
     dd->aboutToShutdown();
-    dd->m_mainWindow->saveCurrentPerspective();
     return SynchronousShutdown;
 }
 

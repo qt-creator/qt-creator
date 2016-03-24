@@ -81,9 +81,22 @@ DebuggerMainWindow::~DebuggerMainWindow()
 {
     // as we have to setParent(0) on dock widget that are not selected,
     // we keep track of all and make sure we don't leak any
-    foreach (const DockPtr &ptr, m_dockWidgets) {
-        if (ptr)
-            delete ptr.data();
+    foreach (const Perspective &perspective, m_perspectiveForPerspectiveId) {
+        foreach (const Perspective::Operation &operation, perspective.operations()) {
+            if (operation.widget) {
+                // There are two possible states: Either addDockForWidget(widget) has
+                // been on operation.widget (e.g. when the perspective gets activated)
+                // for the first time, or not. In the first case we delete only the
+                // widget, in the second case its parent, which is the dock.
+                if (QWidget *parent = operation.widget->parentWidget()) {
+                    QTC_CHECK(qobject_cast<QDockWidget *>(parent));
+                    delete parent;
+                } else {
+                    // These are from perspectives that never
+                    delete operation.widget;
+                }
+            }
+        }
     }
 }
 
@@ -119,11 +132,6 @@ QDockWidget *DebuggerMainWindow::dockWidget(const QByteArray &dockId) const
     return m_dockForDockId.value(dockId);
 }
 
-QWidget *DebuggerMainWindow::modeWindow()
-{
-    return m_modeWindow;
-}
-
 void DebuggerMainWindow::resetCurrentPerspective()
 {
     loadPerspectiveHelper(m_currentPerspectiveId, false);
@@ -140,7 +148,7 @@ void DebuggerMainWindow::restorePerspective(const QByteArray &perspectiveId)
         m_perspectiveChooser->setCurrentIndex(index);
 }
 
-void DebuggerMainWindow::finalizeSetup(Core::IMode *mode, QWidget *central)
+void DebuggerMainWindow::finalizeSetup()
 {
     auto viewButton = new QToolButton;
     viewButton->setText(tr("Views"));
@@ -195,7 +203,10 @@ void DebuggerMainWindow::finalizeSetup(Core::IMode *mode, QWidget *central)
     m_toolbarDock = dock;
 
     addDockWidget(Qt::BottomDockWidgetArea, dock);
+}
 
+QWidget *createModeWindow(Core::IMode *mode, DebuggerMainWindow *mainWindow, QWidget *central)
+{
     if (!central)
         central = new EditorManagerPlaceHolder(mode);
 
@@ -225,7 +236,7 @@ void DebuggerMainWindow::finalizeSetup(Core::IMode *mode, QWidget *central)
 
     // Right-side window with editor, output etc.
     auto mainWindowSplitter = new MiniSplitter;
-    mainWindowSplitter->addWidget(this);
+    mainWindowSplitter->addWidget(mainWindow);
     mainWindowSplitter->addWidget(new OutputPanePlaceHolder(mode, mainWindowSplitter));
     auto outputPane = new OutputPanePlaceHolder(mode, mainWindowSplitter);
     outputPane->setObjectName(QLatin1String("DebuggerOutputPanePlaceHolder"));
@@ -242,9 +253,9 @@ void DebuggerMainWindow::finalizeSetup(Core::IMode *mode, QWidget *central)
     splitter->setStretchFactor(0, 0);
     splitter->setStretchFactor(1, 1);
     splitter->setObjectName(QLatin1String("DebugModeWidget"));
-    setCentralWidget(centralEditorWidget);
+    mainWindow->setCentralWidget(centralEditorWidget);
 
-    m_modeWindow  = splitter;
+    return splitter;
 }
 
 void DebuggerMainWindow::loadPerspectiveHelper(const QByteArray &perspectiveId, bool fromStoredSettings)
@@ -351,7 +362,6 @@ QDockWidget *DebuggerMainWindow::registerDockWidget(const QByteArray &dockId, QW
     QTC_ASSERT(!widget->objectName().isEmpty(), return 0);
     QDockWidget *dockWidget = addDockForWidget(widget);
     dockWidget->setParent(0);
-    m_dockWidgets.append(DebuggerMainWindow::DockPtr(dockWidget));
     m_dockForDockId[dockId] = dockWidget;
     return dockWidget;
 }

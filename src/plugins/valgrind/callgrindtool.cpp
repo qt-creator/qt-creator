@@ -503,7 +503,6 @@ CallgrindTool::CallgrindTool(QObject *parent)
 CallgrindTool::~CallgrindTool()
 {
     qDeleteAll(m_textMarks);
-    doClear(false);
 }
 
 void CallgrindTool::slotGoToOverview()
