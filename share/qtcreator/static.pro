@@ -22,7 +22,6 @@ DATA_DIRS = \
     qml \
     qml-type-descriptions \
     modeleditor \
-    generic-highlighter \
     glsl \
     cplusplus
 macx: DATA_DIRS += scripts

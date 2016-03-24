@@ -32,4 +32,5 @@ SUBDIRS += \
     app \
     plugins \
     tools \
-    share/qtcreator/data.pro
+    share/qtcreator/data.pro \
+    share/3rdparty/data.pro
