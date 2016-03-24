@@ -1787,7 +1787,7 @@ static void showInEditorHelper(const WatchItem *item, QTextStream &ts, int depth
 {
     const QChar tab = QLatin1Char('\t');
     const QChar nl = QLatin1Char('\n');
-    ts << QString(depth, tab) << item->name << tab << item->value << tab
+    ts << QString(depth, tab) << item->name << tab << displayValue(item) << tab
        << item->type << nl;
     foreach (const TreeItem *child, item->children())
         showInEditorHelper(static_cast<const WatchItem *>(child), ts, depth + 1);
