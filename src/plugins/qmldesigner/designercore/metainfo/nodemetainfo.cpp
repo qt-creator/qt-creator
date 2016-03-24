@@ -1009,7 +1009,7 @@ bool NodeMetaInfoPrivate::cleverCheckType(const TypeName &otherType) const
     if (convertedName.isEmpty())
         convertedName = qmlObjectValue->className();
 
-    return typeName == convertedName;
+    return typeName == convertedName.toUtf8();
 }
 
 QVariant::Type NodeMetaInfoPrivate::variantTypeId(const PropertyName &properyName) const

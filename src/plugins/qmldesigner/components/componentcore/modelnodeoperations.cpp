@@ -602,7 +602,7 @@ static void addSignal(const QString &typeName, const QString &itemId, const QStr
         signalHandlerName = itemId.toUtf8() + ".on" + toUpper(signalName).toUtf8();
 
     foreach (const ModelNode &modelNode, rewriterView.allModelNodes()) {
-        if (modelNode.type() == typeName) {
+        if (modelNode.type() == typeName.toUtf8()) {
             modelNode.signalHandlerProperty(signalHandlerName).setSource(QLatin1String("{\n}"));
         }
     }
