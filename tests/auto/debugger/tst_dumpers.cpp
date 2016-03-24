@@ -4293,6 +4293,82 @@ void tst_Dumpers::dumper_data()
                + Check("v.0", "[0]", "\"foo\"", "std::string");
 
 
+    QTest::newRow("StdValArray")
+            << Data("#include <valarray>\n"
+                    "#include <list>\n",
+
+                    "std::valarray<double> v0, v1 = { 1, 0, 2 };\n"
+                    "unused(&v0, &v1);\n\n"
+
+                    "std::valarray<int *> v2, v3 = { new int(1), 0, new int(2) };\n"
+                    "unused(&v2, &v3);\n\n"
+
+                    "std::valarray<int> v4 = { 1, 2, 3, 4 };\n"
+                    "unused(&v4);\n\n"
+
+                    "std::list<int> list;\n"
+                    "std::list<int> list1 = { 45 };\n"
+                    "std::valarray<std::list<int> *> v5 = {\n"
+                    "   new std::list<int>(list), 0,\n"
+                    "   new std::list<int>(list1), 0\n"
+                    "};\n"
+                    "unused(&v5);\n\n"
+
+                    "std::valarray<bool> b0;\n"
+                    "unused(&b0);\n\n"
+
+                    "std::valarray<bool> b1 = { true, false, false, true, false };\n"
+                    "unused(&b1);\n\n"
+
+                    "std::valarray<bool> b2(true, 65);\n"
+                    "unused(&b2);\n\n"
+
+                    "std::valarray<bool> b3(300);\n"
+                    "unused(&b3);\n")
+
+               + Cxx11Profile()
+
+               + Check("v0", "<0 items>", "std::valarray<double>")
+               + Check("v1", "<3 items>", "std::valarray<double>")
+               + Check("v1.0", "[0]", "1", "double")
+               + Check("v1.1", "[1]", "0", "double")
+               + Check("v1.2", "[2]", "2", "double")
+
+               + Check("v2", "<0 items>", "std::valarray<int*>")
+               + Check("v3", "<3 items>", "std::valarray<int*>")
+               + Check("v3.0", "[0]", "1", "int")
+               + Check("v3.1", "[1]", "0x0", "int *")
+               + Check("v3.2", "[2]", "2", "int")
+
+               + Check("v4", "<4 items>", "std::valarray<int>")
+               + Check("v4.0", "[0]", "1", "int")
+               + Check("v4.3", "[3]", "4", "int")
+
+               + Check("list1", "<1 items>", "std::list<int>")
+               + Check("list1.0", "[0]", "45", "int")
+               + Check("v5", "<4 items>", "std::valarray<std::list<int>*>")
+               + Check("v5.0", "[0]", "<0 items>", "std::list<int>")
+               + Check("v5.2", "[2]", "<1 items>", "std::list<int>")
+               + Check("v5.2.0", "[0]", "45", "int")
+               + Check("v5.3", "[3]", "0x0", "std::list<int> *")
+
+               + Check("b0", "<0 items>", "std::valarray<bool>")
+               + Check("b1", "<5 items>", "std::valarray<bool>")
+               + Check("b1.0", "[0]", "1", "bool")
+               + Check("b1.1", "[1]", "0", "bool")
+               + Check("b1.2", "[2]", "0", "bool")
+               + Check("b1.3", "[3]", "1", "bool")
+               + Check("b1.4", "[4]", "0", "bool")
+
+               + Check("b2", "<65 items>", "std::valarray<bool>")
+               + Check("b2.0", "[0]", "1", "bool")
+               + Check("b2.64", "[64]", "1", "bool")
+
+               + Check("b3", "<300 items>", "std::valarray<bool>")
+               + Check("b3.0", "[0]", "0", "bool")
+               + Check("b3.299", "[299]", "0", "bool");
+
+
     QTest::newRow("StdVector")
             << Data("#include <vector>\n"
                     "#include <list>\n",
