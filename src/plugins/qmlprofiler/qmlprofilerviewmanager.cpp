@@ -34,7 +34,6 @@
 
 #include <coreplugin/icore.h>
 #include <utils/qtcassert.h>
-#include <utils/fancymainwindow.h>
 #include <debugger/analyzer/analyzermanager.h>
 #include <extensionsystem/pluginmanager.h>
 
@@ -81,8 +80,6 @@ void QmlProfilerViewManager::createViews()
     QTC_ASSERT(d->profilerModelManager, return);
     QTC_ASSERT(d->profilerState, return);
 
-    //Utils::FancyMainWindow *mw = Debugger::mainWindow();
-
     d->traceView = new QmlProfilerTraceView(0, this, d->profilerModelManager);
     d->traceView->setWindowTitle(tr("Timeline"));
     connect(d->traceView, &QmlProfilerTraceView::gotoSourceLocation,
@@ -103,11 +100,6 @@ void QmlProfilerViewManager::createViews()
     if (d->eventsViewFactory)
         d->eventsViews.append(d->eventsViewFactory->create(0, d->profilerModelManager));
 
-    // Clear settings if the new views aren't there yet. Otherwise we get glitches
-    QSettings *settings = Core::ICore::settings();
-    settings->beginGroup(QLatin1String("AnalyzerViewSettings_") +
-                         QLatin1String(QmlProfiler::Constants::QmlProfilerPerspectiveId));
-
     foreach (QmlProfilerEventsView *view, d->eventsViews) {
         connect(view, &QmlProfilerEventsView::typeSelected,
                 this, &QmlProfilerViewManager::typeSelected);
@@ -122,14 +114,9 @@ void QmlProfilerViewManager::createViews()
         QByteArray dockId = view->objectName().toLatin1();
         perspective.addOperation({dockId, view, Constants::QmlProfilerTimelineDockId, Perspective::AddToTab});
         new QmlProfilerStateWidget(d->profilerState, d->profilerModelManager, view);
-
-//        if (!settings->contains(view->parent()->objectName())) // parent() is QDockWidget.
-//            settings->remove(QString());
     }
     perspective.addOperation({Constants::QmlProfilerTimelineDockId, 0, {}, Perspective::Raise});
     Debugger::registerPerspective(Constants::QmlProfilerPerspectiveId, perspective);
-
-    settings->endGroup();
 }
 
 bool QmlProfilerViewManager::hasValidSelection() const
