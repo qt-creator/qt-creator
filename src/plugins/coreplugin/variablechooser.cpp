@@ -245,7 +245,10 @@ VariableChooserPrivate::VariableChooserPrivate(VariableChooser *parent)
     : q(parent),
       m_lineEdit(0),
       m_textEdit(0),
-      m_plainTextEdit(0)
+      m_plainTextEdit(0),
+      m_iconButton(0),
+      m_variableTree(0),
+      m_variableDescription(0)
 {
     m_defaultDescription = VariableChooser::tr("Select a variable to insert.");
 
@@ -408,7 +411,8 @@ void VariableChooser::addSupportForChildWidgets(QWidget *parent, MacroExpander *
  */
 void VariableChooserPrivate::updateDescription(const QModelIndex &index)
 {
-    m_variableDescription->setText(m_model.data(index, Qt::ToolTipRole).toString());
+    if (m_variableDescription)
+        m_variableDescription->setText(m_model.data(index, Qt::ToolTipRole).toString());
 }
 
 /*!
