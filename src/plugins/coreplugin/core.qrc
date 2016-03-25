@@ -101,16 +101,6 @@
         <file>images/dark_fileicon.png</file>
         <file>images/dark_foldericon.png</file>
         <file>images/Desktop.png</file>
-        <file>images/run_overlay_small.png</file>
-        <file>images/run_overlay_small@2x.png</file>
-        <file>images/stop_overlay_small.png</file>
-        <file>images/stop_overlay_small@2x.png</file>
-        <file>images/debugger_overlay_small.png</file>
-        <file>images/debugger_overlay_small@2x.png</file>
-        <file>images/interrupt_overlay_small.png</file>
-        <file>images/interrupt_overlay_small@2x.png</file>
-        <file>images/continue_overlay_small.png</file>
-        <file>images/continue_overlay_small@2x.png</file>
         <file>images/zoom.png</file>
         <file>images/zoom@2x.png</file>
     </qresource>

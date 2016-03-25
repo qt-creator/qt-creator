@@ -2231,7 +2231,7 @@
          y="570" />
     </g>
     <g
-       id="src/plugins/coreplugin/images/run_overlay_small"
+       id="src/plugins/projectexplorer/images/run_overlay_small"
        transform="translate(-16,0)">
       <rect
          style="fill:#ffffff;fill-opacity:1;stroke:none"
@@ -2247,7 +2247,7 @@
          transform="matrix(1.3333333,0,0,1.125,-381.33331,283.75)" />
     </g>
     <g
-       id="src/plugins/coreplugin/images/stop_overlay_small"
+       id="src/plugins/debugger/images/stop_overlay_small"
        transform="translate(-16,0)">
       <rect
          style="fill:#ffffff;fill-opacity:1;stroke:none"
@@ -2265,7 +2265,7 @@
          style="fill:#000000;fill-opacity:1;stroke:none;stroke-width:1;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     </g>
     <g
-       id="src/plugins/coreplugin/images/interrupt_overlay_small"
+       id="src/plugins/debugger/images/interrupt_overlay_small"
        transform="translate(-16,0)">
       <rect
          style="fill:#ffffff;fill-opacity:1;stroke:none"
@@ -2290,7 +2290,7 @@
          y="575" />
     </g>
     <g
-       id="src/plugins/coreplugin/images/continue_overlay_small"
+       id="src/plugins/debugger/images/continue_overlay_small"
        transform="translate(16,0)">
       <rect
          id="rect4959-4-0-0-6-5"
@@ -2320,7 +2320,7 @@
          sodipodi:nodetypes="cccc" />
     </g>
     <g
-       id="src/plugins/coreplugin/images/debugger_overlay_small"
+       id="src/plugins/projectexplorer/images/debugger_overlay_small"
        transform="translate(16,0)">
       <rect
          style="fill:#ffffff;fill-opacity:1;stroke:none"

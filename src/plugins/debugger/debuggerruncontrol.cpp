@@ -43,6 +43,7 @@
 #include <projectexplorer/environmentaspect.h> // For the environment
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/projectexplorericons.h>
 #include <projectexplorer/runnables.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/taskhub.h>
@@ -54,7 +55,6 @@
 #include <utils/qtcprocess.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
-#include <coreplugin/coreicons.h>
 #include <qmldebug/qmldebugcommandlinearguments.h>
 
 #include <qtsupport/qtkitinformation.h>
@@ -111,7 +111,7 @@ DebuggerRunControl::DebuggerRunControl(RunConfiguration *runConfig, DebuggerEngi
       m_engine(engine),
       m_running(false)
 {
-    setIcon(Core::Icons::DEBUG_START_SMALL);
+    setIcon(ProjectExplorer::Icons::DEBUG_START_SMALL);
     connect(this, &RunControl::finished, this, &DebuggerRunControl::handleFinished);
 
     connect(engine, &DebuggerEngine::requestRemoteSetup,

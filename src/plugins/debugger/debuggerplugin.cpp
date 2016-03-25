@@ -1345,14 +1345,14 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
         this, &DebuggerPluginPrivate::updateWatchersHeader, Qt::QueuedConnection);
 
     auto act = m_continueAction = new QAction(tr("Continue"), this);
-    act->setIcon(Icon::combinedIcon({Core::Icons::DEBUG_CONTINUE_SMALL.icon(), continueSideBarIcon}));
+    act->setIcon(Icon::combinedIcon({Icons::DEBUG_CONTINUE_SMALL.icon(), continueSideBarIcon}));
     connect(act, &QAction::triggered, this, &DebuggerPluginPrivate::handleExecContinue);
 
     act = m_exitAction = new QAction(tr("Stop Debugger"), this);
-    act->setIcon(Core::Icons::DEBUG_EXIT_SMALL.icon());
+    act->setIcon(Icons::DEBUG_EXIT_SMALL.icon());
     connect(act, &QAction::triggered, this, &DebuggerPluginPrivate::handleExecExit);
 
-    auto interruptIcon = Icon::combinedIcon({Core::Icons::DEBUG_INTERRUPT_SMALL.icon(), interruptSideBarIcon});
+    auto interruptIcon = Icon::combinedIcon({Icons::DEBUG_INTERRUPT_SMALL.icon(), interruptSideBarIcon});
     act = m_interruptAction = new QAction(tr("Interrupt"), this);
     act->setIcon(interruptIcon);
     connect(act, &QAction::triggered, this, &DebuggerPluginPrivate::handleExecInterrupt);
@@ -1439,7 +1439,7 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
     act = m_startAction = new QAction(this);
     const QIcon sideBarIcon =
             Icon::sideBarIcon(ProjectExplorer::Icons::DEBUG_START, ProjectExplorer::Icons::DEBUG_START_FLAT);
-    const QIcon debuggerIcon = Icon::combinedIcon({Core::Icons::DEBUG_START_SMALL.icon(), sideBarIcon});
+    const QIcon debuggerIcon = Icon::combinedIcon({ProjectExplorer::Icons::DEBUG_START_SMALL.icon(), sideBarIcon});
     act->setIcon(debuggerIcon);
     act->setText(tr("Start Debugging"));
     connect(act, &QAction::triggered, [] { ProjectExplorerPlugin::runStartupProject(ProjectExplorer::Constants::DEBUG_RUN_MODE); });
@@ -3524,7 +3524,7 @@ void registerToolbar(const QByteArray &perspectiveId, const ToolbarDescription &
 QAction *createStartAction()
 {
     auto action = new QAction(DebuggerMainWindow::tr("Start"), DebuggerPlugin::instance());
-    action->setIcon(Debugger::Icons::ANALYZER_CONTROL_START.icon());
+    action->setIcon(Icons::ANALYZER_CONTROL_START.icon());
     action->setEnabled(true);
     return action;
 }

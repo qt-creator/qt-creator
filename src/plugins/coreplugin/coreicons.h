@@ -83,10 +83,6 @@ CORE_EXPORT extern const Utils::Icon ERROR_TASKBAR;
 CORE_EXPORT extern const Utils::Icon INFO;
 CORE_EXPORT extern const Utils::Icon INFO_TOOLBAR;
 CORE_EXPORT extern const Utils::Icon EXPAND;
-CORE_EXPORT extern const Utils::Icon DEBUG_START_SMALL;
-CORE_EXPORT extern const Utils::Icon DEBUG_EXIT_SMALL;
-CORE_EXPORT extern const Utils::Icon DEBUG_INTERRUPT_SMALL;
-CORE_EXPORT extern const Utils::Icon DEBUG_CONTINUE_SMALL;
 CORE_EXPORT extern const Utils::Icon ZOOM;
 CORE_EXPORT extern const Utils::Icon TOOLBAR_EXTENSION;
 
