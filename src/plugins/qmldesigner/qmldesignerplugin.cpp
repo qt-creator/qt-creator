@@ -81,7 +81,7 @@ QmlDesignerPlugin *QmlDesignerPlugin::m_instance = 0;
 
 static bool isInDesignerMode()
 {
-    return Core::ModeManager::currentMode() == Core::DesignMode::instance();
+    return Core::ModeManager::currentMode() == Core::Constants::MODE_DESIGN;
 }
 
 bool shouldAssertInException()
@@ -492,11 +492,11 @@ const DesignerActionManager &QmlDesignerPlugin::designerActionManager() const
 
 void QmlDesignerPlugin::switchTextDesign()
 {
-    if (Core::ModeManager::currentMode()->id() == Core::Constants::MODE_EDIT) {
+    if (Core::ModeManager::currentMode() == Core::Constants::MODE_EDIT) {
         Core::IEditor *editor = Core::EditorManager::currentEditor();
         if (checkIfEditorIsQtQuick(editor))
             Core::ModeManager::activateMode(Core::Constants::MODE_DESIGN);
-    } else if (Core::ModeManager::currentMode()->id() == Core::Constants::MODE_DESIGN) {
+    } else if (Core::ModeManager::currentMode() == Core::Constants::MODE_DESIGN) {
         Core::ModeManager::activateMode(Core::Constants::MODE_EDIT);
     }
 }

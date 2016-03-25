@@ -205,7 +205,7 @@ void DebuggerMainWindow::finalizeSetup()
     addDockWidget(Qt::BottomDockWidgetArea, dock);
 }
 
-QWidget *createModeWindow(Core::IMode *mode, DebuggerMainWindow *mainWindow, QWidget *central)
+QWidget *createModeWindow(const Core::Id &mode, DebuggerMainWindow *mainWindow, QWidget *central)
 {
     if (!central)
         central = new EditorManagerPlaceHolder(mode);

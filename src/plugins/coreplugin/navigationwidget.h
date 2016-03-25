@@ -38,7 +38,6 @@ QT_END_NAMESPACE
 
 namespace Core {
 class INavigationWidgetFactory;
-class IMode;
 class Command;
 class NavigationWidget;
 struct NavigationWidgetPrivate;
@@ -50,15 +49,15 @@ class CORE_EXPORT NavigationWidgetPlaceHolder : public QWidget
     friend class Core::NavigationWidget;
 
 public:
-    explicit NavigationWidgetPlaceHolder(IMode *mode, QWidget *parent = 0);
+    explicit NavigationWidgetPlaceHolder(Id mode, QWidget *parent = 0);
     virtual ~NavigationWidgetPlaceHolder();
     static NavigationWidgetPlaceHolder* current();
     void applyStoredSize(int width);
 
 private:
-    void currentModeAboutToChange(IMode *);
+    void currentModeAboutToChange(Id mode);
 
-    IMode *m_mode;
+    Id m_mode;
     static NavigationWidgetPlaceHolder* m_current;
 };
 

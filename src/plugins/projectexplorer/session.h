@@ -27,23 +27,14 @@
 
 #include "projectexplorer_export.h"
 
+#include <coreplugin/id.h>
+
 #include <utils/persistentsettings.h>
 
-#include <QHash>
 #include <QString>
 #include <QStringList>
-#include <QMap>
-#include <QFutureInterface>
 
-QT_BEGIN_NAMESPACE
-class QAbstractItemModel;
-class QTimer;
-QT_END_NAMESPACE
-
-namespace Core {
-class IMode;
-class IEditor;
-} // namespace Core
+namespace Core { class IEditor; }
 
 namespace ProjectExplorer {
 
@@ -148,7 +139,7 @@ signals:
     void dependencyChanged(ProjectExplorer::Project *a, ProjectExplorer::Project *b);
 
 private:
-    static void saveActiveMode(Core::IMode *mode);
+    static void saveActiveMode(Core::Id mode);
     void clearProjectFileCache();
     static void configureEditor(Core::IEditor *editor, const QString &fileName);
     static void markSessionFileDirty(bool makeDefaultVirginDirty = true);

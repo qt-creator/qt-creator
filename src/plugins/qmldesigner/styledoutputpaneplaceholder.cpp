@@ -33,7 +33,7 @@
 namespace QmlDesigner {
 namespace Internal {
 
-StyledOutputpanePlaceHolder::StyledOutputpanePlaceHolder(Core::IMode *mode, QSplitter *parent)
+StyledOutputpanePlaceHolder::StyledOutputpanePlaceHolder(Core::Id mode, QSplitter *parent)
     : Core::OutputPanePlaceHolder(mode, parent)
 {
     QByteArray sheet = Utils::FileReader::fetchQrc(":/qmldesigner/outputpane-style.css");

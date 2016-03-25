@@ -58,25 +58,25 @@ EditMode::EditMode() :
     m_rightSplitWidgetLayout->setMargin(0);
     QWidget *rightSplitWidget = new QWidget;
     rightSplitWidget->setLayout(m_rightSplitWidgetLayout);
-    auto editorPlaceHolder = new EditorManagerPlaceHolder(this);
+    auto editorPlaceHolder = new EditorManagerPlaceHolder(Constants::MODE_EDIT);
     m_rightSplitWidgetLayout->insertWidget(0, editorPlaceHolder);
 
     MiniSplitter *rightPaneSplitter = new MiniSplitter;
     rightPaneSplitter->insertWidget(0, rightSplitWidget);
-    rightPaneSplitter->insertWidget(1, new RightPanePlaceHolder(this));
+    rightPaneSplitter->insertWidget(1, new RightPanePlaceHolder(Constants::MODE_EDIT));
     rightPaneSplitter->setStretchFactor(0, 1);
     rightPaneSplitter->setStretchFactor(1, 0);
 
     MiniSplitter *splitter = new MiniSplitter;
     splitter->setOrientation(Qt::Vertical);
     splitter->insertWidget(0, rightPaneSplitter);
-    QWidget *outputPane = new OutputPanePlaceHolder(this, splitter);
+    QWidget *outputPane = new OutputPanePlaceHolder(Constants::MODE_EDIT, splitter);
     outputPane->setObjectName(QLatin1String("EditModeOutputPanePlaceHolder"));
     splitter->insertWidget(1, outputPane);
     splitter->setStretchFactor(0, 3);
     splitter->setStretchFactor(1, 0);
 
-    m_splitter->insertWidget(0, new NavigationWidgetPlaceHolder(this));
+    m_splitter->insertWidget(0, new NavigationWidgetPlaceHolder(Constants::MODE_EDIT));
     m_splitter->insertWidget(1, splitter);
     m_splitter->setStretchFactor(0, 0);
     m_splitter->setStretchFactor(1, 1);
@@ -100,9 +100,9 @@ EditMode::~EditMode()
     delete m_splitter;
 }
 
-void EditMode::grabEditorManager(IMode *mode)
+void EditMode::grabEditorManager(Id mode)
 {
-    if (mode != this)
+    if (mode != id())
         return;
 
     if (EditorManager::currentEditor())

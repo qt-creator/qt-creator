@@ -575,7 +575,7 @@ static Core::MiniSplitter *createCentralSplitter(const QList<WidgetInfo> &widget
     outputPlaceholderSplitter->setStretchFactor(1, 0);
     outputPlaceholderSplitter->setOrientation(Qt::Vertical);
 
-    StyledOutputpanePlaceHolder *outputPanePlaceholder = new StyledOutputpanePlaceHolder(Core::DesignMode::instance(), outputPlaceholderSplitter);
+    auto outputPanePlaceholder = new StyledOutputpanePlaceHolder(Core::Constants::MODE_DESIGN, outputPlaceholderSplitter);
 
     if (centralWidgetInfos.count() == 1)
         outputPlaceholderSplitter->addWidget(centralWidgetInfos.first().widget);

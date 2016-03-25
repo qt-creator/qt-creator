@@ -680,7 +680,7 @@ public:
     void activateDebugMode();
     void toggleBreakpointHelper();
     void toggleBreakpoint(const ContextData &location, const QString &tracePointMessage = QString());
-    void onModeChanged(IMode *mode);
+    void onModeChanged(Id mode);
     void updateDebugWithoutDeployMenu();
 
     void startAndDebugApplication();
@@ -1735,7 +1735,7 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
 
     // Debug mode setup
     m_mode = new DebugMode;
-    m_modeWindow = createModeWindow(m_mode, m_mainWindow, 0);
+    m_modeWindow = createModeWindow(Constants::MODE_DEBUG, m_mainWindow, 0);
     m_mode->setWidget(m_modeWindow);
 
     m_plugin->addAutoReleasedObject(new DebugModeContext(m_mainWindow));
@@ -2705,8 +2705,7 @@ void DebuggerPluginPrivate::dumpLog()
 /*! Activates the previous mode when the current mode is the debug mode. */
 void DebuggerPluginPrivate::activatePreviousMode()
 {
-    if (ModeManager::currentMode() == ModeManager::mode(MODE_DEBUG)
-            && m_previousMode.isValid()) {
+    if (ModeManager::currentMode() == MODE_DEBUG && m_previousMode.isValid()) {
         // If stopping the application also makes Qt Creator active (as the
         // "previously active application"), doing the switch synchronously
         // leads to funny effects with floating dock widgets
@@ -3320,13 +3319,13 @@ void DebuggerPluginPrivate::updateActiveLanguages()
 //    return QObject::eventFilter(obj, event);
 //}
 
-void DebuggerPluginPrivate::onModeChanged(IMode *mode)
+void DebuggerPluginPrivate::onModeChanged(Id mode)
 {
     // FIXME: This one gets always called, even if switching between modes
     //        different then the debugger mode. E.g. Welcome and Help mode and
     //        also on shutdown.
 
-    if (mode && mode->id() == MODE_DEBUG) {
+    if (mode == MODE_DEBUG) {
         if (IEditor *editor = EditorManager::currentEditor())
             editor->widget()->setFocus();
 
@@ -3362,7 +3361,7 @@ void DebuggerPluginPrivate::onModeChanged(IMode *mode)
 
 void saveModeToRestore()
 {
-    dd->m_previousMode = ModeManager::currentMode()->id();
+    dd->m_previousMode = ModeManager::currentMode();
 }
 
 } // namespace Internal

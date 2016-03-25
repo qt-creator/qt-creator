@@ -55,7 +55,7 @@ NavigationWidgetPlaceHolder* NavigationWidgetPlaceHolder::current()
     return m_current;
 }
 
-NavigationWidgetPlaceHolder::NavigationWidgetPlaceHolder(IMode *mode, QWidget *parent)
+NavigationWidgetPlaceHolder::NavigationWidgetPlaceHolder(Id mode, QWidget *parent)
     :QWidget(parent), m_mode(mode)
 {
     setLayout(new QVBoxLayout);
@@ -104,7 +104,7 @@ void NavigationWidgetPlaceHolder::applyStoredSize(int width)
 // m_current points to the current PlaceHolder, or zero if there
 // is no PlaceHolder in this mode
 // And that the parent of the NavigationWidget gets the correct parent
-void NavigationWidgetPlaceHolder::currentModeAboutToChange(IMode *mode)
+void NavigationWidgetPlaceHolder::currentModeAboutToChange(Id mode)
 {
     NavigationWidget *navigationWidget = NavigationWidget::instance();
 

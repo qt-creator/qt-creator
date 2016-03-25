@@ -177,13 +177,13 @@ SharedTools::WidgetHost *FormEditorStack::formWindowEditorForXmlEditor(const Cor
     return i != -1 ? m_formEditors.at(i).widgetHost : static_cast<SharedTools::WidgetHost *>(0);
 }
 
-void FormEditorStack::modeAboutToChange(Core::IMode *m)
+void FormEditorStack::modeAboutToChange(Core::Id mode)
 {
-    if (Designer::Constants::Internal::debug && m)
-        qDebug() << "FormEditorStack::modeAboutToChange"  << m->id().toString();
+    if (Designer::Constants::Internal::debug)
+        qDebug() << "FormEditorStack::modeAboutToChange"  << mode.toString();
 
     // Sync the editor when entering edit mode
-    if (m && m->id() == Core::Constants::MODE_EDIT)
+    if (mode == Core::Constants::MODE_EDIT)
         foreach (const EditorData &data, m_formEditors)
             data.formWindowEditor->formWindowFile()->syncXmlFromFormWindow();
 }

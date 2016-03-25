@@ -33,7 +33,7 @@ namespace Internal {
 class StyledOutputpanePlaceHolder : public Core::OutputPanePlaceHolder
 {
 public:
-    explicit StyledOutputpanePlaceHolder(Core::IMode *mode, QSplitter *parent = 0);
+    explicit StyledOutputpanePlaceHolder(Core::Id mode, QSplitter *parent = 0);
 
 protected:
     void childEvent(QChildEvent *event) override;;

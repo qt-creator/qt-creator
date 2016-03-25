@@ -121,7 +121,7 @@ using namespace Utils;
 
 //===================EditorManager=====================
 
-EditorManagerPlaceHolder::EditorManagerPlaceHolder(IMode *mode, QWidget *parent)
+EditorManagerPlaceHolder::EditorManagerPlaceHolder(Id mode, QWidget *parent)
     : QWidget(parent), m_mode(mode)
 {
     setLayout(new QVBoxLayout);
@@ -143,7 +143,7 @@ EditorManagerPlaceHolder::~EditorManagerPlaceHolder()
     }
 }
 
-void EditorManagerPlaceHolder::currentModeChanged(IMode *mode)
+void EditorManagerPlaceHolder::currentModeChanged(Id mode)
 {
     if (m_mode == mode) {
         QWidget *previousFocus = 0;

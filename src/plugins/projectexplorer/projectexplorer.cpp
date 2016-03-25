@@ -276,7 +276,7 @@ public:
 
     void slotUpdateRunActions();
 
-    void currentModeChanged(Core::IMode *mode, Core::IMode *oldMode);
+    void currentModeChanged(Core::Id mode, Core::Id oldMode);
 
     void updateWelcomePage();
 
@@ -1572,8 +1572,7 @@ void ProjectExplorerPluginPrivate::showSessionManager()
 
     updateActions();
 
-    IMode *welcomeMode = ModeManager::mode(Core::Constants::MODE_WELCOME);
-    if (ModeManager::currentMode() == welcomeMode)
+    if (ModeManager::currentMode() == Core::Constants::MODE_WELCOME)
         updateWelcomePage();
 }
 
@@ -1781,11 +1780,11 @@ void ProjectExplorerPluginPrivate::updateWelcomePage()
     m_welcomePage->reloadWelcomeScreenData();
 }
 
-void ProjectExplorerPluginPrivate::currentModeChanged(IMode *mode, IMode *oldMode)
+void ProjectExplorerPluginPrivate::currentModeChanged(Id mode, Id oldMode)
 {
-    if (oldMode && oldMode->id() == Constants::MODE_SESSION)
+    if (oldMode == Constants::MODE_SESSION)
         ICore::saveSettings();
-    if (mode && mode->id() == Core::Constants::MODE_WELCOME)
+    if (mode == Core::Constants::MODE_WELCOME)
         updateWelcomePage();
 }
 

@@ -434,7 +434,7 @@ void FormEditorData::fullInit()
     // 'Run' in 'Design' mode emits output.
     MiniSplitter *splitter = new MiniSplitter(Qt::Vertical);
     splitter->addWidget(m_editorWidget);
-    QWidget *outputPane = new OutputPanePlaceHolder(m_designMode, splitter);
+    QWidget *outputPane = new OutputPanePlaceHolder(m_designMode->id(), splitter);
     outputPane->setObjectName(QLatin1String("DesignerOutputPanePlaceHolder"));
     splitter->addWidget(outputPane);
     layout->addWidget(splitter);

@@ -36,9 +36,9 @@ namespace Core {
 
 class OutputPanePlaceHolderPrivate {
 public:
-    explicit OutputPanePlaceHolderPrivate(IMode *mode, QSplitter *parent);
+    explicit OutputPanePlaceHolderPrivate(Id mode, QSplitter *parent);
 
-    IMode *m_mode;
+    Id m_mode;
     QSplitter *m_splitter;
     int m_nonMaximizedSize = 0;
     bool m_isMaximized = false;
@@ -46,14 +46,14 @@ public:
     static OutputPanePlaceHolder* m_current;
 };
 
-OutputPanePlaceHolderPrivate::OutputPanePlaceHolderPrivate(IMode *mode, QSplitter *parent) :
+OutputPanePlaceHolderPrivate::OutputPanePlaceHolderPrivate(Id mode, QSplitter *parent) :
     m_mode(mode), m_splitter(parent)
 {
 }
 
 OutputPanePlaceHolder *OutputPanePlaceHolderPrivate::m_current = 0;
 
-OutputPanePlaceHolder::OutputPanePlaceHolder(IMode *mode, QSplitter* parent)
+OutputPanePlaceHolder::OutputPanePlaceHolder(Id mode, QSplitter *parent)
    : QWidget(parent), d(new OutputPanePlaceHolderPrivate(mode, parent))
 {
     setVisible(false);
@@ -83,7 +83,7 @@ OutputPanePlaceHolder::~OutputPanePlaceHolder()
     delete d;
 }
 
-void OutputPanePlaceHolder::currentModeChanged(IMode *mode)
+void OutputPanePlaceHolder::currentModeChanged(Id mode)
 {
     if (d->m_current == this) {
         d->m_current = 0;

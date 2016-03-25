@@ -40,7 +40,7 @@ class QComboBox;
 class QStackedWidget;
 QT_END_NAMESPACE
 
-namespace Core { class IMode; }
+namespace Core { class Id; }
 
 namespace Utils {
 
@@ -135,6 +135,6 @@ private:
     QHash<QByteArray, Perspective> m_perspectiveForPerspectiveId;
 };
 
-QWidget *createModeWindow(Core::IMode *mode, DebuggerMainWindow *mainWindow, QWidget *central);
+QWidget *createModeWindow(const Core::Id &mode, DebuggerMainWindow *mainWindow, QWidget *central);
 
 } // Utils

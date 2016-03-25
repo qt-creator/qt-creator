@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include "core_global.h"
+#include "id.h"
 
 #include <QWidget>
 
@@ -35,9 +35,6 @@ QT_END_NAMESPACE
 
 namespace Core {
 
-class IMode;
-
-namespace Internal { class OutputPaneManager; }
 class OutputPanePlaceHolderPrivate;
 
 class CORE_EXPORT OutputPanePlaceHolder : public QWidget
@@ -45,7 +42,7 @@ class CORE_EXPORT OutputPanePlaceHolder : public QWidget
     Q_OBJECT
 
 public:
-    explicit OutputPanePlaceHolder(IMode *mode, QSplitter *parent = 0);
+    explicit OutputPanePlaceHolder(Id mode, QSplitter *parent = 0);
     ~OutputPanePlaceHolder();
 
     static OutputPanePlaceHolder *getCurrent();
@@ -62,7 +59,7 @@ protected:
 
 private:
     void setHeight(int height);
-    void currentModeChanged(IMode *);
+    void currentModeChanged(Id mode);
 
     OutputPanePlaceHolderPrivate *d;
 };

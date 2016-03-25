@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include "core_global.h"
+#include "id.h"
 
 #include <QWidget>
 #include <QPointer>
@@ -45,14 +45,14 @@ class CORE_EXPORT RightPanePlaceHolder : public QWidget
     Q_OBJECT
 
 public:
-    explicit RightPanePlaceHolder(IMode *mode, QWidget *parent = 0);
+    explicit RightPanePlaceHolder(Id mode, QWidget *parent = 0);
     ~RightPanePlaceHolder();
     static RightPanePlaceHolder *current();
 
 private:
-    void currentModeChanged(IMode *);
+    void currentModeChanged(Id mode);
     void applyStoredSize(int width);
-    IMode *m_mode;
+    Id m_mode;
     static RightPanePlaceHolder* m_current;
 };
 

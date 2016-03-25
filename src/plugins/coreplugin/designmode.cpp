@@ -197,7 +197,7 @@ void DesignMode::currentEditorChanged(IEditor *editor)
 
     if (!mimeEditorAvailable) {
         setActiveContext(Context());
-        if (ModeManager::currentMode() == this)
+        if (ModeManager::currentMode() == id())
             ModeManager::activateMode(Constants::MODE_EDIT);
         setEnabled(false);
         d->m_currentEditor = 0;
@@ -217,11 +217,11 @@ void DesignMode::updateActions()
     emit actionsUpdated(d->m_currentEditor.data());
 }
 
-void DesignMode::updateContext(IMode *newMode, IMode *oldMode)
+void DesignMode::updateContext(Id newMode, Id oldMode)
 {
-    if (newMode == this)
+    if (newMode == id())
         ICore::addAdditionalContext(d->m_activeContext);
-    else if (oldMode == this)
+    else if (oldMode == id())
         ICore::removeAdditionalContext(d->m_activeContext);
 }
 
@@ -230,7 +230,7 @@ void DesignMode::setActiveContext(const Context &context)
     if (d->m_activeContext == context)
         return;
 
-    if (ModeManager::currentMode() == this)
+    if (ModeManager::currentMode() == id())
         ICore::updateAdditionalContexts(d->m_activeContext, context);
 
     d->m_activeContext = context;

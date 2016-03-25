@@ -45,7 +45,7 @@ RightPanePlaceHolder* RightPanePlaceHolder::current()
     return m_current;
 }
 
-RightPanePlaceHolder::RightPanePlaceHolder(IMode *mode, QWidget *parent)
+RightPanePlaceHolder::RightPanePlaceHolder(Id mode, QWidget *parent)
     :QWidget(parent), m_mode(mode)
 {
     setLayout(new QVBoxLayout);
@@ -92,7 +92,7 @@ void RightPanePlaceHolder::applyStoredSize(int width)
 // m_current points to the current PlaceHolder, or zero if there
 // is no PlaceHolder in this mode
 // And that the parent of the RightPaneWidget gets the correct parent
-void RightPanePlaceHolder::currentModeChanged(IMode *mode)
+void RightPanePlaceHolder::currentModeChanged(Id mode)
 {
     if (m_current == this) {
         m_current = 0;

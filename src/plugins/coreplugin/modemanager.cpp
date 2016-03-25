@@ -115,15 +115,15 @@ ModeManager::~ModeManager()
     m_instance = 0;
 }
 
-IMode *ModeManager::currentMode()
+Id ModeManager::currentMode()
 {
     int currentIndex = d->m_modeStack->currentIndex();
     if (currentIndex < 0)
         return 0;
-    return d->m_modes.at(currentIndex);
+    return d->m_modes.at(currentIndex)->id();
 }
 
-IMode *ModeManager::mode(Id id)
+static IMode *findMode(Id id)
 {
     const int index = indexOf(id);
     if (index >= 0)
@@ -205,7 +205,7 @@ void ModeManager::enabledStateChanged()
     d->m_modeStack->setTabEnabled(index, mode->isEnabled());
 
     // Make sure we leave any disabled mode to prevent possible crashes:
-    if (mode == currentMode() && !mode->isEnabled()) {
+    if (mode->id() == currentMode() && !mode->isEnabled()) {
         // This assumes that there is always at least one enabled mode.
         for (int i = 0; i < d->m_modes.count(); ++i) {
             if (d->m_modes.at(i) != mode &&
@@ -256,7 +256,7 @@ void ModeManager::currentTabAboutToChange(int index)
     if (index >= 0) {
         IMode *mode = d->m_modes.at(index);
         if (mode)
-            emit currentModeAboutToChange(mode);
+            emit currentModeAboutToChange(mode->id());
     }
 }
 
@@ -276,13 +276,13 @@ void ModeManager::currentTabChanged(int index)
         if (d->m_oldCurrent >= 0)
             oldMode = d->m_modes.at(d->m_oldCurrent);
         d->m_oldCurrent = index;
-        emit currentModeChanged(mode, oldMode);
+        emit currentModeChanged(mode ? mode->id() : Id(), oldMode ? oldMode->id() : Id());
     }
 }
 
 void ModeManager::setFocusToCurrentMode()
 {
-    IMode *mode = currentMode();
+    IMode *mode = findMode(currentMode());
     QTC_ASSERT(mode, return);
     QWidget *widget = mode->widget();
     if (widget) {

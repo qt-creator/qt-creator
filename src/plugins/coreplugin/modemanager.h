@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include <coreplugin/core_global.h>
+#include <coreplugin/id.h>
 #include <QObject>
 
 QT_BEGIN_NAMESPACE
@@ -33,9 +33,6 @@ class QAction;
 QT_END_NAMESPACE
 
 namespace Core {
-
-class Id;
-class IMode;
 
 namespace Internal {
     class MainWindow;
@@ -49,8 +46,7 @@ class CORE_EXPORT ModeManager : public QObject
 public:
     static ModeManager *instance();
 
-    static IMode *currentMode();
-    static IMode *mode(Id id);
+    static Id currentMode();
 
     static void addAction(QAction *action, int priority);
     static void addProjectSelector(QAction *action);
@@ -63,10 +59,10 @@ public slots:
     static void setModeSelectorVisible(bool visible);
 
 signals:
-    void currentModeAboutToChange(Core::IMode *mode);
+    void currentModeAboutToChange(Core::Id mode);
 
     // the default argument '=0' is important for connects without the oldMode argument.
-    void currentModeChanged(Core::IMode *mode, Core::IMode *oldMode = 0);
+    void currentModeChanged(Core::Id mode, Core::Id oldMode = Core::Id());
 
 private:
     explicit ModeManager(Internal::MainWindow *mainWindow, Internal::FancyTabWidget *modeStack);

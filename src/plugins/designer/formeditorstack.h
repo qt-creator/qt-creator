@@ -27,6 +27,8 @@
 
 #include "editordata.h"
 
+#include <coreplugin/id.h>
+
 #include <QStackedWidget>
 #include <QList>
 
@@ -35,10 +37,7 @@ class QDesignerFormWindowInterface;
 class QDesignerFormEditorInterface;
 QT_END_NAMESPACE
 
-namespace Core {
-    class IEditor;
-    class IMode;
-}
+namespace Core { class IEditor; }
 
 namespace Designer {
 namespace Internal {
@@ -68,7 +67,7 @@ public slots:
 
 private slots:
     void updateFormWindowSelectionHandles();
-    void modeAboutToChange(Core::IMode *);
+    void modeAboutToChange(Core::Id mode);
     void formSizeChanged(int w, int h);
 
 private:

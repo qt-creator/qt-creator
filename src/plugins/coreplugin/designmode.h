@@ -68,7 +68,7 @@ private:
     void updateActions();
 
     void currentEditorChanged(IEditor *editor);
-    void updateContext(IMode *newMode, IMode *oldMode);
+    void updateContext(Id newMode, Id oldMode);
     void setActiveContext(const Context &context);
 
     DesignModePrivate *d;
