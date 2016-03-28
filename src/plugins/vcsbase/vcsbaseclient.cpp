@@ -51,17 +51,6 @@
 #include <QVariant>
 #include <QProcessEnvironment>
 
-static void commandFinished(VcsBase::VcsBaseEditorWidget *editor, VcsBase::VcsCommand *cmd)
-{
-    if (!cmd->lastExecutionSuccess()) {
-        editor->reportCommandFinished(false, cmd->lastExecutionExitCode(), cmd->cookie());
-    } else if (cmd->cookie().type() == QVariant::Int) {
-        const int line = cmd->cookie().toInt();
-        if (line >= 0)
-            editor->gotoLine(line);
-    }
-}
-
 /*!
     \class VcsBase::VcsBaseClient
 
@@ -131,12 +120,8 @@ VcsCommand *VcsBaseClientImpl::createCommand(const QString &workingDirectory,
 {
     auto cmd = new VcsCommand(workingDirectory, processEnvironment());
     cmd->setDefaultTimeoutS(vcsTimeoutS());
-    if (editor) {
+    if (editor)
         editor->setCommand(cmd);
-        connect(editor, &QObject::destroyed, cmd, &VcsCommand::abort);
-        connect(cmd, &VcsCommand::finished,
-                editor, [editor, cmd]() { commandFinished(editor, cmd); });
-    }
     if (mode == VcsWindowOutputBind) {
         cmd->addFlags(VcsCommand::ShowStdOut);
         if (editor) // assume that the commands output is the important thing

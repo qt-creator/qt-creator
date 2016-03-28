@@ -1199,10 +1199,15 @@ DiffChunk VcsBaseEditorWidget::diffChunk(QTextCursor cursor) const
 void VcsBaseEditorWidget::reportCommandFinished(bool ok, int exitCode, const QVariant &data)
 {
     Q_UNUSED(exitCode);
-    Q_UNUSED(data);
 
-    if (!ok)
+    hideProgressIndicator();
+    if (!ok) {
         textDocument()->setPlainText(tr("Failed to retrieve data."));
+    } else if (data.type() == QVariant::Int) {
+        const int line = data.toInt();
+        if (line >= 0)
+            gotoLine(line);
+    }
 }
 
 const VcsBaseEditorParameters *VcsBaseEditor::findType(const VcsBaseEditorParameters *array,
@@ -1385,11 +1390,10 @@ void VcsBaseEditorWidget::setCommand(VcsCommand *command)
         hideProgressIndicator();
     }
     d->m_command = command;
-    if (d->m_command) {
+    if (command) {
         d->m_progressIndicator = new Utils::ProgressIndicator(Utils::ProgressIndicator::Large);
         d->m_progressIndicator->attachToWidget(this);
-        connect(d->m_command.data(), &VcsCommand::finished,
-                this, &VcsBaseEditorWidget::hideProgressIndicator);
+        connect(command, &VcsCommand::finished, this, &VcsBaseEditorWidget::reportCommandFinished);
         QTimer::singleShot(100, this, &VcsBaseEditorWidget::showProgressIndicator);
     }
 }
