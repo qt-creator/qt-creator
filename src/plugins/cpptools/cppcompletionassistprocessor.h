@@ -43,6 +43,8 @@ public:
 protected:
     void addSnippets();
 
+    static bool isDoxygenTagCompletionCharacter(const QChar &character);
+
     int m_positionForProposal;
     QList<TextEditor::AssistProposalItemInterface *> m_completions;
     QStringList m_preprocessorCompletions;

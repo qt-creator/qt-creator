@@ -322,6 +322,8 @@ int ClangCompletionAssistProcessor::startOfOperator(int positionInDocument,
         const Tokens &tokens = tokenize(tc.block().text(), BackwardsScanner::previousBlockState(tc.block()));
         const int tokenIdx = SimpleLexer::tokenBefore(tokens, qMax(0, tc.positionInBlock() - 1)); // get the token at the left of the cursor
         const Token tk = (tokenIdx == -1) ? Token() : tokens.at(tokenIdx);
+        const QChar characterBeforePositionInDocument
+                = m_interface->characterAt(positionInDocument - 1);
 
         if (*kind == T_DOXY_COMMENT && !(tk.is(T_DOXY_COMMENT) || tk.is(T_CPP_DOXY_COMMENT))) {
             *kind = T_EOF_SYMBOL;
@@ -329,7 +331,8 @@ int ClangCompletionAssistProcessor::startOfOperator(int positionInDocument,
         }
         // Don't complete in comments or strings, but still check for include completion
         else if (tk.is(T_COMMENT) || tk.is(T_CPP_COMMENT)
-                 || tk.is(T_CPP_DOXY_COMMENT) || tk.is(T_DOXY_COMMENT)
+                 || ((tk.is(T_CPP_DOXY_COMMENT) || tk.is(T_DOXY_COMMENT))
+                        && !isDoxygenTagCompletionCharacter(characterBeforePositionInDocument))
                  || (tk.isLiteral() && (*kind != T_STRING_LITERAL
                                      && *kind != T_ANGLE_STRING_LITERAL
                                      && *kind != T_SLASH))) {

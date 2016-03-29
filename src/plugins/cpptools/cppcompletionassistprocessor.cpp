@@ -70,4 +70,10 @@ void CppCompletionAssistProcessor::addSnippets()
     m_completions.append(m_snippetCollector.collect());
 }
 
+bool CppCompletionAssistProcessor::isDoxygenTagCompletionCharacter(const QChar &character)
+{
+    return character == QLatin1Char('\\')
+        || character == QLatin1Char('@') ;
+}
+
 } // namespace CppTools
