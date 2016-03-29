@@ -280,7 +280,6 @@ IAssistProposal *ClangCompletionAssistProcessor::startCompletionHelper()
     return 0;
 }
 
-// TODO: Extract duplicated logic from InternalCppCompletionAssistProcessor::startOfOperator
 int ClangCompletionAssistProcessor::startOfOperator(int positionInDocument,
                                                     unsigned *kind,
                                                     bool wantFunctionCall) const
@@ -291,99 +290,13 @@ int ClangCompletionAssistProcessor::startOfOperator(int positionInDocument,
                                                             wantFunctionCall);
 
     *kind = activationSequenceProcessor.completionKind();
-
     int start = activationSequenceProcessor.operatorStartPosition();
-    if (start != positionInDocument) {
-        QTextCursor tc(m_interface->textDocument());
-        tc.setPosition(positionInDocument);
 
-        // Include completion: make sure the quote character is the first one on the line
-        if (*kind == T_STRING_LITERAL) {
-            QTextCursor s = tc;
-            s.movePosition(QTextCursor::StartOfLine, QTextCursor::KeepAnchor);
-            QString sel = s.selectedText();
-            if (sel.indexOf(QLatin1Char('"')) < sel.length() - 1) {
-                *kind = T_EOF_SYMBOL;
-                start = positionInDocument;
-            }
-        }
-
-        if (*kind == T_COMMA) {
-            ExpressionUnderCursor expressionUnderCursor(m_interface->languageFeatures());
-            if (expressionUnderCursor.startOfFunctionCall(tc) == -1) {
-                *kind = T_EOF_SYMBOL;
-                start = positionInDocument;
-            }
-        }
-
-        SimpleLexer tokenize;
-        tokenize.setLanguageFeatures(m_interface->languageFeatures());
-        tokenize.setSkipComments(false);
-        const Tokens &tokens = tokenize(tc.block().text(), BackwardsScanner::previousBlockState(tc.block()));
-        const int tokenIdx = SimpleLexer::tokenBefore(tokens, qMax(0, tc.positionInBlock() - 1)); // get the token at the left of the cursor
-        const Token tk = (tokenIdx == -1) ? Token() : tokens.at(tokenIdx);
-        const QChar characterBeforePositionInDocument
-                = m_interface->characterAt(positionInDocument - 1);
-
-        if (*kind == T_DOXY_COMMENT && !(tk.is(T_DOXY_COMMENT) || tk.is(T_CPP_DOXY_COMMENT))) {
-            *kind = T_EOF_SYMBOL;
-            start = positionInDocument;
-        }
-        // Don't complete in comments or strings, but still check for include completion
-        else if (tk.is(T_COMMENT) || tk.is(T_CPP_COMMENT)
-                 || ((tk.is(T_CPP_DOXY_COMMENT) || tk.is(T_DOXY_COMMENT))
-                        && !isDoxygenTagCompletionCharacter(characterBeforePositionInDocument))
-                 || (tk.isLiteral() && (*kind != T_STRING_LITERAL
-                                     && *kind != T_ANGLE_STRING_LITERAL
-                                     && *kind != T_SLASH
-                                     && *kind != T_DOT))) {
-            *kind = T_EOF_SYMBOL;
-            start = positionInDocument;
-        // Include completion: can be triggered by slash, but only in a string
-        } else if (*kind == T_SLASH && (tk.isNot(T_STRING_LITERAL) && tk.isNot(T_ANGLE_STRING_LITERAL))) {
-            *kind = T_EOF_SYMBOL;
-            start = positionInDocument;
-        } else if (*kind == T_LPAREN) {
-            if (tokenIdx > 0) {
-                const Token &previousToken = tokens.at(tokenIdx - 1); // look at the token at the left of T_LPAREN
-                switch (previousToken.kind()) {
-                case T_IDENTIFIER:
-                case T_GREATER:
-                case T_SIGNAL:
-                case T_SLOT:
-                    break; // good
-
-                default:
-                    // that's a bad token :)
-                    *kind = T_EOF_SYMBOL;
-                    start = positionInDocument;
-                }
-            }
-        }
-        // Check for include preprocessor directive
-        else if (*kind == T_STRING_LITERAL || *kind == T_ANGLE_STRING_LITERAL|| *kind == T_SLASH
-                 || (*kind == T_DOT && (tk.is(T_STRING_LITERAL) || tk.is(T_ANGLE_STRING_LITERAL)))) {
-            bool include = false;
-            if (tokens.size() >= 3) {
-                if (tokens.at(0).is(T_POUND) && tokens.at(1).is(T_IDENTIFIER) && (tokens.at(2).is(T_STRING_LITERAL) ||
-                                                                                  tokens.at(2).is(T_ANGLE_STRING_LITERAL))) {
-                    const Token &directiveToken = tokens.at(1);
-                    QString directive = tc.block().text().mid(directiveToken.utf16charsBegin(),
-                                                              directiveToken.utf16chars());
-                    if (directive == QLatin1String("include") ||
-                            directive == QLatin1String("include_next") ||
-                            directive == QLatin1String("import")) {
-                        include = true;
-                    }
-                }
-            }
-
-            if (!include) {
-                *kind = T_EOF_SYMBOL;
-                start = positionInDocument;
-            }
-        }
-    }
+    CppCompletionAssistProcessor::startOfOperator(m_interface->textDocument(),
+                                                  positionInDocument,
+                                                  kind,
+                                                  start,
+                                                  m_interface->languageFeatures());
 
     return start;
 }

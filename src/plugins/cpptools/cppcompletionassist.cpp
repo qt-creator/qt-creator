@@ -945,121 +945,31 @@ int InternalCppCompletionAssistProcessor::startOfOperator(int positionInDocument
                                                           unsigned *kind,
                                                           bool wantFunctionCall) const
 {
-    const QChar ch  = positionInDocument > -1
-            ? m_interface->characterAt(positionInDocument - 1)
-            : QChar();
-    const QChar ch2 = positionInDocument >  0
-            ? m_interface->characterAt(positionInDocument - 2)
-            : QChar();
-    const QChar ch3 = positionInDocument >  1
-            ? m_interface->characterAt(positionInDocument - 3)
-            : QChar();
+    const QChar ch  = m_interface->characterAt(positionInDocument - 1);
+    const QChar ch2 = m_interface->characterAt(positionInDocument - 2);
+    const QChar ch3 = m_interface->characterAt(positionInDocument - 3);
 
-    int start = positionInDocument - CppCompletionAssistProvider::activationSequenceChar(ch, ch2, ch3, kind,
-        wantFunctionCall, /*wantQt5SignalSlots*/ true);
-    if (start != positionInDocument) {
-        QTextCursor tc(m_interface->textDocument());
-        tc.setPosition(positionInDocument);
+    int start = positionInDocument
+                 - CppCompletionAssistProvider::activationSequenceChar(ch, ch2, ch3, kind,
+                                                                       wantFunctionCall,
+                                                                       /*wantQt5SignalSlots*/ true);
 
-        // Include completion: make sure the quote character is the first one on the line
-        if (*kind == T_STRING_LITERAL) {
-            QTextCursor s = tc;
-            s.movePosition(QTextCursor::StartOfLine, QTextCursor::KeepAnchor);
-            QString sel = s.selectedText();
-            if (sel.indexOf(QLatin1Char('"')) < sel.length() - 1) {
-                *kind = T_EOF_SYMBOL;
-                start = positionInDocument;
-            }
-        }
+    const auto dotAtIncludeCompletionHandler = [this](int &start, unsigned *kind) {
+            start = findStartOfName(start);
+            const QChar ch4 = m_interface->characterAt(start - 1);
+            const QChar ch5 = m_interface->characterAt(start - 2);
+            const QChar ch6 = m_interface->characterAt(start - 3);
+            start = start - CppCompletionAssistProvider::activationSequenceChar(
+                                ch4, ch5, ch6, kind, false, false);
+    };
 
-        if (*kind == T_COMMA) {
-            ExpressionUnderCursor expressionUnderCursor(m_interface->languageFeatures());
-            if (expressionUnderCursor.startOfFunctionCall(tc) == -1) {
-                *kind = T_EOF_SYMBOL;
-                start = positionInDocument;
-            }
-        }
-
-        SimpleLexer tokenize;
-        tokenize.setLanguageFeatures(m_interface->languageFeatures());
-        tokenize.setSkipComments(false);
-        const Tokens &tokens = tokenize(tc.block().text(), BackwardsScanner::previousBlockState(tc.block()));
-        const int tokenIdx = SimpleLexer::tokenBefore(tokens, qMax(0, tc.positionInBlock() - 1)); // get the token at the left of the cursor
-        const Token tk = (tokenIdx == -1) ? Token() : tokens.at(tokenIdx);
-
-        if (*kind == T_AMPER && tokenIdx > 0) {
-            const Token &previousToken = tokens.at(tokenIdx - 1);
-            if (previousToken.kind() == T_COMMA)
-                start = positionInDocument - (tk.utf16charOffset - previousToken.utf16charOffset) - 1;
-        } else if (*kind == T_DOXY_COMMENT && !(tk.is(T_DOXY_COMMENT) || tk.is(T_CPP_DOXY_COMMENT))) {
-            *kind = T_EOF_SYMBOL;
-            start = positionInDocument;
-        }
-        // Don't complete in comments or strings, but still check for include completion
-        else if (tk.is(T_COMMENT) || tk.is(T_CPP_COMMENT)
-                 || ((tk.is(T_CPP_DOXY_COMMENT) || tk.is(T_DOXY_COMMENT))
-                        && !isDoxygenTagCompletionCharacter(ch))
-                 || (tk.isLiteral() && (*kind != T_STRING_LITERAL
-                                     && *kind != T_ANGLE_STRING_LITERAL
-                                     && *kind != T_SLASH
-                                     && *kind != T_DOT))) {
-            *kind = T_EOF_SYMBOL;
-            start = positionInDocument;
-        // Include completion: can be triggered by slash, but only in a string
-        } else if (*kind == T_SLASH && (tk.isNot(T_STRING_LITERAL) && tk.isNot(T_ANGLE_STRING_LITERAL))) {
-            *kind = T_EOF_SYMBOL;
-            start = positionInDocument;
-        } else if (*kind == T_LPAREN) {
-            if (tokenIdx > 0) {
-                const Token &previousToken = tokens.at(tokenIdx - 1); // look at the token at the left of T_LPAREN
-                switch (previousToken.kind()) {
-                case T_IDENTIFIER:
-                case T_GREATER:
-                case T_SIGNAL:
-                case T_SLOT:
-                    break; // good
-
-                default:
-                    // that's a bad token :)
-                    *kind = T_EOF_SYMBOL;
-                    start = positionInDocument;
-                }
-            }
-        }
-        // Check for include preprocessor directive
-        else if (*kind == T_STRING_LITERAL || *kind == T_ANGLE_STRING_LITERAL|| *kind == T_SLASH
-                 || (*kind == T_DOT && (tk.is(T_STRING_LITERAL) || tk.is(T_ANGLE_STRING_LITERAL)))) {
-            bool include = false;
-            if (tokens.size() >= 3) {
-                if (tokens.at(0).is(T_POUND) && tokens.at(1).is(T_IDENTIFIER) && (tokens.at(2).is(T_STRING_LITERAL) ||
-                                                                                  tokens.at(2).is(T_ANGLE_STRING_LITERAL))) {
-                    const Token &directiveToken = tokens.at(1);
-                    QString directive = tc.block().text().mid(directiveToken.utf16charsBegin(),
-                                                              directiveToken.utf16chars());
-                    if (directive == QLatin1String("include") ||
-                            directive == QLatin1String("include_next") ||
-                            directive == QLatin1String("import")) {
-                        include = true;
-                    }
-                }
-            }
-
-            if (!include) {
-                *kind = T_EOF_SYMBOL;
-                start = positionInDocument;
-            } else {
-                if (*kind == T_DOT) {
-                    start = findStartOfName(start);
-                    const QChar ch4  = start > -1 ? m_interface->characterAt(start - 1) : QChar();
-                    const QChar ch5 = start >  0 ? m_interface->characterAt(start - 2) : QChar();
-                    const QChar ch6 = start >  1 ? m_interface->characterAt(start - 3) : QChar();
-                    start = start - CppCompletionAssistProvider::activationSequenceChar(
-                                        ch4, ch5, ch6, kind, wantFunctionCall, false);
-                }
-            }
-        }
-    }
-
+    CppCompletionAssistProcessor::startOfOperator(m_interface->textDocument(),
+                                                  positionInDocument,
+                                                  kind,
+                                                  start,
+                                                  m_interface->languageFeatures(),
+                                                  /*adjustForQt5SignalSlotCompletion=*/ true,
+                                                  dotAtIncludeCompletionHandler);
     return start;
 }
 
