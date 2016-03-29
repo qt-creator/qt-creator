@@ -245,9 +245,9 @@ VariableChooserPrivate::VariableChooserPrivate(VariableChooser *parent)
     m_defaultDescription = VariableChooser::tr("Select a variable to insert.");
 
     m_variableTree = new VariableTreeView(q, this);
-    m_variableTree->setModel(&m_model);
-
     m_variableDescription = new QLabel(q);
+
+    m_variableTree->setModel(&m_model);
     m_variableDescription->setText(m_defaultDescription);
     m_variableDescription->setMinimumSize(QSize(0, 60));
     m_variableDescription->setAlignment(Qt::AlignLeft|Qt::AlignTop);
