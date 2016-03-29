@@ -106,10 +106,7 @@ def createAndSwitchToSession(toSession):
                               "window=%s}" % sessionInputDialog))
 
 def checkWelcomePage(sessionName, isCurrent=False):
-    if isQt54Build:
-        welcomePage = ":WelcomePageStyledBar.WelcomePage_QQuickView"
-    else:
-        welcomePage = ":Qt Creator.WelcomePage_QQuickWidget"
+    welcomePage = ":Qt Creator.WelcomePage_QQuickWidget"
     switchViewTo(ViewConstants.WELCOME)
     mouseClick(waitForObject("{container='%s' text='Projects' type='Button' "
                              "unnamed='1' visible='true'}" % welcomePage))

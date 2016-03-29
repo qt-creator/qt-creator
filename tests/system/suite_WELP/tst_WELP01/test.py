@@ -26,10 +26,7 @@
 source("../../shared/qtcreator.py")
 source("../../shared/suites_qtta.py")
 
-if isQt54Build:
-    welcomePage = ":WelcomePageStyledBar.WelcomePage_QQuickView"
-else:
-    welcomePage = ":Qt Creator.WelcomePage_QQuickWidget"
+welcomePage = ":Qt Creator.WelcomePage_QQuickWidget"
 gettingStartedText = getQmlItem("Button", welcomePage, False,
                                 "text='Get Started Now' id='gettingStartedButton'")
 
