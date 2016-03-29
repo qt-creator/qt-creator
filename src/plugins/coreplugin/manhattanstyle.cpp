@@ -666,11 +666,15 @@ void ManhattanStyle::drawControl(ControlElement element, const QStyleOption *opt
 
             if (act) {
                 // Fill|
-                QColor baseColor = StyleHelper::baseColor();
-                QLinearGradient grad(option->rect.topLeft(), option->rect.bottomLeft());
-                grad.setColorAt(0, baseColor.lighter(120));
-                grad.setColorAt(1, baseColor.lighter(130));
-                painter->fillRect(option->rect, grad);
+                if (creatorTheme()->flag(Theme::FlatMenuBar)) {
+                    painter->fillRect(option->rect, creatorTheme()->color(Theme::FancyToolButtonHoverColor));
+                } else {
+                    QColor baseColor = StyleHelper::baseColor();
+                    QLinearGradient grad(option->rect.topLeft(), option->rect.bottomLeft());
+                    grad.setColorAt(0, baseColor.lighter(120));
+                    grad.setColorAt(1, baseColor.lighter(130));
+                    painter->fillRect(option->rect, grad);
+                }
 
                 QPalette pal = mbi->palette;
                 uint alignment = Qt::AlignCenter | Qt::TextShowMnemonic | Qt::TextDontClip | Qt::TextSingleLine;
