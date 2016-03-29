@@ -280,7 +280,9 @@ CMakeConfig BuildDirManager::parsedConfiguration() const
     CMakeConfig result = parseConfiguration(cacheFile, &errorMessage);
     if (!errorMessage.isEmpty())
         emit errorOccured(errorMessage);
-    if (CMakeConfigItem::valueOf("CMAKE_HOME_DIRECTORY", result) != sourceDirectory().toString().toUtf8())
+    const Utils::FileName sourceOfBuildDir
+            = Utils::FileName::fromUtf8(CMakeConfigItem::valueOf("CMAKE_HOME_DIRECTORY", result));
+    if (sourceOfBuildDir != sourceDirectory()) // Use case-insensitive compare where appropriate
         emit errorOccured(tr("The build directory is not for %1").arg(sourceDirectory().toUserOutput()));
 
     return result;
