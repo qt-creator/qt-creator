@@ -625,11 +625,11 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="8"
-     inkscape:cx="93.473168"
-     inkscape:cy="23.946208"
+     inkscape:zoom="4"
+     inkscape:cx="407.31417"
+     inkscape:cy="170.08332"
      inkscape:document-units="px"
-     inkscape:current-layer="layer3"
+     inkscape:current-layer="g4718"
      showgrid="true"
      showguides="true"
      inkscape:guide-bbox="true"
@@ -2214,95 +2214,6 @@
          y="570" />
     </g>
     <g
-       id="src/plugins/projectexplorer/images/run_overlay_small"
-       transform="translate(-16,0)">
-      <rect
-         style="fill:#ffffff;fill-opacity:1;stroke:none"
-         x="425"
-         y="568"
-         width="16"
-         height="16"
-         id="rect4959-4-0" />
-      <polygon
-         style="fill:#000000;fill-opacity:1;stroke:none"
-         id="polygon4953-0-5"
-         points="610,266 616,262 610,258 "
-         transform="matrix(1.3333333,0,0,1.125,-381.33331,283.75)" />
-    </g>
-    <g
-       id="src/plugins/debugger/images/stop_overlay_small"
-       transform="translate(-16,0)">
-      <rect
-         style="fill:#ffffff;fill-opacity:1;stroke:none"
-         x="441"
-         y="568"
-         width="16"
-         height="16"
-         id="rect4959-4-0-0" />
-      <rect
-         y="575"
-         x="448"
-         height="8"
-         width="8"
-         id="rect6539"
-         style="fill:#000000;fill-opacity:1;stroke:none;stroke-width:1;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
-    </g>
-    <g
-       id="src/plugins/debugger/images/interrupt_overlay_small"
-       transform="translate(-16,0)">
-      <rect
-         style="fill:#ffffff;fill-opacity:1;stroke:none"
-         x="457"
-         y="568"
-         width="16"
-         height="16"
-         id="rect4959-4-0-0-6" />
-      <rect
-         style="fill:#000000;fill-opacity:1;stroke:none;stroke-width:1.5;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-         id="rect4608"
-         width="3"
-         height="8"
-         x="464"
-         y="575" />
-      <rect
-         style="fill:#000000;fill-opacity:1;stroke:none;stroke-width:1.5;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-         id="rect4610"
-         width="3"
-         height="8"
-         x="469"
-         y="575" />
-    </g>
-    <g
-       id="src/plugins/debugger/images/continue_overlay_small"
-       transform="translate(16,0)">
-      <rect
-         id="rect4959-4-0-0-6-5"
-         height="16"
-         width="16"
-         y="568"
-         x="441"
-         style="fill:#ffffff;fill-opacity:1;stroke:none" />
-      <path
-         style="fill:none;fill-opacity:1;stroke:#000000;stroke-width:2.35263491;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-         id="path5679"
-         sodipodi:type="arc"
-         sodipodi:cx="-450.5011"
-         sodipodi:cy="578.72314"
-         sodipodi:rx="3.3180437"
-         sodipodi:ry="3.556159"
-         sodipodi:start="2.3561945"
-         sodipodi:end="0.61086524"
-         d="m -452.84731,581.23773 a 3.3180437,3.556159 0 0 1 -0.13245,-4.87871 3.3180437,3.556159 0 0 1 4.53663,-0.42538 3.3180437,3.556159 0 0 1 0.66001,4.82923"
-         sodipodi:open="true"
-         transform="scale(-1,1)" />
-      <path
-         style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-         d="m 456.23301,581.60239 -5.2335,-3.09121 0,4.48882 z"
-         id="path5681"
-         inkscape:connector-curvature="0"
-         sodipodi:nodetypes="cccc" />
-    </g>
-    <g
        id="src/plugins/projectexplorer/images/debugger_overlay_small"
        transform="translate(16,0)">
       <rect
@@ -2314,25 +2225,33 @@
          id="rect4959-4" />
       <g
          id="g6659"
-         transform="translate(0,0.625)">
+         transform="translate(2,0.625)">
         <path
            id="asdfasdfasdf"
            inkscape:connector-curvature="0"
-           d="m 463.49975,569 c -0.678,0 -1.757,0.619 -2.071,1.453 l 2.071,1.164 2.07,-1.164 c -0.314,-0.834 -1.394,-1.453 -2.07,-1.453 z" />
+           d="m 466.5,575.875 c -1.2497,0 -1.25,1.125 -1.25,1.5 l 2.5,0 c 0,-0.375 -3e-4,-1.5 -1.25,-1.5 z"
+           sodipodi:nodetypes="zccz" />
         <path
            id="sdfgdsfgsdfg"
            inkscape:connector-curvature="0"
-           d="m 460.60937,571.96875 -1.625,-0.89063 -0.57812,1 1.71012,0.895 -0.22575,1.40188 -1.89062,0 0,1 1.89062,0 0.35388,1.14909 -1.53296,1.03206 0.67635,0.83906 1.34648,-0.86396 1.26563,0.84375 1,0 0,-4.54105 0,-1.639 -1.76475,-1.05013 z"
-           sodipodi:nodetypes="cccccccccccccccccc" />
+           d="m 463.27023,577.37502 -0.15225,1 1.36286,0 -0.24267,0.99998 -1.23817,0 0,1 1.23817,0 0.27709,1.00002 -1.39728,0 0.15225,1 1.13211,0 0.88226,-0.5 0.7154,0.49998 0,-4.5 -0.75,0 0,-0.5 z"
+           sodipodi:nodetypes="ccccccccccccccccc" />
         <use
            height="100%"
            width="100%"
-           transform="matrix(-1,0,0,1,927,0)"
+           transform="matrix(-1,0,0,1,933,0)"
            id="use6516"
            xlink:href="#sdfgdsfgsdfg"
            y="0"
            x="0" />
       </g>
+      <rect
+         style="opacity:1;fill:#808080;fill-opacity:1"
+         id="rect4816"
+         width="1"
+         height="4.5"
+         x="468"
+         y="578.5" />
     </g>
     <g
        id="src/plugins/debugger/analyzer/images/analyzer_overlay_small"
@@ -2347,8 +2266,9 @@
       <path
          inkscape:connector-curvature="0"
          id="rect4603-5"
-         d="m 474,570 0,10 10,0 0,-1 -9,0 0,-9 z m 2,0 0,2 8,0 0,-2 z m 0,3 0,2 6,0 0,-2 z m 0,3 0,2 4,0 0,-2 z"
-         style="fill:#000000;fill-opacity:1;stroke:none" />
+         d="m 481,576 0,7 7,0 0,-1 -6,0 0,-6 z m 2,0 0,1 5,0 0,-1 z m 0,2 0,1 3,0 0,-1 z m 0,2 0,1 1,0 0,-1 z"
+         style="fill:#000000;fill-opacity:1;stroke:none"
+         sodipodi:nodetypes="cccccccccccccccccccccc" />
     </g>
     <g
        transform="translate(185,368)"
@@ -3059,6 +2979,43 @@
            width="100%"
            height="100%" />
       </g>
+    </g>
+    <g
+       style="display:inline"
+       transform="translate(144,0)"
+       id="src/plugins/projectexplorer/images/continue_1_small">
+      <rect
+         style="fill:#ffffff;fill-opacity:1;stroke:none"
+         x="265"
+         y="568"
+         width="16"
+         height="16"
+         id="rect4810-6" />
+      <rect
+         style="opacity:1;fill:#000000;fill-opacity:1;stroke:none;stroke-width:2;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         id="rect4815-1"
+         width="4"
+         height="12"
+         x="267"
+         y="570" />
+    </g>
+    <g
+       style="display:inline"
+       transform="translate(160,0)"
+       id="src/plugins/projectexplorer/images/continue_2_small">
+      <rect
+         style="fill:#ffffff;fill-opacity:1;stroke:none"
+         x="265"
+         y="568"
+         width="16"
+         height="16"
+         id="rect4810-1" />
+      <path
+         style="opacity:1;fill:#000000;fill-opacity:1;stroke:none;stroke-width:2;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         d="m 274,570 6,6 -6,6 z"
+         id="rect4817-6"
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="cccc" />
     </g>
     <g
        id="src/plugins/help/images/home">
@@ -4022,57 +3979,34 @@
          width="24"
          height="24"
          id="rect5759-4-1" />
-      <path
-         style="fill:#000000;fill-opacity:1"
-         inkscape:connector-curvature="0"
-         d="m 758.5,52 c -1.016,0 -2.635,0.93 -3.105,2.18 l 3.105,1.746 3.105,-1.747 C 761.135,52.93 759.516,52 758.5,52 Z"
-         id="path6121-0" />
-      <path
-         style="fill:#000000;fill-opacity:1"
-         inkscape:connector-curvature="0"
-         d="m 753.115,56.408 -1.055,-1.055 c -0.194,-0.194 -0.513,-0.194 -0.707,0 l 0,0 c -0.194,0.194 -0.194,0.513 0,0.707 l 1.407,1.407 -0.636,2.543 -1.124,0 c -0.275,0 -0.5,0.226 -0.5,0.5 0,0.274 0.225,0.5 0.5,0.5 l 1.156,0 0.873,2.794 -1.156,1.156 c -0.193,0.193 -0.193,0.512 0,0.707 0.195,0.193 0.514,0.193 0.707,0 l 0.963,-0.963 2.707,1.806 1.75,0.49 0,-7.75 0,-2.458 -3.256,-1.832 -1.629,1.448 z"
-         id="path6123-6" />
-      <use
-         x="0"
-         y="0"
-         xlink:href="#path6123-6"
-         id="use4775"
-         transform="matrix(-1,0,0,1,1516.9862,0)"
-         width="100%"
-         height="100%" />
-    </g>
-    <g
-       style="display:inline"
-       transform="translate(-364,305)"
-       inkscape:export-ydpi="90"
-       inkscape:export-xdpi="90"
-       inkscape:export-filename="c:\Users\aportale\ownprojects\stuff\experiments\iconrecoloring\icon.png"
-       id="src/plugins/projectexplorer/images/debugger_run_mask">
-      <rect
-         inkscape:export-ydpi="90"
-         inkscape:export-xdpi="90"
-         inkscape:export-filename="c:\Users\aportale\ownprojects\stuff\experiments\iconrecoloring\icon.png"
-         id="rect6723-8"
-         height="24"
-         width="24"
-         y="50"
-         x="750"
-         style="display:inline;fill:#ffffff;fill-opacity:1" />
-      <polygon
-         inkscape:export-ydpi="90"
-         inkscape:export-xdpi="90"
-         inkscape:export-filename="c:\Users\aportale\ownprojects\stuff\experiments\iconrecoloring\icon.png"
-         id="polygon6717-3"
-         points="763,74 774,67 763,60 "
-         style="fill:#000000;fill-opacity:1"
-         transform="translate(-1,-1)" />
+      <g
+         id="g4881"
+         transform="translate(-4,2.999762)">
+        <path
+           d="m 769.50001,58.836563 c -0.65839,0 -1.70859,0.724548 -2.00602,1.694142 l 2.00602,1.345458 2.006,-1.345458 c -0.29742,-0.97021 -1.34763,-1.694142 -2.006,-1.694142 z"
+           id="path4874"
+           inkscape:connector-curvature="0" />
+        <path
+           sodipodi:nodetypes="cccccccccccccccc"
+           d="m 767.12627,61.068318 c -0.25633,0.152637 -0.64848,0.411162 -1.25704,1.062795 l -1.53472,-1.238122 -0.75352,0.91144 1.76081,1.340958 C 765.1929,63.665163 764.94085,64.148012 764.875,65 l -1.875,0 0,1 1.875,0 c 0.13153,0.564121 0.25703,1.128242 0.58926,1.692363 l -1.66595,1.498516 0.73938,0.89637 1.61151,-1.446886 c 1.00647,0.777187 1.78541,1.06964 2.8508,1.139875 l 0,-7.354264 z"
+           id="path4872"
+           inkscape:connector-curvature="0" />
+        <use
+           x="0"
+           y="0"
+           xlink:href="#path4872"
+           id="use4876"
+           transform="matrix(-1,0,0,1,1539,0)"
+           width="100%"
+           height="100%" />
+      </g>
     </g>
     <g
        id="src/plugins/debugger/images/debugger_interrupt_mask"
        inkscape:export-filename="c:\Users\aportale\ownprojects\stuff\experiments\iconrecoloring\icon.png"
        inkscape:export-xdpi="90"
        inkscape:export-ydpi="90"
-       transform="translate(-340,305)"
+       transform="translate(-364,305)"
        style="display:inline">
       <rect
          style="display:inline;fill:#ffffff;fill-opacity:1"
@@ -4087,54 +4021,66 @@
       <rect
          style="display:inline;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1.5;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
          id="rect4608-0"
-         width="4"
-         height="12"
-         x="763"
-         y="61" />
+         width="7"
+         height="18"
+         x="753"
+         y="52" />
       <rect
          style="display:inline;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1.5;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
          id="rect4610-6"
-         width="4"
-         height="12"
-         x="769"
-         y="61" />
+         width="7"
+         height="18"
+         x="763"
+         y="52" />
     </g>
     <g
-       style="display:inline"
-       transform="translate(-316,305)"
-       inkscape:export-ydpi="90"
-       inkscape:export-xdpi="90"
+       id="src/plugins/debugger/images/debugger_continue_1_mask"
        inkscape:export-filename="c:\Users\aportale\ownprojects\stuff\experiments\iconrecoloring\icon.png"
-       id="src/plugins/debugger/images/debugger_continue_mask">
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90"
+       transform="translate(-340,305)"
+       style="display:inline">
       <rect
-         inkscape:export-ydpi="90"
-         inkscape:export-xdpi="90"
-         inkscape:export-filename="c:\Users\aportale\ownprojects\stuff\experiments\iconrecoloring\icon.png"
-         id="rect4797"
-         height="24"
-         width="24"
-         y="50"
+         style="display:inline;fill:#ffffff;fill-opacity:1"
          x="750"
-         style="display:inline;fill:#ffffff;fill-opacity:1" />
+         y="50"
+         width="24"
+         height="24"
+         id="rect4791-9"
+         inkscape:export-filename="c:\Users\aportale\ownprojects\stuff\experiments\iconrecoloring\icon.png"
+         inkscape:export-xdpi="90"
+         inkscape:export-ydpi="90" />
+      <rect
+         style="display:inline;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1.5;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         id="rect4608-0-4"
+         width="7"
+         height="18"
+         x="753"
+         y="52" />
+    </g>
+    <g
+       id="src/plugins/debugger/images/debugger_continue_2_mask"
+       inkscape:export-filename="c:\Users\aportale\ownprojects\stuff\experiments\iconrecoloring\icon.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90"
+       transform="translate(-316,305)"
+       style="display:inline">
+      <rect
+         style="display:inline;fill:#ffffff;fill-opacity:1"
+         x="750"
+         y="50"
+         width="24"
+         height="24"
+         id="rect4791-9-8"
+         inkscape:export-filename="c:\Users\aportale\ownprojects\stuff\experiments\iconrecoloring\icon.png"
+         inkscape:export-xdpi="90"
+         inkscape:export-ydpi="90" />
       <path
-         style="display:inline;fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-         d="m 772.5,72 -6.5,-6 0,6 z"
-         id="path5681-4"
+         style="display:inline;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1.5;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         d="m 763,52 9,9 -9,9 z"
+         id="rect4610-6-2-5"
          inkscape:connector-curvature="0"
          sodipodi:nodetypes="cccc" />
-      <path
-         style="opacity:1;fill:none;fill-opacity:1;stroke:#000000;stroke-width:3;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-         id="path4867"
-         sodipodi:type="arc"
-         sodipodi:cx="-765"
-         sodipodi:cy="65.99987"
-         sodipodi:rx="5.5"
-         sodipodi:ry="5.5"
-         sodipodi:start="2.1642083"
-         sodipodi:end="0"
-         sodipodi:open="true"
-         d="m -768.07556,70.559577 a 5.5,5.5 0 0 1 -1.99963,-6.679238 5.5,5.5 0 0 1 6.15603,-3.273221 5.5,5.5 0 0 1 4.41916,5.392752"
-         transform="scale(-1,1)" />
     </g>
     <g
        transform="translate(-392,305)"

@@ -32,8 +32,8 @@ namespace Debugger {
 namespace Icons {
 
 const Utils::Icon ANALYZER_CONTROL_START({
-        {QLatin1String(":/images/analyzer_overlay_small.png"), Utils::Theme::IconsBaseColor},
-        {QLatin1String(":/core/images/run_overlay_small.png"), Utils::Theme::IconsRunColor}});
+        {QLatin1String(":/projectexplorer/images/run_small.png"), Utils::Theme::IconsRunColor},
+        {QLatin1String(":/images/analyzer_overlay_small.png"), Utils::Theme::IconsBaseColor}});
 const Utils::Icon MODE_ANALYZE_CLASSIC(
         QLatin1String(":/images/mode_analyze.png"));
 const Utils::Icon MODE_ANALYZE_FLAT({

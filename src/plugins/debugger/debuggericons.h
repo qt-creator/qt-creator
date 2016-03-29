@@ -46,22 +46,24 @@ const Utils::Icon TRACEPOINT(
 const Utils::Icon CONTINUE(
         QLatin1String(":/debugger/images/debugger_continue.png"));
 const Utils::Icon CONTINUE_FLAT({
-        {QLatin1String(":/projectexplorer/images/debugger_beetle_mask.png"), Utils::Theme::IconsDebugColor},
-        {QLatin1String(":/debugger/images/debugger_continue_mask.png"), Utils::Theme::IconsRunColor}});
+        {QLatin1String(":/debugger/images/debugger_continue_1_mask.png"), Utils::Theme::IconsInterruptColor},
+        {QLatin1String(":/debugger/images/debugger_continue_2_mask.png"), Utils::Theme::IconsRunColor},
+        {QLatin1String(":/projectexplorer/images/debugger_beetle_mask.png"), Utils::Theme::IconsDebugColor}});
 const Utils::Icon DEBUG_CONTINUE_SMALL({
-        {QLatin1String(":/projectexplorer/images/debugger_overlay_small.png"), Utils::Theme::IconsDebugColor},
-        {QLatin1String(":/debugger/images/continue_overlay_small.png"), Utils::Theme::IconsRunColor}});
+        {QLatin1String(":/projectexplorer/images/continue_1_small.png"), Utils::Theme::IconsInterruptColor},
+        {QLatin1String(":/projectexplorer/images/continue_2_small.png"), Utils::Theme::IconsRunColor},
+        {QLatin1String(":/projectexplorer/images/debugger_overlay_small.png"), Utils::Theme::IconsDebugColor}});
 const Utils::Icon INTERRUPT(
         QLatin1String(":/debugger/images/debugger_interrupt.png"));
 const Utils::Icon INTERRUPT_FLAT({
-        {QLatin1String(":/projectexplorer/images/debugger_beetle_mask.png"), Utils::Theme::IconsDebugColor},
-        {QLatin1String(":/debugger/images/debugger_interrupt_mask.png"), Utils::Theme::IconsInterruptColor}});
+        {QLatin1String(":/debugger/images/debugger_interrupt_mask.png"), Utils::Theme::IconsInterruptColor},
+        {QLatin1String(":/projectexplorer/images/debugger_beetle_mask.png"), Utils::Theme::IconsDebugColor}});
 const Utils::Icon DEBUG_INTERRUPT_SMALL({
-        {QLatin1String(":/projectexplorer/images/debugger_overlay_small.png"), Utils::Theme::IconsDebugColor},
-        {QLatin1String(":/debugger/images/interrupt_overlay_small.png"), Utils::Theme::IconsInterruptColor}});
+        {QLatin1String(":/projectexplorer/images/interrupt_small.png"), Utils::Theme::IconsInterruptColor},
+        {QLatin1String(":/projectexplorer/images/debugger_overlay_small.png"), Utils::Theme::IconsDebugColor}});
 const Utils::Icon DEBUG_EXIT_SMALL({
-        {QLatin1String(":/projectexplorer/images/debugger_overlay_small.png"), Utils::Theme::IconsDebugColor},
-        {QLatin1String(":/debugger/images/stop_overlay_small.png"), Utils::Theme::IconsStopColor}});
+        {QLatin1String(":/projectexplorer/images/stop_small.png"), Utils::Theme::IconsStopColor},
+        {QLatin1String(":/projectexplorer/images/debugger_overlay_small.png"), Utils::Theme::IconsDebugColor}});
 const Utils::Icon LOCATION(
         QLatin1String(":/debugger/images/location_16.png"));
 const Utils::Icon SNAPSHOT(
