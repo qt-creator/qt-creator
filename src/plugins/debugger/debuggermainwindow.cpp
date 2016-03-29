@@ -79,20 +79,20 @@ DebuggerMainWindow::DebuggerMainWindow()
 
 DebuggerMainWindow::~DebuggerMainWindow()
 {
-    // as we have to setParent(0) on dock widget that are not selected,
-    // we keep track of all and make sure we don't leak any
+    // We keep track of widgets for operations that haven't been activated, yet, and make sure we
+    // don't leak any.
     foreach (const Perspective &perspective, m_perspectiveForPerspectiveId) {
         foreach (const Perspective::Operation &operation, perspective.operations()) {
             if (operation.widget) {
                 // There are two possible states: Either addDockForWidget(widget) has
-                // been on operation.widget (e.g. when the perspective gets activated)
-                // for the first time, or not. In the first case we delete only the
-                // widget, in the second case its parent, which is the dock.
-                if (QWidget *parent = operation.widget->parentWidget()) {
-                    QTC_CHECK(qobject_cast<QDockWidget *>(parent));
-                    delete parent;
-                } else {
-                    // These are from perspectives that never
+                // been called on an operation.widget (e.g. when the perspective gets
+                // activated for the first time), or not. In the first case we don't
+                // have to explicitly delete it as we have called setParent(this) on
+                // it. In the second case, if the widget didn't have a parent before,
+                // we have to delete it.
+                if (!operation.widget->parentWidget()) {
+                    // These are from perspectives that were never activated and didn't
+                    // have a parent to begin with.
                     delete operation.widget;
                 }
             }
@@ -265,10 +265,10 @@ void DebuggerMainWindow::loadPerspectiveHelper(const QByteArray &perspectiveId, 
         saveCurrentPerspective();
         foreach (QDockWidget *dockWidget, m_dockForDockId) {
             QTC_ASSERT(dockWidget, continue);
+            dockWidget->setFloating(false);
+            dockWidget->setParent(this);
             removeDockWidget(dockWidget);
             dockWidget->hide();
-            // Prevent saveState storing the data of the wrong children.
-            dockWidget->setParent(0);
         }
 
         ICore::removeAdditionalContext(Context(Id::fromName(m_currentPerspectiveId)));
@@ -361,7 +361,7 @@ QDockWidget *DebuggerMainWindow::registerDockWidget(const QByteArray &dockId, QW
 {
     QTC_ASSERT(!widget->objectName().isEmpty(), return 0);
     QDockWidget *dockWidget = addDockForWidget(widget);
-    dockWidget->setParent(0);
+    dockWidget->setParent(this);
     m_dockForDockId[dockId] = dockWidget;
     return dockWidget;
 }
