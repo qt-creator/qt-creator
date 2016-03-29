@@ -533,6 +533,8 @@ protected:
         if (ast->type == UiPublicMember::Property) {
             if (ast->isDefaultMember)
                 out("default ", ast->defaultToken);
+            else if (ast->isReadonlyMember)
+                out("readonly ", ast->readonlyToken);
             out("property ", ast->propertyToken);
             if (!ast->typeModifier.isNull()) {
                 out(ast->typeModifierToken);
