@@ -48,8 +48,6 @@ class QMAKEPROJECTMANAGER_EXPORT QmakeManager : public ProjectExplorer::IProject
     Q_OBJECT
 
 public:
-    ~QmakeManager();
-
     void registerProject(QmakeProject *project);
     void unregisterProject(QmakeProject *project);
     void notifyChanged(const Utils::FileName &name);
