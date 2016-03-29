@@ -66,6 +66,8 @@ public:
     static QColor sidebarHighlight() { return QColor(255, 255, 255, 40); }
     static QColor sidebarShadow() { return QColor(0, 0, 0, 40); }
 
+    static QColor toolBarDropShadowColor() { return QColor(0, 0, 0, 70); }
+
     static QColor notTooBrightHighlightColor();
 
     // Sets the base color and makes sure all top level widgets are updated

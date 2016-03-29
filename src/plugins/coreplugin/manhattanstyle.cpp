@@ -736,7 +736,7 @@ void ManhattanStyle::drawControl(ControlElement element, const QStyleOption *opt
                 if (creatorTheme()->flag(Theme::ComboBoxDrawTextShadow)
                     && (option->state & State_Enabled))
                 {
-                    painter->setPen(QColor(0, 0, 0, 70));
+                    painter->setPen(StyleHelper::toolBarDropShadowColor());
                     painter->drawText(editRect.adjusted(1, 0, -1, 0), Qt::AlignLeft | Qt::AlignVCenter, text);
                 }
                 if (!(option->state & State_Enabled))
