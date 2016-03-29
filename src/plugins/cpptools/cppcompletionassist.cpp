@@ -941,19 +941,25 @@ IAssistProposal *InternalCppCompletionAssistProcessor::createHintProposal(
     return proposal;
 }
 
-int InternalCppCompletionAssistProcessor::startOfOperator(int pos,
+int InternalCppCompletionAssistProcessor::startOfOperator(int positionInDocument,
                                                           unsigned *kind,
                                                           bool wantFunctionCall) const
 {
-    const QChar ch  = pos > -1 ? m_interface->characterAt(pos - 1) : QChar();
-    const QChar ch2 = pos >  0 ? m_interface->characterAt(pos - 2) : QChar();
-    const QChar ch3 = pos >  1 ? m_interface->characterAt(pos - 3) : QChar();
+    const QChar ch  = positionInDocument > -1
+            ? m_interface->characterAt(positionInDocument - 1)
+            : QChar();
+    const QChar ch2 = positionInDocument >  0
+            ? m_interface->characterAt(positionInDocument - 2)
+            : QChar();
+    const QChar ch3 = positionInDocument >  1
+            ? m_interface->characterAt(positionInDocument - 3)
+            : QChar();
 
-    int start = pos - CppCompletionAssistProvider::activationSequenceChar(ch, ch2, ch3, kind,
+    int start = positionInDocument - CppCompletionAssistProvider::activationSequenceChar(ch, ch2, ch3, kind,
         wantFunctionCall, /*wantQt5SignalSlots*/ true);
-    if (start != pos) {
+    if (start != positionInDocument) {
         QTextCursor tc(m_interface->textDocument());
-        tc.setPosition(pos);
+        tc.setPosition(positionInDocument);
 
         // Include completion: make sure the quote character is the first one on the line
         if (*kind == T_STRING_LITERAL) {
@@ -962,7 +968,7 @@ int InternalCppCompletionAssistProcessor::startOfOperator(int pos,
             QString sel = s.selectedText();
             if (sel.indexOf(QLatin1Char('"')) < sel.length() - 1) {
                 *kind = T_EOF_SYMBOL;
-                start = pos;
+                start = positionInDocument;
             }
         }
 
@@ -970,7 +976,7 @@ int InternalCppCompletionAssistProcessor::startOfOperator(int pos,
             ExpressionUnderCursor expressionUnderCursor(m_interface->languageFeatures());
             if (expressionUnderCursor.startOfFunctionCall(tc) == -1) {
                 *kind = T_EOF_SYMBOL;
-                start = pos;
+                start = positionInDocument;
             }
         }
 
@@ -984,10 +990,10 @@ int InternalCppCompletionAssistProcessor::startOfOperator(int pos,
         if (*kind == T_AMPER && tokenIdx > 0) {
             const Token &previousToken = tokens.at(tokenIdx - 1);
             if (previousToken.kind() == T_COMMA)
-                start = pos - (tk.utf16charOffset - previousToken.utf16charOffset) - 1;
+                start = positionInDocument - (tk.utf16charOffset - previousToken.utf16charOffset) - 1;
         } else if (*kind == T_DOXY_COMMENT && !(tk.is(T_DOXY_COMMENT) || tk.is(T_CPP_DOXY_COMMENT))) {
             *kind = T_EOF_SYMBOL;
-            start = pos;
+            start = positionInDocument;
         }
         // Don't complete in comments or strings, but still check for include completion
         else if (tk.is(T_COMMENT) || tk.is(T_CPP_COMMENT)
@@ -998,11 +1004,11 @@ int InternalCppCompletionAssistProcessor::startOfOperator(int pos,
                                      && *kind != T_SLASH
                                      && *kind != T_DOT))) {
             *kind = T_EOF_SYMBOL;
-            start = pos;
+            start = positionInDocument;
         // Include completion: can be triggered by slash, but only in a string
         } else if (*kind == T_SLASH && (tk.isNot(T_STRING_LITERAL) && tk.isNot(T_ANGLE_STRING_LITERAL))) {
             *kind = T_EOF_SYMBOL;
-            start = pos;
+            start = positionInDocument;
         } else if (*kind == T_LPAREN) {
             if (tokenIdx > 0) {
                 const Token &previousToken = tokens.at(tokenIdx - 1); // look at the token at the left of T_LPAREN
@@ -1016,7 +1022,7 @@ int InternalCppCompletionAssistProcessor::startOfOperator(int pos,
                 default:
                     // that's a bad token :)
                     *kind = T_EOF_SYMBOL;
-                    start = pos;
+                    start = positionInDocument;
                 }
             }
         }
@@ -1040,7 +1046,7 @@ int InternalCppCompletionAssistProcessor::startOfOperator(int pos,
 
             if (!include) {
                 *kind = T_EOF_SYMBOL;
-                start = pos;
+                start = positionInDocument;
             } else {
                 if (*kind == T_DOT) {
                     start = findStartOfName(start);

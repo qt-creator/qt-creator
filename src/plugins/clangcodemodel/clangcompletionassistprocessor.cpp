@@ -335,16 +335,15 @@ int ClangCompletionAssistProcessor::startOfOperator(int positionInDocument,
                         && !isDoxygenTagCompletionCharacter(characterBeforePositionInDocument))
                  || (tk.isLiteral() && (*kind != T_STRING_LITERAL
                                      && *kind != T_ANGLE_STRING_LITERAL
-                                     && *kind != T_SLASH))) {
+                                     && *kind != T_SLASH
+                                     && *kind != T_DOT))) {
             *kind = T_EOF_SYMBOL;
             start = positionInDocument;
-        }
         // Include completion: can be triggered by slash, but only in a string
-        else if (*kind == T_SLASH && (tk.isNot(T_STRING_LITERAL) && tk.isNot(T_ANGLE_STRING_LITERAL))) {
+        } else if (*kind == T_SLASH && (tk.isNot(T_STRING_LITERAL) && tk.isNot(T_ANGLE_STRING_LITERAL))) {
             *kind = T_EOF_SYMBOL;
             start = positionInDocument;
-        }
-        else if (*kind == T_LPAREN) {
+        } else if (*kind == T_LPAREN) {
             if (tokenIdx > 0) {
                 const Token &previousToken = tokens.at(tokenIdx - 1); // look at the token at the left of T_LPAREN
                 switch (previousToken.kind()) {
@@ -362,14 +361,15 @@ int ClangCompletionAssistProcessor::startOfOperator(int positionInDocument,
             }
         }
         // Check for include preprocessor directive
-        else if (*kind == T_STRING_LITERAL || *kind == T_ANGLE_STRING_LITERAL || *kind == T_SLASH) {
+        else if (*kind == T_STRING_LITERAL || *kind == T_ANGLE_STRING_LITERAL|| *kind == T_SLASH
+                 || (*kind == T_DOT && (tk.is(T_STRING_LITERAL) || tk.is(T_ANGLE_STRING_LITERAL)))) {
             bool include = false;
             if (tokens.size() >= 3) {
                 if (tokens.at(0).is(T_POUND) && tokens.at(1).is(T_IDENTIFIER) && (tokens.at(2).is(T_STRING_LITERAL) ||
                                                                                   tokens.at(2).is(T_ANGLE_STRING_LITERAL))) {
                     const Token &directiveToken = tokens.at(1);
-                    QString directive = tc.block().text().mid(directiveToken.bytesBegin(),
-                                                              directiveToken.bytes());
+                    QString directive = tc.block().text().mid(directiveToken.utf16charsBegin(),
+                                                              directiveToken.utf16chars());
                     if (directive == QLatin1String("include") ||
                             directive == QLatin1String("include_next") ||
                             directive == QLatin1String("import")) {
