@@ -80,11 +80,10 @@ def main():
     textUrls = {'Online Community':'http://forum.qt.io',
                 'Blogs':'http://planet.qt.io',
                 'Qt Account':'https://account.qt.io',
-                'Qt Cloud Services':'https://developer.qtcloudservices.com',
                 'User Guide':'qthelp://org.qt-project.qtcreator/doc/index.html'
                 }
     for text, url in textUrls.items():
-        qmlItem = getQmlItem("LinkedText", welcomePage, False, "text='%s'" % text)
+        qmlItem = getQmlItem("Text", welcomePage, False, "text='%s'" % text)
         if test.verify(checkIfObjectExists(qmlItem),
                        "Verifying: Link to %s exists." % text):
             itemObj = findObject(qmlItem)
