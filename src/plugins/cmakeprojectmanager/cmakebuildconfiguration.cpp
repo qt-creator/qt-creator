@@ -148,16 +148,20 @@ void CMakeBuildConfiguration::ctor()
             m_buildDirManager, &BuildDirManager::forceReparse);
     connect(this, &CMakeBuildConfiguration::buildDirectoryChanged,
             m_buildDirManager, &BuildDirManager::forceReparse);
-    connect(target(), &Target::kitChanged, this, [this]() {
-        ProjectExplorer::Kit *k = target()->kit();
-        CMakeConfig config = cmakeConfiguration();
-        config.append(CMakeConfigurationKitInformation::configuration(k));  // last value wins...
-        setCMakeConfiguration(config);
-        m_buildDirManager->maybeForceReparse();
-    });
+    connect(target(), &Target::kitChanged, this, &CMakeBuildConfiguration::maybeForceReparse);
+    connect(project, &Project::activeTargetChanged, this, &CMakeBuildConfiguration::maybeForceReparse);
 
     connect(this, &CMakeBuildConfiguration::parsingStarted, project, &CMakeProject::handleParsingStarted);
     connect(this, &CMakeBuildConfiguration::dataAvailable, project, &CMakeProject::parseCMakeOutput);
+}
+
+void CMakeBuildConfiguration::maybeForceReparse()
+{
+    ProjectExplorer::Kit *k = target()->kit();
+    CMakeConfig config = cmakeConfiguration();
+    config.append(CMakeConfigurationKitInformation::configuration(k));  // last value wins...
+    setCMakeConfiguration(config);
+    m_buildDirManager->maybeForceReparse();
 }
 
 BuildDirManager *CMakeBuildConfiguration::buildDirManager() const
