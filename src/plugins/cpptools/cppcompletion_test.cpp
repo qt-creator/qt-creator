@@ -111,6 +111,8 @@ public:
                                                ExplicitlyInvoked, m_snapshot,
                                                ProjectPartHeaderPaths(),
                                                languageFeatures);
+        ai->prepareForAsyncUse();
+        ai->recreateTextDocument();
         InternalCppCompletionAssistProcessor processor;
 
         const Tests::IAssistProposalScopedPointer proposal(processor.perform(ai));
@@ -405,6 +407,11 @@ void CppToolsPlugin::test_doxygen_tag_completion_data()
 
     QTest::newRow("C comment single line")
          << _("/*! @ */");
+
+    QTest::newRow("C comment multi line")
+         << _("/*! text\n"
+              " *  @\n"
+              " */\n");
 }
 
 void CppToolsPlugin::test_doxygen_tag_completion()

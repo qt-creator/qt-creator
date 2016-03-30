@@ -93,8 +93,11 @@ using namespace TextEditor;
 
 #include <texteditor/convenience.h>
 
+#include <QTextBlock>
 #include <QTextDocument>
 #include <QTextCursor>
+
+#include <utils/qtcassert.h>
 
 namespace TextEditor {
 
@@ -128,6 +131,9 @@ QString AssistInterface::textAt(int pos, int length) const
 void AssistInterface::prepareForAsyncUse()
 {
     m_text = m_textDocument->toPlainText();
+    m_userStates.reserve(m_textDocument->blockCount());
+    for (QTextBlock block = m_textDocument->firstBlock(); block.isValid(); block = block.next())
+        m_userStates.append(block.userState());
     m_textDocument = 0;
     m_isAsync = true;
 }
@@ -136,6 +142,11 @@ void AssistInterface::recreateTextDocument()
 {
     m_textDocument = new QTextDocument(m_text);
     m_text.clear();
+
+    QTC_CHECK(m_textDocument->blockCount() == m_userStates.count());
+    QTextBlock block = m_textDocument->firstBlock();
+    for (int i = 0; i < m_userStates.count() && block.isValid(); ++i, block = block.next())
+        block.setUserState(m_userStates[i]);
 }
 
 AssistReason AssistInterface::reason() const
