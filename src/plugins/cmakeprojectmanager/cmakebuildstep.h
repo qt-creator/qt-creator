@@ -61,10 +61,9 @@ public:
     ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;
     bool immutable() const override;
 
-    QStringList buildTargets() const;
+    QString buildTarget() const;
     bool buildsBuildTarget(const QString &target) const;
-    void setBuildTarget(const QString &target, bool on);
-    void setBuildTargets(const QStringList &targets);
+    void setBuildTarget(const QString &target);
     void clearBuildTargets();
 
     QString toolArguments() const;
@@ -72,18 +71,16 @@ public:
 
     QString allArguments(const CMakeRunConfiguration *rc) const;
 
-    bool addRunConfigurationArgument() const;
-    void setAddRunConfigurationArgument(bool add);
-
     QString cmakeCommand() const;
 
     QVariantMap toMap() const override;
 
     static QString cleanTarget();
+    static QString allTarget();
 
 signals:
     void cmakeCommandChanged();
-    void targetsToBuildChanged();
+    void targetToBuildChanged();
     void buildTargetsChanged();
 
 protected:
@@ -112,9 +109,8 @@ private:
     QRegExp m_percentProgress;
     QRegExp m_ninjaProgress;
     QString m_ninjaProgressString;
-    QStringList m_buildTargets;
+    QString m_buildTarget;
     QString m_toolArguments;
-    bool m_addRunConfigurationArgument = false;
     bool m_useNinja = false;
 };
 

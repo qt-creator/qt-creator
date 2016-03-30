@@ -111,13 +111,13 @@ void CMakeLocatorFilter::accept(Core::LocatorFilterEntry selection) const
         return;
 
     // Change the make step to build only the given target
-    QStringList oldTargets = buildStep->buildTargets();
+    QString oldTarget = buildStep->buildTarget();
     buildStep->clearBuildTargets();
-    buildStep->setBuildTarget(selection.displayName, true);
+    buildStep->setBuildTarget(selection.displayName);
 
     // Build
     ProjectExplorerPlugin::buildProject(cmakeProject);
-    buildStep->setBuildTargets(oldTargets);
+    buildStep->setBuildTarget(oldTarget);
 }
 
 void CMakeLocatorFilter::refresh(QFutureInterface<void> &future)
