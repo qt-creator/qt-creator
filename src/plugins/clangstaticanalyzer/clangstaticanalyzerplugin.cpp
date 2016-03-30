@@ -118,7 +118,7 @@ bool ClangStaticAnalyzerPlugin::initialize(const QStringList &arguments, QString
 
     auto panelFactory = new ProjectExplorer::ProjectPanelFactory();
     panelFactory->setPriority(100);
-    panelFactory->setDisplayName(tr("Clang Static Analyzer Settings"));
+    panelFactory->setDisplayName(tr("Clang Static Analyzer"));
     panelFactory->setSimpleCreateWidgetFunction<ProjectSettingsWidget>(QIcon());
     ProjectExplorer::ProjectPanelFactory::registerFactory(panelFactory);
 

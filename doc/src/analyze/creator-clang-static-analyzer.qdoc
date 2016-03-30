@@ -49,7 +49,7 @@
 
     To suppress diagnostics, select \uicontrol {Suppress This Diagnostic} in the
     context menu. To view the suppression list for a project and to remove
-    diagnostics from it, select \uicontrol {Clang Static Analyzer Settings} in
+    diagnostics from it, select \uicontrol {Clang Static Analyzer} in
     the \uicontrol Projects mode.
 
     \section1 Setting Up Clang Static Analyzer
