@@ -607,8 +607,10 @@ void BuildDirManager::maybeForceReparse()
     const QByteArray EXTRA_GENERATOR_KEY = "CMAKE_EXTRA_GENERATOR";
     const QByteArray CMAKE_COMMAND_KEY = "CMAKE_COMMAND";
 
-    if (!m_hasData)
+    if (!m_hasData) {
+        forceReparse();
         return;
+    }
 
     const CMakeConfig currentConfig = parsedConfiguration();
 
