@@ -92,6 +92,7 @@ protected:
     bool fromMap(const QVariantMap &map) override;
 
 private:
+    void ctor();
     QList<ConfigModel::DataItem> completeCMakeConfiguration() const;
     void setCurrentCMakeConfiguration(const QList<ConfigModel::DataItem> &items);
 
