@@ -58,7 +58,7 @@ def performAutoCompletionTest(editor, lineToStartRegEx, linePrefix, testFunc, *f
         type(editor, bol)
         currentLine = moveDownToNextNonEmptyLine(editor)
 
-def checkIncludeCompletion(editor):
+def checkIncludeCompletion(editor, isClangCodeModel):
     test.log("Check auto-completion of include statements.")
     # define special handlings
     noProposal = ["vec", "detail/hea", "dum"]
@@ -76,8 +76,12 @@ def checkIncludeCompletion(editor):
         missing, noProposal, specialHandling = args
         inclSnippet = currentLine.split("//#include")[-1].strip().strip('<"')
         propShown = waitFor("object.exists(':popupFrame_TextEditor::GenericProposalWidget')", 2500)
-        test.compare(not propShown, inclSnippet in missing or inclSnippet in noProposal,
-                     "Proposal widget is (not) shown as expected (%s)" % inclSnippet)
+        if isClangCodeModel and inclSnippet in noProposal and JIRA.isBugStillOpen(15710):
+            test.xcompare(propShown, False, ("Proposal widget should not be shown for (%s) "
+                          "but because of QTCREATORBUG-15710 it currently is") % inclSnippet)
+        else:
+            test.compare(not propShown, inclSnippet in missing or inclSnippet in noProposal,
+                         "Proposal widget is (not) shown as expected (%s)" % inclSnippet)
         if propShown:
             proposalListView = waitForObject(':popupFrame_Proposal_QListView')
             if inclSnippet in specialHandling:
@@ -127,8 +131,12 @@ def checkSymbolCompletion(editor, isClangCodeModel):
         if isClangCodeModel and JIRA.isBugStillOpen(15639):
             timeout = 5000
         propShown = waitFor("object.exists(':popupFrame_TextEditor::GenericProposalWidget')", timeout)
-        test.compare(not propShown, symbol in missing,
-                     "Proposal widget is (not) shown as expected (%s)" % symbol)
+        if isClangCodeModel and symbol in missing and not "(" in symbol and JIRA.isBugStillOpen(15710):
+            test.xcompare(propShown, False, ("Proposal widget should not be shown for (%s) "
+                          "but because of QTCREATORBUG-15710 it currently is") % symbol)
+        else:
+            test.compare(not propShown, symbol in missing,
+                         "Proposal widget is (not) shown as expected (%s)" % symbol)
         found = []
         if propShown:
             proposalListView = waitForObject(':popupFrame_Proposal_QListView')
@@ -173,7 +181,7 @@ def main():
             return
         editor = getEditorForFileSuffix("main.cpp")
         if editor:
-            checkIncludeCompletion(editor)
+            checkIncludeCompletion(editor, useClang)
             checkSymbolCompletion(editor, useClang)
             invokeMenuItem('File', 'Revert "main.cpp" to Saved')
             clickButton(waitForObject(":Revert to Saved.Proceed_QPushButton"))
