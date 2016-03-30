@@ -43,38 +43,81 @@
     native build configurations and workspaces that you can use in the compiler
     environment of your choice.
 
-    Since \QC 1.1, CMake configuration files are supported. Since \QC 1.3, the
-    Microsoft tool chain is supported if the CMake version is at least 2.8.
-
     \QC automatically detects the CMake executable specified in the \c PATH.
     You can add paths to other CMake executables and use them in different
     build and run \l{glossary-buildandrun-kit}{kits}.
 
     \section1 Adding CMake Tools
 
-    To specify paths to CMake executables, select \uicontrol Tools >
-    \uicontrol Options > \uicontrol {Build & Run} > \uicontrol CMake >
-    \uicontrol Add.
+    \QC supports CMake version 2.9, or later.
 
-    \image qtcreator-cmakeexecutable.png
+    To specify paths to CMake executables and to add them to kits:
+
+    \list 1
+
+        \li Select \uicontrol Tools > \uicontrol Options >
+            \uicontrol {Build & Run} > \uicontrol CMake > \uicontrol Add.
+
+            \image qtcreator-cmakeexecutable.png
+
+        \li In the \uicontrol Name field, specify a name for the tool.
+
+        \li In the \uicontrol Path field, specify the path to the CMake
+            executable.
+
+        \li Select \uicontrol Apply to save your changes.
+
+        \li Select the \uicontrol Kits tab to add the CMake tool to a build and
+            run kit. The kit also specifies the CMake Generator that is used for
+            producing project files for \QC and the configuration variables that
+            are used:
+
+            \image qtcreator-kits.png
+
+            For more information, see \l {Adding Kits}.
+
+    \endlist
+
+    \section1 Creating CMake Projects
+
+    To create a CMake project:
+
+    \list 1
+
+        \li Select \uicontrol File > \uicontrol {New File or Project} >
+            \uicontrol {Non-Qt Project} > \uicontrol {Plain C Application} or
+            \uicontrol {Plain C++ Application} > \uicontrol Choose.
+
+        \li In the \uicontrol Name field, enter a name for the project.
+
+        \li In the \uicontrol {Create in} field, enter the path for the project
+            files, and then select \uicontrol Next (or \uicontrol Continue on
+            OS X).
+
+        \li In the \uicontrol {Build system} field, select \uicontrol CMake, and
+            then select \uicontrol Next.
+
+        \li Select CMake kits for the platforms that you want to build the
+            application for, and then select \uicontrol Next.
+
+        \li Review the project settings, and click \uicontrol{Finish} (or
+            \uicontrol Done on OS X).
+
+        \li Select \uicontrol {Run CMake} to generate a .cbp file.
+
+            \image qtcreator-cmake-run-cmake.png
+
+            Some projects require command line arguments to the initial CMake
+            call. CMake will remember the arguments during subsequent calls.
+
+    \endlist
+
+    \QC generates a \c {main.cpp} and \c {CMakeLists.txt} file that you can
+    modify in the \uicontrol Edit mode.
 
     \section1 Opening CMake Projects
 
-    \note Before you open a CMake project, you must modify the \c {PATH}
-    environment variable to include the bin folders of \c mingw and Qt.
-
-    For instance, if Qt 5.5 is installed in \c {C:\Qt}, you would use the
-    following command to set the environment variables in the command line
-    prompt:
-    \code
-    set PATH=C:\Qt\Tools\mingw<VERSION>\bin;C:\Qt\5.5\<TARGET>\bin;
-    \endcode
-    Then start \QC by typing:
-    \code
-    C:\Qt\Tools\QtCreator\qtcreator.exe
-    \endcode
-
-    To open a CMake project:
+    To open an existing CMake project:
 
     \list 1
 
@@ -82,28 +125,22 @@
 
         \li Select the \c {CMakeLists.txt} file from your CMake project.
 
+        \li Select a kit that is configured to use CMake for building the
+            project.
+
+        \li In \uicontrol Projects, right-click the project name to open the
+            context menu, and then select \uicontrol {Run CMake} to have the
+            project contents listed in the view.
+
     \endlist
-
-    A wizard guides you through the rest of the process.
-
-    \note If the CMake project does not have an in-place build, \QC
-    lets you specify the directory in which the project is built
-    (\l{glossary-shadow-build}{shadow build}).
-
-    \image qtcreator-cmake-import-wizard1.png
-
-    The screenshot below shows how you can specify command line arguments to
-    CMake for your project.
-
-    \image qtcreator-cmake-import-wizard2.png
-
-    Normally, there is no need to pass any command line arguments for projects
-    that are already built, as CMake caches that information.
 
     \section1 Editing CMake Configuration Files
 
-    You can open CMake configuration files in \QC for editing. The following
-    features are supported:
+    To open a CMakeLists.txt file for editing, right-click it in the
+    \uicontrol Projects view and select \uicontrol {Open with} >
+    \uicontrol {CMake Editor}.
+
+    The following features are supported:
 
     \list
 
@@ -119,31 +156,55 @@
 
     \section1 Building CMake Projects
 
-    \QC builds CMake projects by running \c make, \c mingw32-make,
-    \c nmake, or \c ninja depending on your platform. The build errors and
-    warnings are parsed and displayed in the \uicontrol Issues output pane.
+    To build CMake projects, select \uicontrol {Build Project} or press
+    \key Ctrl+B (or \key Cmd+B on OS X).
 
-    By default, \QC uses the \uicontrol All \l{glossary-build-config}
+    \QC builds CMake projects by running \c make, \c mingw32-make, \c nmake, or
+    \c ninja depending on the selected kit.
+
+    By default, \QC uses the \uicontrol Default \l{glossary-build-config}
     {build configuration}. You can select another build configuration in
-    \uicontrol Projects > \uicontrol {Edit build configuration}. In addition to
+    \uicontrol Projects > \uicontrol {Build Settings} >
+    \uicontrol {Edit build configuration}. In addition to
     debug and release build configurations, you can create a release build that
     contains debug information or a release build with the smallest possible
     size.
 
     \image qtcreator-cmake-build-settings.png
 
-    You can change the build directory after the initial import.
+    In the \uicontrol {Build directory} field, you can specify the directory in
+    which the project is built (\l{glossary-shadow-build}{shadow build}).
 
-    The build and run kit that you select determines which CMake tool is used
-    for building. For more information, see \l {Adding Kits}.
+    To view all settings, select the \uicontrol Advanced check box.
+
+    To modify the value of a build setting, select it, and then select
+    \uicontrol Edit. The new value is displayed in italics until you save the
+    changes by selecting \uicontrol {Apply Configuration Changes}. Any
+    configuration change might trigger a follow-up configuration change, so keep
+    saving until no more values are displayed in italics.
+
+    You can add arguments and targets for the build command in
+    \uicontrol {Build Steps}.
+
+    \image qtcreator-cmake-build-steps.png
+
+    You can add arguments and targets for the clean command in
+    \uicontrol {Clean Steps}.
+
+    \image qtcreator-cmake-clean-steps.png
+
+    The build errors and warnings are parsed and displayed in the
+    \uicontrol Issues output pane.
 
     \section1 Running CMake Projects
 
     \QC automatically adds \uicontrol {Run Configurations} for all targets
     specified in the CMake project file.
 
-    For more information about known issues for the current version, see
-    \l{Known Issues}.
+    \image qtcreator-cmake-run-settings.png
+
+    To run CMake projects, select \uicontrol Run or press \key Ctrl+R (or
+    \key Cmd+R on OS X).
 
     \section1 Deploying CMake Projects to Embedded Linux Devices
 
