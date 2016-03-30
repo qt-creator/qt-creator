@@ -55,17 +55,17 @@
 :Core__Internal__GeneralSettings.User Interface_QGroupBox	{container=':qt_tabwidget_stackedwidget.Core__Internal__GeneralSettings_QWidget' name='interfaceBox' title='User Interface' type='QGroupBox' visible='1'}
 :CppTools__Internal__CompletionSettingsPage.Behavior_QGroupBox	{container=':qt_tabwidget_stackedwidget.CppTools__Internal__CompletionSettingsPage_QWidget' name='groupBox' title='Behavior' type='QGroupBox' visible='1'}
 :DebugModeWidget.Debugger Log_QDockWidget	{container=':Qt Creator.DebugModeWidget_QSplitter' name='Debugger.Docks.OutputDockWidget' type='QDockWidget' visible='1'}
-:DebugModeWidget.Debugger Toolbar_QDockWidget	{container=':Qt Creator.DebugModeWidget_QSplitter' name='Debugger Toolbar' type='QDockWidget' visible='1' windowTitle='Debugger Toolbar'}
 :DebugModeWidget.Debugger.Docks.BreakDockWidget_QDockWidget	{container=':Qt Creator.DebugModeWidget_QSplitter' name='Debugger.Docks.BreakDockWidget' type='QDockWidget' visible='1'}
-:DebugModeWidget.Locals and Expressions_QDockWidget	{container=':Qt Creator.DebugModeWidget_QSplitter' name='Debugger.Docks.LocalsAndWatchers' type='QDockWidget' visible='1' windowTitle='Locals and Expressions'}
+:DebugModeWidget.Debugger.Docks.LocalsAndWatchersDockWidget_QDockWidget	{container=':Qt Creator.DebugModeWidget_QSplitter' name='Debugger.Docks.LocalsAndWatchersDockWidget' type='QDockWidget' visible='1'}
 :DebugModeWidget.OK_QPushButton	{container=':Qt Creator.DebugModeWidget_QSplitter' text='OK' type='QPushButton' unnamed='1' visible='1'}
 :DebugModeWidget.Toolbar_QDockWidget	{container=':Qt Creator.DebugModeWidget_QSplitter' name='Toolbar' type='QDockWidget' visible='1'}
 :DebugModeWidget_QComboBox	{container=':Qt Creator.DebugModeWidget_QSplitter' occurrence='2' type='QComboBox' unnamed='1' visible='1'}
 :DebugModeWidget_Debugger::Internal::ConsoleView	{container=':Qt Creator.DebugModeWidget_QSplitter' type='Debugger::Internal::ConsoleView' unnamed='1' visible='1'}
 :Debugger Toolbar.Continue_QToolButton	{container=':DebugModeWidget.Toolbar_QDockWidget' text='Continue' type='QToolButton' unnamed='1' visible='1'}
-:Debugger Toolbar.Exit Debugger_QToolButton	{container=':DebugModeWidget.Debugger Toolbar_QDockWidget' text='Stop Debugger' type='QToolButton' unnamed='1' visible='1'}
+:Debugger Toolbar.Exit Debugger_QToolButton	{container=':DebugModeWidget.Toolbar_QDockWidget' text='Stop Debugger' type='QToolButton' unnamed='1' visible='1'}
 :Debugger Toolbar.StatusText_Utils::StatusLabel	{container=':DebugModeWidget.Toolbar_QDockWidget' type='Utils::StatusLabel' unnamed='1'}
 :Debugger.Docks.BreakDockWidget.Debugger.Docks.Break_QFrame	{container=':DebugModeWidget.Debugger.Docks.BreakDockWidget_QDockWidget' name='Debugger.Docks.Break' type='QFrame' visible='1'}
+:Debugger.Docks.LocalsAndWatchersDockWidget.Inspector_QFrame	{container=':DebugModeWidget.Debugger.Docks.LocalsAndWatchersDockWidget_QDockWidget' name='Inspector' type='QFrame' visible='1'}
 :Description.description_Utils::CompletingTextEdit	{container=':splitter.Description_QGroupBox' name='description' type='Utils::CompletingTextEdit' visible='1'}
 :Dialog.OK_QPushButton	{text='OK' type='QPushButton' unnamed='1' visible='1' window=':Dialog_QmlJSEditor::Internal::ComponentNameDialog'}
 :Dialog.componentNameEdit_QLineEdit	{name='componentNameEdit' type='Utils::ClassNameValidatingLineEdit' visible='1' window=':Dialog_QmlJSEditor::Internal::ComponentNameDialog'}
@@ -99,7 +99,7 @@
 :Hits_QCLuceneResultWidget	{aboveWidget=':Hits_QLabel' type='QCLuceneResultWidget' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Hits_QLabel	{text~='\\\\d+ - \\\\d+ of \\\\d+ Hits' type='QLabel' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Kits_QtVersion_QComboBox	{container=':qt_tabwidget_stackedwidget_QWidget' leftWidget=':QtVersionLabel_KitPage' type='QComboBox' unnamed='1' visible='1'}
-:Locals and Expressions_Debugger::Internal::WatchTreeView	{container=':DebugModeWidget.Locals and Expressions_QDockWidget' name='WatchWindow' type='Debugger::Internal::WatchTreeView' visible='1' windowTitle='Locals and Expressions'}
+:Locals and Expressions_Debugger::Internal::WatchTreeView	{container=':Debugger.Docks.LocalsAndWatchersDockWidget.Inspector_QFrame' name='WatchWindow' type='Debugger::Internal::WatchTreeView' visible='1'}
 :Minimal required Qt version:_QLabel	{text='Minimal required Qt version:' type='QLabel' unnamed='1' visible='1' window=':New Text File_ProjectExplorer::JsonWizard'}
 :New Text File.Add to project:_QLabel	{name='projectLabel' text='Add to project:' type='QLabel' visible='1' window=':New Text File_ProjectExplorer::JsonWizard'}
 :New Text File.nameLineEdit_Utils::FileNameValidatingLineEdit	{name='nameLineEdit' type='Utils::FileNameValidatingLineEdit' visible='1' window=':New Text File_ProjectExplorer::JsonWizard'}
