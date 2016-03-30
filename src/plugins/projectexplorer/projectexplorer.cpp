@@ -3236,6 +3236,9 @@ void ProjectExplorerPlugin::renameFile(Node *node, const QString &newFilePath)
     FolderNode *folderNode = node->parentFolderNode();
     const QString projectFileName = folderNode->projectNode()->filePath().fileName();
 
+    if (oldFilePath == newFilePath)
+        return;
+
     if (!folderNode->canRenameFile(oldFilePath, newFilePath)) {
         QTimer::singleShot(0, [oldFilePath, newFilePath, projectFileName] {
             int res = QMessageBox::question(ICore::mainWindow(),
