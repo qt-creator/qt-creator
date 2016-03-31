@@ -117,7 +117,7 @@ def checkWelcomePage(sessionName, isCurrent=False):
     else:
         sessions = ["default (current session)", sessionName]
     for sessionName in sessions:
-        test.verify(object.exists("{container='%s' enabled='true' type='LinkedText' unnamed='1' "
+        test.verify(object.exists("{container='%s' enabled='true' type='Text' unnamed='1' "
                                   "visible='true' text='%s'}" % (welcomePage, sessionName)),
                                   "Verifying session '%s' exists." % sessionName)
 
