@@ -412,7 +412,6 @@ CallgrindTool::CallgrindTool(QObject *parent)
 
     // Cost formatting
     {
-    auto menu = new QMenu;
     auto group = new QActionGroup(this);
 
     // Show costs as absolute numbers
@@ -422,7 +421,6 @@ CallgrindTool::CallgrindTool(QObject *parent)
     m_costAbsolute->setChecked(true);
     connect(m_costAbsolute, &QAction::toggled, this, &CallgrindTool::updateCostFormat);
     group->addAction(m_costAbsolute);
-    menu->addAction(m_costAbsolute);
 
     // Show costs in percentages
     m_costRelative = new QAction(tr("Relative Costs"), this);
@@ -430,7 +428,6 @@ CallgrindTool::CallgrindTool(QObject *parent)
     m_costRelative->setCheckable(true);
     connect(m_costRelative, &QAction::toggled, this, &CallgrindTool::updateCostFormat);
     group->addAction(m_costRelative);
-    menu->addAction(m_costRelative);
 
     // Show costs relative to parent
     m_costRelativeToParent = new QAction(tr("Relative Costs to Parent"), this);
@@ -438,11 +435,9 @@ CallgrindTool::CallgrindTool(QObject *parent)
     m_costRelativeToParent->setCheckable(true);
     connect(m_costRelativeToParent, &QAction::toggled, this, &CallgrindTool::updateCostFormat);
     group->addAction(m_costRelativeToParent);
-    menu->addAction(m_costRelativeToParent);
 
     auto button = new QToolButton;
-    button->setMenu(menu);
-    menu->setParent(button);
+    button->addActions(group->actions());
     button->setPopupMode(QToolButton::InstantPopup);
     button->setText(QLatin1String("$"));
     button->setToolTip(tr("Cost Format"));
