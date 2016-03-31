@@ -286,12 +286,13 @@ void StyleHelper::drawArrow(QStyle::PrimitiveElement element, QPainter *painter,
         return;
 
     const qreal devicePixelRatio = painter->device()->devicePixelRatio();
+    const bool enabled = option->state & QStyle::State_Enabled;
     QRect r = option->rect;
     int size = qMin(r.height(), r.width());
     QPixmap pixmap;
     QString pixmapName;
     pixmapName.sprintf("StyleHelper::drawArrow-%d-%d-%d-%f",
-                       element, size, (option->state & QStyle::State_Enabled), devicePixelRatio);
+                       element, size, enabled, devicePixelRatio);
     if (!QPixmapCache::find(pixmapName, pixmap)) {
         QImage image(size * devicePixelRatio, size * devicePixelRatio, QImage::Format_ARGB32_Premultiplied);
         image.fill(Qt::transparent);
@@ -311,7 +312,7 @@ void StyleHelper::drawArrow(QStyle::PrimitiveElement element, QPainter *painter,
             style->QCommonStyle::drawPrimitive(element, &tweakedOption, &painter);
         };
 
-        if (!(option->state & QStyle::State_Enabled)) {
+        if (!enabled) {
             drawCommonStyleArrow(image.rect(), creatorTheme()->color(Theme::IconsDisabledColor));
         } else {
             drawCommonStyleArrow(image.rect().translated(0, devicePixelRatio), toolBarDropShadowColor());
