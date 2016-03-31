@@ -152,17 +152,25 @@ SynchronousProcessResponse::Result ExitCodeInterpreter::interpretExitCode(int co
 }
 
 // Data for one channel buffer (stderr/stdout)
-struct ChannelBuffer {
+class ChannelBuffer : public QObject
+{
+    Q_OBJECT
+
+public:
     void clearForRun();
     QString linesRead();
+    void append(const QString &text, bool emitSignals);
 
     QString data;
     int bufferPos = 0;
     bool firstData = true;
     bool bufferedSignalsEnabled = false;
     bool firstBuffer = true;
-};
 
+signals:
+    void output(const QString &text, bool firstTime);
+    void outputBuffered(const QString &text, bool firstTime);
+};
 
 void ChannelBuffer::clearForRun()
 {
@@ -184,6 +192,26 @@ QString ChannelBuffer::linesRead()
     const QString lines = data.mid(bufferPos, nextBufferPos - bufferPos);
     bufferPos = nextBufferPos;
     return lines;
+}
+
+void ChannelBuffer::append(const QString &text, bool emitSignals)
+{
+    if (text.isEmpty())
+        return;
+    data += text;
+    if (!emitSignals)
+        return;
+    // Emit binary signals
+    emit output(text, firstData);
+    firstData = false;
+    // Buffered. Emit complete lines?
+    if (bufferedSignalsEnabled) {
+        const QString lines = linesRead();
+        if (!lines.isEmpty()) {
+            emit outputBuffered(lines, firstBuffer);
+            firstBuffer = false;
+        }
+    }
 }
 
 // ----------- SynchronousProcessPrivate
@@ -240,6 +268,10 @@ SynchronousProcess::SynchronousProcess() :
             this, &SynchronousProcess::stdOutReady);
     connect(&d->m_process, &QProcess::readyReadStandardError,
             this, &SynchronousProcess::stdErrReady);
+    connect(&d->m_stdOut, &ChannelBuffer::output, this, &SynchronousProcess::stdOut);
+    connect(&d->m_stdOut, &ChannelBuffer::outputBuffered, this, &SynchronousProcess::stdOutBuffered);
+    connect(&d->m_stdErr, &ChannelBuffer::output, this, &SynchronousProcess::stdErr);
+    connect(&d->m_stdErr, &ChannelBuffer::outputBuffered, this, &SynchronousProcess::stdErrBuffered);
 }
 
 SynchronousProcess::~SynchronousProcess()
@@ -512,22 +544,7 @@ void SynchronousProcess::processStdOut(bool emitSignals)
                                             &d->m_stdOutState);
     if (debug > 1)
         qDebug() << Q_FUNC_INFO << emitSignals << stdOutput;
-    if (!stdOutput.isEmpty()) {
-        d->m_stdOut.data += stdOutput;
-        if (emitSignals) {
-            // Emit binary signals
-            emit stdOut(stdOutput, d->m_stdOut.firstData);
-            d->m_stdOut.firstData = false;
-            // Buffered. Emit complete lines?
-            if (d->m_stdOut.bufferedSignalsEnabled) {
-                const QString lines = d->m_stdOut.linesRead();
-                if (!lines.isEmpty()) {
-                    emit stdOutBuffered(lines, d->m_stdOut.firstBuffer);
-                    d->m_stdOut.firstBuffer = false;
-                }
-            }
-        }
-    }
+    d->m_stdOut.append(stdOutput, emitSignals);
 }
 
 void SynchronousProcess::processStdErr(bool emitSignals)
@@ -537,22 +554,7 @@ void SynchronousProcess::processStdErr(bool emitSignals)
                                            &d->m_stdErrState);
     if (debug > 1)
         qDebug() << Q_FUNC_INFO << emitSignals << stdError;
-    if (!stdError.isEmpty()) {
-        d->m_stdErr.data += stdError;
-        if (emitSignals) {
-            // Emit binary signals
-            emit stdErr(stdError, d->m_stdErr.firstData);
-            d->m_stdErr.firstData = false;
-            if (d->m_stdErr.bufferedSignalsEnabled) {
-                // Buffered. Emit complete lines?
-                const QString lines = d->m_stdErr.linesRead();
-                if (!lines.isEmpty()) {
-                    emit stdErrBuffered(lines, d->m_stdErr.firstBuffer);
-                    d->m_stdErr.firstBuffer = false;
-                }
-            }
-        }
-    }
+    d->m_stdErr.append(stdError, emitSignals);
 }
 
 QSharedPointer<QProcess> SynchronousProcess::createProcess(unsigned flags)
@@ -711,3 +713,5 @@ QString SynchronousProcess::locateBinary(const QString &binary)
 }
 
 } // namespace Utils
+
+#include "synchronousprocess.moc"
