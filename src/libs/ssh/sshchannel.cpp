@@ -172,7 +172,7 @@ void AbstractSshChannel::handleOpenFailure(const QString &reason)
         return; // Late server reply; we requested a channel close in the meantime.
     default:
         throw SSH_SERVER_EXCEPTION(SSH_DISCONNECT_PROTOCOL_ERROR,
-            "Unexpected SSH_MSG_CHANNEL_OPEN_CONFIRMATION packet.");
+            "Unexpected SSH_MSG_CHANNEL_OPEN_FAILURE packet.");
     }
 
     m_timeoutTimer.stop();

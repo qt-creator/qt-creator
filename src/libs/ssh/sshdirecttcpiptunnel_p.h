@@ -25,14 +25,14 @@
 
 #pragma once
 
-#include "sshchannel_p.h"
+#include "sshtcpiptunnel_p.h"
 
 namespace QSsh {
 class SshDirectTcpIpTunnel;
 
 namespace Internal {
 
-class SshDirectTcpIpTunnelPrivate : public AbstractSshChannel
+class SshDirectTcpIpTunnelPrivate : public SshTcpIpTunnelPrivate
 {
     Q_OBJECT
 
@@ -45,31 +45,14 @@ public:
 
 signals:
     void initialized();
-    void readyRead();
-    void error(const QString &reason);
-    void closed();
-
-private slots:
-    void handleEof();
 
 private:
-    void handleChannelSuccess();
-    void handleChannelFailure();
-
     void handleOpenSuccessInternal();
-    void handleOpenFailureInternal(const QString &reason);
-    void handleChannelDataInternal(const QByteArray &data);
-    void handleChannelExtendedDataInternal(quint32 type, const QByteArray &data);
-    void handleExitStatus(const SshChannelExitStatus &exitStatus);
-    void handleExitSignal(const SshChannelExitSignal &signal);
-
-    void closeHook();
 
     const QString m_originatingHost;
     const quint16 m_originatingPort;
     const QString m_remoteHost;
     const quint16 m_remotePort;
-    QByteArray m_data;
 };
 
 } // namespace Internal

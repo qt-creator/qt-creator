@@ -22,51 +22,49 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
-
 #pragma once
 
-#include <QObject>
+#include "ssh_global.h"
+#include <QIODevice>
 #include <QSharedPointer>
 
-QT_BEGIN_NAMESPACE
-class QTcpServer;
-class QTcpSocket;
-QT_END_NAMESPACE
-
 namespace QSsh {
-class SshConnection;
-class SshConnectionParameters;
-class SshDirectTcpIpTunnel;
-}
 
-class Tunnel : public QObject
+namespace Internal {
+class SshChannelManager;
+class SshForwardedTcpIpTunnelPrivate;
+class SshSendFacility;
+class SshTcpIpTunnelPrivate;
+} // namespace Internal
+
+class QSSH_EXPORT SshForwardedTcpIpTunnel : public QIODevice
 {
     Q_OBJECT
+    friend class Internal::SshChannelManager;
+    friend class Internal::SshTcpIpTunnelPrivate;
+
 public:
-    Tunnel(const QSsh::SshConnectionParameters &parameters, QObject *parent = 0);
-    ~Tunnel();
+    typedef QSharedPointer<SshForwardedTcpIpTunnel> Ptr;
+    ~SshForwardedTcpIpTunnel();
 
-    void run();
+    // QIODevice stuff
+    bool atEnd() const;
+    qint64 bytesAvailable() const;
+    bool canReadLine() const;
+    void close();
+    bool isSequential() const { return true; }
 
-private slots:
-    void handleConnected();
-    void handleConnectionError();
-    void handleServerData();
-    void handleInitialized();
-    void handleTunnelError(const QString &reason);
-    void handleTunnelClosed();
-    void handleNewConnection();
-    void handleSocketError();
-    void handleClientData();
-    void handleTimeout();
+signals:
+    void error(const QString &reason);
 
 private:
-    QSsh::SshConnection * const m_connection;
-    QSharedPointer<QSsh::SshDirectTcpIpTunnel> m_tunnel;
-    QTcpServer * const m_targetServer;
-    QTcpSocket *m_targetSocket;
-    quint16 m_targetPort;
-    QByteArray m_dataReceivedFromServer;
-    QByteArray m_dataReceivedFromClient;
-    bool m_expectingChannelClose;
+    SshForwardedTcpIpTunnel(quint32 channelId, Internal::SshSendFacility &sendFacility);
+
+    // QIODevice stuff
+    qint64 readData(char *data, qint64 maxlen) override;
+    qint64 writeData(const char *data, qint64 len) override;
+
+    Internal::SshForwardedTcpIpTunnelPrivate * const d;
 };
+
+} // namespace QSsh

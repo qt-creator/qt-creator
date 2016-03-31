@@ -72,6 +72,8 @@ public:
     void sendDirectTcpIpPacket(quint32 channelId, quint32 windowSize, quint32 maxPacketSize,
         const QByteArray &remoteHost, quint32 remotePort, const QByteArray &localIpAddress,
         quint32 localPort);
+    void sendTcpIpForwardPacket(const QByteArray &bindAddress, quint32 bindPort);
+    void sendCancelTcpIpForwardPacket(const QByteArray &bindAddress, quint32 bindPort);
     void sendPtyRequestPacket(quint32 remoteChannel,
         const SshPseudoTerminal &terminal);
     void sendEnvPacket(quint32 remoteChannel, const QByteArray &var,
@@ -85,6 +87,10 @@ public:
         const QByteArray &signalName);
     void sendChannelEofPacket(quint32 remoteChannel);
     void sendChannelClosePacket(quint32 remoteChannel);
+    void sendChannelOpenConfirmationPacket(quint32 remoteChannel, quint32 localChannel,
+        quint32 localWindowSize, quint32 maxPackeSize);
+    void sendChannelOpenFailurePacket(quint32 remoteChannel, quint32 reason,
+        const QByteArray &reasonString);
     quint32 nextClientSeqNr() const { return m_clientSeqNr; }
 
 private:

@@ -26,54 +26,56 @@
 #pragma once
 
 #include "ssh_global.h"
-
-#include <QIODevice>
-#include <QSharedPointer>
+#include "sshforwardedtcpiptunnel.h"
+#include <QObject>
 
 namespace QSsh {
 
 namespace Internal {
 class SshChannelManager;
-class SshDirectTcpIpTunnelPrivate;
+class SshTcpIpForwardServerPrivate;
 class SshSendFacility;
-class SshTcpIpTunnelPrivate;
+class SshConnectionPrivate;
 } // namespace Internal
 
-class QSSH_EXPORT SshDirectTcpIpTunnel : public QIODevice
+class QSSH_EXPORT SshTcpIpForwardServer : public QObject
 {
     Q_OBJECT
-
     friend class Internal::SshChannelManager;
-    friend class Internal::SshTcpIpTunnelPrivate;
+    friend class Internal::SshConnectionPrivate;
 
 public:
-    typedef QSharedPointer<SshDirectTcpIpTunnel> Ptr;
+    enum State {
+        Inactive,
+        Initializing,
+        Listening,
+        Closing
+    };
 
-    ~SshDirectTcpIpTunnel();
+    typedef QSharedPointer<SshTcpIpForwardServer> Ptr;
+    ~SshTcpIpForwardServer();
 
-    // QIODevice stuff
-    bool atEnd() const;
-    qint64 bytesAvailable() const;
-    bool canReadLine() const;
-    void close();
-    bool isSequential() const { return true; }
-
+    const QString &bindAddress() const;
+    quint16 port() const;
+    State state() const;
     void initialize();
+    void close();
+
+    SshForwardedTcpIpTunnel::Ptr nextPendingConnection();
 
 signals:
-    void initialized();
     void error(const QString &reason);
+    void newConnection();
+    void stateChanged(State state);
 
 private:
-    SshDirectTcpIpTunnel(quint32 channelId, const QString &originatingHost,
-            quint16 originatingPort, const QString &remoteHost, quint16 remotePort,
-            Internal::SshSendFacility &sendFacility);
+    SshTcpIpForwardServer(const QString &bindAddress, quint16 bindPort,
+                          Internal::SshSendFacility &sendFacility);
+    void setListening(quint16 port);
+    void setClosed();
+    void setNewConnection(const SshForwardedTcpIpTunnel::Ptr &connection);
 
-    // QIODevice stuff
-    qint64 readData(char *data, qint64 maxlen);
-    qint64 writeData(const char *data, qint64 len);
-
-    Internal::SshDirectTcpIpTunnelPrivate * const d;
+    Internal::SshTcpIpForwardServerPrivate * const d;
 };
 
 } // namespace QSsh

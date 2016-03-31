@@ -35,6 +35,7 @@ namespace Internal {
 
 const QByteArray SshIncomingPacket::ExitStatusType("exit-status");
 const QByteArray SshIncomingPacket::ExitSignalType("exit-signal");
+const QByteArray SshIncomingPacket::ForwardedTcpIpType("forwarded-tcpip");
 
 SshIncomingPacket::SshIncomingPacket() : m_serverSeqNr(0) { }
 
@@ -313,6 +314,22 @@ SshDebug SshIncomingPacket::extractDebug() const
     }
 }
 
+SshRequestSuccess SshIncomingPacket::extractRequestSuccess() const
+{
+    Q_ASSERT(isComplete());
+    Q_ASSERT(type() == SSH_MSG_REQUEST_SUCCESS);
+
+    try {
+        SshRequestSuccess msg;
+        quint32 offset = TypeOffset + 1;
+        msg.bindPort = SshPacketParser::asUint32(m_data, &offset);
+        return msg;
+    } catch (const SshPacketParseException &) {
+        throw SSH_SERVER_EXCEPTION(SSH_DISCONNECT_PROTOCOL_ERROR,
+            "Invalid SSH_MSG_REQUEST_SUCCESS.");
+    }
+}
+
 SshUnimplemented SshIncomingPacket::extractUnimplemented() const
 {
     Q_ASSERT(isComplete());
@@ -327,6 +344,31 @@ SshUnimplemented SshIncomingPacket::extractUnimplemented() const
         throw SSH_SERVER_EXCEPTION(SSH_DISCONNECT_PROTOCOL_ERROR,
             "Invalid SSH_MSG_UNIMPLEMENTED.");
     }
+}
+
+SshChannelOpen SshIncomingPacket::extractChannelOpen() const
+{
+    Q_ASSERT(isComplete());
+    Q_ASSERT(type() == SSH_MSG_CHANNEL_OPEN);
+
+    SshChannelOpen open;
+    try {
+        quint32 offset = TypeOffset + 1;
+        QByteArray type = SshPacketParser::asString(m_data, &offset);
+        open.remoteChannel = SshPacketParser::asUint32(m_data, &offset);
+        open.remoteWindowSize = SshPacketParser::asUint32(m_data, &offset);
+        open.remoteMaxPacketSize = SshPacketParser::asUint32(m_data, &offset);
+        if (type == ForwardedTcpIpType) {
+            open.remoteAddress = SshPacketParser::asString(m_data, &offset);
+            open.remotePort = SshPacketParser::asUint32(m_data, &offset);
+        } else {
+            open.remotePort = 0;
+        }
+    } catch (const SshPacketParseException &) {
+        throw SSH_SERVER_EXCEPTION(SSH_DISCONNECT_PROTOCOL_ERROR,
+            "Server sent invalid SSH_MSG_CHANNEL_OPEN packet.");
+    }
+    return open;
 }
 
 SshChannelOpenFailure SshIncomingPacket::extractChannelOpenFailure() const

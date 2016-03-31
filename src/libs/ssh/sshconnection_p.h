@@ -45,6 +45,7 @@ namespace QSsh {
 class SftpChannel;
 class SshRemoteProcess;
 class SshDirectTcpIpTunnel;
+class SshTcpIpForwardServer;
 
 namespace Internal {
 class SshChannelManager;
@@ -83,8 +84,10 @@ public:
     QSharedPointer<SshRemoteProcess> createRemoteProcess(const QByteArray &command);
     QSharedPointer<SshRemoteProcess> createRemoteShell();
     QSharedPointer<SftpChannel> createSftpChannel();
-    QSharedPointer<SshDirectTcpIpTunnel> createTunnel(const QString &originatingHost,
+    QSharedPointer<SshDirectTcpIpTunnel> createDirectTunnel(const QString &originatingHost,
             quint16 originatingPort, const QString &remoteHost, quint16 remotePort);
+    QSharedPointer<SshTcpIpForwardServer> createForwardServer(const QString &remoteHost,
+            quint16 remotePort);
 
     SshStateInternal state() const { return m_state; }
     SshError error() const { return m_error; }
@@ -132,6 +135,9 @@ private:
     void handleChannelEof();
     void handleChannelClose();
     void handleDisconnect();
+    void handleRequestSuccess();
+    void handleRequestFailure();
+
     bool canUseSocket() const;
     void createPrivateKey();
 

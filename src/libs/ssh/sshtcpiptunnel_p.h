@@ -25,55 +25,58 @@
 
 #pragma once
 
-#include "ssh_global.h"
-
+#include "sshchannel_p.h"
 #include <QIODevice>
-#include <QSharedPointer>
+#include <QByteArray>
 
 namespace QSsh {
-
 namespace Internal {
-class SshChannelManager;
-class SshDirectTcpIpTunnelPrivate;
-class SshSendFacility;
-class SshTcpIpTunnelPrivate;
-} // namespace Internal
 
-class QSSH_EXPORT SshDirectTcpIpTunnel : public QIODevice
+class SshTcpIpTunnelPrivate : public AbstractSshChannel
 {
     Q_OBJECT
 
-    friend class Internal::SshChannelManager;
-    friend class Internal::SshTcpIpTunnelPrivate;
-
 public:
-    typedef QSharedPointer<SshDirectTcpIpTunnel> Ptr;
+    SshTcpIpTunnelPrivate(quint32 channelId, SshSendFacility &sendFacility);
+    ~SshTcpIpTunnelPrivate();
 
-    ~SshDirectTcpIpTunnel();
+    template<class SshTcpIpTunnel>
+    void init(SshTcpIpTunnel *q)
+    {
+        connect(this, &SshTcpIpTunnelPrivate::closed,
+                q, &SshTcpIpTunnel::close, Qt::QueuedConnection);
+        connect(this, &SshTcpIpTunnelPrivate::readyRead,
+                q, &SshTcpIpTunnel::readyRead, Qt::QueuedConnection);
+        connect(this, &SshTcpIpTunnelPrivate::error, q, [q](const QString &reason) {
+            q->setErrorString(reason);
+            emit q->error(reason);
+        }, Qt::QueuedConnection);
+    }
 
-    // QIODevice stuff
-    bool atEnd() const;
-    qint64 bytesAvailable() const;
-    bool canReadLine() const;
-    void close();
-    bool isSequential() const { return true; }
+    void handleChannelSuccess() override;
+    void handleChannelFailure() override;
 
-    void initialize();
-
-signals:
-    void initialized();
-    void error(const QString &reason);
-
-private:
-    SshDirectTcpIpTunnel(quint32 channelId, const QString &originatingHost,
-            quint16 originatingPort, const QString &remoteHost, quint16 remotePort,
-            Internal::SshSendFacility &sendFacility);
-
-    // QIODevice stuff
     qint64 readData(char *data, qint64 maxlen);
     qint64 writeData(const char *data, qint64 len);
 
-    Internal::SshDirectTcpIpTunnelPrivate * const d;
+signals:
+    void readyRead();
+    void error(const QString &reason);
+    void closed();
+
+private slots:
+    void handleEof();
+
+protected:
+    void handleOpenFailureInternal(const QString &reason) override;
+    void handleChannelDataInternal(const QByteArray &data) override;
+    void handleChannelExtendedDataInternal(quint32 type, const QByteArray &data) override;
+    void handleExitStatus(const SshChannelExitStatus &exitStatus) override;
+    void handleExitSignal(const SshChannelExitSignal &signal) override;
+    void closeHook() override;
+
+    QByteArray m_data;
 };
 
+} // namespace Internal
 } // namespace QSsh

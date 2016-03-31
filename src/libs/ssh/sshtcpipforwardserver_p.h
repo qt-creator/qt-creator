@@ -23,37 +23,32 @@
 **
 ****************************************************************************/
 
-#include "../remoteprocess/argumentscollector.h"
-#include "directtunnel.h"
-#include "forwardtunnel.h"
+#pragma once
 
-#include <ssh/sshconnection.h>
+#include "sshtcpipforwardserver.h"
+#include <QList>
+#include <QTimer>
 
-#include <QCoreApplication>
-#include <QObject>
-#include <QStringList>
+namespace QSsh {
+namespace Internal {
 
-#include <cstdlib>
-#include <iostream>
-
-int main(int argc, char *argv[])
+class SshTcpIpForwardServerPrivate
 {
-    QCoreApplication app(argc, argv);
-    bool parseSuccess;
-    QSsh::SshConnectionParameters parameters
-        = ArgumentsCollector(app.arguments()).collect(parseSuccess);
-    parameters.host = QLatin1String("127.0.0.1");
-    if (!parseSuccess)
-        return EXIT_FAILURE;
+public:
+    static const int ReplyTimeout = 10000; // milli seconds
 
-    DirectTunnel direct(parameters);
+    SshTcpIpForwardServerPrivate(const QString &bindAddress, quint16 bindPort,
+                                 SshSendFacility &sendFacility);
 
-    parameters.host = QLatin1String("127.0.0.2");
-    ForwardTunnel forward(parameters);
-    forward.run();
+    SshSendFacility &m_sendFacility;
+    QTimer m_timeoutTimer;
 
-    QObject::connect(&forward, &ForwardTunnel::finished, &direct, &DirectTunnel::run);
-    QObject::connect(&direct, &DirectTunnel::finished, &app, &QCoreApplication::exit);
+    const QString m_bindAddress;
+    quint16 m_bindPort;
+    SshTcpIpForwardServer::State m_state;
 
-    return app.exec();
-}
+    QList<SshForwardedTcpIpTunnel::Ptr> m_pendingConnections;
+};
+
+} // namespace Internal
+} // namespace QSsh

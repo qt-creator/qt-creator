@@ -179,6 +179,19 @@ void SshOutgoingPacket::generateDirectTcpIpPacket(quint32 channelId, quint32 win
             .appendInt(remotePort).appendString(localIpAddress).appendInt(localPort).finalize();
 }
 
+void SshOutgoingPacket::generateTcpIpForwardPacket(const QByteArray &bindAddress, quint32 bindPort)
+{
+    init(SSH_MSG_GLOBAL_REQUEST).appendString("tcpip-forward").appendBool(true)
+            .appendString(bindAddress).appendInt(bindPort).finalize();
+}
+
+void SshOutgoingPacket::generateCancelTcpIpForwardPacket(const QByteArray &bindAddress,
+                                                         quint32 bindPort)
+{
+    init(SSH_MSG_GLOBAL_REQUEST).appendString("cancel-tcpip-forward").appendBool(true)
+            .appendString(bindAddress).appendInt(bindPort).finalize();
+}
+
 void SshOutgoingPacket::generateEnvPacket(quint32 remoteChannel,
     const QByteArray &var, const QByteArray &value)
 {
@@ -253,6 +266,22 @@ void SshOutgoingPacket::generateChannelEofPacket(quint32 remoteChannel)
 void SshOutgoingPacket::generateChannelClosePacket(quint32 remoteChannel)
 {
     init(SSH_MSG_CHANNEL_CLOSE).appendInt(remoteChannel).finalize();
+}
+
+void SshOutgoingPacket::generateChannelOpenConfirmationPacket(quint32 remoteChannel,
+                                                              quint32 localChannel,
+                                                              quint32 localWindowSize,
+                                                              quint32 maxPacketSize)
+{
+    init(SSH_MSG_CHANNEL_OPEN_CONFIRMATION).appendInt(remoteChannel).appendInt(localChannel)
+            .appendInt(localWindowSize).appendInt(maxPacketSize).finalize();
+}
+
+void SshOutgoingPacket::generateChannelOpenFailurePacket(quint32 remoteChannel, quint32 reason,
+                                                         const QByteArray &reasonString)
+{
+    init(SSH_MSG_CHANNEL_OPEN_FAILURE).appendInt(remoteChannel).appendInt(reason)
+            .appendString(reasonString).appendString(QByteArray()).finalize();
 }
 
 void SshOutgoingPacket::generateDisconnectPacket(SshErrorCode reason,

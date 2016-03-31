@@ -23,37 +23,22 @@
 **
 ****************************************************************************/
 
-#include "../remoteprocess/argumentscollector.h"
-#include "directtunnel.h"
-#include "forwardtunnel.h"
+#pragma once
 
-#include <ssh/sshconnection.h>
+#include "sshforwardedtcpiptunnel.h"
+#include "sshtcpiptunnel_p.h"
 
-#include <QCoreApplication>
-#include <QObject>
-#include <QStringList>
+namespace QSsh {
+namespace Internal {
 
-#include <cstdlib>
-#include <iostream>
-
-int main(int argc, char *argv[])
+class SshForwardedTcpIpTunnelPrivate : public SshTcpIpTunnelPrivate
 {
-    QCoreApplication app(argc, argv);
-    bool parseSuccess;
-    QSsh::SshConnectionParameters parameters
-        = ArgumentsCollector(app.arguments()).collect(parseSuccess);
-    parameters.host = QLatin1String("127.0.0.1");
-    if (!parseSuccess)
-        return EXIT_FAILURE;
+    Q_OBJECT
+    friend class QSsh::SshForwardedTcpIpTunnel;
+public:
+    SshForwardedTcpIpTunnelPrivate(quint32 channelId, SshSendFacility &sendFacility);
+    void handleOpenSuccessInternal() override;
+};
 
-    DirectTunnel direct(parameters);
-
-    parameters.host = QLatin1String("127.0.0.2");
-    ForwardTunnel forward(parameters);
-    forward.run();
-
-    QObject::connect(&forward, &ForwardTunnel::finished, &direct, &DirectTunnel::run);
-    QObject::connect(&direct, &DirectTunnel::finished, &app, &QCoreApplication::exit);
-
-    return app.exec();
-}
+} // namespace Internal
+} // namespace QSsh

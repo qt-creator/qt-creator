@@ -23,37 +23,53 @@
 **
 ****************************************************************************/
 
-#include "../remoteprocess/argumentscollector.h"
-#include "directtunnel.h"
-#include "forwardtunnel.h"
+#pragma once
 
-#include <ssh/sshconnection.h>
-
-#include <QCoreApplication>
 #include <QObject>
-#include <QStringList>
+#include <QSharedPointer>
 
-#include <cstdlib>
-#include <iostream>
+QT_BEGIN_NAMESPACE
+class QTcpServer;
+class QTcpSocket;
+QT_END_NAMESPACE
 
-int main(int argc, char *argv[])
-{
-    QCoreApplication app(argc, argv);
-    bool parseSuccess;
-    QSsh::SshConnectionParameters parameters
-        = ArgumentsCollector(app.arguments()).collect(parseSuccess);
-    parameters.host = QLatin1String("127.0.0.1");
-    if (!parseSuccess)
-        return EXIT_FAILURE;
-
-    DirectTunnel direct(parameters);
-
-    parameters.host = QLatin1String("127.0.0.2");
-    ForwardTunnel forward(parameters);
-    forward.run();
-
-    QObject::connect(&forward, &ForwardTunnel::finished, &direct, &DirectTunnel::run);
-    QObject::connect(&direct, &DirectTunnel::finished, &app, &QCoreApplication::exit);
-
-    return app.exec();
+namespace QSsh {
+class SshConnection;
+class SshConnectionParameters;
+class SshDirectTcpIpTunnel;
 }
+
+class DirectTunnel : public QObject
+{
+    Q_OBJECT
+public:
+    DirectTunnel(const QSsh::SshConnectionParameters &parameters, QObject *parent = 0);
+    ~DirectTunnel();
+
+    void run();
+
+signals:
+    void finished(int errorCode);
+
+private slots:
+    void handleConnected();
+    void handleConnectionError();
+    void handleServerData();
+    void handleInitialized();
+    void handleTunnelError(const QString &reason);
+    void handleTunnelClosed();
+    void handleNewConnection();
+    void handleSocketError();
+    void handleClientData();
+    void handleTimeout();
+
+private:
+    QSsh::SshConnection * const m_connection;
+    QSharedPointer<QSsh::SshDirectTcpIpTunnel> m_tunnel;
+    QTcpServer * const m_targetServer;
+    QTcpSocket *m_targetSocket;
+    quint16 m_targetPort;
+    QByteArray m_dataReceivedFromServer;
+    QByteArray m_dataReceivedFromClient;
+    bool m_expectingChannelClose;
+};

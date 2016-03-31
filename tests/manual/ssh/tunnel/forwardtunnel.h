@@ -23,37 +23,49 @@
 **
 ****************************************************************************/
 
-#include "../remoteprocess/argumentscollector.h"
-#include "directtunnel.h"
-#include "forwardtunnel.h"
+#pragma once
 
-#include <ssh/sshconnection.h>
+#include "ssh/ssherrors.h"
 
-#include <QCoreApplication>
 #include <QObject>
-#include <QStringList>
+#include <QSharedPointer>
 
-#include <cstdlib>
-#include <iostream>
+QT_BEGIN_NAMESPACE
+class QTcpSocket;
+QT_END_NAMESPACE
 
-int main(int argc, char *argv[])
-{
-    QCoreApplication app(argc, argv);
-    bool parseSuccess;
-    QSsh::SshConnectionParameters parameters
-        = ArgumentsCollector(app.arguments()).collect(parseSuccess);
-    parameters.host = QLatin1String("127.0.0.1");
-    if (!parseSuccess)
-        return EXIT_FAILURE;
-
-    DirectTunnel direct(parameters);
-
-    parameters.host = QLatin1String("127.0.0.2");
-    ForwardTunnel forward(parameters);
-    forward.run();
-
-    QObject::connect(&forward, &ForwardTunnel::finished, &direct, &DirectTunnel::run);
-    QObject::connect(&direct, &DirectTunnel::finished, &app, &QCoreApplication::exit);
-
-    return app.exec();
+namespace QSsh {
+class SshConnection;
+class SshConnectionParameters;
+class SshTcpIpForwardServer;
 }
+
+class ForwardTunnel : public QObject
+{
+    Q_OBJECT
+public:
+    ForwardTunnel(const QSsh::SshConnectionParameters &parameters,
+                  QObject *parent = 0);
+    void run();
+
+signals:
+    void finished(int exitCode);
+
+private slots:
+    void handleConnected();
+    void handleConnectionError(QSsh::SshError error);
+    void handleInitialized();
+    void handleServerError(const QString &reason);
+    void handleServerClosed();
+    void handleNewConnection();
+    void handleSocketError();
+
+private:
+    QSsh::SshConnection * const m_connection;
+    QSharedPointer<QSsh::SshTcpIpForwardServer> m_server;
+    QTcpSocket *m_targetSocket;
+    quint16 m_targetPort;
+
+    QByteArray m_dataReceivedFromServer;
+    QByteArray m_dataReceivedFromClient;
+};

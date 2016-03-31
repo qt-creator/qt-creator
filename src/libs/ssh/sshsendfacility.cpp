@@ -172,6 +172,18 @@ void SshSendFacility::sendDirectTcpIpPacket(quint32 channelId, quint32 windowSiz
     sendPacket();
 }
 
+void SshSendFacility::sendTcpIpForwardPacket(const QByteArray &bindAddress, quint32 bindPort)
+{
+    m_outgoingPacket.generateTcpIpForwardPacket(bindAddress, bindPort);
+    sendPacket();
+}
+
+void SshSendFacility::sendCancelTcpIpForwardPacket(const QByteArray &bindAddress, quint32 bindPort)
+{
+    m_outgoingPacket.generateCancelTcpIpForwardPacket(bindAddress, bindPort);
+    sendPacket();
+}
+
 void SshSendFacility::sendPtyRequestPacket(quint32 remoteChannel,
     const SshPseudoTerminal &terminal)
 {
@@ -235,6 +247,21 @@ void SshSendFacility::sendChannelEofPacket(quint32 remoteChannel)
 void SshSendFacility::sendChannelClosePacket(quint32 remoteChannel)
 {
     m_outgoingPacket.generateChannelClosePacket(remoteChannel);
+    sendPacket();
+}
+
+void SshSendFacility::sendChannelOpenConfirmationPacket(quint32 remoteChannel, quint32 localChannel,
+    quint32 localWindowSize, quint32 maxPacketSize)
+{
+    m_outgoingPacket.generateChannelOpenConfirmationPacket(remoteChannel, localChannel,
+                                                           localWindowSize, maxPacketSize);
+    sendPacket();
+}
+
+void SshSendFacility::sendChannelOpenFailurePacket(quint32 remoteChannel, quint32 reason,
+    const QByteArray &reasonString)
+{
+    m_outgoingPacket.generateChannelOpenFailurePacket(remoteChannel, reason, reasonString);
     sendPacket();
 }
 

@@ -41,6 +41,7 @@ namespace QSsh {
 class SftpChannel;
 class SshDirectTcpIpTunnel;
 class SshRemoteProcess;
+class SshTcpIpForwardServer;
 
 namespace Internal { class SshConnectionPrivate; }
 
@@ -121,8 +122,10 @@ public:
     QSharedPointer<SshRemoteProcess> createRemoteProcess(const QByteArray &command);
     QSharedPointer<SshRemoteProcess> createRemoteShell();
     QSharedPointer<SftpChannel> createSftpChannel();
-    QSharedPointer<SshDirectTcpIpTunnel> createTunnel(const QString &originatingHost,
+    QSharedPointer<SshDirectTcpIpTunnel> createDirectTunnel(const QString &originatingHost,
             quint16 originatingPort, const QString &remoteHost, quint16 remotePort);
+    QSharedPointer<SshTcpIpForwardServer> createForwardServer(const QString &remoteHost,
+            quint16 remotePort);
 
     // -1 if an error occurred, number of channels closed otherwise.
     int closeAllChannels();

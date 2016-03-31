@@ -29,10 +29,15 @@
 #include "sftpchannel_p.h"
 #include "sshdirecttcpiptunnel.h"
 #include "sshdirecttcpiptunnel_p.h"
+#include "sshforwardedtcpiptunnel.h"
+#include "sshforwardedtcpiptunnel_p.h"
 #include "sshincomingpacket_p.h"
+#include "sshlogging_p.h"
 #include "sshremoteprocess.h"
 #include "sshremoteprocess_p.h"
 #include "sshsendfacility_p.h"
+#include "sshtcpipforwardserver.h"
+#include "sshtcpipforwardserver_p.h"
 
 #include <QList>
 
@@ -51,10 +56,54 @@ void SshChannelManager::handleChannelRequest(const SshIncomingPacket &packet)
         ->handleChannelRequest(packet);
 }
 
-void SshChannelManager::handleChannelOpen(const SshIncomingPacket &)
+void SshChannelManager::handleChannelOpen(const SshIncomingPacket &packet)
 {
-    throw SSH_SERVER_EXCEPTION(SSH_DISCONNECT_PROTOCOL_ERROR,
-        "Server tried to open channel on client.");
+    SshChannelOpen channelOpen = packet.extractChannelOpen();
+
+    SshTcpIpForwardServer::Ptr server;
+
+    foreach (const SshTcpIpForwardServer::Ptr &candidate, m_listeningForwardServers) {
+        if (candidate->port() == channelOpen.remotePort
+                && candidate->bindAddress().toUtf8() == channelOpen.remoteAddress) {
+            server = candidate;
+            break;
+        }
+    };
+
+
+    if (server.isNull()) {
+        // Apparently the server knows a remoteAddress we are not aware of. There are plenty of ways
+        // to make that happen: /etc/hosts on the server, different writings for localhost,
+        // different DNS servers, ...
+        // Rather than trying to figure that out, we just use the first listening forwarder with the
+        // same port.
+        foreach (const SshTcpIpForwardServer::Ptr &candidate, m_listeningForwardServers) {
+            if (candidate->port() == channelOpen.remotePort) {
+                server = candidate;
+                break;
+            }
+        };
+    }
+
+    if (server.isNull()) {
+        SshOpenFailureType reason = (channelOpen.remotePort == 0) ?
+                    SSH_OPEN_UNKNOWN_CHANNEL_TYPE : SSH_OPEN_ADMINISTRATIVELY_PROHIBITED;
+        try {
+            m_sendFacility.sendChannelOpenFailurePacket(channelOpen.remoteChannel, reason,
+                                                        QByteArray());
+        }  catch (const Botan::Exception &e) {
+            qCWarning(sshLog, "Botan error: %s", e.what());
+        }
+        return;
+    }
+
+    SshForwardedTcpIpTunnel::Ptr tunnel(new SshForwardedTcpIpTunnel(m_nextLocalChannelId++,
+                                                                    m_sendFacility));
+    tunnel->d->handleOpenSuccess(channelOpen.remoteChannel, channelOpen.remoteWindowSize,
+                                 channelOpen.remoteMaxPacketSize);
+    tunnel->open(QIODevice::ReadWrite);
+    server->setNewConnection(tunnel);
+    insertChannel(tunnel->d, tunnel);
 }
 
 void SshChannelManager::handleChannelOpenFailure(const SshIncomingPacket &packet)
@@ -125,6 +174,39 @@ void SshChannelManager::handleChannelClose(const SshIncomingPacket &packet)
     }
 }
 
+void SshChannelManager::handleRequestSuccess(const SshIncomingPacket &packet)
+{
+    if (m_waitingForwardServers.isEmpty()) {
+        throw SshServerException(SSH_DISCONNECT_PROTOCOL_ERROR,
+                                 "Unexpected request success packet.",
+                                 tr("Unexpected request success packet."));
+    }
+    SshTcpIpForwardServer::Ptr server = m_waitingForwardServers.takeFirst();
+    if (server->state() == SshTcpIpForwardServer::Closing) {
+        server->setClosed();
+    } else if (server->state() == SshTcpIpForwardServer::Initializing) {
+        quint16 port = server->port();
+        if (port == 0)
+            port = packet.extractRequestSuccess().bindPort;
+        server->setListening(port);
+        m_listeningForwardServers.append(server);
+    } else {
+        QSSH_ASSERT(false);
+    }
+}
+
+void SshChannelManager::handleRequestFailure(const SshIncomingPacket &packet)
+{
+    Q_UNUSED(packet);
+    if (m_waitingForwardServers.isEmpty()) {
+        throw SshServerException(SSH_DISCONNECT_PROTOCOL_ERROR,
+                                 "Unexpected request failure packet.",
+                                 tr("Unexpected request failure packet."));
+    }
+    SshTcpIpForwardServer::Ptr tunnel = m_waitingForwardServers.takeFirst();
+    tunnel->setClosed();
+}
+
 SshChannelManager::ChannelIterator SshChannelManager::lookupChannelAsIterator(quint32 channelId,
     bool allowNotFound)
 {
@@ -165,13 +247,35 @@ QSsh::SftpChannel::Ptr SshChannelManager::createSftpChannel()
     return sftp;
 }
 
-SshDirectTcpIpTunnel::Ptr SshChannelManager::createTunnel(const QString &originatingHost,
+SshDirectTcpIpTunnel::Ptr SshChannelManager::createDirectTunnel(const QString &originatingHost,
         quint16 originatingPort, const QString &remoteHost, quint16 remotePort)
 {
     SshDirectTcpIpTunnel::Ptr tunnel(new SshDirectTcpIpTunnel(m_nextLocalChannelId++,
             originatingHost, originatingPort, remoteHost, remotePort, m_sendFacility));
     insertChannel(tunnel->d, tunnel);
     return tunnel;
+}
+
+SshTcpIpForwardServer::Ptr SshChannelManager::createForwardServer(const QString &remoteHost,
+        quint16 remotePort)
+{
+    SshTcpIpForwardServer::Ptr server(new SshTcpIpForwardServer(remoteHost, remotePort,
+                                                                m_sendFacility));
+    connect(server.data(), &SshTcpIpForwardServer::stateChanged,
+            this, [this, server](SshTcpIpForwardServer::State state) {
+        switch (state) {
+        case SshTcpIpForwardServer::Closing:
+            m_listeningForwardServers.removeOne(server);
+            // fall through
+        case SshTcpIpForwardServer::Initializing:
+            m_waitingForwardServers.append(server);
+            break;
+        case SshTcpIpForwardServer::Listening:
+        case SshTcpIpForwardServer::Inactive:
+            break;
+        }
+    });
+    return server;
 }
 
 void SshChannelManager::insertChannel(AbstractSshChannel *priv,

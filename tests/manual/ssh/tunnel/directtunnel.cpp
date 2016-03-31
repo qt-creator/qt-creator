@@ -23,7 +23,7 @@
 **
 ****************************************************************************/
 
-#include "tunnel.h"
+#include "directtunnel.h"
 
 #include <ssh/sshconnection.h>
 #include <ssh/sshdirecttcpiptunnel.h>
@@ -41,7 +41,7 @@ const QByteArray TestData("Urgsblubb?");
 
 using namespace QSsh;
 
-Tunnel::Tunnel(const SshConnectionParameters &parameters, QObject *parent)
+DirectTunnel::DirectTunnel(const SshConnectionParameters &parameters, QObject *parent)
     : QObject(parent),
       m_connection(new SshConnection(parameters, this)),
       m_targetServer(new QTcpServer(this)),
@@ -51,46 +51,46 @@ Tunnel::Tunnel(const SshConnectionParameters &parameters, QObject *parent)
     connect(m_connection, SIGNAL(error(QSsh::SshError)), SLOT(handleConnectionError()));
 }
 
-Tunnel::~Tunnel()
+DirectTunnel::~DirectTunnel()
 {
 }
 
-void Tunnel::run()
+void DirectTunnel::run()
 {
     std::cout << "Connecting to SSH server..." << std::endl;
     m_connection->connectToHost();
 }
 
-void Tunnel::handleConnectionError()
+void DirectTunnel::handleConnectionError()
 {
     std::cerr << "SSH connection error: " << qPrintable(m_connection->errorString()) << std::endl;
-    qApp->exit(EXIT_FAILURE);
+    emit finished(EXIT_FAILURE);
 }
 
-void Tunnel::handleConnected()
+void DirectTunnel::handleConnected()
 {
     std::cout << "Opening server side..." << std::endl;
     if (!m_targetServer->listen(QHostAddress::LocalHost)) {
         std::cerr << "Error opening port: "
                 << m_targetServer->errorString().toLocal8Bit().constData() << std::endl;
-        qApp->exit(EXIT_FAILURE);
+        emit finished(EXIT_FAILURE);
         return;
     }
     m_targetPort = m_targetServer->serverPort();
     connect(m_targetServer, SIGNAL(newConnection()), SLOT(handleNewConnection()));
 
-    m_tunnel = m_connection->createTunnel(QLatin1String("localhost"), 1024, // made-up values
-                                          QLatin1String("localhost"), m_targetPort);
+    m_tunnel = m_connection->createDirectTunnel(QLatin1String("localhost"), 1024, // made-up values
+                                                QLatin1String("localhost"), m_targetPort);
     connect(m_tunnel.data(), SIGNAL(initialized()), SLOT(handleInitialized()));
     connect(m_tunnel.data(), SIGNAL(error(QString)), SLOT(handleTunnelError(QString)));
     connect(m_tunnel.data(), SIGNAL(readyRead()), SLOT(handleServerData()));
-    connect(m_tunnel.data(), SIGNAL(tunnelClosed()), SLOT(handleTunnelClosed()));
+    connect(m_tunnel.data(), SIGNAL(aboutToClose()), SLOT(handleTunnelClosed()));
 
     std::cout << "Initializing tunnel..." << std::endl;
     m_tunnel->initialize();
 }
 
-void Tunnel::handleInitialized()
+void DirectTunnel::handleInitialized()
 {
     std::cout << "Writing data into the tunnel..." << std::endl;
     m_tunnel->write(TestData);
@@ -99,7 +99,7 @@ void Tunnel::handleInitialized()
     timeoutTimer->start(10000);
 }
 
-void Tunnel::handleServerData()
+void DirectTunnel::handleServerData()
 {
     m_dataReceivedFromServer += m_tunnel->readAll();
     if (m_dataReceivedFromServer == ServerDataPrefix + TestData) {
@@ -109,25 +109,25 @@ void Tunnel::handleServerData()
     }
 }
 
-void Tunnel::handleTunnelError(const QString &reason)
+void DirectTunnel::handleTunnelError(const QString &reason)
 {
     std::cerr << "Tunnel error: " << reason.toLocal8Bit().constData() << std::endl;
-    qApp->exit(EXIT_FAILURE);
+    emit finished(EXIT_FAILURE);
 }
 
-void Tunnel::handleTunnelClosed()
+void DirectTunnel::handleTunnelClosed()
 {
     if (m_expectingChannelClose) {
         std::cout << "Successfully detected channel close." << std::endl;
         std::cout << "Test finished successfully." << std::endl;
-        qApp->quit();
+        emit finished(EXIT_SUCCESS);
     } else {
         std::cerr << "Error: Remote host closed channel." << std::endl;
-        qApp->exit(EXIT_FAILURE);
+        emit finished(EXIT_FAILURE);
     }
 }
 
-void Tunnel::handleNewConnection()
+void DirectTunnel::handleNewConnection()
 {
     m_targetSocket = m_targetServer->nextPendingConnection();
     m_targetServer->close();
@@ -136,14 +136,14 @@ void Tunnel::handleNewConnection()
     handleClientData();
 }
 
-void Tunnel::handleSocketError()
+void DirectTunnel::handleSocketError()
 {
     std::cerr << "Socket error: " << m_targetSocket->errorString().toLocal8Bit().constData()
             << std::endl;
-    qApp->exit(EXIT_FAILURE);
+    emit finished(EXIT_FAILURE);
 }
 
-void Tunnel::handleClientData()
+void DirectTunnel::handleClientData()
 {
     m_dataReceivedFromClient += m_targetSocket->readAll();
     if (m_dataReceivedFromClient == TestData) {
@@ -153,8 +153,8 @@ void Tunnel::handleClientData()
     }
 }
 
-void Tunnel::handleTimeout()
+void DirectTunnel::handleTimeout()
 {
     std::cerr << "Error: Timeout waiting for test completion." << std::endl;
-    qApp->exit(EXIT_FAILURE);
+    emit finished(EXIT_FAILURE);
 }
