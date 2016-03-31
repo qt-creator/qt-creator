@@ -3104,6 +3104,21 @@
          id="polygon5575-4"
          transform="translate(336,208)" />
     </g>
+    <g
+       id="src/plugins/help/images/bookmark">
+      <rect
+         id="rect6782-96"
+         height="16"
+         width="16"
+         y="568"
+         x="952"
+         style="fill:#ffffff;fill-opacity:1" />
+      <polygon
+         transform="translate(402,208)"
+         id="polygon6780-6"
+         points="555,374 555,362 561,362 561,374 558,370 "
+         style="fill:#000000;fill-opacity:1" />
+    </g>
   </g>
   <g
      inkscape:groupmode="layer"
