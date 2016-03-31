@@ -73,7 +73,7 @@ public:
 
     bool isParsing() const;
 
-    void parse();
+    void maybeForceReparse();
     void resetData();
     bool persistCMakeState();
 
@@ -93,7 +93,6 @@ protected:
 
 private:
     void ctor();
-    void maybeForceReparse();
     QList<ConfigModel::DataItem> completeCMakeConfiguration() const;
     void setCurrentCMakeConfiguration(const QList<ConfigModel::DataItem> &items);
 

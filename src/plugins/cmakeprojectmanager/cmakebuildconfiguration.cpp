@@ -148,8 +148,6 @@ void CMakeBuildConfiguration::ctor()
             m_buildDirManager, &BuildDirManager::forceReparse);
     connect(this, &CMakeBuildConfiguration::buildDirectoryChanged,
             m_buildDirManager, &BuildDirManager::forceReparse);
-    connect(target(), &Target::kitChanged, this, &CMakeBuildConfiguration::maybeForceReparse);
-    connect(project, &Project::activeTargetChanged, this, &CMakeBuildConfiguration::maybeForceReparse);
 
     connect(this, &CMakeBuildConfiguration::parsingStarted, project, &CMakeProject::handleParsingStarted);
     connect(this, &CMakeBuildConfiguration::dataAvailable, project, &CMakeProject::parseCMakeOutput);
@@ -172,11 +170,6 @@ BuildDirManager *CMakeBuildConfiguration::buildDirManager() const
 bool CMakeBuildConfiguration::isParsing() const
 {
     return m_buildDirManager && m_buildDirManager->isParsing();
-}
-
-void CMakeBuildConfiguration::parse()
-{
-    m_buildDirManager->parse();
 }
 
 void CMakeBuildConfiguration::resetData()

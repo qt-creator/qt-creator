@@ -92,6 +92,8 @@ CMakeProject::CMakeProject(CMakeManager *manager, const FileName &fileName)
     setProjectLanguages(Core::Context(ProjectExplorer::Constants::LANG_CXX));
 
     rootProjectNode()->setDisplayName(fileName.parentDir().fileName());
+
+    connect(this, &CMakeProject::activeTargetChanged, this, &CMakeProject::handleActiveTargetChanged);
 }
 
 CMakeProject::~CMakeProject()
@@ -439,10 +441,6 @@ Project::RestoreResult CMakeProject::fromMap(const QVariantMap &map, QString *er
     RestoreResult result = Project::fromMap(map, errorMessage);
     if (result != RestoreResult::Ok)
         return result;
-
-    handleActiveTargetChanged();
-    handleActiveBuildConfigurationChanged();
-
     return RestoreResult::Ok;
 }
 
@@ -461,7 +459,8 @@ void CMakeProject::handleActiveTargetChanged()
     if (m_connectedTarget) {
         disconnect(m_connectedTarget, &Target::activeBuildConfigurationChanged,
                    this, &CMakeProject::handleActiveBuildConfigurationChanged);
-
+        disconnect(m_connectedTarget, &Target::kitChanged,
+                   this, &CMakeProject::handleActiveBuildConfigurationChanged);
     }
 
     m_connectedTarget = activeTarget();
@@ -469,7 +468,11 @@ void CMakeProject::handleActiveTargetChanged()
     if (m_connectedTarget) {
         connect(m_connectedTarget, &Target::activeBuildConfigurationChanged,
                 this, &CMakeProject::handleActiveBuildConfigurationChanged);
+        connect(m_connectedTarget, &Target::kitChanged,
+                this, &CMakeProject::handleActiveBuildConfigurationChanged);
     }
+
+    handleActiveBuildConfigurationChanged();
 }
 
 void CMakeProject::handleActiveBuildConfigurationChanged()
@@ -483,7 +486,7 @@ void CMakeProject::handleActiveBuildConfigurationChanged()
             auto i = qobject_cast<CMakeBuildConfiguration *>(bc);
             QTC_ASSERT(i, continue);
             if (i == activeBc)
-                i->parse();
+                i->maybeForceReparse();
             else
                 i->resetData();
         }
