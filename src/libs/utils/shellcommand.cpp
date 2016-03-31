@@ -85,34 +85,25 @@ public:
     const QString m_defaultWorkingDirectory;
     const QProcessEnvironment m_environment;
     QVariant m_cookie;
-    int m_defaultTimeoutS;
-    unsigned m_flags;
-    QTextCodec *m_codec;
-    ProgressParser *m_progressParser;
-    bool m_progressiveOutput;
-    bool m_hadOutput;
-    bool m_aborted;
+    QTextCodec *m_codec = nullptr;
+    ProgressParser *m_progressParser = nullptr;
     QFutureWatcher<void> m_watcher;
-
     QList<Job> m_jobs;
 
-    bool m_lastExecSuccess;
-    int m_lastExecExitCode;
+    unsigned m_flags = 0;
+    int m_defaultTimeoutS = 10;
+    int m_lastExecExitCode = -1;
+
+    bool m_lastExecSuccess = false;
+    bool m_progressiveOutput = false;
+    bool m_hadOutput = false;
+    bool m_aborted = false;
 };
 
 ShellCommandPrivate::ShellCommandPrivate(const QString &defaultWorkingDirectory,
                                          const QProcessEnvironment &environment) :
     m_defaultWorkingDirectory(defaultWorkingDirectory),
-    m_environment(environment),
-    m_defaultTimeoutS(10),
-    m_flags(0),
-    m_codec(0),
-    m_progressParser(0),
-    m_progressiveOutput(false),
-    m_hadOutput(false),
-    m_aborted(false),
-    m_lastExecSuccess(false),
-    m_lastExecExitCode(-1)
+    m_environment(environment)
 { }
 
 ShellCommandPrivate::~ShellCommandPrivate()

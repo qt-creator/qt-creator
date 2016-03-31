@@ -153,24 +153,16 @@ SynchronousProcessResponse::Result ExitCodeInterpreter::interpretExitCode(int co
 
 // Data for one channel buffer (stderr/stdout)
 struct ChannelBuffer {
-    ChannelBuffer();
     void clearForRun();
     QString linesRead();
 
     QString data;
-    bool firstData;
-    bool bufferedSignalsEnabled;
-    bool firstBuffer;
-    int bufferPos;
+    int bufferPos = 0;
+    bool firstData = true;
+    bool bufferedSignalsEnabled = false;
+    bool firstBuffer = true;
 };
 
-ChannelBuffer::ChannelBuffer() :
-    firstData(true),
-    bufferedSignalsEnabled(false),
-    firstBuffer(true),
-    bufferPos(0)
-{
-}
 
 void ChannelBuffer::clearForRun()
 {
@@ -200,32 +192,26 @@ struct SynchronousProcessPrivate {
     void clearForRun();
 
     QTextCodec *m_codec;
-    ExitCodeInterpreter *m_exitCodeInterpreter;
+    ExitCodeInterpreter *m_exitCodeInterpreter = nullptr;
     QTextCodec::ConverterState m_stdOutState;
     QTextCodec::ConverterState m_stdErrState;
     TerminalControllingProcess m_process;
     QTimer m_timer;
     QEventLoop m_eventLoop;
     SynchronousProcessResponse m_result;
-    int m_hangTimerCount;
-    int m_maxHangTimerCount;
-    bool m_startFailure;
-    bool m_timeOutMessageBoxEnabled;
-    bool m_waitingForUser;
     QString m_binary;
-
     ChannelBuffer m_stdOut;
     ChannelBuffer m_stdErr;
+
+    int m_hangTimerCount = 0;
+    int m_maxHangTimerCount = defaultMaxHangTimerCount;
+    bool m_startFailure = false;
+    bool m_timeOutMessageBoxEnabled = false;
+    bool m_waitingForUser = false;
 };
 
 SynchronousProcessPrivate::SynchronousProcessPrivate() :
-    m_codec(QTextCodec::codecForLocale()),
-    m_exitCodeInterpreter(0),
-    m_hangTimerCount(0),
-    m_maxHangTimerCount(defaultMaxHangTimerCount),
-    m_startFailure(false),
-    m_timeOutMessageBoxEnabled(false),
-    m_waitingForUser(false)
+    m_codec(QTextCodec::codecForLocale())
 {
 }
 
