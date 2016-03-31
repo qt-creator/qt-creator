@@ -33,8 +33,8 @@ namespace Icons {
 
 const Utils::Icon BOOKMARK(
         QLatin1String(":/help/images/bookmark.png"));
-const Utils::Icon HOME(
-        QLatin1String(":/help/images/home.png"));
+const Utils::Icon HOME({
+        {QLatin1String(":/help/images/home.png"), Utils::Theme::IconsBaseColor}});
 const Utils::Icon MODE_HELP_CLASSIC(
         QLatin1String(":/help/images/mode_help.png"));
 const Utils::Icon MODE_HELP_FLAT({
