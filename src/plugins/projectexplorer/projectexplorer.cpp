@@ -1352,6 +1352,15 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
             return bc ? bc->displayName() : QString();
         });
 
+    expander->registerVariable(Constants::VAR_CURRENTRUN_NAME,
+        tr("The currently active run configuration's name."),
+        [this]() -> QString {
+            if (Target *target = activeTarget()) {
+                if (RunConfiguration *rc = target->activeRunConfiguration())
+                    return rc->displayName();
+            }
+            return QString();
+        });
 
     expander->registerVariable(Constants::VAR_CURRENTBUILD_TYPE,
         tr("The currently active build configuration's type."),
