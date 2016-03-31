@@ -40,10 +40,10 @@ public:
     void requestStarted(QWebEngineUrlRequestJob *job) override;
 };
 
-class HelpPage : public QWebEnginePage
+class WebEngineHelpPage : public QWebEnginePage
 {
 public:
-    explicit HelpPage(QObject *parent = 0);
+    explicit WebEngineHelpPage(QObject *parent = 0);
     QWebEnginePage *createWindow(QWebEnginePage::WebWindowType) override;
 };
 
@@ -83,7 +83,7 @@ public:
     void setOpenInNewPageActionVisible(bool visible) override;
     bool findText(const QString &text, Core::FindFlags flags, bool incremental, bool fromSearch, bool *wrapped) override;
 
-    HelpPage *page() const;
+    WebEngineHelpPage *page() const;
 
 public slots:
     void scaleUp() override;

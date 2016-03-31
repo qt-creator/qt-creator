@@ -136,9 +136,9 @@ QNetworkReply *HelpNetworkAccessManager::createRequest(Operation op,
     return new HelpNetworkReply(request, data.data, data.mimeType);
 }
 
-// - HelpPage
+// - QtWebKitHelpPage
 
-HelpPage::HelpPage(QObject *parent)
+QtWebKitHelpPage::QtWebKitHelpPage(QObject *parent)
     : QWebPage(parent)
     , closeNewTabIfNeeded(false)
     , m_pressedButtons(Qt::NoButton)
@@ -149,18 +149,18 @@ HelpPage::HelpPage(QObject *parent)
         SLOT(onHandleUnsupportedContent(QNetworkReply*)));
 }
 
-QWebPage *HelpPage::createWindow(QWebPage::WebWindowType)
+QWebPage *QtWebKitHelpPage::createWindow(QWebPage::WebWindowType)
 {
     // TODO: ensure that we'll get a QtWebKitHelpViewer here
     QtWebKitHelpViewer* viewer = static_cast<QtWebKitHelpViewer *>(OpenPagesManager::instance()
         .createPage());
-    HelpPage *newPage = viewer->page();
+    QtWebKitHelpPage *newPage = viewer->page();
     newPage->closeNewTabIfNeeded = closeNewTabIfNeeded;
     closeNewTabIfNeeded = false;
     return newPage;
 }
 
-void HelpPage::triggerAction(WebAction action, bool checked)
+void QtWebKitHelpPage::triggerAction(WebAction action, bool checked)
 {
     switch (action) {
         case OpenLinkInNewWindow:
@@ -171,7 +171,7 @@ void HelpPage::triggerAction(WebAction action, bool checked)
     }
 }
 
-bool HelpPage::acceptNavigationRequest(QWebFrame *frame, const QNetworkRequest &request,
+bool QtWebKitHelpPage::acceptNavigationRequest(QWebFrame *frame, const QNetworkRequest &request,
     QWebPage::NavigationType type)
 {
     const bool closeNewTab = closeNewTabIfNeeded;
@@ -198,7 +198,7 @@ bool HelpPage::acceptNavigationRequest(QWebFrame *frame, const QNetworkRequest &
     return true;
 }
 
-void HelpPage::onHandleUnsupportedContent(QNetworkReply *reply)
+void QtWebKitHelpPage::onHandleUnsupportedContent(QNetworkReply *reply)
 {
     // sub resource of this page
     if (m_loadingUrl != reply->url()) {
@@ -254,7 +254,7 @@ QtWebKitHelpWidget::QtWebKitHelpWidget(QtWebKitHelpViewer *parent)
 
     QWebSettings::globalSettings()->setAttribute(QWebSettings::DnsPrefetchEnabled, true);
 
-    setPage(new HelpPage(this));
+    setPage(new QtWebKitHelpPage(this));
     HelpNetworkAccessManager *manager = new HelpNetworkAccessManager(this);
     page()->setNetworkAccessManager(manager);
     connect(manager, SIGNAL(finished(QNetworkReply*)), this,
@@ -323,7 +323,7 @@ void QtWebKitHelpWidget::mousePressEvent(QMouseEvent *event)
     if (Utils::HostOsInfo::isLinuxHost() && m_parent->handleForwardBackwardMouseButtons(event))
         return;
 
-    if (HelpPage *currentPage = static_cast<HelpPage*>(page())) {
+    if (QtWebKitHelpPage *currentPage = static_cast<QtWebKitHelpPage*>(page())) {
         currentPage->m_pressedButtons = event->buttons();
         currentPage->m_keyboardModifiers = event->modifiers();
     }
@@ -402,7 +402,7 @@ QtWebKitHelpViewer::QtWebKitHelpViewer(QWidget *parent)
     connect(m_webView->page(), SIGNAL(printRequested(QWebFrame*)), this, SIGNAL(printRequested()));
     connect(m_webView, SIGNAL(backwardAvailable(bool)), this, SIGNAL(backwardAvailable(bool)));
     connect(m_webView, SIGNAL(forwardAvailable(bool)), this, SIGNAL(forwardAvailable(bool)));
-    connect(page(), &HelpPage::linkHovered, this, &QtWebKitHelpViewer::setToolTip);
+    connect(page(), &QtWebKitHelpPage::linkHovered, this, &QtWebKitHelpViewer::setToolTip);
 }
 
 QFont QtWebKitHelpViewer::viewerFont() const
@@ -582,9 +582,9 @@ bool QtWebKitHelpViewer::findText(const QString &text, FindFlags flags,
     return found;
 }
 
-HelpPage *QtWebKitHelpViewer::page() const
+QtWebKitHelpPage *QtWebKitHelpViewer::page() const
 {
-    return static_cast<HelpPage *>(m_webView->page());
+    return static_cast<QtWebKitHelpPage *>(m_webView->page());
 }
 
 void QtWebKitHelpViewer::copy()
