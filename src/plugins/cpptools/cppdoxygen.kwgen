@@ -9,6 +9,7 @@ abstract
 addindex
 addtogroup
 anchor
+annotatedlist
 arg
 attention
 author
@@ -32,8 +33,10 @@ copydoc
 corelib
 date
 def
+default
 defgroup
 deprecated
+div
 dontinclude
 dot
 dotfile
@@ -94,9 +97,12 @@ index
 indexpage
 ingroup
 inheaderfile
+inherits
 inlineimage
 inmodule
 inpublicgroup
+inqmlmodule
+instantiates
 interface
 internal
 invariant
@@ -120,6 +126,7 @@ namespace
 network
 newcode
 nextpage
+noautolist
 nonreentrant
 nosubgrouping
 note
@@ -146,6 +153,16 @@ printline
 printto
 printuntil
 property
+qmlabstract
+qmlattachedproperty
+qmlattachedsignal
+qmlbasictype
+qmlclass
+qmlmethod
+qmlmodule
+qmlproperty
+qmlsignal
+qmltype
 qt3support
 qtestlib
 quotation
@@ -180,6 +197,7 @@ skipline
 skipto
 skipuntil
 snippet
+span
 sql
 startpage
 struct
@@ -200,6 +218,7 @@ title
 todo
 tt
 typedef
+uicontrol
 uitools
 underline
 unicode
