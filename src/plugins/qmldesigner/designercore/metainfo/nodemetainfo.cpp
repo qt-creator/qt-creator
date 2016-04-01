@@ -1226,7 +1226,7 @@ void NodeMetaInfoPrivate::setupPrototypes()
                     if (qmlValue->moduleName().isEmpty() && cppExport.isValid()) {
                         description.className = cppExport.package + '.' + cppExport.type;
                     } else if (!qmlValue->moduleName().isEmpty()) {
-                        description.className = qmlValue->moduleName().toUtf8() + '.' + description.className;
+                        description.className.prepend(qmlValue->moduleName().toUtf8() + '.');
                     }
                 }
             }
