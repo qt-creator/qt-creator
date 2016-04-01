@@ -229,6 +229,16 @@ private slots:
     void test_moveTokenWiseThroughEveryFileAndOpenTypeHierarchy();
     void test_moveTokenWiseThroughEveryFileAndInvokeCompletion();
     void test_moveTokenWiseThroughEveryFileAndTriggerQuickFixes();
+
+    // CppAutoCompleter tests
+    void test_autoComplete_data();
+    void test_autoComplete();
+    void test_surroundWithSelection_data();
+    void test_surroundWithSelection();
+    void test_autoBackspace_data();
+    void test_autoBackspace();
+    void test_insertParagraph_data();
+    void test_insertParagraph();
 #endif // WITH_TESTS
 
 private:
