@@ -48,7 +48,6 @@ class DocumentModelPrivate : public QAbstractItemModel
     Q_OBJECT
 
 public:
-    DocumentModelPrivate();
     ~DocumentModelPrivate();
 
     int columnCount(const QModelIndex &parent = QModelIndex()) const;
@@ -69,6 +68,8 @@ public:
     int indexOfDocument(IDocument *document) const;
 
     bool disambiguateDisplayNames(DocumentModel::Entry *entry);
+
+    static QIcon lockedIcon();
 
 private:
     friend class DocumentModel;
@@ -101,19 +102,10 @@ private:
         }
     };
 
-    const QIcon m_lockedIcon;
-    const QIcon m_unlockedIcon;
-
     QList<DocumentModel::Entry *> m_entries;
     QMap<IDocument *, QList<IEditor *> > m_editors;
     QHash<QString, DocumentModel::Entry *> m_entryByFixedPath;
 };
-
-DocumentModelPrivate::DocumentModelPrivate() :
-    m_lockedIcon(Icons::LOCKED.icon()),
-    m_unlockedIcon(Icons::UNLOCKED.icon())
-{
-}
 
 DocumentModelPrivate::~DocumentModelPrivate()
 {
@@ -150,12 +142,7 @@ void DocumentModel::destroy()
 
 QIcon DocumentModel::lockedIcon()
 {
-    return d->m_lockedIcon;
-}
-
-QIcon DocumentModel::unlockedIcon()
-{
-    return d->m_unlockedIcon;
+    return DocumentModelPrivate::lockedIcon();
 }
 
 QAbstractItemModel *DocumentModel::model()
@@ -338,6 +325,12 @@ bool DocumentModelPrivate::disambiguateDisplayNames(DocumentModel::Entry *entry)
 
     emit dataChanged(index(minIdx + 1, 0), index(maxIdx + 1, 0));
     return true;
+}
+
+QIcon DocumentModelPrivate::lockedIcon()
+{
+    const static QIcon icon = Icons::LOCKED.icon();
+    return icon;
 }
 
 int DocumentModelPrivate::indexOfFilePath(const Utils::FileName &filePath) const
@@ -535,7 +528,7 @@ QVariant DocumentModelPrivate::data(const QModelIndex &index, int role) const
         return name;
     }
     case Qt::DecorationRole:
-        return e->document->isFileReadOnly() ? m_lockedIcon : QIcon();
+        return e->document->isFileReadOnly() ? lockedIcon() : QIcon();
     case Qt::ToolTipRole:
         return e->fileName().isEmpty() ? e->displayName() : e->fileName().toUserOutput();
     default:

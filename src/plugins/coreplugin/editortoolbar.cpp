@@ -413,11 +413,13 @@ void EditorToolBar::updateDocumentStatus(IDocument *document)
         d->m_lockButton->setEnabled(false);
         d->m_lockButton->setToolTip(QString());
     } else if (document->isFileReadOnly()) {
-        d->m_lockButton->setIcon(DocumentModel::lockedIcon());
+        const static QIcon locked = Icons::LOCKED_TOOLBAR.icon();
+        d->m_lockButton->setIcon(locked);
         d->m_lockButton->setEnabled(true);
         d->m_lockButton->setToolTip(tr("Make Writable"));
     } else {
-        d->m_lockButton->setIcon(DocumentModel::unlockedIcon());
+        const static QIcon unlocked = Icons::UNLOCKED_TOOLBAR.icon();
+        d->m_lockButton->setIcon(unlocked);
         d->m_lockButton->setEnabled(false);
         d->m_lockButton->setToolTip(tr("File is writable"));
     }

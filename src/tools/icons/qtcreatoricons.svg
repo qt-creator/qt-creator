@@ -1985,30 +1985,8 @@
          id="lockbody" />
     </g>
     <g
-       id="src/plugins/coreplugin/images/lockedbackground"
-       transform="translate(0,16)">
-      <rect
-         id="rect5031-6-2"
-         height="16"
-         width="16"
-         y="552"
-         x="313"
-         style="fill:#ffffff;fill-opacity:1" />
-      <path
-         d="m 316,558 1,0 0,-1.5 c 0,0 0,-3.5 4,-3.5 4,0 4,3.5 4,3.5 l 0,1.5 1,0 0,9 -10,0 0,-9"
-         id="path6096"
-         inkscape:connector-curvature="0"
-         sodipodi:nodetypes="ccczcccccc" />
-      <path
-         style="fill:#ffffff;fill-opacity:1;fill-rule:evenodd"
-         d="m 320,558 2,0 0,-1 c 0,0 0,-1 -1,-1 -1,0 -1,1 -1,1 l 0,1"
-         id="path6098"
-         inkscape:connector-curvature="0"
-         sodipodi:nodetypes="ccczcc" />
-    </g>
-    <g
        id="src/plugins/coreplugin/images/unlocked"
-       transform="translate(0,16)">
+       transform="translate(-16,16)">
       <rect
          id="rect5041-1"
          height="16"

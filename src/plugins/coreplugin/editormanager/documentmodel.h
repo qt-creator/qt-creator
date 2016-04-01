@@ -48,8 +48,6 @@ public:
     static void destroy();
 
     static QIcon lockedIcon();
-    static QIcon unlockedIcon();
-
     static QAbstractItemModel *model();
 
     struct CORE_EXPORT Entry {
