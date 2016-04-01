@@ -52,10 +52,11 @@ const Icon RESET(
         QLatin1String(":/core/images/reset.png"));
 const Icon DARK_CLOSE(
         QLatin1String(":/core/images/darkclose.png"));
-const Icon LOCKED(
-        QLatin1String(":/core/images/locked.png"));
-const Icon UNLOCKED(
-        QLatin1String(":/core/images/unlocked.png"));
+const Icon LOCKED({
+        {QLatin1String(":/core/images/lockedbackground.png"), Theme::PanelStatusBarBackgroundColor},
+        {QLatin1String(":/core/images/locked.png"), Theme::IconsBaseColor}}, Icon::Tint);
+const Icon UNLOCKED({
+        {QLatin1String(":/core/images/unlocked.png"), Theme::IconsDisabledColor}}, Icon::Tint);
 const Icon FIND_CASE_INSENSITIVELY(
         QLatin1String(":/find/images/casesensitively.png"));
 const Icon FIND_WHOLE_WORD(

@@ -1964,71 +1964,76 @@
          style="" />
     </g>
     <g
-       style="display:inline"
        id="src/plugins/coreplugin/images/locked"
-       transform="translate(-300,-16)">
+       transform="translate(0,16)">
       <rect
-         y="584"
-         x="597"
+         id="rect5031-6"
          height="16"
          width="16"
-         id="rect3958"
-         style="fill:none;stroke:none" />
-      <g
-         id="g4285"
-         style="opacity:0.4">
-        <rect
-           ry="2"
-           transform="translate(300,16)"
-           y="574"
-           x="299"
-           height="9"
-           width="12"
-           id="rect3511"
-           style="fill:#ffffff;fill-opacity:1;stroke:none" />
-        <path
-           style="fill:none;stroke:#ffffff;stroke-width:3;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
-           d="m 601.5,591.5 0,-1.5 c 0,-3 2,-3.5 3.5,-3.5 1.5,0 3.5,0.5 3.5,3.5 l 0,1.5"
-           id="path4283"
-           inkscape:connector-curvature="0"
-           sodipodi:nodetypes="cszsc" />
-      </g>
+         y="552"
+         x="297"
+         style="fill:#ffffff;fill-opacity:1" />
       <path
-         style="fill:#585858;fill-opacity:1;stroke:none"
-         d="m 601,591 c -0.554,0 -1,0.446 -1,1 l 0,5 c 0,0.554 0.446,1 1,1 l 8,0 c 0.554,0 1,-0.446 1,-1 l 0,-5 c 0,-0.554 -0.446,-1 -1,-1 l -8,0 z m 4.15625,2 c 0.5,0 1.39285,1.12164 -0.125,1.5 0,0.74317 1,0.47785 1,1.46875 -1.02256,0.0161 -2.04255,-0.4686 -2.03125,-1.71875 0.008,-0.93759 0.65625,-1.25 1.15625,-1.25 z"
-         id="lock_body"
-         inkscape:connector-curvature="0" />
-      <path
-         style="fill:none;stroke:#585858;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-         d="m 601.5,591.5 0,-1.5 c 0,-3 2,-3.5 3.5,-3.5 1.5,0 3.5,0.5 3.5,3.5 l 0,1.5"
-         id="path3184"
+         style="fill:#000000;fill-opacity:1"
          inkscape:connector-curvature="0"
-         sodipodi:nodetypes="cszsc" />
+         d="m 304.999,554 c -1.656,0 -2.999,1.343 -2.999,3 l 0,3 1,0 0,-3 c 0,-1.103 0.896,-2 1.999,-2 1.103,0 2.001,0.897 2.001,2 l 0,3 1,0 0,-3 c 0,-1.657 -1.343,-3 -3.001,-3 z"
+         id="lockbow" />
+      <path
+         style="fill:#000000;fill-opacity:1"
+         inkscape:connector-curvature="0"
+         d="m 301,559 0,7 8,0 0,-7 -8,0 z m 4.5,3.847 0,1.153 -1,0 0,-1.153 c -0.293,-0.175 -0.5,-0.48 -0.5,-0.847 0,-0.553 0.448,-1 1,-1 0.552,0 1,0.447 1,1 0,0.366 -0.207,0.672 -0.5,0.847 z"
+         id="lockbody" />
     </g>
     <g
-       style="display:inline"
-       transform="translate(-284,-16)"
-       id="src/plugins/coreplugin/images/unlocked">
+       id="src/plugins/coreplugin/images/lockedbackground"
+       transform="translate(0,16)">
       <rect
-         y="584"
-         x="597"
+         id="rect5031-6-2"
          height="16"
          width="16"
-         id="rect3958-7"
-         style="fill:none;stroke:none" />
+         y="552"
+         x="313"
+         style="fill:#ffffff;fill-opacity:1" />
       <path
-         style="fill:none;stroke:#585858;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-         d="m 612.5,590 0,-2.5 c 0,-2 -2,-2 -2.5,-2 -0.5,0 -2.5,-3e-5 -2.5,2.5 l 0,3"
-         id="path3184-0"
+         d="m 316,558 1,0 0,-1.5 c 0,0 0,-3.5 4,-3.5 4,0 4,3.5 4,3.5 l 0,1.5 1,0 0,9 -10,0 0,-9"
+         id="path6096"
          inkscape:connector-curvature="0"
-         sodipodi:nodetypes="cszsc" />
+         sodipodi:nodetypes="ccczcccccc" />
+      <path
+         style="fill:#ffffff;fill-opacity:1;fill-rule:evenodd"
+         d="m 320,558 2,0 0,-1 c 0,0 0,-1 -1,-1 -1,0 -1,1 -1,1 l 0,1"
+         id="path6098"
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="ccczcc" />
+    </g>
+    <g
+       id="src/plugins/coreplugin/images/unlocked"
+       transform="translate(0,16)">
+      <rect
+         id="rect5041-1"
+         height="16"
+         width="16"
+         y="552"
+         x="329"
+         style="fill:#ffffff;fill-opacity:1" />
       <use
+         transform="translate(36,0)"
+         style="display:inline"
          x="0"
          y="0"
-         xlink:href="#lock_body"
-         id="use3213"
-         width="800"
-         height="600" />
+         xlink:href="#lockbow"
+         id="use6038"
+         width="100%"
+         height="100%" />
+      <use
+         transform="translate(31,0)"
+         style="display:inline"
+         x="0"
+         y="0"
+         xlink:href="#lockbody"
+         id="use6055"
+         width="100%"
+         height="100%" />
     </g>
     <g
        id="src/plugins/diffeditor/images/unifieddiff"
