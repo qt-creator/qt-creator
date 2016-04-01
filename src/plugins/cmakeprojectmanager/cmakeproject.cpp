@@ -204,8 +204,11 @@ void CMakeProject::parseCMakeOutput()
 {
     auto cmakeBc = qobject_cast<CMakeBuildConfiguration *>(sender());
     QTC_ASSERT(cmakeBc, return);
-    if (!activeTarget() || activeTarget()->activeBuildConfiguration() != cmakeBc)
+
+    Target *t = activeTarget();
+    if (!t || t->activeBuildConfiguration() != cmakeBc)
         return;
+    Kit *k = t->kit();
 
     BuildDirManager *bdm = cmakeBc->buildDirManager();
     QTC_ASSERT(bdm, return);
@@ -219,7 +222,7 @@ void CMakeProject::parseCMakeOutput()
 
     createGeneratedCodeModelSupport();
 
-    ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(cmakeBc->target()->kit());
+    ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(k);
     if (!tc) {
         emit fileListChanged();
         return;
@@ -230,7 +233,7 @@ void CMakeProject::parseCMakeOutput()
     CppTools::ProjectPartBuilder ppBuilder(pinfo);
 
     CppTools::ProjectPart::QtVersion activeQtVersion = CppTools::ProjectPart::NoQt;
-    if (QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitInformation::qtVersion(cmakeBc->target()->kit())) {
+    if (QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitInformation::qtVersion(k)) {
         if (qtVersion->qtVersion() < QtSupport::QtVersionNumber(5,0,0))
             activeQtVersion = CppTools::ProjectPart::Qt4;
         else
