@@ -82,7 +82,9 @@ ClangStaticAnalyzerRunControl::ClangStaticAnalyzerRunControl(
 
     ToolChain *toolChain = ToolChainKitInformation::toolChain(target->kit());
     QTC_ASSERT(toolChain, return);
-    m_extraToolChainInfo.wordWidth = runConfiguration->abi().wordWidth();
+    Abi abi = runConfiguration->abi();
+    m_extraToolChainInfo.wordWidth = abi.wordWidth();
+    m_extraToolChainInfo.isMsvc2015 = abi.osFlavor() == Abi::WindowsMsvc2015Flavor;
     m_extraToolChainInfo.targetTriple = toolChain->originalTargetTriple();
 }
 
@@ -140,6 +142,14 @@ QStringList inputAndOutputArgumentsRemoved(const QString &inputFile, const QStri
     return newArguments;
 }
 
+static void appendMsCompatibility2015OptionForMsvc2015(QStringList *arguments, bool isMsvc2015)
+{
+    QTC_ASSERT(arguments, return);
+
+    if (isMsvc2015)
+        arguments->append(QLatin1String("-fms-compatibility-version=19"));
+}
+
 static QStringList tweakedArguments(const QString &filePath,
                                     const QStringList &arguments,
                                     const ExtraToolChainInfo &extraParams)
@@ -147,6 +157,7 @@ static QStringList tweakedArguments(const QString &filePath,
     QStringList newArguments = inputAndOutputArgumentsRemoved(filePath, arguments);
     prependWordWidthArgumentIfNotIncluded(&newArguments, extraParams.wordWidth);
     prependTargetTripleIfNotIncludedAndNotEmpty(&newArguments, extraParams.targetTriple);
+    appendMsCompatibility2015OptionForMsvc2015(&newArguments, extraParams.isMsvc2015);
 
     return newArguments;
 }
@@ -199,6 +210,7 @@ public:
         QStringList options = optionsBuilder.options();
         prependWordWidthArgumentIfNotIncluded(&options, extraParams.wordWidth);
         prependTargetTripleIfNotIncludedAndNotEmpty(&options, extraParams.targetTriple);
+        appendMsCompatibility2015OptionForMsvc2015(&options, extraParams.isMsvc2015);
 
         return options;
     }
