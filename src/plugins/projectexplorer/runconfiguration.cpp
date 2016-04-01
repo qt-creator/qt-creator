@@ -256,6 +256,9 @@ void RunConfiguration::ctor()
         BuildConfiguration *bc = target()->activeBuildConfiguration();
         return bc ? bc->macroExpander() : target()->macroExpander();
     });
+    expander->registerVariable(Constants::VAR_CURRENTRUN_NAME,
+            QCoreApplication::translate("ProjectExplorer", "The currently active run configuration's name."),
+            [this] { return displayName(); }, false);
 }
 
 /*!

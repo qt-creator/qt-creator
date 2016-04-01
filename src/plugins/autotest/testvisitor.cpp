@@ -73,6 +73,8 @@ bool TestVisitor::visit(CPlusPlus::Class *symbol)
         if (className != m_className)
             continue;
 
+        m_valid = true;
+
         if (const auto func = type->asFunctionType()) {
             if (func->isSlot() && member->isPrivate()) {
                 const QString name = o.prettyName(func->name());

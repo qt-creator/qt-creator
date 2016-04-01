@@ -51,6 +51,7 @@ public:
     virtual ~TestVisitor();
 
     QMap<QString, TestCodeLocationAndType> privateSlots() const { return m_privSlots; }
+    bool resultValid() const { return m_valid; }
 
     bool visit(CPlusPlus::Class *symbol);
 
@@ -58,6 +59,7 @@ private:
     CppTools::SymbolFinder m_symbolFinder;
     QString m_className;
     QMap<QString, TestCodeLocationAndType> m_privSlots;
+    bool m_valid = false;
 };
 
 class TestAstVisitor : public CPlusPlus::ASTVisitor

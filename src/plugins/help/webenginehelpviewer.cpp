@@ -73,7 +73,7 @@ WebEngineHelpViewer::WebEngineHelpViewer(QWidget *parent) :
     HelpViewer(parent),
     m_widget(new WebView(this))
 {
-    m_widget->setPage(new HelpPage(this));
+    m_widget->setPage(new WebEngineHelpPage(this));
     auto layout = new QVBoxLayout;
     setLayout(layout);
     layout->setContentsMargins(0, 0, 0, 0);
@@ -226,9 +226,9 @@ bool WebEngineHelpViewer::findText(const QString &text, Core::FindFlags flags, b
     return true;
 }
 
-HelpPage *WebEngineHelpViewer::page() const
+WebEngineHelpPage *WebEngineHelpViewer::page() const
 {
-    return static_cast<HelpPage *>(m_widget->page());
+    return static_cast<WebEngineHelpPage *>(m_widget->page());
 }
 
 void WebEngineHelpViewer::scaleUp()
@@ -271,12 +271,12 @@ void WebEngineHelpViewer::print(QPrinter *printer)
     Q_UNUSED(printer)
 }
 
-HelpPage::HelpPage(QObject *parent)
+WebEngineHelpPage::WebEngineHelpPage(QObject *parent)
     : QWebEnginePage(parent)
 {
 }
 
-QWebEnginePage *HelpPage::createWindow(QWebEnginePage::WebWindowType)
+QWebEnginePage *WebEngineHelpPage::createWindow(QWebEnginePage::WebWindowType)
 {
     auto viewer = static_cast<WebEngineHelpViewer *>(OpenPagesManager::instance().createPage());
     return viewer->page();

@@ -103,6 +103,8 @@ void QbsProjectParser::parse(const QVariantMap &config, const Environment &env, 
     params.setSearchPaths(prefs.searchPaths(resourcesBaseDirectory()));
     params.setPluginPaths(prefs.pluginPaths(pluginsBaseDirectory()));
     params.setLibexecPath(libExecDirectory());
+    params.setProductErrorMode(qbs::ErrorHandlingMode::Relaxed);
+    params.setPropertyCheckingMode(qbs::ErrorHandlingMode::Relaxed);
 
     m_qbsSetupProjectJob = m_project.setupProject(params, QbsManager::logSink(), 0);
 

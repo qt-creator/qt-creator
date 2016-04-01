@@ -50,7 +50,7 @@ public:
     void setNdkPath(const QString &ndkPath);
 
 protected:
-    virtual QList<ProjectExplorer::Abi> detectSupportedAbis() const override;
+    virtual DetectedAbisResult detectSupportedAbis() const override;
 
     QStringList reinterpretOptions(const QStringList &args) const override;
 

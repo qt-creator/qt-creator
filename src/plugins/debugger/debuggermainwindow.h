@@ -60,7 +60,7 @@ public:
                   Qt::DockWidgetArea area = Qt::BottomDockWidgetArea);
 
         QByteArray dockId;
-        QWidget *widget = 0;
+        QPointer<QWidget> widget;
         QByteArray anchorDockId;
         OperationType operationType;
         bool visibleByDefault;
@@ -114,13 +114,11 @@ public:
     void resetCurrentPerspective();
     void restorePerspective(const QByteArray &perspectiveId);
 
-    void finalizeSetup(Core::IMode *mode, QWidget *central = 0);
+    void finalizeSetup();
 
     void showStatusMessage(const QString &message, int timeoutMS);
     QDockWidget *dockWidget(const QByteArray &dockId) const;
     QByteArray currentPerspective() const { return m_currentPerspectiveId; }
-
-    QWidget *modeWindow();
 
 private:
     QDockWidget *registerDockWidget(const QByteArray &dockId, QWidget *widget);
@@ -135,12 +133,8 @@ private:
     QHash<QByteArray, QDockWidget *> m_dockForDockId;
     QHash<QByteArray, QWidget *> m_toolbarForPerspectiveId;
     QHash<QByteArray, Perspective> m_perspectiveForPerspectiveId;
-
-    // list of dock widgets to prevent memory leak
-    typedef QPointer<QDockWidget> DockPtr;
-    QList<DockPtr> m_dockWidgets;
-
-    QWidget *m_modeWindow = 0;
 };
+
+QWidget *createModeWindow(Core::IMode *mode, DebuggerMainWindow *mainWindow, QWidget *central);
 
 } // Utils

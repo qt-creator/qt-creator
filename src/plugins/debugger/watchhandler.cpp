@@ -1078,16 +1078,24 @@ Qt::ItemFlags WatchModel::flags(const QModelIndex &idx) const
 
     const Qt::ItemFlags notEditable = Qt::ItemIsSelectable | Qt::ItemIsEnabled;
     const Qt::ItemFlags editable = notEditable | Qt::ItemIsEditable;
+    bool isRunning = true;
+    switch (state) {
+    case InferiorStopOk:
+    case InferiorUnrunnable:
+    case DebuggerNotReady:
+    case DebuggerFinished:
+        isRunning = false;
+        break;
+    default:
+        break;
+    }
 
     if (item->isWatcher()) {
         if (state == InferiorUnrunnable)
             return (column == 0 && item->iname.count('.') == 1) ? editable : notEditable;
 
-        if (state != InferiorStopOk
-                && state != DebuggerNotReady
-                && state != DebuggerFinished
-                && !m_engine->hasCapability(AddWatcherWhileRunningCapability))
-            return Qt::ItemFlags();
+        if (isRunning && !m_engine->hasCapability(AddWatcherWhileRunningCapability))
+            return notEditable;
         if (column == 0 && item->iname.count('.') == 1)
             return editable; // Watcher names are editable.
         if (column == 1 && item->arrayIndex >= 0)
@@ -1101,8 +1109,10 @@ Qt::ItemFlags WatchModel::flags(const QModelIndex &idx) const
                 return editable; // Watcher values are sometimes editable.
         }
     } else if (item->isLocal()) {
-        if (state != InferiorStopOk && !m_engine->hasCapability(AddWatcherWhileRunningCapability))
-           return Qt::ItemFlags();
+        if (state == InferiorUnrunnable)
+            return notEditable;
+        if (isRunning && !m_engine->hasCapability(AddWatcherWhileRunningCapability))
+            return notEditable;
         if (column == 1 && item->valueEditable && !item->elided)
             return editable; // Locals values are sometimes editable.
         if (column == 1 && item->arrayIndex >= 0)
@@ -1787,7 +1797,7 @@ static void showInEditorHelper(const WatchItem *item, QTextStream &ts, int depth
 {
     const QChar tab = QLatin1Char('\t');
     const QChar nl = QLatin1Char('\n');
-    ts << QString(depth, tab) << item->name << tab << item->value << tab
+    ts << QString(depth, tab) << item->name << tab << displayValue(item) << tab
        << item->type << nl;
     foreach (const TreeItem *child, item->children())
         showInEditorHelper(static_cast<const WatchItem *>(child), ts, depth + 1);

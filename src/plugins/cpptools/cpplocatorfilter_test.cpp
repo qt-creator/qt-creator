@@ -48,8 +48,6 @@ using namespace CppTools::Internal;
 using namespace ExtensionSystem;
 using namespace Utils;
 
-Q_DECLARE_METATYPE(ILocatorFilter *)
-
 namespace {
 
 enum { debug = 0 };

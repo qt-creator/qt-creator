@@ -23,10 +23,11 @@ exists($$LLVM_INSTALL_DIR) {
     SUBDIRS += clangbackend
 }
 
-BUILD_CPLUSPLUS_TOOLS = $$(BUILD_CPLUSPLUS_TOOLS)
+isEmpty(BUILD_CPLUSPLUS_TOOLS):BUILD_CPLUSPLUS_TOOLS=$$(BUILD_CPLUSPLUS_TOOLS)
 !isEmpty(BUILD_CPLUSPLUS_TOOLS) {
     SUBDIRS += cplusplus-ast2png \
         cplusplus-frontend \
+        cplusplus-keywordgen \
         cplusplus-mkvisitor \
         cplusplus-update-frontend
 }

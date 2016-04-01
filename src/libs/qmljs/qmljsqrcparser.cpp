@@ -74,6 +74,9 @@ public:
     bool hasDirAtPath(const QString &path, const QLocale *locale = 0) const;
     void collectFilesInPath(const QString &path, QMap<QString,QStringList> *res, bool addDirs = false,
                             const QLocale *locale = 0) const;
+    void collectResourceFilesForSourceFile(const QString &sourceFile, QStringList *res,
+                                           const QLocale *locale = 0) const;
+
     QStringList errorMessages() const;
     QStringList languages() const;
 private:
@@ -81,6 +84,7 @@ private:
     QStringList allUiLanguages(const QLocale *locale) const;
 
     SMap m_resources;
+    SMap m_files;
     QStringList m_languages;
     QStringList m_errorMessages;
 };
@@ -128,6 +132,11 @@ QString QrcParser::normalizedQrcDirectoryPath(const QString &path) {
     if (!normPath.endsWith(QLatin1Char('/')))
         normPath.append(QLatin1Char('/'));
     return normPath;
+}
+
+QString QrcParser::qrcDirectoryPathForQrcFilePath(const QString &file)
+{
+    return file.left(file.lastIndexOf(QLatin1Char('/')));
 }
 
 QrcParser::QrcParser()
@@ -179,6 +188,12 @@ void QrcParser::collectFilesInPath(const QString &path, QMap<QString,QStringList
                                    const QLocale *locale) const
 {
     d->collectFilesInPath(path, res, addDirs, locale);
+}
+
+void QrcParser::collectResourceFilesForSourceFile(const QString &sourceFile, QStringList *res,
+                                                  const QLocale *locale) const
+{
+    d->collectResourceFilesForSourceFile(sourceFile, res, locale);
 }
 
 /*! \brief returns the errors found while parsing
@@ -297,13 +312,12 @@ bool QrcParserPrivate::parseFile(const QString &path)
                 accessPath = language + prefix + alias;
             else
                 accessPath = language + prefix + fileName;
-            if (m_resources.contains(accessPath)) {
-                QStringList &val = m_resources[accessPath];
-                if (!val.contains(filePath))
-                    val.append(filePath);
-            } else {
-                m_resources.insert(accessPath, QStringList(filePath));
-            }
+            QStringList &resources = m_resources[accessPath];
+            if (!resources.contains(filePath))
+                resources.append(filePath);
+            QStringList &files = m_files[filePath];
+            if (!files.contains(accessPath))
+                files.append(accessPath);
         }
     }
     return true;
@@ -384,6 +398,24 @@ void QrcParserPrivate::collectFilesInPath(const QString &path, QMap<QString,QStr
                     ++res;
                 } while (res != end && res.key().startsWith(key2));
             }
+        }
+    }
+}
+
+void QrcParserPrivate::collectResourceFilesForSourceFile(const QString &sourceFile,
+                                                         QStringList *results,
+                                                         const QLocale *locale) const
+{
+    QTC_CHECK(sourceFile.startsWith(QLatin1Char('/')));
+    QTC_CHECK(!sourceFile.endsWith(QLatin1Char('/')));
+    QStringList langs = allUiLanguages(locale);
+    SMap::const_iterator file = m_files.find(sourceFile);
+    if (file == m_files.end())
+        return;
+    foreach (const QString &resource, file.value()) {
+        foreach (const QString &language, langs) {
+            if (resource.startsWith(language) && !results->contains(resource))
+                results->append(resource);
         }
     }
 }

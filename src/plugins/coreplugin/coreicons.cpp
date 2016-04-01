@@ -132,18 +132,6 @@ const Icon INFO_TOOLBAR({
         {QLatin1String(":/core/images/info.png"), Theme::IconsInfoToolBarColor}});
 const Icon EXPAND({
         {QLatin1String(":/find/images/expand.png"), Theme::IconsBaseColor}});
-const Icon DEBUG_START_SMALL({
-        {QLatin1String(":/core/images/debugger_overlay_small.png"), Theme::IconsDebugColor},
-        {QLatin1String(":/core/images/run_overlay_small.png"), Theme::IconsRunColor}});
-const Icon DEBUG_EXIT_SMALL({
-        {QLatin1String(":/core/images/debugger_overlay_small.png"), Theme::IconsDebugColor},
-        {QLatin1String(":/core/images/stop_overlay_small.png"), Theme::IconsStopColor}});
-const Icon DEBUG_INTERRUPT_SMALL({
-        {QLatin1String(":/core/images/debugger_overlay_small.png"), Theme::IconsDebugColor},
-        {QLatin1String(":/core/images/interrupt_overlay_small.png"), Theme::IconsInterruptColor}});
-const Icon DEBUG_CONTINUE_SMALL({
-        {QLatin1String(":/core/images/debugger_overlay_small.png"), Theme::IconsDebugColor},
-        {QLatin1String(":/core/images/continue_overlay_small.png"), Theme::IconsRunColor}});
 const Icon ZOOM({
         {QLatin1String(":/core/images/zoom.png"), Theme::IconsBaseColor}});
 const Icon TOOLBAR_EXTENSION({

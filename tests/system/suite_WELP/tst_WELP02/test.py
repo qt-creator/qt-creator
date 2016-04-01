@@ -26,10 +26,7 @@
 source("../../shared/qtcreator.py")
 source("../../shared/suites_qtta.py")
 
-if isQt54Build:
-    welcomePage = ":WelcomePageStyledBar.WelcomePage_QQuickView"
-else:
-    welcomePage = ":Qt Creator.WelcomePage_QQuickWidget"
+welcomePage = ":Qt Creator.WelcomePage_QQuickWidget"
 
 def checkTypeAndProperties(typePropertiesDetails):
     for (qType, props, detail) in typePropertiesDetails:
@@ -53,7 +50,7 @@ def main():
     typePropDet = (("Button", "text='Get Started Now' id='gettingStartedButton'",
                     "Get Started Now button"),
                    ("Text", "text='Sessions' id='sessionsTitle'", "Sessions section"),
-                    ("Text", "text='default' id='text'", "default session listed"),
+                    ("Text", "text='default'", "default session listed"),
                    ("Text", "text='Recent Projects' id='recentProjectsTitle'", "Projects section"),
                    )
     checkTypeAndProperties(typePropDet)
@@ -66,10 +63,10 @@ def main():
     # go to "Welcome page" again and verify updated information
     switchViewTo(ViewConstants.WELCOME)
     typePropDet = (("Text", "text='Sessions' id='sessionsTitle'", "Sessions section"),
-                   ("Text", "text='default (current session)' id='text'",
+                   ("Text", "text='default (current session)'",
                     "default session as current listed"),
                    ("Text", "text='Recent Projects' id='recentProjectsTitle'", "Projects section"),
-                   ("LinkedText", "text='SampleApp' id='projectNameText'",
+                   ("Text", "text='SampleApp'",
                     "current project listed in projects section")
                    )
     checkTypeAndProperties(typePropDet)
@@ -83,10 +80,10 @@ def main():
                 "Verifying: The project is opened in 'Edit' mode after configuring.")
     # go to "Welcome page" again and check if there is an information about recent projects
     switchViewTo(ViewConstants.WELCOME)
-    test.verify(checkIfObjectExists(getQmlItem("LinkedText", welcomePage, False,
-                                               "text='propertyanimation' id='projectNameText'")) and
-                checkIfObjectExists(getQmlItem("LinkedText", welcomePage, False,
-                                               "text='SampleApp' id='projectNameText'")),
+    test.verify(checkIfObjectExists(getQmlItem("Text", welcomePage, False,
+                                               "text='propertyanimation'")) and
+                checkIfObjectExists(getQmlItem("Text", welcomePage, False,
+                                               "text='SampleApp'")),
                 "Verifying: 'Welcome page' displays information about recently created and "
                 "opened projects.")
     # exit Qt Creator

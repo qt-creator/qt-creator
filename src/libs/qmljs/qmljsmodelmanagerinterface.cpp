@@ -427,46 +427,10 @@ bool pInfoLessThanImports(const ModelManagerInterface::ProjectInfo &p1, const Mo
 
 }
 
-QStringList ModelManagerInterface::filesAtQrcPath(const QString &path, const QLocale *locale,
-                                         ProjectExplorer::Project *project,
-                                         QrcResourceSelector resources)
+void ModelManagerInterface::iterateQrcFiles(ProjectExplorer::Project *project,
+                                            QrcResourceSelector resources,
+                                            std::function<void(QrcParser::ConstPtr)> callback)
 {
-    QString normPath = QrcParser::normalizedQrcFilePath(path);
-    QList<ProjectInfo> pInfos;
-    if (project)
-        pInfos.append(projectInfo(project));
-    else
-        pInfos = projectInfos();
-
-    QStringList res;
-    QSet<QString> pathsChecked;
-    foreach (const ModelManagerInterface::ProjectInfo &pInfo, pInfos) {
-        QStringList qrcFilePaths;
-        if (resources == ActiveQrcResources)
-            qrcFilePaths = pInfo.activeResourceFiles;
-        else
-            qrcFilePaths = pInfo.allResourceFiles;
-        foreach (const QString &qrcFilePath, qrcFilePaths) {
-            if (pathsChecked.contains(qrcFilePath))
-                continue;
-            pathsChecked.insert(qrcFilePath);
-            QrcParser::ConstPtr qrcFile = m_qrcCache.parsedPath(qrcFilePath);
-            if (qrcFile.isNull())
-                continue;
-            qrcFile->collectFilesAtPath(normPath, &res, locale);
-        }
-    }
-    res.sort(); // make the result predictable
-    return res;
-}
-
-QMap<QString, QStringList> ModelManagerInterface::filesInQrcPath(const QString &path,
-                                                        const QLocale *locale,
-                                                        ProjectExplorer::Project *project,
-                                                        bool addDirs,
-                                                        QrcResourceSelector resources)
-{
-    QString normPath = QrcParser::normalizedQrcDirectoryPath(path);
     QList<ProjectInfo> pInfos;
     if (project) {
         pInfos.append(projectInfo(project));
@@ -477,7 +441,7 @@ QMap<QString, QStringList> ModelManagerInterface::filesInQrcPath(const QString &
         else
             qSort(pInfos.begin(), pInfos.end(), &pInfoLessThanAll);
     }
-    QMap<QString, QStringList> res;
+
     QSet<QString> pathsChecked;
     foreach (const ModelManagerInterface::ProjectInfo &pInfo, pInfos) {
         QStringList qrcFilePaths;
@@ -490,12 +454,47 @@ QMap<QString, QStringList> ModelManagerInterface::filesInQrcPath(const QString &
                 continue;
             pathsChecked.insert(qrcFilePath);
             QrcParser::ConstPtr qrcFile = m_qrcCache.parsedPath(qrcFilePath);
-
             if (qrcFile.isNull())
                 continue;
-            qrcFile->collectFilesInPath(normPath, &res, addDirs, locale);
+            callback(qrcFile);
         }
     }
+}
+
+QStringList ModelManagerInterface::qrcPathsForFile(const QString &file, const QLocale *locale,
+                                                   ProjectExplorer::Project *project,
+                                                   QrcResourceSelector resources)
+{
+    QStringList res;
+    iterateQrcFiles(project, resources, [&](QrcParser::ConstPtr qrcFile) {
+        qrcFile->collectResourceFilesForSourceFile(file, &res, locale);
+    });
+    return res;
+}
+
+QStringList ModelManagerInterface::filesAtQrcPath(const QString &path, const QLocale *locale,
+                                         ProjectExplorer::Project *project,
+                                         QrcResourceSelector resources)
+{
+    QString normPath = QrcParser::normalizedQrcFilePath(path);
+    QStringList res;
+    iterateQrcFiles(project, resources, [&](QrcParser::ConstPtr qrcFile) {
+        qrcFile->collectFilesAtPath(normPath, &res, locale);
+    });
+    return res;
+}
+
+QMap<QString, QStringList> ModelManagerInterface::filesInQrcPath(const QString &path,
+                                                        const QLocale *locale,
+                                                        ProjectExplorer::Project *project,
+                                                        bool addDirs,
+                                                        QrcResourceSelector resources)
+{
+    QString normPath = QrcParser::normalizedQrcDirectoryPath(path);
+    QMap<QString, QStringList> res;
+    iterateQrcFiles(project, resources, [&](QrcParser::ConstPtr qrcFile) {
+        qrcFile->collectFilesInPath(normPath, &res, addDirs, locale);
+    });
     return res;
 }
 

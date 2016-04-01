@@ -108,6 +108,9 @@ private slots:
     void test_global_completion_data();
     void test_global_completion();
 
+    void test_doxygen_tag_completion_data();
+    void test_doxygen_tag_completion();
+
     void test_completion_member_access_operator_data();
     void test_completion_member_access_operator();
 

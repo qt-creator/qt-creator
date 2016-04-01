@@ -59,7 +59,6 @@
 #include <QProcess>
 #include <QScrollBar>
 #include <QTextBlock>
-#include <QTimer>
 #include <QtPlugin>
 
 using namespace TextEditor;
@@ -179,6 +178,7 @@ bool BeautifierPlugin::initialize(const QStringList &arguments, QString *errorSt
 
     Core::ActionContainer *menu = Core::ActionManager::createMenu(Constants::MENU_ID);
     menu->menu()->setTitle(QCoreApplication::translate("Beautifier", Constants::OPTION_TR_CATEGORY));
+    menu->setOnAllDisabledBehavior(Core::ActionContainer::Show);
     Core::ActionManager::actionContainer(Core::Constants::M_TOOLS)->addMenu(menu);
 
     foreach (BeautifierAbstractTool *tool, m_tools) {
@@ -188,9 +188,7 @@ bool BeautifierPlugin::initialize(const QStringList &arguments, QString *errorSt
             addAutoReleasedObject(object);
     }
 
-    // The single shot is needed, otherwise the menu will stay disabled even
-    // when the submenu's actions get enabled later on.
-    QTimer::singleShot(0, this, SLOT(updateActions()));
+    updateActions();
     return true;
 }
 

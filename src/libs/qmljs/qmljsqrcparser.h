@@ -52,6 +52,9 @@ public:
     bool hasDirAtPath(const QString &path, const QLocale *locale = 0) const;
     void collectFilesInPath(const QString &path, QMap<QString,QStringList> *res, bool addDirs = false,
                             const QLocale *locale = 0) const;
+    void collectResourceFilesForSourceFile(const QString &sourceFile, QStringList *results,
+                                           const QLocale *locale = 0) const;
+
     QStringList errorMessages() const;
     QStringList languages() const;
     bool isValid() const;
@@ -59,6 +62,7 @@ public:
     static Ptr parseQrcFile(const QString &path);
     static QString normalizedQrcFilePath(const QString &path);
     static QString normalizedQrcDirectoryPath(const QString &path);
+    static QString qrcDirectoryPathForQrcFilePath(const QString &file);
 private:
     QrcParser();
     QrcParser(const QrcParser &);

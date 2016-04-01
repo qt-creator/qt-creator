@@ -57,7 +57,7 @@ namespace Internal {
 
 Console::Console()
 {
-    m_consoleItemModel = new ConsoleItemModel;
+    m_consoleItemModel = new ConsoleItemModel(this);
 
     m_consoleWidget = new QWidget;
     m_consoleWidget->setWindowTitle(displayName());

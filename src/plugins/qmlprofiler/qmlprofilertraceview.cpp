@@ -71,16 +71,10 @@ class QmlProfilerTraceView::QmlProfilerTraceViewPrivate
 public:
     QmlProfilerTraceViewPrivate(QmlProfilerTraceView *qq) : q(qq) {}
     QmlProfilerTraceView *q;
-
     QmlProfilerViewManager *m_viewContainer;
-
-    QSize m_sizeHint;
-
     QQuickWidget *m_mainView;
     QmlProfilerModelManager *m_modelManager;
     Timeline::TimelineModelAggregator *m_modelProxy;
-
-
     Timeline::TimelineZoomControl *m_zoomControl;
 };
 

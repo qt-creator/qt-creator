@@ -152,6 +152,9 @@ public:
                            bool emitDocumentOnDiskChanged);
     void fileChangedOnDisk(const QString &path);
     void removeFiles(const QStringList &files);
+    QStringList qrcPathsForFile(const QString &file, const QLocale *locale = 0,
+                                ProjectExplorer::Project *project = 0,
+                                QrcResourceSelector resources = AllQrcResources);
     QStringList filesAtQrcPath(const QString &path, const QLocale *locale = 0,
                                ProjectExplorer::Project *project = 0,
                                QrcResourceSelector resources = AllQrcResources);
@@ -249,6 +252,9 @@ protected:
 
 private:
     void cleanupFutures();
+    void iterateQrcFiles(ProjectExplorer::Project *project,
+                         QrcResourceSelector resources,
+                         std::function<void(QrcParser::ConstPtr)> callback);
 
     mutable QMutex m_mutex;
     QmlJS::Snapshot m_validSnapshot;

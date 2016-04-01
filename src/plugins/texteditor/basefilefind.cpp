@@ -285,10 +285,11 @@ void BaseFileFind::writeCommonSettings(QSettings *settings)
 void BaseFileFind::readCommonSettings(QSettings *settings, const QString &defaultFilter)
 {
     QStringList filters = settings->value(QLatin1String("filters")).toStringList();
-    d->m_filterSetting = settings->value(QLatin1String("currentFilter")).toString();
+    const QVariant currentFilter = settings->value(QLatin1String("currentFilter"));
+    d->m_filterSetting = currentFilter.toString();
     if (filters.isEmpty())
         filters << defaultFilter;
-    if (d->m_filterSetting.isEmpty())
+    if (!currentFilter.isValid())
         d->m_filterSetting = filters.first();
     d->m_filterStrings.setStringList(filters);
     if (d->m_filterCombo)

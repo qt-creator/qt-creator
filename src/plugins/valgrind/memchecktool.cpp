@@ -249,8 +249,6 @@ class MemcheckTool : public QObject
 public:
     MemcheckTool(QObject *parent);
 
-    void createWidgets();
-
     MemcheckRunControl *createRunControl(ProjectExplorer::RunConfiguration *runConfiguration,
                                          Core::Id runMode);
 

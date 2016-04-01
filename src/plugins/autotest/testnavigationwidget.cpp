@@ -77,7 +77,7 @@ TestNavigationWidget::TestNavigationWidget(QWidget *parent) :
 
     m_progressTimer = new QTimer(this);
     m_progressTimer->setSingleShot(true);
-    m_progressTimer->setInterval(100); // don't display indicator if progress takes less than 100ms
+    m_progressTimer->setInterval(1000); // don't display indicator if progress takes less than 1s
 
     connect(m_model->parser(), &TestCodeParser::parsingStarted,
             this, &TestNavigationWidget::onParsingStarted);

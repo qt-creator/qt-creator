@@ -82,6 +82,7 @@ private:
 private:
     const CppTools::ProjectInfo m_projectInfo;
     const unsigned char m_wordWidth;
+    QString m_targetTriple;
 
     Utils::Environment m_environment;
     QString m_clangExecutable;

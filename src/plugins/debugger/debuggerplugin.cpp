@@ -486,41 +486,27 @@ bool DummyEngine::hasCapability(unsigned cap) const
 class DebugModeContext : public IContext
 {
 public:
-    DebugModeContext(DebuggerMainWindow *mainWindow) : m_mainWindow(mainWindow)
+    DebugModeContext(QWidget *modeWindow)
     {
         setContext(Context(CC::C_EDITORMANAGER));
+        setWidget(modeWindow);
         ICore::addContextObject(this);
     }
-
-    QWidget *widget() const override { return m_mainWindow->modeWindow(); }
-
-    DebuggerMainWindow *m_mainWindow;
 };
 
 class DebugMode : public IMode
 {
 public:
-    DebugMode(DebuggerMainWindow *mainWindow) : m_mainWindow(mainWindow)
+    DebugMode()
     {
         setObjectName(QLatin1String("DebugMode"));
         setContext(Context(C_DEBUGMODE, CC::C_NAVIGATION_PANE));
         setDisplayName(DebuggerPlugin::tr("Debug"));
         setIcon(Utils::Icon::modeIcon(Icons::MODE_DEBUGGER_CLASSIC,
                                       Icons::MODE_DEBUGGER_FLAT, Icons::MODE_DEBUGGER_FLAT_ACTIVE));
-//        setIcon(Utils::Icon::modeIcon(Icons::MODE_ANALYZE_CLASSIC,
-//                                      Icons::MODE_ANALYZE_FLAT, Icons::MODE_ANALYZE_FLAT_ACTIVE));
         setPriority(85);
         setId(MODE_DEBUG);
     }
-
-    QWidget *widget() const override { return m_mainWindow->modeWindow(); }
-
-    ~DebugMode()
-    {
-//        delete m_widget;
-    }
-
-    DebuggerMainWindow *m_mainWindow;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -924,7 +910,9 @@ public:
     void updateActiveLanguages();
 
 public:
-    DebuggerMainWindow *m_mainWindow = 0;
+    QPointer<DebuggerMainWindow> m_mainWindow;
+    QPointer<QWidget> m_modeWindow;
+    QPointer<DebugMode> m_mode;
 
     QHash<Id, ActionDescription> m_descriptions;
     ActionContainer *m_menu = 0;
@@ -1051,11 +1039,6 @@ DebuggerPluginPrivate::~DebuggerPluginPrivate()
 
     delete m_breakHandler;
     m_breakHandler = 0;
-
-//    delete m_debugMode;
-//    m_debugMode = 0;
-    delete m_mainWindow;
-    m_mainWindow = 0;
 }
 
 DebuggerEngine *DebuggerPluginPrivate::dummyEngine()
@@ -1071,6 +1054,42 @@ DebuggerEngine *DebuggerPluginPrivate::dummyEngine()
 static QString msgParameterMissing(const QString &a)
 {
     return DebuggerPlugin::tr("Option \"%1\" is missing the parameter.").arg(a);
+}
+
+static Kit *guessKitFromParameters(const DebuggerRunParameters &rp)
+{
+    Kit *kit = 0;
+
+    // Try to find a kit via ABI.
+    QList<Abi> abis;
+    if (rp.toolChainAbi.isValid())
+        abis.push_back(rp.toolChainAbi);
+    else if (!rp.inferior.executable.isEmpty())
+        abis = Abi::abisOfBinary(FileName::fromString(rp.inferior.executable));
+
+    if (!abis.isEmpty()) {
+        // Try exact abis.
+        kit = KitManager::find(KitMatcher([abis](const Kit *k) -> bool {
+            if (const ToolChain *tc = ToolChainKitInformation::toolChain(k))
+                return abis.contains(tc->targetAbi()) && DebuggerKitInformation::isValidDebugger(k);
+            return false;
+        }));
+        if (!kit) {
+            // Or something compatible.
+            kit = KitManager::find(KitMatcher([abis](const Kit *k) -> bool {
+                if (const ToolChain *tc = ToolChainKitInformation::toolChain(k))
+                    foreach (const Abi &a, abis)
+                        if (a.isCompatibleWith(tc->targetAbi()) && DebuggerKitInformation::isValidDebugger(k))
+                            return true;
+                return false;
+            }));
+        }
+    }
+
+    if (!kit)
+        kit = KitManager::defaultKit();
+
+    return kit;
 }
 
 bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
@@ -1135,6 +1154,9 @@ bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
         rp.inferior.environment = Utils::Environment::systemEnvironment();
         rp.stubEnvironment = Utils::Environment::systemEnvironment();
         rp.debuggerEnvironment = Utils::Environment::systemEnvironment();
+
+        if (!kit)
+            kit = guessKitFromParameters(rp);
         m_scheduledStarts.append(QPair<DebuggerRunParameters, Kit *>(rp, kit));
         return true;
     }
@@ -1323,14 +1345,14 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
         this, &DebuggerPluginPrivate::updateWatchersHeader, Qt::QueuedConnection);
 
     auto act = m_continueAction = new QAction(tr("Continue"), this);
-    act->setIcon(Icon::combinedIcon({Core::Icons::DEBUG_CONTINUE_SMALL.icon(), continueSideBarIcon}));
+    act->setIcon(Icon::combinedIcon({Icons::DEBUG_CONTINUE_SMALL.icon(), continueSideBarIcon}));
     connect(act, &QAction::triggered, this, &DebuggerPluginPrivate::handleExecContinue);
 
     act = m_exitAction = new QAction(tr("Stop Debugger"), this);
-    act->setIcon(Core::Icons::DEBUG_EXIT_SMALL.icon());
+    act->setIcon(Icons::DEBUG_EXIT_SMALL.icon());
     connect(act, &QAction::triggered, this, &DebuggerPluginPrivate::handleExecExit);
 
-    auto interruptIcon = Icon::combinedIcon({Core::Icons::DEBUG_INTERRUPT_SMALL.icon(), interruptSideBarIcon});
+    auto interruptIcon = Icon::combinedIcon({Icons::DEBUG_INTERRUPT_SMALL.icon(), interruptSideBarIcon});
     act = m_interruptAction = new QAction(tr("Interrupt"), this);
     act->setIcon(interruptIcon);
     connect(act, &QAction::triggered, this, &DebuggerPluginPrivate::handleExecInterrupt);
@@ -1417,7 +1439,7 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
     act = m_startAction = new QAction(this);
     const QIcon sideBarIcon =
             Icon::sideBarIcon(ProjectExplorer::Icons::DEBUG_START, ProjectExplorer::Icons::DEBUG_START_FLAT);
-    const QIcon debuggerIcon = Icon::combinedIcon({Core::Icons::DEBUG_START_SMALL.icon(), sideBarIcon});
+    const QIcon debuggerIcon = Icon::combinedIcon({ProjectExplorer::Icons::DEBUG_START_SMALL.icon(), sideBarIcon});
     act->setIcon(debuggerIcon);
     act->setText(tr("Start Debugging"));
     connect(act, &QAction::triggered, [] { ProjectExplorerPlugin::runStartupProject(ProjectExplorer::Constants::DEBUG_RUN_MODE); });
@@ -1709,13 +1731,16 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
     connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::settingsChanged,
         this, &DebuggerPluginPrivate::updateDebugWithoutDeployMenu);
 
+    m_mainWindow->finalizeSetup();
+
     // Debug mode setup
-    auto mode = new DebugMode(m_mainWindow);
+    m_mode = new DebugMode;
+    m_modeWindow = createModeWindow(m_mode, m_mainWindow, 0);
+    m_mode->setWidget(m_modeWindow);
 
-    (void) new DebugModeContext(m_mainWindow);
-    m_mainWindow->finalizeSetup(mode);
+    m_plugin->addAutoReleasedObject(new DebugModeContext(m_mainWindow));
 
-    m_plugin->addAutoReleasedObject(mode);
+    m_plugin->addObject(m_mode);
 
 
     connect(SessionManager::instance(), &SessionManager::startupProjectChanged,
@@ -2074,6 +2099,8 @@ void DebuggerPlugin::attachExternalApplication(RunControl *rc)
     if (const RunConfiguration *runConfiguration = rc->runConfiguration())
         if (const Target *target = runConfiguration->target())
             kit = target->kit();
+    if (!kit)
+        kit = guessKitFromParameters(rp);
     createAndScheduleRun(rp, kit);
 }
 
@@ -3005,6 +3032,23 @@ void DebuggerPluginPrivate::aboutToShutdown()
     disconnect(SessionManager::instance(),
         SIGNAL(startupProjectChanged(ProjectExplorer::Project*)),
         this, 0);
+
+    m_mainWindow->saveCurrentPerspective();
+    delete m_mainWindow;
+    m_mainWindow = 0;
+
+    // removeObject leads to aboutToRemoveObject, which leads to
+    // ModeManager::aboutToRemove, which leads to the mode manager
+    // removing the mode's widget from the stackwidget
+    // (currently by index, but possibly the stackwidget resets the
+    // parent and stuff on the widget)
+    m_plugin->removeObject(m_mode);
+
+    delete m_modeWindow;
+    m_modeWindow = 0;
+
+    delete m_mode;
+    m_mode = 0;
 }
 
 void updateState(DebuggerEngine *engine)
@@ -3172,7 +3216,6 @@ IPlugin::ShutdownFlag DebuggerPlugin::aboutToShutdown()
 {
     removeObject(this);
     dd->aboutToShutdown();
-    dd->m_mainWindow->saveCurrentPerspective();
     return SynchronousShutdown;
 }
 
@@ -3479,15 +3522,15 @@ void registerToolbar(const QByteArray &perspectiveId, const ToolbarDescription &
 
 QAction *createStartAction()
 {
-    auto action = new QAction(DebuggerMainWindow::tr("Start"), 0);
-    action->setIcon(Debugger::Icons::ANALYZER_CONTROL_START.icon());
+    auto action = new QAction(DebuggerMainWindow::tr("Start"), DebuggerPlugin::instance());
+    action->setIcon(Icons::ANALYZER_CONTROL_START.icon());
     action->setEnabled(true);
     return action;
 }
 
 QAction *createStopAction()
 {
-    auto action = new QAction(DebuggerMainWindow::tr("Stop"), 0);
+    auto action = new QAction(DebuggerMainWindow::tr("Stop"), DebuggerPlugin::instance());
     action->setIcon(ProjectExplorer::Icons::STOP_SMALL.icon());
     action->setEnabled(true);
     return action;

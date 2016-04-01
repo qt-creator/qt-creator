@@ -2231,7 +2231,7 @@
          y="570" />
     </g>
     <g
-       id="src/plugins/coreplugin/images/run_overlay_small"
+       id="src/plugins/projectexplorer/images/run_overlay_small"
        transform="translate(-16,0)">
       <rect
          style="fill:#ffffff;fill-opacity:1;stroke:none"
@@ -2247,7 +2247,7 @@
          transform="matrix(1.3333333,0,0,1.125,-381.33331,283.75)" />
     </g>
     <g
-       id="src/plugins/coreplugin/images/stop_overlay_small"
+       id="src/plugins/debugger/images/stop_overlay_small"
        transform="translate(-16,0)">
       <rect
          style="fill:#ffffff;fill-opacity:1;stroke:none"
@@ -2265,7 +2265,7 @@
          style="fill:#000000;fill-opacity:1;stroke:none;stroke-width:1;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     </g>
     <g
-       id="src/plugins/coreplugin/images/interrupt_overlay_small"
+       id="src/plugins/debugger/images/interrupt_overlay_small"
        transform="translate(-16,0)">
       <rect
          style="fill:#ffffff;fill-opacity:1;stroke:none"
@@ -2290,7 +2290,7 @@
          y="575" />
     </g>
     <g
-       id="src/plugins/coreplugin/images/continue_overlay_small"
+       id="src/plugins/debugger/images/continue_overlay_small"
        transform="translate(16,0)">
       <rect
          id="rect4959-4-0-0-6-5"
@@ -2320,7 +2320,7 @@
          sodipodi:nodetypes="cccc" />
     </g>
     <g
-       id="src/plugins/coreplugin/images/debugger_overlay_small"
+       id="src/plugins/projectexplorer/images/debugger_overlay_small"
        transform="translate(16,0)">
       <rect
          style="fill:#ffffff;fill-opacity:1;stroke:none"
@@ -3076,6 +3076,48 @@
            width="100%"
            height="100%" />
       </g>
+    </g>
+    <g
+       id="src/plugins/help/images/home">
+      <rect
+         style="display:inline;fill:#ffffff;fill-opacity:1;stroke:none"
+         width="16"
+         height="16"
+         x="936"
+         y="568"
+         id="rect4757-6" />
+      <polygon
+         style="fill:#000000;fill-opacity:1"
+         points="614,366.5 614,374 602,374 602,366.5 603,366.5 603,373 613,373 613,366.5 "
+         id="polygon5567-2"
+         transform="translate(336,208)" />
+      <rect
+         style="fill:#000000;fill-opacity:1"
+         x="943"
+         y="577"
+         width="2"
+         height="5"
+         id="rect5571-8" />
+      <polygon
+         style="fill:#000000;fill-opacity:1"
+         points="615,367.597 615,367.224 608,362 601,367.224 601,367.597 602.345,367.597 608,363.535 613.655,367.597 "
+         id="polygon5575-4"
+         transform="translate(336,208)" />
+    </g>
+    <g
+       id="src/plugins/help/images/bookmark">
+      <rect
+         id="rect6782-96"
+         height="16"
+         width="16"
+         y="568"
+         x="952"
+         style="fill:#ffffff;fill-opacity:1" />
+      <polygon
+         transform="translate(402,208)"
+         id="polygon6780-6"
+         points="555,374 555,362 561,362 561,374 558,370 "
+         style="fill:#000000;fill-opacity:1" />
     </g>
   </g>
   <g

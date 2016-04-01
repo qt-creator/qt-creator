@@ -45,10 +45,7 @@ def main():
         test.log("Welcome mode is not scriptable with this Squish version")
         return
     global sdkPath
-    if isQt54Build:
-        welcomePage = ":WelcomePageStyledBar.WelcomePage_QQuickView"
-    else:
-        welcomePage = ":Qt Creator.WelcomePage_QQuickWidget"
+    welcomePage = ":Qt Creator.WelcomePage_QQuickWidget"
     # open Qt Creator
     startApplication("qtcreator" + SettingsPath)
     if not startedWithoutPluginError():

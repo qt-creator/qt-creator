@@ -29,8 +29,8 @@
 
 #include <texteditor/texteditor_global.h>
 
-
 #include <QString>
+#include <QVector>
 
 QT_BEGIN_NAMESPACE
 class QTextDocument;
@@ -63,6 +63,7 @@ private:
     QString m_fileName;
     AssistReason m_reason;
     QString m_text;
+    QVector<int> m_userStates;
 };
 
 } // namespace TextEditor

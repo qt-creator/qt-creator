@@ -126,6 +126,16 @@
             CMake tools to the list. For more information, see
             \l{Adding CMake Tools}.
 
+        \li In the \uicontrol {CMake Generator} field, select the CMake
+            Generator to use for producing project files. Only the generators
+            with names beginning with the string \uicontrol CodeBlocks produce
+            all the necessary data for the \QC code model. \QC displays a
+            warning if you select a generator that is not supported.
+
+        \li In the \uicontrol {CMake configuration} field, select
+            \uicontrol Change to edit the variables of the CMake configuration
+            for the kit.
+
     \endlist
 
 */

@@ -284,9 +284,10 @@ static QString quickTestSrcDir(const CppTools::CppModelManager *cppMM,
     return QString();
 }
 
-static QString testClass(const CppTools::CppModelManager *modelManager,
-                         CPlusPlus::Document::Ptr &document)
+static QString testClass(const CppTools::CppModelManager *modelManager, const QString &fileName)
 {
+    const QByteArray &fileContent = getFileContent(fileName);
+    CPlusPlus::Document::Ptr document = modelManager->document(fileName);
     const QList<CPlusPlus::Document::MacroUse> macros = document->macroUses();
 
     foreach (const CPlusPlus::Document::MacroUse &macro, macros) {
@@ -295,14 +296,13 @@ static QString testClass(const CppTools::CppModelManager *modelManager,
         const QByteArray name = macro.macro().name();
         if (TestUtils::isQTestMacro(name)) {
             const CPlusPlus::Document::Block arg = macro.arguments().at(0);
-            return QLatin1String(getFileContent(document->fileName())
-                                 .mid(arg.bytesBegin(), arg.bytesEnd() - arg.bytesBegin()));
+            return QLatin1String(fileContent.mid(arg.bytesBegin(),
+                                                 arg.bytesEnd() - arg.bytesBegin()));
         }
     }
     // check if one has used a self-defined macro or QTest::qExec() directly
     const CPlusPlus::Snapshot snapshot = modelManager->snapshot();
-    const QByteArray fileContent = getFileContent(document->fileName());
-    document = snapshot.preprocessedDocument(fileContent, document->fileName());
+    document = snapshot.preprocessedDocument(fileContent, fileName);
     document->check();
     CPlusPlus::AST *ast = document->translationUnit()->ast();
     TestAstVisitor astVisitor(document);
@@ -523,7 +523,7 @@ static void checkDocumentForTestCode(QFutureInterface<TestParseResult> futureInt
     } else if (testCaseNames.contains(fileName) // if we do a reparse
                || (includesQtTest(document, modelManager)
                    && qtTestLibDefined(modelManager, fileName))) {
-        QString testCaseName(testClass(modelManager, document));
+        QString testCaseName(testClass(modelManager, fileName));
         // we might be in a reparse without the original entry point with the QTest::qExec()
         if (testCaseName.isEmpty())
             testCaseName = testCaseNames.value(fileName);
@@ -537,6 +537,10 @@ static void checkDocumentForTestCode(QFutureInterface<TestParseResult> futureInt
 
             TestVisitor visitor(testCaseName);
             visitor.accept(declaringDoc->globalNamespace());
+
+            if (!visitor.resultValid())
+                return;
+
             const QMap<QString, TestCodeLocationAndType> testFunctions = visitor.privateSlots();
 
             QMap<QString, TestCodeLocationList> dataTags =

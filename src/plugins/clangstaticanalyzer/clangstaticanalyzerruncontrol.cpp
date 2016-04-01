@@ -80,6 +80,7 @@ ClangStaticAnalyzerRunControl::ClangStaticAnalyzerRunControl(
     BuildConfiguration *buildConfiguration = target->activeBuildConfiguration();
     QTC_ASSERT(buildConfiguration, return);
     m_environment = buildConfiguration->environment();
+    m_targetTriple = ToolChainKitInformation::toolChain(target->kit())->originalTargetTriple();
 }
 
 static void prependWordWidthArgumentIfNotIncluded(QStringList *arguments, unsigned char wordWidth)
@@ -96,11 +97,29 @@ static void prependWordWidthArgumentIfNotIncluded(QStringList *arguments, unsign
     QTC_CHECK(!arguments->contains(m32Argument) || !arguments->contains(m64Argument));
 }
 
+static void prependTargetTripleIfNotIncludedAndNotEmpty(QStringList *arguments,
+                                                        const QString &targetTriple)
+{
+    QTC_ASSERT(arguments, return);
+
+    if (targetTriple.isEmpty())
+        return;
+
+    const QString targetOption = QLatin1String("-target");
+
+    if (!arguments->contains(targetOption)) {
+        arguments->prepend(targetTriple);
+        arguments->prepend(targetOption);
+    }
+}
+
 // Removes (1) filePath (2) -o <somePath>.
-// Adds -m64/-m32 argument if not already included.
+// Prepends -m64/-m32 argument if not already included.
+// Prepends -target if not already included.
 static QStringList tweakedArguments(const QString &filePath,
                                     const QStringList &arguments,
-                                    unsigned char wordWidth)
+                                    unsigned char wordWidth,
+                                    const QString &targetTriple)
 {
     QStringList newArguments;
 
@@ -121,6 +140,7 @@ static QStringList tweakedArguments(const QString &filePath,
     QTC_CHECK(skip == false);
 
     prependWordWidthArgumentIfNotIncluded(&newArguments, wordWidth);
+    prependTargetTripleIfNotIncludedAndNotEmpty(&newArguments, targetTriple);
 
     return newArguments;
 }
@@ -147,7 +167,8 @@ class ClangStaticAnalyzerOptionsBuilder : public CompilerOptionsBuilder
 public:
     static QStringList build(const CppTools::ProjectPart &projectPart,
                              CppTools::ProjectFile::Kind fileKind,
-                             unsigned char wordWidth)
+                             unsigned char wordWidth,
+                             const QString &targetTriple)
     {
         ClangStaticAnalyzerOptionsBuilder optionsBuilder(projectPart);
         optionsBuilder.addLanguageOption(fileKind);
@@ -172,6 +193,8 @@ public:
 
         QStringList options = optionsBuilder.options();
         prependWordWidthArgumentIfNotIncluded(&options, wordWidth);
+        prependTargetTripleIfNotIncludedAndNotEmpty(&options, targetTriple);
+
         return options;
     }
 
@@ -217,7 +240,8 @@ private:
 
 static AnalyzeUnits unitsToAnalyzeFromCompilerCallData(
             const ProjectInfo::CompilerCallData &compilerCallData,
-            unsigned char wordWidth)
+            unsigned char wordWidth,
+            const QString &targetTriple)
 {
     qCDebug(LOG) << "Taking arguments for analyzing from CompilerCallData.";
 
@@ -229,7 +253,7 @@ static AnalyzeUnits unitsToAnalyzeFromCompilerCallData(
         const QString file = it.key();
         const QList<QStringList> compilerCalls = it.value();
         foreach (const QStringList &options, compilerCalls) {
-            const QStringList arguments = tweakedArguments(file, options, wordWidth);
+            const QStringList arguments = tweakedArguments(file, options, wordWidth, targetTriple);
             unitsToAnalyze << AnalyzeUnit(file, arguments);
         }
     }
@@ -238,7 +262,8 @@ static AnalyzeUnits unitsToAnalyzeFromCompilerCallData(
 }
 
 static AnalyzeUnits unitsToAnalyzeFromProjectParts(const QList<ProjectPart::Ptr> projectParts,
-                                                   unsigned char wordWidth)
+                                                   unsigned char wordWidth,
+                                                   const QString &targetTriple)
 {
     qCDebug(LOG) << "Taking arguments for analyzing from ProjectParts.";
 
@@ -256,7 +281,8 @@ static AnalyzeUnits unitsToAnalyzeFromProjectParts(const QList<ProjectPart::Ptr>
                 const QStringList arguments
                     = ClangStaticAnalyzerOptionsBuilder::build(*projectPart.data(),
                                                                file.kind,
-                                                               wordWidth);
+                                                               wordWidth,
+                                                               targetTriple);
                 unitsToAnalyze << AnalyzeUnit(file.path, arguments);
             }
         }
@@ -273,9 +299,12 @@ AnalyzeUnits ClangStaticAnalyzerRunControl::sortedUnitsToAnalyze()
     const ProjectInfo::CompilerCallData compilerCallData = m_projectInfo.compilerCallData();
     if (compilerCallData.isEmpty()) {
         units = unitsToAnalyzeFromProjectParts(m_projectInfo.projectParts(),
-                                               m_wordWidth);
+                                               m_wordWidth,
+                                               m_targetTriple);
     } else {
-        units = unitsToAnalyzeFromCompilerCallData(compilerCallData, m_wordWidth);
+        units = unitsToAnalyzeFromCompilerCallData(compilerCallData,
+                                                   m_wordWidth,
+                                                   m_targetTriple);
     }
 
     Utils::sort(units, [](const AnalyzeUnit &a1, const AnalyzeUnit &a2) -> bool {

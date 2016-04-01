@@ -32,6 +32,16 @@
 
 #include <cplusplus/Icons.h>
 
+#include <functional>
+
+QT_BEGIN_NAMESPACE
+class QTextDocument;
+QT_END_NAMESPACE
+
+namespace CPlusPlus {
+struct LanguageFeatures;
+}
+
 namespace CppTools {
 
 class CPPTOOLS_EXPORT CppCompletionAssistProcessor : public TextEditor::IAssistProcessor
@@ -41,6 +51,16 @@ public:
 
 protected:
     void addSnippets();
+
+    using DotAtIncludeCompletionHandler = std::function<void(int &startPosition, unsigned *kind)>;
+    static void startOfOperator(QTextDocument *textDocument,
+                                int positionInDocument,
+                                unsigned *kind,
+                                int &start,
+                                const CPlusPlus::LanguageFeatures &languageFeatures,
+                                bool adjustForQt5SignalSlotCompletion = false,
+                                DotAtIncludeCompletionHandler dotAtIncludeCompletionHandler
+                                    = DotAtIncludeCompletionHandler());
 
     int m_positionForProposal;
     QList<TextEditor::AssistProposalItemInterface *> m_completions;

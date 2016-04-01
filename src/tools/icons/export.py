@@ -30,7 +30,7 @@
 # Each images is generated as normal and high resolution variant.
 # Each png file is afterwards optimized with optipng.
 
-import sys, os, subprocess, xml.etree.ElementTree as ET
+import sys, os, subprocess, re, xml.etree.ElementTree as ET
 from distutils import spawn
 
 scriptDir = os.path.dirname(os.path.abspath(sys.argv[0])) + '/'
@@ -38,6 +38,10 @@ scriptDir = os.path.dirname(os.path.abspath(sys.argv[0])) + '/'
 # QTC_SRC is expected to point to the source root of Qt Creator
 qtcSourceRoot = os.getenv('QTC_SRC', os.path.abspath(scriptDir + '../../..')) \
     .replace('\\', '/') + '/'
+
+svgElementFilter = ""
+if len(sys.argv) > 1:
+    svgElementFilter = sys.argv[1]
 
 # Inkscape is required by this script
 inkscapeExecutable = spawn.find_executable("inkscape")
@@ -55,7 +59,12 @@ for svgElement in svgTreeRoot.iter():
     try:
         svgElementID = svgElement.attrib['id']
         if svgElementID.startswith(('src/', 'share/')):
-            svgIDs.append(svgElementID)
+            if svgElementFilter != "":
+                pattern = re.compile(svgElementFilter)
+                if pattern.match(svgElementID):
+                    svgIDs.append(svgElementID)
+            else:
+                svgIDs.append(svgElementID)
     except:
         pass
 

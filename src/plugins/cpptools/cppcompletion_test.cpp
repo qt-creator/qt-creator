@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "cppcompletionassist.h"
+#include "cppdoxygen.h"
 #include "cppmodelmanager.h"
 #include "cpptoolsplugin.h"
 #include "cpptoolstestcase.h"
@@ -110,6 +111,8 @@ public:
                                                ExplicitlyInvoked, m_snapshot,
                                                ProjectPartHeaderPaths(),
                                                languageFeatures);
+        ai->prepareForAsyncUse();
+        ai->recreateTextDocument();
         InternalCppCompletionAssistProcessor processor;
 
         const Tests::IAssistProposalScopedPointer proposal(processor.perform(ai));
@@ -169,6 +172,17 @@ bool isProbablyGlobalCompletion(const QStringList &list)
         && list.contains(QLatin1String("final"))
         && list.contains(QLatin1String("if"))
         && list.contains(QLatin1String("bool"));
+}
+
+bool isDoxygenTagCompletion(const QStringList &list)
+{
+    for (int i = 1; i < T_DOXY_LAST_TAG; ++i) {
+        const QString doxygenTag = QString::fromLatin1(doxygenTagSpell(i));
+        if (!list.contains(doxygenTag))
+            return false;
+    }
+
+    return true;
 }
 
 } // anonymous namespace
@@ -382,6 +396,34 @@ void CppToolsPlugin::test_global_completion()
     const QStringList completions = test.getCompletions();
     QVERIFY(isProbablyGlobalCompletion(completions));
     QVERIFY(completions.toSet().contains(requiredCompletionItems.toSet()));
+}
+
+void CppToolsPlugin::test_doxygen_tag_completion_data()
+{
+    QTest::addColumn<QByteArray>("code");
+
+    QTest::newRow("C++ comment")
+         << _("/// @");
+
+    QTest::newRow("C comment single line")
+         << _("/*! @ */");
+
+    QTest::newRow("C comment multi line")
+         << _("/*! text\n"
+              " *  @\n"
+              " */\n");
+}
+
+void CppToolsPlugin::test_doxygen_tag_completion()
+{
+    QFETCH(QByteArray, code);
+
+    const QByteArray prefix = "\\";
+
+    CompletionTestCase test(code, prefix);
+    QVERIFY(test.succeededSoFar());
+    const QStringList completions = test.getCompletions();
+    QVERIFY(isDoxygenTagCompletion(completions));
 }
 
 static void enumTestCase(const QByteArray &tag, const QByteArray &source,

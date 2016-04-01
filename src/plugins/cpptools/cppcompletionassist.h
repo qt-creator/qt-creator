@@ -105,7 +105,7 @@ private:
     TextEditor::IAssistProposal *createHintProposal(QList<CPlusPlus::Function *> symbols) const;
     bool accepts() const;
 
-    int startOfOperator(int pos, unsigned *kind, bool wantFunctionCall) const;
+    int startOfOperator(int positionInDocument, unsigned *kind, bool wantFunctionCall) const;
     int findStartOfName(int pos = -1) const;
     int startCompletionHelper();
     bool tryObjCCompletion();

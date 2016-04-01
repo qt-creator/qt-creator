@@ -38,6 +38,9 @@
 
 namespace Utils {
 
+static const qreal PunchEdgeWidth = 0.5;
+static const qreal PunchEdgeIntensity = 0.6;
+
 static QPixmap maskToColorAndAlpha(const QPixmap &mask, const QColor &color)
 {
     QImage result(mask.toImage().convertToFormat(QImage::Format_ARGB32));
@@ -95,9 +98,9 @@ static QPixmap combinedMask(const MasksAndColors &masks, Icon::IconStyleOptions 
     for (;maskImage != masks.constEnd(); ++maskImage) {
         if (style & Icon::PunchEdges) {
             p.save();
-            p.setOpacity(0.4);
+            p.setOpacity(PunchEdgeIntensity);
             p.setCompositionMode(QPainter::CompositionMode_Lighten);
-            smearPixmap(&p, maskToColorAndAlpha((*maskImage).first, Qt::white), 0.5);
+            smearPixmap(&p, maskToColorAndAlpha((*maskImage).first, Qt::white), PunchEdgeWidth);
             p.restore();
         }
         p.drawPixmap(0, 0, (*maskImage).first);
@@ -118,9 +121,9 @@ static QPixmap masksToIcon(const MasksAndColors &masks, const QPixmap &combinedM
         if (style & Icon::PunchEdges && maskImage != masks.constBegin()) {
             // Punch a transparent outline around an overlay.
             p.save();
-            p.setOpacity(0.4);
+            p.setOpacity(PunchEdgeIntensity);
             p.setCompositionMode(QPainter::CompositionMode_DestinationOut);
-            smearPixmap(&p, maskToColorAndAlpha((*maskImage).first, Qt::white), 0.5);
+            smearPixmap(&p, maskToColorAndAlpha((*maskImage).first, Qt::white), PunchEdgeWidth);
             p.restore();
         }
         p.drawPixmap(0, 0, maskToColorAndAlpha((*maskImage).first, (*maskImage).second));

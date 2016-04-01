@@ -53,10 +53,6 @@ using namespace TextEditor;
 
 namespace QmakeProjectManager {
 
-QmakeManager::~QmakeManager()
-{
-}
-
 void QmakeManager::registerProject(QmakeProject *project)
 {
     m_projects.append(project);

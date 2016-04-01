@@ -63,33 +63,7 @@ const char CONFIGURATION_KEY[] = "CMake.Configuration";
 CMakeBuildConfiguration::CMakeBuildConfiguration(ProjectExplorer::Target *parent) :
     BuildConfiguration(parent, Core::Id(Constants::CMAKE_BC_ID))
 {
-    auto project = static_cast<CMakeProject *>(parent->project());
-    setBuildDirectory(shadowBuildDirectory(project->projectFilePath(),
-                                           parent->kit(),
-                                           displayName(), BuildConfiguration::Unknown));
-
-    m_buildDirManager = new BuildDirManager(this);
-    connect(m_buildDirManager, &BuildDirManager::dataAvailable,
-            this, &CMakeBuildConfiguration::dataAvailable);
-    connect(m_buildDirManager, &BuildDirManager::errorOccured,
-            this, &CMakeBuildConfiguration::setError);
-    connect(m_buildDirManager, &BuildDirManager::configurationStarted,
-            this, [this]() { m_completeConfigurationCache.clear(); emit parsingStarted(); });
-
-    connect(this, &CMakeBuildConfiguration::environmentChanged,
-            m_buildDirManager, &BuildDirManager::forceReparse);
-    connect(this, &CMakeBuildConfiguration::buildDirectoryChanged,
-            m_buildDirManager, &BuildDirManager::forceReparse);
-    connect(target(), &Target::kitChanged, this, [this]() {
-        ProjectExplorer::Kit *k = target()->kit();
-        CMakeConfig config = cmakeConfiguration();
-        config.append(CMakeConfigurationKitInformation::configuration(k));  // last value wins...
-        setCMakeConfiguration(config);
-        m_buildDirManager->maybeForceReparse();
-    });
-
-    connect(this, &CMakeBuildConfiguration::parsingStarted, project, &CMakeProject::handleParsingStarted);
-    connect(this, &CMakeBuildConfiguration::dataAvailable, project, &CMakeProject::parseCMakeOutput);
+    ctor();
 }
 
 CMakeBuildConfiguration::~CMakeBuildConfiguration()
@@ -112,7 +86,7 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(ProjectExplorer::Target *parent
     BuildConfiguration(parent, source),
     m_configuration(source->m_configuration)
 {
-    Q_ASSERT(parent);
+    ctor();
     cloneSteps(source);
 }
 
@@ -155,6 +129,39 @@ bool CMakeBuildConfiguration::fromMap(const QVariantMap &map)
     return true;
 }
 
+void CMakeBuildConfiguration::ctor()
+{
+    auto project = static_cast<CMakeProject *>(target()->project());
+    setBuildDirectory(shadowBuildDirectory(project->projectFilePath(),
+                                           target()->kit(),
+                                           displayName(), BuildConfiguration::Unknown));
+
+    m_buildDirManager = new BuildDirManager(this);
+    connect(m_buildDirManager, &BuildDirManager::dataAvailable,
+            this, &CMakeBuildConfiguration::dataAvailable);
+    connect(m_buildDirManager, &BuildDirManager::errorOccured,
+            this, &CMakeBuildConfiguration::setError);
+    connect(m_buildDirManager, &BuildDirManager::configurationStarted,
+            this, [this]() { m_completeConfigurationCache.clear(); emit parsingStarted(); });
+
+    connect(this, &CMakeBuildConfiguration::environmentChanged,
+            m_buildDirManager, &BuildDirManager::forceReparse);
+    connect(this, &CMakeBuildConfiguration::buildDirectoryChanged,
+            m_buildDirManager, &BuildDirManager::forceReparse);
+
+    connect(this, &CMakeBuildConfiguration::parsingStarted, project, &CMakeProject::handleParsingStarted);
+    connect(this, &CMakeBuildConfiguration::dataAvailable, project, &CMakeProject::parseCMakeOutput);
+}
+
+void CMakeBuildConfiguration::maybeForceReparse()
+{
+    ProjectExplorer::Kit *k = target()->kit();
+    CMakeConfig config = cmakeConfiguration();
+    config.append(CMakeConfigurationKitInformation::configuration(k));  // last value wins...
+    setCMakeConfiguration(config);
+    m_buildDirManager->maybeForceReparse();
+}
+
 BuildDirManager *CMakeBuildConfiguration::buildDirManager() const
 {
     return m_buildDirManager;
@@ -163,11 +170,6 @@ BuildDirManager *CMakeBuildConfiguration::buildDirManager() const
 bool CMakeBuildConfiguration::isParsing() const
 {
     return m_buildDirManager && m_buildDirManager->isParsing();
-}
-
-void CMakeBuildConfiguration::parse()
-{
-    m_buildDirManager->parse();
 }
 
 void CMakeBuildConfiguration::resetData()
@@ -197,7 +199,7 @@ FileName CMakeBuildConfiguration::shadowBuildDirectory(const FileName &projectFi
 
 QList<ConfigModel::DataItem> CMakeBuildConfiguration::completeCMakeConfiguration() const
 {
-    if (m_buildDirManager->isParsing())
+    if (!m_buildDirManager && m_buildDirManager->isParsing())
         return QList<ConfigModel::DataItem>();
 
     if (m_completeConfigurationCache.isEmpty())
@@ -409,14 +411,14 @@ ProjectExplorer::BuildConfiguration *CMakeBuildConfigurationFactory::create(Proj
 
     auto cleanStep = new CMakeBuildStep(cleanSteps);
     cleanSteps->insertStep(0, cleanStep);
-    cleanStep->setBuildTarget(CMakeBuildStep::cleanTarget(), true);
+    cleanStep->setBuildTarget(CMakeBuildStep::cleanTarget());
 
     bc->setBuildDirectory(copy.buildDirectory);
     bc->setCMakeConfiguration(copy.configuration);
 
     // Default to all
-    if (project->hasBuildTarget(QLatin1String("all")))
-        buildStep->setBuildTarget(QLatin1String("all"), true);
+    if (project->hasBuildTarget(CMakeBuildStep::allTarget()))
+        buildStep->setBuildTarget(CMakeBuildStep::allTarget());
 
     return bc;
 }

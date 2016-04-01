@@ -35,7 +35,7 @@
 namespace Help {
 namespace Internal {
 
-class HelpPage;
+class QtWebKitHelpPage;
 class QtWebKitHelpWidget;
 
 class QtWebKitHelpViewer : public HelpViewer
@@ -69,7 +69,7 @@ public:
     bool findText(const QString &text, Core::FindFlags flags,
         bool incremental, bool fromSearch, bool *wrapped = 0);
 
-    HelpPage *page() const;
+    QtWebKitHelpPage *page() const;
 
 public slots:
     void scaleUp();
@@ -127,11 +127,11 @@ private:
     QtWebKitHelpViewer *m_parent;
 };
 
-class HelpPage : public QWebPage
+class QtWebKitHelpPage : public QWebPage
 {
     Q_OBJECT
 public:
-    HelpPage(QObject *parent);
+    QtWebKitHelpPage(QObject *parent);
 
 protected:
     virtual QWebPage *createWindow(QWebPage::WebWindowType);

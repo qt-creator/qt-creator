@@ -109,8 +109,6 @@
             items with names consisting of plain characters, numbers,
             underscores, and hyphens.
 
-        \li  Creating new CMake projects with \QC is not supported.
-
         \li  If error messages displayed in the \uicontrol {Compile Output} pane contain
             paths where slashes are missing (for example, C:QtSDK),
             check your PATH variable. For more information, see

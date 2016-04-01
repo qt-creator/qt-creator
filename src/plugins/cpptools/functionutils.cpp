@@ -175,8 +175,6 @@ typedef QList<Virtuality> VirtualityList;
 } // CppTools namespace
 
 Q_DECLARE_METATYPE(CppTools::Internal::Virtuality)
-Q_DECLARE_METATYPE(CppTools::Internal::VirtualityList)
-Q_DECLARE_METATYPE(QList<int>)
 
 namespace CppTools {
 namespace Internal {

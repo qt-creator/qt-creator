@@ -2,8 +2,7 @@ Prerequisites - general information
 -----------------------------------
 Squish tests inside this folder have several prerequisites to get them running.
 
-First - and most important - you have to own a valid Squish license. Currently it's recommended to use Squish 5.1.3.
-For Squish on Mac it's necessary to change the used Python version to 2.6 inside the <SQUISHDIR>/etc/paths.ini
+First - and most important - you have to own a valid Squish license. Currently it's recommended to use Squish 6.0.
 
 Second - some of the test suites/test cases expect an installed Qt 4 SDK in its default location.
 On Linux/Mac this is ~/QtSDK, and on Windows this is C:\QtSDK.

@@ -82,9 +82,8 @@ CMakeBuildStep::CMakeBuildStep(BuildStepList *bsl, Core::Id id) : AbstractProces
 
 CMakeBuildStep::CMakeBuildStep(BuildStepList *bsl, CMakeBuildStep *bs) :
     AbstractProcessStep(bsl, bs),
-    m_buildTargets(bs->m_buildTargets),
-    m_toolArguments(bs->m_toolArguments),
-    m_addRunConfigurationArgument(bs->m_addRunConfigurationArgument)
+    m_buildTarget(bs->m_buildTarget),
+    m_toolArguments(bs->m_toolArguments)
 {
     ctor(bsl);
 }
@@ -125,31 +124,34 @@ CMakeRunConfiguration *CMakeBuildStep::targetsActiveRunConfiguration() const
 
 void CMakeBuildStep::handleBuildTargetChanges()
 {
-    const QStringList filteredTargets
-            = Utils::filtered(static_cast<CMakeProject *>(project())->buildTargetTitles(),
-                              [this](const QString &s) { return m_buildTargets.contains(s); });
-    setBuildTargets(filteredTargets);
+    if (static_cast<CMakeProject *>(project())->buildTargetTitles().contains(m_buildTarget))
+        setBuildTarget(m_buildTarget);
+    else
+        setBuildTarget(CMakeBuildStep::allTarget());
     emit buildTargetsChanged();
 }
 
 QVariantMap CMakeBuildStep::toMap() const
 {
     QVariantMap map(AbstractProcessStep::toMap());
-    map.insert(QLatin1String(BUILD_TARGETS_KEY), m_buildTargets);
+    // Use QStringList for compatibility with old files
+    map.insert(QLatin1String(BUILD_TARGETS_KEY), QStringList(m_buildTarget));
     map.insert(QLatin1String(TOOL_ARGUMENTS_KEY), m_toolArguments);
-    map.insert(QLatin1String(ADD_RUNCONFIGURATION_ARGUMENT_KEY), m_addRunConfigurationArgument);
     return map;
 }
 
 bool CMakeBuildStep::fromMap(const QVariantMap &map)
 {
     if (map.value(QLatin1String(CLEAN_KEY), false).toBool()) {
-        m_buildTargets = QStringList(CMakeBuildStep::cleanTarget());
+        m_buildTarget = CMakeBuildStep::cleanTarget();
     } else {
-        m_buildTargets = map.value(QLatin1String(BUILD_TARGETS_KEY)).toStringList();
+        const QStringList targetList = map.value(QLatin1String(BUILD_TARGETS_KEY)).toStringList();
+        if (!targetList.isEmpty())
+            m_buildTarget = targetList.last();
         m_toolArguments = map.value(QLatin1String(TOOL_ARGUMENTS_KEY)).toString();
     }
-    m_addRunConfigurationArgument = map.value(QLatin1String(ADD_RUNCONFIGURATION_ARGUMENT_KEY), false).toBool();
+    if (map.value(QLatin1String(ADD_RUNCONFIGURATION_ARGUMENT_KEY), false).toBool())
+        m_buildTarget = QLatin1String(ADD_RUNCONFIGURATION_TEXT);
 
     return BuildStep::fromMap(map);
 }
@@ -178,7 +180,7 @@ bool CMakeBuildStep::init(QList<const BuildStep *> &earlierSteps)
     }
 
     CMakeRunConfiguration *rc = targetsActiveRunConfiguration();
-    if (m_addRunConfigurationArgument && (!rc || rc->title().isEmpty())) {
+    if ((m_buildTarget == QLatin1String(ADD_RUNCONFIGURATION_TEXT)) && (!rc || rc->title().isEmpty())) {
         emit addTask(Task(Task::Error,
                           QCoreApplication::translate("ProjectExplorer::Task",
                                     "You asked to build the current Run Configuration's build target only, "
@@ -196,7 +198,7 @@ bool CMakeBuildStep::init(QList<const BuildStep *> &earlierSteps)
 
     QString arguments = allArguments(rc);
 
-    setIgnoreReturnValue(m_buildTargets.contains(CMakeBuildStep::cleanTarget()));
+    setIgnoreReturnValue(m_buildTarget == CMakeBuildStep::cleanTarget());
 
     ProcessParameters *pp = processParameters();
     pp->setMacroExpander(bc->macroExpander());
@@ -292,44 +294,27 @@ void CMakeBuildStep::stdOutput(const QString &line)
         AbstractProcessStep::stdOutput(line);
 }
 
-QStringList CMakeBuildStep::buildTargets() const
+QString CMakeBuildStep::buildTarget() const
 {
-    return m_buildTargets;
+    return m_buildTarget;
 }
 
 bool CMakeBuildStep::buildsBuildTarget(const QString &target) const
 {
-    if (target == tr(ADD_RUNCONFIGURATION_TEXT))
-        return addRunConfigurationArgument();
-    else
-        return m_buildTargets.contains(target);
+    return target == m_buildTarget;
 }
 
-void CMakeBuildStep::setBuildTarget(const QString &buildTarget, bool on)
+void CMakeBuildStep::setBuildTarget(const QString &buildTarget)
 {
-    if (buildTarget == tr(ADD_RUNCONFIGURATION_TEXT)) {
-        setAddRunConfigurationArgument(on);
-    } else {
-        QStringList old = m_buildTargets;
-        if (on && !old.contains(buildTarget))
-            old << buildTarget;
-        else if (!on && old.contains(buildTarget))
-            old.removeOne(buildTarget);
-        setBuildTargets(old);
-    }
-}
-
-void CMakeBuildStep::setBuildTargets(const QStringList &targets)
-{
-    if (targets != m_buildTargets) {
-        m_buildTargets = targets;
-        emit targetsToBuildChanged();
-    }
+    if (m_buildTarget == buildTarget)
+        return;
+    m_buildTarget = buildTarget;
+    emit targetToBuildChanged();
 }
 
 void CMakeBuildStep::clearBuildTargets()
 {
-    m_buildTargets.clear();
+    m_buildTarget.clear();
 }
 
 QString CMakeBuildStep::toolArguments() const
@@ -349,17 +334,19 @@ QString CMakeBuildStep::allArguments(const CMakeRunConfiguration *rc) const
     Utils::QtcProcess::addArg(&arguments, QLatin1String("--build"));
     Utils::QtcProcess::addArg(&arguments, QLatin1String("."));
 
-    if (m_addRunConfigurationArgument) {
-        Utils::QtcProcess::addArg(&arguments, QLatin1String("--target"));
+    QString target;
+
+    if (m_buildTarget == QLatin1String(ADD_RUNCONFIGURATION_TEXT)) {
         if (rc)
-            Utils::QtcProcess::addArg(&arguments, rc->title());
+            target = rc->title();
         else
-            Utils::QtcProcess::addArg(&arguments, QLatin1String("<i>&lt;") + tr(ADD_RUNCONFIGURATION_TEXT) + QLatin1String("&gt;</i>"));
+            target = QLatin1String("<i>&lt;") + tr(ADD_RUNCONFIGURATION_TEXT) + QLatin1String("&gt;</i>");
+    } else {
+        target = m_buildTarget;
     }
-    foreach (const QString &t, m_buildTargets) {
-        Utils::QtcProcess::addArg(&arguments, QLatin1String("--target"));
-        Utils::QtcProcess::addArg(&arguments, t);
-    }
+
+    Utils::QtcProcess::addArg(&arguments, QLatin1String("--target"));
+    Utils::QtcProcess::addArg(&arguments, target);
 
     if (!m_toolArguments.isEmpty()) {
         Utils::QtcProcess::addArg(&arguments, QLatin1String("--"));
@@ -367,16 +354,6 @@ QString CMakeBuildStep::allArguments(const CMakeRunConfiguration *rc) const
     }
 
     return arguments;
-}
-
-bool CMakeBuildStep::addRunConfigurationArgument() const
-{
-    return m_addRunConfigurationArgument;
-}
-
-void CMakeBuildStep::setAddRunConfigurationArgument(bool add)
-{
-    m_addRunConfigurationArgument = add;
 }
 
 QString CMakeBuildStep::cmakeCommand() const
@@ -388,6 +365,11 @@ QString CMakeBuildStep::cmakeCommand() const
 QString CMakeBuildStep::cleanTarget()
 {
     return QLatin1String("clean");
+}
+
+QString CMakeBuildStep::allTarget()
+{
+    return QLatin1String("all");
 }
 
 //
@@ -407,7 +389,6 @@ CMakeBuildStepConfigWidget::CMakeBuildStepConfigWidget(CMakeBuildStep *buildStep
     fl->addRow(tr("Tool arguments:"), m_toolArguments);
     m_toolArguments->setText(m_buildStep->toolArguments());
 
-
     m_buildTargetsList->setFrameStyle(QFrame::NoFrame);
     m_buildTargetsList->setMinimumHeight(200);
 
@@ -420,22 +401,7 @@ CMakeBuildStepConfigWidget::CMakeBuildStepConfigWidget(CMakeBuildStep *buildStep
 
     fl->addRow(tr("Targets:"), frame);
 
-    auto itemAddRunConfigurationArgument = new QListWidgetItem(tr(ADD_RUNCONFIGURATION_TEXT), m_buildTargetsList);
-    itemAddRunConfigurationArgument->setFlags(itemAddRunConfigurationArgument->flags() | Qt::ItemIsUserCheckable);
-    itemAddRunConfigurationArgument->setCheckState(m_buildStep->addRunConfigurationArgument() ? Qt::Checked : Qt::Unchecked);
-    QFont f;
-    f.setItalic(true);
-    itemAddRunConfigurationArgument->setFont(f);
-
-    CMakeProject *pro = static_cast<CMakeProject *>(m_buildStep->project());
-    QStringList targetList = pro->buildTargetTitles();
-    targetList.sort();
-    foreach (const QString &buildTarget, targetList) {
-        auto item = new QListWidgetItem(buildTarget, m_buildTargetsList);
-        item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
-        item->setCheckState(m_buildStep->buildsBuildTarget(item->text()) ? Qt::Checked : Qt::Unchecked);
-    }
-
+    buildTargetsChanged();
     updateDetails();
 
     connect(m_toolArguments, &QLineEdit::textEdited, this, &CMakeBuildStepConfigWidget::toolArgumentsEdited);
@@ -444,8 +410,9 @@ CMakeBuildStepConfigWidget::CMakeBuildStepConfigWidget(CMakeBuildStep *buildStep
             this, &CMakeBuildStepConfigWidget::updateDetails);
 
     connect(m_buildStep, &CMakeBuildStep::buildTargetsChanged, this, &CMakeBuildStepConfigWidget::buildTargetsChanged);
-    connect(m_buildStep, &CMakeBuildStep::targetsToBuildChanged, this, &CMakeBuildStepConfigWidget::selectedBuildTargetsChanged);
-    connect(pro, &CMakeProject::environmentChanged, this, &CMakeBuildStepConfigWidget::updateDetails);
+    connect(m_buildStep, &CMakeBuildStep::targetToBuildChanged, this, &CMakeBuildStepConfigWidget::selectedBuildTargetsChanged);
+    connect(static_cast<CMakeProject *>(m_buildStep->project()), &CMakeProject::environmentChanged,
+            this, &CMakeBuildStepConfigWidget::updateDetails);
 }
 
 void CMakeBuildStepConfigWidget::toolArgumentsEdited()
@@ -456,7 +423,9 @@ void CMakeBuildStepConfigWidget::toolArgumentsEdited()
 
 void CMakeBuildStepConfigWidget::itemChanged(QListWidgetItem *item)
 {
-    m_buildStep->setBuildTarget(item->text(), item->checkState() & Qt::Checked);
+    const QString target =
+            (item->checkState() == Qt::Checked) ? item->data(Qt::UserRole).toString() : CMakeBuildStep::allTarget();
+    m_buildStep->setBuildTarget(target);
     updateDetails();
 }
 
@@ -467,30 +436,44 @@ QString CMakeBuildStepConfigWidget::displayName() const
 
 void CMakeBuildStepConfigWidget::buildTargetsChanged()
 {
-    disconnect(m_buildTargetsList, &QListWidget::itemChanged, this, &CMakeBuildStepConfigWidget::itemChanged);
-
-    auto *addRunConfigurationArgumentItem = m_buildTargetsList->takeItem(0);
+    const bool wasBlocked = m_buildTargetsList->blockSignals(true);
     m_buildTargetsList->clear();
-    m_buildTargetsList->insertItem(0, addRunConfigurationArgumentItem);
 
-    CMakeProject *pro = static_cast<CMakeProject *>(m_buildStep->target()->project());
-    foreach (const QString& buildTarget, pro->buildTargetTitles()) {
+    auto item = new QListWidgetItem(tr(ADD_RUNCONFIGURATION_TEXT), m_buildTargetsList);
+
+    item->setData(Qt::UserRole, QString::fromLatin1(ADD_RUNCONFIGURATION_TEXT));
+    QFont f;
+    f.setItalic(true);
+    item->setFont(f);
+
+    CMakeProject *pro = static_cast<CMakeProject *>(m_buildStep->project());
+    QStringList targetList = pro->buildTargetTitles();
+    targetList.sort();
+
+    foreach (const QString &buildTarget, targetList) {
         auto item = new QListWidgetItem(buildTarget, m_buildTargetsList);
-        item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
-        item->setCheckState(m_buildStep->buildsBuildTarget(item->text()) ? Qt::Checked : Qt::Unchecked);
+        item->setData(Qt::UserRole, buildTarget);
     }
-    connect(m_buildTargetsList, &QListWidget::itemChanged, this, &CMakeBuildStepConfigWidget::itemChanged);
+
+    for (int i = 0; i < m_buildTargetsList->count(); ++i) {
+        QListWidgetItem *item = m_buildTargetsList->item(i);
+        item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
+        item->setCheckState(m_buildStep->buildsBuildTarget(item->data(Qt::UserRole).toString())
+                            ? Qt::Checked : Qt::Unchecked);
+    }
+    m_buildTargetsList->blockSignals(wasBlocked);
     updateSummary();
 }
 
 void CMakeBuildStepConfigWidget::selectedBuildTargetsChanged()
 {
-    disconnect(m_buildTargetsList, &QListWidget::itemChanged, this, &CMakeBuildStepConfigWidget::itemChanged);
+    const bool wasBlocked = m_buildTargetsList->blockSignals(true);
     for (int y = 0; y < m_buildTargetsList->count(); ++y) {
         QListWidgetItem *item = m_buildTargetsList->item(y);
-        item->setCheckState(m_buildStep->buildsBuildTarget(item->text()) ? Qt::Checked : Qt::Unchecked);
+        item->setCheckState(m_buildStep->buildsBuildTarget(item->data(Qt::UserRole).toString())
+                            ? Qt::Checked : Qt::Unchecked);
     }
-    connect(m_buildTargetsList, &QListWidget::itemChanged, this, &CMakeBuildStepConfigWidget::itemChanged);
+    m_buildTargetsList->blockSignals(wasBlocked);
     updateSummary();
 }
 
@@ -541,7 +524,7 @@ BuildStep *CMakeBuildStepFactory::create(BuildStepList *parent, Core::Id id)
         return 0;
     auto step = new CMakeBuildStep(parent);
     if (parent->id() == ProjectExplorer::Constants::BUILDSTEPS_CLEAN)
-        step->setBuildTarget(CMakeBuildStep::cleanTarget(), true);
+        step->setBuildTarget(CMakeBuildStep::cleanTarget());
     return step;
 }
 

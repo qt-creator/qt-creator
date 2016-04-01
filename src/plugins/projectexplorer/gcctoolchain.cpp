@@ -62,6 +62,7 @@ static const char compilerCommandKeyC[] = "ProjectExplorer.GccToolChain.Path";
 static const char compilerPlatformCodeGenFlagsKeyC[] = "ProjectExplorer.GccToolChain.PlatformCodeGenFlags";
 static const char compilerPlatformLinkerFlagsKeyC[] = "ProjectExplorer.GccToolChain.PlatformLinkerFlags";
 static const char targetAbiKeyC[] = "ProjectExplorer.GccToolChain.TargetAbi";
+static const char originalTargetTripleKeyC[] = "ProjectExplorer.GccToolChain.OriginalTargetTriple";
 static const char supportedAbisKeyC[] = "ProjectExplorer.GccToolChain.SupportedAbis";
 
 static QByteArray runGcc(const FileName &gcc, const QStringList &arguments, const QStringList &env)
@@ -214,19 +215,20 @@ static QList<Abi> guessGccAbi(const QString &m, const QByteArray &macros)
     return abiList;
 }
 
-static QList<Abi> guessGccAbi(const FileName &path, const QStringList &env,
-                              const QByteArray &macros,
-                              const QStringList &extraArgs = QStringList())
+
+static GccToolChain::DetectedAbisResult guessGccAbi(const FileName &path, const QStringList &env,
+                                                   const QByteArray &macros,
+                                                   const QStringList &extraArgs = QStringList())
 {
     if (path.isEmpty())
-        return QList<Abi>();
+        return GccToolChain::DetectedAbisResult();
 
     QStringList arguments = extraArgs;
     arguments << QLatin1String("-dumpmachine");
     QString machine = QString::fromLocal8Bit(runGcc(path, arguments, env)).trimmed();
     if (machine.isEmpty())
-        return QList<Abi>(); // no need to continue if running failed once...
-    return guessGccAbi(machine, macros);
+        return GccToolChain::DetectedAbisResult(); // no need to continue if running failed once...
+    return GccToolChain::DetectedAbisResult(guessGccAbi(machine, macros), machine);
 }
 
 static QString gccVersion(const FileName &path, const QStringList &env)
@@ -258,6 +260,11 @@ void GccToolChain::setCompilerCommand(const FileName &path)
 void GccToolChain::setSupportedAbis(const QList<Abi> &m_abis)
 {
     m_supportedAbis = m_abis;
+}
+
+void GccToolChain::setOriginalTargetTriple(const QString &targetTriple)
+{
+    m_originalTargetTriple = targetTriple;
 }
 
 void GccToolChain::setMacroCache(const QStringList &allCxxflags, const QByteArray &macros) const
@@ -316,6 +323,11 @@ QString GccToolChain::typeDisplayName() const
 Abi GccToolChain::targetAbi() const
 {
     return m_targetAbi;
+}
+
+QString GccToolChain::originalTargetTriple() const
+{
+    return m_originalTargetTriple;
 }
 
 QString GccToolChain::version() const
@@ -620,7 +632,9 @@ void GccToolChain::resetToolChain(const FileName &path)
     setCompilerCommand(path);
 
     Abi currentAbi = m_targetAbi;
-    m_supportedAbis = detectSupportedAbis();
+    const DetectedAbisResult detectedAbis = detectSupportedAbis();
+    m_supportedAbis = detectedAbis.supportedAbis;
+    m_originalTargetTriple = detectedAbis.originalTargetTriple;
 
     m_targetAbi = Abi();
     if (!m_supportedAbis.isEmpty()) {
@@ -687,6 +701,7 @@ QVariantMap GccToolChain::toMap() const
     data.insert(QLatin1String(compilerPlatformCodeGenFlagsKeyC), m_platformCodeGenFlags);
     data.insert(QLatin1String(compilerPlatformLinkerFlagsKeyC), m_platformLinkerFlags);
     data.insert(QLatin1String(targetAbiKeyC), m_targetAbi.toString());
+    data.insert(QLatin1String(originalTargetTripleKeyC), m_originalTargetTriple);
     QStringList abiList = Utils::transform(m_supportedAbis, &Abi::toString);
     data.insert(QLatin1String(supportedAbisKeyC), abiList);
     return data;
@@ -701,6 +716,7 @@ bool GccToolChain::fromMap(const QVariantMap &data)
     m_platformCodeGenFlags = data.value(QLatin1String(compilerPlatformCodeGenFlagsKeyC)).toStringList();
     m_platformLinkerFlags = data.value(QLatin1String(compilerPlatformLinkerFlagsKeyC)).toStringList();
     m_targetAbi = Abi(data.value(QLatin1String(targetAbiKeyC)).toString());
+    m_originalTargetTriple = data.value(QLatin1String(originalTargetTripleKeyC)).toString();
     QStringList abiList = data.value(QLatin1String(supportedAbisKeyC)).toStringList();
     m_supportedAbis.clear();
     foreach (const QString &a, abiList) {
@@ -730,11 +746,14 @@ ToolChainConfigWidget *GccToolChain::configurationWidget()
 
 void GccToolChain::updateSupportedAbis() const
 {
-    if (m_supportedAbis.isEmpty())
-        m_supportedAbis = detectSupportedAbis();
+    if (m_supportedAbis.isEmpty()) {
+        const DetectedAbisResult detected = detectSupportedAbis();
+        m_supportedAbis = detected.supportedAbis;
+        m_originalTargetTriple = detected.originalTargetTriple;
+    }
 }
 
-QList<Abi> GccToolChain::detectSupportedAbis() const
+GccToolChain::DetectedAbisResult GccToolChain::detectSupportedAbis() const
 {
     Environment env = Environment::systemEnvironment();
     addToEnvironment(env);
@@ -827,7 +846,10 @@ QList<ToolChain *> GccToolChainFactory::autoDetectToolchains(const QString &comp
     GccToolChain::addCommandPathToEnvironment(compilerPath, systemEnvironment);
     QByteArray macros
             = gccPredefinedMacros(compilerPath, gccPredefinedMacrosOptions(), systemEnvironment.toStringList());
-    QList<Abi> abiList = guessGccAbi(compilerPath, systemEnvironment.toStringList(), macros);
+    const GccToolChain::DetectedAbisResult detectedAbis = guessGccAbi(compilerPath,
+                                                                      systemEnvironment.toStringList(),
+                                                                      macros);
+    QList<Abi> abiList = detectedAbis.supportedAbis;
     if (!abiList.contains(requiredAbi)) {
         if (requiredAbi.wordWidth() != 64
                 || !abiList.contains(Abi(requiredAbi.architecture(), requiredAbi.os(), requiredAbi.osFlavor(),
@@ -844,6 +866,7 @@ QList<ToolChain *> GccToolChainFactory::autoDetectToolchains(const QString &comp
         tc->setCompilerCommand(compilerPath);
         tc->setSupportedAbis(abiList);
         tc->setTargetAbi(abi);
+        tc->setOriginalTargetTriple(detectedAbis.originalTargetTriple);
         tc->setDisplayName(tc->defaultDisplayName()); // reset displayname
 
         result.append(tc.take());
@@ -902,6 +925,7 @@ void GccToolChainConfigWidget::applyImpl()
     tc->setCompilerCommand(m_compilerCommand->fileName());
     tc->setSupportedAbis(m_abiWidget->supportedAbis());
     tc->setTargetAbi(m_abiWidget->currentAbi());
+    tc->setOriginalTargetTriple(tc->detectSupportedAbis().originalTargetTriple);
     tc->setDisplayName(displayName); // reset display name
     tc->setPlatformCodeGenFlags(splitString(m_platformCodeGenFlagsLineEdit->text()));
     tc->setPlatformLinkerFlags(splitString(m_platformLinkerFlagsLineEdit->text()));
@@ -975,7 +999,7 @@ void GccToolChainConfigWidget::handleCompilerCommandChange()
         QStringList args = gccPredefinedMacrosOptions() + splitString(m_platformCodeGenFlagsLineEdit->text());
         m_macros = gccPredefinedMacros(path, args, env.toStringList());
         abiList = guessGccAbi(path, env.toStringList(), m_macros,
-                              splitString(m_platformCodeGenFlagsLineEdit->text()));
+                              splitString(m_platformCodeGenFlagsLineEdit->text())).supportedAbis;
     }
     m_abiWidget->setEnabled(haveCompiler);
 
