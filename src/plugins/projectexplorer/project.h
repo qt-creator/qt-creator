@@ -139,6 +139,9 @@ public:
     void setPreferredKitMatcher(const KitMatcher &matcher);
 
     virtual bool needsSpecialDeployment() const;
+    // The build system is able to report all executables that can be built, independent
+    // of configuration.
+    virtual bool knowsAllBuildExecutables() const;
 
     void setup(QList<const BuildInfo *> infoList);
     Utils::MacroExpander *macroExpander() const;
