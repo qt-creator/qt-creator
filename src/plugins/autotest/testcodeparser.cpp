@@ -428,12 +428,12 @@ static QMap<QString, TestCodeLocationList> checkForDataTags(const QString &fileN
 
 /****** end of helpers ******/
 
-static void checkQmlDocumentForTestCode(QFutureInterface<TestParseResult> futureInterface,
+static bool checkQmlDocumentForTestCode(QFutureInterface<TestParseResult> futureInterface,
                                         const QmlJS::Document::Ptr &qmlJSDoc,
                                         const QString &proFile = QString())
 {
     QmlJS::AST::Node *ast = qmlJSDoc->ast();
-    QTC_ASSERT(ast, return);
+    QTC_ASSERT(ast, return false);
     TestQmlVisitor qmlVisitor(qmlJSDoc);
     QmlJS::AST::Node::accept(ast, &qmlVisitor);
 
@@ -451,31 +451,79 @@ static void checkQmlDocumentForTestCode(QFutureInterface<TestParseResult> future
         parseResult.column = tcLocationAndType.m_column;
     }
     futureInterface.reportResult(parseResult);
+    return true;
 }
 
-static void handleQtQuickTest(QFutureInterface<TestParseResult> futureInterface,
+static bool handleQtTest(QFutureInterface<TestParseResult> futureInterface,
+                         CPlusPlus::Document::Ptr document, const QString &oldTestCaseName)
+{
+    const QString &fileName = document->fileName();
+    const CppTools::CppModelManager *modelManager = CppTools::CppModelManager::instance();
+    QString testCaseName(testClass(modelManager, fileName));
+    // we might be in a reparse without the original entry point with the QTest::qExec()
+    if (testCaseName.isEmpty())
+        testCaseName = oldTestCaseName;
+    if (!testCaseName.isEmpty()) {
+        unsigned line = 0;
+        unsigned column = 0;
+        CPlusPlus::Document::Ptr declaringDoc = declaringDocument(document, testCaseName,
+                                                                  &line, &column);
+        if (declaringDoc.isNull())
+            return false;
+
+        TestVisitor visitor(testCaseName);
+        visitor.accept(declaringDoc->globalNamespace());
+        if (!visitor.resultValid())
+            return false;
+
+        const QMap<QString, TestCodeLocationAndType> testFunctions = visitor.privateSlots();
+
+        QMap<QString, TestCodeLocationList> dataTags =
+                checkForDataTags(declaringDoc->fileName(), testFunctions);
+
+        if (declaringDoc->fileName() != fileName)
+            dataTags.unite(checkForDataTags(fileName, testFunctions));
+
+        TestParseResult parseResult(TestTreeModel::AutoTest);
+        parseResult.fileName = declaringDoc->fileName();
+        parseResult.testCaseName = testCaseName;
+        parseResult.line = line;
+        parseResult.column = column;
+        parseResult.functions = testFunctions;
+        parseResult.dataTagsOrTestSets = dataTags;
+        parseResult.proFile = modelManager->projectPart(fileName).first()->projectFile;
+
+        futureInterface.reportResult(parseResult);
+        return true;
+    }
+    return false;
+}
+
+static bool handleQtQuickTest(QFutureInterface<TestParseResult> futureInterface,
                               CPlusPlus::Document::Ptr document)
 {
     const CppTools::CppModelManager *modelManager = CppTools::CppModelManager::instance();
 
     if (quickTestName(document).isEmpty())
-        return;
+        return false;
 
     const QString cppFileName = document->fileName();
     QList<CppTools::ProjectPart::Ptr> ppList = modelManager->projectPart(cppFileName);
-    QTC_ASSERT(!ppList.isEmpty(), return);
+    QTC_ASSERT(!ppList.isEmpty(), return false);
     const QString &proFile = ppList.at(0)->projectFile;
 
     const QString srcDir = quickTestSrcDir(modelManager, cppFileName);
     if (srcDir.isEmpty())
-        return;
+        return false;
 
     const QList<QmlJS::Document::Ptr> qmlDocs = scanDirectoryForQuickTestQmlFiles(srcDir);
+    bool result = false;
     foreach (const QmlJS::Document::Ptr &qmlJSDoc, qmlDocs)
-        checkQmlDocumentForTestCode(futureInterface, qmlJSDoc, proFile);
+        result |= checkQmlDocumentForTestCode(futureInterface, qmlJSDoc, proFile);
+    return result;
 }
 
-static void handleGTest(QFutureInterface<TestParseResult> futureInterface, const QString &filePath)
+static bool handleGTest(QFutureInterface<TestParseResult> futureInterface, const QString &filePath)
 {
     const QByteArray &fileContent = getFileContent(filePath);
     const CPlusPlus::Snapshot snapshot = CPlusPlus::CppModelManagerBase::instance()->snapshot();
@@ -503,6 +551,7 @@ static void handleGTest(QFutureInterface<TestParseResult> futureInterface, const
         parseResult.dataTagsOrTestSets.insert(QString(), result.value(testSpec));
         futureInterface.reportResult(parseResult);
     }
+    return !result.keys().isEmpty();
 }
 
 static void checkDocumentForTestCode(QFutureInterface<TestParseResult> futureInterface,
@@ -518,51 +567,21 @@ static void checkDocumentForTestCode(QFutureInterface<TestParseResult> futureInt
             return;
     }
 
+    const QString &oldTestCaseName = testCaseNames.value(fileName);
+
     if (includesQtQuickTest(document, modelManager)) {
-        handleQtQuickTest(futureInterface, document);
-    } else if (testCaseNames.contains(fileName) // if we do a reparse
+        if (handleQtQuickTest(futureInterface, document))
+            return;
+    }
+    if (!oldTestCaseName.isEmpty() // if we do a reparse
                || (includesQtTest(document, modelManager)
                    && qtTestLibDefined(modelManager, fileName))) {
-        QString testCaseName(testClass(modelManager, fileName));
-        // we might be in a reparse without the original entry point with the QTest::qExec()
-        if (testCaseName.isEmpty())
-            testCaseName = testCaseNames.value(fileName);
-        if (!testCaseName.isEmpty()) {
-            unsigned line = 0;
-            unsigned column = 0;
-            CPlusPlus::Document::Ptr declaringDoc = declaringDocument(document, testCaseName,
-                                                                      &line, &column);
-            if (declaringDoc.isNull())
-                return;
-
-            TestVisitor visitor(testCaseName);
-            visitor.accept(declaringDoc->globalNamespace());
-
-            if (!visitor.resultValid())
-                return;
-
-            const QMap<QString, TestCodeLocationAndType> testFunctions = visitor.privateSlots();
-
-            QMap<QString, TestCodeLocationList> dataTags =
-                    checkForDataTags(declaringDoc->fileName(), testFunctions);
-
-            if (declaringDoc->fileName() != document->fileName())
-                dataTags.unite(checkForDataTags(document->fileName(), testFunctions));
-
-            TestParseResult parseResult(TestTreeModel::AutoTest);
-            parseResult.fileName = declaringDoc->fileName();
-            parseResult.testCaseName = testCaseName;
-            parseResult.line = line;
-            parseResult.column = column;
-            parseResult.functions = testFunctions;
-            parseResult.dataTagsOrTestSets = dataTags;
-            parseResult.proFile = projParts.first()->projectFile;
-
-            futureInterface.reportResult(parseResult);
-        }
-    } else if (includesGTest(document, modelManager)) {
-        if (hasGTestNames(document))
-            handleGTest(futureInterface, document->fileName());
+        if (handleQtTest(futureInterface, document, oldTestCaseName))
+            return;
+    }
+    if (includesGTest(document, modelManager) && hasGTestNames(document)) {
+        if (handleGTest(futureInterface, document->fileName()))
+            return;
     }
 }
 
