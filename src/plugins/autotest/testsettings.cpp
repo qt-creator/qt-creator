@@ -47,7 +47,7 @@ static const int defaultTimeout = 60000;
 
 TestSettings::TestSettings()
     : timeout(defaultTimeout), metrics(Walltime), omitInternalMssg(true), omitRunConfigWarn(false),
-      limitResultOutput(true), autoScroll(true), alwaysParse(false)
+      limitResultOutput(true), autoScroll(true), alwaysParse(true)
 {
 }
 
@@ -96,7 +96,7 @@ void TestSettings::fromSettings(const QSettings *s)
     omitRunConfigWarn = s->value(root + QLatin1String(omitRunConfigWarnKey), false).toBool();
     limitResultOutput = s->value(root + QLatin1String(limitResultOutputKey), true).toBool();
     autoScroll = s->value(root + QLatin1String(autoScrollKey), true).toBool();
-    alwaysParse = s->value(root + QLatin1String(alwaysParseKey), false).toBool();
+    alwaysParse = s->value(root + QLatin1String(alwaysParseKey), true).toBool();
     gtestRunDisabled = s->value(root + QLatin1String(gtestRunDisabledKey), false).toBool();
     gtestRepeat = s->value(root + QLatin1String(gtestRepeatKey), false).toBool();
     gtestShuffle = s->value(root + QLatin1String(gtestShuffleKey), false).toBool();
