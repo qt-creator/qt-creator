@@ -71,7 +71,6 @@ ClangStaticAnalyzerRunControl::ClangStaticAnalyzerRunControl(
             const ProjectInfo &projectInfo)
     : AnalyzerRunControl(runConfiguration, runMode)
     , m_projectInfo(projectInfo)
-    , m_wordWidth(runConfiguration->abi().wordWidth())
     , m_initialFilesToProcessSize(0)
     , m_filesAnalyzed(0)
     , m_filesNotAnalyzed(0)
@@ -80,7 +79,11 @@ ClangStaticAnalyzerRunControl::ClangStaticAnalyzerRunControl(
     BuildConfiguration *buildConfiguration = target->activeBuildConfiguration();
     QTC_ASSERT(buildConfiguration, return);
     m_environment = buildConfiguration->environment();
-    m_targetTriple = ToolChainKitInformation::toolChain(target->kit())->originalTargetTriple();
+
+    ToolChain *toolChain = ToolChainKitInformation::toolChain(target->kit());
+    QTC_ASSERT(toolChain, return);
+    m_extraToolChainInfo.wordWidth = runConfiguration->abi().wordWidth();
+    m_extraToolChainInfo.targetTriple = toolChain->originalTargetTriple();
 }
 
 static void prependWordWidthArgumentIfNotIncluded(QStringList *arguments, unsigned char wordWidth)
@@ -118,8 +121,7 @@ static void prependTargetTripleIfNotIncludedAndNotEmpty(QStringList *arguments,
 // Prepends -target if not already included.
 static QStringList tweakedArguments(const QString &filePath,
                                     const QStringList &arguments,
-                                    unsigned char wordWidth,
-                                    const QString &targetTriple)
+                                    const ExtraToolChainInfo &extraParams)
 {
     QStringList newArguments;
 
@@ -139,8 +141,8 @@ static QStringList tweakedArguments(const QString &filePath,
     }
     QTC_CHECK(skip == false);
 
-    prependWordWidthArgumentIfNotIncluded(&newArguments, wordWidth);
-    prependTargetTripleIfNotIncludedAndNotEmpty(&newArguments, targetTriple);
+    prependWordWidthArgumentIfNotIncluded(&newArguments, extraParams.wordWidth);
+    prependTargetTripleIfNotIncludedAndNotEmpty(&newArguments, extraParams.targetTriple);
 
     return newArguments;
 }
@@ -167,8 +169,7 @@ class ClangStaticAnalyzerOptionsBuilder : public CompilerOptionsBuilder
 public:
     static QStringList build(const CppTools::ProjectPart &projectPart,
                              CppTools::ProjectFile::Kind fileKind,
-                             unsigned char wordWidth,
-                             const QString &targetTriple)
+                             const ExtraToolChainInfo &extraParams)
     {
         ClangStaticAnalyzerOptionsBuilder optionsBuilder(projectPart);
         optionsBuilder.addLanguageOption(fileKind);
@@ -192,8 +193,8 @@ public:
             optionsBuilder.add(QLatin1String("-fPIC")); // TODO: Remove?
 
         QStringList options = optionsBuilder.options();
-        prependWordWidthArgumentIfNotIncluded(&options, wordWidth);
-        prependTargetTripleIfNotIncludedAndNotEmpty(&options, targetTriple);
+        prependWordWidthArgumentIfNotIncluded(&options, extraParams.wordWidth);
+        prependTargetTripleIfNotIncludedAndNotEmpty(&options, extraParams.targetTriple);
 
         return options;
     }
@@ -240,8 +241,7 @@ private:
 
 static AnalyzeUnits unitsToAnalyzeFromCompilerCallData(
             const ProjectInfo::CompilerCallData &compilerCallData,
-            unsigned char wordWidth,
-            const QString &targetTriple)
+            const ExtraToolChainInfo &extraParams)
 {
     qCDebug(LOG) << "Taking arguments for analyzing from CompilerCallData.";
 
@@ -253,7 +253,7 @@ static AnalyzeUnits unitsToAnalyzeFromCompilerCallData(
         const QString file = it.key();
         const QList<QStringList> compilerCalls = it.value();
         foreach (const QStringList &options, compilerCalls) {
-            const QStringList arguments = tweakedArguments(file, options, wordWidth, targetTriple);
+            const QStringList arguments = tweakedArguments(file, options, extraParams);
             unitsToAnalyze << AnalyzeUnit(file, arguments);
         }
     }
@@ -262,8 +262,7 @@ static AnalyzeUnits unitsToAnalyzeFromCompilerCallData(
 }
 
 static AnalyzeUnits unitsToAnalyzeFromProjectParts(const QList<ProjectPart::Ptr> projectParts,
-                                                   unsigned char wordWidth,
-                                                   const QString &targetTriple)
+                                                   const ExtraToolChainInfo &extraParams)
 {
     qCDebug(LOG) << "Taking arguments for analyzing from ProjectParts.";
 
@@ -281,8 +280,7 @@ static AnalyzeUnits unitsToAnalyzeFromProjectParts(const QList<ProjectPart::Ptr>
                 const QStringList arguments
                     = ClangStaticAnalyzerOptionsBuilder::build(*projectPart.data(),
                                                                file.kind,
-                                                               wordWidth,
-                                                               targetTriple);
+                                                               extraParams);
                 unitsToAnalyze << AnalyzeUnit(file.path, arguments);
             }
         }
@@ -297,15 +295,10 @@ AnalyzeUnits ClangStaticAnalyzerRunControl::sortedUnitsToAnalyze()
 
     AnalyzeUnits units;
     const ProjectInfo::CompilerCallData compilerCallData = m_projectInfo.compilerCallData();
-    if (compilerCallData.isEmpty()) {
-        units = unitsToAnalyzeFromProjectParts(m_projectInfo.projectParts(),
-                                               m_wordWidth,
-                                               m_targetTriple);
-    } else {
-        units = unitsToAnalyzeFromCompilerCallData(compilerCallData,
-                                                   m_wordWidth,
-                                                   m_targetTriple);
-    }
+    if (compilerCallData.isEmpty())
+        units = unitsToAnalyzeFromProjectParts(m_projectInfo.projectParts(), m_extraToolChainInfo);
+    else
+        units = unitsToAnalyzeFromCompilerCallData(compilerCallData, m_extraToolChainInfo);
 
     Utils::sort(units, [](const AnalyzeUnit &a1, const AnalyzeUnit &a2) -> bool {
         return a1.file < a2.file;
