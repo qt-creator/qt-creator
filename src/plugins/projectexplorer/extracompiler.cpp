@@ -375,6 +375,14 @@ ProcessExtraCompiler::ProcessExtraCompiler(const Project *project, const Utils::
     ExtraCompiler(project, source, targets, parent)
 { }
 
+ProcessExtraCompiler::~ProcessExtraCompiler()
+{
+    if (!m_watcher)
+        return;
+    m_watcher->cancel();
+    m_watcher->waitForFinished();
+}
+
 void ProcessExtraCompiler::run(const QByteArray &sourceContents)
 {
     ContentProvider contents = [this, sourceContents]() { return sourceContents; };
@@ -429,17 +437,18 @@ void ProcessExtraCompiler::runImpl(const ContentProvider &provider)
                                          buildEnvironment()));
 }
 
-FileNameToContentsHash ProcessExtraCompiler::runInThread(
+void ProcessExtraCompiler::runInThread(
+        QFutureInterface<FileNameToContentsHash> &futureInterface,
         const Utils::FileName &cmd, const Utils::FileName &workDir,
         const QStringList &args, const ContentProvider &provider,
         const Utils::Environment &env)
 {
     if (cmd.isEmpty() || !cmd.toFileInfo().isExecutable())
-        return FileNameToContentsHash();
+        return;
 
     const QByteArray sourceContents = provider();
     if (sourceContents.isNull() || !prepareToRun(sourceContents))
-        return FileNameToContentsHash();
+        return;
 
     QProcess process;
 
@@ -449,25 +458,38 @@ FileNameToContentsHash ProcessExtraCompiler::runInThread(
     process.start(cmd.toString(), args, QIODevice::ReadWrite);
     if (!process.waitForStarted()) {
         handleProcessError(&process);
-        return FileNameToContentsHash();
+        return;
     }
-    handleProcessStarted(&process, sourceContents);
-    process.waitForFinished();
+    bool isCanceled = futureInterface.isCanceled();
+    if (!isCanceled) {
+        handleProcessStarted(&process, sourceContents);
+        forever {
+            bool done = process.waitForFinished(200);
+            isCanceled = futureInterface.isCanceled();
+            if (done || isCanceled)
+                break;
+        }
+    }
 
-    if (process.state() == QProcess::Running) {
+    isCanceled |= process.state() == QProcess::Running;
+    if (isCanceled) {
         process.kill();
         process.waitForFinished(3000);
+        return;
     }
 
-    return handleProcessFinished(&process);
+    futureInterface.reportResult(handleProcessFinished(&process));
 }
 
 void ProcessExtraCompiler::cleanUp()
 {
     QTC_ASSERT(m_watcher, return);
-    const FileNameToContentsHash data = m_watcher->future().result();
+    auto future = m_watcher->future();
     delete m_watcher;
     m_watcher = nullptr;
+    if (!future.resultCount())
+        return;
+    const FileNameToContentsHash data = future.result();
 
     if (data.isEmpty())
         return; // There was some kind of error...
