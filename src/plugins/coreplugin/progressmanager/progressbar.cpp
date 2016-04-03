@@ -244,11 +244,14 @@ void ProgressBar::paintEvent(QPaintEvent *)
     // Draw separator
     int separatorHeight = m_separatorVisible ? SEPARATOR_HEIGHT : 0;
     if (m_separatorVisible) {
+        QRectF innerRect = QRectF(this->rect()).adjusted(0.5, 0.5, -0.5, -0.5);
         p.setPen(StyleHelper::sidebarShadow());
-        p.drawLine(0,0, size().width(), 0);
+        p.drawLine(innerRect.topLeft(), innerRect.topRight());
 
-        p.setPen(StyleHelper::sidebarHighlight());
-        p.drawLine(1, 1, size().width(), 1);
+        if (creatorTheme()->flag(Theme::DrawToolBarHighlights)) {
+            p.setPen(StyleHelper::sidebarHighlight());
+            p.drawLine(innerRect.topLeft() + QPointF(1, 1), innerRect.topRight() + QPointF(0, 1));
+        }
     }
 
     if (m_titleVisible) {
