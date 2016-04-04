@@ -110,6 +110,9 @@ def testLoggingFeatures():
         clickButton(":*Qt Creator.Clear_QToolButton")
 
 def main():
+    test.warning("This test must be rewritten (QTCREATORBUG-15831)") # QmlJS Console has changed
+    return
+
     projName = "simpleQuickUI2.qmlproject"
     projFolder = os.path.dirname(findFile("testdata", "simpleQuickUI2/%s" % projName))
     if not neededFilePresent(os.path.join(projFolder, projName)):
