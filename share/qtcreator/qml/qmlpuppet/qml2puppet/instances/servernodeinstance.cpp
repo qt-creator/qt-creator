@@ -217,7 +217,7 @@ ServerNodeInstance ServerNodeInstance::create(NodeInstanceServer *nodeInstanceSe
             if (object == 0)
                 object = new QQuickItem;
         } else {
-            object = new QObject;
+            object = Internal::ObjectNodeInstance::createPrimitive("QtQml/QtObject", 2, 0, nodeInstanceServer->context());
         }
    }
 
