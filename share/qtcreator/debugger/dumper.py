@@ -1015,7 +1015,8 @@ class DumperBase:
         if arrayByteSize == 0:
             # This should not happen. But it does, see QTCREATORBUG-14755.
             # GDB/GCC produce sizeof == 0 for QProcess arr[3]
-            s = str(value.type)
+            # And in the Nim string dumper.
+            s = value.type.name
             itemCount = s[s.find('[')+1:s.find(']')]
             if not itemCount:
                 itemCount = '100'

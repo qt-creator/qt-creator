@@ -163,6 +163,25 @@ def qdump__Eigen__Matrix(d, value):
 
 #######################################################################
 #
+# Nim
+#
+#######################################################################
+
+def qdump__NimStringDesc(d, value):
+    size, reserved = value.split('pp')
+    data = value.address() + 2 * d.ptrSize()
+    d.putCharArrayHelper(data, size, d.createType('char'), 'utf8')
+
+def qdump__NimGenericSequence__(d, value, regex = "^TY[\d]+$"):
+    size, reserved = d.split('pp', value)
+    data = value.address() + 2 * d.ptrSize()
+    typeobj = value["data"].type.dereference()
+    d.putItemCount(size)
+    d.putArrayData(data, size, typeobj)
+    d.putBetterType("%s (%s[%s])" % (value.type.name, typeobj.name, size))
+
+#######################################################################
+#
 # D
 #
 #######################################################################
