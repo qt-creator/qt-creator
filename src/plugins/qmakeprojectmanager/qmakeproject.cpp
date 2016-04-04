@@ -300,6 +300,10 @@ QmakeProject::~QmakeProject()
 {
     m_codeModelFuture.cancel();
     m_asyncUpdateState = ShuttingDown;
+
+    // Make sure root node (and associated readers) are shut hown before proceeding
+    setRootProjectNode(nullptr);
+
     projectManager()->unregisterProject(this);
     delete m_projectFiles;
     m_cancelEvaluate = true;
