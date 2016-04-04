@@ -2107,9 +2107,7 @@ void QmakeProFileNode::applyEvaluate(EvalResult *evalResult)
     // we are changing what is executed in that case
     if (result->state == EvalResult::EvalFail || m_project->wasEvaluateCanceled()) {
         m_validParse = false;
-        m_project->destroyProFileReader(m_readerExact);
-        m_project->destroyProFileReader(m_readerCumulative);
-        m_readerExact = m_readerCumulative = 0;
+        cleanupProFileReaders();
         setValidParseRecursive(false);
         setParseInProgressRecursive(false);
 
@@ -2305,8 +2303,8 @@ void QmakeProFileNode::cleanupProFileReaders()
     m_project->destroyProFileReader(m_readerExact);
     m_project->destroyProFileReader(m_readerCumulative);
 
-    m_readerExact = 0;
-    m_readerCumulative = 0;
+    m_readerExact = nullptr;
+    m_readerCumulative = nullptr;
 }
 
 QStringList QmakeProFileNode::fileListForVar(QtSupport::ProFileReader *readerExact, QtSupport::ProFileReader *readerCumulative,
