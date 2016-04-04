@@ -393,7 +393,7 @@ void QmakeProject::updateCppCodeModel()
     typedef CppTools::ProjectPart ProjectPart;
     typedef CppTools::ProjectFile ProjectFile;
 
-    Kit *k = 0;
+    Kit *k = nullptr;
     if (Target *target = activeTarget())
         k = target->kit();
     else
@@ -730,7 +730,7 @@ void QmakeProject::decrementPendingEvaluateFutures()
 
         m_asyncUpdateFutureInterface->reportFinished();
         delete m_asyncUpdateFutureInterface;
-        m_asyncUpdateFutureInterface = 0;
+        m_asyncUpdateFutureInterface = nullptr;
         m_cancelEvaluate = false;
 
         // TODO clear the profile cache ?
@@ -941,7 +941,7 @@ QtSupport::ProFileReader *QmakeProject::createProFileReader(const QmakeProFileNo
     }
     ++m_qmakeGlobalsRefCnt;
 
-    QtSupport::ProFileReader *reader = new QtSupport::ProFileReader(m_qmakeGlobals, m_qmakeVfs);
+    auto reader = new QtSupport::ProFileReader(m_qmakeGlobals, m_qmakeVfs);
 
     reader->setOutputDir(qmakeProFileNode->buildDir());
 
@@ -969,7 +969,7 @@ void QmakeProject::destroyProFileReader(QtSupport::ProFileReader *reader)
         QtSupport::ProFileCacheManager::instance()->decRefCount();
 
         delete m_qmakeGlobals;
-        m_qmakeGlobals = 0;
+        m_qmakeGlobals = nullptr;
     }
 }
 
