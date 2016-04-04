@@ -30,6 +30,7 @@ import base64
 import re
 import time
 import json
+import inspect
 
 if sys.version_info[0] >= 3:
     xrange = range
@@ -372,7 +373,8 @@ class DumperBase:
         self.qqFormats = { "QVariant (QVariantMap)" : mapForms() }
 
         # This is a cache of all known dumpers.
-        self.qqDumpers = {}
+        self.qqDumpers = {}    # Direct type match
+        self.qqDumpersEx = {}  # Using regexp
 
         # This is a cache of all dumpers that support writing.
         self.qqEditable = {}
@@ -1024,6 +1026,12 @@ class DumperBase:
             if not dumper is None:
                 dumper(self, value)
                 return True
+
+            for pattern in self.qqDumpersEx.keys():
+                dumper = self.qqDumpersEx[pattern]
+                if re.match(pattern, nsStrippedType):
+                    dumper(self, value)
+                    return True
 
         return False
 
@@ -1731,11 +1739,13 @@ class DumperBase:
 
     def registerDumper(self, funcname, function):
         try:
-            #warn("FUNCTION: %s " % funcname)
-            #funcname = function.func_name
             if funcname.startswith("qdump__"):
                 typename = funcname[7:]
-                self.qqDumpers[typename] = function
+                spec = inspect.getargspec(function)
+                if len(spec.args) == 2:
+                    self.qqDumpers[typename] = function
+                elif len(spec.args) == 3 and len(spec.defaults) == 1:
+                    self.qqDumpersEx[spec.defaults[0]] = function
                 self.qqFormats[typename] = self.qqFormats.get(typename, [])
             elif funcname.startswith("qform__"):
                 typename = funcname[7:]
