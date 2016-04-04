@@ -341,7 +341,7 @@
     </message>
     <message>
         <source>The process &quot;%1&quot; crashed.</source>
-        <translation>Процесс «%1» завершился крахом.</translation>
+        <translation>Процесс «%1» аварийно завершился.</translation>
     </message>
     <message>
         <source>Another application with the same package id but signed with different certificate already exists.
@@ -791,7 +791,7 @@ Do you want to uninstall the existing package?</source>
     </message>
     <message>
         <source>&quot;%1&quot; died.</source>
-        <translation>«%1» завершился крахом.</translation>
+        <translation>«%1» аварийно завершился.</translation>
     </message>
     <message>
         <source>Unable to start &quot;%1&quot;.</source>
@@ -3633,8 +3633,8 @@ For example, &quot;Revision: 15&quot; will leave the branch at revision 15.</sou
 <context>
     <name>CMakeProjectManager::CMakeBuildStep</name>
     <message>
-        <source>Qt Creator needs a cmake tool set up to build. Configure a cmake tool in the kit options.</source>
-        <translation>Для сборки необходимо, чтобы была задана утилита cmake. Задайте её в настройках комлекта.</translation>
+        <source>Qt Creator needs a CMake Tool set up to build. Configure a CMake Tool in the kit options.</source>
+        <translation>Для сборки необходимо, чтобы была задана утилита CMake. Задайте её в настройках комлекта.</translation>
     </message>
 </context>
 <context>
@@ -3790,7 +3790,7 @@ For example, &quot;Revision: 15&quot; will leave the branch at revision 15.</sou
     </message>
     <message>
         <source>*** cmake process crashed!</source>
-        <translation>*** процесс cmake завершился крахом!</translation>
+        <translation>*** процесс cmake аварийно завершился!</translation>
     </message>
     <message>
         <source>*** cmake process exited with exit code %1.</source>
@@ -4172,9 +4172,9 @@ For example, &quot;Revision: 15&quot; will leave the branch at revision 15.</sou
     <name>ClangStaticAnalyzer</name>
     <message>
         <source>The chosen file &quot;%1&quot; seems to point to an icecc binary not suitable for analyzing.
-Please set a real clang executable.</source>
+Please set a real Clang executable.</source>
         <translation>Кажется, выбранный файл «%1» указывает на программу icecc непригодную для анализа.
-Укажите реальную программу clang.</translation>
+Укажите реальный исполняемый файл Clang.</translation>
     </message>
 </context>
 <context>
@@ -4203,7 +4203,7 @@ Please set a real clang executable.</source>
         <translation>Сообщение:</translation>
     </message>
     <message>
-        <source>Extended Message:</source>
+        <source>Extended message:</source>
         <translation>Подробное сообщение:</translation>
     </message>
     <message>
@@ -4248,7 +4248,7 @@ Please set a real clang executable.</source>
 <context>
     <name>ClangStaticAnalyzer::Internal::ClangStaticAnalyzerDiagnosticView</name>
     <message>
-        <source>Suppress this diagnostic</source>
+        <source>Suppress This Diagnostic</source>
         <translation>Подавить эту диагностику</translation>
     </message>
 </context>
@@ -4262,8 +4262,8 @@ Please set a real clang executable.</source>
 <context>
     <name>ClangStaticAnalyzer::Internal::ClangStaticAnalyzerPlugin</name>
     <message>
-        <source>Clang Static Analyzer Settings</source>
-        <translation>Настройки статического анализатора Clang</translation>
+        <source>Clang Static Analyzer</source>
+        <translation>Статический анализатор Clang</translation>
     </message>
 </context>
 <context>
@@ -4328,8 +4328,8 @@ Please set a real clang executable.</source>
         <translation>К следующей проблеме.</translation>
     </message>
     <message>
-        <source>Clang Static Analyzer uses the analyzer from the clang project to find bugs.</source>
-        <translation>Статический анализатор Clang использует анализатор из проекта clang для поиска проблем.</translation>
+        <source>Clang Static Analyzer uses the analyzer from the Clang project to find bugs.</source>
+        <translation>Статический анализатор Clang использует анализатор из проекта Clang для поиска ошибок.</translation>
     </message>
     <message>
         <source>Clang Static Analyzer</source>
@@ -4356,7 +4356,7 @@ Please set a real clang executable.</source>
         <translation>Запустить статический анализатор Clang.</translation>
     </message>
     <message>
-        <source>Clang Static Analyzer running.</source>
+        <source>Clang Static Analyzer is running.</source>
         <translation>Статический анализатор Clang работает.</translation>
     </message>
     <message>
@@ -4383,16 +4383,16 @@ Please set a real clang executable.</source>
         <translation></translation>
     </message>
     <message>
-        <source>Suppressed Diagnostics:</source>
-        <translation>Подавляемые диагностики:</translation>
-    </message>
-    <message>
         <source>Remove Selected</source>
         <translation>Удалить выбранное</translation>
     </message>
     <message>
         <source>Remove All</source>
         <translation>Удалить всё</translation>
+    </message>
+    <message>
+        <source>Suppressed diagnostics:</source>
+        <translation>Подавляемые диагностики:</translation>
     </message>
 </context>
 <context>
@@ -7038,16 +7038,8 @@ Do you want to kill it?</source>
         <translation>Недавние фа&amp;йлы</translation>
     </message>
     <message>
-        <source>&amp;Save</source>
-        <translation>&amp;Сохранить</translation>
-    </message>
-    <message>
         <source>Save</source>
         <translation>Сохранить</translation>
-    </message>
-    <message>
-        <source>Save &amp;As...</source>
-        <translation>Сохранить &amp;как...</translation>
     </message>
     <message>
         <source>Ctrl+Shift+S</source>
@@ -7811,7 +7803,7 @@ Do you want to kill it?</source>
     </message>
     <message>
         <source>Automatically creates temporary copies of modified files. If Qt Creator is restarted after a crash or power failure, it asks whether to recover the auto-saved content.</source>
-        <translation>Автоматически создавать копии изменённых файлов. Если работа Qt Creator завершилась в результате краха или сбоя питания, то при перезапуске он предложит восстановить их содержимое.</translation>
+        <translation>Автоматически создавать копии изменённых файлов. Если работа Qt Creator завершится аварийно или из-за сбоя питания, то при перезапуске он предложит восстановить их содержимое.</translation>
     </message>
     <message>
         <source>Auto-save modified files</source>
@@ -8007,7 +7999,7 @@ Do you want to kill it?</source>
     </message>
     <message>
         <source>&quot;%1&quot; crashed.</source>
-        <translation>«%1» завершился аварийно.</translation>
+        <translation>«%1» аварийно завершился.</translation>
     </message>
     <message>
         <source>&quot;%1&quot; failed (exit code %2).</source>
@@ -11498,11 +11490,11 @@ Affected are breakpoints %1</source>
     </message>
     <message>
         <source>Crashed process %1</source>
-        <translation>Завершившийся крахом процесс %1</translation>
+        <translation>Аварийно завершившийся процесс %1</translation>
     </message>
     <message>
         <source>Attaching to crashed process %1</source>
-        <translation>Подключение к завершившемуся крахом процессу %1</translation>
+        <translation>Подключение к аварийно завершившемуся процессу %1</translation>
     </message>
     <message>
         <source>Process Already Under Debugger Control</source>
@@ -12248,7 +12240,7 @@ Qt Creator не может подключиться к нему.</translation>
     </message>
     <message>
         <source>The gdb process crashed some time after starting successfully.</source>
-        <translation>Процесс gdb завершился крахом через некоторое время после успешного запуска.</translation>
+        <translation>Процесс gdb аварийно завершился через некоторое время после успешного запуска.</translation>
     </message>
     <message>
         <source>The gdb process was ended forcefully</source>
@@ -12913,7 +12905,7 @@ markers in the source code editor.</source>
     </message>
     <message>
         <source>The LLDB process crashed some time after starting successfully.</source>
-        <translation>Процесс LLDB завершился крахом через некоторое время после успешного старта.</translation>
+        <translation>Процесс LLDB аварийно завершился через некоторое время после успешного старта.</translation>
     </message>
     <message>
         <source>An error occurred when attempting to write to the LLDB process. For example, the process may not be running, or it may have closed its input channel.</source>
@@ -13303,10 +13295,6 @@ Do you want to retry?</source>
     <message>
         <source>QML Debugger disconnected.</source>
         <translation>Отладчик QML отключён.</translation>
-    </message>
-    <message>
-        <source>Context:</source>
-        <translation>Контекст:</translation>
     </message>
 </context>
 <context>
@@ -16176,7 +16164,7 @@ will also disable the following plugins:
     </message>
     <message>
         <source>%1 crashed.</source>
-        <translation>%1 завершился крахом.</translation>
+        <translation>%1 аварийно завершился.</translation>
     </message>
     <message>
         <source>%1 returned %2.</source>
@@ -16455,7 +16443,7 @@ Partial names can be used if they are unambiguous.</source>
     </message>
     <message>
         <source>%1 crashed.</source>
-        <translation>%1 завершился крахом.</translation>
+        <translation>%1 аварийно завершился.</translation>
     </message>
     <message>
         <source>%1 returned %2.</source>
@@ -18259,7 +18247,7 @@ Leave empty to search through the file system.</source>
     <message>
         <source>Ref: %1
 %2</source>
-        <translation type="unfinished">Ссылка: %1
+        <translation>Ссылка: %1
 %2</translation>
     </message>
     <message>
@@ -19140,7 +19128,7 @@ Would you like to overwrite it?</source>
         <translation>Ctrl+0</translation>
     </message>
     <message>
-        <source>Fit To Screen</source>
+        <source>Fit to Screen</source>
         <translation>На весь экран</translation>
     </message>
     <message>
@@ -20009,80 +19997,80 @@ Ids must begin with a lowercase letter.</source>
     </message>
     <message>
         <source>Polish</source>
-        <translation type="unfinished">Полировка</translation>
+        <translation>Полировка</translation>
     </message>
     <message>
         <source>Wait</source>
-        <translation type="unfinished">Ожидание</translation>
+        <translation>Ожидание</translation>
     </message>
     <message>
         <source>GUI Thread Sync</source>
-        <translation type="unfinished">Синхронизация с потоком GUI</translation>
+        <translation>Синхронизация с потоком GUI</translation>
     </message>
     <message>
         <source>Render Thread Sync</source>
-        <translation type="unfinished">Синхронизация с потоком рендера</translation>
+        <translation>Синхронизация с потоком рендера</translation>
     </message>
     <message>
         <source>Render</source>
-        <translation type="unfinished">Рендер</translation>
+        <translation>Рендер</translation>
     </message>
     <message>
         <source>Swap</source>
-        <translation type="unfinished">Переключение</translation>
+        <translation>Переключение</translation>
     </message>
     <message>
         <source>Render Preprocess</source>
-        <translation type="unfinished">Рендер - преобработка</translation>
+        <translation>Рендер - преобработка</translation>
     </message>
     <message>
         <source>Render Update</source>
-        <translation type="unfinished">Рендер - обновление</translation>
+        <translation>Рендер - обновление</translation>
     </message>
     <message>
         <source>Render Bind</source>
-        <translation type="unfinished">Рендер - привязка</translation>
+        <translation>Рендер - привязка</translation>
     </message>
     <message>
         <source>Render Render</source>
-        <translation type="unfinished">Рендер - рендеринг</translation>
+        <translation>Рендер - рендеринг</translation>
     </message>
     <message>
         <source>Material Compile</source>
-        <translation type="unfinished">Компиляция материала</translation>
+        <translation>Компиляция материала</translation>
     </message>
     <message>
         <source>Glyph Render</source>
-        <translation type="unfinished">Отрисовка глифов</translation>
+        <translation>Отрисовка глифов</translation>
     </message>
     <message>
         <source>Glyph Upload</source>
-        <translation type="unfinished">Выгрузка глифов</translation>
+        <translation>Выгрузка глифов</translation>
     </message>
     <message>
         <source>Texture Bind</source>
-        <translation type="unfinished">Текстуры - привязка</translation>
+        <translation>Текстуры - привязка</translation>
     </message>
     <message>
         <source>Texture Convert</source>
-        <translation type="unfinished">Текстуры - преобразование</translation>
+        <translation>Текстуры - преобразование</translation>
     </message>
     <message>
         <source>Texture Swizzle</source>
         <translatorcomment>не знаю, как выбор/обмен цветовых каналов перевести на русский</translatorcomment>
-        <translation type="unfinished">Текстуры - смешивание</translation>
+        <translation>Текстуры - смешивание</translation>
     </message>
     <message>
         <source>Texture Upload</source>
-        <translation type="unfinished">Текстуры - выгрузка</translation>
+        <translation>Текстуры - выгрузка</translation>
     </message>
     <message>
         <source>Texture Mipmap</source>
-        <translation type="unfinished">Текстуры - мипмамминг</translation>
+        <translation>Текстуры - мипмамминг</translation>
     </message>
     <message>
         <source>Texture Delete</source>
-        <translation type="unfinished">Текстуры - удаление</translation>
+        <translation>Текстуры - удаление</translation>
     </message>
 </context>
 <context>
@@ -20738,7 +20726,7 @@ Ids must begin with a lowercase letter.</source>
         <translation>Выбор особого каталога настроек</translation>
     </message>
     <message>
-        <source>Config Path:</source>
+        <source>Config path:</source>
         <translation>Путь к настройкам:</translation>
     </message>
     <message>
@@ -21801,6 +21789,10 @@ Ids must begin with a lowercase letter.</source>
         <source>Name of current build</source>
         <translation>Имя текущей сборки</translation>
     </message>
+    <message>
+        <source>The currently active run configuration&apos;s name.</source>
+        <translation>Имя текущей активной конфигурации запуска.</translation>
+    </message>
 </context>
 <context>
     <name>ProjectExplorer::AbiWidget</name>
@@ -21833,7 +21825,7 @@ Ids must begin with a lowercase letter.</source>
     </message>
     <message>
         <source>The process &quot;%1&quot; crashed.</source>
-        <translation>Процесс «%1» завершился крахом.</translation>
+        <translation>Процесс «%1» завершился аварийно.</translation>
     </message>
     <message>
         <source>Could not start process &quot;%1&quot; %2</source>
@@ -21984,7 +21976,7 @@ Ids must begin with a lowercase letter.</source>
     </message>
     <message>
         <source>The process crashed.</source>
-        <translation>Процесс завершился крахом.</translation>
+        <translation>Процесс аварийно завершился.</translation>
     </message>
     <message>
         <source>The process returned exit code %1:
@@ -22504,7 +22496,7 @@ Ids must begin with a lowercase letter.</source>
     </message>
     <message>
         <source>Remote process crashed: %1</source>
-        <translation>Внешний процесс завершился крахом: %1</translation>
+        <translation>Внешний процесс аварийно завершился: %1</translation>
     </message>
     <message>
         <source>Remote process failed; exit code was %1.</source>
@@ -23482,8 +23474,8 @@ Ids must begin with a lowercase letter.</source>
         <translation>Запускается %1...</translation>
     </message>
     <message>
-        <source>%1 crashed</source>
-        <translation>%1 завершился крахом</translation>
+        <source>%1 crashed.</source>
+        <translation>%1 аварийно завершился.</translation>
     </message>
     <message>
         <source>%1 exited with code %2</source>
@@ -25875,6 +25867,10 @@ Please close all running instances of your application before starting a build.<
         <translation>Название активного комплекта.</translation>
     </message>
     <message>
+        <source>The currently active run configuration&apos;s name.</source>
+        <translation>Имя текущей активной конфигурации запуска.</translation>
+    </message>
+    <message>
         <source>Cancel Build &amp;&amp; Unload</source>
         <translation>Отменить сборку и выгрузить</translation>
     </message>
@@ -26412,6 +26408,10 @@ These files are preserved.</source>
 <context>
     <name>ProjectExplorer::SshDeviceProcess</name>
     <message>
+        <source>Internal error</source>
+        <translation>Внутренняя ошибка</translation>
+    </message>
+    <message>
         <source>Failed to kill remote process: %1</source>
         <translation>Не удалось завершить удалённый процесс: %1</translation>
     </message>
@@ -26436,7 +26436,7 @@ These files are preserved.</source>
     </message>
     <message>
         <source>Error: Process listing command crashed: %1</source>
-        <translation>Ошибка: Команда вывода списка завершилась крахом: %1</translation>
+        <translation>Ошибка: Команда вывода списка аварийно завершилась: %1</translation>
     </message>
     <message>
         <source>Process listing command failed with exit code %1.</source>
@@ -26696,7 +26696,7 @@ These files are preserved.</source>
     </message>
     <message>
         <source>%1 crashed</source>
-        <translation>%1 завершился крахом</translation>
+        <translation>%1 аварийно завершился</translation>
     </message>
     <message>
         <source>%1 exited with code %2</source>
@@ -26839,15 +26839,15 @@ Maybe raise the timeout?</source>
         <translation>Ожидается целочисленный элемент.</translation>
     </message>
     <message>
-        <source>An error occurred with the clang static analyzer process.</source>
+        <source>An error occurred with the Clang Static Analyzer process.</source>
         <translation>Возникла ошибка при статическом анализе Clang.</translation>
     </message>
     <message>
-        <source>Clang static analyzer crashed.</source>
-        <translation>Статический анализ Clang завершился крахом.</translation>
+        <source>Clang Static Analyzer crashed.</source>
+        <translation>Статический анализ Clang аварийно завершился.</translation>
     </message>
     <message>
-        <source>Clang static analyzer finished with exit code: %1.</source>
+        <source>Clang Static Analyzer finished with exit code: %1.</source>
         <translation>Статический анализ Clang завершился с кодом %1.</translation>
     </message>
     <message>
@@ -26873,7 +26873,7 @@ Output:
     </message>
     <message>
         <source>The SFTP server crashed: %1.</source>
-        <translation>Сервер SFTP завершился крахом: %1.</translation>
+        <translation>Сервер SFTP аварийно завершился: %1.</translation>
     </message>
     <message>
         <source>Unexpected packet of type %1.</source>
@@ -27597,6 +27597,10 @@ Output:
     <message>
         <source>Parsing of .qbs files has failed.</source>
         <translation>Не удалось обработать файлы .qbs.</translation>
+    </message>
+    <message>
+        <source>Error retrieving run environment: %1</source>
+        <translation>Не удалось получить среду запуска: %1</translation>
     </message>
     <message>
         <source>Qbs Run Configuration</source>
@@ -28941,8 +28945,8 @@ Neither the path to the library nor the path to its includes is added to the .pr
         <translation>Формы</translation>
     </message>
     <message>
-        <source>StateCharts</source>
-        <translation type="unfinished">Диаграммы состояний</translation>
+        <source>State charts</source>
+        <translation>Диаграммы состояний</translation>
     </message>
     <message>
         <source>Resources</source>
@@ -29457,7 +29461,7 @@ Neither the path to the library nor the path to its includes is added to the .pr
     </message>
     <message>
         <source>Qt Quick emulation layer crashed</source>
-        <translation>Слой эмуляции Qt Quick завершился крахом</translation>
+        <translation>Слой эмуляции Qt Quick аварийно завершился</translation>
     </message>
 </context>
 <context>
@@ -29710,16 +29714,16 @@ Neither the path to the library nor the path to its includes is added to the .pr
         <translation>Показывать предупреждения редактора свойств</translation>
     </message>
     <message>
-        <source>Forward puppet output:</source>
-        <translation>Перенаправление вывода:</translation>
-    </message>
-    <message>
         <source>Show warn exceptions</source>
         <translation>Предупреждающие исключения</translation>
     </message>
     <message>
-        <source>Debug puppet:</source>
-        <translation>Отладка эмулятора:</translation>
+        <source>Forward QML emulation layer output:</source>
+        <translation>Перенаправление вывода эмулятора QML:</translation>
+    </message>
+    <message>
+        <source>Debug QML emulation layer:</source>
+        <translation>Отладка эмулятора QML:</translation>
     </message>
 </context>
 <context>
@@ -29822,11 +29826,11 @@ This is independent of the visibility property in QML.</source>
     </message>
     <message>
         <source>QML Emulation Layer (QML Puppet) Crashed</source>
-        <translation>Слой эмуляции QML (QML Puppet) завершился крахом</translation>
+        <translation>Слой эмуляции QML (QML Puppet) аварийно завершился</translation>
     </message>
     <message>
         <source>You are recording a puppet stream and the emulations layer crashed. It is recommended to reopen the Qt Quick Designer and start again.</source>
-        <translation>Эмуляция завершилась крахом при записи puppet-потока. Рекомендуется переоткрыть Qt Quick Designer и запустить запись снова.</translation>
+        <translation>Эмуляция аварийно завершилась при записи puppet-потока. Рекомендуется переоткрыть Qt Quick Designer и запустить запись снова.</translation>
     </message>
 </context>
 <context>
@@ -31687,12 +31691,20 @@ references to elements in other files, loops, and so on.)</source>
         <translation>Профайлер QML (внешний)</translation>
     </message>
     <message>
-        <source>A Qml Profiler analysis is still in progress.</source>
+        <source>A QML Profiler analysis is still in progress.</source>
         <translation>Выполняется профилирование QML.</translation>
     </message>
     <message>
-        <source>Start Qml Profiler analysis.</source>
+        <source>Start QML Profiler analysis.</source>
         <translation>Начать профилирование QML.</translation>
+    </message>
+    <message>
+        <source>Disable Profiling</source>
+        <translation>Отключить профилирование</translation>
+    </message>
+    <message>
+        <source>Enable Profiling</source>
+        <translation>Включить профилирование</translation>
     </message>
     <message>
         <source>%1 s</source>
@@ -31733,14 +31745,6 @@ Do you want to save the data first?</source>
     <message>
         <source>Hide or show event categories.</source>
         <translation>Показ или скрытие категорий событий.</translation>
-    </message>
-    <message>
-        <source>Disable profiling</source>
-        <translation>Отключить профилирование</translation>
-    </message>
-    <message>
-        <source>Enable profiling</source>
-        <translation>Включить профилирование</translation>
     </message>
 </context>
 <context>
@@ -32078,12 +32082,12 @@ Do you want to save the data first?</source>
 <context>
     <name>QmlProfilerExtension::Internal::QmlProfilerExtensionPlugin</name>
     <message>
-        <source>Action triggered</source>
+        <source>Action Triggered</source>
         <translation>Действие сработало</translation>
     </message>
     <message>
-        <source>This is an action from QmlProfilerExtension.</source>
-        <translation>Это действие из QmlProfilerExtension.</translation>
+        <source>This is an action from QML Profiler Extension.</source>
+        <translation>Это действие из расширения QML Profiler.</translation>
     </message>
 </context>
 <context>
@@ -33766,6 +33770,10 @@ In addition, device connectivity will be tested.</source>
 <context>
     <name>RemoteLinux::Internal::RemoteLinuxEnvironmentReader</name>
     <message>
+        <source>Error: No device</source>
+        <translation>Ошибка: Нет устройства</translation>
+    </message>
+    <message>
         <source>Error: %1</source>
         <translation>Ошибка: %1</translation>
     </message>
@@ -33872,7 +33880,7 @@ In addition, device connectivity will be tested.</source>
     </message>
     <message>
         <source>Remote process crashed.</source>
-        <translation>Удалённый процесс завершился крахом.</translation>
+        <translation>Удалённый процесс аварийно завершился.</translation>
     </message>
     <message>
         <source>Unexpected output from remote process: &quot;%1&quot;</source>
@@ -37470,8 +37478,8 @@ Will not be applied to whitespace in comments and strings.</source>
         <translation>Удалить</translation>
     </message>
     <message>
-        <source>To-Do Settings</source>
-        <translation>Настройки To-Do</translation>
+        <source>To-Do</source>
+        <translation>To-Do</translation>
     </message>
 </context>
 <context>
@@ -38789,7 +38797,7 @@ Will not be applied to whitespace in comments and strings.</source>
 <context>
     <name>Valgrind::Internal::CallgrindTool</name>
     <message>
-        <source>Valgrind Function Profile uses the Callgrind tool to record function calls when a program runs.</source>
+        <source>Valgrind Function Profiler uses the Callgrind tool to record function calls when a program runs.</source>
         <translation>Профайлер функций Valgrind использует утилиту Callgrind для записи вызовов функций при работе программы.</translation>
     </message>
     <message>
@@ -38869,8 +38877,16 @@ Will not be applied to whitespace in comments and strings.</source>
         <translation>Цены, относительные к родительской</translation>
     </message>
     <message>
-        <source>Show costs relative to parent functions inclusive cost.</source>
+        <source>Show costs relative to parent function&apos;s inclusive cost.</source>
         <translation>Показывать цены относительно общей цены вызвавшей функции.</translation>
+    </message>
+    <message>
+        <source>Remove template parameter lists when displaying function names.</source>
+        <translation>Убирать списки шаблонных параметров при отображении имён функций.</translation>
+    </message>
+    <message>
+        <source>Select This Function in the Analyzer Output</source>
+        <translation>Выбрать эту функцию в выводе анализатора</translation>
     </message>
     <message>
         <source>Cost Format</source>
@@ -38879,10 +38895,6 @@ Will not be applied to whitespace in comments and strings.</source>
     <message>
         <source>Enable cycle detection to properly handle recursive or circular function calls.</source>
         <translation>Включить определение циклов для корректной обработки рекурсивных и циклических вызовов.</translation>
-    </message>
-    <message>
-        <source>This removes template parameter lists when displaying function names.</source>
-        <translation>Убирает списки шаблонных параметров при отображении имён функций.</translation>
     </message>
     <message>
         <source>Show Project Costs Only</source>
@@ -38923,10 +38935,6 @@ Will not be applied to whitespace in comments and strings.</source>
     <message>
         <source>Parsing failed.</source>
         <translation>Не удалось обработать.</translation>
-    </message>
-    <message>
-        <source>Select this Function in the Analyzer Output</source>
-        <translation>Выберите эту функцию в выводе анализатора</translation>
     </message>
     <message>
         <source>Populating...</source>
