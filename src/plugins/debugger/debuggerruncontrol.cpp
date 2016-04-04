@@ -232,8 +232,11 @@ bool DebuggerRunControl::promptToStop(bool *optionalPrompt) const
             "Terminating the session in the current"
             " state can leave the target in an inconsistent state."
             " Would you still like to terminate it?");
-    return showPromptToStopDialog(tr("Close Debugging Session"), question,
-                                  QString(), QString(), optionalPrompt);
+    bool result = showPromptToStopDialog(tr("Close Debugging Session"), question,
+                                         QString(), QString(), optionalPrompt);
+    if (result)
+        disconnect(this);
+    return result;
 }
 
 RunControl::StopResult DebuggerRunControl::stop()
