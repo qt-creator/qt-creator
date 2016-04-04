@@ -1566,6 +1566,30 @@ void tst_Dumpers::dumper_data()
            " } // namespace nsB\n"
            " } // namespace nsA\n";
 
+    QTest::newRow("QBitArray")
+            << Data("#include <QBitArray>\n",
+                    "QBitArray ba0;\n"
+                    "unused(&ba0);\n"
+                    "QBitArray ba1(20, true);\n"
+                    "ba1.setBit(1, false);\n"
+                    "ba1.setBit(3, false);\n"
+                    "ba1.setBit(16, false);\n"
+                    "unused(&ba1);\n")
+
+               + CoreProfile()
+
+               + Check("ba0", "<0 items>", "@QBitArray")
+               + Check("ba1", "<20 items>", "@QBitArray")
+                // Cdb has "proper" "false"/"true"
+               + Check("ba1.0", "[0]", "true", "bool") % CdbEngine
+               + Check("ba1.0", "[0]", "1", "bool") % NoCdbEngine
+               + Check("ba1.1", "[1]", "0", "bool") % NoCdbEngine
+               + Check("ba1.2", "[2]", "1", "bool") % NoCdbEngine
+               + Check("ba1.3", "[3]", "0", "bool") % NoCdbEngine
+               + Check("ba1.15", "[15]", "1", "bool") % NoCdbEngine
+               + Check("ba1.16", "[16]", "0", "bool") % NoCdbEngine
+               + Check("ba1.17", "[17]", "1", "bool") % NoCdbEngine;
+
     QTest::newRow("QByteArray")
             << Data("#include <QByteArray>\n"
                     "#include <QString>\n"

@@ -82,6 +82,22 @@ def qdump__QByteArrayData(d, value):
             d.putIntItem("size", size)
             d.putIntItem("alloc", alloc)
 
+
+def qdump__QBitArray(d, value):
+    data, basize, alloc = d.byteArrayDataHelper(d.extractPointer(value["d"]))
+    unused = d.extractByte(data)
+    size = basize * 8 - unused
+    d.putItemCount(size)
+    if d.isExpanded():
+        with Children(d, size, maxNumChild=10000):
+            for i in d.childRange():
+                q = data + 1 + int(i / 8)
+                with SubItem(d, i):
+                    d.putValue((int(d.extractPointer(q)) >> (i % 8)) & 1)
+                    d.putType("bool")
+                    d.putNumChild(0)
+
+
 def qdump__QChar(d, value):
     d.putValue(int(value["ucs"]))
     d.putNumChild(0)
