@@ -30,6 +30,7 @@
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/target.h>
+#include <projectexplorer/runnables.h>
 
 using namespace ProjectExplorer;
 
@@ -58,7 +59,9 @@ void RemoteLinuxEnvironmentReader::start()
             this, &RemoteLinuxEnvironmentReader::handleError);
     connect(m_deviceProcess, &DeviceProcess::finished,
             this, &RemoteLinuxEnvironmentReader::remoteProcessFinished);
-    m_deviceProcess->start(QLatin1String("env"));
+    StandardRunnable runnable;
+    runnable.executable = QLatin1String("env");
+    m_deviceProcess->start(runnable);
 }
 
 void RemoteLinuxEnvironmentReader::stop()
