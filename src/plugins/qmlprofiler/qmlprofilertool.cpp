@@ -295,10 +295,10 @@ void QmlProfilerTool::updateRunActions()
 {
     if (d->m_toolBusy) {
         d->m_startAction->setEnabled(false);
-        d->m_startAction->setToolTip(tr("A Qml Profiler analysis is still in progress."));
+        d->m_startAction->setToolTip(tr("A QML Profiler analysis is still in progress."));
         d->m_stopAction->setEnabled(true);
     } else {
-        QString whyNot = tr("Start Qml Profiler analysis.");
+        QString whyNot = tr("Start QML Profiler analysis.");
         bool canRun = ProjectExplorerPlugin::canRunStartupProject
                 (ProjectExplorer::Constants::QML_PROFILER_RUN_MODE, &whyNot);
         d->m_startAction->setToolTip(whyNot);
@@ -429,7 +429,7 @@ void QmlProfilerTool::recordingButtonChanged(bool recording)
 void QmlProfilerTool::setRecording(bool recording)
 {
     // update display
-    d->m_recordButton->setToolTip( recording ? tr("Disable profiling") : tr("Enable profiling"));
+    d->m_recordButton->setToolTip( recording ? tr("Disable Profiling") : tr("Enable Profiling"));
     d->m_recordButton->setIcon(QIcon(recording ? QLatin1String(":/qmlprofiler/recordOn.png") :
                                                  QLatin1String(":/qmlprofiler/recordOff.png")));
 

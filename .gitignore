@@ -229,7 +229,6 @@ tmp/
 /tests/manual/ssh/sftpfsmodel/sftpfsmodel
 /tests/manual/ssh/shell/shell
 /tests/manual/ssh/tunnel/tunnel
-/tests/manual/utils/tcpportsgatherer/tst_tcpportsgatherer
 /tests/tools/qml-ast2dot/qml-ast2dot
 /tests/valgrind/memcheck/modeldemo
 /tests/valgrind/memcheck/parsertests

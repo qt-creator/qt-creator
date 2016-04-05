@@ -19,7 +19,7 @@
      <item>
       <widget class="QLabel" name="label">
        <property name="text">
-        <string>Suppressed Diagnostics:</string>
+        <string>Suppressed diagnostics:</string>
        </property>
       </widget>
      </item>

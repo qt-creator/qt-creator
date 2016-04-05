@@ -91,7 +91,7 @@ bool isClangExecutableUsable(const QString &filePath, QString *errorMessage)
         if (errorMessage) {
             *errorMessage = QCoreApplication::translate("ClangStaticAnalyzer",
                     "The chosen file \"%1\" seems to point to an icecc binary not suitable "
-                    "for analyzing.\nPlease set a real clang executable.")
+                    "for analyzing.\nPlease set a real Clang executable.")
                     .arg(filePath);
         }
         return false;

@@ -44,7 +44,7 @@ namespace Internal {
 ClangStaticAnalyzerDiagnosticView::ClangStaticAnalyzerDiagnosticView(QWidget *parent)
     : Debugger::DetailedErrorView(parent)
 {
-    m_suppressAction = new QAction(tr("Suppress this diagnostic"), this);
+    m_suppressAction = new QAction(tr("Suppress This Diagnostic"), this);
     connect(m_suppressAction, &QAction::triggered, [this](bool) { suppressCurrentDiagnostic(); });
 }
 

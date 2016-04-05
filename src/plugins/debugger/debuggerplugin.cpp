@@ -2502,6 +2502,8 @@ void DebuggerPluginPrivate::setInitialState()
 
 void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
 {
+    if (m_shuttingDown)
+        return;
     QTC_ASSERT(engine, return);
     QTC_ASSERT(m_watchersView->model(), return);
     QTC_ASSERT(m_returnView->model(), return);
@@ -2647,6 +2649,8 @@ void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
 
 void DebuggerPluginPrivate::updateDebugActions()
 {
+    if (m_shuttingDown)
+        return;
     //if we're currently debugging the actions are controlled by engine
     if (m_currentEngine->state() != DebuggerNotReady)
         return;
@@ -2775,6 +2779,8 @@ QTreeView *inspectorView()
 
 void DebuggerPluginPrivate::showMessage(const QString &msg, int channel, int timeout)
 {
+    if (m_shuttingDown)
+        return;
     //qDebug() << "PLUGIN OUTPUT: " << channel << msg;
     QTC_ASSERT(m_logWindow, return);
     switch (channel) {

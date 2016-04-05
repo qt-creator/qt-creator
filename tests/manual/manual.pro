@@ -4,7 +4,6 @@ SUBDIRS= \
 fakevim \
 debugger \
 subdir_proparser \
-utils \
 shootout
 
 unix {

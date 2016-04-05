@@ -78,6 +78,7 @@ OutputPanePlaceHolder::~OutputPanePlaceHolder()
             om->setParent(0);
             om->hide();
         }
+        OutputPanePlaceHolderPrivate::m_current = nullptr;
     }
     delete d;
 }

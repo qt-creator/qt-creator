@@ -248,35 +248,16 @@ bool Manager::isBuildingDefinition(const QString &id) const
     return m_isBuildingDefinition.contains(id);
 }
 
-class ManagerProcessor
-{
-public:
-    ManagerProcessor();
-    // TODO: make move-only when we can require MSVC2015
+static const int kMaxProgress = 200;
 
-    void operator()(QFutureInterface<Manager::RegisterData> &future);
-
-    QStringList m_definitionsPaths;
-    static const int kMaxProgress;
-};
-
-const int ManagerProcessor::kMaxProgress = 200;
-
-ManagerProcessor::ManagerProcessor()
-{
-    const HighlighterSettings &settings = TextEditorSettings::highlighterSettings();
-    m_definitionsPaths.append(settings.definitionFilesPath());
-    if (settings.useFallbackLocation())
-        m_definitionsPaths.append(settings.fallbackDefinitionFilesPath());
-}
-
-void ManagerProcessor::operator()(QFutureInterface<Manager::RegisterData> &future)
+static void processHighlightingFiles(QFutureInterface<Manager::RegisterData> &future,
+                                     QStringList definitionPaths)
 {
     future.setProgressRange(0, kMaxProgress);
 
     Manager::RegisterData data;
     // iterate through paths in order, high priority > low priority
-    foreach (const QString &path, m_definitionsPaths) {
+    foreach (const QString &path, definitionPaths) {
         if (path.isEmpty())
             continue;
 
@@ -322,7 +303,13 @@ void Manager::registerHighlightingFiles()
     if (!m_registeringWatcher.isRunning()) {
         clear();
 
-        QFuture<RegisterData> future = Utils::runAsync(ManagerProcessor());
+        QStringList definitionsPaths;
+        const HighlighterSettings &settings = TextEditorSettings::highlighterSettings();
+        definitionsPaths.append(settings.definitionFilesPath());
+        if (settings.useFallbackLocation())
+            definitionsPaths.append(settings.fallbackDefinitionFilesPath());
+
+        QFuture<RegisterData> future = Utils::runAsync(processHighlightingFiles, definitionsPaths);
         m_registeringWatcher.setFuture(future);
     } else {
         m_hasQueuedRegistration = true;
@@ -408,7 +395,7 @@ QList<DefinitionMetaDataPtr> Manager::parseAvailableDefinitionsList(QIODevice *d
 
 void Manager::downloadAvailableDefinitionsMetaData()
 {
-    QUrl url(QLatin1String("http://www.kate-editor.org/syntax/update-5.17.xml"));
+    QUrl url(QLatin1String("https://www.kate-editor.org/syntax/update-5.17.xml"));
     QNetworkRequest request(url);
     // Currently this takes a couple of seconds on Windows 7: QTBUG-10106.
     QNetworkReply *reply = Utils::NetworkAccessManager::instance()->get(request);

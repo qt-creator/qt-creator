@@ -200,8 +200,6 @@ QtcLibrary {
         "stylehelper.h",
         "synchronousprocess.cpp",
         "synchronousprocess.h",
-        "tcpportsgatherer.cpp",
-        "tcpportsgatherer.h",
         "templateengine.cpp",
         "templateengine.h",
         "textfieldcheckbox.cpp",

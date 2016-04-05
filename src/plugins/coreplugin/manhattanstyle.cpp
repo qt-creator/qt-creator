@@ -485,15 +485,16 @@ void ManhattanStyle::drawPrimitive(PrimitiveElement element, const QStyleOption 
                 anim->paint(painter, option);
             } else {
                 bool pressed = option->state & State_Sunken || option->state & State_On;
-                QColor shadow(0, 0, 0, 30);
-                painter->setPen(shadow);
+                painter->setPen(StyleHelper::sidebarShadow());
                 if (pressed) {
                     const QColor shade = creatorTheme()->color(Theme::FancyToolButtonSelectedColor);
                     painter->fillRect(rect, shade);
-                    const QRectF borderRect = QRectF(rect).adjusted(0.5, 0.5, -0.5, -0.5);
-                    painter->drawLine(borderRect.topLeft() + QPointF(1, 0), borderRect.topRight() - QPointF(1, 0));
-                    painter->drawLine(borderRect.topLeft(), borderRect.bottomLeft());
-                    painter->drawLine(borderRect.topRight(), borderRect.bottomRight());
+                    if (creatorTheme()->widgetStyle() == Theme::StyleDefault) {
+                        const QRectF borderRect = QRectF(rect).adjusted(0.5, 0.5, -0.5, -0.5);
+                        painter->drawLine(borderRect.topLeft() + QPointF(1, 0), borderRect.topRight() - QPointF(1, 0));
+                        painter->drawLine(borderRect.topLeft(), borderRect.bottomLeft());
+                        painter->drawLine(borderRect.topRight(), borderRect.bottomRight());
+                    }
                 } else if (option->state & State_Enabled && option->state & State_MouseOver) {
                     painter->fillRect(rect, creatorTheme()->color(Theme::FancyToolButtonHoverColor));
                 } else if (widget && widget->property("highlightWidget").toBool()) {

@@ -39,12 +39,12 @@ static Q_LOGGING_CATEGORY(LOG, "qtc.clangstaticanalyzer.runner")
 
 static QString generalProcessError()
 {
-    return QObject::tr("An error occurred with the clang static analyzer process.");
+    return QObject::tr("An error occurred with the Clang Static Analyzer process.");
 }
 
 static QString finishedDueToCrash()
 {
-    return QObject::tr("Clang static analyzer crashed.");
+    return QObject::tr("Clang Static Analyzer crashed.");
 }
 
 static QStringList constructCommandLineArguments(const QString &filePath,
@@ -66,7 +66,7 @@ namespace Internal {
 
 QString finishedWithBadExitCode(int exitCode)
 {
-    return QObject::tr("Clang static analyzer finished with exit code: %1.").arg(exitCode);
+    return QObject::tr("Clang Static Analyzer finished with exit code: %1.").arg(exitCode);
 }
 
 ClangStaticAnalyzerRunner::ClangStaticAnalyzerRunner(const QString &clangExecutable,
