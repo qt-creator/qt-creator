@@ -332,7 +332,7 @@ void PropertyEditorQmlBackend::setup(const QmlObjectNode &qmlObjectNode, const Q
 
 void PropertyEditorQmlBackend::initialSetup(const TypeName &typeName, const QUrl &qmlSpecificsFile, PropertyEditorView *propertyEditor)
 {
-    NodeMetaInfo metaInfo = propertyEditor->model()->metaInfo(typeName, 4, 7);
+    NodeMetaInfo metaInfo = propertyEditor->model()->metaInfo(typeName);
 
     foreach (const PropertyName &propertyName, metaInfo.propertyNames())
         setupPropertyEditorValue(propertyName, propertyEditor, metaInfo.propertyTypeName(propertyName));
