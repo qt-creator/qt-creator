@@ -86,7 +86,7 @@ void ImageViewerPlugin::extensionsInitialized()
             iv->resetToOriginalSize();
     });
 
-    a = registerNewAction(Constants::ACTION_FIT_TO_SCREEN, tr("Fit To Screen"),
+    a = registerNewAction(Constants::ACTION_FIT_TO_SCREEN, tr("Fit to Screen"),
                           QKeySequence(tr("Ctrl+=")));
     connect(a, &QAction::triggered, this, [this]() {
         if (ImageViewer *iv = currentImageViewer())
