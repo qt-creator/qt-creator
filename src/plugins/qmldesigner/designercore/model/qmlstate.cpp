@@ -224,7 +224,7 @@ bool QmlModelState::isValidQmlModelState(const ModelNode &modelNode)
 {
     return isValidQmlModelNodeFacade(modelNode)
             && modelNode.metaInfo().isValid()
-            && (modelNode.metaInfo().isSubclassOf("QtQuick.State", -1, -1) || isBaseState(modelNode));
+            && (modelNode.metaInfo().isSubclassOf("QtQuick.State") || isBaseState(modelNode));
 }
 
 /**

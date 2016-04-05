@@ -60,11 +60,11 @@ void TabViewIndexModel::setupModel()
     m_tabViewIndexModel.clear();
     if (m_modelNode.isValid()
             && m_modelNode.metaInfo().isValid()
-            && m_modelNode.metaInfo().isSubclassOf("QtQuick.Controls.TabView", -1, -1)) {
+            && m_modelNode.metaInfo().isSubclassOf("QtQuick.Controls.TabView")) {
 
         foreach (const QmlDesigner::ModelNode &childModelNode, m_modelNode.defaultNodeAbstractProperty().directSubNodes()) {
             if (childModelNode.metaInfo().isValid()
-                    && childModelNode.metaInfo().isSubclassOf("QtQuick.Controls.Tab", -1, -1)) {
+                    && childModelNode.metaInfo().isSubclassOf("QtQuick.Controls.Tab")) {
                 QmlDesigner::QmlItemNode itemNode(childModelNode);
                 if (itemNode.isValid()) {
                     m_tabViewIndexModel.append(itemNode.instanceValue("title").toString());

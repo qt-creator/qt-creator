@@ -96,7 +96,7 @@ public:
     bool hasCustomParser() const;
 
     bool availableInVersion(int majorVersion, int minorVersion) const;
-    bool isSubclassOf(const TypeName &type, int majorVersion, int minorVersio) const;
+    bool isSubclassOf(const TypeName &type, int majorVersion = -1, int minorVersion = -1) const;
 
     bool isGraphicalItem() const;
     bool isLayoutable() const;

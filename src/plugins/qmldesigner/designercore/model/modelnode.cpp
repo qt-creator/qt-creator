@@ -1056,7 +1056,7 @@ bool ModelNode::isComponent() const
             return true;
     }
 
-    if (metaInfo().isSubclassOf("QtQuick.Loader", -1 , -1)) {
+    if (metaInfo().isSubclassOf("QtQuick.Loader")) {
 
         if (hasNodeListProperty("component")) {
 

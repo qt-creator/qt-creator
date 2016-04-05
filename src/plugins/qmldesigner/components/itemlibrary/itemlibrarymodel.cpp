@@ -148,7 +148,7 @@ void ItemLibraryModel::update(ItemLibraryInfo *itemLibraryInfo, Model *model)
 
     foreach (ItemLibraryEntry entry, itemLibraryInfo->entries()) {
 
-         NodeMetaInfo metaInfo = model->metaInfo(entry.typeName(), -1, -1);
+         NodeMetaInfo metaInfo = model->metaInfo(entry.typeName());
          bool valid = metaInfo.isValid() && metaInfo.majorVersion() == entry.majorVersion();
 
          if (valid

@@ -693,7 +693,7 @@ void NavigatorTreeModel::moveNodesInteractive(NodeAbstractProperty &parentProper
             if (modelNode.isValid()
                     && modelNode != parentProperty.parentModelNode()
                     && !modelNode.isAncestorOf(parentProperty.parentModelNode())
-                    && (modelNode.metaInfo().isSubclassOf(propertyQmlType, -1, -1) || propertyQmlType == "alias")) {
+                    && (modelNode.metaInfo().isSubclassOf(propertyQmlType) || propertyQmlType == "alias")) {
                 //### todo: allowing alias is just a heuristic
                 //once the MetaInfo is part of instances we can do this right
 

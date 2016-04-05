@@ -294,7 +294,7 @@ static bool isConnectionsType(const QmlDesigner::TypeName &type)
 
 static bool propertyIsComponentType(const QmlDesigner::NodeAbstractProperty &property, const QmlDesigner::TypeName &type, QmlDesigner::Model *model)
 {
-    if (model->metaInfo(type, -1, -1).isSubclassOf("QtQuick.Component", -1, -1) && !isComponentType(type))
+    if (model->metaInfo(type).isSubclassOf("QtQuick.Component") && !isComponentType(type))
         return false; //If the type is already a subclass of Component keep it
 
     return property.parentModelNode().isValid() &&

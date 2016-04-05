@@ -77,7 +77,7 @@ void StatesEditorView::removeState(int nodeId)
     try {
         if (nodeId > 0 && hasModelNodeForInternalId(nodeId)) {
             ModelNode stateNode(modelNodeForInternalId(nodeId));
-            Q_ASSERT(stateNode.metaInfo().isSubclassOf("QtQuick.State", -1, -1));
+            Q_ASSERT(stateNode.metaInfo().isSubclassOf("QtQuick.State"));
             NodeListProperty parentProperty = stateNode.parentProperty().toNodeListProperty();
 
             if (parentProperty.count() <= 1) {
@@ -188,7 +188,7 @@ void StatesEditorView::duplicateCurrentState()
 void StatesEditorView::checkForWindow()
 {
     if (m_statesEditorWidget)
-        m_statesEditorWidget->showAddNewStatesButton(!rootModelNode().metaInfo().isSubclassOf("QtQuick.Window.Window", -1, -1));
+        m_statesEditorWidget->showAddNewStatesButton(!rootModelNode().metaInfo().isSubclassOf("QtQuick.Window.Window"));
 }
 
 void StatesEditorView::setCurrentState(const QmlModelState &state)
