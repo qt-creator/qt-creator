@@ -116,12 +116,8 @@ static void prependTargetTripleIfNotIncludedAndNotEmpty(QStringList *arguments,
     }
 }
 
-// Removes (1) filePath (2) -o <somePath>.
-// Prepends -m64/-m32 argument if not already included.
-// Prepends -target if not already included.
-static QStringList tweakedArguments(const QString &filePath,
-                                    const QStringList &arguments,
-                                    const ExtraToolChainInfo &extraParams)
+// Removes (1) inputFile (2) -o <somePath>.
+QStringList inputAndOutputArgumentsRemoved(const QString &inputFile, const QStringList &arguments)
 {
     QStringList newArguments;
 
@@ -133,7 +129,7 @@ static QStringList tweakedArguments(const QString &filePath,
         } else if (argument == QLatin1String("-o")) {
             skip = true;
             continue;
-        } else if (QDir::fromNativeSeparators(argument) == filePath) {
+        } else if (QDir::fromNativeSeparators(argument) == inputFile) {
             continue; // TODO: Let it in?
         }
 
@@ -141,6 +137,14 @@ static QStringList tweakedArguments(const QString &filePath,
     }
     QTC_CHECK(skip == false);
 
+    return newArguments;
+}
+
+static QStringList tweakedArguments(const QString &filePath,
+                                    const QStringList &arguments,
+                                    const ExtraToolChainInfo &extraParams)
+{
+    QStringList newArguments = inputAndOutputArgumentsRemoved(filePath, arguments);
     prependWordWidthArgumentIfNotIncluded(&newArguments, extraParams.wordWidth);
     prependTargetTripleIfNotIncludedAndNotEmpty(&newArguments, extraParams.targetTriple);
 
