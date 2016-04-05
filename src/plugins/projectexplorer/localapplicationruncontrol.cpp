@@ -119,7 +119,7 @@ void LocalApplicationRunControl::processExited(int exitCode, QProcess::ExitStatu
     QString msg;
     QString exe = runnable().as<StandardRunnable>().executable;
     if (status == QProcess::CrashExit)
-        msg = tr("%1 crashed").arg(QDir::toNativeSeparators(exe));
+        msg = tr("%1 crashed.").arg(QDir::toNativeSeparators(exe));
     else
         msg = tr("%1 exited with code %2").arg(QDir::toNativeSeparators(exe)).arg(exitCode);
     appendMessage(msg + QLatin1Char('\n'), Utils::NormalMessageFormat);
