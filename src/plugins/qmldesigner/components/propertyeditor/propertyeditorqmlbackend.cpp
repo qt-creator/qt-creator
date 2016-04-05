@@ -445,8 +445,6 @@ QString PropertyEditorQmlBackend::fixTypeNameForPanes(const QString &typeName)
 
 QString PropertyEditorQmlBackend::qmlFileName(const NodeMetaInfo &nodeInfo)
 {
-    if (nodeInfo.typeName().split('.').last() == "QDeclarativeItem")
-        return "QtQuick/ItemPane.qml";
     const QString fixedTypeName = fixTypeNameForPanes(nodeInfo.typeName());
     return fixedTypeName + QStringLiteral("Pane.qml");
 }
