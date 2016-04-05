@@ -128,8 +128,8 @@ ExtensionSystem::IPlugin::ShutdownFlag QmlProfilerExtensionPlugin::aboutToShutdo
 void QmlProfilerExtensionPlugin::triggerAction()
 {
     QMessageBox::information(Core::ICore::mainWindow(),
-                             tr("Action triggered"),
-                             tr("This is an action from QmlProfilerExtension."));
+                             tr("Action Triggered"),
+                             tr("This is an action from QML Profiler Extension."));
 }
 
 #include "qmlprofilerextensionplugin.moc"
