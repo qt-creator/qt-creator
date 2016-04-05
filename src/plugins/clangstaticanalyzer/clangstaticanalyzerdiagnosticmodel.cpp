@@ -144,7 +144,7 @@ static QString createExplainingStepToolTipString(const ExplainingStep &step)
     }
     if (!step.extendedMessage.isEmpty()) {
         lines << qMakePair(
-            QCoreApplication::translate("ClangStaticAnalyzer::ExplainingStep", "Extended Message:"),
+            QCoreApplication::translate("ClangStaticAnalyzer::ExplainingStep", "Extended message:"),
                 step.extendedMessage.toHtmlEscaped());
     }
 

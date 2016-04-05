@@ -120,7 +120,7 @@ ClangStaticAnalyzerTool::ClangStaticAnalyzerTool(QObject *parent)
     connect(action, &QAction::triggered, m_diagnosticView, &DetailedErrorView::goNext);
     m_goNext = action;
 
-    const QString toolTip = tr("Clang Static Analyzer uses the analyzer from the clang project "
+    const QString toolTip = tr("Clang Static Analyzer uses the analyzer from the Clang project "
                                "to find bugs.");
 
     Debugger::registerPerspective(ClangStaticAnalyzerPerspectiveId, {
@@ -311,7 +311,7 @@ void ClangStaticAnalyzerTool::handleStateUpdate()
     m_goBack->setEnabled(issuesVisible > 1);
     m_goNext->setEnabled(issuesVisible > 1);
 
-    QString message = m_running ? tr("Clang Static Analyzer running.")
+    QString message = m_running ? tr("Clang Static Analyzer is running.")
                                 : tr("Clang Static Analyzer finished.");
     message += QLatin1Char(' ');
     if (issuesFound == 0) {
