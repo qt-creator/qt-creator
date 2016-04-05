@@ -172,8 +172,8 @@ bool CMakeBuildStep::init(QList<const BuildStep *> &earlierSteps)
     if (!tool || !tool->isValid()) {
         emit addTask(Task(Task::Error,
                           QCoreApplication::translate("CMakeProjectManager::CMakeBuildStep",
-                                                      "Qt Creator needs a cmake tool set up to build. "
-                                                      "Configure a cmake tool in the kit options."),
+                                                      "Qt Creator needs a CMake Tool set up to build. "
+                                                      "Configure a CMake Tool in the kit options."),
                           Utils::FileName(), -1,
                           ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
         canInit = false;
