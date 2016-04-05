@@ -80,6 +80,12 @@ public:
 
     static DefinitionMetaDataPtr parseMetadata(const QFileInfo &fileInfo);
 
+    struct RegisterData
+    {
+        QHash<QString, QString> m_idByName;
+        QHash<QString, QString> m_idByMimeType;
+        QHash<QString, DefinitionMetaDataPtr> m_definitionsMetaData;
+    };
 private:
     void registerHighlightingFilesFinished();
     void downloadAvailableDefinitionsListFinished();
@@ -100,12 +106,6 @@ private:
     QHash<QString, QSharedPointer<HighlightDefinition> > m_definitions;
     QHash<QString, DefinitionMetaDataPtr> m_availableDefinitions;
 
-    struct RegisterData
-    {
-        QHash<QString, QString> m_idByName;
-        QHash<QString, QString> m_idByMimeType;
-        QHash<QString, DefinitionMetaDataPtr> m_definitionsMetaData;
-    };
     RegisterData m_register;
     bool m_hasQueuedRegistration;
     QFutureWatcher<RegisterData> m_registeringWatcher;

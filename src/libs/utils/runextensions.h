@@ -38,6 +38,24 @@
 
 #include <functional>
 
+// hasCallOperator & Co must be outside of any namespace
+// because of internal compiler error with MSVC2015 Update 2
+
+using testCallOperatorYes = char;
+using testCallOperatorNo = struct { char foo[2]; };
+
+template<typename C>
+static testCallOperatorYes testCallOperator(decltype(&C::operator()));
+
+template<typename>
+static testCallOperatorNo testCallOperator(...);
+
+template<typename T>
+struct hasCallOperator
+{
+    static const bool value = (sizeof(testCallOperator<T>(0)) == sizeof(testCallOperatorYes));
+};
+
 namespace Utils {
 namespace Internal {
 
@@ -53,21 +71,6 @@ namespace Internal {
    Returns void if F is not callable, and if F is a callable that does not take
    a QFutureInterface& as its first parameter and returns void.
 */
-
-template<typename T>
-struct hasCallOperator
-{
-    using yes = char;
-    using no = struct { char foo[2]; };
-
-    template<typename C>
-    static yes test(decltype(&C::operator()));
-
-    template<typename C>
-    static no test(...);
-
-    static const bool value = (sizeof(test<T>(0)) == sizeof(yes));
-};
 
 template <typename Function>
 struct resultType;
