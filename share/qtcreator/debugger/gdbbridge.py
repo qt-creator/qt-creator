@@ -435,7 +435,6 @@ class Dumper(DumperBase):
                 # Don't bother. It's only supplementary information anyway.
                 pass
 
-        locals.sort(key = lambda item: item.name)
         for item in locals:
             value = self.downcast(item.value) if self.useDynamicType else item.value
             with OutputSafer(self):

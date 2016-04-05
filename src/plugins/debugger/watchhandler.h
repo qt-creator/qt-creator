@@ -109,7 +109,9 @@ public:
     void setCurrentItem(const QByteArray &iname);
     void updateWatchersWindow();
 
-    void insertItem(WatchItem *item); // Takes ownership.
+    bool insertItem(WatchItem *item); // Takes ownership, returns whether item was added, not overwritten.
+    void insertItems(const GdbMi &data);
+
     void removeItemByIName(const QByteArray &iname);
     void removeAllData(bool includeInspectData = false);
     void resetValueCache();
@@ -119,6 +121,7 @@ public:
     void notifyUpdateFinished();
 
     void reexpandItems();
+    void recordTypeInfo(const GdbMi &typeInfo);
 
 private:
     WatchModel *m_model; // Owned.

@@ -168,12 +168,6 @@ enum RemoteSetupState { RemoteSetupNone, RemoteSetupRequested,
                         RemoteSetupSucceeded, RemoteSetupFailed,
                         RemoteSetupCancelled };
 
-struct TypeInfo
-{
-    TypeInfo(uint s = 0) : size(s) {}
-    uint size;
-};
-
 class DebuggerEnginePrivate : public QObject
 {
     Q_OBJECT
@@ -342,7 +336,6 @@ public:
     bool m_isStateDebugging;
 
     Utils::FileInProjectFinder m_fileFinder;
-    QHash<QByteArray, TypeInfo> m_typeInfoCache;
     QByteArray m_qtNamespace;
 };
 
@@ -1987,33 +1980,13 @@ void DebuggerEngine::updateLocalsView(const GdbMi &all)
 {
     WatchHandler *handler = watchHandler();
 
-    const bool partial = all["partial"].toInt();
-
     const GdbMi typeInfo = all["typeinfo"];
-    if (typeInfo.type() == GdbMi::List) {
-        foreach (const GdbMi &s, typeInfo.children()) {
-            const GdbMi name = s["name"];
-            const GdbMi size = s["size"];
-            if (name.isValid() && size.isValid())
-                d->m_typeInfoCache.insert(QByteArray::fromHex(name.data()),
-                                       TypeInfo(size.data().toUInt()));
-        }
-    }
+    handler->recordTypeInfo(typeInfo);
 
-    const bool sortStructMembers = boolSetting(SortStructMembers);
+    const GdbMi data = all["data"];
+    handler->insertItems(data);
 
-    GdbMi data = all["data"];
-    foreach (const GdbMi &child, data.children()) {
-        WatchItem *item = new WatchItem;
-        item->parse(child, sortStructMembers);
-        const TypeInfo ti = d->m_typeInfoCache.value(item->type);
-        if (ti.size && !item->size)
-            item->size = ti.size;
-
-        handler->insertItem(item);
-    }
-
-    GdbMi ns = all["qtnamespace"];
+    const GdbMi ns = all["qtnamespace"];
     if (ns.isValid()) {
         setQtNamespace(ns.data());
         showMessage(_("FOUND NAMESPACED QT: " + ns.data()));
@@ -2026,6 +1999,7 @@ void DebuggerEngine::updateLocalsView(const GdbMi &all)
 
     DebuggerToolTipManager::updateEngine(this);
 
+    const bool partial = all["partial"].toInt();
     if (!partial)
         emit stackFrameCompleted();
 }

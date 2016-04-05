@@ -513,14 +513,7 @@ void PdbEngine::refreshLocals(const GdbMi &vars)
 {
     WatchHandler *handler = watchHandler();
     handler->resetValueCache();
-
-    const bool sortStructMembers = boolSetting(SortStructMembers);
-    foreach (const GdbMi &child, vars.children()) {
-        WatchItem *item = new WatchItem;
-        item->parse(child, sortStructMembers);
-        handler->insertItem(item);
-    }
-
+    handler->insertItems(vars);
     handler->notifyUpdateFinished();
 
     DebuggerToolTipManager::updateEngine(this);
