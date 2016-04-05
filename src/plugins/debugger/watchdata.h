@@ -45,7 +45,7 @@ class WatchItem : public Utils::TreeItem
 public:
     WatchItem();
 
-    void parse(const GdbMi &input);
+    void parse(const GdbMi &input, bool maySort);
 
     bool isLocal()   const;
     bool isWatcher() const;
@@ -117,13 +117,14 @@ public:
     uint            bitsize;       // Size in case of bit fields
     int             elided;        // Full size if value was cut off, -1 if cut on unknown size, 0 otherwise
     int             arrayIndex;    // -1 if not an array member
+    uchar           sortGroup;     // 0 - ordinary member, 1 - vptr, 2 - base class
     bool            wantsChildren;
     bool            valueEnabled;  // Value will be enabled or not
     bool            valueEditable; // Value will be editable
     bool            outdated;      // \internal item is to be removed.
 
 private:
-    void parseHelper(const GdbMi &input);
+    void parseHelper(const GdbMi &input, bool maySort);
     Q_DECLARE_TR_FUNCTIONS(Debugger::Internal::WatchHandler)
 };
 

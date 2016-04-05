@@ -793,7 +793,6 @@ void LldbEngine::doUpdateLocals(const UpdateParameters &params)
     cmd.arg("autoderef", boolSetting(AutoDerefPointers));
     cmd.arg("dyntype", boolSetting(UseDynamicType));
     cmd.arg("partialvar", params.partialVariable);
-    cmd.arg("sortstructs", boolSetting(SortStructMembers));
     cmd.arg("qobjectnames", boolSetting(ShowQObjectNames));
 
     StackFrame frame = stackHandler()->currentFrame();

@@ -4596,7 +4596,6 @@ void GdbEngine::doUpdateLocals(const UpdateParameters &params)
 
     cmd.arg("resultvarname", m_resultVarName);
     cmd.arg("partialvar", params.partialVariable);
-    cmd.arg("sortstructs", boolSetting(SortStructMembers));
     cmd.callback = CB(handleFetchVariables);
     runCommand(cmd);
 

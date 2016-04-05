@@ -2000,10 +2000,12 @@ void DebuggerEngine::updateLocalsView(const GdbMi &all)
         }
     }
 
+    const bool sortStructMembers = boolSetting(SortStructMembers);
+
     GdbMi data = all["data"];
     foreach (const GdbMi &child, data.children()) {
         WatchItem *item = new WatchItem;
-        item->parse(child);
+        item->parse(child, sortStructMembers);
         const TypeInfo ti = d->m_typeInfoCache.value(item->type);
         if (ti.size && !item->size)
             item->size = ti.size;

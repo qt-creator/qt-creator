@@ -1296,7 +1296,7 @@ void tst_Dumpers::dumper()
                 "python theDumper.setupDumpers()\n"
                 "run " + nograb + "\n"
                 "python theDumper.fetchVariables({"
-                    "'token':2,'fancy':1,'forcens':1,'sortstructs':1,"
+                    "'token':2,'fancy':1,'forcens':1,"
                     "'autoderef':1,'dyntype':1,'passexceptions':1,"
                     "'qobjectnames':1,"
                     "'expanded':[" + expandedq + "]})\n";
@@ -1435,7 +1435,7 @@ void tst_Dumpers::dumper()
             context.boostVersion = child["value"].toInt();
         else {
             WatchItem *item = new WatchItem;
-            item->parse(child);
+            item->parse(child, true);
             local.appendChild(item);
         }
     }

@@ -285,7 +285,6 @@ class Dumper(DumperBase):
         self.autoDerefPointers = int(args.get("autoderef", "0"))
         self.partialUpdate = int(args.get("partial", "0"))
         self.fallbackQtVersion = 0x50200
-        self.sortStructMembers = bool(args.get("sortstructs", True))
 
         #warn("NAMESPACE: '%s'" % self.qtNamespace())
         #warn("EXPANDED INAMES: %s" % self.expandedINames)
@@ -1144,6 +1143,7 @@ class Dumper(DumperBase):
 
         if self.currentIName in self.expandedINames:
             innerType = None
+            self.put('sortable="1"')
             with Children(self, 1, childType=innerType):
                 self.putFields(value)
                 if not self.showQObjectNames:
@@ -1215,15 +1215,6 @@ class Dumper(DumperBase):
 
     def putFields(self, value, dumpBase = True):
             fields = value.type.fields()
-            if self.sortStructMembers:
-                def sortOrder(field):
-                    if field.is_base_class:
-                        return 0
-                    if field.name and field.name.startswith("_vptr."):
-                        return 1
-                    return 2
-                fields.sort(key = lambda field: "%d%s" % (sortOrder(field), field.name))
-
             #warn("TYPE: %s" % value.type)
             #warn("FIELDS: %s" % fields)
             baseNumber = 0
@@ -1257,6 +1248,7 @@ class Dumper(DumperBase):
                         # int (**)(void)
                         n = 100
                         self.putType(" ")
+                        self.put('sortgroup="1"')
                         self.putValue(value[field.name])
                         self.putNumChild(n)
                         if self.isExpanded():
@@ -1280,6 +1272,7 @@ class Dumper(DumperBase):
                         baseNumber += 1
                         with UnnamedSubItem(self, "@%d" % baseNumber):
                             baseValue = value.cast(field.type)
+                            self.put('sortgroup="2"')
                             self.putBaseClassName(field.name)
                             self.putAddress(baseValue.address)
                             self.putItem(baseValue, False)
