@@ -427,6 +427,8 @@ class DumperBase:
 
     # Hex encoding operating on str or bytes, return str.
     def hexencode(self, s):
+        if s is None:
+            s = ''
         if sys.version_info[0] == 2:
             return s.encode("hex")
         if isinstance(s, str):
