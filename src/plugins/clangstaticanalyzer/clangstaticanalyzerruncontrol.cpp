@@ -150,6 +150,54 @@ static void appendMsCompatibility2015OptionForMsvc2015(QStringList *arguments, b
         arguments->append(QLatin1String("-fms-compatibility-version=19"));
 }
 
+static QStringList languageFeatureMacros()
+{
+    // Collected with:
+    //  $ CALL "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" x86
+    //  $ D:\usr\llvm-3.8.0\bin\clang++.exe -fms-compatibility-version=19 -std=c++1y -dM -E D:\empty.cpp | grep __cpp_
+    static QStringList macros {
+        QLatin1String("__cpp_aggregate_nsdmi"),
+        QLatin1String("__cpp_alias_templates"),
+        QLatin1String("__cpp_attributes"),
+        QLatin1String("__cpp_binary_literals"),
+        QLatin1String("__cpp_constexpr"),
+        QLatin1String("__cpp_decltype"),
+        QLatin1String("__cpp_decltype_auto"),
+        QLatin1String("__cpp_delegating_constructors"),
+        QLatin1String("__cpp_digit_separators"),
+        QLatin1String("__cpp_generic_lambdas"),
+        QLatin1String("__cpp_inheriting_constructors"),
+        QLatin1String("__cpp_init_captures"),
+        QLatin1String("__cpp_initializer_lists"),
+        QLatin1String("__cpp_lambdas"),
+        QLatin1String("__cpp_nsdmi"),
+        QLatin1String("__cpp_range_based_for"),
+        QLatin1String("__cpp_raw_strings"),
+        QLatin1String("__cpp_ref_qualifiers"),
+        QLatin1String("__cpp_return_type_deduction"),
+        QLatin1String("__cpp_rtti"),
+        QLatin1String("__cpp_rvalue_references"),
+        QLatin1String("__cpp_static_assert"),
+        QLatin1String("__cpp_unicode_characters"),
+        QLatin1String("__cpp_unicode_literals"),
+        QLatin1String("__cpp_user_defined_literals"),
+        QLatin1String("__cpp_variable_templates"),
+        QLatin1String("__cpp_variadic_templates"),
+    };
+
+    return macros;
+}
+
+static void undefineCppLanguageFeatureMacrosForMsvc2015(QStringList *arguments, bool isMsvc2015)
+{
+    QTC_ASSERT(arguments, return);
+
+    if (isMsvc2015) {
+        foreach (const QString &macroName, languageFeatureMacros())
+            arguments->append(QLatin1String("/U") + macroName);
+    }
+}
+
 static QStringList tweakedArguments(const QString &filePath,
                                     const QStringList &arguments,
                                     const ExtraToolChainInfo &extraParams)
@@ -158,6 +206,7 @@ static QStringList tweakedArguments(const QString &filePath,
     prependWordWidthArgumentIfNotIncluded(&newArguments, extraParams.wordWidth);
     prependTargetTripleIfNotIncludedAndNotEmpty(&newArguments, extraParams.targetTriple);
     appendMsCompatibility2015OptionForMsvc2015(&newArguments, extraParams.isMsvc2015);
+    undefineCppLanguageFeatureMacrosForMsvc2015(&newArguments, extraParams.isMsvc2015);
 
     return newArguments;
 }
@@ -211,6 +260,7 @@ public:
         prependWordWidthArgumentIfNotIncluded(&options, extraParams.wordWidth);
         prependTargetTripleIfNotIncludedAndNotEmpty(&options, extraParams.targetTriple);
         appendMsCompatibility2015OptionForMsvc2015(&options, extraParams.isMsvc2015);
+        undefineCppLanguageFeatureMacrosForMsvc2015(&options, extraParams.isMsvc2015);
 
         return options;
     }
