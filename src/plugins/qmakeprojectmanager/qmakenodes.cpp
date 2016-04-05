@@ -99,7 +99,7 @@ static const FileTypeDataStorage fileTypeDataStorage[] = {
       ":/qmakeprojectmanager/images/sources.png", "*.c; *.cc; *.cpp; *.cp; *.cxx; *.c++;" },
     { FormType, Theme::ProjectExplorerForm, QT_TRANSLATE_NOOP("QmakeProjectManager::QmakePriFileNode", "Forms"),
       ":/qtsupport/images/forms.png", "*.ui;" },
-    { StateChartType, Theme::ProjectExplorerForm, QT_TRANSLATE_NOOP("QmakeProjectManager::QmakePriFileNode", "StateCharts"),
+    { StateChartType, Theme::ProjectExplorerForm, QT_TRANSLATE_NOOP("QmakeProjectManager::QmakePriFileNode", "State charts"),
       ":/qtsupport/images/statecharts.png", "*.scxml;" },
     { ResourceType, Theme::ProjectExplorerResource, QT_TRANSLATE_NOOP("QmakeProjectManager::QmakePriFileNode", "Resources"),
       ":/qtsupport/images/qt_qrc.png", "*.qrc;" },
