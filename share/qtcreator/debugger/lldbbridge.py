@@ -1386,12 +1386,12 @@ class Dumper(DumperBase):
         elif eventType == lldb.SBProcess.eBroadcastBitSTDOUT:
             # FIXME: Size?
             msg = self.process.GetSTDOUT(1024)
-            self.report('output={channel="stdout",data="%s"}'
-                % self.hexencode(msg))
+            if msg is not None:
+                self.report('output={channel="stdout",data="%s"}' % self.hexencode(msg))
         elif eventType == lldb.SBProcess.eBroadcastBitSTDERR:
             msg = self.process.GetSTDERR(1024)
-            self.report('output={channel="stderr",data="%s"}'
-                % self.hexencode(msg))
+            if msg is not None:
+                self.report('output={channel="stderr",data="%s"}' % self.hexencode(msg))
         elif eventType == lldb.SBProcess.eBroadcastBitProfileData:
             pass
 
