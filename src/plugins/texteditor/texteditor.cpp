@@ -2387,6 +2387,7 @@ void TextEditorWidget::keyPressEvent(QKeyEvent *e)
         // because AltGr maps to Alt + Ctrl
         QTextCursor cursor = textCursor();
         const QString &autoText = d->m_autoCompleter->autoComplete(cursor, eventText);
+        const bool cursorWithinSnippet = d->snippetCheckCursor(cursor);
 
         QChar electricChar;
         if (d->m_document->typingSettings().m_autoIndent) {
@@ -2397,10 +2398,6 @@ void TextEditorWidget::keyPressEvent(QKeyEvent *e)
                 }
             }
         }
-
-        bool cursorWithinSnippet = false;
-        if (d->m_snippetOverlay->isVisible())
-            cursorWithinSnippet = d->snippetCheckCursor(cursor);
 
         bool doEditBlock = !electricChar.isNull() || !autoText.isEmpty() || cursorWithinSnippet;
         if (doEditBlock)
