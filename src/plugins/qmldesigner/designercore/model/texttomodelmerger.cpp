@@ -86,7 +86,8 @@ static inline QStringList globalQtEnums()
 
 static inline QStringList knownEnumScopes()
 {
-    static QStringList list = QStringList() << QStringLiteral("TextInput") << QStringLiteral("TextEdit");
+    static QStringList list = QStringList() << QStringLiteral("TextInput") << QStringLiteral("TextEdit")
+                                            << QStringLiteral("Material") << QStringLiteral("Universal") ;;
     return list;
 }
 
