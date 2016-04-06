@@ -277,6 +277,11 @@ DeviceProcess *IDevice::createProcess(QObject * /* parent */) const
     return 0;
 }
 
+DeviceEnvironmentFetcher::Ptr IDevice::environmentFetcher() const
+{
+    return DeviceEnvironmentFetcher::Ptr();
+}
+
 IDevice::DeviceState IDevice::deviceState() const
 {
     return d->deviceState;
@@ -454,6 +459,10 @@ void DeviceProcessSignalOperation::setDebuggerCommand(const QString &cmd)
 }
 
 DeviceProcessSignalOperation::DeviceProcessSignalOperation()
+{
+}
+
+DeviceEnvironmentFetcher::DeviceEnvironmentFetcher()
 {
 }
 

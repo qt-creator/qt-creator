@@ -26,15 +26,12 @@
 #ifndef REMOTELINUXENVIRONMENTREADER_H
 #define REMOTELINUXENVIRONMENTREADER_H
 
+#include <projectexplorer/devicesupport/idevice.h>
 #include <utils/environment.h>
 
 #include <QObject>
 
-namespace ProjectExplorer {
-class DeviceProcess;
-class Kit;
-class RunConfiguration;
-}
+namespace ProjectExplorer { class DeviceProcess; }
 
 namespace RemoteLinux {
 namespace Internal {
@@ -44,29 +41,27 @@ class RemoteLinuxEnvironmentReader : public QObject
     Q_OBJECT
 
 public:
-    RemoteLinuxEnvironmentReader(ProjectExplorer::RunConfiguration *config, QObject *parent = 0);
-
+    RemoteLinuxEnvironmentReader(const ProjectExplorer::IDevice::ConstPtr &device,
+                                 QObject *parent = 0);
     void start();
     void stop();
 
     Utils::Environment remoteEnvironment() const { return m_env; }
+    void handleCurrentDeviceConfigChanged();
 
 signals:
     void finished();
     void error(const QString &error);
 
-private slots:
-    void handleError();
-    void handleCurrentDeviceConfigChanged();
-    void remoteProcessFinished();
-
 private:
+    void handleError();
+    void remoteProcessFinished();
     void setFinished();
     void destroyProcess();
 
     bool m_stop;
     Utils::Environment m_env;
-    ProjectExplorer::Kit *m_kit;
+    ProjectExplorer::IDevice::ConstPtr m_device;
     ProjectExplorer::DeviceProcess *m_deviceProcess;
 };
 

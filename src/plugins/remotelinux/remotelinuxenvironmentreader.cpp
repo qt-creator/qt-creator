@@ -27,9 +27,6 @@
 
 #include <projectexplorer/devicesupport/deviceprocess.h>
 #include <projectexplorer/devicesupport/idevice.h>
-#include <projectexplorer/kitinformation.h>
-#include <projectexplorer/runconfiguration.h>
-#include <projectexplorer/target.h>
 #include <projectexplorer/runnables.h>
 
 using namespace ProjectExplorer;
@@ -37,24 +34,25 @@ using namespace ProjectExplorer;
 namespace RemoteLinux {
 namespace Internal {
 
-RemoteLinuxEnvironmentReader::RemoteLinuxEnvironmentReader(RunConfiguration *config, QObject *parent)
+RemoteLinuxEnvironmentReader::RemoteLinuxEnvironmentReader(const IDevice::ConstPtr &device,
+                                                           QObject *parent)
     : QObject(parent)
     , m_stop(false)
     , m_env(Utils::OsTypeLinux)
-    , m_kit(config->target()->kit())
+    , m_device(device)
     , m_deviceProcess(0)
 {
-    connect(config->target(), SIGNAL(kitChanged()),
-        this, SLOT(handleCurrentDeviceConfigChanged()));
 }
 
 void RemoteLinuxEnvironmentReader::start()
 {
-    IDevice::ConstPtr device = DeviceKitInformation::device(m_kit);
-    if (!device)
+    if (!m_device) {
+        emit error(tr("Error: No device"));
+        setFinished();
         return;
+    }
     m_stop = false;
-    m_deviceProcess = device->createProcess(this);
+    m_deviceProcess = m_device->createProcess(this);
     connect(m_deviceProcess, &DeviceProcess::error,
             this, &RemoteLinuxEnvironmentReader::handleError);
     connect(m_deviceProcess, &DeviceProcess::finished,

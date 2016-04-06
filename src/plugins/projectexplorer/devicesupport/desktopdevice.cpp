@@ -32,6 +32,8 @@
 #include <projectexplorer/projectexplorerconstants.h>
 
 #include <ssh/sshconnection.h>
+
+#include <utils/environment.h>
 #include <utils/portlist.h>
 
 #include <QCoreApplication>
@@ -114,6 +116,22 @@ DeviceProcess *DesktopDevice::createProcess(QObject *parent) const
 DeviceProcessSignalOperation::Ptr DesktopDevice::signalOperation() const
 {
     return DeviceProcessSignalOperation::Ptr(new DesktopProcessSignalOperation());
+}
+
+class DesktopDeviceEnvironmentFetcher : public DeviceEnvironmentFetcher
+{
+public:
+    DesktopDeviceEnvironmentFetcher() {}
+
+    void start() override
+    {
+        emit finished(Utils::Environment::systemEnvironment(), true);
+    }
+};
+
+DeviceEnvironmentFetcher::Ptr DesktopDevice::environmentFetcher() const
+{
+    return DeviceEnvironmentFetcher::Ptr(new DesktopDeviceEnvironmentFetcher());
 }
 
 QString DesktopDevice::qmlProfilerHost() const

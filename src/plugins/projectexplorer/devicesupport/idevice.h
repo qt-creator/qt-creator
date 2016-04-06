@@ -40,7 +40,11 @@ class QWidget;
 QT_END_NAMESPACE
 
 namespace QSsh { class SshConnectionParameters; }
-namespace Utils { class PortList; }
+
+namespace Utils {
+class Environment;
+class PortList;
+} // Utils
 
 namespace ProjectExplorer {
 class DeviceProcess;
@@ -75,6 +79,21 @@ protected:
 
     QString m_debuggerCommand;
     QString m_errorMessage;
+};
+
+class PROJECTEXPLORER_EXPORT DeviceEnvironmentFetcher : public QObject
+{
+    Q_OBJECT
+public:
+    typedef QSharedPointer<DeviceEnvironmentFetcher> Ptr;
+
+    virtual void start() = 0;
+
+signals:
+    void finished(const Utils::Environment &env, bool success);
+
+protected:
+    explicit DeviceEnvironmentFetcher();
 };
 
 class PROJECTEXPLORER_EXPORT PortsGatheringMethod
@@ -138,6 +157,7 @@ public:
     virtual bool canCreateProcess() const { return false; }
     virtual DeviceProcess *createProcess(QObject *parent) const;
     virtual DeviceProcessSignalOperation::Ptr signalOperation() const = 0;
+    virtual DeviceEnvironmentFetcher::Ptr environmentFetcher() const;
 
     enum DeviceState { DeviceReadyToUse, DeviceConnected, DeviceDisconnected, DeviceStateUnknown };
     DeviceState deviceState() const;

@@ -28,9 +28,15 @@
 #include "remotelinuxrunconfiguration.h"
 #include "remotelinuxenvironmentreader.h"
 
+#include <projectexplorer/target.h>
+#include <projectexplorer/kitinformation.h>
+
 #include <QCoreApplication>
 #include <QMessageBox>
 #include <QPushButton>
+
+using namespace ProjectExplorer;
+using namespace RemoteLinux::Internal;
 
 namespace {
 const QString FetchEnvButtonText
@@ -41,15 +47,22 @@ const QString FetchEnvButtonText
 namespace RemoteLinux {
 
 RemoteLinuxEnvironmentAspectWidget::RemoteLinuxEnvironmentAspectWidget(RemoteLinuxEnvironmentAspect *aspect) :
-    ProjectExplorer::EnvironmentAspectWidget(aspect, new QPushButton),
-    deviceEnvReader(new Internal::RemoteLinuxEnvironmentReader(aspect->runConfiguration(), this))
+    EnvironmentAspectWidget(aspect, new QPushButton)
 {
+    RunConfiguration *runConfiguration = aspect->runConfiguration();
+    Target *target = runConfiguration->target();
+    IDevice::ConstPtr device = DeviceKitInformation::device(target->kit());
+
+    deviceEnvReader = new RemoteLinuxEnvironmentReader(device, this);
+    connect(target, &ProjectExplorer::Target::kitChanged,
+            deviceEnvReader, &RemoteLinuxEnvironmentReader::handleCurrentDeviceConfigChanged);
+
     QPushButton *button = fetchButton();
     button->setText(FetchEnvButtonText);
     connect(button, &QPushButton::clicked, this, &RemoteLinuxEnvironmentAspectWidget::fetchEnvironment);
-    connect(deviceEnvReader, &Internal::RemoteLinuxEnvironmentReader::finished,
+    connect(deviceEnvReader, &RemoteLinuxEnvironmentReader::finished,
             this, &RemoteLinuxEnvironmentAspectWidget::fetchEnvironmentFinished);
-    connect(deviceEnvReader, &Internal::RemoteLinuxEnvironmentReader::error,
+    connect(deviceEnvReader, &RemoteLinuxEnvironmentReader::error,
             this, &RemoteLinuxEnvironmentAspectWidget::fetchEnvironmentError);
 }
 

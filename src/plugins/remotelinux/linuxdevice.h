@@ -66,6 +66,7 @@ public:
     bool hasDeviceTester() const { return true; }
     ProjectExplorer::DeviceTester *createDeviceTester() const;
     ProjectExplorer::DeviceProcessSignalOperation::Ptr signalOperation() const;
+    ProjectExplorer::DeviceEnvironmentFetcher::Ptr environmentFetcher() const;
 
 protected:
     LinuxDevice() {}

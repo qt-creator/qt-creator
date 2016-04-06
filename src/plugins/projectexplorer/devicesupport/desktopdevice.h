@@ -51,6 +51,7 @@ public:
     bool canCreateProcess() const override { return true; }
     DeviceProcess *createProcess(QObject *parent) const override;
     DeviceProcessSignalOperation::Ptr signalOperation() const override;
+    DeviceEnvironmentFetcher::Ptr environmentFetcher() const override;
     QString qmlProfilerHost() const override;
 
     IDevice::Ptr clone() const override;
