@@ -189,6 +189,10 @@ def __getWinCompilers__():
         if os.path.exists(compiler):
             parameters = testData.field(record, "displayedParameters").split(",")
             usedParameters = testData.field(record, "usedParameters").split(",")
+            idePath = testData.field(record, "IDEPath")
+            if len(idePath):
+                if not os.path.exists(os.path.abspath(os.path.join(envvar, idePath))):
+                    continue
             if testData.field(record, "isSDK") == "true":
                 for para, used in zip(parameters, usedParameters):
                     result.append(
