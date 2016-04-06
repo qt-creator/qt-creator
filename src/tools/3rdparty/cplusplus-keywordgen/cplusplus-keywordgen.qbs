@@ -1,4 +1,4 @@
-import "../cplusplus-shared/CPlusPlusTool.qbs" as CPlusPlusTool
+import "../../cplusplus-shared/CPlusPlusTool.qbs" as CPlusPlusTool
 
 CPlusPlusTool {
     name: "cplusplus-keywordgen"
