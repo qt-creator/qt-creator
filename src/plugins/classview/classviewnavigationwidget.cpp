@@ -31,6 +31,9 @@
 #include "classviewconstants.h"
 
 #include <coreplugin/find/itemviewfind.h>
+
+#include <cplusplus/Icons.h>
+
 #include <utils/navigationtreeview.h>
 #include <utils/qtcassert.h>
 
@@ -170,7 +173,7 @@ QList<QToolButton *> NavigationWidget::createToolButtons()
         // create a button
         fullProjectsModeButton = new QToolButton();
         fullProjectsModeButton->setIcon(
-                QIcon(QLatin1String(":/classview/images/hierarchicalmode.png")));
+                    CPlusPlus::Icons::iconForType(CPlusPlus::Icons::ClassIconType));
         fullProjectsModeButton->setCheckable(true);
         fullProjectsModeButton->setToolTip(tr("Show Subprojects"));
 

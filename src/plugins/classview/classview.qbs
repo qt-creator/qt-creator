@@ -13,7 +13,6 @@ QtcPlugin {
     Depends { name: "TextEditor" }
 
     files: [
-        "classview.qrc",
         "classviewconstants.h",
         "classviewmanager.cpp", "classviewmanager.h",
         "classviewnavigationwidget.cpp", "classviewnavigationwidget.h",

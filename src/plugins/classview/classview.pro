@@ -24,6 +24,3 @@ SOURCES += \
     classviewsymbollocation.cpp \
     classviewtreeitemmodel.cpp \
     classviewutils.cpp
-
-RESOURCES += \
-    classview.qrc
