@@ -53,8 +53,10 @@ public:
     QList<Utils::EnvironmentItem> userEnvironmentChanges() const { return m_changes; }
     void setUserEnvironmentChanges(const QList<Utils::EnvironmentItem> &diff);
 
+    // The environment the user chose as base for his modifications.
     virtual Utils::Environment baseEnvironment() const = 0;
-    virtual Utils::Environment environment() const;
+    // The environment including the user's modifications.
+    Utils::Environment environment() const;
 
 signals:
     void baseEnvironmentChanged();
