@@ -43,10 +43,7 @@ def checkLastBuild(expectedToFail=False, createTasksFileOnError=True):
     errors = types.count("1")
     warnings = types.count("2")
     gotErrors = errors != 0
-    if not (gotErrors ^ expectedToFail):
-        test.passes("Errors: %s | Warnings: %s" % (errors, warnings))
-    else:
-        test.fail("Errors: %s | Warnings: %s" % (errors, warnings))
+    test.verify(not (gotErrors ^ expectedToFail), "Errors: %s | Warnings: %s" % (errors, warnings))
     # additional stuff - could be removed... or improved :)
     test.log("Rows inside issues: %d" % model.rowCount())
     if gotErrors and createTasksFileOnError:
