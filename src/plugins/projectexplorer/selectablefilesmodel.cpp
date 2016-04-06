@@ -63,9 +63,7 @@ SelectableFilesModel::SelectableFilesModel(QObject *parent) : QAbstractItemModel
 void SelectableFilesModel::setInitialMarkedFiles(const Utils::FileNameList &files)
 {
     m_files = files.toSet();
-    m_outOfBaseDirFiles
-            = Utils::filtered(m_files, [this](const Utils::FileName &fn) { return !fn.isChildOf(m_baseDir); });
-    m_allFiles = false;
+    m_allFiles = files.isEmpty();
 }
 
 void SelectableFilesModel::startParsing(const Utils::FileName &baseDir)
@@ -95,6 +93,9 @@ void SelectableFilesModel::buildTreeFinished()
     delete m_root;
     m_root = m_rootForFuture;
     m_rootForFuture = nullptr;
+    m_outOfBaseDirFiles
+            = Utils::filtered(m_files, [this](const Utils::FileName &fn) { return !fn.isChildOf(m_baseDir); });
+
     endResetModel();
     emit parsingFinished();
 }
@@ -694,7 +695,6 @@ void SelectableFilesWidget::parsingFinished()
     if (!m_model)
         return;
 
-    m_model->selectAllFiles();
     applyFilter();
 
     smartExpand(m_model->index(0,0, QModelIndex()));
