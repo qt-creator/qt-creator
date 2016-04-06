@@ -638,10 +638,12 @@ void LldbEngine::updateBreakpointData(Breakpoint bp, const GdbMi &bkpt, bool add
             sub.lineNumber = location["line"].toInt();
             bp.insertSubBreakpoint(sub);
         }
+        response.pending = false;
     } else if (numChild == 1) {
         const GdbMi location = locations.childAt(0);
         response.address = location["addr"].toAddress();
         response.functionName = location["func"].toUtf8();
+        response.pending = false;
     } else {
         // This can happen for pending breakpoints.
         showMessage(_("NO LOCATIONS (YET) FOR BP %1").arg(response.toString()));
