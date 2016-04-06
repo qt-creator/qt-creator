@@ -560,7 +560,7 @@ SelectableFilesWidget::SelectableFilesWidget(QWidget *parent) :
     connect(m_baseDirChooser, &Utils::PathChooser::validChanged,
             this, &SelectableFilesWidget::baseDirectoryChanged);
     connect(m_startParsingButton, &QAbstractButton::clicked,
-            this, &SelectableFilesWidget::startParsing);
+            this, [this]() { startParsing(m_baseDirChooser->fileName()); });
 
     m_showFilesFilterLabel->setText(tr("Show files matching:"));
     m_showFilesFilterEdit->setText(showFilter);
@@ -641,7 +641,7 @@ void SelectableFilesWidget::resetModel(const Utils::FileName &path, const Utils:
     m_baseDirChooser->setFileName(path);
     m_view->setModel(m_model);
 
-    startParsing();
+    startParsing(path);
 }
 
 void SelectableFilesWidget::cancelParsing()
@@ -675,13 +675,13 @@ void SelectableFilesWidget::baseDirectoryChanged(bool validState)
     m_startParsingButton->setEnabled(validState);
 }
 
-void SelectableFilesWidget::startParsing()
+void SelectableFilesWidget::startParsing(const Utils::FileName &baseDir)
 {
     if (!m_model)
         return;
 
     enableWidgets(false);
-    m_model->startParsing(m_baseDirChooser->fileName());
+    m_model->startParsing(baseDir);
 }
 
 void SelectableFilesWidget::parsingProgress(const Utils::FileName &fileName)

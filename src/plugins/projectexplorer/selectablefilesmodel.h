@@ -176,7 +176,7 @@ private:
     void applyFilter();
     void baseDirectoryChanged(bool validState);
 
-    void startParsing();
+    void startParsing(const Utils::FileName &baseDir);
     void parsingProgress(const Utils::FileName &fileName);
     void parsingFinished();
 
