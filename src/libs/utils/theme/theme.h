@@ -160,6 +160,9 @@ public:
         IconsCodeModelVariableColor,
         IconsCodeModelEnumColor,
         IconsCodeModelMacroColor,
+        IconsCodeModelAttributeColor,
+        IconsCodeModelUniformColor,
+        IconsCodeModelVaryingColor,
         IconsCodeModelOverlayBackgroundColor,
         IconsCodeModelOverlayForegroundColor,
 

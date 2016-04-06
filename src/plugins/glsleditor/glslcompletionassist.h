@@ -34,7 +34,6 @@
 #include <texteditor/codeassist/ifunctionhintproposalmodel.h>
 
 
-#include <QIcon>
 #include <QScopedPointer>
 #include <QSharedPointer>
 
@@ -107,16 +106,6 @@ private:
 
     int m_startPosition;
     QScopedPointer<const GlslCompletionAssistInterface> m_interface;
-
-    QIcon m_keywordIcon;
-    QIcon m_varIcon;
-    QIcon m_functionIcon;
-    QIcon m_typeIcon;
-    QIcon m_constIcon;
-    QIcon m_attributeIcon;
-    QIcon m_uniformIcon;
-    QIcon m_varyingIcon;
-    QIcon m_otherIcon;
 };
 
 class GlslCompletionAssistInterface : public TextEditor::AssistInterface
