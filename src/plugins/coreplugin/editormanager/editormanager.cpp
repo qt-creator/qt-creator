@@ -1536,6 +1536,10 @@ void EditorManagerPrivate::setupSaveActions(IDocument *document, QAction *saveAc
         revertToSavedAction->setText(document->isModified()
                                      ? tr("Revert %1 to Saved").arg(quotedName)
                                      : tr("Reload %1").arg(quotedName));
+    } else {
+        saveAction->setText(EditorManager::tr("&Save"));
+        saveAsAction->setText(EditorManager::tr("Save &As..."));
+        revertToSavedAction->setText(EditorManager::tr("Revert to Saved"));
     }
 }
 
