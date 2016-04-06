@@ -4378,20 +4378,34 @@ void tst_Dumpers::dumper_data()
 
                + Check("b0", "<0 items>", "std::valarray<bool>")
                + Check("b1", "<5 items>", "std::valarray<bool>")
-               + Check("b1.0", "[0]", "1", "bool")
-               + Check("b1.1", "[1]", "0", "bool")
-               + Check("b1.2", "[2]", "0", "bool")
-               + Check("b1.3", "[3]", "1", "bool")
-               + Check("b1.4", "[4]", "0", "bool")
+
+               + Check("b1.0", "[0]", "1", "bool")          % NoCdbEngine
+               + Check("b1.1", "[1]", "0", "bool")          % NoCdbEngine
+               + Check("b1.2", "[2]", "0", "bool")          % NoCdbEngine
+               + Check("b1.3", "[3]", "1", "bool")          % NoCdbEngine
+               + Check("b1.4", "[4]", "0", "bool")          % NoCdbEngine
+
+               + Check("b1.0", "[0]", "true", "bool")       % CdbEngine
+               + Check("b1.1", "[1]", "false", "bool")      % CdbEngine
+               + Check("b1.2", "[2]", "false", "bool")      % CdbEngine
+               + Check("b1.3", "[3]", "true", "bool")       % CdbEngine
+               + Check("b1.4", "[4]", "false", "bool")      % CdbEngine
 
                + Check("b2", "<65 items>", "std::valarray<bool>")
-               + Check("b2.0", "[0]", "1", "bool")
-               + Check("b2.64", "[64]", "1", "bool")
+
+               + Check("b2.0", "[0]", "1", "bool")          % NoCdbEngine
+               + Check("b2.64", "[64]", "1", "bool")        % NoCdbEngine
+
+               + Check("b2.0", "[0]", "true", "bool")       % CdbEngine
+               + Check("b2.64", "[64]", "true", "bool")     % CdbEngine
 
                + Check("b3", "<300 items>", "std::valarray<bool>")
-               + Check("b3.0", "[0]", "0", "bool")
-               + Check("b3.299", "[299]", "0", "bool");
 
+               + Check("b3.0", "[0]", "0", "bool")          % NoCdbEngine
+               + Check("b3.299", "[299]", "0", "bool")      % NoCdbEngine
+
+               + Check("b3.0", "[0]", "false", "bool")      % CdbEngine
+               + Check("b3.99", "[99]", "false", "bool")   % CdbEngine;
 
     QTest::newRow("StdVector")
             << Data("#include <vector>\n"
