@@ -31,9 +31,11 @@
 
     \title Running Autotests
 
-    \QC integrates the \l{Qt Test} framework for unit testing Qt based
-    applications and libraries. You can use \QC to build and
-    run autotests for your projects.
+    \QC integrates the \l{Qt Test} framework and
+    \l{https://github.com/google/googletest}{Google C++ Testing Framework} for
+    unit testing applications and libraries. You can use \QC to build and run
+    Qt tests, Qt Quick tests (QML-based Qt tests), and Google tests for your
+    projects.
 
     \image qtcreator-autotests.png
 
@@ -41,18 +43,18 @@
     \uicontrol {About Plugins} > \uicontrol Utilities > \uicontrol {Auto Test}.
     Restart \QC to be able to use the plugin.
 
-    \section1 Creating Autotests
+    \section1 Creating Qt Tests
 
-    You can use a wizard to create projects that contain autotests:
+    You can use a wizard to create projects that contain Qt tests:
 
     \list 1
         \li Select \uicontrol File > \uicontrol {New File or Project} >
             \uicontrol {Other Project} > \uicontrol {Auto Test} >
-            \uicontrol Choose to create a project with boilerplate code for an
-            autotest.
+            \uicontrol Choose to create a project with boilerplate code for a
+            Qt test.
 
         \li In the \uicontrol {Project and Test Information} dialog, specify
-            settings for the project and autotest:
+            settings for the project and test:
 
             \list 1
 
@@ -72,7 +74,7 @@
                     up the test.
 
                 \li In the \uicontrol {Build auto tests} field, select
-                    \uicontrol Always to always build the autotest when building
+                    \uicontrol Always to always build the test when building
                     the project or \uicontrol {Debug Only} to only build it
                     during debug builds.
 
@@ -80,18 +82,78 @@
 
     \endlist
 
-    \QC creates the autotest in the \c{tests\auto} directory in the project
+    \QC creates the test in the \c{tests\auto} directory in the project
     directory. Edit the .cpp file to add private slots for each test
-    function in your test. For more information about creating autotests, see
+    function in your test. For more information about creating Qt tests, see
     \l{Creating a Test}.
 
-    \section1 Building and Running Autotests
+    \section1 Setting Up the Google C++ Testing Framework
 
-    To build and run autotests:
+    To build and run Google tests, you must have the Google C++ Testing
+    framework installed and configured on the development host. You can either
+    clone it from Git Hub or install it from an installation package.
+
+    To configure a project to use a cloned Google testing framework, edit the
+    \c INCLUDEPATH variable in the project file (.pro) to include the source
+    and \c include folders of Google Test's \c googletest and \c googlemock.
+    Usually, you need to add the following subfolders:
+
+    \list
+        \li \c googletest
+        \li \c googlemock
+        \li \c googletest/include
+        \li \c googlemock/include
+    \endlist
+
+    You also need to add the necessary files to the \c SOURCES variable. For
+    example:
+
+    \list
+        \li \c googletest/src/gtest-all.cc
+        \li \c googlemock/src/gmock-all.cc
+    \endlist
+
+    To configure a project to use an installed Google testing framework package,
+    add the following include paths to the .pro file:
+
+    \list
+        \li \c <googletest_install_path>/include/gtest
+        \li \c <googletest_install_path>/include/gmock
+    \endlist
+
+    Then add linker options to be able to find the libraries and to link against
+    them. For example, for qmake based projects, you typically need to add the
+    following values to the .pro file:
+
+    \list
+        \li \c {LIBS += -lgtest -L<path_to_gtest_lib>}
+        \li \c {LIBS += -lgmock -L<path_to_gmock_lib>}
+    \endlist
+
+    To specify settings for running Google tests, select \uicontrol Tools >
+    \uicontrol Options > \uicontrol {Test Settings}.
+
+    \image qtcreator-autotests-options.png
+
+    To run disabled tests, select the \uicontrol {Run disabled tests} check box.
+
+    To run several iterations of the tests, select the \uicontrol {Repeat tests}
+    check box and enter the number of times the tests should be run in the
+    \uicontrol Iterations field. To make sure that the tests are independent and
+    repeatable, you can run them in a different order each time by selecting the
+    \uicontrol {Shuffle tests} check box.
+
+    For more information about creating Google tests, see the
+    \l{https://github.com/google/googletest/blob/master/googletest/docs/Primer.md}
+    {Google Test Primer}.
+
+    \section1 Building and Running Tests
+
+    To build and run tests:
 
     \list 1
 
-        \li Open a project that contains autotests.
+        \li Open a project that contains tests.
 
         \li In the \uicontrol {Test Results} output pane, select
             \inlineimage qtcreator-run.png
@@ -109,8 +171,13 @@
     \endlist
 
     If a test takes more than a minute to execute, the default timeout might
-    stop the test execution. To increase the timeout, select  \uicontrol Tools >
+    stop the test execution. To increase the timeout, select \uicontrol Tools >
     \uicontrol Options > \uicontrol {Test Settings}.
+
+    \QC scans the project for tests when you open the project and updates the
+    test list when you edit tests. To only update the test list when the
+    \uicontrol Tests view or the \uicontrol {Test Results} output pane is open,
+    deselect the \uicontrol {Always parse current project for tests} check box.
 
     The code inside a benchmark test is measured, and possibly also repeated
     several times in order to get an accurate measurement. This depends on the
