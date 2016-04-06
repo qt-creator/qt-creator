@@ -34,21 +34,6 @@
 namespace ClassView {
 namespace Internal {
 
-///////////////////////////////// TreeItemModelPrivate //////////////////////////////////
-
-/*!
-   \class TreeItemModelPrivate
-   \brief The TreeItemModelPrivate class contains private class data for
-   the TreeItemModel class.
-   \sa TreeItemModel
- */
-class TreeItemModelPrivate
-{
-public:
-    //! icon provider
-    CPlusPlus::Icons icons;
-};
-
 ///////////////////////////////// TreeItemModel //////////////////////////////////
 
 /*!
@@ -57,14 +42,12 @@ public:
 */
 
 TreeItemModel::TreeItemModel(QObject *parent)
-    : QStandardItemModel(parent),
-    d(new TreeItemModelPrivate())
+    : QStandardItemModel(parent)
 {
 }
 
 TreeItemModel::~TreeItemModel()
 {
-    delete d;
 }
 
 QVariant TreeItemModel::data(const QModelIndex &index, int role) const
@@ -79,7 +62,7 @@ QVariant TreeItemModel::data(const QModelIndex &index, int role) const
                 bool ok = false;
                 int type = iconType.toInt(&ok);
                 if (ok && type >= 0)
-                    return d->icons.iconForType(static_cast<CPlusPlus::Icons::IconType>(type));
+                    return CPlusPlus::Icons::iconForType(static_cast<CPlusPlus::Icons::IconType>(type));
             }
         }
         break;

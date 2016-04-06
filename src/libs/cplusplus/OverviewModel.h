@@ -28,7 +28,6 @@
 
 #include "CppDocument.h"
 #include "Overview.h"
-#include "Icons.h"
 
 #include <QAbstractItemModel>
 
@@ -73,7 +72,6 @@ private:
 private:
     Document::Ptr _cppDocument;
     Overview _overview;
-    Icons _icons;
 };
 
 } // namespace CPlusPlus

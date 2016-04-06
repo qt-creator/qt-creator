@@ -32,7 +32,6 @@
 #include "stringtable.h"
 
 #include <cplusplus/CppDocument.h>
-#include <cplusplus/Icons.h>
 #include <cplusplus/Overview.h>
 
 #include <QString>
@@ -108,7 +107,6 @@ private:
     IndexItem::Ptr _parent;
     QString _scope;
     CPlusPlus::Overview overview;
-    CPlusPlus::Icons icons;
     SymbolTypes symbolsToSearchFor;
     QHash<const CPlusPlus::StringLiteral *, QString> m_paths;
 };

@@ -33,46 +33,19 @@
 using namespace CPlusPlus;
 using CPlusPlus::Icons;
 
-Icons::Icons()
-    : _classIcon(QLatin1String(":/codemodel/images/class.png")),
-      _structIcon(QLatin1String(":/codemodel/images/struct.png")),
-      _enumIcon(QLatin1String(":/codemodel/images/enum.png")),
-      _enumeratorIcon(QLatin1String(":/codemodel/images/enumerator.png")),
-      _funcPublicIcon(QLatin1String(":/codemodel/images/func.png")),
-      _funcProtectedIcon(QLatin1String(":/codemodel/images/func_prot.png")),
-      _funcPrivateIcon(QLatin1String(":/codemodel/images/func_priv.png")),
-      _funcPublicStaticIcon(QLatin1String(":/codemodel/images/func_st.png")),
-      _funcProtectedStaticIcon(QLatin1String(":/codemodel/images/func_prot_st.png")),
-      _funcPrivateStaticIcon(QLatin1String(":/codemodel/images/func_priv_st.png")),
-      _namespaceIcon(QLatin1String(":/codemodel/images/namespace.png")),
-      _varPublicIcon(QLatin1String(":/codemodel/images/var.png")),
-      _varProtectedIcon(QLatin1String(":/codemodel/images/var_prot.png")),
-      _varPrivateIcon(QLatin1String(":/codemodel/images/var_priv.png")),
-      _varPublicStaticIcon(QLatin1String(":/codemodel/images/var_st.png")),
-      _varProtectedStaticIcon(QLatin1String(":/codemodel/images/var_prot_st.png")),
-      _varPrivateStaticIcon(QLatin1String(":/codemodel/images/var_priv_st.png")),
-      _signalIcon(QLatin1String(":/codemodel/images/signal.png")),
-      _slotPublicIcon(QLatin1String(":/codemodel/images/slot.png")),
-      _slotProtectedIcon(QLatin1String(":/codemodel/images/slot_prot.png")),
-      _slotPrivateIcon(QLatin1String(":/codemodel/images/slot_priv.png")),
-      _keywordIcon(QLatin1String(":/codemodel/images/keyword.png")),
-      _macroIcon(QLatin1String(":/codemodel/images/macro.png"))
-{
-}
-
-QIcon Icons::iconForSymbol(const Symbol *symbol) const
+QIcon Icons::iconForSymbol(const Symbol *symbol)
 {
     return iconForType(iconTypeForSymbol(symbol));
 }
 
-QIcon Icons::keywordIcon() const
+QIcon Icons::keywordIcon()
 {
-    return _keywordIcon;
+    return iconForType(KeywordIconType);
 }
 
-QIcon Icons::macroIcon() const
+QIcon Icons::macroIcon()
 {
-    return _macroIcon;
+    return iconForType(MacroIconType);
 }
 
 Icons::IconType Icons::iconTypeForSymbol(const Symbol *symbol)
@@ -141,55 +114,101 @@ Icons::IconType Icons::iconTypeForSymbol(const Symbol *symbol)
     return UnknownIconType;
 }
 
-QIcon Icons::iconForType(IconType type) const
+QIcon Icons::iconForType(IconType type)
 {
     switch (type) {
-    case ClassIconType:
-        return _classIcon;
-    case StructIconType:
-        return _structIcon;
-    case EnumIconType:
-        return _enumIcon;
-    case EnumeratorIconType:
-        return _enumeratorIcon;
-    case FuncPublicIconType:
-        return _funcPublicIcon;
-    case FuncProtectedIconType:
-        return _funcProtectedIcon;
-    case FuncPrivateIconType:
-        return _funcPrivateIcon;
-    case FuncPublicStaticIconType:
-        return _funcPublicStaticIcon;
-    case FuncProtectedStaticIconType:
-        return _funcProtectedStaticIcon;
-    case FuncPrivateStaticIconType:
-        return _funcPrivateStaticIcon;
-    case NamespaceIconType:
-        return _namespaceIcon;
-    case VarPublicIconType:
-        return _varPublicIcon;
-    case VarProtectedIconType:
-        return _varProtectedIcon;
-    case VarPrivateIconType:
-        return _varPrivateIcon;
-    case VarPublicStaticIconType:
-        return _varPublicStaticIcon;
-    case VarProtectedStaticIconType:
-        return _varProtectedStaticIcon;
-    case VarPrivateStaticIconType:
-        return _varPrivateStaticIcon;
-    case SignalIconType:
-        return _signalIcon;
-    case SlotPublicIconType:
-        return _slotPublicIcon;
-    case SlotProtectedIconType:
-        return _slotProtectedIcon;
-    case SlotPrivateIconType:
-        return _slotPrivateIcon;
-    case KeywordIconType:
-        return _keywordIcon;
-    case MacroIconType:
-        return _macroIcon;
+    case ClassIconType: {
+        const static QIcon icon(QLatin1String(":/codemodel/images/class.png"));
+        return icon;
+    }
+    case StructIconType: {
+        const static QIcon icon(QLatin1String(":/codemodel/images/struct.png"));
+        return icon;
+    }
+    case EnumIconType: {
+        const static QIcon icon(QLatin1String(":/codemodel/images/enum.png"));
+        return icon;
+    }
+    case EnumeratorIconType: {
+        const static QIcon icon(QLatin1String(":/codemodel/images/enumerator.png"));
+        return icon;
+    }
+    case FuncPublicIconType: {
+        const static QIcon icon(QLatin1String(":/codemodel/images/func.png"));
+        return icon;
+    }
+    case FuncProtectedIconType: {
+        const static QIcon icon(QLatin1String(":/codemodel/images/func_prot.png"));
+        return icon;
+    }
+    case FuncPrivateIconType: {
+        const static QIcon icon(QLatin1String(":/codemodel/images/func_priv.png"));
+        return icon;
+    }
+    case FuncPublicStaticIconType: {
+        const static QIcon icon(QLatin1String(":/codemodel/images/func_st.png"));
+        return icon;
+    }
+    case FuncProtectedStaticIconType: {
+        const static QIcon icon(QLatin1String(":/codemodel/images/func_prot_st.png"));
+        return icon;
+    }
+    case FuncPrivateStaticIconType: {
+        const static QIcon icon(QLatin1String(":/codemodel/images/func_priv_st.png"));
+        return icon;
+    }
+    case NamespaceIconType: {
+        const static QIcon icon(QLatin1String(":/codemodel/images/namespace.png"));
+        return icon;
+    }
+    case VarPublicIconType: {
+        const static QIcon icon(QLatin1String(":/codemodel/images/var.png"));
+        return icon;
+    }
+    case VarProtectedIconType: {
+        const static QIcon icon(QLatin1String(":/codemodel/images/var_prot.png"));
+        return icon;
+    }
+    case VarPrivateIconType: {
+        const static QIcon icon(QLatin1String(":/codemodel/images/var_priv.png"));
+        return icon;
+    }
+    case VarPublicStaticIconType: {
+        const static QIcon icon(QLatin1String(":/codemodel/images/var_st.png"));
+        return icon;
+    }
+    case VarProtectedStaticIconType: {
+        const static QIcon icon(QLatin1String(":/codemodel/images/var_prot_st.png"));
+        return icon;
+    }
+    case VarPrivateStaticIconType: {
+        const static QIcon icon(QLatin1String(":/codemodel/images/var_priv_st.png"));
+        return icon;
+    }
+    case SignalIconType: {
+        const static QIcon icon(QLatin1String(":/codemodel/images/signal.png"));
+        return icon;
+    }
+    case SlotPublicIconType: {
+        const static QIcon icon(QLatin1String(":/codemodel/images/slot.png"));
+        return icon;
+    }
+    case SlotProtectedIconType: {
+        const static QIcon icon(QLatin1String(":/codemodel/images/slot_prot.png"));
+        return icon;
+    }
+    case SlotPrivateIconType: {
+        const static QIcon icon(QLatin1String(":/codemodel/images/slot_priv.png"));
+        return icon;
+    }
+    case KeywordIconType: {
+        const static QIcon icon(QLatin1String(":/codemodel/images/keyword.png"));
+        return icon;
+    }
+    case MacroIconType: {
+        const static QIcon icon(QLatin1String(":/codemodel/images/macro.png"));
+        return icon;
+    }
     default:
         break;
     }

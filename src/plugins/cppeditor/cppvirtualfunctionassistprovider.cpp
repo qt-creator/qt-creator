@@ -182,14 +182,13 @@ private:
 
         auto *item = new VirtualFunctionProposalItem(link, m_params.openInNextSplit);
         item->setText(text);
-        item->setIcon(m_icons.iconForSymbol(func));
+        item->setIcon(Icons::iconForSymbol(func));
 
         return item;
     }
 
     VirtualFunctionAssistProvider::Parameters m_params;
     Overview m_overview;
-    Icons m_icons;
     mutable SymbolFinder m_finder;
 };
 

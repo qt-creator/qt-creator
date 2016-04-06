@@ -37,12 +37,10 @@ class Symbol;
 class CPLUSPLUS_EXPORT Icons
 {
 public:
-    Icons();
+    static QIcon iconForSymbol(const Symbol *symbol);
 
-    QIcon iconForSymbol(const Symbol *symbol) const;
-
-    QIcon keywordIcon() const;
-    QIcon macroIcon() const;
+    static QIcon keywordIcon();
+    static QIcon macroIcon();
 
     enum IconType {
         ClassIconType = 0,
@@ -72,32 +70,10 @@ public:
     };
 
     static IconType iconTypeForSymbol(const Symbol *symbol);
-    QIcon iconForType(IconType type) const;
+    static QIcon iconForType(IconType type);
 
 private:
-    QIcon _classIcon;
-    QIcon _structIcon;
-    QIcon _enumIcon;
-    QIcon _enumeratorIcon;
-    QIcon _funcPublicIcon;
-    QIcon _funcProtectedIcon;
-    QIcon _funcPrivateIcon;
-    QIcon _funcPublicStaticIcon;
-    QIcon _funcProtectedStaticIcon;
-    QIcon _funcPrivateStaticIcon;
-    QIcon _namespaceIcon;
-    QIcon _varPublicIcon;
-    QIcon _varProtectedIcon;
-    QIcon _varPrivateIcon;
-    QIcon _varPublicStaticIcon;
-    QIcon _varProtectedStaticIcon;
-    QIcon _varPrivateStaticIcon;
-    QIcon _signalIcon;
-    QIcon _slotPublicIcon;
-    QIcon _slotProtectedIcon;
-    QIcon _slotPrivateIcon;
-    QIcon _keywordIcon;
-    QIcon _macroIcon;
+    Icons() {}
 };
 
 } // namespace CPlusPlus
