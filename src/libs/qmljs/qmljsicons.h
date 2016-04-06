@@ -45,12 +45,12 @@ public:
     void setIconFilesPath(const QString &iconPath);
 
     QIcon icon(const QString &packageName, const QString typeName) const;
-    QIcon icon(AST::Node *node) const;
+    static QIcon icon(AST::Node *node);
 
-    QIcon objectDefinitionIcon() const;
-    QIcon scriptBindingIcon() const;
-    QIcon publicMemberIcon() const;
-    QIcon functionDeclarationIcon() const;
+    static QIcon objectDefinitionIcon();
+    static QIcon scriptBindingIcon();
+    static QIcon publicMemberIcon();
+    static QIcon functionDeclarationIcon();
 
 private:
     Icons();

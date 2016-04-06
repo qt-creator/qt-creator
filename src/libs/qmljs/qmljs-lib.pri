@@ -77,10 +77,6 @@ SOURCES += \
     $$PWD/qmljsdescribevalue.cpp \
     $$PWD/qmljsdialect.cpp
 
-
-RESOURCES += \
-    $$PWD/qmljs.qrc
-
 DISTFILES += \
     $$PWD/parser/qmljs.g
 
