@@ -133,14 +133,14 @@ private:
     void propagateDown(const QModelIndex &index);
     void selectAllFiles(Tree *root);
 
-    Tree *m_root = 0;
+    Tree *m_root = nullptr;
 
     // Used in the future thread need to all not used after calling startParsing
     Utils::FileName m_baseDir;
     QSet<Utils::FileName> m_files;
     QSet<Utils::FileName> m_outOfBaseDirFiles;
     QFutureWatcher<void> m_watcher;
-    Tree *m_rootForFuture = 0;
+    Tree *m_rootForFuture = nullptr;
     int m_futureCount = 0;
     bool m_allFiles = true;
 
@@ -153,9 +153,9 @@ class PROJECTEXPLORER_EXPORT SelectableFilesWidget : public QWidget
     Q_OBJECT
 
 public:
-    explicit SelectableFilesWidget(QWidget *parent = 0);
+    explicit SelectableFilesWidget(QWidget *parent = nullptr);
     SelectableFilesWidget(const Utils::FileName &path, const Utils::FileNameList &files,
-                          QWidget *parent = 0);
+                          QWidget *parent = nullptr);
 
     void setAddFileFilter(const QString &filter);
     void setBaseDirEditable(bool edit);

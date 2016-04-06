@@ -94,7 +94,7 @@ void SelectableFilesModel::buildTreeFinished()
     beginResetModel();
     delete m_root;
     m_root = m_rootForFuture;
-    m_rootForFuture = 0;
+    m_rootForFuture = nullptr;
     endResetModel();
     emit parsingFinished();
 }
@@ -625,7 +625,7 @@ bool SelectableFilesWidget::hasFilesSelected() const
 
 void SelectableFilesWidget::resetModel(const Utils::FileName &path, const Utils::FileNameList &files)
 {
-    m_view->setModel(0);
+    m_view->setModel(nullptr);
 
     delete m_model;
     m_model = new SelectableFilesModel(this);
