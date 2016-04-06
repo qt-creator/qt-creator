@@ -57,7 +57,7 @@ public:
     QList<Tree *> visibleFiles;
     QIcon icon;
     Utils::FileName fullPath;
-    Tree *parent;
+    Tree *parent = nullptr;
 };
 
 class Glob

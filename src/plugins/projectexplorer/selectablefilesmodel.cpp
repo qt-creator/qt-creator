@@ -58,7 +58,6 @@ SelectableFilesModel::SelectableFilesModel(QObject *parent) : QAbstractItemModel
     connect(this, &SelectableFilesModel::modelReset, this, [this] { emit checkedFilesChanged(); });
 
     m_root = new Tree;
-    m_root->parent = 0;
 }
 
 void SelectableFilesModel::setInitialMarkedFiles(const Utils::FileNameList &files)
@@ -78,7 +77,6 @@ void SelectableFilesModel::startParsing(const Utils::FileName &baseDir)
     // Build a tree in a future
     m_rootForFuture = new Tree;
     m_rootForFuture->name = baseDir.toUserOutput();
-    m_rootForFuture->parent = 0;
     m_rootForFuture->fullPath = baseDir;
     m_rootForFuture->isDir = true;
 
