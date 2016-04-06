@@ -78,7 +78,7 @@ def performTest(workingDir, projectName, targetCount, availableConfigs):
         selectFromCombo(":Analyzer Toolbar.AnalyzerManagerToolBox_QComboBox", "QML Profiler")
         recordButton = waitForObject("{container=':DebugModeWidget.Toolbar_QDockWidget' "
                                      "type='QToolButton' unnamed='1' visible='1' "
-                                     "toolTip?='*able profiling'}")
+                                     "toolTip?='*able Profiling'}")
         if not test.verify(recordButton.checked, "Verifying recording is enabled."):
             test.log("Enabling recording for the test run")
             clickButton(recordButton)
