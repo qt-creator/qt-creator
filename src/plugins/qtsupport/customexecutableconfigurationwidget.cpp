@@ -56,7 +56,7 @@ CustomExecutableConfigurationWidget::CustomExecutableConfigurationWidget(CustomE
 
     m_executableChooser = new PathChooser(this);
     m_executableChooser->setHistoryCompleter(QLatin1String("Qt.CustomExecutable.History"));
-    m_executableChooser->setExpectedKind(PathChooser::Command);
+    m_executableChooser->setExpectedKind(PathChooser::ExistingCommand);
     layout->addRow(tr("Executable:"), m_executableChooser);
 
     auto argumentsAspect = rc->extraAspect<ArgumentsAspect>();
