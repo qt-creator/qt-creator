@@ -37,10 +37,8 @@ const Utils::Icon BUILD_FLAT({
         {QLatin1String(":/projectexplorer/images/build_hammerhead_mask.png"), Utils::Theme::IconsBuildHammerHeadColor}});
 const Utils::Icon BUILD_SMALL(
         QLatin1String(":/projectexplorer/images/build_small.png"));
-const Utils::Icon CLEAN(
-        QLatin1String(":/projectexplorer/images/clean.png"));
-const Utils::Icon CLEAN_SMALL(
-        QLatin1String(":/projectexplorer/images/clean_small.png"));
+const Utils::Icon CLEAN({
+        {QLatin1String(":/core/images/clean_pane_small.png"), Utils::Theme::PanelTextColorMid}}, Utils::Icon::Tint);
 const Utils::Icon REBUILD({
         {QLatin1String(":/projectexplorer/images/rebuildhammerhandles.png"), Utils::Theme::IconsBuildHammerHandleColor},
         {QLatin1String(":/projectexplorer/images/rebuildhammerheads.png"), Utils::Theme::IconsBuildHammerHeadColor}}, Utils::Icon::Tint);

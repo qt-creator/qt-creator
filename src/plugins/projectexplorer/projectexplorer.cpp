@@ -853,9 +853,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     msessionContextMenu->addAction(cmd, Constants::G_SESSION_REBUILD);
 
     // clean session
-    QIcon cleanIcon = Icons::CLEAN.icon();
-    cleanIcon.addPixmap(Icons::CLEAN_SMALL.pixmap());
-    dd->m_cleanSessionAction = new QAction(cleanIcon, tr("Clean All"), this);
+    dd->m_cleanSessionAction = new QAction(Icons::CLEAN.icon(), tr("Clean All"), this);
     cmd = ActionManager::registerAction(dd->m_cleanSessionAction, Constants::CLEANSESSION);
     mbuild->addAction(cmd, Constants::G_BUILD_CLEAN);
     msessionContextMenu->addAction(cmd, Constants::G_SESSION_REBUILD);
