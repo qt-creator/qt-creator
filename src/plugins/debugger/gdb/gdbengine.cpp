@@ -2773,7 +2773,7 @@ void GdbEngine::insertBreakpoint(Breakpoint bp)
 
         QByteArray condition = bp.condition();
         if (!condition.isEmpty())
-            cmd.function += " -c \"" + condition + "\" ";
+            cmd.function += " -c \"" + condition.replace('"', "\\\"") + "\" ";
 
         cmd.function += breakpointLocation(bp.parameters());
         cmd.callback = [this, bp](const DebuggerResponse &r) { handleBreakInsert1(r, bp); };
