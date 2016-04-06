@@ -156,7 +156,7 @@ void SelectableFilesModel::buildTree(const Utils::FileName &baseDir, Tree *tree,
             Tree *t = new Tree;
             t->parent = tree;
             t->name = fileInfo.fileName();
-            t->checked = m_allFiles || m_files.contains(fn) ? Qt::Checked : Qt::Unchecked;
+            t->checked = (m_allFiles || m_files.contains(fn)) ? Qt::Checked : Qt::Unchecked;
             t->fullPath = fn;
             t->isDir = false;
             allChecked &= t->checked == Qt::Checked;
