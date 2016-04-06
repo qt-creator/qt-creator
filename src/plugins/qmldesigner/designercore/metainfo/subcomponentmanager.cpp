@@ -384,7 +384,7 @@ void SubComponentManager::registerQmlFile(const QFileInfo &fileInfo, const QStri
     if (addToLibrary) {
         // Add file components to the library
         ItemLibraryEntry itemLibraryEntry;
-        itemLibraryEntry.setType(componentName.toUtf8(), -1, -1);
+        itemLibraryEntry.setType(componentName.toUtf8());
         itemLibraryEntry.setName(baseComponentName);
         itemLibraryEntry.setCategory(QLatin1String("QML Components"));
         if (!qualifier.isEmpty()) {

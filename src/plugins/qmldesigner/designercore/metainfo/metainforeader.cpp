@@ -160,7 +160,7 @@ MetaInfoReader::ParserSate MetaInfoReader::readTypeElement(const QString &name)
 {
     if (name == ItemLibraryEntryElementName) {
         m_currentEntry = ItemLibraryEntry();
-        m_currentEntry.setType(m_currentClassName, -1, -1);
+        m_currentEntry.setType(m_currentClassName);
         m_currentEntry.setTypeIcon(QIcon(m_currentIcon));
         return ParsingItemLibrary;
     } else {
