@@ -33,6 +33,8 @@
 
 #include <texteditor/texteditor.h>
 
+#include <cplusplus/Icons.h>
+
 namespace Autotest {
 namespace Internal {
 
@@ -51,8 +53,8 @@ static QIcon testTreeIcon(TestTreeItem::Type type)
 {
     static QIcon icons[] = {
         QIcon(),
-        QIcon(QLatin1String(":/images/class.png")),
-        QIcon(QLatin1String(":/images/func.png")),
+        CPlusPlus::Icons::iconForType(CPlusPlus::Icons::ClassIconType),
+        CPlusPlus::Icons::iconForType(CPlusPlus::Icons::SlotPrivateIconType),
         QIcon(QLatin1String(":/images/data.png"))
     };
 
