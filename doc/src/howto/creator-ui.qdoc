@@ -523,6 +523,8 @@
 
     \list
 
+        \li Export SVG images to pixmaps
+
         \li Switch between background and outline modes
 
         \li Zoom in and out
@@ -534,6 +536,13 @@
         \li Play and pause animated GIF and MNG images
 
     \endlist
+
+    \section2 Exporting SVG Images
+
+    If you receive a freely scalable icon in the SVG format from an UI designer,
+    you can export it to several images of different sizes to create a set of
+    pixmaps. You can then use QIcon::addPixmap() to add the pixmaps to icons in
+    different modes and states.
 
     \section1 Navigating with Keyboard
 
