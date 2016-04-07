@@ -141,9 +141,12 @@ def doSimpleDebugging(kitCount, currentKit, currentConfigName, pressContinueCoun
             verifyBreakPoint(expectedBPOrder[i])
         else:
             test.fail('%s' % str(statusLabel.text))
-        contDbg = waitForObject(":*Qt Creator.Continue_Core::Internal::FancyToolButton", 3000)
-        test.log("Continuing...")
-        clickButton(contDbg)
+        try:
+            contDbg = waitForObject(":*Qt Creator.Continue_Core::Internal::FancyToolButton", 3000)
+            test.log("Continuing...")
+            clickButton(contDbg)
+        except LookupError:
+            test.fail("Debugger did not stop at breakpoint")
         waitFor("str(statusLabel.text) == 'Running.'", 5000)
     timedOut = not waitFor("str(statusLabel.text) in ['Running.', 'Debugger finished.']", 30000)
     if timedOut:
