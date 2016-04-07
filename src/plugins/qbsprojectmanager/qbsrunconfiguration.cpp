@@ -30,6 +30,7 @@
 #include "qbsproject.h"
 
 #include <coreplugin/coreicons.h>
+#include <coreplugin/messagemanager.h>
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/buildstep.h>
 #include <projectexplorer/buildsteplist.h>
@@ -276,7 +277,12 @@ void QbsRunConfiguration::addToBaseEnvironment(Utils::Environment &env) const
             procEnv.insert(QLatin1String("QBS_RUN_FILE_PATH"), executable());
             qbs::RunEnvironment qbsRunEnv = project->qbsProject().getRunEnvironment(product, installOptions(),
                     procEnv, QbsManager::settings());
-            procEnv = qbsRunEnv.runEnvironment();
+            qbs::ErrorInfo error;
+            procEnv = qbsRunEnv.runEnvironment(&error);
+            if (error.hasError()) {
+                Core::MessageManager::write(tr("Error retrieving run environment: %1")
+                                            .arg(error.toString()));
+            }
             if (!procEnv.isEmpty()) {
                 env = Utils::Environment();
                 foreach (const QString &key, procEnv.keys())
