@@ -917,7 +917,8 @@ void ManhattanStyle::drawComplexControl(ComplexControl control, const QStyleOpti
                 tool.rect = menuarea.adjusted(1, 1, -1, -1);
                 if (mflags & (State_Sunken | State_On | State_Raised)) {
                     painter->setPen(Qt::gray);
-                    painter->drawLine(tool.rect.topLeft(), tool.rect.bottomLeft());
+                    const QRectF lineRect = QRectF(tool.rect).adjusted(-0.5, 2.5, 0, -2.5);
+                    painter->drawLine(lineRect.topLeft(), lineRect.bottomLeft());
                     if (mflags & (State_Sunken)) {
                         QColor shade(0, 0, 0, 50);
                         painter->fillRect(tool.rect.adjusted(0, -1, 1, 1), shade);
