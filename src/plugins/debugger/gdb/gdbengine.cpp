@@ -4002,7 +4002,7 @@ void GdbEngine::startGdb(const QStringList &args)
     showMessage(_("STARTING ") + m_gdb + _(" ") + gdbArgs.join(QLatin1Char(' ')));
     m_gdbProc.setCommand(m_gdb, QtcProcess::joinArgs(gdbArgs));
     Environment env = Environment(m_gdbProc.systemEnvironment());
-    env.set(QLatin1String("LANG"), QLatin1String("C"));
+    env.set(QLatin1String("LC_NUMERIC"), QLatin1String("C"));
     m_gdbProc.setEnvironment(env);
     m_gdbProc.start();
 
