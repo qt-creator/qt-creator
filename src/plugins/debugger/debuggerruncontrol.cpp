@@ -485,11 +485,12 @@ void DebuggerRunControlCreator::enrich(const RunConfiguration *runConfig, const 
                 m_rp.masterEngineType = QmlEngineType;
                 service = QmlDebug::QmlDebuggerServices;
             }
-            if (m_rp.startMode != AttachExternal)
+            if (m_rp.startMode != AttachExternal && m_rp.startMode != AttachCrashedExternal) {
                 QtcProcess::addArg(&m_rp.inferior.commandLineArguments,
                                    (m_rp.languages & CppLanguage) && m_rp.nativeMixedEnabled ?
                                        QmlDebug::qmlDebugNativeArguments(service, false) :
                                        QmlDebug::qmlDebugTcpArguments(service, m_rp.qmlServerPort));
+            }
         }
     }
 
