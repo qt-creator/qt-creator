@@ -233,9 +233,7 @@ bool MakeStep::init(QList<const BuildStep *> &earlierSteps)
         Utils::QtcProcess::addArg(&args, objectFile);
     }
     Utils::Environment env = bc->environment();
-    // Force output to english for the parsers. Do this here and not in the toolchain's
-    // addToEnvironment() to not screw up the users run environment.
-    env.set(QLatin1String("LC_ALL"), QLatin1String("C"));
+    Utils::Environment::setupEnglishOutput(&env);
     // We also prepend "L" to the MAKEFLAGS, so that nmake / jom are less verbose
     if (tc && m_makeCmd.isEmpty()) {
         if (tc->targetAbi().os() == Abi::WindowsOS
@@ -415,9 +413,7 @@ void MakeStepConfigWidget::updateDetails()
     QString args = m_makeStep->userArguments();
 
     Utils::Environment env = bc->environment();
-    // Force output to english for the parsers. Do this here and not in the toolchain's
-    // addToEnvironment() to not screw up the users run environment.
-    env.set(QLatin1String("LC_ALL"), QLatin1String("C"));
+    Utils::Environment::setupEnglishOutput(&env);
     // We prepend "L" to the MAKEFLAGS, so that nmake / jom are less verbose
     // FIXME doing this without the user having a way to override this is rather bad
     if (tc && m_makeStep->makeCommand().isEmpty()) {

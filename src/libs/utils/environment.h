@@ -65,6 +65,9 @@ public:
     explicit Environment(OsType osType = HostOsInfo::hostOs()) : m_osType(osType) {}
     explicit Environment(const QStringList &env, OsType osType = HostOsInfo::hostOs());
     static Environment systemEnvironment();
+    static void setupEnglishOutput(Environment *environment);
+    static void setupEnglishOutput(QProcessEnvironment *environment);
+    static void setupEnglishOutput(QStringList *environment);
 
     QStringList toStringList() const;
     QProcessEnvironment toProcessEnvironment() const;

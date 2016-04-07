@@ -105,7 +105,7 @@ Utils::SynchronousProcessResponse CMakeTool::run(const QString &arg) const
     cmake.setTimeoutS(1);
     cmake.setFlags(Utils::SynchronousProcess::UnixTerminalDisabled);
     Utils::Environment env = Utils::Environment::systemEnvironment();
-    env.set(QLatin1String("LC_ALL"), QLatin1String("C"));
+    Utils::Environment::setupEnglishOutput(&env);
     cmake.setProcessEnvironment(env.toProcessEnvironment());
     cmake.setTimeOutMessageBoxEnabled(false);
 

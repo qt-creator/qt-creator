@@ -137,7 +137,7 @@ GdbCoreEngine::readExecutableNameFromCore(const QString &debuggerCommand, const 
 
     QProcess proc;
     QStringList envLang = QProcess::systemEnvironment();
-    envLang.replaceInStrings(QRegExp(QLatin1String("^LC_ALL=.*")), QLatin1String("LC_ALL=C"));
+    Utils::Environment::setupEnglishOutput(&envLang);
     proc.setEnvironment(envLang);
     proc.start(debuggerCommand, args);
 

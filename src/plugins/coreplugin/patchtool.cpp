@@ -27,6 +27,7 @@
 #include "messagemanager.h"
 #include "icore.h"
 #include <utils/synchronousprocess.h>
+#include <utils/environment.h>
 
 #include <QProcess>
 #include <QProcessEnvironment>
@@ -91,7 +92,7 @@ static bool runPatchHelper(const QByteArray &input, const QString &workingDirect
     if (!workingDirectory.isEmpty())
         patchProcess.setWorkingDirectory(workingDirectory);
     QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
-    env.insert(QLatin1String("LC_ALL"), QLatin1String("C"));
+    Utils::Environment::setupEnglishOutput(&env);
     patchProcess.setProcessEnvironment(env);
     QStringList args;
     // Add argument 'apply' when git is used as patch command since git 2.5/Windows

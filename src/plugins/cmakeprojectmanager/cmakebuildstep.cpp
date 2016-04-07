@@ -203,9 +203,7 @@ bool CMakeBuildStep::init(QList<const BuildStep *> &earlierSteps)
     ProcessParameters *pp = processParameters();
     pp->setMacroExpander(bc->macroExpander());
     Utils::Environment env = bc->environment();
-    // Force output to english for the parsers. Do this here and not in the toolchain's
-    // addToEnvironment() to not screw up the users run environment.
-    env.set(QLatin1String("LC_ALL"), QLatin1String("C"));
+    Utils::Environment::setupEnglishOutput(&env);
     if (!env.value(QLatin1String("NINJA_STATUS")).startsWith(m_ninjaProgressString))
         env.set(QLatin1String("NINJA_STATUS"), m_ninjaProgressString + QLatin1String("%o/sec] "));
     pp->setEnvironment(env);
