@@ -877,27 +877,5 @@ QString DebuggerEncoding::toString() const
     return QString::fromLatin1("%1:%2:%3").arg(type).arg(size).arg(quotes);
 }
 
-DebuggerDisplay::DebuggerDisplay(const QByteArray &data)
-{
-    const QByteArrayList l = data.split(':');
-
-    const QByteArray &t = l.at(0);
-    if (t == "latin1") {
-        type = DisplayLatin1String;
-    } else if (t == "utf8") {
-        type = DisplayUtf8String;
-    } else if (t == "utf16") {
-        type = DisplayUtf16String;
-    } else if (t == "imagedata") {
-        type = DisplayImageData;
-    } else if (t == "imagefile") {
-        type = DisplayImageFile;
-    } else if (t == "plot") {
-        type = DisplayPlotData;
-    }
-    if (l.size() > 1 && l.at(1) == "separate")
-        separate = true;
-}
-
 } // namespace Internal
 } // namespace Debugger

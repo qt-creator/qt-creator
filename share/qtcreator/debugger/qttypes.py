@@ -61,14 +61,12 @@ def qdump__QByteArray(d, value):
         d.putValue(p, "latin1", elided=elided)
     elif displayFormat == SeparateLatin1StringFormat:
         d.putValue(p, "latin1", elided=elided)
-        d.putField("editformat", DisplayLatin1String)
-        d.putField("editvalue", d.encodeByteArray(value, limit=100000))
+        d.putDisplay("latin1:separate", d.encodeByteArray(value, limit=100000))
     elif displayFormat == Utf8StringFormat:
         d.putValue(p, "utf8", elided=elided)
     elif displayFormat == SeparateUtf8StringFormat:
         d.putValue(p, "utf8", elided=elided)
-        d.putField("editformat", DisplayUtf8String)
-        d.putField("editvalue", d.encodeByteArray(value, limit=100000))
+        d.putDisplay("utf8:separate", d.encodeByteArray(value, limit=100000))
     if d.isExpanded():
         d.putArrayData(data, size, d.charType())
 
@@ -897,13 +895,12 @@ def qdump__QImage(d, value):
         #   filename = file[1].replace("\\", "\\\\")
         #   gdb.execute("dump binary memory %s %s %s" %
         #       (filename, bits, bits + nbytes))
-        #   d.putDisplay(DisplayImageFile, " %d %d %d %d %s"
+        #   d.putDisplay('imagefile:separate', " %d %d %d %d %s"
         #       % (width, height, nbytes, iformat, filename))
-        d.putField("editformat", DisplayImageData)
-        d.put('editvalue="')
-        d.put('%08x%08x%08x%08x' % (width, height, nbytes, iformat))
-        d.put(d.readMemory(bits, nbytes))
-        d.put('",')
+        d.putDisplay('imagedata:separate',
+                     '%08x%08x%08x%08x' % (width, height, nbytes, iformat)
+                        + d.readMemory(bits, nbytes))
+
 
 
 def qdump__QLinkedList(d, value):
@@ -1788,8 +1785,7 @@ def qdump__QString(d, value):
     d.putNumChild(size)
     displayFormat = d.currentItemFormat()
     if displayFormat == SeparateFormat:
-        d.putField("editformat", DisplayUtf16String)
-        d.putField("editvalue", d.encodeString(value, limit=100000))
+        d.putDisplay("utf16:separate", d.encodeString(value, limit=100000))
     if d.isExpanded():
         d.putArrayData(data, size, d.lookupType(d.qtNamespace() + "QChar"))
 
@@ -1940,8 +1936,7 @@ def qdump__QUrl(d, value):
 
         displayFormat = d.currentItemFormat()
         if displayFormat == SeparateFormat:
-            d.putField("editformat", DisplayUtf16String)
-            d.putField("editvalue", url)
+            d.putDisplay("utf16:separate", url)
 
         d.putNumChild(8)
         if d.isExpanded():

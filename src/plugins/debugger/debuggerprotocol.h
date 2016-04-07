@@ -236,30 +236,17 @@ enum DisplayFormat
 };
 
 
-// These enum values are passed from the dumper to the frontend,
+// These values are passed from the dumper to the frontend,
 // typically as a result of passing a related DisplayFormat value.
 // They are never stored in settings.
 
-// Keep in sync with dumper.py, symbolgroupvalue.cpp of CDB
-class DebuggerDisplay
-{
-public:
-    enum DisplayType {
-        StopDisplay             = 0,
-        DisplayImageData        = 1,
-        DisplayUtf16String      = 2,
-        DisplayImageFile        = 3,
-        DisplayLatin1String     = 4,
-        DisplayUtf8String       = 5,
-        DisplayPlotData         = 6
-    };
-
-    DebuggerDisplay() {}
-    DebuggerDisplay(const QByteArray &data);
-
-    DisplayType type = StopDisplay;
-    bool separate = false;
-};
+const char DisplayLatin1String[] = "latin1:separate";
+const char DisplayUtf8String[]   = "utf8:separate";
+const char DisplayUtf16String[]  = "utf16:separate";
+const char DisplayUcs4String[]   = "ucs4:separate";
+const char DisplayImageData[]    = "imagedata:separate";
+const char DisplayImageFile[]    = "imagefile:separate";
+const char DisplayPlotData[]     = "plotdata:separate";
 
 } // namespace Internal
 } // namespace Debugger

@@ -97,6 +97,7 @@ public:
     static const QString &shadowedNameFormat();
 
     QByteArray hexAddress()  const;
+    QByteArray key() const { return address ? hexAddress() : iname; }
 
 public:
     qint64          id;            // Token for the engine for internal mapping
@@ -106,7 +107,7 @@ public:
     QString         name;          // Displayed name
     QString         value;         // Displayed value
     QByteArray      editvalue;     // Displayed value
-    DebuggerDisplay editformat;    // Format of displayed value
+    QByteArray      editformat;    // Format of displayed value
     DebuggerEncoding editencoding; // Encoding of displayed value
     QByteArray      type;          // Type for further processing
     quint64         address;       // Displayed address of the actual object

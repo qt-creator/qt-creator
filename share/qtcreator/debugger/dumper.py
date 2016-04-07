@@ -95,16 +95,6 @@ BreakpointOnQmlSignalEmit, \
 BreakpointAtJavaScriptThrow, \
     = range(0, 14)
 
-# Display modes. Keep that synchronized with DebuggerDisplay in debuggerprotocol.h
-StopDisplay, \
-DisplayImageData, \
-DisplayUtf16String, \
-DisplayImageFile, \
-DisplayLatin1String, \
-DisplayUtf8String, \
-DisplayPlotData \
-    = range(7)
-
 
 def arrayForms():
     return [ArrayPlotFormat]
@@ -538,23 +528,20 @@ class DumperBase:
             else:
                 encodingType = "utf8"
             childType = "char"
-            displayType = DisplayLatin1String
         elif charSize == 2:
             encodingType = "utf16"
             childType = "short"
-            displayType = DisplayUtf16String
         else:
             encodingType = "ucs4"
             childType = "int"
-            displayType = DisplayUtf16String
 
         self.putValue(mem, encodingType, elided=elided)
 
         if displayFormat == SeparateLatin1StringFormat \
-                or displayFormat == SeparateUtf8StringFormat:
-            self.putField("editformat", displayType)
+                or displayFormat == SeparateUtf8StringFormat \
+                or displayFormat == SeparateFormat:
             elided, shown = self.computeLimit(bytelen, 100000)
-            self.putField("editvalue", self.readMemory(data, shown))
+            self.putDisplay(encodingType + ':separate', self.readMemory(data, shown))
 
         if makeExpandable:
             self.putNumChild(size)
@@ -1079,7 +1066,7 @@ class DumperBase:
             self.putType(typeName)
             (elided, data) = self.encodeCArray(value, 1, limit)
             self.putValue(data, "latin1", elided=elided)
-            self.putDisplay(DisplayLatin1String, data)
+            self.putDisplay("latin1:separate", data)
             return True
 
         if displayFormat == Utf8StringFormat:
@@ -1092,7 +1079,7 @@ class DumperBase:
             self.putType(typeName)
             (elided, data) = self.encodeCArray(value, 1, limit)
             self.putValue(data, "utf8", elided=elided)
-            self.putDisplay(DisplayUtf8String, data)
+            self.putDisplay("utf8:separate", data)
             return True
 
         if displayFormat == Local8BitStringFormat:
@@ -1587,8 +1574,8 @@ class DumperBase:
             enc = self.simpleEncoding(innerType)
             if enc:
                 self.putField("editencoding", enc)
-                self.putField("editvalue", self.readMemory(base, n * innerType.sizeof))
-                self.putField("editformat", DisplayPlotData)
+                self.putDisplay("plotdata:separate",
+                                self.readMemory(base, n * innerType.sizeof))
 
     def putPlotData(self, base, n, innerType):
         self.putPlotDataHelper(base, n, innerType)

@@ -301,8 +301,9 @@ public:
         return 0;
     }
 
-    template <class T> T *prepareObject(const QByteArray &key, const QString &tabName)
+    template <class T> T *prepareObject(const WatchItem *item)
     {
+        const QByteArray key = item->key();
         T *t = 0;
         if (QWidget *w = findWidget(key)) {
             t = qobject_cast<T *>(w);
@@ -312,8 +313,9 @@ public:
         if (!t) {
             t = new T;
             t->setProperty(KeyProperty, key);
-            addTab(t, tabName);
+            addTab(t, item->name);
         }
+        setProperty(INameProperty, item->iname);
 
         setCurrentWidget(t);
         show();
@@ -1496,17 +1498,16 @@ static void swapEndian(char *d, int nchar)
 
 void WatchModel::showEditValue(const WatchItem *item)
 {
-    const QByteArray key = item->address ? item->hexAddress() : item->iname;
-    switch (item->editformat.type) {
-    case DebuggerDisplay::StopDisplay:
-        m_separatedView->removeObject(key);
-        break;
-    case DebuggerDisplay::DisplayImageData:
-    case DebuggerDisplay::DisplayImageFile: {  // QImage
-        int width = 0, height = 0, nbytes = 0, format = 0;
+    const QByteArray &format = item->editformat;
+    if (format.isEmpty()) {
+        // Nothing
+        m_separatedView->removeObject(item->key());
+    } else if (format == DisplayImageData || format == DisplayImageFile) {
+        // QImage
+        int width = 0, height = 0, nbytes = 0, imformat = 0;
         QByteArray ba;
         uchar *bits = 0;
-        if (item->editformat.type == DebuggerDisplay::DisplayImageData) {
+        if (format == DisplayImageData) {
             ba = QByteArray::fromHex(item->editvalue);
             QTC_ASSERT(ba.size() > 16, return);
             const int *header = (int *)(ba.data());
@@ -1516,11 +1517,11 @@ void WatchModel::showEditValue(const WatchItem *item)
             width = header[0];
             height = header[1];
             nbytes = header[2];
-            format = header[3];
-        } else if (item->editformat.type == DebuggerDisplay::DisplayImageFile) {
+            imformat = header[3];
+        } else if (format == DisplayImageFile) {
             QTextStream ts(item->editvalue);
             QString fileName;
-            ts >> width >> height >> nbytes >> format >> fileName;
+            ts >> width >> height >> nbytes >> imformat >> fileName;
             QFile f(fileName);
             f.open(QIODevice::ReadOnly);
             ba = f.readAll();
@@ -1530,11 +1531,10 @@ void WatchModel::showEditValue(const WatchItem *item)
         QTC_ASSERT(0 < width && width < 10000, return);
         QTC_ASSERT(0 < height && height < 10000, return);
         QTC_ASSERT(0 < nbytes && nbytes < 10000 * 10000, return);
-        QTC_ASSERT(0 < format && format < 32, return);
-        QImage im(width, height, QImage::Format(format));
+        QTC_ASSERT(0 < imformat && imformat < 32, return);
+        QImage im(width, height, QImage::Format(imformat));
         std::memcpy(im.bits(), bits, nbytes);
-        ImageViewer *v = m_separatedView->prepareObject<ImageViewer>(key, item->name);
-        v->setProperty(INameProperty, item->iname);
+        ImageViewer *v = m_separatedView->prepareObject<ImageViewer>(item);
         v->setInfo(item->address ?
             tr("%1 Object at %2").arg(QLatin1String(item->type),
                 QLatin1String(item->hexAddress())) :
@@ -1544,35 +1544,29 @@ void WatchModel::showEditValue(const WatchItem *item)
                 .arg(width).arg(height).arg(nbytes).arg(im.format()).arg(im.depth())
         );
         v->setImage(im);
-        break;
-    }
-    case DebuggerDisplay::DisplayUtf16String:
-    case DebuggerDisplay::DisplayLatin1String:
-    case DebuggerDisplay::DisplayUtf8String: { // String data.
+    } else if (format == DisplayLatin1String
+            || format == DisplayUtf8String
+            || format == DisplayUtf16String
+            || format == DisplayUcs4String) {
+         // String data.
         QByteArray ba = QByteArray::fromHex(item->editvalue);
         QString str;
-        if (item->editformat.type == DebuggerDisplay::DisplayUtf16String)
-            str = QString::fromUtf16((ushort *)ba.constData(), ba.size()/2);
-        else if (item->editformat.type == DebuggerDisplay::DisplayLatin1String)
+        if (format == DisplayLatin1String)
             str = QString::fromLatin1(ba.constData(), ba.size());
-        else if (item->editformat.type == DebuggerDisplay::DisplayUtf8String)
+        else if (format == DisplayUtf8String)
             str = QString::fromUtf8(ba.constData(), ba.size());
-        QTextEdit *t = m_separatedView->prepareObject<QTextEdit>(key, item->name);
-        t->setProperty(INameProperty, item->iname);
-        t->setText(str);
-        break;
-    }
-    case DebuggerDisplay::DisplayPlotData: { // Plots
+        else if (format == DisplayUtf16String)
+            str = QString::fromUtf16((ushort *)ba.constData(), ba.size() / 2);
+        else if (format == DisplayUtf16String)
+            str = QString::fromUcs4((uint *)ba.constData(), ba.size() / 4);
+        m_separatedView->prepareObject<QTextEdit>(item)->setText(str);
+    } else if (format == DisplayPlotData) {
+        // Plots
         std::vector<double> data;
         readNumericVector(&data, QByteArray::fromHex(item->editvalue), item->editencoding);
-        PlotViewer *v = m_separatedView->prepareObject<PlotViewer>(key, item->name);
-        v->setProperty(INameProperty, item->iname);
-        v->setData(data);
-        break;
-    }
-    default:
-        QTC_ASSERT(false, qDebug() << "Display format: " << item->editformat.type);
-        break;
+        m_separatedView->prepareObject<PlotViewer>(item)->setData(data);
+    } else {
+        QTC_ASSERT(false, qDebug() << "Display format: " << format);
     }
 }
 

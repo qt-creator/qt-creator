@@ -110,7 +110,6 @@ bool isIntOrFloatType(const QByteArray &type)
 WatchItem::WatchItem() :
     id(WatchItem::InvalidId),
     state(InitialState),
-    editformat(),
     address(0),
     origaddr(0),
     size(0),
@@ -401,7 +400,7 @@ void WatchItem::parseHelper(const GdbMi &input, bool maySort)
         setType(mi.data());
 
     editvalue = input["editvalue"].data();
-    editformat = DebuggerDisplay(input["editformat"].data());
+    editformat = input["editformat"].data();
     editencoding = DebuggerEncoding(input["editencoding"].data());
 
     mi = input["valueelided"];
