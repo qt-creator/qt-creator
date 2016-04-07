@@ -104,7 +104,7 @@ void ImageViewer::ctor()
                                                                   Core::Icons::SAVEFILE.icon()));
     d->ui_toolbar.toolButtonZoomIn->setIcon(Core::Icons::PLUS.icon());
     d->ui_toolbar.toolButtonZoomOut->setIcon(Core::Icons::MINUS.icon());
-    d->ui_toolbar.toolButtonFitToScreen->setIcon(Core::Icons::ZOOM.icon());
+    d->ui_toolbar.toolButtonFitToScreen->setIcon(Core::Icons::ZOOM_TOOLBAR.icon());
     // icons update - try to use system theme
     updateButtonIconByTheme(d->ui_toolbar.toolButtonZoomIn, QLatin1String("zoom-in"));
     updateButtonIconByTheme(d->ui_toolbar.toolButtonZoomOut, QLatin1String("zoom-out"));

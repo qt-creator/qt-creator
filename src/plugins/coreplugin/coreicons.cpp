@@ -135,6 +135,8 @@ const Icon INFO_TOOLBAR({
 const Icon EXPAND({
         {QLatin1String(":/find/images/expand.png"), Theme::IconsBaseColor}});
 const Icon ZOOM({
+        {QLatin1String(":/core/images/zoom.png"), Theme::PanelTextColorMid}}, Icon::Tint);
+const Icon ZOOM_TOOLBAR({
         {QLatin1String(":/core/images/zoom.png"), Theme::IconsBaseColor}});
 const Icon TOOLBAR_EXTENSION({
         {QLatin1String(":/core/images/extension.png"), Theme::IconsBaseColor}});

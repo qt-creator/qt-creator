@@ -85,6 +85,7 @@ CORE_EXPORT extern const Utils::Icon INFO;
 CORE_EXPORT extern const Utils::Icon INFO_TOOLBAR;
 CORE_EXPORT extern const Utils::Icon EXPAND;
 CORE_EXPORT extern const Utils::Icon ZOOM;
+CORE_EXPORT extern const Utils::Icon ZOOM_TOOLBAR;
 CORE_EXPORT extern const Utils::Icon TOOLBAR_EXTENSION;
 
 CORE_EXPORT extern const Utils::Icon MODE_EDIT_CLASSIC;

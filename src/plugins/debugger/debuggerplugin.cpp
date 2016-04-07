@@ -1689,7 +1689,7 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
 
     auto qmlZoomDummyAction = new QAction(tr("Zoom"), this);
     qmlZoomDummyAction->setCheckable(true);
-    qmlZoomDummyAction->setIcon(Core::Icons::ZOOM.icon());
+    qmlZoomDummyAction->setIcon(Core::Icons::ZOOM_TOOLBAR.icon());
     qmlZoomDummyAction->setEnabled(false);
     cmd = ActionManager::registerAction(qmlZoomDummyAction, Constants::QML_ZOOMTOOL);
     debugMenu->addAction(cmd);

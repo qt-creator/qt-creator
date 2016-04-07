@@ -213,7 +213,7 @@ QmlProfilerTool::QmlProfilerTool(QObject *parent)
     });
 
     d->m_searchButton = new QToolButton;
-    d->m_searchButton->setIcon(Icons::ZOOM.icon());
+    d->m_searchButton->setIcon(Icons::ZOOM_TOOLBAR.icon());
     d->m_searchButton->setToolTip(tr("Search timeline event notes."));
 
     connect(d->m_searchButton, &QToolButton::clicked, this, &QmlProfilerTool::showTimeLineSearch);
