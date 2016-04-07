@@ -3141,6 +3141,68 @@
          style="fill:none;stroke:#000000;stroke-width:1.42;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1.0;stroke-dasharray:none" />
     </g>
     <g
+       style="display:inline"
+       id="src/plugins/projectexplorer/images/rebuildhammerhandles"
+       transform="translate(-1266.5,289)">
+      <rect
+         y="263"
+         x="1339.5"
+         height="16"
+         width="16"
+         id="rect6249-7"
+         style="opacity:1;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:3;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+      <path
+         sodipodi:nodetypes="ccccc"
+         inkscape:connector-curvature="0"
+         id="smallhammerhandle"
+         d="m 1343,269 9,9 1.5,-1.5 -9,-9 z" />
+      <use
+         height="100%"
+         width="100%"
+         transform="matrix(-1,0,0,1,2695,0)"
+         id="use6253-7"
+         xlink:href="#smallhammerhandle"
+         y="0"
+         x="0" />
+      <path
+         style="fill:none;fill-rule:evenodd;stroke:#ffffff;stroke-width:0.5;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         d="m 1347.675,273.675 1.5,-1.5"
+         id="path6284"
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="cc" />
+      <path
+         style="display:inline;fill:none;fill-rule:evenodd;stroke:#ffffff;stroke-width:0.50006026;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         d="m 1345.8268,271.82353 1.5,-1.50041"
+         id="path6284-5"
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="cc" />
+    </g>
+    <g
+       style="display:inline"
+       id="src/plugins/projectexplorer/images/rebuildhammerheads"
+       transform="translate(-1250.5,289)">
+      <rect
+         y="263"
+         x="1339.5"
+         height="16"
+         width="16"
+         id="rect6249"
+         style="opacity:1;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:3;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+      <path
+         sodipodi:nodetypes="ccccc"
+         inkscape:connector-curvature="0"
+         id="smallhammerhead"
+         d="m 1339.5,268.5 2,2.5 6,-6 -4.5,0 z" />
+      <use
+         height="100%"
+         width="100%"
+         transform="matrix(-1,0,0,1,2695,0)"
+         id="use6253"
+         xlink:href="#smallhammerhead"
+         y="0"
+         x="0" />
+    </g>
+    <g
        transform="translate(-34,374)"
        id="src/plugins/welcome/images/new">
       <rect

@@ -847,9 +847,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     msessionContextMenu->addAction(cmd, Constants::G_SESSION_BUILD);
 
     // rebuild session action
-    QIcon rebuildIcon = Icons::REBUILD.icon();
-    rebuildIcon.addPixmap(Icons::REBUILD_SMALL.pixmap());
-    dd->m_rebuildSessionAction = new QAction(rebuildIcon, tr("Rebuild All"), this);
+    dd->m_rebuildSessionAction = new QAction(Icons::REBUILD.icon(), tr("Rebuild All"), this);
     cmd = ActionManager::registerAction(dd->m_rebuildSessionAction, Constants::REBUILDSESSION);
     mbuild->addAction(cmd, Constants::G_BUILD_REBUILD);
     msessionContextMenu->addAction(cmd, Constants::G_SESSION_REBUILD);

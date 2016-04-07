@@ -14,8 +14,10 @@
         <file>images/mode_project_mask.png</file>
         <file>images/mode_project_mask@2x.png</file>
         <file>images/projectexplorer.png</file>
-        <file>images/rebuild.png</file>
-        <file>images/rebuild_small.png</file>
+        <file>images/rebuildhammerhandles.png</file>
+        <file>images/rebuildhammerhandles@2x.png</file>
+        <file>images/rebuildhammerheads.png</file>
+        <file>images/rebuildhammerheads@2x.png</file>
         <file>images/run.png</file>
         <file>images/run@2x.png</file>
         <file>images/run_mask.png</file>
