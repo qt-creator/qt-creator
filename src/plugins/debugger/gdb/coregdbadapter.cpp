@@ -204,6 +204,7 @@ void GdbCoreEngine::writeCoreChunk()
 void GdbCoreEngine::setupInferior()
 {
     CHECK_STATE(InferiorSetupRequested);
+    setLinuxOsAbi();
     // Do that first, otherwise no symbols are loaded.
     QFileInfo fi(m_executable);
     QByteArray path = fi.absoluteFilePath().toLocal8Bit();

@@ -1917,6 +1917,13 @@ void GdbEngine::handleGdbExit(const DebuggerResponse &response)
     }
 }
 
+void GdbEngine::setLinuxOsAbi()
+{
+    // In case GDB has multiple supported targets, the default osabi can be Cygwin.
+    if (HostOsInfo::isWindowsHost() && runParameters().toolChainAbi.binaryFormat() == Abi::ElfFormat)
+        runCommand({"set osabi GNU/Linux"});
+}
+
 void GdbEngine::detachDebugger()
 {
     CHECK_STATE(InferiorStopOk);
