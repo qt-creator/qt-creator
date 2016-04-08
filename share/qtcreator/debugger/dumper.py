@@ -1045,10 +1045,10 @@ class DumperBase:
     def tryPutSimpleFormattedPointer(self, value, typeName, innerTypeName, displayFormat, limit):
         if displayFormat == AutomaticFormat:
             if innerTypeName == "char":
-                # Use Latin1 as default for char *.
+                # Use UTF-8 as default for char *.
                 self.putType(typeName)
                 (elided, data) = self.encodeCArray(value, 1, limit)
-                self.putValue(data, "latin1", elided=elided)
+                self.putValue(data, "utf8", elided=elided)
                 return True
 
             if innerTypeName == "wchar_t":
