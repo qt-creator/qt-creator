@@ -48,6 +48,7 @@ class AutoTestTreeItem;
 class QuickTestTreeItem;
 class GoogleTestTreeItem;
 struct TestParseResult;
+class TestConfiguration;
 
 class TestTreeItem : public Utils::TreeItem
 {
@@ -84,8 +85,8 @@ public:
     unsigned column() const { return m_column; }
     QString proFile() const { return m_proFile; }
     void setProFile(const QString &proFile) { m_proFile = proFile; }
-    void setChecked(const Qt::CheckState checked);
-    Qt::CheckState checked() const;
+    virtual void setChecked(const Qt::CheckState checked);
+    virtual Qt::CheckState checked() const;
     Type type() const { return m_type; }
     void markForRemoval(bool mark);
     void markForRemovalRecursively(bool mark);
@@ -98,12 +99,10 @@ public:
     TestTreeItem *findChildByFile(const QString &filePath);
     TestTreeItem *findChildByNameAndFile(const QString &name, const QString &filePath);
 
-    virtual AutoTestTreeItem *asAutoTestTreeItem() { return 0; }
-    virtual QuickTestTreeItem *asQuickTestTreeItem() { return 0; }
-    virtual GoogleTestTreeItem *asGoogleTestTreeItem() { return 0; }
-    virtual const AutoTestTreeItem *asAutoTestTreeItem() const { return 0; }
-    virtual const QuickTestTreeItem *asQuickTestTreeItem() const { return 0; }
-    virtual const GoogleTestTreeItem *asGoogleTestTreeItem() const { return 0; }
+    virtual bool canProvideTestConfiguration() const { return false; }
+    virtual TestConfiguration *testConfiguration() const { return 0; }
+    virtual QList<TestConfiguration *> getAllTestConfigurations() const;
+    virtual QList<TestConfiguration *> getSelectedTestConfigurations() const;
 
 protected:
     bool modifyFilePath(const QString &filePath);
@@ -139,15 +138,18 @@ public:
     AutoTestTreeItem(const QString &name = QString(), const QString &filePath = QString(),
                      Type type = Root) : TestTreeItem(name, filePath, type) {}
 
-    virtual AutoTestTreeItem *asAutoTestTreeItem() override { return this; }
-    virtual const AutoTestTreeItem *asAutoTestTreeItem() const override { return this; }
-
     static AutoTestTreeItem *createTestItem(const TestParseResult &result);
     static AutoTestTreeItem *createFunctionItem(const QString &functionName,
                                                 const TestCodeLocationAndType &location,
                                                 const TestCodeLocationList &dataTags);
     static AutoTestTreeItem *createDataTagItem(const QString &fileName,
                                                const TestCodeLocationAndType &location);
+
+    QVariant data(int column, int role) const override;
+    bool canProvideTestConfiguration() const override;
+    TestConfiguration *testConfiguration() const override;
+    QList<TestConfiguration *> getAllTestConfigurations() const override;
+    QList<TestConfiguration *> getSelectedTestConfigurations() const override;
 };
 
 class QuickTestTreeItem : public TestTreeItem
@@ -156,15 +158,21 @@ public:
     QuickTestTreeItem(const QString &name = QString(), const QString &filePath = QString(),
                       Type type = Root) : TestTreeItem(name, filePath, type) {}
 
-    virtual QuickTestTreeItem *asQuickTestTreeItem() override { return this; }
-    virtual const QuickTestTreeItem *asQuickTestTreeItem() const override { return this; }
-
     static QuickTestTreeItem *createTestItem(const TestParseResult &result);
     static QuickTestTreeItem *createFunctionItem(const QString &functionName,
                                                  const TestCodeLocationAndType &location);
     static QuickTestTreeItem *createUnnamedQuickTestItem(const TestParseResult &result);
     static QuickTestTreeItem *createUnnamedQuickFunctionItem(const QString &functionName,
                                                              const TestParseResult &result);
+
+    QVariant data(int column, int role) const override;
+    bool canProvideTestConfiguration() const override;
+    TestConfiguration *testConfiguration() const override;
+    QList<TestConfiguration *> getAllTestConfigurations() const override;
+    QList<TestConfiguration *> getSelectedTestConfigurations() const override;
+
+private:
+    TestTreeItem *unnamedQuickTests() const;
 };
 
 class GoogleTestTreeItem : public TestTreeItem
@@ -184,14 +192,15 @@ public:
     GoogleTestTreeItem(const QString &name = QString(), const QString &filePath = QString(),
                        Type type = Root) : TestTreeItem(name, filePath, type), m_state(Enabled) {}
 
-    virtual GoogleTestTreeItem *asGoogleTestTreeItem() override { return this; }
-    virtual const GoogleTestTreeItem *asGoogleTestTreeItem() const override { return this; }
-
     static GoogleTestTreeItem *createTestItem(const TestParseResult &result);
     static GoogleTestTreeItem *createTestSetItem(const TestParseResult &result,
                                                  const TestCodeLocationAndType &location);
 
     QVariant data(int column, int role) const override;
+    bool canProvideTestConfiguration() const override { return type() != Root; }
+    TestConfiguration *testConfiguration() const override;
+    QList<TestConfiguration *> getAllTestConfigurations() const override;
+    QList<TestConfiguration *> getSelectedTestConfigurations() const override;
 
     void setStates(TestStates states) { m_state = states; }
     void setState(TestState state) { m_state |= state; }

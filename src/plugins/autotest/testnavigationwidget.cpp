@@ -107,12 +107,9 @@ void TestNavigationWidget::contextMenuEvent(QContextMenuEvent *event)
         const QModelIndex index = list.first();
         QRect rect(m_view->visualRect(index));
         if (rect.contains(event->pos())) {
-            // do not provide this menu entry for unnamed Quick Tests as it makes no sense
-            int type = index.data(TypeRole).toInt();
-            const QString &unnamed = tr(Constants::UNNAMED_QUICKTESTS);
-            if ((type == TestTreeItem::TestFunctionOrSet && index.parent().data().toString() != unnamed)
-                    || (type == TestTreeItem::TestCase && index.data().toString() != unnamed)
-                    || (type == TestTreeItem::TestDataTag)) {
+            TestTreeItem *item = static_cast<TestTreeItem *>(
+                        m_model->itemForIndex(m_sortFilterModel->mapToSource(index)));
+            if (item->canProvideTestConfiguration()) {
                 runThisTest = new QAction(tr("Run This Test"), &menu);
                 runThisTest->setEnabled(enabled);
                 connect(runThisTest, &QAction::triggered,
@@ -256,13 +253,10 @@ void TestNavigationWidget::onRunThisTestTriggered()
         return;
 
     TestTreeItem *item = static_cast<TestTreeItem *>(sourceIndex.internalPointer());
-    if (item->type() == TestTreeItem::TestCase || item->type() == TestTreeItem::TestFunctionOrSet
-            || item->type() == TestTreeItem::TestDataTag) {
-        if (TestConfiguration *configuration = m_model->getTestConfiguration(item)) {
-            TestRunner *runner = TestRunner::instance();
-            runner->setSelectedTests( {configuration} );
-            runner->prepareToRunTests();
-        }
+    if (TestConfiguration *configuration = m_model->getTestConfiguration(item)) {
+        TestRunner *runner = TestRunner::instance();
+        runner->setSelectedTests( {configuration} );
+        runner->prepareToRunTests();
     }
 }
 

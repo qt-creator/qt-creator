@@ -25,6 +25,9 @@
 
 #pragma once
 
+#include <cpptools/cppmodelmanager.h>
+#include <cpptools/projectpart.h>
+
 #include <QStringList>
 
 namespace Autotest {
@@ -62,6 +65,20 @@ public:
     {
         static const QByteArrayList valid = {"QUICK_TEST_MAIN", "QUICK_TEST_OPENGL_MAIN"};
         return valid.contains(macro);
+    }
+
+    static QString getCMakeDisplayNameIfNecessary(const QString &filePath, const QString &proFile)
+    {
+        static const QString CMAKE_LISTS = QLatin1String("CMakeLists.txt");
+        if (!proFile.endsWith(CMAKE_LISTS))
+            return QString();
+
+        const QList<CppTools::ProjectPart::Ptr> &projectParts
+                = CppTools::CppModelManager::instance()->projectPart(filePath);
+        if (projectParts.size())
+            return projectParts.first()->displayName;
+
+        return QString();
     }
 };
 
