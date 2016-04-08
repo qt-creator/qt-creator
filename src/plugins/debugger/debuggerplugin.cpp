@@ -2422,8 +2422,6 @@ void DebuggerPluginPrivate::cleanupViews()
             bool keepIt = true;
             if (document->isModified())
                 keepIt = true;
-            else if (document->filePath().toString().contains(_("qeventdispatcher")))
-                keepIt = false;
             else if (isMemory)
                 keepIt = !closeMemory;
             else
