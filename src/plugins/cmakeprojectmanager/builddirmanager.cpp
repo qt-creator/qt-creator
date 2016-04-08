@@ -61,30 +61,13 @@ namespace CMakeProjectManager {
 namespace Internal {
 
 static QStringList toArguments(const CMakeConfig &config, const ProjectExplorer::Kit *k) {
-    return Utils::transform(config, [k](const CMakeConfigItem &i) -> QString {
-                                 QString a = QString::fromLatin1("-D");
-                                 a.append(QString::fromUtf8(i.key));
-                                 switch (i.type) {
-                                 case CMakeConfigItem::FILEPATH:
-                                     a.append(QLatin1String(":FILEPATH="));
-                                     break;
-                                 case CMakeConfigItem::PATH:
-                                     a.append(QLatin1String(":PATH="));
-                                     break;
-                                 case CMakeConfigItem::BOOL:
-                                     a.append(QLatin1String(":BOOL="));
-                                     break;
-                                 case CMakeConfigItem::STRING:
-                                     a.append(QLatin1String(":STRING="));
-                                     break;
-                                 case CMakeConfigItem::INTERNAL:
-                                     a.append(QLatin1String(":INTERNAL="));
-                                     break;
-                                 }
-                                 a.append(QString::fromUtf8(k->macroExpander()->expand(i.value)));
-
-                                 return a;
-                             });
+    const QStringList argList
+            =  Utils::transform(config, [k](const CMakeConfigItem &i) -> QString {
+                                    const QString tmp = i.toString();
+                                    return tmp.isEmpty() ? QString()
+                                                         : QString::fromLatin1("-D") + k->macroExpander()->expand(tmp);
+                                });
+    return Utils::filtered(argList, [](const QString &s) { return !s.isEmpty(); });
 }
 
 // --------------------------------------------------------------------
