@@ -97,13 +97,14 @@ namespace Internal {
 static ErrorListModel::RelevantFrameFinder makeFrameFinder(const QStringList &projectFiles)
 {
     return [projectFiles](const Error &error) {
+        const Frame defaultFrame = Frame();
         const QVector<Stack> stacks = error.stacks();
         if (stacks.isEmpty())
-            return Frame();
+            return defaultFrame;
         const Stack &stack = stacks[0];
         const QVector<Frame> frames = stack.frames();
         if (frames.isEmpty())
-            return Frame();
+            return defaultFrame;
 
         //find the first frame belonging to the project
         if (!projectFiles.isEmpty()) {
