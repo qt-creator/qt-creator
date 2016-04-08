@@ -308,6 +308,7 @@ QStringList CMakeConfigurationKitInformation::toStringList(const Kit *k)
     QStringList current
             = Utils::transform(CMakeConfigurationKitInformation::configuration(k),
                                [](const CMakeConfigItem &i) { return i.toString(); });
+    current = Utils::filtered(current, [](const QString &s) { return !s.isEmpty(); });
     Utils::sort(current);
     return current;
 }
