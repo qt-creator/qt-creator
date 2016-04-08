@@ -427,6 +427,27 @@ bool ResourceFolderNode::removeFiles(const QStringList &filePaths, QStringList *
     return true;
 }
 
+// QTCREATORBUG-15280
+bool ResourceFolderNode::canRenameFile(const QString &filePath, const QString &newFilePath)
+{
+    Q_UNUSED(newFilePath)
+
+    bool fileEntryExists = false;
+    ResourceFile file(m_topLevelNode->filePath().toString());
+
+    int index = (file.load() != Core::IDocument::OpenResult::Success) ? -1 :file.indexOfPrefix(m_prefix, m_lang);
+    if (index != -1) {
+        for (int j = 0; j < file.fileCount(index); ++j) {
+            if (file.file(index, j) == filePath) {
+                fileEntryExists = true;
+                break;
+            }
+        }
+    }
+
+    return fileEntryExists;
+}
+
 bool ResourceFolderNode::renameFile(const QString &filePath, const QString &newFilePath)
 {
     ResourceFile file(m_topLevelNode->filePath().toString());

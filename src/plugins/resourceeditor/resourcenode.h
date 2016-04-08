@@ -100,6 +100,7 @@ public:
 
     bool addFiles(const QStringList &filePaths, QStringList *notAdded) override;
     bool removeFiles(const QStringList &filePaths, QStringList *notRemoved) override;
+    bool canRenameFile(const QString &filePath, const QString &newFilePath) override;
     bool renameFile(const QString &filePath, const QString &newFilePath) override;
 
     bool renamePrefix(const QString &prefix, const QString &lang);
