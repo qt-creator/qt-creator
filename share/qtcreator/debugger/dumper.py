@@ -1043,12 +1043,23 @@ class DumperBase:
 
     # This is shared by pointer and array formatting.
     def tryPutSimpleFormattedPointer(self, value, typeName, innerTypeName, displayFormat, limit):
-        if displayFormat == AutomaticFormat and innerTypeName == "char":
-            # Use Latin1 as default for char *.
-            self.putType(typeName)
-            (elided, data) = self.encodeCArray(value, 1, limit)
-            self.putValue(data, "latin1", elided=elided)
-            return True
+        if displayFormat == AutomaticFormat:
+            if innerTypeName == "char":
+                # Use Latin1 as default for char *.
+                self.putType(typeName)
+                (elided, data) = self.encodeCArray(value, 1, limit)
+                self.putValue(data, "latin1", elided=elided)
+                return True
+
+            if innerTypeName == "wchar_t":
+                self.putType(typeName)
+                charSize = self.lookupType('wchar_t').sizeof
+                (elided, data) = self.encodeCArray(value, charSize, limit)
+                if charSize == 2:
+                    self.putValue(data, "utf16", elided=elided)
+                else:
+                    self.putValue(data, "ucs4", elided=elided)
+                return True
 
         if displayFormat == Latin1StringFormat:
             self.putType(typeName)
