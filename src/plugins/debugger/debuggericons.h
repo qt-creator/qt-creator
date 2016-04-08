@@ -78,6 +78,12 @@ const Utils::Icon SELECT(
         QLatin1String(":/debugger/images/qml/select.png"));
 const Utils::Icon EMPTY(
         QLatin1String(":/debugger/images/debugger_empty_14.png"));
+const Utils::Icon RECORD_ON({
+        {QLatin1String(":/debugger/images/recordfill.png"), Utils::Theme::IconsStopColor},
+        {QLatin1String(":/debugger/images/recordoutline.png"), Utils::Theme::IconsBaseColor}}, Utils::Icon::Tint | Utils::Icon::DropShadow);
+const Utils::Icon RECORD_OFF({
+        {QLatin1String(":/debugger/images/recordfill.png"), Utils::Theme::IconsDisabledColor},
+        {QLatin1String(":/debugger/images/recordoutline.png"), Utils::Theme::IconsBaseColor}}, Utils::Icon::Tint | Utils::Icon::DropShadow);
 
 const Utils::Icon STEP_OVER({
         {QLatin1String(":/debugger/images/debugger_stepover_small.png"), Utils::Theme::IconsBaseColor}});

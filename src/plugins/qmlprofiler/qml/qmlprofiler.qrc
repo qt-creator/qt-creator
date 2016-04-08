@@ -1,7 +1,5 @@
 <RCC>
     <qresource prefix="/qmlprofiler">
-        <file>recordOff.png</file>
-        <file>recordOn.png</file>
         <file>bindingloops.vert</file>
         <file>bindingloops.frag</file>
     </qresource>
