@@ -120,6 +120,8 @@ CMakeConfigItem CMakeConfigItem::fromString(const QString &s)
             t = CMakeConfigItem::BOOL;
         else if (type == QLatin1String("INTERNAL"))
             t = CMakeConfigItem::INTERNAL;
+        else if (type == QLatin1String("STATIC"))
+            t = CMakeConfigItem::STATIC;
 
         item.key = key.toUtf8();
         item.type = t;
@@ -130,7 +132,7 @@ CMakeConfigItem CMakeConfigItem::fromString(const QString &s)
 
 QString CMakeConfigItem::toString() const
 {
-    if (key.isEmpty())
+    if (key.isEmpty() || type == CMakeProjectManager::CMakeConfigItem::STATIC)
         return QString();
 
     QString typeStr;
