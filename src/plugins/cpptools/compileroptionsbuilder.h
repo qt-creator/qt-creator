@@ -45,6 +45,7 @@ public:
     void addDefine(const QByteArray &defineLine);
 
     // Add options based on project part
+    virtual void addTargetTriple();
     void addHeaderPathOptions();
     void addToolchainAndProjectDefines();
     virtual void addLanguageOption(ProjectFile::Kind fileKind);

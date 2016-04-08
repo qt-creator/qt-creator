@@ -262,6 +262,23 @@ ProjectPartHeaderPath toProjectPartHeaderPath(const ProjectExplorer::HeaderPath 
     return ProjectPartHeaderPath(headerPath.path(), headerPathType);
 }
 
+QString targetTriple(ProjectExplorer::Project *project, const Core::Id &toolchainId)
+{
+    using namespace ProjectExplorer;
+
+    if (toolchainId == ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID)
+        return QLatin1String("i686-pc-windows-msvc");
+
+    if (project) {
+        if (Target *target = project->activeTarget()) {
+            if (ToolChain *toolChain = ToolChainKitInformation::toolChain(target->kit()))
+                return toolChain->originalTargetTriple();
+        }
+    }
+
+    return QString();
+}
+
 }
 
 /*!
@@ -324,6 +341,7 @@ void ProjectPartBuilder::evaluateProjectPartToolchain(
 
     projectPart->toolchainDefines = toolChain->predefinedMacros(commandLineFlags);
     projectPart->toolchainType = toolChain->typeId();
+    projectPart->targetTriple = targetTriple(projectPart->project, toolChain->typeId());
     projectPart->updateLanguageFeatures();
 }
 

@@ -236,6 +236,8 @@ public:
                              const ExtraToolChainInfo &extraParams)
     {
         ClangStaticAnalyzerOptionsBuilder optionsBuilder(projectPart);
+
+        optionsBuilder.addTargetTriple();
         optionsBuilder.addLanguageOption(fileKind);
         optionsBuilder.addOptionsForLanguage(false);
 
@@ -258,7 +260,6 @@ public:
 
         QStringList options = optionsBuilder.options();
         prependWordWidthArgumentIfNotIncluded(&options, extraParams.wordWidth);
-        prependTargetTripleIfNotIncludedAndNotEmpty(&options, extraParams.targetTriple);
         appendMsCompatibility2015OptionForMsvc2015(&options, extraParams.isMsvc2015);
         undefineCppLanguageFeatureMacrosForMsvc2015(&options, extraParams.isMsvc2015);
 
@@ -270,6 +271,15 @@ private:
         : CompilerOptionsBuilder(projectPart)
         , m_isMsvcToolchain(m_projectPart.toolchainType == ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID)
     {
+    }
+
+    void addTargetTriple() override
+    {
+        // For MSVC toolchains we use clang-cl.exe, so there is nothing to do here since
+        //    1) clang-cl.exe does not understand the "-triple" option
+        //    2) clang-cl.exe already hardcodes the right triple value (even if built with mingw)
+        if (m_projectPart.toolchainType != ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID)
+            CompilerOptionsBuilder::addTargetTriple();
     }
 
     void addLanguageOption(ProjectFile::Kind fileKind) override
