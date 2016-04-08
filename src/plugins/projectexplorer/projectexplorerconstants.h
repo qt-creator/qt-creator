@@ -76,6 +76,7 @@ const char SEARCHONFILESYSTEM[]   = "ProjectExplorer.SearchOnFileSystem";
 const char SHOWINGRAPHICALSHELL[] = "ProjectExplorer.ShowInGraphicalShell";
 const char OPENTERMIANLHERE[]     = "ProjectExplorer.OpenTerminalHere";
 const char REMOVEFILE[]           = "ProjectExplorer.RemoveFile";
+const char DUPLICATEFILE[]        = "ProjectExplorer.DuplicateFile";
 const char DELETEFILE[]           = "ProjectExplorer.DeleteFile";
 const char RENAMEFILE[]           = "ProjectExplorer.RenameFile";
 const char SETSTARTUP[]           = "ProjectExplorer.SetStartup";

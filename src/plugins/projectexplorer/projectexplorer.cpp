@@ -254,6 +254,7 @@ public:
     void searchOnFileSystem();
     void showInGraphicalShell();
     void removeFile();
+    void duplicateFile();
     void deleteFile();
     void handleRenameFile();
     void handleSetStartupProject();
@@ -321,6 +322,7 @@ public:
     QAction *m_addExistingDirectoryAction;
     QAction *m_addNewSubprojectAction;
     QAction *m_removeFileAction;
+    QAction *m_duplicateFileAction;
     QAction *m_removeProjectAction;
     QAction *m_deleteFileAction;
     QAction *m_renameFileAction;
@@ -1028,6 +1030,12 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     cmd->setDefaultKeySequence(QKeySequence::Delete);
     mfileContextMenu->addAction(cmd, Constants::G_FILE_OTHER);
 
+    // duplicate file action
+    dd->m_duplicateFileAction = new QAction(tr("Duplicate File..."), this);
+    cmd = ActionManager::registerAction(dd->m_duplicateFileAction, Constants::DUPLICATEFILE,
+                       projecTreeContext);
+    mfileContextMenu->addAction(cmd, Constants::G_FILE_OTHER);
+
     //: Remove project from parent profile (Project explorer view); will not physically delete any files.
     dd->m_removeProjectAction = new QAction(tr("Remove Project..."), this);
     cmd = ActionManager::registerAction(dd->m_removeProjectAction, Constants::REMOVEPROJECT,
@@ -1237,6 +1245,8 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
             dd, &ProjectExplorerPluginPrivate::openTerminalHere);
     connect(dd->m_removeFileAction, &QAction::triggered,
             dd, &ProjectExplorerPluginPrivate::removeFile);
+    connect(dd->m_duplicateFileAction, &QAction::triggered,
+            dd, &ProjectExplorerPluginPrivate::duplicateFile);
     connect(dd->m_deleteFileAction, &QAction::triggered,
             dd, &ProjectExplorerPluginPrivate::deleteFile);
     connect(dd->m_renameFileAction, &QAction::triggered,
@@ -2915,6 +2925,7 @@ void ProjectExplorerPluginPrivate::updateContextMenuActions()
     m_addNewSubprojectAction->setEnabled(false);
     m_removeProjectAction->setEnabled(false);
     m_removeFileAction->setEnabled(false);
+    m_duplicateFileAction->setEnabled(false);
     m_deleteFileAction->setEnabled(false);
     m_renameFileAction->setEnabled(false);
 
@@ -2924,6 +2935,7 @@ void ProjectExplorerPluginPrivate::updateContextMenuActions()
     m_addNewSubprojectAction->setVisible(true);
     m_removeProjectAction->setVisible(true);
     m_removeFileAction->setVisible(true);
+    m_duplicateFileAction->setVisible(false);
     m_deleteFileAction->setVisible(true);
     m_runActionContextMenu->setVisible(false);
 
@@ -2987,6 +2999,9 @@ void ProjectExplorerPluginPrivate::updateContextMenuActions()
 
             m_removeFileAction->setVisible(!enableDelete || enableRemove);
             m_renameFileAction->setEnabled(actions.contains(Rename));
+
+            m_duplicateFileAction->setVisible(actions.contains(DuplicateFile));
+            m_duplicateFileAction->setEnabled(actions.contains(DuplicateFile));
 
             EditorManager::populateOpenWithMenu(m_openWithMenu,
                                                 ProjectTree::currentNode()->filePath().toString());
@@ -3185,6 +3200,37 @@ void ProjectExplorerPluginPrivate::removeFile()
         DocumentManager::expectFileChange(filePath);
         FileUtils::removeFile(filePath, deleteFile);
         DocumentManager::unexpectFileChange(filePath);
+    }
+}
+
+void ProjectExplorerPluginPrivate::duplicateFile()
+{
+    Node *currentNode = ProjectTree::currentNode();
+    QTC_ASSERT(currentNode && currentNode->nodeType() == FileNodeType, return);
+
+    FileNode *fileNode = currentNode->asFileNode();
+    QString filePath = currentNode->filePath().toString();
+    QFileInfo sourceFileInfo(filePath);
+    QString baseName = sourceFileInfo.baseName();
+
+    QString newFilePath = filePath;
+    int copyTokenIndex = filePath.lastIndexOf(baseName)+baseName.length();
+    newFilePath.insert(copyTokenIndex, tr("_copy"));
+
+    // Build a new file name till a non-existing file is not found.
+    uint counter = 0;
+    while (QFileInfo::exists(newFilePath)) {
+        newFilePath = filePath;
+        newFilePath.insert(copyTokenIndex, tr("_copy%1").arg(++counter));
+    }
+
+    // Create a copy and add the file to the parent folder node.
+    FolderNode *folderNode = fileNode->parentFolderNode();
+    Q_ASSERT(folderNode);
+    if (!(QFile::copy(filePath, newFilePath) && folderNode->addFiles(QStringList(newFilePath)))) {
+        QMessageBox::warning(ICore::mainWindow(), tr("Duplicating File Failed"),
+                             tr("Could not duplicate the file %1.")
+                             .arg(QDir::toNativeSeparators(filePath)));
     }
 }
 

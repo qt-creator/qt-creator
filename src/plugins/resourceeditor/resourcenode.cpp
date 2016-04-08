@@ -385,6 +385,7 @@ QList<ProjectExplorer::ProjectAction> ResourceFolderNode::supportedActions(Proje
             << ProjectExplorer::AddExistingFile
             << ProjectExplorer::AddExistingDirectory
             << ProjectExplorer::RemoveFile
+            << ProjectExplorer::DuplicateFile
             << ProjectExplorer::Rename // Note: only works for the filename, works akwardly for relative file paths
             << ProjectExplorer::HidePathActions; // hides open terminal etc.
 
@@ -643,6 +644,7 @@ QList<ProjectExplorer::ProjectAction> SimpleResourceFolderNode::supportedActions
             << ProjectExplorer::AddExistingFile
             << ProjectExplorer::AddExistingDirectory
             << ProjectExplorer::RemoveFile
+            << ProjectExplorer::DuplicateFile
             << ProjectExplorer::Rename // Note: only works for the filename, works akwardly for relative file paths
             << ProjectExplorer::InheritedFromParent; // do not add to list of projects when adding new file
 

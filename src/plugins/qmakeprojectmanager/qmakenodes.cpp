@@ -950,8 +950,10 @@ QList<ProjectAction> QmakePriFileNode::supportedActions(Node *node) const
 
     FileNode *fileNode = node->asFileNode();
     if ((fileNode && fileNode->fileType() != ProjectFileType)
-            || dynamic_cast<ResourceEditor::ResourceTopLevelNode *>(node))
+            || dynamic_cast<ResourceEditor::ResourceTopLevelNode *>(node)) {
         actions << Rename;
+        actions << DuplicateFile;
+    }
 
 
     Target *target = m_project->activeTarget();

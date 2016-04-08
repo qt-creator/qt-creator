@@ -83,6 +83,7 @@ enum ProjectAction {
     // DeleteFile is a define on windows...
     EraseFile,
     Rename,
+    DuplicateFile,
     // hides actions that use the path(): Open containing folder, open terminal here and Find in Directory
     HidePathActions,
     HideFileActions,
