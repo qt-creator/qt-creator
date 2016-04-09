@@ -60,13 +60,10 @@ class Access
     const int Name = offset(Tag())
 
 #define OFFSET_ACCESS(Type, Class, Member) \
-    OFFSET_ACCESS0(Class ## _## Member, tag_ ## Class ## _ ## Member, Type, Class, Member)
-
-#define STRINGIFY_INTERNAL(x) #x
-#define STRINGIFY(x) STRINGIFY_INTERNAL(x)
+    OFFSET_ACCESS0(Class ## _ ## Member, tag_ ## Class ## _ ## Member, Type, Class, Member)
 
 #define OFFSET_TEST(Class, Member) \
-        QTest::newRow(STRINGIFY(Class) STRINGIFY(Member)) << Class ## _ ## Member
+        QTest::newRow(#Class "::" #Member) << Class ## _ ## Member
 
 
 OFFSET_ACCESS(QString, QFilePrivate, fileName);
@@ -81,7 +78,7 @@ OFFSET_ACCESS(QString, QObjectPrivate, objectName);
 #if QT_VERSION < 0x50200
 OFFSET_ACCESS(QDate, QDateTimePrivate, date);
 OFFSET_ACCESS(QTime, QDateTimePrivate, time);
-OFFSET_ACCESS(Qt::TimeSpec,, QDateTimePrivate, spec);
+OFFSET_ACCESS(Qt::TimeSpec, QDateTimePrivate, spec);
 OFFSET_ACCESS(int, QDateTimePrivate, utcOffset);
 #else
 OFFSET_ACCESS(qint64, QDateTimePrivate, m_msecs);
