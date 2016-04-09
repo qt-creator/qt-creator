@@ -119,7 +119,7 @@ Id ModeManager::currentMode()
 {
     int currentIndex = d->m_modeStack->currentIndex();
     if (currentIndex < 0)
-        return 0;
+        return Id();
     return d->m_modes.at(currentIndex)->id();
 }
 
