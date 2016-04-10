@@ -71,7 +71,6 @@
 #include <utils/qtcassert.h>
 #include <utils/styledbar.h>
 
-#include <projectexplorer/projectexplorericons.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projecttree.h>
@@ -371,7 +370,7 @@ CallgrindTool::CallgrindTool(QObject *parent)
     // pause action
     m_pauseAction = action = new QAction(this);
     action->setCheckable(true);
-    action->setIcon(ProjectExplorer::Icons::INTERRUPT_SMALL.icon());
+    action->setIcon(Core::Icons::INTERRUPT_SMALL.icon());
     //action->setText(tr("Ignore"));
     action->setToolTip(tr("Pause event logging. No events are counted which will speed up program execution during profiling."));
     connect(action, &QAction::toggled, this, &CallgrindTool::pauseToggled);

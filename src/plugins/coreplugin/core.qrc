@@ -103,5 +103,11 @@
         <file>images/Desktop.png</file>
         <file>images/zoom.png</file>
         <file>images/zoom@2x.png</file>
+        <file>images/interrupt_small.png</file>
+        <file>images/interrupt_small@2x.png</file>
+        <file>images/run_small.png</file>
+        <file>images/run_small@2x.png</file>
+        <file>images/stop_small.png</file>
+        <file>images/stop_small@2x.png</file>
     </qresource>
 </RCC>

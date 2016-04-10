@@ -2155,7 +2155,7 @@
          style="fill:#000000;fill-opacity:1;stroke:none" />
     </g>
     <g
-       id="src/plugins/projectexplorer/images/run_small"
+       id="src/plugins/coreplugin/images/run_small"
        transform="translate(112,0)">
       <rect
          id="rect4901-1"
@@ -2171,7 +2171,7 @@
          style="fill:#000000;fill-opacity:1;stroke:none" />
     </g>
     <g
-       id="src/plugins/projectexplorer/images/stop_small"
+       id="src/plugins/coreplugin/images/stop_small"
        transform="translate(112,0)">
       <rect
          id="rect4907-4"
@@ -2190,7 +2190,7 @@
     </g>
     <g
        transform="translate(128,0)"
-       id="src/plugins/projectexplorer/images/interrupt_small">
+       id="src/plugins/coreplugin/images/interrupt_small">
       <rect
          style="fill:#ffffff;fill-opacity:1;stroke:none"
          x="265"

@@ -28,9 +28,10 @@
 #include "environmentaspect.h"
 
 #include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/projectexplorericons.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/target.h>
+
+#include <coreplugin/coreicons.h>
 
 #include <utils/qtcassert.h>
 
@@ -62,7 +63,7 @@ LocalApplicationRunControl::LocalApplicationRunControl(RunConfiguration *rc, Cor
     : RunControl(rc, mode)
 {
     setRunnable(rc->runnable());
-    setIcon(Icons::RUN_SMALL);
+    setIcon(Core::Icons::RUN_SMALL);
     connect(&m_applicationLauncher, &ApplicationLauncher::appendMessage,
             this, static_cast<void(RunControl::*)(const QString &, Utils::OutputFormat)>(&RunControl::appendMessage));
     connect(&m_applicationLauncher, &ApplicationLauncher::processStarted,

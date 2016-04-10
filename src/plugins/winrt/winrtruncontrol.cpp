@@ -29,6 +29,7 @@
 #include "winrtrunconfiguration.h"
 #include "winrtrunnerhelper.h"
 
+#include <coreplugin/coreicons.h>
 #include <coreplugin/idocument.h>
 #include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/buildconfiguration.h>
@@ -36,7 +37,6 @@
 #include <projectexplorer/target.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/kitinformation.h>
-#include <projectexplorer/projectexplorericons.h>
 #include <qtsupport/qtkitinformation.h>
 
 #include <QTimer>
@@ -56,7 +56,7 @@ WinRtRunControl::WinRtRunControl(WinRtRunConfiguration *runConfiguration, Core::
     , m_state(StoppedState)
     , m_runner(0)
 {
-    setIcon(ProjectExplorer::Icons::RUN_SMALL);
+    setIcon(Core::Icons::RUN_SMALL);
 }
 
 void WinRtRunControl::start()

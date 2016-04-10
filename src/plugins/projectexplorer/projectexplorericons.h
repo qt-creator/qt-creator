@@ -55,7 +55,7 @@ const Utils::Icon DEBUG_START_FLAT({
         {QLatin1String(":/projectexplorer/images/run_mask.png"), Utils::Theme::IconsRunColor},
         {QLatin1String(":/projectexplorer/images/debugger_beetle_mask.png"), Utils::Theme::IconsDebugColor}});
 const Utils::Icon DEBUG_START_SMALL({
-        {QLatin1String(":/projectexplorer/images/run_small.png"), Utils::Theme::IconsRunColor},
+        {QLatin1String(":/core/images/run_small.png"), Utils::Theme::IconsRunColor},
         {QLatin1String(":/projectexplorer/images/debugger_overlay_small.png"), Utils::Theme::IconsDebugColor}});
 
 const Utils::Icon BUILDSTEP_MOVEUP({
@@ -72,18 +72,12 @@ const Utils::Icon DESKTOP_DEVICE({
 const Utils::Icon DESKTOP_DEVICE_SMALL({
         {QLatin1String(":/projectexplorer/images/desktopdevicesmall.png"), Utils::Theme::PanelTextColorDark}}, Utils::Icon::Tint);
 
-const Utils::Icon RUN_SMALL({
-        {QLatin1String(":/projectexplorer/images/run_small.png"), Utils::Theme::IconsRunColor}});
-const Utils::Icon STOP_SMALL({
-        {QLatin1String(":/projectexplorer/images/stop_small.png"), Utils::Theme::IconsStopColor}});
 const Utils::Icon MODE_PROJECT_CLASSIC(
         QLatin1String(":/projectexplorer/images/mode_project.png"));
 const Utils::Icon MODE_PROJECT_FLAT({
         {QLatin1String(":/projectexplorer/images/mode_project_mask.png"), Utils::Theme::IconsBaseColor}});
 const Utils::Icon MODE_PROJECT_FLAT_ACTIVE({
         {QLatin1String(":/projectexplorer/images/mode_project_mask.png"), Utils::Theme::IconsModeProjetcsActiveColor}});
-const Utils::Icon INTERRUPT_SMALL({
-        {QLatin1String(":/projectexplorer/images/interrupt_small.png"), Utils::Theme::IconsInterruptColor}});
 
 } // namespace Icons
 } // namespace ProjectExplorer

@@ -3539,7 +3539,7 @@ QAction *createStartAction()
 QAction *createStopAction()
 {
     auto action = new QAction(DebuggerMainWindow::tr("Stop"), DebuggerPlugin::instance());
-    action->setIcon(ProjectExplorer::Icons::STOP_SMALL.icon());
+    action->setIcon(Core::Icons::STOP_SMALL.icon());
     action->setEnabled(true);
     return action;
 }

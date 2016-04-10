@@ -140,6 +140,12 @@ const Icon ZOOM_TOOLBAR({
         {QLatin1String(":/core/images/zoom.png"), Theme::IconsBaseColor}});
 const Icon TOOLBAR_EXTENSION({
         {QLatin1String(":/core/images/extension.png"), Theme::IconsBaseColor}});
+const Utils::Icon RUN_SMALL({
+        {QLatin1String(":/core/images/run_small.png"), Utils::Theme::IconsRunColor}});
+const Utils::Icon STOP_SMALL({
+        {QLatin1String(":/core/images/stop_small.png"), Utils::Theme::IconsStopColor}});
+const Utils::Icon INTERRUPT_SMALL({
+        {QLatin1String(":/core/images/interrupt_small.png"), Utils::Theme::IconsInterruptColor}});
 
 const Icon MODE_EDIT_CLASSIC(
         QLatin1String(":/fancyactionbar/images/mode_Edit.png"));
