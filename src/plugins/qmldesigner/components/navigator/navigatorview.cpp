@@ -33,6 +33,7 @@
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/coreicons.h>
 
 #include <utils/icon.h>
 
@@ -86,8 +87,8 @@ NavigatorView::NavigatorView(QObject* parent) :
                                                         m_treeModel.data());
     IconCheckboxItemDelegate *showDelegate =
             new IconCheckboxItemDelegate(this,
-                                         Icons::EYE_OPEN.pixmap(),
-                                         Icons::EYE_CLOSED.pixmap(),
+                                         Core::Icons::EYE_OPEN_TOOLBAR.pixmap(),
+                                         Core::Icons::EYE_CLOSED_TOOLBAR.pixmap(),
                                          m_treeModel.data());
 
     IconCheckboxItemDelegate *exportDelegate =

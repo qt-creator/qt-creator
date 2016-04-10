@@ -69,10 +69,6 @@
      <property name="toolTipBase">
       <string>Original Size</string>
      </property>
-     <property name="icon">
-      <iconset resource="imageviewer.qrc">
-       <normaloff>:/imageviewer/images/originalsize.png</normaloff>:/imageviewer/images/originalsize.png</iconset>
-     </property>
     </widget>
    </item>
    <item>

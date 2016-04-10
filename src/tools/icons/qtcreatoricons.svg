@@ -2216,6 +2216,54 @@
          height="100%" />
     </g>
     <g
+       style="display:inline"
+       transform="translate(176,0)"
+       id="src/plugins/debugger/images/tracepointoverlay">
+      <rect
+         style="fill:#ffffff;fill-opacity:1;stroke:none"
+         x="265"
+         y="568"
+         width="16"
+         height="16"
+         id="rect4810-1-2" />
+      <path
+         style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:2;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         d="m 273,571 8,0"
+         id="path4877"
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="cc" />
+      <path
+         style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:2;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         d="m 277,572 0,7"
+         id="path4879"
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="cc" />
+    </g>
+    <g
+       style="display:inline"
+       transform="translate(192,0)"
+       id="src/plugins/valgrind/images/suppressoverlay">
+      <rect
+         style="fill:#ffffff;fill-opacity:1;stroke:none"
+         x="265"
+         y="568"
+         width="16"
+         height="16"
+         id="rect4810-1-2-2" />
+      <path
+         style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:2;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         d="m 272.5,582.5 7,-7"
+         id="path4907"
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="cc" />
+      <path
+         style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:2;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         d="m 272.5,575.5 7,7"
+         id="path4909"
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="cc" />
+    </g>
+    <g
        id="src/plugins/projectexplorer/images/debugger_overlay_small"
        transform="translate(16,0)">
       <rect
@@ -2439,7 +2487,7 @@
     <g
        transform="translate(297,268)"
        style="display:inline"
-       id="src/plugins/qmldesigner/components/navigator/eye_open">
+       id="src/plugins/coreplugin/images/eye_open">
       <rect
          id="rect6782-9"
          height="16"
@@ -2461,7 +2509,7 @@
     </g>
     <g
        transform="translate(263,268)"
-       id="src/plugins/qmldesigner/components/navigator/eye_closed">
+       id="src/plugins/coreplugin/images/eye_closed">
       <rect
          id="rect6790-1"
          height="16"

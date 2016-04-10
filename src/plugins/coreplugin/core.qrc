@@ -111,5 +111,9 @@
         <file>images/stop_small@2x.png</file>
         <file>images/boundingrect.png</file>
         <file>images/boundingrect@2x.png</file>
+        <file>images/eye_closed.png</file>
+        <file>images/eye_closed@2x.png</file>
+        <file>images/eye_open.png</file>
+        <file>images/eye_open@2x.png</file>
     </qresource>
 </RCC>

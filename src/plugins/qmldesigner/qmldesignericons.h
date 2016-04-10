@@ -39,10 +39,6 @@ const Utils::Icon ARROW_DOWN({
         {QLatin1String(":/navigator/icon/arrowdown.png"), Utils::Theme::IconsBaseColor}});
 const Utils::Icon ARROW_LEFT({
         {QLatin1String(":/navigator/icon/arrowleft.png"), Utils::Theme::IconsBaseColor}});
-const Utils::Icon EYE_OPEN({
-        {QLatin1String(":/navigator/icon/eye_open.png"), Utils::Theme::IconsBaseColor}});
-const Utils::Icon EYE_CLOSED({
-        {QLatin1String(":/navigator/icon/eye_closed.png"), Utils::Theme::IconsBaseColor}});
 const Utils::Icon EXPORT_CHECKED({
         {QLatin1String(":/navigator/icon/export_checked.png"), Utils::Theme::IconsBaseColor}});
 const Utils::Icon EXPORT_UNCHECKED({

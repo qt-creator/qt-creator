@@ -40,10 +40,11 @@ const Utils::Icon BREAKPOINT_PENDING({
         {QLatin1String(":/debugger/images/breakpoint_pending_overlay.png"), Utils::Theme::PanelTextColorDark}}, Utils::Icon::IconStyleOptions(Utils::Icon::Tint | Utils::Icon::PunchEdges));
 const Utils::Icon BREAKPOINTS(
         QLatin1String(":/debugger/images/debugger_breakpoints.png"));
-const Utils::Icon WATCHPOINT(
-        QLatin1String(":/debugger/images/watchpoint.png"));
-const Utils::Icon TRACEPOINT(
-        QLatin1String(":/debugger/images/tracepoint.png"));
+const Utils::Icon WATCHPOINT({
+        {QLatin1String(":/core/images/eye_open.png"), Utils::Theme::TextColorNormal}}, Utils::Icon::Tint);
+const Utils::Icon TRACEPOINT({
+        {QLatin1String(":/core/images/eye_open.png"), Utils::Theme::TextColorNormal},
+        {QLatin1String(":/debugger/images/tracepointoverlay.png"), Utils::Theme::TextColorNormal}}, Utils::Icon::Tint | Utils::Icon::PunchEdges);
 const Utils::Icon CONTINUE(
         QLatin1String(":/debugger/images/debugger_continue.png"));
 const Utils::Icon CONTINUE_FLAT({
