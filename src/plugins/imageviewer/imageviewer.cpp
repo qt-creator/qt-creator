@@ -253,10 +253,10 @@ void ImageViewer::updatePauseAction()
     if (isMovie) {
         if (d->file->isPaused()) {
             d->ui_toolbar.toolButtonPlayPause->setToolTipBase(tr("Play Animation"));
-            d->ui_toolbar.toolButtonPlayPause->setIcon(QPixmap(QLatin1String(":/imageviewer/images/play-small.png")));
+            d->ui_toolbar.toolButtonPlayPause->setIcon(Core::Icons::RUN_SMALL.pixmap());
         } else {
             d->ui_toolbar.toolButtonPlayPause->setToolTipBase(tr("Pause Animation"));
-            d->ui_toolbar.toolButtonPlayPause->setIcon(QPixmap(QLatin1String(":/imageviewer/images/pause-small.png")));
+            d->ui_toolbar.toolButtonPlayPause->setIcon(Core::Icons::INTERRUPT_SMALL.pixmap());
         }
     }
 }
