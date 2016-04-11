@@ -1,4 +1,5 @@
 import qbs
+import qbs.Environment
 import qbs.File
 import qbs.FileInfo
 
@@ -8,18 +9,18 @@ QtcLibrary {
     targetName: name
     property string cdbPath: {
         var paths = [
-            qbs.getEnv("CDB_PATH"),
-            qbs.getEnv("ProgramFiles") + "/Debugging Tools For Windows/sdk",
-            qbs.getEnv("ProgramFiles") + "/Debugging Tools For Windows (x86)/sdk",
-            qbs.getEnv("ProgramFiles") + "/Debugging Tools For Windows (x64)/sdk",
-            qbs.getEnv("ProgramFiles") + "/Debugging Tools For Windows 64-bit/sdk",
-            qbs.getEnv("ProgramW6432") + "/Debugging Tools For Windows (x86)/sdk",
-            qbs.getEnv("ProgramW6432") + "/Debugging Tools For Windows (x64)/sdk",
-            qbs.getEnv("ProgramW6432") + "/Debugging Tools For Windows 64-bit/sdk",
-            qbs.getEnv("ProgramFiles") + "/Windows Kits/8.0/Debuggers",
-            qbs.getEnv("ProgramFiles") + "/Windows Kits/8.1/Debuggers",
-            qbs.getEnv("ProgramFiles(x86)") + "/Windows Kits/8.0/Debuggers/inc",
-            qbs.getEnv("ProgramFiles(x86)") + "/Windows Kits/8.1/Debuggers/inc"
+            Environment.getEnv("CDB_PATH"),
+            Environment.getEnv("ProgramFiles") + "/Debugging Tools For Windows/sdk",
+            Environment.getEnv("ProgramFiles") + "/Debugging Tools For Windows (x86)/sdk",
+            Environment.getEnv("ProgramFiles") + "/Debugging Tools For Windows (x64)/sdk",
+            Environment.getEnv("ProgramFiles") + "/Debugging Tools For Windows 64-bit/sdk",
+            Environment.getEnv("ProgramW6432") + "/Debugging Tools For Windows (x86)/sdk",
+            Environment.getEnv("ProgramW6432") + "/Debugging Tools For Windows (x64)/sdk",
+            Environment.getEnv("ProgramW6432") + "/Debugging Tools For Windows 64-bit/sdk",
+            Environment.getEnv("ProgramFiles") + "/Windows Kits/8.0/Debuggers",
+            Environment.getEnv("ProgramFiles") + "/Windows Kits/8.1/Debuggers",
+            Environment.getEnv("ProgramFiles(x86)") + "/Windows Kits/8.0/Debuggers/inc",
+            Environment.getEnv("ProgramFiles(x86)") + "/Windows Kits/8.1/Debuggers/inc"
         ];
         var c = paths.length;
         for (var i = 0; i < c; ++i) {
