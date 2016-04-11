@@ -98,13 +98,15 @@ bool Task::isNull() const
 void Task::clear()
 {
     taskId = 0;
+    type = Task::Unknown;
     description.clear();
     file = Utils::FileName();
     line = -1;
     movedLine = -1;
     category = Core::Id();
-    type = Task::Unknown;
     icon = QIcon();
+    formats.clear();
+    m_mark.clear();
 }
 
 //
