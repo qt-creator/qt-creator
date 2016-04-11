@@ -625,7 +625,7 @@ void BuildDirManager::maybeForceReparse()
     const QString mainKitGenerator = (pos > 0) ? kitGenerator.mid(pos + 3) : kitGenerator;
     CMakeConfig targetConfig = m_buildConfiguration->cmakeConfiguration();
     targetConfig.append(CMakeConfigItem(GENERATOR_KEY, CMakeConfigItem::INTERNAL,
-                                     QByteArray(), mainKitGenerator.toUtf8()));
+                                        QByteArray(), mainKitGenerator.toUtf8()));
     if (!extraKitGenerator.isEmpty())
         targetConfig.append(CMakeConfigItem(EXTRA_GENERATOR_KEY, CMakeConfigItem::INTERNAL,
                                             QByteArray(), extraKitGenerator.toUtf8()));
