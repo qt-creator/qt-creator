@@ -3910,22 +3910,28 @@ void tst_Dumpers::dumper_data()
 
                + Check("l0", "<0 items>", "std::list<int>")
 
-               + Check("l1", "<at least 1000 items>", "std::list<int>")
+               + Check("l1", "<at least 1000 items>", "std::list<int>") % NoCdbEngine
+               + Check("l1", "<10000 items>", "std::list<int>") % CdbEngine
                + Check("l1.0", "[0]", "0", "int")
                + Check("l1.1", "[1]", "1", "int")
-               + Check("l1.999", "[999]", "999", "int")
+               + Check("l1.999", "[999]", "999", "int") % NoCdbEngine
+               + Check("l1.999", "[999]", "999", "int") % CdbEngine % Optional()
 
                + Check("l2", "<2 items>", "std::list<bool>")
                + Check("l2.0", "[0]", "true", "bool")
                + Check("l2.1", "[1]", "false", "bool")
 
                + Check("l3", "<3 items>", "std::list<int*>")
-               + Check("l3.0", "[0]", "1", "int")
+               + Check("l3.0", "[0]", "1", "int") % NoCdbEngine
+               + Check("l3.0.*", "*", "1", "int") % CdbEngine
                + Check("l3.1", "[1]", "0x0", "int *")
-               + Check("l3.2", "[2]", "2", "int")
+               + Check("l3.2", "[2]", "2", "int") % NoCdbEngine
+               + Check("l3.2.*", "*", "2", "int") % CdbEngine
 
-               + Check("l4.@2.0", "[0]", "1", "int")
-               + Check("l4.@2.1", "[1]", "2", "int");
+               + Check("l4.@2.0", "[0]", "1", "int") % NoCdbEngine
+               + Check("l4.@2.1", "[1]", "2", "int") % NoCdbEngine
+               + Check("l4.list@t1.0", "[0]", "1", "int") % CdbEngine
+               + Check("l4.list@t1.1", "[1]", "2", "int") % CdbEngine;
 
 
     QTest::newRow("StdListQt")
