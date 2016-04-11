@@ -31,7 +31,7 @@ for(data_dir, DATA_DIRS) {
         STATIC_FILES += $$file
 }
 
-include(static.pri)
+include(../../qtcreatordata.pri)
 
 SRCRESOURCEDIR = $$IDE_SOURCE_TREE/src/share/qtcreator/
 defineReplace(stripSrcResourceDir) {

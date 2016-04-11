@@ -7,7 +7,7 @@
 # STATIC_BASE    - base directory for the files listed in STATIC_FILES
 # STATIC_FILES   - list of files to be deployed
 
-include(../../qtcreator.pri)
+include(qtcreator.pri)
 
 # used in custom compilers which just copy files
 defineReplace(stripStaticBase) {
