@@ -337,7 +337,7 @@ void CMakeConfigurationKitConfigWidget::editConfigurationChanges()
 
     QTC_ASSERT(!m_editor, return);
 
-    m_dialog = new QDialog(m_summaryLabel);
+    m_dialog = new QDialog(m_summaryLabel->window());
     m_dialog->setWindowTitle(tr("Edit CMake Configuration"));
     QVBoxLayout *layout = new QVBoxLayout(m_dialog);
     m_editor = new QPlainTextEdit;
