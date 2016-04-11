@@ -135,6 +135,6 @@ private:
     QHash<QByteArray, Perspective> m_perspectiveForPerspectiveId;
 };
 
-QWidget *createModeWindow(const Core::Id &mode, DebuggerMainWindow *mainWindow, QWidget *central);
+DEBUGGER_EXPORT QWidget *createModeWindow(const Core::Id &mode, DebuggerMainWindow *mainWindow, QWidget *central);
 
 } // Utils
