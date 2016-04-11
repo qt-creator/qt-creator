@@ -323,14 +323,16 @@ static AnalyzeUnits unitsToAnalyzeFromCompilerCallData(
 
     AnalyzeUnits unitsToAnalyze;
 
-    QHashIterator<QString, QList<QStringList> > it(compilerCallData);
-    while (it.hasNext()) {
-        it.next();
-        const QString file = it.key();
-        const QList<QStringList> compilerCalls = it.value();
-        foreach (const QStringList &options, compilerCalls) {
-            const QStringList arguments = tweakedArguments(file, options, extraParams);
-            unitsToAnalyze << AnalyzeUnit(file, arguments);
+    foreach (const ProjectInfo::CompilerCallGroup &compilerCallGroup, compilerCallData) {
+        QHashIterator<QString, QList<QStringList> > it(compilerCallGroup.callsPerSourceFile);
+        while (it.hasNext()) {
+            it.next();
+            const QString file = it.key();
+            const QList<QStringList> compilerCalls = it.value();
+            foreach (const QStringList &options, compilerCalls) {
+                const QStringList arguments = tweakedArguments(file, options, extraParams);
+                unitsToAnalyze << AnalyzeUnit(file, arguments);
+            }
         }
     }
 

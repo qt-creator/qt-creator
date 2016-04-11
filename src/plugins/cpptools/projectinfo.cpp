@@ -36,6 +36,13 @@ ProjectInfo::ProjectInfo(QPointer<ProjectExplorer::Project> project)
     : m_project(project)
 {}
 
+static bool operator==(const ProjectInfo::CompilerCallGroup &first,
+                       const ProjectInfo::CompilerCallGroup &second)
+{
+    return first.groupId == second.groupId
+            && first.callsPerSourceFile == second.callsPerSourceFile;
+}
+
 bool ProjectInfo::operator ==(const ProjectInfo &other) const
 {
     return m_project == other.m_project

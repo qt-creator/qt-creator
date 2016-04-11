@@ -60,8 +60,13 @@ public:
     const QSet<QString> sourceFiles() const;
     const QByteArray defines() const;
 
-    // Source file --> List of compiler calls
-    typedef QHash<QString, QList<QStringList>> CompilerCallData;
+    struct CompilerCallGroup {
+        using CallsPerSourceFile = QHash<QString, QList<QStringList>>;
+
+        QString groupId;
+        CallsPerSourceFile callsPerSourceFile;
+    };
+    using CompilerCallData = QVector<CompilerCallGroup>;
     void setCompilerCallData(const CompilerCallData &data);
     CompilerCallData compilerCallData() const;
 

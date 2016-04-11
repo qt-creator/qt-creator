@@ -754,6 +754,14 @@ static CppTools::ProjectFile::Kind cppFileType(const qbs::SourceArtifact &source
     return CppTools::ProjectFile::Unclassified;
 }
 
+static QString groupLocationToProjectFile(const qbs::CodeLocation &location)
+{
+    return QString::fromLatin1("%1:%2:%3")
+                        .arg(location.filePath())
+                        .arg(location.line())
+                        .arg(location.column());
+}
+
 void QbsProject::updateCppCodeModel()
 {
     if (!m_projectData.isValid())
@@ -834,11 +842,7 @@ void QbsProject::updateCppCodeModel()
             ppBuilder.setPreCompiledHeaders(QStringList() << pch);
 
             ppBuilder.setDisplayName(grp.name());
-            ppBuilder.setProjectFile(QString::fromLatin1("%1:%2:%3")
-                    .arg(grp.location().filePath())
-                    .arg(grp.location().line())
-                    .arg(grp.location().column()));
-
+            ppBuilder.setProjectFile(groupLocationToProjectFile(grp.location()));
 
             QHash<QString, qbs::SourceArtifact> filePathToSourceArtifact;
             foreach (const qbs::SourceArtifact &source, grp.allSourceArtifacts()) {
@@ -902,6 +906,9 @@ void QbsProject::updateCppCompilerCallData()
             if (!group.isEnabled())
                 continue;
 
+            CppTools::ProjectInfo::CompilerCallGroup compilerCallGroup;
+            compilerCallGroup.groupId = groupLocationToProjectFile(group.location());
+
             foreach (const qbs::SourceArtifact &file, group.allSourceArtifacts()) {
                 const QString &filePath = file.filePath();
                 if (!CppTools::ProjectFile::isSource(cppFileType(file)))
@@ -920,8 +927,11 @@ void QbsProject::updateCppCompilerCallData()
                 }
 
                 if (!calls.isEmpty())
-                    data.insert(filePath, calls);
+                    compilerCallGroup.callsPerSourceFile.insert(filePath, calls);
             }
+
+            if (!compilerCallGroup.callsPerSourceFile.isEmpty())
+                data.append(compilerCallGroup);
         }
     }
 
