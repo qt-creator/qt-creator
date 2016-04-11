@@ -46,10 +46,6 @@
      <property name="toolTipBase">
       <string>Show Outline</string>
      </property>
-     <property name="icon">
-      <iconset resource="imageviewer.qrc">
-       <normaloff>:/imageviewer/images/outline.png</normaloff>:/imageviewer/images/outline.png</iconset>
-     </property>
      <property name="checkable">
       <bool>true</bool>
      </property>

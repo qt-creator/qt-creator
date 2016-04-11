@@ -6,8 +6,6 @@
         <file>no_snapping@2x.png</file>
         <file>snapping_and_anchoring.png</file>
         <file>snapping_and_anchoring@2x.png</file>
-        <file>boundingrect.png</file>
-        <file>boundingrect@2x.png</file>
     </qresource>
     <qresource prefix="/icon">
         <file>reset.png</file>

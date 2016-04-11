@@ -47,8 +47,6 @@ const Utils::Icon EXPORT_CHECKED({
         {QLatin1String(":/navigator/icon/export_checked.png"), Utils::Theme::IconsBaseColor}});
 const Utils::Icon EXPORT_UNCHECKED({
         {QLatin1String(":/navigator/icon/export_unchecked.png"), Utils::Theme::IconsBaseColor}});
-const Utils::Icon BOUNDING_RECT({
-        {QLatin1String(":/icon/layout/boundingrect.png"), Utils::Theme::IconsBaseColor}});
 const Utils::Icon SNAPPING({
         {QLatin1String(":/icon/layout/snapping.png"), Utils::Theme::IconsBaseColor}});
 const Utils::Icon NO_SNAPPING({

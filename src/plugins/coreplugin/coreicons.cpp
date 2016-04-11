@@ -146,6 +146,8 @@ const Utils::Icon STOP_SMALL({
         {QLatin1String(":/core/images/stop_small.png"), Utils::Theme::IconsStopColor}});
 const Utils::Icon INTERRUPT_SMALL({
         {QLatin1String(":/core/images/interrupt_small.png"), Utils::Theme::IconsInterruptColor}});
+const Icon BOUNDING_RECT({
+        {QLatin1String(":/core/images/boundingrect.png"), Theme::IconsBaseColor}});
 
 const Icon MODE_EDIT_CLASSIC(
         QLatin1String(":/fancyactionbar/images/mode_Edit.png"));
