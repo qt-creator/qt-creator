@@ -104,6 +104,7 @@ public: // fields
     QByteArray projectDefines;
     QByteArray toolchainDefines;
     Core::Id toolchainType;
+    bool isMsvc2015Toolchain;
     QString targetTriple;
     ProjectPartHeaderPaths headerPaths;
     QStringList precompiledHeaders;

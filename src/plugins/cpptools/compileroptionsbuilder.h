@@ -52,6 +52,7 @@ public:
     virtual void addOptionsForLanguage(bool checkForBorlandExtensions = true);
 
     void addMsvcCompatibilityVersion();
+    void undefineCppLanguageFeatureMacrosForMsvc2015();
 
 protected:
     virtual bool excludeDefineLine(const QByteArray &defineLine) const;

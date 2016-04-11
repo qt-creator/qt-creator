@@ -93,6 +93,7 @@ public:
         optionsBuilder.addOptionsForLanguage(/*checkForBorlandExtensions*/ true);
 
         optionsBuilder.addToolchainAndProjectDefines();
+        optionsBuilder.undefineCppLanguageFeatureMacrosForMsvc2015();
 
         optionsBuilder.addPredefinedMacrosAndHeaderPathsOptions();
         optionsBuilder.addWrappedQtHeadersIncludePath();

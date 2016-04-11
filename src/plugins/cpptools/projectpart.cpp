@@ -32,6 +32,7 @@ namespace CppTools {
 
 ProjectPart::ProjectPart()
     : project(0)
+    , isMsvc2015Toolchain(false)
     , languageVersion(CXX14)
     , languageExtensions(NoExtensions)
     , qtVersion(UnknownQt)

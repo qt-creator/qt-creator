@@ -51,7 +51,6 @@ typedef QList<AnalyzeUnit> AnalyzeUnits;
 struct ExtraToolChainInfo {
     unsigned char wordWidth = 0;
     QString targetTriple;
-    bool isMsvc2015 = false;
 };
 
 class ClangStaticAnalyzerRunControl : public Debugger::AnalyzerRunControl
