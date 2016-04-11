@@ -293,9 +293,7 @@ void PropertyEditorQmlBackend::setup(const QmlObjectNode &qmlObjectNode, const Q
         m_backendAnchorBinding.setup(qmlObjectNode.modelNode());
         context()->setContextProperty(QLatin1String("anchorBackend"), &m_backendAnchorBinding);
 
-
         context()->setContextProperty(QLatin1String("transaction"), m_propertyEditorTransaction.data());
-
 
         // model node
         m_backendModelNode.setup(qmlObjectNode.modelNode());
