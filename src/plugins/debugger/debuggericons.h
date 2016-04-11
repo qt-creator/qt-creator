@@ -31,12 +31,13 @@
 namespace Debugger {
 namespace Icons {
 
-const Utils::Icon BREAKPOINT(
-        QLatin1String(":/debugger/images/breakpoint_16.png"));
-const Utils::Icon BREAKPOINT_DISABLED(
-        QLatin1String(":/debugger/images/breakpoint_disabled_16.png"));
-const Utils::Icon BREAKPOINT_PENDING(
-        QLatin1String(":/debugger/images/breakpoint_pending_16.png"));
+const Utils::Icon BREAKPOINT({
+        {QLatin1String(":/debugger/images/breakpoint.png"), Utils::Theme::IconsErrorColor}}, Utils::Icon::Tint);
+const Utils::Icon BREAKPOINT_DISABLED({
+        {QLatin1String(":/debugger/images/breakpoint_disabled.png"), Utils::Theme::IconsErrorColor}}, Utils::Icon::Tint);
+const Utils::Icon BREAKPOINT_PENDING({
+        {QLatin1String(":/debugger/images/breakpoint.png"), Utils::Theme::IconsErrorColor},
+        {QLatin1String(":/debugger/images/breakpoint_pending_overlay.png"), Utils::Theme::PanelTextColorDark}}, Utils::Icon::IconStyleOptions(Utils::Icon::Tint | Utils::Icon::PunchEdges));
 const Utils::Icon BREAKPOINTS(
         QLatin1String(":/debugger/images/debugger_breakpoints.png"));
 const Utils::Icon WATCHPOINT(
@@ -64,14 +65,12 @@ const Utils::Icon DEBUG_INTERRUPT_SMALL({
 const Utils::Icon DEBUG_EXIT_SMALL({
         {QLatin1String(":/core/images/stop_small.png"), Utils::Theme::IconsStopColor},
         {QLatin1String(":/projectexplorer/images/debugger_overlay_small.png"), Utils::Theme::IconsDebugColor}});
-const Utils::Icon LOCATION(
-        QLatin1String(":/debugger/images/location_16.png"));
-const Utils::Icon SNAPSHOT(
-        QLatin1String(":/debugger/images/debugger_snapshot_small.png"));
-const Utils::Icon REVERSE_MODE(
-        QLatin1String(":/debugger/images/debugger_reversemode_16.png"));
-const Utils::Icon APPLY_ON_SAVE(
-        QLatin1String(":/debugger/images/qml/apply-on-save.png"));
+const Utils::Icon LOCATION({
+        {QLatin1String(":/debugger/images/location_background.png"), Utils::Theme::IconsCodeModelOverlayForegroundColor},
+        {QLatin1String(":/debugger/images/location.png"), Utils::Theme::IconsWarningToolBarColor}}, Utils::Icon::Tint);
+const Utils::Icon REVERSE_MODE({
+        {QLatin1String(":/debugger/images/debugger_reversemode_background.png"), Utils::Theme::IconsCodeModelOverlayForegroundColor},
+        {QLatin1String(":/debugger/images/debugger_reversemode.png"), Utils::Theme::IconsInfoColor}}, Utils::Icon::Tint);
 const Utils::Icon APP_ON_TOP(
         QLatin1String(":/debugger/images/qml/app-on-top.png"));
 const Utils::Icon SELECT(
