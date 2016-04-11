@@ -137,14 +137,11 @@ void TaskHub::addTask(Task task)
     QTC_ASSERT(!task.isNull(), return);
     QTC_ASSERT(task.m_mark.isNull(), return);
 
-    if (task.file.isEmpty())
-        task.line = -1;
-
-    if (task.line <= 0)
+    if (task.file.isEmpty() || task.line <= 0)
         task.line = -1;
     task.movedLine = task.line;
 
-    if (task.line != -1 && !task.file.isEmpty()) {
+    if (task.line != -1) {
         auto mark = new TaskMark(task.taskId, task.file.toString(), task.line, task.type, !task.icon.isNull());
         mark->setIcon(task.icon);
         mark->setPriority(TextEditor::TextMark::LowPriority);
