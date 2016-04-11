@@ -83,10 +83,10 @@ Task Task::buildConfigurationMissingTask()
                 Constants::TASK_CATEGORY_BUILDSYSTEM);
 }
 
-void Task::addMark(TextEditor::TextMark *mark)
+void Task::setMark(TextEditor::TextMark *mark)
 {
+    QTC_ASSERT(mark, return);
     QTC_ASSERT(m_mark.isNull(), return);
-
     m_mark = QSharedPointer<TextEditor::TextMark>(mark);
 }
 

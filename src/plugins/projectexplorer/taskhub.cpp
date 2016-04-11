@@ -134,6 +134,8 @@ void TaskHub::addTask(Task task)
 {
     QTC_ASSERT(m_registeredCategories.contains(task.category), return);
     QTC_ASSERT(!task.description.isEmpty(), return);
+    QTC_ASSERT(!task.isNull(), return);
+    QTC_ASSERT(task.m_mark.isNull(), return);
 
     if (task.file.isEmpty())
         task.line = -1;
@@ -146,7 +148,7 @@ void TaskHub::addTask(Task task)
         auto mark = new TaskMark(task.taskId, task.file.toString(), task.line, task.type, !task.icon.isNull());
         mark->setIcon(task.icon);
         mark->setPriority(TextEditor::TextMark::LowPriority);
-        task.addMark(mark);
+        task.setMark(mark);
     }
     emit m_instance->taskAdded(task);
 }

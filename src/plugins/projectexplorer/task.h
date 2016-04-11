@@ -37,6 +37,8 @@
 
 namespace ProjectExplorer {
 
+class TaskHub;
+
 // Documentation inside.
 class PROJECTEXPLORER_EXPORT Task
 {
@@ -66,7 +68,6 @@ public:
     int movedLine = -1; // contains a line number if the line was moved in the editor
     Core::Id category;
     QIcon icon;
-    void addMark(TextEditor::TextMark *mark);
 
     // Having a QList<QTextLayout::FormatRange> in Task isn't that great
     // It would be cleaner to split up the text into
@@ -79,8 +80,12 @@ public:
     QList<QTextLayout::FormatRange> formats;
 
 private:
+    void setMark(TextEditor::TextMark *mark);
+
     QSharedPointer<TextEditor::TextMark> m_mark;
     static unsigned int s_nextId;
+
+    friend class TaskHub;
 };
 
 bool PROJECTEXPLORER_EXPORT operator==(const Task &t1, const Task &t2);
