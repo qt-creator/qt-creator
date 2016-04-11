@@ -456,7 +456,7 @@ static bool checkQmlDocumentForTestCode(QFutureInterface<TestParseResultPtr> fut
     const TestCodeLocationAndType tcLocationAndType = qmlVisitor.testCaseLocation();
     const QMap<QString, TestCodeLocationAndType> testFunctions = qmlVisitor.testFunctions();
 
-    TestParseResultPtr parseResult(new TestParseResult(TestTreeModel::QuickTest));
+    QuickTestParseResult *parseResult = new QuickTestParseResult(TestTreeModel::QuickTest);
     parseResult->proFile = proFile;
     parseResult->functions = testFunctions;
     if (!testCaseName.isEmpty()) {
@@ -465,7 +465,7 @@ static bool checkQmlDocumentForTestCode(QFutureInterface<TestParseResultPtr> fut
         parseResult->line = tcLocationAndType.m_line;
         parseResult->column = tcLocationAndType.m_column;
     }
-    futureInterface.reportResult(parseResult);
+    futureInterface.reportResult(TestParseResultPtr(parseResult));
     return true;
 }
 
@@ -498,16 +498,16 @@ static bool handleQtTest(QFutureInterface<TestParseResultPtr> futureInterface,
         foreach (const QString &file, files)
             dataTags.unite(checkForDataTags(file));
 
-        TestParseResultPtr parseResult(new TestParseResult(TestTreeModel::AutoTest));
+        QtTestParseResult *parseResult = new QtTestParseResult(TestTreeModel::AutoTest);
         parseResult->fileName = declaringDoc->fileName();
         parseResult->testCaseName = testCaseName;
         parseResult->line = line;
         parseResult->column = column;
         parseResult->functions = testFunctions;
-        parseResult->dataTagsOrTestSets = dataTags;
+        parseResult->dataTags = dataTags;
         parseResult->proFile = modelManager->projectPart(fileName).first()->projectFile;
 
-        futureInterface.reportResult(parseResult);
+        futureInterface.reportResult(TestParseResultPtr(parseResult));
         return true;
     }
     return false;
@@ -555,15 +555,15 @@ static bool handleGTest(QFutureInterface<TestParseResultPtr> futureInterface, co
         proFile = ppList.first()->projectFile;
 
     foreach (const GTestCaseSpec &testSpec, result.keys()) {
-        TestParseResultPtr parseResult(new TestParseResult(TestTreeModel::GoogleTest));
+        GoogleTestParseResult *parseResult = new GoogleTestParseResult(TestTreeModel::GoogleTest);
         parseResult->fileName = filePath;
         parseResult->testCaseName = testSpec.testCaseName;
         parseResult->parameterized = testSpec.parameterized;
         parseResult->typed = testSpec.typed;
         parseResult->disabled = testSpec.disabled;
         parseResult->proFile = proFile;
-        parseResult->dataTagsOrTestSets.insert(QString(), result.value(testSpec));
-        futureInterface.reportResult(parseResult);
+        parseResult->testSets = result.value(testSpec);
+        futureInterface.reportResult(TestParseResultPtr(parseResult));
     }
     return !result.keys().isEmpty();
 }

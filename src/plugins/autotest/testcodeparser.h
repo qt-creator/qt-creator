@@ -43,8 +43,46 @@ class Id;
 namespace Autotest {
 namespace Internal {
 
-struct TestCodeLocationAndType;
-struct GTestCaseSpec;
+class TestParseResult
+{
+public:
+    explicit TestParseResult(TestTreeModel::Type t = TestTreeModel::Invalid) : type(t) {}
+    virtual ~TestParseResult() {}
+
+    TestTreeModel::Type type;
+    QString fileName;
+    QString proFile;
+    QString testCaseName;
+    unsigned line = 0;
+    unsigned column = 0;
+};
+
+class QtTestParseResult : public TestParseResult
+{
+public:
+    QtTestParseResult(TestTreeModel::Type t = TestTreeModel::Invalid) : TestParseResult(t) {}
+    QMap<QString, TestCodeLocationAndType> functions;
+    QMap<QString, TestCodeLocationList> dataTags;
+};
+
+class QuickTestParseResult : public TestParseResult
+{
+public:
+    QuickTestParseResult(TestTreeModel::Type t = TestTreeModel::Invalid) : TestParseResult(t) {}
+    QMap<QString, TestCodeLocationAndType> functions;
+};
+
+class GoogleTestParseResult : public TestParseResult
+{
+public:
+    GoogleTestParseResult(TestTreeModel::Type t = TestTreeModel::Invalid) : TestParseResult(t) {}
+    bool parameterized = false;
+    bool typed = false;
+    bool disabled = false;
+    TestCodeLocationList testSets;
+};
+
+using TestParseResultPtr = QSharedPointer<TestParseResult>;
 
 class TestCodeParser : public QObject
 {
@@ -106,3 +144,5 @@ private:
 
 } // namespace Internal
 } // Autotest
+
+Q_DECLARE_METATYPE(Autotest::Internal::TestParseResultPtr)

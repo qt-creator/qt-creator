@@ -25,6 +25,7 @@
 
 #include "autotestconstants.h"
 #include "autotest_utils.h"
+#include "testcodeparser.h"
 #include "testconfiguration.h"
 #include "testtreeitem.h"
 #include "testtreemodel.h"
@@ -282,16 +283,17 @@ TestTreeItem *TestTreeItem::findChildBy(CompareFunction compare)
 
 AutoTestTreeItem *AutoTestTreeItem::createTestItem(const TestParseResult &result)
 {
+    const QtTestParseResult &parseResult = static_cast<const QtTestParseResult &>(result);
     AutoTestTreeItem *item = new AutoTestTreeItem(result.testCaseName, result.fileName, TestCase);
-    item->setProFile(result.proFile);
-    item->setLine(result.line);
-    item->setColumn(result.column);
+    item->setProFile(parseResult.proFile);
+    item->setLine(parseResult.line);
+    item->setColumn(parseResult.column);
 
-    foreach (const QString &functionName, result.functions.keys()) {
-        const TestCodeLocationAndType &locationAndType = result.functions.value(functionName);
+    foreach (const QString &functionName, parseResult.functions.keys()) {
+        const TestCodeLocationAndType &locationAndType = parseResult.functions.value(functionName);
         const QString qualifiedName = result.testCaseName + QLatin1String("::") + functionName;
         item->appendChild(createFunctionItem(functionName, locationAndType,
-                                             result.dataTagsOrTestSets.value(qualifiedName)));
+                                             parseResult.dataTags.value(qualifiedName)));
     }
     return item;
 }
@@ -467,12 +469,14 @@ QList<TestConfiguration *> AutoTestTreeItem::getSelectedTestConfigurations() con
 
 QuickTestTreeItem *QuickTestTreeItem::createTestItem(const TestParseResult &result)
 {
-    QuickTestTreeItem *item = new QuickTestTreeItem(result.testCaseName, result.fileName, TestCase);
+    const QuickTestParseResult &parseResult = static_cast<const QuickTestParseResult &>(result);
+    QuickTestTreeItem *item = new QuickTestTreeItem(parseResult.testCaseName, parseResult.fileName,
+                                                    TestCase);
     item->setProFile(result.proFile);
     item->setLine(result.line);
     item->setColumn(result.column);
-    foreach (const QString &functionName, result.functions.keys())
-        item->appendChild(createFunctionItem(functionName, result.functions.value(functionName)));
+    foreach (const QString &functionName, parseResult.functions.keys())
+        item->appendChild(createFunctionItem(functionName, parseResult.functions.value(functionName)));
     return item;
 }
 
@@ -487,20 +491,22 @@ QuickTestTreeItem *QuickTestTreeItem::createFunctionItem(const QString &function
 
 QuickTestTreeItem *QuickTestTreeItem::createUnnamedQuickTestItem(const TestParseResult &result)
 {
+    const QuickTestParseResult &parseResult = static_cast<const QuickTestParseResult &>(result);
     QuickTestTreeItem *item = new QuickTestTreeItem(QString(), QString(), TestCase);
-    foreach (const QString &functionName, result.functions.keys())
-        item->appendChild(createUnnamedQuickFunctionItem(functionName, result));
+    foreach (const QString &functionName, parseResult.functions.keys())
+        item->appendChild(createUnnamedQuickFunctionItem(functionName, parseResult));
     return item;
 }
 
 QuickTestTreeItem *QuickTestTreeItem::createUnnamedQuickFunctionItem(const QString &functionName,
                                                                      const TestParseResult &result)
 {
-    const TestCodeLocationAndType &location = result.functions.value(functionName);
+    const QuickTestParseResult &parseResult = static_cast<const QuickTestParseResult &>(result);
+    const TestCodeLocationAndType &location = parseResult.functions.value(functionName);
     QuickTestTreeItem *item = new QuickTestTreeItem(functionName, location.m_name, location.m_type);
     item->setLine(location.m_line);
     item->setColumn(location.m_column);
-    item->setProFile(result.proFile);
+    item->setProFile(parseResult.proFile);
     return item;
 }
 
@@ -738,15 +744,16 @@ static QString gtestFilter(GoogleTestTreeItem::TestStates states)
 
 GoogleTestTreeItem *GoogleTestTreeItem::createTestItem(const TestParseResult &result)
 {
-    GoogleTestTreeItem *item = new GoogleTestTreeItem(result.testCaseName, QString(), TestCase);
-    item->setProFile(result.proFile);
-    if (result.parameterized)
+    const GoogleTestParseResult &parseResult = static_cast<const GoogleTestParseResult &>(result);
+    GoogleTestTreeItem *item = new GoogleTestTreeItem(parseResult.testCaseName, QString(), TestCase);
+    item->setProFile(parseResult.proFile);
+    if (parseResult.parameterized)
         item->setState(Parameterized);
-    if (result.typed)
+    if (parseResult.typed)
         item->setState(Typed);
-    if (result.disabled)
+    if (parseResult.disabled)
         item->setState(Disabled);
-    foreach (const TestCodeLocationAndType &location, result.dataTagsOrTestSets.first())
+    foreach (const TestCodeLocationAndType &location, parseResult.testSets)
         item->appendChild(createTestSetItem(result, location));
     return item;
 }

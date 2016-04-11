@@ -47,7 +47,7 @@ struct TestCodeLocationAndType;
 class AutoTestTreeItem;
 class QuickTestTreeItem;
 class GoogleTestTreeItem;
-struct TestParseResult;
+class TestParseResult;
 class TestConfiguration;
 
 class TestTreeItem : public Utils::TreeItem

@@ -38,7 +38,7 @@ namespace Autotest {
 namespace Internal {
 
 class TestCodeParser;
-struct TestParseResult;
+class TestParseResult;
 
 using TestParseResultPtr = QSharedPointer<TestParseResult>;
 
@@ -94,7 +94,8 @@ public slots:
 
 private:
     void onParseResultReady(const TestParseResultPtr result);
-    void handleParseResult(const TestParseResultPtr result);
+    void handleQtParseResult(const TestParseResultPtr result);
+    void handleQuickParseResult(const TestParseResultPtr result);
     void handleUnnamedQuickParseResult(const TestParseResultPtr result);
     void handleGTestParseResult(const TestParseResultPtr result);
     void removeAllTestItems();
@@ -149,25 +150,7 @@ private:
 
 };
 
-struct TestParseResult
-{
-    TestParseResult(TestTreeModel::Type t = TestTreeModel::Invalid) : type(t) {}
-
-    TestTreeModel::Type type;
-    QString fileName;
-    QString proFile;
-    QString testCaseName;
-    unsigned line = 0;
-    unsigned column = 0;
-    bool parameterized = false;
-    bool typed = false;
-    bool disabled = false;
-    QMap<QString, TestCodeLocationAndType> functions;
-    QMap<QString, TestCodeLocationList> dataTagsOrTestSets;
-};
-
 } // namespace Internal
 } // namespace Autotest
 
 Q_DECLARE_METATYPE(Autotest::Internal::TestTreeModel::Type)
-Q_DECLARE_METATYPE(Autotest::Internal::TestParseResultPtr)
