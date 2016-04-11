@@ -48,6 +48,7 @@
 #include <QScrollBar>
 #include <QStringList>
 #include <QTextCodec>
+#include <QTimer>
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
@@ -852,10 +853,16 @@ void TextDocument::removeMarkFromMarksCache(TextMark *mark)
     QTC_ASSERT(documentLayout, return);
     d->m_marksCache.removeAll(mark);
 
+    auto scheduleLayoutUpdate = [documentLayout](){
+        // make sure all destructors that may directly or indirectly call this function are
+        // completed before updating.
+        QTimer::singleShot(0, documentLayout, &QPlainTextDocumentLayout::requestUpdate);
+    };
+
     if (d->m_marksCache.isEmpty()) {
         documentLayout->hasMarks = false;
         documentLayout->maxMarkWidthFactor = 1.0;
-        documentLayout->requestUpdate();
+        scheduleLayoutUpdate();
         return;
     }
 
@@ -879,7 +886,7 @@ void TextDocument::removeMarkFromMarksCache(TextMark *mark)
 
         if (maxWidthFactor != documentLayout->maxMarkWidthFactor) {
             documentLayout->maxMarkWidthFactor = maxWidthFactor;
-            documentLayout->requestUpdate();
+            scheduleLayoutUpdate();
         } else {
             documentLayout->requestExtraAreaUpdate();
         }
