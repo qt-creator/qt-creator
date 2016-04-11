@@ -51,6 +51,8 @@ public:
     virtual void addLanguageOption(ProjectFile::Kind fileKind);
     virtual void addOptionsForLanguage(bool checkForBorlandExtensions = true);
 
+    void addMsvcCompatibilityVersion();
+
 protected:
     virtual bool excludeDefineLine(const QByteArray &defineLine) const;
     virtual bool excludeHeaderPath(const QString &headerPath) const;

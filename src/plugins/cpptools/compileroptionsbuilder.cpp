@@ -44,16 +44,39 @@ void CompilerOptionsBuilder::add(const QString &option)
     m_options.append(option);
 }
 
-QString CompilerOptionsBuilder::defineLineToDefineOption(const QByteArray &defineLine)
+struct Macro {
+    static Macro fromDefineDirective(const QByteArray &defineDirective);
+    QByteArray toDefineOption(const QByteArray &option) const;
+
+    QByteArray name;
+    QByteArray value;
+};
+
+Macro Macro::fromDefineDirective(const QByteArray &defineDirective)
 {
-    QByteArray str = defineLine.mid(8);
-    int spaceIdx = str.indexOf(' ');
-    const QString option = defineOption();
+    const QByteArray str = defineDirective.mid(8);
+    const int spaceIdx = str.indexOf(' ');
     const bool hasValue = spaceIdx != -1;
-    QString arg = option + QLatin1String(str.left(hasValue ? spaceIdx : str.size()) + '=');
+
+    Macro macro;
+    macro.name = str.left(hasValue ? spaceIdx : str.size());
     if (hasValue)
-        arg += QLatin1String(str.mid(spaceIdx + 1));
-    return arg;
+        macro.value = str.mid(spaceIdx + 1);
+
+    return macro;
+}
+
+QByteArray Macro::toDefineOption(const QByteArray &option) const
+{
+    QByteArray result;
+
+    result.append(option);
+    result.append(name);
+    result.append('=');
+    if (!value.isEmpty())
+        result.append(value);
+
+    return result;
 }
 
 void CompilerOptionsBuilder::addDefine(const QByteArray &defineLine)
@@ -225,9 +248,52 @@ void CompilerOptionsBuilder::addOptionsForLanguage(bool checkForBorlandExtension
     m_options.append(opts);
 }
 
+static QByteArray toMsCompatibilityVersionFormat(const QByteArray &mscFullVer)
+{
+    return mscFullVer.left(2)
+         + QByteArray(".")
+         + mscFullVer.mid(2, 2);
+}
+
+static QByteArray msCompatibilityVersionFromDefines(const QByteArray &defineDirectives)
+{
+    foreach (QByteArray defineDirective, defineDirectives.split('\n')) {
+        if (defineDirective.isEmpty())
+            continue;
+
+        const Macro macro = Macro::fromDefineDirective(defineDirective);
+        if (macro.name == "_MSC_FULL_VER")
+            return toMsCompatibilityVersionFormat(macro.value);
+    }
+
+    return QByteArray();
+}
+
+void CompilerOptionsBuilder::addMsvcCompatibilityVersion()
+{
+    if (m_projectPart.toolchainType == ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID) {
+        const QByteArray defines = m_projectPart.toolchainDefines + m_projectPart.projectDefines;
+        const QByteArray msvcVersion = msCompatibilityVersionFromDefines(defines);
+
+        if (!msvcVersion.isEmpty()) {
+            const QString option = QLatin1String("-fms-compatibility-version=")
+                    + QLatin1String(msvcVersion);
+            m_options.append(option);
+        }
+    }
+}
+
 QString CompilerOptionsBuilder::includeOption() const
 {
     return QLatin1String("-I");
+}
+
+QString CompilerOptionsBuilder::defineLineToDefineOption(const QByteArray &defineLine)
+{
+    const Macro macro = Macro::fromDefineDirective(defineLine);
+    const QByteArray option = macro.toDefineOption(defineOption().toLatin1());
+
+    return QString::fromLatin1(option);
 }
 
 QString CompilerOptionsBuilder::defineOption() const

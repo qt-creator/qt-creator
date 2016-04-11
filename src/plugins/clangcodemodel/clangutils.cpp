@@ -99,6 +99,8 @@ public:
         optionsBuilder.addHeaderPathOptions();
         optionsBuilder.addProjectConfigFileInclude();
 
+        optionsBuilder.addMsvcCompatibilityVersion();
+
         optionsBuilder.addExtraOptions();
 
         return optionsBuilder.options();

@@ -142,14 +142,6 @@ QStringList inputAndOutputArgumentsRemoved(const QString &inputFile, const QStri
     return newArguments;
 }
 
-static void appendMsCompatibility2015OptionForMsvc2015(QStringList *arguments, bool isMsvc2015)
-{
-    QTC_ASSERT(arguments, return);
-
-    if (isMsvc2015)
-        arguments->append(QLatin1String("-fms-compatibility-version=19"));
-}
-
 static QStringList languageFeatureMacros()
 {
     // Collected with:
@@ -198,19 +190,6 @@ static void undefineCppLanguageFeatureMacrosForMsvc2015(QStringList *arguments, 
     }
 }
 
-static QStringList tweakedArguments(const QString &filePath,
-                                    const QStringList &arguments,
-                                    const ExtraToolChainInfo &extraParams)
-{
-    QStringList newArguments = inputAndOutputArgumentsRemoved(filePath, arguments);
-    prependWordWidthArgumentIfNotIncluded(&newArguments, extraParams.wordWidth);
-    prependTargetTripleIfNotIncludedAndNotEmpty(&newArguments, extraParams.targetTriple);
-    appendMsCompatibility2015OptionForMsvc2015(&newArguments, extraParams.isMsvc2015);
-    undefineCppLanguageFeatureMacrosForMsvc2015(&newArguments, extraParams.isMsvc2015);
-
-    return newArguments;
-}
-
 static QString createLanguageOptionMsvc(ProjectFile::Kind fileKind)
 {
     switch (fileKind) {
@@ -252,6 +231,7 @@ public:
 
         optionsBuilder.addToolchainAndProjectDefines();
         optionsBuilder.addHeaderPathOptions();
+        optionsBuilder.addMsvcCompatibilityVersion();
 
         if (type == ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID)
             optionsBuilder.add(QLatin1String("/EHsc")); // clang-cl does not understand exceptions
@@ -260,19 +240,18 @@ public:
 
         QStringList options = optionsBuilder.options();
         prependWordWidthArgumentIfNotIncluded(&options, extraParams.wordWidth);
-        appendMsCompatibility2015OptionForMsvc2015(&options, extraParams.isMsvc2015);
         undefineCppLanguageFeatureMacrosForMsvc2015(&options, extraParams.isMsvc2015);
 
         return options;
     }
 
-private:
     ClangStaticAnalyzerOptionsBuilder(const CppTools::ProjectPart &projectPart)
         : CompilerOptionsBuilder(projectPart)
         , m_isMsvcToolchain(m_projectPart.toolchainType == ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID)
     {
     }
 
+private:
     void addTargetTriple() override
     {
         // For MSVC toolchains we use clang-cl.exe, so there is nothing to do here since
@@ -315,7 +294,31 @@ private:
     bool m_isMsvcToolchain;
 };
 
+static QStringList createMsCompatibilityVersionOption(const ProjectPart &projectPart)
+{
+    ClangStaticAnalyzerOptionsBuilder optionsBuilder(projectPart);
+    optionsBuilder.addMsvcCompatibilityVersion();
+    const QStringList option = optionsBuilder.options();
+
+    return option;
+}
+
+static QStringList tweakedArguments(const ProjectPart &projectPart,
+                                    const QString &filePath,
+                                    const QStringList &arguments,
+                                    const ExtraToolChainInfo &extraParams)
+{
+    QStringList newArguments = inputAndOutputArgumentsRemoved(filePath, arguments);
+    prependWordWidthArgumentIfNotIncluded(&newArguments, extraParams.wordWidth);
+    prependTargetTripleIfNotIncludedAndNotEmpty(&newArguments, extraParams.targetTriple);
+    newArguments.append(createMsCompatibilityVersionOption(projectPart));
+    undefineCppLanguageFeatureMacrosForMsvc2015(&newArguments, extraParams.isMsvc2015);
+
+    return newArguments;
+}
+
 static AnalyzeUnits unitsToAnalyzeFromCompilerCallData(
+            const QHash<QString, ProjectPart::Ptr> &projectFileToProjectPart,
             const ProjectInfo::CompilerCallData &compilerCallData,
             const ExtraToolChainInfo &extraParams)
 {
@@ -324,13 +327,20 @@ static AnalyzeUnits unitsToAnalyzeFromCompilerCallData(
     AnalyzeUnits unitsToAnalyze;
 
     foreach (const ProjectInfo::CompilerCallGroup &compilerCallGroup, compilerCallData) {
+        const ProjectPart::Ptr projectPart
+                = projectFileToProjectPart.value(compilerCallGroup.groupId);
+        QTC_ASSERT(projectPart, continue);
+
         QHashIterator<QString, QList<QStringList> > it(compilerCallGroup.callsPerSourceFile);
         while (it.hasNext()) {
             it.next();
             const QString file = it.key();
             const QList<QStringList> compilerCalls = it.value();
             foreach (const QStringList &options, compilerCalls) {
-                const QStringList arguments = tweakedArguments(file, options, extraParams);
+                const QStringList arguments = tweakedArguments(*projectPart,
+                                                               file,
+                                                               options,
+                                                               extraParams);
                 unitsToAnalyze << AnalyzeUnit(file, arguments);
             }
         }
@@ -367,16 +377,34 @@ static AnalyzeUnits unitsToAnalyzeFromProjectParts(const QList<ProjectPart::Ptr>
     return unitsToAnalyze;
 }
 
+static QHash<QString, ProjectPart::Ptr> generateProjectFileToProjectPartMapping(
+            const QList<ProjectPart::Ptr> &projectParts)
+{
+    QHash<QString, ProjectPart::Ptr> mapping;
+
+    foreach (const ProjectPart::Ptr &projectPart, projectParts) {
+        QTC_ASSERT(projectPart, continue);
+        mapping[projectPart->projectFile] = projectPart;
+    }
+
+    return mapping;
+}
+
 AnalyzeUnits ClangStaticAnalyzerRunControl::sortedUnitsToAnalyze()
 {
     QTC_ASSERT(m_projectInfo.isValid(), return AnalyzeUnits());
 
     AnalyzeUnits units;
     const ProjectInfo::CompilerCallData compilerCallData = m_projectInfo.compilerCallData();
-    if (compilerCallData.isEmpty())
+    if (compilerCallData.isEmpty()) {
         units = unitsToAnalyzeFromProjectParts(m_projectInfo.projectParts(), m_extraToolChainInfo);
-    else
-        units = unitsToAnalyzeFromCompilerCallData(compilerCallData, m_extraToolChainInfo);
+    } else {
+        const QHash<QString, ProjectPart::Ptr> projectFileToProjectPart
+                = generateProjectFileToProjectPartMapping(m_projectInfo.projectParts());
+        units = unitsToAnalyzeFromCompilerCallData(projectFileToProjectPart,
+                                                   compilerCallData,
+                                                   m_extraToolChainInfo);
+    }
 
     Utils::sort(units, [](const AnalyzeUnit &a1, const AnalyzeUnit &a2) -> bool {
         return a1.file < a2.file;
