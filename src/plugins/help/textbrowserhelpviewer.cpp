@@ -448,3 +448,19 @@ void TextBrowserHelpWidget::mouseReleaseEvent(QMouseEvent *e)
 
     QTextBrowser::mouseReleaseEvent(e);
 }
+
+void TextBrowserHelpWidget::setSource(const QUrl &name)
+{
+    QTextBrowser::setSource(name);
+
+    QTextCursor cursor(document());
+    while (!cursor.atEnd()) {
+        QTextBlockFormat fmt = cursor.blockFormat();
+        if (fmt.hasProperty(QTextFormat::LineHeightType) && fmt.lineHeightType() == QTextBlockFormat::FixedHeight) {
+           fmt.setProperty(QTextFormat::LineHeightType, QTextBlockFormat::MinimumHeight);
+           cursor.setBlockFormat(fmt);
+        }
+        if (!cursor.movePosition(QTextCursor::NextBlock))
+            break;
+    }
+}
