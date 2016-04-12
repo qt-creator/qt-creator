@@ -73,12 +73,6 @@
             \li In the \uicontrol{qmake location} field, you can change the qmake
                 location.
 
-            \li In the \uicontrol Helpers section, select \uicontrol Details to view the
-                QML Dumper that has been built for the Qt version. For more
-                information, see \l{Using Debugging Helpers}.
-
-                \image qt-creator-debugging-helpers.png
-
             \li If the Qt version is for QNX, enter the path to your installed QNX SDK in the
                 \uicontrol{QNX SDK} field.
 
