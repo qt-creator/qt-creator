@@ -80,6 +80,7 @@ class DebuggerRunParameters : public DebuggerStartParameters
 {
 public:
     DebuggerRunParameters() {}
+    DebuggerRunParameters(const DebuggerStartParameters &sp) : DebuggerStartParameters(sp) {}
 
     DebuggerEngineType masterEngineType = NoEngineType;
     DebuggerEngineType cppEngineType = NoEngineType;

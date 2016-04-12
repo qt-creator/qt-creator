@@ -36,10 +36,7 @@ class RemoteSetupResult;
 class DebuggerStartParameters;
 class DebuggerRunControl;
 
-namespace Internal {
-class DebuggerEngine;
-class DebuggerRunControlCreator;
-}
+namespace Internal { class DebuggerEngine; }
 
 DEBUGGER_EXPORT DebuggerRunControl *createDebuggerRunControl(const DebuggerStartParameters &sp,
                                                              ProjectExplorer::RunConfiguration *runConfig,
@@ -81,7 +78,8 @@ signals:
 private:
     void handleFinished();
 
-    friend class Internal::DebuggerRunControlCreator;
+    friend DebuggerRunControl *createHelper(ProjectExplorer::RunConfiguration *runConfig,
+                                            Internal::DebuggerEngine *engine);
 
     DebuggerRunControl(ProjectExplorer::RunConfiguration *runConfig,
                        Internal::DebuggerEngine *engine);
