@@ -1,4 +1,3 @@
-var Environment = loadExtension("qbs.Environment")
 var File = loadExtension("qbs.File")
 var MinimumLLVMVersion = "3.6.2"
 
@@ -14,7 +13,7 @@ function isSuitableLLVMConfig(llvmConfigCandidate, qtcFunctions, processOutputRe
 
 function llvmConfig(qbs, qtcFunctions, processOutputReader)
 {
-    var llvmInstallDirFromEnv = Environment.getEnv("LLVM_INSTALL_DIR")
+    var llvmInstallDirFromEnv = qbs.getEnv("LLVM_INSTALL_DIR")
     var llvmConfigVariants = [
         "llvm-config", "llvm-config-3.2", "llvm-config-3.3", "llvm-config-3.4",
         "llvm-config-3.5", "llvm-config-3.6", "llvm-config-4.0", "llvm-config-4.1"
@@ -31,7 +30,7 @@ function llvmConfig(qbs, qtcFunctions, processOutputReader)
     }
 
     // Find llvm-config* in PATH
-    var pathListString = Environment.getEnv("PATH");
+    var pathListString = qbs.getEnv("PATH");
     var separator = qbs.hostOS.contains("windows") ? ";" : ":";
     var pathList = pathListString.split(separator);
     for (var i = 0; i < llvmConfigVariants.length; ++i) {

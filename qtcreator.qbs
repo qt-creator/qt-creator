@@ -1,5 +1,4 @@
 import qbs 1.0
-import qbs.Environment
 import qbs.FileInfo
 
 Project {
@@ -52,7 +51,7 @@ Project {
     property string ide_bin_path: qbs.targetOS.contains("osx")
             ? ide_app_target + ".app/Contents/MacOS"
             : ide_app_path
-    property bool testsEnabled: Environment.getEnv("TEST") || qbs.buildVariant === "debug"
+    property bool testsEnabled: qbs.getEnv("TEST") || qbs.buildVariant === "debug"
     property stringList generalDefines: [
         "QT_CREATOR",
         'IDE_LIBRARY_BASENAME="' + libDirName + '"',

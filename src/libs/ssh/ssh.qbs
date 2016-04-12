@@ -1,5 +1,4 @@
 import qbs 1.0
-import qbs.Environment
 
 QtcLibrary {
     name: "QtcSsh"
@@ -47,7 +46,7 @@ QtcLibrary {
         "sshsendfacility.cpp", "sshsendfacility_p.h",
     ].concat(botanFiles)
 
-    property var useSystemBotan: Environment.getEnv("USE_SYSTEM_BOTAN") === "1"
+    property var useSystemBotan: qbs.getEnv("USE_SYSTEM_BOTAN") === "1"
     property var botanIncludes: {
         var result = ["../3rdparty"];
         if (useSystemBotan)
