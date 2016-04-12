@@ -70,7 +70,7 @@ public:
 
 signals:
     void aboutToPerformFullParse();
-    void testParseResultReady(TestParseResult result);
+    void testParseResultReady(const TestParseResultPtr result);
     void parsingStarted();
     void parsingFinished();
     void parsingFailed();
@@ -101,7 +101,7 @@ private:
     bool m_singleShotScheduled;
     QSet<QString> m_postponedFiles;
     State m_parserState;
-    QFutureWatcher<TestParseResult> m_futureWatcher;
+    QFutureWatcher<TestParseResultPtr> m_futureWatcher;
 };
 
 } // namespace Internal

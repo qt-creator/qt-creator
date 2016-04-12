@@ -40,6 +40,8 @@ namespace Internal {
 class TestCodeParser;
 struct TestParseResult;
 
+using TestParseResultPtr = QSharedPointer<TestParseResult>;
+
 class TestTreeModel : public Utils::TreeModel
 {
     Q_OBJECT
@@ -91,10 +93,10 @@ signals:
 public slots:
 
 private:
-    void onParseResultReady(const TestParseResult &result);
-    void handleParseResult(const TestParseResult &result);
-    void handleUnnamedQuickParseResult(const TestParseResult &result);
-    void handleGTestParseResult(const TestParseResult &result);
+    void onParseResultReady(const TestParseResultPtr result);
+    void handleParseResult(const TestParseResultPtr result);
+    void handleUnnamedQuickParseResult(const TestParseResultPtr result);
+    void handleGTestParseResult(const TestParseResultPtr result);
     void removeAllTestItems();
     void removeFiles(const QStringList &files);
     void markForRemoval(const QString &filePath, Type type);
@@ -168,4 +170,4 @@ struct TestParseResult
 } // namespace Autotest
 
 Q_DECLARE_METATYPE(Autotest::Internal::TestTreeModel::Type)
-Q_DECLARE_METATYPE(Autotest::Internal::TestParseResult)
+Q_DECLARE_METATYPE(Autotest::Internal::TestParseResultPtr)
