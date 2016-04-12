@@ -44,7 +44,6 @@ QT_END_NAMESPACE
 
 namespace Core {
     class IEditor;
-    class IMode;
 }
 
 namespace QmlDesigner {
@@ -90,7 +89,7 @@ private slots:
     void switschToTextMode();
     void onTextEditorsClosed(QList<Core::IEditor *> editors);
     void onCurrentEditorChanged(Core::IEditor *editor);
-    void onCurrentModeChanged(Core::IMode *mode, Core::IMode *oldMode);
+    void onCurrentModeChanged(Core::Id mode, Core::Id oldMode);
 
 private: // functions
     void createDesignModeWidget();

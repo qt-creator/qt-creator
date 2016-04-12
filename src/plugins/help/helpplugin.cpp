@@ -241,8 +241,8 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
         SLOT(showLinkInHelpMode(QUrl)));
 
     QDesktopServices::setUrlHandler(QLatin1String("qthelp"), HelpManager::instance(), "handleHelpRequest");
-    connect(ModeManager::instance(), SIGNAL(currentModeChanged(Core::IMode*,Core::IMode*)),
-            this, SLOT(modeChanged(Core::IMode*,Core::IMode*)));
+    connect(ModeManager::instance(), &ModeManager::currentModeChanged,
+            this, &HelpPlugin::modeChanged);
 
     m_mode = new HelpMode;
     m_mode->setWidget(m_centralWidget);
@@ -445,10 +445,10 @@ void HelpPlugin::slotHideRightPane()
     RightPaneWidget::instance()->setShown(false);
 }
 
-void HelpPlugin::modeChanged(IMode *mode, IMode *old)
+void HelpPlugin::modeChanged(Core::Id mode, Core::Id old)
 {
     Q_UNUSED(old)
-    if (mode == m_mode) {
+    if (mode == m_mode->id()) {
         qApp->setOverrideCursor(Qt::WaitCursor);
         doSetupIfNeeded();
         qApp->restoreOverrideCursor();

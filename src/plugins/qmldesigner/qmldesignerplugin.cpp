@@ -203,9 +203,8 @@ void QmlDesignerPlugin::createDesignModeWidget()
             this,
             SLOT(onTextEditorsClosed(QList<Core::IEditor*>)));
 
-    connect(Core::ModeManager::instance(),
-            SIGNAL(currentModeChanged(Core::IMode*,Core::IMode*)),
-            SLOT(onCurrentModeChanged(Core::IMode*,Core::IMode*)));
+    connect(Core::ModeManager::instance(), &Core::ModeManager::currentModeChanged,
+            this, &QmlDesignerPlugin::onCurrentModeChanged);
 
 }
 
@@ -392,21 +391,21 @@ void QmlDesignerPlugin::onCurrentEditorChanged(Core::IEditor *editor)
     }
 }
 
-static bool isDesignerMode(Core::IMode *mode)
+static bool isDesignerMode(Core::Id mode)
 {
-    return mode == Core::DesignMode::instance();
+    return mode == Core::DesignMode::instance()->id();
 }
 
 
 
-static bool documentIsAlreadyOpen(DesignDocument *designDocument, Core::IEditor *editor, Core::IMode *newMode)
+static bool documentIsAlreadyOpen(DesignDocument *designDocument, Core::IEditor *editor, Core::Id newMode)
 {
     return designDocument
             && editor == designDocument->editor()
             && isDesignerMode(newMode);
 }
 
-void QmlDesignerPlugin::onCurrentModeChanged(Core::IMode *newMode, Core::IMode *oldMode)
+void QmlDesignerPlugin::onCurrentModeChanged(Core::Id newMode, Core::Id oldMode)
 {
     if (data
             && Core::EditorManager::currentEditor()

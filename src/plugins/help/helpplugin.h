@@ -42,7 +42,6 @@ class QUrl;
 QT_END_NAMESPACE
 
 namespace Core {
-class IMode;
 class MiniSplitter;
 class SideBar;
 class SideBarItem;
@@ -79,7 +78,7 @@ public:
     static HelpViewer *createHelpViewer(qreal zoom);
 
 private slots:
-    void modeChanged(Core::IMode *mode, Core::IMode *old);
+    void modeChanged(Core::Id mode, Core::Id old);
 
     void showContextHelp();
     void activateIndex();
