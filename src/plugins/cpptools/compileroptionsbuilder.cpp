@@ -92,6 +92,12 @@ void CompilerOptionsBuilder::addTargetTriple()
     }
 }
 
+void CompilerOptionsBuilder::enableExceptions()
+{
+    add(QLatin1String("-fcxx-exceptions"));
+    add(QLatin1String("-fexceptions"));
+}
+
 void CompilerOptionsBuilder::addHeaderPathOptions()
 {
     typedef ProjectPartHeaderPath HeaderPath;

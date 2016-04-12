@@ -91,6 +91,7 @@ public:
         optionsBuilder.addTargetTriple();
         optionsBuilder.addLanguageOption(fileKind);
         optionsBuilder.addOptionsForLanguage(/*checkForBorlandExtensions*/ true);
+        optionsBuilder.enableExceptions();
 
         optionsBuilder.addToolchainAndProjectDefines();
         optionsBuilder.undefineCppLanguageFeatureMacrosForMsvc2015();

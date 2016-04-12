@@ -169,6 +169,7 @@ public:
         optionsBuilder.addTargetTriple();
         optionsBuilder.addLanguageOption(fileKind);
         optionsBuilder.addOptionsForLanguage(false);
+        optionsBuilder.enableExceptions();
 
         // In gcc headers, lots of built-ins are referenced that clang does not understand.
         // Therefore, prevent the inclusion of the header that references them. Of course, this
@@ -184,9 +185,7 @@ public:
         optionsBuilder.addHeaderPathOptions();
         optionsBuilder.addMsvcCompatibilityVersion();
 
-        if (type == ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID)
-            optionsBuilder.add(QLatin1String("/EHsc")); // clang-cl does not understand exceptions
-        else
+        if (type != ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID)
             optionsBuilder.add(QLatin1String("-fPIC")); // TODO: Remove?
 
         QStringList options = optionsBuilder.options();
@@ -238,6 +237,14 @@ private:
         if (m_isMsvcToolchain)
             return QLatin1String("/D");
         return CompilerOptionsBuilder::defineOption();
+    }
+
+    void enableExceptions() override
+    {
+        if (m_isMsvcToolchain)
+            add(QLatin1String("/EHsc"));
+        else
+            CompilerOptionsBuilder::enableExceptions();
     }
 
 private:
