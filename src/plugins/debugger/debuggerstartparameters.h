@@ -74,7 +74,7 @@ public:
 
     // Used by Qml debugging.
     QString qmlServerAddress;
-    quint16 qmlServerPort = InvalidPort;
+    int qmlServerPort = InvalidPort;
 
     // Used by general remote debugging.
     QString remoteChannel;
