@@ -3928,8 +3928,8 @@ void tst_Dumpers::dumper_data()
                + Check("l3.2", "[2]", "2", "int") % NoCdbEngine
                + Check("l3.2.*", "*", "2", "int") % CdbEngine
 
-               + Check("l4.@2.0", "[0]", "1", "int") % NoCdbEngine
-               + Check("l4.@2.1", "[1]", "2", "int") % NoCdbEngine
+               + Check("l4.@1.0", "[0]", "1", "int") % NoCdbEngine
+               + Check("l4.@1.1", "[1]", "2", "int") % NoCdbEngine
                + Check("l4.list@t1.0", "[0]", "1", "int") % CdbEngine
                + Check("l4.list@t1.1", "[1]", "2", "int") % CdbEngine;
 
