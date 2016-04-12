@@ -162,6 +162,7 @@ void GdbRemoteServerEngine::uploadProcFinished()
 void GdbRemoteServerEngine::setupInferior()
 {
     QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
+    setLinuxOsAbi();
     const DebuggerRunParameters &rp = runParameters();
     QString executableFileName;
     if (!rp.inferior.executable.isEmpty()) {

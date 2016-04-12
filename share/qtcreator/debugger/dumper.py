@@ -429,6 +429,8 @@ class DumperBase:
 
     # Hex encoding operating on str or bytes, return str.
     def hexencode(self, s):
+        if s is None:
+            s = ''
         if sys.version_info[0] == 2:
             return s.encode("hex")
         if isinstance(s, str):
@@ -1049,12 +1051,23 @@ class DumperBase:
 
     # This is shared by pointer and array formatting.
     def tryPutSimpleFormattedPointer(self, value, typeName, innerTypeName, displayFormat, limit):
-        if displayFormat == AutomaticFormat and innerTypeName == "char":
-            # Use Latin1 as default for char *.
-            self.putType(typeName)
-            (elided, data) = self.encodeCArray(value, 1, limit)
-            self.putValue(data, "latin1", elided=elided)
-            return True
+        if displayFormat == AutomaticFormat:
+            if innerTypeName == "char":
+                # Use UTF-8 as default for char *.
+                self.putType(typeName)
+                (elided, data) = self.encodeCArray(value, 1, limit)
+                self.putValue(data, "utf8", elided=elided)
+                return True
+
+            if innerTypeName == "wchar_t":
+                self.putType(typeName)
+                charSize = self.lookupType('wchar_t').sizeof
+                (elided, data) = self.encodeCArray(value, charSize, limit)
+                if charSize == 2:
+                    self.putValue(data, "utf16", elided=elided)
+                else:
+                    self.putValue(data, "ucs4", elided=elided)
+                return True
 
         if displayFormat == Latin1StringFormat:
             self.putType(typeName)

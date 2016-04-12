@@ -150,6 +150,21 @@ public:
         IconsModeAnalyzeActiveColor,
         IconsModeHelpActiveColor,
 
+        /* Code model Icons */
+
+        IconsCodeModelKeywordColor,
+        IconsCodeModelClassColor,
+        IconsCodeModelStructColor,
+        IconsCodeModelFunctionColor,
+        IconsCodeModelVariableColor,
+        IconsCodeModelEnumColor,
+        IconsCodeModelMacroColor,
+        IconsCodeModelAttributeColor,
+        IconsCodeModelUniformColor,
+        IconsCodeModelVaryingColor,
+        IconsCodeModelOverlayBackgroundColor,
+        IconsCodeModelOverlayForegroundColor,
+
         /* Output panes */
 
         OutputPanes_DebugTextColor,

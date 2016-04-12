@@ -86,7 +86,7 @@ void GenericProjectPlugin::editFiles()
     auto genericProject = qobject_cast<GenericProject *>(ProjectTree::currentProject());
     if (!genericProject)
         return;
-    SelectableFilesDialogEditFiles sfd(genericProject->projectFilePath(),
+    SelectableFilesDialogEditFiles sfd(genericProject->projectDirectory(),
                                        Utils::transform(genericProject->files(), [](const QString &f) { return Utils::FileName::fromString(f); }),
                                        ICore::mainWindow());
     if (sfd.exec() == QDialog::Accepted)

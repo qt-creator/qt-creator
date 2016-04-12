@@ -248,7 +248,7 @@ LocatorWidget::LocatorWidget(Locator *qop) :
     layout->setMargin(0);
     layout->addWidget(m_fileLineEdit);
 
-    setWindowIcon(QIcon(QLatin1String(":/locator/images/locator.png")));
+    setWindowIcon(Icons::ZOOM.icon());
     const QPixmap pixmap = Icons::MAGNIFIER.pixmap();
     m_fileLineEdit->setFiltering(true);
     m_fileLineEdit->setButtonPixmap(Utils::FancyLineEdit::Left, pixmap);

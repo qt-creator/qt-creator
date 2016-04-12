@@ -65,8 +65,8 @@ void TextEditItem::setFormEditorItem(FormEditorItem *formEditorItem)
 
     NodeMetaInfo metaInfo = m_formEditorItem->qmlItemNode().modelNode().metaInfo();
     if (metaInfo.isValid() &&
-            (metaInfo.isSubclassOf("QtQuick.TextEdit", -1, -1)
-             || metaInfo.isSubclassOf("QtQuick.Controls.TextArea", -1, -1))) {
+            (metaInfo.isSubclassOf("QtQuick.TextEdit")
+             || metaInfo.isSubclassOf("QtQuick.Controls.TextArea"))) {
         QSize maximumSize = rect.size().toSize();
         activateTextEdit(maximumSize);
     } else {

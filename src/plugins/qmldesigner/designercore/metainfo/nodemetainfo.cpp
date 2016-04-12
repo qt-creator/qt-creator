@@ -1520,7 +1520,7 @@ bool NodeMetaInfo::isSubclassOf(const TypeName &type, int majorVersion, int mino
 
 bool NodeMetaInfo::isGraphicalItem() const
 {
-    return isSubclassOf("QtQuick.Item", -1, -1) || isSubclassOf("QtQuick.Window.Window", -1, -1);
+    return isSubclassOf("QtQuick.Item") || isSubclassOf("QtQuick.Window.Window");
 }
 
 void NodeMetaInfo::clearCache()
@@ -1530,25 +1530,25 @@ void NodeMetaInfo::clearCache()
 
 bool NodeMetaInfo::isLayoutable() const
 {
-    if (isSubclassOf("<cpp>.QDeclarativeBasePositioner", -1, -1))
+    if (isSubclassOf("<cpp>.QDeclarativeBasePositioner"))
         return true; //QtQuick 1
 
-    return isSubclassOf("QtQuick.Positioner", -1, -1)
-            || isSubclassOf("QtQuick.Layouts.Layout", -1, -1)
-            || isSubclassOf("QtQuick.Controls.SplitView", -1, -1);
+    return isSubclassOf("QtQuick.Positioner")
+            || isSubclassOf("QtQuick.Layouts.Layout")
+            || isSubclassOf("QtQuick.Controls.SplitView");
 }
 
 bool NodeMetaInfo::isView() const
 {
     return isValid() &&
-            (isSubclassOf("QtQuick.ListView", -1, -1) ||
-             isSubclassOf("QtQuick.GridView", -1, -1) ||
-             isSubclassOf("QtQuick.PathView", -1, -1));
+            (isSubclassOf("QtQuick.ListView") ||
+             isSubclassOf("QtQuick.GridView") ||
+             isSubclassOf("QtQuick.PathView"));
 }
 
 bool NodeMetaInfo::isTabView() const
 {
-    return isSubclassOf("QtQuick.Controls.TabView", -1, -1);
+    return isSubclassOf("QtQuick.Controls.TabView");
 }
 
 } // namespace QmlDesigner

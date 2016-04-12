@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>629</width>
+    <width>706</width>
     <height>472</height>
    </rect>
   </property>
@@ -343,7 +343,7 @@
         <item>
          <widget class="QLabel" name="label_4">
           <property name="text">
-           <string>Forward puppet output:</string>
+           <string>Forward QML emulation layer output:</string>
           </property>
          </widget>
         </item>
@@ -384,7 +384,7 @@
         <item>
          <widget class="QLabel" name="label_5">
           <property name="text">
-           <string>Debug puppet:</string>
+           <string>Debug QML emulation layer:</string>
           </property>
          </widget>
         </item>

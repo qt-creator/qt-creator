@@ -29,7 +29,7 @@ project = "untitled"
 
 def main():
     if platform.system() == "Darwin" and JIRA.isBugStillOpen(6853, JIRA.Bug.CREATOR):
-        test.xverify(False, "This test is unstable on Mac, see QTCREATORBUG-6853.")
+        test.xfail("This test is unstable on Mac, see QTCREATORBUG-6853.")
         return
     outputQDebug = "Output from qDebug()."
     outputStdOut = "Output from std::cout."

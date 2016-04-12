@@ -4,14 +4,10 @@
         <file>images/debugger_breakpoints.png</file>
         <file>images/debugger_continue.png</file>
         <file>images/debugger_continue@2x.png</file>
-        <file>images/debugger_continue_mask.png</file>
-        <file>images/debugger_continue_mask@2x.png</file>
-        <file>images/stop_overlay_small.png</file>
-        <file>images/stop_overlay_small@2x.png</file>
-        <file>images/interrupt_overlay_small.png</file>
-        <file>images/interrupt_overlay_small@2x.png</file>
-        <file>images/continue_overlay_small.png</file>
-        <file>images/continue_overlay_small@2x.png</file>
+        <file>images/debugger_continue_1_mask.png</file>
+        <file>images/debugger_continue_1_mask@2x.png</file>
+        <file>images/debugger_continue_2_mask.png</file>
+        <file>images/debugger_continue_2_mask@2x.png</file>
         <file>images/debugger_empty_14.png</file>
         <file>images/debugger_interrupt.png</file>
         <file>images/debugger_interrupt@2x.png</file>
@@ -50,6 +46,10 @@
         <file>images/qml/apply-on-save.png</file>
         <file>images/debugger_restart_small.png</file>
         <file>images/debugger_restart_small@2x.png</file>
+        <file>images/recordfill.png</file>
+        <file>images/recordfill@2x.png</file>
+        <file>images/recordoutline.png</file>
+        <file>images/recordoutline@2x.png</file>
         <file>Debugger.mimetypes.xml</file>
     </qresource>
 </RCC>

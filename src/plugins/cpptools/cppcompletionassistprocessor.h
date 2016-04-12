@@ -30,8 +30,6 @@
 #include <texteditor/codeassist/iassistprocessor.h>
 #include <texteditor/snippets/snippetassistcollector.h>
 
-#include <cplusplus/Icons.h>
-
 #include <functional>
 
 QT_BEGIN_NAMESPACE
@@ -66,7 +64,6 @@ protected:
     QList<TextEditor::AssistProposalItemInterface *> m_completions;
     QStringList m_preprocessorCompletions;
     TextEditor::IAssistProposal *m_hintProposal;
-    CPlusPlus::Icons m_icons;
 
 private:
     TextEditor::SnippetAssistCollector m_snippetCollector;

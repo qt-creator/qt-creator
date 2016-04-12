@@ -204,8 +204,11 @@ void CMakeProject::parseCMakeOutput()
 {
     auto cmakeBc = qobject_cast<CMakeBuildConfiguration *>(sender());
     QTC_ASSERT(cmakeBc, return);
-    if (!activeTarget() || activeTarget()->activeBuildConfiguration() != cmakeBc)
+
+    Target *t = activeTarget();
+    if (!t || t->activeBuildConfiguration() != cmakeBc)
         return;
+    Kit *k = t->kit();
 
     BuildDirManager *bdm = cmakeBc->buildDirManager();
     QTC_ASSERT(bdm, return);
@@ -216,10 +219,11 @@ void CMakeProject::parseCMakeOutput()
     bdm->clearFiles(); // Some of the FileNodes in files() were deleted!
 
     updateApplicationAndDeploymentTargets();
+    updateTargetRunConfigurations(t);
 
     createGeneratedCodeModelSupport();
 
-    ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(cmakeBc->target()->kit());
+    ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(k);
     if (!tc) {
         emit fileListChanged();
         return;
@@ -230,7 +234,7 @@ void CMakeProject::parseCMakeOutput()
     CppTools::ProjectPartBuilder ppBuilder(pinfo);
 
     CppTools::ProjectPart::QtVersion activeQtVersion = CppTools::ProjectPart::NoQt;
-    if (QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitInformation::qtVersion(cmakeBc->target()->kit())) {
+    if (QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitInformation::qtVersion(k)) {
         if (qtVersion->qtVersion() < QtSupport::QtVersionNumber(5,0,0))
             activeQtVersion = CppTools::ProjectPart::Qt4;
         else
@@ -264,8 +268,6 @@ void CMakeProject::parseCMakeOutput()
     emit fileListChanged();
 
     emit cmakeBc->emitBuildTypeChanged();
-
-    updateRunConfigurations();
 }
 
 bool CMakeProject::needsConfiguration() const
@@ -276,6 +278,11 @@ bool CMakeProject::needsConfiguration() const
 bool CMakeProject::requiresTargetPanel() const
 {
     return !targets().isEmpty();
+}
+
+bool CMakeProject::knowsAllBuildExecutables() const
+{
+    return false;
 }
 
 bool CMakeProject::supportsKit(Kit *k, QString *errorMessage) const
@@ -546,46 +553,33 @@ QStringList CMakeProject::filesGeneratedFrom(const QString &sourceFile) const
     }
 }
 
-void CMakeProject::updateRunConfigurations()
-{
-    foreach (Target *t, targets())
-        updateTargetRunConfigurations(t);
-}
-
-// TODO Compare with updateDefaultRunConfigurations();
 void CMakeProject::updateTargetRunConfigurations(Target *t)
 {
-    // create new and remove obsolete RCs using the factories
-    t->updateDefaultRunConfigurations();
+    // *Update* existing runconfigurations (no need to update new ones!):
+    QHash<QString, const CMakeBuildTarget *> buildTargetHash;
+    const QList<CMakeBuildTarget> buildTargetList = buildTargets();
+    foreach (const CMakeBuildTarget &bt, buildTargetList) {
+        if (bt.targetType != ExecutableType || bt.executable.isEmpty())
+            continue;
 
-    // *Update* runconfigurations:
-    QMultiMap<QString, CMakeRunConfiguration*> existingRunConfigurations;
-    foreach (ProjectExplorer::RunConfiguration *rc, t->runConfigurations()) {
-        if (CMakeRunConfiguration* cmakeRC = qobject_cast<CMakeRunConfiguration *>(rc))
-            existingRunConfigurations.insert(cmakeRC->title(), cmakeRC);
+        buildTargetHash.insert(bt.title, &bt);
     }
 
-    foreach (const CMakeBuildTarget &ct, buildTargets()) {
-        if (ct.targetType != ExecutableType)
+    foreach (RunConfiguration *rc, t->runConfigurations()) {
+        auto cmakeRc = qobject_cast<CMakeRunConfiguration *>(rc);
+        if (!cmakeRc)
             continue;
-        if (ct.executable.isEmpty())
-            continue;
-        QList<CMakeRunConfiguration *> list = existingRunConfigurations.values(ct.title);
-        if (!list.isEmpty()) {
-            // Already exists, so override the settings...
-            foreach (CMakeRunConfiguration *rc, list) {
-                rc->setExecutable(ct.executable);
-                rc->setBaseWorkingDirectory(ct.workingDirectory);
-                rc->setEnabled(true);
-            }
+
+        auto btIt = buildTargetHash.constFind(cmakeRc->title());
+        cmakeRc->setEnabled(btIt != buildTargetHash.constEnd());
+        if (btIt != buildTargetHash.constEnd()) {
+            cmakeRc->setExecutable(btIt.value()->executable);
+            cmakeRc->setBaseWorkingDirectory(btIt.value()->workingDirectory);
         }
     }
 
-    if (t->runConfigurations().isEmpty()) {
-        // Oh no, no run configuration,
-        // create a custom executable run configuration
-        t->addRunConfiguration(new QtSupport::CustomExecutableRunConfiguration(t));
-    }
+    // create new and remove obsolete RCs using the factories
+    t->updateDefaultRunConfigurations();
 }
 
 void CMakeProject::updateApplicationAndDeploymentTargets()

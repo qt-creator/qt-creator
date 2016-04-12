@@ -88,14 +88,14 @@ void GdbCoreEngine::setupEngine()
 
 static QString findExecutableFromName(const QString &fileNameFromCore, const QString &coreFile)
 {
-    if (QFileInfo(fileNameFromCore).isFile())
-        return fileNameFromCore;
     if (fileNameFromCore.isEmpty())
-        return QString();
+        return fileNameFromCore;
+    QFileInfo fi(fileNameFromCore);
+    if (fi.isFile())
+        return fileNameFromCore;
 
     // turn the filename into an absolute path, using the location of the core as a hint
     QString absPath;
-    QFileInfo fi(fileNameFromCore);
     if (fi.isAbsolute()) {
         absPath = fileNameFromCore;
     } else {
@@ -204,6 +204,7 @@ void GdbCoreEngine::writeCoreChunk()
 void GdbCoreEngine::setupInferior()
 {
     CHECK_STATE(InferiorSetupRequested);
+    setLinuxOsAbi();
     // Do that first, otherwise no symbols are loaded.
     QFileInfo fi(m_executable);
     QByteArray path = fi.absoluteFilePath().toLocal8Bit();

@@ -61,6 +61,14 @@ void CompilerOptionsBuilder::addDefine(const QByteArray &defineLine)
     m_options.append(defineLineToDefineOption(defineLine));
 }
 
+void CompilerOptionsBuilder::addTargetTriple()
+{
+    if (!m_projectPart.targetTriple.isEmpty()) {
+        m_options.append(QLatin1String("-target"));
+        m_options.append(m_projectPart.targetTriple);
+    }
+}
+
 void CompilerOptionsBuilder::addHeaderPathOptions()
 {
     typedef ProjectPartHeaderPath HeaderPath;

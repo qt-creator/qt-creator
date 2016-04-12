@@ -240,7 +240,7 @@ static bool isLoaderWithSourceComponent(const ModelNode &modelNode)
 {
     if (modelNode.isValid()
             && modelNode.metaInfo().isValid()
-            && modelNode.metaInfo().isSubclassOf("QtQuick.Loader", -1, -1)) {
+            && modelNode.metaInfo().isSubclassOf("QtQuick.Loader")) {
 
         if (modelNode.hasNodeProperty("sourceComponent"))
             return true;
@@ -256,7 +256,7 @@ static bool hasSourceWithFileComponent(const ModelNode &modelNode)
 {
     if (modelNode.isValid()
             && modelNode.metaInfo().isValid()
-            && modelNode.metaInfo().isSubclassOf("QtQuick.Loader", -1, -1)
+            && modelNode.metaInfo().isSubclassOf("QtQuick.Loader")
             && modelNode.hasVariantProperty("source"))
         return true;
 

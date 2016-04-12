@@ -47,10 +47,10 @@ namespace QmlDesigner {
 
 bool QmlItemNode::isItemOrWindow(const ModelNode &modelNode)
 {
-    if (modelNode.metaInfo().isSubclassOf("QtQuick.Item", -1, -1))
+    if (modelNode.metaInfo().isSubclassOf("QtQuick.Item"))
         return true;
 
-    if (modelNode.metaInfo().isSubclassOf("QtQuick.Window.Window", -1, -1) && modelNode.isRootNode())
+    if (modelNode.metaInfo().isSubclassOf("QtQuick.Window.Window") && modelNode.isRootNode())
         return true;
 
     return false;
@@ -364,7 +364,7 @@ bool QmlItemNode::instanceHasRotationTransform() const
 
 bool itemIsMovable(const ModelNode &modelNode)
 {
-    if (modelNode.metaInfo().isSubclassOf("QtQuick.Controls.Tab", -1, -1))
+    if (modelNode.metaInfo().isSubclassOf("QtQuick.Controls.Tab"))
         return false;
 
     if (modelNode.hasParentProperty()) {
@@ -599,7 +599,7 @@ bool QmlItemNode::isInLayout() const
         ModelNode parent = modelNode().parentProperty().parentModelNode();
 
         if (parent.isValid() && parent.metaInfo().isValid())
-            return parent.metaInfo().isSubclassOf("QtQuick.Layouts.Layout", -1, -1);
+            return parent.metaInfo().isSubclassOf("QtQuick.Layouts.Layout");
     }
 
     return false;

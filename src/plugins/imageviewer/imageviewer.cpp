@@ -102,9 +102,10 @@ void ImageViewer::ctor()
     d->ui_toolbar.setupUi(d->toolbar);
     d->ui_toolbar.toolButtonExportImage->setIcon(QIcon::fromTheme(QLatin1String("document-save"),
                                                                   Core::Icons::SAVEFILE.icon()));
+    d->ui_toolbar.toolButtonOutline->setIcon(Core::Icons::BOUNDING_RECT.icon());
     d->ui_toolbar.toolButtonZoomIn->setIcon(Core::Icons::PLUS.icon());
     d->ui_toolbar.toolButtonZoomOut->setIcon(Core::Icons::MINUS.icon());
-    d->ui_toolbar.toolButtonFitToScreen->setIcon(Core::Icons::ZOOM.icon());
+    d->ui_toolbar.toolButtonFitToScreen->setIcon(Core::Icons::ZOOM_TOOLBAR.icon());
     // icons update - try to use system theme
     updateButtonIconByTheme(d->ui_toolbar.toolButtonZoomIn, QLatin1String("zoom-in"));
     updateButtonIconByTheme(d->ui_toolbar.toolButtonZoomOut, QLatin1String("zoom-out"));
@@ -253,10 +254,10 @@ void ImageViewer::updatePauseAction()
     if (isMovie) {
         if (d->file->isPaused()) {
             d->ui_toolbar.toolButtonPlayPause->setToolTipBase(tr("Play Animation"));
-            d->ui_toolbar.toolButtonPlayPause->setIcon(QPixmap(QLatin1String(":/imageviewer/images/play-small.png")));
+            d->ui_toolbar.toolButtonPlayPause->setIcon(Core::Icons::RUN_SMALL.pixmap());
         } else {
             d->ui_toolbar.toolButtonPlayPause->setToolTipBase(tr("Pause Animation"));
-            d->ui_toolbar.toolButtonPlayPause->setIcon(QPixmap(QLatin1String(":/imageviewer/images/pause-small.png")));
+            d->ui_toolbar.toolButtonPlayPause->setIcon(Core::Icons::INTERRUPT_SMALL.pixmap());
         }
     }
 }

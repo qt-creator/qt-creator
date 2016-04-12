@@ -51,7 +51,7 @@ bool QmlPropertyChanges::isValid() const
 
 bool QmlPropertyChanges::isValidQmlPropertyChanges(const ModelNode &modelNode)
 {
-    return isValidQmlModelNodeFacade(modelNode) && modelNode.metaInfo().isSubclassOf("QtQuick.PropertyChanges", -1, -1);
+    return isValidQmlModelNodeFacade(modelNode) && modelNode.metaInfo().isSubclassOf("QtQuick.PropertyChanges");
 }
 
 bool QmlModelStateOperation::isValid() const
@@ -62,8 +62,8 @@ bool QmlModelStateOperation::isValid() const
 bool QmlModelStateOperation::isValidQmlModelStateOperation(const ModelNode &modelNode)
 {
     return isValidQmlModelNodeFacade(modelNode)
-            && (modelNode.metaInfo().isSubclassOf("<cpp>.QDeclarative1StateOperation", -1, -1)
-                || modelNode.metaInfo().isSubclassOf("<cpp>.QQuickStateOperation", -1, -1));
+            && (modelNode.metaInfo().isSubclassOf("<cpp>.QDeclarative1StateOperation")
+                || modelNode.metaInfo().isSubclassOf("<cpp>.QQuickStateOperation"));
 }
 
 void QmlPropertyChanges::removeProperty(const PropertyName &name)

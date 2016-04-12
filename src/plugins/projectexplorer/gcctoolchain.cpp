@@ -326,6 +326,8 @@ Abi GccToolChain::targetAbi() const
 
 QString GccToolChain::originalTargetTriple() const
 {
+    if (m_originalTargetTriple.isEmpty())
+        m_originalTargetTriple = detectSupportedAbis().originalTargetTriple;
     return m_originalTargetTriple;
 }
 

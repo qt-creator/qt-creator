@@ -538,7 +538,7 @@ void MainWindow::registerDefaultActions()
 
     // Save Action
     icon = QIcon::fromTheme(QLatin1String("document-save"), Icons::SAVEFILE.icon());
-    QAction *tmpaction = new QAction(icon, tr("&Save"), this);
+    QAction *tmpaction = new QAction(icon, EditorManager::tr("&Save"), this);
     tmpaction->setEnabled(false);
     cmd = ActionManager::registerAction(tmpaction, Constants::SAVE);
     cmd->setDefaultKeySequence(QKeySequence::Save);
@@ -548,7 +548,7 @@ void MainWindow::registerDefaultActions()
 
     // Save As Action
     icon = QIcon::fromTheme(QLatin1String("document-save-as"));
-    tmpaction = new QAction(icon, tr("Save &As..."), this);
+    tmpaction = new QAction(icon, EditorManager::tr("Save &As..."), this);
     tmpaction->setEnabled(false);
     cmd = ActionManager::registerAction(tmpaction, Constants::SAVEAS);
     cmd->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Ctrl+Shift+S") : QString()));

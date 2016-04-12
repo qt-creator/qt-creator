@@ -416,7 +416,7 @@ void FormEditorView::instanceInformationsChange(const QMultiHash<ModelNode, Info
 {
     QList<FormEditorItem*> itemNodeList;
 
-    foreach (const ModelNode &node, informationChangeHash.keys()) {
+    foreach (const ModelNode &node, informationChangeHash.keys().toSet()) {
         QmlItemNode qmlItemNode(node);
         if (qmlItemNode.isValid() && scene()->hasItemForQmlItemNode(qmlItemNode)) {
             scene()->synchronizeTransformation(qmlItemNode);

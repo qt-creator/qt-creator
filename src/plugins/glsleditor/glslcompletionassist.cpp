@@ -41,7 +41,9 @@
 #include <texteditor/codeassist/genericproposal.h>
 #include <texteditor/codeassist/functionhintproposal.h>
 #include <cplusplus/ExpressionUnderCursor.h>
+#include <cplusplus/Icons.h>
 
+#include <utils/icon.h>
 #include <utils/faketooltip.h>
 
 #include <QIcon>
@@ -138,6 +140,57 @@ static bool checkStartOfIdentifier(const QString &word)
     return false;
 }
 
+enum IconTypes {
+    IconTypeAttribute,
+    IconTypeUniform,
+    IconTypeKeyword,
+    IconTypeVarying,
+    IconTypeConst,
+    IconTypeVariable,
+    IconTypeType,
+    IconTypeFunction,
+    IconTypeOther
+};
+
+static QIcon glslIcon(IconTypes iconType)
+{
+    using namespace CPlusPlus;
+    using namespace Utils;
+
+    const QString member = QLatin1String(":/codemodel/images/member.png");
+
+    switch (iconType) {
+    case IconTypeType:
+        return Icons::iconForType(Icons::ClassIconType);
+    case IconTypeConst:
+        return Icons::iconForType(Icons::EnumeratorIconType);
+    case IconTypeKeyword:
+        return Icons::iconForType(Icons::KeywordIconType);
+    case IconTypeFunction:
+        return Icons::iconForType(Icons::FuncPublicIconType);
+    case IconTypeVariable:
+        return Icons::iconForType(Icons::VarPublicIconType);
+    case IconTypeAttribute: {
+        static const QIcon icon =
+                Icon({{member, Theme::IconsCodeModelAttributeColor}}, Icon::Tint).icon();
+        return icon;
+    }
+    case IconTypeUniform: {
+        static const QIcon icon =
+                Icon({{member, Theme::IconsCodeModelUniformColor}}, Icon::Tint).icon();
+        return icon;
+    }
+    case IconTypeVarying: {
+        static const QIcon icon =
+                Icon({{member, Theme::IconsCodeModelVaryingColor}}, Icon::Tint).icon();
+        return icon;
+    }
+    case IconTypeOther:
+    default:
+        return Icons::iconForType(Icons::NamespaceIconType);
+    }
+}
+
 // ----------------------------
 // GlslCompletionAssistProvider
 // ----------------------------
@@ -223,15 +276,6 @@ int GlslFunctionHintProposalModel::activeArgument(const QString &prefix) const
 // -----------------------------
 GlslCompletionAssistProcessor::GlslCompletionAssistProcessor()
     : m_startPosition(0)
-    , m_keywordIcon(QLatin1String(":/glsleditor/images/keyword.png"))
-    , m_varIcon(QLatin1String(":/glsleditor/images/var.png"))
-    , m_functionIcon(QLatin1String(":/glsleditor/images/func.png"))
-    , m_typeIcon(QLatin1String(":/glsleditor/images/type.png"))
-    , m_constIcon(QLatin1String(":/glsleditor/images/const.png"))
-    , m_attributeIcon(QLatin1String(":/glsleditor/images/attribute.png"))
-    , m_uniformIcon(QLatin1String(":/glsleditor/images/uniform.png"))
-    , m_varyingIcon(QLatin1String(":/glsleditor/images/varying.png"))
-    , m_otherIcon(QLatin1String(":/glsleditor/images/other.png"))
 {}
 
 GlslCompletionAssistProcessor::~GlslCompletionAssistProcessor()
@@ -385,9 +429,9 @@ IAssistProposal *GlslCompletionAssistProcessor::perform(const AssistInterface *i
                     0
                 };
                 for (int index = 0; attributeNames[index]; ++index)
-                    m_completions << createCompletionItem(QString::fromLatin1(attributeNames[index]), m_attributeIcon);
+                    m_completions << createCompletionItem(QString::fromLatin1(attributeNames[index]), glslIcon(IconTypeAttribute));
                 for (int index = 0; uniformNames[index]; ++index)
-                    m_completions << createCompletionItem(QString::fromLatin1(uniformNames[index]), m_uniformIcon);
+                    m_completions << createCompletionItem(QString::fromLatin1(uniformNames[index]), glslIcon(IconTypeUniform));
             }
         }
 
@@ -395,7 +439,7 @@ IAssistProposal *GlslCompletionAssistProcessor::perform(const AssistInterface *i
             QStringList keywords = GLSL::Lexer::keywords(languageVariant(m_interface->mimeType()));
 //            m_keywordCompletions.clear();
             for (int index = 0; index < keywords.size(); ++index)
-                m_completions << createCompletionItem(keywords.at(index), m_keywordIcon);
+                m_completions << createCompletionItem(keywords.at(index), glslIcon(IconTypeKeyword));
 //            m_keywordVariant = languageVariant(m_interface->mimeType());
 //        }
 
@@ -408,23 +452,23 @@ IAssistProposal *GlslCompletionAssistProcessor::perform(const AssistInterface *i
         if (var) {
             int storageType = var->qualifiers() & GLSL::QualifiedTypeAST::StorageMask;
             if (storageType == GLSL::QualifiedTypeAST::Attribute)
-                icon = m_attributeIcon;
+                icon = glslIcon(IconTypeAttribute);
             else if (storageType == GLSL::QualifiedTypeAST::Uniform)
-                icon = m_uniformIcon;
+                icon = glslIcon(IconTypeUniform);
             else if (storageType == GLSL::QualifiedTypeAST::Varying)
-                icon = m_varyingIcon;
+                icon = glslIcon(IconTypeVarying);
             else if (storageType == GLSL::QualifiedTypeAST::Const)
-                icon = m_constIcon;
+                icon = glslIcon(IconTypeConst);
             else
-                icon = m_varIcon;
+                icon = glslIcon(IconTypeVariable);
         } else if (s->asArgument()) {
-            icon = m_varIcon;
+            icon = glslIcon(IconTypeVariable);
         } else if (s->asFunction() || s->asOverloadSet()) {
-            icon = m_functionIcon;
+            icon = glslIcon(IconTypeFunction);
         } else if (s->asStruct()) {
-            icon = m_typeIcon;
+            icon = glslIcon(IconTypeType);
         } else {
-            icon = m_otherIcon;
+            icon = glslIcon(IconTypeOther);
         }
         if (specialMembers.contains(s->name()))
             m_completions << createCompletionItem(s->name(), icon, SpecialMemberOrder);

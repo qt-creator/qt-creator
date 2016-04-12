@@ -83,7 +83,7 @@ void EnterTabDesignerAction::updateContext()
         if (action()->isEnabled()) {
             const ModelNode selectedModelNode = selectionContext().currentSingleSelectedNode();
             if (selectedModelNode.metaInfo().isValid()
-                    && selectedModelNode.metaInfo().isSubclassOf("QtQuick.Controls.TabView", -1, -1)) {
+                    && selectedModelNode.metaInfo().isSubclassOf("QtQuick.Controls.TabView")) {
 
                 const NodeAbstractProperty defaultProperty = selectedModelNode.defaultNodeAbstractProperty();
                 foreach (const QmlDesigner::ModelNode &childModelNode, defaultProperty.directSubNodes()) {
@@ -117,7 +117,7 @@ bool EnterTabDesignerAction::isEnabled(const SelectionContext &selectionContext)
 void EnterTabDesignerAction::createActionForTab(const ModelNode &modelNode)
 {
     if (modelNode.metaInfo().isValid()
-            && modelNode.metaInfo().isSubclassOf("QtQuick.Controls.Tab", -1, -1)) {
+            && modelNode.metaInfo().isSubclassOf("QtQuick.Controls.Tab")) {
 
         QmlDesigner::QmlItemNode itemNode(modelNode);
 

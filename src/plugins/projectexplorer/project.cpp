@@ -684,6 +684,11 @@ bool Project::needsSpecialDeployment() const
     return false;
 }
 
+bool Project::knowsAllBuildExecutables() const
+{
+    return true;
+}
+
 void Project::setup(QList<const BuildInfo *> infoList)
 {
     QList<Target *> toRegister;

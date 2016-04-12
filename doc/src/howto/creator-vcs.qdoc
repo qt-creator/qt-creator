@@ -211,7 +211,7 @@
 
     With Git and Subversion, the diff is displayed side-by-side in a \l{Comparing Files}
     {diff editor} by default. To use the inline diff view instead, select the
-    \uicontrol {Switch to Text Diff Editor} option from the toolbar. In the inline
+    \uicontrol {Switch to Text Diff Editor} (1) option from the toolbar. In the inline
     diff view, you can use context menu commands to apply, revert, stage, and
     unstage hunks, as well as send them to a code pasting service.
 
@@ -241,12 +241,14 @@
     Display the versioning history of a file by selecting \uicontrol{Log}
     or \uicontrol{Filelog}. Typically, the log output contains the date, the commit
     message, and a change or revision identifier. Click on the identifier to
-    display a description of the change including the diff.
+    display a description of the change including the diff in the
+    \uicontrol {Git Show} view.
+
+    \image qtcreator-vcs-show.png
+
     Right-clicking on an identifier brings up a context menu that lets you
     show annotation views of previous versions (see \l{Annotating Files}).
     With Git you can also choose to cherry-pick or revert a change.
-
-    \image qtcreator-vcs-log.png
 
     \section2 Annotating Files
 

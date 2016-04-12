@@ -1092,6 +1092,7 @@ class Dumper(DumperBase):
                 self.putQObjectNameValue(value)
 
         if self.currentIName in self.expandedINames:
+            self.put('sortable="1"')
             with Children(self):
                 self.putFields(value)
                 if not self.showQObjectNames:
@@ -1134,8 +1135,6 @@ class Dumper(DumperBase):
                 baseObject = value.Cast(baseClass)
                 baseObjects.append(ChildItem(baseClass.GetName(), baseObject))
 
-        if self.sortStructMembers:
-            baseObjects.sort(key = lambda baseObject: str(baseObject.name))
         for i in xrange(len(baseObjects)):
             baseObject = baseObjects[i]
             with UnnamedSubItem(self, "@%d" % (i + 1)):
@@ -1147,8 +1146,6 @@ class Dumper(DumperBase):
         if memberCount > 10000:
             memberCount = 10000
         children = [value.GetChildAtIndex(memberBase + i) for i in xrange(memberCount)]
-        if self.sortStructMembers:
-            children.sort(key = lambda child: str(child.GetName()))
         for child in children:
             # Only needed in the QVariant4 test.
             if int(child.GetLoadAddress()) == 0xffffffffffffffff:
@@ -1169,7 +1166,6 @@ class Dumper(DumperBase):
 
         self.expandedINames = set(args.get('expanded', []))
         self.autoDerefPointers = int(args.get('autoderef', '0'))
-        self.sortStructMembers = bool(args.get('sortstructs', True));
         self.useDynamicType = int(args.get('dyntype', '0'))
         self.useFancy = int(args.get('fancy', '0'))
         self.passExceptions = int(args.get('passexceptions', '0'))
@@ -1390,12 +1386,12 @@ class Dumper(DumperBase):
         elif eventType == lldb.SBProcess.eBroadcastBitSTDOUT:
             # FIXME: Size?
             msg = self.process.GetSTDOUT(1024)
-            self.report('output={channel="stdout",data="%s"}'
-                % self.hexencode(msg))
+            if msg is not None:
+                self.report('output={channel="stdout",data="%s"}' % self.hexencode(msg))
         elif eventType == lldb.SBProcess.eBroadcastBitSTDERR:
             msg = self.process.GetSTDERR(1024)
-            self.report('output={channel="stderr",data="%s"}'
-                % self.hexencode(msg))
+            if msg is not None:
+                self.report('output={channel="stderr",data="%s"}' % self.hexencode(msg))
         elif eventType == lldb.SBProcess.eBroadcastBitProfileData:
             pass
 

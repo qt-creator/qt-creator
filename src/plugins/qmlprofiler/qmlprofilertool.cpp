@@ -37,6 +37,7 @@
 #include "qmlprofilersettings.h"
 #include "qmlprofilerplugin.h"
 
+#include <debugger/debuggericons.h>
 #include <debugger/analyzer/analyzermanager.h>
 #include <debugger/analyzer/analyzerruncontrol.h>
 #include <debugger/analyzer/analyzerstartparameters.h>
@@ -204,7 +205,7 @@ QmlProfilerTool::QmlProfilerTool(QObject *parent)
     setRecording(d->m_profilerState->clientRecording());
 
     d->m_clearButton = new QToolButton;
-    d->m_clearButton->setIcon(Icons::CLEAN_PANE.icon());
+    d->m_clearButton->setIcon(Core::Icons::CLEAN_PANE.icon());
     d->m_clearButton->setToolTip(tr("Discard data"));
 
     connect(d->m_clearButton, &QAbstractButton::clicked, [this](){
@@ -213,13 +214,13 @@ QmlProfilerTool::QmlProfilerTool(QObject *parent)
     });
 
     d->m_searchButton = new QToolButton;
-    d->m_searchButton->setIcon(Icons::ZOOM.icon());
+    d->m_searchButton->setIcon(Core::Icons::ZOOM_TOOLBAR.icon());
     d->m_searchButton->setToolTip(tr("Search timeline event notes."));
 
     connect(d->m_searchButton, &QToolButton::clicked, this, &QmlProfilerTool::showTimeLineSearch);
 
     d->m_displayFeaturesButton = new QToolButton;
-    d->m_displayFeaturesButton->setIcon(Icons::FILTER.icon());
+    d->m_displayFeaturesButton->setIcon(Core::Icons::FILTER.icon());
     d->m_displayFeaturesButton->setToolTip(tr("Hide or show event categories."));
     d->m_displayFeaturesButton->setPopupMode(QToolButton::InstantPopup);
     d->m_displayFeaturesButton->setProperty("noArrow", true);
@@ -428,10 +429,12 @@ void QmlProfilerTool::recordingButtonChanged(bool recording)
 
 void QmlProfilerTool::setRecording(bool recording)
 {
+    const static QIcon recordOn = Debugger::Icons::RECORD_ON.icon();
+    const static QIcon recordOff = Debugger::Icons::RECORD_OFF.icon();
+
     // update display
     d->m_recordButton->setToolTip( recording ? tr("Disable Profiling") : tr("Enable Profiling"));
-    d->m_recordButton->setIcon(QIcon(recording ? QLatin1String(":/qmlprofiler/recordOn.png") :
-                                                 QLatin1String(":/qmlprofiler/recordOff.png")));
+    d->m_recordButton->setIcon(recording ? recordOn : recordOff);
 
     d->m_recordButton->setChecked(recording);
 

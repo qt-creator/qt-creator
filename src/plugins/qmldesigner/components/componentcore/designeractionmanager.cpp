@@ -300,7 +300,7 @@ bool singleSelectionAndInQtQuickLayout(const SelectionContext &context)
     if (!metaInfo.isValid())
         return false;
 
-    return metaInfo.isSubclassOf("QtQuick.Layouts.Layout", -1, -1);
+    return metaInfo.isSubclassOf("QtQuick.Layouts.Layout");
 }
 
 bool isLayout(const SelectionContext &context)
@@ -321,7 +321,7 @@ bool isLayout(const SelectionContext &context)
     if (!metaInfo.isValid())
         return false;
 
-    return metaInfo.isSubclassOf("QtQuick.Layouts.Layout", -1, -1);
+    return metaInfo.isSubclassOf("QtQuick.Layouts.Layout");
 }
 
 bool isPositioner(const SelectionContext &context)
@@ -342,8 +342,8 @@ bool isPositioner(const SelectionContext &context)
     if (!metaInfo.isValid())
         return false;
 
-    return metaInfo.isSubclassOf("<cpp>.QDeclarativeBasePositioner", -1, -1)
-            || metaInfo.isSubclassOf("QtQuick.Positioner", -1, -1);
+    return metaInfo.isSubclassOf("<cpp>.QDeclarativeBasePositioner")
+            || metaInfo.isSubclassOf("QtQuick.Positioner");
 }
 
 bool layoutOptionVisible(const SelectionContext &context)

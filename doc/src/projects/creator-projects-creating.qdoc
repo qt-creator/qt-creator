@@ -172,8 +172,8 @@
 
             \li Qt Auto Test
 
-                Projects with boilerplate code for an autotest. For more
-                information, see \l {Creating Autotests}.
+                Projects with boilerplate code for a Qt test. For more
+                information, see \l {Creating Qt Tests}.
 
             \li Qt Quick UI
 

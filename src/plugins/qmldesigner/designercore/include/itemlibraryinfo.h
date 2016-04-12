@@ -75,7 +75,7 @@ public:
 
     QList<Property> properties() const;
 
-    void setType(const TypeName &typeName, int majorVersion, int minorVersion);
+    void setType(const TypeName &typeName, int majorVersion = -1, int minorVersion = -1);
     void setName(const QString &name);
     void setLibraryEntryIconPath(const QString &libraryEntryIconPath);
     void addProperty(const Property &p);

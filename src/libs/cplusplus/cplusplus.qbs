@@ -126,30 +126,6 @@ QtcLibrary {
         ]
     }
 
-    Group {
-        name: "Images"
-        prefix: "images/"
-        files: [
-            "class.png",
-            "struct.png",
-            "enum.png",
-            "enumerator.png",
-            "func.png",
-            "func_priv.png",
-            "func_prot.png",
-            "keyword.png",
-            "macro.png",
-            "namespace.png",
-            "signal.png",
-            "slot.png",
-            "slot_priv.png",
-            "slot_prot.png",
-            "var.png",
-            "var_priv.png",
-            "var_prot.png",
-        ]
-    }
-
     Export {
         cpp.includePaths: [
             "../3rdparty"

@@ -25,6 +25,7 @@
 
 #include "searchsymbols.h"
 
+#include <cplusplus/Icons.h>
 #include <cplusplus/LookupContext.h>
 #include <utils/qtcassert.h>
 #include <utils/scopedswap.h>
@@ -292,7 +293,7 @@ IndexItem::Ptr SearchSymbols::addChildItem(const QString &symbolName, const QStr
         m_paths.insert(symbol->fileId(), path);
     }
 
-    const QIcon icon = icons.iconForSymbol(symbol);
+    const QIcon icon = Icons::iconForSymbol(symbol);
     IndexItem::Ptr newItem = IndexItem::create(findOrInsert(symbolName),
                                                findOrInsert(symbolType),
                                                findOrInsert(symbolScope),

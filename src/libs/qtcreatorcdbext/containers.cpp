@@ -192,6 +192,7 @@ int containerSize(KnownType kt, const SymbolGroupValue &v)
     case KT_StdSet:
     case KT_StdMap:
     case KT_StdMultiMap:
+    case KT_StdValArray:
     case KT_StdList:
         if (const SymbolGroupValue size = SymbolGroupValue::findMember(v, "_Mysize"))
             return size.intValue();
@@ -349,27 +350,40 @@ static inline AbstractSymbolGroupNodePtrVector
     return AbstractSymbolGroupNodePtrVector();
 }
 
+
+static inline AbstractSymbolGroupNodePtrVector
+    arrayChildListHelper(SymbolGroupNode *n, unsigned count, const SymbolGroupValueContext &ctx,
+                         std::string arrayMember)
+{
+    if (!count)
+        return AbstractSymbolGroupNodePtrVector();
+    const SymbolGroupValue val = SymbolGroupValue(n, ctx);
+    SymbolGroupValue arrayPtr = SymbolGroupValue::findMember(val, arrayMember.c_str());
+    if (!arrayPtr)
+        return AbstractSymbolGroupNodePtrVector();
+    // arrayMember is a pointer of T*. Get address element to obtain address.
+    const ULONG64 address = arrayPtr.pointerValue();
+    if (!address)
+        return AbstractSymbolGroupNodePtrVector();
+    const std::string firstType = arrayPtr.type();
+    const std::string innerType = fixInnerType(SymbolGroupValue::stripPointerType(firstType), val);
+    if (SymbolGroupValue::verbose)
+        DebugPrint() << n->name() << " inner type: '" << innerType << "' from '" << firstType << '\'';
+    return arrayChildList(n->symbolGroup(), address, n->module(), innerType, count);
+}
+
 // std::vector<T>
 static inline AbstractSymbolGroupNodePtrVector
     stdVectorChildList(SymbolGroupNode *n, unsigned count, const SymbolGroupValueContext &ctx)
 {
-    if (!count)
-        return AbstractSymbolGroupNodePtrVector();
-    // MSVC2012 has 2 base classes, MSVC2010 1, MSVC2008 none
-    const SymbolGroupValue vec = SymbolGroupValue(n, ctx);
-    SymbolGroupValue myFirst = SymbolGroupValue::findMember(vec, "_Myfirst");
-    if (!myFirst)
-        return AbstractSymbolGroupNodePtrVector();
-    // std::vector<T>: _Myfirst is a pointer of T*. Get address
-    // element to obtain address.
-    const ULONG64 address = myFirst.pointerValue();
-    if (!address)
-        return AbstractSymbolGroupNodePtrVector();
-    const std::string firstType = myFirst.type();
-    const std::string innerType = fixInnerType(SymbolGroupValue::stripPointerType(firstType), vec);
-    if (SymbolGroupValue::verbose)
-        DebugPrint() << n->name() << " inner type: '" << innerType << "' from '" << firstType << '\'';
-    return arrayChildList(n->symbolGroup(), address, n->module(), innerType, count);
+    return arrayChildListHelper(n, count, ctx, "_Myfirst");
+}
+
+// std::valarray<T>
+static inline AbstractSymbolGroupNodePtrVector stdValArrayChildList(
+        SymbolGroupNode *n, unsigned count, const SymbolGroupValueContext &ctx)
+{
+    return arrayChildListHelper(n, count, ctx, "_Myptr");
 }
 
 // Helper for std::deque<>: From the array of deque blocks, read out the values.
@@ -1142,6 +1156,8 @@ AbstractSymbolGroupNodePtrVector containerChildren(SymbolGroupNode *node, int ty
         return stdListChildList(node, size , ctx);
     case KT_StdArray:
         return stdArrayChildList(node, size , ctx);
+    case KT_StdValArray:
+        return stdValArrayChildList(node, size , ctx);
     case KT_StdDeque:
         return stdDequeChildList(SymbolGroupValue(node, ctx), size);
     case KT_StdStack:

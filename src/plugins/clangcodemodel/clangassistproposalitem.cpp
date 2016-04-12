@@ -219,7 +219,6 @@ QString ClangAssistProposalItem::text() const
 QIcon ClangAssistProposalItem::icon() const
 {
     using CPlusPlus::Icons;
-    static const CPlusPlus::Icons m_icons;
     static const char SNIPPET_ICON_PATH[] = ":/texteditor/images/snippet.png";
     static const QIcon snippetIcon = QIcon(QLatin1String(SNIPPET_ICON_PATH));
 
@@ -227,11 +226,11 @@ QIcon ClangAssistProposalItem::icon() const
         case CodeCompletion::ClassCompletionKind:
         case CodeCompletion::TemplateClassCompletionKind:
         case CodeCompletion::TypeAliasCompletionKind:
-            return m_icons.iconForType(Icons::ClassIconType);
+            return Icons::iconForType(Icons::ClassIconType);
         case CodeCompletion::EnumerationCompletionKind:
-            return m_icons.iconForType(Icons::EnumIconType);
+            return Icons::iconForType(Icons::EnumIconType);
         case CodeCompletion::EnumeratorCompletionKind:
-            return m_icons.iconForType(Icons::EnumeratorIconType);
+            return Icons::iconForType(Icons::EnumeratorIconType);
         case CodeCompletion::ConstructorCompletionKind:
         case CodeCompletion::DestructorCompletionKind:
         case CodeCompletion::FunctionCompletionKind:
@@ -240,39 +239,39 @@ QIcon ClangAssistProposalItem::icon() const
             switch (m_codeCompletion.availability()) {
                 case CodeCompletion::Available:
                 case CodeCompletion::Deprecated:
-                    return m_icons.iconForType(Icons::FuncPublicIconType);
+                    return Icons::iconForType(Icons::FuncPublicIconType);
                 default:
-                    return m_icons.iconForType(Icons::FuncPrivateIconType);
+                    return Icons::iconForType(Icons::FuncPrivateIconType);
             }
         case CodeCompletion::SignalCompletionKind:
-            return m_icons.iconForType(Icons::SignalIconType);
+            return Icons::iconForType(Icons::SignalIconType);
         case CodeCompletion::SlotCompletionKind:
             switch (m_codeCompletion.availability()) {
                 case CodeCompletion::Available:
                 case CodeCompletion::Deprecated:
-                    return m_icons.iconForType(Icons::SlotPublicIconType);
+                    return Icons::iconForType(Icons::SlotPublicIconType);
                 case CodeCompletion::NotAccessible:
                 case CodeCompletion::NotAvailable:
-                    return m_icons.iconForType(Icons::SlotPrivateIconType);
+                    return Icons::iconForType(Icons::SlotPrivateIconType);
             }
         case CodeCompletion::NamespaceCompletionKind:
-            return m_icons.iconForType(Icons::NamespaceIconType);
+            return Icons::iconForType(Icons::NamespaceIconType);
         case CodeCompletion::PreProcessorCompletionKind:
-            return m_icons.iconForType(Icons::MacroIconType);
+            return Icons::iconForType(Icons::MacroIconType);
         case CodeCompletion::VariableCompletionKind:
             switch (m_codeCompletion.availability()) {
                 case CodeCompletion::Available:
                 case CodeCompletion::Deprecated:
-                    return m_icons.iconForType(Icons::VarPublicIconType);
+                    return Icons::iconForType(Icons::VarPublicIconType);
                 default:
-                    return m_icons.iconForType(Icons::VarPrivateIconType);
+                    return Icons::iconForType(Icons::VarPrivateIconType);
             }
         case CodeCompletion::KeywordCompletionKind:
-            return m_icons.iconForType(Icons::KeywordIconType);
+            return Icons::iconForType(Icons::KeywordIconType);
         case CodeCompletion::ClangSnippetKind:
             return snippetIcon;
         case CodeCompletion::Other:
-            return m_icons.iconForType(Icons::UnknownIconType);
+            return Icons::iconForType(Icons::UnknownIconType);
     }
 
     return QIcon();

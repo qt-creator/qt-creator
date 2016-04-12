@@ -1917,6 +1917,13 @@ void GdbEngine::handleGdbExit(const DebuggerResponse &response)
     }
 }
 
+void GdbEngine::setLinuxOsAbi()
+{
+    // In case GDB has multiple supported targets, the default osabi can be Cygwin.
+    if (HostOsInfo::isWindowsHost() && runParameters().toolChainAbi.binaryFormat() == Abi::ElfFormat)
+        runCommand({"set osabi GNU/Linux"});
+}
+
 void GdbEngine::detachDebugger()
 {
     CHECK_STATE(InferiorStopOk);
@@ -2773,7 +2780,7 @@ void GdbEngine::insertBreakpoint(Breakpoint bp)
 
         QByteArray condition = bp.condition();
         if (!condition.isEmpty())
-            cmd.function += " -c \"" + condition + "\" ";
+            cmd.function += " -c \"" + condition.replace('"', "\\\"") + "\" ";
 
         cmd.function += breakpointLocation(bp.parameters());
         cmd.callback = [this, bp](const DebuggerResponse &r) { handleBreakInsert1(r, bp); };
@@ -4002,7 +4009,7 @@ void GdbEngine::startGdb(const QStringList &args)
     showMessage(_("STARTING ") + m_gdb + _(" ") + gdbArgs.join(QLatin1Char(' ')));
     m_gdbProc.setCommand(m_gdb, QtcProcess::joinArgs(gdbArgs));
     Environment env = Environment(m_gdbProc.systemEnvironment());
-    env.set(QLatin1String("LANG"), QLatin1String("C"));
+    env.set(QLatin1String("LC_NUMERIC"), QLatin1String("C"));
     m_gdbProc.setEnvironment(env);
     m_gdbProc.start();
 
@@ -4596,7 +4603,6 @@ void GdbEngine::doUpdateLocals(const UpdateParameters &params)
 
     cmd.arg("resultvarname", m_resultVarName);
     cmd.arg("partialvar", params.partialVariable);
-    cmd.arg("sortstructs", boolSetting(SortStructMembers));
     cmd.callback = CB(handleFetchVariables);
     runCommand(cmd);
 

@@ -590,14 +590,10 @@ void Target::updateDefaultRunConfigurations()
     QList<RunConfiguration *> newConfigured; // NEW configured Rcs
     QList<RunConfiguration *> newUnconfigured; // NEW unconfigured RCs
 
-
     // sort existing RCs into configured/unconfigured.
-    foreach (RunConfiguration *rc, runConfigurations()) {
-        if (!rc->isConfigured())
-            existingUnconfigured << rc;
-        else
-            existingConfigured << rc;
-    }
+    std::tie(existingConfigured, existingUnconfigured)
+            = Utils::partition(runConfigurations(),
+                               [](const RunConfiguration *rc) { return rc->isConfigured(); });
     int configuredCount = existingConfigured.count();
 
     // find all RC ids that can get created:
@@ -617,7 +613,7 @@ void Target::updateDefaultRunConfigurations()
     foreach (RunConfiguration *rc, existingConfigured) {
         if (availableFactoryIds.contains(rc->id()))
             toIgnore.append(rc->id()); // Already there
-        else
+        else if (project()->knowsAllBuildExecutables())
             toRemove << rc;
     }
     foreach (Core::Id i, toIgnore)
@@ -679,25 +675,27 @@ void Target::updateDefaultRunConfigurations()
 
     // Make sure a configured RC will be active after we delete the RCs:
     RunConfiguration *active = activeRunConfiguration();
-    if (removalList.contains(active)) {
-        if (!existingConfigured.isEmpty()) {
-            setActiveRunConfiguration(existingConfigured.at(0));
-        } else if (!newConfigured.isEmpty()) {
-            RunConfiguration *selected = newConfigured.at(0);
-            // Try to find a runconfiguration that matches the project name. That is a good
-            // candidate for something to run initially.
-            selected = Utils::findOr(newConfigured, selected,
-                                     Utils::equal(&RunConfiguration::displayName, project()->displayName()));
-            setActiveRunConfiguration(selected);
-        } else if (!newUnconfigured.isEmpty()){
-            setActiveRunConfiguration(newUnconfigured.at(0));
-        } else {
-            if (!removalList.isEmpty())
-                setActiveRunConfiguration(removalList.last());
-            // Nothing will be left after removal: We set this to the last of in the removal list
-            // since that gives us the minimum number of signals (one signal for the change here and
-            // one more when the last RC is removed and the active RC becomes 0).
+    if (removalList.contains(active) || !active->isEnabled()) {
+        RunConfiguration *newConfiguredDefault = newConfigured.isEmpty() ? nullptr : newConfigured.at(0);
+
+        RunConfiguration *rc
+                = Utils::findOrDefault(existingConfigured,
+                                       [](RunConfiguration *rc) { return rc->isEnabled(); });
+        if (!rc) {
+            rc = Utils::findOr(newConfigured, newConfiguredDefault,
+                               Utils::equal(&RunConfiguration::displayName, project()->displayName()));
         }
+        if (!rc)
+            rc = newUnconfigured.isEmpty() ? nullptr : newUnconfigured.at(0);
+        if (!rc) {
+            // No RCs will be deleted, so use the one that will emit the minimum number of signals.
+            // One signal will be emitted from the next setActiveRunConfiguration, another one
+            // when the RC gets removed (and the activeRunConfiguration turns into a nullptr).
+            rc = removalList.isEmpty() ? nullptr : removalList.last();
+        }
+
+        if (rc)
+            setActiveRunConfiguration(rc);
     }
 
     // Remove the RCs that are no longer needed:

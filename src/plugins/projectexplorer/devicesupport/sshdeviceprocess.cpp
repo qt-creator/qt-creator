@@ -80,7 +80,11 @@ SshDeviceProcess::~SshDeviceProcess()
 void SshDeviceProcess::start(const Runnable &runnable)
 {
     QTC_ASSERT(d->state == SshDeviceProcessPrivate::Inactive, return);
-    QTC_ASSERT(runnable.is<StandardRunnable>(), return);
+    if (!runnable.is<StandardRunnable>()) {
+        d->errorMessage = tr("Internal error");
+        error(QProcess::FailedToStart);
+        return;
+    }
     d->setState(SshDeviceProcessPrivate::Connecting);
 
     d->errorMessage.clear();

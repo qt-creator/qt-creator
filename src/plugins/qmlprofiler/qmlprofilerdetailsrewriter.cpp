@@ -133,6 +133,8 @@ void QmlProfilerDetailsRewriter::requestDetailsForLocation(int requestId,
     if (!QmlJS::ModelManagerInterface::guessLanguageOfFile(localFile).isQmlLikeLanguage())
         return;
 
+    localFile = fileInfo.canonicalFilePath();
+
     PendingEvent ev = {location, localFile, requestId};
     d->m_pendingEvents << ev;
     if (!d->m_pendingDocs.contains(localFile)) {

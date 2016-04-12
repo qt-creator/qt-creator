@@ -30,6 +30,7 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
+#include <coreplugin/coreicons.h>
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/fileiconprovider.h>
 #include <coreplugin/id.h>
@@ -47,7 +48,6 @@
 #include <projectexplorer/target.h>
 #include <projectexplorer/iprojectmanager.h>
 #include <projectexplorer/projectnodes.h>
-#include <projectexplorer/projectexplorericons.h>
 
 #include <texteditor/texteditorconstants.h>
 
@@ -1061,7 +1061,7 @@ RunControl *PythonRunControlFactory::create(RunConfiguration *runConfiguration, 
 PythonRunControl::PythonRunControl(PythonRunConfiguration *rc, Core::Id mode)
     : RunControl(rc, mode), m_running(false)
 {
-    setIcon(ProjectExplorer::Icons::RUN_SMALL);
+    setIcon(Core::Icons::RUN_SMALL);
 
     m_interpreter = rc->interpreter();
     m_mainScript = rc->mainScript();

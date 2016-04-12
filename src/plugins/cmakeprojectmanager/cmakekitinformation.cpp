@@ -323,15 +323,22 @@ void CMakeConfigurationKitInformation::fromStringList(Kit *k, const QStringList 
     setConfiguration(k, result);
 }
 
+CMakeConfig CMakeConfigurationKitInformation::defaultConfiguration(const Kit *k)
+{
+    Q_UNUSED(k);
+    CMakeConfig config;
+    config << CMakeConfigItem(CMAKE_QMAKE_KEY, "%{Qt:qmakeExecutable}");
+    config << CMakeConfigItem(CMAKE_TOOLCHAIN_KEY, "%{Compiler:Executable}");
+
+    return config;
+}
+
 QVariant CMakeConfigurationKitInformation::defaultValue(const Kit *k) const
 {
     Q_UNUSED(k);
 
     // FIXME: Convert preload scripts
-    CMakeConfig config;
-    config << CMakeConfigItem(CMAKE_QMAKE_KEY, "%{Qt:qmakeExecutable}");
-    config << CMakeConfigItem(CMAKE_TOOLCHAIN_KEY, "%{Compiler:Executable}");
-
+    CMakeConfig config = defaultConfiguration(k);
     const QStringList tmp
             = Utils::transform(config, [](const CMakeConfigItem &i) { return i.toString(); });
     return tmp;

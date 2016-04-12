@@ -93,6 +93,7 @@ protected: ////////// Gdb Process Management //////////
     void startGdb(const QStringList &args = QStringList());
     void handleInferiorShutdown(const DebuggerResponse &response);
     void handleGdbExit(const DebuggerResponse &response);
+    void setLinuxOsAbi();
 
     void loadInitScript();
     void setEnvironmentVariables();

@@ -71,7 +71,6 @@ ClangStaticAnalyzerRunControl::ClangStaticAnalyzerRunControl(
             const ProjectInfo &projectInfo)
     : AnalyzerRunControl(runConfiguration, runMode)
     , m_projectInfo(projectInfo)
-    , m_wordWidth(runConfiguration->abi().wordWidth())
     , m_initialFilesToProcessSize(0)
     , m_filesAnalyzed(0)
     , m_filesNotAnalyzed(0)
@@ -80,7 +79,13 @@ ClangStaticAnalyzerRunControl::ClangStaticAnalyzerRunControl(
     BuildConfiguration *buildConfiguration = target->activeBuildConfiguration();
     QTC_ASSERT(buildConfiguration, return);
     m_environment = buildConfiguration->environment();
-    m_targetTriple = ToolChainKitInformation::toolChain(target->kit())->originalTargetTriple();
+
+    ToolChain *toolChain = ToolChainKitInformation::toolChain(target->kit());
+    QTC_ASSERT(toolChain, return);
+    Abi abi = runConfiguration->abi();
+    m_extraToolChainInfo.wordWidth = abi.wordWidth();
+    m_extraToolChainInfo.isMsvc2015 = abi.osFlavor() == Abi::WindowsMsvc2015Flavor;
+    m_extraToolChainInfo.targetTriple = toolChain->originalTargetTriple();
 }
 
 static void prependWordWidthArgumentIfNotIncluded(QStringList *arguments, unsigned char wordWidth)
@@ -113,13 +118,8 @@ static void prependTargetTripleIfNotIncludedAndNotEmpty(QStringList *arguments,
     }
 }
 
-// Removes (1) filePath (2) -o <somePath>.
-// Prepends -m64/-m32 argument if not already included.
-// Prepends -target if not already included.
-static QStringList tweakedArguments(const QString &filePath,
-                                    const QStringList &arguments,
-                                    unsigned char wordWidth,
-                                    const QString &targetTriple)
+// Removes (1) inputFile (2) -o <somePath>.
+QStringList inputAndOutputArgumentsRemoved(const QString &inputFile, const QStringList &arguments)
 {
     QStringList newArguments;
 
@@ -131,7 +131,7 @@ static QStringList tweakedArguments(const QString &filePath,
         } else if (argument == QLatin1String("-o")) {
             skip = true;
             continue;
-        } else if (QDir::fromNativeSeparators(argument) == filePath) {
+        } else if (QDir::fromNativeSeparators(argument) == inputFile) {
             continue; // TODO: Let it in?
         }
 
@@ -139,8 +139,74 @@ static QStringList tweakedArguments(const QString &filePath,
     }
     QTC_CHECK(skip == false);
 
-    prependWordWidthArgumentIfNotIncluded(&newArguments, wordWidth);
-    prependTargetTripleIfNotIncludedAndNotEmpty(&newArguments, targetTriple);
+    return newArguments;
+}
+
+static void appendMsCompatibility2015OptionForMsvc2015(QStringList *arguments, bool isMsvc2015)
+{
+    QTC_ASSERT(arguments, return);
+
+    if (isMsvc2015)
+        arguments->append(QLatin1String("-fms-compatibility-version=19"));
+}
+
+static QStringList languageFeatureMacros()
+{
+    // Collected with:
+    //  $ CALL "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" x86
+    //  $ D:\usr\llvm-3.8.0\bin\clang++.exe -fms-compatibility-version=19 -std=c++1y -dM -E D:\empty.cpp | grep __cpp_
+    static QStringList macros {
+        QLatin1String("__cpp_aggregate_nsdmi"),
+        QLatin1String("__cpp_alias_templates"),
+        QLatin1String("__cpp_attributes"),
+        QLatin1String("__cpp_binary_literals"),
+        QLatin1String("__cpp_constexpr"),
+        QLatin1String("__cpp_decltype"),
+        QLatin1String("__cpp_decltype_auto"),
+        QLatin1String("__cpp_delegating_constructors"),
+        QLatin1String("__cpp_digit_separators"),
+        QLatin1String("__cpp_generic_lambdas"),
+        QLatin1String("__cpp_inheriting_constructors"),
+        QLatin1String("__cpp_init_captures"),
+        QLatin1String("__cpp_initializer_lists"),
+        QLatin1String("__cpp_lambdas"),
+        QLatin1String("__cpp_nsdmi"),
+        QLatin1String("__cpp_range_based_for"),
+        QLatin1String("__cpp_raw_strings"),
+        QLatin1String("__cpp_ref_qualifiers"),
+        QLatin1String("__cpp_return_type_deduction"),
+        QLatin1String("__cpp_rtti"),
+        QLatin1String("__cpp_rvalue_references"),
+        QLatin1String("__cpp_static_assert"),
+        QLatin1String("__cpp_unicode_characters"),
+        QLatin1String("__cpp_unicode_literals"),
+        QLatin1String("__cpp_user_defined_literals"),
+        QLatin1String("__cpp_variable_templates"),
+        QLatin1String("__cpp_variadic_templates"),
+    };
+
+    return macros;
+}
+
+static void undefineCppLanguageFeatureMacrosForMsvc2015(QStringList *arguments, bool isMsvc2015)
+{
+    QTC_ASSERT(arguments, return);
+
+    if (isMsvc2015) {
+        foreach (const QString &macroName, languageFeatureMacros())
+            arguments->append(QLatin1String("/U") + macroName);
+    }
+}
+
+static QStringList tweakedArguments(const QString &filePath,
+                                    const QStringList &arguments,
+                                    const ExtraToolChainInfo &extraParams)
+{
+    QStringList newArguments = inputAndOutputArgumentsRemoved(filePath, arguments);
+    prependWordWidthArgumentIfNotIncluded(&newArguments, extraParams.wordWidth);
+    prependTargetTripleIfNotIncludedAndNotEmpty(&newArguments, extraParams.targetTriple);
+    appendMsCompatibility2015OptionForMsvc2015(&newArguments, extraParams.isMsvc2015);
+    undefineCppLanguageFeatureMacrosForMsvc2015(&newArguments, extraParams.isMsvc2015);
 
     return newArguments;
 }
@@ -167,10 +233,11 @@ class ClangStaticAnalyzerOptionsBuilder : public CompilerOptionsBuilder
 public:
     static QStringList build(const CppTools::ProjectPart &projectPart,
                              CppTools::ProjectFile::Kind fileKind,
-                             unsigned char wordWidth,
-                             const QString &targetTriple)
+                             const ExtraToolChainInfo &extraParams)
     {
         ClangStaticAnalyzerOptionsBuilder optionsBuilder(projectPart);
+
+        optionsBuilder.addTargetTriple();
         optionsBuilder.addLanguageOption(fileKind);
         optionsBuilder.addOptionsForLanguage(false);
 
@@ -192,8 +259,9 @@ public:
             optionsBuilder.add(QLatin1String("-fPIC")); // TODO: Remove?
 
         QStringList options = optionsBuilder.options();
-        prependWordWidthArgumentIfNotIncluded(&options, wordWidth);
-        prependTargetTripleIfNotIncludedAndNotEmpty(&options, targetTriple);
+        prependWordWidthArgumentIfNotIncluded(&options, extraParams.wordWidth);
+        appendMsCompatibility2015OptionForMsvc2015(&options, extraParams.isMsvc2015);
+        undefineCppLanguageFeatureMacrosForMsvc2015(&options, extraParams.isMsvc2015);
 
         return options;
     }
@@ -203,6 +271,15 @@ private:
         : CompilerOptionsBuilder(projectPart)
         , m_isMsvcToolchain(m_projectPart.toolchainType == ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID)
     {
+    }
+
+    void addTargetTriple() override
+    {
+        // For MSVC toolchains we use clang-cl.exe, so there is nothing to do here since
+        //    1) clang-cl.exe does not understand the "-triple" option
+        //    2) clang-cl.exe already hardcodes the right triple value (even if built with mingw)
+        if (m_projectPart.toolchainType != ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID)
+            CompilerOptionsBuilder::addTargetTriple();
     }
 
     void addLanguageOption(ProjectFile::Kind fileKind) override
@@ -240,8 +317,7 @@ private:
 
 static AnalyzeUnits unitsToAnalyzeFromCompilerCallData(
             const ProjectInfo::CompilerCallData &compilerCallData,
-            unsigned char wordWidth,
-            const QString &targetTriple)
+            const ExtraToolChainInfo &extraParams)
 {
     qCDebug(LOG) << "Taking arguments for analyzing from CompilerCallData.";
 
@@ -253,7 +329,7 @@ static AnalyzeUnits unitsToAnalyzeFromCompilerCallData(
         const QString file = it.key();
         const QList<QStringList> compilerCalls = it.value();
         foreach (const QStringList &options, compilerCalls) {
-            const QStringList arguments = tweakedArguments(file, options, wordWidth, targetTriple);
+            const QStringList arguments = tweakedArguments(file, options, extraParams);
             unitsToAnalyze << AnalyzeUnit(file, arguments);
         }
     }
@@ -262,8 +338,7 @@ static AnalyzeUnits unitsToAnalyzeFromCompilerCallData(
 }
 
 static AnalyzeUnits unitsToAnalyzeFromProjectParts(const QList<ProjectPart::Ptr> projectParts,
-                                                   unsigned char wordWidth,
-                                                   const QString &targetTriple)
+                                                   const ExtraToolChainInfo &extraParams)
 {
     qCDebug(LOG) << "Taking arguments for analyzing from ProjectParts.";
 
@@ -281,8 +356,7 @@ static AnalyzeUnits unitsToAnalyzeFromProjectParts(const QList<ProjectPart::Ptr>
                 const QStringList arguments
                     = ClangStaticAnalyzerOptionsBuilder::build(*projectPart.data(),
                                                                file.kind,
-                                                               wordWidth,
-                                                               targetTriple);
+                                                               extraParams);
                 unitsToAnalyze << AnalyzeUnit(file.path, arguments);
             }
         }
@@ -297,15 +371,10 @@ AnalyzeUnits ClangStaticAnalyzerRunControl::sortedUnitsToAnalyze()
 
     AnalyzeUnits units;
     const ProjectInfo::CompilerCallData compilerCallData = m_projectInfo.compilerCallData();
-    if (compilerCallData.isEmpty()) {
-        units = unitsToAnalyzeFromProjectParts(m_projectInfo.projectParts(),
-                                               m_wordWidth,
-                                               m_targetTriple);
-    } else {
-        units = unitsToAnalyzeFromCompilerCallData(compilerCallData,
-                                                   m_wordWidth,
-                                                   m_targetTriple);
-    }
+    if (compilerCallData.isEmpty())
+        units = unitsToAnalyzeFromProjectParts(m_projectInfo.projectParts(), m_extraToolChainInfo);
+    else
+        units = unitsToAnalyzeFromCompilerCallData(compilerCallData, m_extraToolChainInfo);
 
     Utils::sort(units, [](const AnalyzeUnit &a1, const AnalyzeUnit &a2) -> bool {
         return a1.file < a2.file;

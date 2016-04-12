@@ -40,6 +40,7 @@
 #include <lineeditaction.h>
 #include <backgroundaction.h>
 
+#include <coreplugin/coreicons.h>
 #include <utils/fileutils.h>
 
 namespace QmlDesigner {
@@ -97,7 +98,7 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
     m_showBoundingRectAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
     m_showBoundingRectAction->setCheckable(true);
     m_showBoundingRectAction->setChecked(true);
-    m_showBoundingRectAction->setIcon(Icons::BOUNDING_RECT.icon());
+    m_showBoundingRectAction->setIcon(Core::Icons::BOUNDING_RECT.icon());
 
     addAction(m_showBoundingRectAction.data());
     upperActions.append(m_showBoundingRectAction.data());

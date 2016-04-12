@@ -25,6 +25,8 @@
 
 #include "qmljsicons.h"
 
+#include <cplusplus/Icons.h>
+
 #include <QDir>
 #include <QHash>
 #include <QIcon>
@@ -47,10 +49,6 @@ Icons *Icons::m_instance = 0;
 class IconsPrivate
 {
 public:
-    QIcon elementIcon;
-    QIcon propertyIcon;
-    QIcon publicMemberIcon;
-    QIcon functionDeclarationIcon;
     QHash<QPair<QString,QString>,QIcon> iconHash;
     QString resourcePath;
 };
@@ -60,10 +58,6 @@ public:
 Icons::Icons()
     : d(new IconsPrivate)
 {
-    d->elementIcon = QIcon(QLatin1String(":/qmljs/images/element.png"));
-    d->propertyIcon = QIcon(QLatin1String(":/qmljs/images/property.png"));
-    d->publicMemberIcon = QIcon(QLatin1String(":/qmljs/images/publicmember.png"));
-    d->functionDeclarationIcon = QIcon(QLatin1String(":/qmljs/images/func.png"));
 }
 
 Icons::~Icons()
@@ -117,7 +111,7 @@ QIcon Icons::icon(const QString &packageName, const QString typeName) const
     return d->iconHash.value(element);
 }
 
-QIcon Icons::icon(Node *node) const
+QIcon Icons::icon(Node *node)
 {
     if (dynamic_cast<AST::UiObjectDefinition*>(node))
         return objectDefinitionIcon();
@@ -127,22 +121,22 @@ QIcon Icons::icon(Node *node) const
     return QIcon();
 }
 
-QIcon Icons::objectDefinitionIcon() const
+QIcon Icons::objectDefinitionIcon()
 {
-    return d->elementIcon;
+    return CPlusPlus::Icons::iconForType(CPlusPlus::Icons::ClassIconType);
 }
 
-QIcon Icons::scriptBindingIcon() const
+QIcon Icons::scriptBindingIcon()
 {
-    return d->propertyIcon;
+    return CPlusPlus::Icons::iconForType(CPlusPlus::Icons::VarPublicIconType);
 }
 
-QIcon Icons::publicMemberIcon() const
+QIcon Icons::publicMemberIcon()
 {
-    return d->publicMemberIcon;
+    return CPlusPlus::Icons::iconForType(CPlusPlus::Icons::FuncPublicIconType);
 }
 
-QIcon Icons::functionDeclarationIcon() const
+QIcon Icons::functionDeclarationIcon()
 {
-    return d->functionDeclarationIcon;
+    return CPlusPlus::Icons::iconForType(CPlusPlus::Icons::FuncPublicIconType);
 }

@@ -2,32 +2,26 @@
     <qresource prefix="/projectexplorer">
         <file>images/build_small.png</file>
         <file>images/category_buildrun.png</file>
-        <file>images/clean.png</file>
-        <file>images/clean_small.png</file>
         <file>images/closetab.png</file>
         <file>images/debugger_start.png</file>
         <file>images/debugger_start@2x.png</file>
         <file>images/debugger_beetle_mask.png</file>
         <file>images/debugger_beetle_mask@2x.png</file>
-        <file>images/debugger_run_mask.png</file>
-        <file>images/debugger_run_mask@2x.png</file>
         <file>images/mode_project.png</file>
         <file>images/mode_project@2x.png</file>
         <file>images/mode_project_mask.png</file>
         <file>images/mode_project_mask@2x.png</file>
         <file>images/projectexplorer.png</file>
-        <file>images/rebuild.png</file>
-        <file>images/rebuild_small.png</file>
+        <file>images/rebuildhammerhandles.png</file>
+        <file>images/rebuildhammerhandles@2x.png</file>
+        <file>images/rebuildhammerheads.png</file>
+        <file>images/rebuildhammerheads@2x.png</file>
         <file>images/run.png</file>
         <file>images/run@2x.png</file>
         <file>images/run_mask.png</file>
         <file>images/run_mask@2x.png</file>
-        <file>images/run_small.png</file>
-        <file>images/run_small@2x.png</file>
         <file>images/debugger_overlay_small.png</file>
         <file>images/debugger_overlay_small@2x.png</file>
-        <file>images/run_overlay_small.png</file>
-        <file>images/run_overlay_small@2x.png</file>
         <file>images/session.png</file>
         <file>images/targetrunselected.png</file>
         <file>images/targetrunselected@2x.png</file>
@@ -54,10 +48,10 @@
         <file>images/targetpanel_bottom.png</file>
         <file>images/targetpanel_gradient.png</file>
         <file>images/window.png</file>
-        <file>images/stop_small.png</file>
-        <file>images/stop_small@2x.png</file>
-        <file>images/interrupt_small.png</file>
-        <file>images/interrupt_small@2x.png</file>
+        <file>images/continue_1_small.png</file>
+        <file>images/continue_1_small@2x.png</file>
+        <file>images/continue_2_small.png</file>
+        <file>images/continue_2_small@2x.png</file>
         <file>images/buildstepdisable.png</file>
         <file>images/buildstepdisable@2x.png</file>
         <file>images/buildstepmovedown.png</file>

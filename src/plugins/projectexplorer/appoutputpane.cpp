@@ -158,7 +158,7 @@ AppOutputPane::AppOutputPane() :
     setObjectName(QLatin1String("AppOutputPane")); // Used in valgrind engine
 
     // Rerun
-    m_reRunButton->setIcon(Icons::RUN_SMALL.icon());
+    m_reRunButton->setIcon(Core::Icons::RUN_SMALL.icon());
     m_reRunButton->setToolTip(tr("Re-run this run-configuration"));
     m_reRunButton->setAutoRaise(true);
     m_reRunButton->setEnabled(false);
@@ -166,7 +166,7 @@ AppOutputPane::AppOutputPane() :
             this, &AppOutputPane::reRunRunControl);
 
     // Stop
-    m_stopAction->setIcon(Icons::STOP_SMALL.icon());
+    m_stopAction->setIcon(Core::Icons::STOP_SMALL.icon());
     m_stopAction->setToolTip(tr("Stop"));
     m_stopAction->setEnabled(false);
 
@@ -644,7 +644,7 @@ void AppOutputPane::enableButtons(const RunControl *rc /* = 0 */, bool isRunning
         m_zoomOutButton->setEnabled(true);
     } else {
         m_reRunButton->setEnabled(false);
-        m_reRunButton->setIcon(Icons::RUN_SMALL.icon());
+        m_reRunButton->setIcon(Core::Icons::RUN_SMALL.icon());
         m_attachButton->setEnabled(false);
         m_attachButton->setToolTip(msgAttachDebuggerTooltip());
         m_stopAction->setEnabled(false);

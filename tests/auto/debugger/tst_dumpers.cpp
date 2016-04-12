@@ -1296,7 +1296,7 @@ void tst_Dumpers::dumper()
                 "python theDumper.setupDumpers()\n"
                 "run " + nograb + "\n"
                 "python theDumper.fetchVariables({"
-                    "'token':2,'fancy':1,'forcens':1,'sortstructs':1,"
+                    "'token':2,'fancy':1,'forcens':1,"
                     "'autoderef':1,'dyntype':1,'passexceptions':1,"
                     "'qobjectnames':1,"
                     "'expanded':[" + expandedq + "]})\n";
@@ -1435,7 +1435,7 @@ void tst_Dumpers::dumper()
             context.boostVersion = child["value"].toInt();
         else {
             WatchItem *item = new WatchItem;
-            item->parse(child);
+            item->parse(child, true);
             local.appendChild(item);
         }
     }
@@ -1565,6 +1565,30 @@ void tst_Dumpers::dumper_data()
            " };\n"
            " } // namespace nsB\n"
            " } // namespace nsA\n";
+
+    QTest::newRow("QBitArray")
+            << Data("#include <QBitArray>\n",
+                    "QBitArray ba0;\n"
+                    "unused(&ba0);\n"
+                    "QBitArray ba1(20, true);\n"
+                    "ba1.setBit(1, false);\n"
+                    "ba1.setBit(3, false);\n"
+                    "ba1.setBit(16, false);\n"
+                    "unused(&ba1);\n")
+
+               + CoreProfile()
+
+               + Check("ba0", "<0 items>", "@QBitArray")
+               + Check("ba1", "<20 items>", "@QBitArray")
+                // Cdb has "proper" "false"/"true"
+               + Check("ba1.0", "[0]", "true", "bool") % CdbEngine
+               + Check("ba1.0", "[0]", "1", "bool") % NoCdbEngine
+               + Check("ba1.1", "[1]", "0", "bool") % NoCdbEngine
+               + Check("ba1.2", "[2]", "1", "bool") % NoCdbEngine
+               + Check("ba1.3", "[3]", "0", "bool") % NoCdbEngine
+               + Check("ba1.15", "[15]", "1", "bool") % NoCdbEngine
+               + Check("ba1.16", "[16]", "0", "bool") % NoCdbEngine
+               + Check("ba1.17", "[17]", "1", "bool") % NoCdbEngine;
 
     QTest::newRow("QByteArray")
             << Data("#include <QByteArray>\n"
@@ -4292,6 +4316,96 @@ void tst_Dumpers::dumper_data()
                + Check("v", "<2 items>", "std::vector<std::string>")
                + Check("v.0", "[0]", "\"foo\"", "std::string");
 
+
+    QTest::newRow("StdValArray")
+            << Data("#include <valarray>\n"
+                    "#include <list>\n",
+
+                    "std::valarray<double> v0, v1 = { 1, 0, 2 };\n"
+                    "unused(&v0, &v1);\n\n"
+
+                    "std::valarray<int *> v2, v3 = { new int(1), 0, new int(2) };\n"
+                    "unused(&v2, &v3);\n\n"
+
+                    "std::valarray<int> v4 = { 1, 2, 3, 4 };\n"
+                    "unused(&v4);\n\n"
+
+                    "std::list<int> list;\n"
+                    "std::list<int> list1 = { 45 };\n"
+                    "std::valarray<std::list<int> *> v5 = {\n"
+                    "   new std::list<int>(list), 0,\n"
+                    "   new std::list<int>(list1), 0\n"
+                    "};\n"
+                    "unused(&v5);\n\n"
+
+                    "std::valarray<bool> b0;\n"
+                    "unused(&b0);\n\n"
+
+                    "std::valarray<bool> b1 = { true, false, false, true, false };\n"
+                    "unused(&b1);\n\n"
+
+                    "std::valarray<bool> b2(true, 65);\n"
+                    "unused(&b2);\n\n"
+
+                    "std::valarray<bool> b3(300);\n"
+                    "unused(&b3);\n")
+
+               + Cxx11Profile()
+
+               + Check("v0", "<0 items>", "std::valarray<double>")
+               + Check("v1", "<3 items>", "std::valarray<double>")
+               + Check("v1.0", "[0]", "1", "double")
+               + Check("v1.1", "[1]", "0", "double")
+               + Check("v1.2", "[2]", "2", "double")
+
+               + Check("v2", "<0 items>", "std::valarray<int*>")
+               + Check("v3", "<3 items>", "std::valarray<int*>")
+               + Check("v3.0", "[0]", "1", "int")
+               + Check("v3.1", "[1]", "0x0", "int *")
+               + Check("v3.2", "[2]", "2", "int")
+
+               + Check("v4", "<4 items>", "std::valarray<int>")
+               + Check("v4.0", "[0]", "1", "int")
+               + Check("v4.3", "[3]", "4", "int")
+
+               + Check("list1", "<1 items>", "std::list<int>")
+               + Check("list1.0", "[0]", "45", "int")
+               + Check("v5", "<4 items>", "std::valarray<std::list<int>*>")
+               + Check("v5.0", "[0]", "<0 items>", "std::list<int>")
+               + Check("v5.2", "[2]", "<1 items>", "std::list<int>")
+               + Check("v5.2.0", "[0]", "45", "int")
+               + Check("v5.3", "[3]", "0x0", "std::list<int> *")
+
+               + Check("b0", "<0 items>", "std::valarray<bool>")
+               + Check("b1", "<5 items>", "std::valarray<bool>")
+
+               + Check("b1.0", "[0]", "1", "bool")          % NoCdbEngine
+               + Check("b1.1", "[1]", "0", "bool")          % NoCdbEngine
+               + Check("b1.2", "[2]", "0", "bool")          % NoCdbEngine
+               + Check("b1.3", "[3]", "1", "bool")          % NoCdbEngine
+               + Check("b1.4", "[4]", "0", "bool")          % NoCdbEngine
+
+               + Check("b1.0", "[0]", "true", "bool")       % CdbEngine
+               + Check("b1.1", "[1]", "false", "bool")      % CdbEngine
+               + Check("b1.2", "[2]", "false", "bool")      % CdbEngine
+               + Check("b1.3", "[3]", "true", "bool")       % CdbEngine
+               + Check("b1.4", "[4]", "false", "bool")      % CdbEngine
+
+               + Check("b2", "<65 items>", "std::valarray<bool>")
+
+               + Check("b2.0", "[0]", "1", "bool")          % NoCdbEngine
+               + Check("b2.64", "[64]", "1", "bool")        % NoCdbEngine
+
+               + Check("b2.0", "[0]", "true", "bool")       % CdbEngine
+               + Check("b2.64", "[64]", "true", "bool")     % CdbEngine
+
+               + Check("b3", "<300 items>", "std::valarray<bool>")
+
+               + Check("b3.0", "[0]", "0", "bool")          % NoCdbEngine
+               + Check("b3.299", "[299]", "0", "bool")      % NoCdbEngine
+
+               + Check("b3.0", "[0]", "false", "bool")      % CdbEngine
+               + Check("b3.99", "[99]", "false", "bool")   % CdbEngine;
 
     QTest::newRow("StdVector")
             << Data("#include <vector>\n"

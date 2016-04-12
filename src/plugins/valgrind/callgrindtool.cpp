@@ -71,7 +71,6 @@
 #include <utils/qtcassert.h>
 #include <utils/styledbar.h>
 
-#include <projectexplorer/projectexplorericons.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projecttree.h>
@@ -239,7 +238,7 @@ CallgrindTool::CallgrindTool(QObject *parent)
     m_stopAction = Debugger::createStopAction();
 
     ActionDescription desc;
-    desc.setToolTip(tr("Valgrind Function Profile uses the "
+    desc.setToolTip(tr("Valgrind Function Profiler uses the "
         "Callgrind tool to record function calls when a program runs."));
 
     if (!Utils::HostOsInfo::isWindowsHost()) {
@@ -371,7 +370,7 @@ CallgrindTool::CallgrindTool(QObject *parent)
     // pause action
     m_pauseAction = action = new QAction(this);
     action->setCheckable(true);
-    action->setIcon(ProjectExplorer::Icons::INTERRUPT_SMALL.icon());
+    action->setIcon(Core::Icons::INTERRUPT_SMALL.icon());
     //action->setText(tr("Ignore"));
     action->setToolTip(tr("Pause event logging. No events are counted which will speed up program execution during profiling."));
     connect(action, &QAction::toggled, this, &CallgrindTool::pauseToggled);
@@ -431,7 +430,7 @@ CallgrindTool::CallgrindTool(QObject *parent)
 
     // Show costs relative to parent
     m_costRelativeToParent = new QAction(tr("Relative Costs to Parent"), this);
-    m_costRelativeToParent->setToolTip(tr("Show costs relative to parent functions inclusive cost."));
+    m_costRelativeToParent->setToolTip(tr("Show costs relative to parent function's inclusive cost."));
     m_costRelativeToParent->setCheckable(true);
     connect(m_costRelativeToParent, &QAction::toggled, this, &CallgrindTool::updateCostFormat);
     group->addAction(m_costRelativeToParent);
@@ -456,7 +455,7 @@ CallgrindTool::CallgrindTool(QObject *parent)
 
     // Shorter template signature
     action = m_shortenTemplates = new QAction(QLatin1String("<>"), this);
-    action->setToolTip(tr("This removes template parameter lists when displaying function names."));
+    action->setToolTip(tr("Remove template parameter lists when displaying function names."));
     action->setCheckable(true);
     connect(action, &QAction::toggled, &m_dataModel, &DataModel::setShortenTemplates);
     connect(action, &QAction::toggled, settings, &ValgrindGlobalSettings::setShortenTemplates);
@@ -850,7 +849,7 @@ void CallgrindTool::requestContextMenu(TextEditorWidget *widget, int line, QMenu
     foreach (CallgrindTextMark *textMark, m_textMarks) {
         if (textMark->fileName() == widget->textDocument()->filePath().toString() && textMark->lineNumber() == line) {
             const Function *func = textMark->function();
-            QAction *action = menu->addAction(tr("Select this Function in the Analyzer Output"));
+            QAction *action = menu->addAction(tr("Select This Function in the Analyzer Output"));
             connect(action, &QAction::triggered, this, [this, func] { selectFunction(func); });
             break;
         }

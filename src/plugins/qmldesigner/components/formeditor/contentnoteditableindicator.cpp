@@ -88,7 +88,7 @@ void ContentNotEditableIndicator::updateItems(const QList<FormEditorItem *> &ite
 void ContentNotEditableIndicator::addAddiationEntries(const QList<FormEditorItem *> &itemList)
 {
     foreach (FormEditorItem *formEditorItem, itemList) {
-        if (formEditorItem->qmlItemNode().modelNode().metaInfo().isSubclassOf("QtQuick.Loader", -1, -1)) {
+        if (formEditorItem->qmlItemNode().modelNode().metaInfo().isSubclassOf("QtQuick.Loader")) {
 
             if (!m_entryList.contains(EntryPair(formEditorItem, 0))) {
                 QGraphicsRectItem *indicatorShape = new QGraphicsRectItem(m_layerItem);

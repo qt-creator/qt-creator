@@ -46,6 +46,7 @@
 
 #include <cplusplus/BackwardsScanner.h>
 #include <cplusplus/ExpressionUnderCursor.h>
+#include <cplusplus/Icons.h>
 #include <cplusplus/SimpleLexer.h>
 
 #include <clangbackendipc/filecontainer.h>
@@ -454,7 +455,7 @@ void ClangCompletionAssistProcessor::completeIncludePath(const QString &realPath
             auto *item = new ClangPreprocessorAssistProposalItem;
             item->setText(text);
             item->setDetail(hint);
-            item->setIcon(m_icons.keywordIcon());
+            item->setIcon(Icons::keywordIcon());
             item->setCompletionOperator(m_completionOperator);
             m_completions.append(item);
         }
@@ -465,11 +466,11 @@ bool ClangCompletionAssistProcessor::completePreprocessorDirectives()
 {
     foreach (const QString &preprocessorCompletion, m_preprocessorCompletions)
         addCompletionItem(preprocessorCompletion,
-                          m_icons.iconForType(Icons::MacroIconType));
+                          Icons::iconForType(Icons::MacroIconType));
 
     if (m_interface->objcEnabled())
         addCompletionItem(QLatin1String("import"),
-                          m_icons.iconForType(Icons::MacroIconType));
+                          Icons::iconForType(Icons::MacroIconType));
 
     return !m_completions.isEmpty();
 }
@@ -477,7 +478,7 @@ bool ClangCompletionAssistProcessor::completePreprocessorDirectives()
 bool ClangCompletionAssistProcessor::completeDoxygenKeywords()
 {
     for (int i = 1; i < CppTools::T_DOXY_LAST_TAG; ++i)
-        addCompletionItem(QString::fromLatin1(CppTools::doxygenTagSpell(i)), m_icons.keywordIcon());
+        addCompletionItem(QString::fromLatin1(CppTools::doxygenTagSpell(i)), Icons::keywordIcon());
     return !m_completions.isEmpty();
 }
 

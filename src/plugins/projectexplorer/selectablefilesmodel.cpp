@@ -58,15 +58,12 @@ SelectableFilesModel::SelectableFilesModel(QObject *parent) : QAbstractItemModel
     connect(this, &SelectableFilesModel::modelReset, this, [this] { emit checkedFilesChanged(); });
 
     m_root = new Tree;
-    m_root->parent = 0;
 }
 
 void SelectableFilesModel::setInitialMarkedFiles(const Utils::FileNameList &files)
 {
     m_files = files.toSet();
-    m_outOfBaseDirFiles
-            = Utils::filtered(m_files, [this](const Utils::FileName &fn) { return !fn.isChildOf(m_baseDir); });
-    m_allFiles = false;
+    m_allFiles = files.isEmpty();
 }
 
 void SelectableFilesModel::startParsing(const Utils::FileName &baseDir)
@@ -78,7 +75,6 @@ void SelectableFilesModel::startParsing(const Utils::FileName &baseDir)
     // Build a tree in a future
     m_rootForFuture = new Tree;
     m_rootForFuture->name = baseDir.toUserOutput();
-    m_rootForFuture->parent = 0;
     m_rootForFuture->fullPath = baseDir;
     m_rootForFuture->isDir = true;
 
@@ -96,7 +92,10 @@ void SelectableFilesModel::buildTreeFinished()
     beginResetModel();
     delete m_root;
     m_root = m_rootForFuture;
-    m_rootForFuture = 0;
+    m_rootForFuture = nullptr;
+    m_outOfBaseDirFiles
+            = Utils::filtered(m_files, [this](const Utils::FileName &fn) { return !fn.isChildOf(m_baseDir); });
+
     endResetModel();
     emit parsingFinished();
 }
@@ -158,7 +157,7 @@ void SelectableFilesModel::buildTree(const Utils::FileName &baseDir, Tree *tree,
             Tree *t = new Tree;
             t->parent = tree;
             t->name = fileInfo.fileName();
-            t->checked = m_allFiles || m_files.contains(fn) ? Qt::Checked : Qt::Unchecked;
+            t->checked = (m_allFiles || m_files.contains(fn)) ? Qt::Checked : Qt::Unchecked;
             t->fullPath = fn;
             t->isDir = false;
             allChecked &= t->checked == Qt::Checked;
@@ -562,7 +561,7 @@ SelectableFilesWidget::SelectableFilesWidget(QWidget *parent) :
     connect(m_baseDirChooser, &Utils::PathChooser::validChanged,
             this, &SelectableFilesWidget::baseDirectoryChanged);
     connect(m_startParsingButton, &QAbstractButton::clicked,
-            this, &SelectableFilesWidget::startParsing);
+            this, [this]() { startParsing(m_baseDirChooser->fileName()); });
 
     m_showFilesFilterLabel->setText(tr("Show files matching:"));
     m_showFilesFilterEdit->setText(showFilter);
@@ -627,7 +626,7 @@ bool SelectableFilesWidget::hasFilesSelected() const
 
 void SelectableFilesWidget::resetModel(const Utils::FileName &path, const Utils::FileNameList &files)
 {
-    m_view->setModel(0);
+    m_view->setModel(nullptr);
 
     delete m_model;
     m_model = new SelectableFilesModel(this);
@@ -643,7 +642,7 @@ void SelectableFilesWidget::resetModel(const Utils::FileName &path, const Utils:
     m_baseDirChooser->setFileName(path);
     m_view->setModel(m_model);
 
-    startParsing();
+    startParsing(path);
 }
 
 void SelectableFilesWidget::cancelParsing()
@@ -677,13 +676,13 @@ void SelectableFilesWidget::baseDirectoryChanged(bool validState)
     m_startParsingButton->setEnabled(validState);
 }
 
-void SelectableFilesWidget::startParsing()
+void SelectableFilesWidget::startParsing(const Utils::FileName &baseDir)
 {
     if (!m_model)
         return;
 
     enableWidgets(false);
-    m_model->startParsing(m_baseDirChooser->fileName());
+    m_model->startParsing(baseDir);
 }
 
 void SelectableFilesWidget::parsingProgress(const Utils::FileName &fileName)
@@ -696,7 +695,6 @@ void SelectableFilesWidget::parsingFinished()
     if (!m_model)
         return;
 
-    m_model->selectAllFiles();
     applyFilter();
 
     smartExpand(m_model->index(0,0, QModelIndex()));

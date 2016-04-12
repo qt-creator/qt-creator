@@ -31,6 +31,7 @@
 #include "publickeydeploymentdialog.h"
 #include "remotelinux_constants.h"
 #include "remotelinuxsignaloperation.h"
+#include "remotelinuxenvironmentreader.h"
 
 #include <coreplugin/id.h>
 #include <projectexplorer/devicesupport/sshdeviceprocesslist.h>
@@ -252,6 +253,31 @@ DeviceTester *LinuxDevice::createDeviceTester() const
 DeviceProcessSignalOperation::Ptr LinuxDevice::signalOperation() const
 {
     return DeviceProcessSignalOperation::Ptr(new RemoteLinuxSignalOperation(sshParameters()));
+}
+
+class LinuxDeviceEnvironmentFetcher : public DeviceEnvironmentFetcher
+{
+public:
+    LinuxDeviceEnvironmentFetcher(const IDevice::ConstPtr &device)
+        : m_reader(device)
+    {
+        connect(&m_reader, &Internal::RemoteLinuxEnvironmentReader::finished,
+                this, &LinuxDeviceEnvironmentFetcher::readerFinished);
+        connect(&m_reader, &Internal::RemoteLinuxEnvironmentReader::error,
+                this, &LinuxDeviceEnvironmentFetcher::readerError);
+    }
+
+private:
+    void start() override { m_reader.start(); }
+    void readerFinished() { emit finished(m_reader.remoteEnvironment(), true); }
+    void readerError() { emit finished(Utils::Environment(), false); }
+
+    Internal::RemoteLinuxEnvironmentReader m_reader;
+};
+
+DeviceEnvironmentFetcher::Ptr LinuxDevice::environmentFetcher() const
+{
+    return DeviceEnvironmentFetcher::Ptr(new LinuxDeviceEnvironmentFetcher(sharedFromThis()));
 }
 
 } // namespace RemoteLinux

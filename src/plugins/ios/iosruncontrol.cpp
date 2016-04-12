@@ -28,8 +28,9 @@
 #include "iosrunconfiguration.h"
 #include "iosrunner.h"
 
+#include <coreplugin/coreicons.h>
+
 #include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/projectexplorericons.h>
 
 using namespace ProjectExplorer;
 
@@ -41,7 +42,7 @@ IosRunControl::IosRunControl(IosRunConfiguration *rc)
     , m_runner(new IosRunner(this, rc, false, QmlDebug::NoQmlDebugServices))
     , m_running(false)
 {
-    setIcon(Icons::RUN_SMALL);
+    setIcon(Core::Icons::RUN_SMALL);
 }
 
 IosRunControl::~IosRunControl()

@@ -101,6 +101,7 @@ public:
 
     ProcessExtraCompiler(const Project *project, const Utils::FileName &source,
                          const Utils::FileNameList &targets, QObject *parent = nullptr);
+    ~ProcessExtraCompiler();
 
 protected:
     // This will run a process in a thread, if
@@ -128,9 +129,10 @@ protected:
 private:
     using ContentProvider = std::function<QByteArray()>;
     void runImpl(const ContentProvider &sourceContents);
-    FileNameToContentsHash runInThread(const Utils::FileName &cmd, const Utils::FileName &workDir,
-                                      const QStringList &args, const ContentProvider &provider,
-                                      const Utils::Environment &env);
+    void runInThread(QFutureInterface<FileNameToContentsHash> &futureInterface,
+                     const Utils::FileName &cmd, const Utils::FileName &workDir,
+                     const QStringList &args, const ContentProvider &provider,
+                     const Utils::Environment &env);
     void cleanUp();
 
     QFutureWatcher<FileNameToContentsHash> *m_watcher = nullptr;

@@ -103,6 +103,7 @@ public: // fields
     QByteArray projectDefines;
     QByteArray toolchainDefines;
     Core::Id toolchainType;
+    QString targetTriple;
     ProjectPartHeaderPaths headerPaths;
     QStringList precompiledHeaders;
     LanguageVersion languageVersion;

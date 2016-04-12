@@ -27,6 +27,7 @@
 
 #include "Overview.h"
 
+#include <cplusplus/Icons.h>
 #include <cplusplus/Scope.h>
 #include <cplusplus/Literals.h>
 #include <cplusplus/Symbols.h>
@@ -210,7 +211,7 @@ QVariant OverviewModel::data(const QModelIndex &index, int role) const
 
     case Qt::DecorationRole: {
         Symbol *symbol = static_cast<Symbol *>(index.internalPointer());
-        return _icons.iconForSymbol(symbol);
+        return Icons::iconForSymbol(symbol);
     } break;
 
     case FileNameRole: {

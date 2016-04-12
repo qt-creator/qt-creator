@@ -36,9 +36,6 @@ FORMS += \
     $$PWD/directoryfilter.ui \
     $$PWD/locatorsettingspage.ui
 
-RESOURCES += \
-    $$PWD/locator.qrc
-
 equals(TEST, 1) {
     HEADERS += $$PWD/locatorfiltertest.h
     SOURCES += \

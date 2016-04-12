@@ -29,8 +29,9 @@
 #include "androidrunconfiguration.h"
 #include "androidrunner.h"
 
+#include <coreplugin/coreicons.h>
+
 #include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/projectexplorericons.h>
 
 using namespace ProjectExplorer;
 
@@ -43,7 +44,7 @@ AndroidRunControl::AndroidRunControl(AndroidRunConfiguration *rc)
     , m_running(false)
 {
     setRunnable(m_runner->runnable());
-    setIcon(Icons::RUN_SMALL);
+    setIcon(Core::Icons::RUN_SMALL);
 }
 
 AndroidRunControl::~AndroidRunControl()

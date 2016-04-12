@@ -118,6 +118,7 @@ WatchItem::WatchItem() :
     bitsize(0),
     elided(0),
     arrayIndex(-1),
+    sortGroup(0),
     wantsChildren(false),
     valueEnabled(true),
     valueEditable(true),
@@ -380,7 +381,18 @@ static void decodeArrayData(WatchItem *item, const QByteArray &rawData,
     qDebug() << "ENCODING ERROR: " << encoding.toString();
 }
 
-void WatchItem::parseHelper(const GdbMi &input)
+static bool sortByName(const Utils::TreeItem *a, const Utils::TreeItem *b)
+{
+    auto aa = static_cast<const WatchItem *>(a);
+    auto bb = static_cast<const WatchItem *>(b);
+
+    if (aa->sortGroup != bb->sortGroup)
+        return aa->sortGroup > bb->sortGroup;
+
+    return aa->name < bb->name;
+}
+
+void WatchItem::parseHelper(const GdbMi &input, bool maySort)
 {
     setChildrenUnneeded();
 
@@ -436,6 +448,10 @@ void WatchItem::parseHelper(const GdbMi &input)
     mi = input["exp"];
     if (mi.isValid())
         exp = mi.data();
+
+    mi = input["sortgroup"];
+    if (mi.isValid())
+        sortGroup = mi.toInt();
 
     mi = input["valueenabled"];
     if (mi.data() == "true")
@@ -500,14 +516,17 @@ void WatchItem::parseHelper(const GdbMi &input)
                 QByteArray key = subinput["key"].data();
                 if (!key.isEmpty())
                     child->name = decodeData(key, subinput["keyencoded"].data());
-                child->parseHelper(subinput);
+                child->parseHelper(subinput, maySort);
                 appendChild(child);
             }
+
+            if (maySort && input["sortable"].toInt())
+                sortChildren(&sortByName);
         }
     }
 }
 
-void WatchItem::parse(const GdbMi &data)
+void WatchItem::parse(const GdbMi &data, bool maySort)
 {
     iname = data["iname"].data();
 
@@ -517,7 +536,7 @@ void WatchItem::parse(const GdbMi &data)
     else
         name = QString::fromLatin1(data["name"].data());
 
-    parseHelper(data);
+    parseHelper(data, maySort);
 
     if (wname.isValid())
         exp = name.toUtf8();

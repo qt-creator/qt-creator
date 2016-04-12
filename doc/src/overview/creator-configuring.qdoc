@@ -108,8 +108,8 @@
     Themes enable you to customize the appearance of the \QC UI: widgets,
     colors, and icons.
 
-    To switch from the default theme to a dark theme, select \uicontrol Tools >
-    \uicontrol Options > \uicontrol Environment, and then select \uicontrol Dark
+    To switch themes, select \uicontrol Tools > \uicontrol Options >
+    \uicontrol Environment, and then select a theme
     in the \uicontrol Theme field.
 
     You can use the \QC text and code editors with your favorite color scheme

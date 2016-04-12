@@ -750,6 +750,15 @@ def qdump__std____debug__unordered_set(d, value):
     qdump__std__unordered_set(d, value)
 
 
+def qform__std__valarray():
+    return arrayForms()
+
+def qdump__std__valarray(d, value):
+    size = value["_M_size"]
+    d.putItemCount(size)
+    d.putPlotData(value["_M_data"], size, d.templateArgument(value.type, 0))
+
+
 def qform__std__vector():
     return arrayForms()
 

@@ -404,6 +404,20 @@ public:
         emit clicked(ev->button(), ev->modifiers());
     }
 
+    void paintEvent(QPaintEvent *event)
+    {
+        QWidget::paintEvent(event);
+
+        // Some Themes do not want highlights and shadows in the toolbars.
+        // But we definitely want a separator between FancyColorButton and FancyTabBar
+        if (!creatorTheme()->flag(Theme::DrawToolBarHighlights)) {
+            QPainter p(this);
+            p.setPen(StyleHelper::borderColor());
+            const QRectF innerRect = QRectF(rect()).adjusted(0.5, 0.5, -0.5, -0.5);
+            p.drawLine(innerRect.bottomLeft(), innerRect.bottomRight());
+        }
+    }
+
 signals:
     void clicked(Qt::MouseButton button, Qt::KeyboardModifiers modifiers);
 };

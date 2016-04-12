@@ -284,7 +284,7 @@ CppMacro::CppMacro(const Macro &macro)
 CppDeclarableElement::CppDeclarableElement(Symbol *declaration)
     : CppElement()
     , declaration(declaration)
-    , icon(Icons().iconForSymbol(declaration))
+    , icon(Icons::iconForSymbol(declaration))
 {
     Overview overview;
     overview.showArgumentNames = true;

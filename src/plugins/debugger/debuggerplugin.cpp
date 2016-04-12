@@ -1173,6 +1173,7 @@ bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
         }
         DebuggerRunParameters rp;
         rp.startMode = AttachCrashedExternal;
+        rp.languages = CppLanguage;
         rp.crashParameter = it->section(QLatin1Char(':'), 0, 0);
         rp.attachPID = it->section(QLatin1Char(':'), 1, 1).toULongLong();
         rp.displayName = tr("Crashed process %1").arg(rp.attachPID);
@@ -1688,7 +1689,7 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
 
     auto qmlZoomDummyAction = new QAction(tr("Zoom"), this);
     qmlZoomDummyAction->setCheckable(true);
-    qmlZoomDummyAction->setIcon(Core::Icons::ZOOM.icon());
+    qmlZoomDummyAction->setIcon(Core::Icons::ZOOM_TOOLBAR.icon());
     qmlZoomDummyAction->setEnabled(false);
     cmd = ActionManager::registerAction(qmlZoomDummyAction, Constants::QML_ZOOMTOOL);
     debugMenu->addAction(cmd);
@@ -3536,7 +3537,7 @@ QAction *createStartAction()
 QAction *createStopAction()
 {
     auto action = new QAction(DebuggerMainWindow::tr("Stop"), DebuggerPlugin::instance());
-    action->setIcon(ProjectExplorer::Icons::STOP_SMALL.icon());
+    action->setIcon(Core::Icons::STOP_SMALL.icon());
     action->setEnabled(true);
     return action;
 }

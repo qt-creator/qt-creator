@@ -472,7 +472,7 @@ QModelIndex QmlOutlineModel::enterObjectDefinition(AST::UiObjectDefinition *objD
     } else {
         // it's a grouped propery like 'anchors'
         data.insert(ItemTypeRole, NonElementBindingType);
-        icon = m_icons->scriptBindingIcon();
+        icon = Icons::scriptBindingIcon();
     }
 
     QmlOutlineItem *item = enterNode(data, objDef, idNode, icon);
@@ -492,7 +492,7 @@ QModelIndex QmlOutlineModel::enterObjectBinding(AST::UiObjectBinding *objBinding
     bindingData.insert(Qt::DisplayRole, asString(objBinding->qualifiedId));
     bindingData.insert(ItemTypeRole, ElementBindingType);
 
-    QmlOutlineItem *bindingItem = enterNode(bindingData, objBinding, objBinding->qualifiedId, m_icons->scriptBindingIcon());
+    QmlOutlineItem *bindingItem = enterNode(bindingData, objBinding, objBinding->qualifiedId, Icons::scriptBindingIcon());
 
     const QString typeName = asString(objBinding->qualifiedTypeNameId);
     if (!m_typeToIcon.contains(typeName))
@@ -521,7 +521,7 @@ QModelIndex QmlOutlineModel::enterArrayBinding(AST::UiArrayBinding *arrayBinding
     bindingData.insert(Qt::DisplayRole, asString(arrayBinding->qualifiedId));
     bindingData.insert(ItemTypeRole, ElementBindingType);
 
-    QmlOutlineItem *item = enterNode(bindingData, arrayBinding, arrayBinding->qualifiedId, m_icons->scriptBindingIcon());
+    QmlOutlineItem *item = enterNode(bindingData, arrayBinding, arrayBinding->qualifiedId, Icons::scriptBindingIcon());
 
     return item->index();
 }
@@ -539,7 +539,7 @@ QModelIndex QmlOutlineModel::enterScriptBinding(AST::UiScriptBinding *scriptBind
     objectData.insert(AnnotationRole, getAnnotation(scriptBinding->statement));
     objectData.insert(ItemTypeRole, NonElementBindingType);
 
-    QmlOutlineItem *item = enterNode(objectData, scriptBinding, scriptBinding->qualifiedId, m_icons->scriptBindingIcon());
+    QmlOutlineItem *item = enterNode(objectData, scriptBinding, scriptBinding->qualifiedId, Icons::scriptBindingIcon());
 
     return item->index();
 }
@@ -558,7 +558,7 @@ QModelIndex QmlOutlineModel::enterPublicMember(AST::UiPublicMember *publicMember
     objectData.insert(AnnotationRole, getAnnotation(publicMember->statement));
     objectData.insert(ItemTypeRole, NonElementBindingType);
 
-    QmlOutlineItem *item = enterNode(objectData, publicMember, 0, m_icons->publicMemberIcon());
+    QmlOutlineItem *item = enterNode(objectData, publicMember, 0, Icons::publicMemberIcon());
 
     return item->index();
 }
@@ -576,7 +576,7 @@ QModelIndex QmlOutlineModel::enterFunctionDeclaration(AST::FunctionDeclaration *
         objectData.insert(Qt::DisplayRole, functionDeclaration->name.toString());
     objectData.insert(ItemTypeRole, ElementBindingType);
 
-    QmlOutlineItem *item = enterNode(objectData, functionDeclaration, 0, m_icons->functionDeclarationIcon());
+    QmlOutlineItem *item = enterNode(objectData, functionDeclaration, 0, Icons::functionDeclarationIcon());
 
     return item->index();
 }
@@ -593,7 +593,7 @@ QModelIndex QmlOutlineModel::enterTestCase(AST::ObjectLiteral *objectLiteral)
     objectData.insert(Qt::DisplayRole, QLatin1String("testcase"));
     objectData.insert(ItemTypeRole, ElementBindingType);
 
-    QmlOutlineItem *item = enterNode(objectData, objectLiteral, 0, m_icons->objectDefinitionIcon());
+    QmlOutlineItem *item = enterNode(objectData, objectLiteral, 0, Icons::objectDefinitionIcon());
 
     return item->index();
 }
@@ -613,11 +613,11 @@ QModelIndex QmlOutlineModel::enterTestCaseProperties(AST::PropertyAssignmentList
             objectData.insert(ItemTypeRole, ElementBindingType);
             QmlOutlineItem *item;
             if (assignment->value->kind == AST::Node::Kind_FunctionExpression)
-                item = enterNode(objectData, assignment, 0, m_icons->functionDeclarationIcon());
+                item = enterNode(objectData, assignment, 0, Icons::functionDeclarationIcon());
             else if (assignment->value->kind == AST::Node::Kind_ObjectLiteral)
-                item = enterNode(objectData, assignment, 0, m_icons->objectDefinitionIcon());
+                item = enterNode(objectData, assignment, 0, Icons::objectDefinitionIcon());
             else
-                item = enterNode(objectData, assignment, 0, m_icons->scriptBindingIcon());
+                item = enterNode(objectData, assignment, 0, Icons::scriptBindingIcon());
 
             return item->index();
         }
@@ -628,7 +628,7 @@ QModelIndex QmlOutlineModel::enterTestCaseProperties(AST::PropertyAssignmentList
             objectData.insert(Qt::DisplayRole, propertyName->id.toString());
             objectData.insert(ItemTypeRole, ElementBindingType);
             QmlOutlineItem *item;
-            item = enterNode(objectData, getterSetter, 0, m_icons->functionDeclarationIcon());
+            item = enterNode(objectData, getterSetter, 0, Icons::functionDeclarationIcon());
 
             return item->index();
 

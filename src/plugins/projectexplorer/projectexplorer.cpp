@@ -105,6 +105,7 @@
 #include <coreplugin/idocumentfactory.h>
 #include <coreplugin/idocument.h>
 #include <coreplugin/coreconstants.h>
+#include <coreplugin/coreicons.h>
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/imode.h>
 #include <coreplugin/modemanager.h>
@@ -700,7 +701,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     ActionContainer *runMenu = ActionManager::createMenu(Constants::RUNMENUCONTEXTMENU);
     runMenu->setOnAllDisabledBehavior(ActionContainer::Hide);
     QIcon runIcon = Utils::Icon::sideBarIcon(Icons::RUN, Icons::RUN_FLAT);
-    runIcon.addPixmap(Icons::RUN_SMALL.pixmap());
+    runIcon.addPixmap(Core::Icons::RUN_SMALL.pixmap());
     runMenu->menu()->setIcon(runIcon);
     runMenu->menu()->setTitle(tr("Run"));
     msubProjectContextMenu->addMenu(runMenu, ProjectExplorer::Constants::G_PROJECT_RUN);
@@ -849,17 +850,13 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     msessionContextMenu->addAction(cmd, Constants::G_SESSION_BUILD);
 
     // rebuild session action
-    QIcon rebuildIcon = Icons::REBUILD.icon();
-    rebuildIcon.addPixmap(Icons::REBUILD_SMALL.pixmap());
-    dd->m_rebuildSessionAction = new QAction(rebuildIcon, tr("Rebuild All"), this);
+    dd->m_rebuildSessionAction = new QAction(Icons::REBUILD.icon(), tr("Rebuild All"), this);
     cmd = ActionManager::registerAction(dd->m_rebuildSessionAction, Constants::REBUILDSESSION);
     mbuild->addAction(cmd, Constants::G_BUILD_REBUILD);
     msessionContextMenu->addAction(cmd, Constants::G_SESSION_REBUILD);
 
     // clean session
-    QIcon cleanIcon = Icons::CLEAN.icon();
-    cleanIcon.addPixmap(Icons::CLEAN_SMALL.pixmap());
-    dd->m_cleanSessionAction = new QAction(cleanIcon, tr("Clean All"), this);
+    dd->m_cleanSessionAction = new QAction(Icons::CLEAN.icon(), tr("Clean All"), this);
     cmd = ActionManager::registerAction(dd->m_cleanSessionAction, Constants::CLEANSESSION);
     mbuild->addAction(cmd, Constants::G_BUILD_CLEAN);
     msessionContextMenu->addAction(cmd, Constants::G_SESSION_REBUILD);
@@ -902,7 +899,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     mbuild->addAction(cmd, Constants::G_BUILD_CLEAN);
 
     // cancel build action
-    dd->m_cancelBuildAction = new QAction(Icons::STOP_SMALL.icon(), tr("Cancel Build"), this);
+    dd->m_cancelBuildAction = new QAction(Core::Icons::STOP_SMALL.icon(), tr("Cancel Build"), this);
     cmd = ActionManager::registerAction(dd->m_cancelBuildAction, Constants::CANCELBUILD);
     mbuild->addAction(cmd, Constants::G_BUILD_CANCEL);
 

@@ -70,7 +70,7 @@ bool TodoPlugin::initialize(const QStringList& args, QString *errMsg)
 
     auto panelFactory = new ProjectExplorer::ProjectPanelFactory();
     panelFactory->setPriority(100);
-    panelFactory->setDisplayName(TodoProjectSettingsWidget::tr("To-Do Settings"));
+    panelFactory->setDisplayName(TodoProjectSettingsWidget::tr("To-Do"));
     panelFactory->setCreateWidgetFunction([this, panelFactory](ProjectExplorer::Project *project) -> QWidget * {
         auto *panel = new ProjectExplorer::PropertiesPanel;
         panel->setDisplayName(panelFactory->displayName());

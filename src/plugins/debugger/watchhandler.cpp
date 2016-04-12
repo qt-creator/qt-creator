@@ -80,6 +80,12 @@ static int theUnprintableBase = -1;
 const char INameProperty[] = "INameProperty";
 const char KeyProperty[] = "KeyProperty";
 
+struct TypeInfo
+{
+    TypeInfo(uint s = 0) : size(s) {}
+    uint size;
+};
+
 static const WatchModel *watchModel(const WatchItem *item)
 {
     return reinterpret_cast<const WatchModel *>(item->model());
@@ -345,7 +351,6 @@ public:
     WatchItem *findItem(const QByteArray &iname) const;
     const WatchItem *watchItem(const QModelIndex &idx) const;
 
-    void insertItem(WatchItem *item);
     void reexpandItems();
 
     void showEditValue(const WatchItem *item);
@@ -373,6 +378,7 @@ public:
     QSet<QByteArray> m_expandedINames;
     QTimer m_requestUpdateTimer;
 
+    QHash<QByteArray, TypeInfo> m_reportedTypeInfo;
     QHash<QString, DisplayFormats> m_reportedTypeFormats; // Type name -> Dumper Formats
     QHash<QByteArray, QString> m_valueCache;
 };
@@ -1249,23 +1255,46 @@ void WatchHandler::cleanup()
     m_model->m_separatedView->hide();
 }
 
-void WatchHandler::insertItem(WatchItem *item)
+static bool sortByName(const TreeItem *a, const TreeItem *b)
 {
-    m_model->insertItem(item);
+    auto aa = static_cast<const WatchItem *>(a);
+    auto bb = static_cast<const WatchItem *>(b);
+    return aa->name < bb->name;
 }
 
-void WatchModel::insertItem(WatchItem *item)
+void WatchHandler::insertItems(const GdbMi &data)
 {
-    QTC_ASSERT(!item->iname.isEmpty(), return);
+    QSet<TreeItem *> itemsToSort;
 
-    WatchItem *parent = findItem(parentName(item->iname));
-    QTC_ASSERT(parent, return);
+    const bool sortStructMembers = boolSetting(SortStructMembers);
+    foreach (const GdbMi &child, data.children()) {
+        auto item = new WatchItem;
+        item->parse(child, sortStructMembers);
+        const TypeInfo ti = m_model->m_reportedTypeInfo.value(item->type);
+        if (ti.size && !item->size)
+            item->size = ti.size;
+
+        const bool added = insertItem(item);
+        if (added && item->level() == 2)
+            itemsToSort.insert(item->parent());
+    }
+
+    foreach (TreeItem *toplevel, itemsToSort)
+        toplevel->sortChildren(&sortByName);
+}
+
+bool WatchHandler::insertItem(WatchItem *item)
+{
+    QTC_ASSERT(!item->iname.isEmpty(), return false);
+
+    WatchItem *parent = m_model->findItem(parentName(item->iname));
+    QTC_ASSERT(parent, return false);
 
     bool found = false;
     const QVector<TreeItem *> siblings = parent->children();
     for (int row = 0, n = siblings.size(); row < n; ++row) {
         if (static_cast<WatchItem *>(siblings.at(row))->iname == item->iname) {
-            delete takeItem(parent->children().at(row));
+            delete m_model->takeItem(parent->children().at(row));
             parent->insertChild(row, item);
             found = true;
             break;
@@ -1276,7 +1305,9 @@ void WatchModel::insertItem(WatchItem *item)
 
     item->update();
 
-    item->walkTree([this](TreeItem *sub) { showEditValue(static_cast<WatchItem *>(sub)); });
+    item->walkTree([this](TreeItem *sub) { m_model->showEditValue(static_cast<WatchItem *>(sub)); });
+
+    return !found;
 }
 
 void WatchModel::reexpandItems()
@@ -1403,7 +1434,7 @@ void WatchHandler::watchExpression(const QString &exp0, const QString &name)
     item->exp = exp;
     item->name = name.isEmpty() ? exp0 : name;
     item->iname = watcherName(exp);
-    m_model->insertItem(item);
+    insertItem(item);
     saveWatchers();
 
     if (m_model->m_engine->state() == DebuggerNotReady) {
@@ -1872,6 +1903,17 @@ bool WatchHandler::isExpandedIName(const QByteArray &iname) const
 QSet<QByteArray> WatchHandler::expandedINames() const
 {
     return m_model->m_expandedINames;
+}
+
+void WatchHandler::recordTypeInfo(const GdbMi &typeInfo)
+{
+    if (typeInfo.type() == GdbMi::List) {
+        foreach (const GdbMi &s, typeInfo.children()) {
+            QByteArray typeName = QByteArray::fromHex(s["name"].data());
+            TypeInfo ti(s["size"].data().toUInt());
+            m_model->m_reportedTypeInfo.insert(typeName, ti);
+        }
+    }
 }
 
 } // namespace Internal

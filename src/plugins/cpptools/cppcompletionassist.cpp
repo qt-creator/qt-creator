@@ -1010,7 +1010,7 @@ int InternalCppCompletionAssistProcessor::startCompletionHelper()
 
     if (m_model->m_completionOperator == T_DOXY_COMMENT) {
         for (int i = 1; i < T_DOXY_LAST_TAG; ++i)
-            addCompletionItem(QString::fromLatin1(doxygenTagSpell(i)), m_icons.keywordIcon());
+            addCompletionItem(QString::fromLatin1(doxygenTagSpell(i)), Icons::keywordIcon());
         return m_positionForProposal;
     }
 
@@ -1193,7 +1193,7 @@ void InternalCppCompletionAssistProcessor::addCompletionItem(Symbol *symbol, int
     ConvertToCompletionItem toCompletionItem;
     AssistProposalItem *item = toCompletionItem(symbol);
     if (item) {
-        item->setIcon(m_icons.iconForSymbol(symbol));
+        item->setIcon(Icons::iconForSymbol(symbol));
         item->setOrder(order);
         m_completions.append(item);
     }
@@ -1300,7 +1300,7 @@ void InternalCppCompletionAssistProcessor::completeInclude(const QString &realPa
             QString text = fileName.mid(realPath.length() + 1);
             if (fileInfo.isDir())
                 text += QLatin1Char('/');
-            addCompletionItem(text, m_icons.keywordIcon());
+            addCompletionItem(text, Icons::keywordIcon());
         }
     }
 }
@@ -1814,7 +1814,7 @@ bool InternalCppCompletionAssistProcessor::completeQtMethod(const QList<LookupIt
                             break;
                         signatures.insert(completionText);
                         ci->setText(completionText); // fix the completion item.
-                        ci->setIcon(m_icons.iconForSymbol(fun));
+                        ci->setIcon(Icons::iconForSymbol(fun));
                         if (wantQt5SignalOrSlot && fun->isSlot())
                             ci->setOrder(1);
                         m_completions.append(ci);
@@ -1841,7 +1841,7 @@ bool InternalCppCompletionAssistProcessor::completeQtMethodClassName(
         return false;
 
     const LookupContext &context = m_model->m_typeOfExpression->context();
-    const QIcon classIcon = m_icons.iconForType(Icons::ClassIconType);
+    const QIcon classIcon = Icons::iconForType(Icons::ClassIconType);
     Overview overview;
 
     foreach (const LookupItem &lookupItem, results) {
@@ -1866,16 +1866,16 @@ void InternalCppCompletionAssistProcessor::addKeywords()
 
     // keyword completion items.
     for (int i = T_FIRST_KEYWORD; i < keywordLimit; ++i)
-        addCompletionItem(QLatin1String(Token::name(i)), m_icons.keywordIcon(), KeywordsOrder);
+        addCompletionItem(QLatin1String(Token::name(i)), Icons::keywordIcon(), KeywordsOrder);
 
     // primitive type completion items.
     for (int i = T_FIRST_PRIMITIVE; i <= T_LAST_PRIMITIVE; ++i)
-        addCompletionItem(QLatin1String(Token::name(i)), m_icons.keywordIcon(), KeywordsOrder);
+        addCompletionItem(QLatin1String(Token::name(i)), Icons::keywordIcon(), KeywordsOrder);
 
     // "Identifiers with special meaning"
     if (m_interface->languageFeatures().cxx11Enabled) {
-        addCompletionItem(QLatin1String("override"), m_icons.keywordIcon(), KeywordsOrder);
-        addCompletionItem(QLatin1String("final"), m_icons.keywordIcon(), KeywordsOrder);
+        addCompletionItem(QLatin1String("override"), Icons::keywordIcon(), KeywordsOrder);
+        addCompletionItem(QLatin1String("final"), Icons::keywordIcon(), KeywordsOrder);
     }
 }
 
@@ -1888,7 +1888,7 @@ void InternalCppCompletionAssistProcessor::addMacros(const QString &fileName,
     addMacros_helper(snapshot, fileName, &processed, &definedMacros);
 
     foreach (const QString &macroName, definedMacros)
-        addCompletionItem(macroName, m_icons.macroIcon(), MacrosOrder);
+        addCompletionItem(macroName, Icons::macroIcon(), MacrosOrder);
 }
 
 void InternalCppCompletionAssistProcessor::addMacros_helper(const Snapshot &snapshot,

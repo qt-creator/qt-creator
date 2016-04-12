@@ -268,7 +268,6 @@ QtcPlugin {
             "filesystemfilter.ui",
             "ilocatorfilter.cpp",
             "ilocatorfilter.h",
-            "locator.qrc",
             "locatorconstants.h",
             "locatorfiltersfilter.cpp",
             "locatorfiltersfilter.h",
@@ -285,8 +284,6 @@ QtcPlugin {
             "locatorsettingspage.cpp",
             "locatorsettingspage.h",
             "locatorsettingspage.ui",
-            "images/locator.png",
-            "images/reload.png",
         ]
     }
 

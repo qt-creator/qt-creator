@@ -36,6 +36,7 @@
 #include <qmljs/qmljslink.h>
 #include <qmljs/qmljscheck.h>
 #include <qmljs/qmljscontext.h>
+#include <qmljs/qmljsmodelmanagerinterface.h>
 #include <qmljs/parser/qmljsast_p.h>
 #include <qmljs/parser/qmljsengine_p.h>
 
@@ -57,6 +58,9 @@ private slots:
     void test_data();
 
     void initTestCase();
+
+private:
+    ModelManagerInterface m_modelManager; // we indirectly need an instance of the modelmanager
 };
 
 tst_Check::tst_Check()
