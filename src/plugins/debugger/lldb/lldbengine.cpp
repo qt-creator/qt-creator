@@ -895,6 +895,8 @@ void LldbEngine::handleStateNotification(const GdbMi &reportedState)
         notifyInferiorRunOk();
     else if (newState == "inferiorrunfailed")
         notifyInferiorRunFailed();
+    else if (newState == "continueafternextstop")
+        m_continueAtNextSpontaneousStop = true;
     else if (newState == "stopped") {
         notifyInferiorSpontaneousStop();
         if (m_continueAtNextSpontaneousStop) {

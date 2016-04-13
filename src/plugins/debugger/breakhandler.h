@@ -113,6 +113,8 @@ public:
     QString expression() const;
     void setExpression(const QString &expression);
     QString message() const;
+    QString command() const;
+    void setCommand(const QString &command);
     void setMessage(const QString &m);
     BreakpointType type() const;
     void setType(const BreakpointType &type);
