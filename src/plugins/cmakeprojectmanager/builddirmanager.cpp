@@ -608,7 +608,7 @@ void BuildDirManager::maybeForceReparse()
     const QByteArray CMAKE_COMMAND_KEY = "CMAKE_COMMAND";
 
     const QByteArrayList criticalKeys
-            = QByteArrayList() << GENERATOR_KEY << EXTRA_GENERATOR_KEY << CMAKE_COMMAND_KEY;
+            = QByteArrayList() << GENERATOR_KEY << CMAKE_COMMAND_KEY;
 
     if (!m_hasData) {
         forceReparse();
