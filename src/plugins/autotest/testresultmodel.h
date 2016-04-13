@@ -61,7 +61,7 @@ public:
     void removeCurrentTestMessage();
     void clearTestResults();
 
-    TestResult testResult(const QModelIndex &idx);
+    const TestResult *testResult(const QModelIndex &idx);
 
     int maxWidthOfFileName(const QFont &font);
     int maxWidthOfLineNumber(const QFont &font);
@@ -88,7 +88,7 @@ public:
     void toggleTestResultType(Result::Type type);
     void clearTestResults();
     bool hasResults();
-    TestResult testResult(const QModelIndex &index) const;
+    const TestResult *testResult(const QModelIndex &index) const;
 
 protected:
     bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const;

@@ -81,8 +81,7 @@ QVariant TestResultItem::data(int column, int role) const
     case Qt::DecorationRole:
         return m_testResult ? testResultIcon(m_testResult->result()) : QVariant();
     case Qt::DisplayRole:
-        return m_testResult ? TestResultDelegate::outputString(*m_testResult.data(), true)
-                            : QVariant();
+        return m_testResult ? m_testResult->outputString(true) : QVariant();
     default:
         return Utils::TreeItem::data(column, role);
     }
@@ -175,11 +174,11 @@ void TestResultModel::addTestResult(const TestResultPtr &testResult, bool autoEx
 
     TestResultItem *newItem = new TestResultItem(testResult);
     // FIXME this might be totally wrong... we need some more unique information!
-    if (!testResult->className().isEmpty()) {
+    if (!testResult->name().isEmpty()) {
         for (int row = lastRow; row >= 0; --row) {
             TestResultItem *current = static_cast<TestResultItem *>(topLevelItems.at(row));
             const TestResult *result = current->testResult();
-            if (result && result->className() == testResult->className()) {
+            if (result && result->name() == testResult->name()) {
                 current->appendChild(newItem);
                 if (autoExpand)
                     current->expand();
@@ -226,12 +225,12 @@ void TestResultModel::clearTestResults()
     m_widthOfLineNumber = 0;
 }
 
-TestResult TestResultModel::testResult(const QModelIndex &idx)
+const TestResult *TestResultModel::testResult(const QModelIndex &idx)
 {
     if (idx.isValid())
-        return *(static_cast<TestResultItem *>(itemForIndex(idx))->testResult());
+        return static_cast<TestResultItem *>(itemForIndex(idx))->testResult();
 
-    return TestResult();
+    return 0;
 }
 
 int TestResultModel::maxWidthOfFileName(const QFont &font)
@@ -327,7 +326,7 @@ bool TestResultFilterModel::hasResults()
     return rowCount(QModelIndex());
 }
 
-TestResult TestResultFilterModel::testResult(const QModelIndex &index) const
+const TestResult *TestResultFilterModel::testResult(const QModelIndex &index) const
 {
     return m_sourceModel->testResult(mapToSource(index));
 }
@@ -337,7 +336,7 @@ bool TestResultFilterModel::filterAcceptsRow(int sourceRow, const QModelIndex &s
     QModelIndex index = m_sourceModel->index(sourceRow, 0, sourceParent);
     if (!index.isValid())
         return false;
-    return m_enabled.contains(m_sourceModel->testResult(index).result());
+    return m_enabled.contains(m_sourceModel->testResult(index)->result());
 }
 
 } // namespace Internal

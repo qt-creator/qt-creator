@@ -270,29 +270,29 @@ void QtTestOutputReader::processOutput()
                 const QStringRef currentTag = m_xmlReader.name();
                 if (currentTag == QStringLiteral("TestFunction")) {
                     if (!m_duration.isEmpty()) {
-                        TestResultPtr testResult = TestResultPtr(new QTestResult(m_className));
-                        testResult->setTestCase(m_testCase);
+                        QTestResult *testResult = new QTestResult(m_className);
+                        testResult->setFunctionName(m_testCase);
                         testResult->setResult(Result::MessageInternal);
                         testResult->setDescription(tr("Execution took %1 ms.").arg(m_duration));
-                        m_futureInterface.reportResult(testResult);
+                        m_futureInterface.reportResult(TestResultPtr(testResult));
                     }
                     m_futureInterface.setProgressValue(m_futureInterface.progressValue() + 1);
                 } else if (currentTag == QStringLiteral("TestCase")) {
-                    TestResultPtr testResult = TestResultPtr(new QTestResult(m_className));
+                    QTestResult *testResult = new QTestResult(m_className);
                     testResult->setResult(Result::MessageTestCaseEnd);
                     testResult->setDescription(
                             m_duration.isEmpty() ? tr("Test finished.")
                                                : tr("Test execution took %1 ms.").arg(m_duration));
-                    m_futureInterface.reportResult(testResult);
+                    m_futureInterface.reportResult(TestResultPtr(testResult));
                 } else if (validEndTags.contains(currentTag.toString())) {
-                    TestResultPtr testResult = TestResultPtr(new QTestResult(m_className));
-                    testResult->setTestCase(m_testCase);
+                    QTestResult *testResult = new QTestResult(m_className);
+                    testResult->setFunctionName(m_testCase);
                     testResult->setDataTag(m_dataTag);
                     testResult->setResult(m_result);
                     testResult->setFileName(m_file);
                     testResult->setLine(m_lineNumber);
                     testResult->setDescription(m_description);
-                    m_futureInterface.reportResult(testResult);
+                    m_futureInterface.reportResult(TestResultPtr(testResult));
                 }
                 break;
             }
@@ -367,11 +367,11 @@ void GTestOutputReader::processOutput()
         }
 
         if (testEnds.exactMatch(line)) {
-            TestResultPtr testResult = TestResultPtr(new GTestResult(m_currentTestName));
-            testResult->setTestCase(m_currentTestSet);
+            GTestResult *testResult = new GTestResult(m_currentTestName);
+            testResult->setTestSetName(m_currentTestSet);
             testResult->setResult(Result::MessageTestCaseEnd);
             testResult->setDescription(tr("Test execution took %1").arg(testEnds.cap(2)));
-            m_futureInterface.reportResult(testResult);
+            m_futureInterface.reportResult(TestResultPtr(testResult));
             m_currentTestName.clear();
             m_currentTestSet.clear();
         } else if (newTestStarts.exactMatch(line)) {
@@ -394,21 +394,21 @@ void GTestOutputReader::processOutput()
             m_futureInterface.reportResult(testResult);
             m_description.clear();
         } else if (testSetSuccess.exactMatch(line)) {
-            TestResultPtr testResult = TestResultPtr(new GTestResult(m_currentTestName));
-            testResult->setTestCase(m_currentTestSet);
+            GTestResult *testResult = new GTestResult(m_currentTestName);
+            testResult->setTestSetName(m_currentTestSet);
             testResult->setResult(Result::Pass);
             testResult->setDescription(m_description);
-            m_futureInterface.reportResult(testResult);
+            m_futureInterface.reportResult(TestResultPtr(testResult));
             m_description.clear();
-            testResult = TestResultPtr(new GTestResult(m_currentTestName));
-            testResult->setTestCase(m_currentTestSet);
+            testResult = new GTestResult(m_currentTestName);
+            testResult->setTestSetName(m_currentTestSet);
             testResult->setResult(Result::MessageInternal);
             testResult->setDescription(tr("Execution took %1.").arg(testSetSuccess.cap(2)));
-            m_futureInterface.reportResult(testResult);
+            m_futureInterface.reportResult(TestResultPtr(testResult));
             m_futureInterface.setProgressValue(m_futureInterface.progressValue() + 1);
         } else if (testSetFail.exactMatch(line)) {
-            TestResultPtr testResult = TestResultPtr(new GTestResult(m_currentTestName));
-            testResult->setTestCase(m_currentTestSet);
+            GTestResult *testResult = new GTestResult(m_currentTestName);
+            testResult->setTestSetName(m_currentTestSet);
             testResult->setResult(Result::Fail);
             m_description.chop(1);
             testResult->setDescription(m_description);
@@ -423,13 +423,13 @@ void GTestOutputReader::processOutput()
                     break;
                 }
             }
-            m_futureInterface.reportResult(testResult);
+            m_futureInterface.reportResult(TestResultPtr(testResult));
             m_description.clear();
-            testResult = TestResultPtr(new GTestResult(m_currentTestName));
-            testResult->setTestCase(m_currentTestSet);
+            testResult = new GTestResult(m_currentTestName);
+            testResult->setTestSetName(m_currentTestSet);
             testResult->setResult(Result::MessageInternal);
             testResult->setDescription(tr("Execution took %1.").arg(testSetFail.cap(2)));
-            m_futureInterface.reportResult(testResult);
+            m_futureInterface.reportResult(TestResultPtr(testResult));
             m_futureInterface.setProgressValue(m_futureInterface.progressValue() + 1);
         }
     }

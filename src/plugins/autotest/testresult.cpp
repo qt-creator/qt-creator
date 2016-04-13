@@ -41,12 +41,14 @@ TestResult::TestResult()
 {
 }
 
-TestResult::TestResult(const QString &className)
-    : m_class(className)
-    , m_result(Result::Invalid)
-    , m_line(0)
-    , m_type(TestTypeQt)
+TestResult::TestResult(const QString &name)
+    : m_name(name)
 {
+}
+
+const QString TestResult::outputString(bool selected) const
+{
+    return selected ? m_description : m_description.split(QLatin1Char('\n')).first();
 }
 
 Result::Type TestResult::resultFromString(const QString &resultString)
@@ -146,23 +148,71 @@ QColor TestResult::colorForType(const Result::Type type)
     }
 }
 
-bool operator==(const TestResult &t1, const TestResult &t2)
-{
-    return t1.className() == t2.className()
-            && t1.testCase() == t2.testCase()
-            && t1.dataTag() == t2.dataTag()
-            && t1.result() == t2.result();
-}
-
 QTestResult::QTestResult(const QString &className)
     : TestResult(className)
 {
 }
 
-GTestResult::GTestResult(const QString &className)
-    : TestResult(className)
+const QString QTestResult::outputString(bool selected) const
 {
-    setTestType(TestTypeGTest);
+    const QString &desc = description();
+    const QString &className = name();
+    QString output;
+    switch (result()) {
+    case Result::Pass:
+    case Result::Fail:
+    case Result::ExpectedFail:
+    case Result::UnexpectedPass:
+    case Result::BlacklistedFail:
+    case Result::BlacklistedPass:
+        output = className + QLatin1String("::") + m_function;
+        if (!m_dataTag.isEmpty())
+            output.append(QString::fromLatin1(" (%1)").arg(m_dataTag));
+        if (selected && !desc.isEmpty()) {
+            output.append(QLatin1Char('\n')).append(desc);
+        }
+        break;
+    case Result::Benchmark:
+        output = className + QLatin1String("::") + m_function;
+        if (!m_dataTag.isEmpty())
+            output.append(QString::fromLatin1(" (%1)").arg(m_dataTag));
+        if (!desc.isEmpty()) {
+            int breakPos = desc.indexOf(QLatin1Char('('));
+            output.append(QLatin1String(": ")).append(desc.left(breakPos));
+            if (selected)
+                output.append(QLatin1Char('\n')).append(desc.mid(breakPos));
+        }
+        break;
+    default:
+        output = desc;
+        if (!selected)
+            output = output.split(QLatin1Char('\n')).first();
+    }
+    return output;
+}
+
+GTestResult::GTestResult(const QString &name)
+    : TestResult(name)
+{
+}
+
+const QString GTestResult::outputString(bool selected) const
+{
+    const QString &desc = description();
+    QString output;
+    switch (result()) {
+    case Result::Pass:
+    case Result::Fail:
+        output = m_testSetName;
+        if (selected && !desc.isEmpty())
+            output.append(QLatin1Char('\n')).append(desc);
+        break;
+    default:
+        output = desc;
+        if (!selected)
+            output = output.split(QLatin1Char('\n')).first();
+    }
+    return output;
 }
 
 } // namespace Internal

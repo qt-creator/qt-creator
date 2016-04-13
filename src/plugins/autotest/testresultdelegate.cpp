@@ -43,46 +43,6 @@ TestResultDelegate::TestResultDelegate(QObject *parent)
 {
 }
 
-QString TestResultDelegate::outputString(const TestResult &testResult, bool selected)
-{
-    const QString desc = testResult.description();
-    QString output;
-    switch (testResult.result()) {
-    case Result::Pass:
-    case Result::Fail:
-    case Result::ExpectedFail:
-    case Result::UnexpectedPass:
-    case Result::BlacklistedFail:
-    case Result::BlacklistedPass:
-        if (testResult.type() == TestTypeQt)
-            output = testResult.className() + QLatin1String("::") + testResult.testCase();
-        else // TestTypeGTest
-            output = testResult.testCase();
-        if (!testResult.dataTag().isEmpty())
-            output.append(QString::fromLatin1(" (%1)").arg(testResult.dataTag()));
-        if (selected && !desc.isEmpty()) {
-            output.append(QLatin1Char('\n')).append(desc);
-        }
-        break;
-    case Result::Benchmark:
-        output = testResult.className() + QLatin1String("::") + testResult.testCase();
-        if (!testResult.dataTag().isEmpty())
-            output.append(QString::fromLatin1(" (%1)").arg(testResult.dataTag()));
-        if (!desc.isEmpty()) {
-            int breakPos = desc.indexOf(QLatin1Char('('));
-            output.append(QLatin1String(": ")).append(desc.left(breakPos));
-            if (selected)
-                output.append(QLatin1Char('\n')).append(desc.mid(breakPos));
-        }
-        break;
-    default:
-        output = desc;
-        if (!selected)
-            output = output.split(QLatin1Char('\n')).first();
-    }
-    return output;
-}
-
 void TestResultDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
     QStyleOptionViewItem opt = option;
@@ -110,7 +70,8 @@ void TestResultDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
 
     TestResultFilterModel *resultFilterModel = static_cast<TestResultFilterModel *>(view->model());
     LayoutPositions positions(opt, resultFilterModel);
-    const TestResult &testResult = resultFilterModel->testResult(index);
+    const TestResult *testResult = resultFilterModel->testResult(index);
+    QTC_ASSERT(testResult, painter->restore();return);
 
     // draw the indicator by ourself as we paint across it with the delegate
     QStyleOptionViewItem indicatorOpt = option;
@@ -122,17 +83,17 @@ void TestResultDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
         painter->drawPixmap(positions.left(), positions.top(),
                             icon.pixmap(positions.iconSize(), positions.iconSize()));
 
-    QString typeStr = TestResult::resultToString(testResult.result());
+    QString typeStr = TestResult::resultToString(testResult->result());
     if (selected) {
         painter->drawText(positions.typeAreaLeft(), positions.top() + fm.ascent(), typeStr);
     } else {
         QPen tmp = painter->pen();
-        painter->setPen(TestResult::colorForType(testResult.result()));
+        painter->setPen(TestResult::colorForType(testResult->result()));
         painter->drawText(positions.typeAreaLeft(), positions.top() + fm.ascent(), typeStr);
         painter->setPen(tmp);
     }
 
-    QString output = outputString(testResult, selected);
+    QString output = testResult->outputString(selected);
 
     if (selected) {
         output.replace(QLatin1Char('\n'), QChar::LineSeparator);
@@ -151,7 +112,7 @@ void TestResultDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
                           fm.elidedText(output.left(2000), Qt::ElideRight, positions.textAreaWidth()));
     }
 
-    QString file = testResult.fileName();
+    QString file = testResult->fileName();
     const int pos = file.lastIndexOf(QLatin1Char('/'));
     if (pos != -1)
         file = file.mid(pos + 1);
@@ -160,8 +121,8 @@ void TestResultDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
     painter->drawText(positions.fileAreaLeft(), positions.top() + fm.ascent(), file);
 
 
-    if (testResult.line()) {
-        QString line = QString::number(testResult.line());
+    if (testResult->line()) {
+        QString line = QString::number(testResult->line());
         painter->setClipRect(positions.lineArea());
         painter->drawText(positions.lineAreaLeft(), positions.top() + fm.ascent(), line);
     }
@@ -190,9 +151,9 @@ QSize TestResultDelegate::sizeHint(const QStyleOptionViewItem &option, const QMo
     s.setWidth(opt.rect.width());
 
     if (selected) {
-        const TestResult &testResult = resultFilterModel->testResult(index);
-
-        QString output = outputString(testResult, selected);
+        const TestResult *testResult = resultFilterModel->testResult(index);
+        QTC_ASSERT(testResult, return QSize());
+        QString output = testResult->outputString(selected);
         output.replace(QLatin1Char('\n'), QChar::LineSeparator);
 
         if (AutotestPlugin::instance()->settings()->limitResultOutput

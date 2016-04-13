@@ -388,9 +388,9 @@ void TestResultsPane::onItemActivated(const QModelIndex &index)
     if (!index.isValid())
         return;
 
-    const TestResult tr = m_filterModel->testResult(index);
-    if (!tr.fileName().isEmpty())
-        Core::EditorManager::openEditorAt(tr.fileName(), tr.line(), 0);
+    const TestResult *testResult = m_filterModel->testResult(index);
+    if (testResult && !testResult->fileName().isEmpty())
+        Core::EditorManager::openEditorAt(testResult->fileName(), testResult->line(), 0);
 }
 
 void TestResultsPane::onRunAllTriggered()
@@ -554,8 +554,9 @@ void TestResultsPane::onCustomContextMenuRequested(const QPoint &pos)
 
 void TestResultsPane::onCopyItemTriggered(const QModelIndex &idx)
 {
-    const TestResult result = m_filterModel->testResult(idx);
-    QApplication::clipboard()->setText(TestResultDelegate::outputString(result, true));
+    const TestResult *result = m_filterModel->testResult(idx);
+    QTC_ASSERT(result, return);
+    QApplication::clipboard()->setText(result->outputString(true));
 }
 
 void TestResultsPane::onCopyWholeTriggered()
@@ -584,9 +585,10 @@ QString TestResultsPane::getWholeOutput(const QModelIndex &parent)
     QString output;
     for (int row = 0, count = m_model->rowCount(parent); row < count; ++row) {
         QModelIndex current = m_model->index(row, 0, parent);
-        const TestResult result = m_model->testResult(current);
-        output.append(TestResult::resultToString(result.result())).append(QLatin1Char('\t'));
-        output.append(TestResultDelegate::outputString(result, true)).append(QLatin1Char('\n'));
+        const TestResult *result = m_model->testResult(current);
+        QTC_ASSERT(result, continue);
+        output.append(TestResult::resultToString(result->result())).append(QLatin1Char('\t'));
+        output.append(result->outputString(true)).append(QLatin1Char('\n'));
         output.append(getWholeOutput(current));
     }
     return output;
