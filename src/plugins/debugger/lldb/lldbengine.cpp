@@ -283,6 +283,10 @@ void LldbEngine::startLldbStage2()
     m_lldbProc.write("script from lldbbridge import *\n");
     m_lldbProc.write("script print(dir())\n");
     m_lldbProc.write("script theDumper = Dumper()\n"); // This triggers reportState("enginesetupok")
+
+    const QString commands = expand(stringSetting(GdbStartupCommands));
+    if (!commands.isEmpty())
+        m_lldbProc.write(commands.toLocal8Bit());
 }
 
 void LldbEngine::setupInferior()
