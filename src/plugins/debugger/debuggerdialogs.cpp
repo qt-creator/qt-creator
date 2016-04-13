@@ -411,7 +411,6 @@ bool StartApplicationDialog::run(QWidget *parent, DebuggerRunParameters *rp, Kit
     rp->breakOnMain = newParameters.breakAtMain;
     rp->serverStartScript = newParameters.serverStartScript;
     rp->debugInfoLocation = newParameters.debugInfoLocation;
-    rp->languages = CppLanguage;
 
     Kit *k = dialog.d->kitChooser->currentKit();
     IDevice::ConstPtr dev = DeviceKitInformation::device(k);
