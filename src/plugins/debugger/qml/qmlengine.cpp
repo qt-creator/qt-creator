@@ -109,7 +109,7 @@ enum StepAction
 
 struct QmlV8ObjectData
 {
-    int handle;
+    int handle = -1;
     QByteArray name;
     QByteArray type;
     QVariant value;
