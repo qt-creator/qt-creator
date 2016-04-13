@@ -107,7 +107,7 @@ ToolChain::CompilerFlags AbstractMsvcToolChain::compilerFlags(const QStringList 
  */
 WarningFlags AbstractMsvcToolChain::warningFlags(const QStringList &cflags) const
 {
-    WarningFlags flags;
+    WarningFlags flags = WarningFlags::NoWarnings;
     foreach (QString flag, cflags) {
         if (!flag.isEmpty() && flag[0] == QLatin1Char('-'))
             flag[0] = QLatin1Char('/');
