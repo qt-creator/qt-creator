@@ -135,7 +135,6 @@ private:
     void connectionErrorOccurred(QAbstractSocket::SocketError socketError);
     void connectionStateChanged(QAbstractSocket::SocketState socketState);
 
-    void clientStateChanged(QmlDebug::QmlDebugClient::State state);
     void checkConnectionState();
     void showConnectionStateMessage(const QString &message);
     bool isConnected() const;

@@ -301,7 +301,10 @@ QmlEngine::QmlEngine(const DebuggerRunParameters &startParameters, DebuggerEngin
 
     d->msgClient = new QDebugMessageClient(d->connection);
     connect(d->msgClient, &QDebugMessageClient::newState,
-            this, &QmlEngine::clientStateChanged);
+            this, [this](QmlDebugClient::State state) {
+        logServiceStateChange(d->msgClient->name(), d->msgClient->serviceVersion(), state);
+    });
+
     connect(d->msgClient, &QDebugMessageClient::message,
             this, &appendDebugOutput);
 }
@@ -1206,18 +1209,6 @@ void QmlEngine::connectionErrorOccurred(QAbstractSocket::SocketError error)
 void QmlEngine::connectionStateChanged(QAbstractSocket::SocketState socketState)
 {
     showConnectionStateMessage(QmlDebugConnection::socketStateToString(socketState));
-}
-
-void QmlEngine::clientStateChanged(QmlDebugClient::State state)
-{
-    QString serviceName;
-    float version = 0;
-    if (QmlDebugClient *client = qobject_cast<QmlDebugClient*>(sender())) {
-        serviceName = client->name();
-        version = client->serviceVersion();
-    }
-
-    logServiceStateChange(serviceName, version, state);
 }
 
 void QmlEngine::checkConnectionState()
@@ -2472,7 +2463,7 @@ void QmlEnginePrivate::handleLookup(const QVariantMap &response)
 
 void QmlEnginePrivate::stateChanged(State state)
 {
-    engine->clientStateChanged(state);
+    engine->logServiceStateChange(name(), serviceVersion(), state);
 
     if (state == QmlDebugClient::Enabled) {
         /// Start session.
