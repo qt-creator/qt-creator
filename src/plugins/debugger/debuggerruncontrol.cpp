@@ -329,13 +329,6 @@ static DebuggerRunControl *doCreate(DebuggerRunParameters rp, RunConfiguration *
 {
     QTC_ASSERT(kit, return 0);
 
-    Target *target = 0;
-    Project *project = 0;
-
-    // Find a Kit and Target. Either could be missing.
-    if (runConfig)
-        target = runConfig->target();
-
     // Extract as much as possible from available RunConfiguration.
     if (runConfig && runConfig->runnable().is<StandardRunnable>()) {
         rp.inferior = runConfig->runnable().as<StandardRunnable>();
@@ -359,24 +352,16 @@ static DebuggerRunControl *doCreate(DebuggerRunParameters rp, RunConfiguration *
             rp.stubEnvironment = rp.inferior.environment; // FIXME: Wrong, but contains DYLD_IMAGE_SUFFIX
             rp.debuggerEnvironment = rp.inferior.environment; // FIXME: Wrong, but contains DYLD_IMAGE_SUFFIX
         }
+        if (Project *project = runConfig->target()->project()) {
+            rp.projectSourceDirectory = project->projectDirectory().toString();
+            rp.projectSourceFiles = project->files(Project::SourceFiles);
+        }
     }
 
     if (ToolChain *tc = ToolChainKitInformation::toolChain(kit))
         rp.toolChainAbi = tc->targetAbi();
 
-    if (target)
-        project = target->project();
-
-    if (project && rp.projectSourceDirectory.isEmpty())
-        rp.projectSourceDirectory = project->projectDirectory().toString();
-
-    if (project && rp.projectSourceFiles.isEmpty())
-        rp.projectSourceFiles = project->files(Project::SourceFiles);
-
-    if (project && rp.projectSourceFiles.isEmpty())
-        rp.projectSourceFiles = project->files(Project::SourceFiles);
-
-    if (false && project) {
+    if (false) {
         const QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(kit);
         rp.nativeMixedEnabled = version && version->qtVersion() >= QtSupport::QtVersionNumber(5, 7, 0);
     }
@@ -390,11 +375,6 @@ static DebuggerRunControl *doCreate(DebuggerRunParameters rp, RunConfiguration *
     rp.sysRoot = SysRootKitInformation::sysRoot(kit).toString();
     rp.debuggerCommand = DebuggerKitInformation::debuggerCommand(kit).toString();
     rp.device = DeviceKitInformation::device(kit);
-
-    if (project) {
-        rp.projectSourceDirectory = project->projectDirectory().toString();
-        rp.projectSourceFiles = project->files(Project::SourceFiles);
-    }
 
     if (rp.displayName.isEmpty() && runConfig)
         rp.displayName = runConfig->displayName();
