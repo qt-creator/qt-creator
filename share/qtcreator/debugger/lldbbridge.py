@@ -1732,7 +1732,7 @@ class Dumper(DumperBase):
             rawData = insn.GetData(lldb.target).uint8s
             result += ',rawdata="%s"' % ' '.join(["%02x" % x for x in rawData])
             if comment:
-                result += ',comment="%s"' % comment
+                result += ',comment="%s"' % self.hexencode(comment)
             result += ',offset="%s"}' % (loadAddr - base)
         self.reportResult(result + ']', args)
 

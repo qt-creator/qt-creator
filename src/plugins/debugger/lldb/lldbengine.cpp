@@ -1016,7 +1016,7 @@ void LldbEngine::fetchDisassembler(DisassemblerAgent *agent)
                 dl.fileName = line["file"].toUtf8();
                 dl.function = line["function"].toUtf8();
                 dl.hunk = line["hunk"].toInt();
-                QByteArray comment = line["comment"].data();
+                QByteArray comment = QByteArray::fromHex(line["comment"].data());
                 if (!comment.isEmpty())
                     dl.data += QString::fromUtf8(" # " + comment);
                 result.appendLine(dl);
