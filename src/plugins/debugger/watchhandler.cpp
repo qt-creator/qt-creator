@@ -1037,6 +1037,8 @@ bool WatchModel::setData(const QModelIndex &idx, const QVariant &value, int role
                 m_engine->assignValueInDebugger(item, item->expression(), value);
                 break;
             }
+            break;
+
         case LocalsExpandedRole:
             if (value.toBool()) {
                 // Should already have been triggered by fetchMore()
