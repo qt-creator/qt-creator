@@ -176,7 +176,7 @@ void IosDeployStep::handleDidTransferApp(IosToolHandler *handler, const QString 
         m_transferStatus = TransferFailed;
         if (!m_expectFail)
             TaskHub::addTask(Task::Error,
-                             tr("Deployment failed. The settings in the Organizer window of Xcode might be incorrect."),
+                             tr("Deployment failed. The settings in the Devices window of Xcode might be incorrect."),
                              ProjectExplorer::Constants::TASK_CATEGORY_DEPLOYMENT);
     }
     m_futureInterface.reportResult(status == IosToolHandler::Success);
