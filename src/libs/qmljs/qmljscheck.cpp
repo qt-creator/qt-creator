@@ -719,6 +719,10 @@ void Check::endVisit(UiObjectInitializer *)
 void Check::checkProperty(UiQualifiedId *qualifiedId)
 {
     const QString id = toString(qualifiedId);
+
+    if (id.isEmpty())
+        return;
+
     if (id.at(0).isLower()) {
         if (m_propertyStack.top().contains(id))
             addMessage(ErrPropertiesCanOnlyHaveOneBinding, fullLocationForQualifiedId(qualifiedId));
