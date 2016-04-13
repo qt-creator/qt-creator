@@ -60,6 +60,7 @@ public:
     StopResult stop() override; // Called from SnapshotWindow.
     bool isRunning() const override;
     QString displayName() const override;
+    bool supportsReRunning() const override;
 
     void startFailed();
     void notifyEngineRemoteServerRunning(const QByteArray &msg, int pid);
