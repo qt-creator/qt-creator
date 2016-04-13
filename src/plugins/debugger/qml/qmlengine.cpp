@@ -125,7 +125,7 @@ struct LookupData
     QByteArray exp;
 };
 
-typedef QMultiHash<int, LookupData> LookupItems; // id -> (iname, exp)
+typedef QHash<int, LookupData> LookupItems; // id -> (iname, exp)
 
 class QmlEnginePrivate : QmlDebugClient
 {
@@ -1375,8 +1375,14 @@ void QmlEnginePrivate::lookup(const LookupItems &items)
     if (items.isEmpty())
         return;
 
-    QList<int> handles = items.keys();
-    currentlyLookingUp += items;
+    QList<int> handles;
+    for (auto it = items.begin(); it != items.end(); ++it) {
+        const int handle = it.key();
+        if (!currentlyLookingUp.contains(handle)) {
+            currentlyLookingUp.insert(handle, it.value());
+            handles.append(handle);
+        }
+    }
 
     DebuggerCommand cmd(LOOKUP);
     cmd.arg(HANDLES, handles);
