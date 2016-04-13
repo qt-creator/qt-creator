@@ -10,6 +10,14 @@
 
     \image qtcreator-pprunsettings.png
 
+    When building an application, \QC creates a list of directories where the
+    linker will look for libraries that were built as part of the project. To
+    search those directories for libraries when starting an application, select
+    the \uicontrol {Add build library search path} check box. The linked
+    directories are made visible to the executable that \QC is attempting to
+    run. This option is enabled by default, and you should disable it only if
+    you use deployment steps.
+
     The \uicontrol {Use debug version of frameworks (DYLD_IMAGE_SUFFIX=_debug)} option
     (only available on OS X) enables you to debug (for example, step into)
     linked frameworks, such as the Qt framework itself. You do not need this
