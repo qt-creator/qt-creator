@@ -46,8 +46,7 @@ using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
 using namespace TextEditor;
 
-AllProjectsFind::AllProjectsFind()
-    :  m_configWidget(0)
+AllProjectsFind::AllProjectsFind() :  m_configWidget(nullptr)
 {
     connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::fileListChanged,
             this, &AllProjectsFind::handleFileListChanged);
@@ -138,10 +137,10 @@ QWidget *AllProjectsFind::createConfigWidget()
 {
     if (!m_configWidget) {
         m_configWidget = new QWidget;
-        QGridLayout * const gridLayout = new QGridLayout(m_configWidget);
+        auto gridLayout = new QGridLayout(m_configWidget);
         gridLayout->setMargin(0);
         m_configWidget->setLayout(gridLayout);
-        QLabel * const filePatternLabel = new QLabel(tr("Fi&le pattern:"));
+        auto filePatternLabel = new QLabel(tr("Fi&le pattern:"));
         filePatternLabel->setMinimumWidth(80);
         filePatternLabel->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
         filePatternLabel->setAlignment(Qt::AlignRight | Qt::AlignVCenter);

@@ -165,13 +165,7 @@ private:
 
   Shows the projects in form of a tree.
   */
-ProjectTreeWidget::ProjectTreeWidget(QWidget *parent)
-        : QWidget(parent),
-          m_view(0),
-          m_model(0),
-          m_filterProjectsAction(0),
-          m_autoSync(false),
-          m_autoExpand(true)
+ProjectTreeWidget::ProjectTreeWidget(QWidget *parent) : QWidget(parent)
 {
     m_model = new FlatModel(SessionManager::sessionNode(), this);
     Project *pro = SessionManager::startupProject();
@@ -185,7 +179,7 @@ ProjectTreeWidget::ProjectTreeWidget(QWidget *parent)
     m_view->installEventFilter(this);
     initView();
 
-    QVBoxLayout *layout = new QVBoxLayout();
+    auto layout = new QVBoxLayout();
     layout->addWidget(ItemViewFind::createSearchableWrapper(
                           m_view, ItemViewFind::DarkColored,
                           ItemViewFind::FetchMoreWhileSearching));
@@ -580,15 +574,15 @@ ProjectTreeWidgetFactory::ProjectTreeWidgetFactory()
 NavigationView ProjectTreeWidgetFactory::createWidget()
 {
     NavigationView n;
-    ProjectTreeWidget *ptw = new ProjectTreeWidget;
+    auto ptw = new ProjectTreeWidget;
     n.widget = ptw;
 
-    QToolButton *filter = new QToolButton;
+    auto filter = new QToolButton;
     filter->setIcon(Core::Icons::FILTER.icon());
     filter->setToolTip(tr("Filter Tree"));
     filter->setPopupMode(QToolButton::InstantPopup);
     filter->setProperty("noArrow", true);
-    QMenu *filterMenu = new QMenu(filter);
+    auto filterMenu = new QMenu(filter);
     filterMenu->addAction(ptw->m_filterProjectsAction);
     filterMenu->addAction(ptw->m_filterGeneratedFilesAction);
     filter->setMenu(filterMenu);
@@ -599,7 +593,7 @@ NavigationView ProjectTreeWidgetFactory::createWidget()
 
 void ProjectTreeWidgetFactory::saveSettings(int position, QWidget *widget)
 {
-    ProjectTreeWidget *ptw = qobject_cast<ProjectTreeWidget *>(widget);
+    auto ptw = qobject_cast<ProjectTreeWidget *>(widget);
     Q_ASSERT(ptw);
     QSettings *settings = ICore::settings();
     const QString baseKey = QLatin1String("ProjectTreeWidget.") + QString::number(position);
@@ -610,7 +604,7 @@ void ProjectTreeWidgetFactory::saveSettings(int position, QWidget *widget)
 
 void ProjectTreeWidgetFactory::restoreSettings(int position, QWidget *widget)
 {
-    ProjectTreeWidget *ptw = qobject_cast<ProjectTreeWidget *>(widget);
+    auto ptw = qobject_cast<ProjectTreeWidget *>(widget);
     Q_ASSERT(ptw);
     QSettings *settings = ICore::settings();
     const QString baseKey = QLatin1String("ProjectTreeWidget.") + QString::number(position);

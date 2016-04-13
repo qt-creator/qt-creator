@@ -46,7 +46,7 @@ public:
     bool hasFatalErrors() const override;
 
 private:
-    bool m_hasFatalError;
+    bool m_hasFatalError = false;
 };
 
 } // namespace ProjectExplorer

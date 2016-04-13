@@ -45,7 +45,7 @@ class ProjectExplorerSettingsWidget : public QWidget
     Q_OBJECT
 
 public:
-    explicit ProjectExplorerSettingsWidget(QWidget *parent = 0);
+    explicit ProjectExplorerSettingsWidget(QWidget *parent = nullptr);
 
     ProjectExplorerSettings settings() const;
     void setSettings(const ProjectExplorerSettings  &s);

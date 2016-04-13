@@ -166,8 +166,7 @@ void TargetSelectorDelegate::paint(QPainter *painter,
 ////////
 // ListWidget
 ////////
-ListWidget::ListWidget(QWidget *parent)
-    : QListWidget(parent), m_maxCount(0), m_optimalWidth(0)
+ListWidget::ListWidget(QWidget *parent) : QListWidget(parent)
 {
     setFocusPolicy(Qt::NoFocus);
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -251,7 +250,7 @@ QListWidgetItem *ProjectListWidget::itemForProject(Project *project)
         if (currentItem->data(Qt::UserRole).value<Project*>() == project)
             return currentItem;
     }
-    return 0;
+    return nullptr;
 }
 
 QString ProjectListWidget::fullName(Project *project)
@@ -264,7 +263,7 @@ void ProjectListWidget::addProject(Project *project)
     m_ignoreIndexChange = true;
 
     int pos = count();
-    for (int i=0; i < count(); ++i) {
+    for (int i = 0; i < count(); ++i) {
         Project *p = item(i)->data(Qt::UserRole).value<Project*>();
         if (projectLesserThan(project, p)) {
             pos = i;
@@ -488,7 +487,7 @@ void GenericListWidget::rowChanged(int index)
 void GenericListWidget::displayNameChanged()
 {
     m_ignoreIndexChange = true;
-    ProjectConfiguration *activeProjectConfiguration = 0;
+    ProjectConfiguration *activeProjectConfiguration = nullptr;
     if (currentItem())
         activeProjectConfiguration = currentItem()->data(Qt::UserRole).value<ProjectConfiguration *>();
 
@@ -536,7 +535,7 @@ QListWidgetItem *GenericListWidget::itemForProjectConfiguration(ProjectConfigura
         if (lwi->data(Qt::UserRole).value<ProjectConfiguration *>() == pc)
             return lwi;
     }
-    return 0;
+    return nullptr;
 }
 
 /////////
@@ -544,7 +543,7 @@ QListWidgetItem *GenericListWidget::itemForProjectConfiguration(ProjectConfigura
 /////////
 
 KitAreaWidget::KitAreaWidget(QWidget *parent) : QWidget(parent),
-    m_layout(new QGridLayout(this)), m_kit(0)
+    m_layout(new QGridLayout(this))
 {
     m_layout->setMargin(3);
     setAutoFillBackground(true);
@@ -553,7 +552,7 @@ KitAreaWidget::KitAreaWidget(QWidget *parent) : QWidget(parent),
 
 KitAreaWidget::~KitAreaWidget()
 {
-    setKit(0);
+    setKit(nullptr);
 }
 
 void KitAreaWidget::setKit(Kit *k)
@@ -644,13 +643,8 @@ QWidget *MiniProjectTargetSelector::createTitleLabel(const QString &text)
 }
 
 MiniProjectTargetSelector::MiniProjectTargetSelector(QAction *targetSelectorAction, QWidget *parent) :
-    QWidget(parent), m_projectAction(targetSelectorAction),
-    m_project(0),
-    m_target(0),
-    m_buildConfiguration(0),
-    m_deployConfiguration(0),
-    m_runConfiguration(0),
-    m_hideOnRelease(false)
+    QWidget(parent),
+    m_projectAction(targetSelectorAction)
 {
     QPalette p;
     p.setColor(QPalette::Foreground, creatorTheme()->color(Theme::MiniProjectTargetSelectorTextColor));
@@ -958,7 +952,7 @@ void MiniProjectTargetSelector::doLayout(bool keepSize)
         setFixedSize(m_summaryLabel->width() + 1, heightWithoutKitArea + kitAreaHeight); //1 extra pixel for the border
     }
 
-    QPoint moveTo = statusBar->mapToGlobal(QPoint(0,0));
+    QPoint moveTo = statusBar->mapToGlobal(QPoint(0, 0));
     moveTo -= QPoint(0, height());
     move(moveTo);
 }
@@ -1253,7 +1247,7 @@ void MiniProjectTargetSelector::changeStartupProject(Project *project)
                 this, &MiniProjectTargetSelector::activeTargetChanged);
         activeTargetChanged(m_project->activeTarget());
     } else {
-        activeTargetChanged(0);
+        activeTargetChanged(nullptr);
     }
 
     if (project) {
@@ -1262,7 +1256,7 @@ void MiniProjectTargetSelector::changeStartupProject(Project *project)
             list.append(t);
         m_listWidgets[TARGET]->setProjectConfigurations(list, project->activeTarget());
     } else {
-        m_listWidgets[TARGET]->setProjectConfigurations(QList<ProjectConfiguration *>(), 0);
+        m_listWidgets[TARGET]->setProjectConfigurations(QList<ProjectConfiguration *>(), nullptr);
     }
 
     updateActionAndSummary();
@@ -1287,7 +1281,7 @@ void MiniProjectTargetSelector::activeTargetChanged(Target *target)
 
     m_target = target;
 
-    m_kitAreaWidget->setKit(m_target ? m_target->kit() : 0);
+    m_kitAreaWidget->setKit(m_target ? m_target->kit() : nullptr);
 
     m_listWidgets[TARGET]->setActiveProjectConfiguration(m_target);
 
@@ -1344,12 +1338,12 @@ void MiniProjectTargetSelector::activeTargetChanged(Target *target)
         connect(m_target, &Target::activeRunConfigurationChanged,
                 this, &MiniProjectTargetSelector::activeRunConfigurationChanged);
     } else {
-        m_listWidgets[BUILD]->setProjectConfigurations(QList<ProjectConfiguration *>(), 0);
-        m_listWidgets[DEPLOY]->setProjectConfigurations(QList<ProjectConfiguration *>(), 0);
-        m_listWidgets[RUN]->setProjectConfigurations(QList<ProjectConfiguration *>(), 0);
-        m_buildConfiguration = 0;
-        m_deployConfiguration = 0;
-        m_runConfiguration = 0;
+        m_listWidgets[BUILD]->setProjectConfigurations(QList<ProjectConfiguration *>(), nullptr);
+        m_listWidgets[DEPLOY]->setProjectConfigurations(QList<ProjectConfiguration *>(), nullptr);
+        m_listWidgets[RUN]->setProjectConfigurations(QList<ProjectConfiguration *>(), nullptr);
+        m_buildConfiguration = nullptr;
+        m_deployConfiguration = nullptr;
+        m_runConfiguration = nullptr;
     }
     updateActionAndSummary();
 }

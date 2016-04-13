@@ -97,9 +97,9 @@ private:
     QList<QLabel *> m_labels;
     Kit *m_kit;
     Kit *m_modifiedKit;
-    bool m_isDefaultKit;
-    bool m_fixingKit;
-    bool m_hasUniqueName;
+    bool m_isDefaultKit = false;
+    bool m_fixingKit = false;
+    bool m_hasUniqueName = true;
     QList<QAction *> m_actions;
     mutable QString m_cachedDisplayName;
 };

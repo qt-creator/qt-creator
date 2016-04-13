@@ -64,6 +64,5 @@ Core::Id CopyTaskHandler::actionManagerId() const
 
 QAction *CopyTaskHandler::createAction(QObject *parent) const
 {
-    QAction *copyAction = new QAction(parent);
-    return copyAction;
+    return new QAction(parent);
 }

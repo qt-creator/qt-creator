@@ -58,16 +58,9 @@ namespace ProjectExplorer {
 
 using namespace Internal;
 
-ProjectTree *ProjectTree::s_instance = 0;
+ProjectTree *ProjectTree::s_instance = nullptr;
 
-ProjectTree::ProjectTree(QObject *parent)
-    : QObject(parent),
-      m_currentNode(0),
-      m_currentProject(0),
-      m_resetCurrentNodeFolder(false),
-      m_resetCurrentNodeFile(false),
-      m_resetCurrentNodeProject(false),
-      m_focusForContextMenu(0)
+ProjectTree::ProjectTree(QObject *parent) : QObject(parent)
 {
     s_instance = this;
 
@@ -160,7 +153,7 @@ void ProjectTree::documentManagerCurrentFileChanged()
 Project *ProjectTree::projectForNode(Node *node)
 {
     if (!node)
-        return 0;
+        return nullptr;
 
     FolderNode *rootProjectNode = node->asFolderNode();
     if (!rootProjectNode)
@@ -179,7 +172,7 @@ void ProjectTree::updateFromDocumentManager(bool invalidCurrentNode)
     Core::IDocument *document = Core::EditorManager::currentDocument();
     const FileName fileName = document ? document->filePath() : FileName();
 
-    Node *currentNode = 0;
+    Node *currentNode = nullptr;
     if (!invalidCurrentNode && m_currentNode && m_currentNode->filePath() == fileName)
         currentNode = m_currentNode;
     else
@@ -444,7 +437,7 @@ void ProjectTree::collapseAll()
 
 void ProjectTree::updateExternalFileWarning()
 {
-    Core::IDocument *document = qobject_cast<Core::IDocument *>(sender());
+    auto document = qobject_cast<Core::IDocument *>(sender());
     if (!document || document->filePath().isEmpty())
         return;
     Core::InfoBar *infoBar = document->infoBar();
@@ -486,7 +479,7 @@ bool ProjectTree::hasFocus(ProjectTreeWidget *widget)
 
 void ProjectTree::showContextMenu(ProjectTreeWidget *focus, const QPoint &globalPos, Node *node)
 {
-    QMenu *contextMenu = 0;
+    QMenu *contextMenu = nullptr;
 
     if (!node)
         node = SessionManager::sessionNode();
@@ -512,7 +505,7 @@ void ProjectTree::showContextMenu(ProjectTreeWidget *focus, const QPoint &global
             qWarning("ProjectExplorerPlugin::showContextMenu - Missing handler for node type");
         }
     } else { // session item
-        emit s_instance->aboutToShowContextMenu(0, node);
+        emit s_instance->aboutToShowContextMenu(nullptr, node);
 
         contextMenu = Core::ActionManager::actionContainer(Constants::M_SESSIONCONTEXT)->menu();
     }
@@ -541,7 +534,7 @@ void ProjectTree::highlightProject(Project *project, const QString &message)
 
 void ProjectTree::hideContextMenu()
 {
-    m_focusForContextMenu = 0;
+    m_focusForContextMenu = nullptr;
 }
 
 bool ProjectTree::isInNodeHierarchy(Node *n)

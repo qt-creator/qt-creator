@@ -36,7 +36,7 @@ class PROJECTEXPLORER_EXPORT DeploymentDataModel : public QAbstractTableModel
 {
     Q_OBJECT
 public:
-    explicit DeploymentDataModel(QObject *parent = 0);
+    explicit DeploymentDataModel(QObject *parent = nullptr);
 
     void setDeploymentData(const DeploymentData &deploymentData);
 

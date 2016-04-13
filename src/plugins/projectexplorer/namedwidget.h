@@ -36,7 +36,7 @@ class PROJECTEXPLORER_EXPORT NamedWidget : public QWidget
     Q_OBJECT
 
 public:
-    explicit NamedWidget(QWidget *parent = 0);
+    explicit NamedWidget(QWidget *parent = nullptr);
 
     QString displayName() const;
 

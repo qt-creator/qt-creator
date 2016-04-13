@@ -43,7 +43,7 @@ class SessionDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit SessionDialog(QWidget *parent = 0);
+    explicit SessionDialog(QWidget *parent = nullptr);
 
     void setAutoLoadSession(bool);
     bool autoLoadSession() const;
@@ -68,7 +68,7 @@ class SessionNameInputDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit SessionNameInputDialog(const QStringList &sessions, QWidget *parent = 0);
+    explicit SessionNameInputDialog(const QStringList &sessions, QWidget *parent = nullptr);
 
     void setValue(const QString &value);
     QString value() const;

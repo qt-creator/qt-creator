@@ -94,10 +94,10 @@ public:
     public:
         DetectedAbisResult() = default;
         DetectedAbisResult(const QList<Abi> &supportedAbis,
-                           const QString &originalTargetTriple = QString())
-            : supportedAbis(supportedAbis)
-            , originalTargetTriple(originalTargetTriple)
-        {}
+                           const QString &originalTargetTriple = QString()) :
+            supportedAbis(supportedAbis),
+            originalTargetTriple(originalTargetTriple)
+        { }
 
         QList<Abi> supportedAbis;
         QString originalTargetTriple;
@@ -132,15 +132,16 @@ protected:
 
     class WarningFlagAdder
     {
-        QByteArray m_flagUtf8;
-        WarningFlags &m_flags;
-        bool m_doesEnable;
-        bool m_triggered;
     public:
         WarningFlagAdder(const QString &flag, WarningFlags &flags);
         void operator ()(const char name[], WarningFlags flagsSet);
 
         bool triggered() const;
+    private:
+        QByteArray m_flagUtf8;
+        WarningFlags &m_flags;
+        bool m_doesEnable;
+        bool m_triggered = false;
     };
 
 private:

@@ -137,8 +137,8 @@ protected:
 private:
     NodeType m_nodeType;
     int m_line;
-    ProjectNode *m_projectNode;
-    FolderNode *m_folderNode;
+    ProjectNode *m_projectNode = nullptr;
+    FolderNode *m_folderNode = nullptr;
     Utils::FileName m_filePath;
 };
 
@@ -193,7 +193,7 @@ public:
     public:
         AddNewInformation(const QString &name, int p)
             :displayName(name), priority(p)
-        {}
+        { }
         QString displayName;
         int priority;
     };
@@ -227,9 +227,9 @@ class PROJECTEXPLORER_EXPORT VirtualFolderNode : public FolderNode
 {
 public:
     explicit VirtualFolderNode(const Utils::FileName &folderPath, int priority);
-    ~VirtualFolderNode() override;
 
     int priority() const;
+
 private:
     int m_priority;
 };

@@ -224,4 +224,4 @@ QString IOutputParser::rightTrimmed(const QString &in)
     return in.mid(0, pos);
 }
 
-}
+} // namespace ProjectExplorer

@@ -65,8 +65,7 @@ class CompileOutputTextEdit : public Core::OutputWindow
 {
     Q_OBJECT
 public:
-    CompileOutputTextEdit(const Core::Context &context)
-        : Core::OutputWindow(context)
+    CompileOutputTextEdit(const Core::Context &context) : Core::OutputWindow(context)
     {
         setWheelZoomEnabled(true);
 
@@ -182,7 +181,7 @@ CompileOutputWindow::CompileOutputWindow(QAction *cancelBuildAction) :
     connect(m_zoomOutButton, &QToolButton::clicked,
             this, [this]() { m_outputWindow->zoomOut(1); });
 
-    Aggregation::Aggregate *agg = new Aggregation::Aggregate;
+    auto agg = new Aggregation::Aggregate;
     agg->add(m_outputWindow);
     agg->add(new Core::BaseTextFind(m_outputWindow));
 
@@ -284,9 +283,7 @@ void CompileOutputWindow::clearContents()
 }
 
 void CompileOutputWindow::visibilityChanged(bool)
-{
-
-}
+{ }
 
 int CompileOutputWindow::priorityInStatusBar() const
 {
@@ -304,14 +301,10 @@ bool CompileOutputWindow::canPrevious() const
 }
 
 void CompileOutputWindow::goToNext()
-{
-
-}
+{ }
 
 void CompileOutputWindow::goToPrev()
-{
-
-}
+{ }
 
 bool CompileOutputWindow::canNavigate() const
 {

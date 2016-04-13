@@ -44,8 +44,7 @@
 
 namespace ProjectExplorer {
 
-JsonWizard::JsonWizard(QWidget *parent) :
-    Utils::Wizard(parent)
+JsonWizard::JsonWizard(QWidget *parent) : Utils::Wizard(parent)
 {
     setMinimumSize(800, 500);
     m_expander.registerExtraResolver([this](const QString &name, QString *ret) -> bool {
@@ -298,7 +297,7 @@ void JsonWizard::reject()
 
 void JsonWizard::handleNewPages(int pageId)
 {
-    Utils::WizardPage *wp = qobject_cast<Utils::WizardPage *>(page(pageId));
+    auto wp = qobject_cast<Utils::WizardPage *>(page(pageId));
     if (!wp)
         return;
 

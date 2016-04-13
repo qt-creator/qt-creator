@@ -78,7 +78,7 @@ class ProjectWindow : public QWidget
     Q_OBJECT
 
 public:
-    explicit ProjectWindow(QWidget *parent = 0);
+    explicit ProjectWindow(QWidget *parent = nullptr);
 
     void aboutToShutdown();
 

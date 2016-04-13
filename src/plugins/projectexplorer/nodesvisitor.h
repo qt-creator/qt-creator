@@ -43,9 +43,9 @@ class PROJECTEXPLORER_EXPORT NodesVisitor {
 public:
     virtual ~NodesVisitor();
 
-    virtual void visitSessionNode(SessionNode *) {}
-    virtual void visitProjectNode(ProjectNode *) {}
-    virtual void visitFolderNode(FolderNode *) {}
+    virtual void visitSessionNode(SessionNode *) { }
+    virtual void visitProjectNode(ProjectNode *) { }
+    virtual void visitFolderNode(FolderNode *) { }
 
 protected:
      NodesVisitor() {}
@@ -65,7 +65,7 @@ public:
 
 private:
     Utils::FileName m_path;
-    QList<Node*> m_nodes;
+    QList<Node *> m_nodes;
 };
 
 class PROJECTEXPLORER_EXPORT FindAllFilesVisitor : public NodesVisitor {

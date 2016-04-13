@@ -52,16 +52,16 @@ using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
 using namespace Utils;
 
-ToolWidget::ToolWidget(QWidget *parent)
-    : FadingPanel(parent), m_buildStepEnabled(true), m_targetOpacity(1.0f)
+ToolWidget::ToolWidget(QWidget *parent) : FadingPanel(parent),
+    m_targetOpacity(1.0f)
 {
-    QHBoxLayout *layout = new QHBoxLayout;
+    auto layout = new QHBoxLayout;
     layout->setMargin(4);
     layout->setSpacing(4);
     setLayout(layout);
     m_firstWidget = new FadingWidget(this);
     m_firstWidget->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-    QHBoxLayout *hbox = new QHBoxLayout();
+    auto hbox = new QHBoxLayout();
     hbox->setContentsMargins(0, 0, 0, 0);
     hbox->setSpacing(0);
     m_firstWidget->setLayout(hbox);
@@ -209,7 +209,7 @@ BuildStepListWidget::~BuildStepListWidget()
 
 void BuildStepListWidget::updateSummary()
 {
-    BuildStepConfigWidget *widget = qobject_cast<BuildStepConfigWidget *>(sender());
+    auto widget = qobject_cast<BuildStepConfigWidget *>(sender());
     if (widget) {
         foreach (const BuildStepsWidgetData *s, m_buildStepsData) {
             if (s->widget == widget) {
@@ -222,7 +222,7 @@ void BuildStepListWidget::updateSummary()
 
 void BuildStepListWidget::updateAdditionalSummary()
 {
-    BuildStepConfigWidget *widget = qobject_cast<BuildStepConfigWidget *>(sender());
+    auto widget = qobject_cast<BuildStepConfigWidget *>(sender());
     if (widget) {
         foreach (const BuildStepsWidgetData *s, m_buildStepsData) {
             if (s->widget == widget) {
@@ -235,7 +235,7 @@ void BuildStepListWidget::updateAdditionalSummary()
 
 void BuildStepListWidget::updateEnabledState()
 {
-    BuildStep *step = qobject_cast<BuildStep *>(sender());
+    auto step = qobject_cast<BuildStep *>(sender());
     if (step) {
         foreach (const BuildStepsWidgetData *s, m_buildStepsData) {
             if (s->step == step) {
@@ -324,7 +324,7 @@ void BuildStepListWidget::updateAddBuildStepMenu()
 void BuildStepListWidget::addBuildStepWidget(int pos, BuildStep *step)
 {
     // create everything
-    BuildStepsWidgetData *s = new BuildStepsWidgetData(step);
+    auto s = new BuildStepsWidgetData(step);
     m_buildStepsData.insert(pos, s);
 
     m_vbox->insertWidget(pos, s->detailsWidget);
@@ -412,7 +412,7 @@ void BuildStepListWidget::triggerDisable(int pos)
 
 void BuildStepListWidget::setupUi()
 {
-    if (0 != m_addButton)
+    if (m_addButton)
         return;
 
     m_disableMapper = new QSignalMapper(this);
@@ -436,7 +436,7 @@ void BuildStepListWidget::setupUi()
     m_noStepsLabel->setContentsMargins(0, 0, 0, 0);
     m_vbox->addWidget(m_noStepsLabel);
 
-    QHBoxLayout *hboxLayout = new QHBoxLayout();
+    auto hboxLayout = new QHBoxLayout();
     hboxLayout->setContentsMargins(0, 4, 0, 0);
     m_addButton = new QPushButton(this);
     m_addButton->setMenu(new QMenu(this));
@@ -479,11 +479,10 @@ void BuildStepListWidget::updateBuildStepButtonsState()
 }
 
 BuildStepsPage::BuildStepsPage(BuildConfiguration *bc, Core::Id id) :
-    NamedWidget(),
     m_id(id),
     m_widget(new BuildStepListWidget(this))
 {
-    QVBoxLayout *layout = new QVBoxLayout(this);
+    auto layout = new QVBoxLayout(this);
     layout->setMargin(0);
     layout->setSpacing(0);
     layout->addWidget(m_widget);
@@ -495,6 +494,3 @@ BuildStepsPage::BuildStepsPage(BuildConfiguration *bc, Core::Id id) :
     if (m_id == Constants::BUILDSTEPS_CLEAN)
         setDisplayName(tr("Clean Steps"));
 }
-
-BuildStepsPage::~BuildStepsPage()
-{ }

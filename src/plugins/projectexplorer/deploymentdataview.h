@@ -38,7 +38,7 @@ class PROJECTEXPLORER_EXPORT DeploymentDataView : public NamedWidget
     Q_OBJECT
 
 public:
-    explicit DeploymentDataView(Target *target, QWidget *parent = 0);
+    explicit DeploymentDataView(Target *target, QWidget *parent = nullptr);
     ~DeploymentDataView() override;
 
 private:

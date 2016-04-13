@@ -32,13 +32,12 @@
 
 namespace ProjectExplorer {
 
-JsonFilePage::JsonFilePage(QWidget *parent) :
-    Utils::FileWizardPage(parent)
+JsonFilePage::JsonFilePage(QWidget *parent) : Utils::FileWizardPage(parent)
 { }
 
 void JsonFilePage::initializePage()
 {
-    JsonWizard *wiz = qobject_cast<JsonWizard *>(wizard());
+    auto wiz = qobject_cast<JsonWizard *>(wizard());
     if (!wiz)
         return;
 

@@ -34,18 +34,14 @@
 
 namespace ProjectExplorer {
 
-JournaldWatcher *JournaldWatcher::m_instance = 0;
+JournaldWatcher *JournaldWatcher::m_instance = nullptr;
 
 namespace Internal {
 
 class JournaldWatcherPrivate
 {
 public:
-    JournaldWatcherPrivate() :
-        m_journalContext(0),
-        m_notifier(0)
-    { }
-
+    JournaldWatcherPrivate() = default;
     ~JournaldWatcherPrivate()
     {
         teardown();
@@ -67,8 +63,8 @@ public:
     };
     QList<SubscriberInformation> m_subscriptions;
 
-    sd_journal *m_journalContext;
-    QSocketNotifier *m_notifier;
+    sd_journal *m_journalContext = nullptr;
+    QSocketNotifier *m_notifier = nullptr;
 };
 
 bool JournaldWatcherPrivate::setup()
@@ -96,11 +92,11 @@ bool JournaldWatcherPrivate::setup()
 void JournaldWatcherPrivate::teardown()
 {
     delete m_notifier;
-    m_notifier = 0;
+    m_notifier = nullptr;
 
     if (m_journalContext) {
         sd_journal_close(m_journalContext);
-        m_journalContext = 0;
+        m_journalContext = nullptr;
     }
 }
 
@@ -130,16 +126,16 @@ JournaldWatcher::LogEntry JournaldWatcherPrivate::retrieveEntry()
 
 using namespace Internal;
 
-static JournaldWatcherPrivate *d = 0;
+static JournaldWatcherPrivate *d = nullptr;
 
 JournaldWatcher::~JournaldWatcher()
 {
     d->teardown();
 
-    m_instance = 0;
+    m_instance = nullptr;
 
     delete d;
-    d = 0;
+    d = nullptr;
 }
 
 JournaldWatcher *JournaldWatcher::instance()

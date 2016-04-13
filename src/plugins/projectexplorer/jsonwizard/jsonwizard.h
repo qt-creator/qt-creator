@@ -46,7 +46,7 @@ class PROJECTEXPLORER_EXPORT JsonWizard : public Utils::Wizard
 public:
     class GeneratorFile {
     public:
-        GeneratorFile() : generator(0) { }
+        GeneratorFile() : generator(nullptr) { }
         GeneratorFile(const Core::GeneratedFile &f, JsonWizardGenerator *g) :
             file(f), generator(g)
         { }
@@ -59,8 +59,8 @@ public:
     typedef QList<GeneratorFile> GeneratorFiles;
     Q_PROPERTY(GeneratorFiles generateFileList READ generateFileList)
 
-    explicit JsonWizard(QWidget *parent = 0);
-    ~JsonWizard();
+    explicit JsonWizard(QWidget *parent = nullptr);
+    ~JsonWizard() override;
 
     void addGenerator(JsonWizardGenerator *gen);
 

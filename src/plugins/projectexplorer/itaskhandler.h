@@ -44,6 +44,8 @@ class PROJECTEXPLORER_EXPORT ITaskHandler : public QObject
     Q_OBJECT
 
 public:
+    virtual ~ITaskHandler() { }
+
     virtual bool isDefaultHandler() const { return false; }
     virtual bool canHandle(const Task &) const = 0;
     virtual void handle(const Task &) = 0;

@@ -49,7 +49,7 @@ private:
     void currentProjectChanged();
     void markFilesAsOutOfDate();
 
-    Project *m_project;
+    Project *m_project = nullptr;
 };
 
 } // namespace Internal

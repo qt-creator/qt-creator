@@ -41,12 +41,10 @@ enum { debug = 0 };
 namespace ProjectExplorer {
 namespace Internal {
 
-
 AbstractMsvcToolChain::AbstractMsvcToolChain(Core::Id typeId,
                                              Detection d,
                                              const Abi &abi,
-                                             const QString& vcvarsBat) :
-    ToolChain(typeId, d),
+                                             const QString& vcvarsBat) : ToolChain(typeId, d),
     m_lastEnvironment(Utils::Environment::systemEnvironment()),
     m_abi(abi),
     m_vcvarsBat(vcvarsBat)
@@ -232,7 +230,6 @@ QByteArray AbstractMsvcToolChain::msvcPredefinedMacros(const QStringList cxxflag
     return predefinedMacros;
 }
 
-
 bool AbstractMsvcToolChain::generateEnvironmentSettings(Utils::Environment &env,
                                                         const QString &batchFile,
                                                         const QString &batchArgs,
@@ -400,7 +397,6 @@ bool AbstractMsvcToolChain::WarningFlagAdder::triggered() const
 {
     return m_triggered;
 }
-
 
 } // namespace Internal
 } // namespace ProjectExplorer

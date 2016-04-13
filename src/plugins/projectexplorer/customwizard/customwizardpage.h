@@ -54,12 +54,11 @@ public:
 
     explicit CustomWizardFieldPage(const QSharedPointer<CustomWizardContext> &ctx,
                                    const QSharedPointer<CustomWizardParameters> &parameters,
-                                   QWidget *parent = 0);
-    virtual ~CustomWizardFieldPage();
+                                   QWidget *parent = nullptr);
 
-    virtual bool validatePage();
-    virtual void initializePage();
-    virtual void cleanupPage();
+    bool validatePage() override;
+    void initializePage() override;
+    void cleanupPage() override;
 
     static QMap<QString, QString> replacementMap(const QWizard *w,
                                                  const QSharedPointer<CustomWizardContext> &ctx,
@@ -72,23 +71,23 @@ protected:
 private:
     class LineEditData {
     public:
-        explicit LineEditData(QLineEdit* le = 0, const QString &defText = QString(), const QString &pText = QString());
-        QLineEdit* lineEdit;
+        explicit LineEditData(QLineEdit *le = nullptr, const QString &defText = QString(), const QString &pText = QString());
+        QLineEdit *lineEdit;
         QString defaultText;
         QString placeholderText;
         QString userChange;
     };
     class TextEditData {
     public:
-        explicit TextEditData(QTextEdit* le = 0, const QString &defText = QString());
-        QTextEdit* textEdit;
+        explicit TextEditData(QTextEdit *le = nullptr, const QString &defText = QString());
+        QTextEdit *textEdit;
         QString defaultText;
         QString userChange;
     };
     class PathChooserData {
     public:
-        explicit PathChooserData(Utils::PathChooser* pe = 0, const QString &defText = QString());
-        Utils::PathChooser* pathChooser;
+        explicit PathChooserData(Utils::PathChooser *pe = nullptr, const QString &defText = QString());
+        Utils::PathChooser *pathChooser;
         QString defaultText;
         QString userChange;
     };
@@ -121,12 +120,12 @@ class CustomWizardPage : public CustomWizardFieldPage {
 public:
     explicit CustomWizardPage(const QSharedPointer<CustomWizardContext> &ctx,
                               const QSharedPointer<CustomWizardParameters> &parameters,
-                              QWidget *parent = 0);
+                              QWidget *parent = nullptr);
 
     QString path() const;
     void setPath(const QString &path);
 
-    virtual bool isComplete() const;
+    bool isComplete() const override;
 
 private:
     Utils::PathChooser *m_pathChooser;

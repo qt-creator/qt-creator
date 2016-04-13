@@ -44,8 +44,8 @@ public:
 
 using namespace Internal;
 
-DeploymentDataView::DeploymentDataView(Target *target, QWidget *parent) :
-    NamedWidget(parent), d(new DeploymentDataViewPrivate)
+DeploymentDataView::DeploymentDataView(Target *target, QWidget *parent) : NamedWidget(parent),
+    d(new DeploymentDataViewPrivate)
 {
     d->ui.setupUi(this);
     d->ui.deploymentDataView->setTextElideMode(Qt::ElideMiddle);

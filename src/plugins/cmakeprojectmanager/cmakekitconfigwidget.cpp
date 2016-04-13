@@ -339,7 +339,7 @@ void CMakeConfigurationKitConfigWidget::editConfigurationChanges()
 
     m_dialog = new QDialog(m_summaryLabel->window());
     m_dialog->setWindowTitle(tr("Edit CMake Configuration"));
-    QVBoxLayout *layout = new QVBoxLayout(m_dialog);
+    auto layout = new QVBoxLayout(m_dialog);
     m_editor = new QPlainTextEdit;
     m_editor->setToolTip(tr("Enter one variable per line with the variable name "
                             "separated from the variable value by \"=\".<br>"

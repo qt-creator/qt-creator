@@ -734,7 +734,7 @@ bool GccToolChain::operator ==(const ToolChain &other) const
     if (!ToolChain::operator ==(other))
         return false;
 
-    const GccToolChain *gccTc = static_cast<const GccToolChain *>(&other);
+    auto gccTc = static_cast<const GccToolChain *>(&other);
     return m_compilerCommand == gccTc->m_compilerCommand && m_targetAbi == gccTc->m_targetAbi
             && m_platformCodeGenFlags == gccTc->m_platformCodeGenFlags
             && m_platformLinkerFlags == gccTc->m_platformLinkerFlags;
@@ -817,7 +817,7 @@ ToolChain *GccToolChainFactory::restore(const QVariantMap &data)
         return tc;
 
     delete tc;
-    return 0;
+    return nullptr;
 }
 
 GccToolChain *GccToolChainFactory::createToolChain(bool autoDetect)
@@ -883,8 +883,7 @@ QList<ToolChain *> GccToolChainFactory::autoDetectToolchains(const QString &comp
 GccToolChainConfigWidget::GccToolChainConfigWidget(GccToolChain *tc) :
     ToolChainConfigWidget(tc),
     m_compilerCommand(new PathChooser),
-    m_abiWidget(new AbiWidget),
-    m_isReadOnly(false)
+    m_abiWidget(new AbiWidget)
 {
     Q_ASSERT(tc);
 
@@ -920,7 +919,7 @@ void GccToolChainConfigWidget::applyImpl()
     if (toolChain()->isAutoDetected())
         return;
 
-    GccToolChain *tc = static_cast<GccToolChain *>(toolChain());
+    auto tc = static_cast<GccToolChain *>(toolChain());
     Q_ASSERT(tc);
     QString displayName = tc->displayName();
     tc->setCompilerCommand(m_compilerCommand->fileName());
@@ -937,7 +936,7 @@ void GccToolChainConfigWidget::setFromToolchain()
 {
     // subwidgets are not yet connected!
     bool blocked = blockSignals(true);
-    GccToolChain *tc = static_cast<GccToolChain *>(toolChain());
+    auto tc = static_cast<GccToolChain *>(toolChain());
     m_compilerCommand->setFileName(tc->compilerCommand());
     m_platformCodeGenFlagsLineEdit->setText(QtcProcess::joinArgs(tc->platformCodeGenFlags()));
     m_platformLinkerFlagsLineEdit->setText(QtcProcess::joinArgs(tc->platformLinkerFlags()));
@@ -949,7 +948,7 @@ void GccToolChainConfigWidget::setFromToolchain()
 
 bool GccToolChainConfigWidget::isDirtyImpl() const
 {
-    GccToolChain *tc = static_cast<GccToolChain *>(toolChain());
+    auto tc = static_cast<GccToolChain *>(toolChain());
     Q_ASSERT(tc);
     return m_compilerCommand->fileName() != tc->compilerCommand()
             || m_platformCodeGenFlagsLineEdit->text() != QtcProcess::joinArgs(tc->platformCodeGenFlags())
@@ -1315,8 +1314,7 @@ GccToolChain *LinuxIccToolChainFactory::createToolChain(bool autoDetect)
 }
 
 GccToolChain::WarningFlagAdder::WarningFlagAdder(const QString &flag, WarningFlags &flags) :
-    m_flags(flags),
-    m_triggered(false)
+    m_flags(flags)
 {
     if (!flag.startsWith(QLatin1String("-W"))) {
         m_triggered = true;

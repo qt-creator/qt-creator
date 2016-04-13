@@ -49,8 +49,8 @@ private:
     QRegExp m_caretLine;
     QRegExp m_pchInfoLine;
 
-    bool m_expectFirstLine;
-    int m_indent;
+    bool m_expectFirstLine = true;
+    int m_indent = 0;
     Task m_temporary;
     int m_lines = 0;
 };

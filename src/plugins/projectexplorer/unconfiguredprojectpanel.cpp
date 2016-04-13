@@ -48,10 +48,10 @@ namespace Internal {
 /// TargetSetupPageWrapper
 ////////
 
-TargetSetupPageWrapper::TargetSetupPageWrapper(Project *project) :
-    QWidget(), m_project(project)
+TargetSetupPageWrapper::TargetSetupPageWrapper(Project *project) : QWidget(),
+    m_project(project)
 {
-    QVBoxLayout *layout = new QVBoxLayout();
+    auto layout = new QVBoxLayout();
     layout->setMargin(0);
     setLayout(layout);
 
@@ -68,12 +68,12 @@ TargetSetupPageWrapper::TargetSetupPageWrapper(Project *project) :
     layout->addWidget(m_targetSetupPage);
 
     // Apply row
-    QHBoxLayout *hbox = new QHBoxLayout();
+    auto hbox = new QHBoxLayout();
     layout->addLayout(hbox);
     layout->setMargin(0);
     hbox->addStretch();
 
-    QDialogButtonBox *box = new QDialogButtonBox(this);
+    auto box = new QDialogButtonBox(this);
 
     m_configureButton = new QPushButton(this);
     m_configureButton->setText(tr("Configure Project"));

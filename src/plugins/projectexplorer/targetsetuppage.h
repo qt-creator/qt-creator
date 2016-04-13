@@ -57,7 +57,7 @@ class PROJECTEXPLORER_EXPORT TargetSetupPage : public Utils::WizardPage
     Q_OBJECT
 
 public:
-    explicit TargetSetupPage(QWidget *parent = 0);
+    explicit TargetSetupPage(QWidget *parent = nullptr);
     ~TargetSetupPage() override;
 
     /// Initializes the TargetSetupPage
@@ -109,12 +109,12 @@ private:
 
     KitMatcher m_requiredMatcher;
     KitMatcher m_preferredMatcher;
-    ProjectImporter *m_importer;
-    QLayout *m_baseLayout;
+    ProjectImporter *m_importer = nullptr;
+    QLayout *m_baseLayout = nullptr;
     QString m_projectPath;
     QString m_defaultShadowBuildLocation;
     QMap<Core::Id, Internal::TargetSetupWidget *> m_widgets;
-    Internal::TargetSetupWidget *m_firstWidget;
+    Internal::TargetSetupWidget *m_firstWidget = nullptr;
 
     Internal::TargetSetupPageUi *m_ui;
 
@@ -122,7 +122,7 @@ private:
     QSpacerItem *m_spacer;
     QList<QWidget *> m_potentialWidgets;
 
-    bool m_forceOptionHint;
+    bool m_forceOptionHint = false;
 };
 
 } // namespace ProjectExplorer

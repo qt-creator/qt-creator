@@ -662,8 +662,7 @@ void PathChooserField::initializeData(MacroExpander *expander)
 
 CheckBoxField::CheckBoxField() :
     m_checkedValue(QLatin1String("0")),
-    m_uncheckedValue(QLatin1String("1")),
-    m_isModified(false)
+    m_uncheckedValue(QLatin1String("1"))
 { }
 
 bool CheckBoxField::parseData(const QVariant &data, QString *errorMessage)
@@ -731,9 +730,6 @@ void CheckBoxField::initializeData(MacroExpander *expander)
 // --------------------------------------------------------------------
 // ComboBoxFieldData:
 // --------------------------------------------------------------------
-
-ComboBoxField::ComboBoxField() : m_index(-1), m_disabledIndex(-1), m_savedIndex(-1)
-{ }
 
 struct ComboBoxItem {
     ComboBoxItem(const QString &k = QString(), const QString &v = QString(), const QVariant &c = true) :

@@ -36,36 +36,26 @@ namespace ProjectExplorer {
 class PROJECTEXPLORER_EXPORT CeSdkInfo
 {
 public:
-    CeSdkInfo();
-
-    inline QString                  name() const;
-    inline QString                  binPath() const;
-    inline QString                  includePath() const;
-    inline QString                  libPath() const;
-    void                            addToEnvironment(Utils::Environment &env);
-    inline bool                     isValid() const;
-    inline int                      majorVersion() const;
-    inline int                      minorVersion() const;
-    inline bool                     isSupported() const;
+    QString name() const { return m_name; }
+    QString binPath() const { return m_bin; }
+    QString includePath() const { return m_include; }
+    QString libPath() const { return m_lib; }
+    void addToEnvironment(Utils::Environment &env);
+    bool isValid() const { return !m_name.isEmpty() && !m_bin.isEmpty() && !m_include.isEmpty() && !m_lib.isEmpty(); }
+    int majorVersion() const { return m_major; }
+    int minorVersion() const { return m_minor; }
+    bool isSupported() const { return m_major >= 5; }
 
 private:
-    friend class                    CeSdkHandler;
-    QString                         m_name;
-    QString                         m_bin;
-    QString                         m_include;
-    QString                         m_lib;
-    int                             m_major;
-    int                             m_minor;
-};
+    friend class CeSdkHandler;
 
-inline QString CeSdkInfo::name() const { return m_name; }
-inline QString CeSdkInfo::binPath() const { return m_bin; }
-inline QString CeSdkInfo::includePath() const { return m_include; }
-inline QString CeSdkInfo::libPath() const { return m_lib; }
-inline bool CeSdkInfo::isValid() const { return !m_name.isEmpty() && !m_bin.isEmpty() && !m_include.isEmpty() && !m_lib.isEmpty(); }
-inline int CeSdkInfo::majorVersion() const { return m_major; }
-inline int CeSdkInfo::minorVersion() const { return m_minor; }
-inline bool CeSdkInfo::isSupported() const { return m_major >= 5; }
+    QString m_name;
+    QString m_bin;
+    QString m_include;
+    QString m_lib;
+    int m_major = 0;
+    int m_minor = 0;
+};
 
 class PROJECTEXPLORER_EXPORT CeSdkHandler
 {
@@ -74,6 +64,7 @@ public:
     inline QList<CeSdkInfo> listAll() const;
     CeSdkInfo find(const QString &name) const;
     static QString platformName(const QString &qtpath);
+
 private:
     inline QString fixPaths(QString path) const;
     QList<CeSdkInfo> m_list;

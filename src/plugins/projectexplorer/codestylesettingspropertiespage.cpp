@@ -49,7 +49,7 @@ CodeStyleSettingsWidget::CodeStyleSettingsWidget(Project *project) : QWidget(), 
         Core::Id languageId = factory->languageId();
         ICodeStylePreferences *codeStylePreferences = config->codeStyle(languageId);
 
-        CodeStyleEditor *preview = new CodeStyleEditor(factory, codeStylePreferences, m_ui.stackedWidget);
+        auto preview = new CodeStyleEditor(factory, codeStylePreferences, m_ui.stackedWidget);
         preview->clearMargins();
         m_ui.stackedWidget->addWidget(preview);
         m_ui.languageComboBox->addItem(factory->displayName());

@@ -27,6 +27,7 @@
 #include "ui_doubletabwidget.h"
 
 #include <utils/fileutils.h>
+#include <utils/qtcassert.h>
 #include <utils/stylehelper.h>
 #include <utils/theme/theme.h>
 
@@ -36,8 +37,6 @@
 #include <QMouseEvent>
 #include <QMenu>
 #include <QToolTip>
-
-#include <QDebug>
 
 using namespace ProjectExplorer::Internal;
 using namespace Utils;
@@ -96,9 +95,7 @@ static void drawSecondLevelSeparator(QPainter *painter, QPoint top, QPoint botto
 DoubleTabWidget::DoubleTabWidget(QWidget *parent) :
     QWidget(parent),
     m_selection(StyleHelper::dpiSpecificImageFile(QLatin1String(":/projectexplorer/images/selection.png"))),
-    ui(new Ui::DoubleTabWidget),
-    m_currentIndex(-1),
-    m_lastVisibleIndex(-1)
+    ui(new Ui::DoubleTabWidget)
 {
     ui->setupUi(this);
 }
@@ -170,7 +167,7 @@ QSize DoubleTabWidget::minimumSizeHint() const
 void DoubleTabWidget::updateNameIsUniqueAdd(Tab *tab)
 {
     tab->nameIsUnique = true;
-    for (int i=0; i < m_tabs.size(); ++i) {
+    for (int i = 0; i < m_tabs.size(); ++i) {
         if (m_tabs.at(i).name == tab->name) {
             m_tabs[i].nameIsUnique = false;
             tab->nameIsUnique = false;
@@ -183,15 +180,16 @@ void DoubleTabWidget::updateNameIsUniqueRemove(const Tab &tab)
 {
     if (tab.nameIsUnique)
         return;
-    int index;
+    int index = -1;
     int count = 0;
-    for (int i=0; i < m_tabs.size(); ++i) {
+    for (int i = 0; i < m_tabs.size(); ++i) {
         if (m_tabs.at(i).name == tab.name) {
             ++count;
             index = i;
         }
     }
 
+    QTC_ASSERT(index >= 0, return);
     if (count == 1)
         m_tabs[index].nameIsUnique = true;
 }
@@ -544,7 +542,7 @@ void DoubleTabWidget::paintEvent(QPaintEvent *event)
 bool DoubleTabWidget::event(QEvent *event)
 {
     if (event->type() == QEvent::ToolTip) {
-        QHelpEvent *helpevent = static_cast<QHelpEvent*>(event);
+        auto helpevent = static_cast<QHelpEvent*>(event);
         QPair<HitArea, int> hit = convertPosToTab(helpevent->pos());
         if (hit.first == HITTAB && m_tabs.at(m_currentTabIndices.at(hit.second)).nameIsUnique) {
             const QString &fileName = m_tabs.at(m_currentTabIndices.at(hit.second)).fullName;

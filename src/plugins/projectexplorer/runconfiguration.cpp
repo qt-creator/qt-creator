@@ -110,13 +110,9 @@ ISettingsAspect *ISettingsAspect::clone() const
 //
 ///////////////////////////////////////////////////////////////////////
 
-IRunConfigurationAspect::IRunConfigurationAspect(RunConfiguration *runConfig)
-{
-    m_runConfiguration = runConfig;
-    m_projectSettings = 0;
-    m_globalSettings = 0;
-    m_useGlobalSettings = false;
-}
+IRunConfigurationAspect::IRunConfigurationAspect(RunConfiguration *runConfig) :
+    m_runConfiguration(runConfig)
+{ }
 
 IRunConfigurationAspect::~IRunConfigurationAspect()
 {
@@ -130,7 +126,7 @@ IRunConfigurationAspect::~IRunConfigurationAspect()
 
 RunConfigWidget *IRunConfigurationAspect::createConfigurationWidget()
 {
-    return 0;
+    return nullptr;
 }
 
 void IRunConfigurationAspect::setProjectSettings(ISettingsAspect *settings)
@@ -293,7 +289,7 @@ RunConfiguration::ConfigurationState RunConfiguration::ensureConfigured(QString 
 BuildConfiguration *RunConfiguration::activeBuildConfiguration() const
 {
     if (!target())
-        return 0;
+        return nullptr;
     return target()->activeBuildConfiguration();
 }
 
@@ -358,11 +354,11 @@ QList<IRunConfigurationAspect *> RunConfiguration::extraAspects() const
 }
 IRunConfigurationAspect *RunConfiguration::extraAspect(Core::Id id) const
 {
-    QTC_ASSERT(m_aspectsInitialized, return 0);
+    QTC_ASSERT(m_aspectsInitialized, return nullptr);
     foreach (IRunConfigurationAspect *aspect, m_aspects)
         if (aspect->id() == id)
             return aspect;
-    return 0;
+    return nullptr;
 }
 
 /*!
@@ -438,10 +434,10 @@ IRunConfigurationFactory::IRunConfigurationFactory(QObject *parent) :
 RunConfiguration *IRunConfigurationFactory::create(Target *parent, Core::Id id)
 {
     if (!canCreate(parent, id))
-        return 0;
+        return nullptr;
     RunConfiguration *rc = doCreate(parent, id);
     if (!rc)
-        return 0;
+        return nullptr;
     rc->addExtraAspects();
     return rc;
 }
@@ -449,11 +445,11 @@ RunConfiguration *IRunConfigurationFactory::create(Target *parent, Core::Id id)
 RunConfiguration *IRunConfigurationFactory::restore(Target *parent, const QVariantMap &map)
 {
     if (!canRestore(parent, map))
-        return 0;
+        return nullptr;
     RunConfiguration *rc = doRestore(parent, map);
     if (!rc->fromMap(map)) {
         delete rc;
-        rc = 0;
+        rc = nullptr;
     }
     return rc;
 }
@@ -495,7 +491,7 @@ QList<IRunConfigurationFactory *> IRunConfigurationFactory::find(Target *parent)
     Returns a widget used to configure this runner. Ownership is transferred to
     the caller.
 
-    Returns 0 if @p \a runConfiguration is not suitable for RunControls from this
+    Returns null if @p \a runConfiguration is not suitable for RunControls from this
     factory, or no user-accessible
     configuration is required.
 */
@@ -518,7 +514,7 @@ IRunControlFactory::IRunControlFactory(QObject *parent)
 IRunConfigurationAspect *IRunControlFactory::createRunConfigurationAspect(RunConfiguration *rc)
 {
     Q_UNUSED(rc);
-    return 0;
+    return nullptr;
 }
 
 /*!
@@ -567,7 +563,7 @@ public:
     Utils::Icon icon;
     const QPointer<RunConfiguration> runConfiguration;
     QPointer<Project> project;
-    Utils::OutputFormatter *outputFormatter = 0;
+    Utils::OutputFormatter *outputFormatter = nullptr;
 
     // A handle to the actual application process.
     ProcessHandle applicationProcessHandle;
@@ -581,10 +577,9 @@ public:
 
 } // Internal
 
-RunControl::RunControl(RunConfiguration *runConfiguration, Core::Id mode)
-    : d(new Internal::RunControlPrivate(runConfiguration, mode))
-{
-}
+RunControl::RunControl(RunConfiguration *runConfiguration, Core::Id mode) :
+    d(new Internal::RunControlPrivate(runConfiguration, mode))
+{ }
 
 RunControl::~RunControl()
 {

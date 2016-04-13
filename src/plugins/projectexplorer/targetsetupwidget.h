@@ -91,7 +91,7 @@ private:
 
     Kit *m_kit;
     QString m_projectPath;
-    bool m_haveImported;
+    bool m_haveImported = false;
     Utils::DetailsWidget *m_detailsWidget;
     QPushButton *m_manageButton;
     QGridLayout *m_newBuildsLayout;
@@ -101,8 +101,8 @@ private:
     QList<bool> m_enabled;
     QList<QLabel *> m_reportIssuesLabels;
     QList<bool> m_issues;
-    bool m_ignoreChange;
-    int m_selected; // Number of selected buildconfiguartions
+    bool m_ignoreChange = false;
+    int m_selected = 0; // Number of selected buildconfiguartions
 };
 
 } // namespace Internal

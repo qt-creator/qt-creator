@@ -65,7 +65,7 @@ public:
 
     ToolChain *clone() const override;
 
-    static QString autoDetectCdbDebugger(QStringList *checkedDirectories = 0);
+    static QString autoDetectCdbDebugger(QStringList *checkedDirectories = nullptr);
 
     bool operator ==(const ToolChain &other) const override;
 

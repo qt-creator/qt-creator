@@ -63,13 +63,13 @@ Utils::WizardPage *FieldPageFactory::create(JsonWizard *wizard, Core::Id typeId,
 {
     Q_UNUSED(wizard);
 
-    QTC_ASSERT(canCreate(typeId), return 0);
+    QTC_ASSERT(canCreate(typeId), return nullptr);
 
-    JsonFieldPage *page = new JsonFieldPage(wizard->expander());
+    auto page = new JsonFieldPage(wizard->expander());
 
     if (!page->setup(data)) {
         delete page;
-        return 0;
+        return nullptr;
     }
 
     return page;
@@ -110,10 +110,9 @@ Utils::WizardPage *FilePageFactory::create(JsonWizard *wizard, Core::Id typeId, 
 {
     Q_UNUSED(wizard);
     Q_UNUSED(data);
-    QTC_ASSERT(canCreate(typeId), return 0);
+    QTC_ASSERT(canCreate(typeId), return nullptr);
 
-    JsonFilePage *page = new JsonFilePage;
-    return page;
+    return new JsonFilePage;
 }
 
 bool FilePageFactory::validateData(Core::Id typeId, const QVariant &data, QString *errorMessage)
@@ -144,9 +143,9 @@ KitsPageFactory::KitsPageFactory()
 Utils::WizardPage *KitsPageFactory::create(JsonWizard *wizard, Core::Id typeId, const QVariant &data)
 {
     Q_UNUSED(wizard);
-    QTC_ASSERT(canCreate(typeId), return 0);
+    QTC_ASSERT(canCreate(typeId), return nullptr);
 
-    JsonKitsPage *page = new JsonKitsPage;
+    auto page = new JsonKitsPage;
     const QVariantMap dataMap = data.toMap();
     page->setUnexpandedProjectPath(dataMap.value(QLatin1String(KEY_PROJECT_FILE)).toString());
     page->setRequiredFeatures(dataMap.value(QLatin1String(KEY_REQUIRED_FEATURES)));
@@ -205,9 +204,9 @@ Utils::WizardPage *ProjectPageFactory::create(JsonWizard *wizard, Core::Id typeI
 {
     Q_UNUSED(wizard);
     Q_UNUSED(data);
-    QTC_ASSERT(canCreate(typeId), return 0);
+    QTC_ASSERT(canCreate(typeId), return nullptr);
 
-    JsonProjectPage *page = new JsonProjectPage;
+    auto page = new JsonProjectPage;
 
     QVariantMap tmp = data.isNull() ? QVariantMap() : data.toMap();
     QString description
@@ -265,9 +264,9 @@ Utils::WizardPage *SummaryPageFactory::create(JsonWizard *wizard, Core::Id typeI
 {
     Q_UNUSED(wizard);
     Q_UNUSED(data);
-    QTC_ASSERT(canCreate(typeId), return 0);
+    QTC_ASSERT(canCreate(typeId), return nullptr);
 
-    JsonSummaryPage *page = new JsonSummaryPage;
+    auto page = new JsonSummaryPage;
     QVariant hideProjectUi = data.toMap().value(QLatin1String(KEY_HIDE_PROJECT_UI));
     page->setHideProjectUiValue(hideProjectUi);
     return page;

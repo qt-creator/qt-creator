@@ -154,35 +154,35 @@ Target::~Target()
 
 void Target::changeEnvironment()
 {
-    BuildConfiguration *bc = qobject_cast<BuildConfiguration *>(sender());
+    auto bc = qobject_cast<BuildConfiguration *>(sender());
     if (bc == activeBuildConfiguration())
         emit environmentChanged();
 }
 
 void Target::changeBuildConfigurationEnabled()
 {
-    BuildConfiguration *bc = qobject_cast<BuildConfiguration *>(sender());
+    auto bc = qobject_cast<BuildConfiguration *>(sender());
     if (bc == activeBuildConfiguration())
         emit buildConfigurationEnabledChanged();
 }
 
 void Target::changeDeployConfigurationEnabled()
 {
-    DeployConfiguration *dc = qobject_cast<DeployConfiguration *>(sender());
+    auto dc = qobject_cast<DeployConfiguration *>(sender());
     if (dc == activeDeployConfiguration())
         emit deployConfigurationEnabledChanged();
 }
 
 void Target::changeRunConfigurationEnabled()
 {
-    RunConfiguration *rc = qobject_cast<RunConfiguration *>(sender());
+    auto rc = qobject_cast<RunConfiguration *>(sender());
     if (rc == activeRunConfiguration())
         emit runConfigurationEnabledChanged();
 }
 
 void Target::onBuildDirectoryChanged()
 {
-    BuildConfiguration *bc = qobject_cast<BuildConfiguration *>(sender());
+    auto bc = qobject_cast<BuildConfiguration *>(sender());
     if (bc && activeBuildConfiguration() == bc)
         emit buildDirectoryChanged();
 }
@@ -263,7 +263,7 @@ bool Target::removeBuildConfiguration(BuildConfiguration *configuration)
 
     if (activeBuildConfiguration() == configuration) {
         if (d->m_buildConfigurations.isEmpty())
-            SessionManager::setActiveBuildConfiguration(this, 0, SetActive::Cascade);
+            SessionManager::setActiveBuildConfiguration(this, nullptr, SetActive::Cascade);
         else
             SessionManager::setActiveBuildConfiguration(this, d->m_buildConfigurations.at(0), SetActive::Cascade);
     }
@@ -337,7 +337,7 @@ bool Target::removeDeployConfiguration(DeployConfiguration *dc)
 
     if (activeDeployConfiguration() == dc) {
         if (d->m_deployConfigurations.isEmpty())
-            SessionManager::setActiveDeployConfiguration(this, 0, SetActive::Cascade);
+            SessionManager::setActiveDeployConfiguration(this, nullptr, SetActive::Cascade);
         else
             SessionManager::setActiveDeployConfiguration(this, d->m_deployConfigurations.at(0),
                                                          SetActive::Cascade);
@@ -431,7 +431,7 @@ void Target::removeRunConfiguration(RunConfiguration* runConfiguration)
 
     if (activeRunConfiguration() == runConfiguration) {
         if (d->m_runConfigurations.isEmpty())
-            setActiveRunConfiguration(0);
+            setActiveRunConfiguration(nullptr);
         else
             setActiveRunConfiguration(d->m_runConfigurations.at(0));
     }

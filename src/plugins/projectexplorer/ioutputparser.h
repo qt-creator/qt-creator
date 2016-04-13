@@ -70,7 +70,7 @@ public slots:
 private:
     virtual void doFlush();
 
-    IOutputParser *m_parser = 0;
+    IOutputParser *m_parser = nullptr;
 };
 
 } // namespace ProjectExplorer

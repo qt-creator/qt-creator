@@ -94,7 +94,7 @@ private:
     QLineEdit *m_platformLinkerFlagsLineEdit;
     AbiWidget *m_abiWidget;
 
-    bool m_isReadOnly;
+    bool m_isReadOnly = false;
     QByteArray m_macros;
 };
 

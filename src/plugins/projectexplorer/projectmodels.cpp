@@ -79,8 +79,8 @@ bool sortNodes(Node *n1, Node *n2)
     // projects
     if (n1Type == ProjectNodeType) {
         if (n2Type == ProjectNodeType) {
-            ProjectNode *project1 = static_cast<ProjectNode*>(n1);
-            ProjectNode *project2 = static_cast<ProjectNode*>(n2);
+            auto project1 = static_cast<ProjectNode*>(n1);
+            auto project2 = static_cast<ProjectNode*>(n2);
 
             int result = caseFriendlyCompare(project1->displayName(), project2->displayName());
             if (result != 0)
@@ -100,8 +100,8 @@ bool sortNodes(Node *n1, Node *n2)
 
     if (n1Type == VirtualFolderNodeType) {
         if (n2Type == VirtualFolderNodeType) {
-            VirtualFolderNode *folder1 = static_cast<VirtualFolderNode *>(n1);
-            VirtualFolderNode *folder2 = static_cast<VirtualFolderNode *>(n2);
+            auto folder1 = static_cast<VirtualFolderNode *>(n1);
+            auto folder2 = static_cast<VirtualFolderNode *>(n2);
 
             if (folder1->priority() > folder2->priority())
                 return true;
@@ -124,8 +124,8 @@ bool sortNodes(Node *n1, Node *n2)
 
     if (n1Type == FolderNodeType) {
         if (n2Type == FolderNodeType) {
-            FolderNode *folder1 = static_cast<FolderNode*>(n1);
-            FolderNode *folder2 = static_cast<FolderNode*>(n2);
+            auto folder1 = static_cast<FolderNode*>(n1);
+            auto folder2 = static_cast<FolderNode*>(n2);
 
             int result = caseFriendlyCompare(folder1->filePath().toString(),
                                              folder2->filePath().toString());
@@ -170,13 +170,8 @@ bool sortNodes(Node *n1, Node *n2)
 
 } // namespace anon
 
-FlatModel::FlatModel(SessionNode *rootNode, QObject *parent)
-        : QAbstractItemModel(parent),
-          m_filterProjects(false),
-          m_filterGeneratedFiles(true),
-          m_rootNode(rootNode),
-          m_startupProject(0),
-          m_parentFolderForChange(0)
+FlatModel::FlatModel(SessionNode *rootNode, QObject *parent) : QAbstractItemModel(parent),
+    m_rootNode(rootNode)
 {
     ProjectTree *tree = ProjectTree::instance();
 
@@ -428,7 +423,7 @@ QList<Node*> FlatModel::childNodes(FolderNode *parentNode, const QSet<Node*> &bl
     QList<Node*> nodeList;
 
     if (parentNode->nodeType() == SessionNodeType) {
-        SessionNode *sessionNode = static_cast<SessionNode*>(parentNode);
+        auto sessionNode = static_cast<SessionNode*>(parentNode);
         QList<ProjectNode*> projectList = sessionNode->projectNodes();
         for (int i = 0; i < projectList.size(); ++i) {
             if (!blackList.contains(projectList.at(i)))
@@ -507,7 +502,7 @@ QModelIndex FlatModel::indexForNode(const Node *node_) const
     // We assume that we are only called for nodes that are represented
 
     // we use non-const pointers internally
-    Node *node = const_cast<Node*>(node_);
+    auto node = const_cast<Node*>(node_);
     if (!node)
         return QModelIndex();
 
@@ -558,7 +553,7 @@ Node *FlatModel::nodeForIndex(const QModelIndex &index) const
 {
     if (index.isValid())
         return (Node*)index.internalPointer();
-    return 0;
+    return nullptr;
 }
 
 /*
@@ -569,7 +564,7 @@ Node *FlatModel::nodeForIndex(const QModelIndex &index) const
 FolderNode *FlatModel::visibleFolderNode(FolderNode *node) const
 {
     if (!node)
-        return 0;
+        return nullptr;
 
     for (FolderNode *folderNode = node;
          folderNode;
@@ -577,7 +572,7 @@ FolderNode *FlatModel::visibleFolderNode(FolderNode *node) const
         if (!filter(folderNode))
             return folderNode;
     }
-    return 0;
+    return nullptr;
 }
 
 bool FlatModel::filter(Node *node) const

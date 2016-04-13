@@ -72,7 +72,7 @@ protected:
 private:
     void ctor();
 
-    BuildStepList *m_stepList;
+    BuildStepList *m_stepList = nullptr;
 };
 
 class PROJECTEXPLORER_EXPORT DefaultDeployConfiguration : public DeployConfiguration
@@ -90,7 +90,7 @@ class PROJECTEXPLORER_EXPORT DeployConfigurationFactory : public QObject
     Q_OBJECT
 
 public:
-    explicit DeployConfigurationFactory(QObject *parent = 0);
+    explicit DeployConfigurationFactory(QObject *parent = nullptr);
 
     // used to show the list of possible additons to a target, returns a list of types
     virtual QList<Core::Id> availableCreationIds(Target *parent) const = 0;

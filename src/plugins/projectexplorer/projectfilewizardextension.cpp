@@ -81,23 +81,16 @@ namespace Internal {
 class ProjectWizardContext
 {
 public:
-    ProjectWizardContext();
     void clear();
 
-    QPointer<ProjectWizardPage> page; // this is managed by the wizard!
-    const IWizardFactory *wizard;
+    QPointer<ProjectWizardPage> page = nullptr; // this is managed by the wizard!
+    const IWizardFactory *wizard = nullptr;
 };
-
-ProjectWizardContext::ProjectWizardContext() :
-    page(0),
-    wizard(0)
-{
-}
 
 void ProjectWizardContext::clear()
 {
-    page = 0;
-    wizard = 0;
+    page = nullptr;
+    wizard = nullptr;
 }
 
 // ---- ProjectFileWizardExtension
@@ -208,7 +201,7 @@ bool ProjectFileWizardExtension::processProject(
 static ICodeStylePreferences *codeStylePreferences(Project *project, Id languageId)
 {
     if (!languageId.isValid())
-        return 0;
+        return nullptr;
 
     if (project)
         return project->editorConfiguration()->codeStyle(languageId);
@@ -232,7 +225,7 @@ void ProjectFileWizardExtension::applyCodeStyle(GeneratedFile *file) const
 
     ICodeStylePreferencesFactory *factory = TextEditorSettings::codeStyleFactory(languageId);
 
-    Indenter *indenter = 0;
+    Indenter *indenter = nullptr;
     if (factory)
         indenter = factory->createIndenter();
     if (!indenter)

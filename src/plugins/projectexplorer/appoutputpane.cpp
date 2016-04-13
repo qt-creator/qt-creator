@@ -85,7 +85,7 @@ class TabWidget : public QTabWidget
 {
     Q_OBJECT
 public:
-    TabWidget(QWidget *parent = 0);
+    TabWidget(QWidget *parent = nullptr);
 signals:
     void contextMenuRequested(const QPoint &pos, const int index);
 protected:
@@ -139,8 +139,7 @@ void TabWidget::slotContextMenuRequested(const QPoint &pos)
 
 AppOutputPane::RunControlTab::RunControlTab(RunControl *rc, Core::OutputWindow *w) :
     runControl(rc), window(w), asyncClosing(false), behaviorOnOutput(Flash)
-{
-}
+{ }
 
 AppOutputPane::AppOutputPane() :
     m_mainWidget(new QWidget),
@@ -627,7 +626,7 @@ void AppOutputPane::zoomOut()
     m_zoom = m_runControlTabs.first().window->fontZoom();
 }
 
-void AppOutputPane::enableButtons(const RunControl *rc /* = 0 */, bool isRunning /*  = false */)
+void AppOutputPane::enableButtons(const RunControl *rc, bool isRunning)
 {
     if (rc) {
         m_reRunButton->setEnabled(!isRunning && rc->supportsReRunning());

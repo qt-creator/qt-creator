@@ -35,7 +35,7 @@ class LocalApplicationRunControlFactory : public IRunControlFactory
     Q_OBJECT
 public:
     bool canRun(RunConfiguration *runConfiguration, Core::Id mode) const override;
-    RunControl* create(RunConfiguration *runConfiguration, Core::Id mode, QString *errorMessage) override;
+    RunControl *create(RunConfiguration *runConfiguration, Core::Id mode, QString *errorMessage) override;
 };
 
 } // namespace Internal

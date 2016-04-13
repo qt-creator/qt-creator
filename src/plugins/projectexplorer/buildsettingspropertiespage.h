@@ -69,7 +69,7 @@ private:
     QString uniqueName(const QString &name);
 
     Target *m_target;
-    BuildConfiguration *m_buildConfiguration;
+    BuildConfiguration *m_buildConfiguration = nullptr;
 
     QPushButton *m_addButton;
     QPushButton *m_removeButton;

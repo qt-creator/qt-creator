@@ -40,7 +40,7 @@ class ImportWidget : public QWidget
     Q_OBJECT
 
 public:
-    explicit ImportWidget(QWidget *parent = 0);
+    explicit ImportWidget(QWidget *parent = nullptr);
 
     void setCurrentDirectory(const Utils::FileName &dir);
 

@@ -120,8 +120,8 @@ private:
     void enableButtons(const RunControl *rc, bool isRunning);
 
     struct RunControlTab {
-        explicit RunControlTab(RunControl *runControl = 0,
-                               Core::OutputWindow *window = 0);
+        explicit RunControlTab(RunControl *runControl = nullptr,
+                               Core::OutputWindow *window = nullptr);
         RunControl* runControl;
         Core::OutputWindow *window;
         // Is the run control stopping asynchronously, close the tab once it finishes

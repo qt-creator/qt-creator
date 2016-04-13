@@ -68,8 +68,7 @@ public:
 // AbiWidget
 // --------------------------------------------------------------------------
 
-AbiWidget::AbiWidget(QWidget *parent) :
-    QWidget(parent),
+AbiWidget::AbiWidget(QWidget *parent) : QWidget(parent),
     d(new Internal::AbiWidgetPrivate)
 {
     QHBoxLayout *layout = new QHBoxLayout(this);

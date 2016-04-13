@@ -92,10 +92,10 @@ bool JsonWizardGenerator::formatFile(const JsonWizard *wizard, GeneratedFile *fi
     if (!languageId.isValid())
         return true; // don't modify files like *.ui, *.pro
 
-    Project *baseProject = qobject_cast<Project *>(wizard->property("SelectedProject").value<QObject *>());
+    auto baseProject = qobject_cast<Project *>(wizard->property("SelectedProject").value<QObject *>());
     ICodeStylePreferencesFactory *factory = TextEditorSettings::codeStyleFactory(languageId);
 
-    Indenter *indenter = 0;
+    Indenter *indenter = nullptr;
     if (factory)
         indenter = factory->createIndenter();
     if (!indenter)

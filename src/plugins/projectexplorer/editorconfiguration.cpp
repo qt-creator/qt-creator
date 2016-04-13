@@ -62,21 +62,19 @@ namespace ProjectExplorer {
 
 struct EditorConfigurationPrivate
 {
-    EditorConfigurationPrivate()
-        : m_useGlobal(true)
-        , m_typingSettings(TextEditorSettings::typingSettings())
-        , m_storageSettings(TextEditorSettings::storageSettings())
-        , m_behaviorSettings(TextEditorSettings::behaviorSettings())
-        , m_extraEncodingSettings(TextEditorSettings::extraEncodingSettings())
-        , m_textCodec(Core::EditorManager::defaultTextCodec())
-    {
-    }
+    EditorConfigurationPrivate() :
+        m_typingSettings(TextEditorSettings::typingSettings()),
+        m_storageSettings(TextEditorSettings::storageSettings()),
+        m_behaviorSettings(TextEditorSettings::behaviorSettings()),
+        m_extraEncodingSettings(TextEditorSettings::extraEncodingSettings()),
+        m_textCodec(Core::EditorManager::defaultTextCodec())
+    { }
 
-    bool m_useGlobal;
-    ICodeStylePreferences *m_defaultCodeStyle;
+    ICodeStylePreferences *m_defaultCodeStyle = nullptr;
     TypingSettings m_typingSettings;
     StorageSettings m_storageSettings;
     BehaviorSettings m_behaviorSettings;
+    bool m_useGlobal = true;
     ExtraEncodingSettings m_extraEncodingSettings;
     MarginSettings m_marginSettings;
     QTextCodec *m_textCodec;
@@ -277,7 +275,7 @@ void EditorConfiguration::setUseGlobalSettings(bool use)
     d->m_useGlobal = use;
     d->m_defaultCodeStyle->setCurrentDelegate(use ? TextEditorSettings::codeStyle() : 0);
     foreach (Core::IEditor *editor, Core::DocumentModel::editorsForOpenedDocuments()) {
-        if (TextEditorWidget *widget = qobject_cast<TextEditorWidget *>(editor->widget())) {
+        if (auto widget = qobject_cast<TextEditorWidget *>(editor->widget())) {
             Project *project = SessionManager::projectForFile(editor->document()->filePath());
             if (project && project->editorConfiguration() == this)
                 switchSettings(widget);

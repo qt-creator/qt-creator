@@ -317,8 +317,7 @@ void ExtraCompilerPrivate::updateIssues()
     if (!lastEditor)
         return;
 
-    TextEditor::TextEditorWidget *widget =
-            qobject_cast<TextEditor::TextEditorWidget *>(lastEditor->widget());
+    auto widget = qobject_cast<TextEditor::TextEditorWidget *>(lastEditor->widget());
     if (!widget)
         return;
 

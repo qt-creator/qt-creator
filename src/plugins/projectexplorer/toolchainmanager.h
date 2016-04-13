@@ -76,7 +76,7 @@ signals:
     void toolChainsLoaded();
 
 private:
-    explicit ToolChainManager(QObject *parent = 0);
+    explicit ToolChainManager(QObject *parent = nullptr);
 
     // Make sure the this is only called after all
     // Tool chain Factories are registered!

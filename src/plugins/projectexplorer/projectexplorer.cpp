@@ -169,19 +169,19 @@ namespace ProjectExplorer {
 static Target *activeTarget()
 {
     Project *project = ProjectTree::currentProject();
-    return project ? project->activeTarget() : 0;
+    return project ? project->activeTarget() : nullptr;
 }
 
 static BuildConfiguration *activeBuildConfiguration()
 {
     Target *target = activeTarget();
-    return target ? target->activeBuildConfiguration() : 0;
+    return target ? target->activeBuildConfiguration() : nullptr;
 }
 
 static Kit *currentKit()
 {
     Target *target = activeTarget();
-    return target ? target->kit() : 0;
+    return target ? target->kit() : nullptr;
 }
 
 class ProjectExplorerPluginPrivate : public QObject
@@ -189,8 +189,6 @@ class ProjectExplorerPluginPrivate : public QObject
     Q_DECLARE_TR_FUNCTIONS(ProjectExplorer::ProjectExplorerPlugin)
 
 public:
-    ProjectExplorerPluginPrivate();
-
     void deploy(QList<Project *>);
     int queue(QList<Project *>, QList<Id> stepIds);
     void updateContextMenuActions();
@@ -350,38 +348,25 @@ public:
     QString m_lastOpenDirectory;
     QPointer<RunConfiguration> m_delayedRunConfiguration;
     QList<QPair<RunConfiguration *, Core::Id>> m_delayedRunConfigurationForRun;
-    bool m_shouldHaveRunConfiguration;
-    Core::Id m_runMode;
     QString m_projectFilterString;
     MiniProjectTargetSelector * m_targetSelector;
     ProjectExplorerSettings m_projectExplorerSettings;
-    ProjectWelcomePage *m_welcomePage = nullptr;
-    IMode *m_projectsMode;
-
-    TaskHub *m_taskHub;
-    KitManager *m_kitManager;
-    ToolChainManager *m_toolChainManager;
+    bool m_shouldHaveRunConfiguration = false;
     bool m_shuttingDown;
+    Core::Id m_runMode = Constants::NO_RUN_MODE;
+    ProjectWelcomePage *m_welcomePage = nullptr;
+    IMode *m_projectsMode = nullptr;
+
+    TaskHub *m_taskHub = nullptr;
+    KitManager *m_kitManager = nullptr;
+    ToolChainManager *m_toolChainManager = nullptr;
     QStringList m_arguments;
     QList<ProjectPanelFactory *> m_panelFactories;
 #ifdef WITH_JOURNALD
-    JournaldWatcher *m_journalWatcher;
+    JournaldWatcher *m_journalWatcher = nullptr;
 #endif
     QThreadPool m_threadPool;
 };
-
-ProjectExplorerPluginPrivate::ProjectExplorerPluginPrivate() :
-    m_shouldHaveRunConfiguration(false),
-    m_runMode(Constants::NO_RUN_MODE),
-    m_projectsMode(0),
-    m_kitManager(0),
-    m_toolChainManager(0),
-    m_shuttingDown(false)
-#ifdef WITH_JOURNALD
-    , m_journalWatcher(0)
-#endif
-{
-}
 
 class ProjectsMode : public IMode
 {
@@ -399,8 +384,8 @@ public:
     }
 };
 
-static ProjectExplorerPlugin *m_instance = 0;
-static ProjectExplorerPluginPrivate *dd = 0;
+static ProjectExplorerPlugin *m_instance = nullptr;
+static ProjectExplorerPluginPrivate *dd = nullptr;
 
 ProjectExplorerPlugin::ProjectExplorerPlugin()
 {
@@ -1492,7 +1477,7 @@ void ProjectExplorerPlugin::extensionsInitialized()
         OpenProjectResult result = ProjectExplorerPlugin::openProject(fileName);
         if (!result)
             showOpenProjectError(result);
-        return 0;
+        return nullptr;
     });
 
     Utils::MimeDatabase mdb;
@@ -1542,7 +1527,7 @@ ExtensionSystem::IPlugin::ShutdownFlag ProjectExplorerPlugin::aboutToShutdown()
     ProjectTree::aboutToShutDown();
     dd->m_proWindow->aboutToShutdown(); // disconnect from session
     SessionManager::closeAllProjects();
-    dd->m_projectsMode = 0;
+    dd->m_projectsMode = nullptr;
     dd->m_shuttingDown = true;
     // Attempt to synchronously shutdown all run controls.
     // If that fails, fall back to asynchronous shutdown (Debugger run controls
@@ -2019,14 +2004,14 @@ void ProjectExplorerPluginPrivate::buildQueueFinished(bool success)
         if (BuildManager::tasksAvailable())
             BuildManager::showTaskWindow();
     }
-    m_delayedRunConfiguration = 0;
+    m_delayedRunConfiguration = nullptr;
     m_shouldHaveRunConfiguration = false;
     m_runMode = Constants::NO_RUN_MODE;
 }
 
 void ProjectExplorerPluginPrivate::runConfigurationConfigurationFinished()
 {
-    RunConfiguration *rc = qobject_cast<RunConfiguration *>(sender());
+    auto rc = qobject_cast<RunConfiguration *>(sender());
     Core::Id runMode = Constants::NO_RUN_MODE;
     for (int i = 0; i < m_delayedRunConfigurationForRun.size(); ++i) {
         if (m_delayedRunConfigurationForRun.at(i).first == rc) {
@@ -2290,7 +2275,7 @@ int ProjectExplorerPluginPrivate::queue(QList<Project *> projects, QList<Id> ste
         foreach (Project *pro, projects) {
             if (!pro || pro->needsConfiguration())
                 continue;
-            BuildStepList *bsl = 0;
+            BuildStepList *bsl = nullptr;
             if (id == Constants::BUILDSTEPS_DEPLOY
                 && pro->activeTarget()->activeDeployConfiguration())
                 bsl = pro->activeTarget()->activeDeployConfiguration()->stepList();
@@ -2445,11 +2430,11 @@ void ProjectExplorerPluginPrivate::runProjectWithoutDeploy()
 void ProjectExplorerPluginPrivate::runProjectContextMenu()
 {
     Node *node = ProjectTree::currentNode();
-    ProjectNode *projectNode = node ? node->asProjectNode() : 0;
+    ProjectNode *projectNode = node ? node->asProjectNode() : nullptr;
     if (projectNode == ProjectTree::currentProject()->rootProjectNode() || !projectNode) {
         m_instance->runProject(ProjectTree::currentProject(), Constants::NORMAL_RUN_MODE);
     } else {
-        QAction *act = qobject_cast<QAction *>(sender());
+        auto act = qobject_cast<QAction *>(sender());
         if (!act)
             return;
         RunConfiguration *rc = act->data().value<RunConfiguration *>();
@@ -2511,11 +2496,11 @@ QPair<bool, QString> ProjectExplorerPluginPrivate::buildSettingsEnabledForSessio
     } else if (BuildManager::isBuilding()) {
         result.first = false;
         result.second = tr("A build is in progress.");
-    } else if (!hasBuildSettings(0)) {
+    } else if (!hasBuildSettings(nullptr)) {
         result.first = false;
         result.second = tr("Project has no build settings.");
     } else {
-        foreach (Project *project, SessionManager::projectOrder(0)) {
+        foreach (Project *project, SessionManager::projectOrder(nullptr)) {
             if (project
                     && project->activeTarget()
                     && project->activeTarget()->activeBuildConfiguration()
@@ -2631,7 +2616,7 @@ void ProjectExplorerPluginPrivate::projectDisplayNameChanged(Project *pro)
 
 void ProjectExplorerPluginPrivate::startupProjectChanged()
 {
-    static QPointer<Project> previousStartupProject = 0;
+    static QPointer<Project> previousStartupProject = nullptr;
     Project *project = SessionManager::startupProject();
     if (project == previousStartupProject)
         return;
@@ -2654,8 +2639,8 @@ void ProjectExplorerPluginPrivate::startupProjectChanged()
 
 void ProjectExplorerPluginPrivate::activeTargetChanged()
 {
-    static QPointer<Target> previousTarget = 0;
-    Target *target = 0;
+    static QPointer<Target> previousTarget = nullptr;
+    Target *target = nullptr;
     Project *startupProject = SessionManager::startupProject();
     if (startupProject)
         target = startupProject->activeTarget();
@@ -2678,8 +2663,8 @@ void ProjectExplorerPluginPrivate::activeTargetChanged()
 
 void ProjectExplorerPluginPrivate::activeRunConfigurationChanged()
 {
-    static QPointer<RunConfiguration> previousRunConfiguration = 0;
-    RunConfiguration *rc = 0;
+    static QPointer<RunConfiguration> previousRunConfiguration = nullptr;
+    RunConfiguration *rc = nullptr;
     Project *startupProject = SessionManager::startupProject();
     if (startupProject && startupProject->activeTarget())
         rc = startupProject->activeTarget()->activeRunConfiguration();
@@ -2736,10 +2721,10 @@ void ProjectExplorerPluginPrivate::updateDeployActions()
                     && !project->activeTarget()->activeBuildConfiguration()->isEnabled();
         };
 
-        if (Utils::anyOf(SessionManager::projectOrder(0), hasDisabledBuildConfiguration))
+        if (Utils::anyOf(SessionManager::projectOrder(nullptr), hasDisabledBuildConfiguration))
             enableDeploySessionAction = false;
     }
-    if (!hasProjects || !hasDeploySettings(0) || BuildManager::isBuilding())
+    if (!hasProjects || !hasDeploySettings(nullptr) || BuildManager::isBuilding())
         enableDeploySessionAction = false;
     m_deploySessionAction->setEnabled(enableDeploySessionAction);
 
@@ -3075,7 +3060,7 @@ void ProjectExplorerPluginPrivate::addNewSubproject()
 void ProjectExplorerPluginPrivate::handleAddExistingFiles()
 {
     Node *node = ProjectTree::currentNode();
-    FolderNode *folderNode = node ? node->asFolderNode() : 0;
+    FolderNode *folderNode = node ? node->asFolderNode() : nullptr;
 
     QTC_ASSERT(folderNode, return);
 
@@ -3090,7 +3075,7 @@ void ProjectExplorerPluginPrivate::handleAddExistingFiles()
 void ProjectExplorerPluginPrivate::addExistingDirectory()
 {
     Node *node = ProjectTree::currentNode();
-    FolderNode *folderNode = node ? node->asFolderNode() : 0;
+    FolderNode *folderNode = node ? node->asFolderNode() : nullptr;
 
     QTC_ASSERT(folderNode, return);
 
@@ -3272,7 +3257,7 @@ void ProjectExplorerPluginPrivate::handleRenameFile()
 {
     QWidget *focusWidget = QApplication::focusWidget();
     while (focusWidget) {
-        ProjectTreeWidget *treeWidget = qobject_cast<ProjectTreeWidget*>(focusWidget);
+        auto treeWidget = qobject_cast<ProjectTreeWidget*>(focusWidget);
         if (treeWidget) {
             treeWidget->editCurrentItem();
             return;

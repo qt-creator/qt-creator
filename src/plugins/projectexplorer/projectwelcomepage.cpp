@@ -117,7 +117,7 @@ void SessionModel::resetSessions()
 
 void SessionModel::cloneSession(const QString &session)
 {
-    SessionNameInputDialog newSessionInputDialog(SessionManager::sessions(), 0);
+    SessionNameInputDialog newSessionInputDialog(SessionManager::sessions(), nullptr);
     newSessionInputDialog.setWindowTitle(tr("New session name"));
     newSessionInputDialog.setValue(session + QLatin1String(" (2)"));
 
@@ -145,7 +145,7 @@ void SessionModel::deleteSession(const QString &session)
 
 void SessionModel::renameSession(const QString &session)
 {
-    SessionNameInputDialog newSessionInputDialog(SessionManager::sessions(), 0);
+    SessionNameInputDialog newSessionInputDialog(SessionManager::sessions(), nullptr);
     newSessionInputDialog.setWindowTitle(tr("New session name"));
     newSessionInputDialog.setValue(session);
 
@@ -180,7 +180,6 @@ QVariant ProjectModel::data(const QModelIndex &index, int role) const
     switch (role) {
     case Qt::DisplayRole:
         return data.second;
-        break;
     case FilePathRole:
         return data.first;
     case PrettyFilePathRole:
@@ -188,8 +187,6 @@ QVariant ProjectModel::data(const QModelIndex &index, int role) const
     default:
         return QVariant();
     }
-
-    return QVariant();
 }
 
 QHash<int, QByteArray> ProjectModel::roleNames() const
@@ -208,11 +205,6 @@ void ProjectModel::resetProjects()
 }
 
 ///////////////////
-
-ProjectWelcomePage::ProjectWelcomePage() :
-    m_sessionModel(0), m_projectModel(0)
-{
-}
 
 void ProjectWelcomePage::facilitateQml(QQmlEngine *engine)
 {

@@ -56,7 +56,7 @@ void AndroidPotentialKit::executeFromMenu()
 QWidget *AndroidPotentialKit::createWidget(QWidget *parent) const
 {
     if (!isEnabled())
-        return 0;
+        return nullptr;
     return new AndroidPotentialKitWidget(parent);
 }
 
@@ -89,18 +89,18 @@ AndroidPotentialKitWidget::AndroidPotentialKitWidget(QWidget *parent)
     setSummaryText(QLatin1String("<b>Android has not been configured. Create Android kits.</b>"));
     setIcon(Core::Icons::WARNING.icon());
     //detailsWidget->setState(Utils::DetailsWidget::NoSummary);
-    QWidget *mainWidget = new QWidget(this);
+    auto mainWidget = new QWidget(this);
     setWidget(mainWidget);
 
-    QGridLayout *layout = new QGridLayout(mainWidget);
+    auto layout = new QGridLayout(mainWidget);
     layout->setMargin(0);
-    QLabel *label = new QLabel;
+    auto label = new QLabel;
     label->setText(tr("Qt Creator needs additional settings to enable Android support."
                       " You can configure those settings in the Options dialog."));
     label->setWordWrap(true);
     layout->addWidget(label, 0, 0, 1, 2);
 
-    QPushButton *openOptions = new QPushButton;
+    auto openOptions = new QPushButton;
     openOptions->setText(Core::ICore::msgShowOptionsDialog());
     openOptions->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     layout->addWidget(openOptions, 1, 1);

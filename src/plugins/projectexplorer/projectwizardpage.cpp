@@ -77,26 +77,19 @@ public:
 private:
     QString m_displayName;
     QString m_toolTip;
-    FolderNode *m_node;
-    bool m_canAdd;
-    int m_priority;
+    FolderNode *m_node = nullptr;
+    bool m_canAdd = true;
+    int m_priority = -1;
 };
 
-AddNewTree::AddNewTree(const QString &displayName)
-    : m_displayName(displayName),
-      m_node(0),
-      m_canAdd(true),
-      m_priority(-1)
-{
-}
+AddNewTree::AddNewTree(const QString &displayName) :
+    m_displayName(displayName)
+{ }
 
 // FIXME: potentially merge the following two functions.
 // Note the different handling of 'node' and m_canAdd.
-AddNewTree::AddNewTree(FolderNode *node, QList<AddNewTree *> children, const QString &displayName)
-    : m_displayName(displayName),
-      m_node(0),
-      m_canAdd(false),
-      m_priority(-1)
+AddNewTree::AddNewTree(FolderNode *node, QList<AddNewTree *> children, const QString &displayName) :
+    m_displayName(displayName)
 {
     if (node)
         m_toolTip = ProjectExplorerPlugin::directoryFor(node);
@@ -104,11 +97,9 @@ AddNewTree::AddNewTree(FolderNode *node, QList<AddNewTree *> children, const QSt
         appendChild(child);
 }
 
-AddNewTree::AddNewTree(FolderNode *node, QList<AddNewTree *> children, const FolderNode::AddNewInformation &info)
-    : m_displayName(info.displayName),
-      m_node(node),
-      m_canAdd(true),
-      m_priority(info.priority)
+AddNewTree::AddNewTree(FolderNode *node, QList<AddNewTree *> children,
+                       const FolderNode::AddNewInformation &info) :
+    m_displayName(info.displayName)
 {
     if (node)
         m_toolTip = ProjectExplorerPlugin::directoryFor(node);
@@ -119,13 +110,16 @@ AddNewTree::AddNewTree(FolderNode *node, QList<AddNewTree *> children, const Fol
 
 QVariant AddNewTree::data(int, int role) const
 {
-    if (role == Qt::DisplayRole)
+    switch (role) {
+    case Qt::DisplayRole:
         return m_displayName;
-    if (role == Qt::ToolTipRole)
+    case Qt::ToolTipRole:
         return m_toolTip;
-    if (role == Qt::UserRole)
+    case Qt::UserRole:
         return QVariant::fromValue(static_cast<void*>(node()));
-    return QVariant();
+    default:
+        return QVariant();
+    }
 }
 
 Qt::ItemFlags AddNewTree::flags(int) const
@@ -147,24 +141,21 @@ public:
     AddNewTree *bestChoice() const;
     bool deploys();
     QString deployingProjects() const;
+
 private:
     QString m_commonDirectory;
     QStringList m_files;
-    bool m_deploys;
+    bool m_deploys = false;
     QString m_deployText;
-    AddNewTree *m_bestChoice;
-    int m_bestMatchLength;
-    int m_bestMatchPriority;
+    AddNewTree *m_bestChoice = nullptr;
+    int m_bestMatchLength = -1;
+    int m_bestMatchPriority = -1;
 };
 
-BestNodeSelector::BestNodeSelector(const QString &commonDirectory, const QStringList &files)
-    : m_commonDirectory(commonDirectory),
-      m_files(files),
-      m_deploys(false),
-      m_deployText(QCoreApplication::translate("ProjectWizard", "The files are implicitly added to the projects:") + QLatin1Char('\n')),
-      m_bestChoice(0),
-      m_bestMatchLength(-1),
-      m_bestMatchPriority(-1)
+BestNodeSelector::BestNodeSelector(const QString &commonDirectory, const QStringList &files) :
+    m_commonDirectory(commonDirectory),
+    m_files(files),
+    m_deployText(QCoreApplication::translate("ProjectWizard", "The files are implicitly added to the projects:") + QLatin1Char('\n'))
 { }
 
 // Find the project the new files should be added
@@ -247,14 +238,14 @@ static inline AddNewTree *buildAddProjectTree(ProjectNode *root, const QString &
     if (list.contains(AddSubProject) && !list.contains(InheritedFromParent)) {
         if (projectPath.isEmpty() || root->canAddSubProject(projectPath)) {
             FolderNode::AddNewInformation info = root->addNewInformation(QStringList() << projectPath, contextNode);
-            AddNewTree *item = new AddNewTree(root, children, info);
+            auto item = new AddNewTree(root, children, info);
             selector->inspect(item, root == contextNode);
             return item;
         }
     }
 
     if (children.isEmpty())
-        return 0;
+        return nullptr;
     return new AddNewTree(root, children, root->displayName());
 }
 
@@ -283,12 +274,12 @@ static inline AddNewTree *buildAddFilesTree(FolderNode *root, const QStringList 
     const QList<ProjectAction> &list = root->supportedActions(root);
     if (list.contains(AddNewFile) && !list.contains(InheritedFromParent)) {
         FolderNode::AddNewInformation info = root->addNewInformation(files, contextNode);
-        AddNewTree *item = new AddNewTree(root, children, info);
+        auto item = new AddNewTree(root, children, info);
         selector->inspect(item, root == contextNode);
         return item;
     }
     if (children.isEmpty())
-        return 0;
+        return nullptr;
     return new AddNewTree(root, children, root->displayName());
 }
 
@@ -320,11 +311,8 @@ static inline AddNewTree *getChoices(const QStringList &generatedFiles,
 // ProjectWizardPage:
 // --------------------------------------------------------------------
 
-ProjectWizardPage::ProjectWizardPage(QWidget *parent) :
-    WizardPage(parent),
-    m_ui(new Ui::WizardPage),
-    m_model(0),
-    m_repositoryExists(false)
+ProjectWizardPage::ProjectWizardPage(QWidget *parent) : WizardPage(parent),
+    m_ui(new Ui::WizardPage)
 {
     m_ui->setupUi(this);
     m_ui->vcsManageButton->setText(ICore::msgShowOptionsDialog());
@@ -380,7 +368,7 @@ bool ProjectWizardPage::expandTree(const QModelIndex &root)
         m_ui->projectComboBox->view()->collapse(root);
 
     // if we are a high priority node, our *parent* needs to be expanded
-    AddNewTree *tree = static_cast<AddNewTree *>(root.internalPointer());
+    auto tree = static_cast<AddNewTree *>(root.internalPointer());
     if (tree && tree->priority() >= 100)
         expand = true;
 
@@ -401,7 +389,7 @@ void ProjectWizardPage::setBestNode(AddNewTree *tree)
 FolderNode *ProjectWizardPage::currentNode() const
 {
     QVariant v = m_ui->projectComboBox->currentData(Qt::UserRole);
-    return v.isNull() ? 0 : static_cast<FolderNode *>(v.value<void *>());
+    return v.isNull() ? nullptr : static_cast<FolderNode *>(v.value<void *>());
 }
 
 void ProjectWizardPage::setAddingSubProject(bool addingSubProject)
@@ -423,7 +411,7 @@ void ProjectWizardPage::initializeVersionControls()
     if (versionControls.isEmpty())
         hideVersionControlUiElements();
 
-    IVersionControl *currentSelection = 0;
+    IVersionControl *currentSelection = nullptr;
     int currentIdx = versionControlIndex() - 1;
     if (currentIdx >= 0 && currentIdx <= m_activeVersionControls.size() - 1)
         currentSelection = m_activeVersionControls.at(currentIdx);
@@ -500,7 +488,7 @@ void ProjectWizardPage::initializeProjectTree(Node *context, const QStringList &
 
     setAdditionalInfo(selector.deployingProjects());
 
-    TreeModel *model = new TreeModel(tree);
+    auto model = new TreeModel(tree);
     setModel(model);
     setBestNode(selector.bestChoice());
     setAddingSubProject(action == AddSubProject);
@@ -537,7 +525,7 @@ IVersionControl *ProjectWizardPage::currentVersionControl()
 {
     int index = m_ui->addToVersionControlComboBox->currentIndex() - 1; // Subtract "<None>"
     if (index < 0 || index > m_activeVersionControls.count())
-        return 0; // <None>
+        return nullptr; // <None>
     return m_activeVersionControls.at(index);
 }
 

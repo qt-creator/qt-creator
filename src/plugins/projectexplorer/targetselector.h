@@ -39,7 +39,8 @@ class QPixmapButton;
 
 class TargetSelector : public QWidget
 {
-Q_OBJECT
+    Q_OBJECT
+
 public:
     class Target {
     public:
@@ -47,7 +48,7 @@ public:
         int currentSubIndex;
     };
 
-    explicit TargetSelector(QWidget *parent = 0);
+    explicit TargetSelector(QWidget *parent = nullptr);
 
     QSize sizeHint() const override;
 

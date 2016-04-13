@@ -394,7 +394,7 @@ void TargetSelector::updateButtons()
 bool TargetSelector::event(QEvent *e)
 {
     if (e->type() == QEvent::ToolTip) {
-        const QHelpEvent *helpEvent = static_cast<const QHelpEvent *>(e);
+        auto helpEvent = static_cast<const QHelpEvent *>(e);
         int targetIndex;
         int subTargetIndex;
         getControlAt(helpEvent->x(), helpEvent->y(), 0, &targetIndex, &subTargetIndex);

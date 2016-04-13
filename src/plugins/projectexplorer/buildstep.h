@@ -89,6 +89,7 @@ signals:
     void finished();
 
     void enabledChanged();
+
 private:
     bool m_enabled;
 };
@@ -98,7 +99,7 @@ class PROJECTEXPLORER_EXPORT IBuildStepFactory : public QObject
     Q_OBJECT
 
 public:
-    explicit IBuildStepFactory(QObject *parent = 0);
+    explicit IBuildStepFactory(QObject *parent = nullptr);
 
     // used to show the list of possible additons to a target, returns a list of types
     virtual QList<Core::Id> availableCreationIds(BuildStepList *parent) const = 0;

@@ -105,7 +105,7 @@ bool DependenciesModel::setData(const QModelIndex &index, const QVariant &value,
 {
     if (role == Qt::CheckStateRole) {
         Project *p = m_projects.at(index.row());
-        const Qt::CheckState c = static_cast<Qt::CheckState>(value.toInt());
+        auto c = static_cast<const Qt::CheckState>(value.toInt());
 
         if (c == Qt::Checked) {
             if (SessionManager::addDependency(m_project, p)) {
@@ -206,22 +206,21 @@ void DependenciesView::updateSizeHint()
 // DependenciesWidget
 //
 
-DependenciesWidget::DependenciesWidget(Project *project, QWidget *parent)
-    : QWidget(parent)
-    , m_project(project)
-    , m_model(new DependenciesModel(project, this))
+DependenciesWidget::DependenciesWidget(Project *project, QWidget *parent) : QWidget(parent),
+    m_project(project),
+    m_model(new DependenciesModel(project, this))
 {
-    QVBoxLayout *vbox = new QVBoxLayout(this);
+    auto vbox = new QVBoxLayout(this);
     vbox->setContentsMargins(0, 0, 0, 0);
     m_detailsContainer = new Utils::DetailsWidget(this);
     m_detailsContainer->setState(Utils::DetailsWidget::NoSummary);
     vbox->addWidget(m_detailsContainer);
 
-    QWidget *detailsWidget = new QWidget(m_detailsContainer);
+    auto detailsWidget = new QWidget(m_detailsContainer);
     m_detailsContainer->setWidget(detailsWidget);
-    QGridLayout *layout = new QGridLayout(detailsWidget);
+    auto layout = new QGridLayout(detailsWidget);
     layout->setContentsMargins(0, -1, 0, -1);
-    DependenciesView *treeView = new DependenciesView(this);
+    auto treeView = new DependenciesView(this);
     treeView->setModel(m_model);
     treeView->setHeaderHidden(true);
     layout->addWidget(treeView, 0 ,0);

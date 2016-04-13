@@ -61,12 +61,13 @@ private:
 
     QStringList m_directories;
 
+    bool m_suppressIssues = false;
+
+    int m_fatalErrorCount = 0;
+
 #if defined WITH_TESTS
     friend class ProjectExplorerPlugin;
 #endif
-    bool m_suppressIssues;
-
-    int m_fatalErrorCount;
 };
 
 #if defined WITH_TESTS

@@ -44,7 +44,7 @@ public:
     QAction *createAction(QObject *parent) const override;
 
 private:
-    CompileOutputWindow * m_window;
+    CompileOutputWindow *m_window;
 };
 
 } // namespace Internal

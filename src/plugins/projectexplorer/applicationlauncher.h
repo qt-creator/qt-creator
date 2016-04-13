@@ -47,7 +47,7 @@ public:
         Gui
     };
 
-    explicit ApplicationLauncher(QObject *parent = 0);
+    explicit ApplicationLauncher(QObject *parent = nullptr);
     ~ApplicationLauncher() override;
 
     void setProcessChannelMode(QProcess::ProcessChannelMode mode);

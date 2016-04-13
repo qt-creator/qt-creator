@@ -71,22 +71,19 @@ static FileName settingsFileName()
 class KitManagerPrivate
 {
 public:
-    KitManagerPrivate();
     ~KitManagerPrivate();
 
-    Kit *m_defaultKit;
-    bool m_initialized;
+    Kit *m_defaultKit = nullptr;
+    bool m_initialized = false;
     QList<KitInformation *> m_informationList;
     QList<Kit *> m_kitList;
-    PersistentSettingsWriter *m_writer;
+    PersistentSettingsWriter *m_writer = nullptr;
 };
-
-KitManagerPrivate::KitManagerPrivate() :
-    m_defaultKit(0), m_initialized(false), m_writer(0)
-{ }
 
 KitManagerPrivate::~KitManagerPrivate()
 {
+    foreach (Kit *k, m_kitList)
+        delete k;
     qDeleteAll(m_informationList);
     delete m_writer;
 }
@@ -97,8 +94,8 @@ KitManagerPrivate::~KitManagerPrivate()
 // KitManager:
 // --------------------------------------------------------------------------
 
-static Internal::KitManagerPrivate *d;
-static KitManager *m_instance;
+static Internal::KitManagerPrivate *d = nullptr;
+static KitManager *m_instance = nullptr;
 
 KitManager *KitManager::instance()
 {
@@ -230,11 +227,9 @@ void KitManager::restoreKits()
 
 KitManager::~KitManager()
 {
-    foreach (Kit *k, d->m_kitList)
-        delete k;
-    d->m_kitList.clear();
     delete d;
-    m_instance = 0;
+    d = nullptr;
+    m_instance = nullptr;
 }
 
 void KitManager::saveKits()
@@ -480,14 +475,7 @@ void KitManager::deregisterKit(Kit *k)
         return;
     d->m_kitList.removeOne(k);
     if (defaultKit() == k) {
-        QList<Kit *> stList = kits();
-        Kit *newDefault = 0;
-        foreach (Kit *cur, stList) {
-            if (cur->isValid()) {
-                newDefault = cur;
-                break;
-            }
-        }
+        Kit *newDefault = Utils::findOrDefault(kits(), [](Kit *k) { return k->isValid(); });
         setDefaultKit(newDefault);
     }
     emit m_instance->kitRemoved(k);

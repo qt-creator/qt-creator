@@ -60,12 +60,10 @@ KitManagerConfigWidget::KitManagerConfigWidget(Kit *k) :
     m_nameEdit(new QLineEdit),
     m_fileSystemFriendlyNameLineEdit(new QLineEdit),
     m_kit(k),
-    m_modifiedKit(new Kit(Core::Id(WORKING_COPY_KIT_ID))),
-    m_fixingKit(false),
-    m_hasUniqueName(true)
+    m_modifiedKit(new Kit(Core::Id(WORKING_COPY_KIT_ID)))
 {
-    static const Qt::Alignment alignment
-            = static_cast<Qt::Alignment>(style()->styleHint(QStyle::SH_FormLayoutLabelAlignment));
+    static auto alignment
+            = static_cast<const Qt::Alignment>(style()->styleHint(QStyle::SH_FormLayoutLabelAlignment));
 
     m_layout->addWidget(m_nameEdit, 0, WidgetColumn);
     m_layout->addWidget(m_iconButton, 0, ButtonColumn);
@@ -86,10 +84,10 @@ KitManagerConfigWidget::KitManagerConfigWidget(Kit *k) :
     connect(m_fileSystemFriendlyNameLineEdit, &QLineEdit::textChanged,
             this, &KitManagerConfigWidget::setFileSystemFriendlyName);
 
-    QWidget *inner = new QWidget;
+    auto inner = new QWidget;
     inner->setLayout(m_layout);
 
-    QGridLayout *mainLayout = new QGridLayout(this);
+    auto mainLayout = new QGridLayout(this);
     mainLayout->setMargin(1);
     mainLayout->addWidget(inner, 0, 0);
 
@@ -207,7 +205,7 @@ void KitManagerConfigWidget::addConfigWidget(KitConfigWidget *widget)
     QString name = widget->displayName();
     QString toolTip = widget->toolTip();
 
-    QAction *action = new QAction(tr("Mark as Mutable"), 0);
+    auto action = new QAction(tr("Mark as Mutable"), 0);
     action->setCheckable(true);
     action->setChecked(widget->isMutable());
     action->setEnabled(!widget->isSticky());
@@ -225,8 +223,8 @@ void KitManagerConfigWidget::addConfigWidget(KitConfigWidget *widget)
     if (QWidget *button = widget->buttonWidget())
         m_layout->addWidget(button, row, ButtonColumn);
 
-    static const Qt::Alignment alignment
-        = static_cast<Qt::Alignment>(style()->styleHint(QStyle::SH_FormLayoutLabelAlignment));
+    static auto alignment
+        = static_cast<const Qt::Alignment>(style()->styleHint(QStyle::SH_FormLayoutLabelAlignment));
     QLabel *label = createLabel(name, toolTip);
     m_layout->addWidget(label, row, LabelColumn, alignment);
     m_widgets.append(widget);
@@ -365,7 +363,7 @@ void KitManagerConfigWidget::showEvent(QShowEvent *event)
 
 QLabel *KitManagerConfigWidget::createLabel(const QString &name, const QString &toolTip)
 {
-    QLabel *label = new QLabel(name);
+    auto label = new QLabel(name);
     label->setToolTip(toolTip);
     return label;
 }

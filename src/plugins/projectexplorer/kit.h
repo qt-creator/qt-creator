@@ -42,6 +42,7 @@ namespace ProjectExplorer {
 class IOutputParser;
 
 namespace Internal {
+class KitManagerPrivate;
 class KitModel;
 class KitPrivate;
 } // namespace Internal
@@ -139,6 +140,7 @@ private:
 
     friend class KitInformation;
     friend class KitManager;
+    friend class Internal::KitManagerPrivate;
     friend class Internal::KitModel; // needed for setAutoDetected() when cloning kits
 };
 

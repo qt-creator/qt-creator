@@ -48,8 +48,6 @@ class Target;
 
 namespace Internal {
 
-const char RUNSETTINGS_PANEL_ID[] = "ProjectExplorer.RunSettingsPanel";
-
 class BuildStepListWidget;
 
 class RunSettingsWidget : public QWidget
@@ -85,15 +83,15 @@ private:
     Target *m_target;
     RunConfigurationModel *m_runConfigurationsModel;
     DeployConfigurationModel *m_deployConfigurationModel;
-    QWidget *m_runConfigurationWidget;
-    RunConfiguration *m_runConfiguration;
-    QVBoxLayout *m_runLayout;
-    NamedWidget *m_deployConfigurationWidget;
-    QVBoxLayout *m_deployLayout;
-    BuildStepListWidget *m_deploySteps;
+    QWidget *m_runConfigurationWidget = nullptr;
+    RunConfiguration *m_runConfiguration = nullptr;
+    QVBoxLayout *m_runLayout = nullptr;
+    NamedWidget *m_deployConfigurationWidget = nullptr;
+    QVBoxLayout *m_deployLayout = nullptr;
+    BuildStepListWidget *m_deploySteps = nullptr;
     QMenu *m_addRunMenu;
     QMenu *m_addDeployMenu;
-    bool m_ignoreChange;
+    bool m_ignoreChange = false;
     typedef QPair<RunConfigWidget *, QLabel *> RunConfigItem;
     QList<RunConfigItem> m_subWidgets;
 

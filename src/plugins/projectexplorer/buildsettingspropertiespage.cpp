@@ -61,16 +61,15 @@ BuildSettingsWidget::~BuildSettingsWidget()
 }
 
 BuildSettingsWidget::BuildSettingsWidget(Target *target) :
-    m_target(target),
-    m_buildConfiguration(0)
+    m_target(target)
 {
     Q_ASSERT(m_target);
 
-    QVBoxLayout *vbox = new QVBoxLayout(this);
+    auto vbox = new QVBoxLayout(this);
     vbox->setContentsMargins(0, 0, 0, 0);
 
     if (!IBuildConfigurationFactory::find(m_target)) {
-        QLabel *noSettingsLabel = new QLabel(this);
+        auto noSettingsLabel = new QLabel(this);
         noSettingsLabel->setText(tr("No build settings available"));
         QFont f = noSettingsLabel->font();
         f.setPointSizeF(f.pointSizeF() * 1.2);
@@ -80,7 +79,7 @@ BuildSettingsWidget::BuildSettingsWidget(Target *target) :
     }
 
     { // Edit Build Configuration row
-        QHBoxLayout *hbox = new QHBoxLayout();
+        auto hbox = new QHBoxLayout();
         hbox->setContentsMargins(0, 0, 0, 0);
         hbox->addWidget(new QLabel(tr("Edit build configuration:"), this));
         m_buildConfigurationComboBox = new QComboBox(this);
@@ -110,7 +109,7 @@ BuildSettingsWidget::BuildSettingsWidget(Target *target) :
     }
 
     m_buildConfiguration = m_target->activeBuildConfiguration();
-    BuildConfigurationModel *model = static_cast<BuildConfigurationModel *>(m_buildConfigurationComboBox->model());
+    auto model = static_cast<BuildConfigurationModel *>(m_buildConfigurationComboBox->model());
     m_buildConfigurationComboBox->setCurrentIndex(model->indexFor(m_buildConfiguration).row());
 
     updateAddButtonMenu();
@@ -135,7 +134,7 @@ void BuildSettingsWidget::addSubWidget(NamedWidget *widget)
 {
     widget->setContentsMargins(0, 10, 0, 0);
 
-    QLabel *label = new QLabel(this);
+    auto label = new QLabel(this);
     label->setText(widget->displayName());
     connect(widget, &NamedWidget::displayNameChanged,
             label, &QLabel::setText);
@@ -218,7 +217,7 @@ void BuildSettingsWidget::updateBuildSettings()
 
 void BuildSettingsWidget::currentIndexChanged(int index)
 {
-    BuildConfigurationModel *model = static_cast<BuildConfigurationModel *>(m_buildConfigurationComboBox->model());
+    auto model = static_cast<BuildConfigurationModel *>(m_buildConfigurationComboBox->model());
     BuildConfiguration *buildConfiguration = model->buildConfigurationAt(index);
     SessionManager::setActiveBuildConfiguration(m_target, buildConfiguration, SetActive::Cascade);
 }
@@ -230,7 +229,7 @@ void BuildSettingsWidget::updateActiveConfiguration()
 
     m_buildConfiguration = m_target->activeBuildConfiguration();
 
-    BuildConfigurationModel *model = static_cast<BuildConfigurationModel *>(m_buildConfigurationComboBox->model());
+    auto model = static_cast<BuildConfigurationModel *>(m_buildConfigurationComboBox->model());
     m_buildConfigurationComboBox->setCurrentIndex(model->indexFor(m_buildConfiguration).row());
 
     updateBuildSettings();

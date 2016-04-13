@@ -61,8 +61,7 @@ const char STEPS_PREFIX[] = "ProjectExplorer.BuildStepList.Step.";
 } // namespace
 
 BuildStepList::BuildStepList(QObject *parent, Core::Id id) :
-    ProjectConfiguration(parent, id),
-    m_isNull(false)
+    ProjectConfiguration(parent, id)
 {
     Q_ASSERT(parent);
 }
@@ -202,10 +201,10 @@ BuildStep *BuildStepList::at(int position)
 Target *BuildStepList::target() const
 {
     Q_ASSERT(parent());
-    BuildConfiguration *bc = qobject_cast<BuildConfiguration *>(parent());
+    auto bc = qobject_cast<BuildConfiguration *>(parent());
     if (bc)
         return bc->target();
-    DeployConfiguration *dc = qobject_cast<DeployConfiguration *>(parent());
+    auto dc = qobject_cast<DeployConfiguration *>(parent());
     if (dc)
         return dc->target();
     return 0;

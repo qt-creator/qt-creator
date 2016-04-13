@@ -49,9 +49,10 @@ namespace ProjectExplorer {
     \class ProjectExplorer::TerminalAspect
 */
 
-TerminalAspect::TerminalAspect(RunConfiguration *runConfig, const QString &key, bool useTerminal, bool userSet)
-    : IRunConfigurationAspect(runConfig), m_useTerminal(useTerminal),
-      m_userSet(userSet), m_checkBox(0), m_key(key)
+TerminalAspect::TerminalAspect(RunConfiguration *runConfig, const QString &key,
+                               bool useTerminal, bool userSet) :
+    IRunConfigurationAspect(runConfig),
+    m_useTerminal(useTerminal), m_userSet(userSet), m_checkBox(nullptr), m_key(key)
 {
     setDisplayName(tr("Terminal"));
     setId("TerminalAspect");

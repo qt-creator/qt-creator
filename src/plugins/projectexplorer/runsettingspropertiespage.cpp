@@ -83,17 +83,10 @@ using ExtensionSystem::PluginManager;
 /// RunSettingsWidget
 ///
 
-RunSettingsWidget::RunSettingsWidget(Target *target)
-    : m_target(target),
-      m_runConfigurationsModel(new RunConfigurationModel(target, this)),
-      m_deployConfigurationModel(new DeployConfigurationModel(target, this)),
-      m_runConfigurationWidget(0),
-      m_runConfiguration(0),
-      m_runLayout(0),
-      m_deployConfigurationWidget(0),
-      m_deployLayout(0),
-      m_deploySteps(0),
-      m_ignoreChange(false)
+RunSettingsWidget::RunSettingsWidget(Target *target) :
+    m_target(target),
+    m_runConfigurationsModel(new RunConfigurationModel(target, this)),
+    m_deployConfigurationModel(new DeployConfigurationModel(target, this))
 {
     Q_ASSERT(m_target);
 
@@ -102,7 +95,7 @@ RunSettingsWidget::RunSettingsWidget(Target *target)
     m_removeDeployToolButton = new QPushButton(tr("Remove"), this);
     m_renameDeployButton = new QPushButton(tr("Rename..."), this);
 
-    QWidget *deployWidget = new QWidget(this);
+    auto deployWidget = new QWidget(this);
 
     m_runConfigurationCombo = new QComboBox(this);
     m_runConfigurationCombo->setSizeAdjustPolicy(QComboBox::AdjustToContents);
@@ -112,17 +105,15 @@ RunSettingsWidget::RunSettingsWidget(Target *target)
     m_removeRunToolButton = new QPushButton(tr("Remove"), this);
     m_renameRunButton = new QPushButton(tr("Rename..."), this);
 
-    QSpacerItem *spacer1 =
-        new QSpacerItem(10, 10, QSizePolicy::Expanding, QSizePolicy::Minimum);
-    QSpacerItem *spacer2 =
-        new QSpacerItem(10, 10, QSizePolicy::Minimum, QSizePolicy::Expanding);
+    auto spacer1 = new QSpacerItem(10, 10, QSizePolicy::Expanding, QSizePolicy::Minimum);
+    auto spacer2 = new QSpacerItem(10, 10, QSizePolicy::Minimum, QSizePolicy::Expanding);
 
-    QWidget *runWidget = new QWidget(this);
+    auto runWidget = new QWidget(this);
 
-    QLabel *deployTitle = new QLabel(tr("Deployment"), this);
-    QLabel *deployLabel = new QLabel(tr("Method:"), this);
-    QLabel *runTitle = new QLabel(tr("Run"), this);
-    QLabel *runLabel = new QLabel(tr("Run configuration:"), this);
+    auto deployTitle = new QLabel(tr("Deployment"), this);
+    auto deployLabel = new QLabel(tr("Method:"), this);
+    auto runTitle = new QLabel(tr("Run"), this);
+    auto runLabel = new QLabel(tr("Run configuration:"), this);
 
     runLabel->setBuddy(m_runConfigurationCombo);
 
@@ -243,7 +234,7 @@ void RunSettingsWidget::aboutToShowAddMenu()
     foreach (IRunConfigurationFactory *factory, factories) {
         QList<Core::Id> ids = factory->availableCreationIds(m_target);
         foreach (Core::Id id, ids) {
-            QAction *action = new QAction(factory->displayNameForId(id), m_addRunMenu);
+            auto action = new QAction(factory->displayNameForId(id), m_addRunMenu);
             connect(action, &QAction::triggered, [factory, id, this]() {
                 RunConfiguration *newRC = factory->create(m_target, id);
                 if (!newRC)
@@ -337,7 +328,7 @@ void RunSettingsWidget::currentRunConfigurationChanged(int index)
     if (m_ignoreChange)
         return;
 
-    RunConfiguration *selectedRunConfiguration = 0;
+    RunConfiguration *selectedRunConfiguration = nullptr;
     if (index >= 0)
         selectedRunConfiguration = m_runConfigurationsModel->runConfigurationAt(index);
 
@@ -357,7 +348,7 @@ void RunSettingsWidget::currentDeployConfigurationChanged(int index)
     if (m_ignoreChange)
         return;
     if (index == -1)
-        SessionManager::setActiveDeployConfiguration(m_target, 0, SetActive::Cascade);
+        SessionManager::setActiveDeployConfiguration(m_target, nullptr, SetActive::Cascade);
     else
         SessionManager::setActiveDeployConfiguration(m_target, m_deployConfigurationModel->deployConfigurationAt(index),
                                                      SetActive::Cascade);
@@ -452,9 +443,9 @@ void RunSettingsWidget::updateRemoveToolButton()
 void RunSettingsWidget::updateDeployConfiguration(DeployConfiguration *dc)
 {
     delete m_deployConfigurationWidget;
-    m_deployConfigurationWidget = 0;
+    m_deployConfigurationWidget = nullptr;
     delete m_deploySteps;
-    m_deploySteps = 0;
+    m_deploySteps = nullptr;
 
     m_ignoreChange = true;
     m_deployConfigurationCombo->setCurrentIndex(-1);
@@ -485,7 +476,7 @@ void RunSettingsWidget::setConfigurationWidget(RunConfiguration *rc)
         return;
 
     delete m_runConfigurationWidget;
-    m_runConfigurationWidget = 0;
+    m_runConfigurationWidget = nullptr;
     removeSubWidgets();
     if (!rc)
         return;
@@ -540,7 +531,7 @@ void RunSettingsWidget::addSubWidget(RunConfigWidget *widget)
 {
     widget->setContentsMargins(0, 10, 0, 0);
 
-    QLabel *label = new QLabel(this);
+    auto label = new QLabel(this);
     label->setText(widget->displayName());
     connect(widget, &RunConfigWidget::displayNameChanged,
             label, &QLabel::setText);

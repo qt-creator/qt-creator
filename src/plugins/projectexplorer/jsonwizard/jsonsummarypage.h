@@ -40,12 +40,12 @@ class JsonSummaryPage : public Internal::ProjectWizardPage
     Q_OBJECT
 
 public:
-    JsonSummaryPage(QWidget *parent = 0);
+    JsonSummaryPage(QWidget *parent = nullptr);
     void setHideProjectUiValue(const QVariant &hideProjectUiValue);
 
-    void initializePage();
-    bool validatePage();
-    void cleanupPage();
+    void initializePage() override;
+    bool validatePage() override;
+    void cleanupPage() override;
 
 public slots:
     void triggerCommit(const JsonWizard::GeneratorFiles &files);

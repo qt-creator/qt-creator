@@ -36,7 +36,7 @@ using namespace Core;
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
 
-CurrentProjectFilter::CurrentProjectFilter() : BaseFileFilter(), m_project(0)
+CurrentProjectFilter::CurrentProjectFilter() : BaseFileFilter()
 {
     setId("Files in current project");
     setDisplayName(tr("Files in Current Project"));
@@ -49,7 +49,7 @@ CurrentProjectFilter::CurrentProjectFilter() : BaseFileFilter(), m_project(0)
 
 void CurrentProjectFilter::markFilesAsOutOfDate()
 {
-    setFileIterator(0);
+    setFileIterator(nullptr);
 }
 
 void CurrentProjectFilter::prepareSearch(const QString &entry)

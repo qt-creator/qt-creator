@@ -38,7 +38,7 @@ class DoubleTabWidget : public QWidget
 {
     Q_OBJECT
 public:
-    explicit DoubleTabWidget(QWidget *parent = 0);
+    explicit DoubleTabWidget(QWidget *parent = nullptr);
     ~DoubleTabWidget() override;
 
     void setTitle(const QString &title);
@@ -68,7 +68,8 @@ protected:
     QSize minimumSizeHint() const override;
 
 private:
-    struct Tab {
+    class Tab {
+    public:
         QString name;
         QString fullName;
         bool nameIsUnique;
@@ -86,12 +87,11 @@ private:
 
     Ui::DoubleTabWidget *ui;
 
-
     QString m_title;
     QList<Tab> m_tabs;
-    int m_currentIndex;
+    int m_currentIndex = -1;
+    int m_lastVisibleIndex = -1;
     QVector<int> m_currentTabIndices;
-    int m_lastVisibleIndex;
 };
 
 } // namespace Internal

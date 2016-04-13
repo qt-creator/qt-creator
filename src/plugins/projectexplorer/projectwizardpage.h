@@ -53,7 +53,7 @@ class ProjectWizardPage : public Utils::WizardPage
     Q_OBJECT
 
 public:
-    explicit ProjectWizardPage(QWidget *parent = 0);
+    explicit ProjectWizardPage(QWidget *parent = nullptr);
     ~ProjectWizardPage() override;
 
     FolderNode *currentNode() const;
@@ -96,11 +96,11 @@ private:
 
     Ui::WizardPage *m_ui;
     QStringList m_projectToolTips;
-    Utils::TreeModel *m_model;
+    Utils::TreeModel *m_model = nullptr;
 
     QList<Core::IVersionControl*> m_activeVersionControls;
     QString m_commonDirectory;
-    bool m_repositoryExists;
+    bool m_repositoryExists = false;
 };
 
 } // namespace Internal

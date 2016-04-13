@@ -168,7 +168,7 @@ signals:
     void kitsLoaded();
 
 private:
-    explicit KitManager(QObject *parent = 0);
+    explicit KitManager(QObject *parent = nullptr);
 
     // Make sure the this is only called after all
     // KitInformation are registered!

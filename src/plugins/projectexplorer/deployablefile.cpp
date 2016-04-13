@@ -33,20 +33,13 @@ using namespace Utils;
 
 namespace ProjectExplorer {
 
-DeployableFile::DeployableFile()
-    : m_type(TypeNormal)
-{
-}
-
 DeployableFile::DeployableFile(const QString &localFilePath, const QString &remoteDir, Type type)
     : m_localFilePath(FileName::fromUserInput(localFilePath)), m_remoteDir(remoteDir), m_type(type)
-{
-}
+{ }
 
 DeployableFile::DeployableFile(const FileName &localFilePath, const QString &remoteDir, Type type)
     : m_localFilePath(localFilePath), m_remoteDir(remoteDir), m_type(type)
-{
-}
+{ }
 
 QString DeployableFile::remoteFilePath() const
 {

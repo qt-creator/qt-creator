@@ -119,7 +119,7 @@ class PROJECTEXPLORER_EXPORT IBuildConfigurationFactory : public QObject
     Q_OBJECT
 
 public:
-    explicit IBuildConfigurationFactory(QObject *parent = 0);
+    explicit IBuildConfigurationFactory(QObject *parent = nullptr);
     ~IBuildConfigurationFactory() override;
 
     // The priority is negative if this factory can not create anything for the target.

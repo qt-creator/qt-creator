@@ -59,8 +59,8 @@ public:
     QbsManager();
     ~QbsManager();
 
-    QString mimeType() const;
-    ProjectExplorer::Project *openProject(const QString &fileName, QString *errorString);
+    QString mimeType() const override;
+    ProjectExplorer::Project *openProject(const QString &fileName, QString *errorString) override;
 
     // QBS profiles management:
     QString profileForKit(const ProjectExplorer::Kit *k);

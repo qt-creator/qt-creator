@@ -147,10 +147,10 @@ protected:
 private:
     Core::Id m_id;
     QString m_displayName;
-    bool m_useGlobalSettings;
-    RunConfiguration *m_runConfiguration;
-    ISettingsAspect *m_projectSettings; // Owned if present.
-    ISettingsAspect *m_globalSettings;  // Not owned.
+    bool m_useGlobalSettings = false;
+    RunConfiguration *m_runConfiguration = nullptr;
+    ISettingsAspect *m_projectSettings = nullptr; // Owned if present.
+    ISettingsAspect *m_globalSettings = nullptr;  // Not owned.
 };
 
 class PROJECTEXPLORER_EXPORT ClonableConcept
@@ -240,7 +240,7 @@ public:
     // Pop up configuration dialog in case for example the executable is missing.
     enum ConfigurationState { Configured, UnConfigured, Waiting };
     // TODO rename function
-    virtual ConfigurationState ensureConfigured(QString *errorMessage = 0);
+    virtual ConfigurationState ensureConfigured(QString *errorMessage = nullptr);
 
     Target *target() const;
 
@@ -254,11 +254,11 @@ public:
 
     template <typename T> T *extraAspect() const
     {
-        QTC_ASSERT(m_aspectsInitialized, return 0);
+        QTC_ASSERT(m_aspectsInitialized, return nullptr);
         foreach (IRunConfigurationAspect *aspect, m_aspects)
             if (T *result = qobject_cast<T *>(aspect))
                 return result;
-        return 0;
+        return nullptr;
     }
 
     virtual Runnable runnable() const;
@@ -291,7 +291,7 @@ class PROJECTEXPLORER_EXPORT IRunConfigurationFactory : public QObject
     Q_OBJECT
 
 public:
-    explicit IRunConfigurationFactory(QObject *parent = 0);
+    explicit IRunConfigurationFactory(QObject *parent = nullptr);
 
     enum CreationMode {UserCreate, AutoCreate};
     virtual QList<Core::Id> availableCreationIds(Target *parent, CreationMode mode = UserCreate) const = 0;
@@ -320,7 +320,7 @@ class PROJECTEXPLORER_EXPORT IRunControlFactory : public QObject
 {
     Q_OBJECT
 public:
-    explicit IRunControlFactory(QObject *parent = 0);
+    explicit IRunControlFactory(QObject *parent = nullptr);
 
     virtual bool canRun(RunConfiguration *runConfiguration, Core::Id mode) const = 0;
     virtual RunControl *create(RunConfiguration *runConfiguration, Core::Id mode, QString *errorMessage) = 0;
@@ -353,7 +353,7 @@ public:
     ~RunControl() override;
     virtual void start() = 0;
 
-    virtual bool promptToStop(bool *optionalPrompt = 0) const;
+    virtual bool promptToStop(bool *optionalPrompt = nullptr) const;
     virtual StopResult stop() = 0;
     virtual bool isRunning() const = 0;
     virtual bool supportsReRunning() const { return true; }
@@ -397,7 +397,7 @@ protected:
     bool showPromptToStopDialog(const QString &title, const QString &text,
                                 const QString &stopButtonText = QString(),
                                 const QString &cancelButtonText = QString(),
-                                bool *prompt = 0) const;
+                                bool *prompt = nullptr) const;
 
 private:
     void bringApplicationToForegroundInternal();

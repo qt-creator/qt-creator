@@ -40,7 +40,7 @@ static const Core::Id KIT_TEMPORARY_NAME("PE.TempName");
 static const Core::Id KIT_FINAL_NAME("PE.FinalName");
 static const Core::Id TEMPORARY_OF_PROJECTS("PE.TempProject");
 
-ProjectImporter::ProjectImporter(const QString &path) : m_projectPath(path), m_isUpdating(false)
+ProjectImporter::ProjectImporter(const QString &path) : m_projectPath(path)
 { }
 
 ProjectImporter::~ProjectImporter()

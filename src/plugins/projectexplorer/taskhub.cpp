@@ -33,7 +33,7 @@
 
 using namespace ProjectExplorer;
 
-TaskHub *m_instance = 0;
+static TaskHub *m_instance = nullptr;
 QVector<Core::Id> TaskHub::m_registeredCategories;
 
 static Core::Id categoryForType(Task::TaskType type)
@@ -51,9 +51,10 @@ static Core::Id categoryForType(Task::TaskType type)
 class TaskMark : public TextEditor::TextMark
 {
 public:
-    TaskMark(unsigned int id, const QString &fileName, int lineNumber, Task::TaskType type, bool visible)
-        : TextMark(fileName, lineNumber, categoryForType(type))
-        , m_id(id)
+    TaskMark(unsigned int id, const QString &fileName, int lineNumber,
+             Task::TaskType type, bool visible) :
+        TextMark(fileName, lineNumber, categoryForType(type)),
+        m_id(id)
     {
         setVisible(visible);
     }
@@ -108,7 +109,7 @@ TaskHub::TaskHub()
 
 TaskHub::~TaskHub()
 {
-    m_instance = 0;
+    m_instance = nullptr;
 }
 
 void TaskHub::addCategory(Core::Id categoryId, const QString &displayName, bool visible)
@@ -142,8 +143,7 @@ void TaskHub::addTask(Task task)
     task.movedLine = task.line;
 
     if (task.line != -1 && !task.file.isEmpty()) {
-        TaskMark *mark = new TaskMark(task.taskId, task.file.toString(), task.line,
-                                      task.type, !task.icon.isNull());
+        auto mark = new TaskMark(task.taskId, task.file.toString(), task.line, task.type, !task.icon.isNull());
         mark->setIcon(task.icon);
         mark->setPriority(TextEditor::TextMark::LowPriority);
         task.addMark(mark);
@@ -192,4 +192,3 @@ void TaskHub::requestPopup()
 {
     emit m_instance->popupRequested(Core::IOutputPane::NoModeSwitch);
 }
-

@@ -43,7 +43,7 @@ class PROJECTEXPLORER_EXPORT ProjectTree : public QObject
 {
     Q_OBJECT
 public:
-    explicit ProjectTree(QObject *parent = 0);
+    explicit ProjectTree(QObject *parent = nullptr);
 
     static ProjectTree *instance();
 
@@ -145,14 +145,14 @@ private:
 private:
     static ProjectTree *s_instance;
     QList<Internal::ProjectTreeWidget *> m_projectTreeWidgets;
-    Node *m_currentNode;
-    Project *m_currentProject;
+    Node *m_currentNode = nullptr;
+    Project *m_currentProject = nullptr;
     QList<FileNode *> m_filesAdded;
     QList<FolderNode *> m_foldersAdded;
-    bool m_resetCurrentNodeFolder;
-    bool m_resetCurrentNodeFile;
-    bool m_resetCurrentNodeProject;
-    Internal::ProjectTreeWidget *m_focusForContextMenu;
+    bool m_resetCurrentNodeFolder = false;
+    bool m_resetCurrentNodeFile = false;
+    bool m_resetCurrentNodeProject = false;
+    Internal::ProjectTreeWidget *m_focusForContextMenu = nullptr;
     Core::Context m_lastProjectContext;
 };
 

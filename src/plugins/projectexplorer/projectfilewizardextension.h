@@ -55,7 +55,7 @@ private:
     bool processProject(const QList<Core::GeneratedFile> &files,
                         bool *removeOpenProjectAttribute, QString *errorMessage);
 
-    ProjectWizardContext *m_context = 0;
+    ProjectWizardContext *m_context = nullptr;
 };
 
 } // namespace Internal

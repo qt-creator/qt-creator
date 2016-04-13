@@ -72,14 +72,7 @@ class KitPrivate
 
 public:
     KitPrivate(Id id, Kit *kit) :
-        m_id(id),
-        m_nestedBlockingLevel(0),
-        m_autodetected(false),
-        m_sdkProvided(false),
-        m_isValid(true),
-        m_hasWarning(false),
-        m_hasValidityInfo(false),
-        m_mustNotify(false)
+        m_id(id)
     {
         if (!id.isValid())
             m_id = Id::fromString(QUuid::createUuid().toString());
@@ -116,13 +109,13 @@ public:
     QString m_fileSystemFriendlyName;
     QString m_autoDetectionSource;
     Id m_id;
-    int m_nestedBlockingLevel;
-    bool m_autodetected;
-    bool m_sdkProvided;
-    bool m_isValid;
-    bool m_hasWarning;
-    bool m_hasValidityInfo;
-    bool m_mustNotify;
+    int m_nestedBlockingLevel = 0;
+    bool m_autodetected = false;
+    bool m_sdkProvided = false;
+    bool m_isValid = true;
+    bool m_hasWarning = false;
+    bool m_hasValidityInfo = false;
+    bool m_mustNotify = false;
     QIcon m_icon;
     FileName m_iconPath;
 
@@ -210,7 +203,7 @@ void Kit::unblockNotification()
 
 Kit *Kit::clone(bool keepName) const
 {
-    Kit *k = new Kit;
+    auto k = new Kit;
     if (keepName)
         k->d->m_unexpandedDisplayName = d->m_unexpandedDisplayName;
     else
@@ -512,7 +505,7 @@ void Kit::addToEnvironment(Environment &env) const
 
 IOutputParser *Kit::createOutputParser() const
 {
-    IOutputParser *first = new OsParser;
+    auto first = new OsParser;
     QList<KitInformation *> infoList = KitManager::kitInformation();
     foreach (KitInformation *ki, infoList)
         first->appendOutputParser(ki->createOutputParser(this));

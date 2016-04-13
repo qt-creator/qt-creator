@@ -81,8 +81,6 @@ public:
     static void registerPageFactory(JsonWizardPageFactory *factory);
     static void registerGeneratorFactory(JsonWizardGeneratorFactory *factory);
 
-    ~JsonWizardFactory();
-
     static QList<QVariant> objectOrList(const QVariant &data, QString *errorMessage);
 
     static QString localizedString(const QVariant &value);

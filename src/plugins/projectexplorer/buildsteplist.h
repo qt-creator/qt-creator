@@ -74,7 +74,7 @@ protected:
 
 private:
     QList<BuildStep *> m_steps;
-    bool m_isNull;
+    bool m_isNull = false;
 };
 
 } // namespace ProjectExplorer

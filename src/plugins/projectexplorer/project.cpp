@@ -89,16 +89,16 @@ public:
     ~ProjectPrivate();
 
     Core::Id m_id;
-    Core::IDocument *m_document = 0;
-    IProjectManager *m_manager = 0;
-    ProjectNode *m_rootProjectNode = 0;
+    Core::IDocument *m_document = nullptr;
+    IProjectManager *m_manager = nullptr;
+    ProjectNode *m_rootProjectNode = nullptr;
     QList<Target *> m_targets;
-    Target *m_activeTarget = 0;
+    Target *m_activeTarget = nullptr;
     EditorConfiguration m_editorConfiguration;
     Core::Context m_projectContext;
     Core::Context m_projectLanguages;
     QVariantMap m_pluginSettings;
-    Internal::UserFileAccessor *m_accessor = 0;
+    Internal::UserFileAccessor *m_accessor = nullptr;
 
     KitMatcher m_requiredKitMatcher;
     KitMatcher m_preferredKitMatcher;
@@ -108,9 +108,9 @@ public:
 
 ProjectPrivate::~ProjectPrivate()
 {
-    // Make sure our root node is 0 when deleting
+    // Make sure our root node is null when deleting
     ProjectNode *oldNode = m_rootProjectNode;
-    m_rootProjectNode = 0;
+    m_rootProjectNode = nullptr;
     delete oldNode;
 
     delete m_document;
@@ -166,14 +166,14 @@ QString Project::makeUnique(const QString &preferredName, const QStringList &use
 
 void Project::changeEnvironment()
 {
-    Target *t = qobject_cast<Target *>(sender());
+    auto t = qobject_cast<Target *>(sender());
     if (t == activeTarget())
         emit environmentChanged();
 }
 
 void Project::changeBuildConfigurationEnabled()
 {
-    Target *t = qobject_cast<Target *>(sender());
+    auto t = qobject_cast<Target *>(sender());
     if (t == activeTarget())
         emit buildConfigurationEnabledChanged();
 }
@@ -195,7 +195,7 @@ void Project::addTarget(Target *t)
     emit addedTarget(t);
 
     // check activeTarget:
-    if (activeTarget() == 0)
+    if (!activeTarget())
         setActiveTarget(t);
 }
 
@@ -208,7 +208,7 @@ bool Project::removeTarget(Target *target)
 
     if (target == activeTarget()) {
         if (d->m_targets.size() == 1)
-            SessionManager::setActiveTarget(this, 0, SetActive::Cascade);
+            SessionManager::setActiveTarget(this, nullptr, SetActive::Cascade);
         else if (d->m_targets.first() == target)
             SessionManager::setActiveTarget(this, d->m_targets.at(1), SetActive::Cascade);
         else
@@ -264,19 +264,19 @@ bool Project::supportsKit(Kit *k, QString *errorMessage) const
 Target *Project::createTarget(Kit *k)
 {
     if (!k || target(k))
-        return 0;
+        return nullptr;
 
-    Target *t = new Target(this, k);
+    auto t = new Target(this, k);
     if (!setupTarget(t)) {
         delete t;
-        return 0;
+        return nullptr;
     }
     return t;
 }
 
 Target *Project::cloneTarget(Target *sourceTarget, Kit *k)
 {
-    Target *newTarget = new Target(this, k);
+    auto newTarget = new Target(this, k);
 
     QStringList buildconfigurationError;
     QStringList deployconfigurationError;
@@ -367,7 +367,7 @@ Target *Project::cloneTarget(Target *sourceTarget, Kit *k)
                               .arg(k->displayName()));
 
         delete newTarget;
-        newTarget = 0;
+        newTarget = nullptr;
     } else if (!buildconfigurationError.isEmpty()
                || !deployconfigurationError.isEmpty()
                || ! runconfigurationError.isEmpty()) {
@@ -399,7 +399,7 @@ Target *Project::cloneTarget(Target *sourceTarget, Kit *k)
         msgBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
         if (msgBox.exec() != QDialog::Accepted) {
             delete newTarget;
-            newTarget = 0;
+            newTarget = nullptr;
         }
     }
 
@@ -446,19 +446,19 @@ Target *Project::restoreTarget(const QVariantMap &data)
     if (target(id)) {
         qWarning("Warning: Duplicated target id found, not restoring second target with id '%s'. Continuing.",
                  qPrintable(id.toString()));
-        return 0;
+        return nullptr;
     }
 
     Kit *k = KitManager::find(id);
     if (!k) {
         qWarning("Warning: No kit '%s' found. Continuing.", qPrintable(id.toString()));
-        return 0;
+        return nullptr;
     }
 
-    Target *t = new Target(this, k);
+    auto t = new Target(this, k);
     if (!t->fromMap(data)) {
         delete t;
-        return 0;
+        return nullptr;
     }
 
     return t;
@@ -724,7 +724,7 @@ Utils::MacroExpander *Project::macroExpander() const
 
 ProjectImporter *Project::createProjectImporter() const
 {
-    return 0;
+    return nullptr;
 }
 
 KitMatcher Project::requiredKitMatcher() const
@@ -749,7 +749,7 @@ void Project::setPreferredKitMatcher(const KitMatcher &matcher)
 
 void Project::onBuildDirectoryChanged()
 {
-    Target *target = qobject_cast<Target *>(sender());
+    auto target = qobject_cast<Target *>(sender());
     if (target && target == activeTarget())
         emit buildDirectoryChanged();
 }

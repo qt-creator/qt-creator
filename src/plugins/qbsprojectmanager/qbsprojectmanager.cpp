@@ -56,12 +56,11 @@ static QString qtcProfilePrefix() { return qtcProfileGroup() + sep; }
 namespace QbsProjectManager {
 namespace Internal {
 
-qbs::Settings *QbsManager::m_settings = 0;
-Internal::QbsLogSink *QbsManager::m_logSink = 0;
-QbsManager *QbsManager::m_instance = 0;
+qbs::Settings *QbsManager::m_settings = nullptr;
+Internal::QbsLogSink *QbsManager::m_logSink = nullptr;
+QbsManager *QbsManager::m_instance = nullptr;
 
-QbsManager::QbsManager() :
-    m_defaultPropertyProvider(new DefaultPropertyProvider)
+QbsManager::QbsManager() : m_defaultPropertyProvider(new DefaultPropertyProvider)
 {
     m_instance = this;
 
@@ -98,7 +97,7 @@ QbsManager::~QbsManager()
 {
     delete m_defaultPropertyProvider;
     delete m_settings;
-    m_instance = 0;
+    m_instance = nullptr;
 }
 
 QString QbsManager::mimeType() const
@@ -112,7 +111,7 @@ ProjectExplorer::Project *QbsManager::openProject(const QString &fileName, QStri
         if (errorString)
             *errorString = tr("Failed opening project \"%1\": Project is not a file.")
                 .arg(fileName);
-        return 0;
+        return nullptr;
     }
 
     return new QbsProject(this, fileName);

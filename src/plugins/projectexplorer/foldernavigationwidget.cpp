@@ -69,15 +69,14 @@ class DotRemovalFilter : public QSortFilterProxyModel
 {
     Q_OBJECT
 public:
-    explicit DotRemovalFilter(QObject *parent = 0);
+    explicit DotRemovalFilter(QObject *parent = nullptr);
 protected:
     virtual bool filterAcceptsRow(int source_row, const QModelIndex &parent) const;
     Qt::DropActions supportedDragActions() const;
 };
 
 DotRemovalFilter::DotRemovalFilter(QObject *parent) : QSortFilterProxyModel(parent)
-{
-}
+{ }
 
 bool DotRemovalFilter::filterAcceptsRow(int source_row, const QModelIndex &parent) const
 {
@@ -97,15 +96,13 @@ Qt::DropActions DotRemovalFilter::supportedDragActions() const
 class FolderNavigationModel : public QFileSystemModel
 {
 public:
-    explicit FolderNavigationModel(QObject *parent = 0);
+    explicit FolderNavigationModel(QObject *parent = nullptr);
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
     Qt::DropActions supportedDragActions() const;
 };
 
-FolderNavigationModel::FolderNavigationModel(QObject *parent) :
-    QFileSystemModel(parent)
-{
-}
+FolderNavigationModel::FolderNavigationModel(QObject *parent) : QFileSystemModel(parent)
+{ }
 
 QVariant FolderNavigationModel::data(const QModelIndex &index, int role) const
 {
@@ -125,15 +122,13 @@ Qt::DropActions FolderNavigationModel::supportedDragActions() const
 
   Shows a file system folder
   */
-FolderNavigationWidget::FolderNavigationWidget(QWidget *parent)
-    : QWidget(parent),
-      m_listView(new Utils::ListView(this)),
-      m_fileSystemModel(new FolderNavigationModel(this)),
-      m_filterHiddenFilesAction(new QAction(tr("Show Hidden Files"), this)),
-      m_filterModel(new DotRemovalFilter(this)),
-      m_title(new Utils::ElidingLabel(this)),
-      m_autoSync(false),
-      m_toggleSync(new QToolButton(this))
+FolderNavigationWidget::FolderNavigationWidget(QWidget *parent) : QWidget(parent),
+    m_listView(new Utils::ListView(this)),
+    m_fileSystemModel(new FolderNavigationModel(this)),
+    m_filterHiddenFilesAction(new QAction(tr("Show Hidden Files"), this)),
+    m_filterModel(new DotRemovalFilter(this)),
+    m_title(new Utils::ElidingLabel(this)),
+    m_toggleSync(new QToolButton(this))
 {
     m_fileSystemModel->setResolveSymlinks(false);
     m_fileSystemModel->setIconProvider(Core::FileIconProvider::iconProvider());
@@ -154,7 +149,7 @@ FolderNavigationWidget::FolderNavigationWidget(QWidget *parent)
     m_listView->setDragDropMode(QAbstractItemView::DragOnly);
     setFocusProxy(m_listView);
 
-    QVBoxLayout *layout = new QVBoxLayout();
+    auto layout = new QVBoxLayout();
     layout->addWidget(m_title);
     layout->addWidget(m_listView);
     m_title->setMargin(5);
@@ -424,14 +419,14 @@ FolderNavigationWidgetFactory::FolderNavigationWidgetFactory()
 Core::NavigationView FolderNavigationWidgetFactory::createWidget()
 {
     Core::NavigationView n;
-    FolderNavigationWidget *fnw = new FolderNavigationWidget;
+    auto fnw = new FolderNavigationWidget;
     n.widget = fnw;
-    QToolButton *filter = new QToolButton;
+    auto filter = new QToolButton;
     filter->setIcon(Core::Icons::FILTER.icon());
     filter->setToolTip(tr("Filter Files"));
     filter->setPopupMode(QToolButton::InstantPopup);
     filter->setProperty("noArrow", true);
-    QMenu *filterMenu = new QMenu(filter);
+    auto filterMenu = new QMenu(filter);
     filterMenu->addAction(fnw->m_filterHiddenFilesAction);
     filter->setMenu(filterMenu);
     n.dockToolBarWidgets << filter << fnw->m_toggleSync;
@@ -440,7 +435,7 @@ Core::NavigationView FolderNavigationWidgetFactory::createWidget()
 
 void FolderNavigationWidgetFactory::saveSettings(int position, QWidget *widget)
 {
-    FolderNavigationWidget *fnw = qobject_cast<FolderNavigationWidget *>(widget);
+    auto fnw = qobject_cast<FolderNavigationWidget *>(widget);
     QTC_ASSERT(fnw, return);
     QSettings *settings = Core::ICore::settings();
     const QString baseKey = QLatin1String("FolderNavigationWidget.") + QString::number(position);
@@ -450,7 +445,7 @@ void FolderNavigationWidgetFactory::saveSettings(int position, QWidget *widget)
 
 void FolderNavigationWidgetFactory::restoreSettings(int position, QWidget *widget)
 {
-    FolderNavigationWidget *fnw = qobject_cast<FolderNavigationWidget *>(widget);
+    auto fnw = qobject_cast<FolderNavigationWidget *>(widget);
     QTC_ASSERT(fnw, return);
     QSettings *settings = Core::ICore::settings();
     const QString baseKey = QLatin1String("FolderNavigationWidget.") + QString::number(position);

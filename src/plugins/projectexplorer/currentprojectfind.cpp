@@ -100,7 +100,7 @@ void CurrentProjectFind::handleProjectChanged()
 
 void CurrentProjectFind::recheckEnabled()
 {
-    Core::SearchResult *search = qobject_cast<Core::SearchResult *>(sender());
+    auto search = qobject_cast<Core::SearchResult *>(sender());
     if (!search)
         return;
     QString projectFile = getAdditionalParameters(search).toString();

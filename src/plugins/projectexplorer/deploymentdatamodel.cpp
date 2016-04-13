@@ -27,10 +27,8 @@
 
 namespace ProjectExplorer {
 
-DeploymentDataModel::DeploymentDataModel(QObject *parent)
-    : QAbstractTableModel(parent)
-{
-}
+DeploymentDataModel::DeploymentDataModel(QObject *parent) : QAbstractTableModel(parent)
+{ }
 
 void DeploymentDataModel::setDeploymentData(const DeploymentData &deploymentData)
 {

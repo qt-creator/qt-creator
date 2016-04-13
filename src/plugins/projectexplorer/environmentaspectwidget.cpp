@@ -50,13 +50,13 @@ EnvironmentAspectWidget::EnvironmentAspectWidget(EnvironmentAspect *aspect, QWid
     QTC_CHECK(m_aspect);
 
     setContentsMargins(0, 0, 0, 0);
-    QVBoxLayout *topLayout = new QVBoxLayout(this);
+    auto topLayout = new QVBoxLayout(this);
     topLayout->setMargin(0);
 
-    QWidget *baseEnvironmentWidget = new QWidget;
-    QHBoxLayout *baseLayout = new QHBoxLayout(baseEnvironmentWidget);
+    auto baseEnvironmentWidget = new QWidget;
+    auto baseLayout = new QHBoxLayout(baseEnvironmentWidget);
     baseLayout->setMargin(0);
-    QLabel *label = new QLabel(tr("Base environment for this run configuration:"), this);
+    auto label = new QLabel(tr("Base environment for this run configuration:"), this);
     baseLayout->addWidget(label);
     m_baseEnvironmentComboBox = new QComboBox;
     QList<int> bases = m_aspect->possibleBaseEnvironments();

@@ -42,7 +42,7 @@ public:
 
     Core::GeneratedFiles fileList(Utils::MacroExpander *expander,
                                   const QString &wizardDir, const QString &projectDir,
-                                  QString *errorMessage);
+                                  QString *errorMessage) override;
 
 private:
     Core::GeneratedFiles scan(const QString &dir, const QDir &base);

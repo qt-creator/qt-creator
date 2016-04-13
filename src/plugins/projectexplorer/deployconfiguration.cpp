@@ -40,8 +40,7 @@ const char BUILD_STEP_LIST_COUNT[] = "ProjectExplorer.BuildConfiguration.BuildSt
 const char BUILD_STEP_LIST_PREFIX[] = "ProjectExplorer.BuildConfiguration.BuildStepList.";
 
 DeployConfiguration::DeployConfiguration(Target *target, Core::Id id) :
-    ProjectConfiguration(target, id),
-    m_stepList(0)
+    ProjectConfiguration(target, id)
 {
     Q_ASSERT(target);
     m_stepList = new BuildStepList(this, Core::Id(Constants::BUILDSTEPS_DEPLOY));
@@ -53,8 +52,7 @@ DeployConfiguration::DeployConfiguration(Target *target, Core::Id id) :
 }
 
 DeployConfiguration::DeployConfiguration(Target *target, DeployConfiguration *source) :
-    ProjectConfiguration(target, source),
-    m_stepList(0)
+    ProjectConfiguration(target, source)
 {
     Q_ASSERT(target);
     // Do not clone stepLists here, do that in the derived constructor instead
@@ -94,7 +92,7 @@ QVariantMap DeployConfiguration::toMap() const
 
 NamedWidget *DeployConfiguration::createConfigWidget()
 {
-    return 0;
+    return nullptr;
 }
 
 bool DeployConfiguration::isEnabled() const
@@ -227,7 +225,7 @@ bool DefaultDeployConfigurationFactory::canCreate(Target *parent, Core::Id id) c
 DeployConfiguration *DefaultDeployConfigurationFactory::create(Target *parent, Core::Id id)
 {
     if (!canCreate(parent, id))
-        return 0;
+        return nullptr;
     return new DefaultDeployConfiguration(parent, id);
 }
 
@@ -239,11 +237,11 @@ bool DefaultDeployConfigurationFactory::canRestore(Target *parent, const QVarian
 DeployConfiguration *DefaultDeployConfigurationFactory::restore(Target *parent, const QVariantMap &map)
 {
     if (!canRestore(parent, map))
-        return 0;
-    DefaultDeployConfiguration *dc = new DefaultDeployConfiguration(parent, idFromMap(map));
+        return nullptr;
+    auto dc = new DefaultDeployConfiguration(parent, idFromMap(map));
     if (!dc->fromMap(map)) {
         delete dc;
-        return 0;
+        return nullptr;
     }
     return dc;
 }
@@ -256,7 +254,7 @@ bool DefaultDeployConfigurationFactory::canClone(Target *parent, DeployConfigura
 DeployConfiguration *DefaultDeployConfigurationFactory::clone(Target *parent, DeployConfiguration *product)
 {
     if (!canClone(parent, product))
-        return 0;
+        return nullptr;
     return new DefaultDeployConfiguration(parent, product);
 }
 

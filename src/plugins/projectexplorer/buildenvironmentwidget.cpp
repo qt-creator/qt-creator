@@ -35,10 +35,10 @@
 
 using namespace ProjectExplorer;
 
-BuildEnvironmentWidget::BuildEnvironmentWidget(BuildConfiguration *bc)
-    : m_buildConfiguration(0)
+BuildEnvironmentWidget::BuildEnvironmentWidget(BuildConfiguration *bc) :
+    m_buildConfiguration(nullptr)
 {
-    QVBoxLayout *vbox = new QVBoxLayout(this);
+    auto vbox = new QVBoxLayout(this);
     vbox->setMargin(0);
     m_clearSystemEnvironmentCheckBox = new QCheckBox(this);
     m_clearSystemEnvironmentCheckBox->setText(tr("Clear system environment"));

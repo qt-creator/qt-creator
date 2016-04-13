@@ -42,7 +42,7 @@
 #include <QIcon>
 #include <QStyle>
 
-using namespace ProjectExplorer;
+namespace ProjectExplorer {
 
 /*!
   \class ProjectExplorer::Node
@@ -59,20 +59,14 @@ using namespace ProjectExplorer;
   \sa ProjectExplorer::NodesWatcher, ProjectExplorer::NodesVisitor
 */
 
-Node::Node(NodeType nodeType, const Utils::FileName &filePath, int line)
-        : m_nodeType(nodeType),
-          m_line(line),
-          m_projectNode(0),
-          m_folderNode(0),
-          m_filePath(filePath)
-{
-
-}
+Node::Node(NodeType nodeType, const Utils::FileName &filePath, int line) :
+    m_nodeType(nodeType),
+    m_line(line),
+    m_filePath(filePath)
+{ }
 
 Node::~Node()
-{
-
-}
+{ }
 
 void Node::emitNodeSortKeyAboutToChange()
 {
@@ -168,22 +162,22 @@ void Node::emitNodeUpdated()
 
 FileNode *Node::asFileNode()
 {
-    return 0;
+    return nullptr;
 }
 
 FolderNode *Node::asFolderNode()
 {
-    return 0;
+    return nullptr;
 }
 
 ProjectNode *Node::asProjectNode()
 {
-    return 0;
+    return nullptr;
 }
 
 SessionNode *Node::asSessionNode()
 {
-    return 0;
+    return nullptr;
 }
 
 void Node::setParentFolderNode(FolderNode *parentFolder)
@@ -203,12 +197,10 @@ void Node::setParentFolderNode(FolderNode *parentFolder)
 
 FileNode::FileNode(const Utils::FileName &filePath,
                    const FileType fileType,
-                   bool generated, int line)
-        : Node(FileNodeType, filePath, line),
-          m_fileType(fileType),
-          m_generated(generated)
-{
-}
+                   bool generated, int line) : Node(FileNodeType, filePath, line),
+    m_fileType(fileType),
+    m_generated(generated)
+{ }
 
 FileType FileNode::fileType() const
 {
@@ -378,10 +370,7 @@ void FolderNode::addFileNodes(const QList<FileNode *> &files)
             // empty list or greater then last node
             m_fileNodes.append(file);
         } else {
-            QList<FileNode *>::iterator it
-                    = qLowerBound(m_fileNodes.begin(),
-                                  m_fileNodes.end(),
-                                  file);
+            auto it = qLowerBound(m_fileNodes.begin(), m_fileNodes.end(), file);
             m_fileNodes.insert(it, file);
         }
     }
@@ -409,8 +398,8 @@ void FolderNode::removeFileNodes(const QList<FileNode *> &files)
 
     ProjectTree::instance()->emitFilesAboutToBeRemoved(this, toRemove);
 
-    QList<FileNode*>::const_iterator toRemoveIter = toRemove.constBegin();
-    QList<FileNode*>::iterator filesIter = m_fileNodes.begin();
+    auto toRemoveIter = toRemove.constBegin();
+    auto filesIter = m_fileNodes.begin();
     for (; toRemoveIter != toRemove.constEnd(); ++toRemoveIter) {
         while (*filesIter != *toRemoveIter) {
             ++filesIter;
@@ -449,10 +438,7 @@ void FolderNode::addFolderNodes(const QList<FolderNode*> &subFolders)
             m_subFolderNodes.append(folder);
         } else {
             // Binary Search for insertion point
-            QList<FolderNode*>::iterator it
-                    = qLowerBound(m_subFolderNodes.begin(),
-                                  m_subFolderNodes.end(),
-                                  folder);
+            auto it = qLowerBound(m_subFolderNodes.begin(), m_subFolderNodes.end(), folder);
             m_subFolderNodes.insert(it, folder);
         }
 
@@ -482,8 +468,8 @@ void FolderNode::removeFolderNodes(const QList<FolderNode*> &subFolders)
 
     ProjectTree::instance()->emitFoldersAboutToBeRemoved(this, toRemove);
 
-    QList<FolderNode*>::const_iterator toRemoveIter = toRemove.constBegin();
-    QList<FolderNode*>::iterator folderIter = m_subFolderNodes.begin();
+    auto toRemoveIter = toRemove.constBegin();
+    auto folderIter = m_subFolderNodes.begin();
     for (; toRemoveIter != toRemove.constEnd(); ++toRemoveIter) {
         QTC_ASSERT((*toRemoveIter)->nodeType() != ProjectNodeType,
                    qDebug("project nodes have to be removed via removeProjectNodes"));
@@ -520,14 +506,10 @@ bool FolderNode::showInSimpleTree() const
 
   \sa ProjectExplorer::FileNode, ProjectExplorer::ProjectNode
 */
-VirtualFolderNode::VirtualFolderNode(const Utils::FileName &folderPath, int priority)
-    : FolderNode(folderPath, VirtualFolderNodeType), m_priority(priority)
-{
-}
-
-VirtualFolderNode::~VirtualFolderNode()
-{
-}
+VirtualFolderNode::VirtualFolderNode(const Utils::FileName &folderPath, int priority) :
+    FolderNode(folderPath, VirtualFolderNodeType),
+    m_priority(priority)
+{ }
 
 int VirtualFolderNode::priority() const
 {
@@ -547,8 +529,8 @@ int VirtualFolderNode::priority() const
 /*!
   Creates an uninitialized project node object.
   */
-ProjectNode::ProjectNode(const Utils::FileName &projectFilePath)
-        : FolderNode(projectFilePath, ProjectNodeType)
+ProjectNode::ProjectNode(const Utils::FileName &projectFilePath) :
+    FolderNode(projectFilePath, ProjectNodeType)
 {
     // project node "manages" itself
     setProjectNode(this);
@@ -691,9 +673,9 @@ void ProjectNode::removeProjectNodes(const QList<ProjectNode*> &subProjects)
 
         ProjectTree::instance()->emitFoldersAboutToBeRemoved(this, toRemove);
 
-        QList<FolderNode*>::const_iterator toRemoveIter = toRemove.constBegin();
-        QList<FolderNode*>::iterator folderIter = m_subFolderNodes.begin();
-        QList<ProjectNode*>::iterator projectIter = m_subProjectNodes.begin();
+        auto toRemoveIter = toRemove.constBegin();
+        auto folderIter = m_subFolderNodes.begin();
+        auto projectIter = m_subProjectNodes.begin();
         for (; toRemoveIter != toRemove.constEnd(); ++toRemoveIter) {
             while (*projectIter != *toRemoveIter) {
                 ++projectIter;
@@ -724,10 +706,9 @@ ProjectNode *ProjectNode::asProjectNode()
   \class ProjectExplorer::SessionNode
 */
 
-SessionNode::SessionNode()
-    : FolderNode(Utils::FileName::fromString(QLatin1String("session")), SessionNodeType)
-{
-}
+SessionNode::SessionNode() :
+    FolderNode(Utils::FileName::fromString(QLatin1String("session")), SessionNodeType)
+{ }
 
 QList<ProjectAction> SessionNode::supportedActions(Node *node) const
 {
@@ -804,9 +785,9 @@ void SessionNode::removeProjectNodes(const QList<ProjectNode*> &projectNodes)
 
         ProjectTree::instance()->emitFoldersAboutToBeRemoved(this, toRemove);
 
-        QList<FolderNode*>::const_iterator toRemoveIter = toRemove.constBegin();
-        QList<FolderNode*>::iterator folderIter = m_subFolderNodes.begin();
-        QList<ProjectNode*>::iterator projectIter = m_projectNodes.begin();
+        auto toRemoveIter = toRemove.constBegin();
+        auto folderIter = m_subFolderNodes.begin();
+        auto projectIter = m_projectNodes.begin();
         for (; toRemoveIter != toRemove.constEnd(); ++toRemoveIter) {
             while (*projectIter != *toRemoveIter) {
                 ++projectIter;
@@ -825,3 +806,5 @@ void SessionNode::removeProjectNodes(const QList<ProjectNode*> &projectNodes)
         ProjectTree::instance()->emitFoldersRemoved(this);
     }
 }
+
+} // namespace ProjectExplorer

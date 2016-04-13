@@ -40,11 +40,11 @@
 namespace ProjectExplorer {
 
 ToolChainConfigWidget::ToolChainConfigWidget(ToolChain *tc) :
-    m_toolChain(tc), m_errorLabel(0)
+    m_toolChain(tc)
 {
     Q_ASSERT(tc);
 
-    Utils::DetailsWidget *centralWidget = new Utils::DetailsWidget;
+    auto centralWidget = new Utils::DetailsWidget;
     centralWidget->setState(Utils::DetailsWidget::NoSummary);
 
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -54,7 +54,7 @@ ToolChainConfigWidget::ToolChainConfigWidget(ToolChain *tc) :
 
     setWidget(centralWidget);
 
-    QWidget *detailsBox = new QWidget();
+    auto detailsBox = new QWidget();
 
     m_mainLayout = new QFormLayout(detailsBox);
     m_mainLayout->setContentsMargins(0, 0, 0, 0);

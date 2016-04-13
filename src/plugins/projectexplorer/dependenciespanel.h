@@ -50,7 +50,7 @@ class DependenciesModel : public QAbstractListModel
     Q_OBJECT
 
 public:
-    explicit DependenciesModel(Project *project, QObject *parent = 0);
+    explicit DependenciesModel(Project *project, QObject *parent = nullptr);
 
     int rowCount(const QModelIndex &index) const override;
     int columnCount(const QModelIndex &index) const override;

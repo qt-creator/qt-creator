@@ -35,10 +35,10 @@ class AndroidPotentialKit : public ProjectExplorer::IPotentialKit
 {
     Q_OBJECT
 public:
-    QString displayName() const;
-    void executeFromMenu();
-    QWidget *createWidget(QWidget *parent) const;
-    bool isEnabled() const;
+    QString displayName() const override;
+    void executeFromMenu() override;
+    QWidget *createWidget(QWidget *parent) const override;
+    bool isEnabled() const override;
 };
 
 class AndroidPotentialKitWidget : public Utils::DetailsWidget

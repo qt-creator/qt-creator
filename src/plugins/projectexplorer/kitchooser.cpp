@@ -51,7 +51,7 @@ KitChooser::KitChooser(QWidget *parent) :
     m_chooser->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
     m_manageButton = new QPushButton(KitConfigWidget::msgManage(), this);
 
-    QHBoxLayout *layout = new QHBoxLayout(this);
+    auto layout = new QHBoxLayout(this);
     layout->setContentsMargins(0, 0, 0, 0);
     layout->addWidget(m_chooser);
     layout->addWidget(m_manageButton);
@@ -116,7 +116,7 @@ Kit *KitChooser::currentKit() const
 {
     const int index = m_chooser->currentIndex();
     Core::ICore::settings()->setValue(QLatin1String(lastKitKey), index);
-    return index == -1 ? 0 : kitAt(index);
+    return index == -1 ? nullptr : kitAt(index);
 }
 
 void KitChooser::setCurrentKitId(Core::Id id)
@@ -143,7 +143,7 @@ void KitChooser::setKitMatcher(const KitChooser::KitMatcher &matcher)
 
 Kit *KitChooser::kitAt(int index) const
 {
-    Core::Id id = qvariant_cast<Core::Id>(m_chooser->itemData(index));
+    auto id = qvariant_cast<Core::Id>(m_chooser->itemData(index));
     return KitManager::find(id);
 }
 

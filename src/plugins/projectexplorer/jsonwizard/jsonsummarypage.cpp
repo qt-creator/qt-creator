@@ -80,7 +80,7 @@ static IWizardFactory::WizardKind wizardKind(JsonWizard *wiz)
 
 JsonSummaryPage::JsonSummaryPage(QWidget *parent) :
     Internal::ProjectWizardPage(parent),
-    m_wizard(0)
+    m_wizard(nullptr)
 {
     connect(this, &Internal::ProjectWizardPage::projectNodeChanged,
             this, &JsonSummaryPage::summarySettingsHaveChanged);
@@ -96,6 +96,7 @@ void JsonSummaryPage::setHideProjectUiValue(const QVariant &hideProjectUiValue)
 void JsonSummaryPage::initializePage()
 {
     m_wizard = qobject_cast<JsonWizard *>(wizard());
+    QTC_ASSERT(m_wizard, return);
 
     m_wizard->setValue(QLatin1String(KEY_SELECTED_PROJECT), QVariant());
     m_wizard->setValue(QLatin1String(KEY_SELECTED_NODE), QVariant());
@@ -147,7 +148,7 @@ bool JsonSummaryPage::validatePage()
 
 void JsonSummaryPage::cleanupPage()
 {
-    disconnect(m_wizard, &JsonWizard::filesReady, this, 0);
+    disconnect(m_wizard, &JsonWizard::filesReady, this, nullptr);
 }
 
 void JsonSummaryPage::triggerCommit(const JsonWizard::GeneratorFiles &files)

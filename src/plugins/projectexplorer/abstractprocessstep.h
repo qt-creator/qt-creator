@@ -88,14 +88,14 @@ private:
 
     void outputAdded(const QString &string, BuildStep::OutputFormat format);
 
-    QTimer *m_timer;
-    QFutureInterface<bool> *m_futureInterface;
+    QTimer *m_timer = nullptr;
+    QFutureInterface<bool> *m_futureInterface = nullptr;
     ProcessParameters m_param;
-    bool m_ignoreReturnValue;
-    Utils::QtcProcess *m_process;
-    IOutputParser *m_outputParserChain;
-    bool m_killProcess;
-    bool m_skipFlush;
+    bool m_ignoreReturnValue = false;
+    bool m_killProcess = false;
+    bool m_skipFlush = false;
+    Utils::QtcProcess *m_process = nullptr;
+    IOutputParser *m_outputParserChain = nullptr;
 };
 
 } // namespace ProjectExplorer

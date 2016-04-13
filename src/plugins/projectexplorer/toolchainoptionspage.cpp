@@ -144,7 +144,7 @@ public:
         m_addButton->setMenu(addMenu);
 
         m_cloneButton = new QPushButton(ToolChainOptionsPage::tr("Clone"), this);
-        connect(m_cloneButton, &QAbstractButton::clicked, [this] { createToolChain(0); });
+        connect(m_cloneButton, &QAbstractButton::clicked, [this] { createToolChain(nullptr); });
 
         m_delButton = new QPushButton(ToolChainOptionsPage::tr("Remove"), this);
 
@@ -218,7 +218,7 @@ void ToolChainOptionsWidget::markForRemoval(ToolChainTreeItem *item)
     m_model.takeItem(item);
     if (m_toAddList.contains(item)) {
         delete item->toolChain;
-        item->toolChain = 0;
+        item->toolChain = nullptr;
         m_toAddList.removeOne(item);
         delete item;
     } else {
@@ -270,10 +270,10 @@ void ToolChainOptionsWidget::toolChainSelectionChanged()
     if (oldWidget)
         oldWidget->setVisible(false);
 
-    QWidget *currentTcWidget = item ? item->widget : 0;
+    QWidget *currentTcWidget = item ? item->widget : nullptr;
 
     m_container->setWidget(currentTcWidget);
-    m_container->setVisible(currentTcWidget != 0);
+    m_container->setVisible(currentTcWidget);
     updateState();
 }
 
@@ -330,7 +330,7 @@ void ToolChainOptionsWidget::apply()
 
 void ToolChainOptionsWidget::createToolChain(ToolChainFactory *factory)
 {
-    ToolChain *tc = 0;
+    ToolChain *tc = nullptr;
 
     if (factory) {
         // Clone.
@@ -347,7 +347,7 @@ void ToolChainOptionsWidget::createToolChain(ToolChainFactory *factory)
     if (!tc)
         return;
 
-    ToolChainTreeItem *item = new ToolChainTreeItem(tc, true);
+    auto item = new ToolChainTreeItem(tc, true);
     m_toAddList.append(item);
 
     m_manualRoot->appendChild(item);
@@ -373,7 +373,7 @@ ToolChainTreeItem *ToolChainOptionsWidget::currentTreeItem()
 {
     QModelIndex index = m_toolChainView->currentIndex();
     TreeItem *item = m_model.itemForIndex(index);
-    return item && item->level() == 2 ? static_cast<ToolChainTreeItem *>(item) : 0;
+    return (item && item->level() == 2) ? static_cast<ToolChainTreeItem *>(item) : nullptr;
 }
 
 // --------------------------------------------------------------------------
@@ -406,7 +406,7 @@ void ToolChainOptionsPage::apply()
 void ToolChainOptionsPage::finish()
 {
     delete m_widget;
-    m_widget = 0;
+    m_widget = nullptr;
 }
 
 } // namespace Internal

@@ -262,7 +262,7 @@ void KitOptionsPage::finish()
 {
     if (m_widget) {
         delete m_widget;
-        m_widget = 0;
+        m_widget = nullptr;
     }
 }
 

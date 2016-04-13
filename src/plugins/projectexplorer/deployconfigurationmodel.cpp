@@ -50,9 +50,9 @@ public:
     }
 };
 
-DeployConfigurationModel::DeployConfigurationModel(Target *target, QObject *parent)
-    : QAbstractListModel(parent),
-      m_target(target)
+DeployConfigurationModel::DeployConfigurationModel(Target *target, QObject *parent) :
+    QAbstractListModel(parent),
+    m_target(target)
 {
     m_deployConfigurations = m_target->deployConfigurations();
     Utils::sort(m_deployConfigurations, DeployConfigurationComparer());
@@ -62,9 +62,10 @@ DeployConfigurationModel::DeployConfigurationModel(Target *target, QObject *pare
     connect(target, &Target::removedDeployConfiguration,
             this, &DeployConfigurationModel::removedDeployConfiguration);
 
-    foreach (DeployConfiguration *dc, m_deployConfigurations)
+    foreach (DeployConfiguration *dc, m_deployConfigurations) {
         connect(dc, &ProjectConfiguration::displayNameChanged,
                 this, &DeployConfigurationModel::displayNameChanged);
+    }
 }
 
 int DeployConfigurationModel::rowCount(const QModelIndex &parent) const
@@ -79,7 +80,7 @@ int DeployConfigurationModel::columnCount(const QModelIndex &parent) const
 
 void DeployConfigurationModel::displayNameChanged()
 {
-    DeployConfiguration *dc = qobject_cast<DeployConfiguration *>(sender());
+    auto dc = qobject_cast<DeployConfiguration *>(sender());
     if (!dc)
         return;
 
@@ -135,14 +136,14 @@ QVariant DeployConfigurationModel::data(const QModelIndex &index, int role) cons
 DeployConfiguration *DeployConfigurationModel::deployConfigurationAt(int i)
 {
     if (i > m_deployConfigurations.size() || i < 0)
-        return 0;
+        return nullptr;
     return m_deployConfigurations.at(i);
 }
 
 DeployConfiguration *DeployConfigurationModel::deployConfigurationFor(const QModelIndex &idx)
 {
     if (idx.row() > m_deployConfigurations.size() || idx.row() < 0)
-        return 0;
+        return nullptr;
     return m_deployConfigurations.at(idx.row());
 }
 

@@ -81,7 +81,7 @@ int BuildConfigurationModel::columnCount(const QModelIndex &parent) const
 
 void BuildConfigurationModel::displayNameChanged()
 {
-    BuildConfiguration *rc = qobject_cast<BuildConfiguration *>(sender());
+    auto rc = qobject_cast<BuildConfiguration *>(sender());
     if (!rc)
         return;
 

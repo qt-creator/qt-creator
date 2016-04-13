@@ -39,9 +39,7 @@ public:
         FrameworkHeaderPath
     };
 
-    HeaderPath() : m_kind(GlobalHeaderPath)
-    { }
-
+    HeaderPath() = default;
     HeaderPath(const QString &path, Kind kind) : m_path(path), m_kind(kind)
     { }
 
@@ -55,7 +53,7 @@ public:
 
 private:
     QString m_path;
-    Kind m_kind;
+    Kind m_kind = GlobalHeaderPath;
 };
 
 } // namespace ProjectExplorer

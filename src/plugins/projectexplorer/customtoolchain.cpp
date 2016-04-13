@@ -204,7 +204,7 @@ IOutputParser *CustomToolChain::outputParser() const
     case Msvc: return new MsvcParser;
 #endif
     case Custom: return new CustomParser(m_customParserSettings);
-    default: return 0;
+    default: return nullptr;
     }
 }
 
@@ -352,7 +352,7 @@ bool CustomToolChain::operator ==(const ToolChain &other) const
     if (!ToolChain::operator ==(other))
         return false;
 
-    const CustomToolChain *customTc = static_cast<const CustomToolChain *>(&other);
+    auto customTc = static_cast<const CustomToolChain *>(&other);
     return m_compilerCommand == customTc->m_compilerCommand
             && m_makeCommand == customTc->m_makeCommand
             && m_targetAbi == customTc->m_targetAbi
@@ -428,12 +428,12 @@ bool CustomToolChainFactory::canRestore(const QVariantMap &data)
 
 ToolChain *CustomToolChainFactory::restore(const QVariantMap &data)
 {
-    CustomToolChain *tc = new CustomToolChain(ToolChain::ManualDetection);
+    auto tc = new CustomToolChain(ToolChain::ManualDetection);
     if (tc->fromMap(data))
         return tc;
 
     delete tc;
-    return 0;
+    return nullptr;
 }
 
 // --------------------------------------------------------------------------
@@ -499,8 +499,8 @@ CustomToolChainConfigWidget::CustomToolChainConfigWidget(CustomToolChain *tc) :
     for (int i = 0; i < CustomToolChain::OutputParserCount; ++i)
         m_errorParserComboBox->addItem(CustomToolChain::parserName((CustomToolChain::OutputParser)i));
 
-    QWidget *parserLayoutWidget = new QWidget;
-    QHBoxLayout *parserLayout = new QHBoxLayout(parserLayoutWidget);
+    auto parserLayoutWidget = new QWidget;
+    auto parserLayout = new QHBoxLayout(parserLayoutWidget);
     parserLayout->setContentsMargins(0, 0, 0, 0);
     m_predefinedMacros->setTabChangesFocus(true);
     m_predefinedMacros->setToolTip(tr("Each line defines a macro. Format is MACRO[=VALUE]."));
@@ -576,7 +576,7 @@ void CustomToolChainConfigWidget::applyImpl()
     if (toolChain()->isAutoDetected())
         return;
 
-    CustomToolChain *tc = static_cast<CustomToolChain *>(toolChain());
+    auto tc = static_cast<CustomToolChain *>(toolChain());
     Q_ASSERT(tc);
     QString displayName = tc->displayName();
     tc->setCompilerCommand(m_compilerCommand->fileName());
@@ -595,7 +595,7 @@ void CustomToolChainConfigWidget::setFromToolchain()
 {
     // subwidgets are not yet connected!
     bool blocked = blockSignals(true);
-    CustomToolChain *tc = static_cast<CustomToolChain *>(toolChain());
+    auto tc = static_cast<CustomToolChain *>(toolChain());
     m_compilerCommand->setFileName(tc->compilerCommand());
     m_makeCommand->setFileName(FileName::fromString(tc->makeCommand(Environment())));
     m_abiWidget->setAbis(QList<Abi>(), tc->targetAbi());
@@ -610,7 +610,7 @@ void CustomToolChainConfigWidget::setFromToolchain()
 
 bool CustomToolChainConfigWidget::isDirtyImpl() const
 {
-    CustomToolChain *tc = static_cast<CustomToolChain *>(toolChain());
+    auto tc = static_cast<CustomToolChain *>(toolChain());
     Q_ASSERT(tc);
     return m_compilerCommand->fileName() != tc->compilerCommand()
             || m_makeCommand->path() != tc->makeCommand(Environment())

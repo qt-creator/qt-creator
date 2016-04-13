@@ -42,7 +42,7 @@ public:
         TypeExecutable
     };
 
-    DeployableFile();
+    DeployableFile() = default;
     DeployableFile(const QString &m_localFilePath, const QString &m_remoteDir,
                    Type type = TypeNormal);
     DeployableFile(const Utils::FileName &localFilePath, const QString &remoteDir,
@@ -59,7 +59,7 @@ public:
 private:
     Utils::FileName m_localFilePath;
     QString m_remoteDir;
-    Type m_type;
+    Type m_type = TypeNormal;
 };
 
 

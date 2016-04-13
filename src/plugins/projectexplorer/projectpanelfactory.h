@@ -91,7 +91,7 @@ private:
     friend class ProjectExplorerPlugin;
     static void destroyFactories();
 
-    int m_priority;
+    int m_priority = 0;
     QString m_displayName;
     std::function<bool (Project *)> m_supportsFunction;
     std::function<QWidget *(Project *)> m_createWidgetFunction;

@@ -44,7 +44,7 @@ class PROJECTEXPLORER_EXPORT ProjectConfiguration : public QObject
 
 public:
     // ctors are protected
-    ~ProjectConfiguration() override;
+    ~ProjectConfiguration() = default;
 
     Core::Id id() const;
     QString displayName() const;

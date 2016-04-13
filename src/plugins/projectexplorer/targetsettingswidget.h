@@ -44,7 +44,7 @@ class TargetSettingsWidget : public QWidget
     Q_OBJECT
 
 public:
-    explicit TargetSettingsWidget(QWidget *parent = 0);
+    explicit TargetSettingsWidget(QWidget *parent = nullptr);
     ~TargetSettingsWidget() override;
 
     void setCentralWidget(QWidget *widget);
@@ -78,7 +78,7 @@ private:
     TargetSelector *m_targetSelector;
     QPushButton *m_addButton;
     QPushButton *m_manageButton;
-    QWidget *m_centralWidget = 0;
+    QWidget *m_centralWidget = nullptr;
 };
 
 } // namespace Internal

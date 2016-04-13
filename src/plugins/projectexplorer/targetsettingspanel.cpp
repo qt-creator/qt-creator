@@ -76,8 +76,8 @@ TargetSettingsPanelWidget::TargetSettingsPanelWidget(Project *project) :
 {
     Q_ASSERT(m_project);
 
-    m_panelWidgets[0] = 0;
-    m_panelWidgets[1] = 0;
+    m_panelWidgets[0] = nullptr;
+    m_panelWidgets[1] = nullptr;
 
     m_addMenu = new QMenu(this);
     m_targetMenu = new QMenu(this);
@@ -114,8 +114,8 @@ TargetSettingsPanelWidget::~TargetSettingsPanelWidget()
 bool TargetSettingsPanelWidget::event(QEvent *event)
 {
     if (event->type() == QEvent::StatusTip) {
-        QAction *act = 0;
-        QMenu *menu = 0;
+        QAction *act = nullptr;
+        QMenu *menu = nullptr;
         if (m_addMenu->activeAction()) {
             menu = m_addMenu;
             act = m_addMenu->activeAction();
@@ -129,7 +129,7 @@ bool TargetSettingsPanelWidget::event(QEvent *event)
             return QWidget::event(event);
         }
 
-        QStatusTipEvent *ev = static_cast<QStatusTipEvent *>(event);
+        auto ev = static_cast<QStatusTipEvent *>(event);
         ev->accept();
 
         if (act != m_lastAction)
@@ -154,7 +154,7 @@ bool TargetSettingsPanelWidget::event(QEvent *event)
 
 void TargetSettingsPanelWidget::setupUi()
 {
-    QVBoxLayout *viewLayout = new QVBoxLayout(this);
+    auto viewLayout = new QVBoxLayout(this);
     viewLayout->setMargin(0);
     viewLayout->setSpacing(0);
 
@@ -167,9 +167,9 @@ void TargetSettingsPanelWidget::setupUi()
 
     // no target label:
     m_noTargetLabel = new QWidget;
-    QVBoxLayout *noTargetLayout = new QVBoxLayout(m_noTargetLabel);
+    auto noTargetLayout = new QVBoxLayout(m_noTargetLabel);
     noTargetLayout->setMargin(0);
-    QLabel *label = new QLabel(m_noTargetLabel);
+    auto label = new QLabel(m_noTargetLabel);
     label->setText(tr("No kit defined in this project."));
     {
         QFont f = label->font();
@@ -219,9 +219,9 @@ void TargetSettingsPanelWidget::currentTargetChanged(int targetIndex, int subInd
 
     if (targetIndex == -1 || subIndex == -1) { // no more kits!
         delete m_panelWidgets[0];
-        m_panelWidgets[0] = 0;
+        m_panelWidgets[0] = nullptr;
         delete m_panelWidgets[1];
-        m_panelWidgets[1] = 0;
+        m_panelWidgets[1] = nullptr;
 
         m_centralWidget->setCurrentWidget(m_noTargetLabel);
         return;
@@ -245,9 +245,9 @@ void TargetSettingsPanelWidget::currentTargetChanged(int targetIndex, int subInd
 
     auto wrapWidgetInPropertiesPanel
             = [](QWidget *widget, const QString &displayName, const QIcon &icon) -> PropertiesPanel *{
-                    PropertiesPanel *panel = new PropertiesPanel;
-                    QWidget *w = new QWidget();
-                    QVBoxLayout *l = new QVBoxLayout(w);
+                    auto panel = new PropertiesPanel;
+                    auto w = new QWidget();
+                    auto l = new QVBoxLayout(w);
                     l->addWidget(widget);
                     l->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::Minimum, QSizePolicy::Expanding));
                     l->setContentsMargins(QMargins());
@@ -264,8 +264,8 @@ void TargetSettingsPanelWidget::currentTargetChanged(int targetIndex, int subInd
                                                       RunSettingsWidget::tr("Run Settings"),
                                                       QIcon(QLatin1String(":/projectexplorer/images/RunSettings.png")));
 
-    PanelsWidget *buildPanel = new PanelsWidget(m_centralWidget);
-    PanelsWidget *runPanel = new PanelsWidget(m_centralWidget);
+    auto buildPanel = new PanelsWidget(m_centralWidget);
+    auto runPanel = new PanelsWidget(m_centralWidget);
 
     buildPanel->addPropertiesPanel(build);
     runPanel->addPropertiesPanel(run);
@@ -413,7 +413,7 @@ void TargetSettingsPanelWidget::activeTargetChanged(Target *target)
 
 void TargetSettingsPanelWidget::createAction(Kit *k, QMenu *menu)
 {
-    QAction *action = new QAction(k->displayName(), menu);
+    auto action = new QAction(k->displayName(), menu);
     action->setData(QVariant::fromValue(k->id()));
     QString statusTip = QLatin1String("<html><body>");
     QString errorMessage;
@@ -442,7 +442,7 @@ void TargetSettingsPanelWidget::updateTargetButtons()
     foreach (IPotentialKit *potentialKit, potentialKits) {
         if (!potentialKit->isEnabled())
             continue;
-        QAction *action = new QAction(potentialKit->displayName(), m_addMenu);
+        auto action = new QAction(potentialKit->displayName(), m_addMenu);
         action->setData(QVariant::fromValue(potentialKit));
         m_addMenu->addAction(action);
     }
@@ -480,7 +480,7 @@ void TargetSettingsPanelWidget::updateTargetButtons()
 
 void TargetSettingsPanelWidget::renameTarget()
 {
-    Target *t = qobject_cast<Target *>(sender());
+    auto t = qobject_cast<Target *>(sender());
     if (!t)
         return;
     const int pos = m_targets.indexOf(t);
@@ -504,8 +504,8 @@ void TargetSettingsPanelWidget::importTarget(const Utils::FileName &path)
     if (!m_importer)
         return;
 
-    Target *target = 0;
-    BuildConfiguration *bc = 0;
+    Target *target = nullptr;
+    BuildConfiguration *bc = nullptr;
     QList<BuildInfo *> toImport = m_importer->import(path, false);
     foreach (BuildInfo *info, toImport) {
         target = m_project->target(info->kitId);

@@ -88,8 +88,8 @@ ApplicationLauncherPrivate::ApplicationLauncherPrivate() :
 {
 }
 
-ApplicationLauncher::ApplicationLauncher(QObject *parent)
-    : QObject(parent), d(new ApplicationLauncherPrivate)
+ApplicationLauncher::ApplicationLauncher(QObject *parent) : QObject(parent),
+    d(new ApplicationLauncherPrivate)
 {
     if (ProjectExplorerPlugin::projectExplorerSettings().mergeStdErrAndStdOut){
         d->m_guiProcess.setReadChannelMode(QProcess::MergedChannels);

@@ -35,10 +35,10 @@ class JsonFilePage : public Utils::FileWizardPage
     Q_OBJECT
 
 public:
-    JsonFilePage(QWidget *parent = 0);
+    JsonFilePage(QWidget *parent = nullptr);
 
-    void initializePage();
-    bool validatePage();
+    void initializePage() override;
+    bool validatePage() override;
 };
 
 } // namespace ProjectExplorer

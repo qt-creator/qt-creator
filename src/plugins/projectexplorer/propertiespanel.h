@@ -50,7 +50,7 @@ public:
 
 private:
     QString m_displayName;
-    QWidget *m_widget;
+    QWidget *m_widget = nullptr;
     QIcon m_icon;
 };
 

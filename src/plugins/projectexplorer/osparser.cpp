@@ -31,8 +31,7 @@
 
 using namespace ProjectExplorer;
 
-OsParser::OsParser() :
-    m_hasFatalError(false)
+OsParser::OsParser()
 {
     setObjectName(QLatin1String("OsParser"));
 }

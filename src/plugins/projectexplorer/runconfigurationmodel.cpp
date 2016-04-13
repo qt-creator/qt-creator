@@ -50,10 +50,11 @@ public:
     }
 };
 
-RunConfigurationModel::RunConfigurationModel(Target *target, QObject *parent)
-    : QAbstractListModel(parent),
-      m_target(target)
+RunConfigurationModel::RunConfigurationModel(Target *target, QObject *parent) :
+    QAbstractListModel(parent),
+    m_target(target)
 {
+    QTC_ASSERT(target, return);
     m_runConfigurations = m_target->runConfigurations();
     Utils::sort(m_runConfigurations, RunConfigurationComparer());
 
@@ -135,14 +136,14 @@ QVariant RunConfigurationModel::data(const QModelIndex &index, int role) const
 RunConfiguration *RunConfigurationModel::runConfigurationAt(int i)
 {
     if (i > m_runConfigurations.size() || i < 0)
-        return 0;
+        return nullptr;
     return m_runConfigurations.at(i);
 }
 
 RunConfiguration *RunConfigurationModel::runConfigurationFor(const QModelIndex &idx)
 {
     if (idx.row() > m_runConfigurations.size() || idx.row() < 0)
-        return 0;
+        return nullptr;
     return m_runConfigurations.at(idx.row());
 }
 

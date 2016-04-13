@@ -107,8 +107,8 @@ BuildManagerPrivate::BuildManagerPrivate() :
 {
 }
 
-static BuildManagerPrivate *d = 0;
-static BuildManager *m_instance = 0;
+static BuildManagerPrivate *d = nullptr;
+static BuildManager *m_instance = nullptr;
 
 BuildManager::BuildManager(QObject *parent, QAction *cancelBuildAction)
     : QObject(parent)
@@ -168,7 +168,7 @@ void BuildManager::extensionsInitialized()
 BuildManager::~BuildManager()
 {
     cancel();
-    m_instance = 0;
+    m_instance = nullptr;
     ExtensionSystem::PluginManager::removeObject(d->m_taskWindow);
     delete d->m_taskWindow;
 
@@ -256,15 +256,15 @@ void BuildManager::clearBuildQueue()
     d->m_buildQueue.clear();
     d->m_enabledState.clear();
     d->m_running = false;
-    d->m_previousBuildStepProject = 0;
-    d->m_currentBuildStep = 0;
+    d->m_previousBuildStepProject = nullptr;
+    d->m_currentBuildStep = nullptr;
 
     d->m_progressFutureInterface->reportCanceled();
     d->m_progressFutureInterface->reportFinished();
     d->m_progressWatcher.setFuture(QFuture<void>());
     delete d->m_progressFutureInterface;
-    d->m_progressFutureInterface = 0;
-    d->m_futureProgress = 0;
+    d->m_progressFutureInterface = nullptr;
+    d->m_futureProgress = nullptr;
     d->m_maxProgress = 0;
 
     emit m_instance->buildQueueFinished(false);
@@ -464,12 +464,12 @@ void BuildManager::nextStep()
         }
     } else {
         d->m_running = false;
-        d->m_previousBuildStepProject = 0;
+        d->m_previousBuildStepProject = nullptr;
         d->m_progressFutureInterface->reportFinished();
         d->m_progressWatcher.setFuture(QFuture<void>());
-        d->m_currentBuildStep = 0;
+        d->m_currentBuildStep = nullptr;
         delete d->m_progressFutureInterface;
-        d->m_progressFutureInterface = 0;
+        d->m_progressFutureInterface = nullptr;
         d->m_maxProgress = 0;
         emit m_instance->buildQueueFinished(true);
     }

@@ -71,7 +71,7 @@ protected:
 
 private:
     const QString m_projectPath;
-    bool m_isUpdating;
+    bool m_isUpdating = false;
 };
 
 } // namespace ProjectExplorer

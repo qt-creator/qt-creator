@@ -41,9 +41,7 @@ namespace {
     const char * const MAKEFILE_PATTERN("^((.*?[/\\\\])?[Mm]akefile(\\.[a-zA-Z]+)?):(\\d+):\\s");
 }
 
-GnuMakeParser::GnuMakeParser() :
-    m_suppressIssues(false),
-    m_fatalErrorCount(0)
+GnuMakeParser::GnuMakeParser()
 {
     setObjectName(QLatin1String("GnuMakeParser"));
     m_makeDir.setPattern(QLatin1String(MAKEEXEC_PATTERN) +

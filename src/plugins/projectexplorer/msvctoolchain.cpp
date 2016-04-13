@@ -344,14 +344,12 @@ Utils::Environment MsvcToolChain::readEnvironmentSetting(Utils::Environment& env
 MsvcToolChain::MsvcToolChain(const QString &name, const Abi &abi,
                              const QString &varsBat, const QString &varsBatArg, Detection d) :
     MsvcToolChain(Constants::MSVC_TOOLCHAIN_TYPEID, name, abi, varsBat, varsBatArg, d)
-{
-}
+{ }
 
 MsvcToolChain::MsvcToolChain(Core::Id typeId, const QString &name, const Abi &abi,
                              const QString &varsBat, const QString &varsBatArg,
-                              Detection d)
-    : AbstractMsvcToolChain(typeId, d, abi, varsBat)
-    , m_varsBatArg(varsBatArg)
+                             Detection d) : AbstractMsvcToolChain(typeId, d, abi, varsBat),
+    m_varsBatArg(varsBatArg)
 {
     Q_ASSERT(!name.isEmpty());
 
@@ -368,12 +366,10 @@ bool MsvcToolChain::isValid() const
 
 MsvcToolChain::MsvcToolChain(Core::Id typeId)
     : AbstractMsvcToolChain(typeId, ManualDetection)
-{
-}
+{ }
 
 MsvcToolChain::MsvcToolChain() : MsvcToolChain(Constants::MSVC_TOOLCHAIN_TYPEID)
-{
-}
+{ }
 
 QString MsvcToolChain::typeDisplayName() const
 {
@@ -456,10 +452,10 @@ ToolChain *MsvcToolChain::clone() const
 // call setFromMsvcToolChain().
 // --------------------------------------------------------------------------
 
-MsvcBasedToolChainConfigWidget::MsvcBasedToolChainConfigWidget(ToolChain *tc)
-    : ToolChainConfigWidget(tc)
-    , m_nameDisplayLabel(new QLabel(this))
-    , m_varsBatDisplayLabel(new QLabel(this))
+MsvcBasedToolChainConfigWidget::MsvcBasedToolChainConfigWidget(ToolChain *tc) :
+    ToolChainConfigWidget(tc),
+    m_nameDisplayLabel(new QLabel(this)),
+    m_varsBatDisplayLabel(new QLabel(this))
 {
     m_nameDisplayLabel->setTextInteractionFlags(Qt::TextBrowserInteraction);
     m_mainLayout->addRow(m_nameDisplayLabel);
@@ -859,7 +855,7 @@ bool MsvcToolChainFactory::canRestore(const QVariantMap &data)
 template <class ToolChainType>
 ToolChainType *readFromMap(const QVariantMap &data)
 {
-    ToolChainType *result = new ToolChainType;
+    auto result = new ToolChainType;
     if (result->fromMap(data))
         return result;
     delete result;

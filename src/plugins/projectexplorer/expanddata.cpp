@@ -28,9 +28,9 @@
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
 
-ExpandData::ExpandData(const QString &path_, const QString &displayName_)
-    : path(path_), displayName(displayName_)
-{}
+ExpandData::ExpandData(const QString &path_, const QString &displayName_) :
+    path(path_), displayName(displayName_)
+{ }
 
 bool ExpandData::operator==(const ExpandData &other) const
 {

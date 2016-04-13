@@ -54,7 +54,7 @@ ProjectWindow::ProjectWindow(QWidget *parent)
       m_currentWidget(0)
 {
     // Setup overall layout:
-    QVBoxLayout *viewLayout = new QVBoxLayout(this);
+    auto viewLayout = new QVBoxLayout(this);
     viewLayout->setMargin(0);
     viewLayout->setSpacing(0);
 
@@ -92,7 +92,7 @@ void ProjectWindow::aboutToShutdown()
 
 void ProjectWindow::removedTarget(Target *)
 {
-    Project *p = qobject_cast<Project *>(sender());
+    auto p = qobject_cast<Project *>(sender());
     QTC_ASSERT(p, return);
     if (p->targets().isEmpty())
         projectUpdated(p);
@@ -312,10 +312,8 @@ int WidgetCache::indexForProject(Project *project) const
 
 Project *WidgetCache::projectFor(int projectIndex) const
 {
-    if (projectIndex < 0)
-        return 0;
-    if (projectIndex >= m_projects.size())
-        return 0;
+    if (projectIndex < 0 || projectIndex >= m_projects.size())
+        return nullptr;
     return m_projects.at(projectIndex).project;
 }
 
@@ -351,7 +349,7 @@ int WidgetCache::recheckFactories(Project *project, int oldSupportsIndex)
         info.supports[i] = fac.at(i)->supports(project);
         if (!info.supports.at(i)) {
             delete info.widgets.at(i);
-            info.widgets[i] = 0;
+            info.widgets[i] = nullptr;
         }
     }
 

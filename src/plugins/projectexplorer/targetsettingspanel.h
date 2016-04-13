@@ -80,20 +80,20 @@ private:
     void importTarget(const Utils::FileName &path);
     void createAction(Kit *k, QMenu *menu);
 
-    Target *m_currentTarget = 0;
+    Target *m_currentTarget = nullptr;
     Project *m_project;
     ProjectImporter *m_importer;
-    TargetSettingsWidget *m_selector = 0;
-    QStackedWidget *m_centralWidget = 0;
+    TargetSettingsWidget *m_selector = nullptr;
+    QStackedWidget *m_centralWidget = nullptr;
     QWidget *m_noTargetLabel;
     PanelsWidget *m_panelWidgets[2];
     QList<Target *> m_targets;
     QMenu *m_targetMenu;
-    QMenu *m_changeMenu = 0;
-    QMenu *m_duplicateMenu = 0;
+    QMenu *m_changeMenu = nullptr;
+    QMenu *m_duplicateMenu = nullptr;
     QMenu *m_addMenu;
-    QAction *m_lastAction = 0;
-    QAction *m_importAction = 0;
+    QAction *m_lastAction = nullptr;
+    QAction *m_importAction = nullptr;
     int m_menuTargetIndex = -1;
     static int s_targetSubIndex;
 };

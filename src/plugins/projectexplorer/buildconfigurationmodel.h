@@ -36,7 +36,7 @@ class BuildConfigurationModel : public QAbstractListModel
 {
     Q_OBJECT
 public:
-    explicit BuildConfigurationModel(Target *target, QObject *parent = 0);
+    explicit BuildConfigurationModel(Target *target, QObject *parent = nullptr);
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;

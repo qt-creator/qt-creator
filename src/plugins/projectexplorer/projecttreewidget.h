@@ -52,7 +52,7 @@ class ProjectTreeWidget : public QWidget
 {
     Q_OBJECT
 public:
-    explicit ProjectTreeWidget(QWidget *parent = 0);
+    explicit ProjectTreeWidget(QWidget *parent = nullptr);
     ~ProjectTreeWidget() override;
 
     bool autoSynchronization() const;
@@ -94,16 +94,16 @@ private:
     void renamed(const Utils::FileName &oldPath, const Utils::FileName &newPath);
 
     QSet<ExpandData> m_toExpand;
-    QTreeView *m_view;
-    FlatModel *m_model;
-    QAction *m_filterProjectsAction;
+    QTreeView *m_view = nullptr;
+    FlatModel *m_model = nullptr;
+    QAction *m_filterProjectsAction = nullptr;
     QAction *m_filterGeneratedFilesAction;
     QToolButton *m_toggleSync;
 
     QModelIndex m_subIndex;
     QString m_modelId;
-    bool m_autoSync;
-    bool m_autoExpand;
+    bool m_autoSync = false;
+    bool m_autoExpand = true;
     Utils::FileName m_delayedRename;
 
     static QList<ProjectTreeWidget *> m_projectTreeWidgets;

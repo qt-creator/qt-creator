@@ -83,19 +83,13 @@ using namespace ProjectExplorer;
 */
 
 AbstractProcessStep::AbstractProcessStep(BuildStepList *bsl, Core::Id id) :
-    BuildStep(bsl, id), m_timer(0), m_futureInterface(0),
-    m_ignoreReturnValue(false), m_process(0),
-    m_outputParserChain(0), m_skipFlush(false)
-{
-}
+    BuildStep(bsl, id)
+{ }
 
 AbstractProcessStep::AbstractProcessStep(BuildStepList *bsl,
                                          AbstractProcessStep *bs) :
-    BuildStep(bsl, bs), m_timer(0), m_futureInterface(0),
-    m_ignoreReturnValue(bs->m_ignoreReturnValue),
-    m_process(0), m_outputParserChain(0), m_skipFlush(false)
-{
-}
+    BuildStep(bsl, bs), m_ignoreReturnValue(bs->m_ignoreReturnValue)
+{ }
 
 AbstractProcessStep::~AbstractProcessStep()
 {
@@ -226,7 +220,7 @@ void AbstractProcessStep::run(QFutureInterface<bool> &fi)
     if (!m_process->waitForStarted()) {
         processStartupFailed();
         delete m_process;
-        m_process = 0;
+        m_process = nullptr;
         fi.reportResult(false);
         emit finished();
         return;
@@ -248,13 +242,13 @@ void AbstractProcessStep::cleanUp()
     // Clean up output parsers
     if (m_outputParserChain) {
         delete m_outputParserChain;
-        m_outputParserChain = 0;
+        m_outputParserChain = nullptr;
     }
 
     delete m_process;
-    m_process = 0;
+    m_process = nullptr;
     m_futureInterface->reportResult(returnValue);
-    m_futureInterface = 0;
+    m_futureInterface = nullptr;
 
     emit finished();
 }
@@ -451,7 +445,7 @@ void AbstractProcessStep::slotProcessFinished(int, QProcess::ExitStatus)
 {
     m_timer->stop();
     delete m_timer;
-    m_timer = 0;
+    m_timer = nullptr;
 
     QString line = QString::fromLocal8Bit(m_process->readAllStandardError());
     if (!line.isEmpty())

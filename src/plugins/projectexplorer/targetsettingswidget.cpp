@@ -32,8 +32,7 @@
 
 using namespace ProjectExplorer::Internal;
 
-TargetSettingsWidget::TargetSettingsWidget(QWidget *parent) :
-    QWidget(parent),
+TargetSettingsWidget::TargetSettingsWidget(QWidget *parent) : QWidget(parent),
     ui(new Ui::TargetSettingsWidget),
     m_targetSelector(new TargetSelector(this))
 {
@@ -48,12 +47,12 @@ TargetSettingsWidget::TargetSettingsWidget(QWidget *parent) :
                                                 "}"));
     }
 
-    QHBoxLayout *headerLayout = new QHBoxLayout;
+    auto headerLayout = new QHBoxLayout;
     headerLayout->setContentsMargins(5, 3, 0, 0);
     ui->header->setLayout(headerLayout);
 
-    QWidget *buttonWidget = new QWidget(ui->header);
-    QVBoxLayout *buttonLayout = new QVBoxLayout;
+    auto buttonWidget = new QWidget(ui->header);
+    auto buttonLayout = new QVBoxLayout;
     buttonLayout->setContentsMargins(0, 0, 0, 0);
     buttonLayout->setSpacing(4);
     buttonWidget->setLayout(buttonLayout);

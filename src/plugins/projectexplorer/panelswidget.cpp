@@ -123,7 +123,7 @@ PanelsWidget::PanelsWidget(QWidget *parent) :
     m_root->setPalette(pal);
 
     // The layout holding the individual panels:
-    QVBoxLayout *topLayout = new QVBoxLayout(m_root);
+    auto topLayout = new QVBoxLayout(m_root);
     topLayout->setMargin(0);
     topLayout->setSpacing(0);
 
@@ -165,14 +165,14 @@ void PanelsWidget::addPropertiesPanel(PropertiesPanel *panel)
 
     // icon:
     if (!panel->icon().isNull()) {
-        QLabel *iconLabel = new QLabel(m_root);
+        auto iconLabel = new QLabel(m_root);
         iconLabel->setPixmap(panel->icon().pixmap(ICON_SIZE, ICON_SIZE));
         iconLabel->setContentsMargins(0, ABOVE_HEADING_MARGIN, 0, 0);
         m_layout->addWidget(iconLabel, headerRow, 0, 3, 1, Qt::AlignTop | Qt::AlignHCenter);
     }
 
     // name:
-    QLabel *nameLabel = new QLabel(m_root);
+    auto nameLabel = new QLabel(m_root);
     nameLabel->setText(panel->displayName());
     QPalette palette = nameLabel->palette();
     for (int i = QPalette::Active; i < QPalette::NColorGroups; ++i ) {
@@ -191,7 +191,7 @@ void PanelsWidget::addPropertiesPanel(PropertiesPanel *panel)
 
     // line:
     const int lineRow(headerRow + 1);
-    QWidget *line = new OnePixelBlackLine(m_root);
+    auto line = new OnePixelBlackLine(m_root);
     m_layout->addWidget(line, lineRow, 1, 1, -1, Qt::AlignTop);
 
     // add the widget:

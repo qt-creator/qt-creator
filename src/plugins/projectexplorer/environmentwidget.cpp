@@ -50,10 +50,9 @@ class EnvironmentValidator : public QValidator
 {
     Q_OBJECT
 public:
-    EnvironmentValidator(QWidget *parent, Utils::EnvironmentModel *model,
-                         QTreeView *view,
-                         const QModelIndex &index)
-        : QValidator(parent), m_model(model), m_view(view), m_index(index)
+    EnvironmentValidator(QWidget *parent, Utils::EnvironmentModel *model, QTreeView *view,
+                         const QModelIndex &index) :
+        QValidator(parent), m_model(model), m_view(view), m_index(index)
     {
         m_hideTipTimer.setInterval(2000);
         m_hideTipTimer.setSingleShot(true);
@@ -103,7 +102,7 @@ public:
         if (index.column() != 0)
             return w;
 
-        if (QLineEdit *edit = qobject_cast<QLineEdit *>(w))
+        if (auto edit = qobject_cast<QLineEdit *>(w))
             edit->setValidator(new EnvironmentValidator(edit, m_model, m_view, index));
         return w;
     }
@@ -144,22 +143,22 @@ EnvironmentWidget::EnvironmentWidget(QWidget *parent, QWidget *additionalDetails
     connect(d->m_model, &Utils::EnvironmentModel::focusIndex,
             this, &EnvironmentWidget::focusIndex);
 
-    QVBoxLayout *vbox = new QVBoxLayout(this);
+    auto vbox = new QVBoxLayout(this);
     vbox->setContentsMargins(0, 0, 0, 0);
 
     d->m_detailsContainer = new Utils::DetailsWidget(this);
 
-    QWidget *details = new QWidget(d->m_detailsContainer);
+    auto details = new QWidget(d->m_detailsContainer);
     d->m_detailsContainer->setWidget(details);
     details->setVisible(false);
 
-    QVBoxLayout *vbox2 = new QVBoxLayout(details);
+    auto vbox2 = new QVBoxLayout(details);
     vbox2->setMargin(0);
 
     if (additionalDetailsWidget)
         vbox2->addWidget(additionalDetailsWidget);
 
-    QHBoxLayout *horizontalLayout = new QHBoxLayout();
+    auto horizontalLayout = new QHBoxLayout();
     horizontalLayout->setMargin(0);
     auto tree = new Utils::TreeView(this);
     connect(tree, &QAbstractItemView::activated,
@@ -178,7 +177,7 @@ EnvironmentWidget::EnvironmentWidget(QWidget *parent, QWidget *additionalDetails
     findWrapper->setFrameStyle(QFrame::StyledPanel);
     horizontalLayout->addWidget(findWrapper);
 
-    QVBoxLayout *buttonLayout = new QVBoxLayout();
+    auto buttonLayout = new QVBoxLayout();
 
     d->m_editButton = new QPushButton(this);
     d->m_editButton->setText(tr("&Edit"));
@@ -235,7 +234,7 @@ EnvironmentWidget::EnvironmentWidget(QWidget *parent, QWidget *additionalDetails
 EnvironmentWidget::~EnvironmentWidget()
 {
     delete d->m_model;
-    d->m_model = 0;
+    d->m_model = nullptr;
     delete d;
 }
 

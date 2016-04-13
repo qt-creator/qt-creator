@@ -35,7 +35,7 @@ class WinDebugInterface : public QThread
     Q_OBJECT
 
 public:
-    explicit WinDebugInterface(QObject *parent = 0);
+    explicit WinDebugInterface(QObject *parent = nullptr);
     ~WinDebugInterface() override;
 
     static WinDebugInterface *instance();

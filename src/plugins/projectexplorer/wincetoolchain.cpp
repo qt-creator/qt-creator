@@ -122,8 +122,7 @@ Utils::Environment WinCEToolChain::readEnvironmentSetting(Utils::Environment &en
     if (!generateEnvironmentSettings(env, m_vcvarsBat, QString(), envPairs))
         return result;
 
-    QMap<QString,QString>::const_iterator envPairIter;
-    for (envPairIter = envPairs.constBegin(); envPairIter!=envPairs.constEnd(); ++envPairIter) {
+    for (auto envPairIter = envPairs.constBegin(); envPairIter!=envPairs.constEnd(); ++envPairIter) {
         // Replace the env values with those from the WinCE SDK
         QString varValue = envPairIter.value();
         if (envPairIter.key() == QLatin1String("PATH"))
@@ -139,7 +138,7 @@ Utils::Environment WinCEToolChain::readEnvironmentSetting(Utils::Environment &en
 
 
     // Now loop round and do the delayed expansion
-    Utils::Environment::const_iterator envIter = result.constBegin();
+    auto envIter = result.constBegin();
     while (envIter != result.constEnd()) {
         const QString key = result.key(envIter);
         const QString unexpandedValue = result.value(envIter);
@@ -260,11 +259,11 @@ WinCEToolChain::WinCEToolChain() :
 
 WinCEToolChain *WinCEToolChain::readFromMap(const QVariantMap &data)
 {
-    WinCEToolChain *tc = new WinCEToolChain;
+    auto tc = new WinCEToolChain;
     if (tc->fromMap(data))
         return tc;
     delete tc;
-    return 0;
+    return nullptr;
 }
 
 QString WinCEToolChain::typeDisplayName() const
@@ -438,7 +437,7 @@ QList<ToolChain *> WinCEToolChainFactory::autoDetect(const QList<ToolChain *> &a
 }
 
 
-QString WinCEToolChain::autoDetectCdbDebugger(QStringList *checkedDirectories /* = 0 */)
+QString WinCEToolChain::autoDetectCdbDebugger(QStringList *checkedDirectories)
 {
     Q_UNUSED(checkedDirectories);
     return QString();
@@ -454,7 +453,7 @@ bool WinCEToolChain::operator ==(const ToolChain &other) const
     if (!AbstractMsvcToolChain::operator ==(other))
         return false;
 
-    const WinCEToolChain *ceTc = static_cast<const WinCEToolChain *>(&other);
+    auto ceTc = static_cast<const WinCEToolChain *>(&other);
     return m_ceVer == ceTc->m_ceVer;
 }
 
@@ -470,7 +469,7 @@ ToolChain *WinCEToolChainFactory::restore(const QVariantMap &data)
 WinCEToolChainConfigWidget::WinCEToolChainConfigWidget(ToolChain *tc) :
     ToolChainConfigWidget(tc)
 {
-    WinCEToolChain *toolChain = static_cast<WinCEToolChain *>(tc);
+    auto toolChain = static_cast<WinCEToolChain *>(tc);
     QTC_ASSERT(tc, return);
 
     m_mainLayout->addRow(tr("SDK:"), new QLabel(toolChain->displayName()));

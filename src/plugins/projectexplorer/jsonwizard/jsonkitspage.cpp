@@ -52,7 +52,7 @@ JsonKitsPage::JsonKitsPage(QWidget *parent) : TargetSetupPage(parent)
 
 void JsonKitsPage::initializePage()
 {
-    JsonWizard *wiz = qobject_cast<JsonWizard *>(wizard());
+    auto wiz = qobject_cast<JsonWizard *>(wizard());
     QTC_ASSERT(wiz, return);
 
     connect(wiz, &JsonWizard::filesPolished, this, &JsonKitsPage::setupProjectFiles);
@@ -72,10 +72,10 @@ void JsonKitsPage::initializePage()
 
 void JsonKitsPage::cleanupPage()
 {
-    JsonWizard *wiz = qobject_cast<JsonWizard *>(wizard());
+    auto wiz = qobject_cast<JsonWizard *>(wizard());
     QTC_ASSERT(wiz, return);
 
-    disconnect(wiz, &JsonWizard::allDone, this, 0);
+    disconnect(wiz, &JsonWizard::allDone, this, nullptr);
 
     TargetSetupPage::cleanupPage();
 }
@@ -102,7 +102,7 @@ void JsonKitsPage::setPreferredFeatures(const QVariant &data)
 
 void JsonKitsPage::setupProjectFiles(const JsonWizard::GeneratorFiles &files)
 {
-    Project *project = 0;
+    Project *project = nullptr;
     QList<IProjectManager *> managerList = ExtensionSystem::PluginManager::getObjects<IProjectManager>();
 
     foreach (const JsonWizard::GeneratorFile &f, files) {
@@ -122,7 +122,7 @@ void JsonKitsPage::setupProjectFiles(const JsonWizard::GeneratorFiles &files)
                 if (setupProject(project))
                     project->saveSettings();
                 delete project;
-                project = 0;
+                project = nullptr;
             }
         }
     }

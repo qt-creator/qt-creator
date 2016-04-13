@@ -308,7 +308,7 @@ JsonWizardFactory *JsonWizardFactory::createWizardFactory(const QVariantMap &dat
     JsonWizardFactory *factory = new JsonWizardFactory;
     if (!factory->initialize(data, baseDir, errorMessage)) {
         delete factory;
-        factory = 0;
+        factory = nullptr;
     }
     return factory;
 }
@@ -349,9 +349,6 @@ void JsonWizardFactory::registerGeneratorFactory(JsonWizardGeneratorFactory *fac
     QTC_ASSERT(!s_generatorFactories.contains(factory), return);
     s_generatorFactories.append(factory);
 }
-
-JsonWizardFactory::~JsonWizardFactory()
-{ }
 
 Utils::Wizard *JsonWizardFactory::runWizardImpl(const QString &path, QWidget *parent,
                                                 Core::Id platform,

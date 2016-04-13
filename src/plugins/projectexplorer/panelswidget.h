@@ -40,7 +40,7 @@ class PROJECTEXPLORER_EXPORT PanelsWidget : public QScrollArea
 {
     Q_OBJECT
 public:
-    explicit PanelsWidget(QWidget *parent = 0);
+    explicit PanelsWidget(QWidget *parent = nullptr);
     ~PanelsWidget() override;
 
     // Adds a widget

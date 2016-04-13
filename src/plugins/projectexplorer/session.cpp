@@ -122,8 +122,7 @@ public:
 static SessionManager *m_instance = nullptr;
 static SessionManagerPrivate *d = nullptr;
 
-SessionManager::SessionManager(QObject *parent)
-  : QObject(parent)
+SessionManager::SessionManager(QObject *parent) : QObject(parent)
 {
     m_instance = this;
     d = new SessionManagerPrivate;
@@ -471,7 +470,7 @@ bool SessionManager::save()
     data.insert(QLatin1String("CascadeSetActive"), d->m_casadeSetActive);
 
     QMap<QString, QVariant> depMap;
-    QMap<QString, QStringList>::const_iterator i = d->m_depMap.constBegin();
+    auto i = d->m_depMap.constBegin();
     while (i != d->m_depMap.constEnd()) {
         QString key = i.key();
         QStringList values;
@@ -483,9 +482,9 @@ bool SessionManager::save()
     data.insert(QLatin1String("ProjectDependencies"), QVariant(depMap));
     data.insert(QLatin1String("EditorSettings"), EditorManager::saveState().toBase64());
 
-    QMap<QString, QVariant>::const_iterator it, end = d->m_values.constEnd();
+    auto end = d->m_values.constEnd();
     QStringList keys;
-    for (it = d->m_values.constBegin(); it != end; ++it) {
+    for (auto it = d->m_values.constBegin(); it != end; ++it) {
         data.insert(QLatin1String("value-") + it.key(), it.value());
         keys << it.key();
     }
@@ -573,7 +572,7 @@ QStringList SessionManagerPrivate::dependenciesOrder() const
     }
 
     while (!unordered.isEmpty()) {
-        for (int i=(unordered.count()-1); i>=0; --i) {
+        for (int i = (unordered.count() - 1); i >= 0; --i) {
             if (unordered.at(i).second.isEmpty()) {
                 ordered << unordered.at(i).first;
                 unordered.removeAt(i);
@@ -709,7 +708,7 @@ void SessionManager::removeProjects(QList<Project *> remove)
             projectFiles.insert(pro->projectFilePath().toString());
     }
 
-    QSet<QString>::const_iterator i = projectFiles.begin();
+    auto  i = projectFiles.begin();
     while (i != projectFiles.end()) {
         QStringList dependencies;
         foreach (const QString &dependency, d->m_depMap.value(*i)) {
@@ -761,7 +760,7 @@ void SessionManager::setValue(const QString &name, const QVariant &value)
 
 QVariant SessionManager::value(const QString &name)
 {
-    QMap<QString, QVariant>::const_iterator it = d->m_values.constFind(name);
+    auto it = d->m_values.constFind(name);
     return (it == d->m_values.constEnd()) ? QVariant() : *it;
 }
 
@@ -864,7 +863,7 @@ void SessionManagerPrivate::restoreValues(const PersistentSettingsReader &reader
 void SessionManagerPrivate::restoreDependencies(const PersistentSettingsReader &reader)
 {
     QMap<QString, QVariant> depMap = reader.restoreValue(QLatin1String("ProjectDependencies")).toMap();
-    QMap<QString, QVariant>::const_iterator i = depMap.constBegin();
+    auto i = depMap.constBegin();
     while (i != depMap.constEnd()) {
         const QString &key = i.key();
         if (!m_failedProjects.contains(key)) {

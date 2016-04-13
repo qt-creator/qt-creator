@@ -79,8 +79,6 @@ private:
     class CategoryData
     {
     public:
-        CategoryData() : count(0), warnings(0), errors(0) { }
-
         void addTask(const Task &task)
         {
             ++count;
@@ -106,9 +104,9 @@ private:
         }
 
         QString displayName;
-        int count;
-        int warnings;
-        int errors;
+        int count = 0;
+        int warnings = 0;
+        int errors = 0;
     };
 
     QHash<Core::Id,CategoryData> m_categories; // category id to data
@@ -127,7 +125,7 @@ class TaskFilterModel : public QAbstractItemModel
     Q_OBJECT
 
 public:
-    TaskFilterModel(TaskModel *sourceModel, QObject *parent = 0);
+    TaskFilterModel(TaskModel *sourceModel, QObject *parent = nullptr);
 
     TaskModel *taskModel() { return m_sourceModel; }
 

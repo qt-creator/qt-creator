@@ -50,7 +50,7 @@ AllProjectsFilter::AllProjectsFilter()
 
 void AllProjectsFilter::markFilesAsOutOfDate()
 {
-    setFileIterator(0);
+    setFileIterator(nullptr);
 }
 
 void AllProjectsFilter::prepareSearch(const QString &entry)

@@ -43,7 +43,7 @@ class PROJECTEXPLORER_EXPORT AbiWidget : public QWidget
     Q_OBJECT
 
 public:
-    AbiWidget(QWidget *parent = 0);
+    AbiWidget(QWidget *parent = nullptr);
     ~AbiWidget() override;
 
     void setAbis(const QList<Abi> &, const Abi &current);

@@ -40,7 +40,7 @@ static Task::TaskType taskType(const QString &capture)
 }
 
 // opt. drive letter + filename: (2 brackets)
-static const char * const FILE_PATTERN = "(<command line>|([A-Za-z]:)?[^:]+\\.[^:]+)";
+static const char *const FILE_PATTERN = "(<command line>|([A-Za-z]:)?[^:]+\\.[^:]+)";
 
 ClangParser::ClangParser() :
     m_commandRegExp(QLatin1String("^clang(\\+\\+)?: +(fatal +)?(warning|error|note): (.*)$")),

@@ -35,11 +35,6 @@ using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
 using Utils::Environment;
 
-CeSdkInfo::CeSdkInfo()
-    : m_major(0), m_minor(0)
-{
-}
-
 void CeSdkInfo::addToEnvironment(Environment &env)
 {
     // qDebug() << "adding " << name() << "to Environment";

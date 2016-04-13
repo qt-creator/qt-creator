@@ -99,8 +99,8 @@ public:
 
     JsonWizardGenerator *create(Core::Id typeId, const QVariant &data,
                                 const QString &path, Core::Id platform,
-                                const QVariantMap &variables);
-    bool validateData(Core::Id typeId, const QVariant &data, QString *errorMessage);
+                                const QVariantMap &variables) override;
+    bool validateData(Core::Id typeId, const QVariant &data, QString *errorMessage) override;
 };
 
 class ScannerGeneratorFactory : public JsonWizardGeneratorFactory
@@ -112,8 +112,8 @@ public:
 
     JsonWizardGenerator *create(Core::Id typeId, const QVariant &data,
                                 const QString &path, Core::Id platform,
-                                const QVariantMap &variables);
-    bool validateData(Core::Id typeId, const QVariant &data, QString *errorMessage);
+                                const QVariantMap &variables) override;
+    bool validateData(Core::Id typeId, const QVariant &data, QString *errorMessage) override;
 };
 
 } // namespace Internal

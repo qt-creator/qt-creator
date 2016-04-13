@@ -182,7 +182,7 @@ private:
 
     void smartExpand(const QModelIndex &index);
 
-    SelectableFilesModel *m_model;
+    SelectableFilesModel *m_model = nullptr;
 
     Utils::PathChooser *m_baseDirChooser;
     QLabel *m_baseDirLabel;

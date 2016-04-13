@@ -52,8 +52,8 @@ public:
     void unregisterProject(QmakeProject *project);
     void notifyChanged(const Utils::FileName &name);
 
-    virtual QString mimeType() const;
-    ProjectExplorer::Project *openProject(const QString &fileName, QString *errorString);
+    QString mimeType() const override;
+    ProjectExplorer::Project *openProject(const QString &fileName, QString *errorString) override;
 
     // Context information used in the slot implementations
     ProjectExplorer::Node *contextNode() const;

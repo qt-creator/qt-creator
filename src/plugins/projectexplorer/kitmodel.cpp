@@ -102,11 +102,8 @@ public:
 // KitModel
 // --------------------------------------------------------------------------
 
-KitModel::KitModel(QBoxLayout *parentLayout, QObject *parent) :
-    TreeModel(parent),
-    m_parentLayout(parentLayout),
-    m_defaultNode(0),
-    m_keepUnique(true)
+KitModel::KitModel(QBoxLayout *parentLayout, QObject *parent) : TreeModel(parent),
+    m_parentLayout(parentLayout)
 {
     setHeader(QStringList(tr("Name")));
     m_autoRoot = new TreeItem(QStringList(tr("Auto-detected")));
@@ -140,7 +137,7 @@ Kit *KitModel::kit(const QModelIndex &index)
 KitNode *KitModel::kitNode(const QModelIndex &index)
 {
     TreeItem *n = itemForIndex(index);
-    return n && n->level() == 2 ? static_cast<KitNode *>(n) : 0;
+    return (n && n->level() == 2) ? static_cast<KitNode *>(n) : nullptr;
 }
 
 QModelIndex KitModel::indexOf(Kit *k) const
@@ -168,12 +165,12 @@ KitManagerConfigWidget *KitModel::widget(const QModelIndex &index)
 
 void KitModel::isAutoDetectedChanged()
 {
-    KitManagerConfigWidget *w = qobject_cast<KitManagerConfigWidget *>(sender());
+    auto w = qobject_cast<KitManagerConfigWidget *>(sender());
     int idx = -1;
     idx = Utils::indexOf(m_manualRoot->children(), [w](TreeItem *node) {
         return static_cast<KitNode *>(node)->widget == w;
     });
-    TreeItem *oldParent = 0;
+    TreeItem *oldParent = nullptr;
     TreeItem *newParent = w->workingCopy()->isAutoDetected() ? m_autoRoot : m_manualRoot;
     if (idx != -1) {
         oldParent = m_manualRoot;
@@ -284,7 +281,7 @@ KitNode *KitModel::findWorkingCopy(Kit *k) const
 
 KitNode *KitModel::createNode(Kit *k)
 {
-    KitNode *node = new KitNode(k);
+    auto node = new KitNode(k);
     m_parentLayout->addWidget(node->widget);
     connect(node->widget, &KitManagerConfigWidget::dirty, [this, node] {
         if (m_autoRoot->children().contains(node)

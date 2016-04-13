@@ -31,8 +31,7 @@ const char CONFIGURATION_ID_KEY[] = "ProjectExplorer.ProjectConfiguration.Id";
 const char DISPLAY_NAME_KEY[] = "ProjectExplorer.ProjectConfiguration.DisplayName";
 const char DEFAULT_DISPLAY_NAME_KEY[] = "ProjectExplorer.ProjectConfiguration.DefaultDisplayName";
 
-ProjectConfiguration::ProjectConfiguration(QObject *parent, Core::Id id) :
-    QObject(parent),
+ProjectConfiguration::ProjectConfiguration(QObject *parent, Core::Id id) : QObject(parent),
     m_id(id)
 { setObjectName(id.toString()); }
 
@@ -44,9 +43,6 @@ ProjectConfiguration::ProjectConfiguration(QObject *parent, const ProjectConfigu
     Q_ASSERT(source);
     m_displayName = tr("Clone of %1").arg(source->displayName());
 }
-
-ProjectConfiguration::~ProjectConfiguration()
-{ }
 
 Core::Id ProjectConfiguration::id() const
 {

@@ -53,7 +53,7 @@ public:
     QVariant m_isCompleteExpando;
     QString m_isCompleteExpandoMessage;
 
-    QWidget *m_widget = 0;
+    QWidget *m_widget = nullptr;
 };
 
 // --------------------------------------------------------------------
@@ -66,8 +66,8 @@ public:
     LabelField();
 
 private:
-    QWidget *createWidget(const QString &displayName, JsonFieldPage *page);
-    bool parseData(const QVariant &data, QString *errorMessage);
+    QWidget *createWidget(const QString &displayName, JsonFieldPage *page) override;
+    bool parseData(const QVariant &data, QString *errorMessage) override;
 
     bool m_wordWrap;
     QString m_text;
@@ -78,11 +78,11 @@ class SpacerField : public JsonFieldPage::Field
 public:
     SpacerField();
 
-    bool suppressName() const { return true; }
+    bool suppressName() const override { return true; }
 
 private:
-    bool parseData(const QVariant &data, QString *errorMessage);
-    QWidget *createWidget(const QString &displayName, JsonFieldPage *page);
+    bool parseData(const QVariant &data, QString *errorMessage) override;
+    QWidget *createWidget(const QString &displayName, JsonFieldPage *page) override;
 
     int m_factor;
 };
@@ -93,13 +93,13 @@ public:
     LineEditField();
 
 private:
-    bool parseData(const QVariant &data, QString *errorMessage);
-    QWidget *createWidget(const QString &displayName, JsonFieldPage *page);
+    bool parseData(const QVariant &data, QString *errorMessage) override;
+    QWidget *createWidget(const QString &displayName, JsonFieldPage *page) override;
 
-    void setup(JsonFieldPage *page, const QString &name);
+    void setup(JsonFieldPage *page, const QString &name) override;
 
-    bool validate(Utils::MacroExpander *expander, QString *message);
-    void initializeData(Utils::MacroExpander *expander);
+    bool validate(Utils::MacroExpander *expander, QString *message) override;
+    void initializeData(Utils::MacroExpander *expander) override;
 
     bool m_isModified;
     bool m_isValidating;
@@ -119,13 +119,13 @@ public:
     TextEditField();
 
 private:
-    bool parseData(const QVariant &data, QString *errorMessage);
-    QWidget *createWidget(const QString &displayName, JsonFieldPage *page);
+    bool parseData(const QVariant &data, QString *errorMessage) override;
+    QWidget *createWidget(const QString &displayName, JsonFieldPage *page) override;
 
-    void setup(JsonFieldPage *page, const QString &name);
+    void setup(JsonFieldPage *page, const QString &name) override;
 
-    bool validate(Utils::MacroExpander *expander, QString *message);
-    void initializeData(Utils::MacroExpander *expander);
+    bool validate(Utils::MacroExpander *expander, QString *message) override;
+    void initializeData(Utils::MacroExpander *expander) override;
 
     QString m_defaultText;
     bool m_acceptRichText;
@@ -140,15 +140,15 @@ public:
     PathChooserField();
 
 private:
-    bool parseData(const QVariant &data, QString *errorMessage);
+    bool parseData(const QVariant &data, QString *errorMessage) override;
 
-    QWidget *createWidget(const QString &displayName, JsonFieldPage *page);
-    void setEnabled(bool e);
+    QWidget *createWidget(const QString &displayName, JsonFieldPage *page) override;
+    void setEnabled(bool e) override;
 
-    void setup(JsonFieldPage *page, const QString &name);
+    void setup(JsonFieldPage *page, const QString &name) override;
 
-    bool validate(Utils::MacroExpander *expander, QString *message);
-    void initializeData(Utils::MacroExpander *expander);
+    bool validate(Utils::MacroExpander *expander, QString *message) override;
+    void initializeData(Utils::MacroExpander *expander) override;
 
     QString m_path;
     QString m_basePath;
@@ -163,47 +163,47 @@ class CheckBoxField : public JsonFieldPage::Field
 public:
     CheckBoxField();
 
-    bool suppressName() const { return true; }
+    bool suppressName() const override { return true; }
 
 private:
-    bool parseData(const QVariant &data, QString *errorMessage);
+    bool parseData(const QVariant &data, QString *errorMessage) override;
 
-    QWidget *createWidget(const QString &displayName, JsonFieldPage *page);
+    QWidget *createWidget(const QString &displayName, JsonFieldPage *page) override;
 
-    void setup(JsonFieldPage *page, const QString &name);
+    void setup(JsonFieldPage *page, const QString &name) override;
 
-    bool validate(Utils::MacroExpander *expander, QString *message);
-    void initializeData(Utils::MacroExpander *expander);
+    bool validate(Utils::MacroExpander *expander, QString *message) override;
+    void initializeData(Utils::MacroExpander *expander) override;
 
     QString m_checkedValue;
     QString m_uncheckedValue;
     QVariant m_checkedExpression;
 
-    bool m_isModified;
+    bool m_isModified = false;
 };
 
 class ComboBoxField : public JsonFieldPage::Field
 {
 public:
-    ComboBoxField();
+    ComboBoxField() = default;
 
 private:
-    bool parseData(const QVariant &data, QString *errorMessage);
+    bool parseData(const QVariant &data, QString *errorMessage) override;
 
-    QWidget *createWidget(const QString &displayName, JsonFieldPage *page);
+    QWidget *createWidget(const QString &displayName, JsonFieldPage *page) override;
 
-    void setup(JsonFieldPage *page, const QString &name);
+    void setup(JsonFieldPage *page, const QString &name) override;
 
-    bool validate(Utils::MacroExpander *expander, QString *message);
-    void initializeData(Utils::MacroExpander *expander);
+    bool validate(Utils::MacroExpander *expander, QString *message) override;
+    void initializeData(Utils::MacroExpander *expander) override;
 
     QStringList m_itemList;
     QStringList m_itemDataList;
     QVariantList m_itemConditionList;
-    int m_index;
-    int m_disabledIndex;
+    int m_index = -1;
+    int m_disabledIndex = -1;
 
-    mutable int m_savedIndex;
+    mutable int m_savedIndex = -1;
 };
 
 } // namespace ProjectExplorer

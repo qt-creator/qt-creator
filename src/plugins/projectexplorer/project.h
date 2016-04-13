@@ -98,7 +98,7 @@ public:
     Target *activeTarget() const;
     Target *target(Core::Id id) const;
     Target *target(Kit *k) const;
-    virtual bool supportsKit(Kit *k, QString *errorMessage = 0) const;
+    virtual bool supportsKit(Kit *k, QString *errorMessage = nullptr) const;
 
     Target *createTarget(Kit *k);
     Target *cloneTarget(Target *sourceTarget, Kit *k);

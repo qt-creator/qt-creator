@@ -38,10 +38,10 @@ class JsonKitsPage : public TargetSetupPage
     Q_OBJECT
 
 public:
-    JsonKitsPage(QWidget *parent = 0);
+    JsonKitsPage(QWidget *parent = nullptr);
 
-    void initializePage();
-    void cleanupPage();
+    void initializePage() override;
+    void cleanupPage() override;
 
     void setUnexpandedProjectPath(const QString &path);
     QString unexpandedProjectPath() const;
@@ -70,7 +70,7 @@ private:
     QVector<ConditionalFeature> m_preferredFeatures;
 
     QSet<Core::Id> evaluate(const QVector<ConditionalFeature> &list, const QVariant &defaultSet,
-                              JsonWizard *wiz);
+                            JsonWizard *wiz);
 };
 
 } // namespace ProjectExplorer

@@ -56,7 +56,7 @@ BuildConfiguration::BuildConfiguration(Target *target, Core::Id id) :
     m_clearSystemEnvironment(false)
 {
     Q_ASSERT(target);
-    BuildStepList *bsl = new BuildStepList(this, Core::Id(Constants::BUILDSTEPS_BUILD));
+    auto bsl = new BuildStepList(this, Core::Id(Constants::BUILDSTEPS_BUILD));
     //: Display name of the build build step list. Used as part of the labels in the project window.
     bsl->setDefaultDisplayName(tr("Build"));
     m_stepLists.append(bsl);
@@ -173,7 +173,7 @@ bool BuildConfiguration::fromMap(const QVariantMap &map)
             qWarning() << "No data for build step list" << i << "found!";
             continue;
         }
-        BuildStepList *list = new BuildStepList(this, data);
+        auto list = new BuildStepList(this, data);
         if (list->isNull()) {
             qWarning() << "Failed to restore build step list" << i;
             delete list;
@@ -282,7 +282,7 @@ void BuildConfiguration::cloneSteps(BuildConfiguration *source)
     qDeleteAll(m_stepLists);
     m_stepLists.clear();
     foreach (BuildStepList *bsl, source->m_stepLists) {
-        BuildStepList *newBsl = new BuildStepList(this, bsl);
+        auto newBsl = new BuildStepList(this, bsl);
         newBsl->cloneSteps(bsl);
         m_stepLists.append(newBsl);
     }

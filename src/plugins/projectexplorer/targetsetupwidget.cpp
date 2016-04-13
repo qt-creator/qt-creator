@@ -56,15 +56,12 @@ namespace Internal {
 TargetSetupWidget::TargetSetupWidget(Kit *k,
                                      const QString &projectPath,
                                      const QList<BuildInfo *> &infoList) :
-    m_kit(k),
-    m_haveImported(false),
-    m_ignoreChange(false),
-    m_selected(0)
+    m_kit(k)
 {
     Q_ASSERT(m_kit);
 
     setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
-    QVBoxLayout *vboxLayout = new QVBoxLayout();
+    auto vboxLayout = new QVBoxLayout();
     setLayout(vboxLayout);
     vboxLayout->setContentsMargins(0, 0, 0, 0);
     m_detailsWidget = new Utils::DetailsWidget(this);
@@ -74,20 +71,20 @@ TargetSetupWidget::TargetSetupWidget(Kit *k,
     m_detailsWidget->setToolTip(m_kit->toHtml());
     vboxLayout->addWidget(m_detailsWidget);
 
-    Utils::FadingWidget *panel = new Utils::FadingWidget(m_detailsWidget);
-    QHBoxLayout *panelLayout = new QHBoxLayout(panel);
+    auto panel = new Utils::FadingWidget(m_detailsWidget);
+    auto panelLayout = new QHBoxLayout(panel);
     m_manageButton = new QPushButton(KitConfigWidget::msgManage());
     panelLayout->addWidget(m_manageButton);
     m_detailsWidget->setToolWidget(panel);
 
     handleKitUpdate(m_kit);
 
-    QWidget *widget = new QWidget;
-    QVBoxLayout *layout = new QVBoxLayout;
+    auto widget = new QWidget;
+    auto layout = new QVBoxLayout;
     widget->setLayout(layout);
     layout->setContentsMargins(0, 0, 0, 0);
 
-    QWidget *w = new QWidget;
+    auto w = new QWidget;
     m_newBuildsLayout = new QGridLayout;
     m_newBuildsLayout->setMargin(0);
     if (Utils::HostOsInfo::isMacHost())
@@ -125,7 +122,7 @@ Kit *TargetSetupWidget::kit()
 
 void TargetSetupWidget::clearKit()
 {
-    m_kit = 0;
+    m_kit = nullptr;
 }
 
 bool TargetSetupWidget::isKitSelected() const
@@ -165,20 +162,20 @@ void TargetSetupWidget::addBuildInfo(BuildInfo *info, bool isImport)
 
     m_infoList << info;
 
-    QCheckBox *checkbox = new QCheckBox;
+    auto checkbox = new QCheckBox;
     checkbox->setText(info->displayName);
     checkbox->setChecked(m_enabled.at(pos));
     checkbox->setAttribute(Qt::WA_LayoutUsesWidgetRect);
     m_newBuildsLayout->addWidget(checkbox, pos * 2, 0);
 
-    Utils::PathChooser *pathChooser = new Utils::PathChooser();
+    auto pathChooser = new Utils::PathChooser();
     pathChooser->setExpectedKind(Utils::PathChooser::Directory);
     pathChooser->setFileName(info->buildDirectory);
     pathChooser->setHistoryCompleter(QLatin1String("TargetSetup.BuildDir.History"));
     pathChooser->setReadOnly(isImport);
     m_newBuildsLayout->addWidget(pathChooser, pos * 2, 1);
 
-    QLabel *reportIssuesLabel = new QLabel;
+    auto reportIssuesLabel = new QLabel;
     reportIssuesLabel->setIndent(32);
     m_newBuildsLayout->addWidget(reportIssuesLabel, pos * 2 + 1, 0, 1, 2);
     reportIssuesLabel->setVisible(false);
@@ -289,7 +286,7 @@ void TargetSetupWidget::clear()
 
 void TargetSetupWidget::checkBoxToggled(bool b)
 {
-    QCheckBox *box = qobject_cast<QCheckBox *>(sender());
+    auto box = qobject_cast<QCheckBox *>(sender());
     if (!box)
         return;
     int index = m_checkboxes.indexOf(box);
@@ -309,7 +306,7 @@ void TargetSetupWidget::pathChanged()
 {
     if (m_ignoreChange)
         return;
-    Utils::PathChooser *pathChooser = qobject_cast<Utils::PathChooser *>(sender());
+    auto pathChooser = qobject_cast<Utils::PathChooser *>(sender());
     if (!pathChooser)
         return;
     int index = m_pathChoosers.indexOf(pathChooser);

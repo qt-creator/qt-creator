@@ -226,8 +226,6 @@ class PythonProjectManager : public IProjectManager
 {
     Q_OBJECT
 public:
-    PythonProjectManager() {}
-
     QString mimeType() const override { return QLatin1String(PythonMimeType); }
     Project *openProject(const QString &fileName, QString *errorString) override;
 

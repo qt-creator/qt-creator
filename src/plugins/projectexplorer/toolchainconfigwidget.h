@@ -76,7 +76,7 @@ protected:
 
 private:
     ToolChain *m_toolChain;
-    QLabel *m_errorLabel;
+    QLabel *m_errorLabel = nullptr;
 };
 
 } // namespace ProjectExplorer

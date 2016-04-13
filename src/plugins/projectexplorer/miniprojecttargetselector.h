@@ -65,8 +65,8 @@ public:
     int padding();
 
 private:
-    int m_maxCount;
-    int m_optimalWidth;
+    int m_maxCount = 0;
+    int m_optimalWidth = 0;
 };
 
 class ProjectListWidget : public ListWidget
@@ -74,7 +74,7 @@ class ProjectListWidget : public ListWidget
     Q_OBJECT
 
 public:
-    explicit ProjectListWidget(QWidget *parent = 0);
+    explicit ProjectListWidget(QWidget *parent = nullptr);
 
 private:
     void addProject(ProjectExplorer::Project *project);
@@ -91,7 +91,7 @@ class KitAreaWidget : public QWidget
 {
     Q_OBJECT
 public:
-    explicit KitAreaWidget(QWidget *parent = 0);
+    explicit KitAreaWidget(QWidget *parent = nullptr);
     ~KitAreaWidget() override;
 
     void setKit(ProjectExplorer::Kit *k);
@@ -100,7 +100,7 @@ private:
     void updateKit(ProjectExplorer::Kit *k);
 
     QGridLayout *m_layout;
-    Kit *m_kit;
+    Kit *m_kit = nullptr;
     QList<KitConfigWidget *> m_widgets;
     QList<QLabel *> m_labels;
 };
@@ -110,7 +110,7 @@ class GenericListWidget : public ListWidget
     Q_OBJECT
 
 public:
-    explicit GenericListWidget(QWidget *parent = 0);
+    explicit GenericListWidget(QWidget *parent = nullptr);
 
 signals:
     void changeActiveProjectConfiguration(ProjectExplorer::ProjectConfiguration *dc);
@@ -134,7 +134,7 @@ class MiniProjectTargetSelector : public QWidget
     Q_OBJECT
 
 public:
-    explicit MiniProjectTargetSelector(QAction *projectAction, QWidget *parent = 0);
+    explicit MiniProjectTargetSelector(QAction *projectAction, QWidget *parent = nullptr);
     void setVisible(bool visible) override;
 
     void keyPressEvent(QKeyEvent *ke) override;
@@ -202,12 +202,12 @@ private:
     QVector<QWidget *> m_titleWidgets;
     QLabel *m_summaryLabel;
 
-    Project *m_project;
-    Target *m_target;
-    BuildConfiguration *m_buildConfiguration;
-    DeployConfiguration *m_deployConfiguration;
-    RunConfiguration *m_runConfiguration;
-    bool m_hideOnRelease;
+    Project *m_project = nullptr;
+    Target *m_target = nullptr;
+    BuildConfiguration *m_buildConfiguration = nullptr;
+    DeployConfiguration *m_deployConfiguration = nullptr;
+    RunConfiguration *m_runConfiguration = nullptr;
+    bool m_hideOnRelease = false;
     QDateTime m_earliestHidetime;
 };
 

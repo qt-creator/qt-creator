@@ -48,7 +48,7 @@ class PROJECTEXPLORER_EXPORT KitChooser : public QWidget
     Q_OBJECT
 
 public:
-    explicit KitChooser(QWidget *parent = 0);
+    explicit KitChooser(QWidget *parent = nullptr);
 
     void setCurrentKitId(Core::Id id);
     Core::Id currentKitId() const;

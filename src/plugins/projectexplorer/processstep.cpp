@@ -44,14 +44,12 @@ const char PROCESS_WORKINGDIRECTORY_KEY[] = "ProjectExplorer.ProcessStep.Working
 const char PROCESS_ARGUMENTS_KEY[] = "ProjectExplorer.ProcessStep.Arguments";
 }
 
-ProcessStep::ProcessStep(BuildStepList *bsl) :
-    AbstractProcessStep(bsl, Core::Id(PROCESS_STEP_ID))
+ProcessStep::ProcessStep(BuildStepList *bsl) : AbstractProcessStep(bsl, Core::Id(PROCESS_STEP_ID))
 {
     ctor();
 }
 
-ProcessStep::ProcessStep(BuildStepList *bsl, ProcessStep *bs) :
-    AbstractProcessStep(bsl, bs),
+ProcessStep::ProcessStep(BuildStepList *bsl, ProcessStep *bs) : AbstractProcessStep(bsl, bs),
     m_command(bs->m_command),
     m_arguments(bs->m_arguments),
     m_workingDirectory(bs->m_workingDirectory)
@@ -165,7 +163,7 @@ bool ProcessStepFactory::canCreate(BuildStepList *parent, Core::Id id) const
 BuildStep *ProcessStepFactory::create(BuildStepList *parent, Core::Id id)
 {
     if (!canCreate(parent, id))
-        return 0;
+        return nullptr;
     return new ProcessStep(parent);
 }
 
@@ -177,7 +175,7 @@ bool ProcessStepFactory::canClone(BuildStepList *parent, BuildStep *bs) const
 BuildStep *ProcessStepFactory::clone(BuildStepList *parent, BuildStep *bs)
 {
     if (!canClone(parent, bs))
-        return 0;
+        return nullptr;
     return new ProcessStep(parent, static_cast<ProcessStep *>(bs));
 }
 
@@ -190,13 +188,13 @@ bool ProcessStepFactory::canRestore(BuildStepList *parent, const QVariantMap &ma
 BuildStep *ProcessStepFactory::restore(BuildStepList *parent, const QVariantMap &map)
 {
     if (!canRestore(parent, map))
-        return 0;
+        return nullptr;
 
-    ProcessStep *bs(new ProcessStep(parent));
+    auto bs = new ProcessStep(parent);
     if (bs->fromMap(map))
         return bs;
     delete bs;
-    return 0;
+    return nullptr;
 }
 
 QList<Core::Id> ProcessStepFactory::availableCreationIds(BuildStepList *parent) const
@@ -215,8 +213,8 @@ QString ProcessStepFactory::displayNameForId(Core::Id id) const
 // ProcessStepConfigWidget
 //*******
 
-ProcessStepConfigWidget::ProcessStepConfigWidget(ProcessStep *step)
-        : m_step(step)
+ProcessStepConfigWidget::ProcessStepConfigWidget(ProcessStep *step) :
+    m_step(step)
 {
     m_ui.setupUi(this);
     m_ui.command->setExpectedKind(Utils::PathChooser::Command);

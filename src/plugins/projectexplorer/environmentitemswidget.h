@@ -36,7 +36,7 @@ class EnvironmentItemsWidget : public QWidget
 {
     Q_OBJECT
 public:
-    explicit EnvironmentItemsWidget(QWidget *parent = 0);
+    explicit EnvironmentItemsWidget(QWidget *parent = nullptr);
     ~EnvironmentItemsWidget() override;
 
     void setEnvironmentItems(const QList<Utils::EnvironmentItem> &items);
@@ -53,14 +53,15 @@ class EnvironmentItemsDialog : public QDialog
 {
     Q_OBJECT
 public:
-    explicit EnvironmentItemsDialog(QWidget *parent = 0);
+    explicit EnvironmentItemsDialog(QWidget *parent = nullptr);
     ~EnvironmentItemsDialog() override;
 
     void setEnvironmentItems(const QList<Utils::EnvironmentItem> &items);
     QList<Utils::EnvironmentItem> environmentItems() const;
 
     static QList<Utils::EnvironmentItem>
-    getEnvironmentItems(QWidget *parent, const QList<Utils::EnvironmentItem> &initial, bool *ok = 0);
+    getEnvironmentItems(QWidget *parent, const QList<Utils::EnvironmentItem> &initial,
+                        bool *ok = nullptr);
 
 private:
     EnvironmentItemsDialogPrivate *d;

@@ -52,7 +52,7 @@ class PROJECTEXPLORER_EXPORT SessionManager : public QObject
     Q_OBJECT
 
 public:
-    explicit SessionManager(QObject *parent = 0);
+    explicit SessionManager(QObject *parent = nullptr);
     ~SessionManager() override;
 
     static SessionManager *instance();

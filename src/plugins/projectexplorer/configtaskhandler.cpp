@@ -56,7 +56,7 @@ void ConfigTaskHandler::handle(const Task &task)
 
 QAction *ConfigTaskHandler::createAction(QObject *parent) const
 {
-    QAction *action = new QAction(Core::ICore::msgShowOptionsDialog(), parent);
+    auto action = new QAction(Core::ICore::msgShowOptionsDialog(), parent);
     action->setToolTip(Core::ICore::msgShowOptionsDialogToolTip());
     return action;
 }

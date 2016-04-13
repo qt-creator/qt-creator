@@ -35,13 +35,12 @@
 
 namespace ProjectExplorer {
 
-JsonProjectPage::JsonProjectPage(QWidget *parent) :
-    Utils::ProjectIntroPage(parent)
+JsonProjectPage::JsonProjectPage(QWidget *parent) : Utils::ProjectIntroPage(parent)
 { }
 
 void JsonProjectPage::initializePage()
 {
-    JsonWizard *wiz = qobject_cast<JsonWizard *>(wizard());
+    auto wiz = qobject_cast<JsonWizard *>(wizard());
     QTC_ASSERT(wiz, return);
     setPath(wiz->stringValue(QLatin1String("InitialPath")));
 
@@ -81,7 +80,6 @@ QString JsonProjectPage::uniqueProjectName(const QString &path)
         if (!pathDir.exists(name))
             return name;
     }
-    return prefix;
 }
 
 } // namespace ProjectExplorer

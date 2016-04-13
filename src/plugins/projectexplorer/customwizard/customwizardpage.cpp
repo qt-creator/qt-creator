@@ -69,17 +69,17 @@ namespace Internal {
     \sa ProjectExplorer::CustomWizard
 */
 
-CustomWizardFieldPage::LineEditData::LineEditData(QLineEdit* le, const QString &defText, const QString &pText) :
+CustomWizardFieldPage::LineEditData::LineEditData(QLineEdit *le, const QString &defText, const QString &pText) :
     lineEdit(le), defaultText(defText), placeholderText(pText)
 {
 }
 
-CustomWizardFieldPage::TextEditData::TextEditData(QTextEdit* le, const QString &defText) :
+CustomWizardFieldPage::TextEditData::TextEditData(QTextEdit *le, const QString &defText) :
     textEdit(le), defaultText(defText)
 {
 }
 
-CustomWizardFieldPage::PathChooserData::PathChooserData(PathChooser* pe, const QString &defText) :
+CustomWizardFieldPage::PathChooserData::PathChooserData(PathChooser *pe, const QString &defText) :
     pathChooser(pe), defaultText(defText)
 {
 }
@@ -93,7 +93,7 @@ CustomWizardFieldPage::CustomWizardFieldPage(const QSharedPointer<CustomWizardCo
     m_formLayout(new QFormLayout),
     m_errorLabel(new QLabel)
 {
-    QVBoxLayout *vLayout = new QVBoxLayout;
+    auto vLayout = new QVBoxLayout;
     m_formLayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
     if (debug)
         qDebug() << Q_FUNC_INFO << parameters->fields.size();
@@ -107,10 +107,6 @@ CustomWizardFieldPage::CustomWizardFieldPage(const QSharedPointer<CustomWizardCo
     setLayout(vLayout);
     if (!parameters->fieldPageTitle.isEmpty())
         setTitle(parameters->fieldPageTitle);
-}
-
-CustomWizardFieldPage::~CustomWizardFieldPage()
-{
 }
 
 void CustomWizardFieldPage::addRow(const QString &name, QWidget *w)
@@ -144,7 +140,7 @@ void CustomWizardFieldPage::addField(const CustomWizardField &field)\
     bool spansRow = false;
     // Check known classes: QComboBox
     const QString className = field.controlAttributes.value(QLatin1String("class"));
-    QWidget *fieldWidget = 0;
+    QWidget *fieldWidget = nullptr;
     if (className == QLatin1String("QComboBox")) {
         fieldWidget = registerComboBox(fieldName, field);
     } else if (className == QLatin1String("QTextEdit")) {
@@ -196,7 +192,7 @@ static void comboChoices(const CustomWizardField::ControlAttributeMap &controlAt
 QWidget *CustomWizardFieldPage::registerComboBox(const QString &fieldName,
                                                  const CustomWizardField &field)
 {
-    TextFieldComboBox *combo = new TextFieldComboBox;
+    auto combo = new TextFieldComboBox;
     do { // Set up items and current index
         QStringList values;
         QStringList displayTexts;
@@ -220,7 +216,7 @@ QWidget *CustomWizardFieldPage::registerComboBox(const QString &fieldName,
 QWidget *CustomWizardFieldPage::registerTextEdit(const QString &fieldName,
                                                  const CustomWizardField &field)
 {
-    QTextEdit *textEdit = new QTextEdit;
+    auto textEdit = new QTextEdit;
     // Suppress formatting by default (inverting QTextEdit's default value) when
     // pasting from Bug tracker, etc.
     const bool acceptRichText = field.controlAttributes.value(QLatin1String("acceptRichText")) == QLatin1String("true");
@@ -236,7 +232,7 @@ QWidget *CustomWizardFieldPage::registerTextEdit(const QString &fieldName,
 QWidget *CustomWizardFieldPage::registerPathChooser(const QString &fieldName,
                                                  const CustomWizardField &field)
 {
-    PathChooser *pathChooser = new PathChooser;
+    auto pathChooser = new PathChooser;
     const QString expectedKind = field.controlAttributes.value(QLatin1String("expectedkind")).toLower();
     if (expectedKind == QLatin1String("existingdirectory"))
         pathChooser->setExpectedKind(PathChooser::ExistingDirectory);
@@ -266,7 +262,7 @@ QWidget *CustomWizardFieldPage::registerCheckBox(const QString &fieldName,
 {
     typedef CustomWizardField::ControlAttributeMap::const_iterator AttributeMapConstIt;
 
-    TextFieldCheckBox *checkBox = new TextFieldCheckBox(fieldDescription);
+    auto checkBox = new TextFieldCheckBox(fieldDescription);
     const bool defaultValue = field.controlAttributes.value(QLatin1String("defaultvalue")) == QLatin1String("true");
     checkBox->setChecked(defaultValue);
     const AttributeMapConstIt trueTextIt = field.controlAttributes.constFind(QLatin1String("truevalue"));
@@ -284,7 +280,7 @@ QWidget *CustomWizardFieldPage::registerCheckBox(const QString &fieldName,
 QWidget *CustomWizardFieldPage::registerLineEdit(const QString &fieldName,
                                                  const CustomWizardField &field)
 {
-    QLineEdit *lineEdit = new QLineEdit;
+    auto lineEdit = new QLineEdit;
 
     const QString validationRegExp = field.controlAttributes.value(QLatin1String("validator"));
     if (!validationRegExp.isEmpty()) {

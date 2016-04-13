@@ -67,7 +67,7 @@ EnvironmentItemsWidget::EnvironmentItemsWidget(QWidget *parent) :
     QWidget(parent), d(new EnvironmentItemsWidgetPrivate)
 {
     d->m_editor = new TextEditor::SnippetEditorWidget(this);
-    QVBoxLayout *layout = new QVBoxLayout(this);
+    auto layout = new QVBoxLayout(this);
     layout->addWidget(d->m_editor);
 }
 
@@ -104,11 +104,10 @@ EnvironmentItemsDialog::EnvironmentItemsDialog(QWidget *parent) :
 {
     resize(640, 480);
     d->m_editor = new EnvironmentItemsWidget(this);
-    QDialogButtonBox *box = new QDialogButtonBox(
-            QDialogButtonBox::Ok | QDialogButtonBox::Cancel, Qt::Horizontal, this);
+    auto box = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, Qt::Horizontal, this);
     connect(box, &QDialogButtonBox::accepted, this, &QDialog::accept);
     connect(box, &QDialogButtonBox::rejected, this, &QDialog::reject);
-    QVBoxLayout *layout = new QVBoxLayout(this);
+    auto layout = new QVBoxLayout(this);
     layout->addWidget(d->m_editor);
     layout->addWidget(box);
     setWindowTitle(tr("Edit Environment"));

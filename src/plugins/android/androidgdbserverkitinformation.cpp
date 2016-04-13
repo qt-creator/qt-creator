@@ -105,7 +105,7 @@ FileName AndroidGdbServerKitInformation::autoDetect(const Kit *kit)
     ToolChain *tc = ToolChainKitInformation::toolChain(kit);
     if (!tc || tc->typeId() != Constants::ANDROID_TOOLCHAIN_ID)
         return FileName();
-    AndroidToolChain *atc = static_cast<AndroidToolChain *>(tc);
+    auto atc = static_cast<AndroidToolChain *>(tc);
     return atc->suggestedGdbServer();
 }
 
@@ -114,13 +114,13 @@ FileName AndroidGdbServerKitInformation::autoDetect(const Kit *kit)
 ///////////////
 
 
-AndroidGdbServerKitInformationWidget::AndroidGdbServerKitInformationWidget(Kit *kit, const KitInformation *ki)
-    : KitConfigWidget(kit, ki),
-      m_label(new ElidingLabel),
-      m_button(new QPushButton(tr("Manage...")))
+AndroidGdbServerKitInformationWidget::AndroidGdbServerKitInformationWidget(Kit *kit, const KitInformation *ki) :
+    KitConfigWidget(kit, ki),
+    m_label(new ElidingLabel),
+    m_button(new QPushButton(tr("Manage...")))
 {
     // ToolButton with Menu, defaulting to 'Autodetect'.
-    QMenu *buttonMenu = new QMenu(m_button);
+    auto buttonMenu = new QMenu(m_button);
     QAction *autoDetectAction = buttonMenu->addAction(tr("Auto-detect"));
     connect(autoDetectAction, SIGNAL(triggered()), this, SLOT(autoDetectDebugger()));
     QAction *changeAction = buttonMenu->addAction(tr("Edit..."));
@@ -179,19 +179,19 @@ void AndroidGdbServerKitInformationWidget::autoDetectDebugger()
 void AndroidGdbServerKitInformationWidget::showDialog()
 {
     QDialog dialog;
-    QVBoxLayout *layout = new QVBoxLayout(&dialog);
-    QFormLayout *formLayout = new QFormLayout;
+    auto layout = new QVBoxLayout(&dialog);
+    auto formLayout = new QFormLayout;
     formLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
 
-    QLabel *binaryLabel = new QLabel(tr("&Binary:"));
-    PathChooser *chooser = new PathChooser;
+    auto binaryLabel = new QLabel(tr("&Binary:"));
+    auto chooser = new PathChooser;
     chooser->setExpectedKind(PathChooser::ExistingCommand);
     chooser->setPath(AndroidGdbServerKitInformation::gdbServer(m_kit).toString());
     binaryLabel->setBuddy(chooser);
     formLayout->addRow(binaryLabel, chooser);
     layout->addLayout(formLayout);
 
-    QDialogButtonBox *buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, Qt::Horizontal, &dialog);
+    auto buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, Qt::Horizontal, &dialog);
     connect(buttonBox, SIGNAL(accepted()), &dialog, SLOT(accept()));
     connect(buttonBox, SIGNAL(rejected()), &dialog, SLOT(reject()));
     layout->addWidget(buttonBox);

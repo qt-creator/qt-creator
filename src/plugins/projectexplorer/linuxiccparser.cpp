@@ -31,8 +31,8 @@
 
 using namespace ProjectExplorer;
 
-LinuxIccParser::LinuxIccParser()
-    : m_expectFirstLine(true), m_indent(0), m_temporary(Task())
+LinuxIccParser::LinuxIccParser() :
+    m_temporary(Task())
 {
     setObjectName(QLatin1String("LinuxIccParser"));
     // main.cpp(53): error #308: function \"AClass::privatefunc\" (declared at line 4 of \"main.h\") is inaccessible

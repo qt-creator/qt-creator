@@ -2083,7 +2083,7 @@ QVariantMap UserFileVersion11Upgrader::upgrade(const QVariantMap &map)
         const QString oldTargetId = extraTargetData.value(QLatin1String("ProjectExplorer.ProjectConfiguration.Id")).toString();
 
         // Check each BCs/DCs and create profiles as needed
-        Kit *rawKit = new Kit; // Do not needlessly use Core::Ids
+        auto rawKit = new Kit; // Do not needlessly use Core::Ids
         QMapIterator<int, QVariantMap> buildIt(bcs);
         while (buildIt.hasNext()) {
             buildIt.next();

@@ -39,9 +39,7 @@ static const char successRe[] = "\\*\\* BUILD SUCCEEDED \\*\\*$";
 static const char buildRe[] = "=== BUILD (AGGREGATE )?TARGET (.*) OF PROJECT (.*) WITH .* ===$";
 static const char signatureChangeRe[] = "(.+): replacing existing signature$";
 
-XcodebuildParser::XcodebuildParser() :
-    m_fatalErrorCount(0),
-    m_xcodeBuildParserState(OutsideXcodebuild)
+XcodebuildParser::XcodebuildParser()
 {
     setObjectName(QLatin1String("XcodeParser"));
     m_failureRe.setPattern(QLatin1String(failureRe));
