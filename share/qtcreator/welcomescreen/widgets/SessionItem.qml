@@ -49,6 +49,8 @@ Item {
                 source: "image://icons/session/Welcome_ForegroundSecondaryColor"
                 x: 11
                 anchors.verticalCenter: parent.verticalCenter
+                height: 16
+                width: 16
             }
 
             NativeText {
@@ -196,6 +198,8 @@ Item {
                 visible: (collapseArea.containsMouse || delegate.expanded || titleArea.containsMouse)
                 source: "image://icons/expandarrow/Welcome_ForegroundSecondaryColor"
                 rotation: delegate.expanded ? 180 : 0
+                height: 16
+                width: 16
             }
         }
 

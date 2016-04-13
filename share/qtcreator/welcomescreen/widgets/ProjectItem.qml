@@ -41,6 +41,8 @@ Rectangle {
         id: icon
         x: 11
         y: 6
+        height: 16
+        width: 16
         source: "image://icons/project/Welcome_ForegroundSecondaryColor"
     }
 
