@@ -9,5 +9,8 @@
         <file>unit-tests/qt-widgets-app/mainwindow.ui</file>
         <file>unit-tests/qt-widgets-app/qt-widgets-app.pro</file>
         <file>unit-tests/qt-widgets-app/qt-widgets-app.qbs</file>
+        <file>unit-tests/qt-essential-includes/main.cpp</file>
+        <file>unit-tests/qt-essential-includes/qt-essential-includes.pro</file>
+        <file>unit-tests/qt-essential-includes/qt-essential-includes.qbs</file>
     </qresource>
 </RCC>
