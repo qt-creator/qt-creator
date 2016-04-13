@@ -1100,8 +1100,6 @@ void QmlEngine::updateCurrentContext()
         else
             context = grandParentData->name;
     }
-
-    debuggerConsole()->setContext(tr("Context:") + QLatin1Char(' ') + context);
 }
 
 void QmlEngine::executeDebuggerCommand(const QString &command, DebuggerLanguages languages)
