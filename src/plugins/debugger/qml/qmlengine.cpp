@@ -768,6 +768,12 @@ void QmlEngine::insertBreakpoint(Breakpoint bp)
     d->breakpointsSync.insert(d->sequence, bp.id());
 }
 
+void QmlEngine::resetLocation()
+{
+    DebuggerEngine::resetLocation();
+    d->currentlyLookingUp.clear();
+}
+
 void QmlEngine::removeBreakpoint(Breakpoint bp)
 {
     const BreakpointParameters &params = bp.parameters();

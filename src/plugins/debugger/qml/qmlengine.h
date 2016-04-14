@@ -80,6 +80,8 @@ private:
     bool isSynchronous() const override { return false; }
     bool canDisplayTooltip() const override { return false; }
 
+    void resetLocation() override;
+
     void executeStep() override;
     void executeStepOut() override;
     void executeNext() override;
