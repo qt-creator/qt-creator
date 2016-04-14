@@ -2204,12 +2204,15 @@ void QmlEnginePrivate::handleFrame(const QVariantMap &response)
         }
     }
 
-    // Expand locals and watchers that were previously expanded
+    // Expand locals that were previously expanded. local.this and watch.*
+    // trigger updates in there handleEvaluatedExpression handlers.
     LookupItems itemsToLookup;
     foreach (const QByteArray &iname, watchHandler->expandedINames()) {
-        const WatchItem *item = watchHandler->findItem(iname);
-        if (item && item->isLocal())
-            itemsToLookup.insert(int(item->id), {item->iname, item->name, item->exp});
+        if (iname != "local.this") {
+            const WatchItem *item = watchHandler->findItem(iname);
+            if (item && item->isLocal())
+                itemsToLookup.insert(int(item->id), {item->iname, item->name, item->exp});
+        }
     }
     lookup(itemsToLookup);
 }
