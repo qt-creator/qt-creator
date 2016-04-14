@@ -34,8 +34,10 @@ const Icon NEWFILE(
         QLatin1String(":/core/images/filenew.png"));
 const Icon OPENFILE(
         QLatin1String(":/core/images/fileopen.png"));
-const Icon SAVEFILE(
-        QLatin1String(":/core/images/filesave.png"));
+const Icon SAVEFILE({
+        {QLatin1String(":/core/images/filesave.png"), Theme::PanelTextColorMid}}, Icon::Tint);
+const Icon SAVEFILE_TOOLBAR({
+        {QLatin1String(":/core/images/filesave.png"), Theme::IconsBaseColor}});
 const Icon UNDO(
         QLatin1String(":/core/images/undo.png"));
 const Icon REDO(

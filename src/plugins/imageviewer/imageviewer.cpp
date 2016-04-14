@@ -101,7 +101,7 @@ void ImageViewer::ctor()
     d->toolbar = new QWidget();
     d->ui_toolbar.setupUi(d->toolbar);
     d->ui_toolbar.toolButtonExportImage->setIcon(QIcon::fromTheme(QLatin1String("document-save"),
-                                                                  Core::Icons::SAVEFILE.icon()));
+                                                                  Core::Icons::SAVEFILE_TOOLBAR.icon()));
     const Utils::Icon backgroundIcon({
             {QLatin1String(":/core/images/desktopdevicesmall.png"), Utils::Theme::IconsBaseColor}});
     d->ui_toolbar.toolButtonBackground->setIcon(backgroundIcon.icon());

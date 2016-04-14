@@ -5029,5 +5029,42 @@
        transform="matrix(0.5,0,0,0.5,285,189.5)"
        width="100%"
        height="100%" />
+    <g
+       id="src/plugins/coreplugin/images/filesave">
+      <rect
+         style="display:inline;fill:#ffffff;fill-opacity:1"
+         x="1000"
+         y="568"
+         width="16"
+         height="16"
+         id="rect6782-96-9-4-4" />
+      <path
+         sodipodi:nodetypes="cccccc"
+         inkscape:connector-curvature="0"
+         id="path5579"
+         d="m 1002,580.5 0,-10.5 12,0 0,12 -10.5,0 -1.5,-1.5"
+         style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+      <rect
+         y="578"
+         x="1005"
+         height="4"
+         width="6"
+         id="rect5600"
+         style="opacity:1;fill:#b3b3b3;fill-opacity:1;stroke:none;stroke-opacity:1" />
+      <path
+         sodipodi:nodetypes="ccccc"
+         inkscape:connector-curvature="0"
+         id="path5581"
+         d="m 1007,579 0,3 -1,0 0,-3 z"
+         style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+      <rect
+         ry="0"
+         y="571"
+         x="1003"
+         height="6"
+         width="10"
+         id="rect5583"
+         style="opacity:1;fill:#ffffff;fill-opacity:1;stroke:none;stroke-opacity:1" />
+    </g>
   </g>
 </svg>
