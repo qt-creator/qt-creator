@@ -567,6 +567,9 @@ void TestResultsPane::onSaveWholeTriggered()
 {
     const QString fileName = QFileDialog::getSaveFileName(Core::ICore::dialogParent(),
                                                           tr("Save Output To..."));
+    if (fileName.isEmpty())
+        return;
+
     Utils::FileSaver saver(fileName, QIODevice::Text);
     if (!saver.write(getWholeOutput().toUtf8()) || !saver.finalize()) {
         QMessageBox::critical(Core::ICore::dialogParent(), tr("Error"),
