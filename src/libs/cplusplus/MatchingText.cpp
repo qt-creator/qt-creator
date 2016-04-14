@@ -75,6 +75,56 @@ static bool isCompleteCharLiteral(const BackwardsScanner &tk, int index)
     return false;
 }
 
+static bool isEscaped(const QTextCursor &tc)
+{
+    const QTextDocument *doc = tc.document();
+
+    int escapeCount = 0;
+    int index = tc.selectionEnd() - 1;
+    while (doc->characterAt(index) == '\\') {
+        ++escapeCount;
+        --index;
+    }
+
+    return (escapeCount % 2) != 0;
+}
+
+static bool isQuote(const QChar c)
+{
+    return c == '\'' || c == '"';
+}
+
+static bool insertQuote(const QChar ch, const BackwardsScanner &tk)
+{
+    // Always insert matching quote on an empty line
+    if (tk.size() == 0)
+        return true;
+
+    const int index = tk.startToken() - 1;
+    const Token &token = tk[index];
+    // Do not insert a matching quote when we are closing an open string/char literal.
+    return (ch == '"' && token.isStringLiteral() == isCompleteStringLiteral(tk, index))
+            || (ch == '\'' && token.isCharLiteral() == isCompleteCharLiteral(tk, index));
+}
+
+static int countSkippedChars(const QString blockText, const QString &textToProcess)
+{
+    int skippedChars = 0;
+    const int length = qMin(blockText.length(), textToProcess.length());
+    for (int i = 0; i < length; ++i) {
+        const QChar ch1 = blockText.at(i);
+        const QChar ch2 = textToProcess.at(i);
+
+        if (ch1 != ch2)
+            break;
+        else if (! shouldOverrideChar(ch1))
+            break;
+
+        ++skippedChars;
+    }
+    return skippedChars;
+}
+
 bool MatchingText::shouldInsertMatchingText(const QTextCursor &tc)
 {
     QTextDocument *doc = tc.document();
@@ -101,49 +151,19 @@ QString MatchingText::insertMatchingBrace(const QTextCursor &cursor, const QStri
                                           QChar la, int *skippedChars)
 {
     QTextCursor tc = cursor;
-    QTextDocument *doc = tc.document();
     QString text = textToProcess;
 
     const QString blockText = tc.block().text().mid(tc.positionInBlock());
     const QString trimmedBlockText = blockText.trimmed();
-    const int length = qMin(blockText.length(), textToProcess.length());
 
-    const QChar previousChar = doc->characterAt(tc.selectionEnd() - 1);
-
-    bool escape = false;
-
-    if (! text.isEmpty() && (text.at(0) == QLatin1Char('"') ||
-                             text.at(0) == QLatin1Char('\''))) {
-        if (previousChar == QLatin1Char('\\')) {
-            int escapeCount = 0;
-            int index = tc.selectionEnd() - 1;
-            do {
-                ++escapeCount;
-                --index;
-            } while (doc->characterAt(index) == QLatin1Char('\\'));
-
-            if ((escapeCount % 2) != 0)
-                escape = true;
+    if (!textToProcess.isEmpty()) {
+        if (!isQuote(textToProcess.at(0)) || !isEscaped(tc)) {
+            *skippedChars = countSkippedChars(blockText, textToProcess);
+            if (*skippedChars != 0) {
+                tc.movePosition(QTextCursor::NextCharacter, QTextCursor::MoveAnchor, *skippedChars);
+                text = textToProcess.mid(*skippedChars);
+            }
         }
-    }
-
-    if (! escape) {
-        for (int i = 0; i < length; ++i) {
-            const QChar ch1 = blockText.at(i);
-            const QChar ch2 = textToProcess.at(i);
-
-            if (ch1 != ch2)
-                break;
-            else if (! shouldOverrideChar(ch1))
-                break;
-
-            ++*skippedChars;
-        }
-    }
-
-    if (*skippedChars != 0) {
-        tc.movePosition(QTextCursor::NextCharacter, QTextCursor::MoveAnchor, *skippedChars);
-        text = textToProcess.mid(*skippedChars);
     }
 
     if (text.isEmpty() || !shouldInsertMatchingText(la))
@@ -151,40 +171,22 @@ QString MatchingText::insertMatchingBrace(const QTextCursor &cursor, const QStri
 
     BackwardsScanner tk(tc, LanguageFeatures::defaultFeatures(), MAX_NUM_LINES,
                         textToProcess.left(*skippedChars));
-    const int startToken = tk.startToken();
-    int index = startToken;
-
-    const Token &token = tk[index - 1];
-
-    if (text.at(0) == QLatin1Char('"') && token.isStringLiteral()) {
+    const QChar ch0 = text.at(0);
+    if (isQuote(ch0)) {
         if (text.length() != 1)
             qWarning() << Q_FUNC_INFO << "handle event compression";
-
-        if (isCompleteStringLiteral(tk, index - 1))
-            return QLatin1String("\"");
-
-        return QString();
-    } else if (text.at(0) == QLatin1Char('\'') && token.isCharLiteral()) {
-        if (text.length() != 1)
-            qWarning() << Q_FUNC_INFO << "handle event compression";
-
-        if (isCompleteCharLiteral(tk, index - 1))
-            return QLatin1String("'");
-
+        if (insertQuote(ch0, tk))
+            return ch0;
         return QString();
     }
 
     QString result;
-
     foreach (const QChar &ch, text) {
         if      (ch == QLatin1Char('('))  result += QLatin1Char(')');
         else if (ch == QLatin1Char('['))  result += QLatin1Char(']');
-        else if (ch == QLatin1Char('"'))  result += QLatin1Char('"');
-        else if (ch == QLatin1Char('\'')) result += QLatin1Char('\'');
         // Handle '{' appearance within functinon call context
         else if (ch == QLatin1Char('{') && !trimmedBlockText.isEmpty() && trimmedBlockText.at(0) == QLatin1Char(')'))
             result += QLatin1Char('}');
-
     }
 
     return result;
