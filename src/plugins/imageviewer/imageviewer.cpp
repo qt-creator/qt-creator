@@ -151,6 +151,8 @@ void ImageViewer::ctor()
             this, &ImageViewer::imageSizeUpdated);
     connect(d->file.data(), &ImageViewerFile::openFinished,
             d->imageView, &ImageView::createScene);
+    connect(d->file.data(), &ImageViewerFile::openFinished,
+            this, &ImageViewer::updateToolButtons);
     connect(d->file.data(), &ImageViewerFile::aboutToReload,
             d->imageView, &ImageView::reset);
     connect(d->file.data(), &ImageViewerFile::reloadFinished,
@@ -159,12 +161,6 @@ void ImageViewer::ctor()
             this, &ImageViewer::updatePauseAction);
     connect(d->imageView, &ImageView::scaleFactorChanged,
             this, &ImageViewer::scaleFactorUpdate);
-
-    connect(d->file.data(), &ImageViewerFile::openFinished,
-            this, [this](bool success)
-            {
-                d->ui_toolbar.toolButtonExportImage->setEnabled(success && d->file->type() == ImageViewerFile::TypeSvg);
-            });
 }
 
 ImageViewer::~ImageViewer()
@@ -188,6 +184,8 @@ Core::IEditor *ImageViewer::duplicate()
 {
     auto other = new ImageViewer(d->file);
     other->d->imageView->createScene();
+    other->updateToolButtons();
+    other->d->ui_toolbar.labelImageSize->setText(d->ui_toolbar.labelImageSize->text());
     return other;
 }
 
@@ -241,6 +239,12 @@ void ImageViewer::fitToScreen()
     d->ui_toolbar.toolButtonFitToScreen->click();
 }
 
+void ImageViewer::updateToolButtons()
+{
+    d->ui_toolbar.toolButtonExportImage->setEnabled(d->file->type() == ImageViewerFile::TypeSvg);
+    updatePauseAction();
+}
+
 void ImageViewer::togglePlay()
 {
     d->ui_toolbar.toolButtonPlayPause->click();
@@ -254,15 +258,13 @@ void ImageViewer::playToggled()
 void ImageViewer::updatePauseAction()
 {
     bool isMovie = d->file->type() == ImageViewerFile::TypeMovie;
-    d->ui_toolbar.toolButtonPlayPause->setVisible(isMovie);
-    if (isMovie) {
-        if (d->file->isPaused()) {
-            d->ui_toolbar.toolButtonPlayPause->setToolTipBase(tr("Play Animation"));
-            d->ui_toolbar.toolButtonPlayPause->setIcon(Core::Icons::RUN_SMALL.pixmap());
-        } else {
-            d->ui_toolbar.toolButtonPlayPause->setToolTipBase(tr("Pause Animation"));
-            d->ui_toolbar.toolButtonPlayPause->setIcon(Core::Icons::INTERRUPT_SMALL.pixmap());
-        }
+    if (isMovie && !d->file->isPaused()) {
+        d->ui_toolbar.toolButtonPlayPause->setToolTipBase(tr("Pause Animation"));
+        d->ui_toolbar.toolButtonPlayPause->setIcon(Core::Icons::INTERRUPT_SMALL.icon());
+    } else {
+        d->ui_toolbar.toolButtonPlayPause->setToolTipBase(tr("Play Animation"));
+        d->ui_toolbar.toolButtonPlayPause->setIcon(Core::Icons::RUN_SMALL.icon());
+        d->ui_toolbar.toolButtonPlayPause->setEnabled(isMovie);
     }
 }
 
