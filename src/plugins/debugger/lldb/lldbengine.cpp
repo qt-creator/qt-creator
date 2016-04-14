@@ -314,7 +314,7 @@ void LldbEngine::setupInferior()
 
     DebuggerCommand cmd1("loadDumpers");
     cmd1.callback = [this](const DebuggerResponse &response) {
-        watchHandler()->addDumpers(response.data);
+        watchHandler()->addDumpers(response.data["dumpers"]);
     };
     runCommand(cmd1);
 
