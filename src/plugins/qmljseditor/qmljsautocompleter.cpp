@@ -139,8 +139,8 @@ AutoCompleter::AutoCompleter()
 AutoCompleter::~AutoCompleter()
 {}
 
-bool AutoCompleter::contextAllowsAutoParentheses(const QTextCursor &cursor,
-                                                 const QString &textToInsert) const
+bool AutoCompleter::contextAllowsAutoBrackets(const QTextCursor &cursor,
+                                              const QString &textToInsert) const
 {
     QChar ch;
 
@@ -148,9 +148,6 @@ bool AutoCompleter::contextAllowsAutoParentheses(const QTextCursor &cursor,
         ch = textToInsert.at(0);
 
     switch (ch.unicode()) {
-    case '\'':
-    case '"':
-
     case '(':
     case '[':
     case '{':
@@ -207,6 +204,50 @@ bool AutoCompleter::contextAllowsAutoParentheses(const QTextCursor &cursor,
     return true;
 }
 
+bool AutoCompleter::contextAllowsAutoQuotes(const QTextCursor &cursor,
+                                            const QString &textToInsert) const
+{
+    if (!isQuote(textToInsert))
+        return false;
+
+    const Token token = tokenUnderCursor(cursor);
+    switch (token.kind) {
+    case Token::Comment:
+        return false;
+
+    case Token::RightBrace:
+        return false;
+
+    case Token::String: {
+        const QString blockText = cursor.block().text();
+        const QStringRef tokenText = blockText.midRef(token.offset, token.length);
+        QChar quote = tokenText.at(0);
+        // if a string literal doesn't start with a quote, it must be multiline
+        if (quote != QLatin1Char('"') && quote != QLatin1Char('\'')) {
+            const int startState = blockStartState(cursor.block());
+            if ((startState & Scanner::MultiLineMask) == Scanner::MultiLineStringDQuote)
+                quote = QLatin1Char('"');
+            else if ((startState & Scanner::MultiLineMask) == Scanner::MultiLineStringSQuote)
+                quote = QLatin1Char('\'');
+        }
+
+        // never insert ' into string literals, it adds spurious ' when writing contractions
+        if (textToInsert.at(0) == QLatin1Char('\''))
+            return false;
+
+        if (textToInsert.at(0) != quote || isCompleteStringLiteral(tokenText))
+            break;
+
+        return false;
+    }
+
+    default:
+        break;
+    } // end of switch
+
+    return true;
+}
+
 bool AutoCompleter::contextAllowsElectricCharacters(const QTextCursor &cursor) const
 {
     Token token = tokenUnderCursor(cursor);
@@ -226,7 +267,7 @@ bool AutoCompleter::isInComment(const QTextCursor &cursor) const
 
 QString AutoCompleter::insertMatchingBrace(const QTextCursor &cursor,
                                            const QString &text,
-                                           QChar la,
+                                           QChar lookAhead,
                                            int *skippedChars) const
 {
     if (text.length() != 1)
@@ -237,18 +278,6 @@ QString AutoCompleter::insertMatchingBrace(const QTextCursor &cursor,
 
     const QChar ch = text.at(0);
     switch (ch.unicode()) {
-    case '\'':
-        if (la != ch)
-            return QString(ch);
-        ++*skippedChars;
-        break;
-
-    case '"':
-        if (la != ch)
-            return QString(ch);
-        ++*skippedChars;
-        break;
-
     case '(':
         return QString(QLatin1Char(')'));
 
@@ -262,7 +291,7 @@ QString AutoCompleter::insertMatchingBrace(const QTextCursor &cursor,
     case ']':
     case '}':
     case ';':
-        if (la == ch)
+        if (lookAhead == ch)
             ++*skippedChars;
         break;
 
@@ -270,6 +299,17 @@ QString AutoCompleter::insertMatchingBrace(const QTextCursor &cursor,
         break;
     } // end of switch
 
+    return QString();
+}
+
+QString AutoCompleter::insertMatchingQuote(const QTextCursor &/*tc*/, const QString &text,
+                                           QChar lookAhead, int *skippedChars) const
+{
+    if (isQuote(text)) {
+        if (lookAhead != text)
+            return text;
+        ++*skippedChars;
+    }
     return QString();
 }
 

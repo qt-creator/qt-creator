@@ -32,10 +32,16 @@
 using namespace CppEditor;
 using namespace Internal;
 
-bool CppAutoCompleter::contextAllowsAutoParentheses(const QTextCursor &cursor,
+bool CppAutoCompleter::contextAllowsAutoBrackets(const QTextCursor &cursor,
                                                     const QString &textToInsert) const
 {
     return CPlusPlus::MatchingText::contextAllowsAutoParentheses(cursor, textToInsert);
+}
+
+bool CppAutoCompleter::contextAllowsAutoQuotes(const QTextCursor &cursor,
+                                               const QString &textToInsert) const
+{
+    return CPlusPlus::MatchingText::contextAllowsAutoQuotes(cursor, textToInsert);
 }
 
 bool CppAutoCompleter::contextAllowsElectricCharacters(const QTextCursor &cursor) const
@@ -53,12 +59,16 @@ bool CppAutoCompleter::isInString(const QTextCursor &cursor) const
     return CPlusPlus::MatchingText::isInStringHelper(cursor);
 }
 
-QString CppAutoCompleter::insertMatchingBrace(const QTextCursor &cursor,
-                                                const QString &text,
-                                                QChar la,
-                                                int *skippedChars) const
+QString CppAutoCompleter::insertMatchingBrace(const QTextCursor &cursor, const QString &text,
+                                              QChar lookAhead, int *skippedChars) const
 {
-    return CPlusPlus::MatchingText::insertMatchingBrace(cursor, text, la, skippedChars);
+    return CPlusPlus::MatchingText::insertMatchingBrace(cursor, text, lookAhead, skippedChars);
+}
+
+QString CppAutoCompleter::insertMatchingQuote(const QTextCursor &cursor, const QString &text,
+                                              QChar lookAhead, int *skippedChars) const
+{
+    return CPlusPlus::MatchingText::insertMatchingQuote(cursor, text, lookAhead, skippedChars);
 }
 
 QString CppAutoCompleter::insertParagraphSeparator(const QTextCursor &cursor) const

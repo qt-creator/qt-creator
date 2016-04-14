@@ -32,10 +32,16 @@
 namespace GlslEditor {
 namespace Internal {
 
-bool GlslCompleter::contextAllowsAutoParentheses(const QTextCursor &cursor,
-                                                 const QString &textToInsert) const
+bool GlslCompleter::contextAllowsAutoBrackets(const QTextCursor &cursor,
+                                              const QString &textToInsert) const
 {
     return CPlusPlus::MatchingText::contextAllowsAutoParentheses(cursor, textToInsert);
+}
+
+bool GlslCompleter::contextAllowsAutoQuotes(const QTextCursor &cursor,
+                                            const QString &textToInsert) const
+{
+    return CPlusPlus::MatchingText::contextAllowsAutoQuotes(cursor, textToInsert);
 }
 
 bool GlslCompleter::contextAllowsElectricCharacters(const QTextCursor &cursor) const
@@ -48,12 +54,16 @@ bool GlslCompleter::isInComment(const QTextCursor &cursor) const
     return CPlusPlus::MatchingText::isInCommentHelper(cursor);
 }
 
-QString GlslCompleter::insertMatchingBrace(const QTextCursor &cursor,
-                                           const QString &text,
-                                           QChar la,
-                                           int *skippedChars) const
+QString GlslCompleter::insertMatchingBrace(const QTextCursor &cursor, const QString &text,
+                                           QChar lookAhead, int *skippedChars) const
 {
-    return CPlusPlus::MatchingText::insertMatchingBrace(cursor, text, la, skippedChars);
+    return CPlusPlus::MatchingText::insertMatchingBrace(cursor, text, lookAhead, skippedChars);
+}
+
+QString GlslCompleter::insertMatchingQuote(const QTextCursor &cursor, const QString &text,
+                                           QChar lookAhead, int *skippedChars) const
+{
+    return CPlusPlus::MatchingText::insertMatchingQuote(cursor, text, lookAhead, skippedChars);
 }
 
 QString GlslCompleter::insertParagraphSeparator(const QTextCursor &cursor) const

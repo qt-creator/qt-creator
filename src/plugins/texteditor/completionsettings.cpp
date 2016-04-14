@@ -33,6 +33,8 @@ static const char completionTriggerKey[] = "CompletionTrigger";
 static const char automaticProposalTimeoutKey[] = "AutomaticProposalTimeout";
 static const char autoInsertBracesKey[] = "AutoInsertBraces";
 static const char surroundingAutoBracketsKey[] = "SurroundingAutoBrackets";
+static const char autoInsertQuotesKey[] = "AutoInsertQuotes";
+static const char surroundingAutoQuotesKey[] = "SurroundingAutoQuotes";
 static const char partiallyCompleteKey[] = "PartiallyComplete";
 static const char spaceAfterFunctionNameKey[] = "SpaceAfterFunctionName";
 static const char autoSplitStringsKey[] = "AutoSplitStrings";
@@ -45,6 +47,8 @@ CompletionSettings::CompletionSettings()
     , m_automaticProposalTimeoutInMs(400)
     , m_autoInsertBrackets(true)
     , m_surroundingAutoBrackets(true)
+    , m_autoInsertQuotes(true)
+    , m_surroundingAutoQuotes(true)
     , m_partiallyComplete(true)
     , m_spaceAfterFunctionName(false)
     , m_autoSplitStrings(true)
@@ -63,6 +67,8 @@ void CompletionSettings::toSettings(const QString &category, QSettings *s) const
     s->setValue(QLatin1String(automaticProposalTimeoutKey), m_automaticProposalTimeoutInMs);
     s->setValue(QLatin1String(autoInsertBracesKey), m_autoInsertBrackets);
     s->setValue(QLatin1String(surroundingAutoBracketsKey), m_surroundingAutoBrackets);
+    s->setValue(QLatin1String(autoInsertQuotesKey), m_autoInsertQuotes);
+    s->setValue(QLatin1String(surroundingAutoQuotesKey), m_surroundingAutoQuotes);
     s->setValue(QLatin1String(partiallyCompleteKey), m_partiallyComplete);
     s->setValue(QLatin1String(spaceAfterFunctionNameKey), m_spaceAfterFunctionName);
     s->setValue(QLatin1String(autoSplitStringsKey), m_autoSplitStrings);
@@ -83,6 +89,8 @@ void CompletionSettings::fromSettings(const QString &category, const QSettings *
     m_automaticProposalTimeoutInMs = s->value(group + QLatin1String(automaticProposalTimeoutKey), m_automaticProposalTimeoutInMs).toInt();
     m_autoInsertBrackets = s->value(group + QLatin1String(autoInsertBracesKey), m_autoInsertBrackets).toBool();
     m_surroundingAutoBrackets = s->value(group + QLatin1String(surroundingAutoBracketsKey), m_surroundingAutoBrackets).toBool();
+    m_autoInsertQuotes = s->value(group + QLatin1String(autoInsertQuotesKey), m_autoInsertQuotes).toBool();
+    m_surroundingAutoQuotes = s->value(group + QLatin1String(surroundingAutoQuotesKey), m_surroundingAutoQuotes).toBool();
     m_partiallyComplete = s->value(group + QLatin1String(partiallyCompleteKey), m_partiallyComplete).toBool();
     m_spaceAfterFunctionName = s->value(group + QLatin1String(spaceAfterFunctionNameKey), m_spaceAfterFunctionName).toBool();
     m_autoSplitStrings = s->value(group + QLatin1String(autoSplitStringsKey), m_autoSplitStrings).toBool();
@@ -95,6 +103,8 @@ bool CompletionSettings::equals(const CompletionSettings &cs) const
         && m_automaticProposalTimeoutInMs == cs.m_automaticProposalTimeoutInMs
         && m_autoInsertBrackets == cs.m_autoInsertBrackets
         && m_surroundingAutoBrackets == cs.m_surroundingAutoBrackets
+        && m_autoInsertQuotes == cs.m_autoInsertQuotes
+        && m_surroundingAutoQuotes == cs.m_surroundingAutoQuotes
         && m_partiallyComplete == cs.m_partiallyComplete
         && m_spaceAfterFunctionName == cs.m_spaceAfterFunctionName
         && m_autoSplitStrings == cs.m_autoSplitStrings

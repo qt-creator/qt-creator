@@ -36,7 +36,7 @@ namespace Internal {
 
 CMakeAutoCompleter::CMakeAutoCompleter()
 {
-    setAutoParenthesesEnabled(true);
+    setAutoInsertBracketsEnabled(true);
 }
 
 bool CMakeAutoCompleter::isInComment(const QTextCursor &cursor) const
@@ -73,25 +73,20 @@ bool CMakeAutoCompleter::isInString(const QTextCursor &cursor) const
     return inString;
 }
 
-QString CMakeAutoCompleter::insertMatchingBrace(const QTextCursor &cursor, const QString &text, QChar la, int *skippedChars) const
+QString CMakeAutoCompleter::insertMatchingBrace(const QTextCursor &cursor, const QString &text,
+                                                QChar lookAhead, int *skippedChars) const
 {
     Q_UNUSED(cursor)
-    Q_UNUSED(skippedChars);
+    Q_UNUSED(skippedChars)
     if (text.isEmpty())
         return QString();
     const QChar current = text.at(0);
     switch (current.unicode()) {
-    case '"':
-        if (la != current)
-            return QStringLiteral("\"");
-        ++*skippedChars;
-        break;
-
     case '(':
         return QStringLiteral(")");
 
     case ')':
-        if (current == la)
+        if (current == lookAhead)
             ++*skippedChars;
         break;
 
@@ -99,6 +94,19 @@ QString CMakeAutoCompleter::insertMatchingBrace(const QTextCursor &cursor, const
         break;
     }
 
+    return QString();
+}
+
+QString CMakeAutoCompleter::insertMatchingQuote(const QTextCursor &cursor, const QString &text,
+                                                QChar lookAhead, int *skippedChars) const
+{
+    Q_UNUSED(cursor)
+    static const QChar quote(QLatin1Char('"'));
+    if (text.isEmpty() || text != quote)
+        return QString();
+    if (lookAhead != quote)
+        return quote;
+    ++*skippedChars;
     return QString();
 }
 
@@ -110,13 +118,25 @@ int CMakeAutoCompleter::paragraphSeparatorAboutToBeInserted(QTextCursor &cursor,
     return 0;
 }
 
-bool CMakeAutoCompleter::contextAllowsAutoParentheses(const QTextCursor &cursor, const QString &textToInsert) const
+bool CMakeAutoCompleter::contextAllowsAutoBrackets(const QTextCursor &cursor,
+                                                   const QString &textToInsert) const
 {
     if (textToInsert.isEmpty())
         return false;
 
     const QChar c = textToInsert.at(0);
-    if (c == QLatin1Char('"') || c == QLatin1Char('(') || c == QLatin1Char(')'))
+    if (c == QLatin1Char('(') || c == QLatin1Char(')'))
+        return !isInComment(cursor);
+    return false;
+}
+
+bool CMakeAutoCompleter::contextAllowsAutoQuotes(const QTextCursor &cursor, const QString &textToInsert) const
+{
+    if (textToInsert.isEmpty())
+        return false;
+
+    const QChar c = textToInsert.at(0);
+    if (c == QLatin1Char('"'))
         return !isInComment(cursor);
     return false;
 }

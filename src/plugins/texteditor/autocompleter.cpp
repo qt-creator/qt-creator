@@ -34,32 +34,14 @@ using namespace TextEditor;
 
 AutoCompleter::AutoCompleter() :
     m_allowSkippingOfBlockEnd(false),
-    m_surroundWithEnabled(true),
-    m_autoParenthesesEnabled(true)
+    m_autoInsertBrackets(true),
+    m_surroundWithBrackets(true),
+    m_autoInsertQuotes(true),
+    m_surroundWithQuotes(true)
 {}
 
 AutoCompleter::~AutoCompleter()
 {}
-
-void AutoCompleter::setAutoParenthesesEnabled(bool b)
-{
-    m_autoParenthesesEnabled = b;
-}
-
-bool AutoCompleter::isAutoParenthesesEnabled() const
-{
-    return m_autoParenthesesEnabled;
-}
-
-void AutoCompleter::setSurroundWithEnabled(bool b)
-{
-    m_surroundWithEnabled = b;
-}
-
-bool AutoCompleter::isSurroundWithEnabled() const
-{
-    return m_surroundWithEnabled;
-}
 
 static void countBracket(QChar open, QChar close, QChar c, int *errors, int *stillopen)
 {
@@ -75,7 +57,7 @@ static void countBracket(QChar open, QChar close, QChar c, int *errors, int *sti
 }
 
 static void countBrackets(QTextCursor cursor, int from, int end, QChar open, QChar close,
-                   int *errors, int *stillopen)
+                          int *errors, int *stillopen)
 {
     cursor.setPosition(from);
     QTextBlock block = cursor.block();
@@ -124,11 +106,13 @@ static bool fixesBracketsError(const QString &textToInsert, const QTextCursor &c
     return errorsAfterInsertion < errorsBeforeInsertion;
 }
 
-static QString replaceSelection(const QString &textToInsert, const QString &selection)
+static QString surroundSelectionWithBrackets(const QString &textToInsert, const QString &selection)
 {
     QString replacement;
     if (textToInsert == QLatin1String("(")) {
         replacement = selection + QLatin1Char(')');
+    } else if (textToInsert == QLatin1String("[")) {
+        replacement = selection + QLatin1Char(']');
     } else if (textToInsert == QLatin1String("{")) {
         //If the text spans multiple lines, insert on different lines
         replacement = selection;
@@ -144,14 +128,24 @@ static QString replaceSelection(const QString &textToInsert, const QString &sele
         } else {
             replacement += QLatin1Char('}');
         }
-    } else if (textToInsert == QLatin1String("[")) {
-        replacement = selection + QLatin1Char(']');
-    } else if (textToInsert == QLatin1String("\"")) {
-        replacement = selection + QLatin1Char('"');
-    } else if (textToInsert == QLatin1String("'")) {
-        replacement = selection + QLatin1Char('\'');
     }
     return replacement;
+}
+
+bool AutoCompleter::isQuote(const QString &text)
+{
+    return text == QLatin1String("\"") || text == QLatin1String("'");
+}
+
+QString AutoCompleter::replaceSelection(QTextCursor &cursor, const QString &textToInsert) const
+{
+    if (!cursor.hasSelection())
+        return QString();
+    if (isQuote(textToInsert) && m_surroundWithQuotes)
+        return cursor.selectedText() + textToInsert;
+    if (m_surroundWithBrackets)
+        return surroundSelectionWithBrackets(textToInsert, cursor.selectedText());
+    return QString();
 }
 
 QString AutoCompleter::autoComplete(QTextCursor &cursor, const QString &textToInsert) const
@@ -159,35 +153,37 @@ QString AutoCompleter::autoComplete(QTextCursor &cursor, const QString &textToIn
     const bool checkBlockEnd = m_allowSkippingOfBlockEnd;
     m_allowSkippingOfBlockEnd = false; // consume blockEnd.
 
-    if (m_surroundWithEnabled && cursor.hasSelection()) {
-        const QString replacement = replaceSelection(textToInsert, cursor.selectedText());
-        if (!replacement.isEmpty())
-            return replacement;
-    }
-
-    if (!m_autoParenthesesEnabled)
-        return QString();
-    if (!contextAllowsAutoParentheses(cursor, textToInsert))
-        return QString();
-    if (fixesBracketsError(textToInsert, cursor))
-        return QString();
+    QString autoText = replaceSelection(cursor, textToInsert);
+    if (!autoText.isEmpty())
+        return autoText;
 
     QTextDocument *doc = cursor.document();
     const QChar lookAhead = doc->characterAt(cursor.selectionEnd());
 
     int skippedChars = 0;
-    const QString autoText = insertMatchingBrace(cursor, textToInsert, lookAhead, &skippedChars);
 
-    if (checkBlockEnd && textToInsert.at(0) == QLatin1Char('}')) {
-        if (textToInsert.length() > 1)
-            qWarning() << "*** handle event compression";
+    if (isQuote(textToInsert) && m_autoInsertQuotes
+            && contextAllowsAutoQuotes(cursor, textToInsert)) {
+        autoText = insertMatchingQuote(cursor, textToInsert, lookAhead, &skippedChars);
+    } else if (m_autoInsertBrackets && contextAllowsAutoBrackets(cursor, textToInsert)) {
+        if (fixesBracketsError(textToInsert, cursor))
+            return QString();
 
-        int startPos = cursor.selectionEnd(), pos = startPos;
-        while (doc->characterAt(pos).isSpace())
-            ++pos;
+        autoText = insertMatchingBrace(cursor, textToInsert, lookAhead, &skippedChars);
 
-        if (doc->characterAt(pos) == QLatin1Char('}'))
-            skippedChars += (pos - startPos) + 1;
+        if (checkBlockEnd && textToInsert.at(0) == QLatin1Char('}')) {
+            if (textToInsert.length() > 1)
+                qWarning() << "*** handle event compression";
+
+            int startPos = cursor.selectionEnd(), pos = startPos;
+            while (doc->characterAt(pos).isSpace())
+                ++pos;
+
+            if (doc->characterAt(pos) == QLatin1Char('}'))
+                skippedChars += (pos - startPos) + 1;
+        }
+    } else {
+        return QString();
     }
 
     if (skippedChars) {
@@ -203,7 +199,7 @@ bool AutoCompleter::autoBackspace(QTextCursor &cursor)
 {
     m_allowSkippingOfBlockEnd = false;
 
-    if (!m_autoParenthesesEnabled)
+    if (!m_autoInsertBrackets)
         return false;
 
     int pos = cursor.position();
@@ -258,14 +254,14 @@ bool AutoCompleter::autoBackspace(QTextCursor &cursor)
 int AutoCompleter::paragraphSeparatorAboutToBeInserted(QTextCursor &cursor,
                                                        const TabSettings &tabSettings)
 {
-    if (!m_autoParenthesesEnabled)
+    if (!m_autoInsertBrackets)
         return 0;
 
     QTextDocument *doc = cursor.document();
     if (doc->characterAt(cursor.position() - 1) != QLatin1Char('{'))
         return 0;
 
-    if (!contextAllowsAutoParentheses(cursor))
+    if (!contextAllowsAutoBrackets(cursor))
         return 0;
 
     // verify that we indeed do have an extra opening brace in the document
@@ -310,8 +306,15 @@ int AutoCompleter::paragraphSeparatorAboutToBeInserted(QTextCursor &cursor,
     return 1;
 }
 
-bool AutoCompleter::contextAllowsAutoParentheses(const QTextCursor &cursor,
-                                                 const QString &textToInsert) const
+bool AutoCompleter::contextAllowsAutoBrackets(const QTextCursor &cursor,
+                                              const QString &textToInsert) const
+{
+    Q_UNUSED(cursor);
+    Q_UNUSED(textToInsert);
+    return false;
+}
+
+bool AutoCompleter::contextAllowsAutoQuotes(const QTextCursor &cursor, const QString &textToInsert) const
 {
     Q_UNUSED(cursor);
     Q_UNUSED(textToInsert);
@@ -320,7 +323,7 @@ bool AutoCompleter::contextAllowsAutoParentheses(const QTextCursor &cursor,
 
 bool AutoCompleter::contextAllowsElectricCharacters(const QTextCursor &cursor) const
 {
-    return contextAllowsAutoParentheses(cursor);
+    return contextAllowsAutoBrackets(cursor);
 }
 
 bool AutoCompleter::isInComment(const QTextCursor &cursor) const
@@ -337,12 +340,24 @@ bool AutoCompleter::isInString(const QTextCursor &cursor) const
 
 QString AutoCompleter::insertMatchingBrace(const QTextCursor &cursor,
                                            const QString &text,
-                                           QChar la,
+                                           QChar lookAhead,
                                            int *skippedChars) const
 {
     Q_UNUSED(cursor);
     Q_UNUSED(text);
-    Q_UNUSED(la);
+    Q_UNUSED(lookAhead);
+    Q_UNUSED(skippedChars);
+    return QString();
+}
+
+QString AutoCompleter::insertMatchingQuote(const QTextCursor &cursor,
+                                           const QString &text,
+                                           QChar lookAhead,
+                                           int *skippedChars) const
+{
+    Q_UNUSED(cursor);
+    Q_UNUSED(text);
+    Q_UNUSED(lookAhead);
     Q_UNUSED(skippedChars);
     return QString();
 }

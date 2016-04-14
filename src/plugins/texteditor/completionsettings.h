@@ -63,6 +63,8 @@ public:
     int m_automaticProposalTimeoutInMs;
     bool m_autoInsertBrackets;
     bool m_surroundingAutoBrackets;
+    bool m_autoInsertQuotes;
+    bool m_surroundingAutoQuotes;
     bool m_partiallyComplete;
     bool m_spaceAfterFunctionName;
     bool m_autoSplitStrings;

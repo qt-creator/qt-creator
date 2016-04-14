@@ -151,6 +151,11 @@ bool MatchingText::contextAllowsAutoParentheses(const QTextCursor &cursor,
     return true;
 }
 
+bool MatchingText::contextAllowsAutoQuotes(const QTextCursor &cursor, const QString &textToInsert)
+{
+    return !textToInsert.isEmpty() && !isInCommentHelper(cursor);
+}
+
 bool MatchingText::contextAllowsElectricCharacters(const QTextCursor &cursor)
 {
     Token token;
@@ -250,36 +255,21 @@ bool MatchingText::isInStringHelper(const QTextCursor &cursor)
 }
 
 QString MatchingText::insertMatchingBrace(const QTextCursor &cursor, const QString &textToProcess,
-                                          QChar la, int *skippedChars)
+                                          QChar /*lookAhead*/, int *skippedChars)
 {
+    if (textToProcess.isEmpty())
+        return QString();
+
     QTextCursor tc = cursor;
     QString text = textToProcess;
 
     const QString blockText = tc.block().text().mid(tc.positionInBlock());
     const QString trimmedBlockText = blockText.trimmed();
 
-    if (!textToProcess.isEmpty()) {
-        if (!isQuote(textToProcess.at(0)) || !isEscaped(tc)) {
-            *skippedChars = countSkippedChars(blockText, textToProcess);
-            if (*skippedChars != 0) {
-                tc.movePosition(QTextCursor::NextCharacter, QTextCursor::MoveAnchor, *skippedChars);
-                text = textToProcess.mid(*skippedChars);
-            }
-        }
-    }
-
-    if (text.isEmpty() || !shouldInsertMatchingText(la))
-        return QString();
-
-    BackwardsScanner tk(tc, LanguageFeatures::defaultFeatures(), MAX_NUM_LINES,
-                        textToProcess.left(*skippedChars));
-    const QChar ch0 = text.at(0);
-    if (isQuote(ch0)) {
-        if (text.length() != 1)
-            qWarning() << Q_FUNC_INFO << "handle event compression";
-        if (insertQuote(ch0, tk))
-            return ch0;
-        return QString();
+    *skippedChars = countSkippedChars(blockText, textToProcess);
+    if (*skippedChars != 0) {
+        tc.movePosition(QTextCursor::NextCharacter, QTextCursor::MoveAnchor, *skippedChars);
+        text = textToProcess.mid(*skippedChars);
     }
 
     QString result;
@@ -292,6 +282,42 @@ QString MatchingText::insertMatchingBrace(const QTextCursor &cursor, const QStri
     }
 
     return result;
+}
+
+QString MatchingText::insertMatchingQuote(const QTextCursor &cursor, const QString &textToProcess,
+                                          QChar lookAhead, int *skippedChars)
+{
+    if (textToProcess.isEmpty())
+        return QString();
+
+    QTextCursor tc = cursor;
+    QString text = textToProcess;
+
+    if (!isEscaped(tc)) {
+        const QString blockText = tc.block().text().mid(tc.positionInBlock());
+        *skippedChars = countSkippedChars(blockText, textToProcess);
+        if (*skippedChars != 0) {
+            tc.movePosition(QTextCursor::NextCharacter, QTextCursor::MoveAnchor, *skippedChars);
+            text = textToProcess.mid(*skippedChars);
+        }
+    }
+
+    if (!shouldInsertMatchingText(lookAhead))
+        return QString();
+
+    if (!text.isEmpty()) {
+        const QChar ch = text.at(0);
+        if (!isQuote(ch))
+            return QString();
+        if (text.length() != 1)
+            qWarning() << Q_FUNC_INFO << "handle event compression";
+
+        BackwardsScanner tk(tc, LanguageFeatures::defaultFeatures(), MAX_NUM_LINES,
+                            textToProcess.left(*skippedChars));
+        if (insertQuote(ch, tk))
+            return ch;
+    }
+    return QString();
 }
 
 static bool shouldInsertNewline(const QTextCursor &tc)

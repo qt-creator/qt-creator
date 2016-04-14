@@ -2331,15 +2331,15 @@ void TextEditorWidget::keyPressEvent(QKeyEvent *e)
         if (e->modifiers() == Qt::NoModifier) {
             AutoCompleter *ac = d->m_autoCompleter.data();
             if (inOverwriteMode) {
-                ac->setAutoParenthesesEnabled(d->autoParenthesisOverwriteBackup);
-                ac->setSurroundWithEnabled(d->surroundWithEnabledOverwriteBackup);
+                ac->setAutoInsertBracketsEnabled(d->autoParenthesisOverwriteBackup);
+                ac->setSurroundWithBracketsEnabled(d->surroundWithEnabledOverwriteBackup);
                 setOverwriteMode(false);
                 viewport()->update();
             } else {
-                d->autoParenthesisOverwriteBackup = ac->isAutoParenthesesEnabled();
-                d->surroundWithEnabledOverwriteBackup = ac->isSurroundWithEnabled();
-                ac->setAutoParenthesesEnabled(false);
-                ac->setSurroundWithEnabled(false);
+                d->autoParenthesisOverwriteBackup = ac->isAutoInsertBracketsEnabled();
+                d->surroundWithEnabledOverwriteBackup = ac->isSurroundWithBracketsEnabled();
+                ac->setAutoInsertBracketsEnabled(false);
+                ac->setSurroundWithBracketsEnabled(false);
                 setOverwriteMode(true);
             }
             e->accept();
@@ -6545,9 +6545,10 @@ void TextEditorWidget::setStorageSettings(const StorageSettings &storageSettings
 
 void TextEditorWidget::setCompletionSettings(const CompletionSettings &completionSettings)
 {
-    d->m_autoCompleter->setAutoParenthesesEnabled(completionSettings.m_autoInsertBrackets);
-    d->m_autoCompleter->setSurroundWithEnabled(completionSettings.m_autoInsertBrackets
-                                               && completionSettings.m_surroundingAutoBrackets);
+    d->m_autoCompleter->setAutoInsertBracketsEnabled(completionSettings.m_autoInsertBrackets);
+    d->m_autoCompleter->setSurroundWithBracketsEnabled(completionSettings.m_surroundingAutoBrackets);
+    d->m_autoCompleter->setAutoInsertQuotesEnabled(completionSettings.m_autoInsertQuotes);
+    d->m_autoCompleter->setSurroundWithQuotesEnabled(completionSettings.m_surroundingAutoQuotes);
     d->m_codeAssistant.updateFromCompletionSettings(completionSettings);
 }
 

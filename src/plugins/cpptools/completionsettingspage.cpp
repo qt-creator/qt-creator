@@ -93,8 +93,10 @@ QWidget *CompletionSettingsPage::widget()
         m_page->completionTrigger->setCurrentIndex(completionTriggerIndex);
         m_page->automaticProposalTimeoutSpinBox
                     ->setValue(completionSettings.m_automaticProposalTimeoutInMs);
-        m_page->autoInsertBrackets->setChecked(completionSettings.m_autoInsertBrackets);
-        m_page->surroundSelectedText->setChecked(completionSettings.m_surroundingAutoBrackets);
+        m_page->insertBrackets->setChecked(completionSettings.m_autoInsertBrackets);
+        m_page->surroundBrackets->setChecked(completionSettings.m_surroundingAutoBrackets);
+        m_page->insertQuotes->setChecked(completionSettings.m_autoInsertQuotes);
+        m_page->surroundQuotes->setChecked(completionSettings.m_surroundingAutoQuotes);
         m_page->partiallyComplete->setChecked(completionSettings.m_partiallyComplete);
         m_page->spaceAfterFunctionName->setChecked(completionSettings.m_spaceAfterFunctionName);
         m_page->autoSplitStrings->setChecked(completionSettings.m_autoSplitStrings);
@@ -119,8 +121,10 @@ void CompletionSettingsPage::apply()
     completionSettings.m_completionTrigger = completionTrigger();
     completionSettings.m_automaticProposalTimeoutInMs
             = m_page->automaticProposalTimeoutSpinBox->value();
-    completionSettings.m_autoInsertBrackets = m_page->autoInsertBrackets->isChecked();
-    completionSettings.m_surroundingAutoBrackets = m_page->surroundSelectedText->isChecked();
+    completionSettings.m_autoInsertBrackets = m_page->insertBrackets->isChecked();
+    completionSettings.m_surroundingAutoBrackets = m_page->surroundBrackets->isChecked();
+    completionSettings.m_autoInsertQuotes = m_page->insertQuotes->isChecked();
+    completionSettings.m_surroundingAutoQuotes = m_page->surroundQuotes->isChecked();
     completionSettings.m_partiallyComplete = m_page->partiallyComplete->isChecked();
     completionSettings.m_spaceAfterFunctionName = m_page->spaceAfterFunctionName->isChecked();
     completionSettings.m_autoSplitStrings = m_page->autoSplitStrings->isChecked();
