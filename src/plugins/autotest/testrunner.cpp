@@ -220,6 +220,10 @@ static void performTestRun(QFutureInterface<TestResultPtr> &futureInterface,
                 eventLoop.processEvents();
             }
         }
+        if (testProcess.exitStatus() == QProcess::CrashExit) {
+            futureInterface.reportResult(TestResultPtr(new FaultyTestResult(Result::MessageFatal,
+                QString::fromLatin1("Test for project \"%1\" crashed.").arg(testConfiguration->displayName()))));
+        }
 
         if (canceledByTimeout) {
             if (testProcess.state() != QProcess::NotRunning) {
