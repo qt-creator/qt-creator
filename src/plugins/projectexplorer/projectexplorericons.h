@@ -70,7 +70,7 @@ const Utils::Icon BUILDSTEP_REMOVE({
 const Utils::Icon DESKTOP_DEVICE({
         {QLatin1String(":/projectexplorer/images/desktopdevice.png"), Utils::Theme::IconsBaseColor}});
 const Utils::Icon DESKTOP_DEVICE_SMALL({
-        {QLatin1String(":/projectexplorer/images/desktopdevicesmall.png"), Utils::Theme::PanelTextColorDark}}, Utils::Icon::Tint);
+        {QLatin1String(":/core/images/desktopdevicesmall.png"), Utils::Theme::PanelTextColorDark}}, Utils::Icon::Tint);
 
 const Utils::Icon MODE_PROJECT_CLASSIC(
         QLatin1String(":/projectexplorer/images/mode_project.png"));

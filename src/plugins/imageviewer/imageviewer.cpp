@@ -102,6 +102,9 @@ void ImageViewer::ctor()
     d->ui_toolbar.setupUi(d->toolbar);
     d->ui_toolbar.toolButtonExportImage->setIcon(QIcon::fromTheme(QLatin1String("document-save"),
                                                                   Core::Icons::SAVEFILE.icon()));
+    const Utils::Icon backgroundIcon({
+            {QLatin1String(":/core/images/desktopdevicesmall.png"), Utils::Theme::IconsBaseColor}});
+    d->ui_toolbar.toolButtonBackground->setIcon(backgroundIcon.icon());
     d->ui_toolbar.toolButtonOutline->setIcon(Core::Icons::BOUNDING_RECT.icon());
     d->ui_toolbar.toolButtonZoomIn->setIcon(Core::Icons::PLUS.icon());
     d->ui_toolbar.toolButtonZoomOut->setIcon(Core::Icons::MINUS.icon());

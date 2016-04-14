@@ -115,5 +115,7 @@
         <file>images/eye_closed@2x.png</file>
         <file>images/eye_open.png</file>
         <file>images/eye_open@2x.png</file>
+        <file>images/desktopdevicesmall.png</file>
+        <file>images/desktopdevicesmall@2x.png</file>
     </qresource>
 </RCC>

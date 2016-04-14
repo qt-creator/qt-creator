@@ -1,6 +1,5 @@
 <RCC>
     <qresource prefix="/imageviewer">
-        <file>images/background.png</file>
         <file>ImageViewer.mimetypes.xml</file>
     </qresource>
 </RCC>
