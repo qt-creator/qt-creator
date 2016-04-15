@@ -2233,7 +2233,7 @@ void GdbEngine::executeReturn()
     setTokenBarrier();
     notifyInferiorRunRequested();
     showStatusMessage(tr("Immediate return from function requested..."), 5000);
-    runCommand({"-exec-finish", RunRequest, CB(handleExecuteReturn)});
+    runCommand({"-exec-return", RunRequest, CB(handleExecuteReturn)});
 }
 
 void GdbEngine::handleExecuteReturn(const DebuggerResponse &response)
