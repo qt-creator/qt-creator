@@ -585,6 +585,8 @@ static void performParse(QFutureInterface<TestParseResult> &futureInterface,
     QmlJS::Snapshot qmlSnapshot = QmlJSTools::Internal::ModelManager::instance()->snapshot();
 
     foreach (const QString &file, list) {
+        if (futureInterface.isCanceled())
+            return;
         if (file.endsWith(QLatin1String(".qml"))) {
             checkQmlDocumentForTestCode(futureInterface, qmlSnapshot.document(file));
         } else if (snapshot.contains(file)) {
@@ -674,6 +676,7 @@ bool TestCodeParser::postponed(const QStringList &fileList)
             m_partialUpdatePostponed = false;
             m_postponedFiles.clear();
             m_fullUpdatePostponed = true;
+            Core::ProgressManager::instance()->cancelTasks(Constants::TASK_PARSE);
         } else {
             // partial parse triggered, but full parse is postponed already, ignoring this
             if (m_fullUpdatePostponed)
