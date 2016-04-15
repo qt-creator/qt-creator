@@ -113,11 +113,11 @@ private:
     QList<Task> m_tasks;   // all tasks (in order of id)
 
     QHash<QString,bool> m_fileNotFound;
-    int m_maxSizeOfFileName;
-    int m_lastMaxSizeIndex;
     QFont m_fileMeasurementFont;
-    int m_sizeOfLineNumber;
     QFont m_lineMeasurementFont;
+    int m_maxSizeOfFileName = 0;
+    int m_lastMaxSizeIndex = 0;
+    int m_sizeOfLineNumber = 0;
 };
 
 class TaskFilterModel : public QAbstractItemModel

@@ -39,11 +39,7 @@ namespace Internal {
 // TaskModel
 /////
 
-TaskModel::TaskModel(QObject *parent) :
-    QAbstractItemModel(parent),
-    m_maxSizeOfFileName(0),
-    m_lastMaxSizeIndex(0),
-    m_sizeOfLineNumber(0)
+TaskModel::TaskModel(QObject *parent) : QAbstractItemModel(parent)
 {
     m_categories.insert(Core::Id(), CategoryData());
 }
