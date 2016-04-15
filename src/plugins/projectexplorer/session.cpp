@@ -75,14 +75,6 @@ namespace ProjectExplorer {
 class SessionManagerPrivate
 {
 public:
-    SessionManagerPrivate() :
-        m_sessionName(QLatin1String("default")),
-        m_virginSession(true),
-        m_loadingSession(false),
-        m_startupProject(0),
-        m_writer(0)
-    {}
-
     bool projectContainsFile(Project *p, const FileName &fileName) const;
     void restoreValues(const PersistentSettingsReader &reader);
     void restoreDependencies(const PersistentSettingsReader &reader);
@@ -100,23 +92,23 @@ public:
 public:
     static QString windowTitleAddition(const QString &filePath);
 
-    SessionNode *m_sessionNode;
-    QString m_sessionName;
-    bool m_virginSession;
+    SessionNode *m_sessionNode = nullptr;
+    QString m_sessionName = QLatin1String("default");
+    bool m_virginSession = true;
+    bool m_loadingSession = false;
+    bool m_casadeSetActive = false;
 
     mutable QStringList m_sessions;
 
     mutable QHash<Project *, QStringList> m_projectFileCache;
-    bool m_loadingSession;
 
-    bool m_casadeSetActive;
-    Project *m_startupProject;
+    Project *m_startupProject = nullptr;
     QList<Project *> m_projects;
     QStringList m_failedProjects;
     QMap<QString, QStringList> m_depMap;
     QMap<QString, QVariant> m_values;
     QFutureInterface<void> m_future;
-    PersistentSettingsWriter *m_writer;
+    PersistentSettingsWriter *m_writer = nullptr;
 };
 
 static SessionManager *m_instance = nullptr;
