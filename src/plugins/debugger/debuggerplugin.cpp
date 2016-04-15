@@ -1686,13 +1686,6 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
     cmd = ActionManager::registerAction(qmlSelectDummyAction, Constants::QML_SELECTTOOL);
     debugMenu->addAction(cmd);
 
-    auto qmlZoomDummyAction = new QAction(tr("Zoom"), this);
-    qmlZoomDummyAction->setCheckable(true);
-    qmlZoomDummyAction->setIcon(Core::Icons::ZOOM_TOOLBAR.icon());
-    qmlZoomDummyAction->setEnabled(false);
-    cmd = ActionManager::registerAction(qmlZoomDummyAction, Constants::QML_ZOOMTOOL);
-    debugMenu->addAction(cmd);
-
     debugMenu->addSeparator();
 
     // Don't add '1' to the string as it shows up in the shortcut dialog.
@@ -1810,7 +1803,6 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
 //    qmlToolbar.addAction(qmlShowAppOnTopDummyAction);
 //    qmlToolbar.addWidget(new StyledSeparator);
 //    qmlToolbar.addAction(qmlSelectDummyAction);
-//    qmlToolbar.addAction(qmlZoomDummyAction);
 //    qmlToolbar.addWidget(new StyledSeparator);
 
     Perspective basePerspective({}, {
