@@ -2200,18 +2200,68 @@
          id="rect4810" />
       <rect
          style="opacity:1;fill:#000000;fill-opacity:1;stroke:none;stroke-width:2;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-         id="rect4815"
-         width="4"
+         id="smallinterruptbar"
+         width="5"
          height="12"
          x="267"
-         y="570" />
+         y="570"
+         inkscape:label="#rect4815" />
+      <use
+         x="0"
+         y="0"
+         xlink:href="#smallinterruptbar"
+         id="use4930"
+         transform="translate(7,0)"
+         width="100%"
+         height="100%" />
+    </g>
+    <g
+       style="display:inline"
+       transform="translate(176,0)"
+       id="src/plugins/debugger/images/tracepointoverlay">
       <rect
-         style="opacity:1;fill:#000000;fill-opacity:1;stroke:none;stroke-width:2;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-         id="rect4817"
-         width="4"
-         height="12"
-         x="274"
-         y="570" />
+         style="fill:#ffffff;fill-opacity:1;stroke:none"
+         x="265"
+         y="568"
+         width="16"
+         height="16"
+         id="rect4810-1-2" />
+      <path
+         style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:2;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         d="m 273,571 8,0"
+         id="path4877"
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="cc" />
+      <path
+         style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:2;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         d="m 277,572 0,7"
+         id="path4879"
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="cc" />
+    </g>
+    <g
+       style="display:inline"
+       transform="translate(192,0)"
+       id="src/plugins/valgrind/images/suppressoverlay">
+      <rect
+         style="fill:#ffffff;fill-opacity:1;stroke:none"
+         x="265"
+         y="568"
+         width="16"
+         height="16"
+         id="rect4810-1-2-2" />
+      <path
+         style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:2;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         d="m 272.5,582.5 7,-7"
+         id="path4907"
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="cc" />
+      <path
+         style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:2;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         d="m 272.5,575.5 7,7"
+         id="path4909"
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="cc" />
     </g>
     <g
        id="src/plugins/projectexplorer/images/debugger_overlay_small"
@@ -2437,7 +2487,7 @@
     <g
        transform="translate(297,268)"
        style="display:inline"
-       id="src/plugins/qmldesigner/components/navigator/eye_open">
+       id="src/plugins/coreplugin/images/eye_open">
       <rect
          id="rect6782-9"
          height="16"
@@ -2459,7 +2509,7 @@
     </g>
     <g
        transform="translate(263,268)"
-       id="src/plugins/qmldesigner/components/navigator/eye_closed">
+       id="src/plugins/coreplugin/images/eye_closed">
       <rect
          id="rect6790-1"
          height="16"
@@ -2991,13 +3041,14 @@
          width="16"
          height="16"
          id="rect4810-6" />
-      <rect
-         style="opacity:1;fill:#000000;fill-opacity:1;stroke:none;stroke-width:2;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-         id="rect4815-1"
-         width="4"
-         height="12"
-         x="267"
-         y="570" />
+      <use
+         style="display:inline"
+         x="0"
+         y="0"
+         xlink:href="#smallinterruptbar"
+         id="use4932"
+         width="100%"
+         height="100%" />
     </g>
     <g
        style="display:inline"
@@ -4148,6 +4199,130 @@
          inkscape:connector-curvature="0"
          sodipodi:nodetypes="cccccccc" />
     </g>
+    <g
+       id="src/plugins/debugger/images/breakpoint"
+       transform="translate(-422,-48)">
+      <rect
+         y="584"
+         x="486"
+         height="16"
+         width="16"
+         id="rect4024-7-4"
+         style="fill:#ffffff;stroke:none" />
+      <path
+         id="path5294-7-1"
+         d="m 494,586 c -3.314,0 -6,2.686 -6,6 0,3.314 2.686,6 6,6 3.314,0 6,-2.686 6,-6 0,-3.314 -2.686,-6 -6,-6 z"
+         inkscape:connector-curvature="0"
+         style="display:inline;fill:#000000"
+         sodipodi:nodetypes="sssss" />
+    </g>
+    <g
+       style="display:inline"
+       id="src/plugins/debugger/images/breakpoint_pending_overlay"
+       transform="translate(-374,-48)">
+      <rect
+         y="584"
+         x="486"
+         height="16"
+         width="16"
+         id="rect4024-7-4-0"
+         style="fill:#ffffff;stroke:none" />
+      <path
+         style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+         d="m 495,590 0,1 1,0 0,2.5 1,1 -1,1 0,2.5 -1,0 0,1 6,0 0,-1 -1,0 0,-2.5 -1,-1 1,-1 0,-2.5 1,0 0,-1 z"
+         id="path4732"
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="ccccccccccccccccccc" />
+      <path
+         style="fill:#cccccc;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+         d="m 497,591 2,0 0,2.5 -1,1 -1,-1 z"
+         id="path4862"
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="cccccc" />
+      <use
+         x="0"
+         y="0"
+         xlink:href="#path4862"
+         id="use4866"
+         transform="matrix(1,0,0,-1,0,1189)"
+         width="100%"
+         height="100%" />
+    </g>
+    <g
+       style="display:inline"
+       id="src/plugins/debugger/images/breakpoint_disabled"
+       transform="translate(-358,-48)">
+      <rect
+         y="584"
+         x="486"
+         height="16"
+         width="16"
+         id="rect4024-7-4-9"
+         style="fill:#ffffff;stroke:none" />
+      <use
+         x="0"
+         y="0"
+         xlink:href="#path5294-7-1"
+         id="use4834"
+         width="100%"
+         height="100%" />
+      <circle
+         style="opacity:1;fill:#cccccc;fill-opacity:1;stroke:none;stroke-opacity:1"
+         id="path4838"
+         cx="494"
+         cy="592"
+         r="5" />
+    </g>
+    <g
+       id="src/plugins/debugger/images/location">
+      <rect
+         y="536"
+         x="144"
+         height="16"
+         width="16"
+         id="rect4024-7-4-9-6"
+         style="fill:#ffffff;stroke:none" />
+      <path
+         sodipodi:nodetypes="cccccccc"
+         inkscape:connector-curvature="0"
+         id="path4833"
+         d="m 145.5,542.5 6,0 0,-3 7,4.5 -7,4.5 0,-3 -6,0 z"
+         style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+    </g>
+    <g
+       transform="translate(16,0)"
+       style="display:inline"
+       id="src/plugins/debugger/images/location_background">
+      <rect
+         y="536"
+         x="144"
+         height="16"
+         width="16"
+         id="rect4024-7-4-9-6-0"
+         style="fill:#ffffff;stroke:none" />
+      <path
+         sodipodi:nodetypes="cccccccc"
+         inkscape:connector-curvature="0"
+         id="path4833-0"
+         d="m 145.5,542.5 6,0 0,-3 7,4.5 -7,4.5 0,-3 -6,0 z"
+         style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;opacity:1" />
+    </g>
+    <use
+       x="0"
+       y="0"
+       xlink:href="#src/plugins/debugger/images/location"
+       id="src/plugins/debugger/images/debugger_reversemode"
+       transform="matrix(-1,0,0,1,336,0)"
+       width="100%"
+       height="100%" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#src/plugins/debugger/images/location_background"
+       id="src/plugins/debugger/images/debugger_reversemode_background"
+       transform="matrix(-1,0,0,1,368,0)"
+       width="100%"
+       height="100%" />
   </g>
   <g
      inkscape:groupmode="layer"
@@ -4850,9 +5025,46 @@
        x="0"
        y="0"
        xlink:href="#src/plugins/projectexplorer/images/desktopdevice"
-       id="src/plugins/projectexplorer/images/desktopdevicesmall"
+       id="src/plugins/coreplugin/images/desktopdevicesmall"
        transform="matrix(0.5,0,0,0.5,285,189.5)"
        width="100%"
        height="100%" />
+    <g
+       id="src/plugins/coreplugin/images/filesave">
+      <rect
+         style="display:inline;fill:#ffffff;fill-opacity:1"
+         x="1000"
+         y="568"
+         width="16"
+         height="16"
+         id="rect6782-96-9-4-4" />
+      <path
+         sodipodi:nodetypes="cccccc"
+         inkscape:connector-curvature="0"
+         id="path5579"
+         d="m 1002,580.5 0,-10.5 12,0 0,12 -10.5,0 -1.5,-1.5"
+         style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+      <rect
+         y="578"
+         x="1005"
+         height="4"
+         width="6"
+         id="rect5600"
+         style="opacity:1;fill:#b3b3b3;fill-opacity:1;stroke:none;stroke-opacity:1" />
+      <path
+         sodipodi:nodetypes="ccccc"
+         inkscape:connector-curvature="0"
+         id="path5581"
+         d="m 1007,579 0,3 -1,0 0,-3 z"
+         style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+      <rect
+         ry="0"
+         y="571"
+         x="1003"
+         height="6"
+         width="10"
+         id="rect5583"
+         style="opacity:1;fill:#ffffff;fill-opacity:1;stroke:none;stroke-opacity:1" />
+    </g>
   </g>
 </svg>

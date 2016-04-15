@@ -12,6 +12,7 @@
         <file>images/filenew.png</file>
         <file>images/fileopen.png</file>
         <file>images/filesave.png</file>
+        <file>images/filesave@2x.png</file>
         <file>images/logo/128/QtProject-qtcreator.png</file>
         <file>images/logo/32/QtProject-qtcreator.png</file>
         <file>images/inputfield.png</file>
@@ -111,5 +112,11 @@
         <file>images/stop_small@2x.png</file>
         <file>images/boundingrect.png</file>
         <file>images/boundingrect@2x.png</file>
+        <file>images/eye_closed.png</file>
+        <file>images/eye_closed@2x.png</file>
+        <file>images/eye_open.png</file>
+        <file>images/eye_open@2x.png</file>
+        <file>images/desktopdevicesmall.png</file>
+        <file>images/desktopdevicesmall@2x.png</file>
     </qresource>
 </RCC>

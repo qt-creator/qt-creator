@@ -41,6 +41,8 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
 #include <utils/qtcassert.h>
+#include <utils/icon.h>
+#include <utils/theme/theme.h>
 
 #include <QAction>
 
@@ -55,7 +57,11 @@ MemcheckErrorView::MemcheckErrorView(QWidget *parent)
 {
     m_suppressAction = new QAction(this);
     m_suppressAction->setText(tr("Suppress Error"));
-    m_suppressAction->setIcon(QIcon(QLatin1String(":/valgrind/images/eye_crossed.png")));
+    const QIcon icon = Utils::Icon({
+            {QLatin1String(":/core/images/eye_open.png"), Utils::Theme::TextColorNormal},
+            {QLatin1String(":/valgrind/images/suppressoverlay.png"), Utils::Theme::IconsErrorColor}},
+            Utils::Icon::Tint | Utils::Icon::PunchEdges).icon();
+    m_suppressAction->setIcon(icon);
     m_suppressAction->setShortcut(QKeySequence(Qt::Key_Delete));
     m_suppressAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
     connect(m_suppressAction, &QAction::triggered, this, &MemcheckErrorView::suppressError);

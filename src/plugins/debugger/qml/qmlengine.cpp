@@ -109,7 +109,7 @@ enum StepAction
 
 struct QmlV8ObjectData
 {
-    int handle;
+    int handle = -1;
     QByteArray name;
     QByteArray type;
     QVariant value;
@@ -771,6 +771,12 @@ void QmlEngine::insertBreakpoint(Breakpoint bp)
     d->breakpointsSync.insert(d->sequence, bp.id());
 }
 
+void QmlEngine::resetLocation()
+{
+    DebuggerEngine::resetLocation();
+    d->currentlyLookingUp.clear();
+}
+
 void QmlEngine::removeBreakpoint(Breakpoint bp)
 {
     const BreakpointParameters &params = bp.parameters();
@@ -1103,8 +1109,6 @@ void QmlEngine::updateCurrentContext()
         else
             context = grandParentData->name;
     }
-
-    debuggerConsole()->setContext(tr("Context:") + QLatin1Char(' ') + context);
 }
 
 void QmlEngine::executeDebuggerCommand(const QString &command, DebuggerLanguages languages)
@@ -2203,12 +2207,15 @@ void QmlEnginePrivate::handleFrame(const QVariantMap &response)
         }
     }
 
-    // Expand locals and watchers that were previously expanded
+    // Expand locals that were previously expanded. local.this and watch.*
+    // trigger updates in there handleEvaluatedExpression handlers.
     LookupItems itemsToLookup;
     foreach (const QByteArray &iname, watchHandler->expandedINames()) {
-        const WatchItem *item = watchHandler->findItem(iname);
-        if (item && item->isLocal())
-            itemsToLookup.insert(int(item->id), {item->iname, item->name, item->exp});
+        if (iname != "local.this") {
+            const WatchItem *item = watchHandler->findItem(iname);
+            if (item && item->isLocal())
+                itemsToLookup.insert(int(item->id), {item->iname, item->name, item->exp});
+        }
     }
     lookup(itemsToLookup);
 }

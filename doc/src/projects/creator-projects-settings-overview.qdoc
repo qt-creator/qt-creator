@@ -79,9 +79,9 @@
 
             \list
 
-                \li \l{Specifying Build Settings}{Build Settings}
+                \li \l{Specifying Build Settings}{Build}
 
-                \li \l{Specifying Run Settings}{Run Settings}
+                \li \l{Specifying Run Settings}{Run}
 
             \endlist
 
@@ -89,9 +89,9 @@
                     \uicontrol {Build & Run} tab is replaced by the \l{Opening Projects}
                     {Configure Projects} tab.
 
-        \li \l{Specifying Editor Settings}{Editor Settings}
+        \li \l{Specifying Editor Settings}{Editor}
 
-        \li \l{Specifying Code Style Settings}{Code Style Settings}
+        \li \l{Specifying Code Style Settings}{Code Style}
 
         \li \l{Specifying Dependencies}{Dependencies}
 

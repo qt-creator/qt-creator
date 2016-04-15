@@ -34,8 +34,10 @@ const Icon NEWFILE(
         QLatin1String(":/core/images/filenew.png"));
 const Icon OPENFILE(
         QLatin1String(":/core/images/fileopen.png"));
-const Icon SAVEFILE(
-        QLatin1String(":/core/images/filesave.png"));
+const Icon SAVEFILE({
+        {QLatin1String(":/core/images/filesave.png"), Theme::PanelTextColorMid}}, Icon::Tint);
+const Icon SAVEFILE_TOOLBAR({
+        {QLatin1String(":/core/images/filesave.png"), Theme::IconsBaseColor}});
 const Icon UNDO(
         QLatin1String(":/core/images/undo.png"));
 const Icon REDO(
@@ -148,6 +150,10 @@ const Utils::Icon INTERRUPT_SMALL({
         {QLatin1String(":/core/images/interrupt_small.png"), Utils::Theme::IconsInterruptColor}});
 const Icon BOUNDING_RECT({
         {QLatin1String(":/core/images/boundingrect.png"), Theme::IconsBaseColor}});
+const Icon EYE_OPEN_TOOLBAR({
+        {QLatin1String(":/core/images/eye_open.png"), Theme::IconsBaseColor}});
+const Icon EYE_CLOSED_TOOLBAR({
+        {QLatin1String(":/core/images/eye_closed.png"), Theme::IconsBaseColor}});
 
 const Icon MODE_EDIT_CLASSIC(
         QLatin1String(":/fancyactionbar/images/mode_Edit.png"));

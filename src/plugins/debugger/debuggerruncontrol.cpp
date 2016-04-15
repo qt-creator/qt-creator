@@ -144,6 +144,12 @@ QString DebuggerRunControl::displayName() const
     return m_engine->runParameters().displayName;
 }
 
+bool DebuggerRunControl::supportsReRunning() const
+{
+    // QML and/or mixed are not prepared for it.
+    return m_engine && !(m_engine->runParameters().languages & QmlLanguage);
+}
+
 void DebuggerRunControl::start()
 {
     Debugger::Internal::saveModeToRestore();

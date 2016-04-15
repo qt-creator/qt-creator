@@ -55,6 +55,7 @@ public:
 
 private:
     void contextMenuEvent(QContextMenuEvent *e) override;
+    void currentChanged(const QModelIndex &current, const QModelIndex &previous) override;
 
     int currentRow() const;
     void setCurrentRow(int row);

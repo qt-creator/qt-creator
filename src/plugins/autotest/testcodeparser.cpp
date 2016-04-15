@@ -385,15 +385,17 @@ static CPlusPlus::Document::Ptr declaringDocument(CPlusPlus::Document::Ptr doc,
     CPlusPlus::TypeOfExpression typeOfExpr;
     typeOfExpr.init(doc, cppMM->snapshot());
 
-    auto  lookupItems = typeOfExpr(testCaseName.toUtf8(), doc->globalNamespace());
+    QList<CPlusPlus::LookupItem> lookupItems = typeOfExpr(testCaseName.toUtf8(),
+                                                          doc->globalNamespace());
     if (lookupItems.size()) {
-        CPlusPlus::Class *toeClass = lookupItems.first().declaration()->asClass();
-        if (toeClass) {
-            const QString declFileName = QLatin1String(toeClass->fileId()->chars(),
-                                                       toeClass->fileId()->size());
-            declaringDoc = cppMM->snapshot().document(declFileName);
-            *line = toeClass->line();
-            *column = toeClass->column() - 1;
+        if (CPlusPlus::Symbol *symbol = lookupItems.first().declaration()) {
+            if (CPlusPlus::Class *toeClass = symbol->asClass()) {
+                const QString declFileName = QLatin1String(toeClass->fileId()->chars(),
+                                                           toeClass->fileId()->size());
+                declaringDoc = cppMM->snapshot().document(declFileName);
+                *line = toeClass->line();
+                *column = toeClass->column() - 1;
+            }
         }
     }
     return declaringDoc;

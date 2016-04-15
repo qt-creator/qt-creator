@@ -41,6 +41,7 @@
 #include <QPushButton>
 #include <QSortFilterProxyModel>
 #include <QStandardItem>
+#include <QTimer>
 
 Q_DECLARE_METATYPE(Core::IWizardFactory*)
 
@@ -458,17 +459,25 @@ void NewDialog::saveState()
     ICore::settings()->setValue(QLatin1String(LAST_PLATFORM_KEY), m_ui->comboBox->currentData());
 }
 
+static void runWizard(IWizardFactory *wizard, const QString &defaultLocation, Id platform,
+                      const QVariantMap &variables)
+{
+    QString path = wizard->runPath(defaultLocation);
+    wizard->runWizard(path, ICore::dialogParent(), platform, variables);
+}
+
 void NewDialog::accept()
 {
     saveState();
-    QDialog::accept();
-
     if (m_ui->templatesView->currentIndex().isValid()) {
         IWizardFactory *wizard = currentWizardFactory();
-        QTC_ASSERT(wizard, accept(); return);
-        QString path = wizard->runPath(m_defaultLocation);
-        wizard->runWizard(path, ICore::dialogParent(), selectedPlatform(), m_extraVariables);
+        QTC_CHECK(wizard);
+        if (wizard) {
+            QTimer::singleShot(0, std::bind(&runWizard, wizard, m_defaultLocation,
+                                            selectedPlatform(), m_extraVariables));
+        }
     }
+    QDialog::accept();
 }
 
 void NewDialog::reject()

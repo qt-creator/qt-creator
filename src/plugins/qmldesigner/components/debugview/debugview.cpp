@@ -63,6 +63,7 @@ DebugView::DebugView(QObject *parent) : AbstractView(parent),
 
 DebugView::~DebugView()
 {
+    delete m_debugViewWidget;
 }
 
 void DebugView::modelAttached(Model *model)

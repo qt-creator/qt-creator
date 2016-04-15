@@ -1553,6 +1553,9 @@ class DumperBase:
             self.put('addrbase="0x%x",' % addrBase)
             self.put('addrstep="0x%x",' % innerSize)
             self.put('arrayencoding="%s",' % enc)
+            if n > maxNumChild:
+                self.put('childrenelided="%s",' % n) # FIXME: Act on that in frontend
+                n = maxNumChild
             self.put('arraydata="')
             self.put(self.readMemory(addrBase, n * innerSize))
             self.put('",')
@@ -1569,7 +1572,10 @@ class DumperBase:
             self.putArrayData(addr, n, self.lookupType(typeName))
             self.putAddress(addr)
 
-    def putPlotDataHelper(self, base, n, innerType):
+    def putPlotDataHelper(self, base, n, innerType, maxNumChild = 1000*1000):
+        if n > maxNumChild:
+            self.put('plotelided="%s",' % n) # FIXME: Act on that in frontend
+            n = maxNumChild
         if self.currentItemFormat() == ArrayPlotFormat and self.isSimpleType(innerType):
             enc = self.simpleEncoding(innerType)
             if enc:
@@ -1577,10 +1583,10 @@ class DumperBase:
                 self.putDisplay("plotdata:separate",
                                 self.readMemory(base, n * innerType.sizeof))
 
-    def putPlotData(self, base, n, innerType):
-        self.putPlotDataHelper(base, n, innerType)
+    def putPlotData(self, base, n, innerType, maxNumChild = 1000*1000):
+        self.putPlotDataHelper(base, n, innerType, maxNumChild=maxNumChild)
         if self.isExpanded():
-            self.putArrayData(base, n, innerType)
+            self.putArrayData(base, n, innerType, maxNumChild=maxNumChild)
 
     def putSpecialArgv(self, value):
         """

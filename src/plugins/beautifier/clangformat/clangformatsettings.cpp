@@ -48,7 +48,6 @@ const char kFormatEntireFileFallback[] = "formatEntireFileFallback";
 ClangFormatSettings::ClangFormatSettings() :
     AbstractSettings(QLatin1String(Constants::ClangFormat::SETTINGS_NAME),
                      QLatin1String(".clang-format"))
-
 {
     setCommand(QLatin1String("clang-format"));
     m_settings.insert(QLatin1String(kUsePredefinedStyle), QVariant(true));
@@ -223,6 +222,21 @@ QStringList ClangFormatSettings::predefinedStyles() const
                          << QLatin1String("Mozilla")
                          << QLatin1String("WebKit")
                          << QLatin1String("File");
+}
+
+QString ClangFormatSettings::styleFileName(const QString &key) const
+{
+    return m_styleDir.absolutePath() + QLatin1Char('/') + key + QLatin1Char('/') + m_ending;
+}
+
+void ClangFormatSettings::readStyles()
+{
+    const QStringList dirs = m_styleDir.entryList(QDir::AllDirs | QDir::NoDotAndDotDot);
+    for (const QString &dir : dirs) {
+        QFile file(m_styleDir.absoluteFilePath(dir + QLatin1Char('/') + m_ending));
+        if (file.open(QIODevice::ReadOnly))
+            m_styles.insert(dir, QString::fromLocal8Bit(file.readAll()));
+    }
 }
 
 } // namespace ClangFormat

@@ -937,6 +937,9 @@ void CallgrindTool::createTextMarks()
         bool ok = false;
         const int lineNumber = index.data(DataModel::LineNumberRole).toInt(&ok);
         QTC_ASSERT(ok, continue);
+        // avoid creating invalid text marks
+        if (lineNumber <= 0)
+            continue;
 
         // sanitize filename, text marks need a canonical (i.e. no ".."s) path
         // BaseTextMark::editorOpened(Core::IEditor *editor) compares file names on string basis

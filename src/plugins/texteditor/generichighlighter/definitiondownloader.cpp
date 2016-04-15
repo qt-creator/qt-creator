@@ -39,10 +39,8 @@
 namespace TextEditor {
 namespace Internal {
 
-static QNetworkReply *getData(const QUrl &url)
+static QNetworkReply *getData(QNetworkAccessManager *manager, const QUrl &url)
 {
-    Utils::NetworkAccessManager *manager = Utils::NetworkAccessManager::instance();
-
     QNetworkRequest request(url);
     QNetworkReply *reply = manager->get(request);
 
@@ -59,10 +57,12 @@ DefinitionDownloader::DefinitionDownloader(const QUrl &url, const QString &local
 
 void DefinitionDownloader::run()
 {
+    Utils::NetworkAccessManager manager;
+
     int currentAttempt = 0;
     const int maxAttempts = 5;
     while (currentAttempt < maxAttempts) {
-        QScopedPointer<QNetworkReply> reply(getData(m_url));
+        QScopedPointer<QNetworkReply> reply(getData(&manager, m_url));
         if (reply->error() != QNetworkReply::NoError) {
             m_status = NetworkError;
             return;

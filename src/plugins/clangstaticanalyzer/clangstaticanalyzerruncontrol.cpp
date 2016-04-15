@@ -82,9 +82,7 @@ ClangStaticAnalyzerRunControl::ClangStaticAnalyzerRunControl(
 
     ToolChain *toolChain = ToolChainKitInformation::toolChain(target->kit());
     QTC_ASSERT(toolChain, return);
-    Abi abi = runConfiguration->abi();
-    m_extraToolChainInfo.wordWidth = abi.wordWidth();
-    m_extraToolChainInfo.isMsvc2015 = abi.osFlavor() == Abi::WindowsMsvc2015Flavor;
+    m_extraToolChainInfo.wordWidth = runConfiguration->abi().wordWidth();
     m_extraToolChainInfo.targetTriple = toolChain->originalTargetTriple();
 }
 
@@ -142,75 +140,6 @@ QStringList inputAndOutputArgumentsRemoved(const QString &inputFile, const QStri
     return newArguments;
 }
 
-static void appendMsCompatibility2015OptionForMsvc2015(QStringList *arguments, bool isMsvc2015)
-{
-    QTC_ASSERT(arguments, return);
-
-    if (isMsvc2015)
-        arguments->append(QLatin1String("-fms-compatibility-version=19"));
-}
-
-static QStringList languageFeatureMacros()
-{
-    // Collected with:
-    //  $ CALL "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" x86
-    //  $ D:\usr\llvm-3.8.0\bin\clang++.exe -fms-compatibility-version=19 -std=c++1y -dM -E D:\empty.cpp | grep __cpp_
-    static QStringList macros {
-        QLatin1String("__cpp_aggregate_nsdmi"),
-        QLatin1String("__cpp_alias_templates"),
-        QLatin1String("__cpp_attributes"),
-        QLatin1String("__cpp_binary_literals"),
-        QLatin1String("__cpp_constexpr"),
-        QLatin1String("__cpp_decltype"),
-        QLatin1String("__cpp_decltype_auto"),
-        QLatin1String("__cpp_delegating_constructors"),
-        QLatin1String("__cpp_digit_separators"),
-        QLatin1String("__cpp_generic_lambdas"),
-        QLatin1String("__cpp_inheriting_constructors"),
-        QLatin1String("__cpp_init_captures"),
-        QLatin1String("__cpp_initializer_lists"),
-        QLatin1String("__cpp_lambdas"),
-        QLatin1String("__cpp_nsdmi"),
-        QLatin1String("__cpp_range_based_for"),
-        QLatin1String("__cpp_raw_strings"),
-        QLatin1String("__cpp_ref_qualifiers"),
-        QLatin1String("__cpp_return_type_deduction"),
-        QLatin1String("__cpp_rtti"),
-        QLatin1String("__cpp_rvalue_references"),
-        QLatin1String("__cpp_static_assert"),
-        QLatin1String("__cpp_unicode_characters"),
-        QLatin1String("__cpp_unicode_literals"),
-        QLatin1String("__cpp_user_defined_literals"),
-        QLatin1String("__cpp_variable_templates"),
-        QLatin1String("__cpp_variadic_templates"),
-    };
-
-    return macros;
-}
-
-static void undefineCppLanguageFeatureMacrosForMsvc2015(QStringList *arguments, bool isMsvc2015)
-{
-    QTC_ASSERT(arguments, return);
-
-    if (isMsvc2015) {
-        foreach (const QString &macroName, languageFeatureMacros())
-            arguments->append(QLatin1String("/U") + macroName);
-    }
-}
-
-static QStringList tweakedArguments(const QString &filePath,
-                                    const QStringList &arguments,
-                                    const ExtraToolChainInfo &extraParams)
-{
-    QStringList newArguments = inputAndOutputArgumentsRemoved(filePath, arguments);
-    prependWordWidthArgumentIfNotIncluded(&newArguments, extraParams.wordWidth);
-    prependTargetTripleIfNotIncludedAndNotEmpty(&newArguments, extraParams.targetTriple);
-    appendMsCompatibility2015OptionForMsvc2015(&newArguments, extraParams.isMsvc2015);
-    undefineCppLanguageFeatureMacrosForMsvc2015(&newArguments, extraParams.isMsvc2015);
-
-    return newArguments;
-}
-
 static QString createLanguageOptionMsvc(ProjectFile::Kind fileKind)
 {
     switch (fileKind) {
@@ -240,6 +169,7 @@ public:
         optionsBuilder.addTargetTriple();
         optionsBuilder.addLanguageOption(fileKind);
         optionsBuilder.addOptionsForLanguage(false);
+        optionsBuilder.enableExceptions();
 
         // In gcc headers, lots of built-ins are referenced that clang does not understand.
         // Therefore, prevent the inclusion of the header that references them. Of course, this
@@ -251,28 +181,26 @@ public:
             optionsBuilder.addDefine("#define _X86INTRIN_H_INCLUDED\n");
 
         optionsBuilder.addToolchainAndProjectDefines();
+        optionsBuilder.undefineCppLanguageFeatureMacrosForMsvc2015();
         optionsBuilder.addHeaderPathOptions();
+        optionsBuilder.addMsvcCompatibilityVersion();
 
-        if (type == ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID)
-            optionsBuilder.add(QLatin1String("/EHsc")); // clang-cl does not understand exceptions
-        else
+        if (type != ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID)
             optionsBuilder.add(QLatin1String("-fPIC")); // TODO: Remove?
 
         QStringList options = optionsBuilder.options();
         prependWordWidthArgumentIfNotIncluded(&options, extraParams.wordWidth);
-        appendMsCompatibility2015OptionForMsvc2015(&options, extraParams.isMsvc2015);
-        undefineCppLanguageFeatureMacrosForMsvc2015(&options, extraParams.isMsvc2015);
 
         return options;
     }
 
-private:
     ClangStaticAnalyzerOptionsBuilder(const CppTools::ProjectPart &projectPart)
         : CompilerOptionsBuilder(projectPart)
         , m_isMsvcToolchain(m_projectPart.toolchainType == ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID)
     {
     }
 
+private:
     void addTargetTriple() override
     {
         // For MSVC toolchains we use clang-cl.exe, so there is nothing to do here since
@@ -311,11 +239,52 @@ private:
         return CompilerOptionsBuilder::defineOption();
     }
 
+    void enableExceptions() override
+    {
+        if (m_isMsvcToolchain)
+            add(QLatin1String("/EHsc"));
+        else
+            CompilerOptionsBuilder::enableExceptions();
+    }
+
 private:
     bool m_isMsvcToolchain;
 };
 
+static QStringList createMsCompatibilityVersionOption(const ProjectPart &projectPart)
+{
+    ClangStaticAnalyzerOptionsBuilder optionsBuilder(projectPart);
+    optionsBuilder.addMsvcCompatibilityVersion();
+    const QStringList option = optionsBuilder.options();
+
+    return option;
+}
+
+static QStringList createOptionsToUndefineCppLanguageFeatureMacrosForMsvc2015(
+            const ProjectPart &projectPart)
+{
+    ClangStaticAnalyzerOptionsBuilder optionsBuilder(projectPart);
+    optionsBuilder.undefineCppLanguageFeatureMacrosForMsvc2015();
+
+    return optionsBuilder.options();
+}
+
+static QStringList tweakedArguments(const ProjectPart &projectPart,
+                                    const QString &filePath,
+                                    const QStringList &arguments,
+                                    const ExtraToolChainInfo &extraParams)
+{
+    QStringList newArguments = inputAndOutputArgumentsRemoved(filePath, arguments);
+    prependWordWidthArgumentIfNotIncluded(&newArguments, extraParams.wordWidth);
+    prependTargetTripleIfNotIncludedAndNotEmpty(&newArguments, extraParams.targetTriple);
+    newArguments.append(createMsCompatibilityVersionOption(projectPart));
+    newArguments.append(createOptionsToUndefineCppLanguageFeatureMacrosForMsvc2015(projectPart));
+
+    return newArguments;
+}
+
 static AnalyzeUnits unitsToAnalyzeFromCompilerCallData(
+            const QHash<QString, ProjectPart::Ptr> &projectFileToProjectPart,
             const ProjectInfo::CompilerCallData &compilerCallData,
             const ExtraToolChainInfo &extraParams)
 {
@@ -323,14 +292,23 @@ static AnalyzeUnits unitsToAnalyzeFromCompilerCallData(
 
     AnalyzeUnits unitsToAnalyze;
 
-    QHashIterator<QString, QList<QStringList> > it(compilerCallData);
-    while (it.hasNext()) {
-        it.next();
-        const QString file = it.key();
-        const QList<QStringList> compilerCalls = it.value();
-        foreach (const QStringList &options, compilerCalls) {
-            const QStringList arguments = tweakedArguments(file, options, extraParams);
-            unitsToAnalyze << AnalyzeUnit(file, arguments);
+    foreach (const ProjectInfo::CompilerCallGroup &compilerCallGroup, compilerCallData) {
+        const ProjectPart::Ptr projectPart
+                = projectFileToProjectPart.value(compilerCallGroup.groupId);
+        QTC_ASSERT(projectPart, continue);
+
+        QHashIterator<QString, QList<QStringList> > it(compilerCallGroup.callsPerSourceFile);
+        while (it.hasNext()) {
+            it.next();
+            const QString file = it.key();
+            const QList<QStringList> compilerCalls = it.value();
+            foreach (const QStringList &options, compilerCalls) {
+                const QStringList arguments = tweakedArguments(*projectPart,
+                                                               file,
+                                                               options,
+                                                               extraParams);
+                unitsToAnalyze << AnalyzeUnit(file, arguments);
+            }
         }
     }
 
@@ -365,16 +343,34 @@ static AnalyzeUnits unitsToAnalyzeFromProjectParts(const QList<ProjectPart::Ptr>
     return unitsToAnalyze;
 }
 
+static QHash<QString, ProjectPart::Ptr> generateProjectFileToProjectPartMapping(
+            const QList<ProjectPart::Ptr> &projectParts)
+{
+    QHash<QString, ProjectPart::Ptr> mapping;
+
+    foreach (const ProjectPart::Ptr &projectPart, projectParts) {
+        QTC_ASSERT(projectPart, continue);
+        mapping[projectPart->projectFile] = projectPart;
+    }
+
+    return mapping;
+}
+
 AnalyzeUnits ClangStaticAnalyzerRunControl::sortedUnitsToAnalyze()
 {
     QTC_ASSERT(m_projectInfo.isValid(), return AnalyzeUnits());
 
     AnalyzeUnits units;
     const ProjectInfo::CompilerCallData compilerCallData = m_projectInfo.compilerCallData();
-    if (compilerCallData.isEmpty())
+    if (compilerCallData.isEmpty()) {
         units = unitsToAnalyzeFromProjectParts(m_projectInfo.projectParts(), m_extraToolChainInfo);
-    else
-        units = unitsToAnalyzeFromCompilerCallData(compilerCallData, m_extraToolChainInfo);
+    } else {
+        const QHash<QString, ProjectPart::Ptr> projectFileToProjectPart
+                = generateProjectFileToProjectPartMapping(m_projectInfo.projectParts());
+        units = unitsToAnalyzeFromCompilerCallData(projectFileToProjectPart,
+                                                   compilerCallData,
+                                                   m_extraToolChainInfo);
+    }
 
     Utils::sort(units, [](const AnalyzeUnit &a1, const AnalyzeUnit &a2) -> bool {
         return a1.file < a2.file;

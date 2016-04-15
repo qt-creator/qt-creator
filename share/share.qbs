@@ -13,7 +13,6 @@ Product {
             "cplusplus/**/*",
             "debugger/**/*",
             "designer/**/*",
-            "generic-highlighter/**/*",
             "glsl/**/*",
             "modeleditor/**/*",
             "qml/**/*",
@@ -26,6 +25,17 @@ Product {
             "templates/**/*",
             "themes/**/*",
             "welcomescreen/**/*"
+        ]
+    }
+
+    Group {
+        name: "3rdparty"
+        qbs.install: true
+        qbs.installDir: project.ide_data_path
+        qbs.installSourceBase: project.ide_source_tree + "/src/share/3rdparty"
+        prefix: project.ide_source_tree + "/src/share/3rdparty/"
+        files: [
+            "generic-highlighter/**/*"
         ]
     }
 

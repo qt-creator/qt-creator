@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="/valgrind">
-        <file>images/eye_crossed.png</file>
+        <file>images/suppressoverlay.png</file>
+        <file>images/suppressoverlay@2x.png</file>
     </qresource>
 </RCC>

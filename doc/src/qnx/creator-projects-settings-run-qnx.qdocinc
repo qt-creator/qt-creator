@@ -5,7 +5,5 @@
     \uicontrol {Manage device configurations} to create a connection. For more
     information, see \l{Connecting QNX Devices}.
 
-    \image qtcreator-qnx-run-settings.png "Run settings for QNX devices"
-
     Specifying run settings for QNX Neutrino devices is very similar to
     \l{Specifying Run Settings for Linux-Based Devices}.

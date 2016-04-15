@@ -490,7 +490,7 @@ QmlDebugClient::State QmlDebugClient::state() const
     if (!d->connection || !d->connection->isConnected())
         return NotConnected;
 
-    if (d->connection->client(d->name) == this)
+    if (d->connection->serviceVersion(d->name) != -1)
         return Enabled;
 
     return Unavailable;

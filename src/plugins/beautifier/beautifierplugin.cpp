@@ -119,6 +119,7 @@ FormatTask format(FormatTask task)
     case Command::PipeProcessing: {
         QProcess process;
         QStringList options = task.command.options();
+        options.replaceInStrings(QLatin1String("%filename"), QFileInfo(task.filePath).fileName());
         options.replaceInStrings(QLatin1String("%file"), task.filePath);
         process.start(executable, options);
         if (!process.waitForStarted(3000)) {

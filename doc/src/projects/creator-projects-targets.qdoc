@@ -138,4 +138,8 @@
 
     \endlist
 
+    \QC uses the \e {default kit} if it does not have enough information to
+    choose the kit to use. To set the selected kit as the default kit,
+    select \uicontrol {Make Default}.
+
 */

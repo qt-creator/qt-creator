@@ -45,10 +45,14 @@ public:
 
     // Add options based on project part
     virtual void addTargetTriple();
+    virtual void enableExceptions();
     void addHeaderPathOptions();
     void addToolchainAndProjectDefines();
     virtual void addLanguageOption(ProjectFile::Kind fileKind);
     virtual void addOptionsForLanguage(bool checkForBorlandExtensions = true);
+
+    void addMsvcCompatibilityVersion();
+    void undefineCppLanguageFeatureMacrosForMsvc2015();
 
 protected:
     virtual bool excludeDefineLine(const QByteArray &defineLine) const;

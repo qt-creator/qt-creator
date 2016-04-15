@@ -1,2 +1,0 @@
-This directory contains *only* data files which are installed conditionally.
-The installation code is in ../../share/qtcreator/static.pro

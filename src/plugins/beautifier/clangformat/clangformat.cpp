@@ -132,23 +132,19 @@ Command ClangFormat::command(int offset, int length) const
 
     if (m_settings->usePredefinedStyle()) {
         command.addOption(QLatin1String("-style=") + m_settings->predefinedStyle());
+        command.addOption(QLatin1String("-assume-filename=%filename"));
     } else {
-        // The clang-format option file is YAML
-        const QStringList lines = m_settings->style(m_settings->customStyle())
-                .split(QLatin1Char('\n'), QString::SkipEmptyParts);
-        const QStringList options = Utils::filtered(lines, [](const QString &s) -> bool {
-            const QString option = s.trimmed();
-            return !(option.startsWith(QLatin1Char('#')) || option == QLatin1String("---"));
-        });
-        command.addOption(QLatin1String("-style={") + options.join(QLatin1String(", "))
-                          + QLatin1Char('}'));
+        command.addOption(QLatin1String("-style=file"));
+        const QString path =
+                QFileInfo(m_settings->styleFileName(m_settings->customStyle())).absolutePath();
+        command.addOption(QLatin1String("-assume-filename=") + path + QDir::separator()
+                          + QLatin1String("%filename"));
     }
 
     if (offset != -1) {
         command.addOption(QLatin1String("-offset=") + QString::number(offset));
         command.addOption(QLatin1String("-length=") + QString::number(length));
     }
-    command.addOption(QLatin1String("-assume-filename=%file"));
 
     return command;
 }

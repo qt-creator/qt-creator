@@ -96,6 +96,8 @@ public:
     void scaleUp();
     void scaleDown();
 
+    void setSource(const QUrl &name);
+
 protected:
     void contextMenuEvent(QContextMenuEvent *event);
     bool eventFilter(QObject *obj, QEvent *event);

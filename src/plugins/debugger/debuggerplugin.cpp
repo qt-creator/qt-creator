@@ -1173,7 +1173,6 @@ bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
         }
         DebuggerRunParameters rp;
         rp.startMode = AttachCrashedExternal;
-        rp.languages = CppLanguage;
         rp.crashParameter = it->section(QLatin1Char(':'), 0, 0);
         rp.attachPID = it->section(QLatin1Char(':'), 1, 1).toULongLong();
         rp.displayName = tr("Crashed process %1").arg(rp.attachPID);
@@ -2422,8 +2421,6 @@ void DebuggerPluginPrivate::cleanupViews()
             bool keepIt = true;
             if (document->isModified())
                 keepIt = true;
-            else if (document->filePath().toString().contains(_("qeventdispatcher")))
-                keepIt = false;
             else if (isMemory)
                 keepIt = !closeMemory;
             else

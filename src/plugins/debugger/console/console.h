@@ -73,7 +73,6 @@ public:
     bool canNavigate() const;
 
     void readSettings();
-    void setContext(const QString &context);
 
     void setScriptEvaluator(const ScriptEvaluator &evaluator);
 
@@ -91,7 +90,6 @@ private:
     Utils::SavedAction *m_showWarningButtonAction;
     Utils::SavedAction *m_showErrorButtonAction;
     QWidget *m_spacer;
-    QLabel *m_statusLabel;
     ConsoleItemModel *m_consoleItemModel;
     ConsoleView *m_consoleView;
     QWidget *m_consoleWidget;

@@ -167,6 +167,12 @@ void DetailedErrorView::contextMenuEvent(QContextMenuEvent *e)
     menu.exec(e->globalPos());
 }
 
+void DetailedErrorView::currentChanged(const QModelIndex &current, const QModelIndex &previous)
+{
+    QTreeView::currentChanged(current, previous);
+    scrollTo(current);
+}
+
 void DetailedErrorView::goNext()
 {
     QTC_ASSERT(rowCount(), return);
@@ -208,7 +214,6 @@ void DetailedErrorView::setCurrentRow(int row)
     const QModelIndex index = model()->index(row, 0);
     selectionModel()->setCurrentIndex(index,
             QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
-    scrollTo(index);
 }
 
 } // namespace Debugger

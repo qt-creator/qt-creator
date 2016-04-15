@@ -12,10 +12,6 @@
         <file>export_checked@2x.png</file>
         <file>export_unchecked.png</file>
         <file>export_unchecked@2x.png</file>
-        <file>eye_open.png</file>
-        <file>eye_open@2x.png</file>
-        <file>eye_closed.png</file>
-        <file>eye_closed@2x.png</file>
         <file>warning.png</file>
     </qresource>
 </RCC>

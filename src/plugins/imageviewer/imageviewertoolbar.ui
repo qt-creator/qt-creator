@@ -29,10 +29,6 @@
      <property name="toolTipBase">
       <string>Show Background</string>
      </property>
-     <property name="icon">
-      <iconset resource="imageviewer.qrc">
-       <normaloff>:/imageviewer/images/background.png</normaloff>:/imageviewer/images/background.png</iconset>
-     </property>
      <property name="checkable">
       <bool>true</bool>
      </property>
@@ -68,10 +64,6 @@
     <widget class="Core::CommandButton" name="toolButtonOriginalSize">
      <property name="toolTipBase">
       <string>Original Size</string>
-     </property>
-     <property name="icon">
-      <iconset resource="imageviewer.qrc">
-       <normaloff>:/imageviewer/images/originalsize.png</normaloff>:/imageviewer/images/originalsize.png</iconset>
      </property>
     </widget>
    </item>

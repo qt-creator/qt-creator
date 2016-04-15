@@ -111,6 +111,13 @@ void ClangStaticAnalyzerUnitTests::testProject_data()
             << QString(m_tmpDir->absolutePath("qt-widgets-app/qt-widgets-app.qbs")) << 0;
     QTest::newRow("qt-widgets-app qmake project")
             << QString(m_tmpDir->absolutePath("qt-widgets-app/qt-widgets-app.pro")) << 0;
+
+    QTest::newRow("qt-essential-includes qbs project")
+            << QString(m_tmpDir->absolutePath("qt-essential-includes/qt-essential-includes.qbs"))
+            << 0;
+    QTest::newRow("qt-essential-includes qmake project")
+            << QString(m_tmpDir->absolutePath("qt-essential-includes/qt-essential-includes.pro"))
+            << 0;
 }
 
 } // namespace Internal

@@ -56,6 +56,11 @@ public:
     void setFormatEntireFileFallback(bool formatEntireFileFallback);
 
     QStringList predefinedStyles() const;
+
+    QString styleFileName(const QString &key) const override;
+
+private:
+    void readStyles() override;
 };
 
 } // namespace ClangFormat
