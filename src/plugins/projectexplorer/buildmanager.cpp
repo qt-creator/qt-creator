@@ -28,10 +28,12 @@
 #include "buildprogress.h"
 #include "buildsteplist.h"
 #include "compileoutputwindow.h"
+#include "kit.h"
 #include "project.h"
 #include "projectexplorer.h"
 #include "projectexplorersettings.h"
 #include "target.h"
+#include "task.h"
 #include "taskwindow.h"
 #include "taskhub.h"
 
@@ -392,9 +394,15 @@ void BuildManager::nextBuildQueue()
     bool result = d->m_skipDisabled || d->m_watcher.result();
     if (!result) {
         // Build Failure
+        Target *t = d->m_currentBuildStep->target();
         const QString projectName = d->m_currentBuildStep->project()->displayName();
-        const QString targetName = d->m_currentBuildStep->target()->displayName();
+        const QString targetName = t->displayName();
         addToOutputWindow(tr("Error while building/deploying project %1 (kit: %2)").arg(projectName, targetName), BuildStep::ErrorOutput);
+        const QList<Task> kitTasks = t->kit()->validate();
+        if (!kitTasks.isEmpty()) {
+            addToOutputWindow(tr("The kit %1 has configuration issues which might be the root cause for this problem.")
+                              .arg(targetName), BuildStep::ErrorOutput);
+        }
         addToOutputWindow(tr("When executing step \"%1\"").arg(d->m_currentBuildStep->displayName()), BuildStep::ErrorOutput);
         // NBS TODO fix in qtconcurrent
         d->m_progressFutureInterface->setProgressValueAndText(d->m_progress*100, tr("Error while building/deploying project %1 (kit: %2)").arg(projectName, targetName));
