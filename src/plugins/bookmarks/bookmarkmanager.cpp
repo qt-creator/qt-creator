@@ -202,8 +202,9 @@ void BookmarkDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opti
     painter->drawText(6, opt.rect.top() + fm.ascent() + fm.height() + 6, lineText);
 
     // Separator lines
+    const QRectF innerRect = QRectF(opt.rect).adjusted(0.5, 0.5, -0.5, -0.5);
     painter->setPen(QColor::fromRgb(150,150,150));
-    painter->drawLine(0, opt.rect.bottom(), opt.rect.right(), opt.rect.bottom());
+    painter->drawLine(innerRect.bottomLeft(), innerRect.bottomRight());
     painter->restore();
 }
 
