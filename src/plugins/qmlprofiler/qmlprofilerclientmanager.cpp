@@ -112,13 +112,18 @@ void QmlProfilerClientManager::setTcpConnection(QString host, quint64 port)
 {
     d->tcpHost = host;
     d->tcpPort = port;
+    d->localSocket.clear();
     disconnectClient();
+    // Wait for the application to announce the port before connecting.
 }
 
 void QmlProfilerClientManager::setLocalSocket(QString file)
 {
     d->localSocket = file;
+    d->tcpHost.clear();
     d->tcpPort = 0;
+    disconnectClient();
+    // We open the server and the application connects to it, so let's do that right away.
     connectLocalClient(file);
 }
 
