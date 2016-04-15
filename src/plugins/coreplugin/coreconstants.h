@@ -198,7 +198,7 @@ const char SETTINGS_ID_MIMETYPES[] = "E.MimeTypes";
 const char SETTINGS_DEFAULTTEXTENCODING[] = "General/DefaultFileEncoding";
 
 const char SETTINGS_THEME[] = "Core/CreatorTheme";
-const char DEFAULT_THEME[] = "classic";
+const char DEFAULT_THEME[] = "default";
 
 const char ALL_FILES_FILTER[]      = QT_TRANSLATE_NOOP("Core", "All Files (*)");
 
