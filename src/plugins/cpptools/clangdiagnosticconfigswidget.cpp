@@ -157,10 +157,12 @@ void ClangDiagnosticConfigsWidget::syncConfigChooserToModel(const Core::Id &conf
 
     connectConfigChooserCurrentIndex();
 
-    if (configToSelectIndex != -1)
+    if (configToSelectIndex != -1) {
         m_ui->configChooserComboBox->setCurrentIndex(configToSelectIndex);
-    else if (previousCurrentIndex != m_ui->configChooserComboBox->currentIndex())
+    } else if (previousCurrentIndex != m_ui->configChooserComboBox->currentIndex()) {
+        syncOtherWidgetsToComboBox();
         emit currentConfigChanged(currentConfigId());
+    }
 }
 
 void ClangDiagnosticConfigsWidget::syncOtherWidgetsToComboBox()
