@@ -41,6 +41,7 @@
 #include <utils/macroexpander.h>
 #include <utils/qtcassert.h>
 
+#include <QDir>
 #include <QFileInfo>
 
 namespace ProjectExplorer {
@@ -66,8 +67,19 @@ QList<Task> SysRootKitInformation::validate(const Kit *k) const
 {
     QList<Task> result;
     const Utils::FileName dir = SysRootKitInformation::sysRoot(k);
-    if (!dir.toFileInfo().isDir() && SysRootKitInformation::hasSysRoot(k)) {
+    if (dir.isEmpty())
+        return result;
+
+    const QFileInfo fi = dir.toFileInfo();
+
+    if (!fi.exists()) {
+        result << Task(Task::Error, tr("Sys Root \"%1\" does not exist in the file system.").arg(dir.toUserOutput()),
+                       Utils::FileName(), -1, Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM));
+    } else if (!fi.isDir()) {
         result << Task(Task::Error, tr("Sys Root \"%1\" is not a directory.").arg(dir.toUserOutput()),
+                       Utils::FileName(), -1, Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM));
+    } else if (QDir(dir.toString()).entryList(QDir::AllEntries | QDir::NoDotAndDotDot).isEmpty()) {
+        result << Task(Task::Error, tr("Sys Root \"%1\" is empty.").arg(dir.toUserOutput()),
                        Utils::FileName(), -1, Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM));
     }
     return result;
