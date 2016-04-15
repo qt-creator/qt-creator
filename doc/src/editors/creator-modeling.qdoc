@@ -87,6 +87,9 @@
     the editor to copy all elements to the clipboard by using 300 dpi. Then
     paste the diagram to an application that can print images.
 
+    To save diagrams as images, select \uicontrol Tools >
+    \uicontrol {Model Editor} > \uicontrol {Export Diagram}.
+
     \section1 Creating Models
 
     To create models:
