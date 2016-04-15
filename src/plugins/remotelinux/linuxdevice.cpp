@@ -123,27 +123,26 @@ class LinuxPortsGatheringMethod : public PortsGatheringMethod
 {
     QByteArray commandLine(QAbstractSocket::NetworkLayerProtocol protocol) const
     {
-        QString procFilePath;
-        int addressLength;
-        if (protocol == QAbstractSocket::IPv4Protocol) {
-            procFilePath = QLatin1String("/proc/net/tcp");
-            addressLength = 8;
-        } else {
-            procFilePath = QLatin1String("/proc/net/tcp6");
-            addressLength = 32;
-        }
-        return QString::fromLatin1("sed "
-                "'s/.*: [[:xdigit:]]\\{%1\\}:\\([[:xdigit:]]\\{4\\}\\).*/\\1/g' %2")
-                .arg(addressLength).arg(procFilePath).toUtf8();
+        // We might encounter the situation that protocol is given IPv6
+        // but the consumer of the free port information decides to open
+        // an IPv4(only) port. As a result the next IPv6 scan will
+        // report the port again as open (in IPv6 namespace), while the
+        // same port in IPv4 namespace might still be blocked, and
+        // re-use of this port fails.
+        // GDBserver behaves exactly like this.
+
+        Q_UNUSED(protocol)
+
+        // /proc/net/tcp* covers /proc/net/tcp and /proc/net/tcp6
+        return "sed -e 's/.*: [[:xdigit:]]*:\\([[:xdigit:]]\\{4\\}\\).*/\\1/g' /proc/net/tcp*";
     }
 
     QList<int> usedPorts(const QByteArray &output) const
     {
         QList<int> ports;
         QList<QByteArray> portStrings = output.split('\n');
-        portStrings.removeFirst();
         foreach (const QByteArray &portString, portStrings) {
-            if (portString.isEmpty())
+            if (portString.size() != 4)
                 continue;
             bool ok;
             const int port = portString.toInt(&ok, 16);
