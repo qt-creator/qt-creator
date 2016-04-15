@@ -471,8 +471,7 @@ void NewDialog::accept()
     saveState();
     if (m_ui->templatesView->currentIndex().isValid()) {
         IWizardFactory *wizard = currentWizardFactory();
-        QTC_CHECK(wizard);
-        if (wizard) {
+        if (QTC_GUARD(wizard)) {
             QTimer::singleShot(0, std::bind(&runWizard, wizard, m_defaultLocation,
                                             selectedPlatform(), m_extraVariables));
         }

@@ -39,3 +39,4 @@ namespace Utils { QTCREATOR_UTILS_EXPORT void writeAssertLocation(const char *ms
 
 #define QTC_ASSERT(cond, action) if (cond) {} else { QTC_ASSERT_STRING(#cond); action; } do {} while (0)
 #define QTC_CHECK(cond) if (cond) {} else { QTC_ASSERT_STRING(#cond); } do {} while (0)
+#define QTC_GUARD(cond) ((cond) ? true : (QTC_ASSERT_STRING(#cond), false))

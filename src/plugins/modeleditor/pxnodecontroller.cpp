@@ -319,8 +319,7 @@ void PxNodeController::onMenuActionTriggered(PxNodeController::MenuAction *actio
         if (!action->packageStereotype.isEmpty())
             package->setStereotypes(QStringList() << action->packageStereotype);
         auto folderNode = dynamic_cast<const ProjectExplorer::FolderNode *>(node);
-        QTC_CHECK(folderNode);
-        if (folderNode) {
+        if (QTC_GUARD(folderNode)) {
             d->diagramSceneController->modelController()->undoController()->beginMergeSequence(tr("Create Component Model"));
             QStringList relativeElements = qmt::NameController::buildElementsPath(
                         d->pxnodeUtilities->calcRelativePath(folderNode, d->anchorFolder), true);

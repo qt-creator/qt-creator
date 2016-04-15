@@ -280,8 +280,7 @@ QMessageBox::StandardButton CheckableMessageBox::dialogButtonBoxToMessageBoxButt
 
 bool askAgain(QSettings *settings, const QString &settingsSubKey)
 {
-    QTC_CHECK(settings);
-    if (settings) {
+    if (QTC_GUARD(settings)) {
         settings->beginGroup(QLatin1String(kDoNotAskAgainKey));
         bool shouldNotAsk = settings->value(settingsSubKey, false).toBool();
         settings->endGroup();

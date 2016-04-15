@@ -103,8 +103,7 @@ void SemanticHighlighter::onHighlighterFinished()
     QTC_ASSERT(m_watcher, return);
     if (!m_watcher->isCanceled() && documentRevision() == m_revision) {
         SyntaxHighlighter *highlighter = m_baseTextDocument->syntaxHighlighter();
-        QTC_CHECK(highlighter);
-        if (highlighter) {
+        if (QTC_GUARD(highlighter)) {
             qCDebug(log) << "onHighlighterFinished() - clearing formats";
             clearExtraAdditionalFormatsUntilEnd(highlighter, m_watcher->future());
         }

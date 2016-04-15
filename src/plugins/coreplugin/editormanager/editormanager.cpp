@@ -1674,10 +1674,9 @@ void EditorManagerPrivate::gotoNextSplit()
         if (nextIndex >= d->m_editorAreas.size())
             nextIndex = 0;
         nextView = d->m_editorAreas.at(nextIndex)->findFirstView();
-        QTC_CHECK(nextView);
     }
 
-    if (nextView)
+    if (QTC_GUARD(nextView))
         activateView(nextView);
 }
 
@@ -1698,10 +1697,9 @@ void EditorManagerPrivate::gotoPreviousSplit()
         if (nextIndex < 0)
             nextIndex = d->m_editorAreas.count() - 1;
         prevView = d->m_editorAreas.at(nextIndex)->findLastView();
-        QTC_CHECK(prevView);
     }
 
-    if (prevView)
+    if (QTC_GUARD(prevView))
         activateView(prevView);
 }
 

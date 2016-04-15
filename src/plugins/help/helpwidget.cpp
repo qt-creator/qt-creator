@@ -222,8 +222,7 @@ HelpWidget::HelpWidget(const Core::Context &context, WidgetStyle style, QWidget 
     connect(m_copy, &QAction::triggered, this, &HelpWidget::copy);
 
     Core::ActionContainer *advancedMenu = Core::ActionManager::actionContainer(Core::Constants::M_EDIT_ADVANCED);
-    QTC_CHECK(advancedMenu);
-    if (advancedMenu) {
+    if (QTC_GUARD(advancedMenu)) {
         // reuse TextEditor constants to avoid a second pair of menu actions
         m_scaleUp = new QAction(tr("Increase Font Size"), this);
         cmd = Core::ActionManager::registerAction(m_scaleUp, TextEditor::Constants::INCREASE_FONT_SIZE,
