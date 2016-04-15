@@ -226,7 +226,7 @@ bool AutoCompleter::isInComment(const QTextCursor &cursor) const
 
 QString AutoCompleter::insertMatchingBrace(const QTextCursor &cursor,
                                            const QString &text,
-                                           QChar,
+                                           QChar la,
                                            int *skippedChars) const
 {
     if (text.length() != 1)
@@ -234,8 +234,6 @@ QString AutoCompleter::insertMatchingBrace(const QTextCursor &cursor,
 
     if (! shouldInsertMatchingText(cursor))
         return QString();
-
-    const QChar la = cursor.document()->characterAt(cursor.position());
 
     const QChar ch = text.at(0);
     switch (ch.unicode()) {
