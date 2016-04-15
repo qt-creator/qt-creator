@@ -37,6 +37,7 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
 #include <texteditor/texteditor.h>
+#include <utils/icon.h>
 #include <utils/tooltip/tooltip.h>
 #include <utils/qtcassert.h>
 #include <utils/checkablemessagebox.h>
@@ -318,7 +319,8 @@ void BookmarkView::gotoBookmark(const QModelIndex &index)
 ////
 
 BookmarkManager::BookmarkManager() :
-    m_bookmarkIcon(QLatin1String(":/bookmarks/images/bookmark.png")),
+    m_bookmarkIcon(Utils::Icon({{QLatin1String(":/bookmarks/images/bookmark.png"),
+                                 Theme::Bookmarks_TextMarkColor}}, Icon::Tint).pixmap()),
     m_selectionModel(new QItemSelectionModel(this, this))
 {
     connect(ICore::instance(), &ICore::contextChanged,
