@@ -333,12 +333,13 @@ AnalyzerRunControl *QmlProfilerTool::createRunControl(RunConfiguration *runConfi
     }
 
     auto runControl = new QmlProfilerRunControl(runConfiguration, this);
-    connect(runControl, &RunControl::finished, [this, runControl] {
+    connect(runControl, &RunControl::finished, this, [this, runControl] {
         d->m_toolBusy = false;
         updateRunActions();
+        disconnect(d->m_stopAction, &QAction::triggered, runControl, &QmlProfilerRunControl::stop);
     });
 
-    connect(d->m_stopAction, &QAction::triggered, runControl, [runControl] { runControl->stop(); });
+    connect(d->m_stopAction, &QAction::triggered, runControl, &QmlProfilerRunControl::stop);
 
     updateRunActions();
     return runControl;

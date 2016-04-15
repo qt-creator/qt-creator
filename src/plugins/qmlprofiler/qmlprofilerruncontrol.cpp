@@ -101,7 +101,7 @@ QmlProfilerRunControl::QmlProfilerRunControl(RunConfiguration *runConfiguration,
 
 QmlProfilerRunControl::~QmlProfilerRunControl()
 {
-    if (d->m_profilerState)
+    if (d->m_running && d->m_profilerState)
         stop();
     delete d;
 }
