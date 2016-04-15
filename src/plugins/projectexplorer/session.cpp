@@ -79,6 +79,7 @@ public:
         m_sessionName(QLatin1String("default")),
         m_virginSession(true),
         m_loadingSession(false),
+        m_casadeSetActive(false),
         m_startupProject(0),
         m_writer(0)
     {}
