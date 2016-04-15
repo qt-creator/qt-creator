@@ -33,9 +33,6 @@ namespace Internal {
 class GlslCompleter : public TextEditor::AutoCompleter
 {
 public:
-    GlslCompleter();
-    virtual ~GlslCompleter();
-
     virtual bool contextAllowsAutoParentheses(const QTextCursor &cursor,
                                               const QString &textToInsert = QString()) const;
     virtual bool contextAllowsElectricCharacters(const QTextCursor &cursor) const;

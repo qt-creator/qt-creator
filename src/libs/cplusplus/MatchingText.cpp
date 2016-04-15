@@ -125,10 +125,52 @@ static int countSkippedChars(const QString blockText, const QString &textToProce
     return skippedChars;
 }
 
-bool MatchingText::shouldInsertMatchingText(const QTextCursor &tc)
+static const Token tokenAtPosition(const Tokens &tokens, const unsigned pos)
 {
-    QTextDocument *doc = tc.document();
-    return shouldInsertMatchingText(doc->characterAt(tc.selectionEnd()));
+    for (int i = tokens.size() - 1; i >= 0; --i) {
+        const Token tk = tokens.at(i);
+        if (pos >= tk.utf16charsBegin() && pos < tk.utf16charsEnd())
+            return tk;
+    }
+    return Token();
+}
+
+bool MatchingText::contextAllowsAutoParentheses(const QTextCursor &cursor,
+                                                const QString &textToInsert)
+{
+    QChar ch;
+
+    if (!textToInsert.isEmpty())
+        ch = textToInsert.at(0);
+
+    if (!shouldInsertMatchingText(cursor) && ch != QLatin1Char('\'') && ch != QLatin1Char('"'))
+        return false;
+    else if (isInCommentHelper(cursor))
+        return false;
+
+    return true;
+}
+
+bool MatchingText::contextAllowsElectricCharacters(const QTextCursor &cursor)
+{
+    Token token;
+
+    if (isInCommentHelper(cursor, &token))
+        return false;
+
+    if (token.isStringLiteral() || token.isCharLiteral()) {
+        const unsigned pos = cursor.selectionEnd() - cursor.block().position();
+        if (pos <= token.utf16charsEnd())
+            return false;
+    }
+
+    return true;
+}
+
+bool MatchingText::shouldInsertMatchingText(const QTextCursor &cursor)
+{
+    QTextDocument *doc = cursor.document();
+    return shouldInsertMatchingText(doc->characterAt(cursor.selectionEnd()));
 }
 
 bool MatchingText::shouldInsertMatchingText(QChar lookAhead)
@@ -145,6 +187,66 @@ bool MatchingText::shouldInsertMatchingText(QChar lookAhead)
 
         return false;
     } // switch
+}
+
+static Tokens getTokens(const QTextCursor &cursor, int &prevState)
+{
+    LanguageFeatures features;
+    features.qtEnabled = false;
+    features.qtKeywordsEnabled = false;
+    features.qtMocRunEnabled = false;
+    features.cxx11Enabled = true;
+    features.c99Enabled = true;
+
+    SimpleLexer tokenize;
+    tokenize.setLanguageFeatures(features);
+
+    prevState = BackwardsScanner::previousBlockState(cursor.block()) & 0xFF;
+    return tokenize(cursor.block().text(), prevState);
+}
+
+bool MatchingText::isInCommentHelper(const QTextCursor &cursor, Token *retToken)
+{
+    int prevState = 0;
+    const Tokens tokens = getTokens(cursor, prevState);
+
+    const unsigned pos = cursor.selectionEnd() - cursor.block().position();
+
+    if (tokens.isEmpty() || pos < tokens.first().utf16charsBegin())
+        return prevState > 0;
+
+    if (pos >= tokens.last().utf16charsEnd()) {
+        const Token tk = tokens.last();
+        if (retToken)
+            *retToken = tk;
+        if (tk.is(T_CPP_COMMENT) || tk.is(T_CPP_DOXY_COMMENT))
+            return true;
+        return tk.isComment() && (cursor.block().userState() & 0xFF);
+    }
+
+    Token tk = tokenAtPosition(tokens, pos);
+    if (retToken)
+        *retToken = tk;
+    return tk.isComment();
+}
+
+bool MatchingText::isInStringHelper(const QTextCursor &cursor)
+{
+    int prevState = 0;
+    const Tokens tokens = getTokens(cursor, prevState);
+
+    const unsigned pos = cursor.selectionEnd() - cursor.block().position();
+
+    if (tokens.isEmpty() || pos <= tokens.first().utf16charsBegin())
+        return false;
+
+    if (pos >= tokens.last().utf16charsEnd()) {
+        const Token tk = tokens.last();
+        return tk.isStringLiteral() && prevState > 0;
+    }
+
+    Token tk = tokenAtPosition(tokens, pos);
+    return tk.isStringLiteral() && pos > tk.utf16charsBegin();
 }
 
 QString MatchingText::insertMatchingBrace(const QTextCursor &cursor, const QString &textToProcess,
@@ -211,15 +313,15 @@ static bool shouldInsertNewline(const QTextCursor &tc)
     return newlines <= 1 && doc->characterAt(pos) != QLatin1Char('}');
 }
 
-QString MatchingText::insertParagraphSeparator(const QTextCursor &tc)
+QString MatchingText::insertParagraphSeparator(const QTextCursor &cursor)
 {
-    BackwardsScanner tk(tc, LanguageFeatures::defaultFeatures(), MAX_NUM_LINES);
+    BackwardsScanner tk(cursor, LanguageFeatures::defaultFeatures(), MAX_NUM_LINES);
     int index = tk.startToken();
 
     if (tk[index - 1].isNot(T_LBRACE))
         return QString(); // nothing to do.
 
-    const QString textBlock = tc.block().text().mid(tc.positionInBlock()).trimmed();
+    const QString textBlock = cursor.block().text().mid(cursor.positionInBlock()).trimmed();
     if (! textBlock.isEmpty())
         return QString();
 
@@ -244,7 +346,7 @@ QString MatchingText::insertParagraphSeparator(const QTextCursor &tc)
                 // found a class key.
                 QString str = QLatin1String("};");
 
-                if (shouldInsertNewline(tc))
+                if (shouldInsertNewline(cursor))
                     str += QLatin1Char('\n');
 
                 return str;
@@ -310,7 +412,7 @@ QString MatchingText::insertParagraphSeparator(const QTextCursor &tc)
         // if we reached this point there is a good chance that we are parsing a function definition
         QString str = QLatin1String("}");
 
-        if (shouldInsertNewline(tc))
+        if (shouldInsertNewline(cursor))
             str += QLatin1Char('\n');
 
         return str;

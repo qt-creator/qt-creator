@@ -36,8 +36,15 @@ namespace CPlusPlus {
 class CPLUSPLUS_EXPORT MatchingText
 {
 public:
+    static bool contextAllowsAutoParentheses(const QTextCursor &cursor,
+                                             const QString &textToInsert);
+    static bool contextAllowsElectricCharacters(const QTextCursor &cursor);
+
     static bool shouldInsertMatchingText(const QTextCursor &tc);
     static bool shouldInsertMatchingText(QChar lookAhead);
+
+    static bool isInCommentHelper(const QTextCursor &currsor, Token *retToken = 0);
+    static bool isInStringHelper(const QTextCursor &cursor);
 
     static QString insertMatchingBrace(const QTextCursor &tc, const QString &text,
                                        QChar la, int *skippedChars);
