@@ -158,7 +158,7 @@ void DebuggerMainWindow::finalizeSetup()
     hbox->addWidget(m_perspectiveChooser);
     hbox->addWidget(m_controlsStackWidget);
     hbox->addWidget(m_statusLabel);
-    hbox->addStretch();
+    hbox->addStretch(1);
     hbox->addWidget(new Utils::StyledSeparator);
     hbox->addWidget(viewButton);
 
