@@ -966,6 +966,7 @@ public:
 
     QIcon m_locationMarkIcon;
 
+    QLabel *m_threadLabel = 0;
     QComboBox *m_threadBox = 0;
 
     BaseTreeView *m_breakView = 0;
@@ -1788,7 +1789,9 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
     }
 
     toolbar.addWidget(new StyledSeparator);
-    toolbar.addWidget(new QLabel(tr("Threads:")));
+
+    m_threadLabel = new QLabel(tr("Threads:"));
+    toolbar.addWidget(m_threadLabel);
 
     m_threadBox = new QComboBox;
     m_threadBox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
@@ -2489,6 +2492,8 @@ void DebuggerPluginPrivate::setInitialState()
 
     action(AutoDerefPointers)->setEnabled(true);
     action(ExpandStack)->setEnabled(false);
+
+    m_threadLabel->setEnabled(false);
 }
 
 void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
@@ -2586,6 +2591,7 @@ void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
     m_attachToUnstartedApplication->setEnabled(true);
 
     m_threadBox->setEnabled(state == InferiorStopOk || state == InferiorUnrunnable);
+    m_threadLabel->setEnabled(m_threadBox->isEnabled());
 
     const bool isCore = engine->runParameters().startMode == AttachCore;
     const bool stopped = state == InferiorStopOk;
