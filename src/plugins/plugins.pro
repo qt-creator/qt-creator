@@ -79,11 +79,7 @@ exists($$LLVM_INSTALL_DIR) {
 
 isEmpty(IDE_PACKAGE_MODE) {
     SUBDIRS += \
-        helloworld #\
-        #updateinfo
-#} else:!isEmpty(UPDATEINFO_ENABLE) {
-#    SUBDIRS += \
-#        updateinfo
+        helloworld
 }
 
 for(p, SUBDIRS) {
