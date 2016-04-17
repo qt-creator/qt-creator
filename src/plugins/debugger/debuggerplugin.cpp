@@ -2370,6 +2370,7 @@ void DebuggerPluginPrivate::connectEngine(DebuggerEngine *engine)
 
     engine->watchHandler()->resetWatchers();
     m_localsView->hideProgressIndicator();
+    updateActiveLanguages();
 }
 
 static void changeFontSize(QWidget *widget, qreal size)
