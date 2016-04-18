@@ -124,6 +124,7 @@ private:
     void handleActiveBuildConfigurationChanged();
     void handleParsingStarted();
     void parseCMakeOutput();
+    void updateQmlJSCodeModel();
 
     void buildTree(Internal::CMakeProjectNode *rootNode, QList<ProjectExplorer::FileNode *> list);
     void gatherFileNodes(ProjectExplorer::FolderNode *parent, QList<ProjectExplorer::FileNode *> &list) const;

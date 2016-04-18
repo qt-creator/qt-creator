@@ -57,6 +57,7 @@
 #include <cpptools/cppmodelmanager.h>
 #include <cpptools/projectinfo.h>
 #include <cpptools/projectpartbuilder.h>
+#include <qmljs/qmljsmodelmanagerinterface.h>
 #include <extensionsystem/pluginmanager.h>
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
@@ -264,10 +265,45 @@ void CMakeProject::parseCMakeOutput()
     pinfo.finish();
     m_codeModelFuture = modelmanager->updateProjectInfo(pinfo);
 
+    updateQmlJSCodeModel();
+
     emit displayNameChanged();
     emit fileListChanged();
 
     emit cmakeBc->emitBuildTypeChanged();
+}
+
+void CMakeProject::updateQmlJSCodeModel()
+{
+    QmlJS::ModelManagerInterface *modelManager = QmlJS::ModelManagerInterface::instance();
+    QTC_ASSERT(modelManager, return);
+
+    if (!activeTarget() || !activeTarget()->activeBuildConfiguration())
+        return;
+
+    QmlJS::ModelManagerInterface::ProjectInfo projectInfo =
+            modelManager->defaultProjectInfoForProject(this);
+
+    projectInfo.importPaths.clear();
+
+    QString cmakeImports;
+    CMakeBuildConfiguration *bc = qobject_cast<CMakeBuildConfiguration *>(activeTarget()->activeBuildConfiguration());
+    if (!bc)
+        return;
+
+    const QList<ConfigModel::DataItem> &cm = bc->completeCMakeConfiguration();
+    foreach (const ConfigModel::DataItem &di, cm) {
+        if (di.key.contains(QStringLiteral("QML_IMPORT_PATH"))) {
+            cmakeImports = di.value;
+            break;
+        }
+    }
+
+    foreach (const QString &cmakeImport, cmakeImports.split(QLatin1Char(';'))) {
+        projectInfo.importPaths.maybeInsert(FileName::fromString(cmakeImport),QmlJS::Dialect::Qml);
+    }
+
+    modelManager->updateProjectInfo(projectInfo, this);
 }
 
 bool CMakeProject::needsConfiguration() const

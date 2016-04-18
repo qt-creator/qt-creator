@@ -106,7 +106,7 @@ private:
     BuildDirManager *m_buildDirManager = nullptr;
 
     friend class CMakeBuildSettingsWidget;
-    friend class CMakeProject;
+    friend class CMakeProjectManager::CMakeProject;
 };
 
 class CMakeBuildConfigurationFactory : public ProjectExplorer::IBuildConfigurationFactory
