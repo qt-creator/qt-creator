@@ -219,6 +219,10 @@
     application to jump to their definitions in the code. The properties of the
     selected item are displayed in the \uicontrol {Locals and Expressions} view.
 
+    The \uicontrol Select tool will be enabled either if your application is
+    using Qt 5.7 or later, or if your application is using an earlier version
+    of Qt and is based on the \c QQuickView class.
+
     You can also view the item hierarchy in the running application:
 
     \list
