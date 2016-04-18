@@ -25,7 +25,6 @@
 
 #include "javaeditor.h"
 #include "javaindenter.h"
-#include "javaautocompleter.h"
 #include "androidconstants.h"
 #include "javacompletionassistprovider.h"
 
@@ -74,7 +73,6 @@ JavaEditorFactory::JavaEditorFactory()
     addMimeType(Constants::JAVA_MIMETYPE);
 
     setDocumentCreator([]() { return new JavaDocument; });
-    setAutoCompleterCreator([]() { return new JavaAutoCompleter; });
     setUseGenericHighlighter(true);
     setCommentStyle(Utils::CommentDefinition::CppStyle);
     setEditorActionHandlers(TextEditor::TextEditorActionHandler::UnCommentSelection);

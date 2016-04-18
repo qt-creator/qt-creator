@@ -92,8 +92,6 @@ QtcPlugin {
         "avddialog.h",
         "certificatesmodel.cpp",
         "certificatesmodel.h",
-        "javaautocompleter.cpp",
-        "javaautocompleter.h",
         "javacompletionassistprovider.cpp",
         "javacompletionassistprovider.h",
         "javaeditor.cpp",
