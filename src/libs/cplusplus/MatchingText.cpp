@@ -329,11 +329,7 @@ QString MatchingText::insertParagraphSeparator(const QTextCursor &cursor)
 
     const Token &token = tk[index - 1];
 
-    if (token.is(T_STRING_LITERAL) && tk[index - 2].is(T_EXTERN)) {
-        // recognized extern "C"
-        return QLatin1String("}");
-
-    } else if (token.is(T_IDENTIFIER)) {
+    if (token.is(T_IDENTIFIER)) {
         int i = index - 1;
 
         forever {
@@ -369,12 +365,6 @@ QString MatchingText::insertParagraphSeparator(const QTextCursor &cursor)
 
             --i;
         }
-    }
-
-    if (token.is(T_NAMESPACE)) {
-        // anonymous namespace
-        return QLatin1String("}");
-
     } else if (token.is(T_CLASS) || token.is(T_STRUCT) || token.is(T_UNION) || token.is(T_ENUM)) {
         if (tk[index - 2].is(T_TYPEDEF)) {
             // recognized:
@@ -392,7 +382,7 @@ QString MatchingText::insertParagraphSeparator(const QTextCursor &cursor)
         const int lparenIndex = tk.startOfMatchingBrace(index);
 
         if (lparenIndex == index) {
-            // found an unmatched brace. We don't really know to do in this case.
+            // found an unmatched brace. We don't really know what to do in this case.
             return QString();
         }
 
