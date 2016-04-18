@@ -434,6 +434,8 @@ static void checkQmlDocumentForTestCode(QFutureInterface<TestParseResult> future
                                         const QmlJS::Document::Ptr &qmlJSDoc,
                                         const QString &proFile = QString())
 {
+    if (qmlJSDoc.isNull())
+        return;
     QmlJS::AST::Node *ast = qmlJSDoc->ast();
     QTC_ASSERT(ast, return);
     TestQmlVisitor qmlVisitor(qmlJSDoc);
