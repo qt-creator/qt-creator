@@ -47,4 +47,13 @@
 
     \image qtcreator-project-options-deploy.png "Project General Options"
 
+    On Windows, you can use \c jom instead of \c nmake for building the project
+    to distribute the compilation process to multiple CPU cores. You can download
+    \c jom from \l{http://download.qt.io/official_releases/jom}{Qt Downloads}.
+    To use \c jom, select the \uicontrol {Use jom instead of nmake} check box.
+    Deselect the check box if you experience build problems.
+
+    You can specify the default build directory  in the
+    \uicontrol {Default build directory} field using \QC variables (2).
+
 */

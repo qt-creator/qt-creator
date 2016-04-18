@@ -451,6 +451,13 @@
     Select toolbar buttons to run applications, to attach the debugger to the
     running application, and to stop running or debugging.
 
+    To specify settings for displaying application output, select
+    \uicontrol Tools > \uicontrol Options > \uicontrol {Build & Run} >
+    \uicontrol General. You can select whether to open the
+    \uicontrol{Application Output} pane on output when running or debugging
+    applications, to clear old output on a new run, to word-wrap output, and to
+    limit output to the specified number of lines.
+
     \section2 Compile Output
 
     The \uicontrol{Compile Output} pane provides all output from the compiler.
@@ -463,6 +470,11 @@
     code editor.
 
     Select the \uicontrol {Cancel Build} button to cancel the build.
+
+    To specify whether to open the \uicontrol {Compile Output} pane on output
+    when building applications, select \uicontrol Tools > \uicontrol Options >
+    \uicontrol {Build & Run} > \uicontrol General, and then select the
+    \uicontrol {Open Compile Output pane when building} check box.
 
     \section2 Debugger Console
 
