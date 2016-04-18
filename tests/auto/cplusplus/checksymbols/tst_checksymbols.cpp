@@ -219,6 +219,8 @@ private slots:
     void test_checksymbols_infiniteLoop_data();
     void test_checksymbols_infiniteLoop();
 
+    void test_checkForValidSymbolFileId();
+
     void test_parentOfBlock();
 
     void findField();
@@ -1163,6 +1165,33 @@ void tst_CheckSymbols::test_checksymbols_infiniteLoop()
     snapshot.insert(TestCase::createDocument(filePath2, source2));
 
     TestCase::runCheckSymbols(document1, snapshot);
+}
+
+void tst_CheckSymbols::test_checkForValidSymbolFileId()
+{
+    const QByteArray contents =
+        "constexpr int parent_of(const int f) { return 1; }\n"
+        "\n"
+        "template <typename T> struct wrapper { const T* ptr; };\n"
+        "template <int> struct Dummy;\n"
+        "\n"
+        "namespace impl {\n"
+        "    template <int f>\n"
+        "    struct dummy_impl {\n"
+        "        wrapper<Dummy<parent_of(f)>> parent;\n"
+        "    };\n"
+        "}\n"
+        "\n"
+        "template <int f>\n"
+        "struct Dummy : impl::dummy_impl<f> {};\n"
+        "\n"
+        "void client()\n"
+        "{\n"
+        "    wrapper<Dummy<1>> a;\n"
+        "    a.ptr->parent.ptr;\n"
+        "}\n";
+
+    BaseTestCase tc(contents);
 }
 
 void tst_CheckSymbols::test_parentOfBlock()

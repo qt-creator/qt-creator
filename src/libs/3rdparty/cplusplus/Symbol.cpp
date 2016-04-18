@@ -191,10 +191,10 @@ const StringLiteral *Symbol::fileId() const
 }
 
 const char *Symbol::fileName() const
-{ return fileId()->chars(); }
+{ return _fileId ? _fileId->chars() : ""; }
 
 unsigned Symbol::fileNameLength() const
-{ return fileId()->size(); }
+{ return _fileId ? _fileId->size() : 0; }
 
 const Name *Symbol::unqualifiedName() const
 {
