@@ -61,7 +61,7 @@ bool AutoCompleter::isSurroundWithEnabled() const
     return m_surroundWithEnabled;
 }
 
-void AutoCompleter::countBracket(QChar open, QChar close, QChar c, int *errors, int *stillopen)
+static void countBracket(QChar open, QChar close, QChar c, int *errors, int *stillopen)
 {
     if (c == open)
         ++*stillopen;
@@ -74,13 +74,8 @@ void AutoCompleter::countBracket(QChar open, QChar close, QChar c, int *errors, 
     }
 }
 
-void AutoCompleter::countBrackets(QTextCursor cursor,
-                                  int from,
-                                  int end,
-                                  QChar open,
-                                  QChar close,
-                                  int *errors,
-                                  int *stillopen)
+static void countBrackets(QTextCursor cursor, int from, int end, QChar open, QChar close,
+                   int *errors, int *stillopen)
 {
     cursor.setPosition(from);
     QTextBlock block = cursor.block();
@@ -99,77 +94,89 @@ void AutoCompleter::countBrackets(QTextCursor cursor,
     }
 }
 
+static bool fixesBracketsError(const QString &textToInsert, const QTextCursor &cursor)
+{
+    const QChar character = textToInsert.at(0);
+    const QString parentheses = QLatin1String("()");
+    const QString brackets = QLatin1String("[]");
+    if (!parentheses.contains(character) && !brackets.contains(character))
+        return false;
+
+    QTextCursor tmp = cursor;
+    bool foundBlockStart = TextBlockUserData::findPreviousBlockOpenParenthesis(&tmp);
+    int blockStart = foundBlockStart ? tmp.position() : 0;
+    tmp = cursor;
+    bool foundBlockEnd = TextBlockUserData::findNextBlockClosingParenthesis(&tmp);
+    int blockEnd = foundBlockEnd ? tmp.position() : (cursor.document()->characterCount() - 1);
+    const QChar openChar = parentheses.contains(character) ? QLatin1Char('(') : QLatin1Char('[');
+    const QChar closeChar = parentheses.contains(character) ? QLatin1Char(')') : QLatin1Char(']');
+
+    int errors = 0;
+    int stillopen = 0;
+    countBrackets(cursor, blockStart, blockEnd, openChar, closeChar, &errors, &stillopen);
+    int errorsBeforeInsertion = errors + stillopen;
+    errors = 0;
+    stillopen = 0;
+    countBrackets(cursor, blockStart, cursor.position(), openChar, closeChar, &errors, &stillopen);
+    countBracket(openChar, closeChar, character, &errors, &stillopen);
+    countBrackets(cursor, cursor.position(), blockEnd, openChar, closeChar, &errors, &stillopen);
+    int errorsAfterInsertion = errors + stillopen;
+    return errorsAfterInsertion < errorsBeforeInsertion;
+}
+
+static QString replaceSelection(const QString &textToInsert, const QString &selection)
+{
+    QString replacement;
+    if (textToInsert == QLatin1String("(")) {
+        replacement = selection + QLatin1Char(')');
+    } else if (textToInsert == QLatin1String("{")) {
+        //If the text spans multiple lines, insert on different lines
+        replacement = selection;
+        if (selection.contains(QChar::ParagraphSeparator)) {
+            //Also, try to simulate auto-indent
+            replacement = (selection.startsWith(QChar::ParagraphSeparator)
+                   ? QString()
+                   : QString(QChar::ParagraphSeparator)) + selection;
+            if (replacement.endsWith(QChar::ParagraphSeparator))
+                replacement += QLatin1Char('}') + QString(QChar::ParagraphSeparator);
+            else
+                replacement += QString(QChar::ParagraphSeparator) + QLatin1Char('}');
+        } else {
+            replacement += QLatin1Char('}');
+        }
+    } else if (textToInsert == QLatin1String("[")) {
+        replacement = selection + QLatin1Char(']');
+    } else if (textToInsert == QLatin1String("\"")) {
+        replacement = selection + QLatin1Char('"');
+    } else if (textToInsert == QLatin1String("'")) {
+        replacement = selection + QLatin1Char('\'');
+    }
+    return replacement;
+}
+
 QString AutoCompleter::autoComplete(QTextCursor &cursor, const QString &textToInsert) const
 {
     const bool checkBlockEnd = m_allowSkippingOfBlockEnd;
     m_allowSkippingOfBlockEnd = false; // consume blockEnd.
 
     if (m_surroundWithEnabled && cursor.hasSelection()) {
-        if (textToInsert == QLatin1String("("))
-            return cursor.selectedText() + QLatin1Char(')');
-        if (textToInsert == QLatin1String("{")) {
-            //If the text span multiple lines, insert on different lines
-            QString str = cursor.selectedText();
-            if (str.contains(QChar::ParagraphSeparator)) {
-                //Also, try to simulate auto-indent
-                str = (str.startsWith(QChar::ParagraphSeparator) ? QString() : QString(QChar::ParagraphSeparator)) +
-                      str;
-                if (str.endsWith(QChar::ParagraphSeparator))
-                    str += QLatin1Char('}') + QString(QChar::ParagraphSeparator);
-                else
-                    str += QString(QChar::ParagraphSeparator) + QLatin1Char('}');
-            } else {
-                str += QLatin1Char('}');
-            }
-            return str;
-        }
-        if (textToInsert == QLatin1String("["))
-            return cursor.selectedText() + QLatin1Char(']');
-        if (textToInsert == QLatin1String("\""))
-            return cursor.selectedText() + QLatin1Char('"');
-        if (textToInsert == QLatin1String("'"))
-            return cursor.selectedText() + QLatin1Char('\'');
+        const QString replacement = replaceSelection(textToInsert, cursor.selectedText());
+        if (!replacement.isEmpty())
+            return replacement;
     }
 
     if (!m_autoParenthesesEnabled)
         return QString();
-
     if (!contextAllowsAutoParentheses(cursor, textToInsert))
+        return QString();
+    if (fixesBracketsError(textToInsert, cursor))
         return QString();
 
     QTextDocument *doc = cursor.document();
-    const QString text = textToInsert;
     const QChar lookAhead = doc->characterAt(cursor.selectionEnd());
 
-    const QChar character = textToInsert.at(0);
-    const QString parentheses = QLatin1String("()");
-    const QString brackets = QLatin1String("[]");
-    if (parentheses.contains(character) || brackets.contains(character)) {
-        QTextCursor tmp= cursor;
-        bool foundBlockStart = TextBlockUserData::findPreviousBlockOpenParenthesis(&tmp);
-        int blockStart = foundBlockStart ? tmp.position() : 0;
-        tmp = cursor;
-        bool foundBlockEnd = TextBlockUserData::findNextBlockClosingParenthesis(&tmp);
-        int blockEnd = foundBlockEnd ? tmp.position() : (cursor.document()->characterCount() - 1);
-        const QChar openChar = parentheses.contains(character) ? QLatin1Char('(') : QLatin1Char('[');
-        const QChar closeChar = parentheses.contains(character) ? QLatin1Char(')') : QLatin1Char(']');
-
-        int errors = 0;
-        int stillopen = 0;
-        countBrackets(cursor, blockStart, blockEnd, openChar, closeChar, &errors, &stillopen);
-        int errorsBeforeInsertion = errors + stillopen;
-        errors = 0;
-        stillopen = 0;
-        countBrackets(cursor, blockStart, cursor.position(), openChar, closeChar, &errors, &stillopen);
-        countBracket(openChar, closeChar, character, &errors, &stillopen);
-        countBrackets(cursor, cursor.position(), blockEnd, openChar, closeChar, &errors, &stillopen);
-        int errorsAfterInsertion = errors + stillopen;
-        if (errorsAfterInsertion < errorsBeforeInsertion)
-            return QString(); // insertion fixes parentheses or bracket errors, do not auto complete
-    }
-
     int skippedChars = 0;
-    const QString autoText = insertMatchingBrace(cursor, text, lookAhead, &skippedChars);
+    const QString autoText = insertMatchingBrace(cursor, textToInsert, lookAhead, &skippedChars);
 
     if (checkBlockEnd && textToInsert.at(0) == QLatin1Char('}')) {
         if (textToInsert.length() > 1)

@@ -77,11 +77,6 @@ public:
     // Returns the text that needs to be inserted
     virtual QString insertParagraphSeparator(const QTextCursor &cursor) const;
 
-protected:
-    static void countBracket(QChar open, QChar close, QChar c, int *errors, int *stillopen);
-    static void countBrackets(QTextCursor cursor, int from, int end, QChar open, QChar close,
-                              int *errors, int *stillopen);
-
 private:
     mutable bool m_allowSkippingOfBlockEnd;
     bool m_surroundWithEnabled;
