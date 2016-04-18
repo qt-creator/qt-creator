@@ -49,6 +49,7 @@ public:
 
 protected:
     virtual void processOutput() = 0;
+    virtual void processStdError();
     QFutureInterface<TestResultPtr> m_futureInterface;
     QProcess *m_testApplication;  // not owned
     QString m_buildDir;

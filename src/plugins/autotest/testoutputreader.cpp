@@ -137,6 +137,13 @@ TestOutputReader::TestOutputReader(const QFutureInterface<TestResultPtr> &future
     , m_buildDir(buildDirectory)
 {
     connect(m_testApplication, &QProcess::readyRead, this, &TestOutputReader::processOutput);
+    connect(m_testApplication, &QProcess::readyReadStandardError,
+            this, &TestOutputReader::processStdError);
+}
+
+void TestOutputReader::processStdError()
+{
+    qWarning() << "Ignored plain output:" << m_testApplication->readAllStandardError();
 }
 
 QtTestOutputReader::QtTestOutputReader(const QFutureInterface<TestResultPtr> &futureInterface,

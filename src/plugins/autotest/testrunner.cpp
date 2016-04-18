@@ -137,7 +137,6 @@ static void performTestRun(QFutureInterface<TestResultPtr> &futureInterface,
     }
 
     QProcess testProcess;
-    testProcess.setReadChannelMode(QProcess::MergedChannels);
     testProcess.setReadChannel(QProcess::StandardOutput);
 
     futureInterface.setProgressRange(0, testCaseCount);
