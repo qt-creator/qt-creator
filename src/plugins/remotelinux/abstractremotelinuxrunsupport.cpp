@@ -83,26 +83,15 @@ AbstractRemoteLinuxRunSupport::State AbstractRemoteLinuxRunSupport::state() cons
     return d->state;
 }
 
-void AbstractRemoteLinuxRunSupport::handleRemoteSetupRequested()
+void AbstractRemoteLinuxRunSupport::handleResourcesError(const QString &message)
 {
-    QTC_ASSERT(d->state == Inactive, return);
-    d->state = GatheringPorts;
-    connect(&d->portsGatherer, &DeviceUsedPortsGatherer::error,
-            this, &AbstractRemoteLinuxRunSupport::handlePortsGathererError);
-    connect(&d->portsGatherer, &DeviceUsedPortsGatherer::portListReady,
-            this, &AbstractRemoteLinuxRunSupport::handlePortListReady);
-    d->portsGatherer.start(d->device);
-}
-
-void AbstractRemoteLinuxRunSupport::handlePortsGathererError(const QString &message)
-{
-    QTC_ASSERT(d->state == GatheringPorts, return);
+    QTC_ASSERT(d->state == GatheringResources, return);
     handleAdapterSetupFailed(message);
 }
 
-void AbstractRemoteLinuxRunSupport::handlePortListReady()
+void AbstractRemoteLinuxRunSupport::handleResourcesAvailable()
 {
-    QTC_ASSERT(d->state == GatheringPorts, return);
+    QTC_ASSERT(d->state == GatheringResources, return);
 
     d->portList = d->device->freePorts();
     startExecution();
@@ -136,6 +125,17 @@ bool AbstractRemoteLinuxRunSupport::setPort(Utils::Port &port)
         return false;
     }
     return true;
+}
+
+void AbstractRemoteLinuxRunSupport::startPortsGathering()
+{
+    QTC_ASSERT(d->state == Inactive, return);
+    d->state = GatheringResources;
+    connect(&d->portsGatherer, &DeviceUsedPortsGatherer::error,
+            this, &AbstractRemoteLinuxRunSupport::handleResourcesError);
+    connect(&d->portsGatherer, &DeviceUsedPortsGatherer::portListReady,
+            this, &AbstractRemoteLinuxRunSupport::handleResourcesAvailable);
+    d->portsGatherer.start(d->device);
 }
 
 const IDevice::ConstPtr AbstractRemoteLinuxRunSupport::device() const

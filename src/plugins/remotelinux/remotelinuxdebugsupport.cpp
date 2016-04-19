@@ -103,12 +103,12 @@ void LinuxDeviceDebugSupport::handleRemoteSetupRequested()
     QTC_ASSERT(state() == Inactive, return);
 
     showMessage(tr("Checking available ports...") + QLatin1Char('\n'), LogStatus);
-    AbstractRemoteLinuxRunSupport::handleRemoteSetupRequested();
+    startPortsGathering();
 }
 
 void LinuxDeviceDebugSupport::startExecution()
 {
-    QTC_ASSERT(state() == GatheringPorts, return);
+    QTC_ASSERT(state() == GatheringResources, return);
 
     if (d->cppDebugging && !setPort(d->gdbServerPort))
         return;
@@ -202,7 +202,7 @@ void LinuxDeviceDebugSupport::handleRemoteOutput(const QByteArray &output)
 
 void LinuxDeviceDebugSupport::handleRemoteErrorOutput(const QByteArray &output)
 {
-    QTC_ASSERT(state() != GatheringPorts, return);
+    QTC_ASSERT(state() != GatheringResources, return);
 
     if (!d->runControl)
         return;

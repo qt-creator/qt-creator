@@ -57,12 +57,12 @@ class RemoteLinuxAnalyzeSupportPrivate
 public:
     RemoteLinuxAnalyzeSupportPrivate(AnalyzerRunControl *rc, Core::Id runMode)
         : runControl(rc),
-          qmlProfiling(runMode == ProjectExplorer::Constants::QML_PROFILER_RUN_MODE)
+          runMode(runMode)
     {
     }
 
     const QPointer<AnalyzerRunControl> runControl;
-    bool qmlProfiling;
+    Core::Id runMode;
     Utils::Port qmlPort;
 
     QmlDebug::QmlOutputParser outputParser;
@@ -101,18 +101,18 @@ void RemoteLinuxAnalyzeSupport::handleRemoteSetupRequested()
 {
     QTC_ASSERT(state() == Inactive, return);
 
-    showMessage(tr("Checking available ports...") + QLatin1Char('\n'), Utils::NormalMessageFormat);
-    AbstractRemoteLinuxRunSupport::handleRemoteSetupRequested();
+    if (d->runMode == ProjectExplorer::Constants::QML_PROFILER_RUN_MODE) {
+        showMessage(tr("Checking available ports...") + QLatin1Char('\n'),
+                    Utils::NormalMessageFormat);
+        startPortsGathering();
+    }
 }
 
 void RemoteLinuxAnalyzeSupport::startExecution()
 {
-    QTC_ASSERT(state() == GatheringPorts, return);
+    QTC_ASSERT(state() == GatheringResources, return);
 
-    // Currently we support only QML profiling
-    QTC_ASSERT(d->qmlProfiling, return);
-
-    if (!setPort(d->qmlPort))
+    if (d->runMode == ProjectExplorer::Constants::QML_PROFILER_RUN_MODE && !setPort(d->qmlPort))
         return;
 
     setState(StartingRunner);
@@ -132,11 +132,14 @@ void RemoteLinuxAnalyzeSupport::startExecution()
             this, &RemoteLinuxAnalyzeSupport::handleAppRunnerError);
 
     auto r = runnable();
-    if (!r.commandLineArguments.isEmpty())
-        r.commandLineArguments.append(QLatin1Char(' '));
-    r.commandLineArguments += QmlDebug::qmlDebugTcpArguments(QmlDebug::QmlProfilerServices,
-                                                             d->qmlPort);
-    runner->start(device(), r);
+
+    if (d->runMode == ProjectExplorer::Constants::QML_PROFILER_RUN_MODE) {
+        if (!r.commandLineArguments.isEmpty())
+            r.commandLineArguments.append(QLatin1Char(' '));
+        r.commandLineArguments += QmlDebug::qmlDebugTcpArguments(QmlDebug::QmlProfilerServices,
+                                                                 d->qmlPort);
+        runner->start(device(), r);
+    }
 }
 
 void RemoteLinuxAnalyzeSupport::handleAppRunnerError(const QString &error)
@@ -175,7 +178,7 @@ void RemoteLinuxAnalyzeSupport::handleRemoteOutput(const QByteArray &output)
 
 void RemoteLinuxAnalyzeSupport::handleRemoteErrorOutput(const QByteArray &output)
 {
-    QTC_ASSERT(state() != GatheringPorts, return);
+    QTC_ASSERT(state() != GatheringResources, return);
 
     if (!d->runControl)
         return;
@@ -196,7 +199,6 @@ void RemoteLinuxAnalyzeSupport::handleAdapterSetupFailed(const QString &error)
 
 void RemoteLinuxAnalyzeSupport::handleRemoteProcessStarted()
 {
-    QTC_ASSERT(d->qmlProfiling, return);
     QTC_ASSERT(state() == StartingRunner, return);
 
     handleAdapterSetupDone();
