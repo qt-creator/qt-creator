@@ -47,6 +47,27 @@ public:
     ~BuildStepList() override;
 
     QList<BuildStep *> steps() const;
+    QList<BuildStep *> steps(const std::function<bool(const BuildStep *)> &filter) const;
+    template <class BS> BS *firstOfType() {
+        BS *bs = nullptr;
+        for (int i = 0; i < count(); ++i) {
+            bs = qobject_cast<BS *>(at(i));
+            if (bs)
+                return bs;
+        }
+        return nullptr;
+    }
+    template <class BS> QList<BS *>allOfType() {
+        QList<BS *> result;
+        BS *bs = nullptr;
+        for (int i = 0; i < count(); ++i) {
+            bs = qobject_cast<BS *>(at(i));
+            if (bs)
+                result.append(bs);
+        }
+        return result;
+    }
+
     bool isNull() const;
     int count() const;
     bool isEmpty() const;

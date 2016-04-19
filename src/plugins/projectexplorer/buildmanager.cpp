@@ -553,9 +553,8 @@ bool BuildManager::buildLists(QList<BuildStepList *> bsls, const QStringList &st
     QStringList names;
     names.reserve(steps.size());
     for (int i = 0; i < bsls.size(); ++i) {
-        for (int j = 0; j < bsls.at(i)->steps().size(); ++j) {
+        for (int j = 0; j < bsls.at(i)->count(); ++j)
             names.append(stepListNames.at(i));
-        }
     }
 
     bool success = buildQueueAppend(steps, names, preambelMessage);

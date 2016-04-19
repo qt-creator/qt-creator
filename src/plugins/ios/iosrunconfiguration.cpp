@@ -174,19 +174,8 @@ void IosRunConfiguration::updateDisplayNames()
 
 IosDeployStep *IosRunConfiguration::deployStep() const
 {
-    IosDeployStep * step = 0;
     DeployConfiguration *config = target()->activeDeployConfiguration();
-    BuildStepList *bsl = config->stepList();
-    if (bsl) {
-        const QList<BuildStep *> &buildSteps = bsl->steps();
-        for (int i = buildSteps.count() - 1; i >= 0; --i) {
-            step = qobject_cast<IosDeployStep *>(buildSteps.at(i));
-            if (step)
-                break;
-        }
-    }
-    Q_ASSERT_X(step, Q_FUNC_INFO, "Impossible: iOS build configuration without deploy step.");
-    return step;
+    return config ? config->stepList()->firstOfType<IosDeployStep>() : nullptr;
 }
 
 FileName IosRunConfiguration::profilePath() const

@@ -84,29 +84,20 @@ QList<Core::LocatorFilterEntry> CMakeLocatorFilter::matchesFor(QFutureInterface<
 void CMakeLocatorFilter::accept(Core::LocatorFilterEntry selection) const
 {
     // Get the project containing the target selected
-    CMakeProject *cmakeProject = 0;
+    CMakeProject *cmakeProject = nullptr;
 
     foreach (Project *p, SessionManager::projects()) {
         cmakeProject = qobject_cast<CMakeProject *>(p);
         if (cmakeProject && cmakeProject->projectFilePath().toString() == selection.internalData.toString())
             break;
-        cmakeProject = 0;
     }
-    if (!cmakeProject)
-        return;
-
-    if (!cmakeProject->activeTarget())
-        return;
-
-    if (!cmakeProject->activeTarget()->activeBuildConfiguration())
+    if (!cmakeProject || !cmakeProject->activeTarget() || !cmakeProject->activeTarget()->activeBuildConfiguration())
         return;
 
     // Find the make step
     ProjectExplorer::BuildStepList *buildStepList = cmakeProject->activeTarget()->activeBuildConfiguration()
             ->stepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
-    auto buildStep
-            = qobject_cast<CMakeBuildStep *>(findOrDefault(buildStepList->steps(),
-                                                           [](BuildStep *s) -> bool { return qobject_cast<CMakeBuildStep *>(s); }));
+    auto buildStep = buildStepList->firstOfType<CMakeBuildStep>();
     if (!buildStep)
         return;
 

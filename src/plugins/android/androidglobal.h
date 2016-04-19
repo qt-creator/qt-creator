@@ -42,18 +42,13 @@ public:
     template<class T> static T *buildStep(const ProjectExplorer::BuildConfiguration *dc)
     {
         if (!dc)
-            return 0;
+            return nullptr;
         foreach (const Core::Id &id, dc->knownStepLists()) {
-            ProjectExplorer::BuildStepList *bsl = dc->stepList(id);
-            if (!bsl)
-                return 0;
-            const QList<ProjectExplorer::BuildStep *> &buildSteps = bsl->steps();
-            for (int i = buildSteps.count() - 1; i >= 0; --i) {
-                if (T * const step = qobject_cast<T *>(buildSteps.at(i)))
-                    return step;
-            }
+            T *const step = dc->stepList(id)->firstOfType<T>();
+            if (step)
+                return step;
         }
-        return 0;
+        return nullptr;
     }
 
     template<typename State> static void assertState(State expected,

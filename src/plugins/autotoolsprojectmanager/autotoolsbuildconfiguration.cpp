@@ -229,11 +229,6 @@ void AutotoolsBuildConfiguration::setBuildDirectory(const Utils::FileName &direc
     if (directory == buildDirectory())
         return;
     BuildConfiguration::setBuildDirectory(directory);
-    BuildStepList *bsl = stepList(BUILDSTEPS_BUILD);
-    foreach (BuildStep *bs, bsl->steps()) {
-        ConfigureStep *cs = qobject_cast<ConfigureStep *>(bs);
-        if (cs) {
-            cs->notifyBuildDirectoryChanged();
-        }
-    }
+    foreach (auto bs, stepList(BUILDSTEPS_BUILD)->allOfType<ConfigureStep>())
+        bs->notifyBuildDirectoryChanged();
 }

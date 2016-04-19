@@ -115,11 +115,7 @@ NamedWidget *QbsBuildConfiguration::createConfigWidget()
 
 QbsBuildStep *QbsBuildConfiguration::qbsStep() const
 {
-    foreach (BuildStep *bs, stepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD)->steps()) {
-        if (QbsBuildStep *qbsBs = qobject_cast<QbsBuildStep *>(bs))
-            return qbsBs;
-    }
-    return 0;
+    return stepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD)->firstOfType<QbsBuildStep>();
 }
 
 QVariantMap QbsBuildConfiguration::qbsConfiguration() const

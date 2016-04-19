@@ -113,13 +113,11 @@ RunControl *BareMetalRunControlFactory::create(
     DebuggerStartParameters sp;
 
     if (const BuildConfiguration *bc = target->activeBuildConfiguration()) {
-        if (const BuildStepList *bsl = bc->stepList(BareMetalGdbCommandsDeployStep::stepId())) {
-            foreach (const BuildStep *bs, bsl->steps()) {
-                if (auto ds = qobject_cast<const BareMetalGdbCommandsDeployStep *>(bs)) {
-                    if (!sp.commandsAfterConnect.endsWith("\n"))
-                        sp.commandsAfterConnect.append("\n");
-                    sp.commandsAfterConnect.append(ds->gdbCommands().toLatin1());
-                }
+        if (BuildStepList *bsl = bc->stepList(BareMetalGdbCommandsDeployStep::stepId())) {
+            foreach (const BareMetalGdbCommandsDeployStep *bs, bsl->allOfType<BareMetalGdbCommandsDeployStep>()) {
+                if (!sp.commandsAfterConnect.endsWith("\n"))
+                    sp.commandsAfterConnect.append("\n");
+                sp.commandsAfterConnect.append(bs->gdbCommands().toLatin1());
             }
         }
     }

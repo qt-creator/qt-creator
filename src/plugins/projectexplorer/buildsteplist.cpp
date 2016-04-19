@@ -168,6 +168,11 @@ QList<BuildStep *> BuildStepList::steps() const
     return m_steps;
 }
 
+QList<BuildStep *> BuildStepList::steps(const std::function<bool (const BuildStep *)> &filter) const
+{
+    return Utils::filtered(steps(), filter);
+}
+
 void BuildStepList::insertStep(int position, BuildStep *step)
 {
     m_steps.insert(position, step);
