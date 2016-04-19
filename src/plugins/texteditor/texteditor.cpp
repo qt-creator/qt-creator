@@ -400,8 +400,6 @@ public:
     uint m_highlightCurrentLine : 1;
     uint m_requestMarkEnabled : 1;
     uint m_lineSeparatorsAllowed : 1;
-    uint autoParenthesisOverwriteBackup : 1;
-    uint surroundWithEnabledOverwriteBackup : 1;
     uint m_maybeFakeTooltipEvent : 1;
     int m_visibleWrapColumn;
 
@@ -2342,19 +2340,7 @@ void TextEditorWidget::keyPressEvent(QKeyEvent *e)
     case Qt::Key_Insert:
         if (ro) break;
         if (e->modifiers() == Qt::NoModifier) {
-            AutoCompleter *ac = d->m_autoCompleter.data();
-            if (inOverwriteMode) {
-                ac->setAutoInsertBracketsEnabled(d->autoParenthesisOverwriteBackup);
-                ac->setSurroundWithBracketsEnabled(d->surroundWithEnabledOverwriteBackup);
-                setOverwriteMode(false);
-                viewport()->update();
-            } else {
-                d->autoParenthesisOverwriteBackup = ac->isAutoInsertBracketsEnabled();
-                d->surroundWithEnabledOverwriteBackup = ac->isSurroundWithBracketsEnabled();
-                ac->setAutoInsertBracketsEnabled(false);
-                ac->setSurroundWithBracketsEnabled(false);
-                setOverwriteMode(true);
-            }
+            setOverwriteMode(!inOverwriteMode);
             e->accept();
             return;
         }
@@ -2401,7 +2387,8 @@ void TextEditorWidget::keyPressEvent(QKeyEvent *e)
         // only go here if control is not pressed, except if also alt is pressed
         // because AltGr maps to Alt + Ctrl
         QTextCursor cursor = textCursor();
-        const QString &autoText = d->m_autoCompleter->autoComplete(cursor, eventText);
+        const QString &autoText = inOverwriteMode
+                ? QString() : autoCompleter()->autoComplete(cursor, eventText);
         const bool cursorWithinSnippet = d->snippetCheckCursor(cursor);
 
         QChar electricChar;
