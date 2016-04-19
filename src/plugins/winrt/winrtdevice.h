@@ -45,15 +45,15 @@ public:
     typedef QSharedPointer<WinRtDevice> Ptr;
     typedef QSharedPointer<const WinRtDevice> ConstPtr;
 
-    QString displayType() const;
-    ProjectExplorer::IDeviceWidget *createWidget();
-    QList<Core::Id> actionIds() const;
-    QString displayNameForActionId(Core::Id actionId) const;
-    void executeAction(Core::Id actionId, QWidget *parent);
-    ProjectExplorer::DeviceProcessSignalOperation::Ptr signalOperation() const;
-    void fromMap(const QVariantMap &map);
-    QVariantMap toMap() const;
-    ProjectExplorer::IDevice::Ptr clone() const;
+    QString displayType() const override;
+    ProjectExplorer::IDeviceWidget *createWidget() override;
+    QList<Core::Id> actionIds() const override;
+    QString displayNameForActionId(Core::Id actionId) const override;
+    void executeAction(Core::Id actionId, QWidget *parent) override;
+    ProjectExplorer::DeviceProcessSignalOperation::Ptr signalOperation() const override;
+    void fromMap(const QVariantMap &map) override;
+    QVariantMap toMap() const override;
+    ProjectExplorer::IDevice::Ptr clone() const override;
 
     static QString displayNameForType(Core::Id type);
     int deviceId() const { return m_deviceId; }

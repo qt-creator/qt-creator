@@ -451,13 +451,13 @@ public:
     static Core::Id testTypeId() { return "TestType"; }
 private:
     TestDevice(const TestDevice &other) : IDevice(other) {}
-    QString displayType() const { return QLatin1String("blubb"); }
-    IDeviceWidget *createWidget() { return 0; }
-    QList<Core::Id> actionIds() const { return QList<Core::Id>(); }
-    QString displayNameForActionId(Core::Id) const { return QString(); }
-    void executeAction(Core::Id, QWidget *) { }
-    Ptr clone() const { return Ptr(new TestDevice(*this)); }
-    DeviceProcessSignalOperation::Ptr signalOperation() const
+    QString displayType() const override { return QLatin1String("blubb"); }
+    IDeviceWidget *createWidget() override { return 0; }
+    QList<Core::Id> actionIds() const override { return QList<Core::Id>(); }
+    QString displayNameForActionId(Core::Id) const override { return QString(); }
+    void executeAction(Core::Id, QWidget *) override { }
+    Ptr clone() const override { return Ptr(new TestDevice(*this)); }
+    DeviceProcessSignalOperation::Ptr signalOperation() const override
     {
         return DeviceProcessSignalOperation::Ptr();
     }

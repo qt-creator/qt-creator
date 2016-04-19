@@ -42,23 +42,23 @@ public:
                       Origin origin = ManuallyAdded, Core::Id id = Core::Id());
     static Ptr create(const BareMetalDevice &other);
 
-    QString displayType() const;
-    ProjectExplorer::IDeviceWidget *createWidget();
-    QList<Core::Id> actionIds() const;
-    QString displayNameForActionId(Core::Id actionId) const;
-    void executeAction(Core::Id actionId, QWidget *parent);
-    ProjectExplorer::IDevice::Ptr clone() const;
+    QString displayType() const override;
+    ProjectExplorer::IDeviceWidget *createWidget() override;
+    QList<Core::Id> actionIds() const override;
+    QString displayNameForActionId(Core::Id actionId) const override;
+    void executeAction(Core::Id actionId, QWidget *parent) override;
+    ProjectExplorer::IDevice::Ptr clone() const override;
 
-    ProjectExplorer::DeviceProcessSignalOperation::Ptr signalOperation() const;
+    ProjectExplorer::DeviceProcessSignalOperation::Ptr signalOperation() const override;
 
-    bool canCreateProcess() const { return true; }
-    ProjectExplorer::DeviceProcess *createProcess(QObject *parent) const;
+    bool canCreateProcess() const override { return true; }
+    ProjectExplorer::DeviceProcess *createProcess(QObject *parent) const override;
 
     QString gdbServerProviderId() const;
     void setGdbServerProviderId(const QString &id);
 
-    virtual void fromMap(const QVariantMap &map);
-    virtual QVariantMap toMap() const;
+    virtual void fromMap(const QVariantMap &map) override;
+    virtual QVariantMap toMap() const override;
 
 protected:
     BareMetalDevice() {}
