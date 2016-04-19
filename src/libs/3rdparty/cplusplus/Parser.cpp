@@ -162,11 +162,23 @@ class Parser::ASTCache
 
 public:
     enum ASTKind {
+        Declaration,
         Expression,
         ExpressionList,
+        MemberSpecification,
         ParameterDeclarationClause,
         TemplateId,
         TypeId
+    };
+
+    struct CacheKey {
+        CacheKey(unsigned initialCursor, ASTKind astKind)
+            : initialCursor(initialCursor)
+            , astKind(astKind)
+        {}
+
+        const unsigned initialCursor;
+        const ASTKind astKind;
     };
 
 public:
@@ -253,6 +265,17 @@ inline void debugPrintCheckCache(bool) {}
             debugPrintCheckCache(false); \
             return returnValue; \
         } \
+    } while (0)
+
+#define CACHE_AND_RETURN(cacheKey, expression) \
+    do { \
+        const bool result = expression; \
+        _astCache->insert(cacheKey.astKind, \
+                          cacheKey.initialCursor, \
+                          result ? node : 0, \
+                          cursor(), \
+                          result); \
+        return result; \
     } while (0)
 
 #define PARSE_EXPRESSION_WITH_OPERATOR_PRECEDENCE(node, minPrecedence) { \
@@ -2480,6 +2503,9 @@ bool Parser::parseQtInterfaces(DeclarationAST *&node)
 bool Parser::parseMemberSpecification(DeclarationAST *&node, ClassSpecifierAST *declaringClass)
 {
     DEBUG_THIS_RULE();
+    const ASTCache::CacheKey cacheKey(cursor(), ASTCache::MemberSpecification);
+    CHECK_CACHE(cacheKey.astKind, DeclarationAST);
+
     switch (LA()) {
     case T_Q_OBJECT:
     case T_Q_GADGET:
@@ -2487,7 +2513,7 @@ bool Parser::parseMemberSpecification(DeclarationAST *&node, ClassSpecifierAST *
         QtObjectTagAST *ast = new (_pool) QtObjectTagAST;
         ast->q_object_token = consumeToken();
         node = ast;
-        return true;
+        CACHE_AND_RETURN(cacheKey, true);
     }
 
     case T_Q_PRIVATE_SLOT:
@@ -2505,44 +2531,44 @@ bool Parser::parseMemberSpecification(DeclarationAST *&node, ClassSpecifierAST *
         parseDeclarator(ast->declarator, ast->type_specifier_list);
         match(T_RPAREN, &ast->rparen_token);
         node = ast;
-    }   return true;
+    }   CACHE_AND_RETURN(cacheKey, true);
 
     case T_SEMICOLON:
-        return parseEmptyDeclaration(node);
+        CACHE_AND_RETURN(cacheKey, parseEmptyDeclaration(node));
 
     case T_USING:
-        return parseUsing(node);
+        CACHE_AND_RETURN(cacheKey, parseUsing(node));
 
     case T_TEMPLATE:
-        return parseTemplateDeclaration(node);
+        CACHE_AND_RETURN(cacheKey, parseTemplateDeclaration(node));
 
     case T_Q_SIGNALS:
     case T_PUBLIC:
     case T_PROTECTED:
     case T_PRIVATE:
     case T_Q_SLOTS:
-        return parseAccessDeclaration(node);
+        CACHE_AND_RETURN(cacheKey, parseAccessDeclaration(node));
 
     case T_Q_PROPERTY:
     case T_Q_PRIVATE_PROPERTY:
-        return parseQtPropertyDeclaration(node);
+        CACHE_AND_RETURN(cacheKey, parseQtPropertyDeclaration(node));
 
     case T_Q_ENUMS:
-        return parseQtEnumDeclaration(node);
+        CACHE_AND_RETURN(cacheKey, parseQtEnumDeclaration(node));
 
     case T_Q_FLAGS:
-        return parseQtFlags(node);
+        CACHE_AND_RETURN(cacheKey, parseQtFlags(node));
 
     case T_Q_INTERFACES:
-        return parseQtInterfaces(node);
+        CACHE_AND_RETURN(cacheKey, parseQtInterfaces(node));
 
     case T_STATIC_ASSERT:
         if (_languageFeatures.cxx11Enabled)
-            return parseStaticAssertDeclaration(node);
+            CACHE_AND_RETURN(cacheKey, parseStaticAssertDeclaration(node));
         // fall-through
 
     default:
-        return parseSimpleDeclaration(node, declaringClass);
+        CACHE_AND_RETURN(cacheKey, parseSimpleDeclaration(node, declaringClass));
     } // switch
 }
 
@@ -4074,6 +4100,9 @@ bool Parser::parseBuiltinTypeSpecifier(SpecifierListAST *&node)
 bool Parser::parseSimpleDeclaration(DeclarationAST *&node, ClassSpecifierAST *declaringClass)
 {
     DEBUG_THIS_RULE();
+    const ASTCache::CacheKey cacheKey(cursor(), ASTCache::Declaration);
+    CHECK_CACHE(cacheKey.astKind, DeclarationAST);
+
     unsigned qt_invokable_token = 0;
     if (declaringClass && (LA() == T_Q_SIGNAL || LA() == T_Q_SLOT || LA() == T_Q_INVOKABLE))
         qt_invokable_token = consumeToken();
@@ -4188,7 +4217,7 @@ bool Parser::parseSimpleDeclaration(DeclarationAST *&node, ClassSpecifierAST *de
                 }
             }
             if (! parseInitDeclarator(declarator, decl_specifier_seq, declaringClass))
-                return false;
+                CACHE_AND_RETURN(cacheKey, false);
         }
     }
 
@@ -4196,7 +4225,7 @@ bool Parser::parseSimpleDeclaration(DeclarationAST *&node, ClassSpecifierAST *de
     // and it doesn't look like a fwd or a class declaration
     // then it's not a declarations
     if (! declarator && ! maybeForwardOrClassDeclaration(decl_specifier_seq))
-        return false;
+        CACHE_AND_RETURN(cacheKey, false);
 
     DeclaratorAST *firstDeclarator = declarator;
 
@@ -4223,7 +4252,7 @@ bool Parser::parseSimpleDeclaration(DeclarationAST *&node, ClassSpecifierAST *de
         ast->declarator_list = declarator_list;
         match(T_SEMICOLON, &ast->semicolon_token);
         node = ast;
-        return true;
+        CACHE_AND_RETURN(cacheKey, true);
     } else if (! _inFunctionBody && declarator && (LA() == T_COLON || LA() == T_LBRACE || LA() == T_TRY)) {
         if (LA() == T_TRY) {
             FunctionDefinitionAST *ast = new (_pool) FunctionDefinitionAST;
@@ -4232,7 +4261,7 @@ bool Parser::parseSimpleDeclaration(DeclarationAST *&node, ClassSpecifierAST *de
             ast->declarator = firstDeclarator;
             parseTryBlockStatement(ast->function_body, &ast->ctor_initializer);
             node = ast;
-            return true; // recognized a function definition.
+            CACHE_AND_RETURN(cacheKey, true); // recognized a function definition.
         } else {
             CtorInitializerAST *ctor_initializer = 0;
             bool hasCtorInitializer = false;
@@ -4263,13 +4292,13 @@ bool Parser::parseSimpleDeclaration(DeclarationAST *&node, ClassSpecifierAST *de
                 ast->ctor_initializer = ctor_initializer;
                 parseFunctionBody(ast->function_body);
                 node = ast;
-                return true; // recognized a function definition.
+                CACHE_AND_RETURN(cacheKey, true); // recognized a function definition.
             }
         }
     }
 
     error(cursor(), "unexpected token `%s'", tok().spell());
-    return false;
+    CACHE_AND_RETURN(cacheKey, false);
 }
 
 bool Parser::maybeForwardOrClassDeclaration(SpecifierListAST *decl_specifier_seq) const
