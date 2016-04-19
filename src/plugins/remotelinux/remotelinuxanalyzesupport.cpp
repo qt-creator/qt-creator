@@ -59,12 +59,24 @@ public:
         : runControl(rc),
           runMode(runMode)
     {
+        if (runMode != ProjectExplorer::Constants::PERFPROFILER_RUN_MODE)
+            return;
+        RunConfiguration *runConfiguration = runControl->runConfiguration();
+        QTC_ASSERT(runConfiguration, return);
+        IRunConfigurationAspect *perfAspect =
+                runConfiguration->extraAspect("Analyzer.Perf.Settings");
+        QTC_ASSERT(perfAspect, return);
+        perfRecordArguments =
+                perfAspect->currentSettings()->property("perfRecordArguments").toString();
     }
 
     const QPointer<AnalyzerRunControl> runControl;
     Core::Id runMode;
     Utils::Port qmlPort;
+    QString remoteFifo;
+    QString perfRecordArguments;
 
+    DeviceApplicationRunner outputGatherer;
     QmlDebug::QmlOutputParser outputParser;
 };
 
@@ -105,6 +117,10 @@ void RemoteLinuxAnalyzeSupport::handleRemoteSetupRequested()
         showMessage(tr("Checking available ports...") + QLatin1Char('\n'),
                     Utils::NormalMessageFormat);
         startPortsGathering();
+    } else if (d->runMode == ProjectExplorer::Constants::PERFPROFILER_RUN_MODE) {
+        showMessage(tr("Creating remote socket ...")  + QLatin1Char('\n'),
+                    Utils::NormalMessageFormat);
+        createRemoteFifo();
     }
 }
 
@@ -113,6 +129,8 @@ void RemoteLinuxAnalyzeSupport::startExecution()
     QTC_ASSERT(state() == GatheringResources, return);
 
     if (d->runMode == ProjectExplorer::Constants::QML_PROFILER_RUN_MODE && !setPort(d->qmlPort))
+        return;
+    if (d->runMode == ProjectExplorer::Constants::PERFPROFILER_RUN_MODE && !setFifo(d->remoteFifo))
         return;
 
     setState(StartingRunner);
@@ -138,8 +156,26 @@ void RemoteLinuxAnalyzeSupport::startExecution()
             r.commandLineArguments.append(QLatin1Char(' '));
         r.commandLineArguments += QmlDebug::qmlDebugTcpArguments(QmlDebug::QmlProfilerServices,
                                                                  d->qmlPort);
-        runner->start(device(), r);
+    } else if (d->runMode == ProjectExplorer::Constants::PERFPROFILER_RUN_MODE) {
+        r.commandLineArguments = QLatin1String("-c 'perf record -o - ") + d->perfRecordArguments
+                + QLatin1String(" -- ") + r.executable + QLatin1String(" ")
+                + r.commandLineArguments + QLatin1String(" > ") + d->remoteFifo
+                + QLatin1String("'");
+        r.executable = QLatin1String("sh");
+
+        connect(&d->outputGatherer, SIGNAL(remoteStdout(QByteArray)),
+                d->runControl, SIGNAL(analyzePerfOutput(QByteArray)));
+        connect(&d->outputGatherer, SIGNAL(finished(bool)),
+                d->runControl, SIGNAL(perfFinished()));
+
+        StandardRunnable outputRunner;
+        outputRunner.executable = QLatin1String("sh");
+        outputRunner.commandLineArguments =
+                QString::fromLatin1("-c 'cat %1 && rm -r `dirname %1`'").arg(d->remoteFifo);
+        d->outputGatherer.start(device(), outputRunner);
+        remoteIsRunning();
     }
+    runner->start(device(), r);
 }
 
 void RemoteLinuxAnalyzeSupport::handleAppRunnerError(const QString &error)

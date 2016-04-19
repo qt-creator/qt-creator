@@ -64,7 +64,8 @@ bool RemoteLinuxRunControlFactory::canRun(RunConfiguration *runConfiguration, Co
     if (mode != ProjectExplorer::Constants::NORMAL_RUN_MODE
             && mode != ProjectExplorer::Constants::DEBUG_RUN_MODE
             && mode != ProjectExplorer::Constants::DEBUG_RUN_MODE_WITH_BREAK_ON_MAIN
-            && mode != ProjectExplorer::Constants::QML_PROFILER_RUN_MODE) {
+            && mode != ProjectExplorer::Constants::QML_PROFILER_RUN_MODE
+            && mode != ProjectExplorer::Constants::PERFPROFILER_RUN_MODE) {
         return false;
     }
 
@@ -137,7 +138,8 @@ RunControl *RemoteLinuxRunControlFactory::create(RunConfiguration *runConfig, Co
         return runControl;
     }
 
-    if (mode == ProjectExplorer::Constants::QML_PROFILER_RUN_MODE) {
+    if (mode == ProjectExplorer::Constants::QML_PROFILER_RUN_MODE ||
+            mode == ProjectExplorer::Constants::PERFPROFILER_RUN_MODE) {
         auto runControl = Debugger::createAnalyzerRunControl(runConfig, mode);
         AnalyzerConnection connection;
         connection.connParams =

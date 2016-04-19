@@ -53,8 +53,10 @@ public:
     StandardRunnable runnable;
     DeviceApplicationRunner appRunner;
     DeviceUsedPortsGatherer portsGatherer;
+    DeviceApplicationRunner fifoCreator;
     const IDevice::ConstPtr device;
     Utils::PortList portList;
+    QString fifo;
 };
 
 } // namespace Internal
@@ -127,6 +129,16 @@ bool AbstractRemoteLinuxRunSupport::setPort(Utils::Port &port)
     return true;
 }
 
+bool AbstractRemoteLinuxRunSupport::setFifo(QString &fifo)
+{
+    if (d->fifo.isEmpty()) {
+        handleAdapterSetupFailed(tr("FIFO for profiling data could not be created."));
+        return false;
+    }
+    fifo = d->fifo;
+    return true;
+}
+
 void AbstractRemoteLinuxRunSupport::startPortsGathering()
 {
     QTC_ASSERT(d->state == Inactive, return);
@@ -136,6 +148,43 @@ void AbstractRemoteLinuxRunSupport::startPortsGathering()
     connect(&d->portsGatherer, &DeviceUsedPortsGatherer::portListReady,
             this, &AbstractRemoteLinuxRunSupport::handleResourcesAvailable);
     d->portsGatherer.start(d->device);
+}
+
+void AbstractRemoteLinuxRunSupport::createRemoteFifo()
+{
+    QTC_ASSERT(d->state == Inactive, return);
+    d->state = GatheringResources;
+
+    StandardRunnable r;
+    r.executable = QLatin1String("/bin/sh");
+    r.commandLineArguments = "-c 'd=`mktemp -d` && mkfifo $d/fifo && echo -n $d/fifo'";
+    r.workingDirectory = QLatin1String("/tmp");
+    r.runMode = ApplicationLauncher::Console;
+
+    QSharedPointer<QByteArray> output(new QByteArray);
+    QSharedPointer<QByteArray> errors(new QByteArray);
+
+    connect(&d->fifoCreator, &DeviceApplicationRunner::finished,
+            this, [this, output, errors](bool success) {
+        if (!success) {
+            handleResourcesError(QString("Failed to create fifo: %1").arg(QLatin1String(*errors)));
+        } else {
+            d->fifo = QString::fromLatin1(*output);
+            handleResourcesAvailable();
+        }
+    });
+
+    connect(&d->fifoCreator, &DeviceApplicationRunner::remoteStdout,
+            this, [output](const QByteArray &data) {
+        output->append(data);
+    });
+
+    connect(&d->fifoCreator, &DeviceApplicationRunner::remoteStderr,
+            this, [errors](const QByteArray &data) {
+        errors->append(data);
+    });
+
+    d->fifoCreator.start(d->device, r);
 }
 
 const IDevice::ConstPtr AbstractRemoteLinuxRunSupport::device() const

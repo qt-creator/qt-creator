@@ -70,8 +70,10 @@ protected:
 
     void setFinished();
     bool setPort(Utils::Port &port);
+    bool setFifo(QString &fifo);
 
     void startPortsGathering();
+    void createRemoteFifo();
 
     const ProjectExplorer::IDevice::ConstPtr device() const;
     const ProjectExplorer::StandardRunnable &runnable() const;
