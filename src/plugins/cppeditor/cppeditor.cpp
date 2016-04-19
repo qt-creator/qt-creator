@@ -70,6 +70,7 @@
 
 #include <cplusplus/ASTPath.h>
 #include <cplusplus/FastPreprocessor.h>
+#include <cplusplus/MatchingText.h>
 #include <utils/qtcassert.h>
 
 #include <QAction>
@@ -621,7 +622,7 @@ bool CppEditorWidget::handleStringSplitting(QKeyEvent *e) const
     if (e->key() == Qt::Key_Return || e->key() == Qt::Key_Enter) {
         QTextCursor cursor = textCursor();
 
-        if (autoCompleter()->isInString(cursor)) {
+        if (CPlusPlus::MatchingText::isInStringHelper(cursor)) {
             cursor.beginEditBlock();
             if (cursor.positionInBlock() > 0
                     && cursor.block().text().at(cursor.positionInBlock() - 1) == QLatin1Char('\\')) {

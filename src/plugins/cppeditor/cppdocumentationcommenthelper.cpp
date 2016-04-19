@@ -32,6 +32,7 @@
 #include <cpptools/doxygengenerator.h>
 #include <texteditor/texteditor.h>
 #include <texteditor/textdocument.h>
+#include <cplusplus/MatchingText.h>
 
 #include <QDebug>
 #include <QTextBlock>
@@ -150,7 +151,7 @@ bool isCursorAfterNonNestedCppStyleComment(const QTextCursor &cursor,
     if (!cursorBeforeCppComment.movePosition(QTextCursor::PreviousCharacter))
         return false;
 
-    return !editorWidget->autoCompleter()->isInComment(cursorBeforeCppComment);
+    return !CPlusPlus::MatchingText::isInCommentHelper(cursorBeforeCppComment);
 }
 
 bool handleDoxygenCppStyleContinuation(QTextCursor &cursor)
@@ -244,7 +245,7 @@ bool handleDoxygenContinuation(QTextCursor &cursor,
                 QTextCursor cursorOnFirstNonWhiteSpace(cursor);
                 const int positionOnFirstNonWhiteSpace = cursor.position() - blockPos + offset;
                 cursorOnFirstNonWhiteSpace.setPosition(positionOnFirstNonWhiteSpace);
-                if (!editorWidget->autoCompleter()->isInComment(cursorOnFirstNonWhiteSpace))
+                if (!CPlusPlus::MatchingText::isInCommentHelper(cursorOnFirstNonWhiteSpace))
                     return false;
 
                 // ...otherwise do the continuation
@@ -276,7 +277,7 @@ bool trySplitComment(TextEditor::TextEditorWidget *editorWidget,
         return false;
 
     QTextCursor cursor = editorWidget->textCursor();
-    if (!editorWidget->autoCompleter()->isInComment(cursor))
+    if (!CPlusPlus::MatchingText::isInCommentHelper(cursor))
         return false;
 
     // We are interested on two particular cases:
