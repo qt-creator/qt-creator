@@ -292,8 +292,8 @@ GdbOptionsPageWidget::GdbOptionsPageWidget()
 
     //lineEditSelectedPluginBreakpointsPattern->
     //    setEnabled(action(SelectedPluginBreakpoints)->value().toBool());
-    //connect(radioButtonSelectedPluginBreakpoints, SIGNAL(toggled(bool)),
-    //    lineEditSelectedPluginBreakpointsPattern, SLOT(setEnabled(bool)));
+    //connect(radioButtonSelectedPluginBreakpoints, &QRadioButton::toggled,
+    //    lineEditSelectedPluginBreakpointsPattern, &QLineEdit::setEnabled);
 }
 
 GdbOptionsPage::GdbOptionsPage()

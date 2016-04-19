@@ -68,7 +68,7 @@ public:
     void watchExpression(const QString &exp, const QString &name = QString());
     void updateWatchExpression(WatchItem *item, const QByteArray &newExp);
     void watchVariable(const QString &exp);
-    Q_SLOT void clearWatches();
+    void clearWatches();
 
     const WatchItem *watchItem(const QModelIndex &) const;
     void fetchMore(const QByteArray &iname) const;

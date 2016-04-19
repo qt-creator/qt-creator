@@ -1003,7 +1003,7 @@ void WatchTreeView::doItemsLayout()
         m_sliderPosition = verticalScrollBar()->sliderPosition();
     Utils::BaseTreeView::doItemsLayout();
     if (m_sliderPosition)
-        QTimer::singleShot(0, this, SLOT(adjustSlider()));
+        QTimer::singleShot(0, this, &WatchTreeView::adjustSlider);
 }
 
 void WatchTreeView::adjustSlider()
@@ -1056,8 +1056,9 @@ public:
                 m_lineEdit, &Utils::FancyLineEdit::onEditingFinished);
         connect(m_buttons, &QDialogButtonBox::accepted, this, &QDialog::accept);
         connect(m_buttons, &QDialogButtonBox::rejected, this, &QDialog::reject);
-        connect(m_hint, SIGNAL(linkActivated(QString)),
-            Core::HelpManager::instance(), SLOT(handleHelpRequest(QString)));
+        connect(m_hint, &QLabel::linkActivated, [](const QString &link) {
+                Core::HelpManager::handleHelpRequest(link);
+        });
     }
 
     void setLabelText(const QString &text)

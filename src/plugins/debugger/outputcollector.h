@@ -49,7 +49,7 @@ class OutputCollector : public QObject
 
 public:
     OutputCollector(QObject *parent = 0);
-    ~OutputCollector();
+    ~OutputCollector() override;
     bool listen();
     void shutdown();
     QString serverName() const;
@@ -58,14 +58,10 @@ public:
 signals:
     void byteDelivery(const QByteArray &data);
 
-private slots:
+private:
     void bytesAvailable();
 #ifdef Q_OS_WIN
     void newConnectionAvailable();
-#endif
-
-private:
-#ifdef Q_OS_WIN
     QLocalServer *m_server;
     QLocalSocket *m_socket;
 #else

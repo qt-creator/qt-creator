@@ -36,7 +36,6 @@ QT_BEGIN_NAMESPACE
 class QIcon;
 class QMessageBox;
 class QWidget;
-class QTreeView;
 QT_END_NAMESPACE
 
 namespace CPlusPlus { class Snapshot; }
@@ -51,6 +50,7 @@ class DebuggerEngine;
 class Symbol;
 class Section;
 class GlobalDebuggerOptions;
+class WatchTreeView;
 
 enum TestCases
 {
@@ -87,7 +87,7 @@ void setThreadBoxContents(const QStringList &list, int index);
 
 QSharedPointer<Internal::GlobalDebuggerOptions> globalDebuggerOptions();
 
-QTreeView *inspectorView();
+WatchTreeView *inspectorView();
 QVariant sessionValue(const QByteArray &name);
 void setSessionValue(const QByteArray &name, const QVariant &value);
 QVariant configValue(const QByteArray &name);

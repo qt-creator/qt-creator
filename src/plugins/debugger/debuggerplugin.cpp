@@ -1007,7 +1007,7 @@ public:
     BaseTreeView *m_returnView = 0;
     BaseTreeView *m_localsView = 0;
     BaseTreeView *m_watchersView = 0;
-    BaseTreeView *m_inspectorView = 0;
+    WatchTreeView *m_inspectorView = 0;
     BaseTreeView *m_registerView = 0;
     BaseTreeView *m_modulesView = 0;
     BaseTreeView *m_snapshotView = 0;
@@ -2809,7 +2809,7 @@ QVariant sessionValue(const QByteArray &key)
     return SessionManager::value(QString::fromUtf8(key));
 }
 
-QTreeView *inspectorView()
+WatchTreeView *inspectorView()
 {
     return dd->m_inspectorView;
 }

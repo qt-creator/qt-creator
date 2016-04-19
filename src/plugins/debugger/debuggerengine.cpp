@@ -200,10 +200,9 @@ public:
 
         Utils::globalMacroExpander()->registerFileVariables(PrefixDebugExecutable,
             tr("Debugged executable"),
-            [this]() { return m_runParameters.inferior.executable; });
+            [this] { return m_runParameters.inferior.executable; });
     }
 
-public slots:
     void doSetupEngine();
     void doSetupInferior();
     void doRunEngine();
@@ -220,36 +219,36 @@ public slots:
     void queueSetupEngine()
     {
         m_engine->setState(EngineSetupRequested);
-        m_engine->showMessage(_("QUEUE: SETUP ENGINE"));
-        QTimer::singleShot(0, this, SLOT(doSetupEngine()));
+        m_engine->showMessage("QUEUE: SETUP ENGINE");
+        QTimer::singleShot(0, this, &DebuggerEnginePrivate::doSetupEngine);
     }
 
     void queueSetupInferior()
     {
         m_engine->setState(InferiorSetupRequested);
-        m_engine->showMessage(_("QUEUE: SETUP INFERIOR"));
-        QTimer::singleShot(0, this, SLOT(doSetupInferior()));
+        m_engine->showMessage("QUEUE: SETUP INFERIOR");
+        QTimer::singleShot(0, this, &DebuggerEnginePrivate::doSetupInferior);
     }
 
     void queueRunEngine()
     {
         m_engine->setState(EngineRunRequested);
-        m_engine->showMessage(_("QUEUE: RUN ENGINE"));
-        QTimer::singleShot(0, this, SLOT(doRunEngine()));
+        m_engine->showMessage("QUEUE: RUN ENGINE");
+        QTimer::singleShot(0, this, &DebuggerEnginePrivate::doRunEngine);
     }
 
     void queueShutdownEngine()
     {
         m_engine->setState(EngineShutdownRequested);
-        m_engine->showMessage(_("QUEUE: SHUTDOWN ENGINE"));
-        QTimer::singleShot(0, this, SLOT(doShutdownEngine()));
+        m_engine->showMessage("QUEUE: SHUTDOWN ENGINE");
+        QTimer::singleShot(0, this, &DebuggerEnginePrivate::doShutdownEngine);
     }
 
     void queueShutdownInferior()
     {
         m_engine->setState(InferiorShutdownRequested);
-        m_engine->showMessage(_("QUEUE: SHUTDOWN INFERIOR"));
-        QTimer::singleShot(0, this, SLOT(doShutdownInferior()));
+        m_engine->showMessage("QUEUE: SHUTDOWN INFERIOR");
+        QTimer::singleShot(0, this, &DebuggerEnginePrivate::doShutdownInferior);
     }
 
     void queueFinishDebugger()
@@ -259,8 +258,8 @@ public slots:
         m_engine->setState(DebuggerFinished);
         resetLocation();
         if (isMasterEngine()) {
-            m_engine->showMessage(_("QUEUE: FINISH DEBUGGER"));
-            QTimer::singleShot(0, this, SLOT(doFinishDebugger()));
+            m_engine->showMessage("QUEUE: FINISH DEBUGGER");
+            QTimer::singleShot(0, this, &DebuggerEnginePrivate::doFinishDebugger);
         }
     }
 
@@ -861,7 +860,7 @@ void DebuggerEngine::notifyEngineRunOkAndInferiorUnrunnable()
 
 void DebuggerEngine::notifyEngineRunFailed()
 {
-    showMessage(_("NOTE: ENGINE RUN FAILED"));
+    showMessage("NOTE: ENGINE RUN FAILED");
     QTC_ASSERT(state() == EngineRunRequested, qDebug() << this << state());
     d->m_progress.setProgressValue(900);
     d->m_progress.reportCanceled();
@@ -874,7 +873,7 @@ void DebuggerEngine::notifyEngineRunFailed()
 
 void DebuggerEngine::notifyEngineRequestRemoteSetup()
 {
-    showMessage(_("NOTE: REQUEST REMOTE SETUP"));
+    showMessage("NOTE: REQUEST REMOTE SETUP");
     QTC_ASSERT(state() == EngineSetupRequested, qDebug() << this << state());
     QTC_ASSERT(d->remoteSetupState() == RemoteSetupNone, qDebug() << this
                << "remoteSetupState" << d->remoteSetupState());
@@ -885,7 +884,7 @@ void DebuggerEngine::notifyEngineRequestRemoteSetup()
 
 void DebuggerEngine::notifyEngineRemoteServerRunning(const QByteArray &, int /*pid*/)
 {
-    showMessage(_("NOTE: REMOTE SERVER RUNNING IN MULTIMODE"));
+    showMessage("NOTE: REMOTE SERVER RUNNING IN MULTIMODE");
 }
 
 void DebuggerEngine::notifyEngineRemoteSetupFinished(const RemoteSetupResult &result)
@@ -899,7 +898,7 @@ void DebuggerEngine::notifyEngineRemoteSetupFinished(const RemoteSetupResult &re
                qDebug() << this << "remoteSetupState" << d->remoteSetupState());
 
     if (result.success) {
-        showMessage(_("NOTE: REMOTE SETUP DONE: GDB SERVER PORT: %1  QML PORT %2")
+        showMessage(QString("NOTE: REMOTE SETUP DONE: GDB SERVER PORT: %1  QML PORT %2")
                     .arg(result.gdbServerPort.number()).arg(result.qmlServerPort.number()));
 
         if (d->remoteSetupState() != RemoteSetupCancelled)
@@ -919,19 +918,19 @@ void DebuggerEngine::notifyEngineRemoteSetupFinished(const RemoteSetupResult &re
 
         if (result.qmlServerPort.isValid()) {
             d->m_runParameters.qmlServerPort = result.qmlServerPort;
-            d->m_runParameters.inferior.commandLineArguments.replace(
-                        _("%qml_port%"), QString::number(result.qmlServerPort.number()));
+            d->m_runParameters.inferior.commandLineArguments.replace("%qml_port%",
+                            QString::number(result.qmlServerPort.number()));
         }
 
     } else {
         d->setRemoteSetupState(RemoteSetupFailed);
-        showMessage(_("NOTE: REMOTE SETUP FAILED: ") + result.reason);
+        showMessage("NOTE: REMOTE SETUP FAILED: " + result.reason);
     }
 }
 
 void DebuggerEngine::notifyEngineRunAndInferiorRunOk()
 {
-    showMessage(_("NOTE: ENGINE RUN AND INFERIOR RUN OK"));
+    showMessage("NOTE: ENGINE RUN AND INFERIOR RUN OK");
     d->m_progress.setProgressValue(1000);
     d->m_progress.reportFinished();
     QTC_ASSERT(state() == EngineRunRequested, qDebug() << this << state());
@@ -941,7 +940,7 @@ void DebuggerEngine::notifyEngineRunAndInferiorRunOk()
 
 void DebuggerEngine::notifyEngineRunAndInferiorStopOk()
 {
-    showMessage(_("NOTE: ENGINE RUN AND INFERIOR STOP OK"));
+    showMessage("NOTE: ENGINE RUN AND INFERIOR STOP OK");
     d->m_progress.setProgressValue(1000);
     d->m_progress.reportFinished();
     QTC_ASSERT(state() == EngineRunRequested, qDebug() << this << state());
@@ -951,7 +950,7 @@ void DebuggerEngine::notifyEngineRunAndInferiorStopOk()
 
 void DebuggerEngine::notifyInferiorRunRequested()
 {
-    showMessage(_("NOTE: INFERIOR RUN REQUESTED"));
+    showMessage("NOTE: INFERIOR RUN REQUESTED");
     QTC_ASSERT(state() == InferiorStopOk, qDebug() << this << state());
     showStatusMessage(tr("Run requested..."));
     setState(InferiorRunRequested);
@@ -960,10 +959,10 @@ void DebuggerEngine::notifyInferiorRunRequested()
 void DebuggerEngine::notifyInferiorRunOk()
 {
     if (state() == InferiorRunOk) {
-        showMessage(_("NOTE: INFERIOR RUN OK - REPEATED."));
+        showMessage("NOTE: INFERIOR RUN OK - REPEATED.");
         return;
     }
-    showMessage(_("NOTE: INFERIOR RUN OK"));
+    showMessage("NOTE: INFERIOR RUN OK");
     showStatusMessage(tr("Running."));
     // Transition from StopRequested can happen in remotegdbadapter.
     QTC_ASSERT(state() == InferiorRunRequested
@@ -974,7 +973,7 @@ void DebuggerEngine::notifyInferiorRunOk()
 
 void DebuggerEngine::notifyInferiorRunFailed()
 {
-    showMessage(_("NOTE: INFERIOR RUN FAILED"));
+    showMessage("NOTE: INFERIOR RUN FAILED");
     QTC_ASSERT(state() == InferiorRunRequested, qDebug() << this << state());
     setState(InferiorRunFailed);
     setState(InferiorStopOk);
@@ -984,20 +983,20 @@ void DebuggerEngine::notifyInferiorRunFailed()
 
 void DebuggerEngine::notifyInferiorStopOk()
 {
-    showMessage(_("NOTE: INFERIOR STOP OK"));
+    showMessage("NOTE: INFERIOR STOP OK");
     // Ignore spurious notifications after we are set to die.
     if (isDying()) {
-        showMessage(_("NOTE: ... WHILE DYING. "));
+        showMessage("NOTE: ... WHILE DYING. ");
         // Forward state to "StopOk" if needed.
         if (state() == InferiorStopRequested
                 || state() == InferiorRunRequested
                 || state() == InferiorRunOk) {
-            showMessage(_("NOTE: ... FORWARDING TO 'STOP OK'. "));
+            showMessage("NOTE: ... FORWARDING TO 'STOP OK'. ");
             setState(InferiorStopOk);
         }
         if (state() == InferiorStopOk || state() == InferiorStopFailed)
             d->queueShutdownInferior();
-        showMessage(_("NOTE: ... IGNORING STOP MESSAGE"));
+        showMessage("NOTE: ... IGNORING STOP MESSAGE");
         return;
     }
     QTC_ASSERT(state() == InferiorStopRequested, qDebug() << this << state());
@@ -1007,7 +1006,7 @@ void DebuggerEngine::notifyInferiorStopOk()
 
 void DebuggerEngine::notifyInferiorSpontaneousStop()
 {
-    showMessage(_("NOTE: INFERIOR SPONTANEOUS STOP"));
+    showMessage("NOTE: INFERIOR SPONTANEOUS STOP");
     QTC_ASSERT(state() == InferiorRunOk, qDebug() << this << state());
     showStatusMessage(tr("Stopped."));
     setState(InferiorStopOk);
@@ -1017,7 +1016,7 @@ void DebuggerEngine::notifyInferiorSpontaneousStop()
 
 void DebuggerEngine::notifyInferiorStopFailed()
 {
-    showMessage(_("NOTE: INFERIOR STOP FAILED"));
+    showMessage("NOTE: INFERIOR STOP FAILED");
     QTC_ASSERT(state() == InferiorStopRequested, qDebug() << this << state());
     setState(InferiorStopFailed);
     if (isMasterEngine())
@@ -1029,7 +1028,7 @@ void DebuggerEnginePrivate::doInterruptInferior()
     //QTC_ASSERT(isMasterEngine(), return);
     QTC_ASSERT(state() == InferiorRunOk, qDebug() << m_engine << state());
     m_engine->setState(InferiorStopRequested);
-    m_engine->showMessage(_("CALL: INTERRUPT INFERIOR"));
+    m_engine->showMessage("CALL: INTERRUPT INFERIOR");
     m_engine->showStatusMessage(tr("Attempting to interrupt."));
     m_engine->interruptInferior();
 }
@@ -1040,13 +1039,13 @@ void DebuggerEnginePrivate::doShutdownInferior()
     QTC_ASSERT(state() == InferiorShutdownRequested, qDebug() << m_engine << state());
     resetLocation();
     m_targetState = DebuggerFinished;
-    m_engine->showMessage(_("CALL: SHUTDOWN INFERIOR"));
+    m_engine->showMessage("CALL: SHUTDOWN INFERIOR");
     m_engine->shutdownInferior();
 }
 
 void DebuggerEngine::notifyInferiorShutdownOk()
 {
-    showMessage(_("INFERIOR SUCCESSFULLY SHUT DOWN"));
+    showMessage("INFERIOR SUCCESSFULLY SHUT DOWN");
     QTC_ASSERT(state() == InferiorShutdownRequested, qDebug() << this << state());
     d->m_lastGoodState = DebuggerNotReady; // A "neutral" value.
     setState(InferiorShutdownOk);
@@ -1056,7 +1055,7 @@ void DebuggerEngine::notifyInferiorShutdownOk()
 
 void DebuggerEngine::notifyInferiorShutdownFailed()
 {
-    showMessage(_("INFERIOR SHUTDOWN FAILED"));
+    showMessage("INFERIOR SHUTDOWN FAILED");
     QTC_ASSERT(state() == InferiorShutdownRequested, qDebug() << this << state());
     setState(InferiorShutdownFailed);
     if (isMasterEngine())
@@ -1065,7 +1064,7 @@ void DebuggerEngine::notifyInferiorShutdownFailed()
 
 void DebuggerEngine::notifyInferiorIll()
 {
-    showMessage(_("NOTE: INFERIOR ILL"));
+    showMessage("NOTE: INFERIOR ILL");
     // This can be issued in almost any state. The inferior could still be
     // alive as some previous notifications might have been bogus.
     d->m_targetState = DebuggerFinished;
@@ -1092,13 +1091,13 @@ void DebuggerEnginePrivate::doShutdownEngine()
     QTC_ASSERT(isMasterEngine(), qDebug() << m_engine; return);
     QTC_ASSERT(state() == EngineShutdownRequested, qDebug() << m_engine << state());
     m_targetState = DebuggerFinished;
-    m_engine->showMessage(_("CALL: SHUTDOWN ENGINE"));
+    m_engine->showMessage("CALL: SHUTDOWN ENGINE");
     m_engine->shutdownEngine();
 }
 
 void DebuggerEngine::notifyEngineShutdownOk()
 {
-    showMessage(_("NOTE: ENGINE SHUTDOWN OK"));
+    showMessage("NOTE: ENGINE SHUTDOWN OK");
     QTC_ASSERT(state() == EngineShutdownRequested, qDebug() << this << state());
     setState(EngineShutdownOk);
     d->queueFinishDebugger();
@@ -1106,7 +1105,7 @@ void DebuggerEngine::notifyEngineShutdownOk()
 
 void DebuggerEngine::notifyEngineShutdownFailed()
 {
-    showMessage(_("NOTE: ENGINE SHUTDOWN FAILED"));
+    showMessage("NOTE: ENGINE SHUTDOWN FAILED");
     QTC_ASSERT(state() == EngineShutdownRequested, qDebug() << this << state());
     setState(EngineShutdownFailed);
     d->queueFinishDebugger();
@@ -1114,7 +1113,7 @@ void DebuggerEngine::notifyEngineShutdownFailed()
 
 void DebuggerEnginePrivate::doFinishDebugger()
 {
-    m_engine->showMessage(_("NOTE: FINISH DEBUGGER"));
+    m_engine->showMessage("NOTE: FINISH DEBUGGER");
     QTC_ASSERT(state() == DebuggerFinished, qDebug() << m_engine << state());
     if (isMasterEngine() && m_runControl)
         m_runControl->debuggingFinished();
@@ -1147,7 +1146,7 @@ void DebuggerEngine::notifyEngineIll()
     CALLGRIND_STOP_INSTRUMENTATION;
     CALLGRIND_DUMP_STATS;
 #endif
-    showMessage(_("NOTE: ENGINE ILL ******"));
+    showMessage("NOTE: ENGINE ILL ******");
     d->m_targetState = DebuggerFinished;
     d->m_lastGoodState = d->m_state;
     switch (state()) {
@@ -1157,14 +1156,14 @@ void DebuggerEngine::notifyEngineIll()
             // properly interrupt at least once. If that fails, we are on the
             // shutdown path due to d->m_targetState anyways.
             setState(InferiorStopRequested, true);
-            showMessage(_("ATTEMPT TO INTERRUPT INFERIOR"));
+            showMessage("ATTEMPT TO INTERRUPT INFERIOR");
             interruptInferior();
             break;
         case InferiorStopRequested:
             notifyInferiorStopFailed();
             break;
         case InferiorStopOk:
-            showMessage(_("FORWARDING STATE TO InferiorShutdownFailed"));
+            showMessage("FORWARDING STATE TO InferiorShutdownFailed");
             setState(InferiorShutdownFailed, true);
             if (isMasterEngine())
                 d->queueShutdownEngine();
@@ -1182,7 +1181,7 @@ void DebuggerEngine::notifyEngineSpontaneousShutdown()
     CALLGRIND_STOP_INSTRUMENTATION;
     CALLGRIND_DUMP_STATS;
 #endif
-    showMessage(_("NOTE: ENGINE SPONTANEOUS SHUTDOWN"));
+    showMessage("NOTE: ENGINE SPONTANEOUS SHUTDOWN");
     setState(EngineShutdownOk, true);
     if (isMasterEngine())
         d->queueFinishDebugger();
@@ -1194,7 +1193,7 @@ void DebuggerEngine::notifyInferiorExited()
     CALLGRIND_STOP_INSTRUMENTATION;
     CALLGRIND_DUMP_STATS;
 #endif
-    showMessage(_("NOTE: INFERIOR EXITED"));
+    showMessage("NOTE: INFERIOR EXITED");
     d->resetLocation();
     setState(InferiorShutdownOk);
     if (isMasterEngine())
@@ -1204,7 +1203,7 @@ void DebuggerEngine::notifyInferiorExited()
 void DebuggerEngine::notifyDebuggerProcessFinished(int exitCode,
     QProcess::ExitStatus exitStatus, const QString &backendName)
 {
-    showMessage(_("%1 PROCESS FINISHED, status %2, exit code %3")
+    showMessage(QString("%1 PROCESS FINISHED, status %2, exit code %3")
                 .arg(backendName).arg(exitStatus).arg(exitCode));
 
     switch (state()) {
@@ -1218,7 +1217,7 @@ void DebuggerEngine::notifyDebuggerProcessFinished(int exitCode,
         // This could either be a real gdb/lldb crash or a quickly exited inferior
         // in the terminal adapter. In this case the stub proc will die soon,
         // too, so there's no need to act here.
-        showMessage(_("The %1 process exited somewhat unexpectedly.").arg(backendName));
+        showMessage(QString("The %1 process exited somewhat unexpectedly.").arg(backendName));
         notifyEngineSpontaneousShutdown();
         break;
     default: {
@@ -1400,7 +1399,7 @@ void DebuggerEngine::notifyInferiorPid(qint64 pid)
         if (d->m_runParameters.startMode == StartInternal
             || d->m_runParameters.startMode == StartExternal
             || d->m_runParameters.startMode == AttachExternal)
-        QTimer::singleShot(0, d, SLOT(raiseApplication()));
+        QTimer::singleShot(0, d, &DebuggerEnginePrivate::raiseApplication);
     }
 }
 
@@ -1417,7 +1416,7 @@ bool DebuggerEngine::isReverseDebugging() const
 // Called by DebuggerRunControl.
 void DebuggerEngine::quitDebugger()
 {
-    showMessage(_("QUIT DEBUGGER REQUESTED IN STATE %1").arg(state()));
+    showMessage(QString("QUIT DEBUGGER REQUESTED IN STATE %1").arg(state()));
     d->m_targetState = DebuggerFinished;
     switch (state()) {
     case InferiorStopOk:
@@ -1594,9 +1593,9 @@ void DebuggerEngine::updateAll()
 
 void DebuggerEngine::attemptBreakpointSynchronization()
 {
-    showMessage(_("ATTEMPT BREAKPOINT SYNCHRONIZATION"));
+    showMessage("ATTEMPT BREAKPOINT SYNCHRONIZATION");
     if (!stateAcceptsBreakpointChanges()) {
-        showMessage(_("BREAKPOINT SYNCHRONIZATION NOT POSSIBLE IN CURRENT STATE"));
+        showMessage("BREAKPOINT SYNCHRONIZATION NOT POSSIBLE IN CURRENT STATE");
         return;
     }
 
@@ -1605,11 +1604,11 @@ void DebuggerEngine::attemptBreakpointSynchronization()
     foreach (Breakpoint bp, handler->unclaimedBreakpoints()) {
         // Take ownership of the breakpoint. Requests insertion.
         if (acceptsBreakpoint(bp)) {
-            showMessage(_("TAKING OWNERSHIP OF BREAKPOINT %1 IN STATE %2")
+            showMessage(QString("TAKING OWNERSHIP OF BREAKPOINT %1 IN STATE %2")
                 .arg(bp.id().toString()).arg(bp.state()));
             bp.setEngine(this);
         } else {
-            showMessage(_("BREAKPOINT %1 IN STATE %2 IS NOT ACCEPTABLE")
+            showMessage(QString("BREAKPOINT %1 IN STATE %2 IS NOT ACCEPTABLE")
                 .arg(bp.id().toString()).arg(bp.state()));
         }
     }
@@ -1651,11 +1650,10 @@ void DebuggerEngine::attemptBreakpointSynchronization()
         }
     }
 
-    if (done) {
-        showMessage(_("BREAKPOINTS ARE SYNCHRONIZED"));
-    } else {
-        showMessage(_("BREAKPOINTS ARE NOT FULLY SYNCHRONIZED"));
-    }
+    if (done)
+        showMessage("BREAKPOINTS ARE SYNCHRONIZED");
+    else
+        showMessage("BREAKPOINTS ARE NOT FULLY SYNCHRONIZED");
 }
 
 bool DebuggerEngine::acceptsBreakpoint(Breakpoint bp) const
@@ -1891,19 +1889,18 @@ void DebuggerEngine::validateExecutable(DebuggerRunParameters *sp)
         Internal::showMessage(_("EXAMINING ") + symbolFile, LogDebug);
         QByteArray msg = "ELF SECTIONS: ";
 
-        static QList<QByteArray> interesting;
-        if (interesting.isEmpty()) {
-            interesting.append(".debug_info");
-            interesting.append(".debug_abbrev");
-            interesting.append(".debug_line");
-            interesting.append(".debug_str");
-            interesting.append(".debug_loc");
-            interesting.append(".debug_range");
-            interesting.append(".gdb_index");
-            interesting.append(".note.gnu.build-id");
-            interesting.append(".gnu.hash");
-            interesting.append(".gnu_debuglink");
-        }
+        static const QList<QByteArray> interesting = {
+            ".debug_info",
+            ".debug_abbrev",
+            ".debug_line",
+            ".debug_str",
+            ".debug_loc",
+            ".debug_range",
+            ".gdb_index",
+            ".note.gnu.build-id",
+            ".gnu.hash",
+            ".gnu_debuglink"
+        };
 
         QSet<QByteArray> seen;
         foreach (const Utils::ElfSectionHeader &header, elfData.sectionHeaders) {

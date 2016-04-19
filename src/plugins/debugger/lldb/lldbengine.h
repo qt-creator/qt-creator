@@ -162,9 +162,9 @@ private:
     QHash<int, DebuggerCommand> m_commandForToken;
 
     // Console handling.
-    Q_SLOT void stubError(const QString &msg);
-    Q_SLOT void stubExited();
-    Q_SLOT void stubStarted();
+    void stubError(const QString &msg);
+    void stubExited();
+    void stubStarted();
     bool prepareCommand();
     Utils::ConsoleProcess m_stubProc;
 };

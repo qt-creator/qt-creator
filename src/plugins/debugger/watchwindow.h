@@ -30,12 +30,6 @@
 namespace Debugger {
 namespace Internal {
 
-/////////////////////////////////////////////////////////////////////
-//
-// WatchWindow
-//
-/////////////////////////////////////////////////////////////////////
-
 enum WatchType { LocalsType, InspectType, WatchersType, ReturnType, TooltipType };
 
 class WatchTreeView : public Utils::BaseTreeView
@@ -53,7 +47,6 @@ public:
     void fillFormatMenu(QMenu *, const QModelIndex &mi);
     static void reexpand(QTreeView *view, const QModelIndex &idx);
 
-public slots:
     void watchExpression(const QString &exp);
     void watchExpression(const QString &exp, const QString &name);
     void handleItemIsExpanded(const QModelIndex &idx);
@@ -65,7 +58,7 @@ private:
     void resetHelper();
     void expandNode(const QModelIndex &idx);
     void collapseNode(const QModelIndex &idx);
-    Q_SLOT void adjustSlider(); // Used by single-shot timer.
+    void adjustSlider();
 
     void showUnprintable(int base);
     void doItemsLayout();

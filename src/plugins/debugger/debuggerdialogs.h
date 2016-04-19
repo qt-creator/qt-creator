@@ -33,20 +33,14 @@
 #include <QDialog>
 
 QT_BEGIN_NAMESPACE
-class QModelIndex;
 class QPushButton;
 class QLineEdit;
 class QDialogButtonBox;
-class QSettings;
 QT_END_NAMESPACE
-
-namespace Core { class Id; }
-namespace ProjectExplorer { class Kit; }
 
 namespace Debugger {
 namespace Internal {
 
-class AttachCoreDialogPrivate;
 class AttachToQmlPortDialogPrivate;
 class DebuggerRunParameters;
 class StartApplicationParameters;
@@ -80,11 +74,9 @@ public:
 
     static bool run(QWidget *parent, DebuggerRunParameters *rp, ProjectExplorer::Kit **kit);
 
-private slots:
+private:
     void historyIndexChanged(int);
     void updateState();
-
-private:
     StartApplicationParameters parameters() const;
     void setParameters(const StartApplicationParameters &p);
     void setHistory(const QList<StartApplicationParameters> &l);
@@ -121,10 +113,8 @@ public:
     QString connection() const;
     void setConnection(const QString &);
 
-private slots:
-    void textChanged(const QString &);
-
 private:
+    void textChanged(const QString &);
     void accept();
 
     QPushButton *m_okButton;
@@ -140,10 +130,8 @@ public:
      void setAddress(quint64 a);
      quint64 address() const;
 
-private slots:
-     void textChanged();
-
 private:
+     void textChanged();
      void accept();
 
      void setOkButtonEnabled(bool v);

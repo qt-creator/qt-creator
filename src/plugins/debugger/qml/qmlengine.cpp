@@ -59,6 +59,7 @@
 #include <texteditor/texteditor.h>
 
 #include <utils/treemodel.h>
+#include <utils/basetreeview.h>
 #include <utils/qtcassert.h>
 
 #include <QDebug>
@@ -248,8 +249,8 @@ QmlEngine::QmlEngine(const DebuggerRunParameters &startParameters, DebuggerEngin
             this, &QmlEngine::updateCurrentContext);
     connect(stackHandler(), &StackHandler::currentIndexChanged,
             this, &QmlEngine::updateCurrentContext);
-    connect(inspectorView(), SIGNAL(currentIndexChanged(QModelIndex)),
-            SLOT(updateCurrentContext()));
+    connect(inspectorView(), &WatchTreeView::currentIndexChanged,
+            this, &QmlEngine::updateCurrentContext);
 
     connect(&d->applicationLauncher, &ApplicationLauncher::processExited,
             this, &QmlEngine::disconnected);
@@ -270,7 +271,8 @@ QmlEngine::QmlEngine(const DebuggerRunParameters &startParameters, DebuggerEngin
     // then just try to connect (application output might be redirected / blocked)
     d->noDebugOutputTimer.setSingleShot(true);
     d->noDebugOutputTimer.setInterval(8000);
-    connect(&d->noDebugOutputTimer, SIGNAL(timeout()), this, SLOT(tryToConnect()));
+    connect(&d->noDebugOutputTimer, &QTimer::timeout,
+            this, [this] { tryToConnect(); });
 
     // we won't get any debug output
     if (startParameters.useTerminal) {
@@ -407,7 +409,7 @@ void QmlEngine::connectionStartupFailed()
 {
     if (d->retryOnConnectFail) {
         // retry after 3 seconds ...
-        QTimer::singleShot(3000, this, SLOT(beginConnection()));
+        QTimer::singleShot(3000, this, [this] { beginConnection(); });
         return;
     }
 

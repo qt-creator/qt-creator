@@ -414,14 +414,14 @@ LogWindow::LogWindow(QWidget *parent)
     aggregate->add(m_inputText);
     aggregate->add(new Core::BaseTextFind(m_inputText));
 
-    connect(m_inputText, SIGNAL(statusMessageRequested(QString,int)),
-        SIGNAL(statusMessageRequested(QString,int)));
-    connect(m_inputText, SIGNAL(commandSelected(int)),
-        m_combinedText, SLOT(gotoResult(int)));
+    connect(m_inputText, &InputPane::statusMessageRequested,
+            this, &LogWindow::statusMessageRequested);
+    connect(m_inputText, &InputPane::commandSelected,
+            m_combinedText, &CombinedPane::gotoResult);
     connect(m_commandEdit, &QLineEdit::returnPressed,
             this, &LogWindow::sendCommand);
-    connect(m_inputText, SIGNAL(executeLineRequested()),
-        SLOT(executeLine()));
+    connect(m_inputText, &InputPane::executeLineRequested,
+            this, &LogWindow::executeLine);
     connect(repeatButton, &QAbstractButton::clicked,
             this, &LogWindow::repeatLastCommand);
 

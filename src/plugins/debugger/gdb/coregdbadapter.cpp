@@ -262,8 +262,8 @@ void GdbCoreEngine::handleRoundTrip(const DebuggerResponse &response)
     CHECK_STATE(InferiorUnrunnable);
     Q_UNUSED(response);
     loadSymbolsForStack();
-    handleStop2();
-    QTimer::singleShot(1000, this, SLOT(loadAllSymbols()));
+    handleStop3();
+    QTimer::singleShot(1000, this, &GdbEngine::loadAllSymbols);
 }
 
 void GdbCoreEngine::interruptInferior()

@@ -968,7 +968,7 @@ DebuggerToolTipManager::~DebuggerToolTipManager()
     m_instance = 0;
 }
 
-void DebuggerToolTipManager::slotUpdateVisibleToolTips()
+void DebuggerToolTipManager::updateVisibleToolTips()
 {
     purgeClosedToolTips();
     if (m_tooltips.isEmpty())
@@ -1010,7 +1010,7 @@ void DebuggerToolTipManager::updateEngine(DebuggerEngine *engine)
     // all others release (arguable, this could be more precise?)
     foreach (DebuggerToolTipHolder *tooltip, m_tooltips)
         tooltip->updateTooltip(engine);
-    slotUpdateVisibleToolTips(); // Move tooltip when stepping in same file.
+    updateVisibleToolTips(); // Move tooltip when stepping in same file.
 }
 
 void DebuggerToolTipManager::registerEngine(DebuggerEngine *engine)
@@ -1237,7 +1237,7 @@ static void slotEditorOpened(IEditor *e)
     if (BaseTextEditor *textEditor = qobject_cast<BaseTextEditor *>(e)) {
         TextEditorWidget *widget = textEditor->editorWidget();
         QObject::connect(widget->verticalScrollBar(), &QScrollBar::valueChanged,
-                         &DebuggerToolTipManager::slotUpdateVisibleToolTips);
+                         &DebuggerToolTipManager::updateVisibleToolTips);
         QObject::connect(widget, &TextEditorWidget::tooltipOverrideRequested,
                          slotTooltipOverrideRequested);
     }
@@ -1252,14 +1252,14 @@ void DebuggerToolTipManager::debugModeEntered()
         topLevel->installEventFilter(this);
         EditorManager *em = EditorManager::instance();
         connect(em, &EditorManager::currentEditorChanged,
-                &DebuggerToolTipManager::slotUpdateVisibleToolTips);
+                &DebuggerToolTipManager::updateVisibleToolTips);
         connect(em, &EditorManager::editorOpened, slotEditorOpened);
 
         foreach (IEditor *e, DocumentModel::editorsForOpenedDocuments())
             slotEditorOpened(e);
         // Position tooltips delayed once all the editor placeholder layouting is done.
         if (!m_tooltips.isEmpty())
-            QTimer::singleShot(0, this, SLOT(slotUpdateVisibleToolTips()));
+            QTimer::singleShot(0, this, &DebuggerToolTipManager::updateVisibleToolTips);
     }
 }
 

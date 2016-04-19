@@ -32,8 +32,6 @@
 
 QT_BEGIN_NAMESPACE
 class QCursor;
-class QLabel;
-class QLineEdit;
 class QPlainTextEdit;
 QT_END_NAMESPACE
 
@@ -42,7 +40,8 @@ namespace Utils { class FancyLineEdit; }
 namespace Debugger {
 namespace Internal {
 
-class DebuggerPane;
+class CombinedPane;
+class InputPane;
 
 class LogWindow : public QWidget
 {
@@ -79,8 +78,8 @@ signals:
     void statusMessageRequested(const QString &msg, int);
 
 private:
-    DebuggerPane *m_combinedText;  // combined input/output
-    DebuggerPane *m_inputText;     // scriptable input alone
+    CombinedPane *m_combinedText;  // combined input/output
+    InputPane *m_inputText;     // scriptable input alone
     QTimer m_outputTimer;
     QString m_queuedOutput;
     Utils::FancyLineEdit *m_commandEdit;

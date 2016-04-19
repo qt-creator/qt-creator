@@ -94,9 +94,7 @@ public:
     static void saveSessionData();
     static void closeAllToolTips();
     static void resetLocation();
-
-public slots:
-    static void slotUpdateVisibleToolTips();
+    static void updateVisibleToolTips();
 };
 
 } // namespace Internal

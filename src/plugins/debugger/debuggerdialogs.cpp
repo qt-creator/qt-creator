@@ -865,8 +865,8 @@ TypeFormatsDialog::TypeFormatsDialog(QWidget *parent)
     m_ui->addPage(tr("Standard Types"));
     m_ui->addPage(tr("Misc Types"));
 
-    connect(m_ui->buttonBox, SIGNAL(accepted()), SLOT(accept()));
-    connect(m_ui->buttonBox, SIGNAL(rejected()), SLOT(reject()));
+    connect(m_ui->buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
+    connect(m_ui->buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
 }
 
 TypeFormatsDialog::~TypeFormatsDialog()

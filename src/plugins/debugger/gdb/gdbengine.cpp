@@ -856,8 +856,8 @@ void GdbEngine::interruptInferior()
             QTC_ASSERT(!m_signalOperation, notifyInferiorStopFailed());
             m_signalOperation = runParameters().device->signalOperation();
             QTC_ASSERT(m_signalOperation, notifyInferiorStopFailed());
-            connect(m_signalOperation.data(), SIGNAL(finished(QString)),
-                    SLOT(handleInterruptDeviceInferior(QString)));
+            connect(m_signalOperation.data(), &DeviceProcessSignalOperation::finished,
+                    this, &GdbEngine::handleInterruptDeviceInferior);
 
             m_signalOperation->setDebuggerCommand(runParameters().debuggerCommand);
             m_signalOperation->interruptProcess(inferiorPid());
@@ -1637,10 +1637,10 @@ void GdbEngine::handleStop2(const GdbMi &data)
 
     // Let the event loop run before deciding whether to update the stack.
     m_stackNeeded = true; // setTokenBarrier() might reset this.
-    QTimer::singleShot(0, this, SLOT(handleStop2()));
+    QTimer::singleShot(0, this, &GdbEngine::handleStop3);
 }
 
-void GdbEngine::handleStop2()
+void GdbEngine::handleStop3()
 {
     DebuggerCommand cmd("-thread-info", Discardable);
     cmd.callback = CB(handleThreadInfo);

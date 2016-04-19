@@ -123,6 +123,7 @@ protected: ////////// Gdb Process Management //////////
 
 private slots:
     friend class GdbPlainEngine;
+    friend class GdbCoreEngine;
     void handleInterruptDeviceInferior(const QString &error);
     void handleGdbFinished(int exitCode, QProcess::ExitStatus exitStatus);
     void handleGdbError(QProcess::ProcessError error);
@@ -170,7 +171,7 @@ private: ////////// Gdb Command Management //////////
     void runCommand(const DebuggerCommand &command) override;
 
 private:
-    Q_SLOT void commandTimeout();
+    void commandTimeout();
     void setTokenBarrier();
 
     // Sets up an "unexpected result" for the following commeand.
@@ -200,13 +201,13 @@ private:
 
 private: ////////// Gdb Output, State & Capability Handling //////////
 protected:
-    Q_SLOT void handleResponse(const QByteArray &buff);
+    void handleResponse(const QByteArray &buff);
     void handleAsyncOutput(const QByteArray &asyncClass, const GdbMi &result);
     void handleStopResponse(const GdbMi &data);
     void handleResultRecord(DebuggerResponse *response);
     void handleStop1(const GdbMi &data);
     void handleStop2(const GdbMi &data);
-    Q_SLOT void handleStop2();
+    void handleStop3();
     void resetCommandQueue();
 
     bool isSynchronous() const override { return true; }
@@ -289,7 +290,7 @@ private: ////////// View & Data Stuff //////////
     //
     protected:
     void loadSymbols(const QString &moduleName) override;
-    Q_SLOT void loadAllSymbols() override;
+    void loadAllSymbols() override;
     void loadSymbolsForStack() override;
     void requestModuleSymbols(const QString &moduleName) override;
     void requestModuleSections(const QString &moduleName) override;
@@ -309,7 +310,7 @@ private: ////////// View & Data Stuff //////////
     //
     // Register specific stuff
     //
-    Q_SLOT void reloadRegisters() override;
+    void reloadRegisters() override;
     void setRegisterValue(const QByteArray &name, const QString &value) override;
     void handleRegisterListNames(const DebuggerResponse &response);
     void handleRegisterListing(const DebuggerResponse &response);
@@ -355,8 +356,8 @@ protected:
     void handleThreadInfo(const DebuggerResponse &response);
     void handleThreadNames(const DebuggerResponse &response);
     DebuggerCommand stackCommand(int depth);
-    Q_SLOT void reloadStack();
-    Q_SLOT virtual void reloadFullStack() override;
+    void reloadStack();
+    virtual void reloadFullStack() override;
     virtual void loadAdditionalQmlStack() override;
     void handleQmlStackTrace(const DebuggerResponse &response);
     int currentFrame() const;
@@ -386,7 +387,7 @@ protected:
     void handleThreadGroupCreated(const GdbMi &result);
     void handleThreadGroupExited(const GdbMi &result);
 
-    Q_SLOT void createFullBacktrace();
+    void createFullBacktrace();
 
     void doUpdateLocals(const UpdateParameters &parameters) override;
     void handleFetchVariables(const DebuggerResponse &response);

@@ -75,7 +75,7 @@ bool OutputCollector::listen()
     if (m_server)
         return m_server->isListening();
     m_server = new QLocalServer(this);
-    connect(m_server, SIGNAL(newConnection()), SLOT(newConnectionAvailable()));
+    connect(m_server, &QLocalServer::newConnection, this, &OutputCollector::newConnectionAvailable);
     return m_server->listen(QString::fromLatin1("creator-%1-%2")
                             .arg(QCoreApplication::applicationPid())
                             .arg(rand()));
@@ -111,7 +111,7 @@ bool OutputCollector::listen()
         return false;
     }
     m_serverNotifier = new QSocketNotifier(m_serverFd, QSocketNotifier::Read, this);
-    connect(m_serverNotifier, SIGNAL(activated(int)), SLOT(bytesAvailable()));
+    connect(m_serverNotifier, &QSocketNotifier::activated, this, &OutputCollector::bytesAvailable);
     return true;
 #endif
 }
@@ -156,7 +156,7 @@ void OutputCollector::newConnectionAvailable()
     if (m_socket)
         return;
     m_socket = m_server->nextPendingConnection();
-    connect(m_socket, SIGNAL(readyRead()), SLOT(bytesAvailable()));
+    connect(m_socket, &QIODevice::readyRead, this, &OutputCollector::bytesAvailable);
 }
 #endif
 
