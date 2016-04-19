@@ -132,13 +132,8 @@ AndroidDebugSupport::AndroidDebugSupport(AndroidRunConfiguration *runConfig,
 {
     QTC_ASSERT(runControl, return);
 
-    connect(m_runControl, SIGNAL(finished()),
-            m_runner, SLOT(stop()));
-
-    DebuggerRunConfigurationAspect *aspect
-            = runConfig->extraAspect<DebuggerRunConfigurationAspect>();
-    Q_ASSERT(aspect->useCppDebugger() || aspect->useQmlDebugger());
-    Q_UNUSED(aspect)
+    connect(m_runControl, &RunControl::finished,
+            m_runner, &AndroidRunner::stop);
 
     connect(m_runControl, &DebuggerRunControl::requestRemoteSetup,
             m_runner, &AndroidRunner::start);
