@@ -217,12 +217,7 @@ QList<Task> CMakeGeneratorKitInformation::validate(const Kit *k) const
     QString generator = CMakeGeneratorKitInformation::generator(k);
 
     QList<Task> result;
-    if (!tool) {
-        if (!generator.isEmpty()) {
-            result << Task(Task::Warning, tr("No CMake Tool configured, CMake generator will be ignored."),
-                           Utils::FileName(), -1, Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM));
-        }
-    } else {
+    if (tool) {
         if (!tool->isValid()) {
             result << Task(Task::Warning, tr("CMake Tool is unconfigured, CMake generator will be ignored."),
                            Utils::FileName(), -1, Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM));
