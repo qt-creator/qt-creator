@@ -42,25 +42,25 @@ public:
     static Ptr create();
     static Ptr create(const QString &name, Core::Id type, MachineType machineType,
                       Origin origin = ManuallyAdded, Core::Id id = Core::Id());
-    ProjectExplorer::IDevice::Ptr clone() const;
+    ProjectExplorer::IDevice::Ptr clone() const override;
 
-    ProjectExplorer::PortsGatheringMethod::Ptr portsGatheringMethod() const;
-    ProjectExplorer::DeviceProcessList *createProcessListModel(QObject *parent) const;
-    ProjectExplorer::DeviceProcessSignalOperation::Ptr signalOperation() const;
+    ProjectExplorer::PortsGatheringMethod::Ptr portsGatheringMethod() const override;
+    ProjectExplorer::DeviceProcessList *createProcessListModel(QObject *parent) const override;
+    ProjectExplorer::DeviceProcessSignalOperation::Ptr signalOperation() const override;
 
-    ProjectExplorer::DeviceTester *createDeviceTester() const;
-    ProjectExplorer::DeviceProcess *createProcess(QObject *parent) const;
+    ProjectExplorer::DeviceTester *createDeviceTester() const override;
+    ProjectExplorer::DeviceProcess *createProcess(QObject *parent) const override;
 
-    QList<Core::Id> actionIds() const;
-    QString displayNameForActionId(Core::Id actionId) const;
-    void executeAction(Core::Id actionId, QWidget *parent);
+    QList<Core::Id> actionIds() const override;
+    QString displayNameForActionId(Core::Id actionId) const override;
+    void executeAction(Core::Id actionId, QWidget *parent) override;
 
-    QString displayType() const;
+    QString displayType() const override;
 
     int qnxVersion() const;
 
-    void fromMap(const QVariantMap &map);
-    QVariantMap toMap() const;
+    void fromMap(const QVariantMap &map) override;
+    QVariantMap toMap() const override;
 
 protected:
     QnxDeviceConfiguration();

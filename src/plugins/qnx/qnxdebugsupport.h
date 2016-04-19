@@ -51,19 +51,19 @@ public slots:
     void handleDebuggingFinished();
 
 private slots:
-    void handleAdapterSetupRequested();
+    void handleAdapterSetupRequested() override;
 
-    void handleRemoteProcessStarted();
-    void handleRemoteProcessFinished(bool success);
-    void handleProgressReport(const QString &progressOutput);
-    void handleRemoteOutput(const QByteArray &output);
-    void handleError(const QString &error);
+    void handleRemoteProcessStarted() override;
+    void handleRemoteProcessFinished(bool success) override;
+    void handleProgressReport(const QString &progressOutput) override;
+    void handleRemoteOutput(const QByteArray &output) override;
+    void handleError(const QString &error) override;
 
     void printMissingWarning();
     void handleApplicationOutput(const QString &msg, Utils::OutputFormat outputFormat);
 
 private:
-    void startExecution();
+    void startExecution() override;
 
     QString processExecutable() const;
 

@@ -49,12 +49,12 @@ public slots:
     void handleProfilingFinished();
 
 private slots:
-    void handleAdapterSetupRequested();
+    void handleAdapterSetupRequested() override;
 
-    void handleRemoteProcessFinished(bool success);
-    void handleProgressReport(const QString &progressOutput);
-    void handleRemoteOutput(const QByteArray &output);
-    void handleError(const QString &error);
+    void handleRemoteProcessFinished(bool success) override;
+    void handleProgressReport(const QString &progressOutput) override;
+    void handleRemoteOutput(const QByteArray &output) override;
+    void handleError(const QString &error) override;
 
     void showMessage(const QString &, Utils::OutputFormat);
     void printMissingWarning();
@@ -62,7 +62,7 @@ private slots:
     void remoteIsRunning();
 
 private:
-    void startExecution();
+    void startExecution() override;
 
     ProjectExplorer::StandardRunnable m_runnable;
     Debugger::AnalyzerRunControl *m_runControl;
