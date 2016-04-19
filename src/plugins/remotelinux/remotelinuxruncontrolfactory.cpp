@@ -116,7 +116,7 @@ RunControl *RemoteLinuxRunControlFactory::create(RunConfiguration *runConfig, Co
 
         if (aspect->useQmlDebugger()) {
             params.qmlServerAddress = dev->sshParameters().host;
-            params.qmlServerPort = 0; // port is selected later on
+            params.qmlServerPort = Utils::Port(); // port is selected later on
         }
         if (aspect->useCppDebugger()) {
             aspect->setUseMultiProcess(true);

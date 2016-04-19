@@ -75,7 +75,7 @@ static DebuggerStartParameters createDebuggerStartParameters(QnxRunConfiguration
     auto aspect = runConfig->extraAspect<DebuggerRunConfigurationAspect>();
     if (aspect->useQmlDebugger()) {
         params.qmlServerAddress = device->sshParameters().host;
-        params.qmlServerPort = 0; // QML port is handed out later
+        params.qmlServerPort = Utils::Port(); // QML port is handed out later
     }
 
     auto qtVersion = dynamic_cast<QnxQtVersion *>(QtSupport::QtKitInformation::qtVersion(k));
@@ -147,7 +147,7 @@ RunControl *QnxRunControlFactory::create(RunConfiguration *runConfig, Core::Id m
         AnalyzerConnection connection;
         connection.connParams = device->sshParameters();
         connection.analyzerHost = connection.connParams.host;
-        connection.analyzerPort = connection.connParams.port;
+        connection.analyzerPort = Utils::Port(connection.connParams.port);
         runControl->setConnection(connection);
         auto analyzeSupport = new QnxAnalyzeSupport(rc, runControl);
         connect(runControl, &RunControl::finished, analyzeSupport, &QnxAnalyzeSupport::handleProfilingFinished);

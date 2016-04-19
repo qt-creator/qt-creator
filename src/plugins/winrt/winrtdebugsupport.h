@@ -48,7 +48,7 @@ private:
     WinRtDebugSupport(ProjectExplorer::RunControl *runControl, WinRtRunnerHelper *runner);
 
     static bool useQmlDebugging(WinRtRunConfiguration *runConfig);
-    static bool getFreePort(quint16 &qmlDebuggerPort, QString *errorMessage);
+    static bool getFreePort(Utils::Port &qmlDebuggerPort, QString *errorMessage);
 
     ProjectExplorer::RunControl *m_debugRunControl;
     WinRtRunnerHelper *m_runner;

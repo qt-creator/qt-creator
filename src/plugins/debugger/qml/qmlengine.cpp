@@ -347,7 +347,7 @@ void QmlEngine::connectionEstablished()
         notifyEngineRunAndInferiorRunOk();
 }
 
-void QmlEngine::tryToConnect(quint16 port)
+void QmlEngine::tryToConnect(Utils::Port port)
 {
     showMessage(QLatin1String("QML Debugger: No application output received in time, trying to connect ..."), LogStatus);
     d->retryOnConnectFail = true;
@@ -366,7 +366,7 @@ void QmlEngine::tryToConnect(quint16 port)
     }
 }
 
-void QmlEngine::beginConnection(quint16 port)
+void QmlEngine::beginConnection(Utils::Port port)
 {
     d->noDebugOutputTimer.stop();
 
@@ -391,13 +391,13 @@ void QmlEngine::beginConnection(quint16 port)
      * the connection will be closed again (instead of returning the "connection refused"
      * error that we expect).
      */
-    if (runParameters().qmlServerPort > 0)
+    if (runParameters().qmlServerPort.isValid())
         port = runParameters().qmlServerPort;
 
     if (!d->connection || d->connection->isConnected())
         return;
 
-    d->connection->connectToHost(host, port);
+    d->connection->connectToHost(host, port.number());
 
     //A timeout to check the connection state
     d->connectionTimer.start();
@@ -563,7 +563,7 @@ void QmlEngine::notifyEngineRemoteSetupFinished(const RemoteSetupResult &result)
     DebuggerEngine::notifyEngineRemoteSetupFinished(result);
 
     if (result.success) {
-        if (result.qmlServerPort != InvalidPort)
+        if (result.qmlServerPort.isValid())
             runParameters().qmlServerPort = result.qmlServerPort;
 
         notifyEngineSetupOk();
@@ -587,7 +587,7 @@ void QmlEngine::notifyEngineRemoteServerRunning(const QByteArray &serverChannel,
     bool ok = false;
     quint16 qmlPort = serverChannel.toUInt(&ok);
     if (ok)
-        runParameters().qmlServerPort = qmlPort;
+        runParameters().qmlServerPort = Utils::Port(qmlPort);
     else
         qWarning() << tr("QML debugging port not set: Unable to convert %1 to unsigned int.").arg(QString::fromLatin1(serverChannel));
 

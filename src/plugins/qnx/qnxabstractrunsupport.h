@@ -56,7 +56,7 @@ public:
     QnxAbstractRunSupport(QnxRunConfiguration *runConfig, QObject *parent = 0);
 
 protected:
-    bool setPort(int &port);
+    bool setPort(Utils::Port &port);
     virtual void startExecution() = 0;
 
     void setFinished();

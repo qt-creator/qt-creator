@@ -73,8 +73,8 @@ private:
     Slog2InfoRunner *m_slog2Info;
 
     Debugger::DebuggerRunControl *m_runControl;
-    int m_pdebugPort;
-    int m_qmlPort;
+    Utils::Port m_pdebugPort;
+    Utils::Port m_qmlPort;
 
     bool m_useCppDebugger;
     bool m_useQmlDebugger;

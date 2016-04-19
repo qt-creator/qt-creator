@@ -31,6 +31,7 @@
 #include <projectexplorer/runconfiguration.h>
 
 #include <utils/outputformat.h>
+#include <utils/port.h>
 
 namespace Debugger {
 
@@ -51,7 +52,7 @@ public:
     virtual void pause() {}
     virtual void unpause() {}
 
-    virtual void notifyRemoteSetupDone(quint16) {}
+    virtual void notifyRemoteSetupDone(Utils::Port) {}
     virtual void notifyRemoteFinished() {}
 
 signals:

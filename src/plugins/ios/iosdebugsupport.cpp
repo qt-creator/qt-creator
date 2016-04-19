@@ -181,18 +181,19 @@ IosDebugSupport::~IosDebugSupport()
 {
 }
 
-void IosDebugSupport::handleServerPorts(int gdbServerPort, int qmlPort)
+void IosDebugSupport::handleServerPorts(Utils::Port gdbServerPort, Utils::Port qmlPort)
 {
     RemoteSetupResult result;
     result.gdbServerPort = gdbServerPort;
     result.qmlServerPort = qmlPort;
-    result.success = gdbServerPort > 0 || (m_runner && !m_runner->cppDebug() && qmlPort > 0);
+    result.success = gdbServerPort.isValid()
+            || (m_runner && !m_runner->cppDebug() && qmlPort.isValid());
     if (!result.success)
         result.reason =  tr("Could not get debug server file descriptor.");
     m_runControl->notifyEngineRemoteSetupFinished(result);
 }
 
-void IosDebugSupport::handleGotInferiorPid(qint64 pid, int qmlPort)
+void IosDebugSupport::handleGotInferiorPid(qint64 pid, Utils::Port qmlPort)
 {
     RemoteSetupResult result;
     result.qmlServerPort = qmlPort;

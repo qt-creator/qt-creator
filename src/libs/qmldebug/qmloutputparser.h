@@ -27,6 +27,7 @@
 
 #include "qmldebug_global.h"
 
+#include <utils/port.h>
 #include <QObject>
 
 namespace QmlDebug {
@@ -41,7 +42,7 @@ public:
     void processOutput(const QString &output);
 
 signals:
-    void waitingForConnectionOnPort(quint16 port);
+    void waitingForConnectionOnPort(Utils::Port port);
     void connectionEstablishedMessage();
     void connectingToSocketMessage();
     void errorMessage(const QString &detailedError);

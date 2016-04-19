@@ -28,6 +28,7 @@
 #include <debugger/debuggerconstants.h>
 #include <projectexplorer/devicesupport/deviceprocesslist.h>
 #include <projectexplorer/devicesupport/idevice.h>
+#include <utils/port.h>
 
 #include <QObject>
 
@@ -71,7 +72,7 @@ private:
     ProjectExplorer::DeviceUsedPortsGatherer *m_portsGatherer;
     Debugger::DebuggerRunControl *m_runControl = 0;
 
-    int m_pdebugPort = -1;
+    Utils::Port m_pdebugPort;
     QString m_projectSourceDirectory;
     QString m_localExecutablePath;
 };

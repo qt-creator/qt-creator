@@ -25,6 +25,7 @@
 
 #include "deviceusedportsgatherer.h"
 
+#include <utils/port.h>
 #include <utils/portlist.h>
 #include <utils/qtcassert.h>
 #include <ssh/sshconnection.h>
@@ -42,7 +43,7 @@ class DeviceUsedPortsGathererPrivate
  public:
     SshConnection *connection;
     SshRemoteProcess::Ptr process;
-    QList<int> usedPorts;
+    QList<Port> usedPorts;
     QByteArray remoteStdout;
     QByteArray remoteStderr;
     IDevice::ConstPtr device;
@@ -110,17 +111,17 @@ void DeviceUsedPortsGatherer::stop()
     d->connection = 0;
 }
 
-int DeviceUsedPortsGatherer::getNextFreePort(PortList *freePorts) const
+Port DeviceUsedPortsGatherer::getNextFreePort(PortList *freePorts) const
 {
     while (freePorts->hasMore()) {
-        const int port = freePorts->getNext();
+        const Port port = freePorts->getNext();
         if (!d->usedPorts.contains(port))
             return port;
     }
-    return -1;
+    return Port();
 }
 
-QList<int> DeviceUsedPortsGatherer::usedPorts() const
+QList<Port> DeviceUsedPortsGatherer::usedPorts() const
 {
     return d->usedPorts;
 }
@@ -128,8 +129,8 @@ QList<int> DeviceUsedPortsGatherer::usedPorts() const
 void DeviceUsedPortsGatherer::setupUsedPorts()
 {
     d->usedPorts.clear();
-    const QList<int> usedPorts = d->device->portsGatheringMethod()->usedPorts(d->remoteStdout);
-    foreach (const int port, usedPorts) {
+    const QList<Port> usedPorts = d->device->portsGatheringMethod()->usedPorts(d->remoteStdout);
+    foreach (const Port port, usedPorts) {
         if (d->device->freePorts().contains(port))
             d->usedPorts << port;
     }

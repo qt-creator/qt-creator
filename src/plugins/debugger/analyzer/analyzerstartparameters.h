@@ -29,6 +29,7 @@
 
 #include <projectexplorer/runnables.h>
 #include <ssh/sshconnection.h>
+#include <utils/port.h>
 
 #include <QMetaType>
 
@@ -40,7 +41,7 @@ public:
     QSsh::SshConnectionParameters connParams;
     QString analyzerHost;
     QString analyzerSocket;
-    quint16 analyzerPort = 0;
+    Utils::Port analyzerPort;
 };
 
 DEBUGGER_EXPORT bool operator==(const AnalyzerConnection &c1, const AnalyzerConnection &c2);

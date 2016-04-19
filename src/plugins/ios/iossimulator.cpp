@@ -28,6 +28,7 @@
 #include "iostoolhandler.h"
 
 #include <projectexplorer/kitinformation.h>
+#include <utils/port.h>
 
 #include <QCoreApplication>
 #include <QMapIterator>
@@ -171,7 +172,7 @@ QVariantMap IosSimulator::toMap() const
     return res;
 }
 
-quint16 IosSimulator::nextPort() const
+Utils::Port IosSimulator::nextPort() const
 {
     for (int i = 0; i < 100; ++i) {
         // use qrand instead?
@@ -192,7 +193,7 @@ quint16 IosSimulator::nextPort() const
                 || portVerifier.exitCode() != 0)
             break;
     }
-    return m_lastPort;
+    return Utils::Port(m_lastPort);
 }
 
 bool IosSimulator::canAutoDetectPorts() const

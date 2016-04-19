@@ -108,8 +108,8 @@ void GdbServerStarter::run()
 void GdbServerStarter::portListReady()
 {
     PortList ports = d->device->freePorts();
-    const int port = d->gatherer.getNextFreePort(&ports);
-    if (port == -1) {
+    const Port port = d->gatherer.getNextFreePort(&ports);
+    if (!port.isValid()) {
         QTC_ASSERT(false, /**/);
         emit logMessage(tr("Process aborted"));
         return;
@@ -130,7 +130,7 @@ void GdbServerStarter::portListReady()
     if (gdbServerPath.isEmpty())
         gdbServerPath = "gdbserver";
     QByteArray cmd = gdbServerPath + " --attach :"
-            + QByteArray::number(port) + ' ' + QByteArray::number(d->process.pid);
+            + QByteArray::number(port.number()) + ' ' + QByteArray::number(d->process.pid);
     logMessage(tr("Running command: %1").arg(QString::fromLatin1(cmd)));
     d->runner.run(cmd, d->device->sshParameters());
 }

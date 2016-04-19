@@ -79,7 +79,7 @@ public:
     ProjectExplorer::DeviceProcessSignalOperation::Ptr signalOperation() const override;
     void fromMap(const QVariantMap &map) override;
     QVariantMap toMap() const override;
-    quint16 nextPort() const;
+    Utils::Port nextPort() const;
     bool canAutoDetectPorts() const override;
 
     ProjectExplorer::IDevice::Ptr clone() const override;

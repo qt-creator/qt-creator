@@ -28,6 +28,7 @@
 #include "remotelinux_export.h"
 
 #include <projectexplorer/devicesupport/idevice.h>
+#include <utils/port.h>
 
 #include <QObject>
 
@@ -68,7 +69,7 @@ protected:
     virtual void handleAdapterSetupDone();
 
     void setFinished();
-    bool setPort(int &port);
+    bool setPort(Utils::Port &port);
 
     const ProjectExplorer::IDevice::ConstPtr device() const;
     const ProjectExplorer::StandardRunnable &runnable() const;

@@ -2112,8 +2112,10 @@ void DebuggerPluginPrivate::attachToQmlPort()
     const QVariant qmlServerPort = configValue("LastQmlServerPort");
     if (qmlServerPort.isValid())
         dlg.setPort(qmlServerPort.toInt());
+    else if (rp.qmlServerPort.isValid())
+        dlg.setPort(rp.qmlServerPort.number());
     else
-        dlg.setPort(rp.qmlServerPort);
+        dlg.setPort(-1);
 
     const Id kitId = Id::fromSetting(configValue("LastProfile"));
     if (kitId.isValid())
@@ -2132,7 +2134,7 @@ void DebuggerPluginPrivate::attachToQmlPort()
         rp.connParams = device->sshParameters();
         rp.qmlServerAddress = device->qmlProfilerHost();
     }
-    rp.qmlServerPort = dlg.port();
+    rp.qmlServerPort = Utils::Port(dlg.port());
     rp.startMode = AttachToRemoteProcess;
     rp.closeMode = KillAtClose;
     rp.languages = QmlLanguage;
@@ -2863,7 +2865,7 @@ static QString formatStartParameters(DebuggerRunParameters &sp)
     }
     if (!sp.qmlServerAddress.isEmpty())
         str << "QML server: " << sp.qmlServerAddress << ':'
-            << sp.qmlServerPort << '\n';
+            << (sp.qmlServerPort.isValid() ? sp.qmlServerPort.number() : -1) << '\n';
     if (!sp.remoteChannel.isEmpty())
         str << "Remote: " << sp.remoteChannel << '\n';
     str << "Sysroot: " << sp.sysRoot << '\n';

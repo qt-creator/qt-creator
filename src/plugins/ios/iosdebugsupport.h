@@ -50,8 +50,8 @@ public:
     ~IosDebugSupport();
 
 private:
-    void handleServerPorts(int gdbServerFd, int qmlPort);
-    void handleGotInferiorPid(qint64, int qmlPort);
+    void handleServerPorts(Utils::Port gdbServerPort, Utils::Port qmlPort);
+    void handleGotInferiorPid(qint64, Utils::Port qmlPort);
     void handleRemoteProcessFinished(bool cleanEnd);
 
     void handleRemoteOutput(const QString &output);

@@ -76,7 +76,7 @@ QString IosRunner::bundlePath()
 QStringList IosRunner::extraArgs()
 {
     QStringList res = m_arguments;
-    if (m_qmlPort != 0)
+    if (m_qmlPort.isValid())
         res << QmlDebug::qmlDebugTcpArguments(m_qmlDebugServices, m_qmlPort);
     return res;
 }
@@ -113,7 +113,7 @@ void IosRunner::start()
         emit finished(m_cleanExit);
     }
     m_cleanExit = false;
-    m_qmlPort = 0;
+    m_qmlPort = Utils::Port();
     if (!QFileInfo::exists(m_bundleDir)) {
         TaskHub::addTask(Task::Warning,
                          tr("Could not find %1.").arg(m_bundleDir),
@@ -177,7 +177,8 @@ void IosRunner::handleDidStartApp(IosToolHandler *handler, const QString &bundle
 }
 
 void IosRunner::handleGotServerPorts(IosToolHandler *handler, const QString &bundlePath,
-                                         const QString &deviceId, int gdbPort, int qmlPort)
+                                     const QString &deviceId, Utils::Port gdbPort,
+                                     Utils::Port qmlPort)
 {
     Q_UNUSED(bundlePath); Q_UNUSED(deviceId);
     m_qmlPort = qmlPort;
@@ -200,8 +201,8 @@ void IosRunner::handleAppOutput(IosToolHandler *handler, const QString &output)
     QRegExp qmlPortRe(QLatin1String("QML Debugger: Waiting for connection on port ([0-9]+)..."));
     int index = qmlPortRe.indexIn(output);
     QString res(output);
-    if (index != -1 && m_qmlPort)
-       res.replace(qmlPortRe.cap(1), QString::number(m_qmlPort));
+    if (index != -1 && m_qmlPort.isValid())
+       res.replace(qmlPortRe.cap(1), QString::number(m_qmlPort.number()));
     emit appOutput(res);
 }
 
@@ -222,8 +223,8 @@ void IosRunner::handleErrorMsg(IosToolHandler *handler, const QString &msg)
     }
     QRegExp qmlPortRe(QLatin1String("QML Debugger: Waiting for connection on port ([0-9]+)..."));
     int index = qmlPortRe.indexIn(msg);
-    if (index != -1 && m_qmlPort)
-       res.replace(qmlPortRe.cap(1), QString::number(m_qmlPort));
+    if (index != -1 && m_qmlPort.isValid())
+       res.replace(qmlPortRe.cap(1), QString::number(m_qmlPort.number()));
     emit errorMsg(res);
 }
 

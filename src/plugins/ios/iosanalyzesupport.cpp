@@ -97,13 +97,13 @@ void IosAnalyzeSupport::qmlServerReady()
     m_runControl->notifyRemoteSetupDone(m_qmlPort);
 }
 
-void IosAnalyzeSupport::handleServerPorts(int gdbServerPort, int qmlPort)
+void IosAnalyzeSupport::handleServerPorts(Utils::Port gdbServerPort, Utils::Port qmlPort)
 {
     Q_UNUSED(gdbServerPort);
     m_qmlPort = qmlPort;
 }
 
-void IosAnalyzeSupport::handleGotInferiorPid(qint64 pid, int qmlPort)
+void IosAnalyzeSupport::handleGotInferiorPid(qint64 pid, Utils::Port qmlPort)
 {
     Q_UNUSED(pid);
     m_qmlPort = qmlPort;

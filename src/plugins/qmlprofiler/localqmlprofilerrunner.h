@@ -27,6 +27,7 @@
 
 #include "qmlprofiler_global.h"
 #include <utils/environment.h>
+#include <utils/port.h>
 #include <projectexplorer/applicationlauncher.h>
 #include <projectexplorer/runnables.h>
 
@@ -40,14 +41,14 @@ class QMLPROFILER_EXPORT LocalQmlProfilerRunner : public QObject
 public:
     struct Configuration {
         ProjectExplorer::StandardRunnable debuggee;
-        quint16 port;
+        Utils::Port port;
         QString socket;
     };
 
     LocalQmlProfilerRunner(const Configuration &configuration, QmlProfilerRunControl *engine);
     ~LocalQmlProfilerRunner();
 
-    static quint16 findFreePort(QString &host);
+    static Utils::Port findFreePort(QString &host);
     static QString findFreeSocket();
 
 signals:

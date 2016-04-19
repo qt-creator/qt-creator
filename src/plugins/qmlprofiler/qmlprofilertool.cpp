@@ -564,7 +564,7 @@ void QmlProfilerTool::startRemoteTool(ProjectExplorer::RunConfiguration *rc)
         connection.connParams = device->sshParameters();
         connection.analyzerHost = device->qmlProfilerHost();
     }
-    connection.analyzerPort = port;
+    connection.analyzerPort = Utils::Port(port);
 
     auto runControl = qobject_cast<QmlProfilerRunControl *>(createRunControl(rc));
     runControl->setConnection(connection);

@@ -440,7 +440,7 @@ static DebuggerRunControl *doCreate(DebuggerRunParameters rp, RunConfiguration *
                 return 0;
             }
             rp.qmlServerAddress = server.serverAddress().toString();
-            rp.qmlServerPort = server.serverPort();
+            rp.qmlServerPort = Utils::Port(server.serverPort());
 
             // Makes sure that all bindings go through the JavaScript engine, so that
             // breakpoints are actually hit!

@@ -141,8 +141,8 @@ public:
                         IosToolHandler::OpStatus status);
     void didStartApp(const QString &bundlePath, const QString &deviceId,
                      IosToolHandler::OpStatus status);
-    void gotServerPorts(const QString &bundlePath, const QString &deviceId, int gdbPort,
-                        int qmlPort);
+    void gotServerPorts(const QString &bundlePath, const QString &deviceId, Utils::Port gdbPort,
+                        Utils::Port qmlPort);
     void gotInferiorPid(const QString &bundlePath, const QString &deviceId, qint64 pid);
     void deviceInfo(const QString &deviceId, const IosToolHandler::Dict &info);
     void appOutput(const QString &output);
@@ -306,8 +306,8 @@ void IosToolHandlerPrivate::didStartApp(const QString &bundlePath, const QString
     emit q->didStartApp(q, bundlePath, deviceId, status);
 }
 
-void IosToolHandlerPrivate::gotServerPorts(const QString &bundlePath,
-                                           const QString &deviceId, int gdbPort, int qmlPort)
+void IosToolHandlerPrivate::gotServerPorts(const QString &bundlePath, const QString &deviceId,
+                                           Utils::Port gdbPort, Utils::Port qmlPort)
 {
     emit q->gotServerPorts(q, bundlePath, deviceId, gdbPort, qmlPort);
 }
@@ -445,8 +445,10 @@ void IosToolHandlerPrivate::processXml()
             } else if (elName == QLatin1String("server_ports")) {
                 stack.append(ParserState(ParserState::ServerPorts));
                 QXmlStreamAttributes attributes = outputParser.attributes();
-                int gdbServerPort = attributes.value(QLatin1String("gdb_server")).toString().toInt();
-                int qmlServerPort = attributes.value(QLatin1String("qml_server")).toString().toInt();
+                Utils::Port gdbServerPort(
+                            attributes.value(QLatin1String("gdb_server")).toString().toInt());
+                Utils::Port qmlServerPort(
+                            attributes.value(QLatin1String("qml_server")).toString().toInt());
                 gotServerPorts(bundlePath, deviceId, gdbServerPort, qmlServerPort);
             } else {
                 qCWarning(toolHandlerLog) << "unexpected element " << elName;

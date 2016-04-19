@@ -26,6 +26,7 @@
 #include "linuxdevicetester.h"
 
 #include <projectexplorer/devicesupport/deviceusedportsgatherer.h>
+#include <utils/port.h>
 #include <utils/qtcassert.h>
 #include <ssh/sshremoteprocess.h>
 #include <ssh/sshconnection.h>
@@ -169,8 +170,8 @@ void GenericLinuxDeviceTester::handlePortListReady()
         emit progressMessage(tr("All specified ports are available.") + QLatin1Char('\n'));
     } else {
         QString portList;
-        foreach (const int port, d->portsGatherer.usedPorts())
-            portList += QString::number(port) + QLatin1String(", ");
+        foreach (const Utils::Port port, d->portsGatherer.usedPorts())
+            portList += QString::number(port.number()) + QLatin1String(", ");
         portList.remove(portList.count() - 2, 2);
         emit errorMessage(tr("The following specified ports are currently in use: %1")
             .arg(portList) + QLatin1Char('\n'));

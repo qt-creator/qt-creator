@@ -60,8 +60,7 @@ public:
     LinuxDeviceDebugSupportPrivate(const RunConfiguration *runConfig, DebuggerRunControl *runControl)
         : runControl(runControl),
           qmlDebugging(runConfig->extraAspect<DebuggerRunConfigurationAspect>()->useQmlDebugger()),
-          cppDebugging(runConfig->extraAspect<DebuggerRunConfigurationAspect>()->useCppDebugger()),
-          gdbServerPort(-1), qmlPort(-1)
+          cppDebugging(runConfig->extraAspect<DebuggerRunConfigurationAspect>()->useCppDebugger())
     {
     }
 
@@ -69,8 +68,8 @@ public:
     bool qmlDebugging;
     bool cppDebugging;
     QByteArray gdbserverOutput;
-    int gdbServerPort;
-    int qmlPort;
+    Port gdbServerPort;
+    Port qmlPort;
 };
 
 } // namespace Internal
@@ -149,7 +148,7 @@ void LinuxDeviceDebugSupport::startExecution()
             command = QLatin1String("gdbserver");
         args.clear();
         args.append(QString::fromLatin1("--multi"));
-        args.append(QString::fromLatin1(":%1").arg(d->gdbServerPort));
+        args.append(QString::fromLatin1(":%1").arg(d->gdbServerPort.number()));
     }
     r.executable = command;
     r.commandLineArguments = QtcProcess::joinArgs(args, OsTypeLinux);

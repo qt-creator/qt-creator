@@ -55,7 +55,7 @@ public:
 
     QString localSocket;
     QString tcpHost;
-    quint64 tcpPort;
+    Utils::Port tcpPort;
     QString sysroot;
     quint32 flushInterval;
     bool aggregateTraces;
@@ -108,7 +108,7 @@ void QmlProfilerClientManager::setAggregateTraces(bool aggregateTraces)
     d->aggregateTraces = aggregateTraces;
 }
 
-void QmlProfilerClientManager::setTcpConnection(QString host, quint64 port)
+void QmlProfilerClientManager::setTcpConnection(QString host, Utils::Port port)
 {
     d->tcpHost = host;
     d->tcpPort = port;
@@ -118,7 +118,7 @@ void QmlProfilerClientManager::setTcpConnection(QString host, quint64 port)
 void QmlProfilerClientManager::setLocalSocket(QString file)
 {
     d->localSocket = file;
-    d->tcpPort = 0;
+    d->tcpPort = Utils::Port();
     connectLocalClient(file);
 }
 
@@ -133,7 +133,7 @@ void QmlProfilerClientManager::discardPendingData()
     clearBufferedData();
 }
 
-void QmlProfilerClientManager::connectTcpClient(quint16 port)
+void QmlProfilerClientManager::connectTcpClient(Utils::Port port)
 {
     if (d->connection) {
         if (port == d->tcpPort) {
@@ -147,7 +147,7 @@ void QmlProfilerClientManager::connectTcpClient(quint16 port)
     createConnection();
     d->connectionTimer.start();
     d->tcpPort = port;
-    d->connection->connectToHost(d->tcpHost, d->tcpPort);
+    d->connection->connectToHost(d->tcpHost, d->tcpPort.number());
 }
 
 void QmlProfilerClientManager::connectLocalClient(const QString &file)
@@ -269,7 +269,7 @@ void QmlProfilerClientManager::tryToConnect()
             d->connection = 0;
             connectTcpClient(d->tcpPort);
         } else if (!d->connection->isConnecting()) {
-            d->connection->connectToHost(d->tcpHost, d->tcpPort);
+            d->connection->connectToHost(d->tcpHost, d->tcpPort.number());
         }
     } else if (d->connectionAttempts == 50) {
         d->connectionTimer.stop();

@@ -45,7 +45,7 @@ public:
 
     void registerProfilerStateManager( QmlProfilerStateManager *profilerState );
 
-    void notifyRemoteSetupDone(quint16 port) override;
+    void notifyRemoteSetupDone(Utils::Port port) override;
     void start() override;
     StopResult stop() override;
     bool isRunning() const override;
@@ -54,12 +54,12 @@ public:
     void logApplicationMessage(const QString &msg, Utils::OutputFormat format) override;
 
 signals:
-    void processRunning(quint16 port);
+    void processRunning(Utils::Port port);
 
 private:
     void wrongSetupMessageBox(const QString &errorMessage);
     void wrongSetupMessageBoxFinished(int);
-    void processIsRunning(quint16 port);
+    void processIsRunning(Utils::Port port);
     void profilerStateChanged();
 
     class QmlProfilerRunControlPrivate;

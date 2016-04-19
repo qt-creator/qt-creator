@@ -105,14 +105,14 @@ void QnxAttachDebugSupport::launchPDebug()
 {
     Utils::PortList portList = m_device->freePorts();
     m_pdebugPort = m_portsGatherer->getNextFreePort(&portList);
-    if (m_pdebugPort == -1) {
+    if (!m_pdebugPort.isValid()) {
         handleError(tr("No free ports for debugging."));
         return;
     }
 
     StandardRunnable r;
     r.executable = QLatin1String("pdebug");
-    r.commandLineArguments = QString::number(m_pdebugPort);
+    r.commandLineArguments = QString::number(m_pdebugPort.number());
     m_runner->start(m_device, r);
 }
 
@@ -122,9 +122,11 @@ void QnxAttachDebugSupport::attachToProcess()
     sp.attachPID = m_process.pid;
     sp.startMode = Debugger::AttachToRemoteServer;
     sp.closeMode = Debugger::DetachAtClose;
-    sp.connParams.port = m_pdebugPort;
-    sp.remoteChannel = m_device->sshParameters().host + QLatin1Char(':') + QString::number(m_pdebugPort);
-    sp.displayName = tr("Remote: \"%1:%2\" - Process %3").arg(sp.connParams.host).arg(m_pdebugPort).arg(m_process.pid);
+    sp.connParams.port = m_pdebugPort.number();
+    sp.remoteChannel = m_device->sshParameters().host + QLatin1Char(':') +
+            QString::number(m_pdebugPort.number());
+    sp.displayName = tr("Remote: \"%1:%2\" - Process %3").arg(sp.connParams.host)
+            .arg(m_pdebugPort.number()).arg(m_process.pid);
     sp.inferior.executable = m_localExecutablePath;
     sp.useCtrlCStub = true;
 

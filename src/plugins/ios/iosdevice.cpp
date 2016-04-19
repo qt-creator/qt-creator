@@ -88,8 +88,8 @@ IosDevice::IosDevice()
     setDisplayName(IosDevice::name());
     setDeviceState(DeviceDisconnected);
     Utils::PortList ports;
-    ports.addRange(Constants::IOS_DEVICE_PORT_START,
-                   Constants::IOS_DEVICE_PORT_END);
+    ports.addRange(Utils::Port(Constants::IOS_DEVICE_PORT_START),
+                   Utils::Port(Constants::IOS_DEVICE_PORT_END));
     setFreePorts(ports);
 }
 
@@ -200,12 +200,12 @@ QString IosDevice::osVersion() const
     return m_extraInfo.value(QLatin1String("osVersion"));
 }
 
-quint16 IosDevice::nextPort() const
+Utils::Port IosDevice::nextPort() const
 {
     // use qrand instead?
     if (++m_lastPort >= Constants::IOS_DEVICE_PORT_END)
         m_lastPort = Constants::IOS_DEVICE_PORT_START;
-    return m_lastPort;
+    return Utils::Port(m_lastPort);
 }
 
 bool IosDevice::canAutoDetectPorts() const

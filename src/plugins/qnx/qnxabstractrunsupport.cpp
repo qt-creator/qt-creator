@@ -117,10 +117,10 @@ void QnxAbstractRunSupport::handleError(const QString &)
 {
 }
 
-bool QnxAbstractRunSupport::setPort(int &port)
+bool QnxAbstractRunSupport::setPort(Utils::Port &port)
 {
     port = m_portsGatherer->getNextFreePort(&m_portList);
-    if (port == -1) {
+    if (!port.isValid()) {
         handleError(tr("Not enough free ports on device for debugging."));
         return false;
     }

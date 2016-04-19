@@ -105,7 +105,7 @@ void QnxDebugSupport::startExecution()
 
     QStringList arguments;
     if (m_useCppDebugger)
-        arguments << QString::number(m_pdebugPort);
+        arguments << QString::number(m_pdebugPort.number());
     else if (m_useQmlDebugger && !m_useCppDebugger)
         arguments = Utils::QtcProcess::splitArgs(
                         m_runControl->startParameters().inferior.commandLineArguments);

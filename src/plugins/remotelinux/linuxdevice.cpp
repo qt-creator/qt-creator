@@ -37,6 +37,7 @@
 #include <projectexplorer/devicesupport/sshdeviceprocesslist.h>
 #include <ssh/sshremoteprocessrunner.h>
 #include <utils/algorithm.h>
+#include <utils/port.h>
 #include <utils/qtcassert.h>
 
 #include <QTimer>
@@ -137,16 +138,16 @@ class LinuxPortsGatheringMethod : public PortsGatheringMethod
                 .arg(addressLength).arg(procFilePath).toUtf8();
     }
 
-    QList<int> usedPorts(const QByteArray &output) const
+    QList<Utils::Port> usedPorts(const QByteArray &output) const
     {
-        QList<int> ports;
+        QList<Utils::Port> ports;
         QList<QByteArray> portStrings = output.split('\n');
         portStrings.removeFirst();
         foreach (const QByteArray &portString, portStrings) {
             if (portString.isEmpty())
                 continue;
             bool ok;
-            const int port = portString.toInt(&ok, 16);
+            const Utils::Port port(portString.toInt(&ok, 16));
             if (ok) {
                 if (!ports.contains(port))
                     ports << port;

@@ -79,12 +79,12 @@ AndroidAnalyzeSupport::AndroidAnalyzeSupport(AndroidRunConfiguration *runConfig,
         [runner]() { runner->start(); });
 
     connect(&m_outputParser, &QmlDebug::QmlOutputParser::waitingForConnectionOnPort,
-        [this, runControl](quint16) {
+        [this, runControl](Utils::Port) {
             runControl->notifyRemoteSetupDone(m_qmlPort);
         });
 
     connect(runner, &AndroidRunner::remoteProcessStarted,
-        [this](int, int qmlPort) {
+        [this](Utils::Port, Utils::Port qmlPort) {
             m_qmlPort = qmlPort;
         });
 

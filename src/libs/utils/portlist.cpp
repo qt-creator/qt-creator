@@ -35,7 +35,7 @@ namespace Utils {
 namespace Internal {
 namespace {
 
-typedef QPair<int, int> Range;
+typedef QPair<Port, Port> Range;
 
 class PortsSpecParser
 {
@@ -82,19 +82,19 @@ private:
 
     void parseElem()
     {
-        const int startPort = parsePort();
+        const Port startPort = parsePort();
         if (atEnd() || nextChar() != '-') {
             m_portList.addPort(startPort);
             return;
         }
         ++m_pos;
-        const int endPort = parsePort();
+        const Port endPort = parsePort();
         if (endPort < startPort)
             throw ParseException("Invalid range (end < start).");
         m_portList.addRange(startPort, endPort);
     }
 
-    int parsePort()
+    Port parsePort()
     {
         if (atEnd())
             throw ParseException("Empty port string.");
@@ -108,7 +108,7 @@ private:
         } while (!atEnd());
         if (port == 0 || port >= 2 << 16)
             throw ParseException("Invalid port value.");
-        return port;
+        return Port(port);
     }
 
     bool atEnd() const { return m_pos == m_portsSpec.length(); }
@@ -153,16 +153,16 @@ PortList PortList::fromString(const QString &portsSpec)
     return Internal::PortsSpecParser(portsSpec).parse();
 }
 
-void PortList::addPort(int port) { addRange(port, port); }
+void PortList::addPort(Port port) { addRange(port, port); }
 
-void PortList::addRange(int startPort, int endPort)
+void PortList::addRange(Port startPort, Port endPort)
 {
     d->ranges << Internal::Range(startPort, endPort);
 }
 
 bool PortList::hasMore() const { return !d->ranges.isEmpty(); }
 
-bool PortList::contains(int port) const
+bool PortList::contains(Port port) const
 {
     foreach (const Internal::Range &r, d->ranges) {
         if (port >= r.first && port <= r.second)
@@ -175,16 +175,17 @@ int PortList::count() const
 {
     int n = 0;
     foreach (const Internal::Range &r, d->ranges)
-        n += r.second - r.first + 1;
+        n += r.second.number() - r.first.number() + 1;
     return n;
 }
 
-int PortList::getNext()
+Port PortList::getNext()
 {
     Q_ASSERT(!d->ranges.isEmpty());
 
     Internal::Range &firstRange = d->ranges.first();
-    const int next = firstRange.first++;
+    const Port next = firstRange.first;
+    firstRange.first = Port(firstRange.first.number() + 1);
     if (firstRange.first > firstRange.second)
         d->ranges.removeFirst();
     return next;
@@ -194,9 +195,9 @@ QString PortList::toString() const
 {
     QString stringRep;
     foreach (const Internal::Range &range, d->ranges) {
-        stringRep += QString::number(range.first);
+        stringRep += QString::number(range.first.number());
         if (range.second != range.first)
-            stringRep += QLatin1Char('-') + QString::number(range.second);
+            stringRep += QLatin1Char('-') + QString::number(range.second.number());
         stringRep += QLatin1Char(',');
     }
     if (!stringRep.isEmpty())

@@ -171,7 +171,7 @@ AndroidDebugSupport::AndroidDebugSupport(AndroidRunConfiguration *runConfig,
         });
 }
 
-void AndroidDebugSupport::handleRemoteProcessStarted(int gdbServerPort, int qmlPort)
+void AndroidDebugSupport::handleRemoteProcessStarted(Utils::Port gdbServerPort, Utils::Port qmlPort)
 {
     disconnect(m_runner, &AndroidRunner::remoteProcessStarted,
                this, &AndroidDebugSupport::handleRemoteProcessStarted);

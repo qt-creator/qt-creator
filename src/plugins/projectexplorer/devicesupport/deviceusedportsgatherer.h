@@ -27,7 +27,10 @@
 
 #include "idevice.h"
 
-namespace Utils { class PortList; }
+namespace Utils {
+class Port;
+class PortList;
+} // namespace Utils
 
 namespace ProjectExplorer {
 namespace Internal { class DeviceUsedPortsGathererPrivate; }
@@ -42,8 +45,8 @@ public:
 
     void start(const ProjectExplorer::IDevice::ConstPtr &device);
     void stop();
-    int getNextFreePort(Utils::PortList *freePorts) const; // returns -1 if no more are left
-    QList<int> usedPorts() const;
+    Utils::Port getNextFreePort(Utils::PortList *freePorts) const; // returns -1 if no more are left
+    QList<Utils::Port> usedPorts() const;
 
 signals:
     void error(const QString &errMsg);

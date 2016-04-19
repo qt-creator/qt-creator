@@ -44,6 +44,7 @@ namespace QSsh { class SshConnectionParameters; }
 namespace Utils {
 class Environment;
 class PortList;
+class Port;
 } // Utils
 
 namespace ProjectExplorer {
@@ -103,7 +104,7 @@ public:
 
     virtual ~PortsGatheringMethod() = default;
     virtual QByteArray commandLine(QAbstractSocket::NetworkLayerProtocol protocol) const = 0;
-    virtual QList<int> usedPorts(const QByteArray &commandOutput) const = 0;
+    virtual QList<Utils::Port> usedPorts(const QByteArray &commandOutput) const = 0;
 };
 
 // See cpp file for documentation.

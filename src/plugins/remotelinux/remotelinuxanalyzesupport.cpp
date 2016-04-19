@@ -57,14 +57,13 @@ class RemoteLinuxAnalyzeSupportPrivate
 public:
     RemoteLinuxAnalyzeSupportPrivate(AnalyzerRunControl *rc, Core::Id runMode)
         : runControl(rc),
-          qmlProfiling(runMode == ProjectExplorer::Constants::QML_PROFILER_RUN_MODE),
-          qmlPort(-1)
+          qmlProfiling(runMode == ProjectExplorer::Constants::QML_PROFILER_RUN_MODE)
     {
     }
 
     const QPointer<AnalyzerRunControl> runControl;
     bool qmlProfiling;
-    int qmlPort;
+    Utils::Port qmlPort;
 
     QmlDebug::QmlOutputParser outputParser;
 };
@@ -135,8 +134,8 @@ void RemoteLinuxAnalyzeSupport::startExecution()
     auto r = runnable();
     if (!r.commandLineArguments.isEmpty())
         r.commandLineArguments.append(QLatin1Char(' '));
-    r.commandLineArguments
-            += QmlDebug::qmlDebugTcpArguments(QmlDebug::QmlProfilerServices, d->qmlPort);
+    r.commandLineArguments += QmlDebug::qmlDebugTcpArguments(QmlDebug::QmlProfilerServices,
+                                                             d->qmlPort);
     runner->start(device(), r);
 }
 

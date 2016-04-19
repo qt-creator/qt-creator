@@ -97,7 +97,7 @@ void QnxAnalyzeSupport::startExecution()
     if (state() == Inactive)
         return;
 
-    if (!setPort(m_qmlPort) && m_qmlPort == -1)
+    if (!setPort(m_qmlPort) && !m_qmlPort.isValid())
         return;
 
     setState(StartingRemoteProcess);
@@ -105,8 +105,8 @@ void QnxAnalyzeSupport::startExecution()
     StandardRunnable r = m_runnable;
     if (!r.commandLineArguments.isEmpty())
         r.commandLineArguments += QLatin1Char(' ');
-    r.commandLineArguments
-            += QmlDebug::qmlDebugTcpArguments(QmlDebug::QmlProfilerServices, m_qmlPort);
+    r.commandLineArguments += QmlDebug::qmlDebugTcpArguments(QmlDebug::QmlProfilerServices,
+                                                             m_qmlPort);
     appRunner()->start(device(), r);
 }
 

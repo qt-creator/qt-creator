@@ -51,16 +51,16 @@ QString LocalQmlProfilerRunner::findFreeSocket()
     }
 }
 
-quint16 LocalQmlProfilerRunner::findFreePort(QString &host)
+Utils::Port LocalQmlProfilerRunner::findFreePort(QString &host)
 {
     QTcpServer server;
     if (!server.listen(QHostAddress::LocalHost)
             && !server.listen(QHostAddress::LocalHostIPv6)) {
         qWarning() << "Cannot open port on host for QML profiling.";
-        return 0;
+        return Utils::Port();
     }
     host = server.serverAddress().toString();
-    return server.serverPort();
+    return Utils::Port(server.serverPort());
 }
 
 LocalQmlProfilerRunner::LocalQmlProfilerRunner(const Configuration &configuration,
@@ -102,9 +102,12 @@ void LocalQmlProfilerRunner::start()
     runnable.runMode = ApplicationLauncher::Gui;
 
     if (QmlProfilerPlugin::debugOutput) {
+        QString portOrSocket = m_configuration.socket.isEmpty() ?
+                    QString::number(m_configuration.port.isValid() ?
+                                        m_configuration.port.number() : -1) :
+                    m_configuration.socket;
         qWarning("QmlProfiler: Launching %s:%s", qPrintable(m_configuration.debuggee.executable),
-                 qPrintable(m_configuration.socket.isEmpty() ?
-                                QString::number(m_configuration.port) : m_configuration.socket));
+                 qPrintable(portOrSocket));
     }
 
     connect(&m_launcher, &ApplicationLauncher::processExited,

@@ -30,6 +30,7 @@
 
 #include <ssh/sshconnection.h>
 #include <utils/environment.h>
+#include <utils/port.h>
 #include <projectexplorer/abi.h>
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/runnables.h>
@@ -44,14 +45,13 @@ namespace Debugger {
 // Note: This is part of the "soft interface" of the debugger plugin.
 // Do not add anything that needs implementation in a .cpp file.
 
-const int InvalidPort = -1;
 const qint64 InvalidPid = -1;
 
 class DEBUGGER_EXPORT RemoteSetupResult
 {
 public:
-    int gdbServerPort = InvalidPort;
-    int qmlServerPort = InvalidPort;
+    Utils::Port gdbServerPort;
+    Utils::Port qmlServerPort;
     qint64 inferiorPid = InvalidPid;
     bool success = false;
     QString reason;
@@ -73,7 +73,7 @@ public:
 
     // Used by Qml debugging.
     QString qmlServerAddress;
-    int qmlServerPort = InvalidPort;
+    Utils::Port qmlServerPort;
 
     // Used by general remote debugging.
     QString remoteChannel;

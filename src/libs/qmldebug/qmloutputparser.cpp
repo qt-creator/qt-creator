@@ -84,7 +84,7 @@ void QmlOutputParser::processOutput(const QString &output)
                     bool canConvert;
                     quint16 port = waitingTcp.cap(1).toUShort(&canConvert);
                     if (canConvert)
-                        emit waitingForConnectionOnPort(port);
+                        emit waitingForConnectionOnPort(Utils::Port(port));
                     continue;
                 }
             } else if (status.startsWith(unableToListen)) {

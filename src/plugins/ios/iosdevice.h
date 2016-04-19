@@ -66,7 +66,7 @@ public:
     QString uniqueDeviceID() const;
     IosDevice(const QString &uid);
     QString osVersion() const;
-    quint16 nextPort() const;
+    Utils::Port nextPort() const;
     bool canAutoDetectPorts() const override;
 
     static QString name();

@@ -128,10 +128,10 @@ void AbstractRemoteLinuxRunSupport::setFinished()
     d->state = Inactive;
 }
 
-bool AbstractRemoteLinuxRunSupport::setPort(int &port)
+bool AbstractRemoteLinuxRunSupport::setPort(Utils::Port &port)
 {
     port = d->portsGatherer.getNextFreePort(&d->portList);
-    if (port == -1) {
+    if (!port.isValid()) {
         handleAdapterSetupFailed(tr("Not enough free ports on device for debugging."));
         return false;
     }

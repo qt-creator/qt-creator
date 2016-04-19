@@ -68,7 +68,7 @@ public slots:
 
 signals:
     void remoteServerRunning(const QByteArray &serverChannel, int pid);
-    void remoteProcessStarted(int gdbServerPort, int qmlPort);
+    void remoteProcessStarted(Utils::Port gdbServerPort, Utils::Port qmlPort);
     void remoteProcessFinished(const QString &errString = QString());
 
     void remoteOutput(const QString &output);
@@ -101,8 +101,8 @@ private:
     qint64 m_processPID;
     bool m_useCppDebugger;
     QmlDebug::QmlDebugServicesPreset m_qmlDebugServices;
-    ushort m_localGdbServerPort; // Local end of forwarded debug socket.
-    quint16 m_qmlPort;
+    Utils::Port m_localGdbServerPort; // Local end of forwarded debug socket.
+    Utils::Port m_qmlPort;
     QString m_pingFile;
     QString m_pongFile;
     QString m_gdbserverPath;

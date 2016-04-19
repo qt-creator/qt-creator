@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include <utils/port.h>
+
 #include <QObject>
 #include <QMap>
 #include <QString>
@@ -72,7 +74,7 @@ signals:
     void didStartApp(Ios::IosToolHandler *handler, const QString &bundlePath,
                      const QString &deviceId, Ios::IosToolHandler::OpStatus status);
     void gotServerPorts(Ios::IosToolHandler *handler, const QString &bundlePath,
-                            const QString &deviceId, int gdbPort, int qmlPort);
+                            const QString &deviceId, Utils::Port gdbPort, Utils::Port qmlPort);
     void gotInferiorPid(Ios::IosToolHandler *handler, const QString &bundlePath,
                         const QString &deviceId, qint64 pid);
     void deviceInfo(Ios::IosToolHandler *handler, const QString &deviceId,

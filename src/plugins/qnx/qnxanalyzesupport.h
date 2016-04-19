@@ -67,7 +67,7 @@ private:
     ProjectExplorer::StandardRunnable m_runnable;
     Debugger::AnalyzerRunControl *m_runControl;
     QmlDebug::QmlOutputParser m_outputParser;
-    int m_qmlPort;
+    Utils::Port m_qmlPort;
 
     Slog2InfoRunner *m_slog2Info;
 };

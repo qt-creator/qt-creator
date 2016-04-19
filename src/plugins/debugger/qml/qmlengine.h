@@ -60,8 +60,8 @@ private slots:
     void errorMessageBoxFinished(int result);
     void updateCurrentContext();
 
-    void tryToConnect(quint16 port = 0);
-    void beginConnection(quint16 port = 0);
+    void tryToConnect(Utils::Port port = Utils::Port());
+    void beginConnection(Utils::Port port = Utils::Port());
     void connectionEstablished();
     void connectionStartupFailed();
     void appStartupFailed(const QString &errorMessage);

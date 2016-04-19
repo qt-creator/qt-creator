@@ -33,6 +33,7 @@
 #include <projectexplorer/devicesupport/sshdeviceprocess.h>
 #include <projectexplorer/runnables.h>
 #include <ssh/sshconnection.h>
+#include <utils/port.h>
 #include <utils/qtcassert.h>
 
 #include <QApplication>
@@ -66,16 +67,16 @@ class QnxPortsGatheringMethod : public PortsGatheringMethod
                 "done";
     }
 
-    QList<int> usedPorts(const QByteArray &output) const
+    QList<Port> usedPorts(const QByteArray &output) const
     {
-        QList<int> ports;
+        QList<Port> ports;
         QList<QByteArray> portStrings = output.split('\n');
         portStrings.removeFirst();
         foreach (const QByteArray &portString, portStrings) {
             if (portString.isEmpty())
                 continue;
             bool ok;
-            const int port = portString.toInt(&ok, 16);
+            const Port port(portString.toInt(&ok, 16));
             if (ok) {
                 if (!ports.contains(port))
                     ports << port;

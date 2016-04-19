@@ -49,7 +49,7 @@ public:
 
 private:
     QmlDebug::QmlOutputParser m_outputParser;
-    int m_qmlPort;
+    Utils::Port m_qmlPort;
 };
 
 } // namespace Internal
