@@ -42,19 +42,19 @@ namespace Internal {
 QString removeObviousSideEffects(const QString &expIn)
 {
     QString exp = expIn.trimmed();
-    if (exp.isEmpty() || exp.startsWith(QLatin1Char('#')) || !hasLetterOrNumber(exp) || isKeyWord(exp))
+    if (exp.isEmpty() || exp.startsWith('#') || !hasLetterOrNumber(exp) || isKeyWord(exp))
         return QString();
 
-    if (exp.startsWith(QLatin1Char('"')) && exp.endsWith(QLatin1Char('"')))
+    if (exp.startsWith('"') && exp.endsWith('"'))
         return QString();
 
-    if (exp.startsWith(QLatin1String("++")) || exp.startsWith(QLatin1String("--")))
+    if (exp.startsWith("++") || exp.startsWith("--"))
         exp.remove(0, 2);
 
-    if (exp.endsWith(QLatin1String("++")) || exp.endsWith(QLatin1String("--")))
+    if (exp.endsWith("++") || exp.endsWith("--"))
         exp.truncate(exp.size() - 2);
 
-    if (exp.startsWith(QLatin1Char('<')) || exp.startsWith(QLatin1Char('[')))
+    if (exp.startsWith('<') || exp.startsWith('['))
         return QString();
 
     if (hasSideEffects(exp) || exp.isEmpty())
@@ -64,22 +64,22 @@ QString removeObviousSideEffects(const QString &expIn)
 
 bool isSkippableFunction(const QString &funcName, const QString &fileName)
 {
-    if (fileName.endsWith(QLatin1String("/qobject.cpp")))
+    if (fileName.endsWith("/qobject.cpp"))
         return true;
-    if (fileName.endsWith(QLatin1String("/moc_qobject.cpp")))
+    if (fileName.endsWith("/moc_qobject.cpp"))
         return true;
-    if (fileName.endsWith(QLatin1String("/qmetaobject.cpp")))
+    if (fileName.endsWith("/qmetaobject.cpp"))
         return true;
-    if (fileName.endsWith(QLatin1String("/qmetaobject_p.h")))
+    if (fileName.endsWith("/qmetaobject_p.h"))
         return true;
-    if (fileName.endsWith(QLatin1String(".moc")))
+    if (fileName.endsWith(".moc"))
         return true;
 
-    if (funcName.endsWith(QLatin1String("::qt_metacall")))
+    if (funcName.endsWith("::qt_metacall"))
         return true;
-    if (funcName.endsWith(QLatin1String("::d_func")))
+    if (funcName.endsWith("::d_func"))
         return true;
-    if (funcName.endsWith(QLatin1String("::q_func")))
+    if (funcName.endsWith("::q_func"))
         return true;
 
     return false;
@@ -87,53 +87,53 @@ bool isSkippableFunction(const QString &funcName, const QString &fileName)
 
 bool isLeavableFunction(const QString &funcName, const QString &fileName)
 {
-    if (funcName.endsWith(QLatin1String("QObjectPrivate::setCurrentSender")))
+    if (funcName.endsWith("QObjectPrivate::setCurrentSender"))
         return true;
-    if (funcName.endsWith(QLatin1String("QMutexPool::get")))
+    if (funcName.endsWith("QMutexPool::get"))
         return true;
 
-    if (fileName.endsWith(QLatin1String(".cpp"))) {
-        if (fileName.endsWith(QLatin1String("/qmetaobject.cpp"))
-                && funcName.endsWith(QLatin1String("QMetaObject::methodOffset")))
+    if (fileName.endsWith(".cpp")) {
+        if (fileName.endsWith("/qmetaobject.cpp")
+                && funcName.endsWith("QMetaObject::methodOffset"))
             return true;
-        if (fileName.endsWith(QLatin1String("/qobject.cpp"))
-                && (funcName.endsWith(QLatin1String("QObjectConnectionListVector::at"))
-                    || funcName.endsWith(QLatin1String("~QObject"))))
+        if (fileName.endsWith("/qobject.cpp")
+                && (funcName.endsWith("QObjectConnectionListVector::at")
+                    || funcName.endsWith("~QObject")))
             return true;
-        if (fileName.endsWith(QLatin1String("/qmutex.cpp")))
+        if (fileName.endsWith("/qmutex.cpp"))
             return true;
-        if (fileName.endsWith(QLatin1String("/qthread.cpp")))
+        if (fileName.endsWith("/qthread.cpp"))
             return true;
-        if (fileName.endsWith(QLatin1String("/qthread_unix.cpp")))
+        if (fileName.endsWith("/qthread_unix.cpp"))
             return true;
-    } else if (fileName.endsWith(QLatin1String(".h"))) {
+    } else if (fileName.endsWith(".h")) {
 
-        if (fileName.endsWith(QLatin1String("/qobject.h")))
+        if (fileName.endsWith("/qobject.h"))
             return true;
-        if (fileName.endsWith(QLatin1String("/qmutex.h")))
+        if (fileName.endsWith("/qmutex.h"))
             return true;
-        if (fileName.endsWith(QLatin1String("/qvector.h")))
+        if (fileName.endsWith("/qvector.h"))
             return true;
-        if (fileName.endsWith(QLatin1String("/qlist.h")))
+        if (fileName.endsWith("/qlist.h"))
             return true;
-        if (fileName.endsWith(QLatin1String("/qhash.h")))
+        if (fileName.endsWith("/qhash.h"))
             return true;
-        if (fileName.endsWith(QLatin1String("/qmap.h")))
+        if (fileName.endsWith("/qmap.h"))
             return true;
-        if (fileName.endsWith(QLatin1String("/qshareddata.h")))
+        if (fileName.endsWith("/qshareddata.h"))
             return true;
-        if (fileName.endsWith(QLatin1String("/qstring.h")))
+        if (fileName.endsWith("/qstring.h"))
             return true;
-        if (fileName.endsWith(QLatin1String("/qglobal.h")))
+        if (fileName.endsWith("/qglobal.h"))
             return true;
 
     } else {
 
-        if (fileName.contains(QLatin1String("/qbasicatomic")))
+        if (fileName.contains("/qbasicatomic"))
             return true;
-        if (fileName.contains(QLatin1String("/qorderedmutexlocker_p")))
+        if (fileName.contains("/qorderedmutexlocker_p"))
             return true;
-        if (fileName.contains(QLatin1String("/qatomic")))
+        if (fileName.contains("/qatomic"))
             return true;
     }
 
@@ -149,7 +149,7 @@ bool isLetterOrNumber(char c)
 
 bool hasLetterOrNumber(const QString &exp)
 {
-    const QChar underscore = QLatin1Char('_');
+    const QChar underscore = '_';
     for (int i = exp.size(); --i >= 0; )
         if (exp.at(i).isLetterOrNumber() || exp.at(i) == underscore)
             return true;
@@ -159,16 +159,16 @@ bool hasLetterOrNumber(const QString &exp)
 bool hasSideEffects(const QString &exp)
 {
     // FIXME: complete?
-    return exp.contains(QLatin1String("-="))
-        || exp.contains(QLatin1String("+="))
-        || exp.contains(QLatin1String("/="))
-        || exp.contains(QLatin1String("%="))
-        || exp.contains(QLatin1String("*="))
-        || exp.contains(QLatin1String("&="))
-        || exp.contains(QLatin1String("|="))
-        || exp.contains(QLatin1String("^="))
-        || exp.contains(QLatin1String("--"))
-        || exp.contains(QLatin1String("++"));
+    return exp.contains("-=")
+        || exp.contains("+=")
+        || exp.contains("/=")
+        || exp.contains("%=")
+        || exp.contains("*=")
+        || exp.contains("&=")
+        || exp.contains("|=")
+        || exp.contains("^=")
+        || exp.contains("--")
+        || exp.contains("++");
 }
 
 bool isKeyWord(const QString &exp)
@@ -178,54 +178,44 @@ bool isKeyWord(const QString &exp)
         return false;
     switch (exp.at(0).toLatin1()) {
     case 'a':
-        return exp == QLatin1String("auto");
+        return exp == "auto";
     case 'b':
-        return exp == QLatin1String("break");
+        return exp == "break";
     case 'c':
-        return exp == QLatin1String("case") || exp == QLatin1String("class")
-               || exp == QLatin1String("const") || exp == QLatin1String("constexpr")
-               || exp == QLatin1String("catch") || exp == QLatin1String("continue")
-               || exp == QLatin1String("const_cast");
+        return exp == "case" || exp == "class" || exp == "const" || exp == "constexpr"
+               || exp == "catch" || exp == "continue" || exp == "const_cast";
     case 'd':
-        return exp == QLatin1String("do") || exp == QLatin1String("default")
-               || exp == QLatin1String("delete") || exp == QLatin1String("decltype")
-               || exp == QLatin1String("dynamic_cast");
+        return exp == "do" || exp == "default" || exp == "delete" || exp == "decltype"
+               || exp == "dynamic_cast";
     case 'e':
-        return exp == QLatin1String("else") || exp == QLatin1String("extern")
-               || exp == QLatin1String("enum") || exp == QLatin1String("explicit");
+        return exp == "else" || exp == "extern" || exp == "enum" || exp == "explicit";
     case 'f':
-        return exp == QLatin1String("for") || exp == QLatin1String("friend");  // 'final'?
+        return exp == "for" || exp == "friend" || exp == "final";
     case 'g':
-        return exp == QLatin1String("goto");
+        return exp == "goto";
     case 'i':
-        return exp == QLatin1String("if") || exp == QLatin1String("inline");
+        return exp == "if" || exp == "inline";
     case 'n':
-        return exp == QLatin1String("new") || exp == QLatin1String("namespace")
-               || exp == QLatin1String("noexcept");
+        return exp == "new" || exp == "namespace" || exp == "noexcept";
     case 'm':
-        return exp == QLatin1String("mutable");
+        return exp == "mutable";
     case 'o':
-        return exp == QLatin1String("operator"); // 'override'?
+        return exp == "operator" || exp == "override";
     case 'p':
-        return exp == QLatin1String("public") || exp == QLatin1String("protected")
-               || exp == QLatin1String("private");
+        return exp == "public" || exp == "protected" || exp == "private";
     case 'r':
-        return exp == QLatin1String("return") || exp == QLatin1String("register")
-               || exp == QLatin1String("reinterpret_cast");
+        return exp == "return" || exp == "register" || exp == "reinterpret_cast";
     case 's':
-        return exp == QLatin1String("struct") || exp == QLatin1String("switch")
-               || exp == QLatin1String("static_cast");
+        return exp == "struct" || exp == "switch" || exp == "static_cast";
     case 't':
-        return exp == QLatin1String("template") || exp == QLatin1String("typename")
-               || exp == QLatin1String("try") || exp == QLatin1String("throw")
-               || exp == QLatin1String("typedef");
+        return exp == "template" || exp == "typename" || exp == "try"
+               || exp == "throw" || exp == "typedef";
     case 'u':
-        return exp == QLatin1String("union") || exp == QLatin1String("using");
+        return exp == "union" || exp == "using";
     case 'v':
-        return exp == QLatin1String("void") || exp == QLatin1String("volatile")
-               || exp == QLatin1String("virtual");
+        return exp == "void" || exp == "volatile" || exp == "virtual";
     case 'w':
-        return exp == QLatin1String("while");
+        return exp == "while";
     }
     return false;
 }
@@ -252,8 +242,8 @@ QString formatToolTipAddress(quint64 a)
     QString rc = QString::number(a, 16);
     if (a) {
         if (const int remainder = rc.size() % 4)
-            rc.prepend(QString(4 - remainder, QLatin1Char('0')));
-        const QChar colon = QLatin1Char(':');
+            rc.prepend(QString(4 - remainder, '0'));
+        const QChar colon = ':';
         switch (rc.size()) {
         case 16:
             rc.insert(12, colon);
@@ -263,7 +253,7 @@ QString formatToolTipAddress(quint64 a)
             rc.insert(4, colon);
         }
     }
-    return QLatin1String("0x") + rc;
+    return "0x" + rc;
 }
 
 QByteArray gdbQuoteTypes(const QByteArray &type)
@@ -321,7 +311,6 @@ QByteArray gdbQuoteTypes(const QByteArray &type)
 
     return result;
 }
-
 
 } // namespace Internal
 } // namespace Debugger

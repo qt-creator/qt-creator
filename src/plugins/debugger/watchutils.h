@@ -28,7 +28,7 @@
 // NOTE: Don't add dependencies to other files.
 // This is used in the debugger auto-tests.
 
-#include <QSet>
+#include <QString>
 
 namespace Debugger {
 namespace Internal {
