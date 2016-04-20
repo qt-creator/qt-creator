@@ -108,6 +108,19 @@ QString MakeStep::makeCommand() const
     return m_makeCmd;
 }
 
+QString MakeStep::effectiveMakeCommand() const
+{
+    QString makeCmd = m_makeCmd;
+    if (makeCmd.isEmpty()) {
+        QmakeBuildConfiguration *bc = qmakeBuildConfiguration();
+        ToolChain *tc = ToolChainKitInformation::toolChain(target()->kit());
+
+        if (bc && tc)
+            makeCmd = tc->makeCommand(bc->environment());
+    }
+    return makeCmd;
+}
+
 QVariantMap MakeStep::toMap() const
 {
     QVariantMap map(AbstractProcessStep::toMap());
@@ -169,10 +182,7 @@ bool MakeStep::init(QList<const BuildStep *> &earlierSteps)
         workingDirectory = bc->buildDirectory().toString();
     pp->setWorkingDirectory(workingDirectory);
 
-    QString makeCmd = tc->makeCommand(bc->environment());
-    if (!m_makeCmd.isEmpty())
-        makeCmd = m_makeCmd;
-    pp->setCommand(makeCmd);
+    pp->setCommand(effectiveMakeCommand());
 
     // If we are cleaning, then make can fail with a error code, but that doesn't mean
     // we should stop the clean queue
@@ -235,7 +245,7 @@ bool MakeStep::init(QList<const BuildStep *> &earlierSteps)
     Utils::Environment env = bc->environment();
     Utils::Environment::setupEnglishOutput(&env);
     // We also prepend "L" to the MAKEFLAGS, so that nmake / jom are less verbose
-    if (tc && m_makeCmd.isEmpty()) {
+    if (tc && makeCommand().isEmpty()) {
         if (tc->targetAbi().os() == Abi::WindowsOS
                 && tc->targetAbi().osFlavor() != Abi::WindowsMSysFlavor) {
             const QString makeFlags = QLatin1String("MAKEFLAGS");

@@ -87,6 +87,8 @@ public:
     bool isClean() const;
     QString makeCommand() const;
 
+    QString effectiveMakeCommand() const;
+
     QVariantMap toMap() const override;
 
 signals:

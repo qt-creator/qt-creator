@@ -26,15 +26,17 @@
 #include "qmakestep.h"
 #include "ui_qmakestep.h"
 
-#include "qmakeparser.h"
+#include "makestep.h"
 #include "qmakebuildconfiguration.h"
-#include "qmakeproject.h"
-#include "qmakeprojectmanagerconstants.h"
 #include "qmakekitinformation.h"
 #include "qmakenodes.h"
+#include "qmakeparser.h"
+#include "qmakeproject.h"
+#include "qmakeprojectmanagerconstants.h"
 
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/buildsteplist.h>
+#include <projectexplorer/gnumakeparser.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
@@ -83,8 +85,8 @@ QMakeStep::QMakeStep(BuildStepList *bsl, Core::Id id) :
 
 QMakeStep::QMakeStep(BuildStepList *bsl, QMakeStep *bs) :
     AbstractProcessStep(bsl, bs),
-    m_forced(bs->m_forced),
     m_userArgs(bs->m_userArgs),
+    m_forced(bs->m_forced),
     m_linkQmlDebuggingLibrary(bs->m_linkQmlDebuggingLibrary),
     m_useQtQuickCompiler(bs->m_useQtQuickCompiler),
     m_separateDebugInfo(bs->m_separateDebugInfo)
@@ -96,6 +98,13 @@ void QMakeStep::ctor()
 {
     //: QMakeStep default display name
     setDefaultDisplayName(tr("qmake"));
+
+    connect(&m_inputWatcher, &QFutureWatcher<bool>::canceled,
+            this, [this]() {
+                if (m_commandFuture)
+                    m_commandFuture->cancel();
+            });
+    connect(&m_commandWatcher, &QFutureWatcher<bool>::finished, this, &QMakeStep::runNextCommand);
 }
 
 QmakeBuildConfiguration *QMakeStep::qmakeBuildConfiguration() const
@@ -110,7 +119,7 @@ QmakeBuildConfiguration *QMakeStep::qmakeBuildConfiguration() const
 /// config arguemnts
 /// moreArguments
 /// user arguments
-QString QMakeStep::allArguments(bool shorted)
+QString QMakeStep::allArguments(const BaseQtVersion *v, bool shorted) const
 {
     QmakeBuildConfiguration *bc = qmakeBuildConfiguration();
     QStringList arguments;
@@ -121,7 +130,8 @@ QString QMakeStep::allArguments(bool shorted)
     else
         arguments << project()->projectFilePath().toUserOutput();
 
-    arguments << QLatin1String("-r");
+    if (v->qtVersion() < QtVersionNumber(5, 0, 0))
+        arguments << QLatin1String("-r");
     bool userProvidedMkspec = false;
     for (QtcProcess::ConstArgIterator ait(m_userArgs); ait.next(); ) {
         if (ait.value() == QLatin1String("-spec")) {
@@ -146,7 +156,7 @@ QString QMakeStep::allArguments(bool shorted)
     return args;
 }
 
-QMakeStepConfig QMakeStep::deducedArguments()
+QMakeStepConfig QMakeStep::deducedArguments() const
 {
     ProjectExplorer::Kit *kit = target()->kit();
     QMakeStepConfig config;
@@ -156,7 +166,7 @@ QMakeStepConfig QMakeStep::deducedArguments()
     if (tc)
         targetAbi = tc->targetAbi();
 
-    QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(target()->kit());
+    BaseQtVersion *version = QtKitInformation::qtVersion(target()->kit());
 
     config.archConfig = QMakeStepConfig::targetArchFor(targetAbi, version);
     config.osType = QMakeStepConfig::osTypeFor(targetAbi, version);
@@ -175,55 +185,63 @@ QMakeStepConfig QMakeStep::deducedArguments()
 
 bool QMakeStep::init(QList<const BuildStep *> &earlierSteps)
 {
-    QmakeBuildConfiguration *qt4bc = qmakeBuildConfiguration();
-    const QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitInformation::qtVersion(target()->kit());
+    if (m_commandFuture)
+        return false;
+
+    QmakeBuildConfiguration *qmakeBc = qmakeBuildConfiguration();
+    const BaseQtVersion *qtVersion = QtKitInformation::qtVersion(target()->kit());
 
     if (!qtVersion)
         return false;
 
-    QString args = allArguments();
     QString workingDirectory;
 
-    if (qt4bc->subNodeBuild())
-        workingDirectory = qt4bc->subNodeBuild()->buildDir();
+    if (qmakeBc->subNodeBuild())
+        workingDirectory = qmakeBc->subNodeBuild()->buildDir();
     else
-        workingDirectory = qt4bc->buildDirectory().toString();
+        workingDirectory = qmakeBc->buildDirectory().toString();
 
-    FileName program = qtVersion->qmakeCommand();
+    m_qmakeExecutable = qtVersion->qmakeCommand().toString();
+    m_qmakeArguments = allArguments(qtVersion);
+    m_runMakeQmake = (qtVersion->qtVersion() >= QtVersionNumber(5, 0 ,0));
+    if (m_runMakeQmake) {
+        m_makeExecutable = makeCommand();
+        if (m_makeExecutable.isEmpty())
+            return false;
+    } else {
+        m_makeExecutable.clear();
+    }
 
     QString makefile = workingDirectory;
 
-    if (qt4bc->subNodeBuild()) {
-        if (!qt4bc->subNodeBuild()->makefile().isEmpty())
-            makefile.append(qt4bc->subNodeBuild()->makefile());
+    if (qmakeBc->subNodeBuild()) {
+        if (!qmakeBc->subNodeBuild()->makefile().isEmpty())
+            makefile.append(qmakeBc->subNodeBuild()->makefile());
         else
             makefile.append(QLatin1String("/Makefile"));
-    } else if (!qt4bc->makefile().isEmpty()) {
+    } else if (!qmakeBc->makefile().isEmpty()) {
         makefile.append(QLatin1Char('/'));
-        makefile.append(qt4bc->makefile());
+        makefile.append(qmakeBc->makefile());
     } else {
         makefile.append(QLatin1String("/Makefile"));
     }
 
     // Check whether we need to run qmake
-    bool makefileOutDated = (qt4bc->compareToImportFrom(makefile) != QmakeBuildConfiguration::MakefileMatches);
+    bool makefileOutDated = (qmakeBc->compareToImportFrom(makefile) != QmakeBuildConfiguration::MakefileMatches);
     if (m_forced || makefileOutDated)
         m_needToRunQMake = true;
     m_forced = false;
 
     ProcessParameters *pp = processParameters();
-    pp->setMacroExpander(qt4bc->macroExpander());
+    pp->setMacroExpander(qmakeBc->macroExpander());
     pp->setWorkingDirectory(workingDirectory);
-    pp->setCommand(program.toString());
-    pp->setArguments(args);
-    pp->setEnvironment(qt4bc->environment());
-    pp->resolveAll();
+    pp->setEnvironment(qmakeBc->environment());
 
     setOutputParser(new QMakeParser);
 
-    QmakeProFileNode *node = static_cast<QmakeProject *>(qt4bc->target()->project())->rootProjectNode();
-    if (qt4bc->subNodeBuild())
-        node = qt4bc->subNodeBuild();
+    QmakeProFileNode *node = static_cast<QmakeProject *>(qmakeBc->target()->project())->rootProjectNode();
+    if (qmakeBc->subNodeBuild())
+        node = qmakeBc->subNodeBuild();
     QString proFile = node->filePath().toString();
 
     QList<ProjectExplorer::Task> tasks = qtVersion->reportIssues(proFile, workingDirectory);
@@ -249,6 +267,11 @@ bool QMakeStep::init(QList<const BuildStep *> &earlierSteps)
 
 void QMakeStep::run(QFutureInterface<bool> &fi)
 {
+    m_inputFuture = fi;
+    m_inputWatcher.setFuture(m_inputFuture.future());
+
+    fi.setProgressRange(0, static_cast<int>(State::POST_PROCESS));
+    fi.setProgressValue(0);
     if (m_scriptTemplate) {
         reportRunResult(fi, true);
         return;
@@ -261,7 +284,9 @@ void QMakeStep::run(QFutureInterface<bool> &fi)
     }
 
     m_needToRunQMake = false;
-    AbstractProcessStep::run(fi);
+
+    m_nextState = State::RUN_QMAKE;
+    runNextCommand();
 }
 
 void QMakeStep::setForced(bool b)
@@ -298,6 +323,58 @@ bool QMakeStep::processSucceeded(int exitCode, QProcess::ExitStatus status)
     QmakeProject *project = static_cast<QmakeProject *>(qmakeBuildConfiguration()->target()->project());
     project->emitBuildDirectoryInitialized();
     return result;
+}
+
+void QMakeStep::startOneCommand(const QString &command, const QString &args)
+{
+    ProcessParameters *pp = processParameters();
+    pp->setCommand(command);
+    pp->setArguments(args);
+    pp->resolveAll();
+
+    QTC_ASSERT(!m_commandFuture || m_commandFuture->future().isFinished(), return);
+    delete m_commandFuture;
+    m_commandFuture = new QFutureInterface<bool>;
+
+    m_commandWatcher.setFuture(m_commandFuture->future());
+    AbstractProcessStep::run(*m_commandFuture);
+}
+
+void QMakeStep::runNextCommand()
+{
+    bool wasSuccess = m_commandFuture ? m_commandFuture->future().result() : true;
+
+    delete m_commandFuture;
+    m_commandFuture = nullptr;
+
+    if (!wasSuccess)
+        m_nextState = State::POST_PROCESS;
+
+    m_inputFuture.setProgressValue(static_cast<int>(m_nextState));
+
+    switch (m_nextState) {
+    case State::IDLE:
+        return;
+    case State::RUN_QMAKE:
+        setOutputParser(new QMakeParser);
+        m_nextState = (m_runMakeQmake ? State::RUN_MAKE_QMAKE_ALL : State::POST_PROCESS);
+        startOneCommand(m_qmakeExecutable, m_qmakeArguments);
+        return;
+    case State::RUN_MAKE_QMAKE_ALL:
+        {
+            GnuMakeParser *parser = new GnuMakeParser;
+            parser->setWorkingDirectory(processParameters()->workingDirectory());
+            setOutputParser(parser);
+            m_nextState = State::POST_PROCESS;
+            startOneCommand(m_makeExecutable, QLatin1String("qmake_all"));
+        }
+        return;
+    case State::POST_PROCESS:
+        m_nextState = State::IDLE;
+        reportRunResult(m_inputFuture, wasSuccess);
+        m_inputFuture = QFutureInterface<bool>();
+        return;
+    }
 }
 
 void QMakeStep::setUserArguments(const QString &arguments)
@@ -365,12 +442,37 @@ void QMakeStep::setSeparateDebugInfo(bool enable)
     qmakeBuildConfiguration()->emitProFileEvaluateNeeded();
 }
 
+QString QMakeStep::makeCommand() const
+{
+    MakeStep *ms = qobject_cast<BuildStepList *>(parent())->firstOfType<MakeStep>();
+    return ms ? ms->effectiveMakeCommand() : QString();
+}
+
+QString QMakeStep::effectiveQMakeCall() const
+{
+    BaseQtVersion *qtVersion = QtKitInformation::qtVersion(target()->kit());
+    QString qmake = qtVersion ? qtVersion->qmakeCommand().fileName() : QString();
+    if (qmake.isEmpty())
+        qmake = tr("<no Qt version>");
+    QString make = makeCommand();
+    if (make.isEmpty())
+        make = tr("<no Make step found>");
+
+    QString result = qmake + QLatin1Char(' ') + allArguments(qtVersion);
+    if (qtVersion->qtVersion() >= QtVersionNumber(5, 0, 0))
+        result.append(QString::fromLatin1(" && %1 qmake_all").arg(make));
+    return result;
+}
+
 QStringList QMakeStep::parserArguments()
 {
     QStringList result;
-    for (QtcProcess::ConstArgIterator ait(allArguments()); ait.next(); )
+    BaseQtVersion *qt = QtKitInformation::qtVersion(target()->kit());
+    QTC_ASSERT(qt, return QStringList());
+    for (QtcProcess::ConstArgIterator ait(allArguments(qt)); ait.next(); ) {
         if (ait.isSimple())
             result << ait.value();
+    }
     return result;
 }
 
@@ -379,7 +481,7 @@ QString QMakeStep::userArguments()
     return m_userArgs;
 }
 
-FileName QMakeStep::mkspec()
+FileName QMakeStep::mkspec() const
 {
     QString additionalArguments = m_userArgs;
     for (QtcProcess::ArgIterator ait(&additionalArguments); ait.next(); ) {
@@ -476,7 +578,7 @@ QMakeStepConfigWidget::QMakeStepConfigWidget(QMakeStep *step)
     connect(step->qmakeBuildConfiguration(), SIGNAL(qmakeBuildConfigurationChanged()),
             this, SLOT(qmakeBuildConfigChanged()));
     connect(step->target(), SIGNAL(kitChanged()), this, SLOT(qtVersionChanged()));
-    connect(QtSupport::QtVersionManager::instance(), SIGNAL(dumpUpdatedFor(Utils::FileName)),
+    connect(QtVersionManager::instance(), SIGNAL(dumpUpdatedFor(Utils::FileName)),
             this, SLOT(qtVersionChanged()));
 }
 
@@ -511,7 +613,7 @@ void QMakeStepConfigWidget::qtVersionChanged()
 void QMakeStepConfigWidget::qmakeBuildConfigChanged()
 {
     QmakeBuildConfiguration *bc = m_step->qmakeBuildConfiguration();
-    bool debug = bc->qmakeBuildConfiguration() & QtSupport::BaseQtVersion::DebugBuild;
+    bool debug = bc->qmakeBuildConfiguration() & BaseQtVersion::DebugBuild;
     m_ignoreChange = true;
     m_ui->buildConfigurationComboBox->setCurrentIndex(debug? 0 : 1);
     m_ignoreChange = false;
@@ -574,11 +676,11 @@ void QMakeStepConfigWidget::buildConfigurationSelected()
     if (m_ignoreChange)
         return;
     QmakeBuildConfiguration *bc = m_step->qmakeBuildConfiguration();
-    QtSupport::BaseQtVersion::QmakeBuildConfigs buildConfiguration = bc->qmakeBuildConfiguration();
+    BaseQtVersion::QmakeBuildConfigs buildConfiguration = bc->qmakeBuildConfiguration();
     if (m_ui->buildConfigurationComboBox->currentIndex() == 0) { // debug
-        buildConfiguration = buildConfiguration | QtSupport::BaseQtVersion::DebugBuild;
+        buildConfiguration = buildConfiguration | BaseQtVersion::DebugBuild;
     } else {
-        buildConfiguration = buildConfiguration & ~QtSupport::BaseQtVersion::DebugBuild;
+        buildConfiguration = buildConfiguration & ~BaseQtVersion::DebugBuild;
     }
     m_ignoreChange = true;
     bc->setQMakeBuildConfiguration(buildConfiguration);
@@ -643,13 +745,13 @@ void QMakeStepConfigWidget::separateDebugInfoChecked(bool checked)
 
 void QMakeStepConfigWidget::updateSummaryLabel()
 {
-    QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitInformation::qtVersion(m_step->target()->kit());
+    BaseQtVersion *qtVersion = QtKitInformation::qtVersion(m_step->target()->kit());
     if (!qtVersion) {
         setSummaryText(tr("<b>qmake:</b> No Qt version set. Cannot run qmake."));
         return;
     }
     // We don't want the full path to the .pro file
-    QString args = m_step->allArguments(true);
+    QString args = m_step->allArguments(qtVersion, true);
     // And we only use the .pro filename not the full path
     QString program = qtVersion->qmakeCommand().fileName();
     setSummaryText(tr("<b>qmake:</b> %1 %2").arg(program, args));
@@ -658,7 +760,7 @@ void QMakeStepConfigWidget::updateSummaryLabel()
 void QMakeStepConfigWidget::updateQmlDebuggingOption()
 {
     QString warningText;
-    bool supported = QtSupport::BaseQtVersion::isQmlDebuggingSupported(m_step->target()->kit(),
+    bool supported = BaseQtVersion::isQmlDebuggingSupported(m_step->target()->kit(),
                                                                        &warningText);
 
     m_ui->qmlDebuggingLibraryCheckBox->setEnabled(supported);
@@ -676,7 +778,7 @@ void QMakeStepConfigWidget::updateQmlDebuggingOption()
 void QMakeStepConfigWidget::updateQtQuickCompilerOption()
 {
     QString warningText;
-    bool supported = QtSupport::BaseQtVersion::isQtQuickCompilerSupported(m_step->target()->kit(),
+    bool supported = BaseQtVersion::isQtQuickCompilerSupported(m_step->target()->kit(),
                                                                           &warningText);
     m_ui->qtQuickCompilerCheckBox->setEnabled(supported);
     m_ui->qtQuickCompilerLabel->setText(tr("Enable Qt Quick Compiler:"));
@@ -690,11 +792,7 @@ void QMakeStepConfigWidget::updateQtQuickCompilerOption()
 
 void QMakeStepConfigWidget::updateEffectiveQMakeCall()
 {
-    QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitInformation::qtVersion(m_step->target()->kit());
-    QString program = tr("<No Qt version>");
-    if (qtVersion)
-        program = qtVersion->qmakeCommand().fileName();
-    m_ui->qmakeArgumentsEdit->setPlainText(program + QLatin1Char(' ') + m_step->allArguments());
+    m_ui->qmakeArgumentsEdit->setPlainText(m_step->effectiveQMakeCall());
 }
 
 void QMakeStepConfigWidget::recompileMessageBoxFinished(int button)
@@ -860,4 +958,3 @@ QStringList QMakeStepConfig::toArguments() const
 
     return arguments;
 }
-

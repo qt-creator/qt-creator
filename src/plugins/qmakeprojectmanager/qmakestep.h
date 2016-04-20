@@ -29,8 +29,7 @@
 #include <projectexplorer/abstractprocessstep.h>
 
 #include <QStringList>
-
-#include <tuple>
+#include <QFutureWatcher>
 
 namespace Utils { class FileName; }
 
@@ -40,7 +39,7 @@ class BuildStep;
 class IBuildStepFactory;
 class Project;
 class Kit;
-}
+} // namespace ProjectExplorer
 
 namespace QtSupport { class BaseQtVersion; }
 
@@ -133,13 +132,13 @@ public:
     bool forced();
 
     // the complete argument line
-    QString allArguments(bool shorted = false);
-    QMakeStepConfig deducedArguments();
+    QString allArguments(const QtSupport::BaseQtVersion *v, bool shorted = false) const;
+    QMakeStepConfig deducedArguments() const;
     // arguments passed to the pro file parser
     QStringList parserArguments();
     // arguments set by the user
     QString userArguments();
-    Utils::FileName mkspec();
+    Utils::FileName mkspec() const;
     void setUserArguments(const QString &arguments);
     bool linkQmlDebuggingLibrary() const;
     void setLinkQmlDebuggingLibrary(bool enable);
@@ -147,6 +146,9 @@ public:
     void setUseQtQuickCompiler(bool enable);
     bool separateDebugInfo() const;
     void setSeparateDebugInfo(bool enable);
+
+    QString makeCommand() const;
+    QString effectiveQMakeCall() const;
 
     QVariantMap toMap() const override;
 
@@ -165,12 +167,27 @@ protected:
     bool processSucceeded(int exitCode, QProcess::ExitStatus status) override;
 
 private:
+    void startOneCommand(const QString &command, const QString &args);
+    void runNextCommand();
     void ctor();
 
+    QString m_qmakeExecutable;
+    QString m_qmakeArguments;
+    QString m_makeExecutable;
+    QString m_userArgs;
+
+    QFutureInterface<bool> m_inputFuture;
+    QFutureWatcher<bool> m_inputWatcher;
+    QFutureInterface<bool> *m_commandFuture = nullptr;
+    QFutureWatcher<bool> m_commandWatcher;
+
     // last values
+    enum class State { IDLE = 0, RUN_QMAKE, RUN_MAKE_QMAKE_ALL, POST_PROCESS };
+    State m_nextState = State::IDLE;
     bool m_forced = false;
     bool m_needToRunQMake = false; // set in init(), read in run()
-    QString m_userArgs;
+
+    bool m_runMakeQmake = false;
     bool m_linkQmlDebuggingLibrary = false;
     bool m_useQtQuickCompiler = false;
     bool m_scriptTemplate = false;
