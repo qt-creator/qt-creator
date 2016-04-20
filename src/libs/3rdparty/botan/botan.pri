@@ -36,7 +36,7 @@ win32 {
 
     win32-msvc* {
         QMAKE_CXXFLAGS_EXCEPTIONS_ON = -EHs
-        QMAKE_CXXFLAGS += -wd4251 -wd4290 -wd4250
+        QMAKE_CXXFLAGS += -wd4251 -wd4290 -wd4250 -wd4297 -wd4267 -wd4334
         DEFINES += BOTAN_BUILD_COMPILER_IS_MSVC BOTAN_TARGET_OS_HAS_GMTIME_S _SCL_SECURE_NO_WARNINGS
     } else {
         QMAKE_CFLAGS += -fpermissive -finline-functions -Wno-long-long

@@ -114,7 +114,7 @@ private:
     inline int consumeToken() {
         if (_index < int(_tokens.size()))
             return _index++;
-        return _tokens.size() - 1;
+        return static_cast<int>(_tokens.size()) - 1;
     }
     inline const Token &tokenAt(int index) const {
         if (index == 0)

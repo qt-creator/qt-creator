@@ -96,7 +96,7 @@ QByteArray AbstractSshPacket::encodeMpInt(const Botan::BigInt &number)
     if (number.is_zero())
         return QByteArray(4, 0);
 
-    int stringLength = number.bytes();
+    int stringLength = static_cast<int>(number.bytes());
     const bool positiveAndMsbSet = number.sign() == Botan::BigInt::Positive
                                    && (number.byte_at(stringLength - 1) & 0x80);
     if (positiveAndMsbSet)

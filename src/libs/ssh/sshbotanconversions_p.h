@@ -45,7 +45,7 @@ inline Botan::byte *convertByteArray(QByteArray &a)
 
 inline QByteArray convertByteArray(const Botan::SecureVector<Botan::byte> &v)
 {
-    return QByteArray(reinterpret_cast<const char *>(v.begin()), v.size());
+    return QByteArray(reinterpret_cast<const char *>(v.begin()), static_cast<int>(v.size()));
 }
 
 inline const char *botanKeyExchangeAlgoName(const QByteArray &rfcAlgoName)

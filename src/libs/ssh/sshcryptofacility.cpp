@@ -82,11 +82,11 @@ void SshAbstractCryptoFacility::recreateKeys(const SshKeyExchange &kex)
     BlockCipher * const cipher
             = af.prototype_block_cipher(botanCryptAlgoName(rfcCryptAlgoName))->clone();
 
-    m_cipherBlockSize = cipher->block_size();
+    m_cipherBlockSize = static_cast<quint32>(cipher->block_size());
     const QByteArray ivData = generateHash(kex, ivChar(), m_cipherBlockSize);
     const InitializationVector iv(convertByteArray(ivData), m_cipherBlockSize);
 
-    const quint32 keySize = cipher->key_spec().maximum_keylength();
+    const quint32 keySize = static_cast<quint32>(cipher->key_spec().maximum_keylength());
     const QByteArray cryptKeyData = generateHash(kex, keyChar(), keySize);
     SymmetricKey cryptKey(convertByteArray(cryptKeyData), keySize);
     Keyed_Filter * const cipherMode
@@ -118,8 +118,9 @@ void SshAbstractCryptoFacility::convert(QByteArray &data, quint32 offset,
     }
     m_pipe->process_msg(reinterpret_cast<const byte *>(data.constData()) + offset,
         dataSize);
-    quint32 bytesRead = m_pipe->read(reinterpret_cast<byte *>(data.data()) + offset,
-        dataSize, m_pipe->message_count() - 1); // Can't use Pipe::LAST_MESSAGE because of a VC bug.
+     // Can't use Pipe::LAST_MESSAGE because of a VC bug.
+    quint32 bytesRead = static_cast<quint32>(m_pipe->read(
+          reinterpret_cast<byte *>(data.data()) + offset, dataSize, m_pipe->message_count() - 1));
     if (bytesRead != dataSize) {
         throw SshClientException(SshInternalError,
                 QLatin1String("Internal error: Botan::Pipe::read() returned unexpected value"));
@@ -261,7 +262,8 @@ bool SshEncryptionFacility::createAuthenticationKeyFromPKCS8(const QByteArray &p
                          << rsaKey->get_d();
         } else if (auto * const ecdsaKey = dynamic_cast<ECDSA_PrivateKey *>(m_authKey.data())) {
             const BigInt value = ecdsaKey->private_value();
-            m_authKeyAlgoName = SshCapabilities::ecdsaPubKeyAlgoForKeyWidth(value.bytes());
+            m_authKeyAlgoName = SshCapabilities::ecdsaPubKeyAlgoForKeyWidth(
+                        static_cast<int>(value.bytes()));
             pubKeyParams << ecdsaKey->public_point().get_affine_x()
                          << ecdsaKey->public_point().get_affine_y();
             allKeyParams << pubKeyParams << value;
@@ -346,7 +348,8 @@ bool SshEncryptionFacility::createAuthenticationKeyFromOpenSSL(const QByteArray 
         } else {
             BigInt privKey;
             sequence.decode_octet_string_bigint(privKey);
-            m_authKeyAlgoName = SshCapabilities::ecdsaPubKeyAlgoForKeyWidth(privKey.bytes());
+            m_authKeyAlgoName = SshCapabilities::ecdsaPubKeyAlgoForKeyWidth(
+                        static_cast<int>(privKey.bytes()));
             const EC_Group group(SshCapabilities::oid(m_authKeyAlgoName));
             auto * const key = new ECDSA_PrivateKey(m_rng, group, privKey);
             m_authKey.reset(key);

@@ -236,6 +236,7 @@ void dummyStatement(...) {}
 
 #ifdef Q_OS_WIN
 #include <windows.h>
+#include <basetsd.h>
 #undef min
 #undef max
 #endif
@@ -276,7 +277,11 @@ void dummyStatement(...) {}
 QT_BEGIN_NAMESPACE
 uint qHash(const QMap<int, int> &) { return 0; }
 uint qHash(const double & f) { return int(f); }
-uint qHash(const QPointer<QObject> &p) { return (ulong)p.data(); }
+#ifdef Q_OS_WIN
+uint qHash(const QPointer<QObject> &p) { return PtrToUint(p.data()); }
+#else
+uint qHash(const QPointer<QObject> &p) { (ulong)p.data(); }
+#endif
 QT_END_NAMESPACE
 
 
@@ -3336,7 +3341,7 @@ namespace lambda {
     {
         std::string x;
         auto f = [&] () -> const std::string & {
-                int z = x.size();
+                size_t z = x.size();
                 Q_UNUSED(z);
                 return x;
          };

@@ -115,7 +115,7 @@ void SshKeyGenerator::generatePkcs8KeyString(const KeyPtr &key, bool privateKey,
         keyData = &m_publicKey;
     }
     pipe.end_msg();
-    keyData->resize(pipe.remaining(pipe.message_count() - 1));
+    keyData->resize(static_cast<int>(pipe.remaining(pipe.message_count()) - 1));
     pipe.read(convertByteArray(*keyData), keyData->size(),
         pipe.message_count() - 1);
 }
@@ -147,7 +147,8 @@ void SshKeyGenerator::generateOpenSslPublicKeyString(const KeyPtr &key)
     case Ecdsa: {
         const auto ecdsaKey = key.dynamicCast<ECDSA_PrivateKey>();
         q = convertByteArray(EC2OSP(ecdsaKey->public_point(), PointGFp::UNCOMPRESSED));
-        keyId = SshCapabilities::ecdsaPubKeyAlgoForKeyWidth(ecdsaKey->private_value().bytes());
+        keyId = SshCapabilities::ecdsaPubKeyAlgoForKeyWidth(
+                    static_cast<int>(ecdsaKey->private_value().bytes()));
         break;
     }
     }

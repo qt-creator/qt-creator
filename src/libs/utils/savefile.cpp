@@ -28,6 +28,7 @@
 #include "fileutils.h"
 #ifdef Q_OS_WIN
 #  include <windows.h>
+#  include <io.h>
 #else
 #  include <unistd.h>
 #  include <sys/stat.h>
@@ -97,7 +98,7 @@ bool SaveFile::commit()
         return false;
     }
 #ifdef Q_OS_WIN
-    FlushFileBuffers(reinterpret_cast<HANDLE>(handle()));
+    FlushFileBuffers(reinterpret_cast<HANDLE>(_get_osfhandle(handle())));
 #elif _POSIX_SYNCHRONIZED_IO > 0
     fdatasync(handle());
 #else

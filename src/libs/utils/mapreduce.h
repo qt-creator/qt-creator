@@ -296,7 +296,7 @@ void blockingContainerMapReduce(QFutureInterface<ReduceResult> &futureInterface,
                               std::forward<InitFunction>(init), std::forward<MapFunction>(map),
                               std::forward<ReduceFunction>(reduce),
                               std::forward<CleanUpFunction>(cleanup),
-                              option, container.size());
+                              option, static_cast<int>(container.size()));
 }
 
 template <typename Container, typename InitFunction, typename MapFunction, typename ReduceResult,

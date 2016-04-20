@@ -70,7 +70,7 @@ void ConnectionServer::setIpcServer(IpcServerInterface *ipcServer)
 
 int ConnectionServer::clientProxyCount() const
 {
-    return ipcClientProxies.size();
+    return static_cast<int>(ipcClientProxies.size());
 }
 
 void ConnectionServer::timerEvent(QTimerEvent *timerEvent)

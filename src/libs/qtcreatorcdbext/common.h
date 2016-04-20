@@ -34,7 +34,9 @@
 
 #include <windows.h>
 #define KDEXT_64BIT
+#pragma warning( disable : 4838  )
 #include <wdbgexts.h>
+#pragma warning( default : 4838  )
 #include <dbgeng.h>
 
 typedef IDebugControl3 CIDebugControl;

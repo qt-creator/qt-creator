@@ -203,7 +203,7 @@ int alignedSize(int size) { return (size + 3) & ~3; }
 
 static int qStringSize(const std::string &ba)
 {
-    int l = 4 + ba.length();
+    int l = 4 + static_cast<int>(ba.length());
     return alignedSize(l);
 }
 
@@ -252,7 +252,7 @@ public:
 
     void operator=(const std::string &ba)
     {
-        d->length = ba.length();
+        d->length = static_cast<int>(ba.length());
         memcpy(d->utf8, ba.data(), ba.length());
     }
 
@@ -581,7 +581,7 @@ public:
         int objectPosition;
         std::vector<uint32_t> offsets;
 
-        Entry *entryAt(int i) const {
+        Entry *entryAt(size_t i) const {
             return reinterpret_cast<Entry *>(parser->data + objectPosition + offsets[i]);
         }
     };
@@ -2505,7 +2505,8 @@ JsonObject::iterator JsonObject::insert(const std::string &key, const JsonValue 
     Internal::Entry *e = o->entryAt(pos);
     e->value.type = val.t;
     e->value.intValue = isIntValue;
-    e->value.value = Internal::Value::valueToStore(val, (char *)e - (char *)o + valueOffset);
+    e->value.value = Internal::Value::valueToStore(val, static_cast<uint32_t>((char *)e - (char *)o)
+                                                   + valueOffset);
     Internal::copyString((char *)(e + 1), key);
     if (valueSize)
         Internal::Value::copyData(val, (char *)e + valueOffset, isIntValue);
@@ -3475,7 +3476,7 @@ std::string JsonDocument::toJson(JsonFormat format) const
  */
 JsonDocument JsonDocument::fromJson(const std::string &json, JsonParseError *error)
 {
-    Internal::Parser parser(json.data(), json.length());
+    Internal::Parser parser(json.data(), static_cast<int>(json.length()));
     return parser.parse(error);
 }
 
@@ -4008,7 +4009,7 @@ JsonDocument Parser::parse(JsonParseError *error)
     std::cerr << ">>>>> parser begin";
 #endif
     // allocate some space
-    dataLength = std::max(end - json, std::ptrdiff_t(256));
+    dataLength = static_cast<int>(std::max(end - json, std::ptrdiff_t(256)));
     data = (char *)malloc(dataLength);
 
     // fill in Header data
@@ -4054,7 +4055,7 @@ error:
     std::cerr << ">>>>> parser error";
 #endif
     if (error) {
-        error->offset = json - head;
+        error->offset = static_cast<int>(json - head);
         error->error  = lastError;
     }
     free(data);
@@ -4068,8 +4069,8 @@ void Parser::ParsedObject::insert(uint32_t offset)
     size_t min = 0;
     size_t n = offsets.size();
     while (n > 0) {
-        int half = n >> 1;
-        int middle = min + half;
+        size_t half = n >> 1;
+        size_t middle = min + half;
         if (*entryAt(middle) >= *newEntry) {
             n = half;
         } else {
@@ -4127,7 +4128,7 @@ bool Parser::parseObject()
     int table = objectOffset;
     // finalize the object
     if (parsedObject.offsets.size()) {
-        int tableSize = parsedObject.offsets.size()*sizeof(uint32_t);
+        int tableSize = static_cast<int>(parsedObject.offsets.size()) * sizeof(uint32_t);
         table = reserveSpace(tableSize);
         memcpy(data + table, &*parsedObject.offsets.begin(), tableSize);
     }
@@ -4136,7 +4137,7 @@ bool Parser::parseObject()
     o->tableOffset = table - objectOffset;
     o->size = current - objectOffset;
     o->is_object = true;
-    o->length = parsedObject.offsets.size();
+    o->length = static_cast<int>(parsedObject.offsets.size());
 
     DEBUG << "current=" << current;
     END;
@@ -4218,7 +4219,7 @@ bool Parser::parseArray()
     int table = arrayOffset;
     // finalize the object
     if (values.size()) {
-        int tableSize = values.size()*sizeof(Value);
+        int tableSize = static_cast<int>(values.size() * sizeof(Value));
         table = reserveSpace(tableSize);
         memcpy(data + table, values.data(), tableSize);
     }
@@ -4227,7 +4228,7 @@ bool Parser::parseArray()
     a->tableOffset = table - arrayOffset;
     a->size = current - arrayOffset;
     a->is_object = false;
-    a->length = values.size();
+    a->length = static_cast<int>(values.size());
 
     DEBUG << "current=" << current;
     END;
@@ -4558,7 +4559,7 @@ bool Parser::parseString()
             const char c = *json;
             if (c == '"') {
                 // write string length and padding.
-                const int len = json - inStart;
+                const int len = static_cast<int>(json - inStart);
                 const int pos = reserveSpace(4 + alignedSize(len));
                 toInternal(data + pos, inStart, len);
                 END;
