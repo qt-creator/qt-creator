@@ -182,7 +182,8 @@ void TypeDescriptionReader::addWarning(const SourceLocation &loc, const QString 
                 message);
 }
 
-void TypeDescriptionReader::readDependencies(UiScriptBinding *ast) {
+void TypeDescriptionReader::readDependencies(UiScriptBinding *ast)
+{
     ExpressionStatement *stmt = dynamic_cast<ExpressionStatement*>(ast->statement);
     if (!stmt) {
         addError(ast->statement->firstSourceLocation(), tr("Expected dependency definitions"));

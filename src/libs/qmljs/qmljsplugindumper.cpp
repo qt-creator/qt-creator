@@ -431,9 +431,9 @@ QString PluginDumper::buildQmltypesPath(const QString &name) const
     }
 
     for (const PathAndLanguage &p: m_modelManager->importPaths()) {
-        QString moduleName(qualifiedName.replace(QLatin1Char('.'), QLatin1Char('/')));
-        QString moduleNameMajor(moduleName + QLatin1Char('.') + majorVersion);
-        QString moduleNameMajorMinor(moduleNameMajor + QLatin1Char('.') + minorVersion);
+        QString moduleName = qualifiedName.replace(QLatin1Char('.'), QLatin1Char('/'));
+        QString moduleNameMajor = moduleName + QLatin1Char('.') + majorVersion;
+        QString moduleNameMajorMinor = moduleNameMajor + QLatin1Char('.') + minorVersion;
 
         for (const auto n: QStringList{moduleNameMajorMinor, moduleNameMajor, moduleName}) {
             QString filename(p.path().toString() + QLatin1Char('/') + n
