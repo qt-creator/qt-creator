@@ -20,6 +20,7 @@ General
 * Fixed issues with HiDPI (QTCREATORBUG-15222)
 * Fixed that switching theme did not switch editor color scheme
   (QTCREATORBUG-15229)
+* Fixed crash when double clicking wizard (QTCREATORBUG-15968)
 
 Editing
 
@@ -28,15 +29,20 @@ Editing
 * Added `Go to Previous Split or Window`
 * Fixed whitespace cleaning for mixed tabs and spaces configurations
   (QTCREATORBUG-7994)
+* Fixed download of highlighting files (QTCREATORBUG-15997)
+* Fixed crash when cutting text from multiple splits (QTCREATORBUG-16046)
 
 Help
 
 * Fixed issues with scrolling to right position (QTCREATORBUG-15548)
+* Fixed images overlapping text with older Qt documentation (QTCREATORBUG-15887)
+* Fixed fallback font (QTCREATORBUG-15887)
 
 QMake Projects
 
 * Added wizard for creating `Qt Labs Controls Application`
 * Added support for `STATECHARTS`
+* Fixed crash when switching session while project is read (QTCREATORBUG-15993)
 
 CMake Projects
 
@@ -62,6 +68,7 @@ Qt Support
 C++ Support
 
 * Fixed issue with negative enum values
+* Fixed completion of Doxygen tags (QTCREATORBUG-9373, QTCREATORBUG-15143)
 * Clang code model
     * Simplified activation (it is now active if the plugin is enabled)
     * Added customizable configurations for warnings (global and per project)
@@ -71,16 +78,23 @@ C++ Support
 QML Support
 
 * Fixed various issues with QML/JS Console (QTCREATORBUG-14931)
+* Fixed resolution of `alias` directives in `.qrc` files
 
 Debugging
 
-* Added pretty printers for `std::set`, `std::map` and `std::multimap`
-  (for simple types of keys and values)
+* Added pretty printers for `std::set`, `std::map`, `std::multimap`
+  (for simple types of keys and values), `std::valarray` and `QBitArray`
 * Improved performance for watches
 * Improved visualization of `QByteArray` and `char[]` with non-printable
   values (QTCREATORBUG-15549)
 * CDB
     * Fixed showing value of `std::[w]string` (QTCREATORBUG-15016)
+* GDB
+    * Fixed import of system pretty printer (QTCREATORBUG-15923)
+    * Fixed changing display format for `float` (QTCREATORBUG-12800)
+* LLDB
+    * Fixed issues with Xcode 7.3
+      (QTCREATORBUG-15965, QTCREATORBUG-15945, QTCREATORBUG-15949)
 
 QML Profiler
 
@@ -95,6 +109,7 @@ QML Profiler
 Clang Static Analyzer
 
 * Fixed analyzing with MinGW tool chain settings
+* Fixed that Clang was run with default target instead of project target
 
 Test Integration
 
@@ -102,6 +117,7 @@ Test Integration
 * Fixed resolution of source file of failed test on Windows (QTCREATORBUG-15667)
 * Fixed that additional output of passing tests was ignored
 * Fixed test detection with CMake projects (QTCREATORBUG-15813)
+* Fixed crash while editing test (QTCREATORBUG-16062)
 * Google Test
     * Added support for typed tests
     * Fixed parsing of file and line information
