@@ -25,15 +25,7 @@
 
 #pragma once
 
-#include <QList>
-#include <QUuid>
-#include <QSharedPointer>
-
 #include <projectexplorer/devicesupport/idevice.h>
-
-namespace Debugger {
-    class DebuggerStartParameters;
-} // Debugger
 
 namespace WinRt {
 namespace Internal {
