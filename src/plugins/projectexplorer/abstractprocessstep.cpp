@@ -187,8 +187,7 @@ void AbstractProcessStep::run(QFutureInterface<bool> &fi)
             emit addOutput(tr("Could not create directory \"%1\"")
                            .arg(QDir::toNativeSeparators(wd.absolutePath())),
                            BuildStep::ErrorMessageOutput);
-            fi.reportResult(false);
-            emit finished();
+            reportRunResult(fi, false);
             return;
         }
     }
@@ -196,8 +195,7 @@ void AbstractProcessStep::run(QFutureInterface<bool> &fi)
     QString effectiveCommand = m_param.effectiveCommand();
     if (!QFileInfo::exists(effectiveCommand)) {
         processStartupFailed();
-        fi.reportResult(false);
-        emit finished();
+        reportRunResult(fi, false);
         return;
     }
 
@@ -221,8 +219,7 @@ void AbstractProcessStep::run(QFutureInterface<bool> &fi)
         processStartupFailed();
         delete m_process;
         m_process = nullptr;
-        fi.reportResult(false);
-        emit finished();
+        reportRunResult(fi, false);
         return;
     }
     processStarted();
@@ -237,7 +234,7 @@ void AbstractProcessStep::cleanUp()
 {
     // The process has finished, leftover data is read in processFinished
     processFinished(m_process->exitCode(), m_process->exitStatus());
-    bool returnValue = processSucceeded(m_process->exitCode(), m_process->exitStatus()) || m_ignoreReturnValue;
+    const bool returnValue = processSucceeded(m_process->exitCode(), m_process->exitStatus()) || m_ignoreReturnValue;
 
     // Clean up output parsers
     if (m_outputParserChain) {
@@ -245,12 +242,13 @@ void AbstractProcessStep::cleanUp()
         m_outputParserChain = nullptr;
     }
 
+    // Clean up process
     delete m_process;
     m_process = nullptr;
-    m_futureInterface->reportResult(returnValue);
-    m_futureInterface = nullptr;
 
-    emit finished();
+    // Report result
+    reportRunResult(*m_futureInterface, returnValue);
+    m_futureInterface = nullptr;
 }
 
 /*!

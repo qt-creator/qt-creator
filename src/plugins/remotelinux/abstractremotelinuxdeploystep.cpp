@@ -149,8 +149,7 @@ void AbstractRemoteLinuxDeployStep::handleFinished()
     else
         emit addOutput(tr("Deploy step finished."), MessageOutput);
     disconnect(deployService(), 0, this, 0);
-    d->future.reportResult(!d->hasError);
-    emit finished();
+    reportRunResult(d->future, !d->hasError);
 }
 
 void AbstractRemoteLinuxDeployStep::handleStdOutData(const QString &data)

@@ -93,8 +93,7 @@ void QbsInstallStep::run(QFutureInterface<bool> &fi)
     m_job = pro->install(m_qbsInstallOptions);
 
     if (!m_job) {
-        m_fi->reportResult(false);
-        emit finished();
+        reportRunResult(*m_fi, false);
         return;
     }
 
@@ -193,12 +192,10 @@ void QbsInstallStep::installDone(bool success)
     }
 
     QTC_ASSERT(m_fi, return);
-    m_fi->reportResult(success);
+    reportRunResult(*m_fi, success);
     m_fi = 0; // do not delete, it is not ours
     m_job->deleteLater();
     m_job = 0;
-
-    emit finished();
 }
 
 void QbsInstallStep::handleTaskStarted(const QString &desciption, int max)

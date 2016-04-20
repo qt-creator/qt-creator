@@ -83,8 +83,7 @@ void BareMetalGdbCommandsDeployStep::ctor()
 
 void BareMetalGdbCommandsDeployStep::run(QFutureInterface<bool> &fi)
 {
-    fi.reportResult(true);
-    emit finished();
+    reportRunResult(fi, true);
 }
 
 bool BareMetalGdbCommandsDeployStep::fromMap(const QVariantMap &map)

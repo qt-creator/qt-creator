@@ -85,7 +85,7 @@ bool DeviceCheckBuildStep::init(QList<const BuildStep *> &earlierSteps)
 
 void DeviceCheckBuildStep::run(QFutureInterface<bool> &fi)
 {
-    fi.reportResult(true);
+    reportRunResult(fi, true);
 }
 
 BuildStepConfigWidget *DeviceCheckBuildStep::createConfigWidget()

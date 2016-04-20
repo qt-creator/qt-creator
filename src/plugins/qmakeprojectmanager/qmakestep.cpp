@@ -250,14 +250,13 @@ bool QMakeStep::init(QList<const BuildStep *> &earlierSteps)
 void QMakeStep::run(QFutureInterface<bool> &fi)
 {
     if (m_scriptTemplate) {
-        fi.reportResult(true);
+        reportRunResult(fi, true);
         return;
     }
 
     if (!m_needToRunQMake) {
         emit addOutput(tr("Configuration unchanged, skipping qmake step."), BuildStep::MessageOutput);
-        fi.reportResult(true);
-        emit finished();
+        reportRunResult(fi, true);
         return;
     }
 
@@ -610,7 +609,7 @@ void QMakeStepConfigWidget::askForRebuild()
     question->setText(tr("The option will only take effect if the project is recompiled. Do you want to recompile now?"));
     question->setStandardButtons(QMessageBox::Yes | QMessageBox::No);
     question->setModal(true);
-    connect(question, SIGNAL(finished(int)), this, SLOT(recompileMessageBoxFinished(int)));
+    connect(question, &QDialog::finished, this, &QMakeStepConfigWidget::recompileMessageBoxFinished);
     question->show();
 }
 

@@ -84,7 +84,6 @@ private:
     static void addToOutputWindow(const QString &string, BuildStep::OutputFormat format,
                            BuildStep::OutputNewlineSetting newlineSettings = BuildStep::DoAppendNewline);
 
-    void buildStepFinishedAsync();
     static void nextBuildQueue();
     static void progressChanged();
     static void progressTextChanged();

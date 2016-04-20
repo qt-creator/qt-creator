@@ -64,18 +64,21 @@ static QString msgProgress(int progress, int total)
     return BuildManager::tr("Finished %1 of %n steps", 0, total).arg(progress);
 }
 
-struct BuildManagerPrivate
+class BuildManagerPrivate
 {
-    BuildManagerPrivate();
-
-    Internal::CompileOutputWindow *m_outputWindow;
-    TaskHub *m_taskHub;
-    Internal::TaskWindow *m_taskWindow;
+public:
+    Internal::CompileOutputWindow *m_outputWindow = nullptr;
+    Internal::TaskWindow *m_taskWindow = nullptr;
 
     QList<BuildStep *> m_buildQueue;
     QList<bool> m_enabledState;
     QStringList m_stepNames;
-    bool m_running;
+    int m_progress = 0;
+    int m_maxProgress = 0;
+    bool m_running = false;
+    // is set to true while canceling, so that nextBuildStep knows that the BuildStep finished because of canceling
+    bool m_skipDisabled = false;
+    bool m_canceling = false;
     QFutureWatcher<bool> m_watcher;
     QFutureInterface<bool> m_futureInterfaceForAysnc;
     BuildStep *m_currentBuildStep;
@@ -84,30 +87,15 @@ struct BuildManagerPrivate
     QHash<Project *, int>  m_activeBuildSteps;
     QHash<Target *, int> m_activeBuildStepsPerTarget;
     QHash<ProjectConfiguration *, int> m_activeBuildStepsPerProjectConfiguration;
-    Project *m_previousBuildStepProject;
-    // is set to true while canceling, so that nextBuildStep knows that the BuildStep finished because of canceling
-    bool m_skipDisabled;
-    bool m_canceling;
+    Project *m_previousBuildStepProject = nullptr;
 
     // Progress reporting to the progress manager
-    int m_progress;
-    int m_maxProgress;
-    QFutureInterface<void> *m_progressFutureInterface;
+    QFutureInterface<void> *m_progressFutureInterface = nullptr;
     QFutureWatcher<void> m_progressWatcher;
     QPointer<FutureProgress> m_futureProgress;
 
     QElapsedTimer m_elapsed;
 };
-
-BuildManagerPrivate::BuildManagerPrivate() :
-    m_running(false)
-  , m_previousBuildStepProject(0)
-  , m_skipDisabled(false)
-  , m_canceling(false)
-  , m_maxProgress(0)
-  , m_progressFutureInterface(0)
-{
-}
 
 static BuildManagerPrivate *d = nullptr;
 static BuildManager *m_instance = nullptr;
@@ -360,16 +348,10 @@ void BuildManager::addToOutputWindow(const QString &string, BuildStep::OutputFor
     d->m_outputWindow->appendText(stringToWrite, format);
 }
 
-void BuildManager::buildStepFinishedAsync()
-{
-    disconnect(d->m_currentBuildStep, &BuildStep::finished,
-               this, &BuildManager::buildStepFinishedAsync);
-    d->m_futureInterfaceForAysnc = QFutureInterface<bool>();
-    nextBuildQueue();
-}
-
 void BuildManager::nextBuildQueue()
 {
+    d->m_futureInterfaceForAysnc = QFutureInterface<bool>();
+
     d->m_outputWindow->flush();
     if (d->m_canceling) {
         d->m_canceling = false;
@@ -391,8 +373,10 @@ void BuildManager::nextBuildQueue()
     d->m_progressFutureInterface->setProgressValueAndText(d->m_progress*100, msgProgress(d->m_progress, d->m_maxProgress));
     decrementActiveBuildSteps(d->m_currentBuildStep);
 
-    bool result = d->m_skipDisabled || d->m_watcher.result();
-    if (!result) {
+    const bool success = d->m_skipDisabled || d->m_watcher.result();
+    if (success) {
+        nextStep();
+    } else {
         // Build Failure
         Target *t = d->m_currentBuildStep->target();
         const QString projectName = d->m_currentBuildStep->project()->displayName();
@@ -406,12 +390,9 @@ void BuildManager::nextBuildQueue()
         addToOutputWindow(tr("When executing step \"%1\"").arg(d->m_currentBuildStep->displayName()), BuildStep::ErrorOutput);
         // NBS TODO fix in qtconcurrent
         d->m_progressFutureInterface->setProgressValueAndText(d->m_progress*100, tr("Error while building/deploying project %1 (kit: %2)").arg(projectName, targetName));
-    }
 
-    if (result)
-        nextStep();
-    else
         clearBuildQueue();
+    }
 }
 
 void BuildManager::progressChanged()
@@ -463,8 +444,6 @@ void BuildManager::nextStep()
         }
 
         if (d->m_currentBuildStep->runInGuiThread()) {
-            connect(d->m_currentBuildStep, &BuildStep::finished,
-                    m_instance, &BuildManager::buildStepFinishedAsync);
             d->m_watcher.setFuture(d->m_futureInterfaceForAysnc.future());
             d->m_currentBuildStep->run(d->m_futureInterfaceForAysnc);
         } else {

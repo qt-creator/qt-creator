@@ -236,9 +236,7 @@ void CMakeBuildStep::run(QFutureInterface<bool> &fi)
         m_runTrigger = connect(bc, &CMakeBuildConfiguration::dataAvailable,
                                this, [this, &fi]() { runImpl(fi); });
         m_errorTrigger = connect(bc, &CMakeBuildConfiguration::errorOccured,
-                                 this, [this, &fi]() {
-            fi.reportResult(false);
-        });
+                                 this, [this, &fi]() { reportRunResult(fi, false); });
     } else {
         runImpl(fi);
     }

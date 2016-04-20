@@ -91,7 +91,7 @@ public:
     explicit AutogenStep(ProjectExplorer::BuildStepList *bsl);
 
     bool init(QList<const BuildStep *> &earlierSteps) override;
-    void run(QFutureInterface<bool> &interface) override;
+    void run(QFutureInterface<bool> &fi) override;
     ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;
     bool immutable() const override;
     QString additionalArguments() const;

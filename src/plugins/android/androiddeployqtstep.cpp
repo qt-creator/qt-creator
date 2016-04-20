@@ -417,8 +417,7 @@ void AndroidDeployQtStep::run(QFutureInterface<bool> &fi)
     if (!m_avdName.isEmpty()) {
         QString serialNumber = AndroidConfigurations::currentConfig().waitForAvd(m_avdName, fi);
         if (serialNumber.isEmpty()) {
-            fi.reportResult(false);
-            emit finished();
+            reportRunResult(fi, false);
             return;
         }
         m_serialNumber = serialNumber;
@@ -460,8 +459,7 @@ void AndroidDeployQtStep::run(QFutureInterface<bool> &fi)
                << QLatin1String("/system/") + m_libdir + QLatin1String("/libc.so")
                << QString::fromLatin1("%1/libc.so").arg(m_buildDirectory));
 
-    fi.reportResult(returnValue == Success ? true : false);
-    fi.reportFinished();
+    reportRunResult(fi, returnValue == Success);
 }
 
 void AndroidDeployQtStep::runCommand(const QString &program, const QStringList &arguments)

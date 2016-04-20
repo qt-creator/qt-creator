@@ -75,6 +75,8 @@ public:
     enum OutputFormat { NormalOutput, ErrorOutput, MessageOutput, ErrorMessageOutput };
     enum OutputNewlineSetting { DoAppendNewline, DontAppendNewline };
 
+    static void reportRunResult(QFutureInterface<bool> &fi, bool success);
+
 signals:
     /// Adds a \p task to the Issues pane.
     /// Do note that for linking compile output with tasks, you should first emit the task
@@ -85,8 +87,6 @@ signals:
     /// Adds \p string to the compile output view, formatted in \p format
     void addOutput(const QString &string, ProjectExplorer::BuildStep::OutputFormat format,
         ProjectExplorer::BuildStep::OutputNewlineSetting newlineSetting = DoAppendNewline);
-
-    void finished();
 
     void enabledChanged();
 

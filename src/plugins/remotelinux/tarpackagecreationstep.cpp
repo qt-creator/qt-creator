@@ -145,7 +145,7 @@ void TarPackageCreationStep::run(QFutureInterface<bool> &fi)
         emit addOutput(tr("Packaging finished successfully."), MessageOutput);
     else
         emit addOutput(tr("Packaging failed."), ErrorMessageOutput);
-    fi.reportResult(success);
+    reportRunResult(fi, success);
 }
 
 void TarPackageCreationStep::setIgnoreMissingFiles(bool ignoreMissingFiles)

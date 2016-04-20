@@ -269,8 +269,7 @@ void QmakeAndroidBuildApkStep::run(QFutureInterface<bool> &fi)
 {
     if (m_skipBuilding) {
         emit addOutput(tr("No application .pro file found, not building an APK."), BuildStep::ErrorMessageOutput);
-        fi.reportResult(true);
-        emit finished();
+        reportRunResult(fi, true);
         return;
     }
     AndroidBuildApkStep::run(fi);

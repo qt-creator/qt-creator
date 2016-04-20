@@ -265,16 +265,15 @@ bool MakeStep::init(QList<const BuildStep *> &earlierSteps)
 void MakeStep::run(QFutureInterface<bool> & fi)
 {
     if (m_scriptTarget) {
-        fi.reportResult(true);
-        emit finished();
+        reportRunResult(fi, true);
         return;
     }
 
     if (!QFileInfo::exists(m_makeFileToCheck)) {
         if (!ignoreReturnValue())
             emit addOutput(tr("Cannot find Makefile. Check your build settings."), BuildStep::MessageOutput);
-        fi.reportResult(ignoreReturnValue());
-        emit finished();
+        const bool success = ignoreReturnValue();
+        reportRunResult(fi, success);
         return;
     }
 

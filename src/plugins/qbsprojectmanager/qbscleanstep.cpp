@@ -100,8 +100,7 @@ void QbsCleanStep::run(QFutureInterface<bool> &fi)
     m_job = pro->clean(options);
 
     if (!m_job) {
-        m_fi->reportResult(false);
-        emit finished();
+        reportRunResult(*m_fi, false);
         return;
     }
 
@@ -175,12 +174,10 @@ void QbsCleanStep::cleaningDone(bool success)
     }
 
     QTC_ASSERT(m_fi, return);
-    m_fi->reportResult(success);
+    reportRunResult(*m_fi, success);
     m_fi = 0; // do not delete, it is not ours
     m_job->deleteLater();
     m_job = 0;
-
-    emit finished();
 }
 
 void QbsCleanStep::handleTaskStarted(const QString &desciption, int max)

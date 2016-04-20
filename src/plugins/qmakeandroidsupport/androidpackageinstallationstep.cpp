@@ -105,8 +105,7 @@ void AndroidPackageInstallationStep::run(QFutureInterface<bool> &fi)
             emit addOutput(tr("Removing directory %1").arg(dir), MessageOutput);
             if (!Utils::FileUtils::removeRecursively(androidDir, &error)) {
                 emit addOutput(error, ErrorOutput);
-                fi.reportResult(false);
-                emit finished();
+                reportRunResult(fi, false);
                 return;
             }
         }

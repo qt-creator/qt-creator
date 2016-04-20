@@ -158,7 +158,7 @@ bool AutoreconfStep::init(QList<const BuildStep *> &earlierSteps)
     return AbstractProcessStep::init(earlierSteps);
 }
 
-void AutoreconfStep::run(QFutureInterface<bool> &interface)
+void AutoreconfStep::run(QFutureInterface<bool> &fi)
 {
     BuildConfiguration *bc = buildConfiguration();
 
@@ -170,13 +170,12 @@ void AutoreconfStep::run(QFutureInterface<bool> &interface)
 
     if (!m_runAutoreconf) {
         emit addOutput(tr("Configuration unchanged, skipping autoreconf step."), BuildStep::MessageOutput);
-        interface.reportResult(true);
-        emit finished();
+        reportRunResult(fi, true);
         return;
     }
 
     m_runAutoreconf = false;
-    AbstractProcessStep::run(interface);
+    AbstractProcessStep::run(fi);
 }
 
 BuildStepConfigWidget *AutoreconfStep::createConfigWidget()

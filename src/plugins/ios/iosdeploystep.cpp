@@ -117,9 +117,8 @@ void IosDeployStep::run(QFutureInterface<bool> &fi)
         if (iossimulator().isNull())
             TaskHub::addTask(Task::Error, tr("Deployment failed. No iOS device found."),
                              ProjectExplorer::Constants::TASK_CATEGORY_DEPLOYMENT);
-        m_futureInterface.reportResult(!iossimulator().isNull());
+        reportRunResult(m_futureInterface, !iossimulator().isNull());
         cleanup();
-        emit finished();
         return;
     }
     m_transferStatus = TransferInProgress;
@@ -179,7 +178,7 @@ void IosDeployStep::handleDidTransferApp(IosToolHandler *handler, const QString 
                              tr("Deployment failed. The settings in the Devices window of Xcode might be incorrect."),
                              ProjectExplorer::Constants::TASK_CATEGORY_DEPLOYMENT);
     }
-    m_futureInterface.reportResult(status == IosToolHandler::Success);
+    reportRunResult(m_futureInterface, status == IosToolHandler::Success);
 }
 
 void IosDeployStep::handleFinished(IosToolHandler *handler)
@@ -189,7 +188,7 @@ void IosDeployStep::handleFinished(IosToolHandler *handler)
         m_transferStatus = TransferFailed;
         TaskHub::addTask(Task::Error, tr("Deployment failed."),
                          ProjectExplorer::Constants::TASK_CATEGORY_DEPLOYMENT);
-        m_futureInterface.reportResult(false);
+        reportRunResult(m_futureInterface, false);
         break;
     case NoTransfer:
     case TransferOk:
@@ -199,7 +198,6 @@ void IosDeployStep::handleFinished(IosToolHandler *handler)
     cleanup();
     handler->deleteLater();
     // move it when result is reported? (would need care to avoid problems with concurrent runs)
-    emit finished();
 }
 
 void IosDeployStep::handleErrorMsg(IosToolHandler *handler, const QString &msg)

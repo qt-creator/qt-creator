@@ -171,7 +171,7 @@ bool ConfigureStep::init(QList<const BuildStep *> &earlierSteps)
     return AbstractProcessStep::init(earlierSteps);
 }
 
-void ConfigureStep::run(QFutureInterface<bool>& interface)
+void ConfigureStep::run(QFutureInterface<bool>& fi)
 {
     BuildConfiguration *bc = buildConfiguration();
 
@@ -187,13 +187,12 @@ void ConfigureStep::run(QFutureInterface<bool>& interface)
 
     if (!m_runConfigure) {
         emit addOutput(tr("Configuration unchanged, skipping configure step."), BuildStep::MessageOutput);
-        interface.reportResult(true);
-        emit finished();
+        reportRunResult(fi, true);
         return;
     }
 
     m_runConfigure = false;
-    AbstractProcessStep::run(interface);
+    AbstractProcessStep::run(fi);
 }
 
 BuildStepConfigWidget *ConfigureStep::createConfigWidget()

@@ -408,8 +408,7 @@ void QbsBuildStep::build()
     m_job = qbsProject()->build(options, m_products, error);
     if (!m_job) {
         emit addOutput(error, ErrorMessageOutput);
-        m_fi->reportResult(false);
-        emit finished();
+        reportRunResult(*m_fi, false);
         return;
     }
 
@@ -430,14 +429,12 @@ void QbsBuildStep::build()
 void QbsBuildStep::finish()
 {
     QTC_ASSERT(m_fi, return);
-    m_fi->reportResult(m_lastWasSuccess);
+    reportRunResult(*m_fi, m_lastWasSuccess);
     m_fi = 0; // do not delete, it is not ours
     if (m_job) {
         m_job->deleteLater();
         m_job = 0;
     }
-
-    emit finished();
 }
 
 QbsProject *QbsBuildStep::qbsProject() const
