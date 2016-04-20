@@ -63,14 +63,15 @@ BehaviorSettingsWidget::BehaviorSettingsWidget(QWidget *parent)
     if (firstNonNegative != mibs.end())
         std::rotate(mibs.begin(), firstNonNegative, mibs.end());
     foreach (int mib, mibs) {
-        QTextCodec *codec = QTextCodec::codecForMib(mib);
-        QString compoundName = QLatin1String(codec->name());
-        foreach (const QByteArray &alias, codec->aliases()) {
-            compoundName += QLatin1String(" / ");
-            compoundName += QString::fromLatin1(alias);
+        if (QTextCodec *codec = QTextCodec::codecForMib(mib)) {
+            QString compoundName = QLatin1String(codec->name());
+            foreach (const QByteArray &alias, codec->aliases()) {
+                compoundName += QLatin1String(" / ");
+                compoundName += QString::fromLatin1(alias);
+            }
+            d->m_ui.encodingBox->addItem(compoundName);
+            d->m_codecs.append(codec);
         }
-        d->m_ui.encodingBox->addItem(compoundName);
-        d->m_codecs.append(codec);
     }
 
     // Qt5 doesn't list the system locale (QTBUG-34283), so add it manually
