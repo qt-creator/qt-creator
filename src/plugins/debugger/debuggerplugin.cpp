@@ -2759,8 +2759,10 @@ void DebuggerPluginPrivate::coreShutdown()
 {
     m_shuttingDown = true;
     if (currentEngine()) {
-        currentEngine()->setTargetState(Debugger::DebuggerFinished);
-        currentEngine()->abortDebugger();
+        if (currentEngine()->state() != Debugger::DebuggerNotReady) {
+            currentEngine()->setTargetState(Debugger::DebuggerFinished);
+            currentEngine()->abortDebugger();
+        }
     }
 }
 
