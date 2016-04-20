@@ -91,7 +91,7 @@ static const QIcon &icon(IconIndex icon)
     case OkIcon: {
         static const QIcon ok =
                 Icon({{QLatin1String(":/extensionsystem/images/ok.png"),
-                       Theme::IconsRunColor}}, Icon::Tint).icon();
+                       Theme::IconsRunToolBarColor}}, Icon::Tint).icon();
         return ok;
     }
     case ErrorIcon: {

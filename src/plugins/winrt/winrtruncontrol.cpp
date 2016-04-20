@@ -56,7 +56,7 @@ WinRtRunControl::WinRtRunControl(WinRtRunConfiguration *runConfiguration, Core::
     , m_state(StoppedState)
     , m_runner(0)
 {
-    setIcon(Core::Icons::RUN_SMALL);
+    setIcon(Core::Icons::RUN_SMALL_TOOLBAR);
 }
 
 void WinRtRunControl::start()

@@ -42,7 +42,7 @@ IosRunControl::IosRunControl(IosRunConfiguration *rc)
     , m_runner(new IosRunner(this, rc, false, QmlDebug::NoQmlDebugServices))
     , m_running(false)
 {
-    setIcon(Core::Icons::RUN_SMALL);
+    setIcon(Core::Icons::RUN_SMALL_TOOLBAR);
 }
 
 IosRunControl::~IosRunControl()

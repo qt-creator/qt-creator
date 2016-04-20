@@ -260,10 +260,10 @@ void ImageViewer::updatePauseAction()
     bool isMovie = d->file->type() == ImageViewerFile::TypeMovie;
     if (isMovie && !d->file->isPaused()) {
         d->ui_toolbar.toolButtonPlayPause->setToolTipBase(tr("Pause Animation"));
-        d->ui_toolbar.toolButtonPlayPause->setIcon(Core::Icons::INTERRUPT_SMALL.icon());
+        d->ui_toolbar.toolButtonPlayPause->setIcon(Core::Icons::INTERRUPT_SMALL_TOOLBAR.icon());
     } else {
         d->ui_toolbar.toolButtonPlayPause->setToolTipBase(tr("Play Animation"));
-        d->ui_toolbar.toolButtonPlayPause->setIcon(Core::Icons::RUN_SMALL.icon());
+        d->ui_toolbar.toolButtonPlayPause->setIcon(Core::Icons::RUN_SMALL_TOOLBAR.icon());
         d->ui_toolbar.toolButtonPlayPause->setEnabled(isMovie);
     }
 }

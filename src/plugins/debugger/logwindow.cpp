@@ -374,7 +374,7 @@ LogWindow::LogWindow(QWidget *parent)
     m_commandEdit->setHistoryCompleter(QLatin1String("DebuggerInput"));
 
     auto repeatButton = new QToolButton(this);
-    repeatButton->setIcon(Icons::STEP_OVER_TOOLBUTTON.icon());
+    repeatButton->setIcon(Icons::STEP_OVER.icon());
     repeatButton->setFixedSize(QSize(18, 18));
     repeatButton->setToolTip(tr("Repeat last command for debug reasons."));
 

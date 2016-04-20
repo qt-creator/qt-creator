@@ -123,7 +123,7 @@ ClangStaticAnalyzerTool::ClangStaticAnalyzerTool(QObject *parent)
     // Go to previous diagnostic
     auto action = new QAction(this);
     action->setDisabled(true);
-    action->setIcon(Core::Icons::PREV.icon());
+    action->setIcon(Core::Icons::PREV_TOOLBAR.icon());
     action->setToolTip(tr("Go to previous bug."));
     connect(action, &QAction::triggered, m_diagnosticView, &DetailedErrorView::goBack);
     m_goBack = action;
@@ -131,7 +131,7 @@ ClangStaticAnalyzerTool::ClangStaticAnalyzerTool(QObject *parent)
     // Go to next diagnostic
     action = new QAction(this);
     action->setDisabled(true);
-    action->setIcon(Core::Icons::NEXT.icon());
+    action->setIcon(Core::Icons::NEXT_TOOLBAR.icon());
     action->setToolTip(tr("Go to next bug."));
     connect(action, &QAction::triggered, m_diagnosticView, &DetailedErrorView::goNext);
     m_goNext = action;

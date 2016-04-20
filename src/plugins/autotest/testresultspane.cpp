@@ -158,13 +158,13 @@ void TestResultsPane::createToolButtons()
     });
 
     m_runAll = new QToolButton(m_treeView);
-    m_runAll->setIcon(Core::Icons::RUN_SMALL.icon());
+    m_runAll->setIcon(Core::Icons::RUN_SMALL_TOOLBAR.icon());
     m_runAll->setToolTip(tr("Run All Tests"));
     m_runAll->setEnabled(false);
     connect(m_runAll, &QToolButton::clicked, this, &TestResultsPane::onRunAllTriggered);
 
     m_runSelected = new QToolButton(m_treeView);
-    Utils::Icon runSelectedIcon = Core::Icons::RUN_SMALL;
+    Utils::Icon runSelectedIcon = Core::Icons::RUN_SMALL_TOOLBAR;
     foreach (const Utils::IconMaskAndColor &maskAndColor, Icons::RUN_SELECTED_OVERLAY)
         runSelectedIcon.append(maskAndColor);
     m_runSelected->setIcon(runSelectedIcon.icon());
@@ -173,7 +173,7 @@ void TestResultsPane::createToolButtons()
     connect(m_runSelected, &QToolButton::clicked, this, &TestResultsPane::onRunSelectedTriggered);
 
     m_stopTestRun = new QToolButton(m_treeView);
-    m_stopTestRun->setIcon(Core::Icons::STOP_SMALL.icon());
+    m_stopTestRun->setIcon(Core::Icons::STOP_SMALL_TOOLBAR.icon());
     m_stopTestRun->setToolTip(tr("Stop Test Run"));
     m_stopTestRun->setEnabled(false);
     connect(m_stopTestRun, &QToolButton::clicked, TestRunner::instance(), &TestRunner::requestStopTestRun);

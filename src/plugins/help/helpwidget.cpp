@@ -128,7 +128,7 @@ HelpWidget::HelpWidget(const Core::Context &context, WidgetStyle style, QWidget 
         setAttribute(Qt::WA_QuitOnClose, false); // don't prevent Qt Creator from closing
     }
     if (style != SideBarWidget) {
-        m_toggleSideBarAction = new QAction(Core::Icons::TOGGLE_SIDEBAR.icon(),
+        m_toggleSideBarAction = new QAction(Core::Icons::TOGGLE_SIDEBAR_TOOLBAR.icon(),
                                             QCoreApplication::translate("Core", Core::Constants::TR_SHOW_SIDEBAR),
                                             toolBar);
         m_toggleSideBarAction->setCheckable(true);
@@ -164,7 +164,7 @@ HelpWidget::HelpWidget(const Core::Context &context, WidgetStyle style, QWidget 
     connect(m_homeAction, &QAction::triggered, this, &HelpWidget::goHome);
     layout->addWidget(Core::Command::toolButtonWithAppendedShortcut(m_homeAction, cmd));
 
-    m_backAction = new QAction(Core::Icons::PREV.icon(), tr("Back"), toolBar);
+    m_backAction = new QAction(Core::Icons::PREV_TOOLBAR.icon(), tr("Back"), toolBar);
     connect(m_backAction, &QAction::triggered, this, &HelpWidget::backward);
     m_backMenu = new QMenu(toolBar);
     connect(m_backMenu, &QMenu::aboutToShow, this, &HelpWidget::updateBackMenu);
@@ -175,7 +175,7 @@ HelpWidget::HelpWidget(const Core::Context &context, WidgetStyle style, QWidget 
     button->setPopupMode(QToolButton::DelayedPopup);
     layout->addWidget(button);
 
-    m_forwardAction = new QAction(Core::Icons::NEXT.icon(), tr("Forward"), toolBar);
+    m_forwardAction = new QAction(Core::Icons::NEXT_TOOLBAR.icon(), tr("Forward"), toolBar);
     connect(m_forwardAction, &QAction::triggered, this, &HelpWidget::forward);
     m_forwardMenu = new QMenu(toolBar);
     connect(m_forwardMenu, &QMenu::aboutToShow, this, &HelpWidget::updateForwardMenu);

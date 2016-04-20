@@ -45,17 +45,20 @@ const Utils::Icon REBUILD({
 const Utils::Icon RUN(
         QLatin1String(":/projectexplorer/images/run.png"));
 const Utils::Icon RUN_FLAT({
-        {QLatin1String(":/projectexplorer/images/run_mask.png"), Utils::Theme::IconsRunColor}});
+        {QLatin1String(":/projectexplorer/images/run_mask.png"), Utils::Theme::IconsRunToolBarColor}});
 const Utils::Icon WINDOW(
         QLatin1String(":/projectexplorer/images/window.png"));
 const Utils::Icon DEBUG_START(
         QLatin1String(":/projectexplorer/images/debugger_start.png"));
 
 const Utils::Icon DEBUG_START_FLAT({
-        {QLatin1String(":/projectexplorer/images/run_mask.png"), Utils::Theme::IconsRunColor},
+        {QLatin1String(":/projectexplorer/images/run_mask.png"), Utils::Theme::IconsRunToolBarColor},
         {QLatin1String(":/projectexplorer/images/debugger_beetle_mask.png"), Utils::Theme::IconsDebugColor}});
 const Utils::Icon DEBUG_START_SMALL({
         {QLatin1String(":/core/images/run_small.png"), Utils::Theme::IconsRunColor},
+        {QLatin1String(":/projectexplorer/images/debugger_overlay_small.png"), Utils::Theme::PanelTextColorMid}}, Utils::Icon::MenuTintedStyle);
+const Utils::Icon DEBUG_START_SMALL_TOOLBAR({
+        {QLatin1String(":/core/images/run_small.png"), Utils::Theme::IconsRunToolBarColor},
         {QLatin1String(":/projectexplorer/images/debugger_overlay_small.png"), Utils::Theme::IconsDebugColor}});
 
 const Utils::Icon BUILDSTEP_MOVEUP({

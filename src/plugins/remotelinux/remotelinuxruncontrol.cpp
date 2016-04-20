@@ -43,7 +43,7 @@ public:
 RemoteLinuxRunControl::RemoteLinuxRunControl(RunConfiguration *rc)
         : RunControl(rc, ProjectExplorer::Constants::NORMAL_RUN_MODE), d(new RemoteLinuxRunControlPrivate)
 {
-    setIcon(Core::Icons::RUN_SMALL);
+    setIcon(Core::Icons::RUN_SMALL_TOOLBAR);
     setRunnable(rc->runnable());
 
     d->running = false;

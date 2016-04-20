@@ -1349,14 +1349,14 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
         this, &DebuggerPluginPrivate::updateWatchersHeader, Qt::QueuedConnection);
 
     auto act = m_continueAction = new QAction(tr("Continue"), this);
-    act->setIcon(Icon::combinedIcon({Icons::DEBUG_CONTINUE_SMALL.icon(), continueSideBarIcon}));
+    act->setIcon(Icon::combinedIcon({Icons::DEBUG_CONTINUE_SMALL_TOOLBAR.icon(), continueSideBarIcon}));
     connect(act, &QAction::triggered, this, &DebuggerPluginPrivate::handleExecContinue);
 
     act = m_exitAction = new QAction(tr("Stop Debugger"), this);
-    act->setIcon(Icons::DEBUG_EXIT_SMALL.icon());
+    act->setIcon(Icons::DEBUG_EXIT_SMALL_TOOLBAR.icon());
     connect(act, &QAction::triggered, this, &DebuggerPluginPrivate::handleExecExit);
 
-    auto interruptIcon = Icon::combinedIcon({Icons::DEBUG_INTERRUPT_SMALL.icon(), interruptSideBarIcon});
+    auto interruptIcon = Icon::combinedIcon({Icons::DEBUG_INTERRUPT_SMALL_TOOLBAR.icon(), interruptSideBarIcon});
     act = m_interruptAction = new QAction(tr("Interrupt"), this);
     act->setIcon(interruptIcon);
     connect(act, &QAction::triggered, this, &DebuggerPluginPrivate::handleExecInterrupt);
@@ -1373,19 +1373,19 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
 
     act = m_resetAction = new QAction(tr("Restart Debugging"),this);
     act->setToolTip(tr("Restart the debugging session."));
-    act->setIcon(Icons::RESTART.icon());
+    act->setIcon(Icons::RESTART_TOOLBAR.icon());
     connect(act, &QAction::triggered, this, &DebuggerPluginPrivate::handleReset);
 
     act = m_nextAction = new QAction(tr("Step Over"), this);
-    act->setIcon(Icons::STEP_OVER.icon());
+    act->setIcon(Icons::STEP_OVER_TOOLBAR.icon());
     connect(act, &QAction::triggered, this, &DebuggerPluginPrivate::handleExecNext);
 
     act = m_stepAction = new QAction(tr("Step Into"), this);
-    act->setIcon(Icons::STEP_INTO.icon());
+    act->setIcon(Icons::STEP_INTO_TOOLBAR.icon());
     connect(act, &QAction::triggered, this, &DebuggerPluginPrivate::handleExecStep);
 
     act = m_stepOutAction = new QAction(tr("Step Out"), this);
-    act->setIcon(Icons::STEP_OUT.icon());
+    act->setIcon(Icons::STEP_OUT_TOOLBAR.icon());
     connect(act, &QAction::triggered, this, &DebuggerPluginPrivate::handleExecStepOut);
 
     act = m_runToLineAction = new QAction(tr("Run to Line"), this);
@@ -1443,7 +1443,7 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
     act = m_startAction = new QAction(this);
     const QIcon sideBarIcon =
             Icon::sideBarIcon(ProjectExplorer::Icons::DEBUG_START, ProjectExplorer::Icons::DEBUG_START_FLAT);
-    const QIcon debuggerIcon = Icon::combinedIcon({ProjectExplorer::Icons::DEBUG_START_SMALL.icon(), sideBarIcon});
+    const QIcon debuggerIcon = Icon::combinedIcon({ProjectExplorer::Icons::DEBUG_START_SMALL_TOOLBAR.icon(), sideBarIcon});
     act->setIcon(debuggerIcon);
     act->setText(tr("Start Debugging"));
     connect(act, &QAction::triggered, [] { ProjectExplorerPlugin::runStartupProject(ProjectExplorer::Constants::DEBUG_RUN_MODE); });
@@ -3551,7 +3551,7 @@ QAction *createStartAction()
 QAction *createStopAction()
 {
     auto action = new QAction(DebuggerMainWindow::tr("Stop"), DebuggerPlugin::instance());
-    action->setIcon(Core::Icons::STOP_SMALL.icon());
+    action->setIcon(Core::Icons::STOP_SMALL_TOOLBAR.icon());
     action->setEnabled(true);
     return action;
 }

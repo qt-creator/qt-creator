@@ -52,7 +52,8 @@ public:
         DropShadow = 2,
         PunchEdges = 4,
 
-        ToolBarStyle = Tint | DropShadow | PunchEdges
+        ToolBarStyle = Tint | DropShadow | PunchEdges,
+        MenuTintedStyle = Tint | PunchEdges
     };
 
     Q_DECLARE_FLAGS(IconStyleOptions, IconStyleOption)

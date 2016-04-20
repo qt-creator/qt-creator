@@ -94,13 +94,13 @@ EditorToolBarPrivate::EditorToolBarPrivate(QWidget *parent, EditorToolBar *q) :
     m_lockButton(new QToolButton(q)),
     m_dragHandle(new QToolButton(q)),
     m_dragHandleMenu(0),
-    m_goBackAction(new QAction(Icons::PREV.icon(), EditorManager::tr("Go Back"), parent)),
-    m_goForwardAction(new QAction(Icons::NEXT.icon(), EditorManager::tr("Go Forward"), parent)),
+    m_goBackAction(new QAction(Icons::PREV_TOOLBAR.icon(), EditorManager::tr("Go Back"), parent)),
+    m_goForwardAction(new QAction(Icons::NEXT_TOOLBAR.icon(), EditorManager::tr("Go Forward"), parent)),
     m_backButton(new QToolButton(q)),
     m_forwardButton(new QToolButton(q)),
     m_splitButton(new QToolButton(q)),
-    m_horizontalSplitAction(new QAction(Icons::SPLIT_HORIZONTAL.icon(), EditorManager::tr("Split"), parent)),
-    m_verticalSplitAction(new QAction(Icons::SPLIT_VERTICAL.icon(), EditorManager::tr("Split Side by Side"), parent)),
+    m_horizontalSplitAction(new QAction(Icons::SPLIT_HORIZONTAL_TOOLBAR.icon(), EditorManager::tr("Split"), parent)),
+    m_verticalSplitAction(new QAction(Icons::SPLIT_VERTICAL_TOOLBAR.icon(), EditorManager::tr("Split Side by Side"), parent)),
     m_splitNewWindowAction(new QAction(EditorManager::tr("Open in New Window"), parent)),
     m_closeSplitButton(new QToolButton(q)),
     m_activeToolBar(0),
@@ -163,7 +163,7 @@ EditorToolBar::EditorToolBar(QWidget *parent) :
         d->m_splitNewWindowAction->setIconVisibleInMenu(false);
     }
 
-    d->m_splitButton->setIcon(Icons::SPLIT_HORIZONTAL.icon());
+    d->m_splitButton->setIcon(Icons::SPLIT_HORIZONTAL_TOOLBAR.icon());
     d->m_splitButton->setToolTip(tr("Split"));
     d->m_splitButton->setPopupMode(QToolButton::InstantPopup);
     d->m_splitButton->setProperty("noArrow", true);
