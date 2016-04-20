@@ -1254,7 +1254,8 @@ void WatchHandler::cleanup()
     saveWatchers();
     m_model->reinitialize();
     emit m_model->updateFinished();
-    m_model->m_separatedView->hide();
+    if (Internal::mainWindow())
+        m_model->m_separatedView->hide();
 }
 
 static bool sortByName(const TreeItem *a, const TreeItem *b)

@@ -655,6 +655,9 @@ public:
 
     void updateWatchersHeader(int section, int, int newSize)
     {
+        if (m_shuttingDown)
+            return;
+
         m_watchersView->header()->resizeSection(section, newSize);
         m_returnView->header()->resizeSection(section, newSize);
     }
@@ -2357,6 +2360,9 @@ void DebuggerPluginPrivate::connectEngine(DebuggerEngine *engine)
     if (m_currentEngine == engine)
         return;
 
+    if (m_shuttingDown)
+        return;
+
     if (m_currentEngine)
         m_currentEngine->resetLocation();
     m_currentEngine = engine;
@@ -2741,6 +2747,8 @@ void DebuggerPluginPrivate::aboutToSaveSession()
 
 void DebuggerPluginPrivate::showStatusMessage(const QString &msg0, int timeout)
 {
+    if (m_shuttingDown)
+        return;
     showMessage(msg0, LogStatus);
     QString msg = msg0;
     msg.replace(QChar::LineFeed, QLatin1String("; "));
@@ -2750,6 +2758,10 @@ void DebuggerPluginPrivate::showStatusMessage(const QString &msg0, int timeout)
 void DebuggerPluginPrivate::coreShutdown()
 {
     m_shuttingDown = true;
+    if (currentEngine()) {
+        currentEngine()->setTargetState(Debugger::DebuggerFinished);
+        currentEngine()->abortDebugger();
+    }
 }
 
 const CPlusPlus::Snapshot &cppCodeModelSnapshot()
@@ -2886,6 +2898,8 @@ void DebuggerPluginPrivate::runControlStarted(DebuggerEngine *engine)
 
 void DebuggerPluginPrivate::runControlFinished(DebuggerEngine *engine)
 {
+    if (m_shuttingDown)
+        return;
     showStatusMessage(tr("Debugger finished."));
     m_snapshotHandler->removeSnapshot(engine);
     if (m_snapshotHandler->size() == 0) {
@@ -3672,7 +3686,8 @@ void DebuggerUnitTests::testStateMachine()
         QTestEventLoop::instance().exitLoop();
     });
 
-//    QTestEventLoop::instance().enterLoop(20);
+    QTestEventLoop::instance().enterLoop(5);
+    EditorManager::closeAllEditors(false);
 }
 
 
