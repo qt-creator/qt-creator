@@ -82,7 +82,7 @@ ClangStaticAnalyzerRunControl::ClangStaticAnalyzerRunControl(
 
     ToolChain *toolChain = ToolChainKitInformation::toolChain(target->kit());
     QTC_ASSERT(toolChain, return);
-    m_extraToolChainInfo.wordWidth = runConfiguration->abi().wordWidth();
+    m_extraToolChainInfo.wordWidth = toolChain->targetAbi().wordWidth();
     m_extraToolChainInfo.targetTriple = toolChain->originalTargetTriple();
 }
 
