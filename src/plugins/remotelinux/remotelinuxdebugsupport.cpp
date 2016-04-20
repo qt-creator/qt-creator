@@ -110,10 +110,20 @@ void LinuxDeviceDebugSupport::startExecution()
 {
     QTC_ASSERT(state() == GatheringResources, return);
 
-    if (d->cppDebugging && !setPort(d->gdbServerPort))
-        return;
-    if (d->qmlDebugging && !setPort(d->qmlPort))
+    if (d->cppDebugging) {
+        d->gdbServerPort = findPort();
+        if (!d->gdbServerPort.isValid()) {
+            handleAdapterSetupFailed(tr("Not enough free ports on device for C++ debugging."));
             return;
+        }
+    }
+    if (d->qmlDebugging) {
+        d->qmlPort = findPort();
+        if (!d->qmlPort.isValid()) {
+            handleAdapterSetupFailed(tr("Not enough free ports on device for QML debugging."));
+            return;
+        }
+    }
 
     setState(StartingRunner);
     d->gdbserverOutput.clear();

@@ -119,24 +119,14 @@ void AbstractRemoteLinuxRunSupport::setFinished()
     d->state = Inactive;
 }
 
-bool AbstractRemoteLinuxRunSupport::setPort(Utils::Port &port)
+Utils::Port AbstractRemoteLinuxRunSupport::findPort() const
 {
-    port = d->portsGatherer.getNextFreePort(&d->portList);
-    if (!port.isValid()) {
-        handleAdapterSetupFailed(tr("Not enough free ports on device for debugging."));
-        return false;
-    }
-    return true;
+    return d->portsGatherer.getNextFreePort(&d->portList);
 }
 
-bool AbstractRemoteLinuxRunSupport::setFifo(QString &fifo)
+QString AbstractRemoteLinuxRunSupport::fifo() const
 {
-    if (d->fifo.isEmpty()) {
-        handleAdapterSetupFailed(tr("FIFO for profiling data could not be created."));
-        return false;
-    }
-    fifo = d->fifo;
-    return true;
+    return d->fifo;
 }
 
 void AbstractRemoteLinuxRunSupport::startPortsGathering()

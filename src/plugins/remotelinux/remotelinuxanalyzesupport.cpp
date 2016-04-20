@@ -128,10 +128,19 @@ void RemoteLinuxAnalyzeSupport::startExecution()
 {
     QTC_ASSERT(state() == GatheringResources, return);
 
-    if (d->runMode == ProjectExplorer::Constants::QML_PROFILER_RUN_MODE && !setPort(d->qmlPort))
-        return;
-    if (d->runMode == ProjectExplorer::Constants::PERFPROFILER_RUN_MODE && !setFifo(d->remoteFifo))
-        return;
+    if (d->runMode == ProjectExplorer::Constants::QML_PROFILER_RUN_MODE) {
+        d->qmlPort = findPort();
+        if (!d->qmlPort.isValid()) {
+            handleAdapterSetupFailed(tr("Not enough free ports on device for profiling."));
+            return;
+        }
+    } else if (d->runMode == ProjectExplorer::Constants::PERFPROFILER_RUN_MODE) {
+        d->remoteFifo = fifo();
+        if (d->remoteFifo.isEmpty()) {
+            handleAdapterSetupFailed(tr("FIFO for profiling data could not be created."));
+            return;
+        }
+    }
 
     setState(StartingRunner);
 

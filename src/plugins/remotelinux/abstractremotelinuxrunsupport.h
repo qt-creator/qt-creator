@@ -69,11 +69,12 @@ protected:
     virtual void handleAdapterSetupDone();
 
     void setFinished();
-    bool setPort(Utils::Port &port);
-    bool setFifo(QString &fifo);
 
     void startPortsGathering();
+    Utils::Port findPort() const;
+
     void createRemoteFifo();
+    QString fifo() const;
 
     const ProjectExplorer::IDevice::ConstPtr device() const;
     const ProjectExplorer::StandardRunnable &runnable() const;
