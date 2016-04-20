@@ -843,10 +843,11 @@ QStringList QMakeStepConfig::toArguments() const
     else if (archConfig == PPC64)
         arguments << QLatin1String("CONFIG+=ppc64");
 
+    // TODO: make that depend on the actual Qt version that is used
     if (osType == IphoneSimulator)
-        arguments << QLatin1String("CONFIG+=iphonesimulator");
+        arguments << QLatin1String("CONFIG+=iphonesimulator") << QLatin1String("CONFIG+=simulator") /*since Qt 5.7*/;
     else if (osType == IphoneOS)
-        arguments << QLatin1String("CONFIG+=iphoneos");
+        arguments << QLatin1String("CONFIG+=iphoneos") << QLatin1String("CONFIG+=device") /*since Qt 5.7*/;
 
     if (linkQmlDebuggingQQ2)
         arguments << QLatin1String("CONFIG+=qml_debug");

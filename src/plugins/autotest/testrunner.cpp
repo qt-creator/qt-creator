@@ -137,7 +137,6 @@ static void performTestRun(QFutureInterface<TestResultPtr> &futureInterface,
     }
 
     QProcess testProcess;
-    testProcess.setReadChannelMode(QProcess::MergedChannels);
     testProcess.setReadChannel(QProcess::StandardOutput);
 
     futureInterface.setProgressRange(0, testCaseCount);
@@ -220,6 +219,10 @@ static void performTestRun(QFutureInterface<TestResultPtr> &futureInterface,
                 }
                 eventLoop.processEvents();
             }
+        }
+        if (testProcess.exitStatus() == QProcess::CrashExit) {
+            futureInterface.reportResult(TestResultPtr(new FaultyTestResult(Result::MessageFatal,
+                QString::fromLatin1("Test for project \"%1\" crashed.").arg(testConfiguration->displayName()))));
         }
 
         if (canceledByTimeout) {

@@ -71,7 +71,7 @@ public:
   }
 };
 
-struct State {
+class State {
 public:
   State() {}
 

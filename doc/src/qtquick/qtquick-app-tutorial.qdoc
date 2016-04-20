@@ -74,8 +74,11 @@
         \li In the \uicontrol Navigator, select \uicontrol RowLayout and press
             \key Delete to delete it.
 
+        \li Select \uicontrol Item in the navigator, and enter \e page in the
+            \uicontrol Id field.
+
         \li In \uicontrol Library > \uicontrol Resources, select qt-logo.png and
-            drag and drop it to the \uicontrol Item in the navigator.
+            drag and drop it to the \e page in the navigator.
 
             \image qmldesigner-tutorial-user-icon.png "Image properties"
 
@@ -101,8 +104,8 @@
 
             \li In the \uicontrol Id field, enter \e topLeftRect.
 
-            \li In the \uicontrol Size field, set \uicontrol W to \e 46 and
-                \uicontrol H to \e 55, for the rectangle size to match the image
+            \li In the \uicontrol Size field, set \uicontrol W to \e 55 and
+                \uicontrol H to \e 41, for the rectangle size to match the image
                 size.
 
             \li In the \uicontrol Color field, click the
@@ -112,9 +115,6 @@
 
             \li In the \uicontrol {Border color} field, set the border color to
                 \e #808080.
-
-            \li In the \uicontrol Radius field, select \e 6 to create rounded
-                corners for the rectangle.
 
             \li Click \uicontrol {Layout}, and then click the top and left
                 anchor buttons to anchor the rectangle to the top left corner of
@@ -187,6 +187,8 @@
     the \uicontrol Edit mode to add animation to the application, as described
     in the following section.
 
+    \image qmldesigner-tutorial-ui-ready.png "Transitions UI"
+
     \section1 Adding Application Logic
 
     The new project wizard adds boilerplate code to the \e main.qml file to
@@ -207,7 +209,7 @@
 
             \quotefromfile transitions/main.qml
             \skipto ApplicationWindow
-            \printuntil height
+            \printuntil title
 
         \li Specify an id for the MainForm type to be able to use the properties
             that you exported in \e MainForm.ui.qml:

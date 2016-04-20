@@ -36,53 +36,51 @@
 #include "branchadddialog.h"
 #include "gerrit/gerritplugin.h"
 
-#include <vcsbase/submitfilemodel.h>
-
+#include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
-#include <coreplugin/idocument.h>
-#include <coreplugin/vcsmanager.h>
 #include <coreplugin/id.h>
+#include <coreplugin/idocument.h>
 #include <coreplugin/iversioncontrol.h>
-#include <coreplugin/coreconstants.h>
+#include <coreplugin/vcsmanager.h>
 
+#include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 #include <utils/synchronousprocess.h>
-#include <utils/fileutils.h>
-#include <vcsbase/vcscommand.h>
+
+#include <vcsbase/submitfilemodel.h>
 #include <vcsbase/vcsbaseeditor.h>
 #include <vcsbase/vcsbaseeditorparameterwidget.h>
-#include <vcsbase/vcsoutputwindow.h>
 #include <vcsbase/vcsbaseplugin.h>
+#include <vcsbase/vcscommand.h>
+#include <vcsbase/vcsoutputwindow.h>
 
 #include <diffeditor/diffeditorconstants.h>
 #include <diffeditor/diffeditorcontroller.h>
 #include <diffeditor/diffutils.h>
 
+#include <QAction>
 #include <QCoreApplication>
 #include <QDir>
 #include <QFileInfo>
 #include <QHash>
-#include <QRegExp>
-#include <QSignalMapper>
-#include <QTemporaryFile>
-
-#include <QAction>
 #include <QMenu>
 #include <QMessageBox>
 #include <QPushButton>
-#include <QToolButton>
+#include <QRegExp>
+#include <QTemporaryFile>
 #include <QTextCodec>
+#include <QToolButton>
 
-static const char GIT_DIRECTORY[] = ".git";
-static const char graphLogFormatC[] = "%h %d %an %s %ci";
-static const char HEAD[] = "HEAD";
-static const char CHERRY_PICK_HEAD[] = "CHERRY_PICK_HEAD";
-static const char noColorOption[] = "--no-color";
-static const char decorateOption[] = "--decorate";
-static const char showFormatC[] =
+const char GIT_DIRECTORY[] = ".git";
+const char graphLogFormatC[] = "%h %d %an %s %ci";
+const char HEAD[] = "HEAD";
+const char CHERRY_PICK_HEAD[] = "CHERRY_PICK_HEAD";
+const char noColorOption[] = "--no-color";
+const char decorateOption[] = "--decorate";
+const char showFormatC[] =
         "--pretty=format:commit %H%n"
         "Author: %an <%ae>, %ad (%ar)%n"
         "Committer: %cn <%ce>, %cd (%cr)%n"

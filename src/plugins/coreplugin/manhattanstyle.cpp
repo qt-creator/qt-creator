@@ -245,7 +245,10 @@ QPalette panelPalette(const QPalette &oldPalette, bool lightColored = false)
     pal.setBrush(QPalette::All, QPalette::WindowText, color);
     pal.setBrush(QPalette::All, QPalette::ButtonText, color);
     pal.setBrush(QPalette::All, QPalette::Foreground, color);
-    color.setAlpha(100);
+    if (lightColored)
+        color.setAlpha(100);
+    else
+        color = creatorTheme()->color(Theme::IconsDisabledColor);
     pal.setBrush(QPalette::Disabled, QPalette::WindowText, color);
     pal.setBrush(QPalette::Disabled, QPalette::ButtonText, color);
     pal.setBrush(QPalette::Disabled, QPalette::Foreground, color);
@@ -740,9 +743,9 @@ void ManhattanStyle::drawControl(ControlElement element, const QStyleOption *opt
                     painter->setPen(StyleHelper::toolBarDropShadowColor());
                     painter->drawText(editRect.adjusted(1, 0, -1, 0), Qt::AlignLeft | Qt::AlignVCenter, text);
                 }
-                if (!(option->state & State_Enabled))
-                    painter->setOpacity(0.8);
-                painter->setPen(creatorTheme()->color(Theme::ComboBoxTextColor));
+                painter->setPen(creatorTheme()->color((option->state & State_Enabled)
+                                                      ? Theme::ComboBoxTextColor
+                                                      : Theme::IconsDisabledColor));
                 painter->drawText(editRect.adjusted(1, 0, -1, 0), Qt::AlignLeft | Qt::AlignVCenter, text);
 
                 painter->restore();

@@ -65,6 +65,7 @@ public slots:
     void zoomOut();
     void resetToOriginalSize();
     void fitToScreen();
+    void updateToolButtons();
     void togglePlay();
 
 private slots:

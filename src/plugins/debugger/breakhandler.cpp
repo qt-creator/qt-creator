@@ -733,6 +733,7 @@ PROPERTY(QString, functionName, setFunctionName)
 PROPERTY(BreakpointType, type, setType)
 PROPERTY(int, threadSpec, setThreadSpec)
 PROPERTY(QByteArray, condition, setCondition)
+PROPERTY(QString, command, setCommand)
 PROPERTY(quint64, address, setAddress)
 PROPERTY(QString, expression, setExpression)
 PROPERTY(QString, message, setMessage)
@@ -757,6 +758,7 @@ void Breakpoint::addToCommand(DebuggerCommand *cmd) const
     cmd->arg("type", type());
     cmd->arg("ignorecount", ignoreCount());
     cmd->arg("condition", condition().toHex());
+    cmd->arg("command", command().toUtf8().toHex());
     cmd->arg("function", functionName().toUtf8());
     cmd->arg("oneshot", isOneShot());
     cmd->arg("enabled", isEnabled());

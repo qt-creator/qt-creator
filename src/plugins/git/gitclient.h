@@ -40,9 +40,6 @@
 #include <QWidget>
 
 QT_BEGIN_NAMESPACE
-class QCheckBox;
-class QSignalMapper;
-class QDebug;
 class QProcessEnvironment;
 class QMenu;
 QT_END_NAMESPACE

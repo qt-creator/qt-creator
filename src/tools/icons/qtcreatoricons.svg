@@ -3106,7 +3106,7 @@
          style="fill:#ffffff;fill-opacity:1" />
       <polygon
          transform="translate(402,208)"
-         id="polygon6780-6"
+         id="bookmarkribbon"
          points="555,374 555,362 561,362 561,374 558,370 "
          style="fill:#000000;fill-opacity:1" />
     </g>
@@ -3145,6 +3145,25 @@
          cx="960"
          cy="576"
          r="6" />
+    </g>
+    <g
+       id="src/plugins/bookmarks/images/bookmark">
+      <rect
+         style="display:inline;fill:#ffffff;fill-opacity:1"
+         x="1016"
+         y="568"
+         width="16"
+         height="16"
+         id="rect6782-96-0" />
+      <use
+         transform="translate(61,0)"
+         height="100%"
+         width="100%"
+         id="use4979"
+         xlink:href="#bookmarkribbon"
+         y="0"
+         x="0"
+         style="display:inline" />
     </g>
   </g>
   <g

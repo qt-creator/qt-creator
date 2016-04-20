@@ -631,7 +631,7 @@ void TestTreeModel::markForRemoval(const QString &filePath)
             TestTreeItem *child = root->childItem(childRow);
             // Qt + named Quick Tests
             if (child->filePath() == filePath) {
-                child->markForRemoval(true);
+                child->markForRemovalRecursively(true);
             } else {
                 // unnamed Quick Tests and GTest and Qt Tests with separated source/header
                 int grandChildRow = child->childCount() - 1;

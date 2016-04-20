@@ -81,12 +81,16 @@ DebuggerMainWindow::~DebuggerMainWindow()
 {
     // As we have to setParent(0) on dock widget that are not selected,
     // we keep track of all and make sure we don't leak any
+    foreach (QDockWidget *dock, m_dockForDockId) {
+        if (dock && !dock->parentWidget())
+            delete dock;
+    }
+
     foreach (const Perspective &perspective, m_perspectiveForPerspectiveId) {
         foreach (const Perspective::Operation &operation, perspective.operations()) {
             if (operation.widget && !operation.widget->parentWidget()) {
-                // These are from inactive perspectives. We call setParent(0) when deactivating
-                // a perspective so that the widgets can't be accidentally enabled in the wrong
-                // perspectives. That's why we have to delete them manually here.
+                // These are from perspectives that never got enabled. We've taken ownership for
+                // those, so we need to delete them.
                 delete operation.widget;
             }
         }
@@ -154,7 +158,7 @@ void DebuggerMainWindow::finalizeSetup()
     hbox->addWidget(m_perspectiveChooser);
     hbox->addWidget(m_controlsStackWidget);
     hbox->addWidget(m_statusLabel);
-    hbox->addStretch();
+    hbox->addStretch(1);
     hbox->addWidget(new Utils::StyledSeparator);
     hbox->addWidget(viewButton);
 

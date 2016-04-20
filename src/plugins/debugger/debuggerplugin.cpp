@@ -966,6 +966,7 @@ public:
 
     QIcon m_locationMarkIcon;
 
+    QLabel *m_threadLabel = 0;
     QComboBox *m_threadBox = 0;
 
     BaseTreeView *m_breakView = 0;
@@ -1686,13 +1687,6 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
     cmd = ActionManager::registerAction(qmlSelectDummyAction, Constants::QML_SELECTTOOL);
     debugMenu->addAction(cmd);
 
-    auto qmlZoomDummyAction = new QAction(tr("Zoom"), this);
-    qmlZoomDummyAction->setCheckable(true);
-    qmlZoomDummyAction->setIcon(Core::Icons::ZOOM_TOOLBAR.icon());
-    qmlZoomDummyAction->setEnabled(false);
-    cmd = ActionManager::registerAction(qmlZoomDummyAction, Constants::QML_ZOOMTOOL);
-    debugMenu->addAction(cmd);
-
     debugMenu->addSeparator();
 
     // Don't add '1' to the string as it shows up in the shortcut dialog.
@@ -1795,7 +1789,9 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
     }
 
     toolbar.addWidget(new StyledSeparator);
-    toolbar.addWidget(new QLabel(tr("Threads:")));
+
+    m_threadLabel = new QLabel(tr("Threads:"));
+    toolbar.addWidget(m_threadLabel);
 
     m_threadBox = new QComboBox;
     m_threadBox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
@@ -1810,7 +1806,6 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
 //    qmlToolbar.addAction(qmlShowAppOnTopDummyAction);
 //    qmlToolbar.addWidget(new StyledSeparator);
 //    qmlToolbar.addAction(qmlSelectDummyAction);
-//    qmlToolbar.addAction(qmlZoomDummyAction);
 //    qmlToolbar.addWidget(new StyledSeparator);
 
     Perspective basePerspective({}, {
@@ -2380,6 +2375,7 @@ void DebuggerPluginPrivate::connectEngine(DebuggerEngine *engine)
 
     engine->watchHandler()->resetWatchers();
     m_localsView->hideProgressIndicator();
+    updateActiveLanguages();
 }
 
 static void changeFontSize(QWidget *widget, qreal size)
@@ -2498,6 +2494,8 @@ void DebuggerPluginPrivate::setInitialState()
 
     action(AutoDerefPointers)->setEnabled(true);
     action(ExpandStack)->setEnabled(false);
+
+    m_threadLabel->setEnabled(false);
 }
 
 void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
@@ -2595,6 +2593,7 @@ void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
     m_attachToUnstartedApplication->setEnabled(true);
 
     m_threadBox->setEnabled(state == InferiorStopOk || state == InferiorUnrunnable);
+    m_threadLabel->setEnabled(m_threadBox->isEnabled());
 
     const bool isCore = engine->runParameters().startMode == AttachCore;
     const bool stopped = state == InferiorStopOk;

@@ -47,7 +47,7 @@
     \image qtcreator-qnx-deployment.png "Deploy to device"
 
     The files to be installed are listed in the \uicontrol {Deployment} step,
-    the \uicontrol {Files to install for subproject} field. The
+    the \uicontrol {Files to deploy} field. The
     \uicontrol {Local File Path} field displays the location of the file on the
     development PC. The \uicontrol {Remote Directory} field displays the folder
     where the file is installed on the device. Text in red color indicates that

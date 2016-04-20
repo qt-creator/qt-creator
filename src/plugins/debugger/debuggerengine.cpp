@@ -282,6 +282,7 @@ public slots:
 
     void resetLocation()
     {
+        m_lookupRequests.clear();
         m_locationTimer.stop();
         m_locationMark.reset();
         m_stackHandler.resetLocation();
@@ -337,6 +338,9 @@ public:
 
     Utils::FileInProjectFinder m_fileFinder;
     QByteArray m_qtNamespace;
+
+    // Safety net to avoid infinite lookups.
+    QSet<QByteArray> m_lookupRequests; // FIXME: Integrate properly.
 };
 
 
@@ -2022,6 +2026,23 @@ bool DebuggerEngine::canHandleToolTip(const DebuggerToolTipContext &context) con
 
 void DebuggerEngine::updateItem(const QByteArray &iname)
 {
+    if (d->m_lookupRequests.contains(iname)) {
+        showMessage(QString::fromLatin1("IGNORING REPEATED REQUEST TO EXPAND " + iname));
+        WatchHandler *handler = watchHandler();
+        WatchItem *item = handler->findItem(iname);
+        if (!item->hasChildren()) {
+            handler->notifyUpdateStarted({iname});
+            item->setValue(decodeData({}, "notaccessible"));
+            item->setHasChildren(false);
+            item->outdated = false;
+            item->update();
+            handler->notifyUpdateFinished();
+            return;
+        }
+        // We could legitimately end up here after expanding + closing + re-expaning an item.
+    }
+    d->m_lookupRequests.insert(iname);
+
     UpdateParameters params;
     params.partialVariable = iname;
     doUpdateLocals(params);

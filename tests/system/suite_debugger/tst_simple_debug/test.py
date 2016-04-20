@@ -52,9 +52,6 @@ def main():
         if result:
             expectedBreakpointsOrder = [{os.path.join(workingDir, projectName, "main.cpp"):8},
                                         {os.path.join(workingDir, projectName, "main.qml"):10}]
-            if JIRA.isBugStillOpen(15806):
-                test.xfail("Breakpoint in QML file won't be hit (QTCREATORBUG-15806).")
-                expectedBreakpointsOrder = expectedBreakpointsOrder[:-1]
             # Only use 4.7.4 to work around QTBUG-25187
             availableConfigs = iterateBuildConfigs(len(checkedTargets), "Debug")
             progressBarWait()

@@ -82,7 +82,7 @@ bool TestVisitor::visit(CPlusPlus::Class *symbol)
 
                 CPlusPlus::Function *functionDefinition = m_symbolFinder.findMatchingDefinition(
                             func, CppTools::CppModelManager::instance()->snapshot(), true);
-                if (functionDefinition) {
+                if (functionDefinition && functionDefinition->fileId()) {
                     locationAndType.m_name = QString::fromUtf8(functionDefinition->fileName());
                     locationAndType.m_line = functionDefinition->line();
                     locationAndType.m_column = functionDefinition->column() - 1;

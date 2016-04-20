@@ -160,6 +160,7 @@ lldb.SBType.__str__ = lldb.SBType.GetName
 class Dumper(DumperBase):
     def __init__(self):
         DumperBase.__init__(self)
+        lldb.theDumper = self
 
         self.outputLock = threading.Lock()
         self.debugger = lldb.SBDebugger.Create()
@@ -1489,6 +1490,21 @@ class Dumper(DumperBase):
             bp.SetIgnoreCount(int(args["ignorecount"]))
             bp.SetCondition(self.hexdecode(args["condition"]))
             bp.SetEnabled(bool(args["enabled"]))
+            bp.SetScriptCallbackBody('\n'.join([
+                "def foo(frame = frame, bp_loc = bp_loc, dict = internal_dict):",
+                "  " + self.hexdecode(args["command"]).replace('\n', '\n  '),
+                "from cStringIO import StringIO",
+                "origout = sys.stdout",
+                "sys.stdout = StringIO()",
+                "result = foo()",
+                "d = lldb.theDumper",
+                "output = d.hexencode(sys.stdout.getvalue())",
+                "sys.stdout = origout",
+                "d.report('output={channel=\"stderr\",data=\"' + output + '\"}')",
+                "if result is False:",
+                "  d.reportState('continueafternextstop')",
+                "return True"
+            ]))
             if isinstance(bp, lldb.SBBreakpoint):
                 bp.SetOneShot(bool(args["oneshot"]))
         self.reportResult(self.describeBreakpoint(bp) + extra, args)

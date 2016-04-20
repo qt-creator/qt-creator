@@ -108,7 +108,7 @@ Core::IDocument::OpenResult ImageViewerFile::openImpl(QString *errorString, cons
     if (format.startsWith("svg")) {
         m_tempSvgItem = new QGraphicsSvgItem(fileName);
         QRectF bound = m_tempSvgItem->boundingRect();
-        if (bound.width() == 0 && bound.height() == 0) {
+        if (qFuzzyIsNull(bound.width()) && qFuzzyIsNull(bound.height())) {
             delete m_tempSvgItem;
             m_tempSvgItem = 0;
             if (errorString)
@@ -116,7 +116,7 @@ Core::IDocument::OpenResult ImageViewerFile::openImpl(QString *errorString, cons
             return OpenResult::CannotHandle;
         }
         m_type = TypeSvg;
-        emit imageSizeChanged(QSize());
+        emit imageSizeChanged(m_tempSvgItem->boundingRect().size().toSize());
     } else
 #endif
     if (QMovie::supportedFormats().contains(format)) {

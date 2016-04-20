@@ -148,9 +148,8 @@ void PropertyEditorValue::setValueWithEmit(const QVariant &value)
 void PropertyEditorValue::setValue(const QVariant &value)
 {
     if (!compareVariants(m_value, value) &&
-        !cleverDoubleCompare(value, m_value) &&
-        !cleverColorCompare(value, m_value))
-
+            !cleverDoubleCompare(value, m_value) &&
+            !cleverColorCompare(value, m_value))
         m_value = value;
 
     fixAmbigousColorNames(modelNode(), name(), &m_value);

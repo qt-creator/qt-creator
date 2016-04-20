@@ -2852,16 +2852,14 @@ static inline bool dumpQSharedPointer(const SymbolGroupValue &v, std::wostream &
             str << L"(null)";
             return true;
         }
-        std::ostringstream namestr;
-        namestr << "*(" << SymbolGroupValue::stripClassPrefixes(value.type()) << ")("
-                << std::showbase << std::hex << value.pointerValue() << ')';
-        SymbolGroupNode *valueNode
-                = v.node()->symbolGroup()->addSymbol(v.module(), namestr.str(), std::string(), &std::string());
-        if (!valueNode)
-            return false;
 
-        str << valueNode->simpleDumpValue(v.context(), encoding);
-        return true;
+        if (knownType(value.type(), KnownTypeAutoStripPointer | KnownTypeHasClassPrefix)
+                & KT_HasSimpleDumper) {
+            str << value.node()->simpleDumpValue(v.context(), encoding);
+            return true;
+        }
+
+        return false;
     }
 }
 

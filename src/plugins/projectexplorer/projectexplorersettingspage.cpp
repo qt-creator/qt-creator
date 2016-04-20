@@ -67,7 +67,7 @@ private:
     void setJomVisible(bool);
 
     Ui::ProjectExplorerSettingsPageUi m_ui;
-    QUuid m_environmentId;
+    mutable ProjectExplorerSettings m_settings;
 };
 
 ProjectExplorerSettingsWidget::ProjectExplorerSettingsWidget(QWidget *parent) :
@@ -97,39 +97,37 @@ void ProjectExplorerSettingsWidget::setJomVisible(bool v)
 
 ProjectExplorerSettings ProjectExplorerSettingsWidget::settings() const
 {
-    ProjectExplorerSettings pes;
-    pes.buildBeforeDeploy = m_ui.buildProjectBeforeDeployCheckBox->isChecked();
-    pes.deployBeforeRun = m_ui.deployProjectBeforeRunCheckBox->isChecked();
-    pes.saveBeforeBuild = m_ui.saveAllFilesCheckBox->isChecked();
-    pes.showCompilerOutput = m_ui.showCompileOutputCheckBox->isChecked();
-    pes.showRunOutput = m_ui.showRunOutputCheckBox->isChecked();
-    pes.showDebugOutput = m_ui.showDebugOutputCheckBox->isChecked();
-    pes.cleanOldAppOutput = m_ui.cleanOldAppOutputCheckBox->isChecked();
-    pes.mergeStdErrAndStdOut = m_ui.mergeStdErrAndStdOutCheckBox->isChecked();
-    pes.wrapAppOutput = m_ui.wrapAppOutputCheckBox->isChecked();
-    pes.useJom = m_ui.jomCheckbox->isChecked();
-    pes.prompToStopRunControl = m_ui.promptToStopRunControlCheckBox->isChecked();
-    pes.maxAppOutputLines = m_ui.maxAppOutputBox->value();
-    pes.environmentId = m_environmentId;
-    pes.stopBeforeBuild = ProjectExplorerSettings::StopBeforeBuild(m_ui.stopBeforeBuildComboBox->currentIndex());
-    return pes;
+    m_settings.buildBeforeDeploy = m_ui.buildProjectBeforeDeployCheckBox->isChecked();
+    m_settings.deployBeforeRun = m_ui.deployProjectBeforeRunCheckBox->isChecked();
+    m_settings.saveBeforeBuild = m_ui.saveAllFilesCheckBox->isChecked();
+    m_settings.showCompilerOutput = m_ui.showCompileOutputCheckBox->isChecked();
+    m_settings.showRunOutput = m_ui.showRunOutputCheckBox->isChecked();
+    m_settings.showDebugOutput = m_ui.showDebugOutputCheckBox->isChecked();
+    m_settings.cleanOldAppOutput = m_ui.cleanOldAppOutputCheckBox->isChecked();
+    m_settings.mergeStdErrAndStdOut = m_ui.mergeStdErrAndStdOutCheckBox->isChecked();
+    m_settings.wrapAppOutput = m_ui.wrapAppOutputCheckBox->isChecked();
+    m_settings.useJom = m_ui.jomCheckbox->isChecked();
+    m_settings.prompToStopRunControl = m_ui.promptToStopRunControlCheckBox->isChecked();
+    m_settings.maxAppOutputLines = m_ui.maxAppOutputBox->value();
+    m_settings.stopBeforeBuild = ProjectExplorerSettings::StopBeforeBuild(m_ui.stopBeforeBuildComboBox->currentIndex());
+    return m_settings;
 }
 
 void ProjectExplorerSettingsWidget::setSettings(const ProjectExplorerSettings  &pes)
 {
-    m_ui.buildProjectBeforeDeployCheckBox->setChecked(pes.buildBeforeDeploy);
-    m_ui.deployProjectBeforeRunCheckBox->setChecked(pes.deployBeforeRun);
-    m_ui.saveAllFilesCheckBox->setChecked(pes.saveBeforeBuild);
-    m_ui.showCompileOutputCheckBox->setChecked(pes.showCompilerOutput);
-    m_ui.showRunOutputCheckBox->setChecked(pes.showRunOutput);
-    m_ui.showDebugOutputCheckBox->setChecked(pes.showDebugOutput);
-    m_ui.cleanOldAppOutputCheckBox->setChecked(pes.cleanOldAppOutput);
-    m_ui.mergeStdErrAndStdOutCheckBox->setChecked(pes.mergeStdErrAndStdOut);
-    m_ui.wrapAppOutputCheckBox->setChecked(pes.wrapAppOutput);
-    m_ui.jomCheckbox->setChecked(pes.useJom);
-    m_ui.promptToStopRunControlCheckBox->setChecked(pes.prompToStopRunControl);
-    m_ui.maxAppOutputBox->setValue(pes.maxAppOutputLines);
-    m_environmentId = pes.environmentId;
+    m_settings = pes;
+    m_ui.buildProjectBeforeDeployCheckBox->setChecked(m_settings.buildBeforeDeploy);
+    m_ui.deployProjectBeforeRunCheckBox->setChecked(m_settings.deployBeforeRun);
+    m_ui.saveAllFilesCheckBox->setChecked(m_settings.saveBeforeBuild);
+    m_ui.showCompileOutputCheckBox->setChecked(m_settings.showCompilerOutput);
+    m_ui.showRunOutputCheckBox->setChecked(m_settings.showRunOutput);
+    m_ui.showDebugOutputCheckBox->setChecked(m_settings.showDebugOutput);
+    m_ui.cleanOldAppOutputCheckBox->setChecked(m_settings.cleanOldAppOutput);
+    m_ui.mergeStdErrAndStdOutCheckBox->setChecked(m_settings.mergeStdErrAndStdOut);
+    m_ui.wrapAppOutputCheckBox->setChecked(m_settings.wrapAppOutput);
+    m_ui.jomCheckbox->setChecked(m_settings.useJom);
+    m_ui.promptToStopRunControlCheckBox->setChecked(m_settings.prompToStopRunControl);
+    m_ui.maxAppOutputBox->setValue(m_settings.maxAppOutputLines);
     m_ui.stopBeforeBuildComboBox->setCurrentIndex(pes.stopBeforeBuild);
 }
 

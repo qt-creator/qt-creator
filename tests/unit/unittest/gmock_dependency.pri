@@ -29,7 +29,7 @@ isEmpty(GOOGLETEST_DIR) {
 }
 
 requires(exists($$GTEST_SRC_DIR):exists($$GMOCK_SRC_DIR))
-!exists($$GTEST_SRC_DIR):message("No gmock is found! To enabe unit tests set GOOGLETEST_DIR")
+!exists($$GTEST_SRC_DIR):message("No gmock is found! To enable unit tests set GOOGLETEST_DIR")
 
 DEFINES += \
     GTEST_HAS_STD_INITIALIZER_LIST_ \

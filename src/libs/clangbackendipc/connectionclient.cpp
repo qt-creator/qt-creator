@@ -233,12 +233,12 @@ void ConnectionClient::printLocalSocketError(QLocalSocket::LocalSocketError sock
 
 void ConnectionClient::printStandardOutput()
 {
-    QTextStream(stdout) << stdOutPrefixer.prefix(process_->readAllStandardOutput());
+    qDebug("%s", stdOutPrefixer.prefix(process_->readAllStandardOutput()).constData());
 }
 
 void ConnectionClient::printStandardError()
 {
-    QTextStream(stderr) << stdErrPrefixer.prefix(process_->readAllStandardError());
+    qDebug("%s", stdErrPrefixer.prefix(process_->readAllStandardError()).constData());
 }
 
 void ConnectionClient::finishProcess()

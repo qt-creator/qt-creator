@@ -1507,7 +1507,7 @@
                 \li \uicontrol {All Projects} searches files matching the
                     defined file pattern in all currently open projects.
 
-                    For example, to search for \c previewer only in \c {.cpp}
+                    For example, to search for a string only in \c {.cpp}
                     and \c {.h} files, enter in \uicontrol {File pattern}
                     \c {*.cpp,*.h}.
 

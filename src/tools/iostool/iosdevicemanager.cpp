@@ -129,6 +129,219 @@ typedef am_res_t (MDEV_API *USBMuxConnectByPortPtr)(unsigned int, int, ServiceSo
 
 } // anonymous namespace
 
+static QString mobileDeviceErrorString(am_res_t code)
+{
+    static const char *errorStrings[] = {
+        "kAMDSuccess", // 0x0
+        "kAMDUndefinedError", // 0xe8000001
+        "kAMDBadHeaderError",
+        "kAMDNoResourcesError",
+        "kAMDReadError",
+        "kAMDWriteError",
+        "kAMDUnknownPacketError",
+        "kAMDInvalidArgumentError",
+        "kAMDNotFoundError",
+        "kAMDIsDirectoryError",
+        "kAMDPermissionError",
+        "kAMDNotConnectedError",
+        "kAMDTimeOutError",
+        "kAMDOverrunError",
+        "kAMDEOFError",
+        "kAMDUnsupportedError",
+        "kAMDFileExistsError",
+        "kAMDBusyError",
+        "kAMDCryptoError",
+        "kAMDInvalidResponseError",
+        "kAMDMissingKeyError",
+        "kAMDMissingValueError",
+        "kAMDGetProhibitedError",
+        "kAMDSetProhibitedError",
+        "kAMDRemoveProhibitedError",
+        "kAMDImmutableValueError",
+        "kAMDPasswordProtectedError",
+        "kAMDMissingHostIDError",
+        "kAMDInvalidHostIDError",
+        "kAMDSessionActiveError",
+        "kAMDSessionInactiveError",
+        "kAMDMissingSessionIDError",
+        "kAMDInvalidSessionIDError",
+        "kAMDMissingServiceError",
+        "kAMDInvalidServiceError",
+        "kAMDInvalidCheckinError",
+        "kAMDCheckinTimeoutError",
+        "kAMDMissingPairRecordError",
+        "kAMDInvalidActivationRecordError",
+        "kAMDMissingActivationRecordError",
+        "kAMDWrongDroidError",
+        "kAMDSUVerificationError",
+        "kAMDSUPatchError",
+        "kAMDSUFirmwareError",
+        "kAMDProvisioningProfileNotValid",
+        "kAMDSendMessageError",
+        "kAMDReceiveMessageError",
+        "kAMDMissingOptionsError",
+        "kAMDMissingImageTypeError",
+        "kAMDDigestFailedError",
+        "kAMDStartServiceError",
+        "kAMDInvalidDiskImageError",
+        "kAMDMissingDigestError",
+        "kAMDMuxError",
+        "kAMDApplicationAlreadyInstalledError",
+        "kAMDApplicationMoveFailedError",
+        "kAMDApplicationSINFCaptureFailedError",
+        "kAMDApplicationSandboxFailedError",
+        "kAMDApplicationVerificationFailedError",
+        "kAMDArchiveDestructionFailedError",
+        "kAMDBundleVerificationFailedError",
+        "kAMDCarrierBundleCopyFailedError",
+        "kAMDCarrierBundleDirectoryCreationFailedError",
+        "kAMDCarrierBundleMissingSupportedSIMsError",
+        "kAMDCommCenterNotificationFailedError",
+        "kAMDContainerCreationFailedError",
+        "kAMDContainerP0wnFailedError",
+        "kAMDContainerRemovalFailedError",
+        "kAMDEmbeddedProfileInstallFailedError",
+        "kAMDErrorError",
+        "kAMDExecutableTwiddleFailedError",
+        "kAMDExistenceCheckFailedError",
+        "kAMDInstallMapUpdateFailedError",
+        "kAMDManifestCaptureFailedError",
+        "kAMDMapGenerationFailedError",
+        "kAMDMissingBundleExecutableError",
+        "kAMDMissingBundleIdentifierError",
+        "kAMDMissingBundlePathError",
+        "kAMDMissingContainerError",
+        "kAMDNotificationFailedError",
+        "kAMDPackageExtractionFailedError",
+        "kAMDPackageInspectionFailedError",
+        "kAMDPackageMoveFailedError",
+        "kAMDPathConversionFailedError",
+        "kAMDRestoreContainerFailedError",
+        "kAMDSeatbeltProfileRemovalFailedError",
+        "kAMDStageCreationFailedError",
+        "kAMDSymlinkFailedError",
+        "kAMDiTunesArtworkCaptureFailedError",
+        "kAMDiTunesMetadataCaptureFailedError",
+        "kAMDAlreadyArchivedError",
+        "kAMDServiceLimitError",
+        "kAMDInvalidPairRecordError",
+        "kAMDServiceProhibitedError",
+        "kAMDCheckinSetupFailedError",
+        "kAMDCheckinConnectionFailedError",
+        "kAMDCheckinReceiveFailedError",
+        "kAMDCheckinResponseFailedError",
+        "kAMDCheckinSendFailedError",
+        "kAMDMuxCreateListenerError",
+        "kAMDMuxGetListenerError",
+        "kAMDMuxConnectError",
+        "kAMDUnknownCommandError",
+        "kAMDAPIInternalError",
+        "kAMDSavePairRecordFailedError",
+        "kAMDCheckinOutOfMemoryError",
+        "kAMDDeviceTooNewError",
+        "kAMDDeviceRefNoGood",
+        "kAMDCannotTranslateError",
+        "kAMDMobileImageMounterMissingImageSignature",
+        "kAMDMobileImageMounterResponseCreationFailed",
+        "kAMDMobileImageMounterMissingImageType",
+        "kAMDMobileImageMounterMissingImagePath",
+        "kAMDMobileImageMounterImageMapLoadFailed",
+        "kAMDMobileImageMounterAlreadyMounted",
+        "kAMDMobileImageMounterImageMoveFailed",
+        "kAMDMobileImageMounterMountPathMissing",
+        "kAMDMobileImageMounterMountPathNotEmpty",
+        "kAMDMobileImageMounterImageMountFailed",
+        "kAMDMobileImageMounterTrustCacheLoadFailed",
+        "kAMDMobileImageMounterDigestFailed",
+        "kAMDMobileImageMounterDigestCreationFailed",
+        "kAMDMobileImageMounterImageVerificationFailed",
+        "kAMDMobileImageMounterImageInfoCreationFailed",
+        "kAMDMobileImageMounterImageMapStoreFailed",
+        "kAMDBonjourSetupError",
+        "kAMDDeviceOSVersionTooLow",
+        "kAMDNoWifiSyncSupportError",
+        "kAMDDeviceFamilyNotSupported",
+        "kAMDEscrowLockedError",
+        "kAMDPairingProhibitedError",
+        "kAMDProhibitedBySupervision",
+        "kAMDDeviceDisconnectedError",
+        "kAMDTooBigError",
+        "kAMDPackagePatchFailedError",
+        "kAMDIncorrectArchitectureError",
+        "kAMDPluginCopyFailedError",
+        "kAMDBreadcrumbFailedError",
+        "kAMDBreadcrumbUnlockError",
+        "kAMDGeoJSONCaptureFailedError",
+        "kAMDNewsstandArtworkCaptureFailedError",
+        "kAMDMissingCommandError",
+        "kAMDNotEntitledError",
+        "kAMDMissingPackagePathError",
+        "kAMDMissingContainerPathError",
+        "kAMDMissingApplicationIdentifierError",
+        "kAMDMissingAttributeValueError",
+        "kAMDLookupFailedError",
+        "kAMDDictCreationFailedError",
+        "kAMDUserDeniedPairingError",
+        "kAMDPairingDialogResponsePendingError",
+        "kAMDInstallProhibitedError",
+        "kAMDUninstallProhibitedError",
+        "kAMDFMiPProtectedError",
+        "kAMDMCProtected",
+        "kAMDMCChallengeRequired",
+        "kAMDMissingBundleVersionError" // 0xe800009c
+    };
+
+    CFStringRef key = NULL;
+    static const size_t errorStringLast = ((sizeof(errorStrings) / sizeof(char *)) - 1) | 0xe8000000;
+    if (code <= errorStringLast) {
+        // Mask off some bits to get an index into the known error names array
+        key = QString::fromLatin1(errorStrings[code & ~0xe8000000]).toCFString();
+    } else {
+        // Some errors don't have constant names; check a few other known error codes
+        switch (code) {
+        case 0xe8008015:
+            key = CFSTR("A valid provisioning profile for this executable was not found.");
+            break;
+        case 0xe8008016:
+            key = CFSTR("The executable was signed with invalid entitlements.");
+            break;
+        case 0xe8008017:
+            key = CFSTR("A signed resource has been added, modified, or deleted.");
+            break;
+        case 0xe8008018:
+            key = CFSTR("The identity used to sign the executable is no longer valid.");
+            break;
+        case 0xe8008019:
+            key = CFSTR("The application does not have a valid signature.");
+            break;
+        case 0xe800801c:
+            key = CFSTR("The signature was not valid.");
+            break;
+        default:
+            return QString();
+        }
+
+        CFRetain(key);
+    }
+
+    CFURLRef url = QUrl::fromLocalFile(
+        QStringLiteral("/System/Library/PrivateFrameworks/MobileDevice.framework")).toCFURL();
+    CFBundleRef mobileDeviceBundle = CFBundleCreate(kCFAllocatorDefault, url);
+    CFRelease(url);
+
+    QString s;
+    if (mobileDeviceBundle) {
+        CFStringRef str = CFCopyLocalizedStringFromTableInBundle(key, CFSTR("Localizable"),
+                                                                 mobileDeviceBundle, nil);
+
+        s = QString::fromCFString(str);
+        CFRelease(str);
+    }
+
+    CFRelease(key);
+    return s;
+}
+
 namespace Ios {
 namespace Internal {
 
@@ -770,9 +983,9 @@ bool CommandSession::startService(const QString &serviceName, ServiceSocket &fd)
     if (!connectDevice())
         return false;
     CFStringRef cfsService = serviceName.toCFString();
-    if (am_res_t error = lib()->deviceStartService(device, cfsService, &fd, 0)) {
-        addError(QString::fromLatin1("startService on device %1 failed, AMDeviceStartService returned %2")
-                 .arg(deviceId).arg(error));
+    if (am_res_t error = lib()->deviceStartService(device, cfsService, 0, &fd)) {
+        addError(QString::fromLatin1("Starting service \"%1\" on device %2 failed, AMDeviceStartService returned %3 (0x%4)")
+                 .arg(serviceName).arg(deviceId).arg(mobileDeviceErrorString(error)).arg(QString::number(error, 16)));
         failure = true;
         fd = -1;
     }
@@ -1045,219 +1258,6 @@ QString AppOpSession::commandName()
     return QString::fromLatin1("TransferAppSession(%1, %2)").arg(deviceId, bundlePath);
 }
 
-static QString mobileDeviceErrorString(am_res_t code)
-{
-    static const char *errorStrings[] = {
-        "kAMDSuccess", // 0x0
-        "kAMDUndefinedError", // 0xe8000001
-        "kAMDBadHeaderError",
-        "kAMDNoResourcesError",
-        "kAMDReadError",
-        "kAMDWriteError",
-        "kAMDUnknownPacketError",
-        "kAMDInvalidArgumentError",
-        "kAMDNotFoundError",
-        "kAMDIsDirectoryError",
-        "kAMDPermissionError",
-        "kAMDNotConnectedError",
-        "kAMDTimeOutError",
-        "kAMDOverrunError",
-        "kAMDEOFError",
-        "kAMDUnsupportedError",
-        "kAMDFileExistsError",
-        "kAMDBusyError",
-        "kAMDCryptoError",
-        "kAMDInvalidResponseError",
-        "kAMDMissingKeyError",
-        "kAMDMissingValueError",
-        "kAMDGetProhibitedError",
-        "kAMDSetProhibitedError",
-        "kAMDRemoveProhibitedError",
-        "kAMDImmutableValueError",
-        "kAMDPasswordProtectedError",
-        "kAMDMissingHostIDError",
-        "kAMDInvalidHostIDError",
-        "kAMDSessionActiveError",
-        "kAMDSessionInactiveError",
-        "kAMDMissingSessionIDError",
-        "kAMDInvalidSessionIDError",
-        "kAMDMissingServiceError",
-        "kAMDInvalidServiceError",
-        "kAMDInvalidCheckinError",
-        "kAMDCheckinTimeoutError",
-        "kAMDMissingPairRecordError",
-        "kAMDInvalidActivationRecordError",
-        "kAMDMissingActivationRecordError",
-        "kAMDWrongDroidError",
-        "kAMDSUVerificationError",
-        "kAMDSUPatchError",
-        "kAMDSUFirmwareError",
-        "kAMDProvisioningProfileNotValid",
-        "kAMDSendMessageError",
-        "kAMDReceiveMessageError",
-        "kAMDMissingOptionsError",
-        "kAMDMissingImageTypeError",
-        "kAMDDigestFailedError",
-        "kAMDStartServiceError",
-        "kAMDInvalidDiskImageError",
-        "kAMDMissingDigestError",
-        "kAMDMuxError",
-        "kAMDApplicationAlreadyInstalledError",
-        "kAMDApplicationMoveFailedError",
-        "kAMDApplicationSINFCaptureFailedError",
-        "kAMDApplicationSandboxFailedError",
-        "kAMDApplicationVerificationFailedError",
-        "kAMDArchiveDestructionFailedError",
-        "kAMDBundleVerificationFailedError",
-        "kAMDCarrierBundleCopyFailedError",
-        "kAMDCarrierBundleDirectoryCreationFailedError",
-        "kAMDCarrierBundleMissingSupportedSIMsError",
-        "kAMDCommCenterNotificationFailedError",
-        "kAMDContainerCreationFailedError",
-        "kAMDContainerP0wnFailedError",
-        "kAMDContainerRemovalFailedError",
-        "kAMDEmbeddedProfileInstallFailedError",
-        "kAMDErrorError",
-        "kAMDExecutableTwiddleFailedError",
-        "kAMDExistenceCheckFailedError",
-        "kAMDInstallMapUpdateFailedError",
-        "kAMDManifestCaptureFailedError",
-        "kAMDMapGenerationFailedError",
-        "kAMDMissingBundleExecutableError",
-        "kAMDMissingBundleIdentifierError",
-        "kAMDMissingBundlePathError",
-        "kAMDMissingContainerError",
-        "kAMDNotificationFailedError",
-        "kAMDPackageExtractionFailedError",
-        "kAMDPackageInspectionFailedError",
-        "kAMDPackageMoveFailedError",
-        "kAMDPathConversionFailedError",
-        "kAMDRestoreContainerFailedError",
-        "kAMDSeatbeltProfileRemovalFailedError",
-        "kAMDStageCreationFailedError",
-        "kAMDSymlinkFailedError",
-        "kAMDiTunesArtworkCaptureFailedError",
-        "kAMDiTunesMetadataCaptureFailedError",
-        "kAMDAlreadyArchivedError",
-        "kAMDServiceLimitError",
-        "kAMDInvalidPairRecordError",
-        "kAMDServiceProhibitedError",
-        "kAMDCheckinSetupFailedError",
-        "kAMDCheckinConnectionFailedError",
-        "kAMDCheckinReceiveFailedError",
-        "kAMDCheckinResponseFailedError",
-        "kAMDCheckinSendFailedError",
-        "kAMDMuxCreateListenerError",
-        "kAMDMuxGetListenerError",
-        "kAMDMuxConnectError",
-        "kAMDUnknownCommandError",
-        "kAMDAPIInternalError",
-        "kAMDSavePairRecordFailedError",
-        "kAMDCheckinOutOfMemoryError",
-        "kAMDDeviceTooNewError",
-        "kAMDDeviceRefNoGood",
-        "kAMDCannotTranslateError",
-        "kAMDMobileImageMounterMissingImageSignature",
-        "kAMDMobileImageMounterResponseCreationFailed",
-        "kAMDMobileImageMounterMissingImageType",
-        "kAMDMobileImageMounterMissingImagePath",
-        "kAMDMobileImageMounterImageMapLoadFailed",
-        "kAMDMobileImageMounterAlreadyMounted",
-        "kAMDMobileImageMounterImageMoveFailed",
-        "kAMDMobileImageMounterMountPathMissing",
-        "kAMDMobileImageMounterMountPathNotEmpty",
-        "kAMDMobileImageMounterImageMountFailed",
-        "kAMDMobileImageMounterTrustCacheLoadFailed",
-        "kAMDMobileImageMounterDigestFailed",
-        "kAMDMobileImageMounterDigestCreationFailed",
-        "kAMDMobileImageMounterImageVerificationFailed",
-        "kAMDMobileImageMounterImageInfoCreationFailed",
-        "kAMDMobileImageMounterImageMapStoreFailed",
-        "kAMDBonjourSetupError",
-        "kAMDDeviceOSVersionTooLow",
-        "kAMDNoWifiSyncSupportError",
-        "kAMDDeviceFamilyNotSupported",
-        "kAMDEscrowLockedError",
-        "kAMDPairingProhibitedError",
-        "kAMDProhibitedBySupervision",
-        "kAMDDeviceDisconnectedError",
-        "kAMDTooBigError",
-        "kAMDPackagePatchFailedError",
-        "kAMDIncorrectArchitectureError",
-        "kAMDPluginCopyFailedError",
-        "kAMDBreadcrumbFailedError",
-        "kAMDBreadcrumbUnlockError",
-        "kAMDGeoJSONCaptureFailedError",
-        "kAMDNewsstandArtworkCaptureFailedError",
-        "kAMDMissingCommandError",
-        "kAMDNotEntitledError",
-        "kAMDMissingPackagePathError",
-        "kAMDMissingContainerPathError",
-        "kAMDMissingApplicationIdentifierError",
-        "kAMDMissingAttributeValueError",
-        "kAMDLookupFailedError",
-        "kAMDDictCreationFailedError",
-        "kAMDUserDeniedPairingError",
-        "kAMDPairingDialogResponsePendingError",
-        "kAMDInstallProhibitedError",
-        "kAMDUninstallProhibitedError",
-        "kAMDFMiPProtectedError",
-        "kAMDMCProtected",
-        "kAMDMCChallengeRequired",
-        "kAMDMissingBundleVersionError" // 0xe800009c
-    };
-
-    CFStringRef key = NULL;
-    static const size_t errorStringLast = ((sizeof(errorStrings) / sizeof(char *)) - 1) | 0xe8000000;
-    if (code <= errorStringLast) {
-        // Mask off some bits to get an index into the known error names array
-        key = QString::fromLatin1(errorStrings[code & ~0xe8000000]).toCFString();
-    } else {
-        // Some errors don't have constant names; check a few other known error codes
-        switch (code) {
-        case 0xe8008015:
-            key = CFSTR("A valid provisioning profile for this executable was not found.");
-            break;
-        case 0xe8008016:
-            key = CFSTR("The executable was signed with invalid entitlements.");
-            break;
-        case 0xe8008017:
-            key = CFSTR("A signed resource has been added, modified, or deleted.");
-            break;
-        case 0xe8008018:
-            key = CFSTR("The identity used to sign the executable is no longer valid.");
-            break;
-        case 0xe8008019:
-            key = CFSTR("The application does not have a valid signature.");
-            break;
-        case 0xe800801c:
-            key = CFSTR("The signature was not valid.");
-            break;
-        default:
-            return QString();
-        }
-
-        CFRetain(key);
-    }
-
-    CFURLRef url = QUrl::fromLocalFile(
-        QStringLiteral("/System/Library/PrivateFrameworks/MobileDevice.framework")).toCFURL();
-    CFBundleRef mobileDeviceBundle = CFBundleCreate(kCFAllocatorDefault, url);
-    CFRelease(url);
-
-    QString s;
-    if (mobileDeviceBundle) {
-        CFStringRef str = CFCopyLocalizedStringFromTableInBundle(key, CFSTR("Localizable"),
-                                                                 mobileDeviceBundle, nil);
-
-        s = QString::fromCFString(str);
-        CFRelease(str);
-    }
-
-    CFRelease(key);
-    return s;
-}
-
 bool AppOpSession::installApp()
 {
     ServiceSocket fd;
@@ -1269,8 +1269,8 @@ bool AppOpSession::installApp()
             if (am_res_t error = lib()->deviceTransferApplication(fd, cfsBundlePath, 0,
                                                              &appTransferSessionCallback,
                                                              static_cast<CommandSession *>(this))) {
-                addError(QString::fromLatin1("TransferAppSession(%1,%2) failed, AMDeviceTransferApplication returned %3")
-                         .arg(bundlePath, deviceId).arg(error));
+                addError(QString::fromLatin1("TransferAppSession(%1,%2) failed, AMDeviceTransferApplication returned %3 (0x%4)")
+                         .arg(bundlePath, deviceId).arg(mobileDeviceErrorString(error)).arg(error));
                 failure = true;
             }
             progressBase += 100;

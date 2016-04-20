@@ -370,6 +370,7 @@ public:
     int extraAreaSelectionAnchorBlockNumber;
     int extraAreaToggleMarkBlockNumber;
     int extraAreaHighlightFoldedBlockNumber;
+    int extraAreaPreviousMarkTooltipRequestedLine;
 
     TextEditorOverlay *m_overlay;
     TextEditorOverlay *m_snippetOverlay;
@@ -489,6 +490,7 @@ TextEditorWidgetPrivate::TextEditorWidgetPrivate(TextEditorWidget *parent)
     extraAreaSelectionAnchorBlockNumber(-1),
     extraAreaToggleMarkBlockNumber(-1),
     extraAreaHighlightFoldedBlockNumber(-1),
+    extraAreaPreviousMarkTooltipRequestedLine(-1),
     m_overlay(0),
     m_snippetOverlay(0),
     m_searchResultOverlay(0),
@@ -5075,6 +5077,8 @@ void TextEditorWidget::showDefaultContextMenu(QContextMenuEvent *e, Id menuConte
 
 void TextEditorWidget::extraAreaLeaveEvent(QEvent *)
 {
+    d->extraAreaPreviousMarkTooltipRequestedLine = -1;
+
     // fake missing mouse move event from Qt
     QMouseEvent me(QEvent::MouseMove, QPoint(-1, -1), Qt::NoButton, 0, 0);
     extraAreaMouseEvent(&me);
@@ -5133,7 +5137,9 @@ void TextEditorWidget::extraAreaMouseEvent(QMouseEvent *e)
         if (inMarkArea) {
             //Find line by cursor position
             int line = cursor.blockNumber() + 1;
-            emit markTooltipRequested(this, mapToGlobal(e->pos()), line);
+            if (d->extraAreaPreviousMarkTooltipRequestedLine != line)
+                emit markTooltipRequested(this, mapToGlobal(e->pos()), line);
+            d->extraAreaPreviousMarkTooltipRequestedLine = line;
         }
 
         if (e->buttons() & Qt::LeftButton && !d->m_markDragStart.isNull()) {
