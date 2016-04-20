@@ -96,7 +96,7 @@ FormatTask format(FormatTask task)
         process.start(executable, options);
         if (!process.waitForFinished(5000)) {
             process.kill();
-            task.error = QObject::tr("Cannot call %1 or some other error occurred. Time out "
+            task.error = QObject::tr("Cannot call %1 or some other error occurred. Timeout "
                                      "reached while formatting file %2.")
                     .arg(executable).arg(task.filePath);
             return task;
@@ -131,7 +131,7 @@ FormatTask format(FormatTask task)
         process.closeWriteChannel();
         if (!process.waitForFinished(5000)) {
             process.kill();
-            task.error = QObject::tr("Cannot call %1 or some other error occurred. Time out "
+            task.error = QObject::tr("Cannot call %1 or some other error occurred. Timeout "
                                      "reached while formatting file %2.")
                     .arg(executable).arg(task.filePath);
             return task;
