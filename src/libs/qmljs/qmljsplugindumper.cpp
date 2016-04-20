@@ -34,6 +34,7 @@
 #include <utils/fileutils.h>
 
 #include <QDir>
+#include <QRegularExpression>
 
 using namespace LanguageUtils;
 using namespace QmlJS;
@@ -417,17 +418,16 @@ void PluginDumper::loadQmlTypeDescription(const QStringList &paths,
  */
 QString PluginDumper::buildQmltypesPath(const QString &name) const
 {
-    QStringList importName = name.split(QLatin1Char(' '));
-    QString qualifiedName = importName[0];
+    QString qualifiedName;
     QString majorVersion;
     QString minorVersion;
-    if (importName.length() == 2) {
-        QString versionString = importName[1];
-        QStringList version = versionString.split(QLatin1Char('.'));
-        if (version.length() == 2) {
-            majorVersion = version[0];
-            minorVersion = version[1];
-        }
+
+    QRegularExpression import("^(?<name>[\\w|\\.]+)\\s+(?<major>\\d+)\\.(?<minor>\\d+)$");
+    QRegularExpressionMatch m = import.match(name);
+    if (m.hasMatch()) {
+        qualifiedName = m.captured("name");
+        majorVersion = m.captured("major");
+        minorVersion = m.captured("minor");
     }
 
     for (const PathAndLanguage &p: m_modelManager->importPaths()) {
