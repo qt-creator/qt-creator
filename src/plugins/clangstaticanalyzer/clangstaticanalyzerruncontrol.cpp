@@ -75,6 +75,7 @@ ClangStaticAnalyzerRunControl::ClangStaticAnalyzerRunControl(
     , m_filesAnalyzed(0)
     , m_filesNotAnalyzed(0)
 {
+    setDisplayName(tr("Clang Static Analyzer"));
     Target *target = runConfiguration->target();
     BuildConfiguration *buildConfiguration = target->activeBuildConfiguration();
     QTC_ASSERT(buildConfiguration, return);
