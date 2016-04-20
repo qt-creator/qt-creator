@@ -62,8 +62,7 @@
 
     \note To use the debugging tools for Windows, you must install them and add
     the Symbol Server provided by Microsoft to the symbol search path of the
-    debugger. For more information, see \l{Setting the Symbol Server in
-    Windows}.
+    debugger. For more information, see \l{Setting CDB Paths on Windows}.
 
     \note To use the Free Software Foundation (FSF) version of GDB on OS X, you
     must sign it and modify your \l{glossary-buildandrun-kit}{kit} settings.
@@ -209,7 +208,7 @@
                 Symbol Server provides you with debugging informaton for the
                 operating system libraries for debugging Windows applications.
                 For more information, see
-                \l{Setting the Symbol Server in Windows}.
+                \l{Setting CDB Paths on Windows}.
 
        \row
             \li Debugging tools for OS X
@@ -252,7 +251,7 @@
 
     \endlist
 
-    \section1 Setting the Symbol Server in Windows
+    \section1 Setting CDB Paths on Windows
 
     To obtain debugging information for the operating system libraries for
     debugging Windows applications, add the Symbol Server provided by Microsoft
@@ -261,16 +260,18 @@
     \list 1
 
         \li Select \uicontrol Tools > \uicontrol Options > \uicontrol Debugger >
-            \uicontrol CDB.
+            \uicontrol {CDB Paths}.
 
-        \li In the \uicontrol {Symbol paths} field, open the \uicontrol Insert
-            menu and select \uicontrol{Symbol Server}.
+            \image qtcreator-debugger-cdb-paths.png
 
-        \li Select a directory where you want to store the cached information
-            and click \uicontrol OK.
+        \li In the \uicontrol {Symbol Paths} group, select \uicontrol Insert.
+
+        \li Select the directory where you want to store the cached information.
 
             Use a subfolder in a temporary directory, such as
             \c {C:\temp\symbolcache}.
+
+        \li Select \uicontrol OK.
 
     \endlist
 
@@ -279,6 +280,10 @@
 
     \note The first time you start debugging by using the Debugging tools for
     Windows, \QC prompts you to add the Symbol Server.
+
+    To use the Source Server infrastructure for fetching missing source files
+    directly from version control or the web, enter the following string in
+    the \uicontrol {Source Paths} field: \c srv*.
 
     \section1 Setting up FSF GDB for OS X
 
