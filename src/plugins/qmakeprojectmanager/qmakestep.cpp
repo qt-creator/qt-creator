@@ -743,7 +743,7 @@ bool QMakeStepFactory::canCreate(BuildStepList *parent, Core::Id id) const
 ProjectExplorer::BuildStep *QMakeStepFactory::create(BuildStepList *parent, Core::Id id)
 {
     if (!canCreate(parent, id))
-        return 0;
+        return nullptr;
     return new QMakeStep(parent);
 }
 
@@ -755,7 +755,7 @@ bool QMakeStepFactory::canClone(BuildStepList *parent, BuildStep *source) const
 ProjectExplorer::BuildStep *QMakeStepFactory::clone(BuildStepList *parent, ProjectExplorer::BuildStep *source)
 {
     if (!canClone(parent, source))
-        return 0;
+        return nullptr;
     return new QMakeStep(parent, qobject_cast<QMakeStep *>(source));
 }
 
@@ -767,12 +767,12 @@ bool QMakeStepFactory::canRestore(BuildStepList *parent, const QVariantMap &map)
 ProjectExplorer::BuildStep *QMakeStepFactory::restore(BuildStepList *parent, const QVariantMap &map)
 {
     if (!canRestore(parent, map))
-        return 0;
+        return nullptr;
     QMakeStep *bs = new QMakeStep(parent);
     if (bs->fromMap(map))
         return bs;
     delete bs;
-    return 0;
+    return nullptr;
 }
 
 QList<Core::Id> QMakeStepFactory::availableCreationIds(ProjectExplorer::BuildStepList *parent) const
