@@ -417,7 +417,9 @@ void TranslationUnit::checkTranslationUnitErrorCode(CXErrorCode errorCode) const
 {
     switch (errorCode) {
         case CXError_Success: break;
-        default: throw TranslationUnitParseErrorException(d->filePath, d->projectPart.projectPartId());
+        default: throw TranslationUnitParseErrorException(d->filePath,
+                                                          d->projectPart.projectPartId(),
+                                                          errorCode);
     }
 }
 
