@@ -12,5 +12,9 @@
         <file>unit-tests/qt-essential-includes/main.cpp</file>
         <file>unit-tests/qt-essential-includes/qt-essential-includes.pro</file>
         <file>unit-tests/qt-essential-includes/qt-essential-includes.qbs</file>
+        <file>unit-tests/simple-library/simple-library.cpp</file>
+        <file>unit-tests/simple-library/simple-library.h</file>
+        <file>unit-tests/simple-library/simple-library.pro</file>
+        <file>unit-tests/simple-library/simple-library.qbs</file>
     </qresource>
 </RCC>
