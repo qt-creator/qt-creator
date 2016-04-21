@@ -228,7 +228,7 @@ QList<Task> CMakeGeneratorKitInformation::validate(const Kit *k) const
                                Utils::FileName(), -1, Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM));
             }
             if (!generator.startsWith(QLatin1String("CodeBlocks -"))) {
-                result << Task(Task::Warning, tr("CMake generator does not generate CodeBlocks file. "
+                result << Task(Task::Warning, tr("CMake generator does not generate a CodeBlocks file. "
                                                  "Qt Creator will not be able to parse the CMake project."),
                                Utils::FileName(), -1, Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM));
             }
