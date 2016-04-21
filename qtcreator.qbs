@@ -5,13 +5,13 @@ Project {
     name: "Qt Creator"
     minimumQbsVersion: "1.4.3"
     property bool withAutotests: qbs.buildVariant === "debug"
-    property string ide_version_major: '3'
-    property string ide_version_minor: '6'
-    property string ide_version_release: '83'
+    property string ide_version_major: '4'
+    property string ide_version_minor: '0'
+    property string ide_version_release: '0'
     property string qtcreator_version: ide_version_major + '.' + ide_version_minor + '.' + ide_version_release
-    property string ide_compat_version_major: '3'
-    property string ide_compat_version_minor: '6'
-    property string ide_compat_version_release: '83'
+    property string ide_compat_version_major: '4'
+    property string ide_compat_version_minor: '0'
+    property string ide_compat_version_release: '0'
     property string qtcreator_compat_version: ide_compat_version_major + '.' + ide_compat_version_minor + '.' + ide_compat_version_release
     property path ide_source_tree: path
     property string ide_app_path: qbs.targetOS.contains("osx") ? "" : "bin"
