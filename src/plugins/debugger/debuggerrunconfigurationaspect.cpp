@@ -215,6 +215,7 @@ DebuggerRunConfigurationAspect::DebuggerRunConfigurationAspect(
 {
     setId("DebuggerAspect");
     setDisplayName(tr("Debugger settings"));
+    setRunConfigWidgetCreator([this] { return new Internal::DebuggerRunConfigWidget(this); });
 }
 
 void DebuggerRunConfigurationAspect::setUseQmlDebugger(bool value)
@@ -333,11 +334,6 @@ DebuggerRunConfigurationAspect *DebuggerRunConfigurationAspect::create
     (RunConfiguration *runConfiguration) const
 {
     return new DebuggerRunConfigurationAspect(runConfiguration);
-}
-
-RunConfigWidget *DebuggerRunConfigurationAspect::createConfigurationWidget()
-{
-    return new Internal::DebuggerRunConfigWidget(this);
 }
 
 } // namespace Debugger

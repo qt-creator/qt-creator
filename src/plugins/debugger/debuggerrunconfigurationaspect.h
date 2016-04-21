@@ -61,8 +61,6 @@ public:
     void fromMap(const QVariantMap &map);
     void toMap(QVariantMap &map) const;
 
-    ProjectExplorer::RunConfigWidget *createConfigurationWidget();
-
     bool useCppDebugger() const;
     void setUseCppDebugger(bool value);
     bool useQmlDebugger() const;

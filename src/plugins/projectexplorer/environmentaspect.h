@@ -41,9 +41,6 @@ class PROJECTEXPLORER_EXPORT EnvironmentAspect : public IRunConfigurationAspect
     Q_OBJECT
 
 public:
-    // IRunConfigurationAspect:
-    RunConfigWidget *createConfigurationWidget() override;
-
     virtual QList<int> possibleBaseEnvironments() const = 0;
     virtual QString baseEnvironmentDisplayName(int base) const = 0;
 

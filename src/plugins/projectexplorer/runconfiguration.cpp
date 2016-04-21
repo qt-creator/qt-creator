@@ -124,9 +124,9 @@ IRunConfigurationAspect::~IRunConfigurationAspect()
     transferred to the caller.
 */
 
-RunConfigWidget *IRunConfigurationAspect::createConfigurationWidget()
+RunConfigWidget *IRunConfigurationAspect::createConfigurationWidget() const
 {
-    return nullptr;
+    return m_runConfigWidgetCreator ? m_runConfigWidgetCreator() : nullptr;
 }
 
 void IRunConfigurationAspect::setProjectSettings(ISettingsAspect *settings)
@@ -159,6 +159,11 @@ void IRunConfigurationAspect::toMap(QVariantMap &map) const
 {
     m_projectSettings->toMap(map);
     map.insert(m_id.toString() + QLatin1String(".UseGlobalSettings"), m_useGlobalSettings);
+}
+
+void IRunConfigurationAspect::setRunConfigWidgetCreator(const RunConfigWidgetCreator &runConfigWidgetCreator)
+{
+    m_runConfigWidgetCreator = runConfigWidgetCreator;
 }
 
 IRunConfigurationAspect *IRunConfigurationAspect::clone(RunConfiguration *runConfig) const

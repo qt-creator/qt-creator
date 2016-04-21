@@ -71,16 +71,12 @@ public:
         setDisplayName(QCoreApplication::translate("Valgrind::Internal::ValgrindRunConfigurationAspect", "Valgrind Settings"));
         setUsingGlobalSettings(true);
         resetProjectToGlobalSettings();
+        setRunConfigWidgetCreator([this] { return new AnalyzerRunConfigWidget(this); });
     }
 
     ValgrindRunConfigurationAspect *create(RunConfiguration *parent) const override
     {
         return new ValgrindRunConfigurationAspect(parent);
-    }
-
-    RunConfigWidget *createConfigurationWidget() override
-    {
-        return new AnalyzerRunConfigWidget(this);
     }
 };
 

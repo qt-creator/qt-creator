@@ -37,8 +37,6 @@ public:
 
     ProjectExplorer::IRunConfigurationAspect *create(
             ProjectExplorer::RunConfiguration *runConfig) const;
-
-    ProjectExplorer::RunConfigWidget *createConfigurationWidget();
 };
 
 } // Internal

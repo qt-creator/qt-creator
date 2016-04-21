@@ -44,11 +44,7 @@ EnvironmentAspect::EnvironmentAspect(RunConfiguration *runConfig) :
 {
     setDisplayName(tr("Run Environment"));
     setId("EnvironmentAspect");
-}
-
-RunConfigWidget *EnvironmentAspect::createConfigurationWidget()
-{
-    return new EnvironmentAspectWidget(this);
+    setRunConfigWidgetCreator([this] { return new EnvironmentAspectWidget(this); });
 }
 
 int EnvironmentAspect::baseEnvironmentBase() const

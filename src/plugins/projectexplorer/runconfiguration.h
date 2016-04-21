@@ -36,11 +36,8 @@
 #include <QPointer>
 #include <QWidget>
 
+#include <functional>
 #include <memory>
-
-QT_BEGIN_NAMESPACE
-class QFormLayout;
-QT_END_NAMESPACE
 
 namespace Utils { class OutputFormatter; }
 
@@ -121,7 +118,10 @@ public:
 
     virtual IRunConfigurationAspect *create(RunConfiguration *runConfig) const = 0;
     virtual IRunConfigurationAspect *clone(RunConfiguration *runConfig) const;
-    virtual RunConfigWidget *createConfigurationWidget();
+
+    using RunConfigWidgetCreator = std::function<RunConfigWidget *()>;
+    void setRunConfigWidgetCreator(const RunConfigWidgetCreator &runConfigWidgetCreator);
+    RunConfigWidget *createConfigurationWidget() const;
 
     void setId(Core::Id id) { m_id = id; }
     void setDisplayName(const QString &displayName) { m_displayName = displayName; }
@@ -151,6 +151,7 @@ private:
     RunConfiguration *m_runConfiguration = nullptr;
     ISettingsAspect *m_projectSettings = nullptr; // Owned if present.
     ISettingsAspect *m_globalSettings = nullptr;  // Not owned.
+    RunConfigWidgetCreator m_runConfigWidgetCreator;
 };
 
 class PROJECTEXPLORER_EXPORT ClonableConcept
