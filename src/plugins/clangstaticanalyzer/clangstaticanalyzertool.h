@@ -38,6 +38,7 @@ class ClangStaticAnalyzerDiagnosticFilterModel;
 class ClangStaticAnalyzerDiagnosticModel;
 class ClangStaticAnalyzerDiagnosticView;
 class Diagnostic;
+class DummyRunConfiguration;
 
 const char ClangStaticAnalyzerPerspectiveId[] = "ClangStaticAnalyzer.Perspective";
 const char ClangStaticAnalyzerActionId[]      = "ClangStaticAnalyzer.Action";
@@ -58,7 +59,7 @@ public:
 
     Debugger::AnalyzerRunControl *createRunControl(ProjectExplorer::RunConfiguration *runConfiguration,
                                                    Core::Id runMode);
-    void startTool(ProjectExplorer::RunConfiguration *rc);
+    void startTool();
 
 signals:
     void finished(bool success); // For testing.
@@ -83,6 +84,7 @@ private:
     QAction *m_stopAction = 0;
     QAction *m_goBack;
     QAction *m_goNext;
+    QHash<ProjectExplorer::Target *, DummyRunConfiguration *> m_runConfigs;
     bool m_running;
     bool m_toolBusy = false;
 };
