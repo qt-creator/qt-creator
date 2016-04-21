@@ -404,12 +404,11 @@ void GdbRemoteServerEngine::runEngine()
 {
     QTC_ASSERT(state() == EngineRunRequested, qDebug() << state());
 
-    const QString remoteExecutable = runParameters().inferior.executable;
-    if (!remoteExecutable.isEmpty()) {
-        runCommand({"-exec-run", RunRequest, CB(handleExecRun)});
-    } else {
+    if (runParameters().useContinueInsteadOfRun) {
         notifyEngineRunAndInferiorStopOk();
         continueInferiorInternal();
+    } else {
+        runCommand({"-exec-run", RunRequest, CB(handleExecRun)});
     }
 }
 
