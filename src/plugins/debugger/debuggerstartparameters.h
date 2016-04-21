@@ -80,6 +80,7 @@ public:
     QString remoteChannel;
     QSsh::SshConnectionParameters connParams;
     bool remoteSetupNeeded = false;
+    QString symbolFile;
 
     // Used by Mer plugin (3rd party)
     QMap<QString, QString> sourcePathMap;
@@ -93,7 +94,6 @@ public:
     QVector<QByteArray> expectedSignals;
 
     // For QNX debugging
-    QString remoteExecutable;
     bool useCtrlCStub = false;
 
     // Used by Android to avoid false positives on warnOnRelease
