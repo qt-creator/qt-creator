@@ -172,6 +172,11 @@ void SshDeviceProcess::setSshServerSupportsSignals(bool signalsSupported)
     d->serverSupportsSignals = signalsSupported;
 }
 
+qint64 SshDeviceProcess::processId() const
+{
+    return 0;
+}
+
 void SshDeviceProcess::handleConnected()
 {
     QTC_ASSERT(d->state == SshDeviceProcessPrivate::Connecting, return);
@@ -303,8 +308,12 @@ void SshDeviceProcess::SshDeviceProcessPrivate::doSignal(QSsh::SshRemoteProcess:
             process->sendSignal(signal);
         } else {
             DeviceProcessSignalOperation::Ptr signalOperation = q->device()->signalOperation();
+            quint64 processId = q->processId();
             if (signal == QSsh::SshRemoteProcess::IntSignal) {
-                signalOperation->interruptProcess(runnable.executable);
+                if (processId != 0)
+                    signalOperation->interruptProcess(processId);
+                else
+                    signalOperation->interruptProcess(runnable.executable);
             } else {
                 if (killOperation) // We are already in the process of killing the app.
                     return;
@@ -312,7 +321,10 @@ void SshDeviceProcess::SshDeviceProcessPrivate::doSignal(QSsh::SshRemoteProcess:
                 connect(signalOperation.data(), &DeviceProcessSignalOperation::finished, q,
                         &SshDeviceProcess::handleKillOperationFinished);
                 killTimer.start(5000);
-                signalOperation->killProcess(runnable.executable);
+                if (processId != 0)
+                    signalOperation->killProcess(processId);
+                else
+                    signalOperation->killProcess(runnable.executable);
             }
         }
         break;

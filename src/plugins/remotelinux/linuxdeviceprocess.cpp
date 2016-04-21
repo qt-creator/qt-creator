@@ -39,13 +39,38 @@ static QString quote(const QString &s) { return Utils::QtcProcess::quoteArgUnix(
 
 LinuxDeviceProcess::LinuxDeviceProcess(const QSharedPointer<const ProjectExplorer::IDevice> &device,
         QObject *parent)
-    : ProjectExplorer::SshDeviceProcess(device, parent)
+    : ProjectExplorer::SshDeviceProcess(device, parent), m_processId(0)
 {
+    connect(this, &DeviceProcess::finished, this, [this]() {
+        m_processId = 0;
+    });
 }
 
 void LinuxDeviceProcess::setRcFilesToSource(const QStringList &filePaths)
 {
     m_rcFilesToSource = filePaths;
+}
+
+QByteArray LinuxDeviceProcess::readAllStandardOutput()
+{
+    QByteArray output = SshDeviceProcess::readAllStandardOutput();
+    if (m_processId != 0)
+        return output;
+
+    m_processIdString.append(output);
+    int cut = m_processIdString.indexOf('\n');
+    if (cut != -1) {
+        m_processId = m_processIdString.left(cut).toLongLong();
+        output = m_processIdString.mid(cut + 1);
+        m_processIdString.clear();
+        return output;
+    }
+    return QByteArray();
+}
+
+qint64 LinuxDeviceProcess::processId() const
+{
+    return m_processId;
 }
 
 QString LinuxDeviceProcess::fullCommandLine(const StandardRunnable &runnable) const
@@ -66,10 +91,10 @@ QString LinuxDeviceProcess::fullCommandLine(const StandardRunnable &runnable) co
         envString.append(it.key()).append(QLatin1String("='")).append(it.value())
                 .append(QLatin1Char('\''));
     }
+    fullCommandLine.append("echo $$ && ");
     if (!envString.isEmpty())
-        fullCommandLine.append(QLatin1Char(' ')).append(envString);
-    if (!fullCommandLine.isEmpty())
-        fullCommandLine += QLatin1Char(' ');
+        fullCommandLine.append(envString);
+    fullCommandLine.append(" exec ");
     fullCommandLine.append(quote(runnable.executable));
     if (!runnable.commandLineArguments.isEmpty()) {
         fullCommandLine.append(QLatin1Char(' '));
