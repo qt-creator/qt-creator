@@ -281,18 +281,6 @@ QString targetTriple(ProjectExplorer::Project *project, const Core::Id &toolchai
     return QString();
 }
 
-bool projectHasMsvc2015Toolchain(ProjectExplorer::Project *project)
-{
-    if (project) {
-        if (ProjectExplorer::Target *target = project->activeTarget()) {
-            if (ProjectExplorer::RunConfiguration *runConfig = target->activeRunConfiguration())
-                return runConfig->abi().osFlavor() == ProjectExplorer::Abi::WindowsMsvc2015Flavor;
-        }
-    }
-
-    return false;
-}
-
 }
 
 /*!
@@ -355,7 +343,8 @@ void ProjectPartBuilder::evaluateProjectPartToolchain(
 
     projectPart->toolchainDefines = toolChain->predefinedMacros(commandLineFlags);
     projectPart->toolchainType = toolChain->typeId();
-    projectPart->isMsvc2015Toolchain = projectHasMsvc2015Toolchain(projectPart->project);
+    projectPart->isMsvc2015Toolchain
+            = toolChain->targetAbi().osFlavor() == ProjectExplorer::Abi::WindowsMsvc2015Flavor;
     projectPart->targetTriple = targetTriple(projectPart->project, toolChain->typeId());
     projectPart->updateLanguageFeatures();
 }
