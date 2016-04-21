@@ -1040,13 +1040,13 @@ class Dumper(DumperBase):
             # Works:
             #item = self.currentThread().GetSelectedFrame().EvaluateExpression(
             #    "(%s*)0x%x" % (type, addr)).Dereference()
-            # Works:
-            item = value.CreateValueFromExpression(None,
-                "(%s*)0x%x" % (type, addr), lldb.SBExpressionOptions()).Dereference()
+            # Does not work on lldb-350.0.21.3:
+            #item = value.CreateValueFromExpression(None,
+            #    "(%s*)0x%x" % (type, addr), lldb.SBExpressionOptions()).Dereference()
             # Does not work:
             #item = value.CreateValueFromAddress(None, addr, type)
-            # Does not work:
-            #item = value.Cast(type.GetPointerType()).Dereference()
+            # Works:
+            item = value.Cast(type.GetPointerType()).Dereference()
             #warn("TOOO: %s" % item)
             self.putItem(item)
             self.putBetterType(value.GetTypeName())
