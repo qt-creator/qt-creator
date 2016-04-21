@@ -1007,7 +1007,7 @@ public:
 
     SnapshotHandler *m_snapshotHandler = 0;
     bool m_shuttingDown = false;
-    DebuggerEngine *m_currentEngine = 0;
+    QPointer<DebuggerEngine> m_currentEngine;
     DebuggerSettings *m_debuggerSettings = 0;
     QStringList m_arguments;
     DebuggerToolTipManager m_toolTipManager;
