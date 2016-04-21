@@ -288,6 +288,9 @@ static QString testClass(const CppTools::CppModelManager *modelManager, const QS
 {
     const QByteArray &fileContent = getFileContent(fileName);
     CPlusPlus::Document::Ptr document = modelManager->document(fileName);
+    if (document.isNull())
+        return QString();
+
     const QList<CPlusPlus::Document::MacroUse> macros = document->macroUses();
 
     foreach (const CPlusPlus::Document::MacroUse &macro, macros) {
