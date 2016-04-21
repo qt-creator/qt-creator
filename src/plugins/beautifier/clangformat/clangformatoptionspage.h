@@ -43,7 +43,7 @@ class ClangFormatOptionsPageWidget : public QWidget
     Q_OBJECT
 
 public:
-    explicit ClangFormatOptionsPageWidget(ClangFormatSettings *settings, QWidget *parent = 0);
+    explicit ClangFormatOptionsPageWidget(ClangFormatSettings *settings, QWidget *parent = nullptr);
     virtual ~ClangFormatOptionsPageWidget();
     void restore();
     void apply();
@@ -58,7 +58,7 @@ class ClangFormatOptionsPage : public Core::IOptionsPage
     Q_OBJECT
 
 public:
-    explicit ClangFormatOptionsPage(ClangFormatSettings *settings, QObject *parent = 0);
+    explicit ClangFormatOptionsPage(ClangFormatSettings *settings, QObject *parent = nullptr);
     QWidget *widget() override;
     void apply() override;
     void finish() override;

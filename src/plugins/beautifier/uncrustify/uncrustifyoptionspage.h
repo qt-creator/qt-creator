@@ -43,7 +43,7 @@ class UncrustifyOptionsPageWidget : public QWidget
     Q_OBJECT
 
 public:
-    explicit UncrustifyOptionsPageWidget(UncrustifySettings *settings, QWidget *parent = 0);
+    explicit UncrustifyOptionsPageWidget(UncrustifySettings *settings, QWidget *parent = nullptr);
     virtual ~UncrustifyOptionsPageWidget();
     void restore();
     void apply();
@@ -58,7 +58,7 @@ class UncrustifyOptionsPage : public Core::IOptionsPage
     Q_OBJECT
 
 public:
-    explicit UncrustifyOptionsPage(UncrustifySettings *settings, QObject *parent = 0);
+    explicit UncrustifyOptionsPage(UncrustifySettings *settings, QObject *parent = nullptr);
     QWidget *widget() override;
     void apply() override;
     void finish() override;

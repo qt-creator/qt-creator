@@ -39,8 +39,6 @@
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/ieditor.h>
-#include <coreplugin/icontext.h>
-#include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
 #include <cppeditor/cppeditorconstants.h>
 #include <projectexplorer/projecttree.h>
@@ -58,8 +56,6 @@ namespace Uncrustify {
 Uncrustify::Uncrustify(BeautifierPlugin *parent) :
     BeautifierAbstractTool(parent),
     m_beautifierPlugin(parent),
-    m_formatFile(nullptr),
-    m_formatRange(nullptr),
     m_settings(new UncrustifySettings)
 {
 }
@@ -72,7 +68,7 @@ Uncrustify::~Uncrustify()
 bool Uncrustify::initialize()
 {
     Core::ActionContainer *menu = Core::ActionManager::createMenu(Constants::Uncrustify::MENU_ID);
-    menu->menu()->setTitle(QLatin1String(Constants::Uncrustify::DISPLAY_NAME));
+    menu->menu()->setTitle(Constants::Uncrustify::DISPLAY_NAME);
 
     m_formatFile = new QAction(BeautifierPlugin::msgFormatCurrentFile(), this);
     Core::Command *cmd
@@ -101,8 +97,7 @@ void Uncrustify::updateActions(Core::IEditor *editor)
 
 QList<QObject *> Uncrustify::autoReleaseObjects()
 {
-    UncrustifyOptionsPage *optionsPage = new UncrustifyOptionsPage(m_settings, this);
-    return QList<QObject *>() << optionsPage;
+    return {new UncrustifyOptionsPage(m_settings, this)};
 }
 
 void Uncrustify::formatFile()
@@ -110,7 +105,7 @@ void Uncrustify::formatFile()
     const QString cfgFileName = configurationFile();
     if (cfgFileName.isEmpty()) {
         BeautifierPlugin::showError(BeautifierPlugin::msgCannotGetConfigurationFile(
-                                        QLatin1String(Constants::Uncrustify::DISPLAY_NAME)));
+                                        Constants::Uncrustify::DISPLAY_NAME));
     } else {
         m_beautifierPlugin->formatCurrentFile(command(cfgFileName));
     }
@@ -121,7 +116,7 @@ void Uncrustify::formatSelectedText()
     const QString cfgFileName = configurationFile();
     if (cfgFileName.isEmpty()) {
         BeautifierPlugin::showError(BeautifierPlugin::msgCannotGetConfigurationFile(
-                                        QLatin1String(Constants::Uncrustify::DISPLAY_NAME)));
+                                        Constants::Uncrustify::DISPLAY_NAME));
         return;
     }
 
@@ -154,18 +149,18 @@ QString Uncrustify::configurationFile() const
         if (const ProjectExplorer::Project *project
                 = ProjectExplorer::ProjectTree::currentProject()) {
             const QStringList files = project->files(ProjectExplorer::Project::AllFiles);
-            foreach (const QString &file, files) {
-                if (!file.endsWith(QLatin1String("cfg")))
+            for (const QString &file : files) {
+                if (!file.endsWith("cfg"))
                     continue;
                 const QFileInfo fi(file);
-                if (fi.isReadable() && fi.fileName() == QLatin1String("uncrustify.cfg"))
+                if (fi.isReadable() && fi.fileName() == "uncrustify.cfg")
                     return file;
             }
         }
     }
 
     if (m_settings->useHomeFile()) {
-        const QString file = QDir::home().filePath(QLatin1String("uncrustify.cfg"));
+        const QString file = QDir::home().filePath("uncrustify.cfg");
         if (QFile::exists(file))
             return file;
     }
@@ -179,17 +174,17 @@ Command Uncrustify::command(const QString &cfgFile, bool fragment) const
     command.setExecutable(m_settings->command());
     command.setProcessing(Command::PipeProcessing);
     if (m_settings->version() >= 62) {
-        command.addOption(QLatin1String("--assume"));
-        command.addOption(QLatin1String("%file"));
+        command.addOption("--assume");
+        command.addOption("%file");
     } else {
-        command.addOption(QLatin1String("-l"));
-        command.addOption(QLatin1String("cpp"));
+        command.addOption("-l");
+        command.addOption("cpp");
     }
-    command.addOption(QLatin1String("-L"));
-    command.addOption(QLatin1String("1-2"));
+    command.addOption("-L");
+    command.addOption("1-2");
     if (fragment)
-        command.addOption(QLatin1String("--frag"));
-    command.addOption(QLatin1String("-c"));
+        command.addOption("--frag");
+    command.addOption("-c");
     command.addOption(cfgFile);
     return command;
 }

@@ -25,7 +25,6 @@
 
 #pragma once
 
-
 #include <QPlainTextEdit>
 #include <QRegExp>
 #include <QString>
@@ -35,7 +34,6 @@
 
 QT_BEGIN_NAMESPACE
 class QCompleter;
-class QRegExp;
 class QStringListModel;
 class QTextDocument;
 QT_END_NAMESPACE
@@ -69,7 +67,7 @@ class ConfigurationEditor : public QPlainTextEdit
     Q_OBJECT
 
 public:
-    explicit ConfigurationEditor(QWidget *parent = 0);
+    explicit ConfigurationEditor(QWidget *parent = nullptr);
     void setSettings(AbstractSettings *settings);
     void setCommentExpression(const QRegExp &rx);
 
@@ -77,17 +75,15 @@ protected:
     bool eventFilter(QObject *object, QEvent *event) override;
     void keyPressEvent(QKeyEvent *event) override;
 
-private slots:
-    void insertCompleterText(const QString &text);
-    void updateDocumentation();
-
 signals:
     void documentationChanged(const QString &word, const QString &documentation);
 
 private:
+    void insertCompleterText(const QString &text);
+    void updateDocumentation();
     QTextCursor cursorForTextUnderCursor(QTextCursor tc = QTextCursor()) const;
 
-    AbstractSettings *m_settings;
+    AbstractSettings *m_settings = nullptr;
     QCompleter *m_completer;
     QStringListModel *m_model;
     ConfigurationSyntaxHighlighter *m_highlighter;

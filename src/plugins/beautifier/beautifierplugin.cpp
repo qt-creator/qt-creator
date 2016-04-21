@@ -37,20 +37,15 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
-#include <coreplugin/icontext.h>
-#include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
 #include <diffeditor/differ.h>
 #include <texteditor/convenience.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/textdocumentlayout.h>
 #include <texteditor/texteditor.h>
-#include <texteditor/texteditorconstants.h>
-#include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 #include <utils/runextensions.h>
 
-#include <QAction>
 #include <QDir>
 #include <QFileInfo>
 #include <QFutureWatcher>
@@ -59,7 +54,6 @@
 #include <QProcess>
 #include <QScrollBar>
 #include <QTextBlock>
-#include <QtPlugin>
 
 using namespace TextEditor;
 
@@ -79,7 +73,7 @@ FormatTask format(FormatTask task)
     case Command::FileProcessing: {
         // Save text to temporary file
         const QFileInfo fi(task.filePath);
-        Utils::TempFileSaver sourceFile(QDir::tempPath() + QLatin1String("/qtc_beautifier_XXXXXXXX.")
+        Utils::TempFileSaver sourceFile(QDir::tempPath() + "/qtc_beautifier_XXXXXXXX."
                                         + fi.suffix());
         sourceFile.setAutoRemove(true);
         sourceFile.write(task.sourceData.toUtf8());
@@ -92,7 +86,7 @@ FormatTask format(FormatTask task)
         // Format temporary file
         QProcess process;
         QStringList options = task.command.options();
-        options.replaceInStrings(QLatin1String("%file"), sourceFile.fileName());
+        options.replaceInStrings("%file", sourceFile.fileName());
         process.start(executable, options);
         if (!process.waitForFinished(5000)) {
             process.kill();
@@ -103,7 +97,7 @@ FormatTask format(FormatTask task)
         }
         const QByteArray output = process.readAllStandardError();
         if (!output.isEmpty())
-            task.error = executable + QLatin1String(": ") + QString::fromUtf8(output);
+            task.error = executable + ": " + QString::fromUtf8(output);
 
         // Read text back
         Utils::FileReader reader;
@@ -114,13 +108,13 @@ FormatTask format(FormatTask task)
         }
         task.formattedData = QString::fromUtf8(reader.data());
         return task;
-    } break;
+    }
 
     case Command::PipeProcessing: {
         QProcess process;
         QStringList options = task.command.options();
-        options.replaceInStrings(QLatin1String("%filename"), QFileInfo(task.filePath).fileName());
-        options.replaceInStrings(QLatin1String("%file"), task.filePath);
+        options.replaceInStrings("%filename", QFileInfo(task.filePath).fileName());
+        options.replaceInStrings("%file", task.filePath);
         process.start(executable, options);
         if (!process.waitForStarted(3000)) {
             task.error = QObject::tr("Cannot call %1 or some other error occurred.")
@@ -148,9 +142,9 @@ FormatTask format(FormatTask task)
         if (addsNewline || returnsCRLF) {
             task.formattedData = QString::fromUtf8(process.readAllStandardOutput());
             if (addsNewline)
-                task.formattedData.remove(QRegExp(QLatin1String("(\\r\\n|\\n)$")));
+                task.formattedData.remove(QRegExp("(\\r\\n|\\n)$"));
             if (returnsCRLF)
-                task.formattedData.replace(QLatin1String("\r\n"), QLatin1String("\n"));
+                task.formattedData.replace("\r\n", "\n");
             return task;
         }
         task.formattedData = QString::fromUtf8(process.readAllStandardOutput());
@@ -182,10 +176,10 @@ bool BeautifierPlugin::initialize(const QStringList &arguments, QString *errorSt
     menu->setOnAllDisabledBehavior(Core::ActionContainer::Show);
     Core::ActionManager::actionContainer(Core::Constants::M_TOOLS)->addMenu(menu);
 
-    foreach (BeautifierAbstractTool *tool, m_tools) {
+    for (BeautifierAbstractTool *tool : m_tools) {
         tool->initialize();
         const QList<QObject *> autoReleasedObjects = tool->autoReleaseObjects();
-        foreach (QObject *object, autoReleasedObjects)
+        for (QObject *object : autoReleasedObjects)
             addAutoReleasedObject(object);
     }
 
@@ -208,7 +202,7 @@ ExtensionSystem::IPlugin::ShutdownFlag BeautifierPlugin::aboutToShutdown()
 
 void BeautifierPlugin::updateActions(Core::IEditor *editor)
 {
-    foreach (BeautifierAbstractTool *tool, m_tools)
+    for (BeautifierAbstractTool *tool : m_tools)
         tool->updateActions(editor);
 }
 
@@ -333,7 +327,7 @@ void BeautifierPlugin::updateEditorText(QPlainTextEdit *editor, const QString &t
     int newCursorPos = charactersInfrontOfCursor;
     cursor.beginEditBlock();
     cursor.movePosition(QTextCursor::Start, QTextCursor::MoveAnchor);
-    foreach (const DiffEditor::Diff &d, diff) {
+    for (const DiffEditor::Diff &d : diff) {
         switch (d.command) {
         case DiffEditor::Diff::Insert:
         {
@@ -344,8 +338,8 @@ void BeautifierPlugin::updateEditorText(QPlainTextEdit *editor, const QString &t
                 newCursorPos += size;
             }
             // Adjust folded blocks, if a new block is added.
-            if (d.text.contains(QLatin1Char('\n'))) {
-                const int newLineCount = d.text.count(QLatin1Char('\n'));
+            if (d.text.contains('\n')) {
+                const int newLineCount = d.text.count('\n');
                 const int number = cursor.blockNumber();
                 const int total = foldedBlocks.size();
                 for (int i = 0; i < total; ++i) {
@@ -354,8 +348,9 @@ void BeautifierPlugin::updateEditorText(QPlainTextEdit *editor, const QString &t
                 }
             }
             cursor.insertText(d.text);
-        }
             break;
+        }
+
         case DiffEditor::Diff::Delete:
         {
             // Adjust cursor position if we do work in front of the cursor.
@@ -368,8 +363,8 @@ void BeautifierPlugin::updateEditorText(QPlainTextEdit *editor, const QString &t
                     newCursorPos -= charactersInfrontOfCursor;
             }
             // Adjust folded blocks, if at least one block is being deleted.
-            if (d.text.contains(QLatin1Char('\n'))) {
-                const int newLineCount = d.text.count(QLatin1Char('\n'));
+            if (d.text.contains('\n')) {
+                const int newLineCount = d.text.count('\n');
                 const int number = cursor.blockNumber();
                 for (int i = 0, total = foldedBlocks.size(); i < total; ++i) {
                     if (foldedBlocks.at(i) > number) {
@@ -384,8 +379,9 @@ void BeautifierPlugin::updateEditorText(QPlainTextEdit *editor, const QString &t
             }
             cursor.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor, d.text.size());
             cursor.removeSelectedText();
-        }
             break;
+        }
+
         case DiffEditor::Diff::Equal:
             // Adjust cursor position
             charactersInfrontOfCursor -= d.text.size();
@@ -404,7 +400,7 @@ void BeautifierPlugin::updateEditorText(QPlainTextEdit *editor, const QString &t
                                               + absoluteVerticalCursorOffset / fontHeight);
     // Restore folded blocks
     const QTextDocument *doc = editor->document();
-    foreach (const int blockId, foldedBlocks) {
+    for (int blockId : foldedBlocks) {
         const QTextBlock block = doc->findBlockByNumber(qMax(0, blockId));
         if (block.isValid())
             TextDocumentLayout::doFoldOrUnfold(block, false);

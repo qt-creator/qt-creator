@@ -39,14 +39,13 @@ namespace Internal {
 
 ConfigurationDialog::ConfigurationDialog(QWidget *parent) :
     QDialog(parent),
-    ui(new Ui::ConfigurationDialog),
-    m_settings(0)
+    ui(new Ui::ConfigurationDialog)
 {
     ui->setupUi(this);
 
     // Filter out characters which are not allowed in a file name
     QRegExpValidator *fileNameValidator = new QRegExpValidator(ui->name);
-    fileNameValidator->setRegExp(QRegExp(QLatin1String("^[^\\/\\\\\\?\\>\\<\\*\\%\\:\\\"\\']*$")));
+    fileNameValidator->setRegExp(QRegExp("^[^\\/\\\\\\?\\>\\<\\*\\%\\:\\\"\\']*$"));
     ui->name->setValidator(fileNameValidator);
 
     updateDocumentation();
@@ -77,16 +76,15 @@ ConfigurationDialog::ConfigurationDialog(QWidget *parent) :
     const QTextCharFormat tfOption = fs.toTextCharFormat(TextEditor::C_FIELD);
     const QTextCharFormat tfParam = fs.toTextCharFormat(TextEditor::C_STRING);
 
-    const QString css =  QString::fromLatin1("span.param {color: %1; background-color: %2;} "
-                                             "span.option {color: %3; background-color: %4;} "
-                                             "p { text-align: justify; } ")
+    const QString css = QString::fromLatin1("span.param {color: %1; background-color: %2;} "
+                                            "span.option {color: %3; background-color: %4;} "
+                                            "p {text-align: justify;}")
             .arg(tfParam.foreground().color().name())
             .arg(tfParam.background().style() == Qt::NoBrush
                  ? QString() : tfParam.background().color().name())
             .arg(tfOption.foreground().color().name())
             .arg(tfOption.background().style() == Qt::NoBrush
-                 ? QString() : tfOption.background().color().name())
-            ;
+                 ? QString() : tfOption.background().color().name());
     ui->documentation->document()->setDefaultStyleSheet(css);
 }
 

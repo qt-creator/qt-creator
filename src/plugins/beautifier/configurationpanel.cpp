@@ -29,15 +29,12 @@
 #include "abstractsettings.h"
 #include "configurationdialog.h"
 
-#include <QPointer>
-
 namespace Beautifier {
 namespace Internal {
 
 ConfigurationPanel::ConfigurationPanel(QWidget *parent) :
     QWidget(parent),
-    ui(new Ui::ConfigurationPanel),
-    m_settings(0)
+    ui(new Ui::ConfigurationPanel)
 {
     ui->setupUi(this);
     connect(ui->add, &QPushButton::clicked, this, &ConfigurationPanel::add);
@@ -81,7 +78,7 @@ void ConfigurationPanel::add()
     ConfigurationDialog dialog;
     dialog.setWindowTitle(tr("Add Configuration"));
     dialog.setSettings(m_settings);
-    if (QDialog::Accepted == dialog.exec()) {
+    if (dialog.exec() == QDialog::Accepted) {
         const QString key = dialog.key();
         m_settings->setStyle(key, dialog.value());
         populateConfigurations(key);
@@ -95,7 +92,7 @@ void ConfigurationPanel::edit()
     dialog.setWindowTitle(tr("Edit Configuration"));
     dialog.setSettings(m_settings);
     dialog.setKey(key);
-    if (QDialog::Accepted == dialog.exec()) {
+    if (dialog.exec() == QDialog::Accepted) {
         const QString newKey = dialog.key();
         if (newKey == key) {
             m_settings->setStyle(key, dialog.value());
@@ -108,7 +105,7 @@ void ConfigurationPanel::edit()
 
 void ConfigurationPanel::populateConfigurations(const QString &key)
 {
-    ui->configurations->blockSignals(true);
+    const bool block = ui->configurations->blockSignals(true);
     const QString currentText = (!key.isEmpty()) ? key : ui->configurations->currentText();
     ui->configurations->clear();
     ui->configurations->addItems(m_settings->styles());
@@ -116,14 +113,13 @@ void ConfigurationPanel::populateConfigurations(const QString &key)
     if (textIndex != -1)
         ui->configurations->setCurrentIndex(textIndex);
     updateButtons();
-    ui->configurations->blockSignals(false);
+    ui->configurations->blockSignals(block);
 }
 
 void ConfigurationPanel::updateButtons()
 {
-    const bool enabled
-            = ((ui->configurations->count() > 0)
-               && !m_settings->styleIsReadOnly(ui->configurations->currentText()));
+    const bool enabled = ((ui->configurations->count() > 0)
+                          && !m_settings->styleIsReadOnly(ui->configurations->currentText()));
     ui->remove->setEnabled(enabled);
     ui->edit->setEnabled(enabled);
 }

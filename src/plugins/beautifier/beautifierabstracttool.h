@@ -38,7 +38,7 @@ class BeautifierAbstractTool : public QObject
     Q_OBJECT
 
 public:
-    explicit BeautifierAbstractTool(QObject *parent = 0) : QObject(parent) {}
+    explicit BeautifierAbstractTool(QObject *parent = nullptr) : QObject(parent) {}
     virtual ~BeautifierAbstractTool() {}
 
     virtual bool initialize() = 0;

@@ -39,8 +39,6 @@ public:
         PipeProcessing
     };
 
-    Command();
-
     QString executable() const;
     void setExecutable(const QString &executable);
 
@@ -59,9 +57,9 @@ public:
 private:
     QString m_executable;
     QStringList m_options;
-    Processing m_processing;
-    bool m_pipeAddsNewline;
-    bool m_returnsCRLF;
+    Processing m_processing = FileProcessing;
+    bool m_pipeAddsNewline = false;
+    bool m_returnsCRLF = false;
 };
 
 } // namespace Internal

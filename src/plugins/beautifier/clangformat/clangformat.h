@@ -28,7 +28,6 @@
 #include "../beautifierabstracttool.h"
 #include "../command.h"
 
-
 QT_FORWARD_DECLARE_CLASS(QAction)
 
 namespace Beautifier {
@@ -45,20 +44,18 @@ class ClangFormat : public BeautifierAbstractTool
     Q_OBJECT
 
 public:
-    explicit ClangFormat(BeautifierPlugin *parent = 0);
+    explicit ClangFormat(BeautifierPlugin *parent = nullptr);
     virtual ~ClangFormat();
     bool initialize() override;
     void updateActions(Core::IEditor *editor) override;
     QList<QObject *> autoReleaseObjects() override;
 
-private slots:
+private:
     void formatFile();
     void formatSelectedText();
-
-private:
     BeautifierPlugin *m_beautifierPlugin;
-    QAction *m_formatFile;
-    QAction *m_formatRange;
+    QAction *m_formatFile = nullptr;
+    QAction *m_formatRange = nullptr;
     ClangFormatSettings *m_settings;
     Command command(int offset = -1, int length = -1) const;
 };

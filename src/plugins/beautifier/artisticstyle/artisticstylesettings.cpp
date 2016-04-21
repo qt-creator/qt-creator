@@ -44,31 +44,30 @@ namespace Internal {
 namespace ArtisticStyle {
 
 namespace {
-const char kUseOtherFiles[] = "useOtherFiles";
-const char kUseHomeFile[] = "useHomeFile";
-const char kUseCustomStyle[] = "useCustomStyle";
-const char kCustomStyle[] = "customStyle";
+const char USE_OTHER_FILES[]  = "useOtherFiles";
+const char USE_HOME_FILE[]    = "useHomeFile";
+const char USE_CUSTOM_STYLE[] = "useCustomStyle";
+const char CUSTOM_STYLE[]     = "customStyle";
 }
 
 ArtisticStyleSettings::ArtisticStyleSettings() :
-    AbstractSettings(QLatin1String(Constants::ArtisticStyle::SETTINGS_NAME),
-                     QLatin1String(".astyle"))
+    AbstractSettings(Constants::ArtisticStyle::SETTINGS_NAME, ".astyle")
 {
     connect(&m_versionWatcher, &QFutureWatcherBase::finished,
             this, &ArtisticStyleSettings::helperSetVersion);
 
-    setCommand(QLatin1String("astyle"));
-    m_settings.insert(QLatin1String(kUseOtherFiles), QVariant(true));
-    m_settings.insert(QLatin1String(kUseHomeFile), QVariant(false));
-    m_settings.insert(QLatin1String(kUseCustomStyle), QVariant(false));
-    m_settings.insert(QLatin1String(kCustomStyle), QVariant());
+    setCommand("astyle");
+    m_settings.insert(USE_OTHER_FILES, QVariant(true));
+    m_settings.insert(USE_HOME_FILE, QVariant(false));
+    m_settings.insert(USE_CUSTOM_STYLE, QVariant(false));
+    m_settings.insert(CUSTOM_STYLE, QVariant());
     read();
 }
 
 static int parseVersion(const QString &text)
 {
     // The version in Artistic Style is printed like "Artistic Style Version 2.04"
-    const QRegExp rx(QLatin1String("([2-9]{1})\\.([0-9]{2})(\\.[1-9]{1})?$"));
+    const QRegExp rx("([2-9]{1})\\.([0-9]{2})(\\.[1-9]{1})?$");
     if (rx.indexIn(text) != -1) {
         const int major = rx.cap(1).toInt() * 100;
         const int minor = rx.cap(2).toInt();
@@ -80,7 +79,7 @@ static int parseVersion(const QString &text)
 static int updateVersionHelper(const QString &command)
 {
     QProcess process;
-    process.start(command, QStringList() << QLatin1String("--version"));
+    process.start(command, {"--version"});
     if (!process.waitForFinished()) {
         process.kill();
         return 0;
@@ -109,56 +108,55 @@ void ArtisticStyleSettings::helperSetVersion()
 
 bool ArtisticStyleSettings::useOtherFiles() const
 {
-    return m_settings.value(QLatin1String(kUseOtherFiles)).toBool();
+    return m_settings.value(USE_OTHER_FILES).toBool();
 }
 
 void ArtisticStyleSettings::setUseOtherFiles(bool useOtherFiles)
 {
-    m_settings.insert(QLatin1String(kUseOtherFiles), QVariant(useOtherFiles));
+    m_settings.insert(USE_OTHER_FILES, QVariant(useOtherFiles));
 }
 
 bool ArtisticStyleSettings::useHomeFile() const
 {
-    return m_settings.value(QLatin1String(kUseHomeFile)).toBool();
+    return m_settings.value(USE_HOME_FILE).toBool();
 }
 
 void ArtisticStyleSettings::setUseHomeFile(bool useHomeFile)
 {
-    m_settings.insert(QLatin1String(kUseHomeFile), QVariant(useHomeFile));
+    m_settings.insert(USE_HOME_FILE, QVariant(useHomeFile));
 }
 
 bool ArtisticStyleSettings::useCustomStyle() const
 {
-    return m_settings.value(QLatin1String(kUseCustomStyle)).toBool();
+    return m_settings.value(USE_CUSTOM_STYLE).toBool();
 }
 
 void ArtisticStyleSettings::setUseCustomStyle(bool useCustomStyle)
 {
-    m_settings.insert(QLatin1String(kUseCustomStyle), QVariant(useCustomStyle));
+    m_settings.insert(USE_CUSTOM_STYLE, QVariant(useCustomStyle));
 }
 
 QString ArtisticStyleSettings::customStyle() const
 {
-    return m_settings.value(QLatin1String(kCustomStyle)).toString();
+    return m_settings.value(CUSTOM_STYLE).toString();
 }
 
 void ArtisticStyleSettings::setCustomStyle(const QString &customStyle)
 {
-    m_settings.insert(QLatin1String(kCustomStyle), QVariant(customStyle));
+    m_settings.insert(CUSTOM_STYLE, QVariant(customStyle));
 }
 
 QString ArtisticStyleSettings::documentationFilePath() const
 {
-    return Core::ICore::userResourcePath() + QLatin1Char('/')
-            + QLatin1String(Beautifier::Constants::SETTINGS_DIRNAME) + QLatin1Char('/')
-            + QLatin1String(Beautifier::Constants::DOCUMENTATION_DIRNAME) + QLatin1Char('/')
-            + QLatin1String(Constants::ArtisticStyle::SETTINGS_NAME) + QLatin1String(".xml");
+    return Core::ICore::userResourcePath() + '/' + Beautifier::Constants::SETTINGS_DIRNAME + '/'
+            + Beautifier::Constants::DOCUMENTATION_DIRNAME + '/'
+            + Constants::ArtisticStyle::SETTINGS_NAME + ".xml";
 }
 
 void ArtisticStyleSettings::createDocumentationFile() const
 {
     QProcess process;
-    process.start(command(), QStringList() << QLatin1String("-h"));
+    process.start(command(), {"-h"});
     process.waitForFinished(2000); // show help should be really fast.
     if (process.error() != QProcess::UnknownError)
         return;
@@ -173,43 +171,39 @@ void ArtisticStyleSettings::createDocumentationFile() const
     bool contextWritten = false;
     QXmlStreamWriter stream(&file);
     stream.setAutoFormatting(true);
-    stream.writeStartDocument(QLatin1String("1.0"), true);
-    stream.writeComment(QLatin1String("Created ")
-                        + QDateTime::currentDateTime().toString(Qt::ISODate));
-    stream.writeStartElement(QLatin1String(Constants::DOCUMENTATION_XMLROOT));
+    stream.writeStartDocument("1.0", true);
+    stream.writeComment("Created " + QDateTime::currentDateTime().toString(Qt::ISODate));
+    stream.writeStartElement(Constants::DOCUMENTATION_XMLROOT);
 
     // astyle writes its output to 'error'...
     const QStringList lines = QString::fromUtf8(process.readAllStandardError())
-            .split(QLatin1Char('\n'));
+            .split('\n');
     QStringList keys;
     QStringList docu;
-    foreach (QString line, lines) {
+    for (QString line : lines) {
         line = line.trimmed();
-        if ((line.startsWith(QLatin1String("--")) && !line.startsWith(QLatin1String("---")))
-                || line.startsWith(QLatin1String("OR "))) {
-            QStringList rawKeys = line.split(QLatin1String(" OR "), QString::SkipEmptyParts);
-            foreach (QString k, rawKeys) {
+        if ((line.startsWith("--") && !line.startsWith("---")) || line.startsWith("OR ")) {
+            const QStringList rawKeys = line.split(" OR ", QString::SkipEmptyParts);
+            for (QString k : rawKeys) {
                 k = k.trimmed();
-                k.remove(QLatin1Char('#'));
+                k.remove('#');
                 keys << k;
-                if (k.startsWith(QLatin1String("--")))
+                if (k.startsWith("--"))
                     keys << k.right(k.size() - 2);
             }
         } else {
             if (line.isEmpty()) {
                 if (!keys.isEmpty()) {
                     // Write entry
-                    stream.writeStartElement(QLatin1String(Constants::DOCUMENTATION_XMLENTRY));
-                    stream.writeStartElement(QLatin1String(Constants::DOCUMENTATION_XMLKEYS));
-                    foreach (const QString &key, keys)
-                        stream.writeTextElement(QLatin1String(Constants::DOCUMENTATION_XMLKEY), key);
+                    stream.writeStartElement(Constants::DOCUMENTATION_XMLENTRY);
+                    stream.writeStartElement(Constants::DOCUMENTATION_XMLKEYS);
+                    for (const QString &key : keys)
+                        stream.writeTextElement(Constants::DOCUMENTATION_XMLKEY, key);
                     stream.writeEndElement();
-                    const QString text = QLatin1String("<p><span class=\"option\">")
-                            + keys.filter(QRegExp(QLatin1String("^\\-"))).join(QLatin1String(", "))
-                            + QLatin1String("</span></p><p>")
-                            + (docu.join(QLatin1Char(' ')).toHtmlEscaped())
-                            + QLatin1String("</p>");
-                    stream.writeTextElement(QLatin1String(Constants::DOCUMENTATION_XMLDOC), text);
+                    const QString text = "<p><span class=\"option\">"
+                            + keys.filter(QRegExp("^\\-")).join(", ") + "</span></p><p>"
+                            + (docu.join(' ').toHtmlEscaped()) + "</p>";
+                    stream.writeTextElement(Constants::DOCUMENTATION_XMLDOC, text);
                     stream.writeEndElement();
                     contextWritten = true;
                 }

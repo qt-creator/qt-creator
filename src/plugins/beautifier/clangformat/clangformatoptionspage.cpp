@@ -34,24 +34,22 @@
 
 #include <coreplugin/icore.h>
 
-#include <QTextStream>
-
 namespace Beautifier {
 namespace Internal {
 namespace ClangFormat {
 
 ClangFormatOptionsPageWidget::ClangFormatOptionsPageWidget(ClangFormatSettings *settings,
-                                                           QWidget *parent)
-    : QWidget(parent)
-    , ui(new Ui::ClangFormatOptionsPage)
-    , m_settings(settings)
+                                                           QWidget *parent) :
+    QWidget(parent),
+    ui(new Ui::ClangFormatOptionsPage),
+    m_settings(settings)
 {
     ui->setupUi(this);
     ui->options->setEnabled(false);
     ui->predefinedStyle->addItems(m_settings->predefinedStyles());
     ui->command->setExpectedKind(Utils::PathChooser::ExistingCommand);
     ui->command->setPromptDialogTitle(
-                BeautifierPlugin::msgCommandPromptDialogTitle(QLatin1String("Clang Format")));
+                BeautifierPlugin::msgCommandPromptDialogTitle("Clang Format"));
     connect(ui->command, &Utils::PathChooser::validChanged, ui->options, &QWidget::setEnabled);
     ui->configurations->setSettings(m_settings);
 }
@@ -87,18 +85,15 @@ void ClangFormatOptionsPageWidget::apply()
     m_settings->save();
 }
 
-/* ---------------------------------------------------------------------------------------------- */
-
 ClangFormatOptionsPage::ClangFormatOptionsPage(ClangFormatSettings *settings, QObject *parent) :
     IOptionsPage(parent),
-    m_widget(0),
     m_settings(settings)
 {
     setId(Constants::ClangFormat::OPTION_ID);
     setDisplayName(tr("Clang Format"));
     setCategory(Constants::OPTION_CATEGORY);
     setDisplayCategory(QCoreApplication::translate("Beautifier", Constants::OPTION_TR_CATEGORY));
-    setCategoryIcon(QLatin1String(Constants::OPTION_CATEGORY_ICON));
+    setCategoryIcon(Constants::OPTION_CATEGORY_ICON);
 }
 
 QWidget *ClangFormatOptionsPage::widget()

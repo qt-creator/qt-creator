@@ -39,8 +39,6 @@
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/ieditor.h>
-#include <coreplugin/icontext.h>
-#include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
 #include <cppeditor/cppeditorconstants.h>
 #include <texteditor/texteditor.h>
@@ -48,7 +46,6 @@
 
 #include <QAction>
 #include <QMenu>
-#include <QStringList>
 
 namespace Beautifier {
 namespace Internal {
@@ -69,7 +66,7 @@ ClangFormat::~ClangFormat()
 bool ClangFormat::initialize()
 {
     Core::ActionContainer *menu = Core::ActionManager::createMenu(Constants::ClangFormat::MENU_ID);
-    menu->menu()->setTitle(QLatin1String(Constants::ClangFormat::DISPLAY_NAME));
+    menu->menu()->setTitle(Constants::ClangFormat::DISPLAY_NAME);
 
     m_formatFile = new QAction(BeautifierPlugin::msgFormatCurrentFile(), this);
     Core::Command *cmd
@@ -98,8 +95,7 @@ void ClangFormat::updateActions(Core::IEditor *editor)
 
 QList<QObject *> ClangFormat::autoReleaseObjects()
 {
-    ClangFormatOptionsPage *optionsPage = new ClangFormatOptionsPage(m_settings, this);
-    return QList<QObject *>() << optionsPage;
+    return {new ClangFormatOptionsPage(m_settings, this)};
 }
 
 void ClangFormat::formatFile()
@@ -131,19 +127,18 @@ Command ClangFormat::command(int offset, int length) const
     command.setProcessing(Command::PipeProcessing);
 
     if (m_settings->usePredefinedStyle()) {
-        command.addOption(QLatin1String("-style=") + m_settings->predefinedStyle());
-        command.addOption(QLatin1String("-assume-filename=%filename"));
+        command.addOption("-style=" + m_settings->predefinedStyle());
+        command.addOption("-assume-filename=%filename");
     } else {
-        command.addOption(QLatin1String("-style=file"));
+        command.addOption("-style=file");
         const QString path =
                 QFileInfo(m_settings->styleFileName(m_settings->customStyle())).absolutePath();
-        command.addOption(QLatin1String("-assume-filename=") + path + QDir::separator()
-                          + QLatin1String("%filename"));
+        command.addOption("-assume-filename=" + path + QDir::separator() + "%filename");
     }
 
     if (offset != -1) {
-        command.addOption(QLatin1String("-offset=") + QString::number(offset));
-        command.addOption(QLatin1String("-length=") + QString::number(length));
+        command.addOption("-offset=" + QString::number(offset));
+        command.addOption("-length=" + QString::number(length));
     }
 
     return command;

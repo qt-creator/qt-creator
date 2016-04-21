@@ -71,7 +71,7 @@ public:
 protected:
     QMap<QString, QString> m_styles;
     QMap<QString, QVariant> m_settings;
-    int m_version;
+    int m_version = 0;
     QString m_ending;
     QDir m_styleDir;
 

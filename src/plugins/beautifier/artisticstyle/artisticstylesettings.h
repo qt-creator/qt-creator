@@ -27,7 +27,6 @@
 
 #include "../abstractsettings.h"
 
-
 #include <QFuture>
 #include <QFutureWatcher>
 
@@ -63,10 +62,8 @@ public:
     QString documentationFilePath() const override;
     void createDocumentationFile() const override;
 
-private slots:
-    void helperSetVersion();
-
 private:
+    void helperSetVersion();
     QFuture<int> m_versionFuture;
     QFutureWatcher<int> m_versionWatcher;
 };

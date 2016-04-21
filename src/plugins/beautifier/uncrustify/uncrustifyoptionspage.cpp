@@ -41,18 +41,17 @@ namespace Internal {
 namespace Uncrustify {
 
 UncrustifyOptionsPageWidget::UncrustifyOptionsPageWidget(UncrustifySettings *settings,
-                                                         QWidget *parent)
-    : QWidget(parent)
-    , ui(new Ui::UncrustifyOptionsPage)
-    , m_settings(settings)
+                                                         QWidget *parent) :
+    QWidget(parent),
+    ui(new Ui::UncrustifyOptionsPage),
+    m_settings(settings)
 {
     ui->setupUi(this);
     ui->useHomeFile->setText(ui->useHomeFile->text().replace(
-                                 QLatin1String("HOME"),
-                                 QDir::toNativeSeparators(QDir::home().absolutePath())));
+                                 "HOME", QDir::toNativeSeparators(QDir::home().absolutePath())));
     ui->command->setExpectedKind(Utils::PathChooser::ExistingCommand);
     ui->command->setPromptDialogTitle(BeautifierPlugin::msgCommandPromptDialogTitle(
-                                          QLatin1String(Constants::Uncrustify::DISPLAY_NAME)));
+                                          Constants::Uncrustify::DISPLAY_NAME));
     connect(ui->command, &Utils::PathChooser::validChanged, ui->options, &QWidget::setEnabled);
     ui->configurations->setSettings(m_settings);
 }
@@ -83,18 +82,15 @@ void UncrustifyOptionsPageWidget::apply()
     m_settings->save();
 }
 
-/* ---------------------------------------------------------------------------------------------- */
-
 UncrustifyOptionsPage::UncrustifyOptionsPage(UncrustifySettings *settings, QObject *parent) :
     IOptionsPage(parent),
-    m_widget(0),
     m_settings(settings)
 {
     setId(Constants::Uncrustify::OPTION_ID);
     setDisplayName(tr("Uncrustify"));
     setCategory(Constants::OPTION_CATEGORY);
     setDisplayCategory(QCoreApplication::translate("Beautifier", Constants::OPTION_TR_CATEGORY));
-    setCategoryIcon(QLatin1String(Constants::OPTION_CATEGORY_ICON));
+    setCategoryIcon(Constants::OPTION_CATEGORY_ICON);
 }
 
 QWidget *UncrustifyOptionsPage::widget()

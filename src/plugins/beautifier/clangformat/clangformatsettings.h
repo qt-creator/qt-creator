@@ -27,7 +27,6 @@
 
 #include "../abstractsettings.h"
 
-
 namespace Beautifier {
 namespace Internal {
 namespace ClangFormat {

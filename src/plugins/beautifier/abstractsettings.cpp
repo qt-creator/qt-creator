@@ -31,7 +31,6 @@
 #include <coreplugin/icore.h>
 #include <utils/fileutils.h>
 
-#include <QDir>
 #include <QFile>
 #include <QFileInfo>
 #include <QXmlStreamReader>
@@ -39,13 +38,11 @@
 namespace Beautifier {
 namespace Internal {
 
-AbstractSettings::AbstractSettings(const QString &name, const QString &ending)
-    : m_version(0)
-    , m_ending(ending)
-    , m_styleDir(Core::ICore::userResourcePath() + QLatin1Char('/')
-                 + QLatin1String(Beautifier::Constants::SETTINGS_DIRNAME) + QLatin1Char('/')
-                 + name)
-    , m_name(name)
+AbstractSettings::AbstractSettings(const QString &name, const QString &ending) :
+    m_ending(ending),
+    m_styleDir(Core::ICore::userResourcePath() + '/' + Beautifier::Constants::SETTINGS_DIRNAME
+               + '/' + name),
+    m_name(name)
 {
 }
 
@@ -163,14 +160,14 @@ void AbstractSettings::save()
 {
     // Save settings, except styles
     QSettings *s = Core::ICore::settings();
-    s->beginGroup(QLatin1String(Constants::SETTINGS_GROUP));
+    s->beginGroup(Constants::SETTINGS_GROUP);
     s->beginGroup(m_name);
     QMap<QString, QVariant>::const_iterator iSettings = m_settings.constBegin();
     while (iSettings != m_settings.constEnd()) {
         s->setValue(iSettings.key(), iSettings.value());
         ++iSettings;
     }
-    s->setValue(QLatin1String("command"), m_command);
+    s->setValue("command", m_command);
     s->endGroup();
     s->endGroup();
 
@@ -230,11 +227,11 @@ void AbstractSettings::read()
 {
     // Read settings, except styles
     QSettings *s = Core::ICore::settings();
-    s->beginGroup(QLatin1String(Constants::SETTINGS_GROUP));
+    s->beginGroup(Constants::SETTINGS_GROUP);
     s->beginGroup(m_name);
     const QStringList keys = s->allKeys();
-    foreach (const QString &key, keys) {
-        if (key == QLatin1String("command"))
+    for (const QString &key : keys) {
+        if (key == "command")
             setCommand(s->value(key).toString());
         else if (m_settings.contains(key))
             m_settings[key] = s->value(key);
@@ -270,7 +267,7 @@ void AbstractSettings::readDocumentation()
     QXmlStreamReader xml(&file);
     if (!xml.readNextStartElement())
         return;
-    if (xml.name() != QLatin1String(Constants::DOCUMENTATION_XMLROOT)) {
+    if (xml.name() != Constants::DOCUMENTATION_XMLROOT) {
         BeautifierPlugin::showError(tr("The file \"%1\" is not a valid documentation file.")
                                     .arg(filename));
         return;
@@ -285,16 +282,16 @@ void AbstractSettings::readDocumentation()
     while (!(xml.atEnd() || xml.hasError())) {
         if (xml.readNext() == QXmlStreamReader::StartElement) {
             const QStringRef &name = xml.name();
-            if (name == QLatin1String(Constants::DOCUMENTATION_XMLENTRY)) {
+            if (name == Constants::DOCUMENTATION_XMLENTRY) {
                 keys.clear();
-            } else if (name == QLatin1String(Constants::DOCUMENTATION_XMLKEY)) {
+            } else if (name == Constants::DOCUMENTATION_XMLKEY) {
                 if (xml.readNext() == QXmlStreamReader::Characters)
                     keys << xml.text().toString();
-            } else if (name == QLatin1String(Constants::DOCUMENTATION_XMLDOC)) {
+            } else if (name == Constants::DOCUMENTATION_XMLDOC) {
                 if (xml.readNext() == QXmlStreamReader::Characters) {
                     m_docu << xml.text().toString();
                     const int index = m_docu.size() - 1;
-                    foreach (const QString &key, keys)
+                    for (const QString &key : keys)
                         m_options.insert(key, index);
                 }
             }
@@ -313,9 +310,9 @@ void AbstractSettings::readStyles()
         return;
 
     const QStringList files
-            = m_styleDir.entryList(QStringList() << QLatin1Char('*') + m_ending,
+            = m_styleDir.entryList({'*' + m_ending},
                                    QDir::Files | QDir::Readable | QDir::NoDotAndDotDot);
-    foreach (const QString &filename, files) {
+    for (const QString &filename : files) {
         // do not allow empty file names
         if (filename == m_ending)
             continue;

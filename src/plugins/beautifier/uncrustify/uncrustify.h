@@ -44,20 +44,18 @@ class Uncrustify : public BeautifierAbstractTool
     Q_OBJECT
 
 public:
-    explicit Uncrustify(BeautifierPlugin *parent = 0);
+    explicit Uncrustify(BeautifierPlugin *parent = nullptr);
     virtual ~Uncrustify();
     bool initialize() override;
     void updateActions(Core::IEditor *editor) override;
     QList<QObject *> autoReleaseObjects() override;
 
-private slots:
+private:
     void formatFile();
     void formatSelectedText();
-
-private:
     BeautifierPlugin *m_beautifierPlugin;
-    QAction *m_formatFile;
-    QAction *m_formatRange;
+    QAction *m_formatFile = nullptr;
+    QAction *m_formatRange = nullptr;
     UncrustifySettings *m_settings;
     QString configurationFile() const;
     Command command(const QString &cfgFile, bool fragment = false) const;

@@ -34,25 +34,22 @@
 
 #include <coreplugin/icore.h>
 
-#include <QTextStream>
-
 namespace Beautifier {
 namespace Internal {
 namespace ArtisticStyle {
 
 ArtisticStyleOptionsPageWidget::ArtisticStyleOptionsPageWidget(ArtisticStyleSettings *settings,
-                                                         QWidget *parent)
-    : QWidget(parent)
-    , ui(new Ui::ArtisticStyleOptionsPage)
-    , m_settings(settings)
+                                                               QWidget *parent) :
+    QWidget(parent),
+    ui(new Ui::ArtisticStyleOptionsPage),
+    m_settings(settings)
 {
     ui->setupUi(this);
     ui->useHomeFile->setText(ui->useHomeFile->text().replace(
-                                 QLatin1String("HOME"),
-                                 QDir::toNativeSeparators(QDir::home().absolutePath())));
+                                 "HOME", QDir::toNativeSeparators(QDir::home().absolutePath())));
     ui->command->setExpectedKind(Utils::PathChooser::ExistingCommand);
     ui->command->setPromptDialogTitle(BeautifierPlugin::msgCommandPromptDialogTitle(
-                                          QLatin1String(Constants::ArtisticStyle::DISPLAY_NAME)));
+                                          Constants::ArtisticStyle::DISPLAY_NAME));
     connect(ui->command, &Utils::PathChooser::validChanged, ui->options, &QWidget::setEnabled);
     ui->configurations->setSettings(m_settings);
 }
@@ -81,18 +78,15 @@ void ArtisticStyleOptionsPageWidget::apply()
     m_settings->save();
 }
 
-/* ---------------------------------------------------------------------------------------------- */
-
 ArtisticStyleOptionsPage::ArtisticStyleOptionsPage(ArtisticStyleSettings *settings, QObject *parent) :
     IOptionsPage(parent),
-    m_widget(0),
     m_settings(settings)
 {
     setId(Constants::ArtisticStyle::OPTION_ID);
     setDisplayName(tr("Artistic Style"));
     setCategory(Constants::OPTION_CATEGORY);
     setDisplayCategory(QCoreApplication::translate("Beautifier", Constants::OPTION_TR_CATEGORY));
-    setCategoryIcon(QLatin1String(Constants::OPTION_CATEGORY_ICON));
+    setCategoryIcon(Constants::OPTION_CATEGORY_ICON);
 }
 
 QWidget *ArtisticStyleOptionsPage::widget()

@@ -39,30 +39,28 @@ namespace Internal {
 namespace ClangFormat {
 
 namespace {
-const char kUsePredefinedStyle[] = "usePredefinedStyle";
-const char kPredefinedStyle[] = "predefinedStyle";
-const char kCustomStyle[] = "customStyle";
-const char kFormatEntireFileFallback[] = "formatEntireFileFallback";
+const char USE_PREDEFINED_STYLE[]        = "usePredefinedStyle";
+const char PREDEFINED_STYLE[]            = "predefinedStyle";
+const char CUSTOM_STYLE[]                = "customStyle";
+const char FORMAT_ENTIRE_FILE_FALLBACK[] = "formatEntireFileFallback";
 }
 
 ClangFormatSettings::ClangFormatSettings() :
-    AbstractSettings(QLatin1String(Constants::ClangFormat::SETTINGS_NAME),
-                     QLatin1String(".clang-format"))
+    AbstractSettings(Constants::ClangFormat::SETTINGS_NAME, ".clang-format")
 {
-    setCommand(QLatin1String("clang-format"));
-    m_settings.insert(QLatin1String(kUsePredefinedStyle), QVariant(true));
-    m_settings.insert(QLatin1String(kPredefinedStyle), QLatin1String("LLVM"));
-    m_settings.insert(QLatin1String(kCustomStyle), QVariant());
-    m_settings.insert(QLatin1String(kFormatEntireFileFallback), QVariant(true));
+    setCommand("clang-format");
+    m_settings.insert(USE_PREDEFINED_STYLE, QVariant(true));
+    m_settings.insert(PREDEFINED_STYLE, "LLVM");
+    m_settings.insert(CUSTOM_STYLE, QVariant());
+    m_settings.insert(FORMAT_ENTIRE_FILE_FALLBACK, QVariant(true));
     read();
 }
 
 QString ClangFormatSettings::documentationFilePath() const
 {
-    return Core::ICore::userResourcePath() + QLatin1Char('/')
-            + QLatin1String(Beautifier::Constants::SETTINGS_DIRNAME) + QLatin1Char('/')
-            + QLatin1String(Beautifier::Constants::DOCUMENTATION_DIRNAME) + QLatin1Char('/')
-            + QLatin1String(Constants::ClangFormat::SETTINGS_NAME) + QLatin1String(".xml");
+    return Core::ICore::userResourcePath() + '/' + Beautifier::Constants::SETTINGS_DIRNAME + '/'
+            + Beautifier::Constants::DOCUMENTATION_DIRNAME + '/'
+            + Constants::ClangFormat::SETTINGS_NAME + ".xml";
 }
 
 void ClangFormatSettings::createDocumentationFile() const
@@ -76,71 +74,70 @@ void ClangFormatSettings::createDocumentationFile() const
 
     QXmlStreamWriter stream(&file);
     stream.setAutoFormatting(true);
-    stream.writeStartDocument(QLatin1String("1.0"), true);
-    stream.writeComment(QLatin1String("Created ")
-                        + QDateTime::currentDateTime().toString(Qt::ISODate));
-    stream.writeStartElement(QLatin1String(Constants::DOCUMENTATION_XMLROOT));
+    stream.writeStartDocument("1.0", true);
+    stream.writeComment("Created " + QDateTime::currentDateTime().toString(Qt::ISODate));
+    stream.writeStartElement(Constants::DOCUMENTATION_XMLROOT);
 
-    const QStringList lines = QStringList()
-            << QLatin1String("BasedOnStyle {string: LLVM, Google, Chromium, Mozilla, WebKit}")
-            << QLatin1String("AccessModifierOffset {int}")
-            << QLatin1String("AlignEscapedNewlinesLeft {bool}")
-            << QLatin1String("AlignTrailingComments {bool}")
-            << QLatin1String("AllowAllParametersOfDeclarationOnNextLine {bool}")
-            << QLatin1String("AllowShortFunctionsOnASingleLine {bool}")
-            << QLatin1String("AllowShortIfStatementsOnASingleLine {bool}")
-            << QLatin1String("AllowShortLoopsOnASingleLine {bool}")
-            << QLatin1String("AlwaysBreakBeforeMultilineStrings {bool}")
-            << QLatin1String("AlwaysBreakTemplateDeclarations {bool}")
-            << QLatin1String("BinPackParameters {bool}")
-            << QLatin1String("BreakBeforeBinaryOperators {bool}")
-            << QLatin1String("BreakBeforeBraces {BraceBreakingStyle: BS_Attach, BS_Linux, BS_Stroustrup, BS_Allman, BS_GNU}")
-            << QLatin1String("BreakBeforeTernaryOperators {bool}")
-            << QLatin1String("BreakConstructorInitializersBeforeComma {bool}")
-            << QLatin1String("ColumnLimit {unsigned}")
-            << QLatin1String("CommentPragmas {string}")
-            << QLatin1String("ConstructorInitializerAllOnOneLineOrOnePerLine {bool}")
-            << QLatin1String("ConstructorInitializerIndentWidth {unsigned}")
-            << QLatin1String("ContinuationIndentWidth {unsigned}")
-            << QLatin1String("Cpp11BracedListStyle {bool}")
-            << QLatin1String("IndentCaseLabels {bool}")
-            << QLatin1String("IndentFunctionDeclarationAfterType {bool}")
-            << QLatin1String("IndentWidth {unsigned}")
-            << QLatin1String("Language {LanguageKind: LK_None, LK_Cpp, LK_JavaScript, LK_Proto}")
-            << QLatin1String("MaxEmptyLinesToKeep {unsigned}")
-            << QLatin1String("NamespaceIndentation {NamespaceIndentationKind: NI_None, NI_Inner, NI_All}")
-            << QLatin1String("ObjCSpaceAfterProperty {bool}")
-            << QLatin1String("ObjCSpaceBeforeProtocolList {bool}")
-            << QLatin1String("PenaltyBreakBeforeFirstCallParameter {unsigned}")
-            << QLatin1String("PenaltyBreakComment {unsigned}")
-            << QLatin1String("PenaltyBreakFirstLessLess {unsigned}")
-            << QLatin1String("PenaltyBreakString {unsigned}")
-            << QLatin1String("PenaltyExcessCharacter {unsigned}")
-            << QLatin1String("PenaltyReturnTypeOnItsOwnLine {unsigned}")
-            << QLatin1String("PointerBindsToType {bool}")
-            << QLatin1String("SpaceBeforeAssignmentOperators {bool}")
-            << QLatin1String("SpaceBeforeParens {SpaceBeforeParensOptions: SBPO_Never, SBPO_ControlStatements, SBPO_Always}")
-            << QLatin1String("SpaceInEmptyParentheses {bool}")
-            << QLatin1String("SpacesBeforeTrailingComments {unsigned}")
-            << QLatin1String("SpacesInAngles {bool}")
-            << QLatin1String("SpacesInCStyleCastParentheses {bool}")
-            << QLatin1String("SpacesInContainerLiterals {bool}")
-            << QLatin1String("SpacesInParentheses {bool}")
-            << QLatin1String("Standard {LanguageStandard: LS_Cpp03, LS_Cpp11, LS_Auto}")
-            << QLatin1String("TabWidth {unsigned}")
-            << QLatin1String("UseTab {UseTabStyle: UT_Never, UT_ForIndentation, UT_Always}");
+    const QStringList lines = {
+        "BasedOnStyle {string: LLVM, Google, Chromium, Mozilla, WebKit}",
+        "AccessModifierOffset {int}",
+        "AlignEscapedNewlinesLeft {bool}",
+        "AlignTrailingComments {bool}",
+        "AllowAllParametersOfDeclarationOnNextLine {bool}",
+        "AllowShortFunctionsOnASingleLine {bool}",
+        "AllowShortIfStatementsOnASingleLine {bool}",
+        "AllowShortLoopsOnASingleLine {bool}",
+        "AlwaysBreakBeforeMultilineStrings {bool}",
+        "AlwaysBreakTemplateDeclarations {bool}",
+        "BinPackParameters {bool}",
+        "BreakBeforeBinaryOperators {bool}",
+        "BreakBeforeBraces {BraceBreakingStyle: BS_Attach, BS_Linux, BS_Stroustrup, BS_Allman, BS_GNU}",
+        "BreakBeforeTernaryOperators {bool}",
+        "BreakConstructorInitializersBeforeComma {bool}",
+        "ColumnLimit {unsigned}",
+        "CommentPragmas {string}",
+        "ConstructorInitializerAllOnOneLineOrOnePerLine {bool}",
+        "ConstructorInitializerIndentWidth {unsigned}",
+        "ContinuationIndentWidth {unsigned}",
+        "Cpp11BracedListStyle {bool}",
+        "IndentCaseLabels {bool}",
+        "IndentFunctionDeclarationAfterType {bool}",
+        "IndentWidth {unsigned}",
+        "Language {LanguageKind: LK_None, LK_Cpp, LK_JavaScript, LK_Proto}",
+        "MaxEmptyLinesToKeep {unsigned}",
+        "NamespaceIndentation {NamespaceIndentationKind: NI_None, NI_Inner, NI_All}",
+        "ObjCSpaceAfterProperty {bool}",
+        "ObjCSpaceBeforeProtocolList {bool}",
+        "PenaltyBreakBeforeFirstCallParameter {unsigned}",
+        "PenaltyBreakComment {unsigned}",
+        "PenaltyBreakFirstLessLess {unsigned}",
+        "PenaltyBreakString {unsigned}",
+        "PenaltyExcessCharacter {unsigned}",
+        "PenaltyReturnTypeOnItsOwnLine {unsigned}",
+        "PointerBindsToType {bool}",
+        "SpaceBeforeAssignmentOperators {bool}",
+        "SpaceBeforeParens {SpaceBeforeParensOptions: SBPO_Never, SBPO_ControlStatements, SBPO_Always}",
+        "SpaceInEmptyParentheses {bool}",
+        "SpacesBeforeTrailingComments {unsigned}",
+        "SpacesInAngles {bool}",
+        "SpacesInCStyleCastParentheses {bool}",
+        "SpacesInContainerLiterals {bool}",
+        "SpacesInParentheses {bool}",
+        "Standard {LanguageStandard: LS_Cpp03, LS_Cpp11, LS_Auto}",
+        "TabWidth {unsigned}",
+        "UseTab {UseTabStyle: UT_Never, UT_ForIndentation, UT_Always}"
+    };
 
-    foreach (const QString& line, lines) {
-        const int firstSpace = line.indexOf(QLatin1Char(' '));
+    for (const QString& line : lines) {
+        const int firstSpace = line.indexOf(' ');
         const QString keyword = line.left(firstSpace);
         const QString options = line.right(line.size() - firstSpace).trimmed();
-        const QString text = QLatin1String("<p><span class=\"option\">") + keyword
-                + QLatin1String("</span> <span class=\"param\">") + options
-                + QLatin1String("</span></p><p>") + tr("No description available.")
-                + QLatin1String("</p>");
-        stream.writeStartElement(QLatin1String(Constants::DOCUMENTATION_XMLENTRY));
-        stream.writeTextElement(QLatin1String(Constants::DOCUMENTATION_XMLKEY), keyword);
-        stream.writeTextElement(QLatin1String(Constants::DOCUMENTATION_XMLDOC), text);
+        const QString text = "<p><span class=\"option\">" + keyword
+                + "</span> <span class=\"param\">" + options
+                + "</span></p><p>" + tr("No description available.") + "</p>";
+        stream.writeStartElement(Constants::DOCUMENTATION_XMLENTRY);
+        stream.writeTextElement(Constants::DOCUMENTATION_XMLKEY, keyword);
+        stream.writeTextElement(Constants::DOCUMENTATION_XMLDOC, text);
         stream.writeEndElement();
     }
 
@@ -150,90 +147,85 @@ void ClangFormatSettings::createDocumentationFile() const
 
 QStringList ClangFormatSettings::completerWords()
 {
-    QStringList words;
-    words << QLatin1String("LLVM")
-          << QLatin1String("Google")
-          << QLatin1String("Chromium")
-          << QLatin1String("Mozilla")
-          << QLatin1String("WebKit")
-          << QLatin1String("BS_Attach")
-          << QLatin1String("BS_Linux")
-          << QLatin1String("BS_Stroustrup")
-          << QLatin1String("BS_Allman")
-          << QLatin1String("NI_None")
-          << QLatin1String("NI_Inner")
-          << QLatin1String("NI_All")
-          << QLatin1String("LS_Cpp03")
-          << QLatin1String("LS_Cpp11")
-          << QLatin1String("LS_Auto")
-          << QLatin1String("UT_Never")
-          << QLatin1String("UT_ForIndentation")
-          << QLatin1String("UT_Always");
-    return words;
+    return {
+        "LLVM",
+        "Google",
+        "Chromium",
+        "Mozilla",
+        "WebKit",
+        "BS_Attach",
+        "BS_Linux",
+        "BS_Stroustrup",
+        "BS_Allman",
+        "NI_None",
+        "NI_Inner",
+        "NI_All",
+        "LS_Cpp03",
+        "LS_Cpp11",
+        "LS_Auto",
+        "UT_Never",
+        "UT_ForIndentation",
+        "UT_Always"
+    };
 }
 
 bool ClangFormatSettings::usePredefinedStyle() const
 {
-    return m_settings.value(QLatin1String(kUsePredefinedStyle)).toBool();
+    return m_settings.value(USE_PREDEFINED_STYLE).toBool();
 }
 
 void ClangFormatSettings::setUsePredefinedStyle(bool usePredefinedStyle)
 {
-    m_settings.insert(QLatin1String(kUsePredefinedStyle), QVariant(usePredefinedStyle));
+    m_settings.insert(USE_PREDEFINED_STYLE, QVariant(usePredefinedStyle));
 }
 
 QString ClangFormatSettings::predefinedStyle() const
 {
-    return m_settings.value(QLatin1String(kPredefinedStyle)).toString();
+    return m_settings.value(PREDEFINED_STYLE).toString();
 }
 
 void ClangFormatSettings::setPredefinedStyle(const QString &predefinedStyle)
 {
     const QStringList test = predefinedStyles();
     if (test.contains(predefinedStyle))
-        m_settings.insert(QLatin1String(kPredefinedStyle), QVariant(predefinedStyle));
+        m_settings.insert(PREDEFINED_STYLE, QVariant(predefinedStyle));
 }
 
 QString ClangFormatSettings::customStyle() const
 {
-    return m_settings.value(QLatin1String(kCustomStyle)).toString();
+    return m_settings.value(CUSTOM_STYLE).toString();
 }
 
 void ClangFormatSettings::setCustomStyle(const QString &customStyle)
 {
-    m_settings.insert(QLatin1String(kCustomStyle), QVariant(customStyle));
+    m_settings.insert(CUSTOM_STYLE, QVariant(customStyle));
 }
 
 bool ClangFormatSettings::formatEntireFileFallback() const
 {
-    return m_settings.value(QLatin1String(kFormatEntireFileFallback)).toBool();
+    return m_settings.value(FORMAT_ENTIRE_FILE_FALLBACK).toBool();
 }
 
 void ClangFormatSettings::setFormatEntireFileFallback(bool formatEntireFileFallback)
 {
-    m_settings.insert(QLatin1String(kFormatEntireFileFallback), QVariant(formatEntireFileFallback));
+    m_settings.insert(FORMAT_ENTIRE_FILE_FALLBACK, QVariant(formatEntireFileFallback));
 }
 
 QStringList ClangFormatSettings::predefinedStyles() const
 {
-    return QStringList() << QLatin1String("LLVM")
-                         << QLatin1String("Google")
-                         << QLatin1String("Chromium")
-                         << QLatin1String("Mozilla")
-                         << QLatin1String("WebKit")
-                         << QLatin1String("File");
+    return {"LLVM", "Google", "Chromium", "Mozilla", "WebKit", "File"};
 }
 
 QString ClangFormatSettings::styleFileName(const QString &key) const
 {
-    return m_styleDir.absolutePath() + QLatin1Char('/') + key + QLatin1Char('/') + m_ending;
+    return m_styleDir.absolutePath() + '/' + key + '/' + m_ending;
 }
 
 void ClangFormatSettings::readStyles()
 {
     const QStringList dirs = m_styleDir.entryList(QDir::AllDirs | QDir::NoDotAndDotDot);
     for (const QString &dir : dirs) {
-        QFile file(m_styleDir.absoluteFilePath(dir + QLatin1Char('/') + m_ending));
+        QFile file(m_styleDir.absoluteFilePath(dir + '/' + m_ending));
         if (file.open(QIODevice::ReadOnly))
             m_styles.insert(dir, QString::fromLocal8Bit(file.readAll()));
     }

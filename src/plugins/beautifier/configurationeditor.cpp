@@ -46,7 +46,7 @@ ConfigurationSyntaxHighlighter::ConfigurationSyntaxHighlighter(QTextDocument *pa
     m_formatKeyword = fs.toTextCharFormat(TextEditor::C_FIELD);
     m_formatComment = fs.toTextCharFormat(TextEditor::C_COMMENT);
 
-    m_expressionComment.setPattern(QLatin1String("#[^\\n]*"));
+    m_expressionComment.setPattern("#[^\\n]*");
     m_expressionComment.setMinimal(false);
 }
 
@@ -57,13 +57,12 @@ void ConfigurationSyntaxHighlighter::setKeywords(const QStringList &keywords)
 
     // Check for empty keywords since they can cause an endless loop in highlightBlock().
     QStringList pattern;
-    foreach (const QString &word, keywords) {
+    for (const QString &word : keywords) {
         if (!word.isEmpty())
             pattern << QRegExp::escape(word);
     }
 
-    m_expressionKeyword.setPattern(QLatin1String("(?:\\s|^)(") + pattern.join(QLatin1Char('|'))
-                                   + QLatin1String(")(?=\\s|\\:|\\=|\\,|$)"));
+    m_expressionKeyword.setPattern("(?:\\s|^)(" + pattern.join('|') + ")(?=\\s|\\:|\\=|\\,|$)");
 }
 
 void ConfigurationSyntaxHighlighter::setCommentExpression(const QRegExp &rx)
@@ -92,12 +91,11 @@ void ConfigurationSyntaxHighlighter::highlightBlock(const QString &text)
     }
 }
 
-ConfigurationEditor::ConfigurationEditor(QWidget *parent)
-    : QPlainTextEdit(parent)
-    , m_settings(0)
-    , m_completer(new QCompleter(this))
-    , m_model(new QStringListModel(QStringList(), m_completer))
-    , m_highlighter(new ConfigurationSyntaxHighlighter(document()))
+ConfigurationEditor::ConfigurationEditor(QWidget *parent) :
+    QPlainTextEdit(parent),
+    m_completer(new QCompleter(this)),
+    m_model(new QStringListModel(QStringList(), m_completer)),
+    m_highlighter(new ConfigurationSyntaxHighlighter(document()))
 {
     m_completer->setModel(m_model);
     m_completer->setModelSorting(QCompleter::CaseInsensitivelySortedModel);
@@ -203,13 +201,13 @@ QTextCursor ConfigurationEditor::cursorForTextUnderCursor(QTextCursor tc) const
 
     tc.movePosition(QTextCursor::StartOfWord, QTextCursor::MoveAnchor);
     QChar ch = document()->characterAt(tc.position() - 1);
-    while (!(ch.isNull() || ch.isSpace() || ch == QLatin1Char(':') || ch == QLatin1Char(','))) {
+    while (!(ch.isNull() || ch.isSpace() || ch == ':' || ch == ',')) {
         tc.movePosition(QTextCursor::PreviousCharacter, QTextCursor::MoveAnchor);
         ch = document()->characterAt(tc.position() - 1);
     }
     tc.movePosition(QTextCursor::EndOfWord, QTextCursor::KeepAnchor);
     ch = document()->characterAt(tc.position());
-    while (!(ch.isNull() || ch.isSpace() || ch == QLatin1Char(':') || ch == QLatin1Char(','))) {
+    while (!(ch.isNull() || ch.isSpace() || ch == ':' || ch == ',')) {
         tc.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor);
         ch = document()->characterAt(tc.position());
     }
@@ -246,7 +244,7 @@ void ConfigurationEditor::updateDocumentation()
     // in front of a colon for providing a documentation.
     cursor.movePosition(QTextCursor::PreviousWord);
     cursor.movePosition(QTextCursor::StartOfBlock, QTextCursor::KeepAnchor);
-    const int pos = cursor.selectedText().lastIndexOf(QLatin1Char(','));
+    const int pos = cursor.selectedText().lastIndexOf(',');
     if (-1 != pos) {
         cursor.setPosition(cursor.position() + pos);
         cursor.movePosition(QTextCursor::NextWord);
