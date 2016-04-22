@@ -1778,12 +1778,12 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
     // Toolbar
     ToolbarDescription toolbar;
     toolbar.addAction(m_visibleStartAction);
-    toolbar.addAction(m_exitAction);
-    toolbar.addAction(m_nextAction);
-    toolbar.addAction(m_stepAction);
-    toolbar.addAction(m_stepOutAction);
-    toolbar.addAction(m_resetAction);
-    toolbar.addAction(m_operateByInstructionAction);
+    toolbar.addAction(ActionManager::command(Constants::STOP)->action());
+    toolbar.addAction(ActionManager::command(Constants::NEXT)->action());
+    toolbar.addAction(ActionManager::command(Constants::STEP)->action());
+    toolbar.addAction(ActionManager::command(Constants::STEPOUT)->action());
+    toolbar.addAction(ActionManager::command(Constants::RESET)->action());
+    toolbar.addAction(ActionManager::command(Constants::OPERATE_BY_INSTRUCTION)->action());
 
     if (isReverseDebuggingEnabled()) {
         m_reverseToolButton = new QToolButton;
