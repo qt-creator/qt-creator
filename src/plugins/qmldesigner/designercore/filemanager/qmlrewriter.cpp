@@ -332,6 +332,7 @@ void QMLRewriter::dump(const ASTPath &path)
 {
     qDebug() << "AST path with" << path.size() << "node(s):";
     for (int i = 0; i < path.size(); ++i) {
-        qDebug() << qPrintable(QString(i + 1, QLatin1Char('-'))) << typeid(*path.at(i)).name();
+        auto node = path.at(i);
+        qDebug().noquote() << QString(i + 1, QLatin1Char('-')) << typeid(*node).name();
     }
 }
