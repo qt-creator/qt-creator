@@ -378,9 +378,16 @@ QList<Glob> SelectableFilesModel::parseFilter(const QString &filter)
 
 void SelectableFilesModel::applyFilter(const QString &showFilesfilter, const QString &hideFilesfilter)
 {
-    m_showFilesFilter = parseFilter(showFilesfilter);
-    m_hideFilesFilter = parseFilter(hideFilesfilter);
-    applyFilter(createIndex(0, 0, m_root));
+    QList<Glob> filter = parseFilter(showFilesfilter);
+    bool mustApply = filter != m_showFilesFilter;
+    m_showFilesFilter = filter;
+
+    filter = parseFilter(hideFilesfilter);
+    mustApply = mustApply || (filter != m_hideFilesFilter);
+    m_hideFilesFilter = filter;
+
+    if (mustApply)
+        applyFilter(createIndex(0, 0, m_root));
 }
 
 void SelectableFilesModel::selectAllFiles()

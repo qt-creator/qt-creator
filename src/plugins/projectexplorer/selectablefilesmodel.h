@@ -50,8 +50,8 @@ public:
     ~Tree();
 
     QString name;
-    Qt::CheckState checked;
-    bool isDir;
+    Qt::CheckState checked = Qt::Unchecked;
+    bool isDir = false;
     QList<Tree *> childDirectories;
     QList<Tree *> files;
     QList<Tree *> visibleFiles;
@@ -81,6 +81,13 @@ public:
                 return true;
         }
         return false;
+    }
+
+    bool operator == (const Glob &other) const
+    {
+        return (mode == other.mode)
+                && (matchString == other.matchString)
+                && (matchRegexp == other.matchRegexp);
     }
 };
 
