@@ -64,6 +64,10 @@ ProjectFile::Kind ProjectFile::classify(const QString &file)
         return ObjCSource;
     if (mt == QLatin1String(CppTools::Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE))
         return ObjCXXSource;
+    if (mt == QLatin1String(CppTools::Constants::QDOC_MIMETYPE))
+        return CXXSource;
+    if (mt == QLatin1String(CppTools::Constants::MOC_MIMETYPE))
+        return CXXSource;
     return Unclassified;
 }
 
