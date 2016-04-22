@@ -688,6 +688,7 @@ void SelectableFilesWidget::startParsing(const Utils::FileName &baseDir)
         return;
 
     enableWidgets(false);
+    applyFilter();
     m_model->startParsing(baseDir);
 }
 
@@ -700,8 +701,6 @@ void SelectableFilesWidget::parsingFinished()
 {
     if (!m_model)
         return;
-
-    applyFilter();
 
     smartExpand(m_model->index(0,0, QModelIndex()));
 
