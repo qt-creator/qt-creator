@@ -111,7 +111,7 @@ DebuggerRunControl::DebuggerRunControl(RunConfiguration *runConfig, DebuggerEngi
       m_engine(engine),
       m_running(false)
 {
-    setIcon(ProjectExplorer::Icons::DEBUG_START_SMALL);
+    setIcon(ProjectExplorer::Icons::DEBUG_START_SMALL_TOOLBAR);
     connect(this, &RunControl::finished, this, &DebuggerRunControl::handleFinished);
 
     connect(engine, &DebuggerEngine::requestRemoteSetup,

@@ -181,7 +181,7 @@ AppOutputPane::AppOutputPane() :
     // Attach
     m_attachButton->setToolTip(msgAttachDebuggerTooltip());
     m_attachButton->setEnabled(false);
-    m_attachButton->setIcon(Icons::DEBUG_START_SMALL.icon());
+    m_attachButton->setIcon(Icons::DEBUG_START_SMALL_TOOLBAR.icon());
     m_attachButton->setAutoRaise(true);
 
     connect(m_attachButton, &QAbstractButton::clicked,
