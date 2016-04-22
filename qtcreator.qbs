@@ -6,6 +6,7 @@ Project {
     name: "Qt Creator"
     minimumQbsVersion: "1.5.0"
     property bool withAutotests: qbs.buildVariant === "debug"
+    property string licenseType: "opensource"
     property string ide_version_major: '4'
     property string ide_version_minor: '0'
     property string ide_version_release: '82'
@@ -62,6 +63,7 @@ Project {
     qbsSearchPaths: "qbs"
 
     references: [
+        "doc/doc.qbs",
         "src/src.qbs",
         "share/share.qbs",
         "share/qtcreator/translations/translations.qbs",
