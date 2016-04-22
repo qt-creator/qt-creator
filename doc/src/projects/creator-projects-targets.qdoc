@@ -97,7 +97,7 @@
             automatically. For more information, see \l{Adding Compilers}.
 
         \li In the \uicontrol Environment field, select \uicontrol Change to modify
-            environment variable values for build and run environments in
+            environment variable values for build environments in
             the \uicontrol {Edit Environment Changes} dialog. For more information
             about how to add and remove variable values, see \l{Batch Editing}.
 

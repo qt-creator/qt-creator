@@ -395,7 +395,7 @@ QString KitEnvironmentConfigWidget::displayName() const
 
 QString KitEnvironmentConfigWidget::toolTip() const
 {
-    return tr("Additional environment settings when using this kit.");
+    return tr("Additional build environment settings when using this kit.");
 }
 
 void KitEnvironmentConfigWidget::refresh()
