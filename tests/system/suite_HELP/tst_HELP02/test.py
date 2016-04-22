@@ -76,11 +76,19 @@ def setKeyboardShortcutForAboutQtC():
                                "container={column='0' text='QtCreator' type='QModelIndex' "
                                "container=%s}}" % objectMap.realName(treewidget))
     mouseClick(modelIndex, 5, 5, 0, Qt.LeftButton)
-    shortcut = waitForObject("{container={title='Shortcut' type='QGroupBox' unnamed='1' "
-                             "visible='1'} type='Utils::FancyLineEdit' unnamed='1' visible='1' "
-                             "placeHolderText='Type to set shortcut'}")
-    mouseClick(shortcut, 5, 5, 0, Qt.LeftButton)
+    shortcutGB = "{title='Shortcut' type='QGroupBox' unnamed='1' visible='1'}"
+    record = waitForObject("{container=%s type='Core::Internal::ShortcutButton' unnamed='1' "
+                           "visible='1' text~='(Stop Recording|Record)'}" % shortcutGB)
+    shortcut = ("{container=%s type='Utils::FancyLineEdit' unnamed='1' visible='1' "
+                "placeHolderText='Enter key sequence as text'}" % shortcutGB)
+    clickButton(record)
     nativeType("<Ctrl+Alt+a>")
+    clickButton(record)
+    expected = 'Ctrl+Alt+A'
+    if platform.system() == 'Darwin':
+        expected = 'Ctrl+Opt+A'
+    test.verify(waitFor("str(findObject(shortcut).text) == expected", 5000),
+                "Expected key sequence is displayed.")
     clickButton(waitForObject(":Options.OK_QPushButton"))
 
 def main():
