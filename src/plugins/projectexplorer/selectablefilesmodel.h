@@ -131,7 +131,8 @@ private:
     void buildTreeFinished();
     QList<Glob> parseFilter(const QString &filter);
     Qt::CheckState applyFilter(const QModelIndex &index);
-    bool filter(Tree *t);
+    enum class FilterState { HIDDEN, SHOWN, CHECKED };
+    FilterState filter(Tree *t);
     void run(QFutureInterface<void> &fi);
     void collectFiles(Tree *root, Utils::FileNameList *result) const;
     void collectPaths(Tree *root, Utils::FileNameList *result) const;

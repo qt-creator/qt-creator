@@ -106,12 +106,12 @@ void SelectableFilesModel::cancel()
     m_watcher.waitForFinished();
 }
 
-bool SelectableFilesModel::filter(Tree *t)
+SelectableFilesModel::FilterState SelectableFilesModel::filter(Tree *t)
 {
     if (t->isDir)
-        return false;
+        return FilterState::SHOWN;
     if (m_files.contains(t->fullPath))
-        return false;
+        return FilterState::CHECKED;
 
     auto matchesTreeName = [t](const Glob &g) {
         return g.isMatch(t->name);
@@ -119,9 +119,9 @@ bool SelectableFilesModel::filter(Tree *t)
 
     //If one of the "show file" filters matches just return false
     if (Utils::anyOf(m_showFilesFilter, matchesTreeName))
-        return false;
+        return FilterState::CHECKED;
 
-    return Utils::anyOf(m_hideFilesFilter, matchesTreeName);
+    return Utils::anyOf(m_hideFilesFilter, matchesTreeName) ? FilterState::HIDDEN : FilterState::SHOWN;
 }
 
 void SelectableFilesModel::buildTree(const Utils::FileName &baseDir, Tree *tree,
@@ -157,13 +157,15 @@ void SelectableFilesModel::buildTree(const Utils::FileName &baseDir, Tree *tree,
             auto t = new Tree;
             t->parent = tree;
             t->name = fileInfo.fileName();
-            t->checked = (m_allFiles || m_files.contains(fn)) ? Qt::Checked : Qt::Unchecked;
+            FilterState state = filter(t);
+            t->checked = ((m_allFiles && state == FilterState::CHECKED)
+                          || m_files.contains(fn)) ? Qt::Checked : Qt::Unchecked;
             t->fullPath = fn;
             t->isDir = false;
             allChecked &= t->checked == Qt::Checked;
             allUnchecked &= t->checked == Qt::Unchecked;
             tree->files.append(t);
-            if (!filter(t))
+            if (state != FilterState::HIDDEN)
                 tree->visibleFiles.append(t);
         }
     }
@@ -432,8 +434,8 @@ Qt::CheckState SelectableFilesModel::applyFilter(const QModelIndex &index)
     // first remove filtered out rows..
     for (;visibleIndex < visibleEnd; ++visibleIndex) {
         if (startOfBlock == visibleIndex) {
-            removeBlock = filter(t->visibleFiles.at(visibleIndex));
-        } else if (removeBlock != filter(t->visibleFiles.at(visibleIndex))) {
+            removeBlock = (filter(t->visibleFiles.at(visibleIndex)) == FilterState::HIDDEN);
+        } else if (removeBlock != (filter(t->visibleFiles.at(visibleIndex)) == FilterState::HIDDEN)) {
             if (removeBlock) {
                 beginRemoveRows(index, startOfBlock, visibleIndex - 1);
                 for (int i=startOfBlock; i < visibleIndex; ++i)
@@ -444,7 +446,7 @@ Qt::CheckState SelectableFilesModel::applyFilter(const QModelIndex &index)
                 visibleIndex = startOfBlock; // start again at startOfBlock
                 visibleEnd = t->visibleFiles.size();
             }
-            removeBlock = filter(t->visibleFiles.at(visibleIndex));
+            removeBlock = (filter(t->visibleFiles.at(visibleIndex)) == FilterState::HIDDEN);
             startOfBlock = visibleIndex;
         }
     }
@@ -459,9 +461,10 @@ Qt::CheckState SelectableFilesModel::applyFilter(const QModelIndex &index)
 
     // Figure out which rows should be visible
     QList<Tree *> newRows;
-    for (int i=0; i < t->files.size(); ++i)
-        if (!filter(t->files.at(i)))
+    for (int i=0; i < t->files.size(); ++i) {
+        if (filter(t->files.at(i)) != FilterState::HIDDEN)
             newRows.append(t->files.at(i));
+    }
     // now add them!
     startOfBlock = 0;
     visibleIndex = 0;
