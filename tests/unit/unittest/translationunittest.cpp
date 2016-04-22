@@ -72,7 +72,7 @@ class TranslationUnit : public ::testing::Test
 {
 protected:
     void SetUp() override;
-    ::TranslationUnit createTemporaryTranslationUnit();
+    ::TranslationUnit createTranslationUnitAndDeleteFile();
     QByteArray readContentFromTranslationUnitFile() const;
 
 protected:
@@ -90,6 +90,13 @@ TEST_F(TranslationUnit, DefaultTranslationUnitIsInvalid)
     ::TranslationUnit translationUnit;
 
     ASSERT_TRUE(translationUnit.isNull());
+}
+
+TEST_F(TranslationUnit, DefaultTranslationUnitIsNotIntact)
+{
+    ::TranslationUnit translationUnit;
+
+    ASSERT_FALSE(translationUnit.isIntact());
 }
 
 TEST_F(TranslationUnit, ThrowExceptionForNonExistingFilePath)
@@ -193,7 +200,7 @@ TEST_F(TranslationUnit, DependedFilePaths)
 
 TEST_F(TranslationUnit, DeletedFileShouldNotNeedReparsing)
 {
-    auto translationUnit = createTemporaryTranslationUnit();
+    auto translationUnit = createTranslationUnitAndDeleteFile();
 
     translationUnit.setDirtyIfDependencyIsMet(translationUnit.filePath());
 
@@ -242,6 +249,20 @@ TEST_F(TranslationUnit, NeedsNoReparsingAfterReparsing)
     translationUnit.cxTranslationUnit();
 
     ASSERT_FALSE(translationUnit.isNeedingReparse());
+}
+
+TEST_F(TranslationUnit, IsIntactAfterCreation)
+{
+    translationUnit.cxTranslationUnit();
+
+    ASSERT_TRUE(translationUnit.isIntact());
+}
+
+TEST_F(TranslationUnit, IsNotIntactForDeletedFile)
+{
+    auto translationUnit = createTranslationUnitAndDeleteFile();
+
+    ASSERT_FALSE(translationUnit.isIntact());
 }
 
 TEST_F(TranslationUnit, HasNewDiagnosticsAfterCreation)
@@ -364,7 +385,7 @@ void TranslationUnit::SetUp()
     translationUnit = createdTranslationUnits.front();
 }
 
-::TranslationUnit TranslationUnit::createTemporaryTranslationUnit()
+::TranslationUnit TranslationUnit::createTranslationUnitAndDeleteFile()
 {
     QTemporaryFile temporaryFile;
     EXPECT_TRUE(temporaryFile.open());

@@ -199,7 +199,9 @@ namespace {
 
 bool translationUnitHasNewDocumentAnnotations(const TranslationUnit &translationUnit)
 {
-    return translationUnit.hasNewDiagnostics() || translationUnit.hasNewHighlightingInformations();
+    return translationUnit.isIntact()
+        && (translationUnit.hasNewDiagnostics()
+            || translationUnit.hasNewHighlightingInformations());
 }
 
 }
