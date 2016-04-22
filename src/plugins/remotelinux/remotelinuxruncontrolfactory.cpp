@@ -104,6 +104,8 @@ RunControl *RemoteLinuxRunControlFactory::create(RunConfiguration *runConfig, Co
         QString symbolFile;
         if (auto rlrc = qobject_cast<RemoteLinuxRunConfiguration *>(runConfig))
             symbolFile = rlrc->localExecutableFilePath();
+        if (auto rlrc = qobject_cast<RemoteLinuxCustomRunConfiguration *>(runConfig))
+            symbolFile = rlrc->localExecutableFilePath();
         if (symbolFile.isEmpty()) {
             *errorMessage = tr("Cannot debug: Local executable is not set.");
             return 0;
