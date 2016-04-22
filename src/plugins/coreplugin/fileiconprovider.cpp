@@ -155,11 +155,10 @@ QIcon icon(QFileIconProvider::IconType type)
   */
 QPixmap overlayIcon(const QPixmap &baseIcon, const QIcon &overlayIcon)
 {
-    QPixmap iconPixmap = baseIcon;
-    QPainter painter(&iconPixmap);
-    painter.drawPixmap(0, 0, overlayIcon.pixmap(baseIcon.size()));
-    painter.end();
-    return iconPixmap;
+    QPixmap result = baseIcon;
+    QPainter painter(&result);
+    overlayIcon.paint(&painter, QRect(QPoint(), result.size() / result.devicePixelRatio()));
+    return result;
 }
 
 /*!

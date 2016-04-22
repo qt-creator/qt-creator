@@ -59,9 +59,6 @@ const char FEATURE_QT_CONSOLE[] = "QtSupport.Wizards.FeatureQtConsole";
 const char FEATURE_MOBILE[] = "QtSupport.Wizards.FeatureMobile";
 const char FEATURE_DESKTOP[] = "QtSupport.Wizards.FeatureDesktop";
 
-// Icon:
-const char ICON_QT_PROJECT[] = ":/qtsupport/images/qt_project.png";
-
 } // namepsace Constants
 } // namepsace QtSupport
 

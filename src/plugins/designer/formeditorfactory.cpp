@@ -29,6 +29,7 @@
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/fileiconprovider.h>
+#include <projectexplorer/projectexplorerconstants.h>
 
 #include <QCoreApplication>
 #include <QDebug>
@@ -45,7 +46,7 @@ FormEditorFactory::FormEditorFactory()
     setDisplayName(qApp->translate("Designer", C_DESIGNER_XML_DISPLAY_NAME));
     addMimeType(FORM_MIMETYPE);
 
-    FileIconProvider::registerIconOverlayForSuffix(":/formeditor/images/qt_ui.png", "ui");
+    FileIconProvider::registerIconOverlayForSuffix(ProjectExplorer::Constants::FILEOVERLAY_UI, "ui");
 }
 
 IEditor *FormEditorFactory::createEditor()

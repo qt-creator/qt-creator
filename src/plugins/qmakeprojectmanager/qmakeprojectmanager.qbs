@@ -70,18 +70,6 @@ QtcPlugin {
     }
 
     Group {
-        name: "Images"
-        prefix: "images/"
-        files: [
-            "headers.png",
-            "run_qmake.png",
-            "run_qmake_small.png",
-            "sources.png",
-            "unknown.png",
-        ]
-    }
-
-    Group {
         name: "Wizards"
         prefix: "wizards/"
         files: [

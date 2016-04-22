@@ -809,7 +809,7 @@ bool QbsProjectNode::showInSimpleTree() const
 void QbsProjectNode::ctor()
 {
     if (m_projectIcon.isNull())
-        m_projectIcon = generateIcon(QString::fromLatin1(QtSupport::Constants::ICON_QT_PROJECT));
+        m_projectIcon = generateIcon(QString::fromLatin1(ProjectExplorer::Constants::FILEOVERLAY_QT));
 
     setIcon(m_projectIcon);
     addFileNodes(QList<ProjectExplorer::FileNode *>()
