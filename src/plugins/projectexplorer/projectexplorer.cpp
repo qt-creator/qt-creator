@@ -686,7 +686,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     ActionContainer *runMenu = ActionManager::createMenu(Constants::RUNMENUCONTEXTMENU);
     runMenu->setOnAllDisabledBehavior(ActionContainer::Hide);
     QIcon runIcon = Utils::Icon::sideBarIcon(Icons::RUN, Icons::RUN_FLAT);
-    runIcon.addPixmap(Core::Icons::RUN_SMALL.pixmap());
+    runIcon.addPixmap(Core::Icons::RUN_SMALL_TOOLBAR.pixmap());
     runMenu->menu()->setIcon(runIcon);
     runMenu->menu()->setTitle(tr("Run"));
     msubProjectContextMenu->addMenu(runMenu, ProjectExplorer::Constants::G_PROJECT_RUN);
@@ -884,7 +884,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     mbuild->addAction(cmd, Constants::G_BUILD_CLEAN);
 
     // cancel build action
-    dd->m_cancelBuildAction = new QAction(Core::Icons::STOP_SMALL.icon(), tr("Cancel Build"), this);
+    dd->m_cancelBuildAction = new QAction(Core::Icons::STOP_SMALL_TOOLBAR.icon(), tr("Cancel Build"), this);
     cmd = ActionManager::registerAction(dd->m_cancelBuildAction, Constants::CANCELBUILD);
     mbuild->addAction(cmd, Constants::G_BUILD_CANCEL);
 

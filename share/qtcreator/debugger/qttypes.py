@@ -2192,6 +2192,13 @@ def qdump__QVariant(d, value):
 
         return innert
 
+    # Do not handle user types. The workaround below works, sometimes
+    # for inialized data, but can force loading all debug information
+    # and trigger parse errors  "error: need to add support for
+    # DW_TAG_base_type 'auto' encoded with DW_ATE = 0x0, bit_size = 0"
+    # (LLDB 3.7/Linux)
+    if d.isLldb and platform.system() == "Linux":
+        return None
 
     # User types.
     d_ptr = value["d"]

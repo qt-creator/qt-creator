@@ -1059,7 +1059,7 @@ RunControl *PythonRunControlFactory::create(RunConfiguration *runConfiguration, 
 PythonRunControl::PythonRunControl(PythonRunConfiguration *rc, Core::Id mode)
     : RunControl(rc, mode), m_running(false)
 {
-    setIcon(Core::Icons::RUN_SMALL);
+    setIcon(Core::Icons::RUN_SMALL_TOOLBAR);
 
     m_interpreter = rc->interpreter();
     m_mainScript = rc->mainScript();

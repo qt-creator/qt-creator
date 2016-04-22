@@ -60,6 +60,22 @@ using namespace Utils;
 namespace ClangStaticAnalyzer {
 namespace Internal {
 
+class DummyRunConfiguration : public RunConfiguration
+{
+    Q_OBJECT
+
+public:
+    DummyRunConfiguration(Target *parent)
+        : RunConfiguration(parent, "ClangStaticAnalyzer.DummyRunConfig")
+    {
+        setDefaultDisplayName(tr("Clang Static Analyzer"));
+        addExtraAspects();
+    }
+
+private:
+    QWidget *createConfigurationWidget() override { return 0; }
+};
+
 ClangStaticAnalyzerTool::ClangStaticAnalyzerTool(QObject *parent)
     : QObject(parent)
     , m_diagnosticModel(0)
@@ -107,7 +123,7 @@ ClangStaticAnalyzerTool::ClangStaticAnalyzerTool(QObject *parent)
     // Go to previous diagnostic
     auto action = new QAction(this);
     action->setDisabled(true);
-    action->setIcon(Core::Icons::PREV.icon());
+    action->setIcon(Core::Icons::PREV_TOOLBAR.icon());
     action->setToolTip(tr("Go to previous bug."));
     connect(action, &QAction::triggered, m_diagnosticView, &DetailedErrorView::goBack);
     m_goBack = action;
@@ -115,7 +131,7 @@ ClangStaticAnalyzerTool::ClangStaticAnalyzerTool(QObject *parent)
     // Go to next diagnostic
     action = new QAction(this);
     action->setDisabled(true);
-    action->setIcon(Core::Icons::NEXT.icon());
+    action->setIcon(Core::Icons::NEXT_TOOLBAR.icon());
     action->setToolTip(tr("Go to next bug."));
     connect(action, &QAction::triggered, m_diagnosticView, &DetailedErrorView::goNext);
     m_goNext = action;
@@ -137,7 +153,8 @@ ClangStaticAnalyzerTool::ClangStaticAnalyzerTool(QObject *parent)
         return createRunControl(runConfiguration, runMode);
     });
     desc.setCustomToolStarter([this](RunConfiguration *runConfiguration) {
-        startTool(runConfiguration);
+        Q_UNUSED(runConfiguration);
+        startTool();
     });
     desc.setMenuGroup(Debugger::Constants::G_ANALYZER_TOOLS);
     Debugger::registerAction(ClangStaticAnalyzerActionId, desc, m_startAction);
@@ -220,7 +237,7 @@ static bool dontStartAfterHintForDebugMode(Project *project)
     return false;
 }
 
-void ClangStaticAnalyzerTool::startTool(ProjectExplorer::RunConfiguration *runConfiguration)
+void ClangStaticAnalyzerTool::startTool()
 {
     Project *project = SessionManager::startupProject();
     QTC_ASSERT(project, emit finished(false); return);
@@ -236,8 +253,21 @@ void ClangStaticAnalyzerTool::startTool(ProjectExplorer::RunConfiguration *runCo
     m_running = true;
     handleStateUpdate();
 
-    ProjectExplorerPlugin::runRunConfiguration(runConfiguration,
-                                               Constants::CLANGSTATICANALYZER_RUN_MODE);
+    Target * const target = project->activeTarget();
+    QTC_ASSERT(target, return);
+    DummyRunConfiguration *& rc = m_runConfigs[target];
+    if (!rc) {
+        rc = new DummyRunConfiguration(target);
+        connect(project, &Project::aboutToRemoveTarget, this,
+                [this](Target *t) { m_runConfigs.remove(t); });
+        const auto onProjectRemoved = [this](Project *p) {
+            foreach (Target * const t, p->targets())
+                m_runConfigs.remove(t);
+        };
+        connect(SessionManager::instance(), &SessionManager::aboutToRemoveProject, this,
+                onProjectRemoved, Qt::UniqueConnection);
+    }
+    ProjectExplorerPlugin::runRunConfiguration(rc, Constants::CLANGSTATICANALYZER_RUN_MODE);
 }
 
 CppTools::ProjectInfo ClangStaticAnalyzerTool::projectInfoBeforeBuild() const
@@ -325,3 +355,5 @@ void ClangStaticAnalyzerTool::handleStateUpdate()
 
 } // namespace Internal
 } // namespace ClangStaticAnalyzer
+
+#include "clangstaticanalyzertool.moc"

@@ -67,6 +67,7 @@ Runnable QmlProjectRunConfiguration::runnable() const
     r.executable = executable();
     r.commandLineArguments = commandLineArguments();
     r.runMode = ApplicationLauncher::Gui;
+    r.environment = extraAspect<QmlProjectEnvironmentAspect>()->environment();
     r.workingDirectory = canonicalCapsPath(target()->project()->projectFilePath()
                                            .toFileInfo().absolutePath());
     return r;

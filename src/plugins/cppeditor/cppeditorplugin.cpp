@@ -88,6 +88,7 @@ public:
         addMimeType(CppTools::Constants::CPP_SOURCE_MIMETYPE);
         addMimeType(CppTools::Constants::CPP_HEADER_MIMETYPE);
         addMimeType(CppTools::Constants::QDOC_MIMETYPE);
+        addMimeType(CppTools::Constants::MOC_MIMETYPE);
 
         setDocumentCreator([]() { return new CppEditorDocument; });
         setEditorWidgetCreator([]() { return new CppEditorWidget; });

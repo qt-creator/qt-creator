@@ -55,7 +55,8 @@
         \li Select \uicontrol Debug > \uicontrol {Start Debugging} >
             \uicontrol {Start Debugging} or press \key F5.
 
-        \li To view the breakpoint, click the \uicontrol Breakpoints tab.
+        \li To view information about the breakpoint, go to the
+            \uicontrol Breakpoints view.
 
             \image qtcreator-setting-breakpoint2.png
 

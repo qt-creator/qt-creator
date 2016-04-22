@@ -72,7 +72,7 @@ SideBarWidget::SideBarWidget(SideBar *sideBar, const QString &id)
 
     m_splitAction = new QAction(tr("Split"), m_toolbar);
     m_splitAction->setToolTip(tr("Split"));
-    m_splitAction->setIcon(Icons::SPLIT_HORIZONTAL.icon());
+    m_splitAction->setIcon(Icons::SPLIT_HORIZONTAL_TOOLBAR.icon());
     connect(m_splitAction, &QAction::triggered, this, &SideBarWidget::splitMe);
     m_toolbar->addAction(m_splitAction);
 

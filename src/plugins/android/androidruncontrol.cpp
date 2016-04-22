@@ -44,7 +44,7 @@ AndroidRunControl::AndroidRunControl(AndroidRunConfiguration *rc)
     , m_running(false)
 {
     setRunnable(m_runner->runnable());
-    setIcon(Core::Icons::RUN_SMALL);
+    setIcon(Core::Icons::RUN_SMALL_TOOLBAR);
 }
 
 AndroidRunControl::~AndroidRunControl()

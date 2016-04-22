@@ -691,7 +691,7 @@ void MainWindow::registerDefaultActions()
     }
 
     // Show Sidebar Action
-    m_toggleSideBarAction = new QAction(Icons::TOGGLE_SIDEBAR.icon(),
+    m_toggleSideBarAction = new QAction(Icons::TOGGLE_SIDEBAR_TOOLBAR.icon(),
                                         QCoreApplication::translate("Core", Constants::TR_SHOW_SIDEBAR),
                                         this);
     m_toggleSideBarAction->setCheckable(true);

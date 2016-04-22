@@ -684,7 +684,7 @@
             \li \b{Note:}
 
         \row
-            \li GDB and LLDB, and therefore \QC's debugger, work for optimized
+            \li GDB and LLDB, and therefore \QC's debugger, also work for optimized
                 builds on Linux and OS X. Optimization can lead to re-ordering
                 of instructions or removal of some local variables, causing the
                 \uicontrol {Locals and Expressions} view to show unexpected

@@ -1839,8 +1839,11 @@ void DebuggerEngine::validateExecutable(DebuggerRunParameters *sp)
         return;
     if (sp->languages == QmlLanguage)
         return;
-    QString binary = sp->inferior.executable;
-    if (binary.isEmpty())
+
+    QString symbolFile = sp->symbolFile;
+    if (symbolFile.isEmpty())
+        symbolFile = sp->inferior.executable;
+    if (symbolFile.isEmpty())
         return;
 
     const bool warnOnRelease = boolSetting(WarnOnReleaseBuilds);
@@ -1856,11 +1859,11 @@ void DebuggerEngine::validateExecutable(DebuggerRunParameters *sp)
                         "experience for this binary format.");
             return;
         } else if (warnOnRelease) {
-            if (!binary.endsWith(QLatin1String(".exe"), Qt::CaseInsensitive))
-                binary.append(QLatin1String(".exe"));
+            if (!symbolFile.endsWith(QLatin1String(".exe"), Qt::CaseInsensitive))
+                symbolFile.append(QLatin1String(".exe"));
             QString errorMessage;
             QStringList rc;
-            if (getPDBFiles(binary, &rc, &errorMessage) && !rc.isEmpty())
+            if (getPDBFiles(symbolFile, &rc, &errorMessage) && !rc.isEmpty())
                 return;
             if (!errorMessage.isEmpty()) {
                 detailedWarning.append(QLatin1Char('\n'));
@@ -1881,11 +1884,11 @@ void DebuggerEngine::validateExecutable(DebuggerRunParameters *sp)
             return;
         }
 
-        Utils::ElfReader reader(binary);
+        Utils::ElfReader reader(symbolFile);
         Utils::ElfData elfData = reader.readHeaders();
         QString error = reader.errorString();
 
-        Internal::showMessage(_("EXAMINING ") + binary, LogDebug);
+        Internal::showMessage(_("EXAMINING ") + symbolFile, LogDebug);
         QByteArray msg = "ELF SECTIONS: ";
 
         static QList<QByteArray> interesting;

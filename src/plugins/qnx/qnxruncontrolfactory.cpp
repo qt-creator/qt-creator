@@ -65,8 +65,8 @@ static DebuggerStartParameters createDebuggerStartParameters(QnxRunConfiguration
 
     params.startMode = AttachToRemoteServer;
     params.useCtrlCStub = true;
-    params.inferior.executable = runConfig->localExecutableFilePath();
-    params.remoteExecutable = runConfig->remoteExecutableFilePath();
+    params.inferior.executable = runConfig->remoteExecutableFilePath();
+    params.symbolFile = runConfig->localExecutableFilePath();
     params.remoteChannel = device->sshParameters().host + QLatin1String(":-1");
     params.remoteSetupNeeded = true;
     params.closeMode = KillAtClose;

@@ -145,12 +145,12 @@ OutputPaneManager::OutputPaneManager(QWidget *parent) :
     connect(m_clearAction, &QAction::triggered, this, &OutputPaneManager::clearPage);
 
     m_nextAction = new QAction(this);
-    m_nextAction->setIcon(Icons::NEXT.icon());
+    m_nextAction->setIcon(Icons::NEXT_TOOLBAR.icon());
     m_nextAction->setText(tr("Next Item"));
     connect(m_nextAction, &QAction::triggered, this, &OutputPaneManager::slotNext);
 
     m_prevAction = new QAction(this);
-    m_prevAction->setIcon(Icons::PREV.icon());
+    m_prevAction->setIcon(Icons::PREV_TOOLBAR.icon());
     m_prevAction->setText(tr("Previous Item"));
     connect(m_prevAction, &QAction::triggered, this, &OutputPaneManager::slotPrev);
 

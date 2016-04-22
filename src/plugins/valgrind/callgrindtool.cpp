@@ -370,7 +370,7 @@ CallgrindTool::CallgrindTool(QObject *parent)
     // pause action
     m_pauseAction = action = new QAction(this);
     action->setCheckable(true);
-    action->setIcon(Core::Icons::INTERRUPT_SMALL.icon());
+    action->setIcon(Core::Icons::INTERRUPT_SMALL_TOOLBAR.icon());
     //action->setText(tr("Ignore"));
     action->setToolTip(tr("Pause event logging. No events are counted which will speed up program execution during profiling."));
     connect(action, &QAction::toggled, this, &CallgrindTool::pauseToggled);
@@ -379,14 +379,14 @@ CallgrindTool::CallgrindTool(QObject *parent)
     // go back
     m_goBack = action = new QAction(this);
     action->setDisabled(true);
-    action->setIcon(Core::Icons::PREV.icon());
+    action->setIcon(Core::Icons::PREV_TOOLBAR.icon());
     action->setToolTip(tr("Go back one step in history. This will select the previously selected item."));
     connect(action, &QAction::triggered, &m_stackBrowser, &StackBrowser::goBack);
 
     // go forward
     m_goNext = action = new QAction(this);
     action->setDisabled(true);
-    action->setIcon(Core::Icons::NEXT.icon());
+    action->setIcon(Core::Icons::NEXT_TOOLBAR.icon());
     action->setToolTip(tr("Go forward one step in history."));
     connect(action, &QAction::triggered, &m_stackBrowser, &StackBrowser::goNext);
 

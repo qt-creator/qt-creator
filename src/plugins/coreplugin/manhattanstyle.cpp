@@ -194,6 +194,9 @@ int ManhattanStyle::pixelMetric(PixelMetric metric, const QStyleOption *option, 
         if (panelWidget(widget))
             retval = 16;
         break;
+    case PM_SmallIconSize:
+        retval = 16;
+        break;
     case PM_DockWidgetHandleExtent:
     case PM_DockWidgetSeparatorExtent:
         return 1;

@@ -63,7 +63,12 @@ public:
 private:
     ClangCompletionContextAnalyzer();
 
-    struct FunctionInfo { int functionNamePosition; QString functionName; };
+    struct FunctionInfo {
+        bool isValid() const { return functionNamePosition != -1 && !functionName.isEmpty(); }
+
+        int functionNamePosition = -1;
+        QString functionName;
+    };
     FunctionInfo analyzeFunctionCall(int endOfExpression) const;
 
     void setActionAndClangPosition(CompletionAction action, int position);

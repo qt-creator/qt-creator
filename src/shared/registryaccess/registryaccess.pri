@@ -5,6 +5,6 @@ HEADERS += $$PWD/registryaccess.h
 
 LIBS *= -lpsapi
 # PS API and registry functions
-win32-msvc* {
+msvc {
     LIBS *= -ladvapi32
 }

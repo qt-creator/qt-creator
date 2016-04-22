@@ -53,6 +53,7 @@
 
 
 #include <designersupportdelegate.h>
+#include <cstring>
 
 namespace QmlDesigner {
 
@@ -199,7 +200,7 @@ static void allSubObject(QObject *object, QObjectList &objectList)
         if (metaProperty.isReadable()
                 && metaProperty.isWritable()
                 && QQmlMetaType::isQObject(metaProperty.userType())) {
-            if (metaProperty.name() != "parent") {
+            if (strcmp(metaProperty.name(), "parent") != 0) {
                 QObject *propertyObject = QQmlMetaType::toQObject(metaProperty.read(object));
                 allSubObject(propertyObject, objectList);
             }

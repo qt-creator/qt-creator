@@ -820,6 +820,7 @@ void Breakpoint::setEnabled(bool on) const
         return;
     b->m_params.enabled = on;
     b->updateMarkerIcon();
+    b->update();
     if (b->m_engine) {
         b->m_state = BreakpointChangeRequested;
         b->scheduleSynchronization();

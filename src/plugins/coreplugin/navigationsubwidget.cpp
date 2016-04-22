@@ -69,7 +69,7 @@ NavigationSubWidget::NavigationSubWidget(NavigationWidget *parentWidget, int pos
     toolBarLayout->addWidget(m_navigationComboBox);
 
     QToolButton *splitAction = new QToolButton();
-    splitAction->setIcon(Icons::SPLIT_HORIZONTAL.icon());
+    splitAction->setIcon(Icons::SPLIT_HORIZONTAL_TOOLBAR.icon());
     splitAction->setToolTip(tr("Split"));
     splitAction->setPopupMode(QToolButton::InstantPopup);
     splitAction->setProperty("noArrow", true);

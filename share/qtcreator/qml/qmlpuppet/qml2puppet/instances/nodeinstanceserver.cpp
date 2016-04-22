@@ -1050,7 +1050,7 @@ InformationChangedCommand NodeInstanceServer::createAllInformationChangedCommand
 static bool supportedVariantType(int type)
 {
     return type < int(QVariant::UserType) && type != QMetaType::QObjectStar
-            && type != QMetaType::QModelIndex;
+            && type != QMetaType::QModelIndex && type != QMetaType::VoidStar;
 }
 
 ValuesChangedCommand NodeInstanceServer::createValuesChangedCommand(const QList<ServerNodeInstance> &instanceList) const

@@ -107,6 +107,11 @@ void ClangStaticAnalyzerUnitTests::testProject_data()
     QTest::newRow("simple qmake project")
             << QString(m_tmpDir->absolutePath("simple/simple.pro")) << 1;
 
+    QTest::newRow("simple qbs library project")
+            << QString(m_tmpDir->absolutePath("simple-library/simple-library.qbs")) << 0;
+    QTest::newRow("simple qmake library project")
+            << QString(m_tmpDir->absolutePath("simple-library/simple-library.pro")) << 0;
+
     QTest::newRow("qt-widgets-app qbs project")
             << QString(m_tmpDir->absolutePath("qt-widgets-app/qt-widgets-app.qbs")) << 0;
     QTest::newRow("qt-widgets-app qmake project")

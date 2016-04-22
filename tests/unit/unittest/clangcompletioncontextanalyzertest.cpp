@@ -258,6 +258,20 @@ TEST_F(ClangCompletionContextAnalyzer, ParameteTwoWithSpaceAtCall)
     ASSERT_THAT(analyzer, HasResult(CCA::PassThroughToLibClangAfterLeftParen, -5, -3, positionInText));
 }
 
+TEST_F(ClangCompletionContextAnalyzer, WhitespaceAfterFunctionName)
+{
+    auto analyzer = runAnalyzer("foo (@");
+
+    ASSERT_THAT(analyzer, HasResult(CCA::PassThroughToLibClangAfterLeftParen, -5, 0, positionInText));
+}
+
+TEST_F(ClangCompletionContextAnalyzer, AfterOpeningParenthesis)
+{
+    auto analyzer = runAnalyzer("(@");
+
+    ASSERT_THAT(analyzer, HasResult(CCA::PassThroughToLibClang, 0, 0, positionInText));
+}
+
 TEST_F(ClangCompletionContextAnalyzer, ParameteOneAtSignal)
 {
     auto analyzer = runAnalyzer("SIGNAL(@");

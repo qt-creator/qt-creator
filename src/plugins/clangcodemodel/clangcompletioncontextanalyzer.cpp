@@ -101,6 +101,7 @@ ClangCompletionContextAnalyzer::analyzeFunctionCall(int endOfOperator) const
 
     ExpressionUnderCursor euc(m_languageFeatures);
     index = euc.startOfFunctionCall(textCursor);
+    index = ActivationSequenceContextProcessor::skipPrecedingWhitespace(m_interface, index);
     const int functionNameStart = ActivationSequenceContextProcessor::findStartOfName(m_interface,
                                                                                       index);
 
@@ -159,9 +160,14 @@ void ClangCompletionContextAnalyzer::handleFunctionCall(int afterOperatorPositio
             setActionAndClangPosition(PassThroughToLibClang, afterOperatorPosition);
         } else {
             const FunctionInfo functionInfo = analyzeFunctionCall(afterOperatorPosition);
-            m_functionName = functionInfo.functionName;
-            setActionAndClangPosition(PassThroughToLibClangAfterLeftParen,
-                                      functionInfo.functionNamePosition);
+            if (functionInfo.isValid()) {
+                m_functionName = functionInfo.functionName;
+                setActionAndClangPosition(PassThroughToLibClangAfterLeftParen,
+                                          functionInfo.functionNamePosition);
+            } else {
+                m_positionForProposal = afterOperatorPosition;
+                setActionAndClangPosition(PassThroughToLibClang, afterOperatorPosition);
+            }
         }
     }
 }

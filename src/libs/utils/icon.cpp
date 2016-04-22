@@ -183,12 +183,15 @@ QIcon Icon::icon() const
         return QIcon(combinedPlainPixmaps(*this));
     } else {
         QIcon result;
-        const MasksAndColors masks = masksAndColors(*this, qRound(qApp->devicePixelRatio()));
-        const QPixmap combinedMask = Utils::combinedMask(masks, m_style);
-        result.addPixmap(masksToIcon(masks, combinedMask, m_style));
+        const int maxDpr = qRound(qApp->devicePixelRatio());
+        for (int dpr = 1; dpr <= maxDpr; dpr++) {
+            const MasksAndColors masks = masksAndColors(*this, dpr);
+            const QPixmap combinedMask = Utils::combinedMask(masks, m_style);
+            result.addPixmap(masksToIcon(masks, combinedMask, m_style));
 
-        const QColor disabledColor = creatorTheme()->color(Theme::IconsDisabledColor);
-        result.addPixmap(maskToColorAndAlpha(combinedMask, disabledColor), QIcon::Disabled);
+            const QColor disabledColor = creatorTheme()->color(Theme::IconsDisabledColor);
+            result.addPixmap(maskToColorAndAlpha(combinedMask, disabledColor), QIcon::Disabled);
+        }
         return result;
     }
 }

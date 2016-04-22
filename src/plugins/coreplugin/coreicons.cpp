@@ -84,8 +84,12 @@ const Icon MINUS({
 const Icon PLUS({
         {QLatin1String(":/core/images/plus.png"), Theme::IconsBaseColor}});
 const Icon NEXT({
+        {QLatin1String(":/core/images/next.png"), Theme::IconsWarningColor}}, Icon::MenuTintedStyle);
+const Icon NEXT_TOOLBAR({
         {QLatin1String(":/core/images/next.png"), Theme::IconsNavigationArrowsColor}});
 const Icon PREV({
+        {QLatin1String(":/core/images/prev.png"), Theme::IconsWarningColor}}, Icon::MenuTintedStyle);
+const Icon PREV_TOOLBAR({
         {QLatin1String(":/core/images/prev.png"), Theme::IconsNavigationArrowsColor}});
 const Icon MAGNIFIER({
         {QLatin1String(":/core/images/magnifier.png"), Theme::PanelTextColorMid}}, Icon::Tint);
@@ -94,6 +98,8 @@ const Icon CLEAN_PANE({
 const Icon RELOAD({
         {QLatin1String(":/core/images/reload_gray.png"), Theme::IconsBaseColor}});
 const Icon TOGGLE_SIDEBAR({
+        {QLatin1String(":/core/images/sidebaricon.png"), Theme::PanelTextColorMid}}, Icon::MenuTintedStyle);
+const Icon TOGGLE_SIDEBAR_TOOLBAR({
         {QLatin1String(":/core/images/sidebaricon.png"), Theme::IconsBaseColor}});
 const Icon CLOSE_TOOLBAR({
         {QLatin1String(":/core/images/close.png"), Theme::IconsBaseColor}});
@@ -102,8 +108,12 @@ const Icon CLOSE_FOREGROUND({
 const Icon CLOSE_BACKGROUND({
         {QLatin1String(":/core/images/close.png"), Theme::PanelTextColorLight}}, Icon::Tint);
 const Icon SPLIT_HORIZONTAL({
+        {QLatin1String(":/core/images/splitbutton_horizontal.png"), Theme::PanelTextColorMid}}, Icon::MenuTintedStyle);
+const Icon SPLIT_HORIZONTAL_TOOLBAR({
         {QLatin1String(":/core/images/splitbutton_horizontal.png"), Theme::IconsBaseColor}});
 const Icon SPLIT_VERTICAL({
+        {QLatin1String(":/core/images/splitbutton_vertical.png"), Theme::PanelTextColorMid}}, Icon::MenuTintedStyle);
+const Icon SPLIT_VERTICAL_TOOLBAR({
         {QLatin1String(":/core/images/splitbutton_vertical.png"), Theme::IconsBaseColor}});
 const Icon CLOSE_SPLIT_TOP({
         {QLatin1String(":/core/images/splitbutton_closetop.png"), Theme::IconsBaseColor}});
@@ -143,11 +153,17 @@ const Icon ZOOM_TOOLBAR({
 const Icon TOOLBAR_EXTENSION({
         {QLatin1String(":/core/images/extension.png"), Theme::IconsBaseColor}});
 const Utils::Icon RUN_SMALL({
-        {QLatin1String(":/core/images/run_small.png"), Utils::Theme::IconsRunColor}});
+        {QLatin1String(":/core/images/run_small.png"), Utils::Theme::IconsRunColor}}, Utils::Icon::MenuTintedStyle);
+const Utils::Icon RUN_SMALL_TOOLBAR({
+        {QLatin1String(":/core/images/run_small.png"), Utils::Theme::IconsRunToolBarColor}});
 const Utils::Icon STOP_SMALL({
-        {QLatin1String(":/core/images/stop_small.png"), Utils::Theme::IconsStopColor}});
+        {QLatin1String(":/core/images/stop_small.png"), Utils::Theme::IconsStopColor}}, Utils::Icon::MenuTintedStyle);
+const Utils::Icon STOP_SMALL_TOOLBAR({
+        {QLatin1String(":/core/images/stop_small.png"), Utils::Theme::IconsStopToolBarColor}});
 const Utils::Icon INTERRUPT_SMALL({
-        {QLatin1String(":/core/images/interrupt_small.png"), Utils::Theme::IconsInterruptColor}});
+        {QLatin1String(":/core/images/interrupt_small.png"), Utils::Theme::IconsInterruptColor}}, Utils::Icon::MenuTintedStyle);
+const Utils::Icon INTERRUPT_SMALL_TOOLBAR({
+        {QLatin1String(":/core/images/interrupt_small.png"), Utils::Theme::IconsInterruptToolBarColor}});
 const Icon BOUNDING_RECT({
         {QLatin1String(":/core/images/boundingrect.png"), Theme::IconsBaseColor}});
 const Icon EYE_OPEN_TOOLBAR({
