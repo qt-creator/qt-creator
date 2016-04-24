@@ -43,6 +43,7 @@
 
 #include <utils/styledbar.h>
 #include <utils/qtcassert.h>
+#include <utils/proxyaction.h>
 
 #include <QAction>
 #include <QComboBox>
@@ -380,10 +381,11 @@ QList<QWidget *> ToolbarDescription::widgets() const
     return m_widgets;
 }
 
-void ToolbarDescription::addAction(QAction *action)
+void ToolbarDescription::addAction(QAction *action, const QIcon &toolbarIcon)
 {
     auto button = new QToolButton;
-    button->setDefaultAction(action);
+    button->setDefaultAction(toolbarIcon.isNull()
+                             ? action : ProxyAction::proxyActionWithIcon(action, toolbarIcon));
     m_widgets.append(button);
 }
 

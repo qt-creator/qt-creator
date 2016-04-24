@@ -427,9 +427,40 @@ void addCdbOptionPages(QList<IOptionsPage*> *opts);
 void addGdbOptionPages(QList<IOptionsPage*> *opts);
 QObject *createDebuggerRunControlFactory(QObject *parent);
 
+static QIcon visibleStartIcon(Id id, bool toolBarStyle)
+{
+    if (id == Id(Constants::DEBUG)) {
+        const static QIcon sidebarIcon =
+                Icon::sideBarIcon(ProjectExplorer::Icons::DEBUG_START, ProjectExplorer::Icons::DEBUG_START_FLAT);
+        const static QIcon icon =
+                Icon::combinedIcon({ProjectExplorer::Icons::DEBUG_START_SMALL.icon(), sidebarIcon});
+        const static QIcon iconToolBar =
+                Icon::combinedIcon({ProjectExplorer::Icons::DEBUG_START_SMALL_TOOLBAR.icon(), sidebarIcon});
+        return toolBarStyle ? iconToolBar : icon;
+    } else if (id == Id(Constants::CONTINUE)) {
+        const static QIcon sidebarIcon =
+                Icon::sideBarIcon(Icons::CONTINUE, Icons::CONTINUE_FLAT);
+        const static QIcon icon =
+                Icon::combinedIcon({Icons::DEBUG_CONTINUE_SMALL.icon(), sidebarIcon});
+        const static QIcon iconToolBar =
+                Icon::combinedIcon({Icons::DEBUG_CONTINUE_SMALL_TOOLBAR.icon(), sidebarIcon});
+        return toolBarStyle ? iconToolBar : icon;
+    } else if (id == Id(Constants::INTERRUPT)) {
+        const static QIcon sidebarIcon =
+                Icon::sideBarIcon(Icons::INTERRUPT, Icons::INTERRUPT_FLAT);
+        const static QIcon icon =
+                Icon::combinedIcon({Icons::DEBUG_INTERRUPT_SMALL.icon(), sidebarIcon});
+        const static QIcon iconToolBar =
+                Icon::combinedIcon({Icons::DEBUG_INTERRUPT_SMALL_TOOLBAR.icon(), sidebarIcon});
+        return toolBarStyle ? iconToolBar : icon;
+    }
+    return QIcon();
+}
+
 static void setProxyAction(ProxyAction *proxy, Id id)
 {
     proxy->setAction(ActionManager::command(id)->action());
+    proxy->setIcon(visibleStartIcon(id, true));
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -1279,8 +1310,6 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
     const Context cppDebuggercontext(C_CPPDEBUGGER);
     const Context cppeditorcontext(CppEditor::Constants::CPPEDITOR_ID);
 
-    const QIcon continueSideBarIcon = Icon::sideBarIcon(Icons::CONTINUE, Icons::CONTINUE_FLAT);
-    const QIcon interruptSideBarIcon = Icon::sideBarIcon(Icons::INTERRUPT, Icons::INTERRUPT_FLAT);
     m_locationMarkIcon = Icons::LOCATION.icon();
 
     m_busy = false;
@@ -1349,21 +1378,20 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
         this, &DebuggerPluginPrivate::updateWatchersHeader, Qt::QueuedConnection);
 
     auto act = m_continueAction = new QAction(tr("Continue"), this);
-    act->setIcon(Icon::combinedIcon({Icons::DEBUG_CONTINUE_SMALL_TOOLBAR.icon(), continueSideBarIcon}));
+    act->setIcon(visibleStartIcon(Id(Constants::CONTINUE), false));
     connect(act, &QAction::triggered, this, &DebuggerPluginPrivate::handleExecContinue);
 
     act = m_exitAction = new QAction(tr("Stop Debugger"), this);
-    act->setIcon(Icons::DEBUG_EXIT_SMALL_TOOLBAR.icon());
+    act->setIcon(Icons::DEBUG_EXIT_SMALL.icon());
     connect(act, &QAction::triggered, this, &DebuggerPluginPrivate::handleExecExit);
 
-    auto interruptIcon = Icon::combinedIcon({Icons::DEBUG_INTERRUPT_SMALL_TOOLBAR.icon(), interruptSideBarIcon});
     act = m_interruptAction = new QAction(tr("Interrupt"), this);
-    act->setIcon(interruptIcon);
+    act->setIcon(visibleStartIcon(Id(Constants::INTERRUPT), false));
     connect(act, &QAction::triggered, this, &DebuggerPluginPrivate::handleExecInterrupt);
 
     // A "disabled pause" seems to be a good choice.
     act = m_undisturbableAction = new QAction(tr("Debugger is Busy"), this);
-    act->setIcon(interruptIcon);
+    act->setIcon(visibleStartIcon(Id(Constants::INTERRUPT), false));
     act->setEnabled(false);
 
     act = m_abortAction = new QAction(tr("Abort Debugging"), this);
@@ -1377,15 +1405,15 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
     connect(act, &QAction::triggered, this, &DebuggerPluginPrivate::handleReset);
 
     act = m_nextAction = new QAction(tr("Step Over"), this);
-    act->setIcon(Icons::STEP_OVER_TOOLBAR.icon());
+    act->setIcon(Icons::STEP_OVER.icon());
     connect(act, &QAction::triggered, this, &DebuggerPluginPrivate::handleExecNext);
 
     act = m_stepAction = new QAction(tr("Step Into"), this);
-    act->setIcon(Icons::STEP_INTO_TOOLBAR.icon());
+    act->setIcon(Icons::STEP_INTO.icon());
     connect(act, &QAction::triggered, this, &DebuggerPluginPrivate::handleExecStep);
 
     act = m_stepOutAction = new QAction(tr("Step Out"), this);
-    act->setIcon(Icons::STEP_OUT_TOOLBAR.icon());
+    act->setIcon(Icons::STEP_OUT.icon());
     connect(act, &QAction::triggered, this, &DebuggerPluginPrivate::handleExecStepOut);
 
     act = m_runToLineAction = new QAction(tr("Run to Line"), this);
@@ -1441,10 +1469,7 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
 
     // The main "Start Debugging" action.
     act = m_startAction = new QAction(this);
-    const QIcon sideBarIcon =
-            Icon::sideBarIcon(ProjectExplorer::Icons::DEBUG_START, ProjectExplorer::Icons::DEBUG_START_FLAT);
-    const QIcon debuggerIcon = Icon::combinedIcon({ProjectExplorer::Icons::DEBUG_START_SMALL_TOOLBAR.icon(), sideBarIcon});
-    act->setIcon(debuggerIcon);
+    act->setIcon(visibleStartIcon(Id(Constants::DEBUG), false));
     act->setText(tr("Start Debugging"));
     connect(act, &QAction::triggered, [] { ProjectExplorerPlugin::runStartupProject(ProjectExplorer::Constants::DEBUG_RUN_MODE); });
 
@@ -1507,7 +1532,6 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
     m_visibleStartAction = new ProxyAction(this);
     m_visibleStartAction->initialize(m_startAction);
     m_visibleStartAction->setAttribute(ProxyAction::UpdateText);
-    m_visibleStartAction->setAttribute(ProxyAction::UpdateIcon);
     m_visibleStartAction->setAction(m_startAction);
 
     ModeManager::addAction(m_visibleStartAction, Constants::P_ACTION_DEBUG);
@@ -1778,11 +1802,11 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
     // Toolbar
     ToolbarDescription toolbar;
     toolbar.addAction(m_visibleStartAction);
-    toolbar.addAction(ActionManager::command(Constants::STOP)->action());
-    toolbar.addAction(ActionManager::command(Constants::NEXT)->action());
-    toolbar.addAction(ActionManager::command(Constants::STEP)->action());
-    toolbar.addAction(ActionManager::command(Constants::STEPOUT)->action());
-    toolbar.addAction(ActionManager::command(Constants::RESET)->action());
+    toolbar.addAction(ActionManager::command(Constants::STOP)->action(), Icons::DEBUG_EXIT_SMALL_TOOLBAR.icon());
+    toolbar.addAction(ActionManager::command(Constants::NEXT)->action(), Icons::STEP_OVER_TOOLBAR.icon());
+    toolbar.addAction(ActionManager::command(Constants::STEP)->action(), Icons::STEP_INTO_TOOLBAR.icon());
+    toolbar.addAction(ActionManager::command(Constants::STEPOUT)->action(), Icons::STEP_OUT_TOOLBAR.icon());
+    toolbar.addAction(ActionManager::command(Constants::RESET)->action(), Icons::RESTART_TOOLBAR.icon());
     toolbar.addAction(ActionManager::command(Constants::OPERATE_BY_INSTRUCTION)->action());
 
     if (isReverseDebuggingEnabled()) {

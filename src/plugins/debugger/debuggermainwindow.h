@@ -92,7 +92,7 @@ public:
 
     QList<QWidget *> widgets() const;
 
-    void addAction(QAction *action);
+    void addAction(QAction *action, const QIcon &toolbarIcon = QIcon());
     void addWidget(QWidget *widget);
 
 private:
