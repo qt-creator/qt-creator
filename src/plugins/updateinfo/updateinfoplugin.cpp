@@ -123,7 +123,9 @@ void UpdateInfoPlugin::startCheckForUpdates()
 {
     stopCheckForUpdates();
 
-    d->m_checkUpdatesCommand = new ShellCommand(QString(), QProcessEnvironment());
+    QProcessEnvironment env;
+    env.insert("QT_LOGGING_RULES", "*=false");
+    d->m_checkUpdatesCommand = new ShellCommand(QString(), env);
     connect(d->m_checkUpdatesCommand, &ShellCommand::stdOutText, this, &UpdateInfoPlugin::collectCheckForUpdatesOutput);
     connect(d->m_checkUpdatesCommand, &ShellCommand::finished, this, &UpdateInfoPlugin::checkForUpdatesFinished);
     d->m_checkUpdatesCommand->addJob(Utils::FileName(QFileInfo(d->m_maintenanceTool)), QStringList(QLatin1String("--checkupdates")));
