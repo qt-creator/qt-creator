@@ -1,11 +1,6 @@
 <RCC>
     <qresource prefix="/qmakeprojectmanager">
-        <file>images/run_qmake.png</file>
-        <file>images/run_qmake_small.png</file>
         <file>QmakeProjectManager.mimetypes.xml</file>
-        <file>images/headers.png</file>
-        <file>images/sources.png</file>
-        <file>images/unknown.png</file>
         <file>images/dark_headers.png</file>
         <file>images/dark_sources.png</file>
         <file>images/dark_unknown.png</file>

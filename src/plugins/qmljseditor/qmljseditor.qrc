@@ -1,5 +1,0 @@
-<RCC>
-    <qresource prefix="/qmljseditor">
-        <file>images/qmlfile.png</file>
-    </qresource>
-</RCC>

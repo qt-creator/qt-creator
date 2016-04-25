@@ -638,7 +638,7 @@ void TestTreeModel::markForRemoval(const QString &filePath)
                 for ( ; grandChildRow >= 0; --grandChildRow) {
                     TestTreeItem *grandChild = child->childItem(grandChildRow);
                     if (grandChild->filePath() == filePath) {
-                        grandChild->markForRemoval(true);
+                        grandChild->markForRemovalRecursively(true);
                     }
                 }
             }

@@ -50,6 +50,7 @@
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <projectexplorer/taskhub.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <texteditor/texteditorconstants.h>
 #include <utils/qtcassert.h>
 #include <utils/json.h>
@@ -186,7 +187,7 @@ bool QmlJSEditorPlugin::initialize(const QStringList & /*arguments*/, QString *e
 
     errorMessage->clear();
 
-    FileIconProvider::registerIconOverlayForSuffix(":/qmljseditor/images/qmlfile.png", "qml");
+    FileIconProvider::registerIconOverlayForSuffix(ProjectExplorer::Constants::FILEOVERLAY_QML, "qml");
 
     registerQuickFixes(this);
 

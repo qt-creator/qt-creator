@@ -27,6 +27,8 @@
 
 #include <utf8string.h>
 
+#include <clang-c/Index.h>
+
 #include <exception>
 
 namespace ClangBackEnd {
@@ -34,7 +36,9 @@ namespace ClangBackEnd {
 class TranslationUnitParseErrorException : public std::exception
 {
 public:
-    TranslationUnitParseErrorException(const Utf8String &filePath, const Utf8String &projectPartId);
+    TranslationUnitParseErrorException(const Utf8String &filePath,
+                                       const Utf8String &projectPartId,
+                                       CXErrorCode errorCode);
 
     const Utf8String &filePath() const;
     const Utf8String &projectPartId() const;
@@ -50,6 +54,7 @@ public:
 private:
     Utf8String filePath_;
     Utf8String projectPartId_;
+    CXErrorCode errorCode_;
     mutable Utf8String what_;
 };
 

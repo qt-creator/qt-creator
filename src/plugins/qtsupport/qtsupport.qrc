@@ -1,10 +1,5 @@
 <RCC>
     <qresource prefix="/qtsupport">
-        <file>images/forms.png</file>
-        <file>images/statecharts.png</file>
-        <file>images/qml.png</file>
-        <file>images/qt_project.png</file>
-        <file>images/qt_qrc.png</file>
         <file>images/dark_forms.png</file>
         <file>images/dark_qml.png</file>
         <file>images/dark_qt_project.png</file>

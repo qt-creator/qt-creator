@@ -30,6 +30,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/removefiledialog.h>
 #include <coreplugin/vcsmanager.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <utils/fileutils.h>
 
 #include <QCoreApplication>
@@ -547,7 +548,7 @@ ResourceModel::ResourceModel(QObject *parent)
     : QAbstractItemModel(parent), m_dirty(false)
 {
     m_prefixIcon = Core::FileIconProvider::overlayIcon(QStyle::SP_DirIcon,
-        QIcon(QLatin1String(":/resourceeditor/images/qt_qrc.png")), QSize(16, 16));
+        QIcon(QLatin1String(ProjectExplorer::Constants::FILEOVERLAY_QRC)), QSize(16, 16));
 }
 
 void ResourceModel::setDirty(bool b)

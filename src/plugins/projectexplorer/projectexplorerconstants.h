@@ -265,5 +265,15 @@ const char DEBUG_RUN_MODE_WITH_BREAK_ON_MAIN[]="RunConfiguration.DebugRunModeWit
 // Navigation Widget
 const char PROJECTTREE_ID[] = "Projects";
 
+// File icon overlays
+const char FILEOVERLAY_QT[]=":/projectexplorer/images/fileoverlay_qt.png";
+const char FILEOVERLAY_QML[]=":/projectexplorer/images/fileoverlay_qml.png";
+const char FILEOVERLAY_UI[]=":/projectexplorer/images/fileoverlay_ui.png";
+const char FILEOVERLAY_QRC[]=":/projectexplorer/images/fileoverlay_qrc.png";
+const char FILEOVERLAY_CPP[]=":/projectexplorer/images/fileoverlay_cpp.png";
+const char FILEOVERLAY_H[]=":/projectexplorer/images/fileoverlay_h.png";
+const char FILEOVERLAY_SCXML[]=":/projectexplorer/images/fileoverlay_scxml.png";
+const char FILEOVERLAY_UNKNOWN[]=":/projectexplorer/images/fileoverlay_unknown.png";
+
 } // namespace Constants
 } // namespace ProjectExplorer

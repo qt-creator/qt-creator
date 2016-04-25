@@ -94,7 +94,7 @@ bool QbsProjectManagerPlugin::initialize(const QStringList &arguments, QString *
 
     const Core::Context projectContext(::QbsProjectManager::Constants::PROJECT_ID);
 
-    Core::FileIconProvider::registerIconOverlayForSuffix(QtSupport::Constants::ICON_QT_PROJECT, "qbs");
+    Core::FileIconProvider::registerIconOverlayForSuffix(ProjectExplorer::Constants::FILEOVERLAY_QT, "qbs");
 
     //create and register objects
     addAutoReleasedObject(new QbsManager);

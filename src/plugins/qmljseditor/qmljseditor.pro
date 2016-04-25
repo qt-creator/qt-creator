@@ -61,8 +61,6 @@ SOURCES += \
     qmljswrapinloader.cpp \
     qmljseditordocument.cpp
 
-RESOURCES += qmljseditor.qrc
-
 FORMS += \
     quicktoolbarsettingspage.ui \
     qmljscomponentnamedialog.ui

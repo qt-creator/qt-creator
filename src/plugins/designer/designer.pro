@@ -46,6 +46,4 @@ equals(TEST, 1) {
     DEFINES += SRCDIR=\\\"$$PWD\\\"
 }
 
-RESOURCES += designer.qrc
-
 DISTFILES += README.txt

@@ -35,6 +35,7 @@
 #include <coreplugin/fileiconprovider.h>
 #include <extensionsystem/pluginmanager.h>
 #include <qtsupport/qtsupportconstants.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <texteditor/texteditoractionhandler.h>
 #include <texteditor/textdocument.h>
 #include <utils/qtcassert.h>
@@ -201,7 +202,7 @@ ProFileEditorFactory::ProFileEditorFactory()
     addHoverHandler(new ProFileHoverHandler(keywords));
     setSyntaxHighlighterCreator([keywords]() { return new ProFileHighlighter(keywords); });
 
-    const QString defaultOverlay = QLatin1String(QtSupport::Constants::ICON_QT_PROJECT);
+    const QString defaultOverlay = QLatin1String(ProjectExplorer::Constants::FILEOVERLAY_QT);
     Core::FileIconProvider::registerIconOverlayForSuffix(
                 creatorTheme()->imageFile(Theme::IconOverlayPro, defaultOverlay).toLatin1().data(), "pro");
     Core::FileIconProvider::registerIconOverlayForSuffix(

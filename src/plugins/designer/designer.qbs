@@ -29,7 +29,6 @@ QtcPlugin {
         files: [
             "README.txt",
             "codemodelhelpers.cpp", "codemodelhelpers.h",
-            "designer.qrc",
             "designer_export.h",
             "designerconstants.h",
             "designercontext.cpp", "designercontext.h",

@@ -102,11 +102,6 @@ QtcPlugin {
         "showbuildlog.ui",
         "uicgenerator.cpp",
         "uicgenerator.h",
-        "images/forms.png",
-        "images/qml.png",
-        "images/qt_project.png",
-        "images/qt_qrc.png",
-        "images/statecharts.png",
     ]
 
     Group {

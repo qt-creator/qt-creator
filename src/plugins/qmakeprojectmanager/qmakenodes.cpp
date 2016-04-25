@@ -32,6 +32,7 @@
 
 #include <projectexplorer/nodesvisitor.h>
 #include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/fileiconprovider.h>
@@ -94,19 +95,19 @@ struct FileTypeDataStorage {
 
 static const FileTypeDataStorage fileTypeDataStorage[] = {
     { HeaderType, Theme::ProjectExplorerHeader, QT_TRANSLATE_NOOP("QmakeProjectManager::QmakePriFileNode", "Headers"),
-      ":/qmakeprojectmanager/images/headers.png", "*.h; *.hh; *.hpp; *.hxx;"},
+      ProjectExplorer::Constants::FILEOVERLAY_H, "*.h; *.hh; *.hpp; *.hxx;"},
     { SourceType, Theme::ProjectExplorerSource, QT_TRANSLATE_NOOP("QmakeProjectManager::QmakePriFileNode", "Sources"),
-      ":/qmakeprojectmanager/images/sources.png", "*.c; *.cc; *.cpp; *.cp; *.cxx; *.c++;" },
+      ProjectExplorer::Constants::FILEOVERLAY_CPP, "*.c; *.cc; *.cpp; *.cp; *.cxx; *.c++;" },
     { FormType, Theme::ProjectExplorerForm, QT_TRANSLATE_NOOP("QmakeProjectManager::QmakePriFileNode", "Forms"),
-      ":/qtsupport/images/forms.png", "*.ui;" },
+      Constants::FILEOVERLAY_UI, "*.ui;" },
     { StateChartType, Theme::ProjectExplorerForm, QT_TRANSLATE_NOOP("QmakeProjectManager::QmakePriFileNode", "State charts"),
-      ":/qtsupport/images/statecharts.png", "*.scxml;" },
+      ProjectExplorer::Constants::FILEOVERLAY_SCXML, "*.scxml;" },
     { ResourceType, Theme::ProjectExplorerResource, QT_TRANSLATE_NOOP("QmakeProjectManager::QmakePriFileNode", "Resources"),
-      ":/qtsupport/images/qt_qrc.png", "*.qrc;" },
+      ProjectExplorer::Constants::FILEOVERLAY_QRC, "*.qrc;" },
     { QMLType, Theme::ProjectExplorerQML, QT_TRANSLATE_NOOP("QmakeProjectManager::QmakePriFileNode", "QML"),
-      ":/qtsupport/images/qml.png", "*.qml; *.qml.ui" },
+      ProjectExplorer::Constants::FILEOVERLAY_QML, "*.qml;" },
     { UnknownFileType, Theme::ProjectExplorerOtherFiles, QT_TRANSLATE_NOOP("QmakeProjectManager::QmakePriFileNode", "Other files"),
-      ":/qmakeprojectmanager/images/unknown.png", "*;" }
+      ProjectExplorer::Constants::FILEOVERLAY_UNKNOWN, "*;" }
 };
 
 class SortByPath
@@ -171,7 +172,7 @@ QmakeNodeStaticData::QmakeNodeStaticData()
     }
     // Project icon
     const QString fileName = creatorTheme()->imageFile(Theme::ProjectFileIcon,
-                                                       QLatin1String(":/qtsupport/images/qt_project.png"));
+                                                       QLatin1String(ProjectExplorer::Constants::FILEOVERLAY_QT));
     const QIcon projectBaseIcon(fileName);
     const QPixmap projectPixmap = FileIconProvider::overlayIcon(dirPixmap, projectBaseIcon);
     projectIcon.addPixmap(projectPixmap);
