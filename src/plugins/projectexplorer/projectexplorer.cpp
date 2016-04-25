@@ -683,8 +683,8 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 
     ActionContainer *runMenu = ActionManager::createMenu(Constants::RUNMENUCONTEXTMENU);
     runMenu->setOnAllDisabledBehavior(ActionContainer::Hide);
-    QIcon runIcon = Utils::Icon::sideBarIcon(Icons::RUN, Icons::RUN_FLAT);
-    runIcon.addPixmap(Core::Icons::RUN_SMALL_TOOLBAR.pixmap());
+    const QIcon runSideBarIcon = Utils::Icon::sideBarIcon(Icons::RUN, Icons::RUN_FLAT);
+    const QIcon runIcon = Utils::Icon::combinedIcon({Core::Icons::RUN_SMALL.icon(), runSideBarIcon});
     runMenu->menu()->setIcon(runIcon);
     runMenu->menu()->setTitle(tr("Run"));
     msubProjectContextMenu->addMenu(runMenu, ProjectExplorer::Constants::G_PROJECT_RUN);
