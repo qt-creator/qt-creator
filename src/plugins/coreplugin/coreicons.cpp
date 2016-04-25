@@ -95,7 +95,9 @@ const Icon PREV_TOOLBAR({
         {QLatin1String(":/core/images/prev.png"), Theme::IconsNavigationArrowsColor}});
 const Icon MAGNIFIER({
         {QLatin1String(":/core/images/magnifier.png"), Theme::PanelTextColorMid}}, Icon::Tint);
-const Icon CLEAN_PANE({
+const Icon CLEAN({
+        {QLatin1String(":/core/images/clean_pane_small.png"), Theme::PanelTextColorMid}}, Utils::Icon::Tint);
+const Icon CLEAN_TOOLBAR({
         {QLatin1String(":/core/images/clean_pane_small.png"), Theme::IconsBaseColor}});
 const Icon RELOAD({
         {QLatin1String(":/core/images/reload_gray.png"), Theme::IconsBaseColor}});

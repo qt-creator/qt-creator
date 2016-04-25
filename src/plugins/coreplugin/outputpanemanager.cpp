@@ -140,7 +140,7 @@ OutputPaneManager::OutputPaneManager(QWidget *parent) :
     m_titleLabel->setContentsMargins(5, 0, 5, 0);
 
     m_clearAction = new QAction(this);
-    m_clearAction->setIcon(Icons::CLEAN_PANE.icon());
+    m_clearAction->setIcon(Icons::CLEAN.icon());
     m_clearAction->setText(tr("Clear"));
     connect(m_clearAction, &QAction::triggered, this, &OutputPaneManager::clearPage);
 
@@ -227,6 +227,7 @@ void OutputPaneManager::init()
 
     cmd = ActionManager::registerAction(m_clearAction, "Coreplugin.OutputPane.clear");
     m_clearButton->setDefaultAction(cmd->action());
+    m_clearButton->setIcon(Icons::CLEAN_TOOLBAR.icon());
     mpanes->addAction(cmd, "Coreplugin.OutputPane.ActionsGroup");
 
     cmd = ActionManager::registerAction(m_prevAction, "Coreplugin.OutputPane.previtem");

@@ -1023,7 +1023,7 @@ void InsertVirtualMethodsDialog::initGui()
             m_overrideReplacementComboBox, &QComboBox::setEnabled);
 
     QAction *clearUserAddedReplacements = new QAction(this);
-    clearUserAddedReplacements->setIcon(Core::Icons::CLEAN_PANE.icon());
+    clearUserAddedReplacements->setIcon(Core::Icons::CLEAN_TOOLBAR.icon());
     clearUserAddedReplacements->setText(tr("Clear Added \"override\" Equivalents"));
     connect(clearUserAddedReplacements, &QAction::triggered, [this]() {
        m_availableOverrideReplacements = defaultOverrideReplacements();

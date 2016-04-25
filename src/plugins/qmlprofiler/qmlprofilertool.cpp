@@ -205,7 +205,7 @@ QmlProfilerTool::QmlProfilerTool(QObject *parent)
     setRecording(d->m_profilerState->clientRecording());
 
     d->m_clearButton = new QToolButton;
-    d->m_clearButton->setIcon(Core::Icons::CLEAN_PANE.icon());
+    d->m_clearButton->setIcon(Core::Icons::CLEAN_TOOLBAR.icon());
     d->m_clearButton->setToolTip(tr("Discard data"));
 
     connect(d->m_clearButton, &QAbstractButton::clicked, [this](){
