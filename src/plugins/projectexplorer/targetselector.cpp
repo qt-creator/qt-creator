@@ -46,7 +46,7 @@ public:
     QPixmapButton(QWidget *parent, const QPixmap &first, const QPixmap &second)
         : QPushButton(parent), m_showFirst(true), m_first(first), m_second(second)
     {
-        setFixedSize(m_first.size());
+        setFixedSize(m_first.size()/m_first.devicePixelRatio());
     }
 
     void paintEvent(QPaintEvent *)
