@@ -171,6 +171,9 @@ static QList<ToolChain *> autoDetectToolChains(const QList<ToolChain *> alreadyK
     foreach (ToolChainFactory *f, factories)
         result.append(f->autoDetect(alreadyKnownTcs));
 
+    // Remove invalid toolchains that might have sneaked in.
+    result = Utils::filtered(result, [](const ToolChain *tc) { return tc->isValid(); });
+
     return result;
 }
 
