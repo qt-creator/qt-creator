@@ -39,6 +39,7 @@ OptionsDialog::OptionsDialog(QWidget *parent) :
     ui(new Ui::OptionsDialog)
 {
     ui->setupUi(this);
+    ui->keywordsList->setIconSize(QSize(16, 16));
     setKeywordsButtonsEnabled();
     connect(ui->addKeywordButton, SIGNAL(clicked()), SLOT(addKeywordButtonClicked()));
     connect(ui->removeKeywordButton, SIGNAL(clicked()), SLOT(removeKeywordButtonClicked()));
