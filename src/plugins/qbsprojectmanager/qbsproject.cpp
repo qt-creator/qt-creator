@@ -451,7 +451,7 @@ void QbsProject::updateAfterParse()
 {
     qCDebug(qbsPmLog) << "Updating data after parse";
     rootProjectNode()->update();
-    updateDocuments(QSet<QString>() << projectFilePath().toString());
+    updateDocuments(m_qbsProject.buildSystemFiles());
     updateBuildTargetData();
     updateCppCodeModel();
     updateQmlJsCodeModel();
