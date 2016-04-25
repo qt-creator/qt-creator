@@ -70,6 +70,11 @@ const char ADD_RUNCONFIGURATION_ARGUMENT_KEY[] = "CMakeProjectManager.MakeStep.A
 const char ADD_RUNCONFIGURATION_TEXT[] = "Current executable";
 }
 
+static bool isCurrentExecutableTarget(const QString &target)
+{
+    return target == QLatin1String(ADD_RUNCONFIGURATION_TEXT);
+}
+
 CMakeBuildStep::CMakeBuildStep(BuildStepList *bsl) : AbstractProcessStep(bsl, Core::Id(MS_ID))
 {
     ctor(bsl);
@@ -124,9 +129,9 @@ CMakeRunConfiguration *CMakeBuildStep::targetsActiveRunConfiguration() const
 
 void CMakeBuildStep::handleBuildTargetChanges()
 {
-    if (static_cast<CMakeProject *>(project())->buildTargetTitles().contains(m_buildTarget))
-        setBuildTarget(m_buildTarget);
-    else
+    if (isCurrentExecutableTarget(m_buildTarget))
+        return; // Do not change just because a different set of build targets is there...
+    if (!static_cast<CMakeProject *>(project())->buildTargetTitles().contains(m_buildTarget))
         setBuildTarget(CMakeBuildStep::allTarget());
     emit buildTargetsChanged();
 }
@@ -180,7 +185,7 @@ bool CMakeBuildStep::init(QList<const BuildStep *> &earlierSteps)
     }
 
     CMakeRunConfiguration *rc = targetsActiveRunConfiguration();
-    if ((m_buildTarget == QLatin1String(ADD_RUNCONFIGURATION_TEXT)) && (!rc || rc->title().isEmpty())) {
+    if (isCurrentExecutableTarget(m_buildTarget) && (!rc || rc->title().isEmpty())) {
         emit addTask(Task(Task::Error,
                           QCoreApplication::translate("ProjectExplorer::Task",
                                     "You asked to build the current Run Configuration's build target only, "
@@ -332,7 +337,7 @@ QString CMakeBuildStep::allArguments(const CMakeRunConfiguration *rc) const
 
     QString target;
 
-    if (m_buildTarget == QLatin1String(ADD_RUNCONFIGURATION_TEXT)) {
+    if (isCurrentExecutableTarget(m_buildTarget)) {
         if (rc)
             target = rc->title();
         else

@@ -56,6 +56,7 @@
 #include <QCoreApplication>
 #include <QDebug>
 #include <QDir>
+#include <QFutureWatcher>
 #include <QMutexLocker>
 #include <QTextBlock>
 #include <QThreadPool>
@@ -131,6 +132,7 @@ public:
     // Project integration
     mutable QMutex m_projectMutex;
     QMap<ProjectExplorer::Project *, ProjectInfo> m_projectToProjectsInfo;
+    QHash<ProjectExplorer::Project *, bool> m_projectToIndexerCanceled;
     QMap<Utils::FileName, QList<ProjectPart::Ptr> > m_fileToProjectParts;
     QMap<QString, ProjectPart::Ptr> m_projectPartIdToProjectProjectPart;
     // The members below are cached/(re)calculated from the projects and/or their project parts
@@ -759,6 +761,25 @@ void CppModelManager::recalculateProjectPartMappings()
     d->m_symbolFinder.clearCache();
 }
 
+void CppModelManager::watchForCanceledProjectIndexer(QFuture<void> future,
+                                                     ProjectExplorer::Project *project)
+{
+    d->m_projectToIndexerCanceled.insert(project, false);
+
+    if (future.isCanceled() || future.isFinished())
+        return;
+
+    QFutureWatcher<void> *watcher = new QFutureWatcher<void>();
+    connect(watcher, &QFutureWatcher<void>::canceled, this, [this, project]() {
+        if (d->m_projectToIndexerCanceled.contains(project)) // Project not yet removed
+            d->m_projectToIndexerCanceled.insert(project, true);
+    });
+    connect(watcher, &QFutureWatcher<void>::finished, this, [watcher]() {
+        watcher->deleteLater();
+    });
+    watcher->setFuture(future);
+}
+
 void CppModelManager::updateCppEditorDocuments() const
 {
     // Refresh visible documents
@@ -792,16 +813,17 @@ QFuture<void> CppModelManager::updateProjectInfo(const ProjectInfo &newProjectIn
     QSet<QString> filesToReindex;
     QStringList removedProjectParts;
     bool filesRemoved = false;
+    ProjectExplorer::Project *project = newProjectInfo.project().data();
 
     { // Only hold the mutex for a limited scope, so the dumping afterwards does not deadlock.
         QMutexLocker projectLocker(&d->m_projectMutex);
 
-        ProjectExplorer::Project *project = newProjectInfo.project().data();
         const QSet<QString> newSourceFiles = newProjectInfo.sourceFiles();
 
         // Check if we can avoid a full reindexing
         ProjectInfo oldProjectInfo = d->m_projectToProjectsInfo.value(project);
-        if (oldProjectInfo.isValid()) {
+        const bool previousIndexerCanceled = d->m_projectToIndexerCanceled.value(project, false);
+        if (!previousIndexerCanceled && oldProjectInfo.isValid()) {
             ProjectInfoComparer comparer(oldProjectInfo, newProjectInfo);
 
             if (comparer.configurationOrFilesChanged()) {
@@ -872,7 +894,10 @@ QFuture<void> CppModelManager::updateProjectInfo(const ProjectInfo &newProjectIn
     updateCppEditorDocuments();
 
     // Trigger reindexing
-    return updateSourceFiles(filesToReindex, ForcedProgressNotification);
+    QFuture<void> indexerFuture = updateSourceFiles(filesToReindex, ForcedProgressNotification);
+    watchForCanceledProjectIndexer(indexerFuture, project);
+
+    return indexerFuture;
 }
 
 ProjectPart::Ptr CppModelManager::projectPartForId(const QString &projectPartId) const
@@ -969,6 +994,8 @@ static QStringList idsOfAllProjectParts(const ProjectInfo &projectInfo)
 void CppModelManager::onAboutToRemoveProject(ProjectExplorer::Project *project)
 {
     QStringList projectPartIds;
+
+    d->m_projectToIndexerCanceled.remove(project);
 
     {
         QMutexLocker locker(&d->m_projectMutex);

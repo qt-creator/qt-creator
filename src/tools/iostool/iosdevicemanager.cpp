@@ -983,7 +983,7 @@ bool CommandSession::startService(const QString &serviceName, ServiceSocket &fd)
     if (!connectDevice())
         return false;
     CFStringRef cfsService = serviceName.toCFString();
-    if (am_res_t error = lib()->deviceStartService(device, cfsService, 0, &fd)) {
+    if (am_res_t error = lib()->deviceStartService(device, cfsService, &fd, 0)) {
         addError(QString::fromLatin1("Starting service \"%1\" on device %2 failed, AMDeviceStartService returned %3 (0x%4)")
                  .arg(serviceName).arg(deviceId).arg(mobileDeviceErrorString(error)).arg(QString::number(error, 16)));
         failure = true;
