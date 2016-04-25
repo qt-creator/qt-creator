@@ -691,7 +691,7 @@ void MainWindow::registerDefaultActions()
     }
 
     // Show Sidebar Action
-    m_toggleSideBarAction = new QAction(Icons::TOGGLE_SIDEBAR_TOOLBAR.icon(),
+    m_toggleSideBarAction = new QAction(Icons::TOGGLE_SIDEBAR.icon(),
                                         QCoreApplication::translate("Core", Constants::TR_SHOW_SIDEBAR),
                                         this);
     m_toggleSideBarAction->setCheckable(true);
@@ -699,7 +699,9 @@ void MainWindow::registerDefaultActions()
     cmd->setAttribute(Command::CA_UpdateText);
     cmd->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Ctrl+0") : tr("Alt+0")));
     connect(m_toggleSideBarAction, &QAction::triggered, this, &MainWindow::setSidebarVisible);
-    m_toggleSideBarButton->setDefaultAction(cmd->action());
+    ProxyAction *toggleSideBarProxyAction =
+            ProxyAction::proxyActionWithIcon(cmd->action(), Core::Icons::TOGGLE_SIDEBAR_TOOLBAR.icon());
+    m_toggleSideBarButton->setDefaultAction(toggleSideBarProxyAction);
     mwindow->addAction(cmd, Constants::G_WINDOW_VIEWS);
     m_toggleSideBarAction->setEnabled(false);
 
