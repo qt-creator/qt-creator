@@ -87,6 +87,9 @@
     the editor to copy all elements to the clipboard by using 300 dpi. Then
     paste the diagram to an application that can print images.
 
+    If you copy a selection of elements in the editor, only those elements and
+    their relations will be copied to the clipboard as an image.
+
     To save diagrams as images, select \uicontrol Tools >
     \uicontrol {Model Editor} > \uicontrol {Export Diagram}.
 
@@ -179,12 +182,21 @@
 
         \endlist
 
+        \li To move the end of a relation to a different element, grab the
+            end point and drop it over another element that accepts relations
+            of that type. For example, only classes accept inheritances and
+            associations.
+
         \li To create \e {sampling points} that divide a relation into two
-            connected lines, select a relation and press \key Shift+Click.
-            If possible, the end point of a relation is moved automatically to
-            draw the line to the next sampling point either vertically or
-            horizontally. To remove the selected sampling point, press
-            \key Ctrl+Click.
+            connected lines, select a relation and press \key Shift and click
+            on the relation line.
+
+            If possible, the end point of a relation is moved automatically
+            to draw the line to the next sampling point either vertically or
+            horizontally.
+
+        \li To remove a sampling point, press \key Ctrl and click the sampling
+            point.
 
         \li To group elements, drag and drop a \uicontrol Boundary element to
             the editor and resize it to enclose the elements in the group.
@@ -240,14 +252,7 @@
                     \endlist
 
                 \li In the \uicontrol Members field, specify members for the
-                    class. Enter each member on a separate line using a C++
-                    like syntax. For example, the following lines define the
-                    method \c m that is private, virtual, and constant:
-
-                    \code
-                    private:
-                        virtual int m(string a) const;
-                    \endcode
+                    class, as described in \l {Specifying Members}.
 
                 \li Select \uicontrol {Clean Up} to format the contents of
                     the \uicontrol Members field depending on their visibility
@@ -273,12 +278,59 @@
     and relationship.
 
     To create self-relations, start creating a new association and press
-    \key Shift to create a new \e {intermediate point} while dragging the
-    association. Create another intermediate point and drop the association
+    \key Shift to create a new \e {sampling point} while dragging the
+    association. Create another sampling point and drop the association
     at the same class.
 
     To add more points, press \key Shift and click a relation. To delete a
     point, press \key Ctrl and click a point.
+
+    \section2 Specifying Members
+
+    To specify members for the class, enter each member on a separate line
+    using a C++ like syntax. For example, the following lines define the
+    method \c m that is private, virtual, and constant:
+
+    \code
+        private:
+        virtual int m(string a) const;
+    \endcode
+
+    You may group members:
+
+    \code
+        [Geometry]
+        QPointF position;
+        QSizeF size;
+    \endcode
+
+    You may add stereotypes to members:
+
+    \code
+    <<setter>> setPosition(const QPointF &pos);
+    \endcode
+
+    There are some limitations of the parser:
+
+    \list
+
+        \li Multi-line declarations work only if lines are wrapped
+            within nested brackets:
+
+            \code
+                void setSize(int width,
+                             int height);
+            \endcode
+
+        \li Preprocessor macros will not be translated. Some Qt
+            keywords are recognized (for example Q_SLOT).
+
+        \li Function pointer declarations are interpreted as methods.
+
+        \li \c throw() and \c noexpect() specifiers are not ignored
+            but will make the declaration a method.
+
+    \endlist
 
     \section1 Creating Component Diagrams
 
@@ -314,17 +366,19 @@
     adds the \c UseCase custom element:
 
     \code
-    Icon UseCase
-        Title: "Use-Case"
-        Elements: item
-        Stereotype: 'usecase'
-        Display: icon
-        Width: 40
-        Height: 20
-        BaseColor: #5fb4f0
-    Begin
-        Ellipse 20, 10, 20, 10
-    End
+    Icon {
+        id: UseCase
+        title: "Use-Case"
+        elements: item
+        stereotype: 'usecase'
+        display: icon
+        width: 40
+        height: 20
+        baseColor: #5fb4f0
+        Shape {
+            Ellipse { x: 20, y: 10, radiusX: 20, radiusY: 10 }
+        }
+    }
     \endcode
 
     For more information about the available options, see \e standard.def
@@ -333,5 +387,9 @@
 
     You can add your own definition file and save it with the file extension
     \e .def to add custom colors and icons for stereotypes, elements, or tool
-    bars.
+    bars. Either store this file in the the same directory as the
+    \e standard.def file or select the root element of a model and apply your
+    \e .def file to the property \uicontrol {Config path}.
+
+
 */
