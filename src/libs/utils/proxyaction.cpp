@@ -175,3 +175,12 @@ QString ProxyAction::stringWithAppendedShortcut(const QString &str, const QKeySe
     return QString::fromLatin1("%1 <span style=\"color: gray; font-size: small\">%2</span>").
             arg(s, shortcut.toString(QKeySequence::NativeText));
 }
+
+ProxyAction *ProxyAction::proxyActionWithIcon(QAction *original, const QIcon &newIcon)
+{
+    ProxyAction *proxyAction = new ProxyAction(original);
+    proxyAction->setAction(original);
+    proxyAction->setIcon(newIcon);
+    proxyAction->setAttribute(UpdateText);
+    return proxyAction;
+}

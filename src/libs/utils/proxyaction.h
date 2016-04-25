@@ -58,6 +58,7 @@ public:
     bool hasAttribute(Attribute attribute);
 
     static QString stringWithAppendedShortcut(const QString &str, const QKeySequence &shortcut);
+    static ProxyAction *proxyActionWithIcon(QAction *original, const QIcon &newIcon);
 
 private slots:
     void actionChanged();
