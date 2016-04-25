@@ -124,7 +124,7 @@ void UpdateInfoPlugin::startCheckForUpdates()
     stopCheckForUpdates();
 
     QProcessEnvironment env;
-    env.insert("QT_LOGGING_RULES", "*=false");
+    env.insert(QLatin1String("QT_LOGGING_RULES"), QLatin1String("*=false"));
     d->m_checkUpdatesCommand = new ShellCommand(QString(), env);
     connect(d->m_checkUpdatesCommand, &ShellCommand::stdOutText, this, &UpdateInfoPlugin::collectCheckForUpdatesOutput);
     connect(d->m_checkUpdatesCommand, &ShellCommand::finished, this, &UpdateInfoPlugin::checkForUpdatesFinished);
