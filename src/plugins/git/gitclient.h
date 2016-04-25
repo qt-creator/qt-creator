@@ -53,11 +53,6 @@ namespace VcsBase {
     class VcsBaseEditorParameterWidget;
 }
 
-namespace Utils {
-class ExitCodeInterpreter;
-struct SynchronousProcessResponse;
-} // namespace Utils
-
 namespace DiffEditor {
 class DiffEditorDocument;
 class DiffEditorController;

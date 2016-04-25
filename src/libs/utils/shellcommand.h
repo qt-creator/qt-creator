@@ -27,6 +27,8 @@
 
 #include "utils_global.h"
 
+#include "synchronousprocess.h"
+
 #include <QObject>
 
 #include <functional>
@@ -43,13 +45,8 @@ class QFuture;
 QT_END_NAMESPACE
 
 namespace Utils {
-struct SynchronousProcessResponse;
-class ExitCodeInterpreter;
+
 class FileName;
-}
-
-namespace Utils {
-
 namespace Internal { class ShellCommandPrivate; }
 
 class QTCREATOR_UTILS_EXPORT ProgressParser
@@ -115,9 +112,9 @@ public:
     void setDisplayName(const QString &name);
 
     void addJob(const FileName &binary, const QStringList &arguments,
-                const QString &workingDirectory = QString(), ExitCodeInterpreter *interpreter = 0);
+                const QString &workingDirectory = QString(), const ExitCodeInterpreter &interpreter = defaultExitCodeInterpreter);
     void addJob(const FileName &binary, const QStringList &arguments, int timeoutS,
-                const QString &workingDirectory = QString(), ExitCodeInterpreter *interpreter = 0);
+                const QString &workingDirectory = QString(), const ExitCodeInterpreter &interpreter = defaultExitCodeInterpreter);
     void execute();
     void abort();
     bool lastExecutionSuccess() const;
@@ -146,7 +143,7 @@ public:
     virtual SynchronousProcessResponse runCommand(const FileName &binary, const QStringList &arguments,
                                                   int timeoutS,
                                                   const QString &workingDirectory = QString(),
-                                                  ExitCodeInterpreter *interpreter = 0);
+                                                  const ExitCodeInterpreter &interpreter = defaultExitCodeInterpreter);
     // Make sure to not pass through the event loop at all:
     virtual bool runFullySynchronous(const FileName &binary, const QStringList &arguments,
                                      int timeoutS, QByteArray *outputData, QByteArray *errorData,
@@ -172,7 +169,7 @@ private:
     void run(QFutureInterface<void> &future);
     SynchronousProcessResponse runSynchronous(const FileName &binary, const QStringList &arguments,
                                               int timeoutS, const QString &workingDirectory,
-                                              ExitCodeInterpreter *interpreter = 0);
+                                              const ExitCodeInterpreter &interpreter = defaultExitCodeInterpreter);
 
     class Internal::ShellCommandPrivate *const d;
 };

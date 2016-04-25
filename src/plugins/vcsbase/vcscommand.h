@@ -48,7 +48,7 @@ public:
     Utils::SynchronousProcessResponse runCommand(const Utils::FileName &binary,
                                                  const QStringList &arguments, int timeoutS,
                                                  const QString &workDirectory = QString(),
-                                                 Utils::ExitCodeInterpreter *interpreter = 0) override;
+                                                 const Utils::ExitCodeInterpreter &interpreter = Utils::defaultExitCodeInterpreter) override;
 
     bool runFullySynchronous(const Utils::FileName &binary, const QStringList &arguments,
                              int timeoutS, QByteArray *outputData, QByteArray *errorData,

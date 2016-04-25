@@ -28,6 +28,7 @@
 #include "vcsbase_global.h"
 
 #include <utils/fileutils.h>
+#include <utils/synchronousprocess.h>
 
 #include <QObject>
 #include <QStringList>
@@ -41,11 +42,6 @@ class QProcessEnvironment;
 QT_END_NAMESPACE
 
 namespace Core { class Id; }
-
-namespace Utils {
-struct SynchronousProcessResponse;
-class ExitCodeInterpreter;
-} // namespace Utils
 
 namespace VcsBase {
 
@@ -86,7 +82,7 @@ public:
 
     void enqueueJob(VcsCommand *cmd, const QStringList &args,
                     const QString &workingDirectory = QString(),
-                    Utils::ExitCodeInterpreter *interpreter = 0);
+                    const Utils::ExitCodeInterpreter &interpreter = Utils::defaultExitCodeInterpreter);
 
     virtual QProcessEnvironment processEnvironment() const;
 
@@ -220,7 +216,7 @@ protected:
     };
     virtual QString vcsCommandString(VcsCommandTag cmd) const;
     virtual Core::Id vcsEditorKind(VcsCommandTag cmd) const = 0;
-    virtual Utils::ExitCodeInterpreter *exitCodeInterpreter(VcsCommandTag cmd, QObject *parent) const;
+    virtual Utils::ExitCodeInterpreter exitCodeInterpreter(VcsCommandTag cmd) const;
 
     virtual QStringList revisionSpec(const QString &revision) const = 0;
 

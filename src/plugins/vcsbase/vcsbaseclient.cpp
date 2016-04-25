@@ -135,7 +135,7 @@ VcsCommand *VcsBaseClientImpl::createCommand(const QString &workingDirectory,
 
 void VcsBaseClientImpl::enqueueJob(VcsCommand *cmd, const QStringList &args,
                                    const QString &workingDirectory,
-                                   Utils::ExitCodeInterpreter *interpreter)
+                                   const Utils::ExitCodeInterpreter &interpreter)
 {
     cmd->addJob(vcsBinary(), args, vcsTimeoutS(), workingDirectory, interpreter);
     cmd->execute();
@@ -436,7 +436,7 @@ void VcsBaseClient::diff(const QString &workingDir, const QStringList &files,
     QTextCodec *codec = source.isEmpty() ? static_cast<QTextCodec *>(0) : VcsBaseEditor::getCodec(source);
     VcsCommand *command = createCommand(workingDir, editor);
     command->setCodec(codec);
-    enqueueJob(command, args, workingDir, exitCodeInterpreter(DiffCommand, command));
+    enqueueJob(command, args, workingDir, exitCodeInterpreter(DiffCommand));
 }
 
 void VcsBaseClient::log(const QString &workingDir, const QStringList &files,
@@ -537,11 +537,10 @@ QString VcsBaseClient::vcsCommandString(VcsCommandTag cmd) const
     return QString();
 }
 
-Utils::ExitCodeInterpreter *VcsBaseClient::exitCodeInterpreter(VcsCommandTag cmd, QObject *parent) const
+Utils::ExitCodeInterpreter VcsBaseClient::exitCodeInterpreter(VcsCommandTag cmd) const
 {
     Q_UNUSED(cmd)
-    Q_UNUSED(parent)
-    return 0;
+    return Utils::defaultExitCodeInterpreter;
 }
 
 void VcsBaseClient::setDiffParameterWidgetCreator(ParameterWidgetCreator creator)

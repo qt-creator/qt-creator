@@ -145,7 +145,7 @@ QTCREATOR_UTILS_EXPORT QDebug operator<<(QDebug str, const SynchronousProcessRes
     return str;
 }
 
-SynchronousProcessResponse::Result ExitCodeInterpreter::interpretExitCode(int code) const
+SynchronousProcessResponse::Result defaultExitCodeInterpreter(int code)
 {
     return code ? SynchronousProcessResponse::FinishedError
                 : SynchronousProcessResponse::Finished;
@@ -220,7 +220,6 @@ struct SynchronousProcessPrivate {
     void clearForRun();
 
     QTextCodec *m_codec;
-    ExitCodeInterpreter *m_exitCodeInterpreter = nullptr;
     QTextCodec::ConverterState m_stdOutState;
     QTextCodec::ConverterState m_stdErrState;
     TerminalControllingProcess m_process;
@@ -230,6 +229,7 @@ struct SynchronousProcessPrivate {
     QString m_binary;
     ChannelBuffer m_stdOut;
     ChannelBuffer m_stdErr;
+    ExitCodeInterpreter m_exitCodeInterpreter = defaultExitCodeInterpreter;
 
     int m_hangTimerCount = 0;
     int m_maxHangTimerCount = defaultMaxHangTimerCount;
@@ -365,12 +365,13 @@ void SynchronousProcess::setFlags(unsigned tc)
     d->m_process.setFlags(tc);
 }
 
-void SynchronousProcess::setExitCodeInterpreter(ExitCodeInterpreter *interpreter)
+void SynchronousProcess::setExitCodeInterpreter(const ExitCodeInterpreter &interpreter)
 {
+    QTC_ASSERT(interpreter, return);
     d->m_exitCodeInterpreter = interpreter;
 }
 
-ExitCodeInterpreter *SynchronousProcess::exitCodeInterpreter() const
+ExitCodeInterpreter SynchronousProcess::exitCodeInterpreter() const
 {
     return d->m_exitCodeInterpreter;
 }
@@ -488,13 +489,9 @@ void SynchronousProcess::finished(int exitCode, QProcess::ExitStatus e)
         qDebug() << Q_FUNC_INFO << exitCode << e;
     d->m_hangTimerCount = 0;
 
-    ExitCodeInterpreter defaultInterpreter(this);
-    ExitCodeInterpreter *currentInterpreter = d->m_exitCodeInterpreter
-            ? d->m_exitCodeInterpreter : &defaultInterpreter;
-
     switch (e) {
     case QProcess::NormalExit:
-        d->m_result.result = currentInterpreter->interpretExitCode(exitCode);
+        d->m_result.result = d->m_exitCodeInterpreter(exitCode);
         d->m_result.exitCode = exitCode;
         break;
     case QProcess::CrashExit:

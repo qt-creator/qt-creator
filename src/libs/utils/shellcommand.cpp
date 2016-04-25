@@ -27,7 +27,6 @@
 
 #include "fileutils.h"
 #include "qtcassert.h"
-#include "synchronousprocess.h"
 #include "runextensions.h"
 
 #include <QFileInfo>
@@ -67,13 +66,13 @@ class ShellCommandPrivate
 public:
     struct Job {
         explicit Job(const QString &wd, const Utils::FileName &b, const QStringList &a, int t,
-                     Utils::ExitCodeInterpreter *interpreter = 0);
+                     const ExitCodeInterpreter &interpreter);
 
         QString workingDirectory;
         Utils::FileName binary;
         QStringList arguments;
+        ExitCodeInterpreter exitCodeInterpreter;
         int timeoutS;
-        Utils::ExitCodeInterpreter *exitCodeInterpreter;
     };
 
     ShellCommandPrivate(const QString &defaultWorkingDirectory,
@@ -112,12 +111,12 @@ ShellCommandPrivate::~ShellCommandPrivate()
 }
 
 ShellCommandPrivate::Job::Job(const QString &wd, const Utils::FileName &b, const QStringList &a,
-                              int t, Utils::ExitCodeInterpreter *interpreter) :
+                              int t, const ExitCodeInterpreter &interpreter) :
     workingDirectory(wd),
     binary(b),
     arguments(a),
-    timeoutS(t),
-    exitCodeInterpreter(interpreter)
+    exitCodeInterpreter(interpreter),
+    timeoutS(t)
 {
     // Finished cookie is emitted via queued slot, needs metatype
     static const int qvMetaId = qRegisterMetaType<QVariant>();
@@ -194,13 +193,13 @@ void ShellCommand::addFlags(unsigned f)
 }
 
 void ShellCommand::addJob(const Utils::FileName &binary, const QStringList &arguments,
-                          const QString &workingDirectory, Utils::ExitCodeInterpreter *interpreter)
+                          const QString &workingDirectory, const ExitCodeInterpreter &interpreter)
 {
     addJob(binary, arguments, defaultTimeoutS(), workingDirectory, interpreter);
 }
 
 void ShellCommand::addJob(const Utils::FileName &binary, const QStringList &arguments, int timeoutS,
-                          const QString &workingDirectory, Utils::ExitCodeInterpreter *interpreter)
+                          const QString &workingDirectory, const ExitCodeInterpreter &interpreter)
 {
     d->m_jobs.push_back(Internal::ShellCommandPrivate::Job(workDirectory(workingDirectory), binary,
                                                            arguments, timeoutS, interpreter));
@@ -310,7 +309,7 @@ void ShellCommand::run(QFutureInterface<void> &future)
 Utils::SynchronousProcessResponse ShellCommand::runCommand(const Utils::FileName &binary,
                                                            const QStringList &arguments, int timeoutS,
                                                            const QString &workingDirectory,
-                                                           Utils::ExitCodeInterpreter *interpreter)
+                                                           const ExitCodeInterpreter &interpreter)
 {
     Utils::SynchronousProcessResponse response;
 
@@ -397,7 +396,7 @@ Utils::SynchronousProcessResponse ShellCommand::runSynchronous(const Utils::File
                                                                const QStringList &arguments,
                                                                int timeoutS,
                                                                const QString &workingDirectory,
-                                                               Utils::ExitCodeInterpreter *interpreter)
+                                                               const ExitCodeInterpreter &interpreter)
 {
     Utils::SynchronousProcessResponse response;
 
@@ -446,15 +445,13 @@ Utils::SynchronousProcessResponse ShellCommand::runSynchronous(const Utils::File
         }
     }
 
-    Utils::ExitCodeInterpreter defaultInterpreter(this);
-    Utils::ExitCodeInterpreter *currentInterpreter = interpreter ? interpreter : &defaultInterpreter;
     // Result
     if (timedOut)
         response.result = Utils::SynchronousProcessResponse::Hang;
     else if (process->exitStatus() != QProcess::NormalExit)
         response.result = Utils::SynchronousProcessResponse::TerminatedAbnormally;
     else
-        response.result = currentInterpreter->interpretExitCode(process->exitCode());
+        response.result = interpreter(process->exitCode());
     return response;
 }
 

@@ -73,7 +73,7 @@ const QProcessEnvironment VcsCommand::processEnvironment() const
 Utils::SynchronousProcessResponse VcsCommand::runCommand(const Utils::FileName &binary,
                                                          const QStringList &arguments, int timeoutS,
                                                          const QString &workingDirectory,
-                                                         Utils::ExitCodeInterpreter *interpreter)
+                                                         const Utils::ExitCodeInterpreter &interpreter)
 {
     Utils::SynchronousProcessResponse response
             = Core::ShellCommand::runCommand(binary, arguments, timeoutS, workingDirectory,

@@ -49,7 +49,7 @@ public:
     StatusItem parseStatusLine(const QString &line) const override;
 
 protected:
-    Utils::ExitCodeInterpreter *exitCodeInterpreter(VcsCommandTag cmd, QObject *parent) const override;
+    Utils::ExitCodeInterpreter exitCodeInterpreter(VcsCommandTag cmd) const override;
     Core::Id vcsEditorKind(VcsCommandTag cmd) const override;
 };
 

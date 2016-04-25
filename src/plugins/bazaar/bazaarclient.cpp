@@ -31,7 +31,6 @@
 #include <vcsbase/vcsbaseplugin.h>
 #include <vcsbase/vcsoutputwindow.h>
 #include <vcsbase/vcsbaseeditorparameterwidget.h>
-#include <utils/synchronousprocess.h>
 
 #include <QDir>
 #include <QFileInfo>
@@ -43,21 +42,6 @@ using namespace VcsBase;
 
 namespace Bazaar {
 namespace Internal {
-
-class BazaarDiffExitCodeInterpreter : public ExitCodeInterpreter
-{
-    Q_OBJECT
-public:
-    BazaarDiffExitCodeInterpreter(QObject *parent) : ExitCodeInterpreter(parent) {}
-    SynchronousProcessResponse::Result interpretExitCode(int code) const;
-};
-
-SynchronousProcessResponse::Result BazaarDiffExitCodeInterpreter::interpretExitCode(int code) const
-{
-    if (code < 0 || code > 2)
-        return SynchronousProcessResponse::FinishedError;
-    return SynchronousProcessResponse::Finished;
-}
 
 // Parameter widget controlling whitespace diff mode, associated with a parameter
 class BazaarDiffParameterWidget : public VcsBaseEditorParameterWidget
@@ -240,14 +224,15 @@ QString BazaarClient::vcsCommandString(VcsCommandTag cmd) const
     }
 }
 
-ExitCodeInterpreter *BazaarClient::exitCodeInterpreter(VcsCommandTag cmd, QObject *parent) const
+ExitCodeInterpreter BazaarClient::exitCodeInterpreter(VcsCommandTag cmd) const
 {
-    switch (cmd) {
-    case DiffCommand:
-        return new BazaarDiffExitCodeInterpreter(parent);
-    default:
-        return 0;
+    if (cmd == DiffCommand) {
+        return [](int code) {
+            return (code < 0 || code > 2) ? SynchronousProcessResponse::FinishedError
+                                          : SynchronousProcessResponse::Finished;
+        };
     }
+    return Utils::defaultExitCodeInterpreter;
 }
 
 QStringList BazaarClient::revisionSpec(const QString &revision) const

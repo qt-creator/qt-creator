@@ -62,7 +62,7 @@ public slots:
 protected:
     Core::Id vcsEditorKind(VcsCommandTag cmd) const;
     QString vcsCommandString(VcsCommandTag cmd) const;
-    Utils::ExitCodeInterpreter *exitCodeInterpreter(VcsCommandTag cmd, QObject *parent) const;
+    Utils::ExitCodeInterpreter exitCodeInterpreter(VcsCommandTag cmd) const;
     QStringList revisionSpec(const QString &revision) const;
     StatusItem parseStatusLine(const QString &line) const;
 

@@ -30,7 +30,6 @@
 #include <vcsbase/vcsbaseeditor.h>
 #include <vcsbase/vcsbaseconstants.h>
 #include <vcsbase/vcsbaseeditorparameterwidget.h>
-#include <utils/synchronousprocess.h>
 
 #include <QDir>
 #include <QFileInfo>
@@ -42,22 +41,6 @@ using namespace VcsBase;
 
 namespace Cvs {
 namespace Internal {
-
-class CvsDiffExitCodeInterpreter : public ExitCodeInterpreter
-{
-    Q_OBJECT
-public:
-    CvsDiffExitCodeInterpreter(QObject *parent) : ExitCodeInterpreter(parent) {}
-    SynchronousProcessResponse::Result interpretExitCode(int code) const;
-
-};
-
-SynchronousProcessResponse::Result CvsDiffExitCodeInterpreter::interpretExitCode(int code) const
-{
-    if (code < 0 || code > 2)
-        return SynchronousProcessResponse::FinishedError;
-    return SynchronousProcessResponse::Finished;
-}
 
 // Parameter widget controlling whitespace diff mode, associated with a parameter
 class CvsDiffParameterWidget : public VcsBaseEditorParameterWidget
@@ -111,14 +94,15 @@ Core::Id CvsClient::vcsEditorKind(VcsCommandTag cmd) const
     }
 }
 
-ExitCodeInterpreter *CvsClient::exitCodeInterpreter(VcsCommandTag cmd, QObject *parent) const
+ExitCodeInterpreter CvsClient::exitCodeInterpreter(VcsCommandTag cmd) const
 {
-    switch (cmd) {
-    case DiffCommand:
-        return new CvsDiffExitCodeInterpreter(parent);
-    default:
-        return 0;
+    if (cmd == DiffCommand) {
+        return [](int code) {
+            return (code < 0 || code > 2) ? SynchronousProcessResponse::FinishedError
+                                          : SynchronousProcessResponse::Finished;
+        };
     }
+    return Utils::defaultExitCodeInterpreter;
 }
 
 void CvsClient::diff(const QString &workingDir, const QStringList &files,
