@@ -179,7 +179,8 @@ DesignModeWidget::DesignModeWidget(QWidget *parent) :
     m_navigatorHistoryCounter(-1),
     m_keepNavigatorHistory(false)
 {
-    QObject::connect(viewManager().nodeInstanceView(), SIGNAL(qmlPuppetCrashed()), this, SLOT(showQmlPuppetCrashedError()));
+    connect(viewManager().nodeInstanceView(), &NodeInstanceView::qmlPuppetCrashed,
+        this, &DesignModeWidget::showQmlPuppetCrashedError);
 }
 
 DesignModeWidget::~DesignModeWidget()
@@ -288,7 +289,7 @@ void DesignModeWidget::updateErrorStatus(const QList<RewriterError> &errors)
         enableWidgets();
      } else if (!errors.isEmpty()) {
         disableWidgets();
-        showErrorMessage(errors);
+        showMessageBox(errors);
     }
 }
 
@@ -350,12 +351,8 @@ void DesignModeWidget::setup()
         }
     }
 
-
-
     QToolBar *toolBar = new QToolBar;
-
     toolBar->addAction(viewManager().componentViewAction());
-
     toolBar->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
     m_toolBar->addCenterToolBar(toolBar);
 
@@ -404,11 +401,20 @@ void DesignModeWidget::setup()
     m_leftSideBar.reset(new Core::SideBar(sideBarItems, leftSideBarItems));
     m_rightSideBar.reset(new Core::SideBar(sideBarItems, rightSideBarItems));
 
-    connect(m_leftSideBar.data(), SIGNAL(availableItemsChanged()), SLOT(updateAvailableSidebarItemsRight()));
-    connect(m_rightSideBar.data(), SIGNAL(availableItemsChanged()), SLOT(updateAvailableSidebarItemsLeft()));
+    connect(m_leftSideBar.data(), &Core::SideBar::availableItemsChanged, [=](){
+        // event comes from m_leftSidebar, so update right side.
+        m_rightSideBar->setUnavailableItemIds(m_leftSideBar->unavailableItemIds());
+    });
 
-    connect(Core::ICore::instance(), SIGNAL(coreAboutToClose()),
-            this, SLOT(deleteSidebarWidgets()));
+    connect(m_rightSideBar.data(), &Core::SideBar::availableItemsChanged, [=](){
+        // event comes from m_rightSidebar, so update left side.
+        m_leftSideBar->setUnavailableItemIds(m_rightSideBar->unavailableItemIds());
+    });
+
+    connect(Core::ICore::instance(), &Core::ICore::coreAboutToClose, [=](){
+        m_leftSideBar.reset();
+        m_rightSideBar.reset();
+    });
 
     m_toolBar->setToolbarCreationFlags(Core::EditorToolBar::FlagsStandalone);
     m_toolBar->setNavigationVisible(true);
@@ -445,24 +451,6 @@ void DesignModeWidget::setup()
     show();
 }
 
-void DesignModeWidget::updateAvailableSidebarItemsRight()
-{
-    // event comes from m_leftSidebar, so update right side.
-    m_rightSideBar->setUnavailableItemIds(m_leftSideBar->unavailableItemIds());
-}
-
-void DesignModeWidget::updateAvailableSidebarItemsLeft()
-{
-    // event comes from m_rightSidebar, so update left side.
-    m_leftSideBar->setUnavailableItemIds(m_rightSideBar->unavailableItemIds());
-}
-
-void DesignModeWidget::deleteSidebarWidgets()
-{
-    m_leftSideBar.reset();
-    m_rightSideBar.reset();
-}
-
 void DesignModeWidget::showQmlPuppetCrashedError()
 {
     QList<RewriterError> errorList;
@@ -470,7 +458,7 @@ void DesignModeWidget::showQmlPuppetCrashedError()
     errorList.append(error);
 
     disableWidgets();
-    showErrorMessage(errorList);
+    showMessageBox(errorList);
 }
 
 void DesignModeWidget::toolBarOnGoBackClicked()
@@ -622,7 +610,7 @@ QWidget *DesignModeWidget::createCrumbleBarFrame()
     return frame;
 }
 
-void DesignModeWidget::showErrorMessage(const QList<RewriterError> &errors)
+void DesignModeWidget::showMessageBox(const QList<RewriterError> &errors)
 {
     Q_ASSERT(!errors.isEmpty());
     m_warningWidget->setError(errors.first());

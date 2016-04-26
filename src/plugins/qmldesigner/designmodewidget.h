@@ -100,7 +100,7 @@ public:
 
     void enableWidgets();
     void disableWidgets();
-    void showErrorMessage(const QList<RewriterError> &errors);
+    void showMessageBox(const QList<RewriterError> &errors);
 
     CrumbleBar* crumbleBar() const;
 
@@ -112,10 +112,6 @@ public slots:
     void toggleRightSidebar();
 
 private slots:
-    void updateAvailableSidebarItemsLeft();
-    void updateAvailableSidebarItemsRight();
-
-    void deleteSidebarWidgets();
     void showQmlPuppetCrashedError();
 
     void toolBarOnGoBackClicked();
@@ -136,7 +132,9 @@ private: // functions
     QWidget *createCrumbleBarFrame();
 
 private: // variables
-    QSplitter *m_mainSplitter;
+    QSplitter *m_mainSplitter = nullptr;
+    DocumentWarningWidget *m_warningWidget = nullptr;
+
     QScopedPointer<Core::SideBar> m_leftSideBar;
     QScopedPointer<Core::SideBar> m_rightSideBar;
     QPointer<QWidget> m_topSideBar;
@@ -147,7 +145,6 @@ private: // variables
 
     InitializeStatus m_initStatus;
 
-    DocumentWarningWidget *m_warningWidget;
     QStringList m_navigatorHistory;
     int m_navigatorHistoryCounter;
     bool m_keepNavigatorHistory;

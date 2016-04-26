@@ -278,7 +278,7 @@ void DocumentManager::setCurrentDesignDocument(Core::IEditor *editor)
 {
     if (editor) {
         m_currentDesignDocument = m_designDocumentHash.value(editor);
-        if (m_currentDesignDocument == 0) {
+        if (m_currentDesignDocument == nullptr) {
             m_currentDesignDocument = new DesignDocument;
             m_designDocumentHash.insert(editor, m_currentDesignDocument);
             m_currentDesignDocument->setEditor(editor);
@@ -405,7 +405,7 @@ void DocumentManager::findPathToIsoProFile(bool *iconResourceFileAlreadyExists, 
     Utils::FileName qmlFileName = QmlDesignerPlugin::instance()->currentDesignDocument()->fileName();
     ProjectExplorer::Project *project = ProjectExplorer::SessionManager::projectForFile(qmlFileName);
     ProjectExplorer::Node *node = ProjectExplorer::SessionManager::nodeForFile(qmlFileName)->parentFolderNode();
-    ProjectExplorer::Node *iconQrcFileNode = 0;
+    ProjectExplorer::Node *iconQrcFileNode = nullptr;
 
     while (node && !iconQrcFileNode) {
         qCDebug(documentManagerLog) << "Checking" << node->displayName() << "(" << node << node->nodeType() << ")";

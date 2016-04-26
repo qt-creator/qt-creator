@@ -48,7 +48,7 @@ namespace Core {
 
 namespace QmlDesigner {
 
-class QmlDesignerPluginData;
+class QmlDesignerPluginPrivate;
 
 namespace Internal { class DesignModeWidget; }
 
@@ -84,13 +84,6 @@ public:
 
     void switchToTextModeDeferred();
 
-private slots:
-    void switchTextDesign();
-    void switschToTextMode();
-    void onTextEditorsClosed(QList<Core::IEditor *> editors);
-    void onCurrentEditorChanged(Core::IEditor *editor);
-    void onCurrentModeChanged(Core::Id mode, Core::Id oldMode);
-
 private: // functions
     void createDesignModeWidget();
     void showDesigner();
@@ -105,7 +98,7 @@ private: // functions
     Model *currentModel() const;
 
 private: // variables
-    QmlDesignerPluginData *data;
+    QmlDesignerPluginPrivate *d = nullptr;
     static QmlDesignerPlugin *m_instance;
 
 };

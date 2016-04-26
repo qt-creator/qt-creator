@@ -1928,19 +1928,19 @@ void TextToModelMerger::collectSemanticErrorsAndWarnings(QList<RewriterError> *e
 
     check.enableQmlDesignerChecks();
 
+    QUrl fileNameUrl = QUrl::fromLocalFile(m_document->fileName());
     foreach (const StaticAnalysis::Message &message, check()) {
         if (message.severity == Severity::Error) {
             if (message.type == StaticAnalysis::ErrUnknownComponent)
-                warnings->append(RewriterError(message.toDiagnosticMessage(), QUrl::fromLocalFile(m_document->fileName())));
+                warnings->append(RewriterError(message.toDiagnosticMessage(), fileNameUrl));
             else
-                errors->append(RewriterError(message.toDiagnosticMessage(), QUrl::fromLocalFile(m_document->fileName())));
+                errors->append(RewriterError(message.toDiagnosticMessage(), fileNameUrl));
         }
         if (message.severity == Severity::Warning) {
-            if (message.type == StaticAnalysis::WarnAboutQtQuick1InsteadQtQuick2) {
-                errors->append(RewriterError(message.toDiagnosticMessage(), QUrl::fromLocalFile(m_document->fileName())));
-            } else {
-                warnings->append(RewriterError(message.toDiagnosticMessage(), QUrl::fromLocalFile(m_document->fileName())));
-            }
+            if (message.type == StaticAnalysis::WarnAboutQtQuick1InsteadQtQuick2)
+                errors->append(RewriterError(message.toDiagnosticMessage(), fileNameUrl));
+            else
+                warnings->append(RewriterError(message.toDiagnosticMessage(), fileNameUrl));
         }
     }
 }
