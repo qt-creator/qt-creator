@@ -356,14 +356,6 @@ MsvcToolChain::MsvcToolChain(Core::Id typeId, const QString &name, const Abi &ab
     setDisplayName(name);
 }
 
-bool MsvcToolChain::isValid() const
-{
-    if (!AbstractMsvcToolChain::isValid())
-        return false;
-    QString vcVarsBat = MsvcToolChainFactory::vcVarsBatFor(QFileInfo(m_vcvarsBat).absolutePath(), m_varsBatArg);
-    return QFileInfo::exists(vcVarsBat);
-}
-
 MsvcToolChain::MsvcToolChain(Core::Id typeId)
     : AbstractMsvcToolChain(typeId, ManualDetection)
 { }
@@ -610,8 +602,10 @@ bool MsvcToolChainFactory::checkForVisualStudioInstallation(const QString &vsNam
     return vsRegistry.contains(vsName);
 }
 
-QString MsvcToolChainFactory::vcVarsBatFor(const QString &basePath, const QString &toolchainName)
+QString MsvcToolChainFactory::vcVarsBatFor(const QString &basePath, MsvcToolChain::Platform platform)
 {
+    const QString toolchainName = platformName(platform);
+
     if (toolchainName.startsWith(QLatin1Char('/'))) // windows sdk case, all use SetEnv.cmd
         return basePath + QLatin1String("/SetEnv.cmd");
     if (toolchainName == QLatin1String("x86"))
@@ -634,11 +628,6 @@ QString MsvcToolChainFactory::vcVarsBatFor(const QString &basePath, const QStrin
         return basePath + QLatin1String("/bin/amd64_x86/vcvarsamd64_x86.bat");
 
     return QString();
-}
-
-QString MsvcToolChainFactory::vcVarsBatFor(const QString &basePath, MsvcToolChain::Platform platform)
-{
-    return vcVarsBatFor(basePath, platformName(platform));
 }
 
 static ToolChain *findOrCreateToolChain(const QList<ToolChain *> &alreadyKnown,
@@ -816,13 +805,13 @@ QList<ToolChain *> MsvcToolChainFactory::autoDetect(const QList<ToolChain *> &al
                       << MsvcToolChain::arm << MsvcToolChain::x86_arm << MsvcToolChain::amd64_arm
                       << MsvcToolChain::ia64 << MsvcToolChain::x86_ia64;
             foreach (const MsvcToolChain::Platform &platform, platforms) {
-                if (hostSupportsPlatform(platform)
-                        && QFileInfo(vcVarsBatFor(path, platform)).isFile()) {
+                QString vcvarsBat = vcVarsBatFor(path, platform);
+                if (hostSupportsPlatform(platform) && QFileInfo(vcvarsBat).isFile()) {
                     results.append(findOrCreateToolChain(
                                        alreadyKnown,
                                        generateDisplayName(vsName, MsvcToolChain::VS, platform),
                                        findAbiOfMsvc(MsvcToolChain::VS, platform, vsName),
-                                       vcvarsAllbat, platformName(platform),
+                                       vcvarsBat, platformName(platform),
                                        ToolChain::AutoDetection));
                 }
             }

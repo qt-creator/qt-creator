@@ -67,7 +67,10 @@ Abi AbstractMsvcToolChain::targetAbi() const
 
 bool AbstractMsvcToolChain::isValid() const
 {
-    return !m_vcvarsBat.isEmpty();
+    if (m_vcvarsBat.isEmpty())
+        return false;
+    QFileInfo fi(m_vcvarsBat);
+    return fi.isFile() && fi.isExecutable();
 }
 
 QByteArray AbstractMsvcToolChain::predefinedMacros(const QStringList &cxxflags) const

@@ -58,7 +58,6 @@ public:
                            Detection d = ManualDetection);
     MsvcToolChain();
 
-    bool isValid() const override;
     Utils::FileNameList suggestedMkspecList() const override;
 
     QString typeDisplayName() const override;
@@ -132,7 +131,6 @@ public:
     ToolChain *restore(const QVariantMap &data) override;
 
     ToolChainConfigWidget *configurationWidget(ToolChain *);
-    static QString vcVarsBatFor(const QString &basePath, const QString &toolchainName);
     static QString vcVarsBatFor(const QString &basePath, MsvcToolChain::Platform platform);
 private:
     static bool checkForVisualStudioInstallation(const QString &vsName);
