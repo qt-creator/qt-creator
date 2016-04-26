@@ -25,7 +25,7 @@
 
 #include "flamegraph.h"
 
-namespace QmlProfilerExtension {
+namespace QmlProfiler {
 namespace Internal {
 
 FlameGraph::FlameGraph(QQuickItem *parent) :
@@ -178,5 +178,5 @@ QVariant FlameGraphAttached::data(int role) const
     return m_data.isValid() ? m_data.data(role) : QVariant();
 }
 
-}
-}
+} // namespace Internal
+} // namespace QmlProfiler

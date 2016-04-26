@@ -31,6 +31,7 @@
 #include "qmlprofilerstatemanager.h"
 #include "qmlprofilermodelmanager.h"
 #include "qmlprofilerstatewidget.h"
+#include "flamegraphview.h"
 
 #include <coreplugin/icore.h>
 #include <utils/qtcassert.h>
@@ -97,8 +98,7 @@ void QmlProfilerViewManager::createViews()
                               Perspective::SplitVertical});
 
     d->eventsViews << new QmlProfilerStatisticsView(0, d->profilerModelManager);
-    if (d->eventsViewFactory)
-        d->eventsViews.append(d->eventsViewFactory->create(0, d->profilerModelManager));
+    d->eventsViews << new FlameGraphView(0, d->profilerModelManager);
 
     foreach (QmlProfilerEventsView *view, d->eventsViews) {
         connect(view, &QmlProfilerEventsView::typeSelected,

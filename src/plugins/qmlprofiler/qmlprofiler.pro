@@ -5,7 +5,14 @@ QT += network qml quick quickwidgets
 include(../../qtcreatorplugin.pri)
 
 SOURCES += \
+    debugmessagesmodel.cpp \
+    flamegraph.cpp \
+    flamegraphmodel.cpp \
+    flamegraphview.cpp \
+    inputeventsmodel.cpp \
     localqmlprofilerrunner.cpp \
+    memoryusagemodel.cpp \
+    pixmapcachemodel.cpp \
     qmlprofileranimationsmodel.cpp \
     qmlprofilerattachdialog.cpp \
     qmlprofilerbindingloopsrenderpass.cpp \
@@ -31,10 +38,18 @@ SOURCES += \
     qmlprofilertool.cpp \
     qmlprofilertracefile.cpp \
     qmlprofilertraceview.cpp \
-    qmlprofilerviewmanager.cpp
+    qmlprofilerviewmanager.cpp \
+    scenegraphtimelinemodel.cpp
 
 HEADERS += \
+    debugmessagesmodel.h \
+    flamegraph.h \
+    flamegraphmodel.h \
+    flamegraphview.h \
+    inputeventsmodel.h \
     localqmlprofilerrunner.h \
+    memoryusagemodel.h \
+    pixmapcachemodel.h \
     qmlprofiler_global.h \
     qmlprofileranimationsmodel.h \
     qmlprofilerattachdialog.h \
@@ -63,14 +78,11 @@ HEADERS += \
     qmlprofilertool.h \
     qmlprofilertracefile.h \
     qmlprofilertraceview.h \
-    qmlprofilerviewmanager.h
+    qmlprofilerviewmanager.h \
+    scenegraphtimelinemodel.h \
 
 RESOURCES += \
     qml/qmlprofiler.qrc
-
-DISTFILES += \
-    qml/bindingloops.frag \
-    qml/bindingloops.vert
 
 FORMS += \
     qmlprofilerconfigwidget.ui

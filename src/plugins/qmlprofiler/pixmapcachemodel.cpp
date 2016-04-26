@@ -24,13 +24,11 @@
 ****************************************************************************/
 
 #include "pixmapcachemodel.h"
+#include "qmlprofilermodelmanager.h"
 #include "qmldebug/qmlprofilereventtypes.h"
-#include "qmlprofiler/qmlprofilermodelmanager.h"
 
-namespace QmlProfilerExtension {
+namespace QmlProfiler {
 namespace Internal {
-
-using namespace QmlProfiler;
 
 PixmapCacheModel::PixmapCacheModel(QmlProfilerModelManager *manager, QObject *parent) :
     QmlProfilerTimelineModel(manager, QmlDebug::PixmapCacheEvent, QmlDebug::MaximumRangeType,
@@ -497,4 +495,4 @@ int PixmapCacheModel::updateCacheCount(int lastCacheSizeEvent,
 
 
 } // namespace Internal
-} // namespace QmlProfilerExtension
+} // namespace QmlProfiler

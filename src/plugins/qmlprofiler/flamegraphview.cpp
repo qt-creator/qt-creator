@@ -33,10 +33,10 @@
 #include <QVBoxLayout>
 #include <QMenu>
 
-namespace QmlProfilerExtension {
+namespace QmlProfiler {
 namespace Internal {
 
-FlameGraphView::FlameGraphView(QWidget *parent, QmlProfiler::QmlProfilerModelManager *manager) :
+FlameGraphView::FlameGraphView(QWidget *parent, QmlProfilerModelManager *manager) :
     QmlProfilerEventsView(parent), m_content(new QQuickWidget(this)),
     m_model(new FlameGraphModel(manager, this)), m_isRestrictedToRange(false)
 {
@@ -50,7 +50,7 @@ FlameGraphView::FlameGraphView(QWidget *parent, QmlProfiler::QmlProfilerModelMan
                                                    QLatin1String("only for Qt 5.4"));
 
     m_content->rootContext()->setContextProperty(QStringLiteral("flameGraphModel"), m_model);
-    m_content->setSource(QUrl(QStringLiteral("qrc:/FlameGraphView.qml")));
+    m_content->setSource(QUrl(QStringLiteral("qrc:/qmlprofiler/FlameGraphView.qml")));
     m_content->setClearColor(QColor(0xdc, 0xdc, 0xdc));
 
     m_content->setResizeMode(QQuickWidget::SizeRootObjectToView);
@@ -105,7 +105,7 @@ void FlameGraphView::contextMenuEvent(QContextMenuEvent *ev)
 
     QPoint position = ev->globalPos();
 
-    menu.addActions(QmlProfiler::QmlProfilerTool::profilerContextMenuActions());
+    menu.addActions(QmlProfilerTool::profilerContextMenuActions());
     menu.addSeparator();
     getGlobalStatsAction = menu.addAction(tr("Show Full Range"));
     if (!isRestrictedToRange())
@@ -115,5 +115,5 @@ void FlameGraphView::contextMenuEvent(QContextMenuEvent *ev)
         emit showFullRange();
 }
 
-}
-}
+} // namespace Internal
+} // namespace QmlProfiler

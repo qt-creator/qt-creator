@@ -25,20 +25,20 @@
 
 #pragma once
 
-#include "qmlprofiler/qmlprofilertimelinemodel.h"
+#include "qmlprofilertimelinemodel.h"
 
-namespace QmlProfilerExtension {
+namespace QmlProfiler {
 namespace Internal {
 
-class DebugMessagesModel : public QmlProfiler::QmlProfilerTimelineModel
+class DebugMessagesModel : public QmlProfilerTimelineModel
 {
     Q_OBJECT
 
 protected:
-    bool accepted(const QmlProfiler::QmlProfilerDataModel::QmlEventTypeData &event) const override;
+    bool accepted(const QmlProfilerDataModel::QmlEventTypeData &event) const override;
 
 public:
-    DebugMessagesModel(QmlProfiler::QmlProfilerModelManager *manager, QObject *parent = 0);
+    DebugMessagesModel(QmlProfilerModelManager *manager, QObject *parent = 0);
 
     int typeId(int index) const override;
     QColor color(int index) const override;
@@ -64,5 +64,5 @@ private:
     QVector<MessageData> m_data;
 };
 
-}
-}
+} // namespace Internal
+} // namespace Qmlprofiler

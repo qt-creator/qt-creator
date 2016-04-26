@@ -25,11 +25,37 @@
 
 #pragma once
 
-namespace QmlProfilerExtension {
-namespace Constants {
+#include "flamegraphmodel.h"
+#include "qmlprofilereventsview.h"
 
-const char ACTION_ID[] = "QmlProfilerExtension.Action";
-const char MENU_ID[] = "QmlProfilerExtension.Menu";
+#include <QWidget>
+#include <QQuickWidget>
 
-} // namespace QmlProfilerExtension
-} // namespace Constants
+namespace QmlProfiler {
+namespace Internal {
+
+class FlameGraphView : public QmlProfilerEventsView
+{
+    Q_OBJECT
+public:
+    FlameGraphView(QWidget *parent, QmlProfilerModelManager *manager);
+
+    void clear() override;
+    void restrictToRange(qint64 rangeStart, qint64 rangeEnd) override;
+    bool isRestrictedToRange() const override;
+
+public slots:
+    void selectByTypeId(int typeIndex) override;
+    void onVisibleFeaturesChanged(quint64 features) override;
+
+protected:
+    void contextMenuEvent(QContextMenuEvent *ev) override;
+
+private:
+    QQuickWidget *m_content;
+    FlameGraphModel *m_model;
+    bool m_isRestrictedToRange;
+};
+
+} // namespace Internal
+} // namespace QmlProfiler

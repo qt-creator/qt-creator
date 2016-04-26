@@ -24,15 +24,13 @@
 ****************************************************************************/
 
 #include "memoryusagemodel.h"
+#include "qmlprofilermodelmanager.h"
 #include "qmldebug/qmlprofilereventtypes.h"
-#include "qmlprofiler/qmlprofilermodelmanager.h"
 
 #include <QStack>
 
-namespace QmlProfilerExtension {
+namespace QmlProfiler {
 namespace Internal {
-
-using namespace QmlProfiler;
 
 MemoryUsageModel::MemoryUsageModel(QmlProfilerModelManager *manager, QObject *parent) :
     QmlProfilerTimelineModel(manager, QmlDebug::MemoryAllocation, QmlDebug::MaximumRangeType,
@@ -277,4 +275,4 @@ void MemoryUsageModel::MemoryAllocation::update(qint64 amount)
 
 
 } // namespace Internal
-} // namespace QmlProfilerExtension
+} // namespace QmlProfiler

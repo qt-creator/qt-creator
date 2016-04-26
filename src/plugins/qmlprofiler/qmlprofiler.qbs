@@ -19,7 +19,14 @@ QtcPlugin {
     Group {
         name: "General"
         files: [
+            "debugmessagesmodel.cpp", "debugmessagesmodel.h",
+            "flamegraph.cpp", "flamegraph.h",
+            "flamegraphmodel.cpp", "flamegraphmodel.h",
+            "flamegraphview.cpp", "flamegraphview.h",
+            "inputeventsmodel.cpp", "inputeventsmodel.h",
             "localqmlprofilerrunner.cpp", "localqmlprofilerrunner.h",
+            "memoryusagemodel.cpp", "memoryusagemodel.h",
+            "pixmapcachemodel.cpp", "pixmapcachemodel.h",
             "qmlprofiler_global.h",
             "qmlprofileranimationsmodel.h", "qmlprofileranimationsmodel.cpp",
             "qmlprofilerattachdialog.cpp", "qmlprofilerattachdialog.h",
@@ -49,6 +56,7 @@ QtcPlugin {
             "qmlprofilertracefile.cpp", "qmlprofilertracefile.h",
             "qmlprofilertraceview.cpp", "qmlprofilertraceview.h",
             "qmlprofilerviewmanager.cpp", "qmlprofilerviewmanager.h",
+            "scenegraphtimelinemodel.cpp", "scenegraphtimelinemodel.h",
         ]
     }
 

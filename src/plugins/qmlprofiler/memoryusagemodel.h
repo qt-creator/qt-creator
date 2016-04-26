@@ -25,45 +25,58 @@
 
 #pragma once
 
-#include "qmlprofiler/qmlprofilertimelinemodel.h"
+#include "qmlprofilertimelinemodel.h"
+#include "qmlprofilerdatamodel.h"
 
-namespace QmlProfilerExtension {
+#include <QStringList>
+#include <QColor>
+
+namespace QmlProfiler {
 namespace Internal {
 
-class InputEventsModel : public QmlProfiler::QmlProfilerTimelineModel
+class MemoryUsageModel : public QmlProfilerTimelineModel
 {
     Q_OBJECT
-
-protected:
-    bool accepted(const QmlProfiler::QmlProfilerDataModel::QmlEventTypeData &event) const;
-
 public:
-    struct InputEvent {
-        InputEvent(QmlDebug::InputEventType type = QmlDebug::MaximumInputEventType, int a = 0,
-                   int b = 0);
-        QmlDebug::InputEventType type;
-        int a;
-        int b;
+
+    struct MemoryAllocation {
+        int typeId;
+        qint64 size;
+        qint64 allocated;
+        qint64 deallocated;
+        int allocations;
+        int deallocations;
+        int originTypeIndex;
+
+        MemoryAllocation(int typeId = -1, qint64 baseAmount = 0, int originTypeIndex = -1);
+        void update(qint64 amount);
     };
 
-    InputEventsModel(QmlProfiler::QmlProfilerModelManager *manager, QObject *parent = 0);
+    MemoryUsageModel(QmlProfilerModelManager *manager, QObject *parent = 0);
 
-    int typeId(int index) const;
-    QColor color(int index) const;
-    QVariantList labels() const;
-    QVariantMap details(int index) const;
+    int rowMaxValue(int rowNumber) const;
+
     int expandedRow(int index) const;
     int collapsedRow(int index) const;
+    int typeId(int index) const;
+    QColor color(int index) const;
+    float relativeHeight(int index) const;
+
+    QVariantMap location(int index) const;
+
+    QVariantList labels() const;
+    QVariantMap details(int index) const;
+
+protected:
     void loadData();
     void clear();
 
 private:
-    static QMetaEnum metaEnum(const char *name);
-    int m_keyTypeId;
-    int m_mouseTypeId;
+    static QString memoryTypeName(int type);
 
-    QVector<InputEvent> m_data;
+    QVector<MemoryAllocation> m_data;
+    qint64 m_maxSize;
 };
 
-}
-}
+} // namespace Internal
+} // namespace QmlProfiler

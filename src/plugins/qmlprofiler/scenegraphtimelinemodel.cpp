@@ -24,16 +24,14 @@
 ****************************************************************************/
 
 #include "scenegraphtimelinemodel.h"
+#include "qmlprofilermodelmanager.h"
 #include "qmldebug/qmlprofilereventtypes.h"
-#include "qmlprofiler/qmlprofilermodelmanager.h"
 
 #include <QCoreApplication>
 #include <QDebug>
 
-namespace QmlProfilerExtension {
+namespace QmlProfiler {
 namespace Internal {
-
-using namespace QmlProfiler;
 
 static const char *ThreadLabels[] = {
     QT_TRANSLATE_NOOP("MainView", "GUI Thread"),
@@ -308,4 +306,4 @@ SceneGraphTimelineModel::SceneGraphEvent::SceneGraphEvent(int typeId, int glyphC
 }
 
 } // namespace Internal
-} // namespace QmlProfilerExtension
+} // namespace QmlProfiler

@@ -24,17 +24,15 @@
 ****************************************************************************/
 
 #include "inputeventsmodel.h"
+#include "qmlprofilermodelmanager.h"
 #include "qmldebug/qmlprofilereventtypes.h"
-#include "qmlprofiler/qmlprofilermodelmanager.h"
 
 #include <QKeyEvent>
 #include <QMouseEvent>
 #include <QMetaEnum>
 
-namespace QmlProfilerExtension {
+namespace QmlProfiler {
 namespace Internal {
-
-using namespace QmlProfiler;
 
 InputEventsModel::InputEventsModel(QmlProfilerModelManager *manager, QObject *parent) :
     QmlProfilerTimelineModel(manager, QmlDebug::Event, QmlDebug::MaximumRangeType,
@@ -190,5 +188,5 @@ InputEventsModel::InputEvent::InputEvent(QmlDebug::InputEventType type, int a, i
 {
 }
 
-}
-}
+} // namespace Internal
+} // namespace QmlProfiler

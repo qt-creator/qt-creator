@@ -25,9 +25,7 @@
 
 #include "debugmessagesmodel.h"
 
-using namespace QmlProfiler;
-
-namespace QmlProfilerExtension {
+namespace QmlProfiler {
 namespace Internal {
 
 bool DebugMessagesModel::accepted(const QmlProfilerDataModel::QmlEventTypeData &event) const
@@ -138,5 +136,5 @@ QVariantMap DebugMessagesModel::location(int index) const
     return locationFromTypeId(index);
 }
 
-}
-}
+} // namespace Internal
+} // namespace QmlProfiler

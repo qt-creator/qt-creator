@@ -25,29 +25,45 @@
 
 #pragma once
 
-#include "qmlprofilerextension_global.h"
+#include "qmlprofilertimelinemodel.h"
 
-#include <extensionsystem/iplugin.h>
-
-namespace QmlProfilerExtension {
+namespace QmlProfiler {
 namespace Internal {
 
-class QmlProfilerExtensionPlugin : public ExtensionSystem::IPlugin
+class InputEventsModel : public QmlProfilerTimelineModel
 {
     Q_OBJECT
-    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "QmlProfilerExtension.json")
+
+protected:
+    bool accepted(const QmlProfilerDataModel::QmlEventTypeData &event) const;
 
 public:
-    QmlProfilerExtensionPlugin();
-    ~QmlProfilerExtensionPlugin();
+    struct InputEvent {
+        InputEvent(QmlDebug::InputEventType type = QmlDebug::MaximumInputEventType, int a = 0,
+                   int b = 0);
+        QmlDebug::InputEventType type;
+        int a;
+        int b;
+    };
 
-    bool initialize(const QStringList &arguments, QString *errorString);
-    void extensionsInitialized();
-    ShutdownFlag aboutToShutdown();
+    InputEventsModel(QmlProfilerModelManager *manager, QObject *parent = 0);
 
-private slots:
-    void triggerAction();
+    int typeId(int index) const;
+    QColor color(int index) const;
+    QVariantList labels() const;
+    QVariantMap details(int index) const;
+    int expandedRow(int index) const;
+    int collapsedRow(int index) const;
+    void loadData();
+    void clear();
+
+private:
+    static QMetaEnum metaEnum(const char *name);
+    int m_keyTypeId;
+    int m_mouseTypeId;
+
+    QVector<InputEvent> m_data;
 };
 
 } // namespace Internal
-} // namespace QmlProfilerExtension
+} // namespace QmlProfiler

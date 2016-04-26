@@ -2,5 +2,8 @@
     <qresource prefix="/qmlprofiler">
         <file>bindingloops.vert</file>
         <file>bindingloops.frag</file>
+        <file>FlameGraphView.qml</file>
+        <file>FlameGraphText.qml</file>
+        <file>FlameGraphDetails.qml</file>
     </qresource>
 </RCC>

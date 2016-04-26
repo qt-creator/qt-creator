@@ -41,8 +41,6 @@ class QmlProfilerPlugin : public ExtensionSystem::IPlugin
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "QmlProfiler.json")
 
 public:
-    QmlProfilerPlugin() : factory(0) {}
-
     bool initialize(const QStringList &arguments, QString *errorString);
     void extensionsInitialized();
     ShutdownFlag aboutToShutdown();
@@ -50,11 +48,7 @@ public:
     static bool debugOutput;
     static QmlProfilerPlugin *instance;
 
-    QList<QmlProfilerTimelineModel *> getModels(QmlProfilerModelManager *manager) const;
     static QmlProfilerSettings *globalSettings();
-
-private:
-    QmlProfilerTimelineModelFactory *factory;
 };
 
 } // namespace Internal

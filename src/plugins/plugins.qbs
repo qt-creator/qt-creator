@@ -49,7 +49,6 @@ Project {
         "qmljseditor/qmljseditor.qbs",
         "qmljstools/qmljstools.qbs",
         "qmlprofiler/qmlprofiler.qbs",
-        "qmlprofilerextension/qmlprofilerextension.qbs",
         "qmlprojectmanager/qmlprojectmanager.qbs",
         "qnx/qnx.qbs",
         "qmakeprojectmanager/qmakeprojectmanager.qbs",

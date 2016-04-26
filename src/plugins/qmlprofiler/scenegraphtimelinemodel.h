@@ -25,17 +25,17 @@
 
 #pragma once
 
-#include "qmlprofiler/qmlprofilertimelinemodel.h"
-#include "qmlprofiler/qmlprofilermodelmanager.h"
-#include "qmlprofiler/qmlprofilerdatamodel.h"
+#include "qmlprofilertimelinemodel.h"
+#include "qmlprofilermodelmanager.h"
+#include "qmlprofilerdatamodel.h"
 
 #include <QStringList>
 #include <QColor>
 
-namespace QmlProfilerExtension {
+namespace QmlProfiler {
 namespace Internal {
 
-class SceneGraphTimelineModel : public QmlProfiler::QmlProfilerTimelineModel
+class SceneGraphTimelineModel : public QmlProfilerTimelineModel
 {
     Q_OBJECT
 public:
@@ -83,7 +83,7 @@ public:
         int glyphCount; // only used for one event type
     };
 
-    SceneGraphTimelineModel(QmlProfiler::QmlProfilerModelManager *manager, QObject *parent = 0);
+    SceneGraphTimelineModel(QmlProfilerModelManager *manager, QObject *parent = 0);
 
     int expandedRow(int index) const;
     int collapsedRow(int index) const;
@@ -108,4 +108,4 @@ private:
 };
 
 } // namespace Internal
-} // namespace QmlProfilerExtension
+} // namespace QmlProfiler

@@ -32,6 +32,13 @@
 #include "qmlprofilerrangemodel.h"
 #include "qmlprofilerplugin.h"
 
+#include "inputeventsmodel.h"
+#include "pixmapcachemodel.h"
+#include "debugmessagesmodel.h"
+#include "flamegraphview.h"
+#include "memoryusagemodel.h"
+#include "scenegraphtimelinemodel.h"
+
 // Communication with the other views (limit events to range)
 #include "qmlprofilerviewmanager.h"
 
@@ -119,12 +126,11 @@ QmlProfilerTraceView::QmlProfilerTraceView(QWidget *parent, QmlProfilerViewManag
     d->m_modelProxy = new Timeline::TimelineModelAggregator(modelManager->notesModel(), this);
     d->m_modelManager = modelManager;
 
-    // external models pushed on top
-    foreach (QmlProfilerTimelineModel *timelineModel,
-             QmlProfilerPlugin::instance->getModels(modelManager)) {
-        d->m_modelProxy->addModel(timelineModel);
-    }
-
+    d->m_modelProxy->addModel(new PixmapCacheModel(modelManager, d->m_modelProxy));
+    d->m_modelProxy->addModel(new SceneGraphTimelineModel(modelManager, d->m_modelProxy));
+    d->m_modelProxy->addModel(new MemoryUsageModel(modelManager, d->m_modelProxy));
+    d->m_modelProxy->addModel(new InputEventsModel(modelManager, d->m_modelProxy));
+    d->m_modelProxy->addModel(new DebugMessagesModel(modelManager, d->m_modelProxy));
     d->m_modelProxy->addModel(new QmlProfilerAnimationsModel(modelManager, d->m_modelProxy));
 
     for (int i = 0; i < MaximumRangeType; ++i)

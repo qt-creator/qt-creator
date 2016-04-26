@@ -28,7 +28,7 @@
 #include <QQuickItem>
 #include <QAbstractItemModel>
 
-namespace QmlProfilerExtension {
+namespace QmlProfiler {
 namespace Internal {
 
 class FlameGraphAttached : public QObject
@@ -151,7 +151,7 @@ private:
                          const QModelIndex &childIndex, qreal position, qreal size);
 };
 
-}
-}
+} // namespace Internal
+} // namespace QmlProfiler
 
-QML_DECLARE_TYPEINFO(QmlProfilerExtension::Internal::FlameGraph, QML_HAS_ATTACHED_PROPERTIES)
+QML_DECLARE_TYPEINFO(QmlProfiler::Internal::FlameGraph, QML_HAS_ATTACHED_PROPERTIES)

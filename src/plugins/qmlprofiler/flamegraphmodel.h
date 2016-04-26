@@ -34,7 +34,7 @@
 #include <QVector>
 #include <QAbstractItemModel>
 
-namespace QmlProfilerExtension {
+namespace QmlProfiler {
 namespace Internal {
 
 struct FlameGraphData {
@@ -71,7 +71,7 @@ public:
         MaxRole
     };
 
-    FlameGraphModel(QmlProfiler::QmlProfilerModelManager *modelManager, QObject *parent = 0);
+    FlameGraphModel(QmlProfilerModelManager *modelManager, QObject *parent = 0);
 
     void setEventTypeAccepted(QmlDebug::RangeType type, bool accepted);
     bool eventTypeAccepted(QmlDebug::RangeType) const;
@@ -95,17 +95,17 @@ private:
     QVariant lookup(const FlameGraphData &data, int role) const;
     void clear();
     FlameGraphData *pushChild(FlameGraphData *parent,
-                              const QmlProfiler::QmlProfilerDataModel::QmlEventData *data);
+                              const QmlProfilerDataModel::QmlEventData *data);
 
     int m_selectedTypeIndex;
     FlameGraphData m_stackBottom;
 
     int m_modelId;
-    QmlProfiler::QmlProfilerModelManager *m_modelManager;
+    QmlProfilerModelManager *m_modelManager;
 
     QList<QmlDebug::RangeType> m_acceptedTypes;
     QSet<int> m_typeIdsWithNotes;
 };
 
 } // namespace Internal
-} // namespace QmlprofilerExtension
+} // namespace QmlProfiler

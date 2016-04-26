@@ -56,8 +56,6 @@ bool QmlProfilerPlugin::initialize(const QStringList &arguments, QString *errorS
 
 void QmlProfilerPlugin::extensionsInitialized()
 {
-    factory = ExtensionSystem::PluginManager::getObject<QmlProfilerTimelineModelFactory>();
-
     (void) new QmlProfilerTool(this);
 
     addAutoReleasedObject(new QmlProfilerRunControlFactory());
@@ -70,14 +68,6 @@ ExtensionSystem::IPlugin::ShutdownFlag QmlProfilerPlugin::aboutToShutdown()
     // Disconnect from signals that are not needed during shutdown
     // Hide UI (if you add UI that is not in the main window directly)
     return SynchronousShutdown;
-}
-
-QList<QmlProfilerTimelineModel *> QmlProfilerPlugin::getModels(QmlProfilerModelManager *manager) const
-{
-    if (factory)
-        return factory->create(manager);
-    else
-        return QList<QmlProfilerTimelineModel *>();
 }
 
 QmlProfilerSettings *QmlProfilerPlugin::globalSettings()

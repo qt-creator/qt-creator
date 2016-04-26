@@ -37,14 +37,14 @@
 #include <QQueue>
 #include <QSet>
 
-namespace QmlProfilerExtension {
+namespace QmlProfiler {
 namespace Internal {
 
-FlameGraphModel::FlameGraphModel(QmlProfiler::QmlProfilerModelManager *modelManager,
+FlameGraphModel::FlameGraphModel(QmlProfilerModelManager *modelManager,
                                  QObject *parent) : QAbstractItemModel(parent)
 {
     m_modelManager = modelManager;
-    connect(modelManager->qmlModel(), &QmlProfiler::QmlProfilerDataModel::changed,
+    connect(modelManager->qmlModel(), &QmlProfilerDataModel::changed,
             this, [this](){loadData();});
     connect(modelManager->notesModel(), &Timeline::TimelineNotesModel::changed,
             this, [this](int typeId, int, int){loadNotes(typeId, true);});
@@ -103,33 +103,33 @@ void FlameGraphModel::loadNotes(int typeIndex, bool emitSignal)
 void FlameGraphModel::loadData(qint64 rangeStart, qint64 rangeEnd)
 {
     const bool checkRanges = (rangeStart != -1) && (rangeEnd != -1);
-    if (m_modelManager->state() == QmlProfiler::QmlProfilerModelManager::ClearingData) {
+    if (m_modelManager->state() == QmlProfilerModelManager::ClearingData) {
         beginResetModel();
         clear();
         endResetModel();
         return;
-    } else if (m_modelManager->state() != QmlProfiler::QmlProfilerModelManager::ProcessingData &&
-               m_modelManager->state() != QmlProfiler::QmlProfilerModelManager::Done) {
+    } else if (m_modelManager->state() != QmlProfilerModelManager::ProcessingData &&
+               m_modelManager->state() != QmlProfilerModelManager::Done) {
         return;
     }
 
     beginResetModel();
     clear();
 
-    const QVector<QmlProfiler::QmlProfilerDataModel::QmlEventData> &eventList
+    const QVector<QmlProfilerDataModel::QmlEventData> &eventList
             = m_modelManager->qmlModel()->getEvents();
-    const QVector<QmlProfiler::QmlProfilerDataModel::QmlEventTypeData> &typesList
+    const QVector<QmlProfilerDataModel::QmlEventTypeData> &typesList
             = m_modelManager->qmlModel()->getEventTypes();
 
     // used by binding loop detection
-    QStack<const QmlProfiler::QmlProfilerDataModel::QmlEventData *> callStack;
+    QStack<const QmlProfilerDataModel::QmlEventData *> callStack;
     callStack.append(0);
     FlameGraphData *stackTop = &m_stackBottom;
 
     for (int i = 0; i < eventList.size(); ++i) {
-        const QmlProfiler::QmlProfilerDataModel::QmlEventData *event = &eventList[i];
+        const QmlProfilerDataModel::QmlEventData *event = &eventList[i];
         int typeIndex = event->typeIndex();
-        const QmlProfiler::QmlProfilerDataModel::QmlEventTypeData *type = &typesList[typeIndex];
+        const QmlProfilerDataModel::QmlEventTypeData *type = &typesList[typeIndex];
 
         if (!m_acceptedTypes.contains(type->rangeType))
             continue;
@@ -140,7 +140,7 @@ void FlameGraphModel::loadData(qint64 rangeStart, qint64 rangeEnd)
                 continue;
         }
 
-        const QmlProfiler::QmlProfilerDataModel::QmlEventData *potentialParent = callStack.top();
+        const QmlProfilerDataModel::QmlEventData *potentialParent = callStack.top();
         while (potentialParent &&
                potentialParent->startTime() + potentialParent->duration() <= event->startTime()) {
             callStack.pop();
@@ -184,7 +184,7 @@ QVariant FlameGraphModel::lookup(const FlameGraphData &stats, int role) const
         QString ret;
         if (!m_typeIdsWithNotes.contains(stats.typeIndex))
             return ret;
-        QmlProfiler::QmlProfilerNotesModel *notes = m_modelManager->notesModel();
+        QmlProfilerNotesModel *notes = m_modelManager->notesModel();
         foreach (const QVariant &item, notes->byTypeId(stats.typeIndex)) {
             if (ret.isEmpty())
                 ret = notes->text(item.toInt());
@@ -201,9 +201,9 @@ QVariant FlameGraphModel::lookup(const FlameGraphData &stats, int role) const
     }
 
     if (stats.typeIndex != -1) {
-        const QVector<QmlProfiler::QmlProfilerDataModel::QmlEventTypeData> &typeList =
+        const QVector<QmlProfilerDataModel::QmlEventTypeData> &typeList =
                 m_modelManager->qmlModel()->getEventTypes();
-        const QmlProfiler::QmlProfilerDataModel::QmlEventTypeData &type = typeList[stats.typeIndex];
+        const QmlProfilerDataModel::QmlEventTypeData &type = typeList[stats.typeIndex];
 
         switch (role) {
         case Filename: return type.location.filename;
@@ -230,7 +230,7 @@ FlameGraphData::~FlameGraphData()
 }
 
 FlameGraphData *FlameGraphModel::pushChild(
-        FlameGraphData *parent, const QmlProfiler::QmlProfilerDataModel::QmlEventData *data)
+        FlameGraphData *parent, const QmlProfilerDataModel::QmlEventData *data)
 {
     foreach (FlameGraphData *child, parent->children) {
         if (child->typeIndex == data->typeIndex()) {
@@ -306,4 +306,4 @@ QHash<int, QByteArray> FlameGraphModel::roleNames() const
 }
 
 } // namespace Internal
-} // namespace QmlProfilerExtension
+} // namespace QmlProfiler

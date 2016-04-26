@@ -25,17 +25,17 @@
 
 #pragma once
 
-#include "qmlprofiler/qmlprofilertimelinemodel.h"
-#include "qmlprofiler/qmlprofilerdatamodel.h"
+#include "qmlprofilertimelinemodel.h"
+#include "qmlprofilerdatamodel.h"
 
 #include <QStringList>
 #include <QColor>
 #include <QSize>
 
-namespace QmlProfilerExtension {
+namespace QmlProfiler {
 namespace Internal {
 
-class PixmapCacheModel : public QmlProfiler::QmlProfilerTimelineModel
+class PixmapCacheModel : public QmlProfilerTimelineModel
 {
     Q_OBJECT
 public:
@@ -91,7 +91,7 @@ public:
         qint64 cacheSize;
     };
 
-    PixmapCacheModel(QmlProfiler::QmlProfilerModelManager *manager, QObject *parent = 0);
+    PixmapCacheModel(QmlProfilerModelManager *manager, QObject *parent = 0);
 
     int rowMaxValue(int rowNumber) const;
 
@@ -124,4 +124,4 @@ private:
 };
 
 } // namespace Internal
-} // namespace QmlProfilerExtension
+} // namespace QmlProfiler
