@@ -78,7 +78,7 @@ FormatTask format(FormatTask task)
         sourceFile.setAutoRemove(true);
         sourceFile.write(task.sourceData.toUtf8());
         if (!sourceFile.finalize()) {
-            task.error = QObject::tr("Cannot create temporary file \"%1\": %2.")
+            task.error = BeautifierPlugin::tr("Cannot create temporary file \"%1\": %2.")
                     .arg(sourceFile.fileName()).arg(sourceFile.errorString());
             return task;
         }
@@ -90,7 +90,7 @@ FormatTask format(FormatTask task)
         process.start(executable, options);
         if (!process.waitForFinished(5000)) {
             process.kill();
-            task.error = QObject::tr("Cannot call %1 or some other error occurred. Timeout "
+            task.error = BeautifierPlugin::tr("Cannot call %1 or some other error occurred. Timeout "
                                      "reached while formatting file %2.")
                     .arg(executable).arg(task.filePath);
             return task;
@@ -102,7 +102,7 @@ FormatTask format(FormatTask task)
         // Read text back
         Utils::FileReader reader;
         if (!reader.fetch(sourceFile.fileName(), QIODevice::Text)) {
-            task.error = QObject::tr("Cannot read file \"%1\": %2.")
+            task.error = BeautifierPlugin::tr("Cannot read file \"%1\": %2.")
                     .arg(sourceFile.fileName()).arg(reader.errorString());
             return task;
         }
@@ -117,7 +117,7 @@ FormatTask format(FormatTask task)
         options.replaceInStrings("%file", task.filePath);
         process.start(executable, options);
         if (!process.waitForStarted(3000)) {
-            task.error = QObject::tr("Cannot call %1 or some other error occurred.")
+            task.error = BeautifierPlugin::tr("Cannot call %1 or some other error occurred.")
                     .arg(executable);
             return task;
         }
@@ -125,7 +125,7 @@ FormatTask format(FormatTask task)
         process.closeWriteChannel();
         if (!process.waitForFinished(5000)) {
             process.kill();
-            task.error = QObject::tr("Cannot call %1 or some other error occurred. Timeout "
+            task.error = BeautifierPlugin::tr("Cannot call %1 or some other error occurred. Timeout "
                                      "reached while formatting file %2.")
                     .arg(executable).arg(task.filePath);
             return task;
