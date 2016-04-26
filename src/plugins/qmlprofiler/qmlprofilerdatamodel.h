@@ -30,7 +30,6 @@
 #include "qmlprofilereventlocation.h"
 #include "qmleventtype.h"
 #include "qmlevent.h"
-#include "qmlnote.h"
 
 #include <utils/fileinprojectfinder.h>
 
@@ -48,10 +47,8 @@ public:
 
     const QVector<QmlEvent> &events() const;
     const QVector<QmlEventType> &eventTypes() const;
-    const QVector<QmlNote> &notes() const;
     void setData(qint64 traceStart, qint64 traceEnd, const QVector<QmlEventType> &types,
                  const QVector<QmlEvent> &events);
-    void setNotes(const QVector<QmlNote> &notes);
     void processData();
 
     int count() const;

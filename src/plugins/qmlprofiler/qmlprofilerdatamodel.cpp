@@ -41,7 +41,6 @@ class QmlProfilerDataModel::QmlProfilerDataModelPrivate
 public:
     QVector<QmlEventType> eventTypes;
     QVector<QmlEvent> eventList;
-    QVector<QmlNote> eventNotes;
     QHash<QmlEventType, int> eventTypeIds;
 
     QmlProfilerModelManager *modelManager;
@@ -136,12 +135,6 @@ const QVector<QmlEventType> &QmlProfilerDataModel::eventTypes() const
     return d->eventTypes;
 }
 
-const QVector<QmlNote> &QmlProfilerDataModel::notes() const
-{
-    Q_D(const QmlProfilerDataModel);
-    return d->eventNotes;
-}
-
 void QmlProfilerDataModel::setData(qint64 traceStart, qint64 traceEnd,
                                    const QVector<QmlEventType> &types,
                                    const QVector<QmlEvent> &events)
@@ -156,12 +149,6 @@ void QmlProfilerDataModel::setData(qint64 traceStart, qint64 traceEnd,
     d->modelManager->modelProxyCountUpdated(d->modelId, 1, 2);
 }
 
-void QmlProfilerDataModel::setNotes(const QVector<QmlNote> &notes)
-{
-    Q_D(QmlProfilerDataModel);
-    d->eventNotes = notes;
-}
-
 int QmlProfilerDataModel::count() const
 {
     Q_D(const QmlProfilerDataModel);
@@ -174,7 +161,6 @@ void QmlProfilerDataModel::clear()
     d->eventList.clear();
     d->eventTypes.clear();
     d->eventTypeIds.clear();
-    d->eventNotes.clear();
     d->detailsRewriter->clearRequests();
     d->modelManager->modelProxyCountUpdated(d->modelId, 0, 1);
     emit changed();

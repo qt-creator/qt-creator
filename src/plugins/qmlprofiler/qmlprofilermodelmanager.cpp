@@ -164,7 +164,6 @@ QmlProfilerModelManager::QmlProfilerModelManager(Utils::FileInProjectFinder *fin
     d->state = Empty;
     d->traceTime = new QmlProfilerTraceTime(this);
     d->notesModel = new QmlProfilerNotesModel(this);
-    d->notesModel->setModelManager(this);
 }
 
 QmlProfilerModelManager::~QmlProfilerModelManager()
@@ -335,7 +334,7 @@ void QmlProfilerModelManager::save(const QString &filename)
     writer->setTraceTime(traceTime()->startTime(), traceTime()->endTime(),
                         traceTime()->duration());
     writer->setData(d->model->eventTypes(), d->model->events());
-    writer->setNotes(d->model->notes());
+    writer->setNotes(d->notesModel->notes());
 
     connect(writer, &QObject::destroyed, this, &QmlProfilerModelManager::saveFinished,
             Qt::QueuedConnection);
@@ -373,7 +372,7 @@ void QmlProfilerModelManager::load(const QString &filename)
     connect(reader, &QmlProfilerFileReader::success, this, [this, reader]() {
         d->model->setData(reader->traceStart(), qMax(reader->traceStart(), reader->traceEnd()),
                           reader->eventTypes(), reader->events());
-        d->model->setNotes(reader->notes());
+        d->notesModel->setNotes(reader->notes());
         setRecordedFeatures(reader->loadedFeatures());
         d->traceTime->increaseEndTime(d->model->lastTimeMark());
         delete reader;

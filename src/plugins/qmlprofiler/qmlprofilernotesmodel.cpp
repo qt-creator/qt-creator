@@ -28,14 +28,8 @@
 
 namespace QmlProfiler {
 
-QmlProfilerNotesModel::QmlProfilerNotesModel(QObject *parent) : TimelineNotesModel(parent),
-    m_modelManager(0)
+QmlProfilerNotesModel::QmlProfilerNotesModel(QObject *parent) : TimelineNotesModel(parent)
 {
-}
-
-void QmlProfilerNotesModel::setModelManager(QmlProfilerModelManager *modelManager)
-{
-    m_modelManager = modelManager;
 }
 
 int QmlProfilerNotesModel::add(int typeId, qint64 start, qint64 duration, const QString &text)
@@ -69,10 +63,9 @@ int QmlProfilerNotesModel::add(int typeId, qint64 start, qint64 duration, const 
 void QmlProfilerNotesModel::loadData()
 {
     blockSignals(true);
-    clear();
-    const QVector<QmlNote> &notes = m_modelManager->qmlModel()->notes();
-    for (int i = 0; i != notes.size(); ++i) {
-        const QmlNote &note = notes[i];
+    TimelineNotesModel::clear();
+    for (int i = 0; i != m_notes.size(); ++i) {
+        const QmlNote &note = m_notes[i];
         add(note.typeIndex, note.startTime, note.duration, note.text);
     }
     resetModified();
@@ -82,7 +75,7 @@ void QmlProfilerNotesModel::loadData()
 
 void QmlProfilerNotesModel::saveData()
 {
-    QVector<QmlNote> notes;
+    m_notes.clear();
     for (int i = 0; i < count(); ++i) {
         const Timeline::TimelineModel *model = timelineModelByModelId(timelineModel(i));
         if (!model)
@@ -95,9 +88,25 @@ void QmlProfilerNotesModel::saveData()
             model->duration(index),
             text(i)
         };
-        notes.append(save);
+        m_notes.append(save);
     }
-    m_modelManager->qmlModel()->setNotes(notes);
     resetModified();
 }
+
+const QVector<QmlNote> &QmlProfilerNotesModel::notes() const
+{
+    return m_notes;
 }
+
+void QmlProfilerNotesModel::setNotes(const QVector<QmlNote> &notes)
+{
+    m_notes = notes;
+}
+
+void QmlProfilerNotesModel::clear()
+{
+    TimelineNotesModel::clear();
+    m_notes.clear();
+}
+
+} // namespace QmlProfiler

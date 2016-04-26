@@ -28,6 +28,7 @@
 #include "qmlprofilereventlocation.h"
 #include "qmlprofilereventtypes.h"
 #include "qmlprofilerdatamodel.h"
+#include "qmlnote.h"
 
 #include <QFutureInterface>
 #include <QObject>
@@ -36,7 +37,6 @@
 
 QT_FORWARD_DECLARE_CLASS(QIODevice)
 QT_FORWARD_DECLARE_CLASS(QXmlStreamReader)
-
 
 namespace QmlProfiler {
 namespace Internal {
