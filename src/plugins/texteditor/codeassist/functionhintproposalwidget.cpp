@@ -159,7 +159,8 @@ void FunctionHintProposalWidget::showProposal(const QString &prefix)
 
     d->m_pager->setVisible(d->m_totalHints > 1);
     d->m_currentHint = 0;
-    QTC_ASSERT(updateAndCheck(prefix), abort(); return; );
+    if (!updateAndCheck(prefix))
+        return;
 
     qApp->installEventFilter(this);
     d->m_popupFrame->show();
