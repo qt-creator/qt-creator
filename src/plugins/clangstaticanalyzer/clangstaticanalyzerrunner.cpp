@@ -37,14 +37,17 @@
 
 static Q_LOGGING_CATEGORY(LOG, "qtc.clangstaticanalyzer.runner")
 
+namespace ClangStaticAnalyzer {
+namespace Internal {
+
 static QString generalProcessError()
 {
-    return QObject::tr("An error occurred with the Clang Static Analyzer process.");
+    return ClangStaticAnalyzerRunner::tr("An error occurred with the Clang Static Analyzer process.");
 }
 
 static QString finishedDueToCrash()
 {
-    return QObject::tr("Clang Static Analyzer crashed.");
+    return ClangStaticAnalyzerRunner::tr("Clang Static Analyzer crashed.");
 }
 
 static QStringList constructCommandLineArguments(const QString &filePath,
@@ -61,12 +64,9 @@ static QStringList constructCommandLineArguments(const QString &filePath,
     return arguments;
 }
 
-namespace ClangStaticAnalyzer {
-namespace Internal {
-
 QString finishedWithBadExitCode(int exitCode)
 {
-    return QObject::tr("Clang Static Analyzer finished with exit code: %1.").arg(exitCode);
+    return ClangStaticAnalyzerRunner::tr("Clang Static Analyzer finished with exit code: %1.").arg(exitCode);
 }
 
 ClangStaticAnalyzerRunner::ClangStaticAnalyzerRunner(const QString &clangExecutable,
@@ -171,7 +171,7 @@ QString ClangStaticAnalyzerRunner::createLogFile(const QString &filePath) const
 
 QString ClangStaticAnalyzerRunner::processCommandlineAndOutput() const
 {
-    return QObject::tr("Command line: \"%1\"\n"
+    return tr("Command line: \"%1\"\n"
                        "Process Error: %2\n"
                        "Output:\n%3")
                             .arg(m_commandLine,

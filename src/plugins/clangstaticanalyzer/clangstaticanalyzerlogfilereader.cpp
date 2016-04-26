@@ -38,6 +38,7 @@ namespace Internal {
 
 class ClangStaticAnalyzerLogFileReader
 {
+    Q_DECLARE_TR_FUNCTIONS(ClangStaticAnalyzer::Internal::ClangStaticAnalyzerLogFileReader)
 public:
     ClangStaticAnalyzerLogFileReader(const QString &filePath);
 
@@ -79,7 +80,7 @@ QList<Diagnostic> LogFileReader::read(const QString &filePath, QString *errorMes
     QFileInfo fi(filePath);
     if (!fi.exists() || !fi.isReadable()) {
         if (errorMessage) {
-            *errorMessage = QObject::tr("File \"%1\" does not exist or is not readable.")
+            *errorMessage = tr("File \"%1\" does not exist or is not readable.")
                     .arg(filePath);
         }
         return emptyList;
@@ -97,22 +98,22 @@ QList<Diagnostic> LogFileReader::read(const QString &filePath, QString *errorMes
     // Handle errors
     case QXmlStreamReader::UnexpectedElementError:
         if (errorMessage) {
-            *errorMessage = QObject::tr("Could not read file \"%1\": UnexpectedElementError.")
+            *errorMessage = tr("Could not read file \"%1\": UnexpectedElementError.")
                                 .arg(filePath);
         } // fall-through
     case QXmlStreamReader::CustomError:
         if (errorMessage) {
-            *errorMessage = QObject::tr("Could not read file \"%1\": CustomError.")
+            *errorMessage = tr("Could not read file \"%1\": CustomError.")
                                 .arg(filePath);
         }  // fall-through
     case QXmlStreamReader::NotWellFormedError:
         if (errorMessage) {
-            *errorMessage = QObject::tr("Could not read file \"%1\": NotWellFormedError.")
+            *errorMessage = tr("Could not read file \"%1\": NotWellFormedError.")
                                 .arg(filePath);
         }  // fall-through
     case QXmlStreamReader::PrematureEndOfDocumentError:
         if (errorMessage) {
-            *errorMessage = QObject::tr("Could not read file \"%1\": PrematureEndOfDocumentError.")
+            *errorMessage = tr("Could not read file \"%1\": PrematureEndOfDocumentError.")
                                 .arg(filePath);
         } // fall-through
     default:
@@ -161,7 +162,7 @@ void ClangStaticAnalyzerLogFileReader::readPlist()
             if (m_xml.attributes().value(QLatin1String("version")) == QLatin1String("1.0"))
                 readTopLevelDict();
         } else {
-            m_xml.raiseError(QObject::tr("File is not a plist version 1.0 file."));
+            m_xml.raiseError(tr("File is not a plist version 1.0 file."));
         }
     }
 }
@@ -344,7 +345,7 @@ QString ClangStaticAnalyzerLogFileReader::readString()
     if (m_xml.readNextStartElement() && m_xml.name() == QLatin1String("string"))
         return m_xml.readElementText();
 
-    m_xml.raiseError(QObject::tr("Expected a string element."));
+    m_xml.raiseError(tr("Expected a string element."));
     return QString();
 }
 
@@ -360,7 +361,7 @@ QStringList ClangStaticAnalyzerLogFileReader::readStringArray()
         return result;
     }
 
-    m_xml.raiseError(QObject::tr("Expected an array element."));
+    m_xml.raiseError(tr("Expected an array element."));
     return QStringList();
 }
 
@@ -371,7 +372,7 @@ int ClangStaticAnalyzerLogFileReader::readInteger(bool *convertedSuccessfully)
         return contents.toInt(convertedSuccessfully);
     }
 
-    m_xml.raiseError(QObject::tr("Expected an integer element."));
+    m_xml.raiseError(tr("Expected an integer element."));
     if (convertedSuccessfully)
         *convertedSuccessfully = false;
     return -1;
