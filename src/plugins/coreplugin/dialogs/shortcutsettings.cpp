@@ -112,10 +112,11 @@ ShortcutButton::ShortcutButton(QWidget *parent)
     : QPushButton(parent)
     , m_key({{ 0, 0, 0, 0 }})
 {
-    setToolTip(tr("Click and type the new key sequence."));
+    // Using ShortcutButton::tr() as workaround for QTBUG-34128
+    setToolTip(ShortcutButton::tr("Click and type the new key sequence."));
     setCheckable(true);
-    m_checkedText = tr("Stop Recording");
-    m_uncheckedText = tr("Record");
+    m_checkedText = ShortcutButton::tr("Stop Recording");
+    m_uncheckedText = ShortcutButton::tr("Record");
     updateText();
     connect(this, &ShortcutButton::toggled, this, &ShortcutButton::handleToggleChange);
 }
