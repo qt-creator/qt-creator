@@ -50,8 +50,10 @@ const Icon CUT(
         QLatin1String(":/core/images/editcut.png"));
 const Icon DIR(
         QLatin1String(":/core/images/dir.png"));
-const Icon RESET(
-        QLatin1String(":/core/images/reset.png"));
+const Icon RESET({
+        {QLatin1String(":/core/images/reset.png"), Theme::PanelTextColorMid}}, Icon::Tint);
+const Icon RESET_TOOLBAR({
+        {QLatin1String(":/core/images/reset.png"), Theme::IconsBaseColor}});
 const Icon DARK_CLOSE(
         QLatin1String(":/core/images/darkclose.png"));
 const Icon LOCKED_TOOLBAR({

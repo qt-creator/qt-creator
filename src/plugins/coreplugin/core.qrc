@@ -118,5 +118,6 @@
         <file>images/eye_open@2x.png</file>
         <file>images/desktopdevicesmall.png</file>
         <file>images/desktopdevicesmall@2x.png</file>
+        <file>images/reset@2x.png</file>
     </qresource>
 </RCC>

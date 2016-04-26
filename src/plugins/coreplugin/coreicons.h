@@ -43,6 +43,7 @@ CORE_EXPORT extern const Utils::Icon PASTE;
 CORE_EXPORT extern const Utils::Icon CUT;
 CORE_EXPORT extern const Utils::Icon DIR;
 CORE_EXPORT extern const Utils::Icon RESET;
+CORE_EXPORT extern const Utils::Icon RESET_TOOLBAR;
 CORE_EXPORT extern const Utils::Icon DARK_CLOSE;
 CORE_EXPORT extern const Utils::Icon LOCKED_TOOLBAR;
 CORE_EXPORT extern const Utils::Icon LOCKED;

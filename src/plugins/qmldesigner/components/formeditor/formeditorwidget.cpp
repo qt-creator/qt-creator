@@ -137,7 +137,7 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
     m_resetAction = new QAction(tr("Reset view (R)."), this);
     m_resetAction->setShortcut(Qt::Key_R);
     m_resetAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
-    m_resetAction->setIcon(Icons::RESET.icon());
+    m_resetAction->setIcon(Core::Icons::RESET_TOOLBAR.icon());
     connect(m_resetAction.data(), SIGNAL(triggered(bool)), this, SLOT(resetNodeInstanceView()));
     addAction(m_resetAction.data());
     upperActions.append(m_resetAction.data());

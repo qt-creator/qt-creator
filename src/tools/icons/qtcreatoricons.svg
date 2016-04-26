@@ -2661,9 +2661,9 @@
          inkscape:connector-curvature="0" />
     </g>
     <g
-       transform="translate(574,268)"
+       transform="matrix(0,-1,1,0,524,834)"
        style="display:inline"
-       id="src/plugins/qmldesigner/components/formeditor/reset">
+       id="src/plugins/coreplugin/images/reset">
       <rect
          id="rect6700-2"
          height="16"
@@ -2673,14 +2673,19 @@
          style="fill:#ffffff;fill-opacity:1" />
       <g
          id="g6694-7"
-         style="fill:#000000;fill-opacity:1">
-        <polygon
+         style="fill:#000000;fill-opacity:1"
+         transform="matrix(-1,0,0,1,516,0)">
+        <path
+           style="fill:#000000;fill-opacity:1"
+           inkscape:transform-center-x="-0.76923474"
+           inkscape:transform-center-y="-0.13577024"
+           d="m 257.5,303 -4.5,0 3.61478,4.53847 z"
            id="polygon6696-3"
-           points="258,307 261,304.5 258,302 "
-           style="fill:#000000;fill-opacity:1" />
+           inkscape:connector-curvature="0"
+           sodipodi:nodetypes="cccc" />
         <path
            id="path6698-5"
-           d="m 258,313 c -2.206,0 -4,-1.795 -4,-4 0,-2.205 1.794,-4 4,-4 l 0,-1 c -2.762,0 -5,2.238 -5,5 0,2.762 2.238,5 5,5 2.762,0 5,-2.238 5,-5 l -1,0 c 0,2.205 -1.794,4 -4,4 z"
+           d="m 260.82843,310.82843 c -1.55988,1.55987 -4.09769,1.55917 -5.65686,0 -1.55917,-1.55917 -1.55987,-4.09698 0,-5.65686 l -0.7071,-0.7071 c -1.95303,1.95303 -1.95303,5.11803 0,7.07106 1.95303,1.95303 5.11803,1.95303 7.07106,0 1.95303,-1.95303 1.95303,-5.11803 0,-7.07106 l -0.7071,0.7071 c 1.55917,1.55917 1.55987,4.09698 0,5.65686 z"
            inkscape:connector-curvature="0"
            style="fill:#000000;fill-opacity:1" />
       </g>
