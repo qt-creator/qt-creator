@@ -40,6 +40,7 @@
 #include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/runconfigurationaspects.h>
+#include <utils/algorithm.h>
 #include <utils/qtcprocess.h>
 #include <utils/pathchooser.h>
 #include <utils/detailswidget.h>
@@ -455,21 +456,32 @@ RunConfiguration *QbsRunConfigurationFactory::clone(Target *parent, RunConfigura
 
 QList<Core::Id> QbsRunConfigurationFactory::availableCreationIds(Target *parent, CreationMode mode) const
 {
-    Q_UNUSED(mode)
-    QList<Core::Id> result;
+    QList<qbs::ProductData> products;
+
     if (!canHandle(parent))
-        return result;
+        return QList<Core::Id>();
 
     QbsProject *project = static_cast<QbsProject *>(parent->project());
     if (!project || !project->qbsProject().isValid())
-        return result;
+        return QList<Core::Id>();
 
     foreach (const qbs::ProductData &product, project->qbsProjectData().allProducts()) {
         if (product.isRunnable() && product.isEnabled())
-            result << idFromProduct(project, product);
+            products << product;
     }
 
-    return result;
+    if (mode == AutoCreate) {
+        std::function<bool (const qbs::ProductData &)> hasQtcRunnable = [](const qbs::ProductData &product) {
+            return product.properties().value("qtcRunnable").toBool();
+        };
+
+        if (Utils::anyOf(products, hasQtcRunnable))
+            Utils::erase(products, std::not1(hasQtcRunnable));
+    }
+
+    return Utils::transform(products, [project](const qbs::ProductData &product) {
+        return idFromProduct(project, product);
+    });
 }
 
 QString QbsRunConfigurationFactory::displayNameForId(Core::Id id) const
