@@ -45,9 +45,6 @@
         <file>images/plus@2x.png</file>
         <file>images/prev.png</file>
         <file>images/prev@2x.png</file>
-        <file>images/pushbutton.png</file>
-        <file>images/pushbutton_hover.png</file>
-        <file>images/pushbutton_pressed.png</file>
         <file>images/redo.png</file>
         <file>images/replace.png</file>
         <file>images/reset.png</file>
@@ -55,7 +52,6 @@
         <file>images/sidebaricon@2x.png</file>
         <file>images/splitbutton_horizontal.png</file>
         <file>images/splitbutton_horizontal@2x.png</file>
-        <file>images/statusbar.png</file>
         <file>images/undo.png</file>
         <file>images/unknownfile.png</file>
         <file>images/unlocked.png</file>
