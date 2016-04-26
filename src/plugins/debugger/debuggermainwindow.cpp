@@ -205,7 +205,7 @@ void DebuggerMainWindow::finalizeSetup()
 QWidget *createModeWindow(const Core::Id &mode, DebuggerMainWindow *mainWindow, QWidget *central)
 {
     if (!central)
-        central = new EditorManagerPlaceHolder(mode);
+        central = new EditorManagerPlaceHolder;
 
     auto editorHolderLayout = new QVBoxLayout;
     editorHolderLayout->setMargin(0);

@@ -121,16 +121,12 @@ using namespace Utils;
 
 //===================EditorManager=====================
 
-EditorManagerPlaceHolder::EditorManagerPlaceHolder(Id mode, QWidget *parent)
-    : QWidget(parent), m_mode(mode)
+EditorManagerPlaceHolder::EditorManagerPlaceHolder(QWidget *parent)
+    : QWidget(parent)
 {
     setLayout(new QVBoxLayout);
     layout()->setMargin(0);
     setFocusProxy(EditorManagerPrivate::mainEditorArea());
-    connect(ModeManager::instance(), &ModeManager::currentModeChanged,
-            this, &EditorManagerPlaceHolder::currentModeChanged);
-
-    currentModeChanged(ModeManager::currentMode());
 }
 
 EditorManagerPlaceHolder::~EditorManagerPlaceHolder()
@@ -143,18 +139,16 @@ EditorManagerPlaceHolder::~EditorManagerPlaceHolder()
     }
 }
 
-void EditorManagerPlaceHolder::currentModeChanged(Id mode)
+void EditorManagerPlaceHolder::showEvent(QShowEvent *)
 {
-    if (m_mode == mode) {
-        QWidget *previousFocus = 0;
-        QWidget *em = EditorManagerPrivate::mainEditorArea();
-        if (em->focusWidget() && em->focusWidget()->hasFocus())
-            previousFocus = em->focusWidget();
-        layout()->addWidget(em);
-        em->show();
-        if (previousFocus)
-            previousFocus->setFocus();
-    }
+    QWidget *previousFocus = 0;
+    QWidget *em = EditorManagerPrivate::mainEditorArea();
+    if (em->focusWidget() && em->focusWidget()->hasFocus())
+        previousFocus = em->focusWidget();
+    layout()->addWidget(em);
+    em->show();
+    if (previousFocus)
+        previousFocus->setFocus();
 }
 
 // ---------------- EditorManager

@@ -58,7 +58,7 @@ EditMode::EditMode() :
     m_rightSplitWidgetLayout->setMargin(0);
     QWidget *rightSplitWidget = new QWidget;
     rightSplitWidget->setLayout(m_rightSplitWidgetLayout);
-    auto editorPlaceHolder = new EditorManagerPlaceHolder(Constants::MODE_EDIT);
+    auto editorPlaceHolder = new EditorManagerPlaceHolder;
     m_rightSplitWidgetLayout->insertWidget(0, editorPlaceHolder);
 
     MiniSplitter *rightPaneSplitter = new MiniSplitter;
