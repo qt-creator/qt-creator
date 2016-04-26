@@ -2655,7 +2655,7 @@ void DebuggerPluginPrivate::updateDebugActions()
     if (m_shuttingDown)
         return;
     //if we're currently debugging the actions are controlled by engine
-    if (m_currentEngine->state() != DebuggerNotReady)
+    if (m_currentEngine && m_currentEngine->state() != DebuggerNotReady)
         return;
 
     QString whyNot;
