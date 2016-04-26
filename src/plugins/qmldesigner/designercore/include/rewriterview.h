@@ -143,9 +143,11 @@ public:
     Internal::ModelNodePositionStorage *positionStorage() const
     { return m_positionStorage; }
 
+    QList<RewriterError> warnings() const;
     QList<RewriterError> errors() const;
-    void clearErrors();
+    void clearErrorAndWarnings();
     void setErrors(const QList<RewriterError> &errors);
+    void setWarnings(const QList<RewriterError> &warnings);
     void addError(const RewriterError &error);
 
     void enterErrorState(const QString &errorMessage);
@@ -206,6 +208,7 @@ private: //variables
     QScopedPointer<Internal::TextToModelMerger> m_textToModelMerger;
     TextModifier *m_textModifier;
     QList<RewriterError> m_errors;
+    QList<RewriterError> m_warnings;
     int transactionLevel;
     RewriterTransaction m_removeDefaultPropertyTransaction;
     QString m_rewritingErrorMessage;

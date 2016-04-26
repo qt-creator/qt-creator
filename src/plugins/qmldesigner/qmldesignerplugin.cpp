@@ -233,7 +233,7 @@ void QmlDesignerPlugin::hideDesigner()
 {
     if (currentDesignDocument()
             && currentModel()
-            && !currentDesignDocument()->hasQmlSyntaxErrors())
+            && !currentDesignDocument()->hasQmlParseErrors())
         jumpTextCursorToSelectedModelNode();
 
 
@@ -316,7 +316,7 @@ void QmlDesignerPlugin::activateAutoSynchronization()
     viewManager().attachComponentView();
     viewManager().attachViewsExceptRewriterAndComponetView();
 
-    QList<RewriterError> errors = currentDesignDocument()->qmlSyntaxErrors();
+    QList<RewriterError> errors = currentDesignDocument()->qmlParseErrors();
     if (errors.isEmpty()) {
         selectModelNodeUnderTextCursor();
         data->mainWidget->enableWidgets();

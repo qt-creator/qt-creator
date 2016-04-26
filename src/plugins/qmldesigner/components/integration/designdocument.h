@@ -77,8 +77,10 @@ public:
     Model *documentModel() const;
 
     QString contextHelpId() const;
-    QList<RewriterError> qmlSyntaxErrors() const;
-    bool hasQmlSyntaxErrors() const;
+    QList<RewriterError> qmlParseWarnings() const;
+    bool hasQmlParseWarnings() const;
+    QList<RewriterError> qmlParseErrors() const;
+    bool hasQmlParseErrors() const;
 
     RewriterView *rewriterView() const;
 

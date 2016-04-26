@@ -163,15 +163,22 @@ Model* DesignDocument::createInFileComponentModel()
     return model;
 }
 
-/*!
-  Returns any errors that happened when parsing the latest qml file.
-  */
-QList<RewriterError> DesignDocument::qmlSyntaxErrors() const
+QList<RewriterError> DesignDocument::qmlParseWarnings() const
+{
+    return m_rewriterView->warnings();
+}
+
+bool DesignDocument::hasQmlParseWarnings() const
+{
+    return currentModel()->rewriterView() && !currentModel()->rewriterView()->warnings().isEmpty();
+}
+
+QList<RewriterError> DesignDocument::qmlParseErrors() const
 {
     return m_rewriterView->errors();
 }
 
-bool DesignDocument::hasQmlSyntaxErrors() const
+bool DesignDocument::hasQmlParseErrors() const
 {
     return currentModel()->rewriterView() && !currentModel()->rewriterView()->errors().isEmpty();
 }

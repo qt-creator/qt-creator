@@ -943,7 +943,7 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
         ModelNode modelRootNode = m_rewriterView->rootModelNode();
         syncNode(modelRootNode, astRootNode, &ctxt, differenceHandler);
         m_rewriterView->positionStorage()->cleanupInvalidOffsets();
-        m_rewriterView->clearErrors();
+        m_rewriterView->clearErrorAndWarnings();
 
         setActive(false);
         return true;

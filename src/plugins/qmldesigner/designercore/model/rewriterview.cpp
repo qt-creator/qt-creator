@@ -440,7 +440,7 @@ void RewriterView::applyChanges()
     if (modelToTextMerger()->hasNoPendingChanges())
         return; // quick exit: nothing to be done.
 
-    clearErrors();
+    clearErrorAndWarnings();
 
     if (inErrorState()) {
         const QString content = textModifierContent();
@@ -474,15 +474,26 @@ void RewriterView::applyChanges()
     }
 }
 
+QList<RewriterError> RewriterView::warnings() const
+{
+    return m_warnings;
+}
+
 QList<RewriterError> RewriterView::errors() const
 {
     return m_errors;
 }
 
-void RewriterView::clearErrors()
+void RewriterView::clearErrorAndWarnings()
 {
     m_errors.clear();
+    m_warnings.clear();
     emit errorsChanged(m_errors);
+}
+
+void RewriterView::setWarnings(const QList<RewriterError> &warnings)
+{
+    m_warnings = warnings;
 }
 
 void RewriterView::setErrors(const QList<RewriterError> &errors)
