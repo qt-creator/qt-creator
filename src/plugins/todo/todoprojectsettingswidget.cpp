@@ -32,7 +32,7 @@
 namespace Todo {
 namespace Internal {
 
-static const QString EXCLUDE_PLACEHOLDER = QObject::tr("<Enter regular expression to exclude>");
+static const QString EXCLUDE_PLACEHOLDER = TodoProjectSettingsWidget::tr("<Enter regular expression to exclude>");
 
 TodoProjectSettingsWidget::TodoProjectSettingsWidget(ProjectExplorer::Project *project) :
     QWidget(0),
