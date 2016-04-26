@@ -164,7 +164,7 @@ public slots:
     void clear();
 
 private:
-    void rebuildTree(const QmlProfilerStatisticsParentsModel::QmlStatisticsRelativesMap &map);
+    void rebuildTree(const QmlProfilerStatisticsRelativesModel::QmlStatisticsRelativesMap &map);
     void updateHeader();
     QStandardItemModel *treeModel();
 

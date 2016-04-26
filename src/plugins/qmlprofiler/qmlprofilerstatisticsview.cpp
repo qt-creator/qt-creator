@@ -191,10 +191,12 @@ QmlProfilerStatisticsView::QmlProfilerStatisticsView(QWidget *parent,
             this, &QmlProfilerStatisticsView::typeSelected);
 
     d->m_eventChildren = new QmlProfilerStatisticsRelativesView(
-                new QmlProfilerStatisticsChildrenModel(profilerModelManager, d->model, this),
+                new QmlProfilerStatisticsRelativesModel(profilerModelManager, d->model,
+                                                        QmlProfilerStatisticsChilden, this),
                 this);
     d->m_eventParents = new QmlProfilerStatisticsRelativesView(
-                new QmlProfilerStatisticsParentsModel(profilerModelManager, d->model, this),
+                new QmlProfilerStatisticsRelativesModel(profilerModelManager, d->model,
+                                                        QmlProfilerStatisticsParents, this),
                 this);
     connect(d->m_eventTree, &QmlProfilerStatisticsMainView::typeSelected,
             d->m_eventChildren, &QmlProfilerStatisticsRelativesView::displayType);
@@ -935,7 +937,7 @@ void QmlProfilerStatisticsRelativesView::clear()
 
 void QmlProfilerStatisticsRelativesView::updateHeader()
 {
-    bool calleesView = qobject_cast<QmlProfilerStatisticsChildrenModel *>(d->model) != 0;
+    bool calleesView = qobject_cast<QmlProfilerStatisticsRelativesModel *>(d->model) != 0;
 
     if (treeModel()) {
         treeModel()->setColumnCount(5);
