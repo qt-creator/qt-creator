@@ -123,7 +123,7 @@ static QString constructBenchmarkInformation(const QString &metric, double value
         metricsText = QLatin1String("instruction reads");
     else if (metric == QLatin1String("CPUCycles"))               // -perf
         metricsText = QLatin1String("CPU cycles");
-    return QObject::tr("%1 %2 per iteration (total: %3, iterations: %4)")
+    return QtTestOutputReader::tr("%1 %2 per iteration (total: %3, iterations: %4)")
             .arg(formatResult(value))
             .arg(metricsText)
             .arg(formatResult(value * (double)iterations))

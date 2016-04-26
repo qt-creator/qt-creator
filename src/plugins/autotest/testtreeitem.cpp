@@ -68,14 +68,14 @@ QVariant TestTreeItem::data(int /*column*/, int role) const
     switch (role) {
     case Qt::DisplayRole:
         if (m_type == Root && childCount() == 0)
-            return QString(m_name + QObject::tr(" (none)"));
+            return QString(m_name + QCoreApplication::translate("TestTreeItem", " (none)"));
         else if (m_name.isEmpty())
-            return QObject::tr(Constants::UNNAMED_QUICKTESTS);
+            return QCoreApplication::translate("TestTreeItem", Constants::UNNAMED_QUICKTESTS);
         else
             return m_name;
     case Qt::ToolTipRole:
         if (m_type == TestCase && m_name.isEmpty()) {
-            return QObject::tr("<p>Give all test cases a name to ensure correct behavior "
+            return QCoreApplication::translate("TestTreeItem","<p>Give all test cases a name to ensure correct behavior "
                                "when running test cases and to be able to select them.</p>");
         }
         return m_filePath;
@@ -454,7 +454,8 @@ TestTreeItem *GoogleTestTreeItem::findChildByNameStateAndFile(const QString &nam
 
 QString GoogleTestTreeItem::nameSuffix() const
 {
-    static QString markups[] = { QObject::tr("parameterized"), QObject::tr("typed") };
+    static QString markups[] = { QCoreApplication::translate("GoogleTestTreeItem", "parameterized"),
+                                 QCoreApplication::translate("GoogleTestTreeItem", "typed") };
     QString suffix;
     if (m_state & Parameterized)
         suffix =  QLatin1String(" [") + markups[0];

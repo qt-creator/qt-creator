@@ -99,7 +99,7 @@ TestRunner::TestRunner(QObject *parent) :
     connect(&m_futureWatcher, &QFutureWatcher<TestResultPtr>::canceled,
             this, [this]() { emit testResultReady(TestResultPtr(new FaultyTestResult(
                                                       Result::MessageFatal,
-                                                      QObject::tr("Test run canceled by user."))));
+                                                      tr("Test run canceled by user."))));
     });
 }
 
@@ -131,7 +131,7 @@ static void performTestRun(QFutureInterface<TestResultPtr> &futureInterface,
             testCaseCount += config->testCaseCount();
         } else {
             futureInterface.reportResult(TestResultPtr(new FaultyTestResult(Result::MessageWarn,
-                QObject::tr("Project is null for \"%1\". Removing from test run.\n"
+                TestRunner::tr("Project is null for \"%1\". Removing from test run.\n"
                             "Check the test environment.").arg(config->displayName()))));
         }
     }
@@ -164,7 +164,7 @@ static void performTestRun(QFutureInterface<TestResultPtr> &futureInterface,
         QString commandFilePath = executableFilePath(testConfiguration->targetFile(), environment);
         if (commandFilePath.isEmpty()) {
             futureInterface.reportResult(TestResultPtr(new FaultyTestResult(Result::MessageFatal,
-                QObject::tr("Could not find command \"%1\". (%2)")
+                TestRunner::tr("Could not find command \"%1\". (%2)")
                                                    .arg(testConfiguration->targetFile())
                                                    .arg(testConfiguration->displayName()))));
             continue;
@@ -231,7 +231,7 @@ static void performTestRun(QFutureInterface<TestResultPtr> &futureInterface,
                 testProcess.waitForFinished();
             }
             futureInterface.reportResult(TestResultPtr(
-                    new FaultyTestResult(Result::MessageFatal, QObject::tr(
+                    new FaultyTestResult(Result::MessageFatal, TestRunner::tr(
                     "Test case canceled due to timeout. \nMaybe raise the timeout?"))));
         }
     }
