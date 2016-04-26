@@ -290,16 +290,16 @@ void QmlProfilerModelManager::addQmlEvent(Message message, RangeType rangeType, 
         d->traceTime->setTime(startTime, startTime + d->traceTime->duration());
 
     QTC_ASSERT(state() == AcquiringData, /**/);
-    d->model->addQmlEvent(message, rangeType, detailType, startTime, length, data, location,
-                          ndata1, ndata2, ndata3, ndata4, ndata5);
+    d->model->addEvent(message, rangeType, detailType, startTime, length, data, location, ndata1,
+                       ndata2, ndata3, ndata4, ndata5);
 }
 
 void QmlProfilerModelManager::addDebugMessage(QtMsgType type, qint64 timestamp, const QString &text,
                                               const QmlEventLocation &location)
 {
     if (state() == AcquiringData)
-        d->model->addQmlEvent(DebugMessage, MaximumRangeType, type, timestamp, 0, text, location, 0,
-                              0, 0, 0, 0);
+        d->model->addEvent(DebugMessage, MaximumRangeType, type, timestamp, 0, text, location, 0, 0,
+                           0, 0, 0);
 }
 
 void QmlProfilerModelManager::acquiringDone()
@@ -334,8 +334,8 @@ void QmlProfilerModelManager::save(const QString &filename)
     QmlProfilerFileWriter *writer = new QmlProfilerFileWriter(this);
     writer->setTraceTime(traceTime()->startTime(), traceTime()->endTime(),
                         traceTime()->duration());
-    writer->setQmlEvents(d->model->getEventTypes(), d->model->getEvents());
-    writer->setNotes(d->model->getEventNotes());
+    writer->setData(d->model->eventTypes(), d->model->events());
+    writer->setNotes(d->model->notes());
 
     connect(writer, &QObject::destroyed, this, &QmlProfilerModelManager::saveFinished,
             Qt::QueuedConnection);
@@ -372,8 +372,8 @@ void QmlProfilerModelManager::load(const QString &filename)
 
     connect(reader, &QmlProfilerFileReader::success, this, [this, reader]() {
         d->model->setData(reader->traceStart(), qMax(reader->traceStart(), reader->traceEnd()),
-                          reader->qmlEvents(), reader->ranges());
-        d->model->setNoteData(reader->notes());
+                          reader->eventTypes(), reader->events());
+        d->model->setNotes(reader->notes());
         setRecordedFeatures(reader->loadedFeatures());
         d->traceTime->increaseEndTime(d->model->lastTimeMark());
         delete reader;

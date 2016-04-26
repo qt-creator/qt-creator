@@ -50,6 +50,9 @@ HEADERS += \
     localqmlprofilerrunner.h \
     memoryusagemodel.h \
     pixmapcachemodel.h \
+    qmlevent.h \
+    qmleventtype.h \
+    qmlnote.h \
     qmlprofiler_global.h \
     qmlprofileranimationsmodel.h \
     qmlprofilerattachdialog.h \
@@ -81,7 +84,7 @@ HEADERS += \
     qmlprofilertracefile.h \
     qmlprofilertraceview.h \
     qmlprofilerviewmanager.h \
-    scenegraphtimelinemodel.h \
+    scenegraphtimelinemodel.h
 
 RESOURCES += \
     qml/qmlprofiler.qrc

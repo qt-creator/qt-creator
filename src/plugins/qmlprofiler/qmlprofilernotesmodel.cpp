@@ -70,10 +70,9 @@ void QmlProfilerNotesModel::loadData()
 {
     blockSignals(true);
     clear();
-    const QVector<QmlProfilerDataModel::QmlEventNoteData> &notes =
-            m_modelManager->qmlModel()->getEventNotes();
+    const QVector<QmlNote> &notes = m_modelManager->qmlModel()->notes();
     for (int i = 0; i != notes.size(); ++i) {
-        const QmlProfilerDataModel::QmlEventNoteData &note = notes[i];
+        const QmlNote &note = notes[i];
         add(note.typeIndex, note.startTime, note.duration, note.text);
     }
     resetModified();
@@ -83,14 +82,14 @@ void QmlProfilerNotesModel::loadData()
 
 void QmlProfilerNotesModel::saveData()
 {
-    QVector<QmlProfilerDataModel::QmlEventNoteData> notes;
+    QVector<QmlNote> notes;
     for (int i = 0; i < count(); ++i) {
         const Timeline::TimelineModel *model = timelineModelByModelId(timelineModel(i));
         if (!model)
             continue;
 
         int index = timelineIndex(i);
-        QmlProfilerDataModel::QmlEventNoteData save = {
+        QmlNote save = {
             model->typeId(index),
             model->startTime(index),
             model->duration(index),
@@ -98,7 +97,7 @@ void QmlProfilerNotesModel::saveData()
         };
         notes.append(save);
     }
-    m_modelManager->qmlModel()->setNoteData(notes);
+    m_modelManager->qmlModel()->setNotes(notes);
     resetModified();
 }
 }

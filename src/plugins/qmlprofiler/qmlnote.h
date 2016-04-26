@@ -22,60 +22,22 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
-
 #pragma once
 
-#include "qmlprofilertimelinemodel.h"
-#include "qmlprofilereventtypes.h"
-#include "qmlprofilereventlocation.h"
-#include "qmlprofilerdatamodel.h"
-
-#include <QVariantList>
-#include <QColor>
-#include <QObject>
+#include <QString>
 
 namespace QmlProfiler {
-class QmlProfilerModelManager;
 
-namespace Internal {
+struct QmlNote {
+    QmlNote(int typeIndex = -1, qint64 startTime = -1, qint64 duration = -1,
+                     const QString &text = QString()) :
+        typeIndex(typeIndex), startTime(startTime), duration(duration), text(text)
+    {}
 
-class QmlProfilerAnimationsModel : public QmlProfilerTimelineModel
-{
-    Q_OBJECT
-public:
-
-    struct QmlPaintEventData {
-        int framerate;
-        int animationcount;
-        int typeId;
-    };
-
-    QmlProfilerAnimationsModel(QmlProfilerModelManager *manager, QObject *parent = 0);
-
-    int rowMaxValue(int rowNumber) const;
-
-    int typeId(int index) const;
-    Q_INVOKABLE int expandedRow(int index) const;
-    Q_INVOKABLE int collapsedRow(int index) const;
-
-    QColor color(int index) const;
-    float relativeHeight(int index) const;
-
-    QVariantList labels() const;
-    QVariantMap details(int index) const;
-
-    bool accepted(const QmlEventType &event) const;
-
-protected:
-    void loadData();
-    void clear();
-
-private:
-    QVector<QmlProfilerAnimationsModel::QmlPaintEventData> m_data;
-    int m_maxGuiThreadAnimations;
-    int m_maxRenderThreadAnimations;
-    int rowFromThreadId(int threadId) const;
+    int typeIndex;
+    qint64 startTime;
+    qint64 duration;
+    QString text;
 };
 
-}
-}
+} // namespace QmlProfiler

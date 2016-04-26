@@ -65,7 +65,7 @@ public:
     bool eventTypeAccepted(RangeType) const;
 
     const QHash<int, QmlEventStats> &getData() const;
-    const QVector<QmlProfilerDataModel::QmlEventTypeData> &getTypes() const;
+    const QVector<QmlEventType> &getTypes() const;
     const QHash<int, QString> &getNotes() const;
 
     int count() const;
@@ -112,7 +112,7 @@ public:
     void clear();
 
     const QmlStatisticsRelativesMap &getData(int typeId) const;
-    const QVector<QmlProfilerDataModel::QmlEventTypeData> &getTypes() const;
+    const QVector<QmlEventType> &getTypes() const;
 
 protected:
     virtual void loadData() = 0;

@@ -102,20 +102,18 @@ void FlameGraphModel::loadData(qint64 rangeStart, qint64 rangeEnd)
     beginResetModel();
     clear();
 
-    const QVector<QmlProfilerDataModel::QmlEventData> &eventList
-            = m_modelManager->qmlModel()->getEvents();
-    const QVector<QmlProfilerDataModel::QmlEventTypeData> &typesList
-            = m_modelManager->qmlModel()->getEventTypes();
+    const QVector<QmlEvent> &eventList = m_modelManager->qmlModel()->events();
+    const QVector<QmlEventType> &typesList = m_modelManager->qmlModel()->eventTypes();
 
     // used by binding loop detection
-    QStack<const QmlProfilerDataModel::QmlEventData *> callStack;
+    QStack<const QmlEvent *> callStack;
     callStack.append(0);
     FlameGraphData *stackTop = &m_stackBottom;
 
     for (int i = 0; i < eventList.size(); ++i) {
-        const QmlProfilerDataModel::QmlEventData *event = &eventList[i];
+        const QmlEvent *event = &eventList[i];
         int typeIndex = event->typeIndex();
-        const QmlProfilerDataModel::QmlEventTypeData *type = &typesList[typeIndex];
+        const QmlEventType *type = &typesList[typeIndex];
 
         if (!m_acceptedTypes.contains(type->rangeType))
             continue;
@@ -126,7 +124,7 @@ void FlameGraphModel::loadData(qint64 rangeStart, qint64 rangeEnd)
                 continue;
         }
 
-        const QmlProfilerDataModel::QmlEventData *potentialParent = callStack.top();
+        const QmlEvent *potentialParent = callStack.top();
         while (potentialParent &&
                potentialParent->startTime() + potentialParent->duration() <= event->startTime()) {
             callStack.pop();
@@ -187,9 +185,8 @@ QVariant FlameGraphModel::lookup(const FlameGraphData &stats, int role) const
     }
 
     if (stats.typeIndex != -1) {
-        const QVector<QmlProfilerDataModel::QmlEventTypeData> &typeList =
-                m_modelManager->qmlModel()->getEventTypes();
-        const QmlProfilerDataModel::QmlEventTypeData &type = typeList[stats.typeIndex];
+        const QVector<QmlEventType> &typeList = m_modelManager->qmlModel()->eventTypes();
+        const QmlEventType &type = typeList[stats.typeIndex];
 
         switch (role) {
         case FilenameRole: return type.location.filename;
@@ -216,7 +213,7 @@ FlameGraphData::~FlameGraphData()
 }
 
 FlameGraphData *FlameGraphModel::pushChild(
-        FlameGraphData *parent, const QmlProfilerDataModel::QmlEventData *data)
+        FlameGraphData *parent, const QmlEvent *data)
 {
     foreach (FlameGraphData *child, parent->children) {
         if (child->typeIndex == data->typeIndex()) {

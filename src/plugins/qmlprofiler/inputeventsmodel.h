@@ -35,7 +35,7 @@ class InputEventsModel : public QmlProfilerTimelineModel
     Q_OBJECT
 
 protected:
-    bool accepted(const QmlProfilerDataModel::QmlEventTypeData &event) const;
+    bool accepted(const QmlEventType &event) const;
 
 public:
     struct InputEvent {

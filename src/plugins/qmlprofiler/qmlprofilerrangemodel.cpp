@@ -71,10 +71,10 @@ void QmlProfilerRangeModel::loadData()
         return;
 
     // collect events
-    const QVector<QmlProfilerDataModel::QmlEventData> &eventList = simpleModel->getEvents();
-    const QVector<QmlProfilerDataModel::QmlEventTypeData> &typesList = simpleModel->getEventTypes();
-    foreach (const QmlProfilerDataModel::QmlEventData &event, eventList) {
-        const QmlProfilerDataModel::QmlEventTypeData &type = typesList[event.typeIndex()];
+    const QVector<QmlEvent> &eventList = simpleModel->events();
+    const QVector<QmlEventType> &typesList = simpleModel->eventTypes();
+    foreach (const QmlEvent &event, eventList) {
+        const QmlEventType &type = typesList[event.typeIndex()];
         if (!accepted(type))
             continue;
 
@@ -204,8 +204,7 @@ QVariantList QmlProfilerRangeModel::labels() const
 {
     QVariantList result;
 
-    const QVector<QmlProfilerDataModel::QmlEventTypeData> &types =
-            modelManager()->qmlModel()->getEventTypes();
+    const QVector<QmlEventType> &types = modelManager()->qmlModel()->eventTypes();
     for (int i = 1; i < expandedRowCount(); i++) { // Ignore the -1 for the first row
         QVariantMap element;
         int typeId = m_expandedRowTypes[i];
@@ -222,8 +221,7 @@ QVariantMap QmlProfilerRangeModel::details(int index) const
 {
     QVariantMap result;
     int id = selectionId(index);
-    const QVector<QmlProfilerDataModel::QmlEventTypeData> &types =
-            modelManager()->qmlModel()->getEventTypes();
+    const QVector<QmlEventType> &types = modelManager()->qmlModel()->eventTypes();
 
     result.insert(QStringLiteral("displayName"),
                   tr(QmlProfilerModelManager::featureName(mainFeature())));
@@ -247,11 +245,10 @@ int QmlProfilerRangeModel::typeId(int index) const
 int QmlProfilerRangeModel::selectionIdForLocation(const QString &filename, int line, int column) const
 {
     // if this is called from v8 view, we don't have the column number, it will be -1
-    const QVector<QmlProfilerDataModel::QmlEventTypeData> &types =
-            modelManager()->qmlModel()->getEventTypes();
+    const QVector<QmlEventType> &types = modelManager()->qmlModel()->eventTypes();
     for (int i = 1; i < expandedRowCount(); ++i) {
         int typeId = m_expandedRowTypes[i];
-        const QmlProfilerDataModel::QmlEventTypeData &eventData = types[typeId];
+        const QmlEventType &eventData = types[typeId];
         if (eventData.location.filename == filename &&
                 eventData.location.line == line &&
                 (column == -1 || eventData.location.column == column))

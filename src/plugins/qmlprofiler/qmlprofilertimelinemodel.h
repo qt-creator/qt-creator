@@ -48,7 +48,7 @@ public:
     Message message() const;
     ProfileFeature mainFeature() const;
 
-    virtual bool accepted(const QmlProfilerDataModel::QmlEventTypeData &event) const;
+    virtual bool accepted(const QmlEventType &event) const;
     bool handlesTypeId(int typeId) const;
     Q_INVOKABLE virtual int bindingLoopDest(int index) const;
     QVariantMap locationFromTypeId(int index) const;

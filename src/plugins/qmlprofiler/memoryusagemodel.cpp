@@ -82,7 +82,7 @@ QVariantMap MemoryUsageModel::location(int index) const
     int originType = m_data[index].originTypeIndex;
     if (originType > -1) {
         const QmlEventLocation &location =
-                modelManager()->qmlModel()->getEventTypes().at(originType).location;
+                modelManager()->qmlModel()->eventTypes().at(originType).location;
 
         result.insert(file, location.filename);
         result.insert(line, location.line);
@@ -132,7 +132,7 @@ QVariantMap MemoryUsageModel::details(int index) const
 
     if (ev->originTypeIndex != -1) {
         result.insert(tr("Location"),
-                modelManager()->qmlModel()->getEventTypes().at(ev->originTypeIndex).displayName);
+                modelManager()->qmlModel()->eventTypes().at(ev->originTypeIndex).displayName);
     }
     return result;
 }
@@ -159,9 +159,9 @@ void MemoryUsageModel::loadData()
 
     QStack<RangeStackFrame> rangeStack;
 
-    const QVector<QmlProfilerDataModel::QmlEventTypeData> &types = simpleModel->getEventTypes();
-    foreach (const QmlProfilerDataModel::QmlEventData &event, simpleModel->getEvents()) {
-        const QmlProfilerDataModel::QmlEventTypeData &type = types[event.typeIndex()];
+    const QVector<QmlEventType> &types = simpleModel->eventTypes();
+    foreach (const QmlEvent &event, simpleModel->events()) {
+        const QmlEventType &type = types[event.typeIndex()];
         while (!rangeStack.empty() && rangeStack.top().endTime < event.startTime())
             rangeStack.pop();
         if (!accepted(type)) {
@@ -218,7 +218,7 @@ void MemoryUsageModel::loadData()
             }
         }
 
-        updateProgress(count(), simpleModel->getEvents().count());
+        updateProgress(count(), simpleModel->events().count());
     }
 
     if (currentJSHeapIndex != -1)

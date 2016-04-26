@@ -56,26 +56,26 @@ public:
     qint64 traceStart() const { return m_traceStart; }
     qint64 traceEnd() const { return m_traceEnd; }
 
-    const QVector<QmlProfilerDataModel::QmlEventTypeData> &qmlEvents() const { return m_qmlEvents; }
-    const QVector<QmlProfilerDataModel::QmlEventData> &ranges() const { return m_ranges; }
-    const QVector<QmlProfilerDataModel::QmlEventNoteData> &notes() const { return m_notes; }
+    const QVector<QmlEventType> &eventTypes() const { return m_eventTypes; }
+    const QVector<QmlEvent> &events() const { return m_events; }
+    const QVector<QmlNote> &notes() const { return m_notes; }
 
 signals:
     void error(const QString &error);
     void success();
 
 private:
-    void loadEventData(QXmlStreamReader &reader);
-    void loadProfilerDataModel(QXmlStreamReader &reader);
-    void loadNoteData(QXmlStreamReader &reader);
+    void loadEventTypes(QXmlStreamReader &reader);
+    void loadEvents(QXmlStreamReader &reader);
+    void loadNotes(QXmlStreamReader &reader);
     void progress(QIODevice *device);
     bool isCanceled() const;
 
     qint64 m_traceStart, m_traceEnd;
     QFutureInterface<void> *m_future;
-    QVector<QmlProfilerDataModel::QmlEventTypeData> m_qmlEvents;
-    QVector<QmlProfilerDataModel::QmlEventData> m_ranges;
-    QVector<QmlProfilerDataModel::QmlEventNoteData> m_notes;
+    QVector<QmlEventType> m_eventTypes;
+    QVector<QmlEvent> m_events;
+    QVector<QmlNote> m_notes;
     quint64 m_loadedFeatures;
 };
 
@@ -88,9 +88,8 @@ public:
     explicit QmlProfilerFileWriter(QObject *parent = 0);
 
     void setTraceTime(qint64 startTime, qint64 endTime, qint64 measturedTime);
-    void setQmlEvents(const QVector<QmlProfilerDataModel::QmlEventTypeData> &types,
-                      const QVector<QmlProfilerDataModel::QmlEventData> &events);
-    void setNotes(const QVector<QmlProfilerDataModel::QmlEventNoteData> &notes);
+    void setData(const QVector<QmlEventType> &types, const QVector<QmlEvent> &events);
+    void setNotes(const QVector<QmlNote> &notes);
     void setFuture(QFutureInterface<void> *future);
 
     void save(QIODevice *device);
@@ -102,9 +101,9 @@ private:
 
     qint64 m_startTime, m_endTime, m_measuredTime;
     QFutureInterface<void> *m_future;
-    QVector<QmlProfilerDataModel::QmlEventTypeData> m_qmlEvents;
-    QVector<QmlProfilerDataModel::QmlEventData> m_ranges;
-    QVector<QmlProfilerDataModel::QmlEventNoteData> m_notes;
+    QVector<QmlEventType> m_eventTypes;
+    QVector<QmlEvent> m_events;
+    QVector<QmlNote> m_notes;
     int m_newProgressValue;
 };
 

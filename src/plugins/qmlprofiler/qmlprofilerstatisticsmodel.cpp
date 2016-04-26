@@ -97,9 +97,9 @@ const QHash<int, QmlProfilerStatisticsModel::QmlEventStats> &QmlProfilerStatisti
     return d->data;
 }
 
-const QVector<QmlProfilerDataModel::QmlEventTypeData> &QmlProfilerStatisticsModel::getTypes() const
+const QVector<QmlEventType> &QmlProfilerStatisticsModel::getTypes() const
 {
-    return d->modelManager->qmlModel()->getEventTypes();
+    return d->modelManager->qmlModel()->eventTypes();
 }
 
 const QHash<int, QString> &QmlProfilerStatisticsModel::getNotes() const
@@ -176,18 +176,16 @@ void QmlProfilerStatisticsModel::loadData(qint64 rangeStart, qint64 rangeEnd)
 
     const bool checkRanges = (rangeStart != -1) && (rangeEnd != -1);
 
-    const QVector<QmlProfilerDataModel::QmlEventData> &eventList
-            = d->modelManager->qmlModel()->getEvents();
-    const QVector<QmlProfilerDataModel::QmlEventTypeData> &typesList
-            = d->modelManager->qmlModel()->getEventTypes();
+    const QVector<QmlEvent> &eventList = d->modelManager->qmlModel()->events();
+    const QVector<QmlEventType> &typesList = d->modelManager->qmlModel()->eventTypes();
 
     // used by binding loop detection
-    QStack<const QmlProfilerDataModel::QmlEventData*> callStack;
+    QStack<const QmlEvent*> callStack;
     callStack.push(0); // artificial root
 
     for (int i = 0; i < eventList.size(); ++i) {
-        const QmlProfilerDataModel::QmlEventData *event = &eventList[i];
-        const QmlProfilerDataModel::QmlEventTypeData *type = &typesList[event->typeIndex()];
+        const QmlEvent *event = &eventList[i];
+        const QmlEventType *type = &typesList[event->typeIndex()];
 
         if (!d->acceptedTypes.contains(type->rangeType))
             continue;
@@ -221,7 +219,7 @@ void QmlProfilerStatisticsModel::loadData(qint64 rangeStart, qint64 rangeEnd)
         //
         // binding loop detection
         //
-        const QmlProfilerDataModel::QmlEventData *potentialParent = callStack.top();
+        const QmlEvent *potentialParent = callStack.top();
         while (potentialParent && !(potentialParent->startTime() + potentialParent->duration() >
                     event->startTime())) {
             callStack.pop();
@@ -315,10 +313,9 @@ QmlProfilerStatisticsRelativesModel::getData(int typeId) const
     }
 }
 
-const QVector<QmlProfilerDataModel::QmlEventTypeData> &
-QmlProfilerStatisticsRelativesModel::getTypes() const
+const QVector<QmlEventType> &QmlProfilerStatisticsRelativesModel::getTypes() const
 {
-    return m_modelManager->qmlModel()->getEventTypes();
+    return m_modelManager->qmlModel()->eventTypes();
 }
 
 int QmlProfilerStatisticsRelativesModel::count() const
@@ -360,9 +357,9 @@ void QmlProfilerStatisticsParentsModel::loadData()
 
     // compute parent-child relationship and call count
     QHash<int, int> lastParent;
-    const QVector<QmlProfilerDataModel::QmlEventData> eventList = simpleModel->getEvents();
-    const QVector<QmlProfilerDataModel::QmlEventTypeData> typesList = simpleModel->getEventTypes();
-    foreach (const QmlProfilerDataModel::QmlEventData &event, eventList) {
+    const QVector<QmlEvent> eventList = simpleModel->events();
+    const QVector<QmlEventType> typesList = simpleModel->eventTypes();
+    foreach (const QmlEvent &event, eventList) {
         // whitelist
         if (!m_statisticsModel->eventTypeAccepted(typesList[event.typeIndex()].rangeType))
             continue;
@@ -422,9 +419,9 @@ void QmlProfilerStatisticsChildrenModel::loadData()
 
     // compute parent-child relationship and call count
     QHash<int, int> lastParent;
-    const QVector<QmlProfilerDataModel::QmlEventData> &eventList = simpleModel->getEvents();
-    const QVector<QmlProfilerDataModel::QmlEventTypeData> &typesList = simpleModel->getEventTypes();
-    foreach (const QmlProfilerDataModel::QmlEventData &event, eventList) {
+    const QVector<QmlEvent> &eventList = simpleModel->events();
+    const QVector<QmlEventType> &typesList = simpleModel->eventTypes();
+    foreach (const QmlEvent &event, eventList) {
         // whitelist
         if (!m_statisticsModel->eventTypeAccepted(typesList[event.typeIndex()].rangeType))
             continue;

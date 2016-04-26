@@ -54,7 +54,7 @@ void QmlProfilerAnimationsModel::clear()
     QmlProfilerTimelineModel::clear();
 }
 
-bool QmlProfilerAnimationsModel::accepted(const QmlProfilerDataModel::QmlEventTypeData &event) const
+bool QmlProfilerAnimationsModel::accepted(const QmlEventType &event) const
 {
     return QmlProfilerTimelineModel::accepted(event) && event.detailType == AnimationFrame;
 }
@@ -66,15 +66,15 @@ void QmlProfilerAnimationsModel::loadData()
         return;
 
     // collect events
-    const QVector<QmlProfilerDataModel::QmlEventData> &referenceList = simpleModel->getEvents();
-    const QVector<QmlProfilerDataModel::QmlEventTypeData> &typeList = simpleModel->getEventTypes();
+    const QVector<QmlEvent> &referenceList = simpleModel->events();
+    const QVector<QmlEventType> &typeList = simpleModel->eventTypes();
 
     AnimationThread lastThread;
     QmlPaintEventData lastEvent;
     qint64 minNextStartTimes[] = {0, 0};
 
-    foreach (const QmlProfilerDataModel::QmlEventData &event, referenceList) {
-        const QmlProfilerDataModel::QmlEventTypeData &type = typeList[event.typeIndex()];
+    foreach (const QmlEvent &event, referenceList) {
+        const QmlEventType &type = typeList[event.typeIndex()];
         if (!accepted(type))
             continue;
 

@@ -138,9 +138,9 @@ void SceneGraphTimelineModel::loadData()
         return;
 
     // combine the data of several eventtypes into two rows
-    const QVector<QmlProfilerDataModel::QmlEventTypeData> &types = simpleModel->getEventTypes();
-    foreach (const QmlProfilerDataModel::QmlEventData &event, simpleModel->getEvents()) {
-        const QmlProfilerDataModel::QmlEventTypeData &type = types[event.typeIndex()];
+    const QVector<QmlEventType> &types = simpleModel->eventTypes();
+    foreach (const QmlEvent &event, simpleModel->events()) {
+        const QmlEventType &type = types[event.typeIndex()];
         if (!accepted(type))
             continue;
 
@@ -220,7 +220,7 @@ void SceneGraphTimelineModel::loadData()
         default: break;
         }
 
-        updateProgress(count(), simpleModel->getEvents().count());
+        updateProgress(count(), simpleModel->events().count());
     }
 
     computeNesting();

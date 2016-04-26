@@ -146,9 +146,9 @@ void InputEventsModel::loadData()
     if (simpleModel->isEmpty())
         return;
 
-    const QVector<QmlProfilerDataModel::QmlEventTypeData> &types = simpleModel->getEventTypes();
-    foreach (const QmlProfilerDataModel::QmlEventData &event, simpleModel->getEvents()) {
-        const QmlProfilerDataModel::QmlEventTypeData &type = types[event.typeIndex()];
+    const QVector<QmlEventType> &types = simpleModel->eventTypes();
+    foreach (const QmlEvent &event, simpleModel->events()) {
+        const QmlEventType &type = types[event.typeIndex()];
         if (!accepted(type))
             continue;
 
@@ -162,7 +162,7 @@ void InputEventsModel::loadData()
         } else if (m_keyTypeId == -1) {
             m_keyTypeId = event.typeIndex();
         }
-        updateProgress(count(), simpleModel->getEvents().count());
+        updateProgress(count(), simpleModel->events().count());
     }
     setCollapsedRowCount(2);
     setExpandedRowCount(3);
@@ -176,7 +176,7 @@ void InputEventsModel::clear()
     QmlProfilerTimelineModel::clear();
 }
 
-bool InputEventsModel::accepted(const QmlProfilerDataModel::QmlEventTypeData &event) const
+bool InputEventsModel::accepted(const QmlEventType &event) const
 {
     return QmlProfilerTimelineModel::accepted(event) &&
             (event.detailType == Mouse || event.detailType == Key);

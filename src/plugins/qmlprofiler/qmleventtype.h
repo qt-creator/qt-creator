@@ -22,60 +22,29 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
-
 #pragma once
 
-#include "qmlprofilertimelinemodel.h"
-#include "qmlprofilereventtypes.h"
 #include "qmlprofilereventlocation.h"
-#include "qmlprofilerdatamodel.h"
-
-#include <QVariantList>
-#include <QColor>
-#include <QObject>
+#include "qmlprofilereventtypes.h"
+#include <QString>
 
 namespace QmlProfiler {
-class QmlProfilerModelManager;
 
-namespace Internal {
+struct QmlEventType {
+    QmlEventType(const QString &displayName = QString(),
+                 const QmlEventLocation &location = QmlEventLocation(),
+                 Message message = MaximumMessage, RangeType rangeType = MaximumRangeType,
+                 int detailType = -1, const QString &data = QString()) :
+        displayName(displayName), location(location), message(message), rangeType(rangeType),
+        detailType(detailType), data(data)
+    {}
 
-class QmlProfilerAnimationsModel : public QmlProfilerTimelineModel
-{
-    Q_OBJECT
-public:
-
-    struct QmlPaintEventData {
-        int framerate;
-        int animationcount;
-        int typeId;
-    };
-
-    QmlProfilerAnimationsModel(QmlProfilerModelManager *manager, QObject *parent = 0);
-
-    int rowMaxValue(int rowNumber) const;
-
-    int typeId(int index) const;
-    Q_INVOKABLE int expandedRow(int index) const;
-    Q_INVOKABLE int collapsedRow(int index) const;
-
-    QColor color(int index) const;
-    float relativeHeight(int index) const;
-
-    QVariantList labels() const;
-    QVariantMap details(int index) const;
-
-    bool accepted(const QmlEventType &event) const;
-
-protected:
-    void loadData();
-    void clear();
-
-private:
-    QVector<QmlProfilerAnimationsModel::QmlPaintEventData> m_data;
-    int m_maxGuiThreadAnimations;
-    int m_maxRenderThreadAnimations;
-    int rowFromThreadId(int threadId) const;
+    QString displayName;
+    QmlEventLocation location;
+    Message message;
+    RangeType rangeType;
+    int detailType; // can be EventType, BindingType, PixmapEventType or SceneGraphFrameType
+    QString data;
 };
 
-}
-}
+} // namespace QmlProfiler

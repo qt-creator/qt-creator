@@ -28,7 +28,7 @@
 namespace QmlProfiler {
 namespace Internal {
 
-bool DebugMessagesModel::accepted(const QmlProfilerDataModel::QmlEventTypeData &event) const
+bool DebugMessagesModel::accepted(const QmlEventType &event) const
 {
     return event.message == DebugMessage;
 }
@@ -78,8 +78,7 @@ QVariantList DebugMessagesModel::labels() const
 
 QVariantMap DebugMessagesModel::details(int index) const
 {
-    const QmlProfilerDataModel::QmlEventTypeData &type =
-            modelManager()->qmlModel()->getEventTypes()[m_data[index].typeId];
+    const QmlEventType &type = modelManager()->qmlModel()->eventTypes()[m_data[index].typeId];
 
     QVariantMap result;
     result.insert(QLatin1String("displayName"), messageType(type.detailType));
@@ -106,10 +105,10 @@ void DebugMessagesModel::loadData()
     if (simpleModel->isEmpty())
         return;
 
-    const QVector<QmlProfilerDataModel::QmlEventTypeData> &types = simpleModel->getEventTypes();
+    const QVector<QmlEventType> &types = simpleModel->eventTypes();
 
-    foreach (const QmlProfilerDataModel::QmlEventData &event, simpleModel->getEvents()) {
-        const QmlProfilerDataModel::QmlEventTypeData &type = types[event.typeIndex()];
+    foreach (const QmlEvent &event, simpleModel->events()) {
+        const QmlEventType &type = types[event.typeIndex()];
         if (!accepted(type) || event.startTime() < 0)
             continue;
 
@@ -117,7 +116,7 @@ void DebugMessagesModel::loadData()
                       MessageData(event.stringData(), event.typeIndex()));
         if (type.detailType > m_maximumMsgType)
             m_maximumMsgType = event.typeIndex();
-        updateProgress(count(), simpleModel->getEvents().count());
+        updateProgress(count(), simpleModel->events().count());
     }
     setCollapsedRowCount(2);
     setExpandedRowCount(m_maximumMsgType + 2);

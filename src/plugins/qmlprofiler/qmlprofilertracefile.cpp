@@ -158,17 +158,17 @@ bool QmlProfilerFileReader::load(QIODevice *device)
             }
 
             if (elementName == _("eventData")) {
-                loadEventData(stream);
+                loadEventTypes(stream);
                 break;
             }
 
             if (elementName == _("profilerDataModel")) {
-                loadProfilerDataModel(stream);
+                loadEvents(stream);
                 break;
             }
 
             if (elementName == _("noteData")) {
-                loadNoteData(stream);
+                loadNotes(stream);
                 break;
             }
 
@@ -192,13 +192,13 @@ quint64 QmlProfilerFileReader::loadedFeatures() const
     return m_loadedFeatures;
 }
 
-ProfileFeature featureFromEvent(const QmlProfilerDataModel::QmlEventTypeData &event) {
-    if (event.rangeType < MaximumRangeType)
-        return featureFromRangeType(event.rangeType);
+ProfileFeature featureFromType(const QmlEventType &type) {
+    if (type.rangeType < MaximumRangeType)
+        return featureFromRangeType(type.rangeType);
 
-    switch (event.message) {
+    switch (type.message) {
     case Event:
-        switch (event.detailType) {
+        switch (type.detailType) {
         case AnimationFrame:
             return ProfileAnimations;
         case Key:
@@ -220,12 +220,12 @@ ProfileFeature featureFromEvent(const QmlProfilerDataModel::QmlEventTypeData &ev
     }
 }
 
-void QmlProfilerFileReader::loadEventData(QXmlStreamReader &stream)
+void QmlProfilerFileReader::loadEventTypes(QXmlStreamReader &stream)
 {
     QTC_ASSERT(stream.name() == _("eventData"), return);
 
-    int eventIndex = -1;
-    QmlProfilerDataModel::QmlEventTypeData event = {
+    int typeIndex = -1;
+    QmlEventType type = {
             QString(), // displayname
             QmlEventLocation(),
             MaximumMessage,
@@ -233,7 +233,7 @@ void QmlProfilerFileReader::loadEventData(QXmlStreamReader &stream)
             QmlBinding,  // bindingType, set for backwards compatibility
             QString(), // details
     };
-    const QmlProfilerDataModel::QmlEventTypeData defaultEvent = event;
+    const QmlEventType defaultEvent = type;
 
     while (!stream.atEnd() && !stream.hasError()) {
         if (isCanceled())
@@ -246,14 +246,14 @@ void QmlProfilerFileReader::loadEventData(QXmlStreamReader &stream)
         case QXmlStreamReader::StartElement: {
             if (elementName == _("event")) {
                 progress(stream.device());
-                event = defaultEvent;
+                type = defaultEvent;
 
                 const QXmlStreamAttributes attributes = stream.attributes();
                 if (attributes.hasAttribute(_("index"))) {
-                    eventIndex = attributes.value(_("index")).toInt();
+                    typeIndex = attributes.value(_("index")).toInt();
                 } else {
                     // ignore event
-                    eventIndex = -1;
+                    typeIndex = -1;
                 }
                 break;
             }
@@ -265,47 +265,47 @@ void QmlProfilerFileReader::loadEventData(QXmlStreamReader &stream)
             const QString readData = stream.text().toString();
 
             if (elementName == _("displayname")) {
-                event.displayName = readData;
+                type.displayName = readData;
                 break;
             }
 
             if (elementName == _("type")) {
                 QPair<Message, RangeType> enums = qmlTypeAsEnum(readData);
-                event.message = enums.first;
-                event.rangeType = enums.second;
+                type.message = enums.first;
+                type.rangeType = enums.second;
                 break;
             }
 
             if (elementName == _("filename")) {
-                event.location.filename = readData;
+                type.location.filename = readData;
                 break;
             }
 
             if (elementName == _("line")) {
-                event.location.line = readData.toInt();
+                type.location.line = readData.toInt();
                 break;
             }
 
             if (elementName == _("column")) {
-                event.location.column = readData.toInt();
+                type.location.column = readData.toInt();
                 break;
             }
 
             if (elementName == _("details")) {
-                event.data = readData;
+                type.data = readData;
                 break;
             }
 
             if (elementName == _("animationFrame")) {
-                event.detailType = readData.toInt();
+                type.detailType = readData.toInt();
                 // new animation frames used to be saved as ranges of range type Painting with
                 // binding type 4 (which was called "AnimationFrame" to make everything even more
                 // confusing), even though they clearly aren't ranges. Convert that to something
                 // sane here.
-                if (event.detailType == 4) {
-                    event.message = Event;
-                    event.rangeType = MaximumRangeType;
-                    event.detailType = AnimationFrame;
+                if (type.detailType == 4) {
+                    type.message = Event;
+                    type.rangeType = MaximumRangeType;
+                    type.detailType = AnimationFrame;
                 }
             }
 
@@ -316,7 +316,7 @@ void QmlProfilerFileReader::loadEventData(QXmlStreamReader &stream)
                     elementName == _("mouseEvent") ||
                     elementName == _("keyEvent") ||
                     elementName == _("level")) {
-                event.detailType = readData.toInt();
+                type.detailType = readData.toInt();
                 break;
             }
 
@@ -324,11 +324,11 @@ void QmlProfilerFileReader::loadEventData(QXmlStreamReader &stream)
         }
         case QXmlStreamReader::EndElement: {
             if (elementName == _("event")) {
-                if (eventIndex >= 0) {
-                    if (eventIndex >= m_qmlEvents.size())
-                        m_qmlEvents.resize(eventIndex + 1);
-                    m_qmlEvents[eventIndex] = event;
-                    ProfileFeature feature = featureFromEvent(event);
+                if (typeIndex >= 0) {
+                    if (typeIndex >= m_eventTypes.size())
+                        m_eventTypes.resize(typeIndex + 1);
+                    m_eventTypes[typeIndex] = type;
+                    ProfileFeature feature = featureFromType(type);
                     if (feature != MaximumProfileFeature)
                         m_loadedFeatures |= (1ULL << static_cast<uint>(feature));
                 }
@@ -346,7 +346,7 @@ void QmlProfilerFileReader::loadEventData(QXmlStreamReader &stream)
     }
 }
 
-void QmlProfilerFileReader::loadProfilerDataModel(QXmlStreamReader &stream)
+void QmlProfilerFileReader::loadEvents(QXmlStreamReader &stream)
 {
     QTC_ASSERT(stream.name() == _("profilerDataModel"), return);
 
@@ -361,7 +361,7 @@ void QmlProfilerFileReader::loadProfilerDataModel(QXmlStreamReader &stream)
         case QXmlStreamReader::StartElement: {
             if (elementName == _("range")) {
                 progress(stream.device());
-                QmlProfilerDataModel::QmlEventData range(0, 0, -1, 0, 0, 0, 0, 0);
+                QmlEvent event(0, 0, -1, 0, 0, 0, 0, 0);
 
                 const QXmlStreamAttributes attributes = stream.attributes();
                 if (!attributes.hasAttribute(_("startTime"))
@@ -370,47 +370,47 @@ void QmlProfilerFileReader::loadProfilerDataModel(QXmlStreamReader &stream)
                     continue;
                 }
 
-                range.setStartTime(attributes.value(_("startTime")).toLongLong());
+                event.setStartTime(attributes.value(_("startTime")).toLongLong());
                 if (attributes.hasAttribute(_("duration")))
-                    range.setDuration(attributes.value(_("duration")).toLongLong());
+                    event.setDuration(attributes.value(_("duration")).toLongLong());
 
                 // attributes for special events
                 if (attributes.hasAttribute(_("framerate")))
-                    range.setNumericData(0, attributes.value(_("framerate")).toLongLong());
+                    event.setNumericData(0, attributes.value(_("framerate")).toLongLong());
                 if (attributes.hasAttribute(_("animationcount")))
-                    range.setNumericData(1, attributes.value(_("animationcount")).toLongLong());
+                    event.setNumericData(1, attributes.value(_("animationcount")).toLongLong());
                 if (attributes.hasAttribute(_("thread")))
-                    range.setNumericData(2, attributes.value(_("thread")).toLongLong());
+                    event.setNumericData(2, attributes.value(_("thread")).toLongLong());
                 if (attributes.hasAttribute(_("width")))
-                    range.setNumericData(0, attributes.value(_("width")).toLongLong());
+                    event.setNumericData(0, attributes.value(_("width")).toLongLong());
                 if (attributes.hasAttribute(_("height")))
-                    range.setNumericData(1, attributes.value(_("height")).toLongLong());
+                    event.setNumericData(1, attributes.value(_("height")).toLongLong());
                 if (attributes.hasAttribute(_("refCount")))
-                    range.setNumericData(2, attributes.value(_("refCount")).toLongLong());
+                    event.setNumericData(2, attributes.value(_("refCount")).toLongLong());
                 if (attributes.hasAttribute(_("amount")))
-                    range.setNumericData(0, attributes.value(_("amount")).toLongLong());
+                    event.setNumericData(0, attributes.value(_("amount")).toLongLong());
                 if (attributes.hasAttribute(_("timing1")))
-                    range.setNumericData(0, attributes.value(_("timing1")).toLongLong());
+                    event.setNumericData(0, attributes.value(_("timing1")).toLongLong());
                 if (attributes.hasAttribute(_("timing2")))
-                    range.setNumericData(1, attributes.value(_("timing2")).toLongLong());
+                    event.setNumericData(1, attributes.value(_("timing2")).toLongLong());
                 if (attributes.hasAttribute(_("timing3")))
-                    range.setNumericData(2, attributes.value(_("timing3")).toLongLong());
+                    event.setNumericData(2, attributes.value(_("timing3")).toLongLong());
                 if (attributes.hasAttribute(_("timing4")))
-                    range.setNumericData(3, attributes.value(_("timing4")).toLongLong());
+                    event.setNumericData(3, attributes.value(_("timing4")).toLongLong());
                 if (attributes.hasAttribute(_("timing5")))
-                    range.setNumericData(4, attributes.value(_("timing5")).toLongLong());
+                    event.setNumericData(4, attributes.value(_("timing5")).toLongLong());
                 if (attributes.hasAttribute(_("type")))
-                    range.setNumericData(0, attributes.value(_("type")).toLongLong());
+                    event.setNumericData(0, attributes.value(_("type")).toLongLong());
                 if (attributes.hasAttribute(_("data1")))
-                    range.setNumericData(1, attributes.value(_("data1")).toLongLong());
+                    event.setNumericData(1, attributes.value(_("data1")).toLongLong());
                 if (attributes.hasAttribute(_("data2")))
-                    range.setNumericData(2, attributes.value(_("data2")).toLongLong());
+                    event.setNumericData(2, attributes.value(_("data2")).toLongLong());
                 if (attributes.hasAttribute(_("text")))
-                    range.setStringData(attributes.value(_("text")).toString());
+                    event.setStringData(attributes.value(_("text")).toString());
 
-                range.setTypeIndex(attributes.value(_("eventIndex")).toInt());
+                event.setTypeIndex(attributes.value(_("eventIndex")).toInt());
 
-                m_ranges.append(range);
+                m_events.append(event);
             }
             break;
         }
@@ -426,9 +426,9 @@ void QmlProfilerFileReader::loadProfilerDataModel(QXmlStreamReader &stream)
     }
 }
 
-void QmlProfilerFileReader::loadNoteData(QXmlStreamReader &stream)
+void QmlProfilerFileReader::loadNotes(QXmlStreamReader &stream)
 {
-    QmlProfilerDataModel::QmlEventNoteData currentNote;
+    QmlNote currentNote;
     while (!stream.atEnd() && !stream.hasError()) {
         if (isCanceled())
             return;
@@ -494,14 +494,14 @@ void QmlProfilerFileWriter::setTraceTime(qint64 startTime, qint64 endTime, qint6
     m_measuredTime = measuredTime;
 }
 
-void QmlProfilerFileWriter::setQmlEvents(const QVector<QmlProfilerDataModel::QmlEventTypeData> &types,
-                                         const QVector<QmlProfilerDataModel::QmlEventData> &events)
+void QmlProfilerFileWriter::setData(const QVector<QmlEventType> &types,
+                                         const QVector<QmlEvent> &events)
 {
-    m_qmlEvents = types;
-    m_ranges = events;
+    m_eventTypes = types;
+    m_events = events;
 }
 
-void QmlProfilerFileWriter::setNotes(const QVector<QmlProfilerDataModel::QmlEventNoteData> &notes)
+void QmlProfilerFileWriter::setNotes(const QVector<QmlNote> &notes)
 {
     m_notes = notes;
 }
@@ -515,7 +515,7 @@ void QmlProfilerFileWriter::save(QIODevice *device)
 {
     if (m_future) {
         m_future->setProgressRange(0,
-            qMax(m_qmlEvents.size() + m_ranges.size() + m_notes.size(), 1));
+            qMax(m_eventTypes.size() + m_events.size() + m_notes.size(), 1));
         m_future->setProgressValue(0);
         m_newProgressValue = 0;
     }
@@ -534,49 +534,49 @@ void QmlProfilerFileWriter::save(QIODevice *device)
     stream.writeStartElement(_("eventData"));
     stream.writeAttribute(_("totalTime"), QString::number(m_measuredTime));
 
-    for (int typeIndex = 0; typeIndex < m_qmlEvents.size(); ++typeIndex) {
+    for (int typeIndex = 0; typeIndex < m_eventTypes.size(); ++typeIndex) {
         if (isCanceled())
             return;
 
-        const QmlProfilerDataModel::QmlEventTypeData &event = m_qmlEvents[typeIndex];
+        const QmlEventType &type = m_eventTypes[typeIndex];
 
         stream.writeStartElement(_("event"));
         stream.writeAttribute(_("index"), QString::number(typeIndex));
-        stream.writeTextElement(_("displayname"), event.displayName);
-        stream.writeTextElement(_("type"), qmlTypeAsString(event.message, event.rangeType));
-        if (!event.location.filename.isEmpty()) {
-            stream.writeTextElement(_("filename"), event.location.filename);
-            stream.writeTextElement(_("line"), QString::number(event.location.line));
-            stream.writeTextElement(_("column"), QString::number(event.location.column));
+        stream.writeTextElement(_("displayname"), type.displayName);
+        stream.writeTextElement(_("type"), qmlTypeAsString(type.message, type.rangeType));
+        if (!type.location.filename.isEmpty()) {
+            stream.writeTextElement(_("filename"), type.location.filename);
+            stream.writeTextElement(_("line"), QString::number(type.location.line));
+            stream.writeTextElement(_("column"), QString::number(type.location.column));
         }
 
-        if (!event.data.isEmpty())
-            stream.writeTextElement(_("details"), event.data);
+        if (!type.data.isEmpty())
+            stream.writeTextElement(_("details"), type.data);
 
-        if (event.rangeType == Binding) {
-            stream.writeTextElement(_("bindingType"), QString::number(event.detailType));
-        } else if (event.message == Event) {
-            switch (event.detailType) {
+        if (type.rangeType == Binding) {
+            stream.writeTextElement(_("bindingType"), QString::number(type.detailType));
+        } else if (type.message == Event) {
+            switch (type.detailType) {
             case AnimationFrame:
-                stream.writeTextElement(_("animationFrame"), QString::number(event.detailType));
+                stream.writeTextElement(_("animationFrame"), QString::number(type.detailType));
                 break;
             case Key:
-                stream.writeTextElement(_("keyEvent"), QString::number(event.detailType));
+                stream.writeTextElement(_("keyEvent"), QString::number(type.detailType));
                 break;
             case Mouse:
-                stream.writeTextElement(_("mouseEvent"), QString::number(event.detailType));
+                stream.writeTextElement(_("mouseEvent"), QString::number(type.detailType));
                 break;
             default:
                 break;
             }
-        } else if (event.message == PixmapCacheEvent) {
-            stream.writeTextElement(_("cacheEventType"), QString::number(event.detailType));
-        } else if (event.message == SceneGraphFrame) {
-            stream.writeTextElement(_("sgEventType"), QString::number(event.detailType));
-        } else if (event.message == MemoryAllocation) {
-            stream.writeTextElement(_("memoryEventType"), QString::number(event.detailType));
-        } else if (event.message == DebugMessage) {
-            stream.writeTextElement(_("level"), QString::number(event.detailType));
+        } else if (type.message == PixmapCacheEvent) {
+            stream.writeTextElement(_("cacheEventType"), QString::number(type.detailType));
+        } else if (type.message == SceneGraphFrame) {
+            stream.writeTextElement(_("sgEventType"), QString::number(type.detailType));
+        } else if (type.message == MemoryAllocation) {
+            stream.writeTextElement(_("memoryEventType"), QString::number(type.detailType));
+        } else if (type.message == DebugMessage) {
+            stream.writeTextElement(_("level"), QString::number(type.detailType));
         }
         stream.writeEndElement();
         incrementProgress();
@@ -585,67 +585,67 @@ void QmlProfilerFileWriter::save(QIODevice *device)
 
     stream.writeStartElement(_("profilerDataModel"));
 
-    for (int rangeIndex = 0; rangeIndex < m_ranges.size(); ++rangeIndex) {
+    for (int rangeIndex = 0; rangeIndex < m_events.size(); ++rangeIndex) {
         if (isCanceled())
             return;
 
-        const QmlProfilerDataModel::QmlEventData &range = m_ranges[rangeIndex];
+        const QmlEvent &event = m_events[rangeIndex];
 
         stream.writeStartElement(_("range"));
-        stream.writeAttribute(_("startTime"), QString::number(range.startTime()));
-        if (range.duration() > 0) // no need to store duration of instantaneous events
-            stream.writeAttribute(_("duration"), QString::number(range.duration()));
-        stream.writeAttribute(_("eventIndex"), QString::number(range.typeIndex()));
+        stream.writeAttribute(_("startTime"), QString::number(event.startTime()));
+        if (event.duration() > 0) // no need to store duration of instantaneous events
+            stream.writeAttribute(_("duration"), QString::number(event.duration()));
+        stream.writeAttribute(_("eventIndex"), QString::number(event.typeIndex()));
 
-        const QmlProfilerDataModel::QmlEventTypeData &event = m_qmlEvents[range.typeIndex()];
+        const QmlEventType &type = m_eventTypes[event.typeIndex()];
 
 
-        if (event.message == Event) {
-            if (event.detailType == AnimationFrame) {
+        if (type.message == Event) {
+            if (type.detailType == AnimationFrame) {
                 // special: animation event
-                stream.writeAttribute(_("framerate"), QString::number(range.numericData(0)));
-                stream.writeAttribute(_("animationcount"), QString::number(range.numericData(1)));
-                stream.writeAttribute(_("thread"), QString::number(range.numericData(2)));
-            } else if (event.detailType == Key || event.detailType == Mouse) {
+                stream.writeAttribute(_("framerate"), QString::number(event.numericData(0)));
+                stream.writeAttribute(_("animationcount"), QString::number(event.numericData(1)));
+                stream.writeAttribute(_("thread"), QString::number(event.numericData(2)));
+            } else if (type.detailType == Key || type.detailType == Mouse) {
                 // special: input event
-                stream.writeAttribute(_("type"), QString::number(range.numericData(0)));
-                stream.writeAttribute(_("data1"), QString::number(range.numericData(1)));
-                stream.writeAttribute(_("data2"), QString::number(range.numericData(2)));
+                stream.writeAttribute(_("type"), QString::number(event.numericData(0)));
+                stream.writeAttribute(_("data1"), QString::number(event.numericData(1)));
+                stream.writeAttribute(_("data2"), QString::number(event.numericData(2)));
             }
         }
 
         // special: pixmap cache event
-        if (event.message == PixmapCacheEvent) {
-            if (event.detailType == PixmapSizeKnown) {
-                stream.writeAttribute(_("width"), QString::number(range.numericData(0)));
-                stream.writeAttribute(_("height"), QString::number(range.numericData(1)));
+        if (type.message == PixmapCacheEvent) {
+            if (type.detailType == PixmapSizeKnown) {
+                stream.writeAttribute(_("width"), QString::number(event.numericData(0)));
+                stream.writeAttribute(_("height"), QString::number(event.numericData(1)));
             }
 
-            if (event.detailType == PixmapReferenceCountChanged ||
-                    event.detailType == PixmapCacheCountChanged)
-                stream.writeAttribute(_("refCount"), QString::number(range.numericData(2)));
+            if (type.detailType == PixmapReferenceCountChanged ||
+                    type.detailType == PixmapCacheCountChanged)
+                stream.writeAttribute(_("refCount"), QString::number(event.numericData(2)));
         }
 
-        if (event.message == SceneGraphFrame) {
+        if (type.message == SceneGraphFrame) {
             // special: scenegraph frame events
-            if (range.numericData(0) > 0)
-                stream.writeAttribute(_("timing1"), QString::number(range.numericData(0)));
-            if (range.numericData(1) > 0)
-                stream.writeAttribute(_("timing2"), QString::number(range.numericData(1)));
-            if (range.numericData(2) > 0)
-                stream.writeAttribute(_("timing3"), QString::number(range.numericData(2)));
-            if (range.numericData(3) > 0)
-                stream.writeAttribute(_("timing4"), QString::number(range.numericData(3)));
-            if (range.numericData(4) > 0)
-                stream.writeAttribute(_("timing5"), QString::number(range.numericData(4)));
+            if (event.numericData(0) > 0)
+                stream.writeAttribute(_("timing1"), QString::number(event.numericData(0)));
+            if (event.numericData(1) > 0)
+                stream.writeAttribute(_("timing2"), QString::number(event.numericData(1)));
+            if (event.numericData(2) > 0)
+                stream.writeAttribute(_("timing3"), QString::number(event.numericData(2)));
+            if (event.numericData(3) > 0)
+                stream.writeAttribute(_("timing4"), QString::number(event.numericData(3)));
+            if (event.numericData(4) > 0)
+                stream.writeAttribute(_("timing5"), QString::number(event.numericData(4)));
         }
 
         // special: memory allocation event
-        if (event.message == MemoryAllocation)
-            stream.writeAttribute(_("amount"), QString::number(range.numericData(0)));
+        if (type.message == MemoryAllocation)
+            stream.writeAttribute(_("amount"), QString::number(event.numericData(0)));
 
-        if (event.message == DebugMessage)
-            stream.writeAttribute(_("text"), range.stringData());
+        if (type.message == DebugMessage)
+            stream.writeAttribute(_("text"), event.stringData());
 
         stream.writeEndElement();
         incrementProgress();
@@ -657,7 +657,7 @@ void QmlProfilerFileWriter::save(QIODevice *device)
         if (isCanceled())
             return;
 
-        const QmlProfilerDataModel::QmlEventNoteData &notes = m_notes[noteIndex];
+        const QmlNote &notes = m_notes[noteIndex];
         stream.writeStartElement(_("note"));
         stream.writeAttribute(_("startTime"), QString::number(notes.startTime));
         stream.writeAttribute(_("duration"), QString::number(notes.duration));

@@ -57,7 +57,7 @@ struct Colors {
     QColor defaultBackground;
 };
 
-struct RootEventType : public QmlProfilerDataModel::QmlEventTypeData {
+struct RootEventType : public QmlEventType {
     RootEventType()
     {
         QString rootEventName = QmlProfilerStatisticsMainView::tr("<program>");
@@ -555,8 +555,7 @@ void QmlProfilerStatisticsMainView::buildModel()
 
 void QmlProfilerStatisticsMainView::updateNotes(int typeIndex)
 {
-    const QHash<int, QmlProfilerStatisticsModel::QmlEventStats> &eventList =
-            d->model->getData();
+    const QHash<int, QmlProfilerStatisticsModel::QmlEventStats> &eventList = d->model->getData();
     const QHash<int, QString> &noteList = d->model->getNotes();
     QStandardItem *parentItem = d->m_model->invisibleRootItem();
 
@@ -585,17 +584,15 @@ void QmlProfilerStatisticsMainView::updateNotes(int typeIndex)
 
 void QmlProfilerStatisticsMainView::parseModel()
 {
-    const QHash<int, QmlProfilerStatisticsModel::QmlEventStats> &eventList =
-            d->model->getData();
-    const QVector<QmlProfilerDataModel::QmlEventTypeData> &typeList = d->model->getTypes();
+    const QHash<int, QmlProfilerStatisticsModel::QmlEventStats> &eventList = d->model->getData();
+    const QVector<QmlEventType> &typeList = d->model->getTypes();
 
 
     QHash<int, QmlProfilerStatisticsModel::QmlEventStats>::ConstIterator it;
     for (it = eventList.constBegin(); it != eventList.constEnd(); ++it) {
         int typeIndex = it.key();
         const QmlProfilerStatisticsModel::QmlEventStats &stats = it.value();
-        const QmlProfilerDataModel::QmlEventTypeData &event =
-                (typeIndex != -1 ? typeList[typeIndex] : *rootEventType());
+        const QmlEventType &event = (typeIndex != -1 ? typeList[typeIndex] : *rootEventType());
         QStandardItem *parentItem = d->m_model->invisibleRootItem();
         QList<QStandardItem *> newRow;
 
@@ -889,14 +886,13 @@ void QmlProfilerStatisticsRelativesView::rebuildTree(
     treeModel()->clear();
 
     QStandardItem *topLevelItem = treeModel()->invisibleRootItem();
-    const QVector<QmlProfilerDataModel::QmlEventTypeData> &typeList = d->model->getTypes();
+    const QVector<QmlEventType> &typeList = d->model->getTypes();
 
     QmlProfilerStatisticsRelativesModel::QmlStatisticsRelativesMap::const_iterator it;
     for (it = map.constBegin(); it != map.constEnd(); ++it) {
         const QmlProfilerStatisticsRelativesModel::QmlStatisticsRelativesData &event = it.value();
         int typeIndex = it.key();
-        const QmlProfilerDataModel::QmlEventTypeData &type =
-                (typeIndex != -1 ? typeList[typeIndex] : *rootEventType());
+        const QmlEventType &type = (typeIndex != -1 ? typeList[typeIndex] : *rootEventType());
         QList<QStandardItem *> newRow;
 
         // ToDo: here we were going to search for the data in the other model

@@ -174,9 +174,9 @@ void PixmapCacheModel::loadData()
     int lastCacheSizeEvent = -1;
     int cumulatedCount = 0;
 
-    const QVector<QmlProfilerDataModel::QmlEventTypeData> &types = simpleModel->getEventTypes();
-    foreach (const QmlProfilerDataModel::QmlEventData &event, simpleModel->getEvents()) {
-        const QmlProfilerDataModel::QmlEventTypeData &type = types[event.typeIndex()];
+    const QVector<QmlEventType> &types = simpleModel->eventTypes();
+    foreach (const QmlEvent &event, simpleModel->events()) {
+        const QmlEventType &type = types[event.typeIndex()];
         if (!accepted(type))
             continue;
 
@@ -398,7 +398,7 @@ void PixmapCacheModel::loadData()
             break;
         }
 
-        updateProgress(count(), 2 * simpleModel->getEvents().count());
+        updateProgress(count(), 2 * simpleModel->events().count());
     }
 
     if (lastCacheSizeEvent != -1)

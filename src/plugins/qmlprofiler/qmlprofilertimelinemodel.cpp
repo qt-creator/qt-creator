@@ -57,7 +57,7 @@ ProfileFeature QmlProfilerTimelineModel::mainFeature() const
     return m_mainFeature;
 }
 
-bool QmlProfilerTimelineModel::accepted(const QmlProfilerDataModel::QmlEventTypeData &event) const
+bool QmlProfilerTimelineModel::accepted(const QmlEventType &event) const
 {
     return (event.rangeType == m_rangeType && event.message == m_message);
 }
@@ -67,7 +67,7 @@ bool QmlProfilerTimelineModel::handlesTypeId(int typeIndex) const
     if (typeIndex < 0)
         return false;
 
-    return accepted(modelManager()->qmlModel()->getEventTypes().at(typeIndex));
+    return accepted(modelManager()->qmlModel()->eventTypes().at(typeIndex));
 }
 
 void QmlProfilerTimelineModel::clear()
@@ -127,7 +127,7 @@ QVariantMap QmlProfilerTimelineModel::locationFromTypeId(int index) const
     if (id < 0)
         return result;
 
-    auto types = modelManager()->qmlModel()->getEventTypes();
+    auto types = modelManager()->qmlModel()->eventTypes();
     if (id >= types.length())
         return result;
 

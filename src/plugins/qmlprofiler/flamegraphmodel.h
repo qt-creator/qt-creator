@@ -91,8 +91,7 @@ private:
 
     QVariant lookup(const FlameGraphData &data, int role) const;
     void clear();
-    FlameGraphData *pushChild(FlameGraphData *parent,
-                              const QmlProfilerDataModel::QmlEventData *data);
+    FlameGraphData *pushChild(FlameGraphData *parent, const QmlEvent *data);
 
     int m_selectedTypeIndex;
     FlameGraphData m_stackBottom;
