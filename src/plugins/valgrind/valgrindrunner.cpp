@@ -147,6 +147,8 @@ bool ValgrindRunner::start()
                      this, &ValgrindRunner::processFinished);
     QObject::connect(d->process, &ValgrindProcess::error,
                      this, &ValgrindRunner::processError);
+    QObject::connect(d->process, &ValgrindProcess::localHostAddressRetrieved,
+                     this, &ValgrindRunner::localHostAddressRetrieved);
 
     d->process->run(d->debuggee.runMode);
     return true;
@@ -176,6 +178,11 @@ void ValgrindRunner::processFinished(int ret, QProcess::ExitStatus status)
 
     if (ret != 0 || status == QProcess::CrashExit)
         emit processErrorReceived(errorString(), d->process->processError());
+}
+
+void ValgrindRunner::localHostAddressRetrieved(const QHostAddress &localHostAddress)
+{
+    Q_UNUSED(localHostAddress);
 }
 
 QString ValgrindRunner::errorString() const

@@ -95,10 +95,11 @@ bool MemcheckRunner::start()
 {
     QTC_ASSERT(d->parser, return false);
 
-    if (!startServers())
-        return false;
-
-    setValgrindArguments(memcheckLogArguments() + valgrindArguments());
+    if (device()->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
+        if (!startServers(QHostAddress::LocalHost))
+            return false;
+        setValgrindArguments(memcheckLogArguments() + valgrindArguments());
+    }
 
     return ValgrindRunner::start();
 }
@@ -133,10 +134,8 @@ void MemcheckRunner::readLogSocket()
     emit logMessageReceived(d->logSocket->readAll());
 }
 
-bool MemcheckRunner::startServers()
+bool MemcheckRunner::startServers(const QHostAddress &localHostAddress)
 {
-    QHostAddress localHostAddress(QHostAddress::LocalHost);
-
     bool check = d->xmlServer.listen(localHostAddress);
     const QString ip = localHostAddress.toString();
     if (!check) {
@@ -170,6 +169,14 @@ QStringList MemcheckRunner::memcheckLogArguments() const
               << QString::fromLatin1("--log-socket=%1:%2")
                  .arg(d->logServer.serverAddress().toString()).arg(d->logServer.serverPort());
     return arguments;
+}
+
+void MemcheckRunner::localHostAddressRetrieved(const QHostAddress &localHostAddress)
+{
+    if (startServers(localHostAddress)) {
+        setValgrindArguments(memcheckLogArguments() + valgrindArguments());
+        valgrindProcess()->setValgrindArguments(fullValgrindArguments());
+    }
 }
 
 } // namespace Memcheck

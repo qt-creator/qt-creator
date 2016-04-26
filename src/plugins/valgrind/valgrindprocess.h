@@ -75,6 +75,7 @@ signals:
     void finished(int, QProcess::ExitStatus);
     void error(QProcess::ProcessError);
     void processOutput(const QString &, Utils::OutputFormat format);
+    void localHostAddressRetrieved(const QHostAddress &localHostAddress);
 
 private:
     void handleRemoteStderr();
