@@ -106,19 +106,23 @@ public:
     QVariantMap details(int index) const;
 
 protected:
-    void loadData();
-    void clear();
+    void loadEvent(const QmlEvent &event, const QmlEventType &type) override;
+    void finalize() override;
+    void clear() override;
 
 private:
     void computeMaxCacheSize();
     void resizeUnfinishedLoads();
     void flattenLoads();
-    int updateCacheCount(int lastCacheSizeEvent, qint64 startTime, qint64 pixSize,
+    int updateCacheCount(int m_lastCacheSizeEvent, qint64 startTime, qint64 pixSize,
                          PixmapCacheItem &newEvent, int typeId);
 
     QVector<PixmapCacheItem> m_data;
     QVector<Pixmap> m_pixmaps;
-    qint64 m_maxCacheSize;
+
+    qint64 m_maxCacheSize = 1;
+    int m_lastCacheSizeEvent = -1;
+    int m_cumulatedCount = 0;
 
     static const int s_pixmapCacheCountHue = 240;
 };

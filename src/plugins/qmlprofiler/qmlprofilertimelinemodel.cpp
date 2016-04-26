@@ -134,4 +134,21 @@ QVariantMap QmlProfilerTimelineModel::locationFromTypeId(int index) const
     return result;
 }
 
+void QmlProfilerTimelineModel::loadData()
+{
+    QmlProfilerDataModel *simpleModel = modelManager()->qmlModel();
+    if (simpleModel->isEmpty())
+        return;
+
+    const QVector<QmlEventType> &types = simpleModel->eventTypes();
+
+    foreach (const QmlEvent &event, simpleModel->events()) {
+        const QmlEventType &type = types[event.typeIndex()];
+        if (accepted(type)) {
+            loadEvent(event, type);
+        }
+    }
+    finalize();
 }
+
+} // namespace QmlProfiler

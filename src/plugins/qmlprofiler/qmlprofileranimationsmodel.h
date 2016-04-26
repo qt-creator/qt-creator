@@ -64,16 +64,18 @@ public:
     QVariantList labels() const;
     QVariantMap details(int index) const;
 
-    bool accepted(const QmlEventType &event) const;
-
 protected:
-    void loadData();
-    void clear();
+    bool accepted(const QmlEventType &event) const override;
+    void loadEvent(const QmlEvent &event, const QmlEventType &type) override;
+    void finalize() override;
+    void clear() override;
 
 private:
     QVector<QmlProfilerAnimationsModel::QmlPaintEventData> m_data;
-    int m_maxGuiThreadAnimations;
-    int m_maxRenderThreadAnimations;
+    int m_maxGuiThreadAnimations = 0;
+    int m_maxRenderThreadAnimations = 0;
+    qint64 m_minNextStartTimes[2] = {0, 0};
+
     int rowFromThreadId(int threadId) const;
 };
 

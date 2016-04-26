@@ -28,11 +28,6 @@
 namespace QmlProfiler {
 namespace Internal {
 
-bool DebugMessagesModel::accepted(const QmlEventType &event) const
-{
-    return event.message == DebugMessage;
-}
-
 DebugMessagesModel::DebugMessagesModel(QmlProfilerModelManager *manager, QObject *parent) :
     QmlProfilerTimelineModel(manager, DebugMessage, MaximumRangeType, ProfileDebugMessages, parent),
     m_maximumMsgType(-1)
@@ -99,24 +94,16 @@ int DebugMessagesModel::collapsedRow(int index) const
     return 1;
 }
 
-void DebugMessagesModel::loadData()
+void DebugMessagesModel::loadEvent(const QmlEvent &event, const QmlEventType &type)
 {
-    QmlProfilerDataModel *simpleModel = modelManager()->qmlModel();
-    if (simpleModel->isEmpty())
-        return;
+    m_data.insert(insert(event.timestamp(), 0, type.detailType),
+                  MessageData(event.string(), event.typeIndex()));
+    if (type.detailType > m_maximumMsgType)
+        m_maximumMsgType = event.typeIndex();
+}
 
-    const QVector<QmlEventType> &types = simpleModel->eventTypes();
-
-    foreach (const QmlEvent &event, simpleModel->events()) {
-        const QmlEventType &type = types[event.typeIndex()];
-        if (!accepted(type) || event.timestamp() < 0)
-            continue;
-
-        m_data.insert(insert(event.timestamp(), 0, type.detailType),
-                      MessageData(event.string(), event.typeIndex()));
-        if (type.detailType > m_maximumMsgType)
-            m_maximumMsgType = event.typeIndex();
-    }
+void DebugMessagesModel::finalize()
+{
     setCollapsedRowCount(2);
     setExpandedRowCount(m_maximumMsgType + 2);
 }

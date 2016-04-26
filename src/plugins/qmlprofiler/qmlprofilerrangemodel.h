@@ -73,8 +73,9 @@ public:
     virtual QList<const Timeline::TimelineRenderPass *> supportedRenderPasses() const;
 
 protected:
-    void loadData();
-    void clear();
+    void loadEvent(const QmlEvent &event, const QmlEventType &type) override;
+    void finalize() override;
+    void clear() override;
 
 private:
 

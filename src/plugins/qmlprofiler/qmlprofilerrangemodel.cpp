@@ -62,25 +62,16 @@ bool QmlProfilerRangeModel::supportsBindingLoops() const
     return rangeType() == Binding || rangeType() == HandlingSignal;
 }
 
-void QmlProfilerRangeModel::loadData()
+void QmlProfilerRangeModel::loadEvent(const QmlEvent &event, const QmlEventType &type)
 {
-    QmlProfilerDataModel *simpleModel = modelManager()->qmlModel();
-    if (simpleModel->isEmpty())
-        return;
+    Q_UNUSED(type);
+    // store starttime-based instance
+    m_data.insert(insert(event.timestamp(), event.duration(), event.typeIndex()),
+                  QmlRangeEventStartInstance());
+}
 
-    // collect events
-    const QVector<QmlEvent> &eventList = simpleModel->events();
-    const QVector<QmlEventType> &typesList = simpleModel->eventTypes();
-    foreach (const QmlEvent &event, eventList) {
-        const QmlEventType &type = typesList[event.typeIndex()];
-        if (!accepted(type))
-            continue;
-
-        // store starttime-based instance
-        m_data.insert(insert(event.timestamp(), event.duration(), event.typeIndex()),
-                      QmlRangeEventStartInstance());
-    }
-
+void QmlProfilerRangeModel::finalize()
+{
     // compute range nesting
     computeNesting();
 

@@ -34,7 +34,6 @@ PixmapCacheModel::PixmapCacheModel(QmlProfilerModelManager *manager, QObject *pa
     QmlProfilerTimelineModel(manager, PixmapCacheEvent, MaximumRangeType, ProfilePixmapCache,
                              parent)
 {
-    m_maxCacheSize = 1;
 }
 
 int PixmapCacheModel::rowMaxValue(int rowNumber) const
@@ -164,159 +163,159 @@ QVariantMap PixmapCacheModel::details(int index) const
  * necessarily the order the pixmaps are really loaded but it's the best we can do with the given
  * information. If they're loaded sequentially the representation is correct.
  */
-
-void PixmapCacheModel::loadData()
+void PixmapCacheModel::loadEvent(const QmlEvent &event, const QmlEventType &type)
 {
-    QmlProfilerDataModel *simpleModel = modelManager()->qmlModel();
-    if (simpleModel->isEmpty())
-        return;
+    PixmapCacheItem newEvent;
+    newEvent.pixmapEventType = static_cast<PixmapEventType>(type.detailType);
+    qint64 pixmapStartTime = event.timestamp();
 
-    int lastCacheSizeEvent = -1;
-    int cumulatedCount = 0;
+    newEvent.urlIndex = -1;
+    for (QVector<Pixmap>::const_iterator it(m_pixmaps.cend()); it != m_pixmaps.cbegin();) {
+        if ((--it)->url == type.location.filename) {
+            newEvent.urlIndex = it - m_pixmaps.cbegin();
+            break;
+        }
+    }
 
-    const QVector<QmlEventType> &types = simpleModel->eventTypes();
-    foreach (const QmlEvent &event, simpleModel->events()) {
-        const QmlEventType &type = types[event.typeIndex()];
-        if (!accepted(type))
-            continue;
+    newEvent.sizeIndex = -1;
+    if (newEvent.urlIndex == -1) {
+        newEvent.urlIndex = m_pixmaps.count();
+        m_pixmaps << Pixmap(type.location.filename);
+    }
 
-        PixmapCacheItem newEvent;
-        newEvent.pixmapEventType = static_cast<PixmapEventType>(type.detailType);
-        qint64 pixmapStartTime = event.timestamp();
+    Pixmap &pixmap = m_pixmaps[newEvent.urlIndex];
+    switch (newEvent.pixmapEventType) {
+    case PixmapSizeKnown: {// pixmap size
+        // Look for pixmaps for which we don't know the size, yet and which have actually been
+        // loaded.
+        for (QVector<PixmapState>::iterator i(pixmap.sizes.begin());
+                i != pixmap.sizes.end(); ++i) {
+            if (i->size.isValid() || i->cacheState == Uncacheable || i->cacheState == Corrupt)
+                continue;
 
-        newEvent.urlIndex = -1;
-        for (QVector<Pixmap>::const_iterator it(m_pixmaps.cend()); it != m_pixmaps.cbegin();) {
-            if ((--it)->url == type.location.filename) {
-                newEvent.urlIndex = it - m_pixmaps.cbegin();
-                break;
-            }
+            // We can't have cached it before we knew the size
+            Q_ASSERT(i->cacheState != Cached);
+
+            i->size.setWidth(event.number<qint32>(0));
+            i->size.setHeight(event.number<qint32>(1));
+            newEvent.sizeIndex = i - pixmap.sizes.begin();
+            break;
         }
 
-        newEvent.sizeIndex = -1;
-        if (newEvent.urlIndex == -1) {
-            newEvent.urlIndex = m_pixmaps.count();
-            m_pixmaps << Pixmap(type.location.filename);
+        if (newEvent.sizeIndex == -1) {
+            newEvent.sizeIndex = pixmap.sizes.length();
+            pixmap.sizes << PixmapState(event.number<qint32>(0), event.number<qint32>(1));
         }
 
-        Pixmap &pixmap = m_pixmaps[newEvent.urlIndex];
-        switch (newEvent.pixmapEventType) {
-        case PixmapSizeKnown: {// pixmap size
-            // Look for pixmaps for which we don't know the size, yet and which have actually been
-            // loaded.
-            for (QVector<PixmapState>::iterator i(pixmap.sizes.begin());
-                    i != pixmap.sizes.end(); ++i) {
-                if (i->size.isValid() || i->cacheState == Uncacheable || i->cacheState == Corrupt)
-                    continue;
+        PixmapState &state = pixmap.sizes[newEvent.sizeIndex];
+        if (state.cacheState == ToBeCached) {
+            m_lastCacheSizeEvent = updateCacheCount(m_lastCacheSizeEvent, pixmapStartTime,
+                                          state.size.width() * state.size.height(), newEvent,
+                                          event.typeIndex());
+            state.cacheState = Cached;
+        }
+        break;
+    }
+    case PixmapCacheCountChanged: {// Cache Size Changed Event
+        pixmapStartTime = event.timestamp() + 1; // delay 1 ns for proper sorting
 
-                // We can't have cached it before we knew the size
-                Q_ASSERT(i->cacheState != Cached);
+        bool uncache = m_cumulatedCount > event.number<qint32>(2);
+        m_cumulatedCount = event.number<qint32>(2);
+        qint64 pixSize = 0;
 
-                i->size.setWidth(event.number<qint32>(0));
-                i->size.setHeight(event.number<qint32>(1));
+        // First try to find a preferred pixmap, which either is Corrupt and will be uncached
+        // or is uncached and will be cached.
+        for (QVector<PixmapState>::iterator i(pixmap.sizes.begin());
+                i != pixmap.sizes.end(); ++i) {
+            if (uncache && i->cacheState == Corrupt) {
                 newEvent.sizeIndex = i - pixmap.sizes.begin();
+                i->cacheState = Uncacheable;
+                break;
+            } else if (!uncache && i->cacheState == Uncached) {
+                newEvent.sizeIndex = i - pixmap.sizes.begin();
+                if (i->size.isValid()) {
+                    pixSize = i->size.width() * i->size.height();
+                    i->cacheState = Cached;
+                } else {
+                    i->cacheState = ToBeCached;
+                }
                 break;
             }
-
-            if (newEvent.sizeIndex == -1) {
-                newEvent.sizeIndex = pixmap.sizes.length();
-                pixmap.sizes << PixmapState(event.number<qint32>(0), event.number<qint32>(1));
-            }
-
-            PixmapState &state = pixmap.sizes[newEvent.sizeIndex];
-            if (state.cacheState == ToBeCached) {
-                lastCacheSizeEvent = updateCacheCount(lastCacheSizeEvent, pixmapStartTime,
-                                              state.size.width() * state.size.height(), newEvent,
-                                              event.typeIndex());
-                state.cacheState = Cached;
-            }
-            break;
         }
-        case PixmapCacheCountChanged: {// Cache Size Changed Event
-            pixmapStartTime = event.timestamp() + 1; // delay 1 ns for proper sorting
 
-            bool uncache = cumulatedCount > event.number<qint32>(2);
-            cumulatedCount = event.number<qint32>(2);
-            qint64 pixSize = 0;
-
-            // First try to find a preferred pixmap, which either is Corrupt and will be uncached
-            // or is uncached and will be cached.
+        // If none found, check for cached or ToBeCached pixmaps that shall be uncached or
+        // Error pixmaps that become corrupt cache entries. We also accept Initial to be
+        // uncached as we may have missed the matching PixmapCacheCountChanged that cached it.
+        if (newEvent.sizeIndex == -1) {
             for (QVector<PixmapState>::iterator i(pixmap.sizes.begin());
                     i != pixmap.sizes.end(); ++i) {
-                if (uncache && i->cacheState == Corrupt) {
+                if (uncache && (i->cacheState == Cached || i->cacheState == ToBeCached ||
+                                i->cacheState == Uncached)) {
                     newEvent.sizeIndex = i - pixmap.sizes.begin();
-                    i->cacheState = Uncacheable;
+                    if (i->size.isValid())
+                        pixSize = -i->size.width() * i->size.height();
+                    i->cacheState = Uncached;
                     break;
-                } else if (!uncache && i->cacheState == Uncached) {
+                } else if (!uncache && i->cacheState == Uncacheable) {
                     newEvent.sizeIndex = i - pixmap.sizes.begin();
-                    if (i->size.isValid()) {
-                        pixSize = i->size.width() * i->size.height();
-                        i->cacheState = Cached;
-                    } else {
-                        i->cacheState = ToBeCached;
-                    }
+                    i->cacheState = Corrupt;
                     break;
                 }
             }
+        }
 
-            // If none found, check for cached or ToBeCached pixmaps that shall be uncached or
-            // Error pixmaps that become corrupt cache entries. We also accept Initial to be
-            // uncached as we may have missed the matching PixmapCacheCountChanged that cached it.
-            if (newEvent.sizeIndex == -1) {
-                for (QVector<PixmapState>::iterator i(pixmap.sizes.begin());
-                        i != pixmap.sizes.end(); ++i) {
-                    if (uncache && (i->cacheState == Cached || i->cacheState == ToBeCached ||
-                                    i->cacheState == Uncached)) {
-                        newEvent.sizeIndex = i - pixmap.sizes.begin();
-                        if (i->size.isValid())
-                            pixSize = -i->size.width() * i->size.height();
-                        i->cacheState = Uncached;
-                        break;
-                    } else if (!uncache && i->cacheState == Uncacheable) {
-                        newEvent.sizeIndex = i - pixmap.sizes.begin();
-                        i->cacheState = Corrupt;
-                        break;
-                    }
-                }
+        // If that does't work, create a new entry.
+        if (newEvent.sizeIndex == -1) {
+            newEvent.sizeIndex = pixmap.sizes.length();
+            pixmap.sizes << PixmapState(uncache ? Uncached : ToBeCached);
+        }
+
+        m_lastCacheSizeEvent = updateCacheCount(m_lastCacheSizeEvent, pixmapStartTime, pixSize,
+                                              newEvent, event.typeIndex());
+        break;
+    }
+    case PixmapLoadingStarted: { // Load
+        // Look for a pixmap that hasn't been started, yet. There may have been a refcount
+        // event, which we ignore.
+        for (QVector<PixmapState>::const_iterator i(pixmap.sizes.cbegin());
+                i != pixmap.sizes.cend(); ++i) {
+            if (i->loadState == Initial) {
+                newEvent.sizeIndex = i - pixmap.sizes.cbegin();
+                break;
             }
+        }
+        if (newEvent.sizeIndex == -1) {
+            newEvent.sizeIndex = pixmap.sizes.length();
+            pixmap.sizes << PixmapState();
+        }
 
-            // If that does't work, create a new entry.
-            if (newEvent.sizeIndex == -1) {
-                newEvent.sizeIndex = pixmap.sizes.length();
-                pixmap.sizes << PixmapState(uncache ? Uncached : ToBeCached);
-            }
+        PixmapState &state = pixmap.sizes[newEvent.sizeIndex];
+        state.loadState = Loading;
+        newEvent.typeId = event.typeIndex();
+        state.started = insertStart(pixmapStartTime, newEvent.urlIndex + 1);
+        m_data.insert(state.started, newEvent);
+        break;
+    }
+    case PixmapLoadingFinished:
+    case PixmapLoadingError: {
+        // First try to find one that has already started
+        for (QVector<PixmapState>::const_iterator i(pixmap.sizes.cbegin());
+                i != pixmap.sizes.cend(); ++i) {
+            if (i->loadState != Loading)
+                continue;
+            // Pixmaps with known size cannot be errors and vice versa
+            if (newEvent.pixmapEventType == PixmapLoadingError && i->size.isValid())
+                continue;
 
-            lastCacheSizeEvent = updateCacheCount(lastCacheSizeEvent, pixmapStartTime, pixSize,
-                                                  newEvent, event.typeIndex());
+            newEvent.sizeIndex = i - pixmap.sizes.cbegin();
             break;
         }
-        case PixmapLoadingStarted: { // Load
-            // Look for a pixmap that hasn't been started, yet. There may have been a refcount
-            // event, which we ignore.
-            for (QVector<PixmapState>::const_iterator i(pixmap.sizes.cbegin());
-                    i != pixmap.sizes.cend(); ++i) {
-                if (i->loadState == Initial) {
-                    newEvent.sizeIndex = i - pixmap.sizes.cbegin();
-                    break;
-                }
-            }
-            if (newEvent.sizeIndex == -1) {
-                newEvent.sizeIndex = pixmap.sizes.length();
-                pixmap.sizes << PixmapState();
-            }
 
-            PixmapState &state = pixmap.sizes[newEvent.sizeIndex];
-            state.loadState = Loading;
-            newEvent.typeId = event.typeIndex();
-            state.started = insertStart(pixmapStartTime, newEvent.urlIndex + 1);
-            m_data.insert(state.started, newEvent);
-            break;
-        }
-        case PixmapLoadingFinished:
-        case PixmapLoadingError: {
-            // First try to find one that has already started
+        // If none was found use any other compatible one
+        if (newEvent.sizeIndex == -1) {
             for (QVector<PixmapState>::const_iterator i(pixmap.sizes.cbegin());
                     i != pixmap.sizes.cend(); ++i) {
-                if (i->loadState != Loading)
+                if (i->loadState != Initial)
                     continue;
                 // Pixmaps with known size cannot be errors and vice versa
                 if (newEvent.pixmapEventType == PixmapLoadingError && i->size.isValid())
@@ -325,86 +324,74 @@ void PixmapCacheModel::loadData()
                 newEvent.sizeIndex = i - pixmap.sizes.cbegin();
                 break;
             }
+        }
 
-            // If none was found use any other compatible one
-            if (newEvent.sizeIndex == -1) {
-                for (QVector<PixmapState>::const_iterator i(pixmap.sizes.cbegin());
-                        i != pixmap.sizes.cend(); ++i) {
-                    if (i->loadState != Initial)
-                        continue;
-                    // Pixmaps with known size cannot be errors and vice versa
-                    if (newEvent.pixmapEventType == PixmapLoadingError && i->size.isValid())
-                        continue;
+        // If again none was found, create one.
+        if (newEvent.sizeIndex == -1) {
+            newEvent.sizeIndex = pixmap.sizes.length();
+            pixmap.sizes << PixmapState();
+        }
 
-                    newEvent.sizeIndex = i - pixmap.sizes.cbegin();
-                    break;
-                }
-            }
+        PixmapState &state = pixmap.sizes[newEvent.sizeIndex];
+        // If the pixmap loading wasn't started, start it at traceStartTime()
+        if (state.loadState == Initial) {
+            newEvent.pixmapEventType = PixmapLoadingStarted;
+            newEvent.typeId = event.typeIndex();
+            qint64 traceStart = modelManager()->traceTime()->startTime();
+            state.started = insert(traceStart, pixmapStartTime - traceStart,
+                                   newEvent.urlIndex + 1);
+            m_data.insert(state.started, newEvent);
 
-            // If again none was found, create one.
-            if (newEvent.sizeIndex == -1) {
-                newEvent.sizeIndex = pixmap.sizes.length();
-                pixmap.sizes << PixmapState();
-            }
+            // All other indices are wrong now as we've prepended. Fix them ...
+            if (m_lastCacheSizeEvent >= state.started)
+                ++m_lastCacheSizeEvent;
 
-            PixmapState &state = pixmap.sizes[newEvent.sizeIndex];
-            // If the pixmap loading wasn't started, start it at tracetimestamp()
-            if (state.loadState == Initial) {
-                newEvent.pixmapEventType = PixmapLoadingStarted;
-                newEvent.typeId = event.typeIndex();
-                qint64 traceStart = modelManager()->traceTime()->startTime();
-                state.started = insert(traceStart, pixmapStartTime - traceStart,
-                                       newEvent.urlIndex + 1);
-                m_data.insert(state.started, newEvent);
-
-                // All other indices are wrong now as we've prepended. Fix them ...
-                if (lastCacheSizeEvent >= state.started)
-                    ++lastCacheSizeEvent;
-
-                for (int pixmapIndex = 0; pixmapIndex < m_pixmaps.count(); ++pixmapIndex) {
-                    Pixmap &brokenPixmap = m_pixmaps[pixmapIndex];
-                    for (int sizeIndex = 0; sizeIndex < brokenPixmap.sizes.count(); ++sizeIndex) {
-                        PixmapState &brokenSize = brokenPixmap.sizes[sizeIndex];
-                        if ((pixmapIndex != newEvent.urlIndex || sizeIndex != newEvent.sizeIndex) &&
-                                brokenSize.started >= state.started) {
-                            ++brokenSize.started;
-                        }
+            for (int pixmapIndex = 0; pixmapIndex < m_pixmaps.count(); ++pixmapIndex) {
+                Pixmap &brokenPixmap = m_pixmaps[pixmapIndex];
+                for (int sizeIndex = 0; sizeIndex < brokenPixmap.sizes.count(); ++sizeIndex) {
+                    PixmapState &brokenSize = brokenPixmap.sizes[sizeIndex];
+                    if ((pixmapIndex != newEvent.urlIndex || sizeIndex != newEvent.sizeIndex) &&
+                            brokenSize.started >= state.started) {
+                        ++brokenSize.started;
                     }
                 }
             }
+        }
 
-            insertEnd(state.started, pixmapStartTime - startTime(state.started));
-            if (newEvent.pixmapEventType == PixmapLoadingError) {
-                state.loadState = Error;
-                switch (state.cacheState) {
-                case Uncached:
-                    state.cacheState = Uncacheable;
-                    break;
-                case ToBeCached:
-                    state.cacheState = Corrupt;
-                    break;
-                default:
-                    // Cached cannot happen as size would have to be known and Corrupt or
-                    // Uncacheable cannot happen as we only accept one finish or error event per
-                    // pixmap.
-                    Q_ASSERT(false);
-                }
-            } else {
-                state.loadState = Finished;
+        insertEnd(state.started, pixmapStartTime - startTime(state.started));
+        if (newEvent.pixmapEventType == PixmapLoadingError) {
+            state.loadState = Error;
+            switch (state.cacheState) {
+            case Uncached:
+                state.cacheState = Uncacheable;
+                break;
+            case ToBeCached:
+                state.cacheState = Corrupt;
+                break;
+            default:
+                // Cached cannot happen as size would have to be known and Corrupt or
+                // Uncacheable cannot happen as we only accept one finish or error event per
+                // pixmap.
+                Q_ASSERT(false);
             }
-            break;
+        } else {
+            state.loadState = Finished;
         }
-        default:
-            break;
-        }
+        break;
+    }
+    default:
+        break;
+    }
+}
+
+void PixmapCacheModel::finalize()
+{
+    if (m_lastCacheSizeEvent != -1) {
+        insertEnd(m_lastCacheSizeEvent, modelManager()->traceTime()->endTime() -
+                  startTime(m_lastCacheSizeEvent));
     }
 
-    if (lastCacheSizeEvent != -1)
-        insertEnd(lastCacheSizeEvent, modelManager()->traceTime()->endTime() -
-                  startTime(lastCacheSizeEvent));
-
     resizeUnfinishedLoads();
-
     computeMaxCacheSize();
     flattenLoads();
     computeNesting();
@@ -413,14 +400,15 @@ void PixmapCacheModel::loadData()
 void PixmapCacheModel::clear()
 {
     m_pixmaps.clear();
-    m_maxCacheSize = 1;
     m_data.clear();
+    m_maxCacheSize = 1;
+    m_lastCacheSizeEvent = -1;
+    m_cumulatedCount = 0;
     QmlProfilerTimelineModel::clear();
 }
 
 void PixmapCacheModel::computeMaxCacheSize()
 {
-    m_maxCacheSize = 1;
     foreach (const PixmapCacheModel::PixmapCacheItem &event, m_data) {
         if (event.pixmapEventType == PixmapCacheModel::PixmapCacheCountChanged) {
             if (event.cacheSize > m_maxCacheSize)

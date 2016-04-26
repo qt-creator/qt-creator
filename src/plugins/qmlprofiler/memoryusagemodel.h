@@ -30,6 +30,7 @@
 
 #include <QStringList>
 #include <QColor>
+#include <QStack>
 
 namespace QmlProfiler {
 namespace Internal {
@@ -68,14 +69,30 @@ public:
     QVariantMap details(int index) const;
 
 protected:
-    void loadData();
-    void clear();
+    bool accepted(const QmlEventType &type) const override;
+    void loadEvent(const QmlEvent &event, const QmlEventType &type) override;
+    void finalize() override;
+    void clear() override;
 
 private:
+    struct RangeStackFrame {
+        RangeStackFrame() : originTypeIndex(-1), startTime(-1), endTime(-1) {}
+        RangeStackFrame(int originTypeIndex, qint64 startTime, qint64 endTime) :
+            originTypeIndex(originTypeIndex), startTime(startTime), endTime(endTime) {}
+        int originTypeIndex;
+        qint64 startTime;
+        qint64 endTime;
+    };
+
     static QString memoryTypeName(int type);
 
     QVector<MemoryAllocationItem> m_data;
-    qint64 m_maxSize;
+    QStack<RangeStackFrame> m_rangeStack;
+    qint64 m_maxSize = 1;
+    qint64 m_currentSize = 0;
+    qint64 m_currentUsage = 0;
+    int m_currentUsageIndex = -1;
+    int m_currentJSHeapIndex = -1;
 };
 
 } // namespace Internal

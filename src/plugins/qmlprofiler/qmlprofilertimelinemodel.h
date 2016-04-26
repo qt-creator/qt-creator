@@ -53,7 +53,10 @@ public:
     Q_INVOKABLE virtual int bindingLoopDest(int index) const;
     QVariantMap locationFromTypeId(int index) const;
 
-    virtual void loadData() = 0;
+    void loadData();
+
+    virtual void loadEvent(const QmlEvent &event, const QmlEventType &type) = 0;
+    virtual void finalize() = 0;
     void clear();
 
 private slots:
@@ -68,6 +71,8 @@ private:
     const RangeType m_rangeType;
     const ProfileFeature m_mainFeature;
     QmlProfilerModelManager *const m_modelManager;
+
+    void updateProgress(qint64 count, qint64 max) const;
 };
 
-}
+} // namespace QmlProfiler

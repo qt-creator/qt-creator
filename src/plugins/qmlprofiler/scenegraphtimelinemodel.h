@@ -95,8 +95,9 @@ public:
     QVariantMap details(int index) const;
 
 protected:
-    void loadData();
-    void clear();
+    void loadEvent(const QmlEvent &event, const QmlEventType &type) override;
+    void finalize() override;
+    void clear() override;
 
 private:
     void flattenLoads();

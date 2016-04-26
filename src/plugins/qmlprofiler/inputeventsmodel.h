@@ -36,6 +36,9 @@ class InputEventsModel : public QmlProfilerTimelineModel
 
 protected:
     bool accepted(const QmlEventType &event) const;
+    void loadEvent(const QmlEvent &event, const QmlEventType &type) override;
+    void finalize() override;
+    void clear() override;
 
 public:
     struct InputEvent {
@@ -53,8 +56,6 @@ public:
     QVariantMap details(int index) const;
     int expandedRow(int index) const;
     int collapsedRow(int index) const;
-    void loadData();
-    void clear();
 
 private:
     static QMetaEnum metaEnum(const char *name);

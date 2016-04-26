@@ -34,9 +34,6 @@ class DebugMessagesModel : public QmlProfilerTimelineModel
 {
     Q_OBJECT
 
-protected:
-    bool accepted(const QmlEventType &event) const override;
-
 public:
     DebugMessagesModel(QmlProfilerModelManager *manager, QObject *parent = 0);
 
@@ -46,7 +43,8 @@ public:
     QVariantMap details(int index) const override;
     int expandedRow(int index) const override;
     int collapsedRow(int index) const override;
-    void loadData() override;
+    void loadEvent(const QmlEvent &event, const QmlEventType &type) override;
+    void finalize() override;
     void clear() override;
     QVariantMap location(int index) const override;
 

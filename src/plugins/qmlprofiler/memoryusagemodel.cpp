@@ -27,15 +27,12 @@
 #include "qmlprofilermodelmanager.h"
 #include "qmlprofilereventtypes.h"
 
-#include <QStack>
-
 namespace QmlProfiler {
 namespace Internal {
 
 MemoryUsageModel::MemoryUsageModel(QmlProfilerModelManager *manager, QObject *parent) :
     QmlProfilerTimelineModel(manager, MemoryAllocation, MaximumRangeType, ProfileMemory, parent)
 {
-    m_maxSize = 1;
     announceFeatures((1ULL << mainFeature()) | Constants::QML_JS_RANGE_FEATURES);
 }
 
@@ -137,94 +134,78 @@ QVariantMap MemoryUsageModel::details(int index) const
     return result;
 }
 
-struct RangeStackFrame {
-    RangeStackFrame() : originTypeIndex(-1), startTime(-1), endTime(-1) {}
-    RangeStackFrame(int originTypeIndex, qint64 startTime, qint64 endTime) :
-        originTypeIndex(originTypeIndex), startTime(startTime), endTime(endTime) {}
-    int originTypeIndex;
-    qint64 startTime;
-    qint64 endTime;
-};
-
-void MemoryUsageModel::loadData()
+bool MemoryUsageModel::accepted(const QmlEventType &type) const
 {
-    QmlProfilerDataModel *simpleModel = modelManager()->qmlModel();
-    if (simpleModel->isEmpty())
+    return QmlProfilerTimelineModel::accepted(type) || type.rangeType != MaximumRangeType;
+}
+
+void MemoryUsageModel::loadEvent(const QmlEvent &event, const QmlEventType &type)
+{
+    while (!m_rangeStack.empty() && m_rangeStack.top().endTime < event.timestamp())
+        m_rangeStack.pop();
+    if (type.message != MemoryAllocation) {
+        if (type.rangeType != MaximumRangeType) {
+            m_rangeStack.push(RangeStackFrame(event.typeIndex(), event.timestamp(),
+                                            event.timestamp() + event.duration()));
+        }
         return;
+    }
 
-    qint64 currentSize = 0;
-    qint64 currentUsage = 0;
-    int currentUsageIndex = -1;
-    int currentJSHeapIndex = -1;
+    if (type.detailType == SmallItem || type.detailType == LargeItem) {
+        if (!m_rangeStack.empty() && m_currentUsageIndex > -1 &&
+                type.detailType == selectionId(m_currentUsageIndex) &&
+                m_data[m_currentUsageIndex].originTypeIndex == m_rangeStack.top().originTypeIndex &&
+                m_rangeStack.top().startTime < startTime(m_currentUsageIndex)) {
+            m_data[m_currentUsageIndex].update(event.number<qint64>(0));
+            m_currentUsage = m_data[m_currentUsageIndex].size;
+        } else {
+            MemoryAllocationItem allocation(event.typeIndex(), m_currentUsage,
+                    m_rangeStack.empty() ? -1 : m_rangeStack.top().originTypeIndex);
+            allocation.update(event.number<qint64>(0));
+            m_currentUsage = allocation.size;
 
-    QStack<RangeStackFrame> rangeStack;
-
-    const QVector<QmlEventType> &types = simpleModel->eventTypes();
-    foreach (const QmlEvent &event, simpleModel->events()) {
-        const QmlEventType &type = types[event.typeIndex()];
-        while (!rangeStack.empty() && rangeStack.top().endTime < event.timestamp())
-            rangeStack.pop();
-        if (!accepted(type)) {
-            if (type.rangeType != MaximumRangeType) {
-                rangeStack.push(RangeStackFrame(event.typeIndex(), event.timestamp(),
-                                                event.timestamp() + event.duration()));
+            if (m_currentUsageIndex != -1) {
+                insertEnd(m_currentUsageIndex,
+                          event.timestamp() - startTime(m_currentUsageIndex) - 1);
             }
-            continue;
-        }
-
-        if (type.detailType == SmallItem || type.detailType == LargeItem) {
-            if (!rangeStack.empty() && currentUsageIndex > -1 &&
-                    type.detailType == selectionId(currentUsageIndex) &&
-                    m_data[currentUsageIndex].originTypeIndex == rangeStack.top().originTypeIndex &&
-                    rangeStack.top().startTime < startTime(currentUsageIndex)) {
-                m_data[currentUsageIndex].update(event.number<qint64>(0));
-                currentUsage = m_data[currentUsageIndex].size;
-            } else {
-                MemoryAllocationItem allocation(event.typeIndex(), currentUsage,
-                        rangeStack.empty() ? -1 : rangeStack.top().originTypeIndex);
-                allocation.update(event.number<qint64>(0));
-                currentUsage = allocation.size;
-
-                if (currentUsageIndex != -1) {
-                    insertEnd(currentUsageIndex,
-                              event.timestamp() - startTime(currentUsageIndex) - 1);
-                }
-                currentUsageIndex = insertStart(event.timestamp(), SmallItem);
-                m_data.insert(currentUsageIndex, allocation);
-            }
-        }
-
-        if (type.detailType == HeapPage || type.detailType == LargeItem) {
-            if (!rangeStack.empty() && currentJSHeapIndex > -1 &&
-                    type.detailType == selectionId(currentJSHeapIndex) &&
-                    m_data[currentJSHeapIndex].originTypeIndex ==
-                    rangeStack.top().originTypeIndex &&
-                    rangeStack.top().startTime < startTime(currentJSHeapIndex)) {
-                m_data[currentJSHeapIndex].update(event.number<qint64>(0));
-                currentSize = m_data[currentJSHeapIndex].size;
-            } else {
-                MemoryAllocationItem allocation(event.typeIndex(), currentSize,
-                        rangeStack.empty() ? -1 : rangeStack.top().originTypeIndex);
-                allocation.update(event.number<qint64>(0));
-                currentSize = allocation.size;
-
-                if (currentSize > m_maxSize)
-                    m_maxSize = currentSize;
-                if (currentJSHeapIndex != -1)
-                    insertEnd(currentJSHeapIndex,
-                              event.timestamp() - startTime(currentJSHeapIndex) - 1);
-                currentJSHeapIndex = insertStart(event.timestamp(), type.detailType);
-                m_data.insert(currentJSHeapIndex, allocation);
-            }
+            m_currentUsageIndex = insertStart(event.timestamp(), SmallItem);
+            m_data.insert(m_currentUsageIndex, allocation);
         }
     }
 
-    if (currentJSHeapIndex != -1)
-        insertEnd(currentJSHeapIndex, modelManager()->traceTime()->endTime() -
-                  startTime(currentJSHeapIndex) - 1);
-    if (currentUsageIndex != -1)
-        insertEnd(currentUsageIndex, modelManager()->traceTime()->endTime() -
-                  startTime(currentUsageIndex) - 1);
+    if (type.detailType == HeapPage || type.detailType == LargeItem) {
+        if (!m_rangeStack.empty() && m_currentJSHeapIndex > -1 &&
+                type.detailType == selectionId(m_currentJSHeapIndex) &&
+                m_data[m_currentJSHeapIndex].originTypeIndex ==
+                m_rangeStack.top().originTypeIndex &&
+                m_rangeStack.top().startTime < startTime(m_currentJSHeapIndex)) {
+            m_data[m_currentJSHeapIndex].update(event.number<qint64>(0));
+            m_currentSize = m_data[m_currentJSHeapIndex].size;
+        } else {
+            MemoryAllocationItem allocation(event.typeIndex(), m_currentSize,
+                    m_rangeStack.empty() ? -1 : m_rangeStack.top().originTypeIndex);
+            allocation.update(event.number<qint64>(0));
+            m_currentSize = allocation.size;
+
+            if (m_currentSize > m_maxSize)
+                m_maxSize = m_currentSize;
+            if (m_currentJSHeapIndex != -1)
+                insertEnd(m_currentJSHeapIndex,
+                          event.timestamp() - startTime(m_currentJSHeapIndex) - 1);
+            m_currentJSHeapIndex = insertStart(event.timestamp(), type.detailType);
+            m_data.insert(m_currentJSHeapIndex, allocation);
+        }
+    }
+}
+
+void MemoryUsageModel::finalize()
+{
+    if (m_currentJSHeapIndex != -1)
+        insertEnd(m_currentJSHeapIndex, modelManager()->traceTime()->endTime() -
+                  startTime(m_currentJSHeapIndex) - 1);
+    if (m_currentUsageIndex != -1)
+        insertEnd(m_currentUsageIndex, modelManager()->traceTime()->endTime() -
+                  startTime(m_currentUsageIndex) - 1);
 
 
     computeNesting();
@@ -236,6 +217,11 @@ void MemoryUsageModel::clear()
 {
     m_data.clear();
     m_maxSize = 1;
+    m_currentSize = 0;
+    m_currentUsage = 0;
+    m_currentUsageIndex = -1;
+    m_currentJSHeapIndex = -1;
+    m_rangeStack.clear();
     QmlProfilerTimelineModel::clear();
 }
 
