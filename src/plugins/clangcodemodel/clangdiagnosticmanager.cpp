@@ -214,7 +214,7 @@ QTextCursor cursorAtLastPositionOfLine(QTextDocument *textDocument, int lineNumb
 
 QString tooltipForFixItAvailableMarker()
 {
-    QString text = QObject::tr("Inspect available fixits");
+    QString text = QCoreApplication::translate("ClangCodeModel::Internal::ClangDiagnosticManager", "Inspect available fixits");
 
     Core::Command *command = Core::ActionManager::command(TextEditor::Constants::QUICKFIX_THIS);
     if (command)
