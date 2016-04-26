@@ -53,7 +53,7 @@ defineReplace(findClangLibInLibDir) {
 
 defineReplace(findClangOnWindows) {
     FILE_EXTS = a dll
-    win32-msvc*: FILE_EXTS = lib dll
+    msvc: FILE_EXTS = lib dll
     for (suffix, $$list(lib bin)) {
         for (libname, $$list(clang libclang)) {
             for (ext, FILE_EXTS) {

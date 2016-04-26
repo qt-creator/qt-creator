@@ -64,7 +64,7 @@ exists(/usr/local/include/eigen3/Eigen/Core) {
     INCLUDEPATH += /usr/local/include/eigen3
 }
 
-win32-msvc*:DEFINES += _CRT_SECURE_NO_WARNINGS
+msvc: DEFINES += _CRT_SECURE_NO_WARNINGS
 # Use for semi-automated testing
 #DEFINES += USE_AUTORUN=1
 
