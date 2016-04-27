@@ -174,7 +174,7 @@ bool QmlProfilerTraceClientPrivate::updateFeatures(ProfileFeature feature)
     if (!(requestedFeatures & flag))
         return false;
     if (!(recordedFeatures & flag)) {
-        recordedFeatures |= flag;
+        recordedFeatures |= (flag | 1ULL << ProfileDebugMessages);
         emit q->recordedFeaturesChanged(recordedFeatures);
     }
     return true;
