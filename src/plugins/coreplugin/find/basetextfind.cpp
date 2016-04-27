@@ -205,6 +205,27 @@ void BaseTextFind::replace(const QString &before, const QString &after, FindFlag
     setTextCursor(cursor);
 }
 
+// QTextCursor::insert moves all other QTextCursors that are the the insertion point forward.
+// We do not want that for the replace operation, because then e.g. the find scope would move when
+// replacing a match at the start.
+static void insertTextAfterSelection(const QString &text, QTextCursor &cursor)
+{
+    // first insert after the cursor's selection end, then remove selection
+    int start = cursor.selectionStart();
+    int end = cursor.selectionEnd();
+    QTextCursor insertCursor = cursor;
+    insertCursor.beginEditBlock();
+    insertCursor.setPosition(end);
+    insertCursor.insertText(text);
+    // change cursor to be behind the inserted text, like it would be when directly inserting
+    cursor = insertCursor;
+    // redo the selection, because that changed when inserting the text at the end...
+    insertCursor.setPosition(start);
+    insertCursor.setPosition(end, QTextCursor::KeepAnchor);
+    insertCursor.removeSelectedText();
+    insertCursor.endEditBlock();
+}
+
 QTextCursor BaseTextFind::replaceInternal(const QString &before, const QString &after,
                                           FindFlags findFlags)
 {
@@ -224,7 +245,7 @@ QTextCursor BaseTextFind::replaceInternal(const QString &before, const QString &
         else
             realAfter = after;
         int start = cursor.selectionStart();
-        cursor.insertText(realAfter);
+        insertTextAfterSelection(realAfter, cursor);
         if ((findFlags & FindBackward) != 0)
             cursor.setPosition(start);
     }
@@ -285,7 +306,7 @@ int BaseTextFind::replaceAll(const QString &before, const QString &after, FindFl
             realAfter = Utils::matchCaseReplacement(found.selectedText(), after);
         else
             realAfter = after;
-        editCursor.insertText(realAfter);
+        insertTextAfterSelection(realAfter, editCursor);
         found = findOne(regexp, editCursor, textDocumentFlagsForFindFlags(findFlags));
     }
     editCursor.endEditBlock();
