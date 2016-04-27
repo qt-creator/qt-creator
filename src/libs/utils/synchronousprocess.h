@@ -31,6 +31,8 @@
 #include <QSharedPointer>
 #include <QTextCodec>
 
+#include <functional>
+
 QT_FORWARD_DECLARE_CLASS(QDebug)
 
 namespace Utils {
