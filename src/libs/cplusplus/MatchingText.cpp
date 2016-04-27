@@ -102,9 +102,22 @@ static bool insertQuote(const QChar ch, const BackwardsScanner &tk)
 
     const int index = tk.startToken() - 1;
     const Token &token = tk[index];
-    // Do not insert a matching quote when we are closing an open string/char literal.
-    return (ch == '"' && token.isStringLiteral() == isCompleteStringLiteral(tk, index))
-            || (ch == '\'' && token.isCharLiteral() == isCompleteCharLiteral(tk, index));
+
+    // Insert an additional double quote after string literal only if previous literal was closed.
+    if (ch == '"' && token.isStringLiteral() && isCompleteStringLiteral(tk, index))
+        return true;
+
+    // Insert a matching quote after an operator.
+    if (token.isOperator())
+        return true;
+
+    if (token.isKeyword())
+        return tk.text(index) == "operator";
+
+    // Insert matching quote after identifier when identifier is a known literal prefixes
+    static const QStringList stringLiteralPrefixes = { "L", "U", "u", "u8", "R"};
+    return token.kind() == CPlusPlus::T_IDENTIFIER
+            && stringLiteralPrefixes.contains(tk.text(index));
 }
 
 static int countSkippedChars(const QString blockText, const QString &textToProcess)
