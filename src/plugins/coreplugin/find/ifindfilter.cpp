@@ -27,6 +27,7 @@
 
 #include <coreplugin/coreicons.h>
 
+#include <QApplication>
 #include <QPainter>
 #include <QPixmap>
 
@@ -234,30 +235,36 @@ QPixmap IFindFilter::pixmapForFindFlags(FindFlags flags)
     bool regexp = flags & FindRegularExpression;
     bool preservecase = flags & FindPreserveCase;
     int width = 0;
-    if (casesensitive) width += 6;
-    if (wholewords) width += 6;
-    if (regexp) width += 6;
-    if (preservecase) width += 6;
-    if (width > 0) --width;
-    QPixmap pixmap(width, 17);
-    pixmap.fill(Qt::transparent);
+    if (casesensitive)
+        width += casesensitiveIcon.width();
+    if (wholewords)
+        width += wholewordsIcon.width();
+    if (regexp)
+        width += regexpIcon.width();
+    if (preservecase)
+        width += preservecaseIcon.width();
+    if (width == 0)
+        return QPixmap();
+    QPixmap pixmap(QSize(width, casesensitiveIcon.height()));
+    pixmap.fill(QColor(0xff, 0xff, 0xff, 0x28)); // Subtile contrast for dark themes
+    const int dpr = int(qApp->devicePixelRatio());
+    pixmap.setDevicePixelRatio(dpr);
     QPainter painter(&pixmap);
     int x = 0;
-
     if (casesensitive) {
-        painter.drawPixmap(x - 6, 0, casesensitiveIcon);
-        x += 6;
+        painter.drawPixmap(x, 0, casesensitiveIcon);
+        x += casesensitiveIcon.width() / dpr;
     }
     if (wholewords) {
-        painter.drawPixmap(x - 6, 0, wholewordsIcon);
-        x += 6;
+        painter.drawPixmap(x, 0, wholewordsIcon);
+        x += wholewordsIcon.width() / dpr;
     }
     if (regexp) {
-        painter.drawPixmap(x - 6, 0, regexpIcon);
-        x += 6;
+        painter.drawPixmap(x, 0, regexpIcon);
+        x += regexpIcon.width() / dpr;
     }
     if (preservecase)
-        painter.drawPixmap(x - 6, 0, preservecaseIcon);
+        painter.drawPixmap(x, 0, preservecaseIcon);
     return pixmap;
 }
 
