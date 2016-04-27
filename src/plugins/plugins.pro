@@ -54,7 +54,8 @@ SUBDIRS   = \
     winrt \
     updateinfo \
     scxmleditor \
-    welcome
+    welcome \
+    silversearcher
 
 qtHaveModule(quick) {
     SUBDIRS += qmlprofiler
