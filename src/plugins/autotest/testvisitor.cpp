@@ -63,6 +63,7 @@ bool TestVisitor::visit(CPlusPlus::Class *symbol)
 {
     const CPlusPlus::Overview o;
     CPlusPlus::LookupContext lc;
+    const CPlusPlus::Snapshot snapshot = CppTools::CppModelManager::instance()->snapshot();
 
     unsigned count = symbol->memberCount();
     for (unsigned i = 0; i < count; ++i) {
@@ -81,7 +82,7 @@ bool TestVisitor::visit(CPlusPlus::Class *symbol)
                 TestCodeLocationAndType locationAndType;
 
                 CPlusPlus::Function *functionDefinition = m_symbolFinder.findMatchingDefinition(
-                            func, CppTools::CppModelManager::instance()->snapshot(), true);
+                            func, snapshot, true);
                 if (functionDefinition && functionDefinition->fileId()) {
                     locationAndType.m_name = QString::fromUtf8(functionDefinition->fileName());
                     locationAndType.m_line = functionDefinition->line();
