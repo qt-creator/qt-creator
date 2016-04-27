@@ -454,6 +454,7 @@ void ManhattanStyle::drawPrimitive(PrimitiveElement element, const QStyleOption 
 
             // Fill the line edit background
             QRectF backgroundRect = option->rect;
+            const bool enabled = option->state & State_Enabled;
             if (Utils::creatorTheme()->widgetStyle() == Utils::Theme::StyleDefault) {
                 backgroundRect.adjust(1, 1, -1, -1);
                 painter->setBrushOrigin(backgroundRect.topLeft());
@@ -464,15 +465,18 @@ void ManhattanStyle::drawPrimitive(PrimitiveElement element, const QStyleOption 
                 static const QImage bg_disabled(StyleHelper::dpiSpecificImageFile(
                                                     QLatin1String(":/core/images/inputfield_disabled.png")));
 
-                const bool enabled = option->state & State_Enabled;
                 StyleHelper::drawCornerImage(enabled ? bg : bg_disabled,
                                              painter, option->rect, 5, 5, 5, 5);
             } else {
+                painter->save();
+                if (!enabled)
+                    painter->setOpacity(0.75);
                 painter->fillRect(backgroundRect, option->palette.base());
+                painter->restore();
             }
 
             const bool hasFocus = state & State_HasFocus;
-            if (hasFocus || state & State_MouseOver) {
+            if (enabled && (hasFocus || state & State_MouseOver)) {
                 QColor hover = StyleHelper::baseColor();
                 hover.setAlpha(hasFocus ? 100 : 50);
                 painter->setPen(QPen(hover, 1, Qt::SolidLine, Qt::FlatCap, Qt::MiterJoin));
