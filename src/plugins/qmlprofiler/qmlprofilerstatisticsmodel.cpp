@@ -44,13 +44,9 @@ namespace QmlProfiler {
 class QmlProfilerStatisticsModel::QmlProfilerStatisticsModelPrivate
 {
 public:
-    QmlProfilerStatisticsModelPrivate(QmlProfilerStatisticsModel *qq) : q(qq) {}
-    ~QmlProfilerStatisticsModelPrivate() {}
-
     QHash<int, QmlProfilerStatisticsModel::QmlEventStats> data;
 
     QmlProfilerModelManager *modelManager;
-    QmlProfilerStatisticsModel *q;
 
     int modelId;
 
@@ -61,7 +57,7 @@ public:
 
 QmlProfilerStatisticsModel::QmlProfilerStatisticsModel(QmlProfilerModelManager *modelManager,
                                                QObject *parent) :
-    QObject(parent), d(new QmlProfilerStatisticsModelPrivate(this))
+    QObject(parent), d(new QmlProfilerStatisticsModelPrivate)
 {
     d->modelManager = modelManager;
     connect(modelManager->qmlModel(), &QmlProfilerDataModel::changed,

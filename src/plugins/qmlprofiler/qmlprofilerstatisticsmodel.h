@@ -112,7 +112,6 @@ public:
     void clear();
 
     const QmlStatisticsRelativesMap &getData(int typeId) const;
-    QVariantList getNotes(int typeId) const;
     const QVector<QmlProfilerDataModel::QmlEventTypeData> &getTypes() const;
 
 protected:
