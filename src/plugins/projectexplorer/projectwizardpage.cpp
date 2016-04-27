@@ -89,7 +89,9 @@ AddNewTree::AddNewTree(const QString &displayName) :
 // FIXME: potentially merge the following two functions.
 // Note the different handling of 'node' and m_canAdd.
 AddNewTree::AddNewTree(FolderNode *node, QList<AddNewTree *> children, const QString &displayName) :
-    m_displayName(displayName)
+    m_displayName(displayName),
+    m_node(node),
+    m_canAdd(false)
 {
     if (node)
         m_toolTip = ProjectExplorerPlugin::directoryFor(node);
@@ -99,7 +101,9 @@ AddNewTree::AddNewTree(FolderNode *node, QList<AddNewTree *> children, const QSt
 
 AddNewTree::AddNewTree(FolderNode *node, QList<AddNewTree *> children,
                        const FolderNode::AddNewInformation &info) :
-    m_displayName(info.displayName)
+    m_displayName(info.displayName),
+    m_node(node),
+    m_priority(info.priority)
 {
     if (node)
         m_toolTip = ProjectExplorerPlugin::directoryFor(node);
