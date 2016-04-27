@@ -89,6 +89,11 @@ void CMakeParser::stdError(const QString &line)
             m_lastTask = Task(trimmedLine.contains(QLatin1String("Error")) ? Task::Error : Task::Warning,
                               QString(), Utils::FileName(), -1, Constants::TASK_CATEGORY_BUILDSYSTEM);
             return;
+        } else if (trimmedLine.startsWith("CMake Error: ")) {
+            m_lastTask = Task(Task::Error, trimmedLine.mid(13),
+                              Utils::FileName(), -1, Constants::TASK_CATEGORY_BUILDSYSTEM);
+            m_lines = 1;
+            return;
         }
         IOutputParser::stdError(line);
         return;
@@ -232,6 +237,18 @@ void CMakeProjectPlugin::testCMakeParser_data()
                         QLatin1String("Parse error.  Expected \"(\", got newline with text \"\n\"."),
                         Utils::FileName::fromUserInput(QLatin1String("/test/path/CMakeLists.txt")), 9,
                         categoryBuild))
+            << QString();
+
+    QTest::newRow("cmake error2")
+            << QString::fromLatin1("CMake Error: Error required internal CMake variable not set, cmake may be not be built correctly.\n"
+                                   "Missing variable is:\n"
+                                   "CMAKE_MAKE_PROGRAM\n")
+            << OutputParserTester::STDERR
+            << QString() << QString::fromLatin1("Missing variable is:\nCMAKE_MAKE_PROGRAM\n")
+            << (QList<ProjectExplorer::Task>()
+                << Task(Task::Error,
+                        QLatin1String("Error required internal CMake variable not set, cmake may be not be built correctly."),
+                        Utils::FileName(), -1, categoryBuild))
             << QString();
 
     QTest::newRow("cmake warning")
