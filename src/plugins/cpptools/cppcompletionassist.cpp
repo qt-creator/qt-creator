@@ -1513,7 +1513,12 @@ bool InternalCppCompletionAssistProcessor::globalCompletion(Scope *currentScope)
         }
     }
 
+    QSet<ClassOrNamespace *> processed;
     for (; currentBinding; currentBinding = currentBinding->parent()) {
+        if (processed.contains(currentBinding))
+            break;
+        processed.insert(currentBinding);
+
         foreach (ClassOrNamespace* u, currentBinding->usings())
             usingBindings.append(u);
 
