@@ -147,6 +147,7 @@ void QmlProfilerTraceClient::setRequestedFeatures(quint64 features)
         connect(d->messageClient.data(), &QDebugMessageClient::message, this, [this](QtMsgType type,
                 const QString &text, const QmlDebug::QDebugContextInfo &context)
         {
+            d->updateFeatures(ProfileDebugMessages);
             emit debugMessage(type, context.timestamp, text,
                               QmlDebug::QmlEventLocation(context.file, context.line, 1));
         });
@@ -174,7 +175,7 @@ bool QmlProfilerTraceClientPrivate::updateFeatures(ProfileFeature feature)
     if (!(requestedFeatures & flag))
         return false;
     if (!(recordedFeatures & flag)) {
-        recordedFeatures |= (flag | 1ULL << ProfileDebugMessages);
+        recordedFeatures |= flag;
         emit q->recordedFeaturesChanged(recordedFeatures);
     }
     return true;
