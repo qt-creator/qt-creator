@@ -280,7 +280,7 @@ uint qHash(const double & f) { return int(f); }
 #ifdef Q_OS_WIN
 uint qHash(const QPointer<QObject> &p) { return PtrToUint(p.data()); }
 #else
-uint qHash(const QPointer<QObject> &p) { (ulong)p.data(); }
+uint qHash(const QPointer<QObject> &p) { return (ulong)p.data(); }
 #endif
 QT_END_NAMESPACE
 
