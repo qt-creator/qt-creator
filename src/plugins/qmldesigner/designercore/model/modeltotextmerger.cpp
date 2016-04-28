@@ -27,14 +27,14 @@
 #include "modelnodepositionrecalculator.h"
 #include "qmltextgenerator.h"
 #include "rewriteactioncompressor.h"
-#include "rewriterview.h"
 
-#include <nodelistproperty.h>
+#include <rewriterview.h>
+#include <abstractproperty.h>
 #include <nodeproperty.h>
+#include <nodeabstractproperty.h>
+
 #include <qmljs/parser/qmljsengine_p.h>
 #include <utils/algorithm.h>
-
-#include <QDebug>
 
 namespace {
     enum {

@@ -25,19 +25,19 @@
 
 #include "rewriterview.h"
 
+#include "texttomodelmerger.h"
+#include "modeltotextmerger.h"
+
+#include <variantproperty.h>
+#include <bindingproperty.h>
+#include <rewritingexception.h>
+#include <signalhandlerproperty.h>
 #include <filemanager/astobjecttextextractor.h>
 #include <filemanager/objectlengthcalculator.h>
 #include <filemanager/firstdefinitionfinder.h>
 #include <customnotifications.h>
-
-
-#include "rewritingexception.h"
-#include "texttomodelmerger.h"
-#include "modelnodepositionstorage.h"
-#include "modeltotextmerger.h"
-#include "nodelistproperty.h"
-#include "signalhandlerproperty.h"
-
+#include <modelnodepositionstorage.h>
+#include <modelnode.h>
 
 #include <qmljs/parser/qmljsengine_p.h>
 
@@ -119,19 +119,14 @@ QString RewriterError::toString() const
 RewriterView::RewriterView(DifferenceHandling differenceHandling, QObject *parent):
         AbstractView(parent),
         m_differenceHandling(differenceHandling),
-        m_modificationGroupActive(false),
         m_positionStorage(new ModelNodePositionStorage),
         m_modelToTextMerger(new Internal::ModelToTextMerger(this)),
-        m_textToModelMerger(new Internal::TextToModelMerger(this)),
-        m_textModifier(0),
-        transactionLevel(0),
-        m_checkErrors(true)
+        m_textToModelMerger(new Internal::TextToModelMerger(this))
 {
 }
 
 RewriterView::~RewriterView()
 {
-    delete m_positionStorage;
 }
 
 Internal::ModelToTextMerger *RewriterView::modelToTextMerger() const
@@ -472,6 +467,11 @@ void RewriterView::applyChanges()
             qDebug() << "Error:" << errors().first().description();
         throw RewritingException(__LINE__, __FUNCTION__, __FILE__, qPrintable(m_rewritingErrorMessage), content);
     }
+}
+
+Internal::ModelNodePositionStorage *RewriterView::positionStorage() const
+{
+    return m_positionStorage.data();
 }
 
 QList<RewriterError> RewriterView::warnings() const

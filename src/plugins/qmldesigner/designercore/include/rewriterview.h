@@ -26,23 +26,18 @@
 #pragma once
 
 #include "qmldesignercorelib_global.h"
-#include "abstractview.h"
 #include "exception.h"
-#include <modelnodepositionstorage.h>
-#include <QMap>
+#include "abstractview.h"
+
+#include <QScopedPointer>
 #include <QUrl>
 
-#include <modelnode.h>
-#include <QScopedPointer>
-
 namespace QmlJS {
-
 class DiagnosticMessage;
 class LookupContext;
 class Document;
 class ScopeChain;
 }
-
 
 namespace QmlDesigner {
 
@@ -140,8 +135,7 @@ public:
     void reactivateTextMofifierChangeSignals();
     void deactivateTextMofifierChangeSignals();
 
-    Internal::ModelNodePositionStorage *positionStorage() const
-    { return m_positionStorage; }
+    Internal::ModelNodePositionStorage *positionStorage() const;
 
     QList<RewriterError> warnings() const;
     QList<RewriterError> errors() const;
@@ -201,19 +195,20 @@ protected: // functions
     void applyChanges();
 
 private: //variables
+    TextModifier *m_textModifier = nullptr;
+    int transactionLevel = 0;
+    bool m_modificationGroupActive = false;
+    bool m_checkErrors = true;
+
     DifferenceHandling m_differenceHandling;
-    bool m_modificationGroupActive;
-    Internal::ModelNodePositionStorage *m_positionStorage;
+    QScopedPointer<Internal::ModelNodePositionStorage> m_positionStorage;
     QScopedPointer<Internal::ModelToTextMerger> m_modelToTextMerger;
     QScopedPointer<Internal::TextToModelMerger> m_textToModelMerger;
-    TextModifier *m_textModifier;
     QList<RewriterError> m_errors;
     QList<RewriterError> m_warnings;
-    int transactionLevel;
     RewriterTransaction m_removeDefaultPropertyTransaction;
     QString m_rewritingErrorMessage;
     QString lastCorrectQmlSource;
-    bool m_checkErrors;
 };
 
 } //QmlDesigner

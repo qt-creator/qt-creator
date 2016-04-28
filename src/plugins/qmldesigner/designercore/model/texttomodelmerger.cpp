@@ -24,6 +24,8 @@
 ****************************************************************************/
 
 #include "texttomodelmerger.h"
+
+#include "modelnodepositionstorage.h"
 #include "abstractproperty.h"
 #include "bindingproperty.h"
 #include "filemanager/firstdefinitionfinder.h"
