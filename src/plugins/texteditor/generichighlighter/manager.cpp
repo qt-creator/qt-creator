@@ -460,7 +460,7 @@ void MultiDefinitionDownloader::downloadDefinitionsFinished()
             text = tr("Error downloading one or more definitions.");
         if (writeError)
             text.append(QLatin1Char('\n') + tr("Please check the directory's access rights."));
-        QMessageBox::critical(0, tr("Download Error"), text);
+        QMessageBox::critical(Core::ICore::dialogParent(), tr("Download Error"), text);
     }
 
     QList<QUrl> urls;
