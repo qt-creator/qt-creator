@@ -52,7 +52,6 @@ class TestConfiguration;
 
 class TestTreeItem : public Utils::TreeItem
 {
-
 public:
     enum Type
     {
@@ -64,11 +63,17 @@ public:
         TestSpecialFunction
     };
 
+    enum SortMode {
+        Alphabetically,
+        Naturally
+    };
+
     TestTreeItem(const QString &name = QString(), const QString &filePath = QString(),
                  Type type = Root);
 
     virtual QVariant data(int column, int role) const override;
     virtual bool setData(int column, const QVariant &data, int role) override;
+    virtual Qt::ItemFlags flags(int column) const override;
     bool modifyTestCaseContent(const QString &name, unsigned line, unsigned column);
     bool modifyTestFunctionContent(const TestCodeLocationAndType &location);
     bool modifyDataTagContent(const QString &fileName, const TestCodeLocationAndType &location);
@@ -90,6 +95,7 @@ public:
     Type type() const { return m_type; }
     void markForRemoval(bool mark);
     void markForRemovalRecursively(bool mark);
+    virtual void markForRemovalRecursively(const QString &filePath);
     bool markedForRemoval() const { return m_status == MarkedForRemoval; }
     bool newlyAdded() const { return m_status == NewlyAdded; }
     TestTreeItem *parentItem() const;
@@ -103,6 +109,7 @@ public:
     virtual TestConfiguration *testConfiguration() const { return 0; }
     virtual QList<TestConfiguration *> getAllTestConfigurations() const;
     virtual QList<TestConfiguration *> getSelectedTestConfigurations() const;
+    virtual bool lessThan(const TestTreeItem *other, SortMode mode) const;
 
 protected:
     bool modifyFilePath(const QString &filePath);
@@ -166,10 +173,12 @@ public:
                                                              const TestParseResult &result);
 
     QVariant data(int column, int role) const override;
+    Qt::ItemFlags flags(int column) const override;
     bool canProvideTestConfiguration() const override;
     TestConfiguration *testConfiguration() const override;
     QList<TestConfiguration *> getAllTestConfigurations() const override;
     QList<TestConfiguration *> getSelectedTestConfigurations() const override;
+    bool lessThan(const TestTreeItem *other, SortMode mode) const override;
 
 private:
     TestTreeItem *unnamedQuickTests() const;

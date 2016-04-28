@@ -160,23 +160,7 @@ Qt::ItemFlags TestTreeModel::flags(const QModelIndex &index) const
         return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
 
     TestTreeItem *item = static_cast<TestTreeItem *>(itemForIndex(index));
-    switch(item->type()) {
-    case TestTreeItem::TestCase:
-        if (item->name().isEmpty())
-            return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
-        return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsTristate | Qt::ItemIsUserCheckable;
-    case TestTreeItem::TestFunctionOrSet:
-        if (item->parentItem()->name().isEmpty())
-            return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
-        return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsUserCheckable;
-    case TestTreeItem::Root:
-        return Qt::ItemIsEnabled;
-    case TestTreeItem::TestDataFunction:
-    case TestTreeItem::TestSpecialFunction:
-    case TestTreeItem::TestDataTag:
-    default:
-        return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
-    }
+    return item->flags(index.column());
 }
 
 bool TestTreeModel::hasTests() const
@@ -257,19 +241,7 @@ void TestTreeModel::markForRemoval(const QString &filePath)
         TestTreeItem *root = rootItemForType(type);
         for (int childRow = root->childCount() - 1; childRow >= 0; --childRow) {
             TestTreeItem *child = root->childItem(childRow);
-            // Qt + named Quick Tests
-            if (child->filePath() == filePath) {
-                child->markForRemovalRecursively(true);
-            } else {
-                // unnamed Quick Tests and GTest and Qt Tests with separated source/header
-                int grandChildRow = child->childCount() - 1;
-                for ( ; grandChildRow >= 0; --grandChildRow) {
-                    TestTreeItem *grandChild = child->childItem(grandChildRow);
-                    if (grandChild->filePath() == filePath) {
-                        grandChild->markForRemovalRecursively(true);
-                    }
-                }
-            }
+            child->markForRemovalRecursively(filePath);
         }
     }
 }
@@ -573,13 +545,13 @@ QMultiMap<QString, int> TestTreeModel::gtestNamesAndSets() const
 TestTreeSortFilterModel::TestTreeSortFilterModel(TestTreeModel *sourceModel, QObject *parent)
     : QSortFilterProxyModel(parent),
       m_sourceModel(sourceModel),
-      m_sortMode(Alphabetically),
+      m_sortMode(TestTreeItem::Alphabetically),
       m_filterMode(Basic)
 {
     setSourceModel(sourceModel);
 }
 
-void TestTreeSortFilterModel::setSortMode(SortMode sortMode)
+void TestTreeSortFilterModel::setSortMode(TestTreeItem::SortMode sortMode)
 {
     m_sortMode = sortMode;
     invalidate();
@@ -613,42 +585,13 @@ TestTreeSortFilterModel::FilterMode TestTreeSortFilterModel::toFilterMode(int f)
 
 bool TestTreeSortFilterModel::lessThan(const QModelIndex &left, const QModelIndex &right) const
 {
-    // root items keep the intended order: 1st Auto Tests, 2nd Quick Tests
+    // root items keep the intended order
     const TestTreeItem *leftItem = static_cast<TestTreeItem *>(left.internalPointer());
     if (leftItem->type() == TestTreeItem::Root)
         return left.row() > right.row();
 
-    const QString leftVal = m_sourceModel->data(left, Qt::DisplayRole).toString();
-    const QString rightVal = m_sourceModel->data(right, Qt::DisplayRole).toString();
-
-    // unnamed Quick Tests will always be listed first
-    if (leftVal == tr(Constants::UNNAMED_QUICKTESTS))
-        return false;
-    if (rightVal == tr(Constants::UNNAMED_QUICKTESTS))
-        return true;
-
-    switch (m_sortMode) {
-    case Alphabetically:
-        if (leftVal == rightVal)
-            return left.row() > right.row();
-        return leftVal > rightVal;
-    case Naturally: {
-        const TextEditor::TextEditorWidget::Link leftLink =
-                m_sourceModel->data(left, LinkRole).value<TextEditor::TextEditorWidget::Link>();
-        const TextEditor::TextEditorWidget::Link rightLink =
-                m_sourceModel->data(right, LinkRole).value<TextEditor::TextEditorWidget::Link>();
-
-        if (leftLink.targetFileName == rightLink.targetFileName) {
-            return leftLink.targetLine == rightLink.targetLine
-                    ? leftLink.targetColumn > rightLink.targetColumn
-                    : leftLink.targetLine > rightLink.targetLine;
-        } else {
-            return leftLink.targetFileName > rightLink.targetFileName;
-        }
-    }
-    default:
-        return true;
-    }
+    const TestTreeItem *rightItem = static_cast<TestTreeItem *>(right.internalPointer());
+    return leftItem->lessThan(rightItem, m_sortMode);
 }
 
 bool TestTreeSortFilterModel::filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const

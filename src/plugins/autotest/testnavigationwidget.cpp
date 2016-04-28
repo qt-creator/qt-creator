@@ -200,11 +200,11 @@ void TestNavigationWidget::onSortClicked()
     if (m_sortAlphabetically) {
         m_sort->setIcon(Icons::SORT_ALPHABETICALLY.icon());
         m_sort->setToolTip(tr("Sort Alphabetically"));
-        m_sortFilterModel->setSortMode(TestTreeSortFilterModel::Naturally);
+        m_sortFilterModel->setSortMode(TestTreeItem::Naturally);
     } else {
         m_sort->setIcon(Icons::SORT_NATURALLY.icon());
         m_sort->setToolTip(tr("Sort Naturally"));
-        m_sortFilterModel->setSortMode(TestTreeSortFilterModel::Alphabetically);
+        m_sortFilterModel->setSortMode(TestTreeItem::Alphabetically);
     }
     m_sortAlphabetically = !m_sortAlphabetically;
 }

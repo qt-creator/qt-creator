@@ -102,6 +102,24 @@ bool TestTreeItem::setData(int /*column*/, const QVariant &data, int role)
     return false;
 }
 
+Qt::ItemFlags TestTreeItem::flags(int /*column*/) const
+{
+    static const Qt::ItemFlags defaultFlags = Qt::ItemIsEnabled | Qt::ItemIsSelectable;
+    switch (m_type) {
+    case Root:
+        return Qt::ItemIsEnabled;
+    case TestCase:
+        return defaultFlags | Qt::ItemIsTristate | Qt::ItemIsUserCheckable;
+    case TestFunctionOrSet:
+        return defaultFlags | Qt::ItemIsUserCheckable;
+    case TestDataFunction:
+    case TestSpecialFunction:
+    case TestDataTag:
+    default:
+        return defaultFlags;
+    }
+}
+
 bool TestTreeItem::modifyTestCaseContent(const QString &name, unsigned line, unsigned column)
 {
     bool hasBeenModified = modifyName(name);
@@ -186,6 +204,18 @@ void TestTreeItem::markForRemovalRecursively(bool mark)
         childItem(row)->markForRemovalRecursively(mark);
 }
 
+void TestTreeItem::markForRemovalRecursively(const QString &filePath)
+{
+    if (m_filePath == filePath) {
+        markForRemovalRecursively(true);
+    } else {
+        for (int row = 0, count = childCount(); row < count; ++row) {
+            TestTreeItem *child = childItem(row);
+            child->markForRemovalRecursively(filePath);
+        }
+    }
+}
+
 TestTreeItem *TestTreeItem::parentItem() const
 {
     return static_cast<TestTreeItem *>(parent());
@@ -225,6 +255,33 @@ QList<TestConfiguration *> TestTreeItem::getAllTestConfigurations() const
 QList<TestConfiguration *> TestTreeItem::getSelectedTestConfigurations() const
 {
     return QList<TestConfiguration *>();
+}
+
+bool TestTreeItem::lessThan(const TestTreeItem *other, SortMode mode) const
+{
+    const QString &lhs = data(0, Qt::DisplayRole).toString();
+    const QString &rhs = other->data(0, Qt::DisplayRole).toString();
+
+    switch (mode) {
+    case Alphabetically:
+        if (lhs == rhs)
+            return index().row() > other->index().row();
+        return lhs > rhs;
+    case Naturally: {
+        const TextEditor::TextEditorWidget::Link &leftLink =
+                data(0, LinkRole).value<TextEditor::TextEditorWidget::Link>();
+        const TextEditor::TextEditorWidget::Link &rightLink =
+                other->data(0, LinkRole).value<TextEditor::TextEditorWidget::Link>();
+        if (leftLink.targetFileName == rightLink.targetFileName) {
+            return leftLink.targetLine == rightLink.targetLine
+                    ? leftLink.targetColumn > rightLink.targetColumn
+                    : leftLink.targetLine > rightLink.targetLine;
+        }
+        return leftLink.targetFileName > rightLink.targetFileName;
+    }
+    default:
+        return true;
+    }
 }
 
 void TestTreeItem::revalidateCheckState()
@@ -555,6 +612,23 @@ QVariant QuickTestTreeItem::data(int column, int role) const
     return TestTreeItem::data(column, role);
 }
 
+Qt::ItemFlags QuickTestTreeItem::flags(int column) const
+{
+    // handle unnamed quick tests and their functions
+    switch (type()) {
+    case TestCase:
+        if (name().isEmpty())
+            return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
+        break;
+    case TestFunctionOrSet:
+        if (parentItem()->name().isEmpty())
+            return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
+        break;
+    default: {} // avoid warning regarding unhandled enum values
+    }
+    return TestTreeItem::flags(column);
+}
+
 bool QuickTestTreeItem::canProvideTestConfiguration() const
 {
     switch (type()) {
@@ -716,6 +790,16 @@ QList<TestConfiguration *> QuickTestTreeItem::getSelectedTestConfigurations() co
     }
 
     return result;
+}
+
+bool QuickTestTreeItem::lessThan(const TestTreeItem *other, TestTreeItem::SortMode mode) const
+{
+    // handle special item (<unnamed>)
+    if (name().isEmpty())
+        return false;
+    if (other->name().isEmpty())
+        return true;
+    return TestTreeItem::lessThan(other, mode);
 }
 
 TestTreeItem *QuickTestTreeItem::unnamedQuickTests() const

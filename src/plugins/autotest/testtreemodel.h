@@ -100,7 +100,6 @@ private:
     void handleGTestParseResult(const TestParseResultPtr result);
     void removeAllTestItems();
     void removeFiles(const QStringList &files);
-    void markForRemoval(const QString &filePath, Type type);
     bool sweepChildren(TestTreeItem *item);
 
     TestTreeItem *unnamedQuickTests() const;
@@ -121,11 +120,6 @@ class TestTreeSortFilterModel : public QSortFilterProxyModel
 {
     Q_OBJECT
 public:
-    enum SortMode {
-        Alphabetically,
-        Naturally
-    };
-
     enum FilterMode {
         Basic,
         ShowInitAndCleanup = 0x01,
@@ -134,7 +128,7 @@ public:
     };
 
     TestTreeSortFilterModel(TestTreeModel *sourceModel, QObject *parent = 0);
-    void setSortMode(SortMode sortMode);
+    void setSortMode(TestTreeItem::SortMode sortMode);
     void setFilterMode(FilterMode filterMode);
     void toggleFilter(FilterMode filterMode);
     static FilterMode toFilterMode(int f);
@@ -145,7 +139,7 @@ protected:
 
 private:
     TestTreeModel *m_sourceModel;
-    SortMode m_sortMode;
+    TestTreeItem::SortMode m_sortMode;
     FilterMode m_filterMode;
 
 };
