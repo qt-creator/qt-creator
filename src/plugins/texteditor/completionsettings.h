@@ -66,6 +66,7 @@ public:
     bool m_partiallyComplete = true;
     bool m_spaceAfterFunctionName = false;
     bool m_autoSplitStrings = true;
+    bool m_animateAutoComplete = true;
 };
 
 inline bool operator==(const CompletionSettings &t1, const CompletionSettings &t2) { return t1.equals(t2); }

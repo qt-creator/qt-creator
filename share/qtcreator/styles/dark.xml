@@ -28,6 +28,7 @@
   <style name="Operator" foreground="#aaaaaa"/>
   <style name="Parentheses" foreground="#ff5555" background="#333333"/>
   <style name="ParenthesesMismatch" background="#800080"/>
+  <style name="AutoComplete" foreground="#a0a0ff" background="#333333"/>
   <style name="Preprocessor" foreground="#5555ff"/>
   <style name="SearchResult" background="#555500"/>
   <style name="SearchScope" background="#222200"/>

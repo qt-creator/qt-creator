@@ -17,6 +17,7 @@
   <style name="Operator" foreground="#000000"/>
   <style name="Parentheses" foreground="#ff0000" background="#c3e1ff"/>
   <style name="ParenthesesMismatch" background="#ff00ff"/>
+  <style name="AutoComplete" foreground="#ff0000" background="#c3e1ff"/>
   <style name="Preprocessor" foreground="#000080" bold="true"/>
   <style name="RemovedLine" foreground="#ff0000"/>
   <style name="String" foreground="#008000" bold="true"/>

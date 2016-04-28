@@ -25,6 +25,7 @@
   <style name="Operator"/>
   <style name="Parentheses" background="#e3e3e3" bold="true"/>
   <style name="ParenthesesMismatch" background="#808080"/>
+  <style name="AutoComplete" foreground="#303030" background="#d0d0d0"/>
   <style name="Preprocessor" foreground="#5b5b5b" bold="true"/>
   <style name="RemovedLine" foreground="#a0a0a4"/>
   <style name="Static" italic="true"/>

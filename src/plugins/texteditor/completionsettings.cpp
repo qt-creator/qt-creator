@@ -38,6 +38,7 @@ static const char surroundingAutoQuotesKey[]    = "SurroundingAutoQuotes";
 static const char partiallyCompleteKey[]        = "PartiallyComplete";
 static const char spaceAfterFunctionNameKey[]   = "SpaceAfterFunctionName";
 static const char autoSplitStringsKey[]         = "AutoSplitStrings";
+static const char animateAutoCompleteKey[]      = "AnimateAutoComplete";
 
 using namespace TextEditor;
 
@@ -54,6 +55,7 @@ void CompletionSettings::toSettings(QSettings *s) const
     s->setValue(partiallyCompleteKey, m_partiallyComplete);
     s->setValue(spaceAfterFunctionNameKey, m_spaceAfterFunctionName);
     s->setValue(autoSplitStringsKey, m_autoSplitStrings);
+    s->setValue(animateAutoCompleteKey, m_animateAutoComplete);
     s->endGroup();
 }
 
@@ -82,6 +84,8 @@ void CompletionSettings::fromSettings(QSettings *s)
             s->value(spaceAfterFunctionNameKey, m_spaceAfterFunctionName).toBool();
     m_autoSplitStrings =
             s->value(autoSplitStringsKey, m_autoSplitStrings).toBool();
+    m_animateAutoComplete =
+            s->value(animateAutoCompleteKey, m_animateAutoComplete).toBool();
     s->endGroup();
 }
 
@@ -97,5 +101,6 @@ bool CompletionSettings::equals(const CompletionSettings &cs) const
         && m_partiallyComplete              == cs.m_partiallyComplete
         && m_spaceAfterFunctionName         == cs.m_spaceAfterFunctionName
         && m_autoSplitStrings               == cs.m_autoSplitStrings
+        && m_animateAutoComplete            == cs.m_animateAutoComplete
         ;
 }

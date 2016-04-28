@@ -329,6 +329,9 @@ public:
     // parentheses matcher
     void _q_matchParentheses();
     void _q_highlightBlocks();
+    void _q_autocompleterHighlight(const QTextCursor &cursor = QTextCursor());
+    void updateAnimator(QPointer<TextEditorAnimator> animator, QPainter &painter);
+    void cancelCurrentAnimations();
     void slotSelectionChanged();
     void _q_animateUpdate(int position, QPointF lastPos, QRectF rect);
     void updateCodeFoldingVisible();
@@ -450,7 +453,9 @@ public:
     bool m_assistRelevantContentAdded;
     QList<BaseHoverHandler *> m_hoverHandlers; // Not owned
 
-    QPointer<TextEditorAnimator> m_animator;
+    QPointer<TextEditorAnimator> m_bracketsAnimator;
+    QPointer<TextEditorAnimator> m_autocompleteAnimator;
+    bool m_animateAutoComplete = true;
     int m_cursorBlockNumber;
     int m_blockCount;
 
@@ -738,7 +743,8 @@ void TextEditorWidgetPrivate::ctor(const QSharedPointer<TextDocument> &doc)
     QObject::connect(&m_scrollBarUpdateTimer, &QTimer::timeout,
                      this, &TextEditorWidgetPrivate::highlightSearchResultsInScrollBar);
 
-    m_animator = 0;
+    m_bracketsAnimator = 0;
+    m_autocompleteAnimator = 0;
 
     slotUpdateExtraAreaWidth();
     updateHighlights();
@@ -1104,8 +1110,8 @@ TextEditorWidget *TextEditorWidget::currentTextEditorWidget()
 
 void TextEditorWidgetPrivate::editorContentsChange(int position, int charsRemoved, int charsAdded)
 {
-    if (m_animator)
-        m_animator->finish();
+    if (m_bracketsAnimator)
+        m_bracketsAnimator->finish();
 
     m_contentsChanged = true;
     QTextDocument *doc = q->document();
@@ -2152,6 +2158,13 @@ void TextEditorWidget::keyPressEvent(QKeyEvent *e)
                     d->m_document->autoIndent(ensureVisible);
                 else if (!previousIndentationString.isEmpty())
                     ensureVisible.insertText(previousIndentationString);
+                if (d->m_animateAutoComplete) {
+                    QTextCursor tc = ensureVisible;
+                    tc.movePosition(QTextCursor::EndOfBlock);
+                    tc.movePosition(QTextCursor::StartOfBlock, QTextCursor::KeepAnchor);
+                    tc.movePosition(QTextCursor::NextWord, QTextCursor::KeepAnchor);
+                    d->_q_autocompleterHighlight(tc);
+                }
             }
             setTextCursor(ensureVisible);
         }
@@ -2424,6 +2437,7 @@ void TextEditorWidget::keyPressEvent(QKeyEvent *e)
             cursor.insertText(autoText);
             //Select the inserted text, to be able to re-indent the inserted text
             cursor.setPosition(pos, QTextCursor::KeepAnchor);
+            d->_q_autocompleterHighlight(cursor);
         }
         if (!electricChar.isNull() && d->m_autoCompleter->contextAllowsElectricCharacters(cursor))
             d->m_document->autoIndent(cursor, electricChar);
@@ -4224,11 +4238,8 @@ void TextEditorWidget::paintEvent(QPaintEvent *e)
         bottom = top + blockBoundingRect(block).height();
     }
 
-    if (d->m_animator && d->m_animator->isRunning()) {
-        QTextCursor cursor = textCursor();
-        cursor.setPosition(d->m_animator->position());
-        d->m_animator->draw(&painter, cursorRect(cursor).topLeft());
-    }
+    d->updateAnimator(d->m_bracketsAnimator, painter);
+    d->updateAnimator(d->m_autocompleteAnimator, painter);
 
     // draw the overlays, but only if we do not have a find scope, otherwise the
     // view becomes too noisy.
@@ -4735,7 +4746,7 @@ void TextEditorWidgetPrivate::updateHighlights()
     if (m_parenthesesMatchingEnabled && q->hasFocus()) {
         // Delay update when no matching is displayed yet, to avoid flicker
         if (q->extraSelections(TextEditorWidget::ParenthesesMatchingSelection).isEmpty()
-            && m_animator == 0) {
+            && m_bracketsAnimator == 0) {
             m_parenthesesMatchingTimer.start(50);
         } else {
             // when we uncheck "highlight matching parentheses"
@@ -5995,15 +6006,15 @@ void TextEditorWidgetPrivate::_q_matchParentheses()
     }
 
     if (animatePosition >= 0) {
-        if (m_animator)
-            m_animator->finish();  // one animation is enough
-        m_animator = new TextEditorAnimator(this);
-        m_animator->setPosition(animatePosition);
+        cancelCurrentAnimations();// one animation is enough
+        m_bracketsAnimator = new TextEditorAnimator(this);
+        m_bracketsAnimator->setPosition(animatePosition);
         QPalette pal;
         pal.setBrush(QPalette::Text, matchFormat.foreground());
         pal.setBrush(QPalette::Base, matchFormat.background());
-        m_animator->setData(q->font(), pal, q->document()->characterAt(m_animator->position()));
-        connect(m_animator.data(), &TextEditorAnimator::updateRequest,
+        m_bracketsAnimator->setData(
+                    q->font(), pal, q->document()->characterAt(m_bracketsAnimator->position()));
+        connect(m_bracketsAnimator.data(), &TextEditorAnimator::updateRequest,
                 this, &TextEditorWidgetPrivate::_q_animateUpdate);
     }
     if (m_displaySettings.m_highlightMatchingParentheses)
@@ -6069,6 +6080,43 @@ void TextEditorWidgetPrivate::_q_highlightBlocks()
         q->viewport()->update();
         m_extraArea->update();
     }
+}
+
+void TextEditorWidgetPrivate::_q_autocompleterHighlight(const QTextCursor &cursor)
+{
+    if (!m_animateAutoComplete || q->isReadOnly() || !cursor.hasSelection())
+        return;
+
+    const QTextCharFormat &matchFormat
+            = q->textDocument()->fontSettings().toTextCharFormat(C_AUTOCOMPLETE);
+
+    cancelCurrentAnimations();// one animation is enough
+    m_autocompleteAnimator = new TextEditorAnimator(this);
+    m_autocompleteAnimator->setPosition(cursor.selectionStart());
+    QPalette pal;
+    pal.setBrush(QPalette::Text, matchFormat.foreground());
+    pal.setBrush(QPalette::Base, matchFormat.background());
+    m_autocompleteAnimator->setData(q->font(), pal, cursor.selectedText());
+    connect(m_autocompleteAnimator.data(), &TextEditorAnimator::updateRequest,
+            this, &TextEditorWidgetPrivate::_q_animateUpdate);
+}
+
+void TextEditorWidgetPrivate::updateAnimator(QPointer<TextEditorAnimator> animator,
+                                             QPainter &painter)
+{
+    if (animator && animator->isRunning()) {
+        QTextCursor cursor = q->textCursor();
+        cursor.setPosition(animator->position());
+        animator->draw(&painter, q->cursorRect(cursor).topLeft());
+    }
+}
+
+void TextEditorWidgetPrivate::cancelCurrentAnimations()
+{
+    if (m_autocompleteAnimator)
+        m_autocompleteAnimator->finish();
+    if (m_bracketsAnimator)
+        m_bracketsAnimator->finish();
 }
 
 void TextEditorWidget::changeEvent(QEvent *e)
@@ -6549,6 +6597,7 @@ void TextEditorWidget::setCompletionSettings(const CompletionSettings &completio
     d->m_autoCompleter->setSurroundWithBracketsEnabled(completionSettings.m_surroundingAutoBrackets);
     d->m_autoCompleter->setAutoInsertQuotesEnabled(completionSettings.m_autoInsertQuotes);
     d->m_autoCompleter->setSurroundWithQuotesEnabled(completionSettings.m_surroundingAutoQuotes);
+    d->m_animateAutoComplete = completionSettings.m_animateAutoComplete;
 }
 
 void TextEditorWidget::setExtraEncodingSettings(const ExtraEncodingSettings &extraEncodingSettings)

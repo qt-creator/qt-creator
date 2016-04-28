@@ -263,6 +263,8 @@ QColor FormatDescription::foreground() const
             return m_format.foreground();
     } else if (m_id == C_PARENTHESES) {
         return QColor(Qt::red);
+    } else if (m_id == C_AUTOCOMPLETE) {
+        return QColor(Qt::darkBlue);
     }
     return m_format.foreground();
 }
@@ -279,6 +281,8 @@ QColor FormatDescription::background() const
         return QColor(0xb4, 0xee, 0xb4);
     } else if (m_id == C_PARENTHESES_MISMATCH) {
         return QColor(Qt::magenta);
+    } else if (m_id == C_AUTOCOMPLETE) {
+        return QColor(192, 192, 255);
     } else if (m_id == C_CURRENT_LINE || m_id == C_SEARCH_SCOPE) {
         const QPalette palette = QApplication::palette();
         const QColor &fg = palette.color(QPalette::Highlight);

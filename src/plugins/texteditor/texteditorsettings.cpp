@@ -118,6 +118,9 @@ TextEditorSettings::TextEditorSettings(QObject *parent)
     formatDescr.emplace_back(C_PARENTHESES_MISMATCH, tr("Mismatched Parentheses"),
                              tr("Displayed when mismatched parentheses, "
                                 "square brackets, or curly brackets are found."));
+    formatDescr.emplace_back(C_AUTOCOMPLETE, tr("Auto Complete"),
+                             tr("Displayed when a character is automatically inserted "
+                                "like brackets or quotes."));
     formatDescr.emplace_back(C_CURRENT_LINE, tr("Current Line"),
                              tr("Line where the cursor is placed in."),
                              FormatDescription::ShowBackgroundControl);

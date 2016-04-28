@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
  <class>TextEditor::Internal::CompletionSettingsPage</class>
- <widget class="QWidget" name="CppTools::Internal::CompletionSettingsPage">
+ <widget class="QWidget" name="TextEditor::Internal::CompletionSettingsPage">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -214,6 +214,19 @@ In addition, Shift+Enter inserts an escape character at the cursor position and 
         </property>
        </widget>
       </item>
+      <item row="2" column="1">
+       <widget class="QCheckBox" name="animateAutoComplete">
+        <property name="toolTip">
+         <string>Show a visual hint when for example a brace or a quote is automatically inserted by the editor.</string>
+        </property>
+        <property name="text">
+         <string>Animate automatically inserted text</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
      </layout>
     </widget>
    </item>
@@ -302,6 +315,7 @@ In addition, Shift+Enter inserts an escape character at the cursor position and 
   <tabstop>surroundBrackets</tabstop>
   <tabstop>surroundQuotes</tabstop>
   <tabstop>spaceAfterFunctionName</tabstop>
+  <tabstop>animateAutoComplete</tabstop>
   <tabstop>enableDoxygenCheckBox</tabstop>
   <tabstop>generateBriefCheckBox</tabstop>
   <tabstop>leadingAsterisksCheckBox</tabstop>
