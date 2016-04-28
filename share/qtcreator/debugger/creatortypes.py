@@ -224,3 +224,7 @@ def qdump__ProString(d, value):
         d.putEmptyValue()
     d.putPlainChildren(value)
 
+def qdump__ProKey(d, value):
+    qdump__ProString(d, value)
+    d.putBetterType(value.type)
+
