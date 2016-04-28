@@ -176,4 +176,4 @@ void QmlProfilerStateManager::setRecordedFeatures(quint64 features)
     }
 }
 
-}
+} // namespace QmlProfiler

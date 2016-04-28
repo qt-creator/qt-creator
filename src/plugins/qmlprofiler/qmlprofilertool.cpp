@@ -875,7 +875,7 @@ void QmlProfilerTool::serverRecordingChanged()
             if (!d->m_profilerConnections->aggregateTraces() ||
                     d->m_profilerModelManager->state() == QmlProfilerModelManager::Done)
                 clearData();
-            d->m_profilerModelManager->prepareForWriting();
+            d->m_profilerModelManager->startAcquiring();
         } else {
             setRecording(false);
 
@@ -908,5 +908,5 @@ void QmlProfilerTool::toggleVisibleFeature(QAction *action)
                     d->m_profilerModelManager->visibleFeatures() & (~(1ULL << feature)));
 }
 
-}
-}
+} // namespace Internal
+} // namespace QmlProfiler

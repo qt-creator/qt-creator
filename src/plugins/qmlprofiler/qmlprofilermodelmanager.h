@@ -116,7 +116,6 @@ signals:
     void loadFinished();
     void saveFinished();
 
-    void requestDetailsForLocation(int eventType, const QmlEventLocation &location);
     void availableFeaturesChanged(quint64 features);
     void visibleFeaturesChanged(quint64 features);
     void recordedFeaturesChanged(quint64 features);
@@ -124,11 +123,11 @@ signals:
 public slots:
     void clear();
 
-    void prepareForWriting();
+    void startAcquiring();
     void addQmlEvent(Message message, RangeType rangeType, int bindingType, qint64 startTime,
                      qint64 length, const QString &data, const QmlEventLocation &location,
                      qint64 ndata1, qint64 ndata2, qint64 ndata3, qint64 ndata4, qint64 ndata5);
-    void addDebugMessage(QtMsgType type, qint64 timestamp, const QString &text,
+    void addDebugMessage(qint64 timestamp, QtMsgType type, const QString &text,
                          const QmlEventLocation &location);
 
     void save(const QString &filename);
@@ -142,4 +141,4 @@ private:
     QmlProfilerModelManagerPrivate *d;
 };
 
-}
+} // namespace QmlProfiler

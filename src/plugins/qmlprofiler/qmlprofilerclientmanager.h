@@ -95,5 +95,5 @@ private:
     void stopClientsRecording();
 };
 
-}
-}
+} // namespace Internal
+} // namespace QmlProfiler

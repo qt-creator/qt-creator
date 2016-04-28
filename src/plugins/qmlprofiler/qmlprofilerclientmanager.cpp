@@ -30,11 +30,11 @@
 #include "qmlprofilermodelmanager.h"
 
 #include <utils/qtcassert.h>
+
 #include <QPointer>
 #include <QTimer>
 #include <QMessageBox>
 
-using namespace QmlDebug;
 using namespace Core;
 
 namespace QmlProfiler {
@@ -45,7 +45,7 @@ class QmlProfilerClientManager::QmlProfilerClientManagerPrivate
 public:
     QmlProfilerStateManager *profilerState;
 
-    QmlDebugConnection *connection;
+    QmlDebug::QmlDebugConnection *connection;
     QPointer<QmlProfilerTraceClient> qmlclientplugin;
 
     QTimer connectionTimer;
@@ -169,7 +169,7 @@ void QmlProfilerClientManager::connectLocalClient(const QString &file)
 
 void QmlProfilerClientManager::createConnection()
 {
-    d->connection = new QmlDebugConnection;
+    d->connection = new QmlDebug::QmlDebugConnection;
     QTC_ASSERT(d->profilerState, return);
 
     disconnectClientSignals();
@@ -180,13 +180,13 @@ void QmlProfilerClientManager::createConnection()
                                                     d->profilerState->requestedFeatures());
     d->qmlclientplugin->setFlushInterval(d->flushInterval);
     connectClientSignals();
-    connect(d->connection, &QmlDebugConnection::connected,
+    connect(d->connection, &QmlDebug::QmlDebugConnection::connected,
             this, &QmlProfilerClientManager::qmlDebugConnectionOpened);
-    connect(d->connection, &QmlDebugConnection::disconnected,
+    connect(d->connection, &QmlDebug::QmlDebugConnection::disconnected,
             this, &QmlProfilerClientManager::qmlDebugConnectionClosed);
-    connect(d->connection, &QmlDebugConnection::socketError,
+    connect(d->connection, &QmlDebug::QmlDebugConnection::socketError,
             this, &QmlProfilerClientManager::qmlDebugConnectionError);
-    connect(d->connection, &QmlDebugConnection::socketStateChanged,
+    connect(d->connection, &QmlDebug::QmlDebugConnection::socketStateChanged,
             this, &QmlProfilerClientManager::qmlDebugConnectionStateChanged);
 }
 
@@ -313,7 +313,7 @@ void QmlProfilerClientManager::qmlDebugConnectionClosed()
 
 void QmlProfilerClientManager::qmlDebugConnectionError(QAbstractSocket::SocketError error)
 {
-    logState(QmlDebugConnection::socketErrorToString(error));
+    logState(QmlDebug::QmlDebugConnection::socketErrorToString(error));
     if (d->connection->isConnected()) {
         disconnectClient();
         emit connectionClosed();
@@ -324,7 +324,7 @@ void QmlProfilerClientManager::qmlDebugConnectionError(QAbstractSocket::SocketEr
 
 void QmlProfilerClientManager::qmlDebugConnectionStateChanged(QAbstractSocket::SocketState state)
 {
-    logState(QmlDebugConnection::socketStateToString(state));
+    logState(QmlDebug::QmlDebugConnection::socketStateToString(state));
 }
 
 void QmlProfilerClientManager::logState(const QString &msg)

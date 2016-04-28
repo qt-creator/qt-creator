@@ -53,4 +53,4 @@ public slots:
     virtual void onVisibleFeaturesChanged(quint64 features) = 0;
 };
 
-}
+} // namespace QmlProfiler

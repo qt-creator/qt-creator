@@ -25,7 +25,6 @@
 
 #include "qmlprofilertracefile.h"
 
-
 #include <utils/qtcassert.h>
 
 #include <QIODevice>
@@ -657,12 +656,12 @@ void QmlProfilerFileWriter::save(QIODevice *device)
         if (isCanceled())
             return;
 
-        const QmlNote &notes = m_notes[noteIndex];
+        const QmlNote &note = m_notes[noteIndex];
         stream.writeStartElement(_("note"));
-        stream.writeAttribute(_("startTime"), QString::number(notes.startTime));
-        stream.writeAttribute(_("duration"), QString::number(notes.duration));
-        stream.writeAttribute(_("eventIndex"), QString::number(notes.typeIndex));
-        stream.writeCharacters(notes.text);
+        stream.writeAttribute(_("startTime"), QString::number(note.startTime));
+        stream.writeAttribute(_("duration"), QString::number(note.duration));
+        stream.writeAttribute(_("eventIndex"), QString::number(note.typeIndex));
+        stream.writeCharacters(note.text);
         stream.writeEndElement(); // note
         incrementProgress();
     }
@@ -691,7 +690,6 @@ bool QmlProfilerFileWriter::isCanceled() const
 {
     return m_future && m_future->isCanceled();
 }
-
 
 } // namespace Internal
 } // namespace QmlProfiler

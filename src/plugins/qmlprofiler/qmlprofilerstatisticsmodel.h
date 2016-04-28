@@ -29,6 +29,7 @@
 #include "qmlprofilernotesmodel.h"
 #include "qmlprofilereventtypes.h"
 #include "qmlprofilereventlocation.h"
+#include "qmlprofilerconstants.h"
 
 #include <QHash>
 #include <QVector>

@@ -29,6 +29,7 @@
 #include "qmlprofilerdatamodel.h"
 #include "qmlprofilereventtypes.h"
 #include "qmlprofilereventlocation.h"
+#include "qmlprofilerconstants.h"
 
 #include <QVariantList>
 #include <QColor>
@@ -86,5 +87,5 @@ private:
     QVector<int> m_expandedRowTypes;
 };
 
-}
-}
+} // namespace Internal
+} // namespace QmlProfiler

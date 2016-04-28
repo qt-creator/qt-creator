@@ -380,5 +380,5 @@ void BindingLoopsRenderPassState::updateIndexes(int from, int to)
         m_indexTo = to;
 }
 
-}
-}
+} // namespace Internal
+} // namespace QmlProfiler

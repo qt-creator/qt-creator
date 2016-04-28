@@ -169,7 +169,6 @@ inline ProfileFeature featureFromRangeType(RangeType range)
 }
 
 namespace Constants {
-const int QML_MIN_LEVEL = 1; // Set to 0 to remove the empty line between models in the timeline
 
 // Shorthand for all QML and JS range features.
 const quint64 QML_JS_RANGE_FEATURES = (1 << ProfileCompiling) |
@@ -177,6 +176,6 @@ const quint64 QML_JS_RANGE_FEATURES = (1 << ProfileCompiling) |
                                       (1 << ProfileBinding) |
                                       (1 << ProfileHandlingSignal) |
                                       (1 << ProfileJavaScript);
-}
+} // namespace Constants
 
 } // namespace QmlProfiler

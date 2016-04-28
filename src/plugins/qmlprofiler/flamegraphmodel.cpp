@@ -25,8 +25,8 @@
 
 #include "flamegraphmodel.h"
 
-#include <qmlprofiler/qmlprofilermodelmanager.h>
-#include <qmlprofiler/qmlprofilerdatamodel.h>
+#include "qmlprofilermodelmanager.h"
+#include "qmlprofilerdatamodel.h"
 
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>

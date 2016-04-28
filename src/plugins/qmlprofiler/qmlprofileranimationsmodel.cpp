@@ -26,16 +26,16 @@
 #include "qmlprofileranimationsmodel.h"
 #include "qmlprofilermodelmanager.h"
 #include "qmlprofilerdatamodel.h"
-#include <utils/qtcassert.h>
-#include <QCoreApplication>
 
+#include <utils/qtcassert.h>
+
+#include <QCoreApplication>
 #include <QVector>
 #include <QHash>
 #include <QUrl>
 #include <QString>
 #include <QStack>
 
-#include <QDebug>
 
 namespace QmlProfiler {
 namespace Internal {
@@ -205,5 +205,5 @@ QVariantMap QmlProfilerAnimationsModel::details(int index) const
     return result;
 }
 
-}
-}
+} // namespace Internal
+} // namespace QmlProfiler

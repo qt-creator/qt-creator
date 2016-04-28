@@ -25,9 +25,8 @@
 
 #include "flamegraphview.h"
 #include "flamegraph.h"
-
-#include <qmlprofiler/qmlprofilerconstants.h>
-#include <qmlprofiler/qmlprofilertool.h>
+#include "qmlprofilerconstants.h"
+#include "qmlprofilertool.h"
 
 #include <QQmlContext>
 #include <QVBoxLayout>

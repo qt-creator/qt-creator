@@ -227,5 +227,5 @@ void QmlProfilerStateWidget::updateDisplay()
     setVisible(false);
 }
 
-}
-}
+} // namespace Internal
+} // namespace QmlProfiler

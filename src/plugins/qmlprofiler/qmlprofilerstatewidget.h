@@ -25,10 +25,10 @@
 
 #pragma once
 
-#include <QWidget>
-
 #include "qmlprofilerstatemanager.h"
 #include "qmlprofilermodelmanager.h"
+
+#include <QWidget>
 
 namespace QmlProfiler {
 namespace Internal {
@@ -54,5 +54,5 @@ private:
     QmlProfilerStateWidgetPrivate *d;
 };
 
-}
-}
+} // namespace Internal
+} // namespace QmlProfiler

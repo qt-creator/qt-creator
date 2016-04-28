@@ -24,28 +24,23 @@
 ****************************************************************************/
 
 #include "qmlprofilerstatisticsview.h"
+#include "qmlprofilerviewmanager.h"
+#include "qmlprofilertool.h"
+
+#include <coreplugin/minisplitter.h>
+#include <utils/qtcassert.h>
 
 #include <QUrl>
 #include <QHash>
-
 #include <QStandardItem>
 #include <QHeaderView>
-
 #include <QApplication>
 #include <QClipboard>
-
 #include <QContextMenuEvent>
-#include <QDebug>
-
-#include <coreplugin/minisplitter.h>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
-
-#include "qmlprofilerviewmanager.h"
-#include "qmlprofilertool.h"
 #include <QMenu>
 
-#include <utils/qtcassert.h>
 #include <functional>
 
 namespace QmlProfiler {

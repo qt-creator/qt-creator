@@ -24,7 +24,6 @@
 ****************************************************************************/
 
 #include "qmlprofilerruncontrol.h"
-
 #include "localqmlprofilerrunner.h"
 #include "qmlprofilertool.h"
 

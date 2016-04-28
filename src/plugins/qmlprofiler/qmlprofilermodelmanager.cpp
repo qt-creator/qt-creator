@@ -129,18 +129,14 @@ void QmlProfilerTraceTime::increaseEndTime(qint64 time)
 class QmlProfilerModelManager::QmlProfilerModelManagerPrivate
 {
 public:
-    QmlProfilerModelManagerPrivate(QmlProfilerModelManager *qq) : q(qq) {}
-    ~QmlProfilerModelManagerPrivate() {}
-    QmlProfilerModelManager *q;
-
     QmlProfilerDataModel *model;
     QmlProfilerNotesModel *notesModel;
 
     QmlProfilerModelManager::State state;
     QmlProfilerTraceTime *traceTime;
 
-    QVector <double> partialCounts;
-    QVector <int> partialCountWeights;
+    QVector<double> partialCounts;
+    QVector<int> partialCountWeights;
     quint64 availableFeatures;
     quint64 visibleFeatures;
     quint64 recordedFeatures;
@@ -152,7 +148,7 @@ public:
 
 
 QmlProfilerModelManager::QmlProfilerModelManager(Utils::FileInProjectFinder *finder, QObject *parent) :
-    QObject(parent), d(new QmlProfilerModelManagerPrivate(this))
+    QObject(parent), d(new QmlProfilerModelManagerPrivate)
 {
     d->totalWeight = 0;
     d->previousProgress = 0;
@@ -293,12 +289,12 @@ void QmlProfilerModelManager::addQmlEvent(Message message, RangeType rangeType, 
                        ndata2, ndata3, ndata4, ndata5);
 }
 
-void QmlProfilerModelManager::addDebugMessage(QtMsgType type, qint64 timestamp, const QString &text,
-                                              const QmlEventLocation &location)
+void QmlProfilerModelManager::addDebugMessage(qint64 timestamp, QtMsgType messageType,
+                                              const QString &text, const QmlEventLocation &location)
 {
     if (state() == AcquiringData)
-        d->model->addEvent(DebugMessage, MaximumRangeType, type, timestamp, 0, text, location, 0, 0,
-                           0, 0, 0);
+        d->model->addEvent(DebugMessage, MaximumRangeType, messageType, timestamp, 0, text,
+                           location, 0, 0, 0, 0, 0);
 }
 
 void QmlProfilerModelManager::acquiringDone()
@@ -443,7 +439,7 @@ void QmlProfilerModelManager::clear()
     setState(Empty);
 }
 
-void QmlProfilerModelManager::prepareForWriting()
+void QmlProfilerModelManager::startAcquiring()
 {
     setState(AcquiringData);
 }

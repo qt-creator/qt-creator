@@ -77,5 +77,5 @@ private:
     int rowFromThreadId(int threadId) const;
 };
 
-}
-}
+} // namespace Internal
+} // namespace QmlProfiler

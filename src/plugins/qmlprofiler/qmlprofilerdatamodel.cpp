@@ -291,4 +291,4 @@ void QmlProfilerDataModel::detailsDone()
     d->modelManager->processingDone();
 }
 
-}
+} // namespace QmlProfiler

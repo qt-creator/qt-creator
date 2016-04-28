@@ -37,8 +37,9 @@
 #include <QTcpServer>
 #include <QTemporaryFile>
 
-using namespace QmlProfiler;
 using namespace ProjectExplorer;
+
+namespace QmlProfiler {
 
 QString LocalQmlProfilerRunner::findFreeSocket()
 {
@@ -140,3 +141,5 @@ void LocalQmlProfilerRunner::stop()
     if (m_launcher.isRunning())
         m_launcher.stop();
 }
+
+} // namespace QmlProfiler

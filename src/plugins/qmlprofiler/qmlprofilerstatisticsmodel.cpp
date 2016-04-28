@@ -32,12 +32,9 @@
 
 #include <QVector>
 #include <QHash>
-#include <QUrl>
 #include <QString>
 #include <QStack>
-#include <QElapsedTimer>
-
-#include <QDebug>
+#include <QSet>
 
 namespace QmlProfiler {
 

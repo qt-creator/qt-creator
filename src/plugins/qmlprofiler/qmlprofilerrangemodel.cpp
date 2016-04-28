@@ -27,6 +27,7 @@
 #include "qmlprofilermodelmanager.h"
 #include "qmlprofilerdatamodel.h"
 #include "qmlprofilerbindingloopsrenderpass.h"
+
 #include "timeline/timelinenotesrenderpass.h"
 #include "timeline/timelineitemsrenderpass.h"
 #include "timeline/timelineselectionrenderpass.h"
@@ -38,11 +39,8 @@
 #include <QString>
 #include <QStack>
 
-#include <QDebug>
-
 namespace QmlProfiler {
 namespace Internal {
-
 
 QmlProfilerRangeModel::QmlProfilerRangeModel(QmlProfilerModelManager *manager, RangeType range,
                                              QObject *parent) :
@@ -272,5 +270,5 @@ QList<const Timeline::TimelineRenderPass *> QmlProfilerRangeModel::supportedRend
 
 }
 
-}
-}
+} // namespace Internal
+} // namespaec QmlProfiler

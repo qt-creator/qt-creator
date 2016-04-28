@@ -64,10 +64,6 @@ public:
     quint32 flushInterval;
 };
 
-} // namespace QmlProfiler
-
-using namespace QmlProfiler;
-
 void QmlProfilerTraceClientPrivate::sendRecordingStatus(int engineId)
 {
     QmlDebug::QPacket stream(q->connection()->currentDataStreamVersion());
@@ -150,7 +146,7 @@ void QmlProfilerTraceClient::setRequestedFeatures(quint64 features)
                        const QmlDebug::QDebugContextInfo &context)
         {
             d->updateFeatures(ProfileDebugMessages);
-            emit debugMessage(type, context.timestamp, text,
+            emit debugMessage(context.timestamp, type, text,
                               QmlEventLocation(context.file, context.line, 1));
         });
     } else {
@@ -399,3 +395,5 @@ void QmlProfilerTraceClient::messageReceived(const QByteArray &data)
         break;
     }
 }
+
+} // namespace QmlProfiler

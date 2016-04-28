@@ -70,4 +70,4 @@ private:
     QmlProfilerStateManagerPrivate *d;
 };
 
-}
+} // namespace QmlProfiler

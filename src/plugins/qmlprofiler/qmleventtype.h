@@ -35,16 +35,16 @@ struct QmlEventType {
                  const QmlEventLocation &location = QmlEventLocation(),
                  Message message = MaximumMessage, RangeType rangeType = MaximumRangeType,
                  int detailType = -1, const QString &data = QString()) :
-        displayName(displayName), location(location), message(message), rangeType(rangeType),
-        detailType(detailType), data(data)
+        displayName(displayName), data(data), location(location), message(message),
+        rangeType(rangeType), detailType(detailType)
     {}
 
     QString displayName;
+    QString data;
     QmlEventLocation location;
     Message message;
     RangeType rangeType;
     int detailType; // can be EventType, BindingType, PixmapEventType or SceneGraphFrameType
-    QString data;
 };
 
 } // namespace QmlProfiler

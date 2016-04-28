@@ -41,9 +41,6 @@ class QmlProfilerTraceClient : public QmlDebug::QmlDebugClient
     Q_OBJECT
     Q_PROPERTY(bool recording READ isRecording WRITE setRecording NOTIFY recordingChanged)
 
-    // don't hide by signal
-    using QObject::event;
-
 public:
     QmlProfilerTraceClient(QmlDebug::QmlDebugConnection *client, quint64 features);
     ~QmlProfilerTraceClient();
@@ -60,13 +57,16 @@ public slots:
 
 signals:
     void complete(qint64 maximumTime);
-    void traceFinished(qint64 time, const QList<int> &engineIds);
-    void traceStarted(qint64 time, const QList<int> &engineIds);
+    void traceFinished(qint64 timestamp, const QList<int> &engineIds);
+    void traceStarted(qint64 timestamp, const QList<int> &engineIds);
+
     void rangedEvent(Message, RangeType, int detailType, qint64 startTime, qint64 length,
                      const QString &data, const QmlEventLocation &location, qint64 param1,
                      qint64 param2, qint64 param3, qint64 param4, qint64 param5);
-    void debugMessage(QtMsgType type, qint64 timestamp, const QString &text,
+
+    void debugMessage(qint64 timestamp, QtMsgType type, const QString &text,
                       const QmlEventLocation &location);
+
     void recordingChanged(bool arg);
     void recordedFeaturesChanged(quint64 features);
     void newEngine(int engineId);

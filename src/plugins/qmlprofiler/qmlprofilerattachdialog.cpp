@@ -26,7 +26,6 @@
 #include "qmlprofilerattachdialog.h"
 
 #include <projectexplorer/kitchooser.h>
-
 #include <coreplugin/id.h>
 
 #include <QSpinBox>

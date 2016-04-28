@@ -42,4 +42,4 @@ struct QMLPROFILER_EXPORT QmlEventLocation
     int column;
 };
 
-}
+} // namespace QmlProfiler
