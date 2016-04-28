@@ -286,8 +286,18 @@
        y2="8543" />
     <linearGradient
        inkscape:collect="always"
+       xlink:href="#linearGradient6801"
+       id="linearGradient3451"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="translate(0,-7905)"
+       x1="169"
+       y1="8684"
+       x2="164"
+       y2="8547" />
+    <linearGradient
+       inkscape:collect="always"
        xlink:href="#linearGradient4153-5-4"
-       id="linearGradient6926"
+       id="linearGradient5155"
        gradientUnits="userSpaceOnUse"
        gradientTransform="matrix(0.0625,0,0,0.0625,-13.666671,67.80674)"
        x1="600"
@@ -297,23 +307,24 @@
     <linearGradient
        inkscape:collect="always"
        xlink:href="#linearGradient4145-1-4"
-       id="linearGradient8380"
+       id="linearGradient5157"
        gradientUnits="userSpaceOnUse"
        gradientTransform="matrix(0.0625,0,0,0.0625,-13.666671,67.80674)"
        x1="675"
        y1="8412.999"
        x2="668"
        y2="8513.999" />
-    <linearGradient
-       inkscape:collect="always"
-       xlink:href="#linearGradient6801"
-       id="linearGradient3451"
-       gradientUnits="userSpaceOnUse"
-       gradientTransform="translate(0,-7905)"
-       x1="169"
-       y1="8684"
-       x2="164"
-       y2="8547" />
+    <clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath5186">
+      <rect
+         id="rect5188"
+         width="32"
+         height="32"
+         x="56"
+         y="-152"
+         style="fill:none" />
+    </clipPath>
   </defs>
   <sodipodi:namedview
      id="base"
@@ -361,6 +372,26 @@
        spacingy="4px"
        originx="0px"
        originy="1.7e-005px" />
+    <sodipodi:guide
+       position="35,6440"
+       orientation="1,0"
+       id="guide5159" />
+    <sodipodi:guide
+       position="59,6440"
+       orientation="1,0"
+       id="guide5161" />
+    <sodipodi:guide
+       position="94,6449"
+       orientation="1,0"
+       id="guide5163" />
+    <sodipodi:guide
+       position="143,6472"
+       orientation="1,0"
+       id="guide5165" />
+    <sodipodi:guide
+       position="214,6503"
+       orientation="1,0"
+       id="guide5167" />
   </sodipodi:namedview>
   <metadata
      id="metadata3402">
@@ -669,51 +700,51 @@
     </g>
     <g
        id="qt-logo-appicon-24"
-       transform="matrix(1.3636364,0,0,1.3636364,10.318182,-145.54382)"
+       transform="matrix(1.3636364,0,0,1.3636364,13.318182,-145.54382)"
        inkscape:label="#g3372">
       <path
          sodipodi:nodetypes="ccccccc"
          inkscape:connector-curvature="0"
          id="use7459-1-0-9-4-8"
-         d="m 15.9,397.13212 12.466666,-10e-6 2.2,-2.2 0,-8.8 -12.466666,0 -2.2,2.23199 z"
+         d="m 15.9,397.13212 10.999999,-10e-6 2.2,-2.2 0,-8.06666 -11,0 -2.2,2.2 z"
          style="fill:#41cd52" />
       <path
          style="display:inline;fill:#ffffff"
          inkscape:connector-curvature="0"
          class="st1"
-         d="m 21.35876,394.99922 c -0.96478,0 -1.639627,-0.25987 -2.019541,-0.77975 -0.379913,-0.51987 -0.56987,-1.34475 -0.56987,-2.4645 0,-1.12475 0.194956,-2.08914 0.579869,-2.63401 0.384912,-0.54488 1.059758,-0.81988 2.009542,-0.81988 0.954784,0 1.624632,0.27 2.004545,0.81488 0.384913,0.53987 0.574869,1.50426 0.574869,2.63401 0,0.74488 -0.07999,1.34475 -0.234946,1.79963 -0.159964,0.45987 -0.414906,0.80987 -0.774824,1.04975 l 0.779823,1.25475 -0.954783,0.44487 -0.824812,-1.35462 c -0.119975,0.04 -0.30993,0.055 -0.569872,0.055 z m -1.204726,-1.44462 c 0.209952,0.35987 0.614861,0.54487 1.209725,0.54487 0.594865,0 0.994774,-0.18 1.204726,-0.53487 0.204954,-0.35488 0.30993,-0.95975 0.30993,-1.80463 0,-0.84975 -0.104975,-1.59426 -0.319927,-1.97914 -0.214951,-0.385 -0.609861,-0.57487 -1.194729,-0.57487 -0.579867,0 -0.979776,0.18987 -1.199726,0.57487 -0.214952,0.38488 -0.324927,1.12439 -0.324927,1.96914 0,0.83988 0.104975,1.44475 0.314928,1.80463 z"
-         id="path4480-5"
-         sodipodi:nodetypes="csssscscccccccsscscscss" />
+         d="m 21.039754,394.97215 c -0.868303,0 -1.475665,-0.23603 -1.817587,-0.7082 -0.341922,-0.47217 -0.512884,-1.22135 -0.512884,-2.23836 0,-1.02153 0.17546,-1.77969 0.521882,-2.27456 0.346421,-0.49487 0.953783,-0.74464 1.808589,-0.74464 0.859304,0 1.462167,0.24522 1.80409,0.7401 0.346421,0.49033 0.517383,1.24849 0.517383,2.27456 0,0.67653 -0.07199,1.22136 -0.211453,1.6345 -0.143968,0.41767 -0.373415,0.73555 -0.697342,0.95342 l 0.701841,1.13961 -0.859305,0.40405 -0.742331,-1.23032 c -0.107977,0.0363 -0.278937,0.05 -0.512883,0.05 z M 19.9555,393.66009 c 0.188957,0.32684 0.553375,0.49487 1.088753,0.49487 0.535377,0 0.895296,-0.16348 1.084254,-0.48579 0.184457,-0.32231 0.278936,-0.87168 0.278936,-1.63903 0,-0.77177 -0.09448,-1.33023 -0.287935,-1.67979 -0.193455,-0.34967 -0.548875,-0.52212 -1.075255,-0.52212 -0.521882,0 -0.8818,0.17245 -1.079755,0.52212 -0.193456,0.34956 -0.292433,0.90347 -0.292433,1.6707 0,0.76281 0.09448,1.31219 0.283435,1.63904 z"
+         id="path4480-7" />
       <path
          style="display:inline;fill:#ffffff"
          inkscape:connector-curvature="0"
          class="st1"
-         d="m 26.480726,391.32431 0,1.75282 c 0,0.37988 0.02999,0.62988 0.08499,0.75488 0.05499,0.125 0.199955,0.18487 0.424904,0.18487 l 0.711213,-0.03 0.04499,0.80975 c -0.414905,0.08 -0.729834,0.12 -0.949784,0.12 -0.52488,0 -0.884799,-0.12 -1.079754,-0.35987 -0.194956,-0.24 -0.294933,-0.69488 -0.294933,-1.36475 l 0,-1.86282 -0.70484,0 0,-0.86488 0.709838,0 0,-2.12244 1.053387,0 0,2.12244 1.133868,0 -3e-6,0.85988 z"
-         id="path4482-4"
+         d="m 25.433333,391.26545 -7e-6,1.62421 c -1e-6,0.34189 0.08924,1.08949 0.138739,1.20199 0.04949,0.1125 0.179958,0.16638 0.382412,0.16638 l 0.945522,-0.0593 0,0.73333 c -0.373416,0.072 -0.878036,0.0555 -1.075993,0.0555 -0.472392,0 -0.687606,-0.26393 -0.863066,-0.47982 -0.175461,-0.216 -0.265439,-0.91185 -0.265439,-1.51473 l 0.0045,-1.7276 -0.733333,0 0,-0.73334 0.733333,0 0,-1.46666 0.733334,0 0,1.46666 1.466666,0 0,0.73334 z"
+         id="path4482-5"
          sodipodi:nodetypes="csscccssscccccccccc" />
     </g>
     <g
        id="qt-logo-appicon-32"
-       transform="matrix(2,0,0,2,24,-400)"
+       transform="matrix(1.7142857,0,0,1.7142857,31.571429,-286.57143)"
        inkscape:label="#g3384">
       <path
          sodipodi:nodetypes="ccccccc"
          inkscape:connector-curvature="0"
          id="use7459-1-0-9-4-8-8"
-         d="m 16,396.99999 12,0 2,-2 0,-8.5 -12,0 -2,2 z"
+         d="m 16,396.99999 11.666667,0 L 30,394.66666 l 0,-8.16667 -11.666667,0 L 16,388.83333 Z"
          style="fill:#41cd52" />
       <path
          style="display:inline;fill:#ffffff"
          inkscape:connector-curvature="0"
          class="st1"
-         d="m 21.01073,394.95398 c -0.939591,0 -1.596819,-0.25475 -1.966814,-0.76429 -0.369994,-0.50932 -0.554993,-1.31761 -0.554993,-2.41499 0,-1.10218 0.189865,-1.9202 0.564729,-2.45431 0.374864,-0.53394 1.032092,-0.80327 1.957078,-0.80327 0.929856,0 1.582215,0.26444 1.952211,0.79842 0.374862,0.5291 0.559861,1.34725 0.559861,2.45432 0,0.72998 -0.07789,1.31765 -0.228814,1.76356 -0.155782,0.45058 -0.404072,0.79357 -0.754594,1.02873 l 0.759464,1.22958 -0.929856,0.43587 -0.803278,-1.32752 c -0.116842,0.0397 -0.301839,0.0539 -0.554994,0.0539 z m -1.173271,-1.41572 c 0.20447,0.35269 0.598805,0.53394 1.178141,0.53394 0.579334,0 0.968803,-0.17606 1.173271,-0.52425 0.199604,-0.34762 0.301841,-0.94052 0.301841,-1.76836 0,-0.83273 -0.102237,-1.43532 -0.311576,-1.81244 -0.20934,-0.37726 -0.593941,-0.5634 -1.163536,-0.5634 -0.564731,0 -0.954198,0.18614 -1.168407,0.5634 -0.209338,0.37712 -0.316442,0.97483 -0.316442,1.80271 0,0.82303 0.102237,1.41572 0.306708,1.7684 z"
-         id="path4480-85" />
+         d="m 21.300737,394.7506 c -0.896868,0 -1.52421,-0.25065 -1.877382,-0.75196 -0.35317,-0.50146 -0.529755,-1.10777 -0.529755,-2.18767 0,-1.08461 0.181232,-1.70168 0.539051,-2.22708 0.357817,-0.52556 0.98516,-0.79061 1.868086,-0.79061 0.887573,0 1.51027,0.26035 1.863439,0.78576 0.357817,0.52055 0.534403,1.13762 0.534403,2.22708 0,0.71832 -0.07435,0.95952 -0.218407,1.39826 -0.148704,0.44357 -0.3857,0.92929 -0.720282,1.16054 l 0.724929,1.21009 -0.887576,0.42902 -0.766751,-1.30647 c -0.111532,0.0394 -0.288112,0.053 -0.529755,0.053 z m -1.119923,-1.54138 c 0.195174,0.34704 0.571579,0.67364 1.124569,0.67364 0.552991,0 0.924749,-0.32175 1.119922,-0.66394 0.190528,-0.34234 0.288114,-0.5884 0.288114,-1.40311 0,-0.81955 -0.09758,-1.22445 -0.297406,-1.59559 -0.199819,-0.37128 -0.566933,-0.55435 -1.11063,-0.55435 -0.539048,0 -0.910808,0.18307 -1.115275,0.55435 -0.199821,0.37114 -0.302055,0.77119 -0.302055,1.5859 0,0.80985 0.09758,1.05606 0.292761,1.4031 z"
+         id="path4480-13"
+         sodipodi:nodetypes="ccscscsccccccccscscscsc" />
       <path
          style="display:inline;fill:#ffffff"
          inkscape:connector-curvature="0"
          class="st1"
-         d="m 25.992756,391.49764 0,1.79565 c 0,0.3626 0.02863,0.60112 0.08113,0.72047 0.05248,0.119 0.06586,0.17658 0.280589,0.17658 l 0.725291,-0.028 0.04294,0.77315 c -0.396046,0.077 -0.696657,0.11375 -0.906612,0.11375 -0.501021,0 -0.71958,-0.11375 -0.905675,-0.34353 -0.186093,-0.22907 -0.281526,-0.66325 -0.281526,-1.3027 l 0,-1.90065 -0.797801,0 0,-1.00236 0.802574,0 0,-1.49707 0.959099,0 0,1.49707 1.007237,10e-4 -4e-6,0.99764 z"
-         id="path4482-03"
+         d="m 25.867755,391.52938 0,1.22006 c 0,0.36271 0.02864,0.6721 0.08112,0.7915 0.05248,0.12 0.190865,0.17655 0.40559,0.17655 l 0.725289,-0.0285 0.04294,0.84587 c -0.396045,0.0765 -0.696659,0.114 -0.906612,0.114 -0.501021,0 -0.972184,-0.18692 -1.158278,-0.41657 -0.186095,-0.22905 -0.281528,-0.73404 -0.281528,-1.3735 l 0,-1.32521 -0.609609,-0.002 0,-0.94793 0.583333,0 0,-1.75 1.166667,0 0,1.75 1.163666,0 0.006,0.9456 z"
+         id="path4482-4"
          sodipodi:nodetypes="csscccssscccccccccc" />
     </g>
     <use
@@ -734,25 +765,26 @@
        height="1080" />
     <g
        id="qt-logo-appicon-128"
-       transform="matrix(8,0,0,8,72,-2800)"
+       transform="matrix(7.1111111,0,0,7.1111111,103.77778,-2446.6667)"
        inkscape:label="#g3420">
       <path
          sodipodi:nodetypes="ccccccc"
          inkscape:connector-curvature="0"
          id="use7459-1-0-9-4-8-8-5"
-         d="m 15.5,397.5 11.5,0 2,-2 0,-8 -11.5,0 -2,2 z"
+         d="m 15.5,397.5 11.53125,0 1.96875,-1.96875 0,-7.87499 -11.53125,0 -1.96875,1.96875 z"
          style="fill:#41cd52" />
       <path
          style="display:inline;fill:#ffffff"
          inkscape:connector-curvature="0"
          class="st1"
-         d="m 20.524538,395.32015 c -0.888037,0 -1.509199,-0.23963 -1.858896,-0.7178 -0.349718,-0.47857 -0.524543,-1.23774 -0.524543,-2.2684 0,-1.03525 0.179483,-1.80367 0.533723,-2.30519 0.354308,-0.50153 0.975463,-0.75458 1.849696,-0.75458 0.878836,0 1.495395,0.2484 1.845092,0.74999 0.354307,0.4968 0.529132,1.26529 0.529132,2.30519 0,0.6856 -0.07364,1.23775 -0.216269,1.65645 -0.147218,0.42323 -0.381916,0.7454 -0.713192,0.96626 l 0.717788,1.15486 -0.878829,0.40973 -0.759207,-1.24693 c -0.11043,0.0337 -0.285255,0.054 -0.524542,0.054 z m -1.108897,-1.32975 c 0.193253,0.33142 0.565988,0.50152 1.113501,0.50152 0.547559,0 0.915644,-0.16537 1.108896,-0.49207 0.188663,-0.3267 0.285255,-0.88344 0.285255,-1.66104 0,-0.78219 -0.09659,-1.34818 -0.294502,-1.70242 -0.197843,-0.35437 -0.56133,-0.5292 -1.099697,-0.5292 -0.533722,0 -0.90184,0.17483 -1.104293,0.5292 -0.197843,0.35438 -0.299093,0.91564 -0.299093,1.69324 0,0.77301 0.09659,1.32975 0.289845,1.66104 z"
-         id="path4480-51" />
+         d="m 20.524538,395.53898 c -0.888036,0 -1.509198,-0.2394 -1.858896,-0.71778 -0.34968,-0.4788 -0.52452,-1.37837 -0.52452,-2.40905 0,-1.03524 0.17946,-1.80366 0.53376,-2.3052 0.3543,-0.5016 0.975462,-0.75456 1.849692,-0.75456 0.878838,0 1.495398,0.2484 1.845096,0.75 0.3543,0.4968 0.52914,1.26534 0.52914,2.3052 0,0.68556 -0.07362,1.37837 -0.21624,1.79705 -0.14724,0.4236 -0.3819,0.74538 -0.71319,0.96624 l 0.717792,1.15494 -0.878838,0.4092 -0.759198,-1.24692 c -0.1104,0.036 -0.2853,0.048 -0.52452,0.048 z m -1.108896,-1.32972 c 0.19326,0.3312 0.56592,0.5016 1.113498,0.5016 0.54756,0 0.915648,-0.1656 1.108896,-0.4926 0.18864,-0.327 0.2853,-1.02407 0.2853,-1.80167 0,-0.78222 -0.0966,-1.34814 -0.29448,-1.70244 -0.19782,-0.354 -0.56136,-0.5292 -1.099692,-0.5292 -0.53376,0 -0.901842,0.1746 -1.104294,0.5292 -0.19782,0.3546 -0.2991,0.91566 -0.2991,1.69326 0,0.77298 0.09666,1.47035 0.28986,1.80167 z"
+         id="path4480-17"
+         sodipodi:nodetypes="ccscscsccccccccscscscscc" />
       <path
          style="display:inline;fill:#ffffff"
          inkscape:connector-curvature="0"
          class="st1"
-         d="m 25.01534,391.63917 0,1.8819 c 0,0.34965 0.02768,0.57983 0.07823,0.69478 0.05063,0.11475 0.184072,0.1701 0.391094,0.1701 l 0.699381,-0.027 0.04118,0.7454 c -0.381914,0.0736 -0.671759,0.11003 -0.874232,0.11003 -0.483098,0 -0.814415,-0.11003 -0.993864,-0.33143 -0.179482,-0.22072 -0.271485,-0.63922 -0.271485,-1.2561 l 0,-1.98315 -0.648742,0 0,-0.79596 0.6534,0 0,-1.23775 0.924851,0 0,1.23775 1.177909,0 0,0.79136 z"
+         d="m 25.062542,391.60041 0,2.00816 c 0,0.3498 0.0276,0.5796 0.07824,0.69474 0.0504,0.1152 0.136915,0.16114 0.343915,0.16114 l 0.699384,-0.03 0.0414,0.74538 c -0.3819,0.0738 -0.671778,0.1104 -0.87423,0.1104 -0.48312,0 -0.814416,-0.1104 -0.993864,-0.3312 -0.17946,-0.2208 -0.281606,-0.63935 -0.279262,-1.2559 l 0,-2.10938 -0.703125,0 0,-0.84375 0.703125,0 0,-1.125 0.984375,0 0.0082,1.13426 1.130749,-0.009 -0.0082,0.83893 z"
          id="path4482-9"
          sodipodi:nodetypes="csscccssscccccccccc" />
     </g>
@@ -761,7 +793,7 @@
        y="0"
        xlink:href="#qt-logo-appicon-128"
        id="qt-logo-appicon-256"
-       transform="matrix(2,0,0,2,-72,-400)"
+       transform="matrix(2,0,0,2,-108,-400)"
        width="1920"
        height="1080"
        qt-logo-appicon-256="#qt-logo-appicon-128" />
@@ -770,7 +802,7 @@
        y="0"
        xlink:href="#qt-logo-appicon-128"
        id="qt-logo-appicon-512"
-       transform="matrix(4,0,0,4,-216,-1200)"
+       transform="matrix(4,0,0,4,-288,-1200)"
        width="1920"
        height="1080" />
     <g
@@ -781,7 +813,7 @@
       <use
          height="1080"
          width="1920"
-         transform="translate(2,-520)"
+         transform="translate(2,-521)"
          id="use3142"
          xlink:href="#qt-logo-appicon-16"
          y="0"
@@ -810,14 +842,6 @@
        clip-path="url(#clipPath4156)"
        inkscape:export-xdpi="90"
        inkscape:export-ydpi="90">
-      <use
-         height="1080"
-         width="1920"
-         transform="translate(1,-521)"
-         id="use3146"
-         xlink:href="#qt-logo-appicon-24"
-         y="0"
-         x="0" />
       <rect
          style="fill:none"
          y="-144"
@@ -826,13 +850,21 @@
          width="24"
          id="use3148" />
       <use
+         height="1080"
+         width="1920"
+         transform="translate(0,-521)"
+         id="use3146"
+         xlink:href="#qt-logo-appicon-24"
+         y="0"
+         x="0" />
+      <use
          x="0"
          y="0"
          xlink:href="#assistant_questionmark"
          id="use4149"
          width="1"
          height="1"
-         transform="matrix(0.09499217,0,0,0.09499217,17.094296,-179.71335)" />
+         transform="matrix(0.09499217,0,0,0.09499217,18.094296,-179.71335)" />
     </g>
     <g
        id="assistant_icon_32x32"
@@ -848,7 +880,7 @@
       <use
          height="1080"
          width="1920"
-         transform="translate(1,-520)"
+         transform="translate(0,-522)"
          id="use3150"
          xlink:href="#qt-logo-appicon-32"
          y="0"
@@ -890,7 +922,7 @@
       <use
          height="1080"
          width="1920"
-         transform="translate(8,-528)"
+         transform="translate(0,-534)"
          id="use3162"
          xlink:href="#qt-logo-appicon-128"
          y="0"
@@ -982,7 +1014,7 @@
          y="0"
          xlink:href="#qt-logo-appicon-24"
          id="use4172"
-         transform="translate(2,-519)"
+         transform="translate(0,-519)"
          width="1920"
          height="1080" />
       <rect
@@ -999,21 +1031,14 @@
          id="use4240-8"
          width="1"
          height="1"
-         transform="matrix(0.09169048,0,0,0.09169048,27.578857,-189.01855)" />
+         transform="matrix(0.09496882,0,0,0.09496882,27.579996,-189.63345)" />
     </g>
     <g
        inkscape:export-ydpi="90"
        inkscape:export-xdpi="90"
        id="linguist_icon_32x32"
-       transform="translate(0,-1040)">
-      <use
-         x="0"
-         y="0"
-         xlink:href="#qt-logo-appicon-32"
-         id="use4180"
-         transform="translate(2,-518)"
-         width="1920"
-         height="1080" />
+       transform="translate(0,-1040)"
+       clip-path="url(#clipPath5186)">
       <rect
          style="fill:none"
          y="-152"
@@ -1024,11 +1049,19 @@
       <use
          x="0"
          y="0"
+         xlink:href="#qt-logo-appicon-32"
+         id="use4180"
+         transform="translate(0,-518)"
+         width="1920"
+         height="1080" />
+      <use
+         x="0"
+         y="0"
          xlink:href="#linguist_bubble"
          id="use4240-4"
          width="1"
          height="1"
-         transform="matrix(0.13298217,0,0,0.13298217,47.49064,-217.59562)" />
+         transform="matrix(0.13627519,0,0,0.13627519,46.370704,-218.12872)" />
     </g>
     <use
        inkscape:export-ydpi="90"
@@ -1061,7 +1094,7 @@
          y="0"
          xlink:href="#qt-logo-appicon-128"
          id="use4192"
-         transform="translate(12,-520)"
+         transform="translate(0,-520)"
          width="1920"
          height="1080" />
       <rect
@@ -1078,7 +1111,7 @@
          id="use4240"
          width="1"
          height="1"
-         transform="matrix(0.44916129,0,0,0.44916129,192.30305,-467.19518)" />
+         transform="matrix(0.50172693,0,0,0.50172693,176.40716,-490.14903)" />
     </g>
     <use
        height="1080"
@@ -1087,7 +1120,9 @@
        id="linguist_icon_256x256"
        xlink:href="#linguist_icon_128x128"
        y="0"
-       x="0" />
+       x="0"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
     <use
        inkscape:export-ydpi="90"
        inkscape:export-xdpi="90"
@@ -1147,7 +1182,7 @@
       <use
          height="1080"
          width="1920"
-         transform="translate(1,-522)"
+         transform="translate(0,-522)"
          id="use4376"
          xlink:href="#qt-logo-appicon-24"
          y="0"
@@ -1166,7 +1201,7 @@
          id="use4408-2"
          width="1"
          height="1"
-         transform="matrix(0.07759947,-0.07759947,0.07759947,0.07759947,-2.0275119,-161.70546)" />
+         transform="matrix(0.07759947,-0.07759947,0.07759947,0.07759947,-2.0275119,-162.70546)" />
     </g>
     <g
        transform="translate(0,-2080)"
@@ -1177,7 +1212,7 @@
       <use
          height="1080"
          width="1920"
-         transform="translate(1,-523)"
+         transform="translate(0,-523)"
          id="use4384"
          xlink:href="#qt-logo-appicon-32"
          y="0"
@@ -1196,7 +1231,7 @@
          id="use4408-7"
          width="1"
          height="1"
-         transform="matrix(0.10344368,-0.10344368,0.10344368,0.10344368,11.881278,-175.35678)" />
+         transform="matrix(0.09521767,-0.09521767,0.09521767,0.09521767,16.963207,-172.93568)" />
     </g>
     <use
        x="0"
@@ -1227,7 +1262,7 @@
       <use
          height="1080"
          width="1920"
-         transform="translate(12,-531)"
+         transform="translate(0,-534)"
          id="use4396"
          xlink:href="#qt-logo-appicon-128"
          y="0"
@@ -1246,7 +1281,7 @@
          id="use4408-79"
          width="1"
          height="1"
-         transform="matrix(0.3463446,-0.34254864,0.3463446,0.34254864,67.28528,-305.96397)"
+         transform="matrix(0.37941767,-0.37525923,0.37941767,0.37525923,46.832605,-323.54437)"
          inkscape:export-xdpi="90"
          inkscape:export-ydpi="90" />
     </g>
@@ -1257,7 +1292,9 @@
        id="designer_icon_256x256"
        transform="matrix(2,0,0,2,-72,2200)"
        width="1920"
-       height="1080" />
+       height="1080"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
     <use
        x="0"
        y="0"
@@ -1319,7 +1356,7 @@
          y="0"
          xlink:href="#qt-logo-appicon-24"
          id="use4470"
-         transform="translate(1,-523)"
+         transform="translate(0,-522)"
          width="1920"
          height="1080" />
       <rect
@@ -1349,7 +1386,7 @@
          y="0"
          xlink:href="#qt-logo-appicon-32"
          id="use4478"
-         transform="translate(2,-523)"
+         transform="translate(0,-523)"
          width="1920"
          height="1080" />
       <rect
@@ -1399,7 +1436,7 @@
          y="0"
          xlink:href="#qt-logo-appicon-128"
          id="use4490"
-         transform="translate(10,-532)"
+         transform="translate(0,-534)"
          width="1920"
          height="1080" />
       <rect
@@ -1414,7 +1451,7 @@
          y="0"
          xlink:href="#dbusviewer_icon"
          id="use4617"
-         transform="matrix(0.5,0,0,0.5,52.5,-418)"
+         transform="matrix(0.5,0,0,0.5,52.5,-420)"
          width="1"
          height="1" />
     </g>
@@ -1425,7 +1462,9 @@
        id="qdbusviewer_icon_256x256"
        xlink:href="#qdbusviewer_icon_128x128"
        y="0"
-       x="0" />
+       x="0"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
     <use
        inkscape:export-ydpi="90"
        inkscape:export-xdpi="90"
@@ -1485,7 +1524,7 @@
       <use
          height="1080"
          width="1920"
-         transform="translate(1,-522)"
+         transform="translate(0,-522)"
          id="use3249"
          xlink:href="#qt-logo-appicon-24"
          y="0"
@@ -1502,7 +1541,7 @@
          y="0"
          xlink:href="#qmlviewer-logo-paperplane"
          id="use6842-3"
-         transform="matrix(0.07591317,0,0,0.07591317,42.310501,-179.48261)"
+         transform="matrix(0.07591317,0,0,0.07591317,42.310501,-180.48261)"
          width="1"
          height="1" />
     </g>
@@ -1515,7 +1554,7 @@
       <use
          height="1080"
          width="1920"
-         transform="translate(0,-520)"
+         transform="translate(0,-523)"
          id="use3257"
          xlink:href="#qt-logo-appicon-32"
          y="0"
@@ -1532,7 +1571,7 @@
          y="0"
          xlink:href="#qmlviewer-logo-paperplane"
          id="use6842-0"
-         transform="matrix(0.10052878,0,0,0.10052878,69.48104,-199.62817)"
+         transform="matrix(0.10052878,0,0,0.10052878,69.48104,-201.12817)"
          width="1"
          height="1" />
     </g>
@@ -1565,7 +1604,7 @@
       <use
          height="1080"
          width="1920"
-         transform="translate(0,-520)"
+         transform="translate(0,-534)"
          id="use3269"
          xlink:href="#qt-logo-appicon-128"
          y="0"
@@ -1584,7 +1623,7 @@
          id="use6842"
          width="1"
          height="1"
-         transform="matrix(0.37652609,0,0,0.37652609,256.11156,-422.54709)" />
+         transform="matrix(0.37652609,0,0,0.37652609,256.11156,-421.54709)" />
     </g>
     <use
        x="0"
@@ -1593,7 +1632,9 @@
        id="qmlviewer_icon_256x256"
        transform="matrix(2,0,0,2,-72,4280)"
        width="1920"
-       height="1080" />
+       height="1080"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
     <use
        x="0"
        y="0"
@@ -1655,7 +1696,7 @@
          y="0"
          xlink:href="#qt-logo-appicon-24"
          id="use4553"
-         transform="translate(1,-522)"
+         transform="translate(0,-521)"
          width="1920"
          height="1080" />
       <rect
@@ -1685,7 +1726,7 @@
          y="0"
          xlink:href="#qt-logo-appicon-32"
          id="use4559"
-         transform="translate(1,-522)"
+         transform="translate(0,-522)"
          width="1920"
          height="1080" />
       <rect
@@ -1700,7 +1741,7 @@
          y="0"
          xlink:href="#qtcreator-logo-leaf"
          id="use4579-7"
-         transform="matrix(0.1139269,0,0,0.1139269,7.1916443,-192.43434)"
+         transform="matrix(0.1139269,0,0,0.1139269,7.1916443,-192.93434)"
          width="1"
          height="1" />
     </g>
@@ -1735,7 +1776,7 @@
          y="0"
          xlink:href="#qt-logo-appicon-128"
          id="use4569"
-         transform="translate(10,-528)"
+         transform="translate(0,-536)"
          width="1920"
          height="1080" />
       <rect
@@ -1750,7 +1791,7 @@
          y="0"
          xlink:href="#qtcreator-logo-leaf"
          id="use4579-6"
-         transform="matrix(0.44178025,0,0,0.44178025,11.274994,-401.05194)"
+         transform="matrix(0.44178025,0,0,0.44178025,12.274994,-408.55194)"
          width="1"
          height="1" />
     </g>
@@ -1790,13 +1831,13 @@
        inkscape:export-ydpi="90"
        transform="translate(0,-1036)">
       <image
-         sodipodi:absref="C:\Users\aportale\dev\qt-creator\src\tools\icons\GenericDocumentIcon.iconset\icon_16x16.png"
+         sodipodi:absref="C:\Users\aportale\dev\qtcreator-super\qtcreator\src\tools\icons\GenericDocumentIcon.iconset\icon_16x16.png"
          xlink:href="GenericDocumentIcon.iconset\icon_16x16.png"
-         y="-5336"
-         x="16"
-         id="image3192"
+         width="16"
          height="16"
-         width="16" />
+         id="image3192"
+         x="16"
+         y="-5336" />
       <rect
          y="-5325"
          x="27.62998"
@@ -1865,13 +1906,13 @@
        inkscape:export-ydpi="90"
        transform="translate(0,-1036)">
       <image
-         sodipodi:absref="C:\Users\aportale\dev\qt-creator\src\tools\icons\GenericDocumentIcon.iconset\icon_32x32.png"
+         sodipodi:absref="C:\Users\aportale\dev\qtcreator-super\qtcreator\src\tools\icons\GenericDocumentIcon.iconset\icon_32x32.png"
          xlink:href="GenericDocumentIcon.iconset\icon_32x32.png"
-         y="-5352"
-         x="32"
-         id="image3203"
+         width="32"
          height="32"
-         width="32" />
+         id="image3203"
+         x="32"
+         y="-5352" />
       <text
          sodipodi:linespacing="125%"
          id="text3510"
@@ -1901,13 +1942,13 @@
        inkscape:export-ydpi="90"
        transform="translate(0,-1036)">
       <image
-         sodipodi:absref="C:\Users\aportale\dev\qt-creator\src\tools\icons\GenericDocumentIcon.iconset\icon_128x128.png"
+         sodipodi:absref="C:\Users\aportale\dev\qtcreator-super\qtcreator\src\tools\icons\GenericDocumentIcon.iconset\icon_128x128.png"
          xlink:href="GenericDocumentIcon.iconset\icon_128x128.png"
-         y="-5448"
-         x="200"
-         id="image3214"
+         width="128"
          height="128"
-         width="128" />
+         id="image3214"
+         x="200"
+         y="-5448" />
       <g
          id="g4328"
          clip-path="url(#clipPath6024)"
@@ -1937,13 +1978,13 @@
        inkscape:export-ydpi="90"
        transform="translate(0,-1036)">
       <image
-         sodipodi:absref="C:\Users\aportale\dev\qt-creator\src\tools\icons\GenericDocumentIcon.iconset\icon_256x256.png"
+         sodipodi:absref="C:\Users\aportale\dev\qtcreator-super\qtcreator\src\tools\icons\GenericDocumentIcon.iconset\icon_256x256.png"
          xlink:href="GenericDocumentIcon.iconset\icon_256x256.png"
-         y="-5576"
-         x="328"
-         id="image3225"
+         width="256"
          height="256"
-         width="256" />
+         id="image3225"
+         x="328"
+         y="-5576" />
       <use
          height="1080"
          width="1920"
@@ -1959,13 +2000,13 @@
        inkscape:export-ydpi="90"
        transform="translate(0,-1036)">
       <image
-         sodipodi:absref="C:\Users\aportale\dev\qt-creator\src\tools\icons\GenericDocumentIcon.iconset\icon_512x512.png"
+         sodipodi:absref="C:\Users\aportale\dev\qtcreator-super\qtcreator\src\tools\icons\GenericDocumentIcon.iconset\icon_512x512.png"
          xlink:href="GenericDocumentIcon.iconset\icon_512x512.png"
-         y="-5832"
-         x="584"
-         id="image3236"
+         width="512"
          height="512"
-         width="512" />
+         id="image3236"
+         x="584"
+         y="-5832" />
       <use
          height="1080"
          width="1920"
@@ -1981,13 +2022,13 @@
        inkscape:export-xdpi="90"
        id="uifile_icon_16x16@2x">
       <image
-         sodipodi:absref="C:\Users\aportale\dev\qt-creator\src\tools\icons\GenericDocumentIcon.iconset\icon_16x16@2x.png"
+         sodipodi:absref="C:\Users\aportale\dev\qtcreator-super\qtcreator\src\tools\icons\GenericDocumentIcon.iconset\icon_16x16@2x.png"
          xlink:href="GenericDocumentIcon.iconset\icon_16x16@2x.png"
-         width="32"
-         height="32"
-         id="image4080"
+         y="-5352"
          x="32"
-         y="-5352" />
+         id="image4080"
+         height="32"
+         width="32" />
       <text
          transform="scale(1.1435936,0.87443651)"
          xml:space="preserve"
@@ -2014,13 +2055,13 @@
     <g
        id="uifile_icon_32x32@2x">
       <image
-         sodipodi:absref="C:\Users\aportale\dev\qt-creator\src\tools\icons\GenericDocumentIcon.iconset\icon_32x32@2x.png"
+         sodipodi:absref="C:\Users\aportale\dev\qtcreator-super\qtcreator\src\tools\icons\GenericDocumentIcon.iconset\icon_32x32@2x.png"
          xlink:href="GenericDocumentIcon.iconset\icon_32x32@2x.png"
-         y="-6944"
-         x="64"
-         id="image4120"
+         width="64"
          height="64"
-         width="64" />
+         id="image4120"
+         x="64"
+         y="-6944" />
       <use
          height="1"
          width="1"
@@ -2036,13 +2077,13 @@
        inkscape:export-xdpi="90"
        id="uifile_icon_128x128@2x">
       <image
-         sodipodi:absref="C:\Users\aportale\dev\qt-creator\src\tools\icons\GenericDocumentIcon.iconset\icon_128x128@2x.png"
+         sodipodi:absref="C:\Users\aportale\dev\qtcreator-super\qtcreator\src\tools\icons\GenericDocumentIcon.iconset\icon_128x128@2x.png"
          xlink:href="GenericDocumentIcon.iconset\icon_128x128@2x.png"
-         width="256"
-         height="256"
-         id="image4101"
+         y="-5576"
          x="328"
-         y="-5576" />
+         id="image4101"
+         height="256"
+         width="256" />
       <use
          x="0"
          y="0"
@@ -2058,13 +2099,13 @@
        inkscape:export-xdpi="90"
        id="uifile_icon_256x256@2x">
       <image
-         sodipodi:absref="C:\Users\aportale\dev\qt-creator\src\tools\icons\GenericDocumentIcon.iconset\icon_256x256@2x.png"
+         sodipodi:absref="C:\Users\aportale\dev\qtcreator-super\qtcreator\src\tools\icons\GenericDocumentIcon.iconset\icon_256x256@2x.png"
          xlink:href="GenericDocumentIcon.iconset\icon_256x256@2x.png"
-         width="512"
-         height="512"
-         id="image4108"
+         y="-5832"
          x="584"
-         y="-5832" />
+         id="image4108"
+         height="512"
+         width="512" />
       <use
          x="0"
          y="0"
@@ -2079,13 +2120,13 @@
        inkscape:export-xdpi="90"
        inkscape:export-ydpi="90">
       <image
-         sodipodi:absref="C:\Users\aportale\dev\qt-creator\src\tools\icons\GenericDocumentIcon.iconset\icon_512x512@2x.png"
+         sodipodi:absref="C:\Users\aportale\dev\qtcreator-super\qtcreator\src\tools\icons\GenericDocumentIcon.iconset\icon_512x512@2x.png"
          xlink:href="GenericDocumentIcon.iconset\icon_512x512@2x.png"
-         y="-7905"
-         x="1096"
-         id="image4131"
+         width="1024"
          height="1024"
-         width="1024" />
+         id="image4131"
+         x="1096"
+         y="-7905" />
       <use
          height="1080"
          width="1920"
@@ -2246,17 +2287,17 @@
       </g>
     </g>
     <g
-       transform="matrix(16,0,0,16,202.66672,-8973.9071)"
+       transform="matrix(15.980376,0.79219859,-0.79219859,15.980376,674.56113,-8983.814)"
        style="display:inline"
        id="qtcreator-logo-leaf">
       <path
-         style="fill:#b4b4b4;fill-opacity:1;stroke:none;stroke-width:0.25000000000000000;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+         style="fill:#b4b4b4;fill-opacity:1;stroke:none;stroke-width:0.25;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
          d="m 24.360144,599.91797 c 0,0 -1.180704,-2.9808 0.17111,-4.35547 1.351814,-1.37467 4.480985,-1.78019 7.03125,-4.875 -1.33283,3.62826 -1.079399,5.25815 -2.546875,7.39063 -1.467476,2.13247 -4.655485,1.83984 -4.655485,1.83984 z"
          id="path3357"
          inkscape:connector-curvature="0"
          sodipodi:nodetypes="czczc" />
       <path
-         style="fill:url(#linearGradient6926);fill-opacity:1;stroke:none"
+         style="fill:url(#linearGradient5155);fill-opacity:1;stroke:none"
          d="m 30.536455,592.1895 -5.953125,7.36719 c 0,0 -1.322826,-3.02036 0.6875,-4.25 2.010326,-1.22963 2.390625,-0.92969 5.265625,-3.11719 z"
          id="path4127"
          inkscape:connector-curvature="0"
@@ -2266,7 +2307,7 @@
          inkscape:connector-curvature="0"
          id="path4131"
          d="m 30.683552,592.28135 -5.942076,7.33784 c 0,0 2.341854,0.0625 3.654354,-1.25 1.3125,-1.3125 2,-4.4375 2.287722,-6.08784 z"
-         style="fill:url(#linearGradient8380);fill-opacity:1;stroke:none" />
+         style="fill:url(#linearGradient5157);fill-opacity:1;stroke:none" />
       <path
          sodipodi:nodetypes="cczc"
          inkscape:connector-curvature="0"
