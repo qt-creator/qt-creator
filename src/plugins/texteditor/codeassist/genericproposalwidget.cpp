@@ -117,14 +117,14 @@ ModelAdapter::ModelAdapter(GenericProposalModel *completionModel, QWidget *paren
     , m_completionModel(completionModel)
 {}
 
-int ModelAdapter::rowCount(const QModelIndex &) const
+int ModelAdapter::rowCount(const QModelIndex &index) const
 {
-    return m_completionModel->size();
+    return index.isValid() ? 0 : m_completionModel->size();
 }
 
 QVariant ModelAdapter::data(const QModelIndex &index, int role) const
 {
-    if (index.row() >= m_completionModel->size())
+    if (!index.isValid() || index.row() >= m_completionModel->size())
         return QVariant();
 
     if (role == Qt::DisplayRole)
