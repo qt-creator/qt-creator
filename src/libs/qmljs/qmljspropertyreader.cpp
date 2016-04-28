@@ -146,13 +146,14 @@ PropertyReader::PropertyReader(Document::Ptr doc, AST::UiObjectInitializer *ast)
                 continue; // better safe than sorry.
             const QString propertyName = toString(property->qualifiedId);
             const QString astValue = cleanupSemicolon(textAt(doc,
-                              property->statement->firstSourceLocation(),
-                              property->statement->lastSourceLocation()));
+                                                             property->statement->firstSourceLocation(),
+                                                             property->statement->lastSourceLocation()));
+            m_astPropertyValues.insert(propertyName, astValue);
             if (isLiteralValue(property)) {
                 m_properties.insert(propertyName, QVariant(deEscape(stripQuotes(astValue))));
             } else if (isEnum(property->statement)) { //enum
-                 m_properties.insert(propertyName, QVariant(astValue));
-                 m_bindingOrEnum.append(propertyName);
+                m_properties.insert(propertyName, QVariant(astValue));
+                m_bindingOrEnum.append(propertyName);
             }
         } else if (UiObjectDefinition *objectDefinition = cast<UiObjectDefinition *>(member)) { //font { bold: true }
             const QString propertyName = objectDefinition->qualifiedTypeNameId->name.toString();
@@ -162,8 +163,9 @@ PropertyReader::PropertyReader(Document::Ptr doc, AST::UiObjectInitializer *ast)
                     if (UiScriptBinding *property = cast<UiScriptBinding *>(objectMember)) {
                         const QString propertyNamePart2 = toString(property->qualifiedId);
                         const QString astValue = cleanupSemicolon(textAt(doc,
-                            property->statement->firstSourceLocation(),
-                            property->statement->lastSourceLocation()));
+                                                                         property->statement->firstSourceLocation(),
+                                                                         property->statement->lastSourceLocation()));
+                        m_astPropertyValues.insert(propertyName, astValue);
                         if (isLiteralValue(property)) {
                             m_properties.insert(propertyName + QLatin1Char('.') + propertyNamePart2,
                                                 QVariant(deEscape(stripQuotes(astValue))));
@@ -181,6 +183,7 @@ PropertyReader::PropertyReader(Document::Ptr doc, AST::UiObjectInitializer *ast)
                               initializer->rbraceToken));
             const QString propertyName = objectBinding->qualifiedId->name.toString();
             m_properties.insert(propertyName, QVariant(astValue));
+            m_astPropertyValues.insert(propertyName, astValue);
         }
     }
 }

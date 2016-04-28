@@ -54,6 +54,14 @@ public:
             return QVariant();
     }
 
+    QString readAstValue(const QString &propertyName) const
+    {
+        if (hasProperty(propertyName))
+            return m_astPropertyValues.value(propertyName);
+        else
+            return QString();
+    }
+
     QLinearGradient parseGradient(const QString &propertyName, bool *isBound) const;
 
     QStringList properties() const
@@ -64,6 +72,7 @@ public:
 
 private:
     QHash<QString, QVariant> m_properties;
+    QHash<QString, QString> m_astPropertyValues;
     QList<QString> m_bindingOrEnum;
     AST::UiObjectInitializer *m_ast;
     Document::Ptr m_doc;
