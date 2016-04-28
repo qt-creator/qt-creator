@@ -80,9 +80,14 @@ QmlProfilerModelManager *QmlProfilerTimelineModel::modelManager() const
     return m_modelManager;
 }
 
-void QmlProfilerTimelineModel::announceFeatures(quint64 features) const
+void QmlProfilerTimelineModel::announceFeatures(quint64 features)
 {
-    m_modelManager->announceFeatures(modelId(), features);
+    m_modelManager->announceFeatures(
+                features, [this](const QmlEvent &event, const QmlEventType &type) {
+        loadEvent(event, type);
+    }, [this]() {
+        finalize();
+    });
 }
 
 void QmlProfilerTimelineModel::dataChanged()

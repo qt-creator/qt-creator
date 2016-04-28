@@ -64,7 +64,7 @@ private slots:
     void onVisibleFeaturesChanged(quint64 features);
 
 protected:
-    void announceFeatures(quint64 features) const;
+    void announceFeatures(quint64 features);
 
 private:
     const Message m_message;

@@ -33,7 +33,8 @@ namespace Internal {
 MemoryUsageModel::MemoryUsageModel(QmlProfilerModelManager *manager, QObject *parent) :
     QmlProfilerTimelineModel(manager, MemoryAllocation, MaximumRangeType, ProfileMemory, parent)
 {
-    announceFeatures((1ULL << mainFeature()) | Constants::QML_JS_RANGE_FEATURES);
+    // Announce additional features. The base class already announces the main feature.
+    announceFeatures(Constants::QML_JS_RANGE_FEATURES);
 }
 
 int MemoryUsageModel::rowMaxValue(int rowNumber) const

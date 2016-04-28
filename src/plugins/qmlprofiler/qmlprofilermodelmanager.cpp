@@ -136,6 +136,9 @@ public:
     quint64 availableFeatures;
     quint64 visibleFeatures;
     quint64 recordedFeatures;
+
+    QHash<ProfileFeature, QVector<EventLoader> > eventLoaders;
+    QVector<Finalizer> finalizers;
 };
 
 
@@ -182,9 +185,15 @@ int QmlProfilerModelManager::registerModelProxy()
     return d->numRegisteredModels++;
 }
 
-void QmlProfilerModelManager::announceFeatures(int proxyId, quint64 features)
+void QmlProfilerModelManager::dispatch(const QmlEvent &event, const QmlEventType &type)
 {
-    Q_UNUSED(proxyId); // Will use that later to optimize the event dispatching on loading.
+    foreach (const EventLoader &loader, d->eventLoaders[type.feature()])
+        loader(event, type);
+}
+
+void QmlProfilerModelManager::announceFeatures(quint64 features, EventLoader eventLoader,
+                                               Finalizer finalizer)
+{
     if ((features & d->availableFeatures) != features) {
         d->availableFeatures |= features;
         emit availableFeaturesChanged(d->availableFeatures);
@@ -193,6 +202,13 @@ void QmlProfilerModelManager::announceFeatures(int proxyId, quint64 features)
         d->visibleFeatures |= features;
         emit visibleFeaturesChanged(d->visibleFeatures);
     }
+
+    for (int feature = 0; feature != MaximumProfileFeature; ++feature) {
+        if (features & (1 << feature))
+            d->eventLoaders[static_cast<ProfileFeature>(feature)].append(eventLoader);
+    }
+
+    d->finalizers.append(finalizer);
 }
 
 quint64 QmlProfilerModelManager::availableFeatures() const

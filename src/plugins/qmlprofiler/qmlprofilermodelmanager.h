@@ -28,10 +28,13 @@
 #include "qmlprofiler_global.h"
 #include "qmlprofilereventtypes.h"
 #include "qmleventlocation.h"
+#include "qmlevent.h"
+#include "qmleventtype.h"
 
 #include <utils/fileinprojectfinder.h>
 
 #include <QObject>
+#include <functional>
 
 namespace QmlProfiler {
 class QmlProfilerModelManager;
@@ -80,6 +83,9 @@ public:
         Done
     };
 
+    typedef std::function<void(const QmlEvent &, const QmlEventType &)> EventLoader;
+    typedef std::function<void()> Finalizer;
+
     explicit QmlProfilerModelManager(Utils::FileInProjectFinder *finder, QObject *parent = 0);
     ~QmlProfilerModelManager();
 
@@ -91,7 +97,10 @@ public:
     bool isEmpty() const;
 
     int registerModelProxy();
-    void announceFeatures(int proxyId, quint64 features);
+    void announceFeatures(quint64 features, EventLoader eventLoader, Finalizer finalizer);
+
+    void dispatch(const QmlEvent &event, const QmlEventType &type);
+
     quint64 availableFeatures() const;
     quint64 visibleFeatures() const;
     void setVisibleFeatures(quint64 features);

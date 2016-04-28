@@ -46,6 +46,33 @@ struct QmlEventType {
     Message message;
     RangeType rangeType;
     int detailType; // can be EventType, BindingType, PixmapEventType or SceneGraphFrameType
+
+    ProfileFeature feature() const
+    {
+        switch (message) {
+        case Event: {
+            switch (detailType) {
+            case Mouse:
+            case Key:
+                return ProfileInputEvents;
+            case AnimationFrame:
+                return ProfileAnimations;
+            default:
+                return MaximumProfileFeature;
+            }
+        }
+        case PixmapCacheEvent:
+            return ProfilePixmapCache;
+        case SceneGraphFrame:
+            return ProfileSceneGraph;
+        case MemoryAllocation:
+            return ProfileMemory;
+        case DebugMessage:
+            return ProfileDebugMessages;
+        default:
+            return featureFromRangeType(rangeType);
+        }
+    }
 };
 
 QDataStream &operator>>(QDataStream &stream, QmlEventType &type);

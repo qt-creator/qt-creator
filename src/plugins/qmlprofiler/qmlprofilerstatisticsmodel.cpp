@@ -65,7 +65,12 @@ QmlProfilerStatisticsModel::QmlProfilerStatisticsModel(QmlProfilerModelManager *
 
     d->acceptedTypes << Compiling << Creating << Binding << HandlingSignal << Javascript;
 
-    modelManager->announceFeatures(d->modelId, Constants::QML_JS_RANGE_FEATURES);
+    modelManager->announceFeatures(Constants::QML_JS_RANGE_FEATURES,
+                                   [this](const QmlEvent &event, const QmlEventType &type) {
+        loadEvent(event, type);
+    }, [this]() {
+        finalize();
+    });
 }
 
 QmlProfilerStatisticsModel::~QmlProfilerStatisticsModel()
