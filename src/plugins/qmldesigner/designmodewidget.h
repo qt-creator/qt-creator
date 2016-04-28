@@ -32,15 +32,7 @@
 #include <modelnode.h>
 
 #include <QWidget>
-#include <QLabel>
 #include <QScopedPointer>
-
-QT_BEGIN_NAMESPACE
-class QStackedWidget;
-class QTabWidget;
-class QVBoxLayout;
-class QToolButton;
-QT_END_NAMESPACE
 
 namespace Core {
     class SideBar;
@@ -59,22 +51,7 @@ namespace Internal {
 class DesignMode;
 class DocumentWidget;
 class DesignModeWidget;
-
-class DocumentWarningWidget : public Utils::FakeToolTip
-{
-    Q_OBJECT
-
-public:
-    explicit DocumentWarningWidget(DesignModeWidget *parent = 0);
-
-    void setError(const RewriterError &error);
-
-private:
-    QLabel *m_errorMessage;
-    QLabel *m_goToError;
-    RewriterError m_error;
-    DesignModeWidget *m_designModeWidget;
-};
+class DocumentWarningWidget;
 
 class DesignModeWidget : public QWidget
 {
