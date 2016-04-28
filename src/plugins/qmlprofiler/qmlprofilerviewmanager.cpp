@@ -54,7 +54,6 @@ public:
     QList<QmlProfilerEventsView *> eventsViews;
     QmlProfilerStateManager *profilerState;
     QmlProfilerModelManager *profilerModelManager;
-    QmlProfilerEventsViewFactory *eventsViewFactory;
 };
 
 QmlProfilerViewManager::QmlProfilerViewManager(QObject *parent,
@@ -66,8 +65,6 @@ QmlProfilerViewManager::QmlProfilerViewManager(QObject *parent,
     d->traceView = 0;
     d->profilerState = profilerState;
     d->profilerModelManager = modelManager;
-    d->eventsViewFactory =
-            ExtensionSystem::PluginManager::getObject<QmlProfilerEventsViewFactory>();
     createViews();
 }
 

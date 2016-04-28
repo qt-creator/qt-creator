@@ -53,12 +53,4 @@ public slots:
     virtual void onVisibleFeaturesChanged(quint64 features) = 0;
 };
 
-class QMLPROFILER_EXPORT QmlProfilerEventsViewFactory : public QObject
-{
-    Q_OBJECT
-public:
-    virtual QList<QmlProfilerEventsView *> create(QWidget *parent,
-                                                  QmlProfilerModelManager *manager) = 0;
-};
-
 }
