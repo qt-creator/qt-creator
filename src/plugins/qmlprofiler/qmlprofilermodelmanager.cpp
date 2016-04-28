@@ -93,7 +93,6 @@ void QmlProfilerTraceTime::setTime(qint64 startTime, qint64 endTime)
     if (startTime != m_startTime || endTime != m_endTime) {
         m_startTime = startTime;
         m_endTime = endTime;
-        emit timeChanged(startTime, endTime);
     }
 }
 
@@ -105,7 +104,6 @@ void QmlProfilerTraceTime::decreaseStartTime(qint64 time)
             m_endTime = m_startTime;
         else
             QTC_ASSERT(m_endTime >= m_startTime, m_endTime = m_startTime);
-        emit timeChanged(time, m_endTime);
     }
 }
 
@@ -117,7 +115,6 @@ void QmlProfilerTraceTime::increaseEndTime(qint64 time)
             m_startTime = m_endTime;
         else
             QTC_ASSERT(m_endTime >= m_startTime, m_startTime = m_endTime);
-        emit timeChanged(m_startTime, time);
     }
 }
 

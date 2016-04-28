@@ -90,10 +90,15 @@ QmlProfilerTraceView::QmlProfilerTraceView(QWidget *parent, QmlProfilerViewManag
     setObjectName(QLatin1String("QML Profiler"));
 
     d->m_zoomControl = new Timeline::TimelineZoomControl(this);
-    connect(modelManager->traceTime(), &QmlProfilerTraceTime::timeChanged,
-            this, [this](qint64 start, qint64 end) {
-        d->m_zoomControl->setTrace(start, end);
-        d->m_zoomControl->setRange(start, start + (end - start) / 10);
+    connect(modelManager, &QmlProfilerModelManager::stateChanged, this, [modelManager, this]() {
+        if (modelManager->state() == QmlProfilerModelManager::Done) {
+            qint64 start = modelManager->traceTime()->startTime();
+            qint64 end = modelManager->traceTime()->endTime();
+            d->m_zoomControl->setTrace(start, end);
+            d->m_zoomControl->setRange(start, start + (end - start) / 10);
+        } else if (modelManager->state() == QmlProfilerModelManager::ClearingData) {
+            d->m_zoomControl->clear();
+        }
     });
 
     QVBoxLayout *groupLayout = new QVBoxLayout;
