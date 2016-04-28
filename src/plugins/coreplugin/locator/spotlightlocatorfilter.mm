@@ -178,13 +178,6 @@ void SpotlightIterator::ensureNext()
 
 // #pragma mark -- SpotlightLocatorFilter
 
-SpotlightLocatorFilter::SpotlightLocatorFilter()
-{
-    setId("SpotlightFileNamesLocatorFilter");
-    setDisplayName(tr("Spotlight File Name Index"));
-    setShortcutString(QLatin1String("md"));
-}
-
 void SpotlightLocatorFilter::prepareSearch(const QString &entry)
 {
     if (entry.isEmpty()) {
