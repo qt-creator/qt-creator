@@ -248,7 +248,7 @@ void QmlProfilerDataModel::addEvent(Message message, RangeType rangeType, int de
                               message == DebugMessage ? QString() : data);
     QmlEvent eventData = (message == DebugMessage) ?
                 QmlEvent(startTime, duration, -1, data) :
-                QmlEvent(startTime, duration, -1, ndata1, ndata2, ndata3, ndata4, ndata5);
+                QmlEvent(startTime, duration, -1, {ndata1, ndata2, ndata3, ndata4, ndata5});
 
     QHash<QmlEventType, int>::Iterator it = d->eventTypeIds.find(typeData);
     if (it != d->eventTypeIds.end()) {

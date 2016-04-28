@@ -177,12 +177,12 @@ void MemoryUsageModel::loadData()
                     type.detailType == selectionId(currentUsageIndex) &&
                     m_data[currentUsageIndex].originTypeIndex == rangeStack.top().originTypeIndex &&
                     rangeStack.top().startTime < startTime(currentUsageIndex)) {
-                m_data[currentUsageIndex].update(event.numericData(0));
+                m_data[currentUsageIndex].update(event.number<qint64>(0));
                 currentUsage = m_data[currentUsageIndex].size;
             } else {
                 MemoryAllocationItem allocation(event.typeIndex(), currentUsage,
                         rangeStack.empty() ? -1 : rangeStack.top().originTypeIndex);
-                allocation.update(event.numericData(0));
+                allocation.update(event.number<qint64>(0));
                 currentUsage = allocation.size;
 
                 if (currentUsageIndex != -1) {
@@ -200,12 +200,12 @@ void MemoryUsageModel::loadData()
                     m_data[currentJSHeapIndex].originTypeIndex ==
                     rangeStack.top().originTypeIndex &&
                     rangeStack.top().startTime < startTime(currentJSHeapIndex)) {
-                m_data[currentJSHeapIndex].update(event.numericData(0));
+                m_data[currentJSHeapIndex].update(event.number<qint64>(0));
                 currentSize = m_data[currentJSHeapIndex].size;
             } else {
                 MemoryAllocationItem allocation(event.typeIndex(), currentSize,
                         rangeStack.empty() ? -1 : rangeStack.top().originTypeIndex);
-                allocation.update(event.numericData(0));
+                allocation.update(event.number<qint64>(0));
                 currentSize = allocation.size;
 
                 if (currentSize > m_maxSize)

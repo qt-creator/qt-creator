@@ -211,15 +211,15 @@ void PixmapCacheModel::loadData()
                 // We can't have cached it before we knew the size
                 Q_ASSERT(i->cacheState != Cached);
 
-                i->size.setWidth(event.numericData(0));
-                i->size.setHeight(event.numericData(1));
+                i->size.setWidth(event.number<qint32>(0));
+                i->size.setHeight(event.number<qint32>(1));
                 newEvent.sizeIndex = i - pixmap.sizes.begin();
                 break;
             }
 
             if (newEvent.sizeIndex == -1) {
                 newEvent.sizeIndex = pixmap.sizes.length();
-                pixmap.sizes << PixmapState(event.numericData(0), event.numericData(1));
+                pixmap.sizes << PixmapState(event.number<qint32>(0), event.number<qint32>(1));
             }
 
             PixmapState &state = pixmap.sizes[newEvent.sizeIndex];
@@ -234,8 +234,8 @@ void PixmapCacheModel::loadData()
         case PixmapCacheCountChanged: {// Cache Size Changed Event
             pixmapStartTime = event.timestamp() + 1; // delay 1 ns for proper sorting
 
-            bool uncache = cumulatedCount > event.numericData(2);
-            cumulatedCount = event.numericData(2);
+            bool uncache = cumulatedCount > event.number<qint32>(2);
+            cumulatedCount = event.number<qint32>(2);
             qint64 pixSize = 0;
 
             // First try to find a preferred pixmap, which either is Corrupt and will be uncached

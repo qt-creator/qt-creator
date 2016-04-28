@@ -150,71 +150,79 @@ void SceneGraphTimelineModel::loadData()
             // look incomplete if that was left out as the printf profiler lists it, too, and people
             // are apparently comparing that. Unfortunately it is somewhat redundant as the other
             // parts of the breakdown are usually very short.
-            qint64 startTime = event.timestamp() - event.numericData(0) - event.numericData(1) -
-                    event.numericData(2) - event.numericData(3);
-            startTime += insert(startTime, event.numericData(0), event.typeIndex(), RenderPreprocess);
-            startTime += insert(startTime, event.numericData(1), event.typeIndex(), RenderUpdate);
-            startTime += insert(startTime, event.numericData(2), event.typeIndex(), RenderBind);
-            insert(startTime, event.numericData(3), event.typeIndex(), RenderRender);
+            qint64 startTime = event.timestamp() - event.number<qint64>(0) - event.number<qint64>(1)
+                    - event.number<qint64>(2) - event.number<qint64>(3);
+            startTime += insert(startTime, event.number<qint64>(0), event.typeIndex(),
+                                RenderPreprocess);
+            startTime += insert(startTime, event.number<qint64>(1), event.typeIndex(),
+                                RenderUpdate);
+            startTime += insert(startTime, event.number<qint64>(2), event.typeIndex(), RenderBind);
+            insert(startTime, event.number<qint64>(3), event.typeIndex(), RenderRender);
             break;
         }
         case SceneGraphAdaptationLayerFrame: {
-            qint64 startTime = event.timestamp() - event.numericData(1) - event.numericData(2);
-            startTime += insert(startTime, event.numericData(1), event.typeIndex(), GlyphRender,
-                                event.numericData(0));
-            insert(startTime, event.numericData(2), event.typeIndex(), GlyphStore, event.numericData(0));
+            qint64 startTime = event.timestamp() - event.number<qint64>(1)
+                    - event.number<qint64>(2);
+            startTime += insert(startTime, event.number<qint64>(1), event.typeIndex(), GlyphRender,
+                                event.number<qint64>(0));
+            insert(startTime, event.number<qint64>(2), event.typeIndex(), GlyphStore,
+                   event.number<qint64>(0));
             break;
         }
         case SceneGraphContextFrame: {
-            insert(event.timestamp() - event.numericData(0), event.numericData(0), event.typeIndex(),
-                      Material);
+            insert(event.timestamp() - event.number<qint64>(0), event.number<qint64>(0),
+                   event.typeIndex(), Material);
             break;
         }
         case SceneGraphRenderLoopFrame: {
-            qint64 startTime = event.timestamp() - event.numericData(0) - event.numericData(1) -
-                    event.numericData(2);
-            startTime += insert(startTime, event.numericData(0), event.typeIndex(),
-                                   RenderThreadSync);
-            startTime += insert(startTime, event.numericData(1), event.typeIndex(),
-                                   Render);
-            insert(startTime, event.numericData(2), event.typeIndex(), Swap);
+            qint64 startTime = event.timestamp() - event.number<qint64>(0) - event.number<qint64>(1)
+                    - event.number<qint64>(2);
+            startTime += insert(startTime, event.number<qint64>(0), event.typeIndex(),
+                                RenderThreadSync);
+            startTime += insert(startTime, event.number<qint64>(1), event.typeIndex(),
+                                Render);
+            insert(startTime, event.number<qint64>(2), event.typeIndex(), Swap);
             break;
         }
         case SceneGraphTexturePrepare: {
-            qint64 startTime = event.timestamp() - event.numericData(0) - event.numericData(1) -
-                    event.numericData(2) - event.numericData(3) - event.numericData(4);
-            startTime += insert(startTime, event.numericData(0), event.typeIndex(), TextureBind);
-            startTime += insert(startTime, event.numericData(1), event.typeIndex(), TextureConvert);
-            startTime += insert(startTime, event.numericData(2), event.typeIndex(), TextureSwizzle);
-            startTime += insert(startTime, event.numericData(3), event.typeIndex(), TextureUpload);
-            insert(startTime, event.numericData(4), event.typeIndex(), TextureMipmap);
+            qint64 startTime = event.timestamp() - event.number<qint64>(0) - event.number<qint64>(1)
+                    - event.number<qint64>(2) - event.number<qint64>(3) - event.number<qint64>(4);
+            startTime += insert(startTime, event.number<qint64>(0), event.typeIndex(), TextureBind);
+            startTime += insert(startTime, event.number<qint64>(1), event.typeIndex(),
+                                TextureConvert);
+            startTime += insert(startTime, event.number<qint64>(2), event.typeIndex(),
+                                TextureSwizzle);
+            startTime += insert(startTime, event.number<qint64>(3), event.typeIndex(),
+                                TextureUpload);
+            insert(startTime, event.number<qint64>(4), event.typeIndex(), TextureMipmap);
             break;
         }
         case SceneGraphTextureDeletion: {
-            insert(event.timestamp() - event.numericData(0), event.numericData(0), event.typeIndex(),
-                   TextureDeletion);
+            insert(event.timestamp() - event.number<qint64>(0), event.number<qint64>(0),
+                   event.typeIndex(), TextureDeletion);
             break;
         }
         case SceneGraphPolishAndSync: {
-            qint64 startTime = event.timestamp() - event.numericData(0) - event.numericData(1) -
-                    event.numericData(2) - event.numericData(3);
+            qint64 startTime = event.timestamp() - event.number<qint64>(0) - event.number<qint64>(1)
+                    - event.number<qint64>(2) - event.number<qint64>(3);
 
-            startTime += insert(startTime, event.numericData(0), event.typeIndex(), Polish);
-            startTime += insert(startTime, event.numericData(1), event.typeIndex(), Wait);
-            startTime += insert(startTime, event.numericData(2), event.typeIndex(), GUIThreadSync);
-            insert(startTime, event.numericData(3), event.typeIndex(), Animations);
+            startTime += insert(startTime, event.number<qint64>(0), event.typeIndex(), Polish);
+            startTime += insert(startTime, event.number<qint64>(1), event.typeIndex(), Wait);
+            startTime += insert(startTime, event.number<qint64>(2), event.typeIndex(),
+                                GUIThreadSync);
+            insert(startTime, event.number<qint64>(3), event.typeIndex(), Animations);
             break;
         }
         case SceneGraphWindowsAnimations: {
             // GUI thread, separate animations stage
-            insert(event.timestamp() - event.numericData(0), event.numericData(0), event.typeIndex(),
-                   Animations);
+            insert(event.timestamp() - event.number<qint64>(0), event.number<qint64>(0),
+                   event.typeIndex(), Animations);
             break;
         }
         case SceneGraphPolishFrame: {
             // GUI thread, separate polish stage
-            insert(event.timestamp() - event.numericData(0), event.numericData(0), event.typeIndex(),
-                   Polish);
+            insert(event.timestamp() - event.number<qint64>(0), event.number<qint64>(0),
+                   event.typeIndex(), Polish);
             break;
         }
         default: break;

@@ -59,6 +59,7 @@ QtcPlugin {
             "qmlprofilertracefile.cpp", "qmlprofilertracefile.h",
             "qmlprofilertraceview.cpp", "qmlprofilertraceview.h",
             "qmlprofilerviewmanager.cpp", "qmlprofilerviewmanager.h",
+            "qmltypedevent.cpp", "qmltypedevent.h",
             "scenegraphtimelinemodel.cpp", "scenegraphtimelinemodel.h",
         ]
     }

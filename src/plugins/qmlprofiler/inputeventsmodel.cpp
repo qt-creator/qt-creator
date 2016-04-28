@@ -153,8 +153,8 @@ void InputEventsModel::loadData()
             continue;
 
         m_data.insert(insert(event.timestamp(), 0, type.detailType),
-                      InputEvent(static_cast<InputEventType>(event.numericData(0)),
-                                 event.numericData(1), event.numericData(2)));
+                      InputEvent(static_cast<InputEventType>(event.number<qint32>(0)),
+                                 event.number<qint32>(1), event.number<qint32>(2)));
 
         if (type.detailType == Mouse) {
             if (m_mouseTypeId == -1)

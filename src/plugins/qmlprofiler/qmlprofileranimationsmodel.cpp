@@ -78,10 +78,10 @@ void QmlProfilerAnimationsModel::loadData()
         if (!accepted(type))
             continue;
 
-        lastThread = (AnimationThread)event.numericData(2);
+        lastThread = (AnimationThread)event.number<qint32>(2);
 
         // initial estimation of the event duration: 1/framerate
-        qint64 estimatedDuration = event.numericData(0) > 0 ? 1e9/event.numericData(0) : 1;
+        qint64 estimatedDuration = event.number<qint32>(0) > 0 ? 1e9 / event.number<qint32>(0) : 1;
 
         // the profiler registers the animation events at the end of them
         qint64 realEndTime = event.timestamp();
@@ -97,8 +97,8 @@ void QmlProfilerAnimationsModel::loadData()
         // Don't "fix" the framerate even if we've fixed the duration.
         // The server should know better after all and if it doesn't we want to see that.
         lastEvent.typeId = event.typeIndex();
-        lastEvent.framerate = (int)event.numericData(0);
-        lastEvent.animationcount = (int)event.numericData(1);
+        lastEvent.framerate = event.number<qint32>(0);
+        lastEvent.animationcount = event.number<qint32>(1);
         QTC_ASSERT(lastEvent.animationcount > 0, continue);
 
         m_data.insert(insert(realStartTime, realEndTime - realStartTime, lastThread), lastEvent);

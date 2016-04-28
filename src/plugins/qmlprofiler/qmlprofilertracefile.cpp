@@ -360,7 +360,7 @@ void QmlProfilerFileReader::loadEvents(QXmlStreamReader &stream)
         case QXmlStreamReader::StartElement: {
             if (elementName == _("range")) {
                 progress(stream.device());
-                QmlEvent event(0, 0, -1, 0, 0, 0, 0, 0);
+                QmlEvent event;
 
                 const QXmlStreamAttributes attributes = stream.attributes();
                 if (!attributes.hasAttribute(_("startTime"))
@@ -375,37 +375,37 @@ void QmlProfilerFileReader::loadEvents(QXmlStreamReader &stream)
 
                 // attributes for special events
                 if (attributes.hasAttribute(_("framerate")))
-                    event.setNumericData(0, attributes.value(_("framerate")).toLongLong());
+                    event.setNumber<qint32>(0, attributes.value(_("framerate")).toInt());
                 if (attributes.hasAttribute(_("animationcount")))
-                    event.setNumericData(1, attributes.value(_("animationcount")).toLongLong());
+                    event.setNumber<qint32>(1, attributes.value(_("animationcount")).toInt());
                 if (attributes.hasAttribute(_("thread")))
-                    event.setNumericData(2, attributes.value(_("thread")).toLongLong());
+                    event.setNumber<qint32>(2, attributes.value(_("thread")).toInt());
                 if (attributes.hasAttribute(_("width")))
-                    event.setNumericData(0, attributes.value(_("width")).toLongLong());
+                    event.setNumber<qint32>(0, attributes.value(_("width")).toInt());
                 if (attributes.hasAttribute(_("height")))
-                    event.setNumericData(1, attributes.value(_("height")).toLongLong());
+                    event.setNumber<qint32>(1, attributes.value(_("height")).toInt());
                 if (attributes.hasAttribute(_("refCount")))
-                    event.setNumericData(2, attributes.value(_("refCount")).toLongLong());
+                    event.setNumber<qint32>(2, attributes.value(_("refCount")).toInt());
                 if (attributes.hasAttribute(_("amount")))
-                    event.setNumericData(0, attributes.value(_("amount")).toLongLong());
+                    event.setNumber<qint64>(0, attributes.value(_("amount")).toLongLong());
                 if (attributes.hasAttribute(_("timing1")))
-                    event.setNumericData(0, attributes.value(_("timing1")).toLongLong());
+                    event.setNumber<qint64>(0, attributes.value(_("timing1")).toLongLong());
                 if (attributes.hasAttribute(_("timing2")))
-                    event.setNumericData(1, attributes.value(_("timing2")).toLongLong());
+                    event.setNumber<qint64>(1, attributes.value(_("timing2")).toLongLong());
                 if (attributes.hasAttribute(_("timing3")))
-                    event.setNumericData(2, attributes.value(_("timing3")).toLongLong());
+                    event.setNumber<qint64>(2, attributes.value(_("timing3")).toLongLong());
                 if (attributes.hasAttribute(_("timing4")))
-                    event.setNumericData(3, attributes.value(_("timing4")).toLongLong());
+                    event.setNumber<qint64>(3, attributes.value(_("timing4")).toLongLong());
                 if (attributes.hasAttribute(_("timing5")))
-                    event.setNumericData(4, attributes.value(_("timing5")).toLongLong());
+                    event.setNumber<qint64>(4, attributes.value(_("timing5")).toLongLong());
                 if (attributes.hasAttribute(_("type")))
-                    event.setNumericData(0, attributes.value(_("type")).toLongLong());
+                    event.setNumber<qint32>(0, attributes.value(_("type")).toInt());
                 if (attributes.hasAttribute(_("data1")))
-                    event.setNumericData(1, attributes.value(_("data1")).toLongLong());
+                    event.setNumber<qint32>(1, attributes.value(_("data1")).toInt());
                 if (attributes.hasAttribute(_("data2")))
-                    event.setNumericData(2, attributes.value(_("data2")).toLongLong());
+                    event.setNumber<qint32>(2, attributes.value(_("data2")).toInt());
                 if (attributes.hasAttribute(_("text")))
-                    event.setStringData(attributes.value(_("text")).toString());
+                    event.setString(attributes.value(_("text")).toString());
 
                 event.setTypeIndex(attributes.value(_("eventIndex")).toInt());
 
@@ -601,49 +601,47 @@ void QmlProfilerFileWriter::save(QIODevice *device)
         if (type.message == Event) {
             if (type.detailType == AnimationFrame) {
                 // special: animation event
-                stream.writeAttribute(_("framerate"), QString::number(event.numericData(0)));
-                stream.writeAttribute(_("animationcount"), QString::number(event.numericData(1)));
-                stream.writeAttribute(_("thread"), QString::number(event.numericData(2)));
+                stream.writeAttribute(_("framerate"), QString::number(event.number<qint32>(0)));
+                stream.writeAttribute(_("animationcount"),
+                                      QString::number(event.number<qint32>(1)));
+                stream.writeAttribute(_("thread"), QString::number(event.number<qint32>(2)));
             } else if (type.detailType == Key || type.detailType == Mouse) {
                 // special: input event
-                stream.writeAttribute(_("type"), QString::number(event.numericData(0)));
-                stream.writeAttribute(_("data1"), QString::number(event.numericData(1)));
-                stream.writeAttribute(_("data2"), QString::number(event.numericData(2)));
+                stream.writeAttribute(_("type"), QString::number(event.number<qint32>(0)));
+                stream.writeAttribute(_("data1"), QString::number(event.number<qint32>(1)));
+                stream.writeAttribute(_("data2"), QString::number(event.number<qint32>(2)));
             }
         }
 
         // special: pixmap cache event
         if (type.message == PixmapCacheEvent) {
             if (type.detailType == PixmapSizeKnown) {
-                stream.writeAttribute(_("width"), QString::number(event.numericData(0)));
-                stream.writeAttribute(_("height"), QString::number(event.numericData(1)));
+                stream.writeAttribute(_("width"), QString::number(event.number<qint32>(0)));
+                stream.writeAttribute(_("height"), QString::number(event.number<qint32>(1)));
             }
 
             if (type.detailType == PixmapReferenceCountChanged ||
                     type.detailType == PixmapCacheCountChanged)
-                stream.writeAttribute(_("refCount"), QString::number(event.numericData(2)));
+                stream.writeAttribute(_("refCount"), QString::number(event.number<qint32>(2)));
         }
 
         if (type.message == SceneGraphFrame) {
             // special: scenegraph frame events
-            if (event.numericData(0) > 0)
-                stream.writeAttribute(_("timing1"), QString::number(event.numericData(0)));
-            if (event.numericData(1) > 0)
-                stream.writeAttribute(_("timing2"), QString::number(event.numericData(1)));
-            if (event.numericData(2) > 0)
-                stream.writeAttribute(_("timing3"), QString::number(event.numericData(2)));
-            if (event.numericData(3) > 0)
-                stream.writeAttribute(_("timing4"), QString::number(event.numericData(3)));
-            if (event.numericData(4) > 0)
-                stream.writeAttribute(_("timing5"), QString::number(event.numericData(4)));
+            for (int i = 0; i < 5; ++i) {
+                qint64 number = event.number<qint64>(i);
+                if (number <= 0)
+                    continue;
+                stream.writeAttribute(QString::fromLatin1("timing%1").arg(i + 1),
+                                      QString::number(number));
+            }
         }
 
         // special: memory allocation event
         if (type.message == MemoryAllocation)
-            stream.writeAttribute(_("amount"), QString::number(event.numericData(0)));
+            stream.writeAttribute(_("amount"), QString::number(event.number<qint64>(0)));
 
         if (type.message == DebugMessage)
-            stream.writeAttribute(_("text"), event.stringData());
+            stream.writeAttribute(_("text"), event.string());
 
         stream.writeEndElement();
         incrementProgress();

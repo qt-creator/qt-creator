@@ -113,7 +113,7 @@ void DebugMessagesModel::loadData()
             continue;
 
         m_data.insert(insert(event.timestamp(), 0, type.detailType),
-                      MessageData(event.stringData(), event.typeIndex()));
+                      MessageData(event.string(), event.typeIndex()));
         if (type.detailType > m_maximumMsgType)
             m_maximumMsgType = event.typeIndex();
         updateProgress(count(), simpleModel->events().count());
