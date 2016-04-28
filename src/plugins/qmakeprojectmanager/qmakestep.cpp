@@ -342,7 +342,15 @@ void QMakeStep::startOneCommand(const QString &command, const QString &args)
 
 void QMakeStep::runNextCommand()
 {
-    bool wasSuccess = m_commandFuture ? m_commandFuture->future().result() : true;
+    bool wasSuccess = true;
+    if (m_commandFuture) {
+        if (m_commandFuture->isCanceled())
+            wasSuccess = false;
+        else if (m_commandFuture->isFinished())
+            wasSuccess = m_commandFuture->future().result();
+        else
+            wasSuccess = false; // should not happen
+    }
 
     delete m_commandFuture;
     m_commandFuture = nullptr;
