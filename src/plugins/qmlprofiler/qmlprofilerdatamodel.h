@@ -60,7 +60,6 @@ public:
     qint64 lastTimeMark() const;
 
 signals:
-    void changed();
     void requestReload();
 
 protected slots:

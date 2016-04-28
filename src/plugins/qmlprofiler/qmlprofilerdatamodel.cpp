@@ -157,7 +157,6 @@ void QmlProfilerDataModel::clear()
     d->eventTypes.clear();
     d->eventTypeIds.clear();
     d->detailsRewriter->clearRequests();
-    emit changed();
 }
 
 bool QmlProfilerDataModel::isEmpty() const
@@ -224,8 +223,6 @@ void QmlProfilerDataModel::processData()
         d->detailsRewriter->requestDetailsForLocation(i, event->location);
     }
 
-    // Allow changed() event only after documents have been reloaded to avoid
-    // unnecessary updates of child models.
     emit requestReload();
 }
 
@@ -276,7 +273,6 @@ void QmlProfilerDataModel::detailsChanged(int requestId, const QString &newStrin
 void QmlProfilerDataModel::detailsDone()
 {
     Q_D(QmlProfilerDataModel);
-    emit changed();
     d->modelManager->processingDone();
 }
 
