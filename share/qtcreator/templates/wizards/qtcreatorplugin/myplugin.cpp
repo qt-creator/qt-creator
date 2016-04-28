@@ -13,9 +13,8 @@
 #include <QMainWindow>
 #include <QMenu>
 
-#include <QtPlugin>
-
-using namespace %PluginName%::Internal;
+namespace %PluginName% {
+namespace Internal {
 
 %PluginName%Plugin::%PluginName%Plugin()
 {
@@ -75,3 +74,6 @@ void %PluginName%Plugin::triggerAction()
                              tr("Action Triggered"),
                              tr("This is an action from %PluginName%."));
 }
+
+} // namespace Internal
+} // namespace %PluginName%
