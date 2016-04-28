@@ -162,12 +162,12 @@ void MemoryUsageModel::loadData()
     const QVector<QmlEventType> &types = simpleModel->eventTypes();
     foreach (const QmlEvent &event, simpleModel->events()) {
         const QmlEventType &type = types[event.typeIndex()];
-        while (!rangeStack.empty() && rangeStack.top().endTime < event.startTime())
+        while (!rangeStack.empty() && rangeStack.top().endTime < event.timestamp())
             rangeStack.pop();
         if (!accepted(type)) {
             if (type.rangeType != MaximumRangeType) {
-                rangeStack.push(RangeStackFrame(event.typeIndex(), event.startTime(),
-                                                event.startTime() + event.duration()));
+                rangeStack.push(RangeStackFrame(event.typeIndex(), event.timestamp(),
+                                                event.timestamp() + event.duration()));
             }
             continue;
         }
@@ -187,9 +187,9 @@ void MemoryUsageModel::loadData()
 
                 if (currentUsageIndex != -1) {
                     insertEnd(currentUsageIndex,
-                              event.startTime() - startTime(currentUsageIndex) - 1);
+                              event.timestamp() - startTime(currentUsageIndex) - 1);
                 }
-                currentUsageIndex = insertStart(event.startTime(), SmallItem);
+                currentUsageIndex = insertStart(event.timestamp(), SmallItem);
                 m_data.insert(currentUsageIndex, allocation);
             }
         }
@@ -212,8 +212,8 @@ void MemoryUsageModel::loadData()
                     m_maxSize = currentSize;
                 if (currentJSHeapIndex != -1)
                     insertEnd(currentJSHeapIndex,
-                              event.startTime() - startTime(currentJSHeapIndex) - 1);
-                currentJSHeapIndex = insertStart(event.startTime(), type.detailType);
+                              event.timestamp() - startTime(currentJSHeapIndex) - 1);
+                currentJSHeapIndex = insertStart(event.timestamp(), type.detailType);
                 m_data.insert(currentJSHeapIndex, allocation);
             }
         }

@@ -119,14 +119,14 @@ void FlameGraphModel::loadData(qint64 rangeStart, qint64 rangeEnd)
             continue;
 
         if (checkRanges) {
-            if ((event->startTime() + event->duration() < rangeStart)
-                    || (event->startTime() > rangeEnd))
+            if ((event->timestamp() + event->duration() < rangeStart)
+                    || (event->timestamp() > rangeEnd))
                 continue;
         }
 
         const QmlEvent *potentialParent = callStack.top();
         while (potentialParent &&
-               potentialParent->startTime() + potentialParent->duration() <= event->startTime()) {
+               potentialParent->timestamp() + potentialParent->duration() <= event->timestamp()) {
             callStack.pop();
             stackTop = stackTop->parent;
             potentialParent = callStack.top();

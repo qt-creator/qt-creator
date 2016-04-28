@@ -152,7 +152,7 @@ void InputEventsModel::loadData()
         if (!accepted(type))
             continue;
 
-        m_data.insert(insert(event.startTime(), 0, type.detailType),
+        m_data.insert(insert(event.timestamp(), 0, type.detailType),
                       InputEvent(static_cast<InputEventType>(event.numericData(0)),
                                  event.numericData(1), event.numericData(2)));
 

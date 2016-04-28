@@ -29,10 +29,10 @@
 namespace QmlProfiler {
 
 struct QmlEvent {
-    QmlEvent(qint64 startTime = -1, qint64 duration = -1, int typeIndex = -1,
+    QmlEvent(qint64 timestamp = -1, qint64 duration = -1, int typeIndex = -1,
                  qint64 num0 = 0, qint64 num1 = 0, qint64 num2 = 0, qint64 num3 = 0,
                  qint64 num4 = 0) :
-        m_startTime(startTime), m_duration(duration), m_dataType(NumericData),
+        m_timestamp(timestamp), m_duration(duration), m_dataType(NumericData),
         m_typeIndex(typeIndex)
     {
         m_numericData[0] = num0;
@@ -42,14 +42,14 @@ struct QmlEvent {
         m_numericData[4] = num4;
     }
 
-    QmlEvent(qint64 startTime, qint64 duration, int typeIndex, const QString &data)
-        : m_startTime(startTime), m_duration(duration), m_typeIndex(typeIndex)
+    QmlEvent(qint64 timestamp, qint64 duration, int typeIndex, const QString &data)
+        : m_timestamp(timestamp), m_duration(duration), m_typeIndex(typeIndex)
     {
         assignStringData(data);
     }
 
     QmlEvent(const QmlEvent &other) :
-        m_startTime(other.m_startTime), m_duration(other.m_duration),
+        m_timestamp(other.m_timestamp), m_duration(other.m_duration),
         m_dataType(other.m_dataType), m_typeIndex(other.m_typeIndex)
     {
         assignData(other);
@@ -61,7 +61,7 @@ struct QmlEvent {
             if (m_dataType == StringData)
                 delete m_stringData;
 
-            m_startTime = other.m_startTime;
+            m_timestamp = other.m_timestamp;
             m_duration = other.m_duration;
             m_typeIndex = other.m_typeIndex;
             m_dataType = other.m_dataType;
@@ -76,8 +76,8 @@ struct QmlEvent {
             delete m_stringData;
     }
 
-    qint64 startTime() const { return m_startTime; }
-    void setStartTime(qint64 startTime) { m_startTime = startTime; }
+    qint64 timestamp() const { return m_timestamp; }
+    void setTimestamp(qint64 timestamp) { m_timestamp = timestamp; }
 
     qint64 duration() const { return m_duration; }
     void setDuration(qint64 duration) { m_duration = duration; }
@@ -114,7 +114,7 @@ struct QmlEvent {
 
     bool isValid() const
     {
-        return m_startTime != -1;
+        return m_timestamp != -1;
     }
 
 private:
@@ -122,7 +122,7 @@ private:
     static const quint8 StringData = 254;
     static const quint8 NumericData = 255;
 
-    qint64 m_startTime;
+    qint64 m_timestamp;
     qint64 m_duration;
     union {
         qint64 m_numericData[5];

@@ -188,8 +188,8 @@ void QmlProfilerStatisticsModel::loadData(qint64 rangeStart, qint64 rangeEnd)
             continue;
 
         if (checkRanges) {
-            if ((event->startTime() + event->duration() < rangeStart)
-                    || (event->startTime() > rangeEnd))
+            if ((event->timestamp() + event->duration() < rangeStart)
+                    || (event->timestamp() > rangeEnd))
                 continue;
         }
 
@@ -208,17 +208,17 @@ void QmlProfilerStatisticsModel::loadData(qint64 rangeStart, qint64 rangeEnd)
         durations[event->typeIndex()].append(event->duration());
 
         // qml time computation
-        if (event->startTime() > lastEndTime) { // assume parent event if starts before last end
+        if (event->timestamp() > lastEndTime) { // assume parent event if starts before last end
             qmlTime += event->duration();
-            lastEndTime = event->startTime() + event->duration();
+            lastEndTime = event->timestamp() + event->duration();
         }
 
         //
         // binding loop detection
         //
         const QmlEvent *potentialParent = callStack.top();
-        while (potentialParent && !(potentialParent->startTime() + potentialParent->duration() >
-                    event->startTime())) {
+        while (potentialParent && !(potentialParent->timestamp() + potentialParent->duration() >
+                    event->timestamp())) {
             callStack.pop();
             potentialParent = callStack.top();
         }
@@ -362,14 +362,14 @@ void QmlProfilerStatisticsParentsModel::loadData()
             continue;
 
         // level computation
-        if (endtimesPerLevel[level] > event.startTime()) {
+        if (endtimesPerLevel[level] > event.timestamp()) {
             level++;
         } else {
             while (level > Constants::QML_MIN_LEVEL &&
-                   endtimesPerLevel[level-1] <= event.startTime())
+                   endtimesPerLevel[level-1] <= event.timestamp())
                 level--;
         }
-        endtimesPerLevel[level] = event.startTime() + event.duration();
+        endtimesPerLevel[level] = event.timestamp() + event.duration();
 
         int parentTypeIndex = -1;
         if (level > Constants::QML_MIN_LEVEL && lastParent.contains(level-1))
@@ -424,14 +424,14 @@ void QmlProfilerStatisticsChildrenModel::loadData()
             continue;
 
         // level computation
-        if (endtimesPerLevel[level] > event.startTime()) {
+        if (endtimesPerLevel[level] > event.timestamp()) {
             level++;
         } else {
             while (level > Constants::QML_MIN_LEVEL &&
-                   endtimesPerLevel[level-1] <= event.startTime())
+                   endtimesPerLevel[level-1] <= event.timestamp())
                 level--;
         }
-        endtimesPerLevel[level] = event.startTime() + event.duration();
+        endtimesPerLevel[level] = event.timestamp() + event.duration();
 
         int parentId = -1;
 

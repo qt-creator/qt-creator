@@ -84,10 +84,10 @@ void QmlProfilerAnimationsModel::loadData()
         qint64 estimatedDuration = event.numericData(0) > 0 ? 1e9/event.numericData(0) : 1;
 
         // the profiler registers the animation events at the end of them
-        qint64 realEndTime = event.startTime();
+        qint64 realEndTime = event.timestamp();
 
         // ranges should not overlap. If they do, our estimate wasn't accurate enough
-        qint64 realStartTime = qMax(event.startTime() - estimatedDuration,
+        qint64 realStartTime = qMax(event.timestamp() - estimatedDuration,
                                     minNextStartTimes[lastThread]);
 
         // Sometimes our estimate is far off or the server has miscalculated the frame rate
@@ -109,7 +109,7 @@ void QmlProfilerAnimationsModel::loadData()
             m_maxRenderThreadAnimations = qMax(lastEvent.animationcount,
                                                m_maxRenderThreadAnimations);
 
-        minNextStartTimes[lastThread] = event.startTime() + 1;
+        minNextStartTimes[lastThread] = event.timestamp() + 1;
 
         updateProgress(count(), referenceList.count());
     }

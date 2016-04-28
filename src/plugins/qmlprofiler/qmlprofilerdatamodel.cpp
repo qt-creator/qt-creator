@@ -174,7 +174,7 @@ bool QmlProfilerDataModel::isEmpty() const
 
 inline static bool operator<(const QmlEvent &t1, const QmlEvent &t2)
 {
-    return t1.startTime() < t2.startTime();
+    return t1.timestamp() < t2.timestamp();
 }
 
 inline static uint qHash(const QmlEventType &type)
@@ -271,7 +271,7 @@ qint64 QmlProfilerDataModel::lastTimeMark() const
     if (d->eventList.isEmpty())
         return 0;
 
-    return d->eventList.last().startTime() + d->eventList.last().duration();
+    return d->eventList.last().timestamp() + d->eventList.last().duration();
 }
 
 void QmlProfilerDataModel::detailsChanged(int requestId, const QString &newString)

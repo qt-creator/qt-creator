@@ -150,7 +150,7 @@ void SceneGraphTimelineModel::loadData()
             // look incomplete if that was left out as the printf profiler lists it, too, and people
             // are apparently comparing that. Unfortunately it is somewhat redundant as the other
             // parts of the breakdown are usually very short.
-            qint64 startTime = event.startTime() - event.numericData(0) - event.numericData(1) -
+            qint64 startTime = event.timestamp() - event.numericData(0) - event.numericData(1) -
                     event.numericData(2) - event.numericData(3);
             startTime += insert(startTime, event.numericData(0), event.typeIndex(), RenderPreprocess);
             startTime += insert(startTime, event.numericData(1), event.typeIndex(), RenderUpdate);
@@ -159,19 +159,19 @@ void SceneGraphTimelineModel::loadData()
             break;
         }
         case SceneGraphAdaptationLayerFrame: {
-            qint64 startTime = event.startTime() - event.numericData(1) - event.numericData(2);
+            qint64 startTime = event.timestamp() - event.numericData(1) - event.numericData(2);
             startTime += insert(startTime, event.numericData(1), event.typeIndex(), GlyphRender,
                                 event.numericData(0));
             insert(startTime, event.numericData(2), event.typeIndex(), GlyphStore, event.numericData(0));
             break;
         }
         case SceneGraphContextFrame: {
-            insert(event.startTime() - event.numericData(0), event.numericData(0), event.typeIndex(),
+            insert(event.timestamp() - event.numericData(0), event.numericData(0), event.typeIndex(),
                       Material);
             break;
         }
         case SceneGraphRenderLoopFrame: {
-            qint64 startTime = event.startTime() - event.numericData(0) - event.numericData(1) -
+            qint64 startTime = event.timestamp() - event.numericData(0) - event.numericData(1) -
                     event.numericData(2);
             startTime += insert(startTime, event.numericData(0), event.typeIndex(),
                                    RenderThreadSync);
@@ -181,7 +181,7 @@ void SceneGraphTimelineModel::loadData()
             break;
         }
         case SceneGraphTexturePrepare: {
-            qint64 startTime = event.startTime() - event.numericData(0) - event.numericData(1) -
+            qint64 startTime = event.timestamp() - event.numericData(0) - event.numericData(1) -
                     event.numericData(2) - event.numericData(3) - event.numericData(4);
             startTime += insert(startTime, event.numericData(0), event.typeIndex(), TextureBind);
             startTime += insert(startTime, event.numericData(1), event.typeIndex(), TextureConvert);
@@ -191,12 +191,12 @@ void SceneGraphTimelineModel::loadData()
             break;
         }
         case SceneGraphTextureDeletion: {
-            insert(event.startTime() - event.numericData(0), event.numericData(0), event.typeIndex(),
+            insert(event.timestamp() - event.numericData(0), event.numericData(0), event.typeIndex(),
                    TextureDeletion);
             break;
         }
         case SceneGraphPolishAndSync: {
-            qint64 startTime = event.startTime() - event.numericData(0) - event.numericData(1) -
+            qint64 startTime = event.timestamp() - event.numericData(0) - event.numericData(1) -
                     event.numericData(2) - event.numericData(3);
 
             startTime += insert(startTime, event.numericData(0), event.typeIndex(), Polish);
@@ -207,13 +207,13 @@ void SceneGraphTimelineModel::loadData()
         }
         case SceneGraphWindowsAnimations: {
             // GUI thread, separate animations stage
-            insert(event.startTime() - event.numericData(0), event.numericData(0), event.typeIndex(),
+            insert(event.timestamp() - event.numericData(0), event.numericData(0), event.typeIndex(),
                    Animations);
             break;
         }
         case SceneGraphPolishFrame: {
             // GUI thread, separate polish stage
-            insert(event.startTime() - event.numericData(0), event.numericData(0), event.typeIndex(),
+            insert(event.timestamp() - event.numericData(0), event.numericData(0), event.typeIndex(),
                    Polish);
             break;
         }

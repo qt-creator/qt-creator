@@ -109,10 +109,10 @@ void DebugMessagesModel::loadData()
 
     foreach (const QmlEvent &event, simpleModel->events()) {
         const QmlEventType &type = types[event.typeIndex()];
-        if (!accepted(type) || event.startTime() < 0)
+        if (!accepted(type) || event.timestamp() < 0)
             continue;
 
-        m_data.insert(insert(event.startTime(), 0, type.detailType),
+        m_data.insert(insert(event.timestamp(), 0, type.detailType),
                       MessageData(event.stringData(), event.typeIndex()));
         if (type.detailType > m_maximumMsgType)
             m_maximumMsgType = event.typeIndex();

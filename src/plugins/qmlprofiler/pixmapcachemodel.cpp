@@ -182,7 +182,7 @@ void PixmapCacheModel::loadData()
 
         PixmapCacheItem newEvent;
         newEvent.pixmapEventType = static_cast<PixmapEventType>(type.detailType);
-        qint64 pixmapStartTime = event.startTime();
+        qint64 pixmapStartTime = event.timestamp();
 
         newEvent.urlIndex = -1;
         for (QVector<Pixmap>::const_iterator it(m_pixmaps.cend()); it != m_pixmaps.cbegin();) {
@@ -232,7 +232,7 @@ void PixmapCacheModel::loadData()
             break;
         }
         case PixmapCacheCountChanged: {// Cache Size Changed Event
-            pixmapStartTime = event.startTime() + 1; // delay 1 ns for proper sorting
+            pixmapStartTime = event.timestamp() + 1; // delay 1 ns for proper sorting
 
             bool uncache = cumulatedCount > event.numericData(2);
             cumulatedCount = event.numericData(2);
@@ -348,7 +348,7 @@ void PixmapCacheModel::loadData()
             }
 
             PixmapState &state = pixmap.sizes[newEvent.sizeIndex];
-            // If the pixmap loading wasn't started, start it at traceStartTime()
+            // If the pixmap loading wasn't started, start it at tracetimestamp()
             if (state.loadState == Initial) {
                 newEvent.pixmapEventType = PixmapLoadingStarted;
                 newEvent.typeId = event.typeIndex();

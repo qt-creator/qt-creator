@@ -369,7 +369,7 @@ void QmlProfilerFileReader::loadEvents(QXmlStreamReader &stream)
                     continue;
                 }
 
-                event.setStartTime(attributes.value(_("startTime")).toLongLong());
+                event.setTimestamp(attributes.value(_("startTime")).toLongLong());
                 if (attributes.hasAttribute(_("duration")))
                     event.setDuration(attributes.value(_("duration")).toLongLong());
 
@@ -591,13 +591,12 @@ void QmlProfilerFileWriter::save(QIODevice *device)
         const QmlEvent &event = m_events[rangeIndex];
 
         stream.writeStartElement(_("range"));
-        stream.writeAttribute(_("startTime"), QString::number(event.startTime()));
+        stream.writeAttribute(_("startTime"), QString::number(event.timestamp()));
         if (event.duration() > 0) // no need to store duration of instantaneous events
             stream.writeAttribute(_("duration"), QString::number(event.duration()));
         stream.writeAttribute(_("eventIndex"), QString::number(event.typeIndex()));
 
         const QmlEventType &type = m_eventTypes[event.typeIndex()];
-
 
         if (type.message == Event) {
             if (type.detailType == AnimationFrame) {

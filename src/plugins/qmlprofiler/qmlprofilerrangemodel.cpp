@@ -77,7 +77,7 @@ void QmlProfilerRangeModel::loadData()
             continue;
 
         // store starttime-based instance
-        m_data.insert(insert(event.startTime(), event.duration(), event.typeIndex()),
+        m_data.insert(insert(event.timestamp(), event.duration(), event.typeIndex()),
                       QmlRangeEventStartInstance());
         updateProgress(count(), eventList.count() * 5);
     }
