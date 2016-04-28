@@ -764,6 +764,7 @@ void QmlProfilerTool::profilerDataModelStateChanged()
         clearDisplay();
         break;
     case QmlProfilerModelManager::AcquiringData :
+        restoreFeatureVisibility();
         d->m_recordButton->setEnabled(true); // Press recording button to stop recording
         setButtonsEnabled(false);            // Other buttons disabled
         break;
@@ -776,7 +777,6 @@ void QmlProfilerTool::profilerDataModelStateChanged()
             d->m_profilerState->setCurrentState(QmlProfilerStateManager::Idle);
         showSaveOption();
         updateTimeDisplay();
-        restoreFeatureVisibility();
         d->m_recordButton->setEnabled(true);
         setButtonsEnabled(true);
     break;
