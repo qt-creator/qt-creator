@@ -28,10 +28,12 @@
 #include "qmlprofilernotesmodel.h"
 #include "qmlprofilerdetailsrewriter.h"
 #include "qmlprofilereventtypes.h"
+#include "qmltypedevent.h"
 
 #include <utils/qtcassert.h>
 #include <QUrl>
 #include <QDebug>
+#include <QStack>
 #include <algorithm>
 
 namespace QmlProfiler {
@@ -39,9 +41,15 @@ namespace QmlProfiler {
 class QmlProfilerDataModel::QmlProfilerDataModelPrivate
 {
 public:
+    void rewriteType(int typeIndex);
+    int resolveType(const QmlEventType &type);
+    int resolveStackTop();
+
     QVector<QmlEventType> eventTypes;
     QVector<QmlEvent> eventList;
     QHash<QmlEventType, int> eventTypeIds;
+
+    QStack<QmlTypedEvent> rangesInProgress;
 
     QmlProfilerModelManager *modelManager;
     int modelId;
@@ -108,9 +116,7 @@ QmlProfilerDataModel::QmlProfilerDataModel(Utils::FileInProjectFinder *fileFinde
     connect(d->detailsRewriter, &QmlProfilerDetailsRewriter::rewriteDetailsString,
             this, &QmlProfilerDataModel::detailsChanged);
     connect(d->detailsRewriter, &QmlProfilerDetailsRewriter::eventDetailsChanged,
-            this, &QmlProfilerDataModel::detailsDone);
-    connect(this, &QmlProfilerDataModel::requestReload,
-            d->detailsRewriter, &QmlProfilerDetailsRewriter::reloadDocuments);
+            this, &QmlProfilerDataModel::allTypesLoaded);
 }
 
 QmlProfilerDataModel::~QmlProfilerDataModel()
@@ -142,6 +148,9 @@ void QmlProfilerDataModel::setData(qint64 traceStart, qint64 traceEnd,
     d->eventTypes = types;
     for (int id = 0; id < types.count(); ++id)
         d->eventTypeIds[types[id]] = id;
+
+    foreach (const QmlEvent &event, d->eventList)
+        d->modelManager->dispatch(event, d->eventTypes[event.typeIndex()]);
 }
 
 int QmlProfilerDataModel::count() const
@@ -156,6 +165,7 @@ void QmlProfilerDataModel::clear()
     d->eventList.clear();
     d->eventTypes.clear();
     d->eventTypeIds.clear();
+    d->rangesInProgress.clear();
     d->detailsRewriter->clearRequests();
 }
 
@@ -163,11 +173,6 @@ bool QmlProfilerDataModel::isEmpty() const
 {
     Q_D(const QmlProfilerDataModel);
     return d->eventList.isEmpty();
-}
-
-inline static bool operator<(const QmlEvent &t1, const QmlEvent &t2)
-{
-    return t1.timestamp() < t2.timestamp();
 }
 
 inline static uint qHash(const QmlEventType &type)
@@ -190,66 +195,139 @@ inline static bool operator==(const QmlEventType &type1,
             type1.location.filename == type2.location.filename;
 }
 
-void QmlProfilerDataModel::processData()
+void QmlProfilerDataModel::QmlProfilerDataModelPrivate::rewriteType(int typeIndex)
 {
-    Q_D(QmlProfilerDataModel);
-    // post-processing
+    QmlEventType &type = eventTypes[typeIndex];
+    type.displayName = getDisplayName(type);
+    type.data = getInitialDetails(type);
 
-    // sort events by start time, using above operator<
-    std::sort(d->eventList.begin(), d->eventList.end());
+    // Only bindings and signal handlers need rewriting
+    if (type.rangeType != Binding && type.rangeType != HandlingSignal)
+        return;
 
-    // rewrite strings
-    int n = d->eventTypes.count();
-    for (int i = 0; i < n; i++) {
-        QmlEventType *event = &d->eventTypes[i];
-        event->displayName = getDisplayName(*event);
-        event->data = getInitialDetails(*event);
+    // There is no point in looking for invalid locations
+    if (type.location.filename.isEmpty() || type.location.line < 0 || type.location.column < 0)
+        return;
 
-        //
-        // request further details from files
-        //
-
-        if (event->rangeType != Binding && event->rangeType != HandlingSignal)
-            continue;
-
-        // This skips anonymous bindings in Qt4.8 (we don't have valid location data for them)
-        if (event->location.filename.isEmpty())
-            continue;
-
-        // Skip non-anonymous bindings from Qt4.8 (we already have correct details for them)
-        if (event->location.column == -1)
-            continue;
-
-        d->detailsRewriter->requestDetailsForLocation(i, event->location);
-    }
-
-    emit requestReload();
+    detailsRewriter->requestDetailsForLocation(typeIndex, type.location);
 }
 
-void QmlProfilerDataModel::addEvent(Message message, RangeType rangeType, int detailType,
-                                    qint64 startTime, qint64 duration, const QString &data,
-                                    const QmlEventLocation &location, qint64 ndata1, qint64 ndata2,
-                                    qint64 ndata3, qint64 ndata4, qint64 ndata5)
+int QmlProfilerDataModel::QmlProfilerDataModelPrivate::resolveType(const QmlEventType &type)
+{
+    QHash<QmlEventType, int>::ConstIterator it = eventTypeIds.constFind(type);
+
+    int typeIndex = -1;
+    if (it != eventTypeIds.constEnd()) {
+        typeIndex = it.value();
+    } else {
+        typeIndex = eventTypes.size();
+        eventTypeIds[type] = typeIndex;
+        eventTypes.append(type);
+        rewriteType(typeIndex);
+    }
+    return typeIndex;
+}
+
+int QmlProfilerDataModel::QmlProfilerDataModelPrivate::resolveStackTop()
+{
+    if (rangesInProgress.isEmpty())
+        return -1;
+
+    QmlTypedEvent &typedEvent = rangesInProgress.top();
+    int typeIndex = typedEvent.event.typeIndex();
+    if (typeIndex >= 0)
+        return typeIndex;
+
+    typeIndex = resolveType(typedEvent.type);
+    typedEvent.event.setTypeIndex(typeIndex);
+    eventList.append(typedEvent.event);
+    modelManager->dispatch(eventList.last(), eventTypes[typeIndex]);
+    return typeIndex;
+}
+
+void QmlProfilerDataModel::addEvent(const QmlEvent &event, const QmlEventType &type)
 {
     Q_D(QmlProfilerDataModel);
-    QString displayName;
 
-    QmlEventType typeData(displayName, location, message, rangeType, detailType,
-                              message == DebugMessage ? QString() : data);
-    QmlEvent eventData = (message == DebugMessage) ?
-                QmlEvent(startTime, duration, -1, data) :
-                QmlEvent(startTime, duration, -1, {ndata1, ndata2, ndata3, ndata4, ndata5});
-
-    QHash<QmlEventType, int>::Iterator it = d->eventTypeIds.find(typeData);
-    if (it != d->eventTypeIds.end()) {
-        eventData.setTypeIndex(it.value());
-    } else {
-        eventData.setTypeIndex(d->eventTypes.size());
-        d->eventTypeIds[typeData] = eventData.typeIndex();
-        d->eventTypes.append(typeData);
+    // RangeData and RangeLocation always apply to the range on the top of the stack. Furthermore,
+    // all ranges are perfectly nested. This is why we can defer the type resolution until either
+    // the range ends or a child range starts. With only the information in RangeStart we wouldn't
+    // be able to uniquely identify the event type.
+    Message rangeStage = type.rangeType == MaximumRangeType ? type.message : event.rangeStage();
+    switch (rangeStage) {
+    case RangeStart:
+        d->resolveStackTop();
+        d->rangesInProgress.push(QmlTypedEvent({event, type}));
+        break;
+    case RangeEnd: {
+        int typeIndex = d->resolveStackTop();
+        QTC_ASSERT(typeIndex != -1, break);
+        d->eventList.append(event);
+        QmlEvent &appended = d->eventList.last();
+        appended.setTypeIndex(typeIndex);
+        d->modelManager->dispatch(appended, d->eventTypes[typeIndex]);
+        d->rangesInProgress.pop();
+        break;
     }
+    case RangeData:
+        d->rangesInProgress.top().type.data = type.data;
+        break;
+    case RangeLocation:
+        d->rangesInProgress.top().type.location = type.location;
+        break;
+    default: {
+        d->eventList.append(event);
+        QmlEvent &appended = d->eventList.last();
+        int typeIndex = d->resolveType(type);
+        appended.setTypeIndex(typeIndex);
+        d->modelManager->dispatch(appended, d->eventTypes[typeIndex]);
+        break;
+    }
+    }
+}
 
-    d->eventList.append(eventData);
+void QmlProfilerDataModel::replayEvents(qint64 rangeStart, qint64 rangeEnd,
+                                        QmlProfilerModelManager::EventLoader loader) const
+{
+    Q_D(const QmlProfilerDataModel);
+    QStack<QmlEvent> stack;
+    foreach (const QmlEvent &event, d->eventList) {
+        const QmlEventType &type = d->eventTypes[event.typeIndex()];
+        if (rangeStart != -1 && rangeEnd != -1) {
+            if (event.timestamp() < rangeStart) {
+                if (type.rangeType != MaximumRangeType) {
+                    if (event.rangeStage() == RangeStart)
+                        stack.push(event);
+                    else if (event.rangeStage() == RangeEnd)
+                        stack.pop();
+                }
+                continue;
+            } else if (event.timestamp() > rangeEnd) {
+                if (type.rangeType != MaximumRangeType) {
+                    if (event.rangeStage() == RangeEnd) {
+                        if (stack.isEmpty()) {
+                            QmlEvent endEvent(event);
+                            endEvent.setTimestamp(rangeEnd);
+                            loader(event, d->eventTypes[event.typeIndex()]);
+                        } else {
+                            stack.pop();
+                        }
+                    } else if (event.rangeStage() == RangeStart) {
+                        stack.push(event);
+                    }
+                }
+                continue;
+            } else if (!stack.isEmpty()) {
+                foreach (QmlEvent stashed, stack) {
+                    stashed.setTimestamp(rangeStart);
+                    loader(stashed, d->eventTypes[stashed.typeIndex()]);
+                }
+                stack.clear();
+            }
+        }
+
+        loader(event, type);
+    }
 }
 
 qint64 QmlProfilerDataModel::lastTimeMark() const
@@ -258,22 +336,20 @@ qint64 QmlProfilerDataModel::lastTimeMark() const
     if (d->eventList.isEmpty())
         return 0;
 
-    return d->eventList.last().timestamp() + d->eventList.last().duration();
+    return d->eventList.last().timestamp();
+}
+
+void QmlProfilerDataModel::finalize()
+{
+    Q_D(QmlProfilerDataModel);
+    d->detailsRewriter->reloadDocuments();
 }
 
 void QmlProfilerDataModel::detailsChanged(int requestId, const QString &newString)
 {
     Q_D(QmlProfilerDataModel);
     QTC_ASSERT(requestId < d->eventTypes.count(), return);
-
-    QmlEventType *event = &d->eventTypes[requestId];
-    event->data = newString;
-}
-
-void QmlProfilerDataModel::detailsDone()
-{
-    Q_D(QmlProfilerDataModel);
-    d->modelManager->processingDone();
+    d->eventTypes[requestId].data = newString;
 }
 
 } // namespace QmlProfiler

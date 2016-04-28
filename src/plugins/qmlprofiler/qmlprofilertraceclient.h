@@ -28,6 +28,7 @@
 #include "qmlprofilereventtypes.h"
 #include "qmleventlocation.h"
 #include "qmlprofiler_global.h"
+#include "qmltypedevent.h"
 
 #include <qmldebug/qmldebugclient.h>
 
@@ -60,12 +61,7 @@ signals:
     void traceFinished(qint64 timestamp, const QList<int> &engineIds);
     void traceStarted(qint64 timestamp, const QList<int> &engineIds);
 
-    void rangedEvent(Message, RangeType, int detailType, qint64 startTime, qint64 length,
-                     const QString &data, const QmlEventLocation &location, qint64 param1,
-                     qint64 param2, qint64 param3, qint64 param4, qint64 param5);
-
-    void debugMessage(qint64 timestamp, QtMsgType type, const QString &text,
-                      const QmlEventLocation &location);
+    void qmlEvent(const QmlEvent &event, const QmlEventType &type);
 
     void recordingChanged(bool arg);
     void recordedFeaturesChanged(quint64 features);

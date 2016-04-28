@@ -37,7 +37,7 @@ namespace Internal {
 
 FlameGraphView::FlameGraphView(QWidget *parent, QmlProfilerModelManager *manager) :
     QmlProfilerEventsView(parent), m_content(new QQuickWidget(this)),
-    m_model(new FlameGraphModel(manager, this)), m_isRestrictedToRange(false)
+    m_model(new FlameGraphModel(manager, this))
 {
     setWindowTitle(QStringLiteral("Flamegraph"));
     setObjectName(QStringLiteral("QmlProfilerFlamegraph"));
@@ -66,22 +66,6 @@ FlameGraphView::FlameGraphView(QWidget *parent, QmlProfilerModelManager *manager
             this, SIGNAL(gotoSourceLocation(QString,int,int)));
 }
 
-void FlameGraphView::clear()
-{
-    m_isRestrictedToRange = false;
-}
-
-void FlameGraphView::restrictToRange(qint64 rangeStart, qint64 rangeEnd)
-{
-    m_isRestrictedToRange = (rangeStart != -1 || rangeEnd != -1);
-    m_model->loadData(rangeStart, rangeEnd);
-}
-
-bool FlameGraphView::isRestrictedToRange() const
-{
-    return m_isRestrictedToRange;
-}
-
 void FlameGraphView::selectByTypeId(int typeIndex)
 {
     m_content->rootObject()->setProperty("selectedTypeId", typeIndex);
@@ -107,7 +91,7 @@ void FlameGraphView::contextMenuEvent(QContextMenuEvent *ev)
     menu.addActions(QmlProfilerTool::profilerContextMenuActions());
     menu.addSeparator();
     getGlobalStatsAction = menu.addAction(tr("Show Full Range"));
-    if (!isRestrictedToRange())
+    if (!m_model->modelManager()->isRestrictedToRange())
         getGlobalStatsAction->setEnabled(false);
 
     if (menu.exec(position) == getGlobalStatsAction)

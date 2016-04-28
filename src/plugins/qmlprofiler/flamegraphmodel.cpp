@@ -63,7 +63,7 @@ FlameGraphModel::FlameGraphModel(QmlProfilerModelManager *modelManager,
 void FlameGraphModel::clear()
 {
     beginResetModel();
-    m_stackBottom = FlameGraphData();
+    m_stackBottom = FlameGraphData(0, -1, 1);
     m_callStack.clear();
     m_callStack.append(QmlEvent());
     m_stackTop = &m_stackBottom;
@@ -102,15 +102,16 @@ void FlameGraphModel::loadEvent(const QmlEvent &event, const QmlEventType &type)
         beginResetModel();
 
     const QmlEvent *potentialParent = &(m_callStack.top());
-    while (potentialParent->isValid() &&
-           potentialParent->timestamp() + potentialParent->duration() <= event.timestamp()) {
+    if (event.rangeStage() == RangeEnd) {
+        m_stackTop->duration += event.timestamp() - potentialParent->timestamp();
         m_callStack.pop();
         m_stackTop = m_stackTop->parent;
         potentialParent = &(m_callStack.top());
+    } else {
+        QTC_ASSERT(event.rangeStage() == RangeStart, return);
+        m_callStack.push(event);
+        m_stackTop = pushChild(m_stackTop, event);
     }
-
-    m_callStack.push(event);
-    m_stackTop = pushChild(m_stackTop, event);
 }
 
 void FlameGraphModel::finalize()
@@ -126,31 +127,6 @@ void FlameGraphModel::onModelManagerStateChanged()
 {
     if (m_modelManager->state() == QmlProfilerModelManager::ClearingData)
         clear();
-    else if (m_modelManager->state() == QmlProfilerModelManager::ProcessingData)
-        loadData();
-}
-
-void FlameGraphModel::loadData(qint64 rangeStart, qint64 rangeEnd)
-{
-    clear();
-    const bool checkRanges = (rangeStart != -1) && (rangeEnd != -1);
-
-    const QVector<QmlEvent> &eventList = m_modelManager->qmlModel()->events();
-    const QVector<QmlEventType> &typesList = m_modelManager->qmlModel()->eventTypes();
-
-    for (int i = 0; i < eventList.size(); ++i) {
-        const QmlEvent &event = eventList[i];
-
-        if (checkRanges) {
-            if ((event.timestamp() + event.duration() < rangeStart)
-                    || (event.timestamp() > rangeEnd))
-                continue;
-        }
-
-        loadEvent(event, typesList[event.typeIndex()]);
-    }
-
-    finalize();
 }
 
 static QString nameForType(RangeType typeNumber)
@@ -223,12 +199,11 @@ FlameGraphData *FlameGraphModel::pushChild(FlameGraphData *parent, const QmlEven
     foreach (FlameGraphData *child, parent->children) {
         if (child->typeIndex == data.typeIndex()) {
             ++child->calls;
-            child->duration += data.duration();
             return child;
         }
     }
 
-    FlameGraphData *child = new FlameGraphData(parent, data.typeIndex(), data.duration());
+    FlameGraphData *child = new FlameGraphData(parent, data.typeIndex());
     parent->children.append(child);
     return child;
 }
@@ -291,6 +266,11 @@ QHash<int, QByteArray> FlameGraphModel::roleNames() const
     names[TimeInPercentRole] = "timeInPercent";
     names[RangeTypeRole] = "rangeType";
     return names;
+}
+
+QmlProfilerModelManager *FlameGraphModel::modelManager() const
+{
+    return m_modelManager;
 }
 
 } // namespace Internal

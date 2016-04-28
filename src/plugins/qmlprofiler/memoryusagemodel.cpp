@@ -142,12 +142,12 @@ bool MemoryUsageModel::accepted(const QmlEventType &type) const
 
 void MemoryUsageModel::loadEvent(const QmlEvent &event, const QmlEventType &type)
 {
-    while (!m_rangeStack.empty() && m_rangeStack.top().endTime < event.timestamp())
-        m_rangeStack.pop();
     if (type.message != MemoryAllocation) {
         if (type.rangeType != MaximumRangeType) {
-            m_rangeStack.push(RangeStackFrame(event.typeIndex(), event.timestamp(),
-                                            event.timestamp() + event.duration()));
+            if (event.rangeStage() == RangeStart)
+                m_rangeStack.push(RangeStackFrame(event.typeIndex(), event.timestamp()));
+            else if (event.rangeStage() == RangeEnd)
+                m_rangeStack.pop();
         }
         return;
     }

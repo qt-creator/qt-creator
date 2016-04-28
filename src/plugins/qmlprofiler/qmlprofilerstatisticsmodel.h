@@ -68,7 +68,7 @@ public:
     QmlProfilerStatisticsModel(QmlProfilerModelManager *modelManager, QObject *parent = 0);
     ~QmlProfilerStatisticsModel();
 
-    void setEventTypeAccepted(RangeType type, bool accepted);
+    void restrictToFeatures(qint64 features);
 
     const QHash<int, QmlEventStats> &getData() const;
     const QVector<QmlEventType> &getTypes() const;
@@ -77,16 +77,15 @@ public:
     int count() const;
     void clear();
 
-    void limitToRange(qint64 rangeStart, qint64 rangeEnd);
     void setRelativesModel(QmlProfilerStatisticsRelativesModel *childModel,
                            QmlProfilerStatisticsRelation relation);
+    QmlProfilerModelManager *modelManager() const;
 
 signals:
     void dataAvailable();
     void notesAvailable(int typeIndex);
 
 private:
-    void loadData(qint64 rangeStart = -1, qint64 rangeEnd = -1);
     void loadEvent(const QmlEvent &event, const QmlEventType &type);
     void finalize();
 
@@ -133,11 +132,11 @@ protected:
     QmlProfilerModelManager *m_modelManager;
 
     // for level computation
-    QHash<int, qint64> m_endtimesPerLevel;
+    QHash<int, qint64> m_startTimesPerLevel;
     int m_level = Constants::QML_MIN_LEVEL;
 
     // compute parent-child relationship and call count
-    QHash<int, int> m_lastParent;
+    QHash<int, int> m_typesPerLevel;
     const QmlProfilerStatisticsRelation m_relation;
 };
 

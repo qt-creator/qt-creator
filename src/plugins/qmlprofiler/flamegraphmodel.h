@@ -80,12 +80,12 @@ public:
     int columnCount(const QModelIndex &parent) const override;
     QVariant data(const QModelIndex &index, int role) const override;
     QHash<int, QByteArray> roleNames() const override;
+    QmlProfilerModelManager *modelManager() const;
 
 public slots:
     void loadEvent(const QmlEvent &event, const QmlEventType &type);
     void finalize();
     void onModelManagerStateChanged();
-    void loadData(qint64 rangeStart = -1, qint64 rangeEnd = -1);
     void loadNotes(int typeId, bool emitSignal);
     void clear();
 

@@ -49,22 +49,21 @@ public:
     const QVector<QmlEventType> &eventTypes() const;
     void setData(qint64 traceStart, qint64 traceEnd, const QVector<QmlEventType> &types,
                  const QVector<QmlEvent> &events);
-    void processData();
 
     int count() const;
     void clear();
     bool isEmpty() const;
-    void addEvent(Message message, RangeType rangeType, int bindingType, qint64 startTime,
-                  qint64 duration, const QString &data, const QmlEventLocation &location,
-                  qint64 ndata1, qint64 ndata2, qint64 ndata3, qint64 ndata4, qint64 ndata5);
+    void addEvent(const QmlEvent &event, const QmlEventType &type);
+    void replayEvents(qint64 startTime, qint64 endTime,
+                      QmlProfilerModelManager::EventLoader loader) const;
+    void finalize();
     qint64 lastTimeMark() const;
 
 signals:
-    void requestReload();
+    void allTypesLoaded();
 
 protected slots:
     void detailsChanged(int requestId, const QString &newString);
-    void detailsDone();
 
 private:
     class QmlProfilerDataModelPrivate;

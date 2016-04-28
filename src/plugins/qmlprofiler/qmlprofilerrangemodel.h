@@ -33,6 +33,7 @@
 
 #include <QVariantList>
 #include <QColor>
+#include <QStack>
 
 namespace QmlProfiler {
 class QmlProfilerModelManager;
@@ -85,6 +86,7 @@ private:
     void findBindingLoops();
 
     QVector<QmlRangeEventStartInstance> m_data;
+    QStack<int> m_stack;
     QVector<int> m_expandedRowTypes;
 };
 

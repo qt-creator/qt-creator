@@ -37,6 +37,8 @@
 #include <QFile>
 #include <QMessageBox>
 
+#include <functional>
+
 namespace QmlProfiler {
 namespace Internal {
 
@@ -59,22 +61,19 @@ Q_STATIC_ASSERT(sizeof(ProfileFeatureNames) == sizeof(char *) * MaximumProfileFe
 
 /////////////////////////////////////////////////////////////////////
 QmlProfilerTraceTime::QmlProfilerTraceTime(QObject *parent) :
-    QObject(parent), m_startTime(-1), m_endTime(-1)
-{
-}
-
-QmlProfilerTraceTime::~QmlProfilerTraceTime()
+    QObject(parent), m_startTime(-1), m_endTime(-1),
+    m_restrictedStartTime(-1), m_restrictedEndTime(-1)
 {
 }
 
 qint64 QmlProfilerTraceTime::startTime() const
 {
-    return m_startTime;
+    return m_restrictedStartTime != -1 ? m_restrictedStartTime : m_startTime;
 }
 
 qint64 QmlProfilerTraceTime::endTime() const
 {
-    return m_endTime;
+    return m_restrictedEndTime != -1 ? m_restrictedEndTime : m_endTime;
 }
 
 qint64 QmlProfilerTraceTime::duration() const
@@ -82,18 +81,22 @@ qint64 QmlProfilerTraceTime::duration() const
     return endTime() - startTime();
 }
 
+bool QmlProfilerTraceTime::isRestrictedToRange() const
+{
+    return m_restrictedStartTime != -1 || m_restrictedEndTime != -1;
+}
+
 void QmlProfilerTraceTime::clear()
 {
+    restrictToRange(-1, -1);
     setTime(-1, -1);
 }
 
 void QmlProfilerTraceTime::setTime(qint64 startTime, qint64 endTime)
 {
-    Q_ASSERT(startTime <= endTime);
-    if (startTime != m_startTime || endTime != m_endTime) {
-        m_startTime = startTime;
-        m_endTime = endTime;
-    }
+    QTC_ASSERT(startTime <= endTime, endTime = startTime);
+    m_startTime = startTime;
+    m_endTime = endTime;
 }
 
 void QmlProfilerTraceTime::decreaseStartTime(qint64 time)
@@ -116,6 +119,13 @@ void QmlProfilerTraceTime::increaseEndTime(qint64 time)
         else
             QTC_ASSERT(m_endTime >= m_startTime, m_startTime = m_endTime);
     }
+}
+
+void QmlProfilerTraceTime::restrictToRange(qint64 startTime, qint64 endTime)
+{
+    QTC_ASSERT(endTime == -1 || startTime <= endTime, endTime = startTime);
+    m_restrictedStartTime = startTime;
+    m_restrictedEndTime = endTime;
 }
 
 
@@ -153,6 +163,8 @@ QmlProfilerModelManager::QmlProfilerModelManager(Utils::FileInProjectFinder *fin
     d->state = Empty;
     d->traceTime = new QmlProfilerTraceTime(this);
     d->notesModel = new QmlProfilerNotesModel(this);
+    connect(d->model, &QmlProfilerDataModel::allTypesLoaded,
+            this, &QmlProfilerModelManager::processingDone);
 }
 
 QmlProfilerModelManager::~QmlProfilerModelManager()
@@ -247,34 +259,17 @@ const char *QmlProfilerModelManager::featureName(ProfileFeature feature)
     return ProfileFeatureNames[feature];
 }
 
-void QmlProfilerModelManager::addQmlEvent(Message message, RangeType rangeType, int detailType,
-                                          qint64 startTime, qint64 length, const QString &data,
-                                          const QmlEventLocation &location, qint64 ndata1,
-                                          qint64 ndata2, qint64 ndata3, qint64 ndata4,
-                                          qint64 ndata5)
+void QmlProfilerModelManager::addQmlEvent(const QmlEvent &event, const QmlEventType &type)
 {
-    // If trace start time was not explicitly set, use the first event
-    if (d->traceTime->startTime() == -1)
-        d->traceTime->setTime(startTime, startTime + d->traceTime->duration());
-
-    QTC_ASSERT(state() == AcquiringData, /**/);
-    d->model->addEvent(message, rangeType, detailType, startTime, length, data, location, ndata1,
-                       ndata2, ndata3, ndata4, ndata5);
-}
-
-void QmlProfilerModelManager::addDebugMessage(qint64 timestamp, QtMsgType messageType,
-                                              const QString &text, const QmlEventLocation &location)
-{
-    if (state() == AcquiringData)
-        d->model->addEvent(DebugMessage, MaximumRangeType, messageType, timestamp, 0, text,
-                           location, 0, 0, 0, 0, 0);
+    QTC_ASSERT(state() == AcquiringData, return);
+    d->model->addEvent(event, type);
 }
 
 void QmlProfilerModelManager::acquiringDone()
 {
     QTC_ASSERT(state() == AcquiringData, /**/);
     setState(ProcessingData);
-    d->model->processData();
+    d->model->finalize();
 }
 
 void QmlProfilerModelManager::processingDone()
@@ -282,8 +277,13 @@ void QmlProfilerModelManager::processingDone()
     QTC_ASSERT(state() == ProcessingData, /**/);
     // Load notes after the timeline models have been initialized ...
     // which happens on stateChanged(Done).
-    setState(Done);
+
+    foreach (const Finalizer &finalizer, d->finalizers)
+        finalizer();
+
     d->notesModel->loadData();
+    setState(Done);
+
     emit loadFinished();
 }
 
@@ -406,6 +406,26 @@ void QmlProfilerModelManager::clear()
     setRecordedFeatures(0);
 
     setState(Empty);
+}
+
+void QmlProfilerModelManager::restrictToRange(qint64 startTime, qint64 endTime)
+{
+    setState(ClearingData);
+    d->notesModel->saveData();
+    setVisibleFeatures(0);
+
+    startAcquiring();
+    d->model->replayEvents(startTime, endTime,
+                           std::bind(&QmlProfilerModelManager::dispatch, this,
+                                     std::placeholders::_1, std::placeholders::_2));
+    d->notesModel->loadData();
+    d->traceTime->restrictToRange(startTime, endTime);
+    acquiringDone();
+}
+
+bool QmlProfilerModelManager::isRestrictedToRange() const
+{
+    return d->traceTime->isRestrictedToRange();
 }
 
 void QmlProfilerModelManager::startAcquiring()

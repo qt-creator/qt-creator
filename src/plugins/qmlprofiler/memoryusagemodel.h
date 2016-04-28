@@ -76,12 +76,11 @@ protected:
 
 private:
     struct RangeStackFrame {
-        RangeStackFrame() : originTypeIndex(-1), startTime(-1), endTime(-1) {}
-        RangeStackFrame(int originTypeIndex, qint64 startTime, qint64 endTime) :
-            originTypeIndex(originTypeIndex), startTime(startTime), endTime(endTime) {}
+        RangeStackFrame() : originTypeIndex(-1), startTime(-1) {}
+        RangeStackFrame(int originTypeIndex, qint64 startTime) :
+            originTypeIndex(originTypeIndex), startTime(startTime) {}
         int originTypeIndex;
         qint64 startTime;
-        qint64 endTime;
     };
 
     static QString memoryTypeName(int type);

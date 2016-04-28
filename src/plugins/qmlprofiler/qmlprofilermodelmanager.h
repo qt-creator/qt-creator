@@ -48,11 +48,11 @@ class QMLPROFILER_EXPORT QmlProfilerTraceTime : public QObject
     Q_OBJECT
 public:
     explicit QmlProfilerTraceTime(QObject *parent);
-    ~QmlProfilerTraceTime();
 
     qint64 startTime() const;
     qint64 endTime() const;
     qint64 duration() const;
+    bool isRestrictedToRange() const;
 
 public slots:
     void clear();
@@ -60,10 +60,14 @@ public slots:
     void setTime(qint64 startTime, qint64 endTime);
     void decreaseStartTime(qint64 time);
     void increaseEndTime(qint64 time);
+    void restrictToRange(qint64 startTime, qint64 endTime);
 
 private:
     qint64 m_startTime;
     qint64 m_endTime;
+
+    qint64 m_restrictedStartTime;
+    qint64 m_restrictedEndTime;
 };
 
 } // End internal namespace
@@ -124,13 +128,11 @@ signals:
 
 public slots:
     void clear();
+    void restrictToRange(qint64 startTime, qint64 endTime);
+    bool isRestrictedToRange() const;
 
     void startAcquiring();
-    void addQmlEvent(Message message, RangeType rangeType, int bindingType, qint64 startTime,
-                     qint64 length, const QString &data, const QmlEventLocation &location,
-                     qint64 ndata1, qint64 ndata2, qint64 ndata3, qint64 ndata4, qint64 ndata5);
-    void addDebugMessage(qint64 timestamp, QtMsgType type, const QString &text,
-                         const QmlEventLocation &location);
+    void addQmlEvent(const QmlEvent &event, const QmlEventType &type);
 
     void save(const QString &filename);
     void load(const QString &filename);

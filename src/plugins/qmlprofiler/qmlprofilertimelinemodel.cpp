@@ -95,7 +95,6 @@ void QmlProfilerTimelineModel::dataChanged()
 
     switch (m_modelManager->state()) {
     case QmlProfilerModelManager::Done:
-        loadData();
         emit emptyChanged();
         break;
     case QmlProfilerModelManager::ClearingData:
@@ -137,23 +136,6 @@ QVariantMap QmlProfilerTimelineModel::locationFromTypeId(int index) const
     result.insert(QStringLiteral("column"), location.column);
 
     return result;
-}
-
-void QmlProfilerTimelineModel::loadData()
-{
-    QmlProfilerDataModel *simpleModel = modelManager()->qmlModel();
-    if (simpleModel->isEmpty())
-        return;
-
-    const QVector<QmlEventType> &types = simpleModel->eventTypes();
-
-    foreach (const QmlEvent &event, simpleModel->events()) {
-        const QmlEventType &type = types[event.typeIndex()];
-        if (accepted(type)) {
-            loadEvent(event, type);
-        }
-    }
-    finalize();
 }
 
 } // namespace QmlProfiler

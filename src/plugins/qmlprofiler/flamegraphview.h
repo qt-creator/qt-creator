@@ -40,10 +40,6 @@ class FlameGraphView : public QmlProfilerEventsView
 public:
     FlameGraphView(QWidget *parent, QmlProfilerModelManager *manager);
 
-    void clear() override;
-    void restrictToRange(qint64 rangeStart, qint64 rangeEnd) override;
-    bool isRestrictedToRange() const override;
-
 public slots:
     void selectByTypeId(int typeIndex) override;
     void onVisibleFeaturesChanged(quint64 features) override;
@@ -54,7 +50,6 @@ protected:
 private:
     QQuickWidget *m_content;
     FlameGraphModel *m_model;
-    bool m_isRestrictedToRange;
 };
 
 } // namespace Internal

@@ -133,17 +133,12 @@ qint64 QmlProfilerViewManager::selectionEnd() const
 
 bool QmlProfilerViewManager::isEventsRestrictedToRange() const
 {
-    foreach (QmlProfilerEventsView *view, d->eventsViews) {
-        if (view->isRestrictedToRange())
-            return true;
-    }
-    return false;
+    return d->profilerModelManager->isRestrictedToRange();
 }
 
 void QmlProfilerViewManager::restrictEventsToRange(qint64 rangeStart, qint64 rangeEnd)
 {
-    foreach (QmlProfilerEventsView *view, d->eventsViews)
-        view->restrictToRange(rangeStart, rangeEnd);
+    d->profilerModelManager->restrictToRange(rangeStart, rangeEnd);
 }
 
 void QmlProfilerViewManager::raiseTimeline()

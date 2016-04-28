@@ -78,10 +78,7 @@ public:
     explicit QmlProfilerStatisticsView(QWidget *parent,
                                        QmlProfilerModelManager *profilerModelManager);
     ~QmlProfilerStatisticsView();
-
     void clear() override;
-    void restrictToRange(qint64 rangeStart, qint64 rangeEnd) override;
-    bool isRestrictedToRange() const override;
 
 public slots:
     void selectByTypeId(int typeIndex) override;

@@ -53,8 +53,6 @@ public:
     Q_INVOKABLE virtual int bindingLoopDest(int index) const;
     QVariantMap locationFromTypeId(int index) const;
 
-    void loadData();
-
     virtual void loadEvent(const QmlEvent &event, const QmlEventType &type) = 0;
     virtual void finalize() = 0;
     void clear();

@@ -54,6 +54,7 @@ void QmlProfilerRangeModel::clear()
     m_expandedRowTypes.clear();
     m_expandedRowTypes << -1;
     m_data.clear();
+    m_stack.clear();
     QmlProfilerTimelineModel::clear();
 }
 
@@ -66,8 +67,14 @@ void QmlProfilerRangeModel::loadEvent(const QmlEvent &event, const QmlEventType 
 {
     Q_UNUSED(type);
     // store starttime-based instance
-    m_data.insert(insert(event.timestamp(), event.duration(), event.typeIndex()),
-                  QmlRangeEventStartInstance());
+    if (event.rangeStage() == RangeStart) {
+        int index = insertStart(event.timestamp(), event.typeIndex());
+        m_stack.append(index);
+        m_data.insert(index, QmlRangeEventStartInstance());
+    } else if (event.rangeStage() == RangeEnd) {
+        int index = m_stack.pop();
+        insertEnd(index, event.timestamp() - startTime(index));
+    }
 }
 
 void QmlProfilerRangeModel::finalize()
