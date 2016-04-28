@@ -65,6 +65,7 @@
 static const bool debugGdbServer = false;
 static const bool debugAll = false;
 static const bool verbose = true;
+static const bool noWifi = true;
 
 // ------- MobileDeviceLib interface --------
 namespace {
@@ -93,6 +94,13 @@ struct AMDeviceNotificationCallbackInfo {
     unsigned int _message;
     AMDeviceNotification *_subscription;
 };
+
+enum DeviceInterfaceType {
+    UNKNOWN = 0,
+    WIRED,
+    WIFI
+};
+
 typedef void (MDEV_API *AMDeviceNotificationCallback)(AMDeviceNotificationCallbackInfo *, void *);
 typedef am_res_t (MDEV_API *AMDeviceInstallApplicationCallback)(CFDictionaryRef, void *);
 typedef mach_error_t (MDEV_API *AMDeviceSecureInstallApplicationCallback)(CFDictionaryRef, int);
@@ -109,6 +117,7 @@ typedef am_res_t (MDEV_API *AMDeviceNotificationSubscribePtr)(AMDeviceNotificati
                                                                unsigned int, unsigned int, void *,
                                                                const AMDeviceNotification **);
 typedef am_res_t (MDEV_API *AMDeviceNotificationUnsubscribePtr)(void *);
+typedef int (MDEV_API* AMDeviceGetInterfaceTypePtr)(AMDeviceRef device);
 typedef CFPropertyListRef (MDEV_API *AMDeviceCopyValuePtr)(AMDeviceRef,CFStringRef,CFStringRef);
 typedef unsigned int (MDEV_API *AMDeviceGetConnectionIDPtr)(AMDeviceRef);
 typedef CFStringRef (MDEV_API *AMDeviceCopyDeviceIdentifierPtr)(AMDeviceRef);
@@ -367,6 +376,7 @@ public :
                                          unsigned int v1, unsigned int v2, void *v3,
                                          const AMDeviceNotification **handle);
     am_res_t deviceNotificationUnsubscribe(void *handle);
+    int deviceGetInterfaceType(AMDeviceRef device);
     CFPropertyListRef deviceCopyValue(AMDeviceRef,CFStringRef,CFStringRef);
     unsigned int deviceGetConnectionID(AMDeviceRef);
     CFStringRef deviceCopyDeviceIdentifier(AMDeviceRef);
@@ -403,6 +413,7 @@ private:
     AMDSetLogLevelPtr m_AMDSetLogLevel;
     AMDeviceNotificationSubscribePtr m_AMDeviceNotificationSubscribe;
     AMDeviceNotificationUnsubscribePtr m_AMDeviceNotificationUnsubscribe;
+    AMDeviceGetInterfaceTypePtr m_AMDeviceGetInterfaceType;
     AMDeviceCopyValuePtr m_AMDeviceCopyValue;
     AMDeviceGetConnectionIDPtr m_AMDeviceGetConnectionID;
     AMDeviceCopyDeviceIdentifierPtr m_AMDeviceCopyDeviceIdentifier;
@@ -729,6 +740,21 @@ void IosDeviceManagerPrivate::addDevice(AMDeviceRef device)
     QString devId = QString::fromCFString(s);
     if (s) CFRelease(s);
     CFRetain(device);
+
+    DeviceInterfaceType interfaceType = static_cast<DeviceInterfaceType>(lib()->deviceGetInterfaceType(device));
+    if (interfaceType == DeviceInterfaceType::UNKNOWN) {
+        if (debugAll)
+            qDebug() << "Skipping device." << devId << "Interface type: Unknown.";
+        return;
+    }
+
+    // Skip the wifi connections as debugging over wifi is not supported.
+    if (noWifi && interfaceType == DeviceInterfaceType::WIFI) {
+        if (debugAll)
+            qDebug() << "Skipping device." << devId << "Interface type: WIFI. Debugging over WIFI is not supported.";
+        return;
+    }
+
     if (debugAll)
         qDebug() << "addDevice " << devId;
     if (m_devices.contains(devId)) {
@@ -1847,6 +1873,9 @@ bool MobileDeviceLib::load()
     m_AMDeviceNotificationUnsubscribe = reinterpret_cast<AMDeviceNotificationUnsubscribePtr>(lib.resolve("AMDeviceNotificationUnsubscribe"));
     if (m_AMDeviceNotificationUnsubscribe == 0)
         addError("MobileDeviceLib does not define AMDeviceNotificationUnsubscribe");
+    m_AMDeviceGetInterfaceType = reinterpret_cast<AMDeviceGetInterfaceTypePtr>(lib.resolve("AMDeviceGetInterfaceType"));
+    if (m_AMDeviceGetInterfaceType == 0)
+        addError("MobileDeviceLib does not define AMDeviceGetInterfaceType");
     m_AMDeviceCopyValue = reinterpret_cast<AMDeviceCopyValuePtr>(lib.resolve("AMDeviceCopyValue"));
     if (m_AMDSetLogLevel == 0)
         addError("MobileDeviceLib does not define AMDSetLogLevel");
@@ -1935,6 +1964,13 @@ am_res_t MobileDeviceLib::deviceNotificationUnsubscribe(void *handle)
     if (m_AMDeviceNotificationUnsubscribe)
         return m_AMDeviceNotificationUnsubscribe(handle);
     return -1;
+}
+
+int MobileDeviceLib::deviceGetInterfaceType(AMDeviceRef device)
+{
+    if (m_AMDeviceGetInterfaceType)
+        return m_AMDeviceGetInterfaceType(device);
+    return DeviceInterfaceType::UNKNOWN;
 }
 
 CFPropertyListRef MobileDeviceLib::deviceCopyValue(AMDeviceRef device,CFStringRef group,CFStringRef key)
