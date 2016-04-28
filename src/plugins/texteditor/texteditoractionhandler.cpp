@@ -313,7 +313,7 @@ void TextEditorActionHandlerPrivate::createActions()
             [this] (TextEditorWidget *w) { w->insertLineBelow(); }, true, tr("Insert Line Below Current Line"),
             QKeySequence(tr("Ctrl+Return")));
     m_switchUtf8bomAction = registerAction(SWITCH_UTF8BOM,
-            [this] (TextEditorWidget *w) { w->switchUtf8bom(); }, true);
+            [this] (TextEditorWidget *w) { w->switchUtf8bom(); }, true, tr("Toggle UTF-8 BOM"));
     m_indentAction = registerAction(INDENT,
             [this] (TextEditorWidget *w) { w->indent(); }, true, tr("Indent"));
     m_unindentAction = registerAction(UNINDENT,
