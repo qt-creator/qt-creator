@@ -354,7 +354,7 @@ AndroidDeployQtStep::DeployResult AndroidDeployQtStep::runDeploy(QFutureInterfac
                    .arg(QDir::toNativeSeparators(m_command), args),
                    BuildStep::MessageOutput);
 
-    while (!m_process->waitForFinished(200)) {
+    while (m_process->state() != QProcess::NotRunning && !m_process->waitForFinished(200)) {
         if (fi.isCanceled()) {
             m_process->kill();
             m_process->waitForFinished();
