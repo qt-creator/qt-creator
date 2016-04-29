@@ -3308,6 +3308,7 @@ void DebuggerPluginPrivate::updateUiForRunConfiguration(RunConfiguration *rc)
 
 void DebuggerPluginPrivate::updateActiveLanguages()
 {
+    QTC_ASSERT(dd->m_currentEngine, return);
     const DebuggerLanguages languages = dd->m_currentEngine->runParameters().languages;
 //    Id perspective = (languages & QmlLanguage) && !(languages & CppLanguage)
 //            ? QmlPerspectiveId : CppPerspectiveId;
