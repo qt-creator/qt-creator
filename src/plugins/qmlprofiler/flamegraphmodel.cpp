@@ -58,19 +58,6 @@ FlameGraphModel::FlameGraphModel(QmlProfilerModelManager *modelManager,
     modelManager->announceFeatures(m_modelId, QmlDebug::Constants::QML_JS_RANGE_FEATURES);
 }
 
-void FlameGraphModel::setEventTypeAccepted(QmlDebug::RangeType type, bool accepted)
-{
-    if (accepted && !m_acceptedTypes.contains(type))
-        m_acceptedTypes << type;
-    else if (!accepted && m_acceptedTypes.contains(type))
-        m_acceptedTypes.removeOne(type);
-}
-
-bool FlameGraphModel::eventTypeAccepted(QmlDebug::RangeType type) const
-{
-    return m_acceptedTypes.contains(type);
-}
-
 void FlameGraphModel::clear()
 {
     m_modelManager->modelProxyCountUpdated(m_modelId, 0, 1);

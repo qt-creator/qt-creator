@@ -73,9 +73,6 @@ public:
 
     FlameGraphModel(QmlProfilerModelManager *modelManager, QObject *parent = 0);
 
-    void setEventTypeAccepted(QmlDebug::RangeType type, bool accepted);
-    bool eventTypeAccepted(QmlDebug::RangeType) const;
-
     QModelIndex index(int row, int column, const QModelIndex &parent) const override;
     QModelIndex parent(const QModelIndex &child) const override;
     Q_INVOKABLE int rowCount(const QModelIndex &parent = QModelIndex()) const override;
