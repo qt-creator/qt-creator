@@ -48,8 +48,8 @@ QT_BEGIN_NAMESPACE
     file:///home/user/test.qml:7:8: Invalid property assignment: double expected
     \endcode
 
-    You can use qDebug() or qWarning() to output errors to the console. This method
-    will attempt to open the file indicated by the error
+    You can use qDebug(), qInfo(), or qWarning() to output errors to the console.
+    This method will attempt to open the file indicated by the error
     and include additional contextual information.
     \code
     file:///home/user/test.qml:7:8: Invalid property assignment: double expected
@@ -239,16 +239,17 @@ QString QmlError::toString() const
     QUrl u(url());
     int l(line());
 
-    if (u.isEmpty()) {
+    if (u.isEmpty() || (u.isLocalFile() && u.path().isEmpty()))
         rv = QLatin1String("<Unknown File>");
-    } else if (l != -1) {
-        rv = u.toString() + QLatin1Char(':') + QString::number(l);
+    else
+        rv = u.toString();
+
+    if (l != -1) {
+        rv += QLatin1Char(':') + QString::number(l);
 
         int c(column());
         if (c != -1)
             rv += QLatin1Char(':') + QString::number(c);
-    } else {
-        rv = u.toString();
     }
 
     rv += QLatin1String(": ") + description();

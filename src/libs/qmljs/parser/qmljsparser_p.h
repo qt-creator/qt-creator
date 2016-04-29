@@ -23,6 +23,7 @@
 **
 ****************************************************************************/
 
+
 //
 //  W A R N I N G
 //  -------------
@@ -230,8 +231,8 @@ protected:
 
 
 
-#define J_SCRIPT_REGEXPLITERAL_RULE1 87
+#define J_SCRIPT_REGEXPLITERAL_RULE1 88
 
-#define J_SCRIPT_REGEXPLITERAL_RULE2 88
+#define J_SCRIPT_REGEXPLITERAL_RULE2 89
 
 QT_QML_END_NAMESPACE

@@ -46,5 +46,3 @@ sed -i -e 's|#include <QtCore/qset.h>|#include <QSet>|g' $me/qmljsengine_p.h
 perl -p -0777 -i -e 's/QT_QML_BEGIN_NAMESPACE/#include <qmljs\/qmljsconstants.h>\nQT_QML_BEGIN_NAMESPACE/' qmljsengine_p.h
 
 ./changeLicense.py $me/../qmljs_global.h qml*.{cpp,h}
-
-#patch -R -p5 < parser.patch

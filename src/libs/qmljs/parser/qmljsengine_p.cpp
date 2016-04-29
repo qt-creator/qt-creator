@@ -127,11 +127,11 @@ Lexer *Engine::lexer() const
 void Engine::setLexer(Lexer *lexer)
 { _lexer = lexer; }
 
-void Engine::setDirectives(Directives *directives)
-{ _directives = directives; }
-
 Directives *Engine::directives() const
 { return _directives; }
+
+void Engine::setDirectives(Directives *directives)
+{ _directives = directives; }
 
 MemoryPool *Engine::pool()
 { return &_pool; }

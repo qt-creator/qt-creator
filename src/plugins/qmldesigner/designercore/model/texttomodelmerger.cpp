@@ -1448,13 +1448,13 @@ ModelNode TextToModelMerger::createModelNode(const TypeName &typeName,
 
     if (isCustomParserType(typeName))
         nodeSource = textAt(context->doc(),
-                                    astObjectType->identifierToken.offset,
+                                    astObjectType->identifierToken,
                                     astNode->lastSourceLocation());
 
 
     if (isComponentType(typeName) || isImplicitComponent) {
         QString componentSource = extractComponentFromQml(textAt(context->doc(),
-                                  astObjectType->identifierToken.offset,
+                                  astObjectType->identifierToken,
                                   astNode->lastSourceLocation()));
 
 

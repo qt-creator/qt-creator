@@ -48,6 +48,8 @@ QT_QML_BEGIN_NAMESPACE
 
 namespace QmlJS {
 
+class Managed;
+
 class QML_PARSER_EXPORT MemoryPool : public QSharedData
 {
     MemoryPool(const MemoryPool &other);
@@ -90,6 +92,8 @@ public:
         _blockCount = -1;
         _ptr = _end = 0;
     }
+
+    template <typename Tp> Tp *New() { return new (this->allocate(sizeof(Tp))) Tp(); }
 
 private:
     void *allocate_helper(size_t size)

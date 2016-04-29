@@ -341,7 +341,7 @@ static inline bool isIdentifierStart(QChar ch)
     // fast path for ascii
     if ((ch.unicode() >= 'a' && ch.unicode() <= 'z') ||
         (ch.unicode() >= 'A' && ch.unicode() <= 'Z') ||
-        ch == QLatin1Char('$') || ch == QLatin1Char('_'))
+        ch == '$' || ch == '_')
         return true;
 
     switch (ch.category()) {
@@ -364,7 +364,7 @@ static bool isIdentifierPart(QChar ch)
     if ((ch.unicode() >= 'a' && ch.unicode() <= 'z') ||
         (ch.unicode() >= 'A' && ch.unicode() <= 'Z') ||
         (ch.unicode() >= '0' && ch.unicode() <= '9') ||
-        ch == QLatin1Char('$') || ch == QLatin1Char('_') ||
+        ch == '$' || ch == '_' ||
         ch.unicode() == 0x200c /* ZWNJ */ || ch.unicode() == 0x200d /* ZWJ */)
         return true;
 
@@ -691,7 +691,7 @@ again:
         _validTokenText = true;
         _tokenText.resize(0);
         startCode--;
-        while (startCode != _codePtr - 1) 
+        while (startCode != _codePtr - 1)
             _tokenText += *startCode++;
 
         while (_codePtr <= _endPtr) {
@@ -879,8 +879,7 @@ again:
 int Lexer::scanNumber(QChar ch)
 {
     if (ch != QLatin1Char('0')) {
-        QByteArray buf;
-        buf.reserve(64);
+        QVarLengthArray<char, 64> buf;
         buf += ch.toLatin1();
 
         QChar n = _char;
@@ -1217,12 +1216,60 @@ bool Lexer::canInsertAutomaticSemicolon(int token) const
             || _followsClosingBrace;
 }
 
-bool Lexer::scanDirectives(Directives *directives)
+static const int uriTokens[] = {
+    QmlJSGrammar::T_IDENTIFIER,
+    QmlJSGrammar::T_PROPERTY,
+    QmlJSGrammar::T_SIGNAL,
+    QmlJSGrammar::T_READONLY,
+    QmlJSGrammar::T_ON,
+    QmlJSGrammar::T_BREAK,
+    QmlJSGrammar::T_CASE,
+    QmlJSGrammar::T_CATCH,
+    QmlJSGrammar::T_CONTINUE,
+    QmlJSGrammar::T_DEFAULT,
+    QmlJSGrammar::T_DELETE,
+    QmlJSGrammar::T_DO,
+    QmlJSGrammar::T_ELSE,
+    QmlJSGrammar::T_FALSE,
+    QmlJSGrammar::T_FINALLY,
+    QmlJSGrammar::T_FOR,
+    QmlJSGrammar::T_FUNCTION,
+    QmlJSGrammar::T_IF,
+    QmlJSGrammar::T_IN,
+    QmlJSGrammar::T_INSTANCEOF,
+    QmlJSGrammar::T_NEW,
+    QmlJSGrammar::T_NULL,
+    QmlJSGrammar::T_RETURN,
+    QmlJSGrammar::T_SWITCH,
+    QmlJSGrammar::T_THIS,
+    QmlJSGrammar::T_THROW,
+    QmlJSGrammar::T_TRUE,
+    QmlJSGrammar::T_TRY,
+    QmlJSGrammar::T_TYPEOF,
+    QmlJSGrammar::T_VAR,
+    QmlJSGrammar::T_VOID,
+    QmlJSGrammar::T_WHILE,
+    QmlJSGrammar::T_CONST,
+    QmlJSGrammar::T_DEBUGGER,
+    QmlJSGrammar::T_RESERVED_WORD,
+    QmlJSGrammar::T_WITH,
+
+    QmlJSGrammar::EOF_SYMBOL
+};
+static inline bool isUriToken(int token)
 {
-    if (_qmlMode) {
-        // the directives are a Javascript-only extension.
-        return false;
+    const int *current = uriTokens;
+    while (*current != QmlJSGrammar::EOF_SYMBOL) {
+        if (*current == token)
+            return true;
+        ++current;
     }
+    return false;
+}
+
+bool Lexer::scanDirectives(Directives *directives, DiagnosticMessage *error)
+{
+    Q_ASSERT(!_qmlMode);
 
     lex(); // fetch the first token
 
@@ -1230,24 +1277,33 @@ bool Lexer::scanDirectives(Directives *directives)
         return true;
 
     do {
+        const int lineNumber = tokenStartLine();
+        const int column = tokenStartColumn();
+
         lex(); // skip T_DOT
 
-        const int lineNumber = tokenStartLine();
-
         if (! (_tokenKind == T_IDENTIFIER || _tokenKind == T_RESERVED_WORD))
-            return false; // expected a valid QML/JS directive
+            return true; // expected a valid QML/JS directive
 
         const QString directiveName = tokenText();
 
         if (! (directiveName == QLatin1String("pragma") ||
-               directiveName == QLatin1String("import")))
+               directiveName == QLatin1String("import"))) {
+            error->message = QCoreApplication::translate("QmlParser", "Syntax error");
+            error->loc.startLine = tokenStartLine();
+            error->loc.startColumn = tokenStartColumn();
             return false; // not a valid directive name
+        }
 
         // it must be a pragma or an import directive.
         if (directiveName == QLatin1String("pragma")) {
             // .pragma library
-            if (! (lex() == T_IDENTIFIER && tokenText() == QLatin1String("library")))
+            if (! (lex() == T_IDENTIFIER && tokenText() == QLatin1String("library"))) {
+                error->message = QCoreApplication::translate("QmlParser", "Syntax error");
+                error->loc.startLine = tokenStartLine();
+                error->loc.startColumn = tokenStartColumn();
                 return false; // expected `library
+            }
 
             // we found a .pragma library directive
             directives->pragmaLibrary();
@@ -1266,22 +1322,53 @@ bool Lexer::scanDirectives(Directives *directives)
                 fileImport = true;
                 pathOrUri = tokenText();
 
+                if (!pathOrUri.endsWith(QLatin1String("js"))) {
+                    error->message = QCoreApplication::translate("QmlParser","Imported file must be a script");
+                    error->loc.startLine = tokenStartLine();
+                    error->loc.startColumn = tokenStartColumn();
+                    return false;
+                }
+
             } else if (_tokenKind == T_IDENTIFIER) {
                 // .import T_IDENTIFIER (. T_IDENTIFIER)* T_NUMERIC_LITERAL as T_IDENTIFIER
 
-                pathOrUri = tokenText();
-
-                lex(); // skip the first T_IDENTIFIER
-                for (; _tokenKind == T_DOT; lex()) {
-                    if (lex() != T_IDENTIFIER)
+                while (true) {
+                    if (!isUriToken(_tokenKind)) {
+                        error->message = QCoreApplication::translate("QmlParser","Invalid module URI");
+                        error->loc.startLine = tokenStartLine();
+                        error->loc.startColumn = tokenStartColumn();
                         return false;
+                    }
 
-                    pathOrUri += QLatin1Char('.');
-                    pathOrUri += tokenText();
+                    pathOrUri.append(tokenText());
+
+                    lex();
+                    if (tokenStartLine() != lineNumber) {
+                        error->message = QCoreApplication::translate("QmlParser","Invalid module URI");
+                        error->loc.startLine = tokenStartLine();
+                        error->loc.startColumn = tokenStartColumn();
+                        return false;
+                    }
+                    if (_tokenKind != QmlJSGrammar::T_DOT)
+                        break;
+
+                    pathOrUri.append(QLatin1Char('.'));
+
+                    lex();
+                    if (tokenStartLine() != lineNumber) {
+                        error->message = QCoreApplication::translate("QmlParser","Invalid module URI");
+                        error->loc.startLine = tokenStartLine();
+                        error->loc.startColumn = tokenStartColumn();
+                        return false;
+                    }
                 }
 
-                if (_tokenKind != T_NUMERIC_LITERAL)
+                if (_tokenKind != T_NUMERIC_LITERAL) {
+                    error->message = QCoreApplication::translate("QmlParser","Module import requires a version");
+                    error->loc.startLine = tokenStartLine();
+                    error->loc.startColumn = tokenStartColumn();
                     return false; // expected the module version number
+                }
 
                 version = tokenText();
             }
@@ -1289,22 +1376,51 @@ bool Lexer::scanDirectives(Directives *directives)
             //
             // recognize the mandatory `as' followed by the module name
             //
-            if (! (lex() == T_IDENTIFIER && tokenText() == QLatin1String("as")))
+            if (! (lex() == T_IDENTIFIER && tokenText() == QLatin1String("as") && tokenStartLine() == lineNumber)) {
+                if (fileImport)
+                    error->message = QCoreApplication::translate("QmlParser", "File import requires a qualifier");
+                else
+                    error->message = QCoreApplication::translate("QmlParser", "Module import requires a qualifier");
+                if (tokenStartLine() != lineNumber) {
+                    error->loc.startLine = lineNumber;
+                    error->loc.startColumn = column;
+                } else {
+                    error->loc.startLine = tokenStartLine();
+                    error->loc.startColumn = tokenStartColumn();
+                }
                 return false; // expected `as'
+            }
 
-            if (lex() != T_IDENTIFIER)
+            if (lex() != T_IDENTIFIER || tokenStartLine() != lineNumber) {
+                if (fileImport)
+                    error->message = QCoreApplication::translate("QmlParser", "File import requires a qualifier");
+                else
+                    error->message = QCoreApplication::translate("QmlParser", "Module import requires a qualifier");
+                error->loc.startLine = tokenStartLine();
+                error->loc.startColumn = tokenStartColumn();
                 return false; // expected module name
+            }
 
             const QString module = tokenText();
+            if (!module.at(0).isUpper()) {
+                error->message = QCoreApplication::translate("QmlParser","Invalid import qualifier");
+                error->loc.startLine = tokenStartLine();
+                error->loc.startColumn = tokenStartColumn();
+                return false;
+            }
 
             if (fileImport)
-                directives->importFile(pathOrUri, module);
+                directives->importFile(pathOrUri, module, lineNumber, column);
             else
-                directives->importModule(pathOrUri, version, module);
+                directives->importModule(pathOrUri, version, module, lineNumber, column);
         }
 
-        if (tokenStartLine() != lineNumber)
+        if (tokenStartLine() != lineNumber) {
+            error->message = QCoreApplication::translate("QmlParser", "Syntax error");
+            error->loc.startLine = tokenStartLine();
+            error->loc.startColumn = tokenStartColumn();
             return false; // the directives cannot span over multiple lines
+        }
 
         // fetch the first token after the .pragma/.import directive
         lex();
