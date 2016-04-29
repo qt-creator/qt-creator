@@ -102,7 +102,9 @@ public:
                                 const QmlJSRefactoringChanges &refactoring)
     {
         QString componentName = m_componentName;
-        QString path = QFileInfo(fileName()).path();
+
+        const QString currentFileName = currentFile->qmljsDocument()->fileName();
+        QString path = QFileInfo(currentFileName).path();
 
         QmlJS::PropertyReader propertyReader(currentFile->qmljsDocument(), m_initializer);
         QStringList result;
@@ -127,7 +129,7 @@ public:
         bool confirm = ComponentNameDialog::go(&componentName, &path,
                                                sortedPropertiesWithoutId,
                                                sourcePreview,
-                                               QFileInfo(fileName()).fileName(),
+                                               QFileInfo(currentFileName).fileName(),
                                                &result,
                                                Core::ICore::dialogParent());
         if (!confirm)
@@ -182,10 +184,10 @@ public:
         if (!refactoring.createFile(newFileName, newComponentSource))
             return;
 
-        if (path == QFileInfo(fileName()).path()) {
+        if (path == QFileInfo(currentFileName).path()) {
             // hack for the common case, next version should use the wizard
             ProjectExplorer::Node * oldFileNode =
-                    ProjectExplorer::SessionManager::nodeForFile(Utils::FileName::fromString(fileName()));
+                    ProjectExplorer::SessionManager::nodeForFile(Utils::FileName::fromString(currentFileName));
             if (oldFileNode) {
                 ProjectExplorer::FolderNode *containingFolder = oldFileNode->parentFolderNode();
                 if (containingFolder)
