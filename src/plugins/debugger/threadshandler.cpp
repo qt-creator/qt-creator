@@ -60,13 +60,13 @@ static const QIcon &emptyIcon()
     return icon;
 }
 
-class ThreadItem : public TreeItem, public ThreadData
+class ThreadItem : public TreeItem
 {
     Q_DECLARE_TR_FUNCTIONS(Debugger::Internal::ThreadsHandler)
 
 public:
     ThreadItem(const ThreadsHandler *handler, const ThreadData &data = ThreadData())
-        : ThreadData(data), handler(handler)
+        : threadData(data), handler(handler)
     {}
 
     QVariant data(int column, int role) const
@@ -79,10 +79,10 @@ public:
         case Qt::DecorationRole:
             // Return icon that indicates whether this is the active stack frame.
             if (column == 0)
-                return id == handler->currentThread() ? positionIcon() : emptyIcon();
+                return threadData.id == handler->currentThread() ? positionIcon() : emptyIcon();
             break;
         case ThreadData::IdRole:
-            return id.raw();
+            return threadData.id.raw();
         default:
             break;
         }
@@ -91,7 +91,7 @@ public:
 
     Qt::ItemFlags flags(int column) const
     {
-        return stopped ? TreeItem::flags(column) : Qt::ItemFlags(0);
+        return threadData.stopped ? TreeItem::flags(column) : Qt::ItemFlags(0);
     }
 
     QString threadToolTip() const
@@ -103,29 +103,29 @@ public:
         QTextStream str(&rc);
         str << "<html><head/><body><table>"
             << start << ThreadsHandler::tr("Thread&nbsp;id:")
-            << sep << id.raw() << end;
-        if (!targetId.isEmpty())
+            << sep << threadData.id.raw() << end;
+        if (!threadData.targetId.isEmpty())
             str << start << ThreadsHandler::tr("Target&nbsp;id:")
-                << sep << targetId << end;
-        if (!groupId.isEmpty())
+                << sep << threadData.targetId << end;
+        if (!threadData.groupId.isEmpty())
             str << start << ThreadsHandler::tr("Group&nbsp;id:")
-                << sep << groupId << end;
-        if (!name.isEmpty())
+                << sep << threadData.groupId << end;
+        if (!threadData.name.isEmpty())
             str << start << ThreadsHandler::tr("Name:")
-                << sep << name << end;
-        if (!state.isEmpty())
+                << sep << threadData.name << end;
+        if (!threadData.state.isEmpty())
             str << start << ThreadsHandler::tr("State:")
-                << sep << state << end;
-        if (!core.isEmpty())
+                << sep << threadData.state << end;
+        if (!threadData.core.isEmpty())
             str << start << ThreadsHandler::tr("Core:")
-                << sep << core << end;
-        if (address) {
+                << sep << threadData.core << end;
+        if (threadData.address) {
             str << start << ThreadsHandler::tr("Stopped&nbsp;at:") << sep;
-            if (!function.isEmpty())
-                str << function << "<br>";
-            if (!fileName.isEmpty())
-                str << fileName << ':' << lineNumber << "<br>";
-            str << formatToolTipAddress(address);
+            if (!threadData.function.isEmpty())
+                str << threadData.function << "<br>";
+            if (!threadData.fileName.isEmpty())
+                str << threadData.fileName << ':' << threadData.lineNumber << "<br>";
+            str << formatToolTipAddress(threadData.address);
         }
         str << "</table></body></html>";
         return rc;
@@ -135,83 +135,84 @@ public:
     {
         switch (column) {
         case ThreadData::IdColumn:
-            return id.raw();
+            return threadData.id.raw();
         case ThreadData::FunctionColumn:
-            return function;
+            return threadData.function;
         case ThreadData::FileColumn:
-            return fileName.isEmpty() ? module : fileName;
+            return threadData.fileName.isEmpty() ? threadData.module : threadData.fileName;
         case ThreadData::LineColumn:
-            return lineNumber >= 0
-                    ? QString::number(lineNumber) : QString();
+            return threadData.lineNumber >= 0
+                    ? QString::number(threadData.lineNumber) : QString();
         case ThreadData::AddressColumn:
-            return address > 0
-                    ? QLatin1String("0x") + QString::number(address, 16)
+            return threadData.address > 0
+                    ? QLatin1String("0x") + QString::number(threadData.address, 16)
                     : QString();
         case ThreadData::CoreColumn:
-            return core;
+            return threadData.core;
         case ThreadData::StateColumn:
-            return state;
+            return threadData.state;
         case ThreadData::TargetIdColumn:
-            if (targetId.startsWith(QLatin1String("Thread ")))
-                return targetId.mid(7);
-            return targetId;
+            if (threadData.targetId.startsWith(QLatin1String("Thread ")))
+                return threadData.targetId.mid(7);
+            return threadData.targetId;
         case ThreadData::NameColumn:
-            return name;
+            return threadData.name;
         case ThreadData::DetailsColumn:
-            return details;
+            return threadData.details;
         case ThreadData::ComboNameColumn:
-            return QString::fromLatin1("#%1 %2").arg(id.raw()).arg(name);
+            return QString::fromLatin1("#%1 %2").arg(threadData.id.raw()).arg(threadData.name);
         }
         return QVariant();
     }
 
     void notifyRunning() // Clear state information.
     {
-        address = 0;
-        function.clear();
-        fileName.clear();
-        frameLevel = -1;
-        state.clear();
-        lineNumber = -1;
-        stopped = false;
+        threadData.address = 0;
+        threadData.function.clear();
+        threadData.fileName.clear();
+        threadData.frameLevel = -1;
+        threadData.state.clear();
+        threadData.lineNumber = -1;
+        threadData.stopped = false;
         update();
     }
 
     void notifyStopped()
     {
-        stopped = true;
+        threadData.stopped = true;
         update();
     }
 
     void mergeThreadData(const ThreadData &other)
     {
         if (!other.core.isEmpty())
-            core = other.core;
+            threadData.core = other.core;
         if (!other.fileName.isEmpty())
-            fileName = other.fileName;
+            threadData.fileName = other.fileName;
         if (!other.targetId.isEmpty())
-            targetId = other.targetId;
+            threadData.targetId = other.targetId;
         if (!other.name.isEmpty())
-            name = other.name;
+            threadData.name = other.name;
         if (other.frameLevel != -1)
-            frameLevel = other.frameLevel;
+            threadData.frameLevel = other.frameLevel;
         if (!other.function.isEmpty())
-            function = other.function;
+            threadData.function = other.function;
         if (other.address)
-            address = other.address;
+            threadData.address = other.address;
         if (!other.module.isEmpty())
-            module = other.module;
+            threadData.module = other.module;
         if (!other.details.isEmpty())
-            details = other.details;
+            threadData.details = other.details;
         if (!other.state.isEmpty())
-            state = other.state;
+            threadData.state = other.state;
         if (other.lineNumber != -1)
-            lineNumber = other.lineNumber;
+            threadData.lineNumber = other.lineNumber;
         update();
     }
 
 
 public:
+    ThreadData threadData;
     const ThreadsHandler * const handler;
 };
 
@@ -249,7 +250,7 @@ ThreadsHandler::ThreadsHandler()
 
 static ThreadItem *itemForThreadId(const ThreadsHandler *handler, ThreadId threadId)
 {
-    const auto matcher = [threadId](ThreadItem *item) { return item->id == threadId; };
+    const auto matcher = [threadId](ThreadItem *item) { return item->threadData.id == threadId; };
     return handler->findItemAtLevel<ThreadItem *>(1, matcher);
 }
 
@@ -286,7 +287,7 @@ ThreadId ThreadsHandler::currentThread() const
 ThreadId ThreadsHandler::threadAt(int index) const
 {
     QTC_ASSERT(index >= 0 && index < rootItem()->childCount(), return ThreadId());
-    return static_cast<ThreadItem *>(rootItem()->childAt(index))->id;
+    return static_cast<ThreadItem *>(rootItem()->childAt(index))->threadData.id;
 }
 
 void ThreadsHandler::setCurrentThread(ThreadId id)
@@ -350,14 +351,14 @@ void ThreadsHandler::updateThreadBox()
     QStringList list;
     auto items = itemsAtLevel<ThreadItem *>(1);
     foreach (ThreadItem *item, items)
-        list.append(QString::fromLatin1("#%1 %2").arg(item->id.raw()).arg(item->name));
+        list.append(QString::fromLatin1("#%1 %2").arg(item->threadData.id.raw()).arg(item->threadData.name));
     Internal::setThreadBoxContents(list, indexForThreadId(this, m_currentId));
 }
 
 ThreadData ThreadsHandler::thread(ThreadId id) const
 {
     if (ThreadItem *item = itemForThreadId(this, id))
-        return *item;
+        return item->threadData;
     return ThreadData();
 }
 
@@ -371,7 +372,7 @@ bool ThreadsHandler::notifyGroupExited(const QByteArray &groupId)
     QList<ThreadItem *> list;
     auto items = itemsAtLevel<ThreadItem *>(1);
     foreach (ThreadItem *item, items)
-        if (item->groupId == groupId)
+        if (item->threadData.groupId == groupId)
             list.append(item);
     foreach (ThreadItem *item, list)
         delete takeItem(item);
