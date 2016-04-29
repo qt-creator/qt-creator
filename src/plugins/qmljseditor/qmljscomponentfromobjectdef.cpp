@@ -34,6 +34,7 @@
 
 #include <qmljs/parser/qmljsast_p.h>
 #include <qmljs/qmljsdocument.h>
+#include <qmljs/qmljsmodelmanagerinterface.h>
 #include <qmljs/qmljsutils.h>
 #include <qmljs/qmljspropertyreader.h>
 #include <qmljs/qmljsrewriter.h>
@@ -251,6 +252,18 @@ void ComponentFromObjectDef::match(const QmlJSQuickFixInterface &interface, Quic
             return;
         }
     }
+}
+
+void ComponentFromObjectDef::perform(const QString &fileName, QmlJS::AST::UiObjectDefinition *objDef)
+{
+    QmlJSRefactoringChanges refactoring(QmlJS::ModelManagerInterface::instance(),
+                                        QmlJS::ModelManagerInterface::instance()->snapshot());
+    QmlJSRefactoringFilePtr current = refactoring.file(fileName);
+
+    QmlJSQuickFixInterface interface;
+    Operation operation(interface, objDef);
+
+    operation.performChanges(current, refactoring);
 }
 
 } //namespace QmlJSEditor

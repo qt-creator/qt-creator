@@ -28,13 +28,13 @@
 #include "qmljsquickfix.h"
 
 namespace QmlJSEditor {
-namespace Internal {
 
-class ComponentFromObjectDef: public QmlJSQuickFixFactory
+class QMLJSEDITOR_EXPORT ComponentFromObjectDef : public QmlJSQuickFixFactory
 {
 public:
     void match(const QmlJSQuickFixInterface &interface, QuickFixOperations &result);
+
+    static void perform(const QString &fileName, QmlJS::AST::UiObjectDefinition *objDef);
 };
 
-} // namespace Internal
 } // namespace QmlJSEditor
