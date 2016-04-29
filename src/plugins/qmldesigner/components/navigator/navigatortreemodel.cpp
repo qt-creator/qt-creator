@@ -32,7 +32,6 @@
 #include <variantproperty.h>
 #include <metainfo.h>
 #include <abstractview.h>
-#include <rewriterview.h>
 #include <invalididexception.h>
 #include <rewritingexception.h>
 #include <modelnodecontextmenu.h>

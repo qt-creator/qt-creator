@@ -25,6 +25,7 @@
 
 #include "texttomodelmerger.h"
 
+#include "rewritererror.h"
 #include "modelnodepositionstorage.h"
 #include "abstractproperty.h"
 #include "bindingproperty.h"

@@ -28,13 +28,12 @@
 #include "qmldesignercorelib_global.h"
 #include "exception.h"
 #include "abstractview.h"
+#include "rewritererror.h"
 
 #include <QScopedPointer>
 #include <QUrl>
 
 namespace QmlJS {
-class DiagnosticMessage;
-class LookupContext;
 class Document;
 class ScopeChain;
 }
@@ -50,45 +49,6 @@ class ModelToTextMerger;
 class ModelNodePositionStorage;
 
 } //Internal
-
-class RewriterError {
-public:
-    enum Type {
-        NoError = 0,
-        InternalError = 1,
-        ParseError = 2
-    };
-
-public:
-    RewriterError();
-    RewriterError(const QmlJS::DiagnosticMessage &qmlError, const QUrl &document);
-    RewriterError(const QString &shortDescription);
-    RewriterError(Exception *exception);
-
-    Type type() const
-    { return m_type; }
-
-    int line() const
-    { return m_line; }
-
-    int column() const
-    { return m_column; }
-
-    QString description() const
-    { return m_description; }
-
-    QUrl url() const
-    { return m_url; }
-
-    QString toString() const;
-
-private:
-    Type m_type;
-    int m_line;
-    int m_column;
-    QString m_description;
-    QUrl m_url;
-};
 
 class QMLDESIGNERCORE_EXPORT RewriterView : public AbstractView
 {

@@ -24,12 +24,12 @@
 ****************************************************************************/
 
 #include "designmodewidget.h"
+
 #include "styledoutputpaneplaceholder.h"
 #include "qmldesignerplugin.h"
 #include "crumblebar.h"
 #include "documentwarningwidget.h"
 
-#include <rewriterview.h>
 #include <nodeinstanceview.h>
 #include <itemlibrarywidget.h>
 

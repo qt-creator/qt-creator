@@ -25,34 +25,54 @@
 
 #pragma once
 
-#include <utils/faketooltip.h>
-#include <rewritererror.h>
+#include "exception.h"
+#include <QUrl>
+#include <QCoreApplication>
 
-QT_BEGIN_NAMESPACE
-class QLabel;
-QT_END_NAMESPACE
-
+namespace QmlJS {
+class DiagnosticMessage;
+}
 
 namespace QmlDesigner {
-namespace Internal {
 
-class DesignModeWidget;
-
-class DocumentWarningWidget : public Utils::FakeToolTip
-{
-    Q_OBJECT
+class RewriterError {
+    Q_DECLARE_TR_FUNCTIONS(QmlDesigner::RewriterError)
+public:
+    enum Type {
+        NoError = 0,
+        InternalError = 1,
+        ParseError = 2
+    };
 
 public:
-    explicit DocumentWarningWidget(DesignModeWidget *parent = 0);
+    RewriterError();
+    RewriterError(const QmlJS::DiagnosticMessage &qmlError, const QUrl &document);
+    RewriterError(const QString &shortDescription);
+    RewriterError(Exception *exception);
 
-    void setError(const RewriterError &error);
+    Type type() const
+    { return m_type; }
+
+    int line() const
+    { return m_line; }
+
+    int column() const
+    { return m_column; }
+
+    QString description() const
+    { return m_description; }
+
+    QUrl url() const
+    { return m_url; }
+
+    QString toString() const;
 
 private:
-    QLabel *m_errorMessage;
-    QLabel *m_goToError;
-    RewriterError m_error;
-    DesignModeWidget *m_designModeWidget;
+    Type m_type;
+    int m_line;
+    int m_column;
+    QString m_description;
+    QUrl m_url;
 };
 
-} // namespace Internal
-} // namespace Designer
+} //QmlDesigner

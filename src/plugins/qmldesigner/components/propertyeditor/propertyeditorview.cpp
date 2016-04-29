@@ -39,7 +39,6 @@
 #include <bindingproperty.h>
 
 #include <nodeabstractproperty.h>
-#include <rewriterview.h>
 
 #include <coreplugin/icore.h>
 #include <utils/fileutils.h>
