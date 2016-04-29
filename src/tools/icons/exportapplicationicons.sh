@@ -30,9 +30,9 @@
 # imagemagick, creating .ico files via imagemagick and .icns
 # files via iconutil (OSX only).
 
-# Inkscape is required by this script
-if ! hash inkscape 2>/dev/null; then
-    echo "Inkscape was not found in PATH" >&2
+# optipng is required by this script
+if ! hash optipng 2>/dev/null; then
+    echo "optipng was not found in PATH" >&2
     exit 1
 fi
 
@@ -56,6 +56,7 @@ do
        iconIDs="${iconIDs} ${applicationName}_icon_${applicationIconSize}x${applicationIconSize}"
     done
 done
+
 # Adding the icons for the OSX document type icon for .ui files
 for uiFileIconSize in 16 32 128 256 512;\
 do
@@ -63,12 +64,20 @@ do
     uiFileIconIDs="${uiFileIconIDs} ${uiFileIconID} ${uiFileIconID}@2x"
 done
 iconIDs="${iconIDs} ${uiFileIconIDs}"
-# Creating the inkscape .png export commands for the iconIDs and executing them in one go
-for iconID in $iconIDs;\
+
+# Copying the logos for Qt Creator's sources. Without shadows!
+creatorLogoDir="logo"
+rm -rf $creatorLogoDir
+mkdir $creatorLogoDir
+for uiFileIconSize in 16 24 32 64 128 256 512;\
 do
-   inkscapeCommands="${inkscapeCommands}\napplicationicons.svg --export-id=${iconID} --export-id-only --export-png=${iconID}.png"
+    creatorLogoSource="qtcreator_icon_${uiFileIconSize}x${uiFileIconSize}.png"
+    creatorLogoTargetDir="${creatorLogoDir}/${uiFileIconSize}"
+    creatorLogoTarget="${creatorLogoTargetDir}/QtProject-qtcreator.png"
+    optipng $creatorLogoSource -o 7 -strip all
+    mkdir $creatorLogoTargetDir
+    cp $creatorLogoSource $creatorLogoTarget
 done
-echo -e $inkscapeCommands | inkscape --shell
 
 # Adding the shadows to the .png files
 for applicationName in $applicationNames;\
@@ -98,6 +107,12 @@ do
     convert ${icoFiles} ${applicationName}.ico
 done
 
+# Optimizing the .pngs
+for iconID in $iconIDs;\
+do
+   optipng "${iconID}.png" -o 7 -strip all
+done
+
 # Preparing application .iconsets for the conversion to .icns
 for applicationName in $applicationNames;\
 do
@@ -124,7 +139,6 @@ do
     targetFileName=`echo $uiFileIconID | cut -c 8-`
     cp ${uiFileIconID}.png ${uiFileIconsetName}/${targetFileName}.png
 done
-
 
 # Convertion the .iconsets to .icns files
 # iconutil is only available on OSX
