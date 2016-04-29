@@ -30,9 +30,11 @@
 #include "crumblebar.h"
 #include "documentwarningwidget.h"
 
+#include <texteditor/textdocument.h>
 #include <nodeinstanceview.h>
 #include <itemlibrarywidget.h>
 
+#include <coreplugin/modemanager.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/designmode.h>
 #include <coreplugin/icore.h>
@@ -316,6 +318,13 @@ void DesignModeWidget::setup()
     // warning frame should be not in layout, but still child of the widget
     m_warningWidget = new DocumentWarningWidget(this);
     m_warningWidget->setVisible(false);
+    connect(m_warningWidget, &DocumentWarningWidget::gotoCodeClicked, [=]
+        (const QString &filePath, int codeLine, int codeColumn) {
+            Q_ASSERT(textEditor()->textDocument()->filePath().toString() == filePath);
+            textEditor()->gotoLine(codeLine, codeColumn);
+            Core::ModeManager::activateMode(Core::Constants::MODE_EDIT);
+        }
+    );
 
     QList<Core::SideBarItem*> sideBarItems;
     QList<Core::SideBarItem*> leftSideBarItems;
@@ -447,15 +456,6 @@ ViewManager &DesignModeWidget::viewManager()
     return QmlDesignerPlugin::instance()->viewManager();
 }
 
-void DesignModeWidget::resizeEvent(QResizeEvent *event)
-{
-    if (m_warningWidget) {
-        QPoint warningWidgetCenterPoint = m_warningWidget->rect().center();
-        m_warningWidget->move(QPoint(event->size().width() / 2, event->size().height() / 2) - warningWidgetCenterPoint);
-    }
-    QWidget::resizeEvent(event);
-}
-
 void DesignModeWidget::setupNavigatorHistory(Core::IEditor *editor)
 {
     if (!m_keepNavigatorHistory)
@@ -569,7 +569,6 @@ void DesignModeWidget::showMessageBox(const QList<RewriterError> &errors)
     Q_ASSERT(!errors.isEmpty());
     m_warningWidget->setError(errors.first());
     m_warningWidget->setVisible(true);
-    m_warningWidget->move(width() / 2, height() / 2);
 }
 
 CrumbleBar *DesignModeWidget::crumbleBar() const

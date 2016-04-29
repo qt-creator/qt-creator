@@ -94,9 +94,6 @@ private slots:
     void toolBarOnGoBackClicked();
     void toolBarOnGoForwardClicked();
 
-protected:
-    void resizeEvent(QResizeEvent *event);
-
 private: // functions
     enum InitializeStatus { NotInitialized, Initializing, Initialized };
 

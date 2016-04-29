@@ -25,22 +25,19 @@
 
 #include "documentwarningwidget.h"
 
-#include "designmodewidget.h"
-
-#include <coreplugin/modemanager.h>
-#include <coreplugin/coreconstants.h>
-
 #include <QLabel>
 #include <QVBoxLayout>
+#include <QEvent>
+
+#include <QDebug>
 
 namespace QmlDesigner {
 namespace Internal {
 
-DocumentWarningWidget::DocumentWarningWidget(DesignModeWidget *parent) :
+DocumentWarningWidget::DocumentWarningWidget(QWidget *parent) :
         Utils::FakeToolTip(parent),
-        m_errorMessage(new QLabel(tr("Placeholder"), this)),
-        m_goToError(new QLabel(this)),
-        m_designModeWidget(parent)
+        m_errorMessage(new QLabel(this)),
+        m_goToError(new QLabel(this))
 {
     setWindowFlags(Qt::Widget); //We only want the visual style from a ToolTip
     setForegroundRole(QPalette::ToolTipText);
@@ -50,9 +47,8 @@ DocumentWarningWidget::DocumentWarningWidget(DesignModeWidget *parent) :
     m_errorMessage->setForegroundRole(QPalette::ToolTipText);
     m_goToError->setText(tr("<a href=\"goToError\">Go to error</a>"));
     m_goToError->setForegroundRole(QPalette::Link);
-    connect(m_goToError, &QLabel::linkActivated, this, [=]() {
-        m_designModeWidget->textEditor()->gotoLine(m_error.line(), m_error.column() - 1);
-        Core::ModeManager::activateMode(Core::Constants::MODE_EDIT);
+    connect(m_goToError, &QLabel::linkActivated, this, [=](const QString &/*link*/) {
+        emit gotoCodeClicked(m_error.url().toLocalFile(), m_error.line(), m_error.column() - 1);
     });
 
     QVBoxLayout *layout = new QVBoxLayout(this);
@@ -60,6 +56,27 @@ DocumentWarningWidget::DocumentWarningWidget(DesignModeWidget *parent) :
     layout->setSpacing(5);
     layout->addWidget(m_errorMessage);
     layout->addWidget(m_goToError, 1, Qt::AlignRight);
+
+    parent->installEventFilter(this);
+}
+
+void DocumentWarningWidget::moveToParentCenter()
+{
+    move(parentWidget()->rect().center() - rect().center());
+}
+
+bool DocumentWarningWidget::eventFilter(QObject *object, QEvent *event)
+{
+    if (event->type() == QEvent::Resize) {
+        moveToParentCenter();
+    }
+    return QObject::eventFilter(object, event);
+}
+
+void DocumentWarningWidget::showEvent(QShowEvent *event)
+{
+    moveToParentCenter();
+    Utils::FakeToolTip::showEvent(event);
 }
 
 void DocumentWarningWidget::setError(const RewriterError &error)
@@ -67,7 +84,7 @@ void DocumentWarningWidget::setError(const RewriterError &error)
     m_error = error;
     QString str;
     if (error.type() == RewriterError::ParseError) {
-        str = tr("%3 (%1:%2)").arg(QString::number(error.line()), QString::number(error.column()), error.description());
+        str = QString("%3 (%1:%2)").arg(error.line()).arg(error.column()).arg(error.description());
         m_goToError->show();
     }  else if (error.type() == RewriterError::InternalError) {
         str = tr("Internal error (%1)").arg(error.description());

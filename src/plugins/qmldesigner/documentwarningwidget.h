@@ -36,22 +36,25 @@ QT_END_NAMESPACE
 namespace QmlDesigner {
 namespace Internal {
 
-class DesignModeWidget;
-
 class DocumentWarningWidget : public Utils::FakeToolTip
 {
     Q_OBJECT
 
 public:
-    explicit DocumentWarningWidget(DesignModeWidget *parent = 0);
+    explicit DocumentWarningWidget(QWidget *parent);
 
     void setError(const RewriterError &error);
-
+signals:
+    void gotoCodeClicked(const QString filePath, int codeLine, int codeColumn);
+protected:
+    bool eventFilter(QObject *object, QEvent *event) override;
+    void showEvent(QShowEvent *event) override;
 private:
+    void moveToParentCenter();
+
     QLabel *m_errorMessage;
     QLabel *m_goToError;
     RewriterError m_error;
-    DesignModeWidget *m_designModeWidget;
 };
 
 } // namespace Internal
