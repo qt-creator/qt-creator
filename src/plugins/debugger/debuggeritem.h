@@ -101,9 +101,10 @@ public:
     bool operator==(const DebuggerItem &other) const;
     bool operator!=(const DebuggerItem &other) const { return !operator==(other); }
 
+    void reinitializeFromFile();
+
 private:
     DebuggerItem(const QVariant &id);
-    void reinitializeFromFile();
     void initMacroExpander();
 
     QVariant m_id;
