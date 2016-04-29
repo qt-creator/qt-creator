@@ -48,6 +48,8 @@
 
 #include <QSettings>
 #include <QToolBar>
+#include <QLayout>
+#include <QBoxLayout>
 
 using Core::MiniSplitter;
 using Core::IEditor;
