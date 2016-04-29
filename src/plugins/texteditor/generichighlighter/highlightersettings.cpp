@@ -27,13 +27,13 @@
 
 #include <coreplugin/icore.h>
 #include <utils/hostosinfo.h>
+#include <utils/synchronousprocess.h>
 
 #include <QSettings>
 #include <QLatin1String>
 #include <QLatin1Char>
 #include <QDir>
 #include <QFile>
-#include <QProcess>
 #include <QStringList>
 
 namespace TextEditor {
@@ -69,11 +69,12 @@ QString findFallbackDefinitionsLocation()
         QStringList programs;
         programs << QLatin1String("kde-config") << QLatin1String("kde4-config");
         foreach (const QString &program, programs) {
-            QProcess process;
-            process.start(program, QStringList(QLatin1String("--prefix")));
-            if (process.waitForStarted(5000)) {
-                process.waitForFinished(5000);
-                QString output = QString::fromLocal8Bit(process.readAllStandardOutput());
+            Utils::SynchronousProcess process;
+            process.setTimeoutS(5);
+            Utils::SynchronousProcessResponse response
+                    = process.run(program, QStringList(QLatin1String("--prefix")));
+            if (response.result == Utils::SynchronousProcessResponse::Finished) {
+                QString output = response.stdOut;
                 output.remove(QLatin1Char('\n'));
                 for (int i = 0; i < kateSyntaxCount; ++i) {
                     dir.setPath(output + kateSyntax[i]);

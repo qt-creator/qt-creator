@@ -50,6 +50,7 @@
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
+#include <utils/synchronousprocess.h>
 
 #include <QInputDialog>
 #include <QMessageBox>
@@ -354,7 +355,10 @@ AndroidDeployQtStep::DeployResult AndroidDeployQtStep::runDeploy(QFutureInterfac
                    .arg(QDir::toNativeSeparators(m_command), args),
                    BuildStep::MessageOutput);
 
-    while (m_process->state() != QProcess::NotRunning && !m_process->waitForFinished(200)) {
+    while (!m_process->waitForFinished(200)) {
+        if (m_process->state() == QProcess::NotRunning)
+            break;
+
         if (fi.isCanceled()) {
             m_process->kill();
             m_process->waitForFinished();
@@ -464,25 +468,12 @@ void AndroidDeployQtStep::run(QFutureInterface<bool> &fi)
 
 void AndroidDeployQtStep::runCommand(const QString &program, const QStringList &arguments)
 {
-    QProcess buildProc;
+    Utils::SynchronousProcess buildProc;
+    buildProc.setTimeoutS(2 * 60);
     emit addOutput(tr("Package deploy: Running command \"%1 %2\".").arg(program).arg(arguments.join(QLatin1Char(' '))), BuildStep::MessageOutput);
-    buildProc.start(program, arguments);
-    if (!buildProc.waitForStarted()) {
-        emit addOutput(tr("Packaging error: Could not start command \"%1 %2\". Reason: %3")
-            .arg(program).arg(arguments.join(QLatin1Char(' '))).arg(buildProc.errorString()), BuildStep::ErrorMessageOutput);
-        return;
-    }
-    if (!buildProc.waitForFinished(2 * 60 * 1000)
-            || buildProc.error() != QProcess::UnknownError
-            || buildProc.exitCode() != 0) {
-        QString mainMessage = tr("Packaging error: Command \"%1 %2\" failed.")
-                .arg(program).arg(arguments.join(QLatin1Char(' ')));
-        if (buildProc.error() != QProcess::UnknownError)
-            mainMessage += QLatin1Char(' ') + tr("Reason: %1").arg(buildProc.errorString());
-        else
-            mainMessage += tr("Exit code: %1").arg(buildProc.exitCode());
-        emit addOutput(mainMessage, BuildStep::ErrorMessageOutput);
-    }
+    Utils::SynchronousProcessResponse response = buildProc.run(program, arguments);
+    if (response.result != Utils::SynchronousProcessResponse::Finished || response.exitCode != 0)
+        emit addOutput(response.exitMessage(program, 2 * 60), BuildStep::ErrorMessageOutput);
 }
 
 AndroidDeviceInfo AndroidDeployQtStep::deviceInfo() const

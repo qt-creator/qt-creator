@@ -211,7 +211,7 @@ void ConsoleProcess::stop()
     killStub();
     if (isRunning()) {
         d->m_process.terminate();
-        if (!d->m_process.waitForFinished(1000)) {
+        if (!d->m_process.waitForFinished(1000) && d->m_process.state() == QProcess::Running) {
             d->m_process.kill();
             d->m_process.waitForFinished();
         }

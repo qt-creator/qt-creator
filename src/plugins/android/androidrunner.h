@@ -90,6 +90,7 @@ private:
     bool adbShellAmNeedsQuotes();
 
 private:
+    bool runAdb(const QStringList &args, QString *errorMessage = nullptr, int timeoutS = 10);
     QProcess m_adbLogcatProcess;
     QProcess m_psProc;
     QTimer m_checkPIDTimer;

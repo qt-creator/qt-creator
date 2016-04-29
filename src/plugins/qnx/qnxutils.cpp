@@ -123,7 +123,7 @@ QList<Utils::EnvironmentItem> QnxUtils::qnxEnvironmentFromEnvFile(const QString 
 
     // waiting for finish
     QApplication::setOverrideCursor(Qt::BusyCursor);
-    bool waitResult = process.waitForFinished(10000);
+    bool waitResult = process.waitForFinished(10000) || process.state() == QProcess::NotRunning;
     QApplication::restoreOverrideCursor();
     if (!waitResult) {
         Utils::SynchronousProcess::stopProcess(process);

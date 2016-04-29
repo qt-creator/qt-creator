@@ -206,7 +206,7 @@ void Project::handleBinary(const QString &item)
         qDebug() << "COULD NOT START";
         return;
     }
-    if (!proc.waitForFinished()) {
+    if (!proc.waitForFinished() || proc.state() == QProcess::NotRunning) {
         qDebug() << "COULD NOT FINISH";
         return;
     }

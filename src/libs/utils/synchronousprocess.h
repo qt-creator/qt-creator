@@ -59,6 +59,7 @@ struct QTCREATOR_UTILS_EXPORT SynchronousProcessResponse
 
     // Helper to format an exit message.
     QString exitMessage(const QString &binary, int timeoutS) const;
+    QString allOutput() const;
 
     Result result;
     int exitCode;

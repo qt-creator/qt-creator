@@ -40,24 +40,22 @@ bool BuildableHelperLibrary::isQtChooser(const QFileInfo &info)
 
 QString BuildableHelperLibrary::qtChooserToQmakePath(const QString &path)
 {
-    const char toolDir[] = "QTTOOLDIR=\"";
-    QProcess proc;
-    proc.start(path, QStringList(QLatin1String("-print-env")));
-    if (!proc.waitForStarted(1000))
+    const QString toolDir = QLatin1String("QTTOOLDIR=\"");
+    SynchronousProcess proc;
+    proc.setTimeoutS(1);
+    SynchronousProcessResponse response = proc.run(path, QStringList(QLatin1String("-print-env")));
+    if (response.result != SynchronousProcessResponse::Finished)
         return QString();
-    if (!proc.waitForFinished(1000))
-        return QString();
-    QByteArray output = proc.readAllStandardOutput();
+    const QString output = response.stdOut;
     int pos = output.indexOf(toolDir);
     if (pos == -1)
         return QString();
-    pos += int(sizeof(toolDir)) - 1;
+    pos += toolDir.count() - 1;
     int end = output.indexOf('\"', pos);
     if (end == -1)
         return QString();
 
-    QString result = QString::fromLocal8Bit(output.mid(pos, end - pos)) + QLatin1String("/qmake");
-    return result;
+    return output.mid(pos, end - pos) + QLatin1String("/qmake");
 }
 
 static bool isQmake(const QString &path)
@@ -104,23 +102,15 @@ QString BuildableHelperLibrary::qtVersionForQMake(const QString &qmakePath)
     if (qmakePath.isEmpty())
         return QString();
 
-    QProcess qmake;
-    qmake.start(qmakePath, QStringList(QLatin1String("--version")));
-    if (!qmake.waitForStarted()) {
-        qWarning("Cannot start '%s': %s", qPrintable(qmakePath), qPrintable(qmake.errorString()));
-        return QString();
-    }
-    if (!qmake.waitForFinished())      {
-        SynchronousProcess::stopProcess(qmake);
-        qWarning("Timeout running '%s'.", qPrintable(qmakePath));
-        return QString();
-    }
-    if (qmake.exitStatus() != QProcess::NormalExit) {
-        qWarning("'%s' crashed.", qPrintable(qmakePath));
+    SynchronousProcess qmake;
+    qmake.setTimeoutS(5);
+    SynchronousProcessResponse response = qmake.run(qmakePath, QStringList(QLatin1String("--version")));
+    if (response.result != SynchronousProcessResponse::Finished) {
+        qWarning() << response.exitMessage(qmakePath, 5);
         return QString();
     }
 
-    const QString output = QString::fromLocal8Bit(qmake.readAllStandardOutput());
+    const QString output = response.allOutput();
     static QRegExp regexp(QLatin1String("(QMake version|QMake version:)[\\s]*([\\d.]*)"),
                           Qt::CaseInsensitive);
     regexp.indexIn(output);

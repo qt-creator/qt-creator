@@ -1392,7 +1392,7 @@ static QByteArray runQmakeQuery(const FileName &binary, const Environment &env,
         *error = QCoreApplication::translate("QtVersion", "Cannot start \"%1\": %2").arg(binary.toUserOutput()).arg(process.errorString());
         return QByteArray();
     }
-    if (!process.waitForFinished(timeOutMS)) {
+    if (!process.waitForFinished(timeOutMS) && process.state() == QProcess::Running) {
         SynchronousProcess::stopProcess(process);
         *error = QCoreApplication::translate("QtVersion", "Timeout running \"%1\" (%2 ms).").arg(binary.toUserOutput()).arg(timeOutMS);
         return QByteArray();

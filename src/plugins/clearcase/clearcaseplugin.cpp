@@ -2159,14 +2159,14 @@ QString ClearCasePlugin::runExtDiff(const QString &workingDir, const QStringList
     QStringList args(m_settings.diffArgs.split(QLatin1Char(' '), QString::SkipEmptyParts));
     args << arguments;
 
-    QProcess process;
+    SynchronousProcess process;
+    process.setTimeoutS(timeOutS);
     process.setWorkingDirectory(workingDir);
-    process.start(executable, args);
-    if (!process.waitForFinished(timeOutS * 1000))
+    process.setCodec(outputCodec ? outputCodec : QTextCodec::codecForName("UTF-8"));
+    SynchronousProcessResponse response = process.run(executable, args);
+    if (response.result != SynchronousProcessResponse::Finished)
         return QString();
-    QByteArray ba = process.readAll();
-    return outputCodec ? outputCodec->toUnicode(ba) :
-                         QString::fromLocal8Bit(ba.constData(), ba.size());
+    return response.allOutput();
 }
 
 void ClearCasePlugin::syncSlot()

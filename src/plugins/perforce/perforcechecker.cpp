@@ -59,9 +59,9 @@ bool PerforceChecker::isRunning() const
     return m_process.state() == QProcess::Running;
 }
 
-bool PerforceChecker::waitForFinished(int msec)
+bool PerforceChecker::waitForFinished()
 {
-    return m_process.waitForFinished(msec);
+    return m_process.waitForFinished() || m_process.state() == QProcess::NotRunning;
 }
 
 void PerforceChecker::resetOverrideCursor()

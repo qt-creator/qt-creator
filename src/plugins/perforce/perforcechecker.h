@@ -49,7 +49,7 @@ public:
 
     bool isRunning() const;
 
-    bool waitForFinished(int msec = -1);
+    bool waitForFinished();
 
     bool useOverideCursor() const;
     void setUseOverideCursor(bool v);

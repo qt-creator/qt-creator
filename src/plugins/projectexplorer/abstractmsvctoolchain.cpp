@@ -238,7 +238,7 @@ bool AbstractMsvcToolChain::generateEnvironmentSettings(Utils::Environment &env,
                                                         const QString &batchArgs,
                                                         QMap<QString, QString> &envPairs)
 {
-    const QByteArray marker = "####################\r\n";
+    const QString marker = "####################\r\n";
     // Create a temporary file name for the output. Use a temporary file here
     // as I don't know another way to do this in Qt...
     // Note, can't just use a QTemporaryFile all the way through as it remains open
@@ -254,47 +254,39 @@ bool AbstractMsvcToolChain::generateEnvironmentSettings(Utils::Environment &env,
         call += batchArgs.toLocal8Bit();
     }
     saver.write(call + "\r\n");
-    saver.write("@echo " + marker);
+    saver.write("@echo " + marker.toLocal8Bit());
     saver.write("set\r\n");
-    saver.write("@echo " + marker);
+    saver.write("@echo " + marker.toLocal8Bit());
     if (!saver.finalize()) {
         qWarning("%s: %s", Q_FUNC_INFO, qPrintable(saver.errorString()));
         return false;
     }
 
-    Utils::QtcProcess run;
+    Utils::SynchronousProcess run;
     // As of WinSDK 7.1, there is logic preventing the path from being set
     // correctly if "ORIGINALPATH" is already set. That can cause problems
     // if Creator is launched within a session set up by setenv.cmd.
     env.unset(QLatin1String("ORIGINALPATH"));
-    run.setEnvironment(env);
+    run.setEnvironment(env.toStringList());
+    run.setTimeoutS(10);
     Utils::FileName cmdPath = Utils::FileName::fromUserInput(QString::fromLocal8Bit(qgetenv("COMSPEC")));
     if (cmdPath.isEmpty())
         cmdPath = env.searchInPath(QLatin1String("cmd.exe"));
     // Windows SDK setup scripts require command line switches for environment expansion.
-    QString cmdArguments = QLatin1String(" /E:ON /V:ON /c \"");
-    cmdArguments += QDir::toNativeSeparators(saver.fileName());
-    cmdArguments += QLatin1Char('"');
-    run.setCommand(cmdPath.toString(), cmdArguments);
+    QStringList cmdArguments;
+    cmdArguments << QLatin1String("/E:ON") << QLatin1String("/V:ON") <<  QLatin1String("/c");
+    cmdArguments << QDir::toNativeSeparators(saver.fileName());
     if (debug)
-        qDebug() << "readEnvironmentSetting: " << call << cmdPath << cmdArguments
+        qDebug() << "readEnvironmentSetting: " << call << cmdPath << cmdArguments.join(' ')
                  << " Env: " << env.size();
-    run.start();
+    Utils::SynchronousProcessResponse response = run.run(cmdPath.toString(), cmdArguments);
+    if (response.result != Utils::SynchronousProcessResponse::Finished) {
+        qWarning() << response.exitMessage(cmdPath.toString(), 10);
+        return false;
+    }
 
-    if (!run.waitForStarted()) {
-        qWarning("%s: Unable to run '%s': %s", Q_FUNC_INFO, qPrintable(batchFile),
-                 qPrintable(run.errorString()));
-        return false;
-    }
-    if (!run.waitForFinished()) {
-        qWarning("%s: Timeout running '%s'", Q_FUNC_INFO, qPrintable(batchFile));
-        Utils::SynchronousProcess::stopProcess(run);
-        return false;
-    }
     // The SDK/MSVC scripts do not return exit codes != 0. Check on stdout.
-    QByteArray stdOut = run.readAllStandardOutput();
-    if (!stdOut.isEmpty() && (stdOut.contains("Unknown") || stdOut.contains("Error")))
-        qWarning("%s: '%s' reports:\n%s", Q_FUNC_INFO, call.constData(), stdOut.constData());
+    const QString stdOut = response.stdOut;
 
     //
     // Now parse the file to get the environment settings
@@ -304,17 +296,15 @@ bool AbstractMsvcToolChain::generateEnvironmentSettings(Utils::Environment &env,
         return false;
     }
 
-    stdOut = stdOut.mid(start + marker.size());
-
-    int end = stdOut.indexOf(marker);
+    int end = stdOut.indexOf(marker, start + 1);
     if (end == -1) {
         qWarning("Could not find end marker in stdout output.");
         return false;
     }
 
-    stdOut = stdOut.left(end);
+    const QString output = stdOut.mid(start, end - start);
 
-    QStringList lines = QString::fromLocal8Bit(stdOut).split(QLatin1String("\r\n"));
+    QStringList lines = output.split(QLatin1String("\r\n"));
     QRegExp regexp(QLatin1String("(\\w*)=(.*)"));
     foreach (const QString &line, lines) {
         if (regexp.exactMatch(line)) {

@@ -38,11 +38,11 @@
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
+#include <utils/synchronousprocess.h>
 
 #include <QBuffer>
 #include <QCoreApplication>
 #include <QFileInfo>
-#include <QProcess>
 #include <QScopedPointer>
 
 #include <QLineEdit>
@@ -70,44 +70,20 @@ static QByteArray runGcc(const FileName &gcc, const QStringList &arguments, cons
     if (gcc.isEmpty() || !gcc.toFileInfo().isExecutable())
         return QByteArray();
 
-    QProcess cpp;
+    SynchronousProcess cpp;
     QStringList environment(env);
     Utils::Environment::setupEnglishOutput(&environment);
 
     cpp.setEnvironment(environment);
-    cpp.start(gcc.toString(), arguments);
-    if (!cpp.waitForStarted()) {
-        qWarning("%s: Cannot start '%s': %s", Q_FUNC_INFO, qPrintable(gcc.toUserOutput()),
-            qPrintable(cpp.errorString()));
-        return QByteArray();
-    }
-    cpp.closeWriteChannel();
-    if (!cpp.waitForFinished(10000)) {
-        SynchronousProcess::stopProcess(cpp);
-        qWarning("%s: Timeout running '%s'.", Q_FUNC_INFO, qPrintable(gcc.toUserOutput()));
-        return QByteArray();
-    }
-    if (cpp.exitStatus() != QProcess::NormalExit) {
-        qWarning("%s: '%s' crashed.", Q_FUNC_INFO, qPrintable(gcc.toUserOutput()));
+    cpp.setTimeoutS(10);
+    SynchronousProcessResponse response =  cpp.run(gcc.toString(), arguments);
+    if (response.result != SynchronousProcessResponse::Finished ||
+            response.exitCode != 0) {
+        qWarning() << response.exitMessage(gcc.toString(), 10);
         return QByteArray();
     }
 
-    const QByteArray stdErr = SynchronousProcess::normalizeNewlines(
-                QString::fromLocal8Bit(cpp.readAllStandardError())).toLocal8Bit();
-    if (cpp.exitCode() != 0) {
-        qWarning().nospace()
-            << Q_FUNC_INFO << ": " << gcc.toUserOutput() << ' '
-            << arguments.join(QLatin1Char(' ')) << " returned exit code "
-            << cpp.exitCode() << ": " << stdErr;
-        return QByteArray();
-    }
-
-    QByteArray data = SynchronousProcess::normalizeNewlines(
-                QString::fromLocal8Bit(cpp.readAllStandardOutput())).toLocal8Bit();
-    if (!data.isEmpty() && !data.endsWith('\n'))
-        data.append('\n');
-    data.append(stdErr);
-    return data;
+    return response.allOutput().toUtf8();
 }
 
 static const QStringList gccPredefinedMacrosOptions()

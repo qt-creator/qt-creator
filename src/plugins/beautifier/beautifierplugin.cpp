@@ -45,6 +45,7 @@
 #include <texteditor/texteditor.h>
 #include <utils/qtcassert.h>
 #include <utils/runextensions.h>
+#include <utils/synchronousprocess.h>
 
 #include <QDir>
 #include <QFileInfo>
@@ -84,20 +85,18 @@ FormatTask format(FormatTask task)
         }
 
         // Format temporary file
-        QProcess process;
         QStringList options = task.command.options();
-        options.replaceInStrings("%file", sourceFile.fileName());
-        process.start(executable, options);
-        if (!process.waitForFinished(5000)) {
-            process.kill();
-            task.error = BeautifierPlugin::tr("Cannot call %1 or some other error occurred. Timeout "
-                                     "reached while formatting file %2.")
-                    .arg(executable).arg(task.filePath);
+        options.replaceInStrings(QLatin1String("%file"), sourceFile.fileName());
+        Utils::SynchronousProcess process;
+        process.setTimeoutS(5);
+        Utils::SynchronousProcessResponse response = process.run(executable, options);
+        if (response.result != Utils::SynchronousProcessResponse::Finished) {
+            task.error = QObject::tr("Failed to format: %1.").arg(response.exitMessage(executable, 5));
             return task;
         }
-        const QByteArray output = process.readAllStandardError();
+        const QString output = response.stdErr;
         if (!output.isEmpty())
-            task.error = executable + ": " + QString::fromUtf8(output);
+            task.error = executable + QLatin1String(": ") + output;
 
         // Read text back
         Utils::FileReader reader;
@@ -107,8 +106,8 @@ FormatTask format(FormatTask task)
             return task;
         }
         task.formattedData = QString::fromUtf8(reader.data());
-        return task;
     }
+    return task;
 
     case Command::PipeProcessing: {
         QProcess process;
@@ -123,7 +122,7 @@ FormatTask format(FormatTask task)
         }
         process.write(task.sourceData.toUtf8());
         process.closeWriteChannel();
-        if (!process.waitForFinished(5000)) {
+        if (!process.waitForFinished(5000) && process.state() == QProcess::Running) {
             process.kill();
             task.error = BeautifierPlugin::tr("Cannot call %1 or some other error occurred. Timeout "
                                      "reached while formatting file %2.")

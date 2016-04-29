@@ -49,8 +49,10 @@
 #include <qtsupport/qtversionmanager.h>
 #include <utils/algorithm.h>
 #include <utils/environment.h>
+#include <utils/qtcassert.h>
 #include <utils/runextensions.h>
 #include <utils/sleep.h>
+#include <utils/synchronousprocess.h>
 
 #include <QDateTime>
 #include <QSettings>
@@ -153,16 +155,13 @@ namespace {
                 if (executable.isEmpty() || shell.isEmpty())
                     return true; // we can't detect, but creator is 32bit so assume 32bit
 
-                QProcess proc;
+                SynchronousProcess proc;
                 proc.setProcessChannelMode(QProcess::MergedChannels);
-                proc.start(executable, QStringList() << shell);
-                if (!proc.waitForFinished(2000)) {
-                    proc.kill();
+                proc.setTimeoutS(30);
+                SynchronousProcessResponse response = proc.run(executable, QStringList() << shell);
+                if (response.result != SynchronousProcessResponse::Finished)
                     return true;
-                }
-                if (proc.readAll().contains("x86-64"))
-                    return false;
-                return true;
+                return !response.allOutput().contains("x86-64");
             }
         }
         return false;
@@ -391,17 +390,16 @@ void AndroidConfig::updateAvailableSdkPlatforms() const
         return;
     m_availableSdkPlatforms.clear();
 
-    QProcess proc;
+    SynchronousProcess proc;
     proc.setProcessEnvironment(androidToolEnvironment().toProcessEnvironment());
-    proc.start(androidToolPath().toString(), QStringList() << QLatin1String("list") << QLatin1String("target")); // list avaialbe AVDs
-    if (!proc.waitForFinished(10000)) {
-        proc.terminate();
+    SynchronousProcessResponse response
+            = proc.run(androidToolPath().toString(), QStringList() << QLatin1String("list") << QLatin1String("target")); // list avaialbe AVDs
+    if (response.result == SynchronousProcessResponse::Finished)
         return;
-    }
 
     SdkPlatform platform;
-    while (proc.canReadLine()) {
-        const QString line = QString::fromLocal8Bit(proc.readLine().trimmed());
+    foreach (const QString &l, response.allOutput().split('\n')) {
+        const QString line = l.trimmed();
         if (line.startsWith(QLatin1String("id:")) && line.contains(QLatin1String("android-"))) {
             int index = line.indexOf(QLatin1String("\"android-"));
             if (index == -1)
@@ -551,17 +549,18 @@ QVector<AndroidDeviceInfo> AndroidConfig::connectedDevices(QString *error) const
 QVector<AndroidDeviceInfo> AndroidConfig::connectedDevices(const QString &adbToolPath, QString *error)
 {
     QVector<AndroidDeviceInfo> devices;
-    QProcess adbProc;
-    adbProc.start(adbToolPath, QStringList() << QLatin1String("devices"));
-    if (!adbProc.waitForFinished(10000)) {
-        adbProc.kill();
+    SynchronousProcess adbProc;
+    adbProc.setTimeoutS(30);
+    SynchronousProcessResponse response
+            = adbProc.run(adbToolPath, QStringList() << QLatin1String("devices"));
+    if (response.result != SynchronousProcessResponse::Finished) {
         if (error)
             *error = QApplication::translate("AndroidConfiguration",
                                              "Could not run: %1")
                 .arg(adbToolPath + QLatin1String(" devices"));
         return devices;
     }
-    QList<QByteArray> adbDevs = adbProc.readAll().trimmed().split('\n');
+    QStringList adbDevs = response.allOutput().split('\n');
     if (adbDevs.empty())
         return devices;
 
@@ -571,9 +570,9 @@ QVector<AndroidDeviceInfo> AndroidConfig::connectedDevices(const QString &adbToo
 
     // workaround for '????????????' serial numbers:
     // can use "adb -d" when only one usb device attached
-    foreach (const QByteArray &device, adbDevs) {
-        const QString serialNo = QString::fromLatin1(device.left(device.indexOf('\t')).trimmed());
-        const QString deviceType = QString::fromLatin1(device.mid(device.indexOf('\t'))).trimmed();
+    foreach (const QString &device, adbDevs) {
+        const QString serialNo = device.left(device.indexOf('\t')).trimmed();
+        const QString deviceType = device.mid(device.indexOf('\t')).trimmed();
         if (isBootToQt(adbToolPath, serialNo))
             continue;
         AndroidDeviceInfo dev;
@@ -642,7 +641,7 @@ AndroidConfig::CreateAvdInfo AndroidConfig::createAVDImpl(CreateAvdInfo info, Fi
                 .arg(androidToolPath.toString(), arguments.join(QLatin1Char(' ')));
         return info;
     }
-
+    QTC_CHECK(proc.state() == QProcess::Running);
     proc.write(QByteArray("yes\n")); // yes to "Do you wish to create a custom hardware profile"
 
     QByteArray question;
@@ -664,8 +663,7 @@ AndroidConfig::CreateAvdInfo AndroidConfig::createAVDImpl(CreateAvdInfo info, Fi
         if (proc.state() != QProcess::Running)
             break;
     }
-
-    proc.waitForFinished();
+    QTC_CHECK(proc.state() == QProcess::NotRunning);
 
     QString errorOutput = QString::fromLocal8Bit(proc.readAllStandardError());
     // The exit code is always 0, so we need to check stderr
@@ -679,16 +677,14 @@ AndroidConfig::CreateAvdInfo AndroidConfig::createAVDImpl(CreateAvdInfo info, Fi
 
 bool AndroidConfig::removeAVD(const QString &name) const
 {
-    QProcess proc;
+    SynchronousProcess proc;
+    proc.setTimeoutS(5);
     proc.setProcessEnvironment(androidToolEnvironment().toProcessEnvironment());
-    proc.start(androidToolPath().toString(),
-               QStringList() << QLatin1String("delete") << QLatin1String("avd")
-               << QLatin1String("-n") << name);
-    if (!proc.waitForFinished(5000)) {
-        proc.terminate();
-        return false;
-    }
-    return !proc.exitCode();
+    SynchronousProcessResponse response
+            = proc.run(androidToolPath().toString(),
+                       QStringList() << QLatin1String("delete") << QLatin1String("avd")
+                       << QLatin1String("-n") << name);
+    return response.result == SynchronousProcessResponse::Finished && response.exitCode == 0;
 }
 
 QFuture<QVector<AndroidDeviceInfo>> AndroidConfig::androidVirtualDevicesFuture() const
@@ -700,19 +696,20 @@ QFuture<QVector<AndroidDeviceInfo>> AndroidConfig::androidVirtualDevicesFuture()
 QVector<AndroidDeviceInfo> AndroidConfig::androidVirtualDevices(const QString &androidTool, const Environment &environment)
 {
     QVector<AndroidDeviceInfo> devices;
-    QProcess proc;
+    SynchronousProcess proc;
+    proc.setTimeoutS(20);
     proc.setProcessEnvironment(environment.toProcessEnvironment());
-    proc.start(androidTool,
-               QStringList() << QLatin1String("list") << QLatin1String("avd")); // list available AVDs
-    if (!proc.waitForFinished(20000)) {
-        proc.terminate();
+    SynchronousProcessResponse response
+            = proc.run(androidTool,
+                       QStringList() << QLatin1String("list") << QLatin1String("avd")); // list available AVDs
+    if (response.result != SynchronousProcessResponse::Finished)
         return devices;
-    }
-    QList<QByteArray> avds = proc.readAll().trimmed().split('\n');
+
+    QStringList avds = response.allOutput().split('\n');
     if (avds.empty())
         return devices;
 
-    while (avds.first().startsWith("* daemon"))
+    while (avds.first().startsWith(QLatin1String("* daemon")))
         avds.removeFirst(); // remove the daemon logs
     avds.removeFirst(); // remove "List of devices attached" header line
 
@@ -720,7 +717,7 @@ QVector<AndroidDeviceInfo> AndroidConfig::androidVirtualDevices(const QString &a
 
     AndroidDeviceInfo dev;
     for (int i = 0; i < avds.size(); i++) {
-        QString line = QLatin1String(avds.at(i));
+        QString line = avds.at(i);
         if (!line.contains(QLatin1String("Name:")))
             continue;
 
@@ -732,7 +729,7 @@ QVector<AndroidDeviceInfo> AndroidConfig::androidVirtualDevices(const QString &a
         dev.cpuAbi.clear();
         ++i;
         for (; i < avds.size(); ++i) {
-            line = QLatin1String(avds[i]);
+            line = avds.at(i);
             if (line.contains(QLatin1String("---------")))
                 break;
 
@@ -870,13 +867,11 @@ bool AndroidConfig::isBootToQt(const QString &adbToolPath, const QString &device
     arguments << QLatin1String("shell")
               << QLatin1String("ls -l /system/bin/appcontroller || ls -l /usr/bin/appcontroller && echo Boot2Qt");
 
-    QProcess adbProc;
-    adbProc.start(adbToolPath, arguments);
-    if (!adbProc.waitForFinished(10000)) {
-        adbProc.kill();
-        return false;
-    }
-    return adbProc.readAll().contains("Boot2Qt");
+    SynchronousProcess adbProc;
+    adbProc.setTimeoutS(10);
+    SynchronousProcessResponse response = adbProc.run(adbToolPath, arguments);
+    return response.result == SynchronousProcessResponse::Finished
+            && response.allOutput().contains(QLatin1String("Boot2Qt"));
 }
 
 
@@ -884,17 +879,15 @@ QString AndroidConfig::getDeviceProperty(const QString &adbToolPath, const QStri
 {
     // workaround for '????????????' serial numbers
     QStringList arguments = AndroidDeviceInfo::adbSelector(device);
-    arguments << QLatin1String("shell") << QLatin1String("getprop")
-              << property;
+    arguments << QLatin1String("shell") << QLatin1String("getprop") << property;
 
-    QProcess adbProc;
-    adbProc.start(adbToolPath, arguments);
-    if (!adbProc.waitForFinished(10000)) {
-        adbProc.kill();
+    SynchronousProcess adbProc;
+    adbProc.setTimeoutS(10);
+    SynchronousProcessResponse response = adbProc.run(adbToolPath, arguments);
+    if (response.result != SynchronousProcessResponse::Finished)
         return QString();
-    }
 
-    return QString::fromLocal8Bit(adbProc.readAll());
+    return response.allOutput();
 }
 
 int AndroidConfig::getSDKVersion(const QString &device) const
@@ -988,16 +981,13 @@ bool AndroidConfig::hasFinishedBooting(const QString &device) const
     arguments << QLatin1String("shell") << QLatin1String("getprop")
               << QLatin1String("init.svc.bootanim");
 
-    QProcess adbProc;
-    adbProc.start(adbToolPath().toString(), arguments);
-    if (!adbProc.waitForFinished(10000)) {
-        adbProc.kill();
+    SynchronousProcess adbProc;
+    adbProc.setTimeoutS(10);
+    SynchronousProcessResponse response = adbProc.run(adbToolPath().toString(), arguments);
+    if (response.result != SynchronousProcessResponse::Finished)
         return false;
-    }
-    QString value = QString::fromLocal8Bit(adbProc.readAll().trimmed());
-    if (value == QLatin1String("stopped"))
-        return true;
-    return false;
+    QString value = response.allOutput().trimmed();
+    return value == QLatin1String("stopped");
 }
 
 QStringList AndroidConfig::getAbis(const QString &device) const
@@ -1010,15 +1000,14 @@ QStringList AndroidConfig::getAbis(const QString &adbToolPath, const QString &de
     QStringList result;
     // First try via ro.product.cpu.abilist
     QStringList arguments = AndroidDeviceInfo::adbSelector(device);
-    arguments << QLatin1String("shell") << QLatin1String("getprop");
-    arguments << QLatin1String("ro.product.cpu.abilist");
-    QProcess adbProc;
-    adbProc.start(adbToolPath, arguments);
-    if (!adbProc.waitForFinished(10000)) {
-        adbProc.kill();
+    arguments << QLatin1String("shell") << QLatin1String("getprop") << QLatin1String("ro.product.cpu.abilist");
+    SynchronousProcess adbProc;
+    adbProc.setTimeoutS(10);
+    SynchronousProcessResponse response = adbProc.run(adbToolPath, arguments);
+    if (response.result != SynchronousProcessResponse::Finished)
         return result;
-    }
-    QString output = QString::fromLocal8Bit(adbProc.readAll().trimmed());
+
+    QString output = response.allOutput().trimmed();
     if (!output.isEmpty()) {
         QStringList result = output.split(QLatin1Char(','));
         if (!result.isEmpty())
@@ -1034,13 +1023,13 @@ QStringList AndroidConfig::getAbis(const QString &adbToolPath, const QString &de
         else
             arguments << QString::fromLatin1("ro.product.cpu.abi%1").arg(i);
 
-        QProcess adbProc;
-        adbProc.start(adbToolPath, arguments);
-        if (!adbProc.waitForFinished(10000)) {
-            adbProc.kill();
+        SynchronousProcess abiProc;
+        abiProc.setTimeoutS(10);
+        SynchronousProcessResponse abiResponse = abiProc.run(adbToolPath, arguments);
+        if (abiResponse.result != SynchronousProcessResponse::Finished)
             return result;
-        }
-        QString abi = QString::fromLocal8Bit(adbProc.readAll().trimmed());
+
+        QString abi = abiResponse.allOutput().trimmed();
         if (abi.isEmpty())
             break;
         result << abi;
@@ -1483,13 +1472,12 @@ void AndroidConfigurations::load()
         } else if (HostOsInfo::isMacHost()) {
             QFileInfo javaHomeExec(QLatin1String("/usr/libexec/java_home"));
             if (javaHomeExec.isExecutable() && !javaHomeExec.isDir()) {
-                QProcess proc;
+                SynchronousProcess proc;
+                proc.setTimeoutS(2);
                 proc.setProcessChannelMode(QProcess::MergedChannels);
-                proc.start(javaHomeExec.absoluteFilePath());
-                if (!proc.waitForFinished(2000)) {
-                    proc.kill();
-                } else {
-                    const QString &javaHome = QString::fromLocal8Bit(proc.readAll().trimmed());
+                SynchronousProcessResponse response = proc.run(javaHomeExec.absoluteFilePath(), QStringList());
+                if (response.result == SynchronousProcessResponse::Finished) {
+                    const QString &javaHome = response.allOutput().trimmed();
                     if (!javaHome.isEmpty() && QFileInfo::exists(javaHome))
                         m_config.setOpenJDKLocation(FileName::fromString(javaHome));
                 }

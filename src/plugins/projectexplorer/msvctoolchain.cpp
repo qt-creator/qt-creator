@@ -237,7 +237,7 @@ QByteArray MsvcToolChain::msvcPredefinedMacros(const QStringList cxxflags,
         qWarning("%s: %s", Q_FUNC_INFO, qPrintable(saver.errorString()));
         return predefinedMacros;
     }
-    QProcess cpp;
+    Utils::SynchronousProcess cpp;
     cpp.setEnvironment(env.toStringList());
     cpp.setWorkingDirectory(QDir::tempPath());
     QStringList arguments;
@@ -248,35 +248,23 @@ QByteArray MsvcToolChain::msvcPredefinedMacros(const QStringList cxxflags,
     }
 
     arguments << toProcess << QLatin1String("/EP") << QDir::toNativeSeparators(saver.fileName());
-    cpp.start(binary.toString(), arguments);
-    if (!cpp.waitForStarted()) {
-        qWarning("%s: Cannot start '%s': %s", Q_FUNC_INFO, qPrintable(binary.toUserOutput()),
-            qPrintable(cpp.errorString()));
+    Utils::SynchronousProcessResponse response = cpp.run(binary.toString(), arguments);
+    if (response.result != Utils::SynchronousProcessResponse::Finished ||
+            response.exitCode != 0)
         return predefinedMacros;
-    }
-    cpp.closeWriteChannel();
-    if (!cpp.waitForFinished()) {
-        Utils::SynchronousProcess::stopProcess(cpp);
-        qWarning("%s: Timeout running '%s'.", Q_FUNC_INFO, qPrintable(binary.toUserOutput()));
-        return predefinedMacros;
-    }
-    if (cpp.exitStatus() != QProcess::NormalExit) {
-        qWarning("%s: '%s' crashed.", Q_FUNC_INFO, qPrintable(binary.toUserOutput()));
-        return predefinedMacros;
-    }
 
-    const QList<QByteArray> output = cpp.readAllStandardOutput().split('\n');
-    foreach (const QByteArray& line, output) {
+    const QStringList output = response.stdOut.split('\n');
+    foreach (const QString& line, output) {
         if (line.startsWith('V')) {
-            QList<QByteArray> split = line.split('=');
-            const QByteArray key = split.at(0).mid(1);
-            QByteArray value = split.at(1);
+            QStringList split = line.split('=');
+            const QString key = split.at(0).mid(1);
+            QString value = split.at(1);
             if (!value.isEmpty())
                 value.chop(1); //remove '\n'
             predefinedMacros += "#define ";
-            predefinedMacros += key;
+            predefinedMacros += key.toUtf8();
             predefinedMacros += ' ';
-            predefinedMacros += value;
+            predefinedMacros += value.toUtf8();
             predefinedMacros += '\n';
         }
     }

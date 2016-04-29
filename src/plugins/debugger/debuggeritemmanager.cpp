@@ -33,12 +33,12 @@
 #include <utils/fileutils.h>
 #include <utils/persistentsettings.h>
 #include <utils/qtcassert.h>
+#include <utils/synchronousprocess.h>
 #include <utils/hostosinfo.h>
 
 #include <QDebug>
 #include <QDir>
 #include <QFileInfo>
-#include <QProcess>
 
 using namespace Core;
 using namespace ProjectExplorer;
@@ -225,17 +225,18 @@ void DebuggerItemManager::autoDetectGdbOrLldbDebuggers()
     FileNameList suspects;
 
     if (HostOsInfo::isMacHost()) {
-        QProcess lldbInfo;
-        lldbInfo.start(QLatin1String("xcrun"), QStringList() << QLatin1String("--find")
-                       << QLatin1String("lldb"));
-        if (!lldbInfo.waitForFinished(2000)) {
-            lldbInfo.kill();
-            lldbInfo.waitForFinished();
-        } else {
-            QByteArray lPath = lldbInfo.readAll();
-            const QFileInfo fi(QString::fromLocal8Bit(lPath.data(), lPath.size() -1));
-            if (fi.exists() && fi.isExecutable() && !fi.isDir())
-                suspects.append(FileName::fromString(fi.absoluteFilePath()));
+        SynchronousProcess lldbInfo;
+        lldbInfo.setTimeoutS(2);
+        SynchronousProcessResponse response
+                = lldbInfo.run(QLatin1String("xcrun"), QStringList() << QLatin1String("--find")
+                               << QLatin1String("lldb"));
+        if (response.result == Utils::SynchronousProcessResponse::Finished) {
+            QString lPath = response.allOutput();
+            if (!lPath.isEmpty()) {
+                const QFileInfo fi(lPath);
+                if (fi.exists() && fi.isExecutable() && !fi.isDir())
+                    suspects.append(FileName::fromString(fi.absoluteFilePath()));
+            }
         }
     }
 

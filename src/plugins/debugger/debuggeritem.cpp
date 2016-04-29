@@ -35,6 +35,7 @@
 #include <utils/hostosinfo.h>
 #include <utils/macroexpander.h>
 #include <utils/qtcassert.h>
+#include <utils/synchronousprocess.h>
 
 #include <QFileInfo>
 #include <QProcess>
@@ -117,66 +118,66 @@ void DebuggerItem::reinitializeFromFile()
     if (fileInfo.baseName().toLower().contains(QLatin1String("lldb-mi")))
         version = "--version";
 
-    QProcess proc;
-    proc.start(m_command.toString(), QStringList({ QLatin1String(version) }));
-    if (!proc.waitForStarted() || !proc.waitForFinished()) {
+    SynchronousProcess proc;
+    SynchronousProcessResponse response
+            = proc.run(m_command.toString(), QStringList({ QLatin1String(version) }));
+    if (response.result != SynchronousProcessResponse::Finished) {
         m_engineType = NoEngineType;
         return;
     }
     m_abis.clear();
-    QByteArray ba = proc.readAll();
-    if (ba.contains("gdb")) {
+    const QString output = response.allOutput();
+    if (output.contains("gdb")) {
         m_engineType = GdbEngineType;
         const char needle[] = "This GDB was configured as \"";
         // E.g.  "--host=i686-pc-linux-gnu --target=arm-unknown-nto-qnx6.5.0".
         // or "i686-linux-gnu"
-        int pos1 = ba.indexOf(needle);
+        int pos1 = output.indexOf(needle);
         if (pos1 != -1) {
             pos1 += int(strlen(needle));
-            int pos2 = ba.indexOf('"', pos1 + 1);
-            QByteArray target = ba.mid(pos1, pos2 - pos1);
+            int pos2 = output.indexOf('"', pos1 + 1);
+            QString target = output.mid(pos1, pos2 - pos1);
             int pos3 = target.indexOf("--target=");
             if (pos3 >= 0)
                 target = target.mid(pos3 + 9);
-            m_abis.append(Abi::abiFromTargetTriplet(QString::fromLatin1(target)));
+            m_abis.append(Abi::abiFromTargetTriplet(target));
         } else {
             // Fallback.
             m_abis = Abi::abisOfBinary(m_command); // FIXME: Wrong.
         }
 
         // Version
-        QString all = QString::fromUtf8(ba);
         bool isMacGdb, isQnxGdb;
         int version = 0, buildVersion = 0;
-        Debugger::Internal::extractGdbVersion(all,
+        Debugger::Internal::extractGdbVersion(output,
             &version, &buildVersion, &isMacGdb, &isQnxGdb);
         if (version)
             m_version = QString::fromLatin1("%1.%2.%3")
                 .arg(version / 10000).arg((version / 100) % 100).arg(version % 100);
         return;
     }
-    if (ba.startsWith("lldb") || ba.startsWith("LLDB")) {
+    if (output.startsWith("lldb") || output.startsWith("LLDB")) {
         m_engineType = LldbEngineType;
         m_abis = Abi::abisOfBinary(m_command);
 
         // Version
-        if (ba.startsWith(("lldb version "))) { // Linux typically.
+        if (output.startsWith(("lldb version "))) { // Linux typically.
             int pos1 = int(strlen("lldb version "));
-            int pos2 = ba.indexOf(' ', pos1);
-            m_version = QString::fromLatin1(ba.mid(pos1, pos2 - pos1));
-        } else if (ba.startsWith("lldb-") || ba.startsWith("LLDB-")) { // Mac typically.
-            m_version = QString::fromLatin1(ba.mid(5));
+            int pos2 = output.indexOf(' ', pos1);
+            m_version = output.mid(pos1, pos2 - pos1);
+        } else if (output.startsWith("lldb-") || output.startsWith("LLDB-")) { // Mac typically.
+            m_version = output.mid(5);
         }
         return;
     }
-    if (ba.startsWith("cdb")) {
+    if (output.startsWith("cdb")) {
         // "cdb version 6.2.9200.16384"
         m_engineType = CdbEngineType;
         m_abis = Abi::abisOfBinary(m_command);
-        m_version = QString::fromLatin1(ba).section(QLatin1Char(' '), 2);
+        m_version = output.section(QLatin1Char(' '), 2);
         return;
     }
-    if (ba.startsWith("Python")) {
+    if (output.startsWith("Python")) {
         m_engineType = PdbEngineType;
         return;
     }

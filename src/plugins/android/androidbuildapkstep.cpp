@@ -43,10 +43,11 @@
 
 #include <qtsupport/qtkitinformation.h>
 
-#include <utils/qtcprocess.h>
+#include <utils/synchronousprocess.h>
 
 #include <QInputDialog>
 #include <QMessageBox>
+#include <QProcess>
 
 namespace Android {
 using namespace Internal;
@@ -279,29 +280,32 @@ bool AndroidBuildApkStep::verboseOutput() const
 QAbstractItemModel *AndroidBuildApkStep::keystoreCertificates()
 {
     QString rawCerts;
-    QProcess keytoolProc;
     while (!rawCerts.length() || !m_keystorePasswd.length()) {
-        QStringList params;
-        params << QLatin1String("-list") << QLatin1String("-v") << QLatin1String("-keystore") << m_keystorePath.toUserOutput() << QLatin1String("-storepass");
+        QStringList params
+                = { QLatin1String("-list"), QLatin1String("-v"), QLatin1String("-keystore"),
+                    m_keystorePath.toUserOutput(), QLatin1String("-storepass") };
         if (!m_keystorePasswd.length())
             keystorePassword();
         if (!m_keystorePasswd.length())
-            return 0;
+            return nullptr;
         params << m_keystorePasswd;
         params << QLatin1String("-J-Duser.language=en");
-        keytoolProc.start(AndroidConfigurations::currentConfig().keytoolPath().toString(), params);
-        if (!keytoolProc.waitForStarted() || !keytoolProc.waitForFinished()) {
+
+        Utils::SynchronousProcess keytoolProc;
+        keytoolProc.setTimeoutS(30);
+        const Utils::SynchronousProcessResponse response
+                = keytoolProc.run(AndroidConfigurations::currentConfig().keytoolPath().toString(), params);
+        if (response.result != Utils::SynchronousProcessResponse::Finished) {
             QMessageBox::critical(0, tr("Error"),
                                   tr("Failed to run keytool."));
-            return 0;
+            return nullptr;
         }
 
-        if (keytoolProc.exitCode()) {
-            QMessageBox::critical(0, tr("Error"),
-                                  tr("Invalid password."));
+        if (response.exitCode != 0) {
+            QMessageBox::critical(0, tr("Error"), tr("Invalid password."));
             m_keystorePasswd.clear();
         }
-        rawCerts = QString::fromLatin1(keytoolProc.readAllStandardOutput());
+        rawCerts = response.stdOut;
     }
     return new CertificatesModel(rawCerts, this);
 }

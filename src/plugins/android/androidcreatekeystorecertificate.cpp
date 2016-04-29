@@ -27,8 +27,9 @@
 #include "androidconfigurations.h"
 #include "ui_androidcreatekeystorecertificate.h"
 
+#include <utils/synchronousprocess.h>
+
 #include <QFileDialog>
-#include <QProcess>
 #include <QMessageBox>
 
 using namespace Android::Internal;
@@ -162,6 +163,7 @@ void AndroidCreateKeystoreCertificate::on_buttonBox_accepted()
     if (ui->stateNameLineEdit->text().length())
         distinguishedNames += QLatin1String(", S=") + ui->stateNameLineEdit->text().replace(QLatin1Char(','), QLatin1String("\\,"));
 
+    const QString command = AndroidConfigurations::currentConfig().keytoolPath().toString();
     QStringList params;
     params << QLatin1String("-genkey") << QLatin1String("-keyalg") << QLatin1String("RSA")
            << QLatin1String("-keystore") << m_keystoreFilePath.toString()
@@ -172,16 +174,13 @@ void AndroidCreateKeystoreCertificate::on_buttonBox_accepted()
            << QLatin1String("-keypass") << certificatePassword()
            << QLatin1String("-dname") << distinguishedNames;
 
-    QProcess genKeyCertProc;
-    genKeyCertProc.start(AndroidConfigurations::currentConfig().keytoolPath().toString(), params );
+    Utils::SynchronousProcess genKeyCertProc;
+    genKeyCertProc.setTimeoutS(15);
+    Utils::SynchronousProcessResponse response = genKeyCertProc.run(command, params);
 
-    if (!genKeyCertProc.waitForStarted() || !genKeyCertProc.waitForFinished())
-        return;
-
-    if (genKeyCertProc.exitCode()) {
-        QMessageBox::critical(this, tr("Error")
-                              , QString::fromLatin1(genKeyCertProc.readAllStandardOutput())
-                              + QString::fromLatin1(genKeyCertProc.readAllStandardError()));
+    if (response.result != Utils::SynchronousProcessResponse::Finished || response.exitCode != 0) {
+        QMessageBox::critical(this, tr("Error"),
+                              response.exitMessage(command, 15) + QLatin1Char('\n') + response.allOutput());
         return;
     }
     accept();

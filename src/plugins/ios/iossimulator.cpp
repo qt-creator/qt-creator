@@ -187,7 +187,7 @@ Utils::Port IosSimulator::nextPort() const
         if (!portVerifier.waitForStarted())
             break;
         portVerifier.closeWriteChannel();
-        if (!portVerifier.waitForFinished())
+        if (!portVerifier.waitForFinished() && portVerifier.state() == QProcess::Running)
             break;
         if (portVerifier.exitStatus() != QProcess::NormalExit
                 || portVerifier.exitCode() != 0)

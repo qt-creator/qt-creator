@@ -25,6 +25,8 @@
 
 #include "iosprobe.h"
 
+#include <utils/synchronousprocess.h>
+
 #include <QDir>
 #include <QFileInfo>
 #include <QFileInfoList>
@@ -93,14 +95,16 @@ void IosProbe::addDeveloperPath(const QString &path)
 
 void IosProbe::detectDeveloperPaths()
 {
-    QProcess selectedXcode;
     QString program = QLatin1String("/usr/bin/xcode-select");
     QStringList arguments(QLatin1String("--print-path"));
-    selectedXcode.start(program, arguments, QProcess::ReadOnly);
-    if (!selectedXcode.waitForFinished() || selectedXcode.exitCode()) {
+
+    Utils::SynchronousProcess selectedXcode;
+    selectedXcode.setTimeoutS(5);
+    Utils::SynchronousProcessResponse response = selectedXcode.run(program, arguments);
+    if (response.result != Utils::SynchronousProcessResponse::Finished) {
         qCWarning(probeLog) << QString::fromLatin1("Could not detect selected xcode with /usr/bin/xcode-select");
     } else {
-        QString path = QString::fromLocal8Bit(selectedXcode.readAllStandardOutput());
+        QString path = response.stdOut;
         path.chop(1);
         addDeveloperPath(path);
     }

@@ -174,7 +174,7 @@ void ApplicationLauncher::stop()
         return;
     if (d->m_currentMode == Gui) {
         d->m_guiProcess.terminate();
-        if (!d->m_guiProcess.waitForFinished(1000)) { // This is blocking, so be fast.
+        if (!d->m_guiProcess.waitForFinished(1000) && d->m_guiProcess.state() == QProcess::Running) { // This is blocking, so be fast.
             d->m_guiProcess.kill();
             d->m_guiProcess.waitForFinished();
         }

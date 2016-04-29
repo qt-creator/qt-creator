@@ -51,6 +51,7 @@
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtsupportconstants.h>
 #include <utils/algorithm.h>
+#include <utils/synchronousprocess.h>
 
 #include <QDir>
 #include <QFileSystemWatcher>
@@ -345,13 +346,13 @@ void AndroidManager::installQASIPackage(ProjectExplorer::Target *target, const Q
     QStringList arguments = AndroidDeviceInfo::adbSelector(deviceSerialNumber);
     arguments << QLatin1String("install") << QLatin1String("-r ") << packagePath;
 
-    process->connect(process, SIGNAL(finished(int)), process, SLOT(deleteLater()));
+    connect(process, static_cast<void (QProcess::*)(int)>(&QProcess::finished),
+            process, &QObject::deleteLater);
     const QString adb = AndroidConfigurations::currentConfig().adbToolPath().toString();
     Core::MessageManager::write(adb + QLatin1Char(' ') + arguments.join(QLatin1Char(' ')));
     process->start(adb, arguments);
-    if (!process->waitForFinished(500))
+    if (!process->waitForStarted(500) && process->state() != QProcess::Running)
         delete process;
-
 }
 
 bool AndroidManager::checkKeystorePassword(const QString &keystorePath, const QString &keystorePasswd)
@@ -364,16 +365,10 @@ bool AndroidManager::checkKeystorePassword(const QString &keystorePath, const QS
               << keystorePath
               << QLatin1String("--storepass")
               << keystorePasswd;
-    QProcess proc;
-    proc.start(AndroidConfigurations::currentConfig().keytoolPath().toString(), arguments);
-    if (!proc.waitForStarted(10000))
-        return false;
-    if (!proc.waitForFinished(10000)) {
-        proc.kill();
-        proc.waitForFinished();
-        return false;
-    }
-    return proc.exitCode() == 0;
+    Utils::SynchronousProcess proc;
+    proc.setTimeoutS(10);
+    Utils::SynchronousProcessResponse response = proc.run(AndroidConfigurations::currentConfig().keytoolPath().toString(), arguments);
+    return (response.result == Utils::SynchronousProcessResponse::Finished && response.exitCode == 0);
 }
 
 bool AndroidManager::checkCertificatePassword(const QString &keystorePath, const QString &keystorePasswd, const QString &alias, const QString &certificatePasswd)
@@ -393,16 +388,11 @@ bool AndroidManager::checkCertificatePassword(const QString &keystorePath, const
     else
         arguments << certificatePasswd;
 
-    QProcess proc;
-    proc.start(AndroidConfigurations::currentConfig().keytoolPath().toString(), arguments);
-    if (!proc.waitForStarted(10000))
-        return false;
-    if (!proc.waitForFinished(10000)) {
-        proc.kill();
-        proc.waitForFinished();
-        return false;
-    }
-    return proc.exitCode() == 0;
+    Utils::SynchronousProcess proc;
+    proc.setTimeoutS(10);
+    Utils::SynchronousProcessResponse response
+            = proc.run(AndroidConfigurations::currentConfig().keytoolPath().toString(), arguments);
+    return response.result == Utils::SynchronousProcessResponse::Finished && response.exitCode == 0;
 }
 
 bool AndroidManager::checkForQt51Files(Utils::FileName fileName)

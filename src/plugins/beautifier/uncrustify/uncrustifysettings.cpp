@@ -31,6 +31,8 @@
 
 #include <coreplugin/icore.h>
 
+#include <utils/synchronousprocess.h>
+
 #include <QDateTime>
 #include <QFile>
 #include <QFileInfo>
@@ -124,10 +126,11 @@ QString UncrustifySettings::documentationFilePath() const
 
 void UncrustifySettings::createDocumentationFile() const
 {
-    QProcess process;
-    process.start(command(), {"--show-config"});
-    process.waitForFinished(2000); // show config should be really fast.
-    if (process.error() != QProcess::UnknownError)
+    Utils::SynchronousProcess process;
+    process.setTimeoutS(2);
+    Utils::SynchronousProcessResponse response
+            = process.run(command(), QStringList() << QLatin1String("--show-config"));
+    if (response.result != Utils::SynchronousProcessResponse::Finished)
         return;
 
     QFile file(documentationFilePath());
@@ -144,7 +147,7 @@ void UncrustifySettings::createDocumentationFile() const
     stream.writeComment("Created " + QDateTime::currentDateTime().toString(Qt::ISODate));
     stream.writeStartElement(Constants::DOCUMENTATION_XMLROOT);
 
-    const QStringList lines = QString::fromUtf8(process.readAll()).split('\n');
+    const QStringList lines = response.allOutput().split(QLatin1Char('\n'));
     const int totalLines = lines.count();
     for (int i = 0; i < totalLines; ++i) {
         const QString &line = lines.at(i);

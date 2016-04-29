@@ -32,11 +32,11 @@
 #include <coreplugin/icore.h>
 
 #include <utils/runextensions.h>
+#include <utils/synchronousprocess.h>
 
 #include <QDateTime>
 #include <QFile>
 #include <QFileInfo>
-#include <QProcess>
 #include <QXmlStreamWriter>
 
 namespace Beautifier {
@@ -78,18 +78,17 @@ static int parseVersion(const QString &text)
 
 static int updateVersionHelper(const QString &command)
 {
-    QProcess process;
-    process.start(command, {"--version"});
-    if (!process.waitForFinished()) {
-        process.kill();
+    Utils::SynchronousProcess process;
+    Utils::SynchronousProcessResponse response
+            = process.run(command, QStringList() << QLatin1String("--version"));
+    if (response.result != Utils::SynchronousProcessResponse::Finished)
         return 0;
-    }
 
     // Astyle prints the version on stdout or stderr, depending on platform
-    const int version = parseVersion(QString::fromUtf8(process.readAllStandardOutput()).trimmed());
+    const int version = parseVersion(response.stdOut.trimmed());
     if (version != 0)
         return version;
-    return parseVersion(QString::fromUtf8(process.readAllStandardError()).trimmed());
+    return parseVersion(response.stdErr.trimmed());
 }
 
 void ArtisticStyleSettings::updateVersion()
@@ -155,10 +154,11 @@ QString ArtisticStyleSettings::documentationFilePath() const
 
 void ArtisticStyleSettings::createDocumentationFile() const
 {
-    QProcess process;
-    process.start(command(), {"-h"});
-    process.waitForFinished(2000); // show help should be really fast.
-    if (process.error() != QProcess::UnknownError)
+    Utils::SynchronousProcess process;
+    process.setTimeoutS(2);
+    Utils::SynchronousProcessResponse response
+            = process.run(command(), QStringList() << QLatin1String("-h"));
+    if (response.result != Utils::SynchronousProcessResponse::Finished)
         return;
 
     QFile file(documentationFilePath());
@@ -176,8 +176,7 @@ void ArtisticStyleSettings::createDocumentationFile() const
     stream.writeStartElement(Constants::DOCUMENTATION_XMLROOT);
 
     // astyle writes its output to 'error'...
-    const QStringList lines = QString::fromUtf8(process.readAllStandardError())
-            .split('\n');
+    const QStringList lines = response.stdErr.split(QLatin1Char('\n'));
     QStringList keys;
     QStringList docu;
     for (QString line : lines) {

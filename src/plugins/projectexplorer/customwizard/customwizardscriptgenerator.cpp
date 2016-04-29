@@ -28,8 +28,8 @@
 #include "customwizardparameters.h"
 
 #include <utils/hostosinfo.h>
+#include <utils/synchronousprocess.h>
 
-#include <QProcess>
 #include <QDir>
 #include <QFileInfo>
 #include <QDebug>
@@ -83,7 +83,7 @@ static bool
                               const QMap<QString, QString> &fieldMap,
                               QString *stdOut /* = 0 */, QString *errorMessage)
 {
-    QProcess process;
+    Utils::SynchronousProcess process;
     const QString binary = script.front();
     QStringList arguments;
     const int binarySize = script.size();
@@ -107,32 +107,23 @@ static bool
             arguments.push_back(value);
     }
     process.setWorkingDirectory(workingDirectory);
+    process.setTimeoutS(30);
     if (CustomWizard::verbose())
         qDebug("In %s, running:\n%s\n%s\n", qPrintable(workingDirectory),
                qPrintable(binary),
                qPrintable(arguments.join(QLatin1Char(' '))));
-    process.start(binary, arguments);
-    if (!process.waitForStarted()) {
-        *errorMessage = QString::fromLatin1("Unable to start generator script %1: %2").
-                arg(binary, process.errorString());
-        return false;
-    }
-    if (!process.waitForFinished()) {
-        *errorMessage = QString::fromLatin1("Generator script %1 timed out").arg(binary);
-        return false;
-    }
-    if (process.exitStatus() != QProcess::NormalExit) {
-        *errorMessage = QString::fromLatin1("Generator script %1 crashed").arg(binary);
-        return false;
-    }
-    if (process.exitCode() != 0) {
-        const QString stdErr = QString::fromLocal8Bit(process.readAllStandardError());
-        *errorMessage = QString::fromLatin1("Generator script %1 returned %2 (%3)").
-                arg(binary).arg(process.exitCode()).arg(stdErr);
+    Utils::SynchronousProcessResponse response = process.run(binary, arguments);
+    if (response.result != Utils::SynchronousProcessResponse::Finished) {
+        *errorMessage = QString::fromLatin1("Generator script failed: %1")
+                .arg(response.exitMessage(binary, 30));
+        if (!response.stdErr.isEmpty()) {
+            errorMessage->append(QLatin1Char('\n'));
+            errorMessage->append(response.stdErr);
+        }
         return false;
     }
     if (stdOut) {
-        *stdOut = QString::fromLocal8Bit(process.readAllStandardOutput());
+        *stdOut = response.stdOut;
         stdOut->remove(QLatin1Char('\r'));
         if (CustomWizard::verbose())
             qDebug("Output: '%s'\n", qPrintable(*stdOut));

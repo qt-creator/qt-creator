@@ -137,6 +137,17 @@ QString SynchronousProcessResponse::exitMessage(const QString &binary, int timeo
     return QString();
 }
 
+QString SynchronousProcessResponse::allOutput() const
+{
+    if (!stdOut.isEmpty() && !stdErr.isEmpty()) {
+        if (stdOut.endsWith(QLatin1Char('\n')))
+            return stdOut + stdErr;
+        else
+            return stdOut + QLatin1Char('\n') + stdErr;
+    }
+    return !stdOut.isEmpty() ? stdOut : stdErr;
+}
+
 QTCREATOR_UTILS_EXPORT QDebug operator<<(QDebug str, const SynchronousProcessResponse& r)
 {
     QDebug nsp = str.nospace();
@@ -579,9 +590,8 @@ bool SynchronousProcess::readDataFromProcess(QProcess &p, int timeoutS,
     bool finished = false;
     bool hasData = false;
     do {
-        finished = p.state() == QProcess::NotRunning
-                || p.waitForFinished(timeoutS > 0 ? timeoutS * 1000 : -1);
-        hasData = false;
+        finished = p.waitForFinished(timeoutS > 0 ? timeoutS * 1000 : -1)
+                || p.state() == QProcess::NotRunning;
         // First check 'stdout'
         if (p.bytesAvailable()) { // applies to readChannel() only
             hasData = true;
@@ -608,13 +618,13 @@ bool SynchronousProcess::readDataFromProcess(QProcess &p, int timeoutS,
 
 bool SynchronousProcess::stopProcess(QProcess &p)
 {
-    if (p.state() != QProcess::Running)
+    if (p.state() == QProcess::NotRunning)
         return true;
     p.terminate();
-    if (p.waitForFinished(300))
+    if (p.waitForFinished(300) && p.state() == QProcess::Running)
         return true;
     p.kill();
-    return p.waitForFinished(300);
+    return p.waitForFinished(300) || p.state() == QProcess::NotRunning;
 }
 
 // Path utilities

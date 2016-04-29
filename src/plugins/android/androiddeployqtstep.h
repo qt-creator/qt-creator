@@ -32,9 +32,7 @@
 #include <projectexplorer/abstractprocessstep.h>
 #include <qtsupport/baseqtversion.h>
 
-namespace Utils {
-class QtcProcess;
-}
+namespace Utils { class QtcProcess; }
 
 QT_BEGIN_NAMESPACE
 class QAbstractItemModel;
