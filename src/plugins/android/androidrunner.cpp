@@ -249,13 +249,19 @@ static int extractPid(const QString &exeName, const QByteArray &psOutput)
 
 QByteArray AndroidRunner::runPs()
 {
-    QByteArray psLine("ps");
-    if (m_isBusyBox)
-        psLine += " -w";
-    psLine += '\n';
-    m_psProc.write(psLine);
-    m_psProc.waitForBytesWritten(psLine.size());
-    return m_psProc.readAllStandardOutput();
+    if (QThread::currentThread() != thread()) {
+        QByteArray ret;
+        QMetaObject::invokeMethod(this, "runPs", Qt::BlockingQueuedConnection, Q_RETURN_ARG(QByteArray, ret));
+        return ret;
+    } else {
+        QByteArray psLine("ps");
+        if (m_isBusyBox)
+            psLine += " -w";
+        psLine += '\n';
+        m_psProc.write(psLine);
+        m_psProc.waitForBytesWritten(psLine.size());
+        return m_psProc.readAllStandardOutput();
+    }
 }
 
 void AndroidRunner::checkPID()
