@@ -34,11 +34,10 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
-#include <utils/hostosinfo.h>
-#include <utils/persistentsettings.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/devicesupport/devicemanager.h>
+#include <projectexplorer/project.h>
 #include <projectexplorer/toolchainmanager.h>
 #include <projectexplorer/session.h>
 #include <debugger/debuggeritemmanager.h>
@@ -49,24 +48,21 @@
 #include <qtsupport/qtversionmanager.h>
 #include <utils/algorithm.h>
 #include <utils/environment.h>
+#include <utils/hostosinfo.h>
+#include <utils/persistentsettings.h>
 #include <utils/qtcassert.h>
 #include <utils/runextensions.h>
 #include <utils/sleep.h>
 #include <utils/synchronousprocess.h>
 
-#include <QDateTime>
+#include <QApplication>
+#include <QDirIterator>
+#include <QFileInfo>
+#include <QHostAddress>
+#include <QProcess>
 #include <QSettings>
 #include <QStringList>
-#include <QProcess>
-#include <QFileInfo>
-#include <QDirIterator>
-#include <QMetaObject>
-#include <QApplication>
-
-#include <QStringListModel>
-#include <QMessageBox>
 #include <QTcpSocket>
-#include <QHostAddress>
 
 #include <functional>
 
@@ -209,11 +205,7 @@ Abi AndroidConfig::abiForToolChainPrefix(const QString &toolchainPrefix)
         wordWidth = 64;
     }
 
-    Abi abi = ProjectExplorer::Abi(arch,
-                                   ProjectExplorer::Abi::LinuxOS,
-                                   ProjectExplorer::Abi::AndroidLinuxFlavor, ProjectExplorer::Abi::ElfFormat,
-                                   wordWidth);
-    return abi;
+    return Abi(arch, Abi::LinuxOS, Abi::AndroidLinuxFlavor, Abi::ElfFormat, wordWidth);
 }
 
 QLatin1String AndroidConfig::toolchainPrefix(const Abi &abi)
@@ -1417,8 +1409,8 @@ AndroidConfigurations::AndroidConfigurations(QObject *parent)
 {
     load();
 
-    connect(ProjectExplorer::SessionManager::instance(), SIGNAL(projectRemoved(ProjectExplorer::Project*)),
-            this, SLOT(clearDefaultDevices(ProjectExplorer::Project*)));
+    connect(SessionManager::instance(), &SessionManager::projectRemoved,
+            this, &AndroidConfigurations::clearDefaultDevices);
 
     m_force32bit = is32BitUserSpace();
 

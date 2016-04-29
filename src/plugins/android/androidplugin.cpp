@@ -46,13 +46,17 @@
 #endif
 
 #include <coreplugin/icore.h>
+
+#include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/kitmanager.h>
+
 #include <qtsupport/qtversionmanager.h>
+
 #include <utils/mimetypes/mimedatabase.h>
 
 #include <QtPlugin>
 
-#include <projectexplorer/devicesupport/devicemanager.h>
+using namespace ProjectExplorer;
 
 namespace Android {
 
@@ -75,27 +79,27 @@ bool AndroidPlugin::initialize(const QStringList &arguments, QString *errorMessa
     addAutoReleasedObject(new Internal::AndroidDeviceFactory);
     addAutoReleasedObject(new Internal::AndroidPotentialKit);
     addAutoReleasedObject(new Internal::JavaEditorFactory);
-    ProjectExplorer::KitManager::registerKitInformation(new Internal::AndroidGdbServerKitInformation);
+    KitManager::registerKitInformation(new Internal::AndroidGdbServerKitInformation);
 
     Utils::MimeDatabase::addMimeTypes(QLatin1String(":/android/Android.mimetypes.xml"));
 
     addAutoReleasedObject(new Internal::AndroidManifestEditorFactory);
 
-    connect(ProjectExplorer::KitManager::instance(), SIGNAL(kitsLoaded()),
-            this, SLOT(kitsRestored()));
+    connect(KitManager::instance(), &KitManager::kitsLoaded,
+            this, &AndroidPlugin::kitsRestored);
 
-    connect(ProjectExplorer::DeviceManager::instance(), SIGNAL(devicesLoaded()),
-            this, SLOT(updateDevice()));
+    connect(DeviceManager::instance(), &DeviceManager::devicesLoaded,
+            this, &AndroidPlugin::updateDevice);
     return true;
 }
 
 void AndroidPlugin::kitsRestored()
 {
     AndroidConfigurations::updateAutomaticKitList();
-    connect(QtSupport::QtVersionManager::instance(), SIGNAL(qtVersionsChanged(QList<int>,QList<int>,QList<int>)),
-            AndroidConfigurations::instance(), SLOT(updateAutomaticKitList()));
-    disconnect(ProjectExplorer::KitManager::instance(), SIGNAL(kitsChanged()),
-               this, SLOT(kitsRestored()));
+    connect(QtSupport::QtVersionManager::instance(), &QtSupport::QtVersionManager::qtVersionsChanged,
+            AndroidConfigurations::instance(), &AndroidConfigurations::updateAutomaticKitList);
+    disconnect(KitManager::instance(), &KitManager::kitsChanged,
+               this, &AndroidPlugin::kitsRestored);
 }
 
 void AndroidPlugin::updateDevice()
