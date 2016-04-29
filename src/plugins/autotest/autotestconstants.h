@@ -42,14 +42,4 @@ const char UNNAMED_QUICKTESTS[]         = QT_TR_NOOP("<unnamed>");
 const char AUTOTEST_SETTINGS_CATEGORY[] = "ZY.Tests";
 
 } // namespace Constants
-
-namespace Internal {
-
-enum TestType
-{
-    TestTypeQt,
-    TestTypeGTest
-};
-
-} // namespace Internal
 } // namespace Autotest

@@ -30,21 +30,30 @@
 #include <projectexplorer/project.h>
 #include <utils/environment.h>
 
+#include <QFutureInterface>
 #include <QObject>
 #include <QPointer>
 #include <QStringList>
 
+QT_BEGIN_NAMESPACE
+class QProcess;
+QT_END_NAMESPACE
+
 namespace Autotest {
 namespace Internal {
 
-class TestConfiguration : public QObject
+class TestOutputReader;
+class TestResult;
+class TestSettings;
+
+using TestResultPtr = QSharedPointer<TestResult>;
+
+class TestConfiguration
 
 {
-    Q_OBJECT
 public:
-    explicit TestConfiguration(const QString &testClass, const QStringList &testCases,
-                               int testCaseCount = 0, QObject *parent = 0);
-    ~TestConfiguration();
+    explicit TestConfiguration();
+    virtual ~TestConfiguration();
 
     void completeTestInformation();
 
@@ -58,11 +67,8 @@ public:
     void setDisplayName(const QString &displayName);
     void setEnvironment(const Utils::Environment &env);
     void setProject(ProjectExplorer::Project *project);
-    void setUnnamedOnly(bool unnamedOnly);
     void setGuessedConfiguration(bool guessed);
-    void setTestType(TestType type);
 
-    QString testClass() const { return m_testClass; }
     QStringList testCases() const { return m_testCases; }
     int testCaseCount() const { return m_testCaseCount; }
     QString proFile() const { return m_proFile; }
@@ -73,16 +79,15 @@ public:
     QString displayName() const { return m_displayName; }
     Utils::Environment environment() const { return m_environment; }
     ProjectExplorer::Project *project() const { return m_project.data(); }
-    bool unnamedOnly() const { return m_unnamedOnly; }
     bool guessedConfiguration() const { return m_guessedConfiguration; }
-    TestType testType() const { return m_type; }
+
+    virtual TestOutputReader *outputReader(const QFutureInterface<TestResultPtr> &fi,
+                                           QProcess *app) const = 0;
+    virtual QStringList argumentsForTestRunner(const TestSettings &settings) const = 0;
 
 private:
-    QString m_testClass;
     QStringList m_testCases;
-    int m_testCaseCount;
-    QString m_mainFilePath;
-    bool m_unnamedOnly;
+    int m_testCaseCount = 0;
     QString m_proFile;
     QString m_targetFile;
     QString m_targetName;
@@ -91,8 +96,40 @@ private:
     QString m_displayName;
     Utils::Environment m_environment;
     QPointer<ProjectExplorer::Project> m_project;
-    bool m_guessedConfiguration;
-    TestType m_type;
+    bool m_guessedConfiguration = false;
+};
+
+class QtTestConfiguration : public TestConfiguration
+{
+public:
+    explicit QtTestConfiguration() {}
+    TestOutputReader *outputReader(const QFutureInterface<TestResultPtr> &fi,
+                                   QProcess *app) const override;
+    QStringList argumentsForTestRunner(const TestSettings &settings) const override;
+};
+
+class QuickTestConfiguration : public TestConfiguration
+{
+public:
+    explicit QuickTestConfiguration() {}
+    TestOutputReader *outputReader(const QFutureInterface<TestResultPtr> &fi,
+                                   QProcess *app) const override;
+    QStringList argumentsForTestRunner(const TestSettings &settings) const override;
+
+    void setUnnamedOnly(bool unnamedOnly);
+    bool unnamedOnly() const { return m_unnamedOnly; }
+
+private:
+    bool m_unnamedOnly = false;
+};
+
+class GoogleTestConfiguration : public TestConfiguration
+{
+public:
+    explicit GoogleTestConfiguration() {}
+    TestOutputReader *outputReader(const QFutureInterface<TestResultPtr> &fi,
+                                   QProcess *app) const override;
+    QStringList argumentsForTestRunner(const TestSettings &settings) const override;
 };
 
 } // namespace Internal

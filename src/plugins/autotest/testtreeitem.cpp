@@ -420,17 +420,19 @@ TestConfiguration *AutoTestTreeItem::testConfiguration() const
     ProjectExplorer::Project *project = ProjectExplorer::SessionManager::startupProject();
     QTC_ASSERT(project, return 0);
 
-    TestConfiguration *config = 0;
+    QtTestConfiguration *config = 0;
     switch (type()) {
     case TestCase:
-        config = new TestConfiguration(name(), QStringList(), childCount());
+        config = new QtTestConfiguration;
+        config->setTestCaseCount(childCount());
         config->setProFile(proFile());
         config->setProject(project);
         config->setDisplayName(TestUtils::getCMakeDisplayNameIfNecessary(filePath(), proFile()));
         break;
     case TestFunctionOrSet: {
         TestTreeItem *parent = parentItem();
-        config = new TestConfiguration(parent->name(), QStringList() << name());
+        config = new QtTestConfiguration();
+        config->setTestCases(QStringList(name()));
         config->setProFile(parent->proFile());
         config->setProject(project);
         config->setDisplayName(
@@ -443,7 +445,8 @@ TestConfiguration *AutoTestTreeItem::testConfiguration() const
         if (!parent)
             return 0;
         const QString functionWithTag = function->name() + QLatin1Char(':') + name();
-        config = new TestConfiguration(parent->name(), QStringList() << functionWithTag);
+        config = new QtTestConfiguration();
+        config->setTestCases(QStringList(functionWithTag));
         config->setProFile(parent->proFile());
         config->setProject(project);
         config->setDisplayName(TestUtils::getCMakeDisplayNameIfNecessary(filePath(),
@@ -467,8 +470,8 @@ QList<TestConfiguration *> AutoTestTreeItem::getAllTestConfigurations() const
     for (int row = 0, count = childCount(); row < count; ++row) {
         const TestTreeItem *child = childItem(row);
 
-        TestConfiguration *tc = new TestConfiguration(child->name(), QStringList(),
-                                                      child->childCount());
+        TestConfiguration *tc = new QtTestConfiguration();
+        tc->setTestCaseCount(child->childCount());
         tc->setProFile(child->proFile());
         tc->setProject(project);
         tc->setDisplayName(TestUtils::getCMakeDisplayNameIfNecessary(child->filePath(),
@@ -485,7 +488,7 @@ QList<TestConfiguration *> AutoTestTreeItem::getSelectedTestConfigurations() con
     if (!project || type() != Root)
         return result;
 
-    TestConfiguration *testConfiguration = 0;
+    QtTestConfiguration *testConfiguration = 0;
 
     for (int row = 0, count = childCount(); row < count; ++row) {
         const TestTreeItem *child = childItem(row);
@@ -494,7 +497,8 @@ QList<TestConfiguration *> AutoTestTreeItem::getSelectedTestConfigurations() con
         case Qt::Unchecked:
             continue;
         case Qt::Checked:
-            testConfiguration = new TestConfiguration(child->name(), QStringList(), child->childCount());
+            testConfiguration = new QtTestConfiguration();
+            testConfiguration->setTestCaseCount(child->childCount());
             testConfiguration->setProFile(child->proFile());
             testConfiguration->setProject(project);
             testConfiguration->setDisplayName(
@@ -503,7 +507,6 @@ QList<TestConfiguration *> AutoTestTreeItem::getSelectedTestConfigurations() con
             continue;
         case Qt::PartiallyChecked:
         default:
-            const QString childName = child->name();
             int grandChildCount = child->childCount();
             QStringList testCases;
             for (int grandChildRow = 0; grandChildRow < grandChildCount; ++grandChildRow) {
@@ -512,7 +515,8 @@ QList<TestConfiguration *> AutoTestTreeItem::getSelectedTestConfigurations() con
                     testCases << grandChild->name();
             }
 
-            testConfiguration = new TestConfiguration(childName, testCases);
+            testConfiguration = new QtTestConfiguration();
+            testConfiguration->setTestCases(testCases);
             testConfiguration->setProFile(child->proFile());
             testConfiguration->setProject(project);
             testConfiguration->setDisplayName(
@@ -646,13 +650,14 @@ TestConfiguration *QuickTestTreeItem::testConfiguration() const
     ProjectExplorer::Project *project = ProjectExplorer::SessionManager::startupProject();
     QTC_ASSERT(project, return 0);
 
-    TestConfiguration *config = 0;
+    QuickTestConfiguration *config = 0;
     switch (type()) {
     case TestCase: {
         QStringList testFunctions;
         for (int row = 0, count = childCount(); row < count; ++row)
             testFunctions << name() + QLatin1String("::") + childItem(row)->name();
-        config = new TestConfiguration(QString(), testFunctions);
+        config = new QuickTestConfiguration;
+        config->setTestCases(testFunctions);
         config->setProFile(proFile());
         config->setProject(project);
         break;
@@ -660,7 +665,8 @@ TestConfiguration *QuickTestTreeItem::testConfiguration() const
     case TestFunctionOrSet: {
         TestTreeItem *parent = parentItem();
         QStringList testFunction(parent->name() + QLatin1String("::") + name());
-        config = new TestConfiguration(QString(), testFunction);
+        config = new QuickTestConfiguration;
+        config->setTestCases(testFunction);
         config->setProFile(parent->proFile());
         config->setProject(project);
         break;
@@ -699,7 +705,8 @@ QList<TestConfiguration *> QuickTestTreeItem::getAllTestConfigurations() const
     QHash<QString, int>::ConstIterator it = foundProFiles.begin();
     QHash<QString, int>::ConstIterator end = foundProFiles.end();
     for ( ; it != end; ++it) {
-        TestConfiguration *tc = new TestConfiguration(QString(), QStringList(), it.value());
+        QuickTestConfiguration *tc = new QuickTestConfiguration;
+        tc->setTestCaseCount(it.value());
         tc->setProFile(it.key());
         tc->setProject(project);
         result << tc;
@@ -714,8 +721,8 @@ QList<TestConfiguration *> QuickTestTreeItem::getSelectedTestConfigurations() co
     if (!project || type() != Root)
         return result;
 
-    TestConfiguration *tc = 0;
-    QHash<QString, TestConfiguration *> foundProFiles;
+    QuickTestConfiguration *tc = 0;
+    QHash<QString, QuickTestConfiguration *> foundProFiles;
     // unnamed Quick Tests must be handled first
     if (TestTreeItem *unnamed = unnamedQuickTests()) {
         for (int childRow = 0, ccount = unnamed->childCount(); childRow < ccount; ++ childRow) {
@@ -727,7 +734,7 @@ QList<TestConfiguration *> QuickTestTreeItem::getSelectedTestConfigurations() co
                            return QList<TestConfiguration *>());
                 foundProFiles[proFile]->setTestCaseCount(tc->testCaseCount() + 1);
             } else {
-                tc = new TestConfiguration(QString(), QStringList());
+                tc = new QuickTestConfiguration;
                 tc->setTestCaseCount(1);
                 tc->setUnnamedOnly(true);
                 tc->setProFile(proFile);
@@ -771,7 +778,8 @@ QList<TestConfiguration *> QuickTestTreeItem::getSelectedTestConfigurations() co
                     tc->setTestCases(oldFunctions);
                 }
             } else {
-                tc = new TestConfiguration(QString(), testFunctions);
+                tc = new QuickTestConfiguration;
+                tc->setTestCases(testFunctions);
                 tc->setProFile(child->proFile());
                 tc->setProject(project);
                 foundProFiles.insert(child->proFile(), tc);
@@ -779,10 +787,10 @@ QList<TestConfiguration *> QuickTestTreeItem::getSelectedTestConfigurations() co
             break;
         }
     }
-    QHash<QString, TestConfiguration *>::ConstIterator it = foundProFiles.begin();
-    QHash<QString, TestConfiguration *>::ConstIterator end = foundProFiles.end();
+    QHash<QString, QuickTestConfiguration *>::ConstIterator it = foundProFiles.begin();
+    QHash<QString, QuickTestConfiguration *>::ConstIterator end = foundProFiles.end();
     for ( ; it != end; ++it) {
-        TestConfiguration *config = it.value();
+        QuickTestConfiguration *config = it.value();
         if (!config->unnamedOnly())
             result << config;
         else
@@ -888,19 +896,19 @@ TestConfiguration *GoogleTestTreeItem::testConfiguration() const
     ProjectExplorer::Project *project = ProjectExplorer::SessionManager::startupProject();
     QTC_ASSERT(project, return 0);
 
-    TestConfiguration *config = 0;
+    GoogleTestConfiguration *config = 0;
     switch (type()) {
     case TestCase: {
         const QString &testSpecifier = gtestFilter(state()).arg(name()).arg(QLatin1Char('*'));
         if (int count = childCount()) {
-            config = new TestConfiguration(QString(), QStringList(testSpecifier));
+            config = new GoogleTestConfiguration;
+            config->setTestCases(QStringList(testSpecifier));
             config->setTestCaseCount(count);
             config->setProFile(proFile());
             config->setProject(project);
             // item has no filePath set - so take it of the first children
             config->setDisplayName(
                     TestUtils::getCMakeDisplayNameIfNecessary(childItem(0)->filePath(), proFile()));
-            config->setTestType(TestTypeGTest);
         }
         break;
     }
@@ -909,12 +917,12 @@ TestConfiguration *GoogleTestTreeItem::testConfiguration() const
         if (parent)
             return 0;
         const QString &testSpecifier = gtestFilter(parent->state()).arg(parent->name()).arg(name());
-        config = new TestConfiguration(QString(), QStringList(testSpecifier));
+        config = new GoogleTestConfiguration;
+        config->setTestCases(QStringList(testSpecifier));
         config->setProFile(proFile());
         config->setProject(project);
         config->setDisplayName(
                     TestUtils::getCMakeDisplayNameIfNecessary(filePath(), parent->proFile()));
-        config->setTestType(TestTypeGTest);
         break;
     }
     default:
@@ -980,8 +988,8 @@ QList<TestConfiguration *> GoogleTestTreeItem::getAllTestConfigurations() const
     QHash<ProFileWithDisplayName, int>::ConstIterator end = proFilesWithTestSets.end();
     for ( ; it != end; ++it) {
         const ProFileWithDisplayName &key = it.key();
-        TestConfiguration *tc = new TestConfiguration(QString(), QStringList(), it.value());
-        tc->setTestType(TestTypeGTest);
+        GoogleTestConfiguration *tc = new GoogleTestConfiguration;
+        tc->setTestCaseCount(it.value());
         tc->setProFile(key.proFile);
         tc->setDisplayName(key.displayName);
         tc->setProject(project);
@@ -1022,8 +1030,8 @@ QList<TestConfiguration *> GoogleTestTreeItem::getSelectedTestConfigurations() c
     QHash<ProFileWithDisplayName, QStringList>::ConstIterator end = proFilesWithCheckedTestSets.end();
     for ( ; it != end; ++it) {
         const ProFileWithDisplayName &key = it.key();
-        TestConfiguration *tc = new TestConfiguration(QString(), it.value());
-        tc->setTestType(TestTypeGTest);
+        GoogleTestConfiguration *tc = new GoogleTestConfiguration;
+        tc->setTestCases(it.value());
         tc->setProFile(key.proFile);
         tc->setDisplayName(key.displayName);
         tc->setProject(project);

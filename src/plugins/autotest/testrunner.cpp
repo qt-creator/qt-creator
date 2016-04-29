@@ -122,7 +122,6 @@ static void performTestRun(QFutureInterface<TestResultPtr> &futureInterface,
                            const TestSettings &settings)
 {
     const int timeout = settings.timeout;
-    const QString &metricsOption = TestSettings::metricsTypeToOption(settings.metrics);
     QEventLoop eventLoop;
     int testCaseCount = 0;
     foreach (TestConfiguration *config, selectedTests) {
@@ -144,16 +143,8 @@ static void performTestRun(QFutureInterface<TestResultPtr> &futureInterface,
 
     foreach (const TestConfiguration *testConfiguration, selectedTests) {
         QScopedPointer<TestOutputReader> outputReader;
-        switch (testConfiguration->testType()) {
-        case TestTypeQt:
-            outputReader.reset(new QtTestOutputReader(futureInterface, &testProcess,
-                                                      testConfiguration->buildDirectory()));
-            break;
-        case TestTypeGTest:
-            outputReader.reset(new GTestOutputReader(futureInterface, &testProcess,
-                                                     testConfiguration->buildDirectory()));
-            break;
-        }
+        outputReader.reset(testConfiguration->outputReader(futureInterface, &testProcess));
+        QTC_ASSERT(outputReader, continue);
         if (futureInterface.isCanceled())
             break;
 
@@ -170,31 +161,7 @@ static void performTestRun(QFutureInterface<TestResultPtr> &futureInterface,
             continue;
         }
 
-        if (testConfiguration->testType() == TestTypeQt) {
-            QStringList argumentList(QLatin1String("-xml"));
-            if (!metricsOption.isEmpty())
-                argumentList << metricsOption;
-            if (testConfiguration->testCases().count())
-                argumentList << testConfiguration->testCases();
-            testProcess.setArguments(argumentList);
-        } else { // TestTypeGTest
-            QStringList argumentList;
-            const QStringList &testSets = testConfiguration->testCases();
-            if (testSets.size()) {
-                argumentList << QLatin1String("--gtest_filter=")
-                                + testSets.join(QLatin1Char(':'));
-            }
-            if (settings.gtestRunDisabled)
-                argumentList << QLatin1String("--gtest_also_run_disabled_tests");
-            if (settings.gtestRepeat)
-                argumentList << QString::fromLatin1("--gtest_repeat=%1").arg(settings.gtestIterations);
-            if (settings.gtestShuffle) {
-                argumentList << QLatin1String("--gtest_shuffle");
-                argumentList << QString::fromLatin1("--gtest_random_seed=%1").arg(settings.gtestSeed);
-            }
-            testProcess.setArguments(argumentList);
-        }
-
+        testProcess.setArguments(testConfiguration->argumentsForTestRunner(settings));
         testProcess.setWorkingDirectory(testConfiguration->workingDirectory());
         if (Utils::HostOsInfo::isWindowsHost())
             environment.insert(QLatin1String("QT_LOGGING_TO_CONSOLE"), QLatin1String("1"));
