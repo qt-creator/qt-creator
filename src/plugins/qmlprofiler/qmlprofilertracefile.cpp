@@ -522,8 +522,7 @@ void QmlProfilerFileWriter::setFuture(QFutureInterface<void> *future)
 void QmlProfilerFileWriter::save(QIODevice *device)
 {
     if (m_future) {
-        m_future->setProgressRange(
-                    0, qMax(m_model->eventTypes().size() + m_model->count() + m_notes.size(), 1));
+        m_future->setProgressRange(0, qMax(m_model->eventTypes().size() + m_notes.size(), 1));
         m_future->setProgressValue(0);
         m_newProgressValue = 0;
     }

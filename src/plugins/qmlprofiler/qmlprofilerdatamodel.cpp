@@ -34,6 +34,7 @@
 #include <QUrl>
 #include <QDebug>
 #include <QStack>
+#include <QTemporaryFile>
 #include <algorithm>
 
 namespace QmlProfiler {
@@ -46,7 +47,6 @@ public:
     int resolveStackTop();
 
     QVector<QmlEventType> eventTypes;
-    QVector<QmlEvent> eventList;
     QHash<QmlEventType, int> eventTypeIds;
 
     QStack<QmlTypedEvent> rangesInProgress;
@@ -54,6 +54,9 @@ public:
     QmlProfilerModelManager *modelManager;
     int modelId;
     Internal::QmlProfilerDetailsRewriter *detailsRewriter;
+
+    QTemporaryFile file;
+    QDataStream eventStream;
 };
 
 QString getDisplayName(const QmlEventType &event)
@@ -117,6 +120,8 @@ QmlProfilerDataModel::QmlProfilerDataModel(Utils::FileInProjectFinder *fileFinde
             this, &QmlProfilerDataModel::detailsChanged);
     connect(d->detailsRewriter, &QmlProfilerDetailsRewriter::eventDetailsChanged,
             this, &QmlProfilerDataModel::allTypesLoaded);
+    d->file.open();
+    d->eventStream.setDevice(&d->file);
 }
 
 QmlProfilerDataModel::~QmlProfilerDataModel()
@@ -138,25 +143,22 @@ void QmlProfilerDataModel::setData(qint64 traceStart, qint64 traceEnd,
 {
     Q_D(QmlProfilerDataModel);
     d->modelManager->traceTime()->setTime(traceStart, traceEnd);
-    d->eventList = events;
     d->eventTypes = types;
     for (int id = 0; id < types.count(); ++id)
         d->eventTypeIds[types[id]] = id;
 
-    foreach (const QmlEvent &event, d->eventList)
+    foreach (const QmlEvent &event, events) {
         d->modelManager->dispatch(event, d->eventTypes[event.typeIndex()]);
-}
-
-int QmlProfilerDataModel::count() const
-{
-    Q_D(const QmlProfilerDataModel);
-    return d->eventList.count();
+        d->eventStream << event;
+    }
 }
 
 void QmlProfilerDataModel::clear()
 {
     Q_D(QmlProfilerDataModel);
-    d->eventList.clear();
+    d->file.remove();
+    d->file.open();
+    d->eventStream.setDevice(&d->file);
     d->eventTypes.clear();
     d->eventTypeIds.clear();
     d->rangesInProgress.clear();
@@ -166,7 +168,7 @@ void QmlProfilerDataModel::clear()
 bool QmlProfilerDataModel::isEmpty() const
 {
     Q_D(const QmlProfilerDataModel);
-    return d->eventList.isEmpty();
+    return d->file.pos() == 0;
 }
 
 inline static uint qHash(const QmlEventType &type)
@@ -234,8 +236,8 @@ int QmlProfilerDataModel::QmlProfilerDataModelPrivate::resolveStackTop()
 
     typeIndex = resolveType(typedEvent.type);
     typedEvent.event.setTypeIndex(typeIndex);
-    eventList.append(typedEvent.event);
-    modelManager->dispatch(eventList.last(), eventTypes[typeIndex]);
+    eventStream << typedEvent.event;
+    modelManager->dispatch(typedEvent.event, eventTypes[typeIndex]);
     return typeIndex;
 }
 
@@ -256,9 +258,9 @@ void QmlProfilerDataModel::addEvent(const QmlEvent &event, const QmlEventType &t
     case RangeEnd: {
         int typeIndex = d->resolveStackTop();
         QTC_ASSERT(typeIndex != -1, break);
-        d->eventList.append(event);
-        QmlEvent &appended = d->eventList.last();
+        QmlEvent appended = event;
         appended.setTypeIndex(typeIndex);
+        d->eventStream << appended;
         d->modelManager->dispatch(appended, d->eventTypes[typeIndex]);
         d->rangesInProgress.pop();
         break;
@@ -270,10 +272,10 @@ void QmlProfilerDataModel::addEvent(const QmlEvent &event, const QmlEventType &t
         d->rangesInProgress.top().type.location = type.location;
         break;
     default: {
-        d->eventList.append(event);
-        QmlEvent &appended = d->eventList.last();
+        QmlEvent appended = event;
         int typeIndex = d->resolveType(type);
         appended.setTypeIndex(typeIndex);
+        d->eventStream << appended;
         d->modelManager->dispatch(appended, d->eventTypes[typeIndex]);
         break;
     }
@@ -285,7 +287,15 @@ void QmlProfilerDataModel::replayEvents(qint64 rangeStart, qint64 rangeEnd,
 {
     Q_D(const QmlProfilerDataModel);
     QStack<QmlEvent> stack;
-    foreach (const QmlEvent &event, d->eventList) {
+    QmlEvent event;
+    QFile file(d->file.fileName());
+    file.open(QIODevice::ReadOnly);
+    QDataStream stream(&file);
+    while (!stream.atEnd()) {
+        stream >> event;
+        if (stream.status() == QDataStream::ReadPastEnd)
+            break;
+
         const QmlEventType &type = d->eventTypes[event.typeIndex()];
         if (rangeStart != -1 && rangeEnd != -1) {
             if (event.timestamp() < rangeStart) {
@@ -324,18 +334,10 @@ void QmlProfilerDataModel::replayEvents(qint64 rangeStart, qint64 rangeEnd,
     }
 }
 
-qint64 QmlProfilerDataModel::lastTimeMark() const
-{
-    Q_D(const QmlProfilerDataModel);
-    if (d->eventList.isEmpty())
-        return 0;
-
-    return d->eventList.last().timestamp();
-}
-
 void QmlProfilerDataModel::finalize()
 {
     Q_D(QmlProfilerDataModel);
+    d->file.flush();
     d->detailsRewriter->reloadDocuments();
 }
 

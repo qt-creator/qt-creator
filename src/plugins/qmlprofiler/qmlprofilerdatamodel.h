@@ -49,14 +49,12 @@ public:
     void setData(qint64 traceStart, qint64 traceEnd, const QVector<QmlEventType> &types,
                  const QVector<QmlEvent> &events);
 
-    int count() const;
     void clear();
     bool isEmpty() const;
     void addEvent(const QmlEvent &event, const QmlEventType &type);
     void replayEvents(qint64 startTime, qint64 endTime,
                       QmlProfilerModelManager::EventLoader loader) const;
     void finalize();
-    qint64 lastTimeMark() const;
 
 signals:
     void allTypesLoaded();

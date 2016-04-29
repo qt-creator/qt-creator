@@ -343,7 +343,7 @@ void QmlProfilerModelManager::load(const QString &filename)
                           reader->eventTypes(), reader->events());
         d->notesModel->setNotes(reader->notes());
         setRecordedFeatures(reader->loadedFeatures());
-        d->traceTime->increaseEndTime(d->model->lastTimeMark());
+        d->traceTime->increaseEndTime(reader->events().last().timestamp());
         delete reader;
         acquiringDone();
     }, Qt::QueuedConnection);
