@@ -26,7 +26,6 @@
 #pragma once
 
 #include "qmlprofiler_global.h"
-#include "qmlprofilertimelinemodelfactory.h"
 #include "qmlprofilersettings.h"
 #include <extensionsystem/iplugin.h>
 

@@ -34,7 +34,6 @@ SOURCES += \
     qmlprofilerstatisticsmodel.cpp \
     qmlprofilerstatisticsview.cpp \
     qmlprofilertimelinemodel.cpp \
-    qmlprofilertimelinemodelfactory.cpp \
     qmlprofilertool.cpp \
     qmlprofilertracefile.cpp \
     qmlprofilertraceview.cpp \
@@ -74,7 +73,6 @@ HEADERS += \
     qmlprofilerstatisticsmodel.h \
     qmlprofilerstatisticsview.h \
     qmlprofilertimelinemodel.h \
-    qmlprofilertimelinemodelfactory.h \
     qmlprofilertool.h \
     qmlprofilertracefile.h \
     qmlprofilertraceview.h \
