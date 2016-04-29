@@ -377,38 +377,8 @@ Import LinkPrivate::importNonFile(Document::Ptr doc, const ImportInfo &importInf
     const QString packageName = importInfo.name();
     const ComponentVersion version = importInfo.version();
 
-    bool importFound = false;
-
-    const QString &packagePath = importInfo.path();
-    // check the filesystem with full version
-    foreach (const QString &importPath, importPaths) {
-        QString libraryPath = QString::fromLatin1("%1/%2.%3").arg(importPath, packagePath, version.toString());
-        if (importLibrary(doc, libraryPath, &import, importPath)) {
-            importFound = true;
-            break;
-        }
-    }
-    if (!importFound) {
-        // check the filesystem with major version
-        foreach (const QString &importPath, importPaths) {
-            QString libraryPath = QString::fromLatin1("%1/%2.%3").arg(importPath, packagePath,
-                                                          QString::number(version.majorVersion()));
-            if (importLibrary(doc, libraryPath, &import, importPath)) {
-                importFound = true;
-                break;
-            }
-        }
-    }
-    if (!importFound) {
-        // check the filesystem with no version
-        foreach (const QString &importPath, importPaths) {
-            QString libraryPath = QString::fromLatin1("%1/%2").arg(importPath, packagePath);
-            if (importLibrary(doc, libraryPath, &import, importPath)) {
-                importFound = true;
-                break;
-            }
-        }
-    }
+    QString libraryPath = modulePath(packageName, version.toString(), importPaths);
+    bool importFound = importLibrary(doc, libraryPath, &import);
 
     // if there are cpp-based types for this package, use them too
     if (valueOwner->cppQmlTypes().hasModule(packageName)) {

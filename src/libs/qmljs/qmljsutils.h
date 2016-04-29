@@ -54,6 +54,11 @@ QMLJS_EXPORT bool isValidBuiltinPropertyType(const QString &name);
 QMLJS_EXPORT DiagnosticMessage errorMessage(const AST::SourceLocation &loc,
                                             const QString &message);
 
+QMLJS_EXPORT bool maybeModuleVersion(const QString &version);
+
+QMLJS_EXPORT QString modulePath(const QString &moduleImportName, const QString &version,
+                                const QStringList &importPaths);
+
 template <class T>
 AST::SourceLocation locationFromRange(const T *node)
 {
