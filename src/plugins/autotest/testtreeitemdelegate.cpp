@@ -25,7 +25,6 @@
 
 #include "testtreeitem.h"
 #include "testtreeitemdelegate.h"
-#include "testtreemodel.h"
 
 #include <QPainter>
 
@@ -70,8 +69,8 @@ void TestTreeItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &
         }
     }
 
-    // paint disabled googletests in gray
-    if (index.data(StateRole).toInt() & GoogleTestTreeItem::Disabled)
+    // paint disabled items in gray
+    if (!index.data(EnabledRole).toBool())
         opt.palette.setColor(QPalette::Text, QColor(0xa0, 0xa0, 0xa0));
 
     QStyledItemDelegate::paint(painter, opt, index);

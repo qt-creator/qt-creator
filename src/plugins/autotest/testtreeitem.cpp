@@ -88,6 +88,8 @@ QVariant TestTreeItem::data(int /*column*/, int role) const
         return false;
     case TypeRole:
         return m_type;
+    case EnabledRole:
+        return true;
     }
     return QVariant();
 }
@@ -869,8 +871,7 @@ QVariant GoogleTestTreeItem::data(int column, int role) const
         if (type() == TestTreeItem::Root)
             break;
 
-        const QString &displayName = (m_state & GoogleTestTreeItem::Disabled)
-                ? name().mid(9) : name();
+        const QString &displayName = (m_state & Disabled) ? name().mid(9) : name();
         return QVariant(displayName + nameSuffix());
     }
     case Qt::CheckStateRole:
@@ -883,8 +884,8 @@ QVariant GoogleTestTreeItem::data(int column, int role) const
         }
     case ItalicRole:
         return false;
-    case StateRole:
-        return (int)m_state;
+    case EnabledRole:
+        return !(m_state & Disabled);
     default:
         break;
     }

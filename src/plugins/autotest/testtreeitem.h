@@ -36,7 +36,7 @@ namespace {
         LinkRole = Qt::UserRole + 2, // can be removed if AnnotationRole comes back
         ItalicRole, // used only inside the delegate
         TypeRole,
-        StateRole
+        EnabledRole
     };
 }
 
