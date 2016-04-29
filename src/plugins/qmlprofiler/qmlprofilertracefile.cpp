@@ -504,11 +504,9 @@ void QmlProfilerFileWriter::setTraceTime(qint64 startTime, qint64 endTime, qint6
     m_measuredTime = measuredTime;
 }
 
-void QmlProfilerFileWriter::setData(const QVector<QmlEventType> &types,
-                                         const QVector<QmlEvent> &events)
+void QmlProfilerFileWriter::setData(const QmlProfilerDataModel *model)
 {
-    m_eventTypes = types;
-    m_events = events;
+    m_model = model;
 }
 
 void QmlProfilerFileWriter::setNotes(const QVector<QmlNote> &notes)
@@ -524,8 +522,8 @@ void QmlProfilerFileWriter::setFuture(QFutureInterface<void> *future)
 void QmlProfilerFileWriter::save(QIODevice *device)
 {
     if (m_future) {
-        m_future->setProgressRange(0,
-            qMax(m_eventTypes.size() + m_events.size() + m_notes.size(), 1));
+        m_future->setProgressRange(
+                    0, qMax(m_model->eventTypes().size() + m_model->count() + m_notes.size(), 1));
         m_future->setProgressValue(0);
         m_newProgressValue = 0;
     }
@@ -544,11 +542,12 @@ void QmlProfilerFileWriter::save(QIODevice *device)
     stream.writeStartElement(_("eventData"));
     stream.writeAttribute(_("totalTime"), QString::number(m_measuredTime));
 
-    for (int typeIndex = 0; typeIndex < m_eventTypes.size(); ++typeIndex) {
+    const QVector<QmlEventType> &eventTypes = m_model->eventTypes();
+    for (int typeIndex = 0; typeIndex < eventTypes.size(); ++typeIndex) {
         if (isCanceled())
             return;
 
-        const QmlEventType &type = m_eventTypes[typeIndex];
+        const QmlEventType &type = eventTypes[typeIndex];
 
         stream.writeStartElement(_("event"));
         stream.writeAttribute(_("index"), QString::number(typeIndex));
@@ -596,15 +595,14 @@ void QmlProfilerFileWriter::save(QIODevice *device)
     stream.writeStartElement(_("profilerDataModel"));
 
     QStack<QmlEvent> stack;
-    for (int rangeIndex = 0; rangeIndex < m_events.size(); ++rangeIndex) {
+    m_model->replayEvents(-1, -1, [this, &stack, &stream](const QmlEvent &event,
+                                                          const QmlEventType &type) {
         if (isCanceled())
             return;
 
-        const QmlEvent &event = m_events[rangeIndex];
-        const QmlEventType &type = m_eventTypes[event.typeIndex()];
         if (type.rangeType != MaximumRangeType && event.rangeStage() == RangeStart) {
             stack.push(event);
-            continue;
+            return;
         }
 
         stream.writeStartElement(_("range"));
@@ -666,7 +664,7 @@ void QmlProfilerFileWriter::save(QIODevice *device)
 
         stream.writeEndElement();
         incrementProgress();
-    }
+    });
     stream.writeEndElement(); // profilerDataModel
 
     stream.writeStartElement(_("noteData"));

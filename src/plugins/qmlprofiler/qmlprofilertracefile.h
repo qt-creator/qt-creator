@@ -88,7 +88,7 @@ public:
     explicit QmlProfilerFileWriter(QObject *parent = 0);
 
     void setTraceTime(qint64 startTime, qint64 endTime, qint64 measturedTime);
-    void setData(const QVector<QmlEventType> &types, const QVector<QmlEvent> &events);
+    void setData(const QmlProfilerDataModel *model);
     void setNotes(const QVector<QmlNote> &notes);
     void setFuture(QFutureInterface<void> *future);
 
@@ -101,8 +101,7 @@ private:
 
     qint64 m_startTime, m_endTime, m_measuredTime;
     QFutureInterface<void> *m_future;
-    QVector<QmlEventType> m_eventTypes;
-    QVector<QmlEvent> m_events;
+    const QmlProfilerDataModel *m_model;
     QVector<QmlNote> m_notes;
     int m_newProgressValue;
 };

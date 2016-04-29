@@ -126,12 +126,6 @@ QmlProfilerDataModel::~QmlProfilerDataModel()
     delete d;
 }
 
-const QVector<QmlEvent> &QmlProfilerDataModel::events() const
-{
-    Q_D(const QmlProfilerDataModel);
-    return d->eventList;
-}
-
 const QVector<QmlEventType> &QmlProfilerDataModel::eventTypes() const
 {
     Q_D(const QmlProfilerDataModel);

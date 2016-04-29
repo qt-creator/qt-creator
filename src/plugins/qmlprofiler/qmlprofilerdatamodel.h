@@ -45,7 +45,6 @@ public:
                                   QmlProfilerModelManager *parent);
     ~QmlProfilerDataModel();
 
-    const QVector<QmlEvent> &events() const;
     const QVector<QmlEventType> &eventTypes() const;
     void setData(qint64 traceStart, qint64 traceEnd, const QVector<QmlEventType> &types,
                  const QVector<QmlEvent> &events);

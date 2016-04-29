@@ -302,7 +302,7 @@ void QmlProfilerModelManager::save(const QString &filename)
     QmlProfilerFileWriter *writer = new QmlProfilerFileWriter(this);
     writer->setTraceTime(traceTime()->startTime(), traceTime()->endTime(),
                         traceTime()->duration());
-    writer->setData(d->model->eventTypes(), d->model->events());
+    writer->setData(d->model);
     writer->setNotes(d->notesModel->notes());
 
     connect(writer, &QObject::destroyed, this, &QmlProfilerModelManager::saveFinished,
