@@ -118,7 +118,6 @@ public:
 
     static QString nameForType(QmlDebug::RangeType typeNumber);
 
-    void getStatisticsInRange(qint64 rangeStart, qint64 rangeEnd);
     int selectedTypeId() const;
 
     void setShowExtendedStatistics(bool);

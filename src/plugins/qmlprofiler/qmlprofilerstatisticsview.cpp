@@ -719,11 +719,6 @@ QString QmlProfilerStatisticsMainView::nameForType(RangeType typeNumber)
     }
 }
 
-void QmlProfilerStatisticsMainView::getStatisticsInRange(qint64 rangeStart, qint64 rangeEnd)
-{
-    d->model->limitToRange(rangeStart, rangeEnd);
-}
-
 int QmlProfilerStatisticsMainView::selectedTypeId() const
 {
     QModelIndex index = selectedModelIndex();
