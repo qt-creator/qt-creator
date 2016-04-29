@@ -481,6 +481,8 @@ void SubComponentManager::update(const QUrl &filePath, const QList<Import> &impo
         addImport(ii, imports.at(ii));
     }
 
+    m_watcher.addPath(newDir.absoluteFilePath());
+
     parseDirectories();
 }
 
