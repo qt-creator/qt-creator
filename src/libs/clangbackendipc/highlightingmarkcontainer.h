@@ -27,6 +27,7 @@
 #define CLANGBACKEND_HIGHLIGHTINGMARKCONTAINER_H
 
 #include "clangbackendipc_global.h"
+#include <ostream>
 
 namespace ClangBackEnd {
 

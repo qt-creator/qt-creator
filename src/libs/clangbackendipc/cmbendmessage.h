@@ -27,6 +27,7 @@
 #define CMBENDMESSAGE_H
 
 #include "clangbackendipc_global.h"
+#include <ostream>
 
 namespace ClangBackEnd {
 
