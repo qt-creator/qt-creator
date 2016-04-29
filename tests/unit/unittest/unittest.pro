@@ -68,7 +68,8 @@ SOURCES += \
     unsavedfiletest.cpp \
     clangisdiagnosticrelatedtolocationtest.cpp \
     smallstringtest.cpp \
-    sizedarraytest.cpp
+    sizedarraytest.cpp \
+    utf8positionfromlinecolumntest.cpp
 
 exists($$GOOGLEBENCHMARK_DIR) {
 SOURCES += \

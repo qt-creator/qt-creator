@@ -96,9 +96,8 @@ ClangCodeCompleteResults CodeCompleter::complete(uint line,
 bool CodeCompleter::hasDotAt(uint line, uint column) const
 {
     const UnsavedFile &unsavedFile = translationUnit.unsavedFile();
-    const SourceLocation location = translationUnit.sourceLocationAtWithoutReparsing(line, column);
 
-    return unsavedFile.hasCharacterAt(location.offset(), '.');
+    return unsavedFile.hasCharacterAt(line, column, '.');
 }
 
 uint CodeCompleter::defaultOptions() const

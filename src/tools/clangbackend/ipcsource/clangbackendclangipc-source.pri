@@ -33,7 +33,8 @@ HEADERS += $$PWD/clangipcserver.h \
     $$PWD/highlightinginformationsiterator.h \
     $$PWD/skippedsourceranges.h \
     $$PWD/clangtranslationunit.h \
-    $$PWD/clangtype.h
+    $$PWD/clangtype.h \
+    $$PWD/utf8positionfromlinecolumn.h
 
 SOURCES += $$PWD/clangipcserver.cpp \
     $$PWD/codecompleter.cpp \
@@ -66,4 +67,5 @@ SOURCES += $$PWD/clangipcserver.cpp \
     $$PWD/highlightinginformation.cpp \
     $$PWD/skippedsourceranges.cpp \
     $$PWD/clangtranslationunit.cpp \
-    $$PWD/clangtype.cpp
+    $$PWD/clangtype.cpp \
+    $$PWD/utf8positionfromlinecolumn.cpp

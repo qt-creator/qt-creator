@@ -25,44 +25,30 @@
 
 #pragma once
 
-#include <QtGlobal>
-
-#include <clang-c/Index.h>
-
-#include <iosfwd>
-
-class Utf8String;
-
 namespace ClangBackEnd {
 
-using uint = unsigned int;
+using uint = unsigned;
 
-class UnsavedFile
+class Utf8PositionFromLineColumn
 {
 public:
-    friend void PrintTo(const UnsavedFile &unsavedFile, std::ostream *os);
-
-    UnsavedFile();
-    UnsavedFile(const Utf8String &filePath, const Utf8String &fileContent);
-    ~UnsavedFile();
-
-    UnsavedFile(const UnsavedFile &other) = delete;
-    bool operator=(const UnsavedFile &other) = delete;
-
-    UnsavedFile(UnsavedFile &&other) Q_DECL_NOEXCEPT;
-    UnsavedFile &operator=(UnsavedFile &&other) Q_DECL_NOEXCEPT;
-
-    const char *filePath() const;
+    Utf8PositionFromLineColumn(const char *utf8Text);
 
     // 1-based line and column
-    bool hasCharacterAt(uint line, uint column, char character) const;
-    bool hasCharacterAt(uint position, char character) const;
-    bool replaceAt(uint position, uint length, const Utf8String &replacement);
+    bool find(uint line, uint column);
 
-    CXUnsavedFile *data();
+    uint position() const;
 
-public: // for tests
-    CXUnsavedFile cxUnsavedFile;
+private:
+    bool advanceToLine(uint line);
+    bool advanceToColumn(uint column);
+    bool advanceCodePoint(bool stopOnNewLine = false);
+
+private:
+    const char * const m_utf8Text = 0;
+
+    const char *m_previousByte = 0;
+    const char *m_currentByte = 0;
 };
 
 } // namespace ClangBackEnd
