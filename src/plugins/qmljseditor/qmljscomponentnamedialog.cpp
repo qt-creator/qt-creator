@@ -51,6 +51,10 @@ ComponentNameDialog::~ComponentNameDialog()
 
 bool ComponentNameDialog::go(QString *proposedName,
                              QString *proposedPath,
+                             const QStringList &properties,
+                             const QStringList &sourcePreview,
+                             const QString &oldFileName,
+                             QStringList *result,
                              QWidget *parent)
 {
     Q_ASSERT(proposedName);
@@ -60,18 +64,79 @@ bool ComponentNameDialog::go(QString *proposedName,
     d.ui->componentNameEdit->setNamespacesEnabled(false);
     d.ui->componentNameEdit->setLowerCaseFileName(false);
     d.ui->componentNameEdit->setForceFirstCapitalLetter(true);
+    if (proposedName->isEmpty())
+        *proposedName = QLatin1String("MyComponent");
     d.ui->componentNameEdit->setText(*proposedName);
     d.ui->pathEdit->setExpectedKind(Utils::PathChooser::ExistingDirectory);
     d.ui->pathEdit->setHistoryCompleter(QLatin1String("QmlJs.Component.History"));
     d.ui->pathEdit->setPath(*proposedPath);
+    d.ui->label->setText(tr("Property assignments for %1:").arg(oldFileName));
+    d.m_sourcePreview = sourcePreview;
+
+    d.setProperties(properties);
+
+    d.generateCodePreview();
+
+    d.connect(d.ui->listWidget, &QListWidget::itemChanged, &d, &ComponentNameDialog::generateCodePreview);
+    d.connect(d.ui->componentNameEdit, &QLineEdit::textChanged, &d, &ComponentNameDialog::generateCodePreview);
 
     if (QDialog::Accepted == d.exec()) {
         *proposedName = d.ui->componentNameEdit->text();
         *proposedPath = d.ui->pathEdit->path();
+
+        if (result)
+            *result = d.propertiesToKeep();
         return true;
     }
 
     return false;
+}
+
+void ComponentNameDialog::setProperties(const QStringList &properties)
+{
+    ui->listWidget->addItems(properties);
+
+    for (int i = 0; i < ui->listWidget->count(); ++i) {
+        QListWidgetItem *item = ui->listWidget->item(i);
+        item->setFlags(Qt::ItemIsUserCheckable | Qt:: ItemIsEnabled);
+        if (item->text() == QLatin1String("x")
+                || item->text() == QLatin1String("y"))
+            ui->listWidget->item(i)->setCheckState(Qt::Checked);
+        else
+            ui->listWidget->item(i)->setCheckState(Qt::Unchecked);
+    }
+}
+
+QStringList ComponentNameDialog::propertiesToKeep() const
+{
+    QStringList result;
+    for (int i = 0; i < ui->listWidget->count(); ++i) {
+        QListWidgetItem *item = ui->listWidget->item(i);
+
+        if (item->checkState() == Qt::Checked)
+            result.append(item->text());
+    }
+
+    return result;
+}
+
+void ComponentNameDialog::generateCodePreview()
+{
+     const QString componentName = ui->componentNameEdit->text();
+
+     ui->plainTextEdit->clear();
+     ui->plainTextEdit->appendPlainText(componentName + QLatin1String(" {"));
+     if (!m_sourcePreview.first().isEmpty())
+        ui->plainTextEdit->appendPlainText(m_sourcePreview.first());
+
+     for (int i = 0; i < ui->listWidget->count(); ++i) {
+         QListWidgetItem *item = ui->listWidget->item(i);
+
+         if (item->checkState() == Qt::Checked)
+             ui->plainTextEdit->appendPlainText(m_sourcePreview.at(i + 1));
+     }
+
+     ui->plainTextEdit->appendPlainText(QLatin1String("}"));
 }
 
 void ComponentNameDialog::choosePath()

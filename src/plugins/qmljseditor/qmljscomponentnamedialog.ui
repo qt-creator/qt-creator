@@ -7,67 +7,50 @@
     <x>0</x>
     <y>0</y>
     <width>495</width>
-    <height>138</height>
+    <height>311</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Move Component into Separate File</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout">
-   <property name="spacing">
-    <number>0</number>
-   </property>
-   <item>
-    <layout class="QGridLayout" name="gridLayout">
-     <property name="horizontalSpacing">
-      <number>8</number>
+  <layout class="QGridLayout" name="gridLayout_2">
+   <item row="1" column="0" colspan="3">
+    <widget class="QLabel" name="label">
+     <property name="text">
+      <string>Property assignments for</string>
      </property>
-     <property name="verticalSpacing">
-      <number>10</number>
+     <property name="alignment">
+      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
      </property>
-     <item row="2" column="1" colspan="2">
-      <widget class="QLabel" name="messageLabel">
-       <property name="text">
-        <string/>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="1">
-      <widget class="Utils::ClassNameValidatingLineEdit" name="componentNameEdit"/>
-     </item>
-     <item row="1" column="0">
-      <widget class="QLabel" name="choosePathLabel">
-       <property name="text">
-        <string>Path:</string>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="0">
-      <widget class="QLabel" name="componentNameLabel">
-       <property name="text">
-        <string>Component name:</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="1">
-      <widget class="Utils::PathChooser" name="pathEdit" native="true"/>
-     </item>
-    </layout>
+    </widget>
    </item>
-   <item>
-    <spacer name="verticalSpacer">
+   <item row="2" column="0" colspan="2">
+    <widget class="QListWidget" name="listWidget">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="MinimumExpanding">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="2">
+    <widget class="QPlainTextEdit" name="plainTextEdit"/>
+   </item>
+   <item row="3" column="1">
+    <spacer name="verticalSpacer_2">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
      </property>
      <property name="sizeHint" stdset="0">
       <size>
-       <width>0</width>
-       <height>0</height>
+       <width>20</width>
+       <height>40</height>
       </size>
      </property>
     </spacer>
    </item>
-   <item>
+   <item row="4" column="2">
     <widget class="QDialogButtonBox" name="buttonBox">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
@@ -76,6 +59,41 @@
       <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
      </property>
     </widget>
+   </item>
+   <item row="0" column="0" colspan="3">
+    <layout class="QGridLayout" name="gridLayout">
+     <item row="0" column="0">
+      <widget class="QLabel" name="componentNameLabel">
+       <property name="text">
+        <string>Component name:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="Utils::ClassNameValidatingLineEdit" name="componentNameEdit">
+       <property name="placeholderText">
+        <string>Component Name</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="QLabel" name="messageLabel">
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="0">
+      <widget class="QLabel" name="choosePathLabel">
+       <property name="text">
+        <string>Path:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="1">
+      <widget class="Utils::PathChooser" name="pathEdit" native="true"/>
+     </item>
+    </layout>
    </item>
   </layout>
  </widget>

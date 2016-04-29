@@ -40,7 +40,16 @@ public:
     explicit ComponentNameDialog(QWidget *parent = 0);
     ~ComponentNameDialog();
 
-    static bool go(QString *proposedName, QString *proposedPath, QWidget *parent = 0);
+    static bool go(QString *proposedName, QString *proposedPath,
+                   const QStringList &properties, const QStringList &sourcePreview, const QString &oldFileName,
+                   QStringList *result,
+                   QWidget *parent = 0);
+
+    void setProperties(const QStringList &properties);
+
+    QStringList propertiesToKeep() const;
+
+    void generateCodePreview();
 
 public slots:
     void choosePath();
@@ -51,6 +60,7 @@ protected:
 
 private:
     Ui::ComponentNameDialog *ui;
+    QStringList m_sourcePreview;
 };
 
 } // namespace Internal
