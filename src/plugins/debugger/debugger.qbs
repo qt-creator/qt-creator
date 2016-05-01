@@ -29,6 +29,7 @@ QtcPlugin {
     ]
 
     cpp.includePaths: base.concat([project.sharedSourcesDir + "/registryaccess"])
+    cpp.enableExceptions: true
 
     pluginRecommends: [
         "CppEditor"

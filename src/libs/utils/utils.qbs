@@ -22,6 +22,8 @@ QtcLibrary {
         return libs;
     }
 
+    cpp.enableExceptions: true
+
     Properties {
         condition: qbs.targetOS.contains("osx")
         cpp.frameworks: ["Foundation"]
