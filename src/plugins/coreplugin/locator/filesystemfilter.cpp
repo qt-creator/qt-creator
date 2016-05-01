@@ -26,6 +26,7 @@
 #include "filesystemfilter.h"
 #include "locatorwidget.h"
 #include <coreplugin/coreconstants.h>
+#include <coreplugin/documentmanager.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/idocument.h>
@@ -63,13 +64,7 @@ FileSystemFilter::FileSystemFilter(LocatorWidget *locatorWidget)
 void FileSystemFilter::prepareSearch(const QString &entry)
 {
     Q_UNUSED(entry)
-    IDocument *document= EditorManager::currentDocument();
-    if (document && !document->filePath().isEmpty()) {
-        const QFileInfo info = document->filePath().toFileInfo();
-        m_currentDocumentDirectory = info.absolutePath() + QLatin1Char('/');
-    } else {
-        m_currentDocumentDirectory.clear();
-    }
+    m_currentDocumentDirectory = DocumentManager::fileDialogInitialDirectory();
 }
 
 QList<LocatorFilterEntry> FileSystemFilter::matchesFor(QFutureInterface<LocatorFilterEntry> &future,

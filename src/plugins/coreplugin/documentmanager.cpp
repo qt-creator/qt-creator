@@ -229,6 +229,9 @@ DocumentManager::DocumentManager(QObject *parent)
     qApp->installEventFilter(this);
 
     readSettings();
+
+    if (d->m_useProjectsDirectory)
+        setFileDialogLastVisitedDirectory(d->m_projectsDirectory);
 }
 
 DocumentManager::~DocumentManager()
@@ -886,13 +889,7 @@ QStringList DocumentManager::getOpenFileNames(const QString &filters,
                                               const QString &pathIn,
                                               QString *selectedFilter)
 {
-    QString path = pathIn;
-    if (path.isEmpty()) {
-        if (EditorManager::currentDocument() && !EditorManager::currentDocument()->isTemporary())
-            path = EditorManager::currentDocument()->filePath().toString();
-        if (path.isEmpty() && useProjectsDirectory())
-            path = projectsDirectory();
-    }
+    const QString &path = pathIn.isEmpty() ? fileDialogInitialDirectory() : pathIn;
     const QStringList files = QFileDialog::getOpenFileNames(ICore::dialogParent(),
                                                       tr("Open File"),
                                                       path, filters,
