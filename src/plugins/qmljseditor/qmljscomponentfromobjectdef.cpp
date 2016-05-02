@@ -182,7 +182,9 @@ public:
         changeSet.apply(&newComponentSource);
 
         // stop if we can't create the new file
-        if (!refactoring.createFile(newFileName, newComponentSource))
+        const bool reindent = true;
+        const bool openEditor = false;
+        if (!refactoring.createFile(newFileName, newComponentSource, reindent, openEditor))
             return;
 
         if (path == QFileInfo(currentFileName).path()) {
