@@ -576,7 +576,7 @@ static inline void msgCannotRun(const QString &message, QString *errorMessage)
 static inline void msgCannotRun(const QStringList &args, const QString &workingDirectory,
                                 const QByteArray &error, QString *errorMessage)
 {
-    const QString message = GitClient::tr("Cannot run \"%1 %2\" in \"%2\": %3")
+    const QString message = GitClient::tr("Cannot run \"%1\" in \"%2\": %3")
             .arg(QLatin1String("git ") + args.join(QLatin1Char(' ')),
                  QDir::toNativeSeparators(workingDirectory),
                  GitClient::commandOutputFromLocal8Bit(error));
