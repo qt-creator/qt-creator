@@ -81,6 +81,8 @@ public:
 
     static void reportRunResult(QFutureInterface<bool> &fi, bool success);
 
+    bool isActive() const override;
+
 signals:
     /// Adds a \p task to the Issues pane.
     /// Do note that for linking compile output with tasks, you should first emit the task

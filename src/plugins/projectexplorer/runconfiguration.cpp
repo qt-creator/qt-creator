@@ -215,6 +215,11 @@ RunConfiguration::~RunConfiguration()
     qDeleteAll(m_aspects);
 }
 
+bool RunConfiguration::isActive() const
+{
+    return target()->isActive() && target()->activeRunConfiguration() == this;
+}
+
 QString RunConfiguration::disabledReason() const
 {
     if (target()->project()->isParsing())

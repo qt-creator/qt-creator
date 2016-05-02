@@ -178,6 +178,11 @@ void BuildStep::reportRunResult(QFutureInterface<bool> &fi, bool success)
     fi.reportFinished();
 }
 
+bool BuildStep::isActive() const
+{
+    return projectConfiguration()->isActive();
+}
+
 /*!
     If this function returns \c true, the user cannot delete this build step for
     this target and the user is prevented from changing the order in which

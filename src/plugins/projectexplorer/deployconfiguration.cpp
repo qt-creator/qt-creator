@@ -146,6 +146,11 @@ Project *DeployConfiguration::project() const
     return target()->project();
 }
 
+bool DeployConfiguration::isActive() const
+{
+    return target()->isActive() && target()->activeDeployConfiguration() == this;
+}
+
 void DeployConfiguration::cloneSteps(DeployConfiguration *source)
 {
     if (source == this)

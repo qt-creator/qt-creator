@@ -116,6 +116,11 @@ void BuildStepList::cloneSteps(BuildStepList *source)
     }
 }
 
+bool BuildStepList::isActive() const
+{
+    return qobject_cast<ProjectConfiguration *>(parent())->isActive();
+}
+
 bool BuildStepList::fromMap(const QVariantMap &map)
 {
     // We need the ID set before trying to restore the steps!

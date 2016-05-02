@@ -61,6 +61,8 @@ public:
     Target *target() const;
     Project *project() const override;
 
+    bool isActive() const override;
+
 signals:
     void enabledChanged();
 

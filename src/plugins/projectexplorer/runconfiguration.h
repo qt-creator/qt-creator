@@ -206,6 +206,8 @@ class PROJECTEXPLORER_EXPORT RunConfiguration : public StatefulProjectConfigurat
 public:
     ~RunConfiguration() override;
 
+    bool isActive() const override;
+
     QString disabledReason() const override;
 
     virtual QWidget *createConfigurationWidget() = 0;

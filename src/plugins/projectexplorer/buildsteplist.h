@@ -84,6 +84,8 @@ public:
     virtual bool fromMap(const QVariantMap &map) override;
     void cloneSteps(BuildStepList *source);
 
+    bool isActive() const override;
+
 signals:
     void stepInserted(int position);
     void aboutToRemoveStep(int position);

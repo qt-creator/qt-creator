@@ -88,6 +88,8 @@ public:
 
     static QString buildTypeName(BuildType type);
 
+    bool isActive() const override;
+
 signals:
     void environmentChanged();
     void buildDirectoryChanged();

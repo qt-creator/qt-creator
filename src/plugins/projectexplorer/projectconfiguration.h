@@ -67,6 +67,8 @@ public:
 
     virtual Project *project() const = 0;
 
+    virtual bool isActive() const = 0;
+
 signals:
     void displayNameChanged();
     void toolTipChanged();

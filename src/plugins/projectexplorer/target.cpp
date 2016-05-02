@@ -209,6 +209,11 @@ void Target::handleKitRemoval(Kit *k)
     project()->removeTarget(this);
 }
 
+bool Target::isActive() const
+{
+    return project()->activeTarget() == this;
+}
+
 Project *Target::project() const
 {
     return static_cast<Project *>(parent());

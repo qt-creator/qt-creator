@@ -323,6 +323,11 @@ QString BuildConfiguration::buildTypeName(BuildConfiguration::BuildType type)
     }
 }
 
+bool BuildConfiguration::isActive() const
+{
+    return target()->isActive() && target()->activeBuildConfiguration() == this;
+}
+
 ///
 // IBuildConfigurationFactory
 ///

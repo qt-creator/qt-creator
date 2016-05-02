@@ -57,6 +57,8 @@ public:
 
     Project *project() const override;
 
+    bool isActive() const final;
+
     // Kit:
     Kit *kit() const;
 
