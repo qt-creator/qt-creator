@@ -51,23 +51,21 @@ enum CompletionTrigger {
 class TEXTEDITOR_EXPORT CompletionSettings
 {
 public:
-    CompletionSettings();
-
     void toSettings(const QString &category, QSettings *s) const;
     void fromSettings(const QString &category, const QSettings *s);
 
     bool equals(const CompletionSettings &bs) const;
 
-    CaseSensitivity m_caseSensitivity;
-    CompletionTrigger m_completionTrigger;
-    int m_automaticProposalTimeoutInMs;
-    bool m_autoInsertBrackets;
-    bool m_surroundingAutoBrackets;
-    bool m_autoInsertQuotes;
-    bool m_surroundingAutoQuotes;
-    bool m_partiallyComplete;
-    bool m_spaceAfterFunctionName;
-    bool m_autoSplitStrings;
+    CaseSensitivity m_caseSensitivity = CaseInsensitive;
+    CompletionTrigger m_completionTrigger = AutomaticCompletion;
+    int m_automaticProposalTimeoutInMs = 400;
+    bool m_autoInsertBrackets = true;
+    bool m_surroundingAutoBrackets = true;
+    bool m_autoInsertQuotes = true;
+    bool m_surroundingAutoQuotes = true;
+    bool m_partiallyComplete = true;
+    bool m_spaceAfterFunctionName = false;
+    bool m_autoSplitStrings = true;
 };
 
 inline bool operator==(const CompletionSettings &t1, const CompletionSettings &t2) { return t1.equals(t2); }
