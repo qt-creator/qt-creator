@@ -103,10 +103,10 @@ def qdump__QChar(d, value):
     d.putNumChild(0)
 
 
-def qform__QAbstractItemModel():
+def qform_X_QAbstractItemModel():
     return [SimpleFormat, EnhancedFormat]
 
-def qdump__QAbstractItemModel(d, value):
+def qdump_X_QAbstractItemModel(d, value):
     displayFormat = d.currentItemFormat()
     if displayFormat == SimpleFormat:
         d.putPlainChildren(value)
