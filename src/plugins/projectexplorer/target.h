@@ -120,9 +120,9 @@ signals:
 
     // TODO clean up signal names
     // might be better to also have aboutToRemove signals
-    void removedRunConfiguration(ProjectExplorer::RunConfiguration *);
-    void addedRunConfiguration(ProjectExplorer::RunConfiguration *);
-    void activeRunConfigurationChanged(ProjectExplorer::RunConfiguration *);
+    void removedRunConfiguration(ProjectExplorer::RunConfiguration *rc);
+    void addedRunConfiguration(ProjectExplorer::RunConfiguration *rc);
+    void activeRunConfigurationChanged(ProjectExplorer::RunConfiguration *rc);
 
     void removedBuildConfiguration(ProjectExplorer::BuildConfiguration *bc);
     void addedBuildConfiguration(ProjectExplorer::BuildConfiguration *bc);

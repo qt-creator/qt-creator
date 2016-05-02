@@ -216,59 +216,59 @@ Kit *Target::kit() const
     return d->m_kit;
 }
 
-void Target::addBuildConfiguration(BuildConfiguration *configuration)
+void Target::addBuildConfiguration(BuildConfiguration *bc)
 {
-    QTC_ASSERT(configuration && !d->m_buildConfigurations.contains(configuration), return);
-    Q_ASSERT(configuration->target() == this);
+    QTC_ASSERT(bc && !d->m_buildConfigurations.contains(bc), return);
+    Q_ASSERT(bc->target() == this);
 
     // Check that we don't have a configuration with the same displayName
-    QString configurationDisplayName = configuration->displayName();
+    QString configurationDisplayName = bc->displayName();
     QStringList displayNames = Utils::transform(d->m_buildConfigurations, &BuildConfiguration::displayName);
     configurationDisplayName = Project::makeUnique(configurationDisplayName, displayNames);
-    if (configurationDisplayName != configuration->displayName()) {
-        if (configuration->usesDefaultDisplayName())
-            configuration->setDefaultDisplayName(configurationDisplayName);
+    if (configurationDisplayName != bc->displayName()) {
+        if (bc->usesDefaultDisplayName())
+            bc->setDefaultDisplayName(configurationDisplayName);
         else
-            configuration->setDisplayName(configurationDisplayName);
+            bc->setDisplayName(configurationDisplayName);
     }
 
     // add it
-    d->m_buildConfigurations.push_back(configuration);
+    d->m_buildConfigurations.push_back(bc);
 
-    emit addedBuildConfiguration(configuration);
+    emit addedBuildConfiguration(bc);
 
-    connect(configuration, &BuildConfiguration::environmentChanged,
+    connect(bc, &BuildConfiguration::environmentChanged,
             this, &Target::changeEnvironment);
-    connect(configuration, &BuildConfiguration::enabledChanged,
+    connect(bc, &BuildConfiguration::enabledChanged,
             this, &Target::changeBuildConfigurationEnabled);
-    connect(configuration, &BuildConfiguration::buildDirectoryChanged,
+    connect(bc, &BuildConfiguration::buildDirectoryChanged,
             this, &Target::onBuildDirectoryChanged);
 
     if (!activeBuildConfiguration())
-        setActiveBuildConfiguration(configuration);
+        setActiveBuildConfiguration(bc);
 }
 
-bool Target::removeBuildConfiguration(BuildConfiguration *configuration)
+bool Target::removeBuildConfiguration(BuildConfiguration *bc)
 {
     //todo: this might be error prone
-    if (!d->m_buildConfigurations.contains(configuration))
+    if (!d->m_buildConfigurations.contains(bc))
         return false;
 
-    if (BuildManager::isBuilding(configuration))
+    if (BuildManager::isBuilding(bc))
         return false;
 
-    d->m_buildConfigurations.removeOne(configuration);
+    d->m_buildConfigurations.removeOne(bc);
 
-    emit removedBuildConfiguration(configuration);
+    emit removedBuildConfiguration(bc);
 
-    if (activeBuildConfiguration() == configuration) {
+    if (activeBuildConfiguration() == bc) {
         if (d->m_buildConfigurations.isEmpty())
             SessionManager::setActiveBuildConfiguration(this, nullptr, SetActive::Cascade);
         else
             SessionManager::setActiveBuildConfiguration(this, d->m_buildConfigurations.at(0), SetActive::Cascade);
     }
 
-    delete configuration;
+    delete bc;
     return true;
 }
 
@@ -400,57 +400,57 @@ QList<RunConfiguration *> Target::runConfigurations() const
     return d->m_runConfigurations;
 }
 
-void Target::addRunConfiguration(RunConfiguration* runConfiguration)
+void Target::addRunConfiguration(RunConfiguration *rc)
 {
-    QTC_ASSERT(runConfiguration && !d->m_runConfigurations.contains(runConfiguration), return);
-    Q_ASSERT(runConfiguration->target() == this);
-    runConfiguration->addExtraAspects();
+    QTC_ASSERT(rc && !d->m_runConfigurations.contains(rc), return);
+    Q_ASSERT(rc->target() == this);
+    rc->addExtraAspects();
 
     // Check that we don't have a configuration with the same displayName
-    QString configurationDisplayName = runConfiguration->displayName();
+    QString configurationDisplayName = rc->displayName();
     QStringList displayNames = Utils::transform(d->m_runConfigurations, &RunConfiguration::displayName);
     configurationDisplayName = Project::makeUnique(configurationDisplayName, displayNames);
-    runConfiguration->setDisplayName(configurationDisplayName);
+    rc->setDisplayName(configurationDisplayName);
 
-    d->m_runConfigurations.push_back(runConfiguration);
+    d->m_runConfigurations.push_back(rc);
 
-    connect(runConfiguration, &RunConfiguration::enabledChanged,
+    connect(rc, &RunConfiguration::enabledChanged,
             this, &Target::changeRunConfigurationEnabled);
 
-    emit addedRunConfiguration(runConfiguration);
+    emit addedRunConfiguration(rc);
 
     if (!activeRunConfiguration())
-        setActiveRunConfiguration(runConfiguration);
+        setActiveRunConfiguration(rc);
 }
 
-void Target::removeRunConfiguration(RunConfiguration* runConfiguration)
+void Target::removeRunConfiguration(RunConfiguration *rc)
 {
-    QTC_ASSERT(runConfiguration && d->m_runConfigurations.contains(runConfiguration), return);
+    QTC_ASSERT(rc && d->m_runConfigurations.contains(rc), return);
 
-    d->m_runConfigurations.removeOne(runConfiguration);
+    d->m_runConfigurations.removeOne(rc);
 
-    if (activeRunConfiguration() == runConfiguration) {
+    if (activeRunConfiguration() == rc) {
         if (d->m_runConfigurations.isEmpty())
             setActiveRunConfiguration(nullptr);
         else
             setActiveRunConfiguration(d->m_runConfigurations.at(0));
     }
 
-    emit removedRunConfiguration(runConfiguration);
-    delete runConfiguration;
+    emit removedRunConfiguration(rc);
+    delete rc;
 }
 
-RunConfiguration* Target::activeRunConfiguration() const
+RunConfiguration *Target::activeRunConfiguration() const
 {
     return d->m_activeRunConfiguration;
 }
 
-void Target::setActiveRunConfiguration(RunConfiguration* configuration)
+void Target::setActiveRunConfiguration(RunConfiguration *rc)
 {
-    if ((!configuration && d->m_runConfigurations.isEmpty()) ||
-        (configuration && d->m_runConfigurations.contains(configuration) &&
-         configuration != d->m_activeRunConfiguration)) {
-        d->m_activeRunConfiguration = configuration;
+    if ((!rc && d->m_runConfigurations.isEmpty()) ||
+        (rc && d->m_runConfigurations.contains(rc) &&
+         rc != d->m_activeRunConfiguration)) {
+        d->m_activeRunConfiguration = rc;
         emit activeRunConfigurationChanged(d->m_activeRunConfiguration);
         emit runConfigurationEnabledChanged();
     }
