@@ -145,10 +145,10 @@ def qdump_X_QAbstractItemModel(d, value):
                         #d.putType(mi.type)
     #gdb.execute("call free($ri)")
 
-def qform__QModelIndex():
+def qform_X_QModelIndex():
     return [SimpleFormat, EnhancedFormat]
 
-def qdump__QModelIndex(d, value):
+def qdump_X_QModelIndex(d, value):
     displayFormat = d.currentItemFormat()
     if displayFormat == SimpleFormat:
         d.putPlainChildren(value)
