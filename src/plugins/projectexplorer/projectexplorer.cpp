@@ -239,9 +239,7 @@ public:
     void determineSessionToRestoreAtStartup();
     void restoreSession();
     void loadSession(const QString &session);
-    void handleRunProject();
     void runProjectContextMenu();
-    void runProjectWithoutDeploy();
     void savePersistentSettings();
 
     void addNewFile();
@@ -1194,11 +1192,11 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     connect(dd->m_cleanSessionAction, &QAction::triggered,
             dd, &ProjectExplorerPluginPrivate::cleanSession);
     connect(dd->m_runAction, &QAction::triggered,
-            dd, &ProjectExplorerPluginPrivate::handleRunProject);
+            dd, [this]() { m_instance->runStartupProject(Constants::NORMAL_RUN_MODE); });
     connect(dd->m_runActionContextMenu, &QAction::triggered,
             dd, &ProjectExplorerPluginPrivate::runProjectContextMenu);
     connect(dd->m_runWithoutDeployAction, &QAction::triggered,
-            dd, &ProjectExplorerPluginPrivate::runProjectWithoutDeploy);
+            dd, [this]() { m_instance->runStartupProject(Constants::NORMAL_RUN_MODE, true); });
     connect(dd->m_cancelBuildAction, &QAction::triggered,
             dd, &ProjectExplorerPluginPrivate::cancelBuild);
     connect(dd->m_unloadAction, &QAction::triggered,
@@ -2415,16 +2413,6 @@ void ProjectExplorerPluginPrivate::cleanSession()
 {
     queue(SessionManager::projectOrder(),
           QList<Id>() << Id(Constants::BUILDSTEPS_CLEAN));
-}
-
-void ProjectExplorerPluginPrivate::handleRunProject()
-{
-    m_instance->runStartupProject(Constants::NORMAL_RUN_MODE);
-}
-
-void ProjectExplorerPluginPrivate::runProjectWithoutDeploy()
-{
-    m_instance->runStartupProject(Constants::NORMAL_RUN_MODE, true);
 }
 
 void ProjectExplorerPluginPrivate::runProjectContextMenu()
