@@ -26,10 +26,14 @@
 #include "basetexteditmodifier.h"
 
 #include <qmljs/qmljsmodelmanagerinterface.h>
+#include <qmljs/parser/qmljsast_p.h>
 #include <qmljstools/qmljsindenter.h>
 #include <qmljseditor/qmljseditordocument.h>
+#include <qmljseditor/qmljscomponentfromobjectdef.h>
 #include <texteditor/tabsettings.h>
 #include <utils/changeset.h>
+
+#include <typeinfo>
 
 using namespace QmlDesigner;
 
@@ -96,6 +100,40 @@ bool BaseTextEditModifier::renameId(const QString &oldId, const QString &newId)
             QTextCursor tc = bte->textCursor();
             changeSet.apply(&tc);
             return true;
+        }
+    }
+    return false;
+}
+
+static QmlJS::AST::UiObjectDefinition *getObjectDefinition(QList<QmlJS::AST::Node *> path, QmlJS::AST::UiQualifiedId *qualifiedId)
+{
+    QmlJS::AST::UiObjectDefinition *object = 0;
+    for (int i = path.size() - 1; i >= 0; --i) {
+        auto node = path.at(i);
+        if (auto objDef =  QmlJS::AST::cast<QmlJS::AST::UiObjectDefinition *>(node)) {
+            if (objDef->qualifiedTypeNameId == qualifiedId)
+                object = objDef;
+        }
+    }
+    return object;
+}
+
+bool BaseTextEditModifier::moveToComponent(int nodeOffset)
+{
+    if (TextEditor::TextEditorWidget *bte = qobject_cast<TextEditor::TextEditorWidget*>(plainTextEdit())) {
+        if (QmlJSEditor::QmlJSEditorDocument *document
+                = qobject_cast<QmlJSEditor::QmlJSEditorDocument *>(bte->textDocument())) {
+
+            auto *qualifiedId = QmlJS::AST::cast<QmlJS::AST::UiQualifiedId *>(document->semanticInfo().astNodeAt(nodeOffset));
+            QList<QmlJS::AST::Node *> path = document->semanticInfo().rangePath(nodeOffset);
+            QmlJS::AST::UiObjectDefinition *object = getObjectDefinition(path, qualifiedId);
+
+            if (!object)
+                return false;
+
+            QmlJSEditor::ComponentFromObjectDef::perform(document->filePath().toString(), object);
+            return true;
+
         }
     }
     return false;

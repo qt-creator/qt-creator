@@ -82,6 +82,8 @@ public:
 
     virtual bool renameId(const QString &oldId, const QString &newId) = 0;
 
+    virtual bool moveToComponent(int nodeOffset) = 0;
+
 signals:
     void textChanged();
 

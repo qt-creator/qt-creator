@@ -715,6 +715,13 @@ QSet<QPair<QString, QString> > RewriterView::qrcMapping() const
     return m_textToModelMerger->qrcMapping();
 }
 
+void RewriterView::moveToComponent(const ModelNode &modelNode)
+{
+    int offset = nodeOffset(modelNode);
+
+    textModifier()->moveToComponent(offset);
+}
+
 void RewriterView::qmlTextChanged()
 {
     if (inErrorState())

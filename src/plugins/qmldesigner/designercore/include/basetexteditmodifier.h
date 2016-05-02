@@ -46,6 +46,7 @@ public:
     virtual int indentDepth() const;
 
     virtual bool renameId(const QString &oldId, const QString &newId);
+    virtual bool moveToComponent(int nodeOffset);
 };
 
 } // namespace QmlDesigner

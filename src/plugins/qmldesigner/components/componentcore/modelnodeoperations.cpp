@@ -773,6 +773,16 @@ void removePositioner(const SelectionContext &selectionContext)
     removeLayout(selectionContext);
 }
 
+void moveToComponent(const SelectionContext &selectionContext)
+{
+    ModelNode modelNode;
+    if (selectionContext.singleNodeIsSelected())
+        modelNode = selectionContext.selectedModelNodes().first();
+
+    if (modelNode.isValid())
+        selectionContext.view()->model()->rewriterView()->moveToComponent(modelNode);
+}
+
 } // namespace Mode
 
 } //QmlDesigner

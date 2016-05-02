@@ -69,6 +69,7 @@ public:
     virtual void reactivateChangeSignals();
 
     virtual bool renameId(const QString & /* oldId */, const QString & /* newId */) { return false; }
+    virtual bool moveToComponent(int /* nodeOffset */) { return false; }
 
 protected:
     QPlainTextEdit *plainTextEdit() const

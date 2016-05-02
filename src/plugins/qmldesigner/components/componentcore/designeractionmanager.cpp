@@ -510,6 +510,8 @@ void DesignerActionManager::createDefaultDesignerActions()
                (goIntoComponentDisplayName, rootCategory, priorityGoIntoComponent, &goIntoComponent, &selectionIsComponent));
     addDesignerAction(new ModelNodeAction
                (goToImplementationDisplayName, rootCategory, 42, &gotoImplementation, &singleSelectedAndUiFile, &singleSelectedAndUiFile));
+    addDesignerAction(new ModelNodeAction
+               (moveToComponentDisplayName, rootCategory, 44, &moveToComponent, &singleSelection, &singleSelection));
 
 }
 

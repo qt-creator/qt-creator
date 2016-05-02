@@ -176,6 +176,8 @@ public:
 
     QSet<QPair<QString, QString> > qrcMapping() const;
 
+    void moveToComponent(const ModelNode &modelNode);
+
 signals:
     void errorsChanged(const QList<RewriterError> &errors);
 
