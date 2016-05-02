@@ -354,6 +354,9 @@ void DebuggerRunControlCreator::enrich(const RunConfiguration *runConfig, const 
                 m_rp.inferior.executable = p.exe;
     }
 
+    if (m_rp.symbolFile.isEmpty())
+        m_rp.symbolFile = m_rp.inferior.executable;
+
     if (m_runConfig) {
         if (auto envAspect = m_runConfig->extraAspect<EnvironmentAspect>()) {
             m_rp.inferior.environment = envAspect->environment(); // Correct.
