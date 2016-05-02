@@ -198,6 +198,19 @@ public:
             }
         }
 
+        QString replacement = componentName + QLatin1String(" {\n");
+        if (!m_idName.isEmpty())
+            replacement += QLatin1String("id: ") + m_idName + QLatin1Char('\n');
+
+        foreach (const QString &property, result)
+            replacement += property + QLatin1String(": ") + propertyReader.readAstValue(property) + QLatin1Char('\n');
+
+        Utils::ChangeSet changes;
+        changes.replace(start, end, replacement);
+        currentFile->setChangeSet(changes);
+        currentFile->appendIndentRange(Range(start, end + 1));
+        currentFile->apply();
+
         Core::IVersionControl *versionControl = Core::VcsManager::findVersionControlForDirectory(path);
         if (versionControl
                 && versionControl->supportsOperation(Core::IVersionControl::AddOperation)) {
@@ -212,19 +225,6 @@ public:
                                      Core::VcsManager::msgToAddToVcsFailed(QStringList(newFileName), versionControl));
             }
         }
-
-        QString replacement = componentName + QLatin1String(" {\n");
-        if (!m_idName.isEmpty())
-            replacement += QLatin1String("id: ") + m_idName + QLatin1Char('\n');
-
-        foreach (const QString &property, result)
-            replacement += property + QLatin1String(": ") + propertyReader.readAstValue(property) + QLatin1Char('\n');
-
-        Utils::ChangeSet changes;
-        changes.replace(start, end, replacement);
-        currentFile->setChangeSet(changes);
-        currentFile->appendIndentRange(Range(start, end + 1));
-        currentFile->apply();
     }
 };
 
