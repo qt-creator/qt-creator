@@ -33,11 +33,11 @@ HEADERS += projectexplorer.h \
     kitmanagerconfigwidget.h \
     kitmodel.h \
     kitoptionspage.h \
+    projectconfigurationmodel.h \
     buildmanager.h \
     buildsteplist.h \
     compileoutputwindow.h \
     deployconfiguration.h \
-    deployconfigurationmodel.h \
     namedwidget.h \
     target.h \
     targetsettingspanel.h \
@@ -94,8 +94,6 @@ HEADERS += projectexplorer.h \
     ldparser.h \
     linuxiccparser.h \
     runconfigurationaspects.h \
-    runconfigurationmodel.h \
-    buildconfigurationmodel.h \
     processparameters.h \
     abstractprocessstep.h \
     taskhub.h \
@@ -163,6 +161,7 @@ SOURCES += projectexplorer.cpp \
     environmentaspectwidget.cpp \
     gcctoolchain.cpp \
     importwidget.cpp \
+    projectconfigurationmodel.cpp \
     runnables.cpp \
     localenvironmentaspect.cpp \
     osparser.cpp \
@@ -184,7 +183,6 @@ SOURCES += projectexplorer.cpp \
     buildsteplist.cpp \
     compileoutputwindow.cpp \
     deployconfiguration.cpp \
-    deployconfigurationmodel.cpp \
     namedwidget.cpp \
     target.cpp \
     targetsettingspanel.cpp \
@@ -238,8 +236,6 @@ SOURCES += projectexplorer.cpp \
     ldparser.cpp \
     linuxiccparser.cpp \
     runconfigurationaspects.cpp \
-    runconfigurationmodel.cpp \
-    buildconfigurationmodel.cpp \
     taskhub.cpp \
     processparameters.cpp \
     appoutputpane.cpp \

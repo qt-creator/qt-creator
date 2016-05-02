@@ -27,11 +27,10 @@
 
 #include "buildstepspage.h"
 #include "deployconfiguration.h"
-#include "deployconfigurationmodel.h"
-#include "runconfigurationmodel.h"
 #include "runconfiguration.h"
 #include "target.h"
 #include "project.h"
+#include "projectconfigurationmodel.h"
 #include "session.h"
 
 #include <extensionsystem/pluginmanager.h>
@@ -314,7 +313,7 @@ void RunSettingsWidget::activeRunConfigurationChanged()
     QModelIndex actRc = m_runConfigurationsModel->indexFor(m_target->activeRunConfiguration());
     m_ignoreChange = true;
     m_runConfigurationCombo->setCurrentIndex(actRc.row());
-    setConfigurationWidget(m_runConfigurationsModel->runConfigurationAt(actRc.row()));
+    setConfigurationWidget(qobject_cast<RunConfiguration *>(m_runConfigurationsModel->projectConfigurationAt(actRc.row())));
     m_ignoreChange = false;
     m_renameRunButton->setEnabled(m_target->activeRunConfiguration());
 }
@@ -344,7 +343,7 @@ void RunSettingsWidget::currentRunConfigurationChanged(int index)
 
     RunConfiguration *selectedRunConfiguration = nullptr;
     if (index >= 0)
-        selectedRunConfiguration = m_runConfigurationsModel->runConfigurationAt(index);
+        selectedRunConfiguration = qobject_cast<RunConfiguration *>(m_runConfigurationsModel->projectConfigurationAt(index));
 
     if (selectedRunConfiguration == m_runConfiguration)
         return;
@@ -364,7 +363,8 @@ void RunSettingsWidget::currentDeployConfigurationChanged(int index)
     if (index == -1)
         SessionManager::setActiveDeployConfiguration(m_target, nullptr, SetActive::Cascade);
     else
-        SessionManager::setActiveDeployConfiguration(m_target, m_deployConfigurationModel->deployConfigurationAt(index),
+        SessionManager::setActiveDeployConfiguration(m_target,
+                                                     qobject_cast<DeployConfiguration *>(m_deployConfigurationModel->projectConfigurationAt(index)),
                                                      SetActive::Cascade);
 }
 

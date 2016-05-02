@@ -29,7 +29,7 @@
 #include "project.h"
 #include "target.h"
 #include "buildconfiguration.h"
-#include "buildconfigurationmodel.h"
+#include "projectconfigurationmodel.h"
 #include "session.h"
 
 #include <utils/qtcassert.h>
@@ -218,7 +218,7 @@ void BuildSettingsWidget::updateBuildSettings()
 void BuildSettingsWidget::currentIndexChanged(int index)
 {
     auto model = static_cast<BuildConfigurationModel *>(m_buildConfigurationComboBox->model());
-    BuildConfiguration *buildConfiguration = model->buildConfigurationAt(index);
+    auto buildConfiguration = qobject_cast<BuildConfiguration *>(model->projectConfigurationAt(index));
     SessionManager::setActiveBuildConfiguration(m_target, buildConfiguration, SetActive::Cascade);
 }
 

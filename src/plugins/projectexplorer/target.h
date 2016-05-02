@@ -80,6 +80,8 @@ public:
     void setApplicationTargets(const BuildTargetInfoList &appTargets);
     BuildTargetInfoList applicationTargets() const;
 
+    QList<ProjectConfiguration *> projectConfigurations() const;
+
     // Running
     QList<RunConfiguration *> runConfigurations() const;
     void addRunConfiguration(RunConfiguration *rc);

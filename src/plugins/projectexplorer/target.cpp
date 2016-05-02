@@ -408,6 +408,15 @@ BuildTargetInfoList Target::applicationTargets() const
     return d->m_appTargets;
 }
 
+QList<ProjectConfiguration *> Target::projectConfigurations() const
+{
+    QList<ProjectConfiguration *> result;
+    result.append(Utils::transform(buildConfigurations(), [](BuildConfiguration *bc) { return qobject_cast<ProjectConfiguration *>(bc); }));
+    result.append(Utils::transform(deployConfigurations(), [](DeployConfiguration *dc) { return qobject_cast<ProjectConfiguration *>(dc); }));
+    result.append(Utils::transform(runConfigurations(), [](RunConfiguration *rc) { return qobject_cast<ProjectConfiguration *>(rc); }));
+    return result;
+}
+
 QList<RunConfiguration *> Target::runConfigurations() const
 {
     return d->m_runConfigurations;

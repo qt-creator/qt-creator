@@ -27,32 +27,56 @@
 
 #include <QAbstractItemModel>
 
+#include <functional>
+
 namespace ProjectExplorer {
 class Target;
-class RunConfiguration;
+class ProjectConfiguration;
 
 // Documentation inside.
-class RunConfigurationModel : public QAbstractListModel
+class ProjectConfigurationModel : public QAbstractListModel
 {
     Q_OBJECT
-
 public:
-    explicit RunConfigurationModel(Target *target, QObject *parent = nullptr);
+    using FilterFunction = std::function<bool(const ProjectConfiguration *)>;
+
+    explicit ProjectConfigurationModel(Target *target, FilterFunction filter,
+                                       QObject *parent = nullptr);
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
 
-    RunConfiguration *runConfigurationAt(int i);
-    RunConfiguration *runConfigurationFor(const QModelIndex &idx);
-    QModelIndex indexFor(RunConfiguration *rc);
+    ProjectConfiguration *projectConfigurationAt(int i);
+    ProjectConfiguration *projectConfigurationFor(const QModelIndex &idx);
+    QModelIndex indexFor(ProjectConfiguration *pc);
 
 private:
-    void addedRunConfiguration(ProjectExplorer::RunConfiguration*);
-    void removedRunConfiguration(ProjectExplorer::RunConfiguration*);
+    void addedProjectConfiguration(ProjectConfiguration *pc);
+    void removedProjectConfiguration(ProjectConfiguration *pc);
     void displayNameChanged();
+
     Target *m_target;
-    QList<RunConfiguration *> m_runConfigurations;
+    FilterFunction m_filter;
+    QList<ProjectConfiguration *> m_projectConfigurations;
+};
+
+class BuildConfigurationModel : public ProjectConfigurationModel
+{
+public:
+    explicit BuildConfigurationModel(Target *t, QObject *parent = nullptr);
+};
+
+class DeployConfigurationModel : public ProjectConfigurationModel
+{
+public:
+    explicit DeployConfigurationModel(Target *t, QObject *parent = nullptr);
+};
+
+class RunConfigurationModel : public ProjectConfigurationModel
+{
+public:
+    explicit RunConfigurationModel(Target *t, QObject *parent = nullptr);
 };
 
 } // namespace ProjectExplorer
