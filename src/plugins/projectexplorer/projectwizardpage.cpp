@@ -94,7 +94,7 @@ AddNewTree::AddNewTree(const QString &displayName)
 // Note the different handling of 'node' and m_canAdd.
 AddNewTree::AddNewTree(FolderNode *node, QList<AddNewTree *> children, const QString &displayName)
     : m_displayName(displayName),
-      m_node(0),
+      m_node(node),
       m_canAdd(false),
       m_priority(-1)
 {
