@@ -1976,6 +1976,7 @@ void DebuggerPluginPrivate::attachToRemoteServer()
     DebuggerRunParameters rp;
     Kit *kit;
     rp.startMode = AttachToRemoteServer;
+    rp.useContinueInsteadOfRun = true;
     if (StartApplicationDialog::run(ICore::dialogParent(), &rp, &kit)) {
         rp.closeMode = KillAtClose;
         createAndScheduleRun(rp, kit);
