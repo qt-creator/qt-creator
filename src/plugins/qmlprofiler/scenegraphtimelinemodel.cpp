@@ -25,7 +25,7 @@
 
 #include "scenegraphtimelinemodel.h"
 #include "qmlprofilermodelmanager.h"
-#include "qmldebug/qmlprofilereventtypes.h"
+#include "qmlprofilereventtypes.h"
 
 #include <QCoreApplication>
 #include <QDebug>
@@ -75,8 +75,7 @@ Q_STATIC_ASSERT(sizeof(StageLabels) ==
 
 SceneGraphTimelineModel::SceneGraphTimelineModel(QmlProfilerModelManager *manager,
                                                  QObject *parent) :
-    QmlProfilerTimelineModel(manager, QmlDebug::SceneGraphFrame, QmlDebug::MaximumRangeType,
-                             QmlDebug::ProfileSceneGraph, parent)
+    QmlProfilerTimelineModel(manager, SceneGraphFrame, MaximumRangeType, ProfileSceneGraph, parent)
 {
 }
 
@@ -145,8 +144,8 @@ void SceneGraphTimelineModel::loadData()
         if (!accepted(type))
             continue;
 
-        switch ((QmlDebug::SceneGraphFrameType)type.detailType) {
-        case QmlDebug::SceneGraphRendererFrame: {
+        switch ((SceneGraphFrameType)type.detailType) {
+        case SceneGraphRendererFrame: {
             // Breakdown of render times. We repeat "render" here as "net" render time. It would
             // look incomplete if that was left out as the printf profiler lists it, too, and people
             // are apparently comparing that. Unfortunately it is somewhat redundant as the other
@@ -159,19 +158,19 @@ void SceneGraphTimelineModel::loadData()
             insert(startTime, event.numericData(3), event.typeIndex(), RenderRender);
             break;
         }
-        case QmlDebug::SceneGraphAdaptationLayerFrame: {
+        case SceneGraphAdaptationLayerFrame: {
             qint64 startTime = event.startTime() - event.numericData(1) - event.numericData(2);
             startTime += insert(startTime, event.numericData(1), event.typeIndex(), GlyphRender,
                                 event.numericData(0));
             insert(startTime, event.numericData(2), event.typeIndex(), GlyphStore, event.numericData(0));
             break;
         }
-        case QmlDebug::SceneGraphContextFrame: {
+        case SceneGraphContextFrame: {
             insert(event.startTime() - event.numericData(0), event.numericData(0), event.typeIndex(),
                       Material);
             break;
         }
-        case QmlDebug::SceneGraphRenderLoopFrame: {
+        case SceneGraphRenderLoopFrame: {
             qint64 startTime = event.startTime() - event.numericData(0) - event.numericData(1) -
                     event.numericData(2);
             startTime += insert(startTime, event.numericData(0), event.typeIndex(),
@@ -181,7 +180,7 @@ void SceneGraphTimelineModel::loadData()
             insert(startTime, event.numericData(2), event.typeIndex(), Swap);
             break;
         }
-        case QmlDebug::SceneGraphTexturePrepare: {
+        case SceneGraphTexturePrepare: {
             qint64 startTime = event.startTime() - event.numericData(0) - event.numericData(1) -
                     event.numericData(2) - event.numericData(3) - event.numericData(4);
             startTime += insert(startTime, event.numericData(0), event.typeIndex(), TextureBind);
@@ -191,12 +190,12 @@ void SceneGraphTimelineModel::loadData()
             insert(startTime, event.numericData(4), event.typeIndex(), TextureMipmap);
             break;
         }
-        case QmlDebug::SceneGraphTextureDeletion: {
+        case SceneGraphTextureDeletion: {
             insert(event.startTime() - event.numericData(0), event.numericData(0), event.typeIndex(),
                    TextureDeletion);
             break;
         }
-        case QmlDebug::SceneGraphPolishAndSync: {
+        case SceneGraphPolishAndSync: {
             qint64 startTime = event.startTime() - event.numericData(0) - event.numericData(1) -
                     event.numericData(2) - event.numericData(3);
 
@@ -206,13 +205,13 @@ void SceneGraphTimelineModel::loadData()
             insert(startTime, event.numericData(3), event.typeIndex(), Animations);
             break;
         }
-        case QmlDebug::SceneGraphWindowsAnimations: {
+        case SceneGraphWindowsAnimations: {
             // GUI thread, separate animations stage
             insert(event.startTime() - event.numericData(0), event.numericData(0), event.typeIndex(),
                    Animations);
             break;
         }
-        case QmlDebug::SceneGraphPolishFrame: {
+        case SceneGraphPolishFrame: {
             // GUI thread, separate polish stage
             insert(event.startTime() - event.numericData(0), event.numericData(0), event.typeIndex(),
                    Polish);

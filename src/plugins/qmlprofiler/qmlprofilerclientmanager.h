@@ -26,7 +26,7 @@
 #pragma once
 
 #include "qmlprofilerstatemanager.h"
-#include <qmldebug/qmlprofilereventlocation.h>
+#include "qmlprofilereventlocation.h"
 #include <utils/port.h>
 
 #include <QObject>

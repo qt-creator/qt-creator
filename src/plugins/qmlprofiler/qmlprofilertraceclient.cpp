@@ -24,15 +24,15 @@
 ****************************************************************************/
 
 #include "qmlprofilertraceclient.h"
-#include "qmlenginecontrolclient.h"
-#include "qdebugmessageclient.h"
-#include "qpacketprotocol.h"
+#include <qmldebug/qmlenginecontrolclient.h>
+#include <qmldebug/qdebugmessageclient.h>
+#include <qmldebug/qpacketprotocol.h>
 
-namespace QmlDebug {
+namespace QmlProfiler {
 
 class QmlProfilerTraceClientPrivate {
 public:
-    QmlProfilerTraceClientPrivate(QmlProfilerTraceClient *_q, QmlDebugConnection *client)
+    QmlProfilerTraceClientPrivate(QmlProfilerTraceClient *_q, QmlDebug::QmlDebugConnection *client)
         : q(_q)
         , engineControl(client)
         ,  inProgressRanges(0)
@@ -46,11 +46,11 @@ public:
     }
 
     void sendRecordingStatus(int engineId);
-    bool updateFeatures(QmlDebug::ProfileFeature feature);
+    bool updateFeatures(ProfileFeature feature);
 
     QmlProfilerTraceClient *q;
-    QmlEngineControlClient engineControl;
-    QScopedPointer<QDebugMessageClient> messageClient;
+    QmlDebug::QmlEngineControlClient engineControl;
+    QScopedPointer<QmlDebug::QDebugMessageClient> messageClient;
     qint64 inProgressRanges;
     QStack<qint64> rangeStartTimes[MaximumRangeType];
     QStack<QString> rangeDatas[MaximumRangeType];
@@ -64,25 +64,26 @@ public:
     quint32 flushInterval;
 };
 
-} // namespace QmlDebug
+} // namespace QmlProfiler
 
-using namespace QmlDebug;
+using namespace QmlProfiler;
 
 void QmlProfilerTraceClientPrivate::sendRecordingStatus(int engineId)
 {
-    QPacket stream(q->connection()->currentDataStreamVersion());
+    QmlDebug::QPacket stream(q->connection()->currentDataStreamVersion());
     stream << recording << engineId; // engineId -1 is OK. It means "all of them"
     if (recording)
         stream << requestedFeatures << flushInterval;
     q->sendMessage(stream.data());
 }
 
-QmlProfilerTraceClient::QmlProfilerTraceClient(QmlDebugConnection *client, quint64 features)
+QmlProfilerTraceClient::QmlProfilerTraceClient(QmlDebug::QmlDebugConnection *client,
+                                               quint64 features)
     : QmlDebugClient(QLatin1String("CanvasFrameRate"), client)
     , d(new QmlProfilerTraceClientPrivate(this, client))
 {
     setRequestedFeatures(features);
-    connect(&d->engineControl, &QmlEngineControlClient::engineAboutToBeAdded,
+    connect(&d->engineControl, &QmlDebug::QmlEngineControlClient::engineAboutToBeAdded,
             this, &QmlProfilerTraceClient::newEngine);
 }
 
@@ -143,13 +144,14 @@ void QmlProfilerTraceClient::setRequestedFeatures(quint64 features)
 {
     d->requestedFeatures = features;
     if (features & static_cast<quint64>(1) << ProfileDebugMessages) {
-        d->messageClient.reset(new QDebugMessageClient(connection()));
-        connect(d->messageClient.data(), &QDebugMessageClient::message, this, [this](QtMsgType type,
-                const QString &text, const QmlDebug::QDebugContextInfo &context)
+        d->messageClient.reset(new QmlDebug::QDebugMessageClient(connection()));
+        connect(d->messageClient.data(), &QmlDebug::QDebugMessageClient::message, this,
+                [this](QtMsgType type, const QString &text,
+                       const QmlDebug::QDebugContextInfo &context)
         {
             d->updateFeatures(ProfileDebugMessages);
             emit debugMessage(type, context.timestamp, text,
-                              QmlDebug::QmlEventLocation(context.file, context.line, 1));
+                              QmlEventLocation(context.file, context.line, 1));
         });
     } else {
         d->messageClient.reset();
@@ -189,7 +191,7 @@ void QmlProfilerTraceClient::stateChanged(State status)
 
 void QmlProfilerTraceClient::messageReceived(const QByteArray &data)
 {
-    QPacket stream(connection()->currentDataStreamVersion(), data);
+    QmlDebug::QPacket stream(connection()->currentDataStreamVersion(), data);
 
     qint64 time;
     int messageType;

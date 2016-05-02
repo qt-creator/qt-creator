@@ -53,9 +53,8 @@ FlameGraphModel::FlameGraphModel(QmlProfilerModelManager *modelManager,
     // We're iterating twice in loadData.
     modelManager->setProxyCountWeight(m_modelId, 2);
 
-    m_acceptedTypes << QmlDebug::Compiling << QmlDebug::Creating << QmlDebug::Binding
-                    << QmlDebug::HandlingSignal << QmlDebug::Javascript;
-    modelManager->announceFeatures(m_modelId, QmlDebug::Constants::QML_JS_RANGE_FEATURES);
+    m_acceptedTypes << Compiling << Creating << Binding << HandlingSignal << Javascript;
+    modelManager->announceFeatures(m_modelId, Constants::QML_JS_RANGE_FEATURES);
 }
 
 void FlameGraphModel::clear()
@@ -84,7 +83,7 @@ void FlameGraphModel::loadNotes(int typeIndex, bool emitSignal)
     }
 
     if (emitSignal)
-        emit dataChanged(QModelIndex(), QModelIndex(), QVector<int>() << Note);
+        emit dataChanged(QModelIndex(), QModelIndex(), QVector<int>() << NoteRole);
 }
 
 void FlameGraphModel::loadData(qint64 rangeStart, qint64 rangeEnd)
@@ -150,15 +149,15 @@ void FlameGraphModel::loadData(qint64 rangeStart, qint64 rangeEnd)
     endResetModel();
 }
 
-static QString nameForType(QmlDebug::RangeType typeNumber)
+static QString nameForType(RangeType typeNumber)
 {
     switch (typeNumber) {
-    case QmlDebug::Painting: return FlameGraphModel::tr("Paint");
-    case QmlDebug::Compiling: return FlameGraphModel::tr("Compile");
-    case QmlDebug::Creating: return FlameGraphModel::tr("Create");
-    case QmlDebug::Binding: return FlameGraphModel::tr("Binding");
-    case QmlDebug::HandlingSignal: return FlameGraphModel::tr("Signal");
-    case QmlDebug::Javascript: return FlameGraphModel::tr("JavaScript");
+    case Painting: return FlameGraphModel::tr("Paint");
+    case Compiling: return FlameGraphModel::tr("Compile");
+    case Creating: return FlameGraphModel::tr("Create");
+    case Binding: return FlameGraphModel::tr("Binding");
+    case HandlingSignal: return FlameGraphModel::tr("Signal");
+    case Javascript: return FlameGraphModel::tr("JavaScript");
     default: return QString();
     }
 }
@@ -166,8 +165,8 @@ static QString nameForType(QmlDebug::RangeType typeNumber)
 QVariant FlameGraphModel::lookup(const FlameGraphData &stats, int role) const
 {
     switch (role) {
-    case TypeId: return stats.typeIndex;
-    case Note: {
+    case TypeIdRole: return stats.typeIndex;
+    case NoteRole: {
         QString ret;
         if (!m_typeIdsWithNotes.contains(stats.typeIndex))
             return ret;
@@ -180,10 +179,10 @@ QVariant FlameGraphModel::lookup(const FlameGraphData &stats, int role) const
         }
         return ret;
     }
-    case Duration: return stats.duration;
-    case CallCount: return stats.calls;
-    case TimePerCall: return stats.duration / stats.calls;
-    case TimeInPercent: return stats.duration * 100 / m_stackBottom.duration;
+    case DurationRole: return stats.duration;
+    case CallCountRole: return stats.calls;
+    case TimePerCallRole: return stats.duration / stats.calls;
+    case TimeInPercentRole: return stats.duration * 100 / m_stackBottom.duration;
     default: break;
     }
 
@@ -193,14 +192,14 @@ QVariant FlameGraphModel::lookup(const FlameGraphData &stats, int role) const
         const QmlProfilerDataModel::QmlEventTypeData &type = typeList[stats.typeIndex];
 
         switch (role) {
-        case Filename: return type.location.filename;
-        case Line: return type.location.line;
-        case Column: return type.location.column;
-        case Type: return nameForType(type.rangeType);
-        case RangeType: return type.rangeType;
-        case Details: return type.data.isEmpty() ?
+        case FilenameRole: return type.location.filename;
+        case LineRole: return type.location.line;
+        case ColumnRole: return type.location.column;
+        case TypeRole: return nameForType(type.rangeType);
+        case RangeTypeRole: return type.rangeType;
+        case DetailsRole: return type.data.isEmpty() ?
                         FlameGraphModel::tr("Source code not available") : type.data;
-        case Location: return type.displayName;
+        case LocationRole: return type.displayName;
         default: return QVariant();
         }
     } else {
@@ -277,18 +276,18 @@ QVariant FlameGraphModel::data(const QModelIndex &index, int role) const
 QHash<int, QByteArray> FlameGraphModel::roleNames() const
 {
     QHash<int, QByteArray> names = QAbstractItemModel::roleNames();
-    names[TypeId] = "typeId";
-    names[Type] = "type";
-    names[Duration] = "duration";
-    names[CallCount] = "callCount";
-    names[Details] = "details";
-    names[Filename] = "filename";
-    names[Line] = "line";
-    names[Column] = "column";
-    names[Note] = "note";
-    names[TimePerCall] = "timePerCall";
-    names[TimeInPercent] = "timeInPercent";
-    names[RangeType] = "rangeType";
+    names[TypeIdRole] = "typeId";
+    names[TypeRole] = "type";
+    names[DurationRole] = "duration";
+    names[CallCountRole] = "callCount";
+    names[DetailsRole] = "details";
+    names[FilenameRole] = "filename";
+    names[LineRole] = "line";
+    names[ColumnRole] = "column";
+    names[NoteRole] = "note";
+    names[TimePerCallRole] = "timePerCall";
+    names[TimeInPercentRole] = "timeInPercent";
+    names[RangeTypeRole] = "rangeType";
     return names;
 }
 

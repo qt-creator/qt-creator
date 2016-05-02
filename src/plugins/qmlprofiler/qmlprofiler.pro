@@ -35,6 +35,7 @@ SOURCES += \
     qmlprofilerstatisticsview.cpp \
     qmlprofilertimelinemodel.cpp \
     qmlprofilertool.cpp \
+    qmlprofilertraceclient.cpp \
     qmlprofilertracefile.cpp \
     qmlprofilertraceview.cpp \
     qmlprofilerviewmanager.cpp \
@@ -58,7 +59,9 @@ HEADERS += \
     qmlprofilerconstants.h \
     qmlprofilerdatamodel.h \
     qmlprofilerdetailsrewriter.h \
+    qmlprofilereventlocation.h \
     qmlprofilereventsview.h \
+    qmlprofilereventtypes.h \
     qmlprofilermodelmanager.h \
     qmlprofilernotesmodel.h \
     qmlprofileroptionspage.h \
@@ -74,6 +77,7 @@ HEADERS += \
     qmlprofilerstatisticsview.h \
     qmlprofilertimelinemodel.h \
     qmlprofilertool.h \
+    qmlprofilertraceclient.h \
     qmlprofilertracefile.h \
     qmlprofilertraceview.h \
     qmlprofilerviewmanager.h \

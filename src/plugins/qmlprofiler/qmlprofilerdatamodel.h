@@ -26,8 +26,9 @@
 #pragma once
 
 #include "qmlprofilermodelmanager.h"
+#include "qmlprofilereventtypes.h"
+#include "qmlprofilereventlocation.h"
 
-#include <qmldebug/qmlprofilereventtypes.h>
 #include <utils/fileinprojectfinder.h>
 
 namespace QmlProfiler {
@@ -38,18 +39,17 @@ class QMLPROFILER_EXPORT QmlProfilerDataModel : public QObject
 public:
     struct QmlEventTypeData {
         QmlEventTypeData(const QString &displayName = QString(),
-                         const QmlDebug::QmlEventLocation &location = QmlDebug::QmlEventLocation(),
-                         QmlDebug::Message message = QmlDebug::MaximumMessage,
-                         QmlDebug::RangeType rangeType = QmlDebug::MaximumRangeType,
+                         const QmlEventLocation &location = QmlEventLocation(),
+                         Message message = MaximumMessage, RangeType rangeType = MaximumRangeType,
                          int detailType = -1, const QString &data = QString()) :
             displayName(displayName), location(location), message(message), rangeType(rangeType),
             detailType(detailType), data(data)
         {}
 
         QString displayName;
-        QmlDebug::QmlEventLocation location;
-        QmlDebug::Message message;
-        QmlDebug::RangeType rangeType;
+        QmlEventLocation location;
+        Message message;
+        RangeType rangeType;
         int detailType; // can be EventType, BindingType, PixmapEventType or SceneGraphFrameType
         QString data;
     };
@@ -215,9 +215,9 @@ public:
     int count() const;
     void clear();
     bool isEmpty() const;
-    void addQmlEvent(QmlDebug::Message message, QmlDebug::RangeType rangeType, int bindingType,
+    void addQmlEvent(Message message, RangeType rangeType, int bindingType,
                      qint64 startTime, qint64 duration, const QString &data,
-                     const QmlDebug::QmlEventLocation &location, qint64 ndata1, qint64 ndata2,
+                     const QmlEventLocation &location, qint64 ndata1, qint64 ndata2,
                      qint64 ndata3, qint64 ndata4, qint64 ndata5);
     qint64 lastTimeMark() const;
 

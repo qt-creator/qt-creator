@@ -25,15 +25,14 @@
 
 #pragma once
 
+#include "qmlprofilereventlocation.h"
+#include "qmlprofilereventtypes.h"
+#include "qmlprofilerdatamodel.h"
+
 #include <QFutureInterface>
 #include <QObject>
 #include <QVector>
 #include <QString>
-
-#include <qmldebug/qmlprofilereventlocation.h>
-#include <qmldebug/qmlprofilereventtypes.h>
-
-#include "qmlprofilerdatamodel.h"
 
 QT_FORWARD_DECLARE_CLASS(QIODevice)
 QT_FORWARD_DECLARE_CLASS(QXmlStreamReader)

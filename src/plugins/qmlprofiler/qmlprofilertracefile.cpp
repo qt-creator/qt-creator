@@ -25,6 +25,7 @@
 
 #include "qmlprofilertracefile.h"
 
+
 #include <utils/qtcassert.h>
 
 #include <QIODevice>
@@ -33,9 +34,8 @@
 #include <QXmlStreamWriter>
 #include <QDebug>
 
-// import QmlEventType, QmlBindingType enums, QmlEventLocation
-using namespace QmlDebug;
-
+namespace QmlProfiler {
+namespace Internal {
 
 const char PROFILER_FILE_VERSION[] = "1.02";
 
@@ -48,7 +48,7 @@ static const char *RANGE_TYPE_STRINGS[] = {
     "Javascript"
 };
 
-Q_STATIC_ASSERT(sizeof(RANGE_TYPE_STRINGS) == QmlDebug::MaximumRangeType * sizeof(const char *));
+Q_STATIC_ASSERT(sizeof(RANGE_TYPE_STRINGS) == MaximumRangeType * sizeof(const char *));
 
 static const char *MESSAGE_STRINGS[] = {
     // So far only pixmap and scenegraph are used. The others are padding.
@@ -64,16 +64,13 @@ static const char *MESSAGE_STRINGS[] = {
     "DebugMessage"
 };
 
-Q_STATIC_ASSERT(sizeof(MESSAGE_STRINGS) == QmlDebug::MaximumMessage * sizeof(const char *));
+Q_STATIC_ASSERT(sizeof(MESSAGE_STRINGS) == MaximumMessage * sizeof(const char *));
 
 #define _(X) QLatin1String(X)
 
 //
 // "be strict in your output but tolerant in your inputs"
 //
-
-namespace QmlProfiler {
-namespace Internal {
 
 static QPair<Message, RangeType> qmlTypeAsEnum(const QString &typeString)
 {
@@ -195,7 +192,7 @@ quint64 QmlProfilerFileReader::loadedFeatures() const
     return m_loadedFeatures;
 }
 
-QmlDebug::ProfileFeature featureFromEvent(const QmlProfilerDataModel::QmlEventTypeData &event) {
+ProfileFeature featureFromEvent(const QmlProfilerDataModel::QmlEventTypeData &event) {
     if (event.rangeType < MaximumRangeType)
         return featureFromRangeType(event.rangeType);
 

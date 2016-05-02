@@ -68,8 +68,6 @@
 
 #include <math.h>
 
-using namespace QmlDebug;
-
 namespace QmlProfiler {
 namespace Internal {
 

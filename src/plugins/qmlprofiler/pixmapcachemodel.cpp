@@ -25,14 +25,14 @@
 
 #include "pixmapcachemodel.h"
 #include "qmlprofilermodelmanager.h"
-#include "qmldebug/qmlprofilereventtypes.h"
+#include "qmlprofilereventtypes.h"
 
 namespace QmlProfiler {
 namespace Internal {
 
 PixmapCacheModel::PixmapCacheModel(QmlProfilerModelManager *manager, QObject *parent) :
-    QmlProfilerTimelineModel(manager, QmlDebug::PixmapCacheEvent, QmlDebug::MaximumRangeType,
-                             QmlDebug::ProfilePixmapCache, parent)
+    QmlProfilerTimelineModel(manager, PixmapCacheEvent, MaximumRangeType, ProfilePixmapCache,
+                             parent)
 {
     m_maxCacheSize = 1;
 }
@@ -113,7 +113,7 @@ QVariantList PixmapCacheModel::labels() const
 QVariantMap PixmapCacheModel::details(int index) const
 {
     QVariantMap result;
-    const PixmapCacheEvent *ev = &m_data[index];
+    const PixmapCacheItem *ev = &m_data[index];
 
     if (ev->pixmapEventType == PixmapCacheCountChanged) {
         result.insert(QLatin1String("displayName"), tr("Image Cached"));
@@ -180,7 +180,7 @@ void PixmapCacheModel::loadData()
         if (!accepted(type))
             continue;
 
-        PixmapCacheEvent newEvent;
+        PixmapCacheItem newEvent;
         newEvent.pixmapEventType = static_cast<PixmapEventType>(type.detailType);
         qint64 pixmapStartTime = event.startTime();
 
@@ -425,7 +425,7 @@ void PixmapCacheModel::clear()
 void PixmapCacheModel::computeMaxCacheSize()
 {
     m_maxCacheSize = 1;
-    foreach (const PixmapCacheModel::PixmapCacheEvent &event, m_data) {
+    foreach (const PixmapCacheModel::PixmapCacheItem &event, m_data) {
         if (event.pixmapEventType == PixmapCacheModel::PixmapCacheCountChanged) {
             if (event.cacheSize > m_maxCacheSize)
                 m_maxCacheSize = event.cacheSize;
@@ -451,7 +451,7 @@ void PixmapCacheModel::flattenLoads()
     // computes "compressed row"
     QVector <qint64> eventEndTimes;
     for (int i = 0; i < count(); i++) {
-        PixmapCacheModel::PixmapCacheEvent &event = m_data[i];
+        PixmapCacheModel::PixmapCacheItem &event = m_data[i];
         if (event.pixmapEventType == PixmapCacheModel::PixmapLoadingStarted) {
             event.rowNumberCollapsed = 0;
             while (eventEndTimes.count() > event.rowNumberCollapsed &&
@@ -475,7 +475,7 @@ void PixmapCacheModel::flattenLoads()
 }
 
 int PixmapCacheModel::updateCacheCount(int lastCacheSizeEvent,
-        qint64 pixmapStartTime, qint64 pixSize, PixmapCacheEvent &newEvent, int typeId)
+        qint64 pixmapStartTime, qint64 pixSize, PixmapCacheItem &newEvent, int typeId)
 {
     newEvent.pixmapEventType = PixmapCacheCountChanged;
     newEvent.rowNumberCollapsed = 1;

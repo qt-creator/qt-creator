@@ -25,16 +25,18 @@
 
 #pragma once
 
-#include "qmldebug_global.h"
+#include "qmlprofiler_global.h"
 
 #include <QString>
 
-namespace QmlDebug {
+namespace QmlProfiler {
 
-struct QMLDEBUG_EXPORT QmlEventLocation
+struct QMLPROFILER_EXPORT QmlEventLocation
 {
     QmlEventLocation() : line(-1),column(-1) {}
-    QmlEventLocation(const QString &file, int lineNumber, int columnNumber) : filename(file), line(lineNumber), column(columnNumber) {}
+    QmlEventLocation(const QString &file, int lineNumber, int columnNumber) : filename(file),
+        line(lineNumber), column(columnNumber)
+    {}
     QString filename;
     int line;
     int column;

@@ -26,9 +26,9 @@
 #pragma once
 
 #include "qmlprofiler_global.h"
+#include "qmlprofilereventtypes.h"
+#include "qmlprofilereventlocation.h"
 
-#include <qmldebug/qmlprofilereventlocation.h>
-#include <qmldebug/qmlprofilereventtypes.h>
 #include <utils/fileinprojectfinder.h>
 
 #include <QObject>
@@ -107,7 +107,7 @@ public:
     void acquiringDone();
     void processingDone();
 
-    static const char *featureName(QmlDebug::ProfileFeature feature);
+    static const char *featureName(ProfileFeature feature);
 
 signals:
     void error(const QString &error);
@@ -116,7 +116,7 @@ signals:
     void loadFinished();
     void saveFinished();
 
-    void requestDetailsForLocation(int eventType, const QmlDebug::QmlEventLocation &location);
+    void requestDetailsForLocation(int eventType, const QmlEventLocation &location);
     void availableFeaturesChanged(quint64 features);
     void visibleFeaturesChanged(quint64 features);
     void recordedFeaturesChanged(quint64 features);
@@ -125,12 +125,11 @@ public slots:
     void clear();
 
     void prepareForWriting();
-    void addQmlEvent(QmlDebug::Message message, QmlDebug::RangeType rangeType, int bindingType,
-                     qint64 startTime, qint64 length, const QString &data,
-                     const QmlDebug::QmlEventLocation &location,
+    void addQmlEvent(Message message, RangeType rangeType, int bindingType, qint64 startTime,
+                     qint64 length, const QString &data, const QmlEventLocation &location,
                      qint64 ndata1, qint64 ndata2, qint64 ndata3, qint64 ndata4, qint64 ndata5);
     void addDebugMessage(QtMsgType type, qint64 timestamp, const QString &text,
-                         const QmlDebug::QmlEventLocation &location);
+                         const QmlEventLocation &location);
 
     void save(const QString &filename);
     void load(const QString &filename);

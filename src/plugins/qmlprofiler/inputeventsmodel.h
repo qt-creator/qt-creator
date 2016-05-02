@@ -39,9 +39,8 @@ protected:
 
 public:
     struct InputEvent {
-        InputEvent(QmlDebug::InputEventType type = QmlDebug::MaximumInputEventType, int a = 0,
-                   int b = 0);
-        QmlDebug::InputEventType type;
+        InputEvent(InputEventType type = MaximumInputEventType, int a = 0, int b = 0);
+        InputEventType type;
         int a;
         int b;
     };

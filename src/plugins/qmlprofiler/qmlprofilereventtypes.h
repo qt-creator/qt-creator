@@ -27,7 +27,7 @@
 
 #include <QtGlobal>
 
-namespace QmlDebug {
+namespace QmlProfiler {
 
 enum Message {
     Event,
@@ -179,4 +179,4 @@ const quint64 QML_JS_RANGE_FEATURES = (1 << ProfileCompiling) |
                                       (1 << ProfileJavaScript);
 }
 
-} // namespace QmlDebug
+} // namespace QmlProfiler

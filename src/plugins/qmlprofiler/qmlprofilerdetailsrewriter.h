@@ -25,11 +25,12 @@
 
 #pragma once
 
-#include <QObject>
+#include "qmlprofilereventlocation.h"
 
-#include <qmldebug/qmlprofilereventlocation.h>
 #include <qmljs/qmljsdocument.h>
 #include <utils/fileinprojectfinder.h>
+
+#include <QObject>
 
 namespace QmlProfiler {
 namespace Internal {
@@ -45,10 +46,10 @@ public:
 
 private:
     void rewriteDetailsForLocation(QTextStream &textDoc, QmlJS::Document::Ptr doc, int requestId,
-                                   const QmlDebug::QmlEventLocation &location);
+                                   const QmlEventLocation &location);
 
 public slots:
-    void requestDetailsForLocation(int requestId, const QmlDebug::QmlEventLocation &location);
+    void requestDetailsForLocation(int requestId, const QmlEventLocation &location);
     void reloadDocuments();
     void documentReady(QmlJS::Document::Ptr doc);
 signals:

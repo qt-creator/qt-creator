@@ -26,15 +26,13 @@
 #include "qmlprofilerclientmanager.h"
 #include "qmlprofilertool.h"
 #include "qmlprofilerplugin.h"
-
-#include <qmldebug/qmlprofilertraceclient.h>
+#include "qmlprofilertraceclient.h"
+#include "qmlprofilermodelmanager.h"
 
 #include <utils/qtcassert.h>
 #include <QPointer>
 #include <QTimer>
 #include <QMessageBox>
-
-#include "qmlprofilermodelmanager.h"
 
 using namespace QmlDebug;
 using namespace Core;

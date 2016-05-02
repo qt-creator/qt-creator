@@ -55,7 +55,7 @@ static const char *ProfileFeatureNames[] = {
     QT_TRANSLATE_NOOP("MainView", "Debug Messages")
 };
 
-Q_STATIC_ASSERT(sizeof(ProfileFeatureNames) == sizeof(char *) * QmlDebug::MaximumProfileFeature);
+Q_STATIC_ASSERT(sizeof(ProfileFeatureNames) == sizeof(char *) * MaximumProfileFeature);
 
 /////////////////////////////////////////////////////////////////////
 QmlProfilerTraceTime::QmlProfilerTraceTime(QObject *parent) :
@@ -274,22 +274,15 @@ void QmlProfilerModelManager::setRecordedFeatures(quint64 features)
     }
 }
 
-const char *QmlProfilerModelManager::featureName(QmlDebug::ProfileFeature feature)
+const char *QmlProfilerModelManager::featureName(ProfileFeature feature)
 {
     return ProfileFeatureNames[feature];
 }
 
-void QmlProfilerModelManager::addQmlEvent(QmlDebug::Message message,
-                                          QmlDebug::RangeType rangeType,
-                                          int detailType,
-                                          qint64 startTime,
-                                          qint64 length,
-                                          const QString &data,
-                                          const QmlDebug::QmlEventLocation &location,
-                                          qint64 ndata1,
-                                          qint64 ndata2,
-                                          qint64 ndata3,
-                                          qint64 ndata4,
+void QmlProfilerModelManager::addQmlEvent(Message message, RangeType rangeType, int detailType,
+                                          qint64 startTime, qint64 length, const QString &data,
+                                          const QmlEventLocation &location, qint64 ndata1,
+                                          qint64 ndata2, qint64 ndata3, qint64 ndata4,
                                           qint64 ndata5)
 {
     // If trace start time was not explicitly set, use the first event
@@ -302,11 +295,11 @@ void QmlProfilerModelManager::addQmlEvent(QmlDebug::Message message,
 }
 
 void QmlProfilerModelManager::addDebugMessage(QtMsgType type, qint64 timestamp, const QString &text,
-                                              const QmlDebug::QmlEventLocation &location)
+                                              const QmlEventLocation &location)
 {
     if (state() == AcquiringData)
-        d->model->addQmlEvent(QmlDebug::DebugMessage, QmlDebug::MaximumRangeType, type, timestamp,
-                              0, text, location, 0, 0, 0, 0, 0);
+        d->model->addQmlEvent(DebugMessage, MaximumRangeType, type, timestamp, 0, text, location, 0,
+                              0, 0, 0, 0);
 }
 
 void QmlProfilerModelManager::acquiringDone()

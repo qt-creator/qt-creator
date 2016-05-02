@@ -34,20 +34,19 @@ namespace QmlProfiler {
 
 class QMLPROFILER_EXPORT QmlProfilerTimelineModel : public Timeline::TimelineModel {
     Q_OBJECT
-    Q_PROPERTY(QmlDebug::RangeType rangeType READ rangeType CONSTANT)
-    Q_PROPERTY(QmlDebug::Message message READ message CONSTANT)
+    Q_PROPERTY(RangeType rangeType READ rangeType CONSTANT)
+    Q_PROPERTY(Message message READ message CONSTANT)
     Q_PROPERTY(QmlProfilerModelManager *modelManager READ modelManager CONSTANT)
 
 public:
-    QmlProfilerTimelineModel(QmlProfilerModelManager *modelManager,
-                             QmlDebug::Message message, QmlDebug::RangeType rangeType,
-                             QmlDebug::ProfileFeature mainFeature, QObject *parent);
+    QmlProfilerTimelineModel(QmlProfilerModelManager *modelManager, Message message,
+                             RangeType rangeType, ProfileFeature mainFeature, QObject *parent);
 
     QmlProfilerModelManager *modelManager() const;
 
-    QmlDebug::RangeType rangeType() const;
-    QmlDebug::Message message() const;
-    QmlDebug::ProfileFeature mainFeature() const;
+    RangeType rangeType() const;
+    Message message() const;
+    ProfileFeature mainFeature() const;
 
     virtual bool accepted(const QmlProfilerDataModel::QmlEventTypeData &event) const;
     bool handlesTypeId(int typeId) const;
@@ -66,9 +65,9 @@ protected:
     void announceFeatures(quint64 features) const;
 
 private:
-    const QmlDebug::Message m_message;
-    const QmlDebug::RangeType m_rangeType;
-    const QmlDebug::ProfileFeature m_mainFeature;
+    const Message m_message;
+    const RangeType m_rangeType;
+    const ProfileFeature m_mainFeature;
     QmlProfilerModelManager *const m_modelManager;
 };
 

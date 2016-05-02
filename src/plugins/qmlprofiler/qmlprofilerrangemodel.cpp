@@ -44,10 +44,9 @@ namespace QmlProfiler {
 namespace Internal {
 
 
-QmlProfilerRangeModel::QmlProfilerRangeModel(QmlProfilerModelManager *manager,
-                                             QmlDebug::RangeType range, QObject *parent) :
-    QmlProfilerTimelineModel(manager, QmlDebug::MaximumMessage, range,
-                             QmlDebug::featureFromRangeType(range), parent)
+QmlProfilerRangeModel::QmlProfilerRangeModel(QmlProfilerModelManager *manager, RangeType range,
+                                             QObject *parent) :
+    QmlProfilerTimelineModel(manager, MaximumMessage, range, featureFromRangeType(range), parent)
 {
     m_expandedRowTypes << -1;
 }
@@ -62,7 +61,7 @@ void QmlProfilerRangeModel::clear()
 
 bool QmlProfilerRangeModel::supportsBindingLoops() const
 {
-    return rangeType() == QmlDebug::Binding || rangeType() == QmlDebug::HandlingSignal;
+    return rangeType() == Binding || rangeType() == HandlingSignal;
 }
 
 void QmlProfilerRangeModel::loadData()
@@ -113,7 +112,7 @@ void QmlProfilerRangeModel::computeNestingContracted()
     int i;
     int eventCount = count();
 
-    int nestingLevels = QmlDebug::Constants::QML_MIN_LEVEL;
+    int nestingLevels = Constants::QML_MIN_LEVEL;
     int collapsedRowCount = nestingLevels + 1;
     QVector<qint64> nestingEndTimes;
     nestingEndTimes.fill(0, nestingLevels + 1);
@@ -128,7 +127,7 @@ void QmlProfilerRangeModel::computeNestingContracted()
             if (nestingLevels == collapsedRowCount)
                 ++collapsedRowCount;
         } else {
-            while (nestingLevels > QmlDebug::Constants::QML_MIN_LEVEL &&
+            while (nestingLevels > Constants::QML_MIN_LEVEL &&
                    nestingEndTimes[nestingLevels-1] <= st)
                 nestingLevels--;
         }

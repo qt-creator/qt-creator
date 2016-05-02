@@ -27,8 +27,8 @@
 #include "qmlprofilermodelmanager.h"
 #include "qmlprofilernotesmodel.h"
 #include "qmlprofilerdetailsrewriter.h"
+#include "qmlprofilereventtypes.h"
 
-#include <qmldebug/qmlprofilereventtypes.h>
 #include <utils/qtcassert.h>
 #include <QUrl>
 #include <QDebug>
@@ -68,7 +68,7 @@ QString getInitialDetails(const QmlProfilerDataModel::QmlEventTypeData &event)
         details = event.data;
         details = details.replace(QLatin1Char('\n'),QLatin1Char(' ')).simplified();
         if (details.isEmpty()) {
-            if (event.rangeType == QmlDebug::Javascript)
+            if (event.rangeType == Javascript)
                 details = QmlProfilerDataModel::tr("anonymous function");
         } else {
             QRegExp rewrite(QLatin1String("\\(function \\$(\\w+)\\(\\) \\{ (return |)(.+) \\}\\)"));
@@ -79,7 +79,7 @@ QString getInitialDetails(const QmlProfilerDataModel::QmlEventTypeData &event)
                     details.startsWith(QLatin1String("qrc:/")))
                 details = details.mid(details.lastIndexOf(QLatin1Char('/')) + 1);
         }
-    } else if (event.rangeType == QmlDebug::Painting) {
+    } else if (event.rangeType == Painting) {
         // QtQuick1 animations always run in GUI thread.
         details = QmlProfilerDataModel::tr("GUI Thread");
     }
@@ -231,7 +231,7 @@ void QmlProfilerDataModel::processData()
         // request further details from files
         //
 
-        if (event->rangeType != QmlDebug::Binding && event->rangeType != QmlDebug::HandlingSignal)
+        if (event->rangeType != Binding && event->rangeType != HandlingSignal)
             continue;
 
         // This skips anonymous bindings in Qt4.8 (we don't have valid location data for them)
@@ -251,19 +251,17 @@ void QmlProfilerDataModel::processData()
     emit requestReload();
 }
 
-void QmlProfilerDataModel::addQmlEvent(QmlDebug::Message message, QmlDebug::RangeType rangeType,
-                                            int detailType, qint64 startTime,
-                                            qint64 duration, const QString &data,
-                                            const QmlDebug::QmlEventLocation &location,
-                                            qint64 ndata1, qint64 ndata2, qint64 ndata3,
-                                            qint64 ndata4, qint64 ndata5)
+void QmlProfilerDataModel::addQmlEvent(Message message, RangeType rangeType, int detailType,
+                                       qint64 startTime, qint64 duration, const QString &data,
+                                       const QmlEventLocation &location, qint64 ndata1,
+                                       qint64 ndata2, qint64 ndata3, qint64 ndata4, qint64 ndata5)
 {
     Q_D(QmlProfilerDataModel);
     QString displayName;
 
     QmlEventTypeData typeData(displayName, location, message, rangeType, detailType,
-                              message == QmlDebug::DebugMessage ? QString() : data);
-    QmlEventData eventData = (message == QmlDebug::DebugMessage) ?
+                              message == DebugMessage ? QString() : data);
+    QmlEventData eventData = (message == DebugMessage) ?
                 QmlEventData(startTime, duration, -1, data) :
                 QmlEventData(startTime, duration, -1, ndata1, ndata2, ndata3, ndata4, ndata5);
 

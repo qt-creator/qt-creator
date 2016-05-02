@@ -25,17 +25,14 @@
 
 #pragma once
 
-#include <QObject>
 #include "qmlprofilertimelinemodel.h"
-#include <qmldebug/qmlprofilereventtypes.h>
-#include <qmldebug/qmlprofilereventlocation.h>
-//#include <QHash>
-//#include <QVector>
-#include <QVariantList>
-//#include <QVariantMap>
+#include "qmlprofilereventtypes.h"
+#include "qmlprofilereventlocation.h"
 #include "qmlprofilerdatamodel.h"
-#include <QColor>
 
+#include <QVariantList>
+#include <QColor>
+#include <QObject>
 
 namespace QmlProfiler {
 class QmlProfilerModelManager;

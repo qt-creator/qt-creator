@@ -25,7 +25,7 @@
 
 #include "inputeventsmodel.h"
 #include "qmlprofilermodelmanager.h"
-#include "qmldebug/qmlprofilereventtypes.h"
+#include "qmlprofilereventtypes.h"
 
 #include <QKeyEvent>
 #include <QMouseEvent>
@@ -35,15 +35,14 @@ namespace QmlProfiler {
 namespace Internal {
 
 InputEventsModel::InputEventsModel(QmlProfilerModelManager *manager, QObject *parent) :
-    QmlProfilerTimelineModel(manager, QmlDebug::Event, QmlDebug::MaximumRangeType,
-                             QmlDebug::ProfileInputEvents, parent),
+    QmlProfilerTimelineModel(manager, Event, MaximumRangeType, ProfileInputEvents, parent),
     m_keyTypeId(-1), m_mouseTypeId(-1)
 {
 }
 
 int InputEventsModel::typeId(int index) const
 {
-    return selectionId(index) == QmlDebug::Mouse ? m_mouseTypeId : m_keyTypeId;
+    return selectionId(index) == Mouse ? m_mouseTypeId : m_keyTypeId;
 }
 
 QColor InputEventsModel::color(int index) const
@@ -57,12 +56,12 @@ QVariantList InputEventsModel::labels() const
 
     QVariantMap element;
     element.insert(QLatin1String("description"), QVariant(tr("Mouse Events")));
-    element.insert(QLatin1String("id"), QVariant(QmlDebug::Mouse));
+    element.insert(QLatin1String("id"), QVariant(Mouse));
     result << element;
 
     element.clear();
     element.insert(QLatin1String("description"), QVariant(tr("Keyboard Events")));
-    element.insert(QLatin1String("id"), QVariant(QmlDebug::Key));
+    element.insert(QLatin1String("id"), QVariant(Key));
     result << element;
 
     return result;
@@ -80,9 +79,9 @@ QVariantMap InputEventsModel::details(int index) const
     QString type;
     const InputEvent &event = m_data[index];
     switch (event.type) {
-    case QmlDebug::InputKeyPress:
+    case InputKeyPress:
         type = tr("Key Press");
-    case QmlDebug::InputKeyRelease:
+    case InputKeyRelease:
         if (type.isEmpty())
             type = tr("Key Release");
         if (event.a != 0) {
@@ -93,31 +92,31 @@ QVariantMap InputEventsModel::details(int index) const
                           QLatin1String(metaEnum("KeyboardModifiers").valueToKeys(event.b)));
         }
         break;
-    case QmlDebug::InputMouseDoubleClick:
+    case InputMouseDoubleClick:
         type = tr("Double Click");
-    case QmlDebug::InputMousePress:
+    case InputMousePress:
         if (type.isEmpty())
             type = tr("Mouse Press");
-    case QmlDebug::InputMouseRelease:
+    case InputMouseRelease:
         if (type.isEmpty())
             type = tr("Mouse Release");
         result.insert(tr("Button"), QLatin1String(metaEnum("MouseButtons").valueToKey(event.a)));
         result.insert(tr("Result"), QLatin1String(metaEnum("MouseButtons").valueToKeys(event.b)));
         break;
-    case QmlDebug::InputMouseMove:
+    case InputMouseMove:
         type = tr("Mouse Move");
         result.insert(tr("X"), QString::number(event.a));
         result.insert(tr("Y"), QString::number(event.b));
         break;
-    case QmlDebug::InputMouseWheel:
+    case InputMouseWheel:
         type = tr("Mouse Wheel");
         result.insert(tr("Angle X"), QString::number(event.a));
         result.insert(tr("Angle Y"), QString::number(event.b));
         break;
-    case QmlDebug::InputKeyUnknown:
+    case InputKeyUnknown:
         type = tr("Keyboard Event");
         break;
-    case QmlDebug::InputMouseUnknown:
+    case InputMouseUnknown:
         type = tr("Mouse Event");
         break;
     default:
@@ -132,7 +131,7 @@ QVariantMap InputEventsModel::details(int index) const
 
 int InputEventsModel::expandedRow(int index) const
 {
-    return selectionId(index) == QmlDebug::Mouse ? 1 : 2;
+    return selectionId(index) == Mouse ? 1 : 2;
 }
 
 int InputEventsModel::collapsedRow(int index) const
@@ -154,10 +153,10 @@ void InputEventsModel::loadData()
             continue;
 
         m_data.insert(insert(event.startTime(), 0, type.detailType),
-                      InputEvent(static_cast<QmlDebug::InputEventType>(event.numericData(0)),
+                      InputEvent(static_cast<InputEventType>(event.numericData(0)),
                                  event.numericData(1), event.numericData(2)));
 
-        if (type.detailType == QmlDebug::Mouse) {
+        if (type.detailType == Mouse) {
             if (m_mouseTypeId == -1)
                 m_mouseTypeId = event.typeIndex();
         } else if (m_keyTypeId == -1) {
@@ -180,10 +179,10 @@ void InputEventsModel::clear()
 bool InputEventsModel::accepted(const QmlProfilerDataModel::QmlEventTypeData &event) const
 {
     return QmlProfilerTimelineModel::accepted(event) &&
-            (event.detailType == QmlDebug::Mouse || event.detailType == QmlDebug::Key);
+            (event.detailType == Mouse || event.detailType == Key);
 }
 
-InputEventsModel::InputEvent::InputEvent(QmlDebug::InputEventType type, int a, int b) :
+InputEventsModel::InputEvent::InputEvent(InputEventType type, int a, int b) :
     type(type), a(a), b(b)
 {
 }

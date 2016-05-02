@@ -29,8 +29,8 @@
 #include "qmlprofilerstatisticsmodel.h"
 #include "qmlprofilerviewmanager.h"
 #include "qmlprofilereventsview.h"
+#include "qmlprofilereventtypes.h"
 
-#include <qmldebug/qmlprofilereventtypes.h>
 #include <debugger/analyzer/analyzermanager.h>
 #include <utils/itemviews.h>
 
@@ -116,7 +116,7 @@ public:
     void copyTableToClipboard() const;
     void copyRowToClipboard() const;
 
-    static QString nameForType(QmlDebug::RangeType typeNumber);
+    static QString nameForType(RangeType typeNumber);
 
     int selectedTypeId() const;
 

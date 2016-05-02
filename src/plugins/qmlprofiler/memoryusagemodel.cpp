@@ -25,7 +25,7 @@
 
 #include "memoryusagemodel.h"
 #include "qmlprofilermodelmanager.h"
-#include "qmldebug/qmlprofilereventtypes.h"
+#include "qmlprofilereventtypes.h"
 
 #include <QStack>
 
@@ -33,11 +33,10 @@ namespace QmlProfiler {
 namespace Internal {
 
 MemoryUsageModel::MemoryUsageModel(QmlProfilerModelManager *manager, QObject *parent) :
-    QmlProfilerTimelineModel(manager, QmlDebug::MemoryAllocation, QmlDebug::MaximumRangeType,
-                             QmlDebug::ProfileMemory, parent)
+    QmlProfilerTimelineModel(manager, MemoryAllocation, MaximumRangeType, ProfileMemory, parent)
 {
     m_maxSize = 1;
-    announceFeatures((1ULL << mainFeature()) | QmlDebug::Constants::QML_JS_RANGE_FEATURES);
+    announceFeatures((1ULL << mainFeature()) | Constants::QML_JS_RANGE_FEATURES);
 }
 
 int MemoryUsageModel::rowMaxValue(int rowNumber) const
@@ -49,7 +48,7 @@ int MemoryUsageModel::rowMaxValue(int rowNumber) const
 int MemoryUsageModel::expandedRow(int index) const
 {
     int type = selectionId(index);
-    return (type == QmlDebug::HeapPage || type == QmlDebug::LargeItem) ? 1 : 2;
+    return (type == HeapPage || type == LargeItem) ? 1 : 2;
 }
 
 int MemoryUsageModel::collapsedRow(int index) const
@@ -82,7 +81,7 @@ QVariantMap MemoryUsageModel::location(int index) const
 
     int originType = m_data[index].originTypeIndex;
     if (originType > -1) {
-        const QmlDebug::QmlEventLocation &location =
+        const QmlEventLocation &location =
                 modelManager()->qmlModel()->getEventTypes().at(originType).location;
 
         result.insert(file, location.filename);
@@ -99,12 +98,12 @@ QVariantList MemoryUsageModel::labels() const
 
     QVariantMap element;
     element.insert(QLatin1String("description"), QVariant(tr("Memory Allocation")));
-    element.insert(QLatin1String("id"), QVariant(QmlDebug::HeapPage));
+    element.insert(QLatin1String("id"), QVariant(HeapPage));
     result << element;
 
     element.clear();
     element.insert(QLatin1String("description"), QVariant(tr("Memory Usage")));
-    element.insert(QLatin1String("id"), QVariant(QmlDebug::SmallItem));
+    element.insert(QLatin1String("id"), QVariant(SmallItem));
     result << element;
 
     return result;
@@ -113,7 +112,7 @@ QVariantList MemoryUsageModel::labels() const
 QVariantMap MemoryUsageModel::details(int index) const
 {
     QVariantMap result;
-    const MemoryAllocation *ev = &m_data[index];
+    const MemoryAllocationItem *ev = &m_data[index];
 
     if (ev->allocated >= -ev->deallocated)
         result.insert(QLatin1String("displayName"), tr("Memory Allocated"));
@@ -166,14 +165,14 @@ void MemoryUsageModel::loadData()
         while (!rangeStack.empty() && rangeStack.top().endTime < event.startTime())
             rangeStack.pop();
         if (!accepted(type)) {
-            if (type.rangeType != QmlDebug::MaximumRangeType) {
+            if (type.rangeType != MaximumRangeType) {
                 rangeStack.push(RangeStackFrame(event.typeIndex(), event.startTime(),
                                                 event.startTime() + event.duration()));
             }
             continue;
         }
 
-        if (type.detailType == QmlDebug::SmallItem || type.detailType == QmlDebug::LargeItem) {
+        if (type.detailType == SmallItem || type.detailType == LargeItem) {
             if (!rangeStack.empty() && currentUsageIndex > -1 &&
                     type.detailType == selectionId(currentUsageIndex) &&
                     m_data[currentUsageIndex].originTypeIndex == rangeStack.top().originTypeIndex &&
@@ -181,7 +180,7 @@ void MemoryUsageModel::loadData()
                 m_data[currentUsageIndex].update(event.numericData(0));
                 currentUsage = m_data[currentUsageIndex].size;
             } else {
-                MemoryAllocation allocation(event.typeIndex(), currentUsage,
+                MemoryAllocationItem allocation(event.typeIndex(), currentUsage,
                         rangeStack.empty() ? -1 : rangeStack.top().originTypeIndex);
                 allocation.update(event.numericData(0));
                 currentUsage = allocation.size;
@@ -190,12 +189,12 @@ void MemoryUsageModel::loadData()
                     insertEnd(currentUsageIndex,
                               event.startTime() - startTime(currentUsageIndex) - 1);
                 }
-                currentUsageIndex = insertStart(event.startTime(), QmlDebug::SmallItem);
+                currentUsageIndex = insertStart(event.startTime(), SmallItem);
                 m_data.insert(currentUsageIndex, allocation);
             }
         }
 
-        if (type.detailType == QmlDebug::HeapPage || type.detailType == QmlDebug::LargeItem) {
+        if (type.detailType == HeapPage || type.detailType == LargeItem) {
             if (!rangeStack.empty() && currentJSHeapIndex > -1 &&
                     type.detailType == selectionId(currentJSHeapIndex) &&
                     m_data[currentJSHeapIndex].originTypeIndex ==
@@ -204,7 +203,7 @@ void MemoryUsageModel::loadData()
                 m_data[currentJSHeapIndex].update(event.numericData(0));
                 currentSize = m_data[currentJSHeapIndex].size;
             } else {
-                MemoryAllocation allocation(event.typeIndex(), currentSize,
+                MemoryAllocationItem allocation(event.typeIndex(), currentSize,
                         rangeStack.empty() ? -1 : rangeStack.top().originTypeIndex);
                 allocation.update(event.numericData(0));
                 currentSize = allocation.size;
@@ -246,22 +245,22 @@ void MemoryUsageModel::clear()
 QString MemoryUsageModel::memoryTypeName(int type)
 {
     switch (type) {
-    case QmlDebug::HeapPage: return tr("Heap Allocation");
-    case QmlDebug::LargeItem: return tr("Large Item Allocation");
-    case QmlDebug::SmallItem: return tr("Heap Usage");
-    case QmlDebug::MaximumMemoryType: return tr("Total");
+    case HeapPage: return tr("Heap Allocation");
+    case LargeItem: return tr("Large Item Allocation");
+    case SmallItem: return tr("Heap Usage");
+    case MaximumMemoryType: return tr("Total");
     default: return tr("Unknown");
     }
 }
 
-MemoryUsageModel::MemoryAllocation::MemoryAllocation(int type, qint64 baseAmount,
+MemoryUsageModel::MemoryAllocationItem::MemoryAllocationItem(int type, qint64 baseAmount,
                                                      int originTypeIndex) :
     typeId(type), size(baseAmount), allocated(0), deallocated(0), allocations(0), deallocations(0),
     originTypeIndex(originTypeIndex)
 {
 }
 
-void MemoryUsageModel::MemoryAllocation::update(qint64 amount)
+void MemoryUsageModel::MemoryAllocationItem::update(qint64 amount)
 {
     size += amount;
     if (amount < 0) {

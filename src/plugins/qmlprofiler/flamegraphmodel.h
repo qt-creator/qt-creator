@@ -25,10 +25,10 @@
 
 #pragma once
 
-#include <qmlprofiler/qmlprofilerdatamodel.h>
-#include <qmlprofiler/qmlprofilernotesmodel.h>
-#include <qmldebug/qmlprofilereventtypes.h>
-#include <qmldebug/qmlprofilereventlocation.h>
+#include "qmlprofilerdatamodel.h"
+#include "qmlprofilernotesmodel.h"
+#include "qmlprofilereventtypes.h"
+#include "qmlprofilereventlocation.h"
 
 #include <QSet>
 #include <QVector>
@@ -55,19 +55,19 @@ class FlameGraphModel : public QAbstractItemModel
     Q_ENUMS(Role)
 public:
     enum Role {
-        TypeId = Qt::UserRole + 1, // Sort by data, not by displayed string
-        Type,
-        Duration,
-        CallCount,
-        Details,
-        Filename,
-        Line,
-        Column,
-        Note,
-        TimePerCall,
-        TimeInPercent,
-        RangeType,
-        Location,
+        TypeIdRole = Qt::UserRole + 1, // Sort by data, not by displayed string
+        TypeRole,
+        DurationRole,
+        CallCountRole,
+        DetailsRole,
+        FilenameRole,
+        LineRole,
+        ColumnRole,
+        NoteRole,
+        TimePerCallRole,
+        TimeInPercentRole,
+        RangeTypeRole,
+        LocationRole,
         MaxRole
     };
 
@@ -100,7 +100,7 @@ private:
     int m_modelId;
     QmlProfilerModelManager *m_modelManager;
 
-    QList<QmlDebug::RangeType> m_acceptedTypes;
+    QList<RangeType> m_acceptedTypes;
     QSet<int> m_typeIdsWithNotes;
 };
 

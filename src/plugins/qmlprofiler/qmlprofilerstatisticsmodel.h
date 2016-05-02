@@ -27,11 +27,12 @@
 
 #include "qmlprofilerdatamodel.h"
 #include "qmlprofilernotesmodel.h"
-#include <QObject>
-#include <qmldebug/qmlprofilereventtypes.h>
-#include <qmldebug/qmlprofilereventlocation.h>
+#include "qmlprofilereventtypes.h"
+#include "qmlprofilereventlocation.h"
+
 #include <QHash>
 #include <QVector>
+#include <QObject>
 
 namespace QmlProfiler {
 class QmlProfilerModelManager;
@@ -60,8 +61,8 @@ public:
     QmlProfilerStatisticsModel(QmlProfilerModelManager *modelManager, QObject *parent = 0);
     ~QmlProfilerStatisticsModel();
 
-    void setEventTypeAccepted(QmlDebug::RangeType type, bool accepted);
-    bool eventTypeAccepted(QmlDebug::RangeType) const;
+    void setEventTypeAccepted(RangeType type, bool accepted);
+    bool eventTypeAccepted(RangeType) const;
 
     const QHash<int, QmlEventStats> &getData() const;
     const QVector<QmlProfilerDataModel::QmlEventTypeData> &getTypes() const;
@@ -136,7 +137,6 @@ public:
     QmlProfilerStatisticsParentsModel(QmlProfilerModelManager *modelManager,
                                       QmlProfilerStatisticsModel *statisticsModel,
                                       QObject *parent = 0);
-
 protected:
     virtual void loadData();
 };

@@ -59,19 +59,19 @@ ScrollView {
             width: parent.width
             height: depth * itemHeight
             model: flameGraphModel
-            sizeRole: FlameGraphModel.Duration
+            sizeRole: FlameGraphModel.DurationRole
             sizeThreshold: 0.002
             y: flickable.height > height ? flickable.height - height : 0
 
             delegate: Item {
                 id: flamegraphItem
 
-                property int typeId: FlameGraph.data(FlameGraphModel.TypeId) || -1
+                property int typeId: FlameGraph.data(FlameGraphModel.TypeIdRole) || -1
                 property bool isBindingLoop: parent.checkBindingLoop(typeId)
                 property int level: parent.level + (rangeTypeVisible ? 1 : 0)
                 property bool isSelected: typeId !== -1 && typeId === root.selectedTypeId
-                property bool rangeTypeVisible: root.visibleRangeTypes &
-                                                (1 << FlameGraph.data(FlameGraphModel.RangeType))
+                property bool rangeTypeVisible:
+                    root.visibleRangeTypes & (1 << FlameGraph.data(FlameGraphModel.RangeTypeRole))
 
                 onIsSelectedChanged: {
                     if (isSelected && (tooltip.selectedNode === null ||
@@ -93,8 +93,8 @@ ScrollView {
 
                 // Functions, not properties to limit the initial overhead when creating the nodes,
                 // and because FlameGraph.data(...) cannot be notified anyway.
-                function title() { return FlameGraph.data(FlameGraphModel.Type) || ""; }
-                function note() { return FlameGraph.data(FlameGraphModel.Note) || ""; }
+                function title() { return FlameGraph.data(FlameGraphModel.TypeRole) || ""; }
+                function note() { return FlameGraph.data(FlameGraphModel.NoteRole) || ""; }
                 function details() {
                     var model = [];
                     function addDetail(name, index, format) {
@@ -128,14 +128,14 @@ ScrollView {
                         model.push(qsTr("Details"));
                         model.push(qsTr("Various Events"));
                     } else {
-                        addDetail(qsTr("Details"), FlameGraphModel.Details, noop);
-                        addDetail(qsTr("Type"), FlameGraphModel.Type, noop);
-                        addDetail(qsTr("Calls"), FlameGraphModel.CallCount, noop);
-                        addDetail(qsTr("Total Time"), FlameGraphModel.Duration, printTime);
-                        addDetail(qsTr("Mean Time"), FlameGraphModel.TimePerCall, printTime);
-                        addDetail(qsTr("In Percent"), FlameGraphModel.TimeInPercent,
+                        addDetail(qsTr("Details"), FlameGraphModel.DetailsRole, noop);
+                        addDetail(qsTr("Type"), FlameGraphModel.TypeRole, noop);
+                        addDetail(qsTr("Calls"), FlameGraphModel.CallCountRole, noop);
+                        addDetail(qsTr("Total Time"), FlameGraphModel.DurationRole, printTime);
+                        addDetail(qsTr("Mean Time"), FlameGraphModel.TimePerCallRole, printTime);
+                        addDetail(qsTr("In Percent"), FlameGraphModel.TimeInPercentRole,
                                   addPercent);
-                        addDetail(qsTr("Location"), FlameGraphModel.Location, noop);
+                        addDetail(qsTr("Location"), FlameGraphModel.LocationRole, noop);
                     }
                     return model;
                 }
@@ -184,9 +184,12 @@ ScrollView {
                             if (!flamegraphItem.FlameGraph.dataValid)
                                 return "<others>";
 
-                            return flamegraphItem.FlameGraph.data(FlameGraphModel.Details) + " (" +
-                                   flamegraphItem.FlameGraph.data(FlameGraphModel.Type) + ", " +
-                                   flamegraphItem.FlameGraph.data(FlameGraphModel.TimeInPercent) + "%)";
+                            return flamegraphItem.FlameGraph.data(FlameGraphModel.DetailsRole)
+                                    + " ("
+                                    + flamegraphItem.FlameGraph.data(FlameGraphModel.TypeRole)
+                                    + ", "
+                                    + flamegraphItem.FlameGraph.data(
+                                        FlameGraphModel.TimeInPercentRole) + "%)";
                         }
                     }
 
@@ -206,12 +209,15 @@ ScrollView {
                         onClicked: {
                             if (flamegraphItem.FlameGraph.dataValid) {
                                 tooltip.selectedNode = flamegraphItem;
-                                root.typeSelected(
-                                            flamegraphItem.FlameGraph.data(FlameGraphModel.TypeId));
+                                root.typeSelected(flamegraphItem.FlameGraph.data(
+                                                      FlameGraphModel.TypeIdRole));
                                 root.gotoSourceLocation(
-                                            flamegraphItem.FlameGraph.data(FlameGraphModel.Filename),
-                                            flamegraphItem.FlameGraph.data(FlameGraphModel.Line),
-                                            flamegraphItem.FlameGraph.data(FlameGraphModel.Column));
+                                            flamegraphItem.FlameGraph.data(
+                                                FlameGraphModel.FilenameRole),
+                                            flamegraphItem.FlameGraph.data(
+                                                FlameGraphModel.LineRole),
+                                            flamegraphItem.FlameGraph.data(
+                                                FlameGraphModel.ColumnRole));
                             }
                         }
                     }

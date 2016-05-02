@@ -25,15 +25,16 @@
 
 #pragma once
 
-#include "qmldebugclient.h"
 #include "qmlprofilereventtypes.h"
 #include "qmlprofilereventlocation.h"
-#include "qmldebug_global.h"
+#include "qmlprofiler_global.h"
+
+#include <qmldebug/qmldebugclient.h>
 
 #include <QStack>
 #include <QStringList>
 
-namespace QmlDebug {
+namespace QmlProfiler {
 
 class QMLDEBUG_EXPORT QmlProfilerTraceClient : public QmlDebug::QmlDebugClient
 {
@@ -44,7 +45,7 @@ class QMLDEBUG_EXPORT QmlProfilerTraceClient : public QmlDebug::QmlDebugClient
     using QObject::event;
 
 public:
-    QmlProfilerTraceClient(QmlDebugConnection *client, quint64 features);
+    QmlProfilerTraceClient(QmlDebug::QmlDebugConnection *client, quint64 features);
     ~QmlProfilerTraceClient();
 
     bool isRecording() const;
@@ -61,12 +62,11 @@ signals:
     void complete(qint64 maximumTime);
     void traceFinished(qint64 time, const QList<int> &engineIds);
     void traceStarted(qint64 time, const QList<int> &engineIds);
-    void rangedEvent(QmlDebug::Message, QmlDebug::RangeType, int detailType, qint64 startTime,
-                     qint64 length, const QString &data,
-                     const QmlDebug::QmlEventLocation &location, qint64 param1, qint64 param2,
-                     qint64 param3, qint64 param4, qint64 param5);
+    void rangedEvent(Message, RangeType, int detailType, qint64 startTime, qint64 length,
+                     const QString &data, const QmlEventLocation &location, qint64 param1,
+                     qint64 param2, qint64 param3, qint64 param4, qint64 param5);
     void debugMessage(QtMsgType type, qint64 timestamp, const QString &text,
-                      const QmlDebug::QmlEventLocation &location);
+                      const QmlEventLocation &location);
     void recordingChanged(bool arg);
     void recordedFeaturesChanged(quint64 features);
     void newEngine(int engineId);
@@ -84,4 +84,4 @@ private:
     class QmlProfilerTraceClientPrivate *d;
 };
 
-} // namespace QmlDebug
+} // namespace QmlProfiler

@@ -54,7 +54,7 @@ public:
 
     int modelId;
 
-    QList<QmlDebug::RangeType> acceptedTypes;
+    QList<RangeType> acceptedTypes;
     QSet<int> eventsInBindingLoop;
     QHash<int, QString> notes;
 };
@@ -73,9 +73,9 @@ QmlProfilerStatisticsModel::QmlProfilerStatisticsModel(QmlProfilerModelManager *
     // We're iterating twice in loadData.
     modelManager->setProxyCountWeight(d->modelId, 2);
 
-    d->acceptedTypes << QmlDebug::Compiling << QmlDebug::Creating << QmlDebug::Binding << QmlDebug::HandlingSignal << QmlDebug::Javascript;
+    d->acceptedTypes << Compiling << Creating << Binding << HandlingSignal << Javascript;
 
-    modelManager->announceFeatures(d->modelId, QmlDebug::Constants::QML_JS_RANGE_FEATURES);
+    modelManager->announceFeatures(d->modelId, Constants::QML_JS_RANGE_FEATURES);
 }
 
 QmlProfilerStatisticsModel::~QmlProfilerStatisticsModel()
@@ -83,7 +83,7 @@ QmlProfilerStatisticsModel::~QmlProfilerStatisticsModel()
     delete d;
 }
 
-void QmlProfilerStatisticsModel::setEventTypeAccepted(QmlDebug::RangeType type, bool accepted)
+void QmlProfilerStatisticsModel::setEventTypeAccepted(RangeType type, bool accepted)
 {
     if (accepted && !d->acceptedTypes.contains(type))
         d->acceptedTypes << type;
@@ -91,7 +91,7 @@ void QmlProfilerStatisticsModel::setEventTypeAccepted(QmlDebug::RangeType type, 
         d->acceptedTypes.removeOne(type);
 }
 
-bool QmlProfilerStatisticsModel::eventTypeAccepted(QmlDebug::RangeType type) const
+bool QmlProfilerStatisticsModel::eventTypeAccepted(RangeType type) const
 {
     return d->acceptedTypes.contains(type);
 }
@@ -357,7 +357,7 @@ void QmlProfilerStatisticsParentsModel::loadData()
 
     // for level computation
     QHash<int, qint64> endtimesPerLevel;
-    int level = QmlDebug::Constants::QML_MIN_LEVEL;
+    int level = Constants::QML_MIN_LEVEL;
     endtimesPerLevel[0] = 0;
 
     const QSet<int> &eventsInBindingLoop = m_statisticsModel->eventsInBindingLoop();
@@ -375,14 +375,14 @@ void QmlProfilerStatisticsParentsModel::loadData()
         if (endtimesPerLevel[level] > event.startTime()) {
             level++;
         } else {
-            while (level > QmlDebug::Constants::QML_MIN_LEVEL &&
+            while (level > Constants::QML_MIN_LEVEL &&
                    endtimesPerLevel[level-1] <= event.startTime())
                 level--;
         }
         endtimesPerLevel[level] = event.startTime() + event.duration();
 
         int parentTypeIndex = -1;
-        if (level > QmlDebug::Constants::QML_MIN_LEVEL && lastParent.contains(level-1))
+        if (level > Constants::QML_MIN_LEVEL && lastParent.contains(level-1))
             parentTypeIndex = lastParent[level-1];
 
         QmlStatisticsRelativesMap &relativesMap = m_data[event.typeIndex()];
@@ -419,7 +419,7 @@ void QmlProfilerStatisticsChildrenModel::loadData()
 
     // for level computation
     QHash<int, qint64> endtimesPerLevel;
-    int level = QmlDebug::Constants::QML_MIN_LEVEL;
+    int level = Constants::QML_MIN_LEVEL;
     endtimesPerLevel[0] = 0;
 
     const QSet<int> &eventsInBindingLoop = m_statisticsModel->eventsInBindingLoop();
@@ -437,7 +437,7 @@ void QmlProfilerStatisticsChildrenModel::loadData()
         if (endtimesPerLevel[level] > event.startTime()) {
             level++;
         } else {
-            while (level > QmlDebug::Constants::QML_MIN_LEVEL &&
+            while (level > Constants::QML_MIN_LEVEL &&
                    endtimesPerLevel[level-1] <= event.startTime())
                 level--;
         }
@@ -445,7 +445,7 @@ void QmlProfilerStatisticsChildrenModel::loadData()
 
         int parentId = -1;
 
-        if (level > QmlDebug::Constants::QML_MIN_LEVEL && lastParent.contains(level-1))
+        if (level > Constants::QML_MIN_LEVEL && lastParent.contains(level-1))
             parentId = lastParent[level-1];
 
         QmlStatisticsRelativesMap &relativesMap = m_data[parentId];

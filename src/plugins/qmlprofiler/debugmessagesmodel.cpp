@@ -30,12 +30,12 @@ namespace Internal {
 
 bool DebugMessagesModel::accepted(const QmlProfilerDataModel::QmlEventTypeData &event) const
 {
-    return event.message == QmlDebug::DebugMessage;
+    return event.message == DebugMessage;
 }
 
 DebugMessagesModel::DebugMessagesModel(QmlProfilerModelManager *manager, QObject *parent) :
-    QmlProfilerTimelineModel(manager, QmlDebug::DebugMessage, QmlDebug::MaximumRangeType,
-                             QmlDebug::ProfileDebugMessages, parent), m_maximumMsgType(-1)
+    QmlProfilerTimelineModel(manager, DebugMessage, MaximumRangeType, ProfileDebugMessages, parent),
+    m_maximumMsgType(-1)
 {
 }
 

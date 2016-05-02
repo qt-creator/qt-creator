@@ -86,7 +86,6 @@ using namespace Core::Constants;
 using namespace Debugger;
 using namespace Debugger::Constants;
 using namespace QmlProfiler::Constants;
-using namespace QmlDebug;
 using namespace ProjectExplorer;
 
 namespace QmlProfiler {

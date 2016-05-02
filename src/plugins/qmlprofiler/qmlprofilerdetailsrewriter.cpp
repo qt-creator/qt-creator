@@ -35,7 +35,7 @@ namespace QmlProfiler {
 namespace Internal {
 
 struct PendingEvent {
-    QmlDebug::QmlEventLocation location;
+    QmlEventLocation location;
     QString localFile;
     int requestId;
 };
@@ -118,7 +118,7 @@ QmlProfilerDetailsRewriter::~QmlProfilerDetailsRewriter()
 }
 
 void QmlProfilerDetailsRewriter::requestDetailsForLocation(int requestId,
-        const QmlDebug::QmlEventLocation &location)
+        const QmlEventLocation &location)
 {
     QString localFile;
     if (!d->m_filesCache.contains(location.filename)) {
@@ -157,7 +157,7 @@ void QmlProfilerDetailsRewriter::reloadDocuments()
 }
 
 void QmlProfilerDetailsRewriter::rewriteDetailsForLocation(QTextStream &textDoc,
-        QmlJS::Document::Ptr doc, int requestId, const QmlDebug::QmlEventLocation &location)
+        QmlJS::Document::Ptr doc, int requestId, const QmlEventLocation &location)
 {
     PropertyVisitor propertyVisitor;
     QmlJS::AST::Node *node = propertyVisitor(doc->ast(), location.line, location.column);

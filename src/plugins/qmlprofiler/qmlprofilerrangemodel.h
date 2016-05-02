@@ -26,10 +26,11 @@
 #pragma once
 
 #include "qmlprofilertimelinemodel.h"
-#include <qmldebug/qmlprofilereventtypes.h>
-#include <qmldebug/qmlprofilereventlocation.h>
-#include <QVariantList>
 #include "qmlprofilerdatamodel.h"
+#include "qmlprofilereventtypes.h"
+#include "qmlprofilereventlocation.h"
+
+#include <QVariantList>
 #include <QColor>
 
 namespace QmlProfiler {
@@ -44,8 +45,8 @@ public:
 
     struct QmlRangeEventStartInstance {
         QmlRangeEventStartInstance() :
-                displayRowExpanded(QmlDebug::Constants::QML_MIN_LEVEL),
-                displayRowCollapsed(QmlDebug::Constants::QML_MIN_LEVEL),
+                displayRowExpanded(Constants::QML_MIN_LEVEL),
+                displayRowCollapsed(Constants::QML_MIN_LEVEL),
                 bindingLoopHead(-1) {}
 
         // not-expanded, per type
@@ -54,8 +55,7 @@ public:
         int bindingLoopHead;
     };
 
-    QmlProfilerRangeModel(QmlProfilerModelManager *manager, QmlDebug::RangeType range,
-                          QObject *parent = 0);
+    QmlProfilerRangeModel(QmlProfilerModelManager *manager, RangeType range, QObject *parent = 0);
 
     Q_INVOKABLE int expandedRow(int index) const;
     Q_INVOKABLE int collapsedRow(int index) const;

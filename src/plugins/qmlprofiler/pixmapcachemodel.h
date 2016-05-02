@@ -82,7 +82,7 @@ public:
         MaximumPixmapEventType
     };
 
-    struct PixmapCacheEvent {
+    struct PixmapCacheItem {
         int typeId;
         PixmapEventType pixmapEventType;
         int urlIndex;
@@ -114,9 +114,9 @@ private:
     void resizeUnfinishedLoads();
     void flattenLoads();
     int updateCacheCount(int lastCacheSizeEvent, qint64 startTime, qint64 pixSize,
-                         PixmapCacheEvent &newEvent, int typeId);
+                         PixmapCacheItem &newEvent, int typeId);
 
-    QVector<PixmapCacheEvent> m_data;
+    QVector<PixmapCacheItem> m_data;
     QVector<Pixmap> m_pixmaps;
     qint64 m_maxCacheSize;
 

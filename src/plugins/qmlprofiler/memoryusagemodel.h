@@ -39,7 +39,7 @@ class MemoryUsageModel : public QmlProfilerTimelineModel
     Q_OBJECT
 public:
 
-    struct MemoryAllocation {
+    struct MemoryAllocationItem {
         int typeId;
         qint64 size;
         qint64 allocated;
@@ -48,7 +48,7 @@ public:
         int deallocations;
         int originTypeIndex;
 
-        MemoryAllocation(int typeId = -1, qint64 baseAmount = 0, int originTypeIndex = -1);
+        MemoryAllocationItem(int typeId = -1, qint64 baseAmount = 0, int originTypeIndex = -1);
         void update(qint64 amount);
     };
 
@@ -74,7 +74,7 @@ protected:
 private:
     static QString memoryTypeName(int type);
 
-    QVector<MemoryAllocation> m_data;
+    QVector<MemoryAllocationItem> m_data;
     qint64 m_maxSize;
 };
 

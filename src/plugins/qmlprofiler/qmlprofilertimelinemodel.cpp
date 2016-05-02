@@ -28,10 +28,8 @@
 namespace QmlProfiler {
 
 QmlProfilerTimelineModel::QmlProfilerTimelineModel(QmlProfilerModelManager *modelManager,
-                                                   QmlDebug::Message message,
-                                                   QmlDebug::RangeType rangeType,
-                                                   QmlDebug::ProfileFeature mainFeature,
-                                                   QObject *parent) :
+                                                   Message message, RangeType rangeType,
+                                                   ProfileFeature mainFeature, QObject *parent) :
     TimelineModel(modelManager->registerModelProxy(), parent),
     m_message(message), m_rangeType(rangeType), m_mainFeature(mainFeature),
     m_modelManager(modelManager)
@@ -44,17 +42,17 @@ QmlProfilerTimelineModel::QmlProfilerTimelineModel(QmlProfilerModelManager *mode
     announceFeatures(1ULL << m_mainFeature);
 }
 
-QmlDebug::RangeType QmlProfilerTimelineModel::rangeType() const
+RangeType QmlProfilerTimelineModel::rangeType() const
 {
     return m_rangeType;
 }
 
-QmlDebug::Message QmlProfilerTimelineModel::message() const
+Message QmlProfilerTimelineModel::message() const
 {
     return m_message;
 }
 
-QmlDebug::ProfileFeature QmlProfilerTimelineModel::mainFeature() const
+ProfileFeature QmlProfilerTimelineModel::mainFeature() const
 {
     return m_mainFeature;
 }
@@ -133,7 +131,7 @@ QVariantMap QmlProfilerTimelineModel::locationFromTypeId(int index) const
     if (id >= types.length())
         return result;
 
-    const QmlDebug::QmlEventLocation &location = types.at(id).location;
+    const QmlEventLocation &location = types.at(id).location;
 
     result.insert(QStringLiteral("file"), location.filename);
     result.insert(QStringLiteral("line"), location.line);

@@ -48,8 +48,6 @@
 #include <utils/qtcassert.h>
 #include <functional>
 
-using namespace QmlDebug;
-
 namespace QmlProfiler {
 namespace Internal {
 
@@ -335,7 +333,7 @@ void QmlProfilerStatisticsView::onVisibleFeaturesChanged(quint64 features)
     for (int i = 0; i < MaximumRangeType; ++i) {
         RangeType range = static_cast<RangeType>(i);
         quint64 featureFlag = 1ULL << featureFromRangeType(range);
-        if (QmlDebug::Constants::QML_JS_RANGE_FEATURES & featureFlag)
+        if (Constants::QML_JS_RANGE_FEATURES & featureFlag)
             d->model->setEventTypeAccepted(range, features & featureFlag);
     }
     d->model->limitToRange(d->rangeStart, d->rangeEnd);
