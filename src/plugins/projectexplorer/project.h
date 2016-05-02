@@ -44,15 +44,15 @@ namespace Utils { class MacroExpander; }
 namespace ProjectExplorer {
 
 class BuildInfo;
-class IProjectManager;
 class EditorConfiguration;
-class ProjectImporter;
-class ProjectNode;
+class IProjectManager;
 class Kit;
 class KitMatcher;
 class NamedWidget;
-class Target;
+class ProjectImporter;
+class ProjectNode;
 class ProjectPrivate;
+class Target;
 
 // Documentation inside.
 class PROJECTEXPLORER_EXPORT Project : public QObject
