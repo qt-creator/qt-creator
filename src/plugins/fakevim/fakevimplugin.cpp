@@ -2156,7 +2156,7 @@ void FakeVimPluginPrivate::indentRegion(int beginBlock, int endBlock,
 
     for (int i = beginBlock; i <= endBlock; ++i) {
         lineLengths[i - beginBlock] = block.text().length();
-        if (typedChar == 0 && block.text().simplified().isEmpty()) {
+        if (typedChar.unicode() == 0 && block.text().simplified().isEmpty()) {
             // clear empty lines
             QTextCursor cursor(block);
             while (!cursor.atBlockEnd())
