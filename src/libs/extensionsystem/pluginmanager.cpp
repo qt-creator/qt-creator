@@ -833,6 +833,7 @@ void PluginManagerPrivate::nextDelayedInitialize()
             break; // do next delayedInitialize after a delay
     }
     if (delayedInitializeQueue.isEmpty()) {
+        m_isInitializationDone = true;
         delete delayedInitializeTimer;
         delayedInitializeTimer = 0;
         profilingSummary();
@@ -1671,6 +1672,11 @@ QString PluginManager::platformName()
 {
     static const QString result = getPlatformName();
     return result;
+}
+
+bool PluginManager::isInitializationDone()
+{
+    return d->m_isInitializationDone;
 }
 
 /*!
