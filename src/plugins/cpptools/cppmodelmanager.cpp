@@ -900,6 +900,19 @@ QFuture<void> CppModelManager::updateProjectInfo(const ProjectInfo &newProjectIn
     return indexerFuture;
 }
 
+ProjectInfo CppModelManager::updateCompilerCallDataForProject(
+        ProjectExplorer::Project *project,
+        ProjectInfo::CompilerCallData &compilerCallData)
+{
+    QMutexLocker locker(&d->m_projectMutex);
+
+    ProjectInfo projectInfo = d->m_projectToProjectsInfo.value(project, ProjectInfo());
+    projectInfo.setCompilerCallData(compilerCallData);
+    d->m_projectToProjectsInfo.insert(project, projectInfo);
+
+    return projectInfo;
+}
+
 ProjectPart::Ptr CppModelManager::projectPartForId(const QString &projectPartId) const
 {
     return d->m_projectPartIdToProjectProjectPart.value(projectPartId);

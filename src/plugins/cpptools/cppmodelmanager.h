@@ -29,6 +29,7 @@
 #include "cpptools_global.h"
 
 #include "cppmodelmanagersupport.h"
+#include "projectinfo.h"
 #include "projectpart.h"
 #include "projectpartheaderpath.h"
 
@@ -56,7 +57,6 @@ class CppEditorDocumentHandle;
 class CppIndexingSupport;
 class SymbolFinder;
 class WorkingCopy;
-class ProjectInfo;
 
 namespace Internal {
 class CppSourceProcessor;
@@ -95,6 +95,8 @@ public:
     QList<ProjectInfo> projectInfos() const;
     ProjectInfo projectInfo(ProjectExplorer::Project *project) const;
     QFuture<void> updateProjectInfo(const ProjectInfo &newProjectInfo);
+    ProjectInfo updateCompilerCallDataForProject(ProjectExplorer::Project *project,
+                                                 ProjectInfo::CompilerCallData &compilerCallData);
 
     /// \return The project part with the given project file
     ProjectPart::Ptr projectPartForId(const QString &projectPartId) const;
