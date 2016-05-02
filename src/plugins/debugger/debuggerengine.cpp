@@ -2023,7 +2023,9 @@ void DebuggerEngine::updateItem(const QByteArray &iname)
         WatchHandler *handler = watchHandler();
         WatchItem *item = handler->findItem(iname);
         QTC_CHECK(item);
-        if (item && !item->hasChildren()) {
+        WatchModelBase *model = handler->model();
+        QTC_CHECK(model);
+        if (item && !model->hasChildren(model->indexForItem(item))) {
             handler->notifyUpdateStarted({iname});
             item->setValue(decodeData({}, "notaccessible"));
             item->setHasChildren(false);
