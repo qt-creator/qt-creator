@@ -61,8 +61,8 @@ public:
     Kit *kit() const;
 
     // Build configuration
-    void addBuildConfiguration(BuildConfiguration *configuration);
-    bool removeBuildConfiguration(BuildConfiguration *configuration);
+    void addBuildConfiguration(BuildConfiguration *bc);
+    bool removeBuildConfiguration(BuildConfiguration *bc);
 
     QList<BuildConfiguration *> buildConfigurations() const;
     BuildConfiguration *activeBuildConfiguration() const;
@@ -82,11 +82,11 @@ public:
 
     // Running
     QList<RunConfiguration *> runConfigurations() const;
-    void addRunConfiguration(RunConfiguration *runConfiguration);
-    void removeRunConfiguration(RunConfiguration *runConfiguration);
+    void addRunConfiguration(RunConfiguration *rc);
+    void removeRunConfiguration(RunConfiguration *rc);
 
     RunConfiguration *activeRunConfiguration() const;
-    void setActiveRunConfiguration(RunConfiguration *runConfiguration);
+    void setActiveRunConfiguration(RunConfiguration *rc);
 
     // Returns whether this target is actually available at he time
     // of the call. A target may become unavailable e.g. when a Qt version
@@ -114,6 +114,12 @@ signals:
     void overlayIconChanged();
 
     void kitChanged();
+
+    void aboutToRemoveProjectConfiguration(ProjectExplorer::ProjectConfiguration *pc);
+    void removedProjectConfiguration(ProjectExplorer::ProjectConfiguration *pc);
+    void addedProjectConfiguration(ProjectExplorer::ProjectConfiguration *pc);
+
+    void activeProjectConfigurationChanged();
 
     // TODO clean up signal names
     // might be better to also have aboutToRemove signals

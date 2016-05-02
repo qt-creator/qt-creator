@@ -49,6 +49,7 @@ class ContainerNode;
 class EditorConfiguration;
 class NamedWidget;
 class Node;
+class ProjectConfiguration;
 class ProjectImporter;
 class ProjectNode;
 class ProjectPrivate;
@@ -173,6 +174,15 @@ signals:
 
     // Note: activeTarget can be 0 (if no targets are defined).
     void activeTargetChanged(ProjectExplorer::Target *target);
+
+    void aboutToRemoveProjectConfiguration(ProjectExplorer::ProjectConfiguration *pc);
+    void removedProjectConfiguration(ProjectExplorer::ProjectConfiguration *pc);
+    void addedProjectConfiguration(ProjectExplorer::ProjectConfiguration *pc);
+
+    // *ANY* active project configuration changed somewhere in the tree. This might not be
+    // the one that would get started right now, since some part of the tree in between might
+    // not be active.
+    void activeProjectConfigurationChanged();
 
     void aboutToRemoveTarget(ProjectExplorer::Target *target);
     void removedTarget(ProjectExplorer::Target *target);

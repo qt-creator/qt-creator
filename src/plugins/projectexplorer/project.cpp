@@ -251,6 +251,11 @@ void Project::addTarget(Target *t)
     connect(t, &Target::buildConfigurationEnabledChanged,
             this, &Project::changeBuildConfigurationEnabled);
     connect(t, &Target::buildDirectoryChanged, this, &Project::onBuildDirectoryChanged);
+    connect(t, &Target::addedProjectConfiguration, this, &Project::addedProjectConfiguration);
+    connect(t, &Target::aboutToRemoveProjectConfiguration, this, &Project::aboutToRemoveProjectConfiguration);
+    connect(t, &Target::removedProjectConfiguration, this, &Project::removedProjectConfiguration);
+    connect(t, &Target::activeProjectConfigurationChanged, this, &Project::activeProjectConfigurationChanged);
+    emit addedProjectConfiguration(t);
     emit addedTarget(t);
 
     // check activeTarget:
@@ -274,9 +279,11 @@ bool Project::removeTarget(Target *target)
             SessionManager::setActiveTarget(this, d->m_targets.at(0), SetActive::Cascade);
     }
 
+    emit aboutToRemoveProjectConfiguration(target);
     emit aboutToRemoveTarget(target);
     d->m_targets.removeOne(target);
     emit removedTarget(target);
+    emit removedProjectConfiguration(target);
 
     delete target;
     return true;
@@ -297,6 +304,7 @@ void Project::setActiveTarget(Target *target)
     if ((!target && !d->m_targets.isEmpty()) ||
         (target && d->m_targets.contains(target) && d->m_activeTarget != target)) {
         d->m_activeTarget = target;
+        emit activeProjectConfigurationChanged();
         emit activeTargetChanged(d->m_activeTarget);
         emit environmentChanged();
         emit buildConfigurationEnabledChanged();
