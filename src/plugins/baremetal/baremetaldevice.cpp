@@ -67,6 +67,16 @@ QString BareMetalDevice::gdbServerProviderId() const
 void BareMetalDevice::setGdbServerProviderId(const QString &id)
 {
     m_gdbServerProviderId = id;
+    GdbServerProvider *provider = GdbServerProviderManager::instance()->findProvider(id);
+    QTC_ASSERT(provider, return);
+    const QString channel = provider->channel();
+    const int colon = channel.indexOf(QLatin1Char(':'));
+    if (colon < 0)
+        return;
+    QSsh::SshConnectionParameters sshParams = sshParameters();
+    sshParams.host = channel.left(colon);
+    sshParams.port = channel.mid(colon + 1).toUShort();
+    setSshParameters(sshParams);
 }
 
 void BareMetalDevice::fromMap(const QVariantMap &map)
