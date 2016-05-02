@@ -224,7 +224,7 @@ void QmlDesignerPlugin::showDesigner()
     if (data->documentManager.hasCurrentDesignDocument()) {
         activateAutoSynchronization();
         data->shortCutManager.updateActions(currentDesignDocument()->textEditor());
-        data->viewManager.pushFileOnCrumbleBar(data->documentManager.currentDesignDocument()->fileName().fileName());
+        data->viewManager.pushFileOnCrumbleBar(data->documentManager.currentDesignDocument()->fileName().toString());
     }
 
     data->shortCutManager.updateUndoActions(currentDesignDocument());
@@ -267,7 +267,7 @@ void QmlDesignerPlugin::changeEditor()
 
     if (data->documentManager.hasCurrentDesignDocument()) {
         activateAutoSynchronization();
-        data->viewManager.pushFileOnCrumbleBar(data->documentManager.currentDesignDocument()->fileName().fileName());
+        data->viewManager.pushFileOnCrumbleBar(data->documentManager.currentDesignDocument()->fileName().toString());
         data->viewManager.setComponentViewToMaster();
     }
 
