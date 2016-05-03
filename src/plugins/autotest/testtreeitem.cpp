@@ -129,25 +129,21 @@ bool TestTreeItem::modifyTestCaseContent(const QString &name, unsigned line, uns
     return hasBeenModified;
 }
 
-bool TestTreeItem::modifyTestFunctionContent(const TestCodeLocationAndType &location)
+bool TestTreeItem::modifyTestFunctionContent(const TestParseResult *result)
 {
-    bool hasBeenModified = modifyFilePath(location.m_name);
-    hasBeenModified |= modifyLineAndColumn(location);
+    bool hasBeenModified = modifyFilePath(result->fileName);
+    hasBeenModified |= modifyLineAndColumn(result->line, result->column);
     return hasBeenModified;
 }
 
-bool TestTreeItem::modifyDataTagContent(const QString &fileName,
-                                        const TestCodeLocationAndType &location)
+// TODO pass TestParseResult * to all modifyXYZ() OR remove completely if possible
+bool TestTreeItem::modifyDataTagContent(const QString &name, const QString &fileName,
+                                        unsigned line, unsigned column)
 {
     bool hasBeenModified = modifyFilePath(fileName);
-    hasBeenModified |= modifyName(location.m_name);
-    hasBeenModified |= modifyLineAndColumn(location);
+    hasBeenModified |= modifyName(name);
+    hasBeenModified |= modifyLineAndColumn(line, column);
     return hasBeenModified;
-}
-
-bool TestTreeItem::modifyLineAndColumn(const TestCodeLocationAndType &location)
-{
-    return modifyLineAndColumn(location.m_line, location.m_column);
 }
 
 bool TestTreeItem::modifyLineAndColumn(unsigned line, unsigned column)
@@ -340,44 +336,17 @@ TestTreeItem *TestTreeItem::findChildBy(CompareFunction compare)
     return 0;
 }
 
-AutoTestTreeItem *AutoTestTreeItem::createTestItem(const TestParseResult &result)
+AutoTestTreeItem *AutoTestTreeItem::createTestItem(const TestParseResult *result)
 {
-    const QtTestParseResult &parseResult = static_cast<const QtTestParseResult &>(result);
-    AutoTestTreeItem *item = new AutoTestTreeItem(result.testCaseName, result.fileName, TestCase);
-    item->setProFile(parseResult.proFile);
-    item->setLine(parseResult.line);
-    item->setColumn(parseResult.column);
+    AutoTestTreeItem *item = new AutoTestTreeItem(result->displayName, result->fileName,
+                                                  result->itemType);
+    item->setProFile(result->proFile);
+    item->setLine(result->line);
+    item->setColumn(result->column);
 
-    foreach (const QString &functionName, parseResult.functions.keys()) {
-        const TestCodeLocationAndType &locationAndType = parseResult.functions.value(functionName);
-        const QString qualifiedName = result.testCaseName + QLatin1String("::") + functionName;
-        item->appendChild(createFunctionItem(functionName, locationAndType,
-                                             parseResult.dataTags.value(qualifiedName)));
-    }
+    foreach (const TestParseResult *funcParseResult, result->children)
+        item->appendChild(createTestItem(funcParseResult));
     return item;
-}
-
-AutoTestTreeItem *AutoTestTreeItem::createFunctionItem(const QString &functionName,
-                                                       const TestCodeLocationAndType &location,
-                                                       const TestCodeLocationList &dataTags)
-{
-    AutoTestTreeItem *item = new AutoTestTreeItem(functionName, location.m_name, location.m_type);
-    item->setLine(location.m_line);
-    item->setColumn(location.m_column);
-
-    // if there are any data tags for this function add them
-    foreach (const TestCodeLocationAndType &tagLocation, dataTags)
-        item->appendChild(createDataTagItem(location.m_name, tagLocation));
-    return item;
-}
-
-AutoTestTreeItem *AutoTestTreeItem::createDataTagItem(const QString &fileName,
-                                                      const TestCodeLocationAndType &location)
-{
-    AutoTestTreeItem *tagItem = new AutoTestTreeItem(location.m_name, fileName, location.m_type);
-    tagItem->setLine(location.m_line);
-    tagItem->setColumn(location.m_column);
-    return tagItem;
 }
 
 QVariant AutoTestTreeItem::data(int column, int role) const
@@ -530,46 +499,15 @@ QList<TestConfiguration *> AutoTestTreeItem::getSelectedTestConfigurations() con
     return result;
 }
 
-QuickTestTreeItem *QuickTestTreeItem::createTestItem(const TestParseResult &result)
+QuickTestTreeItem *QuickTestTreeItem::createTestItem(const TestParseResult *result)
 {
-    const QuickTestParseResult &parseResult = static_cast<const QuickTestParseResult &>(result);
-    QuickTestTreeItem *item = new QuickTestTreeItem(parseResult.testCaseName, parseResult.fileName,
-                                                    TestCase);
-    item->setProFile(result.proFile);
-    item->setLine(result.line);
-    item->setColumn(result.column);
-    foreach (const QString &functionName, parseResult.functions.keys())
-        item->appendChild(createFunctionItem(functionName, parseResult.functions.value(functionName)));
-    return item;
-}
-
-QuickTestTreeItem *QuickTestTreeItem::createFunctionItem(const QString &functionName,
-                                                         const TestCodeLocationAndType &location)
-{
-    QuickTestTreeItem *item = new QuickTestTreeItem(functionName, location.m_name, location.m_type);
-    item->setLine(location.m_line);
-    item->setColumn(location.m_column);
-    return item;
-}
-
-QuickTestTreeItem *QuickTestTreeItem::createUnnamedQuickTestItem(const TestParseResult &result)
-{
-    const QuickTestParseResult &parseResult = static_cast<const QuickTestParseResult &>(result);
-    QuickTestTreeItem *item = new QuickTestTreeItem(QString(), QString(), TestCase);
-    foreach (const QString &functionName, parseResult.functions.keys())
-        item->appendChild(createUnnamedQuickFunctionItem(functionName, parseResult));
-    return item;
-}
-
-QuickTestTreeItem *QuickTestTreeItem::createUnnamedQuickFunctionItem(const QString &functionName,
-                                                                     const TestParseResult &result)
-{
-    const QuickTestParseResult &parseResult = static_cast<const QuickTestParseResult &>(result);
-    const TestCodeLocationAndType &location = parseResult.functions.value(functionName);
-    QuickTestTreeItem *item = new QuickTestTreeItem(functionName, location.m_name, location.m_type);
-    item->setLine(location.m_line);
-    item->setColumn(location.m_column);
-    item->setProFile(parseResult.proFile);
+    QuickTestTreeItem *item = new QuickTestTreeItem(result->name, result->fileName,
+                                                    result->itemType);
+    item->setProFile(result->proFile);
+    item->setLine(result->line);
+    item->setColumn(result->column);
+    foreach (const TestParseResult *funcResult, result->children)
+        item->appendChild(createTestItem(funcResult));
     return item;
 }
 
@@ -836,31 +774,23 @@ static QString gtestFilter(GoogleTestTreeItem::TestStates states)
     return QLatin1String("%1.%2");
 }
 
-GoogleTestTreeItem *GoogleTestTreeItem::createTestItem(const TestParseResult &result)
+GoogleTestTreeItem *GoogleTestTreeItem::createTestItem(const TestParseResult *result)
 {
-    const GoogleTestParseResult &parseResult = static_cast<const GoogleTestParseResult &>(result);
-    GoogleTestTreeItem *item = new GoogleTestTreeItem(parseResult.testCaseName, QString(), TestCase);
-    item->setProFile(parseResult.proFile);
-    if (parseResult.parameterized)
-        item->setState(Parameterized);
-    if (parseResult.typed)
-        item->setState(Typed);
-    if (parseResult.disabled)
-        item->setState(Disabled);
-    foreach (const TestCodeLocationAndType &location, parseResult.testSets)
-        item->appendChild(createTestSetItem(result, location));
-    return item;
-}
+    const GoogleTestParseResult *parseResult = static_cast<const GoogleTestParseResult *>(result);
+    GoogleTestTreeItem *item = new GoogleTestTreeItem(parseResult->name, parseResult->fileName,
+                                                      parseResult->itemType);
+    item->setProFile(parseResult->proFile);
+    item->setLine(parseResult->line);
+    item->setColumn(parseResult->column);
 
-GoogleTestTreeItem *GoogleTestTreeItem::createTestSetItem(const TestParseResult &result,
-                                                          const TestCodeLocationAndType &location)
-{
-    GoogleTestTreeItem *item = new GoogleTestTreeItem(location.m_name, result.fileName,
-                                                      location.m_type);
-    item->setStates(location.m_state);
-    item->setLine(location.m_line);
-    item->setColumn(location.m_column);
-    item->setProFile(result.proFile);
+    if (parseResult->parameterized)
+        item->setState(Parameterized);
+    if (parseResult->typed)
+        item->setState(Typed);
+    if (parseResult->disabled)
+        item->setState(Disabled);
+    foreach (const TestParseResult *testSet, parseResult->children)
+        item->appendChild(createTestItem(testSet));
     return item;
 }
 
@@ -1042,13 +972,13 @@ QList<TestConfiguration *> GoogleTestTreeItem::getSelectedTestConfigurations() c
     return result;
 }
 
-bool GoogleTestTreeItem::modifyTestSetContent(const QString &fileName,
-                                              const TestCodeLocationAndType &location)
+bool GoogleTestTreeItem::modifyTestSetContent(const GoogleTestParseResult *result)
 {
-    bool hasBeenModified = modifyFilePath(fileName);
-    hasBeenModified |= modifyLineAndColumn(location);
-    if (m_state != location.m_state) {
-        m_state = location.m_state;
+    bool hasBeenModified = modifyLineAndColumn(result->line, result->column);
+    GoogleTestTreeItem::TestStates states = result->disabled ? GoogleTestTreeItem::Disabled
+                                                             : GoogleTestTreeItem::Enabled;
+    if (m_state != states) {
+        m_state = states;
         hasBeenModified = true;
     }
     return hasBeenModified;

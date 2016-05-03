@@ -48,6 +48,7 @@ class AutoTestTreeItem;
 class QuickTestTreeItem;
 class GoogleTestTreeItem;
 class TestParseResult;
+class GoogleTestParseResult;
 class TestConfiguration;
 
 class TestTreeItem : public Utils::TreeItem
@@ -75,9 +76,9 @@ public:
     virtual bool setData(int column, const QVariant &data, int role) override;
     virtual Qt::ItemFlags flags(int column) const override;
     bool modifyTestCaseContent(const QString &name, unsigned line, unsigned column);
-    bool modifyTestFunctionContent(const TestCodeLocationAndType &location);
-    bool modifyDataTagContent(const QString &fileName, const TestCodeLocationAndType &location);
-    bool modifyLineAndColumn(const TestCodeLocationAndType &location);
+    bool modifyTestFunctionContent(const TestParseResult *result);
+    bool modifyDataTagContent(const QString &name, const QString &fileName, unsigned line,
+                              unsigned column);
     bool modifyLineAndColumn(unsigned line, unsigned column);
 
     const QString name() const { return m_name; }
@@ -145,12 +146,7 @@ public:
     AutoTestTreeItem(const QString &name = QString(), const QString &filePath = QString(),
                      Type type = Root) : TestTreeItem(name, filePath, type) {}
 
-    static AutoTestTreeItem *createTestItem(const TestParseResult &result);
-    static AutoTestTreeItem *createFunctionItem(const QString &functionName,
-                                                const TestCodeLocationAndType &location,
-                                                const TestCodeLocationList &dataTags);
-    static AutoTestTreeItem *createDataTagItem(const QString &fileName,
-                                               const TestCodeLocationAndType &location);
+    static AutoTestTreeItem *createTestItem(const TestParseResult *result);
 
     QVariant data(int column, int role) const override;
     bool canProvideTestConfiguration() const override;
@@ -165,12 +161,7 @@ public:
     QuickTestTreeItem(const QString &name = QString(), const QString &filePath = QString(),
                       Type type = Root) : TestTreeItem(name, filePath, type) {}
 
-    static QuickTestTreeItem *createTestItem(const TestParseResult &result);
-    static QuickTestTreeItem *createFunctionItem(const QString &functionName,
-                                                 const TestCodeLocationAndType &location);
-    static QuickTestTreeItem *createUnnamedQuickTestItem(const TestParseResult &result);
-    static QuickTestTreeItem *createUnnamedQuickFunctionItem(const QString &functionName,
-                                                             const TestParseResult &result);
+    static QuickTestTreeItem *createTestItem(const TestParseResult *result);
 
     QVariant data(int column, int role) const override;
     Qt::ItemFlags flags(int column) const override;
@@ -201,9 +192,7 @@ public:
     GoogleTestTreeItem(const QString &name = QString(), const QString &filePath = QString(),
                        Type type = Root) : TestTreeItem(name, filePath, type), m_state(Enabled) {}
 
-    static GoogleTestTreeItem *createTestItem(const TestParseResult &result);
-    static GoogleTestTreeItem *createTestSetItem(const TestParseResult &result,
-                                                 const TestCodeLocationAndType &location);
+    static GoogleTestTreeItem *createTestItem(const TestParseResult *result);
 
     QVariant data(int column, int role) const override;
     bool canProvideTestConfiguration() const override { return type() != Root; }
@@ -214,7 +203,7 @@ public:
     void setStates(TestStates states) { m_state = states; }
     void setState(TestState state) { m_state |= state; }
     TestStates state() const { return m_state; }
-    bool modifyTestSetContent(const QString &fileName, const TestCodeLocationAndType &location);
+    bool modifyTestSetContent(const GoogleTestParseResult *result);
     TestTreeItem *findChildByNameStateAndFile(const QString &name,
                                               GoogleTestTreeItem::TestStates state,
                                               const QString &proFile);

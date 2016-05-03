@@ -47,12 +47,15 @@ class TestParseResult
 {
 public:
     explicit TestParseResult(TestTreeModel::Type t = TestTreeModel::Invalid) : type(t) {}
-    virtual ~TestParseResult() {}
+    virtual ~TestParseResult() { qDeleteAll(children); }
 
+    QVector<TestParseResult *> children;
     TestTreeModel::Type type;
+    TestTreeItem::Type itemType = TestTreeItem::Root;
+    QString displayName;
     QString fileName;
     QString proFile;
-    QString testCaseName;
+    QString name;
     unsigned line = 0;
     unsigned column = 0;
 };
@@ -60,26 +63,22 @@ public:
 class QtTestParseResult : public TestParseResult
 {
 public:
-    QtTestParseResult(TestTreeModel::Type t = TestTreeModel::Invalid) : TestParseResult(t) {}
-    QMap<QString, TestCodeLocationAndType> functions;
-    QMap<QString, TestCodeLocationList> dataTags;
+    explicit QtTestParseResult() : TestParseResult(TestTreeModel::AutoTest) {}
 };
 
 class QuickTestParseResult : public TestParseResult
 {
 public:
-    QuickTestParseResult(TestTreeModel::Type t = TestTreeModel::Invalid) : TestParseResult(t) {}
-    QMap<QString, TestCodeLocationAndType> functions;
+    explicit QuickTestParseResult() : TestParseResult(TestTreeModel::QuickTest) {}
 };
 
 class GoogleTestParseResult : public TestParseResult
 {
 public:
-    GoogleTestParseResult(TestTreeModel::Type t = TestTreeModel::Invalid) : TestParseResult(t) {}
+    explicit GoogleTestParseResult() : TestParseResult(TestTreeModel::GoogleTest) {}
     bool parameterized = false;
     bool typed = false;
     bool disabled = false;
-    TestCodeLocationList testSets;
 };
 
 using TestParseResultPtr = QSharedPointer<TestParseResult>;

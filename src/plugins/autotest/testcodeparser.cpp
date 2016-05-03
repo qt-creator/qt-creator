@@ -454,14 +454,29 @@ static bool checkQmlDocumentForTestCode(QFutureInterface<TestParseResultPtr> fut
 
     const QString testCaseName = qmlVisitor.testCaseName();
     const TestCodeLocationAndType tcLocationAndType = qmlVisitor.testCaseLocation();
-    const QMap<QString, TestCodeLocationAndType> testFunctions = qmlVisitor.testFunctions();
+    const QMap<QString, TestCodeLocationAndType> &testFunctions = qmlVisitor.testFunctions();
 
-    QuickTestParseResult *parseResult = new QuickTestParseResult(TestTreeModel::QuickTest);
+    QuickTestParseResult *parseResult = new QuickTestParseResult;
     parseResult->proFile = proFile;
-    parseResult->functions = testFunctions;
+    parseResult->itemType = TestTreeItem::TestCase;
+    QMap<QString, TestCodeLocationAndType>::ConstIterator it = testFunctions.begin();
+    const QMap<QString, TestCodeLocationAndType>::ConstIterator end = testFunctions.end();
+    for ( ; it != end; ++it) {
+        const TestCodeLocationAndType &loc = it.value();
+        QuickTestParseResult *funcResult = new QuickTestParseResult;
+        funcResult->name = it.key();
+        funcResult->displayName = it.key();
+        funcResult->itemType = loc.m_type;
+        funcResult->fileName = loc.m_name;
+        funcResult->line = loc.m_line;
+        funcResult->column = loc.m_column;
+        funcResult->proFile = proFile;
+
+        parseResult->children.append(funcResult);
+    }
     if (!testCaseName.isEmpty()) {
         parseResult->fileName = tcLocationAndType.m_name;
-        parseResult->testCaseName = testCaseName;
+        parseResult->name = testCaseName;
         parseResult->line = tcLocationAndType.m_line;
         parseResult->column = tcLocationAndType.m_column;
     }
@@ -491,21 +506,47 @@ static bool handleQtTest(QFutureInterface<TestParseResultPtr> futureInterface,
         if (!visitor.resultValid())
             return false;
 
-        const QMap<QString, TestCodeLocationAndType> testFunctions = visitor.privateSlots();
+        const QMap<QString, TestCodeLocationAndType> &testFunctions = visitor.privateSlots();
         const QSet<QString> &files = filesWithDataFunctionDefinitions(testFunctions);
 
+        // TODO: change to QHash<>
         QMap<QString, TestCodeLocationList> dataTags;
         foreach (const QString &file, files)
             dataTags.unite(checkForDataTags(file));
 
-        QtTestParseResult *parseResult = new QtTestParseResult(TestTreeModel::AutoTest);
+        QtTestParseResult *parseResult = new QtTestParseResult;
+        parseResult->itemType = TestTreeItem::TestCase;
         parseResult->fileName = declaringDoc->fileName();
-        parseResult->testCaseName = testCaseName;
+        parseResult->name = testCaseName;
+        parseResult->displayName = testCaseName;
         parseResult->line = line;
         parseResult->column = column;
-        parseResult->functions = testFunctions;
-        parseResult->dataTags = dataTags;
         parseResult->proFile = modelManager->projectPart(fileName).first()->projectFile;
+        QMap<QString, TestCodeLocationAndType>::ConstIterator it = testFunctions.begin();
+        const QMap<QString, TestCodeLocationAndType>::ConstIterator end = testFunctions.end();
+        for ( ; it != end; ++it) {
+            const TestCodeLocationAndType &location = it.value();
+            QtTestParseResult *func = new QtTestParseResult;
+            func->itemType = location.m_type;
+            func->name = testCaseName + QLatin1String("::") + it.key();
+            func->displayName = it.key();
+            func->fileName = location.m_name;
+            func->line = location.m_line;
+            func->column = location.m_column;
+
+            foreach (const TestCodeLocationAndType &tag, dataTags.value(func->name)) {
+                QtTestParseResult *dataTag = new QtTestParseResult;
+                dataTag->itemType = tag.m_type;
+                dataTag->name = tag.m_name;
+                dataTag->displayName = tag.m_name;
+                dataTag->fileName = testFunctions.value(it.key() + QLatin1String("_data")).m_name;
+                dataTag->line = tag.m_line;
+                dataTag->column = tag.m_column;
+
+                func->children.append(dataTag);
+            }
+            parseResult->children.append(func);
+        }
 
         futureInterface.reportResult(TestParseResultPtr(parseResult));
         return true;
@@ -555,14 +596,28 @@ static bool handleGTest(QFutureInterface<TestParseResultPtr> futureInterface, co
         proFile = ppList.first()->projectFile;
 
     foreach (const GTestCaseSpec &testSpec, result.keys()) {
-        GoogleTestParseResult *parseResult = new GoogleTestParseResult(TestTreeModel::GoogleTest);
+        GoogleTestParseResult *parseResult = new GoogleTestParseResult;
+        parseResult->itemType = TestTreeItem::TestCase;
         parseResult->fileName = filePath;
-        parseResult->testCaseName = testSpec.testCaseName;
+        parseResult->name = testSpec.testCaseName;
         parseResult->parameterized = testSpec.parameterized;
         parseResult->typed = testSpec.typed;
         parseResult->disabled = testSpec.disabled;
         parseResult->proFile = proFile;
-        parseResult->testSets = result.value(testSpec);
+
+        foreach (const TestCodeLocationAndType &location, result.value(testSpec)) {
+            GoogleTestParseResult *testSet = new GoogleTestParseResult;
+            testSet->name = location.m_name;
+            testSet->fileName = filePath;
+            testSet->line = location.m_line;
+            testSet->column = location.m_column;
+            testSet->disabled = location.m_state & GoogleTestTreeItem::Disabled;
+            testSet->itemType = location.m_type;
+            testSet->proFile = proFile;
+
+            parseResult->children.append(testSet);
+        }
+
         futureInterface.reportResult(TestParseResultPtr(parseResult));
     }
     return !result.keys().isEmpty();

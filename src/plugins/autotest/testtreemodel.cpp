@@ -332,42 +332,37 @@ void TestTreeModel::handleQtParseResult(const TestParseResultPtr result)
     TestTreeItem *toBeModified = m_autoTestRootItem->findChildByFile(result->fileName);
     // if there's no matching item, add the new one
     if (!toBeModified) {
-        m_autoTestRootItem->appendChild(AutoTestTreeItem::createTestItem(*result));
+        m_autoTestRootItem->appendChild(AutoTestTreeItem::createTestItem(result.data()));
         return;
     }
     // else we have to check level by level.. first the current level...
-    bool changed = toBeModified->modifyTestCaseContent(result->testCaseName, result->line,
+    bool changed = toBeModified->modifyTestCaseContent(result->name, result->line,
                                                        result->column);
     toBeModified->markForRemoval(false);
     if (changed)
         emit dataChanged(indexForItem(toBeModified), indexForItem(toBeModified));
     // ...now the functions
-    const QtTestParseResult &parseResult = static_cast<const QtTestParseResult &>(*result);
-    foreach (const QString &func, parseResult.functions.keys()) {
-        TestTreeItem *functionItem = toBeModified->findChildByName(func);
+    foreach (const TestParseResult *funcResult, result->children) {
+        TestTreeItem *functionItem = toBeModified->findChildByName(funcResult->displayName);
         if (!functionItem) {
             // if there's no function matching, add the new one
-            const QString qualifiedName = parseResult.testCaseName + QLatin1String("::") + func;
-            toBeModified->appendChild(AutoTestTreeItem::createFunctionItem(
-                                          func, parseResult.functions.value(func),
-                                          parseResult.dataTags.value(qualifiedName)));
+            toBeModified->appendChild(AutoTestTreeItem::createTestItem(funcResult));
             continue;
         }
         // else we have to check level by level.. first the current level...
-        changed = functionItem->modifyTestFunctionContent(parseResult.functions.value(func));
+        changed = functionItem->modifyTestFunctionContent(funcResult);
         functionItem->markForRemoval(false);
         if (changed)
             emit dataChanged(indexForItem(functionItem), indexForItem(functionItem));
         // ...now the data tags
-        const QString &funcFileName = parseResult.functions.value(func).m_name;
-        const QString qualifiedFunctionName = parseResult.testCaseName + QLatin1String("::") + func;
-        foreach (const TestCodeLocationAndType &location, parseResult.dataTags.value(qualifiedFunctionName)) {
-            TestTreeItem *dataTagItem = functionItem->findChildByName(location.m_name);
+        foreach (const TestParseResult *tag, funcResult->children) {
+            TestTreeItem *dataTagItem = functionItem->findChildByName(tag->name);
             if (!dataTagItem) {
-                functionItem->appendChild(AutoTestTreeItem::createDataTagItem(funcFileName, location));
+                functionItem->appendChild(AutoTestTreeItem::createTestItem(tag));
                 continue;
             }
-            changed = dataTagItem->modifyDataTagContent(funcFileName, location);
+            changed = dataTagItem->modifyDataTagContent(tag->name, tag->fileName, tag->line,
+                                                        tag->column);
             dataTagItem->markForRemoval(false);
             if (changed)
                 emit dataChanged(indexForItem(dataTagItem), indexForItem(dataTagItem));
@@ -377,7 +372,7 @@ void TestTreeModel::handleQtParseResult(const TestParseResultPtr result)
 
 void TestTreeModel::handleQuickParseResult(const TestParseResultPtr result)
 {
-    if (result->testCaseName.isEmpty()) {
+    if (result->name.isEmpty()) {
         handleUnnamedQuickParseResult(result);
         return;
     }
@@ -385,28 +380,25 @@ void TestTreeModel::handleQuickParseResult(const TestParseResultPtr result)
     TestTreeItem *toBeModified = m_quickTestRootItem->findChildByFile(result->fileName);
     // if there's no matching item, add the new one
     if (!toBeModified) {
-        m_quickTestRootItem->appendChild(QuickTestTreeItem::createTestItem(*result));
+        m_quickTestRootItem->appendChild(QuickTestTreeItem::createTestItem(result.data()));
         return;
     }
     // else we have to check level by level.. first the current level...
-    bool changed = toBeModified->modifyTestCaseContent(result->testCaseName, result->line,
+    bool changed = toBeModified->modifyTestCaseContent(result->name, result->line,
                                                        result->column);
     toBeModified->markForRemoval(false);
     if (changed)
         emit dataChanged(indexForItem(toBeModified), indexForItem(toBeModified));
     // ...now the functions
-
-    const QuickTestParseResult &parseResult = static_cast<const QuickTestParseResult &>(*result);
-    foreach (const QString &func, parseResult.functions.keys()) {
-        TestTreeItem *functionItem = toBeModified->findChildByName(func);
+    foreach (const TestParseResult *funcResult, result->children) {
+        TestTreeItem *functionItem = toBeModified->findChildByName(funcResult->name);
         if (!functionItem) {
             // if there's no matching, add the new one
-            toBeModified->appendChild(QuickTestTreeItem::createFunctionItem(
-                                          func, parseResult.functions.value(func)));
+            toBeModified->appendChild(QuickTestTreeItem::createTestItem(funcResult));
             continue;
         }
         // else we have to modify..
-        changed = functionItem->modifyTestFunctionContent(parseResult.functions.value(func));
+        changed = functionItem->modifyTestFunctionContent(funcResult);
         functionItem->markForRemoval(false);
         if (changed)
             emit dataChanged(indexForItem(functionItem), indexForItem(functionItem));
@@ -415,52 +407,50 @@ void TestTreeModel::handleQuickParseResult(const TestParseResultPtr result)
 
 void TestTreeModel::handleUnnamedQuickParseResult(const TestParseResultPtr result)
 {
-    const QuickTestParseResult &parseResult = static_cast<const QuickTestParseResult &>(*result);
     TestTreeItem *toBeModified = unnamedQuickTests();
     if (!toBeModified) {
-        m_quickTestRootItem->appendChild(QuickTestTreeItem::createUnnamedQuickTestItem(parseResult));
+        m_quickTestRootItem->appendChild(QuickTestTreeItem::createTestItem(result.data()));
         return;
     }
     // if we have already Unnamed Quick tests we might update them..
-    foreach (const QString &func, parseResult.functions.keys()) {
-        const TestCodeLocationAndType &location = parseResult.functions.value(func);
-        TestTreeItem *functionItem = toBeModified->findChildByNameAndFile(func, location.m_name);
+    foreach (const TestParseResult *funcResult, result->children) {
+        TestTreeItem *functionItem = toBeModified->findChildByNameAndFile(funcResult->name,
+                                                                          funcResult->fileName);
         if (!functionItem) {
-            toBeModified->appendChild(QuickTestTreeItem::createUnnamedQuickFunctionItem(
-                                          func, parseResult));
+            toBeModified->appendChild(QuickTestTreeItem::createTestItem(funcResult));
             continue;
         }
-        functionItem->modifyLineAndColumn(location);
+        functionItem->modifyLineAndColumn(funcResult->line, funcResult->column);
         functionItem->markForRemoval(false);
     }
 }
 
 void TestTreeModel::handleGTestParseResult(const TestParseResultPtr result)
 {
-    const GoogleTestParseResult &parseResult = static_cast<const GoogleTestParseResult &>(*result);
-    QTC_ASSERT(!parseResult.testSets.isEmpty(), return);
+    QTC_ASSERT(!result->children.isEmpty(), return);
+    const GoogleTestParseResult *parseResult = static_cast<const GoogleTestParseResult *>(result.data());
 
     GoogleTestTreeItem::TestStates states = GoogleTestTreeItem::Enabled;
-    if (parseResult.parameterized)
+    if (parseResult->parameterized)
         states |= GoogleTestTreeItem::Parameterized;
-    if (parseResult.typed)
+    if (parseResult->typed)
         states |= GoogleTestTreeItem::Typed;
     TestTreeItem *toBeModified = m_googleTestRootItem->findChildByNameStateAndFile(
-                parseResult.testCaseName, states, parseResult.proFile);
+                parseResult->name, states, parseResult->proFile);
     if (!toBeModified) {
         m_googleTestRootItem->appendChild(GoogleTestTreeItem::createTestItem(parseResult));
         return;
     }
     // if found nothing has to be updated as all relevant members are used to find the item
-    foreach (const TestCodeLocationAndType &location , parseResult.testSets) {
-        TestTreeItem *testSetItem = toBeModified->findChildByNameAndFile(location.m_name,
-                                                                         parseResult.fileName);
+    foreach (const TestParseResult *setResult, parseResult->children) {
+        const GoogleTestParseResult *testSet = static_cast<const GoogleTestParseResult *>(setResult);
+        TestTreeItem *testSetItem = toBeModified->findChildByNameAndFile(testSet->name,
+                                                                         testSet->fileName);
         if (!testSetItem) {
-            toBeModified->appendChild(GoogleTestTreeItem::createTestSetItem(parseResult, location));
+            toBeModified->appendChild(GoogleTestTreeItem::createTestItem(testSet));
             continue;
         }
-        bool changed = static_cast<GoogleTestTreeItem *>(testSetItem)->modifyTestSetContent(
-                    parseResult.fileName, location);
+        bool changed = static_cast<GoogleTestTreeItem *>(testSetItem)->modifyTestSetContent(testSet);
         testSetItem->markForRemoval(false);
         if (changed)
             emit dataChanged(indexForItem(testSetItem), indexForItem(testSetItem));
