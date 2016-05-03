@@ -57,19 +57,11 @@ do
     done
 done
 
-# Adding the icons for the OSX document type icon for .ui files
-for uiFileIconSize in 16 32 128 256 512;\
-do
-    uiFileIconID=uifile_icon_${uiFileIconSize}x${uiFileIconSize}
-    uiFileIconIDs="${uiFileIconIDs} ${uiFileIconID} ${uiFileIconID}@2x"
-done
-iconIDs="${iconIDs} ${uiFileIconIDs}"
-
 # Copying the logos for Qt Creator's sources. Without shadows!
 creatorLogoDir="logo"
 rm -rf $creatorLogoDir
 mkdir $creatorLogoDir
-for uiFileIconSize in 16 24 32 64 128 256 512;\
+for uiFileIconSize in 16 24 32 48 64 128 256 512;\
 do
     creatorLogoSource="qtcreator_icon_${uiFileIconSize}x${uiFileIconSize}.png"
     creatorLogoTargetDir="${creatorLogoDir}/${uiFileIconSize}"
@@ -130,21 +122,3 @@ do
     cp ${applicationName}_icon_512x512.png ${inconsetName}/icon_256x256@2x.png
     cp ${applicationName}_icon_1024x1024.png ${inconsetName}/icon_512x512@2x.png
 done
-# Prepaing the document type .iconset
-uiFileIconsetName=uifile_icon.iconset/
-rm -rf $uiFileIconsetName
-mkdir $uiFileIconsetName
-for uiFileIconID in $uiFileIconIDs;\
-do
-    targetFileName=`echo $uiFileIconID | cut -c 8-`
-    cp ${uiFileIconID}.png ${uiFileIconsetName}/${targetFileName}.png
-done
-
-# Convertion the .iconsets to .icns files
-# iconutil is only available on OSX
-if hash iconutil 2>/dev/null; then
-    for applicationName in $applicationNames;\
-    do
-        iconutil -c icns ${applicationName}.iconset
-    done
-fi
