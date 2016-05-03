@@ -33,6 +33,7 @@
 #include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/abi.h>
+#include <projectexplorer/devicesupport/devicemanager.h>
 
 #include <coreplugin/icore.h>
 
@@ -253,6 +254,7 @@ Runnable CustomExecutableRunConfiguration::runnable() const
     r.workingDirectory = workingDirectory();
     r.environment = extraAspect<LocalEnvironmentAspect>()->environment();
     r.runMode = extraAspect<TerminalAspect>()->runMode();
+    r.device = DeviceManager::instance()->defaultDevice(Constants::DESKTOP_DEVICE_TYPE);
     return r;
 }
 

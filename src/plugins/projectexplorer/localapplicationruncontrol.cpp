@@ -138,9 +138,15 @@ static bool isLocal(RunConfiguration *runConfiguration)
 
 bool LocalApplicationRunControlFactory::canRun(RunConfiguration *runConfiguration, Core::Id mode) const
 {
-    return mode == Constants::NORMAL_RUN_MODE
-            && isLocal(runConfiguration)
-            && runConfiguration->runnable().is<StandardRunnable>();
+    if (mode != Constants::NORMAL_RUN_MODE)
+        return false;
+    const Runnable runnable = runConfiguration->runnable();
+    if (!runnable.is<StandardRunnable>())
+        return false;
+    const IDevice::ConstPtr device = runnable.as<StandardRunnable>().device;
+    if (device && device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE)
+        return true;
+    return isLocal(runConfiguration);
 }
 
 RunControl *LocalApplicationRunControlFactory::create(RunConfiguration *runConfiguration, Core::Id mode, QString *errorMessage)

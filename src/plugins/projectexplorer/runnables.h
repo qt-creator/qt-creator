@@ -42,6 +42,7 @@ public:
     QString workingDirectory;
     Utils::Environment environment;
     ApplicationLauncher::Mode runMode = ApplicationLauncher::Gui;
+    IDevice::ConstPtr device; // Override the kit's device. Keep unset by default.
 };
 
 PROJECTEXPLORER_EXPORT bool operator==(const StandardRunnable &r1, const StandardRunnable &r2);
