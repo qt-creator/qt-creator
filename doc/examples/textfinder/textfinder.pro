@@ -1,6 +1,7 @@
 TARGET = TextFinder
 TEMPLATE = app
 
+QT += widgets
 
 SOURCES += main.cpp\
         textfinder.cpp
