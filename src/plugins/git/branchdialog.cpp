@@ -63,8 +63,8 @@ BranchDialog::BranchDialog(QWidget *parent) :
 
     m_ui->setupUi(this);
     m_ui->includeOldCheckBox->setToolTip(
-                tr("Include branches and tags that have not been active for %1 days.")
-                .arg(Constants::OBSOLETE_COMMIT_AGE_IN_DAYS));
+                tr("Include branches and tags that have not been active for %n days.", 0,
+                   Constants::OBSOLETE_COMMIT_AGE_IN_DAYS));
 
     connect(m_ui->refreshButton, &QAbstractButton::clicked, this, &BranchDialog::refreshCurrentRepository);
     connect(m_ui->addButton, &QAbstractButton::clicked, this, &BranchDialog::add);
