@@ -152,7 +152,7 @@ public:
         }
         arguments << QLatin1String("--") << m_parameters.nameFilters;
         QScopedPointer<VcsCommand> command(GitPlugin::client()->createCommand(m_directory));
-        command->addFlags(VcsCommand::SilentOutput);
+        command->addFlags(VcsCommand::SilentOutput | VcsCommand::SuppressFailMessage);
         command->setProgressiveOutput(true);
         QFutureWatcher<FileSearchResultList> watcher;
         watcher.setFuture(m_fi.future());
