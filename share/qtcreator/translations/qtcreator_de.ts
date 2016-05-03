@@ -919,16 +919,8 @@ Trotzdem fortfahren?</translation>
         <translation>Zu&amp;letzt bearbeitete Dateien</translation>
     </message>
     <message>
-        <source>&amp;Save</source>
-        <translation>&amp;Speichern</translation>
-    </message>
-    <message>
         <source>Save</source>
         <translation>Speichern</translation>
-    </message>
-    <message>
-        <source>Save &amp;As...</source>
-        <translation>Speichern &amp;unter...</translation>
     </message>
     <message>
         <source>Ctrl+Shift+S</source>
@@ -2037,10 +2029,6 @@ Weiterführende Informationen befinden sich in /etc/sysctl.d/10-ptrace.conf
 <context>
     <name>Debugger::Internal::DebuggerSettings</name>
     <message>
-        <source>Verbose Log</source>
-        <translation>Ausführliches Logging</translation>
-    </message>
-    <message>
         <source>Use Alternating Row Colors</source>
         <translation>Alternierende Farben für Zeilen benutzen</translation>
     </message>
@@ -2615,14 +2603,6 @@ Versuchen Sie: %2</translation>
         <translation>Positionen der Haltepunkte korrigieren</translation>
     </message>
     <message>
-        <source>GDB allows setting breakpoints on source lines for which no code
-was generated. In such situations the breakpoint is shifted to the
-next source code line for which code was actually generated.
-This option reflects such temporary change by moving the breakpoint
-markers in the source code editor.</source>
-        <translation>Nicht alle Quellcode-Zeilen bewirken die Erzeugung von ausführbarem Code. Wenn man auf solche Zeilen einen Haltepunkt setzt, verhält er sich so, als ob er auf die nächste Zeile gesetzt worden wäre. Das Aktivieren der Einstellung &apos;Positionen der Haltepunkte korrigieren&apos; bewirkt, dass der Haltepunkt-Marker in so einem Fall auf die Stelle des resultierenden Haltepunkts verschoben wird.</translation>
-    </message>
-    <message>
         <source>Use dynamic object type for display</source>
         <translation>Dynamischen Objekttyp in Anzeige verwenden</translation>
     </message>
@@ -2653,6 +2633,14 @@ emission ends up directly in the slot connected to it.</source>
         <source>Displays a message box as soon as your application
 receives a signal like SIGSEGV during debugging.</source>
         <translation>Zeigt ein Benachrichtigungsfenster an, wenn die Anwendung während des Debuggens ein Signal wie SIGSEGV erhält.</translation>
+    </message>
+    <message>
+        <source>GDB allows setting breakpoints on source lines for which no code 
+was generated. In such situations the breakpoint is shifted to the
+next source code line for which code was actually generated.
+This option reflects such temporary change by moving the breakpoint
+markers in the source code editor.</source>
+        <translation>Nicht alle Quellcode-Zeilen bewirken die Erzeugung von ausführbarem Code. Wenn man auf solche Zeilen einen Haltepunkt setzt, verhält er sich so, als ob er auf die nächste Zeile gesetzt worden wäre. Das Aktivieren der Einstellung &apos;Positionen der Haltepunkte korrigieren&apos; bewirkt, dass der Haltepunkt-Marker in so einem Fall auf die Stelle des resultierenden Haltepunkts verschoben wird.</translation>
     </message>
     <message>
         <source>Allows or inhibits reading the user&apos;s default
@@ -3742,6 +3730,10 @@ Grund: %3</translation>
 <context>
     <name>Git::Internal::BranchDialog</name>
     <message>
+        <source>Include branches and tags that have not been active for %1 days.</source>
+        <translation>Branches und Tags einschließen, die seit %1 Tagen nicht benutzt wurden.</translation>
+    </message>
+    <message>
         <source>Checkout</source>
         <translation>Auschecken</translation>
     </message>
@@ -3848,6 +3840,10 @@ Grund: %3</translation>
     <message>
         <source>Set current branch to track the selected one.</source>
         <translation>Richtet den aktuellen Branch so ein, dass er dem ausgewählten Branch folgt.</translation>
+    </message>
+    <message>
+        <source>&amp;Include old entries</source>
+        <translation>&amp;Alte Einträge einschließen</translation>
     </message>
 </context>
 <context>
@@ -5263,6 +5259,10 @@ Add, modify, and remove document filters, which determine the documentation set 
     <message>
         <source>C header</source>
         <translation>C Header-Datei</translation>
+    </message>
+    <message>
+        <source>Qt documentation file</source>
+        <translation>Qt-Dokumentationsdatei</translation>
     </message>
     <message>
         <source>Qt MOC file</source>
@@ -6964,10 +6964,6 @@ konnte dem Projekt &quot;%2&quot; nicht hinzugefügt werden.</translation>
         <translation>Ausführen</translation>
     </message>
     <message>
-        <source>Sessions</source>
-        <translation>Sitzungen</translation>
-    </message>
-    <message>
         <source>Ctrl+R</source>
         <translation>Ctrl+R</translation>
     </message>
@@ -7110,6 +7106,10 @@ Möchten Sie sie ignorieren?</translation>
         <translation>Datei löschen...</translation>
     </message>
     <message>
+        <source>S&amp;essions</source>
+        <translation>Sitzung&amp;en</translation>
+    </message>
+    <message>
         <source>New Subproject...</source>
         <translation>Neues Teilprojekt...</translation>
     </message>
@@ -7128,6 +7128,10 @@ Möchten Sie sie ignorieren?</translation>
     <message>
         <source>The ID of the currently active kit.</source>
         <translation>Die ID des aktiven Kits.</translation>
+    </message>
+    <message>
+        <source>The currently active run configuration&apos;s name.</source>
+        <translation>Der Name der aktiven Ausführungskonfiguration.</translation>
     </message>
     <message>
         <source>Load Project</source>
@@ -9627,16 +9631,16 @@ Sie können die Änderungen in einem Stash ablegen oder zurücksetzen.</translat
         <translation>Zeige Warnungen des Eigenschafteneditors</translation>
     </message>
     <message>
-        <source>Forward puppet output:</source>
-        <translation>Puppet-Ausgabe weiterleiten:</translation>
-    </message>
-    <message>
         <source>Show warn exceptions</source>
         <translation>Zeige Warnungsausnahmen</translation>
     </message>
     <message>
-        <source>Debug puppet:</source>
-        <translation>Debug-Puppet:</translation>
+        <source>Forward QML emulation layer output:</source>
+        <translation>Ausgabe der QML-Emulationsschicht weiterleiten:</translation>
+    </message>
+    <message>
+        <source>Debug QML emulation layer:</source>
+        <translation>Debug-QML-Emulationsschicht:</translation>
     </message>
 </context>
 <context>
@@ -10218,10 +10222,6 @@ Sie können die Änderungen in einem Stash ablegen oder zurücksetzen.</translat
         <translation>Projekt in &quot;%1&quot; öffnen</translation>
     </message>
     <message>
-        <source>Open With</source>
-        <translation>Öffnen mit</translation>
-    </message>
-    <message>
         <source>Choose Folder...</source>
         <translation>Ordner auswählen...</translation>
     </message>
@@ -10357,6 +10357,10 @@ Sie können die Änderungen in einem Stash ablegen oder zurücksetzen.</translat
     <message>
         <source>Type of current build</source>
         <translation>Typ der gegenwärtigen Build-Konfiguration</translation>
+    </message>
+    <message>
+        <source>The currently active run configuration&apos;s name.</source>
+        <translation>Der Name der aktiven Ausführungskonfiguration.</translation>
     </message>
 </context>
 <context>
@@ -12187,6 +12191,10 @@ IDs müssen außerdem mit einem Kleinbuchstaben beginnen.</translation>
         <source>Original Size</source>
         <translation>Originalgröße</translation>
     </message>
+    <message>
+        <source>Export as Image</source>
+        <translation>Als Bild exportieren</translation>
+    </message>
 </context>
 <context>
     <name>QmlJSEditor::Internal::QuickToolBarSettingsPage</name>
@@ -12614,65 +12622,6 @@ wenn es außerhalb von git bash aufgerufen wird.</translation>
     <message>
         <source>Web Search</source>
         <translation>Web-Suche</translation>
-    </message>
-</context>
-<context>
-    <name>ImageViewer::Internal::ImageViewerActionHandler</name>
-    <message>
-        <source>Zoom In</source>
-        <translation>Vergrößern</translation>
-    </message>
-    <message>
-        <source>Ctrl++</source>
-        <translation>Ctrl++</translation>
-    </message>
-    <message>
-        <source>Zoom Out</source>
-        <translation>Verkleinern</translation>
-    </message>
-    <message>
-        <source>Ctrl+-</source>
-        <translation>Ctrl+-</translation>
-    </message>
-    <message>
-        <source>Original Size</source>
-        <translation>Originalgröße</translation>
-    </message>
-    <message>
-        <source>Ctrl+0</source>
-        <translation>Ctrl+0</translation>
-    </message>
-    <message>
-        <source>Meta+0</source>
-        <translation>Meta+0</translation>
-    </message>
-    <message>
-        <source>Fit To Screen</source>
-        <translation>An Bildschirm anpassen</translation>
-    </message>
-    <message>
-        <source>Ctrl+=</source>
-        <translation>Ctrl+=</translation>
-    </message>
-    <message>
-        <source>Switch Background</source>
-        <translation>Hintergrund umschalten</translation>
-    </message>
-    <message>
-        <source>Switch Outline</source>
-        <translation>Umriss umschalten</translation>
-    </message>
-    <message>
-        <source>Toggle Animation</source>
-        <translation>Animation umschalten</translation>
-    </message>
-    <message>
-        <source>Ctrl+[</source>
-        <translation>Ctrl+[</translation>
-    </message>
-    <message>
-        <source>Ctrl+]</source>
-        <translation>Ctrl+]</translation>
     </message>
 </context>
 <context>
@@ -13929,10 +13878,6 @@ konnte nicht unter Versionsverwaltung (%2) gestellt werden
         <translation>Auswählen</translation>
     </message>
     <message>
-        <source>Zoom</source>
-        <translation>Vergrößern</translation>
-    </message>
-    <message>
         <source>Start Debugging</source>
         <translation>Debuggen</translation>
     </message>
@@ -14219,10 +14164,6 @@ Soll es noch einmal versucht werden?</translation>
     <message>
         <source>QML Debugger disconnected.</source>
         <translation>QML-Debugger getrennt.</translation>
-    </message>
-    <message>
-        <source>Context:</source>
-        <translation>Kontext:</translation>
     </message>
 </context>
 <context>
@@ -15038,6 +14979,10 @@ Lokale Pull-Operationen werden nicht auf den Master-Branch angewandt.</translati
     <message>
         <source>Run CMake</source>
         <translation>CMake ausführen</translation>
+    </message>
+    <message>
+        <source>Clear CMake Configuration</source>
+        <translation>CMake-Konfiguration bereinigen</translation>
     </message>
     <message>
         <source>Failed opening project &quot;%1&quot;: Project is not a file</source>
@@ -16876,12 +16821,20 @@ Bei vollständiger Cache-Simulation werden weitere Ereigniszähler aktiviert:
         <translation>QML-Profiler (extern)</translation>
     </message>
     <message>
-        <source>A Qml Profiler analysis is still in progress.</source>
-        <translation>Eine QML-Profiler Analyse läuft noch.</translation>
+        <source>A QML Profiler analysis is still in progress.</source>
+        <translation>Eine QML-Profiler-Analyse läuft noch.</translation>
     </message>
     <message>
-        <source>Start Qml Profiler.</source>
-        <translation>Starte QML-Profiler.</translation>
+        <source>Start QML Profiler analysis.</source>
+        <translation>Starte QML-Profiler-Analyse.</translation>
+    </message>
+    <message>
+        <source>Disable Profiling</source>
+        <translation>Profiling deaktivieren</translation>
+    </message>
+    <message>
+        <source>Enable Profiling</source>
+        <translation>Profiling aktivieren</translation>
     </message>
     <message>
         <source>%1 s</source>
@@ -16922,14 +16875,6 @@ Wollen Sie die Daten vorher speichern?</translation>
     <message>
         <source>Hide or show event categories.</source>
         <translation>Ereigniskategorien verstecken oder anzeigen.</translation>
-    </message>
-    <message>
-        <source>Disable profiling</source>
-        <translation>Profiling deaktivieren</translation>
-    </message>
-    <message>
-        <source>Enable profiling</source>
-        <translation>Profiling aktivieren</translation>
     </message>
 </context>
 <context>
@@ -18235,6 +18180,10 @@ Zusätzlich wird die Verbindung zum Gerät getestet.</translation>
 <context>
     <name>RemoteLinux::Internal::RemoteLinuxEnvironmentReader</name>
     <message>
+        <source>Error: No device</source>
+        <translation>Fehler: Kein Gerät</translation>
+    </message>
+    <message>
         <source>Error: %1</source>
         <translation>Fehler: %1</translation>
     </message>
@@ -18522,13 +18471,6 @@ Filter: %2
     <message>
         <source>Remote command finished successfully.</source>
         <translation>Das entfernte Kommando wurde erfolgreich ausgeführt.</translation>
-    </message>
-</context>
-<context>
-    <name>LinksBar</name>
-    <message>
-        <source>Qt Creator</source>
-        <translation>Qt Creator</translation>
     </message>
 </context>
 <context>
@@ -22297,12 +22239,12 @@ gehören nicht zu den verifizierten Remotes in %3. Anderen Ordner angeben?</tran
         <translation>Der zur Erstellung zu verwendende Compiler.&lt;br&gt;Stellen Sie sicher, dass dieser Compiler Binärdateien erstellt, die mit dem Zielgerät, der Qt-Version und anderen verwendeten Bibliotheken kompatibel sind.</translation>
     </message>
     <message>
-        <source>Compiler:</source>
-        <translation>Compiler:</translation>
+        <source>&lt;No compiler&gt;</source>
+        <translation>&lt;Kein Compiler&gt;</translation>
     </message>
     <message>
-        <source>&lt;No compiler available&gt;</source>
-        <translation>&lt;Kein Compiler verfügbar&gt;</translation>
+        <source>Compiler:</source>
+        <translation>Compiler:</translation>
     </message>
 </context>
 <context>
@@ -23673,10 +23615,6 @@ Qt Creator know about a likely URI.</source>
         <source>Debugger</source>
         <translation>Debugger</translation>
     </message>
-    <message>
-        <source>No kit found.</source>
-        <translation>Es wurde kein Kit gefunden.</translation>
-    </message>
 </context>
 <context>
     <name>Perforce::Internal::PerforceVersionControl</name>
@@ -23752,6 +23690,10 @@ Qt Creator know about a likely URI.</source>
     <message>
         <source>None</source>
         <translation>Keine</translation>
+    </message>
+    <message>
+        <source>Path to the compiler executable</source>
+        <translation>Pfad zur ausführbaren Datei des Compilers</translation>
     </message>
     <message>
         <source>No compiler set in kit.</source>
@@ -23992,6 +23934,10 @@ Qt Creator know about a likely URI.</source>
     <message>
         <source>unknown</source>
         <translation>unbekannt</translation>
+    </message>
+    <message>
+        <source>Path to the qmake executable</source>
+        <translation>Pfad zur ausführbaren Datei von qmake</translation>
     </message>
 </context>
 <context>
@@ -26670,6 +26616,10 @@ Teilnamen können verwendet werden, sofern sie eindeutig sind.</translation>
         <translation>Die Auswertung der .qbs-Dateien schlug fehl.</translation>
     </message>
     <message>
+        <source>Error retrieving run environment: %1</source>
+        <translation>Fehler beim Abfragen der Ausführungsumgebung: %1</translation>
+    </message>
+    <message>
         <source>Qbs Run Configuration</source>
         <translation>Qbs-Ausführungskonfiguration</translation>
     </message>
@@ -27053,6 +27003,10 @@ Teilnamen können verwendet werden, sofern sie eindeutig sind.</translation>
 </context>
 <context>
     <name>ProjectExplorer::SshDeviceProcess</name>
+    <message>
+        <source>Internal error</source>
+        <translation>Interner Fehler</translation>
+    </message>
     <message>
         <source>Failed to kill remote process: %1</source>
         <translation>Fehlschlag beim Beenden des entfernten Prozesses: %1</translation>
@@ -28296,10 +28250,6 @@ Wollen Sie das bestehende Paket entfernen?</translation>
         <translation>Qt Account</translation>
     </message>
     <message>
-        <source>Qt Cloud Services</source>
-        <translation>Qt Cloud Services</translation>
-    </message>
-    <message>
         <source>Online Community</source>
         <translation>Online-Community</translation>
     </message>
@@ -29472,7 +29422,7 @@ Wählt eine für Desktop-Entwicklung geeignete Qt-Version aus, sofern sie verfü
         <translation>Formulardateien</translation>
     </message>
     <message>
-        <source>StateCharts</source>
+        <source>State charts</source>
         <translation>Statusdiagramme</translation>
     </message>
     <message>
@@ -35597,8 +35547,8 @@ und gestoppt werden.</translation>
         <translation>Entfernen</translation>
     </message>
     <message>
-        <source>To-Do Settings</source>
-        <translation>To-do-Einstellungen</translation>
+        <source>To-Do</source>
+        <translation>To-do</translation>
     </message>
 </context>
 <context>
@@ -35724,9 +35674,9 @@ Check the test environment.</source>
         <translation>Kommando &quot;%1&quot; nicht gefunden. (%2)</translation>
     </message>
     <message>
-        <source>Test case canceled due to timeout.
+        <source>Test case canceled due to timeout. 
 Maybe raise the timeout?</source>
-        <translation>Testlauf wegen Timeout abgebrochen.
+        <translation>Testlauf wegen Timeout abgebrochen. 
 Vielleicht sollten Sie die Zeit erhöhen?</translation>
     </message>
     <message>
@@ -35802,15 +35752,15 @@ Vielleicht sollten Sie die Zeit erhöhen?</translation>
         <translation>Erwartete ein Integerelement.</translation>
     </message>
     <message>
-        <source>An error occurred with the clang static analyzer process.</source>
+        <source>An error occurred with the Clang Static Analyzer process.</source>
         <translation>Im Clang Static Analyzer Prozess trat ein Fehler auf.</translation>
     </message>
     <message>
-        <source>Clang static analyzer crashed.</source>
+        <source>Clang Static Analyzer crashed.</source>
         <translation>Der Clang Static Analyser ist abgestürzt.</translation>
     </message>
     <message>
-        <source>Clang static analyzer finished with exit code: %1.</source>
+        <source>Clang Static Analyzer finished with exit code: %1.</source>
         <translation>Der Clang Static Analyser lieferte den Fehlercode: %1.</translation>
     </message>
     <message>
@@ -36604,6 +36554,18 @@ Ausgabe:
         <translation>Ausnahme ausgelöst</translation>
     </message>
     <message>
+        <source>The inferior is in the Portable Executable format.
+Selecting CDB as debugger would improve the debugging experience for this binary format.</source>
+        <translation>Der zu debuggende Prozess hat das Portable Executable-Format.
+Für dieses Binärformat wäre CDB besser als Debugger geeignet.</translation>
+    </message>
+    <message>
+        <source>The inferior is in the ELF format.
+Selecting GDB or LLDB as debugger would improve the debugging experience for this binary format.</source>
+        <translation>Der zu debuggende Prozess hat das ELF-Format.
+Für dieses Binärformat wären GDB oder LLDB besser als Debugger geeignet.</translation>
+    </message>
+    <message>
         <source>Found.</source>
         <translation>Gefunden.</translation>
     </message>
@@ -36618,6 +36580,14 @@ Ausgabe:
     <message>
         <source>Warning</source>
         <translation>Warnung</translation>
+    </message>
+    <message>
+        <source>The selected debugger may be inappropiate for the inferior.
+Examining symbols and setting breakpoints by file name and line number may fail.
+</source>
+        <translation>Der gewählte Debugger könnte ungeeignet für den zu debuggenden Prozess sein.
+Vielleicht können Symbole nicht untersucht werden oder Haltepunkte nicht anhand von Dateiname und Zeilennummer gesetzt werden.
+</translation>
     </message>
     <message>
         <source>This does not seem to be a &quot;Debug&quot; build.
@@ -38410,16 +38380,16 @@ Das Setzen von Haltepunkten anhand von Dateinamen und Zeilennummern könnte fehl
         <translation>Formular</translation>
     </message>
     <message>
-        <source>Suppressed Diagnostics:</source>
-        <translation>Unterdrückte Diagnosemeldungen:</translation>
-    </message>
-    <message>
         <source>Remove Selected</source>
         <translation>Ausgewählte entfernen</translation>
     </message>
     <message>
         <source>Remove All</source>
         <translation>Alle entfernen</translation>
+    </message>
+    <message>
+        <source>Suppressed diagnostics:</source>
+        <translation>Unterdrückte Diagnosemeldungen:</translation>
     </message>
 </context>
 <context>
@@ -38535,6 +38505,10 @@ Das Setzen von Haltepunkten anhand von Dateinamen und Zeilennummern könnte fehl
     <message>
         <source>In Percent</source>
         <translation>In Prozent</translation>
+    </message>
+    <message>
+        <source>Location</source>
+        <translation>Ort</translation>
     </message>
     <message>
         <source>No data available</source>
@@ -39365,7 +39339,7 @@ Nur Desktopkits sind erlaubt. Stellen Sie sicher, dass das aktive Kit ein Deskto
         <translation>Meldung:</translation>
     </message>
     <message>
-        <source>Extended Message:</source>
+        <source>Extended message:</source>
         <translation>Erweiterte Meldung:</translation>
     </message>
     <message>
@@ -39376,7 +39350,7 @@ Nur Desktopkits sind erlaubt. Stellen Sie sicher, dass das aktive Kit ein Deskto
 <context>
     <name>ClangStaticAnalyzer::Internal::ClangStaticAnalyzerDiagnosticView</name>
     <message>
-        <source>Suppress this diagnostic</source>
+        <source>Suppress This Diagnostic</source>
         <translation>Unterdrücke diese Diagnose</translation>
     </message>
 </context>
@@ -39390,8 +39364,8 @@ Nur Desktopkits sind erlaubt. Stellen Sie sicher, dass das aktive Kit ein Deskto
 <context>
     <name>ClangStaticAnalyzer::Internal::ClangStaticAnalyzerPlugin</name>
     <message>
-        <source>Clang Static Analyzer Settings</source>
-        <translation>Clang Static Analyser Konfiguration</translation>
+        <source>Clang Static Analyzer</source>
+        <translation>Clang Static Analyzer</translation>
     </message>
 </context>
 <context>
@@ -39415,6 +39389,10 @@ Nur Desktopkits sind erlaubt. Stellen Sie sicher, dass das aktive Kit ein Deskto
 </context>
 <context>
     <name>ClangStaticAnalyzer::Internal::ClangStaticAnalyzerRunControl</name>
+    <message>
+        <source>Clang Static Analyzer</source>
+        <translation>Clang Static Analyzer</translation>
+    </message>
     <message>
         <source>Running Clang Static Analyzer on %1</source>
         <translation>Starte Clang Static Analyzer mit %1</translation>
@@ -39474,7 +39452,7 @@ Nur Desktopkits sind erlaubt. Stellen Sie sicher, dass das aktive Kit ein Deskto
         <translation>Gehe zu nächstem Fehler.</translation>
     </message>
     <message>
-        <source>Clang Static Analyzer uses the analyzer from the clang project to find bugs.</source>
+        <source>Clang Static Analyzer uses the analyzer from the Clang project to find bugs.</source>
         <translation>Der Clang Static Analyzer benutzt den Analysierer des Clang Projekts um Fehler zu finden.</translation>
     </message>
     <message>
@@ -39494,15 +39472,15 @@ Nur Desktopkits sind erlaubt. Stellen Sie sicher, dass das aktive Kit ein Deskto
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Sie versuchen das Werkzeug &quot;%1&quot; auf eine Applikation im %2 Modus anzuwenden. Das Werkzeug sollte aber im Debugmodus benutzt werden, da eingeschaltete Assertions die Zahl der False-Positives verringern können.&lt;/p&gt;&lt;p&gt;Wollen Sie fortfahren und das Werkzeug im %2 Modus benutzen?&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <source>A Clang analysis is still in progress.</source>
-        <translation>Eine Clang Analyse läuft noch.</translation>
+        <source>Clang Static Analyzer is still running.</source>
+        <translation>Clang Static Analyzer läuft noch.</translation>
     </message>
     <message>
-        <source>Start Qml Profiler.</source>
-        <translation>Starte den QML-Profiler.</translation>
+        <source>Start Clang Static Analyzer.</source>
+        <translation>Clang Static Analyzer starten.</translation>
     </message>
     <message>
-        <source>Clang Static Analyzer running.</source>
+        <source>Clang Static Analyzer is running.</source>
         <translation>Clang Static Analyzer läuft.</translation>
     </message>
     <message>
@@ -39525,7 +39503,7 @@ Nur Desktopkits sind erlaubt. Stellen Sie sicher, dass das aktive Kit ein Deskto
     <name>ClangStaticAnalyzer</name>
     <message>
         <source>The chosen file &quot;%1&quot; seems to point to an icecc binary not suitable for analyzing.
-Please set a real clang executable.</source>
+Please set a real Clang executable.</source>
         <translation>Die gewählte Datei &quot;%1&quot; scheint auf ein für die Analyse ungeeignetes icecc-Binary zu verweisen.
 Bitte wählen Sie eine korrekte ausführbare Clang-Datei.</translation>
     </message>
@@ -39533,8 +39511,12 @@ Bitte wählen Sie eine korrekte ausführbare Clang-Datei.</translation>
 <context>
     <name>CMakeProjectManager::Internal::BuildDirManager</name>
     <message>
-        <source>Running &apos;%1 %2&apos; in %3.</source>
-        <translation>Führe &apos;%1 %2&apos; in %3 aus.</translation>
+        <source>The build directory is not for %1</source>
+        <translation>Das Erstellungsverzeichnis gehört nicht zu %1</translation>
+    </message>
+    <message>
+        <source>Running &quot;%1 %2&quot; in %3.</source>
+        <translation>Führe &quot;%1 %2&quot; in %3 aus.</translation>
     </message>
     <message>
         <source>Configuring &quot;%1&quot;</source>
@@ -39552,10 +39534,6 @@ Bitte wählen Sie eine korrekte ausführbare Clang-Datei.</translation>
         <source>Failed to open %1 for reading.</source>
         <translation>Die Datei %1 konnte nicht zum Lesen geöffnet werden.</translation>
     </message>
-    <message>
-        <source>Build directory contains a build of the wrong project (%1).</source>
-        <translation>Das Erstellungsverzeichnis enthält ein falsches Projekt (%1).</translation>
-    </message>
 </context>
 <context>
     <name>CMakeProjectManager::Internal::CMakeBuildStep</name>
@@ -39572,8 +39550,8 @@ Bitte wählen Sie eine korrekte ausführbare Clang-Datei.</translation>
 <context>
     <name>CMakeProjectManager::CMakeBuildStep</name>
     <message>
-        <source>Qt Creator needs a cmake tool set up to build. Configure a cmake tool in the kit options.</source>
-        <translation>Qt Creator benötigt ein CMake Tool zum Erstellen. Die Konfiguration erfolgt in den Kit Eiunstellungen.</translation>
+        <source>Qt Creator needs a CMake Tool set up to build. Configure a CMake Tool in the kit options.</source>
+        <translation>Qt Creator benötigt ein CMake Tool zum Erstellen. Die Konfiguration erfolgt in den Kit Einstellungen.</translation>
     </message>
 </context>
 <context>
@@ -40049,8 +40027,8 @@ Leer lassen, um das Dateisystem zu durchsuchen.</translation>
         <translation>Starte %1...</translation>
     </message>
     <message>
-        <source>%1 crashed</source>
-        <translation>%1 ist abgestürzt</translation>
+        <source>%1 crashed.</source>
+        <translation>%1 ist abgestürzt.</translation>
     </message>
     <message>
         <source>%1 exited with code %2</source>
@@ -40493,12 +40471,12 @@ Referenzen zu Elementen in anderen Dateien, Schleifen, o.ä.)</translation>
 <context>
     <name>QmlProfilerExtension::Internal::QmlProfilerExtensionPlugin</name>
     <message>
-        <source>Action triggered</source>
+        <source>Action Triggered</source>
         <translation>Aktion ausgelöst</translation>
     </message>
     <message>
-        <source>This is an action from QmlProfilerExtension.</source>
-        <translation>Dies ist eine Aktion der QmlProfilerExtension.</translation>
+        <source>This is an action from QML Profiler Extension.</source>
+        <translation>Dies ist eine Aktion der Qml Profiler Extension.</translation>
     </message>
 </context>
 <context>
@@ -40519,7 +40497,7 @@ Referenzen zu Elementen in anderen Dateien, Schleifen, o.ä.)</translation>
 <context>
     <name>Valgrind::Internal::CallgrindTool</name>
     <message>
-        <source>Valgrind Function Profile uses the Callgrind tool to record function calls when a program runs.</source>
+        <source>Valgrind Function Profiler uses the Callgrind tool to record function calls when a program runs.</source>
         <translation>Das Profiling von Funktionen mit Valgrind verwendet das Programm &quot;callgrind&quot;, um Funktionsaufrufe während der Programmausführung aufzuzeichnen.</translation>
     </message>
     <message>
@@ -40599,8 +40577,16 @@ Referenzen zu Elementen in anderen Dateien, Schleifen, o.ä.)</translation>
         <translation>Kosten relativ zu übergeordnetem Element</translation>
     </message>
     <message>
-        <source>Show costs relative to parent functions inclusive cost.</source>
+        <source>Show costs relative to parent function&apos;s inclusive cost.</source>
         <translation>Zeige Kosten relativ zu den einschließlichen Kosten der rufenden Funktion.</translation>
+    </message>
+    <message>
+        <source>Remove template parameter lists when displaying function names.</source>
+        <translation>Beim Anzeigen von Funktionsnamen Template-Parameterlisten entfernen.</translation>
+    </message>
+    <message>
+        <source>Select This Function in the Analyzer Output</source>
+        <translation>Diese Funktion in der Analyseausgabe auswählen</translation>
     </message>
     <message>
         <source>Cost Format</source>
@@ -40609,10 +40595,6 @@ Referenzen zu Elementen in anderen Dateien, Schleifen, o.ä.)</translation>
     <message>
         <source>Enable cycle detection to properly handle recursive or circular function calls.</source>
         <translation>Aktivieren Sie die Schleifenerkennung, um rekursive oder zyklische Funktionsaufrufe richtig zu behandeln.</translation>
-    </message>
-    <message>
-        <source>This removes template parameter lists when displaying function names.</source>
-        <translation>Entfernt Template-Parameterlisten bei der Anzeige von Funktionsnamen.</translation>
     </message>
     <message>
         <source>Show Project Costs Only</source>
@@ -40655,10 +40637,6 @@ Referenzen zu Elementen in anderen Dateien, Schleifen, o.ä.)</translation>
         <translation>Die Auswertung schlug fehl.</translation>
     </message>
     <message>
-        <source>Select this Function in the Analyzer Output</source>
-        <translation>Diese Funktion in der Analyseausgabe auswählen</translation>
-    </message>
-    <message>
         <source>Populating...</source>
         <translation>Erstelle Ansicht...</translation>
     </message>
@@ -40686,7 +40664,7 @@ Referenzen zu Elementen in anderen Dateien, Schleifen, o.ä.)</translation>
         <translation>Konfigurationsverzeichnis auswählen</translation>
     </message>
     <message>
-        <source>Config Path:</source>
+        <source>Config path:</source>
         <translation>Konfigurationspfad:</translation>
     </message>
     <message>
@@ -40751,6 +40729,124 @@ Referenzen zu Elementen in anderen Dateien, Schleifen, o.ä.)</translation>
     <message>
         <source>Same Size</source>
         <translation>Gleiche Größe</translation>
+    </message>
+</context>
+<context>
+    <name>SessionActionLabel</name>
+    <message>
+        <source>Clone</source>
+        <translation>Klonen</translation>
+    </message>
+</context>
+<context>
+    <name>ClangStaticAnalyzer::Internal::DummyRunConfiguration</name>
+    <message>
+        <source>Clang Static Analyzer</source>
+        <translation>Clang Static Analyzer</translation>
+    </message>
+</context>
+<context>
+    <name>ImageViewer::Internal::ExportDialog</name>
+    <message>
+        <source>File:</source>
+        <translation>Datei:</translation>
+    </message>
+    <message>
+        <source>x</source>
+        <extracomment>Multiplication, as in 32x32</extracomment>
+        <translation>x</translation>
+    </message>
+    <message>
+        <source>Size:</source>
+        <translation>Größe:</translation>
+    </message>
+    <message>
+        <source>%1 already exists.
+Would you like to overwrite it?</source>
+        <translation>%1 existiert bereits.
+Möchten Sie sie überschreiben?</translation>
+    </message>
+</context>
+<context>
+    <name>ImageViewer::Internal::ImageView</name>
+    <message>
+        <source>Export %1</source>
+        <translation>%1 exportieren</translation>
+    </message>
+    <message>
+        <source>Exported &quot;%1&quot;, %2x%3, %4 bytes</source>
+        <translation>&quot;%1&quot; exportiert, %2x%3, %4 Bytes</translation>
+    </message>
+    <message>
+        <source>Export Image</source>
+        <translation>Bild exportieren</translation>
+    </message>
+    <message>
+        <source>Could not write file &quot;%1&quot;.</source>
+        <translation>Die Datei &quot;%1&quot; konnte nicht geschrieben werden.</translation>
+    </message>
+</context>
+<context>
+    <name>ImageViewer::Internal::ImageViewerPlugin</name>
+    <message>
+        <source>Zoom In</source>
+        <translation>Vergrößern</translation>
+    </message>
+    <message>
+        <source>Ctrl++</source>
+        <translation>Ctrl++</translation>
+    </message>
+    <message>
+        <source>Zoom Out</source>
+        <translation>Verkleinern</translation>
+    </message>
+    <message>
+        <source>Ctrl+-</source>
+        <translation>Ctrl+-</translation>
+    </message>
+    <message>
+        <source>Original Size</source>
+        <translation>Originalgröße</translation>
+    </message>
+    <message>
+        <source>Meta+0</source>
+        <translation>Meta+0</translation>
+    </message>
+    <message>
+        <source>Ctrl+0</source>
+        <translation>Ctrl+0</translation>
+    </message>
+    <message>
+        <source>Fit to Screen</source>
+        <translation>An Bildschirm anpassen</translation>
+    </message>
+    <message>
+        <source>Ctrl+=</source>
+        <translation>Ctrl+=</translation>
+    </message>
+    <message>
+        <source>Switch Background</source>
+        <translation>Hintergrund umschalten</translation>
+    </message>
+    <message>
+        <source>Ctrl+[</source>
+        <translation>Ctrl+[</translation>
+    </message>
+    <message>
+        <source>Switch Outline</source>
+        <translation>Umriss umschalten</translation>
+    </message>
+    <message>
+        <source>Ctrl+]</source>
+        <translation>Ctrl+]</translation>
+    </message>
+    <message>
+        <source>Toggle Animation</source>
+        <translation>Animation umschalten</translation>
+    </message>
+    <message>
+        <source>Export Image</source>
+        <translation>Bild exportieren</translation>
     </message>
 </context>
 </TS>
