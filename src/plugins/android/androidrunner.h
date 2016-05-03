@@ -79,12 +79,12 @@ private slots:
     void logcatReadStandardError();
     void logcatReadStandardOutput();
     void asyncStart();
+    QByteArray runPs();
 
 private:
     void adbKill(qint64 pid);
     QStringList selector() const { return m_selector; }
     void forceStop();
-    QByteArray runPs();
     void findPs();
     void logcatProcess(const QByteArray &text, QByteArray &buffer, bool onlyError);
     bool adbShellAmNeedsQuotes();

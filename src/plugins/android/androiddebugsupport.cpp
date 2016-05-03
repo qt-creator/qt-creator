@@ -92,11 +92,12 @@ RunControl *AndroidDebugSupport::createDebugRunControl(AndroidRunConfiguration *
     params.startMode = AttachToRemoteServer;
     params.displayName = AndroidManager::packageName(target);
     params.remoteSetupNeeded = true;
+    params.useContinueInsteadOfRun = true;
 
     auto aspect = runConfig->extraAspect<DebuggerRunConfigurationAspect>();
     if (aspect->useCppDebugger()) {
         Kit *kit = target->kit();
-        params.inferior.executable = target->activeBuildConfiguration()->buildDirectory().toString()
+        params.symbolFile = target->activeBuildConfiguration()->buildDirectory().toString()
                                      + QLatin1String("/app_process");
         params.skipExecutableValidation = true;
         params.remoteChannel = runConfig->remoteChannel();

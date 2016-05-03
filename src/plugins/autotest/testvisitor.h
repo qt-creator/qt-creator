@@ -94,6 +94,7 @@ public:
     QMap<QString, TestCodeLocationList> dataTags() const { return m_dataTags; }
 
 private:
+    QString extractNameFromAST(CPlusPlus::StringLiteralAST *ast, bool *ok) const;
     bool newRowCallFound(CPlusPlus::CallAST *ast, unsigned *firstToken) const;
 
     CPlusPlus::Document::Ptr m_currentDoc;

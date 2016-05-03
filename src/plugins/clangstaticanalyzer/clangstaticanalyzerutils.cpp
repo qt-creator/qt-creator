@@ -30,6 +30,7 @@
 
 #include <projectexplorer/projectexplorerconstants.h>
 
+#include <utils/hostosinfo.h>
 #include <utils/environment.h>
 
 #include <QCoreApplication>
@@ -50,8 +51,12 @@ namespace Internal {
 QString clangExecutableFromSettings(Core::Id toolchainType, bool *isValid)
 {
     QString exeFromSettings = ClangStaticAnalyzerSettings::instance()->clangExecutable();
-    if (toolchainType == ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID)
-        exeFromSettings.replace(QLatin1String("clang.exe"), QLatin1String("clang-cl.exe"));
+    if (toolchainType == ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID) {
+        if (exeFromSettings.endsWith(QLatin1String(QTC_HOST_EXE_SUFFIX)))
+            exeFromSettings.chop(int(qstrlen(QTC_HOST_EXE_SUFFIX)));
+        if (exeFromSettings.endsWith(QLatin1String("clang")))
+            exeFromSettings.append(QLatin1String("-cl"));
+    }
     return clangExecutable(exeFromSettings, isValid);
 }
 

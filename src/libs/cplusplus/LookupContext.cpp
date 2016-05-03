@@ -88,10 +88,10 @@ static bool isNestedInstantiationEnclosingTemplate(
         ClassOrNamespace *nestedClassOrNamespaceInstantiation,
         ClassOrNamespace *enclosingTemplateClassInstantiation)
 {
-    QList<ClassOrNamespace *> processed;
+    QSet<ClassOrNamespace *> processed;
     while (enclosingTemplateClassInstantiation
            && !processed.contains(enclosingTemplateClassInstantiation)) {
-        processed.append(enclosingTemplateClassInstantiation);
+        processed.insert(enclosingTemplateClassInstantiation);
         if (enclosingTemplateClassInstantiation == nestedClassOrNamespaceInstantiation)
             return false;
         enclosingTemplateClassInstantiation = enclosingTemplateClassInstantiation->parent();
@@ -454,8 +454,13 @@ QList<LookupItem> LookupContext::lookup(const Name *name, Scope *scope) const
                     candidates = binding->find(name);
 
                     // try find this name in parent class
-                    while (candidates.isEmpty() && (binding = binding->parent()))
+                    QSet<ClassOrNamespace *> processed;
+                    while (candidates.isEmpty() && (binding = binding->parent())) {
+                        if (processed.contains(binding))
+                            break;
+                        processed.insert(binding);
                         candidates = binding->find(name);
+                    }
 
                     if (! candidates.isEmpty())
                         return candidates;
@@ -1143,8 +1148,13 @@ ClassOrNamespace *ClassOrNamespace::nestedType(const Name *name, ClassOrNamespac
             instantiation->_name = templId;
         instantiation->_templateId = templId;
 
-        while (!origin->_symbols.isEmpty() && origin->_symbols[0]->isBlock())
+        QSet<ClassOrNamespace *> processed;
+        while (!origin->_symbols.isEmpty() && origin->_symbols[0]->isBlock()) {
+            if (processed.contains(origin))
+                break;
+            processed.insert(origin);
             origin = origin->parent();
+        }
 
         instantiation->_instantiationOrigin = origin;
 

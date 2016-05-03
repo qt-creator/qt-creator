@@ -222,6 +222,7 @@ private slots:
     void test_checkForValidSymbolFileId();
 
     void test_parentOfBlock();
+    void test_infiniteLoop();
 
     void findField();
     void findField_data();
@@ -1200,6 +1201,41 @@ void tst_CheckSymbols::test_parentOfBlock()
                               "{\n"
                               "    enum E { e1 };\n"
                               "}\n";
+    BaseTestCase tc(source);
+}
+
+void tst_CheckSymbols::test_infiniteLoop()
+{
+    const QByteArray source =
+        "template <class> struct TNode;\n"
+        "template <class> struct TMetaNode;\n"
+        "\n"
+        "template <class X>\n"
+        "struct TTraits {\n"
+        "   using TX        = X;\n"
+        "   using TNodeType = TNode<TX>;\n"
+        "};\n"
+        "\n"
+        "template <class X>\n"
+        "struct TMetaNode {\n"
+        "   using TTraitsType = TTraits<X>;\n"
+        "};\n"
+        "\n"
+        "template <class X>\n"
+        "void nonmember() {\n"
+        "   using TMetaNodeType = TMetaNode<X>;\n"
+        "}\n"
+        "\n"
+        "template <class X>\n"
+        "struct TNode {\n"
+        "   using TTraitsType = TTraits<X>;\n"
+        "   void member();\n"
+        "};\n"
+        "\n"
+        "template <class X>\n"
+        "void TNode<X>::member() {}\n"
+        ;
+
     BaseTestCase tc(source);
 }
 

@@ -90,6 +90,8 @@ public:
     void reset();
     void reparse() const;
 
+    bool isIntact() const;
+
     CXIndex index() const;
     CXTranslationUnit cxTranslationUnit() const;
     CXTranslationUnit cxTranslationUnitWithoutReparsing() const;
@@ -149,10 +151,14 @@ private:
     bool projectPartIsOutdated() const;
     bool isMainFileAndExistsOrIsOtherFile(const Utf8String &filePath) const;
     void createTranslationUnitIfNeeded() const;
-    void checkTranslationUnitErrorCode(CXErrorCode errorCode) const;
+    void checkParseErrorCode() const;
+    void checkReparseErrorCode() const;
     void reparseTranslationUnit() const;
     void reparseTranslationUnitIfFilesAreChanged() const;
+    bool parseWasSuccessful() const;
+    bool reparseWasSuccessful() const;
     void updateIncludeFilePaths() const;
+    bool fileExists() const;
     static void includeCallback(CXFile included_file,
                                 CXSourceLocation * /*inclusion_stack*/,
                                 unsigned /*include_len*/,

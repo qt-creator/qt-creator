@@ -62,10 +62,12 @@ void AssociationItem::update(const Style *style)
 
     QMT_CHECK(m_arrow);
     QGraphicsItem *endAItem = m_diagramSceneModel->graphicsItem(m_association->endAUid());
-    QMT_CHECK(endAItem);
+    if (!endAItem)
+        return;
     placeEndLabels(m_arrow->firstLineSegment(), m_endAName, m_endACardinality, endAItem, m_arrow->startHeadLength());
     QGraphicsItem *endBItem = m_diagramSceneModel->graphicsItem(m_association->endBUid());
-    QMT_CHECK(endBItem);
+    if (!endBItem)
+        return;
     placeEndLabels(m_arrow->lastLineSegment(), m_endBName, m_endBCardinality, endBItem, m_arrow->endHeadLength());
 }
 

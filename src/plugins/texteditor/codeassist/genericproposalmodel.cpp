@@ -179,6 +179,7 @@ void GenericProposalModel::removeDuplicates()
         const AssistProposalItemInterface *item = *it;
         if (unique.contains(item->text())
                 && unique.value(item->text()) == item->hash()) {
+            delete *it;
             it = m_originalItems.erase(it);
         } else {
             unique.insert(item->text(), item->hash());

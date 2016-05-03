@@ -7,7 +7,7 @@ include(../../qtcreatortool.pri)
 # global state of the CRT, reconsider if other DLLs are required!
 # TODO: No effect, currently?
 
-win32-msvc* {
+msvc {
     QMAKE_CXXFLAGS_RELEASE    -= -MD
     QMAKE_CXXFLAGS_DEBUG      -= -MDd
     QMAKE_CXXFLAGS_RELEASE    += -MT

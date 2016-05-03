@@ -1976,6 +1976,7 @@ void DebuggerPluginPrivate::attachToRemoteServer()
     DebuggerRunParameters rp;
     Kit *kit;
     rp.startMode = AttachToRemoteServer;
+    rp.useContinueInsteadOfRun = true;
     if (StartApplicationDialog::run(ICore::dialogParent(), &rp, &kit)) {
         rp.closeMode = KillAtClose;
         createAndScheduleRun(rp, kit);
@@ -2657,7 +2658,7 @@ void DebuggerPluginPrivate::updateDebugActions()
     if (m_shuttingDown)
         return;
     //if we're currently debugging the actions are controlled by engine
-    if (m_currentEngine->state() != DebuggerNotReady)
+    if (m_currentEngine && m_currentEngine->state() != DebuggerNotReady)
         return;
 
     QString whyNot;
@@ -3308,6 +3309,7 @@ void DebuggerPluginPrivate::updateUiForRunConfiguration(RunConfiguration *rc)
 
 void DebuggerPluginPrivate::updateActiveLanguages()
 {
+    QTC_ASSERT(dd->m_currentEngine, return);
     const DebuggerLanguages languages = dd->m_currentEngine->runParameters().languages;
 //    Id perspective = (languages & QmlLanguage) && !(languages & CppLanguage)
 //            ? QmlPerspectiveId : CppPerspectiveId;

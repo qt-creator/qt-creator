@@ -1,5 +1,5 @@
 DEFINES += CPPTOOLS_LIBRARY
-win32-msvc*:DEFINES += _SCL_SECURE_NO_WARNINGS
+msvc: DEFINES += _SCL_SECURE_NO_WARNINGS
 include(../../qtcreatorplugin.pri)
 
 HEADERS += \

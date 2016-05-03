@@ -492,7 +492,8 @@ QPointF RelationItem::calcEndPoint(const Uid &end, const Uid &otherEnd, int near
 QPointF RelationItem::calcEndPoint(const Uid &end, const QPointF &otherEndPos, int nearestIntermediatePointIndex)
 {
     QGraphicsItem *endItem = m_diagramSceneModel->graphicsItem(end);
-    QMT_CHECK(endItem);
+    if (!endItem)
+        return QPointF(0, 0);
     auto endObjectItem = dynamic_cast<IIntersectionable *>(endItem);
     QPointF endPos;
     if (endObjectItem) {

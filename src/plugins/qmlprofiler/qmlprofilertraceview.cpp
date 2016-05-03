@@ -384,7 +384,10 @@ bool TraceViewFindSupport::findOne(const QString &txt, Core::FindFlags findFlags
             m_currentPosition = current;
             m_view->selectByEventIndex(model->timelineModel(m_currentPosition),
                                        model->timelineIndex(m_currentPosition));
+            QWidget *findBar = QApplication::focusWidget();
             m_view->updateCursorPosition(); // open file/line that belongs to event
+            QTC_ASSERT(findBar, return true);
+            findBar->setFocus();
             return true;
         }
         current += increment;

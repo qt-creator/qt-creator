@@ -402,7 +402,8 @@ bool StartApplicationDialog::run(QWidget *parent, DebuggerRunParameters *rp, Kit
         rp->remoteChannel = inputAddress;
     else
         rp->remoteChannel = rp->connParams.host;
-    rp->remoteChannel += QLatin1Char(':') + QString::number(newParameters.serverPort);
+    if (!rp->remoteChannel.isEmpty())
+        rp->remoteChannel += QLatin1Char(':') + QString::number(newParameters.serverPort);
     rp->displayName = newParameters.displayName();
     rp->inferior.workingDirectory = newParameters.runnable.workingDirectory;
     rp->useTerminal = newParameters.runnable.runMode == ApplicationLauncher::Console;

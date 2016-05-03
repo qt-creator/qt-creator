@@ -149,40 +149,47 @@
      <property name="text">
       <string>Flags:</string>
      </property>
+     <property name="alignment">
+      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+     </property>
     </widget>
    </item>
    <item row="4" column="1">
     <layout class="QHBoxLayout" name="horizontalLayout_2">
      <item>
-      <widget class="QCheckBox" name="keepGoingCheckBox">
-       <property name="toolTip">
-        <string>Keep going when errors occur (if at all possible).</string>
-       </property>
-       <property name="text">
-        <string>Keep going</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QCheckBox" name="showCommandLinesCheckBox">
-       <property name="text">
-        <string>Show command lines</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QCheckBox" name="installCheckBox">
-       <property name="text">
-        <string>Install</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QCheckBox" name="cleanInstallRootCheckBox">
-       <property name="text">
-        <string>Clean install root</string>
-       </property>
-      </widget>
+      <layout class="QGridLayout" name="gridLayout_2">
+       <item row="0" column="0">
+        <widget class="QCheckBox" name="keepGoingCheckBox">
+         <property name="toolTip">
+          <string>Keep going when errors occur (if at all possible).</string>
+         </property>
+         <property name="text">
+          <string>Keep going</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="QCheckBox" name="showCommandLinesCheckBox">
+         <property name="text">
+          <string>Show command lines</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QCheckBox" name="installCheckBox">
+         <property name="text">
+          <string>Install</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QCheckBox" name="cleanInstallRootCheckBox">
+         <property name="text">
+          <string>Clean install root</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </item>
      <item>
       <spacer name="checkBoxSpacer">
@@ -192,7 +199,7 @@
        <property name="sizeHint" stdset="0">
         <size>
          <width>40</width>
-         <height>5</height>
+         <height>13</height>
         </size>
        </property>
       </spacer>

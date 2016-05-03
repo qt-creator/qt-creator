@@ -451,7 +451,7 @@ void QbsProject::updateAfterParse()
 {
     qCDebug(qbsPmLog) << "Updating data after parse";
     rootProjectNode()->update();
-    updateDocuments(QSet<QString>() << projectFilePath().toString());
+    updateDocuments(m_qbsProject.buildSystemFiles());
     updateBuildTargetData();
     updateCppCodeModel();
     updateQmlJsCodeModel();
@@ -935,9 +935,7 @@ void QbsProject::updateCppCompilerCallData()
         }
     }
 
-    m_codeModelProjectInfo.setCompilerCallData(data);
-    const QFuture<void> future = modelManager->updateProjectInfo(m_codeModelProjectInfo);
-    QTC_CHECK(future.isFinished()); // No reparse of files expected
+    m_codeModelProjectInfo = modelManager->updateCompilerCallDataForProject(this, data);
 }
 
 void QbsProject::updateQmlJsCodeModel()

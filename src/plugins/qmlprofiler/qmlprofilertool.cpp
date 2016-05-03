@@ -646,6 +646,7 @@ void QmlProfilerTool::showLoadDialog()
         Debugger::enableMainWindow(false);
         connect(d->m_profilerModelManager, &QmlProfilerModelManager::recordedFeaturesChanged,
                 this, &QmlProfilerTool::setRecordedFeatures);
+        populateFileFinder();
         d->m_profilerModelManager->load(filename);
     }
 }

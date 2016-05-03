@@ -37,7 +37,7 @@ namespace ProjectExplorer {
 static const char failureRe[] = "\\*\\* BUILD FAILED \\*\\*$";
 static const char successRe[] = "\\*\\* BUILD SUCCEEDED \\*\\*$";
 static const char buildRe[] = "=== BUILD (AGGREGATE )?TARGET (.*) OF PROJECT (.*) WITH .* ===$";
-static const char signatureChangeRe[] = "(.+): replacing existing signature$";
+static const char signatureChangeEndsWithPattern[] = ": replacing existing signature";
 
 XcodebuildParser::XcodebuildParser()
 {
@@ -48,8 +48,6 @@ XcodebuildParser::XcodebuildParser()
     QTC_CHECK(m_successRe.isValid());
     m_buildRe.setPattern(QLatin1String(buildRe));
     QTC_CHECK(m_buildRe.isValid());
-    m_replacingSignatureRe.setPattern(QLatin1String(signatureChangeRe));
-    QTC_CHECK(m_replacingSignatureRe.isValid());
 }
 
 bool XcodebuildParser::hasFatalErrors() const
@@ -71,11 +69,12 @@ void XcodebuildParser::stdOutput(const QString &line)
             m_xcodeBuildParserState = OutsideXcodebuild;
             return;
         }
-        if (m_replacingSignatureRe.indexIn(lne) > -1) {
+        if (lne.endsWith(QLatin1String(signatureChangeEndsWithPattern))) {
             Task task(Task::Warning,
                       QCoreApplication::translate("ProjectExplorer::XcodebuildParser",
                                                   "Replacing signature"),
-                      Utils::FileName::fromString(m_replacingSignatureRe.cap(1)), /* filename */
+                      Utils::FileName::fromString(
+                          lne.left(lne.size() - QLatin1String(signatureChangeEndsWithPattern).size())), /* filename */
                       -1, /* line */
                       Constants::TASK_CATEGORY_COMPILE);
             taskAdded(task, 1);

@@ -1,7 +1,6 @@
 /****************************************************************************
 **
 ** Copyright (C) 2016 The Qt Company Ltd.
-** Author: Milian Wolff, KDAB (milian.wolff@kdab.com)
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -26,47 +25,37 @@
 
 #pragma once
 
-#include "../valgrindrunner.h"
+#include <utf8string.h>
 
-namespace Valgrind {
+#include <clang-c/Index.h>
 
-namespace XmlProtocol{
-class ThreadedParser;
-}
+#include <exception>
 
-namespace Memcheck {
+namespace ClangBackEnd {
 
-class MemcheckRunner : public ValgrindRunner
+class TranslationUnitReparseErrorException : public std::exception
 {
-    Q_OBJECT
-
 public:
-    explicit MemcheckRunner(QObject *parent = 0);
-    ~MemcheckRunner();
+    TranslationUnitReparseErrorException(const Utf8String &filePath,
+                                         const Utf8String &projectPartId,
+                                         int errorCode);
 
-    void setParser(XmlProtocol::ThreadedParser *parser);
-    bool start();
-    void disableXml();
+    const Utf8String &filePath() const;
+    const Utf8String &projectPartId() const;
 
-signals:
-    void logMessageReceived(const QByteArray &);
+    const char *what() const Q_DECL_NOEXCEPT override;
 
-private slots:
-    void localHostAddressRetrieved(const QHostAddress &localHostAddress);
-
-    void xmlSocketConnected();
-    void logSocketConnected();
-    void readLogSocket();
+#if defined(__GNUC__) && !defined(__clang__)
+#  if !__GNUC_PREREQ(4,8)
+    ~TranslationUnitReparseErrorException() noexcept {}
+#  endif
+#endif
 
 private:
-    QString tool() const;
-
-    bool startServers(const QHostAddress &localHostAddress);
-    QStringList memcheckLogArguments() const;
-
-    class Private;
-    Private *d;
+    Utf8String filePath_;
+    Utf8String projectPartId_;
+    int errorCode_;
+    mutable Utf8String what_;
 };
 
-} // namespace Memcheck
-} // namespace Valgrind
+} // namespace ClangBackEnd

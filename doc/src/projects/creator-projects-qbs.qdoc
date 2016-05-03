@@ -40,6 +40,9 @@
     with the build and run kit. \QC automatically creates a Qbs profile for each
     kit. You can edit the build profiles by adding new keys and values.
 
+    To check which Qbs version is being used, select \uicontrol Tools >
+    \uicontrol Options > \uicontrol Qbs > \uicontrol {Version Info}.
+
     \section1 Building Qbs
 
     If you build \QC yourself from the \QC Git repository, you also need to
@@ -60,10 +63,22 @@
 
     \list 1
 
-        \li Select \uicontrol File > \uicontrol {New File or Project} > \uicontrol {Plain C
-            Project (Qbs Build)} or \uicontrol {Plain C++ Project (Qbs Build)} >
-            \uicontrol Choose, and follow the instructions of the wizard to create a
-            Qbs project.
+        \li Select \uicontrol File > \uicontrol {New File or Project} >
+            \uicontrol {Non-Qt Project} > \uicontrol {Plain C Project} or
+            \uicontrol {Plain C++ Project} > \uicontrol Choose.
+
+        \li In the \uicontrol {Project Location} dialog, specify the name and
+            location for the project and select \uicontrol Next.
+
+        \li In the \uicontrol {Define Build System} dialog, select
+            \uicontrol Qbs in the \uicontrol {Build system} field, and then
+            select \uicontrol Next.
+
+        \li In the \uicontrol {Kit Selection} dialog, select a build and run kit
+            for the project, and then select \uicontrol Next.
+
+        \li In the \uicontrol {Project Management} dialog, select
+            \uicontrol Finish to create a Qbs project.
 
             \image creator-qbs-project.png
 
@@ -133,9 +148,6 @@
 
             \list
 
-                \li Select \uicontrol {Clean all artifacts} to remove all build
-                    artifacts.
-
                 \li Select \uicontrol {Dry run} to test cleaning without executing
                     commands or making permanent changes to the build graph.
 
@@ -164,6 +176,13 @@
     \list 1
 
         \li Select \uicontrol Tools > \uicontrol Options > \uicontrol Qbs.
+
+        \li By default, Qbs profiles are stored in the \c qbs directory in the
+            \QC settings directory to ensure that different \QC instances do not
+            overwrite each other's profiles. If you only run one \QC instance,
+            you can store the profiles in the Qbs settings directory instead,
+            by deselecting the \uicontrol {Store profiles in Qt Creator settings
+            directory} check box.
 
         \li In the \uicontrol Kit field, select a build and run kit.
 

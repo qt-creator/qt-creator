@@ -128,9 +128,9 @@
     select \uicontrol Tools > \uicontrol Options > \uicontrol Analyzer.
 
     To specify custom QML Profiler settings for a particular project, select
-    \uicontrol Projects and then select \uicontrol Custom in \uicontrol
-    {QML Profiler Settings}. To restore the global settings for the project,
-    select \uicontrol {Restore Global}.
+    \uicontrol Projects > \uicontrol Run and then select \uicontrol Custom in
+    \uicontrol {QML Profiler Settings}. To restore the global settings for the
+    project, select \uicontrol {Restore Global}.
 
     \image qml-profiler-settings.png "QML Profiler Settings"
 
@@ -144,6 +144,11 @@
     The longer the interval, the more data has to be buffered in the target
     application, potentially wasting memory. However, the flushing itself takes
     time, which can distort the profiling results.
+
+    If you have multiple QML engines and you want to aggregate the data produced
+    by all of them into one trace, select the \uicontrol {Process data only when
+    process ends} check box. Otherwise, the profiling stops when one of the
+    engines stops.
 
     \section1 Attaching to Running Qt Quick Applications
 

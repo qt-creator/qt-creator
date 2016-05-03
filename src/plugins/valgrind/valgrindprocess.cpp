@@ -205,6 +205,8 @@ void ValgrindProcess::connected()
 {
     QTC_ASSERT(m_remote.m_connection->state() == QSsh::SshConnection::Connected, return);
 
+    emit localHostAddressRetrieved(m_remote.m_connection->connectionInfo().localAddress);
+
     // connected, run command
     QString cmd;
 
@@ -214,6 +216,9 @@ void ValgrindProcess::connected()
     cmd += m_valgrindExecutable + QLatin1Char(' ') + argumentString(Utils::OsTypeLinux);
 
     m_remote.m_process = m_remote.m_connection->createRemoteProcess(cmd.toUtf8());
+    for (auto it = m_debuggee.environment.constBegin(); it != m_debuggee.environment.constEnd(); ++it)
+        m_remote.m_process->addToEnvironment(it.key().toUtf8(), it.value().toUtf8());
+
     connect(m_remote.m_process.data(), &QSsh::SshRemoteProcess::readyReadStandardError,
             this, &ValgrindProcess::handleRemoteStderr);
     connect(m_remote.m_process.data(), &QSsh::SshRemoteProcess::readyReadStandardOutput,
