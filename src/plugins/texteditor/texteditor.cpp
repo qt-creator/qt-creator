@@ -167,10 +167,8 @@ class TextEditorAnimator : public QObject
 public:
     TextEditorAnimator(QObject *parent);
 
-    inline void setPosition(int position) { m_position = position; }
-    inline int position() const { return m_position; }
-
-    void setData(const QFont &f, const QPalette &pal, const QString &text);
+    void init(const QTextCursor &cursor, const QFont &f, const QPalette &pal);
+    inline QTextCursor cursor() const { return m_cursor; }
 
     void draw(QPainter *p, const QPointF &pos);
     QRectF rect() const;
@@ -183,14 +181,14 @@ public:
     bool isRunning() const;
 
 signals:
-    void updateRequest(int position, QPointF lastPos, QRectF rect);
+    void updateRequest(const QTextCursor &cursor, QPointF lastPos, QRectF rect);
 
 private:
     void step(qreal v);
 
     QTimeLine m_timeline;
     qreal m_value;
-    int m_position;
+    QTextCursor m_cursor;
     QPointF m_lastDrawPos;
     QFont m_font;
     QPalette m_palette;
@@ -333,7 +331,7 @@ public:
     void updateAnimator(QPointer<TextEditorAnimator> animator, QPainter &painter);
     void cancelCurrentAnimations();
     void slotSelectionChanged();
-    void _q_animateUpdate(int position, QPointF lastPos, QRectF rect);
+    void _q_animateUpdate(const QTextCursor &cursor, QPointF lastPos, QRectF rect);
     void updateCodeFoldingVisible();
 
     void reconfigure();
@@ -5803,10 +5801,9 @@ void TextEditorWidgetPrivate::setFindScope(const QTextCursor &start, const QText
     }
 }
 
-void TextEditorWidgetPrivate::_q_animateUpdate(int position, QPointF lastPos, QRectF rect)
+void TextEditorWidgetPrivate::_q_animateUpdate(const QTextCursor &cursor,
+                                               QPointF lastPos, QRectF rect)
 {
-    QTextCursor cursor = q->textCursor();
-    cursor.setPosition(position);
     q->viewport()->update(QRectF(q->cursorRect(cursor).topLeft() + rect.topLeft(), rect.size()).toAlignedRect());
     if (!lastPos.isNull())
         q->viewport()->update(QRectF(lastPos + rect.topLeft(), rect.size()).toAlignedRect());
@@ -5823,11 +5820,12 @@ TextEditorAnimator::TextEditorAnimator(QObject *parent)
     m_timeline.start();
 }
 
-void TextEditorAnimator::setData(const QFont &f, const QPalette &pal, const QString &text)
+void TextEditorAnimator::init(const QTextCursor &cursor, const QFont &f, const QPalette &pal)
 {
+    m_cursor = cursor;
     m_font = f;
     m_palette = pal;
-    m_text = text;
+    m_text = cursor.selectedText();
     QFontMetrics fm(m_font);
     m_size = QSizeF(fm.width(m_text), fm.height());
 }
@@ -5866,7 +5864,7 @@ void TextEditorAnimator::step(qreal v)
     QRectF before = rect();
     m_value = v;
     QRectF after = rect();
-    emit updateRequest(m_position, m_lastDrawPos, before.united(after));
+    emit updateRequest(m_cursor, m_lastDrawPos, before.united(after));
 }
 
 void TextEditorAnimator::finish()
@@ -5963,13 +5961,14 @@ void TextEditorWidgetPrivate::_q_matchParentheses()
 
     if (animatePosition >= 0) {
         cancelCurrentAnimations();// one animation is enough
-        m_bracketsAnimator = new TextEditorAnimator(this);
-        m_bracketsAnimator->setPosition(animatePosition);
         QPalette pal;
         pal.setBrush(QPalette::Text, matchFormat.foreground());
         pal.setBrush(QPalette::Base, matchFormat.background());
-        m_bracketsAnimator->setData(
-                    q->font(), pal, q->document()->characterAt(m_bracketsAnimator->position()));
+        QTextCursor cursor = q->textCursor();
+        cursor.setPosition(animatePosition + 1);
+        cursor.setPosition(animatePosition, QTextCursor::KeepAnchor);
+        m_bracketsAnimator = new TextEditorAnimator(this);
+        m_bracketsAnimator->init(cursor, q->font(), pal);
         connect(m_bracketsAnimator.data(), &TextEditorAnimator::updateRequest,
                 this, &TextEditorWidgetPrivate::_q_animateUpdate);
     }
@@ -6060,12 +6059,11 @@ void TextEditorWidgetPrivate::autocompleterHighlight(const QTextCursor &cursor)
     }
     if (m_animateAutoComplete) {
         cancelCurrentAnimations();// one animation is enough
-        m_autocompleteAnimator = new TextEditorAnimator(this);
-        m_autocompleteAnimator->setPosition(cursor.selectionStart());
         QPalette pal;
         pal.setBrush(QPalette::Text, matchFormat.foreground());
         pal.setBrush(QPalette::Base, matchFormat.background());
-        m_autocompleteAnimator->setData(q->font(), pal, cursor.selectedText());
+        m_autocompleteAnimator = new TextEditorAnimator(this);
+        m_autocompleteAnimator->init(cursor, q->font(), pal);
         connect(m_autocompleteAnimator.data(), &TextEditorAnimator::updateRequest,
                 this, &TextEditorWidgetPrivate::_q_animateUpdate);
     }
@@ -6075,11 +6073,8 @@ void TextEditorWidgetPrivate::autocompleterHighlight(const QTextCursor &cursor)
 void TextEditorWidgetPrivate::updateAnimator(QPointer<TextEditorAnimator> animator,
                                              QPainter &painter)
 {
-    if (animator && animator->isRunning()) {
-        QTextCursor cursor = q->textCursor();
-        cursor.setPosition(animator->position());
-        animator->draw(&painter, q->cursorRect(cursor).topLeft());
-    }
+    if (animator && animator->isRunning())
+        animator->draw(&painter, q->cursorRect(animator->cursor()).topLeft());
 }
 
 void TextEditorWidgetPrivate::cancelCurrentAnimations()
