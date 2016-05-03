@@ -238,14 +238,19 @@ public:
     {}
 
     virtual void pragmaLibrary() { isLibrary = true; }
-    virtual void importFile(const QString &jsfile, const QString &module)
+    virtual void importFile(const QString &jsfile, const QString &module, int line, int column)
     {
+        Q_UNUSED(line);
+        Q_UNUSED(column);
         imports += ImportInfo::pathImport(
                     documentPath, jsfile, LanguageUtils::ComponentVersion(), module);
     }
 
-    virtual void importModule(const QString &uri, const QString &version, const QString &module)
+    virtual void importModule(const QString &uri, const QString &version, const QString &module,
+                              int line, int column)
     {
+        Q_UNUSED(line);
+        Q_UNUSED(column);
         imports += ImportInfo::moduleImport(uri, LanguageUtils::ComponentVersion(version), module);
     }
 
