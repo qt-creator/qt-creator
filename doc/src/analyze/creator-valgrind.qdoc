@@ -54,9 +54,8 @@
 
         \li In the \uicontrol Projects mode, select a debug build configuration.
 
-        \li Select \uicontrol Analyze > \uicontrol {Valgrind Memory Analyzer},
-            or \uicontrol {Valgrind Memory Analyzer with GDB} if you want to
-            debug the found problems.
+        \li Select \uicontrol Debug to open the \uicontrol Debug mode, and then
+            select \uicontrol Memcheck on the toolbar.
 
         \li Select the
             \inlineimage qtcreator-analyze-start-button.png "Start button"
@@ -73,11 +72,11 @@
 
     While the application is running, Memcheck checks all reads and writes of
     memory and intercepts calls that allocate or free memory or create or
-    delete memory blocks. When you stop Memcheck, it displays the results in
-    the \uicontrol Analysis view. Click a line to view where a memory leak
+    delete memory blocks. The results are displayed when you stop Memcheck.
+    Click a line to view where a memory leak
     occurred and a stack trace that shows what caused it.
 
-    \image analyzer-issues.png "Analysis view"
+    \image qtcreator-valgrind-memcheck.png "Memcheck view"
 
     Move the mouse on a row to view more information about the function.
 
@@ -93,9 +92,8 @@
 
     Stack traces can get quite large and confusing, and therefore, reading them
     from the bottom up can help. If the stack trace is not big enough or it is
-    too big, select \uicontrol {Tools > Options > Analyzer}.
-    Define the length of the stack trace in the \uicontrol {Backtrace frame count}
-    field.
+    too big, select \uicontrol {Tools > Options > Analyzer} and define the
+    length of the stack trace in the \uicontrol {Backtrace frame count} field.
 
     \image qtcreator-valgrind-memcheck-options.png "Memory Analysis options"
 
@@ -164,7 +162,8 @@
 
         \li In the \uicontrol Projects mode, select a release build configuration.
 
-        \li Select \uicontrol Analyze > \uicontrol {Valgrind Function Profiler}.
+        \li Select \uicontrol Debug to open the \uicontrol Debug mode, and then
+            select \uicontrol Callgrind on the toolbar.
 
         \li Select the
             \inlineimage qtcreator-analyze-start-button.png "Start button"
@@ -192,17 +191,17 @@
 
     Since the run-time characteristics of debug and release
     \l{glossary-build-config}{build configurations}
-    differ significantly, analytical findings for one build configuration may or
+    differ significantly, analytical findings for one build configuration may
     not be relevant for the other. Profiling a debug build
     often finds a major part of the time being spent in low-level
-    code like container implementations, while the same code
+    code, such as container implementations, while the same code
     does not show up in the profile of a release build of the
     same application due to inlining and other optimizations
     typically done there.
 
     Many recent compilers allow you to build an optimized application
-    with debug information present at the same time. Typical
-    options for GCC are for instance \c{-g -O2}. It is
+    with debug information present at the same time. For example, typical
+    options for GCC are: \c{-g -O2}. It is
     advisable to use such a setup for Callgrind profiling.
 
 
@@ -279,7 +278,7 @@
         \li Select \uicontrol Analyze > \uicontrol {Valgrind Memory Analyzer (External
             Application)} or \uicontrol {Valgrind Function Profiler (External Application)}.
 
-            \image qtcreator-valgrind-remote-settings.png "Start Analyzer dialog"
+            \image qtcreator-valgrind-remote-settings.png "Start Remote Analysis dialog"
 
         \li Specify the application to run and analyze, and the \l{glossary-buildandrun-kit}{kit}
             to use.

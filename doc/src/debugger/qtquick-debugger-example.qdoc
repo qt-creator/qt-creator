@@ -63,8 +63,10 @@
         \li Select \uicontrol {Debug > Start Debugging > Start Debugging} or press
             \key{F5}.
 
-        \li Once the Same Game application starts, click the \uicontrol {New Game}
-            button to start a new game.
+        \li Once the Same Game application starts, select \uicontrol {1 Player}
+            to start a new game.
+
+            \image samegame.png
 
         \li When the debugger hits the breakpoint, it interrupts the
             application. \QC displays the nested function calls leading to the
@@ -93,10 +95,7 @@
         \li To execute JavaScript commands in the current context, open the
             \uicontrol {Debugger Console} output pane.
 
-        \li To change the score to 1000, enter \c{gameCanvas.score = 1000}
-            in the console.
-
-            \image qtquick-example-script-console.png
+            \image qml-script-console.png
 
         \li To remove a breakpoint, right-click it and select
             \uicontrol {Delete Breakpoint}.
@@ -106,25 +105,16 @@
 
             \image qtquick-example-qml-inspector.png
 
-        \li Click
-            \inlineimage qml-inspector-app-on-top.png
-            (\uicontrol {Show Application on Top}) to keep the application visible
-            while you interact with the debugger.
+        \li Select \uicontrol Debug > \uicontrol {Show Application on Top} to
+            keep the application visible while you interact with the debugger.
 
-        \li Click
-            \inlineimage qml-inspector-select-button.png
-            (\uicontrol Select) to activate selection mode and then click the
-            \uicontrol {Quit} button to move into the \uicontrol ButtonLabel component
-            in the \uicontrol {Locals and Expressions} and the code editor.
+        \li Select \uicontrol Debug > \uicontrol Select to activate selection
+            mode and then click the \uicontrol Menu button to move into the
+            \uicontrol menuButton component in the
+            \uicontrol {Locals and Expressions} view and the code editor.
 
-        \li In the \uicontrol {Locals and Expressions} view, double-click the value of
-            the \c text property to change it temporarily from \uicontrol {Quit} to
-            \uicontrol {End Game}.
-
-            \image qtquick-example-property-values.png
-
-            When you select an element, the cursor moves to it in the code
-            editor, where you can change the value permanently.
+        \li In the \uicontrol {Locals and Expressions} view, double-click the
+            value of a property to change it.
 
     \endlist
 

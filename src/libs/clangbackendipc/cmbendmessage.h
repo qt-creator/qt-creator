@@ -26,6 +26,7 @@
 #pragma once
 
 #include "clangbackendipc_global.h"
+#include <ostream>
 
 namespace ClangBackEnd {
 

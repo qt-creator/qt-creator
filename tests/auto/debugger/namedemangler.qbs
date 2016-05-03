@@ -2,6 +2,9 @@ import qbs
 
 QtcAutotest {
     name: "Name demangler autotest"
+
+    cpp.enableExceptions: true
+
     Group {
         name: "Sources from Debugger plugin"
         prefix: project.debuggerDir + "namedemangler/"

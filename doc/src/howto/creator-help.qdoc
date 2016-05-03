@@ -197,15 +197,17 @@
     space, the help opens in the full-screen help mode.
 
     You can specify that the help always opens in full-screen mode or
-    is detached to an external window. Select \uicontrol {Tools > Options > Help >
-    General Settings} and specify settings for displaying context-sensitive help
+    is detached to an external window. Select \uicontrol Tools >
+    \uicontrol Options > \uicontrol Help > \uicontrol General and specify
+    settings for displaying context-sensitive help
     in the \uicontrol {On context help} field. To detach the help window, select
-    \uicontrol {Always Show Help in External Window}.
+    \uicontrol {Always Show in External Window}.
 
     \section1 Selecting the Start Page
 
     You can select the page to display when you open the \uicontrol Help mode in the
-    \uicontrol {Tools > Options > Help > General Settings > On help start} field.
+    \uicontrol Tools > \uicontrol Options > \uicontrol Help > \uicontrol General
+    > \uicontrol {On help start} field.
     To display the page and help panes that were open when you exited the mode,
     select the \uicontrol {Show My Tabs from Last Session} option. However, Web pages
     are not opened, because loading them would slow down opening the \uicontrol Help
@@ -221,8 +223,8 @@
     \section1 Using Documentation Filters
 
     You can filter the documents displayed in the \uicontrol Help mode to find
-    relevant information faster. Select from a list of filters in the
-    \uicontrol {Filtered by} field (1). The contents of the \uicontrol Index and \uicontrol Contents
+    relevant information faster. Select a filter from a list of filters (1). The
+    contents of the \uicontrol Index and \uicontrol Contents
     pane in the sidebar change accordingly.
 
     \image qtcreator-help-filters.png "Help filters"
@@ -249,8 +251,8 @@
 
         \li Click \uicontrol OK.
 
-        \li In the \uicontrol Help mode, select the filter in the \uicontrol {Filtered by}
-            field to see the filtered documentation in the sidebar.
+        \li In the \uicontrol Help mode, select the filter in the list of
+            filters to see the filtered documentation in the sidebar.
 
     \endlist
 

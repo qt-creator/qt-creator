@@ -2033,7 +2033,10 @@ void DebuggerEngine::updateItem(const QByteArray &iname)
         showMessage(QString::fromLatin1("IGNORING REPEATED REQUEST TO EXPAND " + iname));
         WatchHandler *handler = watchHandler();
         WatchItem *item = handler->findItem(iname);
-        if (!item->hasChildren()) {
+        QTC_CHECK(item);
+        WatchModelBase *model = handler->model();
+        QTC_CHECK(model);
+        if (item && !model->hasChildren(model->indexForItem(item))) {
             handler->notifyUpdateStarted({iname});
             item->setValue(decodeData({}, "notaccessible"));
             item->setHasChildren(false);

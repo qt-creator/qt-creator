@@ -246,7 +246,7 @@ class QTCREATOR_UTILS_EXPORT TreeModel : public QAbstractItemModel
 public:
     explicit TreeModel(QObject *parent = 0);
     explicit TreeModel(TreeItem *root, QObject *parent = 0);
-    ~TreeModel();
+    ~TreeModel() override;
 
     void setHeader(const QStringList &displays);
     void setHeaderToolTip(const QStringList &tips);
@@ -258,19 +258,19 @@ public:
     QModelIndex indexForItem(const TreeItem *needle) const;
 
     int topLevelItemCount() const;
-    int rowCount(const QModelIndex &idx = QModelIndex()) const;
-    int columnCount(const QModelIndex &idx) const;
+    int rowCount(const QModelIndex &idx = QModelIndex()) const override;
+    int columnCount(const QModelIndex &idx) const override;
 
-    bool setData(const QModelIndex &idx, const QVariant &data, int role);
-    QVariant data(const QModelIndex &idx, int role) const;
-    QModelIndex index(int, int, const QModelIndex &idx = QModelIndex()) const;
-    QModelIndex parent(const QModelIndex &idx) const;
-    Qt::ItemFlags flags(const QModelIndex &idx) const;
-    QVariant headerData(int section, Qt::Orientation orientation, int role) const;
-    bool hasChildren(const QModelIndex &idx) const;
+    bool setData(const QModelIndex &idx, const QVariant &data, int role) override;
+    QVariant data(const QModelIndex &idx, int role) const override;
+    QModelIndex index(int, int, const QModelIndex &idx = QModelIndex()) const override;
+    QModelIndex parent(const QModelIndex &idx) const override;
+    Qt::ItemFlags flags(const QModelIndex &idx) const override;
+    QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
+    bool hasChildren(const QModelIndex &idx) const override;
 
-    bool canFetchMore(const QModelIndex &idx) const;
-    void fetchMore(const QModelIndex &idx);
+    bool canFetchMore(const QModelIndex &idx) const override;
+    void fetchMore(const QModelIndex &idx) override;
 
     template <class T>
     TreeLevelItems<T> itemsAtLevel(int level, TreeItem *start = 0) const

@@ -40,6 +40,8 @@
 #include <unsavedfiles.h>
 #include <utf8string.h>
 
+#include <QTemporaryFile>
+
 #include <clang-c/Index.h>
 
 #include "mocksenddocumentannotationscallback.h"
@@ -83,6 +85,7 @@ class TranslationUnits : public ::testing::Test
 {
 protected:
     void SetUp() override;
+    void createDirtyTranslationUnitAndDeleteFile();
     void sendAllDocumentAnnotations();
     void sendAllDocumentAnnotationsForCurrentEditor();
     void sendAllDocumentAnnotationsForVisibleEditors();
@@ -128,6 +131,15 @@ TEST_F(TranslationUnits, DoNotThrowForAddingNonExistingFileWithUnsavedContent)
     ClangBackEnd::FileContainer fileContainer(nonExistingFilePath, projectPartId, Utf8String(), true);
 
     ASSERT_NO_THROW(translationUnits.create({fileContainer}));
+}
+
+TEST_F(TranslationUnits, DoNotSendDocumentAnnotationsForVanishedMainFile)
+{
+    createDirtyTranslationUnitAndDeleteFile();
+
+    EXPECT_CALL(mockSendDocumentAnnotationsCallback, sendDocumentAnnotations()).Times(0);
+
+    sendAllDocumentAnnotations();
 }
 
 TEST_F(TranslationUnits, Add)
@@ -502,6 +514,20 @@ void TranslationUnits::SetUp()
         mockSendDocumentAnnotationsCallback.sendDocumentAnnotations();
     };
     translationUnits.setSendDocumentAnnotationsCallback(callback);
+}
+
+void TranslationUnits::createDirtyTranslationUnitAndDeleteFile()
+{
+    QTemporaryFile temporaryFile(QLatin1String("XXXXXX.cpp"));
+    EXPECT_TRUE(temporaryFile.open());
+    const QString temporaryFilePath = Utf8String::fromString(temporaryFile.fileName());
+
+    ClangBackEnd::FileContainer fileContainer(temporaryFilePath,
+                                              projectPartId, Utf8String(), true);
+    translationUnits.create({fileContainer});
+    auto translationUnit = translationUnits.translationUnit(fileContainer);
+    translationUnit.setIsUsedByCurrentEditor(true);
+    translationUnit.setDirtyIfDependencyIsMet(translationUnit.filePath());
 }
 
 void TranslationUnits::sendAllDocumentAnnotations()

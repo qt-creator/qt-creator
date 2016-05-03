@@ -13,6 +13,8 @@ QtcPlugin {
     Depends { name: "ProjectExplorer" }
     Depends { name: "TextEditor" }
 
+    cpp.enableExceptions: true
+
     Group {
         name: "General"
         files: [

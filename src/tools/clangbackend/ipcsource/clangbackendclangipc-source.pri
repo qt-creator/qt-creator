@@ -12,6 +12,7 @@ HEADERS += $$PWD/clangipcserver.h \
     $$PWD/projects.h \
     $$PWD/translationunits.h \
     $$PWD/translationunitparseerrorexception.h \
+    $$PWD/translationunitreparseerrorexception.h \
     $$PWD/projectpart.h \
     $$PWD/translationunitfilenotexitexception.h \
     $$PWD/translationunitdoesnotexistexception.h \
@@ -46,6 +47,7 @@ SOURCES += $$PWD/clangipcserver.cpp \
     $$PWD/projects.cpp \
     $$PWD/translationunits.cpp \
     $$PWD/translationunitparseerrorexception.cpp \
+    $$PWD/translationunitreparseerrorexception.cpp \
     $$PWD/projectpart.cpp \
     $$PWD/translationunitfilenotexitexception.cpp \
     $$PWD/translationunitdoesnotexistexception.cpp \

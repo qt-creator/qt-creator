@@ -10,6 +10,7 @@ QtcPlugin {
     Depends { name: "Core" }
 
     cpp.includePaths: base.concat([path]) // Needed for the highlighterengine autotest.
+    cpp.enableExceptions: true
 
     files: [
         "autocompleter.cpp",

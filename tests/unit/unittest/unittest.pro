@@ -20,7 +20,7 @@ DEFINES += \
     UNIT_TESTS \
     DONT_CHECK_MESSAGE_COUNTER \
     TESTDATA_DIR=\"R\\\"xxx($$PWD/data)xxx\\\"\"
-win32-msvc*:QMAKE_CXXFLAGS_WARN_ON -= -w34100 # 'unreferenced formal parameter' in MATCHER_* functions
+msvc: QMAKE_CXXFLAGS_WARN_ON -= -w34100 # 'unreferenced formal parameter' in MATCHER_* functions
 win32:DEFINES += ECHOSERVER=\"R\\\"xxx($$OUT_PWD/../echo)xxx\\\"\"
 unix: DEFINES += ECHOSERVER=\"R\\\"xxx($$OUT_PWD/../echoserver/echo)xxx\\\"\"
 

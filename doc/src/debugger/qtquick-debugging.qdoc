@@ -186,9 +186,8 @@
 
     \image qml-observer-view.png "QML item tree"
 
-    To keep the application visible while you interact with the debugger, click
-    \inlineimage qml-inspector-app-on-top.png
-    (\uicontrol {Show Application on Top}).
+    To keep the application visible while you interact with the debugger, select
+    \uicontrol Debug > \uicontrol {Show Application on Top}.
 
     You can view a QML item in \uicontrol {Locals and Expressions} in the following
     ways:
@@ -199,10 +198,8 @@
 
         \li Select the item in the code editor.
 
-        \li Click
-            \inlineimage qml-inspector-select-button.png
-            (\uicontrol Select) to activate selection mode and then click an item
-            in the running application.
+        \li Select \uicontrol Debug > \uicontrol Select to activate selection
+            mode and then click an item in the running application.
 
     \endlist
 
@@ -215,7 +212,7 @@
     When you debug complex applications, you can jump to the position in code
     where an item is defined or you can zoom into the user interface.
 
-    When the \uicontrol Select tool is enabled, you can click items in the running
+    In the selection mode, you can click items in the running
     application to jump to their definitions in the code. The properties of the
     selected item are displayed in the \uicontrol {Locals and Expressions} view.
 
@@ -238,14 +235,9 @@
 
     \endlist
 
-    To switch to the zoom mode, click the \uicontrol Zoom button. Click in the
-    running application to zoom in. Right-click to open a context menu that
-    contains zoom controls.
+    To switch out of the selection mode, toggle the \uicontrol Select menu item.
 
-    To switch out of the selection or zoom mode, deselect the \uicontrol Select or
-    \uicontrol Zoom button.
-
-    To move the application running in \QQV to the front, select the
-    \uicontrol {Show Application on Top} button.
+    To move the application running in \QQV to the front, select
+    \uicontrol Debug > \uicontrol {Show Application on Top}.
 
 */

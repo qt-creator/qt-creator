@@ -39,6 +39,7 @@
 #include "translationunitfilenotexitexception.h"
 #include "translationunitisnullexception.h"
 #include "translationunitparseerrorexception.h"
+#include "translationunitreparseerrorexception.h"
 #include "translationunits.h"
 #include "unsavedfiles.h"
 
@@ -76,6 +77,8 @@ public:
     Utf8StringVector fileArguments;
     Utf8String filePath;
     CXTranslationUnit translationUnit = nullptr;
+    CXErrorCode parseErrorCode = CXError_Success;
+    int reparseErrorCode = 0;
     CXIndex index = nullptr;
     uint documentRevision = 0;
     bool needsToBeReparsed = false;
@@ -153,6 +156,16 @@ void TranslationUnit::reparse() const
     cxTranslationUnit();
 
     reparseTranslationUnit();
+}
+
+bool TranslationUnit::parseWasSuccessful() const
+{
+    return d->parseErrorCode == CXError_Success;
+}
+
+bool TranslationUnit::reparseWasSuccessful() const
+{
+    return d->reparseErrorCode == 0;
 }
 
 CXIndex TranslationUnit::index() const
@@ -350,7 +363,7 @@ void TranslationUnit::checkIfNull() const
 
 void TranslationUnit::checkIfFileExists() const
 {
-    if (!QFileInfo::exists(d->filePath.toString()))
+    if (!fileExists())
         throw TranslationUnitFileNotExitsException(d->filePath);
 }
 
@@ -396,16 +409,16 @@ void TranslationUnit::createTranslationUnitIfNeeded() const
         if (isVerboseModeEnabled())
             args.print();
 
-        CXErrorCode errorCode = clang_parseTranslationUnit2(index(),
-                                                            NULL,
-                                                            args.data(),
-                                                            args.count(),
-                                                            unsavedFiles().cxUnsavedFiles(),
-                                                            unsavedFiles().count(),
-                                                            defaultOptions(),
-                                                            &d->translationUnit);
+        d->parseErrorCode = clang_parseTranslationUnit2(index(),
+                                                        NULL,
+                                                        args.data(),
+                                                        args.count(),
+                                                        unsavedFiles().cxUnsavedFiles(),
+                                                        unsavedFiles().count(),
+                                                        defaultOptions(),
+                                                        &d->translationUnit);
 
-        checkTranslationUnitErrorCode(errorCode);
+        checkParseErrorCode();
 
         updateIncludeFilePaths();
 
@@ -413,22 +426,33 @@ void TranslationUnit::createTranslationUnitIfNeeded() const
     }
 }
 
-void TranslationUnit::checkTranslationUnitErrorCode(CXErrorCode errorCode) const
+void TranslationUnit::checkParseErrorCode() const
 {
-    switch (errorCode) {
-        case CXError_Success: break;
-        default: throw TranslationUnitParseErrorException(d->filePath,
-                                                          d->projectPart.projectPartId(),
-                                                          errorCode);
+    if (!parseWasSuccessful()) {
+        throw TranslationUnitParseErrorException(d->filePath,
+                                                 d->projectPart.projectPartId(),
+                                                 d->parseErrorCode);
+    }
+}
+
+void TranslationUnit::checkReparseErrorCode() const
+{
+    if (!reparseWasSuccessful()) {
+        throw TranslationUnitReparseErrorException(d->filePath,
+                                                   d->projectPart.projectPartId(),
+                                                   d->reparseErrorCode);
     }
 }
 
 void TranslationUnit::reparseTranslationUnit() const
 {
-    clang_reparseTranslationUnit(d->translationUnit,
-                                 unsavedFiles().count(),
-                                 unsavedFiles().cxUnsavedFiles(),
-                                 clang_defaultReparseOptions(d->translationUnit));
+    d->reparseErrorCode = clang_reparseTranslationUnit(
+                                    d->translationUnit,
+                                    unsavedFiles().count(),
+                                    unsavedFiles().cxUnsavedFiles(),
+                                    clang_defaultReparseOptions(d->translationUnit));
+
+    checkReparseErrorCode();
 
     updateIncludeFilePaths();
 
@@ -472,6 +496,19 @@ void TranslationUnit::updateIncludeFilePaths() const
         d->dependedFilePaths = oldDependedFilePaths;
 
     d->translationUnits.addWatchedFiles(d->dependedFilePaths);
+}
+
+bool TranslationUnit::fileExists() const
+{
+    return QFileInfo::exists(d->filePath.toString());
+}
+
+bool TranslationUnit::isIntact() const
+{
+    return !isNull()
+        && fileExists()
+        && parseWasSuccessful()
+        && reparseWasSuccessful();
 }
 
 CommandLineArguments TranslationUnit::commandLineArguments() const

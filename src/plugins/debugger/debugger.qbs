@@ -29,6 +29,7 @@ QtcPlugin {
     ]
 
     cpp.includePaths: base.concat([project.sharedSourcesDir + "/registryaccess"])
+    cpp.enableExceptions: true
 
     pluginRecommends: [
         "CppEditor"
@@ -241,25 +242,25 @@ QtcPlugin {
 
     Group {
         name: "Analyzer"
-
+        prefix: "analyzer/"
         files: [
-            "analyzer/analyzerbase.qrc",
-            "analyzer/analyzerconstants.h",
-            "analyzer/analyzericons.h",
-            "analyzer/analyzermanager.h",
-            "analyzer/analyzerrunconfigwidget.cpp",
-            "analyzer/analyzerrunconfigwidget.h",
-            "analyzer/analyzerruncontrol.cpp",
-            "analyzer/analyzerruncontrol.h",
-            "analyzer/analyzerstartparameters.h",
-            "analyzer/analyzerutils.cpp",
-            "analyzer/analyzerutils.h",
-            "analyzer/detailederrorview.cpp",
-            "analyzer/detailederrorview.h",
-            "analyzer/diagnosticlocation.cpp",
-            "analyzer/diagnosticlocation.h",
-            "analyzer/startremotedialog.cpp",
-            "analyzer/startremotedialog.h",
+            "analyzerbase.qrc",
+            "analyzerconstants.h",
+            "analyzericons.h",
+            "analyzermanager.h",
+            "analyzerrunconfigwidget.cpp",
+            "analyzerrunconfigwidget.h",
+            "analyzerruncontrol.cpp",
+            "analyzerruncontrol.h",
+            "analyzerstartparameters.h",
+            "analyzerutils.cpp",
+            "analyzerutils.h",
+            "detailederrorview.cpp",
+            "detailederrorview.h",
+            "diagnosticlocation.cpp",
+            "diagnosticlocation.h",
+            "startremotedialog.cpp",
+            "startremotedialog.h",
         ]
     }
 

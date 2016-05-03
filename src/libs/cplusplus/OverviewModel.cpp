@@ -140,6 +140,9 @@ int OverviewModel::columnCount(const QModelIndex &) const
 
 QVariant OverviewModel::data(const QModelIndex &index, int role) const
 {
+    if (!index.isValid())
+        return QVariant();
+
     // account for no symbol item
     if (!index.parent().isValid() && index.row() == 0) {
         switch (role) {
@@ -243,7 +246,9 @@ void OverviewModel::rebuild(Document::Ptr doc)
 
 Qt::ItemFlags OverviewModel::flags(const QModelIndex &index) const
 {
-    Q_UNUSED(index)
+    if (!index.isValid())
+        return 0;
+
     return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsDragEnabled;
 }
 

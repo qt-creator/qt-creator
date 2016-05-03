@@ -351,6 +351,8 @@ static DebuggerRunControl *doCreate(DebuggerRunParameters rp, RunConfiguration *
     }
 
     rp.macroExpander = kit->macroExpander();
+    if (rp.symbolFile.isEmpty())
+        rp.symbolFile = rp.inferior.executable;
 
     if (runConfig) {
         if (auto envAspect = runConfig->extraAspect<EnvironmentAspect>()) {

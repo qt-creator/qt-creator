@@ -63,6 +63,7 @@ bool TestVisitor::visit(CPlusPlus::Class *symbol)
 {
     const CPlusPlus::Overview o;
     CPlusPlus::LookupContext lc;
+    const CPlusPlus::Snapshot snapshot = CppTools::CppModelManager::instance()->snapshot();
 
     unsigned count = symbol->memberCount();
     for (unsigned i = 0; i < count; ++i) {
@@ -81,7 +82,7 @@ bool TestVisitor::visit(CPlusPlus::Class *symbol)
                 TestCodeLocationAndType locationAndType;
 
                 CPlusPlus::Function *functionDefinition = m_symbolFinder.findMatchingDefinition(
-                            func, CppTools::CppModelManager::instance()->snapshot(), true);
+                            func, snapshot, true);
                 if (functionDefinition && functionDefinition->fileId()) {
                     locationAndType.m_name = QString::fromUtf8(functionDefinition->fileName());
                     locationAndType.m_line = functionDefinition->line();
@@ -203,6 +204,26 @@ bool TestDataFunctionVisitor::visit(CPlusPlus::FunctionDefinitionAST *ast)
     return false;
 }
 
+QString TestDataFunctionVisitor::extractNameFromAST(CPlusPlus::StringLiteralAST *ast, bool *ok) const
+{
+    auto token = m_currentDoc->translationUnit()->tokenAt(ast->literal_token);
+    if (!token.isStringLiteral()) {
+        *ok = false;
+        return QString();
+    }
+    *ok = true;
+    QString name = QString::fromUtf8(token.spell());
+    if (ast->next) {
+        CPlusPlus::StringLiteralAST *current = ast;
+        do {
+            auto nextToken = m_currentDoc->translationUnit()->tokenAt(current->next->literal_token);
+            name.append(QString::fromUtf8(nextToken.spell()));
+            current = current->next;
+        } while (current->next);
+    }
+    return name;
+}
+
 bool TestDataFunctionVisitor::visit(CPlusPlus::CallAST *ast)
 {
     if (m_currentFunction.isEmpty())
@@ -214,15 +235,15 @@ bool TestDataFunctionVisitor::visit(CPlusPlus::CallAST *ast)
             // first argument is the one we need
             if (const auto argumentExpressionAST = expressionListAST->value) {
                 if (const auto stringLiteral = argumentExpressionAST->asStringLiteral()) {
-                    auto token = m_currentDoc->translationUnit()->tokenAt(
-                                stringLiteral->literal_token);
-                    if (token.isStringLiteral()) {
+                    bool ok = false;
+                    QString name = extractNameFromAST(stringLiteral, &ok);
+                    if (ok) {
                         unsigned line = 0;
                         unsigned column = 0;
                         m_currentDoc->translationUnit()->getTokenStartPosition(
                                     firstToken, &line, &column);
                         TestCodeLocationAndType locationAndType;
-                        locationAndType.m_name = QString::fromUtf8(token.spell());
+                        locationAndType.m_name = name;
                         locationAndType.m_column = column - 1;
                         locationAndType.m_line = line;
                         locationAndType.m_type = TestTreeItem::TestDataTag;

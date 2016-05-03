@@ -917,7 +917,7 @@ QString AndroidConfig::getAvdName(const QString &serialnumber)
     if (!ok)
         return QString();
 
-    QByteArray avdName = "avd name\n";
+    const QByteArray avdName = "avd name\n";
 
     QTcpSocket tcpSocket;
     tcpSocket.connectToHost(QHostAddress(QHostAddress::LocalHost), port);
@@ -925,16 +925,15 @@ QString AndroidConfig::getAvdName(const QString &serialnumber)
     tcpSocket.write(avdName + "exit\n");
     tcpSocket.waitForDisconnected();
 
-    QByteArray response = tcpSocket.readAll();
-    int start = response.indexOf("OK\r\n");
-    if (start == -1)
-        return QString();
-    start = start + 4;
-
-    int end = response.indexOf("\r\n", start);
-    if (end == -1)
-        return QString();
-    return QString::fromLatin1(response.mid(start, end - start));
+    QByteArray name;
+    const QByteArrayList response = tcpSocket.readAll().split('\n');
+    // The input "avd name" might not be echoed as-is, but contain ASCII
+    // control sequences.
+    for (int i = response.size() - 1; i > 1; --i) {
+        if (response.at(i).startsWith("OK"))
+            name = response.at(i - 1);
+    }
+    return QString::fromLatin1(name).trimmed();
 }
 
 AndroidConfig::OpenGl AndroidConfig::getOpenGLEnabled(const QString &emulator) const
@@ -1288,6 +1287,7 @@ void AndroidConfigurations::updateAutomaticKitList()
             debugger.setUnexpandedDisplayName(tr("Android Debugger for %1").arg(tc->displayName()));
             debugger.setAutoDetected(true);
             debugger.setAbi(tc->targetAbi());
+            debugger.reinitializeFromFile();
             QVariant id = Debugger::DebuggerItemManager::registerDebugger(debugger);
             Debugger::DebuggerKitInformation::setDebugger(k, id);
         }
@@ -1334,6 +1334,7 @@ void AndroidConfigurations::updateAutomaticKitList()
             debugger.setUnexpandedDisplayName(tr("Android Debugger for %1").arg(tc->displayName()));
             debugger.setAutoDetected(true);
             debugger.setAbi(tc->targetAbi());
+            debugger.reinitializeFromFile();
             QVariant id = Debugger::DebuggerItemManager::registerDebugger(debugger);
             Debugger::DebuggerKitInformation::setDebugger(newKit, id);
 

@@ -4,7 +4,7 @@ QTC_LIB_DEPENDS += utils
 
 include(../qttest.pri)
 
-win32-msvc* {
+msvc {
     LIBS *= -L$$IDE_PLUGIN_PATH
     DEFINES += Q_PLUGIN_PATH=\"\\\"$$IDE_PLUGIN_PATH\\\"\"
 
