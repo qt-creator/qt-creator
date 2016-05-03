@@ -52,6 +52,15 @@
     diagnostics from it, select \uicontrol {Clang Static Analyzer} in
     the \uicontrol Projects mode.
 
+    \section1 Supported Project Types and Tool Chains
+
+    The Clang Static Analyzer relies on the data (specific macros and include
+    directories) from the projects and tool chains. Not all projects
+    and tool chains can provide enough data for reasonable results.
+
+    Currently, only Qbs and qmake projects together with the GCC, MinGW, Clang
+    and Microsoft Visual Studio tool chains are supported.
+
     \section1 Setting Up Clang Static Analyzer
 
     As a tested version of Clang is shipped together with Qt Creator, no manual
