@@ -588,7 +588,7 @@ static bool handleGTest(QFutureInterface<TestParseResultPtr> futureInterface, co
     GTestVisitor visitor(document);
     visitor.accept(ast);
 
-    QMap<GTestCaseSpec, TestCodeLocationList> result = visitor.gtestFunctions();
+    QMap<GTestCaseSpec, GTestCodeLocationList> result = visitor.gtestFunctions();
     QString proFile;
     const CppTools::CppModelManager *cppMM = CppTools::CppModelManager::instance();
     QList<CppTools::ProjectPart::Ptr> ppList = cppMM->projectPart(filePath);
@@ -605,7 +605,7 @@ static bool handleGTest(QFutureInterface<TestParseResultPtr> futureInterface, co
         parseResult->disabled = testSpec.disabled;
         parseResult->proFile = proFile;
 
-        foreach (const TestCodeLocationAndType &location, result.value(testSpec)) {
+        foreach (const GTestCodeLocationAndType &location, result.value(testSpec)) {
             GoogleTestParseResult *testSet = new GoogleTestParseResult;
             testSet->name = location.m_name;
             testSet->fileName = filePath;

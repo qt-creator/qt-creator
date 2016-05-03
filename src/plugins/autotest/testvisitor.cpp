@@ -405,7 +405,7 @@ bool GTestVisitor::visit(CPlusPlus::FunctionDefinitionAST *ast)
         unsigned token = id->firstToken();
         m_document->translationUnit()->getTokenStartPosition(token, &line, &column);
 
-        TestCodeLocationAndType locationAndType;
+        GTestCodeLocationAndType locationAndType;
         locationAndType.m_name = testName;
         locationAndType.m_line = line;
         locationAndType.m_column = column - 1;

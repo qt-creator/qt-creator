@@ -155,12 +155,12 @@ public:
     GTestVisitor(CPlusPlus::Document::Ptr doc);
     bool visit(CPlusPlus::FunctionDefinitionAST *ast);
 
-    QMap<GTestCaseSpec, TestCodeLocationList> gtestFunctions() const { return m_gtestFunctions; }
+    QMap<GTestCaseSpec, GTestCodeLocationList> gtestFunctions() const { return m_gtestFunctions; }
 
 private:
     CPlusPlus::Document::Ptr m_document;
     CPlusPlus::Overview m_overview;
-    QMap<GTestCaseSpec, TestCodeLocationList> m_gtestFunctions;
+    QMap<GTestCaseSpec, GTestCodeLocationList> m_gtestFunctions;
 
 };
 

@@ -43,7 +43,6 @@ namespace {
 namespace Autotest {
 namespace Internal {
 
-struct TestCodeLocationAndType;
 class AutoTestTreeItem;
 class QuickTestTreeItem;
 class GoogleTestTreeItem;
@@ -138,8 +137,6 @@ private:
     Status m_status;
 };
 
-typedef QVector<TestCodeLocationAndType> TestCodeLocationList;
-
 class AutoTestTreeItem : public TestTreeItem
 {
 public:
@@ -213,13 +210,23 @@ private:
     GoogleTestTreeItem::TestStates m_state;
 };
 
-struct TestCodeLocationAndType {
+class TestCodeLocationAndType
+{
+public:
     QString m_name;     // tag name for m_type == TEST_DATATAG, file name for other values
     unsigned m_line;
     unsigned m_column;
     TestTreeItem::Type m_type;
+};
+
+class GTestCodeLocationAndType : public TestCodeLocationAndType
+{
+public:
     GoogleTestTreeItem::TestStates m_state;
 };
+
+typedef QVector<TestCodeLocationAndType> TestCodeLocationList;
+typedef QVector<GTestCodeLocationAndType> GTestCodeLocationList;
 
 struct GTestCaseSpec
 {
