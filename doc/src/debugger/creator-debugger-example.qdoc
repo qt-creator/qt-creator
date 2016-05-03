@@ -109,12 +109,9 @@
     work correctly due to a logic error. To locate this logic error, step
     through the code using the following buttons:
     \inlineimage qtcreator-debug-button-stop.png
-    (\uicontrol Stop),
-    \inlineimage qtcreator-debug-button-step-over.png
-    (\uicontrol {Step Over}),
-    \inlineimage qtcreator-debug-button-step-into.png
-    (\uicontrol {Step Into}),
-    and \inlineimage qtcreator-debug-button-step-out.png
+    (\uicontrol {Stop Debugger}), \inlineimage debugger_stepover_small.png
+    (\uicontrol {Step Over}), \inlineimage debugger_stepinto_small.png
+    (\uicontrol {Step Into}), and \inlineimage debugger_stepout_small.png
     (\uicontrol {Step Out}).
 
 */

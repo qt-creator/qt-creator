@@ -109,7 +109,7 @@
                 size.
 
             \li In the \uicontrol Color field, click the
-                \inlineimage qmldesigner-transparent-button.png
+                \inlineimage button_color_none_normal.png
                 (\uicontrol Transparent) button to make the rectangle
                 transparent.
 
@@ -131,7 +131,7 @@
             \uicontrol Library to \e topLeftRect in the navigator.
 
         \li Click \uicontrol {Layout}, and then click the
-            \inlineimage qmldesigner-anchor-fill-screen.png
+            \inlineimage anchor-fill-normal.png
             (\uicontrol {Fill to Parent}) button to anchor the mouse area to the
             rectangle.
 
@@ -170,7 +170,7 @@
         \endlist
 
         \li In the \uicontrol Navigator, select the
-            \inlineimage qmldesigner-export-item-button.png
+            \inlineimage export_unchecked.png
             (\uicontrol Export) button for each type to export all types as
             properties. This enables you to use the properties in the
             \e main.qml file.
@@ -270,7 +270,7 @@
         \list a
 
             \li Click \uicontrol NumberAnimation in the code editor to display the
-                \inlineimage qml-toolbar-indicator.png
+                \inlineimage refactormarker.png
                 icon, and then click the icon to open the toolbar:
 
                 \image qmldesigner-tutorial-quick-toolbar.png "Qt Quick toolbar for animation"

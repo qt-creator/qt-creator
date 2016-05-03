@@ -72,7 +72,7 @@
             CPU Usage Analyzer.
 
             \note If data collection does not start automatically, select the
-            \inlineimage qtcreator-analyzer-button.png
+            \inlineimage recordfill.png
             (\uicontrol {Collect profile data}) button.
 
     \endlist

@@ -113,9 +113,9 @@
     you remove an item, the child items are also removed.
 
     You can show and hide items to focus on specific parts of the application.
-    Click the
-    \inlineimage qmldesigner-show-hide-icon.png
-    icon to change the visibility of an item on the canvas. To change the
+    Click the \inlineimage button_color_none_normal.png
+    (\uicontrol Transparent) button to change the visibility of an item on the
+    canvas. To change the
     visibility of an item in the application, select the \uicontrol Visibility
     check box in the \uicontrol Properties pane or select \uicontrol Edit >
     \uicontrol Visibility in the context menu.
@@ -133,8 +133,8 @@
     To view lists of files or projects, instead, select \uicontrol {File System},
     \uicontrol {Open Documents}, or \uicontrol Projects in the menu.
     To view several types of content at a time, split the sidebar by clicking
-    \inlineimage qtcreator-splitbar.png
-    .
+    the \inlineimage splitbutton_horizontal.png
+    (\uicontrol Split) button.
 
     \section2 Setting the Stacking Order
 
@@ -445,11 +445,10 @@
     \section2 Snapping to Parent and Sibling Items
 
     When you are working on a design, you can use snapping to align
-    items on the canvas. Click the
-    \inlineimage qmldesigner-snap-to-guides-button.png
+    items on the canvas. Click the \inlineimage snapping.png
     button to have the items snap to their parent or sibling items. Snapping
     lines automatically appear to help you position the items.
-    Click the \inlineimage qmldesigner-snap-to-anchors-button.png
+    Click the \inlineimage snapping_and_anchoring.png
     button to anchor the item to the items that you snap to.
 
     Choose \uicontrol {Tools > Options > Qt Quick > Qt Quick Designer} to specify
@@ -466,8 +465,7 @@
     \section2 Hiding Item Boundaries
 
     \QMLD displays the boundaries of items on the canvas. To hide
-    the boundaries, click the
-    \inlineimage qmldesigner-show-bounding-rectangles-button.png
+    the boundaries, click the \inlineimage boundingrect.png
     button.
 
     \section2 Selecting Items
@@ -511,8 +509,8 @@
     the position of an item within a column or a row, the new position might
     not be displayed correctly on the canvas.
 
-    To refresh the image on the canvas, press \key R or select
+    To refresh the image on the canvas, press \key R or select the
     \inlineimage qmldesigner-reset-view.png
-    (\uicontrol {Reset View}).
+    (\uicontrol {Reset View}) button.
 
 */

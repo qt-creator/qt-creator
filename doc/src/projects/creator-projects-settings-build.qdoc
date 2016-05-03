@@ -104,8 +104,7 @@
 
     You can use \QC variables in arguments, executable paths, and working
     directories. The variables take care of quoting their expansions, so you do
-    not need to put them in quotes. Select the
-    \inlineimage qtcreator-variables-button.png
+    not need to put them in quotes. Select the \inlineimage replace.png
     (\uicontrol {Variables}) button in a field to select from a list of variables that
     are available in a particular context.
 
@@ -143,7 +142,7 @@
     Custom Process Step}.
 
     By default, custom steps are enabled. To disable a custom step, select
-    the \inlineimage qtcreator-disable-steps.png
+    the \inlineimage buildstepdisable.png
     (\uicontrol Disable) button.
 
     \image qtcreator-build-steps-custom.png "Custom Process Step"
@@ -174,9 +173,9 @@
 
         \li To remove a clean step, click \uicontrol{Remove Item}.
 
-        \li To change the order of steps, click
-            \inlineimage qtcreator-movestep.png
-            (\uicontrol {Move Up} and \uicontrol {Move Down}).
+        \li To change the order of steps, click \inlineimage arrowup.png
+            (\uicontrol {Move Up}) and \inlineimage arrowdown.png
+            (\uicontrol {Move Down}).
     \endlist
 
     \note For more information about the cleaning steps when using Qbs, see

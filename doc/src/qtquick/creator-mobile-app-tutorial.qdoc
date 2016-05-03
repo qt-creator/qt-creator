@@ -98,7 +98,7 @@
                     to reference the rectangle from other places.
 
                 \li Select the \uicontrol Layout tab, and then click
-                    the \inlineimage qmldesigner-anchor-fill-screen.png
+                    the \inlineimage anchor-fill-normal.png
                     (\uicontrol {Fill to Parent}) button to anchor the rectangle
                     to the item.
 
@@ -110,7 +110,7 @@
         \li In the \uicontrol Properties pane, \uicontrol Id field, enter
             \e bubble to be able to reference the image from other places.
 
-        \li Select the \inlineimage qmldesigner-export-item-button.png
+        \li Select the \inlineimage export_unchecked.png
             (\uicontrol Export) button in the navigator to export the
             \e mainWindow and \e bubble as properties.
 

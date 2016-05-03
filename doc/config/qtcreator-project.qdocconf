@@ -4,7 +4,21 @@ url         = http://doc.qt.io/qtcreator
 
 headerdirs =
 sourcedirs = $SRCDIR/src
-imagedirs = $SRCDIR/images $SRCDIR/templates/images
+imagedirs = $SRCDIR/images \
+            $SRCDIR/templates/images \
+            $SRCDIR/../src/libs/qmleditorwidgets/images \
+            $SRCDIR/../src/plugins/android/images \
+            $SRCDIR/../src/plugins/autotest/images \
+            $SRCDIR/../src/plugins/classview/images \
+            $SRCDIR/../src/plugins/coreplugin/images \
+            $SRCDIR/../src/plugins/debugger/images \
+            $SRCDIR/../src/plugins/diffeditor/images \
+            $SRCDIR/../src/plugins/help/images \
+            $SRCDIR/../src/plugins/projectexplorer/images \
+            $SRCDIR/../src/plugins/qmldesigner/components/formeditor \
+            $SRCDIR/../src/plugins/qmldesigner/components/navigator \
+            $SRCDIR/../src/plugins/texteditor/images
+
 outputdir = $OUTDIR
 exampledirs = $SRCDIR/examples
 examples.fileextensions += *.qml *.svg

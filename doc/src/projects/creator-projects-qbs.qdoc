@@ -162,7 +162,7 @@
         \li Select \uicontrol Build > \uicontrol {Build Project} to build the application.
 
         \li Click the
-            \inlineimage qtcreator-run.png
+            \inlineimage run_small.png
             (\uicontrol Run) button to deploy and run the application.
         \endlist
 
