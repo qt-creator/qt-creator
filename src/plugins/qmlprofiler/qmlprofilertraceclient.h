@@ -36,7 +36,7 @@
 
 namespace QmlProfiler {
 
-class QMLDEBUG_EXPORT QmlProfilerTraceClient : public QmlDebug::QmlDebugClient
+class QmlProfilerTraceClient : public QmlDebug::QmlDebugClient
 {
     Q_OBJECT
     Q_PROPERTY(bool recording READ isRecording WRITE setRecording NOTIFY recordingChanged)
