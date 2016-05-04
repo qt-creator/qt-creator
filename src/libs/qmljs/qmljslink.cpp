@@ -378,7 +378,7 @@ Import LinkPrivate::importNonFile(Document::Ptr doc, const ImportInfo &importInf
     const ComponentVersion version = importInfo.version();
 
     QString libraryPath = modulePath(packageName, version.toString(), importPaths);
-    bool importFound = importLibrary(doc, libraryPath, &import);
+    bool importFound = !libraryPath.isEmpty() && importLibrary(doc, libraryPath, &import);
 
     // if there are cpp-based types for this package, use them too
     if (valueOwner->cppQmlTypes().hasModule(packageName)) {

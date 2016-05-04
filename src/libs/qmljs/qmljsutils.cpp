@@ -232,6 +232,8 @@ QString QmlJS::modulePath(const QString &name, const QString &version,
                           const QStringList &importPaths)
 {
     Q_ASSERT(maybeModuleVersion(version));
+    if (importPaths.isEmpty())
+        return QString();
 
     const QStringList parts = name.split(QLatin1Char('.'), QString::SkipEmptyParts);
     auto mkpath = [] (const QStringList &xs) -> QString { return xs.join(QLatin1Char('/')); };
