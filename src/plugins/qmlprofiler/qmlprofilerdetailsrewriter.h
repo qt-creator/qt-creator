@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include "qmlprofilereventlocation.h"
+#include "qmleventlocation.h"
 
 #include <qmljs/qmljsdocument.h>
 #include <utils/fileinprojectfinder.h>

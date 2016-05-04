@@ -27,7 +27,7 @@
 
 #include "qmlprofilermodelmanager.h"
 #include "qmlprofilereventtypes.h"
-#include "qmlprofilereventlocation.h"
+#include "qmleventlocation.h"
 #include "qmleventtype.h"
 #include "qmlevent.h"
 

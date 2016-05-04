@@ -27,7 +27,7 @@
 
 #include "qmlprofiler_global.h"
 #include "qmlprofilereventtypes.h"
-#include "qmlprofilereventlocation.h"
+#include "qmleventlocation.h"
 
 #include <utils/fileinprojectfinder.h>
 

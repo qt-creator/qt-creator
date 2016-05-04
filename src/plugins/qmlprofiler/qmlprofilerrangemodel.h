@@ -28,7 +28,7 @@
 #include "qmlprofilertimelinemodel.h"
 #include "qmlprofilerdatamodel.h"
 #include "qmlprofilereventtypes.h"
-#include "qmlprofilereventlocation.h"
+#include "qmleventlocation.h"
 #include "qmlprofilerconstants.h"
 
 #include <QVariantList>

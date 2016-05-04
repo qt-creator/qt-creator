@@ -52,6 +52,7 @@ HEADERS += \
     memoryusagemodel.h \
     pixmapcachemodel.h \
     qmlevent.h \
+    qmleventlocation.h \
     qmleventtype.h \
     qmlnote.h \
     qmlprofiler_global.h \
@@ -63,7 +64,6 @@ HEADERS += \
     qmlprofilerconstants.h \
     qmlprofilerdatamodel.h \
     qmlprofilerdetailsrewriter.h \
-    qmlprofilereventlocation.h \
     qmlprofilereventsview.h \
     qmlprofilereventtypes.h \
     qmlprofilermodelmanager.h \

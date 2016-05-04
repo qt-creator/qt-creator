@@ -24,7 +24,7 @@
 ****************************************************************************/
 #pragma once
 
-#include "qmlprofilereventlocation.h"
+#include "qmleventlocation.h"
 #include "qmlprofilereventtypes.h"
 #include <QString>
 #include <QMetaType>
