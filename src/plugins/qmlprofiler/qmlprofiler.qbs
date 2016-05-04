@@ -27,7 +27,7 @@ QtcPlugin {
             "localqmlprofilerrunner.cpp", "localqmlprofilerrunner.h",
             "memoryusagemodel.cpp", "memoryusagemodel.h",
             "pixmapcachemodel.cpp", "pixmapcachemodel.h",
-            "qmlevent.h",
+            "qmlevent.cpp", "qmlevent.h",
             "qmleventlocation.cpp", "qmleventlocation.h",
             "qmleventtype.cpp", "qmleventtype.h",
             "qmlnote.cpp", "qmlnote.h",

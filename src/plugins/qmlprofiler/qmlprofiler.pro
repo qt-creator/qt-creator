@@ -13,6 +13,7 @@ SOURCES += \
     localqmlprofilerrunner.cpp \
     memoryusagemodel.cpp \
     pixmapcachemodel.cpp \
+    qmlevent.cpp \
     qmleventlocation.cpp \
     qmleventtype.cpp \
     qmlnote.cpp \

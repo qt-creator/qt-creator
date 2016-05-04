@@ -292,7 +292,13 @@ private:
         if (m_dataType & External)
             free(m_data.external);
     }
+
+    friend QDataStream &operator>>(QDataStream &stream, QmlEvent &event);
+    friend QDataStream &operator<<(QDataStream &stream, const QmlEvent &event);
 };
+
+QDataStream &operator>>(QDataStream &stream, QmlEvent &event);
+QDataStream &operator<<(QDataStream &stream, const QmlEvent &event);
 
 } // namespace QmlProfiler
 
