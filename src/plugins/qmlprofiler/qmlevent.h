@@ -37,33 +37,31 @@
 namespace QmlProfiler {
 
 struct QmlEvent {
-    QmlEvent() : m_timestamp(-1), m_duration(0), m_typeIndex(-1), m_dataType(Inline8Bit),
-        m_dataLength(0) {}
+    QmlEvent() : m_timestamp(-1), m_typeIndex(-1), m_dataType(Inline8Bit), m_dataLength(0) {}
 
     template<typename Number>
-    QmlEvent(qint64 timestamp, qint64 duration, int typeIndex, std::initializer_list<Number> list)
-        : m_timestamp(timestamp), m_duration(duration), m_typeIndex(typeIndex)
+    QmlEvent(qint64 timestamp, int typeIndex, std::initializer_list<Number> list)
+        : m_timestamp(timestamp), m_typeIndex(typeIndex)
     {
         assignNumbers<std::initializer_list<Number>, Number>(list);
     }
 
-    QmlEvent(qint64 timestamp, qint64 duration, int typeIndex, const QString &data)
-        : m_timestamp(timestamp), m_duration(duration), m_typeIndex(typeIndex)
+    QmlEvent(qint64 timestamp, int typeIndex, const QString &data)
+        : m_timestamp(timestamp), m_typeIndex(typeIndex)
     {
         assignNumbers<QByteArray, qint8>(data.toUtf8());
     }
 
     template<typename Number>
-    QmlEvent(qint64 timestamp, qint64 duration, int typeIndex, const QVector<Number> &data)
-        : m_timestamp(timestamp), m_duration(duration), m_typeIndex(typeIndex)
+    QmlEvent(qint64 timestamp, int typeIndex, const QVector<Number> &data)
+        : m_timestamp(timestamp), m_typeIndex(typeIndex)
     {
         assignNumbers<QVector<Number>, Number>(data);
     }
 
     QmlEvent(const QmlEvent &other)
-        : m_timestamp(other.m_timestamp), m_duration(other.m_duration),
-          m_typeIndex(other.m_typeIndex), m_dataType(other.m_dataType),
-          m_dataLength(other.m_dataLength)
+        : m_timestamp(other.m_timestamp), m_typeIndex(other.m_typeIndex),
+          m_dataType(other.m_dataType), m_dataLength(other.m_dataLength)
     {
         assignData(other);
     }
@@ -73,7 +71,6 @@ struct QmlEvent {
         if (this != &other) {
             clearPointer();
             m_timestamp = other.m_timestamp;
-            m_duration = other.m_duration;
             m_typeIndex = other.m_typeIndex;
             m_dataType = other.m_dataType;
             m_dataLength = other.m_dataLength;
@@ -89,9 +86,6 @@ struct QmlEvent {
 
     qint64 timestamp() const { return m_timestamp; }
     void setTimestamp(qint64 timestamp) { m_timestamp = timestamp; }
-
-    qint64 duration() const { return m_duration; }
-    void setDuration(qint64 duration) { m_duration = duration; }
 
     int typeIndex() const { return m_typeIndex; }
     void setTypeIndex(int typeIndex) { m_typeIndex = typeIndex; }
@@ -213,7 +207,6 @@ private:
     };
 
     qint64 m_timestamp;
-    qint64 m_duration;
 
     static const int s_internalDataLength = 8;
     union {
