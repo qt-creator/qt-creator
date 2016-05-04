@@ -410,6 +410,24 @@ Import LinkPrivate::importNonFile(Document::Ptr doc, const ImportInfo &importInf
         }
     }
 
+    //The version number can be located higher in the path: qml/QtQuick.Controls.2/Material
+    if (!importFound) {
+        foreach (const QString &importPath, importPaths) {
+            QStringList splittedList = packagePath.split(QLatin1String("/"));
+            const QString last = splittedList.last();
+            splittedList.removeLast();
+            QString libraryPath = QString::fromLatin1("%1/%2.%3/%4").arg(importPath,
+                                                                         splittedList.join(QLatin1String("/")),
+                                                                         QString::number(version.majorVersion()),
+                                                                         last);
+            if (importLibrary(doc, libraryPath, &import, importPath)) {
+                importFound = true;
+                break;
+            }
+        }
+
+    }
+
     // if there are cpp-based types for this package, use them too
     if (valueOwner->cppQmlTypes().hasModule(packageName)) {
         importFound = true;
