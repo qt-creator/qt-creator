@@ -294,3 +294,7 @@ private:
 };
 
 } // namespace QmlProfiler
+
+QT_BEGIN_NAMESPACE
+Q_DECLARE_TYPEINFO(QmlProfiler::QmlEvent, Q_MOVABLE_TYPE);
+QT_END_NAMESPACE
