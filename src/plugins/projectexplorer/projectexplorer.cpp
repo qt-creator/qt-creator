@@ -882,7 +882,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     mbuild->addAction(cmd, Constants::G_BUILD_CLEAN);
 
     // cancel build action
-    dd->m_cancelBuildAction = new QAction(Core::Icons::STOP_SMALL_TOOLBAR.icon(), tr("Cancel Build"), this);
+    dd->m_cancelBuildAction = new QAction(Core::Icons::STOP_SMALL.icon(), tr("Cancel Build"), this);
     cmd = ActionManager::registerAction(dd->m_cancelBuildAction, Constants::CANCELBUILD);
     mbuild->addAction(cmd, Constants::G_BUILD_CANCEL);
 

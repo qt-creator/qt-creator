@@ -41,6 +41,7 @@
 #include <texteditor/fontsettings.h>
 #include <texteditor/behaviorsettings.h>
 #include <utils/ansiescapecodehandler.h>
+#include <utils/proxyaction.h>
 #include <utils/theme/theme.h>
 
 #include <QIcon>
@@ -164,7 +165,9 @@ CompileOutputWindow::CompileOutputWindow(QAction *cancelBuildAction) :
     p.setColor(QPalette::HighlightedText, activeHighlightedText);
     m_outputWindow->setPalette(p);
 
-    m_cancelBuildButton->setDefaultAction(cancelBuildAction);
+    Utils::ProxyAction *cancelBuildProxyButton =
+            Utils::ProxyAction::proxyActionWithIcon(cancelBuildAction, Core::Icons::STOP_SMALL_TOOLBAR.icon());
+    m_cancelBuildButton->setDefaultAction(cancelBuildProxyButton);
     m_zoomInButton->setToolTip(tr("Increase Font Size"));
     m_zoomInButton->setIcon(Core::Icons::PLUS.icon());
     m_zoomOutButton->setToolTip(tr("Decrease Font Size"));
