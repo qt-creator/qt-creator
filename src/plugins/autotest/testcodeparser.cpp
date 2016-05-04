@@ -404,31 +404,31 @@ static CPlusPlus::Document::Ptr declaringDocument(CPlusPlus::Document::Ptr doc,
     return declaringDoc;
 }
 
-static bool hasFunctionWithDataTagUsage(const QMap<QString, TestCodeLocationAndType> &testFunctions)
-{
-    foreach (const QString &functionName, testFunctions.keys()) {
-        if (functionName.endsWith(QLatin1String("_data")) &&
-                testFunctions.contains(functionName.left(functionName.size() - 5))) {
-            return true;
-        }
-    }
-    return false;
-}
-
-static QMap<QString, TestCodeLocationList> checkForDataTags(const QString &fileName,
+static QSet<QString> filesWithDataFunctionDefinitions(
             const QMap<QString, TestCodeLocationAndType> &testFunctions)
 {
-    if (hasFunctionWithDataTagUsage(testFunctions)) {
-        const CPlusPlus::Snapshot snapshot = CPlusPlus::CppModelManagerBase::instance()->snapshot();
-        const QByteArray fileContent = getFileContent(fileName);
-        CPlusPlus::Document::Ptr document = snapshot.preprocessedDocument(fileContent, fileName);
-        document->check();
-        CPlusPlus::AST *ast = document->translationUnit()->ast();
-        TestDataFunctionVisitor visitor(document);
-        visitor.accept(ast);
-        return visitor.dataTags();
+    QSet<QString> result;
+    QMap<QString, TestCodeLocationAndType>::ConstIterator it = testFunctions.begin();
+    const QMap<QString, TestCodeLocationAndType>::ConstIterator end = testFunctions.end();
+
+    for ( ; it != end; ++it) {
+        const QString &key = it.key();
+        if (key.endsWith(QLatin1String("_data")) && testFunctions.contains(key.left(key.size() - 5)))
+            result.insert(it.value().m_name);
     }
-    return QMap<QString, TestCodeLocationList>();
+    return result;
+}
+
+static QMap<QString, TestCodeLocationList> checkForDataTags(const QString &fileName)
+{
+    const CPlusPlus::Snapshot snapshot = CPlusPlus::CppModelManagerBase::instance()->snapshot();
+    const QByteArray fileContent = getFileContent(fileName);
+    CPlusPlus::Document::Ptr document = snapshot.preprocessedDocument(fileContent, fileName);
+    document->check();
+    CPlusPlus::AST *ast = document->translationUnit()->ast();
+    TestDataFunctionVisitor visitor(document);
+    visitor.accept(ast);
+    return visitor.dataTags();
 }
 
 /****** end of helpers ******/
@@ -549,12 +549,11 @@ static void checkDocumentForTestCode(QFutureInterface<TestParseResult> futureInt
                 return;
 
             const QMap<QString, TestCodeLocationAndType> testFunctions = visitor.privateSlots();
+            const QSet<QString> &files = filesWithDataFunctionDefinitions(testFunctions);
 
-            QMap<QString, TestCodeLocationList> dataTags =
-                    checkForDataTags(declaringDoc->fileName(), testFunctions);
-
-            if (declaringDoc->fileName() != document->fileName())
-                dataTags.unite(checkForDataTags(document->fileName(), testFunctions));
+            QMap<QString, TestCodeLocationList> dataTags;
+            foreach (const QString &file, files)
+                dataTags.unite(checkForDataTags(file));
 
             TestParseResult parseResult(TestTreeModel::AutoTest);
             parseResult.fileName = declaringDoc->fileName();
