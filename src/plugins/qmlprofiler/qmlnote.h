@@ -41,6 +41,9 @@ struct QmlNote {
     QString text;
 };
 
+QDataStream &operator>>(QDataStream &stream, QmlNote &note);
+QDataStream &operator<<(QDataStream &stream, const QmlNote &note);
+
 } // namespace QmlProfiler
 
 Q_DECLARE_METATYPE(QmlProfiler::QmlNote)

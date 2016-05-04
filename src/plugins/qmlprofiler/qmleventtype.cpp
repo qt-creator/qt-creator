@@ -22,35 +22,29 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
-#pragma once
 
-#include "qmleventlocation.h"
-#include "qmlprofilereventtypes.h"
-#include <QString>
-#include <QMetaType>
+#include "qmleventtype.h"
+#include <QDataStream>
 
 namespace QmlProfiler {
 
-struct QmlEventType {
-    QmlEventType(const QString &displayName = QString(),
-                 const QmlEventLocation &location = QmlEventLocation(),
-                 Message message = MaximumMessage, RangeType rangeType = MaximumRangeType,
-                 int detailType = -1, const QString &data = QString()) :
-        displayName(displayName), data(data), location(location), message(message),
-        rangeType(rangeType), detailType(detailType)
-    {}
+QDataStream &operator>>(QDataStream &stream, QmlEventType &type)
+{
+    quint8 message;
+    quint8 rangeType;
+    stream >> type.displayName >> type.data >> type.location >> message >> rangeType
+           >> type.detailType;
+    type.message = static_cast<Message>(message);
+    type.rangeType = static_cast<RangeType>(rangeType);
+    return stream;
+}
 
-    QString displayName;
-    QString data;
-    QmlEventLocation location;
-    Message message;
-    RangeType rangeType;
-    int detailType; // can be EventType, BindingType, PixmapEventType or SceneGraphFrameType
-};
+QDataStream &operator<<(QDataStream &stream, const QmlEventType &type)
+{
+    return stream << type.displayName << type.data << type.location
+                  << static_cast<quint8>(type.message) << static_cast<quint8>(type.rangeType)
+                  << type.detailType;
+}
 
-QDataStream &operator>>(QDataStream &stream, QmlEventType &type);
-QDataStream &operator<<(QDataStream &stream, const QmlEventType &type);
 
 } // namespace QmlProfiler
-
-Q_DECLARE_METATYPE(QmlProfiler::QmlEventType)

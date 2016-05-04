@@ -42,4 +42,7 @@ struct QMLPROFILER_EXPORT QmlEventLocation
     int column;
 };
 
+QDataStream &operator>>(QDataStream &stream, QmlEventLocation &location);
+QDataStream &operator<<(QDataStream &stream, const QmlEventLocation &location);
+
 } // namespace QmlProfiler

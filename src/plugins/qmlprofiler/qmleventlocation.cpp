@@ -22,35 +22,20 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
-#pragma once
 
 #include "qmleventlocation.h"
-#include "qmlprofilereventtypes.h"
-#include <QString>
-#include <QMetaType>
+#include <QDataStream>
 
 namespace QmlProfiler {
 
-struct QmlEventType {
-    QmlEventType(const QString &displayName = QString(),
-                 const QmlEventLocation &location = QmlEventLocation(),
-                 Message message = MaximumMessage, RangeType rangeType = MaximumRangeType,
-                 int detailType = -1, const QString &data = QString()) :
-        displayName(displayName), data(data), location(location), message(message),
-        rangeType(rangeType), detailType(detailType)
-    {}
+QDataStream &operator>>(QDataStream &stream, QmlEventLocation &location)
+{
+    return stream >> location.filename >> location.line >> location.column;
+}
 
-    QString displayName;
-    QString data;
-    QmlEventLocation location;
-    Message message;
-    RangeType rangeType;
-    int detailType; // can be EventType, BindingType, PixmapEventType or SceneGraphFrameType
-};
-
-QDataStream &operator>>(QDataStream &stream, QmlEventType &type);
-QDataStream &operator<<(QDataStream &stream, const QmlEventType &type);
+QDataStream &operator<<(QDataStream &stream, const QmlEventLocation &location)
+{
+    return stream << location.filename << location.line << location.column;
+}
 
 } // namespace QmlProfiler
-
-Q_DECLARE_METATYPE(QmlProfiler::QmlEventType)

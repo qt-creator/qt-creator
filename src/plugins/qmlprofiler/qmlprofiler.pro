@@ -13,6 +13,9 @@ SOURCES += \
     localqmlprofilerrunner.cpp \
     memoryusagemodel.cpp \
     pixmapcachemodel.cpp \
+    qmleventlocation.cpp \
+    qmleventtype.cpp \
+    qmlnote.cpp \
     qmlprofileranimationsmodel.cpp \
     qmlprofilerattachdialog.cpp \
     qmlprofilerbindingloopsrenderpass.cpp \
