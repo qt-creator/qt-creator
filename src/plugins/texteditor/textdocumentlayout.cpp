@@ -659,6 +659,7 @@ void TextDocumentLayout::FoldValidator::process(QTextBlock block)
             && !TextDocumentLayout::canFold(previous))
             || (!TextDocumentLayout::isFolded(previous)
                 && TextDocumentLayout::canFold(previous)
+                && previous.isVisible()
                 && !block.isVisible())) {
         TextDocumentLayout::setFolded(previous, !TextDocumentLayout::isFolded(previous));
     }
