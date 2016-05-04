@@ -61,17 +61,14 @@ struct TimelineItemsGeometry {
     // Alternating nodes with with 7 and 4 vertices; and vertex indices are 16bit
     static const int maxEventsPerNode = 0xffff * 2 / (7 + 4);
 
-    TimelineItemsGeometry() : allocatedVertices(0), usedVertices(0), node(0) {
+    TimelineItemsGeometry() : usedVertices(0), node(0)
+    {
         prevNode.set(0, TimelineModel::defaultRowHeight(), 0, 0, 0, 0, 0, 0);
     }
 
-    uint allocatedVertices;
     uint usedVertices;
-
     OpaqueColoredPoint2DWithSize prevNode;
-
     QSGGeometryNode *node;
-
 
     void allocate(QSGMaterial *material);
     void addVertices(float itemTop);
@@ -167,7 +164,6 @@ void TimelineItemsGeometry::allocate(QSGMaterial *material)
     node->setGeometry(geometry);
     node->setFlag(QSGNode::OwnsGeometry, true);
     node->setMaterial(material);
-    allocatedVertices = usedVertices;
     usedVertices = 0;
     prevNode.set(0, TimelineModel::defaultRowHeight(), 0, 0, 0, 0, 0, 0);
 }
@@ -211,8 +207,7 @@ static void updateNodes(int from, int to, const TimelineModel *model,
     for (int i = 0; i < model->expandedRowCount(); ++i) {
         TimelineItemsGeometry &row = expandedPerRow[i];
         if (row.usedVertices > 0) {
-            row.allocate(&static_cast<TimelineExpandedRowNode *>(
-                             state->expandedRow(i))->material);
+            row.allocate(&static_cast<TimelineExpandedRowNode *>(state->expandedRow(i))->material);
             state->expandedRow(i)->appendChildNode(row.node);
         }
     }
