@@ -27,13 +27,9 @@
 
 #include "utils_global.h"
 
-#include "algorithm.h"
-#include "qtcassert.h"
-
 #include <QAbstractItemModel>
 
 #include <functional>
-#include <iterator>
 
 namespace Utils {
 
@@ -99,6 +95,36 @@ public:
     void walkTree(TreeItemVisitor *visitor);
     void walkTree(std::function<void(TreeItem *)> f);
 
+    // Levels are 1-based: Child at Level 1 is an immediate child.
+    template <class T, typename Function>
+    void forEachChildAtLevel(int n, Function func) {
+        foreach (auto item, m_children) {
+            if (n == 1)
+                func(static_cast<T>(item));
+            else
+                item->forEachChildAtLevel<T>(n - 1, func);
+        }
+    }
+
+    template <class T, typename Function>
+    void forEachChild(Function func) const {
+        forEachChildAtLevel<T>(1, func);
+    }
+
+    template <class T, typename Predicate>
+    T findChildAtLevel(int n, Predicate func) const {
+        if (n == 1) {
+            foreach (auto item, m_children)
+                if (func(static_cast<T>(item)))
+                    return static_cast<T>(item);
+        } else {
+            foreach (auto item, m_children)
+                if (T found = item->findChildAtLevel<T>(n - 1, func))
+                    return found;
+        }
+        return 0;
+    }
+
 private:
     TreeItem(const TreeItem &) Q_DECL_EQ_DELETE;
     void operator=(const TreeItem &) Q_DECL_EQ_DELETE;
@@ -113,130 +139,6 @@ private:
     Qt::ItemFlags m_flags;
 
     friend class TreeModel;
-};
-
-class QTCREATOR_UTILS_EXPORT UntypedTreeLevelItems
-{
-public:
-    enum { MaxSearchDepth = 12 }; // FIXME.
-    explicit UntypedTreeLevelItems(TreeItem *item, int level = 1);
-
-    typedef TreeItem *value_type;
-
-    class const_iterator
-    {
-    public:
-        typedef std::forward_iterator_tag iterator_category;
-        typedef TreeItem *value_type;
-        typedef std::ptrdiff_t difference_type;
-        typedef const value_type *pointer;
-        typedef const value_type &reference;
-
-        const_iterator(TreeItem *base, int level);
-
-        TreeItem *operator*() { return m_item[m_depth]; }
-
-        void operator++()
-        {
-            QTC_ASSERT(m_depth == m_level, return);
-
-            int pos = ++m_pos[m_depth];
-            if (pos < m_size[m_depth])
-                m_item[m_depth] = m_item[m_depth - 1]->child(pos);
-            else
-                goUpNextDown();
-        }
-
-        bool operator==(const const_iterator &other) const
-        {
-            if (m_depth != other.m_depth)
-                return false;
-            for (int i = 0; i <= m_depth; ++i)
-                if (m_item[i] != other.m_item[i])
-                    return false;
-            return true;
-        }
-
-        bool operator!=(const const_iterator &other) const
-        {
-            return !operator==(other);
-        }
-
-    private:
-        // Result is either an item of the target level, or 'end'.
-        void goDown()
-        {
-            QTC_ASSERT(m_depth != -1, return);
-            QTC_ASSERT(m_depth < m_level, return);
-            do {
-                TreeItem *curr = m_item[m_depth];
-                ++m_depth;
-                int size = curr->rowCount();
-                if (size == 0) {
-                    // This is a dead end not reaching to the desired level.
-                    goUpNextDown();
-                    return;
-                }
-                m_size[m_depth] = size;
-                m_pos[m_depth] = 0;
-                m_item[m_depth] = curr->child(0);
-            } while (m_depth < m_level);
-            // Did not reach the required level? Set to end().
-            if (m_depth != m_level)
-                m_depth = -1;
-        }
-        void goUpNextDown()
-        {
-            // Go up until we can move sidewards.
-            do {
-                --m_depth;
-                if (m_depth < 0)
-                    return; // Solid end.
-            } while (++m_pos[m_depth] >= m_size[m_depth]);
-            m_item[m_depth] = m_item[m_depth - 1]->child(m_pos[m_depth]);
-            goDown();
-        }
-
-        int m_level;
-        int m_depth;
-        TreeItem *m_item[MaxSearchDepth];
-        int m_pos[MaxSearchDepth];
-        int m_size[MaxSearchDepth];
-    };
-
-    const_iterator begin() const;
-    const_iterator end() const;
-
-private:
-    TreeItem *m_item;
-    int m_level;
-};
-
-template <class T>
-class TreeLevelItems
-{
-public:
-    typedef T value_type;
-
-    explicit TreeLevelItems(const UntypedTreeLevelItems &items) : m_items(items) {}
-
-    struct const_iterator : public UntypedTreeLevelItems::const_iterator
-    {
-        typedef std::forward_iterator_tag iterator_category;
-        typedef T value_type;
-        typedef std::ptrdiff_t difference_type;
-        typedef const value_type *pointer;
-        typedef const value_type &reference;
-
-        const_iterator(UntypedTreeLevelItems::const_iterator it) : UntypedTreeLevelItems::const_iterator(it) {}
-        T operator*() { return static_cast<T>(UntypedTreeLevelItems::const_iterator::operator*()); }
-    };
-
-    const_iterator begin() const { return const_iterator(m_items.begin()); }
-    const_iterator end() const { return const_iterator(m_items.end()); }
-
-private:
-    UntypedTreeLevelItems m_items;
 };
 
 class QTCREATOR_UTILS_EXPORT TreeModel : public QAbstractItemModel
@@ -272,16 +174,14 @@ public:
     bool canFetchMore(const QModelIndex &idx) const override;
     void fetchMore(const QModelIndex &idx) override;
 
-    template <class T>
-    TreeLevelItems<T> itemsAtLevel(int level, TreeItem *start = 0) const
-    {
-        return TreeLevelItems<T>(UntypedTreeLevelItems(start ? start : m_root, level));
+    template <class T, typename Function>
+    void forEachItemAtLevel(int n, Function func) const {
+        m_root->forEachChildAtLevel<T>(n, func);
     }
 
-    template <class T>
-    T findItemAtLevel(int level, std::function<bool(T)> f, TreeItem *start = 0) const
-    {
-        return Utils::findOrDefault(itemsAtLevel<T>(level, start), f);
+    template <class T, typename Predicate>
+    T findItemAtLevel(int n, Predicate func) const {
+        return m_root->findChildAtLevel<T>(n, func);
     }
 
     TreeItem *takeItem(TreeItem *item); // item is not destroyed.

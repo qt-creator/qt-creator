@@ -241,7 +241,7 @@ void CMakeToolItemModel::apply()
     foreach (const Core::Id &id, m_removedItems)
         CMakeToolManager::deregisterCMakeTool(id);
 
-    foreach (auto item, itemsAtLevel<CMakeToolTreeItem *>(2)) {
+    forEachItemAtLevel<CMakeToolTreeItem *>(2, [](CMakeToolTreeItem *item) {
         item->m_changed = false;
 
         bool isNew = false;
@@ -262,7 +262,7 @@ void CMakeToolItemModel::apply()
                 item->m_changed = true;
             }
         }
-    }
+    });
 
     CMakeToolManager::setDefaultCMakeTool(defaultItemId());
 }
@@ -293,8 +293,9 @@ void CMakeToolItemModel::setDefaultItemId(const Core::Id &id)
 QString CMakeToolItemModel::uniqueDisplayName(const QString &base) const
 {
     QStringList names;
-    foreach (CMakeToolTreeItem *item, itemsAtLevel<CMakeToolTreeItem *>(2))
+    forEachItemAtLevel<CMakeToolTreeItem *>(2, [&names](CMakeToolTreeItem *item) {
         names << item->m_name;
+    });
 
     return ProjectExplorer::Project::makeUnique(base, names);
 }

@@ -1361,8 +1361,9 @@ void WatchHandler::notifyUpdateStarted(const QList<QByteArray> &inames)
     auto marker = [](TreeItem *it) { static_cast<WatchItem *>(it)->outdated = true; };
 
     if (inames.isEmpty()) {
-        foreach (auto item, m_model->itemsAtLevel<WatchItem *>(2))
+        m_model->forEachItemAtLevel<WatchItem *>(2, [marker](WatchItem *item) {
             item->walkTree(marker);
+        });
     } else {
         foreach (auto iname, inames) {
             if (WatchItem *item = m_model->findItem(iname))

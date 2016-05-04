@@ -39,6 +39,7 @@ namespace Debugger {
 namespace Internal {
 
 class GdbMi;
+class ThreadItem;
 
 class ThreadsHandler : public Utils::TreeModel
 {
@@ -76,6 +77,8 @@ public:
 
     void resetLocation();
     void scheduleResetLocation();
+
+    void foreachThread(const std::function<void(ThreadItem *item)> &func);
 
 private:
     void updateThreadBox();

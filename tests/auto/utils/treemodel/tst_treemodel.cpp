@@ -42,10 +42,7 @@ private slots:
 static int countLevelItems(TreeItem *base, int level)
 {
     int n = 0;
-    foreach (TreeItem *item, UntypedTreeLevelItems(base, level)) {
-        Q_UNUSED(item);
-        ++n;
-    }
+    base->forEachChildAtLevel<TreeItem *>(level, [&n](TreeItem *) { ++n; });
     return n;
 }
 

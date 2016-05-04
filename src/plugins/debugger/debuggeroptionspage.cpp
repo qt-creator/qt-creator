@@ -180,10 +180,10 @@ void DebuggerItemModel::apply()
     foreach (const QVariant &id, m_removedItems)
         DebuggerItemManager::deregisterDebugger(id);
 
-    foreach (auto item, itemsAtLevel<DebuggerTreeItem *>(2)) {
+    forEachItemAtLevel<DebuggerTreeItem *>(2, [](DebuggerTreeItem *item) {
         item->m_changed = false;
         DebuggerItemManager::updateOrAddDebugger(item->m_item);
-    }
+    });
 }
 
 void DebuggerItemModel::setCurrentIndex(const QModelIndex &index)

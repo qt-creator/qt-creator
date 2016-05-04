@@ -26,6 +26,8 @@
 #include "testresultdelegate.h"
 #include "testresultmodel.h"
 
+#include <utils/qtcassert.h>
+
 #include <QFontMetrics>
 #include <QIcon>
 

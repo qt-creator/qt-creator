@@ -1074,41 +1074,4 @@ TreeItem *TreeModel::takeItem(TreeItem *item)
     return item;
 }
 
-//
-// TreeLevelItems
-//
-
-UntypedTreeLevelItems::UntypedTreeLevelItems(TreeItem *item, int level)
-    : m_item(item), m_level(level)
-{}
-
-UntypedTreeLevelItems::const_iterator::const_iterator(TreeItem *base, int level)
-    : m_level(level)
-{
-    QTC_ASSERT(level > 0, return);
-    if (base) {
-        // "begin()"
-        m_depth = 0;
-        // Level x: The item m_item[x] is the m_pos[x]'th child of its
-        // parent, out of m_size[x].
-        m_pos[0] = 0;
-        m_size[0] = 1;
-        m_item[0] = base;
-        goDown();
-    } else {
-        // "end()"
-        m_depth = -1;
-    }
-}
-
-UntypedTreeLevelItems::const_iterator UntypedTreeLevelItems::begin() const
-{
-    return const_iterator(m_item, m_level);
-}
-
-UntypedTreeLevelItems::const_iterator UntypedTreeLevelItems::end() const
-{
-    return const_iterator(0, m_level);
-}
-
 } // namespace Utils

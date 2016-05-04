@@ -195,29 +195,29 @@ void KitModel::isAutoDetectedChanged()
 void KitModel::validateKitNames()
 {
     QHash<QString, int> nameHash;
-    foreach (KitNode *n, itemsAtLevel<KitNode *>(2)) {
+    forEachItemAtLevel<KitNode *>(2, [&nameHash](KitNode *n) {
         const QString displayName = n->widget->displayName();
         if (nameHash.contains(displayName))
             ++nameHash[displayName];
         else
             nameHash.insert(displayName, 1);
-    }
+    });
 
-    foreach (KitNode *n, itemsAtLevel<KitNode *>(2)) {
+    forEachItemAtLevel<KitNode *>(2, [&nameHash](KitNode *n) {
         const QString displayName = n->widget->displayName();
         n->widget->setHasUniqueName(nameHash.value(displayName) == 1);
-    }
+    });
 }
 
 void KitModel::apply()
 {
     // Add/update dirty nodes before removing kits. This ensures the right kit ends up as default.
-    foreach (KitNode *n, itemsAtLevel<KitNode *>(2)) {
+    forEachItemAtLevel<KitNode *>(2, [](KitNode *n) {
         if (n->widget->isDirty()) {
             n->widget->apply();
             n->update();
         }
-    }
+    });
 
     // Remove unused kits:
     foreach (KitNode *n, m_toRemoveList)
@@ -272,11 +272,7 @@ Kit *KitModel::markForAddition(Kit *baseKit)
 
 KitNode *KitModel::findWorkingCopy(Kit *k) const
 {
-    foreach (KitNode *n, itemsAtLevel<KitNode *>(2)) {
-        if (n->widget->workingCopy() == k)
-            return n;
-    }
-    return 0;
+    return findItemAtLevel<KitNode *>(2, [k](KitNode *n) { return n->widget->workingCopy() == k; });
 }
 
 KitNode *KitModel::createNode(Kit *k)
@@ -341,13 +337,9 @@ void KitModel::removeKit(Kit *k)
         }
     }
 
-    KitNode *node = 0;
-    foreach (KitNode *n, itemsAtLevel<KitNode *>(2)) {
-        if (n->widget->configures(k)) {
-            node = n;
-            break;
-        }
-    }
+    KitNode *node = findItemAtLevel<KitNode *>(2, [k](KitNode *n) {
+        return n->widget->configures(k);
+    });
 
     if (node == m_defaultNode)
         setDefaultNode(findItemAtLevel<KitNode *>(2, [node](KitNode *kn) { return kn != node; }));
@@ -361,12 +353,10 @@ void KitModel::removeKit(Kit *k)
 void KitModel::changeDefaultKit()
 {
     Kit *defaultKit = KitManager::defaultKit();
-    foreach (KitNode *n, itemsAtLevel<KitNode *>(2)) {
-        if (n->widget->configures(defaultKit)) {
-            setDefaultNode(n);
-            return;
-        }
-    }
+    KitNode *node = findItemAtLevel<KitNode *>(2, [defaultKit](KitNode *n) {
+        return n->widget->configures(defaultKit);
+    });
+    setDefaultNode(node);
 }
 
 } // namespace Internal

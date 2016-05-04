@@ -33,6 +33,7 @@
 #include <utils/categorysortfiltermodel.h>
 #include <utils/icon.h>
 #include <utils/itemviews.h>
+#include <utils/qtcassert.h>
 #include <utils/treemodel.h>
 
 #include <QDebug>

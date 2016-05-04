@@ -252,13 +252,10 @@ void ToolChainOptionsWidget::removeToolChain(ToolChain *tc)
         }
     }
 
-    TreeItem *parent = m_model.rootItem()->child(tc->isAutoDetected() ? 0 : 1);
-    foreach (ToolChainTreeItem *item, m_model.itemsAtLevel<ToolChainTreeItem *>(1, parent)) {
-        if (item->toolChain == tc) {
-            delete m_model.takeItem(item);
-            break;
-        }
-    }
+    auto item = m_model.findItemAtLevel<ToolChainTreeItem *>(1, [tc](ToolChainTreeItem *item) {
+        return tc->isAutoDetected() && item->toolChain == tc;
+    });
+    delete m_model.takeItem(item);
 
     updateState();
 }
@@ -287,15 +284,15 @@ void ToolChainOptionsWidget::apply()
     Q_ASSERT(m_toRemoveList.isEmpty());
 
     // Update tool chains:
-    foreach (ToolChainTreeItem *item, m_model.itemsAtLevel<ToolChainTreeItem *>(1, m_manualRoot)) {
-        if (item->changed) {
+    m_model.forEachItemAtLevel<ToolChainTreeItem *>(1, [this](ToolChainTreeItem *item) {
+        if (item->parent() == m_manualRoot && item->changed) {
             Q_ASSERT(item->toolChain);
             if (item->widget)
                 item->widget->apply();
             item->changed = false;
             item->update();
         }
-    }
+    });
 
     // Add new (and already updated) tool chains
     QStringList removedTcs;

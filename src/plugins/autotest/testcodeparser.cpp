@@ -46,6 +46,7 @@
 #include <qmljs/qmljsdialect.h>
 #include <qmljstools/qmljsmodelmanager.h>
 
+#include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 #include <utils/runextensions.h>
 #include <utils/textfileformat.h>
