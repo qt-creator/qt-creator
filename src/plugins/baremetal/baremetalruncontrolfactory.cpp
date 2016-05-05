@@ -135,9 +135,8 @@ RunControl *BareMetalRunControlFactory::create(
         sp.remoteSetupNeeded = true;
 
     DebuggerRunControl *runControl = createDebuggerRunControl(sp, rc, errorMessage, mode);
-    if (runControl && sp.remoteSetupNeeded) {
-        (void) BareMetalDebugSupport(runControl);
-    }
+    if (runControl && sp.remoteSetupNeeded)
+        new BareMetalDebugSupport(runControl);
 
     return runControl;
 }
