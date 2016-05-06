@@ -1,21 +1,21 @@
 {
     "version": 1,
     "supportedProjectTypes": [ "Qt4ProjectManager.Qt4Project" ],
-    "id": "W.QtLabsControlsApplication",
+    "id": "V.QtQuickControls2Application",
     "category": "F.Application",
-    "trDescription": "Creates a deployable Qt Quick 2 application using Qt Labs Controls.<br/><br/><b>Note:</b> Qt Labs Controls are only available with Qt 5.6. Choose <em>Qt Quick Controls 2 Application</em> when targeting Qt 5.7 or later.",
-    "trDisplayName": "Qt Labs Controls Application",
+    "trDescription": "Creates a deployable Qt Quick 2 application using Qt Quick Controls 2.<br/><br/><b>Note:</b> Qt Quick Controls 2 are available with Qt 5.7 and later. Choose <em>Qt Labs Controls Application</em> when targeting Qt 5.6.",
+    "trDisplayName": "Qt Quick Controls 2 Application",
     "trDisplayCategory": "Application",
     "icon": "../qtquickapplication/qml_wizard.png",
-    "featuresRequired": [ "QtSupport.Wizards.FeatureQt.labs.controls.1.0" ],
+    "featuresRequired": [ "QtSupport.Wizards.FeatureQtQuick.Controls.2" ],
     "enabled": "%{JS: [ %{Plugins} ].indexOf('QmakeProjectManager') >= 0}",
 
     "options":
     [
         { "key": "ProFileName", "value": "%{JS: Util.fileName('%{ProjectDirectory}/%{ProjectName}', 'pro')}" },
         { "key": "MainCppFileName", "value": "%{JS: 'main.' + Util.preferredSuffix('text/x-c++src')}" },
-        { "key": "QtQuickVersion", "value": "2.6" },
-        { "key": "QtLabsControlsVersion", "value": "1.0" },
+        { "key": "QtQuickVersion", "value": "2.7" },
+        { "key": "QtQuickControls2Version", "value": "2.0" },
         { "key": "QtQuickDialogsVersion", "value": "1.0" },
         { "key": "QtQuickLayoutsVersion", "value": "1.0" }
     ],
