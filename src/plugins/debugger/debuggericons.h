@@ -81,10 +81,14 @@ const Utils::Icon LOCATION({
 const Utils::Icon REVERSE_MODE({
         {QLatin1String(":/debugger/images/debugger_reversemode_background.png"), Utils::Theme::IconsCodeModelOverlayForegroundColor},
         {QLatin1String(":/debugger/images/debugger_reversemode.png"), Utils::Theme::IconsInfoColor}}, Utils::Icon::Tint);
-const Utils::Icon APP_ON_TOP(
-        QLatin1String(":/debugger/images/qml/app-on-top.png"));
-const Utils::Icon SELECT(
-        QLatin1String(":/debugger/images/qml/select.png"));
+const Utils::Icon APP_ON_TOP({
+        {QLatin1String(":/debugger/images/qml/app-on-top.png"), Utils::Theme::PanelTextColorMid}}, Utils::Icon::MenuTintedStyle);
+const Utils::Icon APP_ON_TOP_TOOLBAR({
+        {QLatin1String(":/debugger/images/qml/app-on-top.png"), Utils::Theme::IconsBaseColor}});
+const Utils::Icon SELECT({
+        {QLatin1String(":/debugger/images/qml/select.png"), Utils::Theme::PanelTextColorMid}}, Utils::Icon::MenuTintedStyle);
+const Utils::Icon SELECT_TOOLBAR({
+        {QLatin1String(":/debugger/images/qml/select.png"), Utils::Theme::IconsBaseColor}});
 const Utils::Icon EMPTY(
         QLatin1String(":/debugger/images/debugger_empty_14.png"));
 const Utils::Icon RECORD_ON({

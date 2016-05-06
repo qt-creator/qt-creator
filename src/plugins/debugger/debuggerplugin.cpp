@@ -1830,9 +1830,9 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
 
 //    ToolbarDescription qmlToolbar
 //    qmlToolbar.addAction(qmlUpdateOnSaveDummyAction);
-//    qmlToolbar.addAction(qmlShowAppOnTopDummyAction);
+//    qmlToolbar.addAction(qmlShowAppOnTopDummyAction, Icons::APP_ON_TOP_TOOLBAR.icon());
 //    qmlToolbar.addWidget(new StyledSeparator);
-//    qmlToolbar.addAction(qmlSelectDummyAction);
+//    qmlToolbar.addAction(qmlSelectDummyAction, Icons::SELECT_TOOLBAR.icon());
 //    qmlToolbar.addWidget(new StyledSeparator);
 
     Perspective basePerspective({}, {
