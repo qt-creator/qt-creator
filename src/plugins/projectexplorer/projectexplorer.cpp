@@ -350,7 +350,7 @@ public:
     MiniProjectTargetSelector * m_targetSelector;
     ProjectExplorerSettings m_projectExplorerSettings;
     bool m_shouldHaveRunConfiguration = false;
-    bool m_shuttingDown;
+    bool m_shuttingDown = false;
     Core::Id m_runMode = Constants::NO_RUN_MODE;
     ProjectWelcomePage *m_welcomePage = nullptr;
     IMode *m_projectsMode = nullptr;
