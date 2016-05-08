@@ -135,7 +135,7 @@ VcsCommand *VcsBaseClientImpl::createCommand(const QString &workingDirectory,
 
 void VcsBaseClientImpl::enqueueJob(VcsCommand *cmd, const QStringList &args,
                                    const QString &workingDirectory,
-                                   const Utils::ExitCodeInterpreter &interpreter)
+                                   const Utils::ExitCodeInterpreter &interpreter) const
 {
     cmd->addJob(vcsBinary(), args, vcsTimeoutS(), workingDirectory, interpreter);
     cmd->execute();
@@ -198,7 +198,7 @@ bool VcsBaseClientImpl::vcsFullySynchronousExec(const QString &workingDir, const
 
 VcsCommand *VcsBaseClientImpl::vcsExec(const QString &workingDirectory, const QStringList &arguments,
                                        VcsBaseEditorWidget *editor, bool useOutputToWindow,
-                                       unsigned additionalFlags, const QVariant &cookie)
+                                       unsigned additionalFlags, const QVariant &cookie) const
 {
     VcsCommand *command = createCommand(workingDirectory, editor,
                                         useOutputToWindow ? VcsWindowOutputBind : NoOutputBind);

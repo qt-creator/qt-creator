@@ -82,7 +82,7 @@ public:
 
     void enqueueJob(VcsCommand *cmd, const QStringList &args,
                     const QString &workingDirectory = QString(),
-                    const Utils::ExitCodeInterpreter &interpreter = Utils::defaultExitCodeInterpreter);
+                    const Utils::ExitCodeInterpreter &interpreter = Utils::defaultExitCodeInterpreter) const;
 
     virtual QProcessEnvironment processEnvironment() const;
 
@@ -109,7 +109,7 @@ protected:
     // Simple helper to execute a single command using createCommand and enqueueJob.
     VcsCommand *vcsExec(const QString &workingDirectory, const QStringList &arguments,
                         VcsBaseEditorWidget *editor = 0, bool useOutputToWindow = false,
-                        unsigned additionalFlags = 0, const QVariant &cookie = QVariant());
+                        unsigned additionalFlags = 0, const QVariant &cookie = QVariant()) const;
 
     // Synchronous VCS execution using Utils::SynchronousProcess, with
     // log windows updating (using VcsBasePlugin::runVcs with flags)
