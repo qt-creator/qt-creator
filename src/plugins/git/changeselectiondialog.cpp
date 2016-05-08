@@ -33,6 +33,7 @@
 
 #include <utils/pathchooser.h>
 #include <utils/theme/theme.h>
+#include <vcsbase/vcscommand.h>
 
 #include <QProcess>
 #include <QFormLayout>
@@ -212,18 +213,19 @@ void ChangeSelectionDialog::recalculateCompletion()
     if (workingDir == m_oldWorkingDir)
         return;
     m_oldWorkingDir = workingDir;
-
-    if (!workingDir.isEmpty()) {
-        GitClient *client = GitPlugin::client();
-        QStringList args;
-        args << QLatin1String("--format=%(refname:short)");
-        QString output;
-        if (client->synchronousForEachRefCmd(workingDir, args, &output)) {
-            m_changeModel->setStringList(output.split(QLatin1Char('\n')));
-            return;
-        }
-    }
     m_changeModel->setStringList(QStringList());
+
+    if (workingDir.isEmpty())
+        return;
+
+    GitClient *client = GitPlugin::client();
+    QStringList args;
+    args << QLatin1String("--format=%(refname:short)");
+    VcsBase::VcsCommand *command = client->asyncForEachRefCmd(workingDir, args);
+    connect(this, &QObject::destroyed, command, &VcsBase::VcsCommand::abort);
+    connect(command, &VcsBase::VcsCommand::stdOutText, [this](const QString &output) {
+        m_changeModel->setStringList(output.split(QLatin1Char('\n')));
+    });
 }
 
 void ChangeSelectionDialog::recalculateDetails()

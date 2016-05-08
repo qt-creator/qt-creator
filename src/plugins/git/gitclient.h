@@ -207,6 +207,7 @@ public:
                            QString *output, QString *errorMessage) const;
     bool synchronousForEachRefCmd(const QString &workingDirectory, QStringList args,
                                QString *output, QString *errorMessage = 0) const;
+    VcsBase::VcsCommand *asyncForEachRefCmd(const QString &workingDirectory, QStringList args) const;
     bool synchronousRemoteCmd(const QString &workingDirectory, QStringList remoteArgs,
                               QString *output = 0, QString *errorMessage = 0, bool silent = false) const;
 

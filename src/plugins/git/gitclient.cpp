@@ -1681,6 +1681,12 @@ bool GitClient::synchronousForEachRefCmd(const QString &workingDirectory, QStrin
     return rc;
 }
 
+VcsCommand *GitClient::asyncForEachRefCmd(const QString &workingDirectory, QStringList args) const
+{
+    args.push_front(QLatin1String("for-each-ref"));
+    return vcsExec(workingDirectory, args, 0, false, silentFlags);
+}
+
 bool GitClient::synchronousRemoteCmd(const QString &workingDirectory, QStringList remoteArgs,
                                      QString *output, QString *errorMessage, bool silent) const
 {
