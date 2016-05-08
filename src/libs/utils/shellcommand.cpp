@@ -215,7 +215,8 @@ void ShellCommand::execute()
 
     QFuture<void> task = Utils::runAsync(&ShellCommand::run, this);
     d->m_watcher.setFuture(task);
-    addTask(task);
+    if (!(d->m_flags & SuppressCommandLogging))
+        addTask(task);
 }
 
 void ShellCommand::abort()
