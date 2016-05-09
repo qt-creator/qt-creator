@@ -40,6 +40,10 @@ namespace Core {
 class Id;
 }
 
+namespace CppTools {
+class CppModelManager;
+}
+
 namespace Autotest {
 namespace Internal {
 
@@ -87,6 +91,53 @@ public:
 };
 
 using TestParseResultPtr = QSharedPointer<TestParseResult>;
+
+class ITestParser
+{
+public:
+    virtual ~ITestParser() { }
+    virtual void init(const QStringList &filesToParse) = 0;
+    virtual bool processDocument(QFutureInterface<TestParseResultPtr> futureInterface,
+                                 const QString &fileName) = 0;
+};
+
+class CppParser : public ITestParser
+{
+public:
+    void init(const QStringList &filesToParse) override;
+    static bool selectedForBuilding(const QString &fileName);
+
+protected:
+    CPlusPlus::Snapshot m_cppSnapshot;
+};
+
+class QtTestParser : public CppParser
+{
+public:
+    void init(const QStringList &filesToParse) override;
+    bool processDocument(QFutureInterface<TestParseResultPtr> futureInterface,
+                         const QString &fileName) override;
+
+private:
+    QHash<QString, QString> m_testCaseNames;
+};
+
+class QuickTestParser : public CppParser
+{
+public:
+    void init(const QStringList &filesToParse) override;
+    bool processDocument(QFutureInterface<TestParseResultPtr> futureInterface,
+                         const QString &fileName) override;
+private:
+    QmlJS::Snapshot m_qmlSnapshot;
+};
+
+class GoogleTestParser : public CppParser
+{
+public:
+    bool processDocument(QFutureInterface<TestParseResultPtr> futureInterface,
+                         const QString &fileName) override;
+};
 
 class TestCodeParser : public QObject
 {
@@ -144,6 +195,7 @@ private:
     QSet<QString> m_postponedFiles;
     State m_parserState;
     QFutureWatcher<TestParseResultPtr> m_futureWatcher;
+    QVector<ITestParser *> m_testCodeParsers;
 };
 
 } // namespace Internal
