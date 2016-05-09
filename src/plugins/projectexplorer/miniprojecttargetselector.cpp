@@ -719,13 +719,23 @@ MiniProjectTargetSelector::MiniProjectTargetSelector(QAction *targetSelectorActi
             this, &MiniProjectTargetSelector::kitChanged);
 
     connect(m_listWidgets[TARGET], &GenericListWidget::changeActiveProjectConfiguration,
-            this, &MiniProjectTargetSelector::setActiveTarget);
+            this, [this](ProjectConfiguration *pc) {
+                SessionManager::setActiveTarget(m_project, static_cast<Target *>(pc), SetActive::Cascade);
+            });
     connect(m_listWidgets[BUILD], &GenericListWidget::changeActiveProjectConfiguration,
-            this, &MiniProjectTargetSelector::setActiveBuildConfiguration);
+            this, [this](ProjectConfiguration *pc) {
+                 SessionManager::setActiveBuildConfiguration(m_project->activeTarget(),
+                                                             static_cast<BuildConfiguration *>(pc), SetActive::Cascade);
+            });
     connect(m_listWidgets[DEPLOY], &GenericListWidget::changeActiveProjectConfiguration,
-            this, &MiniProjectTargetSelector::setActiveDeployConfiguration);
+            this, [this](ProjectConfiguration *pc) {
+                 SessionManager::setActiveDeployConfiguration(m_project->activeTarget(),
+                                                              static_cast<DeployConfiguration *>(pc), SetActive::Cascade);
+            });
     connect(m_listWidgets[RUN], &GenericListWidget::changeActiveProjectConfiguration,
-            this, &MiniProjectTargetSelector::setActiveRunConfiguration);
+            this, [this](ProjectConfiguration *pc) {
+                 m_project->activeTarget()->setActiveRunConfiguration(static_cast<RunConfiguration *>(pc));
+            });
 }
 
 bool MiniProjectTargetSelector::event(QEvent *event)
@@ -957,27 +967,6 @@ void MiniProjectTargetSelector::doLayout(bool keepSize)
     QPoint moveTo = statusBar->mapToGlobal(QPoint(0, 0));
     moveTo -= QPoint(0, height());
     move(moveTo);
-}
-
-void MiniProjectTargetSelector::setActiveTarget(ProjectConfiguration *pc)
-{
-    SessionManager::setActiveTarget(m_project, static_cast<Target *>(pc),
-                                    SetActive::Cascade);
-}
-
-void MiniProjectTargetSelector::setActiveBuildConfiguration(ProjectConfiguration *pc)
-{
-    SessionManager::setActiveBuildConfiguration(m_target, static_cast<BuildConfiguration *>(pc), SetActive::Cascade);
-}
-
-void MiniProjectTargetSelector::setActiveDeployConfiguration(ProjectConfiguration *pc)
-{
-    SessionManager::setActiveDeployConfiguration(m_target, static_cast<DeployConfiguration *>(pc), SetActive::Cascade);
-}
-
-void MiniProjectTargetSelector::setActiveRunConfiguration(ProjectConfiguration *pc)
-{
-    m_target->setActiveRunConfiguration(static_cast<RunConfiguration *>(pc));
 }
 
 void MiniProjectTargetSelector::projectAdded(Project *project)

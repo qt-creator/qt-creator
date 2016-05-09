@@ -164,11 +164,6 @@ private:
     void activeDeployConfigurationChanged(ProjectExplorer::DeployConfiguration *dc);
     void activeRunConfigurationChanged(ProjectExplorer::RunConfiguration *rc);
 
-    void setActiveTarget(ProjectExplorer::ProjectConfiguration *pc);
-    void setActiveBuildConfiguration(ProjectExplorer::ProjectConfiguration *pc);
-    void setActiveDeployConfiguration(ProjectExplorer::ProjectConfiguration *pc);
-    void setActiveRunConfiguration(ProjectExplorer::ProjectConfiguration *pc);
-
     void delayedHide();
     void updateActionAndSummary();
     void switchToProjectsMode();
