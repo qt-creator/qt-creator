@@ -291,12 +291,9 @@ void SessionManager::setActiveTarget(Project *project, Target *target, SetActive
     foreach (Project *otherProject, SessionManager::projects()) {
         if (otherProject == project)
             continue;
-        foreach (Target *otherTarget, otherProject->targets()) {
-            if (otherTarget->kit()->id() == kitId) {
-                otherProject->setActiveTarget(otherTarget);
-                break;
-            }
-        }
+        if (Target *otherTarget = Utils::findOrDefault(otherProject->targets(),
+                                                       [kitId](Target *t) { return t->kit()->id() == kitId; }))
+            otherProject->setActiveTarget(otherTarget);
     }
 }
 
