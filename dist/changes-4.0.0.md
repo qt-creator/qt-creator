@@ -46,6 +46,7 @@ QMake Projects
 
 CMake Projects
 
+* Increased minimum CMake version to 3.0
 * Changed CMake to run automatically in the background
 * Added CMake generator setting per kit
 * Added CMake configuration setting per kit and build configuration

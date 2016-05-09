@@ -156,7 +156,7 @@
         \li Open a project that contains tests.
 
         \li In the \uicontrol {Test Results} output pane, select
-            \inlineimage qtcreator-run.png
+            \inlineimage run_small.png
             (\uicontrol {Run All Tests}) to run all test or
             \inlineimage qtcreator-run-selected-tests.png
             (\uicontrol {Run Selected Tests}) to run the selected tests.
@@ -233,7 +233,7 @@
     \endtable
 
     To view only messages of a particular type, select
-    \inlineimage qtcreator-filter.png
+    \inlineimage filtericon.png
     (\uicontrol {Filter Test Results}), and then select the types of messages to
     show.
 

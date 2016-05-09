@@ -38,8 +38,7 @@
     \title Using Qt Quick Toolbars
 
     When you select a QML type in the code and a toolbar is available,
-     a light bulb icon appears:
-    \inlineimage qml-toolbar-indicator.png
+    a light bulb icon appears: \inlineimage refactormarker.png
     . Select the icon to open the toolbar.
 
     To open toolbars immediately when you select a QML type, select

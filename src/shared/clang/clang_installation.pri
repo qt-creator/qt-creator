@@ -101,6 +101,8 @@ unix {
 
     !contains(QMAKE_DEFAULT_LIBDIRS, $$LLVM_LIBDIR): LLVM_LIBS = -L$${LLVM_LIBDIR}
     LLVM_LIBS += -l$${clang_lib}
+
+    contains(QMAKE_DEFAULT_INCDIRS, $$LLVM_INCLUDEPATH): LLVM_INCLUDEPATH =
 }
 
 isEmpty(LLVM_VERSION): error("Cannot determine clang version at $$LLVM_INSTALL_DIR")

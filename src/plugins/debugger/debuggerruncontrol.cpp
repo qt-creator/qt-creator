@@ -559,6 +559,14 @@ public:
     {
         if (!(mode == DebugRunMode || mode == DebugRunModeWithBreakOnMain))
             return false;
+
+        Runnable runnable = runConfig->runnable();
+        if (runnable.is<StandardRunnable>()) {
+            IDevice::ConstPtr device = runnable.as<StandardRunnable>().device;
+            if (device && device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE)
+                return true;
+        }
+
         return DeviceTypeKitInformation::deviceTypeId(runConfig->target()->kit())
                     == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE
                  || isDebuggableScript(runConfig);

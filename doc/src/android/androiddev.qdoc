@@ -140,8 +140,7 @@
         \li Select \uicontrol Tools > \uicontrol Options > \uicontrol Android to add paths to the
             Android NDK and SDK.
 
-            You can use the
-            \inlineimage qtcreator-options-android-download-button.png
+            You can use the \inlineimage download.png
             (\uicontrol Download) buttons to go to the sites where you can download
             the Android NDK and SDK.
 

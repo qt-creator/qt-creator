@@ -422,6 +422,7 @@ protected:
     bool m_terminalTrap;
     bool m_temporaryStopPending;
     bool usesExecInterrupt() const;
+    bool usesTargetAsync() const;
 
     QHash<int, QByteArray> m_scheduledTestResponses;
     QSet<int> m_testCases;

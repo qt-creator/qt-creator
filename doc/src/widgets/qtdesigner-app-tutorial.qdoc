@@ -319,7 +319,7 @@
     \section1 Compiling and Running Your Program
 
     Now that you have all the necessary files, click the
-    \inlineimage qtcreator-run.png
+    \inlineimage run_small.png
     button to compile and run your program.
 
 */

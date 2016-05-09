@@ -177,20 +177,21 @@ static QByteArray getFileContent(QString filePath)
 static bool includesQtTest(const CPlusPlus::Document::Ptr &doc,
                            const CppTools::CppModelManager *cppMM)
 {
-    static QString expectedHeaderPrefix
+    static QStringList expectedHeaderPrefixes
             = Utils::HostOsInfo::isMacHost()
-            ? QLatin1String("QtTest.framework/Headers")
-            : QLatin1String("QtTest");
+            ? QStringList({ QLatin1String("QtTest.framework/Headers"), QLatin1String("QtTest") })
+            : QStringList({ QLatin1String("QtTest") });
 
     const QList<CPlusPlus::Document::Include> includes = doc->resolvedIncludes();
 
     foreach (const CPlusPlus::Document::Include &inc, includes) {
         // TODO this short cut works only for #include <QtTest>
         // bad, as there could be much more different approaches
-        if (inc.unresolvedFileName() == QLatin1String("QtTest")
-                && inc.resolvedFileName().endsWith(
-                    QString::fromLatin1("%1/QtTest").arg(expectedHeaderPrefix))) {
-            return true;
+        if (inc.unresolvedFileName() == QLatin1String("QtTest")) {
+            foreach (const QString &prefix, expectedHeaderPrefixes) {
+                if (inc.resolvedFileName().endsWith(QString::fromLatin1("%1/QtTest").arg(prefix)))
+                    return true;
+            }
         }
     }
 
@@ -198,9 +199,9 @@ static bool includesQtTest(const CPlusPlus::Document::Ptr &doc,
         CPlusPlus::Snapshot snapshot = cppMM->snapshot();
         const QSet<QString> allIncludes = snapshot.allIncludesForDocument(doc->fileName());
         foreach (const QString &include, allIncludes) {
-
-            if (include.endsWith(QString::fromLatin1("%1/qtest.h").arg(expectedHeaderPrefix))) {
-                return true;
+            foreach (const QString &prefix, expectedHeaderPrefixes) {
+                if (include.endsWith(QString::fromLatin1("%1/qtest.h").arg(prefix)))
+                    return true;
             }
         }
     }
@@ -210,25 +211,31 @@ static bool includesQtTest(const CPlusPlus::Document::Ptr &doc,
 static bool includesQtQuickTest(const CPlusPlus::Document::Ptr &doc,
                                 const CppTools::CppModelManager *cppMM)
 {
-    static QString expectedHeaderPrefix
+    static QStringList expectedHeaderPrefixes
             = Utils::HostOsInfo::isMacHost()
-            ? QLatin1String("QtQuickTest.framework/Headers")
-            : QLatin1String("QtQuickTest");
+            ? QStringList({ QLatin1String("QtQuickTest.framework/Headers"),
+                            QLatin1String("QtQuickTest") })
+            : QStringList({ QLatin1String("QtQuickTest") });
 
     const QList<CPlusPlus::Document::Include> includes = doc->resolvedIncludes();
 
     foreach (const CPlusPlus::Document::Include &inc, includes) {
-        if (inc.unresolvedFileName() == QLatin1String("QtQuickTest/quicktest.h")
-                && inc.resolvedFileName().endsWith(
-                    QString::fromLatin1("%1/quicktest.h").arg(expectedHeaderPrefix))) {
-            return true;
+        if (inc.unresolvedFileName() == QLatin1String("QtQuickTest/quicktest.h")) {
+            foreach (const QString &prefix, expectedHeaderPrefixes) {
+                if (inc.resolvedFileName().endsWith(
+                            QString::fromLatin1("%1/quicktest.h").arg(prefix))) {
+                    return true;
+                }
+            }
         }
     }
 
     if (cppMM) {
         foreach (const QString &include, cppMM->snapshot().allIncludesForDocument(doc->fileName())) {
-            if (include.endsWith(QString::fromLatin1("%1/quicktest.h").arg(expectedHeaderPrefix)))
-                return true;
+            foreach (const QString &prefix, expectedHeaderPrefixes) {
+                if (include.endsWith(QString::fromLatin1("%1/quicktest.h").arg(prefix)))
+                    return true;
+            }
         }
     }
     return false;
@@ -404,31 +411,31 @@ static CPlusPlus::Document::Ptr declaringDocument(CPlusPlus::Document::Ptr doc,
     return declaringDoc;
 }
 
-static bool hasFunctionWithDataTagUsage(const QMap<QString, TestCodeLocationAndType> &testFunctions)
-{
-    foreach (const QString &functionName, testFunctions.keys()) {
-        if (functionName.endsWith(QLatin1String("_data")) &&
-                testFunctions.contains(functionName.left(functionName.size() - 5))) {
-            return true;
-        }
-    }
-    return false;
-}
-
-static QMap<QString, TestCodeLocationList> checkForDataTags(const QString &fileName,
+static QSet<QString> filesWithDataFunctionDefinitions(
             const QMap<QString, TestCodeLocationAndType> &testFunctions)
 {
-    if (hasFunctionWithDataTagUsage(testFunctions)) {
-        const CPlusPlus::Snapshot snapshot = CPlusPlus::CppModelManagerBase::instance()->snapshot();
-        const QByteArray fileContent = getFileContent(fileName);
-        CPlusPlus::Document::Ptr document = snapshot.preprocessedDocument(fileContent, fileName);
-        document->check();
-        CPlusPlus::AST *ast = document->translationUnit()->ast();
-        TestDataFunctionVisitor visitor(document);
-        visitor.accept(ast);
-        return visitor.dataTags();
+    QSet<QString> result;
+    QMap<QString, TestCodeLocationAndType>::ConstIterator it = testFunctions.begin();
+    const QMap<QString, TestCodeLocationAndType>::ConstIterator end = testFunctions.end();
+
+    for ( ; it != end; ++it) {
+        const QString &key = it.key();
+        if (key.endsWith(QLatin1String("_data")) && testFunctions.contains(key.left(key.size() - 5)))
+            result.insert(it.value().m_name);
     }
-    return QMap<QString, TestCodeLocationList>();
+    return result;
+}
+
+static QMap<QString, TestCodeLocationList> checkForDataTags(const QString &fileName)
+{
+    const CPlusPlus::Snapshot snapshot = CPlusPlus::CppModelManagerBase::instance()->snapshot();
+    const QByteArray fileContent = getFileContent(fileName);
+    CPlusPlus::Document::Ptr document = snapshot.preprocessedDocument(fileContent, fileName);
+    document->check();
+    CPlusPlus::AST *ast = document->translationUnit()->ast();
+    TestDataFunctionVisitor visitor(document);
+    visitor.accept(ast);
+    return visitor.dataTags();
 }
 
 /****** end of helpers ******/
@@ -484,12 +491,11 @@ static bool handleQtTest(QFutureInterface<TestParseResult> futureInterface,
             return false;
 
         const QMap<QString, TestCodeLocationAndType> testFunctions = visitor.privateSlots();
+        const QSet<QString> &files = filesWithDataFunctionDefinitions(testFunctions);
 
-        QMap<QString, TestCodeLocationList> dataTags =
-                checkForDataTags(declaringDoc->fileName(), testFunctions);
-
-        if (declaringDoc->fileName() != fileName)
-            dataTags.unite(checkForDataTags(fileName, testFunctions));
+        QMap<QString, TestCodeLocationList> dataTags;
+        foreach (const QString &file, files)
+            dataTags.unite(checkForDataTags(file));
 
         TestParseResult parseResult(TestTreeModel::AutoTest);
         parseResult.fileName = declaringDoc->fileName();

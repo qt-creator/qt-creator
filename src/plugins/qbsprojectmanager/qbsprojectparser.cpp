@@ -206,8 +206,12 @@ QString QbsProjectParser::libExecDirectory() const
 QString QbsProjectParser::pluginsBaseDirectory() const
 {
     const QString qbsInstallDir = QLatin1String(QBS_INSTALL_DIR);
+
+    // Note: We assume here that Qt Creator and qbs use the same name for their library dir.
+    const QString qbsLibDirName = QLatin1String(IDE_LIBRARY_BASENAME);
+
     if (!qbsInstallDir.isEmpty())
-        return qbsInstallDir + QLatin1String("/lib/");
+        return qbsInstallDir + QLatin1Char('/') + qbsLibDirName;
     if (HostOsInfo::isMacHost())
         return QDir::cleanPath(QCoreApplication::applicationDirPath()
                                + QLatin1String("/../PlugIns"));

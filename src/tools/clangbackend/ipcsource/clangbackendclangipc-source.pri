@@ -33,7 +33,8 @@ HEADERS += $$PWD/clangipcserver.h \
     $$PWD/clangtype.h \
     $$PWD/highlightingmark.h \
     $$PWD/highlightingmarks.h \
-    $$PWD/highlightingmarksiterator.h
+    $$PWD/highlightingmarksiterator.h \
+    $$PWD/utf8positionfromlinecolumn.h
 
 SOURCES += $$PWD/clangipcserver.cpp \
     $$PWD/codecompleter.cpp \
@@ -66,4 +67,5 @@ SOURCES += $$PWD/clangipcserver.cpp \
     $$PWD/clangtranslationunit.cpp \
     $$PWD/clangtype.cpp \
     $$PWD/highlightingmark.cpp \
-    $$PWD/highlightingmarks.cpp
+    $$PWD/highlightingmarks.cpp \
+    $$PWD/utf8positionfromlinecolumn.cpp

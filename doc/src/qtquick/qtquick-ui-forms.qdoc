@@ -91,7 +91,7 @@
 
     The property alias exports the button to the QML code that uses the form.
     You can use the
-    \inlineimage qmldesigner-export-item-button.png
+    \inlineimage export_checked.png
     (\uicontrol Export) button in the \uicontrol Navigator to export an item as
     a property:
 

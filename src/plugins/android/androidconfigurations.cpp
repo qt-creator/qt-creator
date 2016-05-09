@@ -588,8 +588,11 @@ QVector<AndroidDeviceInfo> AndroidConfig::connectedDevices(const QString &adbToo
         else
             dev.state = AndroidDeviceInfo::OkState;
 
-        if (dev.type == AndroidDeviceInfo::Emulator)
+        if (dev.type == AndroidDeviceInfo::Emulator) {
             dev.avdname = getAvdName(dev.serialNumber);
+            if (dev.avdname.isEmpty())
+                dev.avdname = serialNo;
+        }
 
         devices.push_back(dev);
     }
@@ -921,9 +924,11 @@ QString AndroidConfig::getAvdName(const QString &serialnumber)
 
     QTcpSocket tcpSocket;
     tcpSocket.connectToHost(QHostAddress(QHostAddress::LocalHost), port);
-    tcpSocket.waitForConnected();
+    if (!tcpSocket.waitForConnected(100)) // Don't wait more than 100ms for a local connection
+        return QString{};
+
     tcpSocket.write(avdName + "exit\n");
-    tcpSocket.waitForDisconnected();
+    tcpSocket.waitForDisconnected(500);
 
     QByteArray name;
     const QByteArrayList response = tcpSocket.readAll().split('\n');

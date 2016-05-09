@@ -205,7 +205,7 @@ void GdbRemoteServerEngine::setupInferior()
     // gdb/mi/mi-main.c:1958: internal-error:
     // mi_execute_async_cli_command: Assertion `is_running (inferior_ptid)'
     // failed.\nA problem internal to GDB has been detected,[...]
-    if (boolSetting(TargetAsync))
+    if (usesTargetAsync())
         runCommand({"set target-async on", NoFlags, CB(handleSetTargetAsync)});
 
     if (symbolFile.isEmpty()) {
@@ -429,7 +429,7 @@ void GdbRemoteServerEngine::handleExecRun(const DebuggerResponse &response)
 void GdbRemoteServerEngine::interruptInferior2()
 {
     QTC_ASSERT(state() == InferiorStopRequested, qDebug() << state());
-    if (boolSetting(TargetAsync)) {
+    if (usesTargetAsync()) {
         runCommand({"-exec-interrupt", NoFlags, CB(handleInterruptInferior)});
     } else if (m_isQnxGdb && HostOsInfo::isWindowsHost()) {
         m_gdbProc.interrupt();

@@ -85,8 +85,9 @@ void ValgrindRunControl::start()
     ValgrindRunner *run = runner();
     run->setValgrindExecutable(m_settings->valgrindExecutable());
     run->setValgrindArguments(genericToolArguments() + toolArguments());
-    run->setDevice(device());
-    run->setDebuggee(runnable().as<StandardRunnable>());
+    const StandardRunnable r = runnable().as<StandardRunnable>();
+    run->setDevice(r.device ? r.device : device());
+    run->setDebuggee(r);
 
     connect(run, &ValgrindRunner::processOutputReceived,
             this, &ValgrindRunControl::receiveProcessOutput);

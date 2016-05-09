@@ -112,6 +112,18 @@ protected:
         readFileContent(QStringLiteral("/complete_withDotArrowCorrectionForPointer.cpp")),
         true
     };
+    ClangBackEnd::FileContainer dotArrowCorrectionForPointerFileContainerInitial{
+        Utf8StringLiteral(TESTDATA_DIR"/complete_withDotArrowCorrectionForPointer.cpp"),
+        projectPart.projectPartId(),
+        readFileContent(QStringLiteral("/complete_withDotArrowCorrectionForPointerInitial.cpp")),
+        true
+    };
+    ClangBackEnd::FileContainer dotArrowCorrectionForPointerFileContainerUpdated{
+        Utf8StringLiteral(TESTDATA_DIR"/complete_withDotArrowCorrectionForPointer.cpp"),
+        projectPart.projectPartId(),
+        readFileContent(QStringLiteral("/complete_withDotArrowCorrectionForPointerUpdated.cpp")),
+        true
+    };
     ClangBackEnd::FileContainer noDotArrowCorrectionForObjectFileContainer{
         Utf8StringLiteral(TESTDATA_DIR"/complete_withNoDotArrowCorrectionForObject.cpp"),
         projectPart.projectPartId(),
@@ -304,6 +316,14 @@ TEST_F(CodeCompleter, ArrowCompletion)
 TEST_F(CodeCompleter, HasDotAt)
 {
     auto myCompleter = setupCompleter(dotArrowCorrectionForPointerFileContainer);
+
+    ASSERT_TRUE(myCompleter.hasDotAt(5, 8));
+}
+
+TEST_F(CodeCompleter, HasDotAtWithUpdatedUnsavedFile)
+{
+    auto myCompleter = setupCompleter(dotArrowCorrectionForPointerFileContainerInitial);
+    unsavedFiles.createOrUpdate({dotArrowCorrectionForPointerFileContainerUpdated});
 
     ASSERT_TRUE(myCompleter.hasDotAt(5, 8));
 }

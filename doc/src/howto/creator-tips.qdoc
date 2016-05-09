@@ -135,7 +135,7 @@
     \section1 Showing and Hiding the Sidebar
 
     To toggle the sidebar in the \uicontrol Edit and \uicontrol Debug modes, click
-    \inlineimage qtcreator-togglebutton.png
+    \inlineimage sidebaricon.png
     or press \key Alt+0 (\key Cmd+0 on OS X).
 
     For more information on using the sidebar, see

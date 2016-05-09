@@ -63,8 +63,7 @@
 
         \li Use the application to analyze it.
 
-        \li Select the
-            \inlineimage qtcreator-debug-button-stop.png "Stop button"
+        \li Select the \inlineimage stop_small.png "Stop button"
             button to view the results of the analysis in the
             \uicontrol {Analysis} view.
 
@@ -171,8 +170,7 @@
 
         \li Use the application to analyze it.
 
-        \li Select the
-            \inlineimage qtcreator-debug-button-stop.png "Stop button"
+        \li Select the \inlineimage stop_small.png "Stop button"
             button to view the results of the analysis in the \uicontrol Profile
             view.
 

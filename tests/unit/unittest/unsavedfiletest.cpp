@@ -171,4 +171,11 @@ TEST_F(UnsavedFile, HasCharacterForCorrectOffset)
     ASSERT_TRUE(unsavedFile.hasCharacterAt(0, 'c'));
 }
 
+TEST_F(UnsavedFile, HasCharacterForLastLineColumn)
+{
+    ::UnsavedFile unsavedFile(filePath, fileContent);
+
+    ASSERT_TRUE(unsavedFile.hasCharacterAt(1, 7, 't'));
+}
+
 } // anonymous namespace

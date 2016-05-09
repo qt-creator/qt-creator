@@ -713,9 +713,21 @@ void TreeItem::removeChildren()
 void TreeItem::sortChildren(const std::function<bool(const TreeItem *, const TreeItem *)> &cmp)
 {
     if (m_model) {
-        m_model->layoutAboutToBeChanged();
-        std::sort(m_children.begin(), m_children.end(), cmp);
-        m_model->layoutChanged();
+        if (const int n = rowCount()) {
+            QVector<TreeItem *> tmp = m_children;
+            std::sort(tmp.begin(), tmp.end(), cmp);
+            if (tmp == m_children) {
+                // Nothing changed.
+            } else {
+                QModelIndex idx = index();
+                m_model->beginRemoveRows(idx, 0, n - 1);
+                m_children.clear();
+                m_model->endRemoveRows();
+                m_model->beginInsertRows(idx, 0, n - 1);
+                tmp.swap(m_children);
+                m_model->endInsertRows();
+            }
+        }
     } else {
         std::sort(m_children.begin(), m_children.end(), cmp);
     }

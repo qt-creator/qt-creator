@@ -3014,10 +3014,13 @@ void tst_Dumpers::dumper_data()
 
     QTest::newRow("QUuid")
             << Data("#include <QUuid>",
-                    "QUuid uuid(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11);\n"
-                    "unused(&uuid);\n")
+                    "QUuid uuid1(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11);\n"
+                    "QUuid uuid2(0xfffffffeu, 0xfffd, 0xfffc, 0xfb, "
+                    "  0xfa, 0xf9, 0xf8, 0xf7, 0xf6, 0xf5, 0xf4);\n"
+                    "unused(&uuid1, &uuid2);\n")
                + CoreProfile()
-               + Check("uuid", "{00000001-0002-0003-0405-060708090a0b}", "@QUuid");
+               + Check("uuid1", "{00000001-0002-0003-0405-060708090a0b}", "@QUuid")
+               + Check("uuid2", "{fffffffe-fffd-fffc-fbfa-f9f8f7f6f5f4}", "@QUuid");
 
 
     QByteArray expected1 = "\"AAA";

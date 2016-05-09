@@ -1416,10 +1416,9 @@
 
             If the text is found, all occurrences are highlighted as you type.
 
-        \li To go to the next occurrence, click \inlineimage qtcreator-next.png
+        \li To go to the next occurrence, click \inlineimage next.png
             (\uicontrol {Find Next}), or press \key F3. To go to the previous
-            occurrence click
-            \inlineimage qtcreator-previous.png
+            occurrence click \inlineimage prev.png
             (\uicontrol {Find Previous}), or press \key {Shift+F3}.
 
     \endlist
@@ -1641,17 +1640,18 @@
         \li To go directly to an instance, double-click the instance in the
             \uicontrol {Search Results} pane.
 
-        \li To move between instances, click \inlineimage qtcreator-forward.png
-            and \inlineimage qtcreator-back.png
-            in the \uicontrol {Search Results} pane.
+        \li To move between instances, click the \inlineimage next.png
+            (\uicontrol {Next Item}) button and \inlineimage prev.png
+            (\uicontrol {Previous Item}) button in the
+            \uicontrol {Search Results} pane.
 
-        \li To expand and collapse the list of all instances, click
+        \li To expand and collapse the list of all instances, click the
             \inlineimage qtcreator-expand.png
-            .
+            (\uicontrol {Expand All}) button.
 
-        \li To clear the search results, click
-            \inlineimage qtcreator-clear.png
-            .
+        \li To clear the search results, click the
+            \inlineimage clean_pane_small.png
+            (\uicontrol Clear) button.
 
     \endlist
 
@@ -2110,7 +2110,7 @@
                 edit a function signature and by applying the changes to the
                 matching code.
             \li Function signature. When this action is available, a light bulb
-                icon appears: \inlineimage qml-toolbar-indicator.png
+                icon appears: \inlineimage refactormarker.png
         \row
             \li Add #include for undeclared or forward declared identifier
             \li Adds an \c {#include} directive to the current file to make the
@@ -2558,7 +2558,7 @@
 
     \list 1
 
-        \li In the locator, click \inlineimage qtcreator-locator-magnify.png
+        \li In the locator, click \inlineimage magnifier.png
             (\uicontrol Options) and select \uicontrol Configure to open the
             \uicontrol Locator options.
 

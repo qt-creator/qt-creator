@@ -307,7 +307,7 @@
         \li In the base state, add all items you will need in the
             application (1).
             While you work on one screen, you can click the
-            \inlineimage qmldesigner-show-hide-icon.png
+            \inlineimage eye_open.png
             icon to hide items on the canvas that are not part of a screen.
 
         \li In the \uicontrol States pane, click the empty slot to create a new state

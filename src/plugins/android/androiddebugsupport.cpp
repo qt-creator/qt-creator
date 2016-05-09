@@ -42,6 +42,8 @@
 
 #include <qtsupport/qtkitinformation.h>
 
+#include <utils/hostosinfo.h>
+
 #include <QDirIterator>
 #include <QTcpServer>
 
@@ -93,6 +95,8 @@ RunControl *AndroidDebugSupport::createDebugRunControl(AndroidRunConfiguration *
     params.displayName = AndroidManager::packageName(target);
     params.remoteSetupNeeded = true;
     params.useContinueInsteadOfRun = true;
+    if (!Utils::HostOsInfo::isWindowsHost()) // Workaround for NDK 11c(b?)
+        params.useTargetAsync = true;
 
     auto aspect = runConfig->extraAspect<DebuggerRunConfigurationAspect>();
     if (aspect->useCppDebugger()) {

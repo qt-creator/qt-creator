@@ -70,10 +70,6 @@ bool ClangStaticAnalyzerRunControlFactory::canRun(RunConfiguration *runConfigura
 
     Project *project = runConfiguration->target()->project();
     QTC_ASSERT(project, return false);
-
-    if (project->id() != "Qt4ProjectManager.Qt4Project" && project->id() != "Qbs.QbsProject")
-        return false;
-
     const Core::Context context = project->projectLanguages();
     if (!context.contains(ProjectExplorer::Constants::LANG_CXX))
         return false;
@@ -83,10 +79,7 @@ bool ClangStaticAnalyzerRunControlFactory::canRun(RunConfiguration *runConfigura
     Kit *kit = target->kit();
     QTC_ASSERT(kit, return false);
     ToolChain *toolChain = ToolChainKitInformation::toolChain(kit);
-    return toolChain && (toolChain->typeId() == ProjectExplorer::Constants::CLANG_TOOLCHAIN_TYPEID
-            || toolChain->typeId() == ProjectExplorer::Constants::GCC_TOOLCHAIN_TYPEID
-            || toolChain->typeId() == ProjectExplorer::Constants::MINGW_TOOLCHAIN_TYPEID
-            || toolChain->typeId() == ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID);
+    return toolChain;
 }
 
 RunControl *ClangStaticAnalyzerRunControlFactory::create(RunConfiguration *runConfiguration,

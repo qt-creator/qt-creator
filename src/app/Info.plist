@@ -2,8 +2,198 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-        <key>NSPrincipalClass</key>
-        <string>NSApplication</string>
+	<key>UTExportedTypeDeclarations</key>
+	<array>
+		<dict>
+			<key>UTTypeIconFile</key>
+			<string>profile.icns</string>
+			<key>UTTypeDescription</key>
+			<string>Qt Creator Makefile Based Project File</string>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.plain-text</string>
+			</array>
+			<key>UTTypeIdentifier</key>
+			<string>org.qt-project.qtcreator-genericproject</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>creator</string>
+				</array>
+			</dict>
+		</dict>
+		<dict>
+			<key>UTTypeIconFile</key>
+			<string>profile.icns</string>
+			<key>UTTypeDescription</key>
+			<string>Quick Project File</string>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.plain-text</string>
+				<string>org.qt-project.qml</string>
+			</array>
+			<key>UTTypeIdentifier</key>
+			<string>org.qt-project.qtcreator-qmlproject</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>qmlproject</string>
+				</array>
+			</dict>
+		</dict>
+	</array>
+	<key>UTImportedTypeDeclarations</key>
+	<array>
+		<dict>
+			<key>UTTypeIconFile</key>
+			<string>profile.icns</string>
+			<key>UTTypeDescription</key>
+			<string>Qt Project File</string>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.source-code</string>
+			</array>
+			<key>UTTypeIdentifier</key>
+			<string>org.qt-project.pro</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>pro</string>
+				</array>
+			</dict>
+		</dict>
+		<dict>
+			<key>UTTypeIconFile</key>
+			<string>prifile.icns</string>
+			<key>UTTypeDescription</key>
+			<string>Qt Project Include File</string>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.source-code</string>
+			</array>
+			<key>UTTypeIdentifier</key>
+			<string>org.qt-project.pri</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>pri</string>
+					<string>prf</string>
+				</array>
+			</dict>
+		</dict>
+		<dict>
+			<key>UTTypeIconFile</key>
+			<string>profile.icns</string>
+			<key>UTTypeDescription</key>
+			<string>Qbs Project File</string>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.source-code</string>
+			</array>
+			<key>UTTypeIdentifier</key>
+			<string>org.qt-project.qbs</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>qbs</string>
+				</array>
+			</dict>
+		</dict>
+		<dict>
+			<key>UTTypeDescription</key>
+			<string>Qt Resource File</string>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.source-code</string>
+				<string>public.xml</string>
+			</array>
+			<key>UTTypeIdentifier</key>
+			<string>org.qt-project.qrc</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>qrc</string>
+				</array>
+			</dict>
+		</dict>
+		<dict>
+			<key>UTTypeDescription</key>
+			<string>Qt UI File</string>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.source-code</string>
+				<string>public.xml</string>
+			</array>
+			<key>UTTypeIdentifier</key>
+			<string>org.qt-project.ui</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>ui</string>
+				</array>
+			</dict>
+		</dict>
+		<dict>
+			<key>UTTypeDescription</key>
+			<string>Qt Markup Language</string>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.source-code</string>
+			</array>
+			<key>UTTypeIdentifier</key>
+			<string>org.qt-project.qml</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>qml</string>
+				</array>
+			</dict>
+		</dict>
+		<dict>
+			<key>UTTypeDescription</key>
+			<string>Qt Documentation</string>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.source-code</string>
+			</array>
+			<key>UTTypeIdentifier</key>
+			<string>org.qt-project.qdoc</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>qdoc</string>
+				</array>
+			</dict>
+		</dict>
+		<dict>
+			<key>UTTypeDescription</key>
+			<string>Qt Documentation Configuration</string>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.source-code</string>
+			</array>
+			<key>UTTypeIdentifier</key>
+			<string>org.qt-project.qdocconf</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>qdocconf</string>
+				</array>
+			</dict>
+		</dict>
+	</array>
+	<key>NSPrincipalClass</key>
+	<string>NSApplication</string>
 	<key>NSSupportsAutomaticGraphicsSwitching</key>
 	<true/>
 	<key>CFBundleDocumentTypes</key>
@@ -11,229 +201,43 @@
 		<dict>
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
-			<key>CFBundleTypeIconFile</key>
-			<string>profile.icns</string>
-			<key>CFBundleTypeExtensions</key>
-			<array>
-				<string>pro</string>
-			</array>
-			<key>CFBundleTypeName</key>
-			<string>Qt Project File</string>
 			<key>LSHandlerRank</key>
 			<string>Default</string>
+			<key>LSItemContentTypes</key>
+			<array>
+				<string>org.qt-project.pro</string>
+				<string>org.qt-project.pri</string>
+				<string>org.qt-project.qbs</string>
+				<string>org.qt-project.qrc</string>
+				<string>org.qt-project.ui</string>
+				<string>org.qt-project.qml</string>
+				<string>org.qt-project.qdoc</string>
+				<string>org.qt-project.qdocconf</string>
+				<string>org.qt-project.qtcreator-genericproject</string>
+				<string>org.qt-project.qtcreator-qmlproject</string>
+			</array>
 		</dict>
 		<dict>
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
-			<key>CFBundleTypeIconFile</key>
-			<string>prifile.icns</string>
-			<key>CFBundleTypeExtensions</key>
+			<key>LSItemContentTypes</key>
 			<array>
-				<string>pri</string>
+				<string>public.c-source</string>
+				<string>public.objective-c-source</string>
+				<string>public.c-plus-plus-source</string>
+				<string>public.objective-c-plus-plus-source</string>
+				<string>public.c-header</string>
+				<string>public.c-plus-plus-header</string>
+				<string>com.sun.java-source</string>
+				<string>com.netscape.javascript-source</string>
+				<string>public.python-script</string>
+				<string>public.plain-text</string>
+				<string>com.apple.nspboard-type</string>
 			</array>
-			<key>CFBundleTypeName</key>
-			<string>Qt Project Include File</string>
-			<key>LSHandlerRank</key>
-			<string>Default</string>
-		</dict>
-		<dict>
-			<key>CFBundleTypeRole</key>
-			<string>Editor</string>
-			<key>CFBundleTypeIconFile</key>
-			<string>profile.icns</string>
-			<key>CFBundleTypeExtensions</key>
-			<array>
-				<string>qbs</string>
-			</array>
-			<key>CFBundleTypeName</key>
-			<string>Qbs Project File</string>
-			<key>LSHandlerRank</key>
-			<string>Default</string>
-		</dict>
-                <dict>
-                        <key>CFBundleTypeRole</key>
-                        <string>Editor</string>
-                        <key>CFBundleTypeIconFile</key>
-                        <string>profile.icns</string>
-                        <key>CFBundleTypeExtensions</key>
-                        <array>
-                                <string>creator</string>
-                        </array>
-                        <key>CFBundleTypeName</key>
-                        <string>Qt Creator Makefile Based Project File</string>
-                        <key>LSHandlerRank</key>
-                        <string>Default</string>
-                </dict>
-                <dict>
-                        <key>CFBundleTypeRole</key>
-                        <string>Editor</string>
-                        <key>CFBundleTypeIconFile</key>
-                        <string>profile.icns</string>
-                        <key>CFBundleTypeExtensions</key>
-                        <array>
-                                <string>qmlproject</string>
-                        </array>
-                        <key>CFBundleTypeName</key>
-                        <string>Quick Project File</string>
-                        <key>LSHandlerRank</key>
-                        <string>Default</string>
-                </dict>
-                <dict>
-			<key>CFBundleTypeRole</key>
-			<string>Editor</string>
-			<key>CFBundleTypeExtensions</key>
-			<array>
-				<string>qrc</string>
-			</array>
-			<key>CFBundleTypeName</key>
-			<string>Qt Resource File</string>
-			<key>LSHandlerRank</key>
-			<string>Default</string>
-		</dict>
-		<dict>
-			<key>CFBundleTypeRole</key>
-			<string>Editor</string>
-			<key>CFBundleTypeExtensions</key>
-			<array>
-				<string>ui</string>
-			</array>
-			<key>CFBundleTypeName</key>
-			<string>Qt UI File</string>
-		</dict>
-		<dict>
-			<key>CFBundleTypeExtensions</key>
-			<array>
-				<string>qml</string>
-			</array>
-			<key>CFBundleTypeName</key>
-			<string>QML File</string>
-			<key>CFBundleTypeOSTypes</key>
-			<array>
-				<string>TEXT</string>
-				<string>utxt</string>
-			</array>
-			<key>CFBundleTypeRole</key>
-			<string>Editor</string>
-		</dict>
-		<dict>
-			<key>CFBundleTypeExtensions</key>
-			<array>
-				<string>h</string>
-				<string>hpp</string>
-			</array>
-			<key>CFBundleTypeName</key>
-			<string>Header File</string>
-			<key>CFBundleTypeOSTypes</key>
-			<array>
-				<string>TEXT</string>
-				<string>utxt</string>
-			</array>
-			<key>CFBundleTypeRole</key>
-			<string>Editor</string>
-		</dict>
-		<dict>
-			<key>CFBundleTypeExtensions</key>
-			<array>
-				<string>cc</string>
-				<string>CC</string>
-				<string>cp</string>
-				<string>CP</string>
-				<string>cpp</string>
-				<string>CPP</string>
-				<string>cxx</string>
-				<string>CXX</string>
-				<string>c++</string>
-				<string>C++</string>
-			</array>
-			<key>CFBundleTypeName</key>
-			<string>C++ Source File</string>
-			<key>CFBundleTypeOSTypes</key>
-			<array>
-				<string>TEXT</string>
-				<string>utxt</string>
-			</array>
-			<key>CFBundleTypeRole</key>
-			<string>Editor</string>
-		</dict>
-		<dict>
-			<key>CFBundleTypeExtensions</key>
-			<array>
-				<string>mm</string>
-				<string>MM</string>
-			</array>
-			<key>CFBundleTypeName</key>
-			<string>Objective-C++ Source File</string>
-			<key>CFBundleTypeOSTypes</key>
-			<array>
-				<string>TEXT</string>
-				<string>utxt</string>
-			</array>
-			<key>CFBundleTypeRole</key>
-			<string>Editor</string>
-		</dict>
-		<dict>
-			<key>CFBundleTypeExtensions</key>
-			<array>
-				<string>m</string>
-			</array>
-			<key>CFBundleTypeName</key>
-			<string>Objective-C Source File</string>
-			<key>CFBundleTypeOSTypes</key>
-			<array>
-				<string>TEXT</string>
-				<string>utxt</string>
-			</array>
-			<key>CFBundleTypeRole</key>
-			<string>Editor</string>
-		</dict>
-		<dict>
-			<key>CFBundleTypeExtensions</key>
-			<array>
-				<string>c</string>
-				<string>C</string>
-			</array>
-			<key>CFBundleTypeName</key>
-			<string>C Source File</string>
-			<key>CFBundleTypeOSTypes</key>
-			<array>
-				<string>TEXT</string>
-				<string>utxt</string>
-			</array>
-			<key>CFBundleTypeRole</key>
-			<string>Editor</string>
-		</dict>
-		<dict>
-			<key>CFBundleTypeExtensions</key>
-			<array>
-				<string>txt</string>
-				<string>text</string>
-			</array>
-			<key>CFBundleTypeName</key>
-			<string>Text File</string>
-			<key>CFBundleTypeOSTypes</key>
-			<array>
-				<string>TEXT</string>
-			</array>
-			<key>CFBundleTypeRole</key>
-			<string>Editor</string>
-		</dict>
-		<dict>
-			<key>CFBundleTypeExtensions</key>
-			<array>
-				<string>*</string>
-			</array>
-			<key>CFBundleTypeName</key>
-			<string>NSStringPboardType</string>
-			<key>CFBundleTypeOSTypes</key>
-			<array>
-				<string>****</string>
-			</array>
-			<key>CFBundleTypeRole</key>
-			<string>Editor</string>
 		</dict>
 	</array>
-        <key>NSHumanReadableCopyright</key>
-        <string>(C) 2016 The Qt Company Ltd</string>
+	<key>NSHumanReadableCopyright</key>
+	<string>(C) 2016 The Qt Company Ltd</string>
 	<key>CFBundleIconFile</key>
 	<string>qtcreator</string>
 	<key>CFBundlePackageType</key>

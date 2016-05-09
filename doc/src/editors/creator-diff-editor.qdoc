@@ -63,12 +63,11 @@
     removed text and then select \uicontrol {Apply Chunk}.
 
     To view the differences in a unified view where changed rows are placed
-    below each other, select
-    \inlineimage qtcreator-switchto-unified-diffeditor.png
+    below each other, select \inlineimage unifieddiff.png
     (\uicontrol {Switch to Unified Diff Editor}).
 
     To switch back to the side-by-side view, select
-    \inlineimage qtcreator-switchto-sidebyside-diffeditor.png
+    \inlineimage sidebysidediff.png
     (\uicontrol {Switch to Side by Side Diff Editor}).
 
     To change the default colors, select \uicontrol Tools > \uicontrol Options >
@@ -105,11 +104,10 @@
 
     By default, the horizontal scroll bars in the left and right pane are
     synchronized. To use them independently of each other, select the
-    \inlineimage qtcreator-synchronizefocus.png
+    \inlineimage linkicon.png
     (\uicontrol {Synchronize Horizontal Scroll Bars}) button.
 
-    If the files change outside \QC, select
-    \inlineimage qtcreator-regenerate-index.png
+    If the files change outside \QC, select \inlineimage reload_gray.png
     (\uicontrol {Reload Editor}) to compare them again and to show the results.
 
     To send a chunk of changes to a \l{Pasting and Fetching Code Snippets}

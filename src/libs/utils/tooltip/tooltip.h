@@ -29,6 +29,7 @@
 
 #include <QSharedPointer>
 #include <QObject>
+#include <QPointer>
 #include <QTimer>
 #include <QRect>
 
@@ -106,7 +107,7 @@ private:
     void showTip();
     void hideTipWithDelay();
 
-    Internal::QTipLabel *m_tip;
+    QPointer<Internal::QTipLabel> m_tip;
     QWidget *m_widget;
     QRect m_rect;
     QTimer m_showTimer;

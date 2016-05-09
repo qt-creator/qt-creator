@@ -143,10 +143,10 @@ def qdump_X_QAbstractItemModel(d, value):
                         #d.putType(mi.type)
     #gdb.execute("call free($ri)")
 
-def qform__QModelIndex():
+def qform_X_QModelIndex():
     return [SimpleFormat, EnhancedFormat]
 
-def qdump__QModelIndex(d, value):
+def qdump_X_QModelIndex(d, value):
     displayFormat = d.currentItemFormat()
     if displayFormat == SimpleFormat:
         d.putPlainChildren(value)
@@ -1956,7 +1956,8 @@ def qdump__QUrl(d, value):
 def qdump__QUuid(d, value):
     v = value["data4"]
     d.putValue("{%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x}"
-                % (value["data1"], value["data2"], value["data3"],
+                % (toInteger(value["data1"]) & 0xfffffffff,
+                   value["data2"], value["data3"],
                    v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7]))
     d.putNumChild(1)
     d.putPlainChildren(value)

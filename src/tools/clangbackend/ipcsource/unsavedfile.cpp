@@ -26,6 +26,7 @@
 #include "unsavedfile.h"
 
 #include "utf8string.h"
+#include "utf8positionfromlinecolumn.h"
 
 #include <cstring>
 #include <ostream>
@@ -68,6 +69,17 @@ UnsavedFile &UnsavedFile::operator=(UnsavedFile &&other) Q_DECL_NOEXCEPT
 const char *UnsavedFile::filePath() const
 {
     return cxUnsavedFile.Filename;
+}
+
+bool UnsavedFile::hasCharacterAt(uint line, uint column, char character) const
+{
+    Utf8PositionFromLineColumn converter(cxUnsavedFile.Contents);
+    if (converter.find(line, column)) {
+        const uint utf8Position = converter.position();
+        return hasCharacterAt(utf8Position, character);
+    }
+
+    return false;
 }
 
 bool UnsavedFile::hasCharacterAt(uint position, char character) const

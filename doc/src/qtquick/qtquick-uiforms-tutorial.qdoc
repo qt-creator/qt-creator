@@ -73,14 +73,14 @@
 
         \li Select the split view in the navigator, then select the
             \uicontrol Layout tab in \uicontrol Properties (4), and then click
-            the \inlineimage qmldesigner-anchor-fill-screen.png
+            the \inlineimage anchor-fill-normal.png
             (\uicontrol {Fill to Parent}) button to anchor the split view to the
             item.
 
         \li Drag and drop a \uicontrol TableView and a \uicontrol {Tab View}
             from the library to the split view in the navigator.
 
-        \li Select the \inlineimage qmldesigner-export-item-button.png
+        \li Select the \inlineimage export_unchecked.png
             (\uicontrol Export) button in the navigator to export the table view
             as a property.
 

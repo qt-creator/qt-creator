@@ -146,6 +146,8 @@ public:
 
     static QString platformName();
 
+    static bool isInitializationDone();
+
 signals:
     void objectAdded(QObject *obj);
     void aboutToRemoveObject(QObject *obj);

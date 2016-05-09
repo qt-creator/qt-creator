@@ -131,6 +131,8 @@ public:
 
     mutable QReadWriteLock m_lock;
 
+    bool m_isInitializationDone = false;
+
 private slots:
     void nextDelayedInitialize();
     void asyncShutdownFinished();
