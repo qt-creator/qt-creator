@@ -214,13 +214,14 @@ private:
     qint64 m_timestamp;
     qint64 m_duration;
 
+    static const int s_internalDataLength = 8;
     union {
         void  *external;
-        char   internalChar [sizeof(external)];
-        qint8  internal8bit [sizeof(external)];
-        qint16 internal16bit[sizeof(external) / 2];
-        qint32 internal32bit[sizeof(external) / 4];
-        qint64 internal64bit[sizeof(external) / 8];
+        char   internalChar [s_internalDataLength];
+        qint8  internal8bit [s_internalDataLength];
+        qint16 internal16bit[s_internalDataLength / 2];
+        qint32 internal32bit[s_internalDataLength / 4];
+        qint64 internal64bit[s_internalDataLength / 8];
     } m_data;
 
     qint32 m_typeIndex;
