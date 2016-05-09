@@ -163,8 +163,7 @@ void setupProjectInfoQmlBundles(ModelManagerInterface::ProjectInfo &projectInfo)
     if (projectInfo.project) {
         QSet<Kit *> currentKits;
         foreach (const Target *t, projectInfo.project->targets())
-            if (t->kit())
-                currentKits.insert(t->kit());
+            currentKits.insert(t->kit());
         currentKits.remove(activeKit);
         foreach (Kit *kit, currentKits) {
             foreach (IBundleProvider *bp, bundleProviders)
