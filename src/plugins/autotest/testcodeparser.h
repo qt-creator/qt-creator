@@ -49,6 +49,8 @@ public:
     explicit TestParseResult(TestTreeModel::Type t = TestTreeModel::Invalid) : type(t) {}
     virtual ~TestParseResult() { qDeleteAll(children); }
 
+    virtual TestTreeItem *createTestTreeItem() const = 0;
+
     QVector<TestParseResult *> children;
     TestTreeModel::Type type;
     TestTreeItem::Type itemType = TestTreeItem::Root;
@@ -64,18 +66,21 @@ class QtTestParseResult : public TestParseResult
 {
 public:
     explicit QtTestParseResult() : TestParseResult(TestTreeModel::AutoTest) {}
+    TestTreeItem *createTestTreeItem() const override;
 };
 
 class QuickTestParseResult : public TestParseResult
 {
 public:
     explicit QuickTestParseResult() : TestParseResult(TestTreeModel::QuickTest) {}
+    TestTreeItem *createTestTreeItem() const override;
 };
 
 class GoogleTestParseResult : public TestParseResult
 {
 public:
     explicit GoogleTestParseResult() : TestParseResult(TestTreeModel::GoogleTest) {}
+    TestTreeItem *createTestTreeItem() const override;
     bool parameterized = false;
     bool typed = false;
     bool disabled = false;

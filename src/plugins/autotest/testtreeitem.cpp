@@ -326,7 +326,7 @@ inline bool TestTreeItem::modifyName(const QString &name)
     return false;
 }
 
-TestTreeItem *TestTreeItem::findChildBy(CompareFunction compare)
+TestTreeItem *TestTreeItem::findChildBy(CompareFunction compare) const
 {
     for (int row = 0, count = childCount(); row < count; ++row) {
         TestTreeItem *child = childItem(row);
@@ -497,6 +497,42 @@ QList<TestConfiguration *> AutoTestTreeItem::getSelectedTestConfigurations() con
     }
 
     return result;
+}
+
+TestTreeItem *AutoTestTreeItem::find(const TestParseResult *result)
+{
+    QTC_ASSERT(result, return 0);
+
+    switch (type()) {
+    case Root:
+        return findChildByFile(result->fileName);
+    case TestCase:
+        return findChildByName(result->displayName);
+    case TestFunctionOrSet:
+    case TestDataFunction:
+    case TestSpecialFunction:
+        return findChildByName(result->name);
+    default:
+        return 0;
+    }
+}
+
+bool AutoTestTreeItem::modify(const TestParseResult *result)
+{
+    QTC_ASSERT(result, return false);
+
+    switch (type()) {
+    case TestCase:
+        return modifyTestCaseContent(result->name, result->line, result->column);
+    case TestFunctionOrSet:
+    case TestDataFunction:
+    case TestSpecialFunction:
+        return modifyTestFunctionContent(result);
+    case TestDataTag:
+        return modifyDataTagContent(result->name, result->fileName, result->line, result->line);
+    default:
+        return false;
+    }
 }
 
 QuickTestTreeItem *QuickTestTreeItem::createTestItem(const TestParseResult *result)
@@ -740,6 +776,39 @@ QList<TestConfiguration *> QuickTestTreeItem::getSelectedTestConfigurations() co
     return result;
 }
 
+TestTreeItem *QuickTestTreeItem::find(const TestParseResult *result)
+{
+    QTC_ASSERT(result, return 0);
+
+    switch (type()) {
+    case Root:
+        return result->name.isEmpty() ? unnamedQuickTests() : findChildByFile(result->fileName);
+    case TestCase:
+        return name().isEmpty() ? findChildByNameAndFile(result->name, result->fileName)
+                                : findChildByName(result->name);
+    default:
+        return 0;
+    }
+}
+
+bool QuickTestTreeItem::modify(const TestParseResult *result)
+{
+    QTC_ASSERT(result, return false);
+
+    switch (type()) {
+    case TestCase:
+        return result->name.isEmpty() ? false : modifyTestCaseContent(result->name, result->line,
+                                                                      result->column);
+    case TestFunctionOrSet:
+    case TestDataFunction:
+    case TestSpecialFunction:
+        return name().isEmpty() ? modifyLineAndColumn(result->line, result->column)
+                                : modifyTestFunctionContent(result);
+    default:
+        return false;
+    }
+}
+
 bool QuickTestTreeItem::lessThan(const TestTreeItem *other, TestTreeItem::SortMode mode) const
 {
     // handle special item (<unnamed>)
@@ -972,6 +1041,39 @@ QList<TestConfiguration *> GoogleTestTreeItem::getSelectedTestConfigurations() c
     return result;
 }
 
+TestTreeItem *GoogleTestTreeItem::find(const TestParseResult *result)
+{
+    QTC_ASSERT(result, return 0);
+
+    const GoogleTestParseResult *parseResult = static_cast<const GoogleTestParseResult *>(result);
+    GoogleTestTreeItem::TestStates states = parseResult->disabled ? GoogleTestTreeItem::Disabled
+                                                                  : GoogleTestTreeItem::Enabled;
+    if (parseResult->parameterized)
+        states |= GoogleTestTreeItem::Parameterized;
+    if (parseResult->typed)
+        states |= GoogleTestTreeItem::Typed;
+    switch (type()) {
+    case Root:
+        return findChildByNameStateAndFile(parseResult->name, states, parseResult->proFile);
+    case TestCase:
+        return findChildByNameAndFile(result->name, result->fileName);
+    default:
+        return 0;
+    }
+}
+
+bool GoogleTestTreeItem::modify(const TestParseResult *result)
+{
+    QTC_ASSERT(result, return false);
+
+    switch (type()) {
+    case TestFunctionOrSet:
+        return modifyTestSetContent(static_cast<const GoogleTestParseResult *>(result));
+    default:
+        return false;
+    }
+}
+
 bool GoogleTestTreeItem::modifyTestSetContent(const GoogleTestParseResult *result)
 {
     bool hasBeenModified = modifyLineAndColumn(result->line, result->column);
@@ -986,7 +1088,7 @@ bool GoogleTestTreeItem::modifyTestSetContent(const GoogleTestParseResult *resul
 
 TestTreeItem *GoogleTestTreeItem::findChildByNameStateAndFile(const QString &name,
                                                               GoogleTestTreeItem::TestStates state,
-                                                              const QString &proFile)
+                                                              const QString &proFile) const
 {
     return findChildBy([name, state, proFile](const TestTreeItem *other) -> bool {
         const GoogleTestTreeItem *gtestItem = static_cast<const GoogleTestTreeItem *>(other);

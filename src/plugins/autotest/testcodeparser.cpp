@@ -910,5 +910,24 @@ void TestCodeParser::onPartialParsingFinished()
     }
 }
 
+TestTreeItem *QtTestParseResult::createTestTreeItem() const
+{
+    return itemType == TestTreeItem::Root ? 0 : AutoTestTreeItem::createTestItem(this);
+}
+
+TestTreeItem *QuickTestParseResult::createTestTreeItem() const
+{
+    if (itemType == TestTreeItem::Root || itemType == TestTreeItem::TestDataTag)
+        return 0;
+    return QuickTestTreeItem::createTestItem(this);
+}
+
+TestTreeItem *GoogleTestParseResult::createTestTreeItem() const
+{
+    if (itemType == TestTreeItem::TestCase || itemType == TestTreeItem::TestFunctionOrSet)
+        return GoogleTestTreeItem::createTestItem(this);
+    return 0;
+}
+
 } // namespace Internal
 } // namespace Autotest

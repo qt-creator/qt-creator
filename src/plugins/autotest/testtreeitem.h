@@ -43,9 +43,6 @@ namespace {
 namespace Autotest {
 namespace Internal {
 
-class AutoTestTreeItem;
-class QuickTestTreeItem;
-class GoogleTestTreeItem;
 class TestParseResult;
 class GoogleTestParseResult;
 class TestConfiguration;
@@ -110,11 +107,13 @@ public:
     virtual QList<TestConfiguration *> getAllTestConfigurations() const;
     virtual QList<TestConfiguration *> getSelectedTestConfigurations() const;
     virtual bool lessThan(const TestTreeItem *other, SortMode mode) const;
+    virtual TestTreeItem *find(const TestParseResult *result) = 0;
+    virtual bool modify(const TestParseResult *result) = 0;
 
 protected:
     bool modifyFilePath(const QString &filePath);
     typedef std::function<bool(const TestTreeItem *)> CompareFunction;
-    TestTreeItem *findChildBy(CompareFunction compare);
+    TestTreeItem *findChildBy(CompareFunction compare) const;
 
 private:
     void revalidateCheckState();
@@ -150,6 +149,8 @@ public:
     TestConfiguration *testConfiguration() const override;
     QList<TestConfiguration *> getAllTestConfigurations() const override;
     QList<TestConfiguration *> getSelectedTestConfigurations() const override;
+    TestTreeItem *find(const TestParseResult *result) override;
+    bool modify(const TestParseResult *result) override;
 };
 
 class QuickTestTreeItem : public TestTreeItem
@@ -166,6 +167,8 @@ public:
     TestConfiguration *testConfiguration() const override;
     QList<TestConfiguration *> getAllTestConfigurations() const override;
     QList<TestConfiguration *> getSelectedTestConfigurations() const override;
+    TestTreeItem *find(const TestParseResult *result) override;
+    bool modify(const TestParseResult *result) override;
     bool lessThan(const TestTreeItem *other, SortMode mode) const override;
 
 private:
@@ -196,6 +199,8 @@ public:
     TestConfiguration *testConfiguration() const override;
     QList<TestConfiguration *> getAllTestConfigurations() const override;
     QList<TestConfiguration *> getSelectedTestConfigurations() const override;
+    TestTreeItem *find(const TestParseResult *result) override;
+    bool modify(const TestParseResult *result) override;
 
     void setStates(TestStates states) { m_state = states; }
     void setState(TestState state) { m_state |= state; }
@@ -203,7 +208,7 @@ public:
     bool modifyTestSetContent(const GoogleTestParseResult *result);
     TestTreeItem *findChildByNameStateAndFile(const QString &name,
                                               GoogleTestTreeItem::TestStates state,
-                                              const QString &proFile);
+                                              const QString &proFile) const;
     QString nameSuffix() const;
 
 private:

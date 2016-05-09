@@ -94,10 +94,7 @@ public slots:
 
 private:
     void onParseResultReady(const TestParseResultPtr result);
-    void handleQtParseResult(const TestParseResultPtr result);
-    void handleQuickParseResult(const TestParseResultPtr result);
-    void handleUnnamedQuickParseResult(const TestParseResultPtr result);
-    void handleGTestParseResult(const TestParseResultPtr result);
+    void handleParseResult(const TestParseResult *result, TestTreeItem *rootNode);
     void removeAllTestItems();
     void removeFiles(const QStringList &files);
     bool sweepChildren(TestTreeItem *item);
