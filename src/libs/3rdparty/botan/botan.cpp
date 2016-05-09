@@ -379,7 +379,7 @@ class Mutex
       * Unlock the mutex
       */
       virtual void unlock() = 0;
-      virtual ~Mutex() {}
+      virtual ~Mutex() noexcept(false) {}
    };
 
 /**
@@ -3296,7 +3296,7 @@ void* MemoryMapping_Allocator::alloc_block(size_t n)
                throw MemoryMapping_Failed("Could not unlink temporary file");
             }
 
-         ~TemporaryFile()
+         ~TemporaryFile() noexcept(false)
             {
             /*
             * We can safely close here, because post-mmap the file
