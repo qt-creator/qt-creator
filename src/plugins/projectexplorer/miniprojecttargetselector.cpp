@@ -23,12 +23,20 @@
 **
 ****************************************************************************/
 
-#include "miniprojecttargetselector.h"
-#include "kit.h"
+#include "buildconfiguration.h"
+#include "deployconfiguration.h"
 #include "kitconfigwidget.h"
+#include "kit.h"
 #include "kitmanager.h"
-#include "target.h"
+#include "kitmanager.h"
+#include "miniprojecttargetselector.h"
+#include "projectexplorer.h"
 #include "projectexplorericons.h"
+#include "project.h"
+#include "projectmodels.h"
+#include "runconfiguration.h"
+#include "session.h"
+#include "target.h"
 
 #include <utils/algorithm.h>
 #include <utils/styledbar.h>
@@ -39,23 +47,16 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/modemanager.h>
 
-#include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/session.h>
-#include <projectexplorer/project.h>
-#include <projectexplorer/buildconfiguration.h>
-#include <projectexplorer/deployconfiguration.h>
-#include <projectexplorer/kitmanager.h>
-#include <projectexplorer/projectmodels.h>
-#include <projectexplorer/runconfiguration.h>
-
 #include <QGuiApplication>
 #include <QTimer>
 #include <QLayout>
 #include <QLabel>
+#include <QList>
 #include <QListWidget>
 #include <QStatusBar>
 #include <QKeyEvent>
 #include <QPainter>
+#include <QPixmap>
 #include <QStyleFactory>
 #include <QAction>
 #include <QItemDelegate>
