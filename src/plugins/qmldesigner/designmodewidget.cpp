@@ -315,7 +315,7 @@ void DesignModeWidget::setup()
     // warning frame should be not in layout, but still child of the widget
     m_warningWidget = new DocumentWarningWidget(this);
     m_warningWidget->setVisible(false);
-    connect(m_warningWidget, &DocumentWarningWidget::gotoCodeClicked, [=]
+    connect(m_warningWidget.data(), &DocumentWarningWidget::gotoCodeClicked, [=]
         (const QString &filePath, int codeLine, int codeColumn) {
             Q_ASSERT(textEditor()->textDocument()->filePath().toString() == filePath);
             textEditor()->gotoLine(codeLine, codeColumn);
