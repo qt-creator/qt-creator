@@ -241,7 +241,7 @@ int QmlProfilerDataModel::QmlProfilerDataModelPrivate::resolveStackTop()
     return typeIndex;
 }
 
-void QmlProfilerDataModel::addEvent(const QmlEvent &event, const QmlEventType &type)
+void QmlProfilerDataModel::addTypedEvent(const QmlEvent &event, const QmlEventType &type)
 {
     Q_D(QmlProfilerDataModel);
 

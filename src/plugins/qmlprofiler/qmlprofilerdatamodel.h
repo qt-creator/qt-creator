@@ -51,7 +51,7 @@ public:
 
     void clear();
     bool isEmpty() const;
-    void addEvent(const QmlEvent &event, const QmlEventType &type);
+    void addTypedEvent(const QmlEvent &event, const QmlEventType &type);
     void replayEvents(qint64 startTime, qint64 endTime,
                       QmlProfilerModelManager::EventLoader loader) const;
     void finalize();

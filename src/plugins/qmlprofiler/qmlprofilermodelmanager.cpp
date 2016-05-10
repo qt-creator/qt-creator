@@ -262,7 +262,7 @@ const char *QmlProfilerModelManager::featureName(ProfileFeature feature)
 void QmlProfilerModelManager::addQmlEvent(const QmlEvent &event, const QmlEventType &type)
 {
     QTC_ASSERT(state() == AcquiringData, return);
-    d->model->addEvent(event, type);
+    d->model->addTypedEvent(event, type);
 }
 
 void QmlProfilerModelManager::acquiringDone()
