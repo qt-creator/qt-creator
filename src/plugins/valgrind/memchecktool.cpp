@@ -165,7 +165,7 @@ void MemcheckErrorFilterProxyModel::setAcceptedKinds(const QList<int> &acceptedK
 {
     if (m_acceptedKinds != acceptedKinds) {
         m_acceptedKinds = acceptedKinds;
-        invalidate();
+        invalidateFilter();
     }
 }
 
@@ -173,7 +173,7 @@ void MemcheckErrorFilterProxyModel::setFilterExternalIssues(bool filter)
 {
     if (m_filterExternalIssues != filter) {
         m_filterExternalIssues = filter;
-        invalidate();
+        invalidateFilter();
     }
 }
 
