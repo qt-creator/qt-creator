@@ -197,15 +197,19 @@ DiagnosticMessage QmlJS::errorMessage(const AST::SourceLocation &loc, const QStr
     return DiagnosticMessage(Severity::Error, loc, message);
 }
 
+namespace {
+const QString undefinedVersion = QLatin1String("-1.-1");
+}
+
 /*!
  * \brief Permissive validation of a string representing a module version.
  * \param version
- * \return True if \p version is a valid version format (<digit(s)>.<digit(s)>) or if it is empty.
- *         False otherwise.
+ * \return True if \p version is a valid version format (<digit(s)>.<digit(s)>), if it is the
+ *         undefined version (-1.-1) or if it is empty.  False otherwise.
  */
 bool QmlJS::maybeModuleVersion(const QString &version) {
     QRegularExpression re(QLatin1String("^\\d+\\.\\d+$"));
-    return version.isEmpty() || re.match(version).hasMatch();
+    return version.isEmpty() || version == undefinedVersion || re.match(version).hasMatch();
 }
 
 /*!
@@ -235,12 +239,18 @@ QString QmlJS::modulePath(const QString &name, const QString &version,
     if (importPaths.isEmpty())
         return QString();
 
+    const QString sanitizedVersion = version == undefinedVersion ? QString() : version;
     const QStringList parts = name.split(QLatin1Char('.'), QString::SkipEmptyParts);
     auto mkpath = [] (const QStringList &xs) -> QString { return xs.join(QLatin1Char('/')); };
 
+    // Regular expression for building candidates by successively removing minor and major
+    // version numbers.  It does not match the undefined version, so it has to be applied to the
+    // sanitized version.
+    const QRegularExpression re("\\.?\\d+$");
+
     QString candidate;
 
-    for (QString ver = version; ; ver.remove(QRegularExpression(QLatin1String("\\.?\\d+$")))) {
+    for (QString ver = sanitizedVersion; ; ver.remove(re)) {
         for (const QString &path: importPaths) {
             if (ver.isEmpty()) {
                 candidate = QDir::cleanPath(QString::fromLatin1("%1/%2").arg(path, mkpath(parts)));
