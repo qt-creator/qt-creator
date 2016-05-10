@@ -25,6 +25,7 @@
 
 #include "clangcodecompletion_test.h"
 
+#include "../clangautomationutils.h"
 #include "../clangbackendipcintegration.h"
 #include "../clangcompletionassistinterface.h"
 #include "../clangmodelmanagersupport.h"
@@ -38,12 +39,8 @@
 #include <cpptools/cpptoolstestcase.h>
 #include <cpptools/modelmanagertesthelper.h>
 #include <cpptools/projectinfo.h>
-#include <texteditor/codeassist/assistinterface.h>
 #include <texteditor/codeassist/assistproposalitem.h>
-#include <texteditor/codeassist/completionassistprovider.h>
 #include <texteditor/codeassist/genericproposalmodel.h>
-#include <texteditor/codeassist/iassistprocessor.h>
-#include <texteditor/codeassist/iassistproposal.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
 
@@ -178,53 +175,6 @@ void insertTextAtTopOfEditor(TextEditor::BaseTextEditor *editor, const QByteArra
     cs.insert(0, QString::fromUtf8(text));
     QTextCursor textCursor = editor->textCursor();
     cs.apply(&textCursor);
-}
-
-class WaitForAsyncCompletions
-{
-public:
-    enum WaitResult { GotResults, GotInvalidResults, Timeout };
-    WaitResult wait(TextEditor::IAssistProcessor *processor,
-                    TextEditor::AssistInterface *assistInterface);
-
-    TextEditor::IAssistProposalModel *proposalModel;
-};
-
-WaitForAsyncCompletions::WaitResult WaitForAsyncCompletions::wait(
-        TextEditor::IAssistProcessor *processor,
-        TextEditor::AssistInterface *assistInterface)
-{
-    QTC_ASSERT(processor, return Timeout);
-    QTC_ASSERT(assistInterface, return Timeout);
-
-    bool gotResults = false;
-
-    processor->setAsyncCompletionAvailableHandler(
-                [this, &gotResults] (TextEditor::IAssistProposal *proposal) {
-        QTC_ASSERT(proposal, return);
-        proposalModel = proposal->model();
-        delete proposal;
-        gotResults = true;
-    });
-
-    // Are there any immediate results?
-    if (TextEditor::IAssistProposal *proposal = processor->perform(assistInterface)) {
-        delete processor;
-        proposalModel = proposal->model();
-        delete proposal;
-        QTC_ASSERT(proposalModel, return GotInvalidResults);
-        return GotResults;
-    }
-
-    // There are not any, so wait for async results.
-    QElapsedTimer timer; timer.start();
-    while (!gotResults) {
-        if (timer.elapsed() >= 30 * 1000)
-            return Timeout;
-        QCoreApplication::processEvents();
-    }
-
-    return proposalModel ? GotResults : GotInvalidResults;
 }
 
 class ChangeDocumentReloadSetting
@@ -420,51 +370,6 @@ public:
 public:
     QString senderLog;
 };
-
-const CppTools::ProjectPartHeaderPaths toHeaderPaths(const QStringList &paths)
-{
-    using namespace CppTools;
-
-    ProjectPartHeaderPaths result;
-    foreach (const QString &path, paths)
-        result << ProjectPartHeaderPath(path, ProjectPartHeaderPath::IncludePath);
-    return result;
-}
-
-using ProposalModel = QSharedPointer<TextEditor::IAssistProposalModel>;
-
-ProposalModel completionResults(
-        TextEditor::BaseTextEditor *textEditor,
-        const QStringList &includePaths = QStringList())
-{
-    using namespace TextEditor;
-
-    TextEditorWidget *textEditorWidget = qobject_cast<TextEditorWidget *>(textEditor->widget());
-    QTC_ASSERT(textEditorWidget, return ProposalModel());
-    AssistInterface *assistInterface = textEditorWidget->createAssistInterface(
-                TextEditor::Completion, TextEditor::ExplicitlyInvoked);
-    QTC_ASSERT(assistInterface, return ProposalModel());
-    if (!includePaths.isEmpty()) {
-        auto clangAssistInterface = static_cast<ClangCompletionAssistInterface *>(assistInterface);
-        clangAssistInterface->setHeaderPaths(toHeaderPaths(includePaths));
-    }
-
-    CompletionAssistProvider *assistProvider
-            = textEditor->textDocument()->completionAssistProvider();
-    QTC_ASSERT(qobject_cast<ClangCompletionAssistProvider *>(assistProvider),
-               return ProposalModel());
-    QTC_ASSERT(assistProvider, return ProposalModel());
-    QTC_ASSERT(assistProvider->runType() == IAssistProvider::Asynchronous, return ProposalModel());
-
-    IAssistProcessor *processor = assistProvider->createProcessor();
-    QTC_ASSERT(processor, return ProposalModel());
-
-    WaitForAsyncCompletions waitForCompletions;
-    const WaitForAsyncCompletions::WaitResult result = waitForCompletions.wait(processor,
-                                                                               assistInterface);
-    QTC_ASSERT(result == WaitForAsyncCompletions::GotResults, return ProposalModel());
-    return QSharedPointer<TextEditor::IAssistProposalModel>(waitForCompletions.proposalModel);
-}
 
 class TestDocument
 {
@@ -689,7 +594,7 @@ public:
         if (!textToInsert.isEmpty())
             openEditor.editor()->insert(textToInsert);
 
-        proposal = completionResults(openEditor.editor(), includePaths);
+        proposal = completionResults(openEditor.editor(), includePaths, 15000);
     }
 
     ProposalModel proposal;

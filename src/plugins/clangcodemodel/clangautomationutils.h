@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2017 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,32 +25,22 @@
 
 #pragma once
 
-#include "clangmodelmanagersupport.h"
+#include <QString>
+#include <QSharedPointer>
 
-#include <extensionsystem/iplugin.h>
+namespace TextEditor {
+class BaseTextEditor;
+class IAssistProposalModel;
+}
 
 namespace ClangCodeModel {
 namespace Internal {
 
-class ClangCodeModelPlugin: public ExtensionSystem::IPlugin
-{
-    Q_OBJECT
-    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "ClangCodeModel.json")
+using ProposalModel = QSharedPointer<TextEditor::IAssistProposalModel>;
 
-public:
-    bool initialize(const QStringList &arguments, QString *errorMessage);
-    void extensionsInitialized();
-
-private:
-    void maybeHandleBatchFileAndExit() const;
-
-private:
-    ModelManagerSupportProviderClang m_modelManagerSupportProvider;
-
-#ifdef WITH_TESTS
-    QList<QObject *> createTestObjects() const;
-#endif
-};
+ProposalModel completionResults(TextEditor::BaseTextEditor *textEditor,
+                                const QStringList &includePaths = QStringList(),
+                                int timeOutInMs = 10000);
 
 } // namespace Internal
-} // namespace Clang
+} // namespace ClangCodeModel
