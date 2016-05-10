@@ -132,7 +132,7 @@ Command ClangFormat::command(int offset, int length) const
 
     if (m_settings->usePredefinedStyle()) {
         command.addOption(QLatin1String("-style=") + m_settings->predefinedStyle());
-        command.addOption(QLatin1String("-assume-filename=%filename"));
+        command.addOption(QLatin1String("-assume-filename=%file"));
     } else {
         command.addOption(QLatin1String("-style=file"));
         const QString path =
