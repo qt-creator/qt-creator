@@ -310,7 +310,10 @@ void QmlProfilerModelManager::save(const QString &filename)
 
     QFuture<void> result = Utils::runAsync([file, writer] (QFutureInterface<void> &future) {
         writer->setFuture(&future);
-        writer->save(file);
+        if (file->fileName().endsWith(QLatin1String(Constants::QtdFileExtension)))
+            writer->saveQtd(file);
+        else
+            writer->saveQzt(file);
         delete writer;
         file->deleteLater();
     });
@@ -321,8 +324,9 @@ void QmlProfilerModelManager::save(const QString &filename)
 
 void QmlProfilerModelManager::load(const QString &filename)
 {
+    bool isQtd = filename.endsWith(QLatin1String(Constants::QtdFileExtension));
     QFile *file = new QFile(filename, this);
-    if (!file->open(QIODevice::ReadOnly | QIODevice::Text)) {
+    if (!file->open(isQtd ? (QIODevice::ReadOnly | QIODevice::Text) : QIODevice::ReadOnly)) {
         emit error(tr("Could not open %1 for reading.").arg(filename));
         delete file;
         emit loadFinished();
@@ -338,19 +342,28 @@ void QmlProfilerModelManager::load(const QString &filename)
         emit error(message);
     }, Qt::QueuedConnection);
 
+    connect(reader, &QmlProfilerFileReader::typesLoaded,
+            d->model, &QmlProfilerDataModel::setEventTypes);
+
+    connect(reader, &QmlProfilerFileReader::notesLoaded,
+            d->notesModel, &QmlProfilerNotesModel::setNotes);
+
+    connect(reader, &QmlProfilerFileReader::qmlEventLoaded,
+            d->model, &QmlProfilerDataModel::addEvent);
+
     connect(reader, &QmlProfilerFileReader::success, this, [this, reader]() {
-        d->model->setData(reader->traceStart(), qMax(reader->traceStart(), reader->traceEnd()),
-                          reader->eventTypes(), reader->events());
-        d->notesModel->setNotes(reader->notes());
+        d->traceTime->setTime(reader->traceStart(), reader->traceEnd());
         setRecordedFeatures(reader->loadedFeatures());
-        d->traceTime->increaseEndTime(reader->events().last().timestamp());
         delete reader;
         acquiringDone();
     }, Qt::QueuedConnection);
 
-    QFuture<void> result = Utils::runAsync([file, reader] (QFutureInterface<void> &future) {
+    QFuture<void> result = Utils::runAsync([isQtd, file, reader] (QFutureInterface<void> &future) {
         reader->setFuture(&future);
-        reader->load(file);
+        if (isQtd)
+            reader->loadQtd(file);
+        else
+            reader->loadQzt(file);
         file->close();
         file->deleteLater();
     });

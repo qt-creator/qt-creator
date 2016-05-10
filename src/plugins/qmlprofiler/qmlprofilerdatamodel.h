@@ -46,11 +46,11 @@ public:
     ~QmlProfilerDataModel();
 
     const QVector<QmlEventType> &eventTypes() const;
-    void setData(qint64 traceStart, qint64 traceEnd, const QVector<QmlEventType> &types,
-                 const QVector<QmlEvent> &events);
+    void setEventTypes(const QVector<QmlEventType> &types);
 
     void clear();
     bool isEmpty() const;
+    void addEvent(const QmlEvent &event);
     void addTypedEvent(const QmlEvent &event, const QmlEventType &type);
     void replayEvents(qint64 startTime, qint64 endTime,
                       QmlProfilerModelManager::EventLoader loader) const;

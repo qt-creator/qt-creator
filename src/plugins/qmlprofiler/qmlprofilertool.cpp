@@ -615,13 +615,15 @@ void saveLastTraceFile(const QString &filename)
 
 void QmlProfilerTool::showSaveDialog()
 {
+    QLatin1String tFile(QtdFileExtension);
+    QLatin1String zFile(QztFileExtension);
     QString filename = QFileDialog::getSaveFileName(
                 ICore::mainWindow(), tr("Save QML Trace"),
                 QmlProfilerPlugin::globalSettings()->lastTraceFile(),
-                tr("QML traces (*%1)").arg(QLatin1String(TraceFileExtension)));
+                tr("QML traces (*%1 *%2)").arg(zFile).arg(tFile));
     if (!filename.isEmpty()) {
-        if (!filename.endsWith(QLatin1String(TraceFileExtension)))
-            filename += QLatin1String(TraceFileExtension);
+        if (!filename.endsWith(zFile) && !filename.endsWith(tFile))
+            filename += zFile;
         saveLastTraceFile(filename);
         Debugger::enableMainWindow(false);
         d->m_profilerModelManager->save(filename);
@@ -635,10 +637,12 @@ void QmlProfilerTool::showLoadDialog()
 
     Debugger::selectPerspective(QmlProfilerPerspectiveId);
 
+    QLatin1String tFile(QtdFileExtension);
+    QLatin1String zFile(QztFileExtension);
     QString filename = QFileDialog::getOpenFileName(
                 ICore::mainWindow(), tr("Load QML Trace"),
                 QmlProfilerPlugin::globalSettings()->lastTraceFile(),
-                tr("QML traces (*%1)").arg(QLatin1String(TraceFileExtension)));
+                tr("QML traces (*%1 *%2)").arg(zFile).arg(tFile));
 
     if (!filename.isEmpty()) {
         saveLastTraceFile(filename);

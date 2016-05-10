@@ -137,20 +137,19 @@ const QVector<QmlEventType> &QmlProfilerDataModel::eventTypes() const
     return d->eventTypes;
 }
 
-void QmlProfilerDataModel::setData(qint64 traceStart, qint64 traceEnd,
-                                   const QVector<QmlEventType> &types,
-                                   const QVector<QmlEvent> &events)
+void QmlProfilerDataModel::setEventTypes(const QVector<QmlEventType> &types)
 {
     Q_D(QmlProfilerDataModel);
-    d->modelManager->traceTime()->setTime(traceStart, traceEnd);
     d->eventTypes = types;
     for (int id = 0; id < types.count(); ++id)
         d->eventTypeIds[types[id]] = id;
+}
 
-    foreach (const QmlEvent &event, events) {
-        d->modelManager->dispatch(event, d->eventTypes[event.typeIndex()]);
-        d->eventStream << event;
-    }
+void QmlProfilerDataModel::addEvent(const QmlEvent &event)
+{
+    Q_D(QmlProfilerDataModel);
+    d->modelManager->dispatch(event, d->eventTypes[event.typeIndex()]);
+    d->eventStream << event;
 }
 
 void QmlProfilerDataModel::clear()

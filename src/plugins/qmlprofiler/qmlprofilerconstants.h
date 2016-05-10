@@ -40,7 +40,8 @@ const char ANALYZER[] = "Analyzer";
 
 const int QML_MIN_LEVEL = 1; // Set to 0 to remove the empty line between models in the timeline
 
-const char TraceFileExtension[] = ".qtd";
+const char QtdFileExtension[] = ".qtd";
+const char QztFileExtension[] = ".qzt";
 
 const char QmlProfilerPerspectiveId[]  = "QmlProfiler.Perspective";
 const char QmlProfilerTimelineDockId[] = "QmlProfiler.Timeline.Dock";
