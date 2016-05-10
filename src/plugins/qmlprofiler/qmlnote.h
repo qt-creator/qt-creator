@@ -25,6 +25,7 @@
 #pragma once
 
 #include <QString>
+#include <QMetaType>
 
 namespace QmlProfiler {
 
@@ -41,3 +42,5 @@ struct QmlNote {
 };
 
 } // namespace QmlProfiler
+
+Q_DECLARE_METATYPE(QmlProfiler::QmlNote)

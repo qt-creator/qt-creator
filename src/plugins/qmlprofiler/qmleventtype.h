@@ -27,6 +27,7 @@
 #include "qmlprofilereventlocation.h"
 #include "qmlprofilereventtypes.h"
 #include <QString>
+#include <QMetaType>
 
 namespace QmlProfiler {
 
@@ -48,3 +49,5 @@ struct QmlEventType {
 };
 
 } // namespace QmlProfiler
+
+Q_DECLARE_METATYPE(QmlProfiler::QmlEventType)

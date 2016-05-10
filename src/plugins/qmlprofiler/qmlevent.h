@@ -29,6 +29,7 @@
 #include <QString>
 #include <QByteArray>
 #include <QVarLengthArray>
+#include <QMetaType>
 
 #include <initializer_list>
 #include <type_traits>
@@ -294,6 +295,8 @@ private:
 };
 
 } // namespace QmlProfiler
+
+Q_DECLARE_METATYPE(QmlProfiler::QmlEvent)
 
 QT_BEGIN_NAMESPACE
 Q_DECLARE_TYPEINFO(QmlProfiler::QmlEvent, Q_MOVABLE_TYPE);

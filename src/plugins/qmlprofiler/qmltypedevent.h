@@ -40,3 +40,5 @@ struct QmlTypedEvent
 QDataStream &operator>>(QDataStream &stream, QmlTypedEvent &event);
 
 } // namespace QmlProfiler
+
+Q_DECLARE_METATYPE(QmlProfiler::QmlTypedEvent)
