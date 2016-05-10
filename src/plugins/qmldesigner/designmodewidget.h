@@ -89,8 +89,6 @@ public slots:
     void toggleRightSidebar();
 
 private slots:
-    void showQmlPuppetCrashedError();
-
     void toolBarOnGoBackClicked();
     void toolBarOnGoForwardClicked();
 
@@ -107,21 +105,21 @@ private: // functions
 
 private: // variables
     QSplitter *m_mainSplitter = nullptr;
-    DocumentWarningWidget *m_warningWidget = nullptr;
+    QPointer<DocumentWarningWidget> m_warningWidget;
 
     QScopedPointer<Core::SideBar> m_leftSideBar;
     QScopedPointer<Core::SideBar> m_rightSideBar;
     QPointer<QWidget> m_topSideBar;
     Core::EditorToolBar *m_toolBar;
     CrumbleBar *m_crumbleBar;
-    bool m_isDisabled;
-    bool m_showSidebars;
+    bool m_isDisabled = false;
+    bool m_showSidebars = true;
 
-    InitializeStatus m_initStatus;
+    InitializeStatus m_initStatus = NotInitialized;
 
     QStringList m_navigatorHistory;
-    int m_navigatorHistoryCounter;
-    bool m_keepNavigatorHistory;
+    int m_navigatorHistoryCounter = -1;
+    bool m_keepNavigatorHistory = false;
 
     QList<QPointer<QWidget> >m_viewWidgets;
 };

@@ -123,20 +123,17 @@ QList<QToolButton *> DesignerSideBarItem::createToolBarWidgets()
 }
 
 // ---------- DesignModeWidget
-DesignModeWidget::DesignModeWidget(QWidget *parent) :
-    QWidget(parent),
-    m_mainSplitter(0),
-    m_toolBar(new Core::EditorToolBar(this)),
-    m_crumbleBar(new CrumbleBar(this)),
-    m_isDisabled(false),
-    m_showSidebars(true),
-    m_initStatus(NotInitialized),
-    m_warningWidget(0),
-    m_navigatorHistoryCounter(-1),
-    m_keepNavigatorHistory(false)
+DesignModeWidget::DesignModeWidget(QWidget *parent)
+    : QWidget(parent)
+    , m_toolBar(new Core::EditorToolBar(this))
+    , m_crumbleBar(new CrumbleBar(this))
 {
     connect(viewManager().nodeInstanceView(), &NodeInstanceView::qmlPuppetCrashed,
-        this, &DesignModeWidget::showQmlPuppetCrashedError);
+        [=]() {
+            RewriterError error(tr("Qt Quick emulation layer crashed"));
+            updateErrorStatus(QList<RewriterError>() << error);
+        }
+    );
 }
 
 DesignModeWidget::~DesignModeWidget()
@@ -275,9 +272,9 @@ void DesignModeWidget::setup()
     QList<Core::INavigationWidgetFactory *> factories =
             ExtensionSystem::PluginManager::getObjects<Core::INavigationWidgetFactory>();
 
-    QWidget *openDocumentsWidget = 0;
-    QWidget *projectsExplorer = 0;
-    QWidget *fileSystemExplorer = 0;
+    QWidget *openDocumentsWidget = nullptr;
+    QWidget *projectsExplorer = nullptr;
+    QWidget *fileSystemExplorer = nullptr;
 
     foreach (Core::INavigationWidgetFactory *factory, factories) {
         Core::NavigationView navigationView;
@@ -412,16 +409,6 @@ void DesignModeWidget::setup()
     readSettings();
 
     show();
-}
-
-void DesignModeWidget::showQmlPuppetCrashedError()
-{
-    QList<RewriterError> errorList;
-    RewriterError error(tr("Qt Quick emulation layer crashed"));
-    errorList.append(error);
-
-    disableWidgets();
-    showMessageBox(errorList);
 }
 
 void DesignModeWidget::toolBarOnGoBackClicked()
