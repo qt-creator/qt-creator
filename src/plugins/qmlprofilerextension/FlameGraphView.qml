@@ -61,6 +61,7 @@ ScrollView {
             model: flameGraphModel
             sizeRole: FlameGraphModel.Duration
             sizeThreshold: 0.002
+            maximumDepth: 25
             y: flickable.height > height ? flickable.height - height : 0
 
             delegate: Item {

@@ -126,7 +126,8 @@ QObject *FlameGraph::appendChild(QObject *parentObject, QQuickItem *parentItem,
 }
 
 
-int FlameGraph::buildNode(const QModelIndex &parentIndex, QObject *parentObject, int depth)
+int FlameGraph::buildNode(const QModelIndex &parentIndex, QObject *parentObject, int depth,
+                          int maximumDepth)
 {
     qreal position = 0;
     qreal skipped = 0;
@@ -135,18 +136,23 @@ int FlameGraph::buildNode(const QModelIndex &parentIndex, QObject *parentObject,
     QQmlContext *context = qmlContext(this);
     int rowCount = m_model->rowCount(parentIndex);
     int childrenDepth = depth;
-    for (int row = 0; row < rowCount; ++row) {
-        QModelIndex childIndex = m_model->index(row, 0, parentIndex);
-        qreal size = m_model->data(childIndex, m_sizeRole).toReal();
-        if (size / m_model->data(QModelIndex(), m_sizeRole).toReal() < m_sizeThreshold) {
-            skipped += size;
-            continue;
-        }
+    if (depth == maximumDepth - 1) {
+        skipped = parentSize;
+    } else {
+        for (int row = 0; row < rowCount; ++row) {
+            QModelIndex childIndex = m_model->index(row, 0, parentIndex);
+            qreal size = m_model->data(childIndex, m_sizeRole).toReal();
+            if (size / m_model->data(QModelIndex(), m_sizeRole).toReal() < m_sizeThreshold) {
+                skipped += size;
+                continue;
+            }
 
-        QObject *childObject = appendChild(parentObject, parentItem, context, childIndex,
-                                           position / parentSize, size / parentSize);
-        position += size;
-        childrenDepth = qMax(childrenDepth, buildNode(childIndex, childObject, depth + 1));
+            QObject *childObject = appendChild(parentObject, parentItem, context, childIndex,
+                                               position / parentSize, size / parentSize);
+            position += size;
+            childrenDepth = qMax(childrenDepth, buildNode(childIndex, childObject, depth + 1,
+                                                          maximumDepth));
+        }
     }
 
     if (skipped > 0) {
@@ -169,7 +175,7 @@ void FlameGraph::rebuild()
         return;
     }
 
-    m_depth = buildNode(QModelIndex(), this, 0);
+    m_depth = buildNode(QModelIndex(), this, 0, m_maximumDepth);
     emit depthChanged(m_depth);
 }
 
