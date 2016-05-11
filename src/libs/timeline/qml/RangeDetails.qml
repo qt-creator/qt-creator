@@ -127,27 +127,11 @@ Item {
             y = 0;
     }
 
-    // shadow
-    BorderImage {
-        property int px: 4
-        source: "dialog_shadow.png"
-
-        border {
-            left: px; top: px
-            right: px; bottom: px
-        }
-        width: parent.width + 2*px - 1
-        height: parent.height
-        x: -px + 1
-        y: px + 1
-    }
-
     Rectangle {
         id: titleBar
         width: parent.width
         height: 20
         color: "#55a3b8"
-        radius: 5
         border.width: 1
         border.color: "#a0a0a0"
     }
