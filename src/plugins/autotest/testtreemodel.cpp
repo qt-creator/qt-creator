@@ -30,6 +30,12 @@
 #include "testtreeitem.h"
 #include "testtreemodel.h"
 
+// FIXME
+#include "qtest/autotesttreeitem.h"
+#include "quick/quicktesttreeitem.h"
+#include "gtest/googletesttreeitem.h"
+// end of FIXME
+
 #include <cpptools/cppmodelmanager.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/session.h>

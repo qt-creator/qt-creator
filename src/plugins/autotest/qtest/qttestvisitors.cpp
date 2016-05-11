@@ -23,39 +23,27 @@
 **
 ****************************************************************************/
 
-#include "autotest_utils.h"
-#include "testvisitor.h"
+#include "qttestvisitors.h"
 
 #include <cplusplus/FullySpecifiedType.h>
 #include <cplusplus/LookupContext.h>
 #include <cplusplus/Symbols.h>
 #include <cplusplus/TypeOfExpression.h>
-
 #include <cpptools/cppmodelmanager.h>
-
-#include <qmljs/parser/qmljsast_p.h>
-
 #include <utils/qtcassert.h>
-
-#include <QList>
 
 namespace Autotest {
 namespace Internal {
 
-// names of special functions (applies for QTest as well as Quick Tests)
-static QList<QString> specialFunctions = QList<QString>() << QLatin1String("initTestCase")
-                                                          << QLatin1String("cleanupTestCase")
-                                                          << QLatin1String("init")
-                                                          << QLatin1String("cleanup");
+static QStringList specialFunctions({ QLatin1String("initTestCase"),
+                                      QLatin1String("cleanupTestCase"),
+                                      QLatin1String("init"),
+                                      QLatin1String("cleanup") });
 
 /************************** Cpp Test Symbol Visitor ***************************/
 
 TestVisitor::TestVisitor(const QString &fullQualifiedClassName)
     : m_className(fullQualifiedClassName)
-{
-}
-
-TestVisitor::~TestVisitor()
 {
 }
 
@@ -113,10 +101,6 @@ TestAstVisitor::TestAstVisitor(CPlusPlus::Document::Ptr doc)
 {
 }
 
-TestAstVisitor::~TestAstVisitor()
-{
-}
-
 bool TestAstVisitor::visit(CPlusPlus::CallAST *ast)
 {
     if (!m_currentScope || m_currentDoc.isNull())
@@ -168,10 +152,6 @@ TestDataFunctionVisitor::TestDataFunctionVisitor(CPlusPlus::Document::Ptr doc)
       m_currentAstDepth(0),
       m_insideUsingQTestDepth(0),
       m_insideUsingQTest(false)
-{
-}
-
-TestDataFunctionVisitor::~TestDataFunctionVisitor()
 {
 }
 
@@ -303,128 +283,6 @@ bool TestDataFunctionVisitor::newRowCallFound(CPlusPlus::CallAST *ast, unsigned 
         }
     }
     return found;
-}
-
-/*************************** Quick Test AST Visitor ***************************/
-
-TestQmlVisitor::TestQmlVisitor(QmlJS::Document::Ptr doc)
-    : m_currentDoc(doc)
-{
-}
-
-TestQmlVisitor::~TestQmlVisitor()
-{
-}
-
-bool TestQmlVisitor::visit(QmlJS::AST::UiObjectDefinition *ast)
-{
-    const QStringRef name = ast->qualifiedTypeNameId->name;
-    if (name != QLatin1String("TestCase"))
-        return true; // find nested TestCase items as well
-
-    m_currentTestCaseName.clear();
-    const auto sourceLocation = ast->firstSourceLocation();
-    m_testCaseLocation.m_name = m_currentDoc->fileName();
-    m_testCaseLocation.m_line = sourceLocation.startLine;
-    m_testCaseLocation.m_column = sourceLocation.startColumn - 1;
-    m_testCaseLocation.m_type = TestTreeItem::TestCase;
-    return true;
-}
-
-bool TestQmlVisitor::visit(QmlJS::AST::ExpressionStatement *ast)
-{
-    const QmlJS::AST::ExpressionNode *expr = ast->expression;
-    return expr->kind == QmlJS::AST::Node::Kind_StringLiteral;
-}
-
-bool TestQmlVisitor::visit(QmlJS::AST::UiScriptBinding *ast)
-{
-    const QStringRef name = ast->qualifiedId->name;
-    return name == QLatin1String("name");
-}
-
-bool TestQmlVisitor::visit(QmlJS::AST::FunctionDeclaration *ast)
-{
-    const QStringRef name = ast->name;
-    if (name.startsWith(QLatin1String("test_"))
-            || name.startsWith(QLatin1String("benchmark_"))
-            || name.endsWith(QLatin1String("_data"))
-            || specialFunctions.contains(name.toString())) {
-        const auto sourceLocation = ast->firstSourceLocation();
-        TestCodeLocationAndType locationAndType;
-        locationAndType.m_name = m_currentDoc->fileName();
-        locationAndType.m_line = sourceLocation.startLine;
-        locationAndType.m_column = sourceLocation.startColumn - 1;
-        if (specialFunctions.contains(name.toString()))
-            locationAndType.m_type = TestTreeItem::TestSpecialFunction;
-        else if (name.endsWith(QLatin1String("_data")))
-            locationAndType.m_type = TestTreeItem::TestDataFunction;
-        else
-            locationAndType.m_type = TestTreeItem::TestFunctionOrSet;
-
-        m_testFunctions.insert(name.toString(), locationAndType);
-    }
-    return false;
-}
-
-bool TestQmlVisitor::visit(QmlJS::AST::StringLiteral *ast)
-{
-    m_currentTestCaseName = ast->value.toString();
-    return false;
-}
-
-/********************** Google Test Function AST Visitor **********************/
-
-GTestVisitor::GTestVisitor(CPlusPlus::Document::Ptr doc)
-    : CPlusPlus::ASTVisitor(doc->translationUnit())
-    , m_document(doc)
-{
-}
-
-bool GTestVisitor::visit(CPlusPlus::FunctionDefinitionAST *ast)
-{
-    static QString disabledPrefix = QString::fromLatin1("DISABLED_");
-    if (!ast || !ast->declarator || !ast->declarator->core_declarator)
-        return false;
-
-    CPlusPlus::DeclaratorIdAST *id = ast->declarator->core_declarator->asDeclaratorId();
-    if (!id || !ast->symbol || ast->symbol->argumentCount() != 2)
-        return false;
-
-    CPlusPlus::LookupContext lc;
-    const QString prettyName = m_overview.prettyName(lc.fullyQualifiedName(ast->symbol));
-    if (!TestUtils::isGTestMacro(prettyName))
-        return false;
-
-    CPlusPlus::Argument *testCaseNameArg = ast->symbol->argumentAt(0)->asArgument();
-    CPlusPlus::Argument *testNameArg = ast->symbol->argumentAt(1)->asArgument();
-    if (testCaseNameArg && testNameArg) {
-        const QString &testCaseName = m_overview.prettyType(testCaseNameArg->type());
-        const QString &testName = m_overview.prettyType(testNameArg->type());
-
-        const bool disabled = testName.startsWith(disabledPrefix);
-        const bool disabledCase = testCaseName.startsWith(disabledPrefix);
-        unsigned line = 0;
-        unsigned column = 0;
-        unsigned token = id->firstToken();
-        m_document->translationUnit()->getTokenStartPosition(token, &line, &column);
-
-        GTestCodeLocationAndType locationAndType;
-        locationAndType.m_name = testName;
-        locationAndType.m_line = line;
-        locationAndType.m_column = column - 1;
-        locationAndType.m_type = TestTreeItem::TestFunctionOrSet;
-        locationAndType.m_state = disabled ? GoogleTestTreeItem::Disabled
-                                           : GoogleTestTreeItem::Enabled;
-        GTestCaseSpec spec;
-        spec.testCaseName = testCaseName;
-        spec.parameterized = TestUtils::isGTestParameterized(prettyName);
-        spec.typed = TestUtils::isGTestTyped(prettyName);
-        spec.disabled = disabledCase;
-        m_gtestFunctions[spec].append(locationAndType);
-    }
-
-    return false;
 }
 
 } // namespace Internal

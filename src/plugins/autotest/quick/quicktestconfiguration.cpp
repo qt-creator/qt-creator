@@ -23,22 +23,35 @@
 **
 ****************************************************************************/
 
-#pragma once
-
-#include <QtGlobal>
+#include "quicktestconfiguration.h"
+#include "../qtest/qttestoutputreader.h"
+#include "../testsettings.h"
 
 namespace Autotest {
-namespace Constants {
+namespace Internal {
 
-const char ACTION_SCAN_ID[]             = "AutoTest.ScanAction";
-const char ACTION_RUN_ALL_ID[]          = "AutoTest.RunAll";
-const char ACTION_RUN_SELECTED_ID[]     = "AutoTest.RunSelected";
-const char MENU_ID[]                    = "AutoTest.Menu";
-const char AUTOTEST_ID[]                = "AutoTest.ATP";
-const char AUTOTEST_CONTEXT[]           = "Auto Tests";
-const char TASK_INDEX[]                 = "AutoTest.Task.Index";
-const char TASK_PARSE[]                 = "AutoTest.Task.Parse";
-const char AUTOTEST_SETTINGS_CATEGORY[] = "ZY.Tests";
+TestOutputReader *QuickTestConfiguration::outputReader(const QFutureInterface<TestResultPtr> &fi,
+                                                       QProcess *app) const
+{
+    return new QtTestOutputReader(fi, app, buildDirectory());
+}
 
-} // namespace Constants
+QStringList QuickTestConfiguration::argumentsForTestRunner(const TestSettings &settings) const
+{
+    QStringList arguments({"-xml"});
+
+    const QString &metricsOption = TestSettings::metricsTypeToOption(settings.metrics);
+    if (!metricsOption.isEmpty())
+        arguments << metricsOption;
+    if (testCases().count())
+        arguments << testCases();
+    return arguments;
+}
+
+void QuickTestConfiguration::setUnnamedOnly(bool unnamedOnly)
+{
+    m_unnamedOnly = unnamedOnly;
+}
+
+} // namespace Internal
 } // namespace Autotest

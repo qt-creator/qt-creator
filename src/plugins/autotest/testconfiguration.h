@@ -99,38 +99,5 @@ private:
     bool m_guessedConfiguration = false;
 };
 
-class QtTestConfiguration : public TestConfiguration
-{
-public:
-    explicit QtTestConfiguration() {}
-    TestOutputReader *outputReader(const QFutureInterface<TestResultPtr> &fi,
-                                   QProcess *app) const override;
-    QStringList argumentsForTestRunner(const TestSettings &settings) const override;
-};
-
-class QuickTestConfiguration : public TestConfiguration
-{
-public:
-    explicit QuickTestConfiguration() {}
-    TestOutputReader *outputReader(const QFutureInterface<TestResultPtr> &fi,
-                                   QProcess *app) const override;
-    QStringList argumentsForTestRunner(const TestSettings &settings) const override;
-
-    void setUnnamedOnly(bool unnamedOnly);
-    bool unnamedOnly() const { return m_unnamedOnly; }
-
-private:
-    bool m_unnamedOnly = false;
-};
-
-class GoogleTestConfiguration : public TestConfiguration
-{
-public:
-    explicit GoogleTestConfiguration() {}
-    TestOutputReader *outputReader(const QFutureInterface<TestResultPtr> &fi,
-                                   QProcess *app) const override;
-    QStringList argumentsForTestRunner(const TestSettings &settings) const override;
-};
-
 } // namespace Internal
 } // namespace Autotest

@@ -25,20 +25,27 @@
 
 #pragma once
 
-#include <QtGlobal>
+#include "../itestparser.h"
 
 namespace Autotest {
-namespace Constants {
+namespace Internal {
 
-const char ACTION_SCAN_ID[]             = "AutoTest.ScanAction";
-const char ACTION_RUN_ALL_ID[]          = "AutoTest.RunAll";
-const char ACTION_RUN_SELECTED_ID[]     = "AutoTest.RunSelected";
-const char MENU_ID[]                    = "AutoTest.Menu";
-const char AUTOTEST_ID[]                = "AutoTest.ATP";
-const char AUTOTEST_CONTEXT[]           = "Auto Tests";
-const char TASK_INDEX[]                 = "AutoTest.Task.Index";
-const char TASK_PARSE[]                 = "AutoTest.Task.Parse";
-const char AUTOTEST_SETTINGS_CATEGORY[] = "ZY.Tests";
+class GoogleTestParseResult : public TestParseResult
+{
+public:
+    explicit GoogleTestParseResult() : TestParseResult(TestTreeModel::GoogleTest) {}
+    TestTreeItem *createTestTreeItem() const override;
+    bool parameterized = false;
+    bool typed = false;
+    bool disabled = false;
+};
 
-} // namespace Constants
+class GoogleTestParser : public CppParser
+{
+public:
+    bool processDocument(QFutureInterface<TestParseResultPtr> futureInterface,
+                         const QString &fileName) override;
+};
+
+} // namespace Internal
 } // namespace Autotest

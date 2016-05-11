@@ -105,32 +105,6 @@ public:
     FaultyTestResult(Result::Type result, const QString &description);
 };
 
-class QTestResult : public TestResult
-{
-public:
-    explicit QTestResult(const QString &className = QString());
-    const QString outputString(bool selected) const override;
-
-    void setFunctionName(const QString &functionName) { m_function = functionName; }
-    void setDataTag(const QString &dataTag) { m_dataTag = dataTag; }
-
-private:
-    QString m_function;
-    QString m_dataTag;
-};
-
-class GTestResult : public TestResult
-{
-public:
-    explicit GTestResult(const QString &name = QString());
-    const QString outputString(bool selected) const override;
-
-    void setTestSetName(const QString &testSetName) { m_testSetName = testSetName; }
-
-private:
-    QString m_testSetName;
-};
-
 } // namespace Internal
 } // namespace Autotest
 

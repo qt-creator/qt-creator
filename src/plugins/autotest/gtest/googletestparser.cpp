@@ -1,0 +1,133 @@
+/****************************************************************************
+**
+** Copyright (C) 2016 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of Qt Creator.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 3 as published by the Free Software
+** Foundation with exceptions as appearing in the file LICENSE.GPL3-EXCEPT
+** included in the packaging of this file. Please review the following
+** information to ensure the GNU General Public License requirements will
+** be met: https://www.gnu.org/licenses/gpl-3.0.html.
+**
+****************************************************************************/
+
+#include "googletestparser.h"
+#include "googletesttreeitem.h"
+#include "gtestvisitors.h"
+#include "gtest_utils.h"
+#include "../autotest_utils.h"
+
+namespace Autotest {
+namespace Internal {
+
+TestTreeItem *GoogleTestParseResult::createTestTreeItem() const
+{
+    if (itemType == TestTreeItem::TestCase || itemType == TestTreeItem::TestFunctionOrSet)
+        return GoogleTestTreeItem::createTestItem(this);
+    return 0;
+}
+
+static bool includesGTest(const CPlusPlus::Document::Ptr &doc,
+                          const CPlusPlus::Snapshot &snapshot)
+{
+    const QString gtestH = QLatin1String("gtest/gtest.h");
+    foreach (const CPlusPlus::Document::Include &inc, doc->resolvedIncludes()) {
+        if (inc.resolvedFileName().endsWith(gtestH))
+            return true;
+    }
+
+    foreach (const QString &include, snapshot.allIncludesForDocument(doc->fileName())) {
+        if (include.endsWith(gtestH))
+            return true;
+    }
+
+    return false;
+}
+
+static bool hasGTestNames(const CPlusPlus::Document::Ptr &document)
+{
+    foreach (const CPlusPlus::Document::MacroUse &macro, document->macroUses()) {
+        if (!macro.isFunctionLike())
+            continue;
+        if (GTestUtils::isGTestMacro(QLatin1String(macro.macro().name()))) {
+            const QVector<CPlusPlus::Document::Block> args = macro.arguments();
+            if (args.size() != 2)
+                continue;
+            return true;
+        }
+    }
+    return false;
+}
+
+static bool handleGTest(QFutureInterface<TestParseResultPtr> futureInterface,
+                        const CPlusPlus::Document::Ptr &doc,
+                        const CPlusPlus::Snapshot &snapshot)
+{
+    const CppTools::CppModelManager *modelManager = CppTools::CppModelManager::instance();
+    const QString &filePath = doc->fileName();
+    const QByteArray &fileContent = TestUtils::getFileContent(filePath);
+    CPlusPlus::Document::Ptr document = snapshot.preprocessedDocument(fileContent, filePath);
+    document->check();
+    CPlusPlus::AST *ast = document->translationUnit()->ast();
+    GTestVisitor visitor(document);
+    visitor.accept(ast);
+
+    QMap<GTestCaseSpec, GTestCodeLocationList> result = visitor.gtestFunctions();
+    QString proFile;
+    const QList<CppTools::ProjectPart::Ptr> &ppList = modelManager->projectPart(filePath);
+    if (ppList.size())
+        proFile = ppList.first()->projectFile;
+
+    foreach (const GTestCaseSpec &testSpec, result.keys()) {
+        GoogleTestParseResult *parseResult = new GoogleTestParseResult;
+        parseResult->itemType = TestTreeItem::TestCase;
+        parseResult->fileName = filePath;
+        parseResult->name = testSpec.testCaseName;
+        parseResult->parameterized = testSpec.parameterized;
+        parseResult->typed = testSpec.typed;
+        parseResult->disabled = testSpec.disabled;
+        parseResult->proFile = proFile;
+
+        foreach (const GTestCodeLocationAndType &location, result.value(testSpec)) {
+            GoogleTestParseResult *testSet = new GoogleTestParseResult;
+            testSet->name = location.m_name;
+            testSet->fileName = filePath;
+            testSet->line = location.m_line;
+            testSet->column = location.m_column;
+            testSet->disabled = location.m_state & GoogleTestTreeItem::Disabled;
+            testSet->itemType = location.m_type;
+            testSet->proFile = proFile;
+
+            parseResult->children.append(testSet);
+        }
+
+        futureInterface.reportResult(TestParseResultPtr(parseResult));
+    }
+    return !result.keys().isEmpty();
+}
+
+bool GoogleTestParser::processDocument(QFutureInterface<TestParseResultPtr> futureInterface,
+                                       const QString &fileName)
+{
+    if (!m_cppSnapshot.contains(fileName) || !selectedForBuilding(fileName))
+        return false;
+    CPlusPlus::Document::Ptr document = m_cppSnapshot.find(fileName).value();
+    if (!includesGTest(document, m_cppSnapshot) || !hasGTestNames(document))
+        return false;
+    return handleGTest(futureInterface, document, m_cppSnapshot);
+}
+
+} // namespace Internal
+} // namespace Autotest

@@ -25,21 +25,16 @@
 
 #pragma once
 
-#include "testtreeitem.h"
+#include "autotesttreeitem.h"
 
 #include <cplusplus/ASTVisitor.h>
 #include <cplusplus/CppDocument.h>
 #include <cplusplus/Overview.h>
 #include <cplusplus/Scope.h>
 #include <cplusplus/SymbolVisitor.h>
-
 #include <cpptools/symbolfinder.h>
 
-#include <qmljs/parser/qmljsastvisitor_p.h>
-#include <qmljs/qmljsdocument.h>
-
 #include <QMap>
-#include <QString>
 
 namespace Autotest {
 namespace Internal {
@@ -48,7 +43,6 @@ class TestVisitor : public CPlusPlus::SymbolVisitor
 {
 public:
     TestVisitor(const QString &fullQualifiedClassName);
-    virtual ~TestVisitor();
 
     QMap<QString, TestCodeLocationAndType> privateSlots() const { return m_privSlots; }
     bool resultValid() const { return m_valid; }
@@ -66,7 +60,6 @@ class TestAstVisitor : public CPlusPlus::ASTVisitor
 {
 public:
     TestAstVisitor(CPlusPlus::Document::Ptr doc);
-    virtual ~TestAstVisitor();
 
     bool visit(CPlusPlus::CallAST *ast);
     bool visit(CPlusPlus::CompoundStatementAST *ast);
@@ -77,14 +70,12 @@ private:
     QString m_className;
     CPlusPlus::Scope *m_currentScope = 0;
     CPlusPlus::Document::Ptr m_currentDoc;
-
 };
 
 class TestDataFunctionVisitor : public CPlusPlus::ASTVisitor
 {
 public:
     TestDataFunctionVisitor(CPlusPlus::Document::Ptr doc);
-    virtual ~TestDataFunctionVisitor();
 
     bool visit(CPlusPlus::UsingDirectiveAST *ast);
     bool visit(CPlusPlus::FunctionDefinitionAST *ast);
@@ -105,63 +96,6 @@ private:
     unsigned m_currentAstDepth;
     unsigned m_insideUsingQTestDepth;
     bool m_insideUsingQTest;
-};
-
-class TestQmlVisitor : public QmlJS::AST::Visitor
-{
-public:
-    TestQmlVisitor(QmlJS::Document::Ptr doc);
-    virtual ~TestQmlVisitor();
-
-    bool visit(QmlJS::AST::UiObjectDefinition *ast);
-    bool visit(QmlJS::AST::ExpressionStatement *ast);
-    bool visit(QmlJS::AST::UiScriptBinding *ast);
-    bool visit(QmlJS::AST::FunctionDeclaration *ast);
-    bool visit(QmlJS::AST::StringLiteral *ast);
-
-    QString testCaseName() const { return m_currentTestCaseName; }
-    TestCodeLocationAndType testCaseLocation() const { return m_testCaseLocation; }
-    QMap<QString, TestCodeLocationAndType> testFunctions() const { return m_testFunctions; }
-
-private:
-    QmlJS::Document::Ptr m_currentDoc;
-    QString m_currentTestCaseName;
-    TestCodeLocationAndType m_testCaseLocation;
-    QMap<QString, TestCodeLocationAndType> m_testFunctions;
-
-};
-
-inline bool operator<(const GTestCaseSpec &spec1, const GTestCaseSpec &spec2)
-{
-    if (spec1.testCaseName != spec2.testCaseName)
-        return spec1.testCaseName < spec2.testCaseName;
-    if (spec1.parameterized == spec2.parameterized) {
-        if (spec1.typed == spec2.typed) {
-            if (spec1.disabled == spec2.disabled)
-                return false;
-            else
-                return !spec1.disabled;
-        } else {
-            return !spec1.typed;
-        }
-    } else {
-        return !spec1.parameterized;
-    }
-}
-
-class GTestVisitor : public CPlusPlus::ASTVisitor
-{
-public:
-    GTestVisitor(CPlusPlus::Document::Ptr doc);
-    bool visit(CPlusPlus::FunctionDefinitionAST *ast);
-
-    QMap<GTestCaseSpec, GTestCodeLocationList> gtestFunctions() const { return m_gtestFunctions; }
-
-private:
-    CPlusPlus::Document::Ptr m_document;
-    CPlusPlus::Overview m_overview;
-    QMap<GTestCaseSpec, GTestCodeLocationList> m_gtestFunctions;
-
 };
 
 } // namespace Internal

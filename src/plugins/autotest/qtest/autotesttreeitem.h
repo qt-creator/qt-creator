@@ -25,20 +25,27 @@
 
 #pragma once
 
-#include <QtGlobal>
+#include "../testtreeitem.h"
 
 namespace Autotest {
-namespace Constants {
+namespace Internal {
 
-const char ACTION_SCAN_ID[]             = "AutoTest.ScanAction";
-const char ACTION_RUN_ALL_ID[]          = "AutoTest.RunAll";
-const char ACTION_RUN_SELECTED_ID[]     = "AutoTest.RunSelected";
-const char MENU_ID[]                    = "AutoTest.Menu";
-const char AUTOTEST_ID[]                = "AutoTest.ATP";
-const char AUTOTEST_CONTEXT[]           = "Auto Tests";
-const char TASK_INDEX[]                 = "AutoTest.Task.Index";
-const char TASK_PARSE[]                 = "AutoTest.Task.Parse";
-const char AUTOTEST_SETTINGS_CATEGORY[] = "ZY.Tests";
+class AutoTestTreeItem : public TestTreeItem
+{
+public:
+    AutoTestTreeItem(const QString &name = QString(), const QString &filePath = QString(),
+                     Type type = Root) : TestTreeItem(name, filePath, type) {}
 
-} // namespace Constants
+    static AutoTestTreeItem *createTestItem(const TestParseResult *result);
+
+    QVariant data(int column, int role) const override;
+    bool canProvideTestConfiguration() const override;
+    TestConfiguration *testConfiguration() const override;
+    QList<TestConfiguration *> getAllTestConfigurations() const override;
+    QList<TestConfiguration *> getSelectedTestConfigurations() const override;
+    TestTreeItem *find(const TestParseResult *result) override;
+    bool modify(const TestParseResult *result) override;
+};
+
+} // namespace Internal
 } // namespace Autotest

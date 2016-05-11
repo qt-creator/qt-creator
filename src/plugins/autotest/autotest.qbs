@@ -72,6 +72,27 @@ QtcPlugin {
     ]
 
     Group {
+        name: "QtTest framework files"
+        files: [
+            "qtest/*"
+        ]
+    }
+
+    Group {
+        name: "Quick Test framework files"
+        files: [
+            "quick/*"
+        ]
+    }
+
+    Group {
+        name: "Google Test framework files"
+        files: [
+            "gtest/*"
+        ]
+    }
+
+    Group {
         name: "Test sources"
         condition: project.testsEnabled
         files: [

@@ -25,20 +25,48 @@
 
 #pragma once
 
-#include <QtGlobal>
+#include "googletesttreeitem.h"
+
+#include <cplusplus/ASTVisitor.h>
+#include <cplusplus/CppDocument.h>
+#include <cplusplus/Overview.h>
+
+#include <QMap>
 
 namespace Autotest {
-namespace Constants {
+namespace Internal {
 
-const char ACTION_SCAN_ID[]             = "AutoTest.ScanAction";
-const char ACTION_RUN_ALL_ID[]          = "AutoTest.RunAll";
-const char ACTION_RUN_SELECTED_ID[]     = "AutoTest.RunSelected";
-const char MENU_ID[]                    = "AutoTest.Menu";
-const char AUTOTEST_ID[]                = "AutoTest.ATP";
-const char AUTOTEST_CONTEXT[]           = "Auto Tests";
-const char TASK_INDEX[]                 = "AutoTest.Task.Index";
-const char TASK_PARSE[]                 = "AutoTest.Task.Parse";
-const char AUTOTEST_SETTINGS_CATEGORY[] = "ZY.Tests";
+inline bool operator<(const GTestCaseSpec &spec1, const GTestCaseSpec &spec2)
+{
+    if (spec1.testCaseName != spec2.testCaseName)
+        return spec1.testCaseName < spec2.testCaseName;
+    if (spec1.parameterized == spec2.parameterized) {
+        if (spec1.typed == spec2.typed) {
+            if (spec1.disabled == spec2.disabled)
+                return false;
+            else
+                return !spec1.disabled;
+        } else {
+            return !spec1.typed;
+        }
+    } else {
+        return !spec1.parameterized;
+    }
+}
 
-} // namespace Constants
+class GTestVisitor : public CPlusPlus::ASTVisitor
+{
+public:
+    GTestVisitor(CPlusPlus::Document::Ptr doc);
+    bool visit(CPlusPlus::FunctionDefinitionAST *ast);
+
+    QMap<GTestCaseSpec, GTestCodeLocationList> gtestFunctions() const { return m_gtestFunctions; }
+
+private:
+    CPlusPlus::Document::Ptr m_document;
+    CPlusPlus::Overview m_overview;
+    QMap<GTestCaseSpec, GTestCodeLocationList> m_gtestFunctions;
+};
+
+} // namespace Internal
 } // namespace Autotest

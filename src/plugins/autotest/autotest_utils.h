@@ -25,8 +25,11 @@
 
 #pragma once
 
+#include <coreplugin/editormanager/editormanager.h>
 #include <cpptools/cppmodelmanager.h>
+#include <cpptools/cppworkingcopy.h>
 #include <cpptools/projectpart.h>
+#include <utils/textfileformat.h>
 
 #include <QStringList>
 
@@ -36,37 +39,6 @@ namespace Internal {
 class TestUtils
 {
 public:
-    static bool isGTestMacro(const QString &macro)
-    {
-        static QStringList valid = {
-            QStringLiteral("TEST"), QStringLiteral("TEST_F"), QStringLiteral("TEST_P"),
-            QStringLiteral("TYPED_TEST"), QStringLiteral("TYPED_TEST_P")
-        };
-        return valid.contains(macro);
-    }
-
-    static bool isGTestParameterized(const QString &macro)
-    {
-        return macro == QStringLiteral("TEST_P") || macro == QStringLiteral("TYPED_TEST_P");
-    }
-
-    static bool isGTestTyped(const QString &macro)
-    {
-        return macro == QStringLiteral("TYPED_TEST") || macro == QStringLiteral("TYPED_TEST_P");
-    }
-
-    static bool isQTestMacro(const QByteArray &macro)
-    {
-        static QByteArrayList valid = {"QTEST_MAIN", "QTEST_APPLESS_MAIN", "QTEST_GUILESS_MAIN"};
-        return valid.contains(macro);
-    }
-
-    static bool isQuickTestMacro(const QByteArray &macro)
-    {
-        static const QByteArrayList valid = {"QUICK_TEST_MAIN", "QUICK_TEST_OPENGL_MAIN"};
-        return valid.contains(macro);
-    }
-
     static QString getCMakeDisplayNameIfNecessary(const QString &filePath, const QString &proFile)
     {
         static const QString CMAKE_LISTS = QLatin1String("CMakeLists.txt");
@@ -79,6 +51,24 @@ public:
             return projectParts.first()->displayName;
 
         return QString();
+    }
+
+    static QByteArray getFileContent(QString filePath)
+    {
+        QByteArray fileContent;
+        CppTools::CppModelManager *cppMM = CppTools::CppModelManager::instance();
+        CppTools::WorkingCopy wc = cppMM->workingCopy();
+        if (wc.contains(filePath)) {
+            fileContent = wc.source(filePath);
+        } else {
+            QString error;
+            const QTextCodec *codec = Core::EditorManager::defaultTextCodec();
+            if (Utils::TextFileFormat::readFileUTF8(filePath, codec, &fileContent, &error)
+                    != Utils::TextFileFormat::ReadSuccess) {
+                qDebug() << "Failed to read file" << filePath << ":" << error;
+            }
+        }
+        return fileContent;
     }
 };
 

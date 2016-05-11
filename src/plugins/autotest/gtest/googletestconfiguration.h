@@ -25,20 +25,19 @@
 
 #pragma once
 
-#include <QtGlobal>
+#include "../testconfiguration.h"
 
 namespace Autotest {
-namespace Constants {
+namespace Internal {
 
-const char ACTION_SCAN_ID[]             = "AutoTest.ScanAction";
-const char ACTION_RUN_ALL_ID[]          = "AutoTest.RunAll";
-const char ACTION_RUN_SELECTED_ID[]     = "AutoTest.RunSelected";
-const char MENU_ID[]                    = "AutoTest.Menu";
-const char AUTOTEST_ID[]                = "AutoTest.ATP";
-const char AUTOTEST_CONTEXT[]           = "Auto Tests";
-const char TASK_INDEX[]                 = "AutoTest.Task.Index";
-const char TASK_PARSE[]                 = "AutoTest.Task.Parse";
-const char AUTOTEST_SETTINGS_CATEGORY[] = "ZY.Tests";
+class GoogleTestConfiguration : public TestConfiguration
+{
+public:
+    explicit GoogleTestConfiguration() {}
+    TestOutputReader *outputReader(const QFutureInterface<TestResultPtr> &fi,
+                                   QProcess *app) const override;
+    QStringList argumentsForTestRunner(const TestSettings &settings) const override;
+};
 
-} // namespace Constants
+} // namespace Internal
 } // namespace Autotest

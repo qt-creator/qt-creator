@@ -34,7 +34,6 @@
 #include <projectexplorer/buildtargetinfo.h>
 #include <projectexplorer/environmentaspect.h>
 #include <projectexplorer/kitinformation.h>
-#include <projectexplorer/project.h>
 #include <projectexplorer/runnables.h>
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/session.h>
@@ -250,70 +249,6 @@ void TestConfiguration::setProject(Project *project)
 void TestConfiguration::setGuessedConfiguration(bool guessed)
 {
     m_guessedConfiguration = guessed;
-}
-
-TestOutputReader *QtTestConfiguration::outputReader(const QFutureInterface<TestResultPtr> &fi,
-                                                    QProcess *app) const
-{
-    return new QtTestOutputReader(fi, app, buildDirectory());
-}
-
-QStringList QtTestConfiguration::argumentsForTestRunner(const TestSettings &settings) const
-{
-    QStringList arguments("-xml");
-
-    const QString &metricsOption = TestSettings::metricsTypeToOption(settings.metrics);
-    if (!metricsOption.isEmpty())
-        arguments << metricsOption;
-    if (testCases().count())
-        arguments << testCases();
-    return arguments;
-}
-
-TestOutputReader *QuickTestConfiguration::outputReader(const QFutureInterface<TestResultPtr> &fi,
-                                                       QProcess *app) const
-{
-    return new QtTestOutputReader(fi, app, buildDirectory());
-}
-
-QStringList QuickTestConfiguration::argumentsForTestRunner(const TestSettings &settings) const
-{
-    QStringList arguments("-xml");
-
-    const QString &metricsOption = TestSettings::metricsTypeToOption(settings.metrics);
-    if (!metricsOption.isEmpty())
-        arguments << metricsOption;
-    if (testCases().count())
-        arguments << testCases();
-    return arguments;
-}
-
-void QuickTestConfiguration::setUnnamedOnly(bool unnamedOnly)
-{
-    m_unnamedOnly = unnamedOnly;
-}
-
-TestOutputReader *GoogleTestConfiguration::outputReader(const QFutureInterface<TestResultPtr> &fi,
-                                                        QProcess *app) const
-{
-    return new GTestOutputReader(fi, app, buildDirectory());
-}
-
-QStringList GoogleTestConfiguration::argumentsForTestRunner(const TestSettings &settings) const
-{
-    QStringList arguments;
-    const QStringList &testSets = testCases();
-    if (testSets.size())
-        arguments << QLatin1String("--gtest_filter=") + testSets.join(QLatin1Char(':'));
-    if (settings.gtestRunDisabled)
-        arguments << QLatin1String("--gtest_also_run_disabled_tests");
-    if (settings.gtestRepeat)
-        arguments << QString::fromLatin1("--gtest_repeat=%1").arg(settings.gtestIterations);
-    if (settings.gtestShuffle) {
-        arguments << QLatin1String("--gtest_shuffle")
-                  << QString::fromLatin1("--gtest_random_seed=%1").arg(settings.gtestSeed);
-    }
-    return arguments;
 }
 
 } // namespace Internal

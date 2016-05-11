@@ -25,20 +25,35 @@
 
 #pragma once
 
-#include <QtGlobal>
+#include "quicktesttreeitem.h"
+
+#include <qmljs/parser/qmljsastvisitor_p.h>
+#include <qmljs/qmljsdocument.h>
 
 namespace Autotest {
-namespace Constants {
+namespace Internal {
 
-const char ACTION_SCAN_ID[]             = "AutoTest.ScanAction";
-const char ACTION_RUN_ALL_ID[]          = "AutoTest.RunAll";
-const char ACTION_RUN_SELECTED_ID[]     = "AutoTest.RunSelected";
-const char MENU_ID[]                    = "AutoTest.Menu";
-const char AUTOTEST_ID[]                = "AutoTest.ATP";
-const char AUTOTEST_CONTEXT[]           = "Auto Tests";
-const char TASK_INDEX[]                 = "AutoTest.Task.Index";
-const char TASK_PARSE[]                 = "AutoTest.Task.Parse";
-const char AUTOTEST_SETTINGS_CATEGORY[] = "ZY.Tests";
+class TestQmlVisitor : public QmlJS::AST::Visitor
+{
+public:
+    TestQmlVisitor(QmlJS::Document::Ptr doc);
 
-} // namespace Constants
+    bool visit(QmlJS::AST::UiObjectDefinition *ast);
+    bool visit(QmlJS::AST::ExpressionStatement *ast);
+    bool visit(QmlJS::AST::UiScriptBinding *ast);
+    bool visit(QmlJS::AST::FunctionDeclaration *ast);
+    bool visit(QmlJS::AST::StringLiteral *ast);
+
+    QString testCaseName() const { return m_currentTestCaseName; }
+    TestCodeLocationAndType testCaseLocation() const { return m_testCaseLocation; }
+    QMap<QString, TestCodeLocationAndType> testFunctions() const { return m_testFunctions; }
+
+private:
+    QmlJS::Document::Ptr m_currentDoc;
+    QString m_currentTestCaseName;
+    TestCodeLocationAndType m_testCaseLocation;
+    QMap<QString, TestCodeLocationAndType> m_testFunctions;
+};
+
+} // namespace Internal
 } // namespace Autotest

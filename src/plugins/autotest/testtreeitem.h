@@ -44,7 +44,6 @@ namespace Autotest {
 namespace Internal {
 
 class TestParseResult;
-class GoogleTestParseResult;
 class TestConfiguration;
 
 class TestTreeItem : public Utils::TreeItem
@@ -136,85 +135,6 @@ private:
     Status m_status;
 };
 
-class AutoTestTreeItem : public TestTreeItem
-{
-public:
-    AutoTestTreeItem(const QString &name = QString(), const QString &filePath = QString(),
-                     Type type = Root) : TestTreeItem(name, filePath, type) {}
-
-    static AutoTestTreeItem *createTestItem(const TestParseResult *result);
-
-    QVariant data(int column, int role) const override;
-    bool canProvideTestConfiguration() const override;
-    TestConfiguration *testConfiguration() const override;
-    QList<TestConfiguration *> getAllTestConfigurations() const override;
-    QList<TestConfiguration *> getSelectedTestConfigurations() const override;
-    TestTreeItem *find(const TestParseResult *result) override;
-    bool modify(const TestParseResult *result) override;
-};
-
-class QuickTestTreeItem : public TestTreeItem
-{
-public:
-    QuickTestTreeItem(const QString &name = QString(), const QString &filePath = QString(),
-                      Type type = Root) : TestTreeItem(name, filePath, type) {}
-
-    static QuickTestTreeItem *createTestItem(const TestParseResult *result);
-
-    QVariant data(int column, int role) const override;
-    Qt::ItemFlags flags(int column) const override;
-    bool canProvideTestConfiguration() const override;
-    TestConfiguration *testConfiguration() const override;
-    QList<TestConfiguration *> getAllTestConfigurations() const override;
-    QList<TestConfiguration *> getSelectedTestConfigurations() const override;
-    TestTreeItem *find(const TestParseResult *result) override;
-    bool modify(const TestParseResult *result) override;
-    bool lessThan(const TestTreeItem *other, SortMode mode) const override;
-
-private:
-    TestTreeItem *unnamedQuickTests() const;
-};
-
-class GoogleTestTreeItem : public TestTreeItem
-{
-public:
-    enum TestState
-    {
-        Enabled         = 0x00,
-        Disabled        = 0x01,
-        Parameterized   = 0x02,
-        Typed           = 0x04,
-    };
-
-    Q_FLAGS(TestState)
-    Q_DECLARE_FLAGS(TestStates, TestState)
-
-    GoogleTestTreeItem(const QString &name = QString(), const QString &filePath = QString(),
-                       Type type = Root) : TestTreeItem(name, filePath, type), m_state(Enabled) {}
-
-    static GoogleTestTreeItem *createTestItem(const TestParseResult *result);
-
-    QVariant data(int column, int role) const override;
-    bool canProvideTestConfiguration() const override { return type() != Root; }
-    TestConfiguration *testConfiguration() const override;
-    QList<TestConfiguration *> getAllTestConfigurations() const override;
-    QList<TestConfiguration *> getSelectedTestConfigurations() const override;
-    TestTreeItem *find(const TestParseResult *result) override;
-    bool modify(const TestParseResult *result) override;
-
-    void setStates(TestStates states) { m_state = states; }
-    void setState(TestState state) { m_state |= state; }
-    TestStates state() const { return m_state; }
-    bool modifyTestSetContent(const GoogleTestParseResult *result);
-    TestTreeItem *findChildByNameStateAndFile(const QString &name,
-                                              GoogleTestTreeItem::TestStates state,
-                                              const QString &proFile) const;
-    QString nameSuffix() const;
-
-private:
-    GoogleTestTreeItem::TestStates m_state;
-};
-
 class TestCodeLocationAndType
 {
 public:
@@ -224,22 +144,7 @@ public:
     TestTreeItem::Type m_type;
 };
 
-class GTestCodeLocationAndType : public TestCodeLocationAndType
-{
-public:
-    GoogleTestTreeItem::TestStates m_state;
-};
-
 typedef QVector<TestCodeLocationAndType> TestCodeLocationList;
-typedef QVector<GTestCodeLocationAndType> GTestCodeLocationList;
-
-struct GTestCaseSpec
-{
-    QString testCaseName;
-    bool parameterized;
-    bool typed;
-    bool disabled;
-};
 
 } // namespace Internal
 } // namespace Autotest

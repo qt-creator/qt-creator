@@ -25,12 +25,7 @@
 
 #pragma once
 
-#include "testtreeitem.h"
-#include "testtreemodel.h"
-
-#include <cplusplus/CppDocument.h>
-
-#include <qmljs/qmljsdocument.h>
+#include "itestparser.h"
 
 #include <QObject>
 #include <QMap>
@@ -40,104 +35,8 @@ namespace Core {
 class Id;
 }
 
-namespace CppTools {
-class CppModelManager;
-}
-
 namespace Autotest {
 namespace Internal {
-
-class TestParseResult
-{
-public:
-    explicit TestParseResult(TestTreeModel::Type t = TestTreeModel::Invalid) : type(t) {}
-    virtual ~TestParseResult() { qDeleteAll(children); }
-
-    virtual TestTreeItem *createTestTreeItem() const = 0;
-
-    QVector<TestParseResult *> children;
-    TestTreeModel::Type type;
-    TestTreeItem::Type itemType = TestTreeItem::Root;
-    QString displayName;
-    QString fileName;
-    QString proFile;
-    QString name;
-    unsigned line = 0;
-    unsigned column = 0;
-};
-
-class QtTestParseResult : public TestParseResult
-{
-public:
-    explicit QtTestParseResult() : TestParseResult(TestTreeModel::AutoTest) {}
-    TestTreeItem *createTestTreeItem() const override;
-};
-
-class QuickTestParseResult : public TestParseResult
-{
-public:
-    explicit QuickTestParseResult() : TestParseResult(TestTreeModel::QuickTest) {}
-    TestTreeItem *createTestTreeItem() const override;
-};
-
-class GoogleTestParseResult : public TestParseResult
-{
-public:
-    explicit GoogleTestParseResult() : TestParseResult(TestTreeModel::GoogleTest) {}
-    TestTreeItem *createTestTreeItem() const override;
-    bool parameterized = false;
-    bool typed = false;
-    bool disabled = false;
-};
-
-using TestParseResultPtr = QSharedPointer<TestParseResult>;
-
-class ITestParser
-{
-public:
-    virtual ~ITestParser() { }
-    virtual void init(const QStringList &filesToParse) = 0;
-    virtual bool processDocument(QFutureInterface<TestParseResultPtr> futureInterface,
-                                 const QString &fileName) = 0;
-};
-
-class CppParser : public ITestParser
-{
-public:
-    void init(const QStringList &filesToParse) override;
-    static bool selectedForBuilding(const QString &fileName);
-
-protected:
-    CPlusPlus::Snapshot m_cppSnapshot;
-};
-
-class QtTestParser : public CppParser
-{
-public:
-    void init(const QStringList &filesToParse) override;
-    bool processDocument(QFutureInterface<TestParseResultPtr> futureInterface,
-                         const QString &fileName) override;
-
-private:
-    QHash<QString, QString> m_testCaseNames;
-};
-
-class QuickTestParser : public CppParser
-{
-public:
-    void init(const QStringList &filesToParse) override;
-    bool processDocument(QFutureInterface<TestParseResultPtr> futureInterface,
-                         const QString &fileName) override;
-private:
-    QmlJS::Snapshot m_qmlSnapshot;
-};
-
-class GoogleTestParser : public CppParser
-{
-public:
-    bool processDocument(QFutureInterface<TestParseResultPtr> futureInterface,
-                         const QString &fileName) override;
-};
 
 class TestCodeParser : public QObject
 {
@@ -199,6 +98,4 @@ private:
 };
 
 } // namespace Internal
-} // Autotest
-
-Q_DECLARE_METATYPE(Autotest::Internal::TestParseResultPtr)
+} // namespace Autotest

@@ -28,8 +28,6 @@
 #include "testconfiguration.h"
 #include "testtreeitem.h"
 
-#include <cplusplus/CppDocument.h>
-
 #include <utils/treemodel.h>
 
 #include <QSortFilterProxyModel>
@@ -46,7 +44,7 @@ class TestTreeModel : public Utils::TreeModel
 {
     Q_OBJECT
 public:
-    enum Type {
+    enum Type { // FIXME remove this enum
         Invalid,
         AutoTest,
         QuickTest,
@@ -105,9 +103,11 @@ private:
     explicit TestTreeModel(QObject *parent = 0);
     void setupParsingConnections();
 
-    AutoTestTreeItem *m_autoTestRootItem;
-    QuickTestTreeItem *m_quickTestRootItem;
-    GoogleTestTreeItem *m_googleTestRootItem;
+    // FIXME
+    TestTreeItem *m_autoTestRootItem;
+    TestTreeItem *m_quickTestRootItem;
+    TestTreeItem *m_googleTestRootItem;
+    // end of FIXME
     TestCodeParser *m_parser;
     bool m_connectionsInitialized;
     QAtomicInt m_refCounter;

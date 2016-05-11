@@ -25,20 +25,31 @@
 
 #pragma once
 
-#include <QtGlobal>
-
 namespace Autotest {
-namespace Constants {
+namespace Internal {
 
-const char ACTION_SCAN_ID[]             = "AutoTest.ScanAction";
-const char ACTION_RUN_ALL_ID[]          = "AutoTest.RunAll";
-const char ACTION_RUN_SELECTED_ID[]     = "AutoTest.RunSelected";
-const char MENU_ID[]                    = "AutoTest.Menu";
-const char AUTOTEST_ID[]                = "AutoTest.ATP";
-const char AUTOTEST_CONTEXT[]           = "Auto Tests";
-const char TASK_INDEX[]                 = "AutoTest.Task.Index";
-const char TASK_PARSE[]                 = "AutoTest.Task.Parse";
-const char AUTOTEST_SETTINGS_CATEGORY[] = "ZY.Tests";
+class GTestUtils
+{
+public:
+    static bool isGTestMacro(const QString &macro)
+    {
+        static QStringList valid = {
+            QStringLiteral("TEST"), QStringLiteral("TEST_F"), QStringLiteral("TEST_P"),
+            QStringLiteral("TYPED_TEST"), QStringLiteral("TYPED_TEST_P")
+        };
+        return valid.contains(macro);
+    }
 
-} // namespace Constants
+    static bool isGTestParameterized(const QString &macro)
+    {
+        return macro == QStringLiteral("TEST_P") || macro == QStringLiteral("TYPED_TEST_P");
+    }
+
+    static bool isGTestTyped(const QString &macro)
+    {
+        return macro == QStringLiteral("TYPED_TEST") || macro == QStringLiteral("TYPED_TEST_P");
+    }
+};
+
+} // namespace Internal
 } // namespace Autotest
