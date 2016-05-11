@@ -63,9 +63,6 @@ QmlProfilerStatisticsModel::QmlProfilerStatisticsModel(QmlProfilerModelManager *
             this, &QmlProfilerStatisticsModel::notesChanged);
     d->modelId = modelManager->registerModelProxy();
 
-    // We're iterating twice in loadData.
-    modelManager->setProxyCountWeight(d->modelId, 2);
-
     d->acceptedTypes << Compiling << Creating << Binding << HandlingSignal << Javascript;
 
     modelManager->announceFeatures(d->modelId, Constants::QML_JS_RANGE_FEATURES);
@@ -106,7 +103,6 @@ const QHash<int, QString> &QmlProfilerStatisticsModel::getNotes() const
 
 void QmlProfilerStatisticsModel::clear()
 {
-    d->modelManager->modelProxyCountUpdated(d->modelId, 0, 1);
     d->data.clear();
     d->eventsInBindingLoop.clear();
     d->notes.clear();
@@ -234,14 +230,9 @@ void QmlProfilerStatisticsModel::loadData(qint64 rangeStart, qint64 rangeEnd)
         if (callStack.count() > 1)
             d->data[callStack.top()->typeIndex()].durationSelf -= event->duration();
         callStack.push(event);
-
-        d->modelManager->modelProxyCountUpdated(d->modelId, i, eventList.count()*2);
     }
 
     // post-process: calc mean time, median time, percentoftime
-    int i = d->data.size();
-    int total = i * 2;
-
     for (QHash<int, QmlEventStats>::iterator it = d->data.begin(); it != d->data.end(); ++it) {
         QmlEventStats* stats = &it.value();
         if (stats->calls > 0)
@@ -255,7 +246,6 @@ void QmlProfilerStatisticsModel::loadData(qint64 rangeStart, qint64 rangeEnd)
 
         stats->percentOfTime = stats->duration * 100.0 / qmlTime;
         stats->percentSelf = stats->durationSelf * 100.0 / qmlTime;
-        d->modelManager->modelProxyCountUpdated(d->modelId, i++, total);
     }
 
     // set binding loop flag
@@ -273,7 +263,6 @@ void QmlProfilerStatisticsModel::loadData(qint64 rangeStart, qint64 rangeEnd)
 
     d->data.insert(-1, rootEvent);
 
-    d->modelManager->modelProxyCountUpdated(d->modelId, 1, 1);
     emit dataAvailable();
 }
 

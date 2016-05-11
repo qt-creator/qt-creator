@@ -73,17 +73,11 @@ bool QmlProfilerTimelineModel::handlesTypeId(int typeIndex) const
 void QmlProfilerTimelineModel::clear()
 {
     TimelineModel::clear();
-    updateProgress(0, 1);
 }
 
 QmlProfilerModelManager *QmlProfilerTimelineModel::modelManager() const
 {
     return m_modelManager;
-}
-
-void QmlProfilerTimelineModel::updateProgress(qint64 count, qint64 max) const
-{
-    m_modelManager->modelProxyCountUpdated(modelId(), count, max);
 }
 
 void QmlProfilerTimelineModel::announceFeatures(quint64 features) const

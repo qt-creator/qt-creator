@@ -90,10 +90,7 @@ public:
 
     bool isEmpty() const;
 
-    double progress() const;
     int registerModelProxy();
-    void setProxyCountWeight(int proxyId, int weight);
-    void modelProxyCountUpdated(int proxyId, qint64 count, qint64 max);
     void announceFeatures(int proxyId, quint64 features);
     quint64 availableFeatures() const;
     quint64 visibleFeatures() const;
@@ -109,7 +106,6 @@ public:
 signals:
     void error(const QString &error);
     void stateChanged();
-    void progressChanged();
     void loadFinished();
     void saveFinished();
 

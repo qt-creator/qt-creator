@@ -110,14 +110,11 @@ void QmlProfilerAnimationsModel::loadData()
                                                m_maxRenderThreadAnimations);
 
         minNextStartTimes[lastThread] = event.timestamp() + 1;
-
-        updateProgress(count(), referenceList.count());
     }
 
     computeNesting();
     setExpandedRowCount((m_maxGuiThreadAnimations == 0 || m_maxRenderThreadAnimations == 0) ? 2 : 3);
     setCollapsedRowCount(expandedRowCount());
-    updateProgress(1, 1);
 }
 
 int QmlProfilerAnimationsModel::rowFromThreadId(int threadId) const

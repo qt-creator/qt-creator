@@ -68,7 +68,7 @@ QmlProfilerStateWidget::QmlProfilerStateWidget(QmlProfilerStateManager *stateMan
 
     d->progressBar = new QProgressBar(this);
     layout->addWidget(d->progressBar);
-    d->progressBar->setMaximum(1000);
+    d->progressBar->setRange(0, 0);
     d->progressBar->setVisible(false);
 
     setLayout(layout);
@@ -76,8 +76,6 @@ QmlProfilerStateWidget::QmlProfilerStateWidget(QmlProfilerStateManager *stateMan
     // profiler state
     d->m_modelManager = modelManager;
     connect(d->m_modelManager, &QmlProfilerModelManager::stateChanged,
-            this, &QmlProfilerStateWidget::updateDisplay);
-    connect(d->m_modelManager, &QmlProfilerModelManager::progressChanged,
             this, &QmlProfilerStateWidget::updateDisplay);
     d->m_profilerState = stateManager;
     connect(d->m_profilerState, &QmlProfilerStateManager::stateChanged,
@@ -103,8 +101,6 @@ void QmlProfilerStateWidget::reposition()
 void QmlProfilerStateWidget::showText(const QString &text, bool showProgress)
 {
     setVisible(true);
-    if (showProgress)
-        d->progressBar->setValue(d->m_modelManager->progress() * 1000);
     d->progressBar->setVisible(showProgress);
     d->text->setText(text);
     resize(300, 70);
@@ -122,26 +118,25 @@ void QmlProfilerStateWidget::updateDisplay()
     QmlProfilerModelManager::State state = d->m_modelManager->state();
     if (state == QmlProfilerModelManager::Done || state == QmlProfilerModelManager::Empty) {
         // After profiling, there is an empty trace
-        if (d->m_modelManager->traceTime()->duration() > 0 &&
-                (d->m_modelManager->isEmpty() || d->m_modelManager->progress() == 0)) {
+        if (d->m_modelManager->traceTime()->duration() > 0 && d->m_modelManager->isEmpty()) {
             showText(tr("No QML events recorded"));
             return;
         }
-    } else if (d->m_modelManager->progress() != 0 && !d->m_modelManager->isEmpty()) {
+    } else if (!d->m_modelManager->isEmpty()) {
         // When datamodel is acquiring or processing data
         if (state == QmlProfilerModelManager::ProcessingData) {
             showText(tr("Processing data"), true);
-        } else  if (d->m_profilerState->currentState() != QmlProfilerStateManager::Idle) {
+        } else if (d->m_profilerState->currentState() != QmlProfilerStateManager::Idle) {
             if (state == QmlProfilerModelManager::AcquiringData) {
                 // we don't know how much more, so progress numbers are strange here
-                showText(tr("Waiting for more data"));
+                showText(tr("Loading buffered data"));
             } else if (state == QmlProfilerModelManager::ClearingData) {
                 // when starting a second recording from the same process without aggregation
                 showText(tr("Clearing old trace"));
             }
         } else if (state == QmlProfilerModelManager::AcquiringData) {
             // Application died before all data could be read
-            showText(tr("Application stopped before loading all data"));
+            showText(tr("Loading offline data"));
         } else if (state == QmlProfilerModelManager::ClearingData) {
             showText(tr("Clearing old trace"));
         }

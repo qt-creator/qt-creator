@@ -397,8 +397,6 @@ void PixmapCacheModel::loadData()
         default:
             break;
         }
-
-        updateProgress(count(), 2 * simpleModel->events().count());
     }
 
     if (lastCacheSizeEvent != -1)
@@ -410,8 +408,6 @@ void PixmapCacheModel::loadData()
     computeMaxCacheSize();
     flattenLoads();
     computeNesting();
-
-    updateProgress(1, 1);
 }
 
 void PixmapCacheModel::clear()

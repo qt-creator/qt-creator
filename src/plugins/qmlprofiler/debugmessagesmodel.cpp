@@ -116,11 +116,9 @@ void DebugMessagesModel::loadData()
                       MessageData(event.string(), event.typeIndex()));
         if (type.detailType > m_maximumMsgType)
             m_maximumMsgType = event.typeIndex();
-        updateProgress(count(), simpleModel->events().count());
     }
     setCollapsedRowCount(2);
     setExpandedRowCount(m_maximumMsgType + 2);
-    updateProgress(1, 1);
 }
 
 void DebugMessagesModel::clear()

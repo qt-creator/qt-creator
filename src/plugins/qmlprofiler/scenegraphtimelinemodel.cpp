@@ -227,13 +227,10 @@ void SceneGraphTimelineModel::loadData()
         }
         default: break;
         }
-
-        updateProgress(count(), simpleModel->events().count());
     }
 
     computeNesting();
     flattenLoads();
-    updateProgress(1, 1);
 }
 
 void SceneGraphTimelineModel::flattenLoads()

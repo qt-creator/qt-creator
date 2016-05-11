@@ -50,16 +50,12 @@ FlameGraphModel::FlameGraphModel(QmlProfilerModelManager *modelManager,
             this, [this](int typeId, int, int){loadNotes(typeId, true);});
     m_modelId = modelManager->registerModelProxy();
 
-    // We're iterating twice in loadData.
-    modelManager->setProxyCountWeight(m_modelId, 2);
-
     m_acceptedTypes << Compiling << Creating << Binding << HandlingSignal << Javascript;
     modelManager->announceFeatures(m_modelId, Constants::QML_JS_RANGE_FEATURES);
 }
 
 void FlameGraphModel::clear()
 {
-    m_modelManager->modelProxyCountUpdated(m_modelId, 0, 1);
     m_stackBottom = FlameGraphData();
     m_typeIdsWithNotes.clear();
 }
@@ -134,8 +130,6 @@ void FlameGraphModel::loadData(qint64 rangeStart, qint64 rangeEnd)
 
         callStack.push(event);
         stackTop = pushChild(stackTop, event);
-
-        m_modelManager->modelProxyCountUpdated(m_modelId, i, eventList.count());
     }
 
     foreach (FlameGraphData *child, m_stackBottom.children)
@@ -143,7 +137,6 @@ void FlameGraphModel::loadData(qint64 rangeStart, qint64 rangeEnd)
 
     loadNotes(-1, false);
 
-    m_modelManager->modelProxyCountUpdated(m_modelId, 1, 1);
     endResetModel();
 }
 

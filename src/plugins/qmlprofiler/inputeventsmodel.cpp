@@ -162,11 +162,9 @@ void InputEventsModel::loadData()
         } else if (m_keyTypeId == -1) {
             m_keyTypeId = event.typeIndex();
         }
-        updateProgress(count(), simpleModel->events().count());
     }
     setCollapsedRowCount(2);
     setExpandedRowCount(3);
-    updateProgress(1, 1);
 }
 
 void InputEventsModel::clear()

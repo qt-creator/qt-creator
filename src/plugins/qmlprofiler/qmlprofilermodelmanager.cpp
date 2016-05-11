@@ -132,24 +132,17 @@ public:
     QmlProfilerModelManager::State state;
     QmlProfilerTraceTime *traceTime;
 
-    QVector<double> partialCounts;
-    QVector<int> partialCountWeights;
+    int numRegisteredModels;
     quint64 availableFeatures;
     quint64 visibleFeatures;
     quint64 recordedFeatures;
-
-    int totalWeight;
-    double progress;
-    double previousProgress;
 };
 
 
 QmlProfilerModelManager::QmlProfilerModelManager(Utils::FileInProjectFinder *finder, QObject *parent) :
     QObject(parent), d(new QmlProfilerModelManagerPrivate)
 {
-    d->totalWeight = 0;
-    d->previousProgress = 0;
-    d->progress = 0;
+    d->numRegisteredModels = 0;
     d->availableFeatures = 0;
     d->visibleFeatures = 0;
     d->recordedFeatures = 0;
@@ -184,42 +177,9 @@ bool QmlProfilerModelManager::isEmpty() const
     return d->model->isEmpty();
 }
 
-double QmlProfilerModelManager::progress() const
-{
-    return d->progress;
-}
-
 int QmlProfilerModelManager::registerModelProxy()
 {
-    d->partialCounts << 0;
-    d->partialCountWeights << 1;
-    d->totalWeight++;
-    return d->partialCounts.count()-1;
-}
-
-void QmlProfilerModelManager::setProxyCountWeight(int proxyId, int weight)
-{
-    d->totalWeight += weight - d->partialCountWeights[proxyId];
-    d->partialCountWeights[proxyId] = weight;
-}
-
-void QmlProfilerModelManager::modelProxyCountUpdated(int proxyId, qint64 count, qint64 max)
-{
-    d->progress -= d->partialCounts[proxyId] * d->partialCountWeights[proxyId] /
-            d->totalWeight;
-
-    if (max <= 0)
-        d->partialCounts[proxyId] = 1;
-    else
-        d->partialCounts[proxyId] = (double)count / (double) max;
-
-    d->progress += d->partialCounts[proxyId] * d->partialCountWeights[proxyId] /
-            d->totalWeight;
-
-    if (d->progress - d->previousProgress > 0.01) {
-        d->previousProgress = d->progress;
-        emit progressChanged();
-    }
+    return d->numRegisteredModels++;
 }
 
 void QmlProfilerModelManager::announceFeatures(int proxyId, quint64 features)
@@ -423,10 +383,6 @@ QmlProfilerModelManager::State QmlProfilerModelManager::state() const
 void QmlProfilerModelManager::clear()
 {
     setState(ClearingData);
-    for (int i = 0; i < d->partialCounts.count(); i++)
-        d->partialCounts[i] = 0;
-    d->progress = 0;
-    d->previousProgress = 0;
     d->model->clear();
     d->traceTime->clear();
     d->notesModel->clear();

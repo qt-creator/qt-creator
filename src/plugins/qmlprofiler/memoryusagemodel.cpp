@@ -217,8 +217,6 @@ void MemoryUsageModel::loadData()
                 m_data.insert(currentJSHeapIndex, allocation);
             }
         }
-
-        updateProgress(count(), simpleModel->events().count());
     }
 
     if (currentJSHeapIndex != -1)
@@ -232,7 +230,6 @@ void MemoryUsageModel::loadData()
     computeNesting();
     setExpandedRowCount(3);
     setCollapsedRowCount(3);
-    updateProgress(1, 1);
 }
 
 void MemoryUsageModel::clear()

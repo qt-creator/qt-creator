@@ -61,7 +61,6 @@ private slots:
     void onVisibleFeaturesChanged(quint64 features);
 
 protected:
-    void updateProgress(qint64 count, qint64 max) const;
     void announceFeatures(quint64 features) const;
 
 private:

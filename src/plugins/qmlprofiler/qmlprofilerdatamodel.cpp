@@ -111,9 +111,6 @@ QmlProfilerDataModel::QmlProfilerDataModel(Utils::FileInProjectFinder *fileFinde
             this, &QmlProfilerDataModel::detailsDone);
     connect(this, &QmlProfilerDataModel::requestReload,
             d->detailsRewriter, &QmlProfilerDetailsRewriter::reloadDocuments);
-
-    // The document loading is very expensive.
-    d->modelManager->setProxyCountWeight(d->modelId, 4);
 }
 
 QmlProfilerDataModel::~QmlProfilerDataModel()
@@ -145,8 +142,6 @@ void QmlProfilerDataModel::setData(qint64 traceStart, qint64 traceEnd,
     d->eventTypes = types;
     for (int id = 0; id < types.count(); ++id)
         d->eventTypeIds[types[id]] = id;
-    // Half the work is done. processData() will do the rest.
-    d->modelManager->modelProxyCountUpdated(d->modelId, 1, 2);
 }
 
 int QmlProfilerDataModel::count() const
@@ -162,7 +157,6 @@ void QmlProfilerDataModel::clear()
     d->eventTypes.clear();
     d->eventTypeIds.clear();
     d->detailsRewriter->clearRequests();
-    d->modelManager->modelProxyCountUpdated(d->modelId, 0, 1);
     emit changed();
 }
 
@@ -228,7 +222,6 @@ void QmlProfilerDataModel::processData()
             continue;
 
         d->detailsRewriter->requestDetailsForLocation(i, event->location);
-        d->modelManager->modelProxyCountUpdated(d->modelId, i + n, n * 2);
     }
 
     // Allow changed() event only after documents have been reloaded to avoid
@@ -260,9 +253,6 @@ void QmlProfilerDataModel::addEvent(Message message, RangeType rangeType, int de
     }
 
     d->eventList.append(eventData);
-
-    d->modelManager->modelProxyCountUpdated(d->modelId, startTime,
-                                            d->modelManager->traceTime()->duration() * 2);
 }
 
 qint64 QmlProfilerDataModel::lastTimeMark() const
@@ -287,7 +277,6 @@ void QmlProfilerDataModel::detailsDone()
 {
     Q_D(QmlProfilerDataModel);
     emit changed();
-    d->modelManager->modelProxyCountUpdated(d->modelId, isEmpty() ? 0 : 1, 1);
     d->modelManager->processingDone();
 }
 
