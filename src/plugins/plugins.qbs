@@ -45,7 +45,7 @@ Project {
         "qbsprojectmanager/qbsprojectmanager.qbs",
         "qmakeandroidsupport",
         "pythoneditor/pythoneditor.qbs",
-//        "qmldesigner/qmldesigner.qbs",
+        "qmldesigner/qmldesigner.qbs",
         "qmljseditor/qmljseditor.qbs",
         "qmljstools/qmljstools.qbs",
         "qmlprofiler/qmlprofiler.qbs",
