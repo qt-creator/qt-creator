@@ -271,7 +271,7 @@ private:
     {
         Number *data;
         m_dataLength = squeezable<size_t, quint16>(numbers.size()) ?
-                    numbers.size() : std::numeric_limits<quint16>::max();
+                    static_cast<quint16>(numbers.size()) : std::numeric_limits<quint16>::max();
         if (m_dataLength > sizeof(m_data) / sizeof(Number)) {
             if (squeeze<Container, Number>(numbers))
                 return;
