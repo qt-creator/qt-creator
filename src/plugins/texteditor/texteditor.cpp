@@ -794,17 +794,17 @@ static void printPage(int index, QPainter *painter, const QTextDocument *doc,
     painter->save();
 
     painter->translate(body.left(), body.top() - (index - 1) * body.height());
-    QRectF view(0, (index - 1) * body.height(), body.width(), body.height());
+    const QRectF view(0, (index - 1) * body.height(), body.width(), body.height());
 
     QAbstractTextDocumentLayout *layout = doc->documentLayout();
     QAbstractTextDocumentLayout::PaintContext ctx;
 
     painter->setFont(QFont(doc->defaultFont()));
-    QRectF box = titleBox.translated(0, view.top());
-    int dpix = painter->device()->logicalDpiX();
-    int dpiy = painter->device()->logicalDpiY();
-    int mx = 5 * dpix / 72.0;
-    int my = 2 * dpiy / 72.0;
+    const QRectF box = titleBox.translated(0, view.top());
+    const int dpix = painter->device()->logicalDpiX();
+    const int dpiy = painter->device()->logicalDpiY();
+    const int mx = 5 * dpix / 72.0;
+    const int my = 2 * dpiy / 72.0;
     painter->fillRect(box.adjusted(-mx, -my, mx, my), QColor(210, 210, 210));
     if (!title.isEmpty())
         painter->drawText(box, Qt::AlignCenter, title);

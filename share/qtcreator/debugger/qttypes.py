@@ -70,7 +70,7 @@ def qdump__QByteArray(d, value):
     if d.isExpanded():
         d.putArrayData(data, size, d.charType())
 
-def qdump__QByteArrayData(d, value):
+def qdump__QArrayData(d, value):
     data, size, alloc = d.byteArrayDataHelper(d.addressOf(value))
     d.check(alloc == 0 or (0 <= size and size <= alloc and alloc <= 100000000))
     d.putValue(d.readMemory(data, size), "latin1")
@@ -79,6 +79,9 @@ def qdump__QByteArrayData(d, value):
         with Children(d):
             d.putIntItem("size", size)
             d.putIntItem("alloc", alloc)
+
+def qdump__QByteArrayData(d, value):
+    qdump__QArrayData(d, value)
 
 
 def qdump__QBitArray(d, value):

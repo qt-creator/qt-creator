@@ -228,3 +228,7 @@ def qdump__ProKey(d, value):
     qdump__ProString(d, value)
     d.putBetterType(value.type)
 
+def qdump__Core__GeneratedFile(d, value):
+    d.putStringValue(value["m_d"]["d"]["path"])
+    d.putPlainChildren(value)
+
