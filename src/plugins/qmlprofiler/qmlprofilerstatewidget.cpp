@@ -45,7 +45,6 @@ class QmlProfilerStateWidget::QmlProfilerStateWidgetPrivate
 
     QLabel *text;
     QProgressBar *progressBar;
-    QPixmap shadowPic;
 
     QmlProfilerStateManager *m_profilerState;
     QmlProfilerModelManager *m_modelManager;
@@ -53,18 +52,18 @@ class QmlProfilerStateWidget::QmlProfilerStateWidgetPrivate
 
 QmlProfilerStateWidget::QmlProfilerStateWidget(QmlProfilerStateManager *stateManager,
                                 QmlProfilerModelManager *modelManager, QWidget *parent)
-    : QWidget(parent), d(new QmlProfilerStateWidgetPrivate(this))
+    : QFrame(parent), d(new QmlProfilerStateWidgetPrivate(this))
 {
     setObjectName(QLatin1String("QML Profiler State Display"));
+    setFrameStyle(QFrame::StyledPanel);
 
     // UI elements
     QVBoxLayout *layout = new QVBoxLayout(this);
     resize(200,70);
 
-    d->shadowPic.load(QLatin1String(":/timeline/dialog_shadow.png"));
-
     d->text = new QLabel(this);
     d->text->setAlignment(Qt::AlignCenter);
+    setAutoFillBackground(true);
     layout->addWidget(d->text);
 
     d->progressBar = new QProgressBar(this);
@@ -99,76 +98,6 @@ void QmlProfilerStateWidget::reposition()
     QWidget *parentWidget = qobject_cast<QWidget *>(parent());
     // positioning it at 2/3 height (it looks better)
     move(parentWidget->width()/2 - width()/2, parentWidget->height()/3 - height()/2);
-}
-
-void QmlProfilerStateWidget::paintEvent(QPaintEvent *event)
-{
-    QWidget::paintEvent(event);
-
-    QPainter painter(this);
-    painter.save();
-
-    // Shadow
-    // there is no actual qpainter borderimage, hacking it here
-    int borderWidth = 4;
-
-    // topleft
-    painter.drawPixmap(QRect(0, 0, borderWidth, borderWidth),
-                      d->shadowPic,
-                      QRect(0, 0, borderWidth, borderWidth));
-    // topright
-    painter.drawPixmap(QRect(width()-borderWidth, 0, borderWidth, borderWidth),
-                      d->shadowPic,
-                      QRect(d->shadowPic.width()-borderWidth, 0, borderWidth, borderWidth));
-    // bottomleft
-    painter.drawPixmap(QRect(0, height()-borderWidth, borderWidth, borderWidth),
-                      d->shadowPic,
-                      QRect(0, d->shadowPic.height()-borderWidth, borderWidth, borderWidth));
-    // bottomright
-    painter.drawPixmap(QRect(width()-borderWidth, height()-borderWidth, borderWidth, borderWidth),
-                      d->shadowPic,
-                      QRect(d->shadowPic.width()-borderWidth,
-                            d->shadowPic.height()-borderWidth,
-                            borderWidth,
-                            borderWidth));
-    // top
-    painter.drawPixmap(QRect(borderWidth, 0, width()-2*borderWidth, borderWidth),
-                      d->shadowPic,
-                      QRect(borderWidth, 0, d->shadowPic.width()-2*borderWidth, borderWidth));
-    // bottom
-    painter.drawPixmap(QRect(borderWidth, height()-borderWidth, width()-2*borderWidth, borderWidth),
-                      d->shadowPic,
-                      QRect(borderWidth,
-                            d->shadowPic.height()-borderWidth,
-                            d->shadowPic.width()-2*borderWidth,
-                            borderWidth));
-    // left
-    painter.drawPixmap(QRect(0, borderWidth, borderWidth, height()-2*borderWidth),
-                      d->shadowPic,
-                      QRect(0, borderWidth, borderWidth, d->shadowPic.height()-2*borderWidth));
-    // right
-    painter.drawPixmap(QRect(width()-borderWidth, borderWidth, borderWidth, height()-2*borderWidth),
-                      d->shadowPic,
-                      QRect(d->shadowPic.width()-borderWidth,
-                            borderWidth,
-                            borderWidth,
-                            d->shadowPic.height()-2*borderWidth));
-    // center
-    painter.drawPixmap(QRect(borderWidth, borderWidth, width()-2*borderWidth, height()-2*borderWidth),
-                      d->shadowPic,
-                      QRect(borderWidth,
-                            borderWidth,
-                            d->shadowPic.width()-2*borderWidth,
-                            d->shadowPic.height()-2*borderWidth));
-
-
-    // Background
-    painter.setBrush(Utils::creatorTheme()->color(Utils::Theme::BackgroundColorNormal));
-    painter.drawRoundedRect(QRect(borderWidth, 0, width()-2*borderWidth, height()-borderWidth), 6, 6);
-
-    // restore painter
-    painter.restore();
-
 }
 
 void QmlProfilerStateWidget::showText(const QString &text, bool showProgress)

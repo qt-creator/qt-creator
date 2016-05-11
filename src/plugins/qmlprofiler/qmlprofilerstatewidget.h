@@ -28,12 +28,12 @@
 #include "qmlprofilerstatemanager.h"
 #include "qmlprofilermodelmanager.h"
 
-#include <QWidget>
+#include <QFrame>
 
 namespace QmlProfiler {
 namespace Internal {
 
-class QmlProfilerStateWidget : public QWidget
+class QmlProfilerStateWidget : public QFrame
 {
     Q_OBJECT
 public:
@@ -45,9 +45,6 @@ private slots:
     void showText(const QString &text, bool showProgress = false);
     void updateDisplay();
     void reposition();
-
-protected:
-    void paintEvent(QPaintEvent *event);
 
 private:
     class QmlProfilerStateWidgetPrivate;
