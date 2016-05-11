@@ -298,7 +298,7 @@ void LldbEngine::setupInferior()
         if (item.unset)
             cmd.arg("command", "settings remove target.env-vars " + item.name.toUtf8());
         else
-            cmd.arg("command", "settings set target.env-vars " + item.name.toUtf8() + '=' + item.value.toUtf8());
+            cmd.arg("command", "settings set target.env-vars '" + item.name.toUtf8() + '=' + item.value.toUtf8() + '\'');
         runCommand(cmd);
     }
 
