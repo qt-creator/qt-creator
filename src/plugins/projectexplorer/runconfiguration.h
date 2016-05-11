@@ -154,75 +154,77 @@ private:
     RunConfigWidgetCreator m_runConfigWidgetCreator;
 };
 
-class PROJECTEXPLORER_EXPORT ClonableConcept
-{
-public:
-    virtual ~ClonableConcept() = default;
-    virtual ClonableConcept *clone() const = 0;
-    virtual bool equals(const std::unique_ptr<ClonableConcept> &other) const = 0;
-};
-
-template <class T>
-class ClonableModel : public ClonableConcept
-{
-public:
-    ClonableModel(const T &data) : m_data(data) { }
-    ~ClonableModel() Q_DECL_NOEXCEPT { } // gcc 4.7.3
-    ClonableConcept *clone() const override { return new ClonableModel(*this); }
-
-    bool equals(const std::unique_ptr<ClonableConcept> &other) const override
-    {
-        auto that = dynamic_cast<const ClonableModel<T> *>(other.get());
-        return that && m_data == that->m_data;
-    }
-
-    T m_data;
-};
-
 class PROJECTEXPLORER_EXPORT Runnable
 {
+    struct Concept
+    {
+        virtual ~Concept() {}
+        virtual Concept *clone() const = 0;
+        virtual bool canReUseOutputPane(const std::unique_ptr<Concept> &other) const = 0;
+    };
+
+    template <class T>
+    struct Model : public Concept
+    {
+        Model(const T &data) : m_data(data) {}
+
+        Concept *clone() const override { return new Model(*this); }
+
+        bool canReUseOutputPane(const std::unique_ptr<Concept> &other) const override
+        {
+            auto that = dynamic_cast<const Model<T> *>(other.get());
+            return that && m_data == that->m_data;
+        }
+
+        T m_data;
+    };
+
 public:
     Runnable() = default;
     Runnable(const Runnable &other) : d(other.d->clone()) { }
-    Runnable(Runnable &&other) /* MSVC 2013 doesn't want = default */ : d(std::move(other.d)) {}
-    template <class T> Runnable(const T &data) : d(new ClonableModel<T>(data)) {}
+    Runnable(Runnable &&other) : d(std::move(other.d)) {}
+    template <class T> Runnable(const T &data) : d(new Model<T>(data)) {}
 
     void operator=(Runnable other) { d = std::move(other.d); }
 
-    template <class T> bool is() const {
-        return dynamic_cast<ClonableModel<T> *>(d.get()) != 0;
-    }
+    template <class T> bool is() const { return dynamic_cast<Model<T> *>(d.get()) != 0; }
+    template <class T> const T &as() const { return static_cast<Model<T> *>(d.get())->m_data; }
 
-    template <class T> const T &as() const {
-        return static_cast<ClonableModel<T> *>(d.get())->m_data;
-    }
-
-    bool operator==(const Runnable &other) const;
+    bool canReUseOutputPane(const Runnable &other) const;
 
 private:
-    std::unique_ptr<ClonableConcept> d;
+    std::unique_ptr<Concept> d;
 };
 
 class PROJECTEXPLORER_EXPORT Connection
 {
+    struct Concept
+    {
+        virtual ~Concept() {}
+        virtual Concept *clone() const = 0;
+    };
+
+    template <class T>
+    struct Model : public Concept
+    {
+        Model(const T &data) : m_data(data) { }
+        Concept *clone() const override { return new Model(*this); }
+        T m_data;
+    };
+
 public:
     Connection() = default;
     Connection(const Connection &other) : d(other.d->clone()) { }
     Connection(Connection &&other) /* MSVC 2013 doesn't want = default */ : d(std::move(other.d)) {}
-    template <class T> Connection(const T &data) : d(new ClonableModel<T>(data)) {}
+    template <class T> Connection(const T &data) : d(new Model<T>(data)) {}
 
     void operator=(Connection other) { d = std::move(other.d); }
 
-    template <class T> bool is() const {
-        return dynamic_cast<ClonableModel<T> *>(d.get()) != 0;
-    }
-
-    template <class T> const T &as() const {
-        return static_cast<ClonableModel<T> *>(d.get())->m_data;
-    }
+    template <class T> bool is() const { return dynamic_cast<Model<T> *>(d.get()) != 0; }
+    template <class T> const T &as() const { return static_cast<Model<T> *>(d.get())->m_data; }
 
 private:
-    std::unique_ptr<ClonableConcept> d;
+    std::unique_ptr<Concept> d;
 };
 
 // Documentation inside.

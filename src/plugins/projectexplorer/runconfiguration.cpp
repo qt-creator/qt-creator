@@ -668,7 +668,7 @@ bool RunControl::canReUseOutputPane(const RunControl *other) const
     if (other->isRunning())
         return false;
 
-    return d->runnable == other->d->runnable;
+    return d->runnable.canReUseOutputPane(other->d->runnable);
 }
 
 ProcessHandle RunControl::applicationProcessHandle() const
@@ -771,9 +771,9 @@ void RunControl::appendMessage(const QString &msg, Utils::OutputFormat format)
     emit appendMessage(this, msg, format);
 }
 
-bool Runnable::operator==(const Runnable &other) const
+bool Runnable::canReUseOutputPane(const Runnable &other) const
 {
-    return d ? d->equals(other.d) : (other.d.get() == 0);
+    return d ? d->canReUseOutputPane(other.d) : (other.d.get() == 0);
 }
 
 } // namespace ProjectExplorer

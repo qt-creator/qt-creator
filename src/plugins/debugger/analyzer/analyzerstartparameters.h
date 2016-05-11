@@ -27,11 +27,8 @@
 
 #include <debugger/debugger_global.h>
 
-#include <projectexplorer/runnables.h>
 #include <ssh/sshconnection.h>
 #include <utils/port.h>
-
-#include <QMetaType>
 
 namespace Debugger {
 
@@ -43,7 +40,5 @@ public:
     QString analyzerSocket;
     Utils::Port analyzerPort;
 };
-
-DEBUGGER_EXPORT bool operator==(const AnalyzerConnection &c1, const AnalyzerConnection &c2);
 
 } // namespace Debugger
