@@ -390,7 +390,7 @@ class BOTAN_DLL Allocator
       */
       virtual void destroy() {}
 
-      virtual ~Allocator() noexcept(false) {}
+      virtual ~Allocator() Q_DECL_NOEXCEPT_EXPR(false) {}
    };
 
 }
