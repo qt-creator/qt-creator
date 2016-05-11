@@ -728,7 +728,7 @@ void initMemcheckTool()
 
 void destroyMemcheckTool()
 {
-    ExtensionSystem::PluginManager::addObject(theMemcheckRunControlFactory);
+    ExtensionSystem::PluginManager::removeObject(theMemcheckRunControlFactory);
     delete theMemcheckRunControlFactory;
     theMemcheckRunControlFactory = 0;
 }

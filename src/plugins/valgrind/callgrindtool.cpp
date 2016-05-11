@@ -1014,7 +1014,7 @@ void initCallgrindTool()
 
 void destroyCallgrindTool()
 {
-    ExtensionSystem::PluginManager::addObject(theCallgrindRunControlFactory);
+    ExtensionSystem::PluginManager::removeObject(theCallgrindRunControlFactory);
     delete theCallgrindRunControlFactory;
     theCallgrindRunControlFactory = 0;
 }
