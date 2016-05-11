@@ -99,9 +99,13 @@ public:
     QmlProfilerNotesModel *notesModel() const;
 
     bool isEmpty() const;
+    uint numLoadedEvents() const;
 
     int registerModelProxy();
     void announceFeatures(quint64 features, EventLoader eventLoader, Finalizer finalizer);
+
+    int numFinishedFinalizers() const;
+    int numRegisteredFinalizers() const;
 
     void dispatch(const QmlEvent &event, const QmlEventType &type);
 

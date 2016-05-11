@@ -143,6 +143,9 @@ public:
     QmlProfilerTraceTime *traceTime;
 
     int numRegisteredModels;
+    int numFinishedFinalizers;
+
+    uint numLoadedEvents;
     quint64 availableFeatures;
     quint64 visibleFeatures;
     quint64 recordedFeatures;
@@ -156,6 +159,8 @@ QmlProfilerModelManager::QmlProfilerModelManager(Utils::FileInProjectFinder *fin
     QObject(parent), d(new QmlProfilerModelManagerPrivate)
 {
     d->numRegisteredModels = 0;
+    d->numFinishedFinalizers = 0;
+    d->numLoadedEvents = 0;
     d->availableFeatures = 0;
     d->visibleFeatures = 0;
     d->recordedFeatures = 0;
@@ -192,15 +197,31 @@ bool QmlProfilerModelManager::isEmpty() const
     return d->model->isEmpty();
 }
 
+uint QmlProfilerModelManager::numLoadedEvents() const
+{
+    return d->numLoadedEvents;
+}
+
 int QmlProfilerModelManager::registerModelProxy()
 {
     return d->numRegisteredModels++;
+}
+
+int QmlProfilerModelManager::numFinishedFinalizers() const
+{
+    return d->numFinishedFinalizers;
+}
+
+int QmlProfilerModelManager::numRegisteredFinalizers() const
+{
+    return d->finalizers.count();
 }
 
 void QmlProfilerModelManager::dispatch(const QmlEvent &event, const QmlEventType &type)
 {
     foreach (const EventLoader &loader, d->eventLoaders[type.feature()])
         loader(event, type);
+    ++d->numLoadedEvents;
 }
 
 void QmlProfilerModelManager::announceFeatures(quint64 features, EventLoader eventLoader,
@@ -278,8 +299,10 @@ void QmlProfilerModelManager::processingDone()
     // Load notes after the timeline models have been initialized ...
     // which happens on stateChanged(Done).
 
-    foreach (const Finalizer &finalizer, d->finalizers)
+    foreach (const Finalizer &finalizer, d->finalizers) {
         finalizer();
+        ++d->numFinishedFinalizers;
+    }
 
     d->notesModel->loadData();
     setState(Done);
@@ -412,6 +435,8 @@ QmlProfilerModelManager::State QmlProfilerModelManager::state() const
 void QmlProfilerModelManager::clear()
 {
     setState(ClearingData);
+    d->numLoadedEvents = 0;
+    d->numFinishedFinalizers = 0;
     d->model->clear();
     d->traceTime->clear();
     d->notesModel->clear();

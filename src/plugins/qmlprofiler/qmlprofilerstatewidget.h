@@ -42,8 +42,9 @@ public:
     ~QmlProfilerStateWidget();
 
 private slots:
-    void showText(const QString &text, bool showProgress = false);
+    void showText(const QString &text);
     void updateDisplay();
+    void update();
     void reposition();
 
 private:
