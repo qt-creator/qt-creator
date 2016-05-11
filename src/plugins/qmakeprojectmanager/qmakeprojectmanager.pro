@@ -31,6 +31,7 @@ HEADERS += \
     wizards/qtwizard.h \
     wizards/subdirsprojectwizard.h \
     wizards/subdirsprojectwizarddialog.h \
+    wizards/simpleprojectwizard.h \
     qmakeprojectmanagerconstants.h \
     makestep.h \
     qmakestep.h \
@@ -73,6 +74,7 @@ SOURCES += \
     wizards/qtwizard.cpp \
     wizards/subdirsprojectwizard.cpp \
     wizards/subdirsprojectwizarddialog.cpp \
+    wizards/simpleprojectwizard.cpp \
     makestep.cpp \
     qmakestep.cpp \
     qtmodulesinfo.cpp \

@@ -35,6 +35,7 @@
 #include "wizards/guiappwizard.h"
 #include "wizards/librarywizard.h"
 #include "wizards/testwizard.h"
+#include "wizards/simpleprojectwizard.h"
 #include "wizards/subdirsprojectwizard.h"
 #include "customwidgetwizard/customwidgetwizard.h"
 #include "qmakeprojectmanagerconstants.h"
@@ -90,11 +91,15 @@ bool QmakeProjectManagerPlugin::initialize(const QStringList &arguments, QString
 
     ProjectExplorer::KitManager::registerKitInformation(new QmakeKitInformation);
 
-    IWizardFactory::registerFactoryCreator([]() {
-        QList<IWizardFactory *> result;
-        result << new SubdirsProjectWizard << new GuiAppWizard << new LibraryWizard
-               << new TestWizard << new CustomWidgetWizard;
-        return result;
+    IWizardFactory::registerFactoryCreator([] {
+        return QList<IWizardFactory *> {
+            new SubdirsProjectWizard,
+            new GuiAppWizard,
+            new LibraryWizard,
+            new TestWizard,
+            new CustomWidgetWizard,
+            new SimpleProjectWizard
+        };
     });
 
     addAutoReleasedObject(new CustomWizardMetaFactory<CustomQmakeProjectWizard>

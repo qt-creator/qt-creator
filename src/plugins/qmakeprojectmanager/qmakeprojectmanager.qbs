@@ -84,6 +84,7 @@ QtcPlugin {
             "qtwizard.cpp", "qtwizard.h",
             "subdirsprojectwizard.cpp", "subdirsprojectwizard.h",
             "subdirsprojectwizarddialog.cpp", "subdirsprojectwizarddialog.h",
+            "simpleprojectwizard.cpp", "simpleprojectwizard.h",
             "testwizard.cpp", "testwizard.h",
             "testwizarddialog.cpp", "testwizarddialog.h",
             "testwizardpage.cpp", "testwizardpage.h",
