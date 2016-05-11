@@ -647,7 +647,7 @@ class Dumper(DumperBase):
         self.dyldImageSuffix = args.get('dyldimagesuffix', '')
         self.dyldLibraryPath = args.get('dyldlibrarypath', '')
         self.dyldFrameworkPath = args.get('dyldframeworkpath', '')
-        self.processArgs_ = map(lambda x: self.hexdecode(x), self.processArgs_)
+        self.processArgs_ = list(map(lambda x: self.hexdecode(x), self.processArgs_))
         self.attachPid_ = args.get('attachpid', 0)
         self.sysRoot_ = args.get('sysroot', '')
         self.remoteChannel_ = args.get('remotechannel', '')
