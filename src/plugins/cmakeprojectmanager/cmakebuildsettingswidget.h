@@ -54,6 +54,7 @@ public:
     CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc);
 
     void setError(const QString &message);
+    void setWarning(const QString &message);
 
 private:
     void updateButtonState();
@@ -70,7 +71,9 @@ private:
     QPushButton *m_reconfigureButton;
     QTimer m_showProgressTimer;
     QLabel *m_errorLabel;
+    QLabel *m_warningLabel;
     QLabel *m_errorMessageLabel;
+    QLabel *m_warningMessageLabel;
 };
 
 } // namespace Internal

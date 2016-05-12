@@ -300,6 +300,22 @@ static CMakeConfig removeDuplicates(const CMakeConfig &config)
 void CMakeBuildConfiguration::setCMakeConfiguration(const CMakeConfig &config)
 {
     m_configuration = removeDuplicates(config);
+
+    const Kit *k = target()->kit();
+    CMakeConfig kitConfig = CMakeConfigurationKitInformation::configuration(k);
+    bool hasKitOverride = false;
+    foreach (const CMakeConfigItem &i, m_configuration) {
+        const QString b = CMakeConfigItem::expandedValueOf(k, i.key, kitConfig);
+        if (!b.isNull() && i.expandedValue(k) != b) {
+            hasKitOverride = true;
+            break;
+        }
+    }
+
+    if (hasKitOverride)
+        setWarning(tr("CMake Configuration set by the Kit was overridden in the project."));
+    else
+        setWarning(QString());
 }
 
 CMakeConfig CMakeBuildConfiguration::cmakeConfiguration() const
@@ -316,9 +332,22 @@ void CMakeBuildConfiguration::setError(const QString &message)
     emit errorOccured(m_error);
 }
 
+void CMakeBuildConfiguration::setWarning(const QString &message)
+{
+    if (m_warning == message)
+        return;
+    m_warning = message;
+    emit warningOccured(m_warning);
+}
+
 QString CMakeBuildConfiguration::error() const
 {
     return m_error;
+}
+
+QString CMakeBuildConfiguration::warning() const
+{
+    return m_warning;
 }
 
 ProjectExplorer::NamedWidget *CMakeBuildConfiguration::createConfigWidget()

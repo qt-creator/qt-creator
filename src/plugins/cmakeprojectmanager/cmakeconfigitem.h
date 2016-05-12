@@ -43,7 +43,8 @@ public:
     CMakeConfigItem(const QByteArray &k, const QByteArray &v);
 
     static QByteArray valueOf(const QByteArray &key, const QList<CMakeConfigItem> &input);
-
+    static QString expandedValueOf(const ProjectExplorer::Kit *k, const QByteArray &key,
+                                   const QList<CMakeConfigItem> &input);
     bool isNull() const { return key.isEmpty(); }
 
     QString expandedValue(const ProjectExplorer::Kit *k) const;

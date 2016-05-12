@@ -63,6 +63,16 @@ QByteArray CMakeConfigItem::valueOf(const QByteArray &key, const QList<CMakeConf
     return QByteArray();
 }
 
+QString CMakeConfigItem::expandedValueOf(const ProjectExplorer::Kit *k, const QByteArray &key,
+                                         const QList<CMakeConfigItem> &input)
+{
+    for (auto it = input.constBegin(); it != input.constEnd(); ++it) {
+        if (it->key == key)
+            return it->expandedValue(k);
+    }
+    return QString();
+}
+
 QString CMakeConfigItem::expandedValue(const ProjectExplorer::Kit *k) const
 {
     return k->macroExpander()->expand(QString::fromUtf8(value));

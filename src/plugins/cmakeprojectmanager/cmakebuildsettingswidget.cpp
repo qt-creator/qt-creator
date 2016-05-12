@@ -109,6 +109,17 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
     mainLayout->addLayout(boxLayout, row, 0, 1, 3, Qt::AlignHCenter);
 
     ++row;
+    m_warningLabel = new QLabel;
+    m_warningLabel->setPixmap(Core::Icons::WARNING.pixmap());
+    m_warningLabel->setVisible(false);
+    m_warningMessageLabel = new QLabel;
+    m_warningMessageLabel->setVisible(false);
+    auto boxLayout2 = new QHBoxLayout;
+    boxLayout2->addWidget(m_warningLabel);
+    boxLayout2->addWidget(m_warningMessageLabel);
+    mainLayout->addLayout(boxLayout2, row, 0, 1, 3, Qt::AlignHCenter);
+
+    ++row;
     mainLayout->addItem(new QSpacerItem(20, 10), row, 0);
 
     ++row;
@@ -161,6 +172,7 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
 
     updateAdvancedCheckBox();
     setError(bc->error());
+    setWarning(bc->warning());
 
     connect(project, &CMakeProject::parsingStarted, this, [this]() {
         updateButtonState();
@@ -203,22 +215,33 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
     });
 
     connect(bc, &CMakeBuildConfiguration::errorOccured, this, &CMakeBuildSettingsWidget::setError);
+    connect(bc, &CMakeBuildConfiguration::warningOccured, this, &CMakeBuildSettingsWidget::setWarning);
 }
 
 void CMakeBuildSettingsWidget::setError(const QString &message)
 {
-    bool showWarning = !message.isEmpty();
-    m_errorLabel->setVisible(showWarning);
+    bool showError = !message.isEmpty();
+    m_errorLabel->setVisible(showError);
     m_errorLabel->setToolTip(message);
-    m_errorMessageLabel->setVisible(showWarning);
+    m_errorMessageLabel->setVisible(showError);
     m_errorMessageLabel->setText(message);
     m_errorMessageLabel->setToolTip(message);
 
-    m_configView->setVisible(!showWarning);
-    m_editButton->setVisible(!showWarning);
-    m_resetButton->setVisible(!showWarning);
-    m_showAdvancedCheckBox->setVisible(!showWarning);
-    m_reconfigureButton->setVisible(!showWarning);
+    m_configView->setVisible(!showError);
+    m_editButton->setVisible(!showError);
+    m_resetButton->setVisible(!showError);
+    m_showAdvancedCheckBox->setVisible(!showError);
+    m_reconfigureButton->setVisible(!showError);
+}
+
+void CMakeBuildSettingsWidget::setWarning(const QString &message)
+{
+    bool showWarning = !message.isEmpty();
+    m_warningLabel->setVisible(showWarning);
+    m_warningLabel->setToolTip(message);
+    m_warningMessageLabel->setVisible(showWarning);
+    m_warningMessageLabel->setText(message);
+    m_warningMessageLabel->setToolTip(message);
 }
 
 void CMakeBuildSettingsWidget::updateButtonState()
