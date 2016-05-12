@@ -84,7 +84,10 @@ exists($$PLUGINJSON_IN) {
     DISTFILES += $$PLUGINJSON
 }
 
-osx: QMAKE_LFLAGS_SONAME = -Wl,-install_name,@rpath/PlugIns/
+osx {
+    QMAKE_LFLAGS_SONAME = -Wl,-install_name,@rpath/PlugIns/
+    QMAKE_LFLAGS += -compatibility_version $$QTCREATOR_COMPAT_VERSION
+}
 include(rpath.pri)
 
 contains(QT_CONFIG, reduce_exports):CONFIG += hide_symbols

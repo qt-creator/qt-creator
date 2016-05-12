@@ -2,6 +2,7 @@ import qbs 1.0
 import QtcFunctions
 
 Product {
+    version: project.qtcreator_version
     property string installDir
 
     Depends { name: "cpp" }

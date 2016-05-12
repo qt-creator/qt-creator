@@ -16,6 +16,8 @@ QtcProduct {
         var flags = base;
         if (qbs.buildVariant == "debug" && qbs.toolchain.contains("msvc"))
             flags.push("/INCREMENTAL:NO"); // Speed up startup time when debugging with cdb
+        if (qbs.targetOS.contains("osx"))
+            flags.push("-compatibility_version", project.qtcreator_compat_version);
         return flags;
     }
     cpp.installNamePrefix: "@rpath"

@@ -12,7 +12,10 @@ win32 {
 
 DESTDIR = $$IDE_LIBRARY_PATH
 
-osx: QMAKE_LFLAGS_SONAME = -Wl,-install_name,@rpath/Frameworks/
+osx {
+    QMAKE_LFLAGS_SONAME = -Wl,-install_name,@rpath/Frameworks/
+    QMAKE_LFLAGS += -compatibility_version $$QTCREATOR_COMPAT_VERSION
+}
 include(rpath.pri)
 
 TARGET = $$qtLibraryName($$TARGET)
