@@ -28,6 +28,8 @@
 #include "testresultmodel.h"
 #include "testsettings.h"
 
+#include <utils/qtcassert.h>
+
 #include <QAbstractItemView>
 #include <QDebug>
 #include <QPainter>
