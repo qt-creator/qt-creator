@@ -126,8 +126,8 @@ public:
     bool contains(const QString &s, Qt::CaseSensitivity cs = Qt::CaseSensitive) const { return indexOf(s, 0, cs) >= 0; }
     bool contains(const char *s, Qt::CaseSensitivity cs = Qt::CaseSensitive) const { return indexOf(QLatin1String(s), 0, cs) >= 0; }
     bool contains(QChar c, Qt::CaseSensitivity cs = Qt::CaseSensitive) const { return indexOf(c, 0, cs) >= 0; }
-    int toInt(bool *ok = 0, int base = 10) const { return toQString().toInt(ok, base); } // XXX optimize
-    short toShort(bool *ok = 0, int base = 10) const { return toQString().toShort(ok, base); } // XXX optimize
+    int toInt(bool *ok = 0, int base = 10) const { return toQStringRef().toInt(ok, base); }
+    short toShort(bool *ok = 0, int base = 10) const { return toQStringRef().toShort(ok, base); }
 
     uint hash() const { return m_hash; }
     static uint hash(const QChar *p, int n);
