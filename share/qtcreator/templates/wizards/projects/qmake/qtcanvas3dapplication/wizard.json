@@ -88,10 +88,6 @@
                     "source": "qml.qrc"
                 },
                 {
-                    "source": "../../../../shared/qrcdeployment.pri",
-                    "target": "%{ProjectDirectory}/deployment.pri"
-                },
-                {
                     "source": "../../git.ignore",
                     "target": ".gitignore",
                     "condition": "%{JS: !%{IsSubproject} && '%{VersionControl}' === 'G.Git'}"
