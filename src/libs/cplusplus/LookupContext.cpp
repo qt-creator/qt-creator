@@ -517,8 +517,8 @@ QList<LookupItem> LookupContext::lookup(const Name *name, Scope *scope) const
             if (ClassOrNamespace *binding = bindings()->lookupType(scope))
                 candidates = binding->find(name);
 
-                if (! candidates.isEmpty())
-                    return candidates;
+            if (! candidates.isEmpty())
+                return candidates;
         }
     }
 
