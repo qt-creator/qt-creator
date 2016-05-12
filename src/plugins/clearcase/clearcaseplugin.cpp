@@ -1334,9 +1334,8 @@ void ClearCasePlugin::ccUpdate(const QString &workingDir, const QStringList &rel
     args << QLatin1String("-noverwrite");
     if (!relativePaths.isEmpty())
         args.append(relativePaths);
-        const ClearCaseResponse response =
-                runCleartool(workingDir, args, m_settings.longTimeOutS(),
-                             VcsCommand::ShowStdOut);
+    const ClearCaseResponse response =
+            runCleartool(workingDir, args, m_settings.longTimeOutS(), VcsCommand::ShowStdOut);
     if (!response.error)
         clearCaseControl()->emitRepositoryChanged(workingDir);
 }

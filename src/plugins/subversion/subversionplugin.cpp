@@ -750,9 +750,9 @@ void SubversionPlugin::svnUpdate(const QString &workingDir, const QString &relat
     args.push_back(QLatin1String(Constants::NON_INTERACTIVE_OPTION));
     if (!relativePath.isEmpty())
         args.append(relativePath);
-        const SubversionResponse response
-                = runSvn(workingDir, args, 10 * m_client->vcsTimeoutS(),
-                         VcsCommand::SshPasswordPrompt | VcsCommand::ShowStdOut);
+    const SubversionResponse response
+            = runSvn(workingDir, args, 10 * m_client->vcsTimeoutS(),
+                     VcsCommand::SshPasswordPrompt | VcsCommand::ShowStdOut);
     if (!response.error)
         subVersionControl()->emitRepositoryChanged(workingDir);
 }
