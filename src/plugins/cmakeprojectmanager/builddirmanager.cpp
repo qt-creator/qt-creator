@@ -81,7 +81,7 @@ static QStringList toArguments(const CMakeConfig &config, const ProjectExplorer:
                                      a.append(QLatin1String(":INTERNAL="));
                                      break;
                                  }
-                                 a.append(QString::fromUtf8(k->macroExpander()->expand(i.value)));
+                                 a.append(i.expandedValue(k));
 
                                  return a;
                              });

@@ -30,6 +30,8 @@
 
 #include <functional>
 
+namespace ProjectExplorer { class Kit; }
+
 namespace CMakeProjectManager {
 
 class CMakeConfigItem {
@@ -43,6 +45,8 @@ public:
     static QByteArray valueOf(const QByteArray &key, const QList<CMakeConfigItem> &input);
 
     bool isNull() const { return key.isEmpty(); }
+
+    QString expandedValue(const ProjectExplorer::Kit *k) const;
 
     static std::function<bool(const CMakeConfigItem &a, const CMakeConfigItem &b)> sortOperator();
     static CMakeConfigItem fromString(const QString &s);
