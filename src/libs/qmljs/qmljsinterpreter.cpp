@@ -331,8 +331,8 @@ void CppComponentValue::processMembers(MemberProcessor *processor) const
             propertyFlags |= PropertyInfo::PointerType;
         else
             propertyFlags |= PropertyInfo::ValueType;
-            processor->processProperty(propertyName, valueForCppName(prop.typeName()),
-                                       PropertyInfo(propertyFlags));
+        processor->processProperty(propertyName, valueForCppName(prop.typeName()),
+                                   PropertyInfo(propertyFlags));
 
         // every property always has a onXyzChanged slot, even if the NOTIFY
         // signal has a different name
