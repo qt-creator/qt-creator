@@ -58,6 +58,8 @@ def checkQtCreatorHelpVersion(expectedVersion):
                      'Qt Creator Manual %s' % expectedVersion,
                      'Verifying whether manual uses expected version.')
     except:
+        t, v = sys.exc_info()[:2]
+        test.log("Exception caught", "%s(%s)" % (str(t), str(v)))
         test.fail("Missing Qt Creator Manual.")
 
 def setKeyboardShortcutForAboutQtC():
