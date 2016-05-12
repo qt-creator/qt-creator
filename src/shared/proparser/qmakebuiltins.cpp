@@ -81,7 +81,8 @@ QT_BEGIN_NAMESPACE
 #define fL1S(s) QString::fromLatin1(s)
 
 enum ExpandFunc {
-    E_INVALID = 0, E_MEMBER, E_FIRST, E_LAST, E_SIZE, E_CAT, E_FROMFILE, E_EVAL, E_LIST,
+    E_INVALID = 0, E_MEMBER, E_FIRST, E_TAKE_FIRST, E_LAST, E_TAKE_LAST, E_SIZE,
+    E_CAT, E_FROMFILE, E_EVAL, E_LIST,
     E_SPRINTF, E_FORMAT_NUMBER, E_JOIN, E_SPLIT, E_BASENAME, E_DIRNAME, E_SECTION,
     E_FIND, E_SYSTEM, E_UNIQUE, E_REVERSE, E_QUOTE, E_ESCAPE_EXPAND,
     E_UPPER, E_LOWER, E_TITLE, E_FILES, E_PROMPT, E_RE_ESCAPE, E_VAL_ESCAPE,
@@ -106,7 +107,9 @@ void QMakeEvaluator::initFunctionStatics()
     } expandInits[] = {
         { "member", E_MEMBER },
         { "first", E_FIRST },
+        { "take_first", E_TAKE_FIRST },
         { "last", E_LAST },
+        { "take_last", E_TAKE_LAST },
         { "size", E_SIZE },
         { "cat", E_CAT },
         { "fromfile", E_FROMFILE },
@@ -694,6 +697,20 @@ ProStringList QMakeEvaluator::evaluateBuiltinExpand(
                     ret.append(var[0]);
                 else
                     ret.append(var.last());
+            }
+        }
+        break;
+    case E_TAKE_FIRST:
+    case E_TAKE_LAST:
+        if (args.count() != 1) {
+            evalError(fL1S("%1(var) requires one argument.").arg(func.toQString(m_tmp1)));
+        } else {
+            ProStringList &var = valuesRef(map(args.at(0)));
+            if (!var.isEmpty()) {
+                if (func_t == E_TAKE_FIRST)
+                    ret.append(var.takeFirst());
+                else
+                    ret.append(var.takeLast());
             }
         }
         break;
