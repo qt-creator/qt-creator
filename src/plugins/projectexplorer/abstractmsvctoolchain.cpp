@@ -238,7 +238,7 @@ bool AbstractMsvcToolChain::generateEnvironmentSettings(Utils::Environment &env,
                                                         const QString &batchArgs,
                                                         QMap<QString, QString> &envPairs)
 {
-    const QString marker = "####################\r\n";
+    const QString marker = "####################";
     // Create a temporary file name for the output. Use a temporary file here
     // as I don't know another way to do this in Qt...
     // Note, can't just use a QTemporaryFile all the way through as it remains open
@@ -254,9 +254,9 @@ bool AbstractMsvcToolChain::generateEnvironmentSettings(Utils::Environment &env,
         call += batchArgs.toLocal8Bit();
     }
     saver.write(call + "\r\n");
-    saver.write("@echo " + marker.toLocal8Bit());
+    saver.write("@echo " + marker.toLocal8Bit() + "\r\n");
     saver.write("set\r\n");
-    saver.write("@echo " + marker.toLocal8Bit());
+    saver.write("@echo " + marker.toLocal8Bit() + "\r\n");
     if (!saver.finalize()) {
         qWarning("%s: %s", Q_FUNC_INFO, qPrintable(saver.errorString()));
         return false;
@@ -290,13 +290,13 @@ bool AbstractMsvcToolChain::generateEnvironmentSettings(Utils::Environment &env,
 
     //
     // Now parse the file to get the environment settings
-    int start = stdOut.indexOf(marker);
+    const int start = stdOut.indexOf(marker);
     if (start == -1) {
         qWarning("Could not find start marker in stdout output.");
         return false;
     }
 
-    int end = stdOut.indexOf(marker, start + 1);
+    const int end = stdOut.indexOf(marker, start + 1);
     if (end == -1) {
         qWarning("Could not find end marker in stdout output.");
         return false;
@@ -304,15 +304,12 @@ bool AbstractMsvcToolChain::generateEnvironmentSettings(Utils::Environment &env,
 
     const QString output = stdOut.mid(start, end - start);
 
-    QStringList lines = output.split(QLatin1String("\r\n"));
-    QRegExp regexp(QLatin1String("(\\w*)=(.*)"));
-    foreach (const QString &line, lines) {
-        if (regexp.exactMatch(line)) {
-            const QString varName = regexp.cap(1);
-            const QString varValue = regexp.cap(2);
-
-            if (!varValue.isEmpty())
-                envPairs.insert(varName, varValue);
+    foreach (const QString &line, output.split(QLatin1String("\n"))) {
+        const int pos = line.indexOf('=');
+        if (pos > 0) {
+            const QString varName = line.mid(0, pos);
+            const QString varValue = line.mid(pos + 1);
+            envPairs.insert(varName, varValue);
         }
     }
 
