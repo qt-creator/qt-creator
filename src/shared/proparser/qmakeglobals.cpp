@@ -133,6 +133,11 @@ QMakeGlobals::ArgumentReturn QMakeGlobals::addCommandLineArguments(
             break;
         default:
             if (arg.startsWith(QLatin1Char('-'))) {
+                if (arg == QLatin1String("--")) {
+                    state.extraargs = args.mid(*pos + 1);
+                    *pos = args.size();
+                    return ArgumentsOk;
+                }
                 if (arg == QLatin1String("-after"))
                     state.after = true;
                 else if (arg == QLatin1String("-config"))
@@ -178,6 +183,12 @@ void QMakeGlobals::commitCommandLineArguments(QMakeCmdLineParserState &state)
 {
     if (!state.preconfigs.isEmpty())
         state.precmds << (fL1S("CONFIG += ") + state.preconfigs.join(QLatin1Char(' ')));
+    if (!state.extraargs.isEmpty()) {
+        QString extra = fL1S("QMAKE_EXTRA_ARGS =");
+        foreach (const QString &ea, state.extraargs)
+            extra += QLatin1Char(' ') + QMakeEvaluator::quoteValue(ProString(ea));
+        state.precmds << extra;
+    }
     precmds = state.precmds.join(QLatin1Char('\n'));
     if (!state.postconfigs.isEmpty())
         state.postcmds << (fL1S("CONFIG += ") + state.postconfigs.join(QLatin1Char(' ')));
