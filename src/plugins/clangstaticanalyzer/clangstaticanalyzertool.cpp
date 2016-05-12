@@ -139,10 +139,10 @@ ClangStaticAnalyzerTool::ClangStaticAnalyzerTool(QObject *parent)
     const QString toolTip = tr("Clang Static Analyzer uses the analyzer from the Clang project "
                                "to find bugs.");
 
-    Debugger::registerPerspective(ClangStaticAnalyzerPerspectiveId, {
+    Debugger::registerPerspective(ClangStaticAnalyzerPerspectiveId, new Perspective(
         tr("Clang Static Analyzer"),
         {{ ClangStaticAnalyzerDockId, m_diagnosticView, {}, Perspective::SplitVertical }}
-    });
+    ));
 
     ActionDescription desc;
     desc.setText(tr("Clang Static Analyzer"));

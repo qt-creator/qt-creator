@@ -130,7 +130,7 @@ private:
 
 // Register a tool for a given start mode.
 DEBUGGER_EXPORT void registerAction(Core::Id actionId, const ActionDescription &desc, QAction *startAction = 0);
-DEBUGGER_EXPORT void registerPerspective(const QByteArray &perspectiveId, const Utils::Perspective &perspective);
+DEBUGGER_EXPORT void registerPerspective(const QByteArray &perspectiveId, const Utils::Perspective *perspective);
 DEBUGGER_EXPORT void registerToolbar(const QByteArray &perspectiveId, const Utils::ToolbarDescription &desc);
 
 DEBUGGER_EXPORT void enableMainWindow(bool on);

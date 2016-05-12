@@ -68,20 +68,28 @@ public:
     };
 
     Perspective() = default;
-    Perspective(const QString &name, const QVector<Operation> &operations);
+    // Takes ownership of \a centralWidget and all dock widgets in \a operations.
+    Perspective(const QString &name, const QVector<Operation> &operations,
+                QWidget *centralWidget = 0);
+    ~Perspective();
 
     void addOperation(const Operation &operation);
 
     QVector<Operation> operations() const { return m_operations; }
     QVector<QByteArray> docks() const { return m_docks; }
+    QWidget *centralWidget() const { return m_centralWidget; }
 
     QString name() const;
     void setName(const QString &name);
 
 private:
+    Perspective(const Perspective &) = delete;
+    void operator=(const Perspective &) = delete;
+
     QString m_name;
     QVector<QByteArray> m_docks;
     QVector<Operation> m_operations;
+    QPointer<QWidget> m_centralWidget;
 };
 
 class DEBUGGER_EXPORT ToolbarDescription
@@ -107,7 +115,7 @@ public:
     DebuggerMainWindow();
     ~DebuggerMainWindow() override;
 
-    void registerPerspective(const QByteArray &perspectiveId, const Perspective &perspective);
+    void registerPerspective(const QByteArray &perspectiveId, const Perspective *perspective);
     void registerToolbar(const QByteArray &perspectiveId, QWidget *widget);
 
     void saveCurrentPerspective();
@@ -119,6 +127,7 @@ public:
     void showStatusMessage(const QString &message, int timeoutMS);
     QDockWidget *dockWidget(const QByteArray &dockId) const;
     QByteArray currentPerspective() const { return m_currentPerspectiveId; }
+    QStackedWidget *centralWidgetStack() const { return m_centralWidgetStack; }
 
 private:
     QDockWidget *registerDockWidget(const QByteArray &dockId, QWidget *widget);
@@ -127,14 +136,16 @@ private:
     QByteArray m_currentPerspectiveId;
     QComboBox *m_perspectiveChooser;
     QStackedWidget *m_controlsStackWidget;
+    QStackedWidget *m_centralWidgetStack;
+    QWidget *m_editorPlaceHolder;
     Utils::StatusLabel *m_statusLabel;
     QDockWidget *m_toolbarDock;
 
     QHash<QByteArray, QDockWidget *> m_dockForDockId;
     QHash<QByteArray, QWidget *> m_toolbarForPerspectiveId;
-    QHash<QByteArray, Perspective> m_perspectiveForPerspectiveId;
+    QHash<QByteArray, const Perspective *> m_perspectiveForPerspectiveId;
 };
 
-DEBUGGER_EXPORT QWidget *createModeWindow(const Core::Id &mode, DebuggerMainWindow *mainWindow, QWidget *central);
+DEBUGGER_EXPORT QWidget *createModeWindow(const Core::Id &mode, DebuggerMainWindow *mainWindow);
 
 } // Utils

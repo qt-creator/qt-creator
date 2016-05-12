@@ -63,7 +63,9 @@ const char LAST_PERSPECTIVE_KEY[]   = "LastPerspective";
 DebuggerMainWindow::DebuggerMainWindow()
 {
     m_controlsStackWidget = new QStackedWidget;
+    m_centralWidgetStack = new QStackedWidget;
     m_statusLabel = new Utils::StatusLabel;
+    m_editorPlaceHolder = new EditorManagerPlaceHolder;
 
     m_perspectiveChooser = new QComboBox;
     m_perspectiveChooser->setObjectName(QLatin1String("PerspectiveChooser"));
@@ -80,6 +82,8 @@ DebuggerMainWindow::DebuggerMainWindow()
 
 DebuggerMainWindow::~DebuggerMainWindow()
 {
+    delete m_editorPlaceHolder;
+    m_editorPlaceHolder = 0;
     // As we have to setParent(0) on dock widget that are not selected,
     // we keep track of all and make sure we don't leak any
     foreach (QDockWidget *dock, m_dockForDockId) {
@@ -87,24 +91,17 @@ DebuggerMainWindow::~DebuggerMainWindow()
             delete dock;
     }
 
-    foreach (const Perspective &perspective, m_perspectiveForPerspectiveId) {
-        foreach (const Perspective::Operation &operation, perspective.operations()) {
-            if (operation.widget && !operation.widget->parentWidget()) {
-                // These are from perspectives that never got enabled. We've taken ownership for
-                // those, so we need to delete them.
-                delete operation.widget;
-            }
-        }
-    }
+    foreach (const Perspective *perspective, m_perspectiveForPerspectiveId)
+        delete perspective;
 }
 
-void DebuggerMainWindow::registerPerspective(const QByteArray &perspectiveId, const Perspective &perspective)
+void DebuggerMainWindow::registerPerspective(const QByteArray &perspectiveId, const Perspective *perspective)
 {
     m_perspectiveForPerspectiveId.insert(perspectiveId, perspective);
-    m_perspectiveChooser->addItem(perspective.name(), perspectiveId);
+    m_perspectiveChooser->addItem(perspective->name(), perspectiveId);
     // adjust width if necessary
     const int oldWidth = m_perspectiveChooser->width();
-    const int contentWidth = m_perspectiveChooser->fontMetrics().width(perspective.name());
+    const int contentWidth = m_perspectiveChooser->fontMetrics().width(perspective->name());
     QStyleOptionComboBox option;
     option.initFrom(m_perspectiveChooser);
     const QSize sz(contentWidth, 1);
@@ -203,18 +200,15 @@ void DebuggerMainWindow::finalizeSetup()
     addDockWidget(Qt::BottomDockWidgetArea, dock);
 }
 
-QWidget *createModeWindow(const Core::Id &mode, DebuggerMainWindow *mainWindow, QWidget *central)
+QWidget *createModeWindow(const Core::Id &mode, DebuggerMainWindow *mainWindow)
 {
-    if (!central)
-        central = new EditorManagerPlaceHolder;
-
     auto editorHolderLayout = new QVBoxLayout;
     editorHolderLayout->setMargin(0);
     editorHolderLayout->setSpacing(0);
 
     auto editorAndFindWidget = new QWidget;
     editorAndFindWidget->setLayout(editorHolderLayout);
-    editorHolderLayout->addWidget(central);
+    editorHolderLayout->addWidget(mainWindow->centralWidgetStack());
     editorHolderLayout->addWidget(new FindToolBarPlaceHolder(editorAndFindWidget));
 
     auto documentAndRightPane = new MiniSplitter;
@@ -245,7 +239,7 @@ QWidget *createModeWindow(const Core::Id &mode, DebuggerMainWindow *mainWindow, 
 
     // Navigation and right-side window.
     auto splitter = new MiniSplitter;
-    splitter->setFocusProxy(central);
+    splitter->setFocusProxy(mainWindow->centralWidgetStack());
     splitter->addWidget(new NavigationWidgetPlaceHolder(mode));
     splitter->addWidget(mainWindowSplitter);
     splitter->setStretchFactor(0, 0);
@@ -271,6 +265,9 @@ void DebuggerMainWindow::loadPerspectiveHelper(const QByteArray &perspectiveId, 
         }
 
         ICore::removeAdditionalContext(Context(Id::fromName(m_currentPerspectiveId)));
+        const Perspective *perspective = m_perspectiveForPerspectiveId.value(m_currentPerspectiveId);
+        QWidget *central = perspective->centralWidget();
+        m_centralWidgetStack->removeWidget(central ? central : m_editorPlaceHolder);
     }
 
     m_currentPerspectiveId = perspectiveId;
@@ -285,8 +282,8 @@ void DebuggerMainWindow::loadPerspectiveHelper(const QByteArray &perspectiveId, 
     ICore::addAdditionalContext(Context(Id::fromName(m_currentPerspectiveId)));
 
     QTC_ASSERT(m_perspectiveForPerspectiveId.contains(m_currentPerspectiveId), return);
-    const Perspective perspective = m_perspectiveForPerspectiveId.value(m_currentPerspectiveId);
-    for (const Perspective::Operation &operation : perspective.operations()) {
+    const Perspective *perspective = m_perspectiveForPerspectiveId.value(m_currentPerspectiveId);
+    for (const Perspective::Operation &operation : perspective->operations()) {
         QDockWidget *dock = m_dockForDockId.value(operation.dockId);
         if (!dock) {
             QTC_CHECK(!operation.widget->objectName().isEmpty());
@@ -341,6 +338,9 @@ void DebuggerMainWindow::loadPerspectiveHelper(const QByteArray &perspectiveId, 
         settings->endGroup();
     }
 
+    QWidget *central = perspective->centralWidget();
+    m_centralWidgetStack->addWidget(central ? central : m_editorPlaceHolder);
+
     QTC_CHECK(m_toolbarForPerspectiveId.contains(m_currentPerspectiveId));
     m_controlsStackWidget->setCurrentWidget(m_toolbarForPerspectiveId.value(m_currentPerspectiveId));
     m_statusLabel->clear();
@@ -364,6 +364,13 @@ QDockWidget *DebuggerMainWindow::registerDockWidget(const QByteArray &dockId, QW
     QDockWidget *dockWidget = addDockForWidget(widget);
     m_dockForDockId[dockId] = dockWidget;
     return dockWidget;
+}
+
+Perspective::~Perspective()
+{
+    foreach (const Operation &operation, m_operations)
+        delete operation.widget;
+    delete m_centralWidget;
 }
 
 QString Perspective::name() const
@@ -401,8 +408,9 @@ Perspective::Operation::Operation(const QByteArray &dockId, QWidget *widget, con
       operationType(splitType), visibleByDefault(visibleByDefault), area(area)
 {}
 
-Perspective::Perspective(const QString &name, const QVector<Operation> &splits)
-    : m_name(name), m_operations(splits)
+Perspective::Perspective(const QString &name, const QVector<Operation> &splits,
+                         QWidget *centralWidget)
+    : m_name(name), m_operations(splits), m_centralWidget(centralWidget)
 {
     for (const Operation &split : splits)
         m_docks.append(split.dockId);

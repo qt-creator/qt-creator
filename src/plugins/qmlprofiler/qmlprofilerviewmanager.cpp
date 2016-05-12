@@ -89,10 +89,10 @@ void QmlProfilerViewManager::createViews()
 
     new QmlProfilerStateWidget(d->profilerState, d->profilerModelManager, d->traceView);
 
-    Utils::Perspective perspective;
-    perspective.setName(tr("QML Profiler"));
-    perspective.addOperation({Constants::QmlProfilerTimelineDockId, d->traceView, {},
-                              Perspective::SplitVertical});
+    auto perspective = new Utils::Perspective;
+    perspective->setName(tr("QML Profiler"));
+    perspective->addOperation({Constants::QmlProfilerTimelineDockId, d->traceView, {},
+                               Perspective::SplitVertical});
 
     d->eventsViews << new QmlProfilerStatisticsView(0, d->profilerModelManager);
     d->eventsViews << new FlameGraphView(0, d->profilerModelManager);
@@ -109,10 +109,10 @@ void QmlProfilerViewManager::createViews()
         connect(view, &QmlProfilerEventsView::showFullRange,
                 this, [this](){restrictEventsToRange(-1, -1);});
         QByteArray dockId = view->objectName().toLatin1();
-        perspective.addOperation({dockId, view, Constants::QmlProfilerTimelineDockId, Perspective::AddToTab});
+        perspective->addOperation({dockId, view, Constants::QmlProfilerTimelineDockId, Perspective::AddToTab});
         new QmlProfilerStateWidget(d->profilerState, d->profilerModelManager, view);
     }
-    perspective.addOperation({Constants::QmlProfilerTimelineDockId, 0, {}, Perspective::Raise});
+    perspective->addOperation({Constants::QmlProfilerTimelineDockId, 0, {}, Perspective::Raise});
     Debugger::registerPerspective(Constants::QmlProfilerPerspectiveId, perspective);
 }
 

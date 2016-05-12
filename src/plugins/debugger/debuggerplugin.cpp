@@ -1756,7 +1756,7 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
 
     // Debug mode setup
     m_mode = new DebugMode;
-    m_modeWindow = createModeWindow(Constants::MODE_DEBUG, m_mainWindow, 0);
+    m_modeWindow = createModeWindow(Constants::MODE_DEBUG, m_mainWindow);
     m_mode->setWidget(m_modeWindow);
 
     m_plugin->addAutoReleasedObject(new DebugModeContext(m_mainWindow));
@@ -1835,7 +1835,7 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
 //    qmlToolbar.addAction(qmlSelectDummyAction, Icons::SELECT_TOOLBAR.icon());
 //    qmlToolbar.addWidget(new StyledSeparator);
 
-    Perspective basePerspective({}, {
+    auto createBasePerspective = [this] { return new Perspective({}, {
         { DOCKWIDGET_STACK, m_stackWindow, {}, Perspective::SplitVertical },
         { DOCKWIDGET_BREAK, m_breakWindow, DOCKWIDGET_STACK, Perspective::SplitHorizontal },
         { DOCKWIDGET_THREADS, m_threadsWindow, DOCKWIDGET_BREAK, Perspective::AddToTab, false },
@@ -1846,19 +1846,19 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
           Qt::RightDockWidgetArea },
         { DOCKWIDGET_OUTPUT, m_logWindow, {}, Perspective::AddToTab, false, Qt::TopDockWidgetArea },
         { DOCKWIDGET_BREAK, 0, {}, Perspective::Raise }
-    });
+    }); };
 
-    Perspective cppPerspective = basePerspective;
-    cppPerspective.setName(tr("Debugger"));
-    cppPerspective.addOperation({ DOCKWIDGET_REGISTER, m_registerWindow, DOCKWIDGET_SNAPSHOTS,
+    Perspective *cppPerspective = createBasePerspective();
+    cppPerspective->setName(tr("Debugger"));
+    cppPerspective->addOperation({ DOCKWIDGET_REGISTER, m_registerWindow, DOCKWIDGET_SNAPSHOTS,
                                   Perspective::AddToTab, false });
 
     Debugger::registerToolbar(CppPerspectiveId, toolbar);
     Debugger::registerPerspective(CppPerspectiveId, cppPerspective);
 
-//    Perspective qmlPerspective = basePerspective;
-//    qmlPerspective.setName(tr("QML Debugger"));
-//    qmlPerspective.addOperation({ DOCKWIDGET_REGISTER, DOCKWIDGET_SNAPSHOTS,
+//    Perspective *qmlPerspective = createBasePerspective();
+//    qmlPerspective->setName(tr("QML Debugger"));
+//    qmlPerspective->addOperation({ DOCKWIDGET_REGISTER, DOCKWIDGET_SNAPSHOTS,
 //                                  Perspective::AddToTab, false });
 //
 //    Debugger::registerToolbar(QmlPerspectiveId, toolbarContainer);
@@ -3582,7 +3582,7 @@ QAction *createStopAction()
     return action;
 }
 
-void registerPerspective(const QByteArray &perspectiveId, const Perspective &perspective)
+void registerPerspective(const QByteArray &perspectiveId, const Perspective *perspective)
 {
     dd->m_mainWindow->registerPerspective(perspectiveId, perspective);
 }
