@@ -3,6 +3,7 @@ import QtcFunctions
 
 Product {
     version: project.qtcreator_version
+    property bool install: true
     property string installDir
 
     Depends { name: "cpp" }
@@ -22,7 +23,7 @@ Product {
 
     Group {
         fileTagsFilter: product.type
-        qbs.install: true
+        qbs.install: install
         qbs.installDir: installDir
     }
 }

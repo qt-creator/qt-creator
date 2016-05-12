@@ -2,7 +2,7 @@ import qbs 1.0
 import QtcFunctions
 
 QtcProduct {
-    type: "dynamiclibrary"
+    type: ["dynamiclibrary", "dynamiclibrary_symlink"]
     installDir: project.ide_library_path
     Depends {
         condition: project.testsEnabled

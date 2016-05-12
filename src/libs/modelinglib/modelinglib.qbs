@@ -1,7 +1,7 @@
 import qbs 1.0
 
 QtcLibrary {
-    name: "ModelingLib"
+    name: "Modeling"
 
     cpp.defines: base.concat("QMT_LIBRARY")
     cpp.includePaths: base.concat([

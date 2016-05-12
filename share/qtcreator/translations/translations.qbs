@@ -4,7 +4,15 @@ Product {
     name: "Translations"
     type: "qm"
     Depends { name: "Qt.core" }
-    files: "*.ts"
+
+    Group {
+        files: ["*.ts"]
+        excludeFiles: [
+            "qtcreator_es.ts",
+            "qtcreator_hu.ts",
+            "qtcreator_it.ts",
+        ]
+    }
 
     Group {
         fileTagsFilter: product.type

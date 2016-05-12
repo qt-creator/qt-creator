@@ -11,7 +11,7 @@ QtcPlugin {
     Depends { name: "CPlusPlus" }
     Depends { name: "CppTools" }
     Depends { name: "ProjectExplorer" }
-    Depends { name: "ModelingLib" }
+    Depends { name: "Modeling" }
 
     Properties {
         condition: !Qt.svg.present
