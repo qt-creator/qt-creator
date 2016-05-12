@@ -41,6 +41,7 @@
 #include <cpptools/projectpartbuilder.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/buildtargetinfo.h>
+#include <projectexplorer/customexecutablerunconfiguration.h>
 #include <projectexplorer/deployconfiguration.h>
 #include <projectexplorer/deploymentdata.h>
 #include <projectexplorer/headerpath.h>
@@ -50,7 +51,6 @@
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
 #include <qtsupport/baseqtversion.h>
-#include <qtsupport/customexecutablerunconfiguration.h>
 #include <qtsupport/qtkitinformation.h>
 
 #include <cpptools/generatedcodemodelsupport.h>

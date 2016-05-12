@@ -32,14 +32,7 @@
 #include "androidruncontrol.h"
 #include "androidmanager.h"
 
-#include <projectexplorer/project.h>
-#include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/target.h>
 #include <debugger/debuggerconstants.h>
-#include <qtsupport/customexecutablerunconfiguration.h>
-#include <qtsupport/qtkitinformation.h>
-#include <qtsupport/qtsupportconstants.h>
-
 
 using namespace ProjectExplorer;
 

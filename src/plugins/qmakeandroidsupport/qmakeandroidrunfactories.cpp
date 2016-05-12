@@ -34,7 +34,6 @@
 #include <debugger/debuggerconstants.h>
 #include <qmakeprojectmanager/qmakeproject.h>
 #include <qmakeprojectmanager/qmakenodes.h>
-#include <qtsupport/customexecutablerunconfiguration.h>
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtsupportconstants.h>
 

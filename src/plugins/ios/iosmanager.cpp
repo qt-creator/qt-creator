@@ -32,16 +32,7 @@
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
 #include <qmakeprojectmanager/qmakeproject.h>
-#include <qtsupport/customexecutablerunconfiguration.h>
 #include <qtsupport/qtkitinformation.h>
-#include <qtsupport/qtsupportconstants.h>
-
-#include <QDir>
-#include <QFileSystemWatcher>
-#include <QList>
-#include <QProcess>
-#include <QApplication>
-#include <QDomDocument>
 
 using namespace QmakeProjectManager;
 using namespace ProjectExplorer;

@@ -27,6 +27,7 @@
 
 #include "buildsteplist.h"
 #include "configtaskhandler.h"
+#include "customexecutablerunconfiguration.h"
 #include "customwizard/customwizard.h"
 #include "deployablefile.h"
 #include "deployconfiguration.h"
@@ -608,6 +609,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     addAutoReleasedObject(new CurrentProjectFind);
 
     addAutoReleasedObject(new LocalApplicationRunControlFactory);
+    addAutoReleasedObject(new CustomExecutableRunConfigurationFactory);
 
     addAutoReleasedObject(new ProjectFileWizardExtension);
 

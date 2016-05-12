@@ -47,7 +47,6 @@
 #include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
 
-#include <qtsupport/customexecutablerunconfiguration.h>
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtsupportconstants.h>
 #include <utils/algorithm.h>

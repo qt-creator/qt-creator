@@ -155,7 +155,9 @@ HEADERS += projectexplorer.h \
     waitforstopdialog.h \
     projectexplorericons.h \
     projectexplorer_global.h \
-    extracompiler.h
+    extracompiler.h \
+    customexecutableconfigurationwidget.h \
+    customexecutablerunconfiguration.h
 
 SOURCES += projectexplorer.cpp \
     abi.cpp \
@@ -295,7 +297,9 @@ SOURCES += projectexplorer.cpp \
     projecttree.cpp \
     expanddata.cpp \
     waitforstopdialog.cpp \
-    extracompiler.cpp
+    extracompiler.cpp \
+    customexecutableconfigurationwidget.cpp \
+    customexecutablerunconfiguration.cpp
 
 FORMS += processstep.ui \
     editorsettingspropertiespage.ui \

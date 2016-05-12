@@ -25,20 +25,17 @@
 
 #pragma once
 
-#include "qtsupport_global.h"
+#include "projectexplorer_global.h"
 
-#include <projectexplorer/runnables.h>
+#include "projectexplorer/runnables.h"
 
-#include <QVariantMap>
+namespace ProjectExplorer {
 
-namespace ProjectExplorer { class Target; }
-
-namespace QtSupport {
 namespace Internal { class CustomExecutableConfigurationWidget; }
 
 class CustomExecutableRunConfigurationFactory;
 
-class QTSUPPORT_EXPORT CustomExecutableRunConfiguration : public ProjectExplorer::RunConfiguration
+class PROJECTEXPLORER_EXPORT CustomExecutableRunConfiguration : public RunConfiguration
 {
     Q_OBJECT
     // the configuration widget needs to setExecutable setWorkingDirectory and setCommandLineArguments
@@ -46,7 +43,7 @@ class QTSUPPORT_EXPORT CustomExecutableRunConfiguration : public ProjectExplorer
     friend class CustomExecutableRunConfigurationFactory;
 
 public:
-    explicit CustomExecutableRunConfiguration(ProjectExplorer::Target *parent);
+    explicit CustomExecutableRunConfiguration(Target *parent);
     ~CustomExecutableRunConfiguration() override;
 
     /**
@@ -55,25 +52,21 @@ public:
      */
     QString executable() const;
     QString workingDirectory() const;
-    ProjectExplorer::Runnable runnable() const override;
+    Runnable runnable() const override;
 
     /** Returns whether this runconfiguration ever was configured with an executable
      */
     bool isConfigured() const override;
-
     QWidget *createConfigurationWidget() override;
-
-    ProjectExplorer::Abi abi() const override;
-
+    Abi abi() const override;
     QVariantMap toMap() const override;
-
     ConfigurationState ensureConfigured(QString *errorMessage) override;
 
 signals:
     void changed();
 
 protected:
-    CustomExecutableRunConfiguration(ProjectExplorer::Target *parent,
+    CustomExecutableRunConfiguration(Target *parent,
                                      CustomExecutableRunConfiguration *source);
     virtual bool fromMap(const QVariantMap &map) override;
     QString defaultDisplayName() const;
@@ -89,7 +82,7 @@ private:
     void setBaseWorkingDirectory(const QString &workingDirectory);
     QString baseWorkingDirectory() const;
     void setUserName(const QString &name);
-    void setRunMode(ProjectExplorer::ApplicationLauncher::Mode runMode);
+    void setRunMode(ApplicationLauncher::Mode runMode);
     bool validateExecutable(QString *executable = 0, QString *errorMessage = 0) const;
 
     QString m_executable;
@@ -97,28 +90,26 @@ private:
     QWidget *m_dialog;
 };
 
-class CustomExecutableRunConfigurationFactory : public ProjectExplorer::IRunConfigurationFactory
+class CustomExecutableRunConfigurationFactory : public IRunConfigurationFactory
 {
     Q_OBJECT
 
 public:
     explicit CustomExecutableRunConfigurationFactory(QObject *parent = 0);
 
-    QList<Core::Id> availableCreationIds(ProjectExplorer::Target *parent, CreationMode mode) const override;
+    QList<Core::Id> availableCreationIds(Target *parent, CreationMode mode) const override;
     QString displayNameForId(Core::Id id) const override;
 
-    bool canCreate(ProjectExplorer::Target *parent, Core::Id id) const override;
-    bool canRestore(ProjectExplorer::Target *parent, const QVariantMap &map) const override;
-    bool canClone(ProjectExplorer::Target *parent, ProjectExplorer::RunConfiguration *product) const override;
-    ProjectExplorer::RunConfiguration *clone(ProjectExplorer::Target *parent,
-                                             ProjectExplorer::RunConfiguration *source) override;
+    bool canCreate(Target *parent, Core::Id id) const override;
+    bool canRestore(Target *parent, const QVariantMap &map) const override;
+    bool canClone(Target *parent, RunConfiguration *product) const override;
+    RunConfiguration *clone(Target *parent, RunConfiguration *source) override;
 
 private:
-    bool canHandle(ProjectExplorer::Target *parent) const;
+    bool canHandle(Target *parent) const;
 
-    ProjectExplorer::RunConfiguration *doCreate(ProjectExplorer::Target *parent, Core::Id id) override;
-    ProjectExplorer::RunConfiguration *doRestore(ProjectExplorer::Target *parent,
-                                                 const QVariantMap &map) override;
+    RunConfiguration *doCreate(Target *parent, Core::Id id) override;
+    RunConfiguration *doRestore(Target *parent, const QVariantMap &map) override;
 };
 
-} // namespace QtSupport
+} // namespace ProjectExplorer

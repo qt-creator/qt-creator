@@ -41,11 +41,9 @@ class PathChooser;
 }
 
 namespace ProjectExplorer {
+
 class ArgumentsAspect;
 class TerminalAspect;
-}
-
-namespace QtSupport {
 class CustomExecutableRunConfiguration;
 
 namespace Internal {
@@ -81,4 +79,4 @@ private:
 };
 
 } // namespace Internal
-} // namespace QtSupport
+} // namespace ProjectExplorer

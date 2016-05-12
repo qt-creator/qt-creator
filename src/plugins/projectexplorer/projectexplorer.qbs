@@ -49,6 +49,8 @@ QtcPlugin {
             "copytaskhandler.cpp", "copytaskhandler.h",
             "currentprojectfilter.cpp", "currentprojectfilter.h",
             "currentprojectfind.cpp", "currentprojectfind.h",
+            "customexecutableconfigurationwidget.cpp", "customexecutableconfigurationwidget.h",
+            "customexecutablerunconfiguration.cpp", "customexecutablerunconfiguration.h",
             "customparser.cpp", "customparser.h",
             "customparserconfigdialog.cpp", "customparserconfigdialog.h", "customparserconfigdialog.ui",
             "customtoolchain.cpp", "customtoolchain.h",

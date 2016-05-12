@@ -39,12 +39,12 @@
 #include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/abi.h>
 #include <projectexplorer/buildsteplist.h>
+#include <projectexplorer/customexecutablerunconfiguration.h>
 #include <projectexplorer/headerpath.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <qtsupport/baseqtversion.h>
-#include <qtsupport/customexecutablerunconfiguration.h>
 #include <qtsupport/qtkitinformation.h>
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
@@ -419,7 +419,7 @@ Project::RestoreResult GenericProject::fromMap(const QVariantMap &map, QString *
             continue;
         }
         if (!t->activeRunConfiguration())
-            t->addRunConfiguration(new QtSupport::CustomExecutableRunConfiguration(t));
+            t->addRunConfiguration(new CustomExecutableRunConfiguration(t));
     }
 
     refresh(Everything);

@@ -41,7 +41,6 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
-#include <qtsupport/customexecutablerunconfiguration.h>
 #include <utils/mimetypes/mimedatabase.h>
 #include <utils/qtcassert.h>
 

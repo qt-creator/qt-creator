@@ -35,17 +35,17 @@
 #include <debugger/analyzer/analyzermanager.h>
 #include <debugger/analyzer/analyzerruncontrol.h>
 #include <debugger/analyzer/analyzerstartparameters.h>
+#include <debugger/debuggerconstants.h>
 
+#include <projectexplorer/customexecutablerunconfiguration.h>
+#include <projectexplorer/kitinformation.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/target.h>
-#include <debugger/debuggerconstants.h>
+
 #include <qmakeprojectmanager/qmakeproject.h>
 #include <qmakeprojectmanager/qmakenodes.h>
-#include <qtsupport/customexecutablerunconfiguration.h>
-#include <qtsupport/qtkitinformation.h>
-#include <qtsupport/qtsupportconstants.h>
 #include <coreplugin/id.h>
 
 using namespace Debugger;

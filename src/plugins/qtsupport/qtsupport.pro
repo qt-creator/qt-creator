@@ -21,8 +21,6 @@ HEADERS += \
     baseqtversion.h \
     qmldumptool.h \
     qtoptionspage.h \
-    customexecutablerunconfiguration.h \
-    customexecutableconfigurationwidget.h \
     qtsupportconstants.h \
     profilereader.h \
     qtparser.h \
@@ -50,8 +48,6 @@ SOURCES += \
     baseqtversion.cpp \
     qmldumptool.cpp \
     qtoptionspage.cpp \
-    customexecutablerunconfiguration.cpp \
-    customexecutableconfigurationwidget.cpp \
     profilereader.cpp \
     qtparser.cpp \
     exampleslistmodel.cpp \

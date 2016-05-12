@@ -24,16 +24,15 @@
 ****************************************************************************/
 
 #include "customexecutablerunconfiguration.h"
-#include "customexecutableconfigurationwidget.h"
-#include "qtkitinformation.h"
 
-#include <projectexplorer/buildconfiguration.h>
-#include <projectexplorer/localenvironmentaspect.h>
-#include <projectexplorer/project.h>
-#include <projectexplorer/runconfigurationaspects.h>
-#include <projectexplorer/target.h>
-#include <projectexplorer/abi.h>
-#include <projectexplorer/devicesupport/devicemanager.h>
+#include "abi.h"
+#include "buildconfiguration.h"
+#include "customexecutableconfigurationwidget.h"
+#include "devicesupport/devicemanager.h"
+#include "localenvironmentaspect.h"
+#include "project.h"
+#include "runconfigurationaspects.h"
+#include "target.h"
 
 #include <coreplugin/icore.h>
 
@@ -42,22 +41,19 @@
 
 #include <QDialog>
 #include <QDialogButtonBox>
-#include <QPushButton>
+#include <QDir>
+#include <QKeyEvent>
 #include <QLabel>
+#include <QPushButton>
 #include <QVBoxLayout>
 
-#include <QDir>
+using namespace ProjectExplorer::Internal;
 
-using namespace QtSupport;
-using namespace QtSupport::Internal;
-using namespace ProjectExplorer;
+namespace ProjectExplorer {
 
-namespace {
 const char CUSTOM_EXECUTABLE_ID[] = "ProjectExplorer.CustomExecutableRunConfiguration";
-
 const char EXECUTABLE_KEY[] = "ProjectExplorer.CustomExecutableRunConfiguration.Executable";
 const char WORKING_DIRECTORY_KEY[] = "ProjectExplorer.CustomExecutableRunConfiguration.WorkingDirectory";
-}
 
 void CustomExecutableRunConfiguration::ctor()
 {
@@ -69,12 +65,12 @@ CustomExecutableRunConfiguration::CustomExecutableRunConfiguration(Target *paren
     m_dialog(0)
 {
     addExtraAspect(new LocalEnvironmentAspect(this, LocalEnvironmentAspect::BaseEnvironmentModifier()));
-    addExtraAspect(new ArgumentsAspect(this, QStringLiteral("ProjectExplorer.CustomExecutableRunConfiguration.Arguments")));
-    addExtraAspect(new TerminalAspect(this, QStringLiteral("ProjectExplorer.CustomExecutableRunConfiguration.UseTerminal")));
+    addExtraAspect(new ArgumentsAspect(this, "ProjectExplorer.CustomExecutableRunConfiguration.Arguments"));
+    addExtraAspect(new TerminalAspect(this, "ProjectExplorer.CustomExecutableRunConfiguration.UseTerminal"));
     if (parent->activeBuildConfiguration())
-        m_workingDirectory = QLatin1String(Constants::DEFAULT_WORKING_DIR);
+        m_workingDirectory = Constants::DEFAULT_WORKING_DIR;
     else
-        m_workingDirectory = QLatin1String(Constants::DEFAULT_WORKING_DIR_ALTERNATE);
+        m_workingDirectory = Constants::DEFAULT_WORKING_DIR_ALTERNATE;
     ctor();
 }
 
@@ -394,5 +390,7 @@ QString CustomExecutableRunConfigurationFactory::displayNameForId(Core::Id id) c
         return tr("Custom Executable");
     return QString();
 }
+
+} // namespace ProjectExplorer
 
 #include "customexecutablerunconfiguration.moc"

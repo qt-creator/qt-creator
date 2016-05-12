@@ -27,7 +27,6 @@
 
 #include "codegenerator.h"
 #include "codegensettingspage.h"
-#include "customexecutablerunconfiguration.h"
 #include "desktopqtversionfactory.h"
 #include "gettingstartedwelcomepage.h"
 #include "qtkitinformation.h"
@@ -84,7 +83,6 @@ bool QtSupportPlugin::initialize(const QStringList &arguments, QString *errorMes
 
     welcomePage = new ExamplesWelcomePage;
     addAutoReleasedObject(welcomePage);
-    addAutoReleasedObject(new CustomExecutableRunConfigurationFactory);
 
     ProjectExplorer::KitManager::registerKitInformation(new QtKitInformation);
 

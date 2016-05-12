@@ -24,13 +24,14 @@
 ****************************************************************************/
 
 #include "customexecutableconfigurationwidget.h"
+
 #include "customexecutablerunconfiguration.h"
+#include "environmentaspect.h"
+#include "project.h"
+#include "runconfigurationaspects.h"
+#include "target.h"
 
 #include <coreplugin/variablechooser.h>
-#include <projectexplorer/environmentaspect.h>
-#include <projectexplorer/project.h>
-#include <projectexplorer/runconfigurationaspects.h>
-#include <projectexplorer/target.h>
 #include <utils/detailswidget.h>
 #include <utils/pathchooser.h>
 
@@ -41,10 +42,9 @@
 #include <QLabel>
 #include <QLineEdit>
 
-using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace QtSupport {
+namespace ProjectExplorer {
 namespace Internal {
 
 CustomExecutableConfigurationWidget::CustomExecutableConfigurationWidget(CustomExecutableRunConfiguration *rc, ApplyMode mode)
@@ -181,4 +181,4 @@ bool CustomExecutableConfigurationWidget::isValid() const
 }
 
 } // namespace Internal
-} // namespace QtSupport
+} // namespace ProjectExplorer
