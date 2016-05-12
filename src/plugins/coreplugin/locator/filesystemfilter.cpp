@@ -80,7 +80,7 @@ QList<LocatorFilterEntry> FileSystemFilter::matchesFor(QFutureInterface<LocatorF
         if (filePath.startsWith(QLatin1String("~/")))
             directory.replace(0, 1, QDir::homePath());
         else if (!m_currentDocumentDirectory.isEmpty())
-            directory.prepend(m_currentDocumentDirectory);
+            directory.prepend(m_currentDocumentDirectory + "/");
     }
     QDir dirInfo(directory);
     QDir::Filters dirFilter = QDir::Dirs|QDir::Drives|QDir::NoDot;
