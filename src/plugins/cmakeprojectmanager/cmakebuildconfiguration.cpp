@@ -156,10 +156,6 @@ void CMakeBuildConfiguration::ctor()
 
 void CMakeBuildConfiguration::maybeForceReparse()
 {
-    ProjectExplorer::Kit *k = target()->kit();
-    CMakeConfig config = cmakeConfiguration();
-    config.append(CMakeConfigurationKitInformation::configuration(k));  // last value wins...
-    setCMakeConfiguration(config);
     m_buildDirManager->maybeForceReparse();
 }
 
