@@ -134,6 +134,7 @@ DEBUGGER_EXPORT void registerPerspective(const QByteArray &perspectiveId, const 
 DEBUGGER_EXPORT void registerToolbar(const QByteArray &perspectiveId, const Utils::ToolbarDescription &desc);
 
 DEBUGGER_EXPORT void enableMainWindow(bool on);
+DEBUGGER_EXPORT QWidget *mainWindow();
 
 DEBUGGER_EXPORT void selectPerspective(const QByteArray &perspectiveId);
 DEBUGGER_EXPORT void runAction(Core::Id actionId);

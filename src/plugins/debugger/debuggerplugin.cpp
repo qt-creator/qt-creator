@@ -3602,6 +3602,11 @@ void runAction(Id actionId)
     desc.startTool();
 }
 
+QWidget *mainWindow()
+{
+    return dd->m_mainWindow;
+}
+
 void enableMainWindow(bool on)
 {
     dd->m_mainWindow->setEnabled(on);
