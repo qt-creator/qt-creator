@@ -125,15 +125,18 @@ def fix_rpaths(path, qt_deploy_path, qt_install_info, chrpath=None):
         new_rpath = filter(lambda path: not path.startswith(qt_install_prefix) and not path.startswith(qt_install_libs),
                            rpath)
 
-        # add Qt RPATH if necessary
-        relative_path = os.path.relpath(qt_deploy_path, os.path.dirname(filepath))
-        if relative_path == '.':
-            relative_path = ''
-        else:
-            relative_path = '/' + relative_path
-        qt_rpath = '$ORIGIN' + relative_path
-        if not any((path == qt_rpath) for path in rpath):
-            new_rpath.append(qt_rpath)
+        # check for Qt linking
+        lddOutput = subprocess.check_output(['ldd', filepath])
+        if lddOutput.find('libQt5') >= 0 or lddOutput.find('libicu') >= 0:
+            # add Qt RPATH if necessary
+            relative_path = os.path.relpath(qt_deploy_path, os.path.dirname(filepath))
+            if relative_path == '.':
+                relative_path = ''
+            else:
+                relative_path = '/' + relative_path
+            qt_rpath = '$ORIGIN' + relative_path
+            if not any((path == qt_rpath) for path in rpath):
+                new_rpath.append(qt_rpath)
 
         # change RPATH
         if len(new_rpath) > 0:

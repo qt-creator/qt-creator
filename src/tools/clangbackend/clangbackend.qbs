@@ -29,4 +29,10 @@ QtcTool {
     cpp.includePaths: base.concat(["ipcsource", llvmIncludeDir])
     cpp.libraryPaths: base.concat(llvmLibDir)
     cpp.dynamicLibraries: base.concat(llvmLibs)
+    cpp.rpaths: base.concat(llvmLibDir)
+
+    Properties {
+        condition: qbs.targetOS.contains("unix") && !qbs.targetOS.contains("osx")
+        cpp.linkerFlags: base.concat(["-z", "origin"])
+    }
 }

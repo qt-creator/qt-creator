@@ -931,6 +931,7 @@ QString BaseQtVersion::findQtBinary(Binaries binary) const
     case Linguist:
         if (HostOsInfo::isMacHost())
             possibleCommands << QLatin1String("Linguist.app/Contents/MacOS/Linguist");
+        else
             possibleCommands << HostOsInfo::withExecutableSuffix(QLatin1String("linguist"));
         break;
     case Uic:

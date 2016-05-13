@@ -96,6 +96,7 @@ Debugging
 * LLDB
     * Fixed issues with Xcode 7.3
       (QTCREATORBUG-15965, QTCREATORBUG-15945, QTCREATORBUG-15949)
+    * Fixed breakpoint commands (QTCREATORBUG-15585)
 
 QML Profiler
 
@@ -181,6 +182,11 @@ Android
 
 * Fixed issues with `Select Android Device`
   (QTCREATORBUG-15338, QTCREATORBUG-15422)
+
+iOS
+
+* Fixed building for device with Qt 5.7 (QTCREATORBUG-16102)
+* Fixed brief freezes while handling build output (QTCREATORBUG-15613)
 
 Credits for these changes go to:  
 Alessandro Portale  

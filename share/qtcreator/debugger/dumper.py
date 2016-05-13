@@ -1455,9 +1455,13 @@ class DumperBase:
                                 self.put('keyencoded="latin1",')
                                 self.putItem(v)
                                 propertyCount += 1
-
-            self.putValue(str('<%s items>' % propertyCount if propertyCount else '<>0 items>'))
-            self.putNumChild(1)
+                self.putItemCount(propertyCount)
+            else:
+                # We need a handle to [x] for the user to expand the item
+                # before we know whether there are actual children. Counting
+                # them is too expensive.
+                self.putNumChild(1)
+                self.putSpecialValue("minimumitemcount", 0)
 
         with SubItem(self, "[methods]"):
             methodCount = self.staticQObjectMethodCount(smo)
