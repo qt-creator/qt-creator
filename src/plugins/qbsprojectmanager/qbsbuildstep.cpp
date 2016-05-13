@@ -458,6 +458,8 @@ QbsBuildStepConfigWidget::QbsBuildStepConfigWidget(QbsBuildStep *step) :
     connect(m_step, SIGNAL(qbsBuildOptionsChanged()), this, SLOT(updateState()));
     connect(&QbsProjectManagerSettings::instance(), &QbsProjectManagerSettings::settingsBaseChanged,
             this, &QbsBuildStepConfigWidget::updateState);
+    connect(step->buildConfiguration()->target(), &ProjectExplorer::Target::buildDirectoryChanged,
+            this, &QbsBuildStepConfigWidget::updateState);
 
     setContentsMargins(0, 0, 0, 0);
 
