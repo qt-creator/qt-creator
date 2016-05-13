@@ -484,9 +484,9 @@ ProStringList QMakeEvaluator::evaluateBuiltinExpand(
             } else {
                 var = args[0];
                 sep = args.at(1).toQString();
-                beg = args.at(2).toQString(m_tmp2).toInt();
+                beg = args.at(2).toInt();
                 if (args.count() == 4)
-                    end = args.at(3).toQString(m_tmp2).toInt();
+                    end = args.at(3).toInt();
             }
         } else {
             if (args.count() != 1) {
@@ -645,7 +645,7 @@ ProStringList QMakeEvaluator::evaluateBuiltinExpand(
             const ProStringList &var = values(map(args.at(0)));
             int start = 0, end = 0;
             if (args.count() >= 2) {
-                const QString &start_str = args.at(1).toQString(m_tmp1);
+                const ProString &start_str = args.at(1);
                 start = start_str.toInt(&ok);
                 if (!ok) {
                     if (args.count() == 2) {
@@ -658,11 +658,11 @@ ProStringList QMakeEvaluator::evaluateBuiltinExpand(
                     }
                     if (!ok)
                         evalError(fL1S("member() argument 2 (start) '%2' invalid.")
-                                  .arg(start_str));
+                                  .arg(start_str.toQString(m_tmp1)));
                 } else {
                     end = start;
                     if (args.count() == 3)
-                        end = args.at(2).toQString(m_tmp1).toInt(&ok);
+                        end = args.at(2).toInt(&ok);
                     if (!ok)
                         evalError(fL1S("member() argument 3 (end) '%2' invalid.")
                                   .arg(args.at(2).toQString(m_tmp1)));
@@ -1303,7 +1303,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateBuiltinConditional(
             return ReturnFalse;
         }
         int cnt = values(map(args.at(0))).count();
-        int val = args.at(1).toQString(m_tmp1).toInt();
+        int val = args.at(1).toInt();
         if (args.count() == 3) {
             const ProString &comp = args.at(2);
             if (comp == QLatin1String(">") || comp == QLatin1String("greaterThan")) {
