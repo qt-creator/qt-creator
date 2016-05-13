@@ -3,7 +3,7 @@ import qbs 1.0
 QtcPlugin {
     name: "TextEditor"
 
-    Depends { name: "Qt"; submodules: ["widgets", "xml", "network", "script", "printsupport"] }
+    Depends { name: "Qt"; submodules: ["widgets", "xml", "network", "printsupport"] }
     Depends { name: "Aggregation" }
     Depends { name: "Utils" }
 

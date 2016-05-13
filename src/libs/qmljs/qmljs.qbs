@@ -12,7 +12,7 @@ QtcLibrary {
     Depends { name: "Utils" }
     Depends { name: "LanguageUtils" }
     Depends { name: "CPlusPlus" }
-    Depends { name: "Qt"; submodules: ["widgets", "script", "xml"] }
+    Depends { name: "Qt"; submodules: ["widgets", "xml"] }
 
     Group {
         name: "General"

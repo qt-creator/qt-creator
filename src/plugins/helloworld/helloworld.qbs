@@ -4,7 +4,7 @@ QtcPlugin {
     name: "HelloWorld"
 
     Depends { name: "Core" }
-    Depends { name: "Qt"; submodules: ["widgets", "xml", "network", "script"] }
+    Depends { name: "Qt"; submodules: ["widgets", "xml", "network"] }
 
     files: [
         "helloworldplugin.cpp",

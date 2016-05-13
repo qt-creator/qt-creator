@@ -3,7 +3,7 @@ import qbs 1.0
 QtcPlugin {
     name: "QmlJSEditor"
 
-    Depends { name: "Qt"; submodules: ["widgets", "script"] }
+    Depends { name: "Qt"; submodules: ["widgets"] }
     Depends { name: "LanguageUtils" }
     Depends { name: "Utils" }
     Depends { name: "QmlEditorWidgets" }
