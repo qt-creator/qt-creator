@@ -193,9 +193,8 @@ void QMakeEvaluator::initFunctionStatics()
         statics.functions.insert(ProKey(testInits[i].name), testInits[i].func);
 }
 
-static bool isTrue(const ProString &_str, QString &tmp)
+static bool isTrue(const ProString &str)
 {
-    const QString &str = _str.toQString(tmp);
     return !str.compare(statics.strtrue, Qt::CaseInsensitive) || str.toInt();
 }
 
@@ -910,7 +909,7 @@ ProStringList QMakeEvaluator::evaluateBuiltinExpand(
         } else {
             bool recursive = false;
             if (args.count() == 2)
-                recursive = isTrue(args.at(1), m_tmp2);
+                recursive = isTrue(args.at(1));
             QStringList dirs;
             QString r = m_option->expandEnvVars(args.at(0).toQString(m_tmp1))
                         .replace(QLatin1Char('\\'), QLatin1Char('/'));
@@ -1414,7 +1413,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateBuiltinConditional(
             flags = LoadSilent;
         if (args.count() >= 2) {
             parseInto = args.at(1).toQString(m_tmp2);
-            if (args.count() >= 3 && isTrue(args.at(2), m_tmp3))
+            if (args.count() >= 3 && isTrue(args.at(2)))
                 flags = LoadSilent;
         }
         QString fn = resolvePath(m_option->expandEnvVars(args.at(0).toQString(m_tmp1)));
@@ -1452,7 +1451,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateBuiltinConditional(
     case T_LOAD: {
         bool ignore_error = false;
         if (args.count() == 2) {
-            ignore_error = isTrue(args.at(1), m_tmp2);
+            ignore_error = isTrue(args.at(1));
         } else if (args.count() != 1) {
             evalError(fL1S("load(feature) requires one or two arguments."));
             return ReturnFalse;
