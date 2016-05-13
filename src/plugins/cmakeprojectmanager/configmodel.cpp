@@ -35,7 +35,8 @@ namespace CMakeProjectManager {
 static bool isTrue(const QString &value)
 {
     const QString lower = value.toLower();
-    return lower == QStringLiteral("true") || lower == QStringLiteral("on") || lower == QStringLiteral("1");
+    return lower == QStringLiteral("true") || lower == QStringLiteral("on")
+            || lower == QStringLiteral("1") || lower == QStringLiteral("yes");
 }
 
 ConfigModel::ConfigModel(QObject *parent) : QAbstractTableModel(parent)
