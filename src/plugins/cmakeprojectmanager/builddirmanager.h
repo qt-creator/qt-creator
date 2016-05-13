@@ -63,7 +63,7 @@ class BuildDirManager : public QObject
     Q_OBJECT
 
 public:
-    BuildDirManager(const CMakeBuildConfiguration *bc);
+    BuildDirManager(CMakeBuildConfiguration *bc);
     ~BuildDirManager() override;
 
     const ProjectExplorer::Kit *kit() const;
@@ -87,6 +87,8 @@ public:
     void clearFiles();
     CMakeConfig parsedConfiguration() const;
 
+    void checkConfiguration();
+
     static CMakeConfig parseConfiguration(const Utils::FileName &cacheFile,
                                           QString *errorMessage);
 
@@ -106,10 +108,9 @@ private:
     void processCMakeOutput();
     void processCMakeError();
 
-
     bool m_hasData = false;
 
-    const CMakeBuildConfiguration *m_buildConfiguration = nullptr;
+    CMakeBuildConfiguration *m_buildConfiguration = nullptr;
     Utils::QtcProcess *m_cmakeProcess = nullptr;
     QTemporaryDir *m_tempDir = nullptr;
     mutable CMakeConfig m_cmakeCache;
