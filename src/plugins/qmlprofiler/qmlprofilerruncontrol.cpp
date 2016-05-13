@@ -197,9 +197,9 @@ void QmlProfilerRunControl::cancelProcess()
     emit finished();
 }
 
-void QmlProfilerRunControl::logApplicationMessage(const QString &msg, Utils::OutputFormat format)
+void QmlProfilerRunControl::appendMessage(const QString &msg, Utils::OutputFormat format)
 {
-    appendMessage(msg, format);
+    AnalyzerRunControl::appendMessage(msg, format);
     d->m_outputParser.processOutput(msg);
 }
 

@@ -768,7 +768,7 @@ void RunControl::bringApplicationToForegroundInternal()
 
 void RunControl::appendMessage(const QString &msg, Utils::OutputFormat format)
 {
-    emit appendMessage(this, msg, format);
+    emit appendMessageRequested(this, msg, format);
 }
 
 bool Runnable::canReUseOutputPane(const Runnable &other) const

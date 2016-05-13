@@ -105,7 +105,7 @@ RemoteLinuxAnalyzeSupport::~RemoteLinuxAnalyzeSupport()
 void RemoteLinuxAnalyzeSupport::showMessage(const QString &msg, Utils::OutputFormat format)
 {
     if (state() != Inactive && d->runControl)
-        d->runControl->logApplicationMessage(msg, format);
+        d->runControl->appendMessage(msg, format);
     d->outputParser.processOutput(msg);
 }
 

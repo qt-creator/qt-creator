@@ -387,8 +387,7 @@ void AppOutputPane::createNewOutputWindow(RunControl *rc)
             this, &AppOutputPane::slotRunControlFinished);
     connect(rc, &RunControl::applicationProcessHandleChanged,
             this, &AppOutputPane::enableDefaultButtons);
-    connect(rc, static_cast<void (RunControl::*)(
-                ProjectExplorer::RunControl *, const QString &, Utils::OutputFormat)>(&RunControl::appendMessage),
+    connect(rc, &RunControl::appendMessageRequested,
             this, &AppOutputPane::appendMessage);
 
     Utils::OutputFormatter *formatter = rc->outputFormatter();

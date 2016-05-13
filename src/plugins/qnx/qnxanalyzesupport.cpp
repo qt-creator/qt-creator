@@ -159,7 +159,7 @@ void QnxAnalyzeSupport::remoteIsRunning()
 void QnxAnalyzeSupport::showMessage(const QString &msg, OutputFormat format)
 {
     if (state() != Inactive && m_runControl)
-        m_runControl->logApplicationMessage(msg, format);
+        m_runControl->appendMessage(msg, format);
     m_outputParser.processOutput(msg);
 }
 

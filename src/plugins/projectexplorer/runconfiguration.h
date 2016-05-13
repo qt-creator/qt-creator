@@ -385,13 +385,14 @@ public:
     const Connection &connection() const;
     void setConnection(const Connection &connection);
 
+    virtual void appendMessage(const QString &msg, Utils::OutputFormat format);
+
 public slots:
     void bringApplicationToForeground(qint64 pid);
-    void appendMessage(const QString &msg, Utils::OutputFormat format);
 
 signals:
-    void appendMessage(ProjectExplorer::RunControl *runControl,
-        const QString &msg, Utils::OutputFormat format);
+    void appendMessageRequested(ProjectExplorer::RunControl *runControl,
+                                const QString &msg, Utils::OutputFormat format);
     void started();
     void finished();
     void applicationProcessHandleChanged();

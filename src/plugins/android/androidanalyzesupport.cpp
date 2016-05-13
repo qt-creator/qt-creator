@@ -96,13 +96,13 @@ AndroidAnalyzeSupport::AndroidAnalyzeSupport(AndroidRunConfiguration *runConfig,
 
     connect(runner, &AndroidRunner::remoteErrorOutput,
         [this, runControl](const QString &msg) {
-            runControl->logApplicationMessage(msg, Utils::StdErrFormatSameLine);
+            runControl->appendMessage(msg, Utils::StdErrFormatSameLine);
             m_outputParser.processOutput(msg);
         });
 
     connect(runner, &AndroidRunner::remoteOutput,
         [this, runControl](const QString &msg) {
-            runControl->logApplicationMessage(msg, Utils::StdOutFormatSameLine);
+            runControl->appendMessage(msg, Utils::StdOutFormatSameLine);
             m_outputParser.processOutput(msg);
         });
 }

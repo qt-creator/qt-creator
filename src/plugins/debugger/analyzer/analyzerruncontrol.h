@@ -58,9 +58,6 @@ public:
 signals:
     void starting();
 
-public slots:
-    virtual void logApplicationMessage(const QString &, Utils::OutputFormat) { }
-
 private:
     bool supportsReRunning() const override { return false; }
 };

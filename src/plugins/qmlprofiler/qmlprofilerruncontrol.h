@@ -51,7 +51,7 @@ public:
     bool isRunning() const override;
     void cancelProcess();
     void notifyRemoteFinished() override;
-    void logApplicationMessage(const QString &msg, Utils::OutputFormat format) override;
+    void appendMessage(const QString &msg, Utils::OutputFormat format) override;
 
 signals:
     void processRunning(Utils::Port port);

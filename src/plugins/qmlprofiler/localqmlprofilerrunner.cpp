@@ -74,7 +74,7 @@ LocalQmlProfilerRunner::LocalQmlProfilerRunner(const Configuration &configuratio
     connect(this, &LocalQmlProfilerRunner::stopped,
             engine, &QmlProfilerRunControl::notifyRemoteFinished);
     connect(this, &LocalQmlProfilerRunner::appendMessage,
-            engine, &QmlProfilerRunControl::logApplicationMessage);
+            engine, &QmlProfilerRunControl::appendMessage);
     connect(engine, &Debugger::AnalyzerRunControl::starting,
             this, &LocalQmlProfilerRunner::start);
     connect(engine, &RunControl::finished,

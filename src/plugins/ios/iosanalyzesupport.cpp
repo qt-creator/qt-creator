@@ -113,9 +113,9 @@ void IosAnalyzeSupport::handleRemoteProcessFinished(bool cleanEnd)
 {
     if (m_runControl) {
         if (!cleanEnd)
-            m_runControl->logApplicationMessage(tr("Run ended with error."), Utils::ErrorMessageFormat);
+            m_runControl->appendMessage(tr("Run ended with error."), Utils::ErrorMessageFormat);
         else
-            m_runControl->logApplicationMessage(tr("Run ended."), Utils::NormalMessageFormat);
+            m_runControl->appendMessage(tr("Run ended."), Utils::NormalMessageFormat);
         m_runControl->notifyRemoteFinished();
     }
 }
@@ -123,7 +123,7 @@ void IosAnalyzeSupport::handleRemoteProcessFinished(bool cleanEnd)
 void IosAnalyzeSupport::handleRemoteOutput(const QString &output)
 {
     if (m_runControl) {
-        m_runControl->logApplicationMessage(output, Utils::StdOutFormat);
+        m_runControl->appendMessage(output, Utils::StdOutFormat);
         m_outputParser.processOutput(output);
     }
 }
@@ -131,7 +131,7 @@ void IosAnalyzeSupport::handleRemoteOutput(const QString &output)
 void IosAnalyzeSupport::handleRemoteErrorOutput(const QString &output)
 {
     if (m_runControl)
-        m_runControl->logApplicationMessage(output, Utils::StdErrFormat);
+        m_runControl->appendMessage(output, Utils::StdErrFormat);
 }
 
 } // namespace Internal
