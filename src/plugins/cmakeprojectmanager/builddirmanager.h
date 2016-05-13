@@ -112,6 +112,7 @@ private:
     const CMakeBuildConfiguration *m_buildConfiguration = nullptr;
     Utils::QtcProcess *m_cmakeProcess = nullptr;
     QTemporaryDir *m_tempDir = nullptr;
+    mutable CMakeConfig m_cmakeCache;
 
     QSet<Utils::FileName> m_watchedFiles;
     QString m_projectName;

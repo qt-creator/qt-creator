@@ -172,6 +172,7 @@ void BuildDirManager::resetData()
 {
     m_hasData = false;
 
+    m_cmakeCache.clear();
     m_projectName.clear();
     m_buildTargets.clear();
     m_watchedFiles.clear();
@@ -271,21 +272,19 @@ void BuildDirManager::clearFiles()
 
 CMakeConfig BuildDirManager::parsedConfiguration() const
 {
-    if (!m_hasData)
-        return CMakeConfig();
-
-    Utils::FileName cacheFile = workDirectory();
-    cacheFile.appendPath(QLatin1String("CMakeCache.txt"));
-    QString errorMessage;
-    CMakeConfig result = parseConfiguration(cacheFile, &errorMessage);
-    if (!errorMessage.isEmpty())
-        emit errorOccured(errorMessage);
-    const Utils::FileName sourceOfBuildDir
-            = Utils::FileName::fromUtf8(CMakeConfigItem::valueOf("CMAKE_HOME_DIRECTORY", result));
-    if (sourceOfBuildDir != sourceDirectory()) // Use case-insensitive compare where appropriate
-        emit errorOccured(tr("The build directory is not for %1").arg(sourceDirectory().toUserOutput()));
-
-    return result;
+    if (m_cmakeCache.isEmpty()) {
+        Utils::FileName cacheFile = workDirectory();
+        cacheFile.appendPath(QLatin1String("CMakeCache.txt"));
+        QString errorMessage;
+        m_cmakeCache = parseConfiguration(cacheFile, &errorMessage);
+        if (!errorMessage.isEmpty())
+            emit errorOccured(errorMessage);
+        const Utils::FileName sourceOfBuildDir
+                = Utils::FileName::fromUtf8(CMakeConfigItem::valueOf("CMAKE_HOME_DIRECTORY", m_cmakeCache));
+        if (sourceOfBuildDir != sourceDirectory()) // Use case-insensitive compare where appropriate
+            emit errorOccured(tr("The build directory is not for %1").arg(sourceDirectory().toUserOutput()));
+    }
+    return m_cmakeCache;
 }
 
 void BuildDirManager::stopProcess()
