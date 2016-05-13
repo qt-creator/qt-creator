@@ -82,8 +82,8 @@ QT_BEGIN_NAMESPACE
 
 enum ExpandFunc {
     E_INVALID = 0, E_MEMBER, E_FIRST, E_TAKE_FIRST, E_LAST, E_TAKE_LAST, E_SIZE,
-    E_CAT, E_FROMFILE, E_EVAL, E_LIST,
-    E_SPRINTF, E_FORMAT_NUMBER, E_JOIN, E_SPLIT, E_BASENAME, E_DIRNAME, E_SECTION,
+    E_CAT, E_FROMFILE, E_EVAL, E_LIST, E_SPRINTF, E_FORMAT_NUMBER,
+    E_NUM_ADD, E_JOIN, E_SPLIT, E_BASENAME, E_DIRNAME, E_SECTION,
     E_FIND, E_SYSTEM, E_UNIQUE, E_REVERSE, E_QUOTE, E_ESCAPE_EXPAND,
     E_UPPER, E_LOWER, E_TITLE, E_FILES, E_PROMPT, E_RE_ESCAPE, E_VAL_ESCAPE,
     E_REPLACE, E_SORT_DEPENDS, E_RESOLVE_DEPENDS, E_ENUMERATE_VARS,
@@ -117,6 +117,7 @@ void QMakeEvaluator::initFunctionStatics()
         { "list", E_LIST },
         { "sprintf", E_SPRINTF },
         { "format_number", E_FORMAT_NUMBER },
+        { "num_add", E_NUM_ADD },
         { "join", E_JOIN },
         { "split", E_SPLIT },
         { "basename", E_BASENAME },
@@ -600,6 +601,29 @@ ProStringList QMakeEvaluator::evaluateBuiltinExpand(
             ret += ProString(outstr);
         }
       formfail:
+        break;
+    case E_NUM_ADD:
+        if (args.count() < 1 || args.at(0).isEmpty()) {
+            evalError(fL1S("num_add(num, ...) requires at least one argument."));
+        } else {
+            qlonglong sum = 0;
+            foreach (const ProString &arg, args) {
+                if (arg.contains(QLatin1Char('.'))) {
+                    evalError(fL1S("num_add(): floats are currently not supported."));
+                    goto nafail;
+                }
+                bool ok;
+                qlonglong num = arg.toLongLong(&ok);
+                if (!ok) {
+                    evalError(fL1S("num_add(): malformed number %1.")
+                              .arg(arg.toQString(m_tmp3)));
+                    goto nafail;
+                }
+                sum += num;
+            }
+            ret += ProString(QString::number(sum));
+        }
+      nafail:
         break;
     case E_JOIN: {
         if (args.count() < 1 || args.count() > 4) {
