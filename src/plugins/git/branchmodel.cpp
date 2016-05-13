@@ -649,7 +649,8 @@ void BranchModel::parseOutputLine(const QString &line)
     const QString fullName = lineParts.at(1);
     const QString upstream = lineParts.at(2);
 
-    if (!m_oldBranchesIncluded) {
+    const bool current = (sha == m_currentSha);
+    if (!m_oldBranchesIncluded && !current) {
         QString strDateTime = lineParts.at(5);
         if (strDateTime.isEmpty())
             strDateTime = lineParts.at(4);
@@ -660,7 +661,6 @@ void BranchModel::parseOutputLine(const QString &line)
                 return;
         }
     }
-    bool current = (sha == m_currentSha);
     bool showTags = m_client->settings().boolValue(GitSettings::showTagsKey);
 
     // insert node into tree:
