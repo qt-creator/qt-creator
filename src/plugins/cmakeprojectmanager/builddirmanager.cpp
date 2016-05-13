@@ -99,7 +99,7 @@ BuildDirManager::BuildDirManager(const CMakeBuildConfiguration *bc) :
     m_projectName = sourceDirectory().fileName();
 
     m_reparseTimer.setSingleShot(true);
-    m_reparseTimer.setInterval(500);
+    m_reparseTimer.setInterval(5000);
     connect(&m_reparseTimer, &QTimer::timeout, this, &BuildDirManager::parse);
 
     connect(m_watcher, &QFileSystemWatcher::fileChanged, this, [this]() {
