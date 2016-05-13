@@ -202,15 +202,14 @@ QList<ConfigModel::DataItem> CMakeBuildConfiguration::completeCMakeConfiguration
     if (m_completeConfigurationCache.isEmpty())
         m_completeConfigurationCache = m_buildDirManager->parsedConfiguration();
 
-    CMakeConfig cache = Utils::filtered(m_completeConfigurationCache,
-                                        [](const CMakeConfigItem &i) { return i.type != CMakeConfigItem::INTERNAL; });
-    return Utils::transform(cache, [](const CMakeConfigItem &i) {
+    return Utils::transform(m_completeConfigurationCache,
+                            [this](const CMakeConfigItem &i) {
         ConfigModel::DataItem j;
         j.key = QString::fromUtf8(i.key);
         j.value = QString::fromUtf8(i.value);
         j.description = QString::fromUtf8(i.documentation);
 
-        j.isAdvanced = i.isAdvanced;
+        j.isAdvanced = i.isAdvanced || i.type == CMakeConfigItem::INTERNAL;
         switch (i.type) {
         case CMakeConfigItem::FILEPATH:
             j.type = ConfigModel::DataItem::FILE;
