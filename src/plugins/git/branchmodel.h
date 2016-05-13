@@ -95,6 +95,7 @@ private:
     BranchNode *m_rootNode;
     BranchNode *m_currentBranch = nullptr;
     QString m_currentSha;
+    QStringList m_obsoleteLocalBranches;
     bool m_oldBranchesIncluded = false;
 };
 

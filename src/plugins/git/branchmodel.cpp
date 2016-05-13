@@ -337,6 +337,7 @@ void BranchModel::clear()
         m_rootNode->children.takeLast();
 
     m_currentBranch = 0;
+    m_obsoleteLocalBranches.clear();
 }
 
 bool BranchModel::refresh(const QString &workingDirectory, QString *errorMessage)
@@ -446,7 +447,7 @@ QStringList BranchModel::localBranchNames() const
     if (!m_rootNode || !m_rootNode->count())
         return QStringList();
 
-    return m_rootNode->children.at(LocalBranches)->childrenNames();
+    return m_rootNode->children.at(LocalBranches)->childrenNames() + m_obsoleteLocalBranches;
 }
 
 QString BranchModel::sha(const QModelIndex &idx) const
@@ -657,8 +658,12 @@ void BranchModel::parseOutputLine(const QString &line)
         if (!strDateTime.isEmpty()) {
             const uint timeT = strDateTime.leftRef(strDateTime.indexOf(QLatin1Char(' '))).toUInt();
             const int age = QDateTime::fromTime_t(timeT).daysTo(QDateTime::currentDateTime());
-            if (age > Constants::OBSOLETE_COMMIT_AGE_IN_DAYS)
+            if (age > Constants::OBSOLETE_COMMIT_AGE_IN_DAYS) {
+                const QString heads = "refs/heads/";
+                if (fullName.startsWith(heads))
+                    m_obsoleteLocalBranches.append(fullName.mid(heads.size()));
                 return;
+            }
         }
     }
     bool showTags = m_client->settings().boolValue(GitSettings::showTagsKey);
