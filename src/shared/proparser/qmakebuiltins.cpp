@@ -602,10 +602,9 @@ ProStringList QMakeEvaluator::evaluateBuiltinExpand(
         if (args.count() < 1 || args.count() > 4) {
             evalError(fL1S("join(var, glue, before, after) requires one to four arguments."));
         } else {
-            QString glue;
-            ProString before, after;
+            ProString glue, before, after;
             if (args.count() >= 2)
-                glue = args.at(1).toQString(m_tmp1);
+                glue = args.at(1);
             if (args.count() >= 3)
                 before = args[2];
             if (args.count() == 4)

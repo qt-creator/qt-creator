@@ -229,6 +229,7 @@ public:
 
     int length() const { return size(); }
 
+    QString join(const ProString &sep) const;
     QString join(const QString &sep) const;
     QString join(QChar sep) const;
 
