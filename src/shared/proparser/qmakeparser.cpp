@@ -221,7 +221,7 @@ ProFile *QMakeParser::parsedProFile(const QString &fileName, ParseFlags flags)
 }
 
 ProFile *QMakeParser::parsedProBlock(
-        const QString &contents, const QString &name, int line, SubGrammar grammar)
+        const QStringRef &contents, const QString &name, int line, SubGrammar grammar)
 {
     ProFile *pro = new ProFile(name);
     read(pro, contents, line, grammar);
@@ -244,7 +244,7 @@ bool QMakeParser::read(ProFile *pro, ParseFlags flags)
                                fL1S("Cannot read %1: %2").arg(pro->fileName(), errStr));
         return false;
     }
-    read(pro, content, 1, FullGrammar);
+    read(pro, QStringRef(&content), 1, FullGrammar);
     return true;
 }
 
@@ -286,7 +286,7 @@ void QMakeParser::finalizeHashStr(ushort *buf, uint len)
     buf[-2] = (ushort)(hash >> 16);
 }
 
-void QMakeParser::read(ProFile *pro, const QString &in, int line, SubGrammar grammar)
+void QMakeParser::read(ProFile *pro, const QStringRef &in, int line, SubGrammar grammar)
 {
     m_proFile = pro;
     m_lineNo = line;
@@ -334,8 +334,8 @@ void QMakeParser::read(ProFile *pro, const QString &in, int line, SubGrammar gra
     QStack<ParseCtx> xprStack;
     xprStack.reserve(10);
 
-    // We rely on QStrings being null-terminated, so don't maintain a global end pointer.
     const ushort *cur = (const ushort *)in.unicode();
+    const ushort *inend = cur + in.length();
     m_canElse = false;
   freshLine:
     m_state = StNew;
@@ -418,7 +418,7 @@ void QMakeParser::read(ProFile *pro, const QString &in, int line, SubGrammar gra
     int indent;
 
     if (context == CtxPureValue) {
-        end = (const ushort *)in.unicode() + in.length();
+        end = inend;
         cptr = 0;
         lineCont = false;
         indent = 0; // just gcc being stupid
@@ -430,24 +430,30 @@ void QMakeParser::read(ProFile *pro, const QString &in, int line, SubGrammar gra
 
         // First, skip leading whitespace
         for (indent = 0; ; ++cur, ++indent) {
+            if (cur == inend) {
+                cur = 0;
+                goto flushLine;
+            }
             c = *cur;
             if (c == '\n') {
                 ++cur;
                 goto flushLine;
-            } else if (!c) {
-                cur = 0;
-                goto flushLine;
-            } else if (c != ' ' && c != '\t' && c != '\r') {
-                break;
             }
+            if (c != ' ' && c != '\t' && c != '\r')
+                break;
         }
 
         // Then strip comments. Yep - no escaping is possible.
         for (cptr = cur;; ++cptr) {
+            if (cptr == inend) {
+                end = cptr;
+                break;
+            }
             c = *cptr;
             if (c == '#') {
-                for (end = cptr; (c = *++cptr);) {
-                    if (c == '\n') {
+                end = cptr;
+                while (++cptr < inend) {
+                    if (*cptr == '\n') {
                         ++cptr;
                         break;
                     }
@@ -458,10 +464,6 @@ void QMakeParser::read(ProFile *pro, const QString &in, int line, SubGrammar gra
                     // Qmake bizarreness: such lines do not affect line continuations
                     goto ignore;
                 }
-                break;
-            }
-            if (!c) {
-                end = cptr;
                 break;
             }
             if (c == '\n') {
@@ -1215,7 +1217,7 @@ void QMakeParser::finalizeCall(ushort *&tokPtr, ushort *uc, ushort *ptr, int arg
 bool QMakeParser::resolveVariable(ushort *xprPtr, int tlen, int needSep, ushort **ptr,
                                   ushort **buf, QString *xprBuff,
                                   ushort **tokPtr, QString *tokBuff,
-                                  const ushort *cur, const QString &in)
+                                  const ushort *cur, const QStringRef &in)
 {
     QString out;
     m_tmp.setRawData((const QChar *)xprPtr, tlen);

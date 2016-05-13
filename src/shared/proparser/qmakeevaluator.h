@@ -211,7 +211,7 @@ public:
     ProStringList evaluateBuiltinExpand(int func_t, const ProKey &function, const ProStringList &args);
     VisitReturn evaluateBuiltinConditional(int func_t, const ProKey &function, const ProStringList &args);
 
-    VisitReturn evaluateConditional(const QString &cond, const QString &where, int line = -1);
+    VisitReturn evaluateConditional(const QStringRef &cond, const QString &where, int line = -1);
 #ifdef PROEVALUATOR_FULL
     VisitReturn checkRequirements(const ProStringList &deps);
 #endif
