@@ -567,7 +567,7 @@ ProStringList QMakeEvaluator::evaluateBuiltinExpand(
                 break;
             }
             bool ok;
-            qlonglong num = m_tmp3.toLongLong(&ok, ibase);
+            qlonglong num = args.at(0).toLongLong(&ok, ibase);
             if (!ok) {
                 evalError(fL1S("format_number(): malformed number %2 for base %1.")
                           .arg(ibase).arg(m_tmp3));
