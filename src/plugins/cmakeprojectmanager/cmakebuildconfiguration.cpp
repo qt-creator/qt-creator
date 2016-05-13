@@ -265,7 +265,6 @@ void CMakeBuildConfiguration::setCurrentCMakeConfiguration(const QList<ConfigMod
         return ni;
     });
 
-    // There is a buildDirManager, so there must also be an active BC:
     const CMakeConfig config = cmakeConfiguration() + newConfig;
     setCMakeConfiguration(config);
 
@@ -316,7 +315,8 @@ void CMakeBuildConfiguration::setCMakeConfiguration(const CMakeConfig &config)
 
 CMakeConfig CMakeBuildConfiguration::cmakeConfiguration() const
 {
-    return m_configuration;
+    return removeDuplicates(CMakeConfigurationKitInformation::configuration(target()->kit())
+                            + m_configuration);
 }
 
 void CMakeBuildConfiguration::setError(const QString &message)
@@ -497,7 +497,6 @@ CMakeBuildInfo *CMakeBuildConfigurationFactory::createBuildInfo(const ProjectExp
     auto info = new CMakeBuildInfo(this);
     info->kitId = k->id();
     info->sourceDirectory = sourceDir;
-    info->configuration = CMakeConfigurationKitInformation::configuration(k);
 
     CMakeConfigItem buildTypeItem;
     switch (buildType) {
