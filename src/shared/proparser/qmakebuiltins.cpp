@@ -84,7 +84,7 @@ enum ExpandFunc {
     E_INVALID = 0, E_MEMBER, E_STR_MEMBER, E_FIRST, E_TAKE_FIRST, E_LAST, E_TAKE_LAST,
     E_SIZE, E_STR_SIZE, E_CAT, E_FROMFILE, E_EVAL, E_LIST, E_SPRINTF, E_FORMAT_NUMBER,
     E_NUM_ADD, E_JOIN, E_SPLIT, E_BASENAME, E_DIRNAME, E_SECTION,
-    E_FIND, E_SYSTEM, E_UNIQUE, E_REVERSE, E_QUOTE, E_ESCAPE_EXPAND,
+    E_FIND, E_SYSTEM, E_UNIQUE, E_SORTED, E_REVERSE, E_QUOTE, E_ESCAPE_EXPAND,
     E_UPPER, E_LOWER, E_TITLE, E_FILES, E_PROMPT, E_RE_ESCAPE, E_VAL_ESCAPE,
     E_REPLACE, E_SORT_DEPENDS, E_RESOLVE_DEPENDS, E_ENUMERATE_VARS,
     E_SHADOWED, E_ABSOLUTE_PATH, E_RELATIVE_PATH, E_CLEAN_PATH,
@@ -128,6 +128,7 @@ void QMakeEvaluator::initFunctionStatics()
         { "find", E_FIND },
         { "system", E_SYSTEM },
         { "unique", E_UNIQUE },
+        { "sorted", E_SORTED },
         { "reverse", E_REVERSE },
         { "quote", E_QUOTE },
         { "escape_expand", E_ESCAPE_EXPAND },
@@ -906,6 +907,14 @@ ProStringList QMakeEvaluator::evaluateBuiltinExpand(
         } else {
             ret = values(map(args.at(0)));
             ret.removeDuplicates();
+        }
+        break;
+    case E_SORTED:
+        if (args.count() != 1) {
+            evalError(fL1S("sorted(var) requires one argument."));
+        } else {
+            ret = values(map(args.at(0)));
+            std::sort(ret.begin(), ret.end());
         }
         break;
     case E_REVERSE:
