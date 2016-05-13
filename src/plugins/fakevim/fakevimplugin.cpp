@@ -1400,7 +1400,7 @@ void FakeVimPluginPrivate::maybeReadVimRc()
     QString fileName = theFakeVimSetting(ConfigVimRcPath)->value().toString();
     if (fileName.isEmpty()) {
         fileName = QStandardPaths::writableLocation(QStandardPaths::HomeLocation)
-            + (HostOsInfo::isWindowsHost() ? "/_vimrc" : "/.vimrc");
+            + QLatin1String(HostOsInfo::isWindowsHost() ? "/_vimrc" : "/.vimrc");
     }
     //qDebug() << "READING VIMRC: " << fileName;
     // Read it into a temporary handler for effects modifying global state.
