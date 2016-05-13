@@ -538,7 +538,7 @@ ProStringList QMakeEvaluator::evaluateBuiltinExpand(
             bool leftalign = false;
             enum { DefaultSign, PadSign, AlwaysSign } sign = DefaultSign;
             if (args.count() >= 2) {
-                const auto opts = split_value_list(args.at(1).toQString(m_tmp2));
+                const auto opts = split_value_list(args.at(1).toQStringRef());
                 for (const ProString &opt : opts) {
                     opt.toQString(m_tmp3);
                     if (m_tmp3.startsWith(QLatin1String("ibase="))) {
@@ -732,7 +732,8 @@ ProStringList QMakeEvaluator::evaluateBuiltinExpand(
                         if (lines) {
                             ret += ProString(stream.readLine());
                         } else {
-                            ret += split_value_list(stream.readLine().trimmed());
+                            const QString &line = stream.readLine();
+                            ret += split_value_list(QStringRef(&line).trimmed());
                             if (!singleLine)
                                 ret += ProString("\n");
                         }
@@ -764,7 +765,7 @@ ProStringList QMakeEvaluator::evaluateBuiltinExpand(
         ret = ProStringList(ProString(tmp));
         ProStringList lst;
         for (const ProString &arg : args)
-            lst += split_value_list(arg.toQString(m_tmp1), arg.sourceFile()); // Relies on deep copy
+            lst += split_value_list(arg.toQStringRef(), arg.sourceFile()); // Relies on deep copy
         m_valuemapStack.top()[ret.at(0).toKey()] = lst;
         break; }
     case E_FIND:
@@ -811,7 +812,7 @@ ProStringList QMakeEvaluator::evaluateBuiltinExpand(
                         output.replace(QLatin1Char('\t'), QLatin1Char(' '));
                         if (singleLine)
                             output.replace(QLatin1Char('\n'), QLatin1Char(' '));
-                        ret += split_value_list(output);
+                        ret += split_value_list(QStringRef(&output));
                     }
                 }
             }
@@ -960,7 +961,8 @@ ProStringList QMakeEvaluator::evaluateBuiltinExpand(
             QFile qfile;
             if (qfile.open(stdin, QIODevice::ReadOnly)) {
                 QTextStream t(&qfile);
-                ret = split_value_list(t.readLine());
+                const QString &line = t.readLine();
+                ret = split_value_list(QStringRef(&line));
             }
         }
         break; }
@@ -994,7 +996,7 @@ ProStringList QMakeEvaluator::evaluateBuiltinExpand(
             ProString priosfx = args.count() < 4 ? ProString(".priority") : args.at(3);
             populateDeps(orgList, prefix,
                          args.count() < 3 ? ProStringList(ProString(".depends"))
-                                          : split_value_list(args.at(2).toQString(m_tmp2)),
+                                          : split_value_list(args.at(2).toQStringRef()),
                          priosfx, dependencies, dependees, rootSet);
             while (!rootSet.isEmpty()) {
                 QMultiMap<int, ProString>::iterator it = rootSet.begin();
@@ -1585,7 +1587,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateBuiltinConditional(
             if (!vals.isEmpty())
                 contents = vals.join(QLatin1Char('\n')) + QLatin1Char('\n');
             if (args.count() >= 3) {
-                const auto opts = split_value_list(args.at(2).toQString(m_tmp2));
+                const auto opts = split_value_list(args.at(2).toQStringRef());
                 for (const ProString &opt : opts) {
                     opt.toQString(m_tmp3);
                     if (m_tmp3 == QLatin1String("append")) {
@@ -1658,7 +1660,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateBuiltinConditional(
         enum { CacheSet, CacheAdd, CacheSub } mode = CacheSet;
         ProKey srcvar;
         if (args.count() >= 2) {
-            const auto opts = split_value_list(args.at(1).toQString(m_tmp2));
+            const auto opts = split_value_list(args.at(1).toQStringRef());
             for (const ProString &opt : opts) {
                 opt.toQString(m_tmp3);
                 if (m_tmp3 == QLatin1String("transient")) {
