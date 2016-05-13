@@ -81,8 +81,8 @@ QT_BEGIN_NAMESPACE
 #define fL1S(s) QString::fromLatin1(s)
 
 enum ExpandFunc {
-    E_INVALID = 0, E_MEMBER, E_FIRST, E_TAKE_FIRST, E_LAST, E_TAKE_LAST, E_SIZE,
-    E_CAT, E_FROMFILE, E_EVAL, E_LIST, E_SPRINTF, E_FORMAT_NUMBER,
+    E_INVALID = 0, E_MEMBER, E_FIRST, E_TAKE_FIRST, E_LAST, E_TAKE_LAST,
+    E_SIZE, E_STR_SIZE, E_CAT, E_FROMFILE, E_EVAL, E_LIST, E_SPRINTF, E_FORMAT_NUMBER,
     E_NUM_ADD, E_JOIN, E_SPLIT, E_BASENAME, E_DIRNAME, E_SECTION,
     E_FIND, E_SYSTEM, E_UNIQUE, E_REVERSE, E_QUOTE, E_ESCAPE_EXPAND,
     E_UPPER, E_LOWER, E_TITLE, E_FILES, E_PROMPT, E_RE_ESCAPE, E_VAL_ESCAPE,
@@ -111,6 +111,7 @@ void QMakeEvaluator::initFunctionStatics()
         { "last", E_LAST },
         { "take_last", E_TAKE_LAST },
         { "size", E_SIZE },
+        { "str_size", E_STR_SIZE },
         { "cat", E_CAT },
         { "fromfile", E_FROMFILE },
         { "eval", E_EVAL },
@@ -743,6 +744,12 @@ ProStringList QMakeEvaluator::evaluateBuiltinExpand(
             evalError(fL1S("size(var) requires one argument."));
         else
             ret.append(ProString(QString::number(values(map(args.at(0))).size())));
+        break;
+    case E_STR_SIZE:
+        if (args.count() != 1)
+            evalError(fL1S("str_size(str) requires one argument."));
+        else
+            ret.append(ProString(QString::number(args.at(0).size())));
         break;
     case E_CAT:
         if (args.count() < 1 || args.count() > 2) {
