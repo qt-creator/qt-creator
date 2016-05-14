@@ -16,7 +16,7 @@ osx:QMAKE_CXXFLAGS = -stdlib=libc++
 force_debug_info:QMAKE_CXXFLAGS += -fno-omit-frame-pointer
 
 DEFINES += \
-    QT_NO_CAST_FROM_ASCII \
+    QT_RESTRICTED_CAST_FROM_ASCII \
     UNIT_TESTS \
     DONT_CHECK_MESSAGE_COUNTER \
     TESTDATA_DIR=\"R\\\"xxx($$PWD/data)xxx\\\"\"
