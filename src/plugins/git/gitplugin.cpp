@@ -63,6 +63,7 @@
 #include <utils/qtcassert.h>
 #include <utils/parameteraction.h>
 #include <utils/pathchooser.h>
+#include <texteditor/texteditor.h>
 
 #include <vcsbase/basevcseditorfactory.h>
 #include <vcsbase/submitfilemodel.h>
@@ -89,6 +90,7 @@
 Q_DECLARE_METATYPE(Git::Internal::FileStates)
 
 using namespace Core;
+using namespace TextEditor;
 using namespace Utils;
 using namespace VcsBase;
 
@@ -667,7 +669,23 @@ void GitPlugin::blameFile()
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasFile(), return);
     const int lineNumber = VcsBaseEditor::lineNumberOfCurrentEditor(state.currentFile());
-    m_gitClient->annotate(state.currentFileTopLevel(), state.relativeCurrentFile(), QString(), lineNumber);
+    QStringList extraOptions;
+    if (BaseTextEditor *textEditor = BaseTextEditor::currentTextEditor()) {
+        QTextCursor cursor = textEditor->textCursor();
+        if (cursor.hasSelection()) {
+            QString argument = "-L ";
+            int selectionStart = cursor.selectionStart();
+            int selectionEnd = cursor.selectionEnd();
+            cursor.setPosition(selectionStart);
+            argument += QString::number(cursor.blockNumber() + 1) + ',';
+            cursor.setPosition(selectionEnd);
+            cursor.blockNumber();
+            argument += QString::number(cursor.blockNumber() + 1);
+            extraOptions << argument;
+        }
+    }
+    m_gitClient->annotate(state.currentFileTopLevel(), state.relativeCurrentFile(), QString(),
+                          lineNumber, extraOptions);
 }
 
 void GitPlugin::logProject()
