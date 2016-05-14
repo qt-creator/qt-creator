@@ -950,7 +950,6 @@ void GitClient::annotate(const QString &workingDir, const QString &file, const Q
     QStringList arguments(QLatin1String("blame"));
     arguments << QLatin1String("--root");
     arguments.append(editor->configurationWidget()->arguments());
-    arguments.append(extraOptions);
     arguments << QLatin1String("--") << file;
     if (!revision.isEmpty())
         arguments << revision;
