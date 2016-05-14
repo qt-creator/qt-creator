@@ -43,13 +43,14 @@ QHash<QObject *, DesignerCustomObjectData*> m_objectToDataHash;
 DesignerCustomObjectData::DesignerCustomObjectData(QObject *object)
     : m_object(object)
 {
-    if (object)
+    if (object) {
         populateResetHashes();
         m_objectToDataHash.insert(object, this);
         QObject::connect(object, &QObject::destroyed, [=] {
             m_objectToDataHash.remove(object);
             delete this;
         });
+    }
 }
 
 void DesignerCustomObjectData::registerData(QObject *object)
