@@ -1210,9 +1210,10 @@ void ModelEditor::storeToolbarIdInDiagram(qmt::MDiagram *diagram)
 
 void ModelEditor::addToNavigationHistory(const qmt::MDiagram *diagram)
 {
-    if (Core::EditorManager::currentEditor() == this)
+    if (Core::EditorManager::currentEditor() == this) {
         Core::EditorManager::cutForwardNavigationHistory();
         Core::EditorManager::addCurrentPositionToNavigationHistory(saveState(diagram));
+    }
 }
 
 QByteArray ModelEditor::saveState(const qmt::MDiagram *diagram) const
