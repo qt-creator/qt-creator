@@ -3569,7 +3569,7 @@ void registerToolbar(const QByteArray &perspectiveId, const ToolbarDescription &
 QAction *createStartAction()
 {
     auto action = new QAction(DebuggerMainWindow::tr("Start"), DebuggerPlugin::instance());
-    action->setIcon(Icons::ANALYZER_CONTROL_START.icon());
+    action->setIcon(Icons::ANALYZER_CONTROL_START_TOOLBAR.icon());
     action->setEnabled(true);
     return action;
 }

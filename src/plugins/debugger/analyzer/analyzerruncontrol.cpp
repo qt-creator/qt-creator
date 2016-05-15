@@ -42,7 +42,7 @@ namespace Debugger {
 AnalyzerRunControl::AnalyzerRunControl(RunConfiguration *runConfiguration, Core::Id runMode)
     : RunControl(runConfiguration, runMode)
 {
-    setIcon(Icons::ANALYZER_CONTROL_START);
+    setIcon(Icons::ANALYZER_CONTROL_START_TOOLBAR);
 }
 
 } // namespace Debugger
