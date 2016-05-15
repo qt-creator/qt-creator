@@ -585,7 +585,7 @@ void ClangStaticAnalyzerRunControl::handleFinished()
 void ClangStaticAnalyzerRunControl::onProgressCanceled()
 {
     m_progress.reportCanceled();
-    m_progress.reportFinished();
+    stop();
 }
 
 void ClangStaticAnalyzerRunControl::updateProgressValue()
