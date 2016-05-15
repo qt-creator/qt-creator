@@ -29,10 +29,13 @@
 
 #include <projectexplorer/project.h>
 
+static QString excludePlaceholder()
+{
+    return Todo::Internal::TodoProjectSettingsWidget::tr("<Enter regular expression to exclude>");
+}
+
 namespace Todo {
 namespace Internal {
-
-static const QString EXCLUDE_PLACEHOLDER = TodoProjectSettingsWidget::tr("<Enter regular expression to exclude>");
 
 TodoProjectSettingsWidget::TodoProjectSettingsWidget(ProjectExplorer::Project *project) :
     QWidget(0),
@@ -99,9 +102,9 @@ void TodoProjectSettingsWidget::prepareItem(QListWidgetItem *item) const
 
 void TodoProjectSettingsWidget::addExcludedPatternButtonClicked()
 {
-    if (ui->excludedPatternsList->findItems(EXCLUDE_PLACEHOLDER, Qt::MatchFixedString).count())
+    if (ui->excludedPatternsList->findItems(excludePlaceholder(), Qt::MatchFixedString).count())
         return;
-    ui->excludedPatternsList->editItem(addToExcludedPatternsList(EXCLUDE_PLACEHOLDER));
+    ui->excludedPatternsList->editItem(addToExcludedPatternsList(excludePlaceholder()));
 }
 
 void TodoProjectSettingsWidget::removeExcludedPatternButtonClicked()
@@ -118,7 +121,7 @@ void TodoProjectSettingsWidget::setExcludedPatternsButtonsEnabled()
 
 void TodoProjectSettingsWidget::excludedPatternChanged(QListWidgetItem *item)
 {
-    if (item->text().isEmpty() || item->text() == EXCLUDE_PLACEHOLDER) {
+    if (item->text().isEmpty() || item->text() == excludePlaceholder()) {
         ui->excludedPatternsList->removeItemWidget(item);
         delete item;
     } else {
