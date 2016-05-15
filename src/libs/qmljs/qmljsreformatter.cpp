@@ -480,6 +480,13 @@ protected:
         }
     }
 
+    virtual bool visit(UiPragma *ast)
+    {
+        out("pragma ", ast->pragmaToken);
+        accept(ast->pragmaType);
+        return false;
+    }
+
     virtual bool visit(UiImport *ast)
     {
         out("import ", ast->importToken);
@@ -1184,6 +1191,12 @@ protected:
             if (it->next)
                 out(".");
         }
+        return false;
+    }
+
+    virtual bool visit(UiQualifiedPragmaId *ast)
+    {
+        out(ast->identifierToken);
         return false;
     }
 
