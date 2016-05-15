@@ -48,6 +48,7 @@
 #include <QPushButton>
 #include <QSortFilterProxyModel>
 #include <QSpacerItem>
+#include <QMenu>
 
 namespace CMakeProjectManager {
 namespace Internal {
@@ -153,6 +154,20 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
     mainLayout->addWidget(findWrapper, row, 0, 1, 2);
 
     auto buttonLayout = new QVBoxLayout;
+    m_addButton = new QPushButton(tr("&Add"));
+    buttonLayout->addWidget(m_addButton);
+    {
+        m_addButtonMenu = new QMenu;
+        m_addButtonMenu->addAction(tr("&Boolean"))->setData(
+                    QVariant::fromValue(static_cast<int>(ConfigModel::DataItem::BOOLEAN)));
+        m_addButtonMenu->addAction(tr("&String"))->setData(
+                    QVariant::fromValue(static_cast<int>(ConfigModel::DataItem::STRING)));
+        m_addButtonMenu->addAction(tr("&Directory"))->setData(
+                    QVariant::fromValue(static_cast<int>(ConfigModel::DataItem::DIRECTORY)));
+        m_addButtonMenu->addAction(tr("&File"))->setData(
+                    QVariant::fromValue(static_cast<int>(ConfigModel::DataItem::FILE)));
+        m_addButton->setMenu(m_addButtonMenu);
+    }
     m_editButton = new QPushButton(tr("&Edit"));
     buttonLayout->addWidget(m_editButton);
     m_resetButton = new QPushButton(tr("&Reset"));
@@ -210,6 +225,20 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
         QModelIndex idx = m_configView->currentIndex();
         if (idx.column() != 1)
             idx = idx.sibling(idx.row(), 1);
+        m_configView->setCurrentIndex(idx);
+        m_configView->edit(idx);
+    });
+    connect(m_addButtonMenu, &QMenu::triggered, this, [this](QAction *action) {
+        ConfigModel::DataItem::Type type =
+                static_cast<ConfigModel::DataItem::Type>(action->data().value<int>());
+        QString value = tr("<UNSET>");
+        if (type == ConfigModel::DataItem::BOOLEAN)
+            value = QString::fromLatin1("OFF");
+
+        m_configModel->appendConfiguration(tr("<UNSET>"), value, type);
+        QModelIndex idx;
+        idx = m_configView->model()->index(
+                    m_configView->model()->rowCount(idx) - 1, 0);
         m_configView->setCurrentIndex(idx);
         m_configView->edit(idx);
     });
