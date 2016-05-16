@@ -109,6 +109,8 @@ void BranchDialog::refresh(const QString &repository, bool force)
         VcsOutputWindow::appendError(errorMessage);
 
     m_ui->branchView->expandAll();
+    m_ui->branchView->resizeColumnToContents(0);
+    m_ui->branchView->resizeColumnToContents(1);
 }
 
 void BranchDialog::refreshIfSame(const QString &repository)

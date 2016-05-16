@@ -85,7 +85,7 @@ private:
     void parseOutputLine(const QString &line);
     void setCurrentBranch();
     BranchNode *indexToNode(const QModelIndex &index) const;
-    QModelIndex nodeToIndex(BranchNode *node) const;
+    QModelIndex nodeToIndex(BranchNode *node, int column) const;
     void removeNode(const QModelIndex &idx);
 
     QString toolTip(const QString &sha) const;
