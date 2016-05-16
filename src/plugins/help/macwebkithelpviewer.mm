@@ -208,6 +208,7 @@ static void ensureProtocolHandler()
 - (void)webView:(WebView *)sender didReceiveTitle:(NSString *)title forFrame:(WebFrame *)frame;
 - (void)webView:(WebView *)sender didFinishLoadForFrame:(WebFrame *)frame;
 - (void)webView:(WebView *)sender didFailProvisionalLoadWithError:(NSError *)error forFrame:(WebFrame *)frame;
+- (void)webView:(WebView *)sender didFailLoadWithError:(NSError *)error forFrame:(WebFrame *)frame;
 
 @end
 
@@ -253,6 +254,12 @@ static void ensureProtocolHandler()
         viewer->slotLoadFinished();
 }
 
+- (void)webView:(WebView *)sender didFailLoadWithError:(NSError *)error forFrame:(WebFrame *)frame;
+{
+    Q_UNUSED(error)
+    if (frame == mainFrame)
+        viewer->slotLoadFinished();
+}
 @end
 
 // #pragma mark -- UIDelegate
