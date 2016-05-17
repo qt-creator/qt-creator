@@ -26,5 +26,5 @@ QtcTool {
     cpp.frameworkPaths: base.concat("/System/Library/PrivateFrameworks")
     bundle.infoPlistFile: "Info.plist"
 
-    installDir: project.ide_libexec_path + "/ios"
+    installDir: qtc.ide_libexec_path + "/ios"
 }

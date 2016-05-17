@@ -49,7 +49,7 @@ QtcPlugin {
 
     Group {
         name: "Tests"
-        condition: project.testsEnabled
+        condition: qtc.testsEnabled
         files: ["qmljstools_test.cpp"]
     }
 

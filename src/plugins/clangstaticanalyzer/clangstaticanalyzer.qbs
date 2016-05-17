@@ -57,7 +57,7 @@ QtcPlugin {
 
     Group {
         name: "Unit tests"
-        condition: project.testsEnabled
+        condition: qtc.testsEnabled
         files: [
             "clangstaticanalyzerunittests.cpp",
             "clangstaticanalyzerunittests.h",

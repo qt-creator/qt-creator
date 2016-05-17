@@ -2,13 +2,15 @@ import qbs 1.0
 import QtcFunctions
 
 Product {
-    version: project.qtcreator_version
+    version: qtc.qtcreator_version
     property bool install: true
     property string installDir
 
     Depends { name: "cpp" }
-    cpp.defines: project.generalDefines
+    Depends { name: "qtc" }
+
     cpp.cxxLanguageVersion: "c++11"
+    cpp.defines: qtc.generalDefines
     cpp.linkerFlags: {
         var flags = [];
         if (qbs.buildVariant == "release" && (qbs.toolchain.contains("gcc") || qbs.toolchain.contains("mingw")))

@@ -4,6 +4,7 @@ Product {
     name: "Translations"
     type: "qm"
     Depends { name: "Qt.core" }
+    Depends { name: "qtc" }
 
     Group {
         files: ["*.ts"]
@@ -17,6 +18,6 @@ Product {
     Group {
         fileTagsFilter: product.type
         qbs.install: true
-        qbs.installDir: project.ide_data_path + "/translations"
+        qbs.installDir: qtc.ide_data_path + "/translations"
     }
 }

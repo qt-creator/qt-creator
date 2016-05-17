@@ -21,7 +21,7 @@ QtcPlugin {
 
     Depends {
         name: "Qt.test"
-        condition: project.testsEnabled
+        condition: qtc.testsEnabled
     }
 
     pluginTestDepends: [
@@ -265,7 +265,7 @@ QtcPlugin {
 
     Group {
         name: "Unit tests"
-        condition: project.testsEnabled
+        condition: qtc.testsEnabled
         files: [
             "debuggerunittests.qrc",
         ]

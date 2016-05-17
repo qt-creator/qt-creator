@@ -3,21 +3,21 @@ import QtcFunctions
 
 QtcProduct {
     type: ["dynamiclibrary", "dynamiclibrary_symlink"]
-    installDir: project.ide_library_path
+    installDir: qtc.ide_library_path
     Depends {
-        condition: project.testsEnabled
+        condition: qtc.testsEnabled
         name: "Qt.test"
     }
 
     targetName: QtcFunctions.qtLibraryName(qbs, name)
-    destinationDirectory: project.ide_library_path
+    destinationDirectory: qtc.ide_library_path
 
     cpp.linkerFlags: {
         var flags = base;
         if (qbs.buildVariant == "debug" && qbs.toolchain.contains("msvc"))
             flags.push("/INCREMENTAL:NO"); // Speed up startup time when debugging with cdb
         if (qbs.targetOS.contains("osx"))
-            flags.push("-compatibility_version", project.qtcreator_compat_version);
+            flags.push("-compatibility_version", qtc.qtcreator_compat_version);
         return flags;
     }
     cpp.installNamePrefix: "@rpath"

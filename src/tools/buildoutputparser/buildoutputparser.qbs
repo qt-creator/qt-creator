@@ -13,8 +13,8 @@ QtcTool {
     ]
     Properties {
         condition: qbs.targetOS.contains("unix") && !qbs.targetOS.contains("darwin")
-        cpp.rpaths: base.concat(["$ORIGIN/../" + project.ide_plugin_path])
+        cpp.rpaths: base.concat(["$ORIGIN/../" + qtc.ide_plugin_path])
     }
-    cpp.defines: base.concat(qbs.targetOS.contains("windows") || project.testsEnabled
+    cpp.defines: base.concat(qbs.targetOS.contains("windows") || qtc.testsEnabled
                              ? ["HAS_MSVC_PARSER"] : [])
 }

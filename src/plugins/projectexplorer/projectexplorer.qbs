@@ -236,7 +236,7 @@ QtcPlugin {
 
     Group {
         name: "WindowsToolChains"
-        condition: qbs.targetOS.contains("windows") || project.testsEnabled
+        condition: qbs.targetOS.contains("windows") || qtc.testsEnabled
         files: [
            "abstractmsvctoolchain.cpp",
            "abstractmsvctoolchain.h",
@@ -253,7 +253,7 @@ QtcPlugin {
 
     Group {
         name: "Tests"
-        condition: project.testsEnabled
+        condition: qtc.testsEnabled
         files: ["outputparser_test.h", "outputparser_test.cpp"]
     }
 

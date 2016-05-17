@@ -23,25 +23,9 @@ Project {
         id: qbsProject
         property string qbsBaseDir: project.sharedSourcesDir + "/qbs"
         condition: qbsSubModuleExists && !useExternalQbs
-        qbsSearchPaths: [qbsBaseDir + "/qbs-resources"]
 
-        property bool enableUnitTests: false
-        property bool enableProjectFileUpdates: true
-        property bool installApiHeaders: false
-        property string libInstallDir: project.ide_library_path
-        property stringList libRPaths:  qbs.targetOS.contains("osx")
-            ? ["@loader_path/" + FileInfo.relativePath('/' + appInstallDir, '/' + libInstallDir)]
-            : ["$ORIGIN/..", "$ORIGIN/../" + project.ide_library_path]
-        property string resourcesInstallDir: project.ide_data_path + "/qbs"
-        property string pluginsInstallDir: project.ide_plugin_path
-        property string appInstallDir: project.ide_bin_path
-        property string libexecInstallDir: project.ide_libexec_path
-        property string relativeLibexecPath: FileInfo.relativePath('/' + appInstallDir,
-                                                                   '/' + libexecInstallDir)
-        property string relativePluginsPath: FileInfo.relativePath('/' + appInstallDir,
-                                                                   '/' + pluginsInstallDir)
-        property string relativeSearchPath: FileInfo.relativePath('/' + appInstallDir,
-                                                                  '/' + resourcesInstallDir)
+        // The first entry is for overriding qbs' own qbsbuildconfig module.
+        qbsSearchPaths: [project.ide_source_tree + "/qbs", qbsBaseDir + "/qbs-resources"]
 
         references: [
             qbsBaseDir + "/src/lib/libs.qbs",

@@ -4,7 +4,7 @@ import QtcFunctions
 QtcTool {
     name: "qml2puppet"
     installDir: qbs.targetOS.contains("osx")
-                ? project.ide_libexec_path + "/qmldesigner" : project.ide_libexec_path
+                ? qtc.ide_libexec_path + "/qmldesigner" : qtc.ide_libexec_path
 
     Depends { name: "bundle" }
     Depends {

@@ -7,7 +7,7 @@ QtcPlugin {
     property var externalQbsIncludes: project.useExternalQbs
             ? [project.qbs_install_dir + "/include/qbs"] : []
     property var externalQbsLibraryPaths: project.useExternalQbs
-            ? [project.qbs_install_dir + '/' + project.libDirName] : []
+            ? [project.qbs_install_dir + '/' + qtc.libDirName] : []
     property var externalQbsDynamicLibraries: {
         var libs = []
         if (!project.useExternalQbs)

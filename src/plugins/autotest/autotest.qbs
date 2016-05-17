@@ -18,12 +18,12 @@ QtcPlugin {
 
     Depends {
         name: "QtSupport"
-        condition: project.testsEnabled
+        condition: qtc.testsEnabled
     }
 
     Depends {
         name: "Qt.test"
-        condition: project.testsEnabled
+        condition: qtc.testsEnabled
     }
 
     Depends { name: "Qt.widgets" }
@@ -92,7 +92,7 @@ QtcPlugin {
 
     Group {
         name: "Test sources"
-        condition: project.testsEnabled
+        condition: qtc.testsEnabled
         files: [
             "autotestunittests.cpp",
             "autotestunittests.h",
@@ -108,6 +108,6 @@ QtcPlugin {
         ]
         fileTags: []
         qbs.install: true
-        qbs.installDir: project.ide_data_path + "/templates/wizards/autotest"
+        qbs.installDir: qtc.ide_data_path + "/templates/wizards/autotest"
     }
 }

@@ -4,6 +4,7 @@ Product {
     builtByDefault: false
     type: [isOnlineDoc ? "qdoc-output" : "qch"]
     Depends { name: "Qt.core" }
+    Depends { name: "qtc" }
 
     property path mainDocConfFile
     property bool isOnlineDoc
@@ -14,11 +15,11 @@ Product {
         fileTags: ["qdocconf-main"]
     }
 
-    property string versionTag: project.qtcreator_version.replace(/\.|-/g, "")
+    property string versionTag: qtc.qtcreator_version.replace(/\.|-/g, "")
     Qt.core.qdocEnvironment: [
         "QTC_LICENSE_TYPE=" + project.licenseType,
-        "QTC_VERSION=" + project.qtcreator_version,
-        "QTC_VERSION_TAG=" + project.qtcreator_version,
+        "QTC_VERSION=" + qtc.qtcreator_version,
+        "QTC_VERSION_TAG=" + qtc.qtcreator_version,
         "SRCDIR=" + sourceDirectory,
         "QT_INSTALL_DOCS=" + Qt.core.docPath,
         "QDOC_INDEX_DIR=" + Qt.core.docPath,
@@ -28,6 +29,6 @@ Product {
     Group {
         fileTagsFilter: ["qch"]
         qbs.install: !qbs.targetOS.contains("osx")
-        qbs.installDir: project.ide_doc_path
+        qbs.installDir: qtc.ide_doc_path
     }
 }

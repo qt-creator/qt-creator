@@ -3,7 +3,7 @@ import qbs
 QtcProduct {
     name: "componentsplugin"
     type: ["dynamiclibrary"]
-    installDir: project.ide_plugin_path + '/' + installDirName
+    installDir: qtc.ide_plugin_path + '/' + installDirName
     property string installDirName: qbs.targetOS.contains("osx") ? "QmlDesigner" : "qmldesigner"
 
     Depends { name: "Core" }

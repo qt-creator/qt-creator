@@ -12,8 +12,8 @@ QtcProduct {
                           + FileInfo.relativePath(project.ide_source_tree, sourceDirectory)
 
     cpp.rpaths: [
-        project.buildDirectory + '/' + project.ide_library_path,
-        project.buildDirectory + '/' + project.ide_plugin_path
+        project.buildDirectory + '/' + qtc.ide_library_path,
+        project.buildDirectory + '/' + qtc.ide_plugin_path
     ]
     cpp.minimumOsxVersion: "10.7"
     cpp.defines: base.filter(function(d) { return d != "QT_RESTRICTED_CAST_FROM_ASCII"; })
@@ -28,6 +28,6 @@ QtcProduct {
     // absolute paths to resources in the build directory.
     //    cpp.rpaths: qbs.targetOS.contains("osx")
     //            ? ["@loader_path/../Frameworks", "@loader_path/../PlugIns"]
-    //            : ["$ORIGIN/../" + project.libDirName + "/qtcreator",
-    //               "$ORIGIN/../" project.libDirName + "/qtcreator/plugins"]
+    //            : ["$ORIGIN/../" + qtc.libDirName + "/qtcreator",
+    //               "$ORIGIN/../" qtc.libDirName + "/qtcreator/plugins"]
 }

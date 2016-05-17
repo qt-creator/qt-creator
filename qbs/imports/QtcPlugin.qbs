@@ -4,7 +4,7 @@ import QtcFunctions
 
 QtcProduct {
     type: ["dynamiclibrary", "pluginSpec"]
-    installDir: project.ide_plugin_path
+    installDir: qtc.ide_plugin_path
 
     property var pluginJsonReplacements
     property var pluginRecommends: []
@@ -14,12 +14,12 @@ QtcProduct {
     condition: QtcFunctions.versionIsAtLeast(Qt.core.version, minimumQtVersion)
 
     targetName: QtcFunctions.qtLibraryName(qbs, name)
-    destinationDirectory: project.ide_plugin_path
+    destinationDirectory: qtc.ide_plugin_path
 
     Depends { name: "ExtensionSystem" }
     Depends { name: "pluginjson" }
     Depends {
-        condition: project.testsEnabled
+        condition: qtc.testsEnabled
         name: "Qt.test"
     }
 
@@ -34,7 +34,7 @@ QtcProduct {
         if (qbs.buildVariant == "debug" && qbs.toolchain.contains("msvc"))
             flags.push("/INCREMENTAL:NO"); // Speed up startup time when debugging with cdb
         if (qbs.targetOS.contains("osx"))
-            flags.push("-compatibility_version", project.qtcreator_compat_version);
+            flags.push("-compatibility_version", qtc.qtcreator_compat_version);
         return flags;
     }
 

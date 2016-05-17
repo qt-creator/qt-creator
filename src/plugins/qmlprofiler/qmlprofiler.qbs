@@ -74,7 +74,7 @@ QtcPlugin {
 
     Group {
         name: "Unit tests"
-        condition: project.testsEnabled
+        condition: qtc.testsEnabled
         prefix: "tests/"
         files: [
             "debugmessagesmodel_test.cpp", "debugmessagesmodel_test.h",

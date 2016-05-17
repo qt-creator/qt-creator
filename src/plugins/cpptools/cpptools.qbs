@@ -105,7 +105,7 @@ QtcPlugin {
 
     Group {
         name: "Tests"
-        condition: project.testsEnabled
+        condition: qtc.testsEnabled
         files: [
             "cppcodegen_test.cpp",
             "cppcompletion_test.cpp",

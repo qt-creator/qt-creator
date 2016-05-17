@@ -4,6 +4,7 @@ import qbs.FileInfo
 
 Module {
     Depends { id: qtcore; name: "Qt.core" }
+    Depends { name: "qtc" }
 
     additionalProductTypes: ["qt_plugin_metadata"]
 
@@ -46,20 +47,22 @@ Module {
                 // replace quoted quotes
                 all = all.replace(/\\\"/g, '"');
                 // replace config vars
-                vars['QTCREATOR_VERSION'] = project.qtcreator_version;
-                vars['QTCREATOR_COMPAT_VERSION'] = project.qtcreator_compat_version;
-                vars['IDE_VERSION_MAJOR'] = project.ide_version_major;
-                vars['IDE_VERSION_MINOR'] = project.ide_version_minor;
-                vars['IDE_VERSION_RELEASE'] = project.ide_version_release;
+                var qtcVersion = product.moduleProperty("qtc", "qtcreator_version");
+                vars['QTCREATOR_VERSION'] = qtcVersion;
+                vars['QTCREATOR_COMPAT_VERSION']
+                        = product.moduleProperty("qtc", "qtcreator_compat_version");
+                vars['IDE_VERSION_MAJOR'] = product.moduleProperty("qtc", "ide_version_major");
+                vars['IDE_VERSION_MINOR'] = product.moduleProperty("qtc", "ide_version_minor");
+                vars['IDE_VERSION_RELEASE'] = product.moduleProperty("qtc", "ide_version_release");
                 var deplist = [];
                 for (i in plugin_depends) {
-                    deplist.push("        { \"Name\" : \"" + plugin_depends[i] + "\", \"Version\" : \"" + project.qtcreator_version + "\" }");
+                    deplist.push("        { \"Name\" : \"" + plugin_depends[i] + "\", \"Version\" : \"" + qtcVersion + "\" }");
                 }
                 for (i in plugin_recommends) {
-                    deplist.push("        { \"Name\" : \"" + plugin_recommends[i] + "\", \"Version\" : \"" + project.qtcreator_version + "\", \"Type\" : \"optional\" }");
+                    deplist.push("        { \"Name\" : \"" + plugin_recommends[i] + "\", \"Version\" : \"" + qtcVersion + "\", \"Type\" : \"optional\" }");
                 }
                 for (i in plugin_test_depends) {
-                    deplist.push("        { \"Name\" : \"" + plugin_test_depends[i] + "\", \"Version\" : \"" + project.qtcreator_version + "\", \"Type\" : \"test\" }");
+                    deplist.push("        { \"Name\" : \"" + plugin_test_depends[i] + "\", \"Version\" : \"" + qtcVersion + "\", \"Type\" : \"test\" }");
                 }
                 deplist = deplist.join(",\n")
                 vars['dependencyList'] = "\"Dependencies\" : [\n" + deplist + "\n    ]";

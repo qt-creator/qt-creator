@@ -57,7 +57,7 @@ QtcPlugin {
 
     Group {
         name: "Tests"
-        condition: project.testsEnabled
+        condition: qtc.testsEnabled
         files: [
             "cppdoxygen_test.cpp", "cppdoxygen_test.h",
             "cppeditortestcase.cpp", "cppeditortestcase.h",

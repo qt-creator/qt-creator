@@ -97,7 +97,7 @@ QtcPlugin {
 
     Group {
         name: "Tests"
-        condition: project.testsEnabled
+        condition: qtc.testsEnabled
         prefix: "test/"
         files: [
             "data/clangtestdata.qrc",

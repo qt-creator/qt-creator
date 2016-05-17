@@ -18,14 +18,15 @@ QtcProduct {
     consoleApplication: false
 
     type: ["application"]
-    name: project.ide_app_target
-    version: project.qtcreator_version
+    name: "qtcreator"
+    targetName: qtc.ide_app_target
+    version: qtc.qtcreator_version
 
-    installDir: project.ide_bin_path
+    installDir: qtc.ide_bin_path
     property bool qtcRunnable: true
 
     cpp.rpaths: qbs.targetOS.contains("osx") ? ["@executable_path/../Frameworks"]
-                                             : ["$ORIGIN/../" + project.libDirName + "/qtcreator"]
+                                             : ["$ORIGIN/../" + qtc.libDirName + "/qtcreator"]
     cpp.includePaths: [
         project.sharedSourcesDir + "/qtsingleapplication",
         project.sharedSourcesDir + "/qtlockedfile",

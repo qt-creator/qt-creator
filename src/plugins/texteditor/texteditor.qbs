@@ -267,7 +267,7 @@ QtcPlugin {
 
     Group {
         name: "Tests"
-        condition: project.testsEnabled
+        condition: qtc.testsEnabled
         files: [
             "texteditor_test.cpp",
         ]

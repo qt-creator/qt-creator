@@ -20,5 +20,5 @@ QtcTool {
     cpp.dynamicLibraries: base.concat(["ssl", "bz2"])
     bundle.infoPlistFile: "Info.plist"
 
-    installDir: project.ide_libexec_path + "/ios"
+    installDir: qtc.ide_libexec_path + "/ios"
 }

@@ -57,7 +57,7 @@ QtcLibrary {
             dirName += "64";
         else
             dirName += "32";
-        return FileInfo.joinPaths(project.libDirName, dirName);
+        return FileInfo.joinPaths(qtc.libDirName, dirName);
     }
     files: [
         "common.cpp",
