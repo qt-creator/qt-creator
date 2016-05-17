@@ -420,6 +420,7 @@ bool LocatorWidget::eventFilter(QObject *obj, QEvent *event)
                 QTimer::singleShot(0, this, &LocatorWidget::setFocusToCurrentMode);
                 return true;
             }
+            break;
         case Qt::Key_Alt:
             if (ke->modifiers() == Qt::AltModifier) {
                 event->accept();
