@@ -49,7 +49,8 @@ ValgrindRunControlFactory::ValgrindRunControlFactory(QObject *parent) :
 
 bool ValgrindRunControlFactory::canRun(RunConfiguration *runConfiguration, Core::Id mode) const
 {
-    Q_UNUSED(runConfiguration);
+    if (runConfiguration && !runConfiguration->runnable().is<StandardRunnable>())
+        return false;
     return mode == CALLGRIND_RUN_MODE || mode == MEMCHECK_RUN_MODE || mode == MEMCHECK_WITH_GDB_RUN_MODE;
 }
 
