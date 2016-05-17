@@ -20,7 +20,6 @@ QtcProduct {
         "../components/importmanager",
         "../components/integration",
         "../components/itemlibrary",
-        "../components/logger",
         "../components/navigator",
         "../components/propertyeditor",
         "../components/stateseditor",

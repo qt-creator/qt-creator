@@ -26,5 +26,4 @@ INCLUDEPATH *= \
     $$PWD/components/propertyeditor \
     $$PWD/components/stateseditor \
     $$PWD/components/debugview \
-    $$PWD/components/integration \
-    $$PWD/components/logger
+    $$PWD/components/integration
