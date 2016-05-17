@@ -139,6 +139,7 @@ QtcTool {
         prefix: puppetDir + "/qml2puppet/"
         files: [
             "../qmlpuppet.qrc",
+            "Info.plist",
             "instances/anchorchangesnodeinstance.cpp",
             "instances/anchorchangesnodeinstance.h",
             "instances/behaviornodeinstance.cpp",
@@ -201,7 +202,6 @@ QtcTool {
         condition: !QtcFunctions.versionIsAtLeast(Qt.core.version, "5.6.0")
         prefix: puppetDir + "/qmlprivategate/"
         files: [
-            "Info.plist",
             "designercustomobjectdata.cpp",
             "designercustomobjectdata.h",
             "metaobject.cpp",
