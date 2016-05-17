@@ -197,7 +197,7 @@ private:
     QPointer<IEditor> m_currentEditor;
     QPointer<IEditor> m_scheduledCurrentEditor;
     QPointer<EditorView> m_currentView;
-    QTimer *m_autoSaveTimer;
+    QTimer *m_autoSaveTimer = nullptr;
 
     // actions
     QAction *m_revertToSavedAction;
@@ -233,24 +233,24 @@ private:
     QAction *m_openGraphicalShellAction;
     QAction *m_openTerminalAction;
     QAction *m_findInDirectoryAction;
-    DocumentModel::Entry *m_contextMenuEntry;
-    IEditor *m_contextMenuEditor;
+    DocumentModel::Entry *m_contextMenuEntry = nullptr;
+    IEditor *m_contextMenuEditor = nullptr;
 
-    OpenEditorsWindow *m_windowPopup;
+    OpenEditorsWindow *m_windowPopup = nullptr;
 
     QMap<QString, QVariant> m_editorStates;
-    OpenEditorsViewFactory *m_openEditorsFactory;
+    OpenEditorsViewFactory *m_openEditorsFactory = nullptr;
 
-    IDocument::ReloadSetting m_reloadSetting;
+    IDocument::ReloadSetting m_reloadSetting = IDocument::AlwaysAsk;
 
     EditorManager::WindowTitleHandler m_titleAdditionHandler;
     EditorManager::WindowTitleHandler m_titleVcsTopicHandler;
 
-    bool m_autoSaveEnabled;
-    int m_autoSaveInterval;
+    bool m_autoSaveEnabled = true;
+    int m_autoSaveInterval = 5;
 
-    bool m_warnBeforeOpeningBigFilesEnabled;
-    int m_bigFileSizeLimitInMB;
+    bool m_warnBeforeOpeningBigFilesEnabled = true;
+    int m_bigFileSizeLimitInMB = 5;
 
     QString m_placeholderText;
     QList<std::function<bool(IEditor *)>> m_closeEditorListeners;

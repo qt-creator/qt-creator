@@ -192,7 +192,6 @@ EditorFactoryLike *findById(Id id)
 
 EditorManagerPrivate::EditorManagerPrivate(QObject *parent) :
     QObject(parent),
-    m_autoSaveTimer(0),
     m_revertToSavedAction(new QAction(EditorManager::tr("Revert to Saved"), this)),
     m_saveAction(new QAction(this)),
     m_saveAsAction(new QAction(this)),
@@ -216,13 +215,7 @@ EditorManagerPrivate::EditorManagerPrivate(QObject *parent) :
     m_closeAllEditorsExceptVisibleContextAction(new QAction(EditorManager::tr("Close All Except Visible"), this)),
     m_openGraphicalShellAction(new QAction(FileUtils::msgGraphicalShellAction(), this)),
     m_openTerminalAction(new QAction(FileUtils::msgTerminalAction(), this)),
-    m_findInDirectoryAction(new QAction(FileUtils::msgFindInDirectory(), this)),
-    m_windowPopup(0),
-    m_reloadSetting(IDocument::AlwaysAsk),
-    m_autoSaveEnabled(true),
-    m_autoSaveInterval(5),
-    m_warnBeforeOpeningBigFilesEnabled(true),
-    m_bigFileSizeLimitInMB(5)
+    m_findInDirectoryAction(new QAction(FileUtils::msgFindInDirectory(), this))
 {
     d = this;
 }
