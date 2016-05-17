@@ -228,18 +228,7 @@ QtcLibrary {
         "wizard.h",
         "wizardpage.cpp",
         "wizardpage.h",
-        "images/arrow.png",
-        "images/crumblepath-segment-end.png",
-        "images/crumblepath-segment-hover-end.png",
-        "images/crumblepath-segment-hover.png",
-        "images/crumblepath-segment-selected-end.png",
-        "images/crumblepath-segment-selected.png",
-        "images/crumblepath-segment.png",
-        "images/progressindicator_big.png",
-        "images/progressindicator_big@2x.png",
-        "images/progressindicator_small.png",
-        "images/progressindicator_small@2x.png",
-        "images/triangle_vert.png",
+        "images/*.png",
     ]
 
     Group {
