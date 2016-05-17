@@ -199,7 +199,7 @@ QVariantMap TimelineModelAggregator::prevItem(int selectedModel, int selectedIte
     for (int i = 0; i < modelCount(); i++) {
         const TimelineModel *currentModel = model(i);
         if (selectedModel == i) {
-            itemIndexes[i] = (selectedItem == 0 ? currentModel->count() : selectedItem) - 1;
+            itemIndexes[i] = (selectedItem <= 0 ? currentModel->count() : selectedItem) - 1;
         } else {
             itemIndexes[i] = currentModel->lastIndex(time);
             if (itemIndexes[i] == -1)
