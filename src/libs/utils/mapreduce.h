@@ -412,9 +412,9 @@ mapReduce(ForwardIterator begin, ForwardIterator end, InitFunction &&init, MapFu
     or
     MapResultType MapFunction(const ItempType&)
 
-    void ReduceFunction(QFutureInterface<ReduceResultType>&, StateType&, const ItemType&)
+    void ReduceFunction(QFutureInterface<ReduceResultType>&, StateType&, const MapResultType&)
     or
-    ReduceResultType ReduceFunction(StateType&, const ItemType&)
+    ReduceResultType ReduceFunction(StateType&, const MapResultType&)
 
     void CleanUpFunction(QFutureInterface<ReduceResultType>&, StateType&)
     or
