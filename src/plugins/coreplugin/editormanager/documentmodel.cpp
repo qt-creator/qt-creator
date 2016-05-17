@@ -50,16 +50,16 @@ class DocumentModelPrivate : public QAbstractItemModel
 public:
     ~DocumentModelPrivate();
 
-    int columnCount(const QModelIndex &parent = QModelIndex()) const;
-    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
-    Qt::ItemFlags flags(const QModelIndex &index) const;
-    QMimeData *mimeData(const QModelIndexList &indexes) const;
-    QModelIndex parent(const QModelIndex &/*index*/) const { return QModelIndex(); }
-    int rowCount(const QModelIndex &parent = QModelIndex()) const;
-    QModelIndex index(int row, int column = 0, const QModelIndex &parent = QModelIndex()) const;
+    int columnCount(const QModelIndex &parent = QModelIndex()) const override;
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
+    Qt::ItemFlags flags(const QModelIndex &index) const override;
+    QMimeData *mimeData(const QModelIndexList &indexes) const override;
+    QModelIndex parent(const QModelIndex &/*index*/) const override { return QModelIndex(); }
+    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
+    QModelIndex index(int row, int column = 0, const QModelIndex &parent = QModelIndex()) const override;
 
-    Qt::DropActions supportedDragActions() const;
-    QStringList mimeTypes() const;
+    Qt::DropActions supportedDragActions() const override;
+    QStringList mimeTypes() const override;
 
     void addEntry(DocumentModel::Entry *entry);
     void removeDocument(int idx);

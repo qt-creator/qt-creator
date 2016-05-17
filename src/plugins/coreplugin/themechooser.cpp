@@ -83,12 +83,12 @@ public:
     {
     }
 
-    int rowCount(const QModelIndex &parent) const
+    int rowCount(const QModelIndex &parent) const override
     {
         return parent.isValid() ? 0 : m_themes.size();
     }
 
-    QVariant data(const QModelIndex &index, int role) const
+    QVariant data(const QModelIndex &index, int role) const override
     {
         if (role == Qt::DisplayRole)
             return m_themes.at(index.row()).displayName();

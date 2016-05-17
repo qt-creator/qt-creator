@@ -40,20 +40,20 @@ class ProxyModel : public QAbstractProxyModel
     Q_OBJECT
 public:
     explicit ProxyModel(QObject *parent = 0);
-    QModelIndex mapFromSource(const QModelIndex & sourceIndex) const;
-    QModelIndex mapToSource(const QModelIndex & proxyIndex) const;
+    QModelIndex mapFromSource(const QModelIndex & sourceIndex) const override;
+    QModelIndex mapToSource(const QModelIndex & proxyIndex) const override;
 
-    QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const;
-    QModelIndex parent(const QModelIndex &child) const;
-    int rowCount(const QModelIndex &parent = QModelIndex()) const;
-    int columnCount(const QModelIndex &parent = QModelIndex()) const;
+    QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const override;
+    QModelIndex parent(const QModelIndex &child) const override;
+    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
+    int columnCount(const QModelIndex &parent = QModelIndex()) const override;
 
-    void setSourceModel(QAbstractItemModel *sourceModel);
+    void setSourceModel(QAbstractItemModel *sourceModel) override;
 
     // QAbstractProxyModel::sibling is broken in Qt 5
-    QModelIndex sibling(int row, int column, const QModelIndex &idx) const;
+    QModelIndex sibling(int row, int column, const QModelIndex &idx) const override;
     // QAbstractProxyModel::supportedDragActions delegation is missing in Qt 5
-    Qt::DropActions supportedDragActions() const;
+    Qt::DropActions supportedDragActions() const override;
 
 private:
     void sourceDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);

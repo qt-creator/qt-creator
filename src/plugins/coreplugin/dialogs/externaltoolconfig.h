@@ -46,21 +46,21 @@ public:
     explicit ExternalToolModel(QObject *parent);
     ~ExternalToolModel();
 
-    int columnCount(const QModelIndex &parent = QModelIndex()) const;
-    QVariant data(const QModelIndex &modelIndex, int role = Qt::DisplayRole) const;
-    QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const;
-    QModelIndex parent(const QModelIndex &child) const;
-    int rowCount(const QModelIndex &parent = QModelIndex()) const;
-    Qt::ItemFlags flags(const QModelIndex &modelIndex) const;
-    bool setData(const QModelIndex &modelIndex, const QVariant &value, int role = Qt::EditRole);
+    int columnCount(const QModelIndex &parent = QModelIndex()) const override;
+    QVariant data(const QModelIndex &modelIndex, int role = Qt::DisplayRole) const override;
+    QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const override;
+    QModelIndex parent(const QModelIndex &child) const override;
+    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
+    Qt::ItemFlags flags(const QModelIndex &modelIndex) const override;
+    bool setData(const QModelIndex &modelIndex, const QVariant &value, int role = Qt::EditRole) override;
 
-    QMimeData *mimeData(const QModelIndexList &indexes) const;
+    QMimeData *mimeData(const QModelIndexList &indexes) const override;
     bool dropMimeData(const QMimeData *data,
                       Qt::DropAction action,
                       int row,
                       int column,
-                      const QModelIndex &parent);
-    QStringList mimeTypes() const;
+                      const QModelIndex &parent) override;
+    QStringList mimeTypes() const override;
 
     void setTools(const QMap<QString, QList<ExternalTool *> > &tools);
     QMap<QString, QList<ExternalTool *> > tools() const;
@@ -71,7 +71,7 @@ public:
     QModelIndex addCategory();
     QModelIndex addTool(const QModelIndex &atIndex);
     void removeTool(const QModelIndex &modelIndex);
-    Qt::DropActions supportedDropActions() const;
+    Qt::DropActions supportedDropActions() const override;
 private:
     QVariant data(ExternalTool *tool, int role = Qt::DisplayRole) const;
     QVariant data(const QString &category, int role = Qt::DisplayRole) const;
