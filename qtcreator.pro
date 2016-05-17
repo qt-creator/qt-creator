@@ -16,6 +16,7 @@ unix:!macx:!isEmpty(copydata):SUBDIRS += bin
 !isEmpty(BUILD_TESTS):SUBDIRS += tests
 
 DISTFILES += dist/copyright_template.txt \
+    README.md \
     $$files(dist/changes-*) \
     qtcreator.qbs \
     qbs/pluginjson/pluginjson.qbs \
