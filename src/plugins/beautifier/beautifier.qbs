@@ -29,12 +29,12 @@ QtcPlugin {
         "configurationeditor.h",
         "configurationpanel.cpp",
         "configurationpanel.h",
-        "configurationpanel.ui"
+        "configurationpanel.ui",
         "generaloptionspage.cpp",
         "generaloptionspage.h",
-        "generaloptionspage.ui"
+        "generaloptionspage.ui",
         "generalsettings.cpp",
-        "generalsettings.h"
+        "generalsettings.h",
     ]
 
     Group {
