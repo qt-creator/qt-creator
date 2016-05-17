@@ -246,6 +246,7 @@ Rectangle {
                     root.updateCursorPosition();
                 }
             } else {
+                selectedModel = -1;
                 rangeDetails.hide();
             }
             lockItemSelection = false;
