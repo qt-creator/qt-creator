@@ -18,7 +18,7 @@ osx {
 }
 include(rpath.pri)
 
-TARGET = $$qtLibraryName($$TARGET)
+TARGET = $$qtLibraryTargetName($$TARGET)
 
 TEMPLATE = lib
 CONFIG += shared dll

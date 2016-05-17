@@ -10,5 +10,5 @@ QTC_LIB_DEPENDS += extensionsystem
 include(../../../../../../qtcreator.pri)
 include(../../../../qttestrpath.pri)
 
-TARGET = $$qtLibraryName(plugin2)
+TARGET = $$qtLibraryTargetName(plugin2)
 CONFIG -= debug_and_release_target

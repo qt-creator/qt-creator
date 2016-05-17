@@ -102,5 +102,5 @@ INSTALLS += target
 MIMETYPES = $$_PRO_FILE_PWD_/$${TARGET}.mimetypes.xml
 exists($$MIMETYPES):DISTFILES += $$MIMETYPES
 
-TARGET = $$qtLibraryName($$TARGET)
+TARGET = $$qtLibraryTargetName($$TARGET)
 

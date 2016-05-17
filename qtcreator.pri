@@ -9,7 +9,7 @@ BINARY_ARTIFACTS_BRANCH = master
 # enable c++11
 CONFIG += c++11
 
-defineReplace(qtLibraryName) {
+defineReplace(qtLibraryTargetName) {
    unset(LIBRARY_NAME)
    LIBRARY_NAME = $$1
    CONFIG(debug, debug|release) {
@@ -19,6 +19,15 @@ defineReplace(qtLibraryName) {
       }
    }
    isEmpty(RET):RET = $$LIBRARY_NAME
+   return($$RET)
+}
+
+defineReplace(qtLibraryName) {
+   RET = $$qtLibraryTargetName($$1)
+   win32 {
+      VERSION_LIST = $$split(QTCREATOR_VERSION, .)
+      RET = $$RET$$first(VERSION_LIST)
+   }
    return($$RET)
 }
 

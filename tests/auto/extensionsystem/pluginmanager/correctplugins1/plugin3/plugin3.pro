@@ -9,7 +9,7 @@ DISTFILES = $$PWD/plugin.json
 QTC_LIB_DEPENDS += extensionsystem
 include(../../../../qttest.pri)
 
-TARGET = $$qtLibraryName(plugin3)
+TARGET = $$qtLibraryTargetName(plugin3)
 CONFIG -= debug_and_release_target
 
 LIBS += -L$$OUT_PWD/../plugin2
