@@ -150,10 +150,16 @@ void QmlProfilerDetailsRewriter::requestDetailsForLocation(int requestId,
 
 void QmlProfilerDetailsRewriter::reloadDocuments()
 {
-    if (!d->m_pendingDocs.isEmpty())
-        QmlJS::ModelManagerInterface::instance()->updateSourceFiles(d->m_pendingDocs, false);
-    else
+    if (!d->m_pendingDocs.isEmpty()) {
+        if (QmlJS::ModelManagerInterface *manager = QmlJS::ModelManagerInterface::instance()) {
+            manager->updateSourceFiles(d->m_pendingDocs, false);
+        } else {
+            d->m_pendingDocs.clear();
+            emit eventDetailsChanged();
+        }
+    } else {
         emit eventDetailsChanged();
+    }
 }
 
 void QmlProfilerDetailsRewriter::rewriteDetailsForLocation(QTextStream &textDoc,
