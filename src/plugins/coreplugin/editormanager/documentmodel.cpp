@@ -507,8 +507,8 @@ QVariant DocumentModelPrivate::data(const QModelIndex &index, int role) const
 {
     if (!index.isValid() || (index.column() != 0 && role < Qt::UserRole))
         return QVariant();
-    int entryIndex = index.row() - 1/*<no document>*/;
-    if (entryIndex < 0) {
+    const DocumentModel::Entry *entry = DocumentModel::entryAtRow(index.row());
+    if (!entry) {
         // <no document> entry
         switch (role) {
         case Qt::DisplayRole:
@@ -519,18 +519,17 @@ QVariant DocumentModelPrivate::data(const QModelIndex &index, int role) const
             return QVariant();
         }
     }
-    const DocumentModel::Entry *e = m_entries.at(entryIndex);
     switch (role) {
     case Qt::DisplayRole: {
-        QString name = e->displayName();
-        if (e->document->isModified())
+        QString name = entry->displayName();
+        if (entry->document->isModified())
             name += QLatin1Char('*');
         return name;
     }
     case Qt::DecorationRole:
-        return e->document->isFileReadOnly() ? lockedIcon() : QIcon();
+        return entry->document->isFileReadOnly() ? lockedIcon() : QIcon();
     case Qt::ToolTipRole:
-        return e->fileName().isEmpty() ? e->displayName() : e->fileName().toUserOutput();
+        return entry->fileName().isEmpty() ? entry->displayName() : entry->fileName().toUserOutput();
     default:
         return QVariant();
     }
