@@ -158,7 +158,7 @@ static EditorManagerPrivate *d;
 
 static QString autoSaveName(const QString &fileName)
 {
-    return fileName + QLatin1String(".autosave");
+    return fileName + ".autosave";
 }
 
 static void setFocusToEditorViewAndUnmaximizePanes(EditorView *view)
@@ -252,7 +252,7 @@ void EditorManagerPrivate::init()
     ActionContainer *mfile = ActionManager::actionContainer(Constants::M_FILE);
 
     // Revert to saved
-    m_revertToSavedAction->setIcon(QIcon::fromTheme(QLatin1String("document-revert")));
+    m_revertToSavedAction->setIcon(QIcon::fromTheme("document-revert"));
     Command *cmd = ActionManager::registerAction(m_revertToSavedAction,
                                        Constants::REVERTTOSAVED, editManagerContext);
     cmd->setAttribute(Command::CA_UpdateText);
@@ -452,7 +452,7 @@ void EditorManagerPrivate::init()
     m_windowPopup->hide();
 
     m_autoSaveTimer = new QTimer(this);
-    m_autoSaveTimer->setObjectName(QLatin1String("EditorManager::m_autoSaveTimer"));
+    m_autoSaveTimer->setObjectName("EditorManager::m_autoSaveTimer");
     connect(m_autoSaveTimer, &QTimer::timeout, this, &EditorManagerPrivate::autoSave);
     updateAutoSave();
 
@@ -508,7 +508,7 @@ bool EditorManagerPrivate::skipOpeningBigTextFile(const QString &filePath)
 
     Utils::MimeDatabase mdb;
     Utils::MimeType mimeType = mdb.mimeTypeForFile(filePath);
-    if (!mimeType.inherits(QLatin1String("text/plain")))
+    if (!mimeType.inherits("text/plain"))
         return false;
 
     const double fileSizeInMB = fileInfo.size() / 1000.0 / 1000.0;
@@ -917,7 +917,7 @@ Id EditorManagerPrivate::getOpenWithEditorId(const QString &fileName, bool *isEx
     Utils::MimeType mt = mdb.mimeTypeForFile(fileName);
     //Unable to determine mime type of fileName. Falling back to text/plain",
     if (!mt.isValid())
-        mt = mdb.mimeTypeForName(QLatin1String("text/plain"));
+        mt = mdb.mimeTypeForName("text/plain");
     QList<Id> allEditorIds;
     QStringList allEditorDisplayNames;
     QList<Id> externalEditorIds;
@@ -953,40 +953,40 @@ Id EditorManagerPrivate::getOpenWithEditorId(const QString &fileName, bool *isEx
 
 void EditorManagerPrivate::saveSettings()
 {
-    ICore::settingsDatabase()->setValue(QLatin1String(documentStatesKey), d->m_editorStates);
+    ICore::settingsDatabase()->setValue(documentStatesKey, d->m_editorStates);
 
     QSettings *qsettings = ICore::settings();
-    qsettings->setValue(QLatin1String(reloadBehaviorKey), d->m_reloadSetting);
-    qsettings->setValue(QLatin1String(autoSaveEnabledKey), d->m_autoSaveEnabled);
-    qsettings->setValue(QLatin1String(autoSaveIntervalKey), d->m_autoSaveInterval);
-    qsettings->setValue(QLatin1String(warnBeforeOpeningBigTextFilesKey),
+    qsettings->setValue(reloadBehaviorKey, d->m_reloadSetting);
+    qsettings->setValue(autoSaveEnabledKey, d->m_autoSaveEnabled);
+    qsettings->setValue(autoSaveIntervalKey, d->m_autoSaveInterval);
+    qsettings->setValue(warnBeforeOpeningBigTextFilesKey,
                         d->m_warnBeforeOpeningBigFilesEnabled);
-    qsettings->setValue(QLatin1String(bigTextFileSizeLimitKey), d->m_bigFileSizeLimitInMB);
+    qsettings->setValue(bigTextFileSizeLimitKey, d->m_bigFileSizeLimitInMB);
 
     Qt::CaseSensitivity defaultSensitivity
             = OsSpecificAspects(HostOsInfo::hostOs()).fileNameCaseSensitivity();
     Qt::CaseSensitivity sensitivity = HostOsInfo::fileNameCaseSensitivity();
     if (defaultSensitivity == sensitivity)
-        qsettings->remove(QLatin1String(fileSystemCaseSensitivityKey));
+        qsettings->remove(fileSystemCaseSensitivityKey);
     else
-        qsettings->setValue(QLatin1String(fileSystemCaseSensitivityKey), sensitivity);
+        qsettings->setValue(fileSystemCaseSensitivityKey, sensitivity);
 }
 
 void EditorManagerPrivate::readSettings()
 {
     QSettings *qs = ICore::settings();
-    if (qs->contains(QLatin1String(warnBeforeOpeningBigTextFilesKey))) {
+    if (qs->contains(warnBeforeOpeningBigTextFilesKey)) {
         d->m_warnBeforeOpeningBigFilesEnabled
-                = qs->value(QLatin1String(warnBeforeOpeningBigTextFilesKey)).toBool();
-        d->m_bigFileSizeLimitInMB = qs->value(QLatin1String(bigTextFileSizeLimitKey)).toInt();
+                = qs->value(warnBeforeOpeningBigTextFilesKey).toBool();
+        d->m_bigFileSizeLimitInMB = qs->value(bigTextFileSizeLimitKey).toInt();
     }
 
-    if (qs->contains(QLatin1String(fileSystemCaseSensitivityKey))) {
+    if (qs->contains(fileSystemCaseSensitivityKey)) {
         Qt::CaseSensitivity defaultSensitivity
                 = OsSpecificAspects(HostOsInfo::hostOs()).fileNameCaseSensitivity();
         bool ok = false;
         Qt::CaseSensitivity sensitivity = defaultSensitivity;
-        int sensitivitySetting = qs->value(QLatin1String(fileSystemCaseSensitivityKey)).toInt(&ok);
+        int sensitivitySetting = qs->value(fileSystemCaseSensitivityKey).toInt(&ok);
         if (ok) {
             switch (Qt::CaseSensitivity(sensitivitySetting)) {
             case Qt::CaseSensitive:
@@ -1003,29 +1003,29 @@ void EditorManagerPrivate::readSettings()
     }
 
     SettingsDatabase *settings = ICore::settingsDatabase();
-    if (settings->contains(QLatin1String(documentStatesKey))) {
-        d->m_editorStates = settings->value(QLatin1String(documentStatesKey))
+    if (settings->contains(documentStatesKey)) {
+        d->m_editorStates = settings->value(documentStatesKey)
             .value<QMap<QString, QVariant> >();
     }
 
-    if (settings->contains(QLatin1String(reloadBehaviorKey))) {
-        d->m_reloadSetting = (IDocument::ReloadSetting)settings->value(QLatin1String(reloadBehaviorKey)).toInt();
-        settings->remove(QLatin1String(reloadBehaviorKey));
+    if (settings->contains(reloadBehaviorKey)) {
+        d->m_reloadSetting = (IDocument::ReloadSetting)settings->value(reloadBehaviorKey).toInt();
+        settings->remove(reloadBehaviorKey);
     }
 
-    if (settings->contains(QLatin1String(autoSaveEnabledKey))) {
-        d->m_autoSaveEnabled = settings->value(QLatin1String(autoSaveEnabledKey)).toBool();
-        d->m_autoSaveInterval = settings->value(QLatin1String(autoSaveIntervalKey)).toInt();
-        settings->remove(QLatin1String(autoSaveEnabledKey));
-        settings->remove(QLatin1String(autoSaveIntervalKey));
+    if (settings->contains(autoSaveEnabledKey)) {
+        d->m_autoSaveEnabled = settings->value(autoSaveEnabledKey).toBool();
+        d->m_autoSaveInterval = settings->value(autoSaveIntervalKey).toInt();
+        settings->remove(autoSaveEnabledKey);
+        settings->remove(autoSaveIntervalKey);
     }
 
-    if (qs->contains(QLatin1String(reloadBehaviorKey)))
-        d->m_reloadSetting = (IDocument::ReloadSetting)qs->value(QLatin1String(reloadBehaviorKey)).toInt();
+    if (qs->contains(reloadBehaviorKey))
+        d->m_reloadSetting = (IDocument::ReloadSetting)qs->value(reloadBehaviorKey).toInt();
 
-    if (qs->contains(QLatin1String(autoSaveEnabledKey))) {
-        d->m_autoSaveEnabled = qs->value(QLatin1String(autoSaveEnabledKey)).toBool();
-        d->m_autoSaveInterval = qs->value(QLatin1String(autoSaveIntervalKey)).toInt();
+    if (qs->contains(autoSaveEnabledKey)) {
+        d->m_autoSaveEnabled = qs->value(autoSaveEnabledKey).toBool();
+        d->m_autoSaveInterval = qs->value(autoSaveIntervalKey).toInt();
     }
     updateAutoSave();
 }
@@ -1086,12 +1086,12 @@ EditorManager::EditorFactoryList EditorManagerPrivate::findFactories(Id editorId
         if (!mimeType.isValid()) {
             qWarning("%s unable to determine mime type of %s/%s. Falling back to text/plain",
                      Q_FUNC_INFO, fileName.toUtf8().constData(), editorId.name().constData());
-            mimeType = mdb.mimeTypeForName(QLatin1String("text/plain"));
+            mimeType = mdb.mimeTypeForName("text/plain");
         }
         // open text files > 48 MB in binary editor
         if (fileInfo.size() > EditorManager::maxTextFileSize()
-                && mimeType.name().startsWith(QLatin1String("text"))) {
-            mimeType = mdb.mimeTypeForName(QLatin1String("application/octet-stream"));
+                && mimeType.name().startsWith("text")) {
+            mimeType = mdb.mimeTypeForName("application/octet-stream");
         }
         factories = EditorManager::editorFactories(mimeType, false);
     } else {
@@ -1573,7 +1573,7 @@ void EditorManagerPrivate::updateWindowTitleForDocument(IDocument *document, QWi
 {
     QTC_ASSERT(window, return);
     QString windowTitle;
-    const QString dashSep = QLatin1String(" - ");
+    const QString dashSep(" - ");
 
     QString filePath = document ? document->filePath().toFileInfo().absoluteFilePath()
                               : QString();
@@ -2574,9 +2574,9 @@ IEditor *EditorManager::openEditorAt(const QString &fileName, int line, int colu
 EditorManager::FilePathInfo EditorManager::splitLineAndColumnNumber(const QString &fullFilePath)
 {
     // :10:2 GCC/Clang-style
-    static const auto regexp = QRegularExpression(QLatin1String("[:+](\\d+)?([:+](\\d+)?)?$"));
+    static const auto regexp = QRegularExpression("[:+](\\d+)?([:+](\\d+)?)?$");
     // (10) MSVC-style
-    static const auto vsRegexp = QRegularExpression(QLatin1String("[(]((\\d+)[)]?)?$"));
+    static const auto vsRegexp = QRegularExpression("[(]((\\d+)[)]?)?$");
     const QRegularExpressionMatch match = regexp.match(fullFilePath);
     QString postfix;
     QString filePath = fullFilePath;
@@ -2603,7 +2603,7 @@ EditorManager::FilePathInfo EditorManager::splitLineAndColumnNumber(const QStrin
 
 bool EditorManager::isAutoSaveFile(const QString &fileName)
 {
-    return fileName.endsWith(QLatin1String(".autosave"));
+    return fileName.endsWith(".autosave");
 }
 
 bool EditorManager::openExternalEditor(const QString &fileName, Id editorId)
@@ -2651,7 +2651,7 @@ static QString makeTitleUnique(QString *titlePattern)
 
         QString base = *titlePattern;
         if (base.isEmpty())
-            base = QLatin1String("unnamed$");
+            base = "unnamed$";
         if (base.contains(dollar)) {
             int i = 1;
             QSet<QString> docnames;
@@ -2927,7 +2927,7 @@ QTextCodec *EditorManager::defaultTextCodec()
 {
     QSettings *settings = ICore::settings();
     if (QTextCodec *candidate = QTextCodec::codecForName(
-            settings->value(QLatin1String(Constants::SETTINGS_DEFAULTTEXTENCODING)).toByteArray()))
+            settings->value(Constants::SETTINGS_DEFAULTTEXTENCODING).toByteArray()))
         return candidate;
     if (QTextCodec *defaultUTF8 = QTextCodec::codecForName("UTF-8"))
         return defaultUTF8;
