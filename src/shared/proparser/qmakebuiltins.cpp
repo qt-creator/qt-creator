@@ -81,7 +81,7 @@ QT_BEGIN_NAMESPACE
 #define fL1S(s) QString::fromLatin1(s)
 
 enum ExpandFunc {
-    E_INVALID = 0, E_MEMBER, E_FIRST, E_TAKE_FIRST, E_LAST, E_TAKE_LAST,
+    E_INVALID = 0, E_MEMBER, E_STR_MEMBER, E_FIRST, E_TAKE_FIRST, E_LAST, E_TAKE_LAST,
     E_SIZE, E_STR_SIZE, E_CAT, E_FROMFILE, E_EVAL, E_LIST, E_SPRINTF, E_FORMAT_NUMBER,
     E_NUM_ADD, E_JOIN, E_SPLIT, E_BASENAME, E_DIRNAME, E_SECTION,
     E_FIND, E_SYSTEM, E_UNIQUE, E_REVERSE, E_QUOTE, E_ESCAPE_EXPAND,
@@ -106,6 +106,7 @@ void QMakeEvaluator::initFunctionStatics()
         const ExpandFunc func;
     } expandInits[] = {
         { "member", E_MEMBER },
+        { "str_member", E_STR_MEMBER },
         { "first", E_FIRST },
         { "take_first", E_TAKE_FIRST },
         { "last", E_LAST },
@@ -201,6 +202,49 @@ void QMakeEvaluator::initFunctionStatics()
 static bool isTrue(const ProString &str)
 {
     return !str.compare(statics.strtrue, Qt::CaseInsensitive) || str.toInt();
+}
+
+bool
+QMakeEvaluator::getMemberArgs(const ProKey &func, int srclen, const ProStringList &args,
+                              int *start, int *end)
+{
+    *start = 0, *end = 0;
+    if (args.count() >= 2) {
+        bool ok = true;
+        const ProString &start_str = args.at(1);
+        *start = start_str.toInt(&ok);
+        if (!ok) {
+            if (args.count() == 2) {
+                int dotdot = start_str.indexOf(statics.strDotDot);
+                if (dotdot != -1) {
+                    *start = start_str.left(dotdot).toInt(&ok);
+                    if (ok)
+                        *end = start_str.mid(dotdot+2).toInt(&ok);
+                }
+            }
+            if (!ok) {
+                evalError(fL1S("%1() argument 2 (start) '%2' invalid.")
+                          .arg(func.toQString(m_tmp1), start_str.toQString(m_tmp2)));
+                return false;
+            }
+        } else {
+            *end = *start;
+            if (args.count() == 3)
+                *end = args.at(2).toInt(&ok);
+            if (!ok) {
+                evalError(fL1S("%1() argument 3 (end) '%2' invalid.")
+                          .arg(func.toQString(m_tmp1), args.at(2).toQString(m_tmp2)));
+                return false;
+            }
+        }
+    }
+    if (*start < 0)
+        *start += srclen;
+    if (*end < 0)
+        *end += srclen;
+    if (*start < 0 || *start >= srclen || *end < 0 || *end >= srclen)
+        return false;
+    return true;
 }
 
 #if defined(Q_OS_WIN) && defined(PROEVALUATOR_FULL)
@@ -667,47 +711,37 @@ ProStringList QMakeEvaluator::evaluateBuiltinExpand(
         if (args.count() < 1 || args.count() > 3) {
             evalError(fL1S("member(var, start, end) requires one to three arguments."));
         } else {
-            bool ok = true;
-            const ProStringList &var = values(map(args.at(0)));
-            int start = 0, end = 0;
-            if (args.count() >= 2) {
-                const ProString &start_str = args.at(1);
-                start = start_str.toInt(&ok);
-                if (!ok) {
-                    if (args.count() == 2) {
-                        int dotdot = start_str.indexOf(statics.strDotDot);
-                        if (dotdot != -1) {
-                            start = start_str.left(dotdot).toInt(&ok);
-                            if (ok)
-                                end = start_str.mid(dotdot+2).toInt(&ok);
-                        }
-                    }
-                    if (!ok)
-                        evalError(fL1S("member() argument 2 (start) '%2' invalid.")
-                                  .arg(start_str.toQString(m_tmp1)));
+            const ProStringList &src = values(map(args.at(0)));
+            int start, end;
+            if (getMemberArgs(func, src.size(), args, &start, &end)) {
+                ret.reserve(qAbs(end - start) + 1);
+                if (start < end) {
+                    for (int i = start; i <= end && src.size() >= i; i++)
+                        ret += src.at(i);
                 } else {
-                    end = start;
-                    if (args.count() == 3)
-                        end = args.at(2).toInt(&ok);
-                    if (!ok)
-                        evalError(fL1S("member() argument 3 (end) '%2' invalid.")
-                                  .arg(args.at(2).toQString(m_tmp1)));
+                    for (int i = start; i >= end && src.size() >= i && i >= 0; i--)
+                        ret += src.at(i);
                 }
             }
-            if (ok) {
-                if (start < 0)
-                    start += var.count();
-                if (end < 0)
-                    end += var.count();
-                if (start < 0 || start >= var.count() || end < 0 || end >= var.count()) {
-                    //nothing
-                } else if (start < end) {
-                    for (int i = start; i <= end && var.count() >= i; i++)
-                        ret.append(var[i]);
+        }
+        break;
+    case E_STR_MEMBER:
+        if (args.count() < 1 || args.count() > 3) {
+            evalError(fL1S("str_member(str, start, end) requires one to three arguments."));
+        } else {
+            const ProString &src = args.at(0);
+            int start, end;
+            if (getMemberArgs(func, src.size(), args, &start, &end)) {
+                QString res;
+                res.reserve(qAbs(end - start) + 1);
+                if (start < end) {
+                    for (int i = start; i <= end && src.size() >= i; i++)
+                        res += src.at(i);
                 } else {
-                    for (int i = start; i >= end && var.count() >= i && i >= 0; i--)
-                        ret += var[i];
+                    for (int i = start; i >= end && src.size() >= i && i >= 0; i--)
+                        res += src.at(i);
                 }
+                ret += ProString(res);
             }
         }
         break;

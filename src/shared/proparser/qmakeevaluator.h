@@ -227,6 +227,9 @@ public:
             QHash<ProKey, QSet<ProKey> > &dependencies, ProValueMap &dependees,
             QMultiMap<int, ProString> &rootSet) const;
 
+    bool getMemberArgs(const ProKey &name, int srclen, const ProStringList &args,
+                       int *start, int *end);
+
     VisitReturn writeFile(const QString &ctx, const QString &fn, QIODevice::OpenMode mode,
                           bool exe, const QString &contents);
 #ifndef QT_BOOTSTRAPPED
