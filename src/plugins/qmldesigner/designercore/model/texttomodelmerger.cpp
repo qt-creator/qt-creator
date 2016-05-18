@@ -32,7 +32,6 @@
 #include "filemanager/firstdefinitionfinder.h"
 #include "filemanager/objectlengthcalculator.h"
 #include "filemanager/qmlrefactoring.h"
-#include "filemanager/qmlwarningdialog.h"
 #include "nodeproperty.h"
 #include "propertyparser.h"
 #include "rewriterview.h"
@@ -871,6 +870,7 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
     NodeMetaInfo::clearCache();
 
     m_qrcMapping.clear();
+    m_rewriterView->clearErrorAndWarnings();
 
     const QUrl url = m_rewriterView->model()->fileUrl();
 
@@ -923,19 +923,7 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
                 setActive(false);
                 return false;
             }
-
-            /*
-             * If there are warnings and we are validating the document, then show a warning dialog.
-             * If the warning dialog is not ignored we set the warnings as errors and do not load the document
-             */
-            if (!warnings.isEmpty()
-                    && differenceHandler.isValidator()
-                    && !m_rewriterView->inErrorState()
-                    && !showWarningsDialogIgnored(warnings)) {
-                m_rewriterView->setErrors(warnings);
-                setActive(false);
-                return false;
-            }
+            m_rewriterView->setWarnings(warnings);
         }
         setupUsedImports();
 
@@ -946,7 +934,6 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
         ModelNode modelRootNode = m_rewriterView->rootModelNode();
         syncNode(modelRootNode, astRootNode, &ctxt, differenceHandler);
         m_rewriterView->positionStorage()->cleanupInvalidOffsets();
-        m_rewriterView->clearErrorAndWarnings();
 
         setActive(false);
         return true;
@@ -1946,23 +1933,6 @@ void TextToModelMerger::collectSemanticErrorsAndWarnings(QList<RewriterError> *e
                 warnings->append(RewriterError(message.toDiagnosticMessage(), fileNameUrl));
         }
     }
-}
-
-bool TextToModelMerger::showWarningsDialogIgnored(const QList<RewriterError> &warnings)
-{
-    QStringList message;
-
-    foreach (const RewriterError &warning, warnings) {
-        QString string = QStringLiteral("Line: ") +  QString::number(warning.line()) + QStringLiteral(": ")  + warning.description();
-        message << string;
-    }
-
-    QmlWarningDialog warningDialog(0, message);
-    if (warningDialog.warningsEnabled() && warningDialog.exec()) {
-        return false;
-    }
-
-    return true;
 }
 
 void TextToModelMerger::populateQrcMapping(const QString &filePath)

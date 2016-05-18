@@ -13,8 +13,7 @@ SOURCES += \
     $$PWD/objectlengthcalculator.cpp \
     $$PWD/firstdefinitionfinder.cpp \
     $$PWD/moveobjectbeforeobjectvisitor.cpp \
-    $$PWD/changeimportsvisitor.cpp \
-    $$PWD/qmlwarningdialog.cpp
+    $$PWD/changeimportsvisitor.cpp
 HEADERS += \
     $$PWD/qmlrewriter.h \
     $$PWD/qmlrefactoring.h \
@@ -30,8 +29,4 @@ HEADERS += \
     $$PWD/objectlengthcalculator.h \
     $$PWD/firstdefinitionfinder.h \
     $$PWD/moveobjectbeforeobjectvisitor.h \
-    $$PWD/changeimportsvisitor.h \
-    $$PWD/qmlwarningdialog.h
-
-FORMS += \
-    $$PWD/qmlwarningdialog.ui
+    $$PWD/changeimportsvisitor.h

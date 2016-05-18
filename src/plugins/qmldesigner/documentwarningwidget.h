@@ -30,6 +30,8 @@
 
 QT_BEGIN_NAMESPACE
 class QLabel;
+class QCheckBox;
+class QPushButton;
 QT_END_NAMESPACE
 
 
@@ -39,22 +41,39 @@ namespace Internal {
 class DocumentWarningWidget : public Utils::FakeToolTip
 {
     Q_OBJECT
+    enum Mode{
+        NoMode = -1,
+        ErrorMode,
+        WarningMode
+    };
 
 public:
     explicit DocumentWarningWidget(QWidget *parent);
 
-    void setError(const RewriterError &error);
+    void setErrors(const QList<RewriterError> &errors);
+    void setWarnings(const QList<RewriterError> &warnings);
+
+    bool warningsEnabled() const;
 signals:
     void gotoCodeClicked(const QString filePath, int codeLine, int codeColumn);
 protected:
     bool eventFilter(QObject *object, QEvent *event) override;
     void showEvent(QShowEvent *event) override;
 private:
+    void setMessages(const QList<RewriterError> &messages);
     void moveToParentCenter();
+    void refreshContent();
+    QString generateNavigateLinks();
+    void ignoreCheckBoxToggled(bool b);
 
-    QLabel *m_errorMessage;
-    QLabel *m_goToError;
-    RewriterError m_error;
+    QLabel *m_headerLabel;
+    QLabel *m_messageLabel;
+    QLabel *m_navigateLabel;
+    QCheckBox *m_ignoreWarningsCheckBox;
+    QPushButton *m_continueButton;
+    QList<RewriterError> m_messages;
+    int m_currentMessage = 0;
+    Mode m_mode = NoMode;
 };
 
 } // namespace Internal

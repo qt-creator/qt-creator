@@ -25,37 +25,80 @@
 
 #include "documentwarningwidget.h"
 
+#include <qmldesignerplugin.h>
+
 #include <QLabel>
-#include <QVBoxLayout>
+#include <QPushButton>
+#include <QCheckBox>
+#include <QBoxLayout>
 #include <QEvent>
 
 #include <QDebug>
 
 namespace QmlDesigner {
+
+static QString errorToString(const RewriterError &error)
+{
+    return QString("Line: %1: %2").arg(error.line()).arg(error.description());
+}
+
 namespace Internal {
 
-DocumentWarningWidget::DocumentWarningWidget(QWidget *parent) :
-        Utils::FakeToolTip(parent),
-        m_errorMessage(new QLabel(this)),
-        m_goToError(new QLabel(this))
+DocumentWarningWidget::DocumentWarningWidget(QWidget *parent)
+    : Utils::FakeToolTip(parent)
+    , m_headerLabel(new QLabel(this))
+    , m_messageLabel(new QLabel(this))
+    , m_navigateLabel(new QLabel(this))
+    , m_ignoreWarningsCheckBox(new QCheckBox(this))
+    , m_continueButton(new QPushButton(this))
 {
     setWindowFlags(Qt::Widget); //We only want the visual style from a ToolTip
     setForegroundRole(QPalette::ToolTipText);
     setBackgroundRole(QPalette::ToolTipBase);
-    setAutoFillBackground(true);
 
-    m_errorMessage->setForegroundRole(QPalette::ToolTipText);
-    m_goToError->setText(tr("<a href=\"goToError\">Go to error</a>"));
-    m_goToError->setForegroundRole(QPalette::Link);
-    connect(m_goToError, &QLabel::linkActivated, this, [=](const QString &/*link*/) {
-        emit gotoCodeClicked(m_error.url().toLocalFile(), m_error.line(), m_error.column() - 1);
+    QFont boldFont = font();
+    boldFont.setBold(true);
+    m_headerLabel->setFont(boldFont);
+    m_messageLabel->setForegroundRole(QPalette::ToolTipText);
+    m_messageLabel->setWordWrap(true);
+
+    m_ignoreWarningsCheckBox->setText("Ignore always these unsupported Qt Quick Designer warnings.");
+
+    connect(m_navigateLabel, &QLabel::linkActivated, this, [=](const QString &link) {
+        if (link == QLatin1String("goToCode")) {
+            RewriterError message = m_messages.at(m_currentMessage);
+            hide();
+            emit gotoCodeClicked(message.url().toLocalFile(), message.line(), message.column() - 1);
+        } else if (link == QLatin1String("previous")) {
+            --m_currentMessage;
+            refreshContent();
+        } else if (link == QLatin1String("next")) {
+            ++m_currentMessage;
+            refreshContent();
+        }
+    });
+
+    connect(m_continueButton, &QPushButton::clicked, this, [=]() {
+        hide();
+        if (m_mode == ErrorMode) {
+            RewriterError message = m_messages.at(m_currentMessage);
+            emit gotoCodeClicked(message.url().toLocalFile(), message.line(), message.column() - 1);
+        }
     });
 
     QVBoxLayout *layout = new QVBoxLayout(this);
-    layout->setMargin(20);
-    layout->setSpacing(5);
-    layout->addWidget(m_errorMessage);
-    layout->addWidget(m_goToError, 1, Qt::AlignRight);
+    layout->addWidget(m_headerLabel);
+    QVBoxLayout *messageLayout = new QVBoxLayout;
+    messageLayout->setMargin(20);
+    messageLayout->setSpacing(5);
+    messageLayout->addWidget(m_navigateLabel);
+    messageLayout->addWidget(m_messageLabel);
+    layout->addLayout(messageLayout);
+    layout->addWidget(m_ignoreWarningsCheckBox);
+    QHBoxLayout *buttonLayout = new QHBoxLayout();
+    buttonLayout->addStretch();
+    buttonLayout->addWidget(m_continueButton);
+    layout->addLayout(buttonLayout);
 
     parent->installEventFilter(this);
 }
@@ -63,6 +106,58 @@ DocumentWarningWidget::DocumentWarningWidget(QWidget *parent) :
 void DocumentWarningWidget::moveToParentCenter()
 {
     move(parentWidget()->rect().center() - rect().center());
+}
+
+void DocumentWarningWidget::refreshContent()
+{
+
+    if (m_mode == ErrorMode) {
+        m_headerLabel->setText(tr("Cannot open this QML document because of an error in the QML file:"));
+        m_ignoreWarningsCheckBox->hide();
+        m_continueButton->setText(tr("OK"));
+    } else {
+        m_headerLabel->setText(tr("This QML file contains features which are not supported by Qt Quick Designer at:"));
+        m_ignoreWarningsCheckBox->setChecked(!warningsEnabled());
+        m_ignoreWarningsCheckBox->show();
+        m_continueButton->setText(tr("Ignore"));
+    }
+
+    QString messageString;
+    RewriterError message = m_messages.at(m_currentMessage);
+    if (message.type() == RewriterError::ParseError) {
+        messageString += errorToString(message);
+        m_navigateLabel->setText(generateNavigateLinks());
+        m_navigateLabel->show();
+    } else {
+        messageString += message.toString();
+        m_navigateLabel->hide();
+    }
+
+    m_messageLabel->setText(messageString);
+    resize(layout()->totalSizeHint());
+}
+
+QString DocumentWarningWidget::generateNavigateLinks()
+{
+    static QString link(QLatin1String("<a href=\"%1\">%2</a>"));
+    QStringList links;
+    if (m_messages.count() > 1) {
+        if (m_currentMessage != 0)
+            links << link.arg(QLatin1String("previous"), tr("Previous"));
+        else
+            links << tr("Previous");
+
+        if (m_messages.count() - 1 > m_currentMessage)
+            links << link.arg(QLatin1String("next"), tr("Next"));
+        else
+            links << tr("Next");
+    }
+
+    if (m_mode == ErrorMode)
+        links << link.arg(QLatin1String("goToCode"), tr("Go to error"));
+    else
+        links << link.arg(QLatin1String("goToCode"), tr("Go to warning"));
+    return links.join(QLatin1String(" | "));
 }
 
 bool DocumentWarningWidget::eventFilter(QObject *object, QEvent *event)
@@ -76,25 +171,43 @@ bool DocumentWarningWidget::eventFilter(QObject *object, QEvent *event)
 void DocumentWarningWidget::showEvent(QShowEvent *event)
 {
     moveToParentCenter();
+    refreshContent();
     Utils::FakeToolTip::showEvent(event);
 }
 
-void DocumentWarningWidget::setError(const RewriterError &error)
+bool DocumentWarningWidget::warningsEnabled() const
 {
-    m_error = error;
-    QString str;
-    if (error.type() == RewriterError::ParseError) {
-        str = QString("%3 (%1:%2)").arg(error.line()).arg(error.column()).arg(error.description());
-        m_goToError->show();
-    }  else if (error.type() == RewriterError::InternalError) {
-        str = tr("Internal error (%1)").arg(error.description());
-        m_goToError->hide();
-    }
+    DesignerSettings settings = QmlDesignerPlugin::instance()->settings();
+    return settings.value(DesignerSettingsKey::WARNING_FOR_FEATURES_IN_DESIGNER).toBool();
+}
 
-    str.prepend(tr("Cannot open this QML document because of an error in the QML file:\n\n"));
+void DocumentWarningWidget::ignoreCheckBoxToggled(bool b)
+{
+    DesignerSettings settings = QmlDesignerPlugin::instance()->settings();
+    settings.insert(DesignerSettingsKey::WARNING_FOR_FEATURES_IN_DESIGNER, b);
+    QmlDesignerPlugin::instance()->setSettings(settings);
+}
 
-    m_errorMessage->setText(str);
-    resize(layout()->totalSizeHint());
+void DocumentWarningWidget::setErrors(const QList<RewriterError> &errors)
+{
+    Q_ASSERT(!errors.empty());
+    m_mode = ErrorMode;
+    setMessages(errors);
+}
+
+void DocumentWarningWidget::setWarnings(const QList<RewriterError> &warnings)
+{
+    Q_ASSERT(!warnings.empty());
+    m_mode = WarningMode;
+    setMessages(warnings);
+}
+
+void DocumentWarningWidget::setMessages(const QList<RewriterError> &messages)
+{
+    m_messages.clear();
+    m_messages = messages;
+    m_currentMessage = 0;
+    refreshContent();
 }
 
 } // namespace Internal

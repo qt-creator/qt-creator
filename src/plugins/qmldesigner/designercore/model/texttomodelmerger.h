@@ -136,8 +136,6 @@ private:
     void collectImportErrors(QList<RewriterError> *errors);
     void collectSemanticErrorsAndWarnings(QList<RewriterError> *errors,
                                           QList<RewriterError> *warnings);
-    bool showWarningsDialogIgnored(const QList<RewriterError> &warnings);
-
     void populateQrcMapping(const QString &filePath);
 
     static QString textAt(const QmlJS::Document::Ptr &doc,

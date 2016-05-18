@@ -367,9 +367,11 @@ void QmlDesignerPlugin::activateAutoSynchronization()
         selectModelNodeUnderTextCursor();
         d->mainWidget->enableWidgets();
         d->mainWidget->setupNavigatorHistory(currentDesignDocument()->textEditor());
+        if (currentDesignDocument()->hasQmlParseWarnings())
+            d->mainWidget->showWarningMessageBox(currentDesignDocument()->qmlParseWarnings());
     } else {
         d->mainWidget->disableWidgets();
-        d->mainWidget->showMessageBox(errors + currentDesignDocument()->qmlParseWarnings());
+        d->mainWidget->showErrorMessageBox(errors);
     }
 
     currentDesignDocument()->updateSubcomponentManager();

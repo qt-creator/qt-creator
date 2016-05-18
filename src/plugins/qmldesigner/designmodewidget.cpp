@@ -242,7 +242,7 @@ void DesignModeWidget::updateErrorStatus(const QList<RewriterError> &errors)
         enableWidgets();
      } else if (!errors.isEmpty()) {
         disableWidgets();
-        showMessageBox(errors);
+        showErrorMessageBox(errors);
     }
 }
 
@@ -551,10 +551,17 @@ QWidget *DesignModeWidget::createCrumbleBarFrame()
     return frame;
 }
 
-void DesignModeWidget::showMessageBox(const QList<RewriterError> &errors)
+void DesignModeWidget::showErrorMessageBox(const QList<RewriterError> &errors)
 {
     Q_ASSERT(!errors.isEmpty());
-    m_warningWidget->setError(errors.first());
+    m_warningWidget->setErrors(errors);
+    m_warningWidget->setVisible(true);
+}
+
+void DesignModeWidget::showWarningMessageBox(const QList<RewriterError> &warnings)
+{
+    Q_ASSERT(!warnings.isEmpty());
+    m_warningWidget->setWarnings(warnings);
     m_warningWidget->setVisible(true);
 }
 
