@@ -1221,7 +1221,11 @@ void DebuggerEngine::notifyDebuggerProcessFinished(int exitCode,
         notifyEngineSpontaneousShutdown();
         break;
     default: {
-        notifyEngineIll(); // Initiate shutdown sequence
+        // Initiate shutdown sequence
+        if (isMasterEngine())
+            notifyEngineIll();
+        else
+            masterEngine()->notifyInferiorIll();
         const QString msg = exitStatus == QProcess::CrashExit ?
                 tr("The %1 process terminated.") :
                 tr("The %2 process terminated unexpectedly (exit code %1).").arg(exitCode);
