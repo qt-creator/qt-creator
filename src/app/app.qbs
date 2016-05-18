@@ -76,7 +76,7 @@ QtcProduct {
 
     Group {
         condition: qbs.targetOS.contains("osx")
-        fileTagsFilter: ["infoplist", "pkginfo", "compiled_assetcatalog"]
+        fileTagsFilter: ["aggregate_infoplist", "pkginfo", "compiled_assetcatalog"]
         qbs.install: true
         qbs.installSourceBase: product.buildDirectory
     }
