@@ -24,8 +24,17 @@
 ############################################################################
 
 def startCreatorTryingClang():
-    # start Qt Creator with enabled ClangCodeModel plugin (without modifying settings)
-    startApplication("qtcreator -load ClangCodeModel" + SettingsPath)
+    try:
+        # start Qt Creator with enabled ClangCodeModel plugin (without modifying settings)
+        startApplication("qtcreator -load ClangCodeModel" + SettingsPath)
+    except RuntimeError:
+        t, v = sys.exc_info()[:2]
+        strv = str(v)
+        if strv == "startApplication() failed":
+            test.fatal("%s. Creator built without ClangCodeModel?" % strv)
+        else:
+            test.fatal("Exception caught", "%s(%s)" % (str(t), strv))
+        return False
     errorMsg = "{type='QMessageBox' unnamed='1' visible='1' windowTitle='Qt Creator'}"
     errorOK = "{text='OK' type='QPushButton' unnamed='1' visible='1' window=%s}" % errorMsg
     if not waitFor("object.exists(errorOK)", 5000):
