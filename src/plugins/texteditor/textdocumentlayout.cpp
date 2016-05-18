@@ -655,34 +655,27 @@ void TextDocumentLayout::FoldValidator::process(QTextBlock block)
     if (!previous.isValid())
         return;
 
-    if ((TextDocumentLayout::isFolded(previous)
-            && !TextDocumentLayout::canFold(previous))
-            || (!TextDocumentLayout::isFolded(previous)
-                && TextDocumentLayout::canFold(previous)
-                && previous.isVisible()
-                && !block.isVisible())) {
-        TextDocumentLayout::setFolded(previous, !TextDocumentLayout::isFolded(previous));
-    }
+    const bool preIsFolded = isFolded(previous);
+    const bool preCanFold = canFold(previous);
+    const bool isVisible = block.isVisible();
 
-    if (TextDocumentLayout::isFolded(previous) && !m_insideFold)
-        m_insideFold = TextDocumentLayout::foldingIndent(block);
+    if (preIsFolded && !preCanFold)
+        setFolded(previous, false);
+    else if (!preIsFolded && preCanFold && previous.isVisible() && !isVisible)
+        setFolded(previous, true);
 
-    bool toggleVisibility = false;
-    if (m_insideFold) {
-        if (TextDocumentLayout::foldingIndent(block) >= m_insideFold) {
-            if (block.isVisible())
-                toggleVisibility = true;
-        } else {
+    if (isFolded(previous) && !m_insideFold)
+        m_insideFold = foldingIndent(block);
+
+    bool shouldBeVisible = m_insideFold == 0;
+    if (!shouldBeVisible) {
+        shouldBeVisible = foldingIndent(block) < m_insideFold;
+        if (shouldBeVisible)
             m_insideFold = 0;
-            if (!block.isVisible())
-                toggleVisibility = true;
-        }
-    } else if (!block.isVisible()) {
-        toggleVisibility = true;
     }
 
-    if (toggleVisibility) {
-        block.setVisible(!block.isVisible());
+    if (shouldBeVisible != isVisible) {
+        block.setVisible(shouldBeVisible);
         block.setLineCount(block.isVisible() ? qMax(1, block.layout()->lineCount()) : 0);
         m_requestDocUpdate = true;
     }
