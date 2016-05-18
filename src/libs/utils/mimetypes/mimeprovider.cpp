@@ -75,12 +75,12 @@ MimeProviderBase::MimeProviderBase(MimeDatabasePrivate *db)
 {
 }
 
-int qmime_secondsBetweenChecks = 5;
+static int mime_secondsBetweenChecks = 5;
 
 bool MimeProviderBase::shouldCheck()
 {
     const QDateTime now = QDateTime::currentDateTime();
-    if (m_lastCheck.isValid() && m_lastCheck.secsTo(now) < qmime_secondsBetweenChecks)
+    if (m_lastCheck.isValid() && m_lastCheck.secsTo(now) < mime_secondsBetweenChecks)
         return false;
     m_lastCheck = now;
     return true;
