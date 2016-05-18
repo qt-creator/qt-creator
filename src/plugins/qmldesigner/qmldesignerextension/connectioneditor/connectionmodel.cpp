@@ -73,12 +73,6 @@ bool isConnection(const QmlDesigner::ModelNode &modelNode)
 
 }
 
-enum ColumnRoles {
-    TargetModelNodeRow = 0,
-    TargetPropertyNameRow = 1,
-    SourceRow = 2
-};
-
 } //namespace
 
 namespace QmlDesigner {
@@ -436,17 +430,17 @@ QWidget *ConnectionDelegate::createEditor(QWidget *parent, const QStyleOptionVie
     }
 
     switch (index.column()) {
-    case TargetModelNodeRow: {
+    case ConnectionModel::TargetModelNodeRow: {
         foreach (const ModelNode &modelNode, connectionModel->connectionView()->allModelNodes()) {
             if (!modelNode.id().isEmpty()) {
                 connectionComboBox->addItem(modelNode.id());
             }
         }
     } break;
-    case TargetPropertyNameRow: {
+    case ConnectionModel::TargetPropertyNameRow: {
         connectionComboBox->addItems(prependOnForSignalHandler(connectionModel->getSignalsForRow(index.row())));
     } break;
-    case SourceRow: {
+    case ConnectionModel::SourceRow: {
         ModelNode rootModelNode = connectionModel->connectionView()->rootModelNode();
         if (QmlItemNode::isValidQmlItemNode(rootModelNode) && !rootModelNode.id().isEmpty()) {
 

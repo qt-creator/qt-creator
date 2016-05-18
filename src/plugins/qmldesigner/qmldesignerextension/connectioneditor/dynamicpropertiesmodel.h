@@ -49,6 +49,12 @@ class DynamicPropertiesModel : public QStandardItemModel
     Q_OBJECT
 
 public:
+    enum ColumnRoles {
+        TargetModelNodeRow = 0,
+        PropertyNameRow = 1,
+        PropertyTypeRow = 2,
+        PropertyValueRow = 3
+    };
     DynamicPropertiesModel(ConnectionView *parent = 0);
     void bindingPropertyChanged(const BindingProperty &bindingProperty);
     void variantPropertyChanged(const VariantProperty &variantProperty);

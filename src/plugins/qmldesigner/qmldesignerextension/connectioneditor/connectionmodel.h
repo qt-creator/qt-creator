@@ -47,8 +47,12 @@ class ConnectionView;
 class ConnectionModel : public QStandardItemModel
 {
     Q_OBJECT
-
 public:
+    enum ColumnRoles {
+        TargetModelNodeRow = 0,
+        TargetPropertyNameRow = 1,
+        SourceRow = 2
+    };
     ConnectionModel(ConnectionView *parent = 0);
     void resetModel();
     SignalHandlerProperty signalHandlerPropertyForRow(int rowNumber) const;

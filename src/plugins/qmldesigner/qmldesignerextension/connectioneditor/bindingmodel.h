@@ -46,6 +46,12 @@ class BindingModel : public QStandardItemModel
     Q_OBJECT
 
 public:
+    enum ColumnRoles {
+        TargetModelNodeRow = 0,
+        TargetPropertyNameRow = 1,
+        SourceModelNodeRow = 2,
+        SourcePropertyNameRow = 3
+    };
     BindingModel(ConnectionView *parent = 0);
     void bindingChanged(const BindingProperty &bindingProperty);
     void bindingRemoved(const BindingProperty &bindingProperty);

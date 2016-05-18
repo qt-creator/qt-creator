@@ -43,14 +43,6 @@
 #include <QTimer>
 
 namespace {
-
-enum ColumnRoles {
-    TargetModelNodeRow = 0,
-    TargetPropertyNameRow = 1,
-    SourceModelNodeRow = 2,
-    SourcePropertyNameRow = 3
-};
-
 bool compareBindingProperties(const QmlDesigner::BindingProperty &bindingProperty01, const QmlDesigner::BindingProperty &bindingProperty02)
 {
     if (bindingProperty01.parentModelNode() != bindingProperty02.parentModelNode())
@@ -524,7 +516,7 @@ QWidget *BindingDelegate::createEditor(QWidget *parent, const QStyleOptionViewIt
         BindingProperty bindingProperty = model->bindingPropertyForRow(index.row());
 
         switch (index.column()) {
-        case TargetModelNodeRow: {
+        case BindingModel::TargetModelNodeRow: {
             return 0; //no editor
             foreach (const ModelNode &modelNode, model->connectionView()->allModelNodes()) {
                 if (!modelNode.id().isEmpty()) {
@@ -532,10 +524,10 @@ QWidget *BindingDelegate::createEditor(QWidget *parent, const QStyleOptionViewIt
                 }
             }
         } break;
-        case TargetPropertyNameRow: {
+        case BindingModel::TargetPropertyNameRow: {
             bindingComboBox->addItems(model->possibleTargetProperties(bindingProperty));
         } break;
-        case SourceModelNodeRow: {
+        case BindingModel::SourceModelNodeRow: {
             foreach (const ModelNode &modelNode, model->connectionView()->allModelNodes()) {
                 if (!modelNode.id().isEmpty()) {
                     bindingComboBox->addItem(modelNode.id());
@@ -544,7 +536,7 @@ QWidget *BindingDelegate::createEditor(QWidget *parent, const QStyleOptionViewIt
             if (!bindingProperty.parentModelNode().isRootNode())
                 bindingComboBox->addItem(QLatin1String("parent"));
         } break;
-        case SourcePropertyNameRow: {
+        case BindingModel::SourcePropertyNameRow: {
             bindingComboBox->addItems(model->possibleSourceProperties(bindingProperty));
         } break;
         default: qWarning() << "BindingDelegate::createEditor column" << index.column();

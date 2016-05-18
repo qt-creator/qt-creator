@@ -45,13 +45,6 @@
 
 namespace {
 
-enum ColumnRoles {
-    TargetModelNodeRow = 0,
-    PropertyNameRow = 1,
-    PropertyTypeRow = 2,
-    PropertyValueRow = 3
-};
-
 bool compareBindingProperties(const QmlDesigner::BindingProperty &bindingProperty01, const QmlDesigner::BindingProperty &bindingProperty02)
 {
     if (bindingProperty01.parentModelNode() != bindingProperty02.parentModelNode())
@@ -766,13 +759,13 @@ QWidget *DynamicPropertiesDelegate::createEditor(QWidget *parent, const QStyleOp
         BindingProperty bindingProperty = model->bindingPropertyForRow(index.row());
 
         switch (index.column()) {
-        case TargetModelNodeRow: {
+        case DynamicPropertiesModel::TargetModelNodeRow: {
             return 0; //no editor
         } break;
-        case PropertyNameRow: {
+        case DynamicPropertiesModel::PropertyNameRow: {
             return QStyledItemDelegate::createEditor(parent, option, index);
         } break;
-        case PropertyTypeRow: {
+        case DynamicPropertiesModel::PropertyTypeRow: {
 
             DynamicPropertiesComboBox *dynamicPropertiesComboBox = new DynamicPropertiesComboBox(parent);
             connect(dynamicPropertiesComboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, [=]() {
@@ -795,7 +788,7 @@ QWidget *DynamicPropertiesDelegate::createEditor(QWidget *parent, const QStyleOp
             dynamicPropertiesComboBox->addItem(QLatin1String("variant"));
             return dynamicPropertiesComboBox;
         } break;
-        case PropertyValueRow: {
+        case DynamicPropertiesModel::PropertyValueRow: {
             return QStyledItemDelegate::createEditor(parent, option, index);
         } break;
         default: qWarning() << "BindingDelegate::createEditor column" << index.column();
