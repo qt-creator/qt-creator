@@ -28,6 +28,7 @@
 
 #include "clangstaticanalyzerutils.h"
 
+#include <QDir>
 #include <QThread>
 
 namespace ClangStaticAnalyzer {
@@ -63,7 +64,8 @@ ClangStaticAnalyzerConfigWidget::ClangStaticAnalyzerConfigWidget(
     chooser->setValidationFunction(validator);
     bool clangExeIsSet;
     const QString clangExe = settings->clangExecutable(&clangExeIsSet);
-    chooser->lineEdit()->setPlaceholderText(settings->defaultClangExecutable());
+    chooser->lineEdit()->setPlaceholderText(QDir::toNativeSeparators(
+                                                settings->defaultClangExecutable()));
     if (clangExeIsSet) {
         chooser->setPath(clangExe);
     } else {

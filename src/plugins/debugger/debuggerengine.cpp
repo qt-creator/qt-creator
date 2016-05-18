@@ -2051,6 +2051,15 @@ void DebuggerEngine::updateItem(const QByteArray &iname)
     doUpdateLocals(params);
 }
 
+void DebuggerEngine::updateWatchData(const QByteArray &iname)
+{
+    // This is used in cases where re-evaluation is ok for the same iname
+    // e.g. when changing the expression in a watcher.
+    UpdateParameters params;
+    params.partialVariable = iname;
+    doUpdateLocals(params);
+}
+
 void DebuggerEngine::expandItem(const QByteArray &iname)
 {
     updateItem(iname);
