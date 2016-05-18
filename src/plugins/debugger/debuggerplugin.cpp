@@ -163,6 +163,8 @@
 #include <cpptools/cpptoolstestcase.h>
 #include <cpptools/projectinfo.h>
 
+#include <utils/executeondestruction.h>
+
 #include <QTest>
 #include <QSignalSpy>
 #include <QTestEventLoop>
@@ -3675,6 +3677,9 @@ void DebuggerUnitTests::testStateMachine()
     ProjectExplorerPlugin::buildProject(SessionManager::startupProject());
     loop.exec();
 
+    ExecuteOnDestruction guard([] () {
+        EditorManager::closeAllEditors(false);
+    });
     DebuggerRunParameters rp;
     Target *t = SessionManager::startupProject()->activeTarget();
     QVERIFY(t);
@@ -3691,7 +3696,6 @@ void DebuggerUnitTests::testStateMachine()
     });
 
     QTestEventLoop::instance().enterLoop(5);
-    EditorManager::closeAllEditors(false);
 }
 
 
