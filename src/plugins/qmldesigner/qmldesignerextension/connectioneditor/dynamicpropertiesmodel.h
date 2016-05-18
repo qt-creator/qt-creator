@@ -95,8 +95,8 @@ private slots:
 private:
     QList<ModelNode> m_selectedModelNodes;
     ConnectionView *m_connectionView;
-    bool m_lock;
-    bool m_handleDataChanged;
+    bool m_lock = false;
+    bool m_handleDataChanged = false;
     QString m_exceptionError;
 
 };

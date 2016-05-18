@@ -117,13 +117,27 @@ namespace QmlDesigner {
 
 namespace Internal {
 
-DynamicPropertiesModel::DynamicPropertiesModel(ConnectionView *parent) :
-    QStandardItemModel(parent),
-    m_connectionView(parent),
-    m_lock(false),
-    m_handleDataChanged(false)
+DynamicPropertiesModel::DynamicPropertiesModel(ConnectionView *parent)
+    : QStandardItemModel(parent)
+    , m_connectionView(parent)
 {
-    connect(this, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(handleDataChanged(QModelIndex,QModelIndex)));
+    connect(this, &QStandardItemModel::dataChanged, this, &DynamicPropertiesModel::handleDataChanged);
+}
+
+void DynamicPropertiesModel::resetModel()
+{
+    beginResetModel();
+    clear();
+    setHorizontalHeaderLabels(QStringList()
+                              << tr("Item")
+                              << tr("Property")
+                              << tr("Property Type")
+                              << tr("Property Value"));
+
+    foreach (const ModelNode modelNode, m_selectedModelNodes)
+        addModelNode(modelNode);
+
+    endResetModel();
 }
 
 void DynamicPropertiesModel::bindingPropertyChanged(const BindingProperty &bindingProperty)
@@ -321,27 +335,6 @@ void DynamicPropertiesModel::deleteDynamicPropertyByRow(int rowNumber)
     }
 
     resetModel();
-}
-
-void DynamicPropertiesModel::resetModel()
-{
-    beginResetModel();
-    clear();
-
-    QStringList labels;
-
-    labels << tr("Item");
-    labels <<tr("Property");
-    labels <<tr("Property Type");
-    labels <<tr("Property Value");
-
-    setHorizontalHeaderLabels(labels);
-
-    foreach (const ModelNode modelNode, m_selectedModelNodes) {
-        addModelNode(modelNode);
-    }
-
-    endResetModel();
 }
 
 void DynamicPropertiesModel::addProperty(const QVariant &propertyValue,

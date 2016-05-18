@@ -80,7 +80,7 @@ private slots:
 
 private:
     ConnectionView *m_connectionView;
-    bool m_lock;
+    bool m_lock = false;
     QString m_exceptionError;
 };
 

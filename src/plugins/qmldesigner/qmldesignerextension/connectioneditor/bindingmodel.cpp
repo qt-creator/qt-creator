@@ -41,13 +41,27 @@ namespace QmlDesigner {
 
 namespace Internal {
 
-BindingModel::BindingModel(ConnectionView *parent) :
-    QStandardItemModel(parent),
-    m_connectionView(parent),
-    m_lock(false),
-    m_handleDataChanged(false)
+BindingModel::BindingModel(ConnectionView *parent)
+    : QStandardItemModel(parent)
+    , m_connectionView(parent)
 {
-    connect(this, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(handleDataChanged(QModelIndex,QModelIndex)));
+    connect(this, &QStandardItemModel::dataChanged, this, &BindingModel::handleDataChanged);
+}
+
+void BindingModel::resetModel()
+{
+    beginResetModel();
+    clear();
+    setHorizontalHeaderLabels(QStringList()
+                              << tr("Item")
+                              << tr("Property")
+                              << tr("Source Item")
+                              << tr("Source Property"));
+
+    foreach (const ModelNode modelNode, m_selectedModelNodes)
+        addModelNode(modelNode);
+
+    endResetModel();
 }
 
 void BindingModel::bindingChanged(const BindingProperty &bindingProperty)
@@ -223,27 +237,6 @@ void BindingModel::addBindingForCurrentNode()
     } else {
         qWarning() << " BindingModel::addBindingForCurrentNode not one node selected";
     }
-}
-
-void BindingModel::resetModel()
-{
-    beginResetModel();
-    clear();
-
-    QStringList labels;
-
-    labels << tr("Item");
-    labels <<tr("Property");
-    labels <<tr("Source Item");
-    labels <<tr("Source Property");
-
-    setHorizontalHeaderLabels(labels);
-
-    foreach (const ModelNode modelNode, m_selectedModelNodes) {
-        addModelNode(modelNode);
-    }
-
-    endResetModel();
 }
 
 void BindingModel::addBindingProperty(const BindingProperty &property)

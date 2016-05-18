@@ -64,30 +64,26 @@ namespace QmlDesigner {
 
 namespace Internal {
 
-ConnectionModel::ConnectionModel(ConnectionView *parent) : QStandardItemModel(parent), m_connectionView(parent), m_lock(false)
+ConnectionModel::ConnectionModel(ConnectionView *parent)
+    : QStandardItemModel(parent)
+    , m_connectionView(parent)
 {
-    connect(this, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(handleDataChanged(QModelIndex,QModelIndex)));
+    connect(this, &QStandardItemModel::dataChanged, this, &ConnectionModel::handleDataChanged);
 }
 
 void ConnectionModel::resetModel()
 {
     beginResetModel();
     clear();
-
-    QStringList labels;
-
-    labels << tr("Target");
-    labels << tr("Signal Handler");
-    labels <<tr("Action");
-
-    setHorizontalHeaderLabels(labels);
+    setHorizontalHeaderLabels(QStringList()
+                              << tr("Target")
+                              << tr("Signal Handler")
+                              << tr("Action"));
 
     if (connectionView()->isAttached()) {
-        foreach (const ModelNode modelNode, connectionView()->allModelNodes()) {
+        foreach (const ModelNode modelNode, connectionView()->allModelNodes())
             addModelNode(modelNode);
-        }
     }
-
 
     const int columnWidthTarget = connectionView()->connectionTableView()->columnWidth(0);
     connectionView()->connectionTableView()->setColumnWidth(0, columnWidthTarget - 80);
@@ -163,6 +159,7 @@ void ConnectionModel::removeModelNode(const ModelNode &modelNode)
 
 void ConnectionModel::removeConnection(const ModelNode & /*modelNode*/)
 {
+    Q_ASSERT_X(false, "not implemented", Q_FUNC_INFO);
 }
 
 void ConnectionModel::updateSource(int row)
@@ -235,8 +232,6 @@ void ConnectionModel::updateTargetNode(int rowNumber)
     } else {
         qWarning() << "BindingModel::updatePropertyName invalid target id";
     }
-
-
 }
 
 void ConnectionModel::updateCustomData(QStandardItem *item, const SignalHandlerProperty &signalHandlerProperty)
