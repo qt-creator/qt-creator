@@ -42,18 +42,6 @@
 #include <QStyleFactory>
 #include <QTimer>
 
-namespace {
-bool compareBindingProperties(const QmlDesigner::BindingProperty &bindingProperty01, const QmlDesigner::BindingProperty &bindingProperty02)
-{
-    if (bindingProperty01.parentModelNode() != bindingProperty02.parentModelNode())
-        return false;
-    if (bindingProperty01.name() != bindingProperty02.name())
-        return false;
-    return true;
-}
-
-} //internal namespace
-
 namespace QmlDesigner {
 
 namespace Internal {
