@@ -447,8 +447,8 @@ static QStringList splitArgsUnix(const QString &args, bool abortOnMeta,
                     }
                 }
                 for (int i = 0; i < val.length(); i++) {
-                    QChar cc = val.unicode()[i];
-                    if (cc == 9 || cc == 10 || cc == 32) {
+                    const QChar cc = val.unicode()[i];
+                    if (cc.unicode() == 9 || cc.unicode() == 10 || cc.unicode() == 32) {
                         if (hadWord) {
                             ret += cret;
                             cret.clear();
