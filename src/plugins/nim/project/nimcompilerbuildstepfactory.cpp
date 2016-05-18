@@ -42,32 +42,21 @@ NimCompilerBuildStepFactory::NimCompilerBuildStepFactory(QObject *parent)
     : IBuildStepFactory(parent)
 {}
 
-bool NimCompilerBuildStepFactory::canCreate(BuildStepList *parent, Core::Id id) const
+QList<BuildStepInfo> NimCompilerBuildStepFactory::availableSteps(BuildStepList *parent) const
 {
-    QTC_ASSERT(parent, return false);
     if (parent->id() != ProjectExplorer::Constants::BUILDSTEPS_BUILD)
-        return false;
-    if (!qobject_cast<NimBuildConfiguration *>(parent->parent()))
-        return false;
-    return id == Constants::C_NIMCOMPILERBUILDSTEP_ID;
+        return {};
+
+    auto bc = qobject_cast<NimBuildConfiguration *>(parent->parent());
+    if (!bc || bc->hasNimCompilerBuildStep())
+        return {};
+
+    return {{ Constants::C_NIMCOMPILERBUILDSTEP_ID, tr("Nim Compiler Build Step") }};
 }
 
-BuildStep *NimCompilerBuildStepFactory::create(BuildStepList *parent, Core::Id id)
+BuildStep *NimCompilerBuildStepFactory::create(BuildStepList *parent, Core::Id)
 {
-    if (!canCreate(parent, id))
-        return nullptr;
     return new NimCompilerBuildStep(parent);
-}
-
-bool NimCompilerBuildStepFactory::canClone(BuildStepList *parent, BuildStep *buildStep) const
-{
-    QTC_ASSERT(parent, return false);
-    QTC_ASSERT(buildStep, return false);
-    if (parent->id() != ProjectExplorer::Constants::BUILDSTEPS_BUILD)
-        return false;
-    if (!qobject_cast<NimBuildConfiguration *>(parent->parent()))
-        return false;
-    return buildStep->id() == Constants::C_NIMCOMPILERBUILDSTEP_ID;
 }
 
 BuildStep *NimCompilerBuildStepFactory::clone(BuildStepList *parent, BuildStep *buildStep)
@@ -76,35 +65,6 @@ BuildStep *NimCompilerBuildStepFactory::clone(BuildStepList *parent, BuildStep *
     QTC_ASSERT(buildStep, return nullptr);
     std::unique_ptr<NimCompilerBuildStep> result(new NimCompilerBuildStep(parent));
     return result->fromMap(buildStep->toMap()) ? result.release() : nullptr;
-}
-
-bool NimCompilerBuildStepFactory::canRestore(BuildStepList *parent, const QVariantMap &map) const
-{
-    return canCreate(parent, idFromMap(map));
-}
-
-BuildStep *NimCompilerBuildStepFactory::restore(BuildStepList *parent, const QVariantMap &map)
-{
-    if (!canRestore(parent, map))
-        return nullptr;
-    std::unique_ptr<NimCompilerBuildStep> buildStep(new NimCompilerBuildStep(parent));
-    if (buildStep->fromMap(map))
-        return buildStep.release();
-    return nullptr;
-}
-
-QList<Core::Id> NimCompilerBuildStepFactory::availableCreationIds(BuildStepList *parent) const
-{
-    if (parent->id() == ProjectExplorer::Constants::BUILDSTEPS_BUILD)
-        if (auto bc = qobject_cast<NimBuildConfiguration *>(parent->parent()))
-            if (!bc->hasNimCompilerBuildStep())
-                return { Constants::C_NIMCOMPILERBUILDSTEP_ID };
-    return {};
-}
-
-QString NimCompilerBuildStepFactory::displayNameForId(Core::Id id) const
-{
-    return id == Constants::C_NIMCOMPILERBUILDSTEP_ID ? tr("Nim Compiler Build Step") : QString();
 }
 
 }

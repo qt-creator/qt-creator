@@ -837,66 +837,26 @@ QMakeStepFactory::QMakeStepFactory(QObject *parent) :
 {
 }
 
-bool QMakeStepFactory::canCreate(BuildStepList *parent, Core::Id id) const
+QList<BuildStepInfo> QMakeStepFactory::availableSteps(BuildStepList *parent) const
 {
     if (parent->id() != ProjectExplorer::Constants::BUILDSTEPS_BUILD)
-        return false;
+        return {};
     if (!qobject_cast<QmakeBuildConfiguration *>(parent->parent()))
-        return false;
-    return id == QMAKE_BS_ID;
+        return {};
+
+    return {{ QMAKE_BS_ID, tr("qmake"), BuildStepInfo::UniqueStep }};
 }
 
 ProjectExplorer::BuildStep *QMakeStepFactory::create(BuildStepList *parent, Core::Id id)
 {
-    if (!canCreate(parent, id))
-        return nullptr;
+    Q_UNUSED(id)
     return new QMakeStep(parent);
-}
-
-bool QMakeStepFactory::canClone(BuildStepList *parent, BuildStep *source) const
-{
-    return canCreate(parent, source->id());
 }
 
 ProjectExplorer::BuildStep *QMakeStepFactory::clone(BuildStepList *parent, ProjectExplorer::BuildStep *source)
 {
-    if (!canClone(parent, source))
-        return nullptr;
     return new QMakeStep(parent, qobject_cast<QMakeStep *>(source));
 }
-
-bool QMakeStepFactory::canRestore(BuildStepList *parent, const QVariantMap &map) const
-{
-    return canCreate(parent, ProjectExplorer::idFromMap(map));
-}
-
-ProjectExplorer::BuildStep *QMakeStepFactory::restore(BuildStepList *parent, const QVariantMap &map)
-{
-    if (!canRestore(parent, map))
-        return nullptr;
-    QMakeStep *bs = new QMakeStep(parent);
-    if (bs->fromMap(map))
-        return bs;
-    delete bs;
-    return nullptr;
-}
-
-QList<Core::Id> QMakeStepFactory::availableCreationIds(ProjectExplorer::BuildStepList *parent) const
-{
-    if (parent->id() == ProjectExplorer::Constants::BUILDSTEPS_BUILD)
-        if (QmakeBuildConfiguration *bc = qobject_cast<QmakeBuildConfiguration *>(parent->parent()))
-            if (!bc->qmakeStep())
-                return QList<Core::Id>() << Core::Id(QMAKE_BS_ID);
-    return QList<Core::Id>();
-}
-
-QString QMakeStepFactory::displayNameForId(Core::Id id) const
-{
-    if (id == QMAKE_BS_ID)
-        return tr("qmake");
-    return QString();
-}
-
 
 QMakeStepConfig::TargetArchConfig QMakeStepConfig::targetArchFor(const Abi &targetAbi, const BaseQtVersion *version)
 {

@@ -356,68 +356,25 @@ QbsInstallStepFactory::QbsInstallStepFactory(QObject *parent) :
     ProjectExplorer::IBuildStepFactory(parent)
 { }
 
-QList<Core::Id> QbsInstallStepFactory::availableCreationIds(ProjectExplorer::BuildStepList *parent) const
+void QbsInstallStepFactory::availableSteps(QList<ProjectExplorer::BuildStepInfo> *steps,
+                                                ProjectExplorer::BuildStepList *parent) const
 {
     if (parent->id() == ProjectExplorer::Constants::BUILDSTEPS_DEPLOY
             && qobject_cast<ProjectExplorer::DeployConfiguration *>(parent->parent())
             && qobject_cast<QbsProject *>(parent->target()->project()))
-        return QList<Core::Id>() << Core::Id(Constants::QBS_INSTALLSTEP_ID);
-    return QList<Core::Id>();
-}
-
-QString QbsInstallStepFactory::displayNameForId(Core::Id id) const
-{
-    if (id == Core::Id(Constants::QBS_INSTALLSTEP_ID))
-        return tr("Qbs Install");
-    return QString();
-}
-
-bool QbsInstallStepFactory::canCreate(ProjectExplorer::BuildStepList *parent, Core::Id id) const
-{
-    if (parent->id() != Core::Id(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY)
-            || !qobject_cast<ProjectExplorer::DeployConfiguration *>(parent->parent())
-            || !qobject_cast<QbsProject *>(parent->target()->project()))
-        return false;
-    return id == Core::Id(Constants::QBS_INSTALLSTEP_ID);
+        steps->append({ Constants::QBS_INSTALLSTEP_ID, tr("Qbs Install") });
 }
 
 ProjectExplorer::BuildStep *QbsInstallStepFactory::create(ProjectExplorer::BuildStepList *parent,
                                                           const Core::Id id)
 {
-    if (!canCreate(parent, id))
-        return 0;
+    Q_UNUSED(id);
     return new QbsInstallStep(parent);
-}
-
-bool QbsInstallStepFactory::canRestore(ProjectExplorer::BuildStepList *parent, const QVariantMap &map) const
-{
-    return canCreate(parent, ProjectExplorer::idFromMap(map));
-}
-
-ProjectExplorer::BuildStep *QbsInstallStepFactory::restore(ProjectExplorer::BuildStepList *parent,
-                                                           const QVariantMap &map)
-{
-    if (!canRestore(parent, map))
-        return 0;
-    QbsInstallStep *bs = new QbsInstallStep(parent);
-    if (!bs->fromMap(map)) {
-        delete bs;
-        return 0;
-    }
-    return bs;
-}
-
-bool QbsInstallStepFactory::canClone(ProjectExplorer::BuildStepList *parent,
-                                     ProjectExplorer::BuildStep *product) const
-{
-    return canCreate(parent, product->id());
 }
 
 ProjectExplorer::BuildStep *QbsInstallStepFactory::clone(ProjectExplorer::BuildStepList *parent,
                                                          ProjectExplorer::BuildStep *product)
 {
-    if (!canClone(parent, product))
-        return 0;
     return new QbsInstallStep(parent, static_cast<QbsInstallStep *>(product));
 }
 

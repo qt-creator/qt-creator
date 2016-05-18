@@ -41,59 +41,28 @@ NimCompilerCleanStepFactory::NimCompilerCleanStepFactory(QObject *parent)
     : IBuildStepFactory(parent)
 {}
 
-bool NimCompilerCleanStepFactory::canCreate(BuildStepList *parent, Core::Id id) const
+QList<BuildStepInfo> NimCompilerCleanStepFactory::availableSteps(BuildStepList *parent) const
 {
     if (parent->id() != ProjectExplorer::Constants::BUILDSTEPS_CLEAN)
-        return false;
-    if (!qobject_cast<NimBuildConfiguration *>(parent->parent()))
-        return false;
-    return id == Constants::C_NIMCOMPILERCLEANSTEP_ID;
+        return {};
+
+    auto bc = qobject_cast<NimBuildConfiguration *>(parent->parent());
+    if (!bc || bc->hasNimCompilerCleanStep())
+        return {};
+
+    return {{ Constants::C_NIMCOMPILERCLEANSTEP_ID,
+              tr(Nim::Constants::C_NIMCOMPILERCLEANSTEP_DISPLAY),
+              BuildStepInfo::Unclonable }};
 }
 
-BuildStep *NimCompilerCleanStepFactory::create(BuildStepList *parent, Core::Id id)
+BuildStep *NimCompilerCleanStepFactory::create(BuildStepList *parent, Core::Id)
 {
-    if (!canCreate(parent, id))
-        return nullptr;
     return new NimCompilerCleanStep(parent);
-}
-
-bool NimCompilerCleanStepFactory::canClone(BuildStepList *, BuildStep *) const
-{
-    return false;
 }
 
 BuildStep *NimCompilerCleanStepFactory::clone(BuildStepList *, BuildStep *)
 {
     return nullptr;
-}
-
-bool NimCompilerCleanStepFactory::canRestore(BuildStepList *parent, const QVariantMap &map) const
-{
-    return canCreate(parent, idFromMap(map));
-}
-
-BuildStep *NimCompilerCleanStepFactory::restore(BuildStepList *parent, const QVariantMap &map)
-{
-    if (!canRestore(parent, map))
-        return nullptr;
-    std::unique_ptr<NimCompilerCleanStep> cleanStep(new NimCompilerCleanStep(parent));
-    if (cleanStep->fromMap(map))
-        return cleanStep.release();
-    return nullptr;
-}
-
-QList<Core::Id> NimCompilerCleanStepFactory::availableCreationIds(BuildStepList *parent) const
-{
-    if (parent->id() == ProjectExplorer::Constants::BUILDSTEPS_CLEAN)
-        if (auto bc = qobject_cast<NimBuildConfiguration *>(parent->parent()))
-            if (!bc->hasNimCompilerCleanStep())
-                return { Constants::C_NIMCOMPILERCLEANSTEP_ID };
-    return {};
-}
-
-QString NimCompilerCleanStepFactory::displayNameForId(Core::Id id) const
-{
-    return id == Constants::C_NIMCOMPILERCLEANSTEP_ID ? tr(Nim::Constants::C_NIMCOMPILERCLEANSTEP_DISPLAY) : QString();
 }
 
 }

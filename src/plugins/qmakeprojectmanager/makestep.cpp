@@ -482,17 +482,17 @@ MakeStepFactory::MakeStepFactory(QObject *parent) :
 {
 }
 
-bool MakeStepFactory::canCreate(BuildStepList *parent, Core::Id id) const
+QList<BuildStepInfo> MakeStepFactory::availableSteps(BuildStepList *parent) const
 {
-    if (parent->target()->project()->id() == Constants::QMAKEPROJECT_ID)
-        return id == MAKESTEP_BS_ID;
-    return false;
+    if (parent->target()->project()->id() != Constants::QMAKEPROJECT_ID)
+        return {};
+
+    return {{ MAKESTEP_BS_ID, tr("Make") }};
 }
 
 BuildStep *MakeStepFactory::create(BuildStepList *parent, Core::Id id)
 {
-    if (!canCreate(parent, id))
-        return 0;
+    Q_UNUSED(id);
     MakeStep *step = new MakeStep(parent);
     if (parent->id() == ProjectExplorer::Constants::BUILDSTEPS_CLEAN) {
         step->setClean(true);
@@ -501,44 +501,16 @@ BuildStep *MakeStepFactory::create(BuildStepList *parent, Core::Id id)
     return step;
 }
 
-bool MakeStepFactory::canClone(BuildStepList *parent, BuildStep *source) const
-{
-    return canCreate(parent, source->id());
-}
-
 BuildStep *MakeStepFactory::clone(BuildStepList *parent, BuildStep *source)
 {
-    if (!canClone(parent, source))
-        return 0;
     return new MakeStep(parent, static_cast<MakeStep *>(source));
-}
-
-bool MakeStepFactory::canRestore(BuildStepList *parent, const QVariantMap &map) const
-{
-    return canCreate(parent, idFromMap(map));
 }
 
 BuildStep *MakeStepFactory::restore(BuildStepList *parent, const QVariantMap &map)
 {
-    if (!canRestore(parent, map))
-        return 0;
     MakeStep *bs(new MakeStep(parent));
     if (bs->fromMap(map))
         return bs;
     delete bs;
     return 0;
-}
-
-QList<Core::Id> MakeStepFactory::availableCreationIds(BuildStepList *parent) const
-{
-    if (parent->target()->project()->id() == Constants::QMAKEPROJECT_ID)
-        return QList<Core::Id>() << Core::Id(MAKESTEP_BS_ID);
-    return QList<Core::Id>();
-}
-
-QString MakeStepFactory::displayNameForId(Core::Id id) const
-{
-    if (id == MAKESTEP_BS_ID)
-        return tr("Make");
-    return QString();
 }

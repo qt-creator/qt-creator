@@ -139,59 +139,22 @@ DeployConfiguration *WinRtDeployConfigurationFactory::clone(Target *parent,
     return 0;
 }
 
-QList<Core::Id> WinRtDeployStepFactory::availableCreationIds(BuildStepList *parent) const
+QList<BuildStepInfo> WinRtDeployStepFactory::availableSteps(BuildStepList *parent) const
 {
-    QList<Core::Id> ids;
-    if (parent->id() != ProjectExplorer::Constants::BUILDSTEPS_DEPLOY)
-        return ids;
-    if (!parent->target()->project()->supportsKit(parent->target()->kit()))
-        return ids;
-    if (!parent->contains(Constants::WINRT_BUILD_STEP_DEPLOY))
-        ids << Constants::WINRT_BUILD_STEP_DEPLOY;
-    return ids;
-}
+    if (parent->id() != ProjectExplorer::Constants::BUILDSTEPS_DEPLOY
+            || !parent->target()->project()->supportsKit(parent->target()->kit())
+            || parent->contains(Constants::WINRT_BUILD_STEP_DEPLOY))
+        return {};
 
-QString WinRtDeployStepFactory::displayNameForId(Core::Id id) const
-{
-    if (id == Constants::WINRT_BUILD_STEP_DEPLOY) {
-        return QCoreApplication::translate("WinRt::Internal::WinRtDeployStepFactory",
-                                           "Run windeployqt");
-    }
-    return QString();
-}
-
-bool WinRtDeployStepFactory::canCreate(BuildStepList *parent, Core::Id id) const
-{
-    return availableCreationIds(parent).contains(id);
+    return {{ Constants::WINRT_BUILD_STEP_DEPLOY,
+              QCoreApplication::translate("WinRt::Internal::WinRtDeployStepFactory", "Run windeployqt"),
+              BuildStepInfo::Unclonable }};
 }
 
 BuildStep *WinRtDeployStepFactory::create(BuildStepList *parent, Core::Id id)
 {
-    if (id == Constants::WINRT_BUILD_STEP_DEPLOY)
-        return new WinRtPackageDeploymentStep(parent);
-    return 0;
-}
-
-bool WinRtDeployStepFactory::canRestore(BuildStepList *parent, const QVariantMap &map) const
-{
-    return canCreate(parent, idFromMap(map));
-}
-
-BuildStep *WinRtDeployStepFactory::restore(BuildStepList *parent, const QVariantMap &map)
-{
-    BuildStep *bs = create(parent, idFromMap(map));
-    if (!bs->fromMap(map)) {
-        delete bs;
-        bs = 0;
-    }
-    return bs;
-}
-
-bool WinRtDeployStepFactory::canClone(BuildStepList *parent, BuildStep *source) const
-{
-    Q_UNUSED(parent);
-    Q_UNUSED(source);
-    return false;
+    Q_UNUSED(id)
+    return new WinRtPackageDeploymentStep(parent);
 }
 
 BuildStep *WinRtDeployStepFactory::clone(BuildStepList *parent, BuildStep *source)

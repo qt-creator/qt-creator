@@ -512,63 +512,26 @@ QString CMakeBuildStepConfigWidget::summaryText() const
 CMakeBuildStepFactory::CMakeBuildStepFactory(QObject *parent) : IBuildStepFactory(parent)
 { }
 
-bool CMakeBuildStepFactory::canCreate(BuildStepList *parent, Core::Id id) const
+QList<BuildStepInfo> CMakeBuildStepFactory::availableSteps(BuildStepList *parent) const
 {
-    if (parent->target()->project()->id() == Constants::CMAKEPROJECT_ID)
-        return id == MS_ID;
-    return false;
+    if (parent->target()->project()->id() != Constants::CMAKEPROJECT_ID)
+        return {};
+
+    return {{ MS_ID, tr("Build", "Display name for CMakeProjectManager::CMakeBuildStep id.") }};
 }
 
 BuildStep *CMakeBuildStepFactory::create(BuildStepList *parent, Core::Id id)
 {
-    if (!canCreate(parent, id))
-        return 0;
+    Q_UNUSED(id);
     auto step = new CMakeBuildStep(parent);
     if (parent->id() == ProjectExplorer::Constants::BUILDSTEPS_CLEAN)
         step->setBuildTarget(CMakeBuildStep::cleanTarget());
     return step;
 }
 
-bool CMakeBuildStepFactory::canClone(BuildStepList *parent, BuildStep *source) const
-{
-    return canCreate(parent, source->id());
-}
-
 BuildStep *CMakeBuildStepFactory::clone(BuildStepList *parent, BuildStep *source)
 {
-    if (!canClone(parent, source))
-        return 0;
     return new CMakeBuildStep(parent, static_cast<CMakeBuildStep *>(source));
-}
-
-bool CMakeBuildStepFactory::canRestore(BuildStepList *parent, const QVariantMap &map) const
-{
-    return canCreate(parent, idFromMap(map));
-}
-
-BuildStep *CMakeBuildStepFactory::restore(BuildStepList *parent, const QVariantMap &map)
-{
-    if (!canRestore(parent, map))
-        return 0;
-    auto bs = new CMakeBuildStep(parent);
-    if (bs->fromMap(map))
-        return bs;
-    delete bs;
-    return 0;
-}
-
-QList<Core::Id> CMakeBuildStepFactory::availableCreationIds(BuildStepList *parent) const
-{
-    if (parent->target()->project()->id() == Constants::CMAKEPROJECT_ID)
-        return QList<Core::Id>() << Core::Id(MS_ID);
-    return QList<Core::Id>();
-}
-
-QString CMakeBuildStepFactory::displayNameForId(Core::Id id) const
-{
-    if (id == MS_ID)
-        return tr("Build", "Display name for CMakeProjectManager::CMakeBuildStep id.");
-    return QString();
 }
 
 void CMakeBuildStep::processStarted()

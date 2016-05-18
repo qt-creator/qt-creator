@@ -55,65 +55,25 @@ const char AUTORECONF_ADDITIONAL_ARGUMENTS_KEY[] = "AutotoolsProjectManager.Auto
 AutoreconfStepFactory::AutoreconfStepFactory(QObject *parent) : IBuildStepFactory(parent)
 { }
 
-QList<Core::Id> AutoreconfStepFactory::availableCreationIds(BuildStepList *parent) const
+QList<BuildStepInfo> AutoreconfStepFactory::availableSteps(BuildStepList *parent) const
 {
-    if (!canHandle(parent))
-        return QList<Core::Id>();
-    return QList<Core::Id>() << Core::Id(AUTORECONF_STEP_ID);
-}
+    if (parent->target()->project()->id() != Constants::AUTOTOOLS_PROJECT_ID
+            || parent->id() != ProjectExplorer::Constants::BUILDSTEPS_BUILD)
+        return {};
 
-QString AutoreconfStepFactory::displayNameForId(Core::Id id) const
-{
-    if (id == AUTORECONF_STEP_ID)
-        return tr("Autoreconf", "Display name for AutotoolsProjectManager::AutoreconfStep id.");
-    return QString();
-}
-
-bool AutoreconfStepFactory::canCreate(BuildStepList *parent, Core::Id id) const
-{
-    return canHandle(parent) && Core::Id(AUTORECONF_STEP_ID) == id;
+    QString display = tr("Autoreconf", "Display name for AutotoolsProjectManager::AutoreconfStep id.");
+    return {{ AUTORECONF_STEP_ID, display }};
 }
 
 BuildStep *AutoreconfStepFactory::create(BuildStepList *parent, Core::Id id)
 {
-    if (!canCreate(parent, id))
-        return 0;
+    Q_UNUSED(id);
     return new AutoreconfStep(parent);
-}
-
-bool AutoreconfStepFactory::canClone(BuildStepList *parent, BuildStep *source) const
-{
-    return canCreate(parent, source->id());
 }
 
 BuildStep *AutoreconfStepFactory::clone(BuildStepList *parent, BuildStep *source)
 {
-    if (!canClone(parent, source))
-        return 0;
     return new AutoreconfStep(parent, static_cast<AutoreconfStep *>(source));
-}
-
-bool AutoreconfStepFactory::canRestore(BuildStepList *parent, const QVariantMap &map) const
-{
-    return canCreate(parent, idFromMap(map));
-}
-
-BuildStep *AutoreconfStepFactory::restore(BuildStepList *parent, const QVariantMap &map)
-{
-    if (!canRestore(parent, map))
-        return 0;
-    AutoreconfStep *bs = new AutoreconfStep(parent);
-    if (bs->fromMap(map))
-        return bs;
-    delete bs;
-    return 0;
-}
-
-bool AutoreconfStepFactory::canHandle(BuildStepList *parent) const
-{
-    if (parent->target()->project()->id() == Constants::AUTOTOOLS_PROJECT_ID)
-        return parent->id() == ProjectExplorer::Constants::BUILDSTEPS_BUILD;
-    return false;
 }
 
 /////////////////////////

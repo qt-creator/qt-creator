@@ -42,42 +42,25 @@ GenericRemoteLinuxDeployStepFactory::GenericRemoteLinuxDeployStepFactory(QObject
 {
 }
 
-QList<Core::Id> GenericRemoteLinuxDeployStepFactory::availableCreationIds(BuildStepList *parent) const
+QList<BuildStepInfo> GenericRemoteLinuxDeployStepFactory::availableSteps(BuildStepList *parent) const
 {
-    QList<Core::Id> ids;
     if (!qobject_cast<RemoteLinuxDeployConfiguration *>(parent->parent()))
-        return ids;
-    ids << TarPackageCreationStep::stepId() << UploadAndInstallTarPackageStep::stepId()
-        << GenericDirectUploadStep::stepId()
-        << GenericRemoteLinuxCustomCommandDeploymentStep::stepId()
-        << RemoteLinuxCheckForFreeDiskSpaceStep::stepId();
-    return ids;
-}
+        return {};
 
-QString GenericRemoteLinuxDeployStepFactory::displayNameForId(Core::Id id) const
-{
-    if (id == TarPackageCreationStep::stepId())
-        return TarPackageCreationStep::displayName();
-    if (id == UploadAndInstallTarPackageStep::stepId())
-        return UploadAndInstallTarPackageStep::displayName();
-    if (id == GenericDirectUploadStep::stepId())
-        return GenericDirectUploadStep::displayName();
-    if (id == GenericRemoteLinuxCustomCommandDeploymentStep::stepId())
-        return GenericRemoteLinuxCustomCommandDeploymentStep::stepDisplayName();
-    if (id == RemoteLinuxCheckForFreeDiskSpaceStep::stepId())
-        return RemoteLinuxCheckForFreeDiskSpaceStep::stepDisplayName();
-    return QString();
-}
-
-bool GenericRemoteLinuxDeployStepFactory::canCreate(BuildStepList *parent, Core::Id id) const
-{
-    return availableCreationIds(parent).contains(id);
+    return {{ TarPackageCreationStep::stepId(),
+              TarPackageCreationStep::displayName() },
+            { UploadAndInstallTarPackageStep::stepId(),
+              UploadAndInstallTarPackageStep::displayName() },
+            { GenericDirectUploadStep::stepId(),
+              GenericDirectUploadStep::displayName() },
+            { GenericRemoteLinuxCustomCommandDeploymentStep::stepId(),
+              GenericRemoteLinuxCustomCommandDeploymentStep::stepDisplayName() },
+            { RemoteLinuxCheckForFreeDiskSpaceStep::stepId(),
+              RemoteLinuxCheckForFreeDiskSpaceStep::stepDisplayName() }};
 }
 
 BuildStep *GenericRemoteLinuxDeployStepFactory::create(BuildStepList *parent, Core::Id id)
 {
-    Q_ASSERT(canCreate(parent, id));
-
     if (id == TarPackageCreationStep::stepId())
         return new TarPackageCreationStep(parent);
     if (id == UploadAndInstallTarPackageStep::stepId())
@@ -89,30 +72,6 @@ BuildStep *GenericRemoteLinuxDeployStepFactory::create(BuildStepList *parent, Co
     if (id == RemoteLinuxCheckForFreeDiskSpaceStep::stepId())
         return new RemoteLinuxCheckForFreeDiskSpaceStep(parent);
     return 0;
-}
-
-bool GenericRemoteLinuxDeployStepFactory::canRestore(BuildStepList *parent,
-    const QVariantMap &map) const
-{
-    return canCreate(parent, idFromMap(map));
-}
-
-BuildStep *GenericRemoteLinuxDeployStepFactory::restore(BuildStepList *parent,
-    const QVariantMap &map)
-{
-    Q_ASSERT(canRestore(parent, map));
-
-    BuildStep * const step = create(parent, idFromMap(map));
-    if (!step->fromMap(map)) {
-        delete step;
-        return 0;
-    }
-    return step;
-}
-
-bool GenericRemoteLinuxDeployStepFactory::canClone(BuildStepList *parent, BuildStep *product) const
-{
-    return canCreate(parent, product->id());
 }
 
 BuildStep *GenericRemoteLinuxDeployStepFactory::clone(BuildStepList *parent, BuildStep *product)

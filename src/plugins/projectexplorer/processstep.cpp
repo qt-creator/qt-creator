@@ -154,59 +154,21 @@ bool ProcessStep::fromMap(const QVariantMap &map)
 // ProcessStepFactory
 //*******
 
-bool ProcessStepFactory::canCreate(BuildStepList *parent, Core::Id id) const
+QList<BuildStepInfo> ProcessStepFactory::availableSteps(BuildStepList *parent) const
 {
     Q_UNUSED(parent);
-    return id == PROCESS_STEP_ID;
+    return {{ PROCESS_STEP_ID, ProcessStep::tr("Custom Process Step", "item in combobox") }};
 }
 
 BuildStep *ProcessStepFactory::create(BuildStepList *parent, Core::Id id)
 {
-    if (!canCreate(parent, id))
-        return nullptr;
+    Q_UNUSED(id);
     return new ProcessStep(parent);
-}
-
-bool ProcessStepFactory::canClone(BuildStepList *parent, BuildStep *bs) const
-{
-    return canCreate(parent, bs->id());
 }
 
 BuildStep *ProcessStepFactory::clone(BuildStepList *parent, BuildStep *bs)
 {
-    if (!canClone(parent, bs))
-        return nullptr;
     return new ProcessStep(parent, static_cast<ProcessStep *>(bs));
-}
-
-bool ProcessStepFactory::canRestore(BuildStepList *parent, const QVariantMap &map) const
-{
-    Core::Id id = ProjectExplorer::idFromMap(map);
-    return canCreate(parent, id);
-}
-
-BuildStep *ProcessStepFactory::restore(BuildStepList *parent, const QVariantMap &map)
-{
-    if (!canRestore(parent, map))
-        return nullptr;
-
-    auto bs = new ProcessStep(parent);
-    if (bs->fromMap(map))
-        return bs;
-    delete bs;
-    return nullptr;
-}
-
-QList<Core::Id> ProcessStepFactory::availableCreationIds(BuildStepList *parent) const
-{
-    Q_UNUSED(parent);
-    return QList<Core::Id>() << Core::Id(PROCESS_STEP_ID);
-}
-QString ProcessStepFactory::displayNameForId(Core::Id id) const
-{
-    if (id == PROCESS_STEP_ID)
-        return ProcessStep::tr("Custom Process Step", "item in combobox");
-    return QString();
 }
 
 //*******

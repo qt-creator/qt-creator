@@ -46,60 +46,23 @@ IosDeployStepFactory::IosDeployStepFactory(QObject *parent)
 {
 }
 
-QList<Core::Id> IosDeployStepFactory::availableCreationIds(BuildStepList *parent) const
+QList<BuildStepInfo> IosDeployStepFactory::availableSteps(BuildStepList *parent) const
 {
-    if (parent->id() != ProjectExplorer::Constants::BUILDSTEPS_DEPLOY)
-        return QList<Core::Id>();
-    if (!IosManager::supportsIos(parent->target()))
-        return QList<Core::Id>();
-    if (parent->contains(IosDeployStep::Id))
-        return QList<Core::Id>();
-    return QList<Core::Id>() << IosDeployStep::Id;
-}
-
-QString IosDeployStepFactory::displayNameForId(Core::Id id) const
-{
-    if (id == IosDeployStep::Id)
-        return tr("Deploy to iOS device or emulator");
-    return QString();
-}
-
-bool IosDeployStepFactory::canCreate(BuildStepList *parent, Core::Id id) const
-{
-    return availableCreationIds(parent).contains(id);
+    if (parent->id() == ProjectExplorer::Constants::BUILDSTEPS_DEPLOY
+            && IosManager::supportsIos(parent->target())
+            && !parent->contains(IosDeployStep::Id))
+        return {{ IosDeployStep::Id, tr("Deploy to iOS device or emulator") }};
+    return {};
 }
 
 BuildStep *IosDeployStepFactory::create(BuildStepList *parent, Core::Id id)
 {
-    Q_ASSERT(canCreate(parent, id));
     Q_UNUSED(id);
     return new IosDeployStep(parent);
 }
 
-bool IosDeployStepFactory::canRestore(BuildStepList *parent, const QVariantMap &map) const
-{
-    return canCreate(parent, idFromMap(map));
-}
-
-BuildStep *IosDeployStepFactory::restore(BuildStepList *parent, const QVariantMap &map)
-{
-    Q_ASSERT(canRestore(parent, map));
-    IosDeployStep * const step = new IosDeployStep(parent);
-    if (!step->fromMap(map)) {
-        delete step;
-        return 0;
-    }
-    return step;
-}
-
-bool IosDeployStepFactory::canClone(BuildStepList *parent, BuildStep *product) const
-{
-    return canCreate(parent, product->id());
-}
-
 BuildStep *IosDeployStepFactory::clone(BuildStepList *parent, BuildStep *product)
 {
-    Q_ASSERT(canClone(parent, product));
     return new IosDeployStep(parent, static_cast<IosDeployStep *>(product));
 }
 

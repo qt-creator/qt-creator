@@ -56,65 +56,25 @@ const char AUTOGEN_STEP_ID[] = "AutotoolsProjectManager.AutogenStep";
 AutogenStepFactory::AutogenStepFactory(QObject *parent) : IBuildStepFactory(parent)
 { }
 
-QList<Core::Id> AutogenStepFactory::availableCreationIds(BuildStepList *parent) const
+QList<BuildStepInfo> AutogenStepFactory::availableSteps(BuildStepList *parent) const
 {
-    if (!canHandle(parent))
-        return QList<Core::Id>();
-    return QList<Core::Id>() << Core::Id(AUTOGEN_STEP_ID);
-}
+    if (parent->target()->project()->id() != Constants::AUTOTOOLS_PROJECT_ID
+            || parent->id() != ProjectExplorer::Constants::BUILDSTEPS_BUILD)
+        return {};
 
-QString AutogenStepFactory::displayNameForId(Core::Id id) const
-{
-    if (id == AUTOGEN_STEP_ID)
-        return tr("Autogen", "Display name for AutotoolsProjectManager::AutogenStep id.");
-    return QString();
-}
-
-bool AutogenStepFactory::canCreate(BuildStepList *parent, Core::Id id) const
-{
-    return canHandle(parent) && Core::Id(AUTOGEN_STEP_ID) == id;
+    QString display = tr("Autogen", "Display name for AutotoolsProjectManager::AutogenStep id.");
+    return {{ AUTOGEN_STEP_ID, display }};
 }
 
 BuildStep *AutogenStepFactory::create(BuildStepList *parent, Core::Id id)
 {
-    if (!canCreate(parent, id))
-        return 0;
+    Q_UNUSED(id)
     return new AutogenStep(parent);
-}
-
-bool AutogenStepFactory::canClone(BuildStepList *parent, BuildStep *source) const
-{
-    return canCreate(parent, source->id());
 }
 
 BuildStep *AutogenStepFactory::clone(BuildStepList *parent, BuildStep *source)
 {
-    if (!canClone(parent, source))
-        return 0;
     return new AutogenStep(parent, static_cast<AutogenStep *>(source));
-}
-
-bool AutogenStepFactory::canRestore(BuildStepList *parent, const QVariantMap &map) const
-{
-    return canCreate(parent, idFromMap(map));
-}
-
-BuildStep *AutogenStepFactory::restore(BuildStepList *parent, const QVariantMap &map)
-{
-    if (!canRestore(parent, map))
-        return 0;
-    AutogenStep *bs = new AutogenStep(parent);
-    if (bs->fromMap(map))
-        return bs;
-    delete bs;
-    return 0;
-}
-
-bool AutogenStepFactory::canHandle(BuildStepList *parent) const
-{
-    if (parent->target()->project()->id() == Constants::AUTOTOOLS_PROJECT_ID)
-        return parent->id() == ProjectExplorer::Constants::BUILDSTEPS_BUILD;
-    return false;
 }
 
 ////////////////////////

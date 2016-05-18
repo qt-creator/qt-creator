@@ -56,6 +56,7 @@
 #include <QMessageBox>
 
 
+using namespace ProjectExplorer;
 using namespace Android;
 using namespace Android::Internal;
 
@@ -73,60 +74,24 @@ AndroidDeployQtStepFactory::AndroidDeployQtStepFactory(QObject *parent)
 {
 }
 
-QList<Core::Id> AndroidDeployQtStepFactory::availableCreationIds(ProjectExplorer::BuildStepList *parent) const
+QList<BuildStepInfo> AndroidDeployQtStepFactory::availableSteps(BuildStepList *parent) const
 {
-    if (parent->id() != ProjectExplorer::Constants::BUILDSTEPS_DEPLOY)
-        return QList<Core::Id>();
-    if (!AndroidManager::supportsAndroid(parent->target()))
-        return QList<Core::Id>();
-    if (parent->contains(AndroidDeployQtStep::Id))
-        return QList<Core::Id>();
-    return QList<Core::Id>() << AndroidDeployQtStep::Id;
-}
+    if (parent->id() != ProjectExplorer::Constants::BUILDSTEPS_DEPLOY
+            || !AndroidManager::supportsAndroid(parent->target())
+            || parent->contains(AndroidDeployQtStep::Id))
+        return {};
 
-QString AndroidDeployQtStepFactory::displayNameForId(Core::Id id) const
-{
-    if (id == AndroidDeployQtStep::Id)
-        return tr("Deploy to Android device or emulator");
-    return QString();
-}
-
-bool AndroidDeployQtStepFactory::canCreate(ProjectExplorer::BuildStepList *parent, Core::Id id) const
-{
-    return availableCreationIds(parent).contains(id);
+    return {{ AndroidDeployQtStep::Id, tr("Deploy to Android device or emulator") }};
 }
 
 ProjectExplorer::BuildStep *AndroidDeployQtStepFactory::create(ProjectExplorer::BuildStepList *parent, Core::Id id)
 {
-    Q_ASSERT(canCreate(parent, id));
     Q_UNUSED(id);
     return new AndroidDeployQtStep(parent);
 }
 
-bool AndroidDeployQtStepFactory::canRestore(ProjectExplorer::BuildStepList *parent, const QVariantMap &map) const
-{
-    return canCreate(parent, ProjectExplorer::idFromMap(map));
-}
-
-ProjectExplorer::BuildStep *AndroidDeployQtStepFactory::restore(ProjectExplorer::BuildStepList *parent, const QVariantMap &map)
-{
-    Q_ASSERT(canRestore(parent, map));
-    AndroidDeployQtStep * const step = new AndroidDeployQtStep(parent);
-    if (!step->fromMap(map)) {
-        delete step;
-        return 0;
-    }
-    return step;
-}
-
-bool AndroidDeployQtStepFactory::canClone(ProjectExplorer::BuildStepList *parent, ProjectExplorer::BuildStep *product) const
-{
-    return canCreate(parent, product->id());
-}
-
 ProjectExplorer::BuildStep *AndroidDeployQtStepFactory::clone(ProjectExplorer::BuildStepList *parent, ProjectExplorer::BuildStep *product)
 {
-    Q_ASSERT(canClone(parent, product));
     return new AndroidDeployQtStep(parent, static_cast<AndroidDeployQtStep *>(product));
 }
 

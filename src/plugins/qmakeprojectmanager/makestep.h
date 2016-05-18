@@ -51,16 +51,14 @@ class MakeStepFactory : public ProjectExplorer::IBuildStepFactory
 public:
     explicit MakeStepFactory(QObject *parent = 0);
 
-    bool canCreate(ProjectExplorer::BuildStepList *parent, Core::Id id) const override;
-    ProjectExplorer::BuildStep *create(ProjectExplorer::BuildStepList *parent, Core::Id id) override;
-    bool canClone(ProjectExplorer::BuildStepList *parent, ProjectExplorer::BuildStep *source) const override;
-    ProjectExplorer::BuildStep *clone(ProjectExplorer::BuildStepList *parent, ProjectExplorer::BuildStep *source) override;
-    bool canRestore(ProjectExplorer::BuildStepList *parent, const QVariantMap &map) const override;
-    ProjectExplorer::BuildStep *restore(ProjectExplorer::BuildStepList *parent, const QVariantMap &map) override;
+    QList<ProjectExplorer::BuildStepInfo>
+        availableSteps(ProjectExplorer::BuildStepList *parent) const override;
 
-    QList<Core::Id> availableCreationIds(ProjectExplorer::BuildStepList *parent) const override;
-    QString displayNameForId(Core::Id id) const override;
+    ProjectExplorer::BuildStep *create(ProjectExplorer::BuildStepList *parent, Core::Id id) override;
+    ProjectExplorer::BuildStep *clone(ProjectExplorer::BuildStepList *parent, ProjectExplorer::BuildStep *source) override;
+    ProjectExplorer::BuildStep *restore(ProjectExplorer::BuildStepList *parent, const QVariantMap &map) override;
 };
+
 } //namespace Internal
 
 class QmakeProject;

@@ -70,66 +70,27 @@ static QString projectDirRelativeToBuildDir(BuildConfiguration *bc) {
 ConfigureStepFactory::ConfigureStepFactory(QObject *parent) : IBuildStepFactory(parent)
 { }
 
-QList<Core::Id> ConfigureStepFactory::availableCreationIds(BuildStepList *parent) const
+QList<BuildStepInfo> ConfigureStepFactory::availableSteps(BuildStepList *parent) const
 {
-    if (!canHandle(parent))
-        return QList<Core::Id>();
-    return QList<Core::Id>() << Core::Id(CONFIGURE_STEP_ID);
-}
+    if (parent->target()->project()->id() != Constants::AUTOTOOLS_PROJECT_ID
+            || parent->id() != ProjectExplorer::Constants::BUILDSTEPS_BUILD)
+        return {};
 
-QString ConfigureStepFactory::displayNameForId(Core::Id id) const
-{
-    if (id == CONFIGURE_STEP_ID)
-        return tr("Configure", "Display name for AutotoolsProjectManager::ConfigureStep id.");
-    return QString();
-}
-
-bool ConfigureStepFactory::canCreate(BuildStepList *parent, Core::Id id) const
-{
-    return canHandle(parent) && id == CONFIGURE_STEP_ID;
+    QString display = tr("Configure", "Display name for AutotoolsProjectManager::ConfigureStep id.");
+    return {{ CONFIGURE_STEP_ID, display }};
 }
 
 BuildStep *ConfigureStepFactory::create(BuildStepList *parent, Core::Id id)
 {
-    if (!canCreate(parent, id))
-        return 0;
+    Q_UNUSED(id)
     return new ConfigureStep(parent);
-}
-
-bool ConfigureStepFactory::canClone(BuildStepList *parent, BuildStep *source) const
-{
-    return canCreate(parent, source->id());
 }
 
 BuildStep *ConfigureStepFactory::clone(BuildStepList *parent, BuildStep *source)
 {
-    if (!canClone(parent, source))
-        return 0;
     return new ConfigureStep(parent, static_cast<ConfigureStep *>(source));
 }
 
-bool ConfigureStepFactory::canRestore(BuildStepList *parent, const QVariantMap &map) const
-{
-    return canCreate(parent, idFromMap(map));
-}
-
-BuildStep *ConfigureStepFactory::restore(BuildStepList *parent, const QVariantMap &map)
-{
-    if (!canRestore(parent, map))
-        return 0;
-    ConfigureStep *bs = new ConfigureStep(parent);
-    if (bs->fromMap(map))
-        return bs;
-    delete bs;
-    return 0;
-}
-
-bool ConfigureStepFactory::canHandle(BuildStepList *parent) const
-{
-    if (parent->target()->project()->id() == Constants::AUTOTOOLS_PROJECT_ID)
-        return parent->id() == ProjectExplorer::Constants::BUILDSTEPS_BUILD;
-    return false;
-}
 
 ////////////////////////
 // ConfigureStep class

@@ -697,64 +697,23 @@ QbsBuildStepFactory::QbsBuildStepFactory(QObject *parent) :
     ProjectExplorer::IBuildStepFactory(parent)
 { }
 
-QList<Core::Id> QbsBuildStepFactory::availableCreationIds(ProjectExplorer::BuildStepList *parent) const
+void QbsBuildStepFactory::availableSteps(QList<ProjectExplorer::BuildStepInfo> *steps,
+                                                 ProjectExplorer::BuildStepList *parent) const
 {
     if (parent->id() == ProjectExplorer::Constants::BUILDSTEPS_BUILD
             && qobject_cast<QbsBuildConfiguration *>(parent->parent())
             && qobject_cast<QbsProject *>(parent->target()->project()))
-        return QList<Core::Id>() << Core::Id(Constants::QBS_BUILDSTEP_ID);
-    return QList<Core::Id>();
-}
-
-QString QbsBuildStepFactory::displayNameForId(Core::Id id) const
-{
-    if (id == Core::Id(Constants::QBS_BUILDSTEP_ID))
-        return tr("Qbs Build");
-    return QString();
-}
-
-bool QbsBuildStepFactory::canCreate(ProjectExplorer::BuildStepList *parent, Core::Id id) const
-{
-    if (parent->id() != Core::Id(ProjectExplorer::Constants::BUILDSTEPS_BUILD)
-            || !qobject_cast<QbsBuildConfiguration *>(parent->parent())
-            || !qobject_cast<QbsProject *>(parent->target()->project()))
-        return false;
-    return id == Core::Id(Constants::QBS_BUILDSTEP_ID);
+        steps->append({ Constants::QBS_BUILDSTEP_ID, tr("Qbs Build") });
 }
 
 ProjectExplorer::BuildStep *QbsBuildStepFactory::create(ProjectExplorer::BuildStepList *parent, Core::Id id)
 {
-    if (!canCreate(parent, id))
-        return 0;
+    Q_UNUSED(id);
     return new QbsBuildStep(parent);
-}
-
-bool QbsBuildStepFactory::canRestore(ProjectExplorer::BuildStepList *parent, const QVariantMap &map) const
-{
-    return canCreate(parent, ProjectExplorer::idFromMap(map));
-}
-
-ProjectExplorer::BuildStep *QbsBuildStepFactory::restore(ProjectExplorer::BuildStepList *parent, const QVariantMap &map)
-{
-    if (!canRestore(parent, map))
-        return 0;
-    QbsBuildStep *bs = new QbsBuildStep(parent);
-    if (!bs->fromMap(map)) {
-        delete bs;
-        return 0;
-    }
-    return bs;
-}
-
-bool QbsBuildStepFactory::canClone(ProjectExplorer::BuildStepList *parent, ProjectExplorer::BuildStep *product) const
-{
-    return canCreate(parent, product->id());
 }
 
 ProjectExplorer::BuildStep *QbsBuildStepFactory::clone(ProjectExplorer::BuildStepList *parent, ProjectExplorer::BuildStep *product)
 {
-    if (!canClone(parent, product))
-        return 0;
     return new QbsBuildStep(parent, static_cast<QbsBuildStep *>(product));
 }
 

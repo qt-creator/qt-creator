@@ -295,9 +295,14 @@ void BuildStepListWidget::updateAddBuildStepMenu()
     //Build up a list of possible steps and save map the display names to the (internal) name and factories.
     QList<IBuildStepFactory *> factories = ExtensionSystem::PluginManager::getObjects<IBuildStepFactory>();
     foreach (IBuildStepFactory *factory, factories) {
-        QList<Core::Id> ids = factory->availableCreationIds(m_buildStepList);
-        foreach (Core::Id id, ids)
-            map.insert(factory->displayNameForId(id), QPair<Core::Id, IBuildStepFactory *>(id, factory));
+        const QList<BuildStepInfo> infos = factory->availableSteps(m_buildStepList);
+        for (const BuildStepInfo &info : infos) {
+            if (info.flags & BuildStepInfo::Uncreatable)
+                continue;
+            if ((info.flags & BuildStepInfo::UniqueStep) && m_buildStepList->contains(info.id))
+                continue;
+            map.insert(info.displayName, qMakePair(info.id, factory));
+        }
     }
 
     // Ask the user which one to add

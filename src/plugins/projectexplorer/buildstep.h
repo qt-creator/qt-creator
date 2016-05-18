@@ -94,6 +94,25 @@ private:
     bool m_enabled;
 };
 
+class PROJECTEXPLORER_EXPORT BuildStepInfo
+{
+public:
+    enum Flags {
+        Uncreatable = 1 << 0,
+        Unclonable  = 1 << 1,
+        UniqueStep  = 1 << 8    // Can't be used twice in a BuildStepList
+    };
+
+    BuildStepInfo() {}
+    BuildStepInfo(Core::Id id, const QString &displayName, Flags flags = Flags())
+        : id(id), displayName(displayName), flags(flags)
+    {}
+
+    Core::Id id;
+    QString displayName;
+    Flags flags = Flags();
+};
+
 class PROJECTEXPLORER_EXPORT IBuildStepFactory : public QObject
 {
     Q_OBJECT
@@ -101,17 +120,9 @@ class PROJECTEXPLORER_EXPORT IBuildStepFactory : public QObject
 public:
     explicit IBuildStepFactory(QObject *parent = nullptr);
 
-    // used to show the list of possible additons to a target, returns a list of types
-    virtual QList<Core::Id> availableCreationIds(BuildStepList *parent) const = 0;
-    // used to translate the types to names to display to the user
-    virtual QString displayNameForId(Core::Id id) const = 0;
-
-    virtual bool canCreate(BuildStepList *parent, Core::Id id) const = 0;
+    virtual QList<BuildStepInfo> availableSteps(BuildStepList *parent) const = 0;
     virtual BuildStep *create(BuildStepList *parent, Core::Id id) = 0;
-    // used to recreate the runConfigurations when restoring settings
-    virtual bool canRestore(BuildStepList *parent, const QVariantMap &map) const = 0;
-    virtual BuildStep *restore(BuildStepList *parent, const QVariantMap &map) = 0;
-    virtual bool canClone(BuildStepList *parent, BuildStep *product) const = 0;
+    virtual BuildStep *restore(BuildStepList *parent, const QVariantMap &map);
     virtual BuildStep *clone(BuildStepList *parent, BuildStep *product) = 0;
 };
 

@@ -37,15 +37,11 @@ class ProcessStepFactory : public IBuildStepFactory
     Q_OBJECT
 
 public:
-    virtual QList<Core::Id> availableCreationIds(BuildStepList *parent) const override;
-    virtual QString displayNameForId(Core::Id id) const override;
+    QList<ProjectExplorer::BuildStepInfo>
+        availableSteps(ProjectExplorer::BuildStepList *parent) const override;
 
-    virtual bool canCreate(BuildStepList *parent, Core::Id id) const override;
-    virtual BuildStep *create(BuildStepList *parent, Core::Id id) override;
-    virtual bool canRestore(BuildStepList *parent, const QVariantMap &map) const override;
-    virtual BuildStep *restore(BuildStepList *parent, const QVariantMap &map) override;
-    virtual bool canClone(BuildStepList *parent, BuildStep *product) const override;
-    virtual BuildStep *clone(BuildStepList *parent, BuildStep *product) override;
+    BuildStep *create(BuildStepList *parent, Core::Id id) override;
+    BuildStep *clone(BuildStepList *parent, BuildStep *product) override;
 };
 
 class ProcessStep : public AbstractProcessStep

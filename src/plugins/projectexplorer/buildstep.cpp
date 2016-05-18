@@ -30,6 +30,8 @@
 #include "deployconfiguration.h"
 #include "target.h"
 
+#include <utils/algorithm.h>
+
 /*!
     \class ProjectExplorer::BuildStep
 
@@ -209,3 +211,14 @@ bool BuildStep::enabled() const
 IBuildStepFactory::IBuildStepFactory(QObject *parent) :
     QObject(parent)
 { }
+
+BuildStep *IBuildStepFactory::restore(BuildStepList *parent, const QVariantMap &map)
+{
+    const Core::Id id = idFromMap(map);
+    BuildStep *bs = create(parent, id);
+    if (bs->fromMap(map))
+        return bs;
+    delete bs;
+    return nullptr;
+}
+

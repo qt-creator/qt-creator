@@ -328,22 +328,9 @@ IosBuildStepFactory::IosBuildStepFactory(QObject *parent) :
 {
 }
 
-bool IosBuildStepFactory::canCreate(BuildStepList *parent, const Id id) const
-{
-    if (parent->id() != ProjectExplorer::Constants::BUILDSTEPS_CLEAN
-            && parent->id() != ProjectExplorer::Constants::BUILDSTEPS_BUILD)
-        return false;
-    Kit *kit = parent->target()->kit();
-    Id deviceType = DeviceTypeKitInformation::deviceTypeId(kit);
-    return ((deviceType == Constants::IOS_DEVICE_TYPE
-            || deviceType == Constants::IOS_SIMULATOR_TYPE)
-            && id == IOS_BUILD_STEP_ID);
-}
-
 BuildStep *IosBuildStepFactory::create(BuildStepList *parent, const Id id)
 {
-    if (!canCreate(parent, id))
-        return 0;
+    Q_UNUSED(id);
     IosBuildStep *step = new IosBuildStep(parent);
     if (parent->id() == ProjectExplorer::Constants::BUILDSTEPS_CLEAN) {
         step->setClean(true);
@@ -354,52 +341,27 @@ BuildStep *IosBuildStepFactory::create(BuildStepList *parent, const Id id)
     return step;
 }
 
-bool IosBuildStepFactory::canClone(BuildStepList *parent, BuildStep *source) const
-{
-    return canCreate(parent, source->id());
-}
-
 BuildStep *IosBuildStepFactory::clone(BuildStepList *parent, BuildStep *source)
 {
-    if (!canClone(parent, source))
-        return 0;
-    IosBuildStep *old(qobject_cast<IosBuildStep *>(source));
+    IosBuildStep *old = qobject_cast<IosBuildStep *>(source);
     Q_ASSERT(old);
     return new IosBuildStep(parent, old);
 }
 
-bool IosBuildStepFactory::canRestore(BuildStepList *parent, const QVariantMap &map) const
+QList<BuildStepInfo> IosBuildStepFactory::availableSteps(BuildStepList *parent) const
 {
-    return canCreate(parent, idFromMap(map));
-}
+    Id deviceType = DeviceTypeKitInformation::deviceTypeId(parent->target()->kit());
+    if (deviceType != Constants::IOS_DEVICE_TYPE
+            && deviceType != Constants::IOS_SIMULATOR_TYPE)
+        return {};
 
-BuildStep *IosBuildStepFactory::restore(BuildStepList *parent, const QVariantMap &map)
-{
-    if (!canRestore(parent, map))
-        return 0;
-    IosBuildStep *bs(new IosBuildStep(parent));
-    if (bs->fromMap(map))
-        return bs;
-    delete bs;
-    return 0;
-}
+    if (parent->id() != ProjectExplorer::Constants::BUILDSTEPS_CLEAN
+            && parent->id() != ProjectExplorer::Constants::BUILDSTEPS_BUILD)
+        return {};
 
-QList<Id> IosBuildStepFactory::availableCreationIds(BuildStepList *parent) const
-{
-    Kit *kit = parent->target()->kit();
-    Id deviceType = DeviceTypeKitInformation::deviceTypeId(kit);
-    if (deviceType == Constants::IOS_DEVICE_TYPE
-            || deviceType == Constants::IOS_SIMULATOR_TYPE)
-        return QList<Id>() << Id(IOS_BUILD_STEP_ID);
-    return QList<Id>();
-}
-
-QString IosBuildStepFactory::displayNameForId(const Id id) const
-{
-    if (id == IOS_BUILD_STEP_ID)
-        return QCoreApplication::translate("GenericProjectManager::Internal::IosBuildStep",
-                                           IOS_BUILD_STEP_DISPLAY_NAME);
-    return QString();
+    return {{ IOS_BUILD_STEP_ID,
+              QCoreApplication::translate("GenericProjectManager::Internal::IosBuildStep",
+                                         IOS_BUILD_STEP_DISPLAY_NAME) }};
 }
 
 } // namespace Internal

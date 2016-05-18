@@ -320,17 +320,19 @@ GenericMakeStepFactory::GenericMakeStepFactory(QObject *parent) :
 {
 }
 
-bool GenericMakeStepFactory::canCreate(BuildStepList *parent, const Id id) const
+QList<BuildStepInfo> GenericMakeStepFactory::availableSteps(BuildStepList *parent) const
 {
-    if (parent->target()->project()->id() == Constants::GENERICPROJECT_ID)
-        return id == GENERIC_MS_ID;
-    return false;
+    if (parent->target()->project()->id() != Constants::GENERICPROJECT_ID)
+        return {};
+
+    return {{ GENERIC_MS_ID,
+              QCoreApplication::translate("GenericProjectManager::Internal::GenericMakeStep",
+              GENERIC_MS_DISPLAY_NAME) }};
 }
 
 BuildStep *GenericMakeStepFactory::create(BuildStepList *parent, const Id id)
 {
-    if (!canCreate(parent, id))
-        return 0;
+    Q_UNUSED(id)
     GenericMakeStep *step = new GenericMakeStep(parent);
     if (parent->id() == ProjectExplorer::Constants::BUILDSTEPS_CLEAN) {
         step->setClean(true);
@@ -341,49 +343,11 @@ BuildStep *GenericMakeStepFactory::create(BuildStepList *parent, const Id id)
     return step;
 }
 
-bool GenericMakeStepFactory::canClone(BuildStepList *parent, BuildStep *source) const
-{
-    return canCreate(parent, source->id());
-}
-
 BuildStep *GenericMakeStepFactory::clone(BuildStepList *parent, BuildStep *source)
 {
-    if (!canClone(parent, source))
-        return 0;
     GenericMakeStep *old(qobject_cast<GenericMakeStep *>(source));
     Q_ASSERT(old);
     return new GenericMakeStep(parent, old);
-}
-
-bool GenericMakeStepFactory::canRestore(BuildStepList *parent, const QVariantMap &map) const
-{
-    return canCreate(parent, idFromMap(map));
-}
-
-BuildStep *GenericMakeStepFactory::restore(BuildStepList *parent, const QVariantMap &map)
-{
-    if (!canRestore(parent, map))
-        return 0;
-    GenericMakeStep *bs(new GenericMakeStep(parent));
-    if (bs->fromMap(map))
-        return bs;
-    delete bs;
-    return 0;
-}
-
-QList<Id> GenericMakeStepFactory::availableCreationIds(BuildStepList *parent) const
-{
-    if (parent->target()->project()->id() == Constants::GENERICPROJECT_ID)
-        return QList<Id>() << Id(GENERIC_MS_ID);
-    return QList<Id>();
-}
-
-QString GenericMakeStepFactory::displayNameForId(const Id id) const
-{
-    if (id == GENERIC_MS_ID)
-        return QCoreApplication::translate("GenericProjectManager::Internal::GenericMakeStep",
-                                           GENERIC_MS_DISPLAY_NAME);
-    return QString();
 }
 
 } // namespace Internal

@@ -29,8 +29,6 @@
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
-#include <qtsupport/qtkitinformation.h>
-#include <qtsupport/qtsupportconstants.h>
 #include <android/androidmanager.h>
 
 using namespace ProjectExplorer;
@@ -43,71 +41,26 @@ AndroidPackageInstallationFactory::AndroidPackageInstallationFactory(QObject *pa
 {
 }
 
-QList<Core::Id> AndroidPackageInstallationFactory::availableCreationIds(BuildStepList *parent) const
+QList<BuildStepInfo> AndroidPackageInstallationFactory::availableSteps(BuildStepList *parent) const
 {
-    Q_UNUSED(parent);
-    return QList<Core::Id>();
-}
+    if (parent->id() != ProjectExplorer::Constants::BUILDSTEPS_BUILD)
+        return {};
+    if (!Android::AndroidManager::supportsAndroid(parent->target()))
+        return {};
+    if (parent->contains(AndroidPackageInstallationStep::Id))
+        return {};
 
-QString AndroidPackageInstallationFactory::displayNameForId(Core::Id id) const
-{
-    if (id == AndroidPackageInstallationStep::Id)
-        return tr("Deploy to device");
-    return QString();
-}
-
-bool AndroidPackageInstallationFactory::canCreate(BuildStepList *parent, Core::Id id) const
-{
-    Q_UNUSED(parent);
-    Q_UNUSED(id);
-    return false;
+    return {{ AndroidPackageInstallationStep::Id, tr("Deploy to device"), BuildStepInfo::Uncreatable }};
 }
 
 BuildStep *AndroidPackageInstallationFactory::create(BuildStepList *parent, Core::Id id)
 {
-    Q_UNUSED(parent);
-    Q_UNUSED(id);
-    return 0;
-}
-
-bool AndroidPackageInstallationFactory::canRestore(BuildStepList *parent, const QVariantMap &map) const
-{
-    if (parent->id() != ProjectExplorer::Constants::BUILDSTEPS_BUILD)
-        return false;
-    if (!Android::AndroidManager::supportsAndroid(parent->target()))
-        return false;
-    if (parent->contains(AndroidPackageInstallationStep::Id))
-        return false;
-    return ProjectExplorer::idFromMap(map) == AndroidPackageInstallationStep::Id;
-}
-
-BuildStep *AndroidPackageInstallationFactory::restore(BuildStepList *parent, const QVariantMap &map)
-{
-    Q_ASSERT(canRestore(parent, map));
-    AndroidPackageInstallationStep * const step = new AndroidPackageInstallationStep(parent);
-    if (!step->fromMap(map)) {
-        delete step;
-        return 0;
-    }
-    return step;
-}
-
-bool AndroidPackageInstallationFactory::canClone(BuildStepList *parent, BuildStep *product) const
-{
-    if (parent->id() != ProjectExplorer::Constants::BUILDSTEPS_BUILD)
-        return false;
-    if (!Android::AndroidManager::supportsAndroid(parent->target()))
-        return false;
-    if (product->id() != AndroidPackageInstallationStep::Id)
-        return false;
-    if (parent->contains(AndroidPackageInstallationStep::Id))
-        return false;
-    return true;
+    Q_UNUSED(id)
+    return new AndroidPackageInstallationStep(parent);
 }
 
 BuildStep *AndroidPackageInstallationFactory::clone(BuildStepList *parent, BuildStep *product)
 {
-    Q_ASSERT(canClone(parent, product));
     return new AndroidPackageInstallationStep(parent, static_cast<AndroidPackageInstallationStep*>(product));
 }
 
