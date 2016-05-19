@@ -27,15 +27,15 @@
 
 #include "qnxconstants.h"
 #include "qnxrunconfiguration.h"
-#include "qnxdeviceconfigurationfactory.h"
+#include "qnxdevicefactory.h"
 
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/target.h>
 #include <qmakeprojectmanager/qmakeproject.h>
 #include <qmakeprojectmanager/qmakenodes.h>
 
-using namespace Qnx;
-using namespace Qnx::Internal;
+namespace Qnx {
+namespace Internal {
 
 static Utils::FileName pathFromId(Core::Id id)
 {
@@ -134,8 +134,11 @@ ProjectExplorer::RunConfiguration *QnxRunConfigurationFactory::clone(ProjectExpl
 bool QnxRunConfigurationFactory::canHandle(ProjectExplorer::Target *t) const
 {
     Core::Id deviceType = ProjectExplorer::DeviceTypeKitInformation::deviceTypeId(t->kit());
-    if (deviceType != QnxDeviceConfigurationFactory::deviceType())
+    if (deviceType != QnxDeviceFactory::deviceType())
         return false;
 
     return true;
 }
+
+} // namespace Internal
+} // namespace Qnx

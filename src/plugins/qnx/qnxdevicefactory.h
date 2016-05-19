@@ -25,33 +25,28 @@
 
 #pragma once
 
-#include <projectexplorer/devicesupport/idevice.h>
-#include <utils/wizard.h>
-
-namespace RemoteLinux {
-class GenericLinuxDeviceConfigurationWizardSetupPage;
-class GenericLinuxDeviceConfigurationWizardFinalPage;
-}
+#include <projectexplorer/devicesupport/idevicefactory.h>
 
 namespace Qnx {
 namespace Internal {
 
-class QnxDeviceConfigurationWizard : public Utils::Wizard
+class QnxDeviceFactory : public ProjectExplorer::IDeviceFactory
 {
     Q_OBJECT
+
 public:
-    explicit QnxDeviceConfigurationWizard(QWidget *parent = 0);
+    explicit QnxDeviceFactory(QObject *parent = 0);
 
-    ProjectExplorer::IDevice::Ptr device();
+    QString displayNameForId(Core::Id type) const;
+    QList<Core::Id> availableCreationIds() const;
 
-private:
-    enum PageId {
-        SetupPageId,
-        FinalPageId
-    };
+    bool canCreate() const;
+    ProjectExplorer::IDevice::Ptr create(Core::Id id) const;
 
-    RemoteLinux::GenericLinuxDeviceConfigurationWizardSetupPage *m_setupPage;
-    RemoteLinux::GenericLinuxDeviceConfigurationWizardFinalPage *m_finalPage;
+    bool canRestore(const QVariantMap &map) const;
+    ProjectExplorer::IDevice::Ptr restore(const QVariantMap &map) const;
+
+    static Core::Id deviceType();
 };
 
 } // namespace Internal

@@ -28,7 +28,7 @@
 #include <remotelinux/remotelinuxsignaloperation.h>
 
 namespace Qnx {
-class QnxDeviceConfiguration;
+class QnxDevice;
 
 namespace Internal {
 
@@ -42,7 +42,7 @@ private:
     QString killProcessByNameCommandLine(const QString &filePath) const;
     QString interruptProcessByNameCommandLine(const QString &filePath) const;
 
-    friend class Qnx::QnxDeviceConfiguration;
+    friend class Qnx::QnxDevice;
 };
 
 } // namespace Internal

@@ -24,7 +24,7 @@
 ****************************************************************************/
 
 #include "qnxruncontrol.h"
-#include "qnxdeviceconfiguration.h"
+#include "qnxdevice.h"
 #include "qnxrunconfiguration.h"
 #include "slog2inforunner.h"
 
@@ -44,7 +44,7 @@ QnxRunControl::QnxRunControl(RunConfiguration *runConfig)
     , m_slog2Info(0)
 {
     IDevice::ConstPtr dev = DeviceKitInformation::device(runConfig->target()->kit());
-    QnxDeviceConfiguration::ConstPtr qnxDevice = dev.dynamicCast<const QnxDeviceConfiguration>();
+    QnxDevice::ConstPtr qnxDevice = dev.dynamicCast<const QnxDevice>();
 
     QnxRunConfiguration *qnxRunConfig = qobject_cast<QnxRunConfiguration *>(runConfig);
     QTC_CHECK(qnxRunConfig);

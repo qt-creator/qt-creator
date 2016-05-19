@@ -23,26 +23,36 @@
 **
 ****************************************************************************/
 
-#include "qnxdeviceconfigurationwizard.h"
+#include "qnxdevicewizard.h"
 
 #include "qnxconstants.h"
-#include "qnxdeviceconfigurationwizardpages.h"
-#include "qnxdeviceconfiguration.h"
+#include "qnxdevice.h"
 
 #include <projectexplorer/devicesupport/deviceusedportsgatherer.h>
 #include <remotelinux/genericlinuxdeviceconfigurationwizardpages.h>
 #include <utils/portlist.h>
 
 using namespace ProjectExplorer;
-using namespace Qnx;
-using namespace Qnx::Internal;
 
-QnxDeviceConfigurationWizard::QnxDeviceConfigurationWizard(QWidget *parent) :
+namespace Qnx {
+namespace Internal {
+
+class QnxDeviceWizardSetupPage : public RemoteLinux::GenericLinuxDeviceConfigurationWizardSetupPage
+{
+public:
+    QnxDeviceWizardSetupPage(QWidget *parent) :
+        RemoteLinux::GenericLinuxDeviceConfigurationWizardSetupPage(parent)
+    {}
+
+    QString defaultConfigurationName() const { return QnxDeviceWizard::tr("QNX Device"); }
+};
+
+QnxDeviceWizard::QnxDeviceWizard(QWidget *parent) :
     Utils::Wizard(parent)
 {
     setWindowTitle(tr("New QNX Device Configuration Setup"));
 
-    m_setupPage = new QnxDeviceConfigurationWizardSetupPage(this);
+    m_setupPage = new QnxDeviceWizardSetupPage(this);
     m_finalPage = new RemoteLinux::GenericLinuxDeviceConfigurationWizardFinalPage(this);
 
     setPage(SetupPageId, m_setupPage);
@@ -50,7 +60,7 @@ QnxDeviceConfigurationWizard::QnxDeviceConfigurationWizard(QWidget *parent) :
     m_finalPage->setCommitPage(true);
 }
 
-IDevice::Ptr QnxDeviceConfigurationWizard::device()
+IDevice::Ptr QnxDeviceWizard::device()
 {
     QSsh::SshConnectionParameters sshParams;
     sshParams.options = QSsh::SshIgnoreDefaultProxy;
@@ -65,10 +75,13 @@ IDevice::Ptr QnxDeviceConfigurationWizard::device()
     else
         sshParams.privateKeyFile = m_setupPage->privateKeyFilePath();
 
-    QnxDeviceConfiguration::Ptr device = QnxDeviceConfiguration::create(m_setupPage->configurationName(),
+    QnxDevice::Ptr device = QnxDevice::create(m_setupPage->configurationName(),
         Core::Id(Constants::QNX_QNX_OS_TYPE), IDevice::Hardware);
     device->setSshParameters(sshParams);
     device->setFreePorts(Utils::PortList::fromString(QLatin1String("10000-10100")));
 
     return device;
 }
+
+} // namespace Internal
+} // namespace Qnx

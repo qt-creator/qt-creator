@@ -23,7 +23,7 @@
 **
 ****************************************************************************/
 
-#include "qnxdeviceconfiguration.h"
+#include "qnxdevice.h"
 #include "qnxdevicetester.h"
 #include "qnxdeviceprocesslist.h"
 #include "qnxdeviceprocesssignaloperation.h"
@@ -89,40 +89,40 @@ class QnxPortsGatheringMethod : public PortsGatheringMethod
     }
 };
 
-QnxDeviceConfiguration::QnxDeviceConfiguration()
+QnxDevice::QnxDevice()
     : RemoteLinux::LinuxDevice()
     , m_versionNumber(0)
 {
 }
 
-QnxDeviceConfiguration::QnxDeviceConfiguration(const QString &name, Core::Id type, MachineType machineType, Origin origin, Core::Id id)
+QnxDevice::QnxDevice(const QString &name, Core::Id type, MachineType machineType, Origin origin, Core::Id id)
     : RemoteLinux::LinuxDevice(name, type, machineType, origin, id)
     , m_versionNumber(0)
 {
 }
 
-QnxDeviceConfiguration::QnxDeviceConfiguration(const QnxDeviceConfiguration &other)
+QnxDevice::QnxDevice(const QnxDevice &other)
     : RemoteLinux::LinuxDevice(other)
     , m_versionNumber(other.m_versionNumber)
 {
 }
 
-QnxDeviceConfiguration::Ptr QnxDeviceConfiguration::create()
+QnxDevice::Ptr QnxDevice::create()
 {
-    return Ptr(new QnxDeviceConfiguration);
+    return Ptr(new QnxDevice);
 }
 
-QnxDeviceConfiguration::Ptr QnxDeviceConfiguration::create(const QString &name, Core::Id type, MachineType machineType, Origin origin, Core::Id id)
+QnxDevice::Ptr QnxDevice::create(const QString &name, Core::Id type, MachineType machineType, Origin origin, Core::Id id)
 {
-    return Ptr(new QnxDeviceConfiguration(name, type, machineType, origin, id));
+    return Ptr(new QnxDevice(name, type, machineType, origin, id));
 }
 
-QString QnxDeviceConfiguration::displayType() const
+QString QnxDevice::displayType() const
 {
     return tr("QNX");
 }
 
-int QnxDeviceConfiguration::qnxVersion() const
+int QnxDevice::qnxVersion() const
 {
     if (m_versionNumber == 0)
         updateVersionNumber();
@@ -130,7 +130,7 @@ int QnxDeviceConfiguration::qnxVersion() const
     return m_versionNumber;
 }
 
-void QnxDeviceConfiguration::updateVersionNumber() const
+void QnxDevice::updateVersionNumber() const
 {
     QEventLoop eventLoop;
     SshDeviceProcess versionNumberProcess(sharedFromThis());
@@ -162,52 +162,52 @@ void QnxDeviceConfiguration::updateVersionNumber() const
         QApplication::restoreOverrideCursor();
 }
 
-void QnxDeviceConfiguration::fromMap(const QVariantMap &map)
+void QnxDevice::fromMap(const QVariantMap &map)
 {
     m_versionNumber = map.value(QLatin1String(QnxVersionKey), 0).toInt();
     RemoteLinux::LinuxDevice::fromMap(map);
 }
 
-QVariantMap QnxDeviceConfiguration::toMap() const
+QVariantMap QnxDevice::toMap() const
 {
     QVariantMap map(RemoteLinux::LinuxDevice::toMap());
     map.insert(QLatin1String(QnxVersionKey), m_versionNumber);
     return map;
 }
 
-IDevice::Ptr QnxDeviceConfiguration::clone() const
+IDevice::Ptr QnxDevice::clone() const
 {
-    return Ptr(new QnxDeviceConfiguration(*this));
+    return Ptr(new QnxDevice(*this));
 }
 
-PortsGatheringMethod::Ptr QnxDeviceConfiguration::portsGatheringMethod() const
+PortsGatheringMethod::Ptr QnxDevice::portsGatheringMethod() const
 {
     return PortsGatheringMethod::Ptr(new QnxPortsGatheringMethod);
 }
 
-DeviceProcessList *QnxDeviceConfiguration::createProcessListModel(QObject *parent) const
+DeviceProcessList *QnxDevice::createProcessListModel(QObject *parent) const
 {
     return new QnxDeviceProcessList(sharedFromThis(), parent);
 }
 
-DeviceTester *QnxDeviceConfiguration::createDeviceTester() const
+DeviceTester *QnxDevice::createDeviceTester() const
 {
     return new QnxDeviceTester;
 }
 
-DeviceProcess *QnxDeviceConfiguration::createProcess(QObject *parent) const
+DeviceProcess *QnxDevice::createProcess(QObject *parent) const
 {
     return new QnxDeviceProcess(sharedFromThis(), parent);
 }
 
-QList<Core::Id> QnxDeviceConfiguration::actionIds() const
+QList<Core::Id> QnxDevice::actionIds() const
 {
     QList<Core::Id> actions = RemoteLinux::LinuxDevice::actionIds();
     actions << Core::Id(DeployQtLibrariesActionId);
     return actions;
 }
 
-QString QnxDeviceConfiguration::displayNameForActionId(Core::Id actionId) const
+QString QnxDevice::displayNameForActionId(Core::Id actionId) const
 {
     if (actionId == Core::Id(DeployQtLibrariesActionId))
         return tr("Deploy Qt libraries...");
@@ -215,10 +215,10 @@ QString QnxDeviceConfiguration::displayNameForActionId(Core::Id actionId) const
     return RemoteLinux::LinuxDevice::displayNameForActionId(actionId);
 }
 
-void QnxDeviceConfiguration::executeAction(Core::Id actionId, QWidget *parent)
+void QnxDevice::executeAction(Core::Id actionId, QWidget *parent)
 {
-    const QnxDeviceConfiguration::ConstPtr device =
-            sharedFromThis().staticCast<const QnxDeviceConfiguration>();
+    const QnxDevice::ConstPtr device =
+            sharedFromThis().staticCast<const QnxDevice>();
     if (actionId == Core::Id(DeployQtLibrariesActionId)) {
         QnxDeployQtLibrariesDialog dialog(device, parent);
         dialog.exec();
@@ -227,7 +227,7 @@ void QnxDeviceConfiguration::executeAction(Core::Id actionId, QWidget *parent)
     }
 }
 
-DeviceProcessSignalOperation::Ptr QnxDeviceConfiguration::signalOperation() const
+DeviceProcessSignalOperation::Ptr QnxDevice::signalOperation() const
 {
     return DeviceProcessSignalOperation::Ptr(
                 new QnxDeviceProcessSignalOperation(sshParameters()));

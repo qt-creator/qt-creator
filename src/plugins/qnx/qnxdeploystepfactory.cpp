@@ -25,7 +25,7 @@
 
 #include "qnxdeploystepfactory.h"
 #include "qnxconstants.h"
-#include "qnxdeviceconfigurationfactory.h"
+#include "qnxdevicefactory.h"
 
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/devicesupport/devicecheckbuildstep.h>
@@ -34,8 +34,8 @@
 #include <projectexplorer/target.h>
 #include <remotelinux/genericdirectuploadstep.h>
 
-using namespace Qnx;
-using namespace Qnx::Internal;
+namespace Qnx {
+namespace Internal {
 
 QnxDeployStepFactory::QnxDeployStepFactory()
     : ProjectExplorer::IBuildStepFactory()
@@ -48,7 +48,7 @@ QList<Core::Id> QnxDeployStepFactory::availableCreationIds(ProjectExplorer::Buil
         return QList<Core::Id>();
 
     Core::Id deviceType = ProjectExplorer::DeviceTypeKitInformation::deviceTypeId(parent->target()->kit());
-    if (deviceType != QnxDeviceConfigurationFactory::deviceType())
+    if (deviceType != QnxDeviceFactory::deviceType())
         return QList<Core::Id>();
 
     return QList<Core::Id>() << RemoteLinux::GenericDirectUploadStep::stepId()
@@ -115,3 +115,6 @@ ProjectExplorer::BuildStep *QnxDeployStepFactory::clone(ProjectExplorer::BuildSt
 
     return 0;
 }
+
+} // namespace Internal
+} // namespace Qnx

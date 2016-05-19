@@ -24,7 +24,7 @@
 ****************************************************************************/
 
 #include "qnxdevicetester.h"
-#include "qnxdeviceconfiguration.h"
+#include "qnxdevice.h"
 
 #include <ssh/sshremoteprocessrunner.h>
 #include <utils/qtcassert.h>
@@ -106,7 +106,7 @@ void QnxDeviceTester::handleGenericTestFinished(TestResult result)
 
     m_state = CommandsTest;
 
-    QnxDeviceConfiguration::ConstPtr qnxDevice = m_deviceConfiguration.dynamicCast<const QnxDeviceConfiguration>();
+    QnxDevice::ConstPtr qnxDevice = m_deviceConfiguration.dynamicCast<const QnxDevice>();
     m_commandsToTest.append(versionSpecificCommandsToTest(qnxDevice->qnxVersion()));
 
     testNextCommand();

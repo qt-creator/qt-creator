@@ -23,20 +23,37 @@
 **
 ****************************************************************************/
 
-#include "qnxdeviceconfigurationwizardpages.h"
+#pragma once
+
+#include <projectexplorer/devicesupport/idevice.h>
+#include <utils/wizard.h>
+
+namespace RemoteLinux {
+class GenericLinuxDeviceConfigurationWizardSetupPage;
+class GenericLinuxDeviceConfigurationWizardFinalPage;
+}
 
 namespace Qnx {
 namespace Internal {
 
-QnxDeviceConfigurationWizardSetupPage::QnxDeviceConfigurationWizardSetupPage(QWidget *parent) :
-    RemoteLinux::GenericLinuxDeviceConfigurationWizardSetupPage(parent)
+class QnxDeviceWizard : public Utils::Wizard
 {
-}
+    Q_OBJECT
 
-QString QnxDeviceConfigurationWizardSetupPage::defaultConfigurationName() const
-{
-    return tr("QNX Device");
-}
+public:
+    explicit QnxDeviceWizard(QWidget *parent = 0);
+
+    ProjectExplorer::IDevice::Ptr device();
+
+private:
+    enum PageId {
+        SetupPageId,
+        FinalPageId
+    };
+
+    RemoteLinux::GenericLinuxDeviceConfigurationWizardSetupPage *m_setupPage;
+    RemoteLinux::GenericLinuxDeviceConfigurationWizardFinalPage *m_finalPage;
+};
 
 } // namespace Internal
 } // namespace Qnx

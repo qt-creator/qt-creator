@@ -5,9 +5,8 @@ include(../../qtcreatorplugin.pri)
 SOURCES += qnxplugin.cpp \
     qnxbaseqtconfigwidget.cpp \
     qnxutils.cpp \
-    qnxdeviceconfigurationfactory.cpp \
-    qnxdeviceconfigurationwizard.cpp \
-    qnxdeviceconfigurationwizardpages.cpp \
+    qnxdevicefactory.cpp \
+    qnxdevicewizard.cpp \
     qnxrunconfiguration.cpp \
     qnxruncontrolfactory.cpp \
     qnxabstractrunsupport.cpp \
@@ -20,7 +19,7 @@ SOURCES += qnxplugin.cpp \
     qnxqtversionfactory.cpp \
     qnxqtversion.cpp \
     qnxdeployconfiguration.cpp \
-    qnxdeviceconfiguration.cpp \
+    qnxdevice.cpp \
     pathchooserdelegate.cpp \
     qnxdevicetester.cpp \
     qnxdeviceprocesssignaloperation.cpp \
@@ -41,9 +40,8 @@ HEADERS += qnxplugin.h\
     qnxconstants.h \
     qnxbaseqtconfigwidget.h \
     qnxutils.h \
-    qnxdeviceconfigurationfactory.h \
-    qnxdeviceconfigurationwizard.h \
-    qnxdeviceconfigurationwizardpages.h \
+    qnxdevicefactory.h \
+    qnxdevicewizard.h \
     qnxrunconfiguration.h \
     qnxruncontrolfactory.h \
     qnxabstractrunsupport.h \
@@ -56,7 +54,7 @@ HEADERS += qnxplugin.h\
     qnxqtversionfactory.h \
     qnxqtversion.h \
     qnxdeployconfiguration.h \
-    qnxdeviceconfiguration.h \
+    qnxdevice.h \
     pathchooserdelegate.h \
     qnxdevicetester.h \
     qnxdeviceprocesssignaloperation.h \

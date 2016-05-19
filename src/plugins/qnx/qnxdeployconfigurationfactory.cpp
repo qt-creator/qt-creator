@@ -27,15 +27,15 @@
 
 #include "qnxconstants.h"
 #include "qnxdeployconfiguration.h"
-#include "qnxdeviceconfigurationfactory.h"
+#include "qnxdevicefactory.h"
 
 #include <projectexplorer/devicesupport/devicecheckbuildstep.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/target.h>
 #include <remotelinux/genericdirectuploadstep.h>
 
-using namespace Qnx;
-using namespace Qnx::Internal;
+namespace Qnx {
+namespace Internal {
 
 QnxDeployConfigurationFactory::QnxDeployConfigurationFactory(QObject *parent)
     : ProjectExplorer::DeployConfigurationFactory(parent)
@@ -112,8 +112,11 @@ ProjectExplorer::DeployConfiguration *QnxDeployConfigurationFactory::clone(Proje
 bool QnxDeployConfigurationFactory::canHandle(ProjectExplorer::Target *t) const
 {
     Core::Id deviceType = ProjectExplorer::DeviceTypeKitInformation::deviceTypeId(t->kit());
-    if (deviceType != QnxDeviceConfigurationFactory::deviceType())
+    if (deviceType != QnxDeviceFactory::deviceType())
         return false;
 
     return true;
 }
+
+} // namespace Internal
+} // namespace Qnx

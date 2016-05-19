@@ -23,61 +23,64 @@
 **
 ****************************************************************************/
 
-#include "qnxdeviceconfigurationfactory.h"
+#include "qnxdevicefactory.h"
 
 #include "qnxconstants.h"
-#include "qnxdeviceconfigurationwizard.h"
-#include "qnxdeviceconfiguration.h"
+#include "qnxdevicewizard.h"
+#include "qnxdevice.h"
 
 #include <utils/qtcassert.h>
 
-using namespace Qnx;
-using namespace Qnx::Internal;
+namespace Qnx {
+namespace Internal {
 
-QnxDeviceConfigurationFactory::QnxDeviceConfigurationFactory(QObject *parent) :
+QnxDeviceFactory::QnxDeviceFactory(QObject *parent) :
     ProjectExplorer::IDeviceFactory(parent)
 {
 }
 
-QString QnxDeviceConfigurationFactory::displayNameForId(Core::Id type) const
+QString QnxDeviceFactory::displayNameForId(Core::Id type) const
 {
     Q_UNUSED(type);
     return tr("QNX Device");
 }
 
-QList<Core::Id> QnxDeviceConfigurationFactory::availableCreationIds() const
+QList<Core::Id> QnxDeviceFactory::availableCreationIds() const
 {
     return { Constants::QNX_QNX_OS_TYPE };
 }
 
-bool QnxDeviceConfigurationFactory::canCreate() const
+bool QnxDeviceFactory::canCreate() const
 {
     return true;
 }
 
-ProjectExplorer::IDevice::Ptr QnxDeviceConfigurationFactory::create(Core::Id id) const
+ProjectExplorer::IDevice::Ptr QnxDeviceFactory::create(Core::Id id) const
 {
     Q_UNUSED(id);
-    QnxDeviceConfigurationWizard wizard;
+    QnxDeviceWizard wizard;
     if (wizard.exec() != QDialog::Accepted)
         return ProjectExplorer::IDevice::Ptr();
     return wizard.device();
 }
 
-bool QnxDeviceConfigurationFactory::canRestore(const QVariantMap &map) const
+bool QnxDeviceFactory::canRestore(const QVariantMap &map) const
 {
     return ProjectExplorer::IDevice::typeFromMap(map) == Constants::QNX_QNX_OS_TYPE;
 }
 
-ProjectExplorer::IDevice::Ptr QnxDeviceConfigurationFactory::restore(const QVariantMap &map) const
+ProjectExplorer::IDevice::Ptr QnxDeviceFactory::restore(const QVariantMap &map) const
 {
-    QTC_ASSERT(canRestore(map), return QnxDeviceConfiguration::Ptr());
-    const QnxDeviceConfiguration::Ptr device = QnxDeviceConfiguration::create();
+    QTC_ASSERT(canRestore(map), return QnxDevice::Ptr());
+    const QnxDevice::Ptr device = QnxDevice::create();
     device->fromMap(map);
     return device;
 }
 
-Core::Id QnxDeviceConfigurationFactory::deviceType()
+Core::Id QnxDeviceFactory::deviceType()
 {
     return Core::Id(Constants::QNX_QNX_OS_TYPE);
 }
+
+} // namespace Internal
+} // namespace Qnx

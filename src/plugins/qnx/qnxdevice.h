@@ -31,13 +31,13 @@
 
 namespace Qnx {
 
-class QNX_EXPORT QnxDeviceConfiguration : public RemoteLinux::LinuxDevice
+class QNX_EXPORT QnxDevice : public RemoteLinux::LinuxDevice
 {
-    Q_DECLARE_TR_FUNCTIONS(Qnx::Internal::QnxDeviceConfiguration)
+    Q_DECLARE_TR_FUNCTIONS(Qnx::Internal::QnxDevice)
 
 public:
-    typedef QSharedPointer<QnxDeviceConfiguration> Ptr;
-    typedef QSharedPointer<const QnxDeviceConfiguration> ConstPtr;
+    typedef QSharedPointer<QnxDevice> Ptr;
+    typedef QSharedPointer<const QnxDevice> ConstPtr;
 
     static Ptr create();
     static Ptr create(const QString &name, Core::Id type, MachineType machineType,
@@ -63,10 +63,10 @@ public:
     QVariantMap toMap() const override;
 
 protected:
-    QnxDeviceConfiguration();
-    QnxDeviceConfiguration(const QString &name, Core::Id type, MachineType machineType,
+    QnxDevice();
+    QnxDevice(const QString &name, Core::Id type, MachineType machineType,
                            Origin origin, Core::Id id);
-    QnxDeviceConfiguration(const QnxDeviceConfiguration &other);
+    QnxDevice(const QnxDevice &other);
 
     QString interruptProcessByNameCommandLine(const QString &filePath) const;
     QString killProcessByNameCommandLine(const QString &filePath) const;

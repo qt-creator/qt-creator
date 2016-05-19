@@ -25,7 +25,7 @@
 
 #include "qnxanalyzesupport.h"
 
-#include "qnxdeviceconfiguration.h"
+#include "qnxdevice.h"
 #include "qnxrunconfiguration.h"
 #include "slog2inforunner.h"
 
@@ -71,7 +71,7 @@ QnxAnalyzeSupport::QnxAnalyzeSupport(QnxRunConfiguration *runConfig,
             this, &QnxAnalyzeSupport::remoteIsRunning);
 
     IDevice::ConstPtr dev = DeviceKitInformation::device(runConfig->target()->kit());
-    QnxDeviceConfiguration::ConstPtr qnxDevice = dev.dynamicCast<const QnxDeviceConfiguration>();
+    QnxDevice::ConstPtr qnxDevice = dev.dynamicCast<const QnxDevice>();
 
     const QString applicationId = FileName::fromString(runConfig->remoteExecutableFilePath()).fileName();
     m_slog2Info = new Slog2InfoRunner(applicationId, qnxDevice, this);

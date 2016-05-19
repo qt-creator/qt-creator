@@ -27,11 +27,11 @@
 #include "qnxconstants.h"
 #include "qnxrunconfiguration.h"
 #include "qnxdebugsupport.h"
+#include "qnxdevice.h"
 #include "qnxanalyzesupport.h"
 #include "qnxqtversion.h"
 #include "qnxruncontrol.h"
 #include "qnxutils.h"
-#include "qnxdeviceconfiguration.h"
 
 #include <debugger/debuggerruncontrol.h>
 #include <debugger/debuggerrunconfigurationaspect.h>
@@ -50,8 +50,9 @@
 
 using namespace Debugger;
 using namespace ProjectExplorer;
-using namespace Qnx;
-using namespace Qnx::Internal;
+
+namespace Qnx {
+namespace Internal {
 
 static DebuggerStartParameters createDebuggerStartParameters(QnxRunConfiguration *runConfig)
 {
@@ -103,8 +104,8 @@ bool QnxRunControlFactory::canRun(RunConfiguration *runConfiguration, Core::Id m
         return false;
     }
 
-    const QnxDeviceConfiguration::ConstPtr dev = DeviceKitInformation::device(runConfiguration->target()->kit())
-            .dynamicCast<const QnxDeviceConfiguration>();
+    const QnxDevice::ConstPtr dev = DeviceKitInformation::device(runConfiguration->target()->kit())
+            .dynamicCast<const QnxDevice>();
     if (dev.isNull())
         return false;
 
@@ -157,3 +158,6 @@ RunControl *QnxRunControlFactory::create(RunConfiguration *runConfig, Core::Id m
     QTC_CHECK(false);
     return 0;
 }
+
+} // namespace Internal
+} // namespace Qnx
