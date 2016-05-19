@@ -27,7 +27,7 @@
 
 #include <QSettings>
 
-static const char groupPostfix[]                = "Completion";
+static const char settingsGroup[]               = "CppTools/Completion";
 static const char caseSensitivityKey[]          = "CaseSensitivity";
 static const char completionTriggerKey[]        = "CompletionTrigger";
 static const char automaticProposalTimeoutKey[] = "AutomaticProposalTimeout";
@@ -41,13 +41,9 @@ static const char autoSplitStringsKey[]         = "AutoSplitStrings";
 
 using namespace TextEditor;
 
-void CompletionSettings::toSettings(const QString &category, QSettings *s) const
+void CompletionSettings::toSettings(QSettings *s) const
 {
-    QString group(groupPostfix);
-    if (!category.isEmpty())
-        group.insert(0, category);
-
-    s->beginGroup(group);
+    s->beginGroup(settingsGroup);
     s->setValue(caseSensitivityKey, (int) m_caseSensitivity);
     s->setValue(completionTriggerKey, (int) m_completionTrigger);
     s->setValue(automaticProposalTimeoutKey, m_automaticProposalTimeoutInMs);
@@ -61,35 +57,32 @@ void CompletionSettings::toSettings(const QString &category, QSettings *s) const
     s->endGroup();
 }
 
-void CompletionSettings::fromSettings(const QString &category, const QSettings *s)
+void CompletionSettings::fromSettings(QSettings *s)
 {
-    QString group(groupPostfix);
-    if (!category.isEmpty())
-        group.insert(0, category);
-    group += '/';
-
     *this = CompletionSettings(); // Assign defaults
 
+    s->beginGroup(settingsGroup);
     m_caseSensitivity = (CaseSensitivity)
-            s->value(group + caseSensitivityKey, m_caseSensitivity).toInt();
+            s->value(caseSensitivityKey, m_caseSensitivity).toInt();
     m_completionTrigger = (CompletionTrigger)
-            s->value(group + completionTriggerKey, m_completionTrigger).toInt();
+            s->value(completionTriggerKey, m_completionTrigger).toInt();
     m_automaticProposalTimeoutInMs =
-            s->value(group + automaticProposalTimeoutKey, m_automaticProposalTimeoutInMs).toInt();
+            s->value(automaticProposalTimeoutKey, m_automaticProposalTimeoutInMs).toInt();
     m_autoInsertBrackets =
-            s->value(group + autoInsertBracesKey, m_autoInsertBrackets).toBool();
+            s->value(autoInsertBracesKey, m_autoInsertBrackets).toBool();
     m_surroundingAutoBrackets =
-            s->value(group + surroundingAutoBracketsKey, m_surroundingAutoBrackets).toBool();
+            s->value(surroundingAutoBracketsKey, m_surroundingAutoBrackets).toBool();
     m_autoInsertQuotes =
-            s->value(group + autoInsertQuotesKey, m_autoInsertQuotes).toBool();
+            s->value(autoInsertQuotesKey, m_autoInsertQuotes).toBool();
     m_surroundingAutoQuotes =
-            s->value(group + surroundingAutoQuotesKey, m_surroundingAutoQuotes).toBool();
+            s->value(surroundingAutoQuotesKey, m_surroundingAutoQuotes).toBool();
     m_partiallyComplete =
-            s->value(group + partiallyCompleteKey, m_partiallyComplete).toBool();
+            s->value(partiallyCompleteKey, m_partiallyComplete).toBool();
     m_spaceAfterFunctionName =
-            s->value(group + spaceAfterFunctionNameKey, m_spaceAfterFunctionName).toBool();
+            s->value(spaceAfterFunctionNameKey, m_spaceAfterFunctionName).toBool();
     m_autoSplitStrings =
-            s->value(group + autoSplitStringsKey, m_autoSplitStrings).toBool();
+            s->value(autoSplitStringsKey, m_autoSplitStrings).toBool();
+    s->endGroup();
 }
 
 bool CompletionSettings::equals(const CompletionSettings &cs) const

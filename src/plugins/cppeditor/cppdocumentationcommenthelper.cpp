@@ -28,9 +28,10 @@
 #include "cppautocompleter.h"
 
 #include <cpptools/cpptoolssettings.h>
-#include <cpptools/commentssettings.h>
 #include <cpptools/doxygengenerator.h>
+#include <texteditor/commentssettings.h>
 #include <texteditor/texteditor.h>
+#include <texteditor/texteditorsettings.h>
 #include <texteditor/textdocument.h>
 #include <cplusplus/MatchingText.h>
 
@@ -272,7 +273,7 @@ namespace Internal {
 bool trySplitComment(TextEditor::TextEditorWidget *editorWidget,
                      const CPlusPlus::Snapshot &snapshot)
 {
-    const CommentsSettings &settings = CppToolsSettings::instance()->commentsSettings();
+    const TextEditor::CommentsSettings &settings = CppToolsSettings::instance()->commentsSettings();
     if (!settings.m_enableDoxygen && !settings.m_leadingAsterisks)
         return false;
 

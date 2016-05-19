@@ -36,8 +36,6 @@ QtcPlugin {
         "clangdiagnosticconfigswidget.cpp", "clangdiagnosticconfigswidget.h",
         "clangdiagnosticconfigswidget.ui",
         "compileroptionsbuilder.cpp", "compileroptionsbuilder.h",
-        "commentssettings.cpp", "commentssettings.h",
-        "completionsettingspage.cpp", "completionsettingspage.h", "completionsettingspage.ui",
         "cppchecksymbols.cpp", "cppchecksymbols.h",
         "cppclassesfilter.cpp", "cppclassesfilter.h",
         "cppcodeformatter.cpp", "cppcodeformatter.h",

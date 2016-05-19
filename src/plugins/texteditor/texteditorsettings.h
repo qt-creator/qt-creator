@@ -51,6 +51,7 @@ class ExtraEncodingSettings;
 class ICodeStylePreferences;
 class ICodeStylePreferencesFactory;
 class CodeStylePool;
+class CommentsSettings;
 
 /**
  * This class provides a central place for basic text editor settings. These
@@ -76,8 +77,7 @@ public:
     static const CompletionSettings &completionSettings();
     static const HighlighterSettings &highlighterSettings();
     static const ExtraEncodingSettings &extraEncodingSettings();
-
-    static void setCompletionSettings(const TextEditor::CompletionSettings &);
+    static const CommentsSettings &commentsSettings();
 
     static ICodeStylePreferencesFactory *codeStyleFactory(Core::Id languageId);
     static QMap<Core::Id, ICodeStylePreferencesFactory *> codeStyleFactories();
@@ -109,6 +109,7 @@ signals:
     void displaySettingsChanged(const TextEditor::DisplaySettings &);
     void completionSettingsChanged(const TextEditor::CompletionSettings &);
     void extraEncodingSettingsChanged(const TextEditor::ExtraEncodingSettings &);
+    void commentsSettingsChanged(const TextEditor::CommentsSettings &);
 };
 
 } // namespace TextEditor

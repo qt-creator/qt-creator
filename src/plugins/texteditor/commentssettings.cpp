@@ -27,11 +27,11 @@
 
 #include <QSettings>
 
-using namespace CppTools;
+using namespace TextEditor;
 
 namespace {
 
-const char kDocumentationCommentsGroup[] = "DocumentationComments";
+const char kDocumentationCommentsGroup[] = "CppToolsDocumentationComments";
 const char kEnableDoxygenBlocks[] = "EnableDoxygenBlocks";
 const char kGenerateBrief[] = "GenerateBrief";
 const char kAddLeadingAsterisks[] = "AddLeadingAsterisks";
@@ -44,22 +44,21 @@ CommentsSettings::CommentsSettings()
     , m_leadingAsterisks(true)
 {}
 
-void CommentsSettings::toSettings(const QString &category, QSettings *s) const
+void CommentsSettings::toSettings(QSettings *s) const
 {
-    s->beginGroup(category + QLatin1String(kDocumentationCommentsGroup));
-    s->setValue(QLatin1String(kEnableDoxygenBlocks), m_enableDoxygen);
-    s->setValue(QLatin1String(kGenerateBrief), m_generateBrief);
-    s->setValue(QLatin1String(kAddLeadingAsterisks), m_leadingAsterisks);
+    s->beginGroup(kDocumentationCommentsGroup);
+    s->setValue(kEnableDoxygenBlocks, m_enableDoxygen);
+    s->setValue(kGenerateBrief, m_generateBrief);
+    s->setValue(kAddLeadingAsterisks, m_leadingAsterisks);
     s->endGroup();
 }
 
-void CommentsSettings::fromSettings(const QString &category, QSettings *s)
+void CommentsSettings::fromSettings(QSettings *s)
 {
-    s->beginGroup(category + QLatin1String(kDocumentationCommentsGroup));
-    m_enableDoxygen = s->value(QLatin1String(kEnableDoxygenBlocks), true).toBool();
-    m_generateBrief = m_enableDoxygen
-            && s->value(QLatin1String(kGenerateBrief), true).toBool();
-    m_leadingAsterisks = s->value(QLatin1String(kAddLeadingAsterisks), true).toBool();
+    s->beginGroup(kDocumentationCommentsGroup);
+    m_enableDoxygen = s->value(kEnableDoxygenBlocks, true).toBool();
+    m_generateBrief = m_enableDoxygen && s->value(kGenerateBrief, true).toBool();
+    m_leadingAsterisks = s->value(kAddLeadingAsterisks, true).toBool();
     s->endGroup();
 }
 

@@ -28,10 +28,10 @@
 #include "cpptoolsconstants.h"
 #include "cppcodestylepreferences.h"
 #include "cppcodestylepreferencesfactory.h"
-#include "commentssettings.h"
-#include "completionsettingspage.h"
 
 #include <coreplugin/icore.h>
+#include <texteditor/commentssettings.h>
+#include <texteditor/completionsettingspage.h>
 #include <texteditor/codestylepool.h>
 #include <texteditor/tabsettings.h>
 #include <texteditor/texteditorsettings.h>
@@ -57,12 +57,10 @@ class CppToolsSettingsPrivate
 public:
     CppToolsSettingsPrivate()
         : m_globalCodeStyle(0)
-        , m_completionSettingsPage(0)
     {}
 
     CommentsSettings m_commentsSettings;
     CppCodeStylePreferences *m_globalCodeStyle;
-    CompletionSettingsPage *m_completionSettingsPage;
 };
 
 } // namespace Internal
@@ -79,10 +77,9 @@ CppToolsSettings::CppToolsSettings(QObject *parent)
 
     qRegisterMetaType<CppTools::CppCodeStyleSettings>("CppTools::CppCodeStyleSettings");
 
-    QSettings *s = ICore::settings();
-    d->m_commentsSettings.fromSettings(QLatin1String(Constants::CPPTOOLS_SETTINGSGROUP), s);
-    d->m_completionSettingsPage = new CompletionSettingsPage(this);
-    ExtensionSystem::PluginManager::addObject(d->m_completionSettingsPage);
+    d->m_commentsSettings = TextEditorSettings::commentsSettings();
+    connect(TextEditorSettings::instance(), &TextEditorSettings::commentsSettingsChanged,
+            this, &CppToolsSettings::setCommentsSettings);
 
     // code style factory
     ICodeStylePreferencesFactory *factory = new CppCodeStylePreferencesFactory();
@@ -163,6 +160,7 @@ CppToolsSettings::CppToolsSettings(QObject *parent)
 
     pool->loadCustomCodeStyles();
 
+    QSettings *s = ICore::settings();
     // load global settings (after built-in settings are added to the pool)
     d->m_globalCodeStyle->fromSettings(QLatin1String(CppTools::Constants::CPP_SETTINGS_ID), s);
 
@@ -223,8 +221,6 @@ CppToolsSettings::CppToolsSettings(QObject *parent)
 
 CppToolsSettings::~CppToolsSettings()
 {
-    ExtensionSystem::PluginManager::removeObject(d->m_completionSettingsPage);
-
     TextEditorSettings::unregisterCodeStyle(Constants::CPP_SETTINGS_ID);
     TextEditorSettings::unregisterCodeStylePool(Constants::CPP_SETTINGS_ID);
     TextEditorSettings::unregisterCodeStyleFactory(Constants::CPP_SETTINGS_ID);
@@ -251,12 +247,7 @@ const CommentsSettings &CppToolsSettings::commentsSettings() const
 
 void CppToolsSettings::setCommentsSettings(const CommentsSettings &commentsSettings)
 {
-    if (d->m_commentsSettings == commentsSettings)
-        return;
-
     d->m_commentsSettings = commentsSettings;
-    d->m_commentsSettings.toSettings(QLatin1String(Constants::CPPTOOLS_SETTINGSGROUP),
-                                     ICore::settings());
 }
 
 static QString sortEditorDocumentOutlineKey()

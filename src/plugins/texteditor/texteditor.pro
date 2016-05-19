@@ -102,6 +102,8 @@ SOURCES += texteditorplugin.cpp \
     circularclipboardassist.cpp \
     textmark.cpp \
     codeassist/keywordscompletionassist.cpp \
+    completionsettingspage.cpp \
+    commentssettings.cpp \
     marginsettings.cpp
 
 HEADERS += texteditorplugin.h \
@@ -217,6 +219,8 @@ HEADERS += texteditorplugin.h \
     textmarkregistry.h \
     marginsettings.h \
     blockrange.h \
+    completionsettingspage.h \
+    commentssettings.h \
     textstyles.h
 
 FORMS += \
@@ -229,6 +233,7 @@ FORMS += \
     behaviorsettingswidget.ui \
     behaviorsettingspage.ui \
     tabsettingswidget.ui \
+    completionsettingspage.ui \
     codestyleselectorwidget.ui
 RESOURCES += texteditor.qrc
 

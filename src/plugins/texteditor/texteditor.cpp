@@ -6549,7 +6549,6 @@ void TextEditorWidget::setCompletionSettings(const CompletionSettings &completio
     d->m_autoCompleter->setSurroundWithBracketsEnabled(completionSettings.m_surroundingAutoBrackets);
     d->m_autoCompleter->setAutoInsertQuotesEnabled(completionSettings.m_autoInsertQuotes);
     d->m_autoCompleter->setSurroundWithQuotesEnabled(completionSettings.m_surroundingAutoQuotes);
-    d->m_codeAssistant.updateFromCompletionSettings(completionSettings);
 }
 
 void TextEditorWidget::setExtraEncodingSettings(const ExtraEncodingSettings &extraEncodingSettings)

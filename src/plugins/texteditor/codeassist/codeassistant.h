@@ -47,7 +47,6 @@ public:
     ~CodeAssistant();
 
     void configure(TextEditorWidget *editorWidget);
-    void updateFromCompletionSettings(const TextEditor::CompletionSettings &settings);
 
     void process();
     void notifyChange();

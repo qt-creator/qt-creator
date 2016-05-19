@@ -40,6 +40,7 @@
 #include "extraencodingsettings.h"
 #include "icodestylepreferences.h"
 #include "icodestylepreferencesfactory.h"
+#include "completionsettingspage.h"
 #include <texteditor/generichighlighter/highlightersettingspage.h>
 #include <texteditor/snippets/snippetssettingspage.h>
 
@@ -64,14 +65,13 @@ public:
     DisplaySettingsPage *m_displaySettingsPage;
     HighlighterSettingsPage *m_highlighterSettingsPage;
     SnippetsSettingsPage *m_snippetsSettingsPage;
+    CompletionSettingsPage *m_completionSettingsPage;
 
     QMap<Core::Id, ICodeStylePreferencesFactory *> m_languageToFactory;
 
     QMap<Core::Id, ICodeStylePreferences *> m_languageToCodeStyle;
     QMap<Core::Id, CodeStylePool *> m_languageToCodeStylePool;
     QMap<QString, Core::Id> m_mimeTypeToLanguage;
-
-    CompletionSettings m_completionSettings;
 };
 
 } // namespace Internal
@@ -339,6 +339,9 @@ TextEditorSettings::TextEditorSettings(QObject *parent)
         new SnippetsSettingsPage(Constants::TEXT_EDITOR_SNIPPETS_SETTINGS, this);
     ExtensionSystem::PluginManager::addObject(d->m_snippetsSettingsPage);
 
+    d->m_completionSettingsPage = new CompletionSettingsPage(this);
+    ExtensionSystem::PluginManager::addObject(d->m_completionSettingsPage);
+
     connect(d->m_fontSettingsPage, &FontSettingsPage::changed,
             this, &TextEditorSettings::fontSettingsChanged);
     connect(d->m_behaviorSettingsPage, &BehaviorSettingsPage::typingSettingsChanged,
@@ -353,9 +356,10 @@ TextEditorSettings::TextEditorSettings(QObject *parent)
             this, &TextEditorSettings::marginSettingsChanged);
     connect(d->m_displaySettingsPage, &DisplaySettingsPage::displaySettingsChanged,
             this, &TextEditorSettings::displaySettingsChanged);
-
-    // TODO: Move these settings to TextEditor category
-    d->m_completionSettings.fromSettings(QLatin1String("CppTools/"), Core::ICore::settings());
+    connect(d->m_completionSettingsPage, &CompletionSettingsPage::completionSettingsChanged,
+            this, &TextEditorSettings::completionSettingsChanged);
+    connect(d->m_completionSettingsPage, &CompletionSettingsPage::commentsSettingsChanged,
+            this, &TextEditorSettings::commentsSettingsChanged);
 }
 
 TextEditorSettings::~TextEditorSettings()
@@ -365,6 +369,7 @@ TextEditorSettings::~TextEditorSettings()
     ExtensionSystem::PluginManager::removeObject(d->m_displaySettingsPage);
     ExtensionSystem::PluginManager::removeObject(d->m_highlighterSettingsPage);
     ExtensionSystem::PluginManager::removeObject(d->m_snippetsSettingsPage);
+    ExtensionSystem::PluginManager::removeObject(d->m_completionSettingsPage);
 
     delete d;
 
@@ -408,7 +413,7 @@ const DisplaySettings &TextEditorSettings::displaySettings()
 
 const CompletionSettings &TextEditorSettings::completionSettings()
 {
-    return d->m_completionSettings;
+    return d->m_completionSettingsPage->completionSettings();
 }
 
 const HighlighterSettings &TextEditorSettings::highlighterSettings()
@@ -421,15 +426,9 @@ const ExtraEncodingSettings &TextEditorSettings::extraEncodingSettings()
     return d->m_behaviorSettingsPage->extraEncodingSettings();
 }
 
-void TextEditorSettings::setCompletionSettings(const CompletionSettings &settings)
+const CommentsSettings &TextEditorSettings::commentsSettings()
 {
-    if (d->m_completionSettings == settings)
-        return;
-
-    d->m_completionSettings = settings;
-    d->m_completionSettings.toSettings(QLatin1String("CppTools/"), Core::ICore::settings());
-
-    emit m_instance->completionSettingsChanged(d->m_completionSettings);
+    return d->m_completionSettingsPage->commentsSettings();
 }
 
 void TextEditorSettings::registerCodeStyleFactory(ICodeStylePreferencesFactory *factory)

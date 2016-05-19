@@ -25,44 +25,33 @@
 
 #pragma once
 
-#include "commentssettings.h"
+#include "texteditor_global.h"
 
-#include <texteditor/completionsettings.h>
-#include <texteditor/texteditoroptionspage.h>
+QT_BEGIN_NAMESPACE
+class QSettings;
+QT_END_NAMESPACE
 
-#include <QPointer>
+namespace TextEditor {
 
-namespace CppTools {
-namespace Internal {
-
-namespace Ui { class CompletionSettingsPage; }
-
-// TODO: Move this class to the text editor plugin
-
-class CompletionSettingsPage : public TextEditor::TextEditorOptionsPage
+class TEXTEDITOR_EXPORT CommentsSettings
 {
-    Q_OBJECT
-
 public:
-    CompletionSettingsPage(QObject *parent);
-    ~CompletionSettingsPage();
+    CommentsSettings();
 
-    QWidget *widget();
-    void apply();
-    void finish();
+    void toSettings(QSettings *s) const;
+    void fromSettings(QSettings *s);
 
-private:
-    TextEditor::CaseSensitivity caseSensitivity() const;
-    TextEditor::CompletionTrigger completionTrigger() const;
+    bool equals(const CommentsSettings &other) const;
 
-    void onCompletionTriggerChanged();
-
-    bool requireCommentsSettingsUpdate() const;
-
-    Ui::CompletionSettingsPage *m_page;
-    QPointer<QWidget> m_widget;
-    CommentsSettings m_commentsSettings;
+    bool m_enableDoxygen;
+    bool m_generateBrief;
+    bool m_leadingAsterisks;
 };
 
-} // namespace Internal
-} // namespace CppTools
+inline bool operator==(const CommentsSettings &a, const CommentsSettings &b)
+{ return a.equals(b); }
+
+inline bool operator!=(const CommentsSettings &a, const CommentsSettings &b)
+{ return !(a == b); }
+
+} // namespace TextEditor

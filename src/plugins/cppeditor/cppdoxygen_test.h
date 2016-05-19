@@ -27,7 +27,7 @@
 
 #include "cppeditortestcase.h"
 
-#include <cpptools/commentssettings.h>
+#include <texteditor/commentssettings.h>
 
 #include <QObject>
 #include <QScopedPointer>
@@ -58,10 +58,10 @@ private:
     void verifyCleanState() const;
     void runTest(const QByteArray &original,
                  const QByteArray &expected,
-                 CppTools::CommentsSettings *settings = 0,
+                 TextEditor::CommentsSettings *settings = 0,
                  const TestDocuments &includedHeaderDocuments = TestDocuments());
 
-    QScopedPointer<CppTools::CommentsSettings> oldSettings;
+    QScopedPointer<TextEditor::CommentsSettings> oldSettings;
 };
 
 } // namespace Tests

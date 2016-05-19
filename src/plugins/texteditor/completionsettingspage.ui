@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>CppTools::Internal::CompletionSettingsPage</class>
+ <class>TextEditor::Internal::CompletionSettingsPage</class>
  <widget class="QWidget" name="CppTools::Internal::CompletionSettingsPage">
   <property name="geometry">
    <rect>

@@ -127,6 +127,7 @@ CodeAssistantPrivate::CodeAssistantPrivate(CodeAssistant *assistant)
     connect(&m_automaticProposalTimer, &QTimer::timeout,
             this, &CodeAssistantPrivate::automaticProposalTimeout);
 
+    m_settings = TextEditorSettings::completionSettings();
     connect(TextEditorSettings::instance(), &TextEditorSettings::completionSettingsChanged,
             this, &CodeAssistantPrivate::updateFromCompletionSettings);
 
@@ -512,11 +513,6 @@ CodeAssistant::~CodeAssistant()
 void CodeAssistant::configure(TextEditorWidget *editorWidget)
 {
     d->configure(editorWidget);
-}
-
-void CodeAssistant::updateFromCompletionSettings(const CompletionSettings &settings)
-{
-    d->updateFromCompletionSettings(settings);
 }
 
 void CodeAssistant::process()

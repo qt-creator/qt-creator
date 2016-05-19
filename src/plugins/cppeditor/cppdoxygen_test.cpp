@@ -339,7 +339,7 @@ void DoxygenTest::testNoLeadingAsterisks()
     QFETCH(QByteArray, given);
     QFETCH(QByteArray, expected);
 
-    CppTools::CommentsSettings injection;
+    TextEditor::CommentsSettings injection;
     injection.m_enableDoxygen = true;
     injection.m_leadingAsterisks = false;
 
@@ -356,7 +356,7 @@ void DoxygenTest::verifyCleanState() const
 /// The '|' in the input denotes the cursor position.
 void DoxygenTest::runTest(const QByteArray &original,
                           const QByteArray &expected,
-                          CppTools::CommentsSettings *settings,
+                          TextEditor::CommentsSettings *settings,
                           const TestDocuments &includedHeaderDocuments)
 {
     // Write files to disk
@@ -381,7 +381,7 @@ void DoxygenTest::runTest(const QByteArray &original,
 
     if (settings) {
         auto *cts = CppTools::CppToolsSettings::instance();
-        oldSettings.reset(new CppTools::CommentsSettings(cts->commentsSettings()));
+        oldSettings.reset(new TextEditor::CommentsSettings(cts->commentsSettings()));
         cts->setCommentsSettings(*settings);
     }
 

@@ -25,33 +25,49 @@
 
 #pragma once
 
-#include "cpptools_global.h"
+#include "commentssettings.h"
+#include "completionsettings.h"
+#include "texteditoroptionspage.h"
 
-QT_BEGIN_NAMESPACE
-class QSettings;
-QT_END_NAMESPACE
 
-namespace CppTools {
+#include <QPointer>
 
-class CPPTOOLS_EXPORT CommentsSettings
+namespace TextEditor {
+namespace Internal {
+
+namespace Ui { class CompletionSettingsPage; }
+
+class CompletionSettingsPage : public TextEditorOptionsPage
 {
+    Q_OBJECT
+
 public:
-    CommentsSettings();
+    CompletionSettingsPage(QObject *parent);
+    ~CompletionSettingsPage();
 
-    void toSettings(const QString &category, QSettings *s) const;
-    void fromSettings(const QString &category, QSettings *s);
+    QWidget *widget();
+    void apply();
+    void finish();
 
-    bool equals(const CommentsSettings &other) const;
+    const CompletionSettings & completionSettings();
+    const CommentsSettings & commentsSettings();
 
-    bool m_enableDoxygen;
-    bool m_generateBrief;
-    bool m_leadingAsterisks;
+signals:
+    void completionSettingsChanged(const CompletionSettings &);
+    void commentsSettingsChanged(const CommentsSettings &);
+
+private:
+    CaseSensitivity caseSensitivity() const;
+    CompletionTrigger completionTrigger() const;
+    void settingsFromUi(CompletionSettings &completion, CommentsSettings &comment) const;
+
+    void onCompletionTriggerChanged();
+
+    Ui::CompletionSettingsPage *m_page;
+    QPointer<QWidget> m_widget;
+    CommentsSettings m_commentsSettings;
+    CompletionSettings m_completionSettings;
 };
 
-inline bool operator==(const CommentsSettings &a, const CommentsSettings &b)
-{ return a.equals(b); }
-
-inline bool operator!=(const CommentsSettings &a, const CommentsSettings &b)
-{ return !(a == b); }
-
-} // namespace CppTools
+} // namespace Internal
+} // namespace TextEditor
