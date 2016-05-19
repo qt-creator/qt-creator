@@ -61,9 +61,6 @@ protected:
     void updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option,
                               const QModelIndex &index) const;
 
-private slots:
-    void commitAndCloseEditor();
-
 private:
     qreal layoutText(QTextLayout &tl, int width, bool *success = 0) const;
 

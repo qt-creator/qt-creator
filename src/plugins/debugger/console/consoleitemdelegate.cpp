@@ -318,8 +318,11 @@ QWidget *ConsoleItemDelegate::createEditor(QWidget *parent,
                                         "background-origin: margin;"
                                         "background-repeat: none;"
                                         "}"));
-    connect(editor, &ConsoleEdit::editingFinished,
-            this, &ConsoleItemDelegate::commitAndCloseEditor);
+    connect(editor, &ConsoleEdit::editingFinished, this, [this, editor] {
+        auto delegate = const_cast<ConsoleItemDelegate*>(this);
+        emit delegate->commitData(editor);
+        emit delegate->closeEditor(editor);
+    });
     return editor;
 }
 
@@ -351,13 +354,6 @@ void ConsoleItemDelegate::currentChanged(const QModelIndex &current,
 {
     emit sizeHintChanged(current);
     emit sizeHintChanged(previous);
-}
-
-void ConsoleItemDelegate::commitAndCloseEditor()
-{
-    ConsoleEdit *editor = qobject_cast<ConsoleEdit *>(sender());
-    emit commitData(editor);
-    emit closeEditor(editor);
 }
 
 qreal ConsoleItemDelegate::layoutText(QTextLayout &tl, int width,
