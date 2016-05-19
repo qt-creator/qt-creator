@@ -32,6 +32,12 @@ IMode::IMode(QObject *parent)
 {
 }
 
+IMode::~IMode()
+{
+    if (m_menu)
+        delete m_menu;
+}
+
 void IMode::setEnabled(bool enabled)
 {
     if (m_isEnabled == enabled)

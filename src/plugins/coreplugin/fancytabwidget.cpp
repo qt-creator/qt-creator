@@ -41,6 +41,7 @@
 #include <QPixmapCache>
 #include <QStackedLayout>
 #include <QStatusBar>
+#include <QStyleOption>
 #include <QToolTip>
 
 using namespace Core;
@@ -49,6 +50,8 @@ using namespace Utils;
 
 const int FancyTabBar::m_rounding = 22;
 const int FancyTabBar::m_textPadding = 4;
+
+static const int kMenuButtonWidth = 16;
 
 void FancyTab::fadeIn()
 {
@@ -83,10 +86,6 @@ FancyTabBar::FancyTabBar(QWidget *parent)
     setAttribute(Qt::WA_Hover, true);
     setFocusPolicy(Qt::NoFocus);
     setMouseTracking(true); // Needed for hover events
-    m_triggerTimer.setSingleShot(true);
-
-    // We use a zerotimer to keep the sidebar responsive
-    connect(&m_triggerTimer, &QTimer::timeout, this, &FancyTabBar::emitCurrentIndex);
 }
 
 FancyTabBar::~FancyTabBar()
@@ -104,7 +103,7 @@ QSize FancyTabBar::tabSizeHint(bool minimum) const
     int width = 60 + spacing + 2;
     int maxLabelwidth = 0;
     for (int tab=0 ; tab<count() ;++tab) {
-        int width = fm.width(tabText(tab));
+        int width = fm.width(m_tabs.at(tab)->text);
         if (width > maxLabelwidth)
             maxLabelwidth = width;
     }
@@ -211,24 +210,22 @@ QRect FancyTabBar::tabRect(int index) const
 
 }
 
-// This keeps the sidebar responsive since
-// we get a repaint before loading the
-// mode itself
-void FancyTabBar::emitCurrentIndex()
-{
-    emit currentChanged(m_currentIndex);
-}
-
 void FancyTabBar::mousePressEvent(QMouseEvent *e)
 {
     e->accept();
     for (int index = 0; index < m_tabs.count(); ++index) {
-        if (tabRect(index).contains(e->pos())) {
-
+        const QRect rect = tabRect(index);
+        if (rect.contains(e->pos())) {
             if (isTabEnabled(index)) {
-                m_currentIndex = index;
-                update();
-                m_triggerTimer.start(0);
+                if (m_tabs.at(index)->hasMenu && rect.right() - e->pos().x() <= kMenuButtonWidth) {
+                    // menu arrow clicked
+                    emit menuTriggered(index, e);
+                } else {
+                    m_currentIndex = index;
+                    update();
+                    // update tab bar before showing widget
+                    QTimer::singleShot(0, this, [this]() { emit currentChanged(m_currentIndex); });
+                }
             }
             break;
         }
@@ -290,6 +287,7 @@ void FancyTabBar::paintTab(QPainter *painter, int tabIndex) const
     }
     painter->save();
 
+    FancyTab *tab = m_tabs.at(tabIndex);
     QRect rect = tabRect(tabIndex);
     bool selected = (tabIndex == m_currentIndex);
     bool enabled = isTabEnabled(tabIndex);
@@ -303,7 +301,7 @@ void FancyTabBar::paintTab(QPainter *painter, int tabIndex) const
         }
     }
 
-    QString tabText(this->tabText(tabIndex));
+    QString tabText(tab->text);
     QRect tabTextRect(rect);
     const bool drawIcon = rect.height() > 36;
     QRect tabIconRect(tabTextRect);
@@ -334,7 +332,7 @@ void FancyTabBar::paintTab(QPainter *painter, int tabIndex) const
         tabIconRect.adjust(0, 4, 0, -textHeight);
         const QIcon::Mode iconMode = enabled ? (selected ? QIcon::Active : QIcon::Normal)
                                              : QIcon::Disabled;
-        StyleHelper::drawIconWithShadow(tabIcon(tabIndex), tabIconRect, painter, iconMode);
+        StyleHelper::drawIconWithShadow(tab->icon, tabIconRect, painter, iconMode);
     }
 
     painter->setOpacity(1.0); //FIXME: was 0.7 before?
@@ -350,6 +348,13 @@ void FancyTabBar::paintTab(QPainter *painter, int tabIndex) const
     painter->translate(0, -1);
     painter->drawText(tabTextRect, textFlags, tabText);
 
+    // menu arrow
+    if (tab->hasMenu) {
+        QStyleOption opt;
+        opt.initFrom(this);
+        opt.rect = rect.adjusted(rect.width() - kMenuButtonWidth, 0, -8, 0);
+        StyleHelper::drawArrow(QStyle::PE_IndicatorArrowRight, painter, &opt);
+    }
     painter->restore();
 }
 
@@ -479,6 +484,7 @@ FancyTabWidget::FancyTabWidget(QWidget *parent)
     setLayout(mainLayout);
 
     connect(m_tabBar, &FancyTabBar::currentChanged, this, &FancyTabWidget::showWidget);
+    connect(m_tabBar, &FancyTabBar::menuTriggered, this, &FancyTabWidget::menuTriggered);
 }
 
 void FancyTabWidget::setSelectionWidgetVisible(bool visible)
@@ -491,10 +497,11 @@ bool FancyTabWidget::isSelectionWidgetVisible() const
     return m_selectionWidget->isVisible();
 }
 
-void FancyTabWidget::insertTab(int index, QWidget *tab, const QIcon &icon, const QString &label)
+void FancyTabWidget::insertTab(int index, QWidget *tab, const QIcon &icon, const QString &label,
+                               bool hasMenu)
 {
     m_modesStack->insertWidget(index, tab);
-    m_tabBar->insertTab(index, icon, label);
+    m_tabBar->insertTab(index, icon, label, hasMenu);
 }
 
 void FancyTabWidget::removeTab(int index)

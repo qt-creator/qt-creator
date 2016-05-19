@@ -42,6 +42,7 @@
 #include <QAction>
 #include <QDebug>
 #include <QMap>
+#include <QMouseEvent>
 #include <QVector>
 
 namespace Core {
@@ -57,6 +58,8 @@ namespace Core {
 
 struct ModeManagerPrivate
 {
+    void showMenu(int index, QMouseEvent *event);
+
     Internal::MainWindow *m_mainWindow;
     Internal::FancyTabWidget *m_modeStack;
     Internal::FancyActionBar *m_actionBar;
@@ -81,6 +84,12 @@ static int indexOf(Id id)
     return -1;
 }
 
+void ModeManagerPrivate::showMenu(int index, QMouseEvent *event)
+{
+    QTC_ASSERT(m_modes.at(index)->menu(), return);
+    m_modes.at(index)->menu()->popup(event->globalPos());
+}
+
 ModeManager::ModeManager(Internal::MainWindow *mainWindow,
                          Internal::FancyTabWidget *modeStack)
 {
@@ -98,6 +107,8 @@ ModeManager::ModeManager(Internal::MainWindow *mainWindow,
             this, &ModeManager::currentTabAboutToChange);
     connect(d->m_modeStack, &Internal::FancyTabWidget::currentChanged,
             this, &ModeManager::currentTabChanged);
+    connect(d->m_modeStack, &Internal::FancyTabWidget::menuTriggered,
+            this, [](int index, QMouseEvent *e) { d->showMenu(index, e); });
 }
 
 void ModeManager::init()
@@ -153,7 +164,8 @@ void ModeManager::objectAdded(QObject *obj)
             ++index;
 
     d->m_modes.insert(index, mode);
-    d->m_modeStack->insertTab(index, mode->widget(), mode->icon(), mode->displayName());
+    d->m_modeStack->insertTab(index, mode->widget(), mode->icon(), mode->displayName(),
+                              mode->menu() != nullptr);
     d->m_modeStack->setTabEnabled(index, mode->isEnabled());
 
     // Register mode shortcut
