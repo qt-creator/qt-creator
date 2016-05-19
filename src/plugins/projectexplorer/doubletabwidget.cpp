@@ -161,7 +161,7 @@ void DoubleTabWidget::setTitle(const QString &title)
 
 QSize DoubleTabWidget::minimumSizeHint() const
 {
-    return QSize(0, StyleHelper::navigationWidgetHeight() + OTHER_HEIGHT + 1);
+    return QSize(0, StyleHelper::navigationWidgetHeight() + OTHER_HEIGHT);
 }
 
 void DoubleTabWidget::updateNameIsUniqueAdd(Tab *tab)
@@ -375,7 +375,7 @@ void DoubleTabWidget::paintEvent(QPaintEvent *event)
         painter.drawText(MARGIN, baseline, m_title);
     }
 
-    QLinearGradient grad(QPoint(0, 0), QPoint(0, r.height() + OTHER_HEIGHT - 1));
+    QLinearGradient grad(QPoint(0, 0), QPoint(0, r.height() + OTHER_HEIGHT));
     if (creatorTheme()->flag(Theme::FlatProjectsMode)) {
         grad.setColorAt(0, creatorTheme()->color(Theme::DoubleTabWidget1stTabBackgroundColor));
     } else {
