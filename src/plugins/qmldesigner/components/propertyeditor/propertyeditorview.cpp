@@ -188,7 +188,7 @@ void PropertyEditorView::changeValue(const QString &name)
         return ;
     }
 
-    if (qmlObjectNode.modelNode().metaInfo().isValid() && qmlObjectNode.modelNode().metaInfo().hasProperty(propertyName))
+    if (qmlObjectNode.modelNode().metaInfo().isValid() && qmlObjectNode.modelNode().metaInfo().hasProperty(propertyName)) {
         if (qmlObjectNode.modelNode().metaInfo().propertyTypeName(propertyName) == "QUrl"
                 || qmlObjectNode.modelNode().metaInfo().propertyTypeName(propertyName) == "url") { //turn absolute local file paths into relative paths
                 QString filePath = castedValue.toUrl().toString();
@@ -197,28 +197,29 @@ void PropertyEditorView::changeValue(const QString &name)
                 castedValue = QUrl(fileDir.relativeFilePath(filePath));
             }
         }
+    }
 
-        if (castedValue.type() == QVariant::Color) {
-            QColor color = castedValue.value<QColor>();
-            QColor newColor = QColor(color.name());
-            newColor.setAlpha(color.alpha());
-            castedValue = QVariant(newColor);
-        }
+    if (castedValue.type() == QVariant::Color) {
+        QColor color = castedValue.value<QColor>();
+        QColor newColor = QColor(color.name());
+        newColor.setAlpha(color.alpha());
+        castedValue = QVariant(newColor);
+    }
 
-        try {
-            if (!value->value().isValid()) { //reset
-                qmlObjectNode.removeProperty(propertyName);
-            } else {
-                if (castedValue.isValid() && !castedValue.isNull()) {
-                    m_locked = true;
-                    qmlObjectNode.setVariantProperty(propertyName, castedValue);
-                    m_locked = false;
-                }
+    try {
+        if (!value->value().isValid()) { //reset
+            qmlObjectNode.removeProperty(propertyName);
+        } else {
+            if (castedValue.isValid() && !castedValue.isNull()) {
+                m_locked = true;
+                qmlObjectNode.setVariantProperty(propertyName, castedValue);
+                m_locked = false;
             }
         }
-        catch (const RewritingException &e) {
-            e.showException();
-        }
+    }
+    catch (const RewritingException &e) {
+        e.showException();
+    }
 }
 
 void PropertyEditorView::changeExpression(const QString &propertyName)
