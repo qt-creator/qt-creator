@@ -28,7 +28,7 @@
 #include <utils/qtcassert.h>
 #include <utils/synchronousprocess.h>
 
-#include <QRegExp>
+#include <QRegularExpression>
 #include <QTimer>
 #include <QFileInfo>
 #include <QDir>
@@ -155,16 +155,36 @@ void PerforceChecker::slotFinished(int exitCode, QProcess::ExitStatus exitStatus
     }
 }
 
+static inline QString findTerm(const QString& in, const QLatin1String& term)
+{
+    QRegularExpression regExp(QString("(\\n|\\r\\n|\\r)%1\\s*(.*)(\\n|\\r\\n|\\r)").arg(term));
+    QTC_ASSERT(regExp.isValid(), return QString());
+    QRegularExpressionMatch match = regExp.match(in);
+    if (match.hasMatch())
+        return match.captured(2).trimmed();
+    return QString();
+}
+
 // Parse p4 client output for the top level
 static inline QString clientRootFromOutput(const QString &in)
 {
-    QRegExp regExp(QLatin1String("(\\n|\\r\\n|\\r)Root:\\s*(.*)(\\n|\\r\\n|\\r)"));
-    QTC_ASSERT(regExp.isValid(), return QString());
-    regExp.setMinimal(true);
-    // Normalize slashes and capitalization of Windows drive letters for caching.
-    if (regExp.indexIn(in) != -1)
-        return QFileInfo(regExp.cap(2).trimmed()).absoluteFilePath();
+    QString root = findTerm(in, QLatin1String("Root:"));
+    if (!root.isNull()) {
+        // Normalize slashes and capitalization of Windows drive letters for caching.
+        return QFileInfo(root).absoluteFilePath();
+    }
     return QString();
+}
+
+// When p4 port and p4 user is set a preconfigured Root: is given, which doesn't relate with
+// the current mapped project. In this case "Client:" has the same value as "Host:", which is an
+// invalid case.
+static inline bool clientAndHostAreEqual(const QString &in)
+{
+    QString client = findTerm(in, QLatin1String("Client:"));
+    QString host = findTerm(in, QLatin1String("Host:"));
+
+    return client == host;
 }
 
 void PerforceChecker::parseOutput(const QString &response)
@@ -173,6 +193,13 @@ void PerforceChecker::parseOutput(const QString &response)
         emitFailed(tr("The client does not seem to contain any mapped files."));
         return;
     }
+
+    if (clientAndHostAreEqual(response)) {
+        // Is an invalid case. But not an error. QtC checks cmake install directories for
+        // p4 repositories, or the %temp% directory.
+        return;
+    }
+
     const QString repositoryRoot = clientRootFromOutput(response);
     if (repositoryRoot.isEmpty()) {
         //: Unable to determine root of the p4 client installation
