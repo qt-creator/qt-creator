@@ -29,7 +29,10 @@
 #include "beautifierplugin.h"
 
 #include <coreplugin/icore.h>
+#include <coreplugin/idocument.h>
+#include <utils/algorithm.h>
 #include <utils/fileutils.h>
+#include <utils/mimetypes/mimedatabase.h>
 
 #include <QFile>
 #include <QFileInfo>
@@ -37,6 +40,11 @@
 
 namespace Beautifier {
 namespace Internal {
+
+namespace {
+const char COMMAND[]        = "command";
+const char SUPPORTED_MIME[] = "supportedMime";
+}
 
 AbstractSettings::AbstractSettings(const QString &name, const QString &ending) :
     m_ending(ending),
@@ -139,6 +147,46 @@ void AbstractSettings::updateVersion()
     // in m_version.
 }
 
+QString AbstractSettings::supportedMimeTypesAsString() const
+{
+    return m_supportedMimeTypes.join("; ");
+}
+
+void AbstractSettings::setSupportedMimeTypes(const QString &mimes)
+{
+    const QStringList stringTypes = mimes.split(';');
+    const Utils::MimeDatabase mdb;
+    QStringList types;
+    for (const QString &type : stringTypes) {
+        const Utils::MimeType mime = mdb.mimeTypeForName(type.trimmed());
+        if (!mime.isValid())
+            continue;
+        const QString canonicalName = mime.name();
+        if (!types.contains(canonicalName))
+            types << canonicalName;
+    }
+
+    if (m_supportedMimeTypes != types) {
+        m_supportedMimeTypes = types;
+        emit supportedMimeTypesChanged();
+    }
+}
+
+bool AbstractSettings::isApplicable(const Core::IDocument *document) const
+{
+    if (!document)
+        return false;
+
+    if (m_supportedMimeTypes.isEmpty())
+        return true;
+
+    const Utils::MimeDatabase mdb;
+    const Utils::MimeType documentMimeType = mdb.mimeTypeForName(document->mimeType());
+    return Utils::anyOf(m_supportedMimeTypes, [&documentMimeType](const QString &mime) {
+        return documentMimeType.inherits(mime);
+    });
+}
+
 QStringList AbstractSettings::options()
 {
     if (m_options.isEmpty())
@@ -167,7 +215,8 @@ void AbstractSettings::save()
         s->setValue(iSettings.key(), iSettings.value());
         ++iSettings;
     }
-    s->setValue("command", m_command);
+    s->setValue(COMMAND, m_command);
+    s->setValue(SUPPORTED_MIME, supportedMimeTypesAsString());
     s->endGroup();
     s->endGroup();
 
@@ -225,14 +274,19 @@ void AbstractSettings::createDocumentationFile() const
 
 void AbstractSettings::read()
 {
+    // Set default values
+    setSupportedMimeTypes("text/x-c++src;text/x-c++hdr");
+
     // Read settings, except styles
     QSettings *s = Core::ICore::settings();
     s->beginGroup(Constants::SETTINGS_GROUP);
     s->beginGroup(m_name);
     const QStringList keys = s->allKeys();
     for (const QString &key : keys) {
-        if (key == "command")
+        if (key == COMMAND)
             setCommand(s->value(key).toString());
+        else if (key == SUPPORTED_MIME)
+            setSupportedMimeTypes(s->value(key).toString());
         else if (m_settings.contains(key))
             m_settings[key] = s->value(key);
         else

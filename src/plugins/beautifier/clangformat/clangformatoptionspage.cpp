@@ -62,6 +62,7 @@ ClangFormatOptionsPageWidget::~ClangFormatOptionsPageWidget()
 void ClangFormatOptionsPageWidget::restore()
 {
     ui->command->setPath(m_settings->command());
+    ui->mime->setText(m_settings->supportedMimeTypesAsString());
     const int textIndex = ui->predefinedStyle->findText(m_settings->predefinedStyle());
     if (textIndex != -1)
         ui->predefinedStyle->setCurrentIndex(textIndex);
@@ -78,11 +79,15 @@ void ClangFormatOptionsPageWidget::restore()
 void ClangFormatOptionsPageWidget::apply()
 {
     m_settings->setCommand(ui->command->path());
+    m_settings->setSupportedMimeTypes(ui->mime->text());
     m_settings->setUsePredefinedStyle(ui->usePredefinedStyle->isChecked());
     m_settings->setPredefinedStyle(ui->predefinedStyle->currentText());
     m_settings->setCustomStyle(ui->configurations->currentConfiguration());
     m_settings->setFormatEntireFileFallback(ui->formatEntireFileFallback->isChecked());
     m_settings->save();
+
+    // update since not all MIME types are accepted (invalids or duplicates)
+   ui->mime->setText(m_settings->supportedMimeTypesAsString());
 }
 
 ClangFormatOptionsPage::ClangFormatOptionsPage(ClangFormatSettings *settings, QObject *parent) :

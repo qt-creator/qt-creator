@@ -81,10 +81,14 @@
 
             \image beautifier_options.png
 
-        \li In the \uicontrol {Artistic Style command},
+        \li In the \uicontrol Configuration group, specify the path to
+            the tool executable in the \uicontrol {Artistic Style command},
             \uicontrol {Clang Format command}, or
-            \uicontrol {Uncrustify command} field, specify the path to the tool
-            executable.
+            \uicontrol {Uncrustify command} field.
+
+        \li In the \uicontrol {Restrict to MIME types} field, define the MIME
+            types of the files to beautify, separated by semicolons. Leave the
+            field empty to apply the tool on all files.
 
         \li In the \uicontrol Options group, select the configuration file that
             defines the style to use in the source files. If you select several

@@ -29,16 +29,20 @@
 #include <QDir>
 #include <QHash>
 #include <QMap>
+#include <QObject>
 #include <QSet>
 #include <QString>
 #include <QStringList>
+#include <QVector>
+
+namespace Core { class IDocument; }
 
 namespace Beautifier {
 namespace Internal {
 
-class AbstractSettings
+class AbstractSettings : public QObject
 {
-    Q_DECLARE_TR_FUNCTIONS(AbstractSettings)
+    Q_OBJECT
 
 public:
     explicit AbstractSettings(const QString &name, const QString &ending);
@@ -65,8 +69,15 @@ public:
     int version() const;
     virtual void updateVersion();
 
+    QString supportedMimeTypesAsString() const;
+    void setSupportedMimeTypes(const QString &mimes);
+    bool isApplicable(const Core::IDocument *document) const;
+
     QStringList options();
     QString documentation(const QString &option) const;
+
+signals:
+    void supportedMimeTypesChanged();
 
 protected:
     QMap<QString, QString> m_styles;
@@ -85,6 +96,7 @@ private:
     QString m_command;
     QHash<QString, int> m_options;
     QStringList m_docu;
+    QStringList m_supportedMimeTypes;
 };
 
 } // namespace Internal

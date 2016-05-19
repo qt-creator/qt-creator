@@ -34,7 +34,7 @@ namespace Beautifier {
 namespace Internal {
 namespace ArtisticStyle {
 
-class ArtisticStyleSettings : public QObject, public AbstractSettings
+class ArtisticStyleSettings : public AbstractSettings
 {
     Q_OBJECT
 

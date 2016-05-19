@@ -64,6 +64,7 @@ UncrustifyOptionsPageWidget::~UncrustifyOptionsPageWidget()
 void UncrustifyOptionsPageWidget::restore()
 {
     ui->command->setPath(m_settings->command());
+    ui->mime->setText(m_settings->supportedMimeTypesAsString());
     ui->useOtherFiles->setChecked(m_settings->useOtherFiles());
     ui->useHomeFile->setChecked(m_settings->useHomeFile());
     ui->useCustomStyle->setChecked(m_settings->useCustomStyle());
@@ -74,12 +75,16 @@ void UncrustifyOptionsPageWidget::restore()
 void UncrustifyOptionsPageWidget::apply()
 {
     m_settings->setCommand(ui->command->path());
+    m_settings->setSupportedMimeTypes(ui->mime->text());
     m_settings->setUseOtherFiles(ui->useOtherFiles->isChecked());
     m_settings->setUseHomeFile(ui->useHomeFile->isChecked());
     m_settings->setUseCustomStyle(ui->useCustomStyle->isChecked());
     m_settings->setCustomStyle(ui->configurations->currentConfiguration());
     m_settings->setFormatEntireFileFallback(ui->formatEntireFileFallback->isChecked());
     m_settings->save();
+
+     // update since not all MIME types are accepted (invalids or duplicates)
+    ui->mime->setText(m_settings->supportedMimeTypesAsString());
 }
 
 UncrustifyOptionsPage::UncrustifyOptionsPage(UncrustifySettings *settings, QObject *parent) :

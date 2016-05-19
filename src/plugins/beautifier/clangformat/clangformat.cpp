@@ -38,11 +38,13 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/coreconstants.h>
+#include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/idocument.h>
 #include <cppeditor/cppeditorconstants.h>
 #include <texteditor/texteditor.h>
 #include <utils/algorithm.h>
+#include <utils/fileutils.h>
 
 #include <QAction>
 #include <QMenu>
@@ -88,12 +90,15 @@ bool ClangFormat::initialize()
 
     Core::ActionManager::actionContainer(Constants::MENU_ID)->addMenu(menu);
 
+    connect(m_settings, &ClangFormatSettings::supportedMimeTypesChanged,
+            [this](){updateActions(Core::EditorManager::instance()->currentEditor());});
+
     return true;
 }
 
 void ClangFormat::updateActions(Core::IEditor *editor)
 {
-    const bool enabled = (editor && editor->document()->id() == CppEditor::Constants::CPPEDITOR_ID);
+    const bool enabled = (editor && m_settings->isApplicable(editor->document()));
     m_formatFile->setEnabled(enabled);
     m_formatRange->setEnabled(enabled);
 }
@@ -142,6 +147,11 @@ Command ClangFormat::command() const
     }
 
     return command;
+}
+
+bool ClangFormat::isApplicable(const Core::IDocument *document) const
+{
+    return m_settings->isApplicable(document);
 }
 
 Command ClangFormat::command(int offset, int length) const

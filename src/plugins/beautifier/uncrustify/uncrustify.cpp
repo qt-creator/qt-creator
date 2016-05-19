@@ -38,6 +38,7 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/coreconstants.h>
+#include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/idocument.h>
 #include <cppeditor/cppeditorconstants.h>
@@ -85,6 +86,9 @@ bool Uncrustify::initialize()
 
     Core::ActionManager::actionContainer(Constants::MENU_ID)->addMenu(menu);
 
+    connect(m_settings, &UncrustifySettings::supportedMimeTypesChanged,
+            [this](){updateActions(Core::EditorManager::instance()->currentEditor());});
+
     return true;
 }
 
@@ -95,7 +99,7 @@ QString Uncrustify::id() const
 
 void Uncrustify::updateActions(Core::IEditor *editor)
 {
-    const bool enabled = (editor && editor->document()->id() == CppEditor::Constants::CPPEDITOR_ID);
+    const bool enabled = (editor && m_settings->isApplicable(editor->document()));
     m_formatFile->setEnabled(enabled);
     m_formatRange->setEnabled(enabled);
 }
@@ -177,6 +181,11 @@ Command Uncrustify::command() const
 {
     const QString cfgFile = configurationFile();
     return cfgFile.isEmpty() ? Command() : command(cfgFile, false);
+}
+
+bool Uncrustify::isApplicable(const Core::IDocument *document) const
+{
+    return m_settings->isApplicable(document);
 }
 
 Command Uncrustify::command(const QString &cfgFile, bool fragment) const

@@ -62,6 +62,7 @@ ArtisticStyleOptionsPageWidget::~ArtisticStyleOptionsPageWidget()
 void ArtisticStyleOptionsPageWidget::restore()
 {
     ui->command->setPath(m_settings->command());
+    ui->mime->setText(m_settings->supportedMimeTypesAsString());
     ui->useOtherFiles->setChecked(m_settings->useOtherFiles());
     ui->useHomeFile->setChecked(m_settings->useHomeFile());
     ui->useCustomStyle->setChecked(m_settings->useCustomStyle());
@@ -71,11 +72,15 @@ void ArtisticStyleOptionsPageWidget::restore()
 void ArtisticStyleOptionsPageWidget::apply()
 {
     m_settings->setCommand(ui->command->path());
+    m_settings->setSupportedMimeTypes(ui->mime->text());
     m_settings->setUseOtherFiles(ui->useOtherFiles->isChecked());
     m_settings->setUseHomeFile(ui->useHomeFile->isChecked());
     m_settings->setUseCustomStyle(ui->useCustomStyle->isChecked());
     m_settings->setCustomStyle(ui->configurations->currentConfiguration());
     m_settings->save();
+
+    // update since not all MIME types are accepted (invalids or duplicates)
+   ui->mime->setText(m_settings->supportedMimeTypesAsString());
 }
 
 ArtisticStyleOptionsPage::ArtisticStyleOptionsPage(ArtisticStyleSettings *settings, QObject *parent) :

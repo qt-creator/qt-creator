@@ -30,7 +30,10 @@
 #include <QList>
 #include <QObject>
 
-namespace Core { class IEditor; }
+namespace Core {
+class IDocument;
+class IEditor;
+}
 
 namespace Beautifier {
 namespace Internal {
@@ -54,6 +57,8 @@ public:
      * @note    The received command may be invalid.
      */
     virtual Command command() const = 0;
+
+    virtual bool isApplicable(const Core::IDocument *document) const = 0;
 };
 
 } // namespace Internal

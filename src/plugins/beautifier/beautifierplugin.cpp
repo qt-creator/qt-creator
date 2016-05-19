@@ -171,20 +171,20 @@ QString sourceData(TextEditorWidget *editor, int startPos, int endPos)
             : Convenience::textAt(editor->textCursor(), startPos, (endPos - startPos));
 }
 
-bool isAutoFormatApplicable(const QString &filePath, const QList<Utils::MimeType> &allowedMimeTypes)
+bool isAutoFormatApplicable(const Core::IDocument *document,
+                            const QList<Utils::MimeType> &allowedMimeTypes)
 {
+    if (!document)
+        return false;
+
     if (allowedMimeTypes.isEmpty())
         return true;
 
     const Utils::MimeDatabase mdb;
-    const QList<Utils::MimeType> fileMimeTypes = mdb.mimeTypesForFileName(filePath);
-    auto inheritedByFileMimeTypes = [&fileMimeTypes](const Utils::MimeType &mimeType){
-        const QString name = mimeType.name();
-        return Utils::anyOf(fileMimeTypes, [&name](const Utils::MimeType &fileMimeType){
-            return fileMimeType.inherits(name);
-        });
-    };
-    return Utils::anyOf(allowedMimeTypes, inheritedByFileMimeTypes);
+    const Utils::MimeType documentMimeType = mdb.mimeTypeForName(document->mimeType());
+    return Utils::anyOf(allowedMimeTypes, [&documentMimeType](const Utils::MimeType &mime) {
+        return documentMimeType.inherits(mime.name());
+    });
 }
 
 bool BeautifierPlugin::initialize(const QStringList &arguments, QString *errorString)
@@ -244,19 +244,16 @@ void BeautifierPlugin::autoFormatOnSave(Core::IDocument *document)
     if (!m_generalSettings->autoFormatOnSave())
         return;
 
-    // Check that we are dealing with a cpp editor
-    if (document->id() != CppEditor::Constants::CPPEDITOR_ID)
-        return;
-    const QString filePath = document->filePath().toString();
-
-    if (!isAutoFormatApplicable(filePath, m_generalSettings->autoFormatMime()))
+    if (!isAutoFormatApplicable(document, m_generalSettings->autoFormatMime()))
         return;
 
     // Check if file is contained in the current project (if wished)
     if (m_generalSettings->autoFormatOnlyCurrentProject()) {
         const ProjectExplorer::Project *pro = ProjectExplorer::ProjectTree::currentProject();
-        if (!pro || !pro->files(ProjectExplorer::Project::SourceFiles).contains(filePath))
+        if (!pro || !pro->files(ProjectExplorer::Project::SourceFiles).contains(
+                    document->filePath().toString())) {
             return;
+        }
     }
 
     // Find tool to use by id and format file!
@@ -264,6 +261,8 @@ void BeautifierPlugin::autoFormatOnSave(Core::IDocument *document)
     auto tool = std::find_if(m_tools.constBegin(), m_tools.constEnd(),
                              [&id](const BeautifierAbstractTool *t){return t->id() == id;});
     if (tool != m_tools.constEnd()) {
+        if (!(*tool)->isApplicable(document))
+            return;
         const Command command = (*tool)->command();
         if (!command.isValid())
             return;

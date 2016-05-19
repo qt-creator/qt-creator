@@ -38,6 +38,7 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/coreconstants.h>
+#include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/idocument.h>
 #include <cppeditor/cppeditorconstants.h>
@@ -77,6 +78,9 @@ bool ArtisticStyle::initialize()
 
     Core::ActionManager::actionContainer(Constants::MENU_ID)->addMenu(menu);
 
+    connect(m_settings, &ArtisticStyleSettings::supportedMimeTypesChanged,
+            [this](){updateActions(Core::EditorManager::instance()->currentEditor());});
+
     return true;
 }
 
@@ -87,7 +91,7 @@ QString ArtisticStyle::id() const
 
 void ArtisticStyle::updateActions(Core::IEditor *editor)
 {
-    m_formatFile->setEnabled(editor && editor->document()->id() == CppEditor::Constants::CPPEDITOR_ID);
+    m_formatFile->setEnabled(editor && m_settings->isApplicable(editor->document()));
 }
 
 QList<QObject *> ArtisticStyle::autoReleaseObjects()
@@ -142,6 +146,11 @@ Command ArtisticStyle::command() const
 {
     const QString cfgFile = configurationFile();
     return cfgFile.isEmpty() ? Command() : command(cfgFile);
+}
+
+bool ArtisticStyle::isApplicable(const Core::IDocument *document) const
+{
+    return m_settings->isApplicable(document);
 }
 
 Command ArtisticStyle::command(const QString &cfgFile) const

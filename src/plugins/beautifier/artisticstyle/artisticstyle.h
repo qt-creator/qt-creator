@@ -50,6 +50,7 @@ public:
     void updateActions(Core::IEditor *editor) override;
     QList<QObject *> autoReleaseObjects() override;
     Command command() const override;
+    bool isApplicable(const Core::IDocument *document) const override;
 
 private:
     void formatFile();

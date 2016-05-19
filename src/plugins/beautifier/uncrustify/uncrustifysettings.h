@@ -33,7 +33,7 @@ namespace Beautifier {
 namespace Internal {
 namespace Uncrustify {
 
-class UncrustifySettings : public QObject, public AbstractSettings
+class UncrustifySettings : public AbstractSettings
 {
     Q_OBJECT
 

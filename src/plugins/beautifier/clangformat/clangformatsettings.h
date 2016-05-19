@@ -33,7 +33,7 @@ namespace ClangFormat {
 
 class ClangFormatSettings : public AbstractSettings
 {
-    Q_DECLARE_TR_FUNCTIONS(ClangFormatSettings)
+    Q_OBJECT
 
 public:
     explicit ClangFormatSettings();
