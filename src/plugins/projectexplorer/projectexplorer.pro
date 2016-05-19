@@ -306,7 +306,6 @@ FORMS += processstep.ui \
     sessiondialog.ui \
     projectwizardpage.ui \
     projectexplorersettingspage.ui \
-    targetsettingswidget.ui \
     doubletabwidget.ui \
     deploymentdataview.ui \
     codestylesettingspropertiespage.ui \

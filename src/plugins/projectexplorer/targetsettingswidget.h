@@ -33,11 +33,7 @@ class QPushButton;
 QT_END_NAMESPACE
 
 namespace ProjectExplorer {
-class Target;
-class Kit;
 namespace Internal {
-
-namespace Ui { class TargetSettingsWidget; }
 
 class TargetSettingsWidget : public QWidget
 {
@@ -45,7 +41,6 @@ class TargetSettingsWidget : public QWidget
 
 public:
     explicit TargetSettingsWidget(QWidget *parent = nullptr);
-    ~TargetSettingsWidget() override;
 
     void setCentralWidget(QWidget *widget);
 
@@ -73,12 +68,11 @@ signals:
     void menuShown(int targetIndex);
 
 private:
-    Ui::TargetSettingsWidget *ui;
-
     TargetSelector *m_targetSelector;
     QPushButton *m_addButton;
     QPushButton *m_manageButton;
     QWidget *m_centralWidget = nullptr;
+    QWidget *m_scrollAreaWidgetContents;
 };
 
 } // namespace Internal

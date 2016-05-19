@@ -142,7 +142,7 @@ QtcPlugin {
             "target.cpp", "target.h",
             "targetselector.cpp", "targetselector.h",
             "targetsettingspanel.cpp", "targetsettingspanel.h",
-            "targetsettingswidget.cpp", "targetsettingswidget.h", "targetsettingswidget.ui",
+            "targetsettingswidget.cpp", "targetsettingswidget.h",
             "targetsetuppage.cpp", "targetsetuppage.h",
             "targetsetupwidget.cpp", "targetsetupwidget.h",
             "task.cpp", "task.h",

@@ -24,34 +24,77 @@
 ****************************************************************************/
 
 #include "targetsettingswidget.h"
-#include "ui_targetsettingswidget.h"
 
 #include <utils/theme/theme.h>
 
 #include <QPushButton>
+#include <QVBoxLayout>
 
 using namespace ProjectExplorer::Internal;
 
 TargetSettingsWidget::TargetSettingsWidget(QWidget *parent) : QWidget(parent),
-    ui(new Ui::TargetSettingsWidget),
     m_targetSelector(new TargetSelector(this))
 {
-    ui->setupUi(this);
+    QBrush brush(Qt::white);
+    QBrush brush1(QColor(115, 115, 115, 255));
+    QPalette separatorPalette;
+    separatorPalette.setBrush(QPalette::Active, QPalette::Base, brush);
+    separatorPalette.setBrush(QPalette::Active, QPalette::Window, brush1);
+    separatorPalette.setBrush(QPalette::Inactive, QPalette::Base, brush);
+    separatorPalette.setBrush(QPalette::Inactive, QPalette::Window, brush1);
+    separatorPalette.setBrush(QPalette::Disabled, QPalette::Base, brush1);
+    separatorPalette.setBrush(QPalette::Disabled, QPalette::Window, brush1);
+
+    QPalette shadowPal;
+    QLinearGradient grad(0, 0, 0, 2);
+    grad.setColorAt(0, QColor(0, 0, 0, 60));
+    grad.setColorAt(1, Qt::transparent);
+    shadowPal.setBrush(QPalette::All, QPalette::Window, grad);
+
+    auto header = new QWidget(this);
+    QSizePolicy sizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+    sizePolicy.setHorizontalStretch(0);
+    sizePolicy.setVerticalStretch(0);
+    sizePolicy.setHeightForWidth(header->sizePolicy().hasHeightForWidth());
+    header->setSizePolicy(sizePolicy);
+
+    auto separator = new QWidget(this);
+    separator->setMinimumSize(QSize(0, 1));
+    separator->setMaximumSize(QSize(QWIDGETSIZE_MAX, 1));
+    separator->setPalette(separatorPalette);
+    separator->setAutoFillBackground(true);
+
+    auto shadow = new QWidget(this);
+    shadow->setMinimumSize(QSize(0, 2));
+    shadow->setMaximumSize(QSize(QWIDGETSIZE_MAX, 2));
+    shadow->setPalette(shadowPal);
+    shadow->setAutoFillBackground(true);
+
+    m_scrollAreaWidgetContents = new QWidget(this);
+    auto scrollLayout = new QVBoxLayout(m_scrollAreaWidgetContents);
+    scrollLayout->setSpacing(0);
+    scrollLayout->setContentsMargins(0, 0, 0, 0);
+
+    auto verticalLayout = new QVBoxLayout(this);
+    verticalLayout->setSpacing(0);
+    verticalLayout->setContentsMargins(0, 0, 0, 0);
+    verticalLayout->addWidget(header);
+    verticalLayout->addWidget(separator);
+    verticalLayout->addWidget(shadow);
+    verticalLayout->addWidget(m_scrollAreaWidgetContents);
 
     if (Utils::creatorTheme()->flag(Utils::Theme::FlatProjectsMode)) {
-        ui->separator->setVisible(false);
-        ui->shadow->setVisible(false);
+        separator->setVisible(false);
+        shadow->setVisible(false);
     } else {
-        ui->header->setStyleSheet(QLatin1String("QWidget#header {"
-                                                "border-image: url(:/projectexplorer/images/targetseparatorbackground.png) 43 0 0 0 repeat;"
-                                                "}"));
+        header->setStyleSheet("border-image: url(:/projectexplorer/images/targetseparatorbackground.png) 43 0 0 0 repeat;");
     }
 
     auto headerLayout = new QHBoxLayout;
     headerLayout->setContentsMargins(5, 3, 0, 0);
-    ui->header->setLayout(headerLayout);
+    header->setLayout(headerLayout);
 
-    auto buttonWidget = new QWidget(ui->header);
+    auto buttonWidget = new QWidget(header);
     auto buttonLayout = new QVBoxLayout;
     buttonLayout->setContentsMargins(0, 0, 0, 0);
     buttonLayout->setSpacing(4);
@@ -72,19 +115,6 @@ TargetSettingsWidget::TargetSettingsWidget(QWidget *parent) : QWidget(parent),
             this, &TargetSettingsWidget::toolTipRequested);
     connect(m_targetSelector, &TargetSelector::menuShown,
             this, &TargetSettingsWidget::menuShown);
-
-    QPalette shadowPal;
-    QLinearGradient grad(0, 0, 0, 2);
-    grad.setColorAt(0, QColor(0, 0, 0, 60));
-    grad.setColorAt(1, Qt::transparent);
-    shadowPal.setBrush(QPalette::All, QPalette::Window, grad);
-    ui->shadow->setPalette(shadowPal);
-    ui->shadow->setAutoFillBackground(true);
-}
-
-TargetSettingsWidget::~TargetSettingsWidget()
-{
-    delete ui;
 }
 
 void TargetSettingsWidget::insertTarget(int index, int subIndex, const QString &name)
@@ -135,9 +165,9 @@ QString TargetSettingsWidget::targetNameAt(int index) const
 void TargetSettingsWidget::setCentralWidget(QWidget *widget)
 {
     if (m_centralWidget)
-        ui->scrollAreaWidgetContents->layout()->removeWidget(m_centralWidget);
+        m_scrollAreaWidgetContents->layout()->removeWidget(m_centralWidget);
     m_centralWidget = widget;
-    ui->scrollAreaWidgetContents->layout()->addWidget(m_centralWidget);
+    m_scrollAreaWidgetContents->layout()->addWidget(m_centralWidget);
 }
 
 int TargetSettingsWidget::targetCount() const
