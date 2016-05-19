@@ -191,12 +191,12 @@ void PropertyEditorView::changeValue(const QString &name)
     if (qmlObjectNode.modelNode().metaInfo().isValid() && qmlObjectNode.modelNode().metaInfo().hasProperty(propertyName))
         if (qmlObjectNode.modelNode().metaInfo().propertyTypeName(propertyName) == "QUrl"
                 || qmlObjectNode.modelNode().metaInfo().propertyTypeName(propertyName) == "url") { //turn absolute local file paths into relative paths
-            QString filePath = castedValue.toUrl().toString();
-        if (QFileInfo(filePath).exists() && QFileInfo(filePath).isAbsolute()) {
-            QDir fileDir(QFileInfo(model()->fileUrl().toLocalFile()).absolutePath());
-            castedValue = QUrl(fileDir.relativeFilePath(filePath));
+                QString filePath = castedValue.toUrl().toString();
+            if (QFileInfo(filePath).exists() && QFileInfo(filePath).isAbsolute()) {
+                QDir fileDir(QFileInfo(model()->fileUrl().toLocalFile()).absolutePath());
+                castedValue = QUrl(fileDir.relativeFilePath(filePath));
+            }
         }
-    }
 
         if (castedValue.type() == QVariant::Color) {
             QColor color = castedValue.value<QColor>();
