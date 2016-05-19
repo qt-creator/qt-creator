@@ -44,7 +44,7 @@ namespace Internal {
 
 class TestOutputReader;
 class TestResult;
-class TestSettings;
+struct TestSettings;
 
 using TestResultPtr = QSharedPointer<TestResult>;
 
