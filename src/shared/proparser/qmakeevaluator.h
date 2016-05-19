@@ -229,6 +229,7 @@ public:
 
     bool getMemberArgs(const ProKey &name, int srclen, const ProStringList &args,
                        int *start, int *end);
+    VisitReturn parseJsonInto(const QByteArray &json, const QString &into, ProValueMap *value);
 
     VisitReturn writeFile(const QString &ctx, const QString &fn, QIODevice::OpenMode mode,
                           bool exe, const QString &contents);

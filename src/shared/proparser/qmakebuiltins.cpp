@@ -390,11 +390,16 @@ static void addJsonValue(const QJsonValue &value, const QString &keyPrefix, ProV
     }
 }
 
-static QMakeEvaluator::VisitReturn parseJsonInto(const QByteArray &json, const QString &into, ProValueMap *value)
+QMakeEvaluator::VisitReturn QMakeEvaluator::parseJsonInto(const QByteArray &json, const QString &into, ProValueMap *value)
 {
-    QJsonDocument document = QJsonDocument::fromJson(json);
-    if (document.isNull())
+    QJsonParseError error;
+    QJsonDocument document = QJsonDocument::fromJson(json, &error);
+    if (document.isNull()) {
+        if (error.error != QJsonParseError::NoError)
+            evalError(fL1S("Error parsing json at offset %1: %2")
+                      .arg(error.offset).arg(error.errorString()));
         return QMakeEvaluator::ReturnFalse;
+    }
 
     QString currentKey = into + QLatin1Char('.');
 
