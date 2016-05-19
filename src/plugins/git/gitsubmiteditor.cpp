@@ -142,6 +142,8 @@ void GitSubmitEditor::setCommitData(const CommitData &d)
                                     -> SubmitFileModel::FileStatusHint
     {
         const FileStates state = static_cast<FileStates>(extraData.toInt());
+        if (state & (UnmergedFile | UnmergedThem | UnmergedUs))
+            return SubmitFileModel::FileUnmerged;
         if (state.testFlag(AddedFile) || state.testFlag(UntrackedFile))
             return SubmitFileModel::FileAdded;
         if (state.testFlag(ModifiedFile))

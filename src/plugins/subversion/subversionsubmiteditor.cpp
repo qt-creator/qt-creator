@@ -48,6 +48,8 @@ void SubversionSubmitEditor::setStatusList(const QList<StatusFilePair> &statusOu
     model->setFileStatusQualifier([](const QString &status, const QVariant &)
                                   -> VcsBase::SubmitFileModel::FileStatusHint
     {
+        if (status == QLatin1String("C"))
+            return VcsBase::SubmitFileModel::FileUnmerged;
         if (status == QLatin1String("A"))
             return VcsBase::SubmitFileModel::FileAdded;
         if (status == QLatin1String("M"))

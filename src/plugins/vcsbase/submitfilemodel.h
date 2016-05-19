@@ -75,7 +75,8 @@ public:
         FileAdded,
         FileModified,
         FileDeleted,
-        FileRenamed
+        FileRenamed,
+        FileUnmerged
     };
 
     // Function that converts(qualifies) a QString/QVariant pair to FileStatusHint

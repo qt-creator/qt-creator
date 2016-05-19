@@ -61,6 +61,9 @@ static QBrush fileStatusTextForeground(SubmitFileModel::FileStatusHint statusHin
     case SubmitFileModel::FileRenamed:
         statusTextColor = Theme::VcsBase_FileRenamed_TextColor;
         break;
+    case VcsBase::SubmitFileModel::FileUnmerged:
+        statusTextColor = Theme::VcsBase_FileUnmerged_TextColor;
+        break;
     }
     return QBrush(Utils::creatorTheme()->color(statusTextColor));
 }
