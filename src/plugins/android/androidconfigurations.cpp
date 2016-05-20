@@ -386,7 +386,7 @@ void AndroidConfig::updateAvailableSdkPlatforms() const
     proc.setProcessEnvironment(androidToolEnvironment().toProcessEnvironment());
     SynchronousProcessResponse response
             = proc.run(androidToolPath().toString(), QStringList() << QLatin1String("list") << QLatin1String("target")); // list avaialbe AVDs
-    if (response.result == SynchronousProcessResponse::Finished)
+    if (response.result != SynchronousProcessResponse::Finished)
         return;
 
     SdkPlatform platform;
