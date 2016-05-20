@@ -29,6 +29,11 @@
 #include <vcsbase/submiteditorwidget.h>
 #include <vcsbase/submitfilemodel.h>
 
+static const char FileAddedC[]      = "A";
+static const char FileConflictedC[] = "C";
+static const char FileDeletedC[]    = "D";
+static const char FileModifiedC[]   = "M";
+
 using namespace Subversion::Internal;
 
 SubversionSubmitEditor::SubversionSubmitEditor(const VcsBase::VcsBaseSubmitEditorParameters *parameters) :
@@ -48,13 +53,13 @@ void SubversionSubmitEditor::setStatusList(const QList<StatusFilePair> &statusOu
     model->setFileStatusQualifier([](const QString &status, const QVariant &)
                                   -> VcsBase::SubmitFileModel::FileStatusHint
     {
-        if (status == QLatin1String("C"))
+        if (status == FileConflictedC)
             return VcsBase::SubmitFileModel::FileUnmerged;
-        if (status == QLatin1String("A"))
+        if (status == FileAddedC)
             return VcsBase::SubmitFileModel::FileAdded;
-        if (status == QLatin1String("M"))
+        if (status == FileModifiedC)
             return VcsBase::SubmitFileModel::FileModified;
-        if (status == QLatin1String("D"))
+        if (status == FileDeletedC)
             return VcsBase::SubmitFileModel::FileDeleted;
         return VcsBase::SubmitFileModel::FileStatusUnknown;
     } );
