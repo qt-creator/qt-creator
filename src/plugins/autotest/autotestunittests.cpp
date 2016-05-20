@@ -194,9 +194,9 @@ void AutoTestUnitTests::testCodeParserGTest()
     if (qgetenv("GOOGLETEST_DIR").isEmpty())
         QSKIP("This test needs googletest - set GOOGLETEST_DIR (point to googletest repository)");
 
+    QFETCH(QString, projectFilePath);
     CppTools::Tests::ProjectOpenerAndCloser projectManager;
-    CppTools::ProjectInfo projectInfo = projectManager.open(
-                QString(m_tmpDir->path() + QLatin1String("/simple_gt/simple_gt.pro")), true);
+    CppTools::ProjectInfo projectInfo = projectManager.open(projectFilePath, true);
     QVERIFY(projectInfo.isValid());
 
     QSignalSpy parserSpy(m_model->parser(), SIGNAL(parsingFinished()));
@@ -224,6 +224,15 @@ void AutoTestUnitTests::testCodeParserGTest()
     QCOMPARE(m_model->namedQuickTestsCount(), 0);
     QCOMPARE(m_model->unnamedQuickTestsCount(), 0);
     QCOMPARE(m_model->dataTagsCount(), 0);
+}
+
+void AutoTestUnitTests::testCodeParserGTest_data()
+{
+    QTest::addColumn<QString>("projectFilePath");
+    QTest::newRow("simpleGoogletest")
+        << QString(m_tmpDir->path() + QLatin1String("/simple_gt/simple_gt.pro"));
+    QTest::newRow("simpleGoogletestQbs")
+        << QString(m_tmpDir->path() + QLatin1String("/simple_gt/simple_gt.qbs"));
 }
 
 } // namespace Internal
