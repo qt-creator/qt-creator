@@ -133,7 +133,7 @@ static inline QString debugCodec(const QTextCodec *c)
     return c ? QString::fromLatin1(c->name()) : QString::fromLatin1("Null codec");
 }
 
-// Parse "svn status" output for added/modified/deleted files
+// Parse "svn status" output for added/conflicted/deleted/modified files
 // "M<7blanks>file"
 typedef QList<SubversionSubmitEditor::StatusFilePair> StatusList;
 
@@ -145,8 +145,9 @@ StatusList parseStatusOutput(const QString &output)
     foreach (const QString &l, list) {
         const QString line =l.trimmed();
         if (line.size() > 8) {
-            const QChar state = line.at(0);
-            if (state == QLatin1Char('A') || state == QLatin1Char('D') || state == QLatin1Char('M')) {
+            const QString state = line.left(1);
+            if (state == FileAddedC || state == FileConflictedC
+                    || state == FileDeletedC || state == FileModifiedC) {
                 const QString fileName = line.mid(7); // Column 8 starting from svn 1.6
                 changeSet.push_back(SubversionSubmitEditor::StatusFilePair(QString(state), fileName.trimmed()));
             }

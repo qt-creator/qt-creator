@@ -24,15 +24,11 @@
 ****************************************************************************/
 
 #include "subversionsubmiteditor.h"
+#include "subversionplugin.h"
 
 #include <coreplugin/idocument.h>
 #include <vcsbase/submiteditorwidget.h>
 #include <vcsbase/submitfilemodel.h>
-
-static const char FileAddedC[]      = "A";
-static const char FileConflictedC[] = "C";
-static const char FileDeletedC[]    = "D";
-static const char FileModifiedC[]   = "M";
 
 using namespace Subversion::Internal;
 
@@ -45,7 +41,6 @@ SubversionSubmitEditor::SubversionSubmitEditor(const VcsBase::VcsBaseSubmitEdito
 
 void SubversionSubmitEditor::setStatusList(const QList<StatusFilePair> &statusOutput)
 {
-    typedef QList<StatusFilePair>::const_iterator ConstIterator;
     auto model = new VcsBase::SubmitFileModel(this);
     // Hack to allow completion in "description" field : completion needs a root repository, the
     // checkScriptWorkingDirectory property is fine (at this point it was set by SubversionPlugin)
@@ -64,9 +59,11 @@ void SubversionSubmitEditor::setStatusList(const QList<StatusFilePair> &statusOu
         return VcsBase::SubmitFileModel::FileStatusUnknown;
     } );
 
-    const ConstIterator cend = statusOutput.constEnd();
-    for (ConstIterator it = statusOutput.constBegin(); it != cend; ++it)
-        model->addFile(it->second, it->first);
+    for (const StatusFilePair &pair : statusOutput) {
+        const VcsBase::CheckMode checkMode =
+                (pair.first == FileConflictedC) ? VcsBase::Uncheckable : VcsBase::Unchecked;
+        model->addFile(pair.second, pair.first, checkMode);
+    }
     setFileModel(model);
 }
 
