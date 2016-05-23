@@ -47,11 +47,11 @@ public:
 
     const QVector<QmlEventType> &eventTypes() const;
     void setEventTypes(const QVector<QmlEventType> &types);
+    int addEventType(const QmlEventType &type);
 
     void clear();
     bool isEmpty() const;
     void addEvent(const QmlEvent &event);
-    void addTypedEvent(const QmlEvent &event, const QmlEventType &type);
     void replayEvents(qint64 startTime, qint64 endTime,
                       QmlProfilerModelManager::EventLoader loader) const;
     void finalize();

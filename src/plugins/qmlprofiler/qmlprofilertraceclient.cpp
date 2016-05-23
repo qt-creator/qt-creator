@@ -30,8 +30,29 @@
 #include <qmldebug/qmlenginecontrolclient.h>
 #include <qmldebug/qdebugmessageclient.h>
 #include <qmldebug/qpacketprotocol.h>
+#include <utils/qtcassert.h>
 
 namespace QmlProfiler {
+
+inline static uint qHash(const QmlEventType &type)
+{
+    return qHash(type.location.filename) ^
+            ((type.location.line & 0xfff) |             // 12 bits of line number
+            ((type.message << 12) & 0xf000) |           // 4 bits of message
+            ((type.location.column << 16) & 0xff0000) | // 8 bits of column
+            ((type.rangeType << 24) & 0xf000000) |      // 4 bits of rangeType
+            ((type.detailType << 28) & 0xf0000000));    // 4 bits of detailType
+}
+
+inline static bool operator==(const QmlEventType &type1,
+                              const QmlEventType &type2)
+{
+    return type1.message == type2.message && type1.rangeType == type2.rangeType &&
+            type1.detailType == type2.detailType && type1.location.line == type2.location.line &&
+            type1.location.column == type2.location.column &&
+            // compare filename last as it's expensive.
+            type1.location.filename == type2.location.filename;
+}
 
 class QmlProfilerTraceClientPrivate {
 public:
@@ -50,6 +71,9 @@ public:
 
     void sendRecordingStatus(int engineId);
     bool updateFeatures(ProfileFeature feature);
+    int resolveType(const QmlEventType &type);
+    int resolveStackTop();
+    void processCurrentEvent();
 
     QmlProfilerTraceClient *q;
     QmlProfilerDataModel *model;
@@ -63,7 +87,75 @@ public:
 
     // Reuse the same event, so that we don't have to constantly reallocate all the data.
     QmlTypedEvent currentEvent;
+    QHash<QmlEventType, int> eventTypeIds;
+    QStack<QmlTypedEvent> rangesInProgress;
 };
+
+int QmlProfilerTraceClientPrivate::resolveType(const QmlEventType &type)
+{
+    QHash<QmlEventType, int>::ConstIterator it = eventTypeIds.constFind(type);
+
+    int typeIndex = -1;
+    if (it != eventTypeIds.constEnd()) {
+        typeIndex = it.value();
+    } else {
+        typeIndex = model->addEventType(type);
+        eventTypeIds[type] = typeIndex;
+    }
+    return typeIndex;
+}
+
+int QmlProfilerTraceClientPrivate::resolveStackTop()
+{
+    if (rangesInProgress.isEmpty())
+        return -1;
+
+    QmlTypedEvent &typedEvent = rangesInProgress.top();
+    int typeIndex = typedEvent.event.typeIndex();
+    if (typeIndex >= 0)
+        return typeIndex;
+
+    typeIndex = resolveType(typedEvent.type);
+    typedEvent.event.setTypeIndex(typeIndex);
+    model->addEvent(typedEvent.event);
+    return typeIndex;
+}
+
+void QmlProfilerTraceClientPrivate::processCurrentEvent()
+{
+    // RangeData and RangeLocation always apply to the range on the top of the stack. Furthermore,
+    // all ranges are perfectly nested. This is why we can defer the type resolution until either
+    // the range ends or a child range starts. With only the information in RangeStart we wouldn't
+    // be able to uniquely identify the event type.
+    Message rangeStage = currentEvent.type.rangeType == MaximumRangeType ?
+                currentEvent.type.message : currentEvent.event.rangeStage();
+    switch (rangeStage) {
+    case RangeStart:
+        resolveStackTop();
+        rangesInProgress.push(currentEvent);
+        break;
+    case RangeEnd: {
+        int typeIndex = resolveStackTop();
+        QTC_ASSERT(typeIndex != -1, break);
+        currentEvent.event.setTypeIndex(typeIndex);
+        model->addEvent(currentEvent.event);
+        rangesInProgress.pop();
+        break;
+    }
+    case RangeData:
+        rangesInProgress.top().type.data = currentEvent.type.data;
+        break;
+    case RangeLocation:
+        rangesInProgress.top().type.location = currentEvent.type.location;
+        break;
+    default: {
+        int typeIndex = resolveType(currentEvent.type);
+        currentEvent.event.setTypeIndex(typeIndex);
+        model->addEvent(currentEvent.event);
+        break;
+    }
+    }
+}
 
 void QmlProfilerTraceClientPrivate::sendRecordingStatus(int engineId)
 {
@@ -96,6 +188,8 @@ QmlProfilerTraceClient::~QmlProfilerTraceClient()
 
 void QmlProfilerTraceClient::clearData()
 {
+    d->eventTypeIds.clear();
+    d->rangesInProgress.clear();
     if (d->recordedFeatures != 0) {
         d->recordedFeatures = 0;
         emit recordedFeaturesChanged(0);
@@ -152,7 +246,7 @@ void QmlProfilerTraceClient::setRequestedFeatures(quint64 features)
             d->currentEvent.type.message = DebugMessage;
             d->currentEvent.type.rangeType = MaximumRangeType;
             d->currentEvent.type.detailType = type;
-            d->model->addTypedEvent(d->currentEvent.event, d->currentEvent.type);
+            d->processCurrentEvent();
         });
     } else {
         d->messageClient.reset();
@@ -211,7 +305,7 @@ void QmlProfilerTraceClient::messageReceived(const QByteArray &data)
         emit traceFinished(d->currentEvent.event.timestamp(),
                            d->currentEvent.event.numbers<QList<int>, qint32>());
     } else if (d->updateFeatures(d->currentEvent.type.feature())) {
-        d->model->addTypedEvent(d->currentEvent.event, d->currentEvent.type);
+        d->processCurrentEvent();
     }
 }
 

@@ -43,13 +43,9 @@ class QmlProfilerDataModel::QmlProfilerDataModelPrivate
 {
 public:
     void rewriteType(int typeIndex);
-    int resolveType(const QmlEventType &type);
     int resolveStackTop();
 
     QVector<QmlEventType> eventTypes;
-    QHash<QmlEventType, int> eventTypeIds;
-
-    QStack<QmlTypedEvent> rangesInProgress;
 
     QmlProfilerModelManager *modelManager;
     int modelId;
@@ -141,8 +137,15 @@ void QmlProfilerDataModel::setEventTypes(const QVector<QmlEventType> &types)
 {
     Q_D(QmlProfilerDataModel);
     d->eventTypes = types;
-    for (int id = 0; id < types.count(); ++id)
-        d->eventTypeIds[types[id]] = id;
+}
+
+int QmlProfilerDataModel::addEventType(const QmlEventType &type)
+{
+    Q_D(QmlProfilerDataModel);
+    int typeIndex = d->eventTypes.length();
+    d->eventTypes.append(type);
+    d->rewriteType(typeIndex);
+    return typeIndex;
 }
 
 void QmlProfilerDataModel::addEvent(const QmlEvent &event)
@@ -159,8 +162,6 @@ void QmlProfilerDataModel::clear()
     d->file.open();
     d->eventStream.setDevice(&d->file);
     d->eventTypes.clear();
-    d->eventTypeIds.clear();
-    d->rangesInProgress.clear();
     d->detailsRewriter->clearRequests();
 }
 
@@ -168,26 +169,6 @@ bool QmlProfilerDataModel::isEmpty() const
 {
     Q_D(const QmlProfilerDataModel);
     return d->file.pos() == 0;
-}
-
-inline static uint qHash(const QmlEventType &type)
-{
-    return qHash(type.location.filename) ^
-            ((type.location.line & 0xfff) |             // 12 bits of line number
-            ((type.message << 12) & 0xf000) |           // 4 bits of message
-            ((type.location.column << 16) & 0xff0000) | // 8 bits of column
-            ((type.rangeType << 24) & 0xf000000) |      // 4 bits of rangeType
-            ((type.detailType << 28) & 0xf0000000));    // 4 bits of detailType
-}
-
-inline static bool operator==(const QmlEventType &type1,
-                              const QmlEventType &type2)
-{
-    return type1.message == type2.message && type1.rangeType == type2.rangeType &&
-            type1.detailType == type2.detailType && type1.location.line == type2.location.line &&
-            type1.location.column == type2.location.column &&
-            // compare filename last as it's expensive.
-            type1.location.filename == type2.location.filename;
 }
 
 void QmlProfilerDataModel::QmlProfilerDataModelPrivate::rewriteType(int typeIndex)
@@ -205,80 +186,6 @@ void QmlProfilerDataModel::QmlProfilerDataModelPrivate::rewriteType(int typeInde
         return;
 
     detailsRewriter->requestDetailsForLocation(typeIndex, type.location);
-}
-
-int QmlProfilerDataModel::QmlProfilerDataModelPrivate::resolveType(const QmlEventType &type)
-{
-    QHash<QmlEventType, int>::ConstIterator it = eventTypeIds.constFind(type);
-
-    int typeIndex = -1;
-    if (it != eventTypeIds.constEnd()) {
-        typeIndex = it.value();
-    } else {
-        typeIndex = eventTypes.size();
-        eventTypeIds[type] = typeIndex;
-        eventTypes.append(type);
-        rewriteType(typeIndex);
-    }
-    return typeIndex;
-}
-
-int QmlProfilerDataModel::QmlProfilerDataModelPrivate::resolveStackTop()
-{
-    if (rangesInProgress.isEmpty())
-        return -1;
-
-    QmlTypedEvent &typedEvent = rangesInProgress.top();
-    int typeIndex = typedEvent.event.typeIndex();
-    if (typeIndex >= 0)
-        return typeIndex;
-
-    typeIndex = resolveType(typedEvent.type);
-    typedEvent.event.setTypeIndex(typeIndex);
-    eventStream << typedEvent.event;
-    modelManager->dispatch(typedEvent.event, eventTypes[typeIndex]);
-    return typeIndex;
-}
-
-void QmlProfilerDataModel::addTypedEvent(const QmlEvent &event, const QmlEventType &type)
-{
-    Q_D(QmlProfilerDataModel);
-
-    // RangeData and RangeLocation always apply to the range on the top of the stack. Furthermore,
-    // all ranges are perfectly nested. This is why we can defer the type resolution until either
-    // the range ends or a child range starts. With only the information in RangeStart we wouldn't
-    // be able to uniquely identify the event type.
-    Message rangeStage = type.rangeType == MaximumRangeType ? type.message : event.rangeStage();
-    switch (rangeStage) {
-    case RangeStart:
-        d->resolveStackTop();
-        d->rangesInProgress.push(QmlTypedEvent({event, type}));
-        break;
-    case RangeEnd: {
-        int typeIndex = d->resolveStackTop();
-        QTC_ASSERT(typeIndex != -1, break);
-        QmlEvent appended = event;
-        appended.setTypeIndex(typeIndex);
-        d->eventStream << appended;
-        d->modelManager->dispatch(appended, d->eventTypes[typeIndex]);
-        d->rangesInProgress.pop();
-        break;
-    }
-    case RangeData:
-        d->rangesInProgress.top().type.data = type.data;
-        break;
-    case RangeLocation:
-        d->rangesInProgress.top().type.location = type.location;
-        break;
-    default: {
-        QmlEvent appended = event;
-        int typeIndex = d->resolveType(type);
-        appended.setTypeIndex(typeIndex);
-        d->eventStream << appended;
-        d->modelManager->dispatch(appended, d->eventTypes[typeIndex]);
-        break;
-    }
-    }
 }
 
 void QmlProfilerDataModel::replayEvents(qint64 rangeStart, qint64 rangeEnd,
