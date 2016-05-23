@@ -32,6 +32,24 @@ namespace Icons {
 
 const Utils::Icon EDIT_CLEAR({
         {QLatin1String(":/core/images/editclear.png"), Utils::Theme::PanelTextColorMid}}, Utils::Icon::Tint);
+const Utils::Icon LOCKED_TOOLBAR({
+        {QLatin1String(":/utils/images/locked.png"), Utils::Theme::IconsBaseColor}});
+const Utils::Icon LOCKED({
+        {QLatin1String(":/utils/images/locked.png"), Utils::Theme::PanelTextColorDark}}, Icon::Tint);
+const Utils::Icon UNLOCKED_TOOLBAR({
+        {QLatin1String(":/utils/images/unlocked.png"), Utils::Theme::IconsBaseColor}});
+const Utils::Icon NEXT({
+        {QLatin1String(":/utils/images/next.png"), Utils::Theme::IconsWarningColor}}, Utils::Icon::MenuTintedStyle);
+const Utils::Icon NEXT_TOOLBAR({
+        {QLatin1String(":/utils/images/next.png"), Utils::Theme::IconsNavigationArrowsColor}});
+const Utils::Icon PREV({
+        {QLatin1String(":/utils/images/prev.png"), Utils::Theme::IconsWarningColor}}, Utils::Icon::MenuTintedStyle);
+const Utils::Icon PREV_TOOLBAR({
+        {QLatin1String(":/utils/images/prev.png"), Utils::Theme::IconsNavigationArrowsColor}});
+const Utils::Icon ZOOM({
+        {QLatin1String(":/utils/images/zoom.png"), Utils::Theme::PanelTextColorMid}}, Utils::Icon::Tint);
+const Utils::Icon ZOOM_TOOLBAR({
+        {QLatin1String(":/utils/images/zoom.png"), Utils::Theme::IconsBaseColor}});
 
 } // namespace Icons
 } // namespace Utils

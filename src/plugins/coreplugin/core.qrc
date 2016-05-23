@@ -23,14 +23,10 @@
         <file>images/close@2x.png</file>
         <file>images/linkicon.png</file>
         <file>images/linkicon@2x.png</file>
-        <file>images/locked.png</file>
-        <file>images/locked@2x.png</file>
         <file>images/magnifier.png</file>
         <file>images/magnifier@2x.png</file>
         <file>images/minus.png</file>
         <file>images/minus@2x.png</file>
-        <file>images/next.png</file>
-        <file>images/next@2x.png</file>
         <file>images/panel_button.png</file>
         <file>images/panel_button@2x.png</file>
         <file>images/panel_button_checked.png</file>
@@ -43,8 +39,6 @@
         <file>images/panel_button_pressed@2x.png</file>
         <file>images/plus.png</file>
         <file>images/plus@2x.png</file>
-        <file>images/prev.png</file>
-        <file>images/prev@2x.png</file>
         <file>images/redo.png</file>
         <file>images/replace.png</file>
         <file>images/reset.png</file>
@@ -54,8 +48,6 @@
         <file>images/splitbutton_horizontal@2x.png</file>
         <file>images/undo.png</file>
         <file>images/unknownfile.png</file>
-        <file>images/unlocked.png</file>
-        <file>images/unlocked@2x.png</file>
         <file>images/extension.png</file>
         <file>images/extension@2x.png</file>
         <file>images/category_core.png</file>
@@ -98,8 +90,6 @@
         <file>images/dark_fileicon.png</file>
         <file>images/dark_foldericon.png</file>
         <file>images/Desktop.png</file>
-        <file>images/zoom.png</file>
-        <file>images/zoom@2x.png</file>
         <file>images/interrupt_small.png</file>
         <file>images/interrupt_small@2x.png</file>
         <file>images/run_small.png</file>

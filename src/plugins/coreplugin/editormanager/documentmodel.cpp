@@ -27,12 +27,12 @@
 #include "ieditor.h"
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/idocument.h>
-#include <coreplugin/coreicons.h>
 
 #include <utils/algorithm.h>
 #include <utils/dropsupport.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
+#include <utils/utilsicons.h>
 
 #include <QAbstractItemModel>
 #include <QDir>
@@ -329,7 +329,7 @@ bool DocumentModelPrivate::disambiguateDisplayNames(DocumentModel::Entry *entry)
 
 QIcon DocumentModelPrivate::lockedIcon()
 {
-    const static QIcon icon = Icons::LOCKED.icon();
+    const static QIcon icon = Utils::Icons::LOCKED.icon();
     return icon;
 }
 

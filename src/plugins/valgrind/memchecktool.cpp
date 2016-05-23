@@ -68,6 +68,7 @@
 #include <utils/qtcassert.h>
 #include <utils/styledbar.h>
 #include <utils/stylehelper.h>
+#include <utils/utilsicons.h>
 
 #include <QAction>
 #include <QCheckBox>
@@ -361,7 +362,7 @@ MemcheckTool::MemcheckTool(QObject *parent)
     // Go to previous leak.
     action = new QAction(this);
     action->setDisabled(true);
-    action->setIcon(Core::Icons::PREV_TOOLBAR.icon());
+    action->setIcon(Utils::Icons::PREV_TOOLBAR.icon());
     action->setToolTip(tr("Go to previous leak."));
     connect(action, &QAction::triggered, m_errorView, &MemcheckErrorView::goBack);
     m_goBack = action;
@@ -369,7 +370,7 @@ MemcheckTool::MemcheckTool(QObject *parent)
     // Go to next leak.
     action = new QAction(this);
     action->setDisabled(true);
-    action->setIcon(Core::Icons::NEXT_TOOLBAR.icon());
+    action->setIcon(Utils::Icons::NEXT_TOOLBAR.icon());
     action->setToolTip(tr("Go to next leak."));
     connect(action, &QAction::triggered, m_errorView, &MemcheckErrorView::goNext);
     m_goNext = action;

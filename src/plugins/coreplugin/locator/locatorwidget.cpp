@@ -43,6 +43,7 @@
 #include <utils/qtcassert.h>
 #include <utils/runextensions.h>
 #include <utils/stylehelper.h>
+#include <utils/utilsicons.h>
 
 #include <QColor>
 #include <QFileInfo>
@@ -248,7 +249,7 @@ LocatorWidget::LocatorWidget(Locator *qop) :
     layout->setMargin(0);
     layout->addWidget(m_fileLineEdit);
 
-    setWindowIcon(Icons::ZOOM.icon());
+    setWindowIcon(Utils::Icons::ZOOM.icon());
     const QPixmap pixmap = Icons::MAGNIFIER.pixmap();
     m_fileLineEdit->setFiltering(true);
     m_fileLineEdit->setButtonPixmap(Utils::FancyLineEdit::Left, pixmap);

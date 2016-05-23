@@ -7,6 +7,7 @@ sourcedirs = $SRCDIR/src
 imagedirs = $SRCDIR/images \
             $SRCDIR/templates/images \
             $SRCDIR/../src/libs/qmleditorwidgets/images \
+            $SRCDIR/../src/libs/utils/images \
             $SRCDIR/../src/plugins/android/images \
             $SRCDIR/../src/plugins/autotest/images \
             $SRCDIR/../src/plugins/classview/images \

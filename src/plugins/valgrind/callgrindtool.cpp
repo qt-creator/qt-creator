@@ -82,6 +82,7 @@
 #include <utils/fancymainwindow.h>
 #include <utils/qtcassert.h>
 #include <utils/styledbar.h>
+#include <utils/utilsicons.h>
 
 #include <QAction>
 #include <QActionGroup>
@@ -396,14 +397,14 @@ CallgrindTool::CallgrindTool(QObject *parent)
     // go back
     m_goBack = action = new QAction(this);
     action->setDisabled(true);
-    action->setIcon(Core::Icons::PREV_TOOLBAR.icon());
+    action->setIcon(Utils::Icons::PREV_TOOLBAR.icon());
     action->setToolTip(tr("Go back one step in history. This will select the previously selected item."));
     connect(action, &QAction::triggered, &m_stackBrowser, &StackBrowser::goBack);
 
     // go forward
     m_goNext = action = new QAction(this);
     action->setDisabled(true);
-    action->setIcon(Core::Icons::NEXT_TOOLBAR.icon());
+    action->setIcon(Utils::Icons::NEXT_TOOLBAR.icon());
     action->setToolTip(tr("Go forward one step in history."));
     connect(action, &QAction::triggered, &m_stackBrowser, &StackBrowser::goNext);
 

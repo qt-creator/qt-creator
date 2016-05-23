@@ -42,6 +42,7 @@
 #include <utils/qtcassert.h>
 #include <utils/stylehelper.h>
 #include <utils/theme/theme.h>
+#include <utils/utilsicons.h>
 
 #include <QDebug>
 #include <QSettings>
@@ -962,9 +963,9 @@ void FindToolBar::setLightColoredIcon(bool lightColored)
         m_ui.findPreviousButton->setArrowType(Qt::LeftArrow);
         m_ui.close->setIcon(Icons::CLOSE_FOREGROUND.icon());
     } else {
-        m_ui.findNextButton->setIcon(Icons::NEXT_TOOLBAR.icon());
+        m_ui.findNextButton->setIcon(Utils::Icons::NEXT_TOOLBAR.icon());
         m_ui.findNextButton->setArrowType(Qt::NoArrow);
-        m_ui.findPreviousButton->setIcon(Icons::PREV_TOOLBAR.icon());
+        m_ui.findPreviousButton->setIcon(Utils::Icons::PREV_TOOLBAR.icon());
         m_ui.findPreviousButton->setArrowType(Qt::NoArrow);
         m_ui.close->setIcon(Icons::CLOSE_TOOLBAR.icon());
     }

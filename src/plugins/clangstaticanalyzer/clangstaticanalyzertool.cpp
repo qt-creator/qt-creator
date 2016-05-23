@@ -33,7 +33,6 @@
 
 #include <debugger/analyzer/analyzermanager.h>
 #include <coreplugin/coreconstants.h>
-#include <coreplugin/coreicons.h>
 #include <coreplugin/icore.h>
 #include <cpptools/cppmodelmanager.h>
 #include <projectexplorer/buildconfiguration.h>
@@ -44,6 +43,7 @@
 
 #include <utils/checkablemessagebox.h>
 #include <utils/fancymainwindow.h>
+#include <utils/utilsicons.h>
 
 #include <QAction>
 #include <QDockWidget>
@@ -123,7 +123,7 @@ ClangStaticAnalyzerTool::ClangStaticAnalyzerTool(QObject *parent)
     // Go to previous diagnostic
     auto action = new QAction(this);
     action->setDisabled(true);
-    action->setIcon(Core::Icons::PREV_TOOLBAR.icon());
+    action->setIcon(Utils::Icons::PREV_TOOLBAR.icon());
     action->setToolTip(tr("Go to previous bug."));
     connect(action, &QAction::triggered, m_diagnosticView, &DetailedErrorView::goBack);
     m_goBack = action;
@@ -131,7 +131,7 @@ ClangStaticAnalyzerTool::ClangStaticAnalyzerTool(QObject *parent)
     // Go to next diagnostic
     action = new QAction(this);
     action->setDisabled(true);
-    action->setIcon(Core::Icons::NEXT_TOOLBAR.icon());
+    action->setIcon(Utils::Icons::NEXT_TOOLBAR.icon());
     action->setToolTip(tr("Go to next bug."));
     connect(action, &QAction::triggered, m_diagnosticView, &DetailedErrorView::goNext);
     m_goNext = action;

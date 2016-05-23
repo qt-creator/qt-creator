@@ -45,6 +45,7 @@
 #include <utils/fancymainwindow.h>
 #include <utils/fileinprojectfinder.h>
 #include <utils/qtcassert.h>
+#include <utils/utilsicons.h>
 #include <projectexplorer/environmentaspect.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/project.h>
@@ -213,7 +214,7 @@ QmlProfilerTool::QmlProfilerTool(QObject *parent)
     });
 
     d->m_searchButton = new QToolButton;
-    d->m_searchButton->setIcon(Core::Icons::ZOOM_TOOLBAR.icon());
+    d->m_searchButton->setIcon(Utils::Icons::ZOOM_TOOLBAR.icon());
     d->m_searchButton->setToolTip(tr("Search timeline event notes."));
 
     connect(d->m_searchButton, &QToolButton::clicked, this, &QmlProfilerTool::showTimeLineSearch);

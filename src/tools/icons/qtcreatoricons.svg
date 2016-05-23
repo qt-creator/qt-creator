@@ -2076,7 +2076,7 @@
          style="" />
     </g>
     <g
-       id="src/plugins/coreplugin/images/locked"
+       id="src/libs/utils/images/locked"
        transform="translate(0,16)">
       <rect
          id="rect5031-6"
@@ -2097,7 +2097,7 @@
          id="lockbody" />
     </g>
     <g
-       id="src/plugins/coreplugin/images/unlocked"
+       id="src/libs/utils/images/unlocked"
        transform="translate(-16,16)">
       <rect
          id="rect5041-1"
@@ -2227,7 +2227,7 @@
     <g
        transform="translate(-503,368)"
        style="display:inline;fill:none;stroke:none"
-       id="src/plugins/coreplugin/images/prev">
+       id="src/libs/utils/images/prev">
       <rect
          id="rect4827-5"
          height="16"
@@ -2245,8 +2245,8 @@
     <use
        x="0"
        y="0"
-       xlink:href="#src/plugins/coreplugin/images/prev"
-       id="src/plugins/coreplugin/images/next"
+       xlink:href="#src/libs/utils/images/prev"
+       id="src/libs/utils/images/next"
        transform="matrix(-1,0,0,1,526,0)"
        width="100%"
        height="100%" />
@@ -2435,7 +2435,7 @@
     <g
        transform="translate(185,368)"
        style="display:inline"
-       id="src/plugins/coreplugin/images/zoom">
+       id="src/libs/utils/images/zoom">
       <rect
          id="rect4723-6"
          height="16"

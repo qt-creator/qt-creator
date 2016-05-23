@@ -14,6 +14,16 @@
         <file>images/progressindicator_small.png</file>
         <file>images/progressindicator_small@2x.png</file>
         <file>images/triangle_vert.png</file>
+        <file>images/next.png</file>
+        <file>images/next@2x.png</file>
+        <file>images/prev.png</file>
+        <file>images/prev@2x.png</file>
+        <file>images/zoom.png</file>
+        <file>images/zoom@2x.png</file>
         <file>tooltip/images/f1.png</file>
+        <file>images/locked.png</file>
+        <file>images/locked@2x.png</file>
+        <file>images/unlocked.png</file>
+        <file>images/unlocked@2x.png</file>
     </qresource>
 </RCC>

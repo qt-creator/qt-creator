@@ -56,12 +56,6 @@ const Icon RESET_TOOLBAR({
         {QLatin1String(":/core/images/reset.png"), Theme::IconsBaseColor}});
 const Icon DARK_CLOSE(
         QLatin1String(":/core/images/darkclose.png"));
-const Icon LOCKED_TOOLBAR({
-        {QLatin1String(":/core/images/locked.png"), Theme::IconsBaseColor}});
-const Icon LOCKED({
-        {QLatin1String(":/core/images/locked.png"), Theme::PanelTextColorDark}}, Icon::Tint);
-const Icon UNLOCKED_TOOLBAR({
-        {QLatin1String(":/core/images/unlocked.png"), Theme::IconsBaseColor}});
 const Icon FIND_CASE_INSENSITIVELY(
         QLatin1String(":/find/images/casesensitively.png"));
 const Icon FIND_WHOLE_WORD(
@@ -81,14 +75,6 @@ const Icon MINUS({
         {QLatin1String(":/core/images/minus.png"), Theme::IconsBaseColor}});
 const Icon PLUS({
         {QLatin1String(":/core/images/plus.png"), Theme::IconsBaseColor}});
-const Icon NEXT({
-        {QLatin1String(":/core/images/next.png"), Theme::IconsWarningColor}}, Icon::MenuTintedStyle);
-const Icon NEXT_TOOLBAR({
-        {QLatin1String(":/core/images/next.png"), Theme::IconsNavigationArrowsColor}});
-const Icon PREV({
-        {QLatin1String(":/core/images/prev.png"), Theme::IconsWarningColor}}, Icon::MenuTintedStyle);
-const Icon PREV_TOOLBAR({
-        {QLatin1String(":/core/images/prev.png"), Theme::IconsNavigationArrowsColor}});
 const Icon MAGNIFIER({
         {QLatin1String(":/core/images/magnifier.png"), Theme::PanelTextColorMid}}, Icon::Tint);
 const Icon CLEAN({
@@ -146,10 +132,6 @@ const Icon INFO_TOOLBAR({
         {QLatin1String(":/core/images/info.png"), Theme::IconsInfoToolBarColor}});
 const Icon EXPAND({
         {QLatin1String(":/find/images/expand.png"), Theme::IconsBaseColor}});
-const Icon ZOOM({
-        {QLatin1String(":/core/images/zoom.png"), Theme::PanelTextColorMid}}, Icon::Tint);
-const Icon ZOOM_TOOLBAR({
-        {QLatin1String(":/core/images/zoom.png"), Theme::IconsBaseColor}});
 const Icon TOOLBAR_EXTENSION({
         {QLatin1String(":/core/images/extension.png"), Theme::IconsBaseColor}});
 const Utils::Icon RUN_SMALL({
