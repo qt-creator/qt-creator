@@ -132,197 +132,273 @@ typedef am_res_t (MDEV_API *USBMuxConnectByPortPtr)(unsigned int, int, ServiceSo
 static QString mobileDeviceErrorString(am_res_t code)
 {
     static const char *errorStrings[] = {
-        "kAMDSuccess", // 0x0
+        "kAMDSuccess", // 0x00000000
         "kAMDUndefinedError", // 0xe8000001
-        "kAMDBadHeaderError",
-        "kAMDNoResourcesError",
-        "kAMDReadError",
-        "kAMDWriteError",
-        "kAMDUnknownPacketError",
-        "kAMDInvalidArgumentError",
-        "kAMDNotFoundError",
-        "kAMDIsDirectoryError",
-        "kAMDPermissionError",
-        "kAMDNotConnectedError",
-        "kAMDTimeOutError",
-        "kAMDOverrunError",
-        "kAMDEOFError",
-        "kAMDUnsupportedError",
-        "kAMDFileExistsError",
-        "kAMDBusyError",
-        "kAMDCryptoError",
-        "kAMDInvalidResponseError",
-        "kAMDMissingKeyError",
-        "kAMDMissingValueError",
-        "kAMDGetProhibitedError",
-        "kAMDSetProhibitedError",
-        "kAMDRemoveProhibitedError",
-        "kAMDImmutableValueError",
-        "kAMDPasswordProtectedError",
-        "kAMDMissingHostIDError",
-        "kAMDInvalidHostIDError",
-        "kAMDSessionActiveError",
-        "kAMDSessionInactiveError",
-        "kAMDMissingSessionIDError",
-        "kAMDInvalidSessionIDError",
-        "kAMDMissingServiceError",
-        "kAMDInvalidServiceError",
-        "kAMDInvalidCheckinError",
-        "kAMDCheckinTimeoutError",
-        "kAMDMissingPairRecordError",
-        "kAMDInvalidActivationRecordError",
-        "kAMDMissingActivationRecordError",
-        "kAMDWrongDroidError",
-        "kAMDSUVerificationError",
-        "kAMDSUPatchError",
-        "kAMDSUFirmwareError",
-        "kAMDProvisioningProfileNotValid",
-        "kAMDSendMessageError",
-        "kAMDReceiveMessageError",
-        "kAMDMissingOptionsError",
-        "kAMDMissingImageTypeError",
-        "kAMDDigestFailedError",
-        "kAMDStartServiceError",
-        "kAMDInvalidDiskImageError",
-        "kAMDMissingDigestError",
-        "kAMDMuxError",
-        "kAMDApplicationAlreadyInstalledError",
-        "kAMDApplicationMoveFailedError",
-        "kAMDApplicationSINFCaptureFailedError",
-        "kAMDApplicationSandboxFailedError",
-        "kAMDApplicationVerificationFailedError",
-        "kAMDArchiveDestructionFailedError",
-        "kAMDBundleVerificationFailedError",
-        "kAMDCarrierBundleCopyFailedError",
-        "kAMDCarrierBundleDirectoryCreationFailedError",
-        "kAMDCarrierBundleMissingSupportedSIMsError",
-        "kAMDCommCenterNotificationFailedError",
-        "kAMDContainerCreationFailedError",
-        "kAMDContainerP0wnFailedError",
-        "kAMDContainerRemovalFailedError",
-        "kAMDEmbeddedProfileInstallFailedError",
-        "kAMDErrorError",
-        "kAMDExecutableTwiddleFailedError",
-        "kAMDExistenceCheckFailedError",
-        "kAMDInstallMapUpdateFailedError",
-        "kAMDManifestCaptureFailedError",
-        "kAMDMapGenerationFailedError",
-        "kAMDMissingBundleExecutableError",
-        "kAMDMissingBundleIdentifierError",
-        "kAMDMissingBundlePathError",
-        "kAMDMissingContainerError",
-        "kAMDNotificationFailedError",
-        "kAMDPackageExtractionFailedError",
-        "kAMDPackageInspectionFailedError",
-        "kAMDPackageMoveFailedError",
-        "kAMDPathConversionFailedError",
-        "kAMDRestoreContainerFailedError",
-        "kAMDSeatbeltProfileRemovalFailedError",
-        "kAMDStageCreationFailedError",
-        "kAMDSymlinkFailedError",
-        "kAMDiTunesArtworkCaptureFailedError",
-        "kAMDiTunesMetadataCaptureFailedError",
-        "kAMDAlreadyArchivedError",
-        "kAMDServiceLimitError",
-        "kAMDInvalidPairRecordError",
-        "kAMDServiceProhibitedError",
-        "kAMDCheckinSetupFailedError",
-        "kAMDCheckinConnectionFailedError",
-        "kAMDCheckinReceiveFailedError",
-        "kAMDCheckinResponseFailedError",
-        "kAMDCheckinSendFailedError",
-        "kAMDMuxCreateListenerError",
-        "kAMDMuxGetListenerError",
-        "kAMDMuxConnectError",
-        "kAMDUnknownCommandError",
-        "kAMDAPIInternalError",
-        "kAMDSavePairRecordFailedError",
-        "kAMDCheckinOutOfMemoryError",
-        "kAMDDeviceTooNewError",
-        "kAMDDeviceRefNoGood",
-        "kAMDCannotTranslateError",
-        "kAMDMobileImageMounterMissingImageSignature",
-        "kAMDMobileImageMounterResponseCreationFailed",
-        "kAMDMobileImageMounterMissingImageType",
-        "kAMDMobileImageMounterMissingImagePath",
-        "kAMDMobileImageMounterImageMapLoadFailed",
-        "kAMDMobileImageMounterAlreadyMounted",
-        "kAMDMobileImageMounterImageMoveFailed",
-        "kAMDMobileImageMounterMountPathMissing",
-        "kAMDMobileImageMounterMountPathNotEmpty",
-        "kAMDMobileImageMounterImageMountFailed",
-        "kAMDMobileImageMounterTrustCacheLoadFailed",
-        "kAMDMobileImageMounterDigestFailed",
-        "kAMDMobileImageMounterDigestCreationFailed",
-        "kAMDMobileImageMounterImageVerificationFailed",
-        "kAMDMobileImageMounterImageInfoCreationFailed",
-        "kAMDMobileImageMounterImageMapStoreFailed",
-        "kAMDBonjourSetupError",
-        "kAMDDeviceOSVersionTooLow",
-        "kAMDNoWifiSyncSupportError",
-        "kAMDDeviceFamilyNotSupported",
-        "kAMDEscrowLockedError",
-        "kAMDPairingProhibitedError",
-        "kAMDProhibitedBySupervision",
-        "kAMDDeviceDisconnectedError",
-        "kAMDTooBigError",
-        "kAMDPackagePatchFailedError",
-        "kAMDIncorrectArchitectureError",
-        "kAMDPluginCopyFailedError",
-        "kAMDBreadcrumbFailedError",
-        "kAMDBreadcrumbUnlockError",
-        "kAMDGeoJSONCaptureFailedError",
-        "kAMDNewsstandArtworkCaptureFailedError",
-        "kAMDMissingCommandError",
-        "kAMDNotEntitledError",
-        "kAMDMissingPackagePathError",
-        "kAMDMissingContainerPathError",
-        "kAMDMissingApplicationIdentifierError",
-        "kAMDMissingAttributeValueError",
-        "kAMDLookupFailedError",
-        "kAMDDictCreationFailedError",
-        "kAMDUserDeniedPairingError",
-        "kAMDPairingDialogResponsePendingError",
-        "kAMDInstallProhibitedError",
-        "kAMDUninstallProhibitedError",
-        "kAMDFMiPProtectedError",
-        "kAMDMCProtected",
-        "kAMDMCChallengeRequired",
-        "kAMDMissingBundleVersionError" // 0xe800009c
+        "kAMDBadHeaderError", // 0xe8000002
+        "kAMDNoResourcesError", // 0xe8000003
+        "kAMDReadError", // 0xe8000004
+        "kAMDWriteError", // 0xe8000005
+        "kAMDUnknownPacketError", // 0xe8000006
+        "kAMDInvalidArgumentError", // 0xe8000007
+        "kAMDNotFoundError", // 0xe8000008
+        "kAMDIsDirectoryError", // 0xe8000009
+        "kAMDPermissionError", // 0xe800000a
+        "kAMDNotConnectedError", // 0xe800000b
+        "kAMDTimeOutError", // 0xe800000c
+        "kAMDOverrunError", // 0xe800000d
+        "kAMDEOFError", // 0xe800000e
+        "kAMDUnsupportedError", // 0xe800000f
+        "kAMDFileExistsError", // 0xe8000010
+        "kAMDBusyError", // 0xe8000011
+        "kAMDCryptoError", // 0xe8000012
+        "kAMDInvalidResponseError", // 0xe8000013
+        "kAMDMissingKeyError", // 0xe8000014
+        "kAMDMissingValueError", // 0xe8000015
+        "kAMDGetProhibitedError", // 0xe8000016
+        "kAMDSetProhibitedError", // 0xe8000017
+        "kAMDRemoveProhibitedError", // 0xe8000018
+        "kAMDImmutableValueError", // 0xe8000019
+        "kAMDPasswordProtectedError", // 0xe800001a
+        "kAMDMissingHostIDError", // 0xe800001b
+        "kAMDInvalidHostIDError", // 0xe800001c
+        "kAMDSessionActiveError", // 0xe800001d
+        "kAMDSessionInactiveError", // 0xe800001e
+        "kAMDMissingSessionIDError", // 0xe800001f
+        "kAMDInvalidSessionIDError", // 0xe8000020
+        "kAMDMissingServiceError", // 0xe8000021
+        "kAMDInvalidServiceError", // 0xe8000022
+        "kAMDInvalidCheckinError", // 0xe8000023
+        "kAMDCheckinTimeoutError", // 0xe8000024
+        "kAMDMissingPairRecordError", // 0xe8000025
+        "kAMDInvalidActivationRecordError", // 0xe8000026
+        "kAMDMissingActivationRecordError", // 0xe8000027
+        "kAMDWrongDroidError", // 0xe8000028
+        "kAMDSUVerificationError", // 0xe8000029
+        "kAMDSUPatchError", // 0xe800002a
+        "kAMDSUFirmwareError", // 0xe800002b
+        "kAMDProvisioningProfileNotValid", // 0xe800002c
+        "kAMDSendMessageError", // 0xe800002d
+        "kAMDReceiveMessageError", // 0xe800002e
+        "kAMDMissingOptionsError", // 0xe800002f
+        "kAMDMissingImageTypeError", // 0xe8000030
+        "kAMDDigestFailedError", // 0xe8000031
+        "kAMDStartServiceError", // 0xe8000032
+        "kAMDInvalidDiskImageError", // 0xe8000033
+        "kAMDMissingDigestError", // 0xe8000034
+        "kAMDMuxError", // 0xe8000035
+        "kAMDApplicationAlreadyInstalledError", // 0xe8000036
+        "kAMDApplicationMoveFailedError", // 0xe8000037
+        "kAMDApplicationSINFCaptureFailedError", // 0xe8000038
+        "kAMDApplicationSandboxFailedError", // 0xe8000039
+        "kAMDApplicationVerificationFailedError", // 0xe800003a
+        "kAMDArchiveDestructionFailedError", // 0xe800003b
+        "kAMDBundleVerificationFailedError", // 0xe800003c
+        "kAMDCarrierBundleCopyFailedError", // 0xe800003d
+        "kAMDCarrierBundleDirectoryCreationFailedError", // 0xe800003e
+        "kAMDCarrierBundleMissingSupportedSIMsError", // 0xe800003f
+        "kAMDCommCenterNotificationFailedError", // 0xe8000040
+        "kAMDContainerCreationFailedError", // 0xe8000041
+        "kAMDContainerP0wnFailedError", // 0xe8000042
+        "kAMDContainerRemovalFailedError", // 0xe8000043
+        "kAMDEmbeddedProfileInstallFailedError", // 0xe8000044
+        "kAMDErrorError", // 0xe8000045
+        "kAMDExecutableTwiddleFailedError", // 0xe8000046
+        "kAMDExistenceCheckFailedError", // 0xe8000047
+        "kAMDInstallMapUpdateFailedError", // 0xe8000048
+        "kAMDManifestCaptureFailedError", // 0xe8000049
+        "kAMDMapGenerationFailedError", // 0xe800004a
+        "kAMDMissingBundleExecutableError", // 0xe800004b
+        "kAMDMissingBundleIdentifierError", // 0xe800004c
+        "kAMDMissingBundlePathError", // 0xe800004d
+        "kAMDMissingContainerError", // 0xe800004e
+        "kAMDNotificationFailedError", // 0xe800004f
+        "kAMDPackageExtractionFailedError", // 0xe8000050
+        "kAMDPackageInspectionFailedError", // 0xe8000051
+        "kAMDPackageMoveFailedError", // 0xe8000052
+        "kAMDPathConversionFailedError", // 0xe8000053
+        "kAMDRestoreContainerFailedError", // 0xe8000054
+        "kAMDSeatbeltProfileRemovalFailedError", // 0xe8000055
+        "kAMDStageCreationFailedError", // 0xe8000056
+        "kAMDSymlinkFailedError", // 0xe8000057
+        "kAMDiTunesArtworkCaptureFailedError", // 0xe8000058
+        "kAMDiTunesMetadataCaptureFailedError", // 0xe8000059
+        "kAMDAlreadyArchivedError", // 0xe800005a
+        "kAMDServiceLimitError", // 0xe800005b
+        "kAMDInvalidPairRecordError", // 0xe800005c
+        "kAMDServiceProhibitedError", // 0xe800005d
+        "kAMDCheckinSetupFailedError", // 0xe800005e
+        "kAMDCheckinConnectionFailedError", // 0xe800005f
+        "kAMDCheckinReceiveFailedError", // 0xe8000060
+        "kAMDCheckinResponseFailedError", // 0xe8000061
+        "kAMDCheckinSendFailedError", // 0xe8000062
+        "kAMDMuxCreateListenerError", // 0xe8000063
+        "kAMDMuxGetListenerError", // 0xe8000064
+        "kAMDMuxConnectError", // 0xe8000065
+        "kAMDUnknownCommandError", // 0xe8000066
+        "kAMDAPIInternalError", // 0xe8000067
+        "kAMDSavePairRecordFailedError", // 0xe8000068
+        "kAMDCheckinOutOfMemoryError", // 0xe8000069
+        "kAMDDeviceTooNewError", // 0xe800006a
+        "kAMDDeviceRefNoGood", // 0xe800006b
+        "kAMDCannotTranslateError", // 0xe800006c
+        "kAMDMobileImageMounterMissingImageSignature", // 0xe800006d
+        "kAMDMobileImageMounterResponseCreationFailed", // 0xe800006e
+        "kAMDMobileImageMounterMissingImageType", // 0xe800006f
+        "kAMDMobileImageMounterMissingImagePath", // 0xe8000070
+        "kAMDMobileImageMounterImageMapLoadFailed", // 0xe8000071
+        "kAMDMobileImageMounterAlreadyMounted", // 0xe8000072
+        "kAMDMobileImageMounterImageMoveFailed", // 0xe8000073
+        "kAMDMobileImageMounterMountPathMissing", // 0xe8000074
+        "kAMDMobileImageMounterMountPathNotEmpty", // 0xe8000075
+        "kAMDMobileImageMounterImageMountFailed", // 0xe8000076
+        "kAMDMobileImageMounterTrustCacheLoadFailed", // 0xe8000077
+        "kAMDMobileImageMounterDigestFailed", // 0xe8000078
+        "kAMDMobileImageMounterDigestCreationFailed", // 0xe8000079
+        "kAMDMobileImageMounterImageVerificationFailed", // 0xe800007a
+        "kAMDMobileImageMounterImageInfoCreationFailed", // 0xe800007b
+        "kAMDMobileImageMounterImageMapStoreFailed", // 0xe800007c
+        "kAMDBonjourSetupError", // 0xe800007d
+        "kAMDDeviceOSVersionTooLow", // 0xe800007e
+        "kAMDNoWifiSyncSupportError", // 0xe800007f
+        "kAMDDeviceFamilyNotSupported", // 0xe8000080
+        "kAMDEscrowLockedError", // 0xe8000081
+        "kAMDPairingProhibitedError", // 0xe8000082
+        "kAMDProhibitedBySupervision", // 0xe8000083
+        "kAMDDeviceDisconnectedError", // 0xe8000084
+        "kAMDTooBigError", // 0xe8000085
+        "kAMDPackagePatchFailedError", // 0xe8000086
+        "kAMDIncorrectArchitectureError", // 0xe8000087
+        "kAMDPluginCopyFailedError", // 0xe8000088
+        "kAMDBreadcrumbFailedError", // 0xe8000089
+        "kAMDBreadcrumbUnlockError", // 0xe800008a
+        "kAMDGeoJSONCaptureFailedError", // 0xe800008b
+        "kAMDNewsstandArtworkCaptureFailedError", // 0xe800008c
+        "kAMDMissingCommandError", // 0xe800008d
+        "kAMDNotEntitledError", // 0xe800008e
+        "kAMDMissingPackagePathError", // 0xe800008f
+        "kAMDMissingContainerPathError", // 0xe8000090
+        "kAMDMissingApplicationIdentifierError", // 0xe8000091
+        "kAMDMissingAttributeValueError", // 0xe8000092
+        "kAMDLookupFailedError", // 0xe8000093
+        "kAMDDictCreationFailedError", // 0xe8000094
+        "kAMDUserDeniedPairingError", // 0xe8000095
+        "kAMDPairingDialogResponsePendingError", // 0xe8000096
+        "kAMDInstallProhibitedError", // 0xe8000097
+        "kAMDUninstallProhibitedError", // 0xe8000098
+        "kAMDFMiPProtectedError", // 0xe8000099
+        "kAMDMCProtected", // 0xe800009a
+        "kAMDMCChallengeRequired", // 0xe800009b
+        "kAMDMissingBundleVersionError", // 0xe800009c
+        "kAMDAppBlacklistedError", // 0xe800009d
+        "This app contains an app extension with an illegal bundle identifier. App extension bundle identifiers must have a prefix consisting of their containing application's bundle identifier followed by a '.'.", // 0xe800009e
+        "If an app extension defines the XPCService key in its Info.plist, it must have a dictionary value.", // 0xe800009f
+        "App extensions must define the NSExtension key with a dictionary value in their Info.plist.", // 0xe80000a0
+        "If an app extension defines the CFBundlePackageType key in its Info.plist, it must have the value \"XPC!\".", // 0xe80000a1
+        "App extensions must define either NSExtensionMainStoryboard or NSExtensionPrincipalClass keys in the NSExtension dictionary in their Info.plist.", // 0xe80000a2
+        "If an app extension defines the NSExtensionContextClass key in the NSExtension dictionary in its Info.plist, it must have a string value containing one or more characters.", // 0xe80000a3
+        "If an app extension defines the NSExtensionContextHostClass key in the NSExtension dictionary in its Info.plist, it must have a string value containing one or more characters.", // 0xe80000a4
+        "If an app extension defines the NSExtensionViewControllerHostClass key in the NSExtension dictionary in its Info.plist, it must have a string value containing one or more characters.", // 0xe80000a5
+        "This app contains an app extension that does not define the NSExtensionPointIdentifier key in its Info.plist. This key must have a reverse-DNS format string value.", // 0xe80000a6
+        "This app contains an app extension that does not define the NSExtensionPointIdentifier key in its Info.plist with a valid reverse-DNS format string value.", // 0xe80000a7
+        "If an app extension defines the NSExtensionAttributes key in the NSExtension dictionary in its Info.plist, it must have a dictionary value.", // 0xe80000a8
+        "If an app extension defines the NSExtensionPointName key in the NSExtensionAttributes dictionary in the NSExtension dictionary in its Info.plist, it must have a string value containing one or more characters.", // 0xe80000a9
+        "If an app extension defines the NSExtensionPointVersion key in the NSExtensionAttributes dictionary in the NSExtension dictionary in its Info.plist, it must have a string value containing one or more characters.", // 0xe80000aa
+        "This app or a bundle it contains does not define the CFBundleName key in its Info.plist with a string value containing one or more characters.", // 0xe80000ab
+        "This app or a bundle it contains does not define the CFBundleDisplayName key in its Info.plist with a string value containing one or more characters.", // 0xe80000ac
+        "This app or a bundle it contains defines the CFBundleShortVersionStringKey key in its Info.plist with a non-string value or a zero-length string value.", // 0xe80000ad
+        "This app or a bundle it contains defines the RunLoopType key in the XPCService dictionary in its Info.plist with a non-string value or a zero-length string value.", // 0xe80000ae
+        "This app or a bundle it contains defines the ServiceType key in the XPCService dictionary in its Info.plist with a non-string value or a zero-length string value.", // 0xe80000af
+        "This application or a bundle it contains has the same bundle identifier as this application or another bundle that it contains. Bundle identifiers must be unique.", // 0xe80000b0
+        "This app contains an app extension that specifies an extension point identifier that is not supported on this version of iOS for the value of the NSExtensionPointIdentifier key in its Info.plist.", // 0xe80000b1
+        "This app contains multiple app extensions that are file providers. Apps are only allowed to contain at most a single file provider app extension.", // 0xe80000b2
+        "kMobileHouseArrestMissingCommand", // 0xe80000b3
+        "kMobileHouseArrestUnknownCommand", // 0xe80000b4
+        "kMobileHouseArrestMissingIdentifier", // 0xe80000b5
+        "kMobileHouseArrestDictionaryFailed", // 0xe80000b6
+        "kMobileHouseArrestInstallationLookupFailed", // 0xe80000b7
+        "kMobileHouseArrestApplicationLookupFailed", // 0xe80000b8
+        "kMobileHouseArrestMissingContainer", // 0xe80000b9
+        0, // 0xe80000ba
+        "kMobileHouseArrestPathConversionFailed", // 0xe80000bb
+        "kMobileHouseArrestPathMissing", // 0xe80000bc
+        "kMobileHouseArrestInvalidPath", // 0xe80000bd
+        "kAMDMismatchedApplicationIdentifierEntitlementError", // 0xe80000be
+        "kAMDInvalidSymlinkError", // 0xe80000bf
+        "kAMDNoSpaceError", // 0xe80000c0
+        "The WatchKit app extension must have, in its Info.plist's NSExtension dictionary's NSExtensionAttributes dictionary, the key WKAppBundleIdentifier with a value equal to the associated WatchKit app's bundle identifier.", // 0xe80000c1
+        "This app is not a valid AppleTV Stub App", // 0xe80000c2
+        "kAMDBundleiTunesMetadataVersionMismatchError", // 0xe80000c3
+        "kAMDInvalidiTunesMetadataPlistError", // 0xe80000c4
+        "kAMDMismatchedBundleIDSigningIdentifierError", // 0xe80000c5
+        "This app contains multiple WatchKit app extensions. Only a single WatchKit extension is allowed.", // 0xe80000c6
+        "A WatchKit app within this app is not a valid bundle.", // 0xe80000c7
+        "kAMDDeviceNotSupportedByThinningError", // 0xe80000c8
+        "The UISupportedDevices key in this app's Info.plist does not specify a valid set of supported devices.", // 0xe80000c9
+        "This app contains an app extension with an illegal bundle identifier. App extension bundle identifiers must have a prefix consisting of their containing application's bundle identifier followed by a '.', with no further '.' characters after the prefix.", // 0xe80000ca
+        "kAMDAppexBundleIDConflictWithOtherIdentifierError", // 0xe80000cb
+        "kAMDBundleIDConflictWithOtherIdentifierError", // 0xe80000cc
+        "This app contains multiple WatchKit 1.0 apps. Only a single WatchKit 1.0 app is allowed.", // 0xe80000cd
+        "This app contains multiple WatchKit 2.0 apps. Only a single WatchKit 2.0 app is allowed.", // 0xe80000ce
+        "The WatchKit app has an invalid stub executable.", // 0xe80000cf
+        "The WatchKit app has multiple app extensions. Only a single WatchKit extension is allowed in a WatchKit app, and only if this is a WatchKit 2.0 app.", // 0xe80000d0
+        "The WatchKit 2.0 app contains non-WatchKit app extensions. Only WatchKit app extensions are allowed in WatchKit apps.", // 0xe80000d1
+        "The WatchKit app has one or more embedded frameworks. Frameworks are only allowed in WatchKit app extensions in WatchKit 2.0 apps.", // 0xe80000d2
+        "This app contains a WatchKit 1.0 app with app extensions. This is not allowed.", // 0xe80000d3
+        "This app contains a WatchKit 2.0 app without an app extension. WatchKit 2.0 apps must contain a WatchKit app extension.", // 0xe80000d4
+        "The WatchKit app's Info.plist must have a WKCompanionAppBundleIdentifier key set to the bundle identifier of the companion app.", // 0xe80000d5
+        "The WatchKit app's Info.plist contains a non-string key.", // 0xe80000d6
+        "The WatchKit app's Info.plist contains a key that is not in the whitelist of allowed keys for a WatchKit app.", // 0xe80000d7
+        "The WatchKit 1.0 and a WatchKit 2.0 apps within this app must have have the same bundle identifier.", // 0xe80000d8
+        "This app contains a WatchKit app with an invalid bundle identifier. The bundle identifier of a WatchKit app must have a prefix consisting of the companion app's bundle identifier, followed by a '.'.", // 0xe80000d9
+        "This app contains a WatchKit app where the UIDeviceFamily key in its Info.plist does not specify the value 4 to indicate that it's compatible with the Apple Watch device type.", // 0xe80000da
+        "The device is out of storage for apps. Please remove some apps from the device and try again.", // 0xe80000db
     };
+    static const size_t errorStringMask = 0xe8000000;
+    static const size_t errorStringLast = ((sizeof(errorStrings) / sizeof(char *)) - 1) | errorStringMask;
+
+    static const char *errorStrings2[] = {
+        0,
+        "An unknown error has occurred.", // 0xe8008001
+        "Attempted to modify an immutable provisioning profile.", // 0xe8008002
+        "This provisioning profile is malformed.", // 0xe8008003
+        "This provisioning profile does not have a valid signature (or it has a valid, but untrusted signature).", // 0xe8008004
+        "This provisioning profile is malformed.", // 0xe8008005
+        "This provisioning profile is malformed.", // 0xe8008006
+        "This provisioning profile is malformed.", // 0xe8008007
+        "This provisioning profile is malformed.", // 0xe8008008
+        "The signature was not valid.", // 0xe8008009
+        "Unable to allocate memory.", // 0xe800800a
+        "A file operation failed.", // 0xe800800b
+        "There was an error communicating with your device.", // 0xe800800c
+        "There was an error communicating with your device.", // 0xe800800d
+        "This provisioning profile does not have a valid signature (or it has a valid, but untrusted signature).", // 0xe800800e
+        "The application's signature is valid but it does not match the expected hash.", // 0xe800800f
+        "This provisioning profile is unsupported.", // 0xe8008010
+        "This provisioning profile has expired.", // 0xe8008011
+        "This provisioning profile cannot be installed on this device.", // 0xe8008012
+        "This provisioning profile does not have a valid signature (or it has a valid, but untrusted signature).", // 0xe8008013
+        "The executable contains an invalid signature.", // 0xe8008014
+        "A valid provisioning profile for this executable was not found.", // 0xe8008015
+        "The executable was signed with invalid entitlements.", // 0xe8008016
+        "A signed resource has been added, modified, or deleted.", // 0xe8008017
+        "The identity used to sign the executable is no longer valid.", // 0xe8008018
+        "The application does not have a valid signature.", // 0xe8008019
+        "This provisioning profile does not have a valid signature (or it has a valid, but untrusted signature).", // 0xe800801a
+        "There was an error communicating with your device.", // 0xe800801b
+        "No code signature found.", // 0xe800801c
+        "Rejected by policy.", // 0xe800801d
+        "The requested profile does not exist (it may have been removed).", // 0xe800801e
+    };
+    static const size_t errorString2Mask = 0xe8008000;
+    static const size_t errorString2Last = ((sizeof(errorStrings2) / sizeof(char *)) - 1) | errorString2Mask;
 
     CFStringRef key = NULL;
-    static const size_t errorStringLast = ((sizeof(errorStrings) / sizeof(char *)) - 1) | 0xe8000000;
-    if (code <= errorStringLast) {
-        // Mask off some bits to get an index into the known error names array
-        key = QString::fromLatin1(errorStrings[code & ~0xe8000000]).toCFString();
-    } else {
-        // Some errors don't have constant names; check a few other known error codes
-        switch (code) {
-        case 0xe8008015:
-            key = CFSTR("A valid provisioning profile for this executable was not found.");
-            break;
-        case 0xe8008016:
-            key = CFSTR("The executable was signed with invalid entitlements.");
-            break;
-        case 0xe8008017:
-            key = CFSTR("A signed resource has been added, modified, or deleted.");
-            break;
-        case 0xe8008018:
-            key = CFSTR("The identity used to sign the executable is no longer valid.");
-            break;
-        case 0xe8008019:
-            key = CFSTR("The application does not have a valid signature.");
-            break;
-        case 0xe800801c:
-            key = CFSTR("The signature was not valid.");
-            break;
-        default:
-            return QString();
-        }
-
-        CFRetain(key);
-    }
+    if (code <= errorStringLast && code != 0xe80000ba)
+        key = QString::fromLatin1(errorStrings[code & ~errorStringMask]).toCFString();
+    else if (code > errorString2Mask && code <= errorString2Last)
+        key = QString::fromLatin1(errorStrings2[code & ~errorString2Mask]).toCFString();
+    else
+        return QString();
 
     CFURLRef url = QUrl::fromLocalFile(
         QStringLiteral("/System/Library/PrivateFrameworks/MobileDevice.framework")).toCFURL();
