@@ -212,10 +212,8 @@ void BuildDirManager::parse()
     QTC_ASSERT(tool, return);
     QTC_ASSERT(!generator.isEmpty(), return);
 
-    // Pop up a dialog asking the user to rerun cmake
-    QString cbpFile = CMakeManager::findCbpFile(QDir(workDirectory().toString()));
-    QFileInfo cbpFileFi(cbpFile);
-
+    const QString cbpFile = CMakeManager::findCbpFile(QDir(workDirectory().toString()));
+    const QFileInfo cbpFileFi = cbpFile.isEmpty() ? QFileInfo() : QFileInfo(cbpFile);
     if (!cbpFileFi.exists()) {
         // Initial create:
         startCMake(tool, generator, intendedConfiguration());
