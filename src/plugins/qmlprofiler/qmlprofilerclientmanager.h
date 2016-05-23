@@ -50,7 +50,6 @@ public:
     void setLocalSocket(QString file);
 
     void clearBufferedData();
-    void discardPendingData();
     bool isConnected() const;
 
     void setModelManager(QmlProfilerModelManager *m);

@@ -498,7 +498,7 @@ void QmlProfilerTool::showTimeLineSearch()
 void QmlProfilerTool::clearData()
 {
     d->m_profilerModelManager->clear();
-    d->m_profilerConnections->discardPendingData();
+    d->m_profilerConnections->clearBufferedData();
     setRecordedFeatures(0);
 }
 

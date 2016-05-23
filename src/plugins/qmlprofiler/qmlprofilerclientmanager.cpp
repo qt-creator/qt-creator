@@ -131,11 +131,6 @@ void QmlProfilerClientManager::clearBufferedData()
         d->qmlclientplugin.data()->clearData();
 }
 
-void QmlProfilerClientManager::discardPendingData()
-{
-    clearBufferedData();
-}
-
 void QmlProfilerClientManager::connectTcpClient(Utils::Port port)
 {
     if (d->connection) {
