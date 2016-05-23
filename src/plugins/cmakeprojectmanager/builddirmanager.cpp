@@ -197,7 +197,8 @@ bool BuildDirManager::persistCMakeState()
     delete m_tempDir;
     m_tempDir = nullptr;
 
-    parse();
+    resetData();
+    QTimer::singleShot(0, this, &BuildDirManager::parse); // make sure signals only happen afterwards!
     return true;
 }
 
