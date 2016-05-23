@@ -25,6 +25,7 @@
 
 #include "qmlprofilertraceclient.h"
 #include "qmltypedevent.h"
+#include "qmlprofilerdatamodel.h"
 
 #include <qmldebug/qmlenginecontrolclient.h>
 #include <qmldebug/qdebugmessageclient.h>
@@ -34,8 +35,10 @@ namespace QmlProfiler {
 
 class QmlProfilerTraceClientPrivate {
 public:
-    QmlProfilerTraceClientPrivate(QmlProfilerTraceClient *_q, QmlDebug::QmlDebugConnection *client)
+    QmlProfilerTraceClientPrivate(QmlProfilerTraceClient *_q, QmlDebug::QmlDebugConnection *client,
+                                  QmlProfilerDataModel *model)
         : q(_q)
+        , model(model)
         , engineControl(client)
         , maximumTime(0)
         , recording(false)
@@ -49,6 +52,7 @@ public:
     bool updateFeatures(ProfileFeature feature);
 
     QmlProfilerTraceClient *q;
+    QmlProfilerDataModel *model;
     QmlDebug::QmlEngineControlClient engineControl;
     QScopedPointer<QmlDebug::QDebugMessageClient> messageClient;
     qint64 maximumTime;
@@ -71,9 +75,10 @@ void QmlProfilerTraceClientPrivate::sendRecordingStatus(int engineId)
 }
 
 QmlProfilerTraceClient::QmlProfilerTraceClient(QmlDebug::QmlDebugConnection *client,
+                                               QmlProfilerDataModel *model,
                                                quint64 features)
     : QmlDebugClient(QLatin1String("CanvasFrameRate"), client)
-    , d(new QmlProfilerTraceClientPrivate(this, client))
+    , d(new QmlProfilerTraceClientPrivate(this, client, model))
 {
     setRequestedFeatures(features);
     connect(&d->engineControl, &QmlDebug::QmlEngineControlClient::engineAboutToBeAdded,
@@ -147,7 +152,7 @@ void QmlProfilerTraceClient::setRequestedFeatures(quint64 features)
             d->currentEvent.type.message = DebugMessage;
             d->currentEvent.type.rangeType = MaximumRangeType;
             d->currentEvent.type.detailType = type;
-            emit qmlEvent(d->currentEvent.event, d->currentEvent.type);
+            d->model->addTypedEvent(d->currentEvent.event, d->currentEvent.type);
         });
     } else {
         d->messageClient.reset();
@@ -206,7 +211,7 @@ void QmlProfilerTraceClient::messageReceived(const QByteArray &data)
         emit traceFinished(d->currentEvent.event.timestamp(),
                            d->currentEvent.event.numbers<QList<int>, qint32>());
     } else if (d->updateFeatures(d->currentEvent.type.feature())) {
-        emit qmlEvent(d->currentEvent.event, d->currentEvent.type);
+        d->model->addTypedEvent(d->currentEvent.event, d->currentEvent.type);
     }
 }
 

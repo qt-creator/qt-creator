@@ -172,6 +172,7 @@ void QmlProfilerClientManager::createConnection()
     delete d->qmlclientplugin.data();
     d->profilerState->setRecordedFeatures(0);
     d->qmlclientplugin = new QmlProfilerTraceClient(d->connection,
+                                                    d->modelManager->qmlModel(),
                                                     d->profilerState->requestedFeatures());
     d->qmlclientplugin->setFlushInterval(d->flushInterval);
     connectClientSignals();
@@ -203,8 +204,6 @@ void QmlProfilerClientManager::connectClientSignals()
                 d->qmlclientplugin.data(), &QmlProfilerTraceClient::setRequestedFeatures);
         connect(d->qmlclientplugin.data(), &QmlProfilerTraceClient::recordedFeaturesChanged,
                 d->profilerState, &QmlProfilerStateManager::setRecordedFeatures);
-        connect(d->qmlclientplugin.data(), &QmlProfilerTraceClient::qmlEvent,
-                d->modelManager, &QmlProfilerModelManager::addQmlEvent);
     }
 }
 
@@ -225,8 +224,6 @@ void QmlProfilerClientManager::disconnectClientSignals()
                    d->qmlclientplugin.data(), &QmlProfilerTraceClient::setRequestedFeatures);
         disconnect(d->qmlclientplugin.data(), &QmlProfilerTraceClient::recordedFeaturesChanged,
                    d->profilerState, &QmlProfilerStateManager::setRecordedFeatures);
-        disconnect(d->qmlclientplugin.data(), &QmlProfilerTraceClient::qmlEvent,
-                   d->modelManager, &QmlProfilerModelManager::addQmlEvent);
     }
 }
 

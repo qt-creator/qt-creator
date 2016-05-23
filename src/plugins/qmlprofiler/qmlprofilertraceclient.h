@@ -37,13 +37,15 @@
 
 namespace QmlProfiler {
 
+class QmlProfilerDataModel;
 class QmlProfilerTraceClient : public QmlDebug::QmlDebugClient
 {
     Q_OBJECT
     Q_PROPERTY(bool recording READ isRecording WRITE setRecording NOTIFY recordingChanged)
 
 public:
-    QmlProfilerTraceClient(QmlDebug::QmlDebugConnection *client, quint64 features);
+    QmlProfilerTraceClient(QmlDebug::QmlDebugConnection *client, QmlProfilerDataModel *model,
+                           quint64 features);
     ~QmlProfilerTraceClient();
 
     bool isRecording() const;
@@ -60,8 +62,6 @@ signals:
     void complete(qint64 maximumTime);
     void traceFinished(qint64 timestamp, const QList<int> &engineIds);
     void traceStarted(qint64 timestamp, const QList<int> &engineIds);
-
-    void qmlEvent(const QmlEvent &event, const QmlEventType &type);
 
     void recordingChanged(bool arg);
     void recordedFeaturesChanged(quint64 features);

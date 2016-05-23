@@ -136,7 +136,6 @@ public slots:
     bool isRestrictedToRange() const;
 
     void startAcquiring();
-    void addQmlEvent(const QmlEvent &event, const QmlEventType &type);
 
     void save(const QString &filename);
     void load(const QString &filename);
