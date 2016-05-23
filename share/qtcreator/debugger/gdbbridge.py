@@ -188,7 +188,11 @@ class PlainDumper:
 
 def importPlainDumpers(args):
     if args == "off":
-        gdb.execute("disable pretty-printer .* .*")
+        try:
+            gdb.execute("disable pretty-printer .* .*")
+        except:
+            # Might occur in non-ASCII directories
+            warn("COULD NOT DISABLE PRETTY PRINTERS")
     else:
         theDumper.importPlainDumpers()
 
