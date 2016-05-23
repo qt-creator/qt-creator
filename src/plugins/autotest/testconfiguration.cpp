@@ -124,7 +124,11 @@ void TestConfiguration::completeTestInformation()
         foreach (const BuildTargetInfo &bti, appTargets.list) {
             // some project manager store line/column information as well inside ProjectPart
             if (bti.isValid() && m_proFile.startsWith(bti.projectFilePath.toString())) {
-                targetFile = Utils::HostOsInfo::withExecutableSuffix(bti.targetFilePath.toString());
+                targetFile = bti.targetFilePath.toString();
+                if (Utils::HostOsInfo::isWindowsHost()
+                        && !targetFile.toLower().endsWith(QLatin1String(".exe"))) {
+                    targetFile = Utils::HostOsInfo::withExecutableSuffix(targetFile);
+                }
                 targetName = bti.targetName;
                 break;
             }
