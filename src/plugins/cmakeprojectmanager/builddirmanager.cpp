@@ -222,8 +222,8 @@ void BuildDirManager::parse()
 
     const bool mustUpdate = m_watchedFiles.isEmpty()
             || Utils::anyOf(m_watchedFiles, [&cbpFileFi](const Utils::FileName &f) {
-                  return f.toFileInfo().lastModified() > cbpFileFi.lastModified();
-              });
+                   return f.toFileInfo().lastModified() > cbpFileFi.lastModified();
+               });
     if (mustUpdate) {
         startCMake(tool, generator, CMakeConfig());
     } else {
