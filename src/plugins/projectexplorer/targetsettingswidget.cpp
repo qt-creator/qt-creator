@@ -33,6 +33,8 @@
 #include <QPushButton>
 #include <QVBoxLayout>
 
+#include <cmath>
+
 using namespace ProjectExplorer::Internal;
 
 class TargetSettingsWidgetHeader : public QWidget
@@ -53,7 +55,7 @@ public:
             QPainter p(this);
             static const QPixmap bg(Utils::StyleHelper::dpiSpecificImageFile(
                                         QLatin1String(":/projectexplorer/images/targetseparatorbackground.png")));
-            const int tileCount = int(ceil(qreal(width()) / bg.width() * devicePixelRatio()));
+            const int tileCount = int(std::ceil(qreal(width()) / bg.width() * devicePixelRatio()));
             for (int tile = 0; tile < tileCount; ++tile)
                 p.drawPixmap(tile * bg.width() / devicePixelRatio(), 0, bg);
         }
