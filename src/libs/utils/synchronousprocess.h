@@ -119,7 +119,10 @@ public:
     void setExitCodeInterpreter(const ExitCodeInterpreter &interpreter);
     ExitCodeInterpreter exitCodeInterpreter() const;
 
+    // Starts an nested event loop and runs the binary with the arguments
     SynchronousProcessResponse run(const QString &binary, const QStringList &args);
+    // Starts the binary with the arguments blocking the UI fully
+    SynchronousProcessResponse runBlocking(const QString &binary, const QStringList &args);
 
     // Create a (derived) processes with flags applied.
     static QSharedPointer<QProcess> createProcess(unsigned flags);

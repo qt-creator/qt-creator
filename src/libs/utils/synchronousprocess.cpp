@@ -449,6 +449,48 @@ SynchronousProcessResponse SynchronousProcess::run(const QString &binary,
     return  d->m_result;
 }
 
+SynchronousProcessResponse SynchronousProcess::runBlocking(const QString &binary, const QStringList &args)
+{
+    d->clearForRun();
+
+    // On Windows, start failure is triggered immediately if the
+    // executable cannot be found in the path. Do not start the
+    // event loop in that case.
+    d->m_binary = binary;
+    d->m_process.start(binary, args, QIODevice::ReadOnly);
+    if (!d->m_process.waitForStarted(d->m_maxHangTimerCount * 1000)) {
+        d->m_result.result = SynchronousProcessResponse::StartFailed;
+        return d->m_result;
+    }
+    d->m_process.closeWriteChannel();
+    if (d->m_process.waitForFinished(d->m_maxHangTimerCount * 1000)) {
+        if (d->m_process.state() == QProcess::Running) {
+            d->m_result.result = SynchronousProcessResponse::Hang;
+            d->m_process.terminate();
+            if (d->m_process.waitForFinished(1000) && d->m_process.state() == QProcess::Running) {
+                d->m_process.kill();
+                d->m_process.waitForFinished(1000);
+            }
+        }
+    }
+
+    QTC_ASSERT(d->m_process.state() == QProcess::NotRunning, return d->m_result);
+    d->m_result.exitCode = d->m_process.exitCode();
+    if (d->m_result.result != SynchronousProcessResponse::StartFailed) {
+        if (d->m_process.exitStatus() != QProcess::NormalExit)
+            d->m_result.result = SynchronousProcessResponse::TerminatedAbnormally;
+        else
+            d->m_result.result = (exitCodeInterpreter())(d->m_result.exitCode);
+    }
+    processStdOut(false);
+    processStdErr(false);
+
+    d->m_result.stdOut = d->m_stdOut.data;
+    d->m_result.stdErr = d->m_stdErr.data;
+
+    return d->m_result;
+}
+
 bool SynchronousProcess::terminate()
 {
     return stopProcess(d->m_process);
