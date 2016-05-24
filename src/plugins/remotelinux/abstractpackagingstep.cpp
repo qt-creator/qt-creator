@@ -67,11 +67,12 @@ AbstractPackagingStep::AbstractPackagingStep(BuildStepList *bsl, AbstractPackagi
 void AbstractPackagingStep::ctor()
 {
     d = new Internal::AbstractPackagingStepPrivate;
-    connect(target(), SIGNAL(activeBuildConfigurationChanged(ProjectExplorer::BuildConfiguration*)),
-        SLOT(handleBuildConfigurationChanged()));
+    connect(target(), &Target::activeBuildConfigurationChanged,
+            this, &AbstractPackagingStep::handleBuildConfigurationChanged);
     handleBuildConfigurationChanged();
 
-    connect(target(), SIGNAL(deploymentDataChanged()), SLOT(setDeploymentDataModified()));
+    connect(target(), &Target::deploymentDataChanged,
+            this, &AbstractPackagingStep::setDeploymentDataModified);
     setDeploymentDataModified();
 
     connect(this, &AbstractPackagingStep::unmodifyDeploymentData,
