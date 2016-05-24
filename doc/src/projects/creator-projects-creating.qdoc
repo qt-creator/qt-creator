@@ -120,10 +120,12 @@
             \li Qt Quick Controls Application
 
                 Create a Qt Quick application using
+                \l{http://doc-snapshots.qt.io/qt5-5.7/qtquickcontrols2-index.html}
+                {Qt Quick Controls 2} (requires Qt 5.7 or later),
                 \l{http://doc.qt.io/qt-5/qtquickcontrols-index.html}
-                {Qt Quick Controls} or
+                {Qt Quick Controls}, or
                 \l{http://doc.qt.io/qt-5/qtlabscontrols-index.html}
-                {Qt Labs Controls}
+                {Qt Labs Controls} (only for Qt 5.6)
 
             \li Qt Canvas 3D Application
 
