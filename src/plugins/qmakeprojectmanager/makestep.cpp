@@ -326,13 +326,13 @@ MakeStepConfigWidget::MakeStepConfigWidget(MakeStep *makeStep)
 
     updateDetails();
 
-    connect(m_ui->makePathChooser, SIGNAL(rawPathChanged(QString)),
-            this, SLOT(makeEdited()));
-    connect(m_ui->makeArgumentsLineEdit, SIGNAL(textEdited(QString)),
-            this, SLOT(makeArgumentsLineEdited()));
+    connect(m_ui->makePathChooser, &Utils::PathChooser::rawPathChanged,
+            this, &MakeStepConfigWidget::makeEdited);
+    connect(m_ui->makeArgumentsLineEdit, &QLineEdit::textEdited,
+            this, &MakeStepConfigWidget::makeArgumentsLineEdited);
 
-    connect(makeStep, SIGNAL(userArgumentsChanged()),
-            this, SLOT(userArgumentsChanged()));
+    connect(makeStep, &MakeStep::userArgumentsChanged,
+            this, &MakeStepConfigWidget::userArgumentsChanged);
 
     BuildConfiguration *bc = makeStep->buildConfiguration();
     if (!bc) {
@@ -340,27 +340,27 @@ MakeStepConfigWidget::MakeStepConfigWidget(MakeStep *makeStep)
         // changed signal and react to the buildDirectoryChanged() signal of the buildconfiguration
         bc = makeStep->target()->activeBuildConfiguration();
         m_bc = bc;
-        connect (makeStep->target(), SIGNAL(activeBuildConfigurationChanged(ProjectExplorer::BuildConfiguration*)),
-                 this, SLOT(activeBuildConfigurationChanged()));
+        connect (makeStep->target(), &Target::activeBuildConfigurationChanged,
+                 this, &MakeStepConfigWidget::activeBuildConfigurationChanged);
     }
 
     if (bc) {
-        connect(bc, SIGNAL(buildDirectoryChanged()),
-                this, SLOT(updateDetails()));
+        connect(bc, &BuildConfiguration::buildDirectoryChanged,
+                this, &MakeStepConfigWidget::updateDetails);
         connect(bc, &BuildConfiguration::environmentChanged,
                 this, &MakeStepConfigWidget::updateDetails);
     }
 
-    connect(ProjectExplorerPlugin::instance(), SIGNAL(settingsChanged()),
-            this, SLOT(updateDetails()));
-    connect(m_makeStep->target(), SIGNAL(kitChanged()), this, SLOT(updateDetails()));
+    connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::settingsChanged,
+            this, &MakeStepConfigWidget::updateDetails);
+    connect(m_makeStep->target(), &Target::kitChanged, this, &MakeStepConfigWidget::updateDetails);
 }
 
 void MakeStepConfigWidget::activeBuildConfigurationChanged()
 {
     if (m_bc) {
-        disconnect(m_bc, SIGNAL(buildDirectoryChanged()),
-                this, SLOT(updateDetails()));
+        disconnect(m_bc, &BuildConfiguration::buildDirectoryChanged,
+                this, &MakeStepConfigWidget::updateDetails);
         disconnect(m_bc, &BuildConfiguration::environmentChanged,
                    this, &MakeStepConfigWidget::updateDetails);
     }
@@ -369,8 +369,8 @@ void MakeStepConfigWidget::activeBuildConfigurationChanged()
     updateDetails();
 
     if (m_bc) {
-        connect(m_bc, SIGNAL(buildDirectoryChanged()),
-                this, SLOT(updateDetails()));
+        connect(m_bc, &BuildConfiguration::buildDirectoryChanged,
+                this, &MakeStepConfigWidget::updateDetails);
         connect(m_bc, &BuildConfiguration::environmentChanged,
                 this, &MakeStepConfigWidget::updateDetails);
     }
