@@ -58,13 +58,13 @@ def ensureChecked(objectName, shouldBeChecked = True, timeout=20000):
     try:
         # needed for transition Qt::PartiallyChecked -> Qt::Checked -> Qt::Unchecked
         clicked = 0
-        while not waitFor('widget.checkState() == targetState', 1000) and clicked < 2:
+        while not waitFor('widget.checkState() == targetState', 1500) and clicked < 2:
             clickButton(widget)
             clicked += 1
         test.verify(waitFor("widget.checkState() == targetState", 1000))
     except:
         # widgets not derived from QCheckbox don't have checkState()
-        if not waitFor('widget.checked == shouldBeChecked', 1000):
+        if not waitFor('widget.checked == shouldBeChecked', 1500):
             mouseClick(widget, 10, 6, 0, Qt.LeftButton)
         test.verify(waitFor("widget.checked == shouldBeChecked", 1000))
     test.log("New state for QCheckBox: %s" % state,
