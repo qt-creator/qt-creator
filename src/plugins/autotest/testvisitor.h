@@ -76,7 +76,7 @@ public:
 
 private:
     QString m_className;
-    CPlusPlus::Scope *m_currentScope;
+    CPlusPlus::Scope *m_currentScope = 0;
     CPlusPlus::Document::Ptr m_currentDoc;
 
 };
