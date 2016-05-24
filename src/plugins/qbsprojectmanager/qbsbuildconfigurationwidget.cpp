@@ -43,8 +43,10 @@ QbsBuildConfigurationWidget::QbsBuildConfigurationWidget(QbsProjectManager::Inte
     m_buildConfiguration(bc),
     m_ignoreChange(false)
 {
-    connect(bc, SIGNAL(buildDirectoryChanged()), this, SLOT(buildDirectoryChanged()));
-    connect(bc, SIGNAL(environmentChanged()), this, SLOT(environmentHasChanged()));
+    connect(bc, &ProjectExplorer::BuildConfiguration::buildDirectoryChanged,
+            this, &QbsBuildConfigurationWidget::buildDirectoryChanged);
+    connect(bc, &ProjectExplorer::BuildConfiguration::environmentChanged,
+            this, &QbsBuildConfigurationWidget::environmentHasChanged);
 
     QVBoxLayout *vbox = new QVBoxLayout(this);
     vbox->setMargin(0);
@@ -65,7 +67,8 @@ QbsBuildConfigurationWidget::QbsBuildConfigurationWidget(QbsProjectManager::Inte
     m_buildDirChooser->setEnvironment(bc->environment());
     layout->addWidget(m_buildDirChooser, 0, 1);
 
-    connect(m_buildDirChooser, SIGNAL(rawPathChanged(QString)), this, SLOT(buildDirEdited()));
+    connect(m_buildDirChooser, &Utils::PathChooser::rawPathChanged,
+            this, &QbsBuildConfigurationWidget::buildDirEdited);
 
     buildDirectoryChanged();
 }
