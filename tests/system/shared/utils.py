@@ -228,7 +228,7 @@ def selectFromFileDialog(fileName, waitForFile=False):
         nativeType("<Command+Shift+g>")
         snooze(1)
         nativeType(fileName)
-        snooze(1)
+        snooze(2)
         nativeType("<Return>")
         snooze(3)
         nativeType("<Return>")
