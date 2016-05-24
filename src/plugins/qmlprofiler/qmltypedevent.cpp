@@ -50,6 +50,7 @@ QDataStream &operator>>(QDataStream &stream, QmlTypedEvent &event)
     event.type.data.clear();
     event.type.location.filename.clear();
     event.type.location.line = event.type.location.column = -1;
+    event.serverTypeId = 0;
 
     switch (messageType) {
     case Event: {
@@ -147,10 +148,12 @@ QDataStream &operator>>(QDataStream &stream, QmlTypedEvent &event)
         break;
     }
     case RangeStart: {
-        // read and ignore binding type
-        if (rangeType == Binding && !stream.atEnd()) {
-            qint32 bindingType;
-            stream >> bindingType;
+        if (!stream.atEnd()) {
+            qint64 typeId;
+            stream >> typeId;
+            if (stream.status() == QDataStream::Ok)
+                event.serverTypeId = typeId;
+            // otherwise it's the old binding type of 4 bytes
         }
 
         event.type.message = MaximumMessage;
@@ -166,16 +169,21 @@ QDataStream &operator>>(QDataStream &stream, QmlTypedEvent &event)
         event.type.rangeType = rangeType;
         event.event.setRangeStage(RangeData);
         event.type.detailType = -1;
+        if (!stream.atEnd())
+            stream >> event.serverTypeId;
         break;
     }
     case RangeLocation: {
         stream >> event.type.location.filename
                 >> static_cast<qint32 &>(event.type.location.line);
 
-        if (!stream.atEnd())
+        if (!stream.atEnd()) {
             stream >> static_cast<qint32 &>(event.type.location.column);
-        else
+            if (!stream.atEnd())
+                stream >> event.serverTypeId;
+        } else {
             event.type.location.column = -1;
+        }
 
         event.type.message = MaximumMessage;
         event.type.rangeType = rangeType;

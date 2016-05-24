@@ -71,7 +71,7 @@ public:
 
     void sendRecordingStatus(int engineId);
     bool updateFeatures(ProfileFeature feature);
-    int resolveType(const QmlEventType &type);
+    int resolveType(const QmlTypedEvent &type);
     int resolveStackTop();
     void processCurrentEvent();
 
@@ -88,19 +88,31 @@ public:
     // Reuse the same event, so that we don't have to constantly reallocate all the data.
     QmlTypedEvent currentEvent;
     QHash<QmlEventType, int> eventTypeIds;
+    QHash<qint64, int> serverTypeIds;
     QStack<QmlTypedEvent> rangesInProgress;
 };
 
-int QmlProfilerTraceClientPrivate::resolveType(const QmlEventType &type)
+int QmlProfilerTraceClientPrivate::resolveType(const QmlTypedEvent &event)
 {
-    QHash<QmlEventType, int>::ConstIterator it = eventTypeIds.constFind(type);
-
     int typeIndex = -1;
-    if (it != eventTypeIds.constEnd()) {
-        typeIndex = it.value();
+    if (event.serverTypeId != 0) {
+        QHash<qint64, int>::ConstIterator it = serverTypeIds.constFind(event.serverTypeId);
+
+        if (it != serverTypeIds.constEnd()) {
+            typeIndex = it.value();
+        } else {
+            typeIndex = model->addEventType(event.type);
+            serverTypeIds[event.serverTypeId] = typeIndex;
+        }
     } else {
-        typeIndex = model->addEventType(type);
-        eventTypeIds[type] = typeIndex;
+        QHash<QmlEventType, int>::ConstIterator it = eventTypeIds.constFind(event.type);
+
+        if (it != eventTypeIds.constEnd()) {
+            typeIndex = it.value();
+        } else {
+            typeIndex = model->addEventType(event.type);
+            eventTypeIds[event.type] = typeIndex;
+        }
     }
     return typeIndex;
 }
@@ -115,7 +127,7 @@ int QmlProfilerTraceClientPrivate::resolveStackTop()
     if (typeIndex >= 0)
         return typeIndex;
 
-    typeIndex = resolveType(typedEvent.type);
+    typeIndex = resolveType(typedEvent);
     typedEvent.event.setTypeIndex(typeIndex);
     model->addEvent(typedEvent.event);
     return typeIndex;
@@ -149,7 +161,7 @@ void QmlProfilerTraceClientPrivate::processCurrentEvent()
         rangesInProgress.top().type.location = currentEvent.type.location;
         break;
     default: {
-        int typeIndex = resolveType(currentEvent.type);
+        int typeIndex = resolveType(currentEvent);
         currentEvent.event.setTypeIndex(typeIndex);
         model->addEvent(currentEvent.event);
         break;
@@ -161,8 +173,10 @@ void QmlProfilerTraceClientPrivate::sendRecordingStatus(int engineId)
 {
     QmlDebug::QPacket stream(q->connection()->currentDataStreamVersion());
     stream << recording << engineId; // engineId -1 is OK. It means "all of them"
-    if (recording)
+    if (recording) {
         stream << requestedFeatures << flushInterval;
+        stream << true; // yes, we support type IDs
+    }
     q->sendMessage(stream.data());
 }
 
@@ -246,6 +260,7 @@ void QmlProfilerTraceClient::setRequestedFeatures(quint64 features)
             d->currentEvent.type.message = DebugMessage;
             d->currentEvent.type.rangeType = MaximumRangeType;
             d->currentEvent.type.detailType = type;
+            d->currentEvent.serverTypeId = 0;
             d->processCurrentEvent();
         });
     } else {

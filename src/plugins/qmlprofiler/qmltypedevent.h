@@ -35,6 +35,7 @@ struct QmlTypedEvent
 {
     QmlEvent event;
     QmlEventType type;
+    qint64 serverTypeId = 0;
 };
 
 QDataStream &operator>>(QDataStream &stream, QmlTypedEvent &event);
