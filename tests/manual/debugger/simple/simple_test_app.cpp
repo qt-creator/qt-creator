@@ -185,6 +185,9 @@ void dummyStatement(...) {}
 #include <QXmlAttributes>
 
 #include <QHostAddress>
+#include <QJsonArray>
+#include <QJsonObject>
+#include <QJsonValue>
 #include <QNetworkRequest>
 
 #include <array>
@@ -6009,6 +6012,41 @@ namespace qscript {
 } // namespace script
 
 
+namespace qjson {
+
+    void testQJson()
+    {
+        QJsonObject obj {
+            {"-1", -1},
+            {"3", 3},
+            {"0x3fffff (4194303)", 4194303},
+            {"0x400000 (4194304)", 4194304},
+            {"0x800000 (8388608)", 8388608},
+            {"0x1000000 (16777216)", 16777216},
+            {"-0x3fffff (-4194303)", -4194303},
+            {"-0x400000 (-4194304)", -4194304},
+            {"-0x800000 (-8388608)", -8388608}
+        };
+         QJsonArray arr;
+         for (unsigned int i = 0; i < 32; ++i) {
+             arr.append(QJsonValue(qint64(1u << i) - 1));
+             arr.append(QJsonValue(qint64(1u << i)));
+             arr.append(QJsonValue(qint64(1u << i) + 1));
+         }
+         for (unsigned int i = 0; i < 32; ++i) {
+             arr.append(QJsonValue(-qint64(1u << i) + 1));
+             arr.append(QJsonValue(-qint64(1u << i)));
+             arr.append(QJsonValue(-qint64(1u << i) - 1));
+         }
+        BREAK_HERE;
+        // Check v -1 QJsonValue.
+        // Check obj "foo" -1 QJsonValue.
+        // Continue.
+    }
+
+} // namespace json
+
+
 namespace webkit {
 
     void testWTFString()
@@ -7182,6 +7220,7 @@ int main(int argc, char *argv[])
     qregexp::testQRegExp();
     qregion::testQRegion();
     qscript::testQScript();
+    qjson::testQJson();
     qset::testQSet();
     qsharedpointer::testQSharedPointer();
     qstack::testQStack();

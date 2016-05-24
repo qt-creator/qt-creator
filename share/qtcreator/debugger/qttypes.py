@@ -2645,7 +2645,10 @@ def qdumpHelper__QJsonValue(d, data, base, pv):
     if t == 2:
         d.putType("QJsonValue (Number)")
         if latinOrIntValue:
-            d.putValue(v)
+            w = toInteger(v)
+            if w >= 0x4000000:
+                w -= 0x8000000
+            d.putValue(w)
         else:
             data = base + v;
             d.putValue(d.extractBlob(data, 8).extractDouble())
@@ -2746,10 +2749,12 @@ def qdump__QJsonValue(d, value):
         d.putType("QJsonValue (Bool)")
         v = toInteger(value["b"])
         d.putValue("true" if v else "false")
+        d.putNumChild(0)
         return
     if t == 2:
         d.putType("QJsonValue (Number)")
         d.putValue(value["dbl"])
+        d.putNumChild(0)
         return
     if t == 3:
         d.putType("QJsonValue (String)")
