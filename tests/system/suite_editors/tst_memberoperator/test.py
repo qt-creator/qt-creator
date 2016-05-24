@@ -49,7 +49,11 @@ def main():
             waitFor("object.exists(':popupFrame_TextEditor::GenericProposalWidget')", 1500)
             found = str(lineUnderCursor(cppwindow)).strip()
             exp = testData.field(record, "expected")
-            test.compare(found, exp)
+            if (useClang and exp.endswith("->") and JIRA.isBugStillOpen(16336)
+                and platform.system() in ('Windows', 'Microsoft')):
+                test.xcompare(found, exp)
+            else:
+                test.compare(found, exp)
             invokeMenuItem("File", 'Revert "main.cpp" to Saved')
             clickButton(waitForObject(":Revert to Saved.Proceed_QPushButton"))
         snooze(1)
