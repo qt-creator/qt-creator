@@ -95,7 +95,7 @@ public:
 
     static void updateGlobalMarksFilenames(const QString &oldFileName, const QString &newFileName);
 
-public slots:
+public:
     void setCurrentFileName(const QString &fileName);
     QString currentFileName() const;
 
@@ -131,8 +131,8 @@ public slots:
     bool eventFilter(QObject *ob, QEvent *ev);
 
 signals:
-    void commandBufferChanged(const QString &msg, int cursorPos,
-        int anchorPos, int messageLevel, QObject *eventFilter);
+    void commandBufferChanged(const QString &msg, int cursorPos, int anchorPos,
+                              int messageLevel, FakeVimHandler *eventFilter);
     void statusDataChanged(const QString &msg);
     void extraInformationChanged(const QString &msg);
     void selectionChanged(const QList<QTextEdit::ExtraSelection> &selection);

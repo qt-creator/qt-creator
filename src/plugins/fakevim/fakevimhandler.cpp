@@ -949,11 +949,12 @@ inline QString msgMarkNotSet(const QString &text)
     return Tr::tr("Mark \"%1\" not set.").arg(text);
 }
 
-static void initSingleShotTimer(QTimer *timer, int interval, QObject *receiver, const char *slot)
+static void initSingleShotTimer(QTimer *timer, int interval, FakeVimHandler::Private *receiver,
+                                void (FakeVimHandler::Private::*slot)())
 {
     timer->setSingleShot(true);
     timer->setInterval(interval);
-    QObject::connect(timer, SIGNAL(timeout()), receiver, slot);
+    QObject::connect(timer, &QTimer::timeout, receiver, slot);
 }
 
 class Input
@@ -1944,12 +1945,12 @@ public:
 
     bool canModifyBufferData() const { return m_buffer->currentHandler.data() == this; }
 
-    Q_SLOT void onContentsChanged(int position, int charsRemoved, int charsAdded);
-    Q_SLOT void onCursorPositionChanged();
-    Q_SLOT void onUndoCommandAdded();
+    void onContentsChanged(int position, int charsRemoved, int charsAdded);
+    void onCursorPositionChanged();
+    void onUndoCommandAdded();
 
-    Q_SLOT void onInputTimeout();
-    Q_SLOT void onFixCursorTimeout();
+    void onInputTimeout();
+    void onFixCursorTimeout();
 
     bool isCommandLineMode() const { return g.mode == ExMode || g.subsubmode == SearchSubSubMode; }
     bool isInsertMode() const { return g.mode == InsertMode || g.mode == ReplaceMode; }
@@ -2284,9 +2285,10 @@ FakeVimHandler::Private::Private(FakeVimHandler *parent, QWidget *widget)
     init();
 
     if (editor()) {
-        connect(EDITOR(document()), SIGNAL(contentsChange(int,int,int)),
-                SLOT(onContentsChanged(int,int,int)));
-        connect(EDITOR(document()), SIGNAL(undoCommandAdded()), SLOT(onUndoCommandAdded()));
+        connect(EDITOR(document()), &QTextDocument::contentsChange,
+                this, &Private::onContentsChanged);
+        connect(EDITOR(document()), &QTextDocument::undoCommandAdded,
+                this, &Private::onUndoCommandAdded);
         m_buffer->lastRevision = revision();
     }
 }
@@ -2311,8 +2313,8 @@ void FakeVimHandler::Private::init()
     m_ctrlVLength = 0;
     m_ctrlVBase = 0;
 
-    initSingleShotTimer(&m_fixCursorTimer, 0, this, SLOT(onFixCursorTimeout()));
-    initSingleShotTimer(&m_inputTimer, 1000, this, SLOT(onInputTimeout()));
+    initSingleShotTimer(&m_fixCursorTimer, 0, this, &FakeVimHandler::Private::onFixCursorTimeout);
+    initSingleShotTimer(&m_inputTimer, 1000, this, &FakeVimHandler::Private::onInputTimeout);
 
     pullOrCreateBufferData();
     setupCharClass();
@@ -2547,8 +2549,13 @@ void FakeVimHandler::Private::removeEventFilter()
 void FakeVimHandler::Private::setupWidget()
 {
     m_cursorNeedsUpdate = true;
-    connect(editor(), SIGNAL(cursorPositionChanged()),
-            SLOT(onCursorPositionChanged()), Qt::UniqueConnection);
+    if (m_textedit) {
+        connect(m_textedit, &QTextEdit::cursorPositionChanged,
+                this, &FakeVimHandler::Private::onCursorPositionChanged, Qt::UniqueConnection);
+    } else {
+        connect(m_plaintextedit, &QPlainTextEdit::cursorPositionChanged,
+                this, &FakeVimHandler::Private::onCursorPositionChanged, Qt::UniqueConnection);
+    }
 
     enterFakeVim();
 
@@ -2673,7 +2680,13 @@ void FakeVimHandler::Private::restoreWidget(int tabSize)
     setThinCursor();
     updateSelection();
     updateHighlights();
-    disconnect(editor(), SIGNAL(cursorPositionChanged()), this, SLOT(onCursorPositionChanged()));
+    if (m_textedit) {
+        disconnect(m_textedit, &QTextEdit::cursorPositionChanged,
+                   this, &FakeVimHandler::Private::onCursorPositionChanged);
+    } else {
+        disconnect(m_plaintextedit, &QPlainTextEdit::cursorPositionChanged,
+                   this, &FakeVimHandler::Private::onCursorPositionChanged);
+    }
 }
 
 EventResult FakeVimHandler::Private::handleKey(const Input &input)

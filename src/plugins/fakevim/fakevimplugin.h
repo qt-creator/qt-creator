@@ -108,7 +108,7 @@ private slots:
     void test_vim_ex_join();
     void test_advanced_commands();
 
-//public slots:
+//public:
 //    void changeStatusData(const QString &info) { m_statusData = info; }
 //    void changeStatusMessage(const QString &info, int) { m_statusMessage = info; }
 //    void changeExtraInformation(const QString &info) { m_infoMessage = info; }

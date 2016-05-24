@@ -134,7 +134,7 @@ public:
     }
 
     void setContents(const QString &contents, int cursorPos, int anchorPos,
-                     int messageLevel, QObject *eventFilter)
+                     int messageLevel, FakeVimHandler *eventFilter)
     {
         if (cursorPos != -1) {
             m_edit->blockSignals(true);
@@ -183,12 +183,12 @@ public:
         if (m_eventFilter != eventFilter) {
             if (m_eventFilter != 0) {
                 m_edit->removeEventFilter(m_eventFilter);
-                disconnect(SIGNAL(edited(QString,int,int)));
+                disconnect(this, &MiniBuffer::edited, 0, 0);
             }
             if (eventFilter != 0) {
                 m_edit->installEventFilter(eventFilter);
-                connect(this, SIGNAL(edited(QString,int,int)),
-                        eventFilter, SLOT(miniBufferTextEdited(QString,int,int)));
+                connect(this, &MiniBuffer::edited,
+                        eventFilter, &FakeVimHandler::miniBufferTextEdited);
             }
             m_eventFilter = eventFilter;
         }
@@ -313,7 +313,7 @@ protected:
         return false;
     }
 
-private slots:
+private:
     void followEditorLayout()
     {
         QTextCursor tc = m_editor->textCursor();
@@ -336,7 +336,6 @@ private slots:
         update();
     }
 
-private:
     int m_currentPos = 0;
     int m_lineSpacing = 0;
     TextEditorWidget *m_editor;
@@ -370,13 +369,12 @@ public:
     void apply();
     void finish();
 
-private slots:
+private:
     void copyTextEditorSettings();
     void setQtStyle();
     void setPlainStyle();
     void updateVimRcWidgets();
 
-private:
     QPointer<QWidget> m_widget;
     Ui::FakeVimOptionPage m_ui;
     SavedActionSet m_group;
@@ -1033,7 +1031,7 @@ public:
     bool initialize();
     void aboutToShutdown();
 
-private slots:
+private:
     void onCoreAboutToClose();
     void editorOpened(Core::IEditor *);
     void editorAboutToClose(Core::IEditor *);
@@ -1064,7 +1062,7 @@ private slots:
 
     void resetCommandBuffer();
     void showCommandBuffer(const QString &contents, int cursorPos, int anchorPos,
-                           int messageLevel, QObject *eventFilter);
+                           int messageLevel, FakeVimHandler *eventFilter);
     void showExtraInformation(const QString &msg);
     void changeSelection(const QList<QTextEdit::ExtraSelection> &selections);
     void highlightMatches(const QString &needle);
@@ -1205,10 +1203,8 @@ bool FakeVimPluginPrivate::initialize()
     // Set completion settings and keep them up to date.
     TextEditorSettings *textEditorSettings = TextEditorSettings::instance();
     completion->setCompletionSettings(textEditorSettings->completionSettings());
-    connect(textEditorSettings,
-        SIGNAL(completionSettingsChanged(TextEditor::CompletionSettings)),
-        completion,
-        SLOT(setCompletionSettings(TextEditor::CompletionSettings)));
+    connect(textEditorSettings, &TextEditorSettings::completionSettingsChanged,
+            completion, &TextEditorWidget::setCompletionSettings);
 */
 
     Context globalcontext(Core::Constants::C_GLOBAL);
@@ -2172,8 +2168,8 @@ void FakeVimPluginPrivate::resetCommandBuffer()
     showCommandBuffer(QString(), -1, -1, 0, 0);
 }
 
-void FakeVimPluginPrivate::showCommandBuffer(const QString &contents,
-    int cursorPos, int anchorPos, int messageLevel, QObject *eventFilter)
+void FakeVimPluginPrivate::showCommandBuffer(const QString &contents, int cursorPos, int anchorPos,
+                                             int messageLevel, FakeVimHandler *eventFilter)
 {
     //qDebug() << "SHOW COMMAND BUFFER" << contents;
     if (MiniBuffer *w = qobject_cast<MiniBuffer *>(m_statusBar->widget()))
@@ -2313,12 +2309,12 @@ void FakeVimPlugin::setupTest(QString *title, FakeVimHandler **handler, QWidget 
 //        *handler = new FakeVimHandler(m_plaintextedit);
 //    }
 
-//    QObject::connect(*handler, SIGNAL(commandBufferChanged(QString,int)),
-//        this, SLOT(changeStatusMessage(QString,int)));
-//    QObject::connect(*handler, SIGNAL(extraInformationChanged(QString)),
-//        this, SLOT(changeExtraInformation(QString)));
-//    QObject::connect(*handler, SIGNAL(statusDataChanged(QString)),
-//        this, SLOT(changeStatusData(QString)));
+//    connect(*handler, &FakeVimHandler::commandBufferChanged,
+//            this, &FakeVimPlugin::changeStatusMessage);
+//    connect(*handler, &FakeVimHandler::extraInformationChanged,
+//            this, &FakeVimPlugin::changeExtraInformation);
+//    connect(*handler, &FakeVimHandler::statusDataChanged,
+//            this, &FakeVimPlugin::changeStatusData);
 
 //    QCOMPARE(EDITOR(toPlainText()), lines);
     (*handler)->handleCommand("set iskeyword=@,48-57,_,192-255,a-z,A-Z");
