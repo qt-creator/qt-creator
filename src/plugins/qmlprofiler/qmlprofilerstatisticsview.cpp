@@ -914,7 +914,7 @@ void QmlProfilerStatisticsRelativesView::clear()
 
 void QmlProfilerStatisticsRelativesView::updateHeader()
 {
-    bool calleesView = qobject_cast<QmlProfilerStatisticsRelativesModel *>(d->model) != 0;
+    bool calleesView = d->model->relation() == QmlProfilerStatisticsChilden;
 
     if (treeModel()) {
         treeModel()->setColumnCount(5);

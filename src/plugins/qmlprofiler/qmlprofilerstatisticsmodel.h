@@ -124,6 +124,8 @@ public:
     void loadEvent(const QmlEvent &event);
     void finalize(const QSet<int> &eventsInBindingLoop);
 
+    QmlProfilerStatisticsRelation relation() const;
+
 signals:
     void dataAvailable();
 

@@ -394,6 +394,11 @@ void QmlProfilerStatisticsRelativesModel::finalize(const QSet<int> &eventsInBind
     }
 }
 
+QmlProfilerStatisticsRelation QmlProfilerStatisticsRelativesModel::relation() const
+{
+    return m_relation;
+}
+
 int QmlProfilerStatisticsRelativesModel::count() const
 {
     return m_data.count();
