@@ -48,13 +48,6 @@ ToolTip::ToolTip() : m_tip(0), m_widget(0)
 {
     connect(&m_showTimer, &QTimer::timeout, this, &ToolTip::hideTipImmediately);
     connect(&m_hideDelayTimer, &QTimer::timeout, this, &ToolTip::hideTipImmediately);
-    connect(static_cast<QGuiApplication *>(QGuiApplication::instance()),
-            &QGuiApplication::applicationStateChanged,
-            [this](Qt::ApplicationState state) {
-                if (state != Qt::ApplicationActive)
-                    hideTipImmediately();
-            }
-    );
 }
 
 ToolTip::~ToolTip()
@@ -290,6 +283,11 @@ void ToolTip::placeTip(const QPoint &pos, QWidget *w)
 
 bool ToolTip::eventFilter(QObject *o, QEvent *event)
 {
+    if (m_tip && event->type() == QEvent::ApplicationStateChange
+            && qApp->applicationState() != Qt::ApplicationActive) {
+        hideTipImmediately();
+    }
+
     if (!o->isWidgetType())
         return false;
 
