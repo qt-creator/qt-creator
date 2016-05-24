@@ -45,14 +45,14 @@ class QSSH_EXPORT SshForwardedTcpIpTunnel : public QIODevice
 
 public:
     typedef QSharedPointer<SshForwardedTcpIpTunnel> Ptr;
-    ~SshForwardedTcpIpTunnel();
+    ~SshForwardedTcpIpTunnel() override;
 
     // QIODevice stuff
-    bool atEnd() const;
-    qint64 bytesAvailable() const;
-    bool canReadLine() const;
-    void close();
-    bool isSequential() const { return true; }
+    bool atEnd() const override;
+    qint64 bytesAvailable() const override;
+    bool canReadLine() const override;
+    void close() override;
+    bool isSequential() const override { return true; }
 
 signals:
     void error(const QString &reason);
