@@ -600,6 +600,7 @@ def clickOnTab(tabBarStr, tabText, timeout=5000):
     if platform.system() == 'Darwin' and not tabBar.visible:
         test.log("Using workaround for Mac.")
         setWindowState(tabBar, WindowState.Normal)
+        tabBar = waitForObject(tabBarStr, 2000)
     clickTab(tabBar, tabText)
     waitFor("str(tabBar.tabText(tabBar.currentIndex)) == '%s'" % tabText, timeout)
 
