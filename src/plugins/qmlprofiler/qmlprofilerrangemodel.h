@@ -59,19 +59,19 @@ public:
 
     QmlProfilerRangeModel(QmlProfilerModelManager *manager, RangeType range, QObject *parent = 0);
 
-    Q_INVOKABLE int expandedRow(int index) const;
-    Q_INVOKABLE int collapsedRow(int index) const;
-    int bindingLoopDest(int index) const;
-    QColor color(int index) const;
+    Q_INVOKABLE int expandedRow(int index) const override;
+    Q_INVOKABLE int collapsedRow(int index) const override;
+    int bindingLoopDest(int index) const override;
+    QColor color(int index) const override;
 
-    QVariantList labels() const;
-    QVariantMap details(int index) const;
-    QVariantMap location(int index) const;
+    QVariantList labels() const override;
+    QVariantMap details(int index) const override;
+    QVariantMap location(int index) const override;
 
-    int typeId(int index) const;
-    int selectionIdForLocation(const QString &filename, int line, int column) const;
+    int typeId(int index) const override;
+    int selectionIdForLocation(const QString &filename, int line, int column) const override;
 
-    virtual QList<const Timeline::TimelineRenderPass *> supportedRenderPasses() const;
+    virtual QList<const Timeline::TimelineRenderPass *> supportedRenderPasses() const override;
 
 protected:
     void loadEvent(const QmlEvent &event, const QmlEventType &type) override;

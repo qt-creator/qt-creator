@@ -52,17 +52,17 @@ public:
 
     QmlProfilerAnimationsModel(QmlProfilerModelManager *manager, QObject *parent = 0);
 
-    int rowMaxValue(int rowNumber) const;
+    int rowMaxValue(int rowNumber) const override;
 
-    int typeId(int index) const;
-    Q_INVOKABLE int expandedRow(int index) const;
-    Q_INVOKABLE int collapsedRow(int index) const;
+    int typeId(int index) const override;
+    Q_INVOKABLE int expandedRow(int index) const override;
+    Q_INVOKABLE int collapsedRow(int index) const override;
 
-    QColor color(int index) const;
-    float relativeHeight(int index) const;
+    QColor color(int index) const override;
+    float relativeHeight(int index) const override;
 
-    QVariantList labels() const;
-    QVariantMap details(int index) const;
+    QVariantList labels() const override;
+    QVariantMap details(int index) const override;
 
 protected:
     bool accepted(const QmlEventType &event) const override;

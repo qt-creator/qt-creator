@@ -35,7 +35,7 @@ class InputEventsModel : public QmlProfilerTimelineModel
     Q_OBJECT
 
 protected:
-    bool accepted(const QmlEventType &event) const;
+    bool accepted(const QmlEventType &event) const override;
     void loadEvent(const QmlEvent &event, const QmlEventType &type) override;
     void finalize() override;
     void clear() override;
@@ -50,12 +50,12 @@ public:
 
     InputEventsModel(QmlProfilerModelManager *manager, QObject *parent = 0);
 
-    int typeId(int index) const;
-    QColor color(int index) const;
-    QVariantList labels() const;
-    QVariantMap details(int index) const;
-    int expandedRow(int index) const;
-    int collapsedRow(int index) const;
+    int typeId(int index) const override;
+    QColor color(int index) const override;
+    QVariantList labels() const override;
+    QVariantMap details(int index) const override;
+    int expandedRow(int index) const override;
+    int collapsedRow(int index) const override;
 
 private:
     static QMetaEnum metaEnum(const char *name);

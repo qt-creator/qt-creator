@@ -93,17 +93,17 @@ public:
 
     PixmapCacheModel(QmlProfilerModelManager *manager, QObject *parent = 0);
 
-    int rowMaxValue(int rowNumber) const;
+    int rowMaxValue(int rowNumber) const override;
 
-    int expandedRow(int index) const;
-    int collapsedRow(int index) const;
-    int typeId(int index) const;
-    QColor color(int index) const;
-    float relativeHeight(int index) const;
+    int expandedRow(int index) const override;
+    int collapsedRow(int index) const override;
+    int typeId(int index) const override;
+    QColor color(int index) const override;
+    float relativeHeight(int index) const override;
 
-    QVariantList labels() const;
+    QVariantList labels() const override;
 
-    QVariantMap details(int index) const;
+    QVariantMap details(int index) const override;
 
 protected:
     void loadEvent(const QmlEvent &event, const QmlEventType &type) override;
