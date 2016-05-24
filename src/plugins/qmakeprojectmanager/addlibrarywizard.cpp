@@ -252,8 +252,8 @@ void DetailsPage::initializePage()
     setTitle(title);
     setSubTitle(subTitle);
     if (m_libraryDetailsController) {
-        connect(m_libraryDetailsController, SIGNAL(completeChanged()),
-                this, SIGNAL(completeChanged()));
+        connect(m_libraryDetailsController, &LibraryDetailsController::completeChanged,
+                this, &QWizardPage::completeChanged);
     }
 }
 

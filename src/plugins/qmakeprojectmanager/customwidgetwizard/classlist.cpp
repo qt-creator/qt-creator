@@ -91,9 +91,9 @@ ClassList::ClassList(QWidget *parent) :
     m_model(new ClassModel)
 {
     setModel(m_model);
-    connect(itemDelegate(), SIGNAL(closeEditor(QWidget*,QAbstractItemDelegate::EndEditHint)), SLOT(classEdited()));
-    connect(selectionModel(), SIGNAL(currentRowChanged(QModelIndex,QModelIndex)),
-            this, SLOT(slotCurrentRowChanged(QModelIndex,QModelIndex)));
+    connect(itemDelegate(), &QAbstractItemDelegate::closeEditor, this, &ClassList::classEdited);
+    connect(selectionModel(), &QItemSelectionModel::currentRowChanged,
+            this, &ClassList::slotCurrentRowChanged);
 }
 
 void ClassList::startEditingNewClassItem()

@@ -49,15 +49,13 @@ public:
     TestWizardParameters parameters() const;
     QString sourcefileName() const;
 
-public slots:
     void setProjectName(const QString &);
 
-private slots:
+private:
     void slotClassNameEdited(const QString&);
     void slotFileNameEdited();
     void slotUpdateValid();
 
-private:
     const QString m_sourceSuffix;
     const bool m_lowerCaseFileNames;
     Ui::TestWizardPage *ui;

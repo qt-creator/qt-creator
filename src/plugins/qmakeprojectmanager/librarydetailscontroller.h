@@ -87,13 +87,12 @@ protected:
     bool isIncludePathVisible() const;
     bool isWindowsGroupVisible() const;
 
-private slots:
+private:
     void slotIncludePathChanged();
     void slotPlatformChanged();
     void slotMacLibraryTypeChanged();
     void slotUseSubfoldersChanged(bool ena);
     void slotAddSuffixChanged(bool ena);
-private:
 
     void showLinkageType(AddLibraryWizard::LinkageType linkageType);
     void showMacLibraryType(AddLibraryWizard::MacLibraryType libType);
@@ -134,7 +133,7 @@ protected:
     virtual AddLibraryWizard::MacLibraryType suggestedMacLibraryType() const;
     virtual QString suggestedIncludePath() const;
     virtual void updateWindowsOptionsEnablement();
-private slots:
+private:
     void slotLinkageTypeChanged();
     void slotRemoveSuffixChanged(bool ena);
     void slotLibraryPathChanged();
@@ -187,10 +186,10 @@ protected:
     virtual AddLibraryWizard::MacLibraryType suggestedMacLibraryType() const;
     virtual QString suggestedIncludePath() const;
     virtual void updateWindowsOptionsEnablement();
-private slots:
+private:
     void slotCurrentLibraryChanged();
     void updateProFile();
-private:
+
     QString m_rootProjectPath;
     QVector<QmakeProFileNode *> m_proFileNodes;
 };

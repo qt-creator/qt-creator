@@ -49,10 +49,8 @@ public:
     void makeReadOnly() override;
     void refresh() override;
 
-private slots:
-    void mkspecWasChanged(const QString &text);
-
 private:
+    void mkspecWasChanged(const QString &text);
     int findQtVersion(const int id) const;
 
     QLineEdit *m_lineEdit = nullptr;

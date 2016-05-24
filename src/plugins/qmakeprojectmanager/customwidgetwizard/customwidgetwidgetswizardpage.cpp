@@ -48,9 +48,9 @@ CustomWidgetWidgetsWizardPage::CustomWidgetWidgetsWizardPage(QWidget *parent) :
     m_ui->setupUi(this);
     m_ui->tabStackWidget->setLayout(m_tabStackLayout);
     m_ui->addButton->setIcon(Core::Icons::PLUS.icon());
-    connect(m_ui->addButton, SIGNAL(clicked()), m_ui->classList, SLOT(startEditingNewClassItem()));
+    connect(m_ui->addButton, &QAbstractButton::clicked, m_ui->classList, &ClassList::startEditingNewClassItem);
     m_ui->deleteButton->setIcon(Core::Icons::MINUS.icon());
-    connect(m_ui->deleteButton, SIGNAL(clicked()), m_ui->classList, SLOT(removeCurrentClass()));
+    connect(m_ui->deleteButton, &QAbstractButton::clicked, m_ui->classList, &ClassList::removeCurrentClass);
     m_ui->deleteButton->setEnabled(false);
 
     // Disabled dummy for <new class> column>.
@@ -59,8 +59,8 @@ CustomWidgetWidgetsWizardPage::CustomWidgetWidgetsWizardPage(QWidget *parent) :
     dummy->setEnabled(false);
     m_tabStackLayout->addWidget(dummy);
 
-    connect(m_ui->classList, SIGNAL(currentRowChanged(int)),
-            this, SLOT(slotCurrentRowChanged(int)));
+    connect(m_ui->classList, &ClassList::currentRowChanged,
+            this, &CustomWidgetWidgetsWizardPage::slotCurrentRowChanged);
 
     setProperty(Utils::SHORT_TITLE_PROPERTY, tr("Custom Widgets"));
 }
@@ -78,7 +78,7 @@ bool CustomWidgetWidgetsWizardPage::isComplete() const
 void CustomWidgetWidgetsWizardPage::initializePage()
 {
     // Takes effect only if visible.
-    QTimer::singleShot(0, m_ui->classList, SLOT(startEditingNewClassItem()));
+    QTimer::singleShot(0, m_ui->classList, &ClassList::startEditingNewClassItem);
 }
 
 void CustomWidgetWidgetsWizardPage::slotCurrentRowChanged(int row)

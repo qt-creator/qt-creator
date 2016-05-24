@@ -139,7 +139,7 @@ signals:
     void buildDirectoryInitialized();
     void proFilesEvaluated();
 
-public slots:
+public:
     void scheduleAsyncUpdate(QmakeProFileNode::AsyncUpdateDelay delay = QmakeProFileNode::ParseLater);
     void scheduleAsyncUpdateLater() { scheduleAsyncUpdate(); }
 

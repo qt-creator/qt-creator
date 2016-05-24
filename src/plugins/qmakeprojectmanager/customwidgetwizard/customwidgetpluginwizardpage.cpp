@@ -39,8 +39,8 @@ CustomWidgetPluginWizardPage::CustomWidgetPluginWizardPage(QWidget *parent) :
     m_complete(false)
 {
     m_ui->setupUi(this);
-    connect(m_ui->collectionClassEdit, SIGNAL(textEdited(QString)), this, SLOT(slotCheckCompleteness()));
-    connect(m_ui->pluginNameEdit, SIGNAL(textEdited(QString)), this, SLOT(slotCheckCompleteness()));
+    connect(m_ui->collectionClassEdit, &QLineEdit::textEdited, this, &CustomWidgetPluginWizardPage::slotCheckCompleteness);
+    connect(m_ui->pluginNameEdit, &QLineEdit::textEdited, this, &CustomWidgetPluginWizardPage::slotCheckCompleteness);
 
     setProperty(Utils::SHORT_TITLE_PROPERTY, tr("Plugin Details"));
 }

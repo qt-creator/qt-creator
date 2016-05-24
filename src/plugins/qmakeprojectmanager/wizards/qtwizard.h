@@ -130,10 +130,9 @@ public:
 
     void addExtensionPages(const QList<QWizardPage *> &wizardPageList);
 
-private slots:
+private:
     void generateProfileName(const QString &name, const QString &path);
 
-private:
     inline void init(bool showModulesPage);
 
     ModulesPage *m_modulesPage;

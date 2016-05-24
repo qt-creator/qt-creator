@@ -204,7 +204,7 @@ public:
     QString summaryText() const;
     QString additionalSummaryText() const;
     QString displayName() const;
-private slots:
+private:
     // slots for handling buildconfiguration/step signals
     void qtVersionChanged();
     void qmakeBuildConfigChanged();
@@ -221,10 +221,8 @@ private slots:
     void separateDebugInfoChecked(bool checked);
     void askForRebuild();
 
-private slots:
     void recompileMessageBoxFinished(int button);
 
-private:
     void updateSummaryLabel();
     void updateQmlDebuggingOption();
     void updateQtQuickCompilerOption();

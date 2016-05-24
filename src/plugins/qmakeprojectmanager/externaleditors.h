@@ -125,10 +125,9 @@ public:
 
     virtual bool startEditor(const QString &fileName, QString *errorMessage);
 
-private slots:
+private:
     void processTerminated(const QString &binary);
 
-private:
     // A per-binary entry containing the socket
     typedef QMap<QString, QTcpSocket*> ProcessCache;
 

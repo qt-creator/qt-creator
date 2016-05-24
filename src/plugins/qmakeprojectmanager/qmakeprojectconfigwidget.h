@@ -47,7 +47,7 @@ public:
     QmakeProjectConfigWidget(QmakeBuildConfiguration *bc);
     ~QmakeProjectConfigWidget();
 
-private slots:
+private:
     // User changes in our widgets
     void shadowBuildClicked(bool checked);
     void onBeforeBeforeShadowBuildDirBrowsed();
@@ -58,7 +58,6 @@ private slots:
     void updateProblemLabel();
     void environmentChanged();
 
-private:
     void updateDetails();
     void setProblemLabel(const QString &text);
 

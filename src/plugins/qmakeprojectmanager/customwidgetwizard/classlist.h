@@ -50,11 +50,11 @@ signals:
     void classDeleted(int index);
     void currentRowChanged(int);
 
-public slots:
+public:
     void removeCurrentClass();
     void startEditingNewClassItem();
 
-private slots:
+private:
     void classEdited();
     void slotCurrentRowChanged(const QModelIndex &,const QModelIndex &);
 

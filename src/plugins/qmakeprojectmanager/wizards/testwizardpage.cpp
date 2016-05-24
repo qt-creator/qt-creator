@@ -46,16 +46,16 @@ TestWizardPage::TestWizardPage(QWidget *parent) :
     ui->testSlotLineEdit->setText(QLatin1String("testCase1"));
     ui->testClassLineEdit->setLowerCaseFileName(m_lowerCaseFileNames);
     ui->qApplicationCheckBox->setChecked(TestWizardParameters::requiresQApplicationDefault);
-    connect(ui->testClassLineEdit, SIGNAL(updateFileName(QString)),
-            this, SLOT(slotClassNameEdited(QString)));
-    connect(ui->fileLineEdit, SIGNAL(textEdited(QString)), \
-                this, SLOT(slotFileNameEdited()));
-    connect(ui->testClassLineEdit, SIGNAL(validChanged(bool)),
-            this, SLOT(slotUpdateValid()));
-    connect(ui->testSlotLineEdit, SIGNAL(validChanged(bool)),
-            this, SLOT(slotUpdateValid()));
-    connect(ui->fileLineEdit, SIGNAL(validChanged(bool)),
-            this, SLOT(slotUpdateValid()));
+    connect(ui->testClassLineEdit, &Utils::ClassNameValidatingLineEdit::updateFileName,
+            this, &TestWizardPage::slotClassNameEdited);
+    connect(ui->fileLineEdit, &QLineEdit::textEdited, \
+                this, &TestWizardPage::slotFileNameEdited);
+    connect(ui->testClassLineEdit, &Utils::FancyLineEdit::validChanged,
+            this, &TestWizardPage::slotUpdateValid);
+    connect(ui->testSlotLineEdit, &Utils::FancyLineEdit::validChanged,
+            this, &TestWizardPage::slotUpdateValid);
+    connect(ui->fileLineEdit, &Utils::FancyLineEdit::validChanged,
+            this, &TestWizardPage::slotUpdateValid);
 
     setProperty(Utils::SHORT_TITLE_PROPERTY, tr("Details"));
 }

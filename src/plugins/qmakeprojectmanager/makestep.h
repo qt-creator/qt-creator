@@ -119,7 +119,7 @@ public:
 
     QString displayName() const;
     QString summaryText() const;
-private slots:
+private:
     // User changes to our widgets
     void makeEdited();
     void makeArgumentsLineEdited();
@@ -127,7 +127,6 @@ private slots:
     void updateDetails();
     void userArgumentsChanged();
     void activeBuildConfigurationChanged();
-private:
     void setSummaryText(const QString &text);
 
     Internal::Ui::MakeStep *m_ui = nullptr;

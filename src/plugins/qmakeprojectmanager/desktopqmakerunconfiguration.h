@@ -86,7 +86,7 @@ signals:
     // Note: These signals might not get emitted for every change!
     void effectiveTargetInformationChanged();
 
-private slots:
+private:
     void proFileUpdated(QmakeProjectManager::QmakeProFileNode *pro, bool success, bool parseInProgress);
     void proFileEvaluated();
 

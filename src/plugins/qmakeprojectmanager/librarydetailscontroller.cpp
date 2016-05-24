@@ -99,22 +99,22 @@ LibraryDetailsController::LibraryDetailsController(
     if (creatorPlatform() != CreatorWindows)
         setLinkageRadiosVisible(false);
 
-    connect(m_libraryDetailsWidget->includePathChooser, SIGNAL(rawPathChanged(QString)),
-            this, SLOT(slotIncludePathChanged()));
-    connect(m_libraryDetailsWidget->frameworkRadio, SIGNAL(clicked(bool)),
-            this, SLOT(slotMacLibraryTypeChanged()));
-    connect(m_libraryDetailsWidget->libraryRadio, SIGNAL(clicked(bool)),
-            this, SLOT(slotMacLibraryTypeChanged()));
-    connect(m_libraryDetailsWidget->useSubfoldersCheckBox, SIGNAL(toggled(bool)),
-            this, SLOT(slotUseSubfoldersChanged(bool)));
-    connect(m_libraryDetailsWidget->addSuffixCheckBox, SIGNAL(toggled(bool)),
-            this, SLOT(slotAddSuffixChanged(bool)));
-    connect(m_libraryDetailsWidget->linCheckBox, SIGNAL(clicked(bool)),
-            this, SLOT(slotPlatformChanged()));
-    connect(m_libraryDetailsWidget->macCheckBox, SIGNAL(clicked(bool)),
-            this, SLOT(slotPlatformChanged()));
-    connect(m_libraryDetailsWidget->winCheckBox, SIGNAL(clicked(bool)),
-            this, SLOT(slotPlatformChanged()));
+    connect(m_libraryDetailsWidget->includePathChooser, &Utils::PathChooser::rawPathChanged,
+            this, &LibraryDetailsController::slotIncludePathChanged);
+    connect(m_libraryDetailsWidget->frameworkRadio, &QAbstractButton::clicked,
+            this, &LibraryDetailsController::slotMacLibraryTypeChanged);
+    connect(m_libraryDetailsWidget->libraryRadio, &QAbstractButton::clicked,
+            this, &LibraryDetailsController::slotMacLibraryTypeChanged);
+    connect(m_libraryDetailsWidget->useSubfoldersCheckBox, &QAbstractButton::toggled,
+            this, &LibraryDetailsController::slotUseSubfoldersChanged);
+    connect(m_libraryDetailsWidget->addSuffixCheckBox, &QAbstractButton::toggled,
+            this, &LibraryDetailsController::slotAddSuffixChanged);
+    connect(m_libraryDetailsWidget->linCheckBox, &QAbstractButton::clicked,
+            this, &LibraryDetailsController::slotPlatformChanged);
+    connect(m_libraryDetailsWidget->macCheckBox, &QAbstractButton::clicked,
+            this, &LibraryDetailsController::slotPlatformChanged);
+    connect(m_libraryDetailsWidget->winCheckBox, &QAbstractButton::clicked,
+            this, &LibraryDetailsController::slotPlatformChanged);
 }
 
 LibraryDetailsController::CreatorPlatform LibraryDetailsController::creatorPlatform() const
@@ -638,16 +638,16 @@ NonInternalLibraryDetailsController::NonInternalLibraryDetailsController(
         libraryDetailsWidget()->libraryPathChooser->setExpectedKind(Utils::PathChooser::File);
     }
 
-    connect(libraryDetailsWidget()->libraryPathChooser, SIGNAL(validChanged(bool)),
-            this, SIGNAL(completeChanged()));
-    connect(libraryDetailsWidget()->libraryPathChooser, SIGNAL(rawPathChanged(QString)),
-            this, SLOT(slotLibraryPathChanged()));
-    connect(libraryDetailsWidget()->removeSuffixCheckBox, SIGNAL(toggled(bool)),
-            this, SLOT(slotRemoveSuffixChanged(bool)));
-    connect(libraryDetailsWidget()->dynamicRadio, SIGNAL(clicked(bool)),
-            this, SLOT(slotLinkageTypeChanged()));
-    connect(libraryDetailsWidget()->staticRadio, SIGNAL(clicked(bool)),
-            this, SLOT(slotLinkageTypeChanged()));
+    connect(libraryDetailsWidget()->libraryPathChooser, &Utils::PathChooser::validChanged,
+            this, &LibraryDetailsController::completeChanged);
+    connect(libraryDetailsWidget()->libraryPathChooser, &Utils::PathChooser::rawPathChanged,
+            this, &NonInternalLibraryDetailsController::slotLibraryPathChanged);
+    connect(libraryDetailsWidget()->removeSuffixCheckBox, &QAbstractButton::toggled,
+            this, &NonInternalLibraryDetailsController::slotRemoveSuffixChanged);
+    connect(libraryDetailsWidget()->dynamicRadio, &QAbstractButton::clicked,
+            this, &NonInternalLibraryDetailsController::slotLinkageTypeChanged);
+    connect(libraryDetailsWidget()->staticRadio, &QAbstractButton::clicked,
+            this, &NonInternalLibraryDetailsController::slotLinkageTypeChanged);
 }
 
 AddLibraryWizard::LinkageType NonInternalLibraryDetailsController::suggestedLinkageType() const
@@ -852,8 +852,8 @@ PackageLibraryDetailsController::PackageLibraryDetailsController(
     setLibraryPathChooserVisible(false);
     setPackageLineEditVisible(true);
 
-    connect(libraryDetailsWidget()->packageLineEdit, SIGNAL(textChanged(QString)),
-            this, SIGNAL(completeChanged()));
+    connect(libraryDetailsWidget()->packageLineEdit, &QLineEdit::textChanged,
+            this, &LibraryDetailsController::completeChanged);
 
     updateGui();
 }
@@ -965,8 +965,9 @@ InternalLibraryDetailsController::InternalLibraryDetailsController(
     if (creatorPlatform() == CreatorWindows)
         libraryDetailsWidget()->useSubfoldersCheckBox->setEnabled(true);
 
-    connect(libraryDetailsWidget()->libraryComboBox, SIGNAL(currentIndexChanged(int)),
-            this, SLOT(slotCurrentLibraryChanged()));
+    connect(libraryDetailsWidget()->libraryComboBox,
+            static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+            this, &InternalLibraryDetailsController::slotCurrentLibraryChanged);
 
     updateProFile();
     updateGui();

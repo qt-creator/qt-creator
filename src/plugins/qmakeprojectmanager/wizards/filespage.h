@@ -64,7 +64,6 @@ public:
 
     void setSuffixes(const QString &header, const QString &source,  const QString &form = QString());
 
-public slots:
     void setBaseClassName(const QString &);
     void setNamespacesEnabled(bool b);
     void setBaseClassInputVisible(bool visible);

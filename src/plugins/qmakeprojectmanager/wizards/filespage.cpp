@@ -58,7 +58,7 @@ FilesPage::FilesPage(QWidget *parent) :
     vlayout->addWidget(m_errorLabel);
     setLayout(vlayout);
 
-    connect(m_newClassWidget, SIGNAL(validChanged()), this, SIGNAL(completeChanged()));
+    connect(m_newClassWidget, &Utils::NewClassWidget::validChanged, this, &QWizardPage::completeChanged);
 
     setProperty(Utils::SHORT_TITLE_PROPERTY, tr("Details"));
 }

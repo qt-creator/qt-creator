@@ -557,10 +557,11 @@ QMakeStepConfigWidget::QMakeStepConfigWidget(QMakeStep *step)
     updateQmlDebuggingOption();
     updateQtQuickCompilerOption();
 
-    connect(m_ui->qmakeAdditonalArgumentsLineEdit, SIGNAL(textEdited(QString)),
-            this, SLOT(qmakeArgumentsLineEdited()));
-    connect(m_ui->buildConfigurationComboBox, SIGNAL(currentIndexChanged(int)),
-            this, SLOT(buildConfigurationSelected()));
+    connect(m_ui->qmakeAdditonalArgumentsLineEdit, &QLineEdit::textEdited,
+            this, &QMakeStepConfigWidget::qmakeArgumentsLineEdited);
+    connect(m_ui->buildConfigurationComboBox,
+            static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+            this, &QMakeStepConfigWidget::buildConfigurationSelected);
     connect(m_ui->qmlDebuggingLibraryCheckBox, &QCheckBox::toggled,
             this, &QMakeStepConfigWidget::linkQmlDebuggingLibraryChecked);
     connect(m_ui->qmlDebuggingLibraryCheckBox, &QCheckBox::clicked,
@@ -573,21 +574,21 @@ QMakeStepConfigWidget::QMakeStepConfigWidget(QMakeStep *step)
             this, &QMakeStepConfigWidget::separateDebugInfoChecked);
     connect(m_ui->separateDebugInfoCheckBox, &QCheckBox::clicked,
             this, &QMakeStepConfigWidget::askForRebuild);
-    connect(step, SIGNAL(userArgumentsChanged()),
-            this, SLOT(userArgumentsChanged()));
-    connect(step, SIGNAL(linkQmlDebuggingLibraryChanged()),
-            this, SLOT(linkQmlDebuggingLibraryChanged()));
+    connect(step, &QMakeStep::userArgumentsChanged,
+            this, &QMakeStepConfigWidget::userArgumentsChanged);
+    connect(step, &QMakeStep::linkQmlDebuggingLibraryChanged,
+            this, &QMakeStepConfigWidget::linkQmlDebuggingLibraryChanged);
     connect(step->project(), &Project::projectLanguagesUpdated,
             this, &QMakeStepConfigWidget::linkQmlDebuggingLibraryChanged);
     connect(step, &QMakeStep::useQtQuickCompilerChanged,
             this, &QMakeStepConfigWidget::useQtQuickCompilerChanged);
     connect(step, &QMakeStep::separateDebugInfoChanged,
             this, &QMakeStepConfigWidget::separateDebugInfoChanged);
-    connect(step->qmakeBuildConfiguration(), SIGNAL(qmakeBuildConfigurationChanged()),
-            this, SLOT(qmakeBuildConfigChanged()));
-    connect(step->target(), SIGNAL(kitChanged()), this, SLOT(qtVersionChanged()));
-    connect(QtVersionManager::instance(), SIGNAL(dumpUpdatedFor(Utils::FileName)),
-            this, SLOT(qtVersionChanged()));
+    connect(step->qmakeBuildConfiguration(), &QmakeBuildConfiguration::qmakeBuildConfigurationChanged,
+            this, &QMakeStepConfigWidget::qmakeBuildConfigChanged);
+    connect(step->target(), &Target::kitChanged, this, &QMakeStepConfigWidget::qtVersionChanged);
+    connect(QtVersionManager::instance(), &QtVersionManager::dumpUpdatedFor,
+            this, &QMakeStepConfigWidget::qtVersionChanged);
 }
 
 QMakeStepConfigWidget::~QMakeStepConfigWidget()

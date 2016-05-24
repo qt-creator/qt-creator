@@ -55,7 +55,7 @@ signals:
     void appendOutput(const QString &error);
     void processExited(int exitCode);
 
-private slots:
+private:
     void processStopped();
 #ifdef Q_OS_WIN
     void readWinDebugOutput(const QString &output);
