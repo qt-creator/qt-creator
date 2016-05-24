@@ -249,19 +249,18 @@ IosPresetBuildStepConfigWidget::IosPresetBuildStepConfigWidget(IosPresetBuildSte
     m_ui->resetDefaultsButton->setEnabled(!m_buildStep->isDefault());
     updateDetails();
 
-    connect(m_ui->argumentsTextEdit, SIGNAL(textChanged()),
-            SLOT(argumentsChanged()));
-    connect(m_ui->commandLineEdit, SIGNAL(editingFinished()),
-            SLOT(commandChanged()));
-    connect(m_ui->resetDefaultsButton, SIGNAL(clicked()),
-            SLOT(resetDefaults()));
+    connect(m_ui->argumentsTextEdit, &QPlainTextEdit::textChanged,
+            this, &IosPresetBuildStepConfigWidget::argumentsChanged);
+    connect(m_ui->commandLineEdit, &QLineEdit::editingFinished,
+            this, &IosPresetBuildStepConfigWidget::commandChanged);
+    connect(m_ui->resetDefaultsButton, &QAbstractButton::clicked,
+            this, &IosPresetBuildStepConfigWidget::resetDefaults);
 
-    connect(ProjectExplorerPlugin::instance(), SIGNAL(settingsChanged()),
-            SLOT(updateDetails()));
-    connect(m_buildStep->target(), SIGNAL(kitChanged()),
-            SLOT(updateDetails()));
-    connect(pro, SIGNAL(environmentChanged()),
-            SLOT(updateDetails()));
+    connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::settingsChanged,
+            this, &IosPresetBuildStepConfigWidget::updateDetails);
+    connect(m_buildStep->target(), &Target::kitChanged,
+            this, &IosPresetBuildStepConfigWidget::updateDetails);
+    connect(pro, &Project::environmentChanged, this, &IosPresetBuildStepConfigWidget::updateDetails);
 }
 
 IosPresetBuildStepConfigWidget::~IosPresetBuildStepConfigWidget()

@@ -253,19 +253,18 @@ IosBuildStepConfigWidget::IosBuildStepConfigWidget(IosBuildStep *buildStep)
     m_ui->resetDefaultsButton->setEnabled(!m_buildStep->m_useDefaultArguments);
     updateDetails();
 
-    connect(m_ui->buildArgumentsTextEdit, SIGNAL(textChanged()),
-            this, SLOT(buildArgumentsChanged()));
-    connect(m_ui->resetDefaultsButton, SIGNAL(clicked()),
-            this, SLOT(resetDefaultArguments()));
-    connect(m_ui->extraArgumentsLineEdit, SIGNAL(editingFinished()),
-            this, SLOT(extraArgumentsChanged()));
+    connect(m_ui->buildArgumentsTextEdit, &QPlainTextEdit::textChanged,
+            this, &IosBuildStepConfigWidget::buildArgumentsChanged);
+    connect(m_ui->resetDefaultsButton, &QAbstractButton::clicked,
+            this, &IosBuildStepConfigWidget::resetDefaultArguments);
+    connect(m_ui->extraArgumentsLineEdit, &QLineEdit::editingFinished,
+            this, &IosBuildStepConfigWidget::extraArgumentsChanged);
 
-    connect(ProjectExplorerPlugin::instance(), SIGNAL(settingsChanged()),
-            this, SLOT(updateDetails()));
-    connect(m_buildStep->target(), SIGNAL(kitChanged()),
-            this, SLOT(updateDetails()));
-    connect(pro, SIGNAL(environmentChanged()),
-            this, SLOT(updateDetails()));
+    connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::settingsChanged,
+            this, &IosBuildStepConfigWidget::updateDetails);
+    connect(m_buildStep->target(), &Target::kitChanged,
+            this, &IosBuildStepConfigWidget::updateDetails);
+    connect(pro, &Project::environmentChanged, this, &IosBuildStepConfigWidget::updateDetails);
 }
 
 IosBuildStepConfigWidget::~IosBuildStepConfigWidget()
