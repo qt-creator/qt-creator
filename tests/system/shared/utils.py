@@ -217,10 +217,11 @@ def logApplicationOutput():
 
 # get the output from a given cmdline call
 def getOutputFromCmdline(cmdline):
-    versCall = subprocess.Popen(cmdline, stdout=subprocess.PIPE, shell=True)
-    result = versCall.communicate()[0]
-    versCall.stdout.close()
-    return result
+    try:
+        return subprocess.check_output(cmdline, shell=True) # TODO: do not use shell=True
+    except subprocess.CalledProcessError as e:
+        test.warning("Command '%s' returned %d" % (e.cmd, e.returncode))
+        return e.output
 
 def selectFromFileDialog(fileName, waitForFile=False):
     if platform.system() == "Darwin":
