@@ -44,6 +44,7 @@ QmlProfilerAnimationsModel::QmlProfilerAnimationsModel(QmlProfilerModelManager *
                                                        QObject *parent) :
     QmlProfilerTimelineModel(manager, Event, MaximumRangeType, ProfileAnimations, parent)
 {
+    m_minNextStartTimes[0] = m_minNextStartTimes[1] = 0;
 }
 
 void QmlProfilerAnimationsModel::clear()
