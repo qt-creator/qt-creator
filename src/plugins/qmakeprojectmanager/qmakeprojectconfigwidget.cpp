@@ -83,26 +83,29 @@ QmakeProjectConfigWidget::QmakeProjectConfigWidget(QmakeBuildConfiguration *bc)
 
     m_ui->shadowBuildCheckBox->setChecked(isShadowBuild);
 
-    connect(m_ui->shadowBuildCheckBox, SIGNAL(clicked(bool)),
-            this, SLOT(shadowBuildClicked(bool)));
+    connect(m_ui->shadowBuildCheckBox, &QAbstractButton::clicked,
+            this, &QmakeProjectConfigWidget::shadowBuildClicked);
 
-    connect(m_ui->shadowBuildDirEdit, SIGNAL(beforeBrowsing()),
-            this, SLOT(onBeforeBeforeShadowBuildDirBrowsed()));
+    connect(m_ui->shadowBuildDirEdit, &Utils::PathChooser::beforeBrowsing,
+            this, &QmakeProjectConfigWidget::onBeforeBeforeShadowBuildDirBrowsed);
 
-    connect(m_ui->shadowBuildDirEdit, SIGNAL(rawPathChanged(QString)),
-            this, SLOT(shadowBuildEdited()));
+    connect(m_ui->shadowBuildDirEdit, &Utils::PathChooser::rawPathChanged,
+            this, &QmakeProjectConfigWidget::shadowBuildEdited);
 
     QmakeProject *project = static_cast<QmakeProject *>(bc->target()->project());
-    connect(project, SIGNAL(environmentChanged()), this, SLOT(environmentChanged()));
-    connect(project, SIGNAL(buildDirectoryInitialized()), this, SLOT(updateProblemLabel()));
-    connect(project, SIGNAL(proFilesEvaluated()), this, SLOT(updateProblemLabel()));
+    connect(project, &QmakeProject::environmentChanged,
+            this, &QmakeProjectConfigWidget::environmentChanged);
+    connect(project, &QmakeProject::buildDirectoryInitialized,
+            this, &QmakeProjectConfigWidget::updateProblemLabel);
+    connect(project, &QmakeProject::proFilesEvaluated,
+            this, &QmakeProjectConfigWidget::updateProblemLabel);
 
-    connect(bc->target(), SIGNAL(kitChanged()), this, SLOT(updateProblemLabel()));
+    connect(bc->target(), &Target::kitChanged, this, &QmakeProjectConfigWidget::updateProblemLabel);
 
-    connect(m_buildConfiguration, SIGNAL(buildDirectoryChanged()),
-            this, SLOT(buildDirectoryChanged()));
-    connect(m_buildConfiguration, SIGNAL(qmakeBuildConfigurationChanged()),
-            this, SLOT(updateProblemLabel()));
+    connect(m_buildConfiguration, &BuildConfiguration::buildDirectoryChanged,
+            this, &QmakeProjectConfigWidget::buildDirectoryChanged);
+    connect(m_buildConfiguration, &QmakeBuildConfiguration::qmakeBuildConfigurationChanged,
+            this, &QmakeProjectConfigWidget::updateProblemLabel);
 
     setDisplayName(tr("General"));
 
