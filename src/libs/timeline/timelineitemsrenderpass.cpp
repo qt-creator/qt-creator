@@ -186,13 +186,13 @@ void OpaqueColoredPoint2DWithSize::setRight(const OpaqueColoredPoint2DWithSize *
 void OpaqueColoredPoint2DWithSize::setTop(const OpaqueColoredPoint2DWithSize *master)
 {
     y = master->id < 0 ? master->y / -master->id : master->y;
-    h = y - TimelineModel::defaultRowHeight();
+    h = TimelineModel::defaultRowHeight() - y;
 }
 
 void OpaqueColoredPoint2DWithSize::setBottom(const OpaqueColoredPoint2DWithSize *master)
 {
     y = TimelineModel::defaultRowHeight();
-    h = TimelineModel::defaultRowHeight() - (master->id < 0 ? master->y / -master->id : master->y);
+    h = (master->id < 0 ? master->y / -master->id : master->y) - TimelineModel::defaultRowHeight();
 }
 
 void OpaqueColoredPoint2DWithSize::setBottomLeft(const OpaqueColoredPoint2DWithSize *master)
