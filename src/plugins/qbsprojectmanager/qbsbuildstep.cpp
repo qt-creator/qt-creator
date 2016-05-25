@@ -114,8 +114,7 @@ bool QbsBuildStep::init(QList<const BuildStep *> &earlierSteps)
 
     connect(m_parser, SIGNAL(addOutput(QString,ProjectExplorer::BuildStep::OutputFormat)),
             this, SIGNAL(addOutput(QString,ProjectExplorer::BuildStep::OutputFormat)));
-    connect(m_parser, SIGNAL(addTask(ProjectExplorer::Task)),
-            this, SIGNAL(addTask(ProjectExplorer::Task)));
+    connect(m_parser, &ProjectExplorer::IOutputParser::addTask, this, &QbsBuildStep::addTask);
 
     return true;
 }
