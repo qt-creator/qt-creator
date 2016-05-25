@@ -129,16 +129,16 @@ QmlProfilerTraceView::QmlProfilerTraceView(QWidget *parent, QmlProfilerViewManag
     d->m_modelProxy = new Timeline::TimelineModelAggregator(modelManager->notesModel(), this);
     d->m_modelManager = modelManager;
 
-    d->m_modelProxy->addModel(new PixmapCacheModel(modelManager, d->m_modelProxy));
-    d->m_modelProxy->addModel(new SceneGraphTimelineModel(modelManager, d->m_modelProxy));
-    d->m_modelProxy->addModel(new MemoryUsageModel(modelManager, d->m_modelProxy));
-    d->m_modelProxy->addModel(new InputEventsModel(modelManager, d->m_modelProxy));
-    d->m_modelProxy->addModel(new DebugMessagesModel(modelManager, d->m_modelProxy));
-    d->m_modelProxy->addModel(new QmlProfilerAnimationsModel(modelManager, d->m_modelProxy));
-
+    QList<Timeline::TimelineModel *> models;
+    models.append(new PixmapCacheModel(modelManager, d->m_modelProxy));
+    models.append(new SceneGraphTimelineModel(modelManager, d->m_modelProxy));
+    models.append(new MemoryUsageModel(modelManager, d->m_modelProxy));
+    models.append(new InputEventsModel(modelManager, d->m_modelProxy));
+    models.append(new DebugMessagesModel(modelManager, d->m_modelProxy));
+    models.append(new QmlProfilerAnimationsModel(modelManager, d->m_modelProxy));
     for (int i = 0; i < MaximumRangeType; ++i)
-        d->m_modelProxy->addModel(new QmlProfilerRangeModel(modelManager, (RangeType)i,
-                                                            d->m_modelProxy));
+        models.append(new QmlProfilerRangeModel(modelManager, (RangeType)i, d->m_modelProxy));
+    d->m_modelProxy->setModels(models);
 
     // Minimum height: 5 rows of 20 pixels + scrollbar of 50 pixels + 20 pixels margin
     setMinimumHeight(170);
