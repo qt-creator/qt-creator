@@ -689,7 +689,7 @@ def copyFilesToDir(files, targetDir):
     return result
 
 def __sortFilenamesOSDependent__(filenames):
-    if platform.system() in ('Windows', 'Microsoft'):
+    if platform.system() in ('Windows', 'Microsoft', 'Darwin'):
         filenames.sort(key=str.lower)
     else:
         filenames.sort()
