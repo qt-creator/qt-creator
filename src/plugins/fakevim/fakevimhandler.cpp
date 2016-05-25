@@ -7606,20 +7606,40 @@ void FakeVimHandler::Private::onContentsChanged(int position, int charsRemoved, 
         // Ignore changes outside inserted text (e.g. renaming other occurrences of a variable).
         if (position + charsRemoved >= insertState.pos1 && position <= insertState.pos2) {
             if (charsRemoved > 0) {
+                // Assume that in a manual edit operation a text can be removed only
+                // in front of cursor (<DELETE>) or behind it (<BACKSPACE>).
+
+                // If the recorded amount of backspace/delete keys doesn't correspond with
+                // number of removed characters, assume that the document has been changed
+                // externally and invalidate current insert state.
+
+                const bool wholeDocumentChanged =
+                        charsRemoved > 1
+                        && charsAdded > 0
+                        && charsAdded + 1 == document()->characterCount();
+
                 if (position < insertState.pos1) {
-                    // backspaces
-                    const int bs = insertState.pos1 - position;
-                    const QString inserted = textAt(position, oldPosition);
-                    const QString removed = insertState.textBeforeCursor.right(bs);
-                    // Ignore backspaces if same text was just inserted.
-                    if ( !inserted.endsWith(removed) ) {
-                        insertState.backspaces += bs;
-                        insertState.pos1 = position;
-                        insertState.pos2 = qMax(position, insertState.pos2 - bs);
+                    // <BACKSPACE>
+                    const int backspaceCount = insertState.pos1 - position;
+                    if (backspaceCount != charsRemoved || (oldPosition == charsRemoved && wholeDocumentChanged)) {
+                        invalidateInsertState();
+                    } else {
+                        const QString inserted = textAt(position, oldPosition);
+                        const QString removed = insertState.textBeforeCursor.right(backspaceCount);
+                        // Ignore backspaces if same text was just inserted.
+                        if ( !inserted.endsWith(removed) ) {
+                            insertState.backspaces += backspaceCount;
+                            insertState.pos1 = position;
+                            insertState.pos2 = qMax(position, insertState.pos2 - backspaceCount);
+                        }
                     }
                 } else if (position + charsRemoved > insertState.pos2) {
-                    // deletes
-                    insertState.deletes += position + charsRemoved - insertState.pos2;
+                    // <DELETE>
+                    const int deleteCount = position + charsRemoved - insertState.pos2;
+                    if (deleteCount != charsRemoved || (oldPosition == 0 && wholeDocumentChanged))
+                        invalidateInsertState();
+                    else
+                        insertState.deletes += deleteCount;
                 }
             } else if (charsAdded > 0 && insertState.insertingSpaces) {
                 for (int i = position; i < position + charsAdded; ++i) {
