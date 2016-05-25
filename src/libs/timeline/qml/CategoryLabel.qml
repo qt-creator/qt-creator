@@ -34,7 +34,7 @@ Item {
     property QtObject notesModel
     property string text: model ? model.displayName : ""
     property bool expanded: model && model.expanded
-    property var labels: model ? model.labels : []
+    property var labels: (expanded && model) ? model.labels : []
 
     property bool dragging
     property int visualIndex
@@ -96,7 +96,7 @@ Item {
         anchors.top: txt.bottom
         visible: expanded
         Repeater {
-            model: labels.length
+            model: expanded ? labels.length : 0
             SynchronousReloader {
                 id: loader
                 asynchronous: dragOffset - draggerParent.contentY + y + txt.height >
