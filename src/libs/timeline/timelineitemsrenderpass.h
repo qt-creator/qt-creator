@@ -59,7 +59,8 @@ public:
     enum Direction {
         InvalidDirection,
         TopToBottom,
-        BottomToTop
+        BottomToTop,
+        MaximumDirection
     };
 
     void set(float nx, float ny, float nw, float nh, float nid, uchar nr, uchar ng, uchar nb,

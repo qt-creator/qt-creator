@@ -143,10 +143,8 @@ float OpaqueColoredPoint2DWithSize::top() const
 
 void OpaqueColoredPoint2DWithSize::update(float nr, float ny)
 {
-    if (id > -1)
-        id = -2;
-    else
-        --id;
+    if (a <= MaximumDirection)
+        a += MaximumDirection;
 
     y += ny;
     w = nr - x;
@@ -154,13 +152,13 @@ void OpaqueColoredPoint2DWithSize::update(float nr, float ny)
 
 OpaqueColoredPoint2DWithSize::Direction OpaqueColoredPoint2DWithSize::direction() const
 {
-    return static_cast<Direction>(a);
+    return static_cast<Direction>(a > MaximumDirection ? a - MaximumDirection : a);
 }
 
 void OpaqueColoredPoint2DWithSize::setCommon(const OpaqueColoredPoint2DWithSize *master)
 {
     a = 255;
-    if (master->id < 0) {
+    if (master->a > MaximumDirection) {
         id = std::numeric_limits<float>::lowest();
         r = g = b = 128;
     } else {
