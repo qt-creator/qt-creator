@@ -43,6 +43,7 @@ public:
     int height() const;
 
     void addModel(TimelineModel *m);
+    void setModels(const QList<TimelineModel *> &models);
     const TimelineModel *model(int modelIndex) const;
     QVariantList models() const;
 

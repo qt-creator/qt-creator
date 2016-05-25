@@ -70,6 +70,30 @@ void TimelineModelAggregator::addModel(TimelineModel *m)
         emit heightChanged();
 }
 
+void TimelineModelAggregator::setModels(const QList<TimelineModel *> &models)
+{
+    Q_D(TimelineModelAggregator);
+    if (d->modelList == models)
+        return;
+
+    int prevHeight = height();
+    foreach (TimelineModel *m, d->modelList) {
+        disconnect(m, &TimelineModel::heightChanged, this, &TimelineModelAggregator::heightChanged);
+        if (d->notesModel)
+            d->notesModel->removeTimelineModel(m);
+    }
+
+    d->modelList = models;
+    foreach (TimelineModel *m, models) {
+        connect(m, &TimelineModel::heightChanged, this, &TimelineModelAggregator::heightChanged);
+        if (d->notesModel)
+            d->notesModel->addTimelineModel(m);
+    }
+    emit modelsChanged();
+    if (height() != prevHeight)
+        emit heightChanged();
+}
+
 const TimelineModel *TimelineModelAggregator::model(int modelIndex) const
 {
     Q_D(const TimelineModelAggregator);

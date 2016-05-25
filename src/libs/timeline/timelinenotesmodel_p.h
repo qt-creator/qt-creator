@@ -46,8 +46,6 @@ public:
     QHash<int, const TimelineModel *> timelineModels;
     bool modified;
 
-    void _q_removeTimelineModel(QObject *model);
-
 private:
     TimelineNotesModel *q_ptr;
     Q_DECLARE_PUBLIC(TimelineNotesModel)

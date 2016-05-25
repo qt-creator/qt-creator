@@ -39,6 +39,7 @@ public:
 
     int count() const;
     void addTimelineModel(const TimelineModel *timelineModel);
+    void removeTimelineModel(const TimelineModel *timelineModel);
     QList<const TimelineModel *> timelineModels() const;
 
     Q_INVOKABLE int typeId(int index) const;
@@ -73,7 +74,6 @@ private:
     TimelineNotesModelPrivate *d_ptr;
 
     Q_DECLARE_PRIVATE(TimelineNotesModel)
-    Q_PRIVATE_SLOT(d_ptr, void _q_removeTimelineModel(QObject *timelineModel))
 };
 
 } // namespace Timeline
