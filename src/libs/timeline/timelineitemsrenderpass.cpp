@@ -325,9 +325,9 @@ void TimelineItemsGeometry::nextNode(float itemLeft, float itemTop, float itemWi
     prevNode = currentNode;
     currentNode.set(itemLeft, itemTop, itemWidth, TimelineModel::defaultRowHeight() - itemTop,
                     selectionId, red, green, blue,
-                    currentNode.direction() == OpaqueColoredPoint2DWithSize::TopToBottom ?
-                        OpaqueColoredPoint2DWithSize::BottomToTop :
-                        OpaqueColoredPoint2DWithSize::TopToBottom);
+                    currentNode.direction() == OpaqueColoredPoint2DWithSize::BottomToTop ?
+                        OpaqueColoredPoint2DWithSize::TopToBottom :
+                        OpaqueColoredPoint2DWithSize::BottomToTop);
 }
 
 void TimelineItemsGeometry::updateCurrentNode(float itemRight, float itemTop)
