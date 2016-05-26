@@ -845,7 +845,7 @@ TestConfiguration *GoogleTestTreeItem::testConfiguration() const
     }
     case TestFunctionOrSet: {
         GoogleTestTreeItem *parent = static_cast<GoogleTestTreeItem *>(parentItem());
-        if (parent)
+        if (!parent)
             return 0;
         const QString &testSpecifier = gtestFilter(parent->state()).arg(parent->name()).arg(name());
         config = new GoogleTestConfiguration;
