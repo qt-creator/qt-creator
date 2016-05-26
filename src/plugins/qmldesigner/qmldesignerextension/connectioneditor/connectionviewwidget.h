@@ -65,9 +65,6 @@ public:
 
     QList<QToolButton*> createToolBarWidgets();
 
-    void setEnabledAddButton(bool enabled);
-    void setEnabledRemoveButton(bool enabled);
-
     TabStatus currentTab() const;
 
     void resetItemViews();
@@ -83,8 +80,8 @@ public slots:
     void dynamicPropertiesTableViewSelectionChanged(const QModelIndex &current, const QModelIndex &previous);
 
 signals:
-    void setEnabledAddButtonChanged(bool);
-    void setEnabledRemoveButtonChanged(bool);
+    void setEnabledAddButton(bool enabled);
+    void setEnabledRemoveButton(bool enabled);
 
 private slots:
     void handleTabChanged(int i);
