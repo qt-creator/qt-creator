@@ -237,7 +237,7 @@ void QmlProfilerModelManager::announceFeatures(quint64 features, EventLoader eve
     }
 
     for (int feature = 0; feature != MaximumProfileFeature; ++feature) {
-        if (features & (1 << feature))
+        if (features & (1ULL << feature))
             d->eventLoaders[static_cast<ProfileFeature>(feature)].append(eventLoader);
     }
 
