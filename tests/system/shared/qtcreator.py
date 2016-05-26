@@ -118,7 +118,7 @@ def waitForCleanShutdown(timeOut=10):
             if not shutdownDone and datetime.utcnow() > endtime:
                 break
         if platform.system() == 'Linux' and JIRA.isBugStillOpen(15749):
-            pgrepOutput = getOutputFromCmdline('pgrep -f qtcreator_process_stub')
+            pgrepOutput = getOutputFromCmdline(["pgrep", "-f", "qtcreator_process_stub"])
             pids = pgrepOutput.splitlines()
             if len(pids):
                 print("Killing %d qtcreator_process_stub instances" % len(pids))

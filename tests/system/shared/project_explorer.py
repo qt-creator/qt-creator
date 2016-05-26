@@ -277,7 +277,7 @@ def getQtInformationByQMakeCall(qtDir, which):
     else:
         test.fatal("You're trying to fetch an unknown information (%s)" % which)
         return None
-    return getOutputFromCmdline("%s -query %s" % (qmake, query)).strip()
+    return getOutputFromCmdline([qmake, "-query", query]).strip()
 
 def invokeContextMenuOnProject(projectName, menuItem):
     try:
