@@ -2,6 +2,8 @@
 ""	""	"syntaxError"	"."	"syntaxError."
 ""	""	"argc"	"."	"argc."
 ""	""	"argv[0]"	"."	"argv[0]."
+""	""	"2"	"."	"2."
+""	""	"float fl = 2"	"."	"float fl = 2."
 ""	"QCoreApplication qa;"	"qa"	"."	"qa."
 ""	"QCoreApplication *p;"	"p"	"."	"p->"
 ""	"QCoreApplication &ref = a;"	"ref"	"."	"ref."
