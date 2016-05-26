@@ -72,7 +72,7 @@ QString findFallbackDefinitionsLocation()
             Utils::SynchronousProcess process;
             process.setTimeoutS(5);
             Utils::SynchronousProcessResponse response
-                    = process.run(program, QStringList(QLatin1String("--prefix")));
+                    = process.runBlocking(program, QStringList(QLatin1String("--prefix")));
             if (response.result == Utils::SynchronousProcessResponse::Finished) {
                 QString output = response.stdOut;
                 output.remove(QLatin1Char('\n'));

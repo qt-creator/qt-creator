@@ -120,7 +120,7 @@ void DebuggerItem::reinitializeFromFile()
 
     SynchronousProcess proc;
     SynchronousProcessResponse response
-            = proc.run(m_command.toString(), QStringList({ QLatin1String(version) }));
+            = proc.runBlocking(m_command.toString(), QStringList({ QLatin1String(version) }));
     if (response.result != SynchronousProcessResponse::Finished) {
         m_engineType = NoEngineType;
         return;

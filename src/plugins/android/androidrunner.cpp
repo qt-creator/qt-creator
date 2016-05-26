@@ -173,7 +173,7 @@ AndroidRunner::AndroidRunner(QObject *parent,
     Utils::SynchronousProcess psProc;
     psProc.setTimeoutS(5);
     Utils::SynchronousProcessResponse response
-            = psProc.run(m_adb, selector() << _("shell") << _("readlink") << _("$(which ps)"));
+            = psProc.runBlocking(m_adb, selector() << _("shell") << _("readlink") << _("$(which ps)"));
     const QString which = response.allOutput();
     m_isBusyBox = which.startsWith("busybox");
 

@@ -140,7 +140,7 @@ GdbCoreEngine::readExecutableNameFromCore(const QString &debuggerCommand, const 
     QStringList envLang = QProcess::systemEnvironment();
     Utils::Environment::setupEnglishOutput(&envLang);
     proc.setEnvironment(envLang);
-    SynchronousProcessResponse response = proc.run(debuggerCommand, args);
+    SynchronousProcessResponse response = proc.runBlocking(debuggerCommand, args);
 
     if (response.result == SynchronousProcessResponse::Finished) {
         QString output = response.stdOut;

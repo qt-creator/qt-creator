@@ -80,7 +80,7 @@ static int updateVersionHelper(const QString &command)
 {
     Utils::SynchronousProcess process;
     Utils::SynchronousProcessResponse response
-            = process.run(command, QStringList() << QLatin1String("--version"));
+            = process.runBlocking(command, QStringList() << QLatin1String("--version"));
     if (response.result != Utils::SynchronousProcessResponse::Finished)
         return 0;
 
@@ -157,7 +157,7 @@ void ArtisticStyleSettings::createDocumentationFile() const
     Utils::SynchronousProcess process;
     process.setTimeoutS(2);
     Utils::SynchronousProcessResponse response
-            = process.run(command(), QStringList() << QLatin1String("-h"));
+            = process.runBlocking(command(), QStringList() << QLatin1String("-h"));
     if (response.result != Utils::SynchronousProcessResponse::Finished)
         return;
 

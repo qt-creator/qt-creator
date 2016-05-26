@@ -131,7 +131,7 @@ QString BinaryVersionToolTipEventFilter::toolVersion(const QString &binary, cons
         return QString();
     SynchronousProcess proc;
     proc.setTimeoutS(1);
-    SynchronousProcessResponse response = proc.run(binary, arguments);
+    SynchronousProcessResponse response = proc.runBlocking(binary, arguments);
     if (response.result != SynchronousProcessResponse::Finished)
         return QString();
     return response.allOutput();

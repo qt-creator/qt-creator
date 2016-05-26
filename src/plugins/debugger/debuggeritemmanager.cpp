@@ -228,8 +228,8 @@ void DebuggerItemManager::autoDetectGdbOrLldbDebuggers()
         SynchronousProcess lldbInfo;
         lldbInfo.setTimeoutS(2);
         SynchronousProcessResponse response
-                = lldbInfo.run(QLatin1String("xcrun"), QStringList() << QLatin1String("--find")
-                               << QLatin1String("lldb"));
+                = lldbInfo.runBlocking(QLatin1String("xcrun"), QStringList() << QLatin1String("--find")
+                                       << QLatin1String("lldb"));
         if (response.result == Utils::SynchronousProcessResponse::Finished) {
             QString lPath = response.allOutput();
             if (!lPath.isEmpty()) {

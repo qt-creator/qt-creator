@@ -109,7 +109,7 @@ Utils::SynchronousProcessResponse CMakeTool::run(const QString &arg) const
     cmake.setProcessEnvironment(env.toProcessEnvironment());
     cmake.setTimeOutMessageBoxEnabled(false);
 
-    Utils::SynchronousProcessResponse response = cmake.run(m_executable.toString(), QStringList() << arg);
+    Utils::SynchronousProcessResponse response = cmake.runBlocking(m_executable.toString(), QStringList() << arg);
     m_didAttemptToRun = true;
     m_didRun = (response.result == Utils::SynchronousProcessResponse::Finished);
     return response;

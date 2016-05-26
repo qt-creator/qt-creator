@@ -279,7 +279,7 @@ bool AbstractMsvcToolChain::generateEnvironmentSettings(Utils::Environment &env,
     if (debug)
         qDebug() << "readEnvironmentSetting: " << call << cmdPath << cmdArguments.join(' ')
                  << " Env: " << env.size();
-    Utils::SynchronousProcessResponse response = run.run(cmdPath.toString(), cmdArguments);
+    Utils::SynchronousProcessResponse response = run.runBlocking(cmdPath.toString(), cmdArguments);
     if (response.result != Utils::SynchronousProcessResponse::Finished) {
         qWarning() << response.exitMessage(cmdPath.toString(), 10);
         return false;

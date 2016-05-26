@@ -385,7 +385,8 @@ void AndroidConfig::updateAvailableSdkPlatforms() const
     SynchronousProcess proc;
     proc.setProcessEnvironment(androidToolEnvironment().toProcessEnvironment());
     SynchronousProcessResponse response
-            = proc.run(androidToolPath().toString(), QStringList() << QLatin1String("list") << QLatin1String("target")); // list avaialbe AVDs
+            = proc.runBlocking(androidToolPath().toString(),
+                               QStringList() << QLatin1String("list") << QLatin1String("target")); // list avaialbe AVDs
     if (response.result != SynchronousProcessResponse::Finished)
         return;
 
@@ -673,9 +674,9 @@ bool AndroidConfig::removeAVD(const QString &name) const
     proc.setTimeoutS(5);
     proc.setProcessEnvironment(androidToolEnvironment().toProcessEnvironment());
     SynchronousProcessResponse response
-            = proc.run(androidToolPath().toString(),
-                       QStringList() << QLatin1String("delete") << QLatin1String("avd")
-                       << QLatin1String("-n") << name);
+            = proc.runBlocking(androidToolPath().toString(),
+                               QStringList() << QLatin1String("delete") << QLatin1String("avd")
+                               << QLatin1String("-n") << name);
     return response.result == SynchronousProcessResponse::Finished && response.exitCode == 0;
 }
 
@@ -875,7 +876,7 @@ QString AndroidConfig::getDeviceProperty(const QString &adbToolPath, const QStri
 
     SynchronousProcess adbProc;
     adbProc.setTimeoutS(10);
-    SynchronousProcessResponse response = adbProc.run(adbToolPath, arguments);
+    SynchronousProcessResponse response = adbProc.runBlocking(adbToolPath, arguments);
     if (response.result != SynchronousProcessResponse::Finished)
         return QString();
 
@@ -1467,7 +1468,7 @@ void AndroidConfigurations::load()
                 SynchronousProcess proc;
                 proc.setTimeoutS(2);
                 proc.setProcessChannelMode(QProcess::MergedChannels);
-                SynchronousProcessResponse response = proc.run(javaHomeExec.absoluteFilePath(), QStringList());
+                SynchronousProcessResponse response = proc.runBlocking(javaHomeExec.absoluteFilePath(), QStringList());
                 if (response.result == SynchronousProcessResponse::Finished) {
                     const QString &javaHome = response.allOutput().trimmed();
                     if (!javaHome.isEmpty() && QFileInfo::exists(javaHome))

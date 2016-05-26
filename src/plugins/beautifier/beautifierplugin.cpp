@@ -99,7 +99,7 @@ FormatTask format(FormatTask task)
         options.replaceInStrings(QLatin1String("%file"), sourceFile.fileName());
         Utils::SynchronousProcess process;
         process.setTimeoutS(5);
-        Utils::SynchronousProcessResponse response = process.run(executable, options);
+        Utils::SynchronousProcessResponse response = process.runBlocking(executable, options);
         if (response.result != Utils::SynchronousProcessResponse::Finished) {
             task.error = QObject::tr("Failed to format: %1.").arg(response.exitMessage(executable, 5));
             return task;

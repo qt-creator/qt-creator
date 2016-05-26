@@ -248,7 +248,7 @@ QByteArray MsvcToolChain::msvcPredefinedMacros(const QStringList cxxflags,
     }
 
     arguments << toProcess << QLatin1String("/EP") << QDir::toNativeSeparators(saver.fileName());
-    Utils::SynchronousProcessResponse response = cpp.run(binary.toString(), arguments);
+    Utils::SynchronousProcessResponse response = cpp.runBlocking(binary.toString(), arguments);
     if (response.result != Utils::SynchronousProcessResponse::Finished ||
             response.exitCode != 0)
         return predefinedMacros;
