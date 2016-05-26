@@ -48,20 +48,23 @@ void SubversionSubmitEditor::setStatusList(const QList<StatusFilePair> &statusOu
     model->setFileStatusQualifier([](const QString &status, const QVariant &)
                                   -> VcsBase::SubmitFileModel::FileStatusHint
     {
-        if (status == FileConflictedC)
+        const QByteArray statusC = status.toLatin1();
+        if (statusC == FileConflictedC)
             return VcsBase::SubmitFileModel::FileUnmerged;
-        if (status == FileAddedC)
+        if (statusC == FileAddedC)
             return VcsBase::SubmitFileModel::FileAdded;
-        if (status == FileModifiedC)
+        if (statusC == FileModifiedC)
             return VcsBase::SubmitFileModel::FileModified;
-        if (status == FileDeletedC)
+        if (statusC == FileDeletedC)
             return VcsBase::SubmitFileModel::FileDeleted;
         return VcsBase::SubmitFileModel::FileStatusUnknown;
     } );
 
     for (const StatusFilePair &pair : statusOutput) {
         const VcsBase::CheckMode checkMode =
-                (pair.first == FileConflictedC) ? VcsBase::Uncheckable : VcsBase::Unchecked;
+                (pair.first == QLatin1String(FileConflictedC))
+                    ? VcsBase::Uncheckable
+                    : VcsBase::Unchecked;
         model->addFile(pair.second, pair.first, checkMode);
     }
     setFileModel(model);

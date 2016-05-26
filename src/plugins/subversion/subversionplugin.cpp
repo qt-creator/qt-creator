@@ -145,11 +145,12 @@ StatusList parseStatusOutput(const QString &output)
     foreach (const QString &l, list) {
         const QString line =l.trimmed();
         if (line.size() > 8) {
-            const QString state = line.left(1);
+            const QByteArray state = line.left(1).toLatin1();
             if (state == FileAddedC || state == FileConflictedC
                     || state == FileDeletedC || state == FileModifiedC) {
                 const QString fileName = line.mid(7); // Column 8 starting from svn 1.6
-                changeSet.push_back(SubversionSubmitEditor::StatusFilePair(QString(state), fileName.trimmed()));
+                changeSet.push_back(SubversionSubmitEditor::StatusFilePair(QLatin1String(state),
+                                                                           fileName.trimmed()));
             }
 
         }
