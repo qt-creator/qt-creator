@@ -336,7 +336,7 @@ void ModelNode::setParentProperty(NodeAbstractProperty parent)
         throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
     }
 
-    if (parent == parentProperty())
+    if (hasParentProperty() && parent == parentProperty())
         return;
 
     parent.reparentHere(*this);
