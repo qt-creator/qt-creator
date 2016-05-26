@@ -77,15 +77,12 @@ QVariantMap MemoryUsageModel::location(int index) const
 
     QVariantMap result;
 
-    int originType = m_data[index].originTypeIndex;
-    if (originType > -1) {
-        const QmlEventLocation &location =
-                modelManager()->qmlModel()->eventTypes().at(originType).location;
+    const QmlEventLocation &location =
+            modelManager()->qmlModel()->eventTypes().at(m_data[index].typeId).location;
 
-        result.insert(file, location.filename);
-        result.insert(line, location.line);
-        result.insert(column, location.column);
-    }
+    result.insert(file, location.filename);
+    result.insert(line, location.line);
+    result.insert(column, location.column);
 
     return result;
 }
@@ -128,10 +125,8 @@ QVariantMap MemoryUsageModel::details(int index) const
     }
     result.insert(tr("Type"), QVariant(memoryTypeName(selectionId(index))));
 
-    if (ev->originTypeIndex != -1) {
-        result.insert(tr("Location"),
-                modelManager()->qmlModel()->eventTypes().at(ev->originTypeIndex).displayName);
-    }
+    result.insert(tr("Location"),
+                  modelManager()->qmlModel()->eventTypes().at(ev->typeId).displayName);
     return result;
 }
 
@@ -155,13 +150,15 @@ void MemoryUsageModel::loadEvent(const QmlEvent &event, const QmlEventType &type
     if (type.detailType == SmallItem || type.detailType == LargeItem) {
         if (!m_rangeStack.empty() && m_currentUsageIndex > -1 &&
                 type.detailType == selectionId(m_currentUsageIndex) &&
-                m_data[m_currentUsageIndex].originTypeIndex == m_rangeStack.top().originTypeIndex &&
+                m_data[m_currentUsageIndex].typeId == m_rangeStack.top().originTypeIndex &&
                 m_rangeStack.top().startTime < startTime(m_currentUsageIndex)) {
             m_data[m_currentUsageIndex].update(event.number<qint64>(0));
             m_currentUsage = m_data[m_currentUsageIndex].size;
         } else {
-            MemoryAllocationItem allocation(event.typeIndex(), m_currentUsage,
-                    m_rangeStack.empty() ? -1 : m_rangeStack.top().originTypeIndex);
+            MemoryAllocationItem allocation(
+                        m_rangeStack.empty() ? event.typeIndex() :
+                                               m_rangeStack.top().originTypeIndex,
+                        m_currentUsage);
             allocation.update(event.number<qint64>(0));
             m_currentUsage = allocation.size;
 
@@ -177,14 +174,16 @@ void MemoryUsageModel::loadEvent(const QmlEvent &event, const QmlEventType &type
     if (type.detailType == HeapPage || type.detailType == LargeItem) {
         if (!m_rangeStack.empty() && m_currentJSHeapIndex > -1 &&
                 type.detailType == selectionId(m_currentJSHeapIndex) &&
-                m_data[m_currentJSHeapIndex].originTypeIndex ==
+                m_data[m_currentJSHeapIndex].typeId ==
                 m_rangeStack.top().originTypeIndex &&
                 m_rangeStack.top().startTime < startTime(m_currentJSHeapIndex)) {
             m_data[m_currentJSHeapIndex].update(event.number<qint64>(0));
             m_currentSize = m_data[m_currentJSHeapIndex].size;
         } else {
-            MemoryAllocationItem allocation(event.typeIndex(), m_currentSize,
-                    m_rangeStack.empty() ? -1 : m_rangeStack.top().originTypeIndex);
+            MemoryAllocationItem allocation(
+                        m_rangeStack.empty() ? event.typeIndex() :
+                                               m_rangeStack.top().originTypeIndex,
+                        m_currentSize);
             allocation.update(event.number<qint64>(0));
             m_currentSize = allocation.size;
 
@@ -237,10 +236,9 @@ QString MemoryUsageModel::memoryTypeName(int type)
     }
 }
 
-MemoryUsageModel::MemoryAllocationItem::MemoryAllocationItem(int type, qint64 baseAmount,
-                                                     int originTypeIndex) :
-    typeId(type), size(baseAmount), allocated(0), deallocated(0), allocations(0), deallocations(0),
-    originTypeIndex(originTypeIndex)
+MemoryUsageModel::MemoryAllocationItem::MemoryAllocationItem(int typeId, qint64 baseAmount) :
+    size(baseAmount), allocated(0), deallocated(0), allocations(0), deallocations(0),
+    typeId(typeId)
 {
 }
 

@@ -41,15 +41,14 @@ class MemoryUsageModel : public QmlProfilerTimelineModel
 public:
 
     struct MemoryAllocationItem {
-        int typeId;
         qint64 size;
         qint64 allocated;
         qint64 deallocated;
         int allocations;
         int deallocations;
-        int originTypeIndex;
+        int typeId;
 
-        MemoryAllocationItem(int typeId = -1, qint64 baseAmount = 0, int originTypeIndex = -1);
+        MemoryAllocationItem(int typeId = -1, qint64 baseAmount = 0);
         void update(qint64 amount);
     };
 
