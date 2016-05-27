@@ -362,8 +362,6 @@ protected:
     void handleQmlStackTrace(const DebuggerResponse &response);
     int currentFrame() const;
 
-    QList<GdbMi> m_currentFunctionArgs;
-
     //
     // Watch specific stuff
     //
