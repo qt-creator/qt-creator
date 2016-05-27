@@ -41,7 +41,7 @@ namespace Internal {
 class GdbMi;
 class ThreadItem;
 
-class ThreadsHandler : public Utils::TreeModel
+class ThreadsHandler : public Utils::LeveledTreeModel<ThreadItem>
 {
     Q_OBJECT
 
@@ -77,8 +77,6 @@ public:
 
     void resetLocation();
     void scheduleResetLocation();
-
-    void foreachThread(const std::function<void(ThreadItem *item)> &func);
 
 private:
     void updateThreadBox();

@@ -99,7 +99,7 @@ public:
 // DebuggerItemModel
 // --------------------------------------------------------------------------
 
-class DebuggerItemModel : public TreeModel
+class DebuggerItemModel : public TwoLevelTreeModel<DebuggerTreeItem>
 {
     Q_DECLARE_TR_FUNCTIONS(Debugger::DebuggerOptionsPage)
 
@@ -124,10 +124,9 @@ private:
 DebuggerItemModel::DebuggerItemModel()
     : m_currentTreeItem(0)
 {
-    setHeader(QStringList() << tr("Name") << tr("Location") << tr("Type"));
-    rootItem()->appendChild(new TreeItem(QStringList() << tr("Auto-detected") << QString() << QString()));
-    rootItem()->appendChild(new TreeItem(QStringList() << tr("Manual") << QString() << QString()));
-
+    setHeader({ tr("Name"), tr("Location"), tr("Type") });
+    appendFirstLevelItem({ tr("Auto-detected") });
+    appendFirstLevelItem({ tr("Manual") });
     foreach (const DebuggerItem &item, DebuggerItemManager::debuggers())
         addDebugger(item, false);
 }
@@ -141,7 +140,7 @@ void DebuggerItemModel::addDebugger(const DebuggerItem &item, bool changed)
 void DebuggerItemModel::updateDebugger(const DebuggerItem &item)
 {
     auto matcher = [item](DebuggerTreeItem *n) { return n->m_item.m_id == item.id(); };
-    DebuggerTreeItem *treeItem = findItemAtLevel<DebuggerTreeItem *>(2, matcher);
+    DebuggerTreeItem *treeItem = findSecondLevelItem(matcher);
     QTC_ASSERT(treeItem, return);
 
     TreeItem *parent = treeItem->parent();
@@ -180,7 +179,7 @@ void DebuggerItemModel::apply()
     foreach (const QVariant &id, m_removedItems)
         DebuggerItemManager::deregisterDebugger(id);
 
-    forEachItemAtLevel<DebuggerTreeItem *>(2, [](DebuggerTreeItem *item) {
+    forSecondLevelItems([](DebuggerTreeItem *item) {
         item->m_changed = false;
         DebuggerItemManager::updateOrAddDebugger(item->m_item);
     });

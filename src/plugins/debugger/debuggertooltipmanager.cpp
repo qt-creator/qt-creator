@@ -231,16 +231,14 @@ ToolTipWatchItem::ToolTipWatchItem(TreeItem *item)
 //
 /////////////////////////////////////////////////////////////////////////
 
-class ToolTipModel : public TreeModel
+class ToolTipModel : public UniformTreeModel<ToolTipWatchItem>
 {
 public:
     ToolTipModel()
     {
-        QStringList headers;
-        headers.append(DebuggerToolTipManager::tr("Name"));
-        headers.append(DebuggerToolTipManager::tr("Value"));
-        headers.append(DebuggerToolTipManager::tr("Type"));
-        setHeader(headers);
+        setHeader({ DebuggerToolTipManager::tr("Name"),
+                    DebuggerToolTipManager::tr("Value"),
+                    DebuggerToolTipManager::tr("Type") });
         m_enabled = true;
         auto item = new ToolTipWatchItem;
         item->expandable = true;
@@ -538,10 +536,9 @@ DebuggerToolTipWidget::DebuggerToolTipWidget()
     connect(copyButton, &QAbstractButton::clicked, [this] {
         QString text;
         QTextStream str(&text);
-        model.rootItem()->walkTree([&str](TreeItem *item) {
-            auto titem = static_cast<ToolTipWatchItem *>(item);
+        model.forAllItems([&str](ToolTipWatchItem *item) {
             str << QString(item->level(), QLatin1Char('\t'))
-                << titem->name << '\t' << titem->value << '\t' << titem->type << '\n';
+                << item->name << '\t' << item->value << '\t' << item->type << '\n';
         });
         QClipboard *clipboard = QApplication::clipboard();
         clipboard->setText(text, QClipboard::Selection);
@@ -926,7 +923,7 @@ void DebuggerToolTipHolder::saveSessionData(QXmlStreamWriter &w) const
     w.writeAttributes(attributes);
 
     w.writeStartElement(QLatin1String(treeElementC));
-    widget->model.rootItem()->walkTree([&w](TreeItem *item) {
+    widget->model.forAllItems([&w](ToolTipWatchItem *item) {
         const QString modelItemElement = QLatin1String(modelItemElementC);
         for (int i = 0; i < 3; ++i) {
             const QString value = item->data(i, Qt::DisplayRole).toString();

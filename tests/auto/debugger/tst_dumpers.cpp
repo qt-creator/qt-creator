@@ -1448,7 +1448,10 @@ void tst_Dumpers::dumper()
         //qDebug() << "NUM CHECKS" << data.checks.size();
         Check check = data.checks.at(i);
         QByteArray iname = "local." + check.iname;
-        if (const WatchItem *item = local.findItem(iname)) {
+        WatchItem *item = local.findAnyChild<WatchItem *>([iname](WatchItem *item) {
+            return item->iname == iname;
+        });
+        if (item) {
             seenINames.insert(iname);
             //qDebug() << "CHECKS" << i << check.iname;
             data.checks.removeAt(i);

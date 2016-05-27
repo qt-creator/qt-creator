@@ -38,7 +38,7 @@ class WatchModel;
 
 typedef QVector<DisplayFormat> DisplayFormats;
 
-class WatchModelBase : public Utils::TreeModel
+class WatchModelBase : public Utils::UniformTreeModel<WatchItem>
 {
     Q_OBJECT
 

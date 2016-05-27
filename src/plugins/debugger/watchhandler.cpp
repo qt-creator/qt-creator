@@ -351,7 +351,6 @@ public:
     void reinitialize(bool includeInspectData = false);
 
     WatchItem *findItem(const QByteArray &iname) const;
-    const WatchItem *watchItem(const QModelIndex &idx) const;
 
     void reexpandItems();
 
@@ -368,7 +367,6 @@ public:
     bool m_contentsValid;
     bool m_resetLocationScheduled;
 
-    WatchItem *root() const { return static_cast<WatchItem *>(rootItem()); }
     WatchItem *m_localsRoot; // Not owned.
     WatchItem *m_inspectorRoot; // Not owned.
     WatchItem *m_watchRoot; // Not owned.
@@ -394,8 +392,7 @@ WatchModel::WatchModel(WatchHandler *handler, DebuggerEngine *engine)
     m_contentsValid = true; // FIXME
     m_resetLocationScheduled = false;
 
-    setHeader(QStringList() << tr("Name") << tr("Value") << tr("Type"));
-    auto root = new WatchItem;
+    setHeader({ tr("Name"), tr("Value"), tr("Type") });
     m_localsRoot = new WatchItem;
     m_localsRoot->iname = "local";
     m_localsRoot->name = tr("Locals");
@@ -411,12 +408,12 @@ WatchModel::WatchModel(WatchHandler *handler, DebuggerEngine *engine)
     m_tooltipRoot = new WatchItem;
     m_tooltipRoot->iname = "tooltip";
     m_tooltipRoot->name = tr("Tooltip");
+    auto root = rootItem();
     root->appendChild(m_localsRoot);
     root->appendChild(m_inspectorRoot);
     root->appendChild(m_watchRoot);
     root->appendChild(m_returnRoot);
     root->appendChild(m_tooltipRoot);
-    setRootItem(root);
 
     m_requestUpdateTimer.setSingleShot(true);
     connect(&m_requestUpdateTimer, &QTimer::timeout,
@@ -444,12 +441,7 @@ void WatchModel::reinitialize(bool includeInspectData)
 
 WatchItem *WatchModel::findItem(const QByteArray &iname) const
 {
-    return root()->findItem(iname);
-}
-
-const WatchItem *WatchModel::watchItem(const QModelIndex &idx) const
-{
-    return static_cast<WatchItem *>(itemForIndex(idx));
+    return findNonRooItem([iname](WatchItem *item) { return item->iname == iname; });
 }
 
 static QByteArray parentName(const QByteArray &iname)
@@ -912,7 +904,7 @@ QVariant WatchModel::data(const QModelIndex &idx, int role) const
             l.append(indexForItem(item));
         return QVariant::fromValue(l);
     }
-    const WatchItem *item = watchItem(idx);
+    const WatchItem *item = nonRootItemForIndex(idx);
     if (!item)
         return QVariant();
 
@@ -1074,7 +1066,7 @@ Qt::ItemFlags WatchModel::flags(const QModelIndex &idx) const
     if (!idx.isValid())
         return 0;
 
-    const WatchItem *item = watchItem(idx);
+    const WatchItem *item = nonRootItemForIndex(idx);
     if (!item)
         return Qt::ItemIsEnabled|Qt::ItemIsSelectable;
 
@@ -1140,7 +1132,7 @@ bool WatchModel::canFetchMore(const QModelIndex &idx) const
         return false;
 
     // See "hasChildren" below.
-    const WatchItem *item = watchItem(idx);
+    const WatchItem *item = nonRootItemForIndex(idx);
     if (!item)
         return false;
     if (!item->wantsChildren)
@@ -1155,7 +1147,7 @@ void WatchModel::fetchMore(const QModelIndex &idx)
     if (!idx.isValid())
         return;
 
-    WatchItem *item = static_cast<WatchItem *>(itemForIndex(idx));
+    WatchItem *item = nonRootItemForIndex(idx);
     if (item) {
         m_expandedINames.insert(item->iname);
         if (item->children().isEmpty()) {
@@ -1167,7 +1159,7 @@ void WatchModel::fetchMore(const QModelIndex &idx)
 
 bool WatchModel::hasChildren(const QModelIndex &idx) const
 {
-    const WatchItem *item = watchItem(idx);
+    const WatchItem *item = nonRootItemForIndex(idx);
     if (!item)
         return true;
     if (item->rowCount() > 0)
@@ -1310,7 +1302,7 @@ bool WatchHandler::insertItem(WatchItem *item)
 
     item->update();
 
-    item->walkTree([this](TreeItem *sub) { m_model->showEditValue(static_cast<WatchItem *>(sub)); });
+    item->forAllChildren<WatchItem *>([this](WatchItem *sub) { m_model->showEditValue(sub); });
 
     return !found;
 }
@@ -1344,10 +1336,8 @@ void WatchHandler::removeAllData(bool includeInspectData)
 void WatchHandler::resetValueCache()
 {
     m_model->m_valueCache.clear();
-    TreeItem *root = m_model->rootItem();
-    root->walkTree([this, root](TreeItem *item) {
-        auto watchItem = static_cast<WatchItem *>(item);
-        m_model->m_valueCache[watchItem->iname] = watchItem->value;
+    m_model->forAllItems([this](WatchItem *item) {
+        m_model->m_valueCache[item->iname] = item->value;
     });
 }
 
@@ -1361,13 +1351,13 @@ void WatchHandler::notifyUpdateStarted(const QList<QByteArray> &inames)
     auto marker = [](TreeItem *it) { static_cast<WatchItem *>(it)->outdated = true; };
 
     if (inames.isEmpty()) {
-        m_model->forEachItemAtLevel<WatchItem *>(2, [marker](WatchItem *item) {
-            item->walkTree(marker);
+        m_model->forSecondLevelItems([marker](WatchItem *item) {
+            item->forAllChildren<WatchItem *>(marker);
         });
     } else {
-        foreach (auto iname, inames) {
+        for (auto iname : inames) {
             if (WatchItem *item = m_model->findItem(iname))
-                item->walkTree(marker);
+                item->forAllChildren<WatchItem *>(marker);
         }
     }
 
@@ -1378,23 +1368,16 @@ void WatchHandler::notifyUpdateStarted(const QList<QByteArray> &inames)
 
 void WatchHandler::notifyUpdateFinished()
 {
-    struct OutDatedItemsFinder : public TreeItemVisitor
-    {
-        bool preVisit(TreeItem *item)
-        {
-            auto watchItem = static_cast<WatchItem *>(item);
-            if (level() <= 1 || !watchItem->outdated)
-                return true;
-            toRemove.append(watchItem);
+    QList<WatchItem *> toRemove;
+    m_model->forSelectedItems([this, &toRemove](WatchItem *item) {
+        if (item->outdated) {
+            toRemove.append(item);
             return false;
         }
+        return true;
+    });
 
-        QList<WatchItem *> toRemove;
-    } finder;
-
-    m_model->root()->walkTree(&finder);
-
-    foreach (auto item, finder.toRemove)
+    foreach (auto item, toRemove)
         delete m_model->takeItem(item);
 
     m_model->m_contentsValid = true;
@@ -1840,21 +1823,16 @@ void WatchHandler::addTypeFormats(const QByteArray &type, const DisplayFormats &
     m_model->m_reportedTypeFormats.insert(QLatin1String(stripForFormat(type)), formats);
 }
 
-static void showInEditorHelper(const WatchItem *item, QTextStream &ts, int depth)
-{
-    const QChar tab = QLatin1Char('\t');
-    const QChar nl = QLatin1Char('\n');
-    ts << QString(depth, tab) << item->name << tab << displayValue(item) << tab
-       << item->type << nl;
-    foreach (const TreeItem *child, item->children())
-        showInEditorHelper(static_cast<const WatchItem *>(child), ts, depth + 1);
-}
-
 QString WatchHandler::editorContents()
 {
     QString contents;
     QTextStream ts(&contents);
-    showInEditorHelper(m_model->root(), ts, 0);
+    m_model->forAllItems([&ts](WatchItem *item) {
+        const QChar tab = QLatin1Char('\t');
+        const QChar nl = QLatin1Char('\n');
+        ts << QString(item->level(), tab) << item->name << tab << displayValue(item) << tab
+           << item->type << nl;
+    });
     return contents;
 }
 

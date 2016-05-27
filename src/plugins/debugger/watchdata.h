@@ -59,7 +59,6 @@ public:
     QVariant editValue() const;
     int editType() const;
 
-    WatchItem *findItem(const QByteArray &iname);
     WatchItem *parentItem() const;
 
     enum State

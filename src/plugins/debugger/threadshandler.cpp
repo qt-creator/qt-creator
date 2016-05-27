@@ -240,7 +240,6 @@ ThreadsHandler::ThreadsHandler()
 {
     m_resetLocationScheduled = false;
     setObjectName(QLatin1String("ThreadsModel"));
-    setRootItem(new ThreadItem(this));
     setHeader({
         QLatin1String("  ") + tr("ID") + QLatin1String("  "),
         tr("Address"), tr("Function"), tr("File"), tr("Line"), tr("State"),
@@ -251,7 +250,7 @@ ThreadsHandler::ThreadsHandler()
 static ThreadItem *itemForThreadId(const ThreadsHandler *handler, ThreadId threadId)
 {
     const auto matcher = [threadId](ThreadItem *item) { return item->threadData.id == threadId; };
-    return handler->findItemAtLevel<ThreadItem *>(1, matcher);
+    return handler->findFirstLevelItem(matcher);
 }
 
 static int indexForThreadId(const ThreadsHandler *handler, ThreadId threadId)
@@ -321,11 +320,6 @@ void ThreadsHandler::notifyGroupCreated(const QByteArray &groupId, const QByteAr
     m_pidForGroupId[groupId] = pid;
 }
 
-void ThreadsHandler::foreachThread(const std::function<void (ThreadItem *)> &func)
-{
-    forEachItemAtLevel<ThreadItem *>(1, func);
-}
-
 void ThreadsHandler::updateThread(const ThreadData &threadData)
 {
     if (ThreadItem *item = itemForThreadId(this, threadData.id))
@@ -354,7 +348,7 @@ void ThreadsHandler::setThreads(const Threads &threads)
 void ThreadsHandler::updateThreadBox()
 {
     QStringList list;
-    foreachThread([&list](ThreadItem *item) {
+    forFirstLevelItems([&list](ThreadItem *item) {
         list.append(QString::fromLatin1("#%1 %2").arg(item->threadData.id.raw()).arg(item->threadData.name));
     });
     Internal::setThreadBoxContents(list, indexForThreadId(this, m_currentId));
@@ -375,7 +369,7 @@ void ThreadsHandler::removeAll()
 bool ThreadsHandler::notifyGroupExited(const QByteArray &groupId)
 {
     QList<ThreadItem *> list;
-    foreachThread([&list, groupId](ThreadItem *item) {
+    forFirstLevelItems([&list, groupId](ThreadItem *item) {
         if (item->threadData.groupId == groupId)
             list.append(item);
     });
@@ -402,7 +396,7 @@ void ThreadsHandler::notifyRunning(const QByteArray &data)
 
 void ThreadsHandler::notifyAllRunning()
 {
-    foreachThread([](ThreadItem *item) { item->notifyRunning(); });
+    forFirstLevelItems([](ThreadItem *item) { item->notifyRunning(); });
 }
 
 void ThreadsHandler::notifyRunning(ThreadId threadId)
@@ -427,7 +421,7 @@ void ThreadsHandler::notifyStopped(const QByteArray &data)
 
 void ThreadsHandler::notifyAllStopped()
 {
-    foreachThread([](ThreadItem *item) { item->notifyStopped(); });
+    forFirstLevelItems([](ThreadItem *item) { item->notifyStopped(); });
 }
 
 void ThreadsHandler::notifyStopped(ThreadId threadId)

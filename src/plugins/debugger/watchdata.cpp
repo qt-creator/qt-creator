@@ -657,18 +657,6 @@ QString WatchItem::expression() const
     return name;
 }
 
-WatchItem *WatchItem::findItem(const QByteArray &iname)
-{
-    if (internalName() == iname)
-        return this;
-    foreach (TreeItem *child, children()) {
-        auto witem = static_cast<WatchItem *>(child);
-        if (WatchItem *result = witem->findItem(iname))
-            return result;
-    }
-    return 0;
-}
-
 } // namespace Internal
 } // namespace Debugger
 

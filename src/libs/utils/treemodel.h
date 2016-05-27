@@ -94,11 +94,73 @@ public:
 
     void walkTree(TreeItemVisitor *visitor);
     void walkTree(std::function<void(TreeItem *)> f);
+    template <class T, class Predicate>
+    void forSelectedChildren(const Predicate &pred) const {
+        foreach (TreeItem *item, m_children) {
+            if (pred(static_cast<T>(item)))
+                item->forSelectedChildren<T, Predicate>(pred);
+        }
+    }
+
+    template <class T, typename Predicate>
+    void forAllChildren(const Predicate &pred) const {
+        foreach (TreeItem *item, m_children) {
+            pred(static_cast<T>(item));
+            item->forAllChildren<T, Predicate>(pred);
+        }
+    }
 
     // Levels are 1-based: Child at Level 1 is an immediate child.
+    template <class T, typename Predicate>
+    void forFirstLevelChildren(Predicate pred) {
+        foreach (TreeItem *item, m_children)
+            pred(static_cast<T>(item));
+    }
+
+    template <class T, typename Predicate>
+    void forSecondLevelChildren(Predicate pred) {
+        foreach (TreeItem *item1, m_children)
+            foreach (TreeItem *item2, item1->m_children)
+                pred(static_cast<T>(item2));
+    }
+
+    template <class T, typename Predicate>
+    T findFirstLevelChild(Predicate pred) const {
+        foreach (TreeItem *item, m_children)
+            if (pred(static_cast<T>(item)))
+                return static_cast<T>(item);
+        return 0;
+    }
+
+    template <class T, typename Predicate>
+    T findSecondLevelChild(Predicate pred) const {
+        foreach (TreeItem *item1, m_children)
+            foreach (TreeItem *item2, item1->children())
+                if (pred(static_cast<T>(item2)))
+                    return static_cast<T>(item2);
+        return 0;
+    }
+
+    // FIXME: Remove. Should only be present in LevelModels
+    template <class T, typename Predicate>
+    T findChildAtLevel(int n, Predicate func) const {
+        if (n == 1) {
+            foreach (TreeItem *item, m_children)
+                if (func(static_cast<T>(item)))
+                    return static_cast<T>(item);
+        } else {
+            foreach (TreeItem *item, m_children)
+                if (T found = item->findChildAtLevel<T>(n - 1, func))
+                    return found;
+        }
+        return 0;
+    }
+
+    // Levels are 1-based: Child at Level 1 is an immediate child.
+    // FIXME: Remove. Should only be present in LevelModels
     template <class T, typename Function>
     void forEachChildAtLevel(int n, Function func) {
-        foreach (auto item, m_children) {
+        foreach (TreeItem *item, m_children) {
             if (n == 1)
                 func(static_cast<T>(item));
             else
@@ -106,21 +168,13 @@ public:
         }
     }
 
-    template <class T, typename Function>
-    void forEachChild(Function func) const {
-        forEachChildAtLevel<T>(1, func);
-    }
-
     template <class T, typename Predicate>
-    T findChildAtLevel(int n, Predicate func) const {
-        if (n == 1) {
-            foreach (auto item, m_children)
-                if (func(static_cast<T>(item)))
-                    return static_cast<T>(item);
-        } else {
-            foreach (auto item, m_children)
-                if (T found = item->findChildAtLevel<T>(n - 1, func))
-                    return found;
+    T findAnyChild(Predicate pred) const {
+        foreach (TreeItem *item, m_children) {
+            if (pred(static_cast<T>(item)))
+                return static_cast<T>(item);
+            if (T found = item->findAnyChild<T>(pred))
+                return found;
         }
         return 0;
     }
@@ -141,6 +195,8 @@ private:
     friend class TreeModel;
 };
 
+// A general purpose multi-level model where each item can have its
+// own (TreeItem-derived) type.
 class QTCREATOR_UTILS_EXPORT TreeModel : public QAbstractItemModel
 {
     Q_OBJECT
@@ -174,28 +230,128 @@ public:
     bool canFetchMore(const QModelIndex &idx) const override;
     void fetchMore(const QModelIndex &idx) override;
 
+    TreeItem *takeItem(TreeItem *item); // item is not destroyed.
+
+    // FIXME: Remove. Should only be uses in LeveledTreeModel
+    template <class T, typename Predicate>
+    T findItemAtLevel(int n, Predicate func) const {
+        return m_root->findChildAtLevel<T>(n, func);
+    }
+    // FIXME: Remove. Should only be uses in LeveledTreeModel
     template <class T, typename Function>
     void forEachItemAtLevel(int n, Function func) const {
         m_root->forEachChildAtLevel<T>(n, func);
     }
 
-    template <class T, typename Predicate>
-    T findItemAtLevel(int n, Predicate func) const {
-        return m_root->findChildAtLevel<T>(n, func);
-    }
-
-    TreeItem *takeItem(TreeItem *item); // item is not destroyed.
 
 signals:
     void requestExpansion(QModelIndex);
 
-private:
+protected:
     friend class TreeItem;
 
     TreeItem *m_root; // Owned.
     QStringList m_header;
     QStringList m_headerToolTip;
     int m_columnCount;
+};
+
+// A multi-level model with uniform types per level.
+// All items below second level have to have identitical types.
+template <class FirstLevelItem,
+          class SecondLevelItem = FirstLevelItem,
+          class RootItem = TreeItem>
+class LeveledTreeModel : public TreeModel
+{
+public:
+    explicit LeveledTreeModel(QObject *parent = 0) : TreeModel(parent) {}
+    explicit LeveledTreeModel(RootItem *root, QObject *parent = 0) : TreeModel(root, parent) {}
+
+    template <class Predicate>
+    void forFirstLevelItems(const Predicate &pred) const {
+        m_root->forFirstLevelChildren<FirstLevelItem *>(pred);
+    }
+
+    template <class Predicate>
+    void forSecondLevelItems(const Predicate &pred) const {
+        m_root->forSecondLevelChildren<SecondLevelItem *>(pred);
+    }
+
+    template <class Predicate>
+    FirstLevelItem *findFirstLevelItem(const Predicate &pred) const {
+        return m_root->findFirstLevelChild<FirstLevelItem *>(pred);
+    }
+
+    template <class Predicate>
+    SecondLevelItem *findSecondLevelItem(const Predicate &pred) const {
+        return m_root->findSecondLevelChild<SecondLevelItem *>(pred);
+    }
+
+    RootItem *rootItem() const {
+        return static_cast<RootItem *>(TreeModel::rootItem());
+    }
+
+
+    FirstLevelItem *firstLevelItemForIndex(const QModelIndex &idx) const {
+        TreeItem *item = TreeModel::itemForIndex(idx);
+        return item && item->level() == 1 ? static_cast<FirstLevelItem *>(item) : 0;
+    }
+
+    SecondLevelItem *secondLevelItemForIndex(const QModelIndex &idx) const {
+        TreeItem *item = TreeModel::itemForIndex(idx);
+        return item && item->level() == 2 ? static_cast<SecondLevelItem *>(item) : 0;
+    }
+};
+
+// A two-level model with a first level of static headers and a uniform second level.
+template <class SecondLevelItemType>
+class TwoLevelTreeModel : public LeveledTreeModel<TreeItem, SecondLevelItemType>
+{
+public:
+    using FirstLevelItem = TreeItem;
+    using SecondLevelItem = SecondLevelItemType;
+    using BaseType = LeveledTreeModel<FirstLevelItem, SecondLevelItem>;
+
+    explicit TwoLevelTreeModel(QObject *parent = 0) : BaseType(parent) {}
+
+    FirstLevelItem *appendFirstLevelItem(const QStringList &display) {
+        auto item = new FirstLevelItem(display);
+        this->rootItem()->appendChild(item);
+        return item;
+    }
+};
+
+// A model where all non-root nodes are the same.
+template <class ItemType>
+class UniformTreeModel : public LeveledTreeModel<ItemType, ItemType, ItemType>
+{
+public:
+    using BaseType = LeveledTreeModel<ItemType, ItemType, ItemType>;
+
+    explicit UniformTreeModel(QObject *parent = 0) : BaseType(parent) {}
+
+    ItemType *nonRootItemForIndex(const QModelIndex &idx) const {
+        TreeItem *item = TreeModel::itemForIndex(idx);
+        return item && item->parent() ? static_cast<ItemType *>(item) : 0;
+    }
+
+    template <class Predicate>
+    ItemType *findNonRooItem(const Predicate &pred) const {
+        TreeItem *root = this->rootItem();
+        return root->findAnyChild<ItemType *>(pred);
+    }
+
+    template <class Predicate>
+    void forSelectedItems(const Predicate &pred) const {
+        TreeItem *root = this->rootItem();
+        root->forSelectedChildren<ItemType *, Predicate>(pred);
+    }
+
+    template <class Predicate>
+    void forAllItems(const Predicate &pred) const {
+        TreeItem *root = this->rootItem();
+        root->forAllChildren<ItemType *, Predicate>(pred);
+    }
 };
 
 } // namespace Utils
