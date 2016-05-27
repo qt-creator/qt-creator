@@ -72,6 +72,7 @@ private: ////////// General Interface //////////
 
     virtual void handleGdbStartFailed();
     void notifyInferiorSetupFailed() override;
+    void prepareForRestart() override;
 
     bool hasCapability(unsigned) const override;
     void detachDebugger() override;

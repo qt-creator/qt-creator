@@ -4300,6 +4300,14 @@ void GdbEngine::notifyInferiorSetupFailed()
     DebuggerEngine::notifyInferiorSetupFailed();
 }
 
+void GdbEngine::prepareForRestart()
+{
+    m_rerunPending = false;
+    m_commandsDoneCallback = 0;
+    m_commandForToken.clear();
+    m_flagsForToken.clear();
+}
+
 void GdbEngine::handleInferiorPrepared()
 {
     const DebuggerRunParameters &rp = runParameters();
