@@ -197,7 +197,7 @@ static void ensureProtocolHandler()
 
 // #pragma mark -- FrameLoadDelegate
 
-@interface FrameLoadDelegate : NSObject
+@interface FrameLoadDelegate : NSObject<WebFrameLoadDelegate>
 {
     WebFrame *mainFrame;
     Help::Internal::MacWebKitHelpViewer *viewer;
@@ -262,8 +262,9 @@ static void ensureProtocolHandler()
     }
 }
 
-- (void)webView:(WebView *)sender didFailLoadWithError:(NSError *)error forFrame:(WebFrame *)frame;
+- (void)webView:(WebView *)sender didFailLoadWithError:(NSError *)error forFrame:(WebFrame *)frame
 {
+    Q_UNUSED(sender)
     Q_UNUSED(error)
     if (frame == mainFrame && !finished) {
         finished = true;
@@ -274,7 +275,7 @@ static void ensureProtocolHandler()
 
 // #pragma mark -- UIDelegate
 
-@interface UIDelegate : NSObject
+@interface UIDelegate : NSObject<WebUIDelegate>
 {
     Help::Internal::MacWebKitHelpWidget *widget;
 }
