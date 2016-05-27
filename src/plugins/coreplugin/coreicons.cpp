@@ -70,12 +70,8 @@ const Icon FIND_REGEXP(
         QLatin1String(":/find/images/regexp.png"));
 const Icon FIND_PRESERVE_CASE(
         QLatin1String(":/find/images/preservecase.png"));
-const Icon QTLOGO_32(
-        QLatin1String(":/core/images/logo/32/QtProject-qtcreator.png"));
-const Icon QTLOGO_64(
-        QLatin1String(":/core/images/logo/64/QtProject-qtcreator.png"));
-const Icon QTLOGO_128(
-        QLatin1String(":/core/images/logo/128/QtProject-qtcreator.png"));
+const Icon QTCREATORLOGO_BIG(
+        QLatin1String(":/core/images/qtcreatorlogo-big.png"));
 
 const Icon ARROW_UP({
         {QLatin1String(":/core/images/arrowup.png"), Theme::IconsBaseColor}});

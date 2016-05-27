@@ -52,9 +52,7 @@ CORE_EXPORT extern const Utils::Icon FIND_CASE_INSENSITIVELY;
 CORE_EXPORT extern const Utils::Icon FIND_WHOLE_WORD;
 CORE_EXPORT extern const Utils::Icon FIND_REGEXP;
 CORE_EXPORT extern const Utils::Icon FIND_PRESERVE_CASE;
-CORE_EXPORT extern const Utils::Icon QTLOGO_32;
-CORE_EXPORT extern const Utils::Icon QTLOGO_64;
-CORE_EXPORT extern const Utils::Icon QTLOGO_128;
+CORE_EXPORT extern const Utils::Icon QTCREATORLOGO_BIG;
 
 CORE_EXPORT extern const Utils::Icon ARROW_UP;
 CORE_EXPORT extern const Utils::Icon ARROW_DOWN;
