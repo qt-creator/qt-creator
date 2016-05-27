@@ -25,7 +25,6 @@
 
 #include "localqmlprofilerrunner.h"
 #include "qmlprofilerplugin.h"
-#include "qmlprofilerruncontrol.h"
 
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/environmentaspect.h>
@@ -33,6 +32,7 @@
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/target.h>
 #include <qmldebug/qmldebugcommandlinearguments.h>
+#include <debugger/analyzer/analyzerruncontrol.h>
 
 #include <QTcpServer>
 #include <QTemporaryFile>
@@ -65,16 +65,16 @@ Utils::Port LocalQmlProfilerRunner::findFreePort(QString &host)
 }
 
 LocalQmlProfilerRunner::LocalQmlProfilerRunner(const Configuration &configuration,
-                                               QmlProfilerRunControl *engine) :
+                                               Debugger::AnalyzerRunControl *engine) :
     QObject(engine),
     m_configuration(configuration)
 {
     connect(&m_launcher, &ApplicationLauncher::appendMessage,
             this, &LocalQmlProfilerRunner::appendMessage);
     connect(this, &LocalQmlProfilerRunner::stopped,
-            engine, &QmlProfilerRunControl::notifyRemoteFinished);
+            engine, &Debugger::AnalyzerRunControl::notifyRemoteFinished);
     connect(this, &LocalQmlProfilerRunner::appendMessage,
-            engine, &QmlProfilerRunControl::appendMessage);
+            engine, &Debugger::AnalyzerRunControl::appendMessage);
     connect(engine, &Debugger::AnalyzerRunControl::starting,
             this, &LocalQmlProfilerRunner::start);
     connect(engine, &RunControl::finished,

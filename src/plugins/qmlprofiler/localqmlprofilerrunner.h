@@ -31,9 +31,12 @@
 #include <projectexplorer/applicationlauncher.h>
 #include <projectexplorer/runnables.h>
 
+namespace Debugger {
+class AnalyzerRunControl;
+}
+
 namespace QmlProfiler {
 
-class QmlProfilerRunControl;
 class QMLPROFILER_EXPORT LocalQmlProfilerRunner : public QObject
 {
     Q_OBJECT
@@ -45,7 +48,8 @@ public:
         QString socket;
     };
 
-    LocalQmlProfilerRunner(const Configuration &configuration, QmlProfilerRunControl *engine);
+    LocalQmlProfilerRunner(const Configuration &configuration,
+                           Debugger::AnalyzerRunControl *engine);
     ~LocalQmlProfilerRunner();
 
     static Utils::Port findFreePort(QString &host);
