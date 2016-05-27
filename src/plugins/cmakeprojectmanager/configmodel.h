@@ -55,6 +55,10 @@ public:
     bool setData(const QModelIndex &index, const QVariant &value, int role) override;
     QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
 
+    void appendConfiguration(const QString &key,
+                             const QString &value = QString(),
+                             const DataItem::Type type = DataItem::UNKNOWN,
+                             const QString &description = QString());
     void setConfiguration(const QList<DataItem> &config);
     void flush();
     void resetAllChanges();

@@ -345,17 +345,17 @@ def invokeContextMenuItem(editorArea, command1, command2 = None):
     ctxtMenu = openContextMenuOnTextCursorPosition(editorArea)
     snooze(1)
     if platform.system() == 'Darwin':
-        activateItem(ctxtMenu, command1)
+        item1 = waitForObjectItem(ctxtMenu, command1)
+        subMenu = item1.menu()
+        activateItem(item1)
+        # subMenu could have been triggered by hovering, but closed again by clicking
+        if subMenu and not subMenu.visible:
+            activateItem(item1)
+        if command2:
+            activateItem(subMenu, command2)
     else:
         activateItem(waitForObjectItem(objectMap.realName(ctxtMenu), command1, 2000))
-    if command2:
-        # Hack for Squish 5.0.1 handling menus of Qt5.2 on Mac (avoids crash) - remove asap
-        if platform.system() == 'Darwin':
-            for obj in object.topLevelObjects():
-                if className(obj) == 'QMenu' and obj.visible and not obj == ctxtMenu:
-                    activateItem(obj, command2)
-                    break
-        else:
+        if command2:
             activateItem(waitForObjectItem("{title='%s' type='QMenu' visible='1' window=%s}"
                                            % (command1, objectMap.realName(ctxtMenu)), command2, 2000))
 

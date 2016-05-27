@@ -52,7 +52,7 @@ def main():
         type(editor, "<Return>")
         invokeMenuItem("File", "Save All")
         clickButton(waitForObject(":Qt Creator.CloseDoc_QToolButton"))
-    if test.verify(waitFor("headerFileName in str(mainWindow.windowTitle)", 1000),
+    if test.verify(waitFor("headerFileName in str(mainWindow.windowTitle)", 2000),
                    "Header file was shown after closing source?"):
         editor = waitForObject(":Qt Creator_CppEditor::Internal::CPPEditorWidget")
         editorText = str(editor.plainText)
@@ -80,7 +80,7 @@ def main():
     addCPlusPlusFileToCurrentProject(newClassName, "C++ Class", False, newBasePath=basePath,
                                      expectedSourceName=sourceFileName,
                                      expectedHeaderName=headerFileName)
-    test.verify(not waitFor("overwritten(sourceFileName)", 500),
+    test.verify(not waitFor("overwritten(sourceFileName)", 2000),
                 "Source file should not be overwritten.")
     test.verify(not waitFor("overwritten(headerFileName)", 500),
                 "Header file should not be overwritten.")
@@ -88,7 +88,7 @@ def main():
     addCPlusPlusFileToCurrentProject(newClassName, "C++ Class", True, newBasePath=basePath,
                                      expectedSourceName=sourceFileName,
                                      expectedHeaderName=headerFileName)
-    test.verify(waitFor("overwritten(sourceFileName)", 500),
+    test.verify(waitFor("overwritten(sourceFileName)", 2000),
                 "Source file should be overwritten.")
     test.verify(waitFor("overwritten(headerFileName)", 500),
                 "Header file should be overwritten.")

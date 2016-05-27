@@ -35,7 +35,8 @@ namespace CMakeProjectManager {
 static bool isTrue(const QString &value)
 {
     const QString lower = value.toLower();
-    return lower == QStringLiteral("true") || lower == QStringLiteral("on") || lower == QStringLiteral("1");
+    return lower == QStringLiteral("true") || lower == QStringLiteral("on")
+            || lower == QStringLiteral("1") || lower == QStringLiteral("yes");
 }
 
 ConfigModel::ConfigModel(QObject *parent) : QAbstractTableModel(parent)
@@ -71,7 +72,10 @@ Qt::ItemFlags ConfigModel::flags(const QModelIndex &index) const
         else
             return Qt::ItemIsEnabled | Qt::ItemIsEditable | Qt::ItemIsSelectable;
     } else {
-        return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
+        Qt::ItemFlags flags = Qt::ItemIsEnabled | Qt::ItemIsSelectable;
+        if (item.isUserNew)
+            return flags |= Qt::ItemIsEditable;
+        return flags;
     }
 }
 
@@ -163,7 +167,7 @@ bool ConfigModel::setData(const QModelIndex &index, const QVariant &value, int r
     InternalDataItem &item = itemAtRow(index.row());
     switch (index.column()) {
     case 0:
-        if (!item.key.isEmpty())
+        if (!item.key.isEmpty() && !item.isUserNew)
             return false;
         item.key = newValue;
         item.isUserNew = true;
@@ -200,6 +204,25 @@ QVariant ConfigModel::headerData(int section, Qt::Orientation orientation, int r
     default:
         return QVariant();
     }
+}
+
+void ConfigModel::appendConfiguration(const QString &key,
+                                      const QString &value,
+                                      const ConfigModel::DataItem::Type type,
+                                      const QString &description)
+{
+    DataItem item;
+    item.key = key;
+    item.type = type;
+    item.value = value;
+    item.description = description;
+
+    InternalDataItem internalItem(item);
+    internalItem.isUserNew = true;
+
+    beginResetModel();
+    m_configuration.append(internalItem);
+    endResetModel();
 }
 
 void ConfigModel::setConfiguration(const QList<ConfigModel::DataItem> &config)

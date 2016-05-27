@@ -117,7 +117,7 @@ def __compFunc__(it, foundComp, foundCompNames):
     foundCompNames.append(it)
 
 def __dbgFunc__(it, foundDbg):
-    waitFor("object.exists(':Path.Utils_BaseValidatingLineEdit')", 1000)
+    waitFor("object.exists(':Path.Utils_BaseValidatingLineEdit')", 2000)
     pathLineEdit = findObject(":Path.Utils_BaseValidatingLineEdit")
     foundDbg.append(str(pathLineEdit.text))
 

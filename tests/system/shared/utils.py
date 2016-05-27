@@ -58,13 +58,13 @@ def ensureChecked(objectName, shouldBeChecked = True, timeout=20000):
     try:
         # needed for transition Qt::PartiallyChecked -> Qt::Checked -> Qt::Unchecked
         clicked = 0
-        while not waitFor('widget.checkState() == targetState', 1000) and clicked < 2:
+        while not waitFor('widget.checkState() == targetState', 1500) and clicked < 2:
             clickButton(widget)
             clicked += 1
         test.verify(waitFor("widget.checkState() == targetState", 1000))
     except:
         # widgets not derived from QCheckbox don't have checkState()
-        if not waitFor('widget.checked == shouldBeChecked', 1000):
+        if not waitFor('widget.checked == shouldBeChecked', 1500):
             mouseClick(widget, 10, 6, 0, Qt.LeftButton)
         test.verify(waitFor("widget.checked == shouldBeChecked", 1000))
     test.log("New state for QCheckBox: %s" % state,
@@ -217,10 +217,11 @@ def logApplicationOutput():
 
 # get the output from a given cmdline call
 def getOutputFromCmdline(cmdline):
-    versCall = subprocess.Popen(cmdline, stdout=subprocess.PIPE, shell=True)
-    result = versCall.communicate()[0]
-    versCall.stdout.close()
-    return result
+    try:
+        return subprocess.check_output(cmdline, shell=True) # TODO: do not use shell=True
+    except subprocess.CalledProcessError as e:
+        test.warning("Command '%s' returned %d" % (e.cmd, e.returncode))
+        return e.output
 
 def selectFromFileDialog(fileName, waitForFile=False):
     if platform.system() == "Darwin":
@@ -228,7 +229,7 @@ def selectFromFileDialog(fileName, waitForFile=False):
         nativeType("<Command+Shift+g>")
         snooze(1)
         nativeType(fileName)
-        snooze(1)
+        snooze(2)
         nativeType("<Return>")
         snooze(3)
         nativeType("<Return>")
@@ -600,6 +601,7 @@ def clickOnTab(tabBarStr, tabText, timeout=5000):
     if platform.system() == 'Darwin' and not tabBar.visible:
         test.log("Using workaround for Mac.")
         setWindowState(tabBar, WindowState.Normal)
+        tabBar = waitForObject(tabBarStr, 2000)
     clickTab(tabBar, tabText)
     waitFor("str(tabBar.tabText(tabBar.currentIndex)) == '%s'" % tabText, timeout)
 

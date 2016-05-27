@@ -41,17 +41,24 @@
         <file>unit_test/mixed_atp/tests/auto/quickauto2/quickauto2.qbs</file>
         <file>unit_test/simple_gt/src/main.cpp</file>
         <file>unit_test/simple_gt/src/src.pro</file>
+        <file>unit_test/simple_gt/src/src.qbs</file>
         <file>unit_test/simple_gt/tests/gt1/further.cpp</file>
         <file>unit_test/simple_gt/tests/gt1/gt1.pro</file>
+        <file>unit_test/simple_gt/tests/gt1/gt1.qbs</file>
         <file>unit_test/simple_gt/tests/gt1/main.cpp</file>
         <file>unit_test/simple_gt/tests/gt2/gt2.pro</file>
+        <file>unit_test/simple_gt/tests/gt2/gt2.qbs</file>
         <file>unit_test/simple_gt/tests/gt2/main.cpp</file>
         <file>unit_test/simple_gt/tests/gt2/queuetest.h</file>
         <file>unit_test/simple_gt/tests/tests.pro</file>
+        <file>unit_test/simple_gt/tests/tests.qbs</file>
         <file>unit_test/simple_gt/simple_gt.pro</file>
+        <file>unit_test/simple_gt/simple_gt.qbs</file>
         <file>unit_test/simple_gt/tests/gtest_dependency.pri</file>
         <file>unit_test/simple_gt/tests/gt3/dummytest.h</file>
         <file>unit_test/simple_gt/tests/gt3/gt3.pro</file>
+        <file>unit_test/simple_gt/tests/gt3/gt3.qbs</file>
         <file>unit_test/simple_gt/tests/gt3/main.cpp</file>
+        <file>unit_test/simple_gt/tests/common/functions.js</file>
     </qresource>
 </RCC>

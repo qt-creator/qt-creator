@@ -5989,6 +5989,18 @@ void tst_Dumpers::dumper_data()
                     "b.append(a);\n"
                     "b.append(QJsonValue(2));\n"
                     "\n"
+                    "QJsonArray c;\n"
+                    "for (unsigned int i = 0; i < 32; ++i) {\n"
+                    "    c.append(QJsonValue(qint64(1u << i) - 1));\n"
+                    "    c.append(QJsonValue(qint64(1u << i)));\n"
+                    "    c.append(QJsonValue(qint64(1u << i) + 1));\n"
+                    "}\n"
+                    "for (unsigned int i = 0; i < 32; ++i) {\n"
+                    "    c.append(QJsonValue(-qint64(1u << i) + 1));\n"
+                    "    c.append(QJsonValue(-qint64(1u << i)));\n"
+                    "    c.append(QJsonValue(-qint64(1u << i) - 1));\n"
+                    "}\n"
+                    "\n"
                     "unused(&ob,&b,&a);\n")
             + Cxx11Profile()
             + Check("a",                  "<6 items>",  "@QJsonArray")
@@ -6013,6 +6025,17 @@ void tst_Dumpers::dumper_data()
             + Check("b.1.4",    "[4]",       "true",          "QJsonValue (Bool)")
             + Check("b.1.5",    "[5]",       "<5 items>",     "QJsonValue (Object)")
             + Check("b.2",   "[2]",       "2",             "QJsonValue (Number)")
+            + Check("c",     "c",        "<192 items>", "@QJsonArray")
+            + Check("c.0",   "[0]",       "0.0",           "QJsonValue (Number)")
+            + Check("c.1",   "[1]",       "1",             "QJsonValue (Number)")
+            + Check("c.78",  "[78]",      "67108863",      "QJsonValue (Number)")
+            + Check("c.79",  "[79]",      "67108864.0",    "QJsonValue (Number)")
+            + Check("c.94",  "[94]",      "2147483648.0",  "QJsonValue (Number)")
+            + Check("c.95",  "[95]",      "2147483649.0",  "QJsonValue (Number)")
+            + Check("c.96",  "[96]",      "0.0",           "QJsonValue (Number)")
+            + Check("c.97",  "[97]",      "-1",            "QJsonValue (Number)")
+            + Check("c.174", "[174]",     "-67108863",     "QJsonValue (Number)")
+            + Check("c.175", "[175]",     "-67108864.0",   "QJsonValue (Number)")
             + Check("ob",   "ob",      "<5 items>",     "@QJsonObject")
             + Check("ob.0", "\"a\"",    "1",              "QJsonValue (Number)")
             + Check("ob.1", "\"bb\"",   "2",              "QJsonValue (Number)")

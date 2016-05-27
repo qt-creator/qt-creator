@@ -68,6 +68,7 @@ public:
     CMakeConfig cmakeConfiguration() const;
 
     QString error() const;
+    QString warning() const;
 
     BuildDirManager *buildDirManager() const;
 
@@ -83,6 +84,7 @@ public:
 
 signals:
     void errorOccured(const QString &message);
+    void warningOccured(const QString &message);
 
     void parsingStarted();
     void dataAvailable();
@@ -97,9 +99,11 @@ private:
     void setCurrentCMakeConfiguration(const QList<ConfigModel::DataItem> &items);
 
     void setError(const QString &message);
+    void setWarning(const QString &message);
 
     CMakeConfig m_configuration;
     QString m_error;
+    QString m_warning;
 
     mutable QList<CMakeConfigItem> m_completeConfigurationCache;
 

@@ -341,8 +341,10 @@ void CMakeProject::runCMake()
         return;
 
     BuildDirManager *bdm = bc->buildDirManager();
-    if (bdm && !bdm->isParsing())
+    if (bdm && !bdm->isParsing()) {
+        bdm->checkConfiguration();
         bdm->forceReparse();
+    }
 }
 
 QList<CMakeBuildTarget> CMakeProject::buildTargets() const

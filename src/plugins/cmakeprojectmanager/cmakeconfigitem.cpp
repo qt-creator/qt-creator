@@ -25,6 +25,9 @@
 
 #include "cmakeconfigitem.h"
 
+#include <projectexplorer/kit.h>
+
+#include <utils/macroexpander.h>
 #include <utils/qtcassert.h>
 
 #include <QString>
@@ -58,6 +61,21 @@ QByteArray CMakeConfigItem::valueOf(const QByteArray &key, const QList<CMakeConf
             return it->value;
     }
     return QByteArray();
+}
+
+QString CMakeConfigItem::expandedValueOf(const ProjectExplorer::Kit *k, const QByteArray &key,
+                                         const QList<CMakeConfigItem> &input)
+{
+    for (auto it = input.constBegin(); it != input.constEnd(); ++it) {
+        if (it->key == key)
+            return it->expandedValue(k);
+    }
+    return QString();
+}
+
+QString CMakeConfigItem::expandedValue(const ProjectExplorer::Kit *k) const
+{
+    return k->macroExpander()->expand(QString::fromUtf8(value));
 }
 
 std::function<bool (const CMakeConfigItem &a, const CMakeConfigItem &b)> CMakeConfigItem::sortOperator()

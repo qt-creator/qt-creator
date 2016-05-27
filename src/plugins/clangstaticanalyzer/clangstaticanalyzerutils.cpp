@@ -50,25 +50,29 @@ namespace Internal {
 
 QString clangExecutableFromSettings(Core::Id toolchainType, bool *isValid)
 {
-    QString exeFromSettings = ClangStaticAnalyzerSettings::instance()->clangExecutable();
-    if (toolchainType == ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID) {
-        if (exeFromSettings.endsWith(QLatin1String(QTC_HOST_EXE_SUFFIX)))
-            exeFromSettings.chop(int(qstrlen(QTC_HOST_EXE_SUFFIX)));
-        if (exeFromSettings.endsWith(QLatin1String("clang")))
-            exeFromSettings.append(QLatin1String("-cl"));
-    }
-    return clangExecutable(exeFromSettings, isValid);
-}
-
-QString clangExecutable(const QString &fileNameOrPath, bool *isValid)
-{
-    QString executable = fileNameOrPath;
+    QString executable = ClangStaticAnalyzerSettings::instance()->clangExecutable();
     if (executable.isEmpty()) {
         *isValid = false;
         return executable;
     }
 
-    if (!QFileInfo(executable).isAbsolute()) {
+    const QString hostExeSuffix = QLatin1String(QTC_HOST_EXE_SUFFIX);
+    const Qt::CaseSensitivity caseSensitivity = Utils::HostOsInfo::fileNameCaseSensitivity();
+    const bool hasSuffix = executable.endsWith(hostExeSuffix, caseSensitivity);
+
+    if (toolchainType == ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID) {
+        if (hasSuffix)
+            executable.chop(hostExeSuffix.length());
+        executable.append(QLatin1String("-cl"));
+        if (hasSuffix)
+            executable.append(hostExeSuffix);
+    }
+
+    const QFileInfo fileInfo = QFileInfo(executable);
+    if (fileInfo.isAbsolute()) {
+        if (!hasSuffix)
+            executable.append(hostExeSuffix);
+    } else {
         const Utils::Environment &environment = Utils::Environment::systemEnvironment();
         const QString executableFromPath = environment.searchInPath(executable).toString();
         if (executableFromPath.isEmpty()) {

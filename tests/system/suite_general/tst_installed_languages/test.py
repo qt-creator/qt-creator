@@ -42,6 +42,8 @@ def main():
         selectFromCombo(":User Interface.languageBox_QComboBox", languageName)
         clickButton(waitForObject(":Options.OK_QPushButton"))
         clickButton(waitForObject(":Restart required.OK_QPushButton"))
+        test.verify(waitFor("not object.exists(':Options_Core::Internal::SettingsDialog')", 5000),
+                    "Options dialog disappeared")
         invokeMenuItem("File", "Exit")
         waitForCleanShutdown()
         snooze(4) # wait for complete unloading of Creator
@@ -49,16 +51,20 @@ def main():
         startApplication("qtcreator" + SettingsPath)
         try:
             if platform.system() == 'Darwin':
-                # temporary hack for handling wrong menus when using Squish 5.0.1 with Qt5.2
-                fileMenu = waitForObjectItem(":Qt Creator.QtCreator.MenuBar_QMenuBar",
-                                             testData.field(lang, "File"))
-                activateItem(fileMenu)
-                waitForObject("{type='QMenu' visible='1'}")
-                activateItem(fileMenu)
+                try:
+                    fileMenu = waitForObjectItem(":Qt Creator.QtCreator.MenuBar_QMenuBar",
+                                                 testData.field(lang, "File"))
+                    activateItem(fileMenu)
+                    obj = waitForObject("{type='QMenu' visible='1'}")
+                    test.compare(str(obj.objectName), 'QtCreator.Menu.File',
+                                 "Creator was running in %s translation" % languageName)
+                    activateItem(fileMenu)
+                except:
+                    test.fail("Creator seems to be missing %s translation" % languageName)
                 nativeType("<Command+q>")
             else:
                 invokeMenuItem(testData.field(lang, "File"), testData.field(lang, "Exit"))
-            test.passes("Creator was running in %s translation." % languageName)
+                test.passes("Creator was running in %s translation." % languageName)
         except:
             test.fail("Creator seems to be missing %s translation" % languageName)
             sendEvent("QCloseEvent", ":Qt Creator_Core::Internal::MainWindow")

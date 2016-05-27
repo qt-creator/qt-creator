@@ -1130,8 +1130,15 @@ void QmlEngine::executeDebuggerCommand(const QString &command, DebuggerLanguages
     } else if (d->unpausedEvaluate) {
         d->evaluate(command, CB(d->handleExecuteDebuggerCommand));
     } else {
-        d->engine->showMessage(_("The application has to be stopped in a breakpoint in order to "
-                                 "evaluate expressions").arg(command), ConsoleOutput);
+        QModelIndex currentIndex = inspectorView()->currentIndex();
+        quint32 queryId = d->inspectorAgent.queryExpressionResult(
+                    watchHandler()->watchItem(currentIndex)->id, command);
+        if (queryId) {
+            d->queryIds.append(queryId);
+        } else {
+            d->engine->showMessage(_("The application has to be stopped in a breakpoint in order to"
+                                     " evaluate expressions"), ConsoleOutput);
+        }
     }
 }
 

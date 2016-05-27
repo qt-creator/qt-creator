@@ -693,7 +693,7 @@
 
     \code
     {
-    "name": "LabelQQC_1_0",
+        "name": "LabelQQC_1_0",
         "type": "Label",
         "span": true,
         "visible": "%{( '%{CS}' === 'QQC_1_0' ) ? 'yes' : ''}",

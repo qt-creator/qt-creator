@@ -33,25 +33,45 @@ def performEditMenu():
     passiveLineEdit = waitForObject(":FormEditorStack.__qt__passive_editor_QLineEdit")
     replaceEditorContent(passiveLineEdit, "SquishTestFile")
     type(passiveLineEdit, "<Return>")
-    menu = waitForObject("{name='menuSquishTestFile' title='SquishTestFile' type='QDesignerMenu' "
-                         "visible='1' window=':Qt Creator_Core::Internal::MainWindow'}")
+    # this "special" QDesignerMenu will be hidden and unusable on OSX
+    menuStr = ("{name='menuSquishTestFile' title='SquishTestFile' type='QDesignerMenu' "
+               "window=':Qt Creator_Core::Internal::MainWindow'}")
+    try:
+        menu = waitForObject(menuStr, 5000)
+    except:
+        if platform.system() == 'Darwin':
+            # we need some information of the menu, so find at least the 'hidden' one
+            menu = findObject(menuStr)
+        else:
+            raise
     menuHeight = menu.height
     itemHeight = menuHeight / 2 # actually only 'Type Here' and 'Add Separator' are shown
     itemHalf = itemHeight / 2
     # add Open menu item
-    doubleClick(menu, 15, itemHalf, 0, Qt.LeftButton)
+    if platform.system() == 'Darwin':
+        # double clicking is not possible on hidden objects
+        nativeType("<Return>")
+    else:
+        doubleClick(menu, 15, itemHalf, 0, Qt.LeftButton)
     passiveLineEdit = waitForObject(":FormEditorStack.__qt__passive_editor_QLineEdit")
     replaceEditorContent(passiveLineEdit, "Open")
     type(passiveLineEdit, "<Return>")
     waitFor("menu.height > menuHeight", 2000)
     menuHeight = menu.height
     # add a separator
-    doubleClick(menu, 15, menu.height - itemHalf, 0, Qt.LeftButton)
+    if platform.system() == 'Darwin':
+        nativeType("<Down>")
+        nativeType("<Return>")
+    else:
+        doubleClick(menu, 15, menu.height - itemHalf, 0, Qt.LeftButton)
     waitFor("menu.height > menuHeight", 2000)
     separatorHeight = menu.height - menuHeight
     menuHeight = menu.height
     # add Shutdown menu item (Quit/Exit do not work because Squish/Qt5 problems with menus)
-    doubleClick(menu, 30, itemHeight + separatorHeight + itemHalf, 0, Qt.LeftButton)
+    if platform.system() == 'Darwin':
+        nativeType("<Return>")
+    else:
+        doubleClick(menu, 30, itemHeight + separatorHeight + itemHalf, 0, Qt.LeftButton)
     passiveLineEdit = waitForObject(":FormEditorStack.__qt__passive_editor_QLineEdit")
     replaceEditorContent(passiveLineEdit, "Shutdown")
     type(passiveLineEdit, "<Return>")

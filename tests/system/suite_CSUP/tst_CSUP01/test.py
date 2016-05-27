@@ -78,6 +78,19 @@ def main():
         type(waitForObject(":popupFrame_Proposal_QListView"), "<Tab>")
         test.compare(str(lineUnderCursor(editorWidget)).strip(), "void",
                      "Step 4: Verifying if: Word 'void' is completed because only one option is available.")
+# Step 4.5: Insert text "2." to new line and verify that code completion is not triggered (QTCREATORBUG-16188)
+        resetLine(editorWidget)
+        lineWithFloat = "float fl = 2."
+        type(editorWidget, lineWithFloat)
+        try:
+            waitForObject(":popupFrame_Proposal_QListView", 5000)
+            if useClang and JIRA.isBugStillOpen(16188):
+                test.xfail("Typing a float value triggered code completion")
+            else:
+                test.fail("Typing a float value triggered code completion")
+        except:
+            test.compare(str(lineUnderCursor(editorWidget)), "    " + lineWithFloat,
+                         "Typing a float value does not trigger code completion")
 # Step 5: From "Tools -> Options -> Text Editor -> Completion" select Activate completion Manually,
 # uncheck Autocomplete common prefix and press Apply and then Ok . Return to Edit mode.
         test.log("Step 5: Change Code Completion settings")
