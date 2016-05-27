@@ -74,7 +74,6 @@ public:
 
     Internal::DesignModeWidget *mainWidget;
 
-    QmlDesigner::PluginManager pluginManager;
     DesignerSettings settings;
     Internal::DesignModeContext *context;
 };
@@ -187,12 +186,6 @@ bool QmlDesignerPlugin::initialize(const QStringList & /*arguments*/, QString *e
     Core::Command *command = Core::ActionManager::registerAction(
                 switchTextDesignAction, QmlDesigner::Constants::SWITCH_TEXT_DESIGN, switchContext);
     command->setDefaultKeySequence(QKeySequence(Qt::Key_F4));
-
-    const QString pluginPath = Utils::HostOsInfo::isMacHost()
-            ? QString(QCoreApplication::applicationDirPath() + "/../PlugIns/QmlDesigner")
-            : QString(QCoreApplication::applicationDirPath() + "/../"
-                      + QLatin1String(IDE_LIBRARY_BASENAME) + "/qtcreator/plugins/qmldesigner");
-    d->pluginManager.setPluginPaths(QStringList() << pluginPath);
 
     createDesignModeWidget();
     connect(switchTextDesignAction, &QAction::triggered, this, &switchTextDesign);

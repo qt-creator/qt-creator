@@ -26,7 +26,6 @@
 #pragma once
 
 #include <qmldesigner/designersettings.h>
-#include <qmldesigner/components/pluginmanager/pluginmanager.h>
 #include <qmldesignercorelib_global.h>
 
 #include <extensionsystem/iplugin.h>
