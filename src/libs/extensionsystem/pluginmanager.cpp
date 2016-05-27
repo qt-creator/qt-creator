@@ -1658,11 +1658,17 @@ static inline QString getPlatformName()
     case QSysInfo::WV_WINDOWS7:
         result += QLatin1String(" 7");
         break;
+    case QSysInfo::WV_WINDOWS8:
+        result += QLatin1String(" 8");
+        break;
+    case QSysInfo::WV_WINDOWS8_1:
+        result += QLatin1String(" 8.1");
+        break;
     default:
         break;
     }
-    if (QSysInfo::WindowsVersion >= QSysInfo::WV_WINDOWS8)
-        result += QLatin1String(" 8");
+    if (QSysInfo::WindowsVersion >= QSysInfo::WV_WINDOWS10)
+        result += QLatin1String(" 10");
     return result;
 #endif // Q_OS_WIN
     return QLatin1String("Unknown");
