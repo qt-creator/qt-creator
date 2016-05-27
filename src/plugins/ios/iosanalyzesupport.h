@@ -25,12 +25,9 @@
 
 #pragma once
 
-#include "iosrunconfiguration.h"
-
 #include <qmldebug/qmloutputparser.h>
 #include <utils/port.h>
 
-#include <QProcess>
 #include <QObject>
 
 namespace Debugger { class AnalyzerRunControl; }

@@ -24,37 +24,9 @@
 ****************************************************************************/
 
 #include "iosanalyzesupport.h"
-
 #include "iosrunner.h"
-#include "iosmanager.h"
-#include "iosdevice.h"
 
-#include <debugger/debuggerplugin.h>
-#include <debugger/debuggerkitinformation.h>
-#include <debugger/debuggerruncontrol.h>
-#include <debugger/debuggerstartparameters.h>
-#include <debugger/debuggerrunconfigurationaspect.h>
-#include <debugger/analyzer/analyzermanager.h>
 #include <debugger/analyzer/analyzerruncontrol.h>
-#include <projectexplorer/toolchain.h>
-#include <projectexplorer/target.h>
-#include <projectexplorer/taskhub.h>
-#include <qtsupport/qtkitinformation.h>
-#include <utils/fileutils.h>
-#include <utils/outputformat.h>
-#include <utils/qtcprocess.h>
-
-#include <QDir>
-#include <QTcpServer>
-#include <QSettings>
-
-#include <stdio.h>
-#include <fcntl.h>
-#ifdef Q_OS_UNIX
-#include <unistd.h>
-#else
-#include <io.h>
-#endif
 
 using namespace Debugger;
 using namespace ProjectExplorer;
