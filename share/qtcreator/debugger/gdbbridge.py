@@ -1025,7 +1025,7 @@ class Dumper(DumperBase):
             self.putType(typeName)
             if typeobj.sizeof == 1:
                 # Force unadorned value transport for char and Co.
-                self.putValue(int(value) & 0xff)
+                self.putValue(int(value))
             else:
                 self.putValue(value)
             self.putNumChild(0)

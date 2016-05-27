@@ -4758,6 +4758,24 @@ void tst_Dumpers::dumper_data()
                + Check("a.#1.i", "42", "int") % LldbEngine
                + Check("a.#2.f", ff, "float") % LldbEngine;
 
+    QTest::newRow("Chars")
+            << Data("#include <qglobal.h>\n",
+                    "char c = -12;\n"
+                    "signed char sc = -12;\n"
+                    "unsigned char uc = -12;\n"
+                    "qint8 qs = -12;\n"
+                    "quint8 qu  = -12;\n"
+                    "unused(&c, &sc, &uc, &qs, &qu);\n")
+
+               + Check("c", "-12", "char")  // on all our platforms char is signed.
+               + Check("sc", "-12", "signed char") % NoCdbEngine
+               + Check("sc", "-12", "char") % CdbEngine
+               + Check("uc", "244", "unsigned char")
+               + Check("qs", "-12", "@qint8") % NoCdbEngine
+               + Check("qs", "-12", "char") % CdbEngine
+               + Check("qu", "244", "@quint8") % NoCdbEngine
+               + Check("qu", "244", "unsigned char") % CdbEngine;
+
 
     QTest::newRow("CharArrays")
             << Data("char s[] = \"aöa\";\n"
