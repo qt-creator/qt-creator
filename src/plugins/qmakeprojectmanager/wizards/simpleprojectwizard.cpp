@@ -24,7 +24,8 @@
 ****************************************************************************/
 
 #include "simpleprojectwizard.h"
-#include "qmakeprojectmanagerconstants.h"
+
+#include <qmakeprojectmanager/qmakeprojectmanagerconstants.h>
 
 #include <coreplugin/basefilewizard.h>
 #include <coreplugin/icore.h>
