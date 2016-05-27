@@ -75,6 +75,7 @@ private:
     qbs::BuildJob *m_ruleExecutionJob;
     qbs::ErrorInfo m_error;
     qbs::Project m_project;
+    bool m_dryRun;
 
     QFutureInterface<bool> *m_fi;
     int m_currentProgressBase;

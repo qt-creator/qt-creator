@@ -93,7 +93,8 @@ void QbsProjectParser::parse(const QVariantMap &config, const Environment &env, 
 
     // Some people don't like it when files are created as a side effect of opening a project,
     // so do not store the build graph if the build directory does not exist yet.
-    params.setDryRun(!QFileInfo::exists(dir));
+    m_dryRun = !QFileInfo::exists(dir);
+    params.setDryRun(m_dryRun);
 
     params.setBuildRoot(dir);
     params.setProjectFilePath(m_projectFilePath);
@@ -151,6 +152,7 @@ void QbsProjectParser::handleQbsParsingDone(bool success)
 void QbsProjectParser::startRuleExecution()
 {
     qbs::BuildOptions options;
+    options.setDryRun(m_dryRun);
     options.setExecuteRulesOnly(true);
     m_ruleExecutionJob = m_project.buildAllProducts(
                 options, qbs::Project::ProductSelectionWithNonDefault, this);
