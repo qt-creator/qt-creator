@@ -201,6 +201,7 @@ static void ensureProtocolHandler()
 {
     WebFrame *mainFrame;
     Help::Internal::MacWebKitHelpViewer *viewer;
+    bool finished;
 }
 
 - (id)initWithMainFrame:(WebFrame *)frame viewer:(Help::Internal::MacWebKitHelpViewer *)viewer;
@@ -220,6 +221,7 @@ static void ensureProtocolHandler()
     if (self) {
         mainFrame = frame;
         viewer = helpViewer;
+        finished = false;
     }
     return self;
 }
@@ -227,8 +229,10 @@ static void ensureProtocolHandler()
 - (void)webView:(WebView *)sender didStartProvisionalLoadForFrame:(WebFrame *)frame
 {
     Q_UNUSED(sender)
-    if (frame == mainFrame)
+    if (frame == mainFrame) {
+        finished = false;
         viewer->slotLoadStarted();
+    }
 }
 
 - (void)webView:(WebView *)sender didReceiveTitle:(NSString *)title forFrame:(WebFrame *)frame
@@ -242,23 +246,29 @@ static void ensureProtocolHandler()
 - (void)webView:(WebView *)sender didFinishLoadForFrame:(WebFrame *)frame
 {
     Q_UNUSED(sender)
-    if (frame == mainFrame)
+    if (frame == mainFrame && !finished) {
+        finished = true;
         viewer->slotLoadFinished();
+    }
 }
 
 - (void)webView:(WebView *)sender didFailProvisionalLoadWithError:(NSError *)error forFrame:(WebFrame *)frame
 {
     Q_UNUSED(sender)
     Q_UNUSED(error)
-    if (frame == mainFrame)
+    if (frame == mainFrame && !finished) {
+        finished = true;
         viewer->slotLoadFinished();
+    }
 }
 
 - (void)webView:(WebView *)sender didFailLoadWithError:(NSError *)error forFrame:(WebFrame *)frame;
 {
     Q_UNUSED(error)
-    if (frame == mainFrame)
+    if (frame == mainFrame && !finished) {
+        finished = true;
         viewer->slotLoadFinished();
+    }
 }
 @end
 
