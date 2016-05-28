@@ -66,14 +66,11 @@ public:
     CppIncludeHierarchyWidget();
     virtual ~CppIncludeHierarchyWidget();
 
-public slots:
     void perform();
 
-private slots:
+private:
     void onItemActivated(const QModelIndex &index);
     void editorsClosed(QList<Core::IEditor *> editors);
-
-private:
     void showNoIncludeHierarchyLabel();
     void showIncludeHierarchy();
 

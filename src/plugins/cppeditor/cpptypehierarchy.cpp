@@ -129,7 +129,7 @@ CppTypeHierarchyWidget::CppTypeHierarchyWidget() :
     m_stackLayout->setCurrentWidget(m_noTypeHierarchyAvailableLabel);
     setLayout(m_stackLayout);
 
-    connect(CppEditorPlugin::instance(), SIGNAL(typeHierarchyRequested()), SLOT(perform()));
+    connect(CppEditorPlugin::instance(), &CppEditorPlugin::typeHierarchyRequested, this, &CppTypeHierarchyWidget::perform);
 }
 
 CppTypeHierarchyWidget::~CppTypeHierarchyWidget()

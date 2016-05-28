@@ -102,11 +102,15 @@ CppEditorDocument::CppEditorDocument()
     setSyntaxHighlighter(new CppHighlighter);
     setIndenter(new CppTools::CppQtStyleIndenter);
 
-    connect(this, SIGNAL(tabSettingsChanged()), this, SLOT(invalidateFormatterCache()));
-    connect(this, SIGNAL(mimeTypeChanged()), this, SLOT(onMimeTypeChanged()));
+    connect(this, &TextEditor::TextDocument::tabSettingsChanged,
+            this, &CppEditorDocument::invalidateFormatterCache);
+    connect(this, &Core::IDocument::mimeTypeChanged,
+            this, &CppEditorDocument::onMimeTypeChanged);
 
-    connect(this, SIGNAL(aboutToReload()), this, SLOT(onAboutToReload()));
-    connect(this, SIGNAL(reloadFinished(bool)), this, SLOT(onReloadFinished()));
+    connect(this, &Core::IDocument::aboutToReload,
+            this, &CppEditorDocument::onAboutToReload);
+    connect(this, &Core::IDocument::reloadFinished,
+            this, &CppEditorDocument::onReloadFinished);
     connect(this, &IDocument::filePathChanged,
             this, &CppEditorDocument::onFilePathChanged);
 
@@ -208,8 +212,8 @@ void CppEditorDocument::onFilePathChanged(const Utils::FileName &oldPath,
         Utils::MimeDatabase mdb;
         setMimeType(mdb.mimeTypeForFile(newPath.toFileInfo()).name());
 
-        disconnect(this, SIGNAL(contentsChanged()), this, SLOT(scheduleProcessDocument()));
-        connect(this, SIGNAL(contentsChanged()), this, SLOT(scheduleProcessDocument()));
+        disconnect(this, &Core::IDocument::contentsChanged, this, &CppEditorDocument::scheduleProcessDocument);
+        connect(this, &Core::IDocument::contentsChanged, this, &CppEditorDocument::scheduleProcessDocument);
 
         // Un-Register/Register in ModelManager
         m_editorDocumentHandle.reset();

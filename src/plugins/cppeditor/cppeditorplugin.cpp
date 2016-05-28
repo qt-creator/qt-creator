@@ -170,15 +170,15 @@ bool CppEditorPlugin::initialize(const QStringList & /*arguments*/, QString *err
     cmd = ActionManager::registerAction(openPreprocessorDialog,
                                         Constants::OPEN_PREPROCESSOR_DIALOG, context);
     cmd->setDefaultKeySequence(QKeySequence());
-    connect(openPreprocessorDialog, SIGNAL(triggered()), this, SLOT(showPreProcessorDialog()));
+    connect(openPreprocessorDialog, &QAction::triggered, this, &CppEditorPlugin::showPreProcessorDialog);
     cppToolsMenu->addAction(cmd);
 
     QAction *switchDeclarationDefinition = new QAction(tr("Switch Between Function Declaration/Definition"), this);
     cmd = ActionManager::registerAction(switchDeclarationDefinition,
         Constants::SWITCH_DECLARATION_DEFINITION, context, true);
     cmd->setDefaultKeySequence(QKeySequence(tr("Shift+F2")));
-    connect(switchDeclarationDefinition, SIGNAL(triggered()),
-            this, SLOT(switchDeclarationDefinition()));
+    connect(switchDeclarationDefinition, &QAction::triggered,
+            this, &CppEditorPlugin::switchDeclarationDefinition);
     contextMenu->addAction(cmd);
     cppToolsMenu->addAction(cmd);
 
@@ -192,28 +192,28 @@ bool CppEditorPlugin::initialize(const QStringList & /*arguments*/, QString *err
     cmd->setDefaultKeySequence(QKeySequence(HostOsInfo::isMacHost()
                                             ? tr("Meta+E, Shift+F2")
                                             : tr("Ctrl+E, Shift+F2")));
-    connect(openDeclarationDefinitionInNextSplit, SIGNAL(triggered()),
-            this, SLOT(openDeclarationDefinitionInNextSplit()));
+    connect(openDeclarationDefinitionInNextSplit, &QAction::triggered,
+            this, &CppEditorPlugin::openDeclarationDefinitionInNextSplit);
     cppToolsMenu->addAction(cmd);
 
     m_findUsagesAction = new QAction(tr("Find Usages"), this);
     cmd = ActionManager::registerAction(m_findUsagesAction, Constants::FIND_USAGES, context);
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+U")));
-    connect(m_findUsagesAction, SIGNAL(triggered()), this, SLOT(findUsages()));
+    connect(m_findUsagesAction, &QAction::triggered, this, &CppEditorPlugin::findUsages);
     contextMenu->addAction(cmd);
     cppToolsMenu->addAction(cmd);
 
     m_openTypeHierarchyAction = new QAction(tr("Open Type Hierarchy"), this);
     cmd = ActionManager::registerAction(m_openTypeHierarchyAction, Constants::OPEN_TYPE_HIERARCHY, context);
     cmd->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+Shift+T") : tr("Ctrl+Shift+T")));
-    connect(m_openTypeHierarchyAction, SIGNAL(triggered()), this, SLOT(openTypeHierarchy()));
+    connect(m_openTypeHierarchyAction, &QAction::triggered, this, &CppEditorPlugin::openTypeHierarchy);
     contextMenu->addAction(cmd);
     cppToolsMenu->addAction(cmd);
 
     m_openIncludeHierarchyAction = new QAction(tr("Open Include Hierarchy"), this);
     cmd = ActionManager::registerAction(m_openIncludeHierarchyAction, Constants::OPEN_INCLUDE_HIERARCHY, context);
     cmd->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+Shift+I") : tr("Ctrl+Shift+I")));
-    connect(m_openIncludeHierarchyAction, SIGNAL(triggered()), this, SLOT(openIncludeHierarchy()));
+    connect(m_openIncludeHierarchyAction, &QAction::triggered, this, &CppEditorPlugin::openIncludeHierarchy);
     contextMenu->addAction(cmd);
     cppToolsMenu->addAction(cmd);
 
@@ -228,8 +228,8 @@ bool CppEditorPlugin::initialize(const QStringList & /*arguments*/, QString *err
                              Constants::RENAME_SYMBOL_UNDER_CURSOR,
                              context);
     cmd->setDefaultKeySequence(QKeySequence(tr("CTRL+SHIFT+R")));
-    connect(m_renameSymbolUnderCursorAction, SIGNAL(triggered()),
-            this, SLOT(renameSymbolUnderCursor()));
+    connect(m_renameSymbolUnderCursorAction, &QAction::triggered,
+            this, &CppEditorPlugin::renameSymbolUnderCursor);
     cppToolsMenu->addAction(cmd);
 
     // Update context in global context
@@ -237,14 +237,14 @@ bool CppEditorPlugin::initialize(const QStringList & /*arguments*/, QString *err
     m_reparseExternallyChangedFiles = new QAction(tr("Reparse Externally Changed Files"), this);
     cmd = ActionManager::registerAction(m_reparseExternallyChangedFiles, Constants::UPDATE_CODEMODEL);
     CppTools::CppModelManager *cppModelManager = CppTools::CppModelManager::instance();
-    connect(m_reparseExternallyChangedFiles, SIGNAL(triggered()), cppModelManager, SLOT(updateModifiedSourceFiles()));
+    connect(m_reparseExternallyChangedFiles, &QAction::triggered, cppModelManager, &CppTools::CppModelManager::updateModifiedSourceFiles);
     cppToolsMenu->addAction(cmd);
 
     cppToolsMenu->addSeparator();
     QAction *inspectCppCodeModel = new QAction(tr("Inspect C++ Code Model..."), this);
     cmd = ActionManager::registerAction(inspectCppCodeModel, Constants::INSPECT_CPP_CODEMODEL);
     cmd->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+Shift+F12") : tr("Ctrl+Shift+F12")));
-    connect(inspectCppCodeModel, SIGNAL(triggered()), this, SLOT(inspectCppCodeModel()));
+    connect(inspectCppCodeModel, &QAction::triggered, this, &CppEditorPlugin::inspectCppCodeModel);
     cppToolsMenu->addAction(cmd);
 
     contextMenu->addSeparator(context);
@@ -255,10 +255,10 @@ bool CppEditorPlugin::initialize(const QStringList & /*arguments*/, QString *err
     cmd = ActionManager::command(TextEditor::Constants::UN_COMMENT_SELECTION);
     contextMenu->addAction(cmd);
 
-    connect(ProgressManager::instance(), SIGNAL(taskStarted(Core::Id)),
-            this, SLOT(onTaskStarted(Core::Id)));
-    connect(ProgressManager::instance(), SIGNAL(allTasksFinished(Core::Id)),
-            this, SLOT(onAllTasksFinished(Core::Id)));
+    connect(ProgressManager::instance(), &ProgressManager::taskStarted,
+            this, &CppEditorPlugin::onTaskStarted);
+    connect(ProgressManager::instance(), &ProgressManager::allTasksFinished,
+            this, &CppEditorPlugin::onAllTasksFinished);
 
     return true;
 }

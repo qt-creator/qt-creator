@@ -419,7 +419,7 @@ void InvokeCompletionTokenAction::run(CppEditorWidget *editorWidget)
 {
     // Invoke assistant and wait until it is finished
     QEventLoop loop;
-    QObject::connect(editorWidget, SIGNAL(assistFinished()), &loop, SLOT(quit()));
+    QObject::connect(editorWidget, &TextEditorWidget::assistFinished, &loop, &QEventLoop::quit);
     editorWidget->invokeAssist(Completion);
     loop.exec();
 

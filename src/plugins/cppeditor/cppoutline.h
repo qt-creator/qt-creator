@@ -70,13 +70,11 @@ public:
     virtual QList<QAction*> filterMenuActions() const;
     virtual void setCursorSynchronization(bool syncWithCursor);
 
-private slots:
+private:
     void modelUpdated();
     void updateSelectionInTree(const QModelIndex &index);
     void updateTextCursor(const QModelIndex &index);
     void onItemActivated(const QModelIndex &index);
-
-private:
     bool syncCursor();
 
 private:

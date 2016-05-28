@@ -64,7 +64,7 @@ signals:
     void typeHierarchyRequested();
     void includeHierarchyRequested();
 
-public slots:
+public:
     void openDeclarationDefinitionInNextSplit();
     void openTypeHierarchy();
     void openIncludeHierarchy();
@@ -73,7 +73,7 @@ public slots:
     void renameSymbolUnderCursor();
     void switchDeclarationDefinition();
 
-private slots:
+private:
     void onTaskStarted(Core::Id type);
     void onAllTasksFinished(Core::Id type);
     void inspectCppCodeModel();

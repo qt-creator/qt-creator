@@ -75,8 +75,10 @@ CppPreProcessorDialog::CppPreProcessorDialog(QWidget *parent, const QString &fil
     m_ui->projectComboBox->setCurrentIndex(currentIndex);
     m_ui->editWidget->setPlainText(m_partAdditions.value(currentIndex).additionalDirectives);
 
-    connect(m_ui->projectComboBox, SIGNAL(currentIndexChanged(int)), SLOT(projectChanged(int)));
-    connect(m_ui->editWidget, SIGNAL(textChanged()), SLOT(textChanged()));
+    connect(m_ui->projectComboBox,
+            static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+            this, &CppPreProcessorDialog::projectChanged);
+    connect(m_ui->editWidget, &QPlainTextEdit::textChanged, this, &CppPreProcessorDialog::textChanged);
 }
 
 CppPreProcessorDialog::~CppPreProcessorDialog()

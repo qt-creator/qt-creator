@@ -56,10 +56,9 @@ public:
 signals:
     void foundLink(QSharedPointer<FunctionDeclDefLink> link);
 
-private slots:
+private:
     void onFutureDone();
 
-private:
     QTextCursor m_scannedSelection;
     QTextCursor m_nameSelection;
     QScopedPointer<QFutureWatcher<QSharedPointer<FunctionDeclDefLink> > > m_watcher;

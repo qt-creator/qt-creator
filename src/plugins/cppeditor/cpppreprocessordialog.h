@@ -47,11 +47,10 @@ public:
     CppTools::ProjectPart::Ptr projectPart() const;
     QString additionalPreProcessorDirectives() const;
 
-private slots:
+private:
     void projectChanged(int index);
     void textChanged();
 
-private:
     struct ProjectPartAddition {
         CppTools::ProjectPart::Ptr projectPart;
         QString additionalDirectives;

@@ -76,7 +76,6 @@ public:
     CppTypeHierarchyWidget();
     virtual ~CppTypeHierarchyWidget();
 
-public slots:
     void perform();
 
 private:

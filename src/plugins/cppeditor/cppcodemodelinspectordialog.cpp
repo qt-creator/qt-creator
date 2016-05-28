@@ -130,12 +130,10 @@ public:
     QItemSelectionModel *selectionModel() const;
     void selectIndex(const QModelIndex &index);
     void resizeColumns(int columnCount);
+    void clearFilter();
 
 signals:
     void filterChanged(const QString &filterText);
-
-public slots:
-    void clearFilter();
 
 private:
     QTreeView *view;
@@ -152,13 +150,13 @@ FilterableView::FilterableView(QWidget *parent)
 
     lineEdit = new QLineEdit(this);
     lineEdit->setPlaceholderText(QLatin1String("File Path"));
-    QObject::connect(lineEdit, SIGNAL(textChanged(QString)), SIGNAL(filterChanged(QString)));
+    QObject::connect(lineEdit, &QLineEdit::textChanged, this, &FilterableView::filterChanged);
 
     QLabel *label = new QLabel(QLatin1String("&Filter:"), this);
     label->setBuddy(lineEdit);
 
     QPushButton *clearButton = new QPushButton(QLatin1String("&Clear"), this);
-    QObject::connect(clearButton, SIGNAL(clicked()), SLOT(clearFilter()));
+    QObject::connect(clearButton, &QAbstractButton::clicked, this, &FilterableView::clearFilter);
 
     QHBoxLayout *filterBarLayout = new QHBoxLayout();
     filterBarLayout->addWidget(label);
@@ -1185,7 +1183,7 @@ CppCodeModelInspectorDialog::CppCodeModelInspectorDialog(QWidget *parent)
     m_ui->workingCopySplitter->insertWidget(0, m_workingCopyView);
 
     setAttribute(Qt::WA_DeleteOnClose);
-    connect(Core::ICore::instance(), SIGNAL(coreAboutToClose()), SLOT(close()));
+    connect(Core::ICore::instance(), &Core::ICore::coreAboutToClose, this, &QWidget::close);
 
     m_proxySnapshotModel->setSourceModel(m_snapshotModel);
     m_proxySnapshotModel->setFilterKeyColumn(SnapshotModel::FilePathColumn);
@@ -1207,31 +1205,32 @@ CppCodeModelInspectorDialog::CppCodeModelInspectorDialog(QWidget *parent)
     m_workingCopyView->setModel(m_proxyWorkingCopyModel);
 
     connect(m_snapshotView->selectionModel(),
-            SIGNAL(currentRowChanged(QModelIndex,QModelIndex)),
-            SLOT(onDocumentSelected(QModelIndex,QModelIndex)));
-    connect(m_snapshotView, SIGNAL(filterChanged(QString)),
-            SLOT(onSnapshotFilterChanged(QString)));
-    connect(m_ui->snapshotSelector, SIGNAL(currentIndexChanged(int)),
-            SLOT(onSnapshotSelected(int)));
-    connect(m_ui->docSymbolsView, SIGNAL(expanded(QModelIndex)),
-            SLOT(onSymbolsViewExpandedOrCollapsed(QModelIndex)));
-    connect(m_ui->docSymbolsView, SIGNAL(collapsed(QModelIndex)),
-            SLOT(onSymbolsViewExpandedOrCollapsed(QModelIndex)));
+            &QItemSelectionModel::currentRowChanged,
+            this, &CppCodeModelInspectorDialog::onDocumentSelected);
+    connect(m_snapshotView, &FilterableView::filterChanged,
+            this, &CppCodeModelInspectorDialog::onSnapshotFilterChanged);
+    connect(m_ui->snapshotSelector,
+            static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+            this, &CppCodeModelInspectorDialog::onSnapshotSelected);
+    connect(m_ui->docSymbolsView, &QTreeView::expanded,
+            this, &CppCodeModelInspectorDialog::onSymbolsViewExpandedOrCollapsed);
+    connect(m_ui->docSymbolsView, &QTreeView::collapsed,
+            this, &CppCodeModelInspectorDialog::onSymbolsViewExpandedOrCollapsed);
 
     connect(m_projectPartsView->selectionModel(),
-            SIGNAL(currentRowChanged(QModelIndex,QModelIndex)),
-            SLOT(onProjectPartSelected(QModelIndex,QModelIndex)));
-    connect(m_projectPartsView, SIGNAL(filterChanged(QString)),
-            SLOT(onProjectPartFilterChanged(QString)));
+            &QItemSelectionModel::currentRowChanged,
+            this, &CppCodeModelInspectorDialog::onProjectPartSelected);
+    connect(m_projectPartsView, &FilterableView::filterChanged,
+            this, &CppCodeModelInspectorDialog::onProjectPartFilterChanged);
 
     connect(m_workingCopyView->selectionModel(),
-            SIGNAL(currentRowChanged(QModelIndex,QModelIndex)),
-            SLOT(onWorkingCopyDocumentSelected(QModelIndex,QModelIndex)));
-    connect(m_workingCopyView, SIGNAL(filterChanged(QString)),
-            SLOT(onWorkingCopyFilterChanged(QString)));
+            &QItemSelectionModel::currentRowChanged,
+            this, &CppCodeModelInspectorDialog::onWorkingCopyDocumentSelected);
+    connect(m_workingCopyView, &FilterableView::filterChanged,
+            this, &CppCodeModelInspectorDialog::onWorkingCopyFilterChanged);
 
-    connect(m_ui->refreshButton, SIGNAL(clicked()), SLOT(onRefreshRequested()));
-    connect(m_ui->closeButton, SIGNAL(clicked()), SLOT(close()));
+    connect(m_ui->refreshButton, &QAbstractButton::clicked, this, &CppCodeModelInspectorDialog::onRefreshRequested);
+    connect(m_ui->closeButton, &QAbstractButton::clicked, this, &QWidget::close);
 
     refresh();
 }

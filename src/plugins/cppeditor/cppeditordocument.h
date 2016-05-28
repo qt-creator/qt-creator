@@ -57,6 +57,7 @@ public:
 
     void setPreprocessorSettings(const CppTools::ProjectPart::Ptr &projectPart,
                                  const QByteArray &defines);
+    void scheduleProcessDocument();
 
 signals:
     void codeWarningsUpdated(unsigned contentsRevision,
@@ -71,13 +72,10 @@ signals:
 
     void preprocessorSettingsChanged(bool customSettings);
 
-public slots:
-    void scheduleProcessDocument();
-
 protected:
     void applyFontSettings() override;
 
-private slots:
+private:
     void invalidateFormatterCache();
     void onFilePathChanged(const Utils::FileName &oldPath, const Utils::FileName &newPath);
     void onMimeTypeChanged();
@@ -87,7 +85,6 @@ private slots:
 
     void processDocument();
 
-private:
     QByteArray contentsText() const;
     unsigned contentsRevision() const;
 

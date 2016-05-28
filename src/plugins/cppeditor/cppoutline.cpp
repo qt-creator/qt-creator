@@ -61,8 +61,10 @@ void CppOutlineTreeView::contextMenuEvent(QContextMenuEvent *event)
 
     QMenu contextMenu;
 
-    contextMenu.addAction(tr("Expand All"), this, SLOT(expandAll()));
-    contextMenu.addAction(tr("Collapse All"), this, SLOT(collapseAll()));
+    QAction *action = contextMenu.addAction(tr("Expand All"));
+    connect(action, &QAction::triggered, this, &QTreeView::expandAll);
+    action = contextMenu.addAction(tr("Collapse All"));
+    connect(action, &QAction::triggered, this, &QTreeView::collapseAll);
 
     contextMenu.exec(event->globalPos());
 
@@ -115,13 +117,13 @@ CppOutlineWidget::CppOutlineWidget(CppEditorWidget *editor) :
     m_treeView->setModel(m_proxyModel);
     setFocusProxy(m_treeView);
 
-    connect(m_model, SIGNAL(modelReset()), this, SLOT(modelUpdated()));
+    connect(m_model, &QAbstractItemModel::modelReset, this, &CppOutlineWidget::modelUpdated);
     modelUpdated();
 
-    connect(m_editor->outline(), SIGNAL(modelIndexChanged(QModelIndex)),
-            this, SLOT(updateSelectionInTree(QModelIndex)));
-    connect(m_treeView, SIGNAL(activated(QModelIndex)),
-            this, SLOT(onItemActivated(QModelIndex)));
+    connect(m_editor->outline(), &CppTools::CppEditorOutline::modelIndexChanged,
+            this, &CppOutlineWidget::updateSelectionInTree);
+    connect(m_treeView, &QAbstractItemView::activated,
+            this, &CppOutlineWidget::onItemActivated);
 }
 
 QList<QAction*> CppOutlineWidget::filterMenuActions() const

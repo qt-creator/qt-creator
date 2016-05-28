@@ -235,7 +235,7 @@ CppUseSelectionsUpdater::CppUseSelectionsUpdater(TextEditor::TextEditorWidget *e
 {
     m_timer.setSingleShot(true);
     m_timer.setInterval(updateUseSelectionsInternalInMs);
-    connect(&m_timer, SIGNAL(timeout()), this, SLOT(update()));
+    connect(&m_timer, &QTimer::timeout, this, [this]() { update(); });
 }
 
 void CppUseSelectionsUpdater::scheduleUpdate()
@@ -344,7 +344,7 @@ void CppUseSelectionsUpdater::handleSymbolCaseAsynchronously(const Document::Ptr
     if (m_findUsesWatcher)
         m_findUsesWatcher->cancel();
     m_findUsesWatcher.reset(new QFutureWatcher<UseSelectionsResult>);
-    connect(m_findUsesWatcher.data(), SIGNAL(finished()), this, SLOT(onFindUsesFinished()));
+    connect(m_findUsesWatcher.data(), &QFutureWatcherBase::finished, this, &CppUseSelectionsUpdater::onFindUsesFinished);
 
     m_findUsesRevision = textDocument()->revision();
     m_findUsesCursorPosition = m_editorWidget->position();

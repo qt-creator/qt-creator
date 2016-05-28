@@ -255,7 +255,7 @@ void FunctionDeclDefLinkFinder::startFindLinkAt(
 
     // handle the rest in a thread
     m_watcher.reset(new QFutureWatcher<QSharedPointer<FunctionDeclDefLink> >());
-    connect(m_watcher.data(), SIGNAL(finished()), this, SLOT(onFutureDone()));
+    connect(m_watcher.data(), &QFutureWatcherBase::finished, this, &FunctionDeclDefLinkFinder::onFutureDone);
     m_watcher->setFuture(Utils::runAsync(findLinkHelper, result, refactoringChanges));
 }
 

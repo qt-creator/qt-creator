@@ -66,7 +66,7 @@ public:
     explicit CppCodeModelInspectorDialog(QWidget *parent = 0);
     ~CppCodeModelInspectorDialog();
 
-private slots:
+private:
     void onRefreshRequested();
 
     void onSnapshotFilterChanged(const QString &pattern);
@@ -80,7 +80,6 @@ private slots:
     void onWorkingCopyFilterChanged(const QString &pattern);
     void onWorkingCopyDocumentSelected(const QModelIndex &current, const QModelIndex &);
 
-private:
     void refresh();
 
     void clearDocumentData();

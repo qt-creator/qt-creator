@@ -57,16 +57,13 @@ public:
     bool handleKeyPressEvent(QKeyEvent *e);
 
     bool encourageApply();
+    void onContentsChangeOfEditorWidgetDocument(int position, int charsRemoved, int charsAdded);
 
-public slots:
     void updateSelectionsForVariableUnderCursor(const QList<QTextEdit::ExtraSelection> &selections);
 
 signals:
     void finished();
     void processKeyPressNormally(QKeyEvent *e);
-
-private slots:
-    void onContentsChangeOfEditorWidgetDocument(int position, int charsRemoved, int charsAdded);
 
 private:
     CppLocalRenaming();

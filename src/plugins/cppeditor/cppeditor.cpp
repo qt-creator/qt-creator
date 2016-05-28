@@ -160,18 +160,18 @@ void CppEditorWidget::finalizeInitialization()
             this, &CppEditorWidget::onCodeWarningsUpdated);
     connect(d->m_cppEditorDocument, &CppEditorDocument::ifdefedOutBlocksUpdated,
             this, &CppEditorWidget::onIfdefedOutBlocksUpdated);
-    connect(d->m_cppEditorDocument, SIGNAL(cppDocumentUpdated(CPlusPlus::Document::Ptr)),
-            this, SLOT(onCppDocumentUpdated()));
-    connect(d->m_cppEditorDocument, SIGNAL(semanticInfoUpdated(CppTools::SemanticInfo)),
-            this, SLOT(updateSemanticInfo(CppTools::SemanticInfo)));
+    connect(d->m_cppEditorDocument, &CppEditorDocument::cppDocumentUpdated,
+            this, &CppEditorWidget::onCppDocumentUpdated);
+    connect(d->m_cppEditorDocument, &CppEditorDocument::semanticInfoUpdated,
+            this, [this](const CppTools::SemanticInfo &info) { updateSemanticInfo(info); });
 
-    connect(d->m_declDefLinkFinder, SIGNAL(foundLink(QSharedPointer<FunctionDeclDefLink>)),
-            this, SLOT(onFunctionDeclDefLinkFound(QSharedPointer<FunctionDeclDefLink>)));
+    connect(d->m_declDefLinkFinder, &FunctionDeclDefLinkFinder::foundLink,
+            this, &CppEditorWidget::onFunctionDeclDefLinkFound);
 
     connect(&d->m_useSelectionsUpdater,
-            SIGNAL(selectionsForVariableUnderCursorUpdated(QList<QTextEdit::ExtraSelection>)),
+            &CppUseSelectionsUpdater::selectionsForVariableUnderCursorUpdated,
             &d->m_localRenaming,
-            SLOT(updateSelectionsForVariableUnderCursor(QList<QTextEdit::ExtraSelection>)));
+            &CppLocalRenaming::updateSelectionsForVariableUnderCursor);
 
     connect(&d->m_useSelectionsUpdater, &CppUseSelectionsUpdater::finished,
             [this] (SemanticInfo::LocalUseMap localUses) {
@@ -180,15 +180,15 @@ void CppEditorWidget::finalizeInitialization()
                 d->m_lastSemanticInfo.localUses = localUses;
     });
 
-    connect(document(), SIGNAL(contentsChange(int,int,int)),
-            &d->m_localRenaming, SLOT(onContentsChangeOfEditorWidgetDocument(int,int,int)));
+    connect(document(), &QTextDocument::contentsChange,
+            &d->m_localRenaming, &CppLocalRenaming::onContentsChangeOfEditorWidgetDocument);
     connect(&d->m_localRenaming, &CppLocalRenaming::finished, [this] {
         cppEditorDocument()->recalculateSemanticInfoDetached();
     });
     connect(&d->m_localRenaming, &CppLocalRenaming::processKeyPressNormally,
             this, &CppEditorWidget::processKeyNormally);
-    connect(this, SIGNAL(cursorPositionChanged()),
-            d->m_cppEditorOutline, SLOT(updateIndex()));
+    connect(this, &QPlainTextEdit::cursorPositionChanged,
+            d->m_cppEditorOutline, &CppEditorOutline::updateIndex);
 
     connect(cppEditorDocument(), &CppEditorDocument::preprocessorSettingsChanged,
             [this](bool customSettings) {
@@ -199,10 +199,10 @@ void CppEditorWidget::finalizeInitialization()
     // set up function declaration - definition link
     d->m_updateFunctionDeclDefLinkTimer.setSingleShot(true);
     d->m_updateFunctionDeclDefLinkTimer.setInterval(UPDATE_FUNCTION_DECL_DEF_LINK_INTERVAL);
-    connect(&d->m_updateFunctionDeclDefLinkTimer, SIGNAL(timeout()),
-            this, SLOT(updateFunctionDeclDefLinkNow()));
-    connect(this, SIGNAL(cursorPositionChanged()), this, SLOT(updateFunctionDeclDefLink()));
-    connect(this, SIGNAL(textChanged()), this, SLOT(updateFunctionDeclDefLink()));
+    connect(&d->m_updateFunctionDeclDefLinkTimer, &QTimer::timeout,
+            this, &CppEditorWidget::updateFunctionDeclDefLinkNow);
+    connect(this, &QPlainTextEdit::cursorPositionChanged, this, &CppEditorWidget::updateFunctionDeclDefLink);
+    connect(this, &QPlainTextEdit::textChanged, this, &CppEditorWidget::updateFunctionDeclDefLink);
 
     // set up the use highlighitng
     connect(this, &CppEditorWidget::cursorPositionChanged, [this]() {
@@ -217,9 +217,9 @@ void CppEditorWidget::finalizeInitialization()
     d->m_preprocessorButton = new QToolButton(this);
     d->m_preprocessorButton->setText(QLatin1String("#"));
     Command *cmd = ActionManager::command(Constants::OPEN_PREPROCESSOR_DIALOG);
-    connect(cmd, SIGNAL(keySequenceChanged()), this, SLOT(updatePreprocessorButtonTooltip()));
+    connect(cmd, &Command::keySequenceChanged, this, &CppEditorWidget::updatePreprocessorButtonTooltip);
     updatePreprocessorButtonTooltip();
-    connect(d->m_preprocessorButton, SIGNAL(clicked()), this, SLOT(showPreProcessorWidget()));
+    connect(d->m_preprocessorButton, &QAbstractButton::clicked, this, &CppEditorWidget::showPreProcessorWidget);
     insertExtraToolBarWidget(TextEditorWidget::Left, d->m_preprocessorButton);
     insertExtraToolBarWidget(TextEditorWidget::Left, d->m_cppEditorOutline->widget());
 }
@@ -558,7 +558,8 @@ void CppEditorWidget::contextMenuEvent(QContextMenuEvent *e)
     quickFixMenu->addAction(ActionManager::command(Constants::RENAME_SYMBOL_UNDER_CURSOR)->action());
 
     QSignalMapper mapper;
-    connect(&mapper, SIGNAL(mapped(int)), this, SLOT(performQuickFix(int)));
+    connect(&mapper, static_cast<void (QSignalMapper::*)(int)>(&QSignalMapper::mapped),
+            this, &CppEditorWidget::performQuickFix);
     if (isSemanticInfoValidExceptLocalUses()) {
         d->m_useSelectionsUpdater.update(CppUseSelectionsUpdater::Synchronous);
         AssistInterface *interface = createAssistInterface(QuickFix, ExplicitlyInvoked);
@@ -574,7 +575,8 @@ void CppEditorWidget::contextMenuEvent(QContextMenuEvent *e)
                     d->m_quickFixes.append(op);
                     QAction *action = quickFixMenu->addAction(op->description());
                     mapper.setMapping(action, index);
-                    connect(action, SIGNAL(triggered()), &mapper, SLOT(map()));
+                    connect(action, &QAction::triggered,
+                            &mapper, static_cast<void (QSignalMapper::*)()>(&QSignalMapper::map));
                 }
                 delete model;
             }
@@ -775,8 +777,8 @@ void CppEditorWidget::onFunctionDeclDefLinkFound(QSharedPointer<FunctionDeclDefL
     IDocument *targetDocument = DocumentModel::documentForFilePath( d->m_declDefLink->targetFile->fileName());
     if (textDocument() != targetDocument) {
         if (auto textDocument = qobject_cast<BaseTextDocument *>(targetDocument))
-            connect(textDocument, SIGNAL(contentsChanged()),
-                    this, SLOT(abortDeclDefLink()));
+            connect(textDocument, &IDocument::contentsChanged,
+                    this, &CppEditorWidget::abortDeclDefLink);
     }
 
 }
@@ -811,8 +813,8 @@ void CppEditorWidget::abortDeclDefLink()
     IDocument *targetDocument = DocumentModel::documentForFilePath(d->m_declDefLink->targetFile->fileName());
     if (textDocument() != targetDocument) {
         if (auto textDocument = qobject_cast<BaseTextDocument *>(targetDocument))
-            disconnect(textDocument, SIGNAL(contentsChanged()),
-                    this, SLOT(abortDeclDefLink()));
+            disconnect(textDocument, &IDocument::contentsChanged,
+                    this, &CppEditorWidget::abortDeclDefLink);
     }
 
     d->m_declDefLink->hideMarker(this);

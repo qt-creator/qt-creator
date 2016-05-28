@@ -108,10 +108,8 @@ protected:
     void setInsertOverrideReplacement(bool insert);
     void setOverrideReplacement(const QString &replacements);
 
-private slots:
-    void setHideReimplementedFunctions(bool hide);
-
 private:
+    void setHideReimplementedFunctions(bool hide);
     void updateOverrideReplacementsComboBox();
 
 private:
@@ -1050,16 +1048,16 @@ void InsertVirtualMethodsDialog::initGui()
     // Bottom button box
     m_buttons = new QDialogButtonBox(this);
     m_buttons->setStandardButtons(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
-    connect(m_buttons, SIGNAL(accepted()), this, SLOT(accept()));
-    connect(m_buttons, SIGNAL(rejected()), this, SLOT(reject()));
+    connect(m_buttons, &QDialogButtonBox::accepted, this, &QDialog::accept);
+    connect(m_buttons, &QDialogButtonBox::rejected, this, &QDialog::reject);
 
     globalVerticalLayout->addWidget(groupBoxView, 9);
     globalVerticalLayout->addWidget(groupBoxImplementation, 0);
     globalVerticalLayout->addWidget(m_buttons, 0);
     setLayout(globalVerticalLayout);
 
-    connect(m_hideReimplementedFunctions, SIGNAL(toggled(bool)),
-            this, SLOT(setHideReimplementedFunctions(bool)));
+    connect(m_hideReimplementedFunctions, &QAbstractButton::toggled,
+            this, &InsertVirtualMethodsDialog::setHideReimplementedFunctions);
     connect(m_filter, &QLineEdit::textChanged,
             classFunctionFilterModel, &QSortFilterProxyModel::setFilterWildcard);
 }
