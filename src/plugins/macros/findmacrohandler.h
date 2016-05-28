@@ -46,7 +46,6 @@ public:
     bool canExecuteEvent(const MacroEvent &macroEvent);
     bool executeEvent(const MacroEvent &macroEvent);
 
-public slots:
     void findIncremental(const QString &txt, Core::FindFlags findFlags);
     void findStep(const QString &txt, Core::FindFlags findFlags);
     void replace(const QString &before, const QString &after, Core::FindFlags findFlags);
@@ -54,7 +53,7 @@ public slots:
     void replaceAll(const QString &before, const QString &after, Core::FindFlags findFlags);
     void resetIncrementalSearch();
 
-private slots:
+private:
     void changeEditor(Core::IEditor *editor);
 };
 

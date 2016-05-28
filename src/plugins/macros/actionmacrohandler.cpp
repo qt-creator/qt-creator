@@ -48,12 +48,8 @@ namespace Internal {
 static const char EVENTNAME[] = "Action";
 static quint8 ACTIONNAME = 0;
 
-ActionMacroHandler::ActionMacroHandler():
-    m_mapper(new QSignalMapper(this))
+ActionMacroHandler::ActionMacroHandler()
 {
-    connect(m_mapper, SIGNAL(mapped(QString)),
-            this, SLOT(addActionEvent(QString)));
-
     connect(ActionManager::instance(), &ActionManager::commandAdded,
             this, &ActionMacroHandler::addCommand);
 
@@ -80,30 +76,23 @@ bool ActionMacroHandler::executeEvent(const MacroEvent &macroEvent)
     return true;
 }
 
-void ActionMacroHandler::addActionEvent(const QString &name)
-{
-    if (!isRecording())
-        return;
-
-    const Id id = Id::fromString(name);
-    const Command *command = ActionManager::command(id);
-    if (command->isScriptable(command->context())) {
-        MacroEvent e;
-        e.setId(EVENTNAME);
-        e.setValue(ACTIONNAME, id.toSetting());
-        addMacroEvent(e);
-    }
-}
-
 void ActionMacroHandler::registerCommand(Id id)
 {
     if (!m_commandIds.contains(id)) {
         m_commandIds.insert(id);
         const Command *command = ActionManager::command(id);
         if (QAction *action = command->action()) {
-            connect(action, SIGNAL(triggered()), m_mapper, SLOT(map()));
-            m_mapper->setMapping(action, id.toString());
-            return;
+            connect(action, &QAction::triggered, this, [this, id, command]() {
+                if (!isRecording())
+                    return;
+
+                if (command->isScriptable(command->context())) {
+                    MacroEvent e;
+                    e.setId(EVENTNAME);
+                    e.setValue(ACTIONNAME, id.toSetting());
+                    addMacroEvent(e);
+                }
+            });
         }
     }
 }

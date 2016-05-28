@@ -52,14 +52,12 @@ public:
 
     void apply();
 
-private slots:
+private:
     void remove();
     void changeCurrentItem(QTreeWidgetItem *current);
 
-private:
     void createTable();
 
-private slots:
     void changeDescription(const QString &description);
 
 private:

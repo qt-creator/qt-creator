@@ -56,11 +56,11 @@ static quint8 COUNT = 5;
 TextEditorMacroHandler::TextEditorMacroHandler():
     IMacroHandler()
 {
-    const QObject *editorManager = Core::EditorManager::instance();
-    connect(editorManager, SIGNAL(currentEditorChanged(Core::IEditor*)),
-            this, SLOT(changeEditor(Core::IEditor*)));
-    connect(editorManager, SIGNAL(editorAboutToClose(Core::IEditor*)),
-            this, SLOT(closeEditor(Core::IEditor*)));
+    Core::EditorManager *editorManager = Core::EditorManager::instance();
+    connect(editorManager, &Core::EditorManager::currentEditorChanged,
+            this, &TextEditorMacroHandler::changeEditor);
+    connect(editorManager, &Core::EditorManager::editorAboutToClose,
+            this, &TextEditorMacroHandler::closeEditor);
 }
 
 void TextEditorMacroHandler::startRecording(Macro *macro)

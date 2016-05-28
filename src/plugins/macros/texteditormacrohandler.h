@@ -49,7 +49,6 @@ public:
 
     bool eventFilter(QObject *watched, QEvent *event);
 
-public slots:
     void changeEditor(Core::IEditor *editor);
     void closeEditor(Core::IEditor *editor);
 

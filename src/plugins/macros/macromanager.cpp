@@ -102,8 +102,6 @@ public:
 
     QList<IMacroHandler*> handlers;
 
-    QSignalMapper *mapper;
-
     ActionMacroHandler *actionHandler;
     TextEditorMacroHandler *textEditorHandler;
     FindMacroHandler *findHandler;
@@ -120,11 +118,8 @@ public:
 MacroManager::MacroManagerPrivate::MacroManagerPrivate(MacroManager *qq):
     q(qq),
     currentMacro(0),
-    isRecording(false),
-    mapper(new QSignalMapper(qq))
+    isRecording(false)
 {
-    connect(mapper, SIGNAL(mapped(QString)), q, SLOT(executeMacro(QString)));
-
     // Load existing macros
     initialize();
 
@@ -164,8 +159,9 @@ void MacroManager::MacroManagerPrivate::addMacro(Macro *macro)
     Core::Command *command = Core::ActionManager::registerAction(
                 action, makeId(macro->displayName()), context);
     command->setAttribute(Core::Command::CA_UpdateText);
-    connect(action, SIGNAL(triggered()), mapper, SLOT(map()));
-    mapper->setMapping(action, macro->displayName());
+    connect(action, &QAction::triggered, q, [this, macro]() {
+        q->executeMacro(macro->displayName());
+    });
 
     // Add macro to the map
     macros[macro->displayName()] = macro;
