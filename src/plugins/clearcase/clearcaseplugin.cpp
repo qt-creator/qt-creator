@@ -2016,7 +2016,11 @@ void ClearCasePlugin::projectChanged(Project *project)
         m_topLevel = topLevel;
         if (topLevel.isEmpty())
             return;
-        connect(ICore::mainWindow(), SIGNAL(windowActivated()), this, SLOT(syncSlot()));
+        connect(qApp, &QApplication::applicationStateChanged,
+                this, [this](Qt::ApplicationState state) {
+                    if (state == Qt::ApplicationActive)
+                        syncSlot();
+                });
         updateStreamAndView();
         if (m_viewData.name.isEmpty())
             return;
