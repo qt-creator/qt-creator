@@ -209,7 +209,7 @@ bool NetworkProtocol::httpStatus(QString url, QString *errorMessage, bool useHtt
                     tr("Connecting to %1...").arg(url),
                     QMessageBox::Cancel,
                     Core::ICore::mainWindow());
-    connect(reply.data(), SIGNAL(finished()), &box, SLOT(close()));
+    connect(reply.data(), &QNetworkReply::finished, &box, &QWidget::close);
     QApplication::setOverrideCursor(Qt::WaitCursor);
     box.exec();
     QApplication::restoreOverrideCursor();

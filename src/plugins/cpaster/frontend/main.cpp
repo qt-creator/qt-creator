@@ -72,7 +72,7 @@ public:
             qApp->exit(EXIT_FAILURE);
             return;
         }
-        connect(m_protocol.data(), SIGNAL(pasteDone(QString)), SLOT(handlePasteDone(QString)));
+        connect(m_protocol.data(), &Protocol::pasteDone, this, &PasteReceiver::handlePasteDone);
         m_protocol->paste(content);
     }
 
@@ -113,7 +113,7 @@ int main(int argc, char *argv[])
         return EXIT_SUCCESS;
     case ArgumentsCollector::RequestTypePaste: {
         PasteReceiver pr(argsCollector.protocol(), argsCollector.inputFilePath());
-        QTimer::singleShot(0, &pr, SLOT(paste()));
+        QTimer::singleShot(0, &pr, &PasteReceiver::paste);
         return app.exec();
     }
     }
