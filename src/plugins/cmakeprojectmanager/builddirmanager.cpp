@@ -82,6 +82,9 @@ static QStringList toArguments(const CMakeConfig &config, const ProjectExplorer:
         case CMakeConfigItem::INTERNAL:
             a.append(QLatin1String(":INTERNAL="));
             break;
+        case CMakeConfigItem::STATIC:
+            a.append(QLatin1String(":STATIC="));
+            break;
         }
         a.append(i.expandedValue(k));
 
