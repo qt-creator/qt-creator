@@ -53,6 +53,7 @@ public:
     QVariant m_isCompleteExpando;
     QString m_isCompleteExpandoMessage;
 
+    QLabel *m_label = nullptr;
     QWidget *m_widget = nullptr;
 };
 
