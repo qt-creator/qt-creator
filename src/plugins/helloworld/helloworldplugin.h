@@ -44,7 +44,7 @@ public:
 
     void extensionsInitialized();
 
-private slots:
+private:
     void sayHelloWorld();
 };
 

@@ -94,7 +94,7 @@ bool HelloWorldPlugin::initialize(const QStringList &arguments, QString *errorMe
 
     // Create an action to be triggered by a menu entry
     QAction *helloWorldAction = new QAction(tr("Say \"&Hello World!\""), this);
-    connect(helloWorldAction, SIGNAL(triggered()), SLOT(sayHelloWorld()));
+    connect(helloWorldAction, &QAction::triggered, this, &HelloWorldPlugin::sayHelloWorld);
 
     // Register the action with the action manager
     Core::Command *command =
