@@ -955,7 +955,7 @@ bool JsonFieldPage::isComplete() const
                 showError(message);
                 hasErrorMessage = true;
             }
-            if (f->isMandatory())
+            if (f->isMandatory() && !f->widget()->isHidden())
                 result = false;
         }
     }
