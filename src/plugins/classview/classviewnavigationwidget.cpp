@@ -112,28 +112,28 @@ NavigationWidget::NavigationWidget(QWidget *parent) :
 
     // connect signal/slots
     // selected item
-    connect(treeView, SIGNAL(activated(QModelIndex)), SLOT(onItemActivated(QModelIndex)));
+    connect(treeView, &QAbstractItemView::activated, this, &NavigationWidget::onItemActivated);
 
     // double-clicked item
-    connect(treeView, SIGNAL(doubleClicked(QModelIndex)), SLOT(onItemDoubleClicked(QModelIndex)));
+    connect(treeView, &QAbstractItemView::doubleClicked, this, &NavigationWidget::onItemDoubleClicked);
 
     // connections to the manager
     Manager *manager = Manager::instance();
 
-    connect(this, SIGNAL(visibilityChanged(bool)),
-            manager, SLOT(onWidgetVisibilityIsChanged(bool)));
+    connect(this, &NavigationWidget::visibilityChanged,
+            manager, &Manager::onWidgetVisibilityIsChanged);
 
-    connect(this, SIGNAL(requestGotoLocation(QString,int,int)),
-            manager, SLOT(gotoLocation(QString,int,int)));
+    connect(this, &NavigationWidget::requestGotoLocation,
+            manager, &Manager::gotoLocation);
 
-    connect(this, SIGNAL(requestGotoLocations(QList<QVariant>)),
-            manager, SLOT(gotoLocations(QList<QVariant>)));
+    connect(this, &NavigationWidget::requestGotoLocations,
+            manager, &Manager::gotoLocations);
 
-    connect(manager, SIGNAL(treeDataUpdate(QSharedPointer<QStandardItem>)),
-            this, SLOT(onDataUpdate(QSharedPointer<QStandardItem>)));
+    connect(manager, &Manager::treeDataUpdate,
+            this, &NavigationWidget::onDataUpdate);
 
-    connect(this, SIGNAL(requestTreeDataUpdate()),
-            manager, SLOT(onRequestTreeDataUpdate()));
+    connect(this, &NavigationWidget::requestTreeDataUpdate,
+            manager, &Manager::onRequestTreeDataUpdate);
 }
 
 NavigationWidget::~NavigationWidget()
@@ -181,8 +181,8 @@ QList<QToolButton *> NavigationWidget::createToolButtons()
         setFlatMode(false);
 
         // connections
-        connect(fullProjectsModeButton, SIGNAL(toggled(bool)),
-                this, SLOT(onFullProjectsModeToggled(bool)));
+        connect(fullProjectsModeButton.data(), &QAbstractButton::toggled,
+                this, &NavigationWidget::onFullProjectsModeToggled);
     }
 
     list << fullProjectsModeButton;

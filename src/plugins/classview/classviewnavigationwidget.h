@@ -64,7 +64,7 @@ signals:
 
     void requestTreeDataUpdate();
 
-public slots:
+public:
     void onItemActivated(const QModelIndex &index);
     void onItemDoubleClicked(const QModelIndex &index);
 

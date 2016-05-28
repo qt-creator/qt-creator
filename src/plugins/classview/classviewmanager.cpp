@@ -219,61 +219,63 @@ bool Manager::hasChildren(QStandardItem *item) const
 
 void Manager::initialize()
 {
+    using ProjectExplorer::SessionManager;
+
     // use Qt::QueuedConnection everywhere
 
     // internal manager state is changed
-    connect(this, SIGNAL(stateChanged(bool)), SLOT(onStateChanged(bool)), Qt::QueuedConnection);
+    connect(this, &Manager::stateChanged, this, &Manager::onStateChanged, Qt::QueuedConnection);
 
     // connections to enable/disable navi widget factory
-    QObject *sessionManager = ProjectExplorer::SessionManager::instance();
-    connect(sessionManager, SIGNAL(projectAdded(ProjectExplorer::Project*)),
-            SLOT(onProjectListChanged()), Qt::QueuedConnection);
-    connect(sessionManager, SIGNAL(projectRemoved(ProjectExplorer::Project*)),
-            SLOT(onProjectListChanged()), Qt::QueuedConnection);
+    SessionManager *sessionManager = SessionManager::instance();
+    connect(sessionManager, &SessionManager::projectAdded,
+            this, &Manager::onProjectListChanged, Qt::QueuedConnection);
+    connect(sessionManager, &SessionManager::projectRemoved,
+            this, &Manager::onProjectListChanged, Qt::QueuedConnection);
 
     // connect to the progress manager for signals about Parsing tasks
-    connect(ProgressManager::instance(), SIGNAL(taskStarted(Core::Id)),
-            SLOT(onTaskStarted(Core::Id)), Qt::QueuedConnection);
-    connect(ProgressManager::instance(), SIGNAL(allTasksFinished(Core::Id)),
-            SLOT(onAllTasksFinished(Core::Id)), Qt::QueuedConnection);
+    connect(ProgressManager::instance(), &ProgressManager::taskStarted,
+            this, &Manager::onTaskStarted, Qt::QueuedConnection);
+    connect(ProgressManager::instance(), &ProgressManager::allTasksFinished,
+            this, &Manager::onAllTasksFinished, Qt::QueuedConnection);
 
     // when we signals that really document is updated - sent it to the parser
-    connect(this, SIGNAL(requestDocumentUpdated(CPlusPlus::Document::Ptr)),
-            &d->parser, SLOT(parseDocument(CPlusPlus::Document::Ptr)), Qt::QueuedConnection);
+    connect(this, &Manager::requestDocumentUpdated,
+            &d->parser, &Parser::parseDocument, Qt::QueuedConnection);
 
     // translate data update from the parser to listeners
-    connect(&d->parser, SIGNAL(treeDataUpdate(QSharedPointer<QStandardItem>)),
-            this, SLOT(onTreeDataUpdate(QSharedPointer<QStandardItem>)), Qt::QueuedConnection);
+    connect(&d->parser, &Parser::treeDataUpdate,
+            this, &Manager::onTreeDataUpdate, Qt::QueuedConnection);
 
     // requet current state - immediately after a notification
-    connect(this, SIGNAL(requestTreeDataUpdate()),
-            &d->parser, SLOT(requestCurrentState()), Qt::QueuedConnection);
+    connect(this, &Manager::requestTreeDataUpdate,
+            &d->parser, &Parser::requestCurrentState, Qt::QueuedConnection);
 
     // full reset request to parser
-    connect(this, SIGNAL(requestResetCurrentState()),
-            &d->parser, SLOT(resetDataToCurrentState()), Qt::QueuedConnection);
+    connect(this, &Manager::requestResetCurrentState,
+            &d->parser, &Parser::resetDataToCurrentState, Qt::QueuedConnection);
 
     // clear cache request
-    connect(this, SIGNAL(requestClearCache()),
-            &d->parser, SLOT(clearCache()), Qt::QueuedConnection);
+    connect(this, &Manager::requestClearCache,
+            &d->parser, &Parser::clearCache, Qt::QueuedConnection);
 
     // clear full cache request
-    connect(this, SIGNAL(requestClearCacheAll()),
-            &d->parser, SLOT(clearCacheAll()), Qt::QueuedConnection);
+    connect(this, &Manager::requestClearCacheAll,
+            &d->parser, &Parser::clearCacheAll, Qt::QueuedConnection);
 
     // flat mode request
-    connect(this, SIGNAL(requestSetFlatMode(bool)),
-            &d->parser, SLOT(setFlatMode(bool)), Qt::QueuedConnection);
+    connect(this, &Manager::requestSetFlatMode,
+            &d->parser, &Parser::setFlatMode, Qt::QueuedConnection);
 
     // connect to the cpp model manager for signals about document updates
     CppTools::CppModelManager *codeModelManager = CppTools::CppModelManager::instance();
 
     // when code manager signals that document is updated - handle it by ourselves
-    connect(codeModelManager, SIGNAL(documentUpdated(CPlusPlus::Document::Ptr)),
-            SLOT(onDocumentUpdated(CPlusPlus::Document::Ptr)), Qt::QueuedConnection);
+    connect(codeModelManager, &CppTools::CppModelManager::documentUpdated,
+            this, &Manager::onDocumentUpdated, Qt::QueuedConnection);
     //
-    connect(codeModelManager, SIGNAL(aboutToRemoveFiles(QStringList)),
-            &d->parser, SLOT(removeFiles(QStringList)), Qt::QueuedConnection);
+    connect(codeModelManager, &CppTools::CppModelManager::aboutToRemoveFiles,
+            &d->parser, &Parser::removeFiles, Qt::QueuedConnection);
 }
 
 /*!
