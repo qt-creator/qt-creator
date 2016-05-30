@@ -31,6 +31,7 @@
 
 #ifdef WITH_TESTS
 #include "tests/debugmessagesmodel_test.h"
+#include "tests/flamegraph_test.h"
 #endif
 
 #include <extensionsystem/pluginmanager.h>
@@ -81,6 +82,7 @@ QList<QObject *> QmlProfiler::Internal::QmlProfilerPlugin::createTestObjects() c
     QList<QObject *> tests;
 #ifdef WITH_TESTS
     tests << new DebugMessagesModelTest;
+    tests << new FlameGraphTest;
 #endif
     return tests;
 }

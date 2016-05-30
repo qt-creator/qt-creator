@@ -78,6 +78,7 @@ QtcPlugin {
         prefix: "tests/"
         files: [
             "debugmessagesmodel_test.cpp", "debugmessagesmodel_test.h",
+            "flamegraph_test.cpp", "flamegraph_test.h",
         ]
     }
 }
