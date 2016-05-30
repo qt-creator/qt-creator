@@ -59,18 +59,18 @@ QbsProjectParser::QbsProjectParser(QbsProject *project, QFutureInterface<bool> *
 
 QbsProjectParser::~QbsProjectParser()
 {
-    if (m_qbsSetupProjectJob) {
-        m_qbsSetupProjectJob->disconnect(this);
-        m_qbsSetupProjectJob->cancel();
-        m_qbsSetupProjectJob->deleteLater();
-        m_qbsSetupProjectJob = 0;
-    }
-    if (m_ruleExecutionJob) {
-        m_ruleExecutionJob->disconnect(this);
-        m_ruleExecutionJob->cancel();
-        m_ruleExecutionJob->deleteLater();
-        m_ruleExecutionJob = 0;
-    }
+    const auto deleteJob = [this](qbs::AbstractJob *job) {
+        if (!job)
+            return;
+        if (job->state() == qbs::AbstractJob::StateFinished) {
+            job->deleteLater();
+            return;
+        }
+        connect(job, &qbs::AbstractJob::finished, job, &qbs::AbstractJob::deleteLater);
+        job->cancel();
+    };
+    deleteJob(m_qbsSetupProjectJob);
+    deleteJob(m_ruleExecutionJob);
     m_fi = 0; // we do not own m_fi, do not delete
 }
 
