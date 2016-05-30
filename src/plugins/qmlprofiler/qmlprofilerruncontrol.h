@@ -52,6 +52,7 @@ public:
     void cancelProcess();
     void notifyRemoteFinished() override;
     void appendMessage(const QString &msg, Utils::OutputFormat format) override;
+    bool supportsReRunning() const override { return false; }
 
 signals:
     void processRunning(Utils::Port port);

@@ -52,9 +52,6 @@ public:
 
 signals:
     void starting();
-
-private:
-    bool supportsReRunning() const override { return false; }
 };
 
 } // namespace Debugger

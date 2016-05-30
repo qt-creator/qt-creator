@@ -66,6 +66,7 @@ public:
     bool isRunning() const override;
 
     bool success() const { return m_success; } // For testing.
+    bool supportsReRunning() const override { return false; }
 
 signals:
     void newDiagnosticsAvailable(const QList<Diagnostic> &diagnostics);
