@@ -179,7 +179,15 @@ bool LldbEngine::prepareCommand()
 
 void LldbEngine::setupEngine()
 {
+    // FIXME: We can't handle terminals yet.
     if (runParameters().useTerminal) {
+        qWarning("Run in Terminal is not supported yet with the LLDB backend");
+        showMessage(tr("Run in Terminal is not supported yet with the LLDB backend"), AppError);
+        runParameters().useTerminal = false;
+    }
+
+    if (runParameters().useTerminal) {
+        QTC_CHECK(false); // See above.
         #ifdef Q_OS_WIN
             // Windows up to xp needs a workaround for attaching to freshly started processes. see proc_stub_win
             if (QSysInfo::WindowsVersion >= QSysInfo::WV_VISTA)
