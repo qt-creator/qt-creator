@@ -25,29 +25,33 @@
 
 #pragma once
 
-#include "qmlprofiler_global.h"
-#include "qmlprofilersettings.h"
-#include <extensionsystem/iplugin.h>
-
-#include "qmlprofilertimelinemodel.h"
+#include <qmlprofiler/debugmessagesmodel.h>
+#include <qmlprofiler/qmlprofilermodelmanager.h>
+#include <QObject>
 
 namespace QmlProfiler {
 namespace Internal {
 
-class QmlProfilerPlugin : public ExtensionSystem::IPlugin
+class DebugMessagesModelTest : public QObject
 {
     Q_OBJECT
-    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "QmlProfiler.json")
-
 public:
-    bool initialize(const QStringList &arguments, QString *errorString);
-    void extensionsInitialized();
-    ShutdownFlag aboutToShutdown();
+    DebugMessagesModelTest(QObject *parent = 0);
 
-    static bool debugOutput;
-    static QmlProfilerSettings *globalSettings();
+private slots:
+    void initTestCase();
+    void testTypeId();
+    void testColor();
+    void testLabels();
+    void testDetails();
+    void testExpandedRow();
+    void testCollapsedRow();
+    void testLocation();
+    void cleanupTestCase();
 
-    QList<QObject *> createTestObjects() const override;
+private:
+    QmlProfilerModelManager manager;
+    DebugMessagesModel model;
 };
 
 } // namespace Internal

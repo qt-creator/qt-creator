@@ -97,3 +97,7 @@ RESOURCES += \
 
 FORMS += \
     qmlprofilerconfigwidget.ui
+
+equals(TEST, 1) {
+include(tests/tests.pri)
+}

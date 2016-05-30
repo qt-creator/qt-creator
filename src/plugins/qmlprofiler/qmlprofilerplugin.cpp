@@ -29,6 +29,10 @@
 #include "qmlprofilertool.h"
 #include "qmlprofilertimelinemodel.h"
 
+#ifdef WITH_TESTS
+#include "tests/debugmessagesmodel_test.h"
+#endif
+
 #include <extensionsystem/pluginmanager.h>
 #include <utils/hostosinfo.h>
 
@@ -70,6 +74,15 @@ ExtensionSystem::IPlugin::ShutdownFlag QmlProfilerPlugin::aboutToShutdown()
 QmlProfilerSettings *QmlProfilerPlugin::globalSettings()
 {
     return qmlProfilerGlobalSettings();
+}
+
+QList<QObject *> QmlProfiler::Internal::QmlProfilerPlugin::createTestObjects() const
+{
+    QList<QObject *> tests;
+#ifdef WITH_TESTS
+    tests << new DebugMessagesModelTest;
+#endif
+    return tests;
 }
 
 } // namespace Internal
