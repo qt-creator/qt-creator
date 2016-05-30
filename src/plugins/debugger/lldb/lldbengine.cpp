@@ -87,19 +87,6 @@ LldbEngine::LldbEngine(const DebuggerRunParameters &startParameters)
     m_lastAgentId = 0;
     setObjectName(QLatin1String("LldbEngine"));
 
-    if (startParameters.useTerminal) {
-        #ifdef Q_OS_WIN
-            // Windows up to xp needs a workaround for attaching to freshly started processes. see proc_stub_win
-            if (QSysInfo::WindowsVersion >= QSysInfo::WV_VISTA)
-                m_stubProc.setMode(ConsoleProcess::Suspend);
-            else
-                m_stubProc.setMode(ConsoleProcess::Debug);
-        #else
-            m_stubProc.setMode(ConsoleProcess::Debug);
-            m_stubProc.setSettings(ICore::settings());
-        #endif
-    }
-
     connect(action(AutoDerefPointers), &SavedAction::valueChanged,
             this, &LldbEngine::updateLocals);
     connect(action(CreateFullBacktrace), &QAction::triggered,
@@ -193,6 +180,17 @@ bool LldbEngine::prepareCommand()
 void LldbEngine::setupEngine()
 {
     if (runParameters().useTerminal) {
+        #ifdef Q_OS_WIN
+            // Windows up to xp needs a workaround for attaching to freshly started processes. see proc_stub_win
+            if (QSysInfo::WindowsVersion >= QSysInfo::WV_VISTA)
+                m_stubProc.setMode(ConsoleProcess::Suspend);
+            else
+                m_stubProc.setMode(ConsoleProcess::Debug);
+        #else
+            m_stubProc.setMode(ConsoleProcess::Debug);
+            m_stubProc.setSettings(ICore::settings());
+        #endif
+
         QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
         showMessage(_("TRYING TO START ADAPTER"));
 
