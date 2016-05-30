@@ -150,6 +150,11 @@ CMakeToolItemModel::CMakeToolItemModel()
 
     CMakeTool *defTool = CMakeToolManager::defaultCMakeTool();
     m_defaultItemId = defTool ? defTool->id() : Core::Id();
+    connect(CMakeToolManager::instance(), &CMakeToolManager::cmakeRemoved,
+            this, &CMakeToolItemModel::removeCMakeTool);
+    connect(CMakeToolManager::instance(), &CMakeToolManager::cmakeAdded,
+            this, [this](const Core::Id &id) { addCMakeTool(CMakeToolManager::findById(id), false); });
+
 }
 
 QModelIndex CMakeToolItemModel::addCMakeTool(const QString &name, const FileName &executable, const bool isAutoDetected)
