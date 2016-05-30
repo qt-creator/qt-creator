@@ -300,7 +300,7 @@ void HelpWidget::addSideBar()
     contentWindow->setWindowTitle(HelpPlugin::tr(Constants::SB_CONTENTS));
     connect(contentWindow, &ContentWindow::linkActivated,
             this, &HelpWidget::open);
-    m_contentsAction = new QAction(tr(Constants::SB_CONTENTS), this);
+    m_contentsAction = new QAction(HelpPlugin::tr(Constants::SB_CONTENTS), this);
     cmd = Core::ActionManager::registerAction(m_contentsAction, Constants::HELP_CONTENTS, m_context->context());
     cmd->setDefaultKeySequence(QKeySequence(Core::UseMacShortcuts ? tr("Meta+Shift+C")
                                                                   : tr("Ctrl+Shift+C")));
@@ -314,7 +314,7 @@ void HelpWidget::addSideBar()
             this, &HelpWidget::open);
     connect(indexWindow, &IndexWindow::linksActivated,
         this, &HelpWidget::showTopicChooser);
-    m_indexAction = new QAction(tr(Constants::SB_INDEX), this);
+    m_indexAction = new QAction(HelpPlugin::tr(Constants::SB_INDEX), this);
     cmd = Core::ActionManager::registerAction(m_indexAction, Constants::HELP_INDEX, m_context->context());
     cmd->setDefaultKeySequence(QKeySequence(Core::UseMacShortcuts ? tr("Meta+I")
                                                                   : tr("Ctrl+Shift+I")));
