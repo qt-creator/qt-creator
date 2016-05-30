@@ -29,7 +29,6 @@
 
 #include <chrono>
 #include <memory>
-#include <vector>
 
 class Utf8StringVector;
 
@@ -57,14 +56,10 @@ public:
 
     void clear();
 
-    const Utf8String &projectPartId() const;
+    Utf8String projectPartId() const;
 
     void setArguments(const Utf8StringVector &arguments_);
-
-    const std::vector<const char*> &arguments() const;
-
-    int argumentCount() const;
-    const char *const *cxArguments() const;
+    const Utf8StringVector arguments() const;
 
     const time_point &lastChangeTimePoint() const;
 

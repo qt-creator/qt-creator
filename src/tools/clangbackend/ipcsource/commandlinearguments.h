@@ -35,7 +35,7 @@ class CommandLineArguments
 {
 public:
     CommandLineArguments(const char *filePath,
-                         const std::vector<const char *> &projectPartArguments,
+                         const Utf8StringVector &projectPartArguments,
                          const Utf8StringVector &fileArguments,
                          bool addVerboseOption);
 

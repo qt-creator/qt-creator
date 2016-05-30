@@ -96,13 +96,14 @@ public:
     CXTranslationUnit cxTranslationUnit() const;
     CXTranslationUnit cxTranslationUnitWithoutReparsing() const;
 
-    UnsavedFile &unsavedFile() const;
-    CXUnsavedFile * cxUnsavedFiles() const;
+    UnsavedFile unsavedFile() const;
+    UnsavedFiles unsavedFiles() const;
 
     uint unsavedFilesCount() const;
 
-    const Utf8String &filePath() const;
-    const Utf8String &projectPartId() const;
+    Utf8String filePath() const;
+    Utf8StringVector fileArguments() const;
+    Utf8String projectPartId() const;
     FileContainer fileContainer() const;
     const ProjectPart &projectPart() const;
 
@@ -163,7 +164,6 @@ private:
                                 CXSourceLocation * /*inclusion_stack*/,
                                 unsigned /*include_len*/,
                                 CXClientData clientData);
-    UnsavedFiles &unsavedFiles() const;
 
 private:
     mutable std::shared_ptr<TranslationUnitData> d;

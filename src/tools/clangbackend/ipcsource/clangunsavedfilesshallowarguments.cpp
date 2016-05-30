@@ -23,54 +23,35 @@
 **
 ****************************************************************************/
 
-#pragma once
+#include "clangunsavedfilesshallowarguments.h"
+#include "clangfilepath.h"
 
-#include <filecontainer.h>
-
-#include <QSharedPointer>
-#include <QVector>
-
-#include <clang-c/Index.h>
-
-#include <chrono>
+#include "unsavedfile.h"
+#include "unsavedfiles.h"
 
 namespace ClangBackEnd {
 
-using time_point = std::chrono::steady_clock::time_point;
-
-class UnsavedFile;
-class UnsavedFilesData;
-class UnsavedFilesShallowArguments;
-
-class UnsavedFiles
+UnsavedFilesShallowArguments::UnsavedFilesShallowArguments(const UnsavedFiles &unsavedFiles)
 {
-public:
-    UnsavedFiles();
-    ~UnsavedFiles();
+    const int unsavedFilesCount = int(unsavedFiles.count());
+    m_cxUnsavedFiles.resize(unsavedFilesCount);
 
-    UnsavedFiles(const UnsavedFiles &other);
-    UnsavedFiles &operator=(const UnsavedFiles &other);
+    for (int i = 0, total = unsavedFilesCount; i < total; ++i) {
+        const UnsavedFile &unsavedFile = unsavedFiles.at(i);
+        m_cxUnsavedFiles[i].Filename = unsavedFile.nativeFilePath().constData();
+        m_cxUnsavedFiles[i].Contents = unsavedFile.fileContent().constData();
+        m_cxUnsavedFiles[i].Length = uint(unsavedFile.fileContent().byteSize());
+    }
+}
 
-    void createOrUpdate(const QVector<FileContainer> &fileContainers);
-    void remove(const QVector<FileContainer> &fileContainers);
+uint UnsavedFilesShallowArguments::count() const
+{
+    return uint(m_cxUnsavedFiles.count());
+}
 
-    uint count() const;
-    const UnsavedFile &at(int index) const;
-
-    UnsavedFile &unsavedFile(const Utf8String &filePath);
-
-    UnsavedFilesShallowArguments shallowArguments() const;
-
-    const time_point lastChangeTimePoint() const;
-
-private:
-    void updateUnsavedFileWithFileContainer(const FileContainer &fileContainer);
-    void removeUnsavedFile(const FileContainer &fileContainer);
-    void addOrUpdateUnsavedFile(const FileContainer &fileContainer);
-    void updateLastChangeTimePoint();
-
-private:
-    QSharedDataPointer<UnsavedFilesData> d;
-};
+CXUnsavedFile *UnsavedFilesShallowArguments::data()
+{
+    return m_cxUnsavedFiles.data();
+}
 
 } // namespace ClangBackEnd

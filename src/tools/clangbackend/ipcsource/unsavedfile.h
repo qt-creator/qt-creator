@@ -25,13 +25,7 @@
 
 #pragma once
 
-#include <QtGlobal>
-
-#include <clang-c/Index.h>
-
-#include <iosfwd>
-
-class Utf8String;
+#include "utf8string.h"
 
 namespace ClangBackEnd {
 
@@ -44,27 +38,23 @@ public:
 
     UnsavedFile();
     UnsavedFile(const Utf8String &filePath, const Utf8String &fileContent);
-    ~UnsavedFile();
-
-    UnsavedFile(const UnsavedFile &other) = delete;
-    bool operator=(const UnsavedFile &other) = delete;
-
-    UnsavedFile(UnsavedFile &&other) Q_DECL_NOEXCEPT;
-    UnsavedFile &operator=(UnsavedFile &&other) Q_DECL_NOEXCEPT;
 
     Utf8String filePath() const;
-    const char *nativeFilePath() const;
+    Utf8String nativeFilePath() const;
+    Utf8String fileContent() const;
 
     // 1-based line and column
     uint toUtf8Position(uint line, uint column, bool *ok) const;
     bool hasCharacterAt(uint line, uint column, char character) const;
+
+    // 0-based position
     bool hasCharacterAt(uint position, char character) const;
     bool replaceAt(uint position, uint length, const Utf8String &replacement);
 
-    CXUnsavedFile *data();
-
-public: // for tests
-    CXUnsavedFile cxUnsavedFile;
+private:
+    Utf8String m_filePath;
+    Utf8String m_nativeFilePath;
+    Utf8String m_fileContent;
 };
 
 } // namespace ClangBackEnd

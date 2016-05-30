@@ -69,7 +69,7 @@ public:
 
     const std::vector<TranslationUnit> &translationUnits() const;
 
-    UnsavedFiles &unsavedFiles() const;
+    UnsavedFiles unsavedFiles() const;
 
     void addWatchedFiles(QSet<Utf8String> &filePaths);
 

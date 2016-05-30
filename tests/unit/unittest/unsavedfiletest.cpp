@@ -47,11 +47,9 @@ MATCHER_P3(IsUnsavedFile, fileName, contents, contentsLength,
           + ", contents " + PrintToString(contents)
           + ", contents length " + PrintToString(contentsLength))
 {
-    CXUnsavedFile unsavedFile = arg.cxUnsavedFile;
-
-    return fileName == unsavedFile.Filename
-        && contents == unsavedFile.Contents
-        && size_t(contentsLength) == unsavedFile.Length;
+    return fileName == arg.filePath()
+        && contents == arg.fileContent()
+        && int(contentsLength) == arg.fileContent().byteSize();
 }
 
 class UnsavedFile : public ::testing::Test
@@ -78,56 +76,15 @@ TEST_F(UnsavedFile, Create)
                                            fileContent.byteSize()));
 }
 
-TEST_F(UnsavedFile, Destruct)
+TEST_F(UnsavedFile, CopyConstruct)
 {
-    auto *unsavedFile = new ::UnsavedFile(filePath, fileContent);
-    unsavedFile->~UnsavedFile();
+    ::UnsavedFile copyFrom(filePath, fileContent);
 
-    ASSERT_THAT(*unsavedFile, IsUnsavedFile(nullptr, nullptr, 0UL));
-}
+    ::UnsavedFile copyTo = copyFrom;
 
-TEST_F(UnsavedFile, ConstructMoveToIsValid)
-{
-    ::UnsavedFile movedFrom(filePath, fileContent);
-
-    ::UnsavedFile movedTo = std::move(movedFrom);
-
-    ASSERT_THAT(movedTo, IsUnsavedFile(filePath,
-                                       fileContent,
-                                       fileContent.byteSize()));
-}
-
-TEST_F(UnsavedFile, ConstructMoveFromIsNull)
-{
-    ::UnsavedFile movedFrom(filePath, fileContent);
-
-    ::UnsavedFile movedTo = std::move(movedFrom);
-
-    ASSERT_THAT(movedFrom, IsUnsavedFile(nullptr, nullptr, 0UL));
-}
-
-TEST_F(UnsavedFile, AssignMoveToIsValid)
-{
-    ::UnsavedFile movedFrom(filePath, fileContent);
-    ::UnsavedFile movedTo(otherFilePath, otherFileContent);
-
-    movedTo = std::move(movedFrom);
-
-    ASSERT_THAT(movedTo, IsUnsavedFile(filePath,
-                                       fileContent,
-                                       fileContent.byteSize()));
-}
-
-TEST_F(UnsavedFile, AssignMoveFromIsSwapped)
-{
-    ::UnsavedFile movedFrom(filePath, fileContent);
-    ::UnsavedFile movedTo(otherFilePath, otherFileContent);
-
-    movedTo = std::move(movedFrom);
-
-    ASSERT_THAT(movedFrom, IsUnsavedFile(otherFilePath,
-                                         otherFileContent,
-                                         otherFileContent.byteSize()));
+    ASSERT_THAT(copyTo, IsUnsavedFile(filePath,
+                                      fileContent,
+                                      fileContent.byteSize()));
 }
 
 TEST_F(UnsavedFile, FilePath)
@@ -206,6 +163,19 @@ TEST_F(UnsavedFile, HasNoCharacterForDefaultConstructedUnsavedFile)
     ::UnsavedFile unsavedFile;
 
     ASSERT_FALSE(unsavedFile.hasCharacterAt(0, 'x'));
+}
+
+TEST_F(UnsavedFile, ReplacingInCopyDoesNotModifyOriginal)
+{
+    const Utf8String originalContent = Utf8StringLiteral("foo");
+    ::UnsavedFile original(filePath, originalContent);
+    ::UnsavedFile copy = original;
+
+    const bool hasReplaced = copy.replaceAt(0, 3, aReplacement);
+
+    ASSERT_TRUE(hasReplaced);
+    ASSERT_THAT(original, IsUnsavedFile(filePath, originalContent, originalContent.byteSize()));
+    ASSERT_THAT(copy, IsUnsavedFile(filePath, aReplacement, aReplacement.byteSize()));
 }
 
 TEST_F(UnsavedFile, HasNoCharacterForTooBigOffset)

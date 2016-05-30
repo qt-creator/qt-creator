@@ -28,6 +28,7 @@
 #include "cursor.h"
 #include "clangfilepath.h"
 #include "clangstring.h"
+#include "clangunsavedfilesshallowarguments.h"
 #include "codecompleter.h"
 #include "commandlinearguments.h"
 #include "diagnosticcontainer.h"
@@ -43,6 +44,7 @@
 #include "translationunitreparseerrorexception.h"
 #include "translationunits.h"
 #include "unsavedfiles.h"
+#include "unsavedfile.h"
 
 #include <utf8string.h>
 
@@ -199,19 +201,26 @@ CXTranslationUnit TranslationUnit::cxTranslationUnitWithoutReparsing() const
     return d->translationUnit;
 }
 
-UnsavedFile &TranslationUnit::unsavedFile() const
+UnsavedFile TranslationUnit::unsavedFile() const
 {
     return unsavedFiles().unsavedFile(filePath());
 }
 
-const Utf8String &TranslationUnit::filePath() const
+Utf8String TranslationUnit::filePath() const
 {
     checkIfNull();
 
     return d->filePath;
 }
 
-const Utf8String &TranslationUnit::projectPartId() const
+Utf8StringVector TranslationUnit::fileArguments() const
+{
+    checkIfNull();
+
+    return d->fileArguments;
+}
+
+Utf8String TranslationUnit::projectPartId() const
 {
     checkIfNull();
 
@@ -410,12 +419,14 @@ void TranslationUnit::createTranslationUnitIfNeeded() const
         if (isVerboseModeEnabled())
             args.print();
 
+        UnsavedFilesShallowArguments unsaved = unsavedFiles().shallowArguments();
+
         d->parseErrorCode = clang_parseTranslationUnit2(index(),
                                                         NULL,
                                                         args.data(),
                                                         args.count(),
-                                                        unsavedFiles().cxUnsavedFiles(),
-                                                        unsavedFiles().count(),
+                                                        unsaved.data(),
+                                                        unsaved.count(),
                                                         defaultOptions(),
                                                         &d->translationUnit);
 
@@ -447,10 +458,12 @@ void TranslationUnit::checkReparseErrorCode() const
 
 void TranslationUnit::reparseTranslationUnit() const
 {
+    UnsavedFilesShallowArguments unsaved = unsavedFiles().shallowArguments();
+
     d->reparseErrorCode = clang_reparseTranslationUnit(
                                     d->translationUnit,
-                                    unsavedFiles().count(),
-                                    unsavedFiles().cxUnsavedFiles(),
+                                    unsaved.count(),
+                                    unsaved.data(),
                                     clang_defaultReparseOptions(d->translationUnit));
 
     checkReparseErrorCode();
@@ -480,7 +493,7 @@ void TranslationUnit::includeCallback(CXFile included_file,
     translationUnit->d->dependedFilePaths.insert(normalizedFilePath);
 }
 
-UnsavedFiles &TranslationUnit::unsavedFiles() const
+UnsavedFiles TranslationUnit::unsavedFiles() const
 {
     return d->translationUnits.unsavedFiles();
 }
@@ -537,11 +550,6 @@ uint TranslationUnit::defaultOptions()
 uint TranslationUnit::unsavedFilesCount() const
 {
     return unsavedFiles().count();
-}
-
-CXUnsavedFile *TranslationUnit::cxUnsavedFiles() const
-{
-    return unsavedFiles().cxUnsavedFiles();
 }
 
 TranslationUnit::~TranslationUnit() = default;

@@ -33,8 +33,10 @@
 #include "codecompletionsextractor.h"
 #include "sourcelocation.h"
 #include "unsavedfile.h"
+#include "unsavedfiles.h"
 #include "clangtranslationunit.h"
 #include "sourcerange.h"
+#include "clangunsavedfilesshallowarguments.h"
 
 #include <clang-c/Index.h>
 
@@ -55,8 +57,10 @@ CodeCompletions toCodeCompletions(const ClangCodeCompleteResults &results)
 
 } // anonymous namespace
 
-CodeCompleter::CodeCompleter(TranslationUnit translationUnit)
+CodeCompleter::CodeCompleter(TranslationUnit translationUnit,
+                             const UnsavedFiles &unsavedFiles)
     : translationUnit(std::move(translationUnit))
+    , unsavedFiles(unsavedFiles)
 {
 }
 
@@ -64,10 +68,7 @@ CodeCompletions CodeCompleter::complete(uint line, uint column)
 {
     neededCorrection_ = CompletionCorrection::NoCorrection;
 
-    ClangCodeCompleteResults results = complete(line,
-                                                column,
-                                                translationUnit.cxUnsavedFiles(),
-                                                translationUnit.unsavedFilesCount());
+    ClangCodeCompleteResults results = completeHelper(line, column);
 
     tryDotArrowCorrectionIfNoResults(results, line, column);
 
@@ -79,19 +80,17 @@ CompletionCorrection CodeCompleter::neededCorrection() const
     return neededCorrection_;
 }
 
-ClangCodeCompleteResults CodeCompleter::complete(uint line,
-                                                 uint column,
-                                                 CXUnsavedFile *unsavedFiles,
-                                                 unsigned unsavedFileCount)
+ClangCodeCompleteResults CodeCompleter::completeHelper(uint line, uint column)
 {
     const Utf8String nativeFilePath = FilePath::toNativeSeparators(translationUnit.filePath());
+    UnsavedFilesShallowArguments unsaved = unsavedFiles.shallowArguments();
 
     return clang_codeCompleteAt(translationUnit.cxTranslationUnitWithoutReparsing(),
                                 nativeFilePath.constData(),
                                 line,
                                 column,
-                                unsavedFiles,
-                                unsavedFileCount,
+                                unsaved.data(),
+                                unsaved.count(),
                                 defaultOptions());
 }
 
@@ -104,6 +103,11 @@ uint CodeCompleter::defaultOptions() const
         options |= CXCodeComplete_IncludeBriefComments;
 
     return options;
+}
+
+UnsavedFile &CodeCompleter::unsavedFile()
+{
+    return unsavedFiles.unsavedFile(translationUnit.filePath());
 }
 
 void CodeCompleter::tryDotArrowCorrectionIfNoResults(ClangCodeCompleteResults &results,
@@ -124,16 +128,12 @@ ClangCodeCompleteResults CodeCompleter::completeWithArrowInsteadOfDot(uint line,
                                                                       uint dotPosition)
 {
     ClangCodeCompleteResults results;
-    const bool replaced = translationUnit.unsavedFile().replaceAt(dotPosition,
-                                                                  1,
-                                                                  Utf8StringLiteral("->"));
+    const bool replaced = unsavedFile().replaceAt(dotPosition,
+                                                  1,
+                                                  Utf8StringLiteral("->"));
 
     if (replaced) {
-        results = complete(line,
-                           column + 1,
-                           translationUnit.cxUnsavedFiles(),
-                           translationUnit.unsavedFilesCount());
-
+        results = completeHelper(line, column + 1);
         if (results.hasResults())
             neededCorrection_ = CompletionCorrection::DotToArrowCorrection;
     }

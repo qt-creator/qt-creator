@@ -33,6 +33,7 @@
 #include <skippedsourceranges.h>
 #include <translationunitalreadyexistsexception.h>
 #include <translationunitdoesnotexistexception.h>
+#include <unsavedfiles.h>
 
 #include <QDebug>
 
@@ -142,7 +143,7 @@ const std::vector<TranslationUnit> &TranslationUnits::translationUnits() const
     return translationUnits_;
 }
 
-UnsavedFiles &TranslationUnits::unsavedFiles() const
+UnsavedFiles TranslationUnits::unsavedFiles() const
 {
     return unsavedFiles_;
 }

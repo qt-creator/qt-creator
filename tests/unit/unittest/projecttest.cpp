@@ -37,7 +37,6 @@
 #include <thread>
 
 using testing::ElementsAre;
-using testing::StrEq;
 using testing::Pointwise;
 using testing::Contains;
 using testing::Gt;
@@ -61,7 +60,7 @@ TEST(ProjectPart, CreateProjectPartWithProjectPartContainer)
     ClangBackEnd::ProjectPart project(projectContainer);
 
     ASSERT_THAT(project.projectPartId(), Utf8StringLiteral("pathToProjectPart.pro"));
-    ASSERT_THAT(project.arguments(), Contains(StrEq("-O")));
+    ASSERT_THAT(project.arguments(), Contains(Utf8StringLiteral("-O")));
 }
 
 TEST(ProjectPart, SetArguments)
@@ -70,7 +69,7 @@ TEST(ProjectPart, SetArguments)
 
     project.setArguments(Utf8StringVector({Utf8StringLiteral("-O"), Utf8StringLiteral("-fast")}));
 
-    ASSERT_THAT(project.arguments(), ElementsAre(StrEq("-O"), StrEq("-fast")));
+    ASSERT_THAT(project.arguments(), ElementsAre(Utf8StringLiteral("-O"), Utf8StringLiteral("-fast")));
 }
 
 TEST(ProjectPart, ArgumentCount)
@@ -79,7 +78,7 @@ TEST(ProjectPart, ArgumentCount)
 
     project.setArguments(Utf8StringVector({Utf8StringLiteral("-O"), Utf8StringLiteral("-fast")}));
 
-    ASSERT_THAT(project.argumentCount(), 2);
+    ASSERT_THAT(project.arguments().count(), 2);
 }
 
 TEST(ProjectPart, TimeStampIsUpdatedAsArgumentChanged)
@@ -109,7 +108,7 @@ TEST(ProjectPart, AddProjectParts)
     projects.createOrUpdate({projectContainer});
 
     ASSERT_THAT(projects.project(projectContainer.projectPartId()), ClangBackEnd::ProjectPart(projectContainer));
-    ASSERT_THAT(projects.project(projectContainer.projectPartId()).arguments(), ElementsAre(StrEq("-O")));
+    ASSERT_THAT(projects.project(projectContainer.projectPartId()).arguments(), ElementsAre(Utf8StringLiteral("-O")));
 }
 
 TEST(ProjectPart, UpdateProjectParts)
@@ -122,7 +121,7 @@ TEST(ProjectPart, UpdateProjectParts)
     projects.createOrUpdate({projectContainerWithNewArguments});
 
     ASSERT_THAT(projects.project(projectContainer.projectPartId()), ClangBackEnd::ProjectPart(projectContainer));
-    ASSERT_THAT(projects.project(projectContainer.projectPartId()).arguments(), ElementsAre(StrEq("-fast")));
+    ASSERT_THAT(projects.project(projectContainer.projectPartId()).arguments(), ElementsAre(Utf8StringLiteral("-fast")));
 }
 
 TEST(ProjectPart, ThrowExceptionForAccesingRemovedProjectParts)
@@ -172,7 +171,7 @@ TEST(ProjectPart, ProjectPartIsClearedAfterRemove)
     projects.remove({projectContainer.projectPartId()});
 
     ASSERT_THAT(project.projectPartId(), Utf8String());
-    ASSERT_THAT(project.argumentCount(), 0);
+    ASSERT_THAT(project.arguments().count(), 0);
     ASSERT_THAT(project.lastChangeTimePoint(), Gt(lastChangeTimePoint));
 }
 

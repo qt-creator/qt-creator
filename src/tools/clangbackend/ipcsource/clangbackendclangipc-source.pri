@@ -35,7 +35,8 @@ HEADERS += $$PWD/clangcodemodelserver.h \
     $$PWD/highlightingmarks.h \
     $$PWD/highlightingmarksiterator.h \
     $$PWD/utf8positionfromlinecolumn.h \
-    $$PWD/clangfilepath.h
+    $$PWD/clangfilepath.h \
+    $$PWD/clangunsavedfilesshallowarguments.h
 
 SOURCES += $$PWD/clangcodemodelserver.cpp \
     $$PWD/codecompleter.cpp \
@@ -70,4 +71,5 @@ SOURCES += $$PWD/clangcodemodelserver.cpp \
     $$PWD/highlightingmark.cpp \
     $$PWD/highlightingmarks.cpp \
     $$PWD/utf8positionfromlinecolumn.cpp \
-    $$PWD/clangfilepath.cpp
+    $$PWD/clangfilepath.cpp \
+    $$PWD/clangunsavedfilesshallowarguments.cpp

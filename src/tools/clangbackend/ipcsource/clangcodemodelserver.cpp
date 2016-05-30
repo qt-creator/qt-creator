@@ -240,7 +240,8 @@ void ClangCodeModelServer::completeCode(const ClangBackEnd::CompleteCodeMessage 
     TIME_SCOPE_DURATION("ClangCodeModelServer::completeCode");
 
     try {
-        CodeCompleter codeCompleter(translationUnits.translationUnit(message.filePath(), message.projectPartId()));
+        CodeCompleter codeCompleter(translationUnits.translationUnit(message.filePath(), message.projectPartId()),
+                                    unsavedFiles);
 
         const auto codeCompletions = codeCompleter.complete(message.line(), message.column());
 

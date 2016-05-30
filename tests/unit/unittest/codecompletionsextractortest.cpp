@@ -30,6 +30,7 @@
 #include <projectpart.h>
 #include <projects.h>
 #include <clangtranslationunit.h>
+#include <clangunsavedfilesshallowarguments.h>
 #include <translationunits.h>
 #include <unsavedfiles.h>
 #include <utf8stringvector.h>
@@ -49,6 +50,7 @@ using ClangBackEnd::FilePath;
 using ClangBackEnd::TranslationUnit;
 using ClangBackEnd::CodeCompletion;
 using ClangBackEnd::UnsavedFiles;
+using ClangBackEnd::UnsavedFilesShallowArguments;
 using ClangBackEnd::CodeCompletionChunk;
 using ClangBackEnd::CodeCompletionChunks;
 
@@ -139,21 +141,13 @@ const ClangBackEnd::FileContainer unsavedDataFileContainer(const char *filePath,
                                        true);
 }
 
-ClangCodeCompleteResults getResults(const TranslationUnit &translationUnit, uint line, uint column = 1)
-{
-    Utf8String nativeFilePath = FilePath::toNativeSeparators(translationUnit.filePath());
-
-    return ClangCodeCompleteResults(clang_codeCompleteAt(translationUnit.cxTranslationUnit(),
-                                                         nativeFilePath.constData(),
-                                                         line,
-                                                         column,
-                                                         translationUnit.cxUnsavedFiles(),
-                                                         translationUnit.unsavedFilesCount(),
-                                                         CXCodeComplete_IncludeMacros | CXCodeComplete_IncludeCodePatterns));
-}
-
 class CodeCompletionsExtractor : public ::testing::Test
 {
+protected:
+    ClangCodeCompleteResults getResults(const TranslationUnit &translationUnit,
+                                        uint line,
+                                        uint column = 1);
+
 protected:
     ClangBackEnd::ProjectPart project{Utf8StringLiteral("/path/to/projectfile")};
     ClangBackEnd::ProjectParts projects;
@@ -686,5 +680,18 @@ TEST_F(CodeCompletionsExtractor, BriefComment)
     ASSERT_THAT(extractor, HasBriefComment(Utf8StringLiteral("BriefComment"), Utf8StringLiteral("A brief comment")));
 }
 
+ClangCodeCompleteResults CodeCompletionsExtractor::getResults(const TranslationUnit &translationUnit, uint line, uint column)
+{
+    const Utf8String nativeFilePath = FilePath::toNativeSeparators(translationUnit.filePath());
+    UnsavedFilesShallowArguments unsaved = unsavedFiles.shallowArguments();
+
+    return ClangCodeCompleteResults(clang_codeCompleteAt(translationUnit.cxTranslationUnit(),
+                                                         nativeFilePath.constData(),
+                                                         line,
+                                                         column,
+                                                         unsaved.data(),
+                                                         unsaved.count(),
+                                                         CXCodeComplete_IncludeMacros | CXCodeComplete_IncludeCodePatterns));
+}
 
 }

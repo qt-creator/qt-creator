@@ -38,24 +38,27 @@ using ClangBackEnd::UnsavedFile;
 using ClangBackEnd::UnsavedFiles;
 using ClangBackEnd::FileContainer;
 
+using ::testing::Eq;
 using ::testing::Gt;
 using ::testing::IsNull;
+using ::testing::Ne;
 using ::testing::NotNull;
 using ::testing::PrintToString;
 
 namespace {
 
-bool operator==(const ClangBackEnd::FileContainer &fileContainer, const CXUnsavedFile &cxUnsavedFile)
+bool operator==(const ClangBackEnd::FileContainer &fileContainer, const UnsavedFile &unsavedFile)
 {
-    return fileContainer.filePath() == Utf8String::fromUtf8(cxUnsavedFile.Filename)
-            && fileContainer.unsavedFileContent() == Utf8String(cxUnsavedFile.Contents, cxUnsavedFile.Length);
+    return fileContainer.filePath() == unsavedFile.filePath()
+        && fileContainer.unsavedFileContent() == unsavedFile.fileContent();
 }
 
-bool fileContainersContainsItemMatchingToCxUnsavedFile(const QVector<FileContainer> &fileContainers, const CXUnsavedFile &cxUnsavedFile)
+bool fileContainersContainsItemMatchingToCxUnsavedFile(const QVector<FileContainer> &fileContainers, const UnsavedFile &unsavedFile)
 {
-    for (const FileContainer &fileContainer : fileContainers)
-        if (fileContainer == cxUnsavedFile)
+    for (const FileContainer &fileContainer : fileContainers) {
+        if (fileContainer == unsavedFile)
             return true;
+    }
 
     return false;
 }
@@ -69,8 +72,8 @@ MATCHER_P(HasUnsavedFiles, fileContainers, "")
     }
 
     for (uint i = 0, to = unsavedFiles.count(); i < to; ++i) {
-        CXUnsavedFile *cxUnsavedFile = unsavedFiles.cxUnsavedFiles() + i;
-        if (!fileContainersContainsItemMatchingToCxUnsavedFile(fileContainers, *cxUnsavedFile))
+        UnsavedFile unsavedFile = unsavedFiles.at(i);
+        if (!fileContainersContainsItemMatchingToCxUnsavedFile(fileContainers, unsavedFile))
             return false;
     }
 
@@ -83,11 +86,9 @@ MATCHER_P3(IsUnsavedFile, fileName, contents, contentsLength,
           + ", contents " + PrintToString(contents)
           + ", contents length " + PrintToString(contentsLength))
 {
-    CXUnsavedFile unsavedFile = arg.cxUnsavedFile;
-
-    return fileName == unsavedFile.Filename
-        && contents == unsavedFile.Contents
-        && size_t(contentsLength) == unsavedFile.Length;
+    return fileName == arg.filePath()
+        && contents == arg.fileContent()
+        && int(contentsLength) == arg.fileContent().byteSize();
 }
 
 class UnsavedFiles : public ::testing::Test
@@ -100,6 +101,19 @@ protected:
     Utf8String unsavedContent1{Utf8StringLiteral("foo")};
     Utf8String unsavedContent2{Utf8StringLiteral("bar")};
 };
+
+TEST_F(UnsavedFiles, ModifiedCopyIsDifferent)
+{
+    QVector<FileContainer> fileContainers({FileContainer(filePath, projectPartId, unsavedContent1, true)});
+    unsavedFiles.createOrUpdate(fileContainers);
+
+    ::UnsavedFiles copy = unsavedFiles;
+    QVector<FileContainer> updatedFileContainers({FileContainer(filePath, projectPartId, unsavedContent2, true)});
+    copy.createOrUpdate(updatedFileContainers);
+
+    ASSERT_THAT(copy.at(0).fileContent(), Ne(unsavedFiles.at(0).fileContent()));
+    ASSERT_THAT(copy.lastChangeTimePoint(), Gt(unsavedFiles.lastChangeTimePoint()));
+}
 
 TEST_F(UnsavedFiles, DoNothingForUpdateIfFileHasNoUnsavedContent)
 {

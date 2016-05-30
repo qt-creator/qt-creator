@@ -39,21 +39,10 @@ public:
     ~ProjectPartData();
 
 public:
-    void clearArguments();
-
-public:
     time_point lastChangeTimePoint;
-    std::vector<const char*> arguments;
+    Utf8StringVector arguments;
     Utf8String projectPartId;
 };
-
-void ProjectPartData::clearArguments()
-{
-    for (auto argument : arguments)
-        delete [] argument;
-
-    arguments.clear();
-}
 
 ProjectPartData::ProjectPartData(const Utf8String &projectPartId)
     : lastChangeTimePoint(std::chrono::steady_clock::now()),
@@ -63,7 +52,6 @@ ProjectPartData::ProjectPartData(const Utf8String &projectPartId)
 
 ProjectPartData::~ProjectPartData()
 {
-    clearArguments();
 }
 
 ProjectPart::ProjectPart(const Utf8String &projectPartId)
@@ -103,44 +91,24 @@ ProjectPart &ProjectPart::operator=(ProjectPart &&other)
 void ProjectPart::clear()
 {
     d->projectPartId.clear();
-    d->clearArguments();
+    d->arguments.clear();
     updateLastChangeTimePoint();
 }
 
-const Utf8String &ProjectPart::projectPartId() const
+Utf8String ProjectPart::projectPartId() const
 {
     return d->projectPartId;
 }
 
-static const char *strdup(const Utf8String &utf8String)
-{
-    char *cxArgument = new char[utf8String.byteSize() + 1];
-    std::memcpy(cxArgument, utf8String.constData(), utf8String.byteSize() + 1);
-
-    return cxArgument;
-}
-
 void ProjectPart::setArguments(const Utf8StringVector &arguments)
 {
-    d->clearArguments();
-    d->arguments.resize(arguments.size());
-    std::transform(arguments.cbegin(), arguments.cend(), d->arguments.begin(), strdup);
+    d->arguments = arguments;
     updateLastChangeTimePoint();
 }
 
-const std::vector<const char*> &ProjectPart::arguments() const
+const Utf8StringVector ProjectPart::arguments() const
 {
     return d->arguments;
-}
-
-int ProjectPart::argumentCount() const
-{
-    return d->arguments.size();
-}
-
-const char * const *ProjectPart::cxArguments() const
-{
-    return arguments().data();
 }
 
 const time_point &ProjectPart::lastChangeTimePoint() const

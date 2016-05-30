@@ -25,20 +25,23 @@
 
 #include "unsavedfiles.h"
 
+#include "clangunsavedfilesshallowarguments.h"
 #include "unsavedfile.h"
+
+#include <QSharedData>
 
 #include <algorithm>
 
 namespace ClangBackEnd {
 
-class UnsavedFilesData
+class UnsavedFilesData : public QSharedData
 {
 public:
     UnsavedFilesData();
 
 public:
     time_point lastChangeTimePoint;
-    std::vector<UnsavedFile> unsavedFiles;
+    QVector<UnsavedFile> unsavedFiles;
 };
 
 UnsavedFilesData::UnsavedFilesData()
@@ -47,24 +50,22 @@ UnsavedFilesData::UnsavedFilesData()
 }
 
 UnsavedFiles::UnsavedFiles()
-    : d(std::make_shared<UnsavedFilesData>())
+    : d(new UnsavedFilesData)
 {
 }
 
-UnsavedFiles::~UnsavedFiles() = default;
-
-UnsavedFiles::UnsavedFiles(const UnsavedFiles &) = default;
-UnsavedFiles &UnsavedFiles::operator=(const UnsavedFiles &) = default;
-
-UnsavedFiles::UnsavedFiles(UnsavedFiles &&other)
-    : d(std::move(other.d))
+UnsavedFiles::~UnsavedFiles()
 {
 }
 
-UnsavedFiles &UnsavedFiles::operator=(UnsavedFiles &&other)
+UnsavedFiles::UnsavedFiles(const UnsavedFiles &other)
+    : d(other.d)
 {
-    d = std::move(other.d);
+}
 
+UnsavedFiles &UnsavedFiles::operator=(const UnsavedFiles &other)
+{
+    d = other.d;
     return *this;
 }
 
@@ -105,12 +106,17 @@ uint UnsavedFiles::count() const
     return uint(d->unsavedFiles.size());
 }
 
-CXUnsavedFile *UnsavedFiles::cxUnsavedFiles() const
+const UnsavedFile &UnsavedFiles::at(int index) const
 {
-    return d->unsavedFiles.data()->data();
+    return d->unsavedFiles.at(index);
 }
 
-const time_point &UnsavedFiles::lastChangeTimePoint() const
+UnsavedFilesShallowArguments UnsavedFiles::shallowArguments() const
+{
+    return UnsavedFilesShallowArguments(*this);
+}
+
+const time_point UnsavedFiles::lastChangeTimePoint() const
 {
     return d->lastChangeTimePoint;
 }
@@ -141,7 +147,7 @@ void UnsavedFiles::addOrUpdateUnsavedFile(const FileContainer &fileContainer)
 
     auto unsavedFileIterator = std::find_if(d->unsavedFiles.begin(), d->unsavedFiles.end(), isSameFile);
     if (unsavedFileIterator == d->unsavedFiles.end())
-        d->unsavedFiles.emplace_back(filePath, fileContent);
+        d->unsavedFiles.append(UnsavedFile(filePath, fileContent));
     else
         *unsavedFileIterator = UnsavedFile(filePath, fileContent);
 }
