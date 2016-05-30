@@ -63,14 +63,6 @@ namespace Internal {
 class IDocumentPrivate
 {
 public:
-    IDocumentPrivate() :
-        infoBar(0),
-        temporary(false),
-        hasWriteWarning(false),
-        restored(false)
-    {
-    }
-
     ~IDocumentPrivate()
     {
         delete infoBar;
@@ -81,11 +73,11 @@ public:
     QString preferredDisplayName;
     QString uniqueDisplayName;
     QString autoSaveName;
-    InfoBar *infoBar;
+    InfoBar *infoBar = nullptr;
     Id id;
-    bool temporary;
-    bool hasWriteWarning;
-    bool restored;
+    bool temporary = false;
+    bool hasWriteWarning = false;
+    bool restored = false;
 };
 
 } // namespace Internal
