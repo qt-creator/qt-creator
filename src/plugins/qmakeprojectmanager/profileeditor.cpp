@@ -153,24 +153,15 @@ void ProFileEditorWidget::contextMenuEvent(QContextMenuEvent *e)
     showDefaultContextMenu(e, Constants::M_CONTEXT);
 }
 
-//
-// ProFileDocument
-//
-
-class ProFileDocument : public TextDocument
+static TextDocument *createProFileDocument()
 {
-public:
-    ProFileDocument();
-
-    // qmake project files doesn't support UTF8-BOM
-    // If the BOM would be added qmake would fail and QtCreator couldn't parse the project file
-    bool supportsUtf8Bom() override { return false; }
-};
-
-ProFileDocument::ProFileDocument()
-{
-    setId(Constants::PROFILE_EDITOR_ID);
-    setMimeType(QLatin1String(Constants::PROFILE_MIMETYPE));
+    auto doc = new TextDocument;
+    doc->setId(Constants::PROFILE_EDITOR_ID);
+    doc->setMimeType(QLatin1String(Constants::PROFILE_MIMETYPE));
+    // qmake project files do not support UTF8-BOM
+    // If the BOM would be added qmake would fail and Qt Creator couldn't parse the project file
+    doc->setSupportsUtf8Bom(false);
+    return doc;
 }
 
 //
@@ -188,7 +179,7 @@ ProFileEditorFactory::ProFileEditorFactory()
     addMimeType(Constants::PROCACHEFILE_MIMETYPE);
     addMimeType(Constants::PROSTASHFILE_MIMETYPE);
 
-    setDocumentCreator([]() { return new ProFileDocument; });
+    setDocumentCreator(createProFileDocument);
     setEditorWidgetCreator([]() { return new ProFileEditorWidget; });
 
     ProFileCompletionAssistProvider *pcap = new ProFileCompletionAssistProvider;

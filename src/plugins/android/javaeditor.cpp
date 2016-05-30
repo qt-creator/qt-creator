@@ -44,22 +44,13 @@
 namespace Android {
 namespace Internal {
 
-//
-// JavaDocument
-//
-
-class JavaDocument : public TextEditor::TextDocument
+static TextEditor::TextDocument *createJavaDocument()
 {
-public:
-    JavaDocument();
-};
-
-
-JavaDocument::JavaDocument()
-{
-    setId(Constants::JAVA_EDITOR_ID);
-    setMimeType(QLatin1String(Constants::JAVA_MIMETYPE));
-    setIndenter(new JavaIndenter);
+    auto doc = new TextEditor::TextDocument;
+    doc->setId(Constants::JAVA_EDITOR_ID);
+    doc->setMimeType(QLatin1String(Constants::JAVA_MIMETYPE));
+    doc->setIndenter(new JavaIndenter);
+    return doc;
 }
 
 //
@@ -72,7 +63,7 @@ JavaEditorFactory::JavaEditorFactory()
     setDisplayName(tr("Java Editor"));
     addMimeType(Constants::JAVA_MIMETYPE);
 
-    setDocumentCreator([]() { return new JavaDocument; });
+    setDocumentCreator(createJavaDocument);
     setUseGenericHighlighter(true);
     setCommentStyle(Utils::CommentDefinition::CppStyle);
     setEditorActionHandlers(TextEditor::TextEditorActionHandler::UnCommentSelection);

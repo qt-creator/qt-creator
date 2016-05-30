@@ -47,11 +47,10 @@ namespace Internal {
 class TextDocumentPrivate
 {
 public:
-    TextDocumentPrivate() : m_readResult(Utils::TextFileFormat::ReadSuccess) {}
-
     Utils::TextFileFormat m_format;
-    Utils::TextFileFormat::ReadResult m_readResult;
+    Utils::TextFileFormat::ReadResult m_readResult = Utils::TextFileFormat::ReadSuccess;
     QByteArray m_decodingErrorSample;
+    bool m_supportsUtf8Bom = true;
 };
 
 } // namespace Internal
@@ -97,6 +96,11 @@ bool BaseTextDocument::write(const QString &fileName, const Utils::TextFileForma
     return format.writeFile(fileName, data, errorMessage);
 }
 
+void BaseTextDocument::setSupportsUtf8Bom(bool value)
+{
+    d->m_supportsUtf8Bom = value;
+}
+
 /*!
     Autodetects format and reads in the text file specified by \a fileName.
 */
@@ -138,6 +142,11 @@ void BaseTextDocument::switchUtf8Bom()
     if (debug)
         qDebug() << Q_FUNC_INFO << this << "UTF-8 BOM: " << !d->m_format.hasUtf8Bom;
     d->m_format.hasUtf8Bom = !d->m_format.hasUtf8Bom;
+}
+
+bool BaseTextDocument::supportsUtf8Bom() const
+{
+    return d->m_supportsUtf8Bom;
 }
 
 /*!
