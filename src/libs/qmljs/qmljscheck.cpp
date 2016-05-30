@@ -1551,7 +1551,8 @@ bool Check::visit(CallExpression *ast)
     // We have to allow the qsTr function for translation.
     bool isTranslationFunction = (name == QLatin1String("qsTr") || name == QLatin1String("qsTrId"));
     // allow adding connections with the help of the qt quick designer ui
-    bool isDirectInConnectionsScope = m_typeStack.last() == QLatin1String("Connections");
+    bool isDirectInConnectionsScope =
+            (!m_typeStack.isEmpty() && m_typeStack.last() == QLatin1String("Connections"));
     if (!isTranslationFunction && !isDirectInConnectionsScope)
         addMessage(ErrFunctionsNotSupportedInQmlUi, location);
 
