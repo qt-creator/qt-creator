@@ -98,9 +98,6 @@ public:
                                     const QModelIndex &index) const override;
 
     void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const override;
-
-private slots:
-    void emitCommitData(const QString &text);
 };
 
 class BindingComboBox : public QComboBox

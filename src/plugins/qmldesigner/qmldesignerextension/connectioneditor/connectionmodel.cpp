@@ -418,7 +418,7 @@ QWidget *ConnectionDelegate::createEditor(QWidget *parent, const QStyleOptionVie
 
     //model->connectionView()->allModelNodes();
 
-    ConnectionComboBox *bindingComboBox = qobject_cast<ConnectionComboBox*>(widget);
+    ConnectionComboBox *connectionComboBox = qobject_cast<ConnectionComboBox*>(widget);
 
     if (!connectionModel) {
         qWarning() << "ConnectionDelegate::createEditor no model";
@@ -430,7 +430,7 @@ QWidget *ConnectionDelegate::createEditor(QWidget *parent, const QStyleOptionVie
         return widget;
     }
 
-    if (!bindingComboBox) {
+    if (!connectionComboBox) {
         qWarning() << "ConnectionDelegate::createEditor no bindingComboBox";
         return widget;
     }
@@ -439,12 +439,12 @@ QWidget *ConnectionDelegate::createEditor(QWidget *parent, const QStyleOptionVie
     case TargetModelNodeRow: {
         foreach (const ModelNode &modelNode, connectionModel->connectionView()->allModelNodes()) {
             if (!modelNode.id().isEmpty()) {
-                bindingComboBox->addItem(modelNode.id());
+                connectionComboBox->addItem(modelNode.id());
             }
         }
     } break;
     case TargetPropertyNameRow: {
-        bindingComboBox->addItems(prependOnForSignalHandler(connectionModel->getSignalsForRow(index.row())));
+        connectionComboBox->addItems(prependOnForSignalHandler(connectionModel->getSignalsForRow(index.row())));
     } break;
     case SourceRow: {
         ModelNode rootModelNode = connectionModel->connectionView()->rootModelNode();
@@ -452,12 +452,12 @@ QWidget *ConnectionDelegate::createEditor(QWidget *parent, const QStyleOptionVie
 
             QString itemText = tr("Change to default state");
             QString source = QString::fromLatin1("{ %1.state = \"\" }").arg(rootModelNode.id());
-            bindingComboBox->addItem(itemText, source);
+            connectionComboBox->addItem(itemText, source);
 
             foreach (const QmlModelState &state, QmlItemNode(rootModelNode).states().allStates()) {
                 QString itemText = tr("Change state to %1").arg(state.name());
                 QString source = QString::fromLatin1("{ %1.state = \"%2\" }").arg(rootModelNode.id()).arg(state.name());
-                bindingComboBox->addItem(itemText, source);
+                connectionComboBox->addItem(itemText, source);
             }
         }
     } break;
@@ -465,7 +465,14 @@ QWidget *ConnectionDelegate::createEditor(QWidget *parent, const QStyleOptionVie
     default: qWarning() << "ConnectionDelegate::createEditor column" << index.column();
     }
 
-    connect(bindingComboBox, SIGNAL(activated(QString)), this, SLOT(emitCommitData(QString)));
+    connect(connectionComboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, [=]() {
+        auto delegate = const_cast<ConnectionDelegate*>(this);
+        emit delegate->commitData(connectionComboBox);
+        // TODO: The combobox does a change while it is opening and this would close it immediately.
+        //       Making sure that this is not connected while data is initialized maybe with using
+        //       QAbstractItemDelegate::setEditorData also this connect should maybe unique.
+        // emit delegate->closeEditor(connectionComboBox);
+    });
 
     return widget;
 }
@@ -475,13 +482,6 @@ void ConnectionDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
     QStyleOptionViewItem opt = option;
     opt.state &= ~QStyle::State_HasFocus;
     QStyledItemDelegate::paint(painter, opt, index);
-}
-
-void ConnectionDelegate::emitCommitData(const QString & /*text*/)
-{
-    ConnectionComboBox *bindingComboBox = qobject_cast<ConnectionComboBox*>(sender());
-
-    emit commitData(bindingComboBox);
 }
 
 ConnectionComboBox::ConnectionComboBox(QWidget *parent) : QComboBox(parent)

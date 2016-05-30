@@ -550,7 +550,14 @@ QWidget *BindingDelegate::createEditor(QWidget *parent, const QStyleOptionViewIt
         default: qWarning() << "BindingDelegate::createEditor column" << index.column();
         }
 
-        connect(bindingComboBox, SIGNAL(activated(QString)), this, SLOT(emitCommitData(QString)));
+        connect(bindingComboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, [=]() {
+            auto delegate = const_cast<BindingDelegate*>(this);
+            emit delegate->commitData(bindingComboBox);
+            // TODO: The combobox does a change while it is opening and this would close it immediately.
+            //       Making sure that this is not connected while data is initialized maybe with using
+            //       QAbstractItemDelegate::setEditorData also this connect should maybe unique.
+            // emit delegate->closeEditor(bindingComboBox);
+        });
 
         return widget;
 }
@@ -561,12 +568,6 @@ void BindingDelegate::paint(QPainter *painter, const QStyleOptionViewItem &optio
     QStyleOptionViewItem opt = option;
     opt.state &= ~QStyle::State_HasFocus;
     QStyledItemDelegate::paint(painter, opt, index);
-}
-
-void BindingDelegate::emitCommitData(const QString & /*text*/)
-{
-    BindingComboBox *bindingComboBox = qobject_cast<BindingComboBox*>(sender());
-    emit commitData(bindingComboBox);
 }
 
 BindingComboBox::BindingComboBox(QWidget *parent) : QComboBox(parent)

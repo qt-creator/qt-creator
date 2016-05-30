@@ -774,19 +774,26 @@ QWidget *DynamicPropertiesDelegate::createEditor(QWidget *parent, const QStyleOp
         } break;
         case PropertyTypeRow: {
 
-            DynamicPropertiesComboBox *bindingComboBox = new DynamicPropertiesComboBox(parent);
-            connect(bindingComboBox, SIGNAL(activated(QString)), this, SLOT(emitCommitData(QString)));
+            DynamicPropertiesComboBox *dynamicPropertiesComboBox = new DynamicPropertiesComboBox(parent);
+            connect(dynamicPropertiesComboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, [=]() {
+                auto delegate = const_cast<DynamicPropertiesDelegate*>(this);
+                emit delegate->commitData(dynamicPropertiesComboBox);
+                // TODO: The combobox does a change while it is opening and this would close it immediately.
+                //       Making sure that this is not connected while data is initialized maybe with using
+                //       QAbstractItemDelegate::setEditorData also this connect should maybe unique.
+                // emit delegate->closeEditor(dynamicPropertiesComboBox);
+            });
 
-            //bindingComboBox->addItem(QLatin1String("alias"));
-            //bindingComboBox->addItem(QLatin1String("Item"));
-            bindingComboBox->addItem(QLatin1String("real"));
-            bindingComboBox->addItem(QLatin1String("int"));
-            bindingComboBox->addItem(QLatin1String("string"));
-            bindingComboBox->addItem(QLatin1String("bool"));
-            bindingComboBox->addItem(QLatin1String("url"));
-            bindingComboBox->addItem(QLatin1String("color"));
-            bindingComboBox->addItem(QLatin1String("variant"));
-            return bindingComboBox;
+            //dynamicPropertiesComboBox->addItem(QLatin1String("alias"));
+            //dynamicPropertiesComboBox->addItem(QLatin1String("Item"));
+            dynamicPropertiesComboBox->addItem(QLatin1String("real"));
+            dynamicPropertiesComboBox->addItem(QLatin1String("int"));
+            dynamicPropertiesComboBox->addItem(QLatin1String("string"));
+            dynamicPropertiesComboBox->addItem(QLatin1String("bool"));
+            dynamicPropertiesComboBox->addItem(QLatin1String("url"));
+            dynamicPropertiesComboBox->addItem(QLatin1String("color"));
+            dynamicPropertiesComboBox->addItem(QLatin1String("variant"));
+            return dynamicPropertiesComboBox;
         } break;
         case PropertyValueRow: {
             return QStyledItemDelegate::createEditor(parent, option, index);
