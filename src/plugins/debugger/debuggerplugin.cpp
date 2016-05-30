@@ -72,7 +72,6 @@
 #include "gdb/startgdbserverdialog.h"
 
 #include "analyzer/analyzerconstants.h"
-#include "analyzer/analyzericons.h"
 #include "analyzer/analyzermanager.h"
 #include "analyzer/analyzerruncontrol.h"
 #include "analyzer/analyzerstartparameters.h"
@@ -3571,7 +3570,7 @@ void registerToolbar(const QByteArray &perspectiveId, const ToolbarDescription &
 QAction *createStartAction()
 {
     auto action = new QAction(DebuggerMainWindow::tr("Start"), DebuggerPlugin::instance());
-    action->setIcon(Icons::ANALYZER_CONTROL_START_TOOLBAR.icon());
+    action->setIcon(ProjectExplorer::Icons::ANALYZER_START_SMALL_TOOLBAR.icon());
     action->setEnabled(true);
     return action;
 }

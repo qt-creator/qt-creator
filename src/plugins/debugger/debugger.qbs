@@ -246,7 +246,6 @@ QtcPlugin {
         files: [
             "analyzerbase.qrc",
             "analyzerconstants.h",
-            "analyzericons.h",
             "analyzermanager.h",
             "analyzerrunconfigwidget.cpp",
             "analyzerrunconfigwidget.h",

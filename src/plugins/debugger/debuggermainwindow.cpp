@@ -26,7 +26,6 @@
 #include "debuggermainwindow.h"
 #include "debuggerconstants.h"
 #include "debuggerinternalconstants.h"
-#include "analyzer/analyzericons.h"
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>

@@ -46,7 +46,6 @@
 
 #include <debugger/debuggerconstants.h>
 #include <debugger/analyzer/analyzerconstants.h>
-#include <debugger/analyzer/analyzericons.h>
 #include <debugger/analyzer/analyzermanager.h>
 #include <debugger/analyzer/analyzerstartparameters.h>
 #include <debugger/analyzer/analyzerutils.h>
@@ -297,7 +296,7 @@ CallgrindTool::CallgrindTool(QObject *parent)
         editorContextMenu->addSeparator(analyzerContext);
 
         auto action = new QAction(tr("Profile Costs of This Function and Its Callees"), this);
-        action->setIcon(Debugger::Icons::ANALYZER_CONTROL_START.icon());
+        action->setIcon(ProjectExplorer::Icons::ANALYZER_START_SMALL.icon());
         connect(action, &QAction::triggered, this,
                 &CallgrindTool::handleShowCostsOfFunction);
         Command *cmd = ActionManager::registerAction(action, "Analyzer.Callgrind.ShowCostsOfFunction",

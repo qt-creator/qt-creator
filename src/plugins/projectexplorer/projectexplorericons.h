@@ -58,6 +58,13 @@ const Utils::Icon DEBUG_START_SMALL({
 const Utils::Icon DEBUG_START_SMALL_TOOLBAR({
         {QLatin1String(":/core/images/run_small.png"), Utils::Theme::IconsRunToolBarColor},
         {QLatin1String(":/projectexplorer/images/debugger_overlay_small.png"), Utils::Theme::IconsDebugColor}});
+const Utils::Icon ANALYZER_START_SMALL({
+        {QLatin1String(":/core/images/run_small.png"), Utils::Theme::IconsRunColor},
+        {QLatin1String(":/projectexplorer/images/analyzer_overlay_small.png"), Utils::Theme::PanelTextColorMid}},
+                                         Utils::Icon::MenuTintedStyle);
+const Utils::Icon ANALYZER_START_SMALL_TOOLBAR({
+        {QLatin1String(":/core/images/run_small.png"), Utils::Theme::IconsRunToolBarColor},
+        {QLatin1String(":/projectexplorer/images/analyzer_overlay_small.png"), Utils::Theme::IconsBaseColor}});
 
 const Utils::Icon BUILDSTEP_MOVEUP({
         {QLatin1String(":/projectexplorer/images/buildstepmoveup.png"), Utils::Theme::PanelTextColorDark}}, Utils::Icon::Tint);

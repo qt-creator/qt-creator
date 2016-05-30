@@ -20,8 +20,7 @@ HEADERS += \
     $$PWD/analyzerutils.h \
     $$PWD/detailederrorview.h \
     $$PWD/diagnosticlocation.h \
-    $$PWD/startremotedialog.h \
-    $$PWD/analyzericons.h
+    $$PWD/startremotedialog.h
 
 RESOURCES += \
     $$PWD/analyzerbase.qrc

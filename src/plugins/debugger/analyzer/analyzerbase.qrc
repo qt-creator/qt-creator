@@ -1,7 +1,5 @@
 <RCC>
     <qresource prefix="/">
         <file>images/analyzer_category.png</file>
-        <file>images/analyzer_overlay_small.png</file>
-        <file>images/analyzer_overlay_small@2x.png</file>
     </qresource>
 </RCC>
