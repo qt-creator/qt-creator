@@ -30,7 +30,6 @@
 
 #include <projectexplorer/runconfiguration.h>
 
-#include <utils/outputformat.h>
 #include <utils/port.h>
 
 namespace Debugger {

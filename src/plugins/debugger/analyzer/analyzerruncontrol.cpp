@@ -24,16 +24,7 @@
 **
 ****************************************************************************/
 
-#include "analyzermanager.h"
 #include "analyzerruncontrol.h"
-
-#include <projectexplorer/project.h>
-#include <projectexplorer/runconfigurationaspects.h>
-#include <projectexplorer/projectexplorericons.h>
-#include <projectexplorer/target.h>
-
-#include <QDebug>
-#include <QAction>
 
 using namespace ProjectExplorer;
 
@@ -41,8 +32,6 @@ namespace Debugger {
 
 AnalyzerRunControl::AnalyzerRunControl(RunConfiguration *runConfiguration, Core::Id runMode)
     : RunControl(runConfiguration, runMode)
-{
-    setIcon(Icons::ANALYZER_START_SMALL_TOOLBAR);
-}
+{}
 
 } // namespace Debugger

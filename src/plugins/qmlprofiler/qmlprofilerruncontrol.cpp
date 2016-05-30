@@ -31,16 +31,20 @@
 #include <debugger/analyzer/analyzerstartparameters.h>
 
 #include <coreplugin/icore.h>
-#include <utils/qtcassert.h>
 #include <coreplugin/helpmanager.h>
-#include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/kitinformation.h>
-#include <projectexplorer/target.h>
+
 #include <projectexplorer/environmentaspect.h>
+#include <projectexplorer/kitinformation.h>
 #include <projectexplorer/localapplicationruncontrol.h>
+#include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/projectexplorericons.h>
 #include <projectexplorer/runnables.h>
+#include <projectexplorer/target.h>
+
 #include <qtsupport/qtsupportconstants.h>
 #include <qmldebug/qmloutputparser.h>
+
+#include <utils/qtcassert.h>
 
 #include <QMainWindow>
 #include <QMessageBox>
@@ -79,6 +83,8 @@ QmlProfilerRunControl::QmlProfilerRunControl(RunConfiguration *runConfiguration,
     : AnalyzerRunControl(runConfiguration, ProjectExplorer::Constants::QML_PROFILER_RUN_MODE)
     , d(new QmlProfilerRunControlPrivate)
 {
+    setIcon(ProjectExplorer::Icons::ANALYZER_START_SMALL_TOOLBAR);
+
     d->m_tool = tool;
     // Only wait 4 seconds for the 'Waiting for connection' on application output, then just try to connect
     // (application output might be redirected / blocked)

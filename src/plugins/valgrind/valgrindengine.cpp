@@ -36,6 +36,8 @@
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/progressmanager/futureprogress.h>
 #include <extensionsystem/pluginmanager.h>
+
+#include <projectexplorer/projectexplorericons.h>
 #include <projectexplorer/runconfiguration.h>
 
 #include <QApplication>
@@ -54,6 +56,7 @@ namespace Internal {
 ValgrindRunControl::ValgrindRunControl(RunConfiguration *runConfiguration, Core::Id runMode)
     : AnalyzerRunControl(runConfiguration, runMode)
 {
+    setIcon(ProjectExplorer::Icons::ANALYZER_START_SMALL_TOOLBAR);
     QTC_ASSERT(runConfiguration, return);
     setRunnable(runConfiguration->runnable());
 

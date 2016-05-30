@@ -30,7 +30,6 @@
 #include "clangstaticanalyzersettings.h"
 #include "clangstaticanalyzerutils.h"
 
-#include <debugger/analyzer/analyzermanager.h>
 #include <debugger/analyzer/analyzerutils.h>
 
 #include <clangcodemodel/clangutils.h>
@@ -47,6 +46,7 @@
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/project.h>
+#include <projectexplorer/projectexplorericons.h>
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/taskhub.h>
@@ -76,6 +76,8 @@ ClangStaticAnalyzerRunControl::ClangStaticAnalyzerRunControl(
     , m_filesNotAnalyzed(0)
 {
     setDisplayName(tr("Clang Static Analyzer"));
+    setIcon(ProjectExplorer::Icons::ANALYZER_START_SMALL_TOOLBAR);
+
     Target *target = runConfiguration->target();
     BuildConfiguration *buildConfiguration = target->activeBuildConfiguration();
     QTC_ASSERT(buildConfiguration, return);
