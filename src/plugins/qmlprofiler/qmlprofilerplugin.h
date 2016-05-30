@@ -45,8 +45,6 @@ public:
     ShutdownFlag aboutToShutdown();
 
     static bool debugOutput;
-    static QmlProfilerPlugin *instance;
-
     static QmlProfilerSettings *globalSettings();
 };
 

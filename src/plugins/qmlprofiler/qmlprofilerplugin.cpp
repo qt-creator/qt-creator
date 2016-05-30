@@ -40,13 +40,10 @@ namespace Internal {
 Q_GLOBAL_STATIC(QmlProfilerSettings, qmlProfilerGlobalSettings)
 
 bool QmlProfilerPlugin::debugOutput = false;
-QmlProfilerPlugin *QmlProfilerPlugin::instance = 0;
 
 bool QmlProfilerPlugin::initialize(const QStringList &arguments, QString *errorString)
 {
     Q_UNUSED(arguments)
-
-    QmlProfilerPlugin::instance = this;
 
     if (!Utils::HostOsInfo::canCreateOpenGLContext(errorString))
         return false;
