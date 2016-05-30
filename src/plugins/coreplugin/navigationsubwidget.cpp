@@ -50,7 +50,8 @@ namespace Internal {
 ////
 
 NavigationSubWidget::NavigationSubWidget(NavigationWidget *parentWidget, int position, int factoryIndex)
-    : m_parentWidget(parentWidget),
+    : QWidget(parentWidget),
+      m_parentWidget(parentWidget),
       m_position(position)
 {
     m_navigationComboBox = new NavComboBox(this);

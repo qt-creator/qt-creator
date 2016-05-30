@@ -297,6 +297,9 @@ MainWindow::~MainWindow()
     PluginManager::removeObject(m_outputView);
     delete m_outputView;
 
+    delete m_navigationWidget;
+    m_navigationWidget = 0;
+
     delete m_editorManager;
     m_editorManager = 0;
     delete m_progressManager;
