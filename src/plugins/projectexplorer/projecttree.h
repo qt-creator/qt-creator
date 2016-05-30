@@ -44,6 +44,7 @@ class PROJECTEXPLORER_EXPORT ProjectTree : public QObject
     Q_OBJECT
 public:
     explicit ProjectTree(QObject *parent = nullptr);
+    ~ProjectTree();
 
     static ProjectTree *instance();
 

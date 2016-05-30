@@ -32,6 +32,7 @@
 #include "nodesvisitor.h"
 
 #include <utils/algorithm.h>
+#include <utils/qtcassert.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/editormanager/editormanager.h>
@@ -78,11 +79,19 @@ ProjectTree::ProjectTree(QObject *parent) : QObject(parent)
             this, &ProjectTree::sessionChanged);
 }
 
+ProjectTree::~ProjectTree()
+{
+    QTC_ASSERT(s_instance == this, return);
+    s_instance = nullptr;
+}
+
 void ProjectTree::aboutToShutDown()
 {
     disconnect(qApp, &QApplication::focusChanged,
                s_instance, &ProjectTree::focusChanged);
     s_instance->update(0, 0);
+    qDeleteAll(s_instance->m_projectTreeWidgets);
+    QTC_CHECK(s_instance->m_projectTreeWidgets.isEmpty());
 }
 
 ProjectTree *ProjectTree::instance()
