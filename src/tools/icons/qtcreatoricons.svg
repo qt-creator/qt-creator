@@ -5046,22 +5046,6 @@
          inkscape:connector-curvature="0" />
     </g>
     <g
-       transform="translate(-44,308)"
-       style="display:inline"
-       id="src/plugins/debugger/analyzer/images/mode_analyze_mask">
-      <rect
-         style="display:inline;fill:#ffffff;fill-opacity:1"
-         x="284"
-         y="42"
-         width="48"
-         height="32"
-         id="rect5706-6-2" />
-      <path
-         id="rect5451-0"
-         style=""
-         d="m 301,61 7,0 0,4 -7,0 z m 0,-6 12,0 0,4 -12,0 z m 0,-6 16,0 0,4 -16,0 z m -3,18 19,0 0,1 -19,0 z m 0,-18 1,0 0,19 -1,0 z" />
-    </g>
-    <g
        transform="translate(-46,308)"
        style="display:inline"
        id="src/plugins/help/images/mode_help_mask">

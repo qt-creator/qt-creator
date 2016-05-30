@@ -37,12 +37,6 @@ const Utils::Icon ANALYZER_CONTROL_START({
 const Utils::Icon ANALYZER_CONTROL_START_TOOLBAR({
         {QLatin1String(":/core/images/run_small.png"), Utils::Theme::IconsRunToolBarColor},
         {QLatin1String(":/images/analyzer_overlay_small.png"), Utils::Theme::IconsBaseColor}});
-const Utils::Icon MODE_ANALYZE_CLASSIC(
-        QLatin1String(":/images/mode_analyze.png"));
-const Utils::Icon MODE_ANALYZE_FLAT({
-        {QLatin1String(":/images/mode_analyze_mask.png"), Utils::Theme::IconsBaseColor}});
-const Utils::Icon MODE_ANALYZE_FLAT_ACTIVE({
-        {QLatin1String(":/images/mode_analyze_mask.png"), Utils::Theme::IconsModeAnalyzeActiveColor}});
 
 } // namespace Icons
 } // namespace Debugger
