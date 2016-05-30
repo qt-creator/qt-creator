@@ -1,0 +1,7 @@
+{
+    "Name" : "plugin2",
+    "Version" : "1.0.0",
+    "CompatVersion" : "1.0.0",
+    "Vendor" : "1 < 2 GmbH",
+    "Url" : "http://www.somewhereintheweb.com/dodo.php?q=p"
+}

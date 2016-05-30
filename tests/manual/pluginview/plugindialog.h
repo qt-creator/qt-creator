@@ -36,12 +36,11 @@ class PluginDialog : public QWidget
     Q_OBJECT
 
 public:
-    PluginDialog(ExtensionSystem::PluginManager *manager);
+    PluginDialog();
 
 private slots:
     void updateButtons();
-    void openDetails();
-    void openDetails(ExtensionSystem::PluginSpec *spec);
+    void openDetails(ExtensionSystem::PluginSpec *spec = nullptr);
     void openErrorDetails();
 
 private:

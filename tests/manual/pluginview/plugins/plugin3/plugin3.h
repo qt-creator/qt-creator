@@ -30,14 +30,15 @@
 #include <QObject>
 #include <QString>
 
-namespace Plugin1 {
+namespace Plugin3 {
 
-class MyPlugin1 : public ExtensionSystem::IPlugin
+class MyPlugin3 : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
+    Q_PLUGIN_METADATA(IID "plugin" FILE "plugin3.json")
 
 public:
-    MyPlugin1();
+    MyPlugin3();
 
     bool initialize(const QStringList &arguments, QString *errorString);
     void extensionsInitialized();
@@ -46,4 +47,4 @@ private:
     bool initializeCalled;
 };
 
-} // namespace Plugin1
+} // namespace Plugin3

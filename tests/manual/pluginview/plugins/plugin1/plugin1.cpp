@@ -23,47 +23,53 @@
 **
 ****************************************************************************/
 
-#include "plugin3.h"
+#include "plugin1.h"
 
 #include <extensionsystem/pluginmanager.h>
 
-#include <qplugin.h>
 #include <QObject>
 
-using namespace Plugin3;
+using namespace Plugin1;
 
-MyPlugin3::MyPlugin3()
+MyPlugin1::MyPlugin1()
     : initializeCalled(false)
 {
 }
 
-bool MyPlugin3::initialize(const QStringList & /*arguments*/, QString *errorString)
+bool MyPlugin1::initialize(const QStringList & /*arguments*/, QString *errorString)
 {
     initializeCalled = true;
     QObject *obj = new QObject(this);
-    obj->setObjectName("MyPlugin3");
+    obj->setObjectName("MyPlugin1");
     addAutoReleasedObject(obj);
 
     bool found2 = false;
+    bool found3 = false;
     foreach (QObject *object, ExtensionSystem::PluginManager::instance()->allObjects()) {
         if (object->objectName() == "MyPlugin2")
             found2 = true;
+        else if (object->objectName() == "MyPlugin3")
+            found3 = true;
     }
-    if (found2)
+    if (found2 && found3)
         return true;
-    if (errorString)
-        *errorString = "object from plugin2 could not be found";
+    if (errorString) {
+        QString error = "object(s) missing from plugin(s):";
+        if (!found2)
+            error.append(" plugin2");
+        if (!found3)
+            error.append(" plugin3");
+        *errorString = error;
+    }
     return false;
 }
 
-void MyPlugin3::extensionsInitialized()
+void MyPlugin1::extensionsInitialized()
 {
     if (!initializeCalled)
         return;
     // don't do this at home, it's just done here for the test
     QObject *obj = new QObject(this);
-    obj->setObjectName("MyPlugin3_running");
+    obj->setObjectName("MyPlugin1_running");
     addAutoReleasedObject(obj);
 }
-
-Q_EXPORT_PLUGIN(MyPlugin3)

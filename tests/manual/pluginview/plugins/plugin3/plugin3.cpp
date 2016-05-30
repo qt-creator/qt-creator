@@ -23,27 +23,44 @@
 **
 ****************************************************************************/
 
-#pragma once
+#include "plugin3.h"
 
-#include <extensionsystem/iplugin.h>
+#include <extensionsystem/pluginmanager.h>
 
 #include <QObject>
-#include <QString>
 
-namespace Plugin2 {
+using namespace Plugin3;
 
-class MyPlugin2 : public ExtensionSystem::IPlugin
+MyPlugin3::MyPlugin3()
+    : initializeCalled(false)
 {
-    Q_OBJECT
+}
 
-public:
-    MyPlugin2();
+bool MyPlugin3::initialize(const QStringList & /*arguments*/, QString *errorString)
+{
+    initializeCalled = true;
+    QObject *obj = new QObject(this);
+    obj->setObjectName("MyPlugin3");
+    addAutoReleasedObject(obj);
 
-    bool initialize(const QStringList &arguments, QString *errorString);
-    void extensionsInitialized();
+    bool found2 = false;
+    foreach (QObject *object, ExtensionSystem::PluginManager::instance()->allObjects()) {
+        if (object->objectName() == "MyPlugin2")
+            found2 = true;
+    }
+    if (found2)
+        return true;
+    if (errorString)
+        *errorString = "object from plugin2 could not be found";
+    return false;
+}
 
-private:
-    bool initializeCalled;
-};
-
-} // namespace Plugin2
+void MyPlugin3::extensionsInitialized()
+{
+    if (!initializeCalled)
+        return;
+    // don't do this at home, it's just done here for the test
+    QObject *obj = new QObject(this);
+    obj->setObjectName("MyPlugin3_running");
+    addAutoReleasedObject(obj);
+}

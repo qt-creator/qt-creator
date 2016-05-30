@@ -23,39 +23,28 @@
 **
 ****************************************************************************/
 
-#include "plugin2.h"
+#pragma once
 
-#include <extensionsystem/pluginmanager.h>
+#include <extensionsystem/iplugin.h>
 
-#include <qplugin.h>
 #include <QObject>
+#include <QString>
 
-using namespace Plugin2;
+namespace Plugin2 {
 
-MyPlugin2::MyPlugin2()
-    : initializeCalled(false)
+class MyPlugin2 : public ExtensionSystem::IPlugin
 {
-}
+    Q_OBJECT
+    Q_PLUGIN_METADATA(IID "plugin" FILE "plugin2.json")
 
-bool MyPlugin2::initialize(const QStringList & /*arguments*/, QString *errorString)
-{
-    Q_UNUSED(errorString)
-    initializeCalled = true;
-    QObject *obj = new QObject(this);
-    obj->setObjectName("MyPlugin2");
-    addAutoReleasedObject(obj);
+public:
+    MyPlugin2();
 
-    return true;
-}
+    bool initialize(const QStringList &arguments, QString *errorString);
+    void extensionsInitialized();
 
-void MyPlugin2::extensionsInitialized()
-{
-    if (!initializeCalled)
-        return;
-    // don't do this at home, it's just done here for the test
-    QObject *obj = new QObject(this);
-    obj->setObjectName("MyPlugin2_running");
-    addAutoReleasedObject(obj);
-}
+private:
+    bool initializeCalled;
+};
 
-Q_EXPORT_PLUGIN(MyPlugin2)
+} // namespace Plugin2

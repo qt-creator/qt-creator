@@ -1,0 +1,17 @@
+{
+    "Name" : "plugin1",
+    "Version" : "2.1.0",
+    "CompatVersion" : "1.0.0",
+    "Vendor" : "Blablubb Corp",
+    "Copyright" : "(C) 2023 Blubb",
+    "License" : [ "This is a default license bla",
+        "blubbblubb",
+        "end of terms"
+    ],
+    "Description" : "This plugin is just a test. it demonstrates the great use of the plugin spec.",
+    "Url" : "http://www.blablubb-corp.com/greatplugin",
+    "Dependencies" : [
+        { "Name" : "plugin2", "Version" : "1.0.0" },
+        { "Name" : "plugin3", "Version" : "1.0.0" }
+    ]
+}

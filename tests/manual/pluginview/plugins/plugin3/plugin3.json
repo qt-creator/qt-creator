@@ -1,0 +1,10 @@
+{
+    "Name" : "plugin3",
+    "Version" : "1.0.0",
+    "CompatVersion" : "1.0.0",
+    "Vendor" : "Günöl AG",
+    "Url" : "http://www.somewhereintheweb.com/dodo.php?q=p",
+    "Dependencies" : [
+        { "Name" : "plugin2", "Version" : "1.0.0" }
+    ]
+}

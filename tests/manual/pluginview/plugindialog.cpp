@@ -28,6 +28,8 @@
 #include <extensionsystem/plugindetailsview.h>
 #include <extensionsystem/pluginerrorview.h>
 #include <extensionsystem/pluginspec.h>
+#include <utils/theme/theme.h>
+#include <utils/theme/theme_p.h>
 
 #include <QVBoxLayout>
 #include <QHBoxLayout>
@@ -36,8 +38,10 @@
 #include <QApplication>
 #include <QDebug>
 
-PluginDialog::PluginDialog(ExtensionSystem::PluginManager *manager)
-    : m_view(new ExtensionSystem::PluginView(manager, this))
+using namespace Utils;
+
+PluginDialog::PluginDialog()
+    : m_view(new ExtensionSystem::PluginView(this))
 {
     QVBoxLayout *vl = new QVBoxLayout(this);
     vl->setMargin(0);
@@ -58,12 +62,12 @@ PluginDialog::PluginDialog(ExtensionSystem::PluginManager *manager)
     resize(650, 300);
     setWindowTitle(tr("Installed Plugins"));
 
-    connect(m_view, SIGNAL(currentPluginChanged(ExtensionSystem::PluginSpec*)),
-                this, SLOT(updateButtons()));
-    connect(m_view, SIGNAL(pluginActivated(ExtensionSystem::PluginSpec*)),
-                this, SLOT(openDetails(ExtensionSystem::PluginSpec*)));
-    connect(m_detailsButton, SIGNAL(clicked()), this, SLOT(openDetails()));
-    connect(m_errorDetailsButton, SIGNAL(clicked()), this, SLOT(openErrorDetails()));
+    connect(m_view, &ExtensionSystem::PluginView::currentPluginChanged,
+                this, &PluginDialog::updateButtons);
+    connect(m_view, &ExtensionSystem::PluginView::pluginActivated,
+                this, &PluginDialog::openDetails);
+    connect(m_detailsButton, &QAbstractButton::clicked, this, [this]() { openDetails(); });
+    connect(m_errorDetailsButton, &QAbstractButton::clicked, this, &PluginDialog::openErrorDetails);
 }
 
 void PluginDialog::updateButtons()
@@ -79,15 +83,13 @@ void PluginDialog::updateButtons()
 }
 
 
-void PluginDialog::openDetails()
-{
-        openDetails(m_view->currentPlugin());
-}
-
 void PluginDialog::openDetails(ExtensionSystem::PluginSpec *spec)
 {
-    if (!spec)
-        return;
+    if (!spec) {
+        spec = m_view->currentPlugin();
+        if (!spec)
+            return;
+    }
     QDialog dialog(this);
     dialog.setWindowTitle(tr("Plugin Details of %1").arg(spec->name()));
     QVBoxLayout *layout = new QVBoxLayout;
@@ -97,8 +99,8 @@ void PluginDialog::openDetails(ExtensionSystem::PluginSpec *spec)
     details->update(spec);
     QDialogButtonBox *buttons = new QDialogButtonBox(QDialogButtonBox::Close, Qt::Horizontal, &dialog);
     layout->addWidget(buttons);
-    connect(buttons, SIGNAL(accepted()), &dialog, SLOT(accept()));
-    connect(buttons, SIGNAL(rejected()), &dialog, SLOT(reject()));
+    connect(buttons, &QDialogButtonBox::accepted, &dialog, &QDialog::accept);
+    connect(buttons, &QDialogButtonBox::rejected, &dialog, &QDialog::reject);
     dialog.resize(400, 500);
     dialog.exec();
 }
@@ -117,19 +119,24 @@ void PluginDialog::openErrorDetails()
     errors->update(spec);
     QDialogButtonBox *buttons = new QDialogButtonBox(QDialogButtonBox::Close, Qt::Horizontal, &dialog);
     layout->addWidget(buttons);
-    connect(buttons, SIGNAL(accepted()), &dialog, SLOT(accept()));
-    connect(buttons, SIGNAL(rejected()), &dialog, SLOT(reject()));
+    connect(buttons, &QDialogButtonBox::accepted, &dialog, &QDialog::accept);
+    connect(buttons, &QDialogButtonBox::rejected, &dialog, &QDialog::reject);
     dialog.resize(500, 300);
     dialog.exec();
 }
 
 int main(int argc, char *argv[])
 {
-    ExtensionSystem::PluginManager manager;
     QApplication app(argc, argv);
-    PluginDialog dialog(&manager);
+    ExtensionSystem::PluginManager manager;
+    manager.setPluginIID(QLatin1String("plugin"));
+    setCreatorTheme(new Theme("default", &app));
+    QObject::connect(&app, &QCoreApplication::aboutToQuit,
+                     &manager, &ExtensionSystem::PluginManager::shutdown);
+    PluginDialog dialog;
     manager.setPluginPaths(QStringList() << "plugins");
     manager.loadPlugins();
     dialog.show();
     app.exec();
+    return 0;
 }
