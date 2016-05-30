@@ -44,14 +44,12 @@ public:
 
     Valgrind::Callgrind::ParseData *takeParserData();
 
-    bool canPause() const override { return true; }
-
 public slots:
     /// controller actions
     void dump();
     void reset();
-    void pause() override;
-    void unpause() override;
+    void pause();
+    void unpause();
 
     /// marks the callgrind process as paused
     /// calls pause() and unpause() if there's an active run

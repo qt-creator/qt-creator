@@ -47,11 +47,6 @@ class DEBUGGER_EXPORT AnalyzerRunControl : public ProjectExplorer::RunControl
 public:
     AnalyzerRunControl(ProjectExplorer::RunConfiguration *runConfiguration, Core::Id runMode);
 
-    /// Controller actions.
-    virtual bool canPause() const { return false; }
-    virtual void pause() {}
-    virtual void unpause() {}
-
     virtual void notifyRemoteSetupDone(Utils::Port) {}
     virtual void notifyRemoteFinished() {}
 
