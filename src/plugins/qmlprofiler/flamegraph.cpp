@@ -58,7 +58,8 @@ void FlameGraph::setModel(QAbstractItemModel *model)
             disconnect(m_model, &QAbstractItemModel::modelReset, this, &FlameGraph::rebuild);
 
         m_model = model;
-        connect(m_model, &QAbstractItemModel::modelReset, this, &FlameGraph::rebuild);
+        if (m_model)
+            connect(m_model, &QAbstractItemModel::modelReset, this, &FlameGraph::rebuild);
         emit modelChanged(model);
         rebuild();
     }
