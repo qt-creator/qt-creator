@@ -222,7 +222,8 @@ QModelIndex FlameGraphModel::parent(const QModelIndex &child) const
 {
     if (child.isValid()) {
         FlameGraphData *childData = static_cast<FlameGraphData *>(child.internalPointer());
-        return createIndex(0, 0, childData->parent);
+        return childData->parent == &m_stackBottom ? QModelIndex() :
+                                                     createIndex(0, 0, childData->parent);
     } else {
         return QModelIndex();
     }
