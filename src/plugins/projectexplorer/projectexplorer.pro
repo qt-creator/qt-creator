@@ -297,6 +297,7 @@ SOURCES += projectexplorer.cpp \
     projecttree.cpp \
     expanddata.cpp \
     waitforstopdialog.cpp \
+    projectexplorericons.cpp \
     extracompiler.cpp \
     customexecutableconfigurationwidget.cpp \
     customexecutablerunconfiguration.cpp
