@@ -7709,29 +7709,29 @@ TextEditorFactory::~TextEditorFactory()
     delete d;
 }
 
-void TextEditorFactory::setDocumentCreator(DocumentCreator &&creator)
+void TextEditorFactory::setDocumentCreator(const DocumentCreator &creator)
 {
-    d->m_documentCreator = std::move(creator);
+    d->m_documentCreator = creator;
 }
 
-void TextEditorFactory::setEditorWidgetCreator(EditorWidgetCreator &&creator)
+void TextEditorFactory::setEditorWidgetCreator(const EditorWidgetCreator &creator)
 {
-    d->m_widgetCreator = std::move(creator);
+    d->m_widgetCreator = creator;
 }
 
-void TextEditorFactory::setEditorCreator(EditorCreator &&creator)
+void TextEditorFactory::setEditorCreator(const EditorCreator &creator)
 {
-    d->m_editorCreator = std::move(creator);
+    d->m_editorCreator = creator;
 }
 
-void TextEditorFactory::setIndenterCreator(IndenterCreator &&creator)
+void TextEditorFactory::setIndenterCreator(const IndenterCreator &creator)
 {
-    d->m_indenterCreator = std::move(creator);
+    d->m_indenterCreator = creator;
 }
 
-void TextEditorFactory::setSyntaxHighlighterCreator(SyntaxHighLighterCreator &&creator)
+void TextEditorFactory::setSyntaxHighlighterCreator(const SyntaxHighLighterCreator &creator)
 {
-    d->m_syntaxHighlighterCreator = std::move(creator);
+    d->m_syntaxHighlighterCreator = creator;
 }
 
 void TextEditorFactory::setUseGenericHighlighter(bool enabled)
@@ -7739,9 +7739,9 @@ void TextEditorFactory::setUseGenericHighlighter(bool enabled)
     d->m_useGenericHighlighter = enabled;
 }
 
-void TextEditorFactory::setAutoCompleterCreator(AutoCompleterCreator &&creator)
+void TextEditorFactory::setAutoCompleterCreator(const AutoCompleterCreator &creator)
 {
-    d->m_autoCompleterCreator = std::move(creator);
+    d->m_autoCompleterCreator = creator;
 }
 
 void TextEditorFactory::setEditorActionHandlers(Id contextId, uint optionalActions)
