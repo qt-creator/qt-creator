@@ -70,8 +70,8 @@ struct Data {
                 {},
                 translationUnits};
     TranslationUnitCore translationUnitCore{filePath,
-                                            translationUnit.index(),
-                                            translationUnit.cxTranslationUnit()};
+                                            translationUnit.translationUnitCore().cxIndex(),
+                                            translationUnit.translationUnitCore().cxTranslationUnit()};
 };
 
 class Cursor : public ::testing::Test

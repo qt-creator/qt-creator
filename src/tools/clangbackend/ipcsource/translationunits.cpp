@@ -128,14 +128,10 @@ const TranslationUnit &TranslationUnits::translationUnit(const FileContainer &fi
     return translationUnit(fileContainer.filePath(), fileContainer.projectPartId());
 }
 
-bool TranslationUnits::hasTranslationUnit(const Utf8String &filePath) const
+bool TranslationUnits::hasTranslationUnit(const Utf8String &filePath,
+                                          const Utf8String &projectPartId) const
 {
-    return std::any_of(translationUnits_.cbegin(),
-                       translationUnits_.cend(),
-                       [&filePath] (const TranslationUnit &translationUnit)
-    {
-        return translationUnit.filePath() == filePath;
-    });
+    return hasTranslationUnit(FileContainer(filePath, projectPartId));
 }
 
 const std::vector<TranslationUnit> &TranslationUnits::translationUnits() const
@@ -169,75 +165,6 @@ void TranslationUnits::setTranslationUnitsDirtyIfProjectPartChanged()
 {
     for (auto &translationUnit : translationUnits_)
         translationUnit.setDirtyIfProjectPartIsOutdated();
-}
-
-DocumentAnnotationsSendState TranslationUnits::sendDocumentAnnotations()
-{
-    auto documentAnnotationsSendState = sendDocumentAnnotationsForCurrentEditor();
-    if (documentAnnotationsSendState == DocumentAnnotationsSendState::NoDocumentAnnotationsSent)
-        documentAnnotationsSendState = sendDocumentAnnotationsForVisibleEditors();
-
-    return documentAnnotationsSendState;
-}
-
-template<class Predicate>
-DocumentAnnotationsSendState TranslationUnits::sendDocumentAnnotations(Predicate predicate)
-{
-    auto foundTranslationUnit = std::find_if(translationUnits_.begin(),
-                                             translationUnits_.end(),
-                                             predicate);
-
-    if (foundTranslationUnit != translationUnits().end()) {
-        sendDocumentAnnotations(*foundTranslationUnit);
-        return DocumentAnnotationsSendState::MaybeThereAreDocumentAnnotations;
-    }
-
-    return DocumentAnnotationsSendState::NoDocumentAnnotationsSent;
-}
-
-namespace {
-
-bool translationUnitHasNewDocumentAnnotations(const TranslationUnit &translationUnit)
-{
-    return translationUnit.isIntact()
-        && (translationUnit.hasNewDiagnostics()
-            || translationUnit.hasNewHighlightingMarks());
-}
-
-}
-
-DocumentAnnotationsSendState TranslationUnits::sendDocumentAnnotationsForCurrentEditor()
-{
-    auto hasDocumentAnnotationsForCurrentEditor = [] (const TranslationUnit &translationUnit) {
-        return translationUnit.isUsedByCurrentEditor()
-            && translationUnitHasNewDocumentAnnotations(translationUnit);
-    };
-
-    return sendDocumentAnnotations(hasDocumentAnnotationsForCurrentEditor);
-}
-
-DocumentAnnotationsSendState TranslationUnits::sendDocumentAnnotationsForVisibleEditors()
-{
-    auto hasDocumentAnnotationsForVisibleEditor = [] (const TranslationUnit &translationUnit) {
-        return translationUnit.isVisibleInEditor()
-            && translationUnitHasNewDocumentAnnotations(translationUnit);
-    };
-
-    return sendDocumentAnnotations(hasDocumentAnnotationsForVisibleEditor);
-}
-
-DocumentAnnotationsSendState TranslationUnits::sendDocumentAnnotationsForAll()
-{
-    auto hasDocumentAnnotations = [] (const TranslationUnit &translationUnit) {
-        return translationUnitHasNewDocumentAnnotations(translationUnit);
-    };
-
-    return sendDocumentAnnotations(hasDocumentAnnotations);
-}
-
-void TranslationUnits::setSendDocumentAnnotationsCallback(SendDocumentAnnotationsCallback &&callback)
-{
-    sendDocumentAnnotationsCallback = std::move(callback);
 }
 
 QVector<FileContainer> TranslationUnits::newerFileContainers(const QVector<FileContainer> &fileContainers) const
@@ -364,18 +291,6 @@ void TranslationUnits::checkIfTranslationUnitsForFilePathsDoesExists(const QVect
     for (const FileContainer &fileContainer : fileContainers) {
         if (!hasTranslationUnitWithFilePath(fileContainer.filePath()))
             throw  TranslationUnitDoesNotExistException(fileContainer);
-    }
-}
-
-void TranslationUnits::sendDocumentAnnotations(const TranslationUnit &translationUnit)
-{
-    if (sendDocumentAnnotationsCallback) {
-        DocumentAnnotationsChangedMessage message(translationUnit.fileContainer(),
-                                                  translationUnit.mainFileDiagnostics(),
-                                                  translationUnit.highlightingMarks().toHighlightingMarksContainers(),
-                                                  translationUnit.translationUnitCore().skippedSourceRanges().toSourceRangeContainers());
-
-        sendDocumentAnnotationsCallback(std::move(message));
     }
 }
 

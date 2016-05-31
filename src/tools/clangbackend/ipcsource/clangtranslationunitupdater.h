@@ -41,9 +41,10 @@ using time_point = std::chrono::steady_clock::time_point;
 
 class TranslationUnitUpdateInput {
 public:
-    bool reparseNeeded = false;
     bool parseNeeded = false;
+    bool reparseNeeded = false;
 
+    time_point needsToBeReparsedChangeTimePoint;
     Utf8String filePath;
     Utf8StringVector fileArguments;
 
@@ -55,9 +56,12 @@ public:
 
 class TranslationUnitUpdateResult {
 public:
+    bool hasParseOrReparseFailed = false;
+
     bool parseTimePointIsSet = false;
     time_point parseTimePoint;
 
+    time_point needsToBeReparsedChangeTimePoint;
     bool reparsed = false;
 
     QSet<Utf8String> dependedOnFilePaths;
@@ -99,9 +103,6 @@ private:
 
     bool parseWasSuccessful() const;
     bool reparseWasSuccessful() const;
-
-    void checkReparseErrorCode() const;
-    void checkParseErrorCode() const;
 
 private:
     CXIndex &m_cxIndex;

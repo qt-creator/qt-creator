@@ -28,8 +28,6 @@
 #include "clangfilepath.h"
 #include "clangstring.h"
 #include "clangunsavedfilesshallowarguments.h"
-#include "translationunitparseerrorexception.h"
-#include "translationunitreparseerrorexception.h"
 
 #include <QLoggingCategory>
 
@@ -105,11 +103,15 @@ void TranslationUnitUpdater::createTranslationUnitIfNeeded()
                                                      defaultParseOptions(),
                                                      &m_cxTranslationUnit);
 
-        checkParseErrorCode();
 
-        updateIncludeFilePaths();
 
-        updateLastProjectPartChangeTimePoint();
+        if (parseWasSuccessful()) {
+            updateIncludeFilePaths();
+            updateLastProjectPartChangeTimePoint();
+        } else {
+            qWarning() << "Parsing" << m_in.filePath << "failed:" << m_parseErrorCode;
+            m_out.hasParseOrReparseFailed = true;
+        }
     }
 }
 
@@ -129,11 +131,16 @@ void TranslationUnitUpdater::reparse()
                             unsaved.data(),
                             clang_defaultReparseOptions(m_cxTranslationUnit));
 
-    checkReparseErrorCode();
 
-    updateIncludeFilePaths();
+    if (reparseWasSuccessful()) {
+        updateIncludeFilePaths();
 
-    m_out.reparsed = true;
+        m_out.reparsed = true;
+        m_out.needsToBeReparsedChangeTimePoint = m_in.needsToBeReparsedChangeTimePoint;
+    } else {
+        qWarning() << "Reparsing" << m_in.filePath << "failed:" << m_reparseErrorCode;
+        m_out.hasParseOrReparseFailed = true;
+    }
 }
 
 void TranslationUnitUpdater::updateIncludeFilePaths()
@@ -144,24 +151,6 @@ void TranslationUnitUpdater::updateIncludeFilePaths()
     clang_getInclusions(m_cxTranslationUnit,
                         includeCallback,
                         const_cast<TranslationUnitUpdater *>(this));
-}
-
-void TranslationUnitUpdater::checkParseErrorCode() const
-{
-    if (!parseWasSuccessful()) {
-        throw TranslationUnitParseErrorException(m_in.filePath,
-                                                 m_in.projectId,
-                                                 m_parseErrorCode);
-    }
-}
-
-void TranslationUnitUpdater::checkReparseErrorCode() const
-{
-    if (!reparseWasSuccessful()) {
-        throw TranslationUnitReparseErrorException(m_in.filePath,
-                                                   m_in.projectId,
-                                                   m_reparseErrorCode);
-    }
 }
 
 uint TranslationUnitUpdater::defaultParseOptions()

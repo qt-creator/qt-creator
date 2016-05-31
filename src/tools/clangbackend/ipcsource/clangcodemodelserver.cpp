@@ -82,41 +82,25 @@ int delayedDocumentAnnotationsTimerInterval()
     return interval;
 }
 
-}
+} // anonymous
 
 ClangCodeModelServer::ClangCodeModelServer()
     : translationUnits(projects, unsavedFiles)
+    , updateDocumentAnnotationsTimeOutInMs(delayedDocumentAnnotationsTimerInterval())
 {
-    const auto sendDocumentAnnotations
-        = [this] (const DocumentAnnotationsChangedMessage &documentAnnotationsChangedMessage) {
-        client()->documentAnnotationsChanged(documentAnnotationsChangedMessage);
-    };
+    updateDocumentAnnotationsTimer.setSingleShot(true);
 
-    const auto sendDelayedDocumentAnnotations = [this] () {
-        try {
-            auto sendState = translationUnits.sendDocumentAnnotations();
-            if (sendState == DocumentAnnotationsSendState::MaybeThereAreDocumentAnnotations)
-                sendDocumentAnnotationsTimer.setInterval(0);
-            else
-                sendDocumentAnnotationsTimer.stop();
-        } catch (const std::exception &exception) {
-            qWarning() << "Error in ClangCodeModelServer::sendDelayedDocumentAnnotationsTimer:" << exception.what();
-        }
-    };
-
-    const auto onFileChanged = [this] (const Utf8String &filePath) {
-        startDocumentAnnotationsTimerIfFileIsNotATranslationUnit(filePath);
-    };
-
-    translationUnits.setSendDocumentAnnotationsCallback(sendDocumentAnnotations);
-
-    QObject::connect(&sendDocumentAnnotationsTimer,
+    QObject::connect(&updateDocumentAnnotationsTimer,
                      &QTimer::timeout,
-                     sendDelayedDocumentAnnotations);
+                     [this]() {
+        processJobsForDirtyAndVisibleDocuments();
+    });
 
     QObject::connect(translationUnits.clangFileSystemWatcher(),
                      &ClangFileSystemWatcher::fileChanged,
-                     onFileChanged);
+                     [this](const Utf8String &filePath) {
+        ClangCodeModelServer::startDocumentAnnotationsTimerIfFileIsNotATranslationUnit(filePath);
+    });
 }
 
 void ClangCodeModelServer::end()
@@ -133,8 +117,8 @@ void ClangCodeModelServer::registerTranslationUnitsForEditor(const ClangBackEnd:
         unsavedFiles.createOrUpdate(message.fileContainers());
         translationUnits.setUsedByCurrentEditor(message.currentEditorFilePath());
         translationUnits.setVisibleInEditors(message.visibleEditorFilePaths());
-        startDocumentAnnotations();
-        reparseVisibleDocuments(createdTranslationUnits);
+
+        processInitialJobsForDocuments(createdTranslationUnits);
     } catch (const ProjectPartDoNotExistException &exception) {
         client()->projectPartsDoNotExist(ProjectPartsDoNotExistMessage(exception.projectPartIds()));
     } catch (const std::exception &exception) {
@@ -151,7 +135,8 @@ void ClangCodeModelServer::updateTranslationUnitsForEditor(const UpdateTranslati
         if (newerFileContainers.size() > 0) {
             translationUnits.update(newerFileContainers);
             unsavedFiles.createOrUpdate(newerFileContainers);
-            sendDocumentAnnotationsTimer.start(delayedDocumentAnnotationsTimerInterval());
+
+            updateDocumentAnnotationsTimer.start(updateDocumentAnnotationsTimeOutInMs);
         }
     } catch (const ProjectPartDoNotExistException &exception) {
         client()->projectPartsDoNotExist(ProjectPartsDoNotExistMessage(exception.projectPartIds()));
@@ -185,7 +170,8 @@ void ClangCodeModelServer::registerProjectPartsForEditor(const RegisterProjectPa
     try {
         projects.createOrUpdate(message.projectContainers());
         translationUnits.setTranslationUnitsDirtyIfProjectPartChanged();
-        sendDocumentAnnotationsTimer.start(0);
+
+        processJobsForDirtyAndVisibleDocuments();
     } catch (const std::exception &exception) {
         qWarning() << "Error in ClangCodeModelServer::registerProjectPartsForEditor:" << exception.what();
     }
@@ -211,7 +197,8 @@ void ClangCodeModelServer::registerUnsavedFilesForEditor(const RegisterUnsavedFi
     try {
         unsavedFiles.createOrUpdate(message.fileContainers());
         translationUnits.updateTranslationUnitsWithChangedDependencies(message.fileContainers());
-        sendDocumentAnnotationsTimer.start(delayedDocumentAnnotationsTimerInterval());
+
+        updateDocumentAnnotationsTimer.start(updateDocumentAnnotationsTimeOutInMs);
     } catch (const ProjectPartDoNotExistException &exception) {
         client()->projectPartsDoNotExist(ProjectPartsDoNotExistMessage(exception.projectPartIds()));
     } catch (const std::exception &exception) {
@@ -240,16 +227,16 @@ void ClangCodeModelServer::completeCode(const ClangBackEnd::CompleteCodeMessage 
     TIME_SCOPE_DURATION("ClangCodeModelServer::completeCode");
 
     try {
-        auto translationUnit = translationUnits.translationUnit(message.filePath(), message.projectPartId());
-        auto translationUnitCore = translationUnit.translationUnitCore();
+        auto translationUnit = translationUnits.translationUnit(message.filePath(),
+                                                                message.projectPartId());
 
-        CodeCompleter codeCompleter(translationUnitCore, unsavedFiles);
+        JobRequest jobRequest = createJobRequest(translationUnit, JobRequest::Type::CompleteCode);
+        jobRequest.line = message.line();
+        jobRequest.column = message.column();
+        jobRequest.ticketNumber = message.ticketNumber();
 
-        const auto codeCompletions = codeCompleter.complete(message.line(), message.column());
-
-        client()->codeCompleted(CodeCompletedMessage(codeCompletions,
-                                                     codeCompleter.neededCorrection(),
-                                                     message.ticketNumber()));
+        jobs().add(jobRequest);
+        jobs().process();
     } catch (const TranslationUnitDoesNotExistException &exception) {
         client()->translationUnitDoesNotExist(TranslationUnitDoesNotExistMessage(exception.fileContainer()));
     } catch (const ProjectPartDoNotExistException &exception) {
@@ -266,13 +253,12 @@ void ClangCodeModelServer::requestDocumentAnnotations(const RequestDocumentAnnot
     try {
         auto translationUnit = translationUnits.translationUnit(message.fileContainer().filePath(),
                                                                 message.fileContainer().projectPartId());
-        auto translationUnitCore = translationUnit.translationUnitCore();
 
-        client()->documentAnnotationsChanged(DocumentAnnotationsChangedMessage(
-                                                 translationUnit.fileContainer(),
-                                                 translationUnitCore.mainFileDiagnostics(),
-                                                 translationUnitCore.highlightingMarks().toHighlightingMarksContainers(),
-                                                 translationUnitCore.skippedSourceRanges().toSourceRangeContainers()));
+        const JobRequest jobRequest = createJobRequest(translationUnit,
+                                                       JobRequest::Type::RequestDocumentAnnotations);
+
+        jobs().add(jobRequest);
+        jobs().process();
     } catch (const TranslationUnitDoesNotExistException &exception) {
         client()->translationUnitDoesNotExist(TranslationUnitDoesNotExistMessage(exception.fileContainer()));
     } catch (const ProjectPartDoNotExistException &exception) {
@@ -289,7 +275,7 @@ void ClangCodeModelServer::updateVisibleTranslationUnits(const UpdateVisibleTran
     try {
         translationUnits.setUsedByCurrentEditor(message.currentEditorFilePath());
         translationUnits.setVisibleInEditors(message.visibleEditorFilePaths());
-        sendDocumentAnnotationsTimer.start(0);
+        updateDocumentAnnotationsTimer.start(0);
     }  catch (const std::exception &exception) {
         qWarning() << "Error in ClangCodeModelServer::updateVisibleTranslationUnits:" << exception.what();
     }
@@ -302,23 +288,80 @@ const TranslationUnits &ClangCodeModelServer::translationUnitsForTestOnly() cons
 
 void ClangCodeModelServer::startDocumentAnnotationsTimerIfFileIsNotATranslationUnit(const Utf8String &filePath)
 {
-    if (!translationUnits.hasTranslationUnit(filePath))
-        sendDocumentAnnotationsTimer.start(0);
+    if (!translationUnits.hasTranslationUnitWithFilePath(filePath))
+        updateDocumentAnnotationsTimer.start(0);
 }
 
-void ClangCodeModelServer::startDocumentAnnotations()
+const Jobs &ClangCodeModelServer::jobsForTestOnly()
 {
-    DocumentAnnotationsSendState sendState = DocumentAnnotationsSendState::MaybeThereAreDocumentAnnotations;
-
-    while (sendState == DocumentAnnotationsSendState::MaybeThereAreDocumentAnnotations)
-        sendState = translationUnits.sendDocumentAnnotations();
+    return jobs();
 }
 
-void ClangCodeModelServer::reparseVisibleDocuments(std::vector<TranslationUnit> &translationUnits)
+bool ClangCodeModelServer::isTimerRunningForTestOnly() const
 {
-    for (TranslationUnit &translationUnit : translationUnits)
-        if (translationUnit.isVisibleInEditor())
-            translationUnit.reparse();
+    return updateDocumentAnnotationsTimer.isActive();
 }
 
+void ClangCodeModelServer::addJobRequestsForDirtyAndVisibleDocuments()
+{
+    for (const auto &translationUnit : translationUnits.translationUnits()) {
+        if (translationUnit.isNeedingReparse() && translationUnit.isVisibleInEditor()) {
+            jobs().add(createJobRequest(translationUnit,
+                                        JobRequest::Type::UpdateDocumentAnnotations));
+        }
+    }
 }
+
+void ClangCodeModelServer::processJobsForDirtyAndVisibleDocuments()
+{
+    addJobRequestsForDirtyAndVisibleDocuments();
+    jobs().process();
+}
+
+void ClangCodeModelServer::processInitialJobsForDocuments(
+        const std::vector<TranslationUnit> &translationUnits)
+{
+    for (const auto &translationUnit : translationUnits) {
+        jobs().add(createJobRequest(translationUnit,
+                                    JobRequest::Type::UpdateDocumentAnnotations));
+        jobs().add(createJobRequest(translationUnit,
+                                    JobRequest::Type::CreateInitialDocumentPreamble));
+    }
+
+    jobs().process();
+}
+
+JobRequest ClangCodeModelServer::createJobRequest(const TranslationUnit &translationUnit,
+                                                  JobRequest::Type type) const
+{
+    JobRequest jobRequest;
+    jobRequest.type = type;
+    jobRequest.requirements = JobRequest::requirementsForType(type);
+    jobRequest.filePath = translationUnit.filePath();
+    jobRequest.projectPartId = translationUnit.projectPartId();
+    jobRequest.unsavedFilesChangeTimePoint = unsavedFiles.lastChangeTimePoint();
+    jobRequest.documentRevision = translationUnit.documentRevision();
+    const ProjectPart &projectPart = projects.project(translationUnit.projectPartId());
+    jobRequest.projectChangeTimePoint = projectPart.lastChangeTimePoint();
+
+    return jobRequest;
+}
+
+void ClangCodeModelServer::setUpdateDocumentAnnotationsTimeOutInMsForTestsOnly(int value)
+{
+    updateDocumentAnnotationsTimeOutInMs = value;
+}
+
+Jobs &ClangCodeModelServer::jobs()
+{
+    if (!jobs_) {
+        // Jobs needs a reference to the client, but the client is not known at
+        // construction time of ClangCodeModelServer, so construct Jobs in a
+        // lazy manner.
+        jobs_.reset(new Jobs(translationUnits, unsavedFiles, projects, *client()));
+    }
+
+    return *jobs_.data();
+}
+
+} // namespace ClangBackEnd

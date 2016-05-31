@@ -36,9 +36,19 @@ HEADERS += $$PWD/clangcodemodelserver.h \
     $$PWD/highlightingmarks.h \
     $$PWD/highlightingmarksiterator.h \
     $$PWD/utf8positionfromlinecolumn.h \
+    $$PWD/clangasyncjob.h \
+    $$PWD/clangcompletecodejob.h \
+    $$PWD/clangcreateinitialdocumentpreamblejob.h \
     $$PWD/clangfilepath.h \
+    $$PWD/clangiasyncjob.h \
+    $$PWD/clangjobcontext.h \
+    $$PWD/clangjobqueue.h \
+    $$PWD/clangjobrequest.h \
+    $$PWD/clangjobs.h \
+    $$PWD/clangrequestdocumentannotationsjob.h \
+    $$PWD/clangtranslationunitcore.h \
     $$PWD/clangunsavedfilesshallowarguments.h \
-    $$PWD/clangtranslationunitcore.h
+    $$PWD/clangupdatedocumentannotationsjob.h
 
 SOURCES += $$PWD/clangcodemodelserver.cpp \
     $$PWD/codecompleter.cpp \
@@ -74,6 +84,16 @@ SOURCES += $$PWD/clangcodemodelserver.cpp \
     $$PWD/highlightingmark.cpp \
     $$PWD/highlightingmarks.cpp \
     $$PWD/utf8positionfromlinecolumn.cpp \
+    $$PWD/clangcompletecodejob.cpp \
+    $$PWD/clangcreateinitialdocumentpreamblejob.cpp \
     $$PWD/clangfilepath.cpp \
+    $$PWD/clangiasyncjob.cpp \
+    $$PWD/clangjobcontext.cpp \
+    $$PWD/clangjobqueue.cpp \
+    $$PWD/clangjobrequest.cpp \
+    $$PWD/clangjobs.cpp \
+    $$PWD/clangrequestdocumentannotationsjob.cpp \
+    $$PWD/clangtranslationunitcore.cpp \
     $$PWD/clangunsavedfilesshallowarguments.cpp \
-    $$PWD/clangtranslationunitcore.cpp
+    $$PWD/clangupdatedocumentannotationsjob.cpp \
+

@@ -25,32 +25,46 @@
 
 #pragma once
 
-#include <clangbackendipc/clangcodemodelclientinterface.h>
-#include <clangbackendipc/cmbcodecompletedmessage.h>
-#include <clangbackendipc/cmbechomessage.h>
-#include <clangbackendipc/documentannotationschangedmessage.h>
-#include <clangbackendipc/projectpartsdonotexistmessage.h>
-#include <clangbackendipc/translationunitdoesnotexistmessage.h>
-#include <clangbackendipc/updatetranslationunitsforeditormessage.h>
-#include <clangbackendipc/updatevisibletranslationunitsmessage.h>
+#include "dummyclangipcclient.h"
+#include "mockclangcodemodelclient.h"
+#include "clangiasyncjob.h"
+
+#include <clangjobrequest.h>
+#include <clangtranslationunit.h>
+#include <projects.h>
+#include <translationunits.h>
+#include <unsavedfiles.h>
 
 #include <gmock/gmock.h>
 #include <gmock/gmock-matchers.h>
 #include <gtest/gtest.h>
 #include "gtest-qt-printing.h"
 
-class MockClangCodeModelClient : public ClangBackEnd::ClangCodeModelClientInterface {
-public:
-    MOCK_METHOD0(alive,
-                 void());
-    MOCK_METHOD1(echo,
-                 void(const ClangBackEnd::EchoMessage &message));
-    MOCK_METHOD1(codeCompleted,
-                 void(const ClangBackEnd::CodeCompletedMessage &message));
-    MOCK_METHOD1(translationUnitDoesNotExist,
-                 void(const ClangBackEnd::TranslationUnitDoesNotExistMessage &message));
-    MOCK_METHOD1(projectPartsDoNotExist,
-                 void(const ClangBackEnd::ProjectPartsDoNotExistMessage &message));
-    MOCK_METHOD1(documentAnnotationsChanged,
-                 void(const ClangBackEnd::DocumentAnnotationsChangedMessage &message));
+class ClangAsyncJobTest : public ::testing::Test
+{
+protected:
+    void BaseSetUp(ClangBackEnd::JobRequest::Type jobRequestType,
+                   ClangBackEnd::IAsyncJob &asyncJob);
+
+    ClangBackEnd::JobRequest createJobRequest(const Utf8String &filePath,
+                                              ClangBackEnd::JobRequest::Type type) const;
+
+    bool waitUntilJobFinished(const ClangBackEnd::IAsyncJob &asyncJob,
+                              int timeOutInMs = 10000) const;
+
+protected:
+    ClangBackEnd::ProjectParts projects;
+    ClangBackEnd::UnsavedFiles unsavedFiles;
+    ClangBackEnd::TranslationUnits translationUnits{projects, unsavedFiles};
+    ClangBackEnd::TranslationUnit translationUnit;
+
+    MockClangCodeModelClient mockIpcClient;
+    DummyIpcClient dummyIpcClient;
+
+    Utf8String filePath{Utf8StringLiteral(TESTDATA_DIR"/translationunits.cpp")};
+    Utf8String projectPartId{Utf8StringLiteral("/path/to/projectfile")};
+
+    ClangBackEnd::JobRequest jobRequest;
+    ClangBackEnd::JobContext jobContext;
+    ClangBackEnd::JobContext jobContextWithMockClient;
 };

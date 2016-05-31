@@ -101,8 +101,8 @@ struct Data {
                 {},
                 translationUnits};
     TranslationUnitCore translationUnitCore{filePath,
-                                            translationUnit.index(),
-                                            translationUnit.cxTranslationUnit()};
+                                            translationUnit.translationUnitCore().cxIndex(),
+                                            translationUnit.translationUnitCore().cxTranslationUnit()};
 };
 
 class SkippedSourceRanges : public ::testing::Test

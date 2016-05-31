@@ -113,8 +113,8 @@ struct Data {
                 {},
                 translationUnits};
     TranslationUnitCore translationUnitCore{filePath,
-                                            translationUnit.index(),
-                                            translationUnit.cxTranslationUnit()};
+                                            translationUnit.translationUnitCore().cxIndex(),
+                                            translationUnit.translationUnitCore().cxTranslationUnit()};
 };
 
 class HighlightingMarks : public ::testing::Test

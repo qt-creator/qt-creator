@@ -32,27 +32,15 @@
 
 #include <QVector>
 
-#include <functional>
 #include <vector>
 
 namespace ClangBackEnd {
 
 class ProjectParts;
 class UnsavedFiles;
-class DocumentAnnotationsChangedMessage;
-
-enum class DocumentAnnotationsSendState
-{
-    NoDocumentAnnotationsSent,
-    MaybeThereAreDocumentAnnotations,
-};
 
 class TranslationUnits
 {
-public:
-    using SendDocumentAnnotationsCallback
-        = std::function<void (const DocumentAnnotationsChangedMessage &)>;
-
 public:
     TranslationUnits(ProjectParts &projectParts, UnsavedFiles &unsavedFiles);
 
@@ -65,7 +53,8 @@ public:
 
     const TranslationUnit &translationUnit(const Utf8String &filePath, const Utf8String &projectPartId) const;
     const TranslationUnit &translationUnit(const FileContainer &fileContainer) const;
-    bool hasTranslationUnit(const Utf8String &filePath) const;
+    bool hasTranslationUnit(const Utf8String &filePath, const Utf8String &projectPartId) const;
+    bool hasTranslationUnitWithFilePath(const Utf8String &filePath) const;
 
     const std::vector<TranslationUnit> &translationUnits() const;
 
@@ -76,13 +65,6 @@ public:
     void updateTranslationUnitsWithChangedDependency(const Utf8String &filePath);
     void updateTranslationUnitsWithChangedDependencies(const QVector<FileContainer> &fileContainers);
     void setTranslationUnitsDirtyIfProjectPartChanged();
-
-    DocumentAnnotationsSendState sendDocumentAnnotationsForCurrentEditor();
-    DocumentAnnotationsSendState sendDocumentAnnotationsForVisibleEditors();
-    DocumentAnnotationsSendState sendDocumentAnnotationsForAll();
-    DocumentAnnotationsSendState sendDocumentAnnotations();
-
-    void setSendDocumentAnnotationsCallback(SendDocumentAnnotationsCallback &&callback);
 
     QVector<FileContainer> newerFileContainers(const QVector<FileContainer> &fileContainers) const;
 
@@ -95,7 +77,6 @@ private:
     std::vector<TranslationUnit> findAllTranslationUnitWithFilePath(const Utf8String &filePath);
     std::vector<TranslationUnit>::const_iterator findTranslationUnit(const Utf8String &filePath, const Utf8String &projectPartId) const;
     bool hasTranslationUnit(const FileContainer &fileContainer) const;
-    bool hasTranslationUnitWithFilePath(const Utf8String &filePath) const;
     void checkIfProjectPartExists(const Utf8String &projectFileName) const;
     void checkIfProjectPartsExists(const QVector<FileContainer> &fileContainers) const;
     void checkIfTranslationUnitsDoesNotExists(const QVector<FileContainer> &fileContainers) const;
@@ -103,13 +84,8 @@ private:
 
     void removeTranslationUnits(const QVector<FileContainer> &fileContainers);
 
-    template<class Predicate>
-    DocumentAnnotationsSendState sendDocumentAnnotations(Predicate predicate);
-    void sendDocumentAnnotations(const TranslationUnit &translationUnit);
-
 private:
     ClangFileSystemWatcher fileSystemWatcher;
-    SendDocumentAnnotationsCallback sendDocumentAnnotationsCallback;
     std::vector<TranslationUnit> translationUnits_;
     ProjectParts &projectParts;
     UnsavedFiles &unsavedFiles_;

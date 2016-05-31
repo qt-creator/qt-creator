@@ -70,7 +70,15 @@ SOURCES += \
     highlightingmarkstest.cpp \
     sizedarraytest.cpp \
     utf8positionfromlinecolumntest.cpp \
-    translationunitupdatertest.cpp
+    translationunitupdatertest.cpp \
+    testutils.cpp \
+    clangasyncjobtest.cpp \
+    clangcompletecodejobtest.cpp \
+    clangcreateinitialdocumentpreamblejobtest.cpp \
+    clangjobqueuetest.cpp \
+    clangjobstest.cpp \
+    clangrequestdocumentannotationsjobtest.cpp \
+    clangupdatedocumentannotationsjobtest.cpp
 
 exists($$GOOGLEBENCHMARK_DIR) {
 SOURCES += \
@@ -82,8 +90,10 @@ HEADERS += \
     mockclangcodemodelclient.h \
     mockclangcodemodelserver.h \
     spydummy.h \
+    dummyclangipcclient.h \
     matcher-diagnosticcontainer.h \
     chunksreportedmonitor.h \
-    mocksenddocumentannotationscallback.h
+    testutils.h \
+    clangasyncjobtest.h
 
 OTHER_FILES += $$files(data/*)

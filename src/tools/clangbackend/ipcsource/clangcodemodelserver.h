@@ -32,10 +32,11 @@
 #include "clangtranslationunit.h"
 #include "translationunits.h"
 #include "unsavedfiles.h"
+#include "clangjobs.h"
 
 #include <utf8string.h>
 
-#include <QMap>
+#include <QScopedPointer>
 #include <QTimer>
 
 namespace ClangBackEnd {
@@ -57,18 +58,31 @@ public:
     void updateVisibleTranslationUnits(const UpdateVisibleTranslationUnitsMessage &message) override;
     void requestDocumentAnnotations(const RequestDocumentAnnotationsMessage &message) override;
 
+public /*for tests*/:
     const TranslationUnits &translationUnitsForTestOnly() const;
+    const Jobs &jobsForTestOnly();
+    bool isTimerRunningForTestOnly() const;
+    void setUpdateDocumentAnnotationsTimeOutInMsForTestsOnly(int value);
 
 private:
+    Jobs &jobs();
+
     void startDocumentAnnotationsTimerIfFileIsNotATranslationUnit(const Utf8String &filePath);
-    void startDocumentAnnotations();
-    void reparseVisibleDocuments(std::vector<TranslationUnit> &translationUnits);
+    void addJobRequestsForDirtyAndVisibleDocuments();
+    void processJobsForDirtyAndVisibleDocuments();
+    void processInitialJobsForDocuments(const std::vector<TranslationUnit> &translationUnits);
+
+    JobRequest createJobRequest(const TranslationUnit &translationUnit,
+                                JobRequest::Type type) const;
 
 private:
     ProjectParts projects;
     UnsavedFiles unsavedFiles;
     TranslationUnits translationUnits;
-    QTimer sendDocumentAnnotationsTimer;
+    QScopedPointer<Jobs> jobs_;
+
+    QTimer updateDocumentAnnotationsTimer;
+    int updateDocumentAnnotationsTimeOutInMs;
 };
 
 } // namespace ClangBackEnd

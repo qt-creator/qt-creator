@@ -24,8 +24,10 @@
 ****************************************************************************/
 
 #include <chunksreportedmonitor.h>
+#include <cursor.h>
 #include <clangtranslationunit.h>
 #include <highlightingmarkcontainer.h>
+#include <highlightingmarks.h>
 #include <clanghighlightingmarksreporter.h>
 #include <projectpart.h>
 #include <projects.h>

@@ -33,11 +33,11 @@
 
 #include <clang-c/Index.h>
 
+#include <QSet>
 #include <QtGlobal>
 
 #include <chrono>
 #include <memory>
-#include <QSet>
 
 class Utf8String;
 
@@ -46,20 +46,9 @@ namespace ClangBackEnd {
 class TranslationUnitCore;
 class TranslationUnitData;
 class TranslationUnitUpdateResult;
-class CodeCompleter;
-class UnsavedFile;
-class UnsavedFiles;
 class ProjectPart;
-class DiagnosticContainer;
-class DiagnosticSet;
 class FileContainer;
-class HighlightingMarks;
 class TranslationUnits;
-class CommandLineArguments;
-class Cursor;
-class SourceLocation;
-class SourceRange;
-class SkippedSourceRanges;
 
 using time_point = std::chrono::steady_clock::time_point;
 
@@ -85,76 +74,54 @@ public:
     TranslationUnit(TranslationUnit &&cxTranslationUnit);
     TranslationUnit &operator=(TranslationUnit &&cxTranslationUnit);
 
-    bool isNull() const;
-
-    void setIsUsedByCurrentEditor(bool isUsedByCurrentEditor);
-    bool isUsedByCurrentEditor() const;
-
-    void setIsVisibleInEditor(bool isVisibleInEditor);
-    bool isVisibleInEditor() const;
-
     void reset();
-    void parse() const;
-    void reparse() const;
 
+    bool isNull() const;
     bool isIntact() const;
-
-    CXIndex &index() const;
-
-    CXTranslationUnit &cxTranslationUnit() const;
-
-    UnsavedFile unsavedFile() const;
-    UnsavedFiles unsavedFiles() const;
-    uint unsavedFilesCount() const;
 
     Utf8String filePath() const;
     Utf8StringVector fileArguments() const;
-    Utf8String projectPartId() const;
     FileContainer fileContainer() const;
+
+    Utf8String projectPartId() const;
     const ProjectPart &projectPart() const;
+    const time_point lastProjectPartChangeTimePoint() const;
+    bool isProjectPartOutdated() const;
 
-    void setDocumentRevision(uint revision);
     uint documentRevision() const;
+    void setDocumentRevision(uint revision);
 
-    const time_point &lastProjectPartChangeTimePoint() const;
+    bool isUsedByCurrentEditor() const;
+    void setIsUsedByCurrentEditor(bool isUsedByCurrentEditor);
+
+    bool isVisibleInEditor() const;
+    void setIsVisibleInEditor(bool isVisibleInEditor);
 
     bool isNeedingReparse() const;
-
-    // TODO: Remove the following two
-    bool hasNewDiagnostics() const;
-    bool hasNewHighlightingMarks() const;
-
-    // TODO: Remove the following two
-    DiagnosticSet diagnostics() const;
-    QVector<DiagnosticContainer> mainFileDiagnostics() const;
-
-    const QSet<Utf8String> &dependedFilePaths() const;
-
     void setDirtyIfProjectPartIsOutdated();
     void setDirtyIfDependencyIsMet(const Utf8String &filePath);
 
-    CommandLineArguments commandLineArguments() const;
-
-    // TODO: Remove
-    HighlightingMarks highlightingMarks() const;
+    TranslationUnitUpdateInput createUpdateInput() const;
+    void incorporateUpdaterResult(const TranslationUnitUpdateResult &result) const;
 
     TranslationUnitCore translationUnitCore() const;
 
-    bool projectPartIsOutdated() const;
+public: // for tests
+    void parse() const;
+    void reparse() const;
+    const QSet<Utf8String> dependedFilePaths() const;
+    TranslationUnitUpdater createUpdater() const;
+    void setHasParseOrReparseFailed(bool hasFailed);
+    time_point isNeededReparseChangeTimePoint() const;
 
 private:
     void setDirty();
+
     void checkIfNull() const;
     void checkIfFileExists() const;
-    bool isMainFileAndExistsOrIsOtherFile(const Utf8String &filePath) const;
-    void checkParseErrorCode() const;
-    bool parseWasSuccessful() const;
-    bool reparseWasSuccessful() const;
-    bool fileExists() const;
 
-    TranslationUnitUpdateInput createUpdateInput() const;
-    TranslationUnitUpdater createUpdater() const;
-    void incorporateUpdaterResult(const TranslationUnitUpdateResult &result) const;
+    bool fileExists() const;
+    bool isMainFileAndExistsOrIsOtherFile(const Utf8String &filePath) const;
 
 private:
     mutable std::shared_ptr<TranslationUnitData> d;

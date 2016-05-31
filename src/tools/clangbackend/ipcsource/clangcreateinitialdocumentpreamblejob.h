@@ -25,22 +25,20 @@
 
 #pragma once
 
-#include <gmock/gmock.h>
-#include <gmock/gmock-matchers.h>
-#include <gtest/gtest.h>
-#include "gtest-qt-printing.h"
+#include "clangasyncjob.h"
+#include "clangtranslationunit.h"
 
-class SendDocumentAnnotationsCallback
+namespace ClangBackEnd {
+
+class CreateInitialDocumentPreambleJob : public AsyncJob<void>
 {
 public:
-    virtual ~SendDocumentAnnotationsCallback() = default;
+    bool prepareAsyncRun() override;
+    void finalizeAsyncRun() override;
 
-    virtual void sendDocumentAnnotations() = 0;
+private:
+    TranslationUnit m_pinnedTranslationUnit;
+    FileContainer m_pinnedFileContainer;
 };
 
-class MockSendDocumentAnnotationsCallback : public SendDocumentAnnotationsCallback
-{
-public:
-    MOCK_METHOD0(sendDocumentAnnotations,
-                 void());
-};
+} // namespace ClangBackEnd

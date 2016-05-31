@@ -25,32 +25,58 @@
 
 #pragma once
 
+#include "clangjobqueue.h"
+
 #include <clangbackendipc/clangcodemodelclientinterface.h>
-#include <clangbackendipc/cmbcodecompletedmessage.h>
-#include <clangbackendipc/cmbechomessage.h>
-#include <clangbackendipc/documentannotationschangedmessage.h>
-#include <clangbackendipc/projectpartsdonotexistmessage.h>
-#include <clangbackendipc/translationunitdoesnotexistmessage.h>
-#include <clangbackendipc/updatetranslationunitsforeditormessage.h>
-#include <clangbackendipc/updatevisibletranslationunitsmessage.h>
 
-#include <gmock/gmock.h>
-#include <gmock/gmock-matchers.h>
-#include <gtest/gtest.h>
-#include "gtest-qt-printing.h"
+#include <QFuture>
 
-class MockClangCodeModelClient : public ClangBackEnd::ClangCodeModelClientInterface {
+namespace ClangBackEnd {
+
+class ClangCodeModelClientInterface;
+class IAsyncJob;
+class ProjectParts;
+class TranslationUnits;
+class UnsavedFiles;
+
+class Jobs
+{
 public:
-    MOCK_METHOD0(alive,
-                 void());
-    MOCK_METHOD1(echo,
-                 void(const ClangBackEnd::EchoMessage &message));
-    MOCK_METHOD1(codeCompleted,
-                 void(const ClangBackEnd::CodeCompletedMessage &message));
-    MOCK_METHOD1(translationUnitDoesNotExist,
-                 void(const ClangBackEnd::TranslationUnitDoesNotExistMessage &message));
-    MOCK_METHOD1(projectPartsDoNotExist,
-                 void(const ClangBackEnd::ProjectPartsDoNotExistMessage &message));
-    MOCK_METHOD1(documentAnnotationsChanged,
-                 void(const ClangBackEnd::DocumentAnnotationsChangedMessage &message));
+    struct RunningJob {
+        JobRequest jobRequest;
+        QFuture<void> future;
+    };
+    using RunningJobs = QHash<IAsyncJob *, RunningJob>;
+
+public:
+    Jobs(TranslationUnits &translationUnits,
+         UnsavedFiles &unsavedFiles,
+         ProjectParts &projects,
+         ClangCodeModelClientInterface &client);
+    ~Jobs();
+
+    void add(const JobRequest &job);
+
+    JobRequests process();
+
+public /*for tests*/:
+    int runningJobs() const;
+    JobRequests queue() const;
+    bool isJobRunning(const Utf8String &filePath, const Utf8String &projectPartId) const;
+
+private:
+    JobRequests runJobs(const JobRequests &jobRequest);
+    bool runJob(const JobRequest &jobRequest);
+    void onJobFinished(IAsyncJob *asyncJob);
+
+private:
+    TranslationUnits &m_translationUnits;
+    UnsavedFiles &m_unsavedFiles;
+    ProjectParts &m_projectParts;
+    ClangCodeModelClientInterface &m_client;
+
+    JobQueue m_queue;
+    RunningJobs m_running;
 };
+
+} // namespace ClangBackEnd

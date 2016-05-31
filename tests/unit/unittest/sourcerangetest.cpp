@@ -106,8 +106,8 @@ struct Data {
                                     Utf8StringVector(),
                                     translationUnits};
     TranslationUnitCore translationUnitCore{filePath,
-                                            translationUnit.index(),
-                                            translationUnit.cxTranslationUnit()};
+                                            translationUnit.translationUnitCore().cxIndex(),
+                                            translationUnit.translationUnitCore().cxTranslationUnit()};
 
     std::unique_ptr<SourceRangeData> d;
 };
