@@ -31,7 +31,7 @@
 #include <utils/fileutils.h>
 
 // As of MSVC 2015: "foo.cpp(42) :" -> "foo.cpp(42):"
-static const char FILE_POS_PATTERN[] = "(cl|LINK|.+[^ ]) ?: ";
+static const char FILE_POS_PATTERN[] = "(?:\\d+>)?(cl|LINK|.+[^ ]) ?: ";
 static const char ERROR_PATTERN[] = "[A-Z]+\\d\\d\\d\\d ?:";
 
 static QPair<Utils::FileName, int> parseFileName(const QString &input)
@@ -343,6 +343,16 @@ void ProjectExplorerPlugin::testMsvcOutputParsers_data()
                         Constants::TASK_CATEGORY_COMPILE))
             << QString();
 
+    QTest::newRow("labeled error with number prefix")
+            << QString::fromLatin1("1>qmlstandalone\\main.cpp(54) : error C4716: 'findUnresolvedModule' : must return a value") << OutputParserTester::STDOUT
+            << QString() << QString()
+            << (QList<Task>()
+                << Task(Task::Error,
+                        QLatin1String("C4716: 'findUnresolvedModule' : must return a value"),
+                        Utils::FileName::fromUserInput(QLatin1String("qmlstandalone\\main.cpp")), 54,
+                        Constants::TASK_CATEGORY_COMPILE))
+            << QString();
+
     QTest::newRow("labeled warning")
             << QString::fromLatin1("x:\\src\\plugins\\projectexplorer\\msvcparser.cpp(69) : warning C4100: 'something' : unreferenced formal parameter") << OutputParserTester::STDOUT
             << QString() << QString()
@@ -353,8 +363,35 @@ void ProjectExplorerPlugin::testMsvcOutputParsers_data()
                         Constants::TASK_CATEGORY_COMPILE))
             << QString();
 
+
+    QTest::newRow("labeled warning with number prefix")
+            << QString::fromLatin1("1>x:\\src\\plugins\\projectexplorer\\msvcparser.cpp(69) : warning C4100: 'something' : unreferenced formal parameter") << OutputParserTester::STDOUT
+            << QString() << QString()
+            << (QList<Task>()
+                << Task(Task::Warning,
+                        QLatin1String("C4100: 'something' : unreferenced formal parameter"),
+                        Utils::FileName::fromUserInput(QLatin1String("x:\\src\\plugins\\projectexplorer\\msvcparser.cpp")), 69,
+                        Constants::TASK_CATEGORY_COMPILE))
+            << QString();
+
     QTest::newRow("additional information")
             << QString::fromLatin1("x:\\src\\plugins\\texteditor\\icompletioncollector.h(50) : warning C4099: 'TextEditor::CompletionItem' : type name first seen using 'struct' now seen using 'class'\n"
+                                   "        x:\\src\\plugins\\texteditor\\completionsupport.h(39) : see declaration of 'TextEditor::CompletionItem'")
+            << OutputParserTester::STDOUT
+            << QString() << QString()
+            << (QList<Task>()
+                << Task(Task::Warning,
+                        QLatin1String("C4099: 'TextEditor::CompletionItem' : type name first seen using 'struct' now seen using 'class'"),
+                        Utils::FileName::fromUserInput(QLatin1String("x:\\src\\plugins\\texteditor\\icompletioncollector.h")), 50,
+                        Constants::TASK_CATEGORY_COMPILE)
+                << Task(Task::Unknown,
+                        QLatin1String("see declaration of 'TextEditor::CompletionItem'"),
+                        Utils::FileName::fromUserInput(QLatin1String("x:\\src\\plugins\\texteditor\\completionsupport.h")), 39,
+                        Constants::TASK_CATEGORY_COMPILE))
+            << QString();
+
+    QTest::newRow("additional information with prefix")
+            << QString::fromLatin1("2>x:\\src\\plugins\\texteditor\\icompletioncollector.h(50) : warning C4099: 'TextEditor::CompletionItem' : type name first seen using 'struct' now seen using 'class'\n"
                                    "        x:\\src\\plugins\\texteditor\\completionsupport.h(39) : see declaration of 'TextEditor::CompletionItem'")
             << OutputParserTester::STDOUT
             << QString() << QString()
