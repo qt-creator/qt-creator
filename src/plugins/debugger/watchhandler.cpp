@@ -408,12 +408,13 @@ WatchModel::WatchModel(WatchHandler *handler, DebuggerEngine *engine)
     m_tooltipRoot = new WatchItem;
     m_tooltipRoot->iname = "tooltip";
     m_tooltipRoot->name = tr("Tooltip");
-    auto root = rootItem();
+    auto root = new WatchItem;
     root->appendChild(m_localsRoot);
     root->appendChild(m_inspectorRoot);
     root->appendChild(m_watchRoot);
     root->appendChild(m_returnRoot);
     root->appendChild(m_tooltipRoot);
+    setRootItem(root);
 
     m_requestUpdateTimer.setSingleShot(true);
     connect(&m_requestUpdateTimer, &QTimer::timeout,
