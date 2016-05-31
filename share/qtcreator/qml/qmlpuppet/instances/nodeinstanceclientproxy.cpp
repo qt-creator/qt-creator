@@ -87,7 +87,9 @@ void NodeInstanceClientProxy::initializeSocket()
 {
     QLocalSocket *localSocket = new QLocalSocket(this);
     connect(localSocket, &QIODevice::readyRead, this, &NodeInstanceClientProxy::readDataStream);
-    connect(localSocket, SIGNAL(error(QLocalSocket::LocalSocketError)), QCoreApplication::instance(), SLOT(quit()));
+    connect(localSocket,
+            static_cast<void (QLocalSocket::*)(QLocalSocket::LocalSocketError)>(&QLocalSocket::error),
+            QCoreApplication::instance(), &QCoreApplication::quit);
     connect(localSocket, &QLocalSocket::disconnected, QCoreApplication::instance(), &QCoreApplication::quit);
     localSocket->connectToServer(QCoreApplication::arguments().at(1), QIODevice::ReadWrite | QIODevice::Unbuffered);
     localSocket->waitForConnected(-1);
