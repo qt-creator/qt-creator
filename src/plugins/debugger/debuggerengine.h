@@ -204,6 +204,7 @@ public:
     virtual void selectWatchData(const QByteArray &iname);
 
     virtual void startDebugger(DebuggerRunControl *runControl);
+    virtual void prepareForRestart() {}
 
     virtual void watchPoint(const QPoint &);
 

@@ -79,6 +79,10 @@ void QbsLogSink::doPrintMessage(qbs::LoggerLevel level, const QString &message, 
 
     {
         QMutexLocker l(&m_mutex);
+        if (level <= qbs::LoggerWarning) {
+            doPrintWarning(qbs::ErrorInfo(message));
+            return;
+        }
         m_messages.append(qbs::logLevelTag(level) + message);
     }
     QMetaObject::invokeMethod(this, "sendMessages", Qt::QueuedConnection);

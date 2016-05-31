@@ -59,18 +59,18 @@ QbsProjectParser::QbsProjectParser(QbsProject *project, QFutureInterface<bool> *
 
 QbsProjectParser::~QbsProjectParser()
 {
-    if (m_qbsSetupProjectJob) {
-        m_qbsSetupProjectJob->disconnect(this);
-        m_qbsSetupProjectJob->cancel();
-        m_qbsSetupProjectJob->deleteLater();
-        m_qbsSetupProjectJob = 0;
-    }
-    if (m_ruleExecutionJob) {
-        m_ruleExecutionJob->disconnect(this);
-        m_ruleExecutionJob->cancel();
-        m_ruleExecutionJob->deleteLater();
-        m_ruleExecutionJob = 0;
-    }
+    const auto deleteJob = [this](qbs::AbstractJob *job) {
+        if (!job)
+            return;
+        if (job->state() == qbs::AbstractJob::StateFinished) {
+            job->deleteLater();
+            return;
+        }
+        connect(job, &qbs::AbstractJob::finished, job, &qbs::AbstractJob::deleteLater);
+        job->cancel();
+    };
+    deleteJob(m_qbsSetupProjectJob);
+    deleteJob(m_ruleExecutionJob);
     m_fi = 0; // we do not own m_fi, do not delete
 }
 
@@ -93,7 +93,8 @@ void QbsProjectParser::parse(const QVariantMap &config, const Environment &env, 
 
     // Some people don't like it when files are created as a side effect of opening a project,
     // so do not store the build graph if the build directory does not exist yet.
-    params.setDryRun(!QFileInfo::exists(dir));
+    m_dryRun = !QFileInfo::exists(dir);
+    params.setDryRun(m_dryRun);
 
     params.setBuildRoot(dir);
     params.setProjectFilePath(m_projectFilePath);
@@ -151,6 +152,7 @@ void QbsProjectParser::handleQbsParsingDone(bool success)
 void QbsProjectParser::startRuleExecution()
 {
     qbs::BuildOptions options;
+    options.setDryRun(m_dryRun);
     options.setExecuteRulesOnly(true);
     m_ruleExecutionJob = m_project.buildAllProducts(
                 options, qbs::Project::ProductSelectionWithNonDefault, this);

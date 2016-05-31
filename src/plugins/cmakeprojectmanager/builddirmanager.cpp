@@ -64,29 +64,29 @@ namespace Internal {
 
 static QStringList toArguments(const CMakeConfig &config, const ProjectExplorer::Kit *k) {
     return Utils::transform(config, [k](const CMakeConfigItem &i) -> QString {
-                                 QString a = QString::fromLatin1("-D");
-                                 a.append(QString::fromUtf8(i.key));
-                                 switch (i.type) {
-                                 case CMakeConfigItem::FILEPATH:
-                                     a.append(QLatin1String(":FILEPATH="));
-                                     break;
-                                 case CMakeConfigItem::PATH:
-                                     a.append(QLatin1String(":PATH="));
-                                     break;
-                                 case CMakeConfigItem::BOOL:
-                                     a.append(QLatin1String(":BOOL="));
-                                     break;
-                                 case CMakeConfigItem::STRING:
-                                     a.append(QLatin1String(":STRING="));
-                                     break;
-                                 case CMakeConfigItem::INTERNAL:
-                                     a.append(QLatin1String(":INTERNAL="));
-                                     break;
-                                 }
-                                 a.append(i.expandedValue(k));
+        QString a = QString::fromLatin1("-D");
+        a.append(QString::fromUtf8(i.key));
+        switch (i.type) {
+        case CMakeConfigItem::FILEPATH:
+            a.append(QLatin1String(":FILEPATH="));
+            break;
+        case CMakeConfigItem::PATH:
+            a.append(QLatin1String(":PATH="));
+            break;
+        case CMakeConfigItem::BOOL:
+            a.append(QLatin1String(":BOOL="));
+            break;
+        case CMakeConfigItem::STRING:
+            a.append(QLatin1String(":STRING="));
+            break;
+        case CMakeConfigItem::INTERNAL:
+            a.append(QLatin1String(":INTERNAL="));
+            break;
+        }
+        a.append(i.expandedValue(k));
 
-                                 return a;
-                             });
+        return a;
+    });
 }
 
 // --------------------------------------------------------------------

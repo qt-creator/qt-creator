@@ -51,7 +51,7 @@ def main():
         result = setBreakpointsForCurrentProject(filesAndLines)
         if result:
             expectedBreakpointsOrder = [{os.path.join(workingDir, projectName, "main.cpp"):8},
-                                        {os.path.join(workingDir, projectName, "main.qml"):10}]
+                                        {os.path.join(workingDir, projectName, "main.qml"):13}]
             # Only use 4.7.4 to work around QTBUG-25187
             availableConfigs = iterateBuildConfigs(len(checkedTargets), "Debug")
             progressBarWait()

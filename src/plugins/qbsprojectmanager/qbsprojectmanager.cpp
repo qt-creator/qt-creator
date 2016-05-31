@@ -77,7 +77,7 @@ QbsManager::QbsManager() : m_defaultPropertyProvider(new DefaultPropertyProvider
             this, &QbsManager::updateAllProfiles);
 
     m_logSink = new QbsLogSink(this);
-    int level = qbs::LoggerWarning;
+    int level = qbs::LoggerInfo;
     const QString levelEnv = QString::fromLocal8Bit(qgetenv("QBS_LOG_LEVEL"));
     if (!levelEnv.isEmpty()) {
         bool ok = false;

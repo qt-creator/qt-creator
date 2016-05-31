@@ -224,16 +224,18 @@ class JIRA:
         def __tryExternalTools__(self, proxy=None):
             global JIRA_URL
             if proxy:
-                cmdAndArgs = { 'curl':'-k --proxy %s' % proxy,
-                               'wget':'-qO-'}
+                cmdAndArgs = { 'curl':['-k', '--proxy', proxy],
+                               'wget':['-qO-']}
             else:
-                cmdAndArgs = { 'curl':'-k', 'wget':'-qO-' }
+                cmdAndArgs = { 'curl':['-k'], 'wget':['-qO-']}
             for call in cmdAndArgs:
                 prog = which(call)
                 if prog:
                     if call == 'wget' and proxy and os.getenv("https_proxy", None) == None:
                         test.warning("Missing environment variable https_proxy for using wget with proxy!")
-                    return getOutputFromCmdline('"%s" %s %s/%s-%d' % (prog, cmdAndArgs[call], JIRA_URL, self._bugType, self._number))
+                    cmdline = [prog] + cmdAndArgs[call]
+                    cmdline += ['%s/%s-%d' % (JIRA_URL, self._bugType, self._number)]
+                    return getOutputFromCmdline(cmdline)
             return None
 
         # this function crops multiple whitespaces from fetched and searches for expected

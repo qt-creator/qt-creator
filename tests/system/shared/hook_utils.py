@@ -179,10 +179,10 @@ def __getMkspecFromQMakeConf__(qmakeConf):
     return os.path.basename(mkspec)
 
 def __getMkspecFromQmake__(qmakeCall):
-    if getOutputFromCmdline("%s -query QT_VERSION" % qmakeCall).strip().startswith("5."):
-        return getOutputFromCmdline("%s -query QMAKE_XSPEC" % qmakeCall).strip()
+    if getOutputFromCmdline([qmakeCall, "-query", "QT_VERSION"]).strip().startswith("5."):
+        return getOutputFromCmdline([qmakeCall, "-query", "QMAKE_XSPEC"]).strip()
     else:
-        QmakeConfPath = getOutputFromCmdline("%s -query QMAKE_MKSPECS" % qmakeCall).strip()
+        QmakeConfPath = getOutputFromCmdline([qmakeCall, "-query", "QMAKE_MKSPECS"]).strip()
         for tmpPath in QmakeConfPath.split(os.pathsep):
             tmpPath = tmpPath + os.sep + "default" + os.sep +"qmake.conf"
             result = __getMkspecFromQMakeConf__(tmpPath)
@@ -326,7 +326,7 @@ def __isWinFirewallRunning__():
     if not platform.system() in ('Microsoft' 'Windows'):
         __isWinFirewallRunning__.fireWallState = False
         return False
-    result = getOutputFromCmdline("netsh firewall show state")
+    result = getOutputFromCmdline(["netsh", "firewall", "show", "state"])
     for line in result.splitlines():
         if "Operational mode" in line:
             __isWinFirewallRunning__.fireWallState = not "Disable" in line

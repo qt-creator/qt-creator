@@ -108,6 +108,8 @@ class FlameGraph : public QQuickItem
     Q_PROPERTY(int sizeRole READ sizeRole WRITE setSizeRole NOTIFY sizeRoleChanged)
     Q_PROPERTY(qreal sizeThreshold READ sizeThreshold WRITE setSizeThreshold
                NOTIFY sizeThresholdChanged)
+    Q_PROPERTY(int maximumDepth READ maximumDepth WRITE setMaximumDepth
+               NOTIFY maximumDepthChanged)
     Q_PROPERTY(int depth READ depth NOTIFY depthChanged)
 
 public:
@@ -127,6 +129,19 @@ public:
 
     int depth() const;
 
+    int maximumDepth() const
+    {
+        return m_maximumDepth;
+    }
+
+    void setMaximumDepth(int maximumDepth)
+    {
+        if (maximumDepth != m_maximumDepth) {
+            m_maximumDepth = maximumDepth;
+            emit maximumDepthChanged();
+        }
+    }
+
     static FlameGraphAttached *qmlAttachedProperties(QObject *object);
 
 signals:
@@ -135,6 +150,7 @@ signals:
     void sizeRoleChanged(int role);
     void sizeThresholdChanged(qreal threshold);
     void depthChanged(int depth);
+    void maximumDepthChanged();
 
 private slots:
     void rebuild();
@@ -145,8 +161,10 @@ private:
     int m_sizeRole = 0;
     int m_depth = 0;
     qreal m_sizeThreshold = 0;
+    int m_maximumDepth = std::numeric_limits<int>::max();
 
-    int buildNode(const QModelIndex &parentIndex, QObject *parentObject, int depth);
+    int buildNode(const QModelIndex &parentIndex, QObject *parentObject, int depth,
+                  int maximumDepth);
     QObject *appendChild(QObject *parentObject, QQuickItem *parentItem, QQmlContext *context,
                          const QModelIndex &childIndex, qreal position, qreal size);
 };

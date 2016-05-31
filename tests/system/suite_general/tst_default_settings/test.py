@@ -165,7 +165,7 @@ def __getExpectedCompilers__():
     if platform.system() in ('Linux', 'Darwin'):
         compilers.extend(["g++-4.0", "g++-4.2", "clang++"])
     if platform.system() == 'Darwin':
-        xcodeClang = getOutputFromCmdline("xcrun --find clang++").strip("\n")
+        xcodeClang = getOutputFromCmdline(["xcrun", "--find", "clang++"]).strip("\n")
         if xcodeClang and os.path.exists(xcodeClang) and xcodeClang not in expected:
             expected.append(xcodeClang)
     for compiler in compilers:
@@ -217,7 +217,7 @@ def __getExpectedDebuggers__():
         result.extend(filter(lambda s: not ("lldb-platform" in s or "lldb-gdbserver" in s),
                              findAllFilesInPATH("lldb-*")))
     if platform.system() == 'Darwin':
-        xcodeLLDB = getOutputFromCmdline("xcrun --find lldb").strip("\n")
+        xcodeLLDB = getOutputFromCmdline(["xcrun", "--find", "lldb"]).strip("\n")
         if xcodeLLDB and os.path.exists(xcodeLLDB) and xcodeLLDB not in result:
             result.append(xcodeLLDB)
     return result

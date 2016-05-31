@@ -139,7 +139,7 @@ def which(program):
         command = "where"
     else:
         command = "which"
-    foundPath = getOutputFromCmdline(command + " " + program)
+    foundPath = getOutputFromCmdline([command, program], acceptedError=1)
     if foundPath:
         return foundPath.splitlines()[0]
     else:
@@ -216,11 +216,12 @@ def logApplicationOutput():
         return None
 
 # get the output from a given cmdline call
-def getOutputFromCmdline(cmdline):
+def getOutputFromCmdline(cmdline, environment=None, acceptedError=0):
     try:
-        return subprocess.check_output(cmdline, shell=True) # TODO: do not use shell=True
+        return subprocess.check_output(cmdline, env=environment)
     except subprocess.CalledProcessError as e:
-        test.warning("Command '%s' returned %d" % (e.cmd, e.returncode))
+        if e.returncode != acceptedError:
+            test.warning("Command '%s' returned %d" % (e.cmd, e.returncode))
         return e.output
 
 def selectFromFileDialog(fileName, waitForFile=False):

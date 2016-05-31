@@ -1280,6 +1280,7 @@ void DebuggerEngine::setState(DebuggerState state, bool forced)
             bp.notifyBreakpointReleased();
         DebuggerToolTipManager::deregisterEngine(this);
         d->m_memoryAgent.handleDebuggerFinished();
+        prepareForRestart();
     }
 
     showMessage(msg, LogDebug);
