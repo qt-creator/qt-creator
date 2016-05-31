@@ -29,7 +29,7 @@ SOURCES += \
     gtest/gtestresult.cpp \
     gtest/gtestoutputreader.cpp \
     gtest/gtestvisitors.cpp \
-    qtest/autotesttreeitem.cpp \
+    qtest/qttesttreeitem.cpp \
     qtest/qttestvisitors.cpp \
     qtest/qttestconfiguration.cpp \
     qtest/qttestoutputreader.cpp \
@@ -70,7 +70,7 @@ HEADERS += \
     gtest/gtestresult.h \
     gtest/gtest_utils.h \
     gtest/gtestvisitors.h \
-    qtest/autotesttreeitem.h \
+    qtest/qttesttreeitem.h \
     qtest/qttest_utils.h \
     qtest/qttestresult.h \
     qtest/qttestvisitors.h \

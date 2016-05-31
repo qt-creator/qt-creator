@@ -23,7 +23,7 @@
 **
 ****************************************************************************/
 
-#include "autotesttreeitem.h"
+#include "qttesttreeitem.h"
 #include "qttestconfiguration.h"
 #include "qttestparser.h"
 #include "../autotest_utils.h"
@@ -34,10 +34,10 @@
 namespace Autotest {
 namespace Internal {
 
-AutoTestTreeItem *AutoTestTreeItem::createTestItem(const TestParseResult *result)
+QtTestTreeItem *QtTestTreeItem::createTestItem(const TestParseResult *result)
 {
-    AutoTestTreeItem *item = new AutoTestTreeItem(result->displayName, result->fileName,
-                                                  result->itemType);
+    QtTestTreeItem *item = new QtTestTreeItem(result->displayName, result->fileName,
+                                              result->itemType);
     item->setProFile(result->proFile);
     item->setLine(result->line);
     item->setColumn(result->column);
@@ -47,7 +47,7 @@ AutoTestTreeItem *AutoTestTreeItem::createTestItem(const TestParseResult *result
     return item;
 }
 
-QVariant AutoTestTreeItem::data(int column, int role) const
+QVariant QtTestTreeItem::data(int column, int role) const
 {
     switch (role) {
     case Qt::CheckStateRole:
@@ -72,7 +72,7 @@ QVariant AutoTestTreeItem::data(int column, int role) const
     return TestTreeItem::data(column, role);
 }
 
-bool AutoTestTreeItem::canProvideTestConfiguration() const
+bool QtTestTreeItem::canProvideTestConfiguration() const
 {
     switch (type()) {
     case TestCase:
@@ -84,7 +84,7 @@ bool AutoTestTreeItem::canProvideTestConfiguration() const
     }
 }
 
-TestConfiguration *AutoTestTreeItem::testConfiguration() const
+TestConfiguration *QtTestTreeItem::testConfiguration() const
 {
     ProjectExplorer::Project *project = ProjectExplorer::SessionManager::startupProject();
     QTC_ASSERT(project, return 0);
@@ -108,7 +108,7 @@ TestConfiguration *AutoTestTreeItem::testConfiguration() const
                 TestUtils::getCMakeDisplayNameIfNecessary(filePath(), parent->proFile()));
         break;
     }
-    case TestDataTag:{
+    case TestDataTag: {
         const TestTreeItem *function = parentItem();
         const TestTreeItem *parent = function ? function->parentItem() : 0;
         if (!parent)
@@ -128,7 +128,7 @@ TestConfiguration *AutoTestTreeItem::testConfiguration() const
     return config;
 }
 
-QList<TestConfiguration *> AutoTestTreeItem::getAllTestConfigurations() const
+QList<TestConfiguration *> QtTestTreeItem::getAllTestConfigurations() const
 {
     QList<TestConfiguration *> result;
 
@@ -150,7 +150,7 @@ QList<TestConfiguration *> AutoTestTreeItem::getAllTestConfigurations() const
     return result;
 }
 
-QList<TestConfiguration *> AutoTestTreeItem::getSelectedTestConfigurations() const
+QList<TestConfiguration *> QtTestTreeItem::getSelectedTestConfigurations() const
 {
     QList<TestConfiguration *> result;
     ProjectExplorer::Project *project = ProjectExplorer::SessionManager::startupProject();
@@ -197,7 +197,7 @@ QList<TestConfiguration *> AutoTestTreeItem::getSelectedTestConfigurations() con
     return result;
 }
 
-TestTreeItem *AutoTestTreeItem::find(const TestParseResult *result)
+TestTreeItem *QtTestTreeItem::find(const TestParseResult *result)
 {
     QTC_ASSERT(result, return 0);
 
@@ -215,7 +215,7 @@ TestTreeItem *AutoTestTreeItem::find(const TestParseResult *result)
     }
 }
 
-bool AutoTestTreeItem::modify(const TestParseResult *result)
+bool QtTestTreeItem::modify(const TestParseResult *result)
 {
     QTC_ASSERT(result, return false);
 

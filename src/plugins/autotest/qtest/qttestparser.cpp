@@ -24,7 +24,7 @@
 ****************************************************************************/
 
 #include "qttestparser.h"
-#include "autotesttreeitem.h"
+#include "qttesttreeitem.h"
 #include "qttestvisitors.h"
 #include "qttest_utils.h"
 #include "../autotest_utils.h"
@@ -36,7 +36,7 @@ namespace Internal {
 
 TestTreeItem *QtTestParseResult::createTestTreeItem() const
 {
-    return itemType == TestTreeItem::Root ? 0 : AutoTestTreeItem::createTestItem(this);
+    return itemType == TestTreeItem::Root ? 0 : QtTestTreeItem::createTestItem(this);
 }
 
 static bool includesQtTest(const CPlusPlus::Document::Ptr &doc, const CPlusPlus::Snapshot &snapshot)

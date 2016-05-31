@@ -30,13 +30,13 @@
 namespace Autotest {
 namespace Internal {
 
-class AutoTestTreeItem : public TestTreeItem
+class QtTestTreeItem : public TestTreeItem
 {
 public:
-    AutoTestTreeItem(const QString &name = QString(), const QString &filePath = QString(),
-                     Type type = Root) : TestTreeItem(name, filePath, type) {}
+    QtTestTreeItem(const QString &name = QString(), const QString &filePath = QString(),
+                   Type type = Root) : TestTreeItem(name, filePath, type) {}
 
-    static AutoTestTreeItem *createTestItem(const TestParseResult *result);
+    static QtTestTreeItem *createTestItem(const TestParseResult *result);
 
     QVariant data(int column, int role) const override;
     bool canProvideTestConfiguration() const override;

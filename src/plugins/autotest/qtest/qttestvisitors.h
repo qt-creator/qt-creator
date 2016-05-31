@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include "autotesttreeitem.h"
+#include "qttesttreeitem.h"
 
 #include <cplusplus/ASTVisitor.h>
 #include <cplusplus/CppDocument.h>

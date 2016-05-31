@@ -31,7 +31,7 @@
 #include "testtreemodel.h"
 
 // FIXME
-#include "qtest/autotesttreeitem.h"
+#include "qtest/qttesttreeitem.h"
 #include "quick/quicktesttreeitem.h"
 #include "gtest/googletesttreeitem.h"
 // end of FIXME
@@ -48,13 +48,13 @@ namespace Internal {
 
 TestTreeModel::TestTreeModel(QObject *parent) :
     TreeModel(parent),
-    m_autoTestRootItem(new AutoTestTreeItem(tr("Auto Tests"), QString(), TestTreeItem::Root)),
+    m_qtTestRootItem(new QtTestTreeItem(tr("Qt Tests"), QString(), TestTreeItem::Root)),
     m_quickTestRootItem(new QuickTestTreeItem(tr("Qt Quick Tests"), QString(), TestTreeItem::Root)),
     m_googleTestRootItem(new GoogleTestTreeItem(tr("Google Tests"), QString(), TestTreeItem::Root)),
     m_parser(new TestCodeParser(this)),
     m_connectionsInitialized(false)
 {
-    rootItem()->appendChild(m_autoTestRootItem);
+    rootItem()->appendChild(m_qtTestRootItem);
     rootItem()->appendChild(m_quickTestRootItem);
     rootItem()->appendChild(m_googleTestRootItem);
 
@@ -171,7 +171,7 @@ Qt::ItemFlags TestTreeModel::flags(const QModelIndex &index) const
 
 bool TestTreeModel::hasTests() const
 {
-    return m_autoTestRootItem->childCount() > 0 || m_quickTestRootItem->childCount() > 0
+    return m_qtTestRootItem->childCount() > 0 || m_quickTestRootItem->childCount() > 0
             || m_googleTestRootItem->childCount() > 0;
 }
 
@@ -179,7 +179,7 @@ QList<TestConfiguration *> TestTreeModel::getAllTestCases() const
 {
     QList<TestConfiguration *> result;
 
-    result.append(m_autoTestRootItem->getAllTestConfigurations());
+    result.append(m_qtTestRootItem->getAllTestConfigurations());
     result.append(m_quickTestRootItem->getAllTestConfigurations());
     result.append(m_googleTestRootItem->getAllTestConfigurations());
     return result;
@@ -188,7 +188,7 @@ QList<TestConfiguration *> TestTreeModel::getAllTestCases() const
 QList<TestConfiguration *> TestTreeModel::getSelectedTests() const
 {
     QList<TestConfiguration *> result;
-    result.append(m_autoTestRootItem->getSelectedTestConfigurations());
+    result.append(m_qtTestRootItem->getSelectedTestConfigurations());
     result.append(m_quickTestRootItem->getSelectedTestConfigurations());
     result.append(m_googleTestRootItem->getSelectedTestConfigurations());
     return result;
@@ -227,7 +227,7 @@ void TestTreeModel::removeFiles(const QStringList &files)
 
 void TestTreeModel::markAllForRemoval()
 {
-    foreach (Utils::TreeItem *item, m_autoTestRootItem->children())
+    foreach (Utils::TreeItem *item, m_qtTestRootItem->children())
         static_cast<TestTreeItem *>(item)->markForRemovalRecursively(true);
 
     foreach (Utils::TreeItem *item, m_quickTestRootItem->children())
@@ -270,11 +270,11 @@ void TestTreeModel::sweep()
 QHash<QString, QString> TestTreeModel::testCaseNamesForFiles(QStringList files)
 {
     QHash<QString, QString> result;
-    if (!m_autoTestRootItem)
+    if (!m_qtTestRootItem)
         return result;
 
-    for (int row = 0, count = m_autoTestRootItem->childCount(); row < count; ++row) {
-        const TestTreeItem *child = m_autoTestRootItem->childItem(row);
+    for (int row = 0, count = m_qtTestRootItem->childCount(); row < count; ++row) {
+        const TestTreeItem *child = m_qtTestRootItem->childItem(row);
         if (files.contains(child->filePath())) {
             result.insert(child->filePath(), child->name());
         }
@@ -346,7 +346,7 @@ void TestTreeModel::handleParseResult(const TestParseResult *result, TestTreeIte
 
 void TestTreeModel::removeAllTestItems()
 {
-    m_autoTestRootItem->removeChildren();
+    m_qtTestRootItem->removeChildren();
     m_quickTestRootItem->removeChildren();
     m_googleTestRootItem->removeChildren();
     emit testTreeModelChanged();
@@ -356,7 +356,7 @@ TestTreeItem *TestTreeModel::rootItemForType(TestTreeModel::Type type)
 {
     switch (type) {
     case AutoTest:
-        return m_autoTestRootItem;
+        return m_qtTestRootItem;
     case QuickTest:
         return m_quickTestRootItem;
     case GoogleTest:
@@ -370,7 +370,7 @@ TestTreeItem *TestTreeModel::rootItemForType(TestTreeModel::Type type)
 #ifdef WITH_TESTS
 int TestTreeModel::autoTestsCount() const
 {
-    return m_autoTestRootItem ? m_autoTestRootItem->childCount() : 0;
+    return m_qtTestRootItem ? m_qtTestRootItem->childCount() : 0;
 }
 
 int TestTreeModel::namedQuickTestsCount() const
@@ -390,7 +390,7 @@ int TestTreeModel::unnamedQuickTestsCount() const
 int TestTreeModel::dataTagsCount() const
 {
     int dataTagCount = 0;
-    foreach (Utils::TreeItem *item, m_autoTestRootItem->children()) {
+    foreach (Utils::TreeItem *item, m_qtTestRootItem->children()) {
         TestTreeItem *classItem = static_cast<TestTreeItem *>(item);
         foreach (Utils::TreeItem *functionItem, classItem->children())
             dataTagCount += functionItem->childCount();

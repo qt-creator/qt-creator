@@ -104,7 +104,7 @@ private:
     void setupParsingConnections();
 
     // FIXME
-    TestTreeItem *m_autoTestRootItem;
+    TestTreeItem *m_qtTestRootItem;
     TestTreeItem *m_quickTestRootItem;
     TestTreeItem *m_googleTestRootItem;
     // end of FIXME
