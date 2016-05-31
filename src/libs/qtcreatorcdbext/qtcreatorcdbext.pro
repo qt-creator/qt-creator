@@ -5,6 +5,7 @@ include(../../../qtcreator.pri)
 include(cdb_detect.pri)
 
 
+VERSION =
 CONFIG -= precompile_header
 CONFIG += hide_symbols
 
