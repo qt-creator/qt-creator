@@ -291,25 +291,19 @@ QString CppSourceProcessor::resolveFile_helper(const QString &fileName,
                                                ProjectPartHeaderPaths::Iterator headerPathsIt)
 {
     auto headerPathsEnd = m_headerPaths.end();
-    for (; headerPathsIt != headerPathsEnd; ++headerPathsIt) {
-        if (headerPathsIt->isFrameworkPath())
-            continue;
-        const QString path = headerPathsIt->path + fileName;
-        if (m_workingCopy.contains(path) || checkFile(path))
-            return path;
-    }
-
     const int index = fileName.indexOf(QLatin1Char('/'));
-    if (index != -1) {
-        const QString frameworkName = fileName.left(index);
-        const QString name = frameworkName + QLatin1String(".framework/Headers/")
-            + fileName.mid(index + 1);
-
-        foreach (const ProjectPartHeaderPath &headerPath, m_headerPaths) {
-            if (!headerPath.isFrameworkPath())
-                continue;
-            const QString path = headerPath.path + name;
-            if (checkFile(path))
+    for (; headerPathsIt != headerPathsEnd; ++headerPathsIt) {
+        if (headerPathsIt->isValid()) {
+            QString path;
+            if (headerPathsIt->isFrameworkPath()) {
+                if (index == -1)
+                    continue;
+                path = headerPathsIt->path + fileName.left(index)
+                       + QLatin1String(".framework/Headers/") + fileName.mid(index + 1);
+            } else {
+                path = headerPathsIt->path + fileName;
+            }
+            if (m_workingCopy.contains(path) || checkFile(path))
                 return path;
         }
     }
