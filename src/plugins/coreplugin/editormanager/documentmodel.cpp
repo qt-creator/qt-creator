@@ -230,18 +230,14 @@ void DocumentModelPrivate::addEntry(DocumentModel::Entry *entry)
         DocumentModel::Entry *previousEntry = m_entries.at(previousIndex);
         const bool replace = !entry->isSuspended && previousEntry->isSuspended;
         if (replace) {
-            delete previousEntry;
-            m_entries[previousIndex] = entry;
-            if (!fixedPath.isEmpty())
-                m_entryByFixedPath[fixedPath] = entry;
-        } else {
-            delete entry;
-            entry = previousEntry;
+            previousEntry->isSuspended = false;
+            delete previousEntry->document;
+            previousEntry->document = entry->document;
+            connect(previousEntry->document, &IDocument::changed, this, &DocumentModelPrivate::itemChanged);
         }
-        previousEntry = 0;
-        disambiguateDisplayNames(entry);
-        if (replace)
-            connect(entry->document, &IDocument::changed, this, &DocumentModelPrivate::itemChanged);
+        delete entry;
+        entry = nullptr;
+        disambiguateDisplayNames(previousEntry);
         return;
     }
 
