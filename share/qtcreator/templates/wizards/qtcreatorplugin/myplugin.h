@@ -20,7 +20,7 @@ public:
     void extensionsInitialized();
     ShutdownFlag aboutToShutdown();
 
-private slots:
+private:
     void triggerAction();
 };
 
