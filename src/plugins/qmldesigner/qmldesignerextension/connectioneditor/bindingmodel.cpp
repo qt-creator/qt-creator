@@ -29,17 +29,12 @@
 
 #include <nodemetainfo.h>
 #include <nodeproperty.h>
-#include <variantproperty.h>
 #include <bindingproperty.h>
+#include <variantproperty.h>
 #include <rewritingexception.h>
 #include <rewritertransaction.h>
 
-#include <utils/fileutils.h>
-
-#include <QItemEditorFactory>
-#include <QComboBox>
 #include <QMessageBox>
-#include <QStyleFactory>
 #include <QTimer>
 
 namespace QmlDesigner {
@@ -461,111 +456,6 @@ void BindingModel::handleException()
 {
     QMessageBox::warning(0, tr("Error"), m_exceptionError);
     resetModel();
-}
-
-BindingDelegate::BindingDelegate(QWidget *parent) : QStyledItemDelegate(parent)
-{
-    static QItemEditorFactory *factory = 0;
-        if (factory == 0) {
-            factory = new QItemEditorFactory;
-            QItemEditorCreatorBase *creator
-                = new QItemEditorCreator<BindingComboBox>("text");
-            factory->registerEditor(QVariant::String, creator);
-        }
-
-        setItemEditorFactory(factory);
-}
-
-QWidget *BindingDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const
-{
-        QWidget *widget = QStyledItemDelegate::createEditor(parent, option, index);
-
-        const BindingModel *model = qobject_cast<const BindingModel*>(index.model());
-
-        model->connectionView()->allModelNodes();
-
-        BindingComboBox *bindingComboBox = qobject_cast<BindingComboBox*>(widget);
-
-        if (!model) {
-            qWarning() << "BindingDelegate::createEditor no model";
-            return widget;
-        }
-
-        if (!model->connectionView()) {
-            qWarning() << "BindingDelegate::createEditor no connection view";
-            return widget;
-        }
-
-        if (!bindingComboBox) {
-            qWarning() << "BindingDelegate::createEditor no bindingComboBox";
-            return widget;
-        }
-
-        BindingProperty bindingProperty = model->bindingPropertyForRow(index.row());
-
-        switch (index.column()) {
-        case BindingModel::TargetModelNodeRow: {
-            return 0; //no editor
-            foreach (const ModelNode &modelNode, model->connectionView()->allModelNodes()) {
-                if (!modelNode.id().isEmpty()) {
-                    bindingComboBox->addItem(modelNode.id());
-                }
-            }
-        } break;
-        case BindingModel::TargetPropertyNameRow: {
-            bindingComboBox->addItems(model->possibleTargetProperties(bindingProperty));
-        } break;
-        case BindingModel::SourceModelNodeRow: {
-            foreach (const ModelNode &modelNode, model->connectionView()->allModelNodes()) {
-                if (!modelNode.id().isEmpty()) {
-                    bindingComboBox->addItem(modelNode.id());
-                }
-            }
-            if (!bindingProperty.parentModelNode().isRootNode())
-                bindingComboBox->addItem(QLatin1String("parent"));
-        } break;
-        case BindingModel::SourcePropertyNameRow: {
-            bindingComboBox->addItems(model->possibleSourceProperties(bindingProperty));
-        } break;
-        default: qWarning() << "BindingDelegate::createEditor column" << index.column();
-        }
-
-        connect(bindingComboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, [=]() {
-            auto delegate = const_cast<BindingDelegate*>(this);
-            emit delegate->commitData(bindingComboBox);
-            // TODO: The combobox does a change while it is opening and this would close it immediately.
-            //       Making sure that this is not connected while data is initialized maybe with using
-            //       QAbstractItemDelegate::setEditorData also this connect should maybe unique.
-            // emit delegate->closeEditor(bindingComboBox);
-        });
-
-        return widget;
-}
-
-void BindingDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
-                            const QModelIndex &index) const
-{
-    QStyleOptionViewItem opt = option;
-    opt.state &= ~QStyle::State_HasFocus;
-    QStyledItemDelegate::paint(painter, opt, index);
-}
-
-BindingComboBox::BindingComboBox(QWidget *parent) : QComboBox(parent)
-{
-    static QScopedPointer<QStyle> style(QStyleFactory::create(QLatin1String("windows")));
-    setEditable(true);
-    if (style)
-        setStyle(style.data());
-}
-
-QString BindingComboBox::text() const
-{
-    return currentText();
-}
-
-void BindingComboBox::setText(const QString &text)
-{
-    setEditText(text);
 }
 
 } // namespace Internal

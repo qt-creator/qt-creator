@@ -25,20 +25,15 @@
 
 #pragma once
 
-#include <modelnode.h>
-#include <nodemetainfo.h>
-#include <bindingproperty.h>
-#include <variantproperty.h>
-
-#include <QStandardItem>
-#include <QStyledItemDelegate>
 #include <QStandardItemModel>
-#include <QComboBox>
 
 namespace QmlDesigner {
 
 class Model;
 class ModelNode;
+class BindingProperty;
+class VariantProperty;
+class AbstractProperty;
 
 namespace Internal {
 
@@ -104,34 +99,6 @@ private:
     bool m_handleDataChanged;
     QString m_exceptionError;
 
-};
-
-class DynamicPropertiesDelegate : public QStyledItemDelegate
-{
-    Q_OBJECT
-
-public:
-    DynamicPropertiesDelegate(QWidget *parent = 0);
-
-    virtual QWidget *createEditor(QWidget *parent,
-                                    const QStyleOptionViewItem &option,
-                                    const QModelIndex &index) const override;
-
-    void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const override;
-
-private slots:
-    void emitCommitData(const QString &text);
-};
-
-class DynamicPropertiesComboBox : public QComboBox
-{
-    Q_OBJECT
-    Q_PROPERTY(QString text READ text WRITE setText USER true)
-public:
-    DynamicPropertiesComboBox(QWidget *parent = 0);
-
-    QString text() const;
-    void setText(const QString &text);
 };
 
 } // namespace Internal

@@ -25,20 +25,14 @@
 
 #pragma once
 
-#include <modelnode.h>
-#include <nodemetainfo.h>
-#include <bindingproperty.h>
-
-#include <QStandardItem>
 #include <QStandardItemModel>
-#include <QStyledItemDelegate>
-#include <QComboBox>
 
 namespace QmlDesigner {
 
-class Model;
-class AbstractView;
 class ModelNode;
+class BindingProperty;
+class SignalHandlerProperty;
+class VariantProperty;
 
 namespace Internal {
 
@@ -88,32 +82,6 @@ private:
     ConnectionView *m_connectionView;
     bool m_lock;
     QString m_exceptionError;
-};
-
-
-class ConnectionDelegate : public QStyledItemDelegate
-{
-    Q_OBJECT
-
-public:
-    ConnectionDelegate(QWidget *parent = 0);
-
-    virtual QWidget *createEditor(QWidget *parent,
-                                    const QStyleOptionViewItem &option,
-                                    const QModelIndex &index) const override;
-
-    void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const override;
-};
-
-class ConnectionComboBox : public QComboBox
-{
-    Q_OBJECT
-    Q_PROPERTY(QString text READ text WRITE setText USER true)
-public:
-    ConnectionComboBox(QWidget *parent = 0);
-
-    QString text() const;
-    void setText(const QString &text);
 };
 
 } // namespace Internal

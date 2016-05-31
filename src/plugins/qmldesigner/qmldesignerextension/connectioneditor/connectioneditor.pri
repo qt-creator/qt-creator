@@ -1,13 +1,15 @@
 VPATH += $$PWD
 INCLUDEPATH += $$PWD
 
-HEADERS += connectionview.h \
+HEADERS += delegates.h \
+    connectionview.h \
     connectionviewwidget.h \
     connectionmodel.h \
     bindingmodel.h \
     dynamicpropertiesmodel.h
 
-SOURCES += connectionview.cpp \
+SOURCES += delegates.cpp \
+    connectionview.cpp \
     connectionviewwidget.cpp \
     connectionmodel.cpp \
     bindingmodel.cpp \

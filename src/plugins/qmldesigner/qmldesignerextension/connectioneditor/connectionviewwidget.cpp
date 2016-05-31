@@ -27,6 +27,7 @@
 #include "connectionview.h"
 #include "ui_connectionviewwidget.h"
 
+#include "delegates.h"
 #include "bindingmodel.h"
 #include "connectionmodel.h"
 #include "dynamicpropertiesmodel.h"

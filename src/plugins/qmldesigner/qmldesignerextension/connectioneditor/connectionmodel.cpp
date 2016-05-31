@@ -32,29 +32,14 @@
 #include <rewritertransaction.h>
 #include <nodeabstractproperty.h>
 #include <exception.h>
+#include <nodemetainfo.h>
 
+#include <QStandardItemModel>
 #include <QMessageBox>
 #include <QTableView>
 #include <QTimer>
-#include <QItemEditorFactory>
-#include <QStyleFactory>
 
 namespace {
-
-QStringList prependOnForSignalHandler(const QStringList &signalNames)
-{
-    QStringList signalHandlerNames;
-    foreach (const QString &signalName, signalNames) {
-        QString signalHandlerName = signalName;
-        if (!signalHandlerName.isEmpty()) {
-            QChar firstChar = signalHandlerName.at(0).toUpper();
-            signalHandlerName[0] = firstChar;
-            signalHandlerName.prepend(QLatin1String("on"));
-            signalHandlerNames.append(signalHandlerName);
-        }
-    }
-    return signalHandlerNames;
-}
 
 QStringList propertyNameListToStringList(const QmlDesigner::PropertyNameList &propertyNameList)
 {
@@ -388,119 +373,6 @@ QStringList ConnectionModel::getPossibleSignalsForConnection(const ModelNode &co
     }
 
     return stringList;
-}
-
-ConnectionDelegate::ConnectionDelegate(QWidget *parent) : QStyledItemDelegate(parent)
-{
-    static QItemEditorFactory *factory = 0;
-    if (factory == 0) {
-        factory = new QItemEditorFactory;
-        QItemEditorCreatorBase *creator
-                = new QItemEditorCreator<ConnectionComboBox>("text");
-        factory->registerEditor(QVariant::String, creator);
-    }
-
-    setItemEditorFactory(factory);
-}
-
-QWidget *ConnectionDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const
-{
-
-    QWidget *widget = QStyledItemDelegate::createEditor(parent, option, index);
-
-    const ConnectionModel *connectionModel = qobject_cast<const ConnectionModel*>(index.model());
-
-    //model->connectionView()->allModelNodes();
-
-    ConnectionComboBox *connectionComboBox = qobject_cast<ConnectionComboBox*>(widget);
-
-    if (!connectionModel) {
-        qWarning() << "ConnectionDelegate::createEditor no model";
-        return widget;
-    }
-
-    if (!connectionModel->connectionView()) {
-        qWarning() << "ConnectionDelegate::createEditor no connection view";
-        return widget;
-    }
-
-    if (!connectionComboBox) {
-        qWarning() << "ConnectionDelegate::createEditor no bindingComboBox";
-        return widget;
-    }
-
-    switch (index.column()) {
-    case ConnectionModel::TargetModelNodeRow: {
-        foreach (const ModelNode &modelNode, connectionModel->connectionView()->allModelNodes()) {
-            if (!modelNode.id().isEmpty()) {
-                connectionComboBox->addItem(modelNode.id());
-            }
-        }
-    } break;
-    case ConnectionModel::TargetPropertyNameRow: {
-        connectionComboBox->addItems(prependOnForSignalHandler(connectionModel->getSignalsForRow(index.row())));
-    } break;
-    case ConnectionModel::SourceRow: {
-        ModelNode rootModelNode = connectionModel->connectionView()->rootModelNode();
-        if (QmlItemNode::isValidQmlItemNode(rootModelNode) && !rootModelNode.id().isEmpty()) {
-
-            QString itemText = tr("Change to default state");
-            QString source = QString::fromLatin1("{ %1.state = \"\" }").arg(rootModelNode.id());
-            connectionComboBox->addItem(itemText, source);
-
-            foreach (const QmlModelState &state, QmlItemNode(rootModelNode).states().allStates()) {
-                QString itemText = tr("Change state to %1").arg(state.name());
-                QString source = QString::fromLatin1("{ %1.state = \"%2\" }").arg(rootModelNode.id()).arg(state.name());
-                connectionComboBox->addItem(itemText, source);
-            }
-        }
-    } break;
-
-    default: qWarning() << "ConnectionDelegate::createEditor column" << index.column();
-    }
-
-    connect(connectionComboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, [=]() {
-        auto delegate = const_cast<ConnectionDelegate*>(this);
-        emit delegate->commitData(connectionComboBox);
-        // TODO: The combobox does a change while it is opening and this would close it immediately.
-        //       Making sure that this is not connected while data is initialized maybe with using
-        //       QAbstractItemDelegate::setEditorData also this connect should maybe unique.
-        // emit delegate->closeEditor(connectionComboBox);
-    });
-
-    return widget;
-}
-
-void ConnectionDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
-{
-    QStyleOptionViewItem opt = option;
-    opt.state &= ~QStyle::State_HasFocus;
-    QStyledItemDelegate::paint(painter, opt, index);
-}
-
-ConnectionComboBox::ConnectionComboBox(QWidget *parent) : QComboBox(parent)
-{
-    static QScopedPointer<QStyle> style(QStyleFactory::create(QLatin1String("windows")));
-    setEditable(true);
-    if (style)
-        setStyle(style.data());
-}
-
-QString ConnectionComboBox::text() const
-{
-    int index = findText(currentText());
-    if (index > -1) {
-        QVariant variantData = itemData(index);
-        if (variantData.isValid())
-            return variantData.toString();
-    }
-
-    return currentText();
-}
-
-void ConnectionComboBox::setText(const QString &text)
-{
-    setEditText(text);
 }
 
 } // namespace Internal

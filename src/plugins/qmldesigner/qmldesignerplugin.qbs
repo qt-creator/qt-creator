@@ -556,6 +556,8 @@ QtcPlugin {
         files: [
             "colortool/colortool.cpp",
             "colortool/colortool.h",
+            "connectioneditor/delegates.h",
+            "connectioneditor/delegates.cpp",
             "connectioneditor/bindingmodel.cpp",
             "connectioneditor/bindingmodel.h",
             "connectioneditor/connectioneditor.qrc",

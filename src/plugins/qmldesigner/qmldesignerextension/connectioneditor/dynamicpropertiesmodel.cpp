@@ -36,10 +36,7 @@
 
 #include <utils/fileutils.h>
 
-#include <QItemEditorFactory>
-#include <QComboBox>
 #include <QMessageBox>
-#include <QStyleFactory>
 #include <QTimer>
 #include <QUrl>
 
@@ -702,122 +699,6 @@ void DynamicPropertiesModel::handleException()
 {
     QMessageBox::warning(0, tr("Error"), m_exceptionError);
     resetModel();
-}
-
-DynamicPropertiesDelegate::DynamicPropertiesDelegate(QWidget *parent) : QStyledItemDelegate(parent)
-{
-//    static QItemEditorFactory *factory = 0;
-//        if (factory == 0) {
-//            factory = new QItemEditorFactory;
-//            QItemEditorCreatorBase *creator
-//                = new QItemEditorCreator<DynamicPropertiesComboBox>("text");
-//            factory->registerEditor(QVariant::String, creator);
-//        }
-
-//        setItemEditorFactory(factory);
-}
-
-QWidget *DynamicPropertiesDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const
-{
-        QWidget *widget = QStyledItemDelegate::createEditor(parent, option, index);
-
-        if (widget) {
-            static QScopedPointer<QStyle> style(QStyleFactory::create(QLatin1String("windows")));
-            if (style)
-                widget->setStyle(style.data());
-        }
-
-        const DynamicPropertiesModel *model = qobject_cast<const DynamicPropertiesModel*>(index.model());
-
-        model->connectionView()->allModelNodes();
-
-//        DynamicPropertiesComboBox *bindingComboBox = qobject_cast<DynamicPropertiesComboBox*>(widget);
-
-//        if (!bindingComboBox) {
-//            return widget;
-//        }
-
-        if (!model) {
-            qWarning() << "BindingDelegate::createEditor no model";
-            return widget;
-        }
-
-        if (!model->connectionView()) {
-            qWarning() << "BindingDelegate::createEditor no connection view";
-            return widget;
-        }
-
-        BindingProperty bindingProperty = model->bindingPropertyForRow(index.row());
-
-        switch (index.column()) {
-        case DynamicPropertiesModel::TargetModelNodeRow: {
-            return 0; //no editor
-        } break;
-        case DynamicPropertiesModel::PropertyNameRow: {
-            return QStyledItemDelegate::createEditor(parent, option, index);
-        } break;
-        case DynamicPropertiesModel::PropertyTypeRow: {
-
-            DynamicPropertiesComboBox *dynamicPropertiesComboBox = new DynamicPropertiesComboBox(parent);
-            connect(dynamicPropertiesComboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, [=]() {
-                auto delegate = const_cast<DynamicPropertiesDelegate*>(this);
-                emit delegate->commitData(dynamicPropertiesComboBox);
-                // TODO: The combobox does a change while it is opening and this would close it immediately.
-                //       Making sure that this is not connected while data is initialized maybe with using
-                //       QAbstractItemDelegate::setEditorData also this connect should maybe unique.
-                // emit delegate->closeEditor(dynamicPropertiesComboBox);
-            });
-
-            //dynamicPropertiesComboBox->addItem(QLatin1String("alias"));
-            //dynamicPropertiesComboBox->addItem(QLatin1String("Item"));
-            dynamicPropertiesComboBox->addItem(QLatin1String("real"));
-            dynamicPropertiesComboBox->addItem(QLatin1String("int"));
-            dynamicPropertiesComboBox->addItem(QLatin1String("string"));
-            dynamicPropertiesComboBox->addItem(QLatin1String("bool"));
-            dynamicPropertiesComboBox->addItem(QLatin1String("url"));
-            dynamicPropertiesComboBox->addItem(QLatin1String("color"));
-            dynamicPropertiesComboBox->addItem(QLatin1String("variant"));
-            return dynamicPropertiesComboBox;
-        } break;
-        case DynamicPropertiesModel::PropertyValueRow: {
-            return QStyledItemDelegate::createEditor(parent, option, index);
-        } break;
-        default: qWarning() << "BindingDelegate::createEditor column" << index.column();
-        }
-
-        return 0;
-}
-
-void DynamicPropertiesDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
-                            const QModelIndex &index) const
-{
-    QStyleOptionViewItem opt = option;
-    opt.state &= ~QStyle::State_HasFocus;
-    QStyledItemDelegate::paint(painter, opt, index);
-}
-
-void DynamicPropertiesDelegate::emitCommitData(const QString & /*text*/)
-{
-    DynamicPropertiesComboBox *bindingComboBox = qobject_cast<DynamicPropertiesComboBox*>(sender());
-    emit commitData(bindingComboBox);
-}
-
-DynamicPropertiesComboBox::DynamicPropertiesComboBox(QWidget *parent) : QComboBox(parent)
-{
-    static QScopedPointer<QStyle> style(QStyleFactory::create(QLatin1String("windows")));
-    setEditable(true);
-    if (style)
-        setStyle(style.data());
-}
-
-QString DynamicPropertiesComboBox::text() const
-{
-    return currentText();
-}
-
-void DynamicPropertiesComboBox::setText(const QString &text)
-{
-    setEditText(text);
 }
 
 } // namespace Internal
