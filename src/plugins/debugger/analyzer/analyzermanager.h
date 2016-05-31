@@ -137,7 +137,6 @@ DEBUGGER_EXPORT void enableMainWindow(bool on);
 DEBUGGER_EXPORT QWidget *mainWindow();
 
 DEBUGGER_EXPORT void selectPerspective(const QByteArray &perspectiveId);
-DEBUGGER_EXPORT void runAction(Core::Id actionId);
 
 // Convenience functions.
 DEBUGGER_EXPORT void showStatusMessage(const QString &message, int timeoutMS = 10000);

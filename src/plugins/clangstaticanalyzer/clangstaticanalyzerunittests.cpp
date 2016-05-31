@@ -29,7 +29,6 @@
 #include "clangstaticanalyzertool.h"
 #include "clangstaticanalyzerutils.h"
 
-#include <debugger/analyzer/analyzermanager.h>
 #include <cpptools/cppmodelmanager.h>
 #include <cpptools/cpptoolstestcase.h>
 #include <projectexplorer/kitinformation.h>
@@ -44,7 +43,6 @@
 #include <QTimer>
 #include <QtTest>
 
-using namespace Debugger;
 using namespace ProjectExplorer;
 using namespace Utils;
 
@@ -89,7 +87,7 @@ void ClangStaticAnalyzerUnitTests::testProject()
     CppTools::Tests::ProjectOpenerAndCloser projectManager;
     const CppTools::ProjectInfo projectInfo = projectManager.open(projectFilePath, true);
     QVERIFY(projectInfo.isValid());
-    Debugger::runAction(ClangStaticAnalyzerActionId);
+    m_analyzerTool->startTool();
     QSignalSpy waiter(m_analyzerTool, SIGNAL(finished(bool)));
     QVERIFY(waiter.wait(30000));
     const QList<QVariant> arguments = waiter.takeFirst();

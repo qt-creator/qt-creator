@@ -3597,12 +3597,6 @@ void selectPerspective(const QByteArray &perspectiveId)
     dd->m_mainWindow->restorePerspective(perspectiveId);
 }
 
-void runAction(Id actionId)
-{
-    ActionDescription desc = dd->m_descriptions.value(actionId);
-    desc.startTool();
-}
-
 QWidget *mainWindow()
 {
     return dd->m_mainWindow;
