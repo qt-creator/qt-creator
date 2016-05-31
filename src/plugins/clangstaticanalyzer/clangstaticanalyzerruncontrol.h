@@ -52,7 +52,7 @@ struct ExtraToolChainInfo {
     QString targetTriple;
 };
 
-class ClangStaticAnalyzerRunControl : public Debugger::AnalyzerRunControl
+class ClangStaticAnalyzerRunControl : public ProjectExplorer::RunControl
 {
     Q_OBJECT
 
@@ -70,6 +70,7 @@ public:
 
 signals:
     void newDiagnosticsAvailable(const QList<Diagnostic> &diagnostics);
+    void starting();
 
 private:
     AnalyzeUnits sortedUnitsToAnalyze();

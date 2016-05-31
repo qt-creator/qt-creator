@@ -69,7 +69,7 @@ ClangStaticAnalyzerRunControl::ClangStaticAnalyzerRunControl(
             RunConfiguration *runConfiguration,
             Core::Id runMode,
             const ProjectInfo &projectInfo)
-    : AnalyzerRunControl(runConfiguration, runMode)
+    : RunControl(runConfiguration, runMode)
     , m_projectInfo(projectInfo)
     , m_initialFilesToProcessSize(0)
     , m_filesAnalyzed(0)

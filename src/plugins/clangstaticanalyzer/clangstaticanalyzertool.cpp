@@ -149,9 +149,6 @@ ClangStaticAnalyzerTool::ClangStaticAnalyzerTool(QObject *parent)
     desc.setToolTip(toolTip);
     desc.setRunMode(Constants::CLANGSTATICANALYZER_RUN_MODE);
     desc.setPerspectiveId(ClangStaticAnalyzerPerspectiveId);
-    desc.setRunControlCreator([this](RunConfiguration *runConfiguration, Core::Id runMode) {
-        return createRunControl(runConfiguration, runMode);
-    });
     desc.setCustomToolStarter([this](RunConfiguration *runConfiguration) {
         Q_UNUSED(runConfiguration);
         startTool();
@@ -172,8 +169,8 @@ ClangStaticAnalyzerTool::ClangStaticAnalyzerTool(QObject *parent)
             this, &ClangStaticAnalyzerTool::updateRunActions);
 }
 
-AnalyzerRunControl *ClangStaticAnalyzerTool::createRunControl(RunConfiguration *runConfiguration,
-                                                              Core::Id runMode)
+RunControl *ClangStaticAnalyzerTool::createRunControl(RunConfiguration *runConfiguration,
+                                                      Core::Id runMode)
 {
     QTC_ASSERT(runConfiguration, return 0);
     QTC_ASSERT(m_projectInfoBeforeBuild.isValid(), return 0);
