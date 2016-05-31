@@ -72,10 +72,9 @@ public:
 signals:
     void changed();
 
-private slots:
+private:
     void deleteSelf(QObject *obj);
 
-private:
     static QHash<QObject *, Aggregate *> &aggregateMap();
 
     QList<QObject *> m_components;

@@ -203,7 +203,7 @@ Aggregate::~Aggregate()
     {
         QWriteLocker locker(&lock());
         foreach (QObject *component, m_components) {
-            disconnect(component, SIGNAL(destroyed(QObject*)), this, SLOT(deleteSelf(QObject*)));
+            disconnect(component, &QObject::destroyed, this, &Aggregate::deleteSelf);
             aggregateMap().remove(component);
         }
         components = m_components;
@@ -246,7 +246,7 @@ void Aggregate::add(QObject *component)
             return;
         }
         m_components.append(component);
-        connect(component, SIGNAL(destroyed(QObject*)), this, SLOT(deleteSelf(QObject*)));
+        connect(component, &QObject::destroyed, this, &Aggregate::deleteSelf);
         aggregateMap().insert(component, this);
     }
     emit changed();
@@ -267,7 +267,7 @@ void Aggregate::remove(QObject *component)
         QWriteLocker locker(&lock());
         aggregateMap().remove(component);
         m_components.removeAll(component);
-        disconnect(component, SIGNAL(destroyed(QObject*)), this, SLOT(deleteSelf(QObject*)));
+        disconnect(component, &QObject::destroyed, this, &Aggregate::deleteSelf);
     }
     emit changed();
 }

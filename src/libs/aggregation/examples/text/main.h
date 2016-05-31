@@ -42,10 +42,9 @@ public:
 
     void add(IComboEntry *obj);
 
-private slots:
+private:
     void select(int index);
 
-private:
     Ui::mainClass ui;
 
     QList<IComboEntry *> m_entries;
