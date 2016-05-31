@@ -108,7 +108,6 @@ private:
     int m_modelId;
     QmlProfilerModelManager *m_modelManager;
 
-    QList<RangeType> m_acceptedTypes;
     QSet<int> m_typeIdsWithNotes;
 };
 

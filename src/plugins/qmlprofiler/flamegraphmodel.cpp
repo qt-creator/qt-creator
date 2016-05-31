@@ -51,7 +51,6 @@ FlameGraphModel::FlameGraphModel(QmlProfilerModelManager *modelManager,
             this, [this](int typeId, int, int){loadNotes(typeId, true);});
     m_modelId = modelManager->registerModelProxy();
 
-    m_acceptedTypes << Compiling << Creating << Binding << HandlingSignal << Javascript;
     modelManager->announceFeatures(Constants::QML_JS_RANGE_FEATURES,
                                    [this](const QmlEvent &event, const QmlEventType &type) {
         loadEvent(event, type);
@@ -95,8 +94,7 @@ void FlameGraphModel::loadNotes(int typeIndex, bool emitSignal)
 
 void FlameGraphModel::loadEvent(const QmlEvent &event, const QmlEventType &type)
 {
-    if (!m_acceptedTypes.contains(type.rangeType))
-        return;
+    Q_UNUSED(type);
 
     if (m_stackBottom.children.isEmpty())
         beginResetModel();
@@ -132,13 +130,12 @@ void FlameGraphModel::onModelManagerStateChanged()
 static QString nameForType(RangeType typeNumber)
 {
     switch (typeNumber) {
-    case Painting: return FlameGraphModel::tr("Paint");
     case Compiling: return FlameGraphModel::tr("Compile");
     case Creating: return FlameGraphModel::tr("Create");
     case Binding: return FlameGraphModel::tr("Binding");
     case HandlingSignal: return FlameGraphModel::tr("Signal");
     case Javascript: return FlameGraphModel::tr("JavaScript");
-    default: return QString();
+    default: Q_UNREACHABLE();
     }
 }
 
