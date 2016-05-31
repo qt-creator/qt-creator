@@ -48,7 +48,6 @@ public:
     QString applicationId() const;
     void setBlock(bool value);
 
-public Q_SLOTS:
     bool sendMessage(const QString &message, int timeout = 5000, qint64 pid = -1);
     void activateWindow();
 

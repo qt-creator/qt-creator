@@ -46,10 +46,9 @@ public:
 Q_SIGNALS:
     void messageReceived(const QString &message, QObject *socket);
 
-protected Q_SLOTS:
+protected:
     void receiveConnection();
 
-protected:
     QString id;
     QString socketName;
     QLocalServer* server;
