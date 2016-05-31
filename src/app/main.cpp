@@ -515,14 +515,14 @@ int main(int argc, char **argv)
     }
 
     // Set up remote arguments.
-    QObject::connect(&app, SIGNAL(messageReceived(QString,QObject*)),
-                     &pluginManager, SLOT(remoteArguments(QString,QObject*)));
+    QObject::connect(&app, &SharedTools::QtSingleApplication::messageReceived,
+                     &pluginManager, &PluginManager::remoteArguments);
 
     QObject::connect(&app, SIGNAL(fileOpenRequest(QString)), coreplugin->plugin(),
                      SLOT(fileOpenRequest(QString)));
 
     // shutdown plugin manager on the exit
-    QObject::connect(&app, SIGNAL(aboutToQuit()), &pluginManager, SLOT(shutdown()));
+    QObject::connect(&app, &QCoreApplication::aboutToQuit, &pluginManager, &PluginManager::shutdown);
 
     return app.exec();
 }
