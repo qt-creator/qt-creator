@@ -80,6 +80,7 @@ QtcPlugin {
             "debugmessagesmodel_test.cpp", "debugmessagesmodel_test.h",
             "flamegraph_test.cpp", "flamegraph_test.h",
             "flamegraphmodel_test.cpp", "flamegraphmodel_test.h",
+            "flamegraphview_test.cpp", "flamegraphview_test.h",
         ]
     }
 }

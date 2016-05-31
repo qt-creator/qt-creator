@@ -25,33 +25,29 @@
 
 #pragma once
 
-#include <qmlprofiler/flamegraphmodel.h>
+#include <qmlprofiler/flamegraphview.h>
 #include <qmlprofiler/qmlprofilermodelmanager.h>
 #include <QObject>
 
 namespace QmlProfiler {
 namespace Internal {
 
-class FlameGraphModelTest : public QObject
+class FlameGraphViewTest : public QObject
 {
     Q_OBJECT
 public:
-    FlameGraphModelTest(QObject *parent = nullptr);
-    static void generateData(QmlProfilerModelManager *manager);
+    FlameGraphViewTest(QObject *parent = nullptr);
 
 private slots:
     void initTestCase();
-    void testIndex();
-    void testCounts();
-    void testData();
-    void testRoleNames();
-    void testNotes();
+    void testSelection();
+    void testContextMenu();
     void cleanupTestCase();
 
 private:
     Utils::FileInProjectFinder finder;
     QmlProfilerModelManager manager;
-    FlameGraphModel model;
+    FlameGraphView view;
 };
 
 } // namespace Internal
