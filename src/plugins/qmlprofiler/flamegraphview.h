@@ -38,7 +38,7 @@ class FlameGraphView : public QmlProfilerEventsView
 {
     Q_OBJECT
 public:
-    FlameGraphView(QWidget *parent, QmlProfilerModelManager *manager);
+    FlameGraphView(QmlProfilerModelManager *manager, QWidget *parent = nullptr);
 
 public slots:
     void selectByTypeId(int typeIndex) override;

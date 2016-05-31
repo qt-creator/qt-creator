@@ -94,8 +94,8 @@ void QmlProfilerViewManager::createViews()
     perspective->addOperation({Constants::QmlProfilerTimelineDockId, d->traceView, {},
                                Perspective::SplitVertical});
 
-    d->eventsViews << new QmlProfilerStatisticsView(0, d->profilerModelManager);
-    d->eventsViews << new FlameGraphView(0, d->profilerModelManager);
+    d->eventsViews << new QmlProfilerStatisticsView(d->profilerModelManager);
+    d->eventsViews << new FlameGraphView(d->profilerModelManager);
 
     foreach (QmlProfilerEventsView *view, d->eventsViews) {
         connect(view, &QmlProfilerEventsView::typeSelected,

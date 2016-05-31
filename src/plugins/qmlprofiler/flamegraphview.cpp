@@ -35,7 +35,7 @@
 namespace QmlProfiler {
 namespace Internal {
 
-FlameGraphView::FlameGraphView(QWidget *parent, QmlProfilerModelManager *manager) :
+FlameGraphView::FlameGraphView(QmlProfilerModelManager *manager, QWidget *parent) :
     QmlProfilerEventsView(parent), m_content(new QQuickWidget(this)),
     m_model(new FlameGraphModel(manager, this))
 {

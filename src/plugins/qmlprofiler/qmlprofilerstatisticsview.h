@@ -75,8 +75,8 @@ class QmlProfilerStatisticsView : public QmlProfilerEventsView
 {
     Q_OBJECT
 public:
-    explicit QmlProfilerStatisticsView(QWidget *parent,
-                                       QmlProfilerModelManager *profilerModelManager);
+    explicit QmlProfilerStatisticsView(QmlProfilerModelManager *profilerModelManager,
+                                       QWidget *parent = nullptr);
     ~QmlProfilerStatisticsView();
     void clear() override;
 

@@ -173,8 +173,8 @@ static void getSourceLocation(QStandardItem *infoItem,
         receiver(fileName, line, column);
 }
 
-QmlProfilerStatisticsView::QmlProfilerStatisticsView(QWidget *parent,
-                                                     QmlProfilerModelManager *profilerModelManager)
+QmlProfilerStatisticsView::QmlProfilerStatisticsView(QmlProfilerModelManager *profilerModelManager,
+                                                     QWidget *parent)
     : QmlProfilerEventsView(parent), d(new QmlProfilerStatisticsViewPrivate(this))
 {
     setObjectName(QLatin1String("QmlProfilerStatisticsView"));
