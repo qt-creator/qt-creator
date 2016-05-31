@@ -59,6 +59,7 @@ PropertiesComboBox::PropertiesComboBox(QWidget *parent) : QComboBox(parent)
 {
     static QScopedPointer<QStyle> style(QStyleFactory::create(QLatin1String("windows")));
     setEditable(true);
+    setValidator(new QRegularExpressionValidator(QRegularExpression(QLatin1String("[a-z|A-Z|0-9|._-]*")), this));
     if (style)
         setStyle(style.data());
 }
