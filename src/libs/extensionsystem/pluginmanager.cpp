@@ -1130,7 +1130,7 @@ void PluginManagerPrivate::startTests()
     if (PluginManager::hasError()) {
         qWarning("Errors occurred while loading plugins, skipping test run. "
                  "For details, start without \"-test\" option.");
-        QTimer::singleShot(1, QCoreApplication::instance(), SLOT(quit()));
+        QTimer::singleShot(1, QCoreApplication::instance(), &QCoreApplication::quit);
         return;
     }
 
@@ -1242,8 +1242,8 @@ void PluginManagerPrivate::loadPlugins()
     delayedInitializeTimer = new QTimer;
     delayedInitializeTimer->setInterval(DELAYED_INITIALIZE_INTERVAL);
     delayedInitializeTimer->setSingleShot(true);
-    connect(delayedInitializeTimer, SIGNAL(timeout()),
-            this, SLOT(nextDelayedInitialize()));
+    connect(delayedInitializeTimer, &QTimer::timeout,
+            this, &PluginManagerPrivate::nextDelayedInitialize);
     delayedInitializeTimer->start();
 }
 
@@ -1398,8 +1398,8 @@ void PluginManagerPrivate::loadPlugin(PluginSpec *spec, PluginSpec::State destSt
         profilingReport(">stop", spec);
         if (spec->d->stop() == IPlugin::AsynchronousShutdown) {
             asynchronousPlugins << spec;
-            connect(spec->plugin(), SIGNAL(asynchronousShutdownFinished()),
-                    this, SLOT(asyncShutdownFinished()));
+            connect(spec->plugin(), &IPlugin::asynchronousShutdownFinished,
+                    this, &PluginManagerPrivate::asyncShutdownFinished);
         }
         profilingReport("<stop", spec);
         break;

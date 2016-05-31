@@ -148,6 +148,9 @@ public:
 
     static bool isInitializationDone();
 
+    void remoteArguments(const QString &serializedArguments, QObject *socket);
+    void shutdown();
+
 signals:
     void objectAdded(QObject *obj);
     void aboutToRemoveObject(QObject *obj);
@@ -155,10 +158,6 @@ signals:
     void pluginsChanged();
     void initializationDone();
     void testsFinished(int failedTests);
-
-public slots:
-    void remoteArguments(const QString &serializedArguments, QObject *socket);
-    void shutdown();
 
     friend class Internal::PluginManagerPrivate;
 };

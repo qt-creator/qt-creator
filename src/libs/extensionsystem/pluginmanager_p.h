@@ -51,7 +51,7 @@ namespace Internal {
 
 class PluginSpecPrivate;
 
-class EXTENSIONSYSTEM_EXPORT PluginManagerPrivate : QObject
+class EXTENSIONSYSTEM_EXPORT PluginManagerPrivate : public QObject
 {
     Q_OBJECT
 public:
@@ -133,13 +133,12 @@ public:
 
     bool m_isInitializationDone = false;
 
-private slots:
-    void nextDelayedInitialize();
-    void asyncShutdownFinished();
-
 private:
     PluginCollection *defaultCollection;
     PluginManager *q;
+
+    void nextDelayedInitialize();
+    void asyncShutdownFinished();
 
     void readPluginPaths();
     bool loadQueue(PluginSpec *spec,
