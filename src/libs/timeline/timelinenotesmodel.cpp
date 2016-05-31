@@ -135,7 +135,7 @@ int TimelineNotesModel::get(int modelId, int timelineIndex) const
 int TimelineNotesModel::add(int modelId, int timelineIndex, const QString &text)
 {
     Q_D(TimelineNotesModel);
-    const TimelineModel *model = d->timelineModels[modelId];
+    const TimelineModel *model = d->timelineModels.value(modelId);
     int typeId = model->typeId(timelineIndex);
     TimelineNotesModelPrivate::Note note = { text, modelId, timelineIndex };
     d->data << note;
