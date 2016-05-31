@@ -78,6 +78,7 @@
 #include <projectexplorer/projectexplorericons.h>
 #include <projectexplorer/projecttree.h>
 #include <projectexplorer/session.h>
+#include <projectexplorer/taskhub.h>
 
 #include <utils/fancymainwindow.h>
 #include <utils/qtcassert.h>
@@ -909,8 +910,9 @@ void CallgrindTool::loadExternalLogFile()
 
     QFile logFile(filePath);
     if (!logFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        AnalyzerUtils::logToIssuesPane(Task::Error,
-                tr("Callgrind: Failed to open file for reading: %1").arg(filePath));
+        QString msg = tr("Callgrind: Failed to open file for reading: %1").arg(filePath);
+        TaskHub::addTask(Task::Error, msg, Debugger::Constants::ANALYZERTASK_ID);
+        TaskHub::requestPopup();
         return;
     }
 

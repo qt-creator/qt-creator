@@ -53,6 +53,7 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/target.h>
+#include <projectexplorer/taskhub.h>
 #include <projectexplorer/session.h>
 #include <projectexplorer/buildconfiguration.h>
 
@@ -592,8 +593,9 @@ void MemcheckTool::loadExternalXmlLogFile()
     QFile *logFile = new QFile(filePath);
     if (!logFile->open(QIODevice::ReadOnly | QIODevice::Text)) {
         delete logFile;
-        AnalyzerUtils::logToIssuesPane(Task::Error,
-                tr("Memcheck: Failed to open file for reading: %1").arg(filePath));
+        QString msg = tr("Memcheck: Failed to open file for reading: %1").arg(filePath);
+        TaskHub::addTask(Task::Error, msg, Debugger::Constants::ANALYZERTASK_ID);
+        TaskHub::requestPopup();
         return;
     }
 
@@ -623,8 +625,9 @@ void MemcheckTool::parserError(const Error &error)
 
 void MemcheckTool::internalParserError(const QString &errorString)
 {
-    AnalyzerUtils::logToIssuesPane(Task::Error,
-            tr("Memcheck: Error occurred parsing Valgrind output: %1").arg(errorString));
+    QString msg = tr("Memcheck: Error occurred parsing Valgrind output: %1").arg(errorString);
+    TaskHub::addTask(Task::Error, msg, Debugger::Constants::ANALYZERTASK_ID);
+    TaskHub::requestPopup();
 }
 
 void MemcheckTool::clearErrorView()

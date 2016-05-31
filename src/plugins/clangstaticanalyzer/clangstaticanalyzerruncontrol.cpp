@@ -30,7 +30,7 @@
 #include "clangstaticanalyzersettings.h"
 #include "clangstaticanalyzerutils.h"
 
-#include <debugger/analyzer/analyzerutils.h>
+#include <debugger/analyzer/analyzerconstants.h>
 
 #include <clangcodemodel/clangutils.h>
 
@@ -419,7 +419,8 @@ void ClangStaticAnalyzerRunControl::start()
         const QString errorMessage = tr("Clang Static Analyzer: Invalid executable \"%1\", stop.")
                 .arg(executable);
         appendMessage(errorMessage + QLatin1Char('\n'), Utils::ErrorMessageFormat);
-        AnalyzerUtils::logToIssuesPane(Task::Error, errorMessage);
+        TaskHub::addTask(Task::Error, errorMessage, Debugger::Constants::ANALYZERTASK_ID);
+        TaskHub::requestPopup();
         emit finished();
         return;
     }
@@ -432,7 +433,8 @@ void ClangStaticAnalyzerRunControl::start()
         const QString errorMessage
                 = tr("Clang Static Analyzer: Failed to create temporary dir, stop.");
         appendMessage(errorMessage + QLatin1Char('\n'), Utils::ErrorMessageFormat);
-        AnalyzerUtils::logToIssuesPane(Task::Error, errorMessage);
+        TaskHub::addTask(Task::Error, errorMessage, Debugger::Constants::ANALYZERTASK_ID);
+        TaskHub::requestPopup();
         emit finished();
         return;
     }
@@ -571,8 +573,8 @@ void ClangStaticAnalyzerRunControl::onRunnerFinishedWithFailure(const QString &e
                   + QLatin1Char('\n')
                   , Utils::StdErrFormat);
     appendMessage(errorDetails, Utils::StdErrFormat);
-    AnalyzerUtils::logToIssuesPane(Task::Warning, errorMessage);
-    AnalyzerUtils::logToIssuesPane(Task::Warning, errorDetails);
+    TaskHub::addTask(Task::Warning, errorMessage, Debugger::Constants::ANALYZERTASK_ID);
+    TaskHub::addTask(Task::Warning, errorDetails, Debugger::Constants::ANALYZERTASK_ID);
     handleFinished();
 }
 
@@ -605,8 +607,9 @@ void ClangStaticAnalyzerRunControl::finalize()
                   Utils::NormalMessageFormat);
 
     if (m_filesNotAnalyzed != 0) {
-        AnalyzerUtils::logToIssuesPane(Task::Error,
-                tr("Clang Static Analyzer: Not all files could be analyzed."));
+        QString msg = tr("Clang Static Analyzer: Not all files could be analyzed.");
+        TaskHub::addTask(Task::Error, msg, Debugger::Constants::ANALYZERTASK_ID);
+        TaskHub::requestPopup();
     }
 
     m_progress.reportFinished();

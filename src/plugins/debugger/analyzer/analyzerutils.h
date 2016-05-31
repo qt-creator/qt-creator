@@ -27,13 +27,9 @@
 
 #include <debugger/debugger_global.h>
 
-#include <projectexplorer/task.h>
-
 namespace CPlusPlus { class Symbol; }
 
 namespace AnalyzerUtils
 {
     DEBUGGER_EXPORT CPlusPlus::Symbol *findSymbolUnderCursor();
-    DEBUGGER_EXPORT void logToIssuesPane(ProjectExplorer::Task::TaskType type,
-                                         const QString &message);
 }

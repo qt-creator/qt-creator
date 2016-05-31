@@ -25,10 +25,7 @@
 
 #include "analyzerutils.h"
 
-#include "analyzerconstants.h"
-
 #include <cpptools/cppmodelmanager.h>
-#include <projectexplorer/taskhub.h>
 #include <texteditor/texteditor.h>
 #include <texteditor/textdocument.h>
 
@@ -39,7 +36,6 @@
 
 #include <QTextCursor>
 
-using namespace Debugger;
 using namespace Core;
 using namespace ProjectExplorer;
 
@@ -88,11 +84,4 @@ CPlusPlus::Symbol *AnalyzerUtils::findSymbolUnderCursor()
 
     const CPlusPlus::LookupItem &lookupItem = lookupItems.first(); // ### TODO: select best candidate.
     return lookupItem.declaration();
-}
-
-void AnalyzerUtils::logToIssuesPane(Task::TaskType type, const QString &message)
-{
-    TaskHub::addTask(type, message, Debugger::Constants::ANALYZERTASK_ID);
-    if (type == Task::Error)
-        TaskHub::requestPopup();
 }
