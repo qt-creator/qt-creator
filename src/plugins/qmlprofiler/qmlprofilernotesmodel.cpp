@@ -32,7 +32,8 @@ QmlProfilerNotesModel::QmlProfilerNotesModel(QObject *parent) : TimelineNotesMod
 {
 }
 
-int QmlProfilerNotesModel::add(int typeId, qint64 start, qint64 duration, const QString &text)
+int QmlProfilerNotesModel::addQmlNote(int typeId, qint64 start, qint64 duration,
+                                      const QString &text)
 {
     int timelineModel = -1;
     int timelineIndex = -1;
@@ -66,7 +67,7 @@ void QmlProfilerNotesModel::loadData()
     TimelineNotesModel::clear();
     for (int i = 0; i != m_notes.size(); ++i) {
         const QmlNote &note = m_notes[i];
-        add(note.typeIndex, note.startTime, note.duration, note.text);
+        addQmlNote(note.typeIndex, note.startTime, note.duration, note.text);
     }
     resetModified();
     blockSignals(false);

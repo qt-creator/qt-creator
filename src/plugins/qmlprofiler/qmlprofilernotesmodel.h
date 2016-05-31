@@ -47,6 +47,6 @@ public:
 protected:
     QVector<QmlNote> m_notes;
 
-    int add(int typeId, qint64 startTime, qint64 duration, const QString &text);
+    int addQmlNote(int typeId, qint64 startTime, qint64 duration, const QString &text);
 };
 } // namespace QmlProfiler
