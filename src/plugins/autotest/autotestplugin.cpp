@@ -26,6 +26,7 @@
 #include "autotestplugin.h"
 #include "autotestconstants.h"
 #include "testcodeparser.h"
+#include "testframeworkmanager.h"
 #include "testrunner.h"
 #include "testsettings.h"
 #include "testsettingspage.h"
@@ -34,6 +35,10 @@
 #include "testtreemodel.h"
 #include "testresultspane.h"
 #include "testnavigationwidget.h"
+
+#include "qtest/qttestframework.h"
+#include "quick/quicktestframework.h"
+#include "gtest/gtestframework.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/icontext.h>
@@ -73,11 +78,7 @@ AutotestPlugin::AutotestPlugin()
 
 AutotestPlugin::~AutotestPlugin()
 {
-    // Delete members
-    TestTreeModel *model = TestTreeModel::instance();
-    delete model;
-    TestRunner *runner = TestRunner::instance();
-    delete runner;
+    delete m_frameworkManager;
 }
 
 AutotestPlugin *AutotestPlugin::instance()
@@ -128,6 +129,12 @@ bool AutotestPlugin::initialize(const QStringList &arguments, QString *errorStri
     Q_UNUSED(errorString)
 
     initializeMenuEntries();
+
+    m_frameworkManager = TestFrameworkManager::instance();
+    m_frameworkManager->registerTestFramework(new QtTestFramework);
+    m_frameworkManager->registerTestFramework(new QuickTestFramework);
+    m_frameworkManager->registerTestFramework(new GTestFramework);
+    TestTreeModel::instance()->syncTestFrameworks();
 
     m_settings->fromSettings(ICore::settings());
     addAutoReleasedObject(new TestSettingsPage(m_settings));

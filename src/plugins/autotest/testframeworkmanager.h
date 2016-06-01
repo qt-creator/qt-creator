@@ -25,21 +25,37 @@
 
 #pragma once
 
-#include <QtGlobal>
+#include <QHash>
+
+namespace Core { class Id; }
 
 namespace Autotest {
-namespace Constants {
+namespace Internal {
 
-const char ACTION_SCAN_ID[]             = "AutoTest.ScanAction";
-const char ACTION_RUN_ALL_ID[]          = "AutoTest.RunAll";
-const char ACTION_RUN_SELECTED_ID[]     = "AutoTest.RunSelected";
-const char MENU_ID[]                    = "AutoTest.Menu";
-const char AUTOTEST_ID[]                = "AutoTest.ATP";
-const char AUTOTEST_CONTEXT[]           = "Auto Tests";
-const char TASK_INDEX[]                 = "AutoTest.Task.Index";
-const char TASK_PARSE[]                 = "AutoTest.Task.Parse";
-const char AUTOTEST_SETTINGS_CATEGORY[] = "ZY.Tests";
-const char FRAMEWORK_PREFIX[]           = "AutoTest.Framework.";
+class ITestFramework;
+class ITestParser;
+class TestRunner;
+class TestTreeItem;
+class TestTreeModel;
 
-} // namespace Constants
+class TestFrameworkManager
+{
+public:
+    static TestFrameworkManager *instance();
+    virtual ~TestFrameworkManager();
+    bool registerTestFramework(ITestFramework *framework);
+    QList<Core::Id> registeredFrameworkIds() const;
+    QList<Core::Id> sortedFrameworkIds() const;
+
+    TestTreeItem *rootNodeForTestFramework(const Core::Id &frameworkId) const;
+    ITestParser *testParserForTestFramework(const Core::Id &frameworkId) const;
+
+private:
+    explicit TestFrameworkManager();
+    QHash<Core::Id, ITestFramework *> m_registeredFrameworks;
+    TestTreeModel *m_testTreeModel;
+    TestRunner *m_testRunner;
+};
+
+} // namespace Internal
 } // namespace Autotest

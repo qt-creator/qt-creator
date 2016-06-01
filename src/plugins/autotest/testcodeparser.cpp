@@ -26,12 +26,7 @@
 #include "autotestconstants.h"
 #include "autotest_utils.h"
 #include "testcodeparser.h"
-
-// FIXME
-#include "qtest/qttestparser.h"
-#include "quick/quicktestparser.h"
-#include "gtest/gtestparser.h"
-// end of FIXME
+#include "testframeworkmanager.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/progressmanager/futureprogress.h>
@@ -81,15 +76,6 @@ TestCodeParser::TestCodeParser(TestTreeModel *parent)
             this, [this] (int index) {
         emit testParseResultReady(m_futureWatcher.resultAt(index));
     });
-
-    // REMOVE
-    auto p1 = new QtTestParser;
-    p1->setId("QtTest");
-    auto p2 = new QuickTestParser;
-    p2->setId("QtQuickTest");
-    auto p3 = new GTestParser;
-    p3->setId("GTest");
-    m_testCodeParsers.append( {p1, p2, p3} );
 }
 
 TestCodeParser::~TestCodeParser()
@@ -126,6 +112,26 @@ void TestCodeParser::setState(State state)
             scanForTests(m_postponedFiles.toList());
         }
     }
+}
+
+void TestCodeParser::syncTestFrameworks(const QList<Core::Id> &frameworkIds)
+{
+    if (m_parserState != Disabled && m_parserState != Idle) {
+        // there's a running parse
+        m_fullUpdatePostponed = m_partialUpdatePostponed = false;
+        m_postponedFiles.clear();
+        Core::ProgressManager::instance()->cancelTasks(Constants::TASK_PARSE);
+    }
+    m_testCodeParsers.clear();
+    TestFrameworkManager *frameworkManager = TestFrameworkManager::instance();
+    qCDebug(LOG) << "Setting" << frameworkIds << "as current parsers";
+    foreach (const Core::Id &id, frameworkIds) {
+        ITestParser *testParser = frameworkManager->testParserForTestFramework(id);
+        QTC_ASSERT(testParser, continue);
+        m_testCodeParsers.append(testParser);
+    }
+    if (m_parserState != Disabled)
+        updateTestTree();
 }
 
 void TestCodeParser::emitUpdateTestTree()

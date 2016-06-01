@@ -26,15 +26,10 @@
 #include "autotestconstants.h"
 #include "autotestplugin.h"
 #include "testcodeparser.h"
+#include "testframeworkmanager.h"
 #include "testsettings.h"
 #include "testtreeitem.h"
 #include "testtreemodel.h"
-
-// FIXME
-#include "qtest/qttesttreeitem.h"
-#include "quick/quicktesttreeitem.h"
-#include "gtest/gtesttreeitem.h"
-// end of FIXME
 
 #include <cpptools/cppmodelmanager.h>
 #include <projectexplorer/project.h>
@@ -48,16 +43,9 @@ namespace Internal {
 
 TestTreeModel::TestTreeModel(QObject *parent) :
     TreeModel(parent),
-    m_qtTestRootItem(new QtTestTreeItem(tr("Qt Tests"), QString(), TestTreeItem::Root)),
-    m_quickTestRootItem(new QuickTestTreeItem(tr("Qt Quick Tests"), QString(), TestTreeItem::Root)),
-    m_googleTestRootItem(new GTestTreeItem(tr("Google Tests"), QString(), TestTreeItem::Root)),
     m_parser(new TestCodeParser(this)),
     m_connectionsInitialized(false)
 {
-    rootItem()->appendChild(m_qtTestRootItem);
-    rootItem()->appendChild(m_quickTestRootItem);
-    rootItem()->appendChild(m_googleTestRootItem);
-
     connect(m_parser, &TestCodeParser::aboutToPerformFullParse, this,
             &TestTreeModel::removeAllTestItems, Qt::QueuedConnection);
     connect(m_parser, &TestCodeParser::testParseResultReady,
@@ -171,26 +159,26 @@ Qt::ItemFlags TestTreeModel::flags(const QModelIndex &index) const
 
 bool TestTreeModel::hasTests() const
 {
-    return m_qtTestRootItem->childCount() > 0 || m_quickTestRootItem->childCount() > 0
-            || m_googleTestRootItem->childCount() > 0;
+    foreach (Utils::TreeItem *frameworkRoot, rootItem()->children()) {
+        if (frameworkRoot->hasChildren())
+            return true;
+    }
+    return false;
 }
 
 QList<TestConfiguration *> TestTreeModel::getAllTestCases() const
 {
     QList<TestConfiguration *> result;
-
-    result.append(m_qtTestRootItem->getAllTestConfigurations());
-    result.append(m_quickTestRootItem->getAllTestConfigurations());
-    result.append(m_googleTestRootItem->getAllTestConfigurations());
+    foreach (Utils::TreeItem *frameworkRoot, rootItem()->children())
+        result.append(static_cast<TestTreeItem *>(frameworkRoot)->getAllTestConfigurations());
     return result;
 }
 
 QList<TestConfiguration *> TestTreeModel::getSelectedTests() const
 {
     QList<TestConfiguration *> result;
-    result.append(m_qtTestRootItem->getSelectedTestConfigurations());
-    result.append(m_quickTestRootItem->getSelectedTestConfigurations());
-    result.append(m_googleTestRootItem->getSelectedTestConfigurations());
+    foreach (Utils::TreeItem *frameworkRoot, rootItem()->children())
+        result.append(static_cast<TestTreeItem *>(frameworkRoot)->getSelectedTestConfigurations());
     return result;
 }
 
@@ -200,22 +188,17 @@ TestConfiguration *TestTreeModel::getTestConfiguration(const TestTreeItem *item)
     return item->testConfiguration();
 }
 
-bool TestTreeModel::hasUnnamedQuickTests() const
+void TestTreeModel::syncTestFrameworks()
 {
-    for (int row = 0, count = m_quickTestRootItem->childCount(); row < count; ++row)
-        if (m_quickTestRootItem->childItem(row)->name().isEmpty())
-            return true;
-    return false;
-}
+    // remove all currently registered
+    rootItem()->removeChildren();
 
-TestTreeItem *TestTreeModel::unnamedQuickTests() const
-{
-    for (int row = 0, count = m_quickTestRootItem->childCount(); row < count; ++row) {
-        TestTreeItem *child = m_quickTestRootItem->childItem(row);
-        if (child->name().isEmpty())
-            return child;
-    }
-    return 0;
+    TestFrameworkManager *frameworkManager = TestFrameworkManager::instance();
+    QList<Core::Id> sortedIds = frameworkManager->sortedFrameworkIds();
+    foreach (const Core::Id &id, sortedIds)
+        rootItem()->appendChild(frameworkManager->rootNodeForTestFramework(id));
+
+    m_parser->syncTestFrameworks(sortedIds);
 }
 
 void TestTreeModel::removeFiles(const QStringList &files)
@@ -266,7 +249,7 @@ QHash<QString, QString> TestTreeModel::testCaseNamesForFiles(const Core::Id &id,
                                                              const QStringList &files)
 {
     QHash<QString, QString> result;
-    TestTreeItem *rootNode = rootItemForFramework(id);
+    TestTreeItem *rootNode = TestFrameworkManager::instance()->rootNodeForTestFramework(id);
     QTC_ASSERT(rootNode, return result);
 
     for (int row = 0, count = rootNode->childCount(); row < count; ++row) {
@@ -313,7 +296,8 @@ bool TestTreeModel::sweepChildren(TestTreeItem *item)
 
 void TestTreeModel::onParseResultReady(const TestParseResultPtr result)
 {
-    TestTreeItem *rootNode = rootItemForFramework(result->frameworkId);
+    TestTreeItem *rootNode
+            = TestFrameworkManager::instance()->rootNodeForTestFramework(result->frameworkId);
     QTC_ASSERT(rootNode, return);
     handleParseResult(result.data(), rootNode);
 }
@@ -342,33 +326,65 @@ void TestTreeModel::handleParseResult(const TestParseResult *result, TestTreeIte
 
 void TestTreeModel::removeAllTestItems()
 {
-    m_qtTestRootItem->removeChildren();
-    m_quickTestRootItem->removeChildren();
-    m_googleTestRootItem->removeChildren();
+    foreach (Utils::TreeItem *item, rootItem()->children())
+        item->removeChildren();
     emit testTreeModelChanged();
 }
 
-TestTreeItem *TestTreeModel::rootItemForFramework(const Core::Id &id)
+#ifdef WITH_TESTS
+// we're inside tests - so use some internal knowledge to make testing easier
+TestTreeItem *qtRootNode()
 {
-    if (id == Core::Id("QtTest"))
-        return m_qtTestRootItem;
-    if (id == Core::Id("QtQuickTest"))
-        return m_quickTestRootItem;
-    if (id == Core::Id("GTest"))
-        return m_googleTestRootItem;
-    return 0;
+    return TestFrameworkManager::instance()->rootNodeForTestFramework(
+                Core::Id(Constants::FRAMEWORK_PREFIX).withSuffix("QtTest"));
 }
 
-#ifdef WITH_TESTS
+TestTreeItem *quickRootNode()
+{
+    return TestFrameworkManager::instance()->rootNodeForTestFramework(
+                Core::Id(Constants::FRAMEWORK_PREFIX).withSuffix("QtQuickTest"));
+}
+
+TestTreeItem *gtestRootNode()
+{
+    return TestFrameworkManager::instance()->rootNodeForTestFramework(
+                Core::Id(Constants::FRAMEWORK_PREFIX).withSuffix("GTest"));
+}
+
 int TestTreeModel::autoTestsCount() const
 {
-    return m_qtTestRootItem ? m_qtTestRootItem->childCount() : 0;
+    TestTreeItem *rootNode = qtRootNode();
+    return rootNode ? rootNode->childCount() : 0;
+}
+
+bool TestTreeModel::hasUnnamedQuickTests(const TestTreeItem *rootNode) const
+{
+    for (int row = 0, count = rootNode->childCount(); row < count; ++row) {
+        if (rootNode->childItem(row)->name().isEmpty())
+            return true;
+    }
+    return false;
+}
+
+TestTreeItem *TestTreeModel::unnamedQuickTests() const
+{
+    TestTreeItem *rootNode = quickRootNode();
+    if (!rootNode)
+        return 0;
+
+    for (int row = 0, count = rootNode->childCount(); row < count; ++row) {
+        TestTreeItem *child = rootNode->childItem(row);
+        if (child->name().isEmpty())
+            return child;
+    }
+    return 0;
 }
 
 int TestTreeModel::namedQuickTestsCount() const
 {
-    return m_quickTestRootItem
-            ? m_quickTestRootItem->childCount() - (hasUnnamedQuickTests() ? 1 : 0)
+    TestTreeItem *rootNode = quickRootNode();
+    return rootNode
+            ? rootNode->childCount() - (hasUnnamedQuickTests(rootNode) ? 1 : 0)
             : 0;
 }
 
@@ -381,8 +397,12 @@ int TestTreeModel::unnamedQuickTestsCount() const
 
 int TestTreeModel::dataTagsCount() const
 {
+    TestTreeItem *rootNode = qtRootNode();
+    if (!rootNode)
+        return 0;
+
     int dataTagCount = 0;
-    foreach (Utils::TreeItem *item, m_qtTestRootItem->children()) {
+    foreach (Utils::TreeItem *item, rootNode->children()) {
         TestTreeItem *classItem = static_cast<TestTreeItem *>(item);
         foreach (Utils::TreeItem *functionItem, classItem->children())
             dataTagCount += functionItem->childCount();
@@ -392,16 +412,17 @@ int TestTreeModel::dataTagsCount() const
 
 int TestTreeModel::gtestNamesCount() const
 {
-    return m_googleTestRootItem ? m_googleTestRootItem->childCount() : 0;
+    TestTreeItem *rootNode = gtestRootNode();
+    return rootNode ? rootNode->childCount() : 0;
 }
 
 QMultiMap<QString, int> TestTreeModel::gtestNamesAndSets() const
 {
     QMultiMap<QString, int> result;
 
-    if (m_googleTestRootItem) {
-        for (int row = 0, count = m_googleTestRootItem->childCount(); row < count; ++row) {
-            const TestTreeItem *current = m_googleTestRootItem->childItem(row);
+    if (TestTreeItem *rootNode = gtestRootNode()) {
+        for (int row = 0, count = rootNode->childCount(); row < count; ++row) {
+            const TestTreeItem *current = rootNode->childItem(row);
             result.insert(current->name(), current->childCount());
         }
     }

@@ -67,6 +67,9 @@ QtcPlugin {
         "testtreeview.h",
         "testoutputreader.cpp",
         "testoutputreader.h",
+        "itestframework.h",
+        "testframeworkmanager.cpp",
+        "testframeworkmanager.h"
     ]
 
     Group {

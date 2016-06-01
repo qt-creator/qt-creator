@@ -23,23 +23,33 @@
 **
 ****************************************************************************/
 
-#pragma once
-
-#include <QtGlobal>
+#include "quicktestframework.h"
+#include "quicktestparser.h"
+#include "quicktesttreeitem.h"
 
 namespace Autotest {
-namespace Constants {
+namespace Internal {
 
-const char ACTION_SCAN_ID[]             = "AutoTest.ScanAction";
-const char ACTION_RUN_ALL_ID[]          = "AutoTest.RunAll";
-const char ACTION_RUN_SELECTED_ID[]     = "AutoTest.RunSelected";
-const char MENU_ID[]                    = "AutoTest.Menu";
-const char AUTOTEST_ID[]                = "AutoTest.ATP";
-const char AUTOTEST_CONTEXT[]           = "Auto Tests";
-const char TASK_INDEX[]                 = "AutoTest.Task.Index";
-const char TASK_PARSE[]                 = "AutoTest.Task.Parse";
-const char AUTOTEST_SETTINGS_CATEGORY[] = "ZY.Tests";
-const char FRAMEWORK_PREFIX[]           = "AutoTest.Framework.";
+ITestParser *QuickTestFramework::createTestParser() const
+{
+    return new QuickTestParser;
+}
 
-} // namespace Constants
+TestTreeItem *QuickTestFramework::createRootNode() const
+{
+    return new QuickTestTreeItem(QCoreApplication::translate("QuickTestFramework", "Quick Tests"),
+                                 QString(), TestTreeItem::Root);
+}
+
+const char *QuickTestFramework::name() const
+{
+    return "QtQuickTest";
+}
+
+unsigned QuickTestFramework::priority() const
+{
+    return 5;
+}
+
+} // namespace Internal
 } // namespace Autotest

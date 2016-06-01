@@ -29,16 +29,20 @@ SOURCES += \
     gtest/gtestresult.cpp \
     gtest/gtestoutputreader.cpp \
     gtest/gtestvisitors.cpp \
+    gtest/gtestframework.cpp \
     qtest/qttesttreeitem.cpp \
     qtest/qttestvisitors.cpp \
     qtest/qttestconfiguration.cpp \
     qtest/qttestoutputreader.cpp \
     qtest/qttestresult.cpp \
     qtest/qttestparser.cpp \
+    qtest/qttestframework.cpp \
     quick/quicktestconfiguration.cpp \
     quick/quicktestparser.cpp \
     quick/quicktesttreeitem.cpp \
-    quick/quicktestvisitors.cpp
+    quick/quicktestvisitors.cpp \
+    quick/quicktestframework.cpp \
+    testframeworkmanager.cpp
 
 
 HEADERS += \
@@ -62,6 +66,7 @@ HEADERS += \
     testnavigationwidget.h \
     testoutputreader.h \
     autotesticons.h \
+    itestframework.h \
     itestparser.h \
     gtest/gtestconfiguration.h \
     gtest/gtestparser.h \
@@ -70,6 +75,7 @@ HEADERS += \
     gtest/gtestresult.h \
     gtest/gtest_utils.h \
     gtest/gtestvisitors.h \
+    gtest/gtestframework.h \
     qtest/qttesttreeitem.h \
     qtest/qttest_utils.h \
     qtest/qttestresult.h \
@@ -77,11 +83,14 @@ HEADERS += \
     qtest/qttestconfiguration.h \
     qtest/qttestoutputreader.h \
     qtest/qttestparser.h \
+    qtest/qttestframework.h \
     quick/quicktestconfiguration.h \
     quick/quicktestparser.h \
     quick/quicktesttreeitem.h \
     quick/quicktest_utils.h \
-    quick/quicktestvisitors.h
+    quick/quicktestvisitors.h \
+    quick/quicktestframework.h \
+    testframeworkmanager.h
 
 RESOURCES += \
     autotest.qrc

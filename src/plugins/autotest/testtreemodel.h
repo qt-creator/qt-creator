@@ -59,12 +59,15 @@ public:
     QList<TestConfiguration *> getAllTestCases() const;
     QList<TestConfiguration *> getSelectedTests() const;
     TestConfiguration *getTestConfiguration(const TestTreeItem *item) const;
-    bool hasUnnamedQuickTests() const;
+
+    void syncTestFrameworks();
 
 #ifdef WITH_TESTS
     int autoTestsCount() const;
     int namedQuickTestsCount() const;
+    bool hasUnnamedQuickTests(const TestTreeItem *rootNode) const;
     int unnamedQuickTestsCount() const;
+    TestTreeItem *unnamedQuickTests() const;
     int dataTagsCount() const;
     int gtestNamesCount() const;
     QMultiMap<QString, int> gtestNamesAndSets() const;
@@ -90,17 +93,9 @@ private:
     void removeFiles(const QStringList &files);
     bool sweepChildren(TestTreeItem *item);
 
-    TestTreeItem *unnamedQuickTests() const;
-    TestTreeItem *rootItemForFramework(const Core::Id &id);
-
     explicit TestTreeModel(QObject *parent = 0);
     void setupParsingConnections();
 
-    // FIXME
-    TestTreeItem *m_qtTestRootItem;
-    TestTreeItem *m_quickTestRootItem;
-    TestTreeItem *m_googleTestRootItem;
-    // end of FIXME
     TestCodeParser *m_parser;
     bool m_connectionsInitialized;
     QAtomicInt m_refCounter;

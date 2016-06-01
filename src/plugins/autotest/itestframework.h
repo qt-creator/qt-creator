@@ -25,21 +25,41 @@
 
 #pragma once
 
-#include <QtGlobal>
+#include "testtreeitem.h"
+#include "itestparser.h"
 
 namespace Autotest {
-namespace Constants {
+namespace Internal {
 
-const char ACTION_SCAN_ID[]             = "AutoTest.ScanAction";
-const char ACTION_RUN_ALL_ID[]          = "AutoTest.RunAll";
-const char ACTION_RUN_SELECTED_ID[]     = "AutoTest.RunSelected";
-const char MENU_ID[]                    = "AutoTest.Menu";
-const char AUTOTEST_ID[]                = "AutoTest.ATP";
-const char AUTOTEST_CONTEXT[]           = "Auto Tests";
-const char TASK_INDEX[]                 = "AutoTest.Task.Index";
-const char TASK_PARSE[]                 = "AutoTest.Task.Parse";
-const char AUTOTEST_SETTINGS_CATEGORY[] = "ZY.Tests";
-const char FRAMEWORK_PREFIX[]           = "AutoTest.Framework.";
+class ITestFramework
+{
+public:
+    virtual ~ITestFramework() { }
 
-} // namespace Constants
+    virtual const char *name() const = 0;
+    virtual unsigned priority() const = 0;          // should this be modifyable?
+
+    TestTreeItem *rootNode()
+    {   if (!m_rootNode)
+            m_rootNode = createRootNode();
+        return m_rootNode;
+    }
+
+    ITestParser *testParser()
+    {
+        if (!m_testParser)
+            m_testParser = createTestParser();
+        return m_testParser;
+    }
+
+protected:
+    virtual ITestParser *createTestParser() const = 0;
+    virtual TestTreeItem *createRootNode() const = 0;
+
+private:
+    TestTreeItem *m_rootNode = 0;
+    ITestParser *m_testParser = 0;
+};
+
+} // namespace Internal
 } // namespace Autotest
