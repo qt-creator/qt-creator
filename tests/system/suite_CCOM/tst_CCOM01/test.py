@@ -28,26 +28,20 @@ source("../../shared/qtcreator.py")
 # entry of test
 def main():
     # prepare example project
-    sourceExample = os.path.abspath(sdkPath + "/Examples/4.7/declarative/animation/basics/property-animation")
-    proFile = "propertyanimation.pro"
+    sourceExample = os.path.join(Qt5Path.examplesPath(Targets.DESKTOP_561_DEFAULT),
+                                 "quick", "animation")
+    proFile = "animation.pro"
     if not neededFilePresent(os.path.join(sourceExample, proFile)):
         return
     # copy example project to temp directory
-    templateDir = prepareTemplate(sourceExample)
+    templateDir = prepareTemplate(sourceExample, "/../shared")
     examplePath = os.path.join(templateDir, proFile)
     startApplication("qtcreator" + SettingsPath)
     if not startedWithoutPluginError():
         return
-    # open example project
-    # qmlapplicationviewer of this example supports only Qt version < 5
-    targets = (Targets.desktopTargetClasses() & ~Targets.DESKTOP_521_DEFAULT
-               & ~Targets.DESKTOP_531_DEFAULT & ~Targets.DESKTOP_541_GCC)
+    # open example project, supports only Qt 5
+    targets = Targets.desktopTargetClasses() & ~Targets.DESKTOP_474_GCC & ~Targets.DESKTOP_480_DEFAULT
     checkedTargets = openQmakeProject(examplePath, targets)
-    if not replaceLine("propertyanimation.Sources.main\\.cpp",
-                       "#include <QtGui/QApplication>",
-                       "#include <QApplication>"):
-        return
-    invokeMenuItem("File", "Save All")
     # build and wait until finished - on all build configurations
     availableConfigs = iterateBuildConfigs(len(checkedTargets))
     if not availableConfigs:

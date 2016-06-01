@@ -29,22 +29,22 @@ source("../../shared/qtcreator.py")
 # entry of test
 def main():
     # prepare example project
-    sourceExample = os.path.abspath(sdkPath + "/Examples/4.7/declarative/animation/basics/property-animation")
-    proFile = "propertyanimation.pro"
+    sourceExample = os.path.join(Qt5Path.examplesPath(Targets.DESKTOP_561_DEFAULT),
+                                 "quick", "animation")
+    proFile = "animation.pro"
     if not neededFilePresent(os.path.join(sourceExample, proFile)):
         return
     # copy example project to temp directory
-    templateDir = prepareTemplate(sourceExample)
+    templateDir = prepareTemplate(sourceExample, "/../shared")
     examplePath = os.path.join(templateDir, proFile)
     startApplication("qtcreator" + SettingsPath)
     if not startedWithoutPluginError():
         return
     # open example project
-    targets = (Targets.desktopTargetClasses() & ~Targets.DESKTOP_521_DEFAULT
-               & ~Targets.DESKTOP_531_DEFAULT & ~Targets.DESKTOP_541_GCC)
+    targets = Targets.desktopTargetClasses()
     openQmakeProject(examplePath, targets)
     # create syntax error
-    openDocument("propertyanimation.QML.qml.property-animation\\.qml")
+    openDocument("animation.Resources.animation\\.qrc./animation.basics.property-animation\\.qml")
     if not appendToLine(waitForObject(":Qt Creator_QmlJSEditor::QmlJSTextEditorWidget"), "Image {", "SyntaxError"):
         invokeMenuItem("File", "Exit")
         return

@@ -38,6 +38,8 @@ class Targets:
      DESKTOP_531_DEFAULT,
      DESKTOP_541_GCC) = ALL_TARGETS
 
+    DESKTOP_561_DEFAULT = sum(ALL_TARGETS) + 1
+
     @staticmethod
     def desktopTargetClasses():
         desktopTargets = (sum(Targets.ALL_TARGETS) & ~Targets.SIMULATOR & ~Targets.EMBEDDED_LINUX)
@@ -69,6 +71,8 @@ class Targets:
             return "Desktop 531 default"
         elif target == Targets.DESKTOP_541_GCC:
             return "Desktop 541 GCC"
+        elif target == Targets.DESKTOP_561_DEFAULT:
+            return "Desktop 561 default"
         else:
             return None
 
@@ -192,7 +196,10 @@ class Qt5Path:
     @staticmethod
     def __preCheckAndExtractQtVersionStr__(target):
         if target not in Targets.ALL_TARGETS:
-            raise Exception("Unexpected target '%s'" % str(target))
+            # Ignore DESKTOP_561_DEFAULT which only delivers examples but not a kit yet.
+            # Remove the condition as soon as it is being used as a kit in tests.
+            if not target == Targets.DESKTOP_561_DEFAULT:
+                raise Exception("Unexpected target '%s'" % str(target))
 
         matcher = re.match("^Desktop (5\\d{2}).*$", Targets.getStringForTarget(target))
         if matcher is None:
