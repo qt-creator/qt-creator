@@ -119,9 +119,8 @@ void BinEditorWidget::init()
     m_numLines = m_size / m_bytesPerLine + 1;
     m_numVisibleLines = viewport()->height() / m_lineHeight;
     m_textWidth = m_bytesPerLine * m_charWidth + m_charWidth;
-    int m_numberWidth = fm.width(QChar(QLatin1Char('9')));
-    m_labelWidth =
-        2*m_addressBytes * m_numberWidth + (m_addressBytes - 1)/2 * m_charWidth;
+    int numberWidth = fm.width(QChar(QLatin1Char('9')));
+    m_labelWidth = 2*m_addressBytes * numberWidth + (m_addressBytes - 1)/2 * m_charWidth;
 
     int expectedCharWidth = m_columnWidth / 3;
     const char *hex = "0123456789abcdef";
@@ -161,16 +160,16 @@ void BinEditorWidget::addData(quint64 block, const QByteArray &data)
     if (addr >= m_baseAddr && addr <= m_baseAddr + m_size - 1) {
         if (m_data.size() * m_blockSize >= 64 * 1024 * 1024)
             m_data.clear();
-        const int translatedBlock = (addr - m_baseAddr) / m_blockSize;
+        const qint64 translatedBlock = (addr - m_baseAddr) / m_blockSize;
         m_data.insert(translatedBlock, data);
         m_requests.remove(translatedBlock);
         viewport()->update();
     }
 }
 
-bool BinEditorWidget::requestDataAt(int pos) const
+bool BinEditorWidget::requestDataAt(qint64 pos) const
 {
-    int block = pos / m_blockSize;
+    qint64 block = pos / m_blockSize;
     BlockMap::const_iterator it = m_modifiedData.find(block);
     if (it != m_modifiedData.constEnd())
         return true;
@@ -186,30 +185,32 @@ bool BinEditorWidget::requestDataAt(int pos) const
     return false;
 }
 
-bool BinEditorWidget::requestOldDataAt(int pos) const
+bool BinEditorWidget::requestOldDataAt(qint64 pos) const
 {
-    int block = pos / m_blockSize;
+    qint64 block = pos / m_blockSize;
     BlockMap::const_iterator it = m_oldData.find(block);
     return it != m_oldData.end();
 }
 
-char BinEditorWidget::dataAt(int pos, bool old) const
+char BinEditorWidget::dataAt(qint64 pos, bool old) const
 {
-    int block = pos / m_blockSize;
-    return blockData(block, old).at(pos - block*m_blockSize);
+    qint64 block = pos / m_blockSize;
+    int offset = static_cast<int>(pos - block * m_blockSize);
+    return blockData(block, old).at(offset);
 }
 
-void BinEditorWidget::changeDataAt(int pos, char c)
+void BinEditorWidget::changeDataAt(qint64 pos, char c)
 {
-    int block = pos / m_blockSize;
+    qint64 block = pos / m_blockSize;
     BlockMap::iterator it = m_modifiedData.find(block);
+    int offset = static_cast<int>(pos - block * m_blockSize);
     if (it != m_modifiedData.end()) {
-        it.value()[pos - (block*m_blockSize)] = c;
+        it.value()[offset] = c;
     } else {
         it = m_data.find(block);
         if (it != m_data.end()) {
             QByteArray data = it.value();
-            data[pos - (block*m_blockSize)] = c;
+            data[offset] = c;
             m_modifiedData.insert(block, data);
         }
     }
@@ -217,10 +218,10 @@ void BinEditorWidget::changeDataAt(int pos, char c)
     emit dataChanged(m_baseAddr + pos, QByteArray(1, c));
 }
 
-QByteArray BinEditorWidget::dataMid(int from, int length, bool old) const
+QByteArray BinEditorWidget::dataMid(qint64 from, int length, bool old) const
 {
-    int end = from + length;
-    int block = from / m_blockSize;
+    qint64 end = from + length;
+    qint64 block = from / m_blockSize;
 
     QByteArray data;
     data.reserve(length);
@@ -231,7 +232,7 @@ QByteArray BinEditorWidget::dataMid(int from, int length, bool old) const
     return data.mid(from - ((from / m_blockSize) * m_blockSize), length);
 }
 
-QByteArray BinEditorWidget::blockData(int block, bool old) const
+QByteArray BinEditorWidget::blockData(qint64 block, bool old) const
 {
     if (old) {
         BlockMap::const_iterator it = m_modifiedData.find(block);
@@ -373,7 +374,7 @@ bool BinEditorWidget::save(QString *errorString, const QString &oldFileName, con
     return true;
 }
 
-void BinEditorWidget::setSizes(quint64 startAddr, int range, int blockSize)
+void BinEditorWidget::setSizes(quint64 startAddr, qint64 range, int blockSize)
 {
     int newBlockSize = blockSize;
     QTC_ASSERT(blockSize, return);
@@ -385,7 +386,7 @@ void BinEditorWidget::setSizes(quint64 startAddr, int range, int blockSize)
     newBaseAddr = (newBaseAddr / blockSize) * blockSize;
 
     const quint64 maxRange = Q_UINT64_C(0xffffffffffffffff) - newBaseAddr + 1;
-    int newSize = newBaseAddr != 0 && quint64(range) >= maxRange
+    qint64 newSize = newBaseAddr != 0 && quint64(range) >= maxRange
               ? maxRange : range;
     int newAddressBytes = (newBaseAddr + newSize < quint64(1) << 32
                    && newBaseAddr + newSize >= newBaseAddr) ? 4 : 8;
@@ -457,8 +458,6 @@ void BinEditorWidget::wheelEvent(QWheelEvent *e)
     QAbstractScrollArea::wheelEvent(e);
 }
 
-
-
 QRect BinEditorWidget::cursorRect() const
 {
     int topLine = verticalScrollBar()->value();
@@ -479,8 +478,8 @@ int BinEditorWidget::posAt(const QPoint &pos) const
     int xoffset = horizontalScrollBar()->value();
     int x = xoffset + pos.x() - m_margin - m_labelWidth;
     int column = qMin(15, qMax(0,x) / m_columnWidth);
-    int topLine = verticalScrollBar()->value();
-    int line = pos.y() / m_lineHeight;
+    qint64 topLine = verticalScrollBar()->value();
+    qint64 line = pos.y() / m_lineHeight;
 
 
     if (x > m_bytesPerLine * m_columnWidth + m_charWidth/2) {
@@ -524,7 +523,7 @@ void BinEditorWidget::updateLines(int fromPosition, int toPosition)
     viewport()->update(0, y, viewport()->width(), h);
 }
 
-int BinEditorWidget::dataIndexOf(const QByteArray &pattern, int from, bool caseSensitive) const
+int BinEditorWidget::dataIndexOf(const QByteArray &pattern, qint64 from, bool caseSensitive) const
 {
     int trailing = pattern.size();
     if (trailing > m_blockSize)
@@ -535,9 +534,8 @@ int BinEditorWidget::dataIndexOf(const QByteArray &pattern, int from, bool caseS
     char *b = buffer.data();
     QByteArrayMatcher matcher(pattern);
 
-    int block = from / m_blockSize;
-    const int end =
-        qMin<qint64>(static_cast<qint64>(from) + SearchStride, m_size);
+    qint64 block = from / m_blockSize;
+    const int end = qMin<qint64>(from + SearchStride, m_size);
     while (from < end) {
         if (!requestDataAt(block * m_blockSize))
             return -1;
@@ -557,7 +555,7 @@ int BinEditorWidget::dataIndexOf(const QByteArray &pattern, int from, bool caseS
     return end == m_size ? -1 : -2;
 }
 
-int BinEditorWidget::dataLastIndexOf(const QByteArray &pattern, int from, bool caseSensitive) const
+int BinEditorWidget::dataLastIndexOf(const QByteArray &pattern, qint64 from, bool caseSensitive) const
 {
     int trailing = pattern.size();
     if (trailing > m_blockSize)
@@ -570,7 +568,7 @@ int BinEditorWidget::dataLastIndexOf(const QByteArray &pattern, int from, bool c
     if (from == -1)
         from = m_size;
     int block = from / m_blockSize;
-    const int lowerBound = qMax(0, from - SearchStride);
+    const int lowerBound = qMax(qint64(0), from - SearchStride);
     while (from > lowerBound) {
         if (!requestDataAt(block * m_blockSize))
             return -1;
@@ -591,7 +589,7 @@ int BinEditorWidget::dataLastIndexOf(const QByteArray &pattern, int from, bool c
 }
 
 
-int BinEditorWidget::find(const QByteArray &pattern_arg, int from,
+int BinEditorWidget::find(const QByteArray &pattern_arg, qint64 from,
                     QTextDocument::FindFlags findFlags)
 {
     if (pattern_arg.isEmpty())
@@ -615,7 +613,7 @@ int BinEditorWidget::find(const QByteArray &pattern_arg, int from,
                    : dataIndexOf(hexPattern, from);
     }
 
-    int pos = foundHex == -1 || (found >= 0 && (foundHex == -2 || found < foundHex))
+    qint64 pos = foundHex == -1 || (found >= 0 && (foundHex == -2 || found < foundHex))
               ? found : foundHex;
 
     if (pos >= m_size)
@@ -751,11 +749,11 @@ void BinEditorWidget::paintEvent(QPaintEvent *e)
     painter.setPen(palette().text().color());
     const QFontMetrics &fm = painter.fontMetrics();
     for (int i = 0; i <= m_numVisibleLines; ++i) {
-        int line = topLine + i;
+        qint64 line = topLine + i;
         if (line >= m_numLines)
             break;
 
-        const quint64 lineAddress = m_baseAddr + uint(line) * m_bytesPerLine;
+        const quint64 lineAddress = m_baseAddr + line * m_bytesPerLine;
         int y = i * m_lineHeight + m_ascent;
         if (y - m_ascent > e->rect().bottom())
             break;
@@ -778,7 +776,7 @@ void BinEditorWidget::paintEvent(QPaintEvent *e)
 
         if (hasData || hasOldData) {
             for (int c = 0; c < m_bytesPerLine; ++c) {
-                int pos = line * m_bytesPerLine + c;
+                qint64 pos = line * m_bytesPerLine + c;
                 if (pos >= m_size)
                     break;
                 QChar qc(QLatin1Char(dataAt(pos, isOld)));
@@ -798,7 +796,7 @@ void BinEditorWidget::paintEvent(QPaintEvent *e)
 
         if (hasData || hasOldData) {
             for (int c = 0; c < m_bytesPerLine; ++c) {
-                int pos = line * m_bytesPerLine + c;
+                qint64 pos = line * m_bytesPerLine + c;
                 if (pos >= m_size) {
                     while (c < m_bytesPerLine) {
                         itemStringData[c*3] = itemStringData[c*3+1] = QLatin1Char(' ');
@@ -934,9 +932,9 @@ int BinEditorWidget::cursorPosition() const
     return m_cursorPosition;
 }
 
-void BinEditorWidget::setCursorPosition(int pos, MoveMode moveMode)
+void BinEditorWidget::setCursorPosition(qint64 pos, MoveMode moveMode)
 {
-    pos = qMin(m_size-1, qMax(0, pos));
+    pos = qMin(m_size - 1, qMax(qint64(0), pos));
     int oldCursorPosition = m_cursorPosition;
 
     m_lowNibble = false;
@@ -1291,7 +1289,7 @@ void BinEditorWidget::keyPressEvent(QKeyEvent *e)
         break;
     case Qt::Key_PageUp:
     case Qt::Key_PageDown: {
-        int line = qMax(0, m_cursorPosition / m_bytesPerLine - verticalScrollBar()->value());
+        int line = qMax(qint64(0), m_cursorPosition / m_bytesPerLine - verticalScrollBar()->value());
         verticalScrollBar()->triggerAction(e->key() == Qt::Key_PageUp ?
                                            QScrollBar::SliderPageStepSub : QScrollBar::SliderPageStepAdd);
         if (!ctrlPressed)
@@ -1574,14 +1572,14 @@ void BinEditorWidget::updateContents()
     viewport()->update();
 }
 
-QPoint BinEditorWidget::offsetToPos(int offset) const
+QPoint BinEditorWidget::offsetToPos(qint64 offset) const
 {
     const int x = m_labelWidth + (offset % m_bytesPerLine) * m_columnWidth;
     const int y = (offset / m_bytesPerLine  - verticalScrollBar()->value()) * m_lineHeight;
     return QPoint(x, y);
 }
 
-void BinEditorWidget::asFloat(int offset, float &value, bool old) const
+void BinEditorWidget::asFloat(qint64 offset, float &value, bool old) const
 {
     value = 0;
     const QByteArray data = dataMid(offset, sizeof(float), old);
@@ -1590,7 +1588,7 @@ void BinEditorWidget::asFloat(int offset, float &value, bool old) const
     value = *f;
 }
 
-void BinEditorWidget::asDouble(int offset, double &value, bool old) const
+void BinEditorWidget::asDouble(qint64 offset, double &value, bool old) const
 {
     value = 0;
     const QByteArray data = dataMid(offset, sizeof(double), old);
@@ -1599,7 +1597,7 @@ void BinEditorWidget::asDouble(int offset, double &value, bool old) const
     value = *f;
 }
 
-void BinEditorWidget::asIntegers(int offset, int count, quint64 &bigEndianValue,
+void BinEditorWidget::asIntegers(qint64 offset, int count, quint64 &bigEndianValue,
     quint64 &littleEndianValue, bool old) const
 {
     bigEndianValue = littleEndianValue = 0;

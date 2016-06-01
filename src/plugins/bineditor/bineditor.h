@@ -60,7 +60,7 @@ public:
 
     quint64 baseAddress() const { return m_baseAddr; }
 
-    Q_INVOKABLE void setSizes(quint64 startAddr, int range, int blockSize = 4096);
+    Q_INVOKABLE void setSizes(quint64 startAddr, qint64 range, int blockSize = 4096);
     int dataBlockSize() const { return m_blockSize; }
     QByteArray contents() const { return dataMid(0, m_size); }
 
@@ -80,7 +80,7 @@ public:
     };
 
     int cursorPosition() const;
-    Q_INVOKABLE void setCursorPosition(int pos, MoveMode moveMode = MoveAnchor);
+    Q_INVOKABLE void setCursorPosition(qint64 pos, MoveMode moveMode = MoveAnchor);
     void jumpToAddress(quint64 address);
 
     void setModified(bool);
@@ -89,7 +89,7 @@ public:
     void setReadOnly(bool);
     bool isReadOnly() const;
 
-    int find(const QByteArray &pattern, int from = 0,
+    int find(const QByteArray &pattern, qint64 from = 0,
              QTextDocument::FindFlags findFlags = 0);
 
     void selectAll();
@@ -151,32 +151,32 @@ protected:
     void contextMenuEvent(QContextMenuEvent *event);
 
 private:
-    typedef QMap<int, QByteArray> BlockMap;
+    typedef QMap<qint64, QByteArray> BlockMap;
     BlockMap m_data;
     BlockMap m_oldData;
     int m_blockSize;
     BlockMap m_modifiedData;
-    mutable QSet<int> m_requests;
+    mutable QSet<qint64> m_requests;
     QByteArray m_emptyBlock;
     QByteArray m_lowerBlock;
-    int m_size;
+    qint64 m_size;
 
-    int dataIndexOf(const QByteArray &pattern, int from, bool caseSensitive = true) const;
-    int dataLastIndexOf(const QByteArray &pattern, int from, bool caseSensitive = true) const;
+    int dataIndexOf(const QByteArray &pattern, qint64 from, bool caseSensitive = true) const;
+    int dataLastIndexOf(const QByteArray &pattern, qint64 from, bool caseSensitive = true) const;
 
-    bool requestDataAt(int pos) const;
-    bool requestOldDataAt(int pos) const;
-    char dataAt(int pos, bool old = false) const;
-    char oldDataAt(int pos) const;
-    void changeDataAt(int pos, char c);
-    QByteArray dataMid(int from, int length, bool old = false) const;
-    QByteArray blockData(int block, bool old = false) const;
+    bool requestDataAt(qint64 pos) const;
+    bool requestOldDataAt(qint64 pos) const;
+    char dataAt(qint64 pos, bool old = false) const;
+    char oldDataAt(qint64 pos) const;
+    void changeDataAt(qint64 pos, char c);
+    QByteArray dataMid(qint64 from, int length, bool old = false) const;
+    QByteArray blockData(qint64 block, bool old = false) const;
 
-    QPoint offsetToPos(int offset) const;
-    void asIntegers(int offset, int count, quint64 &bigEndianValue, quint64 &littleEndianValue,
+    QPoint offsetToPos(qint64 offset) const;
+    void asIntegers(qint64 offset, int count, quint64 &bigEndianValue, quint64 &littleEndianValue,
         bool old = false) const;
-    void asFloat(int offset, float &value, bool old) const;
-    void asDouble(int offset, double &value, bool old) const;
+    void asFloat(qint64 offset, float &value, bool old) const;
+    void asDouble(qint64 offset, double &value, bool old) const;
     QString toolTip(const QHelpEvent *helpEvent) const;
 
     int m_bytesPerLine;
@@ -190,14 +190,14 @@ private:
     int m_labelWidth;
     int m_textWidth;
     int m_columnWidth;
-    int m_numLines;
-    int m_numVisibleLines;
+    qint64 m_numLines;
+    qint64 m_numVisibleLines;
 
     quint64 m_baseAddr;
 
     bool m_cursorVisible;
-    int m_cursorPosition;
-    int m_anchorPosition;
+    qint64 m_cursorPosition;
+    qint64 m_anchorPosition;
     bool m_hexCursor;
     bool m_lowNibble;
     bool m_isMonospacedFont;

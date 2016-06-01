@@ -58,10 +58,10 @@ MemoryView::MemoryView(QWidget *binEditor, QWidget *parent) :
     setMinimumWidth(400);
 }
 
-void MemoryView::setBinEditorRange(QWidget *w, quint64 address, int range, int blockSize)
+void MemoryView::setBinEditorRange(QWidget *w, quint64 address, qint64 range, int blockSize)
 {
     QMetaObject::invokeMethod(w, "setSizes",
-        Q_ARG(quint64, address), Q_ARG(int, range), Q_ARG(int, blockSize));
+        Q_ARG(quint64, address), Q_ARG(qint64, range), Q_ARG(int, blockSize));
 }
 
 void MemoryView::setBinEditorReadOnly(QWidget *w, bool readOnly)
@@ -88,9 +88,9 @@ void MemoryView::binEditorUpdateContents(QWidget *w)
     QMetaObject::invokeMethod(w, "updateContents");
 }
 
-void MemoryView::binEditorSetCursorPosition(QWidget *w, int p)
+void MemoryView::binEditorSetCursorPosition(QWidget *w, qint64 pos)
 {
-    QMetaObject::invokeMethod(w, "setCursorPosition", Q_ARG(int, p));
+    QMetaObject::invokeMethod(w, "setCursorPosition", Q_ARG(qint64, pos));
 }
 
 void MemoryView::binEditorAddData(QWidget *w, quint64 addr, const QByteArray &ba)

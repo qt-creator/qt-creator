@@ -289,8 +289,9 @@ public:
                     QMessageBox::critical(ICore::mainWindow(), tr("File Error"), msg);
                 return OpenResult::CannotHandle;
             }
-            if (size > INT_MAX) {
-                QString msg = tr("The file is too big for the Binary Editor (max. 2GB).");
+            if (size / 16 >= qint64(1) << 31) {
+                // The limit is 2^31 lines (due to QText* interfaces) * 16 bytes per line.
+                QString msg = tr("The file is too big for the Binary Editor (max. 32GB).");
                 if (errorString)
                     *errorString = msg;
                 else

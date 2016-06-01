@@ -40,11 +40,11 @@ class MemoryView : public QWidget
 public:
     explicit MemoryView(QWidget *binEditor, QWidget *parent = 0);
 
-    static void setBinEditorRange(QWidget *w, quint64 address, int range, int blockSize);
+    static void setBinEditorRange(QWidget *w, quint64 address, qint64 range, int blockSize);
     static void setBinEditorReadOnly(QWidget *w, bool readOnly);
     static void setBinEditorNewWindowRequestAllowed(QWidget *w, bool a);
     static void setBinEditorMarkup(QWidget *w, const QList<MemoryMarkup> &ml);
-    static void binEditorSetCursorPosition(QWidget *w, int p);
+    static void binEditorSetCursorPosition(QWidget *w, qint64 pos);
     static void binEditorUpdateContents(QWidget *w);
     static void binEditorAddData(QWidget *w, quint64 addr, const QByteArray &a);
 
