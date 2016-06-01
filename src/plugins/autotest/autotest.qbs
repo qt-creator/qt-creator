@@ -65,8 +65,6 @@ QtcPlugin {
         "testtreemodel.h",
         "testtreeview.cpp",
         "testtreeview.h",
-        "testvisitor.cpp",
-        "testvisitor.h",
         "testoutputreader.cpp",
         "testoutputreader.h",
     ]
