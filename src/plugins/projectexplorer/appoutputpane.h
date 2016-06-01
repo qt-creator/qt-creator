@@ -93,7 +93,7 @@ signals:
      void runControlStarted(ProjectExplorer::RunControl *rc);
      void runControlFinished(ProjectExplorer::RunControl *rc);
 
-public slots:
+public:
     // ApplicationOutput specifics
     void projectRemoved();
 
