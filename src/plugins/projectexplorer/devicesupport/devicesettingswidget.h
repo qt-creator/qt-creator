@@ -54,7 +54,7 @@ public:
 
     void saveSettings();
 
-private slots:
+private:
     void handleDeviceUpdated(Core::Id id);
     void currentDeviceChanged(int index);
     void addDevice();
@@ -64,7 +64,6 @@ private slots:
     void testDevice();
     void handleProcessListRequested();
 
-private:
     void initGui();
     void handleAdditionalActionRequest(Core::Id actionId);
     void displayCurrent();

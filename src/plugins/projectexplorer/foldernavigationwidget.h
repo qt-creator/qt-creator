@@ -55,7 +55,6 @@ public:
     bool autoSynchronization() const;
     bool hiddenFilesFilter() const;
 
-public slots:
     void setAutoSynchronization(bool sync);
     void toggleAutoSynchronization();
 

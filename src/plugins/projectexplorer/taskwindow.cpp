@@ -88,7 +88,6 @@ public:
     // TaskView uses this method if the size of the taskview changes
     void emitSizeHintChanged(const QModelIndex &index);
 
-public slots:
     void currentChanged(const QModelIndex &current, const QModelIndex &previous);
 
 private:

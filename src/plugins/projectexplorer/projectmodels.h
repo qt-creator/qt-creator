@@ -74,13 +74,11 @@ public:
 
     bool projectFilterEnabled();
     bool generatedFilesFilterEnabled();
+    void setProjectFilterEnabled(bool filter);
+    void setGeneratedFilesFilterEnabled(bool filter);
 
 signals:
     void renamed(const Utils::FileName &oldName, const Utils::FileName &newName);
-
-public slots:
-    void setProjectFilterEnabled(bool filter);
-    void setGeneratedFilesFilterEnabled(bool filter);
 
 private:
     void aboutToShowInSimpleTreeChanged(ProjectExplorer::FolderNode *node);

@@ -47,7 +47,6 @@ public:
     bool validatePage() override;
     void cleanupPage() override;
 
-public slots:
     void triggerCommit(const JsonWizard::GeneratorFiles &files);
     void addToProject(const JsonWizard::GeneratorFiles &files);
     void summarySettingsHaveChanged();

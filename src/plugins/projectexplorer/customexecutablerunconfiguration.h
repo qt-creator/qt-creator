@@ -31,6 +31,8 @@
 
 namespace ProjectExplorer {
 
+class CustomExecutableDialog;
+
 namespace Internal { class CustomExecutableConfigurationWidget; }
 
 class CustomExecutableRunConfigurationFactory;
@@ -71,11 +73,10 @@ protected:
     virtual bool fromMap(const QVariantMap &map) override;
     QString defaultDisplayName() const;
 
-private slots:
-    void configurationDialogFinished();
 private:
     void ctor();
 
+    void configurationDialogFinished();
     void setExecutable(const QString &executable);
     QString rawExecutable() const;
     void setCommandLineArguments(const QString &commandLineArguments);
@@ -87,7 +88,7 @@ private:
 
     QString m_executable;
     QString m_workingDirectory;
-    QWidget *m_dialog;
+    CustomExecutableDialog *m_dialog;
 };
 
 class CustomExecutableRunConfigurationFactory : public IRunConfigurationFactory

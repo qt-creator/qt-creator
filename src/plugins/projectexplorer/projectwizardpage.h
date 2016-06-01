@@ -73,13 +73,12 @@ public:
                                Core::IWizardFactory::WizardKind kind,
                                ProjectAction action);
 
+    void initializeVersionControls();
+    void setProjectUiVisible(bool visible);
+
 signals:
     void projectNodeChanged();
     void versionControlChanged(int);
-
-public slots:
-    void initializeVersionControls();
-    void setProjectUiVisible(bool visible);
 
 private:
     void projectChanged(int);

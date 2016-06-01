@@ -55,6 +55,34 @@ const char CUSTOM_EXECUTABLE_ID[] = "ProjectExplorer.CustomExecutableRunConfigur
 const char EXECUTABLE_KEY[] = "ProjectExplorer.CustomExecutableRunConfiguration.Executable";
 const char WORKING_DIRECTORY_KEY[] = "ProjectExplorer.CustomExecutableRunConfiguration.WorkingDirectory";
 
+// Dialog embedding the CustomExecutableConfigurationWidget
+// prompting the user to complete the configuration.
+class CustomExecutableDialog : public QDialog
+{
+    Q_OBJECT
+public:
+    explicit CustomExecutableDialog(CustomExecutableRunConfiguration *rc, QWidget *parent = 0);
+
+    void accept();
+
+    bool event(QEvent *event);
+
+private:
+    void changed()
+    {
+        setOkButtonEnabled(m_widget->isValid());
+    }
+
+    inline void setOkButtonEnabled(bool e)
+    {
+        m_dialogButtonBox->button(QDialogButtonBox::Ok)->setEnabled(e);
+    }
+
+    QDialogButtonBox *m_dialogButtonBox;
+    CustomExecutableConfigurationWidget *m_widget;
+};
+
+
 void CustomExecutableRunConfiguration::ctor()
 {
     setDefaultDisplayName(defaultDisplayName());
@@ -89,39 +117,11 @@ CustomExecutableRunConfiguration::~CustomExecutableRunConfiguration()
 {
     if (m_dialog) {
         emit configurationFinished();
-        disconnect(m_dialog, SIGNAL(finished(int)),
-                   this, SLOT(configurationDialogFinished()));
+        disconnect(m_dialog, &QDialog::finished,
+                   this, &CustomExecutableRunConfiguration::configurationDialogFinished);
         delete m_dialog;
     }
 }
-
-// Dialog embedding the CustomExecutableConfigurationWidget
-// prompting the user to complete the configuration.
-class CustomExecutableDialog : public QDialog
-{
-    Q_OBJECT
-public:
-    explicit CustomExecutableDialog(CustomExecutableRunConfiguration *rc, QWidget *parent = 0);
-
-    void accept();
-
-    bool event(QEvent *event);
-
-private slots:
-    void changed()
-    {
-        setOkButtonEnabled(m_widget->isValid());
-    }
-
-private:
-    inline void setOkButtonEnabled(bool e)
-    {
-        m_dialogButtonBox->button(QDialogButtonBox::Ok)->setEnabled(e);
-    }
-
-    QDialogButtonBox *m_dialogButtonBox;
-    CustomExecutableConfigurationWidget *m_widget;
-};
 
 CustomExecutableDialog::CustomExecutableDialog(CustomExecutableRunConfiguration *rc, QWidget *parent)
     : QDialog(parent)
@@ -134,11 +134,12 @@ CustomExecutableDialog::CustomExecutableDialog(CustomExecutableRunConfiguration 
     layout->addWidget(label);
     m_widget = new CustomExecutableConfigurationWidget(rc, CustomExecutableConfigurationWidget::DelayedApply);
     m_widget->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
-    connect(m_widget, SIGNAL(validChanged()), this, SLOT(changed()));
+    connect(m_widget, &CustomExecutableConfigurationWidget::validChanged,
+            this, &CustomExecutableDialog::changed);
     layout->addWidget(m_widget);
     setOkButtonEnabled(false);
-    connect(m_dialogButtonBox, SIGNAL(accepted()), this, SLOT(accept()));
-    connect(m_dialogButtonBox, SIGNAL(rejected()), this, SLOT(reject()));
+    connect(m_dialogButtonBox, &QDialogButtonBox::accepted, this, &CustomExecutableDialog::accept);
+    connect(m_dialogButtonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
     layout->addWidget(m_dialogButtonBox);
     layout->setSizeConstraint(QLayout::SetMinAndMaxSize);
 }
@@ -174,8 +175,8 @@ RunConfiguration::ConfigurationState CustomExecutableRunConfiguration::ensureCon
     }
 
     m_dialog = new CustomExecutableDialog(this, Core::ICore::mainWindow());
-    connect(m_dialog, SIGNAL(finished(int)),
-            this, SLOT(configurationDialogFinished()));
+    connect(m_dialog, &QDialog::finished,
+            this, &CustomExecutableRunConfiguration::configurationDialogFinished);
     m_dialog->setWindowTitle(displayName()); // pretty pointless
     m_dialog->show();
     return Waiting;
@@ -183,8 +184,8 @@ RunConfiguration::ConfigurationState CustomExecutableRunConfiguration::ensureCon
 
 void CustomExecutableRunConfiguration::configurationDialogFinished()
 {
-    disconnect(m_dialog, SIGNAL(finished(int)),
-            this, SLOT(configurationDialogFinished()));
+    disconnect(m_dialog, &QDialog::finished,
+            this, &CustomExecutableRunConfiguration::configurationDialogFinished);
     m_dialog->deleteLater();
     m_dialog = 0;
     emit configurationFinished();
