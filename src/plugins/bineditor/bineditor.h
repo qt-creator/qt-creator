@@ -79,7 +79,7 @@ public:
         KeepAnchor
     };
 
-    int cursorPosition() const;
+    qint64 cursorPosition() const;
     Q_INVOKABLE void setCursorPosition(qint64 pos, MoveMode moveMode = MoveAnchor);
     void jumpToAddress(quint64 address);
 

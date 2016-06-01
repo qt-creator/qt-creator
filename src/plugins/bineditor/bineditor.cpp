@@ -927,7 +927,7 @@ void BinEditorWidget::paintEvent(QPaintEvent *e)
 }
 
 
-int BinEditorWidget::cursorPosition() const
+qint64 BinEditorWidget::cursorPosition() const
 {
     return m_cursorPosition;
 }
@@ -1483,13 +1483,13 @@ void BinEditorWidget::contextMenuEvent(QContextMenuEvent *event)
 
     QPointer<QMenu> contextMenu(new QMenu(this));
 
-    QAction *copyAsciiAction = new QAction(tr("Copy Selection as ASCII Characters"), contextMenu);
-    QAction *copyHexAction = new QAction(tr("Copy Selection as Hex Values"), contextMenu);
-    QAction *jumpToBeAddressHereAction = new QAction(contextMenu);
-    QAction *jumpToBeAddressNewWindowAction = new QAction(contextMenu);
-    QAction *jumpToLeAddressHereAction = new QAction(contextMenu);
-    QAction *jumpToLeAddressNewWindowAction = new QAction(contextMenu);
-    QAction *addWatchpointAction = new QAction(tr("Set Data Breakpoint on Selection"), contextMenu);
+    auto copyAsciiAction = new QAction(tr("Copy Selection as ASCII Characters"), contextMenu);
+    auto copyHexAction = new QAction(tr("Copy Selection as Hex Values"), contextMenu);
+    auto jumpToBeAddressHereAction = new QAction(contextMenu);
+    auto jumpToBeAddressNewWindowAction = new QAction(contextMenu);
+    auto jumpToLeAddressHereAction = new QAction(contextMenu);
+    auto jumpToLeAddressNewWindowAction = new QAction(contextMenu);
+    auto addWatchpointAction = new QAction(tr("Set Data Breakpoint on Selection"), contextMenu);
     contextMenu->addAction(copyAsciiAction);
     contextMenu->addAction(copyHexAction);
     contextMenu->addAction(addWatchpointAction);

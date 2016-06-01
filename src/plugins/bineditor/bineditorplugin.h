@@ -54,7 +54,7 @@ public:
     // Connect editor to settings changed signals.
     void initializeEditor(BinEditorWidget *editor);
 
-private slots:
+private:
     void undoAction();
     void redoAction();
     void copyAction();
@@ -63,11 +63,8 @@ private slots:
 
     void updateCurrentEditor(Core::IEditor *editor);
 
-private:
     Core::Context m_context;
     QAction *registerNewAction(Core::Id id, const QString &title = QString());
-    QAction *registerNewAction(Core::Id id, QObject *receiver, const char *slot,
-                               const QString &title = QString());
     QAction *m_undoAction;
     QAction *m_redoAction;
     QAction *m_copyAction;

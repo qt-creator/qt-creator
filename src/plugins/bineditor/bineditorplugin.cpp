@@ -97,27 +97,27 @@ public:
         m_incrementalWrappedState = false;
     }
 
-    bool supportsReplace() const { return false; }
-    QString currentFindString() const { return QString(); }
-    QString completedFindString() const { return QString(); }
+    bool supportsReplace() const override { return false; }
+    QString currentFindString() const override { return QString(); }
+    QString completedFindString() const override { return QString(); }
 
-    FindFlags supportedFindFlags() const
+    FindFlags supportedFindFlags() const override
     {
         return FindBackward | FindCaseSensitively;
     }
 
-    void resetIncrementalSearch()
+    void resetIncrementalSearch() override
     {
         m_incrementalStartPos = m_contPos = -1;
         m_incrementalWrappedState = false;
     }
 
-    virtual void highlightAll(const QString &txt, FindFlags findFlags)
+    void highlightAll(const QString &txt, FindFlags findFlags) override
     {
         m_widget->highlightSearchResults(txt.toLatin1(), textDocumentFlagsForFindFlags(findFlags));
     }
 
-    void clearHighlights()
+    void clearHighlights() override
     {
         m_widget->highlightSearchResults(QByteArray());
     }
@@ -143,7 +143,8 @@ public:
         return res;
     }
 
-    Result findIncremental(const QString &txt, FindFlags findFlags) {
+    Result findIncremental(const QString &txt, FindFlags findFlags) override
+    {
         QByteArray pattern = txt.toLatin1();
         if (pattern != m_lastPattern)
             resetIncrementalSearch(); // Because we don't search for nibbles.
@@ -178,7 +179,8 @@ public:
         return result;
     }
 
-    Result findStep(const QString &txt, FindFlags findFlags) {
+    Result findStep(const QString &txt, FindFlags findFlags) override
+    {
         QByteArray pattern = txt.toLatin1();
         bool wasReset = (m_incrementalStartPos < 0);
         if (m_contPos == -1) {
@@ -211,8 +213,8 @@ public:
 
 private:
     BinEditorWidget *m_widget;
-    int m_incrementalStartPos;
-    int m_contPos; // Only valid if last result was NotYetFound.
+    qint64 m_incrementalStartPos;
+    qint64 m_contPos; // Only valid if last result was NotYetFound.
     bool m_incrementalWrappedState;
     QByteArray m_lastPattern;
 };
@@ -228,11 +230,12 @@ public:
         setId(Core::Constants::K_DEFAULT_BINARY_EDITOR_ID);
         setMimeType(QLatin1String(BinEditor::Constants::C_BINEDITOR_MIMETYPE));
         m_widget = parent;
-        connect(m_widget, SIGNAL(dataRequested(quint64)),
-            this, SLOT(provideData(quint64)));
-        connect(m_widget, SIGNAL(newRangeRequested(quint64)),
-            this, SLOT(provideNewRange(quint64)));
-        connect(m_widget, &BinEditorWidget::dataChanged, this, &IDocument::contentsChanged);
+        connect(m_widget, &BinEditorWidget::dataRequested,
+                this, &BinEditorDocument::provideData);
+        connect(m_widget, &BinEditorWidget::newRangeRequested,
+                this, &BinEditorDocument::provideNewRange);
+        connect(m_widget, &BinEditorWidget::dataChanged,
+                this, &IDocument::contentsChanged);
     }
 
     QByteArray contents() const override
@@ -313,7 +316,6 @@ public:
         return OpenResult::ReadError;
     }
 
-private slots:
     void provideData(quint64 block)
     {
         const FileName fn = filePath();
@@ -342,7 +344,6 @@ private slots:
     }
 
 public:
-
     bool isModified() const override
     {
         return isTemporary()/*e.g. memory view*/ ? false
@@ -358,7 +359,8 @@ public:
 
     bool isSaveAsAllowed() const override { return true; }
 
-    bool reload(QString *errorString, ReloadFlag flag, ChangeType type) override {
+    bool reload(QString *errorString, ReloadFlag flag, ChangeType type) override
+    {
         if (flag == FlagIgnore)
             return true;
         if (type == TypePermissions) {
@@ -390,13 +392,12 @@ public:
         m_context.add(Core::Constants::K_DEFAULT_BINARY_EDITOR_ID);
         m_context.add(Constants::C_BINEDITOR);
         m_addressEdit = new QLineEdit;
-        QRegExpValidator * const addressValidator
-            = new QRegExpValidator(QRegExp(QLatin1String("[0-9a-fA-F]{1,16}")),
-                m_addressEdit);
+        auto addressValidator = new QRegExpValidator(QRegExp(QLatin1String("[0-9a-fA-F]{1,16}")),
+                                                     m_addressEdit);
         m_addressEdit->setValidator(addressValidator);
 
-        QHBoxLayout *l = new QHBoxLayout;
-        QWidget *w = new QWidget;
+        auto l = new QHBoxLayout;
+        auto w = new QWidget;
         l->setMargin(0);
         l->setContentsMargins(0, 0, 5, 0);
         l->addStretch(1);
@@ -409,9 +410,12 @@ public:
 
         widget->setEditor(this);
 
-        connect(widget, SIGNAL(cursorPositionChanged(int)), SLOT(updateCursorPosition(int)));
-        connect(m_addressEdit, SIGNAL(editingFinished()), SLOT(jumpToAddress()));
-        connect(widget, SIGNAL(modificationChanged(bool)), m_file, SIGNAL(changed()));
+        connect(widget, &BinEditorWidget::cursorPositionChanged,
+                this, &BinEditor::updateCursorPosition);
+        connect(m_addressEdit, &QLineEdit::editingFinished,
+                this, &BinEditor::jumpToAddress);
+        connect(widget, &BinEditorWidget::modificationChanged,
+                m_file, &IDocument::changed);
         updateCursorPosition(widget->cursorPosition());
     }
 
@@ -424,8 +428,8 @@ public:
 
     QWidget *toolBar() override { return m_toolBar; }
 
-private slots:
-    void updateCursorPosition(int position) {
+private:
+    void updateCursorPosition(qint64 position) {
         m_addressEdit->setText(QString::number(editorWidget()->baseAddress() + position, 16));
     }
 
@@ -434,8 +438,7 @@ private slots:
         updateCursorPosition(editorWidget()->cursorPosition());
     }
 
-private:
-    inline BinEditorWidget *editorWidget() const
+    BinEditorWidget *editorWidget() const
     {
         QTC_ASSERT(qobject_cast<BinEditorWidget *>(m_widget.data()), return 0);
         return static_cast<BinEditorWidget *>(m_widget.data());
@@ -461,9 +464,8 @@ BinEditorFactory::BinEditorFactory(BinEditorPlugin *owner) :
 
 IEditor *BinEditorFactory::createEditor()
 {
-    BinEditorWidget *widget = new BinEditorWidget();
-    BinEditor *editor = new BinEditor(widget);
-
+    auto widget = new BinEditorWidget();
+    auto editor = new BinEditor(widget);
     m_owner->initializeEditor(widget);
     return editor;
 }
@@ -482,39 +484,32 @@ BinEditorPlugin::~BinEditorPlugin()
 
 QAction *BinEditorPlugin::registerNewAction(Id id, const QString &title)
 {
-    QAction *result = new QAction(title, this);
+    auto result = new QAction(title, this);
     ActionManager::registerAction(result, id, m_context);
     return result;
-}
-
-QAction *BinEditorPlugin::registerNewAction(Id id,
-                                            QObject *receiver,
-                                            const char *slot,
-                                            const QString &title)
-{
-    QAction *rc = registerNewAction(id, title);
-    if (!rc)
-        return 0;
-
-    connect(rc, SIGNAL(triggered()), receiver, slot);
-    return rc;
 }
 
 void BinEditorPlugin::initializeEditor(BinEditorWidget *widget)
 {
     m_context.add(Constants::C_BINEDITOR);
     if (!m_undoAction) {
-        m_undoAction      = registerNewAction(Core::Constants::UNDO, this, SLOT(undoAction()), tr("&Undo"));
-        m_redoAction      = registerNewAction(Core::Constants::REDO, this, SLOT(redoAction()), tr("&Redo"));
-        m_copyAction      = registerNewAction(Core::Constants::COPY, this, SLOT(copyAction()));
-        m_selectAllAction = registerNewAction(Core::Constants::SELECTALL, this, SLOT(selectAllAction()));
+        m_undoAction = registerNewAction(Core::Constants::UNDO, tr("&Undo"));
+        connect(m_undoAction, &QAction::triggered, this, &BinEditorPlugin::undoAction);
+        m_redoAction = registerNewAction(Core::Constants::REDO, tr("&Redo"));
+        connect(m_redoAction, &QAction::triggered, this, &BinEditorPlugin::redoAction);
+        m_copyAction = registerNewAction(Core::Constants::COPY);
+        connect(m_copyAction, &QAction::triggered, this, &BinEditorPlugin::copyAction);
+        m_selectAllAction = registerNewAction(Core::Constants::SELECTALL);
+        connect(m_selectAllAction, &QAction::triggered, this, &BinEditorPlugin::selectAllAction);
     }
 
-    QObject::connect(widget, SIGNAL(undoAvailable(bool)), this, SLOT(updateActions()));
-    QObject::connect(widget, SIGNAL(redoAvailable(bool)), this, SLOT(updateActions()));
+    QObject::connect(widget, &BinEditorWidget::undoAvailable,
+                     this, &BinEditorPlugin::updateActions);
+    QObject::connect(widget, &BinEditorWidget::redoAvailable,
+                     this, &BinEditorPlugin::updateActions);
 
-    Aggregation::Aggregate *aggregate = new Aggregation::Aggregate;
-    BinEditorFind *binEditorFind = new BinEditorFind(widget);
+    auto aggregate = new Aggregation::Aggregate;
+    auto binEditorFind = new BinEditorFind(widget);
     aggregate->add(binEditorFind);
     aggregate->add(widget);
 }
@@ -524,8 +519,8 @@ bool BinEditorPlugin::initialize(const QStringList &arguments, QString *errorMes
     Q_UNUSED(arguments)
     Q_UNUSED(errorMessage)
 
-    connect(Core::EditorManager::instance(), SIGNAL(currentEditorChanged(Core::IEditor*)),
-        this, SLOT(updateCurrentEditor(Core::IEditor*)));
+    connect(Core::EditorManager::instance(), &EditorManager::currentEditorChanged,
+            this, &BinEditorPlugin::updateCurrentEditor);
 
     addAutoReleasedObject(new BinEditorFactory(this));
     addAutoReleasedObject(new BinEditorWidgetFactory);
