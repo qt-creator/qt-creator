@@ -78,14 +78,6 @@ public:
     static QList<IEditor *> editorsForDocuments(const QList<IDocument *> &entries);
     static QList<IEditor *> editorsForOpenedDocuments();
 
-    // editor manager related functions, nobody else should call it
-    static void addEditor(IEditor *editor, bool *isNewDocument);
-    static void addSuspendedDocument(const QString &fileName, const QString &displayName, Id id);
-    static Entry *firstSuspendedEntry();
-    static void removeEditor(IEditor *editor, bool *lastOneForDocument);
-    static void removeEntry(Entry *entry);
-    static void removeAllSuspendedEntries();
-
 private:
     DocumentModel();
 };

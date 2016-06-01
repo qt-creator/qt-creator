@@ -142,7 +142,7 @@ QtcPlugin {
         name: "Editor Manager"
         prefix: "editormanager/"
         files: [
-            "documentmodel.cpp", "documentmodel.h",
+            "documentmodel.cpp", "documentmodel.h", "documentmodel_p.h",
             "editorarea.cpp", "editorarea.h",
             "editormanager.cpp", "editormanager.h", "editormanager_p.h",
             "editorview.cpp", "editorview.h",

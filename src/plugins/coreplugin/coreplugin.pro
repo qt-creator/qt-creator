@@ -217,7 +217,8 @@ HEADERS += corejsextensions.h \
     messagebox.h \
     iwelcomepage.h \
     systemsettings.h \
-    coreicons.h
+    coreicons.h \
+    editormanager/documentmodel_p.h
 
 FORMS += dialogs/newdialog.ui \
     dialogs/saveitemsdialog.ui \

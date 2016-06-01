@@ -28,6 +28,7 @@
 #include "editormanager.h"
 #include "editormanager_p.h"
 #include "documentmodel.h"
+#include "documentmodel_p.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/editortoolbar.h>
@@ -920,7 +921,7 @@ void SplitterOrView::restoreState(const QByteArray &state)
                                                       | EditorManager::DoNotChangeCurrentEditor);
 
         if (!e) {
-            DocumentModel::Entry *entry = DocumentModel::firstSuspendedEntry();
+            DocumentModel::Entry *entry = DocumentModelPrivate::firstSuspendedEntry();
             if (entry) {
                 EditorManagerPrivate::activateEditorForEntry(view(), entry,
                     EditorManager::IgnoreNavigationHistory | EditorManager::DoNotChangeCurrentEditor);
