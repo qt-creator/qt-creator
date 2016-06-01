@@ -11,5 +11,7 @@ TARGET = $$qtLibraryTargetName(plugin2)
 
 osx {
     QMAKE_LFLAGS_SONAME = -Wl,-install_name,$${OUT_PWD}/
+} else:win32 {
+    DESTDIR = $$OUT_PWD
 }
 
