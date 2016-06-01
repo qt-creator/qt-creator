@@ -47,10 +47,9 @@ public:
     explicit PluginErrorOverview(QWidget *parent = 0);
     ~PluginErrorOverview();
 
-private slots:
+private:
     void showDetails(QListWidgetItem *item);
 
-private:
     Internal::Ui::PluginErrorOverview *m_ui;
 };
 
