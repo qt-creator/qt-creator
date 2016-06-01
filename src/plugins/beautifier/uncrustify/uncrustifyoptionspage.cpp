@@ -28,6 +28,7 @@
 
 #include "uncrustifyconstants.h"
 #include "uncrustifysettings.h"
+#include "uncrustify.h"
 
 #include "../beautifierconstants.h"
 #include "../beautifierplugin.h"
@@ -51,7 +52,7 @@ UncrustifyOptionsPageWidget::UncrustifyOptionsPageWidget(UncrustifySettings *set
                                  "HOME", QDir::toNativeSeparators(QDir::home().absolutePath())));
     ui->command->setExpectedKind(Utils::PathChooser::ExistingCommand);
     ui->command->setPromptDialogTitle(BeautifierPlugin::msgCommandPromptDialogTitle(
-                                          Constants::Uncrustify::DISPLAY_NAME));
+                                          Uncrustify::tr(Constants::Uncrustify::DISPLAY_NAME)));
     connect(ui->command, &Utils::PathChooser::validChanged, ui->options, &QWidget::setEnabled);
     ui->configurations->setSettings(m_settings);
 }
