@@ -307,6 +307,7 @@ void CodeAssistantPrivate::displayProposal(IAssistProposal *newProposal, AssistR
     if (m_proposal->isCorrective())
         m_proposal->makeCorrection(m_editorWidget);
 
+    m_editorWidget->keepAutoCompletionHighlight(true);
     basePosition = m_proposal->basePosition();
     m_proposalWidget = m_proposal->createWidget();
     connect(m_proposalWidget, &QObject::destroyed,
@@ -421,6 +422,7 @@ void CodeAssistantPrivate::destroyContext()
     if (isWaitingForProposal()) {
         cancelCurrentRequest();
     } else if (isDisplayingProposal()) {
+        m_editorWidget->keepAutoCompletionHighlight(false);
         m_proposalWidget->closeProposal();
         disconnect(m_proposalWidget, &QObject::destroyed,
                    this, &CodeAssistantPrivate::finalizeProposal);

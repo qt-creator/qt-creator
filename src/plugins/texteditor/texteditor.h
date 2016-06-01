@@ -301,6 +301,7 @@ public:
     static Core::Id SnippetPlaceholderSelection;
     static Core::Id CurrentLineSelection;
     static Core::Id ParenthesesMatchingSelection;
+    static Core::Id AutoCompleteSelection;
     static Core::Id CodeWarningsSelection;
     static Core::Id CodeSemanticsSelection;
     static Core::Id UndefinedSymbolSelection;
@@ -322,6 +323,9 @@ public:
 
     enum Side { Left, Right };
     void insertExtraToolBarWidget(Side side, QWidget *widget);
+
+    // keep the auto completion even if the focus is lost
+    void keepAutoCompletionHighlight(bool keepHighlight);
 
     virtual void copy();
     virtual void paste();

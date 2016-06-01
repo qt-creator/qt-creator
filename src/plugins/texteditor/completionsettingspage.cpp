@@ -103,6 +103,7 @@ QWidget *CompletionSettingsPage::widget()
         m_page->spaceAfterFunctionName->setChecked(m_completionSettings.m_spaceAfterFunctionName);
         m_page->autoSplitStrings->setChecked(m_completionSettings.m_autoSplitStrings);
         m_page->animateAutoComplete->setChecked(m_completionSettings.m_animateAutoComplete);
+        m_page->highlightAutoComplete->setChecked(m_completionSettings.m_highlightAutoComplete);
 
         m_page->enableDoxygenCheckBox->setChecked(m_commentsSettings.m_enableDoxygen);
         m_page->generateBriefCheckBox->setChecked(m_commentsSettings.m_generateBrief);
@@ -177,6 +178,7 @@ void CompletionSettingsPage::settingsFromUi(CompletionSettings &completion, Comm
     completion.m_spaceAfterFunctionName = m_page->spaceAfterFunctionName->isChecked();
     completion.m_autoSplitStrings = m_page->autoSplitStrings->isChecked();
     completion.m_animateAutoComplete = m_page->animateAutoComplete->isChecked();
+    completion.m_highlightAutoComplete = m_page->highlightAutoComplete->isChecked();
 
     comment.m_enableDoxygen = m_page->enableDoxygenCheckBox->isChecked();
     comment.m_generateBrief = m_page->generateBriefCheckBox->isChecked();

@@ -329,7 +329,7 @@ public:
     // parentheses matcher
     void _q_matchParentheses();
     void _q_highlightBlocks();
-    void _q_autocompleterHighlight(const QTextCursor &cursor = QTextCursor());
+    void autocompleterHighlight(const QTextCursor &cursor = QTextCursor());
     void updateAnimator(QPointer<TextEditorAnimator> animator, QPainter &painter);
     void cancelCurrentAnimations();
     void slotSelectionChanged();
@@ -452,8 +452,14 @@ public:
     QList<BaseHoverHandler *> m_hoverHandlers; // Not owned
 
     QPointer<TextEditorAnimator> m_bracketsAnimator;
+
+    // Animation and highlighting of auto completed text
     QPointer<TextEditorAnimator> m_autocompleteAnimator;
     bool m_animateAutoComplete = true;
+    bool m_highlightAutoComplete = true;
+    bool m_keepAutoCompletionHighlight = false;
+    QTextCursor m_autoCompleteHighlightPos;
+
     int m_cursorBlockNumber;
     int m_blockCount;
 
@@ -629,6 +635,7 @@ static const char kTextBlockMimeType[] = "application/vnd.qtcreator.blocktext";
 Id TextEditorWidget::SnippetPlaceholderSelection("TextEdit.SnippetPlaceHolderSelection");
 Id TextEditorWidget::CurrentLineSelection("TextEdit.CurrentLineSelection");
 Id TextEditorWidget::ParenthesesMatchingSelection("TextEdit.ParenthesesMatchingSelection");
+Id TextEditorWidget::AutoCompleteSelection("TextEdit.AutoCompleteSelection");
 Id TextEditorWidget::CodeWarningsSelection("TextEdit.CodeWarningsSelection");
 Id TextEditorWidget::CodeSemanticsSelection("TextEdit.CodeSemanticsSelection");
 Id TextEditorWidget::UndefinedSymbolSelection("TextEdit.UndefinedSymbolSelection");
@@ -2156,12 +2163,12 @@ void TextEditorWidget::keyPressEvent(QKeyEvent *e)
                     d->m_document->autoIndent(ensureVisible);
                 else if (!previousIndentationString.isEmpty())
                     ensureVisible.insertText(previousIndentationString);
-                if (d->m_animateAutoComplete) {
+                if (d->m_animateAutoComplete || d->m_highlightAutoComplete) {
                     QTextCursor tc = ensureVisible;
                     tc.movePosition(QTextCursor::EndOfBlock);
                     tc.movePosition(QTextCursor::StartOfBlock, QTextCursor::KeepAnchor);
                     tc.movePosition(QTextCursor::NextWord, QTextCursor::KeepAnchor);
-                    d->_q_autocompleterHighlight(tc);
+                    d->autocompleterHighlight(tc);
                 }
             }
             setTextCursor(ensureVisible);
@@ -2422,9 +2429,10 @@ void TextEditorWidget::keyPressEvent(QKeyEvent *e)
         if (!autoText.isEmpty()) {
             int pos = cursor.position();
             cursor.insertText(autoText);
+            cursor.movePosition(QTextCursor::PreviousCharacter, QTextCursor::KeepAnchor);
+            d->autocompleterHighlight(cursor);
             //Select the inserted text, to be able to re-indent the inserted text
             cursor.setPosition(pos, QTextCursor::KeepAnchor);
-            d->_q_autocompleterHighlight(cursor);
         }
         if (!electricChar.isNull() && d->m_autoCompleter->contextAllowsElectricCharacters(cursor))
             d->m_document->autoIndent(cursor, electricChar);
@@ -4705,6 +4713,17 @@ void TextEditorWidgetPrivate::updateHighlights()
         }
     }
 
+    if (m_highlightAutoComplete && !m_autoCompleteHighlightPos.isNull()) {
+        QTimer::singleShot(0, this, [this](){
+            if ((!m_keepAutoCompletionHighlight && !q->hasFocus())
+                    || m_autoCompleteHighlightPos != q->textCursor()) {
+                q->setExtraSelections(TextEditorWidget::AutoCompleteSelection,
+                                      QList<QTextEdit::ExtraSelection>()); // clear
+                m_autoCompleteHighlightPos = QTextCursor();
+            }
+        });
+    }
+
     updateCurrentLineHighlight();
 
     if (m_displaySettings.m_highlightBlocks) {
@@ -6026,23 +6045,38 @@ void TextEditorWidgetPrivate::_q_highlightBlocks()
     }
 }
 
-void TextEditorWidgetPrivate::_q_autocompleterHighlight(const QTextCursor &cursor)
+void TextEditorWidgetPrivate::autocompleterHighlight(const QTextCursor &cursor)
 {
-    if (!m_animateAutoComplete || q->isReadOnly() || !cursor.hasSelection())
+    QList<QTextEdit::ExtraSelection> extraSelections;
+    if ((!m_animateAutoComplete && !m_highlightAutoComplete)
+            || q->isReadOnly() || !cursor.hasSelection()) {
+        q->setExtraSelections(TextEditorWidget::AutoCompleteSelection, extraSelections); // clear
         return;
+    }
 
     const QTextCharFormat &matchFormat
             = q->textDocument()->fontSettings().toTextCharFormat(C_AUTOCOMPLETE);
 
-    cancelCurrentAnimations();// one animation is enough
-    m_autocompleteAnimator = new TextEditorAnimator(this);
-    m_autocompleteAnimator->setPosition(cursor.selectionStart());
-    QPalette pal;
-    pal.setBrush(QPalette::Text, matchFormat.foreground());
-    pal.setBrush(QPalette::Base, matchFormat.background());
-    m_autocompleteAnimator->setData(q->font(), pal, cursor.selectedText());
-    connect(m_autocompleteAnimator.data(), &TextEditorAnimator::updateRequest,
-            this, &TextEditorWidgetPrivate::_q_animateUpdate);
+    if (m_highlightAutoComplete) {
+        QTextEdit::ExtraSelection sel;
+        sel.cursor = cursor;
+        sel.format.setBackground(matchFormat.background());
+        extraSelections.append(sel);
+        m_autoCompleteHighlightPos = cursor;
+        m_autoCompleteHighlightPos.movePosition(QTextCursor::PreviousCharacter);
+    }
+    if (m_animateAutoComplete) {
+        cancelCurrentAnimations();// one animation is enough
+        m_autocompleteAnimator = new TextEditorAnimator(this);
+        m_autocompleteAnimator->setPosition(cursor.selectionStart());
+        QPalette pal;
+        pal.setBrush(QPalette::Text, matchFormat.foreground());
+        pal.setBrush(QPalette::Base, matchFormat.background());
+        m_autocompleteAnimator->setData(q->font(), pal, cursor.selectedText());
+        connect(m_autocompleteAnimator.data(), &TextEditorAnimator::updateRequest,
+                this, &TextEditorWidgetPrivate::_q_animateUpdate);
+    }
+    q->setExtraSelections(TextEditorWidget::AutoCompleteSelection, extraSelections);
 }
 
 void TextEditorWidgetPrivate::updateAnimator(QPointer<TextEditorAnimator> animator,
@@ -6089,6 +6123,7 @@ void TextEditorWidget::focusOutEvent(QFocusEvent *e)
     QPlainTextEdit::focusOutEvent(e);
     if (viewport()->cursor().shape() == Qt::BlankCursor)
         viewport()->setCursor(Qt::IBeamCursor);
+    d->updateHighlights();
 }
 
 
@@ -6542,6 +6577,7 @@ void TextEditorWidget::setCompletionSettings(const CompletionSettings &completio
     d->m_autoCompleter->setAutoInsertQuotesEnabled(completionSettings.m_autoInsertQuotes);
     d->m_autoCompleter->setSurroundWithQuotesEnabled(completionSettings.m_surroundingAutoQuotes);
     d->m_animateAutoComplete = completionSettings.m_animateAutoComplete;
+    d->m_highlightAutoComplete = completionSettings.m_highlightAutoComplete;
 }
 
 void TextEditorWidget::setExtraEncodingSettings(const ExtraEncodingSettings &extraEncodingSettings)
@@ -7001,6 +7037,11 @@ void TextEditorWidget::insertExtraToolBarWidget(TextEditorWidget::Side side,
         d->m_toolBar->insertWidget(d->m_cursorPositionLabelAction, widget);
     else
         d->m_toolBar->insertWidget(d->m_toolBar->actions().first(), widget);
+}
+
+void TextEditorWidget::keepAutoCompletionHighlight(bool keepHighlight)
+{
+    d->m_keepAutoCompletionHighlight = keepHighlight;
 }
 
 int BaseTextEditor::currentLine() const
