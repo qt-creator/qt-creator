@@ -52,12 +52,12 @@ public:
 
 Q_SIGNALS:
     void finished();
-private slots:
-    /// write output to the stream until the next error
-    void writeOutput();
 
 private:
     void produceRuntimeError();
+
+    /// write output to the stream until the next error
+    void writeOutput();
 
     QAbstractSocket *m_output;
     QIODevice *m_input;

@@ -65,8 +65,8 @@ OutputGenerator::OutputGenerator(QAbstractSocket *output, QIODevice *input) :
     m_timer.setSingleShot(true);
     m_timer.start();
 
-    connect(&m_timer, SIGNAL(timeout()),
-            this, SLOT(writeOutput()));
+    connect(&m_timer, &QTimer::timeout,
+            this, &OutputGenerator::writeOutput);
 }
 
 void OutputGenerator::setCrashRandomly(bool enable)

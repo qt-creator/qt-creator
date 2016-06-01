@@ -140,7 +140,7 @@ int main(int argc, char** argv)
     }
 
     OutputGenerator generator(&socket, &xmlFile);
-    QObject::connect(&generator, SIGNAL(finished()), &app, SLOT(quit()));
+    QObject::connect(&generator, &OutputGenerator::finished, &app, &QCoreApplication::quit);
     generator.setCrashRandomly(arg_crash);
     generator.setOutputGarbage(arg_garbage);
     generator.setWait(arg_wait);
