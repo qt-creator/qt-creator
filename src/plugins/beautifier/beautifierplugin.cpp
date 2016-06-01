@@ -314,7 +314,7 @@ void BeautifierPlugin::formatEditorAsync(TextEditorWidget *editor, const Command
     QFutureWatcher<FormatTask> *watcher = new QFutureWatcher<FormatTask>;
     const TextDocument *doc = editor->textDocument();
     connect(doc, &TextDocument::contentsChanged, watcher, &QFutureWatcher<FormatTask>::cancel);
-    connect(watcher, &QFutureWatcherBase::finished, [this, watcher]() {
+    connect(watcher, &QFutureWatcherBase::finished, [this, watcher] {
         if (watcher->isCanceled())
             showError(tr("File was modified."));
         else

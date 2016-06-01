@@ -80,7 +80,7 @@ void ArtisticStyleOptionsPageWidget::apply()
     m_settings->save();
 
     // update since not all MIME types are accepted (invalids or duplicates)
-   ui->mime->setText(m_settings->supportedMimeTypesAsString());
+    ui->mime->setText(m_settings->supportedMimeTypesAsString());
 }
 
 ArtisticStyleOptionsPage::ArtisticStyleOptionsPage(ArtisticStyleSettings *settings, QObject *parent) :

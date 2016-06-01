@@ -83,7 +83,7 @@ void UncrustifyOptionsPageWidget::apply()
     m_settings->setFormatEntireFileFallback(ui->formatEntireFileFallback->isChecked());
     m_settings->save();
 
-     // update since not all MIME types are accepted (invalids or duplicates)
+    // update since not all MIME types are accepted (invalids or duplicates)
     ui->mime->setText(m_settings->supportedMimeTypesAsString());
 }
 

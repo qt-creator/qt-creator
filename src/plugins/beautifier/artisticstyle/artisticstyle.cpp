@@ -79,7 +79,7 @@ bool ArtisticStyle::initialize()
     Core::ActionManager::actionContainer(Constants::MENU_ID)->addMenu(menu);
 
     connect(m_settings, &ArtisticStyleSettings::supportedMimeTypesChanged,
-            [this](){updateActions(Core::EditorManager::instance()->currentEditor());});
+            [this] { updateActions(Core::EditorManager::currentEditor()); });
 
     return true;
 }

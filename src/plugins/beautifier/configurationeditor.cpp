@@ -164,7 +164,7 @@ void ConfigurationEditor::keyPressEvent(QKeyEvent *event)
         }
     }
 
-    const bool isShortcut = ((event->modifiers() & Qt::ControlModifier) && key == Qt::Key_Space);
+    const bool isShortcut = (event->modifiers() & Qt::ControlModifier) && key == Qt::Key_Space;
     if (!isShortcut)
         QPlainTextEdit::keyPressEvent(event);
 
@@ -216,12 +216,12 @@ QTextCursor ConfigurationEditor::cursorForTextUnderCursor(QTextCursor tc) const
 
 void ConfigurationEditor::insertCompleterText(const QString &text)
 {
-   QTextCursor tc = textCursor();
-   // Replace entire word to get case sensitivity right.
-   tc.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor,
-                   m_completer->completionPrefix().length());
-   tc.insertText(text);
-   setTextCursor(tc);
+    QTextCursor tc = textCursor();
+    // Replace entire word to get case sensitivity right.
+    tc.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor,
+                    m_completer->completionPrefix().length());
+    tc.insertText(text);
+    setTextCursor(tc);
 }
 
 void ConfigurationEditor::updateDocumentation()

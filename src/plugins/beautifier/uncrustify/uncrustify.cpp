@@ -87,7 +87,7 @@ bool Uncrustify::initialize()
     Core::ActionManager::actionContainer(Constants::MENU_ID)->addMenu(menu);
 
     connect(m_settings, &UncrustifySettings::supportedMimeTypesChanged,
-            [this](){updateActions(Core::EditorManager::instance()->currentEditor());});
+            [this] { updateActions(Core::EditorManager::currentEditor()); });
 
     return true;
 }
@@ -99,7 +99,7 @@ QString Uncrustify::id() const
 
 void Uncrustify::updateActions(Core::IEditor *editor)
 {
-    const bool enabled = (editor && m_settings->isApplicable(editor->document()));
+    const bool enabled = editor && m_settings->isApplicable(editor->document());
     m_formatFile->setEnabled(enabled);
     m_formatRange->setEnabled(enabled);
 }

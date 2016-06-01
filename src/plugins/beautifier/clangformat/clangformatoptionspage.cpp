@@ -87,7 +87,7 @@ void ClangFormatOptionsPageWidget::apply()
     m_settings->save();
 
     // update since not all MIME types are accepted (invalids or duplicates)
-   ui->mime->setText(m_settings->supportedMimeTypesAsString());
+    ui->mime->setText(m_settings->supportedMimeTypesAsString());
 }
 
 ClangFormatOptionsPage::ClangFormatOptionsPage(ClangFormatSettings *settings, QObject *parent) :

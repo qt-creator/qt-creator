@@ -64,7 +64,7 @@ void GeneralOptionsPageWidget::restore()
 void GeneralOptionsPageWidget::apply(bool *autoFormatChanged)
 {
     if (autoFormatChanged)
-        *autoFormatChanged = (m_settings->autoFormatOnSave() != ui->autoFormat->isChecked());
+        *autoFormatChanged = m_settings->autoFormatOnSave() != ui->autoFormat->isChecked();
 
     m_settings->setAutoFormatOnSave(ui->autoFormat->isChecked());
     m_settings->setAutoFormatTool(ui->autoFormatTool->currentText());

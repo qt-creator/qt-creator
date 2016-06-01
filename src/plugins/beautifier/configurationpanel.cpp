@@ -118,8 +118,8 @@ void ConfigurationPanel::populateConfigurations(const QString &key)
 
 void ConfigurationPanel::updateButtons()
 {
-    const bool enabled = ((ui->configurations->count() > 0)
-                          && !m_settings->styleIsReadOnly(ui->configurations->currentText()));
+    const bool enabled = (ui->configurations->count() > 0)
+            && !m_settings->styleIsReadOnly(ui->configurations->currentText());
     ui->remove->setEnabled(enabled);
     ui->edit->setEnabled(enabled);
 }
