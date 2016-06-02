@@ -97,15 +97,6 @@ void LocalQmlProfilerRunner::start()
     runnable.commandLineArguments = arguments;
     runnable.runMode = ApplicationLauncher::Gui;
 
-    if (QmlProfilerPlugin::debugOutput) {
-        QString portOrSocket = m_configuration.socket.isEmpty() ?
-                    QString::number(m_configuration.port.isValid() ?
-                                        m_configuration.port.number() : -1) :
-                    m_configuration.socket;
-        qWarning("QmlProfiler: Launching %s:%s", qPrintable(m_configuration.debuggee.executable),
-                 qPrintable(portOrSocket));
-    }
-
     // queue this, as the process can already die in the call to start().
     // We want the started() signal to be emitted before the stopped() signal.
     connect(&m_launcher, &ApplicationLauncher::processExited,
@@ -118,13 +109,8 @@ void LocalQmlProfilerRunner::start()
 
 void LocalQmlProfilerRunner::spontaneousStop(int exitCode, QProcess::ExitStatus status)
 {
-    if (QmlProfilerPlugin::debugOutput) {
-        if (status == QProcess::CrashExit)
-            qWarning("QmlProfiler: Application crashed.");
-        else
-            qWarning("QmlProfiler: Application exited (exit code %d).", exitCode);
-    }
-
+    Q_UNUSED(exitCode);
+    Q_UNUSED(status);
     disconnect(&m_launcher, &ApplicationLauncher::processExited,
                this, &LocalQmlProfilerRunner::spontaneousStop);
 
@@ -133,9 +119,6 @@ void LocalQmlProfilerRunner::spontaneousStop(int exitCode, QProcess::ExitStatus 
 
 void LocalQmlProfilerRunner::stop()
 {
-    if (QmlProfilerPlugin::debugOutput)
-        qWarning("QmlProfiler: Stopping application ...");
-
     if (m_launcher.isRunning())
         m_launcher.stop();
 }

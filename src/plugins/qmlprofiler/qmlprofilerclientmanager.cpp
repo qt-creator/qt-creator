@@ -317,10 +317,7 @@ void QmlProfilerClientManager::qmlDebugConnectionStateChanged(QAbstractSocket::S
 
 void QmlProfilerClientManager::logState(const QString &msg)
 {
-    QString state = QLatin1String("QML Profiler: ") + msg;
-    if (QmlProfilerPlugin::debugOutput)
-        qWarning() << state;
-    QmlProfilerTool::logState(state);
+    QmlProfilerTool::logState(QLatin1String("QML Profiler: ") + msg);
 }
 
 void QmlProfilerClientManager::retryMessageBoxFinished(int result)

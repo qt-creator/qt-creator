@@ -48,8 +48,6 @@ namespace Internal {
 
 Q_GLOBAL_STATIC(QmlProfilerSettings, qmlProfilerGlobalSettings)
 
-bool QmlProfilerPlugin::debugOutput = false;
-
 bool QmlProfilerPlugin::initialize(const QStringList &arguments, QString *errorString)
 {
     Q_UNUSED(arguments)

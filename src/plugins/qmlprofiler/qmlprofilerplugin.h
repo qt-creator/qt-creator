@@ -44,7 +44,6 @@ public:
     void extensionsInitialized();
     ShutdownFlag aboutToShutdown();
 
-    static bool debugOutput;
     static QmlProfilerSettings *globalSettings();
 
     QList<QObject *> createTestObjects() const override;
