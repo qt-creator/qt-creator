@@ -81,6 +81,7 @@ QtcPlugin {
             "flamegraph_test.cpp", "flamegraph_test.h",
             "flamegraphmodel_test.cpp", "flamegraphmodel_test.h",
             "flamegraphview_test.cpp", "flamegraphview_test.h",
+            "inputeventsmodel_test.cpp", "inputeventsmodel_test.h",
         ]
     }
 }
