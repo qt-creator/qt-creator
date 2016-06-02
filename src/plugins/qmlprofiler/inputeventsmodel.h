@@ -34,12 +34,6 @@ class InputEventsModel : public QmlProfilerTimelineModel
 {
     Q_OBJECT
 
-protected:
-    bool accepted(const QmlEventType &event) const override;
-    void loadEvent(const QmlEvent &event, const QmlEventType &type) override;
-    void finalize() override;
-    void clear() override;
-
 public:
     struct InputEvent {
         InputEvent(InputEventType type = MaximumInputEventType, int a = 0, int b = 0);
@@ -49,6 +43,11 @@ public:
     };
 
     InputEventsModel(QmlProfilerModelManager *manager, QObject *parent = 0);
+
+    bool accepted(const QmlEventType &type) const override;
+    void loadEvent(const QmlEvent &event, const QmlEventType &type) override;
+    void finalize() override;
+    void clear() override;
 
     int typeId(int index) const override;
     QColor color(int index) const override;

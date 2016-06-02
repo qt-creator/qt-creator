@@ -167,10 +167,10 @@ void InputEventsModel::clear()
     QmlProfilerTimelineModel::clear();
 }
 
-bool InputEventsModel::accepted(const QmlEventType &event) const
+bool InputEventsModel::accepted(const QmlEventType &type) const
 {
-    return QmlProfilerTimelineModel::accepted(event) &&
-            (event.detailType == Mouse || event.detailType == Key);
+    return QmlProfilerTimelineModel::accepted(type) &&
+            (type.detailType == Mouse || type.detailType == Key);
 }
 
 InputEventsModel::InputEvent::InputEvent(InputEventType type, int a, int b) :
