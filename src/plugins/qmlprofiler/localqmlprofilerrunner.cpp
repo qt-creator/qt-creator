@@ -81,11 +81,6 @@ LocalQmlProfilerRunner::LocalQmlProfilerRunner(const Configuration &configuratio
             this, &LocalQmlProfilerRunner::stop);
 }
 
-LocalQmlProfilerRunner::~LocalQmlProfilerRunner()
-{
-    disconnect();
-}
-
 void LocalQmlProfilerRunner::start()
 {
     StandardRunnable runnable = m_configuration.debuggee;
