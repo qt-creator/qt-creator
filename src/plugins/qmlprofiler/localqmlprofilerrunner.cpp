@@ -106,8 +106,11 @@ void LocalQmlProfilerRunner::start()
                  qPrintable(portOrSocket));
     }
 
+    // queue this, as the process can already die in the call to start().
+    // We want the started() signal to be emitted before the stopped() signal.
     connect(&m_launcher, &ApplicationLauncher::processExited,
-            this, &LocalQmlProfilerRunner::spontaneousStop);
+            this, &LocalQmlProfilerRunner::spontaneousStop,
+            Qt::QueuedConnection);
     m_launcher.start(runnable);
 
     emit started();
