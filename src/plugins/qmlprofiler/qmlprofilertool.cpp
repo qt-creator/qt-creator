@@ -362,13 +362,12 @@ void QmlProfilerTool::finalizeRunControl(QmlProfilerRunControl *runControl)
     //
 
     RunConfiguration *runConfiguration = runControl->runConfiguration();
-    QString projectDirectory;
     if (runConfiguration) {
+        QString projectDirectory;
         Project *project = runConfiguration->target()->project();
         projectDirectory = project->projectDirectory().toString();
+        populateFileFinder(projectDirectory, sysroot(runConfiguration));
     }
-
-    populateFileFinder(projectDirectory, sysroot(runConfiguration));
 
     if (connection.analyzerSocket.isEmpty())
         connect(runControl, &QmlProfilerRunControl::processRunning,
