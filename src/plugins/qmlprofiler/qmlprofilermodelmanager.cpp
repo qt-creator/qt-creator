@@ -442,8 +442,8 @@ void QmlProfilerModelManager::clear()
 
 void QmlProfilerModelManager::restrictToRange(qint64 startTime, qint64 endTime)
 {
-    setState(ClearingData);
     d->notesModel->saveData();
+    setState(ClearingData);
     setVisibleFeatures(0);
 
     startAcquiring();
