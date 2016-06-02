@@ -49,7 +49,7 @@ public:
     };
 
     LocalQmlProfilerRunner(const Configuration &configuration,
-                           Debugger::AnalyzerRunControl *engine);
+                           Debugger::AnalyzerRunControl *runControl);
 
     static Utils::Port findFreePort(QString &host);
     static QString findFreeSocket();

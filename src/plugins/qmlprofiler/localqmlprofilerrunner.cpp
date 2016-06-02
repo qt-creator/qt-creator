@@ -65,19 +65,19 @@ Utils::Port LocalQmlProfilerRunner::findFreePort(QString &host)
 }
 
 LocalQmlProfilerRunner::LocalQmlProfilerRunner(const Configuration &configuration,
-                                               Debugger::AnalyzerRunControl *engine) :
-    QObject(engine),
+                                               Debugger::AnalyzerRunControl *runControl) :
+    QObject(runControl),
     m_configuration(configuration)
 {
     connect(&m_launcher, &ApplicationLauncher::appendMessage,
             this, &LocalQmlProfilerRunner::appendMessage);
     connect(this, &LocalQmlProfilerRunner::stopped,
-            engine, &Debugger::AnalyzerRunControl::notifyRemoteFinished);
+            runControl, &Debugger::AnalyzerRunControl::notifyRemoteFinished);
     connect(this, &LocalQmlProfilerRunner::appendMessage,
-            engine, &Debugger::AnalyzerRunControl::appendMessage);
-    connect(engine, &Debugger::AnalyzerRunControl::starting,
+            runControl, &Debugger::AnalyzerRunControl::appendMessage);
+    connect(runControl, &Debugger::AnalyzerRunControl::starting,
             this, &LocalQmlProfilerRunner::start);
-    connect(engine, &RunControl::finished,
+    connect(runControl, &RunControl::finished,
             this, &LocalQmlProfilerRunner::stop);
 }
 
