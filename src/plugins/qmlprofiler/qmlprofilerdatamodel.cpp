@@ -218,7 +218,7 @@ void QmlProfilerDataModel::replayEvents(qint64 rangeStart, qint64 rangeEnd,
                         if (stack.isEmpty()) {
                             QmlEvent endEvent(event);
                             endEvent.setTimestamp(rangeEnd);
-                            loader(event, d->eventTypes[event.typeIndex()]);
+                            loader(endEvent, d->eventTypes[event.typeIndex()]);
                         } else {
                             stack.pop();
                         }
