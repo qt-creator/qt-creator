@@ -35,6 +35,7 @@
 #include "tests/flamegraphmodel_test.h"
 #include "tests/flamegraphview_test.h"
 #include "tests/inputeventsmodel_test.h"
+#include "tests/localqmlprofilerrunner_test.h"
 #endif
 
 #include <extensionsystem/pluginmanager.h>
@@ -89,6 +90,7 @@ QList<QObject *> QmlProfiler::Internal::QmlProfilerPlugin::createTestObjects() c
     tests << new FlameGraphModelTest;
     tests << new FlameGraphViewTest;
     tests << new InputEventsModelTest;
+    tests << new LocalQmlProfilerRunnerTest;
 #endif
     return tests;
 }
