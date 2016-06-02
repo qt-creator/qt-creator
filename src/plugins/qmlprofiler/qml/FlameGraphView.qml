@@ -71,6 +71,7 @@ ScrollView {
                 property bool isBindingLoop: parent.checkBindingLoop(typeId)
                 property int level: parent.level + (rangeTypeVisible ? 1 : 0)
                 property bool isSelected: typeId !== -1 && typeId === root.selectedTypeId
+                                          && rangeTypeVisible
                 property bool rangeTypeVisible:
                     root.visibleRangeTypes & (1 << FlameGraph.data(FlameGraphModel.RangeTypeRole))
 
