@@ -251,8 +251,10 @@ void QmlProfilerRunControl::processIsRunning(Utils::Port port)
 {
     d->m_noDebugOutputTimer.stop();
 
-    if (!port.isValid())
+    if (!port.isValid()) {
+        QTC_ASSERT(connection().is<AnalyzerConnection>(), return);
         port = connection().as<AnalyzerConnection>().analyzerPort;
+    }
     if (port.isValid())
         emit processRunning(port);
 }

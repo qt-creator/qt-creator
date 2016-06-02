@@ -349,6 +349,7 @@ void QmlProfilerTool::finalizeRunControl(QmlProfilerRunControl *runControl)
 {
     runControl->registerProfilerStateManager(d->m_profilerState);
 
+    QTC_ASSERT(runControl->connection().is<AnalyzerConnection>(), return);
     // FIXME: Check that there's something sensible in sp.connParams
     auto connection = runControl->connection().as<AnalyzerConnection>();
     if (!connection.analyzerSocket.isEmpty())
