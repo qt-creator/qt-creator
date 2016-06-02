@@ -197,7 +197,7 @@ static void ensureProtocolHandler()
 
 // #pragma mark -- FrameLoadDelegate
 
-@interface FrameLoadDelegate : NSObject<WebFrameLoadDelegate>
+@interface FrameLoadDelegate : NSObject
 {
     WebFrame *mainFrame;
     Help::Internal::MacWebKitHelpViewer *viewer;
@@ -275,7 +275,7 @@ static void ensureProtocolHandler()
 
 // #pragma mark -- UIDelegate
 
-@interface UIDelegate : NSObject<WebUIDelegate>
+@interface UIDelegate : NSObject
 {
     Help::Internal::MacWebKitHelpWidget *widget;
 }
