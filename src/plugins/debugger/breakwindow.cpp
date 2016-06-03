@@ -695,14 +695,14 @@ BreakTreeView::BreakTreeView()
 {
     setWindowIcon(Icons::BREAKPOINTS.icon());
     setSelectionMode(QAbstractItemView::ExtendedSelection);
-    setItemDelegateForColumn(2, new LeftElideDelegate(this));
+    setItemDelegateForColumn(BreakpointFileColumn, new LeftElideDelegate(this));
     connect(action(UseAddressInBreakpointsView), &QAction::toggled,
             this, &BreakTreeView::showAddressColumn);
 }
 
 void BreakTreeView::showAddressColumn(bool on)
 {
-    setColumnHidden(7, !on);
+    setColumnHidden(BreakpointAddressColumn, !on);
 }
 
 void BreakTreeView::keyPressEvent(QKeyEvent *ev)
@@ -736,7 +736,7 @@ void BreakTreeView::mouseDoubleClickEvent(QMouseEvent *ev)
 {
     QModelIndex indexUnderMouse = indexAt(ev->pos());
     if (indexUnderMouse.isValid()) {
-        if (indexUnderMouse.column() >= 4) {
+        if (indexUnderMouse.column() >= BreakpointAddressColumn) {
             Breakpoint b = breakHandler()->findBreakpointByIndex(indexUnderMouse);
             QTC_ASSERT(b, return);
             editBreakpoints(Breakpoints() << b);
@@ -771,7 +771,8 @@ void BreakTreeView::contextMenuEvent(QContextMenuEvent *ev)
     QAction *deleteByFileAction = 0;
     Breakpoints breakpointsInFile;
     if (indexUnderMouse.isValid()) {
-        const QModelIndex index = indexUnderMouse.sibling(indexUnderMouse.row(), 2);
+        const QModelIndex index = indexUnderMouse.sibling(indexUnderMouse.row(),
+                                                          BreakpointFileColumn);
         const QString file = index.data().toString();
         if (!file.isEmpty()) {
             for (int i = 0; i != rowCount; ++i)

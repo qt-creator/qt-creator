@@ -602,13 +602,13 @@ QVariant BreakpointItem::data(int column, int role) const
     }
 
     switch (column) {
-        case 0:
+        case BreakpointNumberColumn:
             if (role == Qt::DisplayRole)
                 return m_id.toString();
             if (role == Qt::DecorationRole)
                 return icon();
             break;
-        case 1:
+        case BreakpointFunctionColumn:
             if (role == Qt::DisplayRole) {
                 if (!m_response.functionName.isEmpty())
                     return simplifyType(m_response.functionName);
@@ -634,7 +634,7 @@ QVariant BreakpointItem::data(int column, int role) const
                 return empty;
             }
             break;
-        case 2:
+        case BreakpointFileColumn:
             if (role == Qt::DisplayRole) {
                 QString str;
                 if (!m_response.fileName.isEmpty())
@@ -654,7 +654,7 @@ QVariant BreakpointItem::data(int column, int role) const
                 return empty;
             }
             break;
-        case 3:
+        case BreakpointLineColumn:
             if (role == Qt::DisplayRole) {
                 if (m_response.lineNumber > 0)
                     return m_response.lineNumber;
@@ -665,7 +665,7 @@ QVariant BreakpointItem::data(int column, int role) const
             if (role == Qt::UserRole + 1)
                 return m_params.lineNumber;
             break;
-        case 4:
+        case BreakpointAddressColumn:
             if (role == Qt::DisplayRole) {
                 const quint64 address = orig ? m_params.address : m_response.address;
                 if (address)
@@ -673,7 +673,7 @@ QVariant BreakpointItem::data(int column, int role) const
                 return QVariant();
             }
             break;
-        case 5:
+        case BreakpointConditionColumn:
             if (role == Qt::DisplayRole)
                 return orig ? m_params.condition : m_response.condition;
             if (role == Qt::ToolTipRole)
@@ -681,7 +681,7 @@ QVariant BreakpointItem::data(int column, int role) const
             if (role == Qt::UserRole + 1)
                 return m_params.condition;
             break;
-        case 6:
+        case BreakpointIgnoreColumn:
             if (role == Qt::DisplayRole) {
                 const int ignoreCount =
                     orig ? m_params.ignoreCount : m_response.ignoreCount;
@@ -692,7 +692,7 @@ QVariant BreakpointItem::data(int column, int role) const
             if (role == Qt::UserRole + 1)
                 return m_params.ignoreCount;
             break;
-        case 7:
+        case BreakpointThreadsColumn:
             if (role == Qt::DisplayRole)
                 return BreakHandler::displayFromThreadSpec(orig ? m_params.threadSpec : m_response.threadSpec);
             if (role == Qt::ToolTipRole)

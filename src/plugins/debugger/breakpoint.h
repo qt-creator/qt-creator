@@ -129,6 +129,18 @@ enum BreakpointPathUsage
     BreakpointUseShortPath            //!< Use filename only, in case source files are relocated.
 };
 
+enum BreakpointColumns
+{
+    BreakpointNumberColumn,
+    BreakpointFunctionColumn,
+    BreakpointFileColumn,
+    BreakpointLineColumn,
+    BreakpointAddressColumn,
+    BreakpointConditionColumn,
+    BreakpointIgnoreColumn,
+    BreakpointThreadsColumn
+};
+
 enum BreakpointParts
 {
     NoParts         = 0,
