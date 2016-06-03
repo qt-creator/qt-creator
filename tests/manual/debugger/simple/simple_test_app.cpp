@@ -128,6 +128,18 @@
 #define USE_TIMEZONE 0
 #endif
 
+#if QT_VERSION >= 0x050000
+#define USE_JSON 1
+#else
+#define USE_JSON 0
+#endif
+
+#if QT_VERSION > 0x050000
+#define USE_CXX11LIB 1
+#else
+#define USE_CXX11LIB 0
+#endif
+
 void dummyStatement(...) {}
 
 #if defined(__GNUC__) && defined(__STRICT_ANSI__)
@@ -168,7 +180,7 @@ void dummyStatement(...) {}
 #include <QStandardItemModel>
 #include <QTextCursor>
 #include <QTextDocument>
-# if QT_VERSION >= QT_VERSION_CHECK(5, 2, 0)
+# if USE_TIMEZONE
 #  include <QTimeZone>
 # endif
 #endif
@@ -185,13 +197,12 @@ void dummyStatement(...) {}
 #include <QXmlAttributes>
 
 #include <QHostAddress>
-#include <QJsonArray>
-#include <QJsonObject>
-#include <QJsonValue>
 #include <QNetworkRequest>
 
+#if USE_CXX11LIB
 #include <array>
 #include <unordered_map>
+#endif
 #include <complex>
 #include <deque>
 #include <iostream>
@@ -211,6 +222,11 @@ void dummyStatement(...) {}
 
 #include "../simple/deep/deep/simple_test_app.h"
 
+#if USE_JSON
+#include <QJsonArray>
+#include <QJsonObject>
+#include <QJsonValue>
+#endif
 
 #if USE_BOOST
 #include <boost/optional.hpp>
@@ -721,7 +737,7 @@ namespace qdatetime {
 
     void testQTimeZone()
     {
-#if QT_VERSION >= QT_VERSION_CHECK(5, 2, 0)
+#if USE_TIMEZONE
         QTimeZone zz;
         QTimeZone tz("UTC+05:00");
         BREAK_HERE;
@@ -2599,6 +2615,7 @@ namespace stdarray {
 
     void testStdArray()
     {
+        #if USE_CXX11LIB
         std::array<int, 4> a = { { 1, 2, 3, 4} };
         std::array<QString, 4> b = { { "1", "2", "3", "4"} };
         BREAK_HERE;
@@ -2607,6 +2624,7 @@ namespace stdarray {
         // Check a <4 items> std::array<QString, 4u>.
         // Continue.
         dummyStatement(&a, &b);
+        #endif
     }
 
 } // namespace stdcomplex
@@ -2842,6 +2860,7 @@ namespace stdlist {
 
 namespace stdunorderedmap {
 
+#if USE_CXX11LIB
     void testStdUnorderedMapStringFoo()
     {
         // This is not supposed to work with the compiled dumpers.
@@ -3048,6 +3067,10 @@ namespace stdunorderedmap {
         testStdUnorderedMapIntString();
         testStdUnorderedMapStringPointer();
     }
+#else
+    void testStdUnorderedMap() {}
+
+#endif
 
 } // namespace stdunorderedmap
 
@@ -3263,10 +3286,12 @@ namespace stdmap {
 
     void testStdMultiSetInt()
     {
+#if USE_CXX11LIB
 #ifndef Q_CC_MSVC
         std::multiset<int> set = {1, 1, 2, 3, 3, 3};
         BREAK_HERE;
         dummyStatement(&set);
+#endif
 #endif
     }
 
@@ -3291,6 +3316,7 @@ namespace stdmap {
 
 namespace stdptr {
 
+#if USE_CXX11LIB
     void testStdUniquePtrInt()
     {
         std::unique_ptr<int> p(new int(32));
@@ -3334,6 +3360,9 @@ namespace stdptr {
         testStdSharedPtrInt();
         testStdSharedPtrFoo();
     }
+#else
+    void testStdPtr() {}
+#endif
 
 } // namespace stdptr
 
@@ -3342,6 +3371,7 @@ namespace lambda {
 
     void testLambda()
     {
+#if USE_CXX11LIB
         std::string x;
         auto f = [&] () -> const std::string & {
                 size_t z = x.size();
@@ -3351,6 +3381,7 @@ namespace lambda {
         auto c = f();
         BREAK_HERE;
         dummyStatement(&x, &f, &c);
+#endif
     }
 
 } // namespace lambda
@@ -4498,6 +4529,7 @@ namespace qvariant {
 
     void testQVariant6()
     {
+#if QT_VERSION > 0x050000
         QList<int> list;
         list << 1 << 2 << 3;
         QVariant variant = qVariantFromValue(list);
@@ -4523,6 +4555,7 @@ namespace qvariant {
         // Check list.2 3 int.
         // Continue.
         dummyStatement(&list);
+#endif
     }
 
     void testQVariantList()
@@ -5246,8 +5279,10 @@ namespace basic {
     namespace ns {
         typedef unsigned long long vl;
         typedef vl verylong;
+#if USE_CXX11LIB
         using uvl = unsigned long long;
         using usingverylong = uvl;
+#endif
     }
 
     void testTypedef()
@@ -5269,6 +5304,7 @@ namespace basic {
 
     void testUsing()
     {
+#if USE_CXX11LIB
         using myType1 = quint32;
         using myType2 = unsigned int;
         myType1 t1 = 0;
@@ -5282,6 +5318,7 @@ namespace basic {
         // Check t2 0 basic::myType2.
         // Continue.
         dummyStatement(&j, &k, &t1, &t2);
+#endif
     }
 
     void testStruct()
@@ -5549,7 +5586,7 @@ namespace basic {
         QDateTime time = QDateTime::currentDateTime();
         const int N = 10000;
         QDateTime x = time;
-#if QT_VERSION >= QT_VERSION_CHECK(5, 2, 0)
+#if USE_TIMEZONE
         QTimeZone tz("UTC+05:00");
         x.setTimeZone(tz);
 #endif
@@ -6021,6 +6058,7 @@ namespace qjson {
 
     void testQJson()
     {
+        #if USE_JSON
         QJsonObject obj {
             {"-1", -1},
             {"3", 3},
@@ -6047,6 +6085,7 @@ namespace qjson {
         // Check v -1 QJsonValue.
         // Check obj "foo" -1 QJsonValue.
         // Continue.
+        #endif
     }
 
 } // namespace json

@@ -849,7 +849,7 @@ class Dumper(DumperBase):
     def qtVersion(self):
         try:
             # Only available with Qt 5.3+
-            qtversion = int(gdb.parse_and_eval("((void**)&qtHookData)[2]"))
+            qtversion = int(str(gdb.parse_and_eval("((void**)&qtHookData)[2]")), 16)
             self.qtVersion = lambda: qtversion
             return qtversion
         except:
@@ -1432,8 +1432,10 @@ class Dumper(DumperBase):
                 self.fallbackQtVersion = 0x30308
                 return ""
             # Seemingly needed with Debian's GDB 7.4.1
-            ns = s[s.find("class")+6:s.find("QByteArray")]
-            if len(ns):
+            pos1 = s.find("class")
+            pos2 = s.find("QByteArray")
+            if pos1 > -1 and pos2 > -1:
+                ns = s[s.find("class") + 6:s.find("QByteArray")]
                 self.qtNamespaceToReport = ns
                 self.qtNamespace = lambda: ns
                 return ns
