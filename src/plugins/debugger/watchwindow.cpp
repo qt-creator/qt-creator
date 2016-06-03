@@ -811,8 +811,10 @@ void WatchTreeView::contextMenuEvent(QContextMenuEvent *ev)
                               || actSetWatchpointAtExpression.isEnabled());
 
     QAction actCopy(tr("Copy View Contents to Clipboard"), 0);
-    QAction actCopyValue(tr("Copy Value to Clipboard"), 0);
+    QAction actCopyValue(tr("Copy Current Value to Clipboard"), 0);
     actCopyValue.setEnabled(idx.isValid());
+    QAction actCopySelected(tr("Copy Selected Rows to Clipboard"), 0);
+    actCopySelected.setEnabled(selectionModel()->hasSelection());
 
     QAction actShowInEditor(tr("Open View Contents in Editor"), 0);
     actShowInEditor.setEnabled(actionsEnabled);
@@ -835,6 +837,7 @@ void WatchTreeView::contextMenuEvent(QContextMenuEvent *ev)
     menu.addAction(&actCloseEditorToolTips);
     menu.addAction(&actCopy);
     menu.addAction(&actCopyValue);
+    menu.addAction(&actCopySelected);
     menu.addAction(&actShowInEditor);
     menu.addSeparator();
 
@@ -890,6 +893,9 @@ void WatchTreeView::contextMenuEvent(QContextMenuEvent *ev)
         handler->clearWatches();
     } else if (act == &actCopy) {
         QString contents = handler->editorContents();
+        copyToClipboard(contents);
+    } else if (act == &actCopySelected) {
+        QString contents = handler->editorContents(selectionModel()->selectedRows());
         copyToClipboard(contents);
     } else if (act == &actCopyValue) {
         copyToClipboard(mi1.data().toString());

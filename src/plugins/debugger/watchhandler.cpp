@@ -1824,15 +1824,17 @@ void WatchHandler::addTypeFormats(const QByteArray &type, const DisplayFormats &
     m_model->m_reportedTypeFormats.insert(QLatin1String(stripForFormat(type)), formats);
 }
 
-QString WatchHandler::editorContents()
+QString WatchHandler::editorContents(const QModelIndexList &list)
 {
     QString contents;
     QTextStream ts(&contents);
-    m_model->forAllItems([&ts](WatchItem *item) {
-        const QChar tab = QLatin1Char('\t');
-        const QChar nl = QLatin1Char('\n');
-        ts << QString(item->level(), tab) << item->name << tab << displayValue(item) << tab
-           << item->type << nl;
+    m_model->forAllItems([&ts, this, list](WatchItem *item) {
+        if (list.isEmpty() || list.contains(m_model->indexForItem(item))) {
+            const QChar tab = QLatin1Char('\t');
+            const QChar nl = QLatin1Char('\n');
+            ts << QString(item->level(), tab) << item->name << tab << displayValue(item) << tab
+               << item->type << nl;
+        }
     });
     return contents;
 }

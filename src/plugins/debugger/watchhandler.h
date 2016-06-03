@@ -100,7 +100,7 @@ public:
     static int unprintableBase();
 
     QByteArray watcherName(const QByteArray &exp);
-    QString editorContents();
+    QString editorContents(const QModelIndexList &list = QModelIndexList());
 
     void scheduleResetLocation();
     void resetLocation();
