@@ -1977,7 +1977,7 @@ void FakeVimPluginPrivate::handleExCommand(bool *handled, const ExCommand &cmd)
         editor->setFocus();
 
     *handled = true;
-    if (cmd.matches("w", "write") || cmd.cmd == "wq") {
+    if ((cmd.matches("w", "write") || cmd.cmd == "wq") && cmd.args.isEmpty()) {
         // :w[rite]
         IEditor *editor = m_editorToHandler.key(handler);
         const QString fileName = handler->currentFileName();

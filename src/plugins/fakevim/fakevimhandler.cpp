@@ -84,6 +84,7 @@
 #include <QTextEdit>
 #include <QMimeData>
 #include <QSharedPointer>
+#include <QDir>
 
 #include <algorithm>
 #include <climits>
@@ -372,6 +373,12 @@ struct SearchData
     bool forward = true;
     bool highlightMatches = true;
 };
+
+static QString replaceTildeWithHome(QString str)
+{
+    str.replace("~", QDir::homePath());
+    return str;
+}
 
 // If string begins with given prefix remove it with trailing spaces and return true.
 static bool eatString(const QString &prefix, QString *str)
@@ -5899,6 +5906,7 @@ bool FakeVimHandler::Private::handleExJoinCommand(const ExCommand &cmd)
 
 bool FakeVimHandler::Private::handleExWriteCommand(const ExCommand &cmd)
 {
+    // Note: The cmd.args.isEmpty() case is handled by handleExPluginCommand.
     // :w, :x, :wq, ...
     //static QRegExp reWrite("^[wx]q?a?!?( (.*))?$");
     if (cmd.cmd != "w" && cmd.cmd != "x" && cmd.cmd != "wq")
@@ -5916,7 +5924,7 @@ bool FakeVimHandler::Private::handleExWriteCommand(const ExCommand &cmd)
     const bool forced = cmd.hasBang;
     //const bool quit = prefix.contains('q') || prefix.contains('x');
     //const bool quitAll = quit && prefix.contains('a');
-    QString fileName = cmd.args;
+    QString fileName = replaceTildeWithHome(cmd.args);
     if (fileName.isEmpty())
         fileName = m_currentFileName;
     QFile file1(fileName);
@@ -5969,7 +5977,7 @@ bool FakeVimHandler::Private::handleExReadCommand(const ExCommand &cmd)
     moveDown();
     int pos = position();
 
-    m_currentFileName = cmd.args;
+    m_currentFileName = replaceTildeWithHome(cmd.args);
     QFile file(m_currentFileName);
     file.open(QIODevice::ReadOnly);
     QTextStream ts(&file);
@@ -6092,7 +6100,7 @@ bool FakeVimHandler::Private::handleExSourceCommand(const ExCommand &cmd)
     if (cmd.cmd != "so" && cmd.cmd != "source")
         return false;
 
-    QString fileName = cmd.args;
+    QString fileName = replaceTildeWithHome(cmd.args);
     QFile file(fileName);
     if (!file.open(QIODevice::ReadOnly)) {
         showMessage(MessageError, Tr::tr("Cannot open file %1").arg(fileName));
