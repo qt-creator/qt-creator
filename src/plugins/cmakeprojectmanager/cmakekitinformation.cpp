@@ -224,7 +224,7 @@ QList<Task> CMakeGeneratorKitInformation::validate(const Kit *k) const
         } else {
             QStringList known = tool->supportedGenerators();
             if (!known.contains(generator)) {
-                result << Task(Task::Error, tr("CMake Tool does not support the configured generator."),
+                result << Task(Task::Warning, tr("CMake Tool does not support the configured generator."),
                                Utils::FileName(), -1, Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM));
             }
             if (!generator.startsWith(QLatin1String("CodeBlocks -"))) {
