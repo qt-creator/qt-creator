@@ -152,8 +152,17 @@ void ItemLibraryModel::update(ItemLibraryInfo *itemLibraryInfo, Model *model)
 
          NodeMetaInfo metaInfo = model->metaInfo(entry.typeName());
          bool valid = metaInfo.isValid() && metaInfo.majorVersion() == entry.majorVersion();
+         bool isItem = metaInfo.isSubclassOf("QtQuick.Item");
+
+         if (valid && isItem) {
+             qDebug() << Q_FUNC_INFO << metaInfo.typeName() << "is not a QtQuick.Item";
+             foreach (const NodeMetaInfo &superClass, metaInfo.superClasses()) {
+                 qDebug() << superClass.typeName();
+             }
+         }
 
          if (valid
+                 && isItem //We can change if the navigator does support pure QObjects
                  && (entry.requiredImport().isEmpty()
                      || model->hasImport(entryToImport(entry), true, true))) {
             QString itemSectionName = entry.category();
