@@ -147,60 +147,6 @@ bool AbstractProperty::isValid() const
             !m_propertyName.isEmpty();
 }
 
-//bool AbstractProperty::isValueAPropertyBinding() const
-//{
-//    const QVariant propertyValue = value();
-//
-//    return propertyValue.type() == QVariant::UserType && propertyValue.userType() == qMetaTypeId<QmlDesigner::PropertyBinding>();
-//}
-//
-//PropertyBinding AbstractProperty::valueToPropertyBinding() const
-//{
-//    if (isValueAPropertyBinding())
-//        return value().value<PropertyBinding>();
-//    else
-//        return PropertyBinding();
-//}
-//
-//bool AbstractProperty::isValueAModelNode() const
-//{
-//    const QVariant propertyValue = value();
-//
-//    return propertyValue.type() == QVariant::UserType && propertyValue.userType() == ModelNode::variantUserType();
-//}
-//
-//ModelNode AbstractProperty::valueToModelNode() const
-//{
-//    if (isValueAModelNode())
-//        return value().value<ModelNode>();
-//    else
-//        return ModelNode();
-//}
-//
-//bool AbstractProperty::isValueAList() const
-//{
-//    const QVariant propertyValue = value();
-//
-//    return propertyValue.type() == QVariant::List;
-//}
-//
-//QVariantList AbstractProperty::valueToList() const
-//{
-//    if (isValueAList())
-//        return value().toList();
-//    else
-//        return QVariantList();
-//}
-//
-//ModelNode AbstractProperty::addModelNodeToValueList(const QString &type, int majorVersion, int minorVersion, const QList<QPair<QString, QVariant> > &propertyList)
-//{
-//    //if (isValueAList())
-//    //    return m_model->addModelNode(state(), m_propertyName, type, majorVersion, minorVersion, propertyList);
-//    //else
-//     //   throw InvalidPropertyException(__LINE__, __FUNCTION__, __FILE__, m_propertyName);
-//    return ModelNode();
-//}
-
  /*!
     Returns the model node to which the property belongs.
 */
