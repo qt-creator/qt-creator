@@ -12,6 +12,7 @@ CMake Projects
 * Added notification when `CMakeCache.txt` changes and introduces a
   conflict with the build configuration settings, with the option
   to adapt the build configuration settings
+* Made it possible to add arbitrary CMake variables (QTCREATORBUG-16238)
 * Fixed that build configurations could not override kit settings, and added
   a warning to build configurations that override kit settings
 * Fixed that `yes` was not considered as boolean `true` value
@@ -28,6 +29,11 @@ Debugging
 * Fixed QObject property expansion (QTCREATORBUG-15798)
 * Fixed updating evaluated expressions
 * Fixed crash on spontaneous debugger exit (QTCREATORBUG-16233)
+* GDB
+   * Fixed issues with restarting debugger (QTCREATORBUG-16355)
+* QML
+   * Restored expression evaluation by using the selection tool
+     (QTCREATORBUG-16300)
 
 Valgrind
 
@@ -51,3 +57,9 @@ Platform Specific
 Windows
 
 * Fixed detection of Microsoft Visual C++ Build Tools
+* Fixed that tool tips could stay visible even after switching applications
+  (QTCREATORBUG-15882)
+
+iOS
+
+* Added missing human readable error messages (QTCREATORBUG-16328)

@@ -26,7 +26,8 @@
 source("../../shared/qtcreator.py")
 
 def main():
-    sourceExample = os.path.abspath(Qt5Path.getPaths(Qt5Path.EXAMPLES)[0] + "/declarative/keyinteraction/focus")
+    target = Targets.DESKTOP_521_DEFAULT
+    sourceExample = os.path.join(Qt5Path.examplesPath(target), "declarative/keyinteraction/focus")
     proFile = "focus.pro"
     if not neededFilePresent(os.path.join(sourceExample, proFile)):
         return
@@ -34,9 +35,9 @@ def main():
     if not startedWithoutPluginError():
         return
     # add docs to have the correct tool tips
-    addHelpDocumentation([os.path.join(Qt5Path.getPaths(Qt5Path.DOCS)[0], "qtquick.qch")])
+    addHelpDocumentation([os.path.join(Qt5Path.docsPath(target), "qtquick.qch")])
     templateDir = prepareTemplate(sourceExample, "/../../helper")
-    openQmakeProject(os.path.join(templateDir, proFile), Targets.DESKTOP_521_DEFAULT)
+    openQmakeProject(os.path.join(templateDir, proFile), target)
     openDocument("focus.QML.qml" + os.sep + "focus.focus\\.qml")
     testRenameId()
     testFindUsages()
