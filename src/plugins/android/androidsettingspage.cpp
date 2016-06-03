@@ -57,7 +57,8 @@ QWidget *AndroidSettingsPage::widget()
 
 void AndroidSettingsPage::apply()
 {
-    m_widget->saveSettings();
+    if (m_widget)
+        m_widget->saveSettings();
 }
 
 void AndroidSettingsPage::finish()
