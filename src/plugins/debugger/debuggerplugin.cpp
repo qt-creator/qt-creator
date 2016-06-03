@@ -2156,7 +2156,9 @@ void DebuggerPluginPrivate::attachToQmlPort()
     IDevice::ConstPtr device = DeviceKitInformation::device(kit);
     if (device) {
         rp.connParams = device->sshParameters();
-        rp.qmlServerAddress = device->qmlProfilerHost();
+        Connection toolControl = device->toolControlChannel(IDevice::QmlControlChannel);
+        QTC_ASSERT(toolControl.is<HostName>(), return);
+        rp.qmlServerAddress = toolControl.as<HostName>().host();
     }
     rp.qmlServerPort = Utils::Port(dlg.port());
     rp.startMode = AttachToRemoteProcess;

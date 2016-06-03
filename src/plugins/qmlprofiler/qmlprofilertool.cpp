@@ -562,8 +562,10 @@ void QmlProfilerTool::startRemoteTool(ProjectExplorer::RunConfiguration *rc)
 
     IDevice::ConstPtr device = DeviceKitInformation::device(kit);
     if (device) {
+        Connection toolControl = device->toolControlChannel(IDevice::QmlControlChannel);
+        QTC_ASSERT(toolControl.is<HostName>(), return);
+        connection.analyzerHost = toolControl.as<HostName>().host();
         connection.connParams = device->sshParameters();
-        connection.analyzerHost = device->qmlProfilerHost();
     }
     connection.analyzerPort = Utils::Port(port);
 

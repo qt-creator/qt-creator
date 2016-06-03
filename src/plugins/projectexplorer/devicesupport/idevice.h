@@ -48,9 +48,10 @@ class Port;
 } // Utils
 
 namespace ProjectExplorer {
+
+class Connection;
 class DeviceProcess;
 class DeviceProcessList;
-
 class Kit;
 
 namespace Internal { class IDevicePrivate; }
@@ -105,6 +106,16 @@ public:
     virtual ~PortsGatheringMethod() = default;
     virtual QByteArray commandLine(QAbstractSocket::NetworkLayerProtocol protocol) const = 0;
     virtual QList<Utils::Port> usedPorts(const QByteArray &commandOutput) const = 0;
+};
+
+class PROJECTEXPLORER_EXPORT HostName
+{
+public:
+    explicit HostName(const QString &host) : m_host(host) {}
+    QString host() const { return m_host; }
+
+private:
+    QString m_host;
 };
 
 // See cpp file for documentation.
@@ -178,7 +189,8 @@ public:
     QSsh::SshConnectionParameters sshParameters() const;
     void setSshParameters(const QSsh::SshConnectionParameters &sshParameters);
 
-    virtual QString qmlProfilerHost() const;
+    enum ControlChannelHint { QmlControlChannel };
+    virtual Connection toolControlChannel(const ControlChannelHint &) const;
 
     Utils::PortList freePorts() const;
     void setFreePorts(const Utils::PortList &freePorts);

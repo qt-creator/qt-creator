@@ -46,7 +46,7 @@ public:
     ProjectExplorer::DeviceProcessSignalOperation::Ptr signalOperation() const override;
 
     ProjectExplorer::IDevice::Ptr clone() const override;
-    QString qmlProfilerHost() const override;
+    ProjectExplorer::Connection toolControlChannel(const ControlChannelHint &) const override;
 
 protected:
     friend class AndroidDeviceFactory;

@@ -52,7 +52,7 @@ public:
     DeviceProcess *createProcess(QObject *parent) const override;
     DeviceProcessSignalOperation::Ptr signalOperation() const override;
     DeviceEnvironmentFetcher::Ptr environmentFetcher() const override;
-    QString qmlProfilerHost() const override;
+    Connection toolControlChannel(const ControlChannelHint &) const override;
 
     IDevice::Ptr clone() const override;
 
