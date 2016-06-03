@@ -123,10 +123,6 @@ AbstractView *AbstractProperty::view() const
 */
 PropertyName AbstractProperty::name() const
 {
-    if (m_propertyName == "id") { // the ID for a node is independent of the state, so it has to be set with ModelNode::setId
-        Q_ASSERT_X(0, Q_FUNC_INFO, "id is not a property in the model");
-        throw InvalidPropertyException(__LINE__, __FUNCTION__, __FILE__, name());
-    }
     return m_propertyName;
 }
 
@@ -144,7 +140,9 @@ bool AbstractProperty::isValid() const
     return !m_internalNode.isNull() &&
             !m_model.isNull() &&
             m_internalNode->isValid() &&
-            !m_propertyName.isEmpty();
+            !m_propertyName.isEmpty() &&
+            !m_propertyName.contains(' ') &&
+            m_propertyName != "id";
 }
 
  /*!
