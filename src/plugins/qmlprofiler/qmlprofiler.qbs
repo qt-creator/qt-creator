@@ -83,6 +83,7 @@ QtcPlugin {
             "flamegraphview_test.cpp", "flamegraphview_test.h",
             "inputeventsmodel_test.cpp", "inputeventsmodel_test.h",
             "localqmlprofilerrunner_test.cpp", "localqmlprofilerrunner_test.h",
+            "memoryusagemodel_test.cpp", "memoryusagemodel_test.h",
         ]
     }
 }

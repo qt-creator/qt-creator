@@ -4,7 +4,8 @@ SOURCES += \
     $$PWD/flamegraphmodel_test.cpp \
     $$PWD/flamegraphview_test.cpp \
     $$PWD/inputeventsmodel_test.cpp \
-    $$PWD/localqmlprofilerrunner_test.cpp
+    $$PWD/localqmlprofilerrunner_test.cpp \
+    $$PWD/memoryusagemodel_test.cpp
 
 HEADERS += \
     $$PWD/debugmessagesmodel_test.h \
@@ -12,4 +13,5 @@ HEADERS += \
     $$PWD/flamegraphmodel_test.h \
     $$PWD/flamegraphview_test.h \
     $$PWD/inputeventsmodel_test.h \
-    $$PWD/localqmlprofilerrunner_test.h
+    $$PWD/localqmlprofilerrunner_test.h \
+    $$PWD/memoryusagemodel_test.h
