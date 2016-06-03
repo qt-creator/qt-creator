@@ -90,19 +90,18 @@ QVariantList PixmapCacheModel::labels() const
 
     // Cache Size
     QVariantMap element;
-    element.insert(QLatin1String("description"), QVariant(QLatin1String("Cache Size")));
+    element.insert(QLatin1String("description"), tr("Cache Size"));
 
-    element.insert(QLatin1String("id"), QVariant(0));
+    element.insert(QLatin1String("id"), 0);
     result << element;
 
-    for (int i=0; i < m_pixmaps.count(); i++) {
+    for (int i = 0; i < m_pixmaps.count(); ++i) {
         // Loading
         QVariantMap element;
         element.insert(QLatin1String("displayName"), m_pixmaps[i].url);
-        element.insert(QLatin1String("description"),
-                       QVariant(getFilenameOnly(m_pixmaps[i].url)));
+        element.insert(QLatin1String("description"), getFilenameOnly(m_pixmaps[i].url));
 
-        element.insert(QLatin1String("id"), QVariant(i+1));
+        element.insert(QLatin1String("id"), QVariant(i + 1));
         result << element;
     }
 
@@ -117,11 +116,9 @@ QVariantMap PixmapCacheModel::details(int index) const
     if (ev->pixmapEventType == PixmapCacheCountChanged) {
         result.insert(QLatin1String("displayName"), tr("Image Cached"));
     } else {
-        if (ev->pixmapEventType == PixmapLoadingStarted) {
-            result.insert(QLatin1String("displayName"), tr("Image Loaded"));
-            if (m_pixmaps[ev->urlIndex].sizes[ev->sizeIndex].loadState != Finished)
-                result.insert(tr("Result"), tr("Load Error"));
-        }
+        result.insert(QLatin1String("displayName"), tr("Image Loaded"));
+        if (m_pixmaps[ev->urlIndex].sizes[ev->sizeIndex].loadState != Finished)
+            result.insert(tr("Result"), tr("Load Error"));
         result.insert(tr("Duration"), QmlProfilerDataModel::formatTime(duration(index)));
     }
 
@@ -170,9 +167,9 @@ void PixmapCacheModel::loadEvent(const QmlEvent &event, const QmlEventType &type
     qint64 pixmapStartTime = event.timestamp();
 
     newEvent.urlIndex = -1;
-    for (QVector<Pixmap>::const_iterator it(m_pixmaps.cend()); it != m_pixmaps.cbegin();) {
-        if ((--it)->url == type.location.filename) {
-            newEvent.urlIndex = it - m_pixmaps.cbegin();
+    for (auto i = m_pixmaps.cend(), begin = m_pixmaps.cbegin(); i != begin;) {
+        if ((--i)->url == type.location.filename) {
+            newEvent.urlIndex = i - m_pixmaps.cbegin();
             break;
         }
     }
@@ -188,8 +185,7 @@ void PixmapCacheModel::loadEvent(const QmlEvent &event, const QmlEventType &type
     case PixmapSizeKnown: {// pixmap size
         // Look for pixmaps for which we don't know the size, yet and which have actually been
         // loaded.
-        for (QVector<PixmapState>::iterator i(pixmap.sizes.begin());
-                i != pixmap.sizes.end(); ++i) {
+        for (auto i = pixmap.sizes.begin(), end = pixmap.sizes.end(); i != end; ++i) {
             if (i->size.isValid() || i->cacheState == Uncacheable || i->cacheState == Corrupt)
                 continue;
 
@@ -225,8 +221,7 @@ void PixmapCacheModel::loadEvent(const QmlEvent &event, const QmlEventType &type
 
         // First try to find a preferred pixmap, which either is Corrupt and will be uncached
         // or is uncached and will be cached.
-        for (QVector<PixmapState>::iterator i(pixmap.sizes.begin());
-                i != pixmap.sizes.end(); ++i) {
+        for (auto i = pixmap.sizes.begin(), end = pixmap.sizes.end(); i != end; ++i) {
             if (uncache && i->cacheState == Corrupt) {
                 newEvent.sizeIndex = i - pixmap.sizes.begin();
                 i->cacheState = Uncacheable;
@@ -247,16 +242,15 @@ void PixmapCacheModel::loadEvent(const QmlEvent &event, const QmlEventType &type
         // Error pixmaps that become corrupt cache entries. We also accept Initial to be
         // uncached as we may have missed the matching PixmapCacheCountChanged that cached it.
         if (newEvent.sizeIndex == -1) {
-            for (QVector<PixmapState>::iterator i(pixmap.sizes.begin());
-                    i != pixmap.sizes.end(); ++i) {
-                if (uncache && (i->cacheState == Cached || i->cacheState == ToBeCached ||
-                                i->cacheState == Uncached)) {
+            for (auto i = pixmap.sizes.begin(), end = pixmap.sizes.end(); i != end; ++i) {
+                if (uncache && (i->cacheState == Cached || i->cacheState == ToBeCached)) {
                     newEvent.sizeIndex = i - pixmap.sizes.begin();
                     if (i->size.isValid())
                         pixSize = -i->size.width() * i->size.height();
                     i->cacheState = Uncached;
                     break;
                 } else if (!uncache && i->cacheState == Uncacheable) {
+                    // A pixmap can repeatedly be cached, become corrupt, and the be uncached again.
                     newEvent.sizeIndex = i - pixmap.sizes.begin();
                     i->cacheState = Corrupt;
                     break;
@@ -268,17 +262,17 @@ void PixmapCacheModel::loadEvent(const QmlEvent &event, const QmlEventType &type
         if (newEvent.sizeIndex == -1) {
             newEvent.sizeIndex = pixmap.sizes.length();
             pixmap.sizes << PixmapState(uncache ? Uncached : ToBeCached);
+            // now the size is 0. Thus, there is no point in updating the size row.
+        } else if (pixSize != 0) {
+            m_lastCacheSizeEvent = updateCacheCount(m_lastCacheSizeEvent, pixmapStartTime, pixSize,
+                                                    newEvent, event.typeIndex());
         }
-
-        m_lastCacheSizeEvent = updateCacheCount(m_lastCacheSizeEvent, pixmapStartTime, pixSize,
-                                              newEvent, event.typeIndex());
         break;
     }
     case PixmapLoadingStarted: { // Load
         // Look for a pixmap that hasn't been started, yet. There may have been a refcount
         // event, which we ignore.
-        for (QVector<PixmapState>::const_iterator i(pixmap.sizes.cbegin());
-                i != pixmap.sizes.cend(); ++i) {
+        for (auto i = pixmap.sizes.cbegin(), end = pixmap.sizes.cend(); i != end; ++i) {
             if (i->loadState == Initial) {
                 newEvent.sizeIndex = i - pixmap.sizes.cbegin();
                 break;
@@ -299,8 +293,7 @@ void PixmapCacheModel::loadEvent(const QmlEvent &event, const QmlEventType &type
     case PixmapLoadingFinished:
     case PixmapLoadingError: {
         // First try to find one that has already started
-        for (QVector<PixmapState>::const_iterator i(pixmap.sizes.cbegin());
-                i != pixmap.sizes.cend(); ++i) {
+        for (auto i = pixmap.sizes.cbegin(), end = pixmap.sizes.cend(); i != end; ++i) {
             if (i->loadState != Loading)
                 continue;
             // Pixmaps with known size cannot be errors and vice versa
@@ -313,8 +306,7 @@ void PixmapCacheModel::loadEvent(const QmlEvent &event, const QmlEventType &type
 
         // If none was found use any other compatible one
         if (newEvent.sizeIndex == -1) {
-            for (QVector<PixmapState>::const_iterator i(pixmap.sizes.cbegin());
-                    i != pixmap.sizes.cend(); ++i) {
+            for (auto i = pixmap.sizes.cbegin(), end = pixmap.sizes.cend(); i != end; ++i) {
                 if (i->loadState != Initial)
                     continue;
                 // Pixmaps with known size cannot be errors and vice versa
@@ -372,7 +364,7 @@ void PixmapCacheModel::loadEvent(const QmlEvent &event, const QmlEventType &type
                 // Cached cannot happen as size would have to be known and Corrupt or
                 // Uncacheable cannot happen as we only accept one finish or error event per
                 // pixmap.
-                Q_ASSERT(false);
+                Q_UNREACHABLE();
             }
         } else {
             state.loadState = Finished;
