@@ -60,7 +60,7 @@ void QbsLogSink::sendMessages()
     }
 
     foreach (const QString &msg, toSend)
-        Core::MessageManager::write(msg);
+        Core::MessageManager::write(msg, Core::MessageManager::Silent);
 }
 
 void QbsLogSink::doPrintWarning(const qbs::ErrorInfo &warning)
