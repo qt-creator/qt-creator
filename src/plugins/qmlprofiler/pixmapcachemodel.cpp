@@ -163,7 +163,8 @@ QVariantMap PixmapCacheModel::details(int index) const
 void PixmapCacheModel::loadEvent(const QmlEvent &event, const QmlEventType &type)
 {
     PixmapCacheItem newEvent;
-    newEvent.pixmapEventType = static_cast<PixmapEventType>(type.detailType);
+    const PixmapEventType pixmapType = static_cast<PixmapEventType>(type.detailType);
+    newEvent.pixmapEventType = pixmapType;
     qint64 pixmapStartTime = event.timestamp();
 
     newEvent.urlIndex = -1;
@@ -181,7 +182,7 @@ void PixmapCacheModel::loadEvent(const QmlEvent &event, const QmlEventType &type
     }
 
     Pixmap &pixmap = m_pixmaps[newEvent.urlIndex];
-    switch (newEvent.pixmapEventType) {
+    switch (pixmapType) {
     case PixmapSizeKnown: {// pixmap size
         // Look for pixmaps for which we don't know the size, yet and which have actually been
         // loaded.
@@ -297,7 +298,7 @@ void PixmapCacheModel::loadEvent(const QmlEvent &event, const QmlEventType &type
             if (i->loadState != Loading)
                 continue;
             // Pixmaps with known size cannot be errors and vice versa
-            if (newEvent.pixmapEventType == PixmapLoadingError && i->size.isValid())
+            if (pixmapType == PixmapLoadingError && i->size.isValid())
                 continue;
 
             newEvent.sizeIndex = i - pixmap.sizes.cbegin();
@@ -310,7 +311,7 @@ void PixmapCacheModel::loadEvent(const QmlEvent &event, const QmlEventType &type
                 if (i->loadState != Initial)
                     continue;
                 // Pixmaps with known size cannot be errors and vice versa
-                if (newEvent.pixmapEventType == PixmapLoadingError && i->size.isValid())
+                if (pixmapType == PixmapLoadingError && i->size.isValid())
                     continue;
 
                 newEvent.sizeIndex = i - pixmap.sizes.cbegin();
@@ -351,7 +352,7 @@ void PixmapCacheModel::loadEvent(const QmlEvent &event, const QmlEventType &type
         }
 
         insertEnd(state.started, pixmapStartTime - startTime(state.started));
-        if (newEvent.pixmapEventType == PixmapLoadingError) {
+        if (pixmapType == PixmapLoadingError) {
             state.loadState = Error;
             switch (state.cacheState) {
             case Uncached:
