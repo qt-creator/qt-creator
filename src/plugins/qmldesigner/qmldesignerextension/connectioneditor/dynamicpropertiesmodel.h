@@ -25,15 +25,13 @@
 
 #pragma once
 
+#include <modelnode.h>
+#include <bindingproperty.h>
+#include <variantproperty.h>
+
 #include <QStandardItemModel>
 
 namespace QmlDesigner {
-
-class Model;
-class ModelNode;
-class BindingProperty;
-class VariantProperty;
-class AbstractProperty;
 
 namespace Internal {
 
