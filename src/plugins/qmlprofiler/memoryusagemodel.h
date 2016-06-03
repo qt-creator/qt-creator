@@ -67,7 +67,6 @@ public:
     QVariantList labels() const override;
     QVariantMap details(int index) const override;
 
-protected:
     bool accepted(const QmlEventType &type) const override;
     void loadEvent(const QmlEvent &event, const QmlEventType &type) override;
     void finalize() override;
@@ -81,8 +80,6 @@ private:
         int originTypeIndex;
         qint64 startTime;
     };
-
-    static QString memoryTypeName(int type);
 
     QVector<MemoryAllocationItem> m_data;
     QStack<RangeStackFrame> m_rangeStack;

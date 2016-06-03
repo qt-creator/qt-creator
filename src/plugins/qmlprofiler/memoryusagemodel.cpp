@@ -71,20 +71,7 @@ float MemoryUsageModel::relativeHeight(int index) const
 
 QVariantMap MemoryUsageModel::location(int index) const
 {
-    static const QLatin1String file("file");
-    static const QLatin1String line("line");
-    static const QLatin1String column("column");
-
-    QVariantMap result;
-
-    const QmlEventLocation &location =
-            modelManager()->qmlModel()->eventTypes().at(m_data[index].typeId).location;
-
-    result.insert(file, location.filename);
-    result.insert(line, location.line);
-    result.insert(column, location.column);
-
-    return result;
+    return locationFromTypeId(index);
 }
 
 QVariantList MemoryUsageModel::labels() const
@@ -92,13 +79,13 @@ QVariantList MemoryUsageModel::labels() const
     QVariantList result;
 
     QVariantMap element;
-    element.insert(QLatin1String("description"), QVariant(tr("Memory Allocation")));
-    element.insert(QLatin1String("id"), QVariant(HeapPage));
+    element.insert(QLatin1String("description"), tr("Memory Allocation"));
+    element.insert(QLatin1String("id"), HeapPage);
     result << element;
 
     element.clear();
-    element.insert(QLatin1String("description"), QVariant(tr("Memory Usage")));
-    element.insert(QLatin1String("id"), QVariant(SmallItem));
+    element.insert(QLatin1String("description"), tr("Memory Usage"));
+    element.insert(QLatin1String("id"), SmallItem);
     result << element;
 
     return result;
@@ -114,16 +101,23 @@ QVariantMap MemoryUsageModel::details(int index) const
     else
         result.insert(QLatin1String("displayName"), tr("Memory Freed"));
 
-    result.insert(tr("Total"), QString::fromLatin1("%1 bytes").arg(ev->size));
+    result.insert(tr("Total"), tr("%1 bytes").arg(ev->size));
     if (ev->allocations > 0) {
-        result.insert(tr("Allocated"), QString::fromLatin1("%1 bytes").arg(ev->allocated));
+        result.insert(tr("Allocated"), tr("%1 bytes").arg(ev->allocated));
         result.insert(tr("Allocations"), QString::number(ev->allocations));
     }
     if (ev->deallocations > 0) {
-        result.insert(tr("Deallocated"), QString::fromLatin1("%1 bytes").arg(-ev->deallocated));
+        result.insert(tr("Deallocated"), tr("%1 bytes").arg(-ev->deallocated));
         result.insert(tr("Deallocations"), QString::number(ev->deallocations));
     }
-    result.insert(tr("Type"), QVariant(memoryTypeName(selectionId(index))));
+    QString memoryTypeName;
+    switch (selectionId(index)) {
+    case HeapPage:  memoryTypeName = tr("Heap Allocation"); break;
+    case LargeItem: memoryTypeName = tr("Large Item Allocation"); break;
+    case SmallItem: memoryTypeName = tr("Heap Usage"); break;
+    default: Q_UNREACHABLE();
+    }
+    result.insert(tr("Type"), memoryTypeName);
 
     result.insert(tr("Location"),
                   modelManager()->qmlModel()->eventTypes().at(ev->typeId).displayName);
@@ -223,17 +217,6 @@ void MemoryUsageModel::clear()
     m_currentJSHeapIndex = -1;
     m_rangeStack.clear();
     QmlProfilerTimelineModel::clear();
-}
-
-QString MemoryUsageModel::memoryTypeName(int type)
-{
-    switch (type) {
-    case HeapPage: return tr("Heap Allocation");
-    case LargeItem: return tr("Large Item Allocation");
-    case SmallItem: return tr("Heap Usage");
-    case MaximumMemoryType: return tr("Total");
-    default: return tr("Unknown");
-    }
 }
 
 MemoryUsageModel::MemoryAllocationItem::MemoryAllocationItem(int typeId, qint64 baseAmount) :
