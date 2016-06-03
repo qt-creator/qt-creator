@@ -37,6 +37,7 @@
 #include "tests/inputeventsmodel_test.h"
 #include "tests/localqmlprofilerrunner_test.h"
 #include "tests/memoryusagemodel_test.h"
+#include "tests/pixmapcachemodel_test.h"
 #endif
 
 #include <extensionsystem/pluginmanager.h>
@@ -91,6 +92,7 @@ QList<QObject *> QmlProfiler::Internal::QmlProfilerPlugin::createTestObjects() c
     tests << new InputEventsModelTest;
     tests << new LocalQmlProfilerRunnerTest;
     tests << new MemoryUsageModelTest;
+    tests << new PixmapCacheModelTest;
 #endif
     return tests;
 }

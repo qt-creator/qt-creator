@@ -44,14 +44,18 @@ public:
         ToBeCached,  // After determining the pixmap is to be cached but before knowing its size
         Cached,      // After caching a pixmap or determining the size of a ToBeCached pixmap
         Uncacheable, // If loading failed without ToBeCached or after a corrupt pixmap has been uncached
-        Corrupt      // If after ToBeCached we learn that loading failed
+        Corrupt,     // If after ToBeCached we learn that loading failed
+
+        MaximumCacheState
     };
 
     enum LoadState {
         Initial,
         Loading,
         Finished,
-        Error
+        Error,
+
+        MaximumLoadState
     };
 
     struct PixmapState {
@@ -105,10 +109,14 @@ public:
 
     QVariantMap details(int index) const override;
 
-protected:
     void loadEvent(const QmlEvent &event, const QmlEventType &type) override;
     void finalize() override;
     void clear() override;
+
+#ifdef WITH_TESTS
+    LoadState loadState(int index) const;
+    CacheState cacheState(int index) const;
+#endif
 
 private:
     void computeMaxCacheSize();

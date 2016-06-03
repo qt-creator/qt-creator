@@ -84,6 +84,7 @@ QtcPlugin {
             "inputeventsmodel_test.cpp", "inputeventsmodel_test.h",
             "localqmlprofilerrunner_test.cpp", "localqmlprofilerrunner_test.h",
             "memoryusagemodel_test.cpp", "memoryusagemodel_test.h",
+            "pixmapcachemodel_test.cpp", "pixmapcachemodel_test.h",
         ]
     }
 }

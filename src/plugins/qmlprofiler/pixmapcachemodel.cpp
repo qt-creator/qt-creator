@@ -400,6 +400,26 @@ void PixmapCacheModel::clear()
     QmlProfilerTimelineModel::clear();
 }
 
+#ifdef WITH_TESTS
+PixmapCacheModel::LoadState PixmapCacheModel::loadState(int index) const
+{
+    const PixmapCacheItem &item = m_data[index];
+    if (item.urlIndex == -1 || item.sizeIndex == -1)
+        return MaximumLoadState;
+
+    return m_pixmaps[item.urlIndex].sizes[item.sizeIndex].loadState;
+}
+
+PixmapCacheModel::CacheState PixmapCacheModel::cacheState(int index) const
+{
+    const PixmapCacheItem &item = m_data[index];
+    if (item.urlIndex == -1 || item.sizeIndex == -1)
+        return MaximumCacheState;
+
+    return m_pixmaps[item.urlIndex].sizes[item.sizeIndex].cacheState;
+}
+#endif // WITH_TESTS
+
 void PixmapCacheModel::computeMaxCacheSize()
 {
     foreach (const PixmapCacheModel::PixmapCacheItem &event, m_data) {
