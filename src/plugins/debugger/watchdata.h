@@ -53,7 +53,6 @@ public:
 
     QString expression() const;
     QString realName() const;
-    quint64 realAddress() const;
     QByteArray internalName() const;
     QString toToolTip() const;
 

@@ -325,61 +325,75 @@ QString decodeItemHelper(const double &t)
     return QString::number(t, 'g', 16);
 }
 
-template <class T>
-void decodeArrayHelper(WatchItem *item, const QByteArray &rawData, int size, const QByteArray &childType)
+class ArrayDataDecoder
 {
-    const QByteArray ba = QByteArray::fromHex(rawData);
-    const T *p = (const T *) ba.data();
-    for (int i = 0, n = ba.size() / sizeof(T); i < n; ++i) {
-        WatchItem *child = new WatchItem;
-        child->arrayIndex = i;
-        child->value = decodeItemHelper(p[i]);
-        child->size = size;
-        child->type = childType;
-        child->setAllUnneeded();
-        item->appendChild(child);
+public:
+    template <class T>
+    void decodeArrayHelper(int childSize)
+    {
+        const QByteArray ba = QByteArray::fromHex(rawData);
+        const T *p = (const T *) ba.data();
+        for (int i = 0, n = ba.size() / sizeof(T); i < n; ++i) {
+            WatchItem *child = new WatchItem;
+            child->arrayIndex = i;
+            child->value = decodeItemHelper(p[i]);
+            child->size = childSize;
+            child->type = childType;
+            child->address = addrbase + i * addrstep;
+            child->valueEditable = true;
+            child->setAllUnneeded();
+            item->appendChild(child);
+        }
     }
-}
 
-static void decodeArrayData(WatchItem *item, const QByteArray &rawData,
-    const DebuggerEncoding &encoding, const QByteArray &childType)
-{
-    switch (encoding.type) {
-        case DebuggerEncoding::HexEncodedSignedInteger:
-            switch (encoding.size) {
-                case 1:
-                    return decodeArrayHelper<signed char>(item, rawData, encoding.size, childType);
-                case 2:
-                    return decodeArrayHelper<short>(item, rawData, encoding.size, childType);
-                case 4:
-                    return decodeArrayHelper<int>(item, rawData, encoding.size, childType);
-                case 8:
-                    return decodeArrayHelper<qint64>(item, rawData, encoding.size, childType);
-            }
-        case DebuggerEncoding::HexEncodedUnsignedInteger:
-            switch (encoding.size) {
-                case 1:
-                    return decodeArrayHelper<uchar>(item, rawData, encoding.size, childType);
-                case 2:
-                    return decodeArrayHelper<ushort>(item, rawData, encoding.size, childType);
-                case 4:
-                    return decodeArrayHelper<uint>(item, rawData, encoding.size, childType);
-                case 8:
-                    return decodeArrayHelper<quint64>(item, rawData, encoding.size, childType);
-            }
-            break;
-        case DebuggerEncoding::HexEncodedFloat:
-            switch (encoding.size) {
-                case 4:
-                    return decodeArrayHelper<float>(item, rawData, encoding.size, childType);
-                case 8:
-                    return decodeArrayHelper<double>(item, rawData, encoding.size, childType);
-            }
-        default:
-            break;
+    void decode()
+    {
+        if (addrstep == 0)
+            addrstep = encoding.size;
+        switch (encoding.type) {
+            case DebuggerEncoding::HexEncodedSignedInteger:
+                switch (encoding.size) {
+                    case 1:
+                        return decodeArrayHelper<signed char>(encoding.size);
+                    case 2:
+                        return decodeArrayHelper<short>(encoding.size);
+                    case 4:
+                        return decodeArrayHelper<int>(encoding.size);
+                    case 8:
+                        return decodeArrayHelper<qint64>(encoding.size);
+                }
+            case DebuggerEncoding::HexEncodedUnsignedInteger:
+                switch (encoding.size) {
+                    case 1:
+                        return decodeArrayHelper<uchar>(encoding.size);
+                    case 2:
+                        return decodeArrayHelper<ushort>(encoding.size);
+                    case 4:
+                        return decodeArrayHelper<uint>(encoding.size);
+                    case 8:
+                        return decodeArrayHelper<quint64>(encoding.size);
+                }
+                break;
+            case DebuggerEncoding::HexEncodedFloat:
+                switch (encoding.size) {
+                    case 4:
+                        return decodeArrayHelper<float>(encoding.size);
+                    case 8:
+                        return decodeArrayHelper<double>(encoding.size);
+                }
+            default:
+                break;
+        }
+        qDebug() << "ENCODING ERROR: " << encoding.toString();
     }
-    qDebug() << "ENCODING ERROR: " << encoding.toString();
-}
+
+    WatchItem *item;
+    QByteArray rawData;
+    QByteArray childType;
+    DebuggerEncoding encoding;
+    quint64 addrbase;
+    quint64 addrstep;
+};
 
 static bool sortByName(const Utils::TreeItem *a, const Utils::TreeItem *b)
 {
@@ -474,9 +488,14 @@ void WatchItem::parseHelper(const GdbMi &input, bool maySort)
 
     mi = input["arraydata"];
     if (mi.isValid()) {
-        DebuggerEncoding encoding(input["arrayencoding"].data());
-        QByteArray childType = input["childtype"].data();
-        decodeArrayData(this, mi.data(), encoding, childType);
+        ArrayDataDecoder decoder;
+        decoder.item = this;
+        decoder.rawData = mi.data();
+        decoder.childType = input["childtype"].data();
+        decoder.addrbase = input["addrbase"].toAddress();
+        decoder.addrstep = input["addrstep"].toAddress();
+        decoder.encoding = DebuggerEncoding(input["arrayencoding"].data());
+        decoder.decode();
     } else {
         const GdbMi children = input["children"];
         if (children.isValid()) {
@@ -511,7 +530,8 @@ void WatchItem::parseHelper(const GdbMi &input, bool maySort)
                     child->iname = this->iname + '.' + nn;
                 if (addressStep) {
                     child->address = addressBase + i * addressStep;
-                    child->exp = "*(" + gdbQuoteTypes(child->type) + "*)" + child->hexAddress();
+                    child->exp = "*(" + gdbQuoteTypes(child->type) + "*)0x"
+                                      + QByteArray::number(child->address, 16);
                 }
                 QByteArray key = subinput["key"].data();
                 if (!key.isEmpty())
@@ -582,8 +602,8 @@ QString WatchItem::toToolTip() const
         }
         formatToolTipRow(str, tr("Value"), val);
     }
-    if (realAddress())
-        formatToolTipRow(str, tr("Object Address"), formatToolTipAddress(realAddress()));
+    if (address)
+        formatToolTipRow(str, tr("Object Address"), formatToolTipAddress(address));
     if (origaddr)
         formatToolTipRow(str, tr("Pointer Address"), formatToolTipAddress(origaddr));
     if (arrayIndex >= 0)
@@ -619,15 +639,6 @@ bool WatchItem::isInspect() const
     return iname.startsWith("inspect.");
 }
 
-quint64 WatchItem::realAddress() const
-{
-    if (arrayIndex >= 0) {
-        if (const WatchItem *p = parentItem())
-            return p->address + arrayIndex * size;
-    }
-    return address;
-}
-
 QByteArray WatchItem::internalName() const
 {
     if (arrayIndex >= 0) {
@@ -648,7 +659,7 @@ QString WatchItem::expression() const
 {
     if (!exp.isEmpty())
          return QString::fromLatin1(exp);
-    if (quint64 addr = realAddress()) {
+    if (quint64 addr = address) {
         if (!type.isEmpty())
             return QString::fromLatin1("*(%1*)0x%2").arg(QLatin1String(type)).arg(addr, 0, 16);
     }
