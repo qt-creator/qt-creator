@@ -1273,6 +1273,144 @@ void EditorManagerPrivate::closeEditorOrDocument(IEditor *editor)
     }
 }
 
+bool EditorManagerPrivate::closeEditors(const QList<IEditor*> &editors, bool askAboutModifiedEditors)
+{
+    if (editors.isEmpty())
+        return true;
+    bool closingFailed = false;
+    // close Editor History list
+    windowPopup()->setVisible(false);
+
+
+    EditorView *currentView = currentEditorView();
+
+    // go through all editors to close and
+    // 1. ask all core listeners to check whether the editor can be closed
+    // 2. keep track of the document and all the editors that might remain open for it
+    QSet<IEditor*> acceptedEditors;
+    QMap<IDocument *, QList<IEditor *> > documentMap;
+    foreach (IEditor *editor, editors) {
+        bool editorAccepted = true;
+        foreach (const std::function<bool(IEditor*)> listener, d->m_closeEditorListeners) {
+            if (!listener(editor)) {
+                editorAccepted = false;
+                closingFailed = true;
+                break;
+            }
+        }
+        if (editorAccepted) {
+            acceptedEditors.insert(editor);
+            IDocument *document = editor->document();
+            if (!documentMap.contains(document)) // insert the document to track
+                documentMap.insert(document, DocumentModel::editorsForDocument(document));
+            // keep track that we'll close this editor for the document
+            documentMap[document].removeAll(editor);
+        }
+    }
+    if (acceptedEditors.isEmpty())
+        return false;
+
+    //ask whether to save modified documents that we are about to close
+    if (askAboutModifiedEditors) {
+        // Check for which documents we will close all editors, and therefore might have to ask the user
+        QList<IDocument *> documentsToClose;
+        for (auto i = documentMap.constBegin(); i != documentMap.constEnd(); ++i) {
+            if (i.value().isEmpty())
+                documentsToClose.append(i.key());
+        }
+
+        bool cancelled = false;
+        QList<IDocument *> rejectedList;
+        DocumentManager::saveModifiedDocuments(documentsToClose, QString(), &cancelled,
+                                               QString(), 0, &rejectedList);
+        if (cancelled)
+            return false;
+        if (!rejectedList.isEmpty()) {
+            closingFailed = true;
+            QSet<IEditor*> skipSet = DocumentModel::editorsForDocuments(rejectedList).toSet();
+            acceptedEditors = acceptedEditors.subtract(skipSet);
+        }
+    }
+    if (acceptedEditors.isEmpty())
+        return false;
+
+    QList<EditorView*> closedViews;
+    EditorView *focusView = 0;
+
+    // remove the editors
+    foreach (IEditor *editor, acceptedEditors) {
+        emit m_instance->editorAboutToClose(editor);
+        if (!editor->document()->filePath().isEmpty()
+                && !editor->document()->isTemporary()) {
+            QByteArray state = editor->saveState();
+            if (!state.isEmpty())
+                d->m_editorStates.insert(editor->document()->filePath().toString(), QVariant(state));
+        }
+
+        removeEditor(editor);
+        if (EditorView *view = viewForEditor(editor)) {
+            if (qApp->focusWidget() && qApp->focusWidget() == editor->widget()->focusWidget())
+                focusView = view;
+            if (editor == view->currentEditor())
+                closedViews += view;
+            if (d->m_currentEditor == editor) {
+                // avoid having a current editor without view
+                setCurrentView(view);
+                setCurrentEditor(0);
+            }
+            view->removeEditor(editor);
+        }
+    }
+
+    // TODO doesn't work as expected with multiple areas in main window and some other cases
+    // instead each view should have its own file history and handle solely themselves
+    // which editor is shown if their current editor closes
+    EditorView *forceViewToShowEditor = 0;
+    if (!closedViews.isEmpty() && EditorManager::visibleEditors().isEmpty()) {
+        if (closedViews.contains(currentView))
+            forceViewToShowEditor = currentView;
+        else
+            forceViewToShowEditor = closedViews.first();
+    }
+    foreach (EditorView *view, closedViews) {
+        IEditor *newCurrent = view->currentEditor();
+        if (!newCurrent && forceViewToShowEditor == view)
+            newCurrent = pickUnusedEditor();
+        if (newCurrent) {
+            activateEditor(view, newCurrent, EditorManager::DoNotChangeCurrentEditor);
+        } else if (forceViewToShowEditor == view) {
+            DocumentModel::Entry *entry = DocumentModelPrivate::firstSuspendedEntry();
+            if (entry) {
+                activateEditorForEntry(view, entry, EditorManager::DoNotChangeCurrentEditor);
+            } else { // no "suspended" ones, so any entry left should have a document
+                const QList<DocumentModel::Entry *> documents = DocumentModel::entries();
+                if (!documents.isEmpty()) {
+                    if (IDocument *document = documents.last()->document) {
+                        activateEditorForDocument(view, document, EditorManager::DoNotChangeCurrentEditor);
+                    }
+                }
+            }
+        }
+    }
+
+    emit m_instance->editorsClosed(acceptedEditors.toList());
+
+    foreach (IEditor *editor, acceptedEditors)
+        delete editor;
+
+    if (focusView)
+        activateView(focusView);
+    else
+        setCurrentEditor(currentView->currentEditor());
+
+    if (!EditorManager::currentEditor()) {
+        emit m_instance->currentEditorChanged(0);
+        updateActions();
+    }
+
+    return !closingFailed;
+}
+
 void EditorManagerPrivate::activateView(EditorView *view)
 {
     QTC_ASSERT(view, return);
@@ -2318,141 +2456,7 @@ void EditorManager::closeDocument(DocumentModel::Entry *entry)
 
 bool EditorManager::closeEditors(const QList<IEditor*> &editorsToClose, bool askAboutModifiedEditors)
 {
-    if (editorsToClose.isEmpty())
-        return true;
-    bool closingFailed = false;
-    // close Editor History list
-    EditorManagerPrivate::windowPopup()->setVisible(false);
-
-
-    EditorView *currentView = EditorManagerPrivate::currentEditorView();
-
-    // go through all editors to close and
-    // 1. ask all core listeners to check whether the editor can be closed
-    // 2. keep track of the document and all the editors that might remain open for it
-    QSet<IEditor*> acceptedEditors;
-    QMap<IDocument *, QList<IEditor *> > documentMap;
-    foreach (IEditor *editor, editorsToClose) {
-        bool editorAccepted = true;
-        foreach (const std::function<bool(IEditor*)> listener, d->m_closeEditorListeners) {
-            if (!listener(editor)) {
-                editorAccepted = false;
-                closingFailed = true;
-                break;
-            }
-        }
-        if (editorAccepted) {
-            acceptedEditors.insert(editor);
-            IDocument *document = editor->document();
-            if (!documentMap.contains(document)) // insert the document to track
-                documentMap.insert(document, DocumentModel::editorsForDocument(document));
-            // keep track that we'll close this editor for the document
-            documentMap[document].removeAll(editor);
-        }
-    }
-    if (acceptedEditors.isEmpty())
-        return false;
-
-    //ask whether to save modified documents that we are about to close
-    if (askAboutModifiedEditors) {
-        // Check for which documents we will close all editors, and therefore might have to ask the user
-        QList<IDocument *> documentsToClose;
-        for (auto i = documentMap.constBegin(); i != documentMap.constEnd(); ++i) {
-            if (i.value().isEmpty())
-                documentsToClose.append(i.key());
-        }
-
-        bool cancelled = false;
-        QList<IDocument *> rejectedList;
-        DocumentManager::saveModifiedDocuments(documentsToClose, QString(), &cancelled,
-                                               QString(), 0, &rejectedList);
-        if (cancelled)
-            return false;
-        if (!rejectedList.isEmpty()) {
-            closingFailed = true;
-            QSet<IEditor*> skipSet = DocumentModel::editorsForDocuments(rejectedList).toSet();
-            acceptedEditors = acceptedEditors.subtract(skipSet);
-        }
-    }
-    if (acceptedEditors.isEmpty())
-        return false;
-
-    QList<EditorView*> closedViews;
-    EditorView *focusView = 0;
-
-    // remove the editors
-    foreach (IEditor *editor, acceptedEditors) {
-        emit m_instance->editorAboutToClose(editor);
-        if (!editor->document()->filePath().isEmpty()
-                && !editor->document()->isTemporary()) {
-            QByteArray state = editor->saveState();
-            if (!state.isEmpty())
-                d->m_editorStates.insert(editor->document()->filePath().toString(), QVariant(state));
-        }
-
-        EditorManagerPrivate::removeEditor(editor);
-        if (EditorView *view = EditorManagerPrivate::viewForEditor(editor)) {
-            if (qApp->focusWidget() && qApp->focusWidget() == editor->widget()->focusWidget())
-                focusView = view;
-            if (editor == view->currentEditor())
-                closedViews += view;
-            if (d->m_currentEditor == editor) {
-                // avoid having a current editor without view
-                EditorManagerPrivate::setCurrentView(view);
-                EditorManagerPrivate::setCurrentEditor(0);
-            }
-            view->removeEditor(editor);
-        }
-    }
-
-    // TODO doesn't work as expected with multiple areas in main window and some other cases
-    // instead each view should have its own file history and handle solely themselves
-    // which editor is shown if their current editor closes
-    EditorView *forceViewToShowEditor = 0;
-    if (!closedViews.isEmpty() && visibleEditors().isEmpty()) {
-        if (closedViews.contains(currentView))
-            forceViewToShowEditor = currentView;
-        else
-            forceViewToShowEditor = closedViews.first();
-    }
-    foreach (EditorView *view, closedViews) {
-        IEditor *newCurrent = view->currentEditor();
-        if (!newCurrent && forceViewToShowEditor == view)
-            newCurrent = EditorManagerPrivate::pickUnusedEditor();
-        if (newCurrent) {
-            EditorManagerPrivate::activateEditor(view, newCurrent, DoNotChangeCurrentEditor);
-        } else if (forceViewToShowEditor == view) {
-            DocumentModel::Entry *entry = DocumentModelPrivate::firstSuspendedEntry();
-            if (entry) {
-                EditorManagerPrivate::activateEditorForEntry(view, entry, DoNotChangeCurrentEditor);
-            } else { // no "suspended" ones, so any entry left should have a document
-                const QList<DocumentModel::Entry *> documents = DocumentModel::entries();
-                if (!documents.isEmpty()) {
-                    if (IDocument *document = documents.last()->document) {
-                        EditorManagerPrivate::activateEditorForDocument(
-                                    view, document, DoNotChangeCurrentEditor);
-                    }
-                }
-            }
-        }
-    }
-
-    emit m_instance->editorsClosed(acceptedEditors.toList());
-
-    foreach (IEditor *editor, acceptedEditors)
-        delete editor;
-
-    if (focusView)
-        EditorManagerPrivate::activateView(focusView);
-    else
-        EditorManagerPrivate::setCurrentEditor(currentView->currentEditor());
-
-    if (!currentEditor()) {
-        emit m_instance->currentEditorChanged(0);
-        EditorManagerPrivate::updateActions();
-    }
-
-    return !closingFailed;
+    return EditorManagerPrivate::closeEditors(editorsToClose, askAboutModifiedEditors);
 }
 
 void EditorManager::activateEditorForEntry(DocumentModel::Entry *entry, OpenEditorFlags flags)

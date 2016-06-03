@@ -90,6 +90,7 @@ public:
                                        EditorManager::OpenEditorFlags flags = EditorManager::NoFlags);
     /* closes the document if there is no other editor on the document visible */
     static void closeEditorOrDocument(IEditor *editor);
+    static bool closeEditors(const QList<IEditor *> &editors, bool askAboutModifiedEditors);
 
     static EditorView *viewForEditor(IEditor *editor);
     static void setCurrentView(EditorView *view);
