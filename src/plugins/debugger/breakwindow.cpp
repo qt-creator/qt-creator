@@ -47,10 +47,24 @@
 #include <QLineEdit>
 #include <QMenu>
 #include <QSpinBox>
+#include <QStyledItemDelegate>
 #include <QTextEdit>
 
 namespace Debugger {
 namespace Internal {
+
+class LeftElideDelegate : public QStyledItemDelegate
+{
+public:
+    LeftElideDelegate(QObject *parent) : QStyledItemDelegate(parent) {}
+
+    void paint(QPainter *pain, const QStyleOptionViewItem &option, const QModelIndex &index) const override
+    {
+        QStyleOptionViewItem opt = option;
+        opt.textElideMode = Qt::ElideLeft;
+        QStyledItemDelegate::paint(pain, opt, index);
+    }
+};
 
 class SmallTextEdit : public QTextEdit
 {
@@ -681,6 +695,7 @@ BreakTreeView::BreakTreeView()
 {
     setWindowIcon(Icons::BREAKPOINTS.icon());
     setSelectionMode(QAbstractItemView::ExtendedSelection);
+    setItemDelegateForColumn(2, new LeftElideDelegate(this));
     connect(action(UseAddressInBreakpointsView), &QAction::toggled,
             this, &BreakTreeView::showAddressColumn);
 }
