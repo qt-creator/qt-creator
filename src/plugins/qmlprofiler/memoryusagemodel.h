@@ -81,6 +81,12 @@ private:
         qint64 startTime;
     };
 
+    enum EventContinuation {
+        ContinueNothing    = 0x0,
+        ContinueAllocation = 0x1,
+        ContinueUsage      = 0x2
+    };
+
     QVector<MemoryAllocationItem> m_data;
     QStack<RangeStackFrame> m_rangeStack;
     qint64 m_maxSize = 1;
@@ -88,6 +94,8 @@ private:
     qint64 m_currentUsage = 0;
     int m_currentUsageIndex = -1;
     int m_currentJSHeapIndex = -1;
+
+    int m_continuation = ContinueNothing;
 };
 
 } // namespace Internal

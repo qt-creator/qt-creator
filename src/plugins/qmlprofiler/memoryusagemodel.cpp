@@ -27,6 +27,8 @@
 #include "qmlprofilermodelmanager.h"
 #include "qmlprofilereventtypes.h"
 
+#include <utils/qtcassert.h>
+
 namespace QmlProfiler {
 namespace Internal {
 
@@ -137,15 +139,33 @@ void MemoryUsageModel::loadEvent(const QmlEvent &event, const QmlEventType &type
                 m_rangeStack.push(RangeStackFrame(event.typeIndex(), event.timestamp()));
             else if (event.rangeStage() == RangeEnd)
                 m_rangeStack.pop();
+
+            m_continuation = ContinueNothing;
         }
         return;
     }
 
+    auto canContinue = [&](EventContinuation continuation) {
+        QTC_ASSERT(continuation != ContinueNothing, return false);
+        if ((m_continuation & continuation) == 0)
+            return false;
+
+        int currentIndex = (continuation == ContinueAllocation ? m_currentJSHeapIndex :
+                                                                 m_currentUsageIndex);
+
+        if (m_rangeStack.isEmpty()) {
+            qint64 amount = event.number<qint64>(0);
+            // outside of ranges show monotonous allocation or deallocation
+            return (amount >= 0 && m_data[currentIndex].allocated >= 0)
+                    || (amount < 0 && m_data[currentIndex].deallocated > 0);
+        } else {
+            return m_data[currentIndex].typeId == m_rangeStack.top().originTypeIndex
+                    && m_rangeStack.top().startTime < startTime(currentIndex);
+        }
+    };
+
     if (type.detailType == SmallItem || type.detailType == LargeItem) {
-        if (!m_rangeStack.empty() && m_currentUsageIndex > -1 &&
-                type.detailType == selectionId(m_currentUsageIndex) &&
-                m_data[m_currentUsageIndex].typeId == m_rangeStack.top().originTypeIndex &&
-                m_rangeStack.top().startTime < startTime(m_currentUsageIndex)) {
+        if (canContinue(ContinueUsage)) {
             m_data[m_currentUsageIndex].update(event.number<qint64>(0));
             m_currentUsage = m_data[m_currentUsageIndex].size;
         } else {
@@ -162,15 +182,13 @@ void MemoryUsageModel::loadEvent(const QmlEvent &event, const QmlEventType &type
             }
             m_currentUsageIndex = insertStart(event.timestamp(), SmallItem);
             m_data.insert(m_currentUsageIndex, allocation);
+            m_continuation = m_continuation | ContinueUsage;
         }
     }
 
     if (type.detailType == HeapPage || type.detailType == LargeItem) {
-        if (!m_rangeStack.empty() && m_currentJSHeapIndex > -1 &&
-                type.detailType == selectionId(m_currentJSHeapIndex) &&
-                m_data[m_currentJSHeapIndex].typeId ==
-                m_rangeStack.top().originTypeIndex &&
-                m_rangeStack.top().startTime < startTime(m_currentJSHeapIndex)) {
+        if (canContinue(ContinueAllocation)
+                && type.detailType == selectionId(m_currentJSHeapIndex)) {
             m_data[m_currentJSHeapIndex].update(event.number<qint64>(0));
             m_currentSize = m_data[m_currentJSHeapIndex].size;
         } else {
@@ -188,6 +206,7 @@ void MemoryUsageModel::loadEvent(const QmlEvent &event, const QmlEventType &type
                           event.timestamp() - startTime(m_currentJSHeapIndex) - 1);
             m_currentJSHeapIndex = insertStart(event.timestamp(), type.detailType);
             m_data.insert(m_currentJSHeapIndex, allocation);
+            m_continuation = m_continuation | ContinueAllocation;
         }
     }
 }
@@ -215,6 +234,7 @@ void MemoryUsageModel::clear()
     m_currentUsage = 0;
     m_currentUsageIndex = -1;
     m_currentJSHeapIndex = -1;
+    m_continuation = ContinueNothing;
     m_rangeStack.clear();
     QmlProfilerTimelineModel::clear();
 }
