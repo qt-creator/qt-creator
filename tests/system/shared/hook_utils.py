@@ -316,7 +316,8 @@ def __configureFW__(workingDir, projectName, isReleaseBuild, addToFW=True):
     # Needs admin privileges on Windows 7
     # Using the deprecated "netsh firewall" because the newer
     # "netsh advfirewall" would need admin privileges on Windows Vista, too.
-    return subprocess.call('netsh firewall %s allowedprogram "%s.exe" %s %s' % (mode, path, projectName, enable))
+    return subprocess.call(["netsh", "firewall", mode, "allowedprogram",
+                            "%s.exe" % path, projectName, enable])
 
 # helper to check whether win firewall is running or not
 # this doesn't check for other firewalls!
@@ -333,11 +334,6 @@ def __isWinFirewallRunning__():
             return __isWinFirewallRunning__.fireWallState
     return None
 
-def __fixQuotes__(string):
-    if platform.system() in ('Windows', 'Microsoft'):
-        string = '"' + string + '"'
-    return string
-
 # this function adds the given executable as an attachable AUT
 # Bad: executable/port could be empty strings - you should be aware of this
 def addExecutableAsAttachableAUT(executable, port, host=None):
@@ -348,8 +344,8 @@ def addExecutableAsAttachableAUT(executable, port, host=None):
     squishSrv = __getSquishServer__()
     if (squishSrv == None):
         return False
-    result = subprocess.call(__fixQuotes__('"%s" --config addAttachableAUT "%s" %s:%s')
-                             % (squishSrv, executable, host, port), shell=True)
+    result = subprocess.call([squishSrv, "--config", "addAttachableAUT",
+                              executable, "%s:%s" % (host, port)])
     if result == 0:
         test.passes("Added %s as attachable AUT" % executable)
     else:
@@ -366,8 +362,8 @@ def removeExecutableAsAttachableAUT(executable, port, host=None):
     squishSrv = __getSquishServer__()
     if (squishSrv == None):
         return False
-    result = subprocess.call(__fixQuotes__('"%s" --config removeAttachableAUT "%s" %s:%s')
-                             % (squishSrv, executable, host, port), shell=True)
+    result = subprocess.call([squishSrv, "--config", "removeAttachableAUT",
+                              executable, "%s:%s" % (host, port)])
     if result == 0:
         test.passes("Removed %s as attachable AUT" % executable)
     else:

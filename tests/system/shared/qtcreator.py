@@ -99,9 +99,8 @@ def waitForCleanShutdown(timeOut=10):
             # following work-around because os.kill() works for win not until python 2.7
             if appCtxt.pid==-1:
                 break
-            tasks = subprocess.Popen("tasklist /FI \"PID eq %d\"" % appCtxt.pid, shell=True,stdout=subprocess.PIPE)
-            output = tasks.communicate()[0]
-            tasks.stdout.close()
+            output = getOutputFromCmdline(["tasklist", "/FI", "PID eq %d" % appCtxt.pid],
+                                          acceptedError=1)
             if (output=="INFO: No tasks are running which match the specified criteria."
                 or output=="" or output.find("ERROR")==0):
                 shutdownDone=True
@@ -131,14 +130,11 @@ def waitForCleanShutdown(timeOut=10):
 
 def checkForStillRunningQmlExecutable(possibleNames):
     for qmlHelper in possibleNames:
-        tasks = subprocess.Popen("tasklist /FI \"IMAGENAME eq %s\"" % qmlHelper, shell=True,
-                                 stdout=subprocess.PIPE)
-        output = tasks.communicate()[0]
-        tasks.stdout.close()
+        output = getOutputFromCmdline(["tasklist", "/FI", "IMAGENAME eq %s" % qmlHelper])
         if "INFO: No tasks are running which match the specified criteria." in output:
             continue
         else:
-            if subprocess.call("taskkill /F /FI \"IMAGENAME eq %s\"" % qmlHelper, shell=True) == 0:
+            if subprocess.call(["taskkill", "/F", "/FI", "IMAGENAME eq %s" % qmlHelper]) == 0:
                 print "Killed still running %s" % qmlHelper
             else:
                 print "%s is still running - failed to kill it" % qmlHelper

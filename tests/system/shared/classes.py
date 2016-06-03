@@ -23,6 +23,7 @@
 #
 ############################################################################
 
+import __builtin__
 import operator
 
 # for easier re-usage (because Python hasn't an enum type)
@@ -177,26 +178,65 @@ class Qt5Path:
 
     @staticmethod
     def getPaths(pathSpec):
+        qt5targets = [Targets.DESKTOP_521_DEFAULT, Targets.DESKTOP_531_DEFAULT]
+        if platform.system() != 'Darwin':
+            qt5targets.append(Targets.DESKTOP_541_GCC)
         if pathSpec == Qt5Path.DOCS:
-            path52 = "/doc"
-            path53 = "/Docs/Qt-5.3"
-            path54 = "/Docs/Qt-5.4"
+            return map(lambda target: Qt5Path.docsPath(target), qt5targets)
         elif pathSpec == Qt5Path.EXAMPLES:
-            path52 = "/examples"
-            path53 = "/Examples/Qt-5.3"
-            path54 = "/Examples/Qt-5.4"
+            return map(lambda target: Qt5Path.examplesPath(target), qt5targets)
         else:
             test.fatal("Unknown pathSpec given: %s" % str(pathSpec))
             return []
+
+    @staticmethod
+    def __preCheckAndExtractQtVersionStr__(target):
+        if target not in Targets.ALL_TARGETS:
+            raise Exception("Unexpected target '%s'" % str(target))
+
+        matcher = re.match("^Desktop (5\\d{2}).*$", Targets.getStringForTarget(target))
+        if matcher is None:
+            raise Exception("Currently this is supported for Desktop Qt5 only, got target '%s'"
+                            % str(Targets.getStringForTarget(target)))
+        return matcher.group(1)
+
+    @staticmethod
+    def __createPlatformQtPath__(qt5Minor):
+        # special handling for Qt5.2
+        if qt5Minor == 2:
+            if platform.system() in ('Microsoft', 'Windows'):
+                return "C:/Qt/Qt5.2.1/5.2.1/msvc2010"
+            elif platform.system() == 'Linux':
+                if __is64BitOS__():
+                    return os.path.expanduser("~/Qt5.2.1/5.2.1/gcc_64")
+                else:
+                    return os.path.expanduser("~/Qt5.2.1/5.2.1/gcc")
+            else:
+                return os.path.expanduser("~/Qt5.2.1/5.2.1/clang_64")
+        # Qt5.3+
         if platform.system() in ('Microsoft', 'Windows'):
-            return ["C:/Qt/Qt5.2.1/5.2.1/msvc2010" + path52,
-                    "C:/Qt/Qt5.3.1" + path53, "C:/Qt/Qt5.4.1" + path54]
-        elif platform.system() == 'Linux':
-            if __is64BitOS__():
-                return map(os.path.expanduser, ["~/Qt5.2.1/5.2.1/gcc_64" + path52,
-                                                "~/Qt5.3.1" + path53, "~/Qt5.4.1" + path54])
-            return map(os.path.expanduser, ["~/Qt5.2.1/5.2.1/gcc" + path52,
-                                            "~/Qt5.3.1" + path53, "~/Qt5.4.1" + path54])
+            return "C:/Qt/Qt5.%d.1" % qt5Minor
         else:
-            return map(os.path.expanduser, ["~/Qt5.2.1/5.2.1/clang_64" + path52,
-                                            "~/Qt5.3.1" + path53])
+            return os.path.expanduser("~/Qt5.%d.1" % qt5Minor)
+
+    @staticmethod
+    def examplesPath(target):
+        qtVersionStr = Qt5Path.__preCheckAndExtractQtVersionStr__(target)
+        qtMinorVersion = __builtin__.int(qtVersionStr[1])
+        if qtMinorVersion == 2:
+            path = "examples"
+        else:
+            path = "Examples/Qt-5.%d" % qtMinorVersion
+
+        return os.path.join(Qt5Path.__createPlatformQtPath__(qtMinorVersion), path)
+
+    @staticmethod
+    def docsPath(target):
+        qtVersionStr = Qt5Path.__preCheckAndExtractQtVersionStr__(target)
+        qtMinorVersion = __builtin__.int(qtVersionStr[1])
+        if qtMinorVersion == 2:
+            path = "doc"
+        else:
+            path = "Docs/Qt-5.%d" % qtMinorVersion
+
+        return os.path.join(Qt5Path.__createPlatformQtPath__(qtMinorVersion), path)
