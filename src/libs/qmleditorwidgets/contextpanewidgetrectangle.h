@@ -46,7 +46,6 @@ public:
     void setProperties(QmlJS::PropertyReader *propertyReader);
     void enabableGradientEditing(bool);
 
-public slots:
     void onBorderColorButtonToggled(bool);
     void onColorButtonToggled(bool);
     void onColorDialogApplied(const QColor &color);

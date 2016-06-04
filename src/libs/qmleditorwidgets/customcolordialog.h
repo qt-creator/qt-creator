@@ -56,7 +56,6 @@ public:
         emit colorChanged();
     }
 
-public slots:
     void changeColor(const QColor &color) { setColor(color); }
     void spinBoxChanged();
     void onColorBoxChanged();

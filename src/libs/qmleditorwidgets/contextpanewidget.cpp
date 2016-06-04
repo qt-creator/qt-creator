@@ -191,12 +191,12 @@ ContextPaneWidget::ContextPaneWidget(QWidget *parent) : DragWidget(parent), m_cu
     m_resetAction = new QAction(tr("Pin Toolbar"), this);
     m_resetAction->setCheckable(true);
     addAction(m_resetAction.data());
-    connect(m_resetAction.data(), SIGNAL(triggered(bool)), this, SLOT(onResetPosition(bool)));
+    connect(m_resetAction.data(), &QAction::triggered, this, &ContextPaneWidget::onResetPosition);
 
     m_disableAction = new QAction(tr("Show Always"), this);
     addAction(m_disableAction.data());
     m_disableAction->setCheckable(true);
-    connect(m_disableAction.data(), SIGNAL(toggled(bool)), this, SLOT(onDisable(bool)));
+    connect(m_disableAction.data(), &QAction::toggled, this, &ContextPaneWidget::onDisable);
     m_pinned = false;
     if (HostOsInfo::isMacHost())
         setCursor(Qt::ArrowCursor);

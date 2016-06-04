@@ -90,7 +90,7 @@ public:
     void animate(int duration, QEasingCurve curve) {
         reset();
         m_sequential = new QSequentialAnimationGroup;
-        connect(m_sequential,SIGNAL(finished()),this,SIGNAL(finished()));
+        connect(m_sequential,&QAbstractAnimation::finished,this,&EasingSimulation::finished);
         m_sequential->addPause(150);
         QPropertyAnimation *m_anim = new QPropertyAnimation (m_qtLogo, "pos");
         m_anim->setStartValue(QPointF(0, 0));
@@ -130,7 +130,7 @@ EasingContextPane::EasingContextPane(QWidget *parent) :
 
     setGraphDisplayMode(GraphMode);
 
-    connect(m_simulation,SIGNAL(finished()),this,SLOT(switchToGraph()));
+    connect(m_simulation,&EasingSimulation::finished,this,&EasingContextPane::switchToGraph);
 }
 
 EasingContextPane::~EasingContextPane()

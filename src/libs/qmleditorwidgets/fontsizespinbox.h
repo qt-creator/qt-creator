@@ -53,7 +53,7 @@ signals:
      void formatChanged();
      void valueChanged(int);
 
-public slots:
+public:
      void setIsPointSize(bool b)
      {
          if (isPointSize() == b)
@@ -80,11 +80,11 @@ public slots:
 
  protected:
     StepEnabled stepEnabled() const;
-private slots:
+
+private:
     void onEditingFinished();
     void setText();
 
-private:
     bool m_isPointSize;
     int m_value;
 

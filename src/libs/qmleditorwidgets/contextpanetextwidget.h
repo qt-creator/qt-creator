@@ -50,7 +50,6 @@ public:
     void setVerticalAlignmentVisible(bool);
     void setStyleVisible(bool);
 
-public slots:
     void onTextColorButtonToggled(bool);
     void onColorButtonToggled(bool);
     void onColorDialogApplied(const QColor &color);

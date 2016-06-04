@@ -87,7 +87,6 @@ public:
     bool showComboBox() const
     { return m_showComboBox; }
 
-public slots:
     void setFileName(const QUrl &fileName);
     void setFileNameStr(const QString &fileName);
     void onButtonReleased();
