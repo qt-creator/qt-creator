@@ -119,7 +119,7 @@ signals:
     void readyRead();
     void invalidPacket();
 
-public slots:
+public:
     void aboutToClose()
     {
         inProgress.clear();

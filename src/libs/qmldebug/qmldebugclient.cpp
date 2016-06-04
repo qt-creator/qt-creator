@@ -385,7 +385,8 @@ void QmlDebugConnection::startLocalServer(const QString &fileName)
         d->server->deleteLater();
     d->server = new QLocalServer(this);
     // QueuedConnection so that waitForNewConnection() returns true.
-    connect(d->server, SIGNAL(newConnection()), this, SLOT(newConnection()), Qt::QueuedConnection);
+    connect(d->server, &QLocalServer::newConnection,
+            this, &QmlDebugConnection::newConnection, Qt::QueuedConnection);
     d->server->listen(fileName);
 }
 

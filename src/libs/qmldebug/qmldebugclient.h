@@ -70,13 +70,12 @@ signals:
     void socketError(QAbstractSocket::SocketError error);
     void socketStateChanged(QAbstractSocket::SocketState state);
 
-private slots:
+private:
     void newConnection();
     void socketConnected();
     void socketDisconnected();
     void protocolReadyRead();
 
-private:
     QScopedPointer<QmlDebugConnectionPrivate> d_ptr;
 };
 
