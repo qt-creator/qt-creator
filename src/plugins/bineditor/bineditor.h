@@ -115,7 +115,6 @@ public:
 
     QList<Markup> markup() const { return m_markup; }
 
-public Q_SLOTS:
     void setFontSettings(const TextEditor::FontSettings &fs);
     void highlightSearchResults(const QByteArray &pattern,
         QTextDocument::FindFlags findFlags = 0);
