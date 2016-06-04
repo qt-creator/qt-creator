@@ -46,12 +46,13 @@
 #include <QtPlugin>
 
 QT_BEGIN_NAMESPACE
-
 extern void qt_set_sequence_auto_mnemonic(bool enable);
-
 QT_END_NAMESPACE
 
-using namespace EmacsKeys::Internal;
+using namespace Core;
+
+namespace EmacsKeys {
+namespace Internal {
 
 //---------------------------------------------------------------------------
 // EmacsKeysPlugin
@@ -76,60 +77,56 @@ bool EmacsKeysPlugin::initialize(const QStringList &arguments, QString *errorStr
     // Alt+W (Window).
     qt_set_sequence_auto_mnemonic(false);
 
-    connect(Core::EditorManager::instance(),
-        SIGNAL(editorAboutToClose(Core::IEditor*)),
-        this,
-        SLOT(editorAboutToClose(Core::IEditor*)));
-    connect(Core::EditorManager::instance(),
-        SIGNAL(currentEditorChanged(Core::IEditor*)),
-        this,
-        SLOT(currentEditorChanged(Core::IEditor*)));
+    connect(EditorManager::instance(), &EditorManager::editorAboutToClose,
+            this, &EmacsKeysPlugin::editorAboutToClose);
+    connect(EditorManager::instance(), &EditorManager::currentEditorChanged,
+            this, &EmacsKeysPlugin::currentEditorChanged);
 
     registerAction(Constants::DELETE_CHARACTER,
-        SLOT(deleteCharacter()), tr("Delete Character"));
+        &EmacsKeysPlugin::deleteCharacter, tr("Delete Character"));
     registerAction(Constants::KILL_WORD,
-        SLOT(killWord()), tr("Kill Word"));
+        &EmacsKeysPlugin::killWord, tr("Kill Word"));
     registerAction(Constants::KILL_LINE,
-        SLOT(killLine()), tr("Kill Line"));
+        &EmacsKeysPlugin::killLine, tr("Kill Line"));
     registerAction(Constants::INSERT_LINE_AND_INDENT,
-        SLOT(insertLineAndIndent()), tr("Insert New Line and Indent"));
+        &EmacsKeysPlugin::insertLineAndIndent, tr("Insert New Line and Indent"));
 
     registerAction(Constants::GOTO_FILE_START,
-        SLOT(gotoFileStart()), tr("Go to File Start"));
+        &EmacsKeysPlugin::gotoFileStart, tr("Go to File Start"));
     registerAction(Constants::GOTO_FILE_END,
-        SLOT(gotoFileEnd()), tr("Go to File End"));
+        &EmacsKeysPlugin::gotoFileEnd, tr("Go to File End"));
     registerAction(Constants::GOTO_LINE_START,
-        SLOT(gotoLineStart()), tr("Go to Line Start"));
+        &EmacsKeysPlugin::gotoLineStart, tr("Go to Line Start"));
     registerAction(Constants::GOTO_LINE_END,
-        SLOT(gotoLineEnd()), tr("Go to Line End"));
+        &EmacsKeysPlugin::gotoLineEnd, tr("Go to Line End"));
     registerAction(Constants::GOTO_NEXT_LINE,
-        SLOT(gotoNextLine()), tr("Go to Next Line"));
+        &EmacsKeysPlugin::gotoNextLine, tr("Go to Next Line"));
     registerAction(Constants::GOTO_PREVIOUS_LINE,
-        SLOT(gotoPreviousLine()), tr("Go to Previous Line"));
+        &EmacsKeysPlugin::gotoPreviousLine, tr("Go to Previous Line"));
     registerAction(Constants::GOTO_NEXT_CHARACTER,
-        SLOT(gotoNextCharacter()), tr("Go to Next Character"));
+        &EmacsKeysPlugin::gotoNextCharacter, tr("Go to Next Character"));
     registerAction(Constants::GOTO_PREVIOUS_CHARACTER,
-        SLOT(gotoPreviousCharacter()), tr("Go to Previous Character"));
+        &EmacsKeysPlugin::gotoPreviousCharacter, tr("Go to Previous Character"));
     registerAction(Constants::GOTO_NEXT_WORD,
-        SLOT(gotoNextWord()), tr("Go to Next Word"));
+        &EmacsKeysPlugin::gotoNextWord, tr("Go to Next Word"));
     registerAction(Constants::GOTO_PREVIOUS_WORD,
-        SLOT(gotoPreviousWord()), tr("Go to Previous Word"));
+        &EmacsKeysPlugin::gotoPreviousWord, tr("Go to Previous Word"));
 
     registerAction(Constants::MARK,
-        SLOT(mark()), tr("Mark"));
+        &EmacsKeysPlugin::mark, tr("Mark"));
     registerAction(Constants::EXCHANGE_CURSOR_AND_MARK,
-        SLOT(exchangeCursorAndMark()), tr("Exchange Cursor and Mark"));
+        &EmacsKeysPlugin::exchangeCursorAndMark, tr("Exchange Cursor and Mark"));
     registerAction(Constants::COPY,
-        SLOT(copy()), tr("Copy"));
+        &EmacsKeysPlugin::copy, tr("Copy"));
     registerAction(Constants::CUT,
-        SLOT(cut()), tr("Cut"));
+        &EmacsKeysPlugin::cut, tr("Cut"));
     registerAction(Constants::YANK,
-        SLOT(yank()), tr("Yank"));
+        &EmacsKeysPlugin::yank, tr("Yank"));
 
     registerAction(Constants::SCROLL_HALF_DOWN,
-        SLOT(scrollHalfDown()), tr("Scroll Half Screen Down"));
+        &EmacsKeysPlugin::scrollHalfDown, tr("Scroll Half Screen Down"));
     registerAction(Constants::SCROLL_HALF_UP,
-        SLOT(scrollHalfUp()), tr("Scroll Half Screen Up"));
+        &EmacsKeysPlugin::scrollHalfUp, tr("Scroll Half Screen Up"));
     return true;
 }
 
@@ -142,7 +139,7 @@ ExtensionSystem::IPlugin::ShutdownFlag EmacsKeysPlugin::aboutToShutdown()
     return SynchronousShutdown;
 }
 
-void EmacsKeysPlugin::editorAboutToClose(Core::IEditor *editor)
+void EmacsKeysPlugin::editorAboutToClose(IEditor *editor)
 {
     QPlainTextEdit *w = qobject_cast<QPlainTextEdit*>(editor->widget());
     if (!w)
@@ -154,7 +151,7 @@ void EmacsKeysPlugin::editorAboutToClose(Core::IEditor *editor)
     }
 }
 
-void EmacsKeysPlugin::currentEditorChanged(Core::IEditor *editor)
+void EmacsKeysPlugin::currentEditorChanged(IEditor *editor)
 {
     if (!editor) {
         m_currentEditorWidget = 0;
@@ -324,14 +321,12 @@ void EmacsKeysPlugin::insertLineAndIndent()
     m_currentState->endOwnAction(KeysActionOther);
 }
 
-QAction *EmacsKeysPlugin::registerAction(Core::Id id, const char *slot,
-    const QString &title)
+QAction *EmacsKeysPlugin::registerAction(Id id, void (EmacsKeysPlugin::*callback)(),
+                                         const QString &title)
 {
     QAction *result = new QAction(title, this);
-    Core::ActionManager::registerAction(result, id,
-        Core::Context(Core::Constants::C_GLOBAL), true);
-
-    connect(result, SIGNAL(triggered(bool)), this, slot);
+    ActionManager::registerAction(result, id, Context(Core::Constants::C_GLOBAL), true);
+    connect(result, &QAction::triggered, this, callback);
     return result;
 }
 
@@ -382,3 +377,6 @@ void EmacsKeysPlugin::genericVScroll(int direction)
     m_currentEditorWidget->setTextCursor(cursor);
     m_currentState->endOwnAction(KeysActionOther);
 }
+
+} // namespace Internal
+} // namespace EmacsKeys

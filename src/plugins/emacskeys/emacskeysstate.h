@@ -40,8 +40,6 @@ enum EmacsKeysAction {
 
 class EmacsKeysState : public QObject
 {
-    Q_OBJECT
-
 public:
     EmacsKeysState(QPlainTextEdit *edit);
     ~EmacsKeysState();
@@ -56,12 +54,11 @@ public:
     int mark() const { return m_mark; }
     void setMark(int mark) { m_mark = mark; }
 
-private slots:
+private:
     void cursorPositionChanged();
     void textChanged();
     void selectionChanged();
 
-private:
     bool m_ignore3rdParty;
     int m_mark;
     EmacsKeysAction m_lastAction;

@@ -27,7 +27,8 @@
 #include <QTextCursor>
 #include <QPlainTextEdit>
 
-using namespace EmacsKeys::Internal;
+namespace EmacsKeys {
+namespace Internal {
 
 //---------------------------------------------------------------------------
 // EmacsKeysState
@@ -39,12 +40,12 @@ EmacsKeysState::EmacsKeysState(QPlainTextEdit *edit):
     m_lastAction(KeysAction3rdParty),
     m_editorWidget(edit)
 {
-    connect(edit, SIGNAL(cursorPositionChanged()),
-        this, SLOT(cursorPositionChanged()));
-    connect(edit, SIGNAL(textChanged()),
-        this, SLOT(textChanged()));
-    connect(edit, SIGNAL(selectionChanged()),
-        this, SLOT(selectionChanged()));
+    connect(edit, &QPlainTextEdit::cursorPositionChanged,
+            this, &EmacsKeysState::cursorPositionChanged);
+    connect(edit, &QPlainTextEdit::textChanged,
+            this, &EmacsKeysState::textChanged);
+    connect(edit, &QPlainTextEdit::selectionChanged,
+            this, &EmacsKeysState::selectionChanged);
 }
 
 EmacsKeysState::~EmacsKeysState() {}
@@ -79,3 +80,6 @@ void EmacsKeysState::selectionChanged()
     if (!m_ignore3rdParty)
         setLastAction(KeysAction3rdParty);
 }
+
+} // namespace Internal
+} // namespace EmacsKeys

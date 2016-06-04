@@ -58,7 +58,7 @@ public:
     void extensionsInitialized();
     ShutdownFlag aboutToShutdown();
 
-private slots:
+private:
     void editorAboutToClose(Core::IEditor *editor);
     void currentEditorChanged(Core::IEditor *editor);
 
@@ -87,9 +87,8 @@ private slots:
     void scrollHalfDown();        // C-v
     void scrollHalfUp();          // M-v
 
-private:
-    QAction *registerAction(Core::Id id, const char *slot,
-        const QString &title);
+    QAction *registerAction(Core::Id id, void (EmacsKeysPlugin::*callback)(),
+                            const QString &title);
     void genericGoto(QTextCursor::MoveOperation op, bool abortAssist = true);
     void genericVScroll(int direction);
 
