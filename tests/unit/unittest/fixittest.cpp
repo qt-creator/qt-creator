@@ -28,6 +28,7 @@
 #include <projectpart.h>
 #include <projects.h>
 #include <clangtranslationunit.h>
+#include <clangtranslationunitcore.h>
 #include <translationunits.h>
 #include <unsavedfiles.h>
 #include <sourcelocation.h>
@@ -43,6 +44,7 @@
 
 using ClangBackEnd::DiagnosticSet;
 using ClangBackEnd::TranslationUnit;
+using ClangBackEnd::TranslationUnitCore;
 using ClangBackEnd::ProjectPart;
 using ClangBackEnd::UnsavedFiles;
 using ClangBackEnd::Diagnostic;
@@ -68,9 +70,28 @@ MATCHER_P4(IsSourceLocation, filePath, line, column, offset,
     return true;
 }
 
-class FixIt : public ::testing::Test
+struct FixItData
 {
-protected:
+    FixItData(TranslationUnitCore &translationUnitCore)
+        : diagnosticSet{translationUnitCore.diagnostics()}
+        , diagnostic{diagnosticSet.front()}
+        , fixIt{diagnostic.fixIts().front()}
+    {
+    }
+
+    DiagnosticSet diagnosticSet;
+    Diagnostic diagnostic;
+    ::FixIt fixIt;
+};
+
+struct Data
+{
+    Data()
+    {
+        translationUnit.parse();
+        d.reset(new FixItData(translationUnitCore));
+    }
+
     ProjectPart projectPart{Utf8StringLiteral("projectPartId")};
     ClangBackEnd::ProjectParts projects;
     ClangBackEnd::UnsavedFiles unsavedFiles;
@@ -79,9 +100,20 @@ protected:
                                     projectPart,
                                     Utf8StringVector(),
                                     translationUnits};
-    DiagnosticSet diagnosticSet{translationUnit.diagnostics()};
-    Diagnostic diagnostic{diagnosticSet.front()};
-    ::FixIt fixIt{diagnostic.fixIts().front()};
+    TranslationUnitCore translationUnitCore{translationUnit.translationUnitCore()};
+    std::unique_ptr<FixItData> d;
+};
+
+class FixIt : public ::testing::Test
+{
+public:
+    static void SetUpTestCase();
+    static void TearDownTestCase();
+
+protected:
+    static Data *d;
+    ::Diagnostic &diagnostic = d->d->diagnostic;
+    ::FixIt &fixIt = d->d->fixIt;
 };
 
 TEST_F(FixIt, Size)
@@ -111,4 +143,17 @@ TEST_F(FixIt, End)
                                                       29u));
 }
 
+Data *FixIt::d;
+
+void FixIt::SetUpTestCase()
+{
+    d = new Data;
 }
+
+void FixIt::TearDownTestCase()
+{
+    delete d;
+    d = nullptr;
+}
+
+} // anonymous

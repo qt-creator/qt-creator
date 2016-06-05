@@ -40,7 +40,7 @@ class DiagnosticSetIterator;
 
 class DiagnosticSet
 {
-    friend class TranslationUnit;
+    friend class TranslationUnitCore;
     friend class Diagnostic;
 
 public:

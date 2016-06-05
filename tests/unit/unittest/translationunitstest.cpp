@@ -211,7 +211,8 @@ TEST_F(TranslationUnits, UpdateUnsavedFileAndCheckForReparse)
     ClangBackEnd::FileContainer headerContainer(headerPath, projectPartId, Utf8StringVector(), 74u);
     ClangBackEnd::FileContainer headerContainerWithUnsavedContent(headerPath, projectPartId, Utf8String(), true, 75u);
     translationUnits.create({fileContainer, headerContainer});
-    translationUnits.translationUnit(filePath, projectPartId).cxTranslationUnit();
+    TranslationUnit translationUnit = translationUnits.translationUnit(filePath, projectPartId);
+    translationUnit.parse();
 
     translationUnits.update({headerContainerWithUnsavedContent});
 
@@ -224,7 +225,9 @@ TEST_F(TranslationUnits, UpdateUnsavedFileAndCheckForDiagnostics)
     ClangBackEnd::FileContainer headerContainer(headerPath, projectPartId, Utf8StringVector(), 74u);
     ClangBackEnd::FileContainer headerContainerWithUnsavedContent(headerPath, projectPartId, Utf8String(), true, 75u);
     translationUnits.create({fileContainer, headerContainer});
-    translationUnits.translationUnit(filePath, projectPartId).diagnostics();
+    TranslationUnit translationUnit = translationUnits.translationUnit(filePath, projectPartId);
+    translationUnit.parse();
+    translationUnit.diagnostics();
 
     translationUnits.update({headerContainerWithUnsavedContent});
 
@@ -237,7 +240,9 @@ TEST_F(TranslationUnits, RemoveFileAndCheckForDiagnostics)
     ClangBackEnd::FileContainer headerContainer(headerPath, projectPartId, Utf8StringVector(), 74u);
     ClangBackEnd::FileContainer headerContainerWithUnsavedContent(headerPath, projectPartId, Utf8String(), true, 75u);
     translationUnits.create({fileContainer, headerContainer});
-    translationUnits.translationUnit(filePath, projectPartId).diagnostics();
+    TranslationUnit translationUnit = translationUnits.translationUnit(filePath, projectPartId);
+    translationUnit.parse();
+    translationUnit.diagnostics();
 
     translationUnits.remove({headerContainerWithUnsavedContent});
 
@@ -250,7 +255,9 @@ TEST_F(TranslationUnits, UpdateUnsavedFileAndCheckForHighlightingMarks)
     ClangBackEnd::FileContainer headerContainer(headerPath, projectPartId, Utf8StringVector(), 74u);
     ClangBackEnd::FileContainer headerContainerWithUnsavedContent(headerPath, projectPartId, Utf8String(), true, 75u);
     translationUnits.create({fileContainer, headerContainer});
-    translationUnits.translationUnit(filePath, projectPartId).highlightingMarks();
+    TranslationUnit translationUnit = translationUnits.translationUnit(filePath, projectPartId);
+    translationUnit.parse();
+    translationUnit.highlightingMarks();
 
     translationUnits.update({headerContainerWithUnsavedContent});
 
@@ -263,7 +270,9 @@ TEST_F(TranslationUnits, RemoveFileAndCheckForHighlightingMarks)
     ClangBackEnd::FileContainer headerContainer(headerPath, projectPartId, Utf8StringVector(), 74u);
     ClangBackEnd::FileContainer headerContainerWithUnsavedContent(headerPath, projectPartId, Utf8String(), true, 75u);
     translationUnits.create({fileContainer, headerContainer});
-    translationUnits.translationUnit(filePath, projectPartId).highlightingMarks();
+    TranslationUnit translationUnit = translationUnits.translationUnit(filePath, projectPartId);
+    translationUnit.parse();
+    translationUnit.highlightingMarks();
 
     translationUnits.remove({headerContainerWithUnsavedContent});
 

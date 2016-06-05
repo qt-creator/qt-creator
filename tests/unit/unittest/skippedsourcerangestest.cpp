@@ -25,6 +25,7 @@
 
 #include <cursor.h>
 #include <clangstring.h>
+#include <clangtranslationunitcore.h>
 #include <projectpart.h>
 #include <projects.h>
 #include <skippedsourceranges.h>
@@ -45,6 +46,7 @@
 
 using ClangBackEnd::Cursor;
 using ClangBackEnd::TranslationUnit;
+using ClangBackEnd::TranslationUnitCore;
 using ClangBackEnd::UnsavedFiles;
 using ClangBackEnd::ProjectPart;
 using ClangBackEnd::TranslationUnits;
@@ -84,6 +86,11 @@ MATCHER_P4(IsSourceLocation, filePath, line, column, offset,
 }
 
 struct Data {
+    Data()
+    {
+        translationUnit.parse();
+    }
+
     ClangBackEnd::ProjectParts projects;
     ClangBackEnd::UnsavedFiles unsavedFiles;
     ClangBackEnd::TranslationUnits translationUnits{projects, unsavedFiles};
@@ -93,6 +100,9 @@ struct Data {
                             {Utf8StringLiteral("-std=c++11"),Utf8StringLiteral("-DBLAH")}),
                 {},
                 translationUnits};
+    TranslationUnitCore translationUnitCore{filePath,
+                                            translationUnit.index(),
+                                            translationUnit.cxTranslationUnit()};
 };
 
 class SkippedSourceRanges : public ::testing::Test
@@ -103,9 +113,9 @@ public:
 
 protected:
     static Data *d;
-    const TranslationUnit &translationUnit = d->translationUnit;
+    const TranslationUnitCore &translationUnitCore = d->translationUnitCore;
     const Utf8String &filePath = d->filePath;
-    const ::SkippedSourceRanges skippedSourceRanges{d->translationUnit.skippedSourceRanges()};
+    const ::SkippedSourceRanges skippedSourceRanges{d->translationUnitCore.skippedSourceRanges()};
 };
 
 Data *SkippedSourceRanges::d;

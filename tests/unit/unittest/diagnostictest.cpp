@@ -29,6 +29,7 @@
 #include <fixitcontainer.h>
 #include <projectpart.h>
 #include <clangtranslationunit.h>
+#include <clangtranslationunitcore.h>
 #include <translationunits.h>
 #include <projects.h>
 #include <unsavedfiles.h>
@@ -79,9 +80,24 @@ MATCHER_P4(IsSourceLocation, filePath, line, column, offset,
     return true;
 }
 
-class Diagnostic : public ::testing::Test
-{
-protected:
+struct DiagnosticData {
+    DiagnosticData(TranslationUnit &translationUnit)
+        : diagnosticSet{translationUnit.translationUnitCore().diagnostics()}
+        , diagnostic{diagnosticSet.front()}
+    {
+    }
+
+    DiagnosticSet diagnosticSet;
+    ::Diagnostic diagnostic;
+};
+
+struct Data {
+    Data()
+    {
+        translationUnit.parse();
+        d.reset(new DiagnosticData(translationUnit));
+    }
+
     ProjectPart projectPart{Utf8StringLiteral("projectPartId"), {Utf8StringLiteral("-std=c++11")}};
     ClangBackEnd::ProjectParts projects;
     ClangBackEnd::UnsavedFiles unsavedFiles;
@@ -90,8 +106,17 @@ protected:
                                     projectPart,
                                     Utf8StringVector(),
                                     translationUnits};
-    DiagnosticSet diagnosticSet{translationUnit.diagnostics()};
-    ::Diagnostic diagnostic{diagnosticSet.front()};
+    std::unique_ptr<DiagnosticData> d;
+};
+
+class Diagnostic : public ::testing::Test
+{
+protected:
+    void SetUp() override;
+    void TearDown() override;
+
+protected:
+    Data *d;
 
 protected:
     enum ChildMode { WithChild, WithoutChild };
@@ -100,63 +125,63 @@ protected:
 
 TEST_F(Diagnostic, MoveContructor)
 {
-    const auto diagnostic2 = std::move(diagnostic);
+    const auto diagnostic2 = std::move(d->d->diagnostic);
 
-    ASSERT_TRUE(diagnostic.isNull());
+    ASSERT_TRUE(d->d->diagnostic.isNull());
     ASSERT_FALSE(diagnostic2.isNull());
 }
 
 TEST_F(Diagnostic, MoveAssigment)
 {
-    auto diagnostic2 = std::move(diagnostic);
-    diagnostic = std::move(diagnostic2);
+    auto diagnostic2 = std::move(d->d->diagnostic);
+    d->d->diagnostic = std::move(diagnostic2);
 
     ASSERT_TRUE(diagnostic2.isNull());
-    ASSERT_FALSE(diagnostic.isNull());
+    ASSERT_FALSE(d->d->diagnostic.isNull());
 }
 
 TEST_F(Diagnostic, MoveSelfAssigment)
 {
-    diagnostic = std::move(diagnostic);
+    d->d->diagnostic = std::move(d->d->diagnostic);
 
-    ASSERT_FALSE(diagnostic.isNull());
+    ASSERT_FALSE(d->d->diagnostic.isNull());
 }
 
 TEST_F(Diagnostic, Text)
 {
-    ASSERT_THAT(diagnostic.text(), Utf8StringLiteral("warning: control reaches end of non-void function"));
+    ASSERT_THAT(d->d->diagnostic.text(), Utf8StringLiteral("warning: control reaches end of non-void function"));
 }
 
 TEST_F(Diagnostic, Category)
 {
-    ASSERT_THAT(diagnostic.category(), Utf8StringLiteral("Semantic Issue"));
+    ASSERT_THAT(d->d->diagnostic.category(), Utf8StringLiteral("Semantic Issue"));
 }
 
 TEST_F(Diagnostic, EnableOption)
 {
-    ASSERT_THAT(diagnostic.options().first, Utf8StringLiteral("-Wreturn-type"));
+    ASSERT_THAT(d->d->diagnostic.options().first, Utf8StringLiteral("-Wreturn-type"));
 }
 
 TEST_F(Diagnostic, DisableOption)
 {
-    ASSERT_THAT(diagnostic.options().second, Utf8StringLiteral("-Wno-return-type"));
+    ASSERT_THAT(d->d->diagnostic.options().second, Utf8StringLiteral("-Wno-return-type"));
 }
 
 TEST_F(Diagnostic, Severity)
 {
-    ASSERT_THAT(diagnostic.severity(), DiagnosticSeverity::Warning);
+    ASSERT_THAT(d->d->diagnostic.severity(), DiagnosticSeverity::Warning);
 }
 
 TEST_F(Diagnostic, ChildDiagnosticsSize)
 {
-    auto diagnostic = diagnosticSet.back();
+    auto diagnostic = d->d->diagnosticSet.back();
 
     ASSERT_THAT(diagnostic.childDiagnostics().size(), 1);
 }
 
 TEST_F(Diagnostic, ChildDiagnosticsText)
 {
-    auto childDiagnostic = diagnosticSet.back().childDiagnostics().front();
+    auto childDiagnostic = d->d->diagnosticSet.back().childDiagnostics().front();
 
     ASSERT_THAT(childDiagnostic.text(), Utf8StringLiteral("note: candidate function not viable: requires 1 argument, but 0 were provided"));
 }
@@ -165,9 +190,20 @@ TEST_F(Diagnostic, toDiagnosticContainerLetChildrenThroughByDefault)
 {
     const auto diagnosticWithChild = expectedDiagnostic(WithChild);
 
-    const auto diagnostic = diagnosticSet.back().toDiagnosticContainer();
+    const auto diagnostic = d->d->diagnosticSet.back().toDiagnosticContainer();
 
     ASSERT_THAT(diagnostic, IsDiagnosticContainer(diagnosticWithChild));
+}
+
+void Diagnostic::SetUp()
+{
+    d = new Data;
+}
+
+void Diagnostic::TearDown()
+{
+    delete d;
+    d = nullptr;
 }
 
 DiagnosticContainer Diagnostic::expectedDiagnostic(Diagnostic::ChildMode childMode) const
@@ -179,7 +215,7 @@ DiagnosticContainer Diagnostic::expectedDiagnostic(Diagnostic::ChildMode childMo
             Utf8StringLiteral("Semantic Issue"),
             {Utf8String(), Utf8String()},
             ClangBackEnd::DiagnosticSeverity::Note,
-            SourceLocationContainer(translationUnit.filePath(), 5, 6),
+            SourceLocationContainer(d->translationUnit.filePath(), 5, 6),
             {},
             {},
             {}
@@ -193,7 +229,7 @@ DiagnosticContainer Diagnostic::expectedDiagnostic(Diagnostic::ChildMode childMo
             Utf8StringLiteral("Semantic Issue"),
             {Utf8String(), Utf8String()},
             ClangBackEnd::DiagnosticSeverity::Error,
-            SourceLocationContainer(translationUnit.filePath(), 7, 5),
+            SourceLocationContainer(d->translationUnit.filePath(), 7, 5),
             {},
             {},
             children

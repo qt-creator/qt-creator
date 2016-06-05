@@ -33,6 +33,7 @@
 #include <sourcelocationcontainer.h>
 #include <sourcerangecontainer.h>
 #include <clangtranslationunit.h>
+#include <clangtranslationunitcore.h>
 #include <translationunits.h>
 #include <unsavedfiles.h>
 
@@ -77,7 +78,6 @@ protected:
                                             projectPart,
                                             Utf8StringVector(),
                                             translationUnits};
-    ::DiagnosticSet diagnosticSetWithChildren{translationUnitMainFile.diagnostics()};
 
 protected:
     enum ChildMode { WithChild, WithoutChild };
@@ -86,14 +86,16 @@ protected:
 
 TEST_F(DiagnosticSet, SetHasContent)
 {
-    const auto set = translationUnit.diagnostics();
+    translationUnit.parse();
+    const auto set = translationUnit.translationUnitCore().diagnostics();
 
     ASSERT_THAT(set.size(), 1);
 }
 
 TEST_F(DiagnosticSet, MoveConstructor)
 {
-    auto set = translationUnit.diagnostics();
+    translationUnit.parse();
+    auto set = translationUnit.translationUnitCore().diagnostics();
 
     const auto set2 = std::move(set);
 
@@ -103,7 +105,8 @@ TEST_F(DiagnosticSet, MoveConstructor)
 
 TEST_F(DiagnosticSet, MoveAssigment)
 {
-    auto set = translationUnit.diagnostics();
+    translationUnit.parse();
+    auto set = translationUnit.translationUnitCore().diagnostics();
 
     auto set2 = std::move(set);
     set = std::move(set2);
@@ -114,7 +117,8 @@ TEST_F(DiagnosticSet, MoveAssigment)
 
 TEST_F(DiagnosticSet, MoveSelfAssigment)
 {
-    auto set = translationUnit.diagnostics();
+    translationUnit.parse();
+    auto set = translationUnit.translationUnitCore().diagnostics();
 
     set = std::move(set);
 
@@ -123,21 +127,24 @@ TEST_F(DiagnosticSet, MoveSelfAssigment)
 
 TEST_F(DiagnosticSet, FirstElementEqualBegin)
 {
-    auto set = translationUnit.diagnostics();
+    translationUnit.parse();
+    auto set = translationUnit.translationUnitCore().diagnostics();
 
     ASSERT_TRUE(set.front() == *set.begin());
 }
 
 TEST_F(DiagnosticSet, BeginIsUnequalEnd)
 {
-    auto set = translationUnit.diagnostics();
+    translationUnit.parse();
+    auto set = translationUnit.translationUnitCore().diagnostics();
 
     ASSERT_TRUE(set.begin() != set.end());
 }
 
 TEST_F(DiagnosticSet, BeginPlusOneIsEqualEnd)
 {
-    auto set = translationUnit.diagnostics();
+    translationUnit.parse();
+    auto set = translationUnit.translationUnitCore().diagnostics();
 
     ASSERT_TRUE(++set.begin() == set.end());
 }
@@ -145,14 +152,17 @@ TEST_F(DiagnosticSet, BeginPlusOneIsEqualEnd)
 TEST_F(DiagnosticSet, ToDiagnosticContainersLetThroughByDefault)
 {
     const auto diagnosticContainerWithoutChild = expectedDiagnostic(WithChild);
+    translationUnitMainFile.parse();
 
-    const auto diagnostics = translationUnitMainFile.diagnostics().toDiagnosticContainers();
+    const auto diagnostics = translationUnitMainFile.translationUnitCore().diagnostics().toDiagnosticContainers();
 
     ASSERT_THAT(diagnostics, Contains(IsDiagnosticContainer(diagnosticContainerWithoutChild)));
 }
 
 TEST_F(DiagnosticSet, ToDiagnosticContainersFiltersOutTopLevelItem)
 {
+    translationUnitMainFile.parse();
+    const ::DiagnosticSet diagnosticSetWithChildren{translationUnitMainFile.translationUnitCore().diagnostics()};
     const auto acceptNoDiagnostics = [](const Diagnostic &) { return false; };
 
     const auto diagnostics = diagnosticSetWithChildren.toDiagnosticContainers(acceptNoDiagnostics);

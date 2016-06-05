@@ -90,7 +90,7 @@ protected:
     ClangBackEnd::UnsavedFiles unsavedFiles;
     ClangBackEnd::TranslationUnits translationUnits{projects, unsavedFiles};
     ClangBackEnd::TranslationUnit translationUnit;
-    ClangBackEnd::CodeCompleter completer;
+    QScopedPointer<ClangBackEnd::CodeCompleter> completer;
     ClangBackEnd::FileContainer unsavedMainFileContainer{mainFileContainer.filePath(),
                                                          projectPart.projectPartId(),
                                                          readFileContent(QStringLiteral("/complete_completer_main_unsaved.cpp")),
@@ -213,20 +213,20 @@ void CodeCompleter::SetUp()
     projects.createOrUpdate({projectPart});
     translationUnits.create({mainFileContainer});
     translationUnit = translationUnits.translationUnit(mainFileContainer);
-    completer = ClangBackEnd::CodeCompleter(translationUnit, unsavedFiles);
+    completer.reset(new ClangBackEnd::CodeCompleter(translationUnit.translationUnitCore(),
+                                                    unsavedFiles));
 
     copyTargetHeaderToTemporaryIncludeDirecory();
-
-    translationUnit.cxTranslationUnit(); // initialize translation unit so we check changes
+    translationUnit.parse();
 }
 
 TEST_F(CodeCompleter, FunctionInUnsavedFile)
 {
     unsavedFiles.createOrUpdate({unsavedMainFileContainer});
     translationUnits.update({unsavedMainFileContainer});
-    completer = ClangBackEnd::CodeCompleter(translationUnit, unsavedFiles);
+    ClangBackEnd::CodeCompleter myCompleter(translationUnit.translationUnitCore(), unsavedFiles);
 
-    ASSERT_THAT(completer.complete(27, 1),
+    ASSERT_THAT(myCompleter.complete(27, 1),
                 AllOf(Contains(IsCodeCompletion(Utf8StringLiteral("FunctionWithArguments"),
                                                 CodeCompletion::FunctionCompletionKind)),
                       Contains(IsCodeCompletion(Utf8StringLiteral("Function"),
@@ -243,9 +243,9 @@ TEST_F(CodeCompleter, VariableInUnsavedFile)
 {
     unsavedFiles.createOrUpdate({unsavedMainFileContainer});
     translationUnits.update({unsavedMainFileContainer});
-    completer = ClangBackEnd::CodeCompleter(translationUnit, unsavedFiles);
+    ClangBackEnd::CodeCompleter myCompleter(translationUnit.translationUnitCore(), unsavedFiles);
 
-    ASSERT_THAT(completer.complete(27, 1),
+    ASSERT_THAT(myCompleter.complete(27, 1),
                 Contains(IsCodeCompletion(Utf8StringLiteral("VariableInUnsavedFile"),
                                           CodeCompletion::VariableCompletionKind)));
 }
@@ -254,9 +254,9 @@ TEST_F(CodeCompleter, GlobalVariableInUnsavedFile)
 {
     unsavedFiles.createOrUpdate({unsavedMainFileContainer});
     translationUnits.update({unsavedMainFileContainer});
-    completer = ClangBackEnd::CodeCompleter(translationUnit, unsavedFiles);
+    ClangBackEnd::CodeCompleter myCompleter(translationUnit.translationUnitCore(), unsavedFiles);
 
-    ASSERT_THAT(completer.complete(27, 1),
+    ASSERT_THAT(myCompleter.complete(27, 1),
                 Contains(IsCodeCompletion(Utf8StringLiteral("GlobalVariableInUnsavedFile"),
                                           CodeCompletion::VariableCompletionKind)));
 }
@@ -265,23 +265,23 @@ TEST_F(CodeCompleter, Macro)
 {
     unsavedFiles.createOrUpdate({unsavedMainFileContainer});
     translationUnits.update({unsavedMainFileContainer});
-    completer = ClangBackEnd::CodeCompleter(translationUnit, unsavedFiles);
+    ClangBackEnd::CodeCompleter myCompleter(translationUnit.translationUnitCore(), unsavedFiles);
 
-    ASSERT_THAT(completer.complete(27, 1),
+    ASSERT_THAT(myCompleter.complete(27, 1),
                 Contains(IsCodeCompletion(Utf8StringLiteral("Macro"),
                                           CodeCompletion::PreProcessorCompletionKind)));
 }
 
 TEST_F(CodeCompleter, Keyword)
 {
-    ASSERT_THAT(completer.complete(27, 1),
+    ASSERT_THAT(completer->complete(27, 1),
                 Contains(IsCodeCompletion(Utf8StringLiteral("switch"),
                                           CodeCompletion::KeywordCompletionKind)));
 }
 
 TEST_F(CodeCompleter, FunctionInIncludedHeader)
 {
-    ASSERT_THAT(completer.complete(27, 1),
+    ASSERT_THAT(completer->complete(27, 1),
                 Contains(IsCodeCompletion(Utf8StringLiteral("FunctionInIncludedHeader"),
                                           CodeCompletion::FunctionCompletionKind)));
 }
@@ -290,9 +290,9 @@ TEST_F(CodeCompleter, FunctionInUnsavedIncludedHeader)
 {
     unsavedFiles.createOrUpdate({unsavedTargetHeaderFileContainer});
     translationUnits.create({unsavedTargetHeaderFileContainer});
-    completer = ClangBackEnd::CodeCompleter(translationUnit, unsavedFiles);
+    ClangBackEnd::CodeCompleter myCompleter(translationUnit.translationUnitCore(), unsavedFiles);
 
-    ASSERT_THAT(completer.complete(27, 1),
+    ASSERT_THAT(myCompleter.complete(27, 1),
                 Contains(IsCodeCompletion(Utf8StringLiteral("FunctionInIncludedHeaderUnsaved"),
                                           CodeCompletion::FunctionCompletionKind)));
 }
@@ -301,7 +301,7 @@ TEST_F(CodeCompleter, DISABLED_FunctionInChangedIncludedHeader)
 {
     copyChangedTargetHeaderToTemporaryIncludeDirecory();
 
-    ASSERT_THAT(completer.complete(27, 1),
+    ASSERT_THAT(completer->complete(27, 1),
                 Contains(IsCodeCompletion(Utf8StringLiteral("FunctionInIncludedHeaderChanged"),
                                           CodeCompletion::FunctionCompletionKind)));
 }
@@ -310,11 +310,11 @@ TEST_F(CodeCompleter, DISABLED_FunctionInChangedIncludedHeaderWithUnsavedContent
 {
     unsavedFiles.createOrUpdate({unsavedMainFileContainer});
     translationUnits.update({unsavedMainFileContainer});
-    completer = ClangBackEnd::CodeCompleter(translationUnit, unsavedFiles);
+    ClangBackEnd::CodeCompleter myCompleter(translationUnit.translationUnitCore(), unsavedFiles);
 
     copyChangedTargetHeaderToTemporaryIncludeDirecory();
 
-    ASSERT_THAT(completer.complete(27, 1),
+    ASSERT_THAT(myCompleter.complete(27, 1),
                 Contains(IsCodeCompletion(Utf8StringLiteral("FunctionInIncludedHeaderChanged"),
                                           CodeCompletion::FunctionCompletionKind)));
 }
@@ -352,9 +352,9 @@ TEST_F(CodeCompleter, DotToArrowCompletionForPointerInOutdatedTranslationUnit)
     unsavedFiles.createOrUpdate({fileContainerBeforeTyping});
     auto translationUnit = translationUnits.translationUnit(fileContainerBeforeTyping.filePath(),
                                                             fileContainerBeforeTyping.projectPartId());
-    translationUnit.cxTranslationUnit(); // Parse
+    translationUnit.parse();
     unsavedFiles.createOrUpdate({dotArrowCorrectionForPointerFileContainerAfterTyping});
-    ClangBackEnd::CodeCompleter myCompleter(translationUnits.translationUnit(dotArrowCorrectionForPointerFileContainerAfterTyping),
+    ClangBackEnd::CodeCompleter myCompleter(translationUnits.translationUnit(dotArrowCorrectionForPointerFileContainerAfterTyping).translationUnitCore(),
                                             unsavedFiles);
 
     const ClangBackEnd::CodeCompletions completions = myCompleter.complete(5, 9);
@@ -445,8 +445,11 @@ ClangBackEnd::CodeCompleter CodeCompleter::setupCompleter(
 {
     translationUnits.create({fileContainer});
     unsavedFiles.createOrUpdate({fileContainer});
+    translationUnit = translationUnits.translationUnit(fileContainer);
+    translationUnit.parse();
 
-    return ClangBackEnd::CodeCompleter(translationUnits.translationUnit(fileContainer),
+    ClangBackEnd::TranslationUnit translationUnit = translationUnits.translationUnit(fileContainer);
+    return ClangBackEnd::CodeCompleter(translationUnit.translationUnitCore(),
                                        unsavedFiles);
 }
 

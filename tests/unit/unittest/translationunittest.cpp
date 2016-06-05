@@ -132,8 +132,10 @@ TEST_F(TranslationUnit, ThrowExceptionForGettingCxTranslationUnitForInvalidUnit)
     ASSERT_THROW(translationUnit.cxTranslationUnit(), ClangBackEnd::TranslationUnitIsNullException);
 }
 
-TEST_F(TranslationUnit, CxTranslationUnitGetterIsNonNullForValidUnit)
+TEST_F(TranslationUnit, CxTranslationUnitGetterIsNonNullForParsedUnit)
 {
+    translationUnit.parse();
+
     ASSERT_THAT(translationUnit.cxTranslationUnit(), NotNull());
 }
 
@@ -164,7 +166,7 @@ TEST_F(TranslationUnit, TimeStampForProjectPartChangeIsUpdatedAsNewCxTranslation
     auto lastChangeTimePoint = translationUnit.lastProjectPartChangeTimePoint();
     std::this_thread::sleep_for(std::chrono::steady_clock::duration(1));
 
-    translationUnit.cxTranslationUnit();
+    translationUnit.parse();
 
     ASSERT_THAT(translationUnit.lastProjectPartChangeTimePoint(), Gt(lastChangeTimePoint));
 }
@@ -172,12 +174,12 @@ TEST_F(TranslationUnit, TimeStampForProjectPartChangeIsUpdatedAsNewCxTranslation
 TEST_F(TranslationUnit, TimeStampForProjectPartChangeIsUpdatedAsProjectPartIsCleared)
 {
     ProjectPart projectPart = translationUnit.projectPart();
-    translationUnit.cxTranslationUnit();
+    translationUnit.parse();
     auto lastChangeTimePoint = translationUnit.lastProjectPartChangeTimePoint();
     std::this_thread::sleep_for(std::chrono::steady_clock::duration(1));
 
     projectPart.clear();
-    translationUnit.cxTranslationUnit();
+    translationUnit.parse();
 
     ASSERT_THAT(translationUnit.lastProjectPartChangeTimePoint(), Gt(lastChangeTimePoint));
 }
@@ -191,6 +193,8 @@ TEST_F(TranslationUnit, DocumentRevisionInFileContainerGetter)
 
 TEST_F(TranslationUnit, DependedFilePaths)
 {
+    translationUnit.parse();
+
     ASSERT_THAT(translationUnit.dependedFilePaths(),
                 AllOf(Contains(translationUnitFilePath),
                       Contains(Utf8StringLiteral(TESTDATA_DIR"/translationunits.h"))));
@@ -207,14 +211,12 @@ TEST_F(TranslationUnit, DeletedFileShouldNotNeedReparsing)
 
 TEST_F(TranslationUnit, NeedsNoReparseAfterCreation)
 {
-    translationUnit.cxTranslationUnit();
-
     ASSERT_FALSE(translationUnit.isNeedingReparse());
 }
 
 TEST_F(TranslationUnit, NeedsReparseAfterChangeOfMainFile)
 {
-    translationUnit.cxTranslationUnit();
+    translationUnit.parse();
 
     translationUnit.setDirtyIfDependencyIsMet(translationUnitFilePath);
 
@@ -223,7 +225,7 @@ TEST_F(TranslationUnit, NeedsReparseAfterChangeOfMainFile)
 
 TEST_F(TranslationUnit, NoNeedForReparsingForIndependendFile)
 {
-    translationUnit.cxTranslationUnit();
+    translationUnit.parse();
 
     translationUnit.setDirtyIfDependencyIsMet(Utf8StringLiteral(TESTDATA_DIR"/otherfiles.h"));
 
@@ -232,7 +234,7 @@ TEST_F(TranslationUnit, NoNeedForReparsingForIndependendFile)
 
 TEST_F(TranslationUnit, NeedsReparsingForDependendFile)
 {
-    translationUnit.cxTranslationUnit();
+    translationUnit.parse();
 
     translationUnit.setDirtyIfDependencyIsMet(Utf8StringLiteral(TESTDATA_DIR"/translationunits.h"));
 
@@ -241,17 +243,17 @@ TEST_F(TranslationUnit, NeedsReparsingForDependendFile)
 
 TEST_F(TranslationUnit, NeedsNoReparsingAfterReparsing)
 {
-    translationUnit.cxTranslationUnit();
+    translationUnit.parse();
     translationUnit.setDirtyIfDependencyIsMet(Utf8StringLiteral(TESTDATA_DIR"/translationunits.h"));
 
-    translationUnit.cxTranslationUnit();
+    translationUnit.reparse();
 
     ASSERT_FALSE(translationUnit.isNeedingReparse());
 }
 
-TEST_F(TranslationUnit, IsIntactAfterCreation)
+TEST_F(TranslationUnit, IsIntactAfterParsing)
 {
-    translationUnit.cxTranslationUnit();
+    translationUnit.parse();
 
     ASSERT_TRUE(translationUnit.isIntact());
 }
@@ -263,16 +265,16 @@ TEST_F(TranslationUnit, IsNotIntactForDeletedFile)
     ASSERT_FALSE(translationUnit.isIntact());
 }
 
-TEST_F(TranslationUnit, HasNewDiagnosticsAfterCreation)
+TEST_F(TranslationUnit, HasNewDiagnosticsAfterParse)
 {
-    translationUnit.cxTranslationUnit();
+    translationUnit.parse();
 
     ASSERT_TRUE(translationUnit.hasNewDiagnostics());
 }
 
 TEST_F(TranslationUnit, HasNewDiagnosticsAfterChangeOfMainFile)
 {
-    translationUnit.cxTranslationUnit();
+    translationUnit.parse();
 
     translationUnit.setDirtyIfDependencyIsMet(translationUnitFilePath);
 
@@ -281,7 +283,7 @@ TEST_F(TranslationUnit, HasNewDiagnosticsAfterChangeOfMainFile)
 
 TEST_F(TranslationUnit, HasNoNewDiagnosticsForIndependendFile)
 {
-    translationUnit.cxTranslationUnit();
+    translationUnit.parse();
     translationUnit.diagnostics(); // Reset hasNewDiagnostics
 
     translationUnit.setDirtyIfDependencyIsMet(Utf8StringLiteral(TESTDATA_DIR"/otherfiles.h"));
@@ -291,7 +293,7 @@ TEST_F(TranslationUnit, HasNoNewDiagnosticsForIndependendFile)
 
 TEST_F(TranslationUnit, HasNewDiagnosticsForDependendFile)
 {
-    translationUnit.cxTranslationUnit();
+    translationUnit.parse();
 
     translationUnit.setDirtyIfDependencyIsMet(Utf8StringLiteral(TESTDATA_DIR"/translationunits.h"));
 
@@ -300,7 +302,7 @@ TEST_F(TranslationUnit, HasNewDiagnosticsForDependendFile)
 
 TEST_F(TranslationUnit, HasNoNewDiagnosticsAfterGettingDiagnostics)
 {
-    translationUnit.cxTranslationUnit();
+    translationUnit.parse();
     translationUnit.setDirtyIfDependencyIsMet(translationUnitFilePath);
 
     translationUnit.diagnostics(); // Reset hasNewDiagnostics
@@ -310,14 +312,14 @@ TEST_F(TranslationUnit, HasNoNewDiagnosticsAfterGettingDiagnostics)
 
 TEST_F(TranslationUnit, HasNewHighlightingMarksAfterCreation)
 {
-    translationUnit.cxTranslationUnit();
+    translationUnit.parse();
 
     ASSERT_TRUE(translationUnit.hasNewHighlightingMarks());
 }
 
 TEST_F(TranslationUnit, HasNewHighlightingMarksForMainFile)
 {
-    translationUnit.cxTranslationUnit();
+    translationUnit.parse();
 
     translationUnit.setDirtyIfDependencyIsMet(translationUnitFilePath);
 
@@ -326,7 +328,7 @@ TEST_F(TranslationUnit, HasNewHighlightingMarksForMainFile)
 
 TEST_F(TranslationUnit, HasNoNewHighlightingMarksForIndependendFile)
 {
-    translationUnit.cxTranslationUnit();
+    translationUnit.parse();
     translationUnit.highlightingMarks();
 
     translationUnit.setDirtyIfDependencyIsMet(Utf8StringLiteral(TESTDATA_DIR"/otherfiles.h"));
@@ -336,7 +338,7 @@ TEST_F(TranslationUnit, HasNoNewHighlightingMarksForIndependendFile)
 
 TEST_F(TranslationUnit, HasNewHighlightingMarksForDependendFile)
 {
-    translationUnit.cxTranslationUnit();
+    translationUnit.parse();
 
     translationUnit.setDirtyIfDependencyIsMet(Utf8StringLiteral(TESTDATA_DIR"/translationunits.h"));
 
@@ -345,7 +347,7 @@ TEST_F(TranslationUnit, HasNewHighlightingMarksForDependendFile)
 
 TEST_F(TranslationUnit, HasNoNewHighlightingMarksAfterGettingHighlightingMarks)
 {
-    translationUnit.cxTranslationUnit();
+    translationUnit.parse();
     translationUnit.setDirtyIfDependencyIsMet(translationUnitFilePath);
 
     translationUnit.highlightingMarks();
@@ -356,7 +358,7 @@ TEST_F(TranslationUnit, HasNoNewHighlightingMarksAfterGettingHighlightingMarks)
 TEST_F(TranslationUnit, SetDirtyIfProjectPartIsOutdated)
 {
     projects.createOrUpdate({ProjectPartContainer(projectPartId)});
-    translationUnit.cxTranslationUnit();
+    translationUnit.parse();
     projects.createOrUpdate({ProjectPartContainer(projectPartId, {Utf8StringLiteral("-DNEW")})});
 
     translationUnit.setDirtyIfProjectPartIsOutdated();
@@ -366,7 +368,7 @@ TEST_F(TranslationUnit, SetDirtyIfProjectPartIsOutdated)
 
 TEST_F(TranslationUnit, SetNotDirtyIfProjectPartIsNotOutdated)
 {
-    translationUnit.cxTranslationUnit();
+    translationUnit.parse();
 
     translationUnit.setDirtyIfProjectPartIsOutdated();
 

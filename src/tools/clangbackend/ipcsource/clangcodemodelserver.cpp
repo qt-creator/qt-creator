@@ -240,8 +240,10 @@ void ClangCodeModelServer::completeCode(const ClangBackEnd::CompleteCodeMessage 
     TIME_SCOPE_DURATION("ClangCodeModelServer::completeCode");
 
     try {
-        CodeCompleter codeCompleter(translationUnits.translationUnit(message.filePath(), message.projectPartId()),
-                                    unsavedFiles);
+        auto translationUnit = translationUnits.translationUnit(message.filePath(), message.projectPartId());
+        auto translationUnitCore = translationUnit.translationUnitCore();
+
+        CodeCompleter codeCompleter(translationUnitCore, unsavedFiles);
 
         const auto codeCompletions = codeCompleter.complete(message.line(), message.column());
 
@@ -264,11 +266,13 @@ void ClangCodeModelServer::requestDocumentAnnotations(const RequestDocumentAnnot
     try {
         auto translationUnit = translationUnits.translationUnit(message.fileContainer().filePath(),
                                                                 message.fileContainer().projectPartId());
+        auto translationUnitCore = translationUnit.translationUnitCore();
 
-        client()->documentAnnotationsChanged(DocumentAnnotationsChangedMessage(translationUnit.fileContainer(),
-                                                                               translationUnit.mainFileDiagnostics(),
-                                                                               translationUnit.highlightingMarks().toHighlightingMarksContainers(),
-                                                                               translationUnit.skippedSourceRanges().toSourceRangeContainers()));
+        client()->documentAnnotationsChanged(DocumentAnnotationsChangedMessage(
+                                                 translationUnit.fileContainer(),
+                                                 translationUnitCore.mainFileDiagnostics(),
+                                                 translationUnitCore.highlightingMarks().toHighlightingMarksContainers(),
+                                                 translationUnitCore.skippedSourceRanges().toSourceRangeContainers()));
     } catch (const TranslationUnitDoesNotExistException &exception) {
         client()->translationUnitDoesNotExist(TranslationUnitDoesNotExistMessage(exception.fileContainer()));
     } catch (const ProjectPartDoNotExistException &exception) {

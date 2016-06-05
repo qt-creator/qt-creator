@@ -27,6 +27,8 @@
 
 #include "clangtranslationunitupdater.h"
 
+#include "clangtranslationunitcore.h"
+
 #include <utf8stringvector.h>
 
 #include <clang-c/Index.h>
@@ -41,6 +43,7 @@ class Utf8String;
 
 namespace ClangBackEnd {
 
+class TranslationUnitCore;
 class TranslationUnitData;
 class TranslationUnitUpdateResult;
 class CodeCompleter;
@@ -91,14 +94,14 @@ public:
     bool isVisibleInEditor() const;
 
     void reset();
+    void parse() const;
     void reparse() const;
 
     bool isIntact() const;
 
     CXIndex &index() const;
 
-    CXTranslationUnit cxTranslationUnit() const;
-    CXTranslationUnit cxTranslationUnitWithoutReparsing() const;
+    CXTranslationUnit &cxTranslationUnit() const;
 
     UnsavedFile unsavedFile() const;
     UnsavedFiles unsavedFiles() const;
@@ -116,9 +119,12 @@ public:
     const time_point &lastProjectPartChangeTimePoint() const;
 
     bool isNeedingReparse() const;
+
+    // TODO: Remove the following two
     bool hasNewDiagnostics() const;
     bool hasNewHighlightingMarks() const;
 
+    // TODO: Remove the following two
     DiagnosticSet diagnostics() const;
     QVector<DiagnosticContainer> mainFileDiagnostics() const;
 
@@ -129,23 +135,12 @@ public:
 
     CommandLineArguments commandLineArguments() const;
 
-    SourceLocation sourceLocationAtWithoutReparsing(uint line, uint column) const;
-    SourceLocation sourceLocationAt(uint line, uint column) const;
-    SourceLocation sourceLocationAt(const Utf8String &filePath, uint line, uint column) const;
-
-    SourceRange sourceRange(uint fromLine, uint fromColumn, uint toLine, uint toColumn) const;
-
-    Cursor cursorAt(uint line, uint column) const;
-    Cursor cursorAt(const Utf8String &filePath, uint line, uint column) const;
-    Cursor cursor() const;
-
+    // TODO: Remove
     HighlightingMarks highlightingMarks() const;
-    HighlightingMarks highlightingMarksInRange(const SourceRange &range) const;
 
-    SkippedSourceRanges skippedSourceRanges() const;
+    TranslationUnitCore translationUnitCore() const;
 
     bool projectPartIsOutdated() const;
-    static uint defaultParseOptions();
 
 private:
     void setDirty();
@@ -157,7 +152,7 @@ private:
     bool reparseWasSuccessful() const;
     bool fileExists() const;
 
-    void updateSynchronously(TranslationUnitUpdater::UpdateMode updateMode) const;
+    TranslationUnitUpdateInput createUpdateInput() const;
     TranslationUnitUpdater createUpdater() const;
     void incorporateUpdaterResult(const TranslationUnitUpdateResult &result) const;
 

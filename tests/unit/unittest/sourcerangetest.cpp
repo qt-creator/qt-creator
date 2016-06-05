@@ -23,6 +23,7 @@
 **
 ****************************************************************************/
 
+#include <clangtranslationunitcore.h>
 #include <diagnostic.h>
 #include <diagnosticset.h>
 #include <projectpart.h>
@@ -34,6 +35,8 @@
 
 #include <clang-c/Index.h>
 
+#include <memory>
+
 #include <gmock/gmock.h>
 #include <gmock/gmock-matchers.h>
 #include <gtest/gtest.h>
@@ -41,6 +44,7 @@
 
 using ClangBackEnd::DiagnosticSet;
 using ClangBackEnd::TranslationUnit;
+using ClangBackEnd::TranslationUnitCore;
 using ClangBackEnd::ProjectPart;
 using ClangBackEnd::UnsavedFiles;
 using ClangBackEnd::Diagnostic;
@@ -70,19 +74,42 @@ MATCHER_P4(IsSourceLocation, filePath, line, column, offset,
     return true;
 }
 
+struct SourceRangeData {
+    SourceRangeData(TranslationUnit &translationUnit)
+        : diagnosticSet{translationUnit.translationUnitCore().diagnostics()}
+        , diagnostic{diagnosticSet.front()}
+        , diagnosticWithFilteredOutInvalidRange{diagnosticSet.at(1)}
+        , sourceRange{diagnostic.ranges().front()}
+    {
+    }
+
+    DiagnosticSet diagnosticSet;
+    Diagnostic diagnostic;
+    Diagnostic diagnosticWithFilteredOutInvalidRange;
+    ::SourceRange sourceRange;
+};
+
 struct Data {
+    Data()
+    {
+        translationUnit.parse();
+        d.reset(new SourceRangeData(translationUnit));
+    }
+
     ProjectPart projectPart{Utf8StringLiteral("projectPartId"), {Utf8StringLiteral("-pedantic")}};
     ClangBackEnd::ProjectParts projects;
     ClangBackEnd::UnsavedFiles unsavedFiles;
     ClangBackEnd::TranslationUnits translationUnits{projects, unsavedFiles};
-    TranslationUnit translationUnit{Utf8StringLiteral(TESTDATA_DIR"/diagnostic_source_range.cpp"),
+    Utf8String filePath{Utf8StringLiteral(TESTDATA_DIR"/diagnostic_source_range.cpp")};
+    TranslationUnit translationUnit{filePath,
                                     projectPart,
                                     Utf8StringVector(),
                                     translationUnits};
-    DiagnosticSet diagnosticSet{translationUnit.diagnostics()};
-    Diagnostic diagnostic{diagnosticSet.front()};
-    Diagnostic diagnosticWithFilteredOutInvalidRange{diagnosticSet.at(1)};
-    ::SourceRange sourceRange{diagnostic.ranges().front()};
+    TranslationUnitCore translationUnitCore{filePath,
+                                            translationUnit.index(),
+                                            translationUnit.cxTranslationUnit()};
+
+    std::unique_ptr<SourceRangeData> d;
 };
 
 class SourceRange : public ::testing::Test
@@ -93,10 +120,10 @@ public:
 
 protected:
     static Data *d;
-    const ::SourceRange &sourceRange = d->sourceRange;
-    const Diagnostic &diagnostic = d->diagnostic;
-    const Diagnostic &diagnosticWithFilteredOutInvalidRange = d->diagnosticWithFilteredOutInvalidRange;
-    const TranslationUnit &translationUnit = d->translationUnit;
+    const ::SourceRange &sourceRange = d->d->sourceRange;
+    const Diagnostic &diagnostic = d->d->diagnostic;
+    const Diagnostic &diagnosticWithFilteredOutInvalidRange = d->d->diagnosticWithFilteredOutInvalidRange;
+    const TranslationUnitCore &translationUnitCore = d->translationUnitCore;
 };
 
 TEST_F(SourceRange, IsNull)
@@ -141,7 +168,7 @@ TEST_F(SourceRange, Create)
 
 TEST_F(SourceRange, SourceRangeFromTranslationUnit)
 {
-    auto sourceRangeFromTranslationUnit = translationUnit.sourceRange(8u, 5u, 8u, 6u);
+    auto sourceRangeFromTranslationUnit = translationUnitCore.sourceRange(8u, 5u, 8u, 6u);
 
     ASSERT_THAT(sourceRangeFromTranslationUnit, sourceRange);
 }

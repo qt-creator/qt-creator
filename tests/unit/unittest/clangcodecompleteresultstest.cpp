@@ -25,6 +25,7 @@
 
 #include <clangcodecompleteresults.h>
 #include <clangfilepath.h>
+#include <clangtranslationunitupdater.h>
 #include <projectpart.h>
 #include <projects.h>
 #include <clangtranslationunit.h>
@@ -47,10 +48,12 @@ using ClangBackEnd::TranslationUnit;
 using ClangBackEnd::UnsavedFiles;
 using ClangBackEnd::ProjectPart;
 
-static unsigned completionOptions(const TranslationUnit &translationUnit)
+static unsigned completionOptions()
 {
-    return translationUnit.defaultOptions() & CXTranslationUnit_IncludeBriefCommentsInCodeCompletion
-            ? CXCodeComplete_IncludeBriefComments : 0;
+    return ClangBackEnd::TranslationUnitUpdater::defaultParseOptions()
+                & CXTranslationUnit_IncludeBriefCommentsInCodeCompletion
+            ? CXCodeComplete_IncludeBriefComments
+            : 0;
 }
 
 TEST(ClangCodeCompleteResults, GetData)
@@ -64,11 +67,12 @@ TEST(ClangCodeCompleteResults, GetData)
                                     Utf8StringVector(),
                                     translationUnits);
     Utf8String nativeFilePath = FilePath::toNativeSeparators(translationUnit.filePath());
+    translationUnit.parse();
     CXCodeCompleteResults *cxCodeCompleteResults =
             clang_codeCompleteAt(translationUnit.cxTranslationUnit(),
                                  nativeFilePath.constData(),
                                  49, 1, 0, 0,
-                                 completionOptions(translationUnit));
+                                 completionOptions());
 
     ClangCodeCompleteResults codeCompleteResults(cxCodeCompleteResults);
 
@@ -95,11 +99,12 @@ TEST(ClangCodeCompleteResults, MoveClangCodeCompleteResults)
                                     Utf8StringVector(),
                                     translationUnits);
     Utf8String nativeFilePath = FilePath::toNativeSeparators(translationUnit.filePath());
+    translationUnit.parse();
     CXCodeCompleteResults *cxCodeCompleteResults =
             clang_codeCompleteAt(translationUnit.cxTranslationUnit(),
                                  nativeFilePath.constData(),
                                  49, 1, 0, 0,
-                                 completionOptions(translationUnit));
+                                 completionOptions());
 
     ClangCodeCompleteResults codeCompleteResults(cxCodeCompleteResults);
 

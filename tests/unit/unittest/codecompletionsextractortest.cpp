@@ -146,7 +146,8 @@ class CodeCompletionsExtractor : public ::testing::Test
 protected:
     ClangCodeCompleteResults getResults(const TranslationUnit &translationUnit,
                                         uint line,
-                                        uint column = 1);
+                                        uint column = 1,
+                                        bool needsReparse = false);
 
 protected:
     ClangBackEnd::ProjectPart project{Utf8StringLiteral("/path/to/projectfile")};
@@ -573,7 +574,6 @@ TEST_F(CodeCompletionsExtractor, ChangeUnsavedFile)
 
 TEST_F(CodeCompletionsExtractor, ArgumentDefinition)
 {
-    variableTranslationUnit.cxTranslationUnit();
     project.setArguments({Utf8StringLiteral("-DArgumentDefinition"), Utf8StringLiteral("-std=gnu++14")});
     ClangCodeCompleteResults completeResults(getResults(variableTranslationUnit, 35));
 
@@ -586,7 +586,6 @@ TEST_F(CodeCompletionsExtractor, ArgumentDefinition)
 
 TEST_F(CodeCompletionsExtractor, NoArgumentDefinition)
 {
-    variableTranslationUnit.cxTranslationUnit();
     project.setArguments({Utf8StringLiteral("-std=gnu++14")});
     ClangCodeCompleteResults completeResults(getResults(variableTranslationUnit, 35));
 
@@ -672,16 +671,23 @@ TEST_F(CodeCompletionsExtractor, CompletionChunksClass)
 
 TEST_F(CodeCompletionsExtractor, BriefComment)
 {
-    briefCommentTranslationUnit.reparse();
-    ClangCodeCompleteResults completeResults(getResults(briefCommentTranslationUnit, 10));
+    ClangCodeCompleteResults completeResults(getResults(briefCommentTranslationUnit, 10, 1,
+                                                        /*needsReparse=*/ true));
 
     ::CodeCompletionsExtractor extractor(completeResults.data());
 
     ASSERT_THAT(extractor, HasBriefComment(Utf8StringLiteral("BriefComment"), Utf8StringLiteral("A brief comment")));
 }
 
-ClangCodeCompleteResults CodeCompletionsExtractor::getResults(const TranslationUnit &translationUnit, uint line, uint column)
+ClangCodeCompleteResults CodeCompletionsExtractor::getResults(const TranslationUnit &translationUnit,
+                                                              uint line,
+                                                              uint column,
+                                                              bool needsReparse)
 {
+    translationUnit.parse();
+    if (needsReparse)
+        translationUnit.reparse();
+
     const Utf8String nativeFilePath = FilePath::toNativeSeparators(translationUnit.filePath());
     UnsavedFilesShallowArguments unsaved = unsavedFiles.shallowArguments();
 

@@ -28,6 +28,7 @@
 #include <projectpart.h>
 #include <projects.h>
 #include <clangtranslationunit.h>
+#include <clangtranslationunitcore.h>
 #include <translationunits.h>
 #include <unsavedfiles.h>
 #include <sourcelocation.h>
@@ -51,7 +52,26 @@ using testing::Not;
 
 namespace {
 
+struct SourceLocationData {
+    SourceLocationData(TranslationUnit &translationUnit)
+        : diagnosticSet{translationUnit.translationUnitCore().diagnostics()}
+        , diagnostic{diagnosticSet.front()}
+        , sourceLocation{diagnostic.location()}
+    {
+    }
+
+    DiagnosticSet diagnosticSet;
+    Diagnostic diagnostic;
+    ::SourceLocation sourceLocation;
+};
+
 struct Data {
+    Data()
+    {
+        translationUnit.parse();
+        d.reset(new SourceLocationData(translationUnit));
+    }
+
     ProjectPart projectPart{Utf8StringLiteral("projectPartId")};
     ClangBackEnd::ProjectParts projects;
     ClangBackEnd::UnsavedFiles unsavedFiles;
@@ -60,9 +80,7 @@ struct Data {
                                     projectPart,
                                     Utf8StringVector(),
                                     translationUnits};
-    DiagnosticSet diagnosticSet{translationUnit.diagnostics()};
-    Diagnostic diagnostic{diagnosticSet.front()};
-    ::SourceLocation sourceLocation{diagnostic.location()};
+    std::unique_ptr<SourceLocationData> d;
 };
 
 class SourceLocation : public ::testing::Test
@@ -73,8 +91,8 @@ public:
 
 protected:
     static Data *d;
-    const ::SourceLocation &sourceLocation = d->sourceLocation;
-    const TranslationUnit &translationUnit = d->translationUnit;
+    TranslationUnit &translationUnit = d->translationUnit;
+    ::SourceLocation &sourceLocation = d->d->sourceLocation;
 };
 
 TEST_F(SourceLocation, FilePath)
@@ -99,12 +117,12 @@ TEST_F(SourceLocation, Offset)
 
 TEST_F(SourceLocation, Create)
 {
-    ASSERT_THAT(translationUnit.sourceLocationAt(4, 1), sourceLocation);
+    ASSERT_THAT(translationUnit.translationUnitCore().sourceLocationAt(4, 1), sourceLocation);
 }
 
 TEST_F(SourceLocation, NotEqual)
 {
-    ASSERT_THAT(translationUnit.sourceLocationAt(3, 1), Not(sourceLocation));
+    ASSERT_THAT(translationUnit.translationUnitCore().sourceLocationAt(3, 1), Not(sourceLocation));
 }
 
 Data *SourceLocation::d;

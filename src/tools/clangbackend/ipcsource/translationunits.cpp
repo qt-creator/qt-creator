@@ -373,7 +373,7 @@ void TranslationUnits::sendDocumentAnnotations(const TranslationUnit &translatio
         DocumentAnnotationsChangedMessage message(translationUnit.fileContainer(),
                                                   translationUnit.mainFileDiagnostics(),
                                                   translationUnit.highlightingMarks().toHighlightingMarksContainers(),
-                                                  translationUnit.skippedSourceRanges().toSourceRangeContainers());
+                                                  translationUnit.translationUnitCore().skippedSourceRanges().toSourceRangeContainers());
 
         sendDocumentAnnotationsCallback(std::move(message));
     }

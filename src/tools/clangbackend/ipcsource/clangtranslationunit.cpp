@@ -42,6 +42,7 @@
 #include "translationunitisnullexception.h"
 #include "translationunitparseerrorexception.h"
 #include "translationunitreparseerrorexception.h"
+#include "clangtranslationunitcore.h"
 #include "clangtranslationunitupdater.h"
 #include "translationunits.h"
 #include "unsavedfiles.h"
@@ -148,11 +149,24 @@ void TranslationUnit::reset()
     d.reset();
 }
 
+void TranslationUnit::parse() const
+{
+    checkIfNull();
+
+    const TranslationUnitUpdateInput updateInput = createUpdateInput();
+    TranslationUnitUpdateResult result = translationUnitCore().parse(updateInput);
+
+    incorporateUpdaterResult(result);
+}
+
 void TranslationUnit::reparse() const
 {
-    cxTranslationUnit();
+    parse(); // TODO: Remove
 
-    updateSynchronously(TranslationUnitUpdater::UpdateMode::ForceReparse);
+    const TranslationUnitUpdateInput updateInput = createUpdateInput();
+    TranslationUnitUpdateResult result = translationUnitCore().reparse(updateInput);
+
+    incorporateUpdaterResult(result);
 }
 
 bool TranslationUnit::parseWasSuccessful() const
@@ -172,22 +186,10 @@ CXIndex &TranslationUnit::index() const
     return d->index;
 }
 
-CXTranslationUnit TranslationUnit::cxTranslationUnit() const
+CXTranslationUnit &TranslationUnit::cxTranslationUnit() const
 {
     checkIfNull();
     checkIfFileExists();
-
-    updateSynchronously(TranslationUnitUpdater::UpdateMode::AsNeeded);
-
-    return d->translationUnit;
-}
-
-CXTranslationUnit TranslationUnit::cxTranslationUnitWithoutReparsing() const
-{
-    checkIfNull();
-    checkIfFileExists();
-
-    updateSynchronously(TranslationUnitUpdater::UpdateMode::ParseIfNeeded);
 
     return d->translationUnit;
 }
@@ -270,17 +272,14 @@ DiagnosticSet TranslationUnit::diagnostics() const
 {
     d->hasNewDiagnostics = false;
 
-    return DiagnosticSet(clang_getDiagnosticSetFromTU(cxTranslationUnit()));
+    return translationUnitCore().diagnostics();
 }
 
 QVector<ClangBackEnd::DiagnosticContainer> TranslationUnit::mainFileDiagnostics() const
 {
-    const auto mainFilePath = filePath();
-    const auto isMainFileDiagnostic = [mainFilePath](const Diagnostic &diagnostic) {
-        return diagnostic.location().filePath() == mainFilePath;
-    };
+    d->hasNewDiagnostics = false;
 
-    return diagnostics().toDiagnosticContainers(isMainFileDiagnostic);
+    return translationUnitCore().mainFileDiagnostics();
 }
 
 const QSet<Utf8String> &TranslationUnit::dependedFilePaths() const
@@ -302,58 +301,11 @@ void TranslationUnit::setDirtyIfDependencyIsMet(const Utf8String &filePath)
         setDirty();
 }
 
-SourceLocation TranslationUnit::sourceLocationAt(uint line, uint column) const
-{
-    return SourceLocation(cxTranslationUnit(), filePath(), line, column);
-}
-
-SourceLocation TranslationUnit::sourceLocationAt(const Utf8String &filePath, uint line, uint column) const
-{
-    return SourceLocation(cxTranslationUnit(), filePath, line, column);
-}
-
-SourceRange TranslationUnit::sourceRange(uint fromLine, uint fromColumn, uint toLine, uint toColumn) const
-{
-    return SourceRange(sourceLocationAt(fromLine, fromColumn),
-                       sourceLocationAt(toLine, toColumn));
-}
-
-Cursor TranslationUnit::cursorAt(uint line, uint column) const
-{
-    return clang_getCursor(cxTranslationUnit(), sourceLocationAt(line, column));
-}
-
-Cursor TranslationUnit::cursorAt(const Utf8String &filePath, uint line, uint column) const
-{
-    return clang_getCursor(cxTranslationUnit(), sourceLocationAt(filePath, line, column));
-}
-
-Cursor TranslationUnit::cursor() const
-{
-    return clang_getTranslationUnitCursor(cxTranslationUnit());
-}
-
 HighlightingMarks TranslationUnit::highlightingMarks() const
 {
     d->hasNewHighlightingMarks = false;
 
-    return highlightingMarksInRange(cursor().sourceRange());
-}
-
-HighlightingMarks TranslationUnit::highlightingMarksInRange(const SourceRange &range) const
-{
-    CXToken *cxTokens = 0;
-    uint cxTokensCount = 0;
-    auto translationUnit = cxTranslationUnit();
-
-    clang_tokenize(translationUnit, range, &cxTokens, &cxTokensCount);
-
-    return HighlightingMarks(translationUnit, cxTokens, cxTokensCount);
-}
-
-SkippedSourceRanges TranslationUnit::skippedSourceRanges() const
-{
-    return SkippedSourceRanges(cxTranslationUnit(), d->filePath.constData());
+    return translationUnitCore().highlightingMarks();
 }
 
 void TranslationUnit::checkIfNull() const
@@ -402,15 +354,7 @@ bool TranslationUnit::fileExists() const
     return QFileInfo::exists(d->filePath.toString());
 }
 
-void TranslationUnit::updateSynchronously(TranslationUnitUpdater::UpdateMode updateMode) const
-{
-    TranslationUnitUpdater updater = createUpdater();
-    const TranslationUnitUpdateResult updateResult = updater.update(updateMode);
-
-    incorporateUpdaterResult(updateResult);
-}
-
-TranslationUnitUpdater TranslationUnit::createUpdater() const
+TranslationUnitUpdateInput TranslationUnit::createUpdateInput() const
 {
     TranslationUnitUpdateInput updateInput;
     updateInput.reparseNeeded = isNeedingReparse();
@@ -421,6 +365,12 @@ TranslationUnitUpdater TranslationUnit::createUpdater() const
     updateInput.projectId = projectPart().projectPartId();
     updateInput.projectArguments = projectPart().arguments();
 
+    return updateInput;
+}
+
+TranslationUnitUpdater TranslationUnit::createUpdater() const
+{
+    const TranslationUnitUpdateInput updateInput = createUpdateInput();
     TranslationUnitUpdater updater(index(), d->translationUnit, updateInput);
 
     return updater;
@@ -431,8 +381,7 @@ void TranslationUnit::incorporateUpdaterResult(const TranslationUnitUpdateResult
     if (result.parseTimePointIsSet)
         d->lastProjectPartChangeTimePoint = result.parseTimePoint;
 
-    if (!result.dependedOnFilePaths.isEmpty()) // TODO: Remove me
-        d->dependedFilePaths = result.dependedOnFilePaths;
+    d->dependedFilePaths = result.dependedOnFilePaths;
     d->translationUnits.addWatchedFiles(d->dependedFilePaths);
 
     if (result.reparsed)
@@ -452,14 +401,9 @@ CommandLineArguments TranslationUnit::commandLineArguments() const
     return createUpdater().commandLineArguments();
 }
 
-SourceLocation TranslationUnit::sourceLocationAtWithoutReparsing(uint line, uint column) const
+TranslationUnitCore TranslationUnit::translationUnitCore() const
 {
-    return SourceLocation(cxTranslationUnitWithoutReparsing(), filePath(), line, column);
-}
-
-uint TranslationUnit::defaultParseOptions()
-{
-    return TranslationUnitUpdater::defaultParseOptions();
+    return TranslationUnitCore(d->filePath, d->index, d->translationUnit);
 }
 
 uint TranslationUnit::unsavedFilesCount() const

@@ -37,6 +37,7 @@
 #include "clangtranslationunit.h"
 #include "sourcerange.h"
 #include "clangunsavedfilesshallowarguments.h"
+#include "clangtranslationunitupdater.h"
 
 #include <clang-c/Index.h>
 
@@ -57,9 +58,9 @@ CodeCompletions toCodeCompletions(const ClangCodeCompleteResults &results)
 
 } // anonymous namespace
 
-CodeCompleter::CodeCompleter(TranslationUnit translationUnit,
+CodeCompleter::CodeCompleter(const TranslationUnitCore &translationUnitCore,
                              const UnsavedFiles &unsavedFiles)
-    : translationUnit(std::move(translationUnit))
+    : translationUnitCore(translationUnitCore)
     , unsavedFiles(unsavedFiles)
 {
 }
@@ -82,10 +83,10 @@ CompletionCorrection CodeCompleter::neededCorrection() const
 
 ClangCodeCompleteResults CodeCompleter::completeHelper(uint line, uint column)
 {
-    const Utf8String nativeFilePath = FilePath::toNativeSeparators(translationUnit.filePath());
+    const Utf8String nativeFilePath = FilePath::toNativeSeparators(translationUnitCore.filePath());
     UnsavedFilesShallowArguments unsaved = unsavedFiles.shallowArguments();
 
-    return clang_codeCompleteAt(translationUnit.cxTranslationUnitWithoutReparsing(),
+    return clang_codeCompleteAt(translationUnitCore.cxTranslationUnit(),
                                 nativeFilePath.constData(),
                                 line,
                                 column,
@@ -99,7 +100,7 @@ uint CodeCompleter::defaultOptions() const
     uint options = CXCodeComplete_IncludeMacros
                  | CXCodeComplete_IncludeCodePatterns;
 
-    if (translationUnit.defaultParseOptions()
+    if (TranslationUnitUpdater::defaultParseOptions()
             & CXTranslationUnit_IncludeBriefCommentsInCodeCompletion) {
         options |= CXCodeComplete_IncludeBriefComments;
     }
@@ -109,7 +110,7 @@ uint CodeCompleter::defaultOptions() const
 
 UnsavedFile &CodeCompleter::unsavedFile()
 {
-    return unsavedFiles.unsavedFile(translationUnit.filePath());
+    return unsavedFiles.unsavedFile(translationUnitCore.filePath());
 }
 
 void CodeCompleter::tryDotArrowCorrectionIfNoResults(ClangCodeCompleteResults &results,
@@ -117,10 +118,10 @@ void CodeCompleter::tryDotArrowCorrectionIfNoResults(ClangCodeCompleteResults &r
                                                      uint column)
 {
     if (results.hasNoResultsForDotCompletion()) {
-        const UnsavedFile &unsavedFile = translationUnit.unsavedFile();
+        const UnsavedFile &theUnsavedFile = unsavedFile();
         bool positionIsOk = false;
-        const uint dotPosition = unsavedFile.toUtf8Position(line, column - 1, &positionIsOk);
-        if (positionIsOk && unsavedFile.hasCharacterAt(dotPosition, '.'))
+        const uint dotPosition = theUnsavedFile.toUtf8Position(line, column - 1, &positionIsOk);
+        if (positionIsOk && theUnsavedFile.hasCharacterAt(dotPosition, '.'))
             results = completeWithArrowInsteadOfDot(line, column, dotPosition);
     }
 }
@@ -141,17 +142,6 @@ ClangCodeCompleteResults CodeCompleter::completeWithArrowInsteadOfDot(uint line,
     }
 
     return results;
-}
-
-Utf8String CodeCompleter::filePath() const
-{
-    return translationUnit.filePath();
-}
-
-void CodeCompleter::checkCodeCompleteResult(CXCodeCompleteResults *completeResults)
-{
-    if (!completeResults)
-        throw CodeCompleteFailedException();
 }
 
 } // namespace ClangBackEnd
