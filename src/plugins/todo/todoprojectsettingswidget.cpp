@@ -38,7 +38,6 @@ namespace Todo {
 namespace Internal {
 
 TodoProjectSettingsWidget::TodoProjectSettingsWidget(ProjectExplorer::Project *project) :
-    QWidget(0),
     ui(new Ui::TodoProjectSettingsWidget),
     m_project(project)
 {
@@ -51,6 +50,8 @@ TodoProjectSettingsWidget::TodoProjectSettingsWidget(ProjectExplorer::Project *p
             this, &TodoProjectSettingsWidget::removeExcludedPatternButtonClicked);
     connect(ui->excludedPatternsList, &QListWidget::itemChanged,
             this, &TodoProjectSettingsWidget::excludedPatternChanged, Qt::QueuedConnection);
+    connect(ui->excludedPatternsList, &QListWidget::itemSelectionChanged,
+            this, &TodoProjectSettingsWidget::setExcludedPatternsButtonsEnabled);
 
     loadSettings();
 }

@@ -51,7 +51,7 @@ TodoOutputTreeView::TodoOutputTreeView(QWidget *parent) :
     header()->setSectionResizeMode(QHeaderView::Interactive);
     header()->setStretchLastSection(true);
     header()->setSectionsMovable(false);
-    connect(header(), SIGNAL(sectionResized(int,int,int)), SLOT(todoColumnResized(int,int,int)));
+    connect(header(), &QHeaderView::sectionResized, this, &TodoOutputTreeView::todoColumnResized);
     loadDisplaySettings();
 }
 

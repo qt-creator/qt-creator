@@ -114,25 +114,5 @@
   </layout>
  </widget>
  <resources/>
- <connections>
-  <connection>
-   <sender>keywordsList</sender>
-   <signal>itemSelectionChanged()</signal>
-   <receiver>Todo::Internal::OptionsDialog</receiver>
-   <slot>setKeywordsButtonsEnabled()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>247</x>
-     <y>176</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>5</x>
-     <y>137</y>
-    </hint>
-   </hints>
-  </connection>
- </connections>
- <slots>
-  <slot>setKeywordsButtonsEnabled()</slot>
- </slots>
+ <connections/>
 </ui>

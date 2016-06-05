@@ -53,13 +53,11 @@ public:
 signals:
     void projectSettingsChanged();
 
-private slots:
+private:
     void addExcludedPatternButtonClicked();
     void removeExcludedPatternButtonClicked();
     void setExcludedPatternsButtonsEnabled();
     void excludedPatternChanged(QListWidgetItem *item);
-
-private:
     QListWidgetItem *addToExcludedPatternsList(const QString &pattern);
     void loadSettings();
     void saveSettings();

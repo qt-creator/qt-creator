@@ -111,8 +111,8 @@ void TodoItemsProvider::createScanners()
         m_scanners << new QmlJsTodoItemsScanner(m_settings.keywords, this);
 
     foreach (TodoItemsScanner *scanner, m_scanners) {
-        connect(scanner, SIGNAL(itemsFetched(QString,QList<TodoItem>)), this,
-            SLOT(itemsFetched(QString,QList<TodoItem>)), Qt::QueuedConnection);
+        connect(scanner, &TodoItemsScanner::itemsFetched, this,
+            &TodoItemsProvider::itemsFetched, Qt::QueuedConnection);
     }
 }
 
@@ -208,16 +208,17 @@ void TodoItemsProvider::updateListTimeoutElapsed()
 void TodoItemsProvider::setupStartupProjectBinding()
 {
     m_startupProject = SessionManager::startupProject();
-    connect(SessionManager::instance(), SIGNAL(startupProjectChanged(ProjectExplorer::Project*)),
-        SLOT(startupProjectChanged(ProjectExplorer::Project*)));
-    connect(ProjectExplorerPlugin::instance(), SIGNAL(fileListChanged()), SLOT(projectsFilesChanged()));
+    connect(SessionManager::instance(), &SessionManager::startupProjectChanged,
+        this, &TodoItemsProvider::startupProjectChanged);
+    connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::fileListChanged,
+            this, &TodoItemsProvider::projectsFilesChanged);
 }
 
 void TodoItemsProvider::setupCurrentEditorBinding()
 {
     m_currentEditor = Core::EditorManager::currentEditor();
-    connect(Core::EditorManager::instance(), SIGNAL(currentEditorChanged(Core::IEditor*)),
-        SLOT(currentEditorChanged(Core::IEditor*)));
+    connect(Core::EditorManager::instance(), &Core::EditorManager::currentEditorChanged,
+        this, &TodoItemsProvider::currentEditorChanged);
 }
 
 void TodoItemsProvider::setupUpdateListTimer()

@@ -41,11 +41,18 @@ OptionsDialog::OptionsDialog(QWidget *parent) :
     ui->setupUi(this);
     ui->keywordsList->setIconSize(QSize(16, 16));
     setKeywordsButtonsEnabled();
-    connect(ui->addKeywordButton, SIGNAL(clicked()), SLOT(addKeywordButtonClicked()));
-    connect(ui->removeKeywordButton, SIGNAL(clicked()), SLOT(removeKeywordButtonClicked()));
-    connect(ui->editKeywordButton, SIGNAL(clicked()), SLOT(editKeywordButtonClicked()));
-    connect(ui->resetKeywordsButton, SIGNAL(clicked()), SLOT(resetKeywordsButtonClicked()));
-    connect(ui->keywordsList, SIGNAL(itemDoubleClicked(QListWidgetItem*)), SLOT(keywordDoubleClicked(QListWidgetItem*)));
+    connect(ui->addKeywordButton, &QAbstractButton::clicked,
+            this, &OptionsDialog::addKeywordButtonClicked);
+    connect(ui->removeKeywordButton, &QAbstractButton::clicked,
+            this, &OptionsDialog::removeKeywordButtonClicked);
+    connect(ui->editKeywordButton, &QAbstractButton::clicked,
+            this, &OptionsDialog::editKeywordButtonClicked);
+    connect(ui->resetKeywordsButton, &QAbstractButton::clicked,
+            this, &OptionsDialog::resetKeywordsButtonClicked);
+    connect(ui->keywordsList, &QListWidget::itemDoubleClicked,
+            this, &OptionsDialog::keywordDoubleClicked);
+    connect(ui->keywordsList, &QListWidget::itemSelectionChanged,
+            this, &OptionsDialog::setKeywordsButtonsEnabled);
 }
 
 OptionsDialog::~OptionsDialog()

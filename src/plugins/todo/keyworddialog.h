@@ -47,11 +47,9 @@ public:
 
     Keyword keyword();
 
-private slots:
+private:
     void colorSelected(const QColor &color);
     void acceptButtonClicked();
-
-private:
     void setupListWidget(IconType selectedIcon);
     void setupColorWidgets(const QColor &color);
     bool canAccept();

@@ -32,17 +32,15 @@ namespace Internal {
 
 class TodoOutputTreeView : public Utils::TreeView
 {
-    Q_OBJECT
 public:
     explicit TodoOutputTreeView(QWidget *parent = 0);
     ~TodoOutputTreeView();
 
     void resizeEvent(QResizeEvent *event);
 
-private slots:
+private:
     void todoColumnResized(int column, int oldSize, int newSize);
 
-private:
     void saveDisplaySettings();
     void loadDisplaySettings();
 

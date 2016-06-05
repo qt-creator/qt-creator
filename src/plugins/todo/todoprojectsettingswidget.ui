@@ -67,25 +67,5 @@
   </layout>
  </widget>
  <resources/>
- <connections>
-     <connection>
-      <sender>excludedPatternsList</sender>
-      <signal>itemSelectionChanged()</signal>
-      <receiver>Todo::Internal::TodoProjectSettingsWidget</receiver>
-      <slot>setExcludedPatternsButtonsEnabled()</slot>
-      <hints>
-       <hint type="sourcelabel">
-        <x>170</x>
-        <y>381</y>
-       </hint>
-       <hint type="destinationlabel">
-        <x>221</x>
-        <y>240</y>
-       </hint>
-      </hints>
-     </connection>
- </connections>
- <slots>
-  <slot>setExcludedPatternsButtonsEnabled()</slot>
- </slots>
+ <connections/>
 </ui>

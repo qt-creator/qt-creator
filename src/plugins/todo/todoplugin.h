@@ -50,12 +50,10 @@ public:
     void extensionsInitialized();
     bool initialize(const QStringList &arguments, QString *errorString);
 
-private slots:
+private:
     void settingsChanged(const Settings &settings);
     void scanningScopeChanged(ScanningScope scanningScope);
     void todoItemClicked(const TodoItem &item);
-
-private:
     void createItemsProvider();
     void createTodoOutputPane();
     void createOptionsPage();

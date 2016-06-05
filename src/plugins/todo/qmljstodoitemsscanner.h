@@ -35,8 +35,6 @@ namespace Internal {
 
 class QmlJsTodoItemsScanner : public TodoItemsScanner
 {
-    Q_OBJECT
-
 public:
     explicit QmlJsTodoItemsScanner(const KeywordList &keywordList, QObject *parent = 0);
 
@@ -44,10 +42,8 @@ protected:
     bool shouldProcessFile(const QString &fileName);
     void scannerParamsChanged() override;
 
-private slots:
-    void documentUpdated(QmlJS::Document::Ptr doc);
-
 private:
+    void documentUpdated(QmlJS::Document::Ptr doc);
     void processDocument(QmlJS::Document::Ptr doc);
 };
 
