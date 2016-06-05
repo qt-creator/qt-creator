@@ -88,8 +88,8 @@ QtOutputFormatter::QtOutputFormatter(Project *project)
         d->projectFinder.setProjectFiles(project->files(Project::SourceFiles));
         d->projectFinder.setProjectDirectory(project->projectDirectory().toString());
 
-        connect(project, SIGNAL(fileListChanged()),
-                this, SLOT(updateProjectFileList()));
+        connect(project, &Project::fileListChanged,
+                this, &QtOutputFormatter::updateProjectFileList);
     }
 }
 

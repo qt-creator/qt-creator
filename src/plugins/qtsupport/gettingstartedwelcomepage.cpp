@@ -64,17 +64,6 @@ using namespace Utils;
 namespace QtSupport {
 namespace Internal {
 
-class ExampleDialog : public QDialog
-{
-    Q_OBJECT
- public:
-    enum ResultCode { Copy = QDialog::Accepted + 1, Keep };
-    ExampleDialog(QWidget *parent = 0) : QDialog(parent) {};
- private slots:
-    void handleCopyClicked() { done(Copy); };
-    void handleKeepClicked() { done(Keep); };
-};
-
 const char C_FALLBACK_ROOT[] = "ProjectsFallbackRoot";
 
 QPointer<ExamplesListModel> &examplesModelStatic()
@@ -90,7 +79,7 @@ class Fetcher : public QObject
 public:
     Fetcher() : QObject(),  m_shutdown(false)
     {
-        connect(Core::ICore::instance(), SIGNAL(coreAboutToClose()), this, SLOT(shutdown()));
+        connect(Core::ICore::instance(), &Core::ICore::coreAboutToClose, this, &Fetcher::shutdown);
     }
 
     void wait()
@@ -146,7 +135,7 @@ public slots:
         m_waitcondition.wakeAll();
     }
 
-private slots:
+private:
     void shutdown()
     {
         m_shutdown = true;
@@ -293,7 +282,7 @@ void ExamplesWelcomePage::openUrl(const QUrl &url)
 QString ExamplesWelcomePage::copyToAlternativeLocation(const QFileInfo& proFileInfo, QStringList &filesToOpen, const QStringList& dependencies)
 {
     const QString projectDir = proFileInfo.canonicalPath();
-    ExampleDialog d(Core::ICore::mainWindow());
+    QDialog d(Core::ICore::mainWindow());
     QGridLayout *lay = new QGridLayout(&d);
     QLabel *descrLbl = new QLabel;
     d.setWindowTitle(tr("Copy Project to writable Location?"));
@@ -321,16 +310,17 @@ QString ExamplesWelcomePage::copyToAlternativeLocation(const QFileInfo& proFileI
                                      Core::DocumentManager::projectsDirectory()).toString());
     lay->addWidget(txt, 1, 0);
     lay->addWidget(chooser, 1, 1);
+    enum { Copy = QDialog::Accepted + 1, Keep = QDialog::Accepted + 2 };
     QDialogButtonBox *bb = new QDialogButtonBox;
     QPushButton *copyBtn = bb->addButton(tr("&Copy Project and Open"), QDialogButtonBox::AcceptRole);
-    connect(copyBtn, SIGNAL(released()), &d, SLOT(handleCopyClicked()));
+    connect(copyBtn, &QAbstractButton::released, &d, [&d] { d.done(Copy); });
     copyBtn->setDefault(true);
     QPushButton *keepBtn = bb->addButton(tr("&Keep Project and Open"), QDialogButtonBox::RejectRole);
-    connect(keepBtn, SIGNAL(released()), &d, SLOT(handleKeepClicked()));
+    connect(keepBtn, &QAbstractButton::released, &d, [&d] { d.done(Keep); });
     lay->addWidget(bb, 2, 0, 1, 2);
-    connect(chooser, SIGNAL(validChanged(bool)), copyBtn, SLOT(setEnabled(bool)));
+    connect(chooser, &PathChooser::validChanged, copyBtn, &QWidget::setEnabled);
     int code = d.exec();
-    if (code == ExampleDialog::Copy) {
+    if (code == Copy) {
         QString exampleDirName = proFileInfo.dir().dirName();
         QString destBaseDir = chooser->path();
         settings->setValue(QString::fromLatin1(C_FALLBACK_ROOT), destBaseDir);
@@ -370,7 +360,7 @@ QString ExamplesWelcomePage::copyToAlternativeLocation(const QFileInfo& proFileI
 
         }
     }
-    if (code == ExampleDialog::Keep)
+    if (code == Keep)
         return proFileInfo.absoluteFilePath();
     return QString();
 

@@ -118,13 +118,13 @@ QtVersionManager::QtVersionManager()
 
     // Give the file a bit of time to settle before reading it...
     m_fileWatcherTimer->setInterval(2000);
-    connect(m_fileWatcherTimer, SIGNAL(timeout()), SLOT(updateFromInstaller()));
+    connect(m_fileWatcherTimer, &QTimer::timeout, this, [this] { updateFromInstaller(); });
 }
 
 void QtVersionManager::triggerQtVersionRestore()
 {
-    disconnect(ProjectExplorer::ToolChainManager::instance(), SIGNAL(toolChainsLoaded()),
-               this, SLOT(triggerQtVersionRestore()));
+    disconnect(ProjectExplorer::ToolChainManager::instance(), &ProjectExplorer::ToolChainManager::toolChainsLoaded,
+               this, &QtVersionManager::triggerQtVersionRestore);
 
     bool success = restoreQtVersions();
     m_instance->updateFromInstaller(false);
@@ -142,8 +142,8 @@ void QtVersionManager::triggerQtVersionRestore()
     const FileName configFileName = globalSettingsFileName();
     if (configFileName.exists()) {
         m_configFileWatcher = new FileSystemWatcher(m_instance);
-        connect(m_configFileWatcher, SIGNAL(fileChanged(QString)),
-                m_fileWatcherTimer, SLOT(start()));
+        connect(m_configFileWatcher, &FileSystemWatcher::fileChanged,
+                m_fileWatcherTimer, static_cast<void (QTimer::*)()>(&QTimer::start));
         m_configFileWatcher->addFile(configFileName.toString(),
                                      FileSystemWatcher::WatchModifiedDate);
     } // exists
@@ -165,8 +165,8 @@ QtVersionManager::~QtVersionManager()
 
 void QtVersionManager::initialized()
 {
-    connect(ProjectExplorer::ToolChainManager::instance(), SIGNAL(toolChainsLoaded()),
-            QtVersionManager::instance(), SLOT(triggerQtVersionRestore()));
+    connect(ProjectExplorer::ToolChainManager::instance(), &ProjectExplorer::ToolChainManager::toolChainsLoaded,
+            QtVersionManager::instance(), &QtVersionManager::triggerQtVersionRestore);
 }
 
 QtVersionManager *QtVersionManager::instance()

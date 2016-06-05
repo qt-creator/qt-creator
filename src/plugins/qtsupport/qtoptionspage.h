@@ -86,7 +86,7 @@ private:
     QIcon m_validVersionIcon;
     QtConfigWidget *m_configurationWidget;
 
-private slots:
+private:
     void updateQtVersions(const QList<int> &, const QList<int> &, const QList<int> &);
     void qtVersionChanged();
     void versionChanged(const QModelIndex &current, const QModelIndex &previous);
@@ -103,7 +103,6 @@ private slots:
     void setInfoWidgetVisibility();
     void infoAnchorClicked(const QUrl &);
 
-private:
     struct ValidityInfo {
         QString description;
         QString message;

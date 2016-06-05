@@ -52,12 +52,10 @@ public:
     QWidget *buttonWidget() const override;
     QString toolTip() const override;
 
-private slots:
+private:
     void versionsChanged(const QList<int> &added, const QList<int> &removed, const QList<int> &changed);
     void manageQtVersions();
     void currentWasChanged(int idx);
-
-private:
     int findQtVersion(const int id) const;
 
     QComboBox *m_combo;

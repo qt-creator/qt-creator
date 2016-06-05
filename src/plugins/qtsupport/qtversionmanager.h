@@ -73,11 +73,10 @@ signals:
 public slots:
     void updateDumpFor(const Utils::FileName &qmakeCommand);
 
-private slots:
+private:
     void updateFromInstaller(bool emitSignal = true);
     void triggerQtVersionRestore();
 
-private:
     // Used by QtOptionsPage
     static void setNewQtVersions(QList<BaseQtVersion *> newVersions);
     // Used by QtVersion

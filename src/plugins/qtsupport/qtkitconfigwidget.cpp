@@ -55,12 +55,13 @@ QtKitConfigWidget::QtKitConfigWidget(ProjectExplorer::Kit *k, const ProjectExplo
     refresh();
     m_combo->setToolTip(toolTip());
 
-    connect(m_combo, SIGNAL(currentIndexChanged(int)), this, SLOT(currentWasChanged(int)));
+    connect(m_combo, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+            this, &QtKitConfigWidget::currentWasChanged);
 
-    connect(QtVersionManager::instance(), SIGNAL(qtVersionsChanged(QList<int>,QList<int>,QList<int>)),
-            this, SLOT(versionsChanged(QList<int>,QList<int>,QList<int>)));
+    connect(QtVersionManager::instance(), &QtVersionManager::qtVersionsChanged,
+            this, &QtKitConfigWidget::versionsChanged);
 
-    connect(m_manageButton, SIGNAL(clicked()), this, SLOT(manageQtVersions()));
+    connect(m_manageButton, &QAbstractButton::clicked, this, &QtKitConfigWidget::manageQtVersions);
 }
 
 QtKitConfigWidget::~QtKitConfigWidget()

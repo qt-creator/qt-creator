@@ -101,7 +101,7 @@ public:
 private:
     ProFileCacheManager(QObject *parent);
     ~ProFileCacheManager();
-    Q_SLOT void clear();
+    void clear();
     ProFileCache *m_cache;
     int m_refCount;
     QTimer m_timer;

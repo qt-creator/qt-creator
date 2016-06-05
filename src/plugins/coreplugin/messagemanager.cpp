@@ -33,7 +33,7 @@ using namespace Core;
 static MessageManager *m_instance = 0;
 Internal::MessageOutputWindow *m_messageOutputWindow = 0;
 
-QObject *MessageManager::instance()
+MessageManager *MessageManager::instance()
 {
     return m_instance;
 }
@@ -64,11 +64,6 @@ void MessageManager::showOutputPane()
 {
     if (m_messageOutputWindow)
         m_messageOutputWindow->popup(IOutputPane::ModeSwitch);
-}
-
-void MessageManager::write(const QString &text)
-{
-    write(text, NoModeSwitch);
 }
 
 void MessageManager::write(const QString &text, PrintToOutputPaneFlags flags)

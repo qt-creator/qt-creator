@@ -71,7 +71,7 @@ public:
     QSet<Core::Id> supportedPlatforms(const ProjectExplorer::Kit *k) const override;
     QSet<Core::Id> availableFeatures(const ProjectExplorer::Kit *k) const override;
 
-private slots:
+private:
     void qtVersionsChanged(const QList<int> &addedIds,
                            const QList<int> &removedIds,
                            const QList<int> &changedIds);

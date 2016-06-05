@@ -769,8 +769,8 @@ void QtOptionsPageWidget::updateWidgets()
         if (m_configurationWidget) {
             m_versionUi->formLayout->addRow(m_configurationWidget);
             m_configurationWidget->setEnabled(!version->isAutodetected());
-            connect(m_configurationWidget, SIGNAL(changed()),
-                    this, SLOT(qtVersionChanged()));
+            connect(m_configurationWidget, &QtConfigWidget::changed,
+                    this, &QtOptionsPageWidget::qtVersionChanged);
         }
     } else {
         m_versionUi->nameEdit->clear();

@@ -219,8 +219,8 @@ void QtKitInformation::kitsWereLoaded()
     foreach (ProjectExplorer::Kit *k, ProjectExplorer::KitManager::kits())
         fix(k);
 
-    connect(QtVersionManager::instance(), SIGNAL(qtVersionsChanged(QList<int>,QList<int>,QList<int>)),
-            this, SLOT(qtVersionsChanged(QList<int>,QList<int>,QList<int>)));
+    connect(QtVersionManager::instance(), &QtVersionManager::qtVersionsChanged,
+            this, &QtKitInformation::qtVersionsChanged);
 }
 
 KitMatcher QtKitInformation::platformMatcher(Core::Id platform)
