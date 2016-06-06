@@ -85,6 +85,7 @@ QtcPlugin {
             "localqmlprofilerrunner_test.cpp", "localqmlprofilerrunner_test.h",
             "memoryusagemodel_test.cpp", "memoryusagemodel_test.h",
             "pixmapcachemodel_test.cpp", "pixmapcachemodel_test.h",
+            "qmlevent_test.cpp", "qmlevent_test.h",
         ]
     }
 }

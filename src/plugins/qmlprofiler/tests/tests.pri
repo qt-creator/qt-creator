@@ -6,7 +6,8 @@ SOURCES += \
     $$PWD/inputeventsmodel_test.cpp \
     $$PWD/localqmlprofilerrunner_test.cpp \
     $$PWD/memoryusagemodel_test.cpp \
-    $$PWD/pixmapcachemodel_test.cpp
+    $$PWD/pixmapcachemodel_test.cpp \
+    $$PWD/qmlevent_test.cpp
 
 HEADERS += \
     $$PWD/debugmessagesmodel_test.h \
@@ -16,4 +17,5 @@ HEADERS += \
     $$PWD/inputeventsmodel_test.h \
     $$PWD/localqmlprofilerrunner_test.h \
     $$PWD/memoryusagemodel_test.h \
-    $$PWD/pixmapcachemodel_test.h
+    $$PWD/pixmapcachemodel_test.h \
+    $$PWD/qmlevent_test.h
