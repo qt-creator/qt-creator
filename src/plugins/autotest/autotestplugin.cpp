@@ -67,7 +67,6 @@ AutotestPlugin::AutotestPlugin()
     qRegisterMetaType<TestResult>();
     qRegisterMetaType<TestTreeItem *>();
     qRegisterMetaType<TestCodeLocationAndType>();
-    qRegisterMetaType<TestTreeModel::Type>();
 
     m_instance = this;
 }

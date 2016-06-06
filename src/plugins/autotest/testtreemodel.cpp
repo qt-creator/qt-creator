@@ -227,14 +227,10 @@ void TestTreeModel::removeFiles(const QStringList &files)
 
 void TestTreeModel::markAllForRemoval()
 {
-    foreach (Utils::TreeItem *item, m_qtTestRootItem->children())
-        static_cast<TestTreeItem *>(item)->markForRemovalRecursively(true);
-
-    foreach (Utils::TreeItem *item, m_quickTestRootItem->children())
-        static_cast<TestTreeItem *>(item)->markForRemovalRecursively(true);
-
-    foreach (Utils::TreeItem *item, m_googleTestRootItem->children())
-        static_cast<TestTreeItem *>(item)->markForRemovalRecursively(true);
+    foreach (Utils::TreeItem *frameworkRoot, rootItem()->children()) {
+        foreach (Utils::TreeItem *item, frameworkRoot->children())
+            static_cast<TestTreeItem *>(item)->markForRemovalRecursively(true);
+    }
 }
 
 void TestTreeModel::markForRemoval(const QString &filePath)
@@ -242,9 +238,8 @@ void TestTreeModel::markForRemoval(const QString &filePath)
     if (filePath.isEmpty())
         return;
 
-    Type types[] = { AutoTest, QuickTest, GoogleTest };
-    for (Type type : types) {
-        TestTreeItem *root = rootItemForType(type);
+    for (Utils::TreeItem *frameworkRoot : rootItem()->children()) {
+        TestTreeItem *root = static_cast<TestTreeItem *>(frameworkRoot);
         for (int childRow = root->childCount() - 1; childRow >= 0; --childRow) {
             TestTreeItem *child = root->childItem(childRow);
             child->markForRemovalRecursively(filePath);
@@ -254,9 +249,8 @@ void TestTreeModel::markForRemoval(const QString &filePath)
 
 void TestTreeModel::sweep()
 {
-    Type types[] = { AutoTest, QuickTest, GoogleTest };
-    for (Type type : types) {
-        TestTreeItem *root = rootItemForType(type);
+    for (Utils::TreeItem *frameworkRoot : rootItem()->children()) {
+        TestTreeItem *root = static_cast<TestTreeItem *>(frameworkRoot);
         sweepChildren(root);
     }
     // even if nothing has changed by the sweeping we might had parse which added or modified items
@@ -317,7 +311,7 @@ bool TestTreeModel::sweepChildren(TestTreeItem *item)
 
 void TestTreeModel::onParseResultReady(const TestParseResultPtr result)
 {
-    TestTreeItem *rootNode = rootItemForType(result->type);
+    TestTreeItem *rootNode = rootItemForFramework(result->frameworkId);
     QTC_ASSERT(rootNode, return);
     handleParseResult(result.data(), rootNode);
 }
@@ -352,19 +346,15 @@ void TestTreeModel::removeAllTestItems()
     emit testTreeModelChanged();
 }
 
-TestTreeItem *TestTreeModel::rootItemForType(TestTreeModel::Type type)
+TestTreeItem *TestTreeModel::rootItemForFramework(const Core::Id &id)
 {
-    switch (type) {
-    case AutoTest:
+    if (id == Core::Id("QtTest"))
         return m_qtTestRootItem;
-    case QuickTest:
+    if (id == Core::Id("QtQuickTest"))
         return m_quickTestRootItem;
-    case GoogleTest:
+    if (id == Core::Id("GTest"))
         return m_googleTestRootItem;
-    case Invalid:
-        break;
-    }
-    QTC_ASSERT(false, return 0);
+    return 0;
 }
 
 #ifdef WITH_TESTS

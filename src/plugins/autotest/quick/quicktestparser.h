@@ -33,7 +33,7 @@ namespace Internal {
 class QuickTestParseResult : public TestParseResult
 {
 public:
-    explicit QuickTestParseResult() : TestParseResult(TestTreeModel::QuickTest) {}
+    explicit QuickTestParseResult(const Core::Id &id) : TestParseResult(id) {}
     TestTreeItem *createTestTreeItem() const override;
 };
 

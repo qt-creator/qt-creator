@@ -82,9 +82,14 @@ TestCodeParser::TestCodeParser(TestTreeModel *parent)
         emit testParseResultReady(m_futureWatcher.resultAt(index));
     });
 
-    m_testCodeParsers.append(new QtTestParser);
-    m_testCodeParsers.append(new QuickTestParser);
-    m_testCodeParsers.append(new GTestParser);
+    // REMOVE
+    auto p1 = new QtTestParser;
+    p1->setId("QtTest");
+    auto p2 = new QuickTestParser;
+    p2->setId("QtQuickTest");
+    auto p3 = new GTestParser;
+    p3->setId("GTest");
+    m_testCodeParsers.append( {p1, p2, p3} );
 }
 
 TestCodeParser::~TestCodeParser()

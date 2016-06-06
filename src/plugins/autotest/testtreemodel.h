@@ -44,13 +44,6 @@ class TestTreeModel : public Utils::TreeModel
 {
     Q_OBJECT
 public:
-    enum Type { // FIXME remove this enum
-        Invalid,
-        AutoTest,
-        QuickTest,
-        GoogleTest
-    };
-
     static TestTreeModel* instance();
     ~TestTreeModel();
     void enableParsing();
@@ -98,7 +91,7 @@ private:
     bool sweepChildren(TestTreeItem *item);
 
     TestTreeItem *unnamedQuickTests() const;
-    TestTreeItem *rootItemForType(Type type);
+    TestTreeItem *rootItemForFramework(const Core::Id &id);
 
     explicit TestTreeModel(QObject *parent = 0);
     void setupParsingConnections();
@@ -143,5 +136,3 @@ private:
 
 } // namespace Internal
 } // namespace Autotest
-
-Q_DECLARE_METATYPE(Autotest::Internal::TestTreeModel::Type)

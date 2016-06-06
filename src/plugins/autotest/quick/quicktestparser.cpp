@@ -150,6 +150,7 @@ static QList<QmlJS::Document::Ptr> scanDirectoryForQuickTestQmlFiles(const QStri
 
 static bool checkQmlDocumentForQuickTestCode(QFutureInterface<TestParseResultPtr> futureInterface,
                                              const QmlJS::Document::Ptr &qmlJSDoc,
+                                             const Core::Id &id,
                                              const QString &proFile = QString())
 {
     if (qmlJSDoc.isNull())
@@ -163,14 +164,14 @@ static bool checkQmlDocumentForQuickTestCode(QFutureInterface<TestParseResultPtr
     const TestCodeLocationAndType tcLocationAndType = qmlVisitor.testCaseLocation();
     const QMap<QString, TestCodeLocationAndType> &testFunctions = qmlVisitor.testFunctions();
 
-    QuickTestParseResult *parseResult = new QuickTestParseResult;
+    QuickTestParseResult *parseResult = new QuickTestParseResult(id);
     parseResult->proFile = proFile;
     parseResult->itemType = TestTreeItem::TestCase;
     QMap<QString, TestCodeLocationAndType>::ConstIterator it = testFunctions.begin();
     const QMap<QString, TestCodeLocationAndType>::ConstIterator end = testFunctions.end();
     for ( ; it != end; ++it) {
         const TestCodeLocationAndType &loc = it.value();
-        QuickTestParseResult *funcResult = new QuickTestParseResult;
+        QuickTestParseResult *funcResult = new QuickTestParseResult(id);
         funcResult->name = it.key();
         funcResult->displayName = it.key();
         funcResult->itemType = loc.m_type;
@@ -192,7 +193,8 @@ static bool checkQmlDocumentForQuickTestCode(QFutureInterface<TestParseResultPtr
 }
 
 static bool handleQtQuickTest(QFutureInterface<TestParseResultPtr> futureInterface,
-                              CPlusPlus::Document::Ptr document)
+                              CPlusPlus::Document::Ptr document,
+                              const Core::Id &id)
 {
     const CppTools::CppModelManager *modelManager = CppTools::CppModelManager::instance();
     if (quickTestName(document).isEmpty())
@@ -210,7 +212,7 @@ static bool handleQtQuickTest(QFutureInterface<TestParseResultPtr> futureInterfa
     const QList<QmlJS::Document::Ptr> qmlDocs = scanDirectoryForQuickTestQmlFiles(srcDir);
     bool result = false;
     foreach (const QmlJS::Document::Ptr &qmlJSDoc, qmlDocs)
-        result |= checkQmlDocumentForQuickTestCode(futureInterface, qmlJSDoc, proFile);
+        result |= checkQmlDocumentForQuickTestCode(futureInterface, qmlJSDoc, id, proFile);
     return result;
 }
 
@@ -225,14 +227,14 @@ bool QuickTestParser::processDocument(QFutureInterface<TestParseResultPtr> futur
 {
     if (fileName.endsWith(".qml")) {
         QmlJS::Document::Ptr qmlJSDoc = m_qmlSnapshot.document(fileName);
-        return checkQmlDocumentForQuickTestCode(futureInterface, qmlJSDoc);
+        return checkQmlDocumentForQuickTestCode(futureInterface, qmlJSDoc, id());
     }
     if (!m_cppSnapshot.contains(fileName) || !selectedForBuilding(fileName))
         return false;
     CPlusPlus::Document::Ptr document = m_cppSnapshot.find(fileName).value();
     if (!includesQtQuickTest(document, m_cppSnapshot))
         return false;
-    return handleQtQuickTest(futureInterface, document);
+    return handleQtQuickTest(futureInterface, document, id());
 }
 
 } // namespace Internal

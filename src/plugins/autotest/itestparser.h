@@ -28,13 +28,10 @@
 #include "testtreeitem.h"
 #include "testtreemodel.h"
 
+#include <coreplugin/id.h>
 #include <cplusplus/CppDocument.h>
 #include <cpptools/cppmodelmanager.h>
 #include <qmljs/qmljsdocument.h>
-
-namespace CppTools {
-class CppModelManager;
-}
 
 namespace Autotest {
 namespace Internal {
@@ -42,13 +39,13 @@ namespace Internal {
 class TestParseResult
 {
 public:
-    explicit TestParseResult(TestTreeModel::Type t = TestTreeModel::Invalid) : type(t) {}
+    explicit TestParseResult(const Core::Id &id) : frameworkId(id) {}
     virtual ~TestParseResult() { qDeleteAll(children); }
 
     virtual TestTreeItem *createTestTreeItem() const = 0;
 
     QVector<TestParseResult *> children;
-    TestTreeModel::Type type;
+    Core::Id frameworkId;
     TestTreeItem::Type itemType = TestTreeItem::Root;
     QString displayName;
     QString fileName;
@@ -67,6 +64,11 @@ public:
     virtual void init(const QStringList &filesToParse) = 0;
     virtual bool processDocument(QFutureInterface<TestParseResultPtr> futureInterface,
                                  const QString &fileName) = 0;
+    void setId(const Core::Id &id) { m_id = id; }
+    Core::Id id() const { return m_id; }
+
+private:
+    Core::Id m_id;
 };
 
 class CppParser : public ITestParser

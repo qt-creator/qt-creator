@@ -33,7 +33,7 @@ namespace Internal {
 class GTestParseResult : public TestParseResult
 {
 public:
-    explicit GTestParseResult() : TestParseResult(TestTreeModel::GoogleTest) {}
+    explicit GTestParseResult(const Core::Id &id) : TestParseResult(id) {}
     TestTreeItem *createTestTreeItem() const override;
     bool parameterized = false;
     bool typed = false;
