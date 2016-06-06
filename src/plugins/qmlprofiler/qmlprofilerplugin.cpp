@@ -40,6 +40,7 @@
 #include "tests/pixmapcachemodel_test.h"
 #include "tests/qmlevent_test.h"
 #include "tests/qmleventlocation_test.h"
+#include "tests/qmleventtype_test.h"
 #endif
 
 #include <extensionsystem/pluginmanager.h>
@@ -97,6 +98,7 @@ QList<QObject *> QmlProfiler::Internal::QmlProfilerPlugin::createTestObjects() c
     tests << new PixmapCacheModelTest;
     tests << new QmlEventTest;
     tests << new QmlEventLocationTest;
+    tests << new QmlEventTypeTest;
 #endif
     return tests;
 }
