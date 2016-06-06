@@ -654,7 +654,7 @@ void QmlProfilerStatisticsMainView::parseModel()
                 item->setEditable(false);
 
             // metadata
-            newRow.at(0)->setData(QVariant(typeIndex),TypeIdRole);
+            newRow.at(0)->setData(typeIndex, TypeIdRole);
             newRow.at(0)->setData(event.location.filename(), FilenameRole);
             newRow.at(0)->setData(event.location.line(), LineRole);
             newRow.at(0)->setData(event.location.column(), ColumnRole);
@@ -881,14 +881,14 @@ void QmlProfilerStatisticsRelativesView::rebuildTree(
         newRow << new StatisticsViewItem(type.data.isEmpty() ? tr("Source code not available") :
                                                            type.data);
 
-        newRow.at(0)->setData(QVariant(typeIndex), TypeIdRole);
+        newRow.at(0)->setData(typeIndex, TypeIdRole);
         newRow.at(0)->setData(type.location.filename(), FilenameRole);
         newRow.at(0)->setData(type.location.line(), LineRole);
         newRow.at(0)->setData(type.location.column(), ColumnRole);
-        newRow.at(1)->setData(QVariant(QmlProfilerStatisticsMainView::nameForType(type.rangeType)));
-        newRow.at(2)->setData(QVariant(event.duration));
-        newRow.at(3)->setData(QVariant(event.calls));
-        newRow.at(4)->setData(QVariant(type.data));
+        newRow.at(1)->setData(QmlProfilerStatisticsMainView::nameForType(type.rangeType));
+        newRow.at(2)->setData(event.duration);
+        newRow.at(3)->setData(event.calls);
+        newRow.at(4)->setData(type.data);
 
         if (event.isBindingLoop) {
             foreach (QStandardItem *item, newRow) {
