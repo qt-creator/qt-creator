@@ -69,7 +69,6 @@ public:
     QVariantMap location(int index) const override;
 
     int typeId(int index) const override;
-    int selectionIdForLocation(const QString &filename, int line, int column) const override;
 
     virtual QList<const Timeline::TimelineRenderPass *> supportedRenderPasses() const override;
 

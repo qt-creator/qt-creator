@@ -370,7 +370,6 @@ void tst_TimelineModel::defaultValues()
     Timeline::TimelineModel dummy(12);
     QCOMPARE(dummy.location(0), QVariantMap());
     QCOMPARE(dummy.handlesTypeId(0), false);
-    QCOMPARE(dummy.selectionIdForLocation(QString(), 0, 0), -1);
     QCOMPARE(dummy.relativeHeight(0), 1.0);
     QCOMPARE(dummy.rowMinValue(0), 0);
     QCOMPARE(dummy.rowMaxValue(0), 0);

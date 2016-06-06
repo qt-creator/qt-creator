@@ -227,21 +227,6 @@ int QmlProfilerRangeModel::typeId(int index) const
     return selectionId(index);
 }
 
-int QmlProfilerRangeModel::selectionIdForLocation(const QString &filename, int line, int column) const
-{
-    // if this is called from v8 view, we don't have the column number, it will be -1
-    const QVector<QmlEventType> &types = modelManager()->qmlModel()->eventTypes();
-    for (int i = 1; i < expandedRowCount(); ++i) {
-        int typeId = m_expandedRowTypes[i];
-        const QmlEventType &eventData = types[typeId];
-        if (eventData.location.filename == filename &&
-                eventData.location.line == line &&
-                (column == -1 || eventData.location.column == column))
-            return typeId;
-    }
-    return -1;
-}
-
 QList<const Timeline::TimelineRenderPass *> QmlProfilerRangeModel::supportedRenderPasses() const
 {
     if (supportsBindingLoops()) {

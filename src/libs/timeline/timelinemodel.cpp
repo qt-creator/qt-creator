@@ -375,14 +375,6 @@ bool TimelineModel::handlesTypeId(int typeIndex) const
     return false;
 }
 
-int TimelineModel::selectionIdForLocation(const QString &filename, int line, int column) const
-{
-    Q_UNUSED(filename);
-    Q_UNUSED(line);
-    Q_UNUSED(column);
-    return -1;
-}
-
 float TimelineModel::relativeHeight(int index) const
 {
     Q_UNUSED(index);
