@@ -37,6 +37,12 @@
 
 namespace RegistryAccess {
 
+enum AccessMode {
+    DefaultAccessMode,
+    Registry32Mode = 0x2, // Corresponds to QSettings::Registry32Format (5.7)
+    Registry64Mode = 0x4  // Corresponds to QSettings::Registry64Format (5.7)
+};
+
 static const char *debuggerApplicationFileC = "qtcdebugger";
 static const WCHAR *debuggerRegistryKeyC = L"Software\\Microsoft\\Windows NT\\CurrentVersion\\AeDebug";
 static const WCHAR *debuggerRegistryValueNameC = L"Debugger";
@@ -68,7 +74,11 @@ bool openRegistryKey(HKEY category, // HKEY_LOCAL_MACHINE, etc.
                      const WCHAR *key,
                      bool readWrite,
                      HKEY *keyHandle,
+                     AccessMode mode,
                      QString *errorMessage);
+
+inline bool openRegistryKey(HKEY category, const WCHAR *key, bool readWrite, HKEY *keyHandle, QString *errorMessage)
+{ return openRegistryKey(category, key, readWrite, keyHandle, DefaultAccessMode, errorMessage); }
 
 QString debuggerCall(const QString &additionalOption = QString());
 

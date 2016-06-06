@@ -98,6 +98,7 @@ bool openRegistryKey(HKEY category, // HKEY_LOCAL_MACHINE, etc.
                      const WCHAR *key,
                      bool readWrite,
                      HKEY *keyHandle,
+                     AccessMode mode,
                      QString *errorMessage)
 {
     Q_UNUSED(debuggerRegistryKeyC);  // avoid warning from MinGW
@@ -105,6 +106,16 @@ bool openRegistryKey(HKEY category, // HKEY_LOCAL_MACHINE, etc.
     REGSAM accessRights = KEY_READ;
     if (readWrite)
          accessRights |= KEY_SET_VALUE;
+    switch (mode) {
+    case RegistryAccess::DefaultAccessMode:
+        break;
+    case RegistryAccess::Registry32Mode:
+        accessRights |= KEY_WOW64_32KEY;
+        break;
+    case RegistryAccess::Registry64Mode:
+        accessRights |= KEY_WOW64_64KEY;
+        break;
+    }
     const LONG rc = RegOpenKeyEx(category, key, 0, accessRights, keyHandle);
     if (rc != ERROR_SUCCESS) {
         *errorMessage = msgFunctionFailed("RegOpenKeyEx", rc);
