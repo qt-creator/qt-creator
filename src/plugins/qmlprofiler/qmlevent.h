@@ -146,7 +146,7 @@ struct QmlEvent {
         setNumbers<std::initializer_list<Number>, Number>(numbers);
     }
 
-    template<typename Container, typename Number>
+    template<typename Container, typename Number = qint64>
     Container numbers() const
     {
         Container container;
