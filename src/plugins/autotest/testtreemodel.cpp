@@ -67,6 +67,11 @@ TestTreeModel *TestTreeModel::instance()
 
 TestTreeModel::~TestTreeModel()
 {
+    foreach (Utils::TreeItem *item, rootItem()->children()) {
+        item->removeChildren();
+        takeItem(item); // do NOT delete the item as it's still a ptr hold by TestFrameworkManager
+    }
+
     m_instance = 0;
 }
 
@@ -191,10 +196,15 @@ TestConfiguration *TestTreeModel::getTestConfiguration(const TestTreeItem *item)
 void TestTreeModel::syncTestFrameworks()
 {
     // remove all currently registered
-    rootItem()->removeChildren();
+    foreach (Utils::TreeItem *item, rootItem()->children()) {
+        item->removeChildren();
+        takeItem(item); // do NOT delete the item as it's still a ptr hold by TestFrameworkManager
+    }
 
     TestFrameworkManager *frameworkManager = TestFrameworkManager::instance();
-    QList<Core::Id> sortedIds = frameworkManager->sortedFrameworkIds();
+    QVector<Core::Id> sortedIds = frameworkManager->sortedActiveFrameworkIds();
+    // TODO display warning overlay or similar if sortedIds.isEmpty()
+
     foreach (const Core::Id &id, sortedIds)
         rootItem()->appendChild(frameworkManager->rootNodeForTestFramework(id));
 

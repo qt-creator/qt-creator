@@ -55,7 +55,7 @@ public:
     State state() const { return m_parserState; }
     bool isParsing() const { return m_parserState == PartialParse || m_parserState == FullParse; }
     void setDirty() { m_dirty = true; }
-    void syncTestFrameworks(const QList<Core::Id> &frameworkIds);
+    void syncTestFrameworks(const QVector<Core::Id> &frameworkIds);
 #ifdef WITH_TESTS
     bool furtherParsingExpected() const
     { return m_singleShotScheduled || m_fullUpdatePostponed || m_partialUpdatePostponed; }
@@ -95,7 +95,7 @@ private:
     QSet<QString> m_postponedFiles;
     State m_parserState;
     QFutureWatcher<TestParseResultPtr> m_futureWatcher;
-    QVector<ITestParser *> m_testCodeParsers;
+    QVector<ITestParser *> m_testCodeParsers; // ptrs are still owned by TestFrameworkManager
 };
 
 } // namespace Internal

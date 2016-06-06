@@ -80,7 +80,6 @@ TestCodeParser::TestCodeParser(TestTreeModel *parent)
 
 TestCodeParser::~TestCodeParser()
 {
-    qDeleteAll(m_testCodeParsers);
 }
 
 void TestCodeParser::setState(State state)
@@ -114,7 +113,7 @@ void TestCodeParser::setState(State state)
     }
 }
 
-void TestCodeParser::syncTestFrameworks(const QList<Core::Id> &frameworkIds)
+void TestCodeParser::syncTestFrameworks(const QVector<Core::Id> &frameworkIds)
 {
     if (m_parserState != Disabled && m_parserState != Idle) {
         // there's a running parse

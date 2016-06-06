@@ -26,6 +26,7 @@
 #pragma once
 
 #include <QHash>
+#include <QSharedPointer>
 
 namespace Core { class Id; }
 
@@ -35,6 +36,7 @@ namespace Internal {
 class ITestFramework;
 class ITestParser;
 class TestRunner;
+struct TestSettings;
 class TestTreeItem;
 class TestTreeModel;
 
@@ -44,17 +46,25 @@ public:
     static TestFrameworkManager *instance();
     virtual ~TestFrameworkManager();
     bool registerTestFramework(ITestFramework *framework);
+
+    void activateFrameworksFromSettings(QSharedPointer<TestSettings> settings);
+    QString frameworkNameForId(const Core::Id &id) const;
     QList<Core::Id> registeredFrameworkIds() const;
-    QList<Core::Id> sortedFrameworkIds() const;
+    QList<Core::Id> sortedRegisteredFrameworkIds() const;
+    QVector<Core::Id> sortedActiveFrameworkIds() const;
 
     TestTreeItem *rootNodeForTestFramework(const Core::Id &frameworkId) const;
     ITestParser *testParserForTestFramework(const Core::Id &frameworkId) const;
+    bool isActive(const Core::Id &frameworkId) const;
 
 private:
+    QVector<Core::Id> activeFrameworkIds() const;
     explicit TestFrameworkManager();
     QHash<Core::Id, ITestFramework *> m_registeredFrameworks;
     TestTreeModel *m_testTreeModel;
     TestRunner *m_testRunner;
+
+    typedef QHash<Core::Id, ITestFramework *>::ConstIterator FrameworkIterator;
 };
 
 } // namespace Internal

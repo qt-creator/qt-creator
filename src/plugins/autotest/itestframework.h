@@ -34,7 +34,12 @@ namespace Internal {
 class ITestFramework
 {
 public:
-    virtual ~ITestFramework() { }
+    ITestFramework(bool activeByDefault) : m_active(activeByDefault) {}
+    virtual ~ITestFramework()
+    {
+        delete m_rootNode;
+        delete m_testParser;
+    }
 
     virtual const char *name() const = 0;
     virtual unsigned priority() const = 0;          // should this be modifyable?
@@ -52,6 +57,9 @@ public:
         return m_testParser;
     }
 
+    bool active() const { return m_active; }
+    void setActive(bool active) { m_active = active; }
+
 protected:
     virtual ITestParser *createTestParser() const = 0;
     virtual TestTreeItem *createRootNode() const = 0;
@@ -59,6 +67,7 @@ protected:
 private:
     TestTreeItem *m_rootNode = 0;
     ITestParser *m_testParser = 0;
+    bool m_active = false;
 };
 
 } // namespace Internal

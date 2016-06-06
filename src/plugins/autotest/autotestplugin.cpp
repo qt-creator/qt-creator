@@ -134,7 +134,6 @@ bool AutotestPlugin::initialize(const QStringList &arguments, QString *errorStri
     m_frameworkManager->registerTestFramework(new QtTestFramework);
     m_frameworkManager->registerTestFramework(new QuickTestFramework);
     m_frameworkManager->registerTestFramework(new GTestFramework);
-    TestTreeModel::instance()->syncTestFrameworks();
 
     m_settings->fromSettings(ICore::settings());
     addAutoReleasedObject(new TestSettingsPage(m_settings));
@@ -143,6 +142,8 @@ bool AutotestPlugin::initialize(const QStringList &arguments, QString *errorStri
 
     if (m_settings->alwaysParse)
         TestTreeModel::instance()->enableParsingFromSettings();
+    m_frameworkManager->activateFrameworksFromSettings(m_settings);
+    TestTreeModel::instance()->syncTestFrameworks();
 
     return true;
 }

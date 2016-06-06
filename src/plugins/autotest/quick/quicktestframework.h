@@ -33,6 +33,7 @@ namespace Internal {
 class QuickTestFramework : public ITestFramework
 {
 public:
+    QuickTestFramework() : ITestFramework(true) {}
     const char *name() const override;
     unsigned priority() const override;
 

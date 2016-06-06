@@ -28,6 +28,7 @@
 #include "itestframework.h"
 #include "itestparser.h"
 #include "testrunner.h"
+#include "testsettings.h"
 #include "testtreeitem.h"
 #include "testtreemodel.h"
 
@@ -61,6 +62,8 @@ TestFrameworkManager::~TestFrameworkManager()
 {
     delete m_testRunner;
     delete m_testTreeModel;
+    for (ITestFramework *framework : m_registeredFrameworks.values())
+        delete framework;
 }
 
 bool TestFrameworkManager::registerTestFramework(ITestFramework *framework)
@@ -68,9 +71,24 @@ bool TestFrameworkManager::registerTestFramework(ITestFramework *framework)
     QTC_ASSERT(framework, return false);
     Core::Id id = Core::Id(Constants::FRAMEWORK_PREFIX).withSuffix(framework->name());
     QTC_ASSERT(!m_registeredFrameworks.contains(id), return false);
-    // check for unique priority?
+    // TODO check for unique priority before registering
+    qCDebug(LOG) << "Registering" << id;
     m_registeredFrameworks.insert(id, framework);
     return true;
+}
+
+void TestFrameworkManager::activateFrameworksFromSettings(QSharedPointer<TestSettings> settings)
+{
+    FrameworkIterator it = m_registeredFrameworks.begin();
+    FrameworkIterator end = m_registeredFrameworks.end();
+    for ( ; it != end; ++it)
+        it.value()->setActive(settings->frameworks.value(it.key(), false));
+}
+
+QString TestFrameworkManager::frameworkNameForId(const Core::Id &id) const
+{
+    ITestFramework *framework = m_registeredFrameworks.value(id, 0);
+    return framework ? QString::fromLatin1(framework->name()) : QString();
 }
 
 QList<Core::Id> TestFrameworkManager::registeredFrameworkIds() const
@@ -78,16 +96,36 @@ QList<Core::Id> TestFrameworkManager::registeredFrameworkIds() const
     return m_registeredFrameworks.keys();
 }
 
-QList<Core::Id> TestFrameworkManager::sortedFrameworkIds() const
+QList<Core::Id> TestFrameworkManager::sortedRegisteredFrameworkIds() const
 {
-    QList<Core::Id> sorted = registeredFrameworkIds();
-    qCDebug(LOG) << "Registered frameworks" << sorted;
-
-    Utils::sort(sorted, [this] (const Core::Id &lhs, const Core::Id &rhs) {
+    QList<Core::Id> registered = m_registeredFrameworks.keys();
+    Utils::sort(registered, [this] (const Core::Id &lhs, const Core::Id &rhs) {
         return m_registeredFrameworks[lhs]->priority() < m_registeredFrameworks[rhs]->priority();
     });
-    qCDebug(LOG) << "Sorted by priority" << sorted;
-    return sorted;
+    qCDebug(LOG) << "Registered frameworks sorted by priority" << registered;
+    return registered;
+}
+
+QVector<Core::Id> TestFrameworkManager::activeFrameworkIds() const
+{
+    QVector<Core::Id> active;
+    FrameworkIterator it = m_registeredFrameworks.begin();
+    FrameworkIterator end = m_registeredFrameworks.end();
+    for ( ; it != end; ++it) {
+        if (it.value()->active())
+            active.append(it.key());
+    }
+    return active;
+}
+
+QVector<Core::Id> TestFrameworkManager::sortedActiveFrameworkIds() const
+{
+    QVector<Core::Id> active = activeFrameworkIds();
+    Utils::sort(active, [this] (const Core::Id &lhs, const Core::Id &rhs) {
+        return m_registeredFrameworks[lhs]->priority() < m_registeredFrameworks[rhs]->priority();
+    });
+    qCDebug(LOG) << "Active frameworks sorted by priority" << active;
+    return active;
 }
 
 TestTreeItem *TestFrameworkManager::rootNodeForTestFramework(const Core::Id &frameworkId) const
@@ -105,6 +143,12 @@ ITestParser *TestFrameworkManager::testParserForTestFramework(const Core::Id &fr
     qCDebug(LOG) << "Setting" << frameworkId << "as Id for test parser";
     testParser->setId(frameworkId);
     return testParser;
+}
+
+bool TestFrameworkManager::isActive(const Core::Id &frameworkId) const
+{
+    ITestFramework *framework = m_registeredFrameworks.value(frameworkId);
+    return framework ? framework->active() : false;
 }
 
 } // namespace Internal

@@ -33,6 +33,7 @@ namespace Internal {
 class GTestFramework : public ITestFramework
 {
 public:
+    GTestFramework() : ITestFramework(true) {}
     const char *name() const override;
     unsigned priority() const override;
 

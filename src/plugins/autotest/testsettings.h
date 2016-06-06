@@ -25,7 +25,9 @@
 
 #pragma once
 
-#include <QtGlobal>
+#include <QHash>
+
+namespace Core { class Id; }
 
 QT_BEGIN_NAMESPACE
 class QSettings;
@@ -62,6 +64,7 @@ struct TestSettings
     bool gtestRunDisabled;
     bool gtestShuffle;
     bool gtestRepeat;
+    QHash<Core::Id, bool> frameworks;
 };
 
 inline bool operator==(const TestSettings &s1, const TestSettings &s2) { return s1.equals(s2); }

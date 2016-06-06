@@ -24,6 +24,9 @@
 ****************************************************************************/
 
 #include "testsettings.h"
+#include "testframeworkmanager.h"
+
+#include <coreplugin/id.h>
 
 #include <QSettings>
 
@@ -43,6 +46,7 @@ static const char gtestRepeatKey[] = "RepeatGTests";
 static const char gtestShuffleKey[] = "ShuffleGTests";
 static const char gtestIterationsKey[] = "IterationsGTests";
 static const char gtestSeedKey[] = "SeedGTests";
+
 static const int defaultTimeout = 60000;
 
 TestSettings::TestSettings()
@@ -66,6 +70,9 @@ void TestSettings::toSettings(QSettings *s) const
     s->setValue(QLatin1String(gtestShuffleKey), gtestShuffle);
     s->setValue(QLatin1String(gtestIterationsKey), gtestIterations);
     s->setValue(QLatin1String(gtestSeedKey), gtestSeed);
+    // store frameworks and their current active state
+    for (const Core::Id &id : frameworks.keys())
+        s->setValue(QLatin1String(id.name()), frameworks.value(id));
     s->endGroup();
 }
 
@@ -102,6 +109,14 @@ void TestSettings::fromSettings(const QSettings *s)
     gtestShuffle = s->value(root + QLatin1String(gtestShuffleKey), false).toBool();
     gtestIterations = s->value(root + QLatin1String(gtestIterationsKey), 1).toInt();
     gtestSeed = s->value(root + QLatin1String(gtestSeedKey), 0).toInt();
+    // try to get settings for registered frameworks
+    TestFrameworkManager *frameworkManager = TestFrameworkManager::instance();
+    const QList<Core::Id> &registered = frameworkManager->registeredFrameworkIds();
+    frameworks.clear();
+    for (const Core::Id &id : registered) {
+        frameworks.insert(id, s->value(root + QLatin1String(id.name()),
+                                       frameworkManager->isActive(id)).toBool());
+    }
 }
 
 bool TestSettings::equals(const TestSettings &rhs) const
@@ -114,7 +129,8 @@ bool TestSettings::equals(const TestSettings &rhs) const
             && alwaysParse == rhs.alwaysParse
             && gtestRunDisabled == rhs.gtestRunDisabled
             && gtestRepeat == rhs.gtestRepeat && gtestIterations == rhs.gtestIterations
-            && gtestShuffle == rhs.gtestShuffle && gtestSeed == rhs.gtestSeed;
+            && gtestShuffle == rhs.gtestShuffle && gtestSeed == rhs.gtestSeed
+            && frameworks == rhs.frameworks;
 }
 
 QString TestSettings::metricsTypeToOption(const MetricsType type)
