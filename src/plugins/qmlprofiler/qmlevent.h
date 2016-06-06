@@ -66,6 +66,12 @@ struct QmlEvent {
         assignData(other);
     }
 
+    QmlEvent(QmlEvent &&other)
+    {
+        memcpy(this, &other, sizeof(QmlEvent));
+        other.m_dataType = Inline8Bit; // prevent dtor from deleting the pointer
+    }
+
     QmlEvent &operator=(const QmlEvent &other)
     {
         if (this != &other) {
@@ -75,6 +81,15 @@ struct QmlEvent {
             m_dataType = other.m_dataType;
             m_dataLength = other.m_dataLength;
             assignData(other);
+        }
+        return *this;
+    }
+
+    QmlEvent &operator=(QmlEvent &&other)
+    {
+        if (this != &other) {
+            memcpy(this, &other, sizeof(QmlEvent));
+            other.m_dataType = Inline8Bit;
         }
         return *this;
     }
@@ -289,6 +304,9 @@ private:
     friend QDataStream &operator>>(QDataStream &stream, QmlEvent &event);
     friend QDataStream &operator<<(QDataStream &stream, const QmlEvent &event);
 };
+
+bool operator==(const QmlEvent &event1, const QmlEvent &event2);
+bool operator!=(const QmlEvent &event1, const QmlEvent &event2);
 
 QDataStream &operator>>(QDataStream &stream, QmlEvent &event);
 QDataStream &operator<<(QDataStream &stream, const QmlEvent &event);

@@ -29,6 +29,20 @@
 
 namespace QmlProfiler {
 
+bool operator==(const QmlEvent &event1, const QmlEvent &event2)
+{
+    if (event1.timestamp() != event2.timestamp() || event1.typeIndex() != event2.typeIndex())
+        return false;
+
+    // This is not particularly efficient, but we also don't need to do this very often.
+    return event1.numbers<QVarLengthArray<qint64>>() == event2.numbers<QVarLengthArray<qint64>>();
+}
+
+bool operator!=(const QmlEvent &event1, const QmlEvent &event2)
+{
+    return !(event1 == event2);
+}
+
 enum SerializationType {
     OneByte    = 0,
     TwoByte    = 1,
@@ -153,10 +167,8 @@ static qint8 minimumType(const QmlEvent &event, quint16 length, quint16 origBits
         case FourByte:
             ok = (event.number<qint32>(i) == event.number<qint64>(i));
             break;
-        case EightByte:
-            ok = true;
-            break;
         default:
+            // EightByte isn't possible, as (1 << type) == origBitsPerNumber / 8 then.
             Q_UNREACHABLE();
             break;
         }
