@@ -576,21 +576,8 @@ void QmlProfilerStatisticsMainView::parseModel()
 
         if (d->m_fieldShown[Type]) {
             QString typeString = QmlProfilerStatisticsMainView::nameForType(event.rangeType);
-            QString toolTipText;
-            if (event.rangeType == Binding) {
-                if (event.detailType == (int)OptimizedBinding) {
-                    typeString = typeString + QLatin1Char(' ') +  tr("(Opt)");
-                    toolTipText = tr("Binding is evaluated by the optimized engine.");
-                } else if (event.detailType == (int)V8Binding) {
-                    toolTipText = tr("Binding not optimized (might have side effects or assignments,\n"
-                                     "references to elements in other files, loops, and so on.)");
-
-                }
-            }
             newRow << new StatisticsViewItem(typeString);
             newRow.last()->setData(QVariant(typeString));
-            if (!toolTipText.isEmpty())
-                newRow.last()->setToolTip(toolTipText);
         }
 
         if (d->m_fieldShown[TimeInPercent]) {
