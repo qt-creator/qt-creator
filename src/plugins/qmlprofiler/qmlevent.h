@@ -159,9 +159,9 @@ struct QmlEvent {
     {
         switch (m_dataType) {
         case External8Bit:
-            return QString::fromUtf8(static_cast<const char *>(m_data.external));
+            return QString::fromUtf8(static_cast<const char *>(m_data.external), m_dataLength);
         case Inline8Bit:
-            return QString::fromUtf8(m_data.internalChar);
+            return QString::fromUtf8(m_data.internalChar, m_dataLength);
         default:
             Q_UNREACHABLE();
             return QString();
