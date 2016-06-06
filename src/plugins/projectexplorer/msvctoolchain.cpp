@@ -803,13 +803,13 @@ QList<ToolChain *> MsvcToolChainFactory::autoDetect(const QList<ToolChain *> &al
                       << MsvcToolChain::arm << MsvcToolChain::x86_arm << MsvcToolChain::amd64_arm
                       << MsvcToolChain::ia64 << MsvcToolChain::x86_ia64;
             foreach (const MsvcToolChain::Platform &platform, platforms) {
-                QString vcvarsBat = vcVarsBatFor(path, platform);
-                if (hostSupportsPlatform(platform) && QFileInfo(vcvarsBat).isFile()) {
+                const bool toolchainInstalled = QFileInfo(vcVarsBatFor(path, platform)).isFile();
+                if (hostSupportsPlatform(platform) && toolchainInstalled) {
                     results.append(findOrCreateToolChain(
                                        alreadyKnown,
                                        generateDisplayName(vsName, MsvcToolChain::VS, platform),
                                        findAbiOfMsvc(MsvcToolChain::VS, platform, vsName),
-                                       vcvarsBat, platformName(platform),
+                                       vcvarsAllbat, platformName(platform),
                                        ToolChain::AutoDetection));
                 }
             }
