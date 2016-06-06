@@ -23,9 +23,9 @@ SOURCES += \
     testsettingspage.cpp \
     testnavigationwidget.cpp \
     testoutputreader.cpp \
-    gtest/googletestconfiguration.cpp \
-    gtest/googletestparser.cpp \
-    gtest/googletesttreeitem.cpp \
+    gtest/gtestconfiguration.cpp \
+    gtest/gtestparser.cpp \
+    gtest/gtesttreeitem.cpp \
     gtest/gtestresult.cpp \
     gtest/gtestoutputreader.cpp \
     gtest/gtestvisitors.cpp \
@@ -63,9 +63,9 @@ HEADERS += \
     testoutputreader.h \
     autotesticons.h \
     itestparser.h \
-    gtest/googletestconfiguration.h \
-    gtest/googletestparser.h \
-    gtest/googletesttreeitem.h \
+    gtest/gtestconfiguration.h \
+    gtest/gtestparser.h \
+    gtest/gtesttreeitem.h \
     gtest/gtestoutputreader.h \
     gtest/gtestresult.h \
     gtest/gtest_utils.h \

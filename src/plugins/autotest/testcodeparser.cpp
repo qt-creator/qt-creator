@@ -30,7 +30,7 @@
 // FIXME
 #include "qtest/qttestparser.h"
 #include "quick/quicktestparser.h"
-#include "gtest/googletestparser.h"
+#include "gtest/gtestparser.h"
 // end of FIXME
 
 #include <coreplugin/editormanager/editormanager.h>
@@ -84,7 +84,7 @@ TestCodeParser::TestCodeParser(TestTreeModel *parent)
 
     m_testCodeParsers.append(new QtTestParser);
     m_testCodeParsers.append(new QuickTestParser);
-    m_testCodeParsers.append(new GoogleTestParser);
+    m_testCodeParsers.append(new GTestParser);
 }
 
 TestCodeParser::~TestCodeParser()

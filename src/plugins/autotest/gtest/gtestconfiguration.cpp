@@ -23,20 +23,20 @@
 **
 ****************************************************************************/
 
-#include "googletestconfiguration.h"
+#include "gtestconfiguration.h"
 #include "gtestoutputreader.h"
 #include "../testsettings.h"
 
 namespace Autotest {
 namespace Internal {
 
-TestOutputReader *GoogleTestConfiguration::outputReader(const QFutureInterface<TestResultPtr> &fi,
-                                                        QProcess *app) const
+TestOutputReader *GTestConfiguration::outputReader(const QFutureInterface<TestResultPtr> &fi,
+                                                   QProcess *app) const
 {
     return new GTestOutputReader(fi, app, buildDirectory());
 }
 
-QStringList GoogleTestConfiguration::argumentsForTestRunner(const TestSettings &settings) const
+QStringList GTestConfiguration::argumentsForTestRunner(const TestSettings &settings) const
 {
     QStringList arguments;
     const QStringList &testSets = testCases();

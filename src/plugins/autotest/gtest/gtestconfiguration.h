@@ -30,10 +30,10 @@
 namespace Autotest {
 namespace Internal {
 
-class GoogleTestConfiguration : public TestConfiguration
+class GTestConfiguration : public TestConfiguration
 {
 public:
-    explicit GoogleTestConfiguration() {}
+    explicit GTestConfiguration() {}
     TestOutputReader *outputReader(const QFutureInterface<TestResultPtr> &fi,
                                    QProcess *app) const override;
     QStringList argumentsForTestRunner(const TestSettings &settings) const override;

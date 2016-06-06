@@ -23,8 +23,8 @@
 **
 ****************************************************************************/
 
-#include "googletestparser.h"
-#include "googletesttreeitem.h"
+#include "gtestparser.h"
+#include "gtesttreeitem.h"
 #include "gtestvisitors.h"
 #include "gtest_utils.h"
 #include "../autotest_utils.h"
@@ -32,10 +32,10 @@
 namespace Autotest {
 namespace Internal {
 
-TestTreeItem *GoogleTestParseResult::createTestTreeItem() const
+TestTreeItem *GTestParseResult::createTestTreeItem() const
 {
     if (itemType == TestTreeItem::TestCase || itemType == TestTreeItem::TestFunctionOrSet)
-        return GoogleTestTreeItem::createTestItem(this);
+        return GTestTreeItem::createTestItem(this);
     return 0;
 }
 
@@ -91,7 +91,7 @@ static bool handleGTest(QFutureInterface<TestParseResultPtr> futureInterface,
         proFile = ppList.first()->projectFile;
 
     foreach (const GTestCaseSpec &testSpec, result.keys()) {
-        GoogleTestParseResult *parseResult = new GoogleTestParseResult;
+        GTestParseResult *parseResult = new GTestParseResult;
         parseResult->itemType = TestTreeItem::TestCase;
         parseResult->fileName = filePath;
         parseResult->name = testSpec.testCaseName;
@@ -101,12 +101,12 @@ static bool handleGTest(QFutureInterface<TestParseResultPtr> futureInterface,
         parseResult->proFile = proFile;
 
         foreach (const GTestCodeLocationAndType &location, result.value(testSpec)) {
-            GoogleTestParseResult *testSet = new GoogleTestParseResult;
+            GTestParseResult *testSet = new GTestParseResult;
             testSet->name = location.m_name;
             testSet->fileName = filePath;
             testSet->line = location.m_line;
             testSet->column = location.m_column;
-            testSet->disabled = location.m_state & GoogleTestTreeItem::Disabled;
+            testSet->disabled = location.m_state & GTestTreeItem::Disabled;
             testSet->itemType = location.m_type;
             testSet->proFile = proFile;
 
@@ -118,8 +118,8 @@ static bool handleGTest(QFutureInterface<TestParseResultPtr> futureInterface,
     return !result.keys().isEmpty();
 }
 
-bool GoogleTestParser::processDocument(QFutureInterface<TestParseResultPtr> futureInterface,
-                                       const QString &fileName)
+bool GTestParser::processDocument(QFutureInterface<TestParseResultPtr> futureInterface,
+                                  const QString &fileName)
 {
     if (!m_cppSnapshot.contains(fileName) || !selectedForBuilding(fileName))
         return false;

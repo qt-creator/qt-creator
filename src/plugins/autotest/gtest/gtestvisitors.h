@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include "googletesttreeitem.h"
+#include "gtesttreeitem.h"
 
 #include <cplusplus/ASTVisitor.h>
 #include <cplusplus/CppDocument.h>

@@ -33,7 +33,7 @@
 // FIXME
 #include "qtest/qttesttreeitem.h"
 #include "quick/quicktesttreeitem.h"
-#include "gtest/googletesttreeitem.h"
+#include "gtest/gtesttreeitem.h"
 // end of FIXME
 
 #include <cpptools/cppmodelmanager.h>
@@ -50,7 +50,7 @@ TestTreeModel::TestTreeModel(QObject *parent) :
     TreeModel(parent),
     m_qtTestRootItem(new QtTestTreeItem(tr("Qt Tests"), QString(), TestTreeItem::Root)),
     m_quickTestRootItem(new QuickTestTreeItem(tr("Qt Quick Tests"), QString(), TestTreeItem::Root)),
-    m_googleTestRootItem(new GoogleTestTreeItem(tr("Google Tests"), QString(), TestTreeItem::Root)),
+    m_googleTestRootItem(new GTestTreeItem(tr("Google Tests"), QString(), TestTreeItem::Root)),
     m_parser(new TestCodeParser(this)),
     m_connectionsInitialized(false)
 {

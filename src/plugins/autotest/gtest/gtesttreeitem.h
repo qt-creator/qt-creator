@@ -30,9 +30,9 @@
 namespace Autotest {
 namespace Internal {
 
-class GoogleTestParseResult;
+class GTestParseResult;
 
-class GoogleTestTreeItem : public TestTreeItem
+class GTestTreeItem : public TestTreeItem
 {
 public:
     enum TestState
@@ -46,10 +46,10 @@ public:
     Q_FLAGS(TestState)
     Q_DECLARE_FLAGS(TestStates, TestState)
 
-    GoogleTestTreeItem(const QString &name = QString(), const QString &filePath = QString(),
-                       Type type = Root) : TestTreeItem(name, filePath, type), m_state(Enabled) {}
+    GTestTreeItem(const QString &name = QString(), const QString &filePath = QString(),
+                  Type type = Root) : TestTreeItem(name, filePath, type), m_state(Enabled) {}
 
-    static GoogleTestTreeItem *createTestItem(const TestParseResult *result);
+    static GTestTreeItem *createTestItem(const TestParseResult *result);
 
     QVariant data(int column, int role) const override;
     bool canProvideTestConfiguration() const override { return type() != Root; }
@@ -62,20 +62,20 @@ public:
     void setStates(TestStates states) { m_state = states; }
     void setState(TestState state) { m_state |= state; }
     TestStates state() const { return m_state; }
-    bool modifyTestSetContent(const GoogleTestParseResult *result);
+    bool modifyTestSetContent(const GTestParseResult *result);
     TestTreeItem *findChildByNameStateAndFile(const QString &name,
-                                              GoogleTestTreeItem::TestStates state,
+                                              GTestTreeItem::TestStates state,
                                               const QString &proFile) const;
     QString nameSuffix() const;
 
 private:
-    GoogleTestTreeItem::TestStates m_state;
+    GTestTreeItem::TestStates m_state;
 };
 
 class GTestCodeLocationAndType : public TestCodeLocationAndType
 {
 public:
-    GoogleTestTreeItem::TestStates m_state;
+    GTestTreeItem::TestStates m_state;
 };
 
 typedef QVector<GTestCodeLocationAndType> GTestCodeLocationList;

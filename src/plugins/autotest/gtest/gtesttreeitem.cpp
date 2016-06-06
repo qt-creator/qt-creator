@@ -23,9 +23,9 @@
 **
 ****************************************************************************/
 
-#include "googletesttreeitem.h"
-#include "googletestconfiguration.h"
-#include "googletestparser.h"
+#include "gtesttreeitem.h"
+#include "gtestconfiguration.h"
+#include "gtestparser.h"
 #include "../autotest_utils.h"
 
 #include <projectexplorer/session.h>
@@ -34,22 +34,22 @@
 namespace Autotest {
 namespace Internal {
 
-static QString gtestFilter(GoogleTestTreeItem::TestStates states)
+static QString gtestFilter(GTestTreeItem::TestStates states)
 {
-    if ((states & GoogleTestTreeItem::Parameterized) && (states & GoogleTestTreeItem::Typed))
+    if ((states & GTestTreeItem::Parameterized) && (states & GTestTreeItem::Typed))
         return QLatin1String("*/%1/*.%2");
-    if (states & GoogleTestTreeItem::Parameterized)
+    if (states & GTestTreeItem::Parameterized)
         return QLatin1String("*/%1.%2/*");
-    if (states & GoogleTestTreeItem::Typed)
+    if (states & GTestTreeItem::Typed)
         return QLatin1String("%1/*.%2");
     return QLatin1String("%1.%2");
 }
 
-GoogleTestTreeItem *GoogleTestTreeItem::createTestItem(const TestParseResult *result)
+GTestTreeItem *GTestTreeItem::createTestItem(const TestParseResult *result)
 {
-    const GoogleTestParseResult *parseResult = static_cast<const GoogleTestParseResult *>(result);
-    GoogleTestTreeItem *item = new GoogleTestTreeItem(parseResult->name, parseResult->fileName,
-                                                      parseResult->itemType);
+    const GTestParseResult *parseResult = static_cast<const GTestParseResult *>(result);
+    GTestTreeItem *item = new GTestTreeItem(parseResult->name, parseResult->fileName,
+                                            parseResult->itemType);
     item->setProFile(parseResult->proFile);
     item->setLine(parseResult->line);
     item->setColumn(parseResult->column);
@@ -65,7 +65,7 @@ GoogleTestTreeItem *GoogleTestTreeItem::createTestItem(const TestParseResult *re
     return item;
 }
 
-QVariant GoogleTestTreeItem::data(int column, int role) const
+QVariant GTestTreeItem::data(int column, int role) const
 {
     switch (role) {
     case Qt::DisplayRole: {
@@ -93,17 +93,17 @@ QVariant GoogleTestTreeItem::data(int column, int role) const
     return TestTreeItem::data(column, role);
 }
 
-TestConfiguration *GoogleTestTreeItem::testConfiguration() const
+TestConfiguration *GTestTreeItem::testConfiguration() const
 {
     ProjectExplorer::Project *project = ProjectExplorer::SessionManager::startupProject();
     QTC_ASSERT(project, return 0);
 
-    GoogleTestConfiguration *config = 0;
+    GTestConfiguration *config = 0;
     switch (type()) {
     case TestCase: {
         const QString &testSpecifier = gtestFilter(state()).arg(name()).arg(QLatin1Char('*'));
         if (int count = childCount()) {
-            config = new GoogleTestConfiguration;
+            config = new GTestConfiguration;
             config->setTestCases(QStringList(testSpecifier));
             config->setTestCaseCount(count);
             config->setProFile(proFile());
@@ -115,11 +115,11 @@ TestConfiguration *GoogleTestTreeItem::testConfiguration() const
         break;
     }
     case TestFunctionOrSet: {
-        GoogleTestTreeItem *parent = static_cast<GoogleTestTreeItem *>(parentItem());
+        GTestTreeItem *parent = static_cast<GTestTreeItem *>(parentItem());
         if (!parent)
             return 0;
         const QString &testSpecifier = gtestFilter(parent->state()).arg(parent->name()).arg(name());
-        config = new GoogleTestConfiguration;
+        config = new GTestConfiguration;
         config->setTestCases(QStringList(testSpecifier));
         config->setProFile(proFile());
         config->setProject(project);
@@ -161,7 +161,7 @@ uint qHash(const ProFileWithDisplayName &lhs)
     return ::qHash(lhs.proFile) ^ ::qHash(lhs.displayName);
 }
 
-QList<TestConfiguration *> GoogleTestTreeItem::getAllTestConfigurations() const
+QList<TestConfiguration *> GTestTreeItem::getAllTestConfigurations() const
 {
     QList<TestConfiguration *> result;
 
@@ -171,7 +171,7 @@ QList<TestConfiguration *> GoogleTestTreeItem::getAllTestConfigurations() const
 
     QHash<ProFileWithDisplayName, int> proFilesWithTestSets;
     for (int row = 0, count = childCount(); row < count; ++row) {
-        const GoogleTestTreeItem *child = static_cast<const GoogleTestTreeItem *>(childItem(row));
+        const GTestTreeItem *child = static_cast<const GTestTreeItem *>(childItem(row));
 
         const int grandChildCount = child->childCount();
         for (int grandChildRow = 0; grandChildRow < grandChildCount; ++grandChildRow) {
@@ -190,7 +190,7 @@ QList<TestConfiguration *> GoogleTestTreeItem::getAllTestConfigurations() const
     QHash<ProFileWithDisplayName, int>::ConstIterator end = proFilesWithTestSets.end();
     for ( ; it != end; ++it) {
         const ProFileWithDisplayName &key = it.key();
-        GoogleTestConfiguration *tc = new GoogleTestConfiguration;
+        GTestConfiguration *tc = new GTestConfiguration;
         tc->setTestCaseCount(it.value());
         tc->setProFile(key.proFile);
         tc->setDisplayName(key.displayName);
@@ -201,7 +201,7 @@ QList<TestConfiguration *> GoogleTestTreeItem::getAllTestConfigurations() const
     return result;
 }
 
-QList<TestConfiguration *> GoogleTestTreeItem::getSelectedTestConfigurations() const
+QList<TestConfiguration *> GTestTreeItem::getSelectedTestConfigurations() const
 {
     QList<TestConfiguration *> result;
     ProjectExplorer::Project *project = ProjectExplorer::SessionManager::startupProject();
@@ -210,7 +210,7 @@ QList<TestConfiguration *> GoogleTestTreeItem::getSelectedTestConfigurations() c
 
     QHash<ProFileWithDisplayName, QStringList> proFilesWithCheckedTestSets;
     for (int row = 0, count = childCount(); row < count; ++row) {
-        const GoogleTestTreeItem *child = static_cast<const GoogleTestTreeItem *>(childItem(row));
+        const GTestTreeItem *child = static_cast<const GTestTreeItem *>(childItem(row));
         if (child->checked() == Qt::Unchecked)
             continue;
 
@@ -232,7 +232,7 @@ QList<TestConfiguration *> GoogleTestTreeItem::getSelectedTestConfigurations() c
     QHash<ProFileWithDisplayName, QStringList>::ConstIterator end = proFilesWithCheckedTestSets.end();
     for ( ; it != end; ++it) {
         const ProFileWithDisplayName &key = it.key();
-        GoogleTestConfiguration *tc = new GoogleTestConfiguration;
+        GTestConfiguration *tc = new GTestConfiguration;
         tc->setTestCases(it.value());
         tc->setProFile(key.proFile);
         tc->setDisplayName(key.displayName);
@@ -243,17 +243,17 @@ QList<TestConfiguration *> GoogleTestTreeItem::getSelectedTestConfigurations() c
     return result;
 }
 
-TestTreeItem *GoogleTestTreeItem::find(const TestParseResult *result)
+TestTreeItem *GTestTreeItem::find(const TestParseResult *result)
 {
     QTC_ASSERT(result, return 0);
 
-    const GoogleTestParseResult *parseResult = static_cast<const GoogleTestParseResult *>(result);
-    GoogleTestTreeItem::TestStates states = parseResult->disabled ? GoogleTestTreeItem::Disabled
-                                                                  : GoogleTestTreeItem::Enabled;
+    const GTestParseResult *parseResult = static_cast<const GTestParseResult *>(result);
+    GTestTreeItem::TestStates states = parseResult->disabled ? GTestTreeItem::Disabled
+                                                             : GTestTreeItem::Enabled;
     if (parseResult->parameterized)
-        states |= GoogleTestTreeItem::Parameterized;
+        states |= GTestTreeItem::Parameterized;
     if (parseResult->typed)
-        states |= GoogleTestTreeItem::Typed;
+        states |= GTestTreeItem::Typed;
     switch (type()) {
     case Root:
         return findChildByNameStateAndFile(parseResult->name, states, parseResult->proFile);
@@ -264,23 +264,23 @@ TestTreeItem *GoogleTestTreeItem::find(const TestParseResult *result)
     }
 }
 
-bool GoogleTestTreeItem::modify(const TestParseResult *result)
+bool GTestTreeItem::modify(const TestParseResult *result)
 {
     QTC_ASSERT(result, return false);
 
     switch (type()) {
     case TestFunctionOrSet:
-        return modifyTestSetContent(static_cast<const GoogleTestParseResult *>(result));
+        return modifyTestSetContent(static_cast<const GTestParseResult *>(result));
     default:
         return false;
     }
 }
 
-bool GoogleTestTreeItem::modifyTestSetContent(const GoogleTestParseResult *result)
+bool GTestTreeItem::modifyTestSetContent(const GTestParseResult *result)
 {
     bool hasBeenModified = modifyLineAndColumn(result->line, result->column);
-    GoogleTestTreeItem::TestStates states = result->disabled ? GoogleTestTreeItem::Disabled
-                                                             : GoogleTestTreeItem::Enabled;
+    GTestTreeItem::TestStates states = result->disabled ? GTestTreeItem::Disabled
+                                                        : GTestTreeItem::Enabled;
     if (m_state != states) {
         m_state = states;
         hasBeenModified = true;
@@ -288,22 +288,22 @@ bool GoogleTestTreeItem::modifyTestSetContent(const GoogleTestParseResult *resul
     return hasBeenModified;
 }
 
-TestTreeItem *GoogleTestTreeItem::findChildByNameStateAndFile(const QString &name,
-                                                              GoogleTestTreeItem::TestStates state,
-                                                              const QString &proFile) const
+TestTreeItem *GTestTreeItem::findChildByNameStateAndFile(const QString &name,
+                                                         GTestTreeItem::TestStates state,
+                                                         const QString &proFile) const
 {
     return findChildBy([name, state, proFile](const TestTreeItem *other) -> bool {
-        const GoogleTestTreeItem *gtestItem = static_cast<const GoogleTestTreeItem *>(other);
+        const GTestTreeItem *gtestItem = static_cast<const GTestTreeItem *>(other);
         return other->proFile() == proFile
                 && other->name() == name
                 && gtestItem->state() == state;
     });
 }
 
-QString GoogleTestTreeItem::nameSuffix() const
+QString GTestTreeItem::nameSuffix() const
 {
-    static QString markups[] = { QCoreApplication::translate("GoogleTestTreeItem", "parameterized"),
-                                 QCoreApplication::translate("GoogleTestTreeItem", "typed") };
+    static QString markups[] = { QCoreApplication::translate("GTestTreeItem", "parameterized"),
+                                 QCoreApplication::translate("GTestTreeItem", "typed") };
     QString suffix;
     if (m_state & Parameterized)
         suffix =  QLatin1String(" [") + markups[0];

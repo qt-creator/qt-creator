@@ -30,17 +30,17 @@
 namespace Autotest {
 namespace Internal {
 
-class GoogleTestParseResult : public TestParseResult
+class GTestParseResult : public TestParseResult
 {
 public:
-    explicit GoogleTestParseResult() : TestParseResult(TestTreeModel::GoogleTest) {}
+    explicit GTestParseResult() : TestParseResult(TestTreeModel::GoogleTest) {}
     TestTreeItem *createTestTreeItem() const override;
     bool parameterized = false;
     bool typed = false;
     bool disabled = false;
 };
 
-class GoogleTestParser : public CppParser
+class GTestParser : public CppParser
 {
 public:
     bool processDocument(QFutureInterface<TestParseResultPtr> futureInterface,

@@ -70,8 +70,8 @@ bool GTestVisitor::visit(CPlusPlus::FunctionDefinitionAST *ast)
         locationAndType.m_line = line;
         locationAndType.m_column = column - 1;
         locationAndType.m_type = TestTreeItem::TestFunctionOrSet;
-        locationAndType.m_state = disabled ? GoogleTestTreeItem::Disabled
-                                           : GoogleTestTreeItem::Enabled;
+        locationAndType.m_state = disabled ? GTestTreeItem::Disabled
+                                           : GTestTreeItem::Enabled;
         GTestCaseSpec spec;
         spec.testCaseName = testCaseName;
         spec.parameterized = GTestUtils::isGTestParameterized(prettyName);
