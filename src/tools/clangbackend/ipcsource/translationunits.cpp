@@ -282,9 +282,10 @@ TranslationUnit TranslationUnits::createTranslationUnit(const FileContainer &fil
 
 void TranslationUnits::updateTranslationUnit(const FileContainer &fileContainer)
 {
-    auto findIterator = findAllTranslationUnitWithFilePath(fileContainer.filePath());
-    if (findIterator != translationUnits_.end())
-        findIterator->setDocumentRevision(fileContainer.documentRevision());
+    const auto translationUnits = findAllTranslationUnitWithFilePath(fileContainer.filePath());
+
+    for (auto translationUnit : translationUnits)
+        translationUnit.setDocumentRevision(fileContainer.documentRevision());
 }
 
 std::vector<TranslationUnit>::iterator TranslationUnits::findTranslationUnit(const FileContainer &fileContainer)
@@ -292,13 +293,19 @@ std::vector<TranslationUnit>::iterator TranslationUnits::findTranslationUnit(con
     return std::find(translationUnits_.begin(), translationUnits_.end(), fileContainer);
 }
 
-std::vector<TranslationUnit>::iterator TranslationUnits::findAllTranslationUnitWithFilePath(const Utf8String &filePath)
+std::vector<TranslationUnit> TranslationUnits::findAllTranslationUnitWithFilePath(const Utf8String &filePath)
 {
-    auto filePathCompare = [&filePath] (const TranslationUnit &translationUnit) {
+    const auto filePathCompare = [&filePath] (const TranslationUnit &translationUnit) {
         return translationUnit.filePath() == filePath;
     };
 
-    return std::find_if(translationUnits_.begin(), translationUnits_.end(), filePathCompare);
+    std::vector<TranslationUnit> translationUnits;
+    std::copy_if(translationUnits_.begin(),
+                 translationUnits_.end(),
+                 std::back_inserter(translationUnits),
+                 filePathCompare);
+
+    return translationUnits;
 }
 
 std::vector<TranslationUnit>::const_iterator TranslationUnits::findTranslationUnit(const Utf8String &filePath, const Utf8String &projectPartId) const

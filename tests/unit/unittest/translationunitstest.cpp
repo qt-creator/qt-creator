@@ -99,6 +99,7 @@ protected:
     const Utf8String headerPath = Utf8StringLiteral(TESTDATA_DIR"/translationunits.h");
     const Utf8String nonExistingFilePath = Utf8StringLiteral("foo.cpp");
     const Utf8String projectPartId = Utf8StringLiteral("projectPartId");
+    const Utf8String otherProjectPartId = Utf8StringLiteral("otherProjectPartId");
     const Utf8String nonExistingProjectPartId = Utf8StringLiteral("nonExistingProjectPartId");
     const ClangBackEnd::FileContainer fileContainer{filePath, projectPartId};
     const ClangBackEnd::FileContainer headerContainer{headerPath, projectPartId};
@@ -178,7 +179,7 @@ TEST_F(TranslationUnits, ThrowForUpdatingANonExistingTranslationUnit)
                  ClangBackEnd::TranslationUnitDoesNotExistException);
 }
 
-TEST_F(TranslationUnits, Update)
+TEST_F(TranslationUnits, UpdateSingle)
 {
     ClangBackEnd::FileContainer createFileContainer(filePath, projectPartId, Utf8StringVector(), 74u);
     ClangBackEnd::FileContainer updateFileContainer(filePath, Utf8String(), Utf8StringVector(), 75u);
@@ -188,6 +189,21 @@ TEST_F(TranslationUnits, Update)
 
     ASSERT_THAT(translationUnits.translationUnit(filePath, projectPartId),
                 IsTranslationUnit(filePath, projectPartId, 75u));
+}
+
+TEST_F(TranslationUnits, UpdateMultiple)
+{
+    ClangBackEnd::FileContainer fileContainer(filePath, projectPartId, Utf8StringVector(), 74u);
+    ClangBackEnd::FileContainer fileContainerWithOtherProject(filePath, otherProjectPartId, Utf8StringVector(), 74u);
+    ClangBackEnd::FileContainer updatedFileContainer(filePath, Utf8String(), Utf8StringVector(), 75u);
+    translationUnits.create({fileContainer, fileContainerWithOtherProject});
+
+    translationUnits.update({updatedFileContainer});
+
+    ASSERT_THAT(translationUnits.translationUnit(filePath, projectPartId),
+                IsTranslationUnit(filePath, projectPartId, 75u));
+    ASSERT_THAT(translationUnits.translationUnit(filePath, otherProjectPartId),
+                IsTranslationUnit(filePath, otherProjectPartId, 75u));
 }
 
 TEST_F(TranslationUnits, UpdateUnsavedFileAndCheckForReparse)
@@ -509,6 +525,7 @@ TEST_F(TranslationUnits, SendDocumentAnnotationsAfterProjectPartChange)
 void TranslationUnits::SetUp()
 {
     projects.createOrUpdate({ProjectPartContainer(projectPartId)});
+    projects.createOrUpdate({ProjectPartContainer(otherProjectPartId)});
 
     auto callback = [&] (const DiagnosticsChangedMessage &, const HighlightingChangedMessage &) {
         mockSendDocumentAnnotationsCallback.sendDocumentAnnotations();
