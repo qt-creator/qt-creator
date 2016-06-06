@@ -30,12 +30,12 @@ namespace QmlProfiler {
 
 QDataStream &operator>>(QDataStream &stream, QmlEventLocation &location)
 {
-    return stream >> location.filename >> location.line >> location.column;
+    return stream >> location.m_filename >> location.m_line >> location.m_column;
 }
 
 QDataStream &operator<<(QDataStream &stream, const QmlEventLocation &location)
 {
-    return stream << location.filename << location.line << location.column;
+    return stream << location.m_filename << location.m_line << location.m_column;
 }
 
 } // namespace QmlProfiler

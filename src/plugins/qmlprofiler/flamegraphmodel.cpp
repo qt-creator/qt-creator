@@ -168,9 +168,9 @@ QVariant FlameGraphModel::lookup(const FlameGraphData &stats, int role) const
         const QmlEventType &type = typeList[stats.typeIndex];
 
         switch (role) {
-        case FilenameRole: return type.location.filename;
-        case LineRole: return type.location.line;
-        case ColumnRole: return type.location.column;
+        case FilenameRole: return type.location.filename();
+        case LineRole: return type.location.line();
+        case ColumnRole: return type.location.column();
         case TypeRole: return nameForType(type.rangeType);
         case RangeTypeRole: return type.rangeType;
         case DetailsRole: return type.data.isEmpty() ?

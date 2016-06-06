@@ -48,7 +48,6 @@ void FlameGraphModelTest::generateData(QmlProfilerModelManager *manager)
     QmlEventType type;
 
     event.setTypeIndex(-1);
-    type.location.filename = QLatin1String("somefile.js");
     type.displayName.clear();
     type.data = QLatin1String("funcfunc");
     type.rangeType = MaximumRangeType;
@@ -61,8 +60,7 @@ void FlameGraphModelTest::generateData(QmlProfilerModelManager *manager)
     while (i < 10) {
         int typeIndex = -1;
         if (i < 5) {
-            type.location.line = i;
-            type.location.column = 20 - i;
+            type.location = QmlEventLocation("somefile.js", i, 20 - i);
             type.rangeType = static_cast<RangeType>(static_cast<int>(Javascript) - i);
             typeIndex = manager->qmlModel()->addEventType(type);
         } else {

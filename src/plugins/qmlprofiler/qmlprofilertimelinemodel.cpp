@@ -131,9 +131,9 @@ QVariantMap QmlProfilerTimelineModel::locationFromTypeId(int index) const
 
     const QmlEventLocation &location = types.at(id).location;
 
-    result.insert(QStringLiteral("file"), location.filename);
-    result.insert(QStringLiteral("line"), location.line);
-    result.insert(QStringLiteral("column"), location.column);
+    result.insert(QStringLiteral("file"), location.filename());
+    result.insert(QStringLiteral("line"), location.line());
+    result.insert(QStringLiteral("column"), location.column());
 
     return result;
 }

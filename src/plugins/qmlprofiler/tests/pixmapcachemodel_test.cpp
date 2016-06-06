@@ -285,7 +285,7 @@ void PixmapCacheModelTest::testColor()
                 QCOMPARE(model.color(i), row1Color);
         } else {
             const QmlEventType &type = manager.qmlModel()->eventTypes()[model.typeId(i)];
-            QColor &pixmapColor = (type.location.filename == QString("blah.png")) ?
+            QColor &pixmapColor = (type.location.filename() == QString("blah.png")) ?
                         blahColor : dingsColor;
             if (!pixmapColor.isValid())
                 pixmapColor = model.color(i);

@@ -169,7 +169,7 @@ void PixmapCacheModel::loadEvent(const QmlEvent &event, const QmlEventType &type
 
     newEvent.urlIndex = -1;
     for (auto i = m_pixmaps.cend(), begin = m_pixmaps.cbegin(); i != begin;) {
-        if ((--i)->url == type.location.filename) {
+        if ((--i)->url == type.location.filename()) {
             newEvent.urlIndex = i - m_pixmaps.cbegin();
             break;
         }
@@ -178,7 +178,7 @@ void PixmapCacheModel::loadEvent(const QmlEvent &event, const QmlEventType &type
     newEvent.sizeIndex = -1;
     if (newEvent.urlIndex == -1) {
         newEvent.urlIndex = m_pixmaps.count();
-        m_pixmaps << Pixmap(type.location.filename);
+        m_pixmaps << Pixmap(type.location.filename());
     }
 
     Pixmap &pixmap = m_pixmaps[newEvent.urlIndex];

@@ -300,6 +300,9 @@ void QmlProfilerFileReader::loadEventTypes(QXmlStreamReader &stream)
     };
     const QmlEventType defaultEvent = type;
 
+    QString filename;
+    int line = 0, column = 0;
+
     while (!stream.atEnd() && !stream.hasError()) {
         if (isCanceled())
             return;
@@ -342,17 +345,17 @@ void QmlProfilerFileReader::loadEventTypes(QXmlStreamReader &stream)
             }
 
             if (elementName == _("filename")) {
-                type.location.filename = readData;
+                filename = readData;
                 break;
             }
 
             if (elementName == _("line")) {
-                type.location.line = readData.toInt();
+                line = readData.toInt();
                 break;
             }
 
             if (elementName == _("column")) {
-                type.location.column = readData.toInt();
+                column = readData.toInt();
                 break;
             }
 
@@ -392,6 +395,9 @@ void QmlProfilerFileReader::loadEventTypes(QXmlStreamReader &stream)
                 if (typeIndex >= 0) {
                     if (typeIndex >= m_eventTypes.size())
                         m_eventTypes.resize(typeIndex + 1);
+                    type.location = QmlEventLocation(filename, line, column);
+                    filename.clear();
+                    line = column = 0;
                     m_eventTypes[typeIndex] = type;
                     ProfileFeature feature = type.feature();
                     if (feature != MaximumProfileFeature)
@@ -620,10 +626,10 @@ void QmlProfilerFileWriter::saveQtd(QIODevice *device)
         stream.writeAttribute(_("index"), QString::number(typeIndex));
         stream.writeTextElement(_("displayname"), type.displayName);
         stream.writeTextElement(_("type"), qmlTypeAsString(type.message, type.rangeType));
-        if (!type.location.filename.isEmpty()) {
-            stream.writeTextElement(_("filename"), type.location.filename);
-            stream.writeTextElement(_("line"), QString::number(type.location.line));
-            stream.writeTextElement(_("column"), QString::number(type.location.column));
+        if (!type.location.filename().isEmpty()) {
+            stream.writeTextElement(_("filename"), type.location.filename());
+            stream.writeTextElement(_("line"), QString::number(type.location.line()));
+            stream.writeTextElement(_("column"), QString::number(type.location.column()));
         }
 
         if (!type.data.isEmpty())

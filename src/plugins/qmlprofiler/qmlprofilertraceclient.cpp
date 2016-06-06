@@ -36,22 +36,19 @@ namespace QmlProfiler {
 
 inline static uint qHash(const QmlEventType &type)
 {
-    return qHash(type.location.filename) ^
-            ((type.location.line & 0xfff) |             // 12 bits of line number
-            ((type.message << 12) & 0xf000) |           // 4 bits of message
-            ((type.location.column << 16) & 0xff0000) | // 8 bits of column
-            ((type.rangeType << 24) & 0xf000000) |      // 4 bits of rangeType
-            ((type.detailType << 28) & 0xf0000000));    // 4 bits of detailType
+    return qHash(type.location.filename()) ^
+            ((type.location.line() & 0xfff) |             // 12 bits of line number
+            ((type.message << 12) & 0xf000) |             // 4 bits of message
+            ((type.location.column() << 16) & 0xff0000) | // 8 bits of column
+            ((type.rangeType << 24) & 0xf000000) |        // 4 bits of rangeType
+            ((type.detailType << 28) & 0xf0000000));      // 4 bits of detailType
 }
 
 inline static bool operator==(const QmlEventType &type1,
                               const QmlEventType &type2)
 {
     return type1.message == type2.message && type1.rangeType == type2.rangeType &&
-            type1.detailType == type2.detailType && type1.location.line == type2.location.line &&
-            type1.location.column == type2.location.column &&
-            // compare filename last as it's expensive.
-            type1.location.filename == type2.location.filename;
+            type1.detailType == type2.detailType && type1.location == type2.location;
 }
 
 class QmlProfilerTraceClientPrivate {
@@ -252,9 +249,7 @@ void QmlProfilerTraceClient::setRequestedFeatures(quint64 features)
             d->currentEvent.event.setTimestamp(context.timestamp);
             d->currentEvent.event.setTypeIndex(-1);
             d->currentEvent.event.setString(text);
-            d->currentEvent.type.location.filename = context.file;
-            d->currentEvent.type.location.line = context.line;
-            d->currentEvent.type.location.column = 1;
+            d->currentEvent.type.location = QmlEventLocation(context.file, context.line, 1);
             d->currentEvent.type.displayName.clear();
             d->currentEvent.type.data.clear();
             d->currentEvent.type.message = DebugMessage;

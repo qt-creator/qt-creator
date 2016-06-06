@@ -57,12 +57,12 @@ public:
 
 QString getDisplayName(const QmlEventType &event)
 {
-    if (event.location.filename.isEmpty()) {
+    if (event.location.filename().isEmpty()) {
         return QmlProfilerDataModel::tr("<bytecode>");
     } else {
-        const QString filePath = QUrl(event.location.filename).path();
+        const QString filePath = QUrl(event.location.filename()).path();
         return filePath.mid(filePath.lastIndexOf(QLatin1Char('/')) + 1) + QLatin1Char(':') +
-                QString::number(event.location.line);
+                QString::number(event.location.line());
     }
 }
 
@@ -182,7 +182,7 @@ void QmlProfilerDataModel::QmlProfilerDataModelPrivate::rewriteType(int typeInde
         return;
 
     // There is no point in looking for invalid locations
-    if (type.location.filename.isEmpty() || type.location.line < 0 || type.location.column < 0)
+    if (!type.location.isValid())
         return;
 
     detailsRewriter->requestDetailsForLocation(typeIndex, type.location);

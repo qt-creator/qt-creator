@@ -121,11 +121,12 @@ void QmlProfilerDetailsRewriter::requestDetailsForLocation(int requestId,
         const QmlEventLocation &location)
 {
     QString localFile;
-    if (!d->m_filesCache.contains(location.filename)) {
-        localFile = d->m_projectFinder->findFile(location.filename);
-        d->m_filesCache[location.filename] = localFile;
+    const QString locationFile = location.filename();
+    if (!d->m_filesCache.contains(locationFile)) {
+        localFile = d->m_projectFinder->findFile(locationFile);
+        d->m_filesCache[locationFile] = localFile;
     } else {
-        localFile = d->m_filesCache[location.filename];
+        localFile = d->m_filesCache[locationFile];
     }
     QFileInfo fileInfo(localFile);
     if (!fileInfo.exists() || !fileInfo.isReadable())
@@ -166,7 +167,7 @@ void QmlProfilerDetailsRewriter::rewriteDetailsForLocation(QTextStream &textDoc,
         QmlJS::Document::Ptr doc, int requestId, const QmlEventLocation &location)
 {
     PropertyVisitor propertyVisitor;
-    QmlJS::AST::Node *node = propertyVisitor(doc->ast(), location.line, location.column);
+    QmlJS::AST::Node *node = propertyVisitor(doc->ast(), location.line(), location.column());
 
     if (!node)
         return;

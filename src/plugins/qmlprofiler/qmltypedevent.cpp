@@ -48,8 +48,7 @@ QDataStream &operator>>(QDataStream &stream, QmlTypedEvent &event)
     event.event.setTypeIndex(-1);
     event.type.displayName.clear();
     event.type.data.clear();
-    event.type.location.filename.clear();
-    event.type.location.line = event.type.location.column = -1;
+    event.type.location.clear();
     event.serverTypeId = 0;
 
     switch (messageType) {
@@ -122,7 +121,9 @@ QDataStream &operator>>(QDataStream &stream, QmlTypedEvent &event)
     }
     case PixmapCacheEvent: {
         qint32 width = 0, height = 0, refcount = 0;
-        stream >> event.type.location.filename;
+        QString filename;
+        stream >> filename;
+        event.type.location = QmlEventLocation(filename, 0, 0);
         if (subtype == PixmapReferenceCountChanged || subtype == PixmapCacheCountChanged) {
             stream >> refcount;
         } else if (subtype == PixmapSizeKnown) {
@@ -132,7 +133,6 @@ QDataStream &operator>>(QDataStream &stream, QmlTypedEvent &event)
 
         event.type.message = static_cast<Message>(messageType);
         event.type.rangeType = MaximumRangeType;
-        event.type.location.line = event.type.location.column = 0;
         event.type.detailType = subtype;
         event.event.setNumbers<qint32>({width, height, refcount});
         break;
@@ -174,17 +174,18 @@ QDataStream &operator>>(QDataStream &stream, QmlTypedEvent &event)
         break;
     }
     case RangeLocation: {
-        stream >> event.type.location.filename
-                >> static_cast<qint32 &>(event.type.location.line);
+        QString filename;
+        qint32 line = 0;
+        qint32 column = 0;
+        stream >> filename >> line;
 
         if (!stream.atEnd()) {
-            stream >> static_cast<qint32 &>(event.type.location.column);
+            stream >> column;
             if (!stream.atEnd())
                 stream >> event.serverTypeId;
-        } else {
-            event.type.location.column = -1;
         }
 
+        event.type.location = QmlEventLocation(filename, line, column);
         event.type.message = MaximumMessage;
         event.type.rangeType = rangeType;
         event.event.setRangeStage(RangeLocation);

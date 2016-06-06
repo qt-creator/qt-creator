@@ -41,7 +41,6 @@ void DebugMessagesModelTest::initTestCase()
     QmlEventType type;
 
     event.setTypeIndex(-1);
-    type.location.filename = QLatin1String("somefile.js");
     type.displayName.clear();
     type.data.clear();
     type.message = DebugMessage;
@@ -50,8 +49,7 @@ void DebugMessagesModelTest::initTestCase()
     for (int i = 0; i < 10; ++i) {
         event.setTimestamp(i);
         event.setString(QString::fromLatin1("message %1").arg(i));
-        type.location.line = i;
-        type.location.column = 10 - i;
+        type.location = QmlEventLocation("somefile.js", i, 10 - i);
         type.detailType = i % (QtMsgType::QtInfoMsg + 1);
         event.setTypeIndex(manager.qmlModel()->addEventType(type));
         manager.qmlModel()->addEvent(event);
