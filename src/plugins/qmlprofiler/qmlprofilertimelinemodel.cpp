@@ -57,9 +57,9 @@ ProfileFeature QmlProfilerTimelineModel::mainFeature() const
     return m_mainFeature;
 }
 
-bool QmlProfilerTimelineModel::accepted(const QmlEventType &event) const
+bool QmlProfilerTimelineModel::accepted(const QmlEventType &type) const
 {
-    return (event.rangeType == m_rangeType && event.message == m_message);
+    return (type.rangeType() == m_rangeType && type.message() == m_message);
 }
 
 bool QmlProfilerTimelineModel::handlesTypeId(int typeIndex) const
@@ -129,7 +129,7 @@ QVariantMap QmlProfilerTimelineModel::locationFromTypeId(int index) const
     if (id >= types.length())
         return result;
 
-    const QmlEventLocation &location = types.at(id).location;
+    QmlEventLocation location = types.at(id).location();
 
     result.insert(QStringLiteral("file"), location.filename());
     result.insert(QStringLiteral("line"), location.line());

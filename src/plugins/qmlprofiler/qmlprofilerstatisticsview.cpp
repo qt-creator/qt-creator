@@ -53,15 +53,11 @@ struct Colors {
 };
 
 struct RootEventType : public QmlEventType {
-    RootEventType()
+    RootEventType() : QmlEventType(MaximumMessage, MaximumRangeType, -1,
+                                   QmlEventLocation("<program>", 1, 1),
+                                   QmlProfilerStatisticsMainView::tr("Main Program"),
+                                   QmlProfilerStatisticsMainView::tr("<program>"))
     {
-        QString rootEventName = QmlProfilerStatisticsMainView::tr("<program>");
-        displayName = rootEventName;
-        location = QmlEventLocation(rootEventName, 1, 1);
-        message = MaximumMessage;
-        rangeType = MaximumRangeType;
-        detailType = -1;
-        data = QmlProfilerStatisticsMainView::tr("Main Program");
     }
 };
 
@@ -571,11 +567,11 @@ void QmlProfilerStatisticsMainView::parseModel()
         QList<QStandardItem *> newRow;
 
         if (d->m_fieldShown[Name])
-            newRow << new StatisticsViewItem(event.displayName.isEmpty() ? tr("<bytecode>") :
-                                                                       event.displayName);
+            newRow << new StatisticsViewItem(event.displayName().isEmpty() ? tr("<bytecode>") :
+                                                                             event.displayName());
 
         if (d->m_fieldShown[Type]) {
-            QString typeString = QmlProfilerStatisticsMainView::nameForType(event.rangeType);
+            QString typeString = QmlProfilerStatisticsMainView::nameForType(event.rangeType());
             newRow << new StatisticsViewItem(typeString);
             newRow.last()->setData(QVariant(typeString));
         }
@@ -628,9 +624,9 @@ void QmlProfilerStatisticsMainView::parseModel()
         }
 
         if (d->m_fieldShown[Details]) {
-            newRow << new StatisticsViewItem(event.data.isEmpty() ?
-                                                 tr("Source code not available") : event.data);
-            newRow.last()->setData(QVariant(event.data));
+            newRow << new StatisticsViewItem(event.data().isEmpty() ?
+                                                 tr("Source code not available") : event.data());
+            newRow.last()->setData(event.data());
         }
 
 
@@ -642,9 +638,10 @@ void QmlProfilerStatisticsMainView::parseModel()
 
             // metadata
             newRow.at(0)->setData(typeIndex, TypeIdRole);
-            newRow.at(0)->setData(event.location.filename(), FilenameRole);
-            newRow.at(0)->setData(event.location.line(), LineRole);
-            newRow.at(0)->setData(event.location.column(), ColumnRole);
+            const QmlEventLocation location(event.location());
+            newRow.at(0)->setData(location.filename(), FilenameRole);
+            newRow.at(0)->setData(location.line(), LineRole);
+            newRow.at(0)->setData(location.column(), ColumnRole);
 
             // append
             parentItem->appendRow(newRow);
@@ -859,23 +856,24 @@ void QmlProfilerStatisticsRelativesView::rebuildTree(
         // ToDo: here we were going to search for the data in the other model
         // maybe we should store the data in this model and get it here
         // no indirections at this level of abstraction!
-        newRow << new StatisticsViewItem(type.displayName.isEmpty() ? tr("<bytecode>") :
-                                                                  type.displayName);
+        newRow << new StatisticsViewItem(type.displayName().isEmpty() ? tr("<bytecode>") :
+                                                                        type.displayName());
         newRow << new StatisticsViewItem(QmlProfilerStatisticsMainView::nameForType(
-                                             type.rangeType));
+                                             type.rangeType()));
         newRow << new StatisticsViewItem(QmlProfilerDataModel::formatTime(event.duration));
         newRow << new StatisticsViewItem(QString::number(event.calls));
-        newRow << new StatisticsViewItem(type.data.isEmpty() ? tr("Source code not available") :
-                                                           type.data);
+        newRow << new StatisticsViewItem(type.data().isEmpty() ? tr("Source code not available") :
+                                                                 type.data());
 
         newRow.at(0)->setData(typeIndex, TypeIdRole);
-        newRow.at(0)->setData(type.location.filename(), FilenameRole);
-        newRow.at(0)->setData(type.location.line(), LineRole);
-        newRow.at(0)->setData(type.location.column(), ColumnRole);
-        newRow.at(1)->setData(QmlProfilerStatisticsMainView::nameForType(type.rangeType));
+        const QmlEventLocation location(type.location());
+        newRow.at(0)->setData(location.filename(), FilenameRole);
+        newRow.at(0)->setData(location.line(), LineRole);
+        newRow.at(0)->setData(location.column(), ColumnRole);
+        newRow.at(1)->setData(QmlProfilerStatisticsMainView::nameForType(type.rangeType()));
         newRow.at(2)->setData(event.duration);
         newRow.at(3)->setData(event.calls);
-        newRow.at(4)->setData(type.data);
+        newRow.at(4)->setData(type.data());
 
         if (event.isBindingLoop) {
             foreach (QStandardItem *item, newRow) {

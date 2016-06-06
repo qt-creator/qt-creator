@@ -36,19 +36,18 @@ namespace QmlProfiler {
 
 inline static uint qHash(const QmlEventType &type)
 {
-    return qHash(type.location.filename()) ^
-            ((type.location.line() & 0xfff) |             // 12 bits of line number
-            ((type.message << 12) & 0xf000) |             // 4 bits of message
-            ((type.location.column() << 16) & 0xff0000) | // 8 bits of column
-            ((type.rangeType << 24) & 0xf000000) |        // 4 bits of rangeType
-            ((type.detailType << 28) & 0xf0000000));      // 4 bits of detailType
+    return qHash(type.location().filename()) ^
+            ((type.location().line() & 0xfff) |             // 12 bits of line number
+            ((type.message() << 12) & 0xf000) |             // 4 bits of message
+            ((type.location().column() << 16) & 0xff0000) | // 8 bits of column
+            ((type.rangeType() << 24) & 0xf000000) |        // 4 bits of rangeType
+            ((type.detailType() << 28) & 0xf0000000));      // 4 bits of detailType
 }
 
-inline static bool operator==(const QmlEventType &type1,
-                              const QmlEventType &type2)
+inline static bool operator==(const QmlEventType &type1, const QmlEventType &type2)
 {
-    return type1.message == type2.message && type1.rangeType == type2.rangeType &&
-            type1.detailType == type2.detailType && type1.location == type2.location;
+    return type1.message() == type2.message() && type1.rangeType() == type2.rangeType() &&
+            type1.detailType() == type2.detailType() && type1.location() == type2.location();
 }
 
 class QmlProfilerTraceClientPrivate {
@@ -136,8 +135,8 @@ void QmlProfilerTraceClientPrivate::processCurrentEvent()
     // all ranges are perfectly nested. This is why we can defer the type resolution until either
     // the range ends or a child range starts. With only the information in RangeStart we wouldn't
     // be able to uniquely identify the event type.
-    Message rangeStage = currentEvent.type.rangeType == MaximumRangeType ?
-                currentEvent.type.message : currentEvent.event.rangeStage();
+    Message rangeStage = currentEvent.type.rangeType() == MaximumRangeType ?
+                currentEvent.type.message() : currentEvent.event.rangeStage();
     switch (rangeStage) {
     case RangeStart:
         resolveStackTop();
@@ -152,10 +151,10 @@ void QmlProfilerTraceClientPrivate::processCurrentEvent()
         break;
     }
     case RangeData:
-        rangesInProgress.top().type.data = currentEvent.type.data;
+        rangesInProgress.top().type.setData(currentEvent.type.data());
         break;
     case RangeLocation:
-        rangesInProgress.top().type.location = currentEvent.type.location;
+        rangesInProgress.top().type.setLocation(currentEvent.type.location());
         break;
     default: {
         int typeIndex = resolveType(currentEvent);
@@ -249,12 +248,8 @@ void QmlProfilerTraceClient::setRequestedFeatures(quint64 features)
             d->currentEvent.event.setTimestamp(context.timestamp);
             d->currentEvent.event.setTypeIndex(-1);
             d->currentEvent.event.setString(text);
-            d->currentEvent.type.location = QmlEventLocation(context.file, context.line, 1);
-            d->currentEvent.type.displayName.clear();
-            d->currentEvent.type.data.clear();
-            d->currentEvent.type.message = DebugMessage;
-            d->currentEvent.type.rangeType = MaximumRangeType;
-            d->currentEvent.type.detailType = type;
+            d->currentEvent.type = QmlEventType(DebugMessage, MaximumRangeType, type,
+                                                QmlEventLocation(context.file, context.line, 1));
             d->currentEvent.serverTypeId = 0;
             d->processCurrentEvent();
         });
@@ -301,17 +296,17 @@ void QmlProfilerTraceClient::messageReceived(const QByteArray &data)
     stream >> d->currentEvent;
 
     d->maximumTime = qMax(d->currentEvent.event.timestamp(), d->maximumTime);
-    if (d->currentEvent.type.message == Complete) {
+    if (d->currentEvent.type.message() == Complete) {
         emit complete(d->maximumTime);
         setRecordingFromServer(false);
-    } else if (d->currentEvent.type.message == Event
-               && d->currentEvent.type.detailType == StartTrace) {
+    } else if (d->currentEvent.type.message() == Event
+               && d->currentEvent.type.detailType() == StartTrace) {
         if (!d->recording)
             setRecordingFromServer(true);
         emit traceStarted(d->currentEvent.event.timestamp(),
                           d->currentEvent.event.numbers<QList<int>, qint32>());
-    } else if (d->currentEvent.type.message == Event
-               && d->currentEvent.type.detailType == EndTrace) {
+    } else if (d->currentEvent.type.message() == Event
+               && d->currentEvent.type.detailType() == EndTrace) {
         emit traceFinished(d->currentEvent.event.timestamp(),
                            d->currentEvent.event.numbers<QList<int>, qint32>());
     } else if (d->updateFeatures(d->currentEvent.type.feature())) {

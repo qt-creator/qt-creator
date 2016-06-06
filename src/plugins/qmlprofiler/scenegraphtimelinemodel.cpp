@@ -134,7 +134,7 @@ QVariantMap SceneGraphTimelineModel::details(int index) const
 void SceneGraphTimelineModel::loadEvent(const QmlEvent &event, const QmlEventType &type)
 {
     // combine the data of several eventtypes into two rows
-    switch ((SceneGraphFrameType)type.detailType) {
+    switch ((SceneGraphFrameType)type.detailType()) {
     case SceneGraphRendererFrame: {
         // Breakdown of render times. We repeat "render" here as "net" render time. It would
         // look incomplete if that was left out as the printf profiler lists it, too, and people

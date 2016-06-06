@@ -39,16 +39,13 @@ void MemoryUsageModelTest::initTestCase()
     manager.startAcquiring();
     qint64 timestamp = 0;
 
-    QmlEventType type;
-    type.message = MemoryAllocation;
-    type.rangeType = MaximumRangeType;
 
-    type.detailType = HeapPage;
-    heapPageTypeId = manager.qmlModel()->addEventType(type);
-    type.detailType = SmallItem;
-    smallItemTypeId = manager.qmlModel()->addEventType(type);
-    type.detailType = LargeItem;
-    largeItemTypeId = manager.qmlModel()->addEventType(type);
+    heapPageTypeId = manager.qmlModel()->addEventType(
+                QmlEventType(MemoryAllocation, MaximumRangeType, HeapPage));
+    smallItemTypeId = manager.qmlModel()->addEventType(
+                QmlEventType(MemoryAllocation, MaximumRangeType, SmallItem));
+    largeItemTypeId = manager.qmlModel()->addEventType(
+                QmlEventType(MemoryAllocation, MaximumRangeType, LargeItem));
 
     auto addMemoryEvents = [&]() {
         QmlEvent event;
@@ -75,12 +72,10 @@ void MemoryUsageModelTest::initTestCase()
     };
 
     addMemoryEvents();
-    QmlEventType rangeType;
-    rangeType.message = MaximumMessage;
-    rangeType.rangeType = Javascript;
-    rangeType.data = QString("funcfunc");
-    rangeType.location = QmlEventLocation(QString("somefile.js"), 10, 20);
-    rangeTypeId = manager.qmlModel()->addEventType(rangeType);
+    rangeTypeId = manager.qmlModel()->addEventType(
+                QmlEventType(MaximumMessage, Javascript, -1,
+                             QmlEventLocation(QString("somefile.js"), 10, 20),
+                             QString("funcfunc")));
 
     QmlEvent event;
     event.setRangeStage(RangeStart);
@@ -229,16 +224,10 @@ void MemoryUsageModelTest::testRelativeHeight()
 
 void MemoryUsageModelTest::testAccepted()
 {
-    QmlEventType type;
-    QVERIFY(!model.accepted(type));
-    type.detailType = HeapPage;
-    QVERIFY(!model.accepted(type));
-    type.message = MemoryAllocation;
-    QVERIFY(model.accepted(type));
-
-    type.message = MaximumMessage;
-    type.rangeType = Javascript;
-    QVERIFY(model.accepted(type));
+    QVERIFY(!model.accepted(QmlEventType()));
+    QVERIFY(!model.accepted(QmlEventType(MaximumMessage, MaximumRangeType, HeapPage)));
+    QVERIFY(model.accepted(QmlEventType(MemoryAllocation, MaximumRangeType, HeapPage)));
+    QVERIFY(model.accepted(QmlEventType(MaximumMessage, Javascript)));
 }
 
 void MemoryUsageModelTest::cleanupTestCase()

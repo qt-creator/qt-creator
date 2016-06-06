@@ -32,18 +32,45 @@ QDataStream &operator>>(QDataStream &stream, QmlEventType &type)
 {
     quint8 message;
     quint8 rangeType;
-    stream >> type.displayName >> type.data >> type.location >> message >> rangeType
-           >> type.detailType;
-    type.message = static_cast<Message>(message);
-    type.rangeType = static_cast<RangeType>(rangeType);
+    stream >> type.m_displayName >> type.m_data >> type.m_location >> message >> rangeType
+           >> type.m_detailType;
+    type.m_message = static_cast<Message>(message);
+    type.m_rangeType = static_cast<RangeType>(rangeType);
     return stream;
 }
 
 QDataStream &operator<<(QDataStream &stream, const QmlEventType &type)
 {
-    return stream << type.displayName << type.data << type.location
-                  << static_cast<quint8>(type.message) << static_cast<quint8>(type.rangeType)
-                  << type.detailType;
+    return stream << type.m_displayName << type.m_data << type.m_location
+                  << static_cast<quint8>(type.m_message) << static_cast<quint8>(type.m_rangeType)
+                  << type.m_detailType;
+}
+
+ProfileFeature QmlEventType::feature() const
+{
+    switch (m_message) {
+    case Event: {
+        switch (m_detailType) {
+        case Mouse:
+        case Key:
+            return ProfileInputEvents;
+        case AnimationFrame:
+            return ProfileAnimations;
+        default:
+            return MaximumProfileFeature;
+        }
+    }
+    case PixmapCacheEvent:
+        return ProfilePixmapCache;
+    case SceneGraphFrame:
+        return ProfileSceneGraph;
+    case MemoryAllocation:
+        return ProfileMemory;
+    case DebugMessage:
+        return ProfileDebugMessages;
+    default:
+        return featureFromRangeType(m_rangeType);
+    }
 }
 
 

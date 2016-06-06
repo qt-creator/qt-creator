@@ -38,19 +38,13 @@ void DebugMessagesModelTest::initTestCase()
 {
     manager.startAcquiring();
     QmlEvent event;
-    QmlEventType type;
-
     event.setTypeIndex(-1);
-    type.displayName.clear();
-    type.data.clear();
-    type.message = DebugMessage;
-    type.rangeType = MaximumRangeType;
 
     for (int i = 0; i < 10; ++i) {
         event.setTimestamp(i);
         event.setString(QString::fromLatin1("message %1").arg(i));
-        type.location = QmlEventLocation("somefile.js", i, 10 - i);
-        type.detailType = i % (QtMsgType::QtInfoMsg + 1);
+        QmlEventType type(DebugMessage, MaximumRangeType, i % (QtMsgType::QtInfoMsg + 1),
+                          QmlEventLocation("somefile.js", i, 10 - i));
         event.setTypeIndex(manager.qmlModel()->addEventType(type));
         manager.qmlModel()->addEvent(event);
     }

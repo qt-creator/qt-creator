@@ -168,14 +168,14 @@ QVariant FlameGraphModel::lookup(const FlameGraphData &stats, int role) const
         const QmlEventType &type = typeList[stats.typeIndex];
 
         switch (role) {
-        case FilenameRole: return type.location.filename();
-        case LineRole: return type.location.line();
-        case ColumnRole: return type.location.column();
-        case TypeRole: return nameForType(type.rangeType);
-        case RangeTypeRole: return type.rangeType;
-        case DetailsRole: return type.data.isEmpty() ?
-                        FlameGraphModel::tr("Source code not available") : type.data;
-        case LocationRole: return type.displayName;
+        case FilenameRole: return type.location().filename();
+        case LineRole: return type.location().line();
+        case ColumnRole: return type.location().column();
+        case TypeRole: return nameForType(type.rangeType());
+        case RangeTypeRole: return type.rangeType();
+        case DetailsRole: return type.data().isEmpty() ?
+                        FlameGraphModel::tr("Source code not available") : type.data();
+        case LocationRole: return type.displayName();
         default: return QVariant();
         }
     } else {

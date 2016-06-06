@@ -76,10 +76,10 @@ QVariantMap DebugMessagesModel::details(int index) const
     const QmlEventType &type = modelManager()->qmlModel()->eventTypes()[m_data[index].typeId];
 
     QVariantMap result;
-    result.insert(QLatin1String("displayName"), messageType(type.detailType));
+    result.insert(QLatin1String("displayName"), messageType(type.detailType()));
     result.insert(tr("Timestamp"), QmlProfilerDataModel::formatTime(startTime(index)));
     result.insert(tr("Message"), m_data[index].text);
-    result.insert(tr("Location"), type.displayName);
+    result.insert(tr("Location"), type.displayName());
     return result;
 }
 
@@ -96,9 +96,9 @@ int DebugMessagesModel::collapsedRow(int index) const
 
 void DebugMessagesModel::loadEvent(const QmlEvent &event, const QmlEventType &type)
 {
-    m_data.insert(insert(event.timestamp(), 0, type.detailType),
+    m_data.insert(insert(event.timestamp(), 0, type.detailType()),
                   MessageData(event.string(), event.typeIndex()));
-    if (type.detailType > m_maximumMsgType)
+    if (type.detailType() > m_maximumMsgType)
         m_maximumMsgType = event.typeIndex();
 }
 

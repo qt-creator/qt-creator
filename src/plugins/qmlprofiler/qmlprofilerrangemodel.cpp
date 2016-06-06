@@ -193,8 +193,8 @@ QVariantList QmlProfilerRangeModel::labels() const
     for (int i = 1; i < expandedRowCount(); i++) { // Ignore the -1 for the first row
         QVariantMap element;
         int typeId = m_expandedRowTypes[i];
-        element.insert(QLatin1String("displayName"), QVariant(types[typeId].displayName));
-        element.insert(QLatin1String("description"), QVariant(types[typeId].data));
+        element.insert(QLatin1String("displayName"), QVariant(types[typeId].displayName()));
+        element.insert(QLatin1String("description"), QVariant(types[typeId].data()));
         element.insert(QLatin1String("id"), QVariant(typeId));
         result << element;
     }
@@ -212,8 +212,8 @@ QVariantMap QmlProfilerRangeModel::details(int index) const
                   tr(QmlProfilerModelManager::featureName(mainFeature())));
     result.insert(tr("Duration"), QmlProfilerDataModel::formatTime(duration(index)));
 
-    result.insert(tr("Details"), types[id].data);
-    result.insert(tr("Location"), types[id].displayName);
+    result.insert(tr("Details"), types[id].data());
+    result.insert(tr("Location"), types[id].displayName());
     return result;
 }
 

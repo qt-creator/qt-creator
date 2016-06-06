@@ -57,7 +57,7 @@ void QmlProfilerAnimationsModel::clear()
 
 bool QmlProfilerAnimationsModel::accepted(const QmlEventType &event) const
 {
-    return QmlProfilerTimelineModel::accepted(event) && event.detailType == AnimationFrame;
+    return QmlProfilerTimelineModel::accepted(event) && event.detailType() == AnimationFrame;
 }
 
 void QmlProfilerAnimationsModel::loadEvent(const QmlEvent &event, const QmlEventType &type)

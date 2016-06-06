@@ -57,24 +57,23 @@ public:
 
 QString getDisplayName(const QmlEventType &event)
 {
-    if (event.location.filename().isEmpty()) {
+    if (event.location().filename().isEmpty()) {
         return QmlProfilerDataModel::tr("<bytecode>");
     } else {
-        const QString filePath = QUrl(event.location.filename()).path();
+        const QString filePath = QUrl(event.location().filename()).path();
         return filePath.mid(filePath.lastIndexOf(QLatin1Char('/')) + 1) + QLatin1Char(':') +
-                QString::number(event.location.line());
+                QString::number(event.location().line());
     }
 }
 
 QString getInitialDetails(const QmlEventType &event)
 {
-    QString details;
+    QString details = event.data();
     // generate details string
-    if (!event.data.isEmpty()) {
-        details = event.data;
+    if (!details.isEmpty()) {
         details = details.replace(QLatin1Char('\n'),QLatin1Char(' ')).simplified();
         if (details.isEmpty()) {
-            if (event.rangeType == Javascript)
+            if (event.rangeType() == Javascript)
                 details = QmlProfilerDataModel::tr("anonymous function");
         } else {
             QRegExp rewrite(QLatin1String("\\(function \\$(\\w+)\\(\\) \\{ (return |)(.+) \\}\\)"));
@@ -85,7 +84,7 @@ QString getInitialDetails(const QmlEventType &event)
                     details.startsWith(QLatin1String("qrc:/")))
                 details = details.mid(details.lastIndexOf(QLatin1Char('/')) + 1);
         }
-    } else if (event.rangeType == Painting) {
+    } else if (event.rangeType() == Painting) {
         // QtQuick1 animations always run in GUI thread.
         details = QmlProfilerDataModel::tr("GUI Thread");
     }
@@ -174,18 +173,18 @@ bool QmlProfilerDataModel::isEmpty() const
 void QmlProfilerDataModel::QmlProfilerDataModelPrivate::rewriteType(int typeIndex)
 {
     QmlEventType &type = eventTypes[typeIndex];
-    type.displayName = getDisplayName(type);
-    type.data = getInitialDetails(type);
+    type.setDisplayName(getDisplayName(type));
+    type.setData(getInitialDetails(type));
 
     // Only bindings and signal handlers need rewriting
-    if (type.rangeType != Binding && type.rangeType != HandlingSignal)
+    if (type.rangeType() != Binding && type.rangeType() != HandlingSignal)
         return;
 
     // There is no point in looking for invalid locations
-    if (!type.location.isValid())
+    if (!type.location().isValid())
         return;
 
-    detailsRewriter->requestDetailsForLocation(typeIndex, type.location);
+    detailsRewriter->requestDetailsForLocation(typeIndex, type.location());
 }
 
 void QmlProfilerDataModel::replayEvents(qint64 rangeStart, qint64 rangeEnd,
@@ -205,7 +204,7 @@ void QmlProfilerDataModel::replayEvents(qint64 rangeStart, qint64 rangeEnd,
         const QmlEventType &type = d->eventTypes[event.typeIndex()];
         if (rangeStart != -1 && rangeEnd != -1) {
             if (event.timestamp() < rangeStart) {
-                if (type.rangeType != MaximumRangeType) {
+                if (type.rangeType() != MaximumRangeType) {
                     if (event.rangeStage() == RangeStart)
                         stack.push(event);
                     else if (event.rangeStage() == RangeEnd)
@@ -213,7 +212,7 @@ void QmlProfilerDataModel::replayEvents(qint64 rangeStart, qint64 rangeEnd,
                 }
                 continue;
             } else if (event.timestamp() > rangeEnd) {
-                if (type.rangeType != MaximumRangeType) {
+                if (type.rangeType() != MaximumRangeType) {
                     if (event.rangeStage() == RangeEnd) {
                         if (stack.isEmpty()) {
                             QmlEvent endEvent(event);
@@ -251,7 +250,7 @@ void QmlProfilerDataModel::detailsChanged(int requestId, const QString &newStrin
 {
     Q_D(QmlProfilerDataModel);
     QTC_ASSERT(requestId < d->eventTypes.count(), return);
-    d->eventTypes[requestId].data = newString;
+    d->eventTypes[requestId].setData(newString);
 }
 
 } // namespace QmlProfiler

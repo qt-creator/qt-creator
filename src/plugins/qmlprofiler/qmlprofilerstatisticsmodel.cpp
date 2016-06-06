@@ -207,7 +207,7 @@ void QmlProfilerStatisticsModel::notesChanged(int typeIndex)
 
 void QmlProfilerStatisticsModel::loadEvent(const QmlEvent &event, const QmlEventType &type)
 {
-    if (!d->acceptedTypes.contains(type.rangeType))
+    if (!d->acceptedTypes.contains(type.rangeType()))
         return;
 
     switch (event.rangeStage()) {
@@ -215,7 +215,7 @@ void QmlProfilerStatisticsModel::loadEvent(const QmlEvent &event, const QmlEvent
         // binding loop detection: check whether event is already in stack
         for (int ii = 1; ii < d->callStack.size(); ++ii) {
             if (d->callStack.at(ii).typeIndex() == event.typeIndex()
-                    && type.rangeType != Javascript) {
+                    && type.rangeType() != Javascript) {
                 d->eventsInBindingLoop.insert(event.typeIndex());
                 break;
             }

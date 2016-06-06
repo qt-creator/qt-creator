@@ -33,14 +33,8 @@ namespace Internal {
 InputEventsModelTest::InputEventsModelTest(QObject *parent) :
     QObject(parent), manager(nullptr), model(&manager)
 {
-    QmlEventType type;
-    type.message = Event;
-    type.rangeType = MaximumRangeType;
-    type.detailType = Key;
-    keyTypeId = manager.qmlModel()->addEventType(type);
-
-    type.detailType = Mouse;
-    mouseTypeId = manager.qmlModel()->addEventType(type);
+    keyTypeId = manager.qmlModel()->addEventType(QmlEventType(Event, MaximumRangeType, Key));
+    mouseTypeId = manager.qmlModel()->addEventType(QmlEventType(Event, MaximumRangeType, Mouse));
 }
 
 void InputEventsModelTest::initTestCase()
@@ -63,16 +57,11 @@ void InputEventsModelTest::initTestCase()
 
 void InputEventsModelTest::testAccepted()
 {
-    QmlEventType type;
-    QVERIFY(!model.accepted(type));
-    type.message = Event;
-    QVERIFY(!model.accepted(type));
-    type.rangeType = MaximumRangeType;
-    QVERIFY(!model.accepted(type));
-    type.detailType = Key;
-    QVERIFY(model.accepted(type));
-    type.detailType = Mouse;
-    QVERIFY(model.accepted(type));
+    QVERIFY(!model.accepted(QmlEventType()));
+    QVERIFY(!model.accepted(QmlEventType(Event)));
+    QVERIFY(!model.accepted(QmlEventType(Event, MaximumRangeType)));
+    QVERIFY(model.accepted(QmlEventType(Event, MaximumRangeType, Key)));
+    QVERIFY(model.accepted(QmlEventType(Event, MaximumRangeType, Mouse)));
 }
 
 void InputEventsModelTest::testTypeId()

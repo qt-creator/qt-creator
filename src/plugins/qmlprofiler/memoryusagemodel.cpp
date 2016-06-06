@@ -122,19 +122,19 @@ QVariantMap MemoryUsageModel::details(int index) const
     result.insert(tr("Type"), memoryTypeName);
 
     result.insert(tr("Location"),
-                  modelManager()->qmlModel()->eventTypes().at(ev->typeId).displayName);
+                  modelManager()->qmlModel()->eventTypes().at(ev->typeId).displayName());
     return result;
 }
 
 bool MemoryUsageModel::accepted(const QmlEventType &type) const
 {
-    return QmlProfilerTimelineModel::accepted(type) || type.rangeType != MaximumRangeType;
+    return QmlProfilerTimelineModel::accepted(type) || type.rangeType() != MaximumRangeType;
 }
 
 void MemoryUsageModel::loadEvent(const QmlEvent &event, const QmlEventType &type)
 {
-    if (type.message != MemoryAllocation) {
-        if (type.rangeType != MaximumRangeType) {
+    if (type.message() != MemoryAllocation) {
+        if (type.rangeType() != MaximumRangeType) {
             if (event.rangeStage() == RangeStart)
                 m_rangeStack.push(RangeStackFrame(event.typeIndex(), event.timestamp()));
             else if (event.rangeStage() == RangeEnd)
@@ -164,7 +164,7 @@ void MemoryUsageModel::loadEvent(const QmlEvent &event, const QmlEventType &type
         }
     };
 
-    if (type.detailType == SmallItem || type.detailType == LargeItem) {
+    if (type.detailType() == SmallItem || type.detailType() == LargeItem) {
         if (canContinue(ContinueUsage)) {
             m_data[m_currentUsageIndex].update(event.number<qint64>(0));
             m_currentUsage = m_data[m_currentUsageIndex].size;
@@ -186,9 +186,9 @@ void MemoryUsageModel::loadEvent(const QmlEvent &event, const QmlEventType &type
         }
     }
 
-    if (type.detailType == HeapPage || type.detailType == LargeItem) {
+    if (type.detailType() == HeapPage || type.detailType() == LargeItem) {
         if (canContinue(ContinueAllocation)
-                && type.detailType == selectionId(m_currentJSHeapIndex)) {
+                && type.detailType() == selectionId(m_currentJSHeapIndex)) {
             m_data[m_currentJSHeapIndex].update(event.number<qint64>(0));
             m_currentSize = m_data[m_currentJSHeapIndex].size;
         } else {
@@ -204,7 +204,7 @@ void MemoryUsageModel::loadEvent(const QmlEvent &event, const QmlEventType &type
             if (m_currentJSHeapIndex != -1)
                 insertEnd(m_currentJSHeapIndex,
                           event.timestamp() - startTime(m_currentJSHeapIndex) - 1);
-            m_currentJSHeapIndex = insertStart(event.timestamp(), type.detailType);
+            m_currentJSHeapIndex = insertStart(event.timestamp(), type.detailType());
             m_data.insert(m_currentJSHeapIndex, allocation);
             m_continuation = m_continuation | ContinueAllocation;
         }

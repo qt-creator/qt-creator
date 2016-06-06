@@ -142,11 +142,11 @@ int InputEventsModel::collapsedRow(int index) const
 
 void InputEventsModel::loadEvent(const QmlEvent &event, const QmlEventType &type)
 {
-    m_data.insert(insert(event.timestamp(), 0, type.detailType),
+    m_data.insert(insert(event.timestamp(), 0, type.detailType()),
                   InputEvent(static_cast<InputEventType>(event.number<qint32>(0)),
                              event.number<qint32>(1), event.number<qint32>(2)));
 
-    if (type.detailType == Mouse) {
+    if (type.detailType() == Mouse) {
         if (m_mouseTypeId == -1)
             m_mouseTypeId = event.typeIndex();
     } else if (m_keyTypeId == -1) {
@@ -170,7 +170,7 @@ void InputEventsModel::clear()
 bool InputEventsModel::accepted(const QmlEventType &type) const
 {
     return QmlProfilerTimelineModel::accepted(type) &&
-            (type.detailType == Mouse || type.detailType == Key);
+            (type.detailType() == Mouse || type.detailType() == Key);
 }
 
 InputEventsModel::InputEvent::InputEvent(InputEventType type, int a, int b) :

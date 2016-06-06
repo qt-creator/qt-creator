@@ -31,48 +31,37 @@
 
 namespace QmlProfiler {
 
-struct QmlEventType {
-    QmlEventType(const QString &displayName = QString(),
-                 const QmlEventLocation &location = QmlEventLocation(),
-                 Message message = MaximumMessage, RangeType rangeType = MaximumRangeType,
-                 int detailType = -1, const QString &data = QString()) :
-        displayName(displayName), data(data), location(location), message(message),
-        rangeType(rangeType), detailType(detailType)
+class QmlEventType {
+public:
+    QmlEventType(Message message = MaximumMessage, RangeType rangeType = MaximumRangeType,
+                 int detailType = -1, const QmlEventLocation &location = QmlEventLocation(),
+                 const QString &data = QString(), const QString displayName = QString()) :
+        m_displayName(displayName), m_data(data), m_location(location), m_message(message),
+        m_rangeType(rangeType), m_detailType(detailType)
     {}
 
-    QString displayName;
-    QString data;
-    QmlEventLocation location;
-    Message message;
-    RangeType rangeType;
-    int detailType; // can be EventType, BindingType, PixmapEventType or SceneGraphFrameType
+    void setDisplayName(const QString &displayName) { m_displayName = displayName; }
+    void setData(const QString &data) { m_data = data; }
+    void setLocation(const QmlEventLocation &location) { m_location = location; }
 
-    ProfileFeature feature() const
-    {
-        switch (message) {
-        case Event: {
-            switch (detailType) {
-            case Mouse:
-            case Key:
-                return ProfileInputEvents;
-            case AnimationFrame:
-                return ProfileAnimations;
-            default:
-                return MaximumProfileFeature;
-            }
-        }
-        case PixmapCacheEvent:
-            return ProfilePixmapCache;
-        case SceneGraphFrame:
-            return ProfileSceneGraph;
-        case MemoryAllocation:
-            return ProfileMemory;
-        case DebugMessage:
-            return ProfileDebugMessages;
-        default:
-            return featureFromRangeType(rangeType);
-        }
-    }
+    ProfileFeature feature() const;
+    QString displayName() const { return m_displayName; }
+    QString data() const { return m_data; }
+    QmlEventLocation location() const { return m_location; }
+    Message message() const { return m_message; }
+    RangeType rangeType() const { return m_rangeType; }
+    int detailType() const { return m_detailType; }
+
+private:
+    friend QDataStream &operator>>(QDataStream &stream, QmlEventType &type);
+    friend QDataStream &operator<<(QDataStream &stream, const QmlEventType &type);
+
+    QString m_displayName;
+    QString m_data;
+    QmlEventLocation m_location;
+    Message m_message;
+    RangeType m_rangeType;
+    int m_detailType; // can be EventType, BindingType, PixmapEventType or SceneGraphFrameType
 };
 
 QDataStream &operator>>(QDataStream &stream, QmlEventType &type);

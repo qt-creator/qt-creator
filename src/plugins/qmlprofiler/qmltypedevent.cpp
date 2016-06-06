@@ -46,16 +46,11 @@ QDataStream &operator>>(QDataStream &stream, QmlTypedEvent &event)
 
     event.event.setTimestamp(time);
     event.event.setTypeIndex(-1);
-    event.type.displayName.clear();
-    event.type.data.clear();
-    event.type.location.clear();
     event.serverTypeId = 0;
 
     switch (messageType) {
     case Event: {
-        event.type.detailType = subtype;
-        event.type.rangeType = MaximumRangeType;
-        event.type.message = static_cast<Message>(messageType);
+        event.type = QmlEventType(static_cast<Message>(messageType), MaximumRangeType, subtype);
         switch (subtype) {
         case StartTrace:
         case EndTrace: {
@@ -99,9 +94,7 @@ QDataStream &operator>>(QDataStream &stream, QmlTypedEvent &event)
         break;
     }
     case Complete: {
-        event.type.message = static_cast<Message>(messageType);
-        event.type.rangeType = MaximumRangeType;
-        event.type.detailType = subtype;
+        event.type = QmlEventType(static_cast<Message>(messageType), MaximumRangeType, subtype);
         break;
     }
     case SceneGraphFrame: {
@@ -113,9 +106,7 @@ QDataStream &operator>>(QDataStream &stream, QmlTypedEvent &event)
             params.push_back(param);
         }
 
-        event.type.message = static_cast<Message>(messageType);
-        event.type.rangeType = MaximumRangeType;
-        event.type.detailType = subtype;
+        event.type = QmlEventType(static_cast<Message>(messageType), MaximumRangeType, subtype);
         event.event.setNumbers<QVarLengthArray<qint64>, qint64>(params);
         break;
     }
@@ -123,7 +114,6 @@ QDataStream &operator>>(QDataStream &stream, QmlTypedEvent &event)
         qint32 width = 0, height = 0, refcount = 0;
         QString filename;
         stream >> filename;
-        event.type.location = QmlEventLocation(filename, 0, 0);
         if (subtype == PixmapReferenceCountChanged || subtype == PixmapCacheCountChanged) {
             stream >> refcount;
         } else if (subtype == PixmapSizeKnown) {
@@ -131,9 +121,8 @@ QDataStream &operator>>(QDataStream &stream, QmlTypedEvent &event)
             refcount = 1;
         }
 
-        event.type.message = static_cast<Message>(messageType);
-        event.type.rangeType = MaximumRangeType;
-        event.type.detailType = subtype;
+        event.type = QmlEventType(static_cast<Message>(messageType), MaximumRangeType, subtype,
+                                  QmlEventLocation(filename, 0, 0));
         event.event.setNumbers<qint32>({width, height, refcount});
         break;
     }
@@ -141,9 +130,7 @@ QDataStream &operator>>(QDataStream &stream, QmlTypedEvent &event)
         qint64 delta;
         stream >> delta;
 
-        event.type.message = static_cast<Message>(messageType);
-        event.type.rangeType = MaximumRangeType;
-        event.type.detailType = subtype;
+        event.type = QmlEventType(static_cast<Message>(messageType), MaximumRangeType, subtype);
         event.event.setNumbers<qint64>({delta});
         break;
     }
@@ -156,19 +143,16 @@ QDataStream &operator>>(QDataStream &stream, QmlTypedEvent &event)
             // otherwise it's the old binding type of 4 bytes
         }
 
-        event.type.message = MaximumMessage;
-        event.type.rangeType = rangeType;
+        event.type = QmlEventType(MaximumMessage, rangeType, -1);
         event.event.setRangeStage(RangeStart);
-        event.type.detailType = -1;
         break;
     }
     case RangeData: {
-        stream >> event.type.data;
+        QString data;
+        stream >> data;
 
-        event.type.message = MaximumMessage;
-        event.type.rangeType = rangeType;
+        event.type = QmlEventType(MaximumMessage, rangeType, -1, QmlEventLocation(), data);
         event.event.setRangeStage(RangeData);
-        event.type.detailType = -1;
         if (!stream.atEnd())
             stream >> event.serverTypeId;
         break;
@@ -185,24 +169,18 @@ QDataStream &operator>>(QDataStream &stream, QmlTypedEvent &event)
                 stream >> event.serverTypeId;
         }
 
-        event.type.location = QmlEventLocation(filename, line, column);
-        event.type.message = MaximumMessage;
-        event.type.rangeType = rangeType;
+        event.type = QmlEventType(MaximumMessage, rangeType, -1,
+                                  QmlEventLocation(filename, line, column));
         event.event.setRangeStage(RangeLocation);
-        event.type.detailType = -1;
         break;
     }
     case RangeEnd: {
-        event.type.message = MaximumMessage;
-        event.type.rangeType = rangeType;
+        event.type = QmlEventType(MaximumMessage, rangeType, -1);
         event.event.setRangeStage(RangeEnd);
-        event.type.detailType = -1;
         break;
     }
     default:
-        event.type.message = static_cast<Message>(messageType);
-        event.type.rangeType = MaximumRangeType;
-        event.type.detailType = subtype;
+        event.type = QmlEventType(static_cast<Message>(messageType), MaximumRangeType, subtype);
         break;
     }
 

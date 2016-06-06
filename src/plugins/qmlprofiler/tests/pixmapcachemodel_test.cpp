@@ -39,14 +39,10 @@ void PixmapCacheModelTest::initTestCase()
     manager.startAcquiring();
     manager.traceTime()->setTime(1, 300);
 
-    QmlEventType type;
-    type.message = PixmapCacheEvent;
-    type.rangeType = MaximumRangeType;
-    type.location = QmlEventLocation("dings.png", -1, -1);
-
     for (int i = 0; i < MaximumPixmapEventType; ++i) {
-        type.detailType = i;
-        eventTypeIndices[i] = manager.qmlModel()->addEventType(type);
+        eventTypeIndices[i] = manager.qmlModel()->addEventType(
+                    QmlEventType(PixmapCacheEvent, MaximumRangeType, i,
+                                 QmlEventLocation("dings.png", 0, 0)));
     }
 
     // random data, should still result in consistent model.
@@ -58,10 +54,10 @@ void PixmapCacheModelTest::initTestCase()
         manager.qmlModel()->addEvent(event);
     }
 
-    type.location = QmlEventLocation("blah.png", -1, -1);
     for (int i = 0; i < MaximumPixmapEventType; ++i) {
-        type.detailType = i;
-        eventTypeIndices[i + MaximumPixmapEventType] = manager.qmlModel()->addEventType(type);
+        eventTypeIndices[i + MaximumPixmapEventType] = manager.qmlModel()->addEventType(
+                    QmlEventType(PixmapCacheEvent, MaximumRangeType, i,
+                                 QmlEventLocation("blah.png", 0, 0)));
     }
 
 
@@ -285,7 +281,7 @@ void PixmapCacheModelTest::testColor()
                 QCOMPARE(model.color(i), row1Color);
         } else {
             const QmlEventType &type = manager.qmlModel()->eventTypes()[model.typeId(i)];
-            QColor &pixmapColor = (type.location.filename() == QString("blah.png")) ?
+            QColor &pixmapColor = (type.location().filename() == QString("blah.png")) ?
                         blahColor : dingsColor;
             if (!pixmapColor.isValid())
                 pixmapColor = model.color(i);
