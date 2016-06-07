@@ -22,44 +22,56 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
-#pragma once
 
-#include <QString>
-#include <QMetaType>
+#include "qmlnote_test.h"
+#include <qmlprofiler/qmlnote.h>
+#include <QtTest>
 
 namespace QmlProfiler {
+namespace Internal {
 
-class QmlNote {
+QmlNoteTest::QmlNoteTest(QObject *parent) : QObject(parent)
+{
+}
 
-public:
-    QmlNote(int typeIndex = -1, qint64 startTime = -1, qint64 duration = 0,
-            const QString &text = QString()) :
-        m_typeIndex(typeIndex), m_startTime(startTime), m_duration(duration), m_text(text)
-    {}
+void QmlNoteTest::testAccessors()
+{
+    QmlNote note;
+    QCOMPARE(note.typeIndex(), -1);
+    QCOMPARE(note.startTime(), -1);
+    QCOMPARE(note.duration(), 0);
+    QVERIFY(note.text().isEmpty());
 
-    int typeIndex() const { return m_typeIndex; }
-    qint64 startTime() const { return m_startTime; }
-    qint64 duration() const { return m_duration; }
-    QString text() const { return m_text; }
+    note.setText("blah");
+    QCOMPARE(note.text(), QString("blah"));
 
-    void setText(const QString &text) { m_text = text; }
+    QmlNote note2(8, 9, 10, "semmeln");
+    QCOMPARE(note2.typeIndex(), 8);
+    QCOMPARE(note2.startTime(), 9);
+    QCOMPARE(note2.duration(), 10);
+    QCOMPARE(note2.text(), QString("semmeln"));
+}
 
-private:
-    friend QDataStream &operator>>(QDataStream &stream, QmlNote &note);
-    friend QDataStream &operator<<(QDataStream &stream, const QmlNote &note);
+void QmlNoteTest::testStreamOps()
+{
+    QmlNote note(4, 5, 6, "eheheh");
 
-    int m_typeIndex;
-    qint64 m_startTime;
-    qint64 m_duration;
-    QString m_text;
-};
+    QBuffer wbuffer;
+    wbuffer.open(QIODevice::WriteOnly);
+    QDataStream wstream(&wbuffer);
+    wstream << note;
 
-bool operator==(const QmlNote &note1, const QmlNote &note2);
-bool operator!=(const QmlNote &note1, const QmlNote &note2);
+    QBuffer rbuffer;
+    rbuffer.setData(wbuffer.data());
+    rbuffer.open(QIODevice::ReadOnly);
+    QDataStream rstream(&rbuffer);
 
-QDataStream &operator>>(QDataStream &stream, QmlNote &note);
-QDataStream &operator<<(QDataStream &stream, const QmlNote &note);
+    QmlNote note2;
+    QVERIFY(note != note2);
+    rstream >> note2;
 
+    QCOMPARE(note2, note);
+}
+
+} // namespace Internal
 } // namespace QmlProfiler
-
-Q_DECLARE_METATYPE(QmlProfiler::QmlNote)

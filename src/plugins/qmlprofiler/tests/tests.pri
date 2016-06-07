@@ -9,7 +9,8 @@ SOURCES += \
     $$PWD/pixmapcachemodel_test.cpp \
     $$PWD/qmlevent_test.cpp \
     $$PWD/qmleventlocation_test.cpp \
-    $$PWD/qmleventtype_test.cpp
+    $$PWD/qmleventtype_test.cpp \
+    $$PWD/qmlnote_test.cpp
 
 HEADERS += \
     $$PWD/debugmessagesmodel_test.h \
@@ -22,4 +23,5 @@ HEADERS += \
     $$PWD/pixmapcachemodel_test.h \
     $$PWD/qmlevent_test.h \
     $$PWD/qmleventlocation_test.h \
-    $$PWD/qmleventtype_test.h
+    $$PWD/qmleventtype_test.h \
+    $$PWD/qmlnote_test.h

@@ -88,6 +88,7 @@ QtcPlugin {
             "qmlevent_test.cpp", "qmlevent_test.h",
             "qmleventlocation_test.cpp", "qmleventlocation_test.h",
             "qmleventtype_test.cpp", "qmleventtype_test.h",
+            "qmlnote_test.cpp", "qmlnote_test.h",
         ]
     }
 }
