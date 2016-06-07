@@ -95,20 +95,12 @@ public slots:
 
     void setModel(Model *model);
 
-    void setImportFilter(FilterChangeFlag flag);
-
-    void onQtBasicOnlyChecked(bool b);
-    void onMeegoChecked(bool b);
-
 protected:
     void removeImport(const QString &name);
     void addImport(const QString &name, const QString &version);
-    void emitImportChecked();
 
 signals:
     void itemActivated(const QString& itemName);
-    void qtBasicOnlyChecked(bool b);
-    void meegoChecked(bool b);
 
 private slots:
     void setCurrentIndexOfStackedWidget(int index);

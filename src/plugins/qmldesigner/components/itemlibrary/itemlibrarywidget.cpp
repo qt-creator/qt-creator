@@ -168,18 +168,12 @@ void ItemLibraryWidget::setItemLibraryInfo(ItemLibraryInfo *itemLibraryInfo)
 
 void ItemLibraryWidget::updateImports()
 {
-    FilterChangeFlag filter;
-    filter = QtBasic;
     if (m_model) {
         QStringList imports;
         foreach (const Import &import, m_model->imports())
             if (import.isLibraryImport())
                 imports << import.url();
-        if (imports.contains(QLatin1String("com.nokia.meego"), Qt::CaseInsensitive))
-            filter = Meego;
     }
-
-    setImportFilter(filter);
 }
 
 void ItemLibraryWidget::setImportsWidget(QWidget *importsWidget)
@@ -225,30 +219,6 @@ void ItemLibraryWidget::setModel(Model *model)
     updateModel();
 }
 
-void ItemLibraryWidget::emitImportChecked()
-{
-    if (!m_model)
-        return;
-
-    bool qtOnlyImport = false;
-    bool meegoImport = false;
-
-    foreach (const Import &import, m_model->imports()) {
-        if (import.isLibraryImport()) {
-            if (import.url().contains(QLatin1String("meego"), Qt::CaseInsensitive))
-                meegoImport = true;
-            if (import.url().contains(QLatin1String("Qt"), Qt::CaseInsensitive) || import.url().contains(QLatin1String("QtQuick"), Qt::CaseInsensitive))
-                qtOnlyImport = true;
-        }
-    }
-
-    if (meegoImport)
-        qtOnlyImport = false;
-
-    emit qtBasicOnlyChecked(qtOnlyImport);
-    emit meegoChecked(meegoImport);
-}
-
 void ItemLibraryWidget::setCurrentIndexOfStackedWidget(int index)
 {
     if (index == 2)
@@ -270,55 +240,6 @@ void ItemLibraryWidget::reloadQmlSource()
     QTC_ASSERT(QFileInfo::exists(itemLibraryQmlFilePath), return);
     m_itemViewQuickWidget->engine()->clearComponentCache();
     m_itemViewQuickWidget->setSource(QUrl::fromLocalFile(itemLibraryQmlFilePath));
-}
-
-void ItemLibraryWidget::setImportFilter(FilterChangeFlag flag)
-{
-    return;
-
-    static bool block = false;
-    if (!m_model)
-        return;
-    if (flag == m_filterFlag)
-        return;
-
-    if (block == true)
-        return;
-
-
-    FilterChangeFlag oldfilterFlag = m_filterFlag;
-
-    QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-    try {
-        block = true;
-        if (flag == QtBasic)
-            removeImport(QStringLiteral("com.nokia.meego"));
-        else if (flag == Meego)
-            addImport(QStringLiteral("com.nokia.meego"), QStringLiteral("1.0"));
-        QApplication::restoreOverrideCursor();
-        block = false;
-        m_filterFlag = flag;
-    } catch (const RewritingException &) {
-        QApplication::restoreOverrideCursor();
-        m_filterFlag = oldfilterFlag;
-        block = false;
-        // do something about it
-    }
-
-    emitImportChecked();
-}
-
-void ItemLibraryWidget::onQtBasicOnlyChecked(bool b)
-{
-    if (b)
-        setImportFilter(QtBasic);
-
-}
-
-void ItemLibraryWidget::onMeegoChecked(bool b)
-{
-    if (b)
-        setImportFilter(Meego);
 }
 
 void ItemLibraryWidget::updateModel()
