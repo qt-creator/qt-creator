@@ -47,6 +47,7 @@
 #include <coreplugin/designmode.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
+#include <coreplugin/messagebox.h>
 #include <coreplugin/modemanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <extensionsystem/pluginspec.h>
@@ -97,6 +98,12 @@ static bool checkIfEditorIsQtQuick(Core::IEditor *editor)
                     || document->language() == QmlJS::Dialect::QmlQtQuick2
                     || document->language() == QmlJS::Dialect::QmlQtQuick2Ui
                     || document->language() == QmlJS::Dialect::Qml;
+    }
+
+    if (Core::ModeManager::currentMode() == Core::Constants::MODE_DESIGN) {
+        Core::AsynchronousMessageBox::warning(QmlDesignerPlugin::tr("Cannot open QML Design Mode"),
+                                              QmlDesignerPlugin::tr("The QML file is not currently opened in a QML Editor."));
+        Core::ModeManager::activateMode(Core::Constants::MODE_EDIT);
     }
 
     return false;
