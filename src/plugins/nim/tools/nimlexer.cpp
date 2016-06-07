@@ -43,9 +43,7 @@ QSet<QString> asStringSet(const std::initializer_list<const char *> strings)
 namespace Nim {
 
 NimLexer::NimLexer(const QChar *text, int length, State state)
-    : m_text(text)
-    , m_length(length)
-    , m_state(state)
+    : m_state(state)
     , m_stream(text, length)
 {}
 

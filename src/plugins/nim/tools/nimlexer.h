@@ -113,8 +113,6 @@ private:
     bool matchMultiLineStringLiteralStart();
     Token readMultiLineStringLiteral(bool moveForward = true);
 
-    const QChar *m_text;
-    int m_length;
     State m_state;
     SourceCodeStream m_stream;
 };
