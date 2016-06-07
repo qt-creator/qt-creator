@@ -34,22 +34,6 @@
 
 namespace QmlProfiler {
 
-inline static uint qHash(const QmlEventType &type)
-{
-    return qHash(type.location().filename()) ^
-            ((type.location().line() & 0xfff) |             // 12 bits of line number
-            ((type.message() << 12) & 0xf000) |             // 4 bits of message
-            ((type.location().column() << 16) & 0xff0000) | // 8 bits of column
-            ((type.rangeType() << 24) & 0xf000000) |        // 4 bits of rangeType
-            ((type.detailType() << 28) & 0xf0000000));      // 4 bits of detailType
-}
-
-inline static bool operator==(const QmlEventType &type1, const QmlEventType &type2)
-{
-    return type1.message() == type2.message() && type1.rangeType() == type2.rangeType() &&
-            type1.detailType() == type2.detailType() && type1.location() == type2.location();
-}
-
 class QmlProfilerTraceClientPrivate {
 public:
     QmlProfilerTraceClientPrivate(QmlProfilerTraceClient *_q, QmlDebug::QmlDebugConnection *client,

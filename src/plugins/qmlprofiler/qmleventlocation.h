@@ -28,6 +28,7 @@
 #include "qmlprofiler_global.h"
 
 #include <QString>
+#include <QHash>
 
 namespace QmlProfiler {
 
@@ -73,6 +74,14 @@ inline bool operator==(const QmlEventLocation &location1, const QmlEventLocation
 inline bool operator!=(const QmlEventLocation &location1, const QmlEventLocation &location2)
 {
     return !(location1 == location2);
+}
+
+inline uint qHash(const QmlEventLocation &location)
+{
+    return qHash(location.filename())
+            ^ ((location.line() & 0xfff)                   // 12 bits of line number
+               | ((location.column() << 16) & 0xff0000));  // 8 bits of column
+
 }
 
 QDataStream &operator>>(QDataStream &stream, QmlEventLocation &location);
