@@ -114,7 +114,13 @@ void LldbEngine::executeDebuggerCommand(const QString &command, DebuggerLanguage
 
 void LldbEngine::runCommand(const DebuggerCommand &cmd)
 {
-    QTC_ASSERT(m_lldbProc.state() == QProcess::Running, notifyEngineIll());
+    if (m_lldbProc.state() != QProcess::Running) {
+        // This can legally happen e.g. through a reloadModule()
+        // triggered by changes in view visibility.
+        showMessage(_("NO LLDB PROCESS RUNNING, CMD IGNORED: %1 %2")
+            .arg(_(cmd.function)).arg(state()));
+        return;
+    }
     const int tok = ++currentToken();
     DebuggerCommand command = cmd;
     command.arg("token", tok);
