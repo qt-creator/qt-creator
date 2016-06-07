@@ -163,7 +163,6 @@ void ItemLibraryWidget::setItemLibraryInfo(ItemLibraryInfo *itemLibraryInfo)
                 this, SLOT(updateModel()));
 
     updateModel();
-    updateSearch();
 }
 
 void ItemLibraryWidget::updateImports()
