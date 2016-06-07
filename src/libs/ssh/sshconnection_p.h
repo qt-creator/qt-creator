@@ -90,7 +90,7 @@ public:
             quint16 remotePort);
 
     SshStateInternal state() const { return m_state; }
-    SshError error() const { return m_error; }
+    SshError errorState() const { return m_error; }
     QString errorString() const { return m_errorString; }
 
 signals:
@@ -100,12 +100,12 @@ signals:
     void error(QSsh::SshError);
 
 private:
-    Q_SLOT void handleSocketConnected();
-    Q_SLOT void handleIncomingData();
-    Q_SLOT void handleSocketError();
-    Q_SLOT void handleSocketDisconnected();
-    Q_SLOT void handleTimeout();
-    Q_SLOT void sendKeepAlivePacket();
+    void handleSocketConnected();
+    void handleIncomingData();
+    void handleSocketError();
+    void handleSocketDisconnected();
+    void handleTimeout();
+    void sendKeepAlivePacket();
 
     void handleServerId();
     void handlePackets();

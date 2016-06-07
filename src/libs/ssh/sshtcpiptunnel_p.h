@@ -64,9 +64,6 @@ signals:
     void error(const QString &reason);
     void closed();
 
-private slots:
-    void handleEof();
-
 protected:
     void handleOpenFailureInternal(const QString &reason) override;
     void handleChannelDataInternal(const QByteArray &data) override;
@@ -76,6 +73,9 @@ protected:
     void closeHook() override;
 
     QByteArray m_data;
+
+private:
+    void handleEof();
 };
 
 } // namespace Internal

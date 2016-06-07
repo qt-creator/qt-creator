@@ -65,7 +65,7 @@ signals:
     void readyReadStandardError();
     void processClosed(int exitStatus); // values are of type SshRemoteProcess::ExitStatus
 
-private slots:
+private:
     void handleConnected();
     void handleConnectionError(QSsh::SshError error);
     void handleDisconnected();
@@ -73,8 +73,6 @@ private slots:
     void handleProcessFinished(int exitStatus);
     void handleStdout();
     void handleStderr();
-
-private:
     void runInternal(const QByteArray &command, const QSsh::SshConnectionParameters &sshParams);
     void setState(int newState);
 

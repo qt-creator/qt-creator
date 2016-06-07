@@ -127,10 +127,14 @@ void SshRemoteProcessRunner::handleConnected()
     setState(Connected);
 
     d->m_process = d->m_connection->createRemoteProcess(d->m_command);
-    connect(d->m_process.data(), SIGNAL(started()), SLOT(handleProcessStarted()));
-    connect(d->m_process.data(), SIGNAL(closed(int)), SLOT(handleProcessFinished(int)));
-    connect(d->m_process.data(), SIGNAL(readyReadStandardOutput()), SLOT(handleStdout()));
-    connect(d->m_process.data(), SIGNAL(readyReadStandardError()), SLOT(handleStderr()));
+    connect(d->m_process.data(), &SshRemoteProcess::started,
+            this, &SshRemoteProcessRunner::handleProcessStarted);
+    connect(d->m_process.data(), &SshRemoteProcess::closed,
+            this, &SshRemoteProcessRunner::handleProcessFinished);
+    connect(d->m_process.data(), &SshRemoteProcess::readyReadStandardOutput,
+            this, &SshRemoteProcessRunner::handleStdout);
+    connect(d->m_process.data(), &SshRemoteProcess::readyReadStandardError,
+            this, &SshRemoteProcessRunner::handleStderr);
     if (d->m_runInTerminal)
         d->m_process->requestTerminal(d->m_terminal);
     d->m_process->start();

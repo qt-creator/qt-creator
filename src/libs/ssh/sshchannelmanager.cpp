@@ -281,7 +281,7 @@ SshTcpIpForwardServer::Ptr SshChannelManager::createForwardServer(const QString 
 void SshChannelManager::insertChannel(AbstractSshChannel *priv,
     const QSharedPointer<QObject> &pub)
 {
-    connect(priv, SIGNAL(timeout()), this, SIGNAL(timeout()));
+    connect(priv, &AbstractSshChannel::timeout, this, &SshChannelManager::timeout);
     m_channels.insert(priv->localChannelId(), priv);
     m_sessions.insert(priv, pub);
 }
