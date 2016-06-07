@@ -639,12 +639,9 @@ static QStringList getSortedSignalNameList(const ModelNode &modelNode)
 
 void gotoImplementation(const SelectionContext &selectionState)
 {
-    QString itemId;
     ModelNode modelNode;
-    if (selectionState.singleNodeIsSelected()) {
-        itemId = selectionState.selectedModelNodes().first().id();
+    if (selectionState.singleNodeIsSelected())
         modelNode = selectionState.selectedModelNodes().first();
-    }
 
     bool isModelNodeRoot = true;
 
@@ -669,6 +666,8 @@ void gotoImplementation(const SelectionContext &selectionState)
             exception.showException();
         }
     }
+
+    QString itemId = modelNode.id();
 
     const QString fileName = QmlDesignerPlugin::instance()->documentManager().currentDesignDocument()->fileName().toString();
     const QString typeName = QmlDesignerPlugin::instance()->documentManager().currentDesignDocument()->fileName().toFileInfo().baseName();
