@@ -90,10 +90,10 @@ private:
 
     bool supportsThreads() const { return true; }
     bool isSynchronous() const override { return true; }
-    void updateItem(const QByteArray &iname) override;
+    void updateItem(const QString &iname) override;
 
     void runCommand(const DebuggerCommand &cmd) override;
-    void postDirectCommand(const QByteArray &command);
+    void postDirectCommand(const QString &command);
 
     void refreshLocation(const GdbMi &reportedLocation);
     void refreshStack(const GdbMi &stack);
@@ -109,13 +109,13 @@ private:
     void handlePdbError(QProcess::ProcessError error);
     void readPdbStandardOutput();
     void readPdbStandardError();
-    void handleOutput2(const QByteArray &data);
-    void handleResponse(const QByteArray &ba);
-    void handleOutput(const QByteArray &data);
+    void handleOutput2(const QString &data);
+    void handleResponse(const QString &ba);
+    void handleOutput(const QString &data);
     void updateAll() override;
     void updateLocals() override;
 
-    QByteArray m_inbuffer;
+    QString m_inbuffer;
     QProcess m_proc;
     QString m_interpreter;
 };

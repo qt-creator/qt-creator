@@ -63,7 +63,6 @@ QtcPlugin {
             "debuggerruncontrol.cpp", "debuggerruncontrol.h",
             "debuggersourcepathmappingwidget.cpp", "debuggersourcepathmappingwidget.h",
             "debuggerstartparameters.h",
-            "debuggerstringutils.h",
             "debuggertooltipmanager.cpp", "debuggertooltipmanager.h",
             "disassembleragent.cpp", "disassembleragent.h",
             "disassemblerlines.cpp", "disassemblerlines.h",
@@ -106,7 +105,7 @@ QtcPlugin {
         name: "cdb"
         prefix: "cdb/"
         files: [
-            "bytearrayinputstream.cpp", "bytearrayinputstream.h",
+            "stringinputstream.cpp", "stringinputstream.h",
             "cdbengine.cpp", "cdbengine.h",
             "cdboptionspage.cpp", "cdboptionspage.h",
             "cdboptionspagewidget.ui",

@@ -59,21 +59,21 @@ BreakpointModelId cdbIdToBreakpointModelId(const GdbMi &id);
 BreakpointResponseId cdbIdToBreakpointResponseId(const GdbMi &id);
 
 // Convert breakpoint in CDB syntax (applying source path mappings using native paths).
-QByteArray cdbAddBreakpointCommand(const BreakpointParameters &d,
-                                   const QList<QPair<QString, QString> > &sourcePathMapping,
-                                   BreakpointModelId id = BreakpointModelId(quint16(-1)), bool oneshot = false);
-QByteArray cdbClearBreakpointCommand(const BreakpointModelId &id);
+QString cdbAddBreakpointCommand(const BreakpointParameters &d,
+                                const QList<QPair<QString, QString> > &sourcePathMapping,
+                                BreakpointModelId id = BreakpointModelId(quint16(-1)), bool oneshot = false);
+QString cdbClearBreakpointCommand(const BreakpointModelId &id);
 // Parse extension command listing breakpoints.
 // Note that not all fields are returned, since file, line, function are encoded
 // in the expression (that is in addition deleted on resolving for a bp-type breakpoint).
 void parseBreakPoint(const GdbMi &gdbmi, BreakpointResponse *r, QString *expression = 0);
 
 // Write memory (f ...).
-QByteArray cdbWriteMemoryCommand(quint64 addr, const QByteArray &data);
+QString cdbWriteMemoryCommand(quint64 addr, const QByteArray &data);
 
 QString debugByteArray(const QByteArray &a);
 
-DisassemblerLines parseCdbDisassembler(const QByteArray &a);
+DisassemblerLines parseCdbDisassembler(const QString &a);
 
 // Model EXCEPTION_RECORD + firstchance
 struct WinException
@@ -88,9 +88,9 @@ struct WinException
     quint64 info1;
     quint64 info2;
     bool firstChance;
-    QByteArray file;
+    QString file;
     int lineNumber;
-    QByteArray function;
+    QString function;
 };
 
 QDebug operator<<(QDebug s, const WinException &e);

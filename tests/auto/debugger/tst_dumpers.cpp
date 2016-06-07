@@ -227,82 +227,55 @@ struct BoostVersion : VersionBase
     {}
 };
 
-static QByteArray noValue = "\001";
-
-static QString toHex(const QString &str)
-{
-    QString encoded;
-    foreach (const QChar c, str) {
-        encoded += QString::fromLatin1("%1")
-            .arg(c.unicode(), 2, 16, QLatin1Char('0'));
-    }
-    return encoded;
-}
+static QString noValue = "\001";
 
 struct Context
 {
-    Context() : qtVersion(0), gccVersion(0), clangVersion(0), boostVersion(0) {}
-
-    QByteArray nameSpace;
-    int qtVersion;
-    int gccVersion;
-    int clangVersion;
-    int boostVersion;
+    QString nameSpace;
+    int qtVersion = 0;
+    int gccVersion = 0;
+    int clangVersion = 0;
+    int boostVersion = 0;
 };
 
 struct Name
 {
     Name() : name(noValue) {}
-    Name(const char *str) : name(str) {}
-    Name(const QByteArray &ba) : name(ba) {}
+    Name(const char *str) : name(QString::fromUtf8(str)) {}
+    Name(const QString &ba) : name(ba) {}
 
-    bool matches(const QByteArray &actualName0, const Context &context) const
+    bool matches(const QString &actualName0, const Context &context) const
     {
-        QByteArray actualName = actualName0;
-        QByteArray expectedName = name;
+        QString actualName = actualName0;
+        QString expectedName = name;
         expectedName.replace("@Q", context.nameSpace + 'Q');
         return actualName == expectedName;
     }
 
-    QByteArray name;
+    QString name;
 };
 
-static Name nameFromIName(const QByteArray &iname)
+static Name nameFromIName(const QString &iname)
 {
     int pos = iname.lastIndexOf('.');
     return Name(pos == -1 ? iname : iname.mid(pos + 1));
 }
 
-static QByteArray parentIName(const QByteArray &iname)
+static QString parentIName(const QString &iname)
 {
     int pos = iname.lastIndexOf('.');
-    return pos == -1 ? QByteArray() : iname.left(pos);
+    return pos == -1 ? QString() : iname.left(pos);
 }
 
-struct ValueBase
+struct Value
 {
-    ValueBase()
-      : hasPtrSuffix(false), isFloatValue(false), substituteNamespace(true),
-        qtVersion(0), minimalGccVersion(0)
-    {}
-
-    bool hasPtrSuffix;
-    bool isFloatValue;
-    bool substituteNamespace;
-    int qtVersion;
-    int minimalGccVersion;
-};
-
-struct Value : public ValueBase
-{
-    Value() : value(QString::fromLatin1(noValue)) {}
+    Value() : value(noValue) {}
     Value(const char *str) : value(QLatin1String(str)) {}
-    Value(const QByteArray &ba) : value(QString::fromLatin1(ba.data(), ba.size())) {}
     Value(const QString &str) : value(str) {}
 
     bool matches(const QString &actualValue0, const Context &context) const
     {
-        if (value == QString::fromLatin1(noValue))
+        if (value == noValue)
             return true;
 
         if (context.qtVersion) {
@@ -325,15 +298,15 @@ struct Value : public ValueBase
             }
         }
         QString actualValue = actualValue0;
-        if (actualValue == QLatin1String(" "))
+        if (actualValue == " ")
             actualValue.clear(); // FIXME: Remove later.
         QString expectedValue = value;
         if (substituteNamespace)
-            expectedValue.replace(QLatin1Char('@'), QString::fromLatin1(context.nameSpace));
+            expectedValue.replace('@', context.nameSpace);
 
         if (hasPtrSuffix)
-            return actualValue.startsWith(expectedValue + QLatin1String(" @0x"))
-                || actualValue.startsWith(expectedValue + QLatin1String("@0x"));
+            return actualValue.startsWith(expectedValue + " @0x")
+                || actualValue.startsWith(expectedValue + "@0x");
 
         if (isFloatValue) {
             double f1 = fabs(expectedValue.toDouble());
@@ -352,33 +325,38 @@ struct Value : public ValueBase
     void setMinimalGccVersion(int version) { minimalGccVersion = version; }
 
     QString value;
+    bool hasPtrSuffix = false;
+    bool isFloatValue = false;
+    bool substituteNamespace = true;
+    int qtVersion = 0;
+    int minimalGccVersion = 0;
 };
 
 struct Pointer : Value
 {
     Pointer() { hasPtrSuffix = true; }
-    Pointer(const QByteArray &value) : Value(value) { hasPtrSuffix = true; }
+    Pointer(const QString &value) : Value(value) { hasPtrSuffix = true; }
 };
 
 struct FloatValue : Value
 {
     FloatValue() { isFloatValue = true; }
-    FloatValue(const QByteArray &value) : Value(value) { isFloatValue = true; }
+    FloatValue(const QString &value) : Value(value) { isFloatValue = true; }
 };
 
 struct Value4 : Value
 {
-    Value4(const QByteArray &value) : Value(value) { qtVersion = 4; }
+    Value4(const QString &value) : Value(value) { qtVersion = 4; }
 };
 
 struct Value5 : Value
 {
-    Value5(const QByteArray &value) : Value(value) { qtVersion = 5; }
+    Value5(const QString &value) : Value(value) { qtVersion = 5; }
 };
 
 struct UnsubstitutedValue : Value
 {
-    UnsubstitutedValue(const QByteArray &value) : Value(value) { substituteNamespace = false; }
+    UnsubstitutedValue(const QString &value) : Value(value) { substituteNamespace = false; }
 };
 
 struct Optional {};
@@ -386,10 +364,11 @@ struct Optional {};
 struct Type
 {
     Type() : qtVersion(0), isPattern(false) {}
-    Type(const char *str) : type(str), qtVersion(0), isPattern(false) {}
-    Type(const QByteArray &ba) : type(ba), qtVersion(0), isPattern(false) {}
+    Type(const char *str) : type(QString::fromUtf8(str)), qtVersion(0), isPattern(false) {}
+    Type(const QString &ba) : type(ba), qtVersion(0), isPattern(false) {}
 
-    bool matches(const QByteArray &actualType0, const Context &context, bool fullNamespaceMatch = true) const
+    bool matches(const QString &actualType0, const Context &context,
+                 bool fullNamespaceMatch = true) const
     {
         if (context.qtVersion) {
             if (qtVersion == 4) {
@@ -404,20 +383,16 @@ struct Type
                 }
             }
         }
-        QByteArray actualType =
-            simplifyType(QString::fromLatin1(actualType0)).toLatin1();
+        QString actualType = simplifyType(actualType0);
         actualType.replace(' ', "");
         actualType.replace("const", "");
-        QByteArray expectedType = type;
+        QString expectedType = type;
         expectedType.replace(' ', "");
         expectedType.replace("const", "");
         expectedType.replace('@', context.nameSpace);
 
-        if (isPattern) {
-            QString actual = QString::fromLatin1(actualType);
-            QString expected = QString::fromLatin1(expectedType);
-            return QRegExp(expected).exactMatch(actual);
-        }
+        if (isPattern)
+            return QRegExp(expectedType).exactMatch(actualType);
 
         if (fullNamespaceMatch)
             expectedType.replace('?', context.nameSpace);
@@ -437,24 +412,24 @@ struct Type
         return false;
     }
 
-    QByteArray type;
+    QString type;
     int qtVersion;
     bool isPattern;
 };
 
 struct Type4 : Type
 {
-    Type4(const QByteArray &ba) : Type(ba) { qtVersion = 4; }
+    Type4(const QString &ba) : Type(ba) { qtVersion = 4; }
 };
 
 struct Type5 : Type
 {
-    Type5(const QByteArray &ba) : Type(ba) { qtVersion = 5; }
+    Type5(const QString &ba) : Type(ba) { qtVersion = 5; }
 };
 
 struct Pattern : Type
 {
-    Pattern(const QByteArray &ba) : Type(ba) { isPattern = true; }
+    Pattern(const QString &ba) : Type(ba) { isPattern = true; }
 };
 
 enum DebuggerEngine
@@ -470,28 +445,16 @@ enum DebuggerEngine
     NoGdbEngine = AllEngines & (~GdbEngine)
 };
 
-struct CheckBase
-{
-    CheckBase() : enginesForCheck(AllEngines), optionallyPresent(false) {}
-    mutable int enginesForCheck;
-    mutable VersionBase debuggerVersionForCheck;
-    mutable VersionBase gccVersionForCheck;
-    mutable VersionBase clangVersionForCheck;
-    mutable QtVersion qtVersionForCheck;
-    mutable BoostVersion boostVersionForCheck;
-    mutable bool optionallyPresent;
-};
-
-struct Check : CheckBase
+struct Check
 {
     Check() {}
 
-    Check(const QByteArray &iname, const Value &value, const Type &type)
+    Check(const QString &iname, const Value &value, const Type &type)
         : iname(iname), expectedName(nameFromIName(iname)),
           expectedValue(value), expectedType(type)
     {}
 
-    Check(const QByteArray &iname, const Name &name,
+    Check(const QString &iname, const Name &name,
          const Value &value, const Type &type)
         : iname(iname), expectedName(name),
           expectedValue(value), expectedType(type)
@@ -552,10 +515,18 @@ struct Check : CheckBase
         return *this;
     }
 
-    QByteArray iname;
+    QString iname;
     Name expectedName;
     Value expectedValue;
     Type expectedType;
+
+    mutable int enginesForCheck = AllEngines;
+    mutable VersionBase debuggerVersionForCheck;
+    mutable VersionBase gccVersionForCheck;
+    mutable VersionBase clangVersionForCheck;
+    mutable QtVersion qtVersionForCheck;
+    mutable BoostVersion boostVersionForCheck;
+    mutable bool optionallyPresent = false;
 };
 
 struct CheckType : public Check
@@ -680,9 +651,9 @@ class Data : public DataBase
 {
 public:
     Data() {}
-    Data(const QByteArray &code) : code(code) {}
+    Data(const QString &code) : code(code) {}
 
-    Data(const QByteArray &includes, const QByteArray &code)
+    Data(const QString &includes, const QString &code)
         : includes(includes), code(code)
     {}
 
@@ -829,9 +800,9 @@ public:
     }
 
 public:
-    mutable QByteArray profileExtra;
-    mutable QByteArray includes;
-    mutable QByteArray code;
+    mutable QString profileExtra;
+    mutable QString includes;
+    mutable QString code;
     mutable QList<Check> checks;
 };
 
@@ -846,7 +817,7 @@ struct TempStuff
         QVERIFY(!buildPath.isEmpty());
     }
 
-    QByteArray input;
+    QString input;
     QTemporaryDir buildTemp;
     QString buildPath;
 };
@@ -883,8 +854,8 @@ private:
     void disarm() { t->buildTemp.setAutoRemove(!keepTemp()); }
     bool keepTemp() const { return m_keepTemp || m_forceKeepTemp; }
     TempStuff *t;
-    QByteArray m_debuggerBinary;
-    QByteArray m_qmakeBinary;
+    QString m_debuggerBinary;
+    QString m_qmakeBinary;
     QProcessEnvironment m_env;
     DebuggerEngine m_debuggerEngine;
     QString m_makeBinary;
@@ -901,7 +872,7 @@ private:
 
 void tst_Dumpers::initTestCase()
 {
-    m_debuggerBinary = qgetenv("QTC_DEBUGGER_PATH_FOR_TEST");
+    m_debuggerBinary = QString::fromLocal8Bit(qgetenv("QTC_DEBUGGER_PATH_FOR_TEST"));
     if (m_debuggerBinary.isEmpty()) {
 #ifdef Q_OS_MAC
         m_debuggerBinary = "/Applications/Xcode.app/Contents/Developer/usr/bin/lldb";
@@ -909,20 +880,20 @@ void tst_Dumpers::initTestCase()
         m_debuggerBinary = "gdb";
 #endif
     }
-    qDebug() << "Debugger           : " << m_debuggerBinary.constData();
+    qDebug() << "Debugger           : " << m_debuggerBinary;
 
     m_debuggerEngine = GdbEngine;
     if (m_debuggerBinary.endsWith("cdb.exe"))
         m_debuggerEngine = CdbEngine;
 
-    QString base = QFileInfo(QString::fromLatin1(m_debuggerBinary)).baseName();
-    if (base.startsWith(QLatin1String("lldb")))
+    QString base = QFileInfo(m_debuggerBinary).baseName();
+    if (base.startsWith("lldb"))
         m_debuggerEngine = LldbEngine;
 
-    m_qmakeBinary = qgetenv("QTC_QMAKE_PATH_FOR_TEST");
+    m_qmakeBinary = QString::fromLocal8Bit(qgetenv("QTC_QMAKE_PATH_FOR_TEST"));
     if (m_qmakeBinary.isEmpty())
         m_qmakeBinary = "qmake";
-    qDebug() << "QMake              : " << m_qmakeBinary.constData();
+    qDebug() << "QMake              : " << m_qmakeBinary;
 
     m_useGLibCxxDebug = qgetenv("QTC_USE_GLIBCXXDEBUG_FOR_TEST").toInt();
     qDebug() << "Use _GLIBCXX_DEBUG : " << m_useGLibCxxDebug;
@@ -932,8 +903,7 @@ void tst_Dumpers::initTestCase()
 
     if (m_debuggerEngine == GdbEngine) {
         QProcess debugger;
-        debugger.start(QString::fromLatin1(m_debuggerBinary)
-                       + QLatin1String(" -i mi -quiet -nx"));
+        debugger.start(m_debuggerBinary + " -i mi -quiet -nx");
         bool ok = debugger.waitForStarted();
         debugger.write("set confirm off\npython print 43\nshow version\nquit\n");
         ok = debugger.waitForFinished();
@@ -946,10 +916,10 @@ void tst_Dumpers::initTestCase()
         QVERIFY(usePython);
 
         QString version = QString::fromLocal8Bit(output);
-        int pos1 = version.indexOf(QLatin1String("&\"show version\\n"));
+        int pos1 = version.indexOf("&\"show version\\n");
         QVERIFY(pos1 != -1);
         pos1 += 20;
-        int pos2 = version.indexOf(QLatin1String("~\"Copyright (C) "), pos1);
+        int pos2 = version.indexOf("~\"Copyright (C) ", pos1);
         QVERIFY(pos2 != -1);
         pos2 -= 4;
         version = version.mid(pos1, pos2 - pos1);
@@ -959,16 +929,16 @@ void tst_Dumpers::initTestCase()
         m_makeBinary = QString::fromLocal8Bit(qgetenv("QTC_MAKE_PATH_FOR_TEST"));
 #ifdef Q_OS_WIN
         if (m_makeBinary.isEmpty())
-            m_makeBinary = QLatin1String("mingw32-make");
+            m_makeBinary = "mingw32-make";
         // if qmake is not in PATH make sure the correct libs for inferior are prepended to PATH
         if (m_qmakeBinary != "qmake") {
             Utils::Environment env = Utils::Environment::systemEnvironment();
-            env.prependOrSetPath(QDir::toNativeSeparators(QFileInfo(QLatin1String(m_qmakeBinary)).absolutePath()));
+            env.prependOrSetPath(QDir::toNativeSeparators(QFileInfo(m_qmakeBinary).absolutePath()));
             m_env = env.toProcessEnvironment();
         }
 #else
         if (m_makeBinary.isEmpty())
-            m_makeBinary = QLatin1String("make");
+            m_makeBinary = "make";
 #endif
         qDebug() << "Make path          : " << m_makeBinary;
         qDebug() << "Gdb version        : " << m_debuggerVersion;
@@ -977,7 +947,7 @@ void tst_Dumpers::initTestCase()
     } else if (m_debuggerEngine == LldbEngine) {
         qDebug() << "Dumper dir         : " << DUMPERDIR;
         QProcess debugger;
-        QString cmd = QString::fromUtf8(m_debuggerBinary + " -v");
+        QString cmd = m_debuggerBinary + " -v";
         debugger.start(cmd);
         bool ok = debugger.waitForFinished(2000);
         QVERIFY(ok);
@@ -1005,7 +975,7 @@ void tst_Dumpers::initTestCase()
         QVERIFY(m_debuggerVersion);
 
         m_env = QProcessEnvironment::systemEnvironment();
-        m_makeBinary = QLatin1String("make");
+        m_makeBinary = "make";
     }
 }
 
@@ -1019,7 +989,7 @@ void tst_Dumpers::cleanup()
     if (!t->buildTemp.autoRemove()) {
         QFile logger(t->buildPath + QLatin1String("/input.txt"));
         logger.open(QIODevice::ReadWrite);
-        logger.write(t->input);
+        logger.write(t->input.toUtf8());
     }
     delete t;
 }
@@ -1056,7 +1026,7 @@ void tst_Dumpers::dumper()
     if (data.neededQtVersion.isRestricted) {
         QProcess qmake;
         qmake.setWorkingDirectory(t->buildPath);
-        cmd = QString::fromLatin1(m_qmakeBinary);
+        cmd = m_qmakeBinary;
         qmake.start(cmd, QStringList(QLatin1String("--version")));
         QVERIFY(qmake.waitForFinished());
         output = qmake.readAllStandardOutput();
@@ -1139,12 +1109,12 @@ void tst_Dumpers::dumper()
         proFile.write("DEFINES += _GLIBCXX_DEBUG\n");
     if (m_debuggerEngine == GdbEngine && m_debuggerVersion < 70500)
         proFile.write("QMAKE_CXXFLAGS += -gdwarf-3\n");
-    proFile.write(data.profileExtra);
+    proFile.write(data.profileExtra.toUtf8());
     proFile.close();
 
     QFile source(t->buildPath + QLatin1Char('/') + QLatin1String(mainFile));
     QVERIFY(source.open(QIODevice::ReadWrite));
-    QByteArray fullCode = QByteArray() +
+    QString fullCode = QString() +
             "\n\n#if defined(_MSC_VER)" + (data.useQt ?
                 "\n#include <qt_windows.h>" :
                 "\n#include <Windows.h>") +
@@ -1205,17 +1175,17 @@ void tst_Dumpers::dumper()
             "\n    BREAK;"
             "\n    return 0;"
             "\n}\n";
-    source.write(fullCode);
+    source.write(fullCode.toUtf8());
     source.close();
 
     QProcess qmake;
     qmake.setWorkingDirectory(t->buildPath);
-    cmd = QString::fromLatin1(m_qmakeBinary);
+    cmd = m_qmakeBinary;
     //qDebug() << "Starting qmake: " << cmd;
     QStringList options;
 #ifdef Q_OS_MAC
     if (m_qtVersion && m_qtVersion < 0x050000)
-        options << QLatin1String("-spec") << QLatin1String("unsupported/macx-clang");
+        options << "-spec" << "unsupported/macx-clang";
 #endif
     qmake.start(cmd, options);
     QVERIFY(qmake.waitForFinished());
@@ -1243,10 +1213,10 @@ void tst_Dumpers::dumper()
 
     QByteArray dumperDir = DUMPERDIR;
 
-    QSet<QByteArray> expandedINames;
+    QSet<QString> expandedINames;
     expandedINames.insert("local");
     foreach (const Check &check, data.checks) {
-        QByteArray parent = check.iname;
+        QString parent = check.iname;
         while (true) {
             parent = parentIName(parent);
             if (parent.isEmpty())
@@ -1255,9 +1225,9 @@ void tst_Dumpers::dumper()
         }
     }
 
-    QByteArray expanded;
-    QByteArray expandedq;
-    foreach (const QByteArray &iname, expandedINames) {
+    QString expanded;
+    QString expandedq;
+    foreach (const QString &iname, expandedINames) {
         if (!expanded.isEmpty()) {
             expanded.append(',');
             expandedq.append(',');
@@ -1266,19 +1236,16 @@ void tst_Dumpers::dumper()
         expandedq += '\'' + iname + '\'';
     }
 
-    QByteArray exe = m_debuggerBinary;
+    QString exe = m_debuggerBinary;
     QStringList args;
-    QByteArray cmds;
+    QString cmds;
 
     if (m_debuggerEngine == GdbEngine) {
-        const QFileInfo gdbBinaryFile(QString::fromLatin1(exe));
-        const QByteArray uninstalledData = gdbBinaryFile.absolutePath().toLocal8Bit()
+        const QFileInfo gdbBinaryFile(exe);
+        const QString uninstalledData = gdbBinaryFile.absolutePath()
             + "/data-directory/python";
 
-        args << QLatin1String("-i")
-             << QLatin1String("mi")
-             << QLatin1String("-quiet")
-             << QLatin1String("-nx");
+        args << "-i" << "mi" << "-quiet" << "-nx";
         QByteArray nograb = "-nograb";
 
         cmds = "set confirm off\n"
@@ -1322,7 +1289,7 @@ void tst_Dumpers::dumper()
         QFile fullLldb(t->buildPath + QLatin1String("/lldbcommand.txt"));
         fullLldb.setPermissions(QFile::ReadOwner|QFile::WriteOwner|QFile::ExeOwner|QFile::ReadGroup|QFile::ReadOther);
         fullLldb.open(QIODevice::WriteOnly);
-        fullLldb.write(exe + ' ' + args.join(QLatin1String(" ")).toUtf8() + '\n');
+        fullLldb.write((exe + ' ' + args.join(' ') + '\n').toUtf8());
 
         cmds = "sc import sys\n"
                "sc sys.path.insert(1, '" + dumperDir + "')\n"
@@ -1334,7 +1301,7 @@ void tst_Dumpers::dumper()
                     "'expanded':[" + expandedq + "]})\n"
                "quit\n";
 
-        fullLldb.write(cmds);
+        fullLldb.write(cmds.toUtf8());
         fullLldb.close();
     }
 
@@ -1342,16 +1309,16 @@ void tst_Dumpers::dumper()
 
     QProcessEnvironment env = m_env;
     if (data.useDebugImage)
-        env.insert(QLatin1String("DYLD_IMAGE_SUFFIX"), QLatin1String("_debug"));
+        env.insert("DYLD_IMAGE_SUFFIX", "_debug");
 
     QProcess debugger;
     debugger.setProcessEnvironment(env);
     debugger.setWorkingDirectory(t->buildPath);
-    debugger.start(QString::fromLatin1(exe), args);
+    debugger.start(exe, args);
     QVERIFY(debugger.waitForStarted());
     // FIXME: next line is necessary for LLDB <= 310 - remove asap
     debugger.waitForReadyRead(1000);
-    debugger.write(cmds);
+    debugger.write(cmds.toLocal8Bit());
     QVERIFY(debugger.waitForFinished());
     output = debugger.readAllStandardOutput();
     QByteArray fullOutput = output;
@@ -1424,7 +1391,7 @@ void tst_Dumpers::dumper()
     local.iname = "local";
 
     foreach (const GdbMi &child, actual.children()) {
-        const QByteArray iname = child["iname"].data();
+        const QString iname = child["iname"].data();
         if (iname == "local.qtversion")
             context.qtVersion = child["value"].toInt();
         else if (iname == "local.gccversion")
@@ -1441,15 +1408,15 @@ void tst_Dumpers::dumper()
     }
 
     //qDebug() << "QT VERSION " << QByteArray::number(context.qtVersion, 16);
-    QSet<QByteArray> seenINames;
+    QSet<QString> seenINames;
     bool ok = true;
 
     for (int i = data.checks.size(); --i >= 0; ) {
         //qDebug() << "NUM CHECKS" << data.checks.size();
         Check check = data.checks.at(i);
-        QByteArray iname = "local." + check.iname;
+        QString iname = "local." + check.iname;
         WatchItem *item = local.findAnyChild<WatchItem *>([iname](WatchItem *item) {
-            return item->iname == iname;
+            return item->internalName() == iname;
         });
         if (item) {
             seenINames.insert(iname);
@@ -1457,8 +1424,8 @@ void tst_Dumpers::dumper()
             data.checks.removeAt(i);
             if (check.matches(m_debuggerEngine, m_debuggerVersion, context)) {
                 //qDebug() << "USING MATCHING TEST FOR " << iname;
-                QByteArray name = item->realName().toLatin1();
-                QByteArray type = item->type;
+                QString name = item->realName();
+                QString type = item->type;
                 if (!check.expectedName.matches(name, context)) {
                     qDebug() << "INAME        : " << iname;
                     qDebug() << "NAME ACTUAL  : " << name;
@@ -1524,7 +1491,7 @@ void tst_Dumpers::dumper_data()
 {
     QTest::addColumn<Data>("data");
 
-    QByteArray fooData =
+    QString fooData =
             "#include <QHash>\n"
             "#include <QMap>\n"
             "#include <QObject>\n"
@@ -1558,7 +1525,7 @@ void tst_Dumpers::dumper_data()
             "    QHash<QObject *, Map::iterator> h;\n"
             "};\n";
 
-    QByteArray nsData =
+    QString nsData =
             "namespace nsA {\n"
             "namespace nsB {\n"
            " struct SomeType\n"
@@ -1628,21 +1595,25 @@ void tst_Dumpers::dumper_data()
                + CoreProfile()
                + Check("ba0", "ba0", "\"\"", "@QByteArray")
 
-               + Check("ba1", QByteArray("\"Hello\"World")
-                      + char(0) + char(1) + char(2) + '"', "@QByteArray")
+               + Check("ba1", Value(QString("\"Hello\"World")
+                      + QChar(0) + QChar(1) + QChar(2) + '"'), "@QByteArray")
                + Check("ba1.0", "[0]", "72", "char")
                + Check("ba1.11", "[11]", "0", "char")
                + Check("ba1.12", "[12]", "1", "char")
                + Check("ba1.13", "[13]", "2", "char")
 
                + CheckType("ba2", "@QByteArray")
-               + Check("s", '"' + QByteArray(100, 'x') + '"', "@QString") % NoCdbEngine
-               + Check("s", '"' + QByteArray(100, 'x') + "..." + '"', "@QString") % CdbEngine
-               + Check("ss", '"' + QByteArray(100, 'c') + '"', "std::string") % NoCdbEngine
-               + Check("ss", '"' + QByteArray(100, 'c') + "..." + '"', "std::string") % CdbEngine
+               + Check("s", Value('"' + QString(100, QChar('x')) + '"'),
+                        "@QString") % NoCdbEngine
+               + Check("s", Value('"' + QString(100, QChar('x')) + "..." + '"'),
+                        "@QString") % CdbEngine
+               + Check("ss", Value('"' + QString(100, QChar('c')) + '"'),
+                        "std::string") % NoCdbEngine
+               + Check("ss", Value('"' + QString(100, QChar('c')) + "..." + '"'),
+                        "std::string") % CdbEngine
 
-               + Check("buf1", "\"" + QByteArray(1, (char)0xee) + "\"", "@QByteArray")
-               + Check("buf2", "\"" + QByteArray(1, (char)0xee) + "\"", "@QByteArray")
+               + Check("buf1", Value("\"" + QString(1, QChar(0xee)) + "\""), "@QByteArray")
+               + Check("buf2", Value("\"" + QString(1, QChar(0xee)) + "\""), "@QByteArray")
                + Check("buf3", "\"\\ee\"", "@QByteArray")
                + CheckType("str1", "char *")
 
@@ -1711,9 +1682,9 @@ void tst_Dumpers::dumper_data()
                     Value5("Tue Jan 1 13:15:32 1980 GMT"), "@QDateTime") % NoCdbEngine % Optional();
 
 #ifdef Q_OS_WIN
-    QByteArray tempDir = "\"C:/Program Files\"";
+    QString tempDir = "\"C:/Program Files\"";
 #else
-    QByteArray tempDir = "\"/tmp\"";
+    QString tempDir = "\"/tmp\"";
 #endif
     QTest::newRow("QDir")
             << Data("#include <QDir>\n",
@@ -2506,7 +2477,7 @@ void tst_Dumpers::dumper_data()
                + Check("ob2", "\"A Subobject\"", "@QObject");
 
 
-    QByteArray senderData =
+    QString senderData =
             "    class Sender : public QObject\n"
             "    {\n"
             "        Q_OBJECT\n"
@@ -2773,7 +2744,7 @@ void tst_Dumpers::dumper_data()
                + Check("s3.0", "[0]", "", "@QPointer<@QObject>") % NoCdbEngine
                + Check("s3.0", "[0]", "class QPointer<>", "@QPointer<@QObject>") % CdbEngine;
 
-    QByteArray sharedData =
+    QString sharedData =
             "    class EmployeeData : public QSharedData\n"
             "    {\n"
             "    public:\n"
@@ -3026,12 +2997,12 @@ void tst_Dumpers::dumper_data()
                + Check("uuid2", "{fffffffe-fffd-fffc-fbfa-f9f8f7f6f5f4}", "@QUuid");
 
 
-    QByteArray expected1 = "\"AAA";
-    expected1.append(char('\t'));
-    expected1.append(char('\r'));
-    expected1.append(char('\n'));
-    expected1.append(char(0));
-    expected1.append(char(1));
+    QString expected1 = "\"AAA";
+    expected1.append(QChar('\t'));
+    expected1.append(QChar('\r'));
+    expected1.append(QChar('\n'));
+    expected1.append(QChar(0));
+    expected1.append(QChar(1));
     expected1.append("BBB\"");
 
     QChar oUmlaut = QLatin1Char((char)0xf6);
@@ -4593,8 +4564,6 @@ void tst_Dumpers::dumper_data()
                + Check("set1.2", "[2]", "11", "int");
 
 
-//namespace noargs {
-
 //    class Goo
 //    {
 //    public:
@@ -4872,7 +4841,7 @@ void tst_Dumpers::dumper_data()
                + Check("a1.0.2", "[2]", "2", "double")
                + Check("a1.2", "[2]", Pointer(), "double [3]")
 
-               + Check("a2", "\"abcd" + QByteArray(16, 0) + '"', "char [20]")
+               + Check("a2", Value("\"abcd" + QString(16, 0) + '"'), "char [20]")
                + Check("a2.0", "[0]", "97", "char")
                + Check("a2.3", "[3]", "100", "char");
 
@@ -5809,7 +5778,7 @@ void tst_Dumpers::dumper_data()
                + Check("f", "2", "double");
 
 
-    QByteArray inheritanceData =
+    QString inheritanceData =
         "struct Empty {};\n"
         "struct Data { Data() : a(42) {} int a; };\n"
         "struct VEmpty {};\n"

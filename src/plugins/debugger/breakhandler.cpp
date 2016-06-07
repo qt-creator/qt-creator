@@ -30,7 +30,6 @@
 #include "debuggerengine.h"
 #include "debuggericons.h"
 #include "debuggerinternalconstants.h"
-#include "debuggerstringutils.h"
 #include "simplifytype.h"
 
 #include <coreplugin/coreconstants.h>
@@ -425,44 +424,43 @@ Breakpoint BreakHandler::findWatchpoint(const BreakpointParameters &params) cons
 
 void BreakHandler::saveBreakpoints()
 {
-    const QString one = _("1");
     QList<QVariant> list;
     foreach (TreeItem *n, rootItem()->children()) {
         BreakpointItem *b = static_cast<BreakpointItem *>(n);
         const BreakpointParameters &params = b->m_params;
         QMap<QString, QVariant> map;
         if (params.type != BreakpointByFileAndLine)
-            map.insert(_("type"), params.type);
+            map.insert("type", params.type);
         if (!params.fileName.isEmpty())
-            map.insert(_("filename"), params.fileName);
+            map.insert("filename", params.fileName);
         if (params.lineNumber)
-            map.insert(_("linenumber"), params.lineNumber);
+            map.insert("linenumber", params.lineNumber);
         if (!params.functionName.isEmpty())
-            map.insert(_("funcname"), params.functionName);
+            map.insert("funcname", params.functionName);
         if (params.address)
-            map.insert(_("address"), params.address);
+            map.insert("address", params.address);
         if (!params.condition.isEmpty())
-            map.insert(_("condition"), params.condition);
+            map.insert("condition", params.condition);
         if (params.ignoreCount)
-            map.insert(_("ignorecount"), params.ignoreCount);
+            map.insert("ignorecount", params.ignoreCount);
         if (params.threadSpec >= 0)
-            map.insert(_("threadspec"), params.threadSpec);
+            map.insert("threadspec", params.threadSpec);
         if (!params.enabled)
-            map.insert(_("disabled"), one);
+            map.insert("disabled", "1");
         if (params.oneShot)
-            map.insert(_("oneshot"), one);
+            map.insert("oneshot", "1");
         if (params.pathUsage != BreakpointPathUsageEngineDefault)
-            map.insert(_("usefullpath"), QString::number(params.pathUsage));
+            map.insert("usefullpath", QString::number(params.pathUsage));
         if (params.tracepoint)
-            map.insert(_("tracepoint"), one);
+            map.insert("tracepoint", "1");
         if (!params.module.isEmpty())
-            map.insert(_("module"), params.module);
+            map.insert("module", params.module);
         if (!params.command.isEmpty())
-            map.insert(_("command"), params.command);
+            map.insert("command", params.command);
         if (!params.expression.isEmpty())
-            map.insert(_("expression"), params.expression);
+            map.insert("expression", params.expression);
         if (!params.message.isEmpty())
-            map.insert(_("message"), params.message);
+            map.insert("message", params.message);
         list.append(map);
     }
     setSessionValue("Breakpoints", list);
@@ -475,52 +473,52 @@ void BreakHandler::loadBreakpoints()
     foreach (const QVariant &var, list) {
         const QMap<QString, QVariant> map = var.toMap();
         BreakpointParameters params(BreakpointByFileAndLine);
-        QVariant v = map.value(_("filename"));
+        QVariant v = map.value("filename");
         if (v.isValid())
             params.fileName = v.toString();
-        v = map.value(_("linenumber"));
+        v = map.value("linenumber");
         if (v.isValid())
             params.lineNumber = v.toString().toInt();
-        v = map.value(_("condition"));
+        v = map.value("condition");
         if (v.isValid())
-            params.condition = v.toString().toLatin1();
-        v = map.value(_("address"));
+            params.condition = v.toString();
+        v = map.value("address");
         if (v.isValid())
             params.address = v.toString().toULongLong();
-        v = map.value(_("ignorecount"));
+        v = map.value("ignorecount");
         if (v.isValid())
             params.ignoreCount = v.toString().toInt();
-        v = map.value(_("threadspec"));
+        v = map.value("threadspec");
         if (v.isValid())
             params.threadSpec = v.toString().toInt();
-        v = map.value(_("funcname"));
+        v = map.value("funcname");
         if (v.isValid())
             params.functionName = v.toString();
-        v = map.value(_("disabled"));
+        v = map.value("disabled");
         if (v.isValid())
             params.enabled = !v.toInt();
-        v = map.value(_("oneshot"));
+        v = map.value("oneshot");
         if (v.isValid())
             params.oneShot = v.toInt();
-        v = map.value(_("usefullpath"));
+        v = map.value("usefullpath");
         if (v.isValid())
             params.pathUsage = static_cast<BreakpointPathUsage>(v.toInt());
-        v = map.value(_("tracepoint"));
+        v = map.value("tracepoint");
         if (v.isValid())
             params.tracepoint = bool(v.toInt());
-        v = map.value(_("type"));
+        v = map.value("type");
         if (v.isValid() && v.toInt() != UnknownBreakpointType)
             params.type = BreakpointType(v.toInt());
-        v = map.value(_("module"));
+        v = map.value("module");
         if (v.isValid())
             params.module = v.toString();
-        v = map.value(_("command"));
+        v = map.value("command");
         if (v.isValid())
             params.command = v.toString();
-        v = map.value(_("expression"));
+        v = map.value("expression");
         if (v.isValid())
             params.expression = v.toString();
-        v = map.value(_("message"));
+        v = map.value("message");
         if (v.isValid())
             params.message = v.toString();
         if (params.isValid())
@@ -732,7 +730,7 @@ PROPERTY(QString, fileName, setFileName)
 PROPERTY(QString, functionName, setFunctionName)
 PROPERTY(BreakpointType, type, setType)
 PROPERTY(int, threadSpec, setThreadSpec)
-PROPERTY(QByteArray, condition, setCondition)
+PROPERTY(QString, condition, setCondition)
 PROPERTY(QString, command, setCommand)
 PROPERTY(quint64, address, setAddress)
 PROPERTY(QString, expression, setExpression)
@@ -753,16 +751,16 @@ const BreakpointParameters &Breakpoint::parameters() const
 
 void Breakpoint::addToCommand(DebuggerCommand *cmd) const
 {
-    cmd->arg("modelid", id().toByteArray());
+    cmd->arg("modelid", id().toString());
     cmd->arg("id", int(response().id.majorPart()));
     cmd->arg("type", type());
     cmd->arg("ignorecount", ignoreCount());
-    cmd->arg("condition", condition().toHex());
-    cmd->arg("command", command().toUtf8().toHex());
-    cmd->arg("function", functionName().toUtf8());
+    cmd->arg("condition", toHex(condition()));
+    cmd->arg("command", toHex(command()));
+    cmd->arg("function", functionName());
     cmd->arg("oneshot", isOneShot());
     cmd->arg("enabled", isEnabled());
-    cmd->arg("file", fileName().toUtf8());
+    cmd->arg("file", fileName());
     cmd->arg("line", lineNumber());
     cmd->arg("address", address());
     cmd->arg("expression", expression());

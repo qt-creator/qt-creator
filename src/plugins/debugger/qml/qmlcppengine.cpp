@@ -102,7 +102,7 @@ bool QmlCppEngine::canHandleToolTip(const DebuggerToolTipContext &ctx) const
     return success;
 }
 
-void QmlCppEngine::updateItem(const QByteArray &iname)
+void QmlCppEngine::updateItem(const QString &iname)
 {
     if (iname.startsWith("inspect."))
         m_qmlEngine->updateItem(iname);
@@ -110,7 +110,7 @@ void QmlCppEngine::updateItem(const QByteArray &iname)
         m_activeEngine->updateItem(iname);
 }
 
-void QmlCppEngine::expandItem(const QByteArray &iname)
+void QmlCppEngine::expandItem(const QString &iname)
 {
     if (iname.startsWith("inspect."))
         m_qmlEngine->expandItem(iname);
@@ -118,7 +118,7 @@ void QmlCppEngine::expandItem(const QByteArray &iname)
         m_activeEngine->expandItem(iname);
 }
 
-void QmlCppEngine::selectWatchData(const QByteArray &iname)
+void QmlCppEngine::selectWatchData(const QString &iname)
 {
     if (iname.startsWith("inspect."))
         m_qmlEngine->selectWatchData(iname);
@@ -190,7 +190,7 @@ void QmlCppEngine::reloadFullStack()
     m_cppEngine->reloadFullStack();
 }
 
-void QmlCppEngine::setRegisterValue(const QByteArray &name, const QString &value)
+void QmlCppEngine::setRegisterValue(const QString &name, const QString &value)
 {
     m_cppEngine->setRegisterValue(name, value);
 }
@@ -219,7 +219,7 @@ bool QmlCppEngine::isSynchronous() const
     return m_activeEngine->isSynchronous();
 }
 
-QByteArray QmlCppEngine::qtNamespace() const
+QString QmlCppEngine::qtNamespace() const
 {
     return m_cppEngine->qtNamespace();
 }
@@ -417,7 +417,7 @@ void QmlCppEngine::notifyInferiorSetupOk()
     DebuggerEngine::notifyInferiorSetupOk();
 }
 
-void QmlCppEngine::notifyEngineRemoteServerRunning(const QByteArray &serverChannel, int pid)
+void QmlCppEngine::notifyEngineRemoteServerRunning(const QString &serverChannel, int pid)
 {
     m_cppEngine->notifyEngineRemoteServerRunning(serverChannel, pid);
 }

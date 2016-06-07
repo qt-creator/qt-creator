@@ -25,7 +25,7 @@
 
 #include "cdbparsehelpers.h"
 
-#include "bytearrayinputstream.h"
+#include "stringinputstream.h"
 
 #include <debugger/debuggerprotocol.h>
 #include <debugger/disassemblerlines.h>
@@ -168,14 +168,14 @@ BreakpointResponseId cdbIdToBreakpointResponseId(const GdbMi &id)
     return cdbIdToBreakpointId<BreakpointResponseId>(id);
 }
 
-QByteArray cdbAddBreakpointCommand(const BreakpointParameters &bpIn,
-                                   const QList<QPair<QString, QString> > &sourcePathMapping,
-                                   BreakpointModelId id /* = BreakpointId() */,
-                                   bool oneshot)
+QString cdbAddBreakpointCommand(const BreakpointParameters &bpIn,
+                                const QList<QPair<QString, QString> > &sourcePathMapping,
+                                BreakpointModelId id /* = BreakpointId() */,
+                                bool oneshot)
 {
     const BreakpointParameters bp = fixWinMSVCBreakpoint(bpIn);
-    QByteArray rc;
-    ByteArrayInputStream str(rc);
+    QString rc;
+    StringInputStream str(rc);
 
     if (bp.threadSpec >= 0)
         str << '~' << bp.threadSpec << ' ';
@@ -201,7 +201,7 @@ QByteArray cdbAddBreakpointCommand(const BreakpointParameters &bpIn,
     case BreakpointAtJavaScriptThrow:
     case UnknownBreakpointType:
     case LastBreakpointType:
-        QTC_ASSERT(false, return QByteArray());
+        QTC_ASSERT(false, return QString());
         break;
     case BreakpointByAddress:
         str << hex << hexPrefixOn << bp.address << hexPrefixOff << dec;
@@ -231,14 +231,14 @@ QByteArray cdbAddBreakpointCommand(const BreakpointParameters &bpIn,
     return rc;
 }
 
-QByteArray cdbClearBreakpointCommand(const BreakpointModelId &id)
+QString cdbClearBreakpointCommand(const BreakpointModelId &id)
 {
     const int firstBreakPoint = breakPointIdToCdbId(id);
     if (id.isMinor())
-        return "bc " + QByteArray::number(firstBreakPoint);
+        return "bc " + QString::number(firstBreakPoint);
     // If this is a major break point we also want to delete all sub break points
     const int lastBreakPoint = firstBreakPoint + cdbBreakPointIdMinorPart - 1;
-    return "bc " + QByteArray::number(firstBreakPoint) + '-' + QByteArray::number(lastBreakPoint);
+    return "bc " + QString::number(firstBreakPoint) + '-' + QString::number(lastBreakPoint);
 }
 
 // Helper to retrieve an int child from GDBMI
@@ -280,10 +280,10 @@ void parseBreakPoint(const GdbMi &gdbmi, BreakpointResponse *r,
     r->id = cdbIdToBreakpointResponseId(gdbmi["id"]);
     const GdbMi moduleG = gdbmi["module"];
     if (moduleG.isValid())
-        r->module = QString::fromLocal8Bit(moduleG.data());
+        r->module = moduleG.data();
     const GdbMi sourceFileName = gdbmi["srcfile"];
     if (sourceFileName.isValid()) {
-        r->fileName = QString::fromLocal8Bit(sourceFileName.data());
+        r->fileName = sourceFileName.data();
         const GdbMi lineNumber = gdbmi["srcline"];
         if (lineNumber.isValid())
             r->lineNumber = lineNumber.data().toULongLong(0, 0);
@@ -291,7 +291,7 @@ void parseBreakPoint(const GdbMi &gdbmi, BreakpointResponse *r,
     if (expression) {
         const GdbMi expressionG = gdbmi["expression"];
         if (expressionG.isValid())
-            *expression = QString::fromLocal8Bit(expressionG.data());
+            *expression = expressionG.data();
     }
     const GdbMi addressG = gdbmi["address"];
     if (addressG.isValid())
@@ -301,10 +301,10 @@ void parseBreakPoint(const GdbMi &gdbmi, BreakpointResponse *r,
     gdbmiChildToInt(gdbmi, "thread", &(r->threadSpec));
 }
 
-QByteArray cdbWriteMemoryCommand(quint64 addr, const QByteArray &data)
+QString cdbWriteMemoryCommand(quint64 addr, const QByteArray &data)
 {
-    QByteArray cmd;
-    ByteArrayInputStream str(cmd);
+    QString cmd;
+    StringInputStream str(cmd);
     str.setIntegerBase(16);
     str << "f " << addr << " L" << data.size();
     const int count = data.size();
@@ -384,10 +384,10 @@ QString WinException::toString(bool includeLocation) const
         str << " (first chance)";
     if (includeLocation) {
         if (lineNumber) {
-            str << " at " << QLatin1String(file) << ':' << lineNumber;
+            str << " at " << file << ':' << lineNumber;
         } else {
             if (!function.isEmpty())
-                str << " in " << QLatin1String(function);
+                str << " in " << function;
         }
     }
     return rc;
@@ -525,7 +525,7 @@ bool parseCdbDisassemblerLine(const QString &line, DisassemblerLine *dLine, uint
     return true;
 }
 
-DisassemblerLines parseCdbDisassembler(const QByteArray &a)
+DisassemblerLines parseCdbDisassembler(const QString &a)
 {
     DisassemblerLines result;
     quint64 functionAddress = 0;
@@ -534,8 +534,7 @@ DisassemblerLines parseCdbDisassembler(const QByteArray &a)
     quint64 functionOffset = 0;
     QString sourceFile;
 
-    foreach (const QByteArray &lineBA, a.split('\n')) {
-        const QString line = QString::fromLatin1(lineBA);
+    foreach (const QString &line, a.split('\n')) {
         // New function. Append as comment line.
         if (parseCdbDisassemblerFunctionLine(line, &currentFunction, &functionOffset, &sourceFile)) {
             functionAddress = 0;
@@ -552,7 +551,7 @@ DisassemblerLines parseCdbDisassembler(const QByteArray &a)
                     result.appendSourceLine(sourceFile, sourceLine);
                 }
             } else {
-                qWarning("Unable to parse assembly line '%s'", lineBA.constData());
+                qWarning("Unable to parse assembly line '%s'", qPrintable(line));
                 disassemblyLine.fromString(line);
             }
             // Determine address of function from the first assembler line after a

@@ -128,9 +128,9 @@ private slots:
     void handleInterruptDeviceInferior(const QString &error);
     void handleGdbFinished(int exitCode, QProcess::ExitStatus exitStatus);
     void handleGdbError(QProcess::ProcessError error);
-    void readDebugeeOutput(const QByteArray &data);
     void readGdbStandardOutput();
     void readGdbStandardError();
+    void readDebuggeeOutput(const QByteArray &ba);
 
 private:
     QTextCodec *m_outputCodec;
@@ -141,7 +141,7 @@ private:
 
     // Name of the convenience variable containing the last
     // known function return value.
-    QByteArray m_resultVarName;
+    QString m_resultVarName;
 
 private: ////////// Gdb Command Management //////////
 
@@ -176,15 +176,15 @@ private:
     void setTokenBarrier();
 
     // Sets up an "unexpected result" for the following commeand.
-    void scheduleTestResponse(int testCase, const QByteArray &response);
+    void scheduleTestResponse(int testCase, const QString &response);
 
     QHash<int, DebuggerCommand> m_commandForToken;
     QHash<int, int> m_flagsForToken;
     int commandTimeoutTime() const;
     QTimer m_commandTimer;
 
-    QByteArray m_pendingConsoleStreamOutput;
-    QByteArray m_pendingLogStreamOutput;
+    QString m_pendingConsoleStreamOutput;
+    QString m_pendingLogStreamOutput;
 
     // This contains the first token number for the current round
     // of evaluation. Responses with older tokens are considers
@@ -202,8 +202,8 @@ private:
 
 private: ////////// Gdb Output, State & Capability Handling //////////
 protected:
-    void handleResponse(const QByteArray &buff);
-    void handleAsyncOutput(const QByteArray &asyncClass, const GdbMi &result);
+    void handleResponse(const QString &buff);
+    void handleAsyncOutput(const QString &asyncClass, const GdbMi &result);
     void handleStopResponse(const GdbMi &data);
     void handleResultRecord(DebuggerResponse *response);
     void handleStop1(const GdbMi &data);
@@ -282,8 +282,8 @@ private: ////////// View & Data Stuff //////////
     void handleCatchInsert(const DebuggerResponse &response, Breakpoint bp);
     void handleBkpt(const GdbMi &bkpt, Breakpoint bp);
     void updateResponse(BreakpointResponse &response, const GdbMi &bkpt);
-    QByteArray breakpointLocation(const BreakpointParameters &data); // For gdb/MI.
-    QByteArray breakpointLocation2(const BreakpointParameters &data); // For gdb/CLI fallback.
+    QString breakpointLocation(const BreakpointParameters &data); // For gdb/MI.
+    QString breakpointLocation2(const BreakpointParameters &data); // For gdb/CLI fallback.
     QString breakLocation(const QString &file) const;
 
     //
@@ -312,7 +312,7 @@ private: ////////// View & Data Stuff //////////
     // Register specific stuff
     //
     void reloadRegisters() override;
-    void setRegisterValue(const QByteArray &name, const QString &value) override;
+    void setRegisterValue(const QString &name, const QString &value) override;
     void handleRegisterListNames(const DebuggerResponse &response);
     void handleRegisterListing(const DebuggerResponse &response);
     void handleRegisterListValues(const DebuggerResponse &response);
@@ -327,7 +327,7 @@ private: ////////// View & Data Stuff //////////
     void fetchDisassemblerByCliPointMixed(const DisassemblerAgentCookie &ac);
     void fetchDisassemblerByCliRangeMixed(const DisassemblerAgentCookie &ac);
     void fetchDisassemblerByCliRangePlain(const DisassemblerAgentCookie &ac);
-    bool handleCliDisassemblerResult(const QByteArray &response, DisassemblerAgent *agent);
+    bool handleCliDisassemblerResult(const QString &response, DisassemblerAgent *agent);
 
     //
     // Source file specific stuff
@@ -406,7 +406,7 @@ protected:
     QString errorMessage(QProcess::ProcessError error);
     void showExecutionError(const QString &message);
 
-    static QByteArray tooltipIName(const QString &exp);
+    static QString tooltipIName(const QString &exp);
 
     // For short-circuiting stack and thread list evaluation.
     bool m_stackNeeded;
@@ -416,7 +416,7 @@ protected:
     bool m_inUpdateLocals;
 
     // HACK:
-    QByteArray m_currentThread;
+    QString m_currentThread;
     QString m_lastWinException;
     QString m_lastMissingDebugInfo;
     bool m_terminalTrap;
@@ -424,7 +424,7 @@ protected:
     bool usesExecInterrupt() const;
     bool usesTargetAsync() const;
 
-    QHash<int, QByteArray> m_scheduledTestResponses;
+    QHash<int, QString> m_scheduledTestResponses;
     QSet<int> m_testCases;
 
     // Debug information
@@ -444,7 +444,6 @@ protected:
     static QString msgInferiorSetupOk();
     static QString msgInferiorRunOk();
     static QString msgConnectRemoteServerFailed(const QString &why);
-    static QByteArray dotEscape(QByteArray str);
 
     void debugLastCommand() override;
     DebuggerCommand m_lastDebuggableCommand;

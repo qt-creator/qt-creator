@@ -173,14 +173,13 @@ void RegisterTreeView::contextMenuEvent(QContextMenuEvent *ev)
     QAction *actShowDisassembler = menu.addAction(tr("Open Disassembler..."));
     actShowDisassembler->setEnabled(engine->hasCapability(DisassemblerCapability));
 
-    const QByteArray registerName = idx.data(RegisterNameRole).toByteArray();
-    const QString registerNameStr = QString::fromUtf8(registerName);
+    const QString registerName = idx.data(RegisterNameRole).toString();
     if (address) {
         const bool canShow = actionsEnabled && engine->hasCapability(ShowMemoryCapability);
         actEditMemory->setText(tr("Open Memory Editor at 0x%1").arg(address, 0, 16));
         actEditMemory->setEnabled(canShow);
         actViewMemory->setText(tr("Open Memory View at Value of Register %1 0x%2")
-            .arg(registerNameStr).arg(address, 0, 16));
+            .arg(registerName).arg(address, 0, 16));
         actShowDisassemblerAt->setText(tr("Open Disassembler at 0x%1")
             .arg(address, 0, 16));
         actShowDisassemblerAt->setEnabled(engine->hasCapability(DisassemblerCapability));

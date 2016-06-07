@@ -68,7 +68,7 @@ private slots:
     void appendMessage(const QString &msg, Utils::OutputFormat);
 
 private:
-    void notifyEngineRemoteServerRunning(const QByteArray &, int pid) override;
+    void notifyEngineRemoteServerRunning(const QString &, int pid) override;
     void notifyEngineRemoteSetupFinished(const RemoteSetupResult &result) override;
 
     void showMessage(const QString &msg, int channel = LogDebug,
@@ -122,9 +122,9 @@ private:
     void reloadFullStack() override {}
 
     void updateAll() override;
-    void updateItem(const QByteArray &iname) override;
-    void expandItem(const QByteArray &iname) override;
-    void selectWatchData(const QByteArray &iname) override;
+    void updateItem(const QString &iname) override;
+    void expandItem(const QString &iname) override;
+    void selectWatchData(const QString &iname) override;
     void executeDebuggerCommand(const QString &command, DebuggerLanguages languages) override;
 
     bool hasCapability(unsigned) const override;

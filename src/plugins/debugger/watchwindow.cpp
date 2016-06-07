@@ -270,7 +270,7 @@ static MemoryMarkupList
             const quint64 offset = it.key() - address;
             if (offset < size) {
                 ranges[offset] = ColorNumberToolTip(registerColorNumber,
-                           WatchTreeView::tr("Register <i>%1</i>").arg(QString::fromUtf8(it.value())));
+                           WatchTreeView::tr("Register <i>%1</i>").arg(it.value()));
             } else {
                 break; // Sorted.
             }
@@ -455,7 +455,7 @@ void WatchTreeView::keyPressEvent(QKeyEvent *ev)
     if (ev->key() == Qt::Key_Delete && m_type == WatchersType) {
         WatchHandler *handler = currentEngine()->watchHandler();
         foreach (const QModelIndex &idx, activeRows())
-            handler->removeItemByIName(idx.data(LocalsINameRole).toByteArray());
+            handler->removeItemByIName(idx.data(LocalsINameRole).toString());
     } else if (ev->key() == Qt::Key_Return
             && ev->modifiers() == Qt::ControlModifier
             && m_type == LocalsType) {
@@ -888,7 +888,7 @@ void WatchTreeView::contextMenuEvent(QContextMenuEvent *ev)
     } else if (act == &actWatchExpression) {
         watchExpression(exp, name);
     } else if (act == &actRemoveWatchExpression) {
-        handler->removeItemByIName(p.data(LocalsINameRole).toByteArray());
+        handler->removeItemByIName(p.data(LocalsINameRole).toString());
     } else if (act == &actRemoveAllWatchExpression) {
         handler->clearWatches();
     } else if (act == &actCopy) {
@@ -958,7 +958,7 @@ void WatchTreeView::setModel(QAbstractItemModel *model)
 
 void WatchTreeView::rowActivated(const QModelIndex &index)
 {
-    currentEngine()->selectWatchData(index.data(LocalsINameRole).toByteArray());
+    currentEngine()->selectWatchData(index.data(LocalsINameRole).toString());
 }
 
 void WatchTreeView::handleItemIsExpanded(const QModelIndex &idx)

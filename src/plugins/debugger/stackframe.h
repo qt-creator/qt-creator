@@ -54,7 +54,7 @@ public:
 
 public:
     DebuggerLanguage language;
-    QByteArray level;
+    QString level;
     QString function;
     QString file;        // We try to put an absolute file name in there.
     QString module;      // Sometimes something like "/usr/lib/libstdc++.so.6"
@@ -62,7 +62,7 @@ public:
     qint32 line;
     quint64 address;
     bool usable;
-    QByteArray context;  // Opaque value produced and consumed by the native backends.
+    QString context;  // Opaque value produced and consumed by the native backends.
 
     Q_DECLARE_TR_FUNCTIONS(Debugger::Internal::StackHandler)
 };

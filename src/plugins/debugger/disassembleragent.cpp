@@ -31,7 +31,6 @@
 #include "debuggerengine.h"
 #include "debuggerinternalconstants.h"
 #include "debuggerstartparameters.h"
-#include "debuggerstringutils.h"
 #include "disassemblerlines.h"
 #include "sourceutils.h"
 
@@ -138,7 +137,7 @@ DisassemblerAgentPrivate::DisassemblerAgentPrivate(DebuggerEngine *engine)
   : document(0),
     engine(engine),
     locationMark(engine, QString(), 0),
-    mimeType(_("text/x-qtcreator-generic-asm")),
+    mimeType("text/x-qtcreator-generic-asm"),
     resetLocationScheduled(false)
 {}
 
@@ -238,7 +237,7 @@ void DisassemblerAgent::setLocation(const Location &loc)
     if (index != -1) {
         const FrameKey &key = d->cache.at(index).first;
         const QString msg =
-            _("Using cached disassembly for 0x%1 (0x%2-0x%3) in \"%4\"/ \"%5\"")
+            QString("Using cached disassembly for 0x%1 (0x%2-0x%3) in \"%4\"/ \"%5\"")
                 .arg(loc.address(), 0, 16)
                 .arg(key.startAddress, 0, 16).arg(key.endAddress, 0, 16)
                 .arg(loc.functionName(), QDir::toNativeSeparators(loc.fileName()));
@@ -327,7 +326,7 @@ void DisassemblerAgent::setContentsToDocument(const DisassemblerLines &contents)
 
     d->document->setPlainText(contents.toString());
 
-    d->document->setPreferredDisplayName(_("Disassembler (%1)")
+    d->document->setPreferredDisplayName(QString("Disassembler (%1)")
         .arg(d->location.functionName()));
 
     Breakpoints bps = breakHandler()->engineBreakpoints(d->engine);

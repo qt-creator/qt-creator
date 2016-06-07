@@ -25,7 +25,6 @@
 
 #include "disassemblerlines.h"
 #include "debuggerengine.h"
-#include "debuggerstringutils.h"
 #include "sourceutils.h"
 
 #include <QDebug>
@@ -186,7 +185,7 @@ void DisassemblerLines::appendUnparsed(const QString &unparsed)
                 QString function = address.mid(pos1, pos2 - pos1);
                 if (function != m_lastFunction) {
                     DisassemblerLine dl;
-                    dl.data = _("Function: ") + function;
+                    dl.data = "Function: " + function;
                     m_data.append(dl);
                     m_lastFunction = function;
                 }
@@ -214,25 +213,25 @@ void DisassemblerLines::appendUnparsed(const QString &unparsed)
 
 QString DisassemblerLine::toString(int maxOp) const
 {
-    const QString someSpace = _("        ");
+    const QString someSpace = "        ";
     QString str;
     if (isAssembler()) {
         if (address)
-            str += _("0x%1  ").arg(address, 0, 16);
+            str += QString("0x%1  ").arg(address, 0, 16);
         if (offset)
-            str += _("<+0x%2> ").arg(offset, 4, 16, QLatin1Char('0'));
+            str += QString("<+0x%2> ").arg(offset, 4, 16, QLatin1Char('0'));
         else
-            str += _("          ");
-        str += _("       %1 ").arg(bytes);
+            str += "          ";
+        str += QString("       %1 ").arg(bytes);
         str += QString(maxOp - bytes.size(), QLatin1Char(' '));
         str += data;
     } else if (isCode()) {
         str += someSpace;
         str += QString::number(lineNumber);
         if (hunk)
-            str += _(" [%1]").arg(hunk);
+            str += QString(" [%1]").arg(hunk);
         else
-            str += _("    ");
+            str += "    ";
         str += data;
     } else {
         str += someSpace;

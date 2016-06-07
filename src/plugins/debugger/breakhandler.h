@@ -93,8 +93,8 @@ public:
     // obtained the BreakpointItem pointer.
     BreakpointPathUsage pathUsage() const;
     void setPathUsage(const BreakpointPathUsage &u);
-    QByteArray condition() const;
-    void setCondition(const QByteArray &condition);
+    QString condition() const;
+    void setCondition(const QString &condition);
     int ignoreCount() const;
     void setIgnoreCount(const int &count);
     int threadSpec() const;

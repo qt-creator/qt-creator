@@ -89,7 +89,7 @@ struct ThreadData
 
     // Permanent data.
     ThreadId id;
-    QByteArray groupId;
+    QString groupId;
     QString targetId;
     QString core;
     bool stopped;

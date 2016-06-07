@@ -28,7 +28,6 @@
 #include <coreplugin/messagebox.h>
 
 #include <debugger/debuggerprotocol.h>
-#include <debugger/debuggerstringutils.h>
 #include <debugger/debuggerstartparameters.h>
 
 #include <utils/qtcassert.h>
@@ -50,7 +49,7 @@ GdbAttachEngine::GdbAttachEngine(const DebuggerRunParameters &startParameters)
 void GdbAttachEngine::setupEngine()
 {
     QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
-    showMessage(_("TRYING TO START ADAPTER"));
+    showMessage("TRYING TO START ADAPTER");
 
     if (!runParameters().inferior.workingDirectory.isEmpty())
         m_gdbProc.setWorkingDirectory(runParameters().inferior.workingDirectory);
@@ -71,7 +70,7 @@ void GdbAttachEngine::runEngine()
 {
     QTC_ASSERT(state() == EngineRunRequested, qDebug() << state());
     const qint64 pid = runParameters().attachPID;
-    runCommand({"attach " + QByteArray::number(pid), NoFlags,
+    runCommand({"attach " + QString::number(pid), NoFlags,
                 [this](const DebuggerResponse &r) { handleAttach(r); }});
     showStatusMessage(tr("Attached to process %1.").arg(inferiorPid()));
 }
@@ -83,7 +82,7 @@ void GdbAttachEngine::handleAttach(const DebuggerResponse &response)
     switch (response.resultClass) {
     case ResultDone:
     case ResultRunning:
-        showMessage(_("INFERIOR ATTACHED"));
+        showMessage("INFERIOR ATTACHED");
         if (state() == EngineRunRequested) {
             // Happens e.g. for "Attach to unstarted application"
             // We will get a '*stopped' later that we'll interpret as 'spontaneous'
@@ -109,7 +108,7 @@ void GdbAttachEngine::handleAttach(const DebuggerResponse &response)
         // if msg != "ptrace: ..." fall through
     default:
         showStatusMessage(tr("Failed to attach to application: %1")
-                          .arg(QString::fromLocal8Bit(response.data["msg"].data())));
+                          .arg(QString(response.data["msg"].data())));
         notifyEngineIll();
     }
 }

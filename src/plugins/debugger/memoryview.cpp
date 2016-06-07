@@ -134,7 +134,7 @@ void MemoryView::setMarkup(const QList<MemoryMarkup> &m)
 */
 
 RegisterMemoryView::RegisterMemoryView(QWidget *binEditor, quint64 addr,
-                                       const QByteArray &regName,
+                                       const QString &regName,
                                        RegisterHandler *handler, QWidget *parent) :
     MemoryView(binEditor, parent),
     m_registerName(regName), m_registerAddress(addr)
@@ -144,16 +144,15 @@ RegisterMemoryView::RegisterMemoryView(QWidget *binEditor, quint64 addr,
     updateContents();
 }
 
-void RegisterMemoryView::onRegisterChanged(const QByteArray &name, quint64 value)
+void RegisterMemoryView::onRegisterChanged(const QString &name, quint64 value)
 {
     if (name == m_registerName)
         setRegisterAddress(value);
 }
 
-QString RegisterMemoryView::title(const QByteArray &registerName, quint64 a)
+QString RegisterMemoryView::title(const QString &registerName, quint64 a)
 {
-    return tr("Memory at Register \"%1\" (0x%2)")
-            .arg(QString::fromUtf8(registerName)).arg(a, 0, 16);
+    return tr("Memory at Register \"%1\" (0x%2)").arg(registerName).arg(a, 0, 16);
 }
 
 void RegisterMemoryView::setRegisterAddress(quint64 v)
@@ -169,12 +168,9 @@ void RegisterMemoryView::setRegisterAddress(quint64 v)
         setMarkup(registerMarkup(v, m_registerName));
 }
 
-QList<MemoryMarkup> RegisterMemoryView::registerMarkup(quint64 a, const QByteArray &regName)
+QList<MemoryMarkup> RegisterMemoryView::registerMarkup(quint64 a, const QString &regName)
 {
-    QList<MemoryMarkup> result;
-    result.push_back(MemoryMarkup(a, 1, QColor(Qt::blue).lighter(),
-        tr("Register \"%1\"").arg(QString::fromUtf8(regName))));
-    return result;
+    return { MemoryMarkup(a, 1, QColor(Qt::blue).lighter(), tr("Register \"%1\"").arg(regName)) };
 }
 
 } // namespace Internal

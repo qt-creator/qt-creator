@@ -23,45 +23,45 @@
 **
 ****************************************************************************/
 
-#include "bytearrayinputstream.h"
+#include "stringinputstream.h"
 
 #include <ctype.h>
 
 namespace Debugger {
 namespace Internal {
 
-ByteArrayInputStream::ByteArrayInputStream(QByteArray &ba) :
-    m_target(ba), m_integerBase(10), m_hexPrefix(false), m_width(0)
+StringInputStream::StringInputStream(QString &str) :
+    m_target(str), m_integerBase(10), m_hexPrefix(false), m_width(0)
 {
 }
 
-void ByteArrayInputStream::appendSeparator(char c)
+void StringInputStream::appendSeparator(char c)
 {
     if (!m_target.isEmpty() && !m_target.endsWith(c))
         m_target.append(c);
 }
 
-void hexPrefixOn(ByteArrayInputStream &bs)
+void hexPrefixOn(StringInputStream &bs)
 {
     bs.setHexPrefix(true);
 }
 
-void hexPrefixOff(ByteArrayInputStream &bs)
+void hexPrefixOff(StringInputStream &bs)
 {
     bs.setHexPrefix(false);
 }
 
-void hex(ByteArrayInputStream &bs)
+void hex(StringInputStream &bs)
 {
     bs.setIntegerBase(16);
 }
 
-void dec(ByteArrayInputStream &bs)
+void dec(StringInputStream &bs)
 {
     bs.setIntegerBase(10);
 }
 
-void blankSeparator(ByteArrayInputStream &bs)
+void blankSeparator(StringInputStream &bs)
 {
     bs.appendSeparator();
 }

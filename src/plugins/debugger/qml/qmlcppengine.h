@@ -42,9 +42,9 @@ public:
 
     bool canDisplayTooltip() const override;
     bool canHandleToolTip(const DebuggerToolTipContext &) const override;
-    void updateItem(const QByteArray &iname) override;
-    void expandItem(const QByteArray &iname) override;
-    void selectWatchData(const QByteArray &iname) override;
+    void updateItem(const QString &iname) override;
+    void expandItem(const QString &iname) override;
+    void selectWatchData(const QString &iname) override;
 
     void watchPoint(const QPoint &) override;
     void fetchMemory(MemoryAgent *, QObject *, quint64 addr, quint64 length) override;
@@ -61,11 +61,11 @@ public:
     void reloadSourceFiles() override;
     void reloadFullStack() override;
 
-    void setRegisterValue(const QByteArray &name, const QString &value) override;
+    void setRegisterValue(const QString &name, const QString &value) override;
     bool hasCapability(unsigned cap) const override;
 
     bool isSynchronous() const override;
-    QByteArray qtNamespace() const override;
+    QString qtNamespace() const override;
 
     void createSnapshot() override;
     void updateAll() override;
@@ -121,7 +121,7 @@ protected:
     void notifyInferiorShutdownOk() override;
 
     void notifyInferiorSetupOk() override;
-    void notifyEngineRemoteServerRunning(const QByteArray &, int pid) override;
+    void notifyEngineRemoteServerRunning(const QString &, int pid) override;
 
 private:
     void engineStateChanged(DebuggerState newState);

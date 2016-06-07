@@ -62,7 +62,7 @@ public:
 
     QWidget *parent;
     quint64 startAddress;
-    QByteArray registerName;
+    QString registerName;
     unsigned flags;
     QList<Internal::MemoryMarkup> markup;
     QPoint pos;

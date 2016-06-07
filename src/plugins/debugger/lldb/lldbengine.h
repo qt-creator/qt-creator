@@ -62,7 +62,7 @@ public:
     ~LldbEngine();
 
 signals:
-    void outputReady(const QByteArray &data);
+    void outputReady(const QString &data);
 
 private:
     DebuggerEngine *cppEngine() override { return this; }
@@ -116,7 +116,7 @@ private:
     void fetchDisassembler(Internal::DisassemblerAgent *) override;
 
     bool isSynchronous() const override { return true; }
-    void setRegisterValue(const QByteArray &name, const QString &value) override;
+    void setRegisterValue(const QString &name, const QString &value) override;
 
     void fetchMemory(Internal::MemoryAgent *, QObject *, quint64 addr, quint64 length) override;
     void changeMemory(Internal::MemoryAgent *, QObject *, quint64 addr, const QByteArray &data) override;
@@ -133,7 +133,7 @@ private:
     void handleLocationNotification(const GdbMi &location);
     void handleOutputNotification(const GdbMi &output);
 
-    void handleResponse(const QByteArray &data);
+    void handleResponse(const QString &data);
     void updateAll() override;
     void doUpdateLocals(const UpdateParameters &params) override;
     void updateBreakpointData(Breakpoint bp, const GdbMi &bkpt, bool added);
@@ -147,7 +147,7 @@ private:
 private:
     DebuggerCommand m_lastDebuggableCommand;
 
-    QByteArray m_inbuffer;
+    QString m_inbuffer;
     QString m_scriptFileName;
     Utils::QtcProcess m_lldbProc;
     QString m_lldbCmd;

@@ -140,7 +140,7 @@ bool isLeavableFunction(const QString &funcName, const QString &fileName)
     return false;
 }
 
-bool isLetterOrNumber(char c)
+bool isLetterOrNumber(int c)
 {
     return (c >= 'a' && c <= 'z')
         || (c >= 'A' && c <= 'Z')
@@ -225,7 +225,7 @@ bool startsWithDigit(const QString &str)
     return !str.isEmpty() && str.at(0).isDigit();
 }
 
-QByteArray stripPointerType(QByteArray type)
+QString stripPointerType(QString type)
 {
     if (type.endsWith('*'))
         type.chop(1);
@@ -256,7 +256,7 @@ QString formatToolTipAddress(quint64 a)
     return "0x" + rc;
 }
 
-QByteArray gdbQuoteTypes(const QByteArray &type)
+QString gdbQuoteTypes(const QString &type)
 {
     // gdb does not understand sizeof(Core::IDocument*).
     // "sizeof('Core::IDocument*')" is also not acceptable,
@@ -274,8 +274,8 @@ QByteArray gdbQuoteTypes(const QByteArray &type)
     if (isPointerType(type))
         return gdbQuoteTypes(stripPointerType(type)) + '*';
 
-    QByteArray accu;
-    QByteArray result;
+    QString accu;
+    QString result;
     int templateLevel = 0;
 
     const char colon = ':';
@@ -283,8 +283,8 @@ QByteArray gdbQuoteTypes(const QByteArray &type)
     const char lessThan = '<';
     const char greaterThan = '>';
     for (int i = 0; i != type.size(); ++i) {
-        const char c = type.at(i);
-        if (isLetterOrNumber(c) || c == '_' || c == colon || c == ' ') {
+        const QChar c = type.at(i);
+        if (isLetterOrNumber(c.unicode()) || c == '_' || c == colon || c == ' ') {
             accu += c;
         } else if (c == lessThan) {
             ++templateLevel;

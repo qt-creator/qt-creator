@@ -30,7 +30,6 @@
 #include <debugger/debuggercore.h>
 #include <debugger/debuggerprotocol.h>
 #include <debugger/debuggerstartparameters.h>
-#include <debugger/debuggerstringutils.h>
 
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
@@ -77,7 +76,7 @@ GdbCoreEngine::~GdbCoreEngine()
 void GdbCoreEngine::setupEngine()
 {
     QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
-    showMessage(_("TRYING TO START ADAPTER"));
+    showMessage("TRYING TO START ADAPTER");
 
     const DebuggerRunParameters &rp = runParameters();
     m_executable = rp.inferior.executable;
@@ -208,7 +207,7 @@ void GdbCoreEngine::setupInferior()
     setLinuxOsAbi();
     // Do that first, otherwise no symbols are loaded.
     QFileInfo fi(m_executable);
-    QByteArray path = fi.absoluteFilePath().toLocal8Bit();
+    QString path = fi.absoluteFilePath();
     runCommand({"-file-exec-and-symbols \"" + path + '"', NoFlags,
                 CB(handleFileExecAndSymbols)});
 }
@@ -222,10 +221,10 @@ void GdbCoreEngine::handleFileExecAndSymbols(const DebuggerResponse &response)
         handleInferiorPrepared();
     } else {
         QString msg = tr("No symbols found in core file <i>%1</i>.").arg(core)
-            + _(" ") + tr("This can be caused by a path length limitation "
-                          "in the core file.")
-            + _(" ") + tr("Try to specify the binary using the "
-                          "<i>Debug->Start Debugging->Attach to Core</i> dialog.");
+            + ' ' + tr("This can be caused by a path length limitation "
+                       "in the core file.")
+            + ' ' + tr("Try to specify the binary using the "
+                       "<i>Debug->Start Debugging->Attach to Core</i> dialog.");
         notifyInferiorSetupFailed(msg);
     }
 }
@@ -233,7 +232,7 @@ void GdbCoreEngine::handleFileExecAndSymbols(const DebuggerResponse &response)
 void GdbCoreEngine::runEngine()
 {
     CHECK_STATE(EngineRunRequested);
-    runCommand({"target core " + coreFileName().toLocal8Bit(), NoFlags,
+    runCommand({"target core " + coreFileName(), NoFlags,
                 CB(handleTargetCore)});
 }
 
@@ -247,8 +246,8 @@ void GdbCoreEngine::handleTargetCore(const DebuggerResponse &response)
         // Even without the stack, the user can find interesting stuff by exploring
         // the memory, globals etc.
         showStatusMessage(tr("Attach to core \"%1\" failed:").arg(runParameters().coreFile)
-                          + QLatin1Char('\n') + QString::fromLocal8Bit(response.data["msg"].data())
-                          + QLatin1Char('\n') + tr("Continuing nevertheless."));
+                          + '\n' + response.data["msg"].data()
+                          + '\n' + tr("Continuing nevertheless."));
     }
     // Due to the auto-solib-add off setting, we don't have any
     // symbols yet. Load them in order of importance.
@@ -288,7 +287,7 @@ static QString tempCoreFilename()
 void GdbCoreEngine::unpackCoreIfNeeded()
 {
     QStringList arguments;
-    const QString msg = _("Unpacking core file to %1");
+    const QString msg = "Unpacking core file to %1";
     if (m_coreName.endsWith(QLatin1String(".lzo"))) {
         m_tempCoreName = tempCoreFilename();
         showMessage(msg.arg(m_tempCoreName));

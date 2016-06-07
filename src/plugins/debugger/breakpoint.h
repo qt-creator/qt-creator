@@ -48,7 +48,6 @@ public:
     bool operator!() const { return !isValid(); }
     operator const void*() const { return isValid() ? this : 0; }
     quint32 toInternalId() const { return m_majorPart | (m_minorPart << 16); }
-    QByteArray toByteArray() const;
     QString toString() const;
     bool operator==(const BreakpointIdBase &id) const
         { return m_majorPart == id.m_majorPart && m_minorPart == id.m_minorPart; }
@@ -66,7 +65,7 @@ public:
     BreakpointModelId() { m_majorPart = m_minorPart = 0; }
     explicit BreakpointModelId(quint16 ma) { m_majorPart = ma; m_minorPart = 0; }
     BreakpointModelId(quint16 ma, quint16 mi) { m_majorPart = ma; m_minorPart = mi; }
-    explicit BreakpointModelId(const QByteArray &ba); // "21.2"
+    explicit BreakpointModelId(const QString &ba); // "21.2"
 };
 
 class BreakpointResponseId : public BreakpointIdBase
@@ -75,7 +74,7 @@ public:
     BreakpointResponseId() { m_majorPart = m_minorPart = 0; }
     explicit BreakpointResponseId(quint16 ma) { m_majorPart = ma; m_minorPart = 0; }
     BreakpointResponseId(quint16 ma, quint16 mi) { m_majorPart = ma; m_minorPart = mi; }
-    explicit BreakpointResponseId(const QByteArray &ba); // "21.2"
+    explicit BreakpointResponseId(const QString &ba); // "21.2"
 };
 
 
@@ -183,7 +182,7 @@ public:
     BreakpointParts differencesTo(const BreakpointParameters &rhs) const;
     bool isValid() const;
     bool equals(const BreakpointParameters &rhs) const;
-    bool conditionsMatch(const QByteArray &other) const;
+    bool conditionsMatch(const QString &other) const;
     bool isWatchpoint() const
         { return type == WatchpointAtAddress || type == WatchpointAtExpression; }
     // Enough for now.
@@ -191,7 +190,7 @@ public:
     bool isTracepoint() const { return tracepoint; }
     bool isCppBreakpoint() const;
     QString toString() const;
-    void updateLocation(const QByteArray &location); // file.cpp:42
+    void updateLocation(const QString &location); // file.cpp:42
 
     bool operator==(const BreakpointParameters &p) const { return equals(p); }
     bool operator!=(const BreakpointParameters &p) const { return !equals(p); }
@@ -200,7 +199,7 @@ public:
     bool enabled;            //!< Should we talk to the debugger engine?
     BreakpointPathUsage pathUsage;  //!< Should we use the full path when setting the bp?
     QString fileName;        //!< Short name of source file.
-    QByteArray condition;    //!< Condition associated with breakpoint.
+    QString condition;       //!< Condition associated with breakpoint.
     int ignoreCount;         //!< Ignore count associated with breakpoint.
     int lineNumber;          //!< Line in source file.
     quint64 address;         //!< Address for address based data breakpoints.

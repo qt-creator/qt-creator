@@ -64,7 +64,7 @@ public:
 
     QPoint mousePosition;
     QString expression;
-    QByteArray iname;
+    QString iname;
     bool isCppEditor;
 };
 

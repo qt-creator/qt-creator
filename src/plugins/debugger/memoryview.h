@@ -63,17 +63,17 @@ class RegisterMemoryView : public MemoryView
 {
     Q_OBJECT
 public:
-    explicit RegisterMemoryView(QWidget *binEditor, quint64 addr, const QByteArray &regName,
+    explicit RegisterMemoryView(QWidget *binEditor, quint64 addr, const QString &regName,
                                 RegisterHandler *rh, QWidget *parent = 0);
 
-    static QList<MemoryMarkup> registerMarkup(quint64 a, const QByteArray &regName);
-    static QString title(const QByteArray &registerName, quint64 a = 0);
+    static QList<MemoryMarkup> registerMarkup(quint64 a, const QString &regName);
+    static QString title(const QString &registerName, quint64 a = 0);
 
 private:
-    void onRegisterChanged(const QByteArray &name, quint64 value);
+    void onRegisterChanged(const QString &name, quint64 value);
     void setRegisterAddress(quint64 v);
 
-    QByteArray m_registerName;
+    QString m_registerName;
     quint64 m_registerAddress;
 };
 

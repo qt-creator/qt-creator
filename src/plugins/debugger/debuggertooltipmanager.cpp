@@ -207,7 +207,7 @@ public:
     QString expression;
     QColor valueColor;
     bool expandable;
-    QByteArray iname;
+    QString iname;
 };
 
 ToolTipWatchItem::ToolTipWatchItem(TreeItem *item)
@@ -217,7 +217,7 @@ ToolTipWatchItem::ToolTipWatchItem(TreeItem *item)
     name = model->data(idx.sibling(idx.row(), 0), Qt::DisplayRole).toString();
     value = model->data(idx.sibling(idx.row(), 1), Qt::DisplayRole).toString();
     type = model->data(idx.sibling(idx.row(), 2), Qt::DisplayRole).toString();
-    iname = model->data(idx.sibling(idx.row(), 0), LocalsINameRole).toByteArray();
+    iname = model->data(idx.sibling(idx.row(), 0), LocalsINameRole).toString();
     valueColor = model->data(idx.sibling(idx.row(), 1), Qt::ForegroundRole).value<QColor>();
     expandable = item->hasChildren();
     expression = model->data(idx.sibling(idx.row(), 0), Qt::EditRole).toString();
@@ -247,14 +247,14 @@ public:
 
     void expandNode(const QModelIndex &idx)
     {
-        m_expandedINames.insert(idx.data(LocalsINameRole).toByteArray());
+        m_expandedINames.insert(idx.data(LocalsINameRole).toString());
         if (canFetchMore(idx))
             fetchMore(idx);
     }
 
     void collapseNode(const QModelIndex &idx)
     {
-        m_expandedINames.remove(idx.data(LocalsINameRole).toByteArray());
+        m_expandedINames.remove(idx.data(LocalsINameRole).toString());
     }
 
     void fetchMore(const QModelIndex &idx)
@@ -264,7 +264,7 @@ public:
         auto item = dynamic_cast<ToolTipWatchItem *>(itemForIndex(idx));
         if (!item)
             return;
-        QByteArray iname = item->iname;
+        QString iname = item->iname;
         if (!m_engine)
             return;
 
@@ -276,7 +276,7 @@ public:
     void restoreTreeModel(QXmlStreamReader &r);
 
     QPointer<DebuggerEngine> m_engine;
-    QSet<QByteArray> m_expandedINames;
+    QSet<QString> m_expandedINames;
     bool m_enabled;
 };
 
@@ -472,7 +472,7 @@ public:
     {
         TreeItem *item = model.itemForIndex(idx);
         QTC_ASSERT(item, return);
-        QByteArray iname = item->data(0, LocalsINameRole).toByteArray();
+        QString iname = item->data(0, LocalsINameRole).toString();
         bool shouldExpand = model.m_expandedINames.contains(iname);
         if (shouldExpand) {
             if (!treeView->isExpanded(idx)) {
@@ -754,7 +754,7 @@ QDebug operator<<(QDebug d, const DebuggerToolTipContext &c)
 DebuggerToolTipHolder::DebuggerToolTipHolder(const DebuggerToolTipContext &context_)
 {
     widget = new DebuggerToolTipWidget;
-    widget->setObjectName(QLatin1String("DebuggerTreeViewToolTipWidget: ") + QLatin1String(context_.iname));
+    widget->setObjectName("DebuggerTreeViewToolTipWidget: " + context_.iname);
 
     context = context_;
     context.creationDate = QDate::currentDate();
@@ -919,7 +919,7 @@ void DebuggerToolTipHolder::saveSessionData(QXmlStreamWriter &w) const
         attributes.append(QLatin1String(offsetYAttributeC), QString::number(offset.y()));
     attributes.append(QLatin1String(engineTypeAttributeC), context.engineType);
     attributes.append(QLatin1String(treeExpressionAttributeC), context.expression);
-    attributes.append(QLatin1String(treeInameAttributeC), QLatin1String(context.iname));
+    attributes.append(QLatin1String(treeInameAttributeC), context.iname);
     w.writeAttributes(attributes);
 
     w.writeStartElement(QLatin1String(treeElementC));
@@ -1070,7 +1070,7 @@ void DebuggerToolTipManager::loadSessionData()
                     offset.setY(attributes.value(offsetYAttribute).toString().toInt());
                 context.mousePosition = offset;
 
-                context.iname = attributes.value(QLatin1String(treeInameAttributeC)).toString().toLatin1();
+                context.iname = attributes.value(QLatin1String(treeInameAttributeC)).toString();
                 context.expression = attributes.value(QLatin1String(treeExpressionAttributeC)).toString();
 
                 //    const QStringRef className = attributes.value(QLatin1String(toolTipClassAttributeC));
@@ -1172,7 +1172,7 @@ static void slotTooltipOverrideRequested
     // Prefer a filter on an existing local variable if it can be found.
     const WatchItem *localVariable = engine->watchHandler()->findCppLocalVariable(context.expression);
     if (localVariable) {
-        context.expression = QLatin1String(localVariable->exp);
+        context.expression = localVariable->exp;
         if (context.expression.isEmpty())
             context.expression = localVariable->name;
         context.iname = localVariable->iname;
@@ -1199,7 +1199,7 @@ static void slotTooltipOverrideRequested
 
     } else {
 
-        context.iname = "tooltip." + context.expression.toLatin1().toHex();
+        context.iname = "tooltip." + toHex(context.expression);
         auto reusable = [context] (DebuggerToolTipHolder *tooltip) {
             return tooltip->context.isSame(context);
         };

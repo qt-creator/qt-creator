@@ -117,7 +117,7 @@ RunControl *BareMetalRunControlFactory::create(
             foreach (const BareMetalGdbCommandsDeployStep *bs, bsl->allOfType<BareMetalGdbCommandsDeployStep>()) {
                 if (!sp.commandsAfterConnect.endsWith("\n"))
                     sp.commandsAfterConnect.append("\n");
-                sp.commandsAfterConnect.append(bs->gdbCommands().toLatin1());
+                sp.commandsAfterConnect.append(bs->gdbCommands());
             }
         }
     }
@@ -126,8 +126,8 @@ RunControl *BareMetalRunControlFactory::create(
     sp.inferior.commandLineArguments = rc->arguments();
     sp.symbolFile = bin;
     sp.startMode = AttachToRemoteServer;
-    sp.commandsAfterConnect = p->initCommands().toLatin1();
-    sp.commandsForReset = p->resetCommands().toLatin1();
+    sp.commandsAfterConnect = p->initCommands();
+    sp.commandsForReset = p->resetCommands();
     sp.remoteChannel = p->channel();
     sp.useContinueInsteadOfRun = true;
 

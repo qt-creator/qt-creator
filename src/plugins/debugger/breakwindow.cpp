@@ -460,7 +460,7 @@ void BreakpointDialog::getParts(unsigned partsMask, BreakpointParameters *data) 
         data->expression = m_lineEditExpression->text();
 
     if (partsMask & ConditionPart)
-        data->condition = m_lineEditCondition->text().toUtf8();
+        data->condition = m_lineEditCondition->text();
     if (partsMask & IgnoreCountPart)
         data->ignoreCount = m_spinBoxIgnoreCount->text().toInt();
     if (partsMask & ThreadSpecPart)
@@ -510,7 +510,7 @@ void BreakpointDialog::setParts(unsigned mask, const BreakpointParameters &data)
     }
 
     if (mask & ConditionPart)
-        m_lineEditCondition->setText(QString::fromUtf8(data.condition));
+        m_lineEditCondition->setText(data.condition);
     if (mask & IgnoreCountPart)
         m_spinBoxIgnoreCount->setValue(data.ignoreCount);
     if (mask & ThreadSpecPart)
@@ -916,7 +916,7 @@ void BreakTreeView::editBreakpoints(const Breakpoints &bps)
         return;
 
     MultiBreakPointsDialog dialog;
-    dialog.setCondition(QString::fromLatin1(bp.condition()));
+    dialog.setCondition(bp.condition());
     dialog.setIgnoreCount(bp.ignoreCount());
     dialog.setThreadSpec(bp.threadSpec());
 
@@ -929,7 +929,7 @@ void BreakTreeView::editBreakpoints(const Breakpoints &bps)
 
     foreach (Breakpoint bp, bps) {
         if (bp) {
-            bp.setCondition(newCondition.toLatin1());
+            bp.setCondition(newCondition);
             bp.setIgnoreCount(newIgnoreCount);
             bp.setThreadSpec(newThreadSpec);
         }

@@ -32,7 +32,6 @@ HEADERS += \
     debuggerrunconfigurationaspect.h \
     debuggerruncontrol.h \
     debuggerstartparameters.h \
-    debuggerstringutils.h \
     debuggerkitconfigwidget.h \
     debuggerkitinformation.h \
     disassembleragent.h \

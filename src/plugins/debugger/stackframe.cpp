@@ -93,9 +93,9 @@ StackFrame StackFrame::parseFrame(const GdbMi &frameMi, const DebuggerRunParamet
 {
     StackFrame frame;
     frame.level = frameMi["level"].data();
-    frame.function = frameMi["function"].toUtf8();
-    frame.module = frameMi["module"].toUtf8();
-    frame.file = QFile::decodeName(frameMi["file"].data());
+    frame.function = frameMi["function"].data();
+    frame.module = frameMi["module"].data();
+    frame.file = frameMi["file"].data();
     frame.line = frameMi["line"].toInt();
     frame.address = frameMi["address"].toAddress();
     frame.context = frameMi["context"].data();

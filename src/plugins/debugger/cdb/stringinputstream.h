@@ -30,27 +30,26 @@
 namespace Debugger {
 namespace Internal {
 
-class ByteArrayInputStream
+class StringInputStream
 {
-    Q_DISABLE_COPY(ByteArrayInputStream)
+    Q_DISABLE_COPY(StringInputStream)
 
 public:
-    typedef void (ModifierFunc)(ByteArrayInputStream &s);
+    typedef void (ModifierFunc)(StringInputStream &s);
 
-    explicit ByteArrayInputStream(QByteArray &ba);
+    explicit StringInputStream(QString &str);
 
-    ByteArrayInputStream &operator<<(char a)              { m_target.append(a); return *this; }
-    ByteArrayInputStream &operator<<(const QByteArray &a) { m_target.append(a); return *this; }
-    ByteArrayInputStream &operator<<(const char *a)       { m_target.append(a); return *this; }
-    ByteArrayInputStream &operator<<(const QString &a)    { m_target.append(a.toLatin1()); return *this; }
+    StringInputStream &operator<<(char a)              { m_target.append(a); return *this; }
+    StringInputStream &operator<<(const char *a)       { m_target.append(QString::fromUtf8(a)); return *this; }
+    StringInputStream &operator<<(const QString &a)    { m_target.append(a); return *this; }
 
-    ByteArrayInputStream &operator<<(int i) { appendInt(i); return *this; }
-    ByteArrayInputStream &operator<<(unsigned i) { appendInt(i); return *this; }
-    ByteArrayInputStream &operator<<(quint64 i) { appendInt(i); return *this; }
-    ByteArrayInputStream &operator<<(qint64 i) { appendInt(i); return *this; }
+    StringInputStream &operator<<(int i) { appendInt(i); return *this; }
+    StringInputStream &operator<<(unsigned i) { appendInt(i); return *this; }
+    StringInputStream &operator<<(quint64 i) { appendInt(i); return *this; }
+    StringInputStream &operator<<(qint64 i) { appendInt(i); return *this; }
 
     // Stream a modifier by invoking it
-    ByteArrayInputStream &operator<<(ModifierFunc mf) { mf(*this); return *this; }
+    StringInputStream &operator<<(ModifierFunc mf) { mf(*this); return *this; }
 
     void setHexPrefix(bool hp) { m_hexPrefix = hp; }
     bool hexPrefix() const     { return  m_hexPrefix; }
@@ -62,35 +61,35 @@ public:
 private:
     template <class IntType> void appendInt(IntType i);
 
-    QByteArray &m_target;
+    QString &m_target;
     int m_integerBase;
     bool m_hexPrefix;
     int m_width;
 };
 
 template <class IntType>
-void ByteArrayInputStream::appendInt(IntType i)
+void StringInputStream::appendInt(IntType i)
 {
     const bool hexPrefix = m_integerBase == 16 && m_hexPrefix;
     if (hexPrefix)
         m_target.append("0x");
-    const QByteArray n = QByteArray::number(i, m_integerBase);
+    const QString n = QString::number(i, m_integerBase);
     if (m_width > 0) {
         int pad = m_width - n.size();
         if (hexPrefix)
             pad -= 2;
         if (pad > 0)
-            m_target.append(QByteArray(pad, '0'));
+            m_target.append(QString('0', pad));
     }
     m_target.append(n);
 }
 
-// Streamable modifiers for ByteArrayInputStream
-void hexPrefixOn(ByteArrayInputStream &bs);
-void hexPrefixOff(ByteArrayInputStream &bs);
-void hex(ByteArrayInputStream &bs);
-void dec(ByteArrayInputStream &bs);
-void blankSeparator(ByteArrayInputStream &bs);
+// Streamable modifiers for StringInputStream
+void hexPrefixOn(StringInputStream &bs);
+void hexPrefixOff(StringInputStream &bs);
+void hex(StringInputStream &bs);
+void dec(StringInputStream &bs);
+void blankSeparator(StringInputStream &bs);
 
 // Bytearray parse helpers
 QByteArray trimFront(QByteArray in);

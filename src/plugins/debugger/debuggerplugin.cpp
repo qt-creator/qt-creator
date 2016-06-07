@@ -39,7 +39,6 @@
 #include "debuggermainwindow.h"
 #include "debuggerrunconfigurationaspect.h"
 #include "debuggerruncontrol.h"
-#include "debuggerstringutils.h"
 #include "debuggeroptionspage.h"
 #include "debuggerkitinformation.h"
 #include "memoryagent.h"
@@ -1082,7 +1081,7 @@ DebuggerEngine *DebuggerPluginPrivate::dummyEngine()
     if (!m_dummyEngine) {
         m_dummyEngine = new DummyEngine;
         m_dummyEngine->setParent(this);
-        m_dummyEngine->setObjectName(_("DummyEngine"));
+        m_dummyEngine->setObjectName("DummyEngine");
     }
     return m_dummyEngine;
 }
@@ -1134,7 +1133,7 @@ bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
     const QString &option = *it;
     // '-debug <pid>'
     // '-debug <exe>[,server=<server:port>][,core=<core>][,kit=<kit>][,terminal={0,1}]'
-    if (*it == _("-debug")) {
+    if (*it == "-debug") {
         ++it;
         if (it == cend) {
             *errorMessage = msgParameterMissing(*it);
@@ -1201,7 +1200,7 @@ bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
     // This is created by $QTC/src/tools/qtcdebugger/main.cpp:
     // args << QLatin1String("-wincrashevent")
     //   << QString::fromLatin1("%1:%2").arg(argWinCrashEvent).arg(argProcessId);
-    if (*it == _("-wincrashevent")) {
+    if (*it == "-wincrashevent") {
         ++it;
         if (it == cend) {
             *errorMessage = msgParameterMissing(*it);
@@ -1884,14 +1883,14 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
     return true;
 }
 
-void setConfigValue(const QByteArray &name, const QVariant &value)
+void setConfigValue(const QString &name, const QVariant &value)
 {
-    ICore::settings()->setValue(_("DebugMode/" + name), value);
+    ICore::settings()->setValue("DebugMode/" + name, value);
 }
 
-QVariant configValue(const QByteArray &name)
+QVariant configValue(const QString &name)
 {
-    return ICore::settings()->value(_("DebugMode/" + name));
+    return ICore::settings()->value("DebugMode/" + name);
 }
 
 void DebuggerPluginPrivate::onCurrentProjectChanged(Project *project)
@@ -1978,7 +1977,7 @@ void DebuggerPluginPrivate::attachCore()
 
 void DebuggerPluginPrivate::startRemoteCdbSession()
 {
-    const QByteArray connectionKey = "CdbRemoteConnection";
+    const QString connectionKey = "CdbRemoteConnection";
     DebuggerRunParameters rp;
     Kit *kit = findUniversalCdbKit();
     QTC_ASSERT(kit, return);

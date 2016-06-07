@@ -90,8 +90,8 @@ QSharedPointer<Internal::GlobalDebuggerOptions> globalDebuggerOptions();
 WatchTreeView *inspectorView();
 QVariant sessionValue(const QByteArray &name);
 void setSessionValue(const QByteArray &name, const QVariant &value);
-QVariant configValue(const QByteArray &name);
-void setConfigValue(const QByteArray &name, const QVariant &value);
+QVariant configValue(const QString &name);
+void setConfigValue(const QString &name, const QVariant &value);
 
 bool isTestRun();
 

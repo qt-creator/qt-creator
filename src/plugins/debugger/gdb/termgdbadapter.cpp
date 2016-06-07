@@ -28,7 +28,6 @@
 #include <debugger/debuggercore.h>
 #include <debugger/debuggerprotocol.h>
 #include <debugger/debuggerstartparameters.h>
-#include <debugger/debuggerstringutils.h>
 #include <debugger/shared/hostutils.h>
 
 #include <utils/hostosinfo.h>
@@ -70,7 +69,7 @@ GdbTermEngine::~GdbTermEngine()
 void GdbTermEngine::setupEngine()
 {
     QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
-    showMessage(_("TRYING TO START ADAPTER"));
+    showMessage("TRYING TO START ADAPTER");
 
 // Currently, adapters are not re-used
 //    // We leave the console open, so recycle it now.
@@ -119,8 +118,8 @@ void GdbTermEngine::setupInferior()
     const qint64 attachedMainThreadID = m_stubProc.applicationMainThreadID();
     notifyInferiorPid(attachedPID);
     const QString msg = (attachedMainThreadID != -1)
-            ? QString::fromLatin1("Going to attach to %1 (%2)").arg(attachedPID).arg(attachedMainThreadID)
-            : QString::fromLatin1("Going to attach to %1").arg(attachedPID);
+            ? QString("Going to attach to %1 (%2)").arg(attachedPID).arg(attachedMainThreadID)
+            : QString("Going to attach to %1").arg(attachedPID);
     showMessage(msg, LogMisc);
     handleInferiorPrepared();
 }
@@ -129,7 +128,7 @@ void GdbTermEngine::runEngine()
 {
     QTC_ASSERT(state() == EngineRunRequested, qDebug() << state());
     const qint64 attachedPID = m_stubProc.applicationPID();
-    runCommand({"attach " + QByteArray::number(attachedPID), NoFlags,
+    runCommand({"attach " + QString::number(attachedPID), NoFlags,
                 [this](const DebuggerResponse &r) { handleStubAttached(r); }});
 }
 
@@ -148,17 +147,17 @@ void GdbTermEngine::handleStubAttached(const DebuggerResponse &response)
             // Resume thread that was suspended by console stub process (see stub code).
             const qint64 mainThreadId = m_stubProc.applicationMainThreadID();
             if (winResumeThread(mainThreadId, &errorMessage)) {
-                showMessage(QString::fromLatin1("Inferior attached, thread %1 resumed").
+                showMessage(QString("Inferior attached, thread %1 resumed").
                             arg(mainThreadId), LogMisc);
             } else {
-                showMessage(QString::fromLatin1("Inferior attached, unable to resume thread %1: %2").
+                showMessage(QString("Inferior attached, unable to resume thread %1: %2").
                             arg(mainThreadId).arg(errorMessage),
                             LogWarning);
             }
             notifyEngineRunAndInferiorStopOk();
             continueInferiorInternal();
         } else {
-            showMessage(_("INFERIOR ATTACHED AND RUNNING"));
+            showMessage("INFERIOR ATTACHED AND RUNNING");
             //notifyEngineRunAndInferiorRunOk();
             // Wait for the upcoming *stopped and handle it there.
         }
@@ -169,11 +168,11 @@ void GdbTermEngine::handleStubAttached(const DebuggerResponse &response)
             notifyEngineRunFailed();
             break;
         }
-        showMessage(QString::fromLocal8Bit(response.data["msg"].data()));
+        showMessage(response.data["msg"].data());
         notifyEngineIll();
         break;
     default:
-        showMessage(QString::fromLatin1("Invalid response %1").arg(response.resultClass));
+        showMessage(QString("Invalid response %1").arg(response.resultClass));
         notifyEngineIll();
         break;
     }
@@ -192,10 +191,10 @@ void GdbTermEngine::stubError(const QString &msg)
 void GdbTermEngine::stubExited()
 {
     if (state() == EngineShutdownRequested || state() == DebuggerFinished) {
-        showMessage(_("STUB EXITED EXPECTEDLY"));
+        showMessage("STUB EXITED EXPECTEDLY");
         return;
     }
-    showMessage(_("STUB EXITED"));
+    showMessage("STUB EXITED");
     notifyEngineIll();
 }
 

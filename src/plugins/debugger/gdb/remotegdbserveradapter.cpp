@@ -29,7 +29,6 @@
 #include <debugger/debuggercore.h>
 #include <debugger/debuggerprotocol.h>
 #include <debugger/debuggerstartparameters.h>
-#include <debugger/debuggerstringutils.h>
 #include <debugger/procinterrupt.h>
 
 #include <coreplugin/messagebox.h>
@@ -72,7 +71,7 @@ GdbRemoteServerEngine::GdbRemoteServerEngine(const DebuggerRunParameters &runPar
 void GdbRemoteServerEngine::setupEngine()
 {
     QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
-    showMessage(_("TRYING TO START ADAPTER"));
+    showMessage("TRYING TO START ADAPTER");
     QString serverStartScript = runParameters().serverStartScript;
     if (!serverStartScript.isEmpty()) {
 
@@ -179,10 +178,10 @@ void GdbRemoteServerEngine::setupInferior()
 //        postCommand("set architecture " + remoteArch);
     const QString solibSearchPath = rp.solibSearchPath.join(HostOsInfo::pathListSeparator());
     if (!solibSearchPath.isEmpty())
-        runCommand({"set solib-search-path " + solibSearchPath.toLocal8Bit(), NoFlags});
+        runCommand({"set solib-search-path " + solibSearchPath, NoFlags});
 
     if (!args.isEmpty())
-        runCommand({"-exec-arguments " + args.toLocal8Bit(), NoFlags});
+        runCommand({"-exec-arguments " + args, NoFlags});
 
     setEnvironmentVariables();
 
@@ -215,7 +214,7 @@ void GdbRemoteServerEngine::setupInferior()
     }
 
     if (!symbolFile.isEmpty()) {
-        runCommand({"-file-exec-and-symbols \"" + symbolFile.toLocal8Bit() + '"',
+        runCommand({"-file-exec-and-symbols \"" + symbolFile + '"',
                     NoFlags, CB(handleFileExecAndSymbols)});
     }
 }
@@ -233,12 +232,10 @@ void GdbRemoteServerEngine::handleFileExecAndSymbols(const DebuggerResponse &res
     if (response.resultClass == ResultDone) {
         callTargetRemote();
     } else {
-        QByteArray reason = response.data["msg"].data();
-        QString msg = tr("Reading debug information failed:");
-        msg += QLatin1Char('\n');
-        msg += QString::fromLocal8Bit(reason);
+        QString reason = response.data["msg"].data();
+        QString msg = tr("Reading debug information failed:") + '\n' + reason;
         if (reason.endsWith("No such file or directory.")) {
-            showMessage(_("INFERIOR STARTUP: BINARY NOT FOUND"));
+            showMessage("INFERIOR STARTUP: BINARY NOT FOUND");
             showMessage(msg, StatusBar);
             callTargetRemote(); // Proceed nevertheless.
         } else {
@@ -249,8 +246,7 @@ void GdbRemoteServerEngine::handleFileExecAndSymbols(const DebuggerResponse &res
 
 void GdbRemoteServerEngine::callTargetRemote()
 {
-    QByteArray rawChannel = runParameters().remoteChannel.toLatin1();
-    QByteArray channel = rawChannel;
+    QString channel = runParameters().remoteChannel;
 
     // Don't touch channels with explicitly set protocols.
     if (!channel.startsWith("tcp:") && !channel.startsWith("udp:")
@@ -278,19 +274,17 @@ void GdbRemoteServerEngine::handleTargetRemote(const DebuggerResponse &response)
     QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
     if (response.resultClass == ResultDone) {
         // gdb server will stop the remote application itself.
-        showMessage(_("INFERIOR STARTED"));
+        showMessage("INFERIOR STARTED");
         showMessage(msgAttachedToStoppedInferior(), StatusBar);
         QString postAttachCommands = stringSetting(GdbPostAttachCommands);
         if (!postAttachCommands.isEmpty()) {
             foreach (const QString &cmd, postAttachCommands.split(QLatin1Char('\n')))
-                runCommand({cmd.toLatin1(), NoFlags});
+                runCommand({cmd, NoFlags});
         }
         handleInferiorPrepared();
     } else {
         // 16^error,msg="hd:5555: Connection timed out."
-        QString msg = msgConnectRemoteServerFailed(
-            QString::fromLocal8Bit(response.data["msg"].data()));
-        notifyInferiorSetupFailed(msg);
+        notifyInferiorSetupFailed(msgConnectRemoteServerFailed(response.data["msg"].data()));
     }
 }
 
@@ -298,25 +292,23 @@ void GdbRemoteServerEngine::handleTargetExtendedRemote(const DebuggerResponse &r
 {
     QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
     if (response.resultClass == ResultDone) {
-        showMessage(_("ATTACHED TO GDB SERVER STARTED"));
+        showMessage("ATTACHED TO GDB SERVER STARTED");
         showMessage(msgAttachedToStoppedInferior(), StatusBar);
         QString postAttachCommands = stringSetting(GdbPostAttachCommands);
         if (!postAttachCommands.isEmpty()) {
             foreach (const QString &cmd, postAttachCommands.split(QLatin1Char('\n')))
-                runCommand({cmd.toLatin1(), NoFlags});
+                runCommand({cmd, NoFlags});
         }
         if (runParameters().attachPID > 0) { // attach to pid if valid
             // gdb server will stop the remote application itself.
-            runCommand({"attach " + QByteArray::number(runParameters().attachPID),
+            runCommand({"attach " + QString::number(runParameters().attachPID),
                         NoFlags, CB(handleTargetExtendedAttach)});
         } else {
-            runCommand({"-gdb-set remote exec-file " + runParameters().inferior.executable.toLatin1(),
+            runCommand({"-gdb-set remote exec-file " + runParameters().inferior.executable,
                         NoFlags, CB(handleTargetExtendedAttach)});
         }
     } else {
-        QString msg = msgConnectRemoteServerFailed(
-            QString::fromLocal8Bit(response.data["msg"].data()));
-        notifyInferiorSetupFailed(msg);
+        notifyInferiorSetupFailed(msgConnectRemoteServerFailed(response.data["msg"].data()));
     }
 }
 
@@ -327,9 +319,7 @@ void GdbRemoteServerEngine::handleTargetExtendedAttach(const DebuggerResponse &r
         // gdb server will stop the remote application itself.
         handleInferiorPrepared();
     } else {
-        QString msg = msgConnectRemoteServerFailed(
-            QString::fromLocal8Bit(response.data["msg"].data()));
-        notifyInferiorSetupFailed(msg);
+        notifyInferiorSetupFailed(msgConnectRemoteServerFailed(response.data["msg"].data()));
     }
 }
 
@@ -339,23 +329,21 @@ void GdbRemoteServerEngine::handleTargetQnx(const DebuggerResponse &response)
     QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
     if (response.resultClass == ResultDone) {
         // gdb server will stop the remote application itself.
-        showMessage(_("INFERIOR STARTED"));
+        showMessage("INFERIOR STARTED");
         showMessage(msgAttachedToStoppedInferior(), StatusBar);
 
         const DebuggerRunParameters &rp = isMasterEngine() ? runParameters() : masterEngine()->runParameters();
         const qint64 pid = rp.attachPID;
         const QString remoteExecutable = rp.inferior.executable;
         if (pid > -1)
-            runCommand({"attach " + QByteArray::number(pid), NoFlags, CB(handleAttach)});
+            runCommand({"attach " + QString::number(pid), NoFlags, CB(handleAttach)});
         else if (!remoteExecutable.isEmpty())
-            runCommand({"set nto-executable " + remoteExecutable.toLatin1(), NoFlags, CB(handleSetNtoExecutable)});
+            runCommand({"set nto-executable " + remoteExecutable, NoFlags, CB(handleSetNtoExecutable)});
         else
             handleInferiorPrepared();
     } else {
         // 16^error,msg="hd:5555: Connection timed out."
-        QString msg = msgConnectRemoteServerFailed(
-            QString::fromLocal8Bit(response.data["msg"].data()));
-        notifyInferiorSetupFailed(msg);
+        notifyInferiorSetupFailed(response.data["msg"].data());
     }
 }
 
@@ -365,7 +353,7 @@ void GdbRemoteServerEngine::handleAttach(const DebuggerResponse &response)
     switch (response.resultClass) {
     case ResultDone:
     case ResultRunning: {
-        showMessage(_("INFERIOR ATTACHED"));
+        showMessage("INFERIOR ATTACHED");
         showMessage(msgAttachedToStoppedInferior(), StatusBar);
         handleInferiorPrepared();
         break;
@@ -377,8 +365,7 @@ void GdbRemoteServerEngine::handleAttach(const DebuggerResponse &response)
         }
         // if msg != "ptrace: ..." fall through
     default:
-        QString msg = QString::fromLocal8Bit(response.data["msg"].data());
-        notifyInferiorSetupFailed(msg);
+        notifyInferiorSetupFailed(response.data["msg"].data());
     }
 }
 
@@ -388,15 +375,14 @@ void GdbRemoteServerEngine::handleSetNtoExecutable(const DebuggerResponse &respo
     switch (response.resultClass) {
     case ResultDone:
     case ResultRunning: {
-        showMessage(_("EXECUTABLE SET"));
+        showMessage("EXECUTABLE SET");
         showMessage(msgAttachedToStoppedInferior(), StatusBar);
         handleInferiorPrepared();
         break;
     }
     case ResultError:
     default:
-        QString msg = QString::fromLocal8Bit(response.data["msg"].data());
-        notifyInferiorSetupFailed(msg);
+        notifyInferiorSetupFailed(response.data["msg"].data());
     }
 }
 
@@ -417,11 +403,10 @@ void GdbRemoteServerEngine::handleExecRun(const DebuggerResponse &response)
     QTC_ASSERT(state() == EngineRunRequested, qDebug() << state());
     if (response.resultClass == ResultRunning) {
         notifyEngineRunAndInferiorRunOk();
-        showMessage(_("INFERIOR STARTED"));
+        showMessage("INFERIOR STARTED");
         showMessage(msgInferiorSetupOk(), StatusBar);
     } else {
-        QString msg = QString::fromLocal8Bit(response.data["msg"].data());
-        showMessage(msg);
+        showMessage(response.data["msg"].data());
         notifyEngineRunFailed();
     }
 }
@@ -438,7 +423,7 @@ void GdbRemoteServerEngine::interruptInferior2()
         bool ok = interruptProcess(pid, GdbEngineType, &m_errorString);
         if (!ok) {
             // FIXME: Extra state needed?
-            showMessage(_("NOTE: INFERIOR STOP NOT POSSIBLE"));
+            showMessage("NOTE: INFERIOR STOP NOT POSSIBLE");
             showStatusMessage(tr("Interrupting not possible"));
             notifyInferiorRunOk();
         }
@@ -469,7 +454,7 @@ void GdbRemoteServerEngine::notifyEngineRemoteServerRunning
     runParameters().attachPID = inferiorPid;
     runParameters().remoteChannel = QString::fromLatin1(serverChannel);
     runParameters().multiProcess = true;
-    showMessage(_("NOTE: REMOTE SERVER RUNNING IN MULTIMODE"));
+    showMessage("NOTE: REMOTE SERVER RUNNING IN MULTIMODE");
     m_startAttempted = true;
     startGdb();
 }

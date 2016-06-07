@@ -55,31 +55,31 @@ uchar fromhex(uchar c)
     return UCHAR_MAX;
 }
 
-void skipCommas(const char *&from, const char *to)
+void skipCommas(const QChar *&from, const QChar *to)
 {
     while (*from == ',' && from != to)
         ++from;
 }
 
-void GdbMi::parseResultOrValue(const char *&from, const char *to)
+void GdbMi::parseResultOrValue(const QChar *&from, const QChar *to)
 {
-    while (from != to && isspace(*from))
+    while (from != to && isspace(from->unicode()))
         ++from;
 
-    //qDebug() << "parseResultOrValue: " << QByteArray(from, to - from);
+    //qDebug() << "parseResultOrValue: " << QString(from, to - from);
     parseValue(from, to);
     if (isValid()) {
-        //qDebug() << "no valid result in " << QByteArray(from, to - from);
+        //qDebug() << "no valid result in " << QString(from, to - from);
         return;
     }
     if (from == to || *from == '(')
         return;
-    const char *ptr = from;
+    const QChar *ptr = from;
     while (ptr < to && *ptr != '=' && *ptr != ':') {
         //qDebug() << "adding" << QChar(*ptr) << "to name";
         ++ptr;
     }
-    m_name = QByteArray(from, ptr - from);
+    m_name = QString(from, ptr - from);
     from = ptr;
     if (from < to && *from == '=') {
         ++from;
@@ -87,21 +87,21 @@ void GdbMi::parseResultOrValue(const char *&from, const char *to)
     }
 }
 
-QByteArray GdbMi::parseCString(const char *&from, const char *to)
+QString GdbMi::parseCString(const QChar *&from, const QChar *to)
 {
-    QByteArray result;
-    //qDebug() << "parseCString: " << QByteArray(from, to - from);
+    QString result;
+    //qDebug() << "parseCString: " << QString(from, to - from);
     if (*from != '"') {
         qDebug() << "MI Parse Error, double quote expected";
         ++from; // So we don't hang
-        return QByteArray();
+        return QString();
     }
-    const char *ptr = from;
+    const QChar *ptr = from;
     ++ptr;
     while (ptr < to) {
         if (*ptr == '"') {
             ++ptr;
-            result = QByteArray(from + 1, ptr - from - 2);
+            result = QString(from + 1, ptr - from - 2);
             break;
         }
         if (*ptr == '\\') {
@@ -109,7 +109,7 @@ QByteArray GdbMi::parseCString(const char *&from, const char *to)
             if (ptr == to) {
                 qDebug() << "MI Parse Error, unterminated backslash escape";
                 from = ptr; // So we don't hang
-                return QByteArray();
+                return QString();
             }
         }
         ++ptr;
@@ -118,11 +118,11 @@ QByteArray GdbMi::parseCString(const char *&from, const char *to)
 
     int idx = result.indexOf('\\');
     if (idx >= 0) {
-        char *dst = result.data() + idx;
-        const char *src = dst + 1, *end = result.data() + result.length();
+        QChar *dst = result.data() + idx;
+        const QChar *src = dst + 1, *end = result.data() + result.length();
         do {
-            char c = *src++;
-            switch (c) {
+            QChar c = *src++;
+            switch (c.unicode()) {
                 case 'a': *dst++ = '\a'; break;
                 case 'b': *dst++ = '\b'; break;
                 case 'f': *dst++ = '\f'; break;
@@ -137,7 +137,7 @@ QByteArray GdbMi::parseCString(const char *&from, const char *to)
                         int chars = 0;
                         uchar prod = 0;
                         while (true) {
-                            uchar val = fromhex(c);
+                            uchar val = fromhex(c.unicode());
                             if (val == UCHAR_MAX)
                                 break;
                             prod = prod * 16 + val;
@@ -147,7 +147,7 @@ QByteArray GdbMi::parseCString(const char *&from, const char *to)
                         }
                         if (!chars) {
                             qDebug() << "MI Parse Error, unrecognized hex escape";
-                            return QByteArray();
+                            return QString();
                         }
                         *dst++ = prod;
                         break;
@@ -161,20 +161,20 @@ QByteArray GdbMi::parseCString(const char *&from, const char *to)
                                 --src;
                                 break;
                             }
-                            prod = prod * 8 + c - '0';
+                            prod = prod * 8 + c.unicode() - '0';
                             if (++chars == 3 || src == end)
                                 break;
                             c = *src++;
                         }
                         if (!chars) {
                             qDebug() << "MI Parse Error, unrecognized backslash escape";
-                            return QByteArray();
+                            return QString();
                         }
                         *dst++ = prod;
                     }
             }
             while (src != end) {
-                char c = *src++;
+                QChar c = *src++;
                 if (c == '\\')
                     break;
                 *dst++ = c;
@@ -187,10 +187,10 @@ QByteArray GdbMi::parseCString(const char *&from, const char *to)
     return result;
 }
 
-void GdbMi::parseValue(const char *&from, const char *to)
+void GdbMi::parseValue(const QChar *&from, const QChar *to)
 {
-    //qDebug() << "parseValue: " << QByteArray(from, to - from);
-    switch (*from) {
+    //qDebug() << "parseValue: " << QString(from, to - from);
+    switch (from->unicode()) {
         case '{':
             parseTuple(from, to);
             break;
@@ -206,19 +206,18 @@ void GdbMi::parseValue(const char *&from, const char *to)
     }
 }
 
-
-void GdbMi::parseTuple(const char *&from, const char *to)
+void GdbMi::parseTuple(const QChar *&from, const QChar *to)
 {
-    //qDebug() << "parseTuple: " << QByteArray(from, to - from);
+    //qDebug() << "parseTuple: " << QString(from, to - from);
     //QTC_CHECK(*from == '{');
     ++from;
     parseTuple_helper(from, to);
 }
 
-void GdbMi::parseTuple_helper(const char *&from, const char *to)
+void GdbMi::parseTuple_helper(const QChar *&from, const QChar *to)
 {
     skipCommas(from, to);
-    //qDebug() << "parseTuple_helper: " << QByteArray(from, to - from);
+    //qDebug() << "parseTuple_helper: " << QString(from, to - from);
     m_type = Tuple;
     while (from < to) {
         if (*from == '}') {
@@ -235,9 +234,9 @@ void GdbMi::parseTuple_helper(const char *&from, const char *to)
     }
 }
 
-void GdbMi::parseList(const char *&from, const char *to)
+void GdbMi::parseList(const QChar *&from, const QChar *to)
 {
-    //qDebug() << "parseList: " << QByteArray(from, to - from);
+    //qDebug() << "parseList: " << QString(from, to - from);
     //QTC_CHECK(*from == '[');
     ++from;
     m_type = List;
@@ -255,12 +254,12 @@ void GdbMi::parseList(const char *&from, const char *to)
     }
 }
 
-static QByteArray ind(int indent)
+static QString ind(int indent)
 {
-    return QByteArray(2 * indent, ' ');
+    return QString(2 * indent, QChar(' '));
 }
 
-void GdbMi::dumpChildren(QByteArray * str, bool multiline, int indent) const
+void GdbMi::dumpChildren(QString * str, bool multiline, int indent) const
 {
     for (int i = 0; i < m_children.size(); ++i) {
         if (i != 0) {
@@ -274,12 +273,12 @@ void GdbMi::dumpChildren(QByteArray * str, bool multiline, int indent) const
     }
 }
 
-QByteArray GdbMi::escapeCString(const QByteArray &ba)
+QString GdbMi::escapeCString(const QString &ba)
 {
-    QByteArray ret;
+    QString ret;
     ret.reserve(ba.length() * 2);
     for (int i = 0; i < ba.length(); ++i) {
-        const uchar c = ba.at(i);
+        const ushort c = ba.at(i).unicode();
         switch (c) {
             case '\\': ret += "\\\\"; break;
             case '\a': ret += "\\a"; break;
@@ -304,9 +303,9 @@ QByteArray GdbMi::escapeCString(const QByteArray &ba)
     return ret;
 }
 
-QByteArray GdbMi::toString(bool multiline, int indent) const
+QString GdbMi::toString(bool multiline, int indent) const
 {
-    QByteArray result;
+    QString result;
     switch (m_type) {
         case Invalid:
             if (multiline)
@@ -349,17 +348,17 @@ QByteArray GdbMi::toString(bool multiline, int indent) const
     return result;
 }
 
-void GdbMi::fromString(const QByteArray &ba)
+void GdbMi::fromString(const QString &ba)
 {
-    const char *from = ba.constBegin();
-    const char *to = ba.constEnd();
+    const QChar *from = ba.constBegin();
+    const QChar *to = ba.constEnd();
     parseResultOrValue(from, to);
 }
 
-void GdbMi::fromStringMultiple(const QByteArray &ba)
+void GdbMi::fromStringMultiple(const QString &ba)
 {
-    const char *from = ba.constBegin();
-    const char *to = ba.constEnd();
+    const QChar *from = ba.constBegin();
+    const QChar *to = ba.constEnd();
     parseTuple_helper(from, to);
 }
 
@@ -367,14 +366,14 @@ const GdbMi &GdbMi::operator[](const char *name) const
 {
     static GdbMi empty;
     for (int i = 0, n = int(m_children.size()); i < n; ++i)
-        if (m_children.at(i).m_name == name)
+        if (m_children.at(i).m_name == QLatin1String(name))
             return m_children.at(i);
     return empty;
 }
 
 qulonglong GdbMi::toAddress() const
 {
-    QByteArray ba = m_data;
+    QString ba = m_data;
     if (ba.endsWith('L'))
         ba.chop(1);
     if (ba.startsWith('*') || ba.startsWith('@'))
@@ -388,23 +387,23 @@ qulonglong GdbMi::toAddress() const
 //
 //////////////////////////////////////////////////////////////////////////////////
 
-QByteArray DebuggerResponse::stringFromResultClass(ResultClass resultClass)
+QString DebuggerResponse::stringFromResultClass(ResultClass resultClass)
 {
     switch (resultClass) {
-        case ResultDone: return "done";
-        case ResultRunning: return "running";
-        case ResultConnected: return "connected";
-        case ResultError: return "error";
-        case ResultExit: return "exit";
-        default: return "unknown";
+        case ResultDone: return QLatin1String("done");
+        case ResultRunning: return QLatin1String("running");
+        case ResultConnected: return QLatin1String("connected");
+        case ResultError: return QLatin1String("error");
+        case ResultExit: return QLatin1String("exit");
+        default: return QLatin1String("unknown");
     }
 }
 
-QByteArray DebuggerResponse::toString() const
+QString DebuggerResponse::toString() const
 {
-    QByteArray result;
+    QString result;
     if (token != -1)
-        result = QByteArray::number(token);
+        result = QString::number(token);
     result += '^';
     result += stringFromResultClass(resultClass);
     if (data.isValid())
@@ -482,12 +481,12 @@ void extractGdbVersion(const QString &msg,
 //
 //////////////////////////////////////////////////////////////////////////////////
 
-static QString quoteUnprintableLatin1(const QByteArray &ba)
+static QString quoteUnprintableLatin1(const QString &ba)
 {
     QString res;
     char buf[10];
     for (int i = 0, n = ba.size(); i != n; ++i) {
-        const unsigned char c = ba.at(i);
+        const unsigned char c = ba.at(i).unicode();
         if (isprint(c)) {
             res += QLatin1Char(c);
         } else {
@@ -555,7 +554,7 @@ static void getDateTime(qint64 msecs, int status, QDate *date, QTime *time)
     *time = (status & NullTime) ? QTime() : QTime::fromMSecsSinceStartOfDay(ds);
 }
 
-QString decodeData(const QByteArray &ba, const QByteArray &encoding)
+QString decodeData(const QString &ba, const QString &encoding)
 {
     if (encoding.isEmpty())
         return quoteUnprintableLatin1(ba); // The common case.
@@ -593,28 +592,28 @@ QString decodeData(const QByteArray &ba, const QByteArray &encoding)
             break;
         }
         case DebuggerEncoding::HexEncodedLocal8Bit: {
-            const QByteArray decodedBa = QByteArray::fromHex(ba);
+            const QByteArray decodedBa = QByteArray::fromHex(ba.toUtf8());
             result = QString::fromLocal8Bit(decodedBa.data(), decodedBa.size());
             break;
         }
         case DebuggerEncoding::HexEncodedLatin1: {
-            const QByteArray decodedBa = QByteArray::fromHex(ba);
+            const QByteArray decodedBa = QByteArray::fromHex(ba.toUtf8());
             result = QString::fromLatin1(decodedBa.data(), decodedBa.size());
             break;
         }
         case DebuggerEncoding::HexEncodedUtf8: {
-            const QByteArray decodedBa = QByteArray::fromHex(ba);
+            const QByteArray decodedBa = QByteArray::fromHex(ba.toUtf8());
             result = QString::fromUtf8(decodedBa.data(), decodedBa.size());
             break;
         }
         case DebuggerEncoding::HexEncodedUtf16: {
-            const QByteArray decodedBa = QByteArray::fromHex(ba);
+            const QByteArray decodedBa = QByteArray::fromHex(ba.toUtf8());
             result = QString::fromUtf16(reinterpret_cast<const ushort *>
                 (decodedBa.data()), decodedBa.size() / 2);
             break;
         }
         case DebuggerEncoding::HexEncodedUcs4: {
-            const QByteArray decodedBa = QByteArray::fromHex(ba);
+            const QByteArray decodedBa = QByteArray::fromHex(ba.toUtf8());
             result = QString::fromUcs4(reinterpret_cast<const uint *>
                 (decodedBa.data()), decodedBa.size() / 4);
             break;
@@ -639,7 +638,7 @@ QString decodeData(const QByteArray &ba, const QByteArray &encoding)
             qDebug("not implemented"); // Only used in Arrays, see watchdata.cpp
             return QString();
         case DebuggerEncoding::HexEncodedFloat: {
-            const QByteArray s = QByteArray::fromHex(ba);
+            const QByteArray s = QByteArray::fromHex(ba.toUtf8());
             if (enc.size == 4) {
                 union { char c[4]; float f; } u = { { s[3], s[2], s[1], s[0] } };
                 return QString::number(u.f);
@@ -651,11 +650,11 @@ QString decodeData(const QByteArray &ba, const QByteArray &encoding)
         }
         case DebuggerEncoding::IPv6AddressAndHexScopeId: { // 16 hex-encoded bytes, "%" and the string-encoded scope
             const int p = ba.indexOf('%');
-            QHostAddress ip6(QString::fromLatin1(p == -1 ? ba : ba.left(p)));
+            QHostAddress ip6(p == -1 ? ba : ba.left(p));
             if (ip6.isNull())
                 break;
 
-            const QByteArray scopeId = p == -1 ? QByteArray() : QByteArray::fromHex(ba.mid(p + 1));
+            const QByteArray scopeId = p == -1 ? QByteArray() : QByteArray::fromHex(ba.mid(p + 1).toUtf8());
             if (!scopeId.isEmpty())
                 ip6.setScopeId(QString::fromUtf16(reinterpret_cast<const ushort *>(scopeId.constData()),
                                                   scopeId.length() / 2));
@@ -673,7 +672,7 @@ QString decodeData(const QByteArray &ba, const QByteArray &encoding)
             ++p1;
             qulonglong offset = ba.mid(p1, p2 - p1).toInt();
             ++p2;
-            QByteArray timeZoneId = QByteArray::fromHex(ba.mid(p2, p3 - p2));
+            QByteArray timeZoneId = QByteArray::fromHex(ba.mid(p2, p3 - p2).toUtf8());
             ++p3;
             int status = ba.mid(p3).toInt();
 
@@ -740,11 +739,6 @@ void DebuggerCommand::arg(const char *name, const QString &value)
     args = addToJsonObject(args, name, value);
 }
 
-void DebuggerCommand::arg(const char *name, const QByteArray &value)
-{
-    args = addToJsonObject(args, name, QLatin1String(value));
-}
-
 void DebuggerCommand::arg(const char *name, const char *value)
 {
     args = addToJsonObject(args, name, QLatin1String(value));
@@ -806,25 +800,25 @@ static QJsonValue translateJsonToPython(const QJsonValue &value)
     }
 }
 
-QByteArray DebuggerCommand::argsToPython() const
+QString DebuggerCommand::argsToPython() const
 {
     QJsonValue pythonCompatible(translateJsonToPython(args));
     if (pythonCompatible.isArray())
-        return QJsonDocument(pythonCompatible.toArray()).toJson(QJsonDocument::Compact);
+        return QString::fromUtf8(QJsonDocument(pythonCompatible.toArray()).toJson(QJsonDocument::Compact));
     else
-        return QJsonDocument(pythonCompatible.toObject()).toJson(QJsonDocument::Compact);
+        return QString::fromUtf8(QJsonDocument(pythonCompatible.toObject()).toJson(QJsonDocument::Compact));
 }
 
-QByteArray DebuggerCommand::argsToString() const
+QString DebuggerCommand::argsToString() const
 {
-    return args.toString().toLatin1();
+    return args.toString();
 }
 
-DebuggerEncoding::DebuggerEncoding(const QByteArray &data)
+DebuggerEncoding::DebuggerEncoding(const QString &data)
 {
-    const QByteArrayList l = data.split(':');
+    const QStringList l = data.split(':');
 
-    const QByteArray &t = l.at(0);
+    const QString &t = l.at(0);
     if (t == "latin1") {
         type = HexEncodedLatin1;
         size = 1;
@@ -874,7 +868,17 @@ DebuggerEncoding::DebuggerEncoding(const QByteArray &data)
 
 QString DebuggerEncoding::toString() const
 {
-    return QString::fromLatin1("%1:%2:%3").arg(type).arg(size).arg(quotes);
+    return QString("%1:%2:%3").arg(type).arg(size).arg(quotes);
+}
+
+QString fromHex(const QString &str)
+{
+    return QString::fromLatin1(QByteArray::fromHex(str.toUtf8()));
+}
+
+QString toHex(const QString &str)
+{
+    return QString::fromUtf8(str.toUtf8().toHex());
 }
 
 } // namespace Internal

@@ -46,10 +46,10 @@ public:
     typedef std::function<void(const DebuggerResponse &)> Callback;
 
     DebuggerCommand() {}
-    DebuggerCommand(const QByteArray &f) : function(f), flags(0) {}
-    DebuggerCommand(const QByteArray &f, const QJsonValue &a) : function(f), args(a), flags(0) {}
-    DebuggerCommand(const QByteArray &f, int fl) : function(f), flags(fl) {}
-    DebuggerCommand(const QByteArray &f, int fl, const Callback &cb) : function(f), callback(cb), flags(fl) {}
+    DebuggerCommand(const QString &f) : function(f), flags(0) {}
+    DebuggerCommand(const QString &f, const QJsonValue &a) : function(f), args(a), flags(0) {}
+    DebuggerCommand(const QString &f, int fl) : function(f), flags(fl) {}
+    DebuggerCommand(const QString &f, int fl, const Callback &cb) : function(f), callback(cb), flags(fl) {}
 
     void arg(const char *value);
     void arg(const char *name, bool value);
@@ -57,15 +57,14 @@ public:
     void arg(const char *name, qlonglong value);
     void arg(const char *name, qulonglong value);
     void arg(const char *name, const QString &value);
-    void arg(const char *name, const QByteArray &value);
     void arg(const char *name, const char *value);
     void arg(const char *name, const QList<int> &list);
     void arg(const char *name, const QJsonValue &value);
 
-    QByteArray argsToPython() const;
-    QByteArray argsToString() const;
+    QString argsToPython() const;
+    QString argsToString() const;
 
-    QByteArray function;
+    QString function;
     QJsonValue args;
     Callback callback;
     uint postTime; // msecsSinceStartOfDay
@@ -81,8 +80,8 @@ class GdbMi
 public:
     GdbMi() : m_type(Invalid) {}
 
-    QByteArray m_name;
-    QByteArray m_data;
+    QString m_name;
+    QString m_data;
     QVector<GdbMi> m_children;
 
     enum Type { Invalid, Const, Tuple, List };
@@ -90,38 +89,40 @@ public:
     Type m_type;
 
     Type type() const { return m_type; }
-    const QByteArray &name() const { return m_name; }
-    bool hasName(const char *name) const { return m_name == name; }
+    const QString &name() const { return m_name; }
+    bool hasName(const QString &name) const { return m_name == name; }
 
     bool isValid() const { return m_type != Invalid; }
     bool isList() const { return m_type == List; }
 
-    const QByteArray &data() const { return m_data; }
+    const QString &data() const { return m_data; }
     const QVector<GdbMi> &children() const { return m_children; }
     int childCount() const { return int(m_children.size()); }
 
     const GdbMi &childAt(int index) const { return m_children[index]; }
     const GdbMi &operator[](const char *name) const;
 
-    QByteArray toString(bool multiline = false, int indent = 0) const;
+    QString toString(bool multiline = false, int indent = 0) const;
     qulonglong toAddress() const;
     int toInt() const { return m_data.toInt(); }
-    QString toUtf8() const { return QString::fromUtf8(m_data); }
-    QString toLatin1() const { return QString::fromLatin1(m_data); }
-    void fromString(const QByteArray &str);
-    void fromStringMultiple(const QByteArray &str);
+    void fromString(const QString &str);
+    void fromStringMultiple(const QString &str);
 
-    static QByteArray parseCString(const char *&from, const char *to);
-    static QByteArray escapeCString(const QByteArray &ba);
-    void parseResultOrValue(const char *&from, const char *to);
-    void parseValue(const char *&from, const char *to);
-    void parseTuple(const char *&from, const char *to);
-    void parseTuple_helper(const char *&from, const char *to);
-    void parseList(const char *&from, const char *to);
+    static QString parseCString(const QChar *&from, const QChar *to);
+    static QString escapeCString(const QString &ba);
+    void parseResultOrValue(const QChar *&from, const QChar *to);
+    void parseValue(const QChar *&from, const QChar *to);
+    void parseTuple(const QChar *&from, const QChar *to);
+    void parseTuple_helper(const QChar *&from, const QChar *to);
+    void parseList(const QChar *&from, const QChar *to);
 
 private:
-    void dumpChildren(QByteArray *str, bool multiline, int indent) const;
+    void dumpChildren(QString *str, bool multiline, int indent) const;
 };
+
+QString fromHex(const QString &str);
+QString toHex(const QString &str);
+
 
 enum ResultClass
 {
@@ -138,14 +139,14 @@ class DebuggerResponse
 {
 public:
     DebuggerResponse() : token(-1), resultClass(ResultUnknown) {}
-    QByteArray toString() const;
-    static QByteArray stringFromResultClass(ResultClass resultClass);
+    QString toString() const;
+    static QString stringFromResultClass(ResultClass resultClass);
 
-    int            token;
-    ResultClass    resultClass;
-    GdbMi          data;
-    QByteArray     logStreamOutput;
-    QByteArray     consoleStreamOutput;
+    int         token;
+    ResultClass resultClass;
+    GdbMi       data;
+    QString     logStreamOutput;
+    QString     consoleStreamOutput;
 };
 
 void extractGdbVersion(const QString &msg,
@@ -173,7 +174,7 @@ public:
     };
 
     DebuggerEncoding() {}
-    explicit DebuggerEncoding(const QByteArray &data);
+    explicit DebuggerEncoding(const QString &data);
     QString toString() const;
 
     EncodingType type = Unencoded;
@@ -182,7 +183,7 @@ public:
 };
 
 // Decode string data as returned by the dumper helpers.
-QString decodeData(const QByteArray &baIn, const QByteArray &encoding);
+QString decodeData(const QString &baIn, const QString &encoding);
 
 
 // These enum values correspond to possible value display format requests,

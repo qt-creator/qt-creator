@@ -33,7 +33,6 @@
 #include "debuggerplugin.h"
 #include "debuggerrunconfigurationaspect.h"
 #include "debuggerstartparameters.h"
-#include "debuggerstringutils.h"
 #include "breakhandler.h"
 #include "shared/peutils.h"
 
@@ -83,27 +82,27 @@ DebuggerEngine *createLldbEngine(const DebuggerRunParameters &rp);
 } // namespace Internal
 
 
-static const char *engineTypeName(DebuggerEngineType et)
+static QLatin1String engineTypeName(DebuggerEngineType et)
 {
     switch (et) {
     case Debugger::NoEngineType:
         break;
     case Debugger::GdbEngineType:
-        return "Gdb engine";
+        return QLatin1String("Gdb engine");
     case Debugger::CdbEngineType:
-        return "Cdb engine";
+        return QLatin1String("Cdb engine");
     case Debugger::PdbEngineType:
-        return "Pdb engine";
+        return QLatin1String("Pdb engine");
     case Debugger::QmlEngineType:
-        return "QML engine";
+        return QLatin1String("QML engine");
     case Debugger::QmlCppEngineType:
-        return "QML C++ engine";
+        return QLatin1String("QML C++ engine");
     case Debugger::LldbEngineType:
-        return "LLDB command line engine";
+        return QLatin1String("LLDB command line engine");
     case Debugger::AllEngineTypes:
         break;
     }
-    return "No engine";
+    return QLatin1String("No engine");
 }
 
 DebuggerRunControl *createHelper(RunConfiguration *runConfig, Internal::DebuggerEngine *engine)
@@ -216,7 +215,7 @@ void DebuggerRunControl::startFailed()
 
 void DebuggerRunControl::notifyEngineRemoteServerRunning(const QByteArray &msg, int pid)
 {
-    m_engine->notifyEngineRemoteServerRunning(msg, pid);
+    m_engine->notifyEngineRemoteServerRunning(QString::fromUtf8(msg), pid);
 }
 
 void DebuggerRunControl::notifyEngineRemoteSetupFinished(const RemoteSetupResult &result)
@@ -325,7 +324,8 @@ DebuggerEngine *createEngine(DebuggerEngineType et, const DebuggerRunParameters 
         return createQmlCppEngine(rp, errors);
     default:
         if (errors)
-            errors->append(DebuggerPlugin::tr("Unknown debugger type \"%1\"").arg(_(engineTypeName(et))));
+            errors->append(DebuggerPlugin::tr("Unknown debugger type \"%1\"")
+                           .arg(engineTypeName(et)));
     }
     return 0;
 }
@@ -390,7 +390,7 @@ static DebuggerRunControl *doCreate(DebuggerRunParameters rp, RunConfiguration *
     if (runConfig && runConfig->property("supportsDebugger").toBool()) {
         QString mainScript = runConfig->property("mainScript").toString();
         QString interpreter = runConfig->property("interpreter").toString();
-        if (!interpreter.isEmpty() && mainScript.endsWith(_(".py"))) {
+        if (!interpreter.isEmpty() && mainScript.endsWith(".py")) {
             rp.mainScript = mainScript;
             rp.interpreter = interpreter;
             QString args = runConfig->property("arguments").toString();
@@ -507,7 +507,7 @@ static DebuggerRunControl *doCreate(DebuggerRunParameters rp, RunConfiguration *
     DebuggerEngine *engine = createEngine(rp.masterEngineType, rp, errors);
     if (!engine) {
         errors->append(DebuggerPlugin::tr("Unable to create a debugger engine of the type \"%1\"").
-                        arg(_(engineTypeName(rp.masterEngineType))));
+                        arg(engineTypeName(rp.masterEngineType)));
         rp.startMode = NoStartMode;
         return 0;
     }
@@ -529,7 +529,7 @@ static DebuggerRunControl *doCreate(DebuggerRunParameters rp, RunConfiguration *
 static bool isDebuggableScript(RunConfiguration *runConfig)
 {
     QString mainScript = runConfig->property("mainScript").toString();
-    return mainScript.endsWith(_(".py")); // Only Python for now.
+    return mainScript.endsWith(".py"); // Only Python for now.
 }
 
 class DebuggerRunControlFactory : public IRunControlFactory

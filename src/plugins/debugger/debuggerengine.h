@@ -124,15 +124,15 @@ class UpdateParameters
 public:
     UpdateParameters() {}
 
-    QList<QByteArray> partialVariables() const
+    QStringList partialVariables() const
     {
-        QList<QByteArray> result;
+        QStringList result;
         if (!partialVariable.isEmpty())
             result.append(partialVariable);
         return result;
     }
 
-    QByteArray partialVariable;
+    QString partialVariable;
 };
 
 class Location
@@ -198,10 +198,10 @@ public:
     DebuggerRunParameters &runParameters();
 
     virtual bool canHandleToolTip(const DebuggerToolTipContext &) const;
-    virtual void expandItem(const QByteArray &iname); // Called when item in tree gets expanded.
-    virtual void updateItem(const QByteArray &iname); // Called for fresh watch items.
-    void updateWatchData(const QByteArray &iname); // FIXME: Merge with above.
-    virtual void selectWatchData(const QByteArray &iname);
+    virtual void expandItem(const QString &iname); // Called when item in tree gets expanded.
+    virtual void updateItem(const QString &iname); // Called for fresh watch items.
+    void updateWatchData(const QString &iname); // FIXME: Merge with above.
+    virtual void selectWatchData(const QString &iname);
 
     virtual void startDebugger(DebuggerRunControl *runControl);
     virtual void prepareForRestart() {}
@@ -240,14 +240,14 @@ public:
     virtual void loadAdditionalQmlStack();
     virtual void reloadDebuggingHelpers();
 
-    virtual void setRegisterValue(const QByteArray &name, const QString &value);
+    virtual void setRegisterValue(const QString &name, const QString &value);
     virtual void addOptionPages(QList<Core::IOptionsPage*> *) const;
     virtual bool hasCapability(unsigned cap) const = 0;
     virtual void debugLastCommand() {}
 
     virtual bool isSynchronous() const;
-    virtual QByteArray qtNamespace() const;
-    void setQtNamespace(const QByteArray &ns);
+    virtual QString qtNamespace() const;
+    void setQtNamespace(const QString &ns);
 
     virtual void createSnapshot();
     virtual void updateAll();
@@ -293,7 +293,7 @@ public:
     DebuggerState targetState() const;
     bool isDying() const;
 
-    static const char *stateName(int s);
+    static QString stateName(int s);
 
     void notifyInferiorPid(qint64 pid);
     qint64 inferiorPid() const;
@@ -325,7 +325,6 @@ public:
     void removeBreakpointMarker(const Breakpoint &bp);
 
     QString expand(const QString &string) const;
-    QByteArray expand(const QByteArray &string) const;
 
 signals:
     void stateChanged(Debugger::DebuggerState state);
@@ -352,7 +351,7 @@ protected:
 
     virtual void notifyEngineRequestRemoteSetup();
     public:
-    virtual void notifyEngineRemoteServerRunning(const QByteArray &, int pid);
+    virtual void notifyEngineRemoteServerRunning(const QString &, int pid);
     virtual void notifyEngineRemoteSetupFinished(const RemoteSetupResult &result);
 
     protected:

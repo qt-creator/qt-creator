@@ -29,7 +29,6 @@
 #include "debuggeractions.h"
 #include "debuggercore.h"
 #include "debuggerruncontrol.h"
-#include "debuggerstringutils.h"
 #include "debuggerstartparameters.h"
 #include "debuggertooltipmanager.h"
 
@@ -336,10 +335,10 @@ public:
     bool m_isStateDebugging;
 
     Utils::FileInProjectFinder m_fileFinder;
-    QByteArray m_qtNamespace;
+    QString m_qtNamespace;
 
     // Safety net to avoid infinite lookups.
-    QSet<QByteArray> m_lookupRequests; // FIXME: Integrate properly.
+    QSet<QString> m_lookupRequests; // FIXME: Integrate properly.
 };
 
 
@@ -359,9 +358,9 @@ DebuggerEngine::~DebuggerEngine()
     delete d;
 }
 
-const char *DebuggerEngine::stateName(int s)
+QString DebuggerEngine::stateName(int s)
 {
-#    define SN(x) case x: return #x;
+#    define SN(x) case x: return QLatin1String(#x);
     switch (s) {
         SN(DebuggerNotReady)
         SN(EngineSetupRequested)
@@ -387,7 +386,7 @@ const char *DebuggerEngine::stateName(int s)
         SN(EngineShutdownFailed)
         SN(DebuggerFinished)
     }
-    return "<unknown>";
+    return QLatin1String("<unknown>");
 #    undef SN
 }
 
@@ -503,7 +502,7 @@ void DebuggerEngine::changeMemory(MemoryAgent *, QObject *,
     Q_UNUSED(data);
 }
 
-void DebuggerEngine::setRegisterValue(const QByteArray &name, const QString &value)
+void DebuggerEngine::setRegisterValue(const QString &name, const QString &value)
 {
     Q_UNUSED(name);
     Q_UNUSED(value);
@@ -759,7 +758,7 @@ void DebuggerEngine::setupSlaveEngine()
 
 void DebuggerEnginePrivate::doSetupEngine()
 {
-    m_engine->showMessage(_("CALL: SETUP ENGINE"));
+    m_engine->showMessage("CALL: SETUP ENGINE");
     QTC_ASSERT(state() == EngineSetupRequested, qDebug() << m_engine << state());
     m_engine->validateExecutable(&m_runParameters);
     m_engine->setupEngine();
@@ -767,7 +766,7 @@ void DebuggerEnginePrivate::doSetupEngine()
 
 void DebuggerEngine::notifyEngineSetupFailed()
 {
-    showMessage(_("NOTE: ENGINE SETUP FAILED"));
+    showMessage("NOTE: ENGINE SETUP FAILED");
     QTC_ASSERT(d->remoteSetupState() == RemoteSetupNone
                || d->remoteSetupState() == RemoteSetupRequested
                || d->remoteSetupState() == RemoteSetupSucceeded,
@@ -784,14 +783,14 @@ void DebuggerEngine::notifyEngineSetupFailed()
 
 void DebuggerEngine::notifyEngineSetupOk()
 {
-    showMessage(_("NOTE: ENGINE SETUP OK"));
+    showMessage("NOTE: ENGINE SETUP OK");
     QTC_ASSERT(d->remoteSetupState() == RemoteSetupNone
                || d->remoteSetupState() == RemoteSetupSucceeded,
                qDebug() << this << "remoteSetupState" << d->remoteSetupState());
 
     QTC_ASSERT(state() == EngineSetupRequested, qDebug() << this << state());
     setState(EngineSetupOk);
-    showMessage(_("QUEUE: SETUP INFERIOR"));
+    showMessage("QUEUE: SETUP INFERIOR");
     if (isMasterEngine())
         d->queueSetupInferior();
 }
@@ -804,7 +803,7 @@ void DebuggerEngine::setupSlaveInferior()
 
 void DebuggerEnginePrivate::doSetupInferior()
 {
-    m_engine->showMessage(_("CALL: SETUP INFERIOR"));
+    m_engine->showMessage("CALL: SETUP INFERIOR");
     QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << m_engine << state());
     m_progress.setProgressValue(250);
     m_engine->setupInferior();
@@ -812,7 +811,7 @@ void DebuggerEnginePrivate::doSetupInferior()
 
 void DebuggerEngine::notifyInferiorSetupFailed()
 {
-    showMessage(_("NOTE: INFERIOR SETUP FAILED"));
+    showMessage("NOTE: INFERIOR SETUP FAILED");
     QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << this << state());
     showStatusMessage(tr("Setup failed."));
     setState(InferiorSetupFailed);
@@ -826,7 +825,7 @@ void DebuggerEngine::notifyInferiorSetupOk()
     CALLGRIND_START_INSTRUMENTATION;
 #endif
     aboutToNotifyInferiorSetupOk();
-    showMessage(_("NOTE: INFERIOR SETUP OK"));
+    showMessage("NOTE: INFERIOR SETUP OK");
     QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << this << state());
     setState(InferiorSetupOk);
     if (isMasterEngine())
@@ -842,7 +841,7 @@ void DebuggerEngine::runSlaveEngine()
 
 void DebuggerEnginePrivate::doRunEngine()
 {
-    m_engine->showMessage(_("CALL: RUN ENGINE"));
+    m_engine->showMessage("CALL: RUN ENGINE");
     QTC_ASSERT(state() == EngineRunRequested, qDebug() << m_engine << state());
     m_progress.setProgressValue(300);
     m_engine->runEngine();
@@ -850,7 +849,7 @@ void DebuggerEnginePrivate::doRunEngine()
 
 void DebuggerEngine::notifyEngineRunOkAndInferiorUnrunnable()
 {
-    showMessage(_("NOTE: INFERIOR UNRUNNABLE"));
+    showMessage("NOTE: INFERIOR UNRUNNABLE");
     d->m_progress.setProgressValue(1000);
     d->m_progress.reportFinished();
     QTC_ASSERT(state() == EngineRunRequested, qDebug() << this << state());
@@ -882,7 +881,7 @@ void DebuggerEngine::notifyEngineRequestRemoteSetup()
     emit requestRemoteSetup();
 }
 
-void DebuggerEngine::notifyEngineRemoteServerRunning(const QByteArray &, int /*pid*/)
+void DebuggerEngine::notifyEngineRemoteServerRunning(const QString &, int /*pid*/)
 {
     showMessage("NOTE: REMOTE SERVER RUNNING IN MULTIMODE");
 }
@@ -1347,11 +1346,6 @@ QString DebuggerEngine::expand(const QString &string) const
     return d->m_runParameters.macroExpander->expand(string);
 }
 
-QByteArray DebuggerEngine::expand(const QByteArray &string) const
-{
-    return d->m_runParameters.macroExpander->expand(string);
-}
-
 void DebuggerEngine::updateBreakpointMarker(const Breakpoint &bp)
 {
     d->m_disassemblerAgent.updateBreakpointMarker(bp);
@@ -1484,7 +1478,7 @@ Terminal *DebuggerEngine::terminal() const
     return &d->m_terminal;
 }
 
-void DebuggerEngine::selectWatchData(const QByteArray &)
+void DebuggerEngine::selectWatchData(const QString &)
 {
 }
 
@@ -1563,12 +1557,12 @@ bool DebuggerEngine::isSynchronous() const
     return false;
 }
 
-QByteArray DebuggerEngine::qtNamespace() const
+QString DebuggerEngine::qtNamespace() const
 {
     return d->m_qtNamespace;
 }
 
-void DebuggerEngine::setQtNamespace(const QByteArray &ns)
+void DebuggerEngine::setQtNamespace(const QString &ns)
 {
     d->m_qtNamespace = ns;
 }
@@ -1891,7 +1885,7 @@ void DebuggerEngine::validateExecutable(DebuggerRunParameters *sp)
         Utils::ElfData elfData = reader.readHeaders();
         QString error = reader.errorString();
 
-        Internal::showMessage(_("EXAMINING ") + symbolFile, LogDebug);
+        Internal::showMessage("EXAMINING " + symbolFile, LogDebug);
         QByteArray msg = "ELF SECTIONS: ";
 
         static const QList<QByteArray> interesting = {
@@ -1914,17 +1908,15 @@ void DebuggerEngine::validateExecutable(DebuggerRunParameters *sp)
             if (interesting.contains(header.name))
                 seen.insert(header.name);
         }
-        Internal::showMessage(_(msg), LogDebug);
+        Internal::showMessage(QString::fromUtf8(msg), LogDebug);
 
         if (!error.isEmpty()) {
-            Internal::showMessage(_("ERROR WHILE READING ELF SECTIONS: ") + error,
-                                        LogDebug);
+            Internal::showMessage("ERROR WHILE READING ELF SECTIONS: " + error, LogDebug);
             return;
         }
 
         if (elfData.sectionHeaders.isEmpty()) {
-            Internal::showMessage(_("NO SECTION HEADERS FOUND. IS THIS AN EXECUTABLE?"),
-                                        LogDebug);
+            Internal::showMessage("NO SECTION HEADERS FOUND. IS THIS AN EXECUTABLE?", LogDebug);
             return;
         }
 
@@ -1975,7 +1967,7 @@ void DebuggerEngine::validateExecutable(DebuggerRunParameters *sp)
 
         foreach (const QByteArray &name, interesting) {
             const QString found = seen.contains(name) ? tr("Found.") : tr("Not found.");
-            detailedWarning.append(QLatin1Char('\n') + tr("Section %1: %2").arg(_(name)).arg(found));
+            detailedWarning.append('\n' + tr("Section %1: %2").arg(QString::fromUtf8(name)).arg(found));
         }
         break;
     }
@@ -2009,11 +2001,11 @@ void DebuggerEngine::updateLocalsView(const GdbMi &all)
     const GdbMi ns = all["qtnamespace"];
     if (ns.isValid()) {
         setQtNamespace(ns.data());
-        showMessage(_("FOUND NAMESPACED QT: " + ns.data()));
+        showMessage("FOUND NAMESPACED QT: " + ns.data());
     }
 
     static int count = 0;
-    showMessage(_("<Rebuild Watchmodel %1 @ %2 >")
+    showMessage(QString("<Rebuild Watchmodel %1 @ %2 >")
                 .arg(++count).arg(LogWindow::logTimeStamp()), LogMiscInput);
     showStatusMessage(GdbEngine::tr("Finished retrieving data"), 400); // FIXME: String
 
@@ -2029,10 +2021,10 @@ bool DebuggerEngine::canHandleToolTip(const DebuggerToolTipContext &context) con
     return state() == InferiorStopOk && context.isCppEditor;
 }
 
-void DebuggerEngine::updateItem(const QByteArray &iname)
+void DebuggerEngine::updateItem(const QString &iname)
 {
     if (d->m_lookupRequests.contains(iname)) {
-        showMessage(QString::fromLatin1("IGNORING REPEATED REQUEST TO EXPAND " + iname));
+        showMessage(QString("IGNORING REPEATED REQUEST TO EXPAND " + iname));
         WatchHandler *handler = watchHandler();
         WatchItem *item = handler->findItem(iname);
         QTC_CHECK(item);
@@ -2056,7 +2048,7 @@ void DebuggerEngine::updateItem(const QByteArray &iname)
     doUpdateLocals(params);
 }
 
-void DebuggerEngine::updateWatchData(const QByteArray &iname)
+void DebuggerEngine::updateWatchData(const QString &iname)
 {
     // This is used in cases where re-evaluation is ok for the same iname
     // e.g. when changing the expression in a watcher.
@@ -2065,7 +2057,7 @@ void DebuggerEngine::updateWatchData(const QByteArray &iname)
     doUpdateLocals(params);
 }
 
-void DebuggerEngine::expandItem(const QByteArray &iname)
+void DebuggerEngine::expandItem(const QString &iname)
 {
     updateItem(iname);
 }
@@ -2076,7 +2068,7 @@ void DebuggerEngine::checkState(DebuggerState state, const char *file, int line)
     if (current == state)
         return;
 
-    QString msg = QString::fromLatin1("UNEXPECTED STATE: %1  WANTED: %2 IN %3:%4")
+    QString msg = QString("UNEXPECTED STATE: %1  WANTED: %2 IN %3:%4")
                 .arg(current).arg(state).arg(QLatin1String(file)).arg(line);
 
     showMessage(msg, LogError);

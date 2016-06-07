@@ -29,7 +29,6 @@
 #include <debugger/debuggercore.h>
 #include <debugger/debuggerprotocol.h>
 #include <debugger/debuggerstartparameters.h>
-#include <debugger/debuggerstringutils.h>
 
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
@@ -46,7 +45,7 @@ GdbPlainEngine::GdbPlainEngine(const DebuggerRunParameters &startParameters)
 {
     // Output
     connect(&m_outputCollector, &OutputCollector::byteDelivery,
-            this, &GdbEngine::readDebugeeOutput);
+            this, &GdbEngine::readDebuggeeOutput);
 }
 
 void GdbPlainEngine::setupInferior()
@@ -55,9 +54,11 @@ void GdbPlainEngine::setupInferior()
     setEnvironmentVariables();
     if (!runParameters().inferior.commandLineArguments.isEmpty()) {
         QString args = runParameters().inferior.commandLineArguments;
-        runCommand({"-exec-arguments " + toLocalEncoding(args), NoFlags});
+        runCommand({"-exec-arguments " + args, NoFlags});
     }
-    runCommand({"-file-exec-and-symbols \"" + execFilePath() + '"', NoFlags,
+
+    QString executable = QFileInfo(runParameters().inferior.executable).absoluteFilePath();
+    runCommand({"-file-exec-and-symbols \"" + executable + '"', NoFlags,
         CB(handleFileExecAndSymbols)});
 }
 
@@ -67,11 +68,10 @@ void GdbPlainEngine::handleFileExecAndSymbols(const DebuggerResponse &response)
     if (response.resultClass == ResultDone) {
         handleInferiorPrepared();
     } else {
-        QByteArray ba = response.data["msg"].data();
-        QString msg = fromLocalEncoding(ba);
+        QString msg = response.data["msg"].data();
         // Extend the message a bit in unknown cases.
-        if (!ba.endsWith("File format not recognized"))
-            msg = tr("Starting executable failed:") + QLatin1Char('\n') + msg;
+        if (!msg.endsWith("File format not recognized"))
+            msg = tr("Starting executable failed:") + '\n' + msg;
         notifyInferiorSetupFailed(msg);
     }
 }
@@ -83,19 +83,20 @@ void GdbPlainEngine::runEngine()
     else
         runCommand({"-exec-run", RunRequest, CB(handleExecRun)});
 }
+
 void GdbPlainEngine::handleExecRun(const DebuggerResponse &response)
 {
     QTC_ASSERT(state() == EngineRunRequested, qDebug() << state());
     if (response.resultClass == ResultRunning) {
         notifyEngineRunAndInferiorRunOk(); // For gdb < 7.0
         //showStatusMessage(tr("Running..."));
-        showMessage(_("INFERIOR STARTED"));
+        showMessage("INFERIOR STARTED");
         showMessage(msgInferiorSetupOk(), StatusBar);
         // FIXME: That's the wrong place for it.
         if (boolSetting(EnableReverseDebugging))
             runCommand({"target record", NoFlags});
     } else {
-        QString msg = fromLocalEncoding(response.data["msg"].data());
+        QString msg = response.data["msg"].data();
         //QTC_CHECK(status() == InferiorRunOk);
         //interruptInferior();
         showMessage(msg);
@@ -106,7 +107,7 @@ void GdbPlainEngine::handleExecRun(const DebuggerResponse &response)
 void GdbPlainEngine::setupEngine()
 {
     QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
-    showMessage(_("TRYING TO START ADAPTER"));
+    showMessage("TRYING TO START ADAPTER");
 
     if (!prepareCommand())
         return;
@@ -118,7 +119,7 @@ void GdbPlainEngine::setupEngine()
                 .arg(m_outputCollector.errorString()));
         return;
     }
-    gdbArgs.append(_("--tty=") + m_outputCollector.serverName());
+    gdbArgs.append("--tty=" + m_outputCollector.serverName());
 
     if (!runParameters().inferior.workingDirectory.isEmpty())
         m_gdbProc.setWorkingDirectory(runParameters().inferior.workingDirectory);
@@ -138,25 +139,9 @@ void GdbPlainEngine::interruptInferior2()
 
 void GdbPlainEngine::shutdownEngine()
 {
-    showMessage(_("PLAIN ADAPTER SHUTDOWN %1").arg(state()));
+    showMessage(QString("PLAIN ADAPTER SHUTDOWN %1").arg(state()));
     m_outputCollector.shutdown();
     notifyAdapterShutdownOk();
-}
-
-QByteArray GdbPlainEngine::execFilePath() const
-{
-    return QFileInfo(runParameters().inferior.executable)
-            .absoluteFilePath().toLocal8Bit();
-}
-
-QByteArray GdbPlainEngine::toLocalEncoding(const QString &s) const
-{
-    return s.toLocal8Bit();
-}
-
-QString GdbPlainEngine::fromLocalEncoding(const QByteArray &b) const
-{
-    return QString::fromLocal8Bit(b);
 }
 
 } // namespace Debugger

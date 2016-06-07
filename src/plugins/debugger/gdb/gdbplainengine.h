@@ -50,10 +50,6 @@ private:
     void interruptInferior2();
     void shutdownEngine();
 
-    QByteArray execFilePath() const;
-    QByteArray toLocalEncoding(const QString &s) const;
-    QString fromLocalEncoding(const QByteArray &b) const;
-
     OutputCollector m_outputCollector;
 };
 

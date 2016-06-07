@@ -46,24 +46,12 @@ QDebug operator<<(QDebug d, const BreakpointIdBase &id)
     return d;
 }
 
-QByteArray BreakpointIdBase::toByteArray() const
-{
-    if (!isValid())
-        return "<invalid bkpt>";
-    QByteArray ba = QByteArray::number(m_majorPart);
-    if (isMinor()) {
-        ba.append('.');
-        ba.append(QByteArray::number(m_minorPart));
-    }
-    return ba;
-}
-
 QString BreakpointIdBase::toString() const
 {
     if (!isValid())
         return QLatin1String("<invalid bkpt>");
     if (isMinor())
-        return QString::fromLatin1("%1.%2").arg(m_majorPart).arg(m_minorPart);
+        return QString("%1.%2").arg(m_majorPart).arg(m_minorPart);
     return QString::number(m_majorPart);
 }
 
@@ -79,7 +67,7 @@ QString BreakpointIdBase::toString() const
 */
 
 
-BreakpointModelId::BreakpointModelId(const QByteArray &ba)
+BreakpointModelId::BreakpointModelId(const QString &ba)
 {
     int pos = ba.indexOf('\'');
     if (pos == -1) {
@@ -102,7 +90,7 @@ BreakpointModelId::BreakpointModelId(const QByteArray &ba)
     are deleted, so, the ID is used.
 */
 
-BreakpointResponseId::BreakpointResponseId(const QByteArray &ba)
+BreakpointResponseId::BreakpointResponseId(const QString &ba)
 {
     int pos = ba.indexOf('.');
     if (pos == -1) {
@@ -203,23 +191,23 @@ bool BreakpointParameters::equals(const BreakpointParameters &rhs) const
     return !differencesTo(rhs);
 }
 
-bool BreakpointParameters::conditionsMatch(const QByteArray &other) const
+bool BreakpointParameters::conditionsMatch(const QString &other) const
 {
     // Some versions of gdb "beautify" the passed condition.
-    QByteArray s1 = condition;
+    QString s1 = condition;
     s1.replace(' ', "");
-    QByteArray s2 = other;
+    QString s2 = other;
     s2.replace(' ', "");
     return s1 == s2;
 }
 
-void BreakpointParameters::updateLocation(const QByteArray &location)
+void BreakpointParameters::updateLocation(const QString &location)
 {
     if (location.size()) {
         int pos = location.indexOf(':');
         lineNumber = location.mid(pos + 1).toInt();
-        QString file = QString::fromUtf8(location.left(pos));
-        if (file.startsWith(QLatin1Char('"')) && file.endsWith(QLatin1Char('"')))
+        QString file = location.left(pos);
+        if (file.startsWith('"') && file.endsWith('"'))
             file = file.mid(1, file.size() - 2);
         QFileInfo fi(file);
         if (fi.isReadable())
@@ -238,9 +226,9 @@ bool BreakpointParameters::isCppBreakpoint() const
     if (type == BreakpointByFileAndLine) {
         auto qmlExtensionString = QString::fromLocal8Bit(qgetenv("QTC_QMLDEBUGGER_FILEEXTENSIONS"));
         if (qmlExtensionString.isEmpty())
-            qmlExtensionString = QLatin1Literal(".qml;.js");
+            qmlExtensionString = ".qml;.js";
 
-        auto qmlFileExtensions = qmlExtensionString.split(QLatin1Literal(";"), QString::SkipEmptyParts);
+        auto qmlFileExtensions = qmlExtensionString.split(";", QString::SkipEmptyParts);
         foreach (QString extension, qmlFileExtensions) {
             if (fileName.endsWith(extension, Qt::CaseInsensitive))
                 return false;

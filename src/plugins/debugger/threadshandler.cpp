@@ -310,12 +310,12 @@ void ThreadsHandler::setCurrentThread(ThreadId id)
     updateThreadBox();
 }
 
-QByteArray ThreadsHandler::pidForGroupId(const QByteArray &groupId) const
+QString ThreadsHandler::pidForGroupId(const QString &groupId) const
 {
     return m_pidForGroupId[groupId];
 }
 
-void ThreadsHandler::notifyGroupCreated(const QByteArray &groupId, const QByteArray &pid)
+void ThreadsHandler::notifyGroupCreated(const QString &groupId, const QString &pid)
 {
     m_pidForGroupId[groupId] = pid;
 }
@@ -366,7 +366,7 @@ void ThreadsHandler::removeAll()
     rootItem()->removeChildren();
 }
 
-bool ThreadsHandler::notifyGroupExited(const QByteArray &groupId)
+bool ThreadsHandler::notifyGroupExited(const QString &groupId)
 {
     QList<ThreadItem *> list;
     forFirstLevelItems([&list, groupId](ThreadItem *item) {
@@ -380,7 +380,7 @@ bool ThreadsHandler::notifyGroupExited(const QByteArray &groupId)
     return m_pidForGroupId.isEmpty();
 }
 
-void ThreadsHandler::notifyRunning(const QByteArray &data)
+void ThreadsHandler::notifyRunning(const QString &data)
 {
     if (data.isEmpty() || data == "all") {
         notifyAllRunning();
@@ -405,7 +405,7 @@ void ThreadsHandler::notifyRunning(ThreadId threadId)
         item->notifyRunning();
 }
 
-void ThreadsHandler::notifyStopped(const QByteArray &data)
+void ThreadsHandler::notifyStopped(const QString &data)
 {
     if (data.isEmpty() || data == "all") {
         notifyAllStopped();
@@ -444,17 +444,17 @@ void ThreadsHandler::updateThreads(const GdbMi &data)
         const GdbMi frame = item["frame"];
         ThreadData thread;
         thread.id = ThreadId(item["id"].toInt());
-        thread.targetId = item["target-id"].toLatin1();
-        thread.details = item["details"].toLatin1();
-        thread.core = item["core"].toLatin1();
-        thread.state = item["state"].toLatin1();
+        thread.targetId = item["target-id"].data();
+        thread.details = item["details"].data();
+        thread.core = item["core"].data();
+        thread.state = item["state"].data();
         thread.address = frame["addr"].toAddress();
-        thread.function = frame["func"].toLatin1();
-        thread.fileName = frame["fullname"].toLatin1();
+        thread.function = frame["func"].data();
+        thread.fileName = frame["fullname"].data();
         thread.lineNumber = frame["line"].toInt();
-        thread.module = QString::fromLocal8Bit(frame["from"].data());
-        thread.name = item["name"].toLatin1();
-        thread.stopped = thread.state != QLatin1String("running");
+        thread.module = frame["from"].data();
+        thread.name = item["name"].data();
+        thread.stopped = thread.state != "running";
         updateThread(thread);
     }
 

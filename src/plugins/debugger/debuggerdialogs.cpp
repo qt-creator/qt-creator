@@ -28,7 +28,6 @@
 #include "debuggerkitinformation.h"
 #include "debuggerstartparameters.h"
 #include "debuggerruncontrol.h"
-#include "debuggerstringutils.h"
 #include "cdb/cdbengine.h"
 
 #include <coreplugin/icore.h>
@@ -185,31 +184,31 @@ QString StartApplicationParameters::displayName() const
 
 void StartApplicationParameters::toSettings(QSettings *settings) const
 {
-    settings->setValue(_("LastKitId"), kitId.toSetting());
-    settings->setValue(_("LastServerPort"), serverPort);
-    settings->setValue(_("LastServerAddress"), serverAddress);
-    settings->setValue(_("LastExternalExecutable"), runnable.executable);
-    settings->setValue(_("LastExternalExecutableArguments"), runnable.commandLineArguments);
-    settings->setValue(_("LastExternalWorkingDirectory"), runnable.workingDirectory);
-    settings->setValue(_("LastExternalBreakAtMain"), breakAtMain);
-    settings->setValue(_("LastExternalRunInTerminal"), runnable.runMode == ApplicationLauncher::Console);
-    settings->setValue(_("LastServerStartScript"), serverStartScript);
-    settings->setValue(_("LastDebugInfoLocation"), debugInfoLocation);
+    settings->setValue("LastKitId", kitId.toSetting());
+    settings->setValue("LastServerPort", serverPort);
+    settings->setValue("LastServerAddress", serverAddress);
+    settings->setValue("LastExternalExecutable", runnable.executable);
+    settings->setValue("LastExternalExecutableArguments", runnable.commandLineArguments);
+    settings->setValue("LastExternalWorkingDirectory", runnable.workingDirectory);
+    settings->setValue("LastExternalBreakAtMain", breakAtMain);
+    settings->setValue("LastExternalRunInTerminal", runnable.runMode == ApplicationLauncher::Console);
+    settings->setValue("LastServerStartScript", serverStartScript);
+    settings->setValue("LastDebugInfoLocation", debugInfoLocation);
 }
 
 void StartApplicationParameters::fromSettings(const QSettings *settings)
 {
-    kitId = Id::fromSetting(settings->value(_("LastKitId")));
-    serverPort = settings->value(_("LastServerPort")).toUInt();
-    serverAddress = settings->value(_("LastServerAddress")).toString();
-    runnable.executable = settings->value(_("LastExternalExecutable")).toString();
-    runnable.commandLineArguments = settings->value(_("LastExternalExecutableArguments")).toString();
-    runnable.workingDirectory = settings->value(_("LastExternalWorkingDirectory")).toString();
-    breakAtMain = settings->value(_("LastExternalBreakAtMain")).toBool();
-    runnable.runMode = settings->value(_("LastExternalRunInTerminal")).toBool()
+    kitId = Id::fromSetting(settings->value("LastKitId"));
+    serverPort = settings->value("LastServerPort").toUInt();
+    serverAddress = settings->value("LastServerAddress").toString();
+    runnable.executable = settings->value("LastExternalExecutable").toString();
+    runnable.commandLineArguments = settings->value("LastExternalExecutableArguments").toString();
+    runnable.workingDirectory = settings->value("LastExternalWorkingDirectory").toString();
+    breakAtMain = settings->value("LastExternalBreakAtMain").toBool();
+    runnable.runMode = settings->value("LastExternalRunInTerminal").toBool()
             ? ApplicationLauncher::Console : ApplicationLauncher::Gui;
-    serverStartScript = settings->value(_("LastServerStartScript")).toString();
-    debugInfoLocation = settings->value(_("LastDebugInfoLocation")).toString();
+    serverStartScript = settings->value("LastServerStartScript").toString();
+    debugInfoLocation = settings->value("LastDebugInfoLocation").toString();
 }
 
 ///////////////////////////////////////////////////////////////////////
