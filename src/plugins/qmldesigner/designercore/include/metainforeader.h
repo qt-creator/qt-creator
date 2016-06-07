@@ -89,7 +89,8 @@ private:
     ParserSate parserState() const;
     void setParserState(ParserSate newParserState);
 
-    void insertItemLibraryEntry();
+    void syncItemLibraryEntries();
+    void keepCurrentItemLibraryEntry();
     void insertProperty();
 
     void addErrorInvalidType(const QString &typeName);
@@ -104,6 +105,7 @@ private:
     QString m_currentIcon;
     QString m_currentSource;
     ItemLibraryEntry m_currentEntry;
+    QList<ItemLibraryEntry> m_bufferedEntries;
 
     PropertyName m_currentPropertyName;
     QString m_currentPropertyType;

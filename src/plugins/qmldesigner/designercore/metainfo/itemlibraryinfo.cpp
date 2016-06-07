@@ -300,13 +300,14 @@ static inline QString keyForEntry(const ItemLibraryEntry &entry)
     return entry.name() + entry.category() + QString::number(entry.majorVersion());
 }
 
-void ItemLibraryInfo::addEntry(const ItemLibraryEntry &entry, bool overwriteDuplicate)
+void ItemLibraryInfo::addEntries(const QList<ItemLibraryEntry> &entries, bool overwriteDuplicate)
 {
-    const QString key = keyForEntry(entry);
-    if (!overwriteDuplicate && m_nameToEntryHash.contains(key))
-        throw InvalidMetaInfoException(__LINE__, __FUNCTION__, __FILE__);
-    m_nameToEntryHash.insert(key, entry);
-
+    foreach (const ItemLibraryEntry &entry, entries) {
+        const QString key = keyForEntry(entry);
+        if (!overwriteDuplicate && m_nameToEntryHash.contains(key))
+            throw InvalidMetaInfoException(__LINE__, __FUNCTION__, __FILE__);
+        m_nameToEntryHash.insert(key, entry);
+    }
     emit entriesChanged();
 }
 

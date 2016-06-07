@@ -69,6 +69,7 @@ void MetaInfoReader::readMetaInfoFile(const QString &path, bool overwriteDuplica
         m_parserState = Error;
         throw InvalidMetaInfoException(__LINE__, __FUNCTION__, __FILE__);
     }
+    syncItemLibraryEntries();
 }
 
 QStringList MetaInfoReader::errors()
@@ -103,7 +104,7 @@ void MetaInfoReader::elementEnd()
     switch (parserState()) {
     case ParsingMetaInfo: setParserState(Finished); break;
     case ParsingType: setParserState(ParsingMetaInfo); break;
-    case ParsingItemLibrary: insertItemLibraryEntry(); setParserState((ParsingType)); break;
+    case ParsingItemLibrary: keepCurrentItemLibraryEntry(); setParserState((ParsingType)); break;
     case ParsingProperty: insertProperty(); setParserState(ParsingItemLibrary);  break;
     case ParsingQmlSource: setParserState(ParsingItemLibrary); break;
     case ParsingDocument:
@@ -281,24 +282,22 @@ MetaInfoReader::ParserSate MetaInfoReader::parserState() const
 
 void MetaInfoReader::setParserState(ParserSate newParserState)
 {
-    if (debug && newParserState == Error)
-        qDebug() << "Error";
-
     m_parserState = newParserState;
 }
 
-void MetaInfoReader::insertItemLibraryEntry()
+void MetaInfoReader::syncItemLibraryEntries()
 {
-    if (debug) {
-        qDebug() << "insertItemLibraryEntry()";
-        qDebug() << m_currentEntry;
-    }
-
     try {
-        m_metaInfo.itemLibraryInfo()->addEntry(m_currentEntry, m_overwriteDuplicates);
+        m_metaInfo.itemLibraryInfo()->addEntries(m_bufferedEntries, m_overwriteDuplicates);
     } catch (const InvalidMetaInfoException &) {
         addError(tr("Invalid or duplicate item library entry %1").arg(m_currentEntry.name()), currentSourceLocation());
     }
+    m_bufferedEntries.clear();
+}
+
+void MetaInfoReader::keepCurrentItemLibraryEntry()
+{
+    m_bufferedEntries.append(m_currentEntry);
 }
 
 void MetaInfoReader::insertProperty()
