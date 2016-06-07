@@ -30,6 +30,7 @@
 #include "settingspage.h"
 #include "designmodecontext.h"
 
+#include <metainfo.h>
 #include <connectionview.h>
 #include <sourcetool/sourcetool.h>
 #include <colortool/colortool.h>
@@ -186,6 +187,13 @@ bool QmlDesignerPlugin::initialize(const QStringList & /*arguments*/, QString *e
     Core::Command *command = Core::ActionManager::registerAction(
                 switchTextDesignAction, QmlDesigner::Constants::SWITCH_TEXT_DESIGN, switchContext);
     command->setDefaultKeySequence(QKeySequence(Qt::Key_F4));
+
+    // adding default path to item library plugins
+    const QString pluginPath = Utils::HostOsInfo::isMacHost()
+            ? QString(QCoreApplication::applicationDirPath() + "/../PlugIns/QmlDesigner")
+            : QString(QCoreApplication::applicationDirPath() + "/../"
+                      + QLatin1String(IDE_LIBRARY_BASENAME) + "/qtcreator/plugins/qmldesigner");
+    MetaInfo::setPluginPaths(QStringList(pluginPath));
 
     createDesignModeWidget();
     connect(switchTextDesignAction, &QAction::triggered, this, &switchTextDesign);
