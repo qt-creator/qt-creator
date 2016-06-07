@@ -79,9 +79,8 @@ signals:
     void searchTextChanged();
 
 private: // functions
-    void updateVisibility();
+    void updateVisibility(bool *changed);
     void addRoleNames();
-    void resetModel();
     void sortSections();
 
 
