@@ -62,7 +62,7 @@ void TimelineModelAggregator::addModel(TimelineModel *m)
 {
     Q_D(TimelineModelAggregator);
     d->modelList << m;
-    connect(m,SIGNAL(heightChanged()),this,SIGNAL(heightChanged()));
+    connect(m, &TimelineModel::heightChanged, this, &TimelineModelAggregator::heightChanged);
     if (d->notesModel)
         d->notesModel->addTimelineModel(m);
     emit modelsChanged();

@@ -51,7 +51,6 @@ public:
     // TODO: We could add some Q_INVOKABLE functions to enable or disable render passes when the the
     // need arises.
 
-public slots:
     void clearData();
 
 protected:

@@ -74,7 +74,7 @@ signals:
     void selectionLockedChanged(bool locked);
     void selectedItemChanged(int itemIndex);
 
-public slots:
+public:
     void setSelectedItem(int itemIndex);
     void setSelectionLocked(bool locked);
 

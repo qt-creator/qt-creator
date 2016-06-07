@@ -161,10 +161,10 @@ void TimelineAbstractRenderer::setZoomer(TimelineZoomControl *zoomer)
     Q_D(TimelineAbstractRenderer);
     if (zoomer != d->zoomer) {
         if (d->zoomer != 0)
-            disconnect(d->zoomer, SIGNAL(windowChanged(qint64,qint64)), this, SLOT(update()));
+            disconnect(d->zoomer, &TimelineZoomControl::windowChanged, this, &QQuickItem::update);
         d->zoomer = zoomer;
         if (d->zoomer != 0)
-            connect(d->zoomer, SIGNAL(windowChanged(qint64,qint64)), this, SLOT(update()));
+            connect(d->zoomer, &TimelineZoomControl::windowChanged, this, &QQuickItem::update);
         emit zoomerChanged(zoomer);
         update();
     }
