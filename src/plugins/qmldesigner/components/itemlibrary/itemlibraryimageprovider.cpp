@@ -38,14 +38,16 @@ ItemLibraryImageProvider::ItemLibraryImageProvider() :
 
 QPixmap ItemLibraryImageProvider::requestPixmap(const QString &id, QSize *size, const QSize &requestedSize)
 {
-    const QPixmap pixmap(Utils::StyleHelper::dpiSpecificImageFile(id));
+    QPixmap pixmap(Utils::StyleHelper::dpiSpecificImageFile(id));
     if (size) {
         size->setWidth(pixmap.width());
         size->setHeight(pixmap.height());
     }
 
-    if (pixmap.isNull())
-        return pixmap;
+    if (pixmap.isNull()) {
+        pixmap = QPixmap(Utils::StyleHelper::dpiSpecificImageFile(
+            QStringLiteral(":/ItemLibrary/images/item-default-icon.png")));
+    }
 
     if (requestedSize.isValid())
         return pixmap.scaled(requestedSize);

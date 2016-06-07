@@ -313,12 +313,14 @@ void MetaInfoReader::addErrorInvalidType(const QString &typeName)
 
 QString MetaInfoReader::absoluteFilePathForDocument(const QString &relativeFilePath)
 {
-
     QFileInfo fileInfo(relativeFilePath);
-    if (fileInfo.isAbsolute() && fileInfo.exists())
-        return relativeFilePath;
+    if (!fileInfo.isAbsolute() && !fileInfo.exists())
+        fileInfo.setFile(QFileInfo(m_documentPath).absolutePath() + QStringLiteral("/") + relativeFilePath);
+    if (fileInfo.exists())
+        return fileInfo.absoluteFilePath();
 
-    return QFileInfo(QFileInfo(m_documentPath).absolutePath() + QStringLiteral("/") + relativeFilePath).absoluteFilePath();
+    qWarning() << relativeFilePath << "does not exist";
+    return relativeFilePath;
 }
 
 } //Internal
