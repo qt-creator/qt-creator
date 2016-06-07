@@ -234,7 +234,7 @@ static bool handleQtTest(QFutureInterface<TestParseResultPtr> futureInterface,
 
 void QtTestParser::init(const QStringList &filesToParse)
 {
-    m_testCaseNames = TestTreeModel::instance()->testCaseNamesForFiles(id(), filesToParse);
+    m_testCaseNames = QTestUtils::testCaseNamesForFiles(id(), filesToParse);
     CppParser::init(filesToParse);
 }
 

@@ -244,28 +244,6 @@ void TestTreeModel::sweep()
 #endif
 }
 
-// TODO move this function to qtest framework folder as it's only necessary there
-QHash<QString, QString> TestTreeModel::testCaseNamesForFiles(const Core::Id &id,
-                                                             const QStringList &files)
-{
-    QHash<QString, QString> result;
-    TestTreeItem *rootNode = TestFrameworkManager::instance()->rootNodeForTestFramework(id);
-    QTC_ASSERT(rootNode, return result);
-
-    for (int row = 0, count = rootNode->childCount(); row < count; ++row) {
-        const TestTreeItem *child = rootNode->childItem(row);
-        if (files.contains(child->filePath())) {
-            result.insert(child->filePath(), child->name());
-        }
-        for (int childRow = 0, children = child->childCount(); childRow < children; ++childRow) {
-            const TestTreeItem *grandChild = child->childItem(childRow);
-            if (files.contains(grandChild->filePath()))
-                result.insert(grandChild->filePath(), child->name());
-        }
-    }
-    return result;
-}
-
 /**
  * @note after calling this function emit testTreeModelChanged() if it returns true
  */
