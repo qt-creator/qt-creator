@@ -525,14 +525,14 @@ void QmlProfilerFileReader::loadNotes(QXmlStreamReader &stream)
             if (elementName == _("note")) {
                 updateProgress(stream.device());
                 QXmlStreamAttributes attrs = stream.attributes();
-                currentNote.startTime = attrs.value(_("startTime")).toLongLong();
-                currentNote.duration = attrs.value(_("duration")).toLongLong();
-                currentNote.typeIndex = attrs.value(_("eventIndex")).toInt();
+                currentNote = QmlNote(attrs.value(_("eventIndex")).toInt(),
+                                      attrs.value(_("startTime")).toLongLong(),
+                                      attrs.value(_("duration")).toLongLong());
             }
             break;
         }
         case QXmlStreamReader::Characters: {
-            currentNote.text = stream.text().toString();
+            currentNote.setText(stream.text().toString());
             break;
         }
         case QXmlStreamReader::EndElement: {
@@ -747,10 +747,10 @@ void QmlProfilerFileWriter::saveQtd(QIODevice *device)
 
         const QmlNote &note = m_notes[noteIndex];
         stream.writeStartElement(_("note"));
-        stream.writeAttribute(_("startTime"), QString::number(note.startTime));
-        stream.writeAttribute(_("duration"), QString::number(note.duration));
-        stream.writeAttribute(_("eventIndex"), QString::number(note.typeIndex));
-        stream.writeCharacters(note.text);
+        stream.writeAttribute(_("startTime"), QString::number(note.startTime()));
+        stream.writeAttribute(_("duration"), QString::number(note.duration()));
+        stream.writeAttribute(_("eventIndex"), QString::number(note.typeIndex()));
+        stream.writeCharacters(note.text());
         stream.writeEndElement(); // note
         incrementProgress();
     }

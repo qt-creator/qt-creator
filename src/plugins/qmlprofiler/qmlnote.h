@@ -29,16 +29,29 @@
 
 namespace QmlProfiler {
 
-struct QmlNote {
+class QmlNote {
+
+public:
     QmlNote(int typeIndex = -1, qint64 startTime = -1, qint64 duration = -1,
                      const QString &text = QString()) :
-        typeIndex(typeIndex), startTime(startTime), duration(duration), text(text)
+        m_typeIndex(typeIndex), m_startTime(startTime), m_duration(duration), m_text(text)
     {}
 
-    int typeIndex;
-    qint64 startTime;
-    qint64 duration;
-    QString text;
+    int typeIndex() const { return m_typeIndex; }
+    qint64 startTime() const { return m_startTime; }
+    qint64 duration() const { return m_duration; }
+    QString text() const { return m_text; }
+
+    void setText(const QString &text) { m_text = text; }
+
+private:
+    friend QDataStream &operator>>(QDataStream &stream, QmlNote &note);
+    friend QDataStream &operator<<(QDataStream &stream, const QmlNote &note);
+
+    int m_typeIndex;
+    qint64 m_startTime;
+    qint64 m_duration;
+    QString m_text;
 };
 
 QDataStream &operator>>(QDataStream &stream, QmlNote &note);

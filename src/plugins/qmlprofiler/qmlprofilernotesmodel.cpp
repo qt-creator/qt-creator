@@ -67,7 +67,7 @@ void QmlProfilerNotesModel::loadData()
     TimelineNotesModel::clear();
     for (int i = 0; i != m_notes.size(); ++i) {
         const QmlNote &note = m_notes[i];
-        addQmlNote(note.typeIndex, note.startTime, note.duration, note.text);
+        addQmlNote(note.typeIndex(), note.startTime(), note.duration(), note.text());
     }
     resetModified();
     blockSignals(false);

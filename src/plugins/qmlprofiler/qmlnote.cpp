@@ -30,12 +30,12 @@ namespace QmlProfiler {
 
 QDataStream &operator>>(QDataStream &stream, QmlNote &note)
 {
-    return stream >> note.typeIndex >> note.startTime >> note.duration >> note.text;
+    return stream >> note.m_typeIndex >> note.m_startTime >> note.m_duration >> note.m_text;
 }
 
 QDataStream &operator<<(QDataStream &stream, const QmlNote &note)
 {
-    return stream << note.typeIndex << note.startTime << note.duration << note.text;
+    return stream << note.m_typeIndex << note.m_startTime << note.m_duration << note.m_text;
 }
 
 } // namespace QmlProfiler
