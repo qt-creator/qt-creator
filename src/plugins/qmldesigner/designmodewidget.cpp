@@ -317,6 +317,7 @@ void DesignModeWidget::setup()
     m_warningWidget->setVisible(false);
     connect(m_warningWidget.data(), &DocumentWarningWidget::gotoCodeClicked, [=]
         (const QString &filePath, int codeLine, int codeColumn) {
+            Q_UNUSED(filePath);
             Q_ASSERT(textEditor()->textDocument()->filePath().toString() == filePath);
             textEditor()->gotoLine(codeLine, codeColumn);
             Core::ModeManager::activateMode(Core::Constants::MODE_EDIT);
