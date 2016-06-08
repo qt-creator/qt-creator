@@ -651,7 +651,6 @@ void CdbEngine::setupInferior()
         symbolPaths += symbolPath;
     runCommand({".sympath \"" + symbolPaths.join(QLatin1Char(';')).toLatin1() + '"', NoFlags});
 
-    runCommand({"!sym noisy", NoFlags}); // Show symbol load information.
     runCommand({"sxn 0x4000001f", NoFlags}); // Do not break on WowX86 exceptions.
     runCommand({"sxn ibp", NoFlags}); // Do not break on initial breakpoints.
     runCommand({".asm source_line", NoFlags}); // Source line in assembly
