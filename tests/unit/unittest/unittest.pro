@@ -67,7 +67,7 @@ SOURCES += \
     chunksreportedmonitor.cpp \
     unsavedfiletest.cpp \
     clangisdiagnosticrelatedtolocationtest.cpp \
-    smallstringtest.cpp \
+#    smallstringtest.cpp \
     sizedarraytest.cpp \
     utf8positionfromlinecolumntest.cpp
 
