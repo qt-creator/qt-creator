@@ -79,6 +79,7 @@ public:
 
 signals:
     void testTreeModelChanged();
+    void updatedActiveFrameworks(int numberOfActiveFrameworks);
 #ifdef WITH_TESTS
     void sweepingDone();
 #endif

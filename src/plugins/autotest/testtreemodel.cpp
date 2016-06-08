@@ -203,12 +203,11 @@ void TestTreeModel::syncTestFrameworks()
 
     TestFrameworkManager *frameworkManager = TestFrameworkManager::instance();
     QVector<Core::Id> sortedIds = frameworkManager->sortedActiveFrameworkIds();
-    // TODO display warning overlay or similar if sortedIds.isEmpty()
-
     foreach (const Core::Id &id, sortedIds)
         rootItem()->appendChild(frameworkManager->rootNodeForTestFramework(id));
 
     m_parser->syncTestFrameworks(sortedIds);
+    emit updatedActiveFrameworks(sortedIds.size());
 }
 
 void TestTreeModel::removeFiles(const QStringList &files)

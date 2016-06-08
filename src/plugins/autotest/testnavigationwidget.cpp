@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "testnavigationwidget.h"
+#include "testframeworkmanager.h"
 #include "testtreemodel.h"
 #include "testtreeview.h"
 #include "testtreeitemdelegate.h"
@@ -63,9 +64,22 @@ TestNavigationWidget::TestNavigationWidget(QWidget *parent) :
     m_view->setSortingEnabled(true);
     m_view->setItemDelegate(new TestTreeItemDelegate(this));
 
+    QPalette pal;
+    pal.setColor(QPalette::Window,
+                 Utils::creatorTheme()->color(Utils::Theme::InfoBarBackground));
+    pal.setColor(QPalette::WindowText,
+                 Utils::creatorTheme()->color(Utils::Theme::InfoBarText));
+    m_missingFrameworksWidget = new QFrame;
+    m_missingFrameworksWidget->setPalette(pal);
+    m_missingFrameworksWidget->setAutoFillBackground(true);
+    QHBoxLayout *hLayout = new QHBoxLayout;
+    m_missingFrameworksWidget->setLayout(hLayout);
+    hLayout->addWidget(new QLabel(tr("No active test frameworks.")));
+    m_missingFrameworksWidget->setVisible(!TestFrameworkManager::instance()->hasActiveFrameworks());
     QVBoxLayout *layout = new QVBoxLayout;
     layout->setMargin(0);
     layout->setSpacing(0);
+    layout->addWidget(m_missingFrameworksWidget);
     layout->addWidget(Core::ItemViewFind::createSearchableWrapper(m_view));
     setLayout(layout);
 
@@ -85,6 +99,10 @@ TestNavigationWidget::TestNavigationWidget(QWidget *parent) :
             this, &TestNavigationWidget::onParsingFinished);
     connect(m_model->parser(), &TestCodeParser::parsingFailed,
             this, &TestNavigationWidget::onParsingFinished);
+    connect(m_model, &TestTreeModel::updatedActiveFrameworks,
+            [this] (int numberOfActive) {
+        m_missingFrameworksWidget->setVisible(numberOfActive == 0);
+    });
     connect(m_progressTimer, &QTimer::timeout,
             m_progressIndicator, &Utils::ProgressIndicator::show);
 }

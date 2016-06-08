@@ -151,5 +151,14 @@ bool TestFrameworkManager::isActive(const Core::Id &frameworkId) const
     return framework ? framework->active() : false;
 }
 
+bool TestFrameworkManager::hasActiveFrameworks() const
+{
+    for (ITestFramework *framework : m_registeredFrameworks.values()) {
+        if (framework->active())
+            return true;
+    }
+    return false;
+}
+
 } // namespace Internal
 } // namespace Autotest

@@ -30,6 +30,7 @@
 #include "testtreemodel.h"
 
 #include <coreplugin/icore.h>
+#include <coreplugin/coreicons.h>
 
 #include <utils/hostosinfo.h>
 
@@ -43,8 +44,16 @@ TestSettingsWidget::TestSettingsWidget(QWidget *parent)
     m_ui.callgrindRB->setEnabled(Utils::HostOsInfo::isAnyUnixHost()); // valgrind available on UNIX
     m_ui.perfRB->setEnabled(Utils::HostOsInfo::isLinuxHost()); // according to docs perf Linux only
 
+    m_ui.frameworksWarnIcon->setVisible(false);
+    m_ui.frameworksWarnIcon->setPixmap(Core::Icons::WARNING.pixmap());
+    m_ui.frameworksWarn->setVisible(false);
+    m_ui.frameworksWarn->setText(tr("No active test frameworks."));
+    m_ui.frameworksWarn->setToolTip(tr("You will not be able to use the AutoTest plugin without "
+                                       "having at least one active test framework."));
     connect(m_ui.repeatGTestsCB, &QCheckBox::toggled, m_ui.repetitionSpin, &QSpinBox::setEnabled);
     connect(m_ui.shuffleGTestsCB, &QCheckBox::toggled, m_ui.seedSpin, &QSpinBox::setEnabled);
+    connect(m_ui.frameworkListWidget, &QListWidget::itemChanged,
+            this, &TestSettingsWidget::onFrameworkItemChanged);
 }
 
 void TestSettingsWidget::setSettings(const TestSettings &settings)
@@ -139,6 +148,19 @@ QHash<Core::Id, bool> TestSettingsWidget::frameworks() const
         }
     }
     return frameworks;
+}
+
+void TestSettingsWidget::onFrameworkItemChanged()
+{
+    for (int row = 0, count = m_ui.frameworkListWidget->count(); row < count; ++row) {
+        if (m_ui.frameworkListWidget->item(row)->checkState() == Qt::Checked) {
+            m_ui.frameworksWarn->setVisible(false);
+            m_ui.frameworksWarnIcon->setVisible(false);
+            return;
+        }
+    }
+    m_ui.frameworksWarn->setVisible(true);
+    m_ui.frameworksWarnIcon->setVisible(true);
 }
 
 TestSettingsPage::TestSettingsPage(const QSharedPointer<TestSettings> &settings)

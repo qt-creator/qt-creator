@@ -85,6 +85,7 @@ private:
     bool m_sortAlphabetically;
     Utils::ProgressIndicator *m_progressIndicator;
     QTimer *m_progressTimer;
+    QFrame *m_missingFrameworksWidget;
 };
 
 class TestNavigationWidgetFactory : public Core::INavigationWidgetFactory

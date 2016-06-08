@@ -56,6 +56,7 @@ public:
     TestTreeItem *rootNodeForTestFramework(const Core::Id &frameworkId) const;
     ITestParser *testParserForTestFramework(const Core::Id &frameworkId) const;
     bool isActive(const Core::Id &frameworkId) const;
+    bool hasActiveFrameworks() const;
 
 private:
     QVector<Core::Id> activeFrameworkIds() const;
