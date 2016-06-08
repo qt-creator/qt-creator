@@ -215,7 +215,8 @@ enum DebuggerConfigurationErrors {
     NoDebugger = 0x1,
     DebuggerNotFound = 0x2,
     DebuggerNotExecutable = 0x4,
-    DebuggerNeedsAbsolutePath = 0x8
+    DebuggerNeedsAbsolutePath = 0x8,
+    DebuggerDoesNotMatch = 0x10
 };
 
 static unsigned debuggerConfigurationErrors(const Kit *k)
@@ -236,15 +237,23 @@ static unsigned debuggerConfigurationErrors(const Kit *k)
     else if (!fi.isExecutable())
         result |= DebuggerNotExecutable;
 
+    const ToolChain *tc = ToolChainKitInformation::toolChain(k);
+    if (tc && item->matchTarget(tc->targetAbi()) == DebuggerItem::DoesNotMatch) {
+        // currently restricting the check to desktop devices, may be extended to all device types
+        const IDevice::ConstPtr device = DeviceKitInformation::device(k);
+        if (device && device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE)
+            result |= DebuggerDoesNotMatch;
+    }
+
     if (!fi.exists() || fi.isDir()) {
         if (item->engineType() == NoEngineType)
             return NoDebugger;
 
         // We need an absolute path to be able to locate Python on Windows.
-        if (item->engineType() == GdbEngineType)
-            if (const ToolChain *tc = ToolChainKitInformation::toolChain(k))
-                if (tc->targetAbi().os() == Abi::WindowsOS && !fi.isAbsolute())
-                    result |= DebuggerNeedsAbsolutePath;
+        if (item->engineType() == GdbEngineType) {
+            if (tc && tc->targetAbi().os() == Abi::WindowsOS && !fi.isAbsolute())
+                result |= DebuggerNeedsAbsolutePath;
+        }
     }
     return result;
 }
@@ -287,6 +296,12 @@ QList<Task> DebuggerKitInformation::validateDebugger(const Kit *k)
         const QString message =
                 tr("The debugger location must be given as an "
                    "absolute path (%1).").arg(path);
+        result << Task(Task::Error, message, FileName(), -1, id);
+    }
+
+    if (errors & DebuggerDoesNotMatch) {
+        const QString message = tr("The ABI of the selected debugger does not "
+                                   "match the toolchain ABI.");
         result << Task(Task::Error, message, FileName(), -1, id);
     }
     return result;
