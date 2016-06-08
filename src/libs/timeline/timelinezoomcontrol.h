@@ -81,9 +81,9 @@ public:
 
     virtual void clear();
 
-    void setTrace(qint64 start, qint64 end);
-    void setRange(qint64 start, qint64 end);
-    void setSelection(qint64 start, qint64 end);
+    Q_INVOKABLE void setTrace(qint64 start, qint64 end);
+    Q_INVOKABLE void setRange(qint64 start, qint64 end);
+    Q_INVOKABLE void setSelection(qint64 start, qint64 end);
     void setWindowLocked(bool windowLocked);
 
 signals:
