@@ -94,7 +94,7 @@ static TypeName resolveTypeName(const ASTPropertyReference *ref, const ContextPt
             if (const ASTObjectValue * astObjectValue = value->asAstObjectValue()) {
                 if (astObjectValue->typeName()) {
                     type = astObjectValue->typeName()->name.toUtf8();
-                    const ObjectValue *  objectValue =  context->lookupType(astObjectValue->document(), astObjectValue->typeName());;
+                    const ObjectValue *objectValue = context->lookupType(astObjectValue->document(), astObjectValue->typeName());
                     if (objectValue)
                         dotProperties = getObjectTypes(objectValue, context);
                 }
@@ -332,8 +332,15 @@ private:
 
 static inline bool isValueType(const TypeName &type)
 {
-    PropertyTypeList objectValuesList;
-    objectValuesList << "QFont" << "QPoint" << "QPointF" << "QSize" << "QSizeF" << "QVector3D" << "QVector2D";
+    static PropertyTypeList objectValuesList(PropertyTypeList()
+        << "QFont" << "QPoint" << "QPointF" << "QSize" << "QSizeF" << "QVector3D" << "QVector2D");
+    return objectValuesList.contains(type);
+}
+
+static inline bool isValueType(const QString &type)
+{
+    static QStringList objectValuesList(QStringList()
+        << "QFont" << "QPoint" << "QPointF" << "QSize" << "QSizeF" << "QVector3D" << "QVector2D");
     return objectValuesList.contains(type);
 }
 
@@ -376,7 +383,19 @@ QStringList prototypes(const ObjectValue *ov, const ContextPtr &context, bool ve
     return list;
 }
 
-QList<PropertyInfo> getQmlTypes(const CppComponentValue *objectValue, const ContextPtr &context, bool local = false, int rec = 0)
+QList<PropertyInfo> getQmlTypes(const CppComponentValue *objectValue, const ContextPtr &context, bool local = false, int rec = 0);
+
+QList<PropertyInfo> getTypes(const ObjectValue *objectValue, const ContextPtr &context, bool local = false, int rec = 0)
+{
+    const CppComponentValue * qmlObjectValue = value_cast<CppComponentValue>(objectValue);
+
+    if (qmlObjectValue)
+        return getQmlTypes(qmlObjectValue, context, local, rec);
+
+    return getObjectTypes(objectValue, context, local, rec);
+}
+
+QList<PropertyInfo> getQmlTypes(const CppComponentValue *objectValue, const ContextPtr &context, bool local, int rec)
 {
     QList<PropertyInfo> propertyList;
 
@@ -391,32 +410,28 @@ QList<PropertyInfo> getQmlTypes(const CppComponentValue *objectValue, const Cont
     PropertyMemberProcessor processor(context);
     objectValue->processMembers(&processor);
 
-    QList<PropertyInfo> newList = processor.properties();
-
-    foreach (PropertyInfo property, newList) {
+    foreach (const PropertyInfo &property, processor.properties()) {
         const PropertyName name = property.first;
         const QString nameAsString = QString::fromUtf8(name);
         if (!objectValue->isWritable(nameAsString) && objectValue->isPointer(nameAsString)) {
             //dot property
             const CppComponentValue * qmlValue = value_cast<CppComponentValue>(objectValue->lookupMember(nameAsString, context));
             if (qmlValue) {
-                QList<PropertyInfo> dotProperties = getQmlTypes(qmlValue, context, false, rec + 1);
+                const QList<PropertyInfo> dotProperties = getQmlTypes(qmlValue, context, false, rec + 1);
                 foreach (const PropertyInfo &propertyInfo, dotProperties) {
-                    PropertyName dotName = propertyInfo.first;
-                    TypeName type = propertyInfo.second;
-                    dotName = name + '.' + dotName;
+                    const PropertyName dotName = name + '.' + propertyInfo.first;
+                    const TypeName type = propertyInfo.second;
                     propertyList.append(qMakePair(dotName, type));
                 }
             }
         }
-        if (isValueType(objectValue->propertyType(nameAsString).toUtf8())) {
+        if (isValueType(objectValue->propertyType(nameAsString))) {
             const ObjectValue *dotObjectValue = value_cast<ObjectValue>(objectValue->lookupMember(nameAsString, context));
             if (dotObjectValue) {
-                QList<PropertyInfo> dotProperties = getObjectTypes(dotObjectValue, context, false, rec + 1);
+                const QList<PropertyInfo> dotProperties = getObjectTypes(dotObjectValue, context, false, rec + 1);
                 foreach (const PropertyInfo &propertyInfo, dotProperties) {
-                    PropertyName dotName = propertyInfo.first;
-                    TypeName type = propertyInfo.second;
-                    dotName = name + '.' + dotName;
+                    const PropertyName dotName = name + '.' + propertyInfo.first;
+                    const TypeName type = propertyInfo.second;
                     propertyList.append(qMakePair(dotName, type));
                 }
             }
@@ -427,16 +442,8 @@ QList<PropertyInfo> getQmlTypes(const CppComponentValue *objectValue, const Cont
         propertyList.append(qMakePair(name, type));
     }
 
-    if (!local) {
-        const ObjectValue* prototype = objectValue->prototype(context);
-
-        const CppComponentValue * qmlObjectValue = value_cast<CppComponentValue>(prototype);
-
-        if (qmlObjectValue)
-            propertyList.append(getQmlTypes(qmlObjectValue, context, false, rec));
-        else
-            propertyList.append(getObjectTypes(prototype, context, false, rec));
-    }
+    if (!local)
+        propertyList.append(getTypes(objectValue->prototype(context), context, local, rec));
 
     return propertyList;
 }
@@ -466,20 +473,6 @@ PropertyNameList getSignals(const ObjectValue *objectValue, const ContextPtr &co
     return signalList;
 }
 
-QList<PropertyInfo> getTypes(const ObjectValue *objectValue, const ContextPtr &context, bool local = false)
-{
-    QList<PropertyInfo> propertyList;
-
-    const CppComponentValue * qmlObjectValue = value_cast<CppComponentValue>(objectValue);
-
-    if (qmlObjectValue)
-        propertyList.append(getQmlTypes(qmlObjectValue, context, local));
-    else
-        propertyList.append(getObjectTypes(objectValue, context, local));
-
-    return propertyList;
-}
-
 QList<PropertyInfo> getObjectTypes(const ObjectValue *objectValue, const ContextPtr &context, bool local, int rec)
 {
     QList<PropertyInfo> propertyList;
@@ -499,7 +492,7 @@ QList<PropertyInfo> getObjectTypes(const ObjectValue *objectValue, const Context
 
     if (!local) {
         const ObjectValue* prototype = objectValue->prototype(context);
-
+        // TODO: can we move this to getType methode and use that one here then
         if (prototype == objectValue)
             return propertyList;
 
