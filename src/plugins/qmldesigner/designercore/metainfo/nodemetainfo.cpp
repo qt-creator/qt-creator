@@ -76,9 +76,9 @@ using namespace QmlJS;
 
 typedef QPair<PropertyName, TypeName> PropertyInfo;
 
-QList<PropertyInfo> getObjectTypes(const ObjectValue *ov, const ContextPtr &context, bool local = false, int rec = 0);
+QVector<PropertyInfo> getObjectTypes(const ObjectValue *ov, const ContextPtr &context, bool local = false, int rec = 0);
 
-static TypeName resolveTypeName(const ASTPropertyReference *ref, const ContextPtr &context,  QList<PropertyInfo> &dotProperties)
+static TypeName resolveTypeName(const ASTPropertyReference *ref, const ContextPtr &context,  QVector<PropertyInfo> &dotProperties)
 {
     TypeName type = "unknown";
 
@@ -281,7 +281,7 @@ public:
         PropertyName propertyName = name.toUtf8();
         const ASTPropertyReference *ref = value_cast<ASTPropertyReference>(value);
         if (ref) {
-            QList<PropertyInfo> dotProperties;
+            QVector<PropertyInfo> dotProperties;
             const TypeName type = resolveTypeName(ref, m_context, dotProperties);
             m_properties.append(qMakePair(propertyName, type));
             if (!dotProperties.isEmpty()) {
@@ -320,12 +320,12 @@ public:
         return true;
     }
 
-    QList<PropertyInfo> properties() const { return m_properties; }
+    QVector<PropertyInfo> properties() const { return m_properties; }
 
     PropertyNameList signalList() const { return m_signals; }
 
 private:
-    QList<PropertyInfo> m_properties;
+    QVector<PropertyInfo> m_properties;
     PropertyNameList m_signals;
     const ContextPtr m_context;
 };
@@ -383,9 +383,9 @@ QStringList prototypes(const ObjectValue *ov, const ContextPtr &context, bool ve
     return list;
 }
 
-QList<PropertyInfo> getQmlTypes(const CppComponentValue *objectValue, const ContextPtr &context, bool local = false, int rec = 0);
+QVector<PropertyInfo> getQmlTypes(const CppComponentValue *objectValue, const ContextPtr &context, bool local = false, int rec = 0);
 
-QList<PropertyInfo> getTypes(const ObjectValue *objectValue, const ContextPtr &context, bool local = false, int rec = 0)
+QVector<PropertyInfo> getTypes(const ObjectValue *objectValue, const ContextPtr &context, bool local = false, int rec = 0)
 {
     const CppComponentValue * qmlObjectValue = value_cast<CppComponentValue>(objectValue);
 
@@ -395,9 +395,9 @@ QList<PropertyInfo> getTypes(const ObjectValue *objectValue, const ContextPtr &c
     return getObjectTypes(objectValue, context, local, rec);
 }
 
-QList<PropertyInfo> getQmlTypes(const CppComponentValue *objectValue, const ContextPtr &context, bool local, int rec)
+QVector<PropertyInfo> getQmlTypes(const CppComponentValue *objectValue, const ContextPtr &context, bool local, int rec)
 {
-    QList<PropertyInfo> propertyList;
+    QVector<PropertyInfo> propertyList;
 
     if (!objectValue)
         return propertyList;
@@ -417,7 +417,7 @@ QList<PropertyInfo> getQmlTypes(const CppComponentValue *objectValue, const Cont
             //dot property
             const CppComponentValue * qmlValue = value_cast<CppComponentValue>(objectValue->lookupMember(nameAsString, context));
             if (qmlValue) {
-                const QList<PropertyInfo> dotProperties = getQmlTypes(qmlValue, context, false, rec + 1);
+                QVector<PropertyInfo> dotProperties = getQmlTypes(qmlValue, context, false, rec + 1);
                 foreach (const PropertyInfo &propertyInfo, dotProperties) {
                     const PropertyName dotName = name + '.' + propertyInfo.first;
                     const TypeName type = propertyInfo.second;
@@ -428,7 +428,7 @@ QList<PropertyInfo> getQmlTypes(const CppComponentValue *objectValue, const Cont
         if (isValueType(objectValue->propertyType(nameAsString))) {
             const ObjectValue *dotObjectValue = value_cast<ObjectValue>(objectValue->lookupMember(nameAsString, context));
             if (dotObjectValue) {
-                const QList<PropertyInfo> dotProperties = getObjectTypes(dotObjectValue, context, false, rec + 1);
+                QVector<PropertyInfo> dotProperties = getObjectTypes(dotObjectValue, context, false, rec + 1);
                 foreach (const PropertyInfo &propertyInfo, dotProperties) {
                     const PropertyName dotName = name + '.' + propertyInfo.first;
                     const TypeName type = propertyInfo.second;
@@ -473,9 +473,9 @@ PropertyNameList getSignals(const ObjectValue *objectValue, const ContextPtr &co
     return signalList;
 }
 
-QList<PropertyInfo> getObjectTypes(const ObjectValue *objectValue, const ContextPtr &context, bool local, int rec)
+QVector<PropertyInfo> getObjectTypes(const ObjectValue *objectValue, const ContextPtr &context, bool local, int rec)
 {
-    QList<PropertyInfo> propertyList;
+    QVector<PropertyInfo> propertyList;
 
     if (!objectValue)
         return propertyList;
@@ -558,8 +558,8 @@ private:
 
     const CppComponentValue *getCppComponentValue() const;
     const ObjectValue *getObjectValue() const;
-    void setupPropertyInfo(QList<PropertyInfo> propertyInfos);
-    void setupLocalPropertyInfo(QList<PropertyInfo> propertyInfos);
+    void setupPropertyInfo(const QVector<PropertyInfo> &propertyInfos);
+    void setupLocalPropertyInfo(const QVector<PropertyInfo> &propertyInfos);
     QString lookupName() const;
     QStringList lookupNameComponent() const;
     const CppComponentValue *getNearestCppComponentValue() const;
@@ -781,14 +781,14 @@ const Document *NodeMetaInfoPrivate::document() const
     return 0;
 }
 
-void NodeMetaInfoPrivate::setupLocalPropertyInfo(QList<PropertyInfo> localPropertyInfos)
+void NodeMetaInfoPrivate::setupLocalPropertyInfo(const QVector<PropertyInfo> &localPropertyInfos)
 {
     foreach (const PropertyInfo &propertyInfo, localPropertyInfos) {
         m_localProperties.append(propertyInfo.first);
     }
 }
 
-void NodeMetaInfoPrivate::setupPropertyInfo(QList<PropertyInfo> propertyInfos)
+void NodeMetaInfoPrivate::setupPropertyInfo(const QVector<PropertyInfo> &propertyInfos)
 {
     foreach (const PropertyInfo &propertyInfo, propertyInfos) {
         if (!m_properties.contains(propertyInfo.first)) {
