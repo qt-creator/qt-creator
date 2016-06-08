@@ -72,8 +72,8 @@ void LocalQmlProfilerRunnerTest::testRunner()
 
     rc->start();
 
-    QTRY_COMPARE(runCount, 1);
-    QTRY_VERIFY(!running);
+    QTRY_COMPARE_WITH_TIMEOUT(runCount, 1, 10000);
+    QTRY_VERIFY_WITH_TIMEOUT(!running, 10000);
     QCOMPARE(errors, 1);
 
     configuration.debuggee.environment = Utils::Environment::systemEnvironment();
@@ -88,8 +88,8 @@ void LocalQmlProfilerRunnerTest::testRunner()
     connectRunner();
     rc->start();
 
-    QTRY_COMPARE(runCount, 2);
-    QTRY_VERIFY(!running);
+    QTRY_COMPARE_WITH_TIMEOUT(runCount, 2, 10000);
+    QTRY_VERIFY_WITH_TIMEOUT(!running, 10000);
     QCOMPARE(errors, 1);
 
     delete rc;
@@ -102,13 +102,13 @@ void LocalQmlProfilerRunnerTest::testRunner()
     connectRunner();
     rc->start();
 
-    QTRY_COMPARE(runCount, 3);
+    QTRY_COMPARE_WITH_TIMEOUT(runCount, 3, 10000);
     QTest::qWait(1000);
-    QVERIFY(running);
+    QVERIFY(running); // verify it doesn't spontaneously stop
     QCOMPARE(errors, 1);
 
     rc->stop();
-    QTRY_VERIFY(!running);
+    QTRY_VERIFY_WITH_TIMEOUT(!running, 10000);
     QCOMPARE(errors, 2); // "The program has unexpectedly finished."
 
     delete rc;
