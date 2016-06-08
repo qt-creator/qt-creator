@@ -27,9 +27,6 @@ source("../../shared/qtcreator.py")
 source("../../shared/suites_qtta.py")
 
 def main():
-    if not canTestEmbeddedQtQuick():
-        test.log("Welcome mode is not scriptable with this Squish version")
-        return
     welcomePage = ":Qt Creator.WelcomePage_QQuickWidget"
     # open Qt Creator
     startApplication("qtcreator" + SettingsPath)

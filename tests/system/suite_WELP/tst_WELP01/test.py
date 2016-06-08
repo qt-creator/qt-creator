@@ -51,9 +51,6 @@ def waitForButtonsState(projectsChecked, examplesChecked, tutorialsChecked, time
                    'and tutoButton.checked == tutorialsChecked', timeout)
 
 def main():
-    if not canTestEmbeddedQtQuick():
-        test.log("Welcome mode is not scriptable with this Squish version")
-        return
     global gettingStartedText
     # open Qt Creator
     startApplication("qtcreator" + SettingsPath)

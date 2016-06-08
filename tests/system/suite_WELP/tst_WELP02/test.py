@@ -34,9 +34,6 @@ def checkTypeAndProperties(typePropertiesDetails):
                     "Verifying: Qt Creator displays %s." % detail)
 
 def main():
-    if not canTestEmbeddedQtQuick():
-        test.log("Welcome mode is not scriptable with this Squish version")
-        return
     # prepare example project
     sourceExample = os.path.join(sdkPath, "Examples", "4.7", "declarative", "animation", "basics",
                                  "property-animation")

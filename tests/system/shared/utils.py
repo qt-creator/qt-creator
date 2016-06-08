@@ -665,7 +665,3 @@ def getHelpTitle():
         return str(hv.title)
     except:
         return str(hv.documentTitle)
-
-def canTestEmbeddedQtQuick():
-    return (squishinfo.major * 0x10000 + squishinfo.minor * 0x100
-            + squishinfo.patch) > 0x050100
