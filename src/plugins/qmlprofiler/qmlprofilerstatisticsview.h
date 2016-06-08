@@ -107,7 +107,6 @@ public:
     ~QmlProfilerStatisticsMainView();
 
     void setFieldViewable(Fields field, bool show);
-    void setShowAnonymousEvents( bool showThem );
 
     QModelIndex selectedModelIndex() const;
     void copyTableToClipboard() const;
