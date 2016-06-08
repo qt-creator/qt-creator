@@ -31,6 +31,7 @@
 #include <projectexplorer/runconfiguration.h>
 #include <qmldebug/qmldebugcommandlinearguments.h>
 
+#include <QFutureInterface>
 #include <QObject>
 #include <QTimer>
 #include <QTcpSocket>
@@ -80,15 +81,19 @@ private:
     void logcatReadStandardOutput();
     void asyncStart();
     Q_INVOKABLE QByteArray runPs();
-
+    Q_INVOKABLE void launchAVDProcesses();
     void adbKill(qint64 pid);
     QStringList selector() const { return m_selector; }
     void forceStop();
     void findPs();
     void logcatProcess(const QByteArray &text, QByteArray &buffer, bool onlyError);
     bool adbShellAmNeedsQuotes();
-
+    void launchAVD();
     bool runAdb(const QStringList &args, QString *errorMessage = nullptr, int timeoutS = 10);
+private:
+    AndroidRunConfiguration *m_runConfig;
+    QString m_launchedAVDName;
+    QFutureInterface<bool> m_avdFutureInterface;
     QProcess m_adbLogcatProcess;
     QProcess m_psProc;
     QTimer m_checkPIDTimer;

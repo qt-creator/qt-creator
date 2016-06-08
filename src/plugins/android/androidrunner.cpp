@@ -33,6 +33,9 @@
 #include "androidmanager.h"
 
 #include <debugger/debuggerrunconfigurationaspect.h>
+#include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/projectexplorersettings.h>
 #include <projectexplorer/target.h>
 #include <qtsupport/qtkitinformation.h>
 #include <utils/qtcassert.h>
@@ -45,6 +48,8 @@
 #include <QTemporaryFile>
 #include <QTcpServer>
 #include <QTcpSocket>
+
+using namespace ProjectExplorer;
 
 /*
     This uses explicit handshakes between the application and the
@@ -122,8 +127,10 @@ static int socketHandShakePort = MIN_SOCKET_HANDSHAKE_PORT;
 AndroidRunner::AndroidRunner(QObject *parent,
                              AndroidRunConfiguration *runConfig,
                              Core::Id runMode)
-    : QThread(parent), m_handShakeMethod(SocketHandShake), m_socket(0),
-      m_customPort(false)
+    : QThread(parent)
+    , m_runConfig(runConfig)
+    , m_handShakeMethod(SocketHandShake), m_socket(0)
+    , m_customPort(false)
 {
     m_tries = 0;
     Debugger::DebuggerRunConfigurationAspect *aspect
@@ -268,6 +275,13 @@ QByteArray AndroidRunner::runPs()
     }
 }
 
+void AndroidRunner::launchAVDProcesses()
+{
+    // Its assumed that the device or avd serial returned by selector() is online.
+    m_adbLogcatProcess.start(m_adb, selector() << _("logcat"));
+    m_psProc.start(m_adb, selector() << _("shell"));
+}
+
 void AndroidRunner::checkPID()
 {
     QByteArray psOut = runPs();
@@ -327,14 +341,40 @@ void AndroidRunner::forceStop()
 
 void AndroidRunner::start()
 {
-    m_adbLogcatProcess.start(m_adb, selector() << _("logcat"));
-    m_psProc.start(m_adb, selector() << _("shell"));
+    if (!ProjectExplorerPlugin::projectExplorerSettings().deployBeforeRun) {
+        // User choose to run the app without deployment. Start the AVD if not running.
+       launchAVD();
+    }
+
     Utils::runAsync(&AndroidRunner::asyncStart, this);
 }
 
 void AndroidRunner::asyncStart()
 {
+    if (!ProjectExplorerPlugin::projectExplorerSettings().deployBeforeRun && !m_launchedAVDName.isEmpty()) {
+        // AVD was started. Wait for the avd to boot before launching the app.
+        m_avdFutureInterface = QFutureInterface<bool>();
+
+        m_avdFutureInterface.reportStarted();
+        QString serialNumber = AndroidConfigurations::currentConfig()
+                .waitForAvd(m_launchedAVDName, m_avdFutureInterface);
+
+        if (m_avdFutureInterface.isCanceled()) {
+            // User stopped the run step before AVD start. Bail out.
+            m_avdFutureInterface.reportFinished();
+            return;
+        } else {
+            QMetaObject::invokeMethod(this, "launchAVDProcesses", Qt::BlockingQueuedConnection);
+            AndroidManager::setDeviceSerialNumber(m_runConfig->target(), serialNumber);
+            m_avdFutureInterface.reportFinished();
+        }
+    } else {
+        // AVD/device available.
+        QMetaObject::invokeMethod(this, "launchAVDProcesses", Qt::BlockingQueuedConnection);
+    }
+
     QMutexLocker locker(&m_mutex);
+
     forceStop();
     QString errorMessage;
 
@@ -493,6 +533,30 @@ bool AndroidRunner::adbShellAmNeedsQuotes()
     return !oldSdk;
 }
 
+void AndroidRunner::launchAVD()
+{
+    if (!m_runConfig->target() && !m_runConfig->target()->project())
+        return;
+
+    int deviceAPILevel = AndroidManager::minimumSDK(m_runConfig->target());
+    QString targetArch = AndroidManager::targetArch(m_runConfig->target());
+
+    // Get AVD info.
+    AndroidDeviceInfo info = AndroidConfigurations::showDeviceDialog(m_runConfig->target()->project(), deviceAPILevel,
+                                                                     targetArch, AndroidConfigurations::None);
+    AndroidManager::setDeviceSerialNumber(m_runConfig->target(), info.serialNumber);
+    m_androidRunnable.deviceSerialNumber = info.serialNumber;
+    m_selector = AndroidDeviceInfo::adbSelector(info.serialNumber);
+    if (info.isValid()) {
+        if (AndroidConfigurations::currentConfig().findAvd(info.avdname).isEmpty()) {
+            bool launched = AndroidConfigurations::currentConfig().startAVDAsync(info.avdname);
+            m_launchedAVDName = launched ? info.avdname:"";
+        } else {
+            m_launchedAVDName.clear();
+        }
+    }
+}
+
 bool AndroidRunner::runAdb(const QStringList &args, QString *errorMessage, int timeoutS)
 {
     Utils::SynchronousProcess adb;
@@ -525,6 +589,13 @@ void AndroidRunner::handleRemoteDebuggerRunning()
 void AndroidRunner::stop()
 {
     QMutexLocker locker(&m_mutex);
+
+    if (m_avdFutureInterface.isRunning()) {
+        m_avdFutureInterface.cancel();
+        m_avdFutureInterface.waitForFinished();
+        emit remoteProcessFinished(QLatin1String("\n\n") + tr("\"%1\" terminated.").arg(m_androidRunnable.packageName));
+    }
+
     m_checkPIDTimer.stop();
     m_tries = 0;
     if (m_processPID != -1) {
