@@ -667,6 +667,17 @@ bool QtcProcess::prepareCommand(const QString &command, const QString &arguments
     return true;
 }
 
+QtcProcess::QtcProcess(QObject *parent)
+    : QProcess(parent),
+      m_haveEnv(false),
+      m_useCtrlCStub(false)
+{
+    static int qProcessExitStatusMeta = qRegisterMetaType<QProcess::ExitStatus>();
+    static int qProcessProcessErrorMeta = qRegisterMetaType<QProcess::ProcessError>();
+    Q_UNUSED(qProcessExitStatusMeta);
+    Q_UNUSED(qProcessProcessErrorMeta);
+}
+
 void QtcProcess::setUseCtrlCStub(bool enabled)
 {
     // Do not use the stub in debug mode. Activating the stub will shut down
