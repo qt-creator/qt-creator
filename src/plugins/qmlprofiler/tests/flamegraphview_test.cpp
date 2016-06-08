@@ -116,12 +116,16 @@ void FlameGraphViewTest::testContextMenu()
         targetHeight = (testMenu.height() + prevHeight) / 2;
     }
 
-    connect(view.windowHandle(), &QWindow::activeChanged, this, [&]() {
-        if (view.windowHandle()->isActive())
+    QTimer timer;
+    timer.setInterval(50);
+    timer.start();
+
+    connect(&timer, &QTimer::timeout, this, [&]() {
+        auto activePopup = qApp->activePopupWidget();
+        if (!activePopup || !activePopup->windowHandle()->isExposed())
             return;
-        QTest::qWaitForWindowExposed(qApp->activePopupWidget());
-        QTest::mouseMove(qApp->activePopupWidget(), QPoint(targetWidth, targetHeight));
-        QTest::mouseClick(qApp->activePopupWidget(), Qt::LeftButton, Qt::NoModifier,
+        QTest::mouseMove(activePopup, QPoint(targetWidth, targetHeight));
+        QTest::mouseClick(activePopup, Qt::LeftButton, Qt::NoModifier,
                           QPoint(targetWidth, targetHeight));
 
         if (!manager.isRestrictedToRange()) {
