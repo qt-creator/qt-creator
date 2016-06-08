@@ -1,18 +1,17 @@
-IDE_SOURCE_TREE=$$PWD/../../../../..
-IDE_BUILD_TREE=$$OUT_PWD/../../../../..
-# can we check that this is a valid build dir?
-OUT_PWD_SAVE=$$OUT_PWD
-OUT_PWD=IDE_BUILD_TREE
-include($$IDE_SOURCE_TREE/src/plugins/qmldesigner/config.pri)
+QTC_LIB_DEPENDS += \
+    utils \
+    qmljs \
+    qmleditorwidgets \
+    cplusplus
+
+QTC_PLUGIN_DEPENDS += \
+    coreplugin \
+    qmljseditor
+
 include(../../../qttest.pri)
-OUT_PWD=$$OUT_PWD_SAVE
-LIBS *= -L$$IDE_PLUGIN_PATH
-LIBS *= -L$$IDE_LIBRARY_PATH
+include($$IDE_SOURCE_TREE/src/plugins/qmldesigner/config.pri)
 
-unix: QMAKE_LFLAGS += \'-Wl,-rpath,$${IDE_LIBRARY_PATH}\' \'-Wl,-rpath,$${IDE_PLUGIN_PATH}\'
-
-QT += script \
-    network
+QT += network core-private
 
 greaterThan(QT_MAJOR_VERSION, 4) {
     QT += printsupport
@@ -22,22 +21,26 @@ greaterThan(QT_MAJOR_VERSION, 4) {
     contains(QT_CONFIG, webkit): QT += webkit
 }
 
-
-# DEFINES+=QTCREATOR_UTILS_STATIC_LIB QML_BUILD_STATIC_LIB
 DEFINES+=QTCREATORDIR=\\\"$$IDE_BUILD_TREE\\\"
-DEFINES += QTCREATOR_TEST QMLDESIGNER_TEST
+DEFINES += QTCREATOR_TEST
+DEFINES += QMLDESIGNER_TEST
+DEFINES += QT_RESTRICTED_CAST_FROM_ASCII
 
 INCLUDEPATH += $$IDE_SOURCE_TREE/src/plugins/qmldesigner/designercore/include
 INCLUDEPATH += $$IDE_SOURCE_TREE/src/plugins/qmldesigner/designercore
 INCLUDEPATH += $$IDE_SOURCE_TREE//share/qtcreator/qml/qmlpuppet
 INCLUDEPATH += $$IDE_SOURCE_TREE/src/plugins/qmldesigner
-
+INCLUDEPATH += $$IDE_SOURCE_TREE/src/plugins/qmldesigner/components/integration
+INCLUDEPATH += $$IDE_SOURCE_TREE/src/plugins/qmldesigner/components/componentcore
+INCLUDEPATH += $$IDE_SOURCE_TREE/src/plugins/qmldesigner/components/itemlibrary
+INCLUDEPATH += $$IDE_SOURCE_TREE/src/plugins/qmldesigner/components/navigator
+INCLUDEPATH += $$IDE_SOURCE_TREE/src/plugins/qmldesigner/components/stateseditor
+INCLUDEPATH += $$IDE_SOURCE_TREE/src/plugins/qmldesigner/components/formeditor
+INCLUDEPATH += $$IDE_SOURCE_TREE/src/plugins/qmldesigner/components/propertyeditor
+INCLUDEPATH += $$IDE_SOURCE_TREE/src/plugins/qmldesigner/components/debugview
+INCLUDEPATH *= $$IDE_SOURCE_TREE/src/libs/3rdparty
 
 include($$IDE_SOURCE_TREE/src/plugins/qmldesigner/designercore/designercore-lib.pri)
-include($$IDE_SOURCE_TREE/src/plugins/qmljstools/qmljstools.pri)
-include($$IDE_SOURCE_TREE/src/libs/utils/utils.pri)
-include($$IDE_SOURCE_TREE/src/libs/qmljs/qmljs.pri)
-include($$IDE_SOURCE_TREE/src/libs/cplusplus/cplusplus.pri)
 
 CONFIG += console
 CONFIG -= app_bundle

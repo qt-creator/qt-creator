@@ -114,7 +114,9 @@ private:
     PuppetType m_availablePuppetType;
     static QHash<Core::Id, PuppetType> m_qml2PuppetForKitPuppetHash;
     const Model *m_model;
+#ifndef QMLDESIGNER_TEST
     const DesignerSettings m_designerSettings;
+#endif
     QString m_qrcMapping;
 };
 

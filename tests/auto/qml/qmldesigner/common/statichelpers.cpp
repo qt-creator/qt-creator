@@ -47,15 +47,15 @@
 
 static ModelNode addNodeListChild(const ModelNode &parentNode, const QString &typeName, int major, int minor, const QString &parentProperty)
 {
-    ModelNode newNode = parentNode.view()->createModelNode(typeName, major, minor);
-    parentNode.nodeListProperty(parentProperty).reparentHere(newNode);
+    ModelNode newNode = parentNode.view()->createModelNode(typeName.toUtf8(), major, minor);
+    parentNode.nodeListProperty(parentProperty.toUtf8()).reparentHere(newNode);
     return newNode;
 }
 
 static ModelNode addNodeChild(const ModelNode &parentNode, const QString &typeName, int major, int minor, const QString &parentProperty)
 {
-    ModelNode newNode = parentNode.view()->createModelNode(typeName, major, minor);
-    parentNode.nodeProperty(parentProperty).reparentHere(newNode);
+    ModelNode newNode = parentNode.view()->createModelNode(typeName.toUtf8(), major, minor);
+    parentNode.nodeProperty(parentProperty.toUtf8()).reparentHere(newNode);
     return newNode;
 }
 
@@ -104,8 +104,8 @@ static bool compareTree(const ModelNode &node1, const ModelNode &node2)
 
     // Compare list of children
     {
-        const QList<ModelNode> childList1 = node1.allDirectSubModelNodes();
-        const QList<ModelNode> childList2 = node2.allDirectSubModelNodes();
+        const QList<ModelNode> childList1 = node1.directSubModelNodes();
+        const QList<ModelNode> childList2 = node2.directSubModelNodes();
 
         QList<ModelNode>::const_iterator iter1;
         QList<ModelNode>::const_iterator iter2;

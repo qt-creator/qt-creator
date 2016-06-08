@@ -1958,9 +1958,14 @@ The view is informed that it has been registered within the model by a call to A
 void Model::attachView(AbstractView *view)
 {
 //    Internal::WriteLocker locker(d);
-    RewriterView *rewriterView = qobject_cast<RewriterView*>(view);
-    if (rewriterView)
+    RewriterView *castedRewriterView = qobject_cast<RewriterView*>(view);
+    if (castedRewriterView) {
+        if (rewriterView() == castedRewriterView)
+            return;
+        setRewriterView(castedRewriterView);
+
         return;
+    }
 
     NodeInstanceView *nodeInstanceView = qobject_cast<NodeInstanceView*>(view);
     if (nodeInstanceView)

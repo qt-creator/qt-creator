@@ -31,99 +31,120 @@
 #include <abstractproperty.h>
 #include <bindingproperty.h>
 #include <variantproperty.h>
+#include <signalhandlerproperty.h>
 #include <nodelistproperty.h>
 #include <nodeinstanceview.h>
 #include <model.h>
+#include <nodeinstanceview.h>
 
 TestView::TestView(QmlDesigner::Model *model)
-    : QmlDesigner::QmlModelView(model)
+    : QmlDesigner::AbstractView(model)
 {
+    /*
     QmlDesigner::NodeInstanceView *nodeInstanceView = new QmlDesigner::NodeInstanceView(model, QmlDesigner::NodeInstanceServerInterface::TestModus);
 
-    model->attachView(nodeInstanceView);
+    if (model)
+        model->setNodeInstanceView(nodeInstanceView);
+    */
 }
 
 void TestView::modelAttached(QmlDesigner::Model *model)
 {
-    QmlDesigner::QmlModelView::modelAttached(model);
+    QmlDesigner::AbstractView::modelAttached(model);
     m_methodCalls += MethodCall("modelAttached", QStringList() << QString::number(reinterpret_cast<long>(model)));
 }
 
 void TestView::modelAboutToBeDetached(QmlDesigner::Model *model)
 {
-    QmlDesigner::QmlModelView::modelAboutToBeDetached(model);
+    QmlDesigner::AbstractView::modelAboutToBeDetached(model);
     m_methodCalls += MethodCall("modelAboutToBeDetached", QStringList() << QString::number(reinterpret_cast<long>(model)));
 }
 
 void TestView::nodeIdChanged(const QmlDesigner::ModelNode &node, const QString& newId, const QString &oldId)
 {
-    QmlDesigner::QmlModelView::nodeIdChanged(node, newId, oldId);
     m_methodCalls += MethodCall("nodeIdChanged", QStringList() << node.id() << newId << oldId);
 }
 
 void TestView::rootNodeTypeChanged(const QString &type, int majorVersion, int minorVersion)
 {
-    QmlDesigner::QmlModelView::rootNodeTypeChanged(type, majorVersion, minorVersion);
     m_methodCalls += MethodCall("rootNodeTypeChanged", QStringList() << rootModelNode().id() << type << QString::number(majorVersion) << QString::number(minorVersion));
 }
 
 void TestView::fileUrlChanged(const QUrl & oldBaseUrl, const QUrl &newBaseUrl)
 {
-    QmlDesigner::QmlModelView::fileUrlChanged(oldBaseUrl, newBaseUrl);
     m_methodCalls += MethodCall("fileUrlChanged", QStringList() << oldBaseUrl.toString() << newBaseUrl.toString());
 }
 
 void TestView::propertiesAboutToBeRemoved(const QList<QmlDesigner::AbstractProperty>& propertyList)
 {
-    QmlDesigner::QmlModelView::propertiesAboutToBeRemoved(propertyList);
     QStringList propertyNames;
     foreach (const QmlDesigner::AbstractProperty &property, propertyList)
-        propertyNames += property.name();
+        propertyNames += QString::fromUtf8(property.name());
     m_methodCalls += MethodCall("propertiesAboutToBeRemoved", QStringList() << propertyNames.join(", "));
+}
+
+void TestView::propertiesRemoved(const QList<QmlDesigner::AbstractProperty> &propertyList)
+{
+    QStringList propertyNames;
+    foreach (const QmlDesigner::AbstractProperty &property, propertyList)
+        propertyNames += QString::fromUtf8(property.name());
+    m_methodCalls += MethodCall("propertiesRemoved", QStringList() << propertyNames.join(", "));
+}
+
+void TestView::signalHandlerPropertiesChanged(const QVector<QmlDesigner::SignalHandlerProperty> &propertyList, PropertyChangeFlags )
+{
+    QStringList propertyNames;
+    foreach (const QmlDesigner::AbstractProperty &property, propertyList)
+        propertyNames += QString::fromUtf8(property.name());
+    m_methodCalls += MethodCall("signalHandlerPropertiesChanged", QStringList() << propertyNames.join(", "));
+}
+
+void TestView::importsChanged(const QList<QmlDesigner::Import> &, const QList<QmlDesigner::Import> &)
+{
+
 }
 
 void TestView::nodeCreated(const QmlDesigner::ModelNode &createdNode)
 {
-    QmlDesigner::QmlModelView::nodeCreated(createdNode);
     m_methodCalls += MethodCall("nodeCreated", QStringList() << createdNode.id());
 }
 
 void TestView::nodeAboutToBeRemoved(const QmlDesigner::ModelNode &removedNode)
 {
-    QmlDesigner::QmlModelView::nodeAboutToBeRemoved(removedNode);
     m_methodCalls += MethodCall("nodeAboutToBeRemoved", QStringList() << removedNode.id());
 }
 
 void TestView::nodeRemoved(const QmlDesigner::ModelNode &removedNode, const QmlDesigner::NodeAbstractProperty &parentProperty, AbstractView::PropertyChangeFlags propertyChange)
 {
-    QmlDesigner::QmlModelView::nodeRemoved(removedNode, parentProperty, propertyChange);
-    const QString parentPropertyName = parentProperty.isValid() ? parentProperty.name() : "";
+    const QString parentPropertyName = parentProperty.isValid() ? QString::fromUtf8(parentProperty.name()) : QLatin1String("");
 
-    m_methodCalls += MethodCall("nodeRemoved", QStringList() << QString() << parentPropertyName << serialize(propertyChange));
+    m_methodCalls += MethodCall("nodeRemoved", QStringList() << QString::number(removedNode.internalId()) << parentPropertyName << serialize(propertyChange));
 }
 
 
 void TestView::nodeReparented(const QmlDesigner::ModelNode & node, const QmlDesigner::NodeAbstractProperty &newPropertyParent, const QmlDesigner::NodeAbstractProperty & oldPropertyParent, AbstractView::PropertyChangeFlags propertyChange)
 {
-    QmlDesigner::QmlModelView::nodeReparented(node, newPropertyParent, oldPropertyParent, propertyChange);
-    m_methodCalls += MethodCall("nodeReparented", QStringList() << node.id() << newPropertyParent.name() << oldPropertyParent.name() << serialize(propertyChange));
+    m_methodCalls += MethodCall("nodeReparented", QStringList() << node.id() << QString::fromUtf8(newPropertyParent.name()) << QString::fromUtf8(oldPropertyParent.name()) << serialize(propertyChange));
+}
+
+void TestView::nodeAboutToBeReparented(const QmlDesigner::ModelNode &node, const QmlDesigner::NodeAbstractProperty &newPropertyParent, const QmlDesigner::NodeAbstractProperty &oldPropertyParent, AbstractView::PropertyChangeFlags propertyChange)
+{
+    m_methodCalls += MethodCall("nodeAboutToBeReparented", QStringList() << node.id() << QString::fromUtf8(newPropertyParent.name()) << QString::fromUtf8(oldPropertyParent.name()) << serialize(propertyChange));
 }
 
 void TestView::bindingPropertiesChanged(const QList<QmlDesigner::BindingProperty>& propertyList, PropertyChangeFlags propertyChange)
 {
-    QmlDesigner::QmlModelView::bindingPropertiesChanged(propertyList, propertyChange);
     QStringList propertyNames;
     foreach (const QmlDesigner::BindingProperty &property, propertyList)
-        propertyNames += property.name();
+        propertyNames += QString::fromUtf8(property.name());
     m_methodCalls += MethodCall("bindingPropertiesChanged", QStringList() << propertyNames.join(", ") << serialize(propertyChange));
 }
 
 void TestView::variantPropertiesChanged(const QList<QmlDesigner::VariantProperty>& propertyList, PropertyChangeFlags propertyChange)
 {
-    QmlDesigner::QmlModelView::variantPropertiesChanged(propertyList, propertyChange);
     QStringList propertyNames;
     foreach (const QmlDesigner::VariantProperty &property, propertyList)
-        propertyNames += property.name();
+        propertyNames += QString::fromUtf8(property.name());
 
     m_methodCalls += MethodCall("variantPropertiesChanged", QStringList() << propertyNames.join(", ") << serialize(propertyChange));
 }
@@ -131,7 +152,6 @@ void TestView::variantPropertiesChanged(const QList<QmlDesigner::VariantProperty
 void TestView::selectedNodesChanged(const QList<QmlDesigner::ModelNode> &selectedNodeList,
                        const QList<QmlDesigner::ModelNode> &lastSelectedNodeList)
 {
-    QmlDesigner::QmlModelView::selectedNodesChanged(selectedNodeList, lastSelectedNodeList);
     QStringList selectedNodes;
     foreach (const QmlDesigner::ModelNode &node, selectedNodeList)
         selectedNodes += node.id();
@@ -144,13 +164,56 @@ void TestView::selectedNodesChanged(const QList<QmlDesigner::ModelNode> &selecte
 
 void TestView::nodeOrderChanged(const QmlDesigner::NodeListProperty &listProperty, const QmlDesigner::ModelNode &movedNode, int oldIndex)
 {
-    QmlDesigner::QmlModelView::nodeOrderChanged(listProperty, movedNode, oldIndex);
-    m_methodCalls += MethodCall("nodeOrderChanged", QStringList() << listProperty.name() << movedNode.id() << QString::number(oldIndex));
+    m_methodCalls += MethodCall("nodeOrderChanged", QStringList() << QString::fromUtf8(listProperty.name()) << movedNode.id() << QString::number(oldIndex));
 }
 
-void TestView::actualStateChanged(const QmlDesigner::ModelNode &node)
+void TestView::instancePropertyChange(const QList<QPair<QmlDesigner::ModelNode, QmlDesigner::PropertyName> > &)
 {
-    QmlDesigner::QmlModelView::actualStateChanged(node);
+
+}
+
+void TestView::instancesCompleted(const QVector<QmlDesigner::ModelNode> &)
+{
+
+}
+
+void TestView::instanceInformationsChange(const QMultiHash<QmlDesigner::ModelNode, QmlDesigner::InformationName> &)
+{
+
+}
+
+void TestView::instancesRenderImageChanged(const QVector<QmlDesigner::ModelNode> &)
+{
+
+}
+
+void TestView::instancesPreviewImageChanged(const QVector<QmlDesigner::ModelNode> &)
+{
+
+}
+
+void TestView::instancesChildrenChanged(const QVector<QmlDesigner::ModelNode> &)
+{
+
+}
+
+void TestView::instancesToken(const QString &, int, const QVector<QmlDesigner::ModelNode> &)
+{
+
+}
+
+void TestView::nodeSourceChanged(const QmlDesigner::ModelNode &, const QString &)
+{
+
+}
+
+void TestView::scriptFunctionsChanged(const QmlDesigner::ModelNode &, const QStringList &)
+{
+
+}
+
+void TestView::currentStateChanged(const QmlDesigner::ModelNode &node)
+{
     m_methodCalls += MethodCall("actualStateChanged", QStringList() << node.id());
 }
 
@@ -166,15 +229,32 @@ QString TestView::lastFunction() const
 
 QmlDesigner::NodeInstanceView *TestView::nodeInstanceView() const
 {
-    return QmlDesigner::QmlModelView::nodeInstanceView();
+    return QmlDesigner::AbstractView::nodeInstanceView();
 
 }
 
-QmlDesigner::NodeInstance TestView::instanceForModelNode(const QmlDesigner::ModelNode &modelNode)
+QmlDesigner::QmlObjectNode TestView::rootQmlObjectNode() const
 {
-    return QmlDesigner::QmlModelView::instanceForModelNode(modelNode);
+    return rootModelNode();
 }
 
+void TestView::setCurrentState(const QmlDesigner::QmlModelState &node)
+{
+    setCurrentStateNode(node.modelNode());
+}
+
+QmlDesigner::QmlItemNode TestView::rootQmlItemNode() const { return rootModelNode(); }
+
+QmlDesigner::QmlModelState TestView::baseState() const { return rootModelNode(); }
+
+QmlDesigner::QmlObjectNode TestView::createQmlObjectNode(const QmlDesigner::TypeName &typeName,
+                                                         int majorVersion,
+                                                         int minorVersion,
+                                                         const QmlDesigner::PropertyListType &propertyList)
+
+{
+    return createModelNode(typeName, majorVersion, minorVersion, propertyList);
+}
 
 QString TestView::serialize(AbstractView::PropertyChangeFlags change)
 {

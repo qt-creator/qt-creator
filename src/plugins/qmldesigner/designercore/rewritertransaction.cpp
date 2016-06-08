@@ -25,8 +25,13 @@
 
 #include "rewritertransaction.h"
 #include <abstractview.h>
+
+#ifndef QMLDESIGNER_TEST
 #include <designdocument.h>
 #include <qmldesignerplugin.h>
+#endif
+
+#include <QDebug>
 
 namespace QmlDesigner {
 
@@ -88,8 +93,10 @@ void RewriterTransaction::rollback()
     if (m_valid) {
         m_valid = false;
         view()->emitRewriterEndTransaction();
-        QmlDesignerPlugin::instance()->currentDesignDocument()->undo();
 
+#ifndef QMLDESIGNER_TEST
+        QmlDesignerPlugin::instance()->currentDesignDocument()->undo();
+#endif
         if (m_activeIdentifier) {
             qDebug() << "Rollback RewriterTransaction:" << m_identifier << m_identifierNumber;
             m_identifierList.removeOne(m_identifier + QByteArrayLiteral("-") + QByteArray::number(m_identifierNumber));

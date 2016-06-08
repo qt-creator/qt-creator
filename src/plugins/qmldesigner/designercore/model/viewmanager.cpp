@@ -25,6 +25,8 @@
 
 #include "viewmanager.h"
 
+#ifndef QMLDESIGNER_TEST
+
 #include <rewriterview.h>
 #include <nodeinstanceview.h>
 #include <itemlibraryview.h>
@@ -43,7 +45,6 @@
 
 #include <qmldesigner/qmldesignerplugin.h>
 #include <utils/algorithm.h>
-
 
 namespace QmlDesigner {
 
@@ -307,3 +308,5 @@ Model *ViewManager::documentModel() const
 }
 
 } // namespace QmlDesigner
+
+#endif //QMLDESIGNER_TEST

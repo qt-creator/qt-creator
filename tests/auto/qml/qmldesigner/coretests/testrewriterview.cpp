@@ -26,6 +26,8 @@
 #include "testrewriterview.h"
 #include <QObject>
 #include <nodeproperty.h>
+#include <nodelistproperty.h>
+#include <variantproperty.h>
 
 using namespace QmlDesigner;
 using namespace QmlDesigner::Internal;
@@ -82,6 +84,8 @@ TestRewriterView::TestRewriterView(QObject *parent,
                                    DifferenceHandling differenceHandling)
     : RewriterView(differenceHandling, parent)
 {
+    //Unit tests do not like the semantic errors
+    setCheckSemanticErrors(false);
 }
 
 bool TestRewriterView::isModificationGroupActive() const

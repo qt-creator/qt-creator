@@ -25,13 +25,13 @@
 
 #include "puppetcreator.h"
 
-#include <QProcess>
-#include <QTemporaryDir>
-#include <QCoreApplication>
-#include <QCryptographicHash>
-#include <QDateTime>
-#include <QMessageBox>
-#include <QThread>
+#include "puppetbuildprogressdialog.h"
+
+#include <model.h>
+#ifndef QMLDESIGNER_TEST
+#include <qmldesignerplugin.h>
+#endif
+
 
 #include <projectexplorer/kit.h>
 #include <projectexplorer/toolchain.h>
@@ -43,9 +43,13 @@
 #include <qtsupport/qtsupportconstants.h>
 #include <coreplugin/icore.h>
 
-
-#include <qmldesignerplugin.h>
-#include "puppetbuildprogressdialog.h"
+#include <QProcess>
+#include <QTemporaryDir>
+#include <QCoreApplication>
+#include <QCryptographicHash>
+#include <QDateTime>
+#include <QMessageBox>
+#include <QThread>
 
 
 namespace QmlDesigner {
@@ -103,16 +107,22 @@ QDateTime PuppetCreator::puppetSourceLastModified() const
 
 bool PuppetCreator::useOnlyFallbackPuppet() const
 {
+#ifndef QMLDESIGNER_TEST
     return m_designerSettings.value(DesignerSettingsKey::USE_ONLY_FALLBACK_PUPPET
-        ).toBool() || m_kit == 0 || !m_kit->isValid();
+                                    ).toBool() || m_kit == 0 || !m_kit->isValid();
+#else
+    return true;
+#endif
 }
 
 PuppetCreator::PuppetCreator(ProjectExplorer::Kit *kit, const QString &qtCreatorVersion, const Model *model)
-    : m_qtCreatorVersion(qtCreatorVersion),
-      m_kit(kit),
-      m_availablePuppetType(FallbackPuppet),
-      m_model(model),
-      m_designerSettings(QmlDesignerPlugin::instance()->settings())
+    : m_qtCreatorVersion(qtCreatorVersion)
+      ,m_kit(kit)
+      ,m_availablePuppetType(FallbackPuppet)
+      ,m_model(model)
+#ifndef QMLDESIGNER_TEST
+      ,m_designerSettings(QmlDesignerPlugin::instance()->settings())
+#endif
 {
 }
 
@@ -152,8 +162,12 @@ QProcess *PuppetCreator::puppetProcess(const QString &puppetPath,
     QObject::connect(QCoreApplication::instance(), SIGNAL(aboutToQuit()), puppetProcess, SLOT(kill()));
     QObject::connect(puppetProcess, SIGNAL(finished(int,QProcess::ExitStatus)), handlerObject, finishSlot);
 
+#ifndef QMLDESIGNER_TEST
     QString forwardOutput = m_designerSettings.value(DesignerSettingsKey::
         FORWARD_PUPPET_OUTPUT).toString();
+#else
+    QString forwardOutput(QLatin1String("all"));
+#endif
     if (forwardOutput == puppetMode || forwardOutput == QLatin1String("all")) {
         puppetProcess->setProcessChannelMode(QProcess::MergedChannels);
         QObject::connect(puppetProcess, SIGNAL(readyRead()), handlerObject, outputSlot);
@@ -161,8 +175,12 @@ QProcess *PuppetCreator::puppetProcess(const QString &puppetPath,
     puppetProcess->setWorkingDirectory(workingDirectory);
     puppetProcess->start(puppetPath, QStringList() << socketToken << puppetMode << QLatin1String("-graphicssystem raster"));
 
+#ifndef QMLDESIGNER_TEST
     QString debugPuppet = m_designerSettings.value(DesignerSettingsKey::
         DEBUG_PUPPET).toString();
+#else
+    QString debugPuppet(QLatin1String("all"));
+#endif
     if (debugPuppet == puppetMode || debugPuppet == QLatin1String("all")) {
         QMessageBox::information(Core::ICore::dialogParent(),
             QStringLiteral("Puppet is starting ..."),
@@ -281,11 +299,15 @@ QString PuppetCreator::defaultPuppetToplevelBuildDirectory()
 
 QString PuppetCreator::qmlPuppetToplevelBuildDirectory() const
 {
+#ifndef QMLDESIGNER_TEST
     QString puppetToplevelBuildDirectory = m_designerSettings.value(
-        DesignerSettingsKey::PUPPET_TOPLEVEL_BUILD_DIRECTORY).toString();
+                DesignerSettingsKey::PUPPET_TOPLEVEL_BUILD_DIRECTORY).toString();
     if (puppetToplevelBuildDirectory.isEmpty())
         return defaultPuppetToplevelBuildDirectory();
     return puppetToplevelBuildDirectory;
+#else
+    return QString();
+#endif
 }
 
 QString PuppetCreator::qmlPuppetDirectory(PuppetType puppetType) const
@@ -307,11 +329,15 @@ QString PuppetCreator::defaultPuppetFallbackDirectory()
 
 QString PuppetCreator::qmlPuppetFallbackDirectory() const
 {
+#ifndef QMLDESIGNER_TEST
     QString puppetFallbackDirectory = m_designerSettings.value(
         DesignerSettingsKey::PUPPET_FALLBACK_DIRECTORY).toString();
     if (puppetFallbackDirectory.isEmpty())
         return defaultPuppetFallbackDirectory();
     return puppetFallbackDirectory;
+#else
+    return QString();
+#endif
 }
 
 QString PuppetCreator::qml2PuppetPath(PuppetType puppetType) const
@@ -333,8 +359,12 @@ QProcessEnvironment PuppetCreator::processEnvironment() const
     environment.set(QLatin1String("QML_USE_MOCKUPS"), QLatin1String("true"));
     environment.set(QLatin1String("QML_PUPPET_MODE"), QLatin1String("true"));
 
+#ifndef QMLDESIGNER_TEST
     const QString controlsStyle = m_designerSettings.value(DesignerSettingsKey::
             CONTROLS_STYLE).toString();
+#else
+    const QString controlsStyle;
+#endif
     if (!controlsStyle.isEmpty())
         environment.set(QLatin1String("QT_QUICK_CONTROLS_STYLE"), controlsStyle);
 

@@ -33,7 +33,9 @@
 #include <QCoreApplication>
 
 #include <coreplugin/messagebox.h>
+#ifndef QMLDESIGNER_TEST
 #include <qmldesignerplugin.h>
+#endif
 
 /*!
 \defgroup CoreExceptions
@@ -86,9 +88,13 @@ bool Exception::shouldAssert()
 
 bool Exception::warnAboutException()
 {
+#ifndef QMLDESIGNER_TEST
     static bool warnException = !QmlDesignerPlugin::instance()->settings().value(
-        DesignerSettingsKey::ENABLE_MODEL_EXCEPTION_OUTPUT).toBool();
+                DesignerSettingsKey::ENABLE_MODEL_EXCEPTION_OUTPUT).toBool();
     return warnException;
+#else
+    return true;
+#endif
 }
 
 /*!

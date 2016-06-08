@@ -83,6 +83,7 @@ void MetaInfoPrivate::initialize()
 
 void MetaInfoPrivate::parseItemLibraryDescriptions()
 {
+#ifndef QMLDESIGNER_TEST
     Internal::WidgetPluginManager pluginManager;
     foreach (const QString &pluginDir, m_q->s_pluginDirs)
         pluginManager.addPath(pluginDir);
@@ -98,6 +99,7 @@ void MetaInfoPrivate::parseItemLibraryDescriptions()
                                   errorMessage);
         }
     }
+#endif
 }
 
 } // namespace Internal
