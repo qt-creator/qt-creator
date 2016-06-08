@@ -181,11 +181,11 @@ void ChangeSelectionDialog::setDetails(int exitCode)
         m_ui->detailsText->setPlainText(QString::fromUtf8(m_process->readAllStandardOutput()));
         palette.setColor(QPalette::Text, theme->color(Theme::TextColorNormal));
         m_ui->changeNumberEdit->setPalette(palette);
-        enableButtons(true);
     } else {
         m_ui->detailsText->setPlainText(tr("Error: Unknown reference"));
         palette.setColor(QPalette::Text, theme->color(Theme::TextColorError));
         m_ui->changeNumberEdit->setPalette(palette);
+        enableButtons(false);
     }
 }
 
@@ -231,7 +231,7 @@ void ChangeSelectionDialog::recalculateCompletion()
 void ChangeSelectionDialog::recalculateDetails()
 {
     terminateProcess();
-    enableButtons(false);
+    enableButtons(true);
 
     const QString workingDir = workingDirectory();
     if (workingDir.isEmpty()) {
