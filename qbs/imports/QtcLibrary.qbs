@@ -2,8 +2,9 @@ import qbs 1.0
 import QtcFunctions
 
 QtcProduct {
-    type: ["dynamiclibrary", "dynamiclibrary_symlink"]
+    type: ["dynamiclibrary", "dynamiclibrary_symlink", "qtc.dev-module"]
     installDir: qtc.ide_library_path
+    installTags: ["dynamiclibrary", "dynamiclibrary_symlink"]
     Depends {
         condition: qtc.testsEnabled
         name: "Qt.test"

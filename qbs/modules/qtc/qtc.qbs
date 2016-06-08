@@ -1,5 +1,6 @@
 import qbs
 import qbs.Environment
+import "qtc.js" as HelperFunctions
 
 Module {
     property string ide_version_major: '4'
@@ -46,6 +47,12 @@ Module {
     property string ide_doc_path: qbs.targetOS.contains("osx")
             ? ide_data_path + "/doc"
             : "share/doc/qtcreator"
+    property string ide_include_path: "include"
+    property string ide_qbs_resources_path: "qbs-resources"
+    property string ide_qbs_modules_path: ide_qbs_resources_path + "/modules"
+    property string ide_qbs_imports_path: ide_qbs_resources_path + "/imports"
+
+    property bool make_dev_package: false
 
     property bool testsEnabled: Environment.getEnv("TEST") || qbs.buildVariant === "debug"
     property stringList generalDefines: [
@@ -54,4 +61,22 @@ Module {
         "QT_NO_CAST_TO_ASCII",
         "QT_RESTRICTED_CAST_FROM_ASCII"
     ].concat(testsEnabled ? ["WITH_TESTS"] : [])
+
+    Rule {
+        condition: make_dev_package
+        inputs: ["dynamiclibrary", "staticlibrary"]
+        Artifact {
+            filePath: product.name + "-module.qbs"
+            fileTags: ["qtc.dev-module"]
+        }
+        prepare: {
+            var cmd = new JavaScriptCommand();
+            cmd.description = "Creating " + output.fileName;
+            cmd.sourceCode = function() {
+                var dependsItems = HelperFunctions.getDependsItems(product);
+                HelperFunctions.writeModuleFile(product, input, output, dependsItems);
+            };
+            return [cmd];
+        }
+    }
 }

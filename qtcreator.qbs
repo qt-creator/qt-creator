@@ -23,6 +23,18 @@ Project {
         "tests/tests.qbs"
     ]
 
+    Product {
+        name: "qbs_imports_modules"
+        Depends { name: "qtc" }
+        Group {
+            prefix: "qbs/"
+            files: ["**/*"]
+            qbs.install: qtc.make_dev_package
+            qbs.installDir: qtc.ide_qbs_resources_path
+            qbs.installSourceBase: "qbs"
+        }
+    }
+
     AutotestRunner {
         Depends { name: "Qt.core" }
         Depends { name: "qtc" }

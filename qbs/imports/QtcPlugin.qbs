@@ -3,8 +3,9 @@ import qbs.FileInfo
 import QtcFunctions
 
 QtcProduct {
-    type: ["dynamiclibrary", "pluginSpec"]
+    type: ["dynamiclibrary", "pluginSpec", "qtc.dev-module"]
     installDir: qtc.ide_plugin_path
+    installTags: ["dynamiclibrary"]
 
     property var pluginJsonReplacements
     property var pluginRecommends: []
