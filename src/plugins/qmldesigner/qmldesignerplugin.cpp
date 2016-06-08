@@ -89,7 +89,6 @@ static bool isInDesignerMode()
 
 static bool checkIfEditorIsQtQuick(Core::IEditor *editor)
 {
-    if (editor)
     if (editor && editor->document()->id() == QmlJSEditor::Constants::C_QMLJSEDITOR_ID) {
         QmlJS::ModelManagerInterface *modelManager = QmlJS::ModelManagerInterface::instance();
         QmlJS::Document::Ptr document = modelManager->ensuredGetDocumentForPath(editor->document()->filePath().toString());
@@ -98,12 +97,12 @@ static bool checkIfEditorIsQtQuick(Core::IEditor *editor)
                     || document->language() == QmlJS::Dialect::QmlQtQuick2
                     || document->language() == QmlJS::Dialect::QmlQtQuick2Ui
                     || document->language() == QmlJS::Dialect::Qml;
-    }
 
-    if (Core::ModeManager::currentMode() == Core::Constants::MODE_DESIGN) {
-        Core::AsynchronousMessageBox::warning(QmlDesignerPlugin::tr("Cannot open QML Design Mode"),
-                                              QmlDesignerPlugin::tr("The QML file is not currently opened in a QML Editor."));
-        Core::ModeManager::activateMode(Core::Constants::MODE_EDIT);
+        if (Core::ModeManager::currentMode() == Core::Constants::MODE_DESIGN) {
+            Core::AsynchronousMessageBox::warning(QmlDesignerPlugin::tr("Cannot open QML Design Mode"),
+                                                  QmlDesignerPlugin::tr("The QML file is not currently opened in a QML Editor."));
+            Core::ModeManager::activateMode(Core::Constants::MODE_EDIT);
+        }
     }
 
     return false;
