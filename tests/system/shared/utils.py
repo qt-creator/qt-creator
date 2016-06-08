@@ -651,6 +651,11 @@ def getHelpViewer():
     try:
         return waitForObject(":Qt Creator_Help::Internal::HelpViewer", 3000)
     except:
+        pass
+    try:
+        return waitForObject("{type='QWebEngineView' unnamed='1' "
+                             "visible='1' window=':Qt Creator_Core::Internal::MainWindow'}", 1000)
+    except:
         return waitForObject("{type='Help::Internal::TextBrowserHelpWidget' unnamed='1' "
                              "visible='1' window=':Qt Creator_Core::Internal::MainWindow'}", 1000)
 
