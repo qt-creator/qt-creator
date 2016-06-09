@@ -52,7 +52,6 @@ public:
 
     QString expression() const;
     QString realName() const;
-    quint64 realAddress() const;
     QString internalName() const;
     QString toToolTip() const;
 

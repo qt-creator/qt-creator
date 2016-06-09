@@ -295,8 +295,8 @@ void BindingModel::updateExpression(int row)
 {
     BindingProperty bindingProperty = bindingPropertyForRow(row);
 
-    const QString sourceNode = data(index(row, SourceModelNodeRow)).toString();
-    const QString sourceProperty = data(index(row, SourcePropertyNameRow)).toString();
+    const QString sourceNode = data(index(row, SourceModelNodeRow)).toString().trimmed();
+    const QString sourceProperty = data(index(row, SourcePropertyNameRow)).toString().trimmed();
 
     QString expression;
     if (sourceProperty.isEmpty()) {

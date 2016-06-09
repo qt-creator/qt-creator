@@ -70,6 +70,9 @@ static const char creatorBinaryC[] = "qtcreator.exe";
 enum Mode { HelpMode, RegisterMode, UnregisterMode, PromptMode, ForceCreatorMode, ForceDefaultMode };
 
 Mode optMode = PromptMode;
+// WOW: Indicates registry key access mode:
+// - Accessing 32bit using a 64bit built Qt Creator or,
+// - Accessing 64bit using a 32bit built Qt Creator on 64bit Windows
 bool optIsWow = false;
 bool noguiMode = false;
 unsigned long argProcessId = 0;
@@ -170,6 +173,14 @@ static void usage(const QString &binary, const QString &message = QString())
 
     QMessageBox msgBox(QMessageBox::Information, QLatin1String(titleC), msg, QMessageBox::Ok);
     msgBox.exec();
+}
+
+static bool is64BitWindowsSystem() // Courtesy utils library
+{
+    SYSTEM_INFO systemInfo;
+    GetNativeSystemInfo(&systemInfo);
+    return systemInfo.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_AMD64
+        || systemInfo.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_IA64;
 }
 
 // ------- Registry helpers
@@ -303,8 +314,15 @@ bool readDefaultDebugger(QString *defaultDebugger,
 {
     bool success = false;
     HKEY handle;
-    if (openRegistryKey(HKEY_LOCAL_MACHINE, optIsWow ? debuggerWow32RegistryKeyC : debuggerRegistryKeyC,
-                        false, &handle, errorMessage)) {
+    const RegistryAccess::AccessMode accessMode = optIsWow
+#ifdef Q_OS_WIN64
+        ? RegistryAccess::Registry32Mode
+#else
+        ? RegistryAccess::Registry64Mode
+#endif
+        : RegistryAccess::DefaultAccessMode;
+
+    if (openRegistryKey(HKEY_LOCAL_MACHINE, debuggerRegistryKeyC, false, &handle, accessMode, errorMessage)) {
         success = registryReadStringKey(handle, debuggerRegistryDefaultValueNameC,
                                         defaultDebugger, errorMessage);
         RegCloseKey(handle);
@@ -372,12 +390,13 @@ bool chooseDebugger(QString *errorMessage)
 
 static bool registerDebuggerKey(const WCHAR *key,
                                 const QString &call,
+                                RegistryAccess::AccessMode access,
                                 QString *errorMessage)
 {
     HKEY handle = 0;
     bool success = false;
     do {
-        if (!openRegistryKey(HKEY_LOCAL_MACHINE, key, true, &handle, errorMessage))
+        if (!openRegistryKey(HKEY_LOCAL_MACHINE, key, true, &handle, access, errorMessage))
             break;
         // Save old key, which might be missing
         QString oldDebugger;
@@ -401,11 +420,16 @@ static bool registerDebuggerKey(const WCHAR *key,
 
 bool install(QString *errorMessage)
 {
-    if (!registerDebuggerKey(debuggerRegistryKeyC, debuggerCall(), errorMessage))
+    if (!registerDebuggerKey(debuggerRegistryKeyC, debuggerCall(), RegistryAccess::DefaultAccessMode, errorMessage))
         return false;
 #ifdef Q_OS_WIN64
-    if (!registerDebuggerKey(debuggerWow32RegistryKeyC, debuggerCall(QLatin1String("-wow")), errorMessage))
+    if (!registerDebuggerKey(debuggerRegistryKeyC, debuggerCall(QLatin1String("-wow")), RegistryAccess::Registry32Mode, errorMessage))
         return false;
+#else
+    if (is64BitWindowsSystem()) {
+        if (!registerDebuggerKey(debuggerRegistryKeyC, debuggerCall(QLatin1String("-wow")), RegistryAccess::Registry64Mode, errorMessage))
+            return false;
+    }
 #endif
     return true;
 }
@@ -413,12 +437,13 @@ bool install(QString *errorMessage)
 // Unregister helper: Restore the original debugger key
 static bool unregisterDebuggerKey(const WCHAR *key,
                                   const QString &call,
+                                  RegistryAccess::AccessMode access,
                                   QString *errorMessage)
 {
     HKEY handle = 0;
     bool success = false;
     do {
-        if (!openRegistryKey(HKEY_LOCAL_MACHINE, key, true, &handle, errorMessage))
+        if (!openRegistryKey(HKEY_LOCAL_MACHINE, key, true, &handle, access, errorMessage))
             break;
         QString debugger;
         if (!isRegistered(handle, call, errorMessage, &debugger) && !debugger.isEmpty()) {
@@ -448,12 +473,18 @@ static bool unregisterDebuggerKey(const WCHAR *key,
 
 bool uninstall(QString *errorMessage)
 {
-    if (!unregisterDebuggerKey(debuggerRegistryKeyC, debuggerCall(), errorMessage))
+    if (!unregisterDebuggerKey(debuggerRegistryKeyC, debuggerCall(), RegistryAccess::DefaultAccessMode, errorMessage))
         return false;
 #ifdef Q_OS_WIN64
-    if (!unregisterDebuggerKey(debuggerWow32RegistryKeyC, debuggerCall(QLatin1String("-wow")), errorMessage))
+    if (!unregisterDebuggerKey(debuggerRegistryKeyC, debuggerCall(QLatin1String("-wow")), RegistryAccess::Registry32Mode, errorMessage))
         return false;
+#else
+    if (is64BitWindowsSystem()) {
+        if (!unregisterDebuggerKey(debuggerRegistryKeyC, debuggerCall(QLatin1String("-wow")), RegistryAccess::Registry64Mode, errorMessage))
+            return false;
+    }
 #endif
+
     return true;
 }
 

@@ -30,10 +30,10 @@ Debugging
 * Fixed updating evaluated expressions
 * Fixed crash on spontaneous debugger exit (QTCREATORBUG-16233)
 * GDB
-   * Fixed issues with restarting debugger (QTCREATORBUG-16355)
+    * Fixed issues with restarting debugger (QTCREATORBUG-16355)
 * QML
-   * Restored expression evaluation by using the selection tool
-     (QTCREATORBUG-16300)
+    * Restored expression evaluation by using the selection tool
+      (QTCREATORBUG-16300)
 
 Valgrind
 
