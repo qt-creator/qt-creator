@@ -352,6 +352,10 @@ public:
         TreeItem *root = this->rootItem();
         root->forAllChildren<ItemType *, Predicate>(pred);
     }
+
+    ItemType *itemForIndex(const QModelIndex &idx) const {
+        return static_cast<ItemType *>(BaseType::itemForIndex(idx));
+    }
 };
 
 } // namespace Utils

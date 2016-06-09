@@ -1015,7 +1015,7 @@ bool WatchModel::setData(const QModelIndex &idx, const QVariant &value, int role
     if (!idx.isValid())
         return false; // Triggered by ModelTester.
 
-    WatchItem *item = static_cast<WatchItem *>(itemForIndex(idx));
+    WatchItem *item = itemForIndex(idx);
     QTC_ASSERT(item, return false);
 
     switch (role) {
@@ -1622,7 +1622,7 @@ WatchModelBase *WatchHandler::model() const
 
 const WatchItem *WatchHandler::watchItem(const QModelIndex &idx) const
 {
-    return static_cast<WatchItem *>(m_model->itemForIndex(idx));
+    return m_model->itemForIndex(idx);
 }
 
 void WatchHandler::fetchMore(const QString &iname) const
