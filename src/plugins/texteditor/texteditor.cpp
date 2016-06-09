@@ -4584,50 +4584,30 @@ void TextEditorWidgetPrivate::drawFoldingMarker(QPainter *painter, const QPalett
     if (ManhattanStyle *ms = qobject_cast<ManhattanStyle*>(s))
         s = ms->baseStyle();
 
-    if (!qstrcmp(s->metaObject()->className(), "OxygenStyle")) {
-        painter->save();
-        painter->setPen(Qt::NoPen);
-        int size = rect.size().width();
-        int sqsize = 2*(size/2);
+    QStyleOptionViewItem opt;
+    opt.rect = rect;
+    opt.state = QStyle::State_Active | QStyle::State_Item | QStyle::State_Children;
+    if (expanded)
+        opt.state |= QStyle::State_Open;
+    if (active)
+        opt.state |= QStyle::State_MouseOver | QStyle::State_Enabled | QStyle::State_Selected;
+    if (hovered)
+        opt.palette.setBrush(QPalette::Window, pal.highlight());
 
-        QColor textColor = pal.buttonText().color();
-        QColor brushColor = textColor;
+    const char* const className = s->metaObject()->className();
 
-        textColor.setAlpha(100);
-        brushColor.setAlpha(100);
-
-        QPolygon a;
-        if (expanded) {
-            // down arrow
-            a.setPoints(3, 0, sqsize/3,  sqsize/2, sqsize  - sqsize/3,  sqsize, sqsize/3);
-        } else {
-            // right arrow
-            a.setPoints(3, sqsize - sqsize/3, sqsize/2,  sqsize/2 - sqsize/3, 0,  sqsize/2 - sqsize/3, sqsize);
-            painter->setBrush(brushColor);
-        }
-        painter->translate(0.5, 0.5);
-        painter->setRenderHint(QPainter::Antialiasing);
-        painter->translate(rect.topLeft());
-        painter->setPen(textColor);
-        painter->setBrush(textColor);
-        painter->drawPolygon(a);
-        painter->restore();
+    if (!qstrcmp(className, "OxygenStyle")) {
+        const QStyle::PrimitiveElement direction = expanded ? QStyle::PE_IndicatorArrowDown
+                                                            : QStyle::PE_IndicatorArrowRight;
+        StyleHelper::drawArrow(direction, painter, &opt);
     } else {
-        QStyleOptionViewItem opt;
-        opt.rect = rect;
-        opt.state = QStyle::State_Active | QStyle::State_Item | QStyle::State_Children;
-        if (expanded)
-            opt.state |= QStyle::State_Open;
-        if (active)
-            opt.state |= QStyle::State_MouseOver | QStyle::State_Enabled | QStyle::State_Selected;
-        if (hovered)
-            opt.palette.setBrush(QPalette::Window, pal.highlight());
-
          // QGtkStyle needs a small correction to draw the marker in the right place
-        if (!qstrcmp(s->metaObject()->className(), "QGtkStyle"))
+        if (!qstrcmp(className, "QGtkStyle"))
            opt.rect.translate(-2, 0);
-        else if (!qstrcmp(s->metaObject()->className(), "QMacStyle"))
-            opt.rect.translate(-1, 0);
+        else if (!qstrcmp(className, "QMacStyle"))
+            opt.rect.translate(-2, 0);
+        else if (!qstrcmp(className, "QFusionStyle"))
+            opt.rect.translate(0, -1);
 
         s->drawPrimitive(QStyle::PE_IndicatorBranch, &opt, painter, q);
     }
