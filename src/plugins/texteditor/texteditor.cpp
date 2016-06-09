@@ -4389,31 +4389,11 @@ void TextEditorWidgetPrivate::slotUpdateExtraAreaWidth()
         q->setViewportMargins(0, 0, q->extraAreaWidth(), 0);
 }
 
-static void drawRectBox(QPainter *painter, const QRect &rect, bool start, bool end,
-                        const QPalette &pal)
+static void drawRectBox(QPainter *painter, const QRect &rect, const QPalette &pal)
 {
     painter->save();
-    painter->setRenderHint(QPainter::Antialiasing, false);
-
-    QRgb b = pal.base().color().rgb();
-    QRgb h = pal.highlight().color().rgb();
-    QColor c = StyleHelper::mergedColors(b,h, 50);
-
-    QLinearGradient grad(rect.topLeft(), rect.topRight());
-    grad.setColorAt(0, c.lighter(110));
-    grad.setColorAt(1, c.lighter(130));
-    QColor outline = c;
-
-    painter->fillRect(rect, grad);
-    painter->setPen(outline);
-    if (start)
-        painter->drawLine(rect.topLeft() + QPoint(1, 0), rect.topRight() -  QPoint(1, 0));
-    if (end)
-        painter->drawLine(rect.bottomLeft() + QPoint(1, 0), rect.bottomRight() -  QPoint(1, 0));
-
-    painter->drawLine(rect.topRight() + QPoint(0, start ? 1 : 0), rect.bottomRight() - QPoint(0, end ? 1 : 0));
-    painter->drawLine(rect.topLeft() + QPoint(0, start ? 1 : 0), rect.bottomLeft() - QPoint(0, end ? 1 : 0));
-
+    painter->setOpacity(0.5);
+    painter->fillRect(rect, pal.brush(QPalette::Highlight));
     painter->restore();
 }
 
@@ -4554,9 +4534,6 @@ void TextEditorWidget::extraAreaPaintEvent(QPaintEvent *e)
 
 
                 bool active = blockNumber == extraAreaHighlightFoldBlockNumber;
-
-                bool drawStart = active;
-                bool drawEnd = blockNumber == extraAreaHighlightFoldEndBlockNumber || (drawStart && !endIsVisible);
                 bool hovered = blockNumber >= extraAreaHighlightFoldBlockNumber
                                && blockNumber <= extraAreaHighlightFoldEndBlockNumber;
 
@@ -4565,7 +4542,7 @@ void TextEditorWidget::extraAreaPaintEvent(QPaintEvent *e)
                     int itop = qRound(top);
                     int ibottom = qRound(bottom);
                     QRect box = QRect(extraAreaWidth + 1, itop, boxWidth - 2, ibottom - itop);
-                    drawRectBox(&painter, box, drawStart, drawEnd, pal);
+                    drawRectBox(&painter, box, pal);
                 }
 
                 if (drawBox) {
