@@ -27,11 +27,10 @@
 
 #include "cmbcodecompletedmessage.h"
 #include "cmbechomessage.h"
+#include "documentannotationschangedmessage.h"
 #include "messageenvelop.h"
 #include "projectpartsdonotexistmessage.h"
 #include "translationunitdoesnotexistmessage.h"
-#include "diagnosticschangedmessage.h"
-#include "highlightingchangedmessage.h"
 
 #include <QDebug>
 #include <QVariant>
@@ -56,11 +55,8 @@ void ClangCodeModelClientInterface::dispatch(const MessageEnvelop &messageEnvelo
         case MessageType::ProjectPartsDoNotExistMessage:
             projectPartsDoNotExist(messageEnvelop.message<ProjectPartsDoNotExistMessage>());
             break;
-        case MessageType::DiagnosticsChangedMessage:
-            diagnosticsChanged(messageEnvelop.message<DiagnosticsChangedMessage>());
-            break;
-        case MessageType::HighlightingChangedMessage:
-            highlightingChanged(messageEnvelop.message<HighlightingChangedMessage>());
+        case MessageType::DocumentAnnotationsChangedMessage:
+            documentAnnotationsChanged(messageEnvelop.message<DocumentAnnotationsChangedMessage>());
             break;
         default:
             qWarning() << "Unknown ClangCodeModelClientMessage";

@@ -30,12 +30,10 @@
 #include <cmbregistertranslationunitsforeditormessage.h>
 #include <cmbunregistertranslationunitsforeditormessage.h>
 #include <diagnosticcontainer.h>
-#include <diagnosticschangedmessage.h>
-#include <highlightingchangedmessage.h>
+#include <documentannotationschangedmessage.h>
 #include <highlightingmarkcontainer.h>
 #include <messageenvelop.h>
-#include <requestdiagnosticsmessage.h>
-#include <requesthighlightingmessage.h>
+#include <requestdocumentannotations.h>
 #include <readmessageblock.h>
 #include <sourcelocation.h>
 #include <registerunsavedfilesforeditormessage.h>
@@ -177,9 +175,9 @@ TEST_F(ReadAndWriteMessageBlock, CompareCodeCompletedMessage)
     );
 }
 
-TEST_F(ReadAndWriteMessageBlock, CompareDiagnosticsChangedMessage)
+TEST_F(ReadAndWriteMessageBlock, CompareDocumentAnnotationsChangedMessage)
 {
-    ClangBackEnd::DiagnosticContainer container(Utf8StringLiteral("don't do that"),
+    ClangBackEnd::DiagnosticContainer diagnostic(Utf8StringLiteral("don't do that"),
                                                 Utf8StringLiteral("warning"),
                                                 {Utf8StringLiteral("-Wpadded"), Utf8StringLiteral("-Wno-padded")},
                                                 ClangBackEnd::DiagnosticSeverity::Warning,
@@ -188,17 +186,12 @@ TEST_F(ReadAndWriteMessageBlock, CompareDiagnosticsChangedMessage)
                                                 {},
                                                 {});
 
-    CompareMessage(ClangBackEnd::DiagnosticsChangedMessage(fileContainer,
-                                                           {container}));
-}
+    ClangBackEnd::HighlightingMarkContainer highlightingMark(1, 1, 1, ClangBackEnd::HighlightingType::Keyword);
 
-TEST_F(ReadAndWriteMessageBlock, CompareHighlightingChangedMessage)
-{
-    ClangBackEnd::HighlightingMarkContainer container(1, 1, 1, ClangBackEnd::HighlightingType::Keyword);
-
-    CompareMessage(ClangBackEnd::HighlightingChangedMessage(fileContainer,
-                                                            {container},
-                                                            QVector<ClangBackEnd::SourceRangeContainer>()));
+    CompareMessage(ClangBackEnd::DocumentAnnotationsChangedMessage(fileContainer,
+                                                                   {diagnostic},
+                                                                   {highlightingMark},
+                                                                   QVector<ClangBackEnd::SourceRangeContainer>()));
 }
 
 TEST_F(ReadAndWriteMessageBlock, CompareRegisterUnsavedFilesForEditorMessage)
@@ -211,14 +204,9 @@ TEST_F(ReadAndWriteMessageBlock, CompareUnregisterUnsavedFilesForEditorMessage)
     CompareMessage(ClangBackEnd::UnregisterUnsavedFilesForEditorMessage({fileContainer}));
 }
 
-TEST_F(ReadAndWriteMessageBlock, CompareRequestDiagnosticsMessage)
+TEST_F(ReadAndWriteMessageBlock, CompareRequestDocumentAnnotations)
 {
-    CompareMessage(ClangBackEnd::RequestDiagnosticsMessage(fileContainer));
-}
-
-TEST_F(ReadAndWriteMessageBlock, CompareRequestHighlightingMessage)
-{
-    CompareMessage(ClangBackEnd::RequestHighlightingMessage(fileContainer));
+    CompareMessage(ClangBackEnd::RequestDocumentAnnotationsMessage(fileContainer));
 }
 
 TEST_F(ReadAndWriteMessageBlock, GetInvalidMessageForAPartialBuffer)

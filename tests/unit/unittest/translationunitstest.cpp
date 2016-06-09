@@ -25,7 +25,7 @@
 
 #include <diagnosticset.h>
 #include <filecontainer.h>
-#include <highlightingchangedmessage.h>
+#include <documentannotationschangedmessage.h>
 #include <highlightingmarks.h>
 #include <projectpartcontainer.h>
 #include <projectpart.h>
@@ -55,8 +55,7 @@ using ClangBackEnd::TranslationUnit;
 using ClangBackEnd::UnsavedFiles;
 using ClangBackEnd::ProjectPart;
 using ClangBackEnd::ProjectPartContainer;
-using ClangBackEnd::DiagnosticsChangedMessage;
-using ClangBackEnd::HighlightingChangedMessage;
+using ClangBackEnd::DocumentAnnotationsChangedMessage;
 using ClangBackEnd::DocumentAnnotationsSendState;
 
 using testing::IsNull;
@@ -527,7 +526,7 @@ void TranslationUnits::SetUp()
     projects.createOrUpdate({ProjectPartContainer(projectPartId)});
     projects.createOrUpdate({ProjectPartContainer(otherProjectPartId)});
 
-    auto callback = [&] (const DiagnosticsChangedMessage &, const HighlightingChangedMessage &) {
+    auto callback = [&] (const DocumentAnnotationsChangedMessage &) {
         mockSendDocumentAnnotationsCallback.sendDocumentAnnotations();
     };
     translationUnits.setSendDocumentAnnotationsCallback(callback);

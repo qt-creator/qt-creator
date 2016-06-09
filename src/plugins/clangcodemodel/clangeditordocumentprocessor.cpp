@@ -323,8 +323,7 @@ void ClangEditorDocumentProcessor::requestDocumentAnnotations(const QString &pro
 {
     const auto fileContainer = fileContainerWithDocumentContent(projectpartId);
 
-    m_ipcCommunicator.requestDiagnostics(fileContainer);
-    m_ipcCommunicator.requestHighlighting(fileContainer);
+    m_ipcCommunicator.requestDocumentAnnotations(fileContainer);
 }
 
 static CppTools::ProjectPart projectPartForLanguageOption(CppTools::ProjectPart *projectPart)

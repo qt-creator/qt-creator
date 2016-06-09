@@ -25,9 +25,8 @@
 
 #include "translationunits.h"
 
-#include <diagnosticschangedmessage.h>
 #include <diagnosticset.h>
-#include <highlightingchangedmessage.h>
+#include <documentannotationschangedmessage.h>
 #include <highlightingmarks.h>
 #include <projectpartsdonotexistexception.h>
 #include <projects.h>
@@ -370,15 +369,12 @@ void TranslationUnits::checkIfTranslationUnitsForFilePathsDoesExists(const QVect
 void TranslationUnits::sendDocumentAnnotations(const TranslationUnit &translationUnit)
 {
     if (sendDocumentAnnotationsCallback) {
-        const auto fileContainer = translationUnit.fileContainer();
-        DiagnosticsChangedMessage diagnosticsMessage(fileContainer,
-                                                     translationUnit.mainFileDiagnostics());
-        HighlightingChangedMessage highlightingsMessage(fileContainer,
-                                                        translationUnit.highlightingMarks().toHighlightingMarksContainers(),
-                                                        translationUnit.skippedSourceRanges().toSourceRangeContainers());
+        DocumentAnnotationsChangedMessage message(translationUnit.fileContainer(),
+                                                  translationUnit.mainFileDiagnostics(),
+                                                  translationUnit.highlightingMarks().toHighlightingMarksContainers(),
+                                                  translationUnit.skippedSourceRanges().toSourceRangeContainers());
 
-        sendDocumentAnnotationsCallback(std::move(diagnosticsMessage),
-                                        std::move(highlightingsMessage));
+        sendDocumentAnnotationsCallback(std::move(message));
     }
 }
 

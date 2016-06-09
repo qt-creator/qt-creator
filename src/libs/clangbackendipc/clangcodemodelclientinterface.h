@@ -40,13 +40,11 @@ class CompleteCodeMessage;
 class CodeCompletedMessage;
 class TranslationUnitDoesNotExistMessage;
 class ProjectPartsDoNotExistMessage;
-class DiagnosticsChangedMessage;
-class RequestDiagnosticsMessage;
 class RegisterUnsavedFilesForEditorMessage;
 class UnregisterUnsavedFilesForEditorMessage;
 class UpdateVisibleTranslationUnitsMessage;
-class RequestHighlightingMessage;
-class HighlightingChangedMessage;
+class RequestDocumentAnnotationsMessage;
+class DocumentAnnotationsChangedMessage;
 
 class CMBIPC_EXPORT ClangCodeModelClientInterface : public IpcClientInterface
 {
@@ -58,8 +56,7 @@ public:
     virtual void codeCompleted(const CodeCompletedMessage &message) = 0;
     virtual void translationUnitDoesNotExist(const TranslationUnitDoesNotExistMessage &message) = 0;
     virtual void projectPartsDoNotExist(const ProjectPartsDoNotExistMessage &message) = 0;
-    virtual void diagnosticsChanged(const DiagnosticsChangedMessage &message) = 0;
-    virtual void highlightingChanged(const HighlightingChangedMessage &message) = 0;
+    virtual void documentAnnotationsChanged(const DocumentAnnotationsChangedMessage &message) = 0;
 };
 
 } // namespace ClangBackEnd

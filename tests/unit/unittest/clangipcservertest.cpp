@@ -26,11 +26,10 @@
 #include "mockclangcodemodelclient.h"
 
 #include <clangcodemodelserver.h>
-#include <highlightingchangedmessage.h>
 #include <highlightingmarkcontainer.h>
 #include <clangcodemodelclientproxy.h>
 #include <clangcodemodelserverproxy.h>
-#include <requesthighlightingmessage.h>
+#include <requestdocumentannotations.h>
 #include <translationunitdoesnotexistexception.h>
 #include <translationunitparseerrorexception.h>
 
@@ -41,8 +40,7 @@
 #include <cmbregistertranslationunitsforeditormessage.h>
 #include <cmbunregisterprojectsforeditormessage.h>
 #include <cmbunregistertranslationunitsforeditormessage.h>
-#include <highlightingchangedmessage.h>
-#include <diagnosticschangedmessage.h>
+#include <documentannotationschangedmessage.h>
 #include <projectpartsdonotexistmessage.h>
 #include <translationunitdoesnotexistmessage.h>
 #include <updatetranslationunitsforeditormessage.h>
@@ -78,8 +76,8 @@ using ClangBackEnd::TranslationUnitDoesNotExistMessage;
 using ClangBackEnd::ProjectPartsDoNotExistMessage;
 using ClangBackEnd::UpdateTranslationUnitsForEditorMessage;
 using ClangBackEnd::UpdateVisibleTranslationUnitsMessage;
-using ClangBackEnd::RequestHighlightingMessage;
-using ClangBackEnd::HighlightingChangedMessage;
+using ClangBackEnd::RequestDocumentAnnotationsMessage;
+using ClangBackEnd::DocumentAnnotationsChangedMessage;
 using ClangBackEnd::HighlightingMarkContainer;
 using ClangBackEnd::HighlightingTypes;
 
@@ -172,18 +170,18 @@ TEST_F(ClangClangCodeModelServer, GetCodeCompletion)
     clangServer.completeCode(completeCodeMessage);
 }
 
-TEST_F(ClangClangCodeModelServer, RequestHighlighting)
+TEST_F(ClangClangCodeModelServer, RequestDocumentAnnotations)
 {
-    RequestHighlightingMessage requestHighlightingMessage({variableTestFilePath, projectPartId});
+    RequestDocumentAnnotationsMessage requestDocumentAnnotations({variableTestFilePath, projectPartId});
     HighlightingTypes types;
     types.mainHighlightingType = ClangBackEnd::HighlightingType::Function;
     types.mixinHighlightingTypes.push_back(ClangBackEnd::HighlightingType::Declaration);
     HighlightingMarkContainer highlightingMarkContainer(1, 6, 8, types);
 
-    EXPECT_CALL(mockClangCodeModelClient, highlightingChanged(Property(&HighlightingChangedMessage::highlightingMarks, Contains(highlightingMarkContainer))))
+    EXPECT_CALL(mockClangCodeModelClient, documentAnnotationsChanged(Property(&DocumentAnnotationsChangedMessage::highlightingMarks, Contains(highlightingMarkContainer))))
         .Times(1);
 
-    clangServer.requestHighlighting(requestHighlightingMessage);
+    clangServer.requestDocumentAnnotations(requestDocumentAnnotations);
 }
 
 TEST_F(ClangClangCodeModelServer, GetCodeCompletionDependingOnArgumets)
@@ -443,8 +441,7 @@ void ClangClangCodeModelServer::registerFiles()
                                                     functionTestFilePath,
                                                     {functionTestFilePath, variableTestFilePath});
 
-    EXPECT_CALL(mockClangCodeModelClient, diagnosticsChanged(_)).Times(2);
-    EXPECT_CALL(mockClangCodeModelClient, highlightingChanged(_)).Times(2);
+    EXPECT_CALL(mockClangCodeModelClient, documentAnnotationsChanged(_)).Times(2);
 
     clangServer.registerTranslationUnitsForEditor(message);
 }

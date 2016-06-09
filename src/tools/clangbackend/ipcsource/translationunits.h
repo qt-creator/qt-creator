@@ -39,8 +39,7 @@ namespace ClangBackEnd {
 
 class ProjectParts;
 class UnsavedFiles;
-class DiagnosticsChangedMessage;
-class HighlightingChangedMessage;
+class DocumentAnnotationsChangedMessage;
 
 enum class DocumentAnnotationsSendState
 {
@@ -52,8 +51,7 @@ class TranslationUnits
 {
 public:
     using SendDocumentAnnotationsCallback
-        = std::function<void (const DiagnosticsChangedMessage &,
-                              const HighlightingChangedMessage &)>;
+        = std::function<void (const DocumentAnnotationsChangedMessage &)>;
 
 public:
     TranslationUnits(ProjectParts &projectParts, UnsavedFiles &unsavedFiles);

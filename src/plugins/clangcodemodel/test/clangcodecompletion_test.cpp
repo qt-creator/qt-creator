@@ -370,15 +370,11 @@ QString toString(const CompleteCodeMessage &)
     return QLatin1String("CompleteCodeMessage\n");
 }
 
-QString toString(const RequestDiagnosticsMessage &)
+QString toString(const RequestDocumentAnnotationsMessage &)
 {
-    return QStringLiteral("RequestDiagnosticsMessage\n");
+    return QStringLiteral("RequestDocumentAnnotationsMessage\n");
 }
 
-QString toString(const RequestHighlightingMessage &)
-{
-    return QStringLiteral("RequestHighlightingMessage\n");
-}
 
 QString toString(const UpdateVisibleTranslationUnitsMessage &)
 {
@@ -415,10 +411,7 @@ public:
     void completeCode(const CompleteCodeMessage &message) override
     { senderLog.append(toString(message)); }
 
-    void requestDiagnostics(const RequestDiagnosticsMessage &message) override
-    { senderLog.append(toString(message)); }
-
-    void requestHighlighting(const RequestHighlightingMessage &message) override
+    void requestDocumentAnnotations(const RequestDocumentAnnotationsMessage &message) override
     { senderLog.append(toString(message)); }
 
     void updateVisibleTranslationUnits(const UpdateVisibleTranslationUnitsMessage &message) override

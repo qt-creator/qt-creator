@@ -23,7 +23,7 @@
 **
 ****************************************************************************/
 
-#include "diagnosticschangedmessage.h"
+#include "requestdocumentannotations.h"
 
 #include <QDataStream>
 #include <QDebug>
@@ -32,60 +32,48 @@
 
 namespace ClangBackEnd {
 
-DiagnosticsChangedMessage::DiagnosticsChangedMessage(const FileContainer &file,
-                                                     const QVector<DiagnosticContainer> &diagnostics)
-    : file_(file),
-      diagnostics_(diagnostics)
+RequestDocumentAnnotationsMessage::RequestDocumentAnnotationsMessage(const FileContainer &file)
+    : fileContainer_(file)
 {
 }
 
-const FileContainer &DiagnosticsChangedMessage::file() const
+const FileContainer RequestDocumentAnnotationsMessage::fileContainer() const
 {
-    return file_;
+    return fileContainer_;
 }
 
-const QVector<DiagnosticContainer> &DiagnosticsChangedMessage::diagnostics() const
+QDataStream &operator<<(QDataStream &out, const RequestDocumentAnnotationsMessage &message)
 {
-    return diagnostics_;
-}
-
-QDataStream &operator<<(QDataStream &out, const DiagnosticsChangedMessage &message)
-{
-    out << message.file_;
-    out << message.diagnostics_;
+    out << message.fileContainer_;
 
     return out;
 }
 
-QDataStream &operator>>(QDataStream &in, DiagnosticsChangedMessage &message)
+QDataStream &operator>>(QDataStream &in, RequestDocumentAnnotationsMessage &message)
 {
-    in >> message.file_;
-    in >> message.diagnostics_;
+    in >> message.fileContainer_;
 
     return in;
 }
 
-bool operator==(const DiagnosticsChangedMessage &first, const DiagnosticsChangedMessage &second)
+bool operator==(const RequestDocumentAnnotationsMessage &first, const RequestDocumentAnnotationsMessage &second)
 {
-    return first.file_ == second.file_
-            && first.diagnostics_ == second.diagnostics_;
+    return first.fileContainer_ == second.fileContainer_;
 }
 
-QDebug operator<<(QDebug debug, const DiagnosticsChangedMessage &message)
+QDebug operator<<(QDebug debug, const RequestDocumentAnnotationsMessage &message)
 {
-    debug.nospace() << "DiagnosticsChangedMessage("
-                    << message.file_
+    debug.nospace() << "RequestDocumentAnnotationsMessage("
+                    << message.fileContainer()
                     << ")";
 
     return debug;
 }
 
-void PrintTo(const DiagnosticsChangedMessage &message, ::std::ostream* os)
+void PrintTo(const RequestDocumentAnnotationsMessage &message, ::std::ostream* os)
 {
-    *os << "DiagnosticsChangedMessage(";
-    PrintTo(message.file(), os);
-    *os << ")";
+    *os << message.fileContainer().filePath().constData()
+        << "(" << message.fileContainer().projectPartId().constData() << ")";
 }
 
 } // namespace ClangBackEnd
-

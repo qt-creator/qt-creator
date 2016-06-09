@@ -58,8 +58,7 @@ public:
     void registerUnsavedFilesForEditor(const RegisterUnsavedFilesForEditorMessage &message) override;
     void unregisterUnsavedFilesForEditor(const UnregisterUnsavedFilesForEditorMessage &message) override;
     void completeCode(const CompleteCodeMessage &message) override;
-    void requestDiagnostics(const RequestDiagnosticsMessage &message) override;
-    void requestHighlighting(const RequestHighlightingMessage &message) override;
+    void requestDocumentAnnotations(const RequestDocumentAnnotationsMessage &message) override;
     void updateVisibleTranslationUnits(const UpdateVisibleTranslationUnitsMessage &message) override;
 
     void readMessages();

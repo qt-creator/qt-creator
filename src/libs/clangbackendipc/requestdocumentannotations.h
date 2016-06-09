@@ -29,17 +29,17 @@
 
 namespace ClangBackEnd {
 
-class CMBIPC_EXPORT RequestHighlightingMessage
+class CMBIPC_EXPORT RequestDocumentAnnotationsMessage
 {
-    friend CMBIPC_EXPORT QDataStream &operator<<(QDataStream &out, const RequestHighlightingMessage &message);
-    friend CMBIPC_EXPORT QDataStream &operator>>(QDataStream &in, RequestHighlightingMessage &message);
-    friend CMBIPC_EXPORT bool operator==(const RequestHighlightingMessage &first, const RequestHighlightingMessage &second);
-    friend CMBIPC_EXPORT QDebug operator<<(QDebug debug, const RequestHighlightingMessage &message);
-    friend void PrintTo(const RequestHighlightingMessage &message, ::std::ostream* os);
+    friend CMBIPC_EXPORT QDataStream &operator<<(QDataStream &out, const RequestDocumentAnnotationsMessage &message);
+    friend CMBIPC_EXPORT QDataStream &operator>>(QDataStream &in, RequestDocumentAnnotationsMessage &message);
+    friend CMBIPC_EXPORT bool operator==(const RequestDocumentAnnotationsMessage &first, const RequestDocumentAnnotationsMessage &second);
+    friend CMBIPC_EXPORT QDebug operator<<(QDebug debug, const RequestDocumentAnnotationsMessage &message);
+    friend void PrintTo(const RequestDocumentAnnotationsMessage &message, ::std::ostream* os);
 
 public:
-    RequestHighlightingMessage() = default;
-    RequestHighlightingMessage(const FileContainer &fileContainer);
+    RequestDocumentAnnotationsMessage() = default;
+    RequestDocumentAnnotationsMessage(const FileContainer &fileContainer);
 
     const FileContainer fileContainer() const;
 
@@ -47,12 +47,12 @@ private:
     FileContainer fileContainer_;
 };
 
-CMBIPC_EXPORT QDataStream &operator<<(QDataStream &out, const RequestHighlightingMessage &message);
-CMBIPC_EXPORT QDataStream &operator>>(QDataStream &in, RequestHighlightingMessage &message);
-CMBIPC_EXPORT bool operator==(const RequestHighlightingMessage &first, const RequestHighlightingMessage &second);
+CMBIPC_EXPORT QDataStream &operator<<(QDataStream &out, const RequestDocumentAnnotationsMessage &message);
+CMBIPC_EXPORT QDataStream &operator>>(QDataStream &in, RequestDocumentAnnotationsMessage &message);
+CMBIPC_EXPORT bool operator==(const RequestDocumentAnnotationsMessage &first, const RequestDocumentAnnotationsMessage &second);
 
-CMBIPC_EXPORT QDebug operator<<(QDebug debug, const RequestHighlightingMessage &message);
-void PrintTo(const RequestHighlightingMessage &message, ::std::ostream* os);
+CMBIPC_EXPORT QDebug operator<<(QDebug debug, const RequestDocumentAnnotationsMessage &message);
+void PrintTo(const RequestDocumentAnnotationsMessage &message, ::std::ostream* os);
 
-DECLARE_MESSAGE(RequestHighlightingMessage)
+DECLARE_MESSAGE(RequestDocumentAnnotationsMessage);
 } // namespace ClangBackEnd

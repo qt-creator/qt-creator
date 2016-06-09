@@ -34,9 +34,8 @@
 #include <cmbregistertranslationunitsforeditormessage.h>
 #include <cmbunregisterprojectsforeditormessage.h>
 #include <cmbunregistertranslationunitsforeditormessage.h>
-#include <highlightingchangedmessage.h>
+#include <documentannotationschangedmessage.h>
 #include <clangcodemodelconnectionclient.h>
-#include <diagnosticschangedmessage.h>
 #include <projectpartsdonotexistmessage.h>
 #include <readmessageblock.h>
 #include <translationunitdoesnotexistmessage.h>

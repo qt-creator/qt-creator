@@ -29,9 +29,9 @@
 #include "cmbcodecompletedmessage.h"
 #include "cmbechomessage.h"
 #include "cmbregistertranslationunitsforeditormessage.h"
-#include "diagnosticschangedmessage.h"
-#include "highlightingchangedmessage.h"
+#include "documentannotationschangedmessage.h"
 #include "clangcodemodelserverinterface.h"
+#include "ipcserverinterface.h"
 #include "messageenvelop.h"
 #include "projectpartsdonotexistmessage.h"
 #include "translationunitdoesnotexistmessage.h"
@@ -96,12 +96,7 @@ void ClangCodeModelClientProxy::projectPartsDoNotExist(const ProjectPartsDoNotEx
     writeMessageBlock.write(message);
 }
 
-void ClangCodeModelClientProxy::diagnosticsChanged(const DiagnosticsChangedMessage &message)
-{
-    writeMessageBlock.write(message);
-}
-
-void ClangCodeModelClientProxy::highlightingChanged(const HighlightingChangedMessage &message)
+void ClangCodeModelClientProxy::documentAnnotationsChanged(const DocumentAnnotationsChangedMessage &message)
 {
     writeMessageBlock.write(message);
 }

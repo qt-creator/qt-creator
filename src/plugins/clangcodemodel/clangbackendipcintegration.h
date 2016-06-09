@@ -42,7 +42,7 @@ class IDocument;
 }
 
 namespace ClangBackEnd {
-class DiagnosticsChangedMessage;
+class DocumentAnnotationsChangedMessage;
 }
 
 namespace TextEditor {
@@ -76,8 +76,8 @@ private:
     void alive() override;
     void echo(const ClangBackEnd::EchoMessage &message) override;
     void codeCompleted(const ClangBackEnd::CodeCompletedMessage &message) override;
-    void diagnosticsChanged(const ClangBackEnd::DiagnosticsChangedMessage &message) override;
-    void highlightingChanged(const ClangBackEnd::HighlightingChangedMessage &message) override;
+
+    void documentAnnotationsChanged(const ClangBackEnd::DocumentAnnotationsChangedMessage &message) override;
 
     void translationUnitDoesNotExist(const ClangBackEnd::TranslationUnitDoesNotExistMessage &message) override;
     void projectPartsDoNotExist(const ClangBackEnd::ProjectPartsDoNotExistMessage &message) override;
@@ -101,8 +101,7 @@ public:
     virtual void registerUnsavedFilesForEditor(const ClangBackEnd::RegisterUnsavedFilesForEditorMessage &message) = 0;
     virtual void unregisterUnsavedFilesForEditor(const ClangBackEnd::UnregisterUnsavedFilesForEditorMessage &message) = 0;
     virtual void completeCode(const ClangBackEnd::CompleteCodeMessage &message) = 0;
-    virtual void requestDiagnostics(const ClangBackEnd::RequestDiagnosticsMessage &message) = 0;
-    virtual void requestHighlighting(const ClangBackEnd::RequestHighlightingMessage &message) = 0;
+    virtual void requestDocumentAnnotations(const ClangBackEnd::RequestDocumentAnnotationsMessage &message) = 0;
     virtual void updateVisibleTranslationUnits(const ClangBackEnd::UpdateVisibleTranslationUnitsMessage &message) = 0;
 };
 
@@ -125,8 +124,7 @@ public:
     void unregisterProjectPartsForEditor(const QStringList &projectPartIds);
     void registerUnsavedFilesForEditor(const FileContainers &fileContainers);
     void unregisterUnsavedFilesForEditor(const FileContainers &fileContainers);
-    void requestDiagnostics(const ClangBackEnd::FileContainer &fileContainer);
-    void requestHighlighting(const ClangBackEnd::FileContainer &fileContainer);
+    void requestDocumentAnnotations(const ClangBackEnd::FileContainer &fileContainer);
     void completeCode(ClangCompletionAssistProcessor *assistProcessor, const QString &filePath,
                       quint32 line,
                       quint32 column,

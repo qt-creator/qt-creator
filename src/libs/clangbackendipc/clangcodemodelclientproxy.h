@@ -56,8 +56,7 @@ public:
     void codeCompleted(const CodeCompletedMessage &message) override;
     void translationUnitDoesNotExist(const TranslationUnitDoesNotExistMessage &message) override;
     void projectPartsDoNotExist(const ProjectPartsDoNotExistMessage &message) override;
-    void diagnosticsChanged(const DiagnosticsChangedMessage &message) override;
-    void highlightingChanged(const HighlightingChangedMessage &message) override;
+    void documentAnnotationsChanged(const DocumentAnnotationsChangedMessage &message) override;
 
     void readMessages();
 

@@ -44,8 +44,6 @@
 #include <texteditor/codeassist/iassistprocessor.h>
 #include <texteditor/texteditor.h>
 
-#include <clangbackendipc/diagnosticschangedmessage.h>
-#include <clangbackendipc/highlightingchangedmessage.h>
 
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
@@ -58,9 +56,9 @@
 #include <clangbackendipc/cmbregisterprojectsforeditormessage.h>
 #include <clangbackendipc/cmbunregistertranslationunitsforeditormessage.h>
 #include <clangbackendipc/cmbunregisterprojectsforeditormessage.h>
+#include <clangbackendipc/documentannotationschangedmessage.h>
 #include <clangbackendipc/registerunsavedfilesforeditormessage.h>
-#include <clangbackendipc/requestdiagnosticsmessage.h>
-#include <clangbackendipc/requesthighlightingmessage.h>
+#include <clangbackendipc/requestdocumentannotations.h>
 #include <clangbackendipc/filecontainer.h>
 #include <clangbackendipc/projectpartsdonotexistmessage.h>
 #include <clangbackendipc/translationunitdoesnotexistmessage.h>
@@ -167,36 +165,25 @@ void IpcReceiver::codeCompleted(const CodeCompletedMessage &message)
     }
 }
 
-void IpcReceiver::diagnosticsChanged(const DiagnosticsChangedMessage &message)
+void IpcReceiver::documentAnnotationsChanged(const DocumentAnnotationsChangedMessage &message)
 {
-    qCDebug(log) << "<<< DiagnosticsChangedMessage with" << message.diagnostics().size() << "items";
+    qCDebug(log) << "<<< DocumentAnnotationsChangedMessage with"
+                 << message.diagnostics().size() << "diagnostics"
+                 << message.highlightingMarks().size() << "highlighting marks"
+                 << message.skippedPreprocessorRanges().size() << "skipped preprocessor ranges";
 
-    auto processor = ClangEditorDocumentProcessor::get(message.file().filePath());
+    auto processor = ClangEditorDocumentProcessor::get(message.fileContainer().filePath());
 
     if (processor) {
-        const QString diagnosticsProjectPartId = message.file().projectPartId();
-        const QString filePath = message.file().filePath();
+        const QString projectPartId = message.fileContainer().projectPartId();
+        const QString filePath = message.fileContainer().filePath();
         const QString documentProjectPartId = CppTools::CppToolsBridge::projectPartIdForFile(filePath);
-        if (diagnosticsProjectPartId == documentProjectPartId)
-            processor->updateCodeWarnings(message.diagnostics(), message.file().documentRevision());
-    }
-}
-
-void IpcReceiver::highlightingChanged(const HighlightingChangedMessage &message)
-{
-    qCDebug(log) << "<<< HighlightingChangedMessage with"
-                 << message.highlightingMarks().size() << "items";
-
-    auto processor = ClangEditorDocumentProcessor::get(message.file().filePath());
-
-    if (processor) {
-        const QString highlightingProjectPartId = message.file().projectPartId();
-        const QString filePath = message.file().filePath();
-        const QString documentProjectPartId = CppTools::CppToolsBridge::projectPartIdForFile(filePath);
-        if (highlightingProjectPartId == documentProjectPartId) {
+        if (projectPartId == documentProjectPartId) {
+            const quint32 documentRevision = message.fileContainer().documentRevision();
+            processor->updateCodeWarnings(message.diagnostics(), documentRevision);
             processor->updateHighlighting(message.highlightingMarks(),
                                           message.skippedPreprocessorRanges(),
-                                          message.file().documentRevision());
+                                          documentRevision);
         }
     }
 }
@@ -229,8 +216,7 @@ public:
     void registerUnsavedFilesForEditor(const ClangBackEnd::RegisterUnsavedFilesForEditorMessage &message) override;
     void unregisterUnsavedFilesForEditor(const ClangBackEnd::UnregisterUnsavedFilesForEditorMessage &message) override;
     void completeCode(const ClangBackEnd::CompleteCodeMessage &message) override;
-    void requestDiagnostics(const ClangBackEnd::RequestDiagnosticsMessage &message) override;
-    void requestHighlighting(const ClangBackEnd::RequestHighlightingMessage &message) override;
+    void requestDocumentAnnotations(const ClangBackEnd::RequestDocumentAnnotationsMessage &message) override;
     void updateVisibleTranslationUnits(const UpdateVisibleTranslationUnitsMessage &message) override;
 
 private:
@@ -300,18 +286,11 @@ void IpcSender::completeCode(const CompleteCodeMessage &message)
      m_connection.serverProxy().completeCode(message);
 }
 
-void IpcSender::requestDiagnostics(const RequestDiagnosticsMessage &message)
+void IpcSender::requestDocumentAnnotations(const RequestDocumentAnnotationsMessage &message)
 {
     QTC_CHECK(m_connection.isConnected());
     qCDebug(log) << ">>>" << message;
-    m_connection.serverProxy().requestDiagnostics(message);
-}
-
-void IpcSender::requestHighlighting(const RequestHighlightingMessage &message)
-{
-    QTC_CHECK(m_connection.isConnected());
-    qCDebug(log) << ">>>" << message;
-    m_connection.serverProxy().requestHighlighting(message);
+    m_connection.serverProxy().requestDocumentAnnotations(message);
 }
 
 void IpcSender::updateVisibleTranslationUnits(const UpdateVisibleTranslationUnitsMessage &message)
@@ -333,8 +312,7 @@ public:
     void registerUnsavedFilesForEditor(const ClangBackEnd::RegisterUnsavedFilesForEditorMessage &) override {}
     void unregisterUnsavedFilesForEditor(const ClangBackEnd::UnregisterUnsavedFilesForEditorMessage &) override {}
     void completeCode(const ClangBackEnd::CompleteCodeMessage &) override {}
-    void requestDiagnostics(const ClangBackEnd::RequestDiagnosticsMessage &) override {}
-    void requestHighlighting(const ClangBackEnd::RequestHighlightingMessage &) override {}
+    void requestDocumentAnnotations(const ClangBackEnd::RequestDocumentAnnotationsMessage &) override {}
     void updateVisibleTranslationUnits(const UpdateVisibleTranslationUnitsMessage &) override {}
 };
 
@@ -602,16 +580,10 @@ void IpcCommunicator::updateTranslationUnitWithRevisionCheck(const FileContainer
     }
 }
 
-void IpcCommunicator::requestDiagnostics(const FileContainer &fileContainer)
+void IpcCommunicator::requestDocumentAnnotations(const FileContainer &fileContainer)
 {
-    const RequestDiagnosticsMessage message(fileContainer);
-    m_ipcSender->requestDiagnostics(message);
-}
-
-void IpcCommunicator::requestHighlighting(const FileContainer &fileContainer)
-{
-    const RequestHighlightingMessage message(fileContainer);
-    m_ipcSender->requestHighlighting(message);
+    const RequestDocumentAnnotationsMessage message(fileContainer);
+    m_ipcSender->requestDocumentAnnotations(message);
 }
 
 void IpcCommunicator::updateTranslationUnitWithRevisionCheck(Core::IDocument *document)

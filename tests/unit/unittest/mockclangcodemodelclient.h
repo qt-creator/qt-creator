@@ -44,8 +44,6 @@ public:
                  void(const ClangBackEnd::TranslationUnitDoesNotExistMessage &message));
     MOCK_METHOD1(projectPartsDoNotExist,
                  void(const ClangBackEnd::ProjectPartsDoNotExistMessage &message));
-    MOCK_METHOD1(diagnosticsChanged,
-                 void(const ClangBackEnd::DiagnosticsChangedMessage &message));
-    MOCK_METHOD1(highlightingChanged,
-                 void(const ClangBackEnd::HighlightingChangedMessage &message));
+    MOCK_METHOD1(documentAnnotationsChanged,
+                 void(const ClangBackEnd::DocumentAnnotationsChangedMessage &message));
 };

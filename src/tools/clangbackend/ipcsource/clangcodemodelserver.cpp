@@ -44,11 +44,9 @@
 #include <cmbregistertranslationunitsforeditormessage.h>
 #include <cmbunregisterprojectsforeditormessage.h>
 #include <cmbunregistertranslationunitsforeditormessage.h>
-#include <diagnosticschangedmessage.h>
-#include <highlightingchangedmessage.h>
+#include <documentannotationschangedmessage.h>
 #include <registerunsavedfilesforeditormessage.h>
-#include <requestdiagnosticsmessage.h>
-#include <requesthighlightingmessage.h>
+#include <requestdocumentannotations.h>
 #include <projectpartsdonotexistmessage.h>
 #include <translationunitdoesnotexistmessage.h>
 #include <unregisterunsavedfilesforeditormessage.h>
@@ -90,10 +88,8 @@ ClangCodeModelServer::ClangCodeModelServer()
     : translationUnits(projects, unsavedFiles)
 {
     const auto sendDocumentAnnotations
-        = [this] (const DiagnosticsChangedMessage &diagnosticsMessage,
-                  const HighlightingChangedMessage &highlightingsMessage) {
-        client()->diagnosticsChanged(diagnosticsMessage);
-        client()->highlightingChanged(highlightingsMessage);
+        = [this] (const DocumentAnnotationsChangedMessage &documentAnnotationsChangedMessage) {
+        client()->documentAnnotationsChanged(documentAnnotationsChangedMessage);
     };
 
     const auto sendDelayedDocumentAnnotations = [this] () {
@@ -260,42 +256,24 @@ void ClangCodeModelServer::completeCode(const ClangBackEnd::CompleteCodeMessage 
     }
 }
 
-void ClangCodeModelServer::requestDiagnostics(const RequestDiagnosticsMessage &message)
+void ClangCodeModelServer::requestDocumentAnnotations(const RequestDocumentAnnotationsMessage &message)
 {
-    TIME_SCOPE_DURATION("ClangCodeModelServer::requestDiagnostics");
-
-    try {
-        auto translationUnit = translationUnits.translationUnit(message.file().filePath(),
-                                                                message.file().projectPartId());
-
-        client()->diagnosticsChanged(DiagnosticsChangedMessage(translationUnit.fileContainer(),
-                                                               translationUnit.mainFileDiagnostics()));
-    } catch (const TranslationUnitDoesNotExistException &exception) {
-        client()->translationUnitDoesNotExist(TranslationUnitDoesNotExistMessage(exception.fileContainer()));
-    } catch (const ProjectPartDoNotExistException &exception) {
-        client()->projectPartsDoNotExist(ProjectPartsDoNotExistMessage(exception.projectPartIds()));
-    }  catch (const std::exception &exception) {
-        qWarning() << "Error in ClangCodeModelServer::requestDiagnostics:" << exception.what();
-    }
-}
-
-void ClangCodeModelServer::requestHighlighting(const RequestHighlightingMessage &message)
-{
-    TIME_SCOPE_DURATION("ClangCodeModelServer::requestHighlighting");
+    TIME_SCOPE_DURATION("ClangCodeModelServer::requestDocumentAnnotations");
 
     try {
         auto translationUnit = translationUnits.translationUnit(message.fileContainer().filePath(),
                                                                 message.fileContainer().projectPartId());
 
-        client()->highlightingChanged(HighlightingChangedMessage(translationUnit.fileContainer(),
-                                                                 translationUnit.highlightingMarks().toHighlightingMarksContainers(),
-                                                                 translationUnit.skippedSourceRanges().toSourceRangeContainers()));
+        client()->documentAnnotationsChanged(DocumentAnnotationsChangedMessage(translationUnit.fileContainer(),
+                                                                               translationUnit.mainFileDiagnostics(),
+                                                                               translationUnit.highlightingMarks().toHighlightingMarksContainers(),
+                                                                               translationUnit.skippedSourceRanges().toSourceRangeContainers()));
     } catch (const TranslationUnitDoesNotExistException &exception) {
         client()->translationUnitDoesNotExist(TranslationUnitDoesNotExistMessage(exception.fileContainer()));
     } catch (const ProjectPartDoNotExistException &exception) {
         client()->projectPartsDoNotExist(ProjectPartsDoNotExistMessage(exception.projectPartIds()));
-    } catch (const std::exception &exception) {
-        qWarning() << "Error in ClangCodeModelServer::requestHighlighting:" << exception.what();
+    }  catch (const std::exception &exception) {
+        qWarning() << "Error in ClangCodeModelServer::requestDocumentAnnotations:" << exception.what();
     }
 }
 

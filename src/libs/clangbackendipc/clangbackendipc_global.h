@@ -97,11 +97,8 @@ enum class MessageType : quint8 {
     RegisterProjectPartsForEditorMessage,
     UnregisterProjectPartsForEditorMessage,
 
-    RequestDiagnosticsMessage,
-    DiagnosticsChangedMessage,
-
-    RequestHighlightingMessage,
-    HighlightingChangedMessage,
+    RequestDocumentAnnotationsMessage,
+    DocumentAnnotationsChangedMessage,
 
     UpdateVisibleTranslationUnitsMessage,
 

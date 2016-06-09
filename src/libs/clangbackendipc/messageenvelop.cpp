@@ -32,14 +32,12 @@
 #include "cmbregistertranslationunitsforeditormessage.h"
 #include "cmbunregisterprojectsforeditormessage.h"
 #include "cmbunregistertranslationunitsforeditormessage.h"
-#include "diagnosticschangedmessage.h"
-#include "highlightingchangedmessage.h"
+#include "documentannotationschangedmessage.h"
 #include "messageenvelop.h"
 #include "messageenvelop.h"
 #include "projectpartsdonotexistmessage.h"
 #include "registerunsavedfilesforeditormessage.h"
-#include "requestdiagnosticsmessage.h"
-#include "requesthighlightingmessage.h"
+#include "requestdocumentannotations.h"
 #include "translationunitdoesnotexistmessage.h"
 #include "unregisterunsavedfilesforeditormessage.h"
 #include "updatetranslationunitsforeditormessage.h"
@@ -79,11 +77,8 @@ QDebug operator<<(QDebug debug, const MessageEnvelop &messageEnvelop)
         case MessageType::CompleteCodeMessage:
             qDebug() << messageEnvelop.message<CompleteCodeMessage>();
             break;
-        case MessageType::RequestDiagnosticsMessage:
-            qDebug() << messageEnvelop.message<RequestDiagnosticsMessage>();
-            break;
-        case MessageType::RequestHighlightingMessage:
-            qDebug() << messageEnvelop.message<RequestHighlightingMessage>();
+        case MessageType::RequestDocumentAnnotationsMessage:
+            qDebug() << messageEnvelop.message<RequestDocumentAnnotationsMessage>();
             break;
         case MessageType::UpdateVisibleTranslationUnitsMessage:
             qDebug() << messageEnvelop.message<UpdateVisibleTranslationUnitsMessage>();
@@ -103,11 +98,8 @@ QDebug operator<<(QDebug debug, const MessageEnvelop &messageEnvelop)
         case MessageType::ProjectPartsDoNotExistMessage:
             qDebug() << messageEnvelop.message<ProjectPartsDoNotExistMessage>();
             break;
-        case MessageType::DiagnosticsChangedMessage:
-            qDebug() << messageEnvelop.message<DiagnosticsChangedMessage>();
-            break;
-        case MessageType::HighlightingChangedMessage:
-            qDebug() << messageEnvelop.message<HighlightingChangedMessage>();
+        case MessageType::DocumentAnnotationsChangedMessage:
+            qDebug() << messageEnvelop.message<DocumentAnnotationsChangedMessage>();
             break;
         default:
             qWarning() << "Unknown Message";

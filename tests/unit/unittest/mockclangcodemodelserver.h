@@ -52,10 +52,8 @@ public:
                  void(const ClangBackEnd::UnregisterUnsavedFilesForEditorMessage &message));
     MOCK_METHOD1(completeCode,
                  void(const ClangBackEnd::CompleteCodeMessage &message));
-    MOCK_METHOD1(requestDiagnostics,
-                 void(const ClangBackEnd::RequestDiagnosticsMessage &message));
-    MOCK_METHOD1(requestHighlighting,
-                 void(const ClangBackEnd::RequestHighlightingMessage &message));
+    MOCK_METHOD1(requestDocumentAnnotations,
+                 void(const ClangBackEnd::RequestDocumentAnnotationsMessage &message));
     MOCK_METHOD1(updateVisibleTranslationUnits,
                  void(const ClangBackEnd::UpdateVisibleTranslationUnitsMessage &message));
 };

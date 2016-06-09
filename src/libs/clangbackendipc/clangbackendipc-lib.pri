@@ -34,23 +34,21 @@ SOURCES += $$PWD/clangcodemodelserverinterface.cpp \
     $$PWD/projectpartsdonotexistmessage.cpp \
     $$PWD/lineprefixer.cpp \
     $$PWD/clangbackendipcdebugutils.cpp \
-    $$PWD/diagnosticschangedmessage.cpp \
     $$PWD/diagnosticcontainer.cpp \
     $$PWD/sourcerangecontainer.cpp \
     $$PWD/sourcelocationcontainer.cpp \
     $$PWD/fixitcontainer.cpp \
-    $$PWD/requestdiagnosticsmessage.cpp \
-    $$PWD/requesthighlightingmessage.cpp \
+    $$PWD/requestdocumentannotations.cpp \
     $$PWD/registerunsavedfilesforeditormessage.cpp \
     $$PWD/unregisterunsavedfilesforeditormessage.cpp \
     $$PWD/updatetranslationunitsforeditormessage.cpp \
     $$PWD/updatevisibletranslationunitsmessage.cpp \
-    $$PWD/highlightingchangedmessage.cpp \
     $$PWD/highlightingmarkcontainer.cpp \
     $$PWD/messageenvelop.cpp \
     $$PWD/ipcclientinterface.cpp \
     $$PWD/ipcserverinterface.cpp \
-    $$PWD/clangcodemodelconnectionclient.cpp
+    $$PWD/clangcodemodelconnectionclient.cpp \
+    $$PWD/documentannotationschangedmessage.cpp
 
 HEADERS += \
     $$PWD/clangcodemodelserverinterface.h \
@@ -80,22 +78,20 @@ HEADERS += \
     $$PWD/clangbackendipc_global.h \
     $$PWD/lineprefixer.h \
     $$PWD/clangbackendipcdebugutils.h \
-    $$PWD/diagnosticschangedmessage.h \
     $$PWD/diagnosticcontainer.h \
     $$PWD/sourcerangecontainer.h \
     $$PWD/sourcelocationcontainer.h \
     $$PWD/fixitcontainer.h \
-    $$PWD/requestdiagnosticsmessage.h \
-    $$PWD/requesthighlightingmessage.h \
+    $$PWD/requestdocumentannotations.h \
     $$PWD/registerunsavedfilesforeditormessage.h \
     $$PWD/unregisterunsavedfilesforeditormessage.h \
     $$PWD/updatetranslationunitsforeditormessage.h \
     $$PWD/updatevisibletranslationunitsmessage.h \
-    $$PWD/highlightingchangedmessage.h \
     $$PWD/highlightingmarkcontainer.h \
     $$PWD/messageenvelop.h \
     $$PWD/ipcclientinterface.h \
     $$PWD/ipcserverinterface.h \
-    $$PWD/clangcodemodelconnectionclient.h
+    $$PWD/clangcodemodelconnectionclient.h \
+    $$PWD/documentannotationschangedmessage.h
 
 contains(QT_CONFIG, reduce_exports):CONFIG += hide_symbols

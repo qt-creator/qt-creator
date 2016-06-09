@@ -23,7 +23,7 @@
 **
 ****************************************************************************/
 
-#include "highlightingchangedmessage.h"
+#include "documentannotationschangedmessage.h"
 
 #include <QDataStream>
 #include <QDebug>
@@ -32,59 +32,72 @@
 
 namespace ClangBackEnd {
 
-HighlightingChangedMessage::HighlightingChangedMessage(const FileContainer &file,
+DocumentAnnotationsChangedMessage::DocumentAnnotationsChangedMessage(
+        const FileContainer &file,
+        const QVector<DiagnosticContainer> &diagnostics,
         const QVector<HighlightingMarkContainer> &highlightingMarks,
         const QVector<SourceRangeContainer> &skippedPreprocessorRanges)
-    : file_(file),
+    : fileContainer_(file),
+      diagnostics_(diagnostics),
       highlightingMarks_(highlightingMarks),
       skippedPreprocessorRanges_(skippedPreprocessorRanges)
 {
 }
 
-const FileContainer &HighlightingChangedMessage::file() const
+const FileContainer &DocumentAnnotationsChangedMessage::fileContainer() const
 {
-    return file_;
+    return fileContainer_;
 }
 
-const QVector<HighlightingMarkContainer> &HighlightingChangedMessage::highlightingMarks() const
+const QVector<DiagnosticContainer> &DocumentAnnotationsChangedMessage::diagnostics() const
+{
+    return diagnostics_;
+}
+
+const QVector<HighlightingMarkContainer> &DocumentAnnotationsChangedMessage::highlightingMarks() const
 {
     return highlightingMarks_;
 }
 
-const QVector<SourceRangeContainer> &HighlightingChangedMessage::skippedPreprocessorRanges() const
+const QVector<SourceRangeContainer> &DocumentAnnotationsChangedMessage::skippedPreprocessorRanges() const
 {
     return skippedPreprocessorRanges_;
 }
 
-QDataStream &operator<<(QDataStream &out, const HighlightingChangedMessage &message)
+QDataStream &operator<<(QDataStream &out, const DocumentAnnotationsChangedMessage &message)
 {
-    out << message.file_;
+    out << message.fileContainer_;
+    out << message.diagnostics_;
     out << message.highlightingMarks_;
     out << message.skippedPreprocessorRanges_;
 
     return out;
 }
 
-QDataStream &operator>>(QDataStream &in, HighlightingChangedMessage &message)
+QDataStream &operator>>(QDataStream &in, DocumentAnnotationsChangedMessage &message)
 {
-    in >> message.file_;
+    in >> message.fileContainer_;
+    in >> message.diagnostics_;
     in >> message.highlightingMarks_;
     in >> message.skippedPreprocessorRanges_;
 
     return in;
 }
 
-bool operator==(const HighlightingChangedMessage &first, const HighlightingChangedMessage &second)
+bool operator==(const DocumentAnnotationsChangedMessage &first,
+                const DocumentAnnotationsChangedMessage &second)
 {
-    return first.file_ == second.file_
+    return first.fileContainer_ == second.fileContainer_
+        && first.diagnostics_ == second.diagnostics_
         && first.highlightingMarks_ == second.highlightingMarks_
         && first.skippedPreprocessorRanges_ == second.skippedPreprocessorRanges_;
 }
 
-QDebug operator<<(QDebug debug, const HighlightingChangedMessage &message)
+QDebug operator<<(QDebug debug, const DocumentAnnotationsChangedMessage &message)
 {
-    debug.nospace() << "HighlightingChangedMessage("
-                    << message.file_
+    debug.nospace() << "DocumentAnnotationsChangedMessage("
+                    << message.fileContainer_
+                    << ", " << message.diagnostics_.size()
                     << ", " << message.highlightingMarks_.size()
                     << ", " << message.skippedPreprocessorRanges_.size()
                     << ")";
@@ -92,10 +105,11 @@ QDebug operator<<(QDebug debug, const HighlightingChangedMessage &message)
     return debug;
 }
 
-void PrintTo(const HighlightingChangedMessage &message, ::std::ostream* os)
+void PrintTo(const DocumentAnnotationsChangedMessage &message, ::std::ostream* os)
 {
-    *os << "HighlightingChangedMessage(";
-    PrintTo(message.file(), os);
+    *os << "DocumentAnnotationsChangedMessage(";
+    PrintTo(message.fileContainer(), os);
+    *os << "," << message.diagnostics().size();
     *os << "," << message.highlightingMarks().size();
     *os << "," << message.skippedPreprocessorRanges().size();
     *os << ")";

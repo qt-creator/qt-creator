@@ -39,12 +39,10 @@
 #include <cmbregistertranslationunitsforeditormessage.h>
 #include <cmbunregisterprojectsforeditormessage.h>
 #include <cmbunregistertranslationunitsforeditormessage.h>
-#include <diagnosticschangedmessage.h>
-#include <highlightingchangedmessage.h>
+#include <documentannotationschangedmessage.h>
 #include <readmessageblock.h>
 #include <registerunsavedfilesforeditormessage.h>
-#include <requestdiagnosticsmessage.h>
-#include <requesthighlightingmessage.h>
+#include <requestdocumentannotations.h>
 #include <translationunitdoesnotexistmessage.h>
 #include <unregisterunsavedfilesforeditormessage.h>
 #include <updatetranslationunitsforeditormessage.h>
@@ -183,27 +181,15 @@ TEST_F(ClientServerInProcess, SendCompleteCodeMessage)
     scheduleServerMessages();
 }
 
-TEST_F(ClientServerInProcess, SendRequestDiagnosticsMessage)
+TEST_F(ClientServerInProcess, SendRequestDocumentAnnotationsMessage)
 {
-    ClangBackEnd::RequestDiagnosticsMessage message({Utf8StringLiteral("foo.cpp"),
-                                                     Utf8StringLiteral("projectId")});
+    ClangBackEnd::RequestDocumentAnnotationsMessage message({Utf8StringLiteral("foo.cpp"),
+                                                             Utf8StringLiteral("projectId")});
 
-    EXPECT_CALL(mockClangCodeModelServer, requestDiagnostics(message))
+    EXPECT_CALL(mockClangCodeModelServer, requestDocumentAnnotations(message))
         .Times(1);
 
-    serverProxy.requestDiagnostics(message);
-    scheduleServerMessages();
-}
-
-TEST_F(ClientServerInProcess, SendRequestHighlightingMessage)
-{
-    ClangBackEnd::RequestHighlightingMessage message({Utf8StringLiteral("foo.cpp"),
-                                                     Utf8StringLiteral("projectId")});
-
-    EXPECT_CALL(mockClangCodeModelServer, requestHighlighting(message))
-        .Times(1);
-
-    serverProxy.requestHighlighting(message);
+    serverProxy.requestDocumentAnnotations(message);
     scheduleServerMessages();
 }
 
@@ -280,9 +266,10 @@ TEST_F(ClientServerInProcess, SendProjectPartDoesNotExistMessage)
     scheduleClientMessages();
 }
 
-TEST_F(ClientServerInProcess, SendDiagnosticsChangedMessage)
+TEST_F(ClientServerInProcess, SendDocumentAnnotationsChangedMessage)
 {
-    ClangBackEnd::DiagnosticContainer container(Utf8StringLiteral("don't do that"),
+    ClangBackEnd::HighlightingMarkContainer highlightingMark(1, 1, 1, ClangBackEnd::HighlightingType::Keyword);
+    ClangBackEnd::DiagnosticContainer diagnostic(Utf8StringLiteral("don't do that"),
                                                 Utf8StringLiteral("warning"),
                                                 {Utf8StringLiteral("-Wpadded"), Utf8StringLiteral("-Wno-padded")},
                                                 ClangBackEnd::DiagnosticSeverity::Warning,
@@ -290,28 +277,18 @@ TEST_F(ClientServerInProcess, SendDiagnosticsChangedMessage)
                                                 {{{Utf8StringLiteral("foo.cpp"), 20u, 103u}, {Utf8StringLiteral("foo.cpp"), 20u, 110u}}},
                                                 {},
                                                 {});
-    ClangBackEnd::DiagnosticsChangedMessage message(fileContainer,
-                                                    {container});
 
-    EXPECT_CALL(mockClangCodeModelClient, diagnosticsChanged(message))
+    ClangBackEnd::DocumentAnnotationsChangedMessage message(fileContainer,
+                                                            {diagnostic},
+                                                            {highlightingMark},
+                                                            QVector<SourceRangeContainer>());
+
+
+
+    EXPECT_CALL(mockClangCodeModelClient, documentAnnotationsChanged(message))
         .Times(1);
 
-    clientProxy.diagnosticsChanged(message);
-    scheduleClientMessages();
-}
-
-TEST_F(ClientServerInProcess, SendHighlightingChangedMessage)
-{
-    ClangBackEnd::HighlightingMarkContainer container(1, 1, 1, ClangBackEnd::HighlightingType::Keyword);
-
-    ClangBackEnd::HighlightingChangedMessage message(fileContainer,
-                                                     {container},
-                                                     QVector<SourceRangeContainer>());
-
-    EXPECT_CALL(mockClangCodeModelClient, highlightingChanged(message))
-        .Times(1);
-
-    clientProxy.highlightingChanged(message);
+    clientProxy.documentAnnotationsChanged(message);
     scheduleClientMessages();
 }
 

@@ -35,8 +35,7 @@
 #include <clangcodemodelclientinterface.h>
 #include <messageenvelop.h>
 #include <registerunsavedfilesforeditormessage.h>
-#include <requestdiagnosticsmessage.h>
-#include <requesthighlightingmessage.h>
+#include <requestdocumentannotations.h>
 #include <unregisterunsavedfilesforeditormessage.h>
 #include <updatetranslationunitsforeditormessage.h>
 #include <updatevisibletranslationunitsmessage.h>
@@ -112,12 +111,7 @@ void ClangCodeModelServerProxy::completeCode(const CompleteCodeMessage &message)
     writeMessageBlock.write(message);
 }
 
-void ClangCodeModelServerProxy::requestDiagnostics(const ClangBackEnd::RequestDiagnosticsMessage &message)
-{
-    writeMessageBlock.write(message);
-}
-
-void ClangCodeModelServerProxy::requestHighlighting(const RequestHighlightingMessage &message)
+void ClangCodeModelServerProxy::requestDocumentAnnotations(const RequestDocumentAnnotationsMessage &message)
 {
     writeMessageBlock.write(message);
 }

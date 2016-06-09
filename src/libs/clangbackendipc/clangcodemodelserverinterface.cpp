@@ -32,8 +32,7 @@
 #include "cmbunregistertranslationunitsforeditormessage.h"
 #include "messageenvelop.h"
 #include "registerunsavedfilesforeditormessage.h"
-#include "requestdiagnosticsmessage.h"
-#include "requesthighlightingmessage.h"
+#include "requestdocumentannotations.h"
 #include "unregisterunsavedfilesforeditormessage.h"
 #include "updatetranslationunitsforeditormessage.h"
 #include "updatevisibletranslationunitsmessage.h"
@@ -73,11 +72,8 @@ void ClangCodeModelServerInterface::dispatch(const MessageEnvelop &messageEnvelo
         case MessageType::CompleteCodeMessage:
             completeCode(messageEnvelop.message<CompleteCodeMessage>());
             break;
-        case MessageType::RequestDiagnosticsMessage:
-            requestDiagnostics(messageEnvelop.message<RequestDiagnosticsMessage>());
-            break;
-        case MessageType::RequestHighlightingMessage:
-            requestHighlighting(messageEnvelop.message<RequestHighlightingMessage>());
+        case MessageType::RequestDocumentAnnotationsMessage:
+            requestDocumentAnnotations(messageEnvelop.message<RequestDocumentAnnotationsMessage>());
             break;
         case MessageType::UpdateVisibleTranslationUnitsMessage:
             updateVisibleTranslationUnits(messageEnvelop.message<UpdateVisibleTranslationUnitsMessage>());
