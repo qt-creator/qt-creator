@@ -9,6 +9,7 @@ Project {
         Depends { name: "Qt"; submodules: ["widgets", "xml", "network"] }
         Depends { name: "Core" }
         Depends { name: "Debugger" }
+        Depends { name: "ProParser" }
         Depends { name: "ProjectExplorer" }
         Depends { name: "QmlDebug" }
         Depends { name: "QtSupport" }

@@ -64,7 +64,7 @@ Module {
 
     Rule {
         condition: make_dev_package
-        inputs: ["dynamiclibrary", "staticlibrary"]
+        inputs: [product.type.contains("dynamiclibrary") ? "dynamiclibrary" : "staticlibrary"]
         Artifact {
             filePath: product.name + "-module.qbs"
             fileTags: ["qtc.dev-module"]

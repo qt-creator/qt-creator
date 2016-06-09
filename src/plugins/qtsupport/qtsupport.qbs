@@ -11,49 +11,9 @@ Project {
         Depends { name: "Utils" }
 
         Depends { name: "Core" }
+        Depends { name: "ProParser" }
         Depends { name: "ProjectExplorer" }
         Depends { name: "CppTools" }
-
-        cpp.includePaths: base.concat([
-                                          project.sharedSourcesDir,
-                                      ])
-
-        cpp.defines: base.concat([
-                                     "QMAKE_AS_LIBRARY",
-                                     "QMAKE_LIBRARY",
-                                     "PROPARSER_THREAD_SAFE",
-                                     "PROEVALUATOR_THREAD_SAFE",
-                                     "PROEVALUATOR_CUMULATIVE",
-                                     "QMAKE_BUILTIN_PRFS",
-                                     "PROEVALUATOR_SETENV"
-                                 ])
-
-        Group {
-            name: "Shared"
-            prefix: project.sharedSourcesDir + "/proparser/"
-            files: [
-                "ioutils.cpp",
-                "ioutils.h",
-                "profileevaluator.cpp",
-                "profileevaluator.h",
-                "proitems.cpp",
-                "proitems.h",
-                "proparser.qrc",
-                "prowriter.cpp",
-                "prowriter.h",
-                "qmake_global.h",
-                "qmakebuiltins.cpp",
-                "qmakeevaluator.cpp",
-                "qmakeevaluator.h",
-                "qmakeevaluator_p.h",
-                "qmakeglobals.cpp",
-                "qmakeglobals.h",
-                "qmakeparser.cpp",
-                "qmakeparser.h",
-                "qmakevfs.cpp",
-                "qmakevfs.h",
-            ]
-        }
 
         files: [
             "baseqtversion.cpp",
@@ -118,19 +78,6 @@ Project {
             files: [
                 "gettingstartedwelcomepage.cpp",
                 "gettingstartedwelcomepage.h"
-            ]
-        }
-
-
-        Export {
-            cpp.includePaths: "../../shared"
-            cpp.defines: [
-                "QMAKE_AS_LIBRARY",
-                "PROPARSER_THREAD_SAFE",
-                "PROEVALUATOR_CUMULATIVE",
-                "PROEVALUATOR_THREAD_SAFE",
-                "QMAKE_BUILTIN_PRFS",
-                "PROEVALUATOR_SETENV"
             ]
         }
     }

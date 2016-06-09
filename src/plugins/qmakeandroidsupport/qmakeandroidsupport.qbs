@@ -15,10 +15,6 @@ QtcPlugin {
     Depends { name: "Qt.network" }
     Depends { name: "Qt.widgets" }
 
-    cpp.includePaths: base.concat([
-        project.sharedSourcesDir,
-    ])
-
     files: [
         "androidextralibrarylistmodel.cpp",
         "androidextralibrarylistmodel.h",
