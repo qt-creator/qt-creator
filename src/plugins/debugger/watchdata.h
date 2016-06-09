@@ -39,7 +39,7 @@ namespace Internal {
 
 class GdbMi;
 
-class WatchItem : public Utils::TreeItem
+class WatchItem : public Utils::TypedTreeItem<WatchItem>
 {
 public:
     WatchItem();

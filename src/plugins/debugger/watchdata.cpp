@@ -394,15 +394,12 @@ public:
     quint64 addrstep;
 };
 
-static bool sortByName(const Utils::TreeItem *a, const Utils::TreeItem *b)
+static bool sortByName(const WatchItem *a, const WatchItem *b)
 {
-    auto aa = static_cast<const WatchItem *>(a);
-    auto bb = static_cast<const WatchItem *>(b);
+    if (a->sortGroup != b->sortGroup)
+        return a->sortGroup > b->sortGroup;
 
-    if (aa->sortGroup != bb->sortGroup)
-        return aa->sortGroup > bb->sortGroup;
-
-    return aa->name < bb->name;
+    return a->name < b->name;
 }
 
 void WatchItem::parseHelper(const GdbMi &input, bool maySort)

@@ -1253,16 +1253,14 @@ void WatchHandler::cleanup()
         m_model->m_separatedView->hide();
 }
 
-static bool sortByName(const TreeItem *a, const TreeItem *b)
+static bool sortByName(const WatchItem *a, const WatchItem *b)
 {
-    auto aa = static_cast<const WatchItem *>(a);
-    auto bb = static_cast<const WatchItem *>(b);
-    return aa->name < bb->name;
+    return a->name < b->name;
 }
 
 void WatchHandler::insertItems(const GdbMi &data)
 {
-    QSet<TreeItem *> itemsToSort;
+    QSet<WatchItem *> itemsToSort;
 
     const bool sortStructMembers = boolSetting(SortStructMembers);
     foreach (const GdbMi &child, data.children()) {
@@ -1274,10 +1272,10 @@ void WatchHandler::insertItems(const GdbMi &data)
 
         const bool added = insertItem(item);
         if (added && item->level() == 2)
-            itemsToSort.insert(item->parent());
+            itemsToSort.insert(static_cast<WatchItem *>(item->parent()));
     }
 
-    foreach (TreeItem *toplevel, itemsToSort)
+    foreach (WatchItem *toplevel, itemsToSort)
         toplevel->sortChildren(&sortByName);
 }
 
@@ -1303,7 +1301,7 @@ bool WatchHandler::insertItem(WatchItem *item)
 
     item->update();
 
-    item->forAllChildren<WatchItem *>([this](WatchItem *sub) { m_model->showEditValue(sub); });
+    item->forAllChildren([this](WatchItem *sub) { m_model->showEditValue(sub); });
 
     return !found;
 }
@@ -1349,16 +1347,16 @@ void WatchHandler::resetWatchers()
 
 void WatchHandler::notifyUpdateStarted(const QStringList &inames)
 {
-    auto marker = [](TreeItem *it) { static_cast<WatchItem *>(it)->outdated = true; };
+    auto marker = [](WatchItem *item) { item->outdated = true; };
 
     if (inames.isEmpty()) {
         m_model->forSecondLevelItems([marker](WatchItem *item) {
-            item->forAllChildren<WatchItem *>(marker);
+            item->forAllChildren(marker);
         });
     } else {
         for (auto iname : inames) {
             if (WatchItem *item = m_model->findItem(iname))
-                item->forAllChildren<WatchItem *>(marker);
+                item->forAllChildren(marker);
         }
     }
 

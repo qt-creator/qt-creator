@@ -188,11 +188,30 @@ private:
 
     TreeItem *m_parent; // Not owned.
     TreeModel *m_model; // Not owned.
-    QVector<TreeItem *> m_children; // Owned.
     QStringList *m_displays;
     Qt::ItemFlags m_flags;
 
+ protected:
+    QVector<TreeItem *> m_children; // Owned.
     friend class TreeModel;
+};
+
+// A TreeItem with children all of the same type.
+template <class ChildType>
+class TypedTreeItem : public TreeItem
+{
+public:
+    void sortChildren(const std::function<bool(const ChildType *, const ChildType *)> &lessThan)
+    {
+        return TreeItem::sortChildren([lessThan](const TreeItem *a, const TreeItem *b) {
+            return lessThan(static_cast<const ChildType *>(a), static_cast<const ChildType *>(b));
+        });
+    }
+
+    template <typename Predicate>
+    void forAllChildren(const Predicate &pred) const {
+        return TreeItem::forAllChildren<ChildType *, Predicate>(pred);
+    }
 };
 
 // A general purpose multi-level model where each item can have its

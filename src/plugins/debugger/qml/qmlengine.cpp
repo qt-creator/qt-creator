@@ -2418,9 +2418,8 @@ void QmlEnginePrivate::insertSubItems(WatchItem *parent, const QVariantList &pro
     }
 
     if (boolSetting(SortStructMembers)) {
-        parent->sortChildren([](const TreeItem *item1, const TreeItem *item2) -> bool {
-            return static_cast<const WatchItem *>(item1)->name
-                    < static_cast<const WatchItem *>(item2)->name;
+        parent->sortChildren([](const WatchItem *item1, const WatchItem *item2) {
+            return item1->name < item2->name;
         });
     }
 
