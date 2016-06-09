@@ -181,12 +181,9 @@ QTextCharFormat FontSettings::toTextCharFormat(TextStyle category) const
     return tf;
 }
 
-uint qHash(const TextStyles &textStyles)
+uint qHash(TextStyles textStyles)
 {
-    uint hash = qHash(textStyles.mainStyle);
-    for (TextStyle mixinStyle : textStyles.mixinStyles)
-        hash ^= qHash(mixinStyle);
-    return hash;
+    return ::qHash(reinterpret_cast<quint64&>(textStyles));
 }
 
 bool operator==(const TextStyles &first, const TextStyles &second)
@@ -219,7 +216,7 @@ void FontSettings::addMixinStyle(QTextCharFormat &textCharFormat,
     };
 }
 
-QTextCharFormat FontSettings::toTextCharFormat(const TextStyles &textStyles) const
+QTextCharFormat FontSettings::toTextCharFormat(TextStyles textStyles) const
 {
     auto textCharFormatIterator = m_textCharFormatCache.find(textStyles);
     if (textCharFormatIterator != m_textCharFormatCache.end())

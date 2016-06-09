@@ -66,7 +66,7 @@ public:
 
     QVector<QTextCharFormat> toTextCharFormats(const QVector<TextStyle> &categories) const;
     QTextCharFormat toTextCharFormat(TextStyle category) const;
-    QTextCharFormat toTextCharFormat(const TextStyles &textStyles) const;
+    QTextCharFormat toTextCharFormat(TextStyles textStyles) const;
 
     QString family() const;
     void setFamily(const QString &family);

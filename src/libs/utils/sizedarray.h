@@ -108,6 +108,11 @@ public:
         return m_size == 0;
     }
 
+    void fillWithZero()
+    {
+        std::array<T, MaxSize>::fill(T(0));
+    }
+
 private:
     std::uint8_t m_size = 0;
 };
