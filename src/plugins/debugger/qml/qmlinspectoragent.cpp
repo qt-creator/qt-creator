@@ -391,7 +391,7 @@ void QmlInspectorAgent::onValueChanged(int debugId, const QByteArray &propertyNa
                                        const QVariant &value)
 {
     const QString iname = m_debugIdToIname.value(debugId) +
-            ".[properties]." + propertyName;
+            ".[properties]." + QString::fromLatin1(propertyName);
     WatchHandler *watchHandler = m_qmlEngine->watchHandler();
     qCDebug(qmlInspectorLog)
             << __FUNCTION__ << '(' << debugId << ')' << iname

@@ -631,7 +631,7 @@ QString WatchItem::internalName() const
 {
     if (arrayIndex >= 0) {
         if (const WatchItem *p = parentItem())
-            return p->iname + '.' + QByteArray::number(arrayIndex);
+            return p->iname + '.' + QString::number(arrayIndex);
     }
     return iname;
 }

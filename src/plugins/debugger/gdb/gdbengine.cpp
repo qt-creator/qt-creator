@@ -2581,7 +2581,7 @@ void GdbEngine::handleBreakInsert1(const DebuggerResponse &response, Breakpoint 
         const QString fileName = bp.fileName();
         const int lineNumber = bp.lineNumber();
         DebuggerCommand cmd("trace \"" + GdbMi::escapeCString(fileName) + "\":"
-                            + QByteArray::number(lineNumber),
+                            + QString::number(lineNumber),
                             NeedsStop | RebuildBreakpointModel);
         runCommand(cmd);
     } else {
@@ -2822,7 +2822,7 @@ void GdbEngine::changeBreakpoint(Breakpoint bp)
         cmd.function = "condition " + bpnr + ' '  + data.condition;
         cmd.callback = [this, bp](const DebuggerResponse &r) { handleBreakCondition(r, bp); };
     } else if (data.ignoreCount != response.ignoreCount) {
-        cmd.function = "ignore " + bpnr + ' ' + QByteArray::number(data.ignoreCount);
+        cmd.function = "ignore " + bpnr + ' ' + QString::number(data.ignoreCount);
         cmd.callback = [this, bp](const DebuggerResponse &r) { handleBreakIgnore(r, bp); };
     } else if (!data.enabled && response.enabled) {
         cmd.function = "-break-disable " + bpnr;

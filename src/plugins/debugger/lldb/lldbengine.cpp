@@ -123,7 +123,7 @@ void LldbEngine::runCommand(const DebuggerCommand &cmd)
     const int tok = ++currentToken();
     DebuggerCommand command = cmd;
     command.arg("token", tok);
-    QByteArray token = QByteArray::number(tok);
+    QString token = QString::number(tok);
     QString function = command.function + "(" + command.argsToPython() + ")";
     showMessage(token + function + '\n', LogInput);
     m_commandForToken[currentToken()] = command;
