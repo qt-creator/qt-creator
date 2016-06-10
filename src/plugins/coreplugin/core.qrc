@@ -40,7 +40,10 @@
         <file>images/plus.png</file>
         <file>images/plus@2x.png</file>
         <file>images/redo.png</file>
-        <file>images/replace.png</file>
+        <file>images/replace_a.png</file>
+        <file>images/replace_a@2x.png</file>
+        <file>images/replace_b.png</file>
+        <file>images/replace_b@2x.png</file>
         <file>images/reset.png</file>
         <file>images/sidebaricon.png</file>
         <file>images/sidebaricon@2x.png</file>

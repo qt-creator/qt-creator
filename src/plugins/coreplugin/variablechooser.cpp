@@ -26,6 +26,8 @@
 #include "variablechooser.h"
 #include "coreconstants.h"
 
+#include <coreplugin/coreicons.h>
+
 #include <utils/fancylineedit.h> // IconButton
 #include <utils/headerviewstretcher.h> // IconButton
 #include <utils/macroexpander.h>
@@ -87,7 +89,7 @@ public:
     void createIconButton()
     {
         m_iconButton = new IconButton;
-        m_iconButton->setPixmap(QPixmap(QLatin1String(":/core/images/replace.png")));
+        m_iconButton->setPixmap(Core::Icons::REPLACE.pixmap());
         m_iconButton->setToolTip(VariableChooser::tr("Insert Variable"));
         m_iconButton->hide();
         connect(m_iconButton.data(), static_cast<void(QAbstractButton::*)(bool)>(&QAbstractButton::clicked),

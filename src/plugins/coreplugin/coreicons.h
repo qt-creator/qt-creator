@@ -92,6 +92,7 @@ CORE_EXPORT extern const Utils::Icon INTERRUPT_SMALL_TOOLBAR;
 CORE_EXPORT extern const Utils::Icon BOUNDING_RECT;
 CORE_EXPORT extern const Utils::Icon EYE_OPEN_TOOLBAR;
 CORE_EXPORT extern const Utils::Icon EYE_CLOSED_TOOLBAR;
+CORE_EXPORT extern const Utils::Icon REPLACE;
 
 CORE_EXPORT extern const Utils::Icon MODE_EDIT_CLASSIC;
 CORE_EXPORT extern const Utils::Icon MODE_EDIT_FLAT;
