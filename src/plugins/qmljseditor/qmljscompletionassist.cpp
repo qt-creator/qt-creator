@@ -379,8 +379,10 @@ void QmlJSAssistProposalItem::applyContextualContent(TextEditor::TextDocumentMan
     }
     const int length = manipulator.currentPosition() - basePosition + replacedLength;
     manipulator.replace(basePosition, length, content);
-    if (cursorOffset)
+    if (cursorOffset) {
         manipulator.setCursorPosition(manipulator.currentPosition() + cursorOffset);
+        manipulator.setAutoCompleteSkipPosition(manipulator.currentPosition());
+    }
 }
 
 // -------------------------

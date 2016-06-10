@@ -60,15 +60,17 @@ bool CppAutoCompleter::isInString(const QTextCursor &cursor) const
 }
 
 QString CppAutoCompleter::insertMatchingBrace(const QTextCursor &cursor, const QString &text,
-                                              QChar lookAhead, int *skippedChars) const
+                                              QChar lookAhead, bool skipChars, int *skippedChars) const
 {
-    return CPlusPlus::MatchingText::insertMatchingBrace(cursor, text, lookAhead, skippedChars);
+    return CPlusPlus::MatchingText::insertMatchingBrace(cursor, text, lookAhead,
+                                                        skipChars, skippedChars);
 }
 
 QString CppAutoCompleter::insertMatchingQuote(const QTextCursor &cursor, const QString &text,
-                                              QChar lookAhead, int *skippedChars) const
+                                              QChar lookAhead, bool skipChars, int *skippedChars) const
 {
-    return CPlusPlus::MatchingText::insertMatchingQuote(cursor, text, lookAhead, skippedChars);
+    return CPlusPlus::MatchingText::insertMatchingQuote(cursor, text, lookAhead,
+                                                        skipChars, skippedChars);
 }
 
 QString CppAutoCompleter::insertParagraphSeparator(const QTextCursor &cursor) const
@@ -291,7 +293,8 @@ void CppEditorPlugin::test_autoComplete()
 
     QVERIFY(!tc.isNull());
 
-    const QString &matchingText = CppAutoCompleter().autoComplete(tc, textToInsert);
+    const QString &matchingText = CppAutoCompleter().autoComplete(tc, textToInsert,
+                                                                  true /*skipChars*/);
 
     int skippedChars = tc.selectedText().size();
 
@@ -351,7 +354,8 @@ void CppEditorPlugin::test_surroundWithSelection()
 
     QVERIFY(!tc.isNull());
 
-    const QString &matchingText = CppAutoCompleter().autoComplete(tc, textToInsert);
+    const QString &matchingText = CppAutoCompleter().autoComplete(tc, textToInsert,
+                                                                  true /*skipChars*/);
 
     QCOMPARE(matchingText, expectedText);
 }

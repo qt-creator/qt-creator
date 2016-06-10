@@ -455,6 +455,7 @@ public:
     QPointer<TextEditorAnimator> m_autocompleteAnimator;
     bool m_animateAutoComplete = true;
     bool m_highlightAutoComplete = true;
+    bool m_skipAutoCompletedText = true;
     bool m_keepAutoCompletionHighlight = false;
     QTextCursor m_autoCompleteHighlightPos;
 
@@ -2392,8 +2393,11 @@ void TextEditorWidget::keyPressEvent(QKeyEvent *e)
         // only go here if control is not pressed, except if also alt is pressed
         // because AltGr maps to Alt + Ctrl
         QTextCursor cursor = textCursor();
-        const QString &autoText = inOverwriteMode
-                ? QString() : autoCompleter()->autoComplete(cursor, eventText);
+        QString autoText;
+        if (!inOverwriteMode) {
+            autoText = autoCompleter()->autoComplete(cursor, eventText,
+                    d->m_skipAutoCompletedText && cursor == d->m_autoCompleteHighlightPos);
+        }
         const bool cursorWithinSnippet = d->snippetCheckCursor(cursor);
 
         QChar electricChar;
@@ -6566,6 +6570,7 @@ void TextEditorWidget::setCompletionSettings(const CompletionSettings &completio
     d->m_autoCompleter->setSurroundWithQuotesEnabled(completionSettings.m_surroundingAutoQuotes);
     d->m_animateAutoComplete = completionSettings.m_animateAutoComplete;
     d->m_highlightAutoComplete = completionSettings.m_highlightAutoComplete;
+    d->m_skipAutoCompletedText = completionSettings.m_skipAutoCompletedText;
 }
 
 void TextEditorWidget::setExtraEncodingSettings(const ExtraEncodingSettings &extraEncodingSettings)
@@ -7030,6 +7035,13 @@ void TextEditorWidget::insertExtraToolBarWidget(TextEditorWidget::Side side,
 void TextEditorWidget::keepAutoCompletionHighlight(bool keepHighlight)
 {
     d->m_keepAutoCompletionHighlight = keepHighlight;
+}
+
+void TextEditorWidget::setAutoCompleteSkipPosition(const QTextCursor &cursor)
+{
+    QTextCursor tc = cursor;
+    tc.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor);
+    d->autocompleterHighlight(tc);
 }
 
 int BaseTextEditor::currentLine() const

@@ -49,9 +49,9 @@ public:
     static bool isInStringHelper(const QTextCursor &cursor);
 
     static QString insertMatchingBrace(const QTextCursor &tc, const QString &text,
-                                       QChar lookAhead, int *skippedChars);
+                                       QChar lookAhead, bool skipChars, int *skippedChars);
     static QString insertMatchingQuote(const QTextCursor &tc, const QString &text,
-                                       QChar lookAhead, int *skippedChars);
+                                       QChar lookAhead, bool skipChars, int *skippedChars);
     static QString insertParagraphSeparator(const QTextCursor &tc);
 };
 

@@ -148,7 +148,8 @@ QString AutoCompleter::replaceSelection(QTextCursor &cursor, const QString &text
     return QString();
 }
 
-QString AutoCompleter::autoComplete(QTextCursor &cursor, const QString &textToInsert) const
+QString AutoCompleter::autoComplete(QTextCursor &cursor, const QString &textToInsert,
+                                    bool skipChars) const
 {
     const bool checkBlockEnd = m_allowSkippingOfBlockEnd;
     m_allowSkippingOfBlockEnd = false; // consume blockEnd.
@@ -164,12 +165,12 @@ QString AutoCompleter::autoComplete(QTextCursor &cursor, const QString &textToIn
 
     if (isQuote(textToInsert) && m_autoInsertQuotes
             && contextAllowsAutoQuotes(cursor, textToInsert)) {
-        autoText = insertMatchingQuote(cursor, textToInsert, lookAhead, &skippedChars);
+        autoText = insertMatchingQuote(cursor, textToInsert, lookAhead, skipChars, &skippedChars);
     } else if (m_autoInsertBrackets && contextAllowsAutoBrackets(cursor, textToInsert)) {
         if (fixesBracketsError(textToInsert, cursor))
             return QString();
 
-        autoText = insertMatchingBrace(cursor, textToInsert, lookAhead, &skippedChars);
+        autoText = insertMatchingBrace(cursor, textToInsert, lookAhead, skipChars, &skippedChars);
 
         if (checkBlockEnd && textToInsert.at(0) == QLatin1Char('}')) {
             if (textToInsert.length() > 1)
@@ -179,14 +180,14 @@ QString AutoCompleter::autoComplete(QTextCursor &cursor, const QString &textToIn
             while (doc->characterAt(pos).isSpace())
                 ++pos;
 
-            if (doc->characterAt(pos) == QLatin1Char('}'))
+            if (doc->characterAt(pos) == QLatin1Char('}') && skipChars)
                 skippedChars += (pos - startPos) + 1;
         }
     } else {
         return QString();
     }
 
-    if (skippedChars) {
+    if (skipChars && skippedChars) {
         const int pos = cursor.position();
         cursor.setPosition(pos + skippedChars);
         cursor.setPosition(pos, QTextCursor::KeepAnchor);
@@ -341,11 +342,13 @@ bool AutoCompleter::isInString(const QTextCursor &cursor) const
 QString AutoCompleter::insertMatchingBrace(const QTextCursor &cursor,
                                            const QString &text,
                                            QChar lookAhead,
+                                           bool skipChars,
                                            int *skippedChars) const
 {
     Q_UNUSED(cursor);
     Q_UNUSED(text);
     Q_UNUSED(lookAhead);
+    Q_UNUSED(skipChars);
     Q_UNUSED(skippedChars);
     return QString();
 }
@@ -353,11 +356,13 @@ QString AutoCompleter::insertMatchingBrace(const QTextCursor &cursor,
 QString AutoCompleter::insertMatchingQuote(const QTextCursor &cursor,
                                            const QString &text,
                                            QChar lookAhead,
+                                           bool skipChars,
                                            int *skippedChars) const
 {
     Q_UNUSED(cursor);
     Q_UNUSED(text);
     Q_UNUSED(lookAhead);
+    Q_UNUSED(skipChars);
     Q_UNUSED(skippedChars);
     return QString();
 }

@@ -45,10 +45,12 @@ public:
     QString insertMatchingBrace(const QTextCursor &tc,
                                 const QString &text,
                                 QChar lookAhead,
+                                bool skipChars,
                                 int *skippedChars) const override;
     QString insertMatchingQuote(const QTextCursor &tc,
                                 const QString &text,
                                 QChar lookAhead,
+                                bool skipChars,
                                 int *skippedChars) const override;
     QString insertParagraphSeparator(const QTextCursor &tc) const override;
 };

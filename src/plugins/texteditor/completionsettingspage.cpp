@@ -104,12 +104,14 @@ QWidget *CompletionSettingsPage::widget()
         m_page->autoSplitStrings->setChecked(m_completionSettings.m_autoSplitStrings);
         m_page->animateAutoComplete->setChecked(m_completionSettings.m_animateAutoComplete);
         m_page->highlightAutoComplete->setChecked(m_completionSettings.m_highlightAutoComplete);
+        m_page->skipAutoComplete->setChecked(m_completionSettings.m_skipAutoCompletedText);
 
         m_page->enableDoxygenCheckBox->setChecked(m_commentsSettings.m_enableDoxygen);
         m_page->generateBriefCheckBox->setChecked(m_commentsSettings.m_generateBrief);
         m_page->leadingAsterisksCheckBox->setChecked(m_commentsSettings.m_leadingAsterisks);
 
         m_page->generateBriefCheckBox->setEnabled(m_page->enableDoxygenCheckBox->isChecked());
+        m_page->skipAutoComplete->setEnabled(m_page->highlightAutoComplete->isChecked());
     }
     return m_widget;
 }
@@ -179,6 +181,7 @@ void CompletionSettingsPage::settingsFromUi(CompletionSettings &completion, Comm
     completion.m_autoSplitStrings = m_page->autoSplitStrings->isChecked();
     completion.m_animateAutoComplete = m_page->animateAutoComplete->isChecked();
     completion.m_highlightAutoComplete = m_page->highlightAutoComplete->isChecked();
+    completion.m_skipAutoCompletedText = m_page->skipAutoComplete->isChecked();
 
     comment.m_enableDoxygen = m_page->enableDoxygenCheckBox->isChecked();
     comment.m_generateBrief = m_page->generateBriefCheckBox->isChecked();

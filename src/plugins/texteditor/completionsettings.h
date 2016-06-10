@@ -67,7 +67,8 @@ public:
     bool m_spaceAfterFunctionName = false;
     bool m_autoSplitStrings = true;
     bool m_animateAutoComplete = true;
-    bool m_highlightAutoComplete = false;
+    bool m_highlightAutoComplete = true;
+    bool m_skipAutoCompletedText = true;
 };
 
 inline bool operator==(const CompletionSettings &t1, const CompletionSettings &t2) { return t1.equals(t2); }

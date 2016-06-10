@@ -40,9 +40,9 @@ public:
     bool isInComment(const QTextCursor &cursor) const override;
     bool isInString(const QTextCursor &cursor) const override;
     QString insertMatchingBrace(const QTextCursor &cursor, const QString &text,
-                                QChar lookAhead, int *skippedChars) const override;
+                                QChar lookAhead, bool skipChars, int *skippedChars) const override;
     QString insertMatchingQuote(const QTextCursor &cursor, const QString &text,
-                                QChar lookAhead, int *skippedChars) const override;
+                                QChar lookAhead, bool skipChars, int *skippedChars) const override;
     int paragraphSeparatorAboutToBeInserted(QTextCursor &cursor, const TextEditor::TabSettings &tabSettings) override;
     bool contextAllowsAutoBrackets(const QTextCursor &cursor, const QString &textToInsert) const override;
     bool contextAllowsAutoQuotes(const QTextCursor &cursor, const QString &textToInsert) const override;

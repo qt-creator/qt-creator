@@ -73,11 +73,13 @@ bool CMakeAutoCompleter::isInString(const QTextCursor &cursor) const
     return inString;
 }
 
-QString CMakeAutoCompleter::insertMatchingBrace(const QTextCursor &cursor, const QString &text,
-                                                QChar lookAhead, int *skippedChars) const
+QString CMakeAutoCompleter::insertMatchingBrace(const QTextCursor &cursor,
+                                                const QString &text,
+                                                QChar lookAhead,
+                                                bool skipChars,
+                                                int *skippedChars) const
 {
     Q_UNUSED(cursor)
-    Q_UNUSED(skippedChars)
     if (text.isEmpty())
         return QString();
     const QChar current = text.at(0);
@@ -86,7 +88,7 @@ QString CMakeAutoCompleter::insertMatchingBrace(const QTextCursor &cursor, const
         return QStringLiteral(")");
 
     case ')':
-        if (current == lookAhead)
+        if (current == lookAhead && skipChars)
             ++*skippedChars;
         break;
 
@@ -97,17 +99,21 @@ QString CMakeAutoCompleter::insertMatchingBrace(const QTextCursor &cursor, const
     return QString();
 }
 
-QString CMakeAutoCompleter::insertMatchingQuote(const QTextCursor &cursor, const QString &text,
-                                                QChar lookAhead, int *skippedChars) const
+QString CMakeAutoCompleter::insertMatchingQuote(const QTextCursor &cursor,
+                                                const QString &text,
+                                                QChar lookAhead,
+                                                bool skipChars,
+                                                int *skippedChars) const
 {
     Q_UNUSED(cursor)
     static const QChar quote(QLatin1Char('"'));
     if (text.isEmpty() || text != quote)
         return QString();
-    if (lookAhead != quote)
-        return quote;
-    ++*skippedChars;
-    return QString();
+    if (lookAhead == quote && skipChars) {
+        ++*skippedChars;
+        return QString();
+    }
+    return quote;
 }
 
 int CMakeAutoCompleter::paragraphSeparatorAboutToBeInserted(QTextCursor &cursor, const TextEditor::TabSettings &tabSettings)

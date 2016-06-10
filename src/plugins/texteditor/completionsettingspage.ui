@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>511</width>
-    <height>437</height>
+    <width>551</width>
+    <height>465</height>
    </rect>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -227,12 +227,48 @@ In addition, Shift+Enter inserts an escape character at the cursor position and 
         </property>
        </widget>
       </item>
-      <item row="3" column="1">
+      <item row="3" column="0">
        <widget class="QCheckBox" name="highlightAutoComplete">
         <property name="text">
          <string>Highlight automatically inserted text</string>
         </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
        </widget>
+      </item>
+      <item row="4" column="0">
+       <layout class="QHBoxLayout" name="horizontalLayout_3">
+        <item>
+         <spacer name="horizontalSpacer_6">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeType">
+           <enum>QSizePolicy::Fixed</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>30</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="skipAutoComplete">
+          <property name="toolTip">
+           <string>Skip automatically inserted character if re-typed manually after completion.</string>
+          </property>
+          <property name="text">
+           <string>Skip automatically inserted character when typing</string>
+          </property>
+          <property name="checked">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </item>
      </layout>
     </widget>
@@ -254,7 +290,7 @@ In addition, Shift+Enter inserts an escape character at the cursor position and 
        </widget>
       </item>
       <item>
-       <layout class="QHBoxLayout" name="horizontalLayout_3">
+       <layout class="QHBoxLayout" name="horizontalLayout_4">
         <item>
          <spacer name="horizontalSpacer_5">
           <property name="orientation">
@@ -324,6 +360,7 @@ In addition, Shift+Enter inserts an escape character at the cursor position and 
   <tabstop>spaceAfterFunctionName</tabstop>
   <tabstop>animateAutoComplete</tabstop>
   <tabstop>highlightAutoComplete</tabstop>
+  <tabstop>skipAutoComplete</tabstop>
   <tabstop>enableDoxygenCheckBox</tabstop>
   <tabstop>generateBriefCheckBox</tabstop>
   <tabstop>leadingAsterisksCheckBox</tabstop>
@@ -337,12 +374,28 @@ In addition, Shift+Enter inserts an escape character at the cursor position and 
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>174</x>
-     <y>294</y>
+     <x>195</x>
+     <y>383</y>
     </hint>
     <hint type="destinationlabel">
-     <x>262</x>
-     <y>321</y>
+     <x>320</x>
+     <y>410</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>highlightAutoComplete</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>skipAutoComplete</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>176</x>
+     <y>277</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>186</x>
+     <y>306</y>
     </hint>
    </hints>
   </connection>

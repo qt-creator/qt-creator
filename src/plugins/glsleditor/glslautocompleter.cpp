@@ -55,15 +55,17 @@ bool GlslCompleter::isInComment(const QTextCursor &cursor) const
 }
 
 QString GlslCompleter::insertMatchingBrace(const QTextCursor &cursor, const QString &text,
-                                           QChar lookAhead, int *skippedChars) const
+                                           QChar lookAhead, bool skipChars, int *skippedChars) const
 {
-    return CPlusPlus::MatchingText::insertMatchingBrace(cursor, text, lookAhead, skippedChars);
+    return CPlusPlus::MatchingText::insertMatchingBrace(cursor, text, lookAhead,
+                                                        skipChars, skippedChars);
 }
 
 QString GlslCompleter::insertMatchingQuote(const QTextCursor &cursor, const QString &text,
-                                           QChar lookAhead, int *skippedChars) const
+                                           QChar lookAhead, bool skipChars, int *skippedChars) const
 {
-    return CPlusPlus::MatchingText::insertMatchingQuote(cursor, text, lookAhead, skippedChars);
+    return CPlusPlus::MatchingText::insertMatchingQuote(cursor, text, lookAhead,
+                                                        skipChars, skippedChars);
 }
 
 QString GlslCompleter::insertParagraphSeparator(const QTextCursor &cursor) const
