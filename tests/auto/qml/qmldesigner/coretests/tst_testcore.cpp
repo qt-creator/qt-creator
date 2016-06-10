@@ -170,6 +170,7 @@ static QmlDesigner::Model* createModel(const QString &typeName, int major = 2, i
 tst_TestCore::tst_TestCore()
     : QObject()
 {
+    QLoggingCategory::setFilterRules(QStringLiteral("qtc.qmljs.imports=false"));
 }
 
 void tst_TestCore::initTestCase()
