@@ -33,25 +33,7 @@
 
 namespace Utils {
 
-class TreeItem;
 class TreeModel;
-
-class QTCREATOR_UTILS_EXPORT TreeItemVisitor
-{
-public:
-    TreeItemVisitor() : m_level(0) {}
-    virtual ~TreeItemVisitor() {}
-
-    virtual bool preVisit(TreeItem *) { return true; }
-    virtual void visit(TreeItem *) {}
-    virtual void postVisit(TreeItem *) {}
-
-    int level() const { return m_level; }
-
-private:
-    friend class TreeItem;
-    int m_level;
-};
 
 class QTCREATOR_UTILS_EXPORT TreeItem
 {
@@ -92,8 +74,6 @@ public:
 
     TreeModel *model() const { return m_model; }
 
-    void walkTree(TreeItemVisitor *visitor);
-    void walkTree(std::function<void(TreeItem *)> f);
     template <class T, class Predicate>
     void forSelectedChildren(const Predicate &pred) const {
         foreach (TreeItem *item, m_children) {
@@ -139,33 +119,6 @@ public:
                 if (pred(static_cast<T>(item2)))
                     return static_cast<T>(item2);
         return 0;
-    }
-
-    // FIXME: Remove. Should only be present in LevelModels
-    template <class T, typename Predicate>
-    T findChildAtLevel(int n, Predicate func) const {
-        if (n == 1) {
-            foreach (TreeItem *item, m_children)
-                if (func(static_cast<T>(item)))
-                    return static_cast<T>(item);
-        } else {
-            foreach (TreeItem *item, m_children)
-                if (T found = item->findChildAtLevel<T>(n - 1, func))
-                    return found;
-        }
-        return 0;
-    }
-
-    // Levels are 1-based: Child at Level 1 is an immediate child.
-    // FIXME: Remove. Should only be present in LevelModels
-    template <class T, typename Function>
-    void forEachChildAtLevel(int n, Function func) {
-        foreach (TreeItem *item, m_children) {
-            if (n == 1)
-                func(static_cast<T>(item));
-            else
-                item->forEachChildAtLevel<T>(n - 1, func);
-        }
     }
 
     template <class T, typename Predicate>
@@ -255,18 +208,6 @@ public:
     void fetchMore(const QModelIndex &idx) override;
 
     TreeItem *takeItem(TreeItem *item); // item is not destroyed.
-
-    // FIXME: Remove. Should only be uses in LeveledTreeModel
-    template <class T, typename Predicate>
-    T findItemAtLevel(int n, Predicate func) const {
-        return m_root->findChildAtLevel<T>(n, func);
-    }
-    // FIXME: Remove. Should only be uses in LeveledTreeModel
-    template <class T, typename Function>
-    void forEachItemAtLevel(int n, Function func) const {
-        m_root->forEachChildAtLevel<T>(n, func);
-    }
-
 
 signals:
     void requestExpansion(QModelIndex);

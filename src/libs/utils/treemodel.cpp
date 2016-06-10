@@ -778,25 +778,6 @@ QModelIndex TreeItem::index() const
     return m_model->indexForItem(this);
 }
 
-void TreeItem::walkTree(TreeItemVisitor *visitor)
-{
-    if (visitor->preVisit(this)) {
-        ++visitor->m_level;
-        visitor->visit(this);
-        foreach (TreeItem *item, m_children)
-            item->walkTree(visitor);
-        --visitor->m_level;
-    }
-    visitor->postVisit(this);
-}
-
-void TreeItem::walkTree(std::function<void (TreeItem *)> f)
-{
-    f(this);
-    foreach (TreeItem *item, m_children)
-        item->walkTree(f);
-}
-
 void TreeItem::clear()
 {
     while (m_children.size()) {
