@@ -871,7 +871,8 @@ static const QMap<QString, int> &vimKeyNames()
 
         { "CAPS", Key_CapsLock },
         { "NUM", Key_NumLock },
-        { "SCROLL", Key_ScrollLock }
+        { "SCROLL", Key_ScrollLock },
+        { "ALTGR", Key_AltGr }
     };
 
     return k;
