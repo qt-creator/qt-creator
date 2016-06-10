@@ -66,7 +66,7 @@ public:
     CMakeToolTreeItem *cmakeToolItem(const Core::Id &id) const;
     CMakeToolTreeItem *cmakeToolItem(const QModelIndex &index) const;
     QModelIndex addCMakeTool(const QString &name, const FileName &executable, const bool isAutoDetected);
-    QModelIndex addCMakeTool(const CMakeTool *item, bool changed);
+    void addCMakeTool(const CMakeTool *item, bool changed);
     TreeItem *autoGroupItem() const;
     TreeItem *manualGroupItem() const;
     void reevaluateChangedFlag(CMakeToolTreeItem *item) const;
@@ -168,15 +168,16 @@ QModelIndex CMakeToolItemModel::addCMakeTool(const QString &name, const FileName
     return item->index();
 }
 
-QModelIndex CMakeToolItemModel::addCMakeTool(const CMakeTool *item, bool changed)
+void CMakeToolItemModel::addCMakeTool(const CMakeTool *item, bool changed)
 {
+    if (cmakeToolItem(item->id()))
+        return;
+
     CMakeToolTreeItem *treeItem = new CMakeToolTreeItem(item, changed);
     if (item->isAutoDetected())
         autoGroupItem()->appendChild(treeItem);
     else
         manualGroupItem()->appendChild(treeItem);
-
-    return treeItem->index();
 }
 
 TreeItem *CMakeToolItemModel::autoGroupItem() const
@@ -246,28 +247,28 @@ void CMakeToolItemModel::apply()
     foreach (const Core::Id &id, m_removedItems)
         CMakeToolManager::deregisterCMakeTool(id);
 
-    forEachItemAtLevel<CMakeToolTreeItem *>(2, [](CMakeToolTreeItem *item) {
+    QList<CMakeToolTreeItem *> toRegister;
+    forEachItemAtLevel<CMakeToolTreeItem *>(2, [&toRegister](CMakeToolTreeItem *item) {
         item->m_changed = false;
-
-        bool isNew = false;
-        CMakeTool *cmake = CMakeToolManager::findById(item->m_id);
-        if (!cmake) {
-            isNew = true;
-            CMakeTool::Detection detection = item->m_autodetected ? CMakeTool::AutoDetection
-                                                                  : CMakeTool::ManualDetection;
-            cmake = new CMakeTool(detection, item->m_id);
-        }
-
-        cmake->setDisplayName(item->m_name);
-        cmake->setCMakeExecutable(item->m_executable);
-
-        if (isNew) {
-            if (!CMakeToolManager::registerCMakeTool(cmake)) {
-                delete cmake;
-                item->m_changed = true;
-            }
+        if (CMakeTool *cmake = CMakeToolManager::findById(item->m_id)) {
+            cmake->setDisplayName(item->m_name);
+            cmake->setCMakeExecutable(item->m_executable);
+        } else {
+            toRegister.append(item);
         }
     });
+
+    foreach (CMakeToolTreeItem *item, toRegister) {
+        CMakeTool::Detection detection = item->m_autodetected ? CMakeTool::AutoDetection
+                                                              : CMakeTool::ManualDetection;
+        CMakeTool *cmake = new CMakeTool(detection, item->m_id);
+        cmake->setDisplayName(item->m_name);
+        cmake->setCMakeExecutable(item->m_executable);
+        if (!CMakeToolManager::registerCMakeTool(cmake)) {
+            item->m_changed = true;
+            delete cmake;
+        }
+    }
 
     CMakeToolManager::setDefaultCMakeTool(defaultItemId());
 }
