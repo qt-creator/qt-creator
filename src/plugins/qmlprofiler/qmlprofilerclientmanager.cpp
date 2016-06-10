@@ -361,7 +361,7 @@ void QmlProfilerClientManager::qmlNewEngine(int engineId)
         d->qmlclientplugin->sendRecordingStatus(engineId);
 }
 
-void QmlProfilerClientManager::registerProfilerStateManager( QmlProfilerStateManager *profilerState )
+void QmlProfilerClientManager::setProfilerStateManager(QmlProfilerStateManager *profilerState)
 {
     if (d->profilerState) {
         disconnect(d->profilerState, &QmlProfilerStateManager::stateChanged,

@@ -143,7 +143,7 @@ QmlProfilerTool::QmlProfilerTool(QObject *parent)
             this, &QmlProfilerTool::setRecordedFeatures);
 
     d->m_profilerConnections = new QmlProfilerClientManager(this);
-    d->m_profilerConnections->registerProfilerStateManager(d->m_profilerState);
+    d->m_profilerConnections->setProfilerStateManager(d->m_profilerState);
     connect(d->m_profilerConnections, &QmlProfilerClientManager::connectionClosed,
             this, &QmlProfilerTool::clientsDisconnected);
 

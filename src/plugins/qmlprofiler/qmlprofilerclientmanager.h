@@ -45,7 +45,7 @@ public:
     explicit QmlProfilerClientManager(QObject *parent = 0);
     ~QmlProfilerClientManager();
 
-    void registerProfilerStateManager(QmlProfilerStateManager *profilerState);
+    void setProfilerStateManager(QmlProfilerStateManager *profilerState);
     void setTcpConnection(QString host, Utils::Port port);
     void setLocalSocket(QString file);
 
