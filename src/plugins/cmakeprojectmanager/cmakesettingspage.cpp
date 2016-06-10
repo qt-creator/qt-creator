@@ -56,7 +56,7 @@ class CMakeToolTreeItem;
 // CMakeToolItemModel
 // --------------------------------------------------------------------------
 
-class CMakeToolItemModel : public TreeModel
+class CMakeToolItemModel : public LeveledTreeModel<TreeItem, CMakeToolTreeItem>
 {
     Q_DECLARE_TR_FUNCTIONS(CMakeProjectManager::CMakeSettingsPage)
 
@@ -221,16 +221,12 @@ void CMakeToolItemModel::updateCMakeTool(const Core::Id &id, const QString &disp
 
 CMakeToolTreeItem *CMakeToolItemModel::cmakeToolItem(const Core::Id &id) const
 {
-    auto matcher = [id](CMakeToolTreeItem *n) { return n->m_id == id; };
-    return findItemAtLevel<CMakeToolTreeItem *>(2, matcher);
+    return findSecondLevelItem([id](CMakeToolTreeItem *n) { return n->m_id == id; });
 }
 
 CMakeToolTreeItem *CMakeToolItemModel::cmakeToolItem(const QModelIndex &index) const
 {
-    TreeItem *item = itemForIndex(index);
-    if (item->level() == 2)
-        return static_cast<CMakeToolTreeItem *>(item);
-    return 0;
+    return secondLevelItemForIndex(index);
 }
 
 void CMakeToolItemModel::removeCMakeTool(const Core::Id &id)
@@ -248,7 +244,7 @@ void CMakeToolItemModel::apply()
         CMakeToolManager::deregisterCMakeTool(id);
 
     QList<CMakeToolTreeItem *> toRegister;
-    forEachItemAtLevel<CMakeToolTreeItem *>(2, [&toRegister](CMakeToolTreeItem *item) {
+    forSecondLevelItems([&toRegister](CMakeToolTreeItem *item) {
         item->m_changed = false;
         if (CMakeTool *cmake = CMakeToolManager::findById(item->m_id)) {
             cmake->setDisplayName(item->m_name);
@@ -299,10 +295,7 @@ void CMakeToolItemModel::setDefaultItemId(const Core::Id &id)
 QString CMakeToolItemModel::uniqueDisplayName(const QString &base) const
 {
     QStringList names;
-    forEachItemAtLevel<CMakeToolTreeItem *>(2, [&names](CMakeToolTreeItem *item) {
-        names << item->m_name;
-    });
-
+    forSecondLevelItems([&names](CMakeToolTreeItem *item) { names << item->m_name; });
     return ProjectExplorer::Project::makeUnique(base, names);
 }
 
