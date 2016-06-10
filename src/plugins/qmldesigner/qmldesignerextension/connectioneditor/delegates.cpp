@@ -238,7 +238,7 @@ QWidget *DynamicPropertiesDelegate::createEditor(QWidget *parent, const QStyleOp
                 emit delegate->commitData(dynamicPropertiesComboBox);
             });
 
-            //dynamicPropertiesComboBox->addItem(QLatin1String("alias"));
+            dynamicPropertiesComboBox->addItem(QLatin1String("alias"));
             //dynamicPropertiesComboBox->addItem(QLatin1String("Item"));
             dynamicPropertiesComboBox->addItem(QLatin1String("real"));
             dynamicPropertiesComboBox->addItem(QLatin1String("int"));
