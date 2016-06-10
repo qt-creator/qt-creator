@@ -1,4 +1,5 @@
 import qbs 1.0
+import qbs.FileInfo
 import QtcFunctions
 
 Product {
@@ -7,6 +8,7 @@ Product {
     property bool install: true
     property string installDir
     property stringList installTags: type
+    property string fileName: FileInfo.fileName(sourceDirectory) + ".qbs"
 
     Depends { name: "cpp" }
     Depends { name: "qtc" }

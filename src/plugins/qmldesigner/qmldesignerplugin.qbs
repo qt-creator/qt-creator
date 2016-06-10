@@ -1,6 +1,5 @@
 import qbs 1.0
-
-import QtcPlugin
+import qbs.FileInfo
 
 Project {
     name: "QmlDesigner"
@@ -8,6 +7,8 @@ Project {
     QtcDevHeaders { }
 
     QtcPlugin {
+        fileName: FileInfo.fileName(filePath)
+
         Depends {
             name: "Qt";
             submodules: [
@@ -59,13 +60,13 @@ Project {
         Export {
             Depends { name: "QmlJS" }
             cpp.includePaths: base.concat([
-                ".",
-                "components/componentcore",
-                "components/formeditor",
-                "components/integration",
-                "designercore",
-                "designercore/include",
-                project.ide_source_tree + "/share/qtcreator/qml/qmlpuppet/interfaces",
+                product.sourceDirectory,
+                product.sourceDirectory + "/components/componentcore",
+                product.sourceDirectory + "/components/formeditor",
+                product.sourceDirectory + "/components/integration",
+                product.sourceDirectory + "/designercore",
+                product.sourceDirectory + "/designercore/include",
+                qtc.export_data_base + "/qml/qmlpuppet/interfaces",
             ])
         }
 

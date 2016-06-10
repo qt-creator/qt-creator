@@ -54,6 +54,9 @@ Module {
 
     property bool make_dev_package: false
 
+    // Will be replaced when creating modules from products
+    property string export_data_base: project.ide_source_tree + "/share/qtcreator"
+
     property bool testsEnabled: Environment.getEnv("TEST") || qbs.buildVariant === "debug"
     property stringList generalDefines: [
         "QT_CREATOR",
@@ -65,6 +68,7 @@ Module {
     Rule {
         condition: make_dev_package
         inputs: [product.type.contains("dynamiclibrary") ? "dynamiclibrary" : "staticlibrary"]
+        explicitlyDependsOn: ["qbs"]
         Artifact {
             filePath: product.name + "-module.qbs"
             fileTags: ["qtc.dev-module"]
@@ -73,8 +77,10 @@ Module {
             var cmd = new JavaScriptCommand();
             cmd.description = "Creating " + output.fileName;
             cmd.sourceCode = function() {
-                var dependsItems = HelperFunctions.getDependsItems(product);
-                HelperFunctions.writeModuleFile(product, input, output, dependsItems);
+                var transformedExportBlock = HelperFunctions.transformedExportBlock(product, input,
+                                                                                    output);
+                HelperFunctions.writeModuleFile(output, transformedExportBlock);
+
             };
             return [cmd];
         }

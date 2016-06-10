@@ -1,21 +1,22 @@
 import qbs 1.0
 
-QtcLibrary {
+Project {
     name: "LanguageUtils"
 
-    cpp.defines: base.concat([
-        "LANGUAGEUTILS_BUILD_DIR"
-    ])
-    cpp.optimization: "fast"
+    QtcDevHeaders { }
 
-    Depends { name: "Qt.core" }
+    QtcLibrary {
+        cpp.defines: base.concat(["LANGUAGEUTILS_BUILD_DIR"])
+        cpp.optimization: "fast"
 
-    files: [
-        "componentversion.cpp",
-        "componentversion.h",
-        "fakemetaobject.cpp",
-        "fakemetaobject.h",
-        "languageutils_global.h",
-    ]
+        Depends { name: "Qt.core" }
+
+        files: [
+            "componentversion.cpp",
+            "componentversion.h",
+            "fakemetaobject.cpp",
+            "fakemetaobject.h",
+            "languageutils_global.h",
+        ]
+    }
 }
-

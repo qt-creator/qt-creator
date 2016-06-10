@@ -14,77 +14,67 @@ function getExportBlock(productFile)
         }
         if (line.indexOf('}') === exportIndex)
             break;
-        exportBlock += line + '\n';
+        exportBlock += "    " + line.trim() + '\n';
     }
     return exportBlock;
 }
 
-function getDependsItemsFromExportBlock(exportBlock)
+function insertOrAddToProperty(product, content, propertyName, value)
 {
-    var lines = exportBlock.split('\n');
-    var dependsItems = ["Depends { name: 'cpp' }"];
-    var dependsIndex = -1;
-    var currentDependsItem;
-    for (var i = 0; i < lines.length; ++i) {
-        var line = lines[i];
-        if (dependsIndex !== -1) {
-            currentDependsItem += line;
-            if (line.indexOf('}') === dependsIndex) {
-                dependsItems.push(currentDependsItem);
-                dependsIndex = -1;
-            }
-            continue;
-        }
-        dependsIndex = line.indexOf("Depends {");
-        if (dependsIndex === -1)
-            continue;
-        if (line.contains('}')) {
-            if (!dependsItems.contains("cpp"))
-                dependsItems.push(line);
-            dependsIndex = -1;
-        } else {
-            currentDependsItem = line;
-        }
+    var valueAsList = '[' + value + ']';
+    var propertyNameIndex = content.indexOf(propertyName + ':');
+    if (propertyNameIndex !== -1) {
+        var endListIndex = content.indexOf(']', propertyNameIndex);
+        if (endListIndex === -1)
+            throw "Failed to parse Export item of product '" + product.name + "'";
+        var contentStart = content.slice(0, endListIndex + 1);
+        var contentEnd = content.slice(endListIndex + 1);
+        return contentStart + ".concat(" + valueAsList + ')' + contentEnd;
     }
-    return dependsItems;
+    return content + '\n' + propertyName + ": " + valueAsList;
 }
 
-function getDependsItems(product)
+function transformedExportBlock(product, input, output)
 {
-    var productFilePath = FileInfo.joinPaths(product.sourceDirectory,
-                                             FileInfo.fileName(product.sourceDirectory) + ".qbs");
+    var productFilePath = FileInfo.joinPaths(product.sourceDirectory, product.fileName);
     var productFile = new TextFile(productFilePath, TextFile.ReadOnly);
     try {
         var exportBlock = getExportBlock(productFile);
-        return getDependsItemsFromExportBlock(exportBlock);
+        exportBlock = "    Depends { name: 'cpp' }\n" + exportBlock;
+        var modulePath = FileInfo.joinPaths("/",
+                product.moduleProperty("qtc", "ide_qbs_modules_path"), product.name);
+        var includePath = FileInfo.joinPaths("/",
+                                             product.moduleProperty("qtc", "ide_include_path"));
+        var relPathToIncludes = FileInfo.relativePath(modulePath, includePath);
+        var absPathToIncludes = "path + '/" + relPathToIncludes + "'";
+        exportBlock = exportBlock.replace(/product.sourceDirectory/g, absPathToIncludes + " + '/"
+                                          + FileInfo.fileName(product.sourceDirectory) + "'");
+        var dataPath = FileInfo.joinPaths("/", product.moduleProperty("qtc", "ide_data_path"));
+        var relPathToData = FileInfo.relativePath(modulePath, dataPath);
+        exportBlock = exportBlock.replace(/qtc.export_data_base/g, "path + '/"
+                                          + relPathToData + "'");
+        exportBlock = insertOrAddToProperty(product, exportBlock, "cpp.includePaths",
+                                            absPathToIncludes);
+        var libInstallPath = FileInfo.joinPaths("/", input.moduleProperty("qbs", "installDir"));
+        var relPathToLibrary = FileInfo.relativePath(modulePath, libInstallPath);
+        var fullPathToLibrary = "path + '/" + relPathToLibrary + "/" + input.fileName + "'";
+        var libType = input.fileTags.contains("dynamiclibrary") ? "dynamic" : "static";
+        exportBlock = insertOrAddToProperty(product, exportBlock, "cpp." + libType + "Libraries",
+                                            fullPathToLibrary);
+        return exportBlock;
     } finally {
         productFile.close();
     }
 }
 
-function writeModuleFile(product, input, output, dependsItems)
+function writeModuleFile(output, content)
 {
     var moduleFile = new TextFile(output.filePath, TextFile.WriteOnly);
     try {
         moduleFile.writeLine("import qbs");
         moduleFile.writeLine("");
         moduleFile.writeLine("Module {")
-        for (var i = 0; i < dependsItems.length; ++i) {
-            moduleFile.writeLine("    " + dependsItems[i].trim());
-            moduleFile.writeLine("");
-        }
-        var includePath = FileInfo.joinPaths("/",
-                                             product.moduleProperty("qtc", "ide_include_path"));
-        var modulePath = FileInfo.joinPaths("/",
-                product.moduleProperty("qtc", "ide_qbs_modules_path"), product.name);
-        var relPathToIncludes = FileInfo.relativePath(modulePath, includePath);
-        moduleFile.writeLine("    cpp.includePaths: [path + '/" + relPathToIncludes + "']");
-        var libInstallPath = FileInfo.joinPaths("/", input.moduleProperty("qbs", "installPrefix"),
-                                                input.moduleProperty("qbs", "installDir"));
-        var relPathToLibrary = FileInfo.relativePath(modulePath, libInstallPath);
-        var libType = input.fileTags.contains("dynamiclibrary") ? "dynamic" : "static";
-        moduleFile.writeLine("    cpp." + libType + "Libraries: [path + '/"
-                             + relPathToLibrary + "/" + input.fileName + "']");
+        moduleFile.writeLine(content);
         moduleFile.writeLine("}");
     } finally {
         moduleFile.close();
