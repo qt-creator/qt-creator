@@ -487,7 +487,8 @@ bool AndroidRunner::adbShellAmNeedsQuotes()
         return true;
 
     const QString output = response.allOutput();
-    return output.contains(QLatin1String("Error: No intent supplied"));
+    const bool oldSdk = output.contains("Error: No intent supplied");
+    return !oldSdk;
 }
 
 bool AndroidRunner::runAdb(const QStringList &args, QString *errorMessage, int timeoutS)
