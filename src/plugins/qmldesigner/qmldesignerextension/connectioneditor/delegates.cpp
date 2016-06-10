@@ -173,7 +173,6 @@ QWidget *BindingDelegate::createEditor(QWidget *parent, const QStyleOptionViewIt
         connect(bindingComboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, [=]() {
             auto delegate = const_cast<BindingDelegate*>(this);
             emit delegate->commitData(bindingComboBox);
-            emit delegate->closeEditor(bindingComboBox);
         });
 
         return widget;
@@ -237,7 +236,6 @@ QWidget *DynamicPropertiesDelegate::createEditor(QWidget *parent, const QStyleOp
             connect(dynamicPropertiesComboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, [=]() {
                 auto delegate = const_cast<DynamicPropertiesDelegate*>(this);
                 emit delegate->commitData(dynamicPropertiesComboBox);
-                emit delegate->closeEditor(dynamicPropertiesComboBox);
             });
 
             //dynamicPropertiesComboBox->addItem(QLatin1String("alias"));
@@ -332,7 +330,6 @@ QWidget *ConnectionDelegate::createEditor(QWidget *parent, const QStyleOptionVie
     connect(connectionComboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, [=]() {
         auto delegate = const_cast<ConnectionDelegate*>(this);
         emit delegate->commitData(connectionComboBox);
-        emit delegate->closeEditor(connectionComboBox);
     });
 
     return widget;
