@@ -212,6 +212,11 @@ public:
     void forAllChildren(const Predicate &pred) const {
         return TreeItem::forAllChildren<ChildType *, Predicate>(pred);
     }
+
+    template <typename Predicate>
+    ChildType *findFirstLevelChild(Predicate pred) const {
+        return TreeItem::findFirstLevelChild<ChildType *, Predicate>(pred);
+    }
 };
 
 // A general purpose multi-level model where each item can have its

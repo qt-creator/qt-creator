@@ -82,7 +82,7 @@ struct LocationItem : public TreeItem
 
 class BreakpointMarker;
 
-class BreakpointItem : public QObject, public TreeItem
+class BreakpointItem : public QObject, public TypedTreeItem<LocationItem>
 {
     Q_DECLARE_TR_FUNCTIONS(Debugger::Internal::BreakHandler)
 
@@ -338,67 +338,47 @@ static bool isSimilarTo(const BreakpointParameters &params, const BreakpointResp
 Breakpoint BreakHandler::findSimilarBreakpoint(const BreakpointResponse &needle) const
 {
     // Search a breakpoint we might refer to.
-    foreach (TreeItem *n, rootItem()->children()) {
-        BreakpointItem *b = static_cast<BreakpointItem *>(n);
-        //qDebug() << "COMPARING " << params.toString() << " WITH " << needle.toString();
+    return Breakpoint(findFirstLevelItem([needle](BreakpointItem *b) {
         if (b->m_response.id.isValid() && b->m_response.id.majorPart() == needle.id.majorPart())
-            return Breakpoint(b);
-
-        if (isSimilarTo(b->m_params, needle))
-            return Breakpoint(b);
-    }
-    return Breakpoint();
+            return true;
+        return isSimilarTo(b->m_params, needle);
+    }));
 }
 
 Breakpoint BreakHandler::findBreakpointByResponseId(const BreakpointResponseId &id) const
 {
-    foreach (TreeItem *n, rootItem()->children()) {
-        BreakpointItem *b = static_cast<BreakpointItem *>(n);
-        if (b->m_response.id.majorPart() == id.majorPart())
-            return Breakpoint(b);
-    }
-    return Breakpoint();
+    return Breakpoint(findFirstLevelItem([id](BreakpointItem *b) {
+        return b->m_response.id.majorPart() == id.majorPart();
+    }));
 }
 
 Breakpoint BreakHandler::findBreakpointByFunction(const QString &functionName) const
 {
-    foreach (TreeItem *n, rootItem()->children()) {
-        BreakpointItem *b = static_cast<BreakpointItem *>(n);
-        if (b->m_params.functionName == functionName)
-            return Breakpoint(b);
-    }
-    return Breakpoint();
+    return Breakpoint(findFirstLevelItem([functionName](BreakpointItem *b) {
+        return b->m_params.functionName == functionName;
+    }));
 }
 
 Breakpoint BreakHandler::findBreakpointByAddress(quint64 address) const
 {
-    foreach (TreeItem *n, rootItem()->children()) {
-        BreakpointItem *b = static_cast<BreakpointItem *>(n);
-        if (b->m_params.address == address || b->m_params.address == address)
-            return Breakpoint(b);
-    }
-    return Breakpoint();
+    return Breakpoint(findFirstLevelItem([address](BreakpointItem *b) {
+        return b->m_params.address == address || b->m_params.address == address;
+    }));
 }
 
 Breakpoint BreakHandler::findBreakpointByFileAndLine(const QString &fileName,
     int lineNumber, bool useMarkerPosition)
 {
-    foreach (TreeItem *n, rootItem()->children()) {
-        BreakpointItem *b = static_cast<BreakpointItem *>(n);
-        if (b->isLocatedAt(fileName, lineNumber, useMarkerPosition))
-            return Breakpoint(b);
-    }
-    return Breakpoint();
+    return Breakpoint(findFirstLevelItem([=](BreakpointItem *b) {
+        return b->isLocatedAt(fileName, lineNumber, useMarkerPosition);
+    }));
 }
 
 Breakpoint BreakHandler::breakpointById(BreakpointModelId id) const
 {
-    foreach (TreeItem *n, rootItem()->children()) {
-        BreakpointItem *b = static_cast<BreakpointItem *>(n);
-        if (b->m_id == id)
-            return Breakpoint(b);
-    }
-    return Breakpoint();
+    return Breakpoint(findFirstLevelItem([id](BreakpointItem *b) {
+        return b->m_id == id;
+    }));
 }
 
 void BreakHandler::deletionHelper(BreakpointModelId id)
@@ -410,23 +390,19 @@ void BreakHandler::deletionHelper(BreakpointModelId id)
 
 Breakpoint BreakHandler::findWatchpoint(const BreakpointParameters &params) const
 {
-    foreach (TreeItem *n, rootItem()->children()) {
-        BreakpointItem *b = static_cast<BreakpointItem *>(n);
-        if (b->m_params.isWatchpoint()
+    return Breakpoint(findFirstLevelItem([params](BreakpointItem *b) {
+        return b->m_params.isWatchpoint()
                 && b->m_params.address == params.address
                 && b->m_params.size == params.size
                 && b->m_params.expression == params.expression
-                && b->m_params.bitpos == params.bitpos)
-            return Breakpoint(b);
-    }
-    return Breakpoint();
+                && b->m_params.bitpos == params.bitpos;
+    }));
 }
 
 void BreakHandler::saveBreakpoints()
 {
     QList<QVariant> list;
-    foreach (TreeItem *n, rootItem()->children()) {
-        BreakpointItem *b = static_cast<BreakpointItem *>(n);
+    forFirstLevelItems([&list](BreakpointItem *b) {
         const BreakpointParameters &params = b->m_params;
         QMap<QString, QVariant> map;
         if (params.type != BreakpointByFileAndLine)
@@ -462,7 +438,7 @@ void BreakHandler::saveBreakpoints()
         if (!params.message.isEmpty())
             map.insert("message", params.message);
         list.append(map);
-    }
+    });
     setSessionValue("Breakpoints", list);
 }
 
@@ -530,14 +506,12 @@ void BreakHandler::loadBreakpoints()
 
 void BreakHandler::updateMarkers()
 {
-    foreach (TreeItem *n, rootItem()->children())
-        static_cast<BreakpointItem *>(n)->updateMarker();
+    forFirstLevelItems([](BreakpointItem *b) { b->updateMarker(); });
 }
 
 Breakpoint BreakHandler::findBreakpointByIndex(const QModelIndex &index) const
 {
-    TreeItem *item = itemForIndex(index);
-    return Breakpoint(item && item->parent() == rootItem() ? static_cast<BreakpointItem *>(item) : 0);
+    return Breakpoint(firstLevelItemForIndex(index));
 }
 
 Breakpoints BreakHandler::findBreakpointsByIndex(const QList<QModelIndex> &list) const
@@ -545,7 +519,7 @@ Breakpoints BreakHandler::findBreakpointsByIndex(const QList<QModelIndex> &list)
     QSet<Breakpoint> ids;
     foreach (const QModelIndex &index, list) {
         if (Breakpoint b = findBreakpointByIndex(index))
-            ids.insert(Breakpoint(b));
+            ids.insert(b);
     }
     return ids.toList();
 }
@@ -1116,22 +1090,20 @@ void BreakpointItem::insertSubBreakpoint(const BreakpointResponse &params)
 
     int minorPart = params.id.minorPart();
 
-    const QVector<TreeItem *> &children = TreeItem::children();
-    foreach (TreeItem *n, children) {
-        LocationItem *l = static_cast<LocationItem *>(n);
-        if (l->params.id.minorPart() == minorPart) {
-            // This modifies an existing sub-breakpoint.
-            l->params = params;
-            l->update();
-            return;
-        }
+    LocationItem *l = findFirstLevelChild([minorPart](LocationItem *l) {
+        return l->params.id.minorPart() == minorPart;
+    });
+    if (l) {
+        // This modifies an existing sub-breakpoint.
+        l->params = params;
+        l->update();
+    } else {
+        // This is a new sub-breakpoint.
+        l = new LocationItem;
+        l->params = params;
+        appendChild(l);
+        expand();
     }
-
-    // This is a new sub-breakpoint.
-    LocationItem *l = new LocationItem;
-    l->params = params;
-    appendChild(l);
-    expand();
 }
 
 void BreakHandler::saveSessionData()
@@ -1149,14 +1121,15 @@ void BreakHandler::breakByFunction(const QString &functionName)
 {
     // One breakpoint per function is enough for now. This does not handle
     // combinations of multiple conditions and ignore counts, though.
-    foreach (TreeItem *n, rootItem()->children()) {
-        BreakpointItem *b = static_cast<BreakpointItem *>(n);
+    bool found = findFirstLevelItem([functionName](BreakpointItem *b) {
         const BreakpointParameters &params = b->m_params;
-        if (params.functionName == functionName
+        return params.functionName == functionName
                 && params.condition.isEmpty()
-                && params.ignoreCount == 0)
-            return;
-    }
+                && params.ignoreCount == 0;
+    });
+    if (found)
+        return;
+
     BreakpointParameters params(BreakpointByFunction);
     params.functionName = functionName;
     appendBreakpoint(params);
@@ -1240,8 +1213,7 @@ void BreakHandler::changeLineNumberFromMarkerHelper(BreakpointModelId id)
 Breakpoints BreakHandler::allBreakpoints() const
 {
     Breakpoints items;
-    foreach (TreeItem *n, rootItem()->children())
-        items.append(Breakpoint(static_cast<BreakpointItem *>(n)));
+    forFirstLevelItems([&items](BreakpointItem *b) { items.append(Breakpoint(b)); });
     return items;
 }
 
@@ -1253,24 +1225,22 @@ Breakpoints BreakHandler::unclaimedBreakpoints() const
 Breakpoints BreakHandler::engineBreakpoints(DebuggerEngine *engine) const
 {
     Breakpoints items;
-    foreach (TreeItem *n, rootItem()->children()) {
-        BreakpointItem *b = static_cast<BreakpointItem *>(n);
+    forFirstLevelItems([&items, engine](BreakpointItem *b) {
         if (b->m_engine == engine)
             items.append(Breakpoint(b));
-    }
+    });
     return items;
 }
 
 QStringList BreakHandler::engineBreakpointPaths(DebuggerEngine *engine) const
 {
     QSet<QString> set;
-    foreach (TreeItem *n, rootItem()->children()) {
-        BreakpointItem *b = static_cast<BreakpointItem *>(n);
+    forFirstLevelItems([&set, engine](BreakpointItem *b) {
         if (b->m_engine == engine) {
             if (b->m_params.type == BreakpointByFileAndLine)
                 set.insert(QFileInfo(b->m_params.fileName).dir().path());
         }
-    }
+    });
     return set.toList();
 }
 

@@ -36,6 +36,7 @@
 namespace Debugger {
 namespace Internal {
 
+class LocationItem;
 class BreakpointItem;
 class BreakHandler;
 class DebuggerCommand;
@@ -156,7 +157,7 @@ inline uint qHash(const Debugger::Internal::Breakpoint &b) { return b.hash(); }
 
 typedef QList<Breakpoint> Breakpoints;
 
-class BreakHandler : public Utils::TreeModel
+class BreakHandler : public Utils::LeveledTreeModel<BreakpointItem, LocationItem>
 {
     Q_OBJECT
 
