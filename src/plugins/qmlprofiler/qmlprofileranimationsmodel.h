@@ -65,7 +65,7 @@ public:
     QVariantMap details(int index) const override;
 
 protected:
-    bool accepted(const QmlEventType &event) const override;
+    bool accepted(const QmlEventType &type) const override;
     void loadEvent(const QmlEvent &event, const QmlEventType &type) override;
     void finalize() override;
     void clear() override;
