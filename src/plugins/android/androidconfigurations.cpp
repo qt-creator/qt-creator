@@ -553,7 +553,7 @@ QVector<AndroidDeviceInfo> AndroidConfig::connectedDevices(const QString &adbToo
                 .arg(adbToolPath + QLatin1String(" devices"));
         return devices;
     }
-    QStringList adbDevs = response.allOutput().split('\n');
+    QStringList adbDevs = response.allOutput().split('\n', QString::SkipEmptyParts);
     if (adbDevs.empty())
         return devices;
 
