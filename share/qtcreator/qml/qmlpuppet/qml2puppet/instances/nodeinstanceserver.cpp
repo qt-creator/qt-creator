@@ -130,6 +130,7 @@ NodeInstanceServer::NodeInstanceServer(NodeInstanceClientInterface *nodeInstance
     connect(m_childrenChangeEventFilter.data(), &Internal::ChildrenChangeEventFilter::childrenChanged, this, &NodeInstanceServer::emitParentChanged);
     nodeInstanceServerInstance = this;
     Internal::QmlPrivateGate::registerNotifyPropertyChangeCallBack(notifyPropertyChangeCallBackPointer);
+    Internal::QmlPrivateGate::registerFixResourcePathsForObjectCallBack();
 }
 
 NodeInstanceServer::~NodeInstanceServer()

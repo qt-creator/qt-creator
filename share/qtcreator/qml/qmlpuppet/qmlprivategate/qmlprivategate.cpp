@@ -790,6 +790,10 @@ ComponentCompleteDisabler::~ComponentCompleteDisabler()
     DesignerSupport::enableComponentComplete();
 }
 
+void registerFixResourcePathsForObjectCallBack()
+{
+}
+
 } // namespace QmlPrivateGate
 } // namespace Internal
 } // namespace QmlDesigner

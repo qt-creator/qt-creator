@@ -127,6 +127,8 @@ public:
 
     void registerNotifyPropertyChangeCallBack(void (*callback)(QObject *, const PropertyName &));
 
+    void registerFixResourcePathsForObjectCallBack();
+
 } // namespace QmlPrivateGate
 } // namespace Internal
 } // namespace QmlDesigner
