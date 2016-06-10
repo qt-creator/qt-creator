@@ -154,7 +154,7 @@ namespace {
                 SynchronousProcess proc;
                 proc.setProcessChannelMode(QProcess::MergedChannels);
                 proc.setTimeoutS(30);
-                SynchronousProcessResponse response = proc.run(executable, QStringList() << shell);
+                SynchronousProcessResponse response = proc.runBlocking(executable, QStringList() << shell);
                 if (response.result != SynchronousProcessResponse::Finished)
                     return true;
                 return !response.allOutput().contains("x86-64");
@@ -545,7 +545,7 @@ QVector<AndroidDeviceInfo> AndroidConfig::connectedDevices(const QString &adbToo
     SynchronousProcess adbProc;
     adbProc.setTimeoutS(30);
     SynchronousProcessResponse response
-            = adbProc.run(adbToolPath, QStringList() << QLatin1String("devices"));
+            = adbProc.runBlocking(adbToolPath, QStringList() << QLatin1String("devices"));
     if (response.result != SynchronousProcessResponse::Finished) {
         if (error)
             *error = QApplication::translate("AndroidConfiguration",
@@ -862,7 +862,7 @@ bool AndroidConfig::isBootToQt(const QString &adbToolPath, const QString &device
 
     SynchronousProcess adbProc;
     adbProc.setTimeoutS(10);
-    SynchronousProcessResponse response = adbProc.run(adbToolPath, arguments);
+    SynchronousProcessResponse response = adbProc.runBlocking(adbToolPath, arguments);
     return response.result == SynchronousProcessResponse::Finished
             && response.allOutput().contains(QLatin1String("Boot2Qt"));
 }
@@ -976,7 +976,7 @@ bool AndroidConfig::hasFinishedBooting(const QString &device) const
 
     SynchronousProcess adbProc;
     adbProc.setTimeoutS(10);
-    SynchronousProcessResponse response = adbProc.run(adbToolPath().toString(), arguments);
+    SynchronousProcessResponse response = adbProc.runBlocking(adbToolPath().toString(), arguments);
     if (response.result != SynchronousProcessResponse::Finished)
         return false;
     QString value = response.allOutput().trimmed();
@@ -996,7 +996,7 @@ QStringList AndroidConfig::getAbis(const QString &adbToolPath, const QString &de
     arguments << QLatin1String("shell") << QLatin1String("getprop") << QLatin1String("ro.product.cpu.abilist");
     SynchronousProcess adbProc;
     adbProc.setTimeoutS(10);
-    SynchronousProcessResponse response = adbProc.run(adbToolPath, arguments);
+    SynchronousProcessResponse response = adbProc.runBlocking(adbToolPath, arguments);
     if (response.result != SynchronousProcessResponse::Finished)
         return result;
 
@@ -1018,7 +1018,7 @@ QStringList AndroidConfig::getAbis(const QString &adbToolPath, const QString &de
 
         SynchronousProcess abiProc;
         abiProc.setTimeoutS(10);
-        SynchronousProcessResponse abiResponse = abiProc.run(adbToolPath, arguments);
+        SynchronousProcessResponse abiResponse = abiProc.runBlocking(adbToolPath, arguments);
         if (abiResponse.result != SynchronousProcessResponse::Finished)
             return result;
 
