@@ -39,7 +39,6 @@ class QTCREATOR_UTILS_EXPORT TreeItem
 {
 public:
     TreeItem();
-    explicit TreeItem(const QStringList &displays, int flags = Qt::ItemIsEnabled);
     virtual ~TreeItem();
 
     virtual TreeItem *parent() const { return m_parent; }
@@ -141,7 +140,6 @@ private:
 
     TreeItem *m_parent; // Not owned.
     TreeModel *m_model; // Not owned.
-    QStringList *m_displays;
     Qt::ItemFlags m_flags;
 
  protected:
@@ -170,6 +168,18 @@ public:
     ChildType *findFirstLevelChild(Predicate pred) const {
         return TreeItem::findFirstLevelChild<ChildType *, Predicate>(pred);
     }
+};
+
+class QTCREATOR_UTILS_EXPORT StaticTreeItem : public TreeItem
+{
+public:
+    StaticTreeItem(const QStringList &displays);
+
+    QVariant data(int column, int role) const override;
+    Qt::ItemFlags flags(int column) const override;
+
+private:
+    QStringList m_displays;
 };
 
 // A general purpose multi-level model where each item can have its
@@ -270,10 +280,10 @@ public:
 
 // A two-level model with a first level of static headers and a uniform second level.
 template <class SecondLevelItemType>
-class TwoLevelTreeModel : public LeveledTreeModel<TreeItem, SecondLevelItemType>
+class TwoLevelTreeModel : public LeveledTreeModel<StaticTreeItem, SecondLevelItemType>
 {
 public:
-    using FirstLevelItem = TreeItem;
+    using FirstLevelItem = StaticTreeItem;
     using SecondLevelItem = SecondLevelItemType;
     using BaseType = LeveledTreeModel<FirstLevelItem, SecondLevelItem>;
 

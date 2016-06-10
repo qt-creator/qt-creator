@@ -65,13 +65,8 @@ namespace Internal {
 class QtVersionItem : public TreeItem
 {
 public:
-    QtVersionItem(const QString &name) // for auto/manual node
-        : TreeItem({name})
-    {}
-
-    QtVersionItem(BaseQtVersion *version) // for versions
-        : TreeItem(),
-          m_version(version)
+    explicit QtVersionItem(BaseQtVersion *version)
+        : m_version(version)
     {}
 
     ~QtVersionItem()
@@ -212,14 +207,13 @@ QtOptionsPageWidget::QtOptionsPageWidget(QWidget *parent)
     m_ui->versionInfoWidget->setWidget(versionInfoWidget);
     m_ui->versionInfoWidget->setState(DetailsWidget::NoSummary);
 
-    auto rootItem = new QtVersionItem(QLatin1String("root"));
-    m_autoItem = new QtVersionItem(tr("Auto-detected"));
-    rootItem->appendChild(m_autoItem);
-    m_manualItem = new QtVersionItem(tr("Manual"));
-    rootItem->appendChild(m_manualItem);
-
-    m_model = new TreeModel(rootItem);
+    m_model = new TreeModel;
     m_model->setHeader({tr("Name"), tr("qmake Location"), tr("Type")});
+
+    m_autoItem = new StaticTreeItem({ tr("Auto-detected") });
+    m_model->rootItem()->appendChild(m_autoItem);
+    m_manualItem = new StaticTreeItem({ tr("Manual") });
+    m_model->rootItem()->appendChild(m_manualItem);
 
     m_filterModel = new QSortFilterProxyModel(this);
     m_filterModel->setSourceModel(m_model);
@@ -292,8 +286,8 @@ QtVersionItem *QtOptionsPageWidget::currentItem() const
 {
     QModelIndex idx = m_ui->qtdirList->selectionModel()->currentIndex();
     QModelIndex sourceIdx = m_filterModel->mapToSource(idx);
-    QtVersionItem *item = static_cast<QtVersionItem *>(m_model->itemForIndex(sourceIdx));
-    return item;
+    TreeItem *item = m_model->itemForIndex(sourceIdx);
+    return item->level() == 2 ? static_cast<QtVersionItem *>(item) : 0;
 }
 
 void QtOptionsPageWidget::cleanUpQtVersions()
@@ -727,6 +721,9 @@ void QtOptionsPageWidget::qtVersionChanged()
 void QtOptionsPageWidget::updateDescriptionLabel()
 {
     QtVersionItem *item = currentItem();
+    if (!item)
+        return;
+
     const BaseQtVersion *version = item->version();
     const ValidityInfo info = validInformation(version);
     if (info.message.isEmpty()) {
@@ -737,8 +734,7 @@ void QtOptionsPageWidget::updateDescriptionLabel()
         m_versionUi->errorLabel->setToolTip(info.toolTip);
     }
     m_ui->infoWidget->setSummaryText(info.description);
-    if (item)
-        item->setIcon(info.icon);
+    item->setIcon(info.icon);
 
     if (version) {
         m_infoBrowser->setHtml(version->toHtml(true));

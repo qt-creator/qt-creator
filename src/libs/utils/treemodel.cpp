@@ -606,12 +606,7 @@ namespace Utils {
 // TreeItem
 //
 TreeItem::TreeItem()
-    : m_parent(0), m_model(0), m_displays(0), m_flags(Qt::ItemIsEnabled|Qt::ItemIsSelectable)
-{
-}
-
-TreeItem::TreeItem(const QStringList &displays, int flags)
-    : m_parent(0), m_model(0), m_displays(new QStringList(displays)), m_flags(flags)
+    : m_parent(0), m_model(0), m_flags(Qt::ItemIsEnabled|Qt::ItemIsSelectable)
 {
 }
 
@@ -620,7 +615,6 @@ TreeItem::~TreeItem()
     QTC_CHECK(m_parent == 0);
     QTC_CHECK(m_model == 0);
     removeChildren();
-    delete m_displays;
 }
 
 TreeItem *TreeItem::child(int pos) const
@@ -636,8 +630,8 @@ int TreeItem::rowCount() const
 
 QVariant TreeItem::data(int column, int role) const
 {
-    if (role == Qt::DisplayRole && m_displays && column >= 0 && column < m_displays->size())
-        return m_displays->at(column);
+    Q_UNUSED(column);
+    Q_UNUSED(role);
     return QVariant();
 }
 
@@ -1053,6 +1047,24 @@ TreeItem *TreeModel::takeItem(TreeItem *item)
     parent->m_children.removeAt(pos);
     endRemoveRows();
     return item;
+}
+
+StaticTreeItem::StaticTreeItem(const QStringList &displays)
+    : m_displays(displays)
+{
+}
+
+QVariant StaticTreeItem::data(int column, int role) const
+{
+    if (role == Qt::DisplayRole && column >= 0 && column < m_displays.size())
+        return m_displays.at(column);
+    return QVariant();
+}
+
+Qt::ItemFlags StaticTreeItem::flags(int column) const
+{
+    Q_UNUSED(column);
+    return Qt::ItemIsEnabled;
 }
 
 } // namespace Utils

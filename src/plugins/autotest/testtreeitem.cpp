@@ -38,8 +38,7 @@ namespace Autotest {
 namespace Internal {
 
 TestTreeItem::TestTreeItem(const QString &name, const QString &filePath, Type type)
-    : TreeItem( { name } ),
-      m_name(name),
+    : m_name(name),
       m_filePath(filePath),
       m_type(type),
       m_line(0),

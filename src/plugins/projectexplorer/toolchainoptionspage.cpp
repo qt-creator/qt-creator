@@ -114,8 +114,8 @@ public:
                     [](ToolChainFactory *factory) { return factory->canCreate();});
 
         m_model.setHeader(QStringList() << ToolChainOptionsPage::tr("Name") << ToolChainOptionsPage::tr("Type"));
-        m_autoRoot = new TreeItem(QStringList() << ToolChainOptionsPage::tr("Auto-detected") << QString());
-        m_manualRoot = new TreeItem(QStringList() << ToolChainOptionsPage::tr("Manual") << QString());
+        m_autoRoot = new StaticTreeItem({ ToolChainOptionsPage::tr("Auto-detected") });
+        m_manualRoot = new StaticTreeItem({ ToolChainOptionsPage::tr("Manual") });
         m_model.rootItem()->appendChild(m_autoRoot);
         m_model.rootItem()->appendChild(m_manualRoot);
         foreach (ToolChain *tc, ToolChainManager::toolChains()) {

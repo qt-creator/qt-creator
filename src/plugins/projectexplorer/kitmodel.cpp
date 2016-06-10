@@ -107,8 +107,8 @@ KitModel::KitModel(QBoxLayout *parentLayout, QObject *parent)
       m_parentLayout(parentLayout)
 {
     setHeader(QStringList(tr("Name")));
-    m_autoRoot = new TreeItem(QStringList(tr("Auto-detected")));
-    m_manualRoot = new TreeItem(QStringList(tr("Manual")));
+    m_autoRoot = new StaticTreeItem({ tr("Auto-detected") });
+    m_manualRoot = new StaticTreeItem({ tr("Manual") });
     rootItem()->appendChild(m_autoRoot);
     rootItem()->appendChild(m_manualRoot);
 
