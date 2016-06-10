@@ -113,7 +113,7 @@ private:
     QStringList m_selector;
     QMutex m_mutex;
     QRegExp m_logCatRegExp;
-    DebugHandShakeType m_handShakeMethod;
+    DebugHandShakeType m_handShakeMethod = SocketHandShake;
     QTcpSocket *m_socket;
     bool m_customPort;
 };
