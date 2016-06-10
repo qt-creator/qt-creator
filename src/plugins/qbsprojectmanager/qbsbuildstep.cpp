@@ -697,13 +697,14 @@ QbsBuildStepFactory::QbsBuildStepFactory(QObject *parent) :
     ProjectExplorer::IBuildStepFactory(parent)
 { }
 
-void QbsBuildStepFactory::availableSteps(QList<ProjectExplorer::BuildStepInfo> *steps,
-                                                 ProjectExplorer::BuildStepList *parent) const
+QList<ProjectExplorer::BuildStepInfo> QbsBuildStepFactory::availableSteps(ProjectExplorer::BuildStepList *parent) const
 {
     if (parent->id() == ProjectExplorer::Constants::BUILDSTEPS_BUILD
             && qobject_cast<QbsBuildConfiguration *>(parent->parent())
             && qobject_cast<QbsProject *>(parent->target()->project()))
-        steps->append({ Constants::QBS_BUILDSTEP_ID, tr("Qbs Build") });
+       return {{ Constants::QBS_BUILDSTEP_ID, tr("Qbs Build") }};
+
+    return {};
 }
 
 ProjectExplorer::BuildStep *QbsBuildStepFactory::create(ProjectExplorer::BuildStepList *parent, Core::Id id)

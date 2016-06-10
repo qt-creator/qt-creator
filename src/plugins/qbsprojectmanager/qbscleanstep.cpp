@@ -300,12 +300,12 @@ QbsCleanStepFactory::QbsCleanStepFactory(QObject *parent) :
     ProjectExplorer::IBuildStepFactory(parent)
 { }
 
-void QbsCleanStepFactory::availableSteps(QList<ProjectExplorer::BuildStepInfo> *steps,
-                                              ProjectExplorer::BuildStepList *parent) const
+QList<ProjectExplorer::BuildStepInfo> QbsCleanStepFactory::availableSteps(ProjectExplorer::BuildStepList *parent) const
 {
     if (parent->id() == ProjectExplorer::Constants::BUILDSTEPS_CLEAN
             && qobject_cast<QbsBuildConfiguration *>(parent->parent()))
-        steps->append({ Constants::QBS_CLEANSTEP_ID, tr("Qbs Clean") });
+        return {{ Constants::QBS_CLEANSTEP_ID, tr("Qbs Clean") }};
+    return {};
 }
 
 ProjectExplorer::BuildStep *QbsCleanStepFactory::create(ProjectExplorer::BuildStepList *parent, Core::Id id)
