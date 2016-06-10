@@ -9,7 +9,6 @@ QTC_PLUGIN_DEPENDS += \
     qmljseditor
 
 include(../../../qttest.pri)
-include($$IDE_SOURCE_TREE/src/plugins/qmldesigner/config.pri)
 
 QT += network core-private
 

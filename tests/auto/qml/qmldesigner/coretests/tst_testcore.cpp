@@ -175,9 +175,6 @@ tst_TestCore::tst_TestCore()
 
 void tst_TestCore::initTestCase()
 {
-#ifndef QDEBUG_IN_TESTS
-    qInstallMsgHandler(testMessageOutput);
-#endif
     Exception::setShouldAssert(false);
 
     initializeMetaTypeSystem(QLatin1String(QTCREATORDIR "/share/qtcreator"));
