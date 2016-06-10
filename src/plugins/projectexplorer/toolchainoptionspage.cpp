@@ -198,7 +198,7 @@ public:
     void apply();
 
  public:
-    TreeModel m_model;
+    LeveledTreeModel<TreeItem, ToolChainTreeItem> m_model;
     QList<ToolChainFactory *> m_factories;
     QTreeView *m_toolChainView;
     DetailsWidget *m_container;
@@ -252,7 +252,7 @@ void ToolChainOptionsWidget::removeToolChain(ToolChain *tc)
         }
     }
 
-    auto item = m_model.findItemAtLevel<ToolChainTreeItem *>(1, [tc](ToolChainTreeItem *item) {
+    auto item = m_model.findSecondLevelItem([tc](ToolChainTreeItem *item) {
         return tc->isAutoDetected() && item->toolChain == tc;
     });
     delete m_model.takeItem(item);
@@ -284,7 +284,7 @@ void ToolChainOptionsWidget::apply()
     Q_ASSERT(m_toRemoveList.isEmpty());
 
     // Update tool chains:
-    m_model.forEachItemAtLevel<ToolChainTreeItem *>(1, [this](ToolChainTreeItem *item) {
+    m_model.forSecondLevelItems([this](ToolChainTreeItem *item) {
         if (item->parent() == m_manualRoot && item->changed) {
             Q_ASSERT(item->toolChain);
             if (item->widget)
