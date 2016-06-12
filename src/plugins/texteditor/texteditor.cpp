@@ -4522,16 +4522,9 @@ void TextEditorWidget::extraAreaPaintEvent(QPaintEvent *e)
 
                 int extraAreaHighlightFoldBlockNumber = -1;
                 int extraAreaHighlightFoldEndBlockNumber = -1;
-                bool endIsVisible = false;
                 if (!d->m_highlightBlocksInfo.isEmpty()) {
                     extraAreaHighlightFoldBlockNumber =  d->m_highlightBlocksInfo.open.last();
                     extraAreaHighlightFoldEndBlockNumber =  d->m_highlightBlocksInfo.close.first();
-                    endIsVisible = doc->findBlockByNumber(extraAreaHighlightFoldEndBlockNumber).isVisible();
-
-//                    QTextBlock before = doc->findBlockByNumber(extraAreaHighlightCollapseBlockNumber-1);
-//                    if (TextBlockUserData::hasCollapseAfter(before)) {
-//                        extraAreaHighlightCollapseBlockNumber--;
-//                    }
                 }
 
                 TextBlockUserData *nextBlockUserData = TextDocumentLayout::testUserData(nextBlock);
