@@ -130,6 +130,7 @@ HEADERS += \
     $$PWD/serializer/infrastructureserializer.h \
     $$PWD/serializer/modelserializer.h \
     $$PWD/serializer/projectserializer.h \
+    $$PWD/stereotype/customrelation.h \
     $$PWD/stereotype/iconshape.h \
     $$PWD/stereotype/shape.h \
     $$PWD/stereotype/shapepaintvisitor.h \
@@ -155,7 +156,7 @@ HEADERS += \
     $$PWD/tasks/ielementtasks.h \
     $$PWD/tasks/isceneinspector.h \
     $$PWD/tasks/voidelementtasks.h \
-    $$PWD/infrastructure/qmtassert.h
+    $$PWD/infrastructure/qmtassert.h \
 
 SOURCES += \
     $$PWD/config/configcontroller.cpp \
@@ -258,6 +259,7 @@ SOURCES += \
     $$PWD/serializer/infrastructureserializer.cpp \
     $$PWD/serializer/modelserializer.cpp \
     $$PWD/serializer/projectserializer.cpp \
+    $$PWD/stereotype/customrelation.cpp \
     $$PWD/stereotype/iconshape.cpp \
     $$PWD/stereotype/shapepaintvisitor.cpp \
     $$PWD/stereotype/shapes.cpp \
@@ -277,7 +279,7 @@ SOURCES += \
     $$PWD/tasks/diagramscenecontroller.cpp \
     $$PWD/tasks/finddiagramvisitor.cpp \
     $$PWD/tasks/findrootdiagramvisitor.cpp \
-    $$PWD/tasks/voidelementtasks.cpp
+    $$PWD/tasks/voidelementtasks.cpp \
 
 RESOURCES += \
     $$PWD/resources/resources.qrc

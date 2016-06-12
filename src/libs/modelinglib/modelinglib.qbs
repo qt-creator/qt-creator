@@ -252,6 +252,8 @@ QtcLibrary {
             "serializer/modelserializer.h",
             "serializer/projectserializer.cpp",
             "serializer/projectserializer.h",
+            "stereotype/customrelation.cpp",
+            "stereotype/customrelation.h",
             "stereotype/iconshape.cpp",
             "stereotype/iconshape.h",
             "stereotype/shape.h",

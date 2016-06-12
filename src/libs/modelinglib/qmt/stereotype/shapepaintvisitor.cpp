@@ -75,6 +75,37 @@ void ShapePaintVisitor::visitEllipse(const EllipseShape *shapeEllipse)
                           radius.width(), radius.height());
 }
 
+void ShapePaintVisitor::visitDiamond(const DiamondShape *shapeDiamond)
+{
+    m_painter->save();
+    m_painter->setRenderHint(QPainter::Antialiasing, true);
+    QPainterPath path;
+    QPointF center = shapeDiamond->center().mapScaledTo(m_scaledOrigin, m_originalSize, m_baseSize, m_size);
+    QSizeF size = shapeDiamond->size().mapScaledTo(m_scaledOrigin, m_originalSize, m_baseSize, m_size);
+    path.moveTo(center + QPointF(0.0, size.height() / 2.0));
+    path.lineTo(center + QPointF(-size.width() / 2.0, 0.0));
+    path.lineTo(center + QPointF(0.0, -size.height() / 2.0));
+    path.lineTo(center + QPointF(size.width() / 2.0, 0.0));
+    path.closeSubpath();
+    m_painter->drawPath(path);
+    m_painter->restore();
+}
+
+void ShapePaintVisitor::visitTriangle(const TriangleShape *shapeTriangle)
+{
+    m_painter->save();
+    m_painter->setRenderHint(QPainter::Antialiasing, true);
+    QPainterPath path;
+    QPointF center = shapeTriangle->center().mapScaledTo(m_scaledOrigin, m_originalSize, m_baseSize, m_size);
+    QSizeF size = shapeTriangle->size().mapScaledTo(m_scaledOrigin, m_originalSize, m_baseSize, m_size);
+    path.moveTo(center + QPointF(size.width() / 2.0, size.height() / 2.0));
+    path.lineTo(center + QPointF(-size.width() / 2.0, size.height() / 2.0));
+    path.lineTo(center + QPointF(0.0, -size.height() / 2.0));
+    path.closeSubpath();
+    m_painter->drawPath(path);
+    m_painter->restore();
+}
+
 void ShapePaintVisitor::visitArc(const ArcShape *shapeArc)
 {
     QSizeF radius = shapeArc->radius().mapScaledTo(m_scaledOrigin, m_originalSize, m_baseSize, m_size);
@@ -158,6 +189,31 @@ void ShapeSizeVisitor::visitEllipse(const EllipseShape *shapeEllipse)
 {
     QSizeF radius = shapeEllipse->radius().mapScaledTo(m_scaledOrigin, m_originalSize, m_baseSize, m_size);
     m_boundingRect |= QRectF(shapeEllipse->center().mapScaledTo(m_scaledOrigin, m_originalSize, m_baseSize, m_size) - QPointF(radius.width(), radius.height()), radius * 2.0);
+}
+
+void ShapeSizeVisitor::visitDiamond(const DiamondShape *shapeDiamond)
+{
+    QPainterPath path;
+    QPointF center = shapeDiamond->center().mapScaledTo(m_scaledOrigin, m_originalSize, m_baseSize, m_size);
+    QSizeF size = shapeDiamond->size().mapScaledTo(m_scaledOrigin, m_originalSize, m_baseSize, m_size);
+    path.moveTo(center + QPointF(0.0, size.height() / 2.0));
+    path.lineTo(center + QPointF(-size.width() / 2.0, 0.0));
+    path.lineTo(center + QPointF(0.0, -size.height() / 2.0));
+    path.lineTo(center + QPointF(size.width() / 2.0, 0.0));
+    path.closeSubpath();
+    m_boundingRect |= path.boundingRect();
+}
+
+void ShapeSizeVisitor::visitTriangle(const TriangleShape *shapeTriangle)
+{
+    QPainterPath path;
+    QPointF center = shapeTriangle->center().mapScaledTo(m_scaledOrigin, m_originalSize, m_baseSize, m_size);
+    QSizeF size = shapeTriangle->size().mapScaledTo(m_scaledOrigin, m_originalSize, m_baseSize, m_size);
+    path.moveTo(center + QPointF(size.width() / 2.0, size.height() / 2.0));
+    path.lineTo(center + QPointF(-size.width() / 2.0, size.height() / 2.0));
+    path.lineTo(center + QPointF(0.0, -size.height() / 2.0));
+    path.closeSubpath();
+    m_boundingRect |= path.boundingRect();
 }
 
 void ShapeSizeVisitor::visitArc(const ArcShape *shapeArc)

@@ -2,6 +2,9 @@
 //
 // Language syntax and commands:
 //
+//
+// An Icon defines an icon of an element selected by stereotype.
+//
 // Icon {
 //     id: <id>
 //     title: <a UI title. Defaults to the id of the icon.>
@@ -29,6 +32,8 @@
 //         RoundedRect { x: <x>; y: <y>; width: <width>; height: <height>; radius: <radius> }
 //         Circle { x: <center_x>; y: <center_y>; radius: <radius> }
 //         Ellipse { x: <center_x>; y: <center_y>; radiusX: <radius_x>; radiusY: <radius_y> }
+//         Diamond { x: <center_x>; y: <center_y>; width: <width>; height: <height; filled: <yes or no or true or false> }
+//         Triangle { x: <center_x>; y: <center_y>; width: <width>; height: <height; filled: <yes or no or true or false> }
 //         Arc { x: <center_x>; y: <center_y>; radiusX: <radius_x>; radiusY: <radius_y>; start: <start_angle>; span: <span_angle> }
 //         MoveTo { x: <x>; y: <y> }
 //         LineTo { x: <x>; y: <y> }
@@ -37,6 +42,79 @@
 //         Close
 //     }
 // }
+//
+//
+// A Relation defines a new relation between to items:
+//
+// Relation {
+//     id: <id>
+//     title: <a UI title. Defaults to the id of the icon.>
+//     elements: <A list of elements that may be the start or end element of the relation. Can be one of
+//                class, component, package, diagram, item or any id of an Icon definition. Must be given.>
+//     stereotype: <Stereotype as a string. Defaults to nothing.>
+//     name: <Name of the relation. Defaults to nothing.>
+//     direction: <One of AtoB, BtoA or Bi. Defaults to nothing.>
+//     pattern: <The pattern used for the relation shaft.
+//               One of solid, dash, dot, dashdot, dashdotdot. Defaults to solid>
+//     color: <The color of the relation. One of A or B (uses the color of the respective end element) or
+//             any valid color (#rrggbb or a color name). Defaults to A.>
+//     End {
+//         end: <One of A or B. Defines the settings of the relations end.>
+//         elements: <Overrides the elements property of parent.>
+//         role: <The role of the end. A string that defaults to nothing.>
+//         cardinality: <An integer or a string defining the cardinality of the end. Defaults to nothing.>
+//         navigable: <If the end is navigable. One of Yes, No, True, False. Defaults to nothing.>
+//         Shape {
+//         }
+//     }
+// }
+//
+//
+// A Dependency defines a number of settings of a dependency specialization:
+//
+// Dependency {
+//     id: <id>
+//     title: <a UI title. Defaults to the id of the icon.>
+//     elements: <A list of elements that provides this specialization in its menu. Can be one of
+//                class, component, package, diagram, item or any id of an Icon definition. Must be given.>
+//     stereotype: <Stereotype as a string. Defaults to nothing.>
+//     name: <Name of the relation. Defaults to nothing.>
+//     direction: <One of AtoB, BtoA or Bi. Defaults to nothing.>
+// }
+//
+//
+// An Inheritance defines settings of an inheritance specialization:
+//
+// Inheritance {
+//     id: <id>
+//     title: <a UI title. Defaults to the id of the icon.>
+//     elements: <A list of elements that provides this specialization in its menu. Can be one of
+//                class or any id of an Icon definition for classes. Defaults to class.>
+//     stereotype: <Stereotype as a string. Defaults to nothing.>
+//     name: <Name of the relation. Defaults to nothing.>
+// }
+//
+//
+// An Association defines settings of an association specialization:
+//
+// Association {
+//     id: <id>
+//     title: <a UI title. Defaults to the id of the icon.>
+//     elements: <A list of elements that provides this specialization in its menu. Can be one of
+//                class or any id of an Icon definition for classes. Defaults to class.>
+//     stereotype: <Stereotype as a string. Defaults to nothing.>
+//     name: <Name of the relation. Defaults to nothing.>
+//     End {
+//         end: <One of A or B. Defines the settings of the relations end.>
+//         role: <The role of the end. A string that defaults to nothing.>
+//         cardinality: <An integer or a string defining the cardinality of the end. Defaults to nothing.>
+//         navigable: <If the end is navigable. One of Yes, No, True, False. Defaults to nothing.>
+//         relationship: <One of Association, Aggregation, Composition. Defaults to Association.>
+//     }
+// }
+//
+//
+// A toolbar of icons. If no toolbar is defined the standard toolbar is shown.
 //
 // Toolbar {
 //     id: <id>
@@ -103,6 +181,54 @@ Icon {
         Line { x0: 0.0; y0: 20.0; x1: 20.0; y1: 20.0 }
     }
 }
+
+Association {
+    id: AggregationOne
+    title: "Aggregation (?:1)"
+    End {
+        end: A
+        cardinality: 1
+        navigable: yes
+        relationship: aggregation
+    }
+}
+
+Association {
+    id: AggregationMany
+    title: "Aggregation (?:N)"
+    End {
+        end: A
+        cardinality: "*"
+        navigable: yes
+        relationship: aggregation
+    }
+}
+
+// ********************
+// ** Class Toolbars **
+// ********************
+
+Toolbar {
+    id: ClassToolbar
+    element: class
+    Tools {
+        Tool { element: dependency }
+        Tool { element: inheritance }
+        Tool { element: association }
+        Tool { element: AggregationOne }
+        Tool { element: AggregationMany }
+    }
+}
+
+Toolbar {
+    id: InterfaceToolbar
+    element: Interface
+    Tools {
+        Tool { element: dependency }
+        Tool { element: inheritance }
+    }
+}
+
 
 // ****************
 // ** Components **
@@ -273,6 +399,34 @@ Icon {
     Shape {
         Circle { x: 10; y: 10; radius: 10 }
         Circle { x: 10; y: 10; radius: 7 }
+    }
+}
+
+Relation {
+    id: Controlflow
+    pattern: solid
+    color: A
+    End {
+        end: A
+        elements: Start, Activity, Condition, HorizontalBar, VerticalBar
+        role: ""
+    }
+    End {
+        end: B
+        elements: Activity, Condition, HorizontalBar, VerticalBar, Termination
+        head: filledtriangle
+        //Shape {
+        //    Triangle { x: 6; y: 5.2; width: 12; height: 10.4; filled: yes }
+        //}
+    }
+}
+
+Toolbar {
+    id: ActivityToolbar
+    element: Start, Activity, Condition, HorizontalBar, VerticalBar
+    Tools {
+        Tool { element: Controlflow }
+        Tool { element: dependency }
     }
 }
 

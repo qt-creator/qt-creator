@@ -42,11 +42,9 @@ class QMT_EXPORT IconShape
 public:
     IconShape();
     IconShape(const IconShape &rhs);
-    IconShape(const IconShape &&) = delete;
     ~IconShape();
 
     IconShape &operator=(const IconShape &rhs);
-    IconShape &operator=(const IconShape &&) = delete;
 
     QSizeF size() const;
     void setSize(const QSizeF &size);
@@ -56,6 +54,8 @@ public:
     void addRoundedRect(const ShapePointF &pos, const ShapeSizeF &size, const ShapeValueF &radius);
     void addCircle(const ShapePointF &center, const ShapeValueF &radius);
     void addEllipse(const ShapePointF &center, const ShapeSizeF &radius);
+    void addDiamond(const ShapePointF &center, const ShapeSizeF &size, bool filled);
+    void addTriangle(const ShapePointF &center, const ShapeSizeF &size, bool filled);
     void addArc(const ShapePointF &center, const ShapeSizeF &radius,
                 qreal startAngle, qreal spanAngle);
 

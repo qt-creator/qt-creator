@@ -27,7 +27,7 @@
 
 namespace qmt {
 
-IShape *LineShape::Clone() const
+IShape *LineShape::clone() const
 {
     return new LineShape(*this);
 }
@@ -42,7 +42,7 @@ void LineShape::accept(ShapeConstVisitor *visitor) const
     visitor->visitLine(this);
 }
 
-IShape *RectShape::Clone() const
+IShape *RectShape::clone() const
 {
     return new RectShape(*this);
 }
@@ -57,7 +57,7 @@ void RectShape::accept(ShapeConstVisitor *visitor) const
     visitor->visitRect(this);
 }
 
-IShape *RoundedRectShape::Clone() const
+IShape *RoundedRectShape::clone() const
 {
     return new RoundedRectShape(*this);
 }
@@ -72,7 +72,7 @@ void RoundedRectShape::accept(ShapeConstVisitor *visitor) const
     visitor->visitRoundedRect(this);
 }
 
-IShape *CircleShape::Clone() const
+IShape *CircleShape::clone() const
 {
     return new CircleShape(*this);
 }
@@ -87,7 +87,7 @@ void CircleShape::accept(ShapeConstVisitor *visitor) const
     visitor->visitCircle(this);
 }
 
-IShape *EllipseShape::Clone() const
+IShape *EllipseShape::clone() const
 {
     return new EllipseShape(*this);
 }
@@ -102,7 +102,37 @@ void EllipseShape::accept(ShapeConstVisitor *visitor) const
     visitor->visitEllipse(this);
 }
 
-IShape *ArcShape::Clone() const
+IShape *DiamondShape::clone() const
+{
+    return new DiamondShape(*this);
+}
+
+void DiamondShape::accept(ShapeVisitor *visitor)
+{
+    visitor->visitDiamond(this);
+}
+
+void DiamondShape::accept(ShapeConstVisitor *visitor) const
+{
+    visitor->visitDiamond(this);
+}
+
+IShape *TriangleShape::clone() const
+{
+    return new TriangleShape(*this);
+}
+
+void TriangleShape::accept(ShapeVisitor *visitor)
+{
+    visitor->visitTriangle(this);
+}
+
+void TriangleShape::accept(ShapeConstVisitor *visitor) const
+{
+    visitor->visitTriangle(this);
+}
+
+IShape *ArcShape::clone() const
 {
     return new ArcShape(*this);
 }
@@ -125,7 +155,7 @@ PathShape::~PathShape()
 {
 }
 
-IShape *PathShape::Clone() const
+IShape *PathShape::clone() const
 {
     return new PathShape(*this);
 }

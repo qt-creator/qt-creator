@@ -34,11 +34,11 @@
 #include <QPainter>
 
 template<class T>
-QList<T *> CloneAll(const QList<T *> &rhs)
+QList<T *> cloneAll(const QList<T *> &rhs)
 {
     QList<T *> result;
     foreach (T *t, rhs)
-        result.append(t != 0 ? t->Clone() : 0);
+        result.append(t != 0 ? t->clone() : 0);
     return result;
 }
 
@@ -50,7 +50,7 @@ public:
     IconShapePrivate() = default;
 
     IconShapePrivate(const IconShapePrivate &rhs)
-        : m_shapes(CloneAll(rhs.m_shapes))
+        : m_shapes(cloneAll(rhs.m_shapes))
     {
     }
 
@@ -63,7 +63,7 @@ public:
     {
         if (this != &rhs) {
             qDeleteAll(m_shapes);
-            m_shapes = CloneAll(rhs.m_shapes);
+            m_shapes = cloneAll(rhs.m_shapes);
         }
         return *this;
     }
@@ -130,6 +130,16 @@ void IconShape::addCircle(const ShapePointF &center, const ShapeValueF &radius)
 void IconShape::addEllipse(const ShapePointF &center, const ShapeSizeF &radius)
 {
     d->m_shapes.append(new EllipseShape(center, radius));
+}
+
+void IconShape::addDiamond(const ShapePointF &center, const ShapeSizeF &size, bool filled)
+{
+    d->m_shapes.append(new DiamondShape(center, size, filled));
+}
+
+void IconShape::addTriangle(const ShapePointF &center, const ShapeSizeF &size, bool filled)
+{
+    d->m_shapes.append(new TriangleShape(center, size, filled));
 }
 
 void IconShape::addArc(const ShapePointF &center, const ShapeSizeF &radius, qreal startAngle, qreal spanAngle)

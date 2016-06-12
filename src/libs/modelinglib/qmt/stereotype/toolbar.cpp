@@ -28,12 +28,16 @@
 namespace qmt {
 
 Toolbar::Toolbar()
-    : m_priority(-1)
 {
 }
 
 Toolbar::~Toolbar()
 {
+}
+
+void Toolbar::setToolbarType(Toolbar::ToolbarType toolbarType)
+{
+    m_toolbarType = toolbarType;
 }
 
 void Toolbar::setId(const QString &id)
@@ -44,6 +48,11 @@ void Toolbar::setId(const QString &id)
 void Toolbar::setPriority(int priority)
 {
     m_priority = priority;
+}
+
+void Toolbar::setElementTypes(const QStringList &elementTypes)
+{
+    m_elementTypes = elementTypes;
 }
 
 void Toolbar::setTools(const QList<Toolbar::Tool> &tools)

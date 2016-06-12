@@ -71,6 +71,8 @@ void ConfigController::readStereotypeDefinitions(const QString &path)
     StereotypeDefinitionParser parser;
     connect(&parser, &StereotypeDefinitionParser::iconParsed,
             this, &ConfigController::onStereotypeIconParsed);
+    connect(&parser, &StereotypeDefinitionParser::relationParsed,
+            this, &ConfigController::onRelationParsed);
     connect(&parser, &StereotypeDefinitionParser::toolbarParsed,
             this, &ConfigController::onToolbarParsed);
 
@@ -114,6 +116,11 @@ void ConfigController::readStereotypeDefinitions(const QString &path)
 void ConfigController::onStereotypeIconParsed(const StereotypeIcon &stereotypeIcon)
 {
     d->m_stereotypeController->addStereotypeIcon(stereotypeIcon);
+}
+
+void ConfigController::onRelationParsed(const CustomRelation &customRelation)
+{
+    d->m_stereotypeController->addCustomRelation(customRelation);
 }
 
 void ConfigController::onToolbarParsed(const Toolbar &toolbar)

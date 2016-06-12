@@ -25,12 +25,14 @@
 
 #include "stereotypecontroller.h"
 
+#include "customrelation.h"
 #include "stereotypeicon.h"
 #include "shapepaintvisitor.h"
 #include "toolbar.h"
 
 #include "qmt/infrastructure/qmtassert.h"
 #include "qmt/style/style.h"
+#include "utils/algorithm.h"
 
 #include <QHash>
 #include <QPainter>
@@ -46,7 +48,9 @@ class StereotypeController::StereotypeControllerPrivate
 public:
     QHash<QPair<StereotypeIcon::Element, QString>, QString> m_stereotypeToIconIdMap;
     QHash<QString, StereotypeIcon> m_iconIdToStereotypeIconsMap;
+    QHash<QString, CustomRelation> m_relationIdToCustomRelationMap;
     QList<Toolbar> m_toolbars;
+    QList<Toolbar> m_elementToolbars;
 };
 
 StereotypeController::StereotypeController(QObject *parent) :
@@ -68,6 +72,13 @@ QList<StereotypeIcon> StereotypeController::stereotypeIcons() const
 QList<Toolbar> StereotypeController::toolbars() const
 {
     return d->m_toolbars;
+}
+
+QList<Toolbar> StereotypeController::findToolbars(const QString &elementType) const
+{
+    return Utils::filtered(d->m_elementToolbars, [&elementType](const Toolbar &tb) {
+        return tb.elementTypes().contains(elementType);
+    });
 }
 
 QList<QString> StereotypeController::knownStereotypes(StereotypeIcon::Element stereotypeElement) const
@@ -105,10 +116,15 @@ QList<QString> StereotypeController::filterStereotypesByIconId(const QString &st
     return filteredStereotypes;
 }
 
-StereotypeIcon StereotypeController::findStereotypeIcon(const QString &stereotypeIconId)
+StereotypeIcon StereotypeController::findStereotypeIcon(const QString &stereotypeIconId) const
 {
     QMT_CHECK(d->m_iconIdToStereotypeIconsMap.contains(stereotypeIconId));
     return d->m_iconIdToStereotypeIconsMap.value(stereotypeIconId);
+}
+
+CustomRelation StereotypeController::findCustomRelation(const QString &customRelationId) const
+{
+    return d->m_relationIdToCustomRelationMap.value(customRelationId);
 }
 
 QIcon StereotypeController::createIcon(StereotypeIcon::Element element, const QList<QString> &stereotypes,
@@ -180,9 +196,17 @@ void StereotypeController::addStereotypeIcon(const StereotypeIcon &stereotypeIco
     d->m_iconIdToStereotypeIconsMap.insert(stereotypeIcon.id(), stereotypeIcon);
 }
 
+void StereotypeController::addCustomRelation(const CustomRelation &customRelation)
+{
+    d->m_relationIdToCustomRelationMap.insert(customRelation.id(), customRelation);
+}
+
 void StereotypeController::addToolbar(const Toolbar &toolbar)
 {
-    d->m_toolbars.append(toolbar);
+    if (toolbar.elementTypes().isEmpty())
+        d->m_toolbars.append(toolbar);
+    else
+        d->m_elementToolbars.append(toolbar);
 }
 
 } // namespace qmt

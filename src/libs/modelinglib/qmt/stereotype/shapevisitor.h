@@ -32,6 +32,8 @@ class RectShape;
 class RoundedRectShape;
 class CircleShape;
 class EllipseShape;
+class DiamondShape;
+class TriangleShape;
 class ArcShape;
 class PathShape;
 
@@ -45,6 +47,8 @@ public:
     virtual void visitRoundedRect(RoundedRectShape *shapeRoundedRect) = 0;
     virtual void visitCircle(CircleShape *shapeCircle) = 0;
     virtual void visitEllipse(EllipseShape *shapeEllipse) = 0;
+    virtual void visitDiamond(DiamondShape *shapeDiamond) = 0;
+    virtual void visitTriangle(TriangleShape *shapeDiamond) = 0;
     virtual void visitArc(ArcShape *shapeArc) = 0;
     virtual void visitPath(PathShape *shapePath) = 0;
 };
@@ -59,6 +63,8 @@ public:
     virtual void visitRoundedRect(const RoundedRectShape *shapeRoundedRect) = 0;
     virtual void visitCircle(const CircleShape *shapeCircle) = 0;
     virtual void visitEllipse(const EllipseShape *shapeEllipse) = 0;
+    virtual void visitDiamond(const DiamondShape *shapeDiamond) = 0;
+    virtual void visitTriangle(const TriangleShape *shapeDiamond) = 0;
     virtual void visitArc(const ArcShape *shapeArc) = 0;
     virtual void visitPath(const PathShape *shapePath) = 0;
 };

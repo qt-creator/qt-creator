@@ -30,6 +30,7 @@
 
 namespace qmt {
 
+class CustomRelation;
 class StereotypeController;
 class StereotypeIcon;
 class Toolbar;
@@ -49,6 +50,7 @@ public:
 
 private:
     void onStereotypeIconParsed(const StereotypeIcon &stereotypeIcon);
+    void onRelationParsed(const CustomRelation &customRelation);
     void onToolbarParsed(const Toolbar &toolbar);
 
     ConfigControllerPrivate *d;
