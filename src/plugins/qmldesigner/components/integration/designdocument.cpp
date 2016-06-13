@@ -644,7 +644,7 @@ static inline Kit *getActiveKit(DesignDocument *designDocument)
     QObject::connect(ProjectTree::instance(), &ProjectTree::currentProjectChanged,
                      designDocument, &DesignDocument::updateActiveQtVersion, Qt::UniqueConnection);
 
-    QObject::connect(currentProject, &Project::activeProjectConfigurationChanged,
+    QObject::connect(currentProject, &Project::activeTargetChanged,
                      designDocument, &DesignDocument::updateActiveQtVersion, Qt::UniqueConnection);
 
 
@@ -663,10 +663,7 @@ static inline Kit *getActiveKit(DesignDocument *designDocument)
 
 void DesignDocument::updateActiveQtVersion()
 {
-    Kit *k = getActiveKit(this);
-    if (k == m_currentKit)
-        return;
-    m_currentKit = k;
+    m_currentKit = getActiveKit(this);
     viewManager().setNodeInstanceViewKit(m_currentKit);
 }
 
