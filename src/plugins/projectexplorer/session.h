@@ -76,7 +76,6 @@ public:
     static void closeAllProjects();
 
     static void addProject(Project *project);
-    static void addProjects(const QList<Project*> &projects);
     static void removeProject(Project *project);
     static void removeProjects(QList<Project *> remove);
 
@@ -125,7 +124,6 @@ public:
 
 signals:
     void projectAdded(ProjectExplorer::Project *project);
-    void singleProjectAdded(ProjectExplorer::Project *project);
     void aboutToRemoveProject(ProjectExplorer::Project *project);
     void projectDisplayNameChanged(ProjectExplorer::Project *project);
     void projectRemoved(ProjectExplorer::Project *project);

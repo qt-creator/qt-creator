@@ -210,7 +210,7 @@ ProjectTreeWidget::ProjectTreeWidget(QWidget *parent) : QWidget(parent)
             this, &ProjectTreeWidget::showContextMenu);
 
     SessionManager *sessionManager = SessionManager::instance();
-    connect(sessionManager, &SessionManager::singleProjectAdded,
+    connect(sessionManager, &SessionManager::projectAdded,
             this, &ProjectTreeWidget::handleProjectAdded);
     connect(sessionManager, &SessionManager::startupProjectChanged,
             this, &ProjectTreeWidget::startupProjectChanged);

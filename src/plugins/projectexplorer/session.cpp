@@ -373,42 +373,25 @@ Project *SessionManager::startupProject()
     return d->m_startupProject;
 }
 
-void SessionManager::addProject(Project *project)
+void SessionManager::addProject(Project *pro)
 {
-    QTC_ASSERT(project, return);
-    addProjects(QList<Project*>() << project);
-}
+    QTC_ASSERT(pro, return);
 
-void SessionManager::addProjects(const QList<Project*> &projects)
-{
     d->m_virginSession = false;
-    QList<Project*> clearedList;
-    foreach (Project *pro, projects) {
-        QTC_ASSERT(pro, continue);
-        if (!d->m_projects.contains(pro)) {
-            clearedList.append(pro);
-            d->m_projects.append(pro);
-            d->m_sessionNode->addProjectNodes(QList<ProjectNode *>() << pro->rootProjectNode());
+    QTC_ASSERT(!d->m_projects.contains(pro), return);
 
-            connect(pro, &Project::fileListChanged,
-                    m_instance, &SessionManager::clearProjectFileCache);
+    d->m_projects.append(pro);
+    d->m_sessionNode->addProjectNodes(QList<ProjectNode *>() << pro->rootProjectNode());
 
-            connect(pro, &Project::displayNameChanged,
-                    m_instance, &SessionManager::handleProjectDisplayNameChanged);
-        }
-    }
+    connect(pro, &Project::fileListChanged,
+            m_instance, &SessionManager::clearProjectFileCache);
 
-    foreach (Project *pro, clearedList) {
-        emit m_instance->projectAdded(pro);
-        configureEditors(pro);
-        connect(pro, &Project::fileListChanged,
-                [pro](){
-                    configureEditors(pro);
-                });
-    }
+    connect(pro, &Project::displayNameChanged,
+            m_instance, &SessionManager::handleProjectDisplayNameChanged);
 
-    if (clearedList.count() == 1)
-        emit m_instance->singleProjectAdded(clearedList.first());
+    emit m_instance->projectAdded(pro);
+    configureEditors(pro);
+    connect(pro, &Project::fileListChanged, [pro](){ configureEditors(pro); });
 }
 
 void SessionManager::removeProject(Project *project)
