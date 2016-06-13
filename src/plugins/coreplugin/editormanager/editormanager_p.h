@@ -61,6 +61,12 @@ class EditorManagerPrivate : public QObject
     friend class Core::EditorManager;
 
 public:
+    enum class CloseFlag {
+        CloseWithAsking,
+        CloseWithoutAsking,
+        Suspend
+    };
+
     static EditorManagerPrivate *instance();
 
     static void extensionsInitialized(); // only use from MainWindow
@@ -90,7 +96,7 @@ public:
                                        EditorManager::OpenEditorFlags flags = EditorManager::NoFlags);
     /* closes the document if there is no other editor on the document visible */
     static void closeEditorOrDocument(IEditor *editor);
-    static bool closeEditors(const QList<IEditor *> &editors, bool askAboutModifiedEditors);
+    static bool closeEditors(const QList<IEditor *> &editors, CloseFlag flag);
 
     static EditorView *viewForEditor(IEditor *editor);
     static void setCurrentView(EditorView *view);
@@ -107,6 +113,10 @@ public:
     static bool autoSaveEnabled();
     static void setAutoSaveInterval(int interval);
     static int autoSaveInterval();
+    static void setAutoSuspendEnabled(bool enabled);
+    static bool autoSuspendEnabled();
+    static void setAutoSuspendMinDocumentCount(int count);
+    static int autoSuspendMinDocumentCount();
     static void setWarnBeforeOpeningBigFilesEnabled(bool enabled);
     static bool warnBeforeOpeningBigFilesEnabled();
     static void setBigFileSizeLimit(int limitInMB);
@@ -159,6 +169,7 @@ private:
 
     static void closeAllEditorsExceptVisible();
     static void revertToSaved(IDocument *document);
+    static void autoSuspendDocuments();
 
     static void showInGraphicalShell();
     static void openTerminal();
@@ -174,7 +185,7 @@ private:
     static EditorManager::EditorFactoryList findFactories(Id editorId, const QString &fileName);
     static IEditor *createEditor(IEditorFactory *factory, const QString &fileName);
     static void addEditor(IEditor *editor);
-    static void removeEditor(IEditor *editor);
+    static void removeEditor(IEditor *editor, bool removeSusependedEntry);
     static IEditor *placeEditor(EditorView *view, IEditor *editor);
     static void restoreEditorState(IEditor *editor);
     static int visibleDocumentsCount();
@@ -249,6 +260,9 @@ private:
 
     bool m_autoSaveEnabled = true;
     int m_autoSaveInterval = 5;
+
+    bool m_autoSuspendEnabled = true;
+    int m_autoSuspendMinDocumentCount = 30;
 
     bool m_warnBeforeOpeningBigFilesEnabled = true;
     int m_bigFileSizeLimitInMB = 5;

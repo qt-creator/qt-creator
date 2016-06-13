@@ -260,6 +260,8 @@ TextDocument::TextDocument(Id id)
 
     if (id.isValid())
         setId(id);
+
+    setSuspendAllowed(true);
 }
 
 TextDocument::~TextDocument()

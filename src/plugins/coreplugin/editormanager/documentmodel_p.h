@@ -67,7 +67,7 @@ public:
     static void addEditor(IEditor *editor, bool *isNewDocument);
     static void addSuspendedDocument(const QString &fileName, const QString &displayName, Id id);
     static DocumentModel::Entry *firstSuspendedEntry();
-    static void removeEditor(IEditor *editor, bool *lastOneForDocument);
+    static DocumentModel::Entry *removeEditor(IEditor *editor);
     static void removeEntry(DocumentModel::Entry *entry);
     static void removeAllSuspendedEntries();
 

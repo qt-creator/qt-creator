@@ -355,20 +355,28 @@ DocumentModel::Entry *DocumentModelPrivate::firstSuspendedEntry()
     return Utils::findOrDefault(d->m_entries, [](DocumentModel::Entry *entry) { return entry->isSuspended; });
 }
 
-void DocumentModelPrivate::removeEditor(IEditor *editor, bool *lastOneForDocument)
+/*!
+    Removes an editor from the list of open editors for its entry. If the editor is the last
+    one, the entry is put into suspended state.
+    Returns the affected entry.
+*/
+DocumentModel::Entry *DocumentModelPrivate::removeEditor(IEditor *editor)
 {
-    if (lastOneForDocument)
-        *lastOneForDocument = false;
-    QTC_ASSERT(editor, return);
+    QTC_ASSERT(editor, return nullptr);
     IDocument *document = editor->document();
-    QTC_ASSERT(d->m_editors.contains(document), return);
+    QTC_ASSERT(d->m_editors.contains(document), return nullptr);
     d->m_editors[document].removeAll(editor);
+    DocumentModel::Entry *entry = DocumentModel::entryForDocument(document);
     if (d->m_editors.value(document).isEmpty()) {
-        if (lastOneForDocument)
-            *lastOneForDocument = true;
         d->m_editors.remove(document);
-        d->removeDocument(DocumentModel::indexOfDocument(document));
+        entry->document = new IDocument;
+        entry->document->setFilePath(document->filePath());
+        entry->document->setPreferredDisplayName(document->preferredDisplayName());
+        entry->document->setUniqueDisplayName(document->uniqueDisplayName());
+        entry->document->setId(document->id());
+        entry->isSuspended = true;
     }
+    return entry;
 }
 
 void DocumentModelPrivate::removeEntry(DocumentModel::Entry *entry)

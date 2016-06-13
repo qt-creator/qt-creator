@@ -67,6 +67,7 @@ VcsEditorFactory::VcsEditorFactory(const VcsBaseEditorParameters *parameters,
         auto document = new TextDocument(parameters->id);
  //  if (QLatin1String(parameters->mimeType) != QLatin1String(DiffEditor::Constants::DIFF_EDITOR_MIMETYPE))
         document->setMimeType(QLatin1String(parameters->mimeType));
+        document->setSuspendAllowed(false);
         return document;
     });
 

@@ -95,6 +95,8 @@ QWidget *SystemSettings::widget()
         m_page->patchChooser->setPath(PatchTool::patchCommand());
         m_page->autoSaveCheckBox->setChecked(EditorManagerPrivate::autoSaveEnabled());
         m_page->autoSaveInterval->setValue(EditorManagerPrivate::autoSaveInterval());
+        m_page->autoSuspendCheckBox->setChecked(EditorManagerPrivate::autoSuspendEnabled());
+        m_page->autoSuspendMinDocumentCount->setValue(EditorManagerPrivate::autoSuspendMinDocumentCount());
         m_page->warnBeforeOpeningBigFiles->setChecked(
                     EditorManagerPrivate::warnBeforeOpeningBigFilesEnabled());
         m_page->bigFilesLimitSpinBox->setValue(EditorManagerPrivate::bigFileSizeLimit());
@@ -159,6 +161,8 @@ void SystemSettings::apply()
     PatchTool::setPatchCommand(m_page->patchChooser->path());
     EditorManagerPrivate::setAutoSaveEnabled(m_page->autoSaveCheckBox->isChecked());
     EditorManagerPrivate::setAutoSaveInterval(m_page->autoSaveInterval->value());
+    EditorManagerPrivate::setAutoSuspendEnabled(m_page->autoSuspendCheckBox->isChecked());
+    EditorManagerPrivate::setAutoSuspendMinDocumentCount(m_page->autoSuspendMinDocumentCount->value());
     EditorManagerPrivate::setWarnBeforeOpeningBigFilesEnabled(
                 m_page->warnBeforeOpeningBigFiles->isChecked());
     EditorManagerPrivate::setBigFileSizeLimit(m_page->bigFilesLimitSpinBox->value());

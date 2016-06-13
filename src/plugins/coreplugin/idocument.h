@@ -97,8 +97,10 @@ public:
     virtual void setFilePath(const Utils::FileName &filePath);
     QString displayName() const;
     void setPreferredDisplayName(const QString &name);
+    QString preferredDisplayName() const;
     QString plainDisplayName() const;
     void setUniqueDisplayName(const QString &name);
+    QString uniqueDisplayName() const;
 
     virtual bool isFileReadOnly() const;
     bool isTemporary() const;
@@ -113,6 +115,8 @@ public:
     virtual bool shouldAutoSave() const;
     virtual bool isModified() const;
     virtual bool isSaveAsAllowed() const;
+    bool isSuspendAllowed() const;
+    void setSuspendAllowed(bool value);
 
     virtual ReloadBehavior reloadBehavior(ChangeTrigger state, ChangeType type) const;
     virtual bool reload(QString *errorString, ReloadFlag flag, ChangeType type);

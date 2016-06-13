@@ -78,6 +78,7 @@ public:
     bool temporary = false;
     bool hasWriteWarning = false;
     bool restored = false;
+    bool isSuspendAllowed = false;
 };
 
 } // namespace Internal
@@ -205,6 +206,16 @@ bool IDocument::isModified() const
 bool IDocument::isSaveAsAllowed() const
 {
     return false;
+}
+
+bool IDocument::isSuspendAllowed() const
+{
+    return d->isSuspendAllowed;
+}
+
+void IDocument::setSuspendAllowed(bool value)
+{
+    d->isSuspendAllowed = value;
 }
 
 bool IDocument::isFileReadOnly() const
@@ -351,6 +362,11 @@ void IDocument::setPreferredDisplayName(const QString &name)
     emit changed();
 }
 
+QString IDocument::preferredDisplayName() const
+{
+    return d->preferredDisplayName;
+}
+
 /*!
     \internal
     Returns displayName without disambiguation.
@@ -367,6 +383,11 @@ QString IDocument::plainDisplayName() const
 void IDocument::setUniqueDisplayName(const QString &name)
 {
     d->uniqueDisplayName = name;
+}
+
+QString IDocument::uniqueDisplayName() const
+{
+    return d->uniqueDisplayName;
 }
 
 } // namespace Core

@@ -111,6 +111,8 @@ static const char documentStatesKey[] = "EditorManager/DocumentStates";
 static const char reloadBehaviorKey[] = "EditorManager/ReloadBehavior";
 static const char autoSaveEnabledKey[] = "EditorManager/AutoSaveEnabled";
 static const char autoSaveIntervalKey[] = "EditorManager/AutoSaveInterval";
+static const char autoSuspendEnabledKey[] = "EditorManager/AutoSuspendEnabled";
+static const char autoSuspendMinDocumentCountKey[] = "EditorManager/AutoSuspendMinDocuments";
 static const char warnBeforeOpeningBigTextFilesKey[] = "EditorManager/WarnBeforeOpeningBigTextFiles";
 static const char bigTextFileSizeLimitKey[] = "EditorManager/BigTextFileSizeLimitInMB";
 static const char fileSystemCaseSensitivityKey[] = "Core/FileSystemCaseSensitivity";
@@ -961,6 +963,8 @@ void EditorManagerPrivate::saveSettings()
     qsettings->setValue(reloadBehaviorKey, d->m_reloadSetting);
     qsettings->setValue(autoSaveEnabledKey, d->m_autoSaveEnabled);
     qsettings->setValue(autoSaveIntervalKey, d->m_autoSaveInterval);
+    qsettings->setValue(autoSuspendEnabledKey, d->m_autoSuspendEnabled);
+    qsettings->setValue(autoSuspendMinDocumentCountKey, d->m_autoSuspendMinDocumentCount);
     qsettings->setValue(warnBeforeOpeningBigTextFilesKey,
                         d->m_warnBeforeOpeningBigFilesEnabled);
     qsettings->setValue(bigTextFileSizeLimitKey, d->m_bigFileSizeLimitInMB);
@@ -1054,6 +1058,26 @@ int EditorManagerPrivate::autoSaveInterval()
     return d->m_autoSaveInterval;
 }
 
+void EditorManagerPrivate::setAutoSuspendEnabled(bool enabled)
+{
+    d->m_autoSuspendEnabled = enabled;
+}
+
+bool EditorManagerPrivate::autoSuspendEnabled()
+{
+    return d->m_autoSuspendEnabled;
+}
+
+void EditorManagerPrivate::setAutoSuspendMinDocumentCount(int count)
+{
+    d->m_autoSuspendMinDocumentCount = count;
+}
+
+int EditorManagerPrivate::autoSuspendMinDocumentCount()
+{
+    return d->m_autoSuspendMinDocumentCount;
+}
+
 bool EditorManagerPrivate::warnBeforeOpeningBigFilesEnabled()
 {
     return d->m_warnBeforeOpeningBigFilesEnabled;
@@ -1141,14 +1165,18 @@ void EditorManagerPrivate::addEditor(IEditor *editor)
                                               editor->document()->id());
     }
     emit m_instance->editorOpened(editor);
+    QTimer::singleShot(0, d, &EditorManagerPrivate::autoSuspendDocuments);
 }
 
-void EditorManagerPrivate::removeEditor(IEditor *editor)
+void EditorManagerPrivate::removeEditor(IEditor *editor, bool removeSuspendedEntry)
 {
-    bool lastOneForDocument = false;
-    DocumentModelPrivate::removeEditor(editor, &lastOneForDocument);
-    if (lastOneForDocument)
+    DocumentModel::Entry *entry = DocumentModelPrivate::removeEditor(editor);
+    QTC_ASSERT(entry, return);
+    if (entry->isSuspended) {
         DocumentManager::removeDocument(editor->document());
+        if (removeSuspendedEntry)
+            DocumentModelPrivate::removeEntry(entry);
+    }
     ICore::removeContextObject(editor);
 }
 
@@ -1273,7 +1301,7 @@ void EditorManagerPrivate::closeEditorOrDocument(IEditor *editor)
     }
 }
 
-bool EditorManagerPrivate::closeEditors(const QList<IEditor*> &editors, bool askAboutModifiedEditors)
+bool EditorManagerPrivate::closeEditors(const QList<IEditor*> &editors, CloseFlag flag)
 {
     if (editors.isEmpty())
         return true;
@@ -1311,7 +1339,7 @@ bool EditorManagerPrivate::closeEditors(const QList<IEditor*> &editors, bool ask
         return false;
 
     //ask whether to save modified documents that we are about to close
-    if (askAboutModifiedEditors) {
+    if (flag == CloseFlag::CloseWithAsking) {
         // Check for which documents we will close all editors, and therefore might have to ask the user
         QList<IDocument *> documentsToClose;
         for (auto i = documentMap.constBegin(); i != documentMap.constEnd(); ++i) {
@@ -1347,7 +1375,7 @@ bool EditorManagerPrivate::closeEditors(const QList<IEditor*> &editors, bool ask
                 d->m_editorStates.insert(editor->document()->filePath().toString(), QVariant(state));
         }
 
-        removeEditor(editor);
+        removeEditor(editor, flag != CloseFlag::Suspend);
         if (EditorView *view = viewForEditor(editor)) {
             if (qApp->focusWidget() && qApp->focusWidget() == editor->widget()->focusWidget())
                 focusView = view;
@@ -1542,7 +1570,7 @@ void EditorManagerPrivate::emptyView(EditorView *view)
             continue; // don't close the editor
         }
         emit m_instance->editorAboutToClose(editor);
-        removeEditor(editor);
+        removeEditor(editor, true /*=removeSuspendedEntry, but doesn't matter since it's not the last editor anyhow*/);
         view->removeEditor(editor);
     }
     if (!editors.isEmpty()) {
@@ -2146,6 +2174,29 @@ void EditorManagerPrivate::revertToSaved(IDocument *document)
         QMessageBox::critical(ICore::mainWindow(), tr("File Error"), errorString);
 }
 
+void EditorManagerPrivate::autoSuspendDocuments()
+{
+    if (!d->m_autoSuspendEnabled)
+        return;
+
+    auto visibleDocuments = Utils::transform<QSet>(EditorManager::visibleEditors(),
+                                                   [](IEditor *editor) { return editor->document(); });
+    int keptEditorCount = 0;
+    QList<IDocument *> documentsToSuspend;
+    foreach (const EditLocation &editLocation, d->m_globalHistory) {
+        IDocument *document = editLocation.document;
+        if (!document || !document->isSuspendAllowed() || document->isModified()
+                || document->isTemporary() || document->filePath().isEmpty()
+                || visibleDocuments.contains(document))
+            continue;
+        if (keptEditorCount >= d->m_autoSuspendMinDocumentCount)
+            documentsToSuspend.append(document);
+        else
+            ++keptEditorCount;
+    }
+    closeEditors(DocumentModel::editorsForDocuments(documentsToSuspend), CloseFlag::Suspend);
+}
+
 void EditorManagerPrivate::showInGraphicalShell()
 {
     if (!d->m_contextMenuEntry || d->m_contextMenuEntry->fileName().isEmpty())
@@ -2456,7 +2507,9 @@ void EditorManager::closeDocument(DocumentModel::Entry *entry)
 
 bool EditorManager::closeEditors(const QList<IEditor*> &editorsToClose, bool askAboutModifiedEditors)
 {
-    return EditorManagerPrivate::closeEditors(editorsToClose, askAboutModifiedEditors);
+    return EditorManagerPrivate::closeEditors(editorsToClose,
+                                              askAboutModifiedEditors ? EditorManagerPrivate::CloseFlag::CloseWithAsking
+                                                                      : EditorManagerPrivate::CloseFlag::CloseWithoutAsking);
 }
 
 void EditorManager::activateEditorForEntry(DocumentModel::Entry *entry, OpenEditorFlags flags)
