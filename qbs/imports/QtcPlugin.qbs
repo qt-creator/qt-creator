@@ -26,7 +26,9 @@ QtcProduct {
 
     cpp.createSymlinks: false
     cpp.defines: base.concat([name.toUpperCase() + "_LIBRARY"])
-    cpp.installNamePrefix: "@rpath"
+    cpp.sonamePrefix: qbs.targetOS.contains("osx")
+        ? "@rpath"
+        : undefined
     cpp.rpaths: qbs.targetOS.contains("osx")
         ? ["@loader_path/../Frameworks", "@loader_path/../PlugIns"]
         : ["$ORIGIN", "$ORIGIN/.."]

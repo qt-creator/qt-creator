@@ -21,7 +21,9 @@ QtcProduct {
             flags.push("-compatibility_version", qtc.qtcreator_compat_version);
         return flags;
     }
-    cpp.installNamePrefix: "@rpath"
+    cpp.sonamePrefix: qbs.targetOS.contains("osx")
+            ? "@rpath"
+            : undefined
     cpp.rpaths: qbs.targetOS.contains("osx")
             ? ["@loader_path/../Frameworks"]
             : ["$ORIGIN", "$ORIGIN/.."]
