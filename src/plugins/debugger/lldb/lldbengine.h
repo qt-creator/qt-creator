@@ -59,7 +59,7 @@ class LldbEngine : public DebuggerEngine
 
 public:
     explicit LldbEngine(const DebuggerRunParameters &runParameters);
-    ~LldbEngine();
+    ~LldbEngine() override;
 
 signals:
     void outputReady(const QString &data);

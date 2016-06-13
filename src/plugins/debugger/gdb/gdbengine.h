@@ -64,7 +64,7 @@ class GdbEngine : public DebuggerEngine
 
 public:
     explicit GdbEngine(const DebuggerRunParameters &runParameters);
-    ~GdbEngine();
+    ~GdbEngine() override;
 
 private: ////////// General Interface //////////
     DebuggerEngine *cppEngine() override { return this; }

@@ -43,12 +43,12 @@ private:
     void handleExecRun(const DebuggerResponse &response);
     void handleFileExecAndSymbols(const DebuggerResponse &response);
 
-    void setupInferior();
-    void runEngine();
-    void setupEngine();
-    void handleGdbStartFailed();
-    void interruptInferior2();
-    void shutdownEngine();
+    void setupInferior() override;
+    void runEngine() override;
+    void setupEngine() override;
+    void handleGdbStartFailed() override;
+    void interruptInferior2() override;
+    void shutdownEngine() override;
 
     OutputCollector m_outputCollector;
 };

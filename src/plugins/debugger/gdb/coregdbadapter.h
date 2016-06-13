@@ -38,7 +38,7 @@ class GdbCoreEngine : public GdbEngine
 
 public:
     explicit GdbCoreEngine(const DebuggerRunParameters &runParameters);
-    ~GdbCoreEngine();
+    ~GdbCoreEngine() override;
 
     struct CoreInfo
     {
@@ -49,11 +49,11 @@ public:
     static CoreInfo readExecutableNameFromCore(const QString &debuggerCmd, const QString &coreFile);
 
 private:
-    void setupEngine();
-    void setupInferior();
-    void runEngine();
-    void interruptInferior();
-    void shutdownEngine();
+    void setupEngine() override;
+    void setupInferior() override;
+    void runEngine() override;
+    void interruptInferior() override;
+    void shutdownEngine() override;
 
     void handleFileExecAndSymbols(const DebuggerResponse &response);
     void handleTargetCore(const DebuggerResponse &response);

@@ -45,7 +45,7 @@ class QmlEngine : public DebuggerEngine
 public:
     explicit QmlEngine(const DebuggerRunParameters &runParameters,
                        DebuggerEngine *masterEngine = nullptr);
-    ~QmlEngine();
+    ~QmlEngine() override;
 
     void filterApplicationMessage(const QString &msg, int channel) const;
 

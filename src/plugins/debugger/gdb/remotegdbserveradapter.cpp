@@ -448,11 +448,11 @@ void GdbRemoteServerEngine::shutdownEngine()
 }
 
 void GdbRemoteServerEngine::notifyEngineRemoteServerRunning
-    (const QByteArray &serverChannel, int inferiorPid)
+    (const QString &serverChannel, int inferiorPid)
 {
     // Currently only used by Android support.
     runParameters().attachPID = inferiorPid;
-    runParameters().remoteChannel = QString::fromLatin1(serverChannel);
+    runParameters().remoteChannel = serverChannel;
     runParameters().multiProcess = true;
     showMessage("NOTE: REMOTE SERVER RUNNING IN MULTIMODE");
     m_startAttempted = true;

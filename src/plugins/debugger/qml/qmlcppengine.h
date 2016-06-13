@@ -38,7 +38,7 @@ class QmlCppEngine : public DebuggerEngine
 
 public:
     QmlCppEngine(const DebuggerRunParameters &sp, QStringList *errors);
-    ~QmlCppEngine();
+    ~QmlCppEngine() override;
 
     bool canDisplayTooltip() const override;
     bool canHandleToolTip(const DebuggerToolTipContext &) const override;

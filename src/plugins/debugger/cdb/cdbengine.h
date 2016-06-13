@@ -57,7 +57,7 @@ public:
     typedef std::function<void(const DebuggerResponse &)> CommandHandler;
 
     CdbEngine(const DebuggerRunParameters &sp);
-    ~CdbEngine();
+    ~CdbEngine() override;
 
     // Factory function that returns 0 if the debug engine library cannot be found.
 
