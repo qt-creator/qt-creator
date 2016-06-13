@@ -37,7 +37,9 @@
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 
+#include <QAbstractButton>
 #include <QFileInfo>
+#include <QMessageBox>
 
 using namespace Utils;
 
@@ -303,9 +305,28 @@ void GdbRemoteServerEngine::handleTargetExtendedRemote(const DebuggerResponse &r
             // gdb server will stop the remote application itself.
             runCommand({"attach " + QString::number(runParameters().attachPID),
                         NoFlags, CB(handleTargetExtendedAttach)});
-        } else {
+        } else if (!runParameters().inferior.executable.isEmpty()) {
             runCommand({"-gdb-set remote exec-file " + runParameters().inferior.executable,
                         NoFlags, CB(handleTargetExtendedAttach)});
+        } else {
+            const QString title = tr("No Remote Executable or Process ID Specified");
+            const QString msg = tr(
+                "No remote executable could be determined from your build system files.<p>"
+                "In case you use qmake, consider adding<p>"
+                "&nbsp;&nbsp;&nbsp;&nbsp;target.path = /tmp/your_executable # path on device<br>"
+                "&nbsp;&nbsp;&nbsp;&nbsp;INSTALLS += target</p>"
+                "to your .pro file.");
+            QMessageBox *mb = showMessageBox(QMessageBox::Critical, title, msg,
+                QMessageBox::Ok | QMessageBox::Cancel);
+            mb->button(QMessageBox::Cancel)->setText(tr("Continue Debugging"));
+            mb->button(QMessageBox::Ok)->setText(tr("Stop Debugging"));
+            if (mb->exec() == QMessageBox::Ok) {
+                showMessage("KILLING DEBUGGER AS REQUESTED BY USER");
+                notifyInferiorSetupFailed(title);
+            } else {
+                showMessage("CONTINUE DEBUGGER AS REQUESTED BY USER");
+                handleInferiorPrepared(); // This will likely fail.
+            }
         }
     } else {
         notifyInferiorSetupFailed(msgConnectRemoteServerFailed(response.data["msg"].data()));
