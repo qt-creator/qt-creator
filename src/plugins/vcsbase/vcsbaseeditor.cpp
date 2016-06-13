@@ -561,6 +561,7 @@ public:
     QRegExp m_logEntryPattern;
     QList<int> m_entrySections; // line number where this section starts
     int m_cursorLine = -1;
+    int m_firstLineNumber = -1;
     QString m_annotateRevisionTextFormat;
     QString m_annotatePreviousRevisionTextFormat;
     QString m_copyRevisionTextFormat;
@@ -679,6 +680,37 @@ QString VcsBaseEditorWidget::fileNameForLine(int line) const
 {
     Q_UNUSED(line);
     return source();
+}
+
+int VcsBaseEditorWidget::firstLineNumber() const
+{
+    return d->m_firstLineNumber;
+}
+
+void VcsBaseEditorWidget::setFirstLineNumber(int firstLineNumber)
+{
+    d->m_firstLineNumber = firstLineNumber;
+}
+
+QString VcsBaseEditorWidget::lineNumber(int blockNumber) const
+{
+    if (d->m_firstLineNumber > 0)
+        return QString::number(d->m_firstLineNumber + blockNumber);
+    return TextEditorWidget::lineNumber(blockNumber);
+}
+
+int VcsBaseEditorWidget::lineNumberDigits() const
+{
+    if (d->m_firstLineNumber <= 0)
+        return TextEditorWidget::lineNumberDigits();
+
+    int digits = 2;
+    int max = qMax(1, d->m_firstLineNumber + blockCount());
+    while (max >= 100) {
+        max /= 10;
+        ++digits;
+    }
+    return digits;
 }
 
 void VcsBaseEditorWidget::setDescribeSlot(QObject *describeReceiver, const char *describeSlot)

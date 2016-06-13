@@ -670,6 +670,7 @@ void GitPlugin::blameFile()
     QTC_ASSERT(state.hasFile(), return);
     const int lineNumber = VcsBaseEditor::lineNumberOfCurrentEditor(state.currentFile());
     QStringList extraOptions;
+    int firstLine = -1;
     if (BaseTextEditor *textEditor = BaseTextEditor::currentTextEditor()) {
         QTextCursor cursor = textEditor->textCursor();
         if (cursor.hasSelection()) {
@@ -677,15 +678,25 @@ void GitPlugin::blameFile()
             int selectionStart = cursor.selectionStart();
             int selectionEnd = cursor.selectionEnd();
             cursor.setPosition(selectionStart);
-            argument += QString::number(cursor.blockNumber() + 1) + ',';
+            const int startBlock = cursor.blockNumber();
+            firstLine = startBlock + 1;
+            if (auto widget = qobject_cast<VcsBaseEditorWidget *>(textEditor->widget())) {
+                const int previousFirstLine = widget->firstLineNumber();
+                if (previousFirstLine > 0)
+                    firstLine = previousFirstLine;
+            }
+            argument += QString::number(firstLine) + ',';
             cursor.setPosition(selectionEnd);
-            cursor.blockNumber();
-            argument += QString::number(cursor.blockNumber() + 1);
+            const int endBlock = cursor.blockNumber();
+            argument += QString::number(endBlock + firstLine - startBlock);
             extraOptions << argument;
         }
     }
-    m_gitClient->annotate(state.currentFileTopLevel(), state.relativeCurrentFile(), QString(),
-                          lineNumber, extraOptions);
+    VcsBaseEditorWidget *editor = m_gitClient->annotate(
+                state.currentFileTopLevel(), state.relativeCurrentFile(), QString(),
+                lineNumber, extraOptions);
+    if (firstLine > 0)
+        editor->setFirstLineNumber(firstLine);
 }
 
 void GitPlugin::logProject()

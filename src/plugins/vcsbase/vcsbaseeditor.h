@@ -154,6 +154,9 @@ protected:
     virtual bool supportChangeLinks() const;
     virtual QString fileNameForLine(int line) const;
 
+    QString lineNumber(int blockNumber) const override;
+    int lineNumberDigits() const override;
+
 public:
     void finalizeInitialization() override;
     // FIXME: Consolidate these into finalizeInitialization
@@ -198,6 +201,9 @@ public:
     // Base directory for diff views
     QString workingDirectory() const;
     void setWorkingDirectory(const QString &wd);
+
+    int firstLineNumber() const;
+    void setFirstLineNumber(int firstLineNumber);
 
     bool isModified() const;
 
