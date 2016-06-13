@@ -59,8 +59,9 @@ using namespace Utils;
 namespace Debugger {
 namespace Internal {
 
-struct LocationItem : public TreeItem
+class LocationItem : public TreeItem
 {
+public:
     QVariant data(int column, int role) const
     {
         if (role == Qt::DisplayRole) {
