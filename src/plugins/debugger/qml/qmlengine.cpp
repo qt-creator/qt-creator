@@ -376,7 +376,7 @@ void QmlEngine::beginConnection(Utils::Port port)
 
     QTC_ASSERT(state() == EngineRunRequested, return);
 
-    QString host =  runParameters().qmlServerAddress;
+    QString host = runParameters().qmlServer.host;
     // Use localhost as default
     if (host.isEmpty())
         host = "localhost";
@@ -392,8 +392,8 @@ void QmlEngine::beginConnection(Utils::Port port)
      * the connection will be closed again (instead of returning the "connection refused"
      * error that we expect).
      */
-    if (runParameters().qmlServerPort.isValid())
-        port = runParameters().qmlServerPort;
+    if (runParameters().qmlServer.port.isValid())
+        port = runParameters().qmlServer.port;
 
     if (!d->connection || d->connection->isConnected())
         return;
@@ -564,7 +564,7 @@ void QmlEngine::notifyEngineRemoteSetupFinished(const RemoteSetupResult &result)
 
     if (result.success) {
         if (result.qmlServerPort.isValid())
-            runParameters().qmlServerPort = result.qmlServerPort;
+            runParameters().qmlServer.port = result.qmlServerPort;
 
         notifyEngineSetupOk();
 
@@ -587,7 +587,7 @@ void QmlEngine::notifyEngineRemoteServerRunning(const QString &serverChannel, in
     bool ok = false;
     quint16 qmlPort = serverChannel.toUInt(&ok);
     if (ok)
-        runParameters().qmlServerPort = Utils::Port(qmlPort);
+        runParameters().qmlServer.port = Utils::Port(qmlPort);
     else
         qWarning() << tr("QML debugging port not set: Unable to convert %1 to unsigned int.").arg(serverChannel);
 

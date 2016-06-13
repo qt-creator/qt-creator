@@ -916,7 +916,7 @@ void DebuggerEngine::notifyEngineRemoteSetupFinished(const RemoteSetupResult &re
         }
 
         if (result.qmlServerPort.isValid()) {
-            d->m_runParameters.qmlServerPort = result.qmlServerPort;
+            d->m_runParameters.qmlServer.port = result.qmlServerPort;
             d->m_runParameters.inferior.commandLineArguments.replace("%qml_port%",
                             QString::number(result.qmlServerPort.number()));
         }

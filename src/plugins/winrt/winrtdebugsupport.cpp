@@ -109,8 +109,8 @@ RunControl *WinRtDebugSupport::createDebugRunControl(WinRtRunConfiguration *runC
         Utils::Port qmlDebugPort;
         if (!getFreePort(qmlDebugPort, errorMessage))
             return 0;
-        params.qmlServerAddress = QHostAddress(QHostAddress::LocalHost).toString();
-        params.qmlServerPort = qmlDebugPort;
+        params.qmlServer.host = QHostAddress(QHostAddress::LocalHost).toString();
+        params.qmlServer.port = qmlDebugPort;
     }
 
     WinRtRunnerHelper *runner = new WinRtRunnerHelper(runConfig, errorMessage);

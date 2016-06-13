@@ -118,8 +118,8 @@ RunControl *RemoteLinuxRunControlFactory::create(RunConfiguration *runConfig, Co
         params.remoteSetupNeeded = true;
 
         if (aspect->useQmlDebugger()) {
-            params.qmlServerAddress = dev->sshParameters().host;
-            params.qmlServerPort = Utils::Port(); // port is selected later on
+            params.qmlServer.host = dev->sshParameters().host;
+            params.qmlServer.port = Utils::Port(); // port is selected later on
         }
         if (aspect->useCppDebugger()) {
             aspect->setUseMultiProcess(true);

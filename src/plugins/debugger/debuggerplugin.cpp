@@ -2135,8 +2135,8 @@ void DebuggerPluginPrivate::attachToQmlPort()
     const QVariant qmlServerPort = configValue("LastQmlServerPort");
     if (qmlServerPort.isValid())
         dlg.setPort(qmlServerPort.toInt());
-    else if (rp.qmlServerPort.isValid())
-        dlg.setPort(rp.qmlServerPort.number());
+    else if (rp.qmlServer.port.isValid())
+        dlg.setPort(rp.qmlServer.port.number());
     else
         dlg.setPort(-1);
 
@@ -2157,9 +2157,9 @@ void DebuggerPluginPrivate::attachToQmlPort()
         rp.connParams = device->sshParameters();
         Connection toolControl = device->toolControlChannel(IDevice::QmlControlChannel);
         QTC_ASSERT(toolControl.is<HostName>(), return);
-        rp.qmlServerAddress = toolControl.as<HostName>().host();
+        rp.qmlServer.host = toolControl.as<HostName>().host();
     }
-    rp.qmlServerPort = Utils::Port(dlg.port());
+    rp.qmlServer.port = Utils::Port(dlg.port());
     rp.startMode = AttachToRemoteProcess;
     rp.closeMode = KillAtClose;
     rp.languages = QmlLanguage;
@@ -2903,11 +2903,11 @@ static QString formatStartParameters(DebuggerRunParameters &sp)
         str << "Addtional Search Directories:"
             << sp.additionalSearchDirectories.join(QLatin1Char(' ')) << '\n';
     }
-    if (!sp.qmlServerAddress.isEmpty())
-        str << "QML server: " << sp.qmlServerAddress << ':'
-            << (sp.qmlServerPort.isValid() ? sp.qmlServerPort.number() : -1) << '\n';
     if (!sp.remoteChannel.isEmpty())
         str << "Remote: " << sp.remoteChannel << '\n';
+    if (!sp.qmlServer.host.isEmpty())
+        str << "QML server: " << sp.qmlServer.host << ':'
+            << (sp.qmlServer.port.isValid() ? sp.qmlServer.port.number() : -1) << '\n';
     str << "Sysroot: " << sp.sysRoot << '\n';
     str << "Debug Source Location: " << sp.debugSourceLocation.join(QLatin1Char(':')) << '\n';
     return rc;

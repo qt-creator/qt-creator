@@ -75,8 +75,8 @@ static DebuggerStartParameters createDebuggerStartParameters(QnxRunConfiguration
 
     auto aspect = runConfig->extraAspect<DebuggerRunConfigurationAspect>();
     if (aspect->useQmlDebugger()) {
-        params.qmlServerAddress = device->sshParameters().host;
-        params.qmlServerPort = Utils::Port(); // QML port is handed out later
+        params.qmlServer.host = device->sshParameters().host;
+        params.qmlServer.port = Utils::Port(); // QML port is handed out later
     }
 
     auto qtVersion = dynamic_cast<QnxQtVersion *>(QtSupport::QtKitInformation::qtVersion(k));

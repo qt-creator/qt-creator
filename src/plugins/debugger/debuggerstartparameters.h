@@ -57,6 +57,13 @@ public:
     QString reason;
 };
 
+class DEBUGGER_EXPORT TcpServerConnection
+{
+public:
+    QString host;
+    Utils::Port port;
+};
+
 class DEBUGGER_EXPORT DebuggerStartParameters
 {
 public:
@@ -72,8 +79,7 @@ public:
     bool useTerminal = false;
 
     // Used by Qml debugging.
-    QString qmlServerAddress;
-    Utils::Port qmlServerPort;
+    TcpServerConnection qmlServer;
 
     // Used by general remote debugging.
     QString remoteChannel;

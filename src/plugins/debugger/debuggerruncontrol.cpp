@@ -441,8 +441,10 @@ static DebuggerRunControl *doCreate(DebuggerRunParameters rp, RunConfiguration *
                 errors->append(DebuggerPlugin::tr("Not enough free ports for QML debugging.") + ' ');
                 return 0;
             }
-            rp.qmlServerAddress = server.serverAddress().toString();
-            rp.qmlServerPort = Utils::Port(server.serverPort());
+            TcpServerConnection conn;
+            conn.host = server.serverAddress().toString();
+            conn.port = Utils::Port(server.serverPort());
+            rp.qmlServer = conn;
 
             // Makes sure that all bindings go through the JavaScript engine, so that
             // breakpoints are actually hit!
@@ -482,7 +484,7 @@ static DebuggerRunControl *doCreate(DebuggerRunParameters rp, RunConfiguration *
                 QtcProcess::addArg(&rp.inferior.commandLineArguments,
                                    (rp.languages & CppLanguage) && rp.nativeMixedEnabled ?
                                        QmlDebug::qmlDebugNativeArguments(service, false) :
-                                       QmlDebug::qmlDebugTcpArguments(service, rp.qmlServerPort));
+                                       QmlDebug::qmlDebugTcpArguments(service, rp.qmlServer.port));
             }
         }
     }
