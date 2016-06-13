@@ -385,10 +385,9 @@ bool VcsBaseClient::synchronousPush(const QString &workingDir,
     return resp.result == Utils::SynchronousProcessResponse::Finished;
 }
 
-void VcsBaseClient::annotate(const QString &workingDir, const QString &file,
-                             const QString &revision /* = QString() */,
-                             int lineNumber /* = -1 */,
-                             const QStringList &extraOptions)
+VcsBaseEditorWidget *VcsBaseClient::annotate(
+        const QString &workingDir, const QString &file, const QString &revision /* = QString() */,
+        int lineNumber /* = -1 */, const QStringList &extraOptions)
 {
     const QString vcsCmdString = vcsCommandString(AnnotateCommand);
     QStringList args;
@@ -405,6 +404,7 @@ void VcsBaseClient::annotate(const QString &workingDir, const QString &file,
     VcsCommand *cmd = createCommand(workingDir, editor);
     cmd->setCookie(lineNumber);
     enqueueJob(cmd, args);
+    return editor;
 }
 
 void VcsBaseClient::diff(const QString &workingDir, const QStringList &files,

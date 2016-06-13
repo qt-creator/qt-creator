@@ -87,9 +87,9 @@ public:
     virtual QProcessEnvironment processEnvironment() const;
 
     // VCS functionality:
-    virtual void annotate(const QString &workingDir, const QString &file,
-                          const QString &revision = QString(), int lineNumber = -1,
-                          const QStringList &extraOptions = QStringList()) = 0;
+    virtual VcsBaseEditorWidget *annotate(
+            const QString &workingDir, const QString &file, const QString &revision = QString(),
+            int lineNumber = -1, const QStringList &extraOptions = QStringList()) = 0;
 
     // Return converted command output, remove '\r' read on Windows
     static QString commandOutputFromLocal8Bit(const QByteArray &a);
@@ -159,9 +159,9 @@ public:
     virtual bool synchronousPush(const QString &workingDir,
                                  const QString &dstLocation,
                                  const QStringList &extraOptions = QStringList());
-    void annotate(const QString &workingDir, const QString &file,
-                  const QString &revision = QString(), int lineNumber = -1,
-                  const QStringList &extraOptions = QStringList()) override;
+    VcsBaseEditorWidget *annotate(
+            const QString &workingDir, const QString &file, const QString &revision = QString(),
+            int lineNumber = -1, const QStringList &extraOptions = QStringList()) override;
     virtual void diff(const QString &workingDir, const QStringList &files = QStringList(),
                       const QStringList &extraOptions = QStringList());
     virtual void log(const QString &workingDir, const QStringList &files = QStringList(),

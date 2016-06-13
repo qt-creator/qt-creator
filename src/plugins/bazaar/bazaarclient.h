@@ -49,9 +49,9 @@ public:
                              const QStringList &extraOptions = QStringList());
     void commit(const QString &repositoryRoot, const QStringList &files,
                 const QString &commitMessageFile, const QStringList &extraOptions = QStringList());
-    void annotate(const QString &workingDir, const QString &file,
-                  const QString &revision = QString(), int lineNumber = -1,
-                  const QStringList &extraOptions = QStringList());
+    VcsBase::VcsBaseEditorWidget *annotate(
+            const QString &workingDir, const QString &file, const QString &revision = QString(),
+            int lineNumber = -1, const QStringList &extraOptions = QStringList());
     QString findTopLevelForFile(const QFileInfo &file) const;
     bool managesFile(const QString &workingDirectory, const QString &fileName) const;
 

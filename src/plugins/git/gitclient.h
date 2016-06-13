@@ -149,9 +149,9 @@ public:
     void log(const QString &workingDirectory, const QString &fileName = QString(),
              bool enableAnnotationContextMenu = false, const QStringList &args = QStringList());
     void reflog(const QString &workingDirectory);
-    void annotate(const QString &workingDir, const QString &file,
-                  const QString &revision = QString(), int lineNumber = -1,
-                  const QStringList &extraOptions = QStringList()) override;
+    VcsBase::VcsBaseEditorWidget *annotate(
+            const QString &workingDir, const QString &file, const QString &revision = QString(),
+            int lineNumber = -1, const QStringList &extraOptions = QStringList()) override;
     void reset(const QString &workingDirectory, const QString &argument, const QString &commit = QString());
     void addFile(const QString &workingDirectory, const QString &fileName);
     bool synchronousLog(const QString &workingDirectory,

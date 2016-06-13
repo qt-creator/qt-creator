@@ -924,8 +924,9 @@ void GitClient::show(const QString &source, const QString &id, const QString &na
                                });
 }
 
-void GitClient::annotate(const QString &workingDir, const QString &file, const QString &revision,
-                         int lineNumber, const QStringList &extraOptions)
+VcsBaseEditorWidget *GitClient::annotate(
+        const QString &workingDir, const QString &file, const QString &revision,
+        int lineNumber, const QStringList &extraOptions)
 {
     const Id editorId = Git::Constants::GIT_BLAME_EDITOR_ID;
     const QString id = VcsBaseEditor::getTitleId(workingDir, QStringList(file), revision);
@@ -954,6 +955,7 @@ void GitClient::annotate(const QString &workingDir, const QString &file, const Q
     if (!revision.isEmpty())
         arguments << revision;
     vcsExec(workingDir, arguments, editor, false, 0, lineNumber);
+    return editor;
 }
 
 bool GitClient::synchronousCheckout(const QString &workingDirectory,

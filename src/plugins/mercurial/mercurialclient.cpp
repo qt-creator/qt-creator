@@ -299,13 +299,13 @@ void MercurialClient::outgoing(const QString &repositoryRoot)
     enqueueJob(cmd, args);
 }
 
-void MercurialClient::annotate(const QString &workingDir, const QString &file,
-                               const QString &revision, int lineNumber,
-                               const QStringList &extraOptions)
+VcsBaseEditorWidget *MercurialClient::annotate(
+        const QString &workingDir, const QString &file, const QString &revision,
+        int lineNumber, const QStringList &extraOptions)
 {
     QStringList args(extraOptions);
     args << QLatin1String("-u") << QLatin1String("-c") << QLatin1String("-d");
-    VcsBaseClient::annotate(workingDir, file, revision, lineNumber, args);
+    return VcsBaseClient::annotate(workingDir, file, revision, lineNumber, args);
 }
 
 void MercurialClient::commit(const QString &repositoryRoot, const QStringList &files,
