@@ -11,7 +11,6 @@ Project {
         Depends { name: "Utils" }
 
         Depends { name: "Core" }
-        Depends { name: "ProParser" }
         Depends { name: "ProjectExplorer" }
         Depends { name: "QtSupport" }
         Depends { name: "CppTools" }
@@ -109,7 +108,7 @@ Project {
         }
 
         Export {
-            Depends { name: "ProParser" }
+            Depends { name: "QtSupport" }
         }
     }
 }

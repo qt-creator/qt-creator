@@ -15,6 +15,10 @@ Project {
         Depends { name: "ProjectExplorer" }
         Depends { name: "CppTools" }
 
+        Export {
+            Depends { name: "ProParser" }
+        }
+
         files: [
             "baseqtversion.cpp",
             "baseqtversion.h",
