@@ -145,6 +145,7 @@ public:
     void setSeparateDebugInfo(bool enable);
 
     QString makeCommand() const;
+    QString makeArguments() const;
     QString effectiveQMakeCall() const;
 
     QVariantMap toMap() const override;
@@ -171,6 +172,7 @@ private:
     QString m_qmakeExecutable;
     QString m_qmakeArguments;
     QString m_makeExecutable;
+    QString m_makeArguments;
     QString m_userArgs;
 
     QFutureInterface<bool> m_inputFuture;

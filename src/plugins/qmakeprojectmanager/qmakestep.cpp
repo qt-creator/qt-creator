@@ -208,8 +208,10 @@ bool QMakeStep::init(QList<const BuildStep *> &earlierSteps)
         m_makeExecutable = makeCommand();
         if (m_makeExecutable.isEmpty())
             return false;
+        m_makeArguments = makeArguments();
     } else {
         m_makeExecutable.clear();
+        m_makeArguments.clear();
     }
 
     QString makefile = workingDirectory;
@@ -374,7 +376,7 @@ void QMakeStep::runNextCommand()
             parser->setWorkingDirectory(processParameters()->workingDirectory());
             setOutputParser(parser);
             m_nextState = State::POST_PROCESS;
-            startOneCommand(m_makeExecutable, QLatin1String("qmake_all"));
+            startOneCommand(m_makeExecutable, m_makeArguments);
         }
         return;
     case State::POST_PROCESS:
@@ -456,6 +458,20 @@ QString QMakeStep::makeCommand() const
     return ms ? ms->effectiveMakeCommand() : QString();
 }
 
+QString QMakeStep::makeArguments() const
+{
+    QString args;
+    if (QmakeBuildConfiguration *qmakeBc = qmakeBuildConfiguration()) {
+        const QString makefile = qmakeBc->makefile();
+        if (!makefile.isEmpty()) {
+            Utils::QtcProcess::addArg(&args, "-f");
+            Utils::QtcProcess::addArg(&args, makefile);
+        }
+    }
+    Utils::QtcProcess::addArg(&args, "qmake_all");
+    return args;
+}
+
 QString QMakeStep::effectiveQMakeCall() const
 {
     BaseQtVersion *qtVersion = QtKitInformation::qtVersion(target()->kit());
@@ -468,7 +484,7 @@ QString QMakeStep::effectiveQMakeCall() const
 
     QString result = qmake + QLatin1Char(' ') + allArguments(qtVersion);
     if (qtVersion->qtVersion() >= QtVersionNumber(5, 0, 0))
-        result.append(QString::fromLatin1(" && %1 qmake_all").arg(make));
+        result.append(QString::fromLatin1(" && %1 %2").arg(make).arg(makeArguments()));
     return result;
 }
 
