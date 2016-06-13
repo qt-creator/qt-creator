@@ -278,11 +278,9 @@ void GdbRemoteServerEngine::handleTargetRemote(const DebuggerResponse &response)
         // gdb server will stop the remote application itself.
         showMessage("INFERIOR STARTED");
         showMessage(msgAttachedToStoppedInferior(), StatusBar);
-        QString postAttachCommands = stringSetting(GdbPostAttachCommands);
-        if (!postAttachCommands.isEmpty()) {
-            foreach (const QString &cmd, postAttachCommands.split(QLatin1Char('\n')))
-                runCommand({cmd, NoFlags});
-        }
+        QString commands = expand(stringSetting(GdbPostAttachCommands));
+        if (!commands.isEmpty())
+            runCommand({commands, NoFlags});
         handleInferiorPrepared();
     } else {
         // 16^error,msg="hd:5555: Connection timed out."
@@ -296,11 +294,9 @@ void GdbRemoteServerEngine::handleTargetExtendedRemote(const DebuggerResponse &r
     if (response.resultClass == ResultDone) {
         showMessage("ATTACHED TO GDB SERVER STARTED");
         showMessage(msgAttachedToStoppedInferior(), StatusBar);
-        QString postAttachCommands = stringSetting(GdbPostAttachCommands);
-        if (!postAttachCommands.isEmpty()) {
-            foreach (const QString &cmd, postAttachCommands.split(QLatin1Char('\n')))
-                runCommand({cmd, NoFlags});
-        }
+        QString commands = expand(stringSetting(GdbPostAttachCommands));
+        if (!commands.isEmpty())
+            runCommand({commands, NoFlags});
         if (runParameters().attachPID > 0) { // attach to pid if valid
             // gdb server will stop the remote application itself.
             runCommand({"attach " + QString::number(runParameters().attachPID),
