@@ -242,6 +242,10 @@ void ModelManager::writeMessageInternal(const QString &msg) const
 ModelManagerInterface::WorkingCopy ModelManager::workingCopyInternal() const
 {
     WorkingCopy workingCopy;
+
+    if (!Core::ICore::instance())
+        return workingCopy;
+
     foreach (IDocument *document, DocumentModel::openedDocuments()) {
         const QString key = document->filePath().toString();
         if (TextEditor::TextDocument *textDocument = qobject_cast<TextEditor::TextDocument *>(document)) {
