@@ -387,11 +387,16 @@ def openDocument(treeElement):
         except:
             treeElement = addBranchWildcardToRoot(treeElement)
             item = waitForObjectItem(navigator, treeElement)
-        doubleClickItem(navigator, treeElement, 5, 5, 0, Qt.LeftButton)
-        mainWindow = waitForObject(":Qt Creator_Core::Internal::MainWindow")
-        expected = str(item.text).split("/")[-1]
-        waitFor("expected in str(mainWindow.windowTitle)")
-        return True
+        for _ in range(2):
+            # Expands items as needed what might make scrollbars appear.
+            # These might cover the item to click.
+            # In this case, do it again to hit the item then.
+            doubleClickItem(navigator, treeElement, 5, 5, 0, Qt.LeftButton)
+            mainWindow = waitForObject(":Qt Creator_Core::Internal::MainWindow")
+            expected = str(item.text).split("/")[-1]
+            if waitFor("expected in str(mainWindow.windowTitle)", 5000):
+                return True
+        return False
     except:
         return False
 
