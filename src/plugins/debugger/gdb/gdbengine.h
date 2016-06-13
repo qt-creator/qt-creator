@@ -133,8 +133,10 @@ private slots:
     void readDebuggeeOutput(const QByteArray &ba);
 
 private:
-    QTextCodec *m_outputCodec;
-    QTextCodec::ConverterState m_outputCodecState;
+    QTextCodec *m_gdbOutputCodec;
+    QTextCodec::ConverterState m_gdbOutputCodecState;
+    QTextCodec *m_inferiorOutputCodec;
+    QTextCodec::ConverterState m_inferiorOutputCodecState;
 
     QByteArray m_inbuffer;
     bool m_busy;

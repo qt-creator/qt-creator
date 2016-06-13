@@ -150,11 +150,12 @@ static QString parsePlainConsoleStream(const DebuggerResponse &response)
     return out.mid(pos + 3);
 }
 
-static bool isMostlyHarmlessMessage(const QString &msg)
+static bool isMostlyHarmlessMessage(const QStringRef &msg)
 {
     return msg == "warning: GDB: Failed to set controlling terminal: "
                   "Inappropriate ioctl for device\\n"
-            || msg == "warning: GDB: Failed to set controlling terminal: Invalid argument\\n";
+        || msg == "warning: GDB: Failed to set controlling terminal: "
+                  "Invalid argument\\n";
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -222,7 +223,8 @@ GdbEngine::GdbEngine(const DebuggerRunParameters &startParameters)
     m_sourcesListUpdating = false;
     m_oldestAcceptableToken = -1;
     m_nonDiscardableCount = 0;
-    m_outputCodec = QTextCodec::codecForLocale();
+    m_gdbOutputCodec = QTextCodec::codecForLocale();
+    m_inferiorOutputCodec = QTextCodec::codecForLocale();
     m_pendingBreakpointRequests = 0;
     m_commandsDoneCallback = 0;
     m_stackNeeded = false;
@@ -496,8 +498,7 @@ void GdbEngine::handleResponse(const QString &buff)
         case '@': {
             QString data = GdbMi::parseCString(from, to);
             QString msg = data.mid(2, data.size() - 4);
-            if (!isMostlyHarmlessMessage(msg))
-                    showMessage(msg, AppOutput);
+            showMessage(msg, AppOutput);
             break;
         }
 
@@ -505,13 +506,8 @@ void GdbEngine::handleResponse(const QString &buff)
             QString data = GdbMi::parseCString(from, to);
             // On Windows, the contents seem to depend on the debugger
             // version and/or OS version used.
-            if (data.startsWith("warning:")) {
-                if (isMostlyHarmlessMessage(data)) {
-                    showMessage("Mostly harmless terminal warning suppressed.", LogWarning);
-                    break;
-                }
+            if (data.startsWith("warning:"))
                 showMessage(data.mid(9), AppStuff); // Cut "warning: "
-            }
 
             m_pendingLogStreamOutput += data;
 
@@ -581,8 +577,6 @@ void GdbEngine::handleResponse(const QString &buff)
                 }
             }
 
-            //qDebug() << "\nLOG STREAM:" + m_pendingLogStreamOutput;
-            //qDebug() << "\nCONSOLE STREAM:" + m_pendingConsoleStreamOutput;
             response.logStreamOutput = m_pendingLogStreamOutput;
             response.consoleStreamOutput =  m_pendingConsoleStreamOutput;
             m_pendingLogStreamOutput.clear();
@@ -796,8 +790,13 @@ void GdbEngine::readGdbStandardError()
 
 void GdbEngine::readDebuggeeOutput(const QByteArray &ba)
 {
-    QString msg = m_outputCodec->toUnicode(ba.constData(), ba.size(), &m_outputCodecState);
-    handleResponse(msg);
+    const QString msg = m_inferiorOutputCodec->toUnicode(ba.constData(), ba.size(),
+                                                         &m_inferiorOutputCodecState);
+
+    if (msg.startsWith("&\"") && isMostlyHarmlessMessage(msg.midRef(2, msg.size() - 4)))
+        showMessage("Mostly harmless terminal warning suppressed.", LogWarning);
+    else
+        showMessage(msg, AppStuff);
 }
 
 void GdbEngine::readGdbStandardOutput()
@@ -832,8 +831,8 @@ void GdbEngine::readGdbStandardOutput()
         }
         m_busy = true;
 
-        QString msg = m_outputCodec->toUnicode(m_inbuffer.constData() + start, end - start,
-                                               &m_outputCodecState);
+        QString msg = m_gdbOutputCodec->toUnicode(m_inbuffer.constData() + start, end - start,
+                                                  &m_gdbOutputCodecState);
 
         handleResponse(msg);
         m_busy = false;
