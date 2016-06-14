@@ -874,7 +874,7 @@ void tst_TestCore::testRewriterActionCompression()
 
 void tst_TestCore::testRewriterImports()
 {
-    QString fileName = QString(QTCREATORDIR) + "/tests/auto/qml/qmldesigner/data/fx/imports.qml";
+    QString fileName = QString(TESTSRCDIR) + "/../data/fx/imports.qml";
     QFile file(fileName);
     QVERIFY(file.open(QIODevice::ReadOnly | QIODevice::Text));
 
@@ -1084,7 +1084,7 @@ void tst_TestCore::testRewriterForGradientMagic()
 
 void tst_TestCore::loadSubItems()
 {
-    QFile file(QString(QTCREATORDIR) + "/tests/auto/qml/qmldesigner/data/fx/topitem.qml");
+    QFile file(QString(TESTSRCDIR) + "/../data/fx/topitem.qml");
     QVERIFY(file.open(QIODevice::ReadOnly | QIODevice::Text));
 
     QPlainTextEdit textEdit1;
@@ -3658,7 +3658,7 @@ void tst_TestCore::testSubComponentManager()
                         "    }\n"
                         "}");
 
-    QString fileName = QString(QTCREATORDIR) + "/tests/auto/qml/qmldesigner/data/fx/usingmybutton.qml";
+    QString fileName = QString(TESTSRCDIR) + "/../data/fx/usingmybutton.qml";
     QFile file(fileName);
     QVERIFY(file.open(QIODevice::ReadOnly | QIODevice::Text));
 
