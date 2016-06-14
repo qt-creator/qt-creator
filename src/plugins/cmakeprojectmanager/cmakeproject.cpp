@@ -66,6 +66,7 @@
 
 #include <QDir>
 #include <QFileSystemWatcher>
+#include <QSet>
 #include <QTemporaryDir>
 
 using namespace ProjectExplorer;
@@ -242,15 +243,27 @@ void CMakeProject::parseCMakeOutput()
             activeQtVersion = CppTools::ProjectPart::Qt5;
     }
 
+    const Utils::FileName sysroot = ProjectExplorer::SysRootKitInformation::sysRoot(k);
+
     ppBuilder.setQtVersion(activeQtVersion);
 
     QHash<QString, QStringList> targetDataCache;
     foreach (const CMakeBuildTarget &cbt, buildTargets()) {
-        // This explicitly adds -I. to the include paths
-        QStringList includePaths = cbt.includeFiles;
+        // CMake shuffles the include paths that it reports via the CodeBlocks generator
+        // So remove the toolchain include paths, so that at least those end up in the correct
+        // place.
+        QStringList cxxflags = getCXXFlagsFor(cbt, targetDataCache);
+        QSet<QString> tcIncludes;
+        foreach (const HeaderPath &hp, tc->systemHeaderPaths(cxxflags, sysroot)) {
+            tcIncludes.insert(hp.path());
+        }
+        QStringList includePaths;
+        foreach (const QString &i, cbt.includeFiles) {
+            if (!tcIncludes.contains(i))
+                includePaths.append(i);
+        }
         includePaths += projectDirectory().toString();
         ppBuilder.setIncludePaths(includePaths);
-        QStringList cxxflags = getCXXFlagsFor(cbt, targetDataCache);
         ppBuilder.setCFlags(cxxflags);
         ppBuilder.setCxxFlags(cxxflags);
         ppBuilder.setDefines(cbt.defines);
