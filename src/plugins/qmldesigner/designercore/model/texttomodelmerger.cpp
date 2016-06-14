@@ -1087,6 +1087,12 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
                 astValue = textAt(context->doc(),
                                   property->statement->firstSourceLocation(),
                                   property->statement->lastSourceLocation());
+
+            astValue = astValue.trimmed();
+            if (astValue.endsWith(QLatin1Char(';')))
+                astValue = astValue.left(astValue.length() - 1);
+            astValue = astValue.trimmed();
+
             const TypeName &astType = property->memberType.toUtf8();
             AbstractProperty modelProperty = modelNode.property(astName.toUtf8());
             if (!property->statement || isLiteralValue(property->statement)) {
