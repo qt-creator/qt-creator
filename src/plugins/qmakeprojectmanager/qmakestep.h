@@ -71,7 +71,7 @@ class QMAKEPROJECTMANAGER_EXPORT QMakeStepConfig
 {
 public:
     enum TargetArchConfig {
-        NoArch, X86, X86_64, PPC, PPC64
+        NoArch, X86, X86_64, PowerPC, PowerPC64
     };
 
     enum OsType {

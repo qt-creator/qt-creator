@@ -888,9 +888,9 @@ QMakeStepConfig::TargetArchConfig QMakeStepConfig::targetArchFor(const Abi &targ
                 arch = QMakeStepConfig::X86_64;
         } else if (targetAbi.architecture() == ProjectExplorer::Abi::PowerPCArchitecture) {
             if (targetAbi.wordWidth() == 32)
-                arch = QMakeStepConfig::PPC;
+                arch = QMakeStepConfig::PowerPC;
             else if (targetAbi.wordWidth() == 64)
-                arch = QMakeStepConfig::PPC64;
+                arch = QMakeStepConfig::PowerPC64;
         }
     }
     return arch;
@@ -920,9 +920,9 @@ QStringList QMakeStepConfig::toArguments() const
         arguments << QLatin1String("CONFIG+=x86");
     else if (archConfig == X86_64)
         arguments << QLatin1String("CONFIG+=x86_64");
-    else if (archConfig == PPC)
+    else if (archConfig == PowerPC)
         arguments << QLatin1String("CONFIG+=ppc");
-    else if (archConfig == PPC64)
+    else if (archConfig == PowerPC64)
         arguments << QLatin1String("CONFIG+=ppc64");
 
     // TODO: make that depend on the actual Qt version that is used
