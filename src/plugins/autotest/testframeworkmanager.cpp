@@ -70,7 +70,7 @@ bool TestFrameworkManager::registerTestFramework(ITestFramework *framework)
 {
     QTC_ASSERT(framework, return false);
     Core::Id id = Core::Id(Constants::FRAMEWORK_PREFIX).withSuffix(framework->name());
-    QTC_ASSERT(!m_registeredFrameworks.contains(id), return false);
+    QTC_ASSERT(!m_registeredFrameworks.contains(id), delete framework; return false);
     // TODO check for unique priority before registering
     qCDebug(LOG) << "Registering" << id;
     m_registeredFrameworks.insert(id, framework);
