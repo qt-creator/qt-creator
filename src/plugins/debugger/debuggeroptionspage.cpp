@@ -376,7 +376,6 @@ public:
         m_debuggerView = new QTreeView(this);
         m_debuggerView->setModel(&m_model);
         m_debuggerView->setUniformRowHeights(true);
-        m_debuggerView->setRootIsDecorated(false);
         m_debuggerView->setSelectionMode(QAbstractItemView::SingleSelection);
         m_debuggerView->setSelectionBehavior(QAbstractItemView::SelectRows);
         m_debuggerView->expandAll();

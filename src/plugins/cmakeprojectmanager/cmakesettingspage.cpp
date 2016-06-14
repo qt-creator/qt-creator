@@ -396,7 +396,6 @@ public:
         m_cmakeToolsView = new QTreeView(this);
         m_cmakeToolsView->setModel(&m_model);
         m_cmakeToolsView->setUniformRowHeights(true);
-        m_cmakeToolsView->setRootIsDecorated(false);
         m_cmakeToolsView->setSelectionMode(QAbstractItemView::SingleSelection);
         m_cmakeToolsView->setSelectionBehavior(QAbstractItemView::SelectRows);
         m_cmakeToolsView->expandAll();
