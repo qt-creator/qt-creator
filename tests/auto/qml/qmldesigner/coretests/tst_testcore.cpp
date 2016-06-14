@@ -4259,6 +4259,68 @@ void tst_TestCore::testQtQuick20BasicRectangle()
     QCOMPARE(rootModelNode.majorVersion(), 2);
 }
 
+void tst_TestCore::testQtQuickControls2()
+{
+
+    const char* qmlString
+            =   "import QtQuick 2.7\n"
+                "import QtQuick.Controls 2.0\n"
+                "import QtQuick.Layouts 1.0\n"
+                "\n"
+                "ApplicationWindow {\n"
+                     "visible: true\n"
+                     "width: 640\n"
+                     "height: 480\n"
+                     "title: qsTr(\"Hello World\")\n"
+                    "Button {\n"
+                    "}\n"
+                    "Layout {\n"
+                    "}\n"
+                "}\n";
+
+    QPlainTextEdit textEdit;
+    textEdit.setPlainText(QLatin1String(qmlString));
+    NotIndentingTextEditModifier modifier(&textEdit);
+
+    QScopedPointer<Model> model(Model::create("QtQuick.Item"));
+    QVERIFY(model.data());
+    QScopedPointer<TestView> view(new TestView(model.data()));
+    QVERIFY(view.data());
+    model->attachView(view.data());
+
+    TestRewriterView *testRewriterView = new TestRewriterView(model.data());
+    testRewriterView->setTextModifier(&modifier);
+    model->attachView(testRewriterView);
+
+    QVERIFY(testRewriterView->errors().isEmpty());
+
+    ModelNode rootModelNode(view->rootModelNode());
+
+    QVERIFY(rootModelNode.isValid());
+
+    QVERIFY(rootModelNode.metaInfo().isGraphicalItem());
+    QVERIFY(rootModelNode.isSubclassOf("QtQuick.Window.Window", -1, -1));
+
+    QVERIFY(!rootModelNode.metaInfo().directPropertyNames().contains("visible"));
+    QVERIFY(rootModelNode.metaInfo().propertyNames().contains("visible"));
+
+    QVERIFY(!rootModelNode.allSubModelNodes().isEmpty());
+    ModelNode button = rootModelNode.allSubModelNodes().first();
+    QVERIFY(button.isValid());
+    QVERIFY(button.metaInfo().isValid());
+    QVERIFY(button.metaInfo().isGraphicalItem());
+    QVERIFY(button.isSubclassOf("QtQuick.Controls.Button", 2, -1));
+    QVERIFY(button.isSubclassOf("QtQuick.Item", 2, -1));
+
+    QCOMPARE(rootModelNode.allSubModelNodes().count(), 2);
+    ModelNode layout = rootModelNode.allSubModelNodes().last();
+    QVERIFY(layout.isValid());
+    QVERIFY(layout.metaInfo().isValid());
+    QVERIFY(layout.metaInfo().isGraphicalItem());
+    QVERIFY(layout.isSubclassOf("QtQuick.Layout", -1, -1));
+    QVERIFY(layout.isSubclassOf("QtQuick.Item", 2, -1));
+}
+
 void tst_TestCore::testStatesRewriter()
 {
     QPlainTextEdit textEdit;
