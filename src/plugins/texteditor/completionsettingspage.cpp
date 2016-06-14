@@ -105,6 +105,7 @@ QWidget *CompletionSettingsPage::widget()
         m_page->animateAutoComplete->setChecked(m_completionSettings.m_animateAutoComplete);
         m_page->highlightAutoComplete->setChecked(m_completionSettings.m_highlightAutoComplete);
         m_page->skipAutoComplete->setChecked(m_completionSettings.m_skipAutoCompletedText);
+        m_page->removeAutoComplete->setChecked(m_completionSettings.m_autoRemove);
 
         m_page->enableDoxygenCheckBox->setChecked(m_commentsSettings.m_enableDoxygen);
         m_page->generateBriefCheckBox->setChecked(m_commentsSettings.m_generateBrief);
@@ -112,6 +113,7 @@ QWidget *CompletionSettingsPage::widget()
 
         m_page->generateBriefCheckBox->setEnabled(m_page->enableDoxygenCheckBox->isChecked());
         m_page->skipAutoComplete->setEnabled(m_page->highlightAutoComplete->isChecked());
+        m_page->removeAutoComplete->setEnabled(m_page->highlightAutoComplete->isChecked());
     }
     return m_widget;
 }
@@ -182,6 +184,7 @@ void CompletionSettingsPage::settingsFromUi(CompletionSettings &completion, Comm
     completion.m_animateAutoComplete = m_page->animateAutoComplete->isChecked();
     completion.m_highlightAutoComplete = m_page->highlightAutoComplete->isChecked();
     completion.m_skipAutoCompletedText = m_page->skipAutoComplete->isChecked();
+    completion.m_autoRemove = m_page->removeAutoComplete->isChecked();
 
     comment.m_enableDoxygen = m_page->enableDoxygenCheckBox->isChecked();
     comment.m_generateBrief = m_page->generateBriefCheckBox->isChecked();

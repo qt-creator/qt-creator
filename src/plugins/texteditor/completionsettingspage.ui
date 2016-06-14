@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>551</width>
-    <height>465</height>
+    <height>493</height>
    </rect>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -270,6 +270,39 @@ In addition, Shift+Enter inserts an escape character at the cursor position and 
         </item>
        </layout>
       </item>
+      <item row="5" column="0">
+       <layout class="QHBoxLayout" name="horizontalLayout_5">
+        <item>
+         <spacer name="horizontalSpacer_7">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeType">
+           <enum>QSizePolicy::Fixed</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>30</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="removeAutoComplete">
+          <property name="toolTip">
+           <string>Remove the automatically inserted character if the trigger is deleted by backspace after the completion.</string>
+          </property>
+          <property name="text">
+           <string>Remove automatically inserted text on backspace</string>
+          </property>
+          <property name="checked">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
      </layout>
     </widget>
    </item>
@@ -361,6 +394,7 @@ In addition, Shift+Enter inserts an escape character at the cursor position and 
   <tabstop>animateAutoComplete</tabstop>
   <tabstop>highlightAutoComplete</tabstop>
   <tabstop>skipAutoComplete</tabstop>
+  <tabstop>removeAutoComplete</tabstop>
   <tabstop>enableDoxygenCheckBox</tabstop>
   <tabstop>generateBriefCheckBox</tabstop>
   <tabstop>leadingAsterisksCheckBox</tabstop>
@@ -374,12 +408,12 @@ In addition, Shift+Enter inserts an escape character at the cursor position and 
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>195</x>
-     <y>383</y>
+     <x>216</x>
+     <y>411</y>
     </hint>
     <hint type="destinationlabel">
-     <x>320</x>
-     <y>410</y>
+     <x>378</x>
+     <y>438</y>
     </hint>
    </hints>
   </connection>
@@ -396,6 +430,22 @@ In addition, Shift+Enter inserts an escape character at the cursor position and 
     <hint type="destinationlabel">
      <x>186</x>
      <y>306</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>highlightAutoComplete</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>removeAutoComplete</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>223</x>
+     <y>275</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>226</x>
+     <y>333</y>
     </hint>
    </hints>
   </connection>

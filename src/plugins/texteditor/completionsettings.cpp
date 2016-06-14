@@ -41,6 +41,7 @@ static const char autoSplitStringsKey[]         = "AutoSplitStrings";
 static const char animateAutoCompleteKey[]      = "AnimateAutoComplete";
 static const char highlightAutoCompleteKey[]    = "HighlightAutoComplete";
 static const char skipAutoCompleteKey[]         = "SkipAutoComplete";
+static const char autoRemoveKey[]               = "AutoRemove";
 
 using namespace TextEditor;
 
@@ -60,6 +61,7 @@ void CompletionSettings::toSettings(QSettings *s) const
     s->setValue(animateAutoCompleteKey, m_animateAutoComplete);
     s->setValue(highlightAutoCompleteKey, m_highlightAutoComplete);
     s->setValue(skipAutoCompleteKey, m_skipAutoCompletedText);
+    s->setValue(autoRemoveKey, m_autoRemove);
     s->endGroup();
 }
 
@@ -94,6 +96,8 @@ void CompletionSettings::fromSettings(QSettings *s)
             s->value(highlightAutoCompleteKey, m_highlightAutoComplete).toBool();
     m_skipAutoCompletedText =
             s->value(skipAutoCompleteKey, m_skipAutoCompletedText).toBool();
+    m_autoRemove =
+            s->value(autoRemoveKey, m_autoRemove).toBool();
     s->endGroup();
 }
 
@@ -112,5 +116,6 @@ bool CompletionSettings::equals(const CompletionSettings &cs) const
         && m_animateAutoComplete            == cs.m_animateAutoComplete
         && m_highlightAutoComplete          == cs.m_highlightAutoComplete
         && m_skipAutoCompletedText          == cs.m_skipAutoCompletedText
+        && m_autoRemove                     == cs.m_autoRemove
         ;
 }
