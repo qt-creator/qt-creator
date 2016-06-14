@@ -26,7 +26,9 @@
 #pragma once
 
 #include <coreplugin/dialogs/ioptionspage.h>
+
 #include <utils/fileutils.h>
+#include <utils/treemodel.h>
 
 #include <QIcon>
 #include <QPointer>
@@ -39,10 +41,6 @@ class QUrl;
 QT_END_NAMESPACE
 
 namespace ProjectExplorer { class ToolChain; }
-namespace Utils {
-class TreeModel;
-class TreeItem;
-}
 
 namespace QtSupport {
 
@@ -116,7 +114,7 @@ private:
     bool isNameUnique(const BaseQtVersion *version);
     void updateVersionItem(QtVersionItem *item);
 
-    Utils::TreeModel *m_model;
+    Utils::LeveledTreeModel<Utils::TreeItem, QtVersionItem> *m_model;
     QSortFilterProxyModel *m_filterModel;
     Utils::TreeItem *m_autoItem;
     Utils::TreeItem *m_manualItem;
