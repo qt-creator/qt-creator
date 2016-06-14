@@ -3666,8 +3666,6 @@ void tst_TestCore::testSubComponentManager()
     textEdit.setPlainText(QString::fromUtf8(file.readAll()));
     NotIndentingTextEditModifier modifier(&textEdit);
 
-    qDebug() << textEdit.toPlainText();
-
     QScopedPointer<Model> model(Model::create("QtQuick.Item"));
     model->setFileUrl(QUrl::fromLocalFile(fileName));
     QScopedPointer<SubComponentManager> subComponentManager(new SubComponentManager(model.data()));
