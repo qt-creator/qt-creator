@@ -241,7 +241,7 @@ QtOptionsPageWidget::QtOptionsPageWidget(QWidget *parent)
     m_ui->qtdirList->header()->setStretchLastSection(false);
     m_ui->qtdirList->header()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
     m_ui->qtdirList->header()->setSectionResizeMode(1, QHeaderView::Stretch);
-    m_ui->qtdirList->setTextElideMode(Qt::ElideNone);
+    m_ui->qtdirList->setTextElideMode(Qt::ElideMiddle);
     m_ui->qtdirList->sortByColumn(0, Qt::AscendingOrder);
 
     QList<int> additions = transform(QtVersionManager::versions(), &BaseQtVersion::uniqueId);
