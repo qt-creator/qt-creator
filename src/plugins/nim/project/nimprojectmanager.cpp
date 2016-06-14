@@ -23,10 +23,10 @@
 **
 ****************************************************************************/
 
-#include "project/nimprojectmanager.h"
+#include "nimprojectmanager.h"
+#include "nimproject.h"
 
-#include "nimconstants.h"
-#include "project/nimproject.h"
+#include "../nimconstants.h"
 
 using namespace ProjectExplorer;
 

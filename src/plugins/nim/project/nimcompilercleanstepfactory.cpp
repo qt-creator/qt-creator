@@ -23,11 +23,11 @@
 **
 ****************************************************************************/
 
-#include "project/nimcompilercleanstepfactory.h"
+#include "nimcompilercleanstepfactory.h"
+#include "nimbuildconfiguration.h"
+#include "nimcompilercleanstep.h"
 
-#include "nimconstants.h"
-#include "project/nimbuildconfiguration.h"
-#include "project/nimcompilercleanstep.h"
+#include "../nimconstants.h"
 
 #include <projectexplorer/projectexplorerconstants.h>
 

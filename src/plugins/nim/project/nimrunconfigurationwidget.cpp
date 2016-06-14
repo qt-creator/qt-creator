@@ -23,9 +23,8 @@
 **
 ****************************************************************************/
 
-#include "project/nimrunconfigurationwidget.h"
-
-#include "project/nimrunconfiguration.h"
+#include "nimrunconfigurationwidget.h"
+#include "nimrunconfiguration.h"
 
 #include <projectexplorer/runconfigurationaspects.h>
 

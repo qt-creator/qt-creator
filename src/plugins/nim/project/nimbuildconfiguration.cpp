@@ -23,12 +23,12 @@
 **
 ****************************************************************************/
 
-#include "project/nimbuildconfiguration.h"
+#include "nimbuildconfiguration.h"
+#include "nimbuildconfigurationwidget.h"
+#include "nimcompilerbuildstep.h"
+#include "nimproject.h"
 
-#include "nimconstants.h"
-#include "project/nimproject.h"
-#include "project/nimbuildconfigurationwidget.h"
-#include "project/nimcompilerbuildstep.h"
+#include "../nimconstants.h"
 
 #include <projectexplorer/namedwidget.h>
 #include <projectexplorer/projectexplorerconstants.h>

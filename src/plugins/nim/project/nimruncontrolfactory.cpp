@@ -23,10 +23,9 @@
 **
 ****************************************************************************/
 
-#include "project/nimruncontrolfactory.h"
-
-#include "project/nimrunconfiguration.h"
-#include "project/nimruncontrol.h"
+#include "nimruncontrolfactory.h"
+#include "nimrunconfiguration.h"
+#include "nimruncontrol.h"
 
 namespace Nim {
 

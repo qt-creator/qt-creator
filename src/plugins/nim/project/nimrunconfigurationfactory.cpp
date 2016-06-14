@@ -23,11 +23,11 @@
 **
 ****************************************************************************/
 
-#include "project/nimrunconfigurationfactory.h"
+#include "nimrunconfigurationfactory.h"
+#include "nimproject.h"
+#include "nimrunconfiguration.h"
 
-#include "nimconstants.h"
-#include "project/nimproject.h"
-#include "project/nimrunconfiguration.h"
+#include "../nimconstants.h"
 
 #include <debugger/debuggerrunconfigurationaspect.h>
 #include <projectexplorer/target.h>

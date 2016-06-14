@@ -23,11 +23,11 @@
 **
 ****************************************************************************/
 
-#include "project/nimcompilercleanstep.h"
+#include "nimcompilercleanstep.h"
+#include "nimbuildconfiguration.h"
+#include "nimcompilercleanstepconfigwidget.h"
 
-#include "nimconstants.h"
-#include "project/nimbuildconfiguration.h"
-#include "project/nimcompilercleanstepconfigwidget.h"
+#include "../nimconstants.h"
 
 #include <utils/qtcassert.h>
 

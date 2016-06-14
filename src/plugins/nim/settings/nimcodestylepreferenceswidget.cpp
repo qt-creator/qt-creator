@@ -26,7 +26,7 @@
 #include "nimcodestylepreferenceswidget.h"
 #include "ui_nimcodestylepreferenceswidget.h"
 
-#include "nimconstants.h"
+#include "../nimconstants.h"
 
 #include <extensionsystem/pluginmanager.h>
 #include <texteditor/displaysettings.h>

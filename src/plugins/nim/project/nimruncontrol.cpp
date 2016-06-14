@@ -23,9 +23,8 @@
 **
 ****************************************************************************/
 
-#include "project/nimruncontrol.h"
-
-#include "project/nimrunconfiguration.h"
+#include "nimruncontrol.h"
+#include "nimrunconfiguration.h"
 
 #include <projectexplorer/runnables.h>
 #include <utils/qtcprocess.h>

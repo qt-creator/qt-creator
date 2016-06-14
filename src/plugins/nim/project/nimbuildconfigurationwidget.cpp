@@ -23,10 +23,10 @@
 **
 ****************************************************************************/
 
-#include "project/nimbuildconfigurationwidget.h"
+#include "nimbuildconfigurationwidget.h"
+#include "nimbuildconfiguration.h"
 
-#include "nimconstants.h"
-#include "project/nimbuildconfiguration.h"
+#include "../nimconstants.h"
 
 #include <utils/pathchooser.h>
 #include <utils/detailswidget.h>

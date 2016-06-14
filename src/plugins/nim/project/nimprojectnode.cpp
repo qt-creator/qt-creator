@@ -23,9 +23,8 @@
 **
 ****************************************************************************/
 
-#include "project/nimprojectnode.h"
-
-#include "project/nimproject.h"
+#include "nimprojectnode.h"
+#include "nimproject.h"
 
 using namespace ProjectExplorer;
 using namespace Utils;

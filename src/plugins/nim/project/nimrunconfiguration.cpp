@@ -23,11 +23,11 @@
 **
 ****************************************************************************/
 
-#include "project/nimrunconfiguration.h"
+#include "nimrunconfiguration.h"
+#include "nimbuildconfiguration.h"
+#include "nimrunconfigurationwidget.h"
 
-#include "nimconstants.h"
-#include "project/nimbuildconfiguration.h"
-#include "project/nimrunconfigurationwidget.h"
+#include "../nimconstants.h"
 
 #include <projectexplorer/runnables.h>
 #include <projectexplorer/localenvironmentaspect.h>

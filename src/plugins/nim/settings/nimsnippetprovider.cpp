@@ -25,9 +25,9 @@
 
 #include "nimsnippetprovider.h"
 
-#include "nimconstants.h"
-#include "editor/nimhighlighter.h"
-#include "editor/nimindenter.h"
+#include "../nimconstants.h"
+#include "../editor/nimhighlighter.h"
+#include "../editor/nimindenter.h"
 
 #include <texteditor/textdocument.h>
 #include <texteditor/snippets/snippeteditor.h>

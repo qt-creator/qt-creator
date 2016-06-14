@@ -24,9 +24,9 @@
 ****************************************************************************/
 
 #include "nimsettings.h"
+#include "nimcodestylepreferencesfactory.h"
 
-#include "nimconstants.h"
-#include "settings/nimcodestylepreferencesfactory.h"
+#include "../nimconstants.h"
 
 #include <texteditor/icodestylepreferencesfactory.h>
 #include <texteditor/texteditorsettings.h>
@@ -35,14 +35,11 @@
 #include <texteditor/tabsettings.h>
 #include <coreplugin/icore.h>
 
-#include <QDebug>
-
-
 using namespace TextEditor;
 
 namespace Nim {
 
-TextEditor::SimpleCodeStylePreferences *m_globalCodeStyle = nullptr;
+SimpleCodeStylePreferences *m_globalCodeStyle = nullptr;
 
 NimSettings::NimSettings(QObject *parent)
     : QObject(parent)

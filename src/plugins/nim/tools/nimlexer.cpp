@@ -23,9 +23,8 @@
 **
 ****************************************************************************/
 
-#include "tools/nimlexer.h"
-
-#include "tools/sourcecodestream.h"
+#include "nimlexer.h"
+#include "sourcecodestream.h"
 
 #include <QRegularExpression>
 #include <QSet>

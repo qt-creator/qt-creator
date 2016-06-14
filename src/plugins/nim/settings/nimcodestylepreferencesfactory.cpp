@@ -23,11 +23,11 @@
 **
 ****************************************************************************/
 
-#include "settings/nimcodestylepreferencesfactory.h"
+#include "nimcodestylepreferencesfactory.h"
+#include "nimcodestylepreferenceswidget.h"
 
-#include "nimconstants.h"
-#include "editor/nimindenter.h"
-#include "settings/nimcodestylepreferenceswidget.h"
+#include "../nimconstants.h"
+#include "../editor/nimindenter.h"
 
 #include <coreplugin/id.h>
 #include <texteditor/simplecodestylepreferences.h>

@@ -8,11 +8,7 @@ QtcPlugin {
 
     Depends { name: "Core" }
     Depends { name: "TextEditor" }
-    Depends { name: "QtSupport" }
     Depends { name: "ProjectExplorer" }
-    Depends { name: "cpp" }
-
-    cpp.includePaths: ['.']
 
     Group {
         name: "General"

@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include "tools/nimlexer.h"
+#include "../tools/nimlexer.h"
 
 #include <texteditor/syntaxhighlighter.h>
 

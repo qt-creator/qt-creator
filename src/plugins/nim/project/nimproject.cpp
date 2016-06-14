@@ -23,12 +23,12 @@
 **
 ****************************************************************************/
 
-#include "project/nimproject.h"
+#include "nimproject.h"
+#include "nimbuildconfiguration.h"
+#include "nimprojectnode.h"
+#include "nimprojectmanager.h"
 
-#include "nimconstants.h"
-#include "project/nimbuildconfiguration.h"
-#include "project/nimprojectnode.h"
-#include "project/nimprojectmanager.h"
+#include "../nimconstants.h"
 
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/kit.h>
@@ -36,10 +36,8 @@
 #include <projectexplorer/target.h>
 #include <texteditor/textdocument.h>
 
-#include <QDebug>
 #include <QFileInfo>
 #include <QQueue>
-#include <QThread>
 
 using namespace ProjectExplorer;
 using namespace Utils;

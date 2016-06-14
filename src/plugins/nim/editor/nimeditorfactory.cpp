@@ -23,12 +23,12 @@
 **
 ****************************************************************************/
 
-#include "editor/nimeditorfactory.h"
+#include "nimeditorfactory.h"
+#include "nimindenter.h"
+#include "nimhighlighter.h"
 
-#include "nimconstants.h"
-#include "nimplugin.h"
-#include "editor/nimindenter.h"
-#include "editor/nimhighlighter.h"
+#include "../nimconstants.h"
+#include "../nimplugin.h"
 
 #include <texteditor/texteditoractionhandler.h>
 #include <texteditor/texteditorconstants.h>

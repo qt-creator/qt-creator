@@ -23,9 +23,9 @@
 **
 ****************************************************************************/
 
-#include "editor/nimhighlighter.h"
+#include "nimhighlighter.h"
 
-#include "tools/nimlexer.h"
+#include "../tools/nimlexer.h"
 
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditorconstants.h>

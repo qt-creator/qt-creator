@@ -24,10 +24,10 @@
 ****************************************************************************/
 
 #include "nimcodestylesettingspage.h"
+#include "nimcodestylepreferencesfactory.h"
+#include "nimsettings.h"
 
-#include "nimconstants.h"
-#include "settings/nimcodestylepreferencesfactory.h"
-#include "settings/nimsettings.h"
+#include "../nimconstants.h"
 
 #include <extensionsystem/pluginmanager.h>
 #include <texteditor/simplecodestylepreferences.h>

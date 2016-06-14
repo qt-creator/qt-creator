@@ -23,9 +23,8 @@
 **
 ****************************************************************************/
 
-#include "project/nimbuildinfo.h"
-
-#include "project/nimbuildconfigurationfactory.h"
+#include "nimbuildinfo.h"
+#include "nimbuildconfigurationfactory.h"
 
 using namespace ProjectExplorer;
 

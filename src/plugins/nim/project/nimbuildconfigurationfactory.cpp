@@ -23,14 +23,14 @@
 **
 ****************************************************************************/
 
-#include "project/nimbuildconfigurationfactory.h"
+#include "nimbuildconfigurationfactory.h"
+#include "nimbuildconfiguration.h"
+#include "nimbuildinfo.h"
+#include "nimcompilerbuildstep.h"
+#include "nimcompilercleanstep.h"
+#include "nimproject.h"
 
-#include "nimconstants.h"
-#include "project/nimbuildconfiguration.h"
-#include "project/nimbuildinfo.h"
-#include "project/nimcompilerbuildstep.h"
-#include "project/nimcompilercleanstep.h"
-#include "project/nimproject.h"
+#include "../nimconstants.h"
 
 #include <coreplugin/documentmanager.h>
 #include <projectexplorer/buildinfo.h>

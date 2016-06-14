@@ -23,9 +23,9 @@
 **
 ****************************************************************************/
 
-#include "editor/nimindenter.h"
+#include "nimindenter.h"
 
-#include "tools/nimlexer.h"
+#include "../tools/nimlexer.h"
 
 #include <texteditor/icodestylepreferences.h>
 #include <texteditor/tabsettings.h>
