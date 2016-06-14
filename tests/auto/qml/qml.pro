@@ -1,7 +1,7 @@
 TEMPLATE = subdirs
 
 SUBDIRS +=  \
-            #qmldesigner \
+            qmldesigner \
             qmleditor \
             qmljssimplereader \
             qmlprojectmanager \
