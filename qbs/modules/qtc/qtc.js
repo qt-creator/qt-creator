@@ -55,12 +55,14 @@ function transformedExportBlock(product, input, output)
                                           + relPathToData + "'");
         exportBlock = insertOrAddToProperty(product, exportBlock, "cpp.includePaths",
                                             absPathToIncludes);
-        var libInstallPath = FileInfo.joinPaths("/", input.moduleProperty("qbs", "installDir"));
-        var relPathToLibrary = FileInfo.relativePath(modulePath, libInstallPath);
-        var fullPathToLibrary = "path + '/" + relPathToLibrary + "/" + input.fileName + "'";
-        var libType = input.fileTags.contains("dynamiclibrary") ? "dynamic" : "static";
-        exportBlock = insertOrAddToProperty(product, exportBlock, "cpp." + libType + "Libraries",
-                                            fullPathToLibrary);
+        if (input.fileTags.contains("dynamiclibrary") || input.fileTags.contains("staticlibrary")) {
+            var libInstallPath = FileInfo.joinPaths("/", input.moduleProperty("qbs", "installDir"));
+            var relPathToLibrary = FileInfo.relativePath(modulePath, libInstallPath);
+            var fullPathToLibrary = "path + '/" + relPathToLibrary + "/" + input.fileName + "'";
+            var libType = input.fileTags.contains("dynamiclibrary") ? "dynamic" : "static";
+            exportBlock = insertOrAddToProperty(product, exportBlock, "cpp." + libType
+                                                + "Libraries", fullPathToLibrary);
+        }
         return exportBlock;
     } finally {
         productFile.close();

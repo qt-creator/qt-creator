@@ -1,62 +1,48 @@
 import qbs
 
-Project {
+QtcDevHeaders {
     name: "ProParser"
+    condition: true
+    type: ["qtc.dev-headers", "qtc.dev-module"]
+    productName: name
+    property string fileName: "proparser.qbs"
 
-    QtcDevHeaders { }
+    Group {
+        fileTagsFilter: ["qtc.dev-module"]
+        qbs.install: true
+        qbs.installDir: qtc.ide_qbs_modules_path + '/' + product.name
+    }
 
-    // Built as required by the QtSupport plugin. Other potential users need to include the sources
-    // directly.
-    QtcProduct {
-        type: ["staticlibrary", "qtc.dev-module"]
-        install: qtc.make_dev_package
-        installDir: qtc.ide_library_path
-        installTags: ["staticlibrary"]
+    // TODO: Remove when qbs 1.6 is out.
+    FileTagger {
+        patterns: ["*.h"]
+        fileTags: ["qtc.dev-headers-input"]
+    }
 
+    Rule {
+        inputs: ["qtc.dev-headers-input"]
+        multiplex: true
+        Artifact {
+            filePath: "dummy"
+            fileTags: ["qtc.dev-headers"]
+        }
+        prepare: {
+            var cmd = new JavaScriptCommand();
+            cmd.silent = true;
+            cmd.sourceCode = function() { };
+            return [cmd];
+        }
+    }
+
+    Export {
+        Depends { name: "cpp" }
         cpp.defines: base.concat([
-            "QMAKE_BUILTIN_PRFS",
             "QMAKE_AS_LIBRARY",
             "PROPARSER_THREAD_SAFE",
             "PROEVALUATOR_THREAD_SAFE",
             "PROEVALUATOR_CUMULATIVE",
             "PROEVALUATOR_SETENV",
         ])
-
-        Depends { name: "Qt.xml" }
-
-        Export {
-            Depends { name: "cpp" }
-            cpp.defines: base.concat([
-                "QMAKE_AS_LIBRARY",
-                "PROPARSER_THREAD_SAFE",
-                "PROEVALUATOR_THREAD_SAFE",
-                "PROEVALUATOR_CUMULATIVE",
-                "PROEVALUATOR_SETENV",
-            ])
-            cpp.includePaths: base.concat([".."])
-        }
-
-        files: [
-            "ioutils.cpp",
-            "ioutils.h",
-            "profileevaluator.cpp",
-            "profileevaluator.h",
-            "proitems.cpp",
-            "proitems.h",
-            "proparser.qrc",
-            "prowriter.cpp",
-            "prowriter.h",
-            "qmake_global.h",
-            "qmakebuiltins.cpp",
-            "qmakeevaluator.cpp",
-            "qmakeevaluator.h",
-            "qmakeevaluator_p.h",
-            "qmakeglobals.cpp",
-            "qmakeglobals.h",
-            "qmakeparser.cpp",
-            "qmakeparser.h",
-            "qmakevfs.cpp",
-            "qmakevfs.h",
-        ]
+        cpp.includePaths: base.concat([product.sourceDirectory + "/.."])
     }
 }

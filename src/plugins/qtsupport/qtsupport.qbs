@@ -15,8 +15,40 @@ Project {
         Depends { name: "ProjectExplorer" }
         Depends { name: "CppTools" }
 
+        cpp.defines: base.concat([
+            "QMAKE_LIBRARY",
+            "QMAKE_BUILTIN_PRFS",
+        ])
+
         Export {
             Depends { name: "ProParser" }
+        }
+
+        Group {
+            name: "Pro Parser"
+            prefix: project.sharedSourcesDir + "/proparser/"
+            files: [
+                "ioutils.cpp",
+                "ioutils.h",
+                "profileevaluator.cpp",
+                "profileevaluator.h",
+                "proitems.cpp",
+                "proitems.h",
+                "proparser.qrc",
+                "prowriter.cpp",
+                "prowriter.h",
+                "qmake_global.h",
+                "qmakebuiltins.cpp",
+                "qmakeevaluator.cpp",
+                "qmakeevaluator.h",
+                "qmakeevaluator_p.h",
+                "qmakeglobals.cpp",
+                "qmakeglobals.h",
+                "qmakeparser.cpp",
+                "qmakeparser.h",
+                "qmakevfs.cpp",
+                "qmakevfs.h",
+            ]
         }
 
         files: [
