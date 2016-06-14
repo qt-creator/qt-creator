@@ -102,6 +102,12 @@ public:
                 return m_version->qmakeCommand().toUserOutput();
         }
 
+        if (role == Qt::FontRole && m_changed) {
+            QFont font;
+            font.setBold(true);
+            return font;
+         }
+
         if (role == Qt::DecorationRole && column == 0)
             return m_icon;
 
@@ -134,11 +140,20 @@ public:
         m_toolChainId = id;
     }
 
+    void setChanged(bool changed)
+    {
+        if (changed == m_changed)
+            return;
+        m_changed = changed;
+        update();
+    }
+
 private:
     BaseQtVersion *m_version = 0;
     QIcon m_icon;
     QString m_buildLog;
     QByteArray m_toolChainId;
+    bool m_changed = false;
 };
 
 ///
@@ -744,6 +759,7 @@ void QtOptionsPageWidget::updateCurrentQtName()
     if (!item || !item->version())
         return;
 
+    item->setChanged(true);
     item->version()->setUnexpandedDisplayName(m_versionUi->nameEdit->text());
 
     updateDescriptionLabel();
@@ -755,21 +771,18 @@ void QtOptionsPageWidget::apply()
     disconnect(QtVersionManager::instance(), &QtVersionManager::qtVersionsChanged,
             this, &QtOptionsPageWidget::updateQtVersions);
 
-    QtVersionManager::setNewQtVersions(versions());
+    QList<BaseQtVersion *> versions;
+
+    m_model->forSecondLevelItems([this, &versions](QtVersionItem *item) {
+        item->setChanged(false);
+        versions.append(item->version()->clone());
+    });
+
+    QtVersionManager::setNewQtVersions(versions);
+
 
     connect(QtVersionManager::instance(), &QtVersionManager::qtVersionsChanged,
             this, &QtOptionsPageWidget::updateQtVersions);
-}
-
-QList<BaseQtVersion *> QtOptionsPageWidget::versions() const
-{
-    QList<BaseQtVersion *> result;
-
-    m_model->forSecondLevelItems([this, &result](QtVersionItem *item) {
-        result.append(item->version()->clone());
-    });
-
-    return result;
 }
 
 } // namespace Internal

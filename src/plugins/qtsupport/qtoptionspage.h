@@ -62,7 +62,6 @@ class QtOptionsPageWidget : public QWidget
 public:
     QtOptionsPageWidget(QWidget *parent = 0);
     ~QtOptionsPageWidget();
-    QList<BaseQtVersion *> versions() const;
     void apply();
 
 private:
