@@ -149,7 +149,7 @@ private slots:
     // unit tests Instances
     //
     void testInstancesAttachToExistingModel();
-    void testInstancesStates();
+    void testStatesWasInstances();
     void testInstancesIdResolution();
     void testInstancesNotInScene();
     void testInstancesBindingsInStatesStress();

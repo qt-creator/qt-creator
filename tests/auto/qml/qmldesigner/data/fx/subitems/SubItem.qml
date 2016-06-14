@@ -23,12 +23,12 @@
 **
 ****************************************************************************/
 
-import Qt 4.7
+import QtQuick 2.0
 
 Rectangle {
     property string text
 
-    width : {toprect.width}
+    width : toprect.width
     height : 20
     color : "blue"
     Text {

@@ -23,13 +23,13 @@
 **
 ****************************************************************************/
 
-import Qt 4.7
-import Qt 4.7 as Qt46
+import QtQuick 2.0
+import QtQuick 2.0 as Qt2
 import "subitems"
 import "subitems" as Subdir
 
-Qt46.Rectangle {
-    id : "toprect"
+Qt2.Rectangle {
+    id : toprect
     width : 100
     height : 50
     SubItem {
