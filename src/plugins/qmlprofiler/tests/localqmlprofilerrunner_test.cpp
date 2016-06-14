@@ -27,6 +27,7 @@
 #include <debugger/analyzer/analyzermanager.h>
 #include <debugger/analyzer/analyzerruncontrol.h>
 #include <debugger/analyzer/analyzerstartparameters.h>
+#include <utils/hostosinfo.h>
 #include <QtTest>
 #include <QTcpServer>
 
@@ -39,6 +40,9 @@ LocalQmlProfilerRunnerTest::LocalQmlProfilerRunnerTest(QObject *parent) : QObjec
 
 void LocalQmlProfilerRunnerTest::testRunner()
 {
+    if (Utils::HostOsInfo::isWindowsHost())
+        QSKIP("This test is disabled on Windows as it produces a blocking dialog.");
+
     LocalQmlProfilerRunner::Configuration configuration;
     Debugger::AnalyzerRunControl *rc = Debugger::createAnalyzerRunControl(
                 nullptr, ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
