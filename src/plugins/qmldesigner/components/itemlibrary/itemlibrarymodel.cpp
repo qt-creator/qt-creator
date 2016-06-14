@@ -32,6 +32,8 @@
 #include <model.h>
 #include <nodemetainfo.h>
 
+#include <utils/algorithm.h>
+
 #include <QVariant>
 #include <QMetaProperty>
 #include <QMimeData>
@@ -152,13 +154,12 @@ void ItemLibraryModel::update(ItemLibraryInfo *itemLibraryInfo, Model *model)
 
          NodeMetaInfo metaInfo = model->metaInfo(entry.typeName());
          bool valid = metaInfo.isValid() && metaInfo.majorVersion() == entry.majorVersion();
-         bool isItem = metaInfo.isSubclassOf("QtQuick.Item");
+         bool isItem = valid && metaInfo.isSubclassOf("QtQuick.Item");
 
-         if (valid && isItem) {
-             qDebug() << Q_FUNC_INFO << metaInfo.typeName() << "is not a QtQuick.Item";
-             foreach (const NodeMetaInfo &superClass, metaInfo.superClasses()) {
-                 qDebug() << superClass.typeName();
-             }
+         if (!isItem) {
+             qDebug() << Q_FUNC_INFO;
+             qDebug() << metaInfo.typeName() << "is not a QtQuick.Item";
+             qDebug() << Utils::transform(metaInfo.superClasses(), &NodeMetaInfo::typeName);
          }
 
          if (valid
