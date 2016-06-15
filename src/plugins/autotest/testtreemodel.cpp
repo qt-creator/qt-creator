@@ -187,12 +187,6 @@ QList<TestConfiguration *> TestTreeModel::getSelectedTests() const
     return result;
 }
 
-TestConfiguration *TestTreeModel::getTestConfiguration(const TestTreeItem *item) const
-{
-    QTC_ASSERT(item != 0, return 0);
-    return item->testConfiguration();
-}
-
 void TestTreeModel::syncTestFrameworks()
 {
     // remove all currently registered

@@ -271,7 +271,7 @@ void TestNavigationWidget::onRunThisTestTriggered()
         return;
 
     TestTreeItem *item = static_cast<TestTreeItem *>(sourceIndex.internalPointer());
-    if (TestConfiguration *configuration = m_model->getTestConfiguration(item)) {
+    if (TestConfiguration *configuration = item->testConfiguration()) {
         TestRunner *runner = TestRunner::instance();
         runner->setSelectedTests( {configuration} );
         runner->prepareToRunTests();

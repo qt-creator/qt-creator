@@ -58,7 +58,6 @@ public:
     bool hasTests() const;
     QList<TestConfiguration *> getAllTestCases() const;
     QList<TestConfiguration *> getSelectedTests() const;
-    TestConfiguration *getTestConfiguration(const TestTreeItem *item) const;
 
     void syncTestFrameworks();
 
