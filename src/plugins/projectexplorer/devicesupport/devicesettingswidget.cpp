@@ -128,6 +128,12 @@ void DeviceSettingsWidget::initGui()
     currentDeviceChanged(currentIndex());
     connect(m_ui->defaultDeviceButton, &QAbstractButton::clicked,
             this, &DeviceSettingsWidget::setDefaultDevice);
+    connect(m_ui->removeConfigButton, &QAbstractButton::clicked,
+            this, &DeviceSettingsWidget::removeDevice);
+    connect(m_ui->nameLineEdit, &QLineEdit::editingFinished,
+            this, &DeviceSettingsWidget::deviceNameEditingFinished);
+    connect(m_ui->addConfigButton, &QAbstractButton::clicked,
+            this, &DeviceSettingsWidget::addDevice);
 }
 
 void DeviceSettingsWidget::addDevice()
