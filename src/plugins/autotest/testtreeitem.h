@@ -102,7 +102,9 @@ public:
     TestTreeItem *findChildByNameAndFile(const QString &name, const QString &filePath);
 
     virtual bool canProvideTestConfiguration() const { return false; }
+    virtual bool canProvideDebugConfiguration() const { return false; }
     virtual TestConfiguration *testConfiguration() const { return 0; }
+    virtual TestConfiguration *debugConfiguration() const { return 0; }
     virtual QList<TestConfiguration *> getAllTestConfigurations() const;
     virtual QList<TestConfiguration *> getSelectedTestConfigurations() const;
     virtual bool lessThan(const TestTreeItem *other, SortMode mode) const;

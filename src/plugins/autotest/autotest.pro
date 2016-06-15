@@ -91,7 +91,8 @@ HEADERS += \
     quick/quicktest_utils.h \
     quick/quicktestvisitors.h \
     quick/quicktestframework.h \
-    testframeworkmanager.h
+    testframeworkmanager.h \
+    testrunconfiguration.h
 
 RESOURCES += \
     autotest.qrc

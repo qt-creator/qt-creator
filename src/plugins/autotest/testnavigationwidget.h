@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include "testrunner.h"
+
 #include <coreplugin/inavigationwidgetfactory.h>
 
 #include <utils/navigationtreeview.h>
@@ -74,7 +76,7 @@ private slots:
 
 private:
     void initializeFilterMenu();
-    void onRunThisTestTriggered();
+    void onRunThisTestTriggered(TestRunner::Mode runMode);
 
     TestTreeModel *m_model;
     TestTreeSortFilterModel *m_sortFilterModel;

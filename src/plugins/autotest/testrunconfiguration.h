@@ -25,28 +25,23 @@
 
 #pragma once
 
-#include "../testconfiguration.h"
+#include <projectexplorer/runconfiguration.h>
 
 namespace Autotest {
 namespace Internal {
 
-class QtTestConfiguration : public TestConfiguration
+class TestRunConfiguration : public ProjectExplorer::RunConfiguration
 {
 public:
-    enum RunMode
+    TestRunConfiguration(ProjectExplorer::Target *parent)
+        : ProjectExplorer::RunConfiguration(parent, "AutoTest.TestRunConfig")
     {
-        Run,
-        Debug
-    };
-
-    explicit QtTestConfiguration(RunMode mode = Run) : m_runMode(mode) {}
-    TestOutputReader *outputReader(const QFutureInterface<TestResultPtr> &fi,
-                                   QProcess *app) const override;
-    QStringList argumentsForTestRunner(const TestSettings &settings) const override;
-    void setRunMode(RunMode mode) { m_runMode = mode; }
+        setDefaultDisplayName(tr("AutoTest Debug"));
+        addExtraAspects();
+    }
 
 private:
-    RunMode m_runMode;
+    QWidget *createConfigurationWidget() { return 0; }
 };
 
 } // namespace Internal

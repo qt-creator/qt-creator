@@ -84,6 +84,11 @@ bool QtTestTreeItem::canProvideTestConfiguration() const
     }
 }
 
+bool QtTestTreeItem::canProvideDebugConfiguration() const
+{
+    return canProvideTestConfiguration();
+}
+
 TestConfiguration *QtTestTreeItem::testConfiguration() const
 {
     ProjectExplorer::Project *project = ProjectExplorer::SessionManager::startupProject();
@@ -125,6 +130,13 @@ TestConfiguration *QtTestTreeItem::testConfiguration() const
     default:
         return 0;
     }
+    return config;
+}
+
+TestConfiguration *QtTestTreeItem::debugConfiguration() const
+{
+    QtTestConfiguration *config = static_cast<QtTestConfiguration *>(testConfiguration());
+    config->setRunMode(QtTestConfiguration::Debug);
     return config;
 }
 

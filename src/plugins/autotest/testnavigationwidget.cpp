@@ -120,6 +120,7 @@ void TestNavigationWidget::contextMenuEvent(QContextMenuEvent *event)
 
     QMenu menu;
     QAction *runThisTest = 0;
+    QAction *debugThisTest = 0;
     const QModelIndexList list = m_view->selectionModel()->selectedIndexes();
     if (list.size() == 1) {
         const QModelIndex index = list.first();
@@ -131,7 +132,17 @@ void TestNavigationWidget::contextMenuEvent(QContextMenuEvent *event)
                 runThisTest = new QAction(tr("Run This Test"), &menu);
                 runThisTest->setEnabled(enabled);
                 connect(runThisTest, &QAction::triggered,
-                        this, &TestNavigationWidget::onRunThisTestTriggered);
+                        this, [this] () {
+                    onRunThisTestTriggered(TestRunner::Run);
+                });
+            }
+            if (item->canProvideDebugConfiguration()) {
+                debugThisTest = new QAction(tr("Debug This Test"), &menu);
+                debugThisTest->setEnabled(enabled);
+                connect(debugThisTest, &QAction::triggered,
+                        this, [this] () {
+                    onRunThisTestTriggered(TestRunner::Debug);
+                });
             }
         }
     }
@@ -152,10 +163,13 @@ void TestNavigationWidget::contextMenuEvent(QContextMenuEvent *event)
     deselectAll->setEnabled(enabled && hasTests);
     rescan->setEnabled(enabled);
 
-    if (runThisTest) {
+    if (runThisTest)
         menu.addAction(runThisTest);
+    if (debugThisTest)
+        menu.addAction(debugThisTest);
+    if (runThisTest || debugThisTest)
         menu.addSeparator();
-    }
+
     menu.addAction(runAll);
     menu.addAction(runSelected);
     menu.addSeparator();
@@ -260,21 +274,32 @@ void TestNavigationWidget::initializeFilterMenu()
     m_filterMenu->addAction(action);
 }
 
-void TestNavigationWidget::onRunThisTestTriggered()
+void TestNavigationWidget::onRunThisTestTriggered(TestRunner::Mode runMode)
 {
     const QModelIndexList selected = m_view->selectionModel()->selectedIndexes();
-    // paranoia
     if (selected.isEmpty())
         return;
-    const QModelIndex sourceIndex = m_sortFilterModel->mapToSource(selected.first());
+    const QModelIndex &sourceIndex = m_sortFilterModel->mapToSource(selected.first());
     if (!sourceIndex.isValid())
         return;
 
     TestTreeItem *item = static_cast<TestTreeItem *>(sourceIndex.internalPointer());
-    if (TestConfiguration *configuration = item->testConfiguration()) {
+    TestConfiguration *configuration;
+    switch (runMode) {
+    case TestRunner::Run:
+        configuration = item->testConfiguration();
+        break;
+    case TestRunner::Debug:
+        configuration = item->debugConfiguration();
+        break;
+    default:
+        configuration = 0;
+    }
+
+    if (configuration) {
         TestRunner *runner = TestRunner::instance();
         runner->setSelectedTests( {configuration} );
-        runner->prepareToRunTests();
+        runner->prepareToRunTests(runMode);
     }
 }
 

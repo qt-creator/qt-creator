@@ -38,7 +38,9 @@ TestOutputReader *QtTestConfiguration::outputReader(const QFutureInterface<TestR
 
 QStringList QtTestConfiguration::argumentsForTestRunner(const TestSettings &settings) const
 {
-    QStringList arguments({"-xml"});
+    QStringList arguments;
+    if (m_runMode == Run)
+        arguments.append("-xml");
 
     const QString &metricsOption = TestSettings::metricsTypeToOption(settings.metrics);
     if (!metricsOption.isEmpty())

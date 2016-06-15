@@ -25,6 +25,8 @@
 
 #include "testconfiguration.h"
 #include "testoutputreader.h"
+#include "testrunconfiguration.h"
+#include "testrunner.h"
 #include "testsettings.h"
 
 #include <cpptools/cppmodelmanager.h>
@@ -84,7 +86,7 @@ static bool isLocal(RunConfiguration *runConfiguration)
     return DeviceTypeKitInformation::deviceTypeId(kit) == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE;
 }
 
-void TestConfiguration::completeTestInformation()
+void TestConfiguration::completeTestInformation(int runMode)
 {
     QTC_ASSERT(!m_proFile.isEmpty(), return);
 
@@ -99,6 +101,7 @@ void TestConfiguration::completeTestInformation()
     QString buildDir;
     Project *targetProject = 0;
     Utils::Environment env;
+    Target *runConfigTarget = 0;
     bool hasDesktopTarget = false;
     bool guessedRunConfiguration = false;
     setProject(0);
@@ -152,6 +155,7 @@ void TestConfiguration::completeTestInformation()
                 workDir = Utils::FileUtils::normalizePathName(stdRunnable.workingDirectory);
                 env = stdRunnable.environment;
                 hasDesktopTarget = true;
+                runConfigTarget = rc->target();
                 break;
             }
         }
@@ -182,6 +186,8 @@ void TestConfiguration::completeTestInformation()
         setEnvironment(env);
         setProject(project);
         setGuessedConfiguration(guessedRunConfiguration);
+        if (!guessedRunConfiguration && runMode == TestRunner::Debug)
+            m_runConfig = new TestRunConfiguration(runConfigTarget);
     }
 }
 
