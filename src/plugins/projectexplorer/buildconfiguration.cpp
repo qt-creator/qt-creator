@@ -173,8 +173,8 @@ bool BuildConfiguration::fromMap(const QVariantMap &map)
             qWarning() << "No data for build step list" << i << "found!";
             continue;
         }
-        auto list = new BuildStepList(this, data);
-        if (list->isNull()) {
+        auto list = new BuildStepList(this, Core::Id());
+        if (!list->fromMap(data)) {
             qWarning() << "Failed to restore build step list" << i;
             delete list;
             return false;

@@ -51,21 +51,13 @@ BuildStepList::BuildStepList(QObject *parent, Core::Id id) :
 }
 
 BuildStepList::BuildStepList(QObject *parent, BuildStepList *source) :
-    ProjectConfiguration(parent, source),
-    m_isNull(source->m_isNull)
+    ProjectConfiguration(parent, source)
 {
     setDisplayName(source->displayName());
     Q_ASSERT(parent);
     // do not clone the steps here:
     // The BC is not fully set up yet and thus some of the buildstepfactories
     // will fail to clone the buildsteps!
-}
-
-BuildStepList::BuildStepList(QObject *parent, const QVariantMap &data) :
-    ProjectConfiguration(parent, Core::Id())
-{
-    Q_ASSERT(parent);
-    m_isNull = !fromMap(data);
 }
 
 BuildStepList::~BuildStepList()
@@ -82,11 +74,6 @@ QVariantMap BuildStepList::toMap() const
         map.insert(QString::fromLatin1(STEPS_PREFIX) + QString::number(i), m_steps.at(i)->toMap());
 
     return map;
-}
-
-bool BuildStepList::isNull() const
-{
-    return m_isNull;
 }
 
 int BuildStepList::count() const
