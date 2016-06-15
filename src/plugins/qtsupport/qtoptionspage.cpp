@@ -220,8 +220,8 @@ QtOptionsPageWidget::QtOptionsPageWidget(QWidget *parent)
     m_ui->versionInfoWidget->setWidget(versionInfoWidget);
     m_ui->versionInfoWidget->setState(DetailsWidget::NoSummary);
 
-    m_autoItem = new StaticTreeItem({ tr("Auto-detected") });
-    m_manualItem = new StaticTreeItem({ tr("Manual" )});
+    m_autoItem = new StaticTreeItem(QStringList(tr("Auto-detected")));
+    m_manualItem = new StaticTreeItem(QStringList(tr("Manual" )));
 
     m_model = new LeveledTreeModel<Utils::TreeItem, QtVersionItem>();
     m_model->setHeader({tr("Name"), tr("qmake Location"), tr("Type")});
