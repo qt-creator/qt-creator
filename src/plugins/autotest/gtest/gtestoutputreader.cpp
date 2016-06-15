@@ -55,6 +55,7 @@ void GTestOutputReader::processOutput()
     static QRegExp testSetFail(QStringLiteral("^\\[  FAILED  \\] (.*) \\((.*)\\)$"));
     static QRegExp disabledTests(QStringLiteral("^  YOU HAVE (\\d+) DISABLED TESTS?$"));
     static QRegExp failureLocation(QStringLiteral("^(.*):(\\d+): Failure$"));
+    static QRegExp errorLocation(QStringLiteral("^(.*)\\((\\d+)\\): error:.*$"));
     static QRegExp iterations(QStringLiteral("^Repeating all tests \\(iteration (\\d+)\\) . . .$"));
 
     while (m_testApplication->canReadLine()) {
@@ -148,13 +149,19 @@ void GTestOutputReader::processOutput()
             testResult->setDescription(m_description);
 
             foreach (const QString &output, m_description.split(QLatin1Char('\n'))) {
-                if (failureLocation.exactMatch(output)) {
-                    QString file = constructSourceFilePath(m_buildDir, failureLocation.cap(1));
-                    if (file.isEmpty())
-                        continue;
-                    testResult->setFileName(file);
-                    testResult->setLine(failureLocation.cap(2).toInt());
-                    break;
+                QRegExp *match = 0;
+                if (failureLocation.exactMatch(output))
+                    match = &failureLocation;
+                else if (errorLocation.exactMatch(output))
+                    match = &errorLocation;
+
+                if (match) {
+                    QString file = constructSourceFilePath(m_buildDir, match->cap(1));
+                    if (!file.isEmpty()) {
+                        testResult->setFileName(file);
+                        testResult->setLine(match->cap(2).toInt());
+                        break;
+                    }
                 }
             }
             m_futureInterface.reportResult(TestResultPtr(testResult));
