@@ -185,6 +185,7 @@ DrawSearchResultWidgetFrame=false
 DrawTargetSelectorBottom=false
 DrawToolBarHighlights=true
 ApplyThemePaletteGlobally=true
+FlatToolBars=true
 FlatSideBarIcons=true
 FlatProjectsMode=true
 FlatMenuBar=true
@@ -208,6 +209,3 @@ BuildStepDisable=:/projectexplorer/images/lightdisabledbuildstep.png
 BuildStepRemove=:/core/images/lightclose.png
 BuildStepMoveDown=:/core/images/lightarrowdown.png
 BuildStepMoveUp=:/core/images/lightarrowup.png
-
-[Style]
-WidgetStyle=StyleFlat

@@ -135,7 +135,7 @@ void TargetSelectorDelegate::paint(QPainter *painter,
         const QColor color = (option.state & QStyle::State_HasFocus) ?
                     option.palette.highlight().color() :
                     option.palette.dark().color();
-        if (creatorTheme()->widgetStyle() == Theme::StyleFlat) {
+        if (creatorTheme()->flag(Theme::FlatToolBars)) {
             painter->fillRect(option.rect, color);
         } else {
             painter->fillRect(option.rect, color.darker(140));

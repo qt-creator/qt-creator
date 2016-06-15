@@ -272,18 +272,13 @@ public:
         ComboBoxDrawTextShadow,
         DerivePaletteFromTheme,
         ApplyThemePaletteGlobally,
+        FlatToolBars,
         FlatSideBarIcons,
         FlatProjectsMode,
         FlatMenuBar,
         ToolBarIconShadow
     };
 
-    enum WidgetStyle {
-        StyleDefault,
-        StyleFlat
-    };
-
-    WidgetStyle widgetStyle() const;
     bool flag(Flag f) const;
     QColor color(Color role) const;
     QString imageFile(ImageFile imageFile, const QString &fallBack) const;

@@ -85,7 +85,7 @@ void RootWidget::paintEvent(QPaintEvent *e)
 {
     QWidget::paintEvent(e);
 
-    if (creatorTheme()->widgetStyle() == Theme::StyleDefault) {
+    if (!creatorTheme()->flag(Theme::FlatToolBars)) {
         // draw separator line to the right of the settings panel
         QPainter painter(this);
         QColor light = StyleHelper::mergedColors(

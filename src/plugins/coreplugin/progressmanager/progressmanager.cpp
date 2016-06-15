@@ -708,7 +708,7 @@ ToggleButton::ToggleButton(QWidget *parent)
     : QToolButton(parent)
 {
     setToolButtonStyle(Qt::ToolButtonIconOnly);
-    if (creatorTheme()->widgetStyle() == Theme::StyleFlat) {
+    if (creatorTheme()->flag(Theme::FlatToolBars)) {
         QPalette p = palette();
         p.setBrush(QPalette::Base, creatorTheme()->color(Theme::ToggleButtonBackgroundColor));
         setPalette(p);

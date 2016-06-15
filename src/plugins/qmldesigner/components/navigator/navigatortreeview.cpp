@@ -170,7 +170,7 @@ NavigatorTreeView::NavigatorTreeView(QWidget *parent)
 void NavigatorTreeView::drawSelectionBackground(QPainter *painter, const QStyleOption &option)
 {
     painter->save();
-    if (Utils::creatorTheme()->widgetStyle() == Utils::Theme::StyleFlat) {
+    if (Utils::creatorTheme()->flag(Utils::Theme::FlatToolBars)) {
         painter->setOpacity(0.5);
         painter->fillRect(option.rect, option.palette.color(QPalette::Highlight));
     } else {

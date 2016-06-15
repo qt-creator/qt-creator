@@ -47,7 +47,6 @@ public:
     QVector<QString> imageFiles;
     QVector<QGradientStops> gradients;
     QVector<bool> flags;
-    Theme::WidgetStyle widgetStyle;
     QMap<QString, QColor> palette;
 };
 
