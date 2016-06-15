@@ -94,6 +94,7 @@ protected:
     bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const;
 
 private:
+    bool acceptTestCaseResult(const QModelIndex &index) const;
     TestResultModel *m_sourceModel;
     QSet<Result::Type> m_enabled;
 };

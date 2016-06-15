@@ -336,7 +336,29 @@ bool TestResultFilterModel::filterAcceptsRow(int sourceRow, const QModelIndex &s
     QModelIndex index = m_sourceModel->index(sourceRow, 0, sourceParent);
     if (!index.isValid())
         return false;
-    return m_enabled.contains(m_sourceModel->testResult(index)->result());
+    Result::Type resultType = m_sourceModel->testResult(index)->result();
+    switch (resultType) {
+    case Result::MessageTestCaseSuccess:
+        return m_enabled.contains(Result::Pass);
+    case Result::MessageTestCaseFail:
+    case Result::MessageTestCaseWarn:
+        return acceptTestCaseResult(index);
+    default:
+        return m_enabled.contains(resultType);
+    }
+}
+
+bool TestResultFilterModel::acceptTestCaseResult(const QModelIndex &index) const
+{
+    Utils::TreeItem *item = m_sourceModel->itemForIndex(index);
+    QTC_ASSERT(item, return false);
+
+    for (const Utils::TreeItem *child : item->children()) {
+        const TestResultItem *resultItem = static_cast<const TestResultItem *>(child);
+        if (m_enabled.contains(resultItem->testResult()->result()))
+            return true;
+    }
+    return false;
 }
 
 } // namespace Internal
