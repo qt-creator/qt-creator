@@ -368,8 +368,7 @@
         \li GUI
         \li Threaded
         \li blockedForSync
-        \li The time the GUI thread is blocked, waiting for the render thread
-            to synchronize the QML state into the scene graph.
+        \li The time the GUI thread is blocked, waiting for the render thread.
         \li None
     \row
         \li \uicontrol {Animations}
