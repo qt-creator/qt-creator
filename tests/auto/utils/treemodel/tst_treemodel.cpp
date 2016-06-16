@@ -53,7 +53,7 @@ static int countLevelItems(TreeItem *base, int level)
 
 static TreeItem *createItem(const QString &name)
 {
-    return new StaticTreeItem({ name });
+    return new StaticTreeItem(QStringList(name));
 }
 
 void tst_TreeModel::testIteration()
