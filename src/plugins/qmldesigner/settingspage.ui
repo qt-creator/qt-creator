@@ -113,29 +113,61 @@
        <property name="title">
         <string>Styling</string>
        </property>
-       <layout class="QHBoxLayout" name="horizontalLayout_6">
-        <item>
+       <layout class="QGridLayout" name="gridLayout_5">
+        <item row="0" column="0">
          <widget class="QLabel" name="label_3">
           <property name="text">
            <string>Controls style:</string>
           </property>
          </widget>
         </item>
-        <item>
+        <item row="0" column="1">
          <widget class="QLineEdit" name="styleLineEdit">
           <property name="placeholderText">
            <string>Default style</string>
           </property>
          </widget>
         </item>
-        <item>
+        <item row="0" column="2">
          <widget class="QPushButton" name="resetStyle">
           <property name="text">
            <string>Reset Style</string>
           </property>
          </widget>
         </item>
+        <item row="1" column="0">
+         <widget class="QLabel" name="label_6">
+          <property name="text">
+           <string>Controls 2 style</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1" colspan="2">
+         <widget class="QComboBox" name="controls2StyleComboBox">
+          <item>
+           <property name="text">
+            <string>Default</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Material</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Universal</string>
+           </property>
+          </item>
+         </widget>
+        </item>
        </layout>
+       <zorder>label_3</zorder>
+       <zorder>styleLineEdit</zorder>
+       <zorder>label_6</zorder>
+       <zorder>controls2StyleComboBox</zorder>
+       <zorder>resetStyle</zorder>
+       <zorder>groupBox_6</zorder>
       </widget>
      </item>
     </layout>

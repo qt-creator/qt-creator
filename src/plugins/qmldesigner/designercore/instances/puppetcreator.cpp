@@ -365,8 +365,11 @@ QProcessEnvironment PuppetCreator::processEnvironment() const
 #else
     const QString controlsStyle;
 #endif
-    if (!controlsStyle.isEmpty())
+    if (!controlsStyle.isEmpty()) {
         environment.set(QLatin1String("QT_QUICK_CONTROLS_STYLE"), controlsStyle);
+        environment.set(QLatin1String("QT_LABS_CONTROLS_STYLE"), controlsStyle);
+    }
+
 
     if (!m_qrcMapping.isEmpty()) {
         environment.set(QLatin1String("QMLDESIGNER_RC_PATHS"), m_qrcMapping);
