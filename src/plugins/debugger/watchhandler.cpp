@@ -1301,6 +1301,7 @@ bool WatchHandler::insertItem(WatchItem *item)
 
     item->update();
 
+    m_model->showEditValue(item);
     item->forAllChildren([this](WatchItem *sub) { m_model->showEditValue(sub); });
 
     return !found;
