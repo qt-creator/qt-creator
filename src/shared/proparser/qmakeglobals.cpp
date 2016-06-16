@@ -56,9 +56,11 @@
 
 #ifdef Q_OS_WIN32
 #define QT_POPEN _popen
+#define QT_POPEN_READ "rb"
 #define QT_PCLOSE _pclose
 #else
 #define QT_POPEN popen
+#define QT_POPEN_READ "r"
 #define QT_PCLOSE pclose
 #endif
 
@@ -299,7 +301,7 @@ bool QMakeGlobals::initProperties()
     data = proc.readAll();
 #else
     if (FILE *proc = QT_POPEN(QString(QMakeInternal::IoUtils::shellQuote(qmake_abslocation)
-                                      + QLatin1String(" -query")).toLocal8Bit(), "r")) {
+                                      + QLatin1String(" -query")).toLocal8Bit(), QT_POPEN_READ)) {
         char buff[1024];
         while (!feof(proc))
             data.append(buff, int(fread(buff, 1, 1023, proc)));
