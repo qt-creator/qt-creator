@@ -1543,7 +1543,7 @@ void WatchModel::showEditValue(const WatchItem *item)
             str = QString::fromUtf16((ushort *)ba.constData(), ba.size() / 2);
         else if (format == DisplayUtf16String)
             str = QString::fromUcs4((uint *)ba.constData(), ba.size() / 4);
-        m_separatedView->prepareObject<QTextEdit>(item)->setText(str);
+        m_separatedView->prepareObject<QTextEdit>(item)->setPlainText(str);
     } else if (format == DisplayPlotData) {
         // Plots
         std::vector<double> data;
