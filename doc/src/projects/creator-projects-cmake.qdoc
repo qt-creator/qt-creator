@@ -49,7 +49,9 @@
 
     \section1 Adding CMake Tools
 
-    \QC supports CMake version 3.0, or later.
+    \QC supports CMake version 3.0, or later. For best results you should use
+    CMake version 3.3.2 or later. Earlier versions provide less information
+    to the code model, which will then fail to resolve includes and defines.
 
     To specify paths to CMake executables and to add them to kits:
 
