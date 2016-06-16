@@ -42,6 +42,7 @@
 #include <utils/environment.h>
 #include <utils/qtcassert.h>
 #include <utils/pathchooser.h>
+#include <utils/environmentdialog.h>
 
 #include <QComboBox>
 #include <QDialog>
@@ -400,76 +401,36 @@ QString KitEnvironmentConfigWidget::toolTip() const
 
 void KitEnvironmentConfigWidget::refresh()
 {
-    QList<Utils::EnvironmentItem> changes = EnvironmentKitInformation::environmentChanges(m_kit);
-    Utils::sort(changes, [](const Utils::EnvironmentItem &lhs, const Utils::EnvironmentItem &rhs)
-                         { return QString::localeAwareCompare(lhs.name, rhs.name) < 0; });
+    const QList<Utils::EnvironmentItem> changes = currentEnvironment();
     QString shortSummary = Utils::EnvironmentItem::toStringList(changes).join(QLatin1String("; "));
     QFontMetrics fm(m_summaryLabel->font());
     shortSummary = fm.elidedText(shortSummary, Qt::ElideRight, m_summaryLabel->width());
     m_summaryLabel->setText(shortSummary.isEmpty() ? tr("No changes to apply.") : shortSummary);
-    if (m_editor)
-        m_editor->setPlainText(Utils::EnvironmentItem::toStringList(changes).join(QLatin1Char('\n')));
 }
 
 void KitEnvironmentConfigWidget::makeReadOnly()
 {
     m_manageButton->setEnabled(false);
-    if (m_dialog)
-        m_dialog->reject();
+}
+
+QList<Utils::EnvironmentItem> KitEnvironmentConfigWidget::currentEnvironment() const
+{
+    QList<Utils::EnvironmentItem> changes = EnvironmentKitInformation::environmentChanges(m_kit);
+    Utils::sort(changes, [](const Utils::EnvironmentItem &lhs, const Utils::EnvironmentItem &rhs)
+                         { return QString::localeAwareCompare(lhs.name, rhs.name) < 0; });
+    return changes;
 }
 
 void KitEnvironmentConfigWidget::editEnvironmentChanges()
 {
-    if (m_dialog) {
-        m_dialog->activateWindow();
-        m_dialog->raise();
+    bool ok;
+    const QList<Utils::EnvironmentItem> changes = Utils::EnvironmentDialog::getEnvironmentItems(&ok,
+                                                                 m_summaryLabel,
+                                                                 currentEnvironment());
+    if (!ok)
         return;
-    }
 
-    QTC_ASSERT(!m_editor, return);
-
-    m_dialog = new QDialog(m_summaryLabel);
-    m_dialog->setWindowTitle(tr("Edit Environment Changes"));
-    auto layout = new QVBoxLayout(m_dialog);
-    m_editor = new QPlainTextEdit;
-    m_editor->setToolTip(tr("Enter one variable per line with the variable name "
-                            "separated from the variable value by \"=\".<br>"
-                            "Environment variables can be referenced with ${OTHER}."));
-
-    auto buttons = new QDialogButtonBox(QDialogButtonBox::Ok|QDialogButtonBox::Apply|QDialogButtonBox::Cancel);
-
-    layout->addWidget(m_editor);
-    layout->addWidget(buttons);
-
-    connect(buttons, &QDialogButtonBox::accepted, m_dialog, &QDialog::accept);
-    connect(buttons, &QDialogButtonBox::rejected, m_dialog, &QDialog::reject);
-    connect(m_dialog, &QDialog::accepted, this, &KitEnvironmentConfigWidget::acceptChangesDialog);
-    connect(m_dialog, &QDialog::rejected, this, &KitEnvironmentConfigWidget::closeChangesDialog);
-    connect(buttons->button(QDialogButtonBox::Apply), &QAbstractButton::clicked,
-            this, &KitEnvironmentConfigWidget::applyChanges);
-
-    refresh();
-    m_dialog->show();
-}
-
-void KitEnvironmentConfigWidget::applyChanges()
-{
-    QTC_ASSERT(m_editor, return);
-    auto changes = Utils::EnvironmentItem::fromStringList(m_editor->toPlainText().split(QLatin1Char('\n')));
     EnvironmentKitInformation::setEnvironmentChanges(m_kit, changes);
-}
-
-void KitEnvironmentConfigWidget::closeChangesDialog()
-{
-    m_dialog->deleteLater();
-    m_dialog = nullptr;
-    m_editor = nullptr;
-}
-
-void KitEnvironmentConfigWidget::acceptChangesDialog()
-{
-    applyChanges();
-    closeChangesDialog();
 }
 
 QWidget *KitEnvironmentConfigWidget::buttonWidget() const

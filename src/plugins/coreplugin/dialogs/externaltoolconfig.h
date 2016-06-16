@@ -33,6 +33,8 @@
 
 QT_FORWARD_DECLARE_CLASS(QPlainTextEdit)
 
+namespace Utils { class EnvironmentItem; }
+
 namespace Core {
 namespace Internal {
 
@@ -79,18 +81,6 @@ private:
     QMap<QString, QList<ExternalTool *> > m_tools;
 };
 
-class EnvironmentChangesDialog : public QDialog
-{
-    Q_OBJECT
-public:
-    explicit EnvironmentChangesDialog(QWidget *parent = 0);
-
-    QStringList changes() const;
-    void setChanges(const QStringList &changes);
-private:
-    QPlainTextEdit *m_editor;
-};
-
 class ExternalToolConfig : public QWidget
 {
     Q_OBJECT
@@ -118,7 +108,7 @@ private:
     void updateEnvironmentLabel();
 
     Ui::ExternalToolConfig *ui;
-    QStringList m_environment;
+    QList<Utils::EnvironmentItem> m_environment;
     ExternalToolModel *m_model;
 };
 

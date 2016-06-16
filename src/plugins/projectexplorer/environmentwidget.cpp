@@ -24,13 +24,13 @@
 ****************************************************************************/
 
 #include "environmentwidget.h"
-#include "environmentitemswidget.h"
 
 #include <coreplugin/find/itemviewfind.h>
 
 #include <utils/detailswidget.h>
 #include <utils/environment.h>
 #include <utils/environmentmodel.h>
+#include <utils/environmentdialog.h>
 #include <utils/headerviewstretcher.h>
 #include <utils/itemviews.h>
 #include <utils/tooltip/tooltip.h>
@@ -340,9 +340,11 @@ void EnvironmentWidget::batchEditEnvironmentButtonClicked()
     const QList<Utils::EnvironmentItem> changes = d->m_model->userChanges();
 
     bool ok;
-    const QList<Utils::EnvironmentItem> newChanges = EnvironmentItemsDialog::getEnvironmentItems(this, changes, &ok);
-    if (ok)
-        d->m_model->setUserChanges(newChanges);
+    const QList<Utils::EnvironmentItem> newChanges = Utils::EnvironmentDialog::getEnvironmentItems(&ok, this, changes);
+    if (!ok)
+        return;
+
+    d->m_model->setUserChanges(newChanges);
 }
 
 void EnvironmentWidget::environmentCurrentIndexChanged(const QModelIndex &current)

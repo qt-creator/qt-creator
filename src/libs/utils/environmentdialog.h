@@ -25,46 +25,34 @@
 
 #pragma once
 
+#include "utils_global.h"
+#include "environment.h"
+
 #include <QDialog>
 
-namespace Utils { class EnvironmentItem; }
+namespace Utils {
 
-namespace ProjectExplorer {
-class EnvironmentItemsWidgetPrivate;
+namespace Internal { class EnvironmentDialogPrivate; }
 
-class EnvironmentItemsWidget : public QWidget
+class QTCREATOR_UTILS_EXPORT EnvironmentDialog : public QDialog
 {
     Q_OBJECT
 public:
-    explicit EnvironmentItemsWidget(QWidget *parent = nullptr);
-    ~EnvironmentItemsWidget() override;
+    explicit EnvironmentDialog(QWidget *parent = nullptr);
+    ~EnvironmentDialog() override;
 
-    void setEnvironmentItems(const QList<Utils::EnvironmentItem> &items);
-    QList<Utils::EnvironmentItem> environmentItems() const;
+    void setEnvironmentItems(const QList<EnvironmentItem> &items);
+    QList<EnvironmentItem> environmentItems() const;
 
-private:
-    EnvironmentItemsWidgetPrivate *d;
-};
+    void setPlaceholderText(const QString &text);
 
-
-class EnvironmentItemsDialogPrivate;
-
-class EnvironmentItemsDialog : public QDialog
-{
-    Q_OBJECT
-public:
-    explicit EnvironmentItemsDialog(QWidget *parent = nullptr);
-    ~EnvironmentItemsDialog() override;
-
-    void setEnvironmentItems(const QList<Utils::EnvironmentItem> &items);
-    QList<Utils::EnvironmentItem> environmentItems() const;
-
-    static QList<Utils::EnvironmentItem>
-    getEnvironmentItems(QWidget *parent, const QList<Utils::EnvironmentItem> &initial,
-                        bool *ok = nullptr);
+    static QList<EnvironmentItem> getEnvironmentItems(bool *ok,
+                        QWidget *parent = nullptr,
+                        const QList<EnvironmentItem> &initial = QList<EnvironmentItem>(),
+                        const QString &placeholderText = QString());
 
 private:
-    EnvironmentItemsDialogPrivate *d;
+    Internal::EnvironmentDialogPrivate *d;
 };
 
-} // namespace ProjectExplorer
+} // namespace Utils

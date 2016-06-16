@@ -110,7 +110,6 @@ HEADERS += projectexplorer.h \
     appoutputpane.h \
     codestylesettingspropertiespage.h \
     settingsaccessor.h \
-    environmentitemswidget.h \
     deployablefile.h \
     devicesupport/idevice.h \
     devicesupport/desktopdevice.h \
@@ -258,7 +257,6 @@ SOURCES += projectexplorer.cpp \
     appoutputpane.cpp \
     codestylesettingspropertiespage.cpp \
     settingsaccessor.cpp \
-    environmentitemswidget.cpp \
     devicesupport/idevice.cpp \
     devicesupport/desktopdevice.cpp \
     devicesupport/desktopdevicefactory.cpp \

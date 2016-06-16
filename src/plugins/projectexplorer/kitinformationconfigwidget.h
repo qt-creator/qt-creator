@@ -179,15 +179,10 @@ public:
 
 private:
     void editEnvironmentChanges();
-
-    void applyChanges();
-    void closeChangesDialog();
-    void acceptChangesDialog();
+    QList<Utils::EnvironmentItem> currentEnvironment() const;
 
     QLabel *m_summaryLabel;
     QPushButton *m_manageButton;
-    QDialog *m_dialog = 0;
-    QPlainTextEdit *m_editor = 0;
 };
 
 } // namespace Internal

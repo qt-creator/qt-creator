@@ -14,6 +14,7 @@ win32: LIBS += -liphlpapi -lws2_32
 
 SOURCES += $$PWD/environment.cpp \
     $$PWD/environmentmodel.cpp \
+    $$PWD/environmentdialog.cpp \
     $$PWD/qtcprocess.cpp \
     $$PWD/reloadpromptutils.cpp \
     $$PWD/shellcommand.cpp \
@@ -107,6 +108,7 @@ else:SOURCES += $$PWD/consoleprocess_unix.cpp
 HEADERS += \
     $$PWD/environment.h \
     $$PWD/environmentmodel.h \
+    $$PWD/environmentdialog.h \
     $$PWD/qtcprocess.h \
     $$PWD/utils_global.h \
     $$PWD/reloadpromptutils.h \
