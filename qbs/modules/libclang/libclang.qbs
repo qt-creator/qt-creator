@@ -1,0 +1,33 @@
+import qbs
+import qbs.File
+import QtcFunctions
+import "functions.js" as ClangFunctions
+
+Module {
+    Probe {
+        id: clangProbe
+
+        property string llvmConfig
+        property string llvmIncludeDir
+        property string llvmLibDir
+        property stringList llvmLibs
+
+        configure: {
+            llvmConfig = ClangFunctions.llvmConfig(qbs, QtcFunctions);
+            llvmIncludeDir = ClangFunctions.includeDir(llvmConfig);
+            llvmLibDir = ClangFunctions.libDir(llvmConfig);
+            llvmLibs = ClangFunctions.libraries(qbs.targetOS);
+            found = llvmConfig && File.exists(llvmIncludeDir.concat("/clang-c/Index.h"));
+        }
+    }
+
+    property string llvmConfig: clangProbe.llvmConfig
+    property string llvmIncludeDir: clangProbe.llvmIncludeDir
+    property string llvmLibDir: clangProbe.llvmLibDir
+    property stringList llvmLibs: clangProbe.llvmLibs
+
+    validate: {
+        if (!clangProbe.found)
+            throw "No usable libclang found";
+    }
+}

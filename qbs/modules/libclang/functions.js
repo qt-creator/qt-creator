@@ -1,18 +1,29 @@
 var Environment = loadExtension("qbs.Environment")
 var File = loadExtension("qbs.File")
 var MinimumLLVMVersion = "3.6.2"
+var Process = loadExtension("qbs.Process")
 
-function isSuitableLLVMConfig(llvmConfigCandidate, qtcFunctions, processOutputReader)
+function readOutput(executable, args)
+{
+    var p = new Process();
+    var output = "";
+    if (p.exec(executable, args, false) !== -1)
+        output = p.readStdOut().trim(); // Trailing newline.
+    p.close();
+    return output;
+}
+
+function isSuitableLLVMConfig(llvmConfigCandidate, qtcFunctions)
 {
     if (File.exists(llvmConfigCandidate)) {
-        var candidateVersion = version(llvmConfigCandidate, processOutputReader);
+        var candidateVersion = version(llvmConfigCandidate);
         if (candidateVersion && candidateVersion.length)
             return qtcFunctions.versionIsAtLeast(candidateVersion, MinimumLLVMVersion)
     }
     return false;
 }
 
-function llvmConfig(qbs, qtcFunctions, processOutputReader)
+function llvmConfig(qbs, qtcFunctions)
 {
     var llvmInstallDirFromEnv = Environment.getEnv("LLVM_INSTALL_DIR")
     var llvmConfigVariants = [
@@ -25,7 +36,7 @@ function llvmConfig(qbs, qtcFunctions, processOutputReader)
     if (llvmInstallDirFromEnv) {
         for (var i = 0; i < llvmConfigVariants.length; ++i) {
             var variant = llvmInstallDirFromEnv + "/bin/" + llvmConfigVariants[i] + suffix;
-            if (isSuitableLLVMConfig(variant, qtcFunctions, processOutputReader))
+            if (isSuitableLLVMConfig(variant, qtcFunctions))
                 return variant;
         }
     }
@@ -37,7 +48,7 @@ function llvmConfig(qbs, qtcFunctions, processOutputReader)
     for (var i = 0; i < llvmConfigVariants.length; ++i) {
         for (var j = 0; j < pathList.length; ++j) {
             var variant = pathList[j] + "/" + llvmConfigVariants[i] + suffix;
-            if (isSuitableLLVMConfig(variant, qtcFunctions, processOutputReader))
+            if (isSuitableLLVMConfig(variant, qtcFunctions))
                 return variant;
         }
     }
@@ -45,20 +56,19 @@ function llvmConfig(qbs, qtcFunctions, processOutputReader)
     return undefined;
 }
 
-function includeDir(llvmConfig, processOutputReader)
+function includeDir(llvmConfig)
 {
-    return processOutputReader.readOutput(llvmConfig, ["--includedir"])
+    return readOutput(llvmConfig, ["--includedir"])
 }
 
-function libDir(llvmConfig, processOutputReader)
+function libDir(llvmConfig)
 {
-    return processOutputReader.readOutput(llvmConfig, ["--libdir"])
+    return readOutput(llvmConfig, ["--libdir"])
 }
 
-function version(llvmConfig, processOutputReader)
+function version(llvmConfig)
 {
-    return processOutputReader.readOutput(llvmConfig, ["--version"])
-        .replace(/(\d+\.\d+\.\d+).*/, "$1")
+    return readOutput(llvmConfig, ["--version"]).replace(/(\d+\.\d+\.\d+).*/, "$1")
 }
 
 function libraries(targetOS)

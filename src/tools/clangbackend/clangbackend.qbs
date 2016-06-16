@@ -1,13 +1,10 @@
 import qbs 1.0
-import qbs.File
-import QtcClangInstallation as Clang
-import QtcFunctions
-import QtcProcessOutputReader
 
 QtcTool {
     name: "clangbackend"
 
     Depends { name: "ClangBackEndIpc" }
+    Depends { name: "libclang"; required: false }
 
     Group {
         prefix: "ipcsource/"
@@ -19,17 +16,12 @@ QtcTool {
 
     files: [ "clangbackendmain.cpp" ]
 
-    property string llvmConfig: Clang.llvmConfig(qbs, QtcFunctions, QtcProcessOutputReader)
-    property string llvmIncludeDir: Clang.includeDir(llvmConfig, QtcProcessOutputReader)
-    property string llvmLibDir: Clang.libDir(llvmConfig, QtcProcessOutputReader)
-    property stringList llvmLibs: Clang.libraries(qbs.targetOS)
+    condition: libclang.present
 
-    condition: llvmConfig && File.exists(llvmIncludeDir.concat("/clang-c/Index.h"))
-
-    cpp.includePaths: base.concat(["ipcsource", llvmIncludeDir])
-    cpp.libraryPaths: base.concat(llvmLibDir)
-    cpp.dynamicLibraries: base.concat(llvmLibs)
-    cpp.rpaths: base.concat(llvmLibDir)
+    cpp.includePaths: base.concat(["ipcsource", libclang.llvmIncludeDir])
+    cpp.libraryPaths: base.concat(libclang.llvmLibDir)
+    cpp.dynamicLibraries: base.concat(libclang.llvmLibs)
+    cpp.rpaths: base.concat(libclang.llvmLibDir)
 
     Properties {
         condition: qbs.targetOS.contains("unix") && !qbs.targetOS.contains("osx")
