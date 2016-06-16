@@ -360,7 +360,6 @@ public:
     KitManager *m_kitManager = nullptr;
     ToolChainManager *m_toolChainManager = nullptr;
     QStringList m_arguments;
-    QList<ProjectPanelFactory *> m_panelFactories;
 #ifdef WITH_JOURNALD
     JournaldWatcher *m_journalWatcher = nullptr;
 #endif
