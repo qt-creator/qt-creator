@@ -1054,6 +1054,11 @@ StaticTreeItem::StaticTreeItem(const QStringList &displays)
 {
 }
 
+StaticTreeItem::StaticTreeItem(const QString &display)
+    : m_displays(display)
+{
+}
+
 QVariant StaticTreeItem::data(int column, int role) const
 {
     if (role == Qt::DisplayRole && column >= 0 && column < m_displays.size())

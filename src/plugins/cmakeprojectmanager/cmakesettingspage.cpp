@@ -142,8 +142,8 @@ public:
 CMakeToolItemModel::CMakeToolItemModel()
 {
     setHeader({tr("Name"), tr("Location")});
-    rootItem()->appendChild(new StaticTreeItem(QStringList(tr("Auto-detected"))));
-    rootItem()->appendChild(new StaticTreeItem(QStringList(tr("Manual"))));
+    rootItem()->appendChild(new StaticTreeItem(tr("Auto-detected")));
+    rootItem()->appendChild(new StaticTreeItem(tr("Manual")));
 
     foreach (const CMakeTool *item, CMakeToolManager::cmakeTools())
         addCMakeTool(item, false);

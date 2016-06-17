@@ -174,6 +174,7 @@ class QTCREATOR_UTILS_EXPORT StaticTreeItem : public TreeItem
 {
 public:
     StaticTreeItem(const QStringList &displays);
+    StaticTreeItem(const QString &display);
 
     QVariant data(int column, int role) const override;
     Qt::ItemFlags flags(int column) const override;
