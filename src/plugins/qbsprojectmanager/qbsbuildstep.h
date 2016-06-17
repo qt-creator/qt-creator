@@ -68,6 +68,9 @@ public:
     int maxJobs() const;
     QString buildVariant() const;
 
+    void setForceProbes(bool force) { m_forceProbes = force; emit qbsConfigurationChanged(); }
+    bool forceProbes() const { return m_forceProbes; }
+
     bool isQmlDebuggingEnabled() const;
 
     bool fromMap(const QVariantMap &map) override;
@@ -106,6 +109,7 @@ private:
 
     QVariantMap m_qbsConfiguration;
     qbs::BuildOptions m_qbsBuildOptions;
+    bool m_forceProbes = false;
 
     // Temporary data:
     QStringList m_changedFiles;
@@ -144,6 +148,7 @@ private slots:
     void changeJobCount(int count);
     void changeInstall(bool install);
     void changeCleanInstallRoot(bool clean);
+    void changeForceProbes(bool forceProbes);
     void applyCachedProperties();
 
     // QML debugging:
