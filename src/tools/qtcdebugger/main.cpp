@@ -175,6 +175,7 @@ static void usage(const QString &binary, const QString &message = QString())
     msgBox.exec();
 }
 
+#ifndef Q_OS_WIN64
 static bool is64BitWindowsSystem() // Courtesy utils library
 {
     SYSTEM_INFO systemInfo;
@@ -182,6 +183,7 @@ static bool is64BitWindowsSystem() // Courtesy utils library
     return systemInfo.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_AMD64
         || systemInfo.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_IA64;
 }
+#endif
 
 // ------- Registry helpers
 
