@@ -274,7 +274,8 @@ public:
         ApplyThemePaletteGlobally,
         FlatSideBarIcons,
         FlatProjectsMode,
-        FlatMenuBar
+        FlatMenuBar,
+        ToolBarIconShadow
     };
 
     enum WidgetStyle {

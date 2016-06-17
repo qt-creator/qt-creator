@@ -315,7 +315,8 @@ void StyleHelper::drawArrow(QStyle::PrimitiveElement element, QPainter *painter,
         if (!enabled) {
             drawCommonStyleArrow(image.rect(), creatorTheme()->color(Theme::IconsDisabledColor));
         } else {
-            drawCommonStyleArrow(image.rect().translated(0, devicePixelRatio), toolBarDropShadowColor());
+            if (creatorTheme()->flag(Theme::ToolBarIconShadow))
+                drawCommonStyleArrow(image.rect().translated(0, devicePixelRatio), toolBarDropShadowColor());
             drawCommonStyleArrow(image.rect(), creatorTheme()->color(Theme::IconsBaseColor));
         }
         painter.end();
@@ -393,7 +394,7 @@ void StyleHelper::drawIconWithShadow(const QIcon &icon, const QRect &rect,
             const bool hasDisabledState = icon.availableSizes(QIcon::Disabled).contains(px.size());
             if (!hasDisabledState)
                 px = disabledSideBarIcon(icon.pixmap(window, rect.size()));
-        } else {
+        } else if (creatorTheme()->flag(Theme::ToolBarIconShadow)) {
             // Draw shadow
             QImage tmp(px.size() + QSize(radius * 2, radius * 2 + 1), QImage::Format_ARGB32_Premultiplied);
             tmp.fill(Qt::transparent);

@@ -188,6 +188,7 @@ ApplyThemePaletteGlobally=true
 FlatSideBarIcons=true
 FlatProjectsMode=true
 FlatMenuBar=true
+ToolBarIconShadow=true
 
 [Gradients]
 DetailsWidgetHeaderGradient\1\color=0

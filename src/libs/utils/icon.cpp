@@ -129,7 +129,7 @@ static QPixmap masksToIcon(const MasksAndColors &masks, const QPixmap &combinedM
         p.drawPixmap(0, 0, maskToColorAndAlpha((*maskImage).first, (*maskImage).second));
     }
 
-    if (style & Icon::DropShadow) {
+    if (style & Icon::DropShadow && creatorTheme()->flag(Theme::ToolBarIconShadow)) {
         const QPixmap shadowMask = maskToColorAndAlpha(combinedMask, Qt::black);
         p.setCompositionMode(QPainter::CompositionMode_DestinationOver);
         p.setOpacity(0.05);
