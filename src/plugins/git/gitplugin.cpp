@@ -679,17 +679,19 @@ void GitPlugin::blameFile()
             int selectionEnd = cursor.selectionEnd();
             cursor.setPosition(selectionStart);
             const int startBlock = cursor.blockNumber();
-            firstLine = startBlock + 1;
-            if (auto widget = qobject_cast<VcsBaseEditorWidget *>(textEditor->widget())) {
-                const int previousFirstLine = widget->firstLineNumber();
-                if (previousFirstLine > 0)
-                    firstLine = previousFirstLine;
-            }
-            argument += QString::number(firstLine) + ',';
             cursor.setPosition(selectionEnd);
             const int endBlock = cursor.blockNumber();
-            argument += QString::number(endBlock + firstLine - startBlock);
-            extraOptions << argument;
+            if (startBlock != endBlock) {
+                firstLine = startBlock + 1;
+                if (auto widget = qobject_cast<VcsBaseEditorWidget *>(textEditor->widget())) {
+                    const int previousFirstLine = widget->firstLineNumber();
+                    if (previousFirstLine > 0)
+                        firstLine = previousFirstLine;
+                }
+                argument += QString::number(firstLine) + ',';
+                argument += QString::number(endBlock + firstLine - startBlock);
+                extraOptions << argument;
+            }
         }
     }
     VcsBaseEditorWidget *editor = m_gitClient->annotate(
