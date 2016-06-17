@@ -54,7 +54,7 @@
             \uicontrol {Qt Quick Controls 2 Application}, and
             \uicontrol {Qt Labs Controls Application} are like
             \uicontrol {Qt Quick Application}, but using
-            \l{http://doc-snapshots.qt.io/qt5-5.7/qtquickcontrols2-index.html}
+            \l{http://doc.qt.io/qt-5/qtquickcontrols2-index.html}
             {Qt Quick Controls 2} (requires Qt 5.7 or later),
             \l{http://doc.qt.io/qt-5/qtquickcontrols-index.html}
             {Qt Quick Controls}, or
