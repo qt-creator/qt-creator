@@ -176,13 +176,11 @@ QList<TestConfiguration *> GTestTreeItem::getAllTestConfigurations() const
         const int grandChildCount = child->childCount();
         for (int grandChildRow = 0; grandChildRow < grandChildCount; ++grandChildRow) {
             const TestTreeItem *grandChild = child->childItem(grandChildRow);
-            if (grandChild->checked() == Qt::Checked) {
-                ProFileWithDisplayName key(grandChild->proFile(),
-                    TestUtils::getCMakeDisplayNameIfNecessary(grandChild->filePath(),
-                                                              grandChild->proFile()));
+            ProFileWithDisplayName key(grandChild->proFile(),
+                                       TestUtils::getCMakeDisplayNameIfNecessary(grandChild->filePath(),
+                                                                                 grandChild->proFile()));
 
-                proFilesWithTestSets.insert(key, proFilesWithTestSets[key] + 1);
-            }
+            proFilesWithTestSets.insert(key, proFilesWithTestSets[key] + 1);
         }
     }
 
