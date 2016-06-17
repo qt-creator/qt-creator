@@ -72,7 +72,6 @@ Project {
                 "editorsettingspropertiespage.cpp", "editorsettingspropertiespage.h", "editorsettingspropertiespage.ui",
                 "environmentaspect.cpp", "environmentaspect.h",
                 "environmentaspectwidget.cpp", "environmentaspectwidget.h",
-                "environmentitemswidget.cpp", "environmentitemswidget.h",
                 "environmentwidget.cpp", "environmentwidget.h",
                 "expanddata.cpp", "expanddata.h",
                 "extracompiler.cpp", "extracompiler.h",

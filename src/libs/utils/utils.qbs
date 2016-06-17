@@ -83,6 +83,8 @@ Project {
             "elidinglabel.h",
             "environment.cpp",
             "environment.h",
+            "environmentdialog.cpp",
+            "environmentdialog.h",
             "environmentmodel.cpp",
             "environmentmodel.h",
             "execmenu.cpp",
