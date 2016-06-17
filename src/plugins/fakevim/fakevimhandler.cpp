@@ -1643,8 +1643,6 @@ struct MappingState {
 
 class FakeVimHandler::Private : public QObject
 {
-    Q_OBJECT
-
 public:
     Private(FakeVimHandler *parent, QWidget *widget);
 
@@ -2195,7 +2193,7 @@ public:
 
         // If there are multiple editors with same document,
         // only the handler with last focused editor can change buffer data.
-        QPointer<QObject> currentHandler;
+        QPointer<FakeVimHandler::Private> currentHandler;
     };
 
     typedef QSharedPointer<BufferData> BufferDataPtr;
@@ -8757,5 +8755,3 @@ bool FakeVimHandler::jumpToLocalMark(QChar mark, bool backTickMode)
 } // namespace FakeVim
 
 Q_DECLARE_METATYPE(FakeVim::Internal::FakeVimHandler::Private::BufferDataPtr)
-
-#include "fakevimhandler.moc"
