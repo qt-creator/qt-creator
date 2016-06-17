@@ -91,13 +91,13 @@ public:
 
     // Levels are 1-based: Child at Level 1 is an immediate child.
     template <class T, typename Predicate>
-    void forFirstLevelChildren(Predicate pred) {
+    void forFirstLevelChildren(Predicate pred) const {
         foreach (TreeItem *item, m_children)
             pred(static_cast<T>(item));
     }
 
     template <class T, typename Predicate>
-    void forSecondLevelChildren(Predicate pred) {
+    void forSecondLevelChildren(Predicate pred) const {
         foreach (TreeItem *item1, m_children)
             foreach (TreeItem *item2, item1->m_children)
                 pred(static_cast<T>(item2));
