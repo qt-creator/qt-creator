@@ -152,6 +152,8 @@ template <class ChildType>
 class TypedTreeItem : public TreeItem
 {
 public:
+    ChildType *childAt(int index) const { return static_cast<ChildType *>(TreeItem::childAt(index)); }
+
     void sortChildren(const std::function<bool(const ChildType *, const ChildType *)> &lessThan)
     {
         return TreeItem::sortChildren([lessThan](const TreeItem *a, const TreeItem *b) {
