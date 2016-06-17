@@ -199,6 +199,19 @@ QList<TestConfiguration *> GTestTreeItem::getAllTestConfigurations() const
     return result;
 }
 
+struct TestCases
+{
+    QStringList filters;
+    int additionalTestCaseCount = 0;
+};
+
+static const ProFileWithDisplayName createProfile(const TestTreeItem *item)
+{
+    return ProFileWithDisplayName(
+                item->proFile(),
+                TestUtils::getCMakeDisplayNameIfNecessary(item->filePath(), item->proFile()));
+}
+
 QList<TestConfiguration *> GTestTreeItem::getSelectedTestConfigurations() const
 {
     QList<TestConfiguration *> result;
@@ -206,34 +219,44 @@ QList<TestConfiguration *> GTestTreeItem::getSelectedTestConfigurations() const
     if (!project || type() != Root)
         return result;
 
-    QHash<ProFileWithDisplayName, QStringList> proFilesWithCheckedTestSets;
+    QHash<ProFileWithDisplayName, TestCases> proFilesWithCheckedTestSets;
     for (int row = 0, count = childCount(); row < count; ++row) {
         const GTestTreeItem *child = static_cast<const GTestTreeItem *>(childItem(row));
-        if (child->checked() == Qt::Unchecked)
+
+        const int grandChildCount = child->childCount();
+        QTC_ASSERT(grandChildCount != 0, continue);
+
+        switch (child->checked()) {
+        case Qt::Unchecked:
             continue;
-
-        int grandChildCount = child->childCount();
-        for (int grandChildRow = 0; grandChildRow < grandChildCount; ++grandChildRow) {
-            const TestTreeItem *grandChild = child->childItem(grandChildRow);
-            if (grandChild->checked() == Qt::Checked) {
-                ProFileWithDisplayName key(grandChild->proFile(),
-                    TestUtils::getCMakeDisplayNameIfNecessary(grandChild->filePath(),
-                                                              grandChild->proFile()));
-
-                proFilesWithCheckedTestSets[key].append(
-                            gtestFilter(child->state()).arg(child->name()).arg(grandChild->name()));
+        case Qt::Checked: {
+            auto &testCases = proFilesWithCheckedTestSets[createProfile(child->childItem(0))];
+            testCases.filters.append(gtestFilter(child->state()).arg(child->name()).arg('*'));
+            testCases.additionalTestCaseCount += grandChildCount - 1;
+            break;
+        }
+        case Qt::PartiallyChecked: {
+            for (int grandChildRow = 0; grandChildRow < grandChildCount; ++grandChildRow) {
+                const TestTreeItem *grandChild = child->childItem(grandChildRow);
+                if (grandChild->checked() == Qt::Checked) {
+                    proFilesWithCheckedTestSets[createProfile(grandChild)].filters.append(
+                                gtestFilter(child->state()).arg(child->name()).arg(grandChild->name()));
+                }
             }
+            break;
+        }
         }
     }
 
-    QHash<ProFileWithDisplayName, QStringList>::ConstIterator it = proFilesWithCheckedTestSets.begin();
-    QHash<ProFileWithDisplayName, QStringList>::ConstIterator end = proFilesWithCheckedTestSets.end();
+    QHash<ProFileWithDisplayName, TestCases>::ConstIterator it = proFilesWithCheckedTestSets.begin();
+    QHash<ProFileWithDisplayName, TestCases>::ConstIterator end = proFilesWithCheckedTestSets.end();
     for ( ; it != end; ++it) {
-        const ProFileWithDisplayName &key = it.key();
+        const ProFileWithDisplayName &proFileWithDisplayName = it.key();
         GTestConfiguration *tc = new GTestConfiguration;
-        tc->setTestCases(it.value());
-        tc->setProFile(key.proFile);
-        tc->setDisplayName(key.displayName);
+        tc->setTestCases(it.value().filters);
+        tc->setTestCaseCount(tc->testCaseCount() + it.value().additionalTestCaseCount);
+        tc->setProFile(proFileWithDisplayName.proFile);
+        tc->setDisplayName(proFileWithDisplayName.displayName);
         tc->setProject(project);
         result << tc;
     }
