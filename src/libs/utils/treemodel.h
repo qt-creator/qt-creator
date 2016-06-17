@@ -167,6 +167,11 @@ public:
     }
 
     template <typename Predicate>
+    void forFirstLevelChildren(Predicate pred) const {
+        return TreeItem::forFirstLevelChildren<ChildType *, Predicate>(pred);
+    }
+
+    template <typename Predicate>
     ChildType *findFirstLevelChild(Predicate pred) const {
         return TreeItem::findFirstLevelChild<ChildType *, Predicate>(pred);
     }
