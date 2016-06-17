@@ -199,12 +199,20 @@ static QList<Abi> abiOf(const QByteArray &data)
         Abi::OSFlavor flavor = Abi::GenericUnixFlavor;
         // http://www.sco.com/developers/gabi/latest/ch4.eheader.html#elfid
         switch (osAbi) {
-        case 2: // NetBSD:
+#if defined(Q_OS_NETBSD)
+        case 0: // NetBSD: ELFOSABI_NETBSD  2, however, NetBSD uses 0
             os = Abi::BsdOS;
             flavor = Abi::NetBsdFlavor;
             break;
-        case 3: // Linux:
+#elif defined(Q_OS_OPENBSD)
+        case 0: // OpenBSD: ELFOSABI_OPENBSD 12, however, OpenBSD uses 0
+            os = Abi::BsdOS;
+            flavor = Abi::OpenBsdFlavor;
+            break;
+#else
         case 0: // no extra info available: Default to Linux:
+#endif
+        case 3: // Linux:
         case 97: // ARM, also linux most of the time.
             os = Abi::LinuxOS;
             flavor = Abi::GenericLinuxFlavor;
@@ -217,9 +225,6 @@ static QList<Abi> abiOf(const QByteArray &data)
             os = Abi::BsdOS;
             flavor = Abi::FreeBsdFlavor;
             break;
-        case 12: // OpenBSD:
-            os = Abi::BsdOS;
-            flavor = Abi::OpenBsdFlavor;
         }
 
         switch (machine) {
