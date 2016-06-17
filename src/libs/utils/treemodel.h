@@ -279,24 +279,6 @@ public:
     }
 };
 
-// A two-level model with a first level of static headers and a uniform second level.
-template <class SecondLevelItemType>
-class TwoLevelTreeModel : public LeveledTreeModel<StaticTreeItem, SecondLevelItemType>
-{
-public:
-    using FirstLevelItem = StaticTreeItem;
-    using SecondLevelItem = SecondLevelItemType;
-    using BaseType = LeveledTreeModel<FirstLevelItem, SecondLevelItem>;
-
-    explicit TwoLevelTreeModel(QObject *parent = 0) : BaseType(parent) {}
-
-    FirstLevelItem *appendFirstLevelItem(const QStringList &display) {
-        auto item = new FirstLevelItem(display);
-        this->rootItem()->appendChild(item);
-        return item;
-    }
-};
-
 // A model where all non-root nodes are the same.
 template <class ItemType>
 class UniformTreeModel : public LeveledTreeModel<ItemType, ItemType, ItemType>
