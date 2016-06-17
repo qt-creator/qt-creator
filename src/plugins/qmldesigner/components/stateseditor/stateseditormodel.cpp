@@ -124,10 +124,11 @@ QVariant StatesEditorModel::data(const QModelIndex &index, int role) const
 
 QHash<int, QByteArray> StatesEditorModel::roleNames() const
 {
-    QHash<int, QByteArray> roleNames;
-    roleNames.insert(StateNameRole, "stateName");
-    roleNames.insert(StateImageSourceRole, "stateImageSource");
-    roleNames.insert(InternalNodeId, "internalNodeId");
+    static QHash<int, QByteArray> roleNames{
+        {StateNameRole, "stateName"},
+        {StateImageSourceRole, "stateImageSource"},
+        {InternalNodeId, "internalNodeId"}
+    };
     return roleNames;
 }
 
