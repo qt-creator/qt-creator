@@ -677,24 +677,18 @@ void ManhattanStyle::drawControl(ControlElement element, const QStyleOption *opt
 
             if (act) {
                 // Fill|
-                if (creatorTheme()->flag(Theme::FlatMenuBar)) {
-                    painter->fillRect(option->rect, creatorTheme()->color(Theme::FancyToolButtonHoverColor));
-                } else {
-                    QColor baseColor = StyleHelper::baseColor();
-                    QLinearGradient grad(option->rect.topLeft(), option->rect.bottomLeft());
-                    grad.setColorAt(0, baseColor.lighter(120));
-                    grad.setColorAt(1, baseColor.lighter(130));
-                    painter->fillRect(option->rect, grad);
-                }
+                const QColor fillColor = StyleHelper::alphaBlendedColors(
+                            StyleHelper::baseColor(), creatorTheme()->color(Theme::FancyToolButtonHoverColor));
+                painter->fillRect(option->rect, fillColor);
 
                 QPalette pal = mbi->palette;
                 uint alignment = Qt::AlignCenter | Qt::TextShowMnemonic | Qt::TextDontClip | Qt::TextSingleLine;
                 if (!styleHint(SH_UnderlineShortcut, mbi, widget))
                     alignment |= Qt::TextHideMnemonic;
-                pal.setBrush(QPalette::Text, dis ? Qt::gray : QColor(0, 0, 0, 60));
-                drawItemText(painter, item.rect.translated(0, 1), alignment, pal, mbi->state & State_Enabled, mbi->text, QPalette::Text);
-                pal.setBrush(QPalette::Text, dis ? Qt::gray : Qt::white);
-                drawItemText(painter, item.rect, alignment, pal, mbi->state & State_Enabled, mbi->text, QPalette::Text);
+                pal.setBrush(QPalette::Text, creatorTheme()->color(dis
+                                                                   ? Theme::IconsDisabledColor
+                                                                   : Theme::PanelTextColorLight));
+                drawItemText(painter, item.rect, alignment, pal, !dis, mbi->text, QPalette::Text);
             }
         }
         painter->restore();
