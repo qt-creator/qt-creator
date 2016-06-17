@@ -149,7 +149,7 @@ public:
         IconsModeEditActiveColor,
         IconsModeDesignActiveColor,
         IconsModeDebugActiveColor,
-        IconsModeProjetcsActiveColor,
+        IconsModeProjectActiveColor,
         IconsModeAnalyzeActiveColor,
         IconsModeHelpActiveColor,
 
