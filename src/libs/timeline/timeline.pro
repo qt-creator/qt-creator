@@ -15,7 +15,8 @@ SOURCES += \
     $$PWD/timelinerenderstate.cpp \
     $$PWD/timelinenotesmodel.cpp \
     $$PWD/timelineabstractrenderer.cpp \
-    $$PWD/timelineoverviewrenderer.cpp
+    $$PWD/timelineoverviewrenderer.cpp \
+    $$PWD/timelinetheme.cpp
 
 
 HEADERS += \
@@ -37,7 +38,8 @@ HEADERS += \
     $$PWD/timelineabstractrenderer.h \
     $$PWD/timelineabstractrenderer_p.h \
     $$PWD/timelineoverviewrenderer_p.h \
-    $$PWD/timelineoverviewrenderer.h
+    $$PWD/timelineoverviewrenderer.h \
+    $$PWD/timelinetheme.h
 
 RESOURCES += \
     $$PWD/qml/timeline.qrc

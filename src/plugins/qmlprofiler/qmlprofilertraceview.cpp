@@ -46,6 +46,7 @@
 #include "timeline/timelinemodelaggregator.h"
 #include "timeline/timelinerenderer.h"
 #include "timeline/timelineoverviewrenderer.h"
+#include "timeline/timelinetheme.h"
 
 #include <aggregation/aggregate.h>
 // Needed for the load&save actions in the context menu
@@ -142,6 +143,8 @@ QmlProfilerTraceView::QmlProfilerTraceView(QWidget *parent, QmlProfilerViewManag
 
     // Minimum height: 5 rows of 20 pixels + scrollbar of 50 pixels + 20 pixels margin
     setMinimumHeight(170);
+
+    Timeline::TimelineTheme::setupTheme(d->m_mainView->engine());
 
     d->m_mainView->rootContext()->setContextProperty(QLatin1String("timelineModelAggregator"),
                                                      d->m_modelProxy);
