@@ -186,6 +186,9 @@ static void performTestRun(QFutureInterface<TestResultPtr> &futureInterface,
                 }
                 eventLoop.processEvents();
             }
+        } else {
+            futureInterface.reportResult(TestResultPtr(new FaultyTestResult(Result::MessageFatal,
+                QString::fromLatin1("Failed to start test for project \"%1\".").arg(testConfiguration->displayName()))));
         }
         if (testProcess.exitStatus() == QProcess::CrashExit) {
             futureInterface.reportResult(TestResultPtr(new FaultyTestResult(Result::MessageFatal,
