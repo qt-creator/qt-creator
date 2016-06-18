@@ -109,6 +109,7 @@ public:
                                 QString *error = 0, const std::function<bool (QFileInfo, QFileInfo, QString *)> &copyHelper = std::function<bool (QFileInfo, QFileInfo, QString *)>());
     static bool isFileNewerThan(const FileName &filePath, const QDateTime &timeStamp);
     static FileName resolveSymlinks(const FileName &path);
+    static FileName canonicalPath(const FileName &path);
     static QString shortNativePath(const FileName &path);
     static QString fileSystemFriendlyName(const QString &name);
     static int indexOfQmakeUnfriendly(const QString &name, int startpos = 0);
