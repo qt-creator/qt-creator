@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include "ui_quicktoolbarsettingspage.h"
+#include "ui_qmljseditingsettingspage.h"
 #include <coreplugin/dialogs/ioptionspage.h>
 #include <QPointer>
 #include <QWidget>
@@ -36,61 +36,77 @@ QT_END_NAMESPACE
 
 namespace QmlJSEditor {
 
-    class QuickToolBarSettings {
+    class QmlJsEditingSettings {
     public:
-        QuickToolBarSettings();
+        QmlJsEditingSettings();
 
-        static QuickToolBarSettings get();
+        static QmlJsEditingSettings get();
         void set();
 
         void fromSettings(QSettings *);
         void toSettings(QSettings *) const;
 
-        bool equals(const QuickToolBarSettings &other) const;
-        bool enableContextPane;
-        bool pinContextPane;
+        bool equals(const QmlJsEditingSettings &other) const;
+
+        bool enableContextPane() const;
+        void setEnableContextPane(const bool enableContextPane);
+
+        bool pinContextPane() const;
+        void setPinContextPane(const bool pinContextPane);
+
+        bool autoFormatOnSave() const;
+        void setAutoFormatOnSave(const bool autoFormatOnSave);
+
+        bool autoFormatOnlyCurrentProject() const;
+        void setAutoFormatOnlyCurrentProject(const bool autoFormatOnlyCurrentProject);
+
+    private:
+        bool m_enableContextPane;
+        bool m_pinContextPane;
+        bool m_autoFormatOnSave;
+        bool m_autoFormatOnlyCurrentProject;
     };
 
-    inline bool operator==(const QuickToolBarSettings &s1, const QuickToolBarSettings &s2)
+    inline bool operator==(const QmlJsEditingSettings &s1, const QmlJsEditingSettings &s2)
     { return s1.equals(s2); }
-    inline bool operator!=(const QuickToolBarSettings &s1, const QuickToolBarSettings &s2)
+    inline bool operator!=(const QmlJsEditingSettings &s1, const QmlJsEditingSettings &s2)
     { return !s1.equals(s2); }
 
 
-class QuickToolBarSettings;
+class QmlJsEditingSettings;
 
 namespace Internal {
 
-class QuickToolBarSettingsPageWidget : public QWidget
+class QmlJsEditingSettignsPageWidget : public QWidget
 {
     Q_OBJECT
 
 public:
-    explicit QuickToolBarSettingsPageWidget(QWidget *parent = 0);
+    explicit QmlJsEditingSettignsPageWidget(QWidget *parent = 0);
 
-    QuickToolBarSettings settings() const;
-    void setSettings(const QuickToolBarSettings &);
+    QmlJsEditingSettings settings() const;
+    void setSettings(const QmlJsEditingSettings &);
 
-    static QuickToolBarSettings get();
+    static QmlJsEditingSettings get();
 
 private:
-    Ui::QuickToolBarSettingsPage m_ui;
+    Ui::QmlJsEditingSettingsPage m_ui;
 };
 
 
-class QuickToolBarSettingsPage : public Core::IOptionsPage
+class QmlJsEditingSettingsPage : public Core::IOptionsPage
 {
     Q_OBJECT
 
 public:
-    QuickToolBarSettingsPage();
+    QmlJsEditingSettingsPage();
 
     QWidget *widget();
     void apply();
     void finish();
 
 private:
-    QPointer<QuickToolBarSettingsPageWidget> m_widget;
+    QPointer<QmlJsEditingSettignsPageWidget> m_widget;
 };
 
 } // namespace Internal

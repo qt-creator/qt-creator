@@ -38,6 +38,7 @@ namespace Utils { class JsonSchemaManager; }
 namespace Core {
 class Command;
 class ActionContainer;
+class IDocument;
 class IEditor;
 }
 
@@ -82,6 +83,7 @@ private:
     void currentEditorChanged(Core::IEditor *editor);
     void runSemanticScan();
     void checkCurrentEditorSemanticInfoUpToDate();
+    void autoFormatOnSave(Core::IDocument *document);
 
     Core::Command *addToolAction(QAction *a, Core::Context &context, Core::Id id,
                                  Core::ActionContainer *c1, const QString &keySequence);

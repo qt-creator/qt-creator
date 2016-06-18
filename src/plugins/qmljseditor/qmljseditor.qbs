@@ -26,6 +26,9 @@ QtcPlugin {
         "qmljscomponentnamedialog.cpp",
         "qmljscomponentnamedialog.h",
         "qmljscomponentnamedialog.ui",
+        "qmljseditingsettingspage.cpp",
+        "qmljseditingsettingspage.h",
+        "qmljseditingsettingspage.ui",
         "qmljseditor.cpp",
         "qmljseditor.h",
         "qmljseditor_global.h",
@@ -68,9 +71,6 @@ QtcPlugin {
         "qmltaskmanager.h",
         "quicktoolbar.cpp",
         "quicktoolbar.h",
-        "quicktoolbarsettingspage.cpp",
-        "quicktoolbarsettingspage.h",
-        "quicktoolbarsettingspage.ui",
     ]
 
     Export {

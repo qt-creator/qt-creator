@@ -24,7 +24,7 @@
 ****************************************************************************/
 
 #include "quicktoolbar.h"
-#include "quicktoolbarsettingspage.h"
+#include "qmljseditingsettingspage.h"
 
 #include <utils/changeset.h>
 #include <qmleditorwidgets/contextpanewidget.h>
@@ -114,7 +114,7 @@ QuickToolBar::~QuickToolBar()
 
 void QuickToolBar::apply(TextEditor::TextEditorWidget *editorWidget, Document::Ptr document, const ScopeChain *scopeChain, Node *node, bool update, bool force)
 {
-    if (!QuickToolBarSettings::get().enableContextPane && !force && !update) {
+    if (!QmlJsEditingSettings::get().enableContextPane() && !force && !update) {
         contextWidget()->hide();
         return;
     }
@@ -219,10 +219,10 @@ void QuickToolBar::apply(TextEditor::TextEditorWidget *editorWidget, Document::P
             if (!update)
                 contextWidget()->setType(m_prototypes);
             if (!update)
-                contextWidget()->activate(p3 , p1, p2, QuickToolBarSettings::get().pinContextPane);
+                contextWidget()->activate(p3 , p1, p2, QmlJsEditingSettings::get().pinContextPane());
             else
-                contextWidget()->rePosition(p3 , p1, p2, QuickToolBarSettings::get().pinContextPane);
-            contextWidget()->setOptions(QuickToolBarSettings::get().enableContextPane, QuickToolBarSettings::get().pinContextPane);
+                contextWidget()->rePosition(p3 , p1, p2, QmlJsEditingSettings::get().pinContextPane());
+            contextWidget()->setOptions(QmlJsEditingSettings::get().enableContextPane(), QmlJsEditingSettings::get().pinContextPane());
             contextWidget()->setPath(document->path());
             contextWidget()->setProperties(&propertyReader);
             m_doc = document;
@@ -404,16 +404,16 @@ void QuickToolBar::onPropertyRemovedAndChange(const QString &remove, const QStri
 
 void QuickToolBar::onPinnedChanged(bool b)
 {
-    QuickToolBarSettings settings = QuickToolBarSettings::get();
-    settings.pinContextPane = b;
+    QmlJsEditingSettings settings = QmlJsEditingSettings::get();
+    settings.setPinContextPane(b);
     settings.set();
 }
 
 void QuickToolBar::onEnabledChanged(bool b)
 {
-    QuickToolBarSettings settings = QuickToolBarSettings::get();
-    settings.pinContextPane = b;
-    settings.enableContextPane = b;
+    QmlJsEditingSettings settings = QmlJsEditingSettings::get();
+    settings.setPinContextPane(b);
+    settings.setEnableContextPane(b);
     settings.set();
 }
 
