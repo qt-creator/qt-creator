@@ -89,8 +89,8 @@ public:
     QString displayName() const
     { return m_displayName; }
 
-    QColor foreground() const;
-    QColor background() const;
+    static QColor defaultForeground(TextStyle id);
+    static QColor defaultBackground(TextStyle id);
 
     const Format &format() const { return m_format; }
     Format &format() { return m_format; }

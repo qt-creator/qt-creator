@@ -204,6 +204,7 @@ FormatDescription::FormatDescription(TextStyle id,
       m_showControls(showControls)
 {
     m_format.setForeground(foreground);
+    m_format.setBackground(defaultBackground(id));
 }
 
 FormatDescription::FormatDescription(TextStyle id,
@@ -230,8 +231,8 @@ FormatDescription::FormatDescription(TextStyle id,
       m_tooltipText(tooltipText),
       m_showControls(showControls)
 {
-    m_format.setForeground(QColor());
-    m_format.setBackground(QColor());
+    m_format.setForeground(defaultForeground(id));
+    m_format.setBackground(defaultBackground(id));
     m_format.setUnderlineColor(underlineColor);
     m_format.setUnderlineStyle(underlineStyle);
 }
@@ -245,52 +246,54 @@ FormatDescription::FormatDescription(TextStyle id,
       m_tooltipText(tooltipText),
       m_showControls(showControls)
 {
+    m_format.setForeground(defaultForeground(id));
+    m_format.setBackground(defaultBackground(id));
 }
 
-QColor FormatDescription::foreground() const
+QColor FormatDescription::defaultForeground(TextStyle id)
 {
-    if (m_id == C_LINE_NUMBER) {
+    if (id == C_LINE_NUMBER) {
         const QColor bg = QApplication::palette().background().color();
         if (bg.value() < 128)
             return QApplication::palette().foreground().color();
         else
             return QApplication::palette().dark().color();
-    } else if (m_id == C_CURRENT_LINE_NUMBER) {
+    } else if (id == C_CURRENT_LINE_NUMBER) {
         const QColor bg = QApplication::palette().background().color();
         if (bg.value() < 128)
             return QApplication::palette().foreground().color();
         else
-            return m_format.foreground();
-    } else if (m_id == C_PARENTHESES) {
+            return QColor();
+    } else if (id == C_PARENTHESES) {
         return QColor(Qt::red);
-    } else if (m_id == C_AUTOCOMPLETE) {
+    } else if (id == C_AUTOCOMPLETE) {
         return QColor(Qt::darkBlue);
     }
-    return m_format.foreground();
+    return QColor();
 }
 
-QColor FormatDescription::background() const
+QColor FormatDescription::defaultBackground(TextStyle id)
 {
-    if (m_id == C_TEXT) {
+    if (id == C_TEXT) {
         return Qt::white;
-    } else if (m_id == C_LINE_NUMBER) {
+    } else if (id == C_LINE_NUMBER) {
         return QApplication::palette().background().color();
-    } else if (m_id == C_SEARCH_RESULT) {
+    } else if (id == C_SEARCH_RESULT) {
         return QColor(0xffef0b);
-    } else if (m_id == C_PARENTHESES) {
+    } else if (id == C_PARENTHESES) {
         return QColor(0xb4, 0xee, 0xb4);
-    } else if (m_id == C_PARENTHESES_MISMATCH) {
+    } else if (id == C_PARENTHESES_MISMATCH) {
         return QColor(Qt::magenta);
-    } else if (m_id == C_AUTOCOMPLETE) {
+    } else if (id == C_AUTOCOMPLETE) {
         return QColor(192, 192, 255);
-    } else if (m_id == C_CURRENT_LINE || m_id == C_SEARCH_SCOPE) {
+    } else if (id == C_CURRENT_LINE || id == C_SEARCH_SCOPE) {
         const QPalette palette = QApplication::palette();
         const QColor &fg = palette.color(QPalette::Highlight);
         const QColor &bg = palette.color(QPalette::Base);
 
         qreal smallRatio;
         qreal largeRatio;
-        if (m_id == C_CURRENT_LINE) {
+        if (id == C_CURRENT_LINE) {
             smallRatio = .3;
             largeRatio = .6;
         } else {
@@ -304,22 +307,15 @@ QColor FormatDescription::background() const
                                              fg.greenF() * ratio + bg.greenF() * (1 - ratio),
                                              fg.blueF() * ratio + bg.blueF() * (1 - ratio));
         return col;
-    } else if (m_id == C_SELECTION) {
+    } else if (id == C_SELECTION) {
         const QPalette palette = QApplication::palette();
         return palette.color(QPalette::Highlight);
-    } else if (m_id == C_OCCURRENCES) {
+    } else if (id == C_OCCURRENCES) {
         return QColor(180, 180, 180);
-    } else if (m_id == C_OCCURRENCES_RENAME) {
+    } else if (id == C_OCCURRENCES_RENAME) {
         return QColor(255, 100, 100);
-    } else if (m_id == C_DISABLED_CODE) {
+    } else if (id == C_DISABLED_CODE) {
         return QColor(239, 239, 239);
-    } else if (m_id == C_DIFF_FILE_LINE
-               || m_id == C_DIFF_CONTEXT_LINE
-               || m_id == C_DIFF_SOURCE_LINE
-               || m_id == C_DIFF_SOURCE_CHAR
-               || m_id == C_DIFF_DEST_LINE
-               || m_id == C_DIFF_DEST_CHAR) {
-        return m_format.background();
     }
     return QColor(); // invalid color
 }
