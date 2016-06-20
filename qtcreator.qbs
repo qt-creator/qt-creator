@@ -7,7 +7,7 @@ Project {
     property bool withAutotests: qbs.buildVariant === "debug"
     property string ide_version_major: '4'
     property string ide_version_minor: '0'
-    property string ide_version_release: '2'
+    property string ide_version_release: '3'
     property string qtcreator_version: ide_version_major + '.' + ide_version_minor + '.' + ide_version_release
     property string ide_compat_version_major: '4'
     property string ide_compat_version_minor: '0'
