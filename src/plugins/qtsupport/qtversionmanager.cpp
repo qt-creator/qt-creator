@@ -64,7 +64,6 @@ const char QTVERSION_DATA_KEY[] = "QtVersion.";
 const char QTVERSION_TYPE_KEY[] = "QtVersion.Type";
 const char QTVERSION_FILE_VERSION_KEY[] = "Version";
 const char QTVERSION_FILENAME[] = "/qtcreator/qtversion.xml";
-const char QTVERSION_LEGACY_FILENAME[] = "/qtversion.xml"; // TODO: pre 2.6, remove later
 
 static QMap<int, BaseQtVersion *> m_versions;
 static int m_idcount = 0;
@@ -185,9 +184,6 @@ static bool restoreQtVersions()
     PersistentSettingsReader reader;
     FileName filename = settingsFileName(QLatin1String(QTVERSION_FILENAME));
 
-    // Read Qt Creator 2.5 qtversions.xml once:
-    if (!filename.exists())
-        filename = settingsFileName(QLatin1String(QTVERSION_LEGACY_FILENAME));
     if (!reader.load(filename))
         return false;
     QVariantMap data = reader.restoreValues();
