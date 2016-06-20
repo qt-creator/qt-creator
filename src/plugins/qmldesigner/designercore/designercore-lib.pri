@@ -1,5 +1,4 @@
 include($$PWD/filemanager/filemanager.pri)
-include (../config.pri)
 
 QT += network
 
