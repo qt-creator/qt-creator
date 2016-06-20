@@ -20,6 +20,8 @@ greaterThan(QT_MAJOR_VERSION, 4) {
     contains(QT_CONFIG, webkit): QT += webkit
 }
 
+unix:!openbsd:!osx: LIBS += -lrt # posix shared memory
+
 DEFINES+=QTCREATORDIR=\\\"$$IDE_BUILD_TREE\\\"
 DEFINES+=TESTSRCDIR=\\\"$$_PRO_FILE_PWD_\\\"
 
