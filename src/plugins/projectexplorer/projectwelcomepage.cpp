@@ -102,7 +102,7 @@ QHash<int, QByteArray> SessionModel::roleNames() const
         {ProjectsPathRole, "projectsPath"},
         {ProjectsDisplayRole, "projectsName"}
     };
-    return QAbstractListModel::roleNames() + extraRoles;
+    return QAbstractListModel::roleNames().unite(extraRoles);
 }
 
 bool SessionModel::isDefaultVirgin() const
