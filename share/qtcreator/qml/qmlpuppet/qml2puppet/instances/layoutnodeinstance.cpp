@@ -70,7 +70,8 @@ void LayoutNodeInstance::refreshLayoutable()
 
 PropertyNameList LayoutNodeInstance::ignoredProperties() const
 {
-    return PropertyNameList() << "move" << "add" << "populate";
+    static const PropertyNameList properties({"move", "add", "populate"});
+    return properties;
 }
 
 }

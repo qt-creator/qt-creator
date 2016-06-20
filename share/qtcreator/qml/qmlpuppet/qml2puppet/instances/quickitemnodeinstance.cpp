@@ -734,15 +734,15 @@ bool QuickItemNodeInstance::hasAnchor(const PropertyName &name) const
 
 static bool isValidAnchorName(const PropertyName &name)
 {
-    static PropertyNameList anchorNameList(PropertyNameList() << "anchors.top"
-                                                    << "anchors.left"
-                                                    << "anchors.right"
-                                                    << "anchors.bottom"
-                                                    << "anchors.verticalCenter"
-                                                    << "anchors.horizontalCenter"
-                                                    << "anchors.fill"
-                                                    << "anchors.centerIn"
-                                                    << "anchors.baseline");
+    static PropertyNameList anchorNameList({"anchors.top",
+                                            "anchors.left",
+                                            "anchors.right",
+                                            "anchors.bottom",
+                                            "anchors.verticalCenter",
+                                            "anchors.horizontalCenter",
+                                            "anchors.fill",
+                                            "anchors.centerIn",
+                                            "anchors.baseline"});
 
     return anchorNameList.contains(name);
 }

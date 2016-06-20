@@ -187,8 +187,8 @@ bool detectHorizontalCycle(const ModelNode &node, QList<ModelNode> knownNodeList
 
     knownNodeList.append(node);
 
-    static PropertyNameList validAnchorLines(PropertyNameList() << "right" << "left" << "horizontalCenter");
-    static PropertyNameList anchorNames(PropertyNameList() << "anchors.right" << "anchors.left" << "anchors.horizontalCenter");
+    static const PropertyNameList validAnchorLines({"right", "left", "horizontalCenter"});
+    static const PropertyNameList anchorNames({"anchors.right", "anchors.left", "anchors.horizontalCenter"});
 
     foreach (const PropertyName &anchorName, anchorNames) {
         if (node.hasBindingProperty(anchorName)) {
@@ -204,7 +204,7 @@ bool detectHorizontalCycle(const ModelNode &node, QList<ModelNode> knownNodeList
 
     }
 
-    static PropertyNameList anchorShortcutNames(PropertyNameList() << "anchors.fill" << "anchors.centerIn");
+    static const PropertyNameList anchorShortcutNames({"anchors.fill", "anchors.centerIn"});
     foreach (const PropertyName &anchorName, anchorShortcutNames) {
         if (node.hasBindingProperty(anchorName)) {
             ModelNode targetNode = node.bindingProperty(anchorName).resolveToModelNode();
@@ -227,8 +227,8 @@ bool detectVerticalCycle(const ModelNode &node, QList<ModelNode> knownNodeList)
 
     knownNodeList.append(node);
 
-    static PropertyNameList validAnchorLines(PropertyNameList() << "top" << "bottom" << "verticalCenter" << "baseline");
-    static PropertyNameList anchorNames(PropertyNameList() << "anchors.top" << "anchors.bottom" << "anchors.verticalCenter" << "anchors.baseline");
+    static const PropertyNameList validAnchorLines({"top", "bottom", "verticalCenter", "baseline"});
+    static const PropertyNameList anchorNames({"anchors.top", "anchors.bottom", "anchors.verticalCenter", "anchors.baseline"});
 
     foreach (const PropertyName &anchorName, anchorNames) {
         if (node.hasBindingProperty(anchorName)) {
@@ -244,7 +244,7 @@ bool detectVerticalCycle(const ModelNode &node, QList<ModelNode> knownNodeList)
 
     }
 
-    static PropertyNameList anchorShortcutNames(PropertyNameList() << "anchors.fill" << "anchors.centerIn");
+    static const PropertyNameList anchorShortcutNames({"anchors.fill", "anchors.centerIn"});
     foreach (const PropertyName &anchorName, anchorShortcutNames) {
         if (node.hasBindingProperty(anchorName)) {
             ModelNode targetNode = node.bindingProperty(anchorName).resolveToModelNode();

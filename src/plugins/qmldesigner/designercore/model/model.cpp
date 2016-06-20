@@ -1488,7 +1488,7 @@ void ModelPrivate::setVariantProperty(const InternalNode::Pointer &internalNodeP
 
     internalNodePointer->variantProperty(name)->setValue(value);
     internalNodePointer->variantProperty(name)->resetDynamicTypeName();
-    notifyVariantPropertiesChanged(internalNodePointer, PropertyNameList() << name, propertyChange);
+    notifyVariantPropertiesChanged(internalNodePointer, PropertyNameList({name}), propertyChange);
 }
 
 void ModelPrivate::setDynamicVariantProperty(const InternalNodePointer &internalNodePointer,
@@ -1503,7 +1503,7 @@ void ModelPrivate::setDynamicVariantProperty(const InternalNodePointer &internal
     }
 
     internalNodePointer->variantProperty(name)->setDynamicValue(dynamicPropertyType, value);
-    notifyVariantPropertiesChanged(internalNodePointer, PropertyNameList() << name, propertyChange);
+    notifyVariantPropertiesChanged(internalNodePointer, PropertyNameList({name}), propertyChange);
 }
 
 void ModelPrivate::setDynamicBindingProperty(const InternalNodePointer &internalNodePointer,

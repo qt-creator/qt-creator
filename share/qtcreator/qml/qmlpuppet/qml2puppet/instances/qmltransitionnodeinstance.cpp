@@ -52,7 +52,8 @@ bool QmlTransitionNodeInstance::isTransition() const
 
 PropertyNameList QmlTransitionNodeInstance::ignoredProperties() const
 {
-    return PropertyNameList() << "from" << "to";
+    static const PropertyNameList properties({"from", "to"});
+    return properties;
 }
 
 }
