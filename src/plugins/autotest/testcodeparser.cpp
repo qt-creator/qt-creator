@@ -156,13 +156,13 @@ void TestCodeParser::updateTestTree()
 
 /****** scan for QTest related stuff helpers ******/
 
+static CppTools::WorkingCopy s_workingCopy;
+
 static QByteArray getFileContent(QString filePath)
 {
     QByteArray fileContent;
-    CppTools::CppModelManager *cppMM = CppTools::CppModelManager::instance();
-    CppTools::WorkingCopy wc = cppMM->workingCopy();
-    if (wc.contains(filePath)) {
-        fileContent = wc.source(filePath);
+    if (s_workingCopy.contains(filePath)) {
+        fileContent = s_workingCopy.source(filePath);
     } else {
         QString error;
         const QTextCodec *codec = Core::EditorManager::defaultTextCodec();
@@ -751,6 +751,9 @@ void TestCodeParser::scanForTests(const QStringList &fileList)
             m_model->markForRemoval(filePath);
     }
 
+    // fetch working copy before starting asynchronously processing
+    s_workingCopy = CppTools::CppModelManager::instance()->workingCopy();
+
     QFuture<TestParseResult> future = Utils::runAsync(&performParse, list, testCaseNames);
     m_futureWatcher.setFuture(future);
     if (list.size() > 5) {
@@ -793,12 +796,14 @@ void TestCodeParser::onFinished()
         } else {
             qCDebug(LOG) << "emitting parsingFinished"
                          << "(onFinished, FullParse, nothing postponed, parsing succeeded)";
+            s_workingCopy = CppTools::WorkingCopy();
             emit parsingFinished();
         }
         m_dirty = false;
         break;
     case Disabled: // can happen if all Test related widgets become hidden while parsing
         qCDebug(LOG) << "emitting parsingFinished (onFinished, Disabled)";
+        s_workingCopy = CppTools::WorkingCopy();
         emit parsingFinished();
         break;
     default:
@@ -827,6 +832,7 @@ void TestCodeParser::onPartialParsingFinished()
         } else if (!m_singleShotScheduled) {
             qCDebug(LOG) << "emitting parsingFinished"
                          << "(onPartialParsingFinished, nothing postponed, not dirty)";
+            s_workingCopy = CppTools::WorkingCopy();
             emit parsingFinished();
         } else {
             qCDebug(LOG) << "not emitting parsingFinished"
