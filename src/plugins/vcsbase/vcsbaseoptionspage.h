@@ -43,6 +43,7 @@ class VCSBASE_EXPORT VcsBaseOptionsPage : public Core::IOptionsPage
 {
 public:
     explicit VcsBaseOptionsPage(QObject *parent = 0);
+    ~VcsBaseOptionsPage() override;
 };
 
 class VcsBaseClientImpl;
