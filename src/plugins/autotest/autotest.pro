@@ -23,6 +23,7 @@ SOURCES += \
     testsettingspage.cpp \
     testnavigationwidget.cpp \
     testoutputreader.cpp \
+    itestparser.cpp \
     gtest/gtestconfiguration.cpp \
     gtest/gtestparser.cpp \
     gtest/gtesttreeitem.cpp \

@@ -78,7 +78,7 @@ static bool handleGTest(QFutureInterface<TestParseResultPtr> futureInterface,
 {
     const CppTools::CppModelManager *modelManager = CppTools::CppModelManager::instance();
     const QString &filePath = doc->fileName();
-    const QByteArray &fileContent = TestUtils::getFileContent(filePath);
+    const QByteArray &fileContent = CppParser::getFileContent(filePath);
     CPlusPlus::Document::Ptr document = snapshot.preprocessedDocument(fileContent, filePath);
     document->check();
     CPlusPlus::AST *ast = document->translationUnit()->ast();

@@ -27,6 +27,8 @@
 
 #include "itestparser.h"
 
+#include <qmljs/qmljsdocument.h>
+
 #include <QObject>
 #include <QMap>
 #include <QFutureWatcher>
@@ -84,6 +86,7 @@ private:
     void onAllTasksFinished(Core::Id type);
     void onFinished();
     void onPartialParsingFinished();
+    void releaseParserInternals();
 
     TestTreeModel *m_model;
 

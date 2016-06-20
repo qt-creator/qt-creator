@@ -81,7 +81,7 @@ static bool qtTestLibDefined(const QString &fileName)
 static QString testClass(const CppTools::CppModelManager *modelManager,
                          const CPlusPlus::Snapshot &snapshot, const QString &fileName)
 {
-    const QByteArray &fileContent = TestUtils::getFileContent(fileName);
+    const QByteArray &fileContent = CppParser::getFileContent(fileName);
     CPlusPlus::Document::Ptr document = modelManager->document(fileName);
     if (document.isNull())
         return QString();
@@ -150,7 +150,7 @@ static QSet<QString> filesWithDataFunctionDefinitions(
 static QMap<QString, TestCodeLocationList> checkForDataTags(const QString &fileName,
             const CPlusPlus::Snapshot &snapshot)
 {
-    const QByteArray fileContent = TestUtils::getFileContent(fileName);
+    const QByteArray fileContent = CppParser::getFileContent(fileName);
     CPlusPlus::Document::Ptr document = snapshot.preprocessedDocument(fileContent, fileName);
     document->check();
     CPlusPlus::AST *ast = document->translationUnit()->ast();
