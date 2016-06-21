@@ -34,6 +34,7 @@ ButtonRow {
 
     ButtonRowButton {
         iconSource: "images/anchor-top.png"
+        tooltip: qsTr("Anchor item to the top.")
 
         property bool topAnchored: anchorBackend.topAnchored
         onTopAnchoredChanged: {
@@ -53,6 +54,7 @@ ButtonRow {
 
     ButtonRowButton {
         iconSource: "images/anchor-bottom.png"
+        tooltip: qsTr("Anchor item to the bottom.")
 
         property bool bottomAnchored: anchorBackend.bottomAnchored
         onBottomAnchoredChanged: {
@@ -73,6 +75,7 @@ ButtonRow {
 
     ButtonRowButton {
         iconSource: "images/anchor-left.png"
+        tooltip: qsTr("Anchor item to the left.")
 
         property bool leftAnchored: anchorBackend.leftAnchored
         onLeftAnchoredChanged: {
@@ -92,6 +95,7 @@ ButtonRow {
 
     ButtonRowButton {
         iconSource: "images/anchor-right.png"
+        tooltip: qsTr("Anchor item to the right.")
 
         property bool rightAnchored: anchorBackend.rightAnchored
         onRightAnchoredChanged: {
@@ -116,6 +120,7 @@ ButtonRow {
 
     ButtonRowButton {
         iconSource: "images/anchor-fill.png"
+        tooltip: qsTr("Fill parent item.")
 
         property bool isFilled: anchorBackend.isFilled
         onIsFilledChanged: {
@@ -137,6 +142,7 @@ ButtonRow {
 
     ButtonRowButton {
         iconSource: "images/anchor-vertical.png"
+        tooltip: qsTr("Anchor item vertically.")
 
         property bool verticalCentered: anchorBackend.verticalCentered;
         onVerticalCenteredChanged: {
@@ -158,6 +164,7 @@ ButtonRow {
 
     ButtonRowButton {
         iconSource: "images/anchor-horizontal.png"
+        tooltip: qsTr("Anchor item horizontally.")
 
         property bool horizontalCentered: anchorBackend.horizontalCentered;
         onHorizontalCenteredChanged: {
