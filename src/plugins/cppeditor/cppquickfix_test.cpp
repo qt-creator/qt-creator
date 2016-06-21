@@ -1890,6 +1890,85 @@ void CppEditorPlugin::test_quickfix_GenerateGetterSetter_onlySetter()
     QuickFixOperationTest(testDocuments, &factory, ProjectPartHeaderPaths(), 2);
 }
 
+class CppCodeStyleSettingsChanger {
+public:
+    CppCodeStyleSettingsChanger(const CppCodeStyleSettings &settings);
+    ~CppCodeStyleSettingsChanger(); // Restore original
+
+    static CppCodeStyleSettings currentSettings();
+
+private:
+    void setSettings(const CppCodeStyleSettings &settings);
+
+    CppCodeStyleSettings m_originalSettings;
+};
+
+CppCodeStyleSettingsChanger::CppCodeStyleSettingsChanger(const CppCodeStyleSettings &settings)
+{
+    m_originalSettings = currentSettings();
+    setSettings(settings);
+}
+
+CppCodeStyleSettingsChanger::~CppCodeStyleSettingsChanger()
+{
+    setSettings(m_originalSettings);
+}
+
+void CppCodeStyleSettingsChanger::setSettings(const CppCodeStyleSettings &settings)
+{
+    QVariant variant;
+    variant.setValue(settings);
+
+    CppCodeStylePreferences *preferences = CppToolsSettings::instance()->cppCodeStyle();
+    preferences->currentDelegate()->setValue(variant);
+}
+
+CppCodeStyleSettings CppCodeStyleSettingsChanger::currentSettings()
+{
+    CppCodeStylePreferences *preferences = CppToolsSettings::instance()->cppCodeStyle();
+    return preferences->currentDelegate()->value().value<CppCodeStyleSettings>();
+}
+
+void CppEditorPlugin::test_quickfix_GenerateGetterSetter_onlyGetter_DontPreferGetterWithGet()
+{
+    CppCodeStyleSettings modifiedSettings = CppCodeStyleSettingsChanger::currentSettings();
+    modifiedSettings.preferGetterNameWithoutGetPrefix = false;
+    CppCodeStyleSettingsChanger changer(modifiedSettings);
+
+    QList<QuickFixTestDocument::Ptr> testDocuments;
+    QByteArray original;
+    QByteArray expected;
+
+    // Header File
+    original =
+        "class Foo\n"
+        "{\n"
+        "public:\n"
+        "    int m_bar@;\n"
+        "};\n";
+    expected =
+        "class Foo\n"
+        "{\n"
+        "public:\n"
+        "    int m_bar@;\n"
+        "    int getBar() const;\n"
+        "};\n";
+    testDocuments << QuickFixTestDocument::create("file.h", original, expected);
+
+    // Source File
+    original.resize(0);
+    expected =
+        "\n"
+        "int Foo::getBar() const\n"
+        "{\n"
+        "    return m_bar;\n"
+        "}\n";
+    testDocuments << QuickFixTestDocument::create("file.cpp", original, expected);
+
+    GenerateGetterSetter factory;
+    QuickFixOperationTest(testDocuments, &factory, ProjectPartHeaderPaths(), 1);
+}
+
 /// Checks: Offer a "generate getter" quick fix if there is a setter
 void CppEditorPlugin::test_quickfix_GenerateGetterSetter_offerGetterWhenSetterPresent()
 {

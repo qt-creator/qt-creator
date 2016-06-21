@@ -59,6 +59,7 @@ static const char bindStarToLeftSpecifierKey[] = "BindStarToLeftSpecifier";
 static const char bindStarToRightSpecifierKey[] = "BindStarToRightSpecifier";
 static const char extraPaddingForConditionsIfConfusingAlignKey[] = "ExtraPaddingForConditionsIfConfusingAlign";
 static const char alignAssignmentsKey[] = "AlignAssignments";
+static const char shortGetterNameKey[] = "ShortGetterName";
 
 using namespace CppTools;
 
@@ -85,6 +86,7 @@ CppCodeStyleSettings::CppCodeStyleSettings() :
   , bindStarToRightSpecifier(false)
   , extraPaddingForConditionsIfConfusingAlign(true)
   , alignAssignments(false)
+  , preferGetterNameWithoutGetPrefix(true)
 {
 }
 
@@ -121,6 +123,7 @@ void CppCodeStyleSettings::toMap(const QString &prefix, QVariantMap *map) const
     map->insert(prefix + QLatin1String(bindStarToRightSpecifierKey), bindStarToRightSpecifier);
     map->insert(prefix + QLatin1String(extraPaddingForConditionsIfConfusingAlignKey), extraPaddingForConditionsIfConfusingAlign);
     map->insert(prefix + QLatin1String(alignAssignmentsKey), alignAssignments);
+    map->insert(prefix + QLatin1String(shortGetterNameKey), preferGetterNameWithoutGetPrefix);
 }
 
 void CppCodeStyleSettings::fromMap(const QString &prefix, const QVariantMap &map)
@@ -165,6 +168,8 @@ void CppCodeStyleSettings::fromMap(const QString &prefix, const QVariantMap &map
                                 extraPaddingForConditionsIfConfusingAlign).toBool();
     alignAssignments = map.value(prefix + QLatin1String(alignAssignmentsKey),
                                 alignAssignments).toBool();
+    preferGetterNameWithoutGetPrefix = map.value(prefix + QLatin1String(shortGetterNameKey),
+                                preferGetterNameWithoutGetPrefix).toBool();
 }
 
 bool CppCodeStyleSettings::equals(const CppCodeStyleSettings &rhs) const
@@ -188,7 +193,37 @@ bool CppCodeStyleSettings::equals(const CppCodeStyleSettings &rhs) const
            && bindStarToLeftSpecifier == rhs.bindStarToLeftSpecifier
            && bindStarToRightSpecifier == rhs.bindStarToRightSpecifier
            && extraPaddingForConditionsIfConfusingAlign == rhs.extraPaddingForConditionsIfConfusingAlign
-            && alignAssignments == rhs.alignAssignments;
+           && alignAssignments == rhs.alignAssignments
+           && preferGetterNameWithoutGetPrefix == rhs.preferGetterNameWithoutGetPrefix
+           ;
+}
+
+CppCodeStyleSettings CppCodeStyleSettings::currentProjectCodeStyle()
+{
+    ProjectExplorer::Project *project = ProjectExplorer::ProjectTree::currentProject();
+    if (!project)
+        return currentGlobalCodeStyle();
+
+    ProjectExplorer::EditorConfiguration *editorConfiguration = project->editorConfiguration();
+    QTC_ASSERT(editorConfiguration, return currentGlobalCodeStyle());
+
+    TextEditor::ICodeStylePreferences *codeStylePreferences
+        = editorConfiguration->codeStyle(Constants::CPP_SETTINGS_ID);
+    QTC_ASSERT(codeStylePreferences, return currentGlobalCodeStyle());
+
+    CppCodeStylePreferences *cppCodeStylePreferences
+        = dynamic_cast<CppCodeStylePreferences *>(codeStylePreferences);
+    QTC_ASSERT(cppCodeStylePreferences, return currentGlobalCodeStyle());
+
+    return cppCodeStylePreferences->currentCodeStyleSettings();
+}
+
+CppCodeStyleSettings CppCodeStyleSettings::currentGlobalCodeStyle()
+{
+    CppCodeStylePreferences *cppCodeStylePreferences = CppToolsSettings::instance()->cppCodeStyle();
+    QTC_ASSERT(cppCodeStylePreferences, return CppCodeStyleSettings());
+
+    return cppCodeStylePreferences->currentCodeStyleSettings();
 }
 
 static void configureOverviewWithCodeStyleSettings(CPlusPlus::Overview &overview,
@@ -207,37 +242,14 @@ static void configureOverviewWithCodeStyleSettings(CPlusPlus::Overview &overview
 
 CPlusPlus::Overview CppCodeStyleSettings::currentProjectCodeStyleOverview()
 {
-    ProjectExplorer::Project *project = ProjectExplorer::ProjectTree::currentProject();
-    if (!project)
-        return currentGlobalCodeStyleOverview();
-
-    ProjectExplorer::EditorConfiguration *editorConfiguration = project->editorConfiguration();
-    QTC_ASSERT(editorConfiguration, return currentGlobalCodeStyleOverview());
-
-    TextEditor::ICodeStylePreferences *codeStylePreferences
-        = editorConfiguration->codeStyle(Constants::CPP_SETTINGS_ID);
-    QTC_ASSERT(codeStylePreferences, return currentGlobalCodeStyleOverview());
-
-    CppCodeStylePreferences *cppCodeStylePreferences
-        = dynamic_cast<CppCodeStylePreferences *>(codeStylePreferences);
-    QTC_ASSERT(cppCodeStylePreferences, return currentGlobalCodeStyleOverview());
-
-    CppCodeStyleSettings settings = cppCodeStylePreferences->currentCodeStyleSettings();
-
     CPlusPlus::Overview overview;
-    configureOverviewWithCodeStyleSettings(overview, settings);
+    configureOverviewWithCodeStyleSettings(overview, currentProjectCodeStyle());
     return overview;
 }
 
 CPlusPlus::Overview CppCodeStyleSettings::currentGlobalCodeStyleOverview()
 {
     CPlusPlus::Overview overview;
-
-    CppCodeStylePreferences *cppCodeStylePreferences = CppToolsSettings::instance()->cppCodeStyle();
-    QTC_ASSERT(cppCodeStylePreferences, return overview);
-
-    CppCodeStyleSettings settings = cppCodeStylePreferences->currentCodeStyleSettings();
-
-    configureOverviewWithCodeStyleSettings(overview, settings);
+    configureOverviewWithCodeStyleSettings(overview, currentGlobalCodeStyle());
     return overview;
 }

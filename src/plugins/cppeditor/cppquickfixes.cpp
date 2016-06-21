@@ -5967,9 +5967,10 @@ void GenerateGetterSetterOperation::determineGetterSetterNames()
         m_baseName = QLatin1String("value");
 
     // Getter Name
+    const CppCodeStyleSettings settings = CppCodeStyleSettings::currentProjectCodeStyle();
     const bool hasValidBaseName = m_baseName != m_variableString;
     const bool getPrefixIsAlreadyUsed = hasClassMemberWithGetPrefix(m_classSpecifier->symbol);
-    if (hasValidBaseName && !getPrefixIsAlreadyUsed) {
+    if (settings.preferGetterNameWithoutGetPrefix && hasValidBaseName && !getPrefixIsAlreadyUsed) {
         m_getterName = m_baseName;
     } else {
         const QString baseNameWithCapital = m_baseName.left(1).toUpper() + m_baseName.mid(1);
