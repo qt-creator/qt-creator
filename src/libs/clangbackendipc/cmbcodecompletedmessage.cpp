@@ -56,15 +56,10 @@ quint64 CodeCompletedMessage::ticketNumber() const
     return ticketNumber_;
 }
 
-quint32 &CodeCompletedMessage::neededCorrectionAsInt()
-{
-    return reinterpret_cast<quint32&>(neededCorrection_);
-}
-
 QDataStream &operator<<(QDataStream &out, const CodeCompletedMessage &message)
 {
     out << message.codeCompletions_;
-    out << quint32(message.neededCorrection_);
+    out << static_cast<quint32>(message.neededCorrection_);
     out << message.ticketNumber_;
 
     return out;
@@ -72,9 +67,13 @@ QDataStream &operator<<(QDataStream &out, const CodeCompletedMessage &message)
 
 QDataStream &operator>>(QDataStream &in, CodeCompletedMessage &message)
 {
+    quint32 neededCorrection;
+
     in >> message.codeCompletions_;
-    in >> message.neededCorrectionAsInt();
+    in >> neededCorrection;
     in >> message.ticketNumber_;
+
+    message.neededCorrection_ = static_cast<CompletionCorrection>(neededCorrection);
 
     return in;
 }

@@ -104,10 +104,6 @@ public:
     const Utf8String &briefComment() const;
 
 private:
-    quint32 &completionKindAsInt();
-    quint32 &availabilityAsInt();
-
-private:
     Utf8String text_;
     Utf8String briefComment_;
     CodeCompletionChunks chunks_;

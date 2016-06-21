@@ -56,14 +56,9 @@ bool CodeCompletionChunk::isOptional() const
     return isOptional_;
 }
 
-quint8 &CodeCompletionChunk::kindAsInt()
-{
-    return reinterpret_cast<quint8&>(kind_);
-}
-
 QDataStream &operator<<(QDataStream &out, const CodeCompletionChunk &chunk)
 {
-    out << quint8(chunk.kind_);
+    out << static_cast<quint8>(chunk.kind_);
     out << chunk.text_;
     out << chunk.isOptional_;
 
@@ -72,9 +67,13 @@ QDataStream &operator<<(QDataStream &out, const CodeCompletionChunk &chunk)
 
 QDataStream &operator>>(QDataStream &in, CodeCompletionChunk &chunk)
 {
-    in >> chunk.kindAsInt();
+    quint8 kind;
+
+    in >> kind;
     in >> chunk.text_;
     in >> chunk.isOptional_;
+
+    chunk.kind_ = static_cast<CodeCompletionChunk::Kind>(kind);
 
     return in;
 }

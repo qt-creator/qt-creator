@@ -62,9 +62,6 @@ public:
     const QVector<DiagnosticContainer> &children() const;
 
 private:
-    quint32 &severityAsInt();
-
-private:
     SourceLocationContainer location_;
     QVector<SourceRangeContainer> ranges_;
     Utf8String text_;

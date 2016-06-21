@@ -50,9 +50,6 @@ public:
     quint64 ticketNumber() const;
 
 private:
-    quint32 &neededCorrectionAsInt();
-
-private:
     CodeCompletions codeCompletions_;
     quint64 ticketNumber_ = 0;
     CompletionCorrection neededCorrection_ = CompletionCorrection::NoCorrection;

@@ -97,11 +97,6 @@ const QVector<DiagnosticContainer> &DiagnosticContainer::children() const
     return children_;
 }
 
-quint32 &DiagnosticContainer::severityAsInt()
-{
-    return reinterpret_cast<quint32&>(severity_);
-}
-
 QDataStream &operator<<(QDataStream &out, const DiagnosticContainer &container)
 {
     out << container.text_;
@@ -109,7 +104,7 @@ QDataStream &operator<<(QDataStream &out, const DiagnosticContainer &container)
     out << container.enableOption_;
     out << container.disableOption_;
     out << container.location_;
-    out << quint32(container.severity_);
+    out << static_cast<quint32>(container.severity_);
     out << container.ranges_;
     out << container.fixIts_;
     out << container.children_;
@@ -119,15 +114,19 @@ QDataStream &operator<<(QDataStream &out, const DiagnosticContainer &container)
 
 QDataStream &operator>>(QDataStream &in, DiagnosticContainer &container)
 {
+    quint32 severity;
+
     in >> container.text_;
     in >> container.category_;
     in >> container.enableOption_;
     in >> container.disableOption_;
     in >> container.location_;
-    in >> container.severityAsInt();
+    in >> severity;
     in >> container.ranges_;
     in >> container.fixIts_;
     in >> container.children_;
+
+    container.severity_ = static_cast<DiagnosticSeverity>(severity);
 
     return in;
 }
