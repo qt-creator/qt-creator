@@ -401,6 +401,7 @@ void BinEditorWidget::setSizes(quint64 startAddr, qint64 range, int blockSize)
 
     m_blockSize = blockSize;
     m_emptyBlock = QByteArray(blockSize, '\0');
+    m_data.clear();
     m_modifiedData.clear();
     m_requests.clear();
 
@@ -1567,7 +1568,6 @@ void BinEditorWidget::setNewWindowRequestAllowed(bool c)
 void BinEditorWidget::updateContents()
 {
     m_oldData = m_data;
-    m_data.clear();
     setSizes(baseAddress() + cursorPosition(), m_size, m_blockSize);
 }
 
