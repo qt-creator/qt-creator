@@ -64,6 +64,9 @@ public:
     QAction *selectAllAction() const;
     QAction *openParentDiagramAction() const;
     QAction *exportDiagramAction() const;
+    QAction *zoomInAction() const;
+    QAction *zoomOutAction() const;
+    QAction *resetZoom() const;
 
     void createActions();
 
@@ -80,6 +83,9 @@ private slots:
     void onEditProperties();
     void onEditItem();
     void exportDiagram();
+    void zoomIn();
+    void zoomOut();
+    void resetZoom();
 
 private:
     Core::Command *registerCommand(const Core::Id &id, const std::function<void()> &slot,

@@ -37,7 +37,6 @@ class Style;
 
 class ArrowItem : public QGraphicsItem
 {
-    class GraphicsPathItem;
     class GraphicsHeadItem;
     class GraphicsShaftItem;
 
