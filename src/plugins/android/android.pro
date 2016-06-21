@@ -89,7 +89,8 @@ SOURCES += \
     avddialog.cpp \
     androidbuildapkstep.cpp \
     androidbuildapkwidget.cpp \
-    androidqtsupport.cpp
+    androidqtsupport.cpp \
+    androidrunnable.cpp
 
 FORMS += \
     androidsettingswidget.ui \

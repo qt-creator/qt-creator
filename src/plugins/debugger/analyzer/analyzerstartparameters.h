@@ -42,6 +42,8 @@ public:
     QString analyzerHost;
     QString analyzerSocket;
     quint16 analyzerPort = 0;
+
+    static void *staticTypeId;
 };
 
 DEBUGGER_EXPORT bool operator==(const AnalyzerConnection &c1, const AnalyzerConnection &c2);

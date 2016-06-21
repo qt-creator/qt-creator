@@ -27,6 +27,8 @@
 #include "androidconstants.h"
 #include "androidsignaloperation.h"
 
+#include <projectexplorer/runnables.h>
+
 #include <QCoreApplication>
 
 using namespace ProjectExplorer;

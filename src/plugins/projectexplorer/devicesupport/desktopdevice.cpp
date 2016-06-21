@@ -30,6 +30,7 @@
 #include "desktopdeviceconfigurationwidget.h"
 #include "desktopprocesssignaloperation.h"
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/runnables.h>
 
 #include <ssh/sshconnection.h>
 
