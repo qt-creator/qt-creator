@@ -221,7 +221,7 @@ FormEditorItem *FormEditorScene::addFormEditorItem(const QmlItemNode &qmlItemNod
 
 void FormEditorScene::dropEvent(QGraphicsSceneDragDropEvent * event)
 {
-    currentTool()->dropEvent(removeLayerItems(items(event->scenePos())), event);
+    currentTool()->dropEvent(removeLayerItems(itemsAt(event->scenePos())), event);
 
     if (views().first())
         views().first()->setFocus();
@@ -229,19 +229,19 @@ void FormEditorScene::dropEvent(QGraphicsSceneDragDropEvent * event)
 
 void FormEditorScene::dragEnterEvent(QGraphicsSceneDragDropEvent * event)
 {
-    currentTool()->dragEnterEvent(removeLayerItems(items(event->scenePos())), event);
+    currentTool()->dragEnterEvent(removeLayerItems(itemsAt(event->scenePos())), event);
 }
 
 void FormEditorScene::dragLeaveEvent(QGraphicsSceneDragDropEvent * event)
 {
-    currentTool()->dragLeaveEvent(removeLayerItems(items(event->scenePos())), event);
+    currentTool()->dragLeaveEvent(removeLayerItems(itemsAt(event->scenePos())), event);
 
     return;
 }
 
 void FormEditorScene::dragMoveEvent(QGraphicsSceneDragDropEvent * event)
 {
-    currentTool()->dragMoveEvent(removeLayerItems(items(event->scenePos())), event);
+    currentTool()->dragMoveEvent(removeLayerItems(itemsAt(event->scenePos())), event);
 }
 
 QList<QGraphicsItem *> FormEditorScene::removeLayerItems(const QList<QGraphicsItem *> &itemList)
@@ -255,10 +255,23 @@ QList<QGraphicsItem *> FormEditorScene::removeLayerItems(const QList<QGraphicsIt
     return itemListWithoutLayerItems;
 }
 
+QList<QGraphicsItem *> FormEditorScene::itemsAt(const QPointF &pos)
+{
+    QTransform transform;
+
+    if (!views().isEmpty())
+        transform = views().first()->transform();
+
+    return items(pos,
+                 Qt::IntersectsItemShape,
+                 Qt::DescendingOrder,
+                 transform);
+}
+
 void FormEditorScene::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
     if (editorView() && editorView()->model())
-        currentTool()->mousePressEvent(removeLayerItems(items(event->scenePos())), event);
+        currentTool()->mousePressEvent(removeLayerItems(itemsAt(event->scenePos())), event);
 }
 
 static QTime staticTimer()
@@ -275,9 +288,9 @@ void FormEditorScene::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
     if (time.elapsed() > 30) {
         time.restart();
         if (event->buttons())
-            currentTool()->mouseMoveEvent(removeLayerItems(items(event->scenePos())), event);
+            currentTool()->mouseMoveEvent(removeLayerItems(itemsAt(event->scenePos())), event);
         else
-            currentTool()->hoverMoveEvent(removeLayerItems(items(event->scenePos())), event);
+            currentTool()->hoverMoveEvent(removeLayerItems(itemsAt(event->scenePos())), event);
 
         event->accept();
     }
@@ -286,7 +299,7 @@ void FormEditorScene::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 void FormEditorScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
     if (editorView() && editorView()->model()) {
-        currentTool()->mouseReleaseEvent(removeLayerItems(items(event->scenePos())), event);
+        currentTool()->mouseReleaseEvent(removeLayerItems(itemsAt(event->scenePos())), event);
 
         event->accept();
     }
@@ -295,7 +308,7 @@ void FormEditorScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 void FormEditorScene::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event)
 {
     if (editorView() && editorView()->model()) {
-        currentTool()->mouseDoubleClickEvent(removeLayerItems(items(event->scenePos())), event);
+        currentTool()->mouseDoubleClickEvent(removeLayerItems(itemsAt(event->scenePos())), event);
 
         event->accept();
     }
