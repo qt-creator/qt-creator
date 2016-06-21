@@ -1943,20 +1943,20 @@ void TextToModelMerger::collectSemanticErrorsAndWarnings(QList<RewriterError> *e
 
 void TextToModelMerger::populateQrcMapping(const QString &filePath)
 {
+    if (!filePath.startsWith(QLatin1String("qrc:")))
+        return;
+
     QString path = removeFileFromQrcPath(filePath);
-    QString fileName = fileForFullQrcPath(filePath);
-    if (path.contains(QLatin1String("qrc:"))) {
-        path.remove(QLatin1String("qrc:"));
-        QMap<QString,QStringList> map = ModelManagerInterface::instance()->filesInQrcPath(path);
-        if (map.contains(fileName)) {
-            if (!map.value(fileName).isEmpty()) {
-                QString fileSystemPath =  map.value(fileName).first();
-                fileSystemPath.remove(fileName);
-                if (path.isEmpty())
-                    path.prepend(QLatin1String("/"));
-                m_qrcMapping.insert(qMakePair(path, fileSystemPath));
-            }
-        }
+    const QString fileName = fileForFullQrcPath(filePath);
+    path.remove(QLatin1String("qrc:"));
+    QMap<QString,QStringList> map = ModelManagerInterface::instance()->filesInQrcPath(path);
+    const QStringList qrcFilePathes = map.value(fileName, QStringList());
+    if (!qrcFilePathes.isEmpty()) {
+        QString fileSystemPath =  qrcFilePathes.first();
+        fileSystemPath.remove(fileName);
+        if (path.isEmpty())
+            path.prepend(QLatin1String("/"));
+        m_qrcMapping.insert(qMakePair(path, fileSystemPath));
     }
 }
 
