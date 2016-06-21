@@ -34,10 +34,8 @@ public:
     unsigned line;
     unsigned column;
     unsigned length;
-    union {
-        TextStyles textStyles;
-        int kind;
-    };
+    TextStyles textStyles;
+    int kind;
     bool useTextSyles;
 
     bool isValid() const
