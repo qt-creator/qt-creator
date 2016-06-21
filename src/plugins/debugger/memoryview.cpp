@@ -56,6 +56,7 @@ MemoryView::MemoryView(QWidget *binEditor, QWidget *parent) :
     layout->addWidget(binEditor);
     layout->setContentsMargins(0, 0, 0, 0);
     setMinimumWidth(400);
+    resize(800, 200);
 }
 
 void MemoryView::setBinEditorRange(QWidget *w, quint64 address, qint64 range, int blockSize)
