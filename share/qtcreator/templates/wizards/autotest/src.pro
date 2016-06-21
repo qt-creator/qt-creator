@@ -1,4 +1,4 @@
-@if "%RequireGUI%" == "true"
+@if "%{RequireGUI}" == "true"
 QT += core gui
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 @else
@@ -8,6 +8,6 @@ CONFIG -= app_bundle
 @endif
 
 TEMPLATE = app
-TARGET = %ProjectName%
+TARGET = %{ProjectName}
 
-SOURCES += main.%CppSourceSuffix%
+SOURCES += %{MainCppName}

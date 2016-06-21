@@ -1,5 +1,5 @@
 QT += testlib
-@if "%RequireGUI%" == "false"
+@if "%{RequireGUI}" == "false"
 QT -= gui
 
 CONFIG += qt console warn_on depend_includepath testcase
@@ -11,4 +11,4 @@ CONFIG += qt warn_on depend_includepath testcase
 
 TEMPLATE = app
 
-SOURCES += tst_%TestCaseName:l%.%CppSourceSuffix%
+SOURCES +=  %{TestCaseFileWithCppSuffix}

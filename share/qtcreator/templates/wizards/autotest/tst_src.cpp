@@ -1,20 +1,22 @@
+%{Cpp:LicenseTemplate}\
 #include <QtTest>
-@if "%RequireApplication%" == "true"
-#include <QCoreApplication>
+@if "%{RequireApplication}" == "true"
+%{JS: QtSupport.qtIncludes([ 'QtCore/QCoreApplication' ],
+                           [ 'QtCore/QCoreApplication' ]) }\
 @endif
 
 // add necessary includes here
 
-class %TestCaseName% : public QObject
+class %{TestCaseName} : public QObject
 {
  Q_OBJECT
 
 public:
-    %TestCaseName%();
-    ~%TestCaseName%();
+    %{TestCaseName}();
+    ~%{TestCaseName}();
 
 private slots:
-@if "%GenerateInitAndCleanup%" == "true"
+@if "%{GenerateInitAndCleanup}" == "true"
     void initTestCase();
     void cleanupTestCase();
 @endif
@@ -22,37 +24,37 @@ private slots:
 
 };
 
-%TestCaseName%::%TestCaseName%()
+%{TestCaseName}::%{TestCaseName}()
 {
 
 }
 
-%TestCaseName%::~%TestCaseName%()
+%{TestCaseName}::~%{TestCaseName}()
 {
 
 }
 
-@if "%GenerateInitAndCleanup%" == "true"
-void %TestCaseName%::initTestCase()
+@if "%{GenerateInitAndCleanup}" == "true"
+void %{TestCaseName}::initTestCase()
 {
 
 }
 
-void %TestCaseName%::cleanupTestCase()
+void %{TestCaseName}::cleanupTestCase()
 {
 
 }
 
 @endif
-void %TestCaseName%::test_case1()
+void %{TestCaseName}::test_case1()
 {
 
 }
 
-@if "%RequireApplication%" == "true"
-QTEST_MAIN(%TestCaseName%)
+@if "%{RequireApplication}" == "true"
+QTEST_MAIN(%{TestCaseName})
 @else
-QTEST_APPLESS_MAIN(%TestCaseName%)
+QTEST_APPLESS_MAIN(%{TestCaseName})
 @endif
 
-#include "tst_%TestCaseName:l%.moc"
+#include "%{JS: 'tst_%{TestCaseName}.moc'.toLowerCase() }"
