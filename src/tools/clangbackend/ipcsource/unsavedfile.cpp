@@ -118,11 +118,16 @@ UnsavedFile::~UnsavedFile()
     cxUnsavedFile.Length = 0;
 }
 
+static const char *printCString(const char *str)
+{
+    return str ? str : "nullptr";
+}
+
 void PrintTo(const UnsavedFile &unsavedFile, std::ostream *os)
 {
     *os << "UnsavedFile("
-           << unsavedFile.cxUnsavedFile.Filename << ", "
-           << unsavedFile.cxUnsavedFile.Contents << ", "
+           << printCString(unsavedFile.cxUnsavedFile.Filename) << ", "
+           << printCString(unsavedFile.cxUnsavedFile.Contents) << ", "
            << unsavedFile.cxUnsavedFile.Length << ")";
 }
 
