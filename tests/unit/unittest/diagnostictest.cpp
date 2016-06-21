@@ -91,7 +91,7 @@ protected:
                                     Utf8StringVector(),
                                     translationUnits};
     DiagnosticSet diagnosticSet{translationUnit.diagnostics()};
-    ::Diagnostic diagnostic{diagnosticSet.back()};
+    ::Diagnostic diagnostic{diagnosticSet.front()};
 
 protected:
     enum ChildMode { WithChild, WithoutChild };
@@ -149,23 +149,23 @@ TEST_F(Diagnostic, Severity)
 
 TEST_F(Diagnostic, ChildDiagnosticsSize)
 {
-    auto diagnostic = diagnosticSet.front();
+    auto diagnostic = diagnosticSet.back();
 
     ASSERT_THAT(diagnostic.childDiagnostics().size(), 1);
 }
 
 TEST_F(Diagnostic, ChildDiagnosticsText)
 {
-    auto childDiagnostic = diagnosticSet.front().childDiagnostics().front();
+    auto childDiagnostic = diagnosticSet.back().childDiagnostics().front();
 
-    ASSERT_THAT(childDiagnostic.text(), Utf8StringLiteral("note: previous declaration is here"));
+    ASSERT_THAT(childDiagnostic.text(), Utf8StringLiteral("note: candidate function not viable: requires 1 argument, but 0 were provided"));
 }
 
 TEST_F(Diagnostic, toDiagnosticContainerLetChildrenThroughByDefault)
 {
     const auto diagnosticWithChild = expectedDiagnostic(WithChild);
 
-    const auto diagnostic = diagnosticSet.front().toDiagnosticContainer();
+    const auto diagnostic = diagnosticSet.back().toDiagnosticContainer();
 
     ASSERT_THAT(diagnostic, IsDiagnosticContainer(diagnosticWithChild));
 }
@@ -175,11 +175,11 @@ DiagnosticContainer Diagnostic::expectedDiagnostic(Diagnostic::ChildMode childMo
     QVector<DiagnosticContainer> children;
     if (childMode == WithChild) {
         const auto child = DiagnosticContainer(
-            Utf8StringLiteral("note: previous declaration is here"),
+            Utf8StringLiteral("note: candidate function not viable: requires 1 argument, but 0 were provided"),
             Utf8StringLiteral("Semantic Issue"),
             {Utf8String(), Utf8String()},
             ClangBackEnd::DiagnosticSeverity::Note,
-            SourceLocationContainer(translationUnit.filePath(), 2, 5),
+            SourceLocationContainer(translationUnit.filePath(), 5, 6),
             {},
             {},
             {}
@@ -189,11 +189,11 @@ DiagnosticContainer Diagnostic::expectedDiagnostic(Diagnostic::ChildMode childMo
 
     return
         DiagnosticContainer(
-            Utf8StringLiteral("warning: 'X' is missing exception specification 'noexcept'"),
+            Utf8StringLiteral("error: no matching function for call to 'f'"),
             Utf8StringLiteral("Semantic Issue"),
             {Utf8String(), Utf8String()},
-            ClangBackEnd::DiagnosticSeverity::Warning,
-            SourceLocationContainer(translationUnit.filePath(), 5, 4),
+            ClangBackEnd::DiagnosticSeverity::Error,
+            SourceLocationContainer(translationUnit.filePath(), 7, 5),
             {},
             {},
             children
