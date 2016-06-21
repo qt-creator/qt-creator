@@ -266,10 +266,9 @@ public:
     bool setData(int column, const QVariant &data, int role)
     {
         if (column == LoadedColumn && role == Qt::CheckStateRole) {
-            QSet<PluginSpec *> affectedPlugins;
-            foreach (TreeItem *item, children())
-                affectedPlugins.insert(static_cast<PluginItem *>(item)->m_spec);
-            if (m_view->setPluginsEnabled(affectedPlugins, data.toBool())) {
+            const QList<PluginSpec *> affectedPlugins =
+                    Utils::filtered(m_plugins, [](PluginSpec *spec) { return !spec->isRequired(); });
+            if (m_view->setPluginsEnabled(affectedPlugins.toSet(), data.toBool())) {
                 update();
                 return true;
             }
