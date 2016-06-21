@@ -88,6 +88,7 @@ enum Type
     HintExtraParentheses = 123,
     MaybeWarnEqualityTypeCoercion = 126,
     WarnConfusingExpressionStatement = 127,
+    StateCannotHaveChildItem = 128,
     HintDeclarationsShouldBeAtStartOfFunction = 201,
     HintOneStatementPerLine = 202,
     WarnImperativeCodeNotEditableInVisualDesigner = 203,
