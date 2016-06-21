@@ -156,7 +156,7 @@ void ItemLibraryModel::update(ItemLibraryInfo *itemLibraryInfo, Model *model)
          bool valid = metaInfo.isValid() && metaInfo.majorVersion() == entry.majorVersion();
          bool isItem = valid && metaInfo.isSubclassOf("QtQuick.Item");
 
-         if (!isItem) {
+         if (!isItem && valid) {
              qDebug() << Q_FUNC_INFO;
              qDebug() << metaInfo.typeName() << "is not a QtQuick.Item";
              qDebug() << Utils::transform(metaInfo.superClasses(), &NodeMetaInfo::typeName);
