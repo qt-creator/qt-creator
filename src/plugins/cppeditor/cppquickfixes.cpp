@@ -2832,17 +2832,7 @@ public:
         }
         m_variableString = QString::fromUtf8(variableId->chars(), variableId->size());
 
-        m_baseName = memberBaseName(m_variableString);
-        if (m_baseName.isEmpty())
-            m_baseName = QLatin1String("value");
-
-        m_getterName = !(m_baseName == m_variableString
-                         || hasClassMemberWithGetPrefix(m_classSpecifier->symbol))
-            ? m_baseName
-            : QString::fromLatin1("get%1%2")
-                .arg(m_baseName.left(1).toUpper()).arg(m_baseName.mid(1));
-        m_setterName = QString::fromLatin1("set%1%2")
-            .arg(m_baseName.left(1).toUpper()).arg(m_baseName.mid(1));
+        determineGetterSetterNames();
 
         // Check if the class has already a getter and/or a setter.
         // This is only a simple check which should suffice not triggering the
@@ -2908,6 +2898,8 @@ public:
         }
         updateDescriptionAndPriority();
     }
+
+    void determineGetterSetterNames();
 
     // Clones "other" in order to prevent all the initial detection made in the ctor.
     GenerateGetterSetterOperation(const CppQuickFixInterface &interface,
@@ -5966,6 +5958,27 @@ void ExtraRefactoringOperations::match(const CppQuickFixInterface &interface,
         const auto clangFixItOperations = processor->extraRefactoringOperations(interface);
         result.append(clangFixItOperations);
     }
+}
+
+void GenerateGetterSetterOperation::determineGetterSetterNames()
+{
+    m_baseName = memberBaseName(m_variableString);
+    if (m_baseName.isEmpty())
+        m_baseName = QLatin1String("value");
+
+    // Getter Name
+    const bool hasValidBaseName = m_baseName != m_variableString;
+    const bool getPrefixIsAlreadyUsed = hasClassMemberWithGetPrefix(m_classSpecifier->symbol);
+    if (hasValidBaseName && !getPrefixIsAlreadyUsed) {
+        m_getterName = m_baseName;
+    } else {
+        const QString baseNameWithCapital = m_baseName.left(1).toUpper() + m_baseName.mid(1);
+        m_getterName = QLatin1String("get") + baseNameWithCapital;
+    }
+
+    // Setter Name
+    const QString baseNameWithCapital = m_baseName.left(1).toUpper() + m_baseName.mid(1);
+    m_setterName = QLatin1String("set") + baseNameWithCapital;
 }
 
 } // namespace Internal
