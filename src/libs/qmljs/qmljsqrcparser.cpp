@@ -407,8 +407,6 @@ void QrcParserPrivate::collectResourceFilesForSourceFile(const QString &sourceFi
                                                          const QLocale *locale) const
 {
     // TODO: use FileName from fileutils for file pathes
-    QTC_CHECK(QFileInfo(sourceFile).isFile());
-    QTC_CHECK(QFileInfo(sourceFile).isAbsolute());
 
     QStringList langs = allUiLanguages(locale);
     SMap::const_iterator file = m_files.find(sourceFile);
