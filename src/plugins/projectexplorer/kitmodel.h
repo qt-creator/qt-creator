@@ -48,7 +48,7 @@ class KitNode;
 // KitModel:
 // --------------------------------------------------------------------------
 
-class KitModel : public Utils::LeveledTreeModel<Utils::TreeItem, KitNode>
+class KitModel : public Utils::LeveledTreeModel<Utils::TreeItem, Utils::TreeItem, KitNode>
 {
     Q_OBJECT
 

@@ -56,7 +56,7 @@ class CMakeToolTreeItem;
 // CMakeToolItemModel
 // --------------------------------------------------------------------------
 
-class CMakeToolItemModel : public LeveledTreeModel<TreeItem, CMakeToolTreeItem>
+class CMakeToolItemModel : public LeveledTreeModel<TreeItem, TreeItem, CMakeToolTreeItem>
 {
     Q_DECLARE_TR_FUNCTIONS(CMakeProjectManager::CMakeSettingsPage)
 

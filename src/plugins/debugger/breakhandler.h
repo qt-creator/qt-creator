@@ -157,7 +157,7 @@ inline uint qHash(const Debugger::Internal::Breakpoint &b) { return b.hash(); }
 
 typedef QList<Breakpoint> Breakpoints;
 
-class BreakHandler : public Utils::LeveledTreeModel<BreakpointItem, LocationItem>
+class BreakHandler : public Utils::LeveledTreeModel<Utils::TreeItem, BreakpointItem, LocationItem>
 {
     Q_OBJECT
 

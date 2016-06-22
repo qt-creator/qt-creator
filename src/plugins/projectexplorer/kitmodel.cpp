@@ -103,7 +103,7 @@ public:
 // --------------------------------------------------------------------------
 
 KitModel::KitModel(QBoxLayout *parentLayout, QObject *parent)
-    : LeveledTreeModel<TreeItem, KitNode>(parent),
+    : LeveledTreeModel<TreeItem, TreeItem, KitNode>(parent),
       m_parentLayout(parentLayout)
 {
     setHeader(QStringList(tr("Name")));

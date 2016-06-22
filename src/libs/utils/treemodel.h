@@ -241,9 +241,9 @@ protected:
 
 // A multi-level model with uniform types per level.
 // All items below second level have to have identitical types.
-template <class FirstLevelItem,
-          class SecondLevelItem = FirstLevelItem,
-          class RootItem = TreeItem>
+template <class RootItem,
+          class FirstLevelItem,
+          class SecondLevelItem = FirstLevelItem>
 class LeveledTreeModel : public TreeModel
 {
 public:
