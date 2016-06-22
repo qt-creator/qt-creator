@@ -1,10 +1,10 @@
 {
     "version": 1,
     "supportedProjectTypes": [ "Qt4ProjectManager.Qt4Project" ],
-    "id": "R.AutoTest2",
+    "id": "R.AutoTest",
     "category": "H.Project",
     "trDescription": "Creates a new project including auto test skeleton.",
-    "trDisplayName": "Qt Test project",
+    "trDisplayName": "Auto Test Project",
     "trDisplayCategory": "Other Project",
     "icon": "autotest_24.png",
     "featuresRequired": [ "QtSupport.Wizards.FeatureQt", "QtSupport.Wizards.FeatureDesktop" ],
@@ -22,6 +22,10 @@
           "value": "%{JS: 'main.' + Util.preferredSuffix('text/x-c++src') }"
         },
         {
+          "key": "TestCaseFileWithHeaderSuffix",
+          "value": "%{JS: 'tst_%{TestCaseName}.'.toLowerCase() + Util.preferredSuffix('text/x-c++hdr') }"
+        },
+        {
           "key": "TestCaseFileWithCppSuffix",
           "value": "%{JS: 'tst_%{TestCaseName}.'.toLowerCase() + Util.preferredSuffix('text/x-c++src') }"
         }
@@ -35,7 +39,7 @@
             "typeId": "Project",
             "data":
             {
-                "trDescription": "This wizard creates a simple Qmake based Qt project with additional auto test skeleton."
+                "trDescription": "This wizard creates a simple Qmake based project with additional auto test skeleton."
             }
         },
         {
@@ -45,8 +49,29 @@
             "data":
             [
                 {
+                    "name": "TestFrameWork",
+                    "trDisplayName": "Test Framework:",
+                    "type": "ComboBox",
+                    "data":
+                    {
+                        "index": 0,
+                        "items":
+                        [
+                            {
+                                "trKey": "Qt Test",
+                                "value": "QtTest"
+                            },
+                            {
+                                "trKey": "Googletest",
+                                "value": "GTest"
+                            }
+                        ]
+                    }
+                },
+                {
                     "name": "RequireGUI",
                     "trDisplayName": "GUI Application",
+                    "visible": "%{JS: '%{TestFrameWork}' === 'QtTest'}",
                     "type": "CheckBox",
                     "data": {
                         "checked": false,
@@ -64,6 +89,7 @@
                 {
                     "name": "RequireApplication",
                     "trDisplayName": "Requires QApplication",
+                    "visible": "%{JS: '%{TestFrameWork}' === 'QtTest'}",
                     "type": "CheckBox",
                     "data": {
                         "checked": false,
@@ -74,6 +100,25 @@
                 {
                     "name": "GenerateInitAndCleanup",
                     "trDisplayName": "Generate initialization and cleanup code",
+                    "visible": "%{JS: '%{TestFrameWork}' === 'QtTest'}",
+                    "type": "CheckBox",
+                    "data": {
+                        "checked": false,
+                        "checkedValue": "true",
+                        "uncheckedValue": "false"
+                    }
+                },
+                {
+                    "name": "TestSetName",
+                    "trDisplayName": "Test Set Name:",
+                    "visible": "%{JS: '%{TestFrameWork}' === 'GTest'}",
+                    "type": "LineEdit",
+                    "data": { "validator": "^[a-zA-Z0-9]+$" }
+                },
+                {
+                    "name": "GTestCXX11",
+                    "trDisplayName": "Enable C++11",
+                    "visible": "%{JS: '%{TestFrameWork}' === 'GTest'}",
                     "type": "CheckBox",
                     "data": {
                         "checked": false,
@@ -100,6 +145,15 @@
                             }
                         ]
                     }
+                },
+                {
+                    "name": "GTestRepository",
+                    "trDisplayName": "Googletest repository:",
+                    "visible": "%{JS: '%{TestFrameWork}' === 'GTest'}",
+                    "type": "PathChooser",
+                    "data": {
+                        "kind": "existingDirectory"
+                    }
                 }
             ]
         },
@@ -123,38 +177,57 @@
             "data":
             [
                 {
-                    "source": "tmp.pro",
+                    "source": "files/tmp.pro",
                     "target": "%{ProFileName}",
                     "openAsProject": true
                 },
                 {
-                    "source": "src.pro",
+                    "source": "files/src.pro",
                     "target": "src/src.pro",
                     "openInEditor": false
                 },
                 {
-                    "source": "main.cpp",
+                    "source": "files/main.cpp",
                     "target": "src/%{MainCppName}",
                     "openInEditor": true
                 },
                 {
-                    "source": "tests.pro",
+                    "source": "files/tests.pro",
                     "target": "tests/tests.pro",
                     "openInEditor": false
                 },
                 {
-                    "source": "auto.pro",
+                    "source": "files/auto.pro",
                     "target": "tests/auto/auto.pro",
                     "openInEditor": false
                 },
                 {
-                    "source": "tst.pro",
+                    "source": "files/gtest_dependency.pri",
+                    "target": "tests/auto/gtest_dependency.pri",
+                    "condition": "%{JS: '%{TestFrameWork}' == 'GTest'}",
+                    "openInEditor": false
+                },
+                {
+                    "source": "files/tst.pro",
                     "target": "%{JS: 'tests/auto/' + '%{TestCaseName}/%{TestCaseName}'.toLowerCase() + '.pro' }",
                     "openInEditor": false
                 },
                 {
-                    "source": "tst_src.cpp",
+                    "source": "files/tst_src.h",
+                    "target": "%{JS: 'tests/auto/' + '%{TestCaseName}/'.toLowerCase() + '%{TestCaseFileWithHeaderSuffix}' }",
+                    "condition": "%{JS: '%{TestFrameWork}' == 'GTest'}",
+                    "openInEditor": true
+                },
+                {
+                    "source": "files/tst_src.cpp",
                     "target": "%{JS: 'tests/auto/' + '%{TestCaseName}/'.toLowerCase() + '%{TestCaseFileWithCppSuffix}' }",
+                    "condition": "%{JS: '%{TestFrameWork}' == 'QtTest'}",
+                    "openInEditor": true
+                },
+                {
+                    "source": "files/tst_main.cpp",
+                    "target": "%{JS: 'tests/auto/' + '%{TestCaseName}'.toLowerCase() + '/%{MainCppName}' }",
+                    "condition": "%{JS: '%{TestFrameWork}' == 'GTest'}",
                     "openInEditor": true
                 },
                 {

@@ -1,4 +1,5 @@
 %{Cpp:LicenseTemplate}\
+@if "%{TestFrameWork}" == "QtTest"
 @if "%{RequireGUI}" == "true"
 %{JS: QtSupport.qtIncludes([ 'QtGui/QApplication' ],
                            [ 'QtWidgets/QApplication' ]) }\
@@ -6,7 +7,6 @@
 %{JS: QtSupport.qtIncludes([ 'QtCore/QCoreApplication' ],
                            [ 'QtCore/QCoreApplication' ]) }\
 @endif
-
 // add necessary includes here
 
 int main(int argc, char *argv[])
@@ -19,3 +19,13 @@ int main(int argc, char *argv[])
 
     return a.exec();
 }
+@else
+#include <iostream>
+
+int main(int , char **)
+{
+    std::cout << "Hello World!\\n";
+
+    return 0;
+}
+@endif
