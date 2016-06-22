@@ -418,4 +418,15 @@ inline void sort(Container &c, Predicate p)
     std::sort(c.begin(), c.end(), p);
 }
 
+//////////////////
+// reverseForeach
+/////////////////
+template <typename Container, typename Op>
+inline void reverseForeach(const Container &c, const Op &operation)
+{
+    auto rend = c.rend();
+    for (auto it = c.rbegin(); it != rend; ++it)
+        operation(*it);
+}
+
 }

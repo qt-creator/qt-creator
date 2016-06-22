@@ -140,8 +140,10 @@ void tst_PluginManager::getObject()
     object2b->setObjectName(objectName);
     m_pm->addObject(object2);
     QCOMPARE(m_pm->getObject<MyClass11>(), static_cast<MyClass11 *>(0));
+    QCOMPARE(m_pm->getObjectByClassName("MyClass11"), static_cast<QObject*>(0));
     QCOMPARE(m_pm->getObject<MyClass1>(), static_cast<MyClass1 *>(0));
     QCOMPARE(m_pm->getObject<MyClass2>(), object2);
+    QCOMPARE(m_pm->getObjectByClassName("MyClass2"), object2);
     m_pm->addObject(object11);
     QCOMPARE(m_pm->getObject<MyClass11>(), object11);
     QCOMPARE(m_pm->getObject<MyClass1>(), qobject_cast<MyClass1 *>(object11));

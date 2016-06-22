@@ -134,7 +134,6 @@ public:
     bool m_isInitializationDone = false;
 
 private:
-    PluginCollection *defaultCollection;
     PluginManager *q;
 
     void nextDelayedInitialize();

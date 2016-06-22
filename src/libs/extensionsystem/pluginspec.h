@@ -119,6 +119,7 @@ public:
 
     // dependency specs, valid after 'Resolved' state is reached
     QHash<PluginDependency, PluginSpec *> dependencySpecs() const;
+    bool requiresAny(const QSet<PluginSpec *> &plugins) const;
 
     // linked plugin instance, valid after 'Loaded' state is reached
     IPlugin *plugin() const;
