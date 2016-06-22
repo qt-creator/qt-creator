@@ -996,34 +996,34 @@ void CppModelManager::delayedGC()
         d->m_delayedGcTimer.start(500);
 }
 
-static QStringList idsOfAllProjectParts(const ProjectInfo &projectInfo)
+static QStringList removedProjectParts(const QStringList &before, const QStringList &after)
 {
-    QStringList projectPaths;
-    foreach (const ProjectPart::Ptr &part, projectInfo.projectParts())
-        projectPaths << part->id();
-    return projectPaths;
+    QSet<QString> b = before.toSet();
+    b.subtract(after.toSet());
+
+    return b.toList();
 }
 
 void CppModelManager::onAboutToRemoveProject(ProjectExplorer::Project *project)
 {
-    QStringList projectPartIds;
+    QStringList idsOfRemovedProjectParts;
 
     d->m_projectToIndexerCanceled.remove(project);
 
     {
         QMutexLocker locker(&d->m_projectMutex);
         d->m_dirty = true;
-
-        // Save paths
-        const ProjectInfo projectInfo = d->m_projectToProjectsInfo.value(project, ProjectInfo());
-        projectPartIds = idsOfAllProjectParts(projectInfo);
+        const QStringList projectPartsIdsBefore = d->m_projectPartIdToProjectProjectPart.keys();
 
         d->m_projectToProjectsInfo.remove(project);
         recalculateProjectPartMappings();
+
+        const QStringList projectPartsIdsAfter = d->m_projectPartIdToProjectProjectPart.keys();
+        idsOfRemovedProjectParts = removedProjectParts(projectPartsIdsBefore, projectPartsIdsAfter);
     }
 
-    if (!projectPartIds.isEmpty())
-        emit projectPartsRemoved(projectPartIds);
+    if (!idsOfRemovedProjectParts.isEmpty())
+        emit projectPartsRemoved(idsOfRemovedProjectParts);
 
     delayedGC();
 }
