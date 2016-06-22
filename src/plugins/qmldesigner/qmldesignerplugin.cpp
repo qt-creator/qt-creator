@@ -99,7 +99,7 @@ static bool checkIfEditorIsQtQuick(Core::IEditor *editor)
                     || document->language() == QmlJS::Dialect::Qml;
 
         if (Core::ModeManager::currentMode() == Core::Constants::MODE_DESIGN) {
-            Core::AsynchronousMessageBox::warning(QmlDesignerPlugin::tr("Cannot open QML Design Mode"),
+            Core::AsynchronousMessageBox::warning(QmlDesignerPlugin::tr("Cannot Open Design Mode"),
                                                   QmlDesignerPlugin::tr("The QML file is not currently opened in a QML Editor."));
             Core::ModeManager::activateMode(Core::Constants::MODE_EDIT);
         }
