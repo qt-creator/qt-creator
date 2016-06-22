@@ -161,6 +161,7 @@ class PROJECTEXPLORER_EXPORT Runnable
         virtual ~Concept() {}
         virtual Concept *clone() const = 0;
         virtual bool canReUseOutputPane(const std::unique_ptr<Concept> &other) const = 0;
+        virtual void *typeId() const = 0;
     };
 
     template <class T>
@@ -172,9 +173,13 @@ class PROJECTEXPLORER_EXPORT Runnable
 
         bool canReUseOutputPane(const std::unique_ptr<Concept> &other) const override
         {
-            auto that = dynamic_cast<const Model<T> *>(other.get());
-            return that && m_data == that->m_data;
+            if (other->typeId() != typeId())
+                return false;
+            auto that = static_cast<const Model<T> *>(other.get());
+            return m_data == that->m_data;
         }
+
+        void *typeId() const { return T::staticTypeId; }
 
         T m_data;
     };
@@ -187,8 +192,13 @@ public:
 
     void operator=(Runnable other) { d = std::move(other.d); }
 
-    template <class T> bool is() const { return dynamic_cast<Model<T> *>(d.get()) != 0; }
-    template <class T> const T &as() const { return static_cast<Model<T> *>(d.get())->m_data; }
+    template <class T> bool is() const {
+        return d.get()->typeId() == T::staticTypeId;
+    }
+
+    template <class T> const T &as() const {
+        return static_cast<Model<T> *>(d.get())->m_data;
+    }
 
     bool canReUseOutputPane(const Runnable &other) const;
 
@@ -202,6 +212,7 @@ class PROJECTEXPLORER_EXPORT Connection
     {
         virtual ~Concept() {}
         virtual Concept *clone() const = 0;
+        virtual void *typeId() const = 0;
     };
 
     template <class T>
@@ -209,6 +220,7 @@ class PROJECTEXPLORER_EXPORT Connection
     {
         Model(const T &data) : m_data(data) { }
         Concept *clone() const override { return new Model(*this); }
+        void *typeId() const { return T::staticTypeId; }
         T m_data;
     };
 
@@ -220,8 +232,13 @@ public:
 
     void operator=(Connection other) { d = std::move(other.d); }
 
-    template <class T> bool is() const { return dynamic_cast<Model<T> *>(d.get()) != 0; }
-    template <class T> const T &as() const { return static_cast<Model<T> *>(d.get())->m_data; }
+    template <class T> bool is() const {
+        return d.get()->typeId() == T::staticTypeId;
+    }
+
+    template <class T> const T &as() const {
+        return static_cast<Model<T> *>(d.get())->m_data;
+    }
 
 private:
     std::unique_ptr<Concept> d;

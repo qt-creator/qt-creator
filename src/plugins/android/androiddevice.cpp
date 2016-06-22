@@ -28,6 +28,7 @@
 #include "androidsignaloperation.h"
 
 #include <projectexplorer/runconfiguration.h>
+#include <projectexplorer/runnables.h>
 
 #include <QCoreApplication>
 

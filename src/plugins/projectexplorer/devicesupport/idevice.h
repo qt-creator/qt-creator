@@ -108,16 +108,6 @@ public:
     virtual QList<Utils::Port> usedPorts(const QByteArray &commandOutput) const = 0;
 };
 
-class PROJECTEXPLORER_EXPORT HostName
-{
-public:
-    explicit HostName(const QString &host) : m_host(host) {}
-    QString host() const { return m_host; }
-
-private:
-    QString m_host;
-};
-
 // See cpp file for documentation.
 class PROJECTEXPLORER_EXPORT IDevice
 {

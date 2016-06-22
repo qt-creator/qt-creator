@@ -157,7 +157,6 @@ bool MemoryAgent::doCreateBinEditor(const MemoryViewSetupData &data)
             topLevel->setWindowTitle(title);
         }
         m_views << topLevel;
-        topLevel->move(data.pos);
         topLevel->show();
         return true;
     }

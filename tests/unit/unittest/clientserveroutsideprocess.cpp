@@ -47,6 +47,8 @@
 #include <gtest/gtest.h>
 #include "gtest-qt-printing.h"
 
+#include <utils/hostosinfo.h>
+
 #include <QBuffer>
 #include <QProcess>
 #include <QSignalSpy>
@@ -54,12 +56,6 @@
 #include <QVariant>
 
 #include <vector>
-
-#ifdef Q_OS_WIN
-#define QTC_HOST_EXE_SUFFIX L".exe"
-#else
-#define QTC_HOST_EXE_SUFFIX ""
-#endif
 
 using namespace ClangBackEnd;
 
@@ -175,7 +171,7 @@ TEST_F(ClientServerOutsideProcess, SendUnregisterProjectPartsForEditorMessage)
 
 void ClientServerOutsideProcess::SetUpTestCase()
 {
-    client.setProcessPath(QStringLiteral(ECHOSERVER QTC_HOST_EXE_SUFFIX));
+    client.setProcessPath(Utils::HostOsInfo::withExecutableSuffix(QStringLiteral(ECHOSERVER)));
 
     ASSERT_TRUE(client.connectToServer());
 }

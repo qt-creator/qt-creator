@@ -39,6 +39,8 @@ public:
     QString analyzerHost;
     QString analyzerSocket;
     Utils::Port analyzerPort;
+
+    static void *staticTypeId;
 };
 
 } // namespace Debugger
