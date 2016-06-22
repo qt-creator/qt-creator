@@ -32,6 +32,7 @@
 
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/runconfiguration.h>
+#include <projectexplorer/runnables.h>
 
 #include <ssh/sshconnection.h>
 

@@ -78,7 +78,7 @@
         \li the local user's configuration folder,
             \c {$HOME/.config/QtProject/qtcreator/templates/wizards} on Linux
             and OS X or \c {%APPDATA%\QtProject\qtcreator\templates\wizards} on
-            windows
+            Windows
 
     \endlist
 
@@ -114,9 +114,34 @@
                 a wizard definition to become visible.
     \endtable
 
-    \note When developing custom wizards (both JSON as well as XML based), it is
-    recommended to start \QC with the \c {-customwizard-verbose} argument. See
-    \l{Using Command Line Options} for more information about command line
-    arguments.
+    \section2 Verbose Output
 
+    When developing custom wizards (both JSON as well as XML based), it is
+    recommended to start \QC with the \c {-customwizard-verbose} argument. It
+    causes each correctly set up wizard to produce output along the following
+    lines:
+
+    \code
+    Checking "/home/jsmith/.config/QtProject/qtcreator/templates/wizards/mywizard"
+    for wizard.json.
+    * Configuration found and parsed.
+    \endcode
+
+    The output includes the name of the directory that was checked for a
+    \c wizard.json file. If the file is not found, the message is not displayed.
+
+    If the file contains errors, such as an invalid icon path, the following
+    types of messages are displayed:
+
+    \code
+    Checking "/home/jsmith/.config/QtProject/qtcreator/templates/wizards/mywizard"
+    for wizard.json.
+    * Configuration found and parsed.
+    * Failed to create: Icon file
+    "/home/jsmith/.config/QtProject/qtcreator/templates/wizards/mywizard/../..
+    /global/genericfilewizard.png" not found.
+    \endcode
+
+    See \l{Using Command Line Options} for more information about command line
+    arguments.
 */

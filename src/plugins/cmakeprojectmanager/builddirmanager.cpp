@@ -289,8 +289,12 @@ CMakeConfig BuildDirManager::parsedConfiguration() const
             emit errorOccured(errorMessage);
         const Utils::FileName sourceOfBuildDir
                 = Utils::FileName::fromUtf8(CMakeConfigItem::valueOf("CMAKE_HOME_DIRECTORY", m_cmakeCache));
-        if (sourceOfBuildDir != sourceDirectory()) // Use case-insensitive compare where appropriate
-            emit errorOccured(tr("The build directory is not for %1").arg(sourceDirectory().toUserOutput()));
+        const Utils::FileName canonicalSourceOfBuildDir = Utils::FileUtils::canonicalPath(sourceOfBuildDir);
+        const Utils::FileName canonicalSourceDirectory = Utils::FileUtils::canonicalPath(sourceDirectory());
+        if (canonicalSourceOfBuildDir != canonicalSourceDirectory) // Uses case-insensitive compare where appropriate
+            emit errorOccured(tr("The build directory is not for %1 but for %2")
+                    .arg(canonicalSourceOfBuildDir.toUserOutput(),
+                         canonicalSourceDirectory.toUserOutput()));
     }
     return m_cmakeCache;
 }

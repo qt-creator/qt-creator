@@ -37,19 +37,64 @@
 
     \title Adding JSON-Based Wizards
 
-    \image qtcreator-new-qt-gui-application.png
-
-    The JSON-based wizards are displayed in the \uicontrol New dialog. To
-    customize them, copy a directory that contains a \c {wizard.json} file in
-    \c {share/qtcreator/templates/wizards/} and modify it to fit your needs.
-    After you run qmake and restart \QC, the wizard name appears in the
-    selected or added category. For each wizard, an icon, a display name, and
-    a description are displayed.
+    \QC searches for wizards in the shared directory and in the local user's
+    settings directory, as described in \l{Locating Wizards}.
 
     JSON-based wizard template directories contain a JSON configuration file
     called \c {wizard.json} and any template files needed. The configuration
     file contains sections that specify information about the wizard, variables
     that you can use, wizard pages, and generators for creating files.
+
+    To create a customized wizard, copy a template directory to the shared
+    directory or the settings directory under a new name. If you want to use
+    qmake to build the wizard and integrate it into \QC, use the shared
+    directory. Otherwise, you can create a subdirectory in the settings
+    directory. The standard wizards are organized into subdirectories by type,
+    but you can add your wizard directory to any directory you like. The folder
+    hierarchy does not affect the order in which the wizards are displayed.
+
+    To share the wizard with other users, you can create an archive of the
+    wizard directory and instruct the recipients to extract it into one of the
+    directories \QC searches wizards from.
+
+    For wizard development, we recommend that you start \QC with the
+    \c {-customwizard-verbose} argument to receive confirmation that \QC was
+    able to find and parse the \c {wizard.json} file. The verbose mode displays
+    information about syntax errors, which are the most typical errors you might
+    run into while editing wizards. For more information, see
+    \l {Verbose Output}.
+
+    In addition, set keyboard shortcuts for the \uicontrol Inspect and
+    \uicontrol {Factory.Reset} functions to be able to inspect the fields and
+    variables in the wizard and to have the wizard listed in \uicontrol File >
+    \uicontrol {New File or Project} without restarting \QC. For more
+    information, see \l {Tips for Wizard Development}.
+
+    \QC displays the wizards that it finds in the
+    \uicontrol {New File or Project} dialog. For each wizard, an icon (1), a
+    display name (2), and a description (3) are displayed.
+
+    \image qtcreator-custom-wizard.png
+
+    \section1 Integrating Wizards into Qt Creator Builds
+
+    To integrate the wizard into \QC and to deliver it as part of the \QC build,
+    place the wizard files in the \QC sources. Then select \uicontrol Build >
+    \uicontrol {Run qmake}, so that the new files you added for your wizard are
+    actually copied from the \QC source directory into the \QC build directory
+    as part of the next \QC build.
+
+    If you do not run qmake, your new wizard will not show up, because it does
+    not exist in the build directory you run your newly built \QC from. It never
+    got copied there, because make did not know that the files exist in the
+    source tree, because qmake did not inform make that the files were added
+    recently.
+
+    Basically, qmake generates a fixed list of files to copy from the source
+    directory to the sudirectory of the build directory that is checked for
+    wizards at runtime. Therefore, you need to run qmake or execute the
+    \uicontrol {Factory.Reset} function each time the names or locations of the
+    files change.
 
     \section1 Using Variables in Wizards
 
@@ -57,7 +102,7 @@
     template source files. A set of variables is predefined by the wizards and
     their pages. You can introduce new variables as shortcuts to be used later.
     Define the variable key names and values in the \c options section in the
-    \c {.json} file.
+    \c {wizard.json} file.
 
     The variables always return strings. In places where a boolean value is
     expected and a string is given, an empty string as well as the string
@@ -87,34 +132,45 @@
     use them as basis for adding your own wizards. We use the C++ wizard
     to explain the process and the sections and settings in the .json file.
 
+    In this example, we create the wizard directory in the shared directory
+    and integrate it in the \QC build system, so that it can deployed along with
+    the \QC binaries as part of the build.
+
     \image qtcreator-cpp-class-wizard.png
 
-    For more information about the pages and widgets that you can add, see
-    \l {Available Pages} and \l{Available Widgets}.
+    For more information about the pages and widgets that you can add and their
+    supported properties, see \l {Available Pages} and \l{Available Widgets}.
 
     To create a JSON-based C++ class wizard:
 
     \list 1
 
-        \li Make a copy of \c {share/qtcreator/templates/wizards/classes/cpp}
-            and rename it.
+        \li Start \QC with the \c {-customwizard-verbose} argument to receive
+            feedback during wizard development. For more information, see
+            \l {Verbose Output}.
 
-        \li Right-click the project name in \uicontrol Projects view and
-            select \uicontrol {Run qmake} from the context menu to register the
-            new wizard. Basically, qmake generates a fixed list of files to
-            copy. Therefore, you need to run qmake each time the names or
-            locations of the files change.
+        \li Set keyboard shortcuts for the \uicontrol Inspect and
+            \uicontrol {Factory.Reset} actions, as described in
+            \l {Tips for Wizard Development}.
+
+        \li Make a copy of \c {share/qtcreator/templates/wizards/classes/cpp}
+            and rename it. For example,
+            \c {share/qtcreator/templates/wizards/classes/mycpp}
+
+        \li Use the \uicontrol {Factory.Reset} action to make the wizard appear
+            in \uicontrol File > \uicontrol {New File or Project} without
+            restarting \QC.
 
         \li Open the wizard configuration file, \c {wizard.json} for editing:
 
             \list
 
                 \li The following settings determine the type of the wizard and
-                    its place in the \uicontrol New dialog:
+                    its place in the \uicontrol {New File or Project} dialog:
 
                     \code
                     "version": 1,
-                    "kind": "file",
+                    "supportedProjectTypes": [ ],
                     "id": "A.Class",
                     "category": "O.C++",
                     \endcode
@@ -124,15 +180,26 @@
                     \li \c version is the version of the file contents. Do not
                         modify this value.
 
-                    \li \c kind specifies the type of the wizard: \c file or
-                        \c project.
+                    \li \c supportedProjectTypes is an optional setting that
+                        can be used to filter wizards when adding a new build
+                        target to an existing project. For example, only wizards
+                        that produce qmake projects should be provided when
+                        adding a new target to an existing qmake project.
 
-                        This information is available in the wizard as
-                        \c {%\{kind\}} with values \c file or \c project.
+                        Possible values are the build systems supported by \QC
+                        or \c UNKNOWN_PROJECT if the build system is not
+                        specified: \c AutotoolsProjectManager.AutotoolsProject,
+                        \c CMakeProjectManager.CMakeProject,
+                        \c GenericProjectManager.GenericProject,
+                        \c PythonProject, \c Qbs.QbsProject,
+                        \c Qt4ProjectManager.Qt4Project (qmake project),
+                        \c QmlProjectManager.QmlProject
 
-                    \li \c id is the unique identifier for your wizard. You can
-                        use a leading letter to specify the position of the
-                        wizard within the \c category.
+                    \li \c id is the unique identifier for your wizard. Wizards
+                        are sorted by the ID in alphabetic order within the
+                        \c category. You can use a leading letter to specify the
+                        position of the wizard. You must always change
+                        this value. For example, \c B.MyClass.
 
                         This information is available in the wizard as
                         \c {%\{id\}}.
@@ -140,20 +207,21 @@
                     \li \c category is the category in which to place the wizard
                         in the list. You can use a leading letter to specify the
                         position of the category in the list in the
-                        \uicontrol New dialog.
+                        \uicontrol {New File or Project} dialog.
 
                         This information is available in the wizard as
                         \c {%\{category\}}.
                 \endlist
 
             \li The following settings specify the icon and text that appear in
-               the  \uicontrol New dialog:
+               the  \uicontrol {New File or Project} dialog:
 
                 \code
                 "trDescription": "Creates a C++ header and a source file for a new class that you can add to a C++ project.",
                 "trDisplayName": "C++ Class",
                 "trDisplayCategory": "C++",
                 "icon": "../../global/genericfilewizard.png",
+                "enabled": "%{JS: [ %{Plugins} ].indexOf('CppEditor') >= 0}",
                 \endcode
 
             \list
@@ -170,8 +238,9 @@
                     This information is available in the wizard as
                     \c {%\{trDisplayName\}}.
 
-                \li \c trDisplayCategory appears in the \uicontrol New dialog,
-                    under \uicontrol Projects.
+                \li \c trDisplayCategory appears in the
+                    \uicontrol {New File or Project} dialog, under
+                    \uicontrol Projects.
 
                     This information is available in the wizard as
                     \c {%\{trDisplayCategory\}}.
@@ -250,16 +319,16 @@
                         "trDisplayName": "Define Class",
                         "trShortTitle": "Details",
                         "typeId": "Fields",
-                "data" :
-                [
-                    {
-                        "name": "Class",
-                        "trDisplayName": "Class name:",
-                        "mandatory": true,
-                        "type": "LineEdit",
-                        "data": { "validator": "(?:(?:[a-zA-Z_][a-zA-Z_0-9]*::)+[a-zA-Z_][a-zA-Z_0-9]*|)" }
-                    },
-                    ...
+                        "data" :
+                        [
+                            {
+                                "name": "Class",
+                                "trDisplayName": "Class name:",
+                                "mandatory": true,
+                                "type": "LineEdit",
+                                "data": { "validator": "(?:(?:[a-zA-Z_][a-zA-Z_0-9]*::)+[a-zA-Z_][a-zA-Z_0-9]*|)" }
+                            },
+                            ...
                 ]
                 \endcode
 
@@ -579,6 +648,9 @@
         \li Spacer
         \li Text Edit
     \endlist
+
+    \note Only the the settings documented in the following sections are
+    supported in wizards.
 
     Specify the following settings for each widget:
 

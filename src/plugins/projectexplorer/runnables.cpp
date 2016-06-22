@@ -35,4 +35,6 @@ bool operator==(const StandardRunnable &r1, const StandardRunnable &r2)
         && r1.environment == r2.environment;
 }
 
+void *StandardRunnable::staticTypeId = &StandardRunnable::staticTypeId;
+
 } // namespace ProjectExplorer

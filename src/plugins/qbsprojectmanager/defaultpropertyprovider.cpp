@@ -89,7 +89,7 @@ static QStringList targetOSList(const ProjectExplorer::Abi &abi, const ProjectEx
         break;
     case ProjectExplorer::Abi::MacOS:
         if (device == DESKTOP_DEVICE_TYPE)
-            os << QLatin1String("osx");
+            os << QLatin1String("macos") << QLatin1String("osx");
         else if (device == IOS_DEVICE_TYPE)
             os << QLatin1String("ios");
         else if (device == IOS_SIMULATOR_TYPE)

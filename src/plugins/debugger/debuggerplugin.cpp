@@ -3849,6 +3849,9 @@ QList<QObject *> DebuggerPlugin::createTestObjects() const
 #endif // if  WITH_TESTS
 
 } // namespace Internal
+
+void *AnalyzerConnection::staticTypeId = &AnalyzerConnection::staticTypeId;
+
 } // namespace Debugger
 
 #include "debuggerplugin.moc"
