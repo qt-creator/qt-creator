@@ -52,15 +52,48 @@ using namespace QmlJS;
 using namespace QmlJS::AST;
 using namespace QmlJS::StaticAnalysis;
 
-static Document::MutablePtr readDocument(const QString &path)
+static QString getValue(const QString &data,
+                        const QString &re,
+                        const QString &defaultValue = QString::number(0)) {
+    const QRegularExpressionMatch m = QRegularExpression(re).match(data);
+    return m.hasMatch() ? m.captured(1) : defaultValue;
+}
+
+struct TestData
 {
-    Document::MutablePtr doc = Document::create(path, Dialect::Qml);
-    QFile file(doc->fileName());
+    TestData(Document::MutablePtr document, int nSemanticMessages, int nStaticMessages)
+        : doc(document)
+        , semanticMessages(nSemanticMessages)
+        , staticMessages(nStaticMessages)
+    {}
+    Document::MutablePtr doc;
+    const int semanticMessages;
+    const int staticMessages;
+};
+
+static TestData testData(const QString &path) {
+    QFile file(path);
     file.open(QFile::ReadOnly | QFile::Text);
-    doc->setSource(file.readAll());
+    const QString content = QString(file.readAll());
     file.close();
+
+    Document::MutablePtr doc = Document::create(path, Dialect::Qml);
+    doc->setSource(content);
     doc->parse();
-    return doc;
+    const QString nSemantic = getValue(content, "//\\s*ExpectedSemanticMessages: (\\d+)");
+    const QString nStatic = getValue(content, "//\\s*ExpectedStaticMessages: (\\d+)");
+    return TestData(doc, nSemantic.toInt(), nStatic.toInt());
+}
+
+void printUnexpectedMessages(const QmlJSTools::SemanticInfo &info, int nSemantic, int nStatic)
+{
+    if (nSemantic == 0 && info.semanticMessages.length() > 0)
+        for (auto msg: info.semanticMessages)
+            qDebug() << msg.message;
+    if (nStatic == 0 && info.staticAnalysisMessages.length() > 0)
+        for (auto msg: info.staticAnalysisMessages)
+            qDebug() << msg.message;
+    return;
 }
 
 class tst_Dependencies : public QObject
@@ -97,21 +130,17 @@ void tst_Dependencies::test_data()
     QTest::addColumn<int>("nSemanticMessages");
     QTest::addColumn<int>("nStaticMessages");
 
-    QTest::newRow("ApplicationWindow")
-            << QString(m_path + QLatin1String("/001_ApplicationWindow.qml"))
-            << 0
-            << 0;
-    QTest::newRow("Window")
-            << QString(m_path + QLatin1String("/002_Window.qml"))
-            << 0
-            << 1;
+    QDirIterator it(m_path, QDir::Files);
+    while (it.hasNext()) {
+        const QString &filepath = it.next();
+        const QString name = getValue(filepath, ".*/(.*).qml", filepath);
+        QTest::newRow(name.toLatin1().data()) << filepath;
+    }
 }
 
 void tst_Dependencies::test()
 {
     QFETCH(QString, filename);
-    QFETCH(int, nSemanticMessages);
-    QFETCH(int, nStaticMessages);
 
     ModelManagerInterface *modelManager = ModelManagerInterface::instance();
 
@@ -124,8 +153,10 @@ void tst_Dependencies::test()
     ModelManagerInterface::importScan(result, ModelManagerInterface::workingCopy(), lPaths,
                                       ModelManagerInterface::instance(), false);
 
-
-    Document::MutablePtr doc = readDocument(filename);
+    TestData data = testData(filename);
+    Document::MutablePtr doc = data.doc;
+    int nExpectedSemanticMessages = data.semanticMessages;
+    int nExpectedStaticMessages = data.staticMessages;
     QVERIFY(!doc->source().isEmpty());
 
     Snapshot snapshot = modelManager->snapshot();
@@ -134,7 +165,8 @@ void tst_Dependencies::test()
     semanticInfo.document = doc;
     semanticInfo.snapshot = snapshot;
 
-    Link link(semanticInfo.snapshot, modelManager->defaultVContext(doc->language(), doc), modelManager->builtins(doc));
+    Link link(semanticInfo.snapshot, modelManager->defaultVContext(doc->language(), doc),
+              modelManager->builtins(doc));
 
     semanticInfo.context = link(doc, &semanticInfo.semanticMessages);
 
@@ -144,8 +176,10 @@ void tst_Dependencies::test()
     Check checker(doc, semanticInfo.context);
     semanticInfo.staticAnalysisMessages = checker();
 
-    QCOMPARE(semanticInfo.semanticMessages.length(), nSemanticMessages);
-    QCOMPARE(semanticInfo.staticAnalysisMessages.length(), nStaticMessages);
+    printUnexpectedMessages(semanticInfo, nExpectedSemanticMessages, nExpectedStaticMessages);
+
+    QCOMPARE(semanticInfo.semanticMessages.length(), nExpectedSemanticMessages);
+    QCOMPARE(semanticInfo.staticAnalysisMessages.length(), nExpectedStaticMessages);
 }
 
 QTEST_MAIN(tst_Dependencies)

@@ -145,20 +145,22 @@ void FancyToolButton::paintEvent(QPaintEvent *event)
     if (!HostOsInfo::isMacHost() // Mac UIs usually don't hover
             && m_fader > 0 && isEnabled() && !isDown() && !isChecked()) {
         painter.save();
-        if (creatorTheme()->widgetStyle() == Theme::StyleDefault) {
-            painter.setOpacity(m_fader);
-            FancyToolButton::hoverOverlay(&painter, rect());
-        } else {
+        if (creatorTheme()->flag(Theme::FlatToolBars)) {
             const QColor hoverColor = creatorTheme()->color(Theme::FancyToolButtonHoverColor);
             QColor fadedHoverColor = hoverColor;
             fadedHoverColor.setAlpha(int(m_fader * hoverColor.alpha()));
             painter.fillRect(rect(), fadedHoverColor);
+        } else {
+            painter.setOpacity(m_fader);
+            FancyToolButton::hoverOverlay(&painter, rect());
         }
         painter.restore();
     } else if (isDown() || isChecked()) {
         painter.save();
         const QColor selectedColor = creatorTheme()->color(Theme::FancyToolButtonSelectedColor);
-        if (creatorTheme()->widgetStyle() == Theme::StyleDefault) {
+        if (creatorTheme()->flag(Theme::FlatToolBars)) {
+            painter.fillRect(rect(), selectedColor);
+        } else {
             QLinearGradient grad(rect().topLeft(), rect().topRight());
             grad.setColorAt(0, Qt::transparent);
             grad.setColorAt(0.5, selectedColor);
@@ -171,8 +173,6 @@ void FancyToolButton::paintEvent(QPaintEvent *event)
             painter.drawLine(borderRectF.topLeft() + QPointF(0, 1), borderRectF.topRight() + QPointF(0, 1));
             painter.drawLine(borderRectF.bottomLeft(), borderRectF.bottomRight());
             painter.drawLine(borderRectF.bottomLeft(), borderRectF.bottomRight());
-        } else {
-            painter.fillRect(rect(), selectedColor);
         }
         painter.restore();
     }
@@ -269,7 +269,7 @@ void FancyActionBar::paintEvent(QPaintEvent *event)
 {
     QPainter painter(this);
     const QRectF borderRect = QRectF(rect()).adjusted(0.5, 0.5, -0.5, -0.5);
-    if (creatorTheme()->widgetStyle () == Theme::StyleFlat) {
+    if (creatorTheme()->flag(Theme::FlatToolBars)) {
         // this paints the background of the bottom portion of the
         // left tab bar
         painter.fillRect(event->rect(), StyleHelper::baseColor());

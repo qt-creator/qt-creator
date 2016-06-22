@@ -54,7 +54,7 @@ public:
     bool isSurroundWithQuotesEnabled() const { return m_surroundWithQuotes; }
 
     // Returns the text to complete at the cursor position, or an empty string
-    virtual QString autoComplete(QTextCursor &cursor, const QString &text) const;
+    virtual QString autoComplete(QTextCursor &cursor, const QString &text, bool skipChars) const;
 
     // Handles backspace. When returning true, backspace processing is stopped
     virtual bool autoBackspace(QTextCursor &cursor);
@@ -77,12 +77,12 @@ public:
 
     virtual QString insertMatchingBrace(const QTextCursor &cursor, const
                                         QString &text,
-                                        QChar lookAhead,
+                                        QChar lookAhead, bool skipChars,
                                         int *skippedChars) const;
 
     virtual QString insertMatchingQuote(const QTextCursor &cursor, const
                                         QString &text,
-                                        QChar lookAhead,
+                                        QChar lookAhead, bool skipChars,
                                         int *skippedChars) const;
 
     // Returns the text that needs to be inserted

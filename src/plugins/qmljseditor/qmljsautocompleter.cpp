@@ -268,6 +268,7 @@ bool AutoCompleter::isInComment(const QTextCursor &cursor) const
 QString AutoCompleter::insertMatchingBrace(const QTextCursor &cursor,
                                            const QString &text,
                                            QChar lookAhead,
+                                           bool skipChars,
                                            int *skippedChars) const
 {
     if (text.length() != 1)
@@ -291,7 +292,7 @@ QString AutoCompleter::insertMatchingBrace(const QTextCursor &cursor,
     case ']':
     case '}':
     case ';':
-        if (lookAhead == ch)
+        if (lookAhead == ch && skipChars)
             ++*skippedChars;
         break;
 
@@ -303,12 +304,13 @@ QString AutoCompleter::insertMatchingBrace(const QTextCursor &cursor,
 }
 
 QString AutoCompleter::insertMatchingQuote(const QTextCursor &/*tc*/, const QString &text,
-                                           QChar lookAhead, int *skippedChars) const
+                                           QChar lookAhead, bool skipChars, int *skippedChars) const
 {
     if (isQuote(text)) {
-        if (lookAhead != text)
+        if (lookAhead == text && skipChars)
+            ++*skippedChars;
+        else
             return text;
-        ++*skippedChars;
     }
     return QString();
 }

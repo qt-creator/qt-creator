@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 Thorben Kroeger <thorbenkroeger@gmail.com>.
+** Copyright (C) 2016 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,33 +23,15 @@
 **
 ****************************************************************************/
 
-#pragma once
+// ExpectedSemanticMessages: 0
+// ExpectedStaticMessages: 1
 
-#include "theme.h"
-#include "../utils_global.h"
+import QtQuick 2.4
+import QtQuick.Controls 1.3
 
-#include <QColor>
-#include <QMap>
-
-namespace Utils {
-
-class QTCREATOR_UTILS_EXPORT ThemePrivate
-{
-public:
-    ThemePrivate();
-
-    QString id;
-    QString fileName;
-    QString displayName;
-    QStringList preferredStyles;
-    QString defaultTextEditorColorScheme;
-    QVector<QPair<QColor, QString> > colors;
-    QVector<QString> imageFiles;
-    QVector<QGradientStops> gradients;
-    QVector<bool> flags;
-    QMap<QString, QColor> palette;
-};
-
-QTCREATOR_UTILS_EXPORT void setCreatorTheme(Theme *theme);
-
-} // namespace Utils
+Window {
+    title: qsTr("Hello World")
+    width: 640
+    height: 480
+    visible: true
+}

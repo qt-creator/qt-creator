@@ -1,21 +1,21 @@
 [General]
-ThemeName=Flat
+ThemeName=Flat Light
 PreferredStyles=
 
 [Palette]
-shadowBackground=ff404244
+shadowBackground=ffe4e4e4
 text=ff000000
 textDisabled=55000000
-toolBarItem=b6fbfdff
-toolBarItemDisabled=60a4a6a8
-fancyBarsNormalTextColor=ffffffff
-fancyBarsBoldTextColor=b6fbfdff
-hoverBackground=22ffffff
-selectedBackground=66000000
+toolBarItem=a0010508
+toolBarItemDisabled=38000000
+fancyBarsNormalTextColor=ff000000
+fancyBarsBoldTextColor=a0010508
+hoverBackground=1a000000
+selectedBackground=a8ffffff
 normalBackground=ffffffff
 alternateBackground=ff515151
 error=ffe41e25
-splitter=ff313131
+splitter=ffbdbebf
 
 [Colors]
 BackgroundColorAlternate=alternateBackground
@@ -43,7 +43,7 @@ DoubleTabWidget2ndSeparatorColor=ffff0000
 DoubleTabWidget2ndTabActiveTextColor=ffffffff
 DoubleTabWidget2ndTabBackgroundColor=ffff0000
 DoubleTabWidget2ndTabInactiveTextColor=ff000000
-EditorPlaceholderColor=ffdddddd
+EditorPlaceholderColor=fff4f4f4
 FancyToolBarSeparatorColor=toolBarItemDisabled
 FancyTabBarBackgroundColor=shadowBackground
 FancyTabWidgetDisabledSelectedTextColor=toolBarItemDisabled
@@ -62,7 +62,7 @@ IconsWarningToolBarColor=fff2d76e
 IconsErrorColor=ffdf4f4f
 IconsErrorToolBarColor=ffdb6f71
 IconsRunColor=ff6da838
-IconsRunToolBarColor=ff93be6c
+IconsRunToolBarColor=ff5caa15
 IconsStopColor=ffee6969
 IconsStopToolBarColor=ffe27f7f
 IconsInterruptColor=ff587ff7
@@ -71,13 +71,13 @@ IconsDebugColor=toolBarItem
 IconsNavigationArrowsColor=ffebc322
 IconsBuildHammerHandleColor=ffc26b14
 IconsBuildHammerHeadColor=ff868687
-IconsModeWelcomeActiveColor=ff80c342
-IconsModeEditActiveColor=ff99aaef
+IconsModeWelcomeActiveColor=ff5caa15
+IconsModeEditActiveColor=ff6a6add
 IconsModeDesignActiveColor=ffbb6000
-IconsModeDebugActiveColor=ff99aaef
-IconsModeProjectActiveColor=ff80c342
+IconsModeDebugActiveColor=ff6a6add
+IconsModeProjectActiveColor=ff5caa15
 IconsModeAnalyzeActiveColor=ff43adee
-IconsModeHelpActiveColor=fff4be04
+IconsModeHelpActiveColor=fffaa838
 IconsCodeModelKeywordColor=ff777777
 IconsCodeModelClassColor=ffc0b550
 IconsCodeModelStructColor=ff53b053
@@ -193,7 +193,7 @@ FlatToolBars=true
 FlatSideBarIcons=true
 FlatProjectsMode=false
 FlatMenuBar=false
-ToolBarIconShadow=true
+ToolBarIconShadow=false
 
 [Gradients]
 DetailsWidgetHeaderGradient\1\color=0

@@ -2660,8 +2660,10 @@ void CdbEngine::attemptBreakpointSynchronization()
                     qPrintable(parameters.toString()));
             if (parameters.enabled != bp.response().enabled) {
                 // Change enabled/disabled breakpoints without triggering update.
-                runCommand({(parameters.enabled ? "be " : "bd ")
-                    + QString::number(breakPointIdToCdbId(id)), NoFlags});
+                if (parameters.enabled)
+                    runCommand({"be " + QString::number(breakPointIdToCdbId(id)), NoFlags});
+                else
+                    runCommand({"bd " + QString::number(breakPointIdToCdbId(id)), NoFlags});
                 response.pending = false;
                 response.enabled = parameters.enabled;
                 bp.setResponse(response);

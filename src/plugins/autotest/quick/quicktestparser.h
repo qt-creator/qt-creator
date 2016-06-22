@@ -27,6 +27,8 @@
 
 #include "../itestparser.h"
 
+#include <qmljs/qmljsdocument.h>
+
 namespace Autotest {
 namespace Internal {
 

@@ -362,12 +362,20 @@ bool FontSettings::loadColorScheme(const QString &fileName,
         const TextStyle id = desc.id();
         if (!m_scheme.contains(id)) {
             Format format;
-            format.setForeground(desc.foreground());
-            format.setBackground(desc.background());
-            format.setBold(desc.format().bold());
-            format.setItalic(desc.format().italic());
-            format.setUnderlineColor(desc.format().underlineColor());
-            format.setUnderlineStyle(desc.format().underlineStyle());
+            const Format &descFormat = desc.format();
+            if (descFormat == format && m_scheme.contains(C_TEXT)) {
+                // Default format -> Text
+                const Format textFormat = m_scheme.formatFor(C_TEXT);
+                format.setForeground(textFormat.foreground());
+                format.setBackground(textFormat.background());
+            } else {
+                format.setForeground(descFormat.foreground());
+                format.setBackground(descFormat.background());
+            }
+            format.setBold(descFormat.bold());
+            format.setItalic(descFormat.italic());
+            format.setUnderlineColor(descFormat.underlineColor());
+            format.setUnderlineStyle(descFormat.underlineStyle());
             m_scheme.setFormatFor(id, format);
         }
     }

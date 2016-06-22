@@ -40,9 +40,9 @@ public:
     bool contextAllowsElectricCharacters(const QTextCursor &cursor) const override;
     bool isInComment(const QTextCursor &cursor) const override;
     QString insertMatchingBrace(const QTextCursor &cursor, const QString &text,
-                                QChar lookAhead, int *skippedChars) const override;
+                                QChar lookAhead, bool skipChars, int *skippedChars) const override;
     QString insertMatchingQuote(const QTextCursor &cursor, const QString &text,
-                                QChar lookAhead, int *skippedChars) const override;
+                                QChar lookAhead, bool skipChars, int *skippedChars) const override;
     QString insertParagraphSeparator(const QTextCursor &cursor) const override;
 };
 

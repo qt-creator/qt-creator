@@ -25,13 +25,10 @@
 
 #pragma once
 
-#include <coreplugin/editormanager/editormanager.h>
 #include <cpptools/cppmodelmanager.h>
-#include <cpptools/cppworkingcopy.h>
 #include <cpptools/projectpart.h>
-#include <utils/textfileformat.h>
 
-#include <QStringList>
+#include <QString>
 
 namespace Autotest {
 namespace Internal {
@@ -51,24 +48,6 @@ public:
             return projectParts.first()->displayName;
 
         return QString();
-    }
-
-    static QByteArray getFileContent(QString filePath)
-    {
-        QByteArray fileContent;
-        CppTools::CppModelManager *cppMM = CppTools::CppModelManager::instance();
-        CppTools::WorkingCopy wc = cppMM->workingCopy();
-        if (wc.contains(filePath)) {
-            fileContent = wc.source(filePath);
-        } else {
-            QString error;
-            const QTextCodec *codec = Core::EditorManager::defaultTextCodec();
-            if (Utils::TextFileFormat::readFileUTF8(filePath, codec, &fileContent, &error)
-                    != Utils::TextFileFormat::ReadSuccess) {
-                qDebug() << "Failed to read file" << filePath << ":" << error;
-            }
-        }
-        return fileContent;
     }
 };
 

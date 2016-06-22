@@ -114,7 +114,7 @@ QSize FancyTabBar::tabSizeHint(bool minimum) const
 void FancyTabBar::paintEvent(QPaintEvent *event)
 {
     QPainter p(this);
-    if (creatorTheme()->widgetStyle() == Theme::StyleFlat) {
+    if (creatorTheme()->flag(Theme::FlatToolBars)) {
         // draw background of upper part of left tab widget
         // (Welcome, ... Help)
         p.fillRect(event->rect(), StyleHelper::baseColor());
@@ -293,7 +293,7 @@ void FancyTabBar::paintTab(QPainter *painter, int tabIndex) const
     bool enabled = isTabEnabled(tabIndex);
 
     if (selected) {
-        if (creatorTheme()->widgetStyle() == Theme::StyleFlat) {
+        if (creatorTheme()->flag(Theme::FlatToolBars)) {
           // background color of a fancy tab that is active
           painter->fillRect(rect, creatorTheme()->color(Theme::FancyToolButtonSelectedColor));
         } else {
@@ -317,14 +317,14 @@ void FancyTabBar::paintTab(QPainter *painter, int tabIndex) const
     if (fader > 0 && !HostOsInfo::isMacHost() && !selected && enabled) {
         painter->save();
         painter->setOpacity(fader);
-        if (creatorTheme()->widgetStyle() == Theme::StyleFlat)
+        if (creatorTheme()->flag(Theme::FlatToolBars))
             painter->fillRect(rect, creatorTheme()->color(Theme::FancyToolButtonHoverColor));
         else
             FancyToolButton::hoverOverlay(painter, rect);
         painter->restore();
     }
 
-    if (!enabled && creatorTheme()->widgetStyle() == Theme::StyleDefault)
+    if (!enabled && !creatorTheme()->flag(Theme::FlatToolBars))
         painter->setOpacity(0.7);
 
     if (drawIcon) {

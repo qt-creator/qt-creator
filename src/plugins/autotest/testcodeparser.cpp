@@ -76,6 +76,7 @@ TestCodeParser::TestCodeParser(TestTreeModel *parent)
             this, [this] (int index) {
         emit testParseResultReady(m_futureWatcher.resultAt(index));
     });
+    connect(this, &TestCodeParser::parsingFinished, this, &TestCodeParser::releaseParserInternals);
 }
 
 TestCodeParser::~TestCodeParser()
@@ -423,6 +424,12 @@ void TestCodeParser::onPartialParsingFinished()
                          << "(on PartialParsingFinished, singleshot scheduled)";
         }
     }
+}
+
+void TestCodeParser::releaseParserInternals()
+{
+    for (ITestParser *parser : m_testCodeParsers)
+        parser->release();
 }
 
 } // namespace Internal

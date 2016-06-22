@@ -255,7 +255,7 @@ bool MatchingText::isInStringHelper(const QTextCursor &cursor)
 }
 
 QString MatchingText::insertMatchingBrace(const QTextCursor &cursor, const QString &textToProcess,
-                                          QChar /*lookAhead*/, int *skippedChars)
+                                          QChar /*lookAhead*/, bool skipChars, int *skippedChars)
 {
     if (textToProcess.isEmpty())
         return QString();
@@ -266,10 +266,12 @@ QString MatchingText::insertMatchingBrace(const QTextCursor &cursor, const QStri
     const QString blockText = tc.block().text().mid(tc.positionInBlock());
     const QString trimmedBlockText = blockText.trimmed();
 
-    *skippedChars = countSkippedChars(blockText, textToProcess);
-    if (*skippedChars != 0) {
-        tc.movePosition(QTextCursor::NextCharacter, QTextCursor::MoveAnchor, *skippedChars);
-        text = textToProcess.mid(*skippedChars);
+    if (skipChars) {
+        *skippedChars = countSkippedChars(blockText, textToProcess);
+        if (*skippedChars != 0) {
+            tc.movePosition(QTextCursor::NextCharacter, QTextCursor::MoveAnchor, *skippedChars);
+            text = textToProcess.mid(*skippedChars);
+        }
     }
 
     QString result;
@@ -285,7 +287,7 @@ QString MatchingText::insertMatchingBrace(const QTextCursor &cursor, const QStri
 }
 
 QString MatchingText::insertMatchingQuote(const QTextCursor &cursor, const QString &textToProcess,
-                                          QChar lookAhead, int *skippedChars)
+                                          QChar lookAhead, bool skipChars, int *skippedChars)
 {
     if (textToProcess.isEmpty())
         return QString();
@@ -293,7 +295,7 @@ QString MatchingText::insertMatchingQuote(const QTextCursor &cursor, const QStri
     QTextCursor tc = cursor;
     QString text = textToProcess;
 
-    if (!isEscaped(tc)) {
+    if (skipChars && !isEscaped(tc)) {
         const QString blockText = tc.block().text().mid(tc.positionInBlock());
         *skippedChars = countSkippedChars(blockText, textToProcess);
         if (*skippedChars != 0) {
@@ -313,7 +315,7 @@ QString MatchingText::insertMatchingQuote(const QTextCursor &cursor, const QStri
             qWarning() << Q_FUNC_INFO << "handle event compression";
 
         BackwardsScanner tk(tc, LanguageFeatures::defaultFeatures(), MAX_NUM_LINES,
-                            textToProcess.left(*skippedChars));
+                            textToProcess.left(skippedChars ? *skippedChars : 0));
         if (insertQuote(ch, tk))
             return ch;
     }

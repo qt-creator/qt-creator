@@ -39,7 +39,6 @@ namespace Utils {
 static Theme *m_creatorTheme = 0;
 
 ThemePrivate::ThemePrivate()
-    : widgetStyle(Theme::StyleDefault)
 {
     const QMetaObject &m = Theme::staticMetaObject;
     colors.resize        (m.enumerator(m.indexOfEnumerator("Color")).keyCount());
@@ -71,11 +70,6 @@ Theme::Theme(const QString &id, QObject *parent)
 Theme::~Theme()
 {
     delete d;
-}
-
-Theme::WidgetStyle Theme::widgetStyle() const
-{
-    return d->widgetStyle;
 }
 
 QStringList Theme::preferredStyles() const
@@ -164,10 +158,6 @@ QVariantHash Theme::values() const
             result.insert(key, flag(static_cast<Theme::Flag>(i)));
         }
     }
-    {
-        const QMetaEnum e = m.enumerator(m.indexOfEnumerator("WidgetStyle"));
-        result.insert(QLatin1String("WidgetStyle"), QLatin1String(e.valueToKey(widgetStyle())));
-    }
     return result;
 }
 
@@ -196,13 +186,6 @@ void Theme::readSettings(QSettings &settings)
             QColor c = readColor(settings.value(key).toString());
             d->palette[key] = c;
         }
-        settings.endGroup();
-    }
-    {
-        settings.beginGroup(QLatin1String("Style"));
-        QMetaEnum e = m.enumerator(m.indexOfEnumerator("WidgetStyle"));
-        QString val = settings.value(QLatin1String("WidgetStyle")).toString();
-        d->widgetStyle = static_cast<Theme::WidgetStyle>(e.keysToValue (val.toLatin1().data()));
         settings.endGroup();
     }
     {

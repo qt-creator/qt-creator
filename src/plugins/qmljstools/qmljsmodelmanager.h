@@ -60,6 +60,7 @@ private slots:
     void updateDefaultProjectInfo();
 private:
     void loadDefaultQmlTypeDescriptions();
+    QHash<QString, QmlJS::Dialect> initLanguageForSuffix() const;
 };
 
 } // namespace Internal

@@ -250,20 +250,21 @@ QVariant FlameGraphModel::data(const QModelIndex &index, int role) const
 
 QHash<int, QByteArray> FlameGraphModel::roleNames() const
 {
-    QHash<int, QByteArray> names = QAbstractItemModel::roleNames();
-    names[TypeIdRole] = "typeId";
-    names[TypeRole] = "type";
-    names[DurationRole] = "duration";
-    names[CallCountRole] = "callCount";
-    names[DetailsRole] = "details";
-    names[FilenameRole] = "filename";
-    names[LineRole] = "line";
-    names[ColumnRole] = "column";
-    names[NoteRole] = "note";
-    names[TimePerCallRole] = "timePerCall";
-    names[TimeInPercentRole] = "timeInPercent";
-    names[RangeTypeRole] = "rangeType";
-    return names;
+    static QHash<int, QByteArray> extraRoles{
+        {TypeIdRole, "typeId"},
+        {TypeRole, "type"},
+        {DurationRole, "duration"},
+        {CallCountRole, "callCount"},
+        {DetailsRole, "details"},
+        {FilenameRole, "filename"},
+        {LineRole, "line"},
+        {ColumnRole, "column"},
+        {NoteRole, "note"},
+        {TimePerCallRole, "timePerCall"},
+        {TimeInPercentRole, "timeInPercent"},
+        {RangeTypeRole, "rangeType"}
+    };
+    return QAbstractItemModel::roleNames().unite(extraRoles);
 }
 
 QmlProfilerModelManager *FlameGraphModel::modelManager() const

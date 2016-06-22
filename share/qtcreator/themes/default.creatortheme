@@ -179,6 +179,7 @@ DrawSearchResultWidgetFrame=true
 DrawTargetSelectorBottom=true
 DrawToolBarHighlights=true
 ApplyThemePaletteGlobally=false
+FlatToolBars=false
 FlatSideBarIcons=false
 FlatProjectsMode=false
 FlatMenuBar=false
@@ -188,6 +189,3 @@ ToolBarIconShadow=true
 DetailsWidgetHeaderGradient\1\color=ffffff
 DetailsWidgetHeaderGradient\1\pos=1
 DetailsWidgetHeaderGradient\size=1
-
-[Style]
-WidgetStyle=StyleDefault

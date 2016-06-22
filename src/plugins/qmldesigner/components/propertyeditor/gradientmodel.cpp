@@ -56,11 +56,12 @@ int GradientModel::rowCount(const QModelIndex & /*parent*/) const
 
 QHash<int, QByteArray> GradientModel::roleNames() const
 {
-    QHash<int, QByteArray> roleNames;
-    roleNames[Qt::UserRole + 1] = "position";
-    roleNames[Qt::UserRole + 2] = "color";
-    roleNames[Qt::UserRole + 3] = "readOnly";
-    roleNames[Qt::UserRole + 4] = "index";
+    static QHash<int, QByteArray> roleNames{
+        {Qt::UserRole + 1, "position"},
+        {Qt::UserRole + 2, "color"},
+        {Qt::UserRole + 3, "readOnly"},
+        {Qt::UserRole + 4, "index"}
+    };
 
     return roleNames;
 }

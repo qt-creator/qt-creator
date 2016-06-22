@@ -64,6 +64,18 @@ QColor StyleHelper::mergedColors(const QColor &colorA, const QColor &colorB, int
     return tmp;
 }
 
+QColor StyleHelper::alphaBlendedColors(const QColor &colorA, const QColor &colorB)
+{
+    const QRgb base = colorA.rgba();
+    const QRgb overlay = colorB.rgba();
+    const qreal overlayIntensity = qAlpha(overlay) / 255.0;
+    return qRgba(
+                qMin(qRed(base) + qRound(qRed(overlay) * overlayIntensity), 0xff),
+                qMin(qGreen(base) + qRound(qGreen(overlay) * overlayIntensity), 0xff),
+                qMin(qBlue(base) + qRound(qBlue(overlay) * overlayIntensity), 0xff),
+                qMin(qAlpha(base) + qAlpha(overlay), 0xff));
+}
+
 qreal StyleHelper::sidebarFontSize()
 {
     return HostOsInfo::isMacHost() ? 10 : 7.5;

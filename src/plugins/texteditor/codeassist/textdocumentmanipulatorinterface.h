@@ -47,6 +47,7 @@ public:
     virtual QTextCursor textCursorAt(int position) const = 0;
 
     virtual void setCursorPosition(int position) = 0;
+    virtual void setAutoCompleteSkipPosition(int position) = 0;
     virtual bool replace(int position, int length, const QString &text) = 0;
     virtual void insertCodeSnippet(int position, const QString &text) = 0;
     virtual void paste() = 0;

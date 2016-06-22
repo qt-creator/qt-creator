@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 Thorben Kroeger <thorbenkroeger@gmail.com>.
+** Copyright (C) 2016 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,33 +23,13 @@
 **
 ****************************************************************************/
 
-#pragma once
+import QtQuick 2.4
 
-#include "theme.h"
-#include "../utils_global.h"
-
-#include <QColor>
-#include <QMap>
-
-namespace Utils {
-
-class QTCREATOR_UTILS_EXPORT ThemePrivate
-{
-public:
-    ThemePrivate();
-
-    QString id;
-    QString fileName;
-    QString displayName;
-    QStringList preferredStyles;
-    QString defaultTextEditorColorScheme;
-    QVector<QPair<QColor, QString> > colors;
-    QVector<QString> imageFiles;
-    QVector<QGradientStops> gradients;
-    QVector<bool> flags;
-    QMap<QString, QColor> palette;
-};
-
-QTCREATOR_UTILS_EXPORT void setCreatorTheme(Theme *theme);
-
-} // namespace Utils
+ListView {
+    anchors.fill: parent
+    model: fruitModel
+    delegate: Row {
+        Text { text: "Fruit: " + name }
+        Text { text: "Cost: $" + cost }
+    }
+}

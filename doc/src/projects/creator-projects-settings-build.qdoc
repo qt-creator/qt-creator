@@ -87,7 +87,8 @@
 
     You can specify command-line arguments in the arguments fields:
     \uicontrol {Additional arguments}, \uicontrol {Command arguments},
-    \uicontrol {Make arguments}, or \uicontrol Arguments. You can create shell command lines
+    \uicontrol {Make arguments}, \uicontrol Arguments, \uicontrol {Default Arguments},
+    or \uicontrol {Extra arguments}. You can create shell command lines
     that can contain redirection and other advanced constructs. However, some
     more complex use cases, such as piping test data into the application being
     tested or grouping commands, are not supported because the value of the

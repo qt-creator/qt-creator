@@ -326,6 +326,7 @@ public:
 
     // keep the auto completion even if the focus is lost
     void keepAutoCompletionHighlight(bool keepHighlight);
+    void setAutoCompleteSkipPosition(const QTextCursor &cursor);
 
     virtual void copy();
     virtual void paste();

@@ -139,14 +139,15 @@ ModelManagerInterface::~ModelManagerInterface()
 
 static QHash<QString, Dialect> defaultLanguageMapping()
 {
-    QHash<QString, Dialect> res;
-    res[QLatin1String("js")] = Dialect::JavaScript;
-    res[QLatin1String("qml")] = Dialect::Qml;
-    res[QLatin1String("qmltypes")] = Dialect::QmlTypeInfo;
-    res[QLatin1String("qmlproject")] = Dialect::QmlProject;
-    res[QLatin1String("json")] = Dialect::Json;
-    res[QLatin1String("qbs")] = Dialect::QmlQbs;
-    res[QLatin1String(qtQuickUISuffix)] = Dialect::QmlQtQuick2Ui;
+    static QHash<QString, Dialect> res{
+        {QLatin1String("js"), Dialect::JavaScript},
+        {QLatin1String("qml"), Dialect::Qml},
+        {QLatin1String("qmltypes"), Dialect::QmlTypeInfo},
+        {QLatin1String("qmlproject"), Dialect::QmlProject},
+        {QLatin1String("json"), Dialect::Json},
+        {QLatin1String("qbs"), Dialect::QmlQbs},
+        {QLatin1String(qtQuickUISuffix), Dialect::QmlQtQuick2Ui}
+    };
     return res;
 }
 

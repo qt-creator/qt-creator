@@ -30,7 +30,7 @@
 
 #include <coreplugin/id.h>
 #include <cplusplus/CppDocument.h>
-#include <cpptools/cppmodelmanager.h>
+#include <cpptools/cppworkingcopy.h>
 #include <qmljs/qmljsdocument.h>
 
 namespace Autotest {
@@ -64,6 +64,7 @@ public:
     virtual void init(const QStringList &filesToParse) = 0;
     virtual bool processDocument(QFutureInterface<TestParseResultPtr> futureInterface,
                                  const QString &fileName) = 0;
+    virtual void release() = 0;
     void setId(const Core::Id &id) { m_id = id; }
     Core::Id id() const { return m_id; }
 
@@ -74,22 +75,15 @@ private:
 class CppParser : public ITestParser
 {
 public:
-    void init(const QStringList &filesToParse) override
-    {
-        Q_UNUSED(filesToParse);
-        m_cppSnapshot = CppTools::CppModelManager::instance()->snapshot();
-    }
-
-    static bool selectedForBuilding(const QString &fileName)
-    {
-        QList<CppTools::ProjectPart::Ptr> projParts =
-                CppTools::CppModelManager::instance()->projectPart(fileName);
-
-        return projParts.size() && projParts.at(0)->selectedForBuilding;
-    }
+    CppParser();
+    void init(const QStringList &filesToParse) override;
+    static bool selectedForBuilding(const QString &fileName);
+    static QByteArray getFileContent(const QString &filePath);
+    void release() override;
 
 protected:
     CPlusPlus::Snapshot m_cppSnapshot;
+    CppTools::WorkingCopy m_workingCopy;
 };
 
 } // namespace Internal

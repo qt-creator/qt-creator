@@ -94,14 +94,15 @@ QVariant SessionModel::data(const QModelIndex &index, int role) const
 
 QHash<int, QByteArray> SessionModel::roleNames() const
 {
-    QHash<int, QByteArray> roleNames;
-    roleNames[Qt::DisplayRole] = "sessionName";
-    roleNames[DefaultSessionRole] = "defaultSession";
-    roleNames[ActiveSessionRole] = "activeSession";
-    roleNames[LastSessionRole] = "lastSession";
-    roleNames[ProjectsPathRole] = "projectsPath";
-    roleNames[ProjectsDisplayRole] = "projectsName";
-    return roleNames;
+    static QHash<int, QByteArray> extraRoles{
+        {Qt::DisplayRole, "sessionName"},
+        {DefaultSessionRole, "defaultSession"},
+        {ActiveSessionRole, "activeSession"},
+        {LastSessionRole, "lastSession"},
+        {ProjectsPathRole, "projectsPath"},
+        {ProjectsDisplayRole, "projectsName"}
+    };
+    return QAbstractListModel::roleNames().unite(extraRoles);
 }
 
 bool SessionModel::isDefaultVirgin() const
@@ -180,6 +181,8 @@ QVariant ProjectModel::data(const QModelIndex &index, int role) const
     switch (role) {
     case Qt::DisplayRole:
         return data.second;
+    case Qt::ToolTipRole:
+        return data.first;
     case FilePathRole:
         return data.first;
     case PrettyFilePathRole:
@@ -191,11 +194,11 @@ QVariant ProjectModel::data(const QModelIndex &index, int role) const
 
 QHash<int, QByteArray> ProjectModel::roleNames() const
 {
-    QHash<int, QByteArray> roleNames;
-    roleNames[Qt::DisplayRole] = "displayName";
-    roleNames[FilePathRole] = "filePath";
-    roleNames[PrettyFilePathRole] = "prettyFilePath";
-    return roleNames;
+    static QHash<int, QByteArray> extraRoles{
+        {FilePathRole, "filePath"},
+        {PrettyFilePathRole, "prettyFilePath"}
+    };
+    return QAbstractListModel::roleNames().unite(extraRoles);
 }
 
 void ProjectModel::resetProjects()

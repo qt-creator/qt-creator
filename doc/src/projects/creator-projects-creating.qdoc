@@ -213,10 +213,21 @@
 
         \list
 
-            \li Plain C or C++ Project
+            \li Plain C or C++ Application
 
-                Plain C or C++ project that uses qmake, Qbs, or CMake but does
+                Plain C or C++ application that uses qmake, Qbs, or CMake but does
                 not use the Qt library
+
+            \li Nim Application (experimental)
+
+                \l{http://nim-lang.org/}{Nim} application that uses qmake
+                or CMake but does not use the Qt library
+
+                \note The \uicontrol {Nim Application} option becomes visible
+                after you enable the experimental Nim plugin. Select
+                \uicontrol Help > \uicontrol {About Plugins} >
+                \uicontrol {Other Languages} > \uicontrol Nim, and then restart
+                \QC.
 
         \endlist
 
@@ -315,6 +326,10 @@
 
             Python class and source files that you can use to create Python
             classes and scripts with UTF-8 encoding.
+
+        \li Nim (experimental)
+
+            Nim source files with UTF-8 encoding.
 
     \endlist
 

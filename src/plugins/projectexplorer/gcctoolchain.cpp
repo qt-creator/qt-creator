@@ -431,9 +431,15 @@ ToolChain::CompilerFlags GccToolChain::compilerFlags(const QStringList &cxxflags
             } else if (std == "c++17" || std == "c++1z") {
                 flags |= StandardCxx17;
                 flags &= ~CompilerFlags(StandardCxx11 | StandardCxx14 | GnuExtensions);
-            } else if (std == "gnu++0x" || std == "gnu++11" || std== "gnu++1y") {
+            } else if (std == "gnu++0x" || std == "gnu++11") {
                 flags |= CompilerFlags(StandardCxx11 | GnuExtensions);
                 flags &= ~CompilerFlags(StandardCxx14 | StandardCxx17);
+            } else if (std== "gnu++14" || std == "gnu++1y") {
+                flags |= CompilerFlags(StandardCxx14 | GnuExtensions);
+                flags &= ~CompilerFlags(StandardCxx11 | StandardCxx17);
+            } else if (std== "gnu++17" || std == "gnu++1z") {
+                flags |= CompilerFlags(StandardCxx17 | GnuExtensions);
+                flags &= ~CompilerFlags(StandardCxx11 | StandardCxx14);
             } else if (std == "c89" || std == "c90"
                        || std == "iso9899:1990" || std == "iso9899:199409") {
                 flags &= ~CompilerFlags(StandardC99 | StandardC11);

@@ -101,6 +101,7 @@ void KeywordsAssistProposalItem::applyContextualContent(TextDocumentManipulatorI
     QString toInsert = text();
     int cursorOffset = 0;
     const QChar characterAtCurrentPosition = manipulator.characterAt(manipulator.currentPosition());
+    bool setAutoCompleteSkipPosition = false;
 
     if (m_isFunction && settings.m_autoInsertBrackets) {
         if (settings.m_spaceAfterFunctionName) {
@@ -113,6 +114,7 @@ void KeywordsAssistProposalItem::applyContextualContent(TextDocumentManipulatorI
             } else {
                 toInsert += QLatin1String(" ()");
                 cursorOffset = -1;
+                setAutoCompleteSkipPosition = true;
             }
         } else {
             if (characterAtCurrentPosition == QLatin1Char('(')) {
@@ -120,6 +122,7 @@ void KeywordsAssistProposalItem::applyContextualContent(TextDocumentManipulatorI
             } else {
                 toInsert += QLatin1String("()");
                 cursorOffset = -1;
+                setAutoCompleteSkipPosition = true;
             }
         }
     }
@@ -127,6 +130,8 @@ void KeywordsAssistProposalItem::applyContextualContent(TextDocumentManipulatorI
     manipulator.replace(basePosition, replaceLength, toInsert);
     if (cursorOffset)
         manipulator.setCursorPosition(manipulator.currentPosition() + cursorOffset);
+    if (setAutoCompleteSkipPosition)
+        manipulator.setAutoCompleteSkipPosition(manipulator.currentPosition());
 }
 
 // -------------------------

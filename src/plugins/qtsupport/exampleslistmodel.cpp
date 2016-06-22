@@ -188,10 +188,11 @@ int ExampleSetModel::getExtraExampleSetIndex(int i) const
 
 QHash<int, QByteArray> ExampleSetModel::roleNames() const
 {
-    QHash<int, QByteArray> roleNames;
-    roleNames[Qt::UserRole + 1] = "text";
-    roleNames[Qt::UserRole + 2] = "QtId";
-    roleNames[Qt::UserRole + 3] = "extraSetIndex";
+    static QHash<int, QByteArray> roleNames{
+        {Qt::UserRole + 1, "text"},
+        {Qt::UserRole + 2, "QtId"},
+        {Qt::UserRole + 3, "extraSetIndex"}
+    };
     return roleNames;
 }
 
@@ -680,24 +681,25 @@ QVariant ExamplesListModel::data(const QModelIndex &index, int role) const
 
 QHash<int, QByteArray> ExamplesListModel::roleNames() const
 {
-    QHash<int, QByteArray> roleNames;
-    roleNames[Name] = "name";
-    roleNames[ProjectPath] = "projectPath";
-    roleNames[ImageUrl] = "imageUrl";
-    roleNames[Description] = "description";
-    roleNames[DocUrl] = "docUrl";
-    roleNames[FilesToOpen] = "filesToOpen";
-    roleNames[MainFile] = "mainFile";
-    roleNames[Tags] = "tags";
-    roleNames[Difficulty] = "difficulty";
-    roleNames[Type] = "type";
-    roleNames[HasSourceCode] = "hasSourceCode";
-    roleNames[Dependencies] = "dependencies";
-    roleNames[IsVideo] = "isVideo";
-    roleNames[VideoUrl] = "videoUrl";
-    roleNames[VideoLength] = "videoLength";
-    roleNames[Platforms] = "platforms";
-    roleNames[IsHighlighted] = "isHighlighted";
+    static QHash<int, QByteArray> roleNames{
+        {Name, "name"},
+        {ProjectPath, "projectPath"},
+        {ImageUrl, "imageUrl"},
+        {Description, "description"},
+        {DocUrl, "docUrl"},
+        {FilesToOpen, "filesToOpen"},
+        {MainFile, "mainFile"},
+        {Tags, "tags"},
+        {Difficulty, "difficulty"},
+        {Type, "type"},
+        {HasSourceCode, "hasSourceCode"},
+        {Dependencies, "dependencies"},
+        {IsVideo, "isVideo"},
+        {VideoUrl, "videoUrl"},
+        {VideoLength, "videoLength"},
+        {Platforms, "platforms"},
+        {IsHighlighted, "isHighlighted"}
+    };
     return roleNames;
 }
 

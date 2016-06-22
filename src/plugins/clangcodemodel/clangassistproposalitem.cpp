@@ -75,6 +75,7 @@ void ClangAssistProposalItem::apply(TextEditor::TextDocumentManipulatorInterface
     QString extraCharacters;
     int extraLength = 0;
     int cursorOffset = 0;
+    bool setAutoCompleteSkipPos = false;
 
     bool autoParenthesesEnabled = true;
     if (m_completionOperator == T_SIGNAL || m_completionOperator == T_SLOT) {
@@ -141,6 +142,7 @@ void ClangAssistProposalItem::apply(TextEditor::TextDocumentManipulatorInterface
                 if (MatchingText::shouldInsertMatchingText(lookAhead)) {
                     extraCharacters += QLatin1Char(')');
                     --cursorOffset;
+                    setAutoCompleteSkipPos = true;
                     if (endWithSemicolon) {
                         extraCharacters += semicolon;
                         --cursorOffset;
@@ -200,6 +202,8 @@ void ClangAssistProposalItem::apply(TextEditor::TextDocumentManipulatorInterface
     if (isReplaced) {
         if (cursorOffset)
             manipulator.setCursorPosition(manipulator.currentPosition() + cursorOffset);
+        if (setAutoCompleteSkipPos)
+            manipulator.setAutoCompleteSkipPosition(manipulator.currentPosition());
 
         if (ccr.completionKind() == CodeCompletion::KeywordCompletionKind)
             manipulator.autoIndent(basePosition, textToBeInserted.size());

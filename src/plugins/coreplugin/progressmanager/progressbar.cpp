@@ -295,7 +295,7 @@ void ProgressBar::paintEvent(QPaintEvent *)
     const QColor c = creatorTheme()->color(themeColor);
 
     //draw the progress bar
-    if (creatorTheme()->widgetStyle() == Theme::StyleFlat) {
+    if (creatorTheme()->flag(Theme::FlatToolBars)) {
         p.fillRect(rect.adjusted(2, 2, -2, -2),
                    creatorTheme()->color(Theme::ProgressBarBackgroundColor));
         p.fillRect(inner, c);
@@ -336,7 +336,7 @@ void ProgressBar::paintEvent(QPaintEvent *)
             const bool hover = m_cancelRect.contains(mapFromGlobal(QCursor::pos()));
             const QRectF cancelVisualRect(m_cancelRect.adjusted(0, 1, -2, -2));
             int intensity = hover ? 90 : 70;
-            if (creatorTheme()->widgetStyle() != Theme::StyleFlat) {
+            if (!creatorTheme()->flag(Theme::FlatToolBars)) {
                 QLinearGradient grad(cancelVisualRect.topLeft(), cancelVisualRect.bottomLeft());
                 QColor buttonColor(intensity, intensity, intensity, 255);
                 grad.setColorAt(0, buttonColor.lighter(130));

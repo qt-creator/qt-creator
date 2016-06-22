@@ -203,6 +203,7 @@ void CppAssistProposalItem::applyContextualContent(TextDocumentManipulatorInterf
     QString extraChars;
     int extraLength = 0;
     int cursorOffset = 0;
+    bool setAutoCompleteSkipPos = false;
 
     bool autoParenthesesEnabled = true;
 
@@ -278,6 +279,7 @@ void CppAssistProposalItem::applyContextualContent(TextDocumentManipulatorInterf
                         if (MatchingText::shouldInsertMatchingText(lookAhead)) {
                             extraChars += QLatin1Char(')');
                             --cursorOffset;
+                            setAutoCompleteSkipPos = true;
                             if (endWithSemicolon) {
                                 extraChars += semicolon;
                                 --cursorOffset;
@@ -345,6 +347,8 @@ void CppAssistProposalItem::applyContextualContent(TextDocumentManipulatorInterf
     manipulator.replace(basePosition, length, toInsert);
     if (cursorOffset)
         manipulator.setCursorPosition(manipulator.currentPosition() + cursorOffset);
+    if (setAutoCompleteSkipPos)
+        manipulator.setAutoCompleteSkipPosition(manipulator.currentPosition());
 }
 
 // --------------------

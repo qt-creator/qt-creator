@@ -1,21 +1,22 @@
 [General]
-ThemeName=Flat
-PreferredStyles=
+ThemeName=Flat Dark
+PreferredStyles=Fusion
+DefaultTextEditorColorScheme=inkpot.xml
 
 [Palette]
 shadowBackground=ff404244
-text=ff000000
-textDisabled=55000000
+text=ffd0d0d0
+textDisabled=60a4a6a8
 toolBarItem=b6fbfdff
 toolBarItemDisabled=60a4a6a8
-fancyBarsNormalTextColor=ffffffff
+fancyBarsNormalTextColor=ffd0d0d0
 fancyBarsBoldTextColor=b6fbfdff
 hoverBackground=22ffffff
 selectedBackground=66000000
-normalBackground=ffffffff
-alternateBackground=ff515151
+normalBackground=ff2E2F30
+alternateBackground=ff353637
 error=ffe41e25
-splitter=ff313131
+splitter=ff06080A
 
 [Colors]
 BackgroundColorAlternate=alternateBackground
@@ -32,18 +33,18 @@ CanceledSearchTextColor=ff0000
 ComboBoxArrowColor=toolBarItem
 ComboBoxArrowColorDisabled=toolBarItemDisabled
 ComboBoxTextColor=fancyBarsNormalTextColor
-DetailsButtonBackgroundColorHover=b4ffffff
-DetailsWidgetBackgroundColor=28ffffff
+DetailsButtonBackgroundColorHover=22ffffff
+DetailsWidgetBackgroundColor=18ffffff
 DockWidgetResizeHandleColor=splitter
-DoubleTabWidget1stSeparatorColor=ffff0000
-DoubleTabWidget1stTabActiveTextColor=ff000000
-DoubleTabWidget1stTabBackgroundColor=ffff0000
-DoubleTabWidget1stTabInactiveTextColor=ffffffff
-DoubleTabWidget2ndSeparatorColor=ffff0000
-DoubleTabWidget2ndTabActiveTextColor=ffffffff
-DoubleTabWidget2ndTabBackgroundColor=ffff0000
-DoubleTabWidget2ndTabInactiveTextColor=ff000000
-EditorPlaceholderColor=ffdddddd
+DoubleTabWidget1stSeparatorColor=splitter
+DoubleTabWidget1stTabActiveTextColor=text
+DoubleTabWidget1stTabBackgroundColor=ff505050
+DoubleTabWidget1stTabInactiveTextColor=text
+DoubleTabWidget2ndSeparatorColor=toolBarItemDisabled
+DoubleTabWidget2ndTabActiveTextColor=text
+DoubleTabWidget2ndTabBackgroundColor=selectedBackground
+DoubleTabWidget2ndTabInactiveTextColor=text
+EditorPlaceholderColor=normalBackground
 FancyToolBarSeparatorColor=toolBarItemDisabled
 FancyTabBarBackgroundColor=shadowBackground
 FancyTabWidgetDisabledSelectedTextColor=toolBarItemDisabled
@@ -90,7 +91,7 @@ IconsCodeModelUniformColor=ff994899
 IconsCodeModelVaryingColor=ffa08833
 IconsCodeModelOverlayBackgroundColor=70ffffff
 IconsCodeModelOverlayForegroundColor=ff232425
-InfoBarBackground=ffffffe1
+InfoBarBackground=ff505000
 InfoBarText=text
 MenuBarEmptyAreaBackgroundColor=shadowBackground
 MenuBarItemBackgroundColor=shadowBackground
@@ -105,8 +106,8 @@ MiniProjectTargetSelectorTextColor=text
 PanelStatusBarBackgroundColor=shadowBackground
 PanelsWidgetSeparatorLineColor=0
 PanelTextColorDark=text
-PanelTextColorMid=ff666666
-PanelTextColorLight=fancyBarsNormalTextColor
+PanelTextColorMid=ffa0a0a0
+PanelTextColorLight=text
 ProgressBarColorError=ffdb6f71
 ProgressBarColorFinished=dda4d576
 ProgressBarColorNormal=ff999999
@@ -154,45 +155,45 @@ Debugger_WatchItem_ValueChanged=ffbf0303
 
 Debugger_Breakpoint_TextMarkColor=ffff4040
 
-Welcome_TextColor=ff000000
-Welcome_ForegroundPrimaryColor=ff404244
-Welcome_ForegroundSecondaryColor=ff727476
+Welcome_TextColor=text
+Welcome_ForegroundPrimaryColor=ff999999
+Welcome_ForegroundSecondaryColor=ff808080
 Welcome_BackgroundColor=normalBackground
 Welcome_ButtonBackgroundColor=normalBackground
-Welcome_DividerColor=ffd6d6d6
-Welcome_HoverColor=fff6f6f6
+Welcome_DividerColor=ff555555
+Welcome_HoverColor=ff444444
 Welcome_LinkColor=ff5caa15
 
-VcsBase_FileStatusUnknown_TextColor=ff000000
-VcsBase_FileAdded_TextColor=ff00aa00
-VcsBase_FileModified_TextColor=ff0000ee
-VcsBase_FileDeleted_TextColor=ff800000
-VcsBase_FileRenamed_TextColor=ffd77d00
-VcsBase_FileUnmerged_TextColor=ffee0000
+VcsBase_FileStatusUnknown_TextColor=text
+VcsBase_FileAdded_TextColor=ff00ff00
+VcsBase_FileModified_TextColor=ff8ee0ff
+VcsBase_FileDeleted_TextColor=fffff6c6c
+VcsBase_FileRenamed_TextColor=ffffa500
+VcsBase_FileUnmerged_TextColor=ffff4040
 
-Bookmarks_TextMarkColor=ffa0a0ff
+Bookmarks_TextMarkColor=ff8080ff
 
 TextEditor_SearchResult_ScrollBarColor=ff00c000
-TextEditor_CurrentLine_ScrollBarColor=ff404040
+TextEditor_CurrentLine_ScrollBarColor=ffffffff
 
-ProjectExplorer_TaskError_TextMarkColor=ffff0000
-ProjectExplorer_TaskWarn_TextMarkColor=ffffa500
+ProjectExplorer_TaskError_TextMarkColor=ffff4040
+ProjectExplorer_TaskWarn_TextMarkColor=ffffff40
 
 ClangCodeModel_Error_TextMarkColor=ffff882f
-ClangCodeModel_Warning_TextMarkColor=ffc6c132
+ClangCodeModel_Warning_TextMarkColor=ffceff40
 
 [Flags]
 ComboBoxDrawTextShadow=false
-DerivePaletteFromTheme=false
+DerivePaletteFromTheme=true
 DrawIndicatorBranch=true
 DrawSearchResultWidgetFrame=false
 DrawTargetSelectorBottom=false
 DrawToolBarHighlights=false
-ApplyThemePaletteGlobally=false
+ApplyThemePaletteGlobally=true
 FlatToolBars=true
 FlatSideBarIcons=true
-FlatProjectsMode=false
-FlatMenuBar=false
+FlatProjectsMode=true
+FlatMenuBar=true
 ToolBarIconShadow=true
 
 [Gradients]

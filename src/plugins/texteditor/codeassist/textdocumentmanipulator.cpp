@@ -68,6 +68,13 @@ void TextDocumentManipulator::setCursorPosition(int position)
     m_textEditorWidget->setCursorPosition(position);
 }
 
+void TextDocumentManipulator::setAutoCompleteSkipPosition(int position)
+{
+    QTextCursor cursor = m_textEditorWidget->textCursor();
+    cursor.setPosition(position);
+    m_textEditorWidget->setAutoCompleteSkipPosition(cursor);
+}
+
 bool TextDocumentManipulator::replace(int position, int length, const QString &text)
 {
     bool textWillBeReplaced = textIsDifferentAt(position, length, text);

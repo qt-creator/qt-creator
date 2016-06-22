@@ -1190,6 +1190,8 @@
 
         \li QML files
 
+        \li Nim files
+
         \li Other text files
 
     \endlist
@@ -1272,6 +1274,33 @@
 
     To specify different settings for a particular project, select
     \uicontrol Projects > \uicontrol {Code Style Settings}.
+
+    \section1 Indenting Nim Files
+
+    To specify settings for the Nim editor (experimental):
+
+    \list 1
+
+        \li Select \uicontrol Tools > \uicontrol Options > \uicontrol Nim.
+
+        \li In the \uicontrol {Current settings} field, select the settings to
+            modify and click \uicontrol Copy.
+
+            \image qtcreator-options-code-style-nim.png "Nim Code Style options"
+
+        \li Give a name to the settings and click \uicontrol OK.
+
+        \li Click \uicontrol Edit to specify code style settings for the project.
+
+            \image qtcreator-code-style-settings-edit-nim.png "Edit Code Style Settings dialog"
+
+    \endlist
+
+    You can specify how to interpret the \key Tab key presses and how to align
+    continuation lines.
+
+    To specify different settings for a particular project, select
+    \uicontrol Projects > \uicontrol {Code Style}.
 
     \section1 Indenting Other Text Files
 

@@ -148,7 +148,9 @@ void QbsBuildStep::cancel()
 
 QVariantMap QbsBuildStep::qbsConfiguration() const
 {
-    return m_qbsConfiguration;
+    QVariantMap config = m_qbsConfiguration;
+    config.insert(QLatin1String(Constants::QBS_FORCE_PROBES_KEY), m_forceProbes);
+    return config;
 }
 
 void QbsBuildStep::setQbsConfiguration(const QVariantMap &config)
@@ -197,6 +199,8 @@ int QbsBuildStep::maxJobs() const
     return qbs::BuildOptions::defaultMaxJobCount();
 }
 
+static QString forceProbesKey() { return QLatin1String("Qbs.forceProbesKey"); }
+
 bool QbsBuildStep::fromMap(const QVariantMap &map)
 {
     if (!ProjectExplorer::BuildStep::fromMap(map))
@@ -212,6 +216,7 @@ bool QbsBuildStep::fromMap(const QVariantMap &map)
     m_qbsBuildOptions.setInstall(map.value(QLatin1String(QBS_INSTALL), true).toBool());
     m_qbsBuildOptions.setRemoveExistingInstallation(map.value(QLatin1String(QBS_CLEAN_INSTALL_ROOT))
                                                     .toBool());
+    m_forceProbes = map.value(forceProbesKey()).toBool();
     return true;
 }
 
@@ -227,6 +232,7 @@ QVariantMap QbsBuildStep::toMap() const
     map.insert(QLatin1String(QBS_INSTALL), m_qbsBuildOptions.install());
     map.insert(QLatin1String(QBS_CLEAN_INSTALL_ROOT),
                m_qbsBuildOptions.removeExistingInstallation());
+    map.insert(forceProbesKey(), m_forceProbes);
     return map;
 }
 
@@ -478,6 +484,8 @@ QbsBuildStepConfigWidget::QbsBuildStepConfigWidget(QbsBuildStep *step) :
             &QbsBuildStepConfigWidget::changeInstall);
     connect(m_ui->cleanInstallRootCheckBox, &QCheckBox::toggled, this,
             &QbsBuildStepConfigWidget::changeCleanInstallRoot);
+    connect(m_ui->forceProbesCheckBox, &QCheckBox::toggled, this,
+            &QbsBuildStepConfigWidget::changeForceProbes);
     connect(m_ui->qmlDebuggingLibraryCheckBox, SIGNAL(toggled(bool)),
             this, SLOT(linkQmlDebuggingLibraryChecked(bool)));
     connect(QtSupport::QtVersionManager::instance(), SIGNAL(dumpUpdatedFor(Utils::FileName)),
@@ -508,6 +516,7 @@ void QbsBuildStepConfigWidget::updateState()
         m_ui->showCommandLinesCheckBox->setChecked(m_step->showCommandLines());
         m_ui->installCheckBox->setChecked(m_step->install());
         m_ui->cleanInstallRootCheckBox->setChecked(m_step->cleanInstallRoot());
+        m_ui->forceProbesCheckBox->setChecked(m_step->forceProbes());
         updatePropertyEdit(m_step->qbsConfiguration());
         m_ui->qmlDebuggingLibraryCheckBox->setChecked(m_step->isQmlDebuggingEnabled());
     }
@@ -611,6 +620,13 @@ void QbsBuildStepConfigWidget::changeCleanInstallRoot(bool clean)
 {
     m_ignoreChange = true;
     m_step->setCleanInstallRoot(clean);
+    m_ignoreChange = false;
+}
+
+void QbsBuildStepConfigWidget::changeForceProbes(bool forceProbes)
+{
+    m_ignoreChange = true;
+    m_step->setForceProbes(forceProbes);
     m_ignoreChange = false;
 }
 

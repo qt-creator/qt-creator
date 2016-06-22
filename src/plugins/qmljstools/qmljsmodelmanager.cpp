@@ -168,7 +168,8 @@ void setupProjectInfoQmlBundles(ModelManagerInterface::ProjectInfo &projectInfo)
 
 namespace Internal {
 
-QHash<QString,Dialect> ModelManager::languageForSuffix() const
+
+QHash<QString,Dialect> ModelManager::initLanguageForSuffix() const
 {
     QHash<QString,Dialect> res = ModelManagerInterface::languageForSuffix();
 
@@ -193,6 +194,12 @@ QHash<QString,Dialect> ModelManager::languageForSuffix() const
         foreach (const QString &suffix, jsonSourceTy.suffixes())
             res[suffix] = Dialect::Json;
     }
+    return res;
+}
+
+QHash<QString,Dialect> ModelManager::languageForSuffix() const
+{
+    static QHash<QString,Dialect> res = initLanguageForSuffix();
     return res;
 }
 

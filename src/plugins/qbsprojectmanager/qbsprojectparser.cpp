@@ -88,6 +88,8 @@ void QbsProjectParser::parse(const QVariantMap &config, const Environment &env, 
     params.setTopLevelProfile(profileName);
     specialKey = QLatin1String(Constants::QBS_CONFIG_VARIANT_KEY);
     params.setBuildVariant(userConfig.take(specialKey).toString());
+    specialKey = QLatin1String(Constants::QBS_FORCE_PROBES_KEY);
+    params.setForceProbeExecution(userConfig.take(specialKey).toBool());
     params.setSettingsDirectory(QbsManager::settings()->baseDirectory());
     params.setOverriddenValues(userConfig);
 

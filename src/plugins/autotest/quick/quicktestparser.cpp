@@ -107,7 +107,7 @@ static QString quickTestName(const CPlusPlus::Document::Ptr &doc)
         const QByteArray name = macro.macro().name();
         if (QuickTestUtils::isQuickTestMacro(name)) {
             CPlusPlus::Document::Block arg = macro.arguments().at(0);
-            return QLatin1String(TestUtils::getFileContent(doc->fileName())
+            return QLatin1String(CppParser::getFileContent(doc->fileName())
                                  .mid(arg.bytesBegin(), arg.bytesEnd() - arg.bytesBegin()));
         }
     }

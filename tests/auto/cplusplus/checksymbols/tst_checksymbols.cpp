@@ -66,9 +66,11 @@ static QString useKindToString(UseKind useKind)
     CASE_STR(FieldUse);
     CASE_STR(EnumerationUse);
     CASE_STR(VirtualMethodUse);
+    CASE_STR(VirtualFunctionDeclarationUse);
     CASE_STR(LabelUse);
     CASE_STR(MacroUse);
     CASE_STR(FunctionUse);
+    CASE_STR(FunctionDeclarationUse);
     CASE_STR(PseudoKeywordUse);
     CASE_STR(StringUse);
     default:
@@ -254,7 +256,7 @@ void tst_CheckSymbols::test_checksymbols_data()
              "   int i;\n"
              "}\n")
         << (UseList()
-            << Use(1, 5, 1, Highlighting::FunctionUse)
+            << Use(1, 5, 1, Highlighting::FunctionDeclarationUse)
             << Use(3, 8, 1, Highlighting::LocalUse));
 
     QTest::newRow("FieldUse")
@@ -272,7 +274,7 @@ void tst_CheckSymbols::test_checksymbols_data()
             << Use(2, 9, 1, Highlighting::FieldUse)
             << Use(3, 5, 1, Highlighting::TypeUse)
             << Use(3, 11, 1, Highlighting::FieldUse)
-            << Use(5, 5, 1, Highlighting::FunctionUse)
+            << Use(5, 5, 1, Highlighting::FunctionDeclarationUse)
             << Use(7, 5, 1, Highlighting::TypeUse)
             << Use(7, 7, 1, Highlighting::LocalUse)
             << Use(8, 5, 1, Highlighting::LocalUse)
@@ -289,19 +291,24 @@ void tst_CheckSymbols::test_checksymbols_data()
             << Use(2, 1, 1, Highlighting::TypeUse)
             << Use(2, 7, 3, Highlighting::EnumerationUse));
 
-    QTest::newRow("VirtualMethodUse")
+    QTest::newRow("VirtualFunction")
         << _("class B {\n"                   // 1
              "    virtual bool isThere();\n" // 2
-             "};\n"                          // 3
-             "class D: public B {\n"         // 4
-             "    bool isThere();\n"         // 5
+             "    bool nonVirtual() {\n"     // 3
+             "        return isThere();\n"   // 4
+             "    }\n"                       // 5
+             "};\n"                          // 6
+             "class D: public B {\n"         // 7
+             "    bool isThere();\n"         // 8
              "};\n")
         << (UseList()
             << Use(1, 7, 1, Highlighting::TypeUse)              // B
-            << Use(2, 18, 7, Highlighting::VirtualMethodUse)    // isThere
-            << Use(4, 7, 1, Highlighting::TypeUse)              // D
-            << Use(4, 17, 1, Highlighting::TypeUse)             // B
-            << Use(5, 10, 7, Highlighting::VirtualMethodUse));  // isThere
+            << Use(2, 18, 7, Highlighting::VirtualFunctionDeclarationUse)    // isThere
+            << Use(3, 10, 10, Highlighting::FunctionDeclarationUse)    // nonVirtual
+            << Use(4, 16, 7, Highlighting::VirtualMethodUse)    // isThere call
+            << Use(7, 7, 1, Highlighting::TypeUse)              // D
+            << Use(7, 17, 1, Highlighting::TypeUse)             // B
+            << Use(8, 10, 7, Highlighting::VirtualFunctionDeclarationUse));  // isThere
 
     QTest::newRow("LabelUse")
         << _("int f()\n"
@@ -310,7 +317,7 @@ void tst_CheckSymbols::test_checksymbols_data()
              "   g: return 1;\n"
              "}\n")
         << (UseList()
-            << Use(1, 5, 1, Highlighting::FunctionUse)
+            << Use(1, 5, 1, Highlighting::FunctionDeclarationUse)
             << Use(3, 9, 1, Highlighting::LabelUse)
             << Use(4, 4, 1, Highlighting::LabelUse));
 
@@ -318,8 +325,8 @@ void tst_CheckSymbols::test_checksymbols_data()
         << _("int f();\n"
              "int g() { f(); }\n")
         << (UseList()
-            << Use(1, 5, 1, Highlighting::FunctionUse)
-            << Use(2, 5, 1, Highlighting::FunctionUse)
+            << Use(1, 5, 1, Highlighting::FunctionDeclarationUse)
+            << Use(2, 5, 1, Highlighting::FunctionDeclarationUse)
             << Use(2, 11, 1, Highlighting::FunctionUse));
 
     QTest::newRow("PseudoKeywordUse")
@@ -329,9 +336,9 @@ void tst_CheckSymbols::test_checksymbols_data()
              "};\n")
         << (UseList()
             << Use(1, 7, 1, Highlighting::TypeUse)
-            << Use(2, 17, 1, Highlighting::VirtualMethodUse)
+            << Use(2, 17, 1, Highlighting::VirtualFunctionDeclarationUse)
             << Use(2, 21, 8, Highlighting::PseudoKeywordUse)
-            << Use(3, 17, 1, Highlighting::VirtualMethodUse)
+            << Use(3, 17, 1, Highlighting::VirtualFunctionDeclarationUse)
             << Use(3, 21, 5, Highlighting::PseudoKeywordUse));
 
     QTest::newRow("StaticUse")
@@ -359,12 +366,12 @@ void tst_CheckSymbols::test_checksymbols_data()
             << Use(4, 12, 5, Highlighting::TypeUse)
             << Use(6, 9, 5, Highlighting::TypeUse)
             << Use(6, 16, 5, Highlighting::FieldUse)
-            << Use(7, 14, 3, Highlighting::FunctionUse)
+            << Use(7, 14, 3, Highlighting::FunctionDeclarationUse)
             << Use(11, 5, 5, Highlighting::TypeUse)
             << Use(11, 12, 3, Highlighting::FieldUse)
             << Use(13, 6, 5, Highlighting::TypeUse)
             << Use(13, 13, 5, Highlighting::TypeUse)
-            << Use(13, 20, 3, Highlighting::FunctionUse)
+            << Use(13, 20, 3, Highlighting::FunctionDeclarationUse)
             << Use(15, 5, 3, Highlighting::FieldUse)
             << Use(16, 5, 5, Highlighting::TypeUse)
             << Use(16, 12, 3, Highlighting::FieldUse)
@@ -416,7 +423,7 @@ void tst_CheckSymbols::test_checksymbols_data()
             << Use(6, 21, 1, Highlighting::TypeUse)
             << Use(6, 23, 2, Highlighting::FieldUse)
             << Use(6, 29, 6, Highlighting::FieldUse)
-            << Use(9, 6, 3, Highlighting::FunctionUse)
+            << Use(9, 6, 3, Highlighting::FunctionDeclarationUse)
             << Use(11, 5, 5, Highlighting::TypeUse)
             << Use(11, 11, 3, Highlighting::TypeUse)
             << Use(11, 16, 4, Highlighting::LocalUse)
@@ -437,8 +444,8 @@ void tst_CheckSymbols::test_checksymbols_data()
              "}\n")
         << (UseList()
             << Use(1, 8, 3, Highlighting::TypeUse)
-            << Use(3, 16, 3, Highlighting::FunctionUse)
-            << Use(6, 6, 3, Highlighting::FunctionUse)
+            << Use(3, 16, 3, Highlighting::FunctionDeclarationUse)
+            << Use(6, 6, 3, Highlighting::FunctionDeclarationUse)
             << Use(8, 9, 3, Highlighting::LocalUse)
             << Use(8, 15, 3, Highlighting::TypeUse)
             << Use(8, 20, 3, Highlighting::FunctionUse));
@@ -455,8 +462,8 @@ void tst_CheckSymbols::test_checksymbols_data()
              "}\n")
         << (UseList()
             << Use(1, 8, 3, Highlighting::TypeUse)
-            << Use(3, 16, 3, Highlighting::FunctionUse)
-            << Use(6, 6, 3, Highlighting::FunctionUse)
+            << Use(3, 16, 3, Highlighting::FunctionDeclarationUse)
+            << Use(6, 6, 3, Highlighting::FunctionDeclarationUse)
             << Use(6, 14, 3, Highlighting::LocalUse)
             << Use(8, 5, 3, Highlighting::TypeUse)
             << Use(8, 10, 3, Highlighting::FunctionUse));
@@ -474,9 +481,9 @@ void tst_CheckSymbols::test_checksymbols_data()
              "}\n")
         << (UseList()
             << Use(1, 8, 3, Highlighting::TypeUse)
-            << Use(3, 16, 3, Highlighting::FunctionUse)
+            << Use(3, 16, 3, Highlighting::FunctionDeclarationUse)
             << Use(6, 17, 3, Highlighting::TypeUse)
-            << Use(7, 6, 3, Highlighting::FunctionUse)
+            << Use(7, 6, 3, Highlighting::FunctionDeclarationUse)
             << Use(9, 5, 3, Highlighting::TypeUse)
             << Use(9, 10, 3, Highlighting::FunctionUse));
 
@@ -493,9 +500,9 @@ void tst_CheckSymbols::test_checksymbols_data()
              "}\n")
         << (UseList()
             << Use(1, 8, 3, Highlighting::TypeUse)
-            << Use(3, 16, 3, Highlighting::FunctionUse)
+            << Use(3, 16, 3, Highlighting::FunctionDeclarationUse)
             << Use(6, 8, 3, Highlighting::TypeUse)
-            << Use(7, 6, 3, Highlighting::FunctionUse)
+            << Use(7, 6, 3, Highlighting::FunctionDeclarationUse)
             << Use(9, 5, 3, Highlighting::TypeUse)
             << Use(9, 10, 3, Highlighting::FunctionUse));
 
@@ -524,14 +531,14 @@ void tst_CheckSymbols::test_checksymbols_data()
             << Use(1, 16, 1, Highlighting::TypeUse)
             << Use(1, 25, 5, Highlighting::TypeUse)
             << Use(3, 9, 1, Highlighting::TypeUse)
-            << Use(3, 11, 8, Highlighting::FunctionUse)
+            << Use(3, 11, 8, Highlighting::FunctionDeclarationUse)
             << Use(6, 16, 1, Highlighting::TypeUse)
             << Use(6, 25, 8, Highlighting::TypeUse)
             << Use(8, 9, 1, Highlighting::TypeUse)
-            << Use(8, 12, 8, Highlighting::FunctionUse)
+            << Use(8, 12, 8, Highlighting::FunctionDeclarationUse)
             << Use(11, 7, 3, Highlighting::TypeUse)
-            << Use(12, 10, 3, Highlighting::FunctionUse)
-            << Use(15, 6, 1, Highlighting::FunctionUse)
+            << Use(12, 10, 3, Highlighting::FunctionDeclarationUse)
+            << Use(15, 6, 1, Highlighting::FunctionDeclarationUse)
             << Use(17, 5, 5, Highlighting::TypeUse)
             << Use(17, 11, 8, Highlighting::TypeUse)
             << Use(17, 20, 3, Highlighting::TypeUse)
@@ -563,9 +570,9 @@ void tst_CheckSymbols::test_checksymbols_data()
             << Use(1, 17, 1, Highlighting::TypeUse)
             << Use(2, 7, 9, Highlighting::TypeUse)
             << Use(5, 12, 1, Highlighting::TypeUse)
-            << Use(5, 15, 8, Highlighting::FunctionUse)
-            << Use(8, 6, 3, Highlighting::FunctionUse)
-            << Use(10, 6, 3, Highlighting::FunctionUse);
+            << Use(5, 15, 8, Highlighting::FunctionDeclarationUse)
+            << Use(8, 6, 3, Highlighting::FunctionDeclarationUse)
+            << Use(10, 6, 3, Highlighting::FunctionDeclarationUse);
     for (int i = 0; i < 250; ++i) {
         excessiveUses
                 << Use(12 + i, 5, 9, Highlighting::TypeUse)
@@ -600,11 +607,11 @@ void tst_CheckSymbols::test_checksymbols_data()
             << Use(4, 8, 5, Highlighting::TypeUse)
             << Use(6, 10, 6, Highlighting::TypeUse)
             << Use(8, 11, 1, Highlighting::TypeUse)
-            << Use(8, 14, 8, Highlighting::FunctionUse)
+            << Use(8, 14, 8, Highlighting::FunctionDeclarationUse)
             << Use(8, 35, 1, Highlighting::FieldUse)
             << Use(9, 5, 1, Highlighting::TypeUse)
             << Use(9, 7, 1, Highlighting::FieldUse)
-            << Use(13, 6, 3, Highlighting::FunctionUse)
+            << Use(13, 6, 3, Highlighting::FunctionDeclarationUse)
             << Use(15, 3, 5, Highlighting::TypeUse)
             << Use(15, 9, 3, Highlighting::TypeUse)
             << Use(15, 15, 6, Highlighting::TypeUse)
@@ -625,8 +632,8 @@ void tst_CheckSymbols::test_checksymbols_data()
             << Use(1, 8, 1, Highlighting::TypeUse)
             << Use(2, 8, 1, Highlighting::TypeUse)
             << Use(3, 23, 1, Highlighting::TypeUse)
-            << Use(3, 30, 1, Highlighting::FunctionUse)
-            << Use(4, 10, 1, Highlighting::FunctionUse)
+            << Use(3, 30, 1, Highlighting::FunctionDeclarationUse)
+            << Use(4, 10, 1, Highlighting::FunctionDeclarationUse)
             << Use(5, 9, 1, Highlighting::FunctionUse)
             << Use(5, 11, 1, Highlighting::TypeUse)
             << Use(6, 15, 1, Highlighting::FunctionUse)
@@ -644,7 +651,7 @@ void tst_CheckSymbols::test_checksymbols_data()
              "}\n")
         << (UseList()
             << Use(3, 7, 3, Highlighting::FieldUse)
-            << Use(6, 6, 3, Highlighting::FunctionUse));
+            << Use(6, 6, 3, Highlighting::FunctionDeclarationUse));
 
     QTest::newRow("QTCREATORBUG9098")
         << _("template <typename T>\n"
@@ -673,7 +680,7 @@ void tst_CheckSymbols::test_checksymbols_data()
             << Use(11, 5, 1, Highlighting::TypeUse)
             << Use(11, 7, 1, Highlighting::TypeUse)
             << Use(11, 10, 1, Highlighting::FieldUse)
-            << Use(12, 10, 3, Highlighting::FunctionUse)
+            << Use(12, 10, 3, Highlighting::FunctionDeclarationUse)
             << Use(14, 9, 1, Highlighting::FieldUse)
             << Use(14, 11, 1, Highlighting::FieldUse));
 
@@ -702,17 +709,17 @@ void tst_CheckSymbols::test_checksymbols_data()
              "}\n")
         << (UseList()
             << Use(1, 14, 4, Highlighting::FieldUse)
-            << Use(2, 6, 4, Highlighting::FunctionUse)
+            << Use(2, 6, 4, Highlighting::FunctionDeclarationUse)
             << Use(4, 8, 4, Highlighting::FieldUse)
             << Use(6, 11, 3, Highlighting::TypeUse)
             << Use(7, 16, 4, Highlighting::FieldUse)
-            << Use(8, 8, 4, Highlighting::FunctionUse)
+            << Use(8, 8, 4, Highlighting::FunctionDeclarationUse)
             << Use(10, 10, 4, Highlighting::FieldUse)
             << Use(13, 11, 3, Highlighting::TypeUse)
             << Use(15, 27, 4, Highlighting::FieldUse)
-            << Use(16, 10, 4, Highlighting::FunctionUse)
+            << Use(16, 10, 4, Highlighting::FunctionDeclarationUse)
             << Use(16, 19, 4, Highlighting::FieldUse)
-            << Use(18, 8, 4, Highlighting::FunctionUse)
+            << Use(18, 8, 4, Highlighting::FunctionDeclarationUse)
             << Use(20, 10, 4, Highlighting::FieldUse));
 
     QTest::newRow("AnonymousClass_insideFunction")
@@ -725,7 +732,7 @@ void tst_CheckSymbols::test_checksymbols_data()
               "    };\n"
               "}\n")
         << (UseList()
-            << Use(1, 5, 3, Highlighting::FunctionUse)
+            << Use(1, 5, 3, Highlighting::FunctionDeclarationUse)
             << Use(5, 13, 4, Highlighting::FieldUse)
             << Use(6, 13, 4, Highlighting::FieldUse));
 
@@ -750,7 +757,7 @@ void tst_CheckSymbols::test_checksymbols_data()
             << Use(5, 9, 5, Highlighting::FieldUse)
             << Use(6, 9, 8, Highlighting::FieldUse)
             << Use(7, 3, 6, Highlighting::TypeUse)
-            << Use(8, 6, 3, Highlighting::FunctionUse)
+            << Use(8, 6, 3, Highlighting::FunctionDeclarationUse)
             << Use(10, 5, 6, Highlighting::TypeUse)
             << Use(10, 12, 1, Highlighting::LocalUse)
             << Use(11, 5, 1, Highlighting::LocalUse)
@@ -769,7 +776,7 @@ void tst_CheckSymbols::test_checksymbols_data()
               "    n.i = 42;\n"
               "}\n")
         << (UseList()
-            << Use(1, 5, 3, Highlighting::FunctionUse)
+            << Use(1, 5, 3, Highlighting::FunctionDeclarationUse)
             << Use(3, 12, 6, Highlighting::TypeUse)
             << Use(5, 13, 1, Highlighting::FieldUse)
             << Use(6, 7, 1, Highlighting::LocalUse)
@@ -790,7 +797,7 @@ void tst_CheckSymbols::test_checksymbols_data()
             << Use(2, 7, 3, Highlighting::TypeUse)
             << Use(4, 7, 2, Highlighting::TypeUse)
             << Use(4, 11, 3, Highlighting::TypeUse)
-            << Use(5, 6, 3, Highlighting::FunctionUse)
+            << Use(5, 6, 3, Highlighting::FunctionDeclarationUse)
             << Use(7, 5, 3, Highlighting::TypeUse)
             << Use(7, 9, 3, Highlighting::LocalUse));
 
@@ -811,7 +818,7 @@ void tst_CheckSymbols::test_checksymbols_data()
             << Use(4, 11, 3, Highlighting::TypeUse)
             << Use(5, 7, 2, Highlighting::TypeUse)
             << Use(5, 11, 3, Highlighting::TypeUse)
-            << Use(6, 6, 3, Highlighting::FunctionUse)
+            << Use(6, 6, 3, Highlighting::FunctionDeclarationUse)
             << Use(8, 5, 3, Highlighting::TypeUse)
             << Use(8, 9, 3, Highlighting::LocalUse));
 
@@ -827,7 +834,7 @@ void tst_CheckSymbols::test_checksymbols_data()
         << (UseList()
             << Use(1, 11, 2, Highlighting::TypeUse)
             << Use(2, 7, 3, Highlighting::TypeUse)
-            << Use(4, 6, 3, Highlighting::FunctionUse)
+            << Use(4, 6, 3, Highlighting::FunctionDeclarationUse)
             << Use(6, 11, 2, Highlighting::TypeUse)
             << Use(6, 15, 3, Highlighting::TypeUse)
             << Use(7, 5, 3, Highlighting::TypeUse)
@@ -845,7 +852,7 @@ void tst_CheckSymbols::test_checksymbols_data()
         << (UseList()
             << Use(1, 11, 2, Highlighting::TypeUse)
             << Use(2, 7, 3, Highlighting::TypeUse)
-            << Use(5, 6, 3, Highlighting::FunctionUse)
+            << Use(5, 6, 3, Highlighting::FunctionDeclarationUse)
             << Use(7, 9, 3, Highlighting::LocalUse));
 
     QTest::newRow("crashWhenUsingNamespaceClass_QTCREATORBUG9323_namespace")
@@ -863,7 +870,7 @@ void tst_CheckSymbols::test_checksymbols_data()
             << Use(1, 11, 2, Highlighting::TypeUse)
             << Use(2, 7, 3, Highlighting::TypeUse)
             << Use(4, 11, 3, Highlighting::TypeUse)
-            << Use(6, 6, 3, Highlighting::FunctionUse)
+            << Use(6, 6, 3, Highlighting::FunctionDeclarationUse)
             << Use(8, 9, 3, Highlighting::LocalUse));
 
     QTest::newRow("crashWhenUsingNamespaceClass_QTCREATORBUG9323_insideFunction")
@@ -878,7 +885,7 @@ void tst_CheckSymbols::test_checksymbols_data()
         << (UseList()
             << Use(1, 11, 2, Highlighting::TypeUse)
             << Use(2, 7, 3, Highlighting::TypeUse)
-            << Use(4, 6, 3, Highlighting::FunctionUse)
+            << Use(4, 6, 3, Highlighting::FunctionDeclarationUse)
             << Use(7, 9, 3, Highlighting::LocalUse));
 
     QTest::newRow("alias_decl_QTCREATORBUG9386")
@@ -897,7 +904,7 @@ void tst_CheckSymbols::test_checksymbols_data()
              "   }\n"
              "}\n")
         << (UseList()
-            << Use(1, 6, 3, Highlighting::FunctionUse)
+            << Use(1, 6, 3, Highlighting::FunctionDeclarationUse)
             << Use(4, 13, 1, Highlighting::TypeUse)
             << Use(4, 17, 2, Highlighting::EnumerationUse)
             << Use(4, 21, 2, Highlighting::EnumerationUse)
@@ -913,7 +920,7 @@ void tst_CheckSymbols::test_checksymbols_data()
              "   E e = e1;\n"
              "}\n")
         << (UseList()
-            << Use(1, 6, 3, Highlighting::FunctionUse)
+            << Use(1, 6, 3, Highlighting::FunctionDeclarationUse)
             << Use(3, 9, 1, Highlighting::TypeUse)
             << Use(3, 13, 2, Highlighting::EnumerationUse)
             << Use(3, 17, 2, Highlighting::EnumerationUse)
@@ -944,7 +951,7 @@ void tst_CheckSymbols::test_checksymbols_data()
             << Use(6, 11, 2, Highlighting::TypeUse)
             << Use(8, 11, 3, Highlighting::TypeUse)
             << Use(8, 16, 10, Highlighting::TypeUse)
-            << Use(10, 6, 3, Highlighting::FunctionUse)
+            << Use(10, 6, 3, Highlighting::FunctionDeclarationUse)
             << Use(12, 5, 2, Highlighting::TypeUse)
             << Use(12, 9, 10, Highlighting::TypeUse)
             << Use(12, 20, 1, Highlighting::TypeUse)
@@ -965,7 +972,7 @@ void tst_CheckSymbols::test_checksymbols_data()
                 << Use(3, 27, 3, Highlighting::TypeUse)
                 << Use(4, 11, 2, Highlighting::TypeUse)
                 << Use(4, 15, 3, Highlighting::TypeUse)
-                << Use(6, 6, 3, Highlighting::FunctionUse)
+                << Use(6, 6, 3, Highlighting::FunctionDeclarationUse)
                 << Use(8, 5, 3, Highlighting::TypeUse)
                 << Use(8, 9, 3, Highlighting::LocalUse)
                 );
@@ -991,7 +998,7 @@ void tst_CheckSymbols::test_checksymbols_data()
                 << Use(4, 11, 2, Highlighting::TypeUse)
                 << Use(4, 15, 3, Highlighting::TypeUse)
                 << Use(6, 11, 3, Highlighting::TypeUse)
-                << Use(8, 10, 3, Highlighting::FunctionUse)
+                << Use(8, 10, 3, Highlighting::FunctionDeclarationUse)
                 << Use(10, 13, 3, Highlighting::LocalUse)
                 );
 
@@ -1011,7 +1018,7 @@ void tst_CheckSymbols::test_checksymbols_data()
         << (UseList()
             << Use(1, 7, 10, Highlighting::TypeUse)
             << Use(1, 24, 10, Highlighting::FieldUse)
-            << Use(2, 6, 1, Highlighting::FunctionUse)
+            << Use(2, 6, 1, Highlighting::FunctionDeclarationUse)
             << Use(2, 8, 10, Highlighting::TypeUse)
             << Use(2, 19, 7, Highlighting::LocalUse)
             << Use(3, 3, 7, Highlighting::LocalUse)
@@ -1039,7 +1046,7 @@ void tst_CheckSymbols::test_checksymbols_data()
             << Use(2, 33, 4, Highlighting::TypeUse)
             << Use(3, 3, 4, Highlighting::TypeUse)
             << Use(4, 3, 4, Highlighting::TypeUse)
-            << Use(6, 6, 4, Highlighting::FunctionUse)
+            << Use(6, 6, 4, Highlighting::FunctionDeclarationUse)
             << Use(6, 15, 12, Highlighting::LocalUse)
             << Use(7, 13, 30, Highlighting::LocalUse)
             << Use(8, 3, 4, Highlighting::TypeUse)
@@ -1073,7 +1080,7 @@ void tst_CheckSymbols::test_checksymbols_data()
         << (UseList()
             << Use(1, 7, 10, Highlighting::TypeUse)
             << Use(1, 24, 10, Highlighting::FieldUse)
-            << Use(2, 6, 1, Highlighting::FunctionUse)
+            << Use(2, 6, 1, Highlighting::FunctionDeclarationUse)
             << Use(2, 8, 10, Highlighting::TypeUse)
             << Use(2, 19, 7, Highlighting::LocalUse)
             << Use(3, 3, 7, Highlighting::LocalUse)
@@ -1095,7 +1102,7 @@ void tst_CheckSymbols::test_checksymbols_data()
             << Use(5, 6, 5, Highlighting::TypeUse)
             << Use(5, 6, 5, Highlighting::TypeUse)
             << Use(8, 1, 5, Highlighting::TypeUse)
-            << Use(8, 8, 5, Highlighting::FunctionUse)
+            << Use(8, 8, 5, Highlighting::FunctionDeclarationUse)
             << Use(9, 1, 5, Highlighting::TypeUse)
             << Use(9, 1, 5, Highlighting::TypeUse)
             << Use(9, 9, 5, Highlighting::TypeUse));
@@ -1114,7 +1121,7 @@ void tst_CheckSymbols::test_checksymbols_data()
              "};\n")
         << (UseList()
             << Use(6, 7, 3, Highlighting::TypeUse)
-            << Use(7, 8, 1, Highlighting::FunctionUse)
+            << Use(7, 8, 1, Highlighting::FunctionDeclarationUse)
             << Use(8, 1, 3, Highlighting::TypeUse)
             << Use(8, 6, 1, Highlighting::FieldUse));
 #undef UC_U10302_12TIMES
@@ -1141,7 +1148,7 @@ void tst_CheckSymbols::test_checksymbols_macroUses_data()
              "int f() { FOO; }\n")
         << (UseList()
             << Use(1, 9, 3, Highlighting::MacroUse)
-            << Use(2, 5, 1, Highlighting::FunctionUse)
+            << Use(2, 5, 1, Highlighting::FunctionDeclarationUse)
             << Use(2, 11, 3, Highlighting::MacroUse))
         << (UseList()
             << Use(1, 9, 3, Highlighting::MacroUse)
