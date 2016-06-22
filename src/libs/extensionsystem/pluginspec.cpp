@@ -146,6 +146,23 @@ bool PluginDependency::operator==(const PluginDependency &other) const
     return name == other.name && version == other.version && type == other.type;
 }
 
+static QString typeString(PluginDependency::Type type)
+{
+    switch (type) {
+    case PluginDependency::Required:
+        return QString();
+    case PluginDependency::Optional:
+        return ", optional";
+    case PluginDependency::Test:
+        return ", test";
+    }
+}
+
+QString PluginDependency::toString() const
+{
+    return name + " (" + version + typeString(type) + ")";
+}
+
 /*!
     \internal
 */
