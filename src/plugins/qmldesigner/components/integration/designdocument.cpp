@@ -170,7 +170,7 @@ QList<RewriterError> DesignDocument::qmlParseWarnings() const
 
 bool DesignDocument::hasQmlParseWarnings() const
 {
-    return currentModel()->rewriterView() && !currentModel()->rewriterView()->warnings().isEmpty();
+    return m_rewriterView->warnings().isEmpty();
 }
 
 QList<RewriterError> DesignDocument::qmlParseErrors() const
@@ -180,7 +180,7 @@ QList<RewriterError> DesignDocument::qmlParseErrors() const
 
 bool DesignDocument::hasQmlParseErrors() const
 {
-    return currentModel()->rewriterView() && !currentModel()->rewriterView()->errors().isEmpty();
+    return m_rewriterView->errors().isEmpty();
 }
 
 QString DesignDocument::displayName() const
