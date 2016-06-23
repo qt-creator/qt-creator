@@ -149,12 +149,13 @@ bool PluginDependency::operator==(const PluginDependency &other) const
 static QString typeString(PluginDependency::Type type)
 {
     switch (type) {
-    case PluginDependency::Required:
-        return QString();
     case PluginDependency::Optional:
-        return ", optional";
+        return QString(", optional");
     case PluginDependency::Test:
-        return ", test";
+        return QString(", test");
+    case PluginDependency::Required:
+    default:
+        return QString();
     }
 }
 
