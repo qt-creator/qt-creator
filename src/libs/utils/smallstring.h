@@ -267,12 +267,12 @@ public:
 
     reverse_iterator rbegin() noexcept
     {
-        return reverse_iterator(end() - 1l);
+        return reverse_iterator(end() - static_cast<std::size_t>(1));
     }
 
     reverse_iterator rend() noexcept
     {
-        return reverse_iterator(begin() - 1l);
+        return reverse_iterator(begin() - static_cast<std::size_t>(1));
     }
 
     const_iterator begin() const noexcept
