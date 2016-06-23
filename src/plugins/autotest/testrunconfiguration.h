@@ -34,6 +34,7 @@
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/runnables.h>
 #include <utils/qtcassert.h>
+#include <debugger/debuggerrunconfigurationaspect.h>
 
 namespace Autotest {
 namespace Internal {
@@ -46,6 +47,11 @@ public:
     {
         setDefaultDisplayName(tr("AutoTest Debug"));
         addExtraAspects();
+
+        // disable QmlDebugger that is enabled by default
+        // might change if debugging QuickTest gets enabled
+        if (auto debugAspect = extraAspect<Debugger::DebuggerRunConfigurationAspect>())
+            debugAspect->setUseQmlDebugger(false);
         m_testConfig = config;
     }
 
