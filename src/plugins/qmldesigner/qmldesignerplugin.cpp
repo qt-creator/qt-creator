@@ -307,6 +307,12 @@ static bool warningsForQmlFilesInsteadOfUiQmlEnabled()
     return settings.value(DesignerSettingsKey::WARNING_FOR_QML_FILES_INSTEAD_OF_UIQML_FILES).toBool();
 }
 
+static bool showWarningsForFeaturesInDesigner()
+{
+    DesignerSettings settings = QmlDesignerPlugin::instance()->settings();
+    return settings.value(DesignerSettingsKey::WARNING_FOR_FEATURES_IN_DESIGNER).toBool();
+}
+
 void QmlDesignerPlugin::showDesigner()
 {
     QTC_ASSERT(!d->documentManager.hasCurrentDesignDocument(), return);
@@ -425,7 +431,7 @@ void QmlDesignerPlugin::activateAutoSynchronization()
         selectModelNodeUnderTextCursor();
         d->mainWidget->enableWidgets();
         d->mainWidget->setupNavigatorHistory(currentDesignDocument()->textEditor());
-        if (currentDesignDocument()->hasQmlParseWarnings())
+        if (showWarningsForFeaturesInDesigner() && currentDesignDocument()->hasQmlParseWarnings())
             d->mainWidget->showWarningMessageBox(currentDesignDocument()->qmlParseWarnings());
     } else {
         d->mainWidget->disableWidgets();
