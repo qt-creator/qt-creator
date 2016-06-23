@@ -67,6 +67,7 @@ static void showGraphicalShellError(QWidget *parent, const QString &app, const Q
 
 void FileUtils::showInGraphicalShell(QWidget *parent, const QString &pathIn)
 {
+    const QFileInfo fileInfo(pathIn);
     // Mac, Windows support folder or file.
     if (HostOsInfo::isWindowsHost()) {
         const FileName explorer = Environment::systemEnvironment().searchInPath(QLatin1String("explorer.exe"));
@@ -79,15 +80,15 @@ void FileUtils::showInGraphicalShell(QWidget *parent, const QString &pathIn)
             return;
         }
         QStringList param;
-        if (!QFileInfo(pathIn).isDir())
+        if (!fileInfo.isDir())
             param += QLatin1String("/select,");
-        param += QDir::toNativeSeparators(pathIn);
+        param += QDir::toNativeSeparators(fileInfo.canonicalFilePath());
         QProcess::startDetached(explorer.toString(), param);
     } else if (HostOsInfo::isMacHost()) {
         QStringList scriptArgs;
         scriptArgs << QLatin1String("-e")
                    << QString::fromLatin1("tell application \"Finder\" to reveal POSIX file \"%1\"")
-                                         .arg(pathIn);
+                                         .arg(fileInfo.canonicalFilePath());
         QProcess::execute(QLatin1String("/usr/bin/osascript"), scriptArgs);
         scriptArgs.clear();
         scriptArgs << QLatin1String("-e")
@@ -95,7 +96,6 @@ void FileUtils::showInGraphicalShell(QWidget *parent, const QString &pathIn)
         QProcess::execute(QLatin1String("/usr/bin/osascript"), scriptArgs);
     } else {
         // we cannot select a file here, because no file browser really supports it...
-        const QFileInfo fileInfo(pathIn);
         const QString folder = fileInfo.isDir() ? fileInfo.absoluteFilePath() : fileInfo.filePath();
         const QString app = UnixUtils::fileBrowser(ICore::settings());
         QProcess browserProc;

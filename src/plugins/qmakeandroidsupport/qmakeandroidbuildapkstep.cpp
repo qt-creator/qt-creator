@@ -115,7 +115,9 @@ Utils::FileName QmakeAndroidBuildApkStep::androidPackageSourceDir() const
             = pro->rootProjectNode()->findProFileFor(proFilePathForInputFile());
     if (!node)
         return Utils::FileName();
-    return Utils::FileName::fromString(node->singleVariableValue(QmakeProjectManager::AndroidPackageSourceDir));
+
+    QFileInfo sourceDirInfo(node->singleVariableValue(QmakeProjectManager::AndroidPackageSourceDir));
+    return Utils::FileName::fromString(sourceDirInfo.canonicalFilePath());
 }
 
 void QmakeAndroidBuildApkStep::ctor()
