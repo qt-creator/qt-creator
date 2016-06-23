@@ -68,6 +68,7 @@ public:
     QString fullName(const QModelIndex &idx, bool includePrefix = false) const;
     QStringList localBranchNames() const;
     QString sha(const QModelIndex &idx) const;
+    QDateTime dateTime(const QModelIndex &idx) const;
     bool hasTags() const;
     bool isLocal(const QModelIndex &idx) const;
     bool isLeaf(const QModelIndex &idx) const;
