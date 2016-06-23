@@ -187,7 +187,7 @@ void TestConfiguration::completeTestInformation(int runMode)
         setProject(project);
         setGuessedConfiguration(guessedRunConfiguration);
         if (!guessedRunConfiguration && runMode == TestRunner::Debug)
-            m_runConfig = new TestRunConfiguration(runConfigTarget);
+            m_runConfig = new TestRunConfiguration(runConfigTarget, this);
     }
 }
 

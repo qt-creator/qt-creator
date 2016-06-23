@@ -25,7 +25,15 @@
 
 #pragma once
 
+#include "autotestplugin.h"
+#include "testconfiguration.h"
+
+#include <projectexplorer/applicationlauncher.h>
+#include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/runconfiguration.h>
+#include <projectexplorer/runnables.h>
+#include <utils/qtcassert.h>
 
 namespace Autotest {
 namespace Internal {
@@ -33,15 +41,32 @@ namespace Internal {
 class TestRunConfiguration : public ProjectExplorer::RunConfiguration
 {
 public:
-    TestRunConfiguration(ProjectExplorer::Target *parent)
+    TestRunConfiguration(ProjectExplorer::Target *parent, TestConfiguration *config)
         : ProjectExplorer::RunConfiguration(parent, "AutoTest.TestRunConfig")
     {
         setDefaultDisplayName(tr("AutoTest Debug"));
         addExtraAspects();
+        m_testConfig = config;
+    }
+
+    ProjectExplorer::Runnable runnable() const override
+    {
+        ProjectExplorer::StandardRunnable r;
+        QTC_ASSERT(m_testConfig, return r);
+        r.executable = m_testConfig->targetFile();
+        r.commandLineArguments = m_testConfig->argumentsForTestRunner(
+                    *AutotestPlugin::instance()->settings()).join(' ');
+        r.workingDirectory = m_testConfig->workingDirectory();
+        r.environment = m_testConfig->environment();
+        r.runMode = ProjectExplorer::ApplicationLauncher::Gui;
+        r.device = ProjectExplorer::DeviceManager::instance()->defaultDevice(
+                    ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE);
+        return r;
     }
 
 private:
     QWidget *createConfigurationWidget() { return 0; }
+    TestConfiguration *m_testConfig = 0;
 };
 
 } // namespace Internal
