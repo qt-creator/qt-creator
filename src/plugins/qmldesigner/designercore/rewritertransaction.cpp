@@ -25,6 +25,7 @@
 
 #include "rewritertransaction.h"
 #include <abstractview.h>
+#include <rewriterview.h>
 
 #ifndef QMLDESIGNER_TEST
 #include <designdocument.h>
