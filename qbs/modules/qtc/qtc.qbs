@@ -51,6 +51,7 @@ Module {
     property string ide_qbs_resources_path: "qbs-resources"
     property string ide_qbs_modules_path: ide_qbs_resources_path + "/modules"
     property string ide_qbs_imports_path: ide_qbs_resources_path + "/imports"
+    property string ide_shared_sources_path: "src/shared"
 
     property bool make_dev_package: false
 

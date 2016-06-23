@@ -5,6 +5,7 @@ QtcProduct {
     type: ["application"]
     consoleApplication: true
     installDir:  qtc.ide_libexec_path
+    useNonGuiPchFile: true
 
     cpp.rpaths: {
         var relativePathToLibs = FileInfo.relativePath('/' + qtc.ide_libexec_path,
