@@ -88,6 +88,9 @@ BranchDialog::BranchDialog(QWidget *parent) :
 
     connect(m_ui->branchView->selectionModel(), &QItemSelectionModel::selectionChanged,
             this, &BranchDialog::enableButtons);
+    connect(m_model, &QAbstractItemModel::dataChanged, this, &BranchDialog::resizeColumns);
+    connect(m_model, &QAbstractItemModel::rowsInserted, this, &BranchDialog::resizeColumns);
+    connect(m_model, &QAbstractItemModel::rowsRemoved, this, &BranchDialog::resizeColumns);
 
     enableButtons();
 }
@@ -109,14 +112,19 @@ void BranchDialog::refresh(const QString &repository, bool force)
         VcsOutputWindow::appendError(errorMessage);
 
     m_ui->branchView->expandAll();
-    m_ui->branchView->resizeColumnToContents(0);
-    m_ui->branchView->resizeColumnToContents(1);
+    resizeColumns();
 }
 
 void BranchDialog::refreshIfSame(const QString &repository)
 {
     if (m_repository == repository)
         refreshCurrentRepository();
+}
+
+void BranchDialog::resizeColumns()
+{
+    m_ui->branchView->resizeColumnToContents(0);
+    m_ui->branchView->resizeColumnToContents(1);
 }
 
 void BranchDialog::enableButtons()
