@@ -218,6 +218,18 @@ void MergeTool::addButton(QMessageBox *msgBox, const QString &text, char key)
     msgBox->addButton(text, QMessageBox::AcceptRole)->setProperty("key", key);
 }
 
+void MergeTool::prompt(const QString &title, const QString &question)
+{
+    if (QMessageBox::question(Core::ICore::dialogParent(), title, question,
+                              QMessageBox::Yes | QMessageBox::No,
+                              QMessageBox::No) == QMessageBox::Yes) {
+        m_process->write("y\n");
+    } else {
+        m_process->write("n\n");
+    }
+    m_process->waitForBytesWritten();
+}
+
 void MergeTool::readData()
 {
     while (m_process->bytesAvailable()) {
@@ -231,16 +243,10 @@ void MergeTool::readData()
             m_localState = waitAndReadStatus(m_localInfo);
             m_remoteState = waitAndReadStatus(m_remoteInfo);
             chooseAction();
+        } else if (line.startsWith("Was the merge successful")) {
+            prompt(tr("Unchanged File"), tr("Was the merge successful?"));
         } else if (line.startsWith("Continue merging")) {
-            if (QMessageBox::question(Core::ICore::dialogParent(), tr("Continue Merging"),
-                                      tr("Continue merging other unresolved paths?"),
-                                      QMessageBox::Yes | QMessageBox::No,
-                                      QMessageBox::No) == QMessageBox::Yes) {
-                m_process->write("y\n");
-            } else {
-                m_process->write("n\n");
-            }
-            m_process->waitForBytesWritten();
+            prompt(tr("Continue Merging"), tr("Continue merging other unresolved paths?"));
         }
     }
 }

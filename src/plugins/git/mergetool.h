@@ -64,6 +64,7 @@ public:
     };
 
 private:
+    void prompt(const QString &title, const QString &question);
     void readData();
     void done();
 
