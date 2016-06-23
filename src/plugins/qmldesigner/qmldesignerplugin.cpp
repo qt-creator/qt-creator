@@ -29,6 +29,7 @@
 #include "designmodewidget.h"
 #include "settingspage.h"
 #include "designmodecontext.h"
+#include "openuiqmlfiledialog.h"
 
 #include <metainfo.h>
 #include <connectionview.h>
@@ -53,6 +54,9 @@
 #include <extensionsystem/pluginspec.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/project.h>
+#include <projectexplorer/target.h>
+#include <projectexplorer/session.h>
 
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
@@ -220,6 +224,32 @@ void QmlDesignerPlugin::extensionsInitialized()
         &d->shortCutManager, &ShortCutManager::updateActions);
 }
 
+static QStringList allUiQmlFilesforCurrentProject(const Utils::FileName &fileName)
+{
+    QStringList list;
+    ProjectExplorer::Project *currentProject = ProjectExplorer::SessionManager::projectForFile(fileName);
+
+    if (currentProject) {
+        foreach (const QString &fileName, currentProject->files(ProjectExplorer::Project::SourceFiles)) {
+            if (fileName.endsWith(".ui.qml"))
+                list.append(fileName);
+        }
+    }
+
+    return list;
+}
+
+static QString projectPath(const Utils::FileName &fileName)
+{
+    QString path;
+    ProjectExplorer::Project *currentProject = ProjectExplorer::SessionManager::projectForFile(fileName);
+
+    if (currentProject)
+        path = currentProject->projectDirectory().toString();
+
+    return path;
+}
+
 void QmlDesignerPlugin::createDesignModeWidget()
 {
     d->mainWidget = new Internal::DesignModeWidget;
@@ -256,6 +286,7 @@ void QmlDesignerPlugin::createDesignModeWidget()
 
     connect(Core::ModeManager::instance(), &Core::ModeManager::currentModeChanged,
         [=] (Core::Id newMode, Core::Id oldMode) {
+
         if (d && Core::EditorManager::currentEditor() && checkIfEditorIsQtQuick
                 (Core::EditorManager::currentEditor()) && !documentIsAlreadyOpen(
                 currentDesignDocument(), Core::EditorManager::currentEditor(), newMode)) {
@@ -270,14 +301,34 @@ void QmlDesignerPlugin::createDesignModeWidget()
     });
 }
 
+static bool warningsForQmlFilesInsteadOfUiQmlEnabled()
+{
+    DesignerSettings settings = QmlDesignerPlugin::instance()->settings();
+    return settings.value(DesignerSettingsKey::WARNING_FOR_QML_FILES_INSTEAD_OF_UIQML_FILES).toBool();
+}
+
 void QmlDesignerPlugin::showDesigner()
 {
     QTC_ASSERT(!d->documentManager.hasCurrentDesignDocument(), return);
 
+    d->mainWidget->initialize();
+
+    const Utils::FileName fileName = Core::EditorManager::currentEditor()->document()->filePath();
+    const QStringList allUiQmlFiles = allUiQmlFilesforCurrentProject(fileName);
+    if (warningsForQmlFilesInsteadOfUiQmlEnabled() && !fileName.endsWith(".ui.qml") && !allUiQmlFiles.isEmpty()) {
+        OpenUiQmlFileDialog dialog(d->mainWidget);
+        dialog.setUiQmlFiles(projectPath(fileName), allUiQmlFiles);
+        dialog.exec();
+        if (dialog.uiFileOpened()) {
+            Core::ModeManager::activateMode(Core::Constants::MODE_EDIT);
+            Core::EditorManager::openEditorAt(dialog.uiQmlFile(), 0, 0);
+            return;
+        }
+    }
+
     d->shortCutManager.disconnectUndoActions(currentDesignDocument());
     d->documentManager.setCurrentDesignDocument(Core::EditorManager::currentEditor());
     d->shortCutManager.connectUndoActions(currentDesignDocument());
-    d->mainWidget->initialize();
 
     if (d->documentManager.hasCurrentDesignDocument()) {
         activateAutoSynchronization();

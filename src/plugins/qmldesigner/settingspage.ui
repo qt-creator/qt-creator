@@ -293,6 +293,16 @@
         <string>Warnings</string>
        </property>
        <layout class="QGridLayout" name="gridLayout_3">
+        <item row="1" column="0">
+         <widget class="QCheckBox" name="designerWarningsInEditorCheckBox">
+          <property name="toolTip">
+           <string>Also warns in the code editor about QML features that are not properly supported by the Qt Quick Designer.</string>
+          </property>
+          <property name="text">
+           <string>Warn about unsupported features of Qt Quick Designer in the code editor</string>
+          </property>
+         </widget>
+        </item>
         <item row="0" column="0">
          <widget class="QCheckBox" name="designerWarningsCheckBox">
           <property name="toolTip">
@@ -303,13 +313,13 @@
           </property>
          </widget>
         </item>
-        <item row="1" column="0">
-         <widget class="QCheckBox" name="designerWarningsInEditorCheckBox">
+        <item row="2" column="0">
+         <widget class="QCheckBox" name="designerWarningsUiQmlfiles">
           <property name="toolTip">
-           <string>Also warns in the code editor about QML features that are not properly supported by the Qt Quick Designer.</string>
+           <string>Qt Quick Designer will propose to open .ui.qml files instead of opening a .qml file.</string>
           </property>
           <property name="text">
-           <string>Warn about unsupported features of Qt Quick Designer in the code editor</string>
+           <string>Warn about using .qml files instead of .ui.qml files</string>
           </property>
          </widget>
         </item>

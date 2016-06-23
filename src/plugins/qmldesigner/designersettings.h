@@ -42,6 +42,7 @@ const char CONTAINERPADDING[] = "ContainerPadding";
 const char CANVASWIDTH[] = "CanvasWidth";
 const char CANVASHEIGHT[] = "CanvasHeight";
 const char WARNING_FOR_FEATURES_IN_DESIGNER[] = "WarnAboutQtQuickFeaturesInDesigner";
+const char WARNING_FOR_QML_FILES_INSTEAD_OF_UIQML_FILES[] = "WarnAboutQmlFilesInsteadOfUiQmlFiles";
 const char WARNING_FOR_DESIGNER_FEATURES_IN_EDITOR[] = "WarnAboutQtQuickDesignerFeaturesInCodeEditor";
 const char SHOW_DEBUGVIEW[] = "ShowQtQuickDesignerDebugView";
 const char ENABLE_DEBUGVIEW[] = "EnableQtQuickDesignerDebugView";
