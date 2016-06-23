@@ -377,7 +377,7 @@ Utils::SynchronousProcessResponse ShellCommand::runCommand(const Utils::FileName
         process.setTimeOutMessageBoxEnabled(true);
 
         // Run!
-        response = process.run(binary.toString(), arguments);
+        response = process.runBlocking(binary.toString(), arguments);
     }
 
     if (!d->m_aborted) {
