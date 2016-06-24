@@ -132,7 +132,7 @@ void TerminalAspect::setRunMode(ApplicationLauncher::Mode runMode)
 */
 
 WorkingDirectoryAspect::WorkingDirectoryAspect(RunConfiguration *runConfig, const QString &key)
-    : IRunConfigurationAspect(runConfig), m_chooser(0), m_key(key)
+    : IRunConfigurationAspect(runConfig), m_key(key)
 {
     setDisplayName(tr("Working Directory"));
     setId("WorkingDirectoryAspect");
