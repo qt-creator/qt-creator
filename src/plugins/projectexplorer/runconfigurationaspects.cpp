@@ -244,13 +244,14 @@ void WorkingDirectoryAspect::setDefaultWorkingDirectory(const FileName &defaultW
 
     Utils::FileName oldDefaultDir = m_defaultWorkingDirectory;
     m_defaultWorkingDirectory = defaultWorkingDir;
-    if (m_chooser) {
-        if (m_chooser->fileName() == oldDefaultDir)
-            m_chooser->setFileName(m_defaultWorkingDirectory);
+    if (m_chooser)
         m_chooser->setBaseFileName(m_defaultWorkingDirectory);
-    }
-    if (m_workingDirectory.isEmpty() || m_workingDirectory == oldDefaultDir)
+
+    if (m_workingDirectory.isEmpty() || m_workingDirectory == oldDefaultDir) {
+        if (m_chooser)
+            m_chooser->setFileName(m_defaultWorkingDirectory);
         m_workingDirectory = defaultWorkingDir;
+    }
 }
 
 PathChooser *WorkingDirectoryAspect::pathChooser() const
