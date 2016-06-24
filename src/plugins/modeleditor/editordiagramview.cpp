@@ -33,6 +33,8 @@
 #include <projectexplorer/projectnodes.h>
 #include <utils/dropsupport.h>
 
+#include <QWheelEvent>
+
 namespace ModelEditor {
 namespace Internal {
 
@@ -61,6 +63,17 @@ EditorDiagramView::~EditorDiagramView()
 void EditorDiagramView::setPxNodeController(PxNodeController *pxNodeController)
 {
     d->pxNodeController = pxNodeController;
+}
+
+void EditorDiagramView::wheelEvent(QWheelEvent *wheelEvent)
+{
+    if (wheelEvent->modifiers() == Qt::ControlModifier) {
+        int degree = wheelEvent->angleDelta().y() / 8;
+        if (degree > 0)
+            emit zoomIn();
+        else if (degree < 0)
+            emit zoomOut();
+    }
 }
 
 void EditorDiagramView::dropProjectExplorerNodes(const QList<QVariant> &values, const QPoint &pos)

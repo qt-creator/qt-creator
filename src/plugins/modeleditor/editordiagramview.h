@@ -40,9 +40,17 @@ class EditorDiagramView :
 
 public:
     explicit EditorDiagramView(QWidget *parent = 0);
-    ~EditorDiagramView();
+    ~EditorDiagramView() override;
 
+signals:
+    void zoomIn();
+    void zoomOut();
+
+public:
     void setPxNodeController(PxNodeController *pxNodeController);
+
+protected:
+    void wheelEvent(QWheelEvent *wheelEvent) override;
 
 private:
     void dropProjectExplorerNodes(const QList<QVariant> &values, const QPoint &pos);

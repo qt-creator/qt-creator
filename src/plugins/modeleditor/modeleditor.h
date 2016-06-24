@@ -105,6 +105,7 @@ private:
                                         const QIcon &icon,
                                         const QString &toolTipBase, QWidget *parent);
     bool updateButtonIconByTheme(QAbstractButton *button, const QString &name);
+    void showZoomIndicator();
 
     void onAddPackage();
     void onAddComponent();
