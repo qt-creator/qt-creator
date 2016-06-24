@@ -139,14 +139,14 @@ void tst_PluginManager::getObject()
     const QString objectName = QLatin1String("OBJECTNAME");
     object2b->setObjectName(objectName);
     m_pm->addObject(object2);
-    QCOMPARE(m_pm->getObject<MyClass11>(), (MyClass11*)0);
-    QCOMPARE(m_pm->getObject<MyClass1>(), (MyClass1*)0);
+    QCOMPARE(m_pm->getObject<MyClass11>(), static_cast<MyClass11 *>(0));
+    QCOMPARE(m_pm->getObject<MyClass1>(), static_cast<MyClass1 *>(0));
     QCOMPARE(m_pm->getObject<MyClass2>(), object2);
     m_pm->addObject(object11);
     QCOMPARE(m_pm->getObject<MyClass11>(), object11);
-    QCOMPARE(m_pm->getObject<MyClass1>(), qobject_cast<MyClass1*>(object11));
+    QCOMPARE(m_pm->getObject<MyClass1>(), qobject_cast<MyClass1 *>(object11));
     QCOMPARE(m_pm->getObject<MyClass2>(), object2);
-    QCOMPARE(m_pm->getObjectByName(objectName), (QObject*)0);
+    QCOMPARE(m_pm->getObjectByName(objectName), static_cast<QObject *>(0));
     m_pm->addObject(object2b);
     QCOMPARE(m_pm->getObjectByName(objectName), object2b);
     QCOMPARE(m_pm->getObject<MyClass2>(
@@ -203,14 +203,14 @@ void tst_PluginManager::circularPlugins()
         if (spec->name() == "plugin1") {
             QVERIFY(spec->hasError());
             QCOMPARE(spec->state(), PluginSpec::Resolved);
-            QCOMPARE(spec->plugin(), (IPlugin*)0);
+            QCOMPARE(spec->plugin(), static_cast<IPlugin *>(0));
         } else if (spec->name() == "plugin2") {
             QVERIFY2(!spec->hasError(), qPrintable(spec->errorString()));
             QCOMPARE(spec->state(), PluginSpec::Running);
         } else if (spec->name() == "plugin3") {
             QVERIFY(spec->hasError());
             QCOMPARE(spec->state(), PluginSpec::Resolved);
-            QCOMPARE(spec->plugin(), (IPlugin*)0);
+            QCOMPARE(spec->plugin(), static_cast<IPlugin *>(0));
         }
     }
 }
