@@ -69,6 +69,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/minisplitter.h>
 #include <coreplugin/actionmanager/commandbutton.h>
+#include <utils/fadingindicator.h>
 #include <utils/styledbar.h>
 #include <utils/qtcassert.h>
 
@@ -376,6 +377,11 @@ void ModelEditor::initDocument()
     connect(Core::EditorManager::instance(), &Core::EditorManager::currentEditorChanged,
             this, &ModelEditor::onCurrentEditorChanged, Qt::QueuedConnection);
 
+    connect(d->diagramView, &EditorDiagramView::zoomIn,
+            this, &ModelEditor::zoomIn);
+    connect(d->diagramView, &EditorDiagramView::zoomOut,
+            this, &ModelEditor::zoomOut);
+
     connect(d->modelTreeView->selectionModel(), &QItemSelectionModel::selectionChanged,
             this, &ModelEditor::onTreeViewSelectionChanged, Qt::QueuedConnection);
     connect(d->modelTreeView, &qmt::ModelTreeView::treeViewActivated,
@@ -564,6 +570,7 @@ void ModelEditor::zoomIn()
     QTransform transform = d->diagramView->transform();
     transform.scale(ZOOM_FACTOR, ZOOM_FACTOR);
     d->diagramView->setTransform(transform);
+    showZoomIndicator();
 }
 
 void ModelEditor::zoomOut()
@@ -571,11 +578,13 @@ void ModelEditor::zoomOut()
     QTransform transform = d->diagramView->transform();
     transform.scale(1.0 / ZOOM_FACTOR, 1.0 / ZOOM_FACTOR);
     d->diagramView->setTransform(transform);
+    showZoomIndicator();
 }
 
 void ModelEditor::resetZoom()
 {
     d->diagramView->setTransform(QTransform());
+    showZoomIndicator();
 }
 
 qmt::MPackage *ModelEditor::guessSelectedPackage() const
@@ -764,6 +773,15 @@ bool ModelEditor::updateButtonIconByTheme(QAbstractButton *button, const QString
     }
 
     return false;
+}
+
+void ModelEditor::showZoomIndicator()
+{
+    int scale = int(d->diagramView->transform().map(QPointF(100, 100)).x() + 0.5);
+    Utils::FadingIndicator::showText(d->diagramStack,
+                                     QCoreApplication::translate("ModelEditor",
+                                                                 "Zoom: %1%").arg(scale),
+                                     Utils::FadingIndicator::SmallText);
 }
 
 void ModelEditor::onAddPackage()
