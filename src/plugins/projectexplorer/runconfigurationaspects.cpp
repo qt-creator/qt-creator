@@ -218,9 +218,9 @@ FileName WorkingDirectoryAspect::workingDirectory() const
     auto envAspect = runConfiguration()->extraAspect<EnvironmentAspect>();
     const Utils::Environment env = envAspect ? envAspect->environment()
                                              : Utils::Environment::systemEnvironment();
-    return FileName::fromString(
-                runConfiguration()->macroExpander()->expandProcessArgs(
-                    PathChooser::expandedDirectory(m_workingDirectory.toString(), env, QString())));
+    const QString macroExpanded
+            = runConfiguration()->macroExpander()->expandProcessArgs(m_workingDirectory.toUserOutput());
+    return FileName::fromString(PathChooser::expandedDirectory(macroExpanded, env, QString()));
 }
 
 FileName WorkingDirectoryAspect::defaultWorkingDirectory() const
