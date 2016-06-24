@@ -306,14 +306,14 @@ void PathChooser::setEnvironment(const Environment &env)
     }
 }
 
-QString PathChooser::path() const
-{
-    return d->expandedPath(rawPath());
-}
-
 QString PathChooser::rawPath() const
 {
     return rawFileName().toString();
+}
+
+QString PathChooser::path() const
+{
+    return fileName().toString();
 }
 
 FileName PathChooser::rawFileName() const
@@ -323,7 +323,7 @@ FileName PathChooser::rawFileName() const
 
 FileName PathChooser::fileName() const
 {
-    return FileName::fromString(path());
+    return FileName::fromUserInput(d->expandedPath(rawFileName().toString()));
 }
 
 // FIXME: try to remove again
