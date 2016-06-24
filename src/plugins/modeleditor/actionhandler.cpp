@@ -33,6 +33,7 @@
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
+#include <utils/icon.h>
 
 #include <QAction>
 #include <QShortcut>
@@ -53,6 +54,7 @@ public:
     QAction *deleteAction = 0;
     QAction *selectAllAction = 0;
     QAction *openParentDiagramAction = 0;
+    QAction *synchronizeBrowserAction = 0;
     QAction *exportDiagramAction = 0;
     QAction *zoomInAction = 0;
     QAction *zoomOutAction = 0;
@@ -114,6 +116,11 @@ QAction *ActionHandler::selectAllAction() const
 QAction *ActionHandler::openParentDiagramAction() const
 {
     return d->openParentDiagramAction;
+}
+
+QAction *ActionHandler::synchronizeBrowserAction() const
+{
+    return d->synchronizeBrowserAction;
 }
 
 QAction *ActionHandler::exportDiagramAction() const
@@ -196,6 +203,13 @@ void ActionHandler::createActions()
     registerCommand(Constants::ACTION_ADD_COMPONENT, nullptr, Core::Context());
     registerCommand(Constants::ACTION_ADD_CLASS, nullptr, Core::Context());
     registerCommand(Constants::ACTION_ADD_CANVAS_DIAGRAM, nullptr, Core::Context());
+    d->synchronizeBrowserAction = registerCommand(
+                Constants::ACTION_SYNC_BROWSER, nullptr, Core::Context(), true,
+                tr("Synchronize Browser and Diagram<br><i><small>Press&Hold for options</small></i>"))->action();
+    static const Utils::Icon
+            LINK_ICON({{ QStringLiteral(":/core/images/linkicon.png"), Utils::Theme::IconsBaseColor }});
+    d->synchronizeBrowserAction->setIcon(LINK_ICON.icon());
+    d->synchronizeBrowserAction->setCheckable(true);
 
     auto editPropertiesAction = new QAction(tr("Edit Element Properties"), Core::ICore::mainWindow());
     Core::Command *editPropertiesCommand = Core::ActionManager::registerAction(

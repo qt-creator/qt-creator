@@ -33,6 +33,7 @@
 
 QT_BEGIN_NAMESPACE
 class QItemSelection;
+class QToolButton;
 QT_END_NAMESPACE
 
 namespace qmt {
@@ -101,7 +102,7 @@ private:
     void showProperties(qmt::MDiagram *diagram, const QList<qmt::DElement *> &diagramElements);
     void clearProperties();
     void expandModelTreeToDepth(int depth);
-    QWidget *createToolbarCommandButton(const Core::Id &id, const std::function<void()> &slot,
+    QToolButton *createToolbarCommandButton(const Core::Id &id, const std::function<void()> &slot,
                                         const QIcon &icon,
                                         const QString &toolTipBase, QWidget *parent);
     bool updateButtonIconByTheme(QAbstractButton *button, const QString &name);
@@ -148,8 +149,11 @@ private:
     void addToNavigationHistory(const qmt::MDiagram *diagram);
     QByteArray saveState(const qmt::MDiagram *diagram) const;
 
-private slots:
     void onEditSelectedElement();
+    bool isSyncBrowserWithDiagram() const;
+    bool isSyncDiagramWithBrowser() const;
+    void synchronizeDiagramWithBrowser();
+    void synchronizeBrowserWithDiagram(const qmt::MDiagram *diagram);
 
 private:
     ModelEditorPrivate *d;

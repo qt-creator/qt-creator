@@ -94,6 +94,7 @@
 #include <QToolBox>
 #include <QUndoStack>
 #include <QVBoxLayout>
+#include <QMenu>
 
 #include <algorithm>
 
@@ -127,6 +128,9 @@ public:
     QComboBox *diagramSelector = 0;
     SelectedArea selectedArea = SelectedArea::Nothing;
     QString lastExportDirPath;
+    QAction *syncBrowserWithDiagramAction = 0;
+    QAction *syncDiagramWithBrowserAction = 0;
+    QAction *syncEachOtherAction = 0;
 };
 
 ModelEditor::ModelEditor(UiController *uiController, ActionHandler *actionHandler, QWidget *parent)
@@ -168,9 +172,21 @@ bool ModelEditor::restoreState(const QByteArray &state)
     QDataStream stream(state);
     int version = 0;
     stream >> version;
-    if (version == 1) {
+    if (version >= 1) {
         qmt::Uid uid;
         stream >> uid;
+        if (version >= 2) {
+            bool sync = false;
+            bool syncBrowserWithDiagram = false;
+            bool syncDiagramWithBrowser = false;
+            bool syncEachOther = false;
+            stream >> sync >> syncBrowserWithDiagram >> syncDiagramWithBrowser >> syncEachOther;
+            d->actionHandler->synchronizeBrowserAction()->setChecked(sync);
+            d->syncBrowserWithDiagramAction->setChecked(
+                        syncBrowserWithDiagram || (!syncDiagramWithBrowser && !syncEachOther));
+            d->syncDiagramWithBrowserAction->setChecked(syncDiagramWithBrowser);
+            d->syncEachOtherAction->setChecked(syncEachOther);
+        }
         if (uid.isValid()) {
             qmt::MDiagram *diagram = d->document->documentController()->modelController()->findObject<qmt::MDiagram>(uid);
             if (diagram) {
@@ -320,6 +336,23 @@ void ModelEditor::init(QWidget *parent)
     QIcon(QStringLiteral(":/modelinglib/48x48/canvas-diagram.png")),
     tr("Add Canvas Diagram"), d->toolbar));
     toolbarLayout->addSpacing(20);
+
+    auto syncToggleButton = new Core::CommandButton(Constants::ACTION_SYNC_BROWSER, d->toolbar);
+    syncToggleButton->setDefaultAction(d->actionHandler->synchronizeBrowserAction());
+    QMenu *syncMenu = new QMenu(syncToggleButton);
+    QActionGroup *syncGroup = new QActionGroup(syncMenu);
+    d->syncBrowserWithDiagramAction = syncMenu->addAction(QStringLiteral("Synchronize Browser with Diagram"));
+    d->syncBrowserWithDiagramAction->setCheckable(true);
+    d->syncBrowserWithDiagramAction->setActionGroup(syncGroup);
+    d->syncDiagramWithBrowserAction = syncMenu->addAction(QStringLiteral("Synchronize Diagram with Browser"));
+    d->syncDiagramWithBrowserAction->setCheckable(true);
+    d->syncDiagramWithBrowserAction->setActionGroup(syncGroup);
+    d->syncEachOtherAction = syncMenu->addAction(QStringLiteral("Synchronize Each Other"));
+    d->syncEachOtherAction->setCheckable(true);
+    d->syncEachOtherAction->setActionGroup(syncGroup);
+    syncToggleButton->setMenu(syncMenu);
+    d->syncBrowserWithDiagramAction->setChecked(true);
+    toolbarLayout->addWidget(syncToggleButton);
 }
 
 void ModelEditor::initDocument()
@@ -745,13 +778,17 @@ void ModelEditor::expandModelTreeToDepth(int depth)
     d->modelTreeView->expandToDepth(depth);
 }
 
-QWidget *ModelEditor::createToolbarCommandButton(const Core::Id &id, const std::function<void()> &slot,
-                                                 const QIcon &icon, const QString &toolTipBase,
-                                                 QWidget *parent)
+QToolButton *ModelEditor::createToolbarCommandButton(const Core::Id &id, const std::function<void()> &slot,
+                                                     const QIcon &icon, const QString &toolTipBase,
+                                                     QWidget *parent)
 {
     auto button = new Core::CommandButton(id, parent);
-    button->setIcon(icon);
-    button->setToolTipBase(toolTipBase);
+    auto action = new QAction(button);
+    action->setIcon(icon);
+    action->setToolTip(toolTipBase);
+    button->setDefaultAction(action);
+    //button->setIcon(icon);
+    //button->setToolTipBase(toolTipBase);
     connect(button, &Core::CommandButton::clicked, this, slot);
     return button;
 }
@@ -854,6 +891,7 @@ void ModelEditor::onTreeViewSelectionChanged(const QItemSelection &selected,
     Q_UNUSED(selected);
     Q_UNUSED(deselected);
 
+    synchronizeDiagramWithBrowser();
     updateSelectedArea(SelectedArea::TreeView);
 }
 
@@ -911,8 +949,10 @@ void ModelEditor::onNewElementCreated(qmt::DElement *element, qmt::MDiagram *dia
 
 void ModelEditor::onDiagramSelectionChanged(const qmt::MDiagram *diagram)
 {
-    if (diagram == currentDiagram())
+    if (diagram == currentDiagram()) {
+        synchronizeBrowserWithDiagram(diagram);
         updateSelectedArea(SelectedArea::Diagram);
+    }
 }
 
 void ModelEditor::onDiagramModified(const qmt::MDiagram *diagram)
@@ -1258,11 +1298,15 @@ QByteArray ModelEditor::saveState(const qmt::MDiagram *diagram) const
 {
     QByteArray state;
     QDataStream stream(&state, QIODevice::WriteOnly);
-    stream << 1; // version number
+    stream << 2; // version number
     if (diagram)
         stream << diagram->uid();
     else
         stream << qmt::Uid::invalidUid();
+    stream << d->actionHandler->synchronizeBrowserAction()->isChecked()
+           << d->syncBrowserWithDiagramAction->isChecked()
+           << d->syncDiagramWithBrowserAction->isChecked()
+           << d->syncEachOtherAction->isChecked();
     return state;
 }
 
@@ -1284,6 +1328,80 @@ void ModelEditor::onEditSelectedElement()
             }
         }
         d->propertiesView->editSelectedElement();
+    }
+}
+
+bool ModelEditor::isSyncBrowserWithDiagram() const
+{
+    return d->actionHandler->synchronizeBrowserAction()->isChecked()
+            && (d->syncBrowserWithDiagramAction->isChecked() || d->syncEachOtherAction->isChecked());
+}
+
+bool ModelEditor::isSyncDiagramWithBrowser() const
+{
+    return d->actionHandler->synchronizeBrowserAction()->isChecked()
+            && (d->syncDiagramWithBrowserAction->isChecked() || d->syncEachOtherAction->isChecked());
+}
+
+void ModelEditor::synchronizeDiagramWithBrowser()
+{
+    if (isSyncDiagramWithBrowser()) {
+        if (currentDiagram()) {
+            bool done = false;
+            qmt::DocumentController *documentController = d->document->documentController();
+            QModelIndexList indexes = d->modelTreeView->selectedSourceModelIndexes();
+            if (!indexes.isEmpty()) {
+                foreach (const QModelIndex &index, indexes) {
+                    if (index.isValid()) {
+                        qmt::MElement *modelElement = documentController->treeModel()->element(index);
+                        if (modelElement) {
+                            foreach (qmt::DElement *diagramElement, currentDiagram()->diagramElements()) {
+                                if (diagramElement->modelUid() == modelElement->uid()) {
+                                    // disconnect temporarily avoiding double update of properties Ui
+                                    disconnect(documentController->diagramsManager(), &qmt::DiagramsManager::diagramSelectionChanged,
+                                               this, &ModelEditor::onDiagramSelectionChanged);
+                                    d->diagramView->diagramSceneModel()->selectElement(diagramElement);
+                                    connect(documentController->diagramsManager(), &qmt::DiagramsManager::diagramSelectionChanged,
+                                            this, &ModelEditor::onDiagramSelectionChanged, Qt::QueuedConnection);
+                                    done = true;
+                                    break;
+                                }
+                            }
+                            if (done)
+                                break;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+void ModelEditor::synchronizeBrowserWithDiagram(const qmt::MDiagram *diagram)
+{
+    if (isSyncBrowserWithDiagram()) {
+        qmt::DocumentController *documentController = d->document->documentController();
+        qmt::DSelection selection = documentController->diagramsManager()->diagramSceneModel(diagram)->selectedElements();
+        if (!selection.isEmpty()) {
+            foreach (qmt::DSelection::Index index, selection.indices()) {
+                qmt::DElement *diagramElement = documentController->diagramController()->findElement(index.elementKey(), diagram);
+                if (diagramElement) {
+                    qmt::MElement *modelElement = documentController->modelController()->findElement(diagramElement->modelUid());
+                    if (modelElement) {
+                        QModelIndex index = d->modelTreeViewServant->treeModel()->indexOf(modelElement);
+                        if (index.isValid()) {
+                            // disconnect temporarily avoiding double update of properties Ui
+                            disconnect(d->modelTreeView->selectionModel(), &QItemSelectionModel::selectionChanged,
+                                       this, &ModelEditor::onTreeViewSelectionChanged);
+                            d->modelTreeView->selectFromSourceModelIndex(index);
+                            connect(d->modelTreeView->selectionModel(), &QItemSelectionModel::selectionChanged,
+                                    this, &ModelEditor::onTreeViewSelectionChanged, Qt::QueuedConnection);
+                            break;
+                        }
+                    }
+                }
+            }
+        }
     }
 }
 

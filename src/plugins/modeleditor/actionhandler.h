@@ -63,6 +63,7 @@ public:
     QAction *deleteAction() const;
     QAction *selectAllAction() const;
     QAction *openParentDiagramAction() const;
+    QAction *synchronizeBrowserAction() const;
     QAction *exportDiagramAction() const;
     QAction *zoomInAction() const;
     QAction *zoomOutAction() const;
