@@ -173,6 +173,8 @@ public:
 
     bool equals(const std::unique_ptr<ClonableConcept> &other) const override
     {
+        if (!other.get())
+            return false;
         if (other->typeId() != typeId())
             return false;
         auto that = static_cast<const ClonableModel<T> *>(other.get());
