@@ -44,6 +44,7 @@
 #include <coreplugin/iversioncontrol.h>
 #include <coreplugin/vcsmanager.h>
 
+#include <utils/checkablemessagebox.h>
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
@@ -987,9 +988,14 @@ QStringList GitClient::setupCheckoutArguments(const QString &workingDirectory,
     if (localBranches.contains(ref))
         return arguments;
 
-    if (QMessageBox::question(ICore::mainWindow(), tr("Create Local Branch"),
-                              tr("Would you like to create a local branch?"),
-                              QMessageBox::Yes | QMessageBox::No) == QMessageBox::No) {
+    if (Utils::CheckableMessageBox::doNotAskAgainQuestion(
+                ICore::mainWindow() /*parent*/,
+                tr("Create Local Branch") /*title*/,
+                tr("Would you like to create a local branch?") /*message*/,
+                ICore::settings(), "Git.CreateLocalBranchOnCheckout" /*setting*/,
+                QDialogButtonBox::Yes | QDialogButtonBox::No /*buttons*/,
+                QDialogButtonBox::No /*default button*/,
+                QDialogButtonBox::No /*button to save*/) == QMessageBox::No) {
         return arguments;
     }
 
