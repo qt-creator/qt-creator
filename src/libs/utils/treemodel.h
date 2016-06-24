@@ -41,7 +41,7 @@ public:
     TreeItem();
     virtual ~TreeItem();
 
-    virtual TreeItem *parent() const { return m_parent; }
+    TreeItem *parent() const { return m_parent; }
     virtual TreeItem *child(int pos) const;
     virtual int rowCount() const;
 
@@ -148,7 +148,7 @@ private:
 };
 
 // A TreeItem with children all of the same type.
-template <class ChildType>
+template <class ChildType, class ParentType = TreeItem>
 class TypedTreeItem : public TreeItem
 {
 public:
@@ -174,6 +174,10 @@ public:
     template <typename Predicate>
     ChildType *findFirstLevelChild(Predicate pred) const {
         return TreeItem::findFirstLevelChild<ChildType *, Predicate>(pred);
+    }
+
+    ParentType *parent() const {
+        return static_cast<ParentType *>(TreeItem::parent());
     }
 };
 
