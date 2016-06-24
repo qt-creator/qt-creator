@@ -66,6 +66,8 @@ ItemLibraryWidget::ItemLibraryWidget(QWidget *parent) :
     m_resourcesView(new ItemLibraryTreeView(this)),
     m_filterFlag(QtBasic)
 {
+    m_compressionTimer.setInterval(200);
+    m_compressionTimer.setSingleShot(true);
     ItemLibraryModel::registerQmlTypes();
 
     setWindowTitle(tr("Library", "Title of library view"));
@@ -145,6 +147,8 @@ ItemLibraryWidget::ItemLibraryWidget(QWidget *parent) :
     m_qmlSourceUpdateShortcut = new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_F5), this);
     connect(m_qmlSourceUpdateShortcut, SIGNAL(activated()), this, SLOT(reloadQmlSource()));
 
+    connect(&m_compressionTimer, SIGNAL(timeout()), this, SLOT(updateModel()));
+
     // init the first load of the QML UI elements
     reloadQmlSource();
 }
@@ -156,11 +160,11 @@ void ItemLibraryWidget::setItemLibraryInfo(ItemLibraryInfo *itemLibraryInfo)
 
     if (m_itemLibraryInfo)
         disconnect(m_itemLibraryInfo.data(), SIGNAL(entriesChanged()),
-                   this, SLOT(updateModel()));
+                   this, SLOT(delayedUpdateModel()));
     m_itemLibraryInfo = itemLibraryInfo;
     if (itemLibraryInfo)
         connect(m_itemLibraryInfo.data(), SIGNAL(entriesChanged()),
-                this, SLOT(updateModel()));
+                this, SLOT(delayedUpdateModel()));
 
     updateModel();
 }
@@ -207,6 +211,11 @@ void ItemLibraryWidget::setSearchFilter(const QString &searchFilter)
         m_resourcesView->expandToDepth(1);
         m_resourcesView->scrollToTop();
     }
+}
+
+void ItemLibraryWidget::delayedUpdateModel()
+{
+    m_compressionTimer.start();
 }
 
 void ItemLibraryWidget::setModel(Model *model)
