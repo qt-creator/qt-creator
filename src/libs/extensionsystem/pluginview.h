@@ -71,7 +71,7 @@ private:
     bool setPluginsEnabled(const QSet<PluginSpec *> &plugins, bool enable);
 
     Utils::TreeView *m_categoryView;
-    Utils::LeveledTreeModel<Utils::TreeItem, Internal::CollectionItem, Internal::PluginItem> *m_model;
+    Utils::TreeModel<Utils::TreeItem, Internal::CollectionItem, Internal::PluginItem> *m_model;
     QSortFilterProxyModel *m_sortModel;
 
     friend class Internal::CollectionItem;

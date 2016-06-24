@@ -42,7 +42,7 @@ namespace Autotest {
 namespace Internal {
 
 TestTreeModel::TestTreeModel(QObject *parent) :
-    TreeModel(parent),
+    TreeModel<>(parent),
     m_parser(new TestCodeParser(this)),
     m_connectionsInitialized(false)
 {

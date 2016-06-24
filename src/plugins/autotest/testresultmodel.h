@@ -51,7 +51,7 @@ private:
     TestResultPtr m_testResult;
 };
 
-class TestResultModel : public Utils::TreeModel
+class TestResultModel : public Utils::TreeModel<>
 {
 public:
     explicit TestResultModel(QObject *parent = 0);

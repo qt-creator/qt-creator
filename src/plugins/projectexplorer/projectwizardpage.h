@@ -31,6 +31,7 @@
 #include <coreplugin/iwizardfactory.h>
 
 #include <utils/wizardpage.h>
+#include <utils/treemodel.h>
 
 QT_BEGIN_NAMESPACE
 class QTreeView;
@@ -38,7 +39,6 @@ class QModelIndex;
 QT_END_NAMESPACE
 
 namespace Core { class IVersionControl; }
-namespace Utils { class TreeModel; }
 
 namespace ProjectExplorer {
 namespace Internal {
@@ -87,7 +87,7 @@ private:
 
     void setAdditionalInfo(const QString &text);
     void setAddingSubProject(bool addingSubProject);
-    void setModel(Utils::TreeModel *model);
+    void setModel(Utils::TreeModel<> *model);
     void setBestNode(ProjectExplorer::Internal::AddNewTree *tree);
     void setVersionControls(const QStringList &);
     void setProjectToolTip(const QString &);
@@ -95,7 +95,7 @@ private:
 
     Ui::WizardPage *m_ui;
     QStringList m_projectToolTips;
-    Utils::TreeModel *m_model = nullptr;
+    Utils::TreeModel<> *m_model = nullptr;
 
     QList<Core::IVersionControl*> m_activeVersionControls;
     QString m_commonDirectory;

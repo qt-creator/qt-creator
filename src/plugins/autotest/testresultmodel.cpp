@@ -128,7 +128,7 @@ void TestResultItem::updateResult()
 /********************************* TestResultModel *****************************************/
 
 TestResultModel::TestResultModel(QObject *parent)
-    : Utils::TreeModel(parent),
+    : Utils::TreeModel<>(parent),
       m_widthOfLineNumber(0),
       m_maxWidthOfFileName(0),
       m_disabled(0)

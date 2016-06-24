@@ -42,7 +42,7 @@ class DebuggerEngine;
 class GdbMi;
 class ThreadItem;
 
-class ThreadsHandler : public Utils::LeveledTreeModel<Utils::TypedTreeItem<ThreadItem>, ThreadItem>
+class ThreadsHandler : public Utils::TreeModel<Utils::TypedTreeItem<ThreadItem>, ThreadItem>
 {
     Q_OBJECT
 

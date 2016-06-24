@@ -250,7 +250,7 @@ QAbstractItemModel *ModulesHandler::model() const
 ModuleItem *ModulesHandler::moduleFromPath(const QString &modulePath) const
 {
     // Recent modules are more likely to be unloaded first.
-    return m_model->findFirstLevelItem([modulePath](ModuleItem *item) {
+    return m_model->findItemAtLevel<1>([modulePath](ModuleItem *item) {
         return item->module.modulePath == modulePath;
     });
 }
@@ -263,7 +263,7 @@ void ModulesHandler::removeAll()
 Modules ModulesHandler::modules() const
 {
     Modules mods;
-    m_model->forFirstLevelItems([&mods](ModuleItem *item) { mods.append(item->module); });
+    m_model->forItemsAtLevel<1>([&mods](ModuleItem *item) { mods.append(item->module); });
     return mods;
 }
 
@@ -302,13 +302,13 @@ void ModulesHandler::updateModule(const Module &module)
 
 void ModulesHandler::beginUpdateAll()
 {
-    m_model->forFirstLevelItems([](ModuleItem *item) { item->updated = false; });
+    m_model->forItemsAtLevel<1>([](ModuleItem *item) { item->updated = false; });
 }
 
 void ModulesHandler::endUpdateAll()
 {
     QList<TreeItem *> toDestroy;
-    m_model->forFirstLevelItems([&toDestroy](ModuleItem *item) {
+    m_model->forItemsAtLevel<1>([&toDestroy](ModuleItem *item) {
         if (!item->updated)
             toDestroy.append(item);
     });

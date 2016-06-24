@@ -99,7 +99,7 @@ public:
 // DebuggerItemModel
 // --------------------------------------------------------------------------
 
-class DebuggerItemModel : public LeveledTreeModel<TreeItem, StaticTreeItem, DebuggerTreeItem>
+class DebuggerItemModel : public TreeModel<TreeItem, StaticTreeItem, DebuggerTreeItem>
 {
     Q_DECLARE_TR_FUNCTIONS(Debugger::DebuggerOptionsPage)
 
@@ -139,7 +139,7 @@ void DebuggerItemModel::addDebugger(const DebuggerItem &item, bool changed)
 void DebuggerItemModel::updateDebugger(const DebuggerItem &item)
 {
     auto matcher = [item](DebuggerTreeItem *n) { return n->m_item.m_id == item.id(); };
-    DebuggerTreeItem *treeItem = findSecondLevelItem(matcher);
+    DebuggerTreeItem *treeItem = findItemAtLevel<2>(matcher);
     QTC_ASSERT(treeItem, return);
 
     TreeItem *parent = treeItem->parent();
@@ -178,7 +178,7 @@ void DebuggerItemModel::apply()
     foreach (const QVariant &id, m_removedItems)
         DebuggerItemManager::deregisterDebugger(id);
 
-    forSecondLevelItems([](DebuggerTreeItem *item) {
+    forItemsAtLevel<2>([](DebuggerTreeItem *item) {
         item->m_changed = false;
         DebuggerItemManager::updateOrAddDebugger(item->m_item);
     });

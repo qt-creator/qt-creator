@@ -947,7 +947,7 @@ static bool isSimilarTo(const BreakpointParameters &params, const BreakpointResp
 Breakpoint BreakHandler::findSimilarBreakpoint(const BreakpointResponse &needle) const
 {
     // Search a breakpoint we might refer to.
-    return Breakpoint(findFirstLevelItem([needle](BreakpointItem *b) {
+    return Breakpoint(findItemAtLevel<1>([needle](BreakpointItem *b) {
         if (b->m_response.id.isValid() && b->m_response.id.majorPart() == needle.id.majorPart())
             return true;
         return isSimilarTo(b->m_params, needle);
@@ -956,21 +956,21 @@ Breakpoint BreakHandler::findSimilarBreakpoint(const BreakpointResponse &needle)
 
 Breakpoint BreakHandler::findBreakpointByResponseId(const BreakpointResponseId &id) const
 {
-    return Breakpoint(findFirstLevelItem([id](BreakpointItem *b) {
+    return Breakpoint(findItemAtLevel<1>([id](BreakpointItem *b) {
         return b->m_response.id.majorPart() == id.majorPart();
     }));
 }
 
 Breakpoint BreakHandler::findBreakpointByFunction(const QString &functionName) const
 {
-    return Breakpoint(findFirstLevelItem([functionName](BreakpointItem *b) {
+    return Breakpoint(findItemAtLevel<1>([functionName](BreakpointItem *b) {
         return b->m_params.functionName == functionName;
     }));
 }
 
 Breakpoint BreakHandler::findBreakpointByAddress(quint64 address) const
 {
-    return Breakpoint(findFirstLevelItem([address](BreakpointItem *b) {
+    return Breakpoint(findItemAtLevel<1>([address](BreakpointItem *b) {
         return b->m_params.address == address || b->m_params.address == address;
     }));
 }
@@ -978,14 +978,14 @@ Breakpoint BreakHandler::findBreakpointByAddress(quint64 address) const
 Breakpoint BreakHandler::findBreakpointByFileAndLine(const QString &fileName,
     int lineNumber, bool useMarkerPosition)
 {
-    return Breakpoint(findFirstLevelItem([=](BreakpointItem *b) {
+    return Breakpoint(findItemAtLevel<1>([=](BreakpointItem *b) {
         return b->isLocatedAt(fileName, lineNumber, useMarkerPosition);
     }));
 }
 
 Breakpoint BreakHandler::breakpointById(BreakpointModelId id) const
 {
-    return Breakpoint(findFirstLevelItem([id](BreakpointItem *b) { return b->m_id == id; }));
+    return Breakpoint(findItemAtLevel<1>([id](BreakpointItem *b) { return b->m_id == id; }));
 }
 
 QVariant BreakHandler::data(const QModelIndex &idx, int role) const
@@ -1005,7 +1005,7 @@ void BreakHandler::deletionHelper(BreakpointModelId id)
 
 Breakpoint BreakHandler::findWatchpoint(const BreakpointParameters &params) const
 {
-    return Breakpoint(findFirstLevelItem([params](BreakpointItem *b) {
+    return Breakpoint(findItemAtLevel<1>([params](BreakpointItem *b) {
         return b->m_params.isWatchpoint()
                 && b->m_params.address == params.address
                 && b->m_params.size == params.size
@@ -1017,7 +1017,7 @@ Breakpoint BreakHandler::findWatchpoint(const BreakpointParameters &params) cons
 void BreakHandler::saveBreakpoints()
 {
     QList<QVariant> list;
-    forFirstLevelItems([&list](BreakpointItem *b) {
+    forItemsAtLevel<1>([&list](BreakpointItem *b) {
         const BreakpointParameters &params = b->m_params;
         QMap<QString, QVariant> map;
         if (params.type != BreakpointByFileAndLine)
@@ -1121,12 +1121,12 @@ void BreakHandler::loadBreakpoints()
 
 void BreakHandler::updateMarkers()
 {
-    forFirstLevelItems([](BreakpointItem *b) { b->updateMarker(); });
+    forItemsAtLevel<1>([](BreakpointItem *b) { b->updateMarker(); });
 }
 
 Breakpoint BreakHandler::findBreakpointByIndex(const QModelIndex &index) const
 {
-    return Breakpoint(firstLevelItemForIndex(index));
+    return Breakpoint(itemForIndexAtLevel<1>(index));
 }
 
 Breakpoints BreakHandler::findBreakpointsByIndex(const QList<QModelIndex> &list) const
@@ -1736,7 +1736,7 @@ void BreakHandler::breakByFunction(const QString &functionName)
 {
     // One breakpoint per function is enough for now. This does not handle
     // combinations of multiple conditions and ignore counts, though.
-    bool found = findFirstLevelItem([functionName](BreakpointItem *b) {
+    bool found = findItemAtLevel<1>([functionName](BreakpointItem *b) {
         const BreakpointParameters &params = b->m_params;
         return params.functionName == functionName
                 && params.condition.isEmpty()
@@ -1828,7 +1828,7 @@ void BreakHandler::changeLineNumberFromMarkerHelper(BreakpointModelId id)
 Breakpoints BreakHandler::allBreakpoints() const
 {
     Breakpoints items;
-    forFirstLevelItems([&items](BreakpointItem *b) { items.append(Breakpoint(b)); });
+    forItemsAtLevel<1>([&items](BreakpointItem *b) { items.append(Breakpoint(b)); });
     return items;
 }
 
@@ -1840,7 +1840,7 @@ Breakpoints BreakHandler::unclaimedBreakpoints() const
 Breakpoints BreakHandler::engineBreakpoints(DebuggerEngine *engine) const
 {
     Breakpoints items;
-    forFirstLevelItems([&items, engine](BreakpointItem *b) {
+    forItemsAtLevel<1>([&items, engine](BreakpointItem *b) {
         if (b->m_engine == engine)
             items.append(Breakpoint(b));
     });
@@ -1850,7 +1850,7 @@ Breakpoints BreakHandler::engineBreakpoints(DebuggerEngine *engine) const
 QStringList BreakHandler::engineBreakpointPaths(DebuggerEngine *engine) const
 {
     QSet<QString> set;
-    forFirstLevelItems([&set, engine](BreakpointItem *b) {
+    forItemsAtLevel<1>([&set, engine](BreakpointItem *b) {
         if (b->m_engine == engine) {
             if (b->m_params.type == BreakpointByFileAndLine)
                 set.insert(QFileInfo(b->m_params.fileName).dir().path());
@@ -1990,7 +1990,7 @@ bool BreakHandler::contextMenuEvent(const ItemViewEvent &ev)
               [this] { deleteAllBreakpoints(); });
 
     // Delete by file: Find indices of breakpoints of the same file.
-    BreakpointItem *item = firstLevelItemForIndex(ev.index());
+    BreakpointItem *item = itemForIndexAtLevel<1>(ev.index());
     Breakpoints breakpointsInFile;
     QString file;
     if (item) {

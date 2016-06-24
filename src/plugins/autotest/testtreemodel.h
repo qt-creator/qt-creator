@@ -40,7 +40,7 @@ class TestParseResult;
 
 using TestParseResultPtr = QSharedPointer<TestParseResult>;
 
-class TestTreeModel : public Utils::TreeModel
+class TestTreeModel : public Utils::TreeModel<>
 {
     Q_OBJECT
 public:

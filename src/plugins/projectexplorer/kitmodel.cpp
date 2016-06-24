@@ -103,7 +103,7 @@ public:
 // --------------------------------------------------------------------------
 
 KitModel::KitModel(QBoxLayout *parentLayout, QObject *parent)
-    : LeveledTreeModel<TreeItem, TreeItem, KitNode>(parent),
+    : TreeModel<TreeItem, TreeItem, KitNode>(parent),
       m_parentLayout(parentLayout)
 {
     setHeader(QStringList(tr("Name")));
@@ -196,7 +196,7 @@ void KitModel::isAutoDetectedChanged()
 void KitModel::validateKitNames()
 {
     QHash<QString, int> nameHash;
-    forSecondLevelItems([&nameHash](KitNode *n) {
+    forItemsAtLevel<2>([&nameHash](KitNode *n) {
         const QString displayName = n->widget->displayName();
         if (nameHash.contains(displayName))
             ++nameHash[displayName];
@@ -204,7 +204,7 @@ void KitModel::validateKitNames()
             nameHash.insert(displayName, 1);
     });
 
-    forSecondLevelItems([&nameHash](KitNode *n) {
+    forItemsAtLevel<2>([&nameHash](KitNode *n) {
         const QString displayName = n->widget->displayName();
         n->widget->setHasUniqueName(nameHash.value(displayName) == 1);
     });
@@ -213,7 +213,7 @@ void KitModel::validateKitNames()
 void KitModel::apply()
 {
     // Add/update dirty nodes before removing kits. This ensures the right kit ends up as default.
-    forSecondLevelItems([](KitNode *n) {
+    forItemsAtLevel<2>([](KitNode *n) {
         if (n->widget->isDirty()) {
             n->widget->apply();
             n->update();
@@ -241,7 +241,7 @@ void KitModel::markForRemoval(Kit *k)
     }
 
     if (node == m_defaultNode)
-        setDefaultNode(findSecondLevelItem([node](KitNode *kn) { return kn != node; }));
+        setDefaultNode(findItemAtLevel<2>([node](KitNode *kn) { return kn != node; }));
 
     takeItem(node);
     if (node->widget->configures(0))
@@ -273,7 +273,7 @@ Kit *KitModel::markForAddition(Kit *baseKit)
 
 KitNode *KitModel::findWorkingCopy(Kit *k) const
 {
-    return findSecondLevelItem([k](KitNode *n) { return n->widget->workingCopy() == k; });
+    return findItemAtLevel<2>([k](KitNode *n) { return n->widget->workingCopy() == k; });
 }
 
 KitNode *KitModel::createNode(Kit *k)
@@ -338,12 +338,12 @@ void KitModel::removeKit(Kit *k)
         }
     }
 
-    KitNode *node = findSecondLevelItem([k](KitNode *n) {
+    KitNode *node = findItemAtLevel<2>([k](KitNode *n) {
         return n->widget->configures(k);
     });
 
     if (node == m_defaultNode)
-        setDefaultNode(findSecondLevelItem([node](KitNode *kn) { return kn != node; }));
+        setDefaultNode(findItemAtLevel<2>([node](KitNode *kn) { return kn != node; }));
 
     destroyItem(node);
 
@@ -354,7 +354,7 @@ void KitModel::removeKit(Kit *k)
 void KitModel::changeDefaultKit()
 {
     Kit *defaultKit = KitManager::defaultKit();
-    KitNode *node = findSecondLevelItem([defaultKit](KitNode *n) {
+    KitNode *node = findItemAtLevel<2>([defaultKit](KitNode *n) {
         return n->widget->configures(defaultKit);
     });
     setDefaultNode(node);

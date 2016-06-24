@@ -212,8 +212,8 @@ public:
 
 ToolTipWatchItem::ToolTipWatchItem(TreeItem *item)
 {
-    const TreeModel *model = item->model();
-    QModelIndex idx = model->indexForItem(item);
+    const QAbstractItemModel *model = item->model();
+    QModelIndex idx = item->index();
     name = model->data(idx.sibling(idx.row(), 0), Qt::DisplayRole).toString();
     value = model->data(idx.sibling(idx.row(), 1), Qt::DisplayRole).toString();
     type = model->data(idx.sibling(idx.row(), 2), Qt::DisplayRole).toString();
@@ -231,7 +231,7 @@ ToolTipWatchItem::ToolTipWatchItem(TreeItem *item)
 //
 /////////////////////////////////////////////////////////////////////////
 
-class ToolTipModel : public UniformTreeModel<ToolTipWatchItem>
+class ToolTipModel : public TreeModel<ToolTipWatchItem>
 {
 public:
     ToolTipModel()

@@ -81,7 +81,7 @@ public:
 
         case Qt::DecorationRole: {
             QVariant icon;
-            forSecondLevelChildren<TreeItem *>([this, &icon](TreeItem *item) {
+            forChildrenAtLevel<TreeItem *>(2, [this, &icon](TreeItem *item) {
                 QVariant sicon = item->data(0, Qt::DecorationRole);
                 if (sicon.isValid())
                     icon = sicon;
@@ -166,14 +166,13 @@ public:
 // SelectorModel
 //
 
-class SelectorModel
-    : public LeveledTreeModel<RootItem, ProjectItem, TreeItem>
+class SelectorModel : public TreeModel<RootItem, ProjectItem, TreeItem>
 {
     Q_OBJECT
 
 public:
     SelectorModel(QObject *parent)
-        : LeveledTreeModel<RootItem, ProjectItem, TreeItem>(parent)
+        : TreeModel<RootItem, ProjectItem, TreeItem>(parent)
     {
         setRootItem(new RootItem);
         setHeader({ ProjectWindow::tr("Projects") });
@@ -406,7 +405,7 @@ void ProjectWindow::updatePanel()
 
 ProjectItem *ProjectWindow::itemForProject(Project *project) const
 {
-    return m_selectorModel->findFirstLevelItem([project](ProjectItem *item) {
+    return m_selectorModel->findItemAtLevel<1>([project](ProjectItem *item) {
         return item->project() == project;
     });
 }

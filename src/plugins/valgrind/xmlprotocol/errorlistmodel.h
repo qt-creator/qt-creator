@@ -37,7 +37,7 @@ namespace XmlProtocol {
 class Error;
 class Frame;
 
-class ErrorListModel : public Utils::TreeModel
+class ErrorListModel : public Utils::TreeModel<>
 {
     Q_OBJECT
 

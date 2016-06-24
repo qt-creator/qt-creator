@@ -339,7 +339,7 @@ ProjectWizardPage::~ProjectWizardPage()
     delete m_ui;
 }
 
-void ProjectWizardPage::setModel(TreeModel *model)
+void ProjectWizardPage::setModel(Utils::TreeModel<> *model)
 {
     delete m_model;
     m_model = model;
@@ -492,8 +492,7 @@ void ProjectWizardPage::initializeProjectTree(Node *context, const QStringList &
 
     setAdditionalInfo(selector.deployingProjects());
 
-    auto model = new TreeModel(tree);
-    setModel(model);
+    setModel(new TreeModel<>(tree));
     setBestNode(selector.bestChoice());
     setAddingSubProject(action == AddSubProject);
 }

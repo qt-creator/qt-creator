@@ -101,7 +101,7 @@ public:
 class RegisterSubItem;
 class RegisterItem;
 using RegisterRootItem = Utils::TypedTreeItem<RegisterItem>;
-using RegisterModel = Utils::LeveledTreeModel<RegisterRootItem, RegisterItem, RegisterSubItem>;
+using RegisterModel = Utils::TreeModel<RegisterRootItem, RegisterItem, RegisterSubItem>;
 
 typedef QMap<quint64, QString> RegisterMap;
 

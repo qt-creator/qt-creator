@@ -94,7 +94,7 @@ public:
 
 
 GdbServerProviderModel::GdbServerProviderModel(QObject *parent)
-    : TreeModel(parent)
+    : TreeModel<>(parent)
 {
     setHeader({tr("Name"), tr("Type")});
 

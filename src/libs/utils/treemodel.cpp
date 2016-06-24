@@ -777,6 +777,11 @@ QModelIndex TreeItem::index() const
     return m_model->indexForItem(this);
 }
 
+QAbstractItemModel *TreeItem::model() const
+{
+    return m_model;
+}
+
 void TreeItem::clear()
 {
     while (m_children.size()) {
@@ -793,7 +798,7 @@ void TreeItem::expand()
     m_model->requestExpansion(index());
 }
 
-void TreeItem::propagateModel(TreeModel *m)
+void TreeItem::propagateModel(BaseTreeModel *m)
 {
     QTC_ASSERT(m, return);
     QTC_ASSERT(m_model == 0 || m_model == m, return);
@@ -811,7 +816,7 @@ void TreeItem::propagateModel(TreeModel *m)
     to use in a QTreeView.
 */
 
-TreeModel::TreeModel(QObject *parent)
+BaseTreeModel::BaseTreeModel(QObject *parent)
     : QAbstractItemModel(parent),
       m_root(new TreeItem)
 {
@@ -822,7 +827,7 @@ TreeModel::TreeModel(QObject *parent)
 #endif
 }
 
-TreeModel::TreeModel(TreeItem *root, QObject *parent)
+BaseTreeModel::BaseTreeModel(TreeItem *root, QObject *parent)
     : QAbstractItemModel(parent),
       m_root(root)
 {
@@ -830,7 +835,7 @@ TreeModel::TreeModel(TreeItem *root, QObject *parent)
     m_root->propagateModel(this);
 }
 
-TreeModel::~TreeModel()
+BaseTreeModel::~BaseTreeModel()
 {
     QTC_ASSERT(m_root, return);
     QTC_ASSERT(m_root->m_parent == 0, return);
@@ -839,7 +844,7 @@ TreeModel::~TreeModel()
     delete m_root;
 }
 
-QModelIndex TreeModel::parent(const QModelIndex &idx) const
+QModelIndex BaseTreeModel::parent(const QModelIndex &idx) const
 {
     CHECK_INDEX(idx);
     if (!idx.isValid())
@@ -862,7 +867,7 @@ QModelIndex TreeModel::parent(const QModelIndex &idx) const
     return QModelIndex();
 }
 
-int TreeModel::rowCount(const QModelIndex &idx) const
+int BaseTreeModel::rowCount(const QModelIndex &idx) const
 {
     CHECK_INDEX(idx);
     if (!idx.isValid())
@@ -874,7 +879,7 @@ int TreeModel::rowCount(const QModelIndex &idx) const
     return item->childCount();
 }
 
-int TreeModel::columnCount(const QModelIndex &idx) const
+int BaseTreeModel::columnCount(const QModelIndex &idx) const
 {
     CHECK_INDEX(idx);
     if (idx.column() > 0)
@@ -882,7 +887,7 @@ int TreeModel::columnCount(const QModelIndex &idx) const
     return m_columnCount;
 }
 
-bool TreeModel::setData(const QModelIndex &idx, const QVariant &data, int role)
+bool BaseTreeModel::setData(const QModelIndex &idx, const QVariant &data, int role)
 {
     TreeItem *item = itemForIndex(idx);
     bool res = item ? item->setData(idx.column(), data, role) : false;
@@ -891,13 +896,13 @@ bool TreeModel::setData(const QModelIndex &idx, const QVariant &data, int role)
     return res;
 }
 
-QVariant TreeModel::data(const QModelIndex &idx, int role) const
+QVariant BaseTreeModel::data(const QModelIndex &idx, int role) const
 {
     TreeItem *item = itemForIndex(idx);
     return item ? item->data(idx.column(), role) : QVariant();
 }
 
-QVariant TreeModel::headerData(int section, Qt::Orientation orientation,
+QVariant BaseTreeModel::headerData(int section, Qt::Orientation orientation,
                                int role) const
 {
     if (orientation == Qt::Horizontal && role == Qt::DisplayRole && section < m_header.size())
@@ -907,13 +912,13 @@ QVariant TreeModel::headerData(int section, Qt::Orientation orientation,
     return QVariant();
 }
 
-bool TreeModel::hasChildren(const QModelIndex &idx) const
+bool BaseTreeModel::hasChildren(const QModelIndex &idx) const
 {
     TreeItem *item = itemForIndex(idx);
     return !item || item->hasChildren();
 }
 
-Qt::ItemFlags TreeModel::flags(const QModelIndex &idx) const
+Qt::ItemFlags BaseTreeModel::flags(const QModelIndex &idx) const
 {
     if (!idx.isValid())
         return 0;
@@ -922,7 +927,7 @@ Qt::ItemFlags TreeModel::flags(const QModelIndex &idx) const
                 : (Qt::ItemIsEnabled|Qt::ItemIsSelectable);
 }
 
-bool TreeModel::canFetchMore(const QModelIndex &idx) const
+bool BaseTreeModel::canFetchMore(const QModelIndex &idx) const
 {
     if (!idx.isValid())
         return false;
@@ -930,7 +935,7 @@ bool TreeModel::canFetchMore(const QModelIndex &idx) const
     return item ? item->canFetchMore() : false;
 }
 
-void TreeModel::fetchMore(const QModelIndex &idx)
+void BaseTreeModel::fetchMore(const QModelIndex &idx)
 {
     if (!idx.isValid())
         return;
@@ -939,17 +944,17 @@ void TreeModel::fetchMore(const QModelIndex &idx)
         item->fetchMore();
 }
 
-TreeItem *TreeModel::rootItem() const
+TreeItem *BaseTreeModel::rootItem() const
 {
     return m_root;
 }
 
-int TreeModel::topLevelItemCount() const
+int BaseTreeModel::topLevelItemCount() const
 {
     return m_root->childCount();
 }
 
-void TreeModel::setRootItem(TreeItem *item)
+void BaseTreeModel::setRootItem(TreeItem *item)
 {
     QTC_ASSERT(item, return);
     QTC_ASSERT(item->m_model == 0, return);
@@ -971,18 +976,18 @@ void TreeModel::setRootItem(TreeItem *item)
     emit layoutChanged();
 }
 
-void TreeModel::setHeader(const QStringList &displays)
+void BaseTreeModel::setHeader(const QStringList &displays)
 {
     m_header = displays;
     m_columnCount = displays.size();
 }
 
-void TreeModel::setHeaderToolTip(const QStringList &tips)
+void BaseTreeModel::setHeaderToolTip(const QStringList &tips)
 {
     m_headerToolTip = tips;
 }
 
-QModelIndex TreeModel::index(int row, int column, const QModelIndex &parent) const
+QModelIndex BaseTreeModel::index(int row, int column, const QModelIndex &parent) const
 {
     CHECK_INDEX(parent);
     if (!hasIndex(row, column, parent))
@@ -995,7 +1000,7 @@ QModelIndex TreeModel::index(int row, int column, const QModelIndex &parent) con
     return createIndex(row, column, (void*)(item->childAt(row)));
 }
 
-TreeItem *TreeModel::itemForIndex(const QModelIndex &idx) const
+TreeItem *BaseTreeModel::itemForIndex(const QModelIndex &idx) const
 {
     CHECK_INDEX(idx);
     TreeItem *item = idx.isValid() ? static_cast<TreeItem*>(idx.internalPointer()) : m_root;
@@ -1004,7 +1009,7 @@ TreeItem *TreeModel::itemForIndex(const QModelIndex &idx) const
     return item;
 }
 
-QModelIndex TreeModel::indexForItem(const TreeItem *item) const
+QModelIndex BaseTreeModel::indexForItem(const TreeItem *item) const
 {
     QTC_ASSERT(item, return QModelIndex());
     if (item == m_root)
@@ -1021,7 +1026,7 @@ QModelIndex TreeModel::indexForItem(const TreeItem *item) const
 /*!
   Destroys all items in them model except the invisible root item.
 */
-void TreeModel::clear()
+void BaseTreeModel::clear()
 {
     if (m_root)
         m_root->removeChildren();
@@ -1033,7 +1038,7 @@ void TreeModel::clear()
    \note The item is not destroyed, ownership is effectively passed to the caller.
    */
 
-TreeItem *TreeModel::takeItem(TreeItem *item)
+TreeItem *BaseTreeModel::takeItem(TreeItem *item)
 {
 #if USE_MODEL_TEST
     (void) new ModelTest(this, this);
@@ -1054,7 +1059,7 @@ TreeItem *TreeModel::takeItem(TreeItem *item)
     return item;
 }
 
-void TreeModel::destroyItem(TreeItem *item)
+void BaseTreeModel::destroyItem(TreeItem *item)
 {
     delete takeItem(item);
 }

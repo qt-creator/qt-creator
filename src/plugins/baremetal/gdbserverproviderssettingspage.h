@@ -46,7 +46,7 @@ class GdbServerProviderFactory;
 class GdbServerProviderNode;
 class GdbServerProvidersSettingsWidget;
 
-class GdbServerProviderModel : public Utils::TreeModel
+class GdbServerProviderModel : public Utils::TreeModel<>
 {
     Q_OBJECT
 

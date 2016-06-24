@@ -263,7 +263,7 @@ bool ThreadsHandler::setData(const QModelIndex &idx, const QVariant &data, int r
 static ThreadItem *itemForThreadId(const ThreadsHandler *handler, ThreadId threadId)
 {
     const auto matcher = [threadId](ThreadItem *item) { return item->threadData.id == threadId; };
-    return handler->findFirstLevelItem(matcher);
+    return handler->findItemAtLevel<1>(matcher);
 }
 
 static int indexForThreadId(const ThreadsHandler *handler, ThreadId threadId)
@@ -361,7 +361,7 @@ void ThreadsHandler::setThreads(const Threads &threads)
 void ThreadsHandler::updateThreadBox()
 {
     QStringList list;
-    forFirstLevelItems([&list](ThreadItem *item) {
+    forItemsAtLevel<1>([&list](ThreadItem *item) {
         list.append(QString::fromLatin1("#%1 %2").arg(item->threadData.id.raw()).arg(item->threadData.name));
     });
     Internal::setThreadBoxContents(list, indexForThreadId(this, m_currentId));
@@ -382,7 +382,7 @@ void ThreadsHandler::removeAll()
 bool ThreadsHandler::notifyGroupExited(const QString &groupId)
 {
     QList<ThreadItem *> list;
-    forFirstLevelItems([&list, groupId](ThreadItem *item) {
+    forItemsAtLevel<1>([&list, groupId](ThreadItem *item) {
         if (item->threadData.groupId == groupId)
             list.append(item);
     });
@@ -409,7 +409,7 @@ void ThreadsHandler::notifyRunning(const QString &data)
 
 void ThreadsHandler::notifyAllRunning()
 {
-    forFirstLevelItems([](ThreadItem *item) { item->notifyRunning(); });
+    forItemsAtLevel<1>([](ThreadItem *item) { item->notifyRunning(); });
 }
 
 void ThreadsHandler::notifyRunning(ThreadId threadId)
@@ -434,7 +434,7 @@ void ThreadsHandler::notifyStopped(const QString &data)
 
 void ThreadsHandler::notifyAllStopped()
 {
-    forFirstLevelItems([](ThreadItem *item) { item->notifyStopped(); });
+    forItemsAtLevel<1>([](ThreadItem *item) { item->notifyStopped(); });
 }
 
 void ThreadsHandler::notifyStopped(ThreadId threadId)

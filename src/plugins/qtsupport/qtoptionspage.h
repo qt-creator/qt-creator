@@ -113,7 +113,7 @@ private:
     bool isNameUnique(const BaseQtVersion *version);
     void updateVersionItem(QtVersionItem *item);
 
-    Utils::LeveledTreeModel<Utils::TreeItem, QtVersionItem> *m_model;
+    Utils::TreeModel<Utils::TreeItem, Utils::TreeItem, QtVersionItem> *m_model;
     QSortFilterProxyModel *m_filterModel;
     Utils::TreeItem *m_autoItem;
     Utils::TreeItem *m_manualItem;

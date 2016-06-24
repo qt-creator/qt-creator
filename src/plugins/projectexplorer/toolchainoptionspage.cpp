@@ -229,7 +229,7 @@ public:
     void apply();
 
  public:
-    LeveledTreeModel<TreeItem, ToolChainTreeItem> m_model;
+    TreeModel<TreeItem, ToolChainTreeItem> m_model;
     QList<ToolChainFactory *> m_factories;
     QTreeView *m_toolChainView;
     DetailsWidget *m_container;
@@ -293,7 +293,7 @@ void ToolChainOptionsWidget::removeToolChain(ToolChain *tc)
     }
 
     StaticTreeItem *parent = parentForToolChain(tc);
-    auto item = parent->findFirstLevelChild<ToolChainTreeItem *>([tc](ToolChainTreeItem *item) {
+    auto item = parent->findChildAtLevel<ToolChainTreeItem *>(1, [tc](ToolChainTreeItem *item) {
         return item->toolChain == tc;
     });
     m_model.destroyItem(item);

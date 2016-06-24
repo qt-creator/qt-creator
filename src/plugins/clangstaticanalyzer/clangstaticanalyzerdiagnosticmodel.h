@@ -40,7 +40,7 @@ namespace ProjectExplorer { class Project; }
 namespace ClangStaticAnalyzer {
 namespace Internal {
 
-class ClangStaticAnalyzerDiagnosticModel : public Utils::TreeModel
+class ClangStaticAnalyzerDiagnosticModel : public Utils::TreeModel<>
 {
     Q_OBJECT
 

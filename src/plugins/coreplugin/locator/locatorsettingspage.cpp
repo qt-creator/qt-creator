@@ -190,7 +190,7 @@ QWidget *LocatorSettingsPage::widget()
         m_ui.filterList->setUniformRowHeights(true);
         m_ui.filterList->setActivationMode(Utils::DoubleClickActivation);
 
-        m_model = new TreeModel(m_ui.filterList);
+        m_model = new TreeModel<>(m_ui.filterList);
         initializeModel();
         m_proxyModel = new CategorySortFilterModel(m_ui.filterList);
         m_proxyModel->setSourceModel(m_model);

@@ -677,8 +677,8 @@ bool RegisterHandler::contextMenuEvent(const ItemViewEvent &ev)
     const bool actionsEnabled = m_engine->debuggerActionsEnabled();
     const DebuggerState state = m_engine->state();
 
-    RegisterItem *registerItem = firstLevelItemForIndex(ev.index());
-    RegisterSubItem *registerSubItem = secondLevelItemForIndex(ev.index());
+    RegisterItem *registerItem = itemForIndexAtLevel<1>(ev.index());
+    RegisterSubItem *registerSubItem = itemForIndexAtLevel<2>(ev.index());
 
     const quint64 address = registerItem ? registerItem->addressValue() : 0;
     const QString registerName = registerItem ? registerItem->m_reg.name : QString();

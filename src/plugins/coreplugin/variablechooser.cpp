@@ -109,7 +109,7 @@ public:
 
 public:
     VariableChooser *q;
-    TreeModel m_model;
+    TreeModel<> m_model;
 
     QPointer<QLineEdit> m_lineEdit;
     QPointer<QTextEdit> m_textEdit;

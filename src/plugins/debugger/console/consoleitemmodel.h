@@ -37,7 +37,7 @@ QT_END_NAMESPACE
 namespace Debugger {
 namespace Internal {
 
-class ConsoleItemModel : public Utils::TreeModel
+class ConsoleItemModel : public Utils::TreeModel<>
 {
     Q_OBJECT
 public:

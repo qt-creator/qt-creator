@@ -314,7 +314,7 @@ PluginView::PluginView(QWidget *parent)
     m_categoryView->setSelectionMode(QAbstractItemView::SingleSelection);
     m_categoryView->setSelectionBehavior(QAbstractItemView::SelectRows);
 
-    m_model = new LeveledTreeModel<TreeItem, CollectionItem, PluginItem>(this);
+    m_model = new TreeModel<TreeItem, CollectionItem, PluginItem>(this);
     m_model->setHeader({ tr("Name"), tr("Load"), tr("Version"), tr("Vendor") });
 
     m_sortModel = new CategorySortFilterModel(this);
@@ -368,7 +368,7 @@ void PluginView::setFilter(const QString &filter)
 PluginSpec *PluginView::pluginForIndex(const QModelIndex &index) const
 {
     const QModelIndex &sourceIndex = m_sortModel->mapToSource(index);
-    PluginItem *item = m_model->secondLevelItemForIndex(sourceIndex);
+    PluginItem *item = m_model->itemForIndexAtLevel<2>(sourceIndex);
     return item ? item->m_spec: 0;
 }
 
@@ -455,7 +455,7 @@ bool PluginView::setPluginsEnabled(const QSet<PluginSpec *> &plugins, bool enabl
 
     QSet<PluginSpec *> affectedPlugins = plugins + additionalPlugins;
     foreach (PluginSpec *spec, affectedPlugins) {
-        PluginItem *item = m_model->findSecondLevelItem([spec](PluginItem *item) {
+        PluginItem *item = m_model->findItemAtLevel<2>([spec](PluginItem *item) {
                 return item->m_spec == spec;
         });
         QTC_ASSERT(item, continue);

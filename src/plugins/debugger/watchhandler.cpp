@@ -2018,7 +2018,7 @@ void WatchHandler::notifyUpdateStarted(const QStringList &inames)
     auto marker = [](WatchItem *item) { item->outdated = true; };
 
     if (inames.isEmpty()) {
-        m_model->forFirstLevelItems([marker](WatchItem *item) {
+        m_model->forItemsAtLevel<1>([marker](WatchItem *item) {
             item->forAllChildren(marker);
         });
     } else {

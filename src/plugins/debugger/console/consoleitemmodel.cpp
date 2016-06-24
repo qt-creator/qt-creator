@@ -38,7 +38,7 @@ namespace Internal {
 ///////////////////////////////////////////////////////////////////////
 
 ConsoleItemModel::ConsoleItemModel(QObject *parent) :
-    Utils::TreeModel(new ConsoleItem, parent),
+    Utils::TreeModel<>(new ConsoleItem, parent),
     m_maxSizeOfFileName(0)
 {
     clear();
@@ -46,7 +46,7 @@ ConsoleItemModel::ConsoleItemModel(QObject *parent) :
 
 void ConsoleItemModel::clear()
 {
-    Utils::TreeModel::clear();
+    Utils::TreeModel<>::clear();
     appendItem(new ConsoleItem(ConsoleItem::InputType));
     emit selectEditableRow(index(0, 0, QModelIndex()), QItemSelectionModel::ClearAndSelect);
 }

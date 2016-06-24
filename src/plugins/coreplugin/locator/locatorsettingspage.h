@@ -28,6 +28,7 @@
 #include "ui_locatorsettingspage.h"
 
 #include <coreplugin/dialogs/ioptionspage.h>
+#include <utils/treemodel.h>
 
 #include <QHash>
 #include <QPointer>
@@ -36,13 +37,6 @@ QT_BEGIN_NAMESPACE
 class QListWidgetItem;
 class QSortFilterProxyModel;
 QT_END_NAMESPACE
-
-namespace Utils {
-
-class TreeModel;
-class TreeItem;
-
-} // Utils
 
 namespace Core {
 
@@ -77,7 +71,7 @@ private:
     Ui::LocatorSettingsWidget m_ui;
     Locator *m_plugin;
     QPointer<QWidget> m_widget;
-    Utils::TreeModel *m_model;
+    Utils::TreeModel<> *m_model;
     QSortFilterProxyModel *m_proxyModel;
     Utils::TreeItem *m_customFilterRoot;
     QList<ILocatorFilter *> m_filters;
