@@ -227,23 +227,7 @@ void ClassItem::update()
     }
 
     updateSelectionMarker(m_customIcon);
-
-    // relation starters
-    if (isFocusSelected()) {
-        if (!m_relationStarter) {
-            m_relationStarter = new RelationStarter(this, diagramSceneModel(), 0);
-            scene()->addItem(m_relationStarter);
-            m_relationStarter->setZValue(RELATION_STARTER_ZVALUE);
-            m_relationStarter->addArrow(QLatin1String("inheritance"), ArrowItem::ShaftSolid, ArrowItem::HeadTriangle);
-            m_relationStarter->addArrow(QLatin1String("dependency"), ArrowItem::ShaftDashed, ArrowItem::HeadOpen);
-            m_relationStarter->addArrow(QLatin1String("association"), ArrowItem::ShaftSolid, ArrowItem::HeadFilledTriangle);
-        }
-    } else if (m_relationStarter) {
-        scene()->removeItem(m_relationStarter);
-        delete m_relationStarter;
-        m_relationStarter = 0;
-    }
-
+    updateRelationStarter();
     updateAlignmentButtons();
     updateGeometry();
 }
@@ -261,11 +245,6 @@ bool ClassItem::intersectShapeWithLine(const QLineF &line, QPointF *intersection
 QSizeF ClassItem::minimumSize() const
 {
     return calcMinimumGeometry();
-}
-
-QPointF ClassItem::relationStartPos() const
-{
-    return pos();
 }
 
 void ClassItem::relationDrawn(const QString &id, const QPointF &toScenePos, const QList<QPointF> &intermediatePoints)
@@ -357,6 +336,13 @@ void ClassItem::setFromDisplayName(const QString &displayName)
     } else {
         ObjectItem::setFromDisplayName(displayName);
     }
+}
+
+void ClassItem::updateRelationStarterTools(RelationStarter *relationStarter)
+{
+    relationStarter->addArrow("dependency", ArrowItem::ShaftDashed, ArrowItem::HeadOpen);
+    relationStarter->addArrow("inheritance", ArrowItem::ShaftSolid, ArrowItem::HeadTriangle);
+    relationStarter->addArrow("association", ArrowItem::ShaftSolid, ArrowItem::HeadFilledTriangle);
 }
 
 DClass::TemplateDisplay ClassItem::templateDisplay() const
@@ -535,10 +521,7 @@ void ClassItem::updateGeometry()
     }
 
     updateSelectionMarkerGeometry(rect);
-
-    if (m_relationStarter)
-        m_relationStarter->setPos(mapToScene(QPointF(right + 8.0, top)));
-
+    updateRelationStarterGeometry(rect);
     updateAlignmentButtonsGeometry(rect);
     updateDepth();
 }

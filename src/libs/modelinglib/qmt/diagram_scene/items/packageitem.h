@@ -27,8 +27,6 @@
 
 #include "objectitem.h"
 
-#include "qmt/diagram_scene/capabilities/relationable.h"
-
 QT_BEGIN_NAMESPACE
 class QGraphicsPolygonItem;
 class QGraphicsSimpleTextItem;
@@ -42,7 +40,7 @@ class CustomIconItem;
 class ContextLabelItem;
 class RelationStarter;
 
-class PackageItem : public ObjectItem, public IRelationable
+class PackageItem : public ObjectItem
 {
     class ShapeGeometry;
 
@@ -59,10 +57,6 @@ public:
 
     QList<Latch> horizontalLatches(Action action, bool grabbedItem) const override;
     QList<Latch> verticalLatches(Action action, bool grabbedItem) const override;
-
-    QPointF relationStartPos() const override;
-    void relationDrawn(const QString &id, const QPointF &toScenePos,
-                       const QList<QPointF> &intermediatePoints) override;
 
 private:
     ShapeGeometry calcMinimumGeometry() const;

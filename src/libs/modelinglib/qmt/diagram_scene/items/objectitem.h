@@ -32,6 +32,7 @@
 #include "qmt/diagram_scene/capabilities/moveable.h"
 #include "qmt/diagram_scene/capabilities/selectable.h"
 #include "qmt/diagram_scene/capabilities/latchable.h"
+#include "qmt/diagram_scene/capabilities/relationable.h"
 #include "qmt/diagram_scene/capabilities/alignable.h"
 #include "qmt/diagram_scene/capabilities/editable.h"
 
@@ -51,6 +52,7 @@ class StereotypesItem;
 class CustomIconItem;
 class EditableTextItem;
 class RectangularSelectionItem;
+class RelationStarter;
 class AlignButtonsItem;
 class Style;
 
@@ -66,6 +68,7 @@ class ObjectItem :
         public IMoveable,
         public ISelectable,
         public ILatchable,
+        public IRelationable,
         public IAlignable,
         public IEditable
 {
@@ -113,6 +116,10 @@ public:
     QList<Latch> horizontalLatches(Action action, bool grabbedItem) const override;
     QList<Latch> verticalLatches(Action action, bool grabbedItem) const override;
 
+    QPointF relationStartPos() const override;
+    void relationDrawn(const QString &id, const QPointF &toScenePos,
+                       const QList<QPointF> &intermediatePoints) override;
+
     void align(AlignType alignType, const QString &identifier) override;
 
     bool isEditable() const override;
@@ -139,6 +146,9 @@ protected:
     void updateSelectionMarker(CustomIconItem *customIconItem);
     void updateSelectionMarker(ResizeFlags resizeFlags);
     void updateSelectionMarkerGeometry(const QRectF &objectRect);
+    void updateRelationStarter();
+    virtual void updateRelationStarterTools(RelationStarter *relationStarter);
+    void updateRelationStarterGeometry(const QRectF &objectRect);
     void updateAlignmentButtons();
     void updateAlignmentButtonsGeometry(const QRectF &objectRect);
 
@@ -169,6 +179,7 @@ private:
     CustomIconItem *m_stereotypeIcon = 0;
     EditableTextItem *m_nameItem = 0;
     RectangularSelectionItem *m_selectionMarker = 0;
+    RelationStarter *m_relationStarter = 0;
     AlignButtonsItem *m_horizontalAlignButtons = 0;
     AlignButtonsItem *m_verticalAlignButtons = 0;
 };

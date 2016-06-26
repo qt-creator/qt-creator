@@ -34,6 +34,7 @@
 #include "qmt/diagram_scene/parts/alignbuttonsitem.h"
 #include "qmt/diagram_scene/parts/editabletextitem.h"
 #include "qmt/diagram_scene/parts/rectangularselectionitem.h"
+#include "qmt/diagram_scene/parts/relationstarter.h"
 #include "qmt/diagram_scene/parts/customiconitem.h"
 #include "qmt/diagram_scene/parts/stereotypesitem.h"
 #include "qmt/infrastructure/contextmenuaction.h"
@@ -299,6 +300,23 @@ QList<ILatchable::Latch> ObjectItem::verticalLatches(ILatchable::Action action, 
         break;
     }
     return result;
+}
+
+QPointF ObjectItem::relationStartPos() const
+{
+    return pos();
+}
+
+void ObjectItem::relationDrawn(const QString &id, const QPointF &toScenePos, const QList<QPointF> &intermediatePoints)
+{
+    DElement *targetElement = diagramSceneModel()->findTopmostElement(toScenePos);
+    if (targetElement) {
+        if (id == QLatin1String("dependency")) {
+            auto dependantObject = dynamic_cast<DObject *>(targetElement);
+            if (dependantObject)
+                diagramSceneModel()->diagramSceneController()->createDependency(object(), dependantObject, intermediatePoints, diagramSceneModel()->diagram());
+        }
+    }
 }
 
 void ObjectItem::align(IAlignable::AlignType alignType, const QString &identifier)
@@ -567,6 +585,34 @@ void ObjectItem::updateSelectionMarkerGeometry(const QRectF &objectRect)
 {
     if (m_selectionMarker)
         m_selectionMarker->setRect(objectRect);
+}
+
+void ObjectItem::updateRelationStarter()
+{
+    if (isFocusSelected()) {
+        if (!m_relationStarter) {
+            m_relationStarter = new RelationStarter(this, diagramSceneModel(), 0);
+            scene()->addItem(m_relationStarter);
+            m_relationStarter->setZValue(RELATION_STARTER_ZVALUE);
+            updateRelationStarterTools(m_relationStarter);
+        }
+    } else if (m_relationStarter) {
+        scene()->removeItem(m_relationStarter);
+        delete m_relationStarter;
+        m_relationStarter = 0;
+    }
+
+}
+
+void ObjectItem::updateRelationStarterTools(RelationStarter *relationStarter)
+{
+    relationStarter->addArrow(QLatin1String("dependency"), ArrowItem::ShaftDashed, ArrowItem::HeadOpen);
+}
+
+void ObjectItem::updateRelationStarterGeometry(const QRectF &objectRect)
+{
+    if (m_relationStarter)
+        m_relationStarter->setPos(mapToScene(QPointF(objectRect.right() + 8.0, objectRect.top())));
 }
 
 void ObjectItem::updateAlignmentButtons()

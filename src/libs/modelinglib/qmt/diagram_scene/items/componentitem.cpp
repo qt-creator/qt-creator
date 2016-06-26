@@ -217,23 +217,6 @@ QList<ILatchable::Latch> ComponentItem::verticalLatches(ILatchable::Action actio
     return ObjectItem::verticalLatches(action, grabbedItem);
 }
 
-QPointF ComponentItem::relationStartPos() const
-{
-    return pos();
-}
-
-void ComponentItem::relationDrawn(const QString &id, const QPointF &toScenePos, const QList<QPointF> &intermediatePoints)
-{
-    DElement *targetElement = diagramSceneModel()->findTopmostElement(toScenePos);
-    if (targetElement) {
-       if (id == QStringLiteral("dependency")) {
-            auto dependantObject = dynamic_cast<DObject *>(targetElement);
-            if (dependantObject)
-                diagramSceneModel()->diagramSceneController()->createDependency(object(), dependantObject, intermediatePoints, diagramSceneModel()->diagram());
-        }
-    }
-}
-
 bool ComponentItem::hasPlainShape() const
 {
     auto diagramComponent = dynamic_cast<DComponent *>(object());

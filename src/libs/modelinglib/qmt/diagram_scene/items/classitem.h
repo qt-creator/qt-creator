@@ -27,7 +27,6 @@
 
 #include "objectitem.h"
 
-#include "qmt/diagram_scene/capabilities/relationable.h"
 #include "qmt/diagram/dclass.h"
 
 QT_BEGIN_NAMESPACE
@@ -43,10 +42,9 @@ class DiagramSceneModel;
 class CustomIconItem;
 class ContextLabelItem;
 class TemplateParameterBox;
-class RelationStarter;
 class Style;
 
-class ClassItem : public ObjectItem, public IRelationable
+class ClassItem : public ObjectItem
 {
     Q_DECLARE_TR_FUNCTIONS(qmt::ClassItem)
 
@@ -61,7 +59,6 @@ public:
 
     QSizeF minimumSize() const override;
 
-    QPointF relationStartPos() const override;
     void relationDrawn(const QString &id, const QPointF &toScenePos,
                        const QList<QPointF> &intermediatePoints) override;
 
@@ -70,6 +67,7 @@ protected:
     bool handleSelectedContextMenuAction(const QString &id) override;
     QString buildDisplayName() const override;
     void setFromDisplayName(const QString &displayName) override;
+    void updateRelationStarterTools(RelationStarter *relationStarter) override;
 
 private:
     DClass::TemplateDisplay templateDisplay() const;
@@ -88,7 +86,6 @@ private:
     QString m_methodsText;
     QGraphicsTextItem *m_methods = 0;
     TemplateParameterBox *m_templateParameterBox = 0;
-    RelationStarter *m_relationStarter = 0;
 };
 
 } // namespace qmt
