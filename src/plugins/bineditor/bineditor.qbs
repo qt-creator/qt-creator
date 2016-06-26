@@ -11,8 +11,8 @@ QtcPlugin {
     Depends { name: "TextEditor" }
 
     files: [
-        "bineditor.cpp",
-        "bineditor.h",
+        "bineditorwidget.cpp",
+        "bineditorwidget.h",
         "bineditorconstants.h",
         "bineditorplugin.cpp",
         "bineditorplugin.h",

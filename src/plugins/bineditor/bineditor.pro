@@ -1,10 +1,10 @@
 include(../../qtcreatorplugin.pri)
 
 HEADERS += bineditorplugin.h \
-        bineditor.h \
+        bineditorwidget.h \
         bineditorconstants.h \
         markup.h
 
 SOURCES += bineditorplugin.cpp \
-        bineditor.cpp \
+        bineditorwidget.cpp \
         markup.cpp
