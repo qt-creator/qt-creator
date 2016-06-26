@@ -55,7 +55,7 @@ public:
 
     void expressionEvaluated(quint32 queryId, const QVariant &result);
 
-private slots:
+private:
     void disconnected();
     void errorMessageBoxFinished(int result);
     void updateCurrentContext();
@@ -67,7 +67,6 @@ private slots:
     void appStartupFailed(const QString &errorMessage);
     void appendMessage(const QString &msg, Utils::OutputFormat);
 
-private:
     void notifyEngineRemoteServerRunning(const QString &, int pid) override;
     void notifyEngineRemoteSetupFinished(const RemoteSetupResult &result) override;
 

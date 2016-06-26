@@ -37,7 +37,6 @@ class RegisterTreeView : public Utils::BaseTreeView
 public:
     RegisterTreeView();
 
-public slots:
     void reloadRegisters();
 
 private:

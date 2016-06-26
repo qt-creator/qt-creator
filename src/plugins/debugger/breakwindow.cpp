@@ -96,7 +96,6 @@ public:
     void setParameters(const BreakpointParameters &data);
     BreakpointParameters parameters() const;
 
-public slots:
     void typeChanged(int index);
 
 private:

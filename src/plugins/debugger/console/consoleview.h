@@ -39,7 +39,6 @@ class ConsoleView : public Utils::TreeView
 public:
     ConsoleView(ConsoleItemModel *model, QWidget *parent);
 
-public slots:
     void onScrollToBottom();
 
 protected:

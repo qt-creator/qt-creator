@@ -3076,9 +3076,7 @@ void showModuleSections(const QString &moduleName, const Sections &sections)
 
 void DebuggerPluginPrivate::aboutToShutdown()
 {
-    disconnect(SessionManager::instance(),
-        SIGNAL(startupProjectChanged(ProjectExplorer::Project*)),
-        this, 0);
+    disconnect(SessionManager::instance(), &SessionManager::startupProjectChanged, this, nullptr);
 
     m_mainWindow->saveCurrentPerspective();
     delete m_mainWindow;

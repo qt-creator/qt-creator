@@ -116,7 +116,7 @@ public:
 
     static QString extensionLibraryName(bool is64Bit);
 
-private slots:
+private:
     void readyReadStandardOut();
     void readyReadStandardError();
     void processError();
@@ -132,7 +132,6 @@ private slots:
 
     void handleDoInterruptInferior(const QString &errorMessage);
 
-private:
     typedef QHash<BreakpointModelId, BreakpointResponse> PendingBreakPointMap;
     typedef QPair<QString, QString> SourcePathMapping;
     struct NormalizedSourceFileName // Struct for caching mapped/normalized source files.
