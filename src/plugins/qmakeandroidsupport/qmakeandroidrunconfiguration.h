@@ -58,10 +58,8 @@ protected:
     QVariantMap toMap() const override;
     QString defaultDisplayName();
 
-private slots:
-    void proFileUpdated(QmakeProjectManager::QmakeProFileNode *pro, bool success, bool parseInProgress);
-
 private:
+    void proFileUpdated(QmakeProjectManager::QmakeProFileNode *pro, bool success, bool parseInProgress);
     QmakeProjectManager::QmakeProject *qmakeProject() const;
     void init();
 

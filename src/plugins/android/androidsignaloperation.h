@@ -47,12 +47,11 @@ public:
 protected:
     explicit AndroidSignalOperation();
 
-private slots:
+private:
     void adbFindRunAsFinished(int exitCode, QProcess::ExitStatus exitStatus);
     void adbKillFinished(int exitCode, QProcess::ExitStatus exitStatus);
     void handleTimeout();
 
-private:
     void signalOperationViaADB(qint64 pid, int signal);
 
     QString m_adbPath;

@@ -57,13 +57,12 @@ public:
 
     bool saveDeviceSelection() const;
 
-private slots:
+private:
     void refreshDeviceList();
     void createAvd();
     void clickedOnView(const QModelIndex &idx);
     void showHelp();
     void avdAdded();
-private:
     void devicesRefreshed();
     void enableOkayButton();
     void defaultDeviceClear();

@@ -53,10 +53,10 @@ public:
     QWidget *mainWidget() const override;
     QWidget *buttonWidget() const override;
 
-private slots:
+private:
     void autoDetectDebugger();
     void showDialog();
-private:
+
     QLabel *m_label;
     QPushButton *m_button;
 };

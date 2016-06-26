@@ -122,9 +122,11 @@ AndroidGdbServerKitInformationWidget::AndroidGdbServerKitInformationWidget(Kit *
     // ToolButton with Menu, defaulting to 'Autodetect'.
     auto buttonMenu = new QMenu(m_button);
     QAction *autoDetectAction = buttonMenu->addAction(tr("Auto-detect"));
-    connect(autoDetectAction, SIGNAL(triggered()), this, SLOT(autoDetectDebugger()));
+    connect(autoDetectAction, &QAction::triggered,
+            this, &AndroidGdbServerKitInformationWidget::autoDetectDebugger);
     QAction *changeAction = buttonMenu->addAction(tr("Edit..."));
-    connect(changeAction, SIGNAL(triggered()), this, SLOT(showDialog()));
+    connect(changeAction, &QAction::triggered,
+            this, &AndroidGdbServerKitInformationWidget::showDialog);
     m_button->setMenu(buttonMenu);
 
     refresh();
@@ -192,8 +194,8 @@ void AndroidGdbServerKitInformationWidget::showDialog()
     layout->addLayout(formLayout);
 
     auto buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, Qt::Horizontal, &dialog);
-    connect(buttonBox, SIGNAL(accepted()), &dialog, SLOT(accept()));
-    connect(buttonBox, SIGNAL(rejected()), &dialog, SLOT(reject()));
+    connect(buttonBox, &QDialogButtonBox::accepted, &dialog, &QDialog::accept);
+    connect(buttonBox, &QDialogButtonBox::rejected, &dialog, &QDialog::reject);
     layout->addWidget(buttonBox);
 
     dialog.setWindowTitle(tr("GDB Server for \"%1\"").arg(m_kit->displayName()));

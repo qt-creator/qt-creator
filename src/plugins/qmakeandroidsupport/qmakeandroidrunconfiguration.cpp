@@ -76,8 +76,8 @@ QmakeAndroidRunConfiguration::QmakeAndroidRunConfiguration(Target *parent, Qmake
 void QmakeAndroidRunConfiguration::init()
 {
     setDefaultDisplayName(defaultDisplayName());
-    connect(qmakeProject(), SIGNAL(proFileUpdated(QmakeProjectManager::QmakeProFileNode*,bool,bool)),
-            this, SLOT(proFileUpdated(QmakeProjectManager::QmakeProFileNode*,bool,bool)));
+    connect(qmakeProject(), &QmakeProject::proFileUpdated,
+            this, &QmakeAndroidRunConfiguration::proFileUpdated);
 }
 
 bool QmakeAndroidRunConfiguration::fromMap(const QVariantMap &map)

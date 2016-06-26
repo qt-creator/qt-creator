@@ -439,19 +439,19 @@ AndroidDeviceDialog::AndroidDeviceDialog(int apiLevel, const QString &abi, Andro
                                       + tr("No Device Found") + QLatin1String("</span></p><br/>")
                                       + msgConnect() + QLatin1String("<br/>")
                                       + msgAdbListDevices());
-    connect(m_ui->missingLabel, SIGNAL(linkActivated(QString)),
-            this, SLOT(showHelp()));
+    connect(m_ui->missingLabel, &QLabel::linkActivated,
+            this, &AndroidDeviceDialog::showHelp);
 
-    connect(m_ui->refreshDevicesButton, SIGNAL(clicked()),
-            this, SLOT(refreshDeviceList()));
+    connect(m_ui->refreshDevicesButton, &QAbstractButton::clicked,
+            this, &AndroidDeviceDialog::refreshDeviceList);
 
-    connect(m_ui->createAVDButton, SIGNAL(clicked()),
-            this, SLOT(createAvd()));
-    connect(m_ui->deviceView, SIGNAL(doubleClicked(QModelIndex)),
-            this, SLOT(accept()));
+    connect(m_ui->createAVDButton, &QAbstractButton::clicked,
+            this, &AndroidDeviceDialog::createAvd);
+    connect(m_ui->deviceView, &QAbstractItemView::doubleClicked,
+            this, &QDialog::accept);
 
-    connect(&m_futureWatcherAddDevice, SIGNAL(finished()),
-            this, SLOT(avdAdded()));
+    connect(&m_futureWatcherAddDevice, &QFutureWatcherBase::finished,
+            this, &AndroidDeviceDialog::avdAdded);
     connect(&m_futureWatcherRefreshDevices, &QFutureWatcherBase::finished,
             this, &AndroidDeviceDialog::devicesRefreshed);
 

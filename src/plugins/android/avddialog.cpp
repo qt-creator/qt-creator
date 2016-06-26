@@ -61,8 +61,9 @@ AvdDialog::AvdDialog(int minApiLevel, const QString &targetArch, const AndroidCo
 
     updateApiLevelComboBox();
 
-    connect(m_avdDialog.abiComboBox, SIGNAL(currentIndexChanged(int)),
-            this, SLOT(updateApiLevelComboBox()));
+    connect(m_avdDialog.abiComboBox,
+            static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+            this, &AvdDialog::updateApiLevelComboBox);
 
     connect(&m_hideTipTimer, &QTimer::timeout,
             this, [](){Utils::ToolTip::hide();});

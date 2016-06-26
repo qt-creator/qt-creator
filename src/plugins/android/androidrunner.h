@@ -61,7 +61,7 @@ public:
     void setRunnable(const AndroidRunnable &runnable);
     const AndroidRunnable &runnable() const { return m_androidRunnable; }
 
-public slots:
+public:
     void start();
     void stop();
     void handleRemoteDebuggerRunning();
@@ -74,14 +74,13 @@ signals:
     void remoteOutput(const QString &output);
     void remoteErrorOutput(const QString &output);
 
-private slots:
+private:
     void checkPID();
     void logcatReadStandardError();
     void logcatReadStandardOutput();
     void asyncStart();
-    QByteArray runPs();
+    Q_INVOKABLE QByteArray runPs();
 
-private:
     void adbKill(qint64 pid);
     QStringList selector() const { return m_selector; }
     void forceStop();
@@ -89,7 +88,6 @@ private:
     void logcatProcess(const QByteArray &text, QByteArray &buffer, bool onlyError);
     bool adbShellAmNeedsQuotes();
 
-private:
     bool runAdb(const QStringList &args, QString *errorMessage = nullptr, int timeoutS = 10);
     QProcess m_adbLogcatProcess;
     QProcess m_psProc;

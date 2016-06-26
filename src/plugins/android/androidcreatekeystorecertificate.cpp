@@ -39,12 +39,18 @@ AndroidCreateKeystoreCertificate::AndroidCreateKeystoreCertificate(QWidget *pare
     ui(new Ui::AndroidCreateKeystoreCertificate)
 {
     ui->setupUi(this);
-    connect(ui->keystorePassLineEdit, SIGNAL(textChanged(QString)), this, SLOT(checkKeystorePassword()));
-    connect(ui->keystoreRetypePassLineEdit, SIGNAL(textChanged(QString)), this, SLOT(checkKeystorePassword()));
-    connect(ui->certificatePassLineEdit, SIGNAL(textChanged(QString)), this, SLOT(checkCertificatePassword()));
-    connect(ui->certificateRetypePassLineEdit, SIGNAL(textChanged(QString)), this, SLOT(checkCertificatePassword()));
-    connect(ui->certificateAliasLineEdit, SIGNAL(textChanged(QString)), this, SLOT(checkCertificateAlias()));
-    connect(ui->countryLineEdit, SIGNAL(textChanged(QString)), this, SLOT(checkCountryCode()));
+    connect(ui->keystorePassLineEdit, &QLineEdit::textChanged,
+            this, &AndroidCreateKeystoreCertificate::checkKeystorePassword);
+    connect(ui->keystoreRetypePassLineEdit, &QLineEdit::textChanged,
+            this, &AndroidCreateKeystoreCertificate::checkKeystorePassword);
+    connect(ui->certificatePassLineEdit, &QLineEdit::textChanged,
+            this, &AndroidCreateKeystoreCertificate::checkCertificatePassword);
+    connect(ui->certificateRetypePassLineEdit, &QLineEdit::textChanged,
+            this, &AndroidCreateKeystoreCertificate::checkCertificatePassword);
+    connect(ui->certificateAliasLineEdit, &QLineEdit::textChanged,
+            this, &AndroidCreateKeystoreCertificate::checkCertificateAlias);
+    connect(ui->countryLineEdit, &QLineEdit::textChanged,
+            this, &AndroidCreateKeystoreCertificate::checkCountryCode);
 }
 
 AndroidCreateKeystoreCertificate::~AndroidCreateKeystoreCertificate()

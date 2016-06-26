@@ -48,9 +48,8 @@ public:
     int sdcardSize() const;
     bool isValid() const;
 
-private slots:
-    void updateApiLevelComboBox();
 private:
+    void updateApiLevelComboBox();
     bool eventFilter(QObject *obj, QEvent *event);
 
     Ui::AddNewAVDDialog m_avdDialog;

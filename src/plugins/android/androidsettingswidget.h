@@ -68,7 +68,7 @@ public:
 
     void saveSettings();
 
-private slots:
+private:
     void sdkLocationEditingFinished();
     void ndkLocationEditingFinished();
     void searchForAnt(const Utils::FileName &location);

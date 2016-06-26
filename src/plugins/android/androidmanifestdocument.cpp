@@ -43,8 +43,8 @@ AndroidManifestDocument::AndroidManifestDocument(AndroidManifestEditorWidget *ed
     setId(Constants::ANDROID_MANIFEST_EDITOR_ID);
     setMimeType(QLatin1String(Constants::ANDROID_MANIFEST_MIME_TYPE));
     setSuspendAllowed(false);
-    connect(editorWidget, SIGNAL(guiChanged()),
-            this, SIGNAL(changed()));
+    connect(editorWidget, &AndroidManifestEditorWidget::guiChanged,
+            this, &Core::IDocument::changed);
 }
 
 bool AndroidManifestDocument::save(QString *errorString, const QString &fileName, bool autoSave)

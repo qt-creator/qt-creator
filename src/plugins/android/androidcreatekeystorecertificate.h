@@ -54,11 +54,13 @@ public:
     QString certificateAlias();
     QString certificatePassword();
 
-private slots:
+private:
     PasswordStatus checkKeystorePassword();
     PasswordStatus checkCertificatePassword();
     bool checkCertificateAlias();
     bool checkCountryCode();
+
+private slots:
     void on_keystoreShowPassCheckBox_stateChanged(int state);
     void on_certificateShowPassCheckBox_stateChanged(int state);
     void on_buttonBox_accepted();
