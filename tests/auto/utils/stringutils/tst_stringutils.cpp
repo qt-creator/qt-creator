@@ -50,6 +50,18 @@ public:
             *ret = QLatin1String("bar");
             return true;
         }
+        if (name == "slash") {
+            *ret = "foo/bar";
+            return true;
+        }
+        if (name == "sl/sh") {
+            *ret = "slash";
+            return true;
+        }
+        if (name == "JS:foo") {
+            *ret = "bar";
+            return true;
+        }
         return false;
     }
 };
@@ -129,6 +141,18 @@ void tst_StringUtils::testMacroExpander_data()
         { "%{%{a}}}post", "ho}post" },
         { "%{hi%{a}}", "bar" },
         { "%{hi%{%{foo}}}", "bar" },
+        { "%{hihi/b/c}", "car" },
+        { "%{hihi/a/}", "br" }, // empty replacement
+        { "%{hihi/b}", "bar" }, // incomplete substitution
+        { "%{hihi/./c}", "car" },
+        { "%{hihi//./c}", "ccc" },
+        { "%{hihi/(.)(.)r/\\2\\1c}", "abc" }, // no escape for capture groups
+        { "%{hihi/b/c/d}", "c/dar" },
+        { "%{hihi/a/e{\\}e}", "be{}er" }, // escape closing brace
+        { "%{slash/o\\/b/ol's c}", "fool's car" },
+        { "%{sl\\/sh/(.)(a)(.)/\\2\\1\\3as}", "salsash" }, // escape in variable name
+        { "%{JS:foo/b/c}", "%{JS:foo/b/c}" }, // No replacement for JS (all considered varName)
+        { "%{%{a}%{a}/b/c}", "car" },
     };
 
     for (unsigned i = 0; i < sizeof(vals)/sizeof(vals[0]); i++)

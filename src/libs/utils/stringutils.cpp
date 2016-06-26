@@ -30,6 +30,7 @@
 #include <utils/algorithm.h>
 
 #include <QDir>
+#include <QRegularExpression>
 
 #include <limits.h>
 
@@ -118,18 +119,34 @@ QTCREATOR_UTILS_EXPORT QString withTildeHomePath(const QString &path)
     return outPath;
 }
 
+static bool validateVarName(const QString &varName)
+{
+    return !varName.startsWith("JS:");
+}
+
 bool AbstractMacroExpander::expandNestedMacros(const QString &str, int *pos, QString *ret)
 {
     QString varName;
+    QString pattern, replace;
+    QString *currArg = &varName;
     QChar prev;
     QChar c;
+    bool replaceAll = false;
 
     int i = *pos;
     int strLen = str.length();
     varName.reserve(strLen - i);
     for (; i < strLen; prev = c) {
         c = str.at(i++);
-        if (c == '}') {
+        if (c == '\\' && i < strLen && validateVarName(varName)) {
+            c = str.at(i++);
+            // For the replacement, do not skip the escape sequence when followed by a digit.
+            // This is needed for enabling convenient capture group replacement,
+            // like %{var/(.)(.)/\2\1}, without escaping the placeholders.
+            if (currArg == &replace && c.isDigit())
+                *currArg += '\\';
+            *currArg += c;
+        } else if (c == '}') {
             if (varName.isEmpty()) { // replace "%{}" with "%"
                 *ret = QString('%');
                 *pos = i;
@@ -137,6 +154,22 @@ bool AbstractMacroExpander::expandNestedMacros(const QString &str, int *pos, QSt
             }
             if (resolveMacro(varName, ret)) {
                 *pos = i;
+                if (!pattern.isEmpty() && currArg == &replace) {
+                    const QRegularExpression regexp(pattern);
+                    if (regexp.isValid()) {
+                        if (replaceAll) {
+                            ret->replace(regexp, replace);
+                        } else {
+                            // There isn't an API for replacing once...
+                            const QRegularExpressionMatch match = regexp.match(*ret);
+                            if (match.hasMatch()) {
+                                *ret = ret->left(match.capturedStart(0))
+                                        + match.captured(0).replace(regexp, replace)
+                                        + ret->mid(match.capturedEnd(0));
+                            }
+                        }
+                    }
+                }
                 return true;
             }
             return false;
@@ -145,8 +178,16 @@ bool AbstractMacroExpander::expandNestedMacros(const QString &str, int *pos, QSt
                 return false;
             varName.chop(1);
             varName += ret;
+        } else if (currArg == &varName && c == '/' && validateVarName(varName)) {
+            currArg = &pattern;
+            if (i < strLen && str.at(i) == '/') {
+                ++i;
+                replaceAll = true;
+            }
+        } else if (currArg == &pattern && c == '/') {
+            currArg = &replace;
         } else {
-            varName += c;
+            *currArg += c;
         }
     }
     return false;
