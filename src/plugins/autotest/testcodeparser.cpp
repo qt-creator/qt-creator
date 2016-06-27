@@ -202,30 +202,14 @@ static void performParse(QFutureInterface<TestParseResultPtr> &futureInterface,
 
 /****** threaded parsing stuff *******/
 
-void TestCodeParser::onCppDocumentUpdated(const CPlusPlus::Document::Ptr &document)
+void TestCodeParser::onDocumentUpdated(const QString &fileName)
 {
-    if (m_codeModelParsing) {
-        if (!m_fullUpdatePostponed) {
-            m_partialUpdatePostponed = true;
-            m_postponedFiles.insert(document->fileName());
-        }
-        return;
-    }
-
     ProjectExplorer::Project *project = ProjectExplorer::SessionManager::startupProject();
     if (!project)
         return;
-    const QString fileName = document->fileName();
-    if (!project->files(ProjectExplorer::Project::AllFiles).contains(fileName))
+    if (!project->files(ProjectExplorer::Project::SourceFiles).contains(fileName))
         return;
 
-    qCDebug(LOG) << "calling scanForTests (onCppDocumentUpdated)";
-    scanForTests(QStringList(fileName));
-}
-
-void TestCodeParser::onQmlDocumentUpdated(const QmlJS::Document::Ptr &document)
-{
-    const QString &fileName = document->fileName();
     if (m_codeModelParsing) {
         if (!m_fullUpdatePostponed) {
             m_partialUpdatePostponed = true;
@@ -234,22 +218,26 @@ void TestCodeParser::onQmlDocumentUpdated(const QmlJS::Document::Ptr &document)
         return;
     }
 
-    ProjectExplorer::Project *project = ProjectExplorer::SessionManager::startupProject();
-    if (!project)
-        return;
-    if (!project->files(ProjectExplorer::Project::AllFiles).contains(fileName)) {
-        // what if the file is not listed inside the pro file, but will be used anyway?
-        return;
-    }
-
     scanForTests(QStringList(fileName));
+}
+
+void TestCodeParser::onCppDocumentUpdated(const CPlusPlus::Document::Ptr &document)
+{
+    onDocumentUpdated(document->fileName());
+}
+
+void TestCodeParser::onQmlDocumentUpdated(const QmlJS::Document::Ptr &document)
+{
+    onDocumentUpdated(document->fileName());
 }
 
 void TestCodeParser::onStartupProjectChanged(ProjectExplorer::Project *project)
 {
-    if (m_parserState == FullParse || m_parserState == PartialParse)
+    if (m_parserState == FullParse || m_parserState == PartialParse) {
+        qCDebug(LOG) << "Canceling scanForTest (startup project changed)";
         Core::ProgressManager::instance()->cancelTasks(Constants::TASK_PARSE);
-    else if (project)
+    }
+    if (project)
         emitUpdateTestTree();
 }
 
@@ -275,6 +263,7 @@ bool TestCodeParser::postponed(const QStringList &fileList)
             m_partialUpdatePostponed = false;
             m_postponedFiles.clear();
             m_fullUpdatePostponed = true;
+            qCDebug(LOG) << "Canceling scanForTest (full parse triggered while running a scan)";
             Core::ProgressManager::instance()->cancelTasks(Constants::TASK_PARSE);
         } else {
             // partial parse triggered, but full parse is postponed already, ignoring this
@@ -352,8 +341,15 @@ void TestCodeParser::scanForTests(const QStringList &fileList)
 
 void TestCodeParser::onTaskStarted(Core::Id type)
 {
-    if (type == CppTools::Constants::TASK_INDEX)
+    if (type == CppTools::Constants::TASK_INDEX) {
         m_codeModelParsing = true;
+        if (m_parserState == FullParse || m_parserState == PartialParse) {
+            m_fullUpdatePostponed = m_parserState == FullParse;
+            m_partialUpdatePostponed = !m_fullUpdatePostponed;
+            qCDebug(LOG) << "Canceling scan for test (CppModelParsing started)";
+            Core::ProgressManager::instance()->cancelTasks(Constants::TASK_PARSE);
+        }
+    }
 }
 
 void TestCodeParser::onAllTasksFinished(Core::Id type)
