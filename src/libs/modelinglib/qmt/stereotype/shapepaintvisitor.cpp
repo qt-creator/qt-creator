@@ -43,67 +43,47 @@ void ShapePaintVisitor::visitLine(const LineShape *shapeLine)
 {
     QPointF p1 = shapeLine->pos1().mapScaledTo(m_scaledOrigin, m_originalSize, m_baseSize, m_size);
     QPointF p2 = shapeLine->pos2().mapScaledTo(m_scaledOrigin, m_originalSize, m_baseSize, m_size);
-    m_painter->save();
-    m_painter->setRenderHint(QPainter::Antialiasing, p1.x() != p2.x() && p1.y() != p2.y());
     m_painter->drawLine(p1, p2);
-    m_painter->restore();
 }
 
 void ShapePaintVisitor::visitRect(const RectShape *shapeRect)
 {
-    m_painter->save();
-    m_painter->setRenderHint(QPainter::Antialiasing, false);
     m_painter->drawRect(QRectF(shapeRect->pos().mapScaledTo(m_scaledOrigin, m_originalSize, m_baseSize, m_size),
                               shapeRect->size().mapScaledTo(m_scaledOrigin, m_originalSize, m_baseSize, m_size)));
-    m_painter->restore();
 }
 
 void ShapePaintVisitor::visitRoundedRect(const RoundedRectShape *shapeRoundedRect)
 {
     qreal radiusX = shapeRoundedRect->radius().mapScaledTo(0, m_originalSize.width(), m_baseSize.width(), m_size.width());
     qreal radiusY = shapeRoundedRect->radius().mapScaledTo(0, m_originalSize.height(), m_baseSize.height(), m_size.height());
-    m_painter->save();
-    m_painter->setRenderHint(QPainter::Antialiasing, true);
     m_painter->drawRoundedRect(QRectF(shapeRoundedRect->pos().mapScaledTo(m_scaledOrigin, m_originalSize, m_baseSize, m_size),
                                      shapeRoundedRect->size().mapScaledTo(m_scaledOrigin, m_originalSize, m_baseSize, m_size)),
                               radiusX, radiusY);
-    m_painter->restore();
 }
 
 void ShapePaintVisitor::visitCircle(const CircleShape *shapeCircle)
 {
-    m_painter->save();
-    m_painter->setRenderHint(QPainter::Antialiasing, true);
     m_painter->drawEllipse(shapeCircle->center().mapScaledTo(m_scaledOrigin, m_originalSize, m_baseSize, m_size),
                           shapeCircle->radius().mapScaledTo(m_scaledOrigin.x(), m_originalSize.width(), m_baseSize.width(), m_size.width()),
                           shapeCircle->radius().mapScaledTo(m_scaledOrigin.y(), m_originalSize.height(), m_baseSize.height(), m_size.height()));
-    m_painter->restore();
 }
 
 void ShapePaintVisitor::visitEllipse(const EllipseShape *shapeEllipse)
 {
     QSizeF radius = shapeEllipse->radius().mapScaledTo(m_scaledOrigin, m_originalSize, m_baseSize, m_size);
-    m_painter->save();
-    m_painter->setRenderHint(QPainter::Antialiasing, true);
     m_painter->drawEllipse(shapeEllipse->center().mapScaledTo(m_scaledOrigin, m_originalSize, m_baseSize, m_size),
                           radius.width(), radius.height());
-    m_painter->restore();
 }
 
 void ShapePaintVisitor::visitArc(const ArcShape *shapeArc)
 {
     QSizeF radius = shapeArc->radius().mapScaledTo(m_scaledOrigin, m_originalSize, m_baseSize, m_size);
-    m_painter->save();
-    m_painter->setRenderHint(QPainter::Antialiasing, true);
     m_painter->drawArc(QRectF(shapeArc->center().mapScaledTo(m_scaledOrigin, m_originalSize, m_baseSize, m_size) - QPointF(radius.width(), radius.height()), radius * 2.0),
                       shapeArc->startAngle() * 16, shapeArc->spanAngle() * 16);
-    m_painter->restore();
 }
 
 void ShapePaintVisitor::visitPath(const PathShape *shapePath)
 {
-    m_painter->save();
-    m_painter->setRenderHint(QPainter::Antialiasing, true);
     QPainterPath path;
     foreach (const PathShape::Element &element, shapePath->elements()) {
         switch (element.m_elementType) {
@@ -138,7 +118,6 @@ void ShapePaintVisitor::visitPath(const PathShape *shapePath)
         }
     }
     m_painter->drawPath(path);
-    m_painter->restore();
 }
 
 ShapeSizeVisitor::ShapeSizeVisitor(const QPointF &scaledOrigin, const QSizeF &originalSize, const QSizeF &baseSize,

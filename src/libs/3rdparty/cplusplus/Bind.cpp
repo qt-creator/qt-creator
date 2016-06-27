@@ -3255,6 +3255,14 @@ bool Bind::visit(FunctionDeclaratorAST *ast)
     fun->setOverride(type.isOverride());
     fun->setFinal(type.isFinal());
 
+    // propagate ref-qualifier
+    if (ast->ref_qualifier_token) {
+        const Kind kind = tokenAt(ast->ref_qualifier_token).kind();
+        CPP_CHECK(kind == T_AMPER || kind == T_AMPER_AMPER); // & or && are only allowed
+        fun->setRefQualifier(kind == T_AMPER ? Function::LvalueRefQualifier :
+                                               Function::RvalueRefQualifier);
+    }
+
     this->exceptionSpecification(ast->exception_specification, type);
     if (ast->as_cpp_initializer != 0) {
         fun->setAmbiguous(true);

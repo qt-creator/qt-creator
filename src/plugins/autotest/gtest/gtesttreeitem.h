@@ -53,7 +53,9 @@ public:
 
     QVariant data(int column, int role) const override;
     bool canProvideTestConfiguration() const override { return type() != Root; }
+    bool canProvideDebugConfiguration() const override { return type() != Root; }
     TestConfiguration *testConfiguration() const override;
+    TestConfiguration *debugConfiguration() const override;
     QList<TestConfiguration *> getAllTestConfigurations() const override;
     QList<TestConfiguration *> getSelectedTestConfigurations() const override;
     TestTreeItem *find(const TestParseResult *result) override;

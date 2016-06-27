@@ -28,6 +28,7 @@
 #include "autotestconstants.h"
 #include "autotestplugin.h"
 #include "testresultspane.h"
+#include "testrunconfiguration.h"
 #include "testsettings.h"
 #include "testoutputreader.h"
 
@@ -38,12 +39,16 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorersettings.h>
+#include <projectexplorer/target.h>
 
 #include <utils/runextensions.h>
 
 #include <QFuture>
 #include <QFutureInterface>
 #include <QTime>
+
+#include <debugger/debuggerruncontrol.h>
+#include <debugger/debuggerstartparameters.h>
 
 namespace Autotest {
 namespace Internal {
@@ -125,7 +130,7 @@ static void performTestRun(QFutureInterface<TestResultPtr> &futureInterface,
     QEventLoop eventLoop;
     int testCaseCount = 0;
     foreach (TestConfiguration *config, selectedTests) {
-        config->completeTestInformation();
+        config->completeTestInformation(TestRunner::Run);
         if (config->project()) {
             testCaseCount += config->testCaseCount();
         } else {
@@ -208,8 +213,9 @@ static void performTestRun(QFutureInterface<TestResultPtr> &futureInterface,
     futureInterface.setProgressValue(testCaseCount);
 }
 
-void TestRunner::prepareToRunTests()
+void TestRunner::prepareToRunTests(Mode mode)
 {
+    m_runMode = mode;
     ProjectExplorer::Internal::ProjectExplorerSettings projectExplorerSettings =
         ProjectExplorer::ProjectExplorerPlugin::projectExplorerSettings();
     if (projectExplorerSettings.buildBeforeDeploy && !projectExplorerSettings.saveBeforeBuild) {
@@ -251,7 +257,7 @@ void TestRunner::prepareToRunTests()
     }
 
     if (!projectExplorerSettings.buildBeforeDeploy) {
-        runTests();
+        runOrDebugTests();
     } else {
         if (project->hasActiveBuildSettings()) {
             buildProject(project);
@@ -272,6 +278,70 @@ void TestRunner::runTests()
     Core::ProgressManager::addTask(future, tr("Running Tests"), Autotest::Constants::TASK_INDEX);
 }
 
+void TestRunner::debugTests()
+{
+    // TODO improve to support more than one test configuration
+    QTC_ASSERT(m_selectedTests.size() == 1, onFinished();return);
+
+    TestConfiguration *config = m_selectedTests.first();
+    config->completeTestInformation(Debug);
+    if (!config->runConfiguration()) {
+        emit testResultReady(TestResultPtr(new FaultyTestResult(Result::MessageFatal,
+            TestRunner::tr("Failed to get run configuration."))));
+        onFinished();
+        return;
+    }
+
+    const QString &commandFilePath = executableFilePath(config->targetFile(),
+                                                        config->environment().toProcessEnvironment());
+    if (commandFilePath.isEmpty()) {
+        emit testResultReady(TestResultPtr(new FaultyTestResult(Result::MessageFatal,
+            TestRunner::tr("Could not find command \"%1\". (%2)")
+                                               .arg(config->targetFile())
+                                               .arg(config->displayName()))));
+        onFinished();
+        return;
+    }
+
+    Debugger::DebuggerStartParameters sp;
+    sp.inferior.executable = commandFilePath;
+    sp.inferior.commandLineArguments = config->argumentsForTestRunner(
+                *AutotestPlugin::instance()->settings()).join(' ');
+    sp.inferior.environment = config->environment();
+    sp.inferior.workingDirectory = config->workingDirectory();
+    sp.displayName = config->displayName();
+
+    QString errorMessage;
+    Debugger::DebuggerRunControl *runControl = Debugger::createDebuggerRunControl(
+                sp, config->runConfiguration(), &errorMessage);
+
+    if (!runControl) {
+        emit testResultReady(TestResultPtr(new FaultyTestResult(Result::MessageFatal,
+            TestRunner::tr("Failed to create run configuration.\n%1").arg(errorMessage))));
+        onFinished();
+        return;
+    }
+
+    connect(runControl, &Debugger::DebuggerRunControl::finished, this, &TestRunner::onFinished);
+    ProjectExplorer::ProjectExplorerPlugin::startRunControl(
+                runControl, ProjectExplorer::Constants::DEBUG_RUN_MODE);
+
+}
+
+void TestRunner::runOrDebugTests()
+{
+    switch (m_runMode) {
+    case Run:
+        runTests();
+        break;
+    case Debug:
+        debugTests();
+        break;
+    default:
+        QTC_ASSERT(false, return);  // unexpected run mode
+    }
+}
+
 void TestRunner::buildProject(ProjectExplorer::Project *project)
 {
     ProjectExplorer::BuildManager *buildManager = ProjectExplorer::BuildManager::instance();
@@ -290,7 +360,7 @@ void TestRunner::buildFinished(bool success)
                this, &TestRunner::buildFinished);
 
     if (success) {
-        runTests();
+        runOrDebugTests();
     } else {
         emit testResultReady(TestResultPtr(new FaultyTestResult(Result::MessageFatal,
                                                   tr("Build failed. Canceling test run."))));

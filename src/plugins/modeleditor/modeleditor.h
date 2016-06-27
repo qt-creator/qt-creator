@@ -86,6 +86,9 @@ public:
     void editProperties();
     void editSelectedItem();
     void exportDiagram();
+    void zoomIn();
+    void zoomOut();
+    void resetZoom();
 
     qmt::MPackage *guessSelectedPackage() const;
 

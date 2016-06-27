@@ -4,7 +4,8 @@ QTC_PLUGIN_DEPENDS += \
     coreplugin \
     projectexplorer \
     cpptools \
-    qmljstools
+    qmljstools \
+    debugger
 
 QTC_LIB_DEPENDS += \
     cplusplus \

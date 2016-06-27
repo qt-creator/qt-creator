@@ -43,7 +43,7 @@
 
 namespace ClangBackEnd {
 
-enum class DiagnosticSeverity // one to one mapping of the clang enum numbers
+enum class DiagnosticSeverity : quint32 // one to one mapping of the clang enum numbers
 {
     Ignored = 0,
     Note = 1,
@@ -75,7 +75,7 @@ enum class HighlightingType : quint8
     Declaration
 };
 
-enum class CompletionCorrection
+enum class CompletionCorrection : quint32
 {
     NoCorrection,
     DotToArrowCorrection

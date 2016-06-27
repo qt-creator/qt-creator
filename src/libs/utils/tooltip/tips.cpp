@@ -127,9 +127,21 @@ TextTip::TextTip(QWidget *parent) : QTipLabel(parent)
     setWindowOpacity(style()->styleHint(QStyle::SH_ToolTipLabel_Opacity, 0, this) / 255.0);
 }
 
+static bool likelyContainsLink(const QString &s)
+{
+    return s.contains(QLatin1String("href"), Qt::CaseInsensitive);
+}
+
 void TextTip::setContent(const QVariant &content)
 {
     m_text = content.toString();
+    bool containsLink = likelyContainsLink(m_text);
+    setOpenExternalLinks(containsLink);
+}
+
+bool TextTip::isInteractive() const
+{
+    return likelyContainsLink(m_text);
 }
 
 void TextTip::configure(const QPoint &pos, QWidget *w)

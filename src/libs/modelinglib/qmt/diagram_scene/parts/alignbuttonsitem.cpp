@@ -58,7 +58,6 @@ public:
         Q_UNUSED(widget);
 
         painter->save();
-        painter->setRenderHint(QPainter::Antialiasing, true);
         painter->setPen(pen());
         painter->setBrush(brush());
         painter->drawRoundedRect(rect(), 3, 3);

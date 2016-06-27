@@ -456,6 +456,7 @@ public:
     bool m_animateAutoComplete = true;
     bool m_highlightAutoComplete = true;
     bool m_skipAutoCompletedText = true;
+    bool m_removeAutoCompletedText = true;
     bool m_keepAutoCompletionHighlight = false;
     QTextCursor m_autoCompleteHighlightPos;
 
@@ -5365,8 +5366,10 @@ void TextEditorWidgetPrivate::handleBackspaceKey()
     const TabSettings &tabSettings = m_document->tabSettings();
     const TypingSettings &typingSettings = m_document->typingSettings();
 
-    if (typingSettings.m_autoIndent && m_autoCompleter->autoBackspace(cursor))
+    if (typingSettings.m_autoIndent && (m_autoCompleteHighlightPos == cursor)
+            && m_removeAutoCompletedText && m_autoCompleter->autoBackspace(cursor)) {
         return;
+    }
 
     bool handled = false;
     if (typingSettings.m_smartBackspaceBehavior == TypingSettings::BackspaceNeverIndents) {
@@ -6571,6 +6574,7 @@ void TextEditorWidget::setCompletionSettings(const CompletionSettings &completio
     d->m_animateAutoComplete = completionSettings.m_animateAutoComplete;
     d->m_highlightAutoComplete = completionSettings.m_highlightAutoComplete;
     d->m_skipAutoCompletedText = completionSettings.m_skipAutoCompletedText;
+    d->m_removeAutoCompletedText = completionSettings.m_autoRemove;
 }
 
 void TextEditorWidget::setExtraEncodingSettings(const ExtraEncodingSettings &extraEncodingSettings)

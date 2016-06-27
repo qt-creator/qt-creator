@@ -250,24 +250,28 @@ QString QmlJS::modulePath(const QString &name, const QString &version,
 
     QString candidate;
 
-    for (QString ver = sanitizedVersion; ; ver.remove(re)) {
+    for (QString ver = sanitizedVersion; !ver.isEmpty(); ver.remove(re)) {
         for (const QString &path: importPaths) {
-            if (ver.isEmpty()) {
-                candidate = QDir::cleanPath(QString::fromLatin1("%1/%2").arg(path, mkpath(parts)));
-                return QDir(candidate).exists() ? candidate : QString();
-            } else {
-                for (int i = parts.count() - 1; i >= 0; --i) {
-                    candidate = QDir::cleanPath(
-                                QString::fromLatin1("%1/%2.%3/%4").arg(path,
-                                                                       mkpath(parts.mid(0, i + 1)),
-                                                                       ver,
-                                                                       mkpath(parts.mid(i + 1))));
-                    if (QDir(candidate).exists())
-                        return candidate;
-                }
+            for (int i = parts.count() - 1; i >= 0; --i) {
+                candidate = QDir::cleanPath(
+                            QString::fromLatin1("%1/%2.%3/%4").arg(path,
+                                                                   mkpath(parts.mid(0, i + 1)),
+                                                                   ver,
+                                                                   mkpath(parts.mid(i + 1))));
+                if (QDir(candidate).exists())
+                    return candidate;
             }
         }
     }
+
+    // Version is empty
+    for (const QString &path: importPaths) {
+        candidate = QDir::cleanPath(QString::fromLatin1("%1/%2").arg(path, mkpath(parts)));
+        if (QDir(candidate).exists())
+            return candidate;
+    }
+
+    return QString();
 }
 
 bool QmlJS::isValidBuiltinPropertyType(const QString &name)

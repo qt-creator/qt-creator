@@ -367,6 +367,12 @@ bool Function::isPureVirtual() const
 void Function::setPureVirtual(bool isPureVirtual)
 { f._isPureVirtual = isPureVirtual; }
 
+Function::RefQualifier Function::refQualifier() const
+{ return static_cast<RefQualifier>(f._refQualifier); }
+
+void Function::setRefQualifier(Function::RefQualifier refQualifier)
+{ f._refQualifier = refQualifier; }
+
 bool Function::isAmbiguous() const
 { return f._isAmbiguous; }
 

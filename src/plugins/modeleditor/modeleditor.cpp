@@ -100,6 +100,7 @@ namespace ModelEditor {
 namespace Internal {
 
 static const char PROPERTYNAME_TOOLBARID[] = "ToolbarId";
+static const double ZOOM_FACTOR = 1.05;
 
 class ModelEditor::ModelEditorPrivate
 {
@@ -556,6 +557,25 @@ void ModelEditor::exportDiagram()
                                       tr("Exporting the diagram into file<br>\"%1\"<br>failed.").arg(fileName));
         }
     }
+}
+
+void ModelEditor::zoomIn()
+{
+    QTransform transform = d->diagramView->transform();
+    transform.scale(ZOOM_FACTOR, ZOOM_FACTOR);
+    d->diagramView->setTransform(transform);
+}
+
+void ModelEditor::zoomOut()
+{
+    QTransform transform = d->diagramView->transform();
+    transform.scale(1.0 / ZOOM_FACTOR, 1.0 / ZOOM_FACTOR);
+    d->diagramView->setTransform(transform);
+}
+
+void ModelEditor::resetZoom()
+{
+    d->diagramView->setTransform(QTransform());
 }
 
 qmt::MPackage *ModelEditor::guessSelectedPackage() const

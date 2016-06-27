@@ -46,6 +46,7 @@ DiagramView::DiagramView(QWidget *parent)
     setAlignment(Qt::AlignLeft | Qt::AlignTop);
     setDragMode(QGraphicsView::RubberBandDrag);
     setFrameShape(QFrame::NoFrame);
+    setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform);
 }
 
 DiagramView::~DiagramView()

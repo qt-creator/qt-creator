@@ -25,11 +25,13 @@
 
 #pragma once
 
+#include <QtGlobal>
+
 namespace Beautifier {
 namespace Constants {
 namespace ClangFormat {
 
-const char DISPLAY_NAME[]          = "ClangFormat";
+const char DISPLAY_NAME[]          = QT_TRANSLATE_NOOP("Beautifier::Internal::ClangFormat::ClangFormat", "ClangFormat");
 const char ACTION_FORMATFILE[]     = "ClangFormat.FormatFile";
 const char ACTION_FORMATSELECTED[] = "ClangFormat.FormatSelectedText";
 const char MENU_ID[]               = "ClangFormat.Menu";

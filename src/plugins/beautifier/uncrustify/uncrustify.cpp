@@ -69,7 +69,7 @@ Uncrustify::~Uncrustify()
 bool Uncrustify::initialize()
 {
     Core::ActionContainer *menu = Core::ActionManager::createMenu(Constants::Uncrustify::MENU_ID);
-    menu->menu()->setTitle(Constants::Uncrustify::DISPLAY_NAME);
+    menu->menu()->setTitle(tr(Constants::Uncrustify::DISPLAY_NAME));
 
     m_formatFile = new QAction(BeautifierPlugin::msgFormatCurrentFile(), this);
     Core::Command *cmd
@@ -114,7 +114,7 @@ void Uncrustify::formatFile()
     const QString cfgFileName = configurationFile();
     if (cfgFileName.isEmpty()) {
         BeautifierPlugin::showError(BeautifierPlugin::msgCannotGetConfigurationFile(
-                                        Constants::Uncrustify::DISPLAY_NAME));
+                                        tr(Constants::Uncrustify::DISPLAY_NAME)));
     } else {
         m_beautifierPlugin->formatCurrentFile(command(cfgFileName));
     }
@@ -125,7 +125,7 @@ void Uncrustify::formatSelectedText()
     const QString cfgFileName = configurationFile();
     if (cfgFileName.isEmpty()) {
         BeautifierPlugin::showError(BeautifierPlugin::msgCannotGetConfigurationFile(
-                                        Constants::Uncrustify::DISPLAY_NAME));
+                                        tr(Constants::Uncrustify::DISPLAY_NAME)));
         return;
     }
 

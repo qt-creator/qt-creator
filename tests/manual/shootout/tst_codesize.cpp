@@ -360,7 +360,7 @@ void tst_CodeSize::codesize_data()
     QByteArray std_tie_code =
         "struct QMakeStepConfig\n"
         "{\n"
-        "    enum TargetArchConfig { NoArch, X86, X86_64, PPC, PPC64 };\n"
+        "    enum TargetArchConfig { NoArch, X86, X86_64, PowerPC, PowerPC64 };\n"
         "    enum OsType { NoOsType, IphoneSimulator, IphoneOS };\n"
         "\n"
         "    QMakeStepConfig()\n"

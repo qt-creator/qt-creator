@@ -44,6 +44,12 @@ class TestRunner : public QObject
     Q_OBJECT
 
 public:
+    enum Mode
+    {
+        Run,
+        Debug
+    };
+
     static TestRunner* instance();
     ~TestRunner();
 
@@ -57,7 +63,7 @@ signals:
     void testResultReady(const TestResultPtr &result);
 
 public slots:
-    void prepareToRunTests();
+    void prepareToRunTests(Mode mode);
 
 private slots:
     void buildProject(ProjectExplorer::Project *project);
@@ -66,11 +72,14 @@ private slots:
 
 private:
     void runTests();
+    void debugTests();
+    void runOrDebugTests();
     explicit TestRunner(QObject *parent = 0);
 
     QFutureWatcher<TestResultPtr> m_futureWatcher;
     QList<TestConfiguration *> m_selectedTests;
     bool m_executingTests;
+    Mode m_runMode = Run;
 
     // temporarily used if building before running is necessary
     QMetaObject::Connection m_buildConnect;

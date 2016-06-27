@@ -78,9 +78,6 @@ public:
     bool isOptional() const;
 
 private:
-    quint8 &kindAsInt();
-
-private:
     Utf8String text_;
     Kind kind_ = Invalid;
     bool isOptional_ = false;

@@ -92,7 +92,7 @@ void ReadMessageBlock::resetCounter()
 
 bool ReadMessageBlock::isTheWholeMessageReadable(QDataStream &in)
 {
-    if (ioDevice->bytesAvailable() < sizeof(blockSize))
+    if (ioDevice->bytesAvailable() < qint64(sizeof(blockSize)))
         return false;
 
     if (blockSize == 0)
