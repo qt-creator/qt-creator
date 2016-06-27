@@ -47,7 +47,9 @@ public:
     enum Mode
     {
         Run,
-        Debug
+        RunWithoutDeploy,
+        Debug,
+        DebugWithoutDeploy
     };
 
     static TestRunner* instance();
