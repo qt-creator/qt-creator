@@ -40,7 +40,12 @@ public:
     ~RemoteProcessTest();
     void run();
 
-private slots:
+private:
+    enum State {
+        Inactive, TestingSuccess, TestingFailure, TestingCrash, TestingTerminal, TestingIoDevice,
+        TestingProcessChannels
+    };
+
     void handleConnectionError();
     void handleProcessStarted();
     void handleProcessStdout();
@@ -51,12 +56,6 @@ private slots:
     void handleReadyReadStdout();
     void handleReadyReadStderr();
     void handleConnected();
-
-private:
-    enum State {
-        Inactive, TestingSuccess, TestingFailure, TestingCrash, TestingTerminal, TestingIoDevice,
-        TestingProcessChannels
-    };
 
     QString testString() const;
     void handleSuccessfulCrashTest();

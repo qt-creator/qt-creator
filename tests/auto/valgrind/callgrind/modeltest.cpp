@@ -85,8 +85,8 @@ ModelTestWidget::ModelTestWidget(CallgrindWidgetHandler *handler)
     m_format->addItem("absolute", CostDelegate::FormatAbsolute);
     m_format->addItem("relative", CostDelegate::FormatRelative);
     m_format->addItem("rel. to parent", CostDelegate::FormatRelativeToParent);
-    connect(m_format, SIGNAL(activated(int)),
-            this, SLOT(formatChanged(int)));
+    connect(m_format, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated),
+            this, &ModelTestWidget::formatChanged);
     h->addWidget(m_format);
 
     QDoubleSpinBox *minimumCost = new QDoubleSpinBox;
@@ -94,8 +94,8 @@ ModelTestWidget::ModelTestWidget(CallgrindWidgetHandler *handler)
     minimumCost->setRange(0, 1);
     minimumCost->setDecimals(4);
     minimumCost->setSingleStep(0.01);
-    connect(minimumCost, SIGNAL(valueChanged(double)),
-            m_handler->proxyModel(), SLOT(setMinimumInclusiveCostRatio(double)));
+    connect(minimumCost, &QDoubleSpinBox::valueChanged,
+            m_handler->proxyModel(), &DataProxyModel::setMinimumInclusiveCostRatio);
     minimumCost->setValue(0.0001);
     h->addWidget(minimumCost);
 

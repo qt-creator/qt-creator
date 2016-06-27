@@ -110,7 +110,7 @@ public:
         delete m_connection;
     }
 
-private slots:
+private:
     void handleConnected()
     {
         qDebug("Error: Received unexpected connected() signal.");
@@ -162,7 +162,6 @@ private slots:
         qDebug("Error: The following test timed out: %s", testItem.description);
     }
 
-private:
     void runNextTest()
     {
         if (m_connection) {
@@ -170,10 +169,10 @@ private:
             delete m_connection;
             }
         m_connection = new SshConnection(m_testSet.first().params);
-        connect(m_connection, SIGNAL(connected()), SLOT(handleConnected()));
-        connect(m_connection, SIGNAL(disconnected()), SLOT(handleDisconnected()));
-        connect(m_connection, SIGNAL(dataAvailable(QString)), SLOT(handleDataAvailable(QString)));
-        connect(m_connection, SIGNAL(error(QSsh::SshError)), SLOT(handleError(QSsh::SshError)));
+        connect(m_connection, &SshConnection::connected, this, &Test::handleConnected);
+        connect(m_connection, &SshConnection::disconnected, this, &Test::handleDisconnected);
+        connect(m_connection, &SshConnection::dataAvailable, this, &Test::handleDataAvailable);
+        connect(m_connection, &SshConnection::error, this, &Test::handleError);
         const TestItem &nextItem = m_testSet.first();
         m_timeoutTimer.stop();
         m_timeoutTimer.setInterval(qMax(10000, nextItem.params.timeout * 1000));

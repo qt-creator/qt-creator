@@ -46,16 +46,6 @@ public:
     ~SftpTest();
     void run();
 
-private slots:
-    void handleConnected();
-    void handleError();
-    void handleDisconnected();
-    void handleChannelInitialized();
-    void handleChannelInitializationFailure(const QString &reason);
-    void handleJobFinished(QSsh::SftpJobId job, const QString &error);
-    void handleFileInfo(QSsh::SftpJobId job, const QList<QSsh::SftpFileInfo> &fileInfoList);
-    void handleChannelClosed();
-
 private:
     typedef QHash<QSsh::SftpJobId, QString> JobMap;
     typedef QSharedPointer<QFile> FilePtr;
@@ -64,6 +54,15 @@ private:
         RemovingSmall, UploadingBig, DownloadingBig, RemovingBig, CreatingDir,
         CheckingDirAttributes, CheckingDirContents, RemovingDir, ChannelClosing, Disconnecting
     };
+
+    void handleConnected();
+    void handleError();
+    void handleDisconnected();
+    void handleChannelInitialized();
+    void handleChannelInitializationFailure(const QString &reason);
+    void handleJobFinished(QSsh::SftpJobId job, const QString &error);
+    void handleFileInfo(QSsh::SftpJobId job, const QList<QSsh::SftpFileInfo> &fileInfoList);
+    void handleChannelClosed();
 
     void removeFile(const FilePtr &filePtr, bool remoteToo);
     void removeFiles(bool remoteToo);

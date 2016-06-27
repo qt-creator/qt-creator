@@ -1792,10 +1792,10 @@ namespace qobject {
         parent.setObjectName("A Parent");
         QObject child(&parent);
         child.setObjectName("A Child");
-        QObject::connect(&child, SIGNAL(destroyed()), &parent, SLOT(deleteLater()));
-        QObject::connect(&child, SIGNAL(destroyed()), &child, SLOT(deleteLater()));
-        QObject::disconnect(&child, SIGNAL(destroyed()), &parent, SLOT(deleteLater()));
-        QObject::disconnect(&child, SIGNAL(destroyed()), &child, SLOT(deleteLater()));
+        QObject::connect(&child, &QObject::destroyed, &parent, &QObject::deleteLater);
+        QObject::connect(&child, &QObject::destroyed, &child, &QObject::deleteLater);
+        QObject::disconnect(&child, &QObject::destroyed, &parent, &QObject::deleteLater);
+        QObject::disconnect(&child, &QObject::destroyed, &child, &QObject::deleteLater);
         child.setObjectName("A renamed Child");
         BREAK_HERE;
         // Check child "A renamed Child" QObject.
@@ -1889,11 +1889,11 @@ namespace qobject {
         QObject ob1;
         ob1.setObjectName("Another Object");
 
-        QObject::connect(&ob, SIGNAL(destroyed()), &ob1, SLOT(deleteLater()));
-        QObject::connect(&ob1, SIGNAL(destroyed()), &ob, SLOT(deleteLater()));
+        QObject::connect(&ob, &QObject::destroyed, &ob1, &QObject::deleteLater);
+        QObject::connect(&ob1, &QObject::destroyed, &ob, &QObject::deleteLater);
         BREAK_HERE;
-        QObject::disconnect(&ob, SIGNAL(destroyed()), &ob1, SLOT(deleteLater()));
-        QObject::disconnect(&ob1, SIGNAL(destroyed()), &ob, SLOT(deleteLater()));
+        QObject::disconnect(&ob, &QObject::destroyed, &ob1, &QObject::deleteLater);
+        QObject::disconnect(&ob1, &QObject::destroyed, &ob, &QObject::deleteLater);
         dummyStatement(&ob, &ob1);
         #endif
     }
@@ -1930,7 +1930,6 @@ namespace qobject {
         Q_OBJECT
     public:
         Receiver() { setObjectName("Receiver"); }
-    public slots:
         void aSlot() {
             QObject *s = sender();
             if (s) {
@@ -1945,7 +1944,7 @@ namespace qobject {
     {
         Sender sender;
         Receiver receiver;
-        QObject::connect(&sender, SIGNAL(aSignal()), &receiver, SLOT(aSlot()));
+        QObject::connect(&sender, &Sender::aSignal, &receiver, &Receiver::aSlot);
         // Break here.
         // Single step through signal emission.
         sender.doEmit();

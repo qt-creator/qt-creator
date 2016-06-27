@@ -38,12 +38,11 @@ class PluginDialog : public QWidget
 public:
     PluginDialog();
 
-private slots:
+private:
     void updateButtons();
     void openDetails(ExtensionSystem::PluginSpec *spec = nullptr);
     void openErrorDetails();
 
-private:
     ExtensionSystem::PluginView *m_view;
 
     QPushButton *m_detailsButton;
