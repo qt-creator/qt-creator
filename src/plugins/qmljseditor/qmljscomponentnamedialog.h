@@ -51,8 +51,6 @@ public:
 
     void generateCodePreview();
 
-public slots:
-    void choosePath();
     void validate();
 
 protected:

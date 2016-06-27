@@ -51,8 +51,8 @@ Utils::FileSystemWatcher *PluginDumper::pluginWatcher()
     if (!m_pluginWatcher) {
         m_pluginWatcher = new Utils::FileSystemWatcher(this);
         m_pluginWatcher->setObjectName(QLatin1String("PluginDumperWatcher"));
-        connect(m_pluginWatcher, SIGNAL(fileChanged(QString)),
-                this, SLOT(pluginChanged(QString)));
+        connect(m_pluginWatcher, &Utils::FileSystemWatcher::fileChanged,
+                this, &PluginDumper::pluginChanged);
     }
     return m_pluginWatcher;
 }
@@ -509,8 +509,10 @@ void PluginDumper::runQmlDump(const QmlJS::ModelManagerInterface::ProjectInfo &i
 {
     QProcess *process = new QProcess(this);
     process->setEnvironment(info.qmlDumpEnvironment.toStringList());
-    connect(process, SIGNAL(finished(int)), SLOT(qmlPluginTypeDumpDone(int)));
-    connect(process, SIGNAL(error(QProcess::ProcessError)), SLOT(qmlPluginTypeDumpError(QProcess::ProcessError)));
+    connect(process, static_cast<void (QProcess::*)(int)>(&QProcess::finished),
+            this, &PluginDumper::qmlPluginTypeDumpDone);
+    connect(process, static_cast<void (QProcess::*)(QProcess::ProcessError)>(&QProcess::error),
+            this, &PluginDumper::qmlPluginTypeDumpError);
     process->start(info.qmlDumpPath, arguments);
     m_runningQmldumps.insert(process, importPath);
 }

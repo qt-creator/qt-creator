@@ -117,7 +117,7 @@ QmlJSOutlineWidget::QmlJSOutlineWidget(QWidget *parent) :
     m_showBindingsAction->setText(tr("Show All Bindings"));
     m_showBindingsAction->setCheckable(true);
     m_showBindingsAction->setChecked(true);
-    connect(m_showBindingsAction, SIGNAL(toggled(bool)), this, SLOT(setShowBindings(bool)));
+    connect(m_showBindingsAction, &QAction::toggled, this, &QmlJSOutlineWidget::setShowBindings);
 
     setLayout(layout);
 }
@@ -129,16 +129,16 @@ void QmlJSOutlineWidget::setEditor(QmlJSEditorWidget *editor)
     m_filterModel->setSourceModel(m_editor->qmlJsEditorDocument()->outlineModel());
     modelUpdated();
 
-    connect(m_treeView->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
-            this, SLOT(updateSelectionInText(QItemSelection)));
+    connect(m_treeView->selectionModel(), &QItemSelectionModel::selectionChanged,
+            this, &QmlJSOutlineWidget::updateSelectionInText);
 
-    connect(m_treeView, SIGNAL(activated(QModelIndex)),
-            this, SLOT(focusEditor()));
+    connect(m_treeView, &QAbstractItemView::activated,
+            this, &QmlJSOutlineWidget::focusEditor);
 
-    connect(m_editor, SIGNAL(outlineModelIndexChanged(QModelIndex)),
-            this, SLOT(updateSelectionInTree(QModelIndex)));
-    connect(m_editor->qmlJsEditorDocument()->outlineModel(), SIGNAL(updated()),
-            this, SLOT(modelUpdated()));
+    connect(m_editor, &QmlJSEditorWidget::outlineModelIndexChanged,
+            this, &QmlJSOutlineWidget::updateSelectionInTree);
+    connect(m_editor->qmlJsEditorDocument()->outlineModel(), &QmlOutlineModel::updated,
+            this, &QmlJSOutlineWidget::modelUpdated);
 }
 
 QList<QAction*> QmlJSOutlineWidget::filterMenuActions() const

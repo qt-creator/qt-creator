@@ -78,6 +78,7 @@
 #include <QFileInfo>
 #include <QHeaderView>
 #include <QMenu>
+#include <QMetaMethod>
 #include <QPointer>
 #include <QScopedPointer>
 #include <QSignalMapper>
@@ -147,11 +148,11 @@ void QmlJSEditorWidget::finalizeInitialization()
     connect(this->document(), &QTextDocument::modificationChanged,
             this, &QmlJSEditorWidget::modificationChanged);
 
-    connect(m_qmlJsEditorDocument, SIGNAL(updateCodeWarnings(QmlJS::Document::Ptr)),
-            this, SLOT(updateCodeWarnings(QmlJS::Document::Ptr)));
+    connect(m_qmlJsEditorDocument, &QmlJSEditorDocument::updateCodeWarnings,
+            this, &QmlJSEditorWidget::updateCodeWarnings);
 
-    connect(m_qmlJsEditorDocument, SIGNAL(semanticInfoUpdated(QmlJSTools::SemanticInfo)),
-            this, SLOT(semanticInfoUpdated(QmlJSTools::SemanticInfo)));
+    connect(m_qmlJsEditorDocument, &QmlJSEditorDocument::semanticInfoUpdated,
+            this, &QmlJSEditorWidget::semanticInfoUpdated);
 
     setRequestMarkEnabled(true);
     createToolBar();
@@ -445,7 +446,9 @@ protected:
 
 void QmlJSEditorWidget::setSelectedElements()
 {
-    if (!receivers(SIGNAL(selectedElementsChanged(QList<QmlJS::AST::UiObjectMember*>,QString))))
+    static const QMetaMethod selectedChangedSignal =
+            QMetaMethod::fromSignal(&QmlJSEditorWidget::selectedElementsChanged);
+    if (!isSignalConnected(selectedChangedSignal))
         return;
 
     QTextCursor tc = textCursor();
@@ -540,11 +543,12 @@ void QmlJSEditorWidget::createToolBar()
     policy.setHorizontalPolicy(QSizePolicy::Expanding);
     m_outlineCombo->setSizePolicy(policy);
 
-    connect(m_outlineCombo, SIGNAL(activated(int)), this, SLOT(jumpToOutlineElement(int)));
-    connect(m_qmlJsEditorDocument->outlineModel(), SIGNAL(updated()),
-            m_outlineCombo->view()/*QTreeView*/, SLOT(expandAll()));
-    connect(m_qmlJsEditorDocument->outlineModel(), SIGNAL(updated()),
-            this, SLOT(updateOutlineIndexNow()));
+    connect(m_outlineCombo, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated),
+            this, &QmlJSEditorWidget::jumpToOutlineElement);
+    connect(m_qmlJsEditorDocument->outlineModel(), &QmlOutlineModel::updated,
+            static_cast<QTreeView *>(m_outlineCombo->view()), &QTreeView::expandAll);
+    connect(m_qmlJsEditorDocument->outlineModel(), &QmlOutlineModel::updated,
+            this, &QmlJSEditorWidget::updateOutlineIndexNow);
 
     connect(this, &QmlJSEditorWidget::cursorPositionChanged,
             &m_updateOutlineIndexTimer, static_cast<void (QTimer::*)()>(&QTimer::start));
@@ -819,19 +823,12 @@ void QmlJSEditorWidget::showContextPane()
     }
 }
 
-void QmlJSEditorWidget::performQuickFix(int index)
-{
-    m_quickFixes.at(index)->perform();
-}
-
 void QmlJSEditorWidget::contextMenuEvent(QContextMenuEvent *e)
 {
     QPointer<QMenu> menu(new QMenu(this));
 
     QMenu *refactoringMenu = new QMenu(tr("Refactoring"), menu);
 
-    QSignalMapper mapper;
-    connect(&mapper, SIGNAL(mapped(int)), this, SLOT(performQuickFix(int)));
     if (!m_qmlJsEditorDocument->isSemanticInfoOutdated()) {
         AssistInterface *interface = createAssistInterface(QuickFix, ExplicitlyInvoked);
         if (interface) {
@@ -843,10 +840,8 @@ void QmlJSEditorWidget::contextMenuEvent(QContextMenuEvent *e)
                 for (int index = 0; index < model->size(); ++index) {
                     AssistProposalItem *item = static_cast<AssistProposalItem *>(model->proposalItem(index));
                     QuickFixOperation::Ptr op = item->data().value<QuickFixOperation::Ptr>();
-                    m_quickFixes.append(op);
                     QAction *action = refactoringMenu->addAction(op->description());
-                    mapper.setMapping(action, index);
-                    connect(action, SIGNAL(triggered()), &mapper, SLOT(map()));
+                    connect(action, &QAction::triggered, this, [op]() { op->perform(); });
                 }
                 delete model;
             }
@@ -873,9 +868,6 @@ void QmlJSEditorWidget::contextMenuEvent(QContextMenuEvent *e)
     appendStandardContextMenuActions(menu);
 
     menu->exec(e->globalPos());
-    if (!menu)
-        return;
-    m_quickFixes.clear();
     delete menu;
 }
 

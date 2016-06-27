@@ -47,7 +47,7 @@ public:
     void update(const QmlJS::Document::Ptr &doc, const QmlJS::Snapshot &snapshot);
     void reupdate(const QmlJS::Snapshot &snapshot);
 
-Q_SIGNALS:
+signals:
     void updated(const QmlJSTools::SemanticInfo &semanticInfo);
 
 protected:

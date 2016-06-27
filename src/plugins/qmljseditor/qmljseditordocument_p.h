@@ -50,7 +50,6 @@ public:
     QmlJSEditorDocumentPrivate(QmlJSEditorDocument *parent);
     ~QmlJSEditorDocumentPrivate();
 
-public slots:
     void invalidateFormatterCache();
     void reparseDocument();
     void onDocumentUpdated(QmlJS::Document::Ptr doc);

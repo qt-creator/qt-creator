@@ -65,8 +65,8 @@ QmlJSCodeStylePreferencesWidget::QmlJSCodeStylePreferencesWidget(QWidget *parent
         provider->decorateEditor(m_ui->previewTextEdit);
 
     decorateEditor(TextEditorSettings::fontSettings());
-    connect(TextEditorSettings::instance(), SIGNAL(fontSettingsChanged(TextEditor::FontSettings)),
-       this, SLOT(decorateEditor(TextEditor::FontSettings)));
+    connect(TextEditorSettings::instance(), &TextEditorSettings::fontSettingsChanged,
+       this, &QmlJSCodeStylePreferencesWidget::decorateEditor);
 
     setVisualizeWhitespace(true);
 

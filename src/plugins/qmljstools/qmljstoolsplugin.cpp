@@ -105,10 +105,10 @@ bool QmlJSToolsPlugin::initialize(const QStringList &arguments, QString *error)
     mqmljstools->addAction(cmd);
 
     // watch task progress
-    connect(ProgressManager::instance(), SIGNAL(taskStarted(Core::Id)),
-            this, SLOT(onTaskStarted(Core::Id)));
-    connect(ProgressManager::instance(), SIGNAL(allTasksFinished(Core::Id)),
-            this, SLOT(onAllTasksFinished(Core::Id)));
+    connect(ProgressManager::instance(), &ProgressManager::taskStarted,
+            this, &QmlJSToolsPlugin::onTaskStarted);
+    connect(ProgressManager::instance(), &ProgressManager::allTasksFinished,
+            this, &QmlJSToolsPlugin::onAllTasksFinished);
 
     return true;
 }

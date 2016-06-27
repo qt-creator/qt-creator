@@ -219,8 +219,8 @@ void ModelManager::delayedInitialization()
     CppTools::CppModelManager *cppModelManager = CppTools::CppModelManager::instance();
     // It's important to have a direct connection here so we can prevent
     // the source and AST of the cpp document being cleaned away.
-    connect(cppModelManager, SIGNAL(documentUpdated(CPlusPlus::Document::Ptr)),
-            this, SLOT(maybeQueueCppQmlTypeUpdate(CPlusPlus::Document::Ptr)), Qt::DirectConnection);
+    connect(cppModelManager, &CppTools::CppModelManager::documentUpdated,
+            this, &ModelManagerInterface::maybeQueueCppQmlTypeUpdate, Qt::DirectConnection);
 
     connect(SessionManager::instance(), &SessionManager::projectRemoved,
             this, &ModelManager::removeProjectInfo);

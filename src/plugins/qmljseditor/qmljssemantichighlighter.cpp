@@ -534,10 +534,10 @@ SemanticHighlighter::SemanticHighlighter(QmlJSEditorDocument *document)
     , m_document(document)
     , m_startRevision(0)
 {
-    connect(&m_watcher, SIGNAL(resultsReadyAt(int,int)),
-            this, SLOT(applyResults(int,int)));
-    connect(&m_watcher, SIGNAL(finished()),
-            this, SLOT(finished()));
+    connect(&m_watcher, &QFutureWatcherBase::resultsReadyAt,
+            this, &SemanticHighlighter::applyResults);
+    connect(&m_watcher, &QFutureWatcherBase::finished,
+            this, &SemanticHighlighter::finished);
 }
 
 void SemanticHighlighter::rerun(const QmlJSTools::SemanticInfo &semanticInfo)

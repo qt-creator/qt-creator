@@ -72,7 +72,6 @@ public:
 
     void inspectElementUnderCursor() const;
 
-public slots:
     void findUsages();
     void renameUsages();
     void showContextPane();
@@ -81,7 +80,7 @@ signals:
     void outlineModelIndexChanged(const QModelIndex &index);
     void selectedElementsChanged(QList<QmlJS::AST::UiObjectMember*> offsets,
                                  const QString &wordAtCursor);
-private slots:
+private:
     void modificationChanged(bool);
 
     void jumpToOutlineElement(int index);
@@ -93,7 +92,6 @@ private slots:
 
     void semanticInfoUpdated(const QmlJSTools::SemanticInfo &semanticInfo);
 
-    void performQuickFix(int index);
     void updateCodeWarnings(QmlJS::Document::Ptr doc);
 
 protected:
@@ -126,8 +124,6 @@ private:
     QComboBox *m_outlineCombo;
     QModelIndex m_outlineModelIndex;
     QmlJS::ModelManagerInterface *m_modelManager;
-
-    TextEditor::QuickFixOperations m_quickFixes;
 
     QmlJS::IContextPane *m_contextPane;
     int m_oldCursorPosition;

@@ -47,17 +47,15 @@ public:
 
     void extensionsInitialized();
 
-public slots:
     void updateMessages();
     void updateSemanticMessagesNow();
     void documentsRemoved(const QStringList &path);
 
-private slots:
+private:
     void displayResults(int begin, int end);
     void displayAllResults();
     void updateMessagesNow(bool updateSemantic = false);
 
-private:
     void insertTask(const ProjectExplorer::Task &task);
     void removeTasksForFile(const QString &fileName);
     void removeAllTasks(bool clearSemantic);

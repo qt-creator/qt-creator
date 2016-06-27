@@ -55,13 +55,12 @@ public:
 
     void setPreferences(TextEditor::ICodeStylePreferences *preferences);
 
-private slots:
+private:
     void decorateEditor(const TextEditor::FontSettings &fontSettings);
     void setVisualizeWhitespace(bool on);
     void slotSettingsChanged();
     void updatePreview();
 
-private:
     TextEditor::ICodeStylePreferences *m_preferences;
     Ui::QmlJSCodeStyleSettingsPage *m_ui;
 };

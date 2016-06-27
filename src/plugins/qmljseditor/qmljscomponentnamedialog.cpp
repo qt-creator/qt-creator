@@ -38,10 +38,10 @@ ComponentNameDialog::ComponentNameDialog(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    connect(ui->pathEdit, SIGNAL(rawPathChanged(QString)),
-            this, SLOT(validate()));
-    connect(ui->componentNameEdit, SIGNAL(textChanged(QString)),
-            this, SLOT(validate()));
+    connect(ui->pathEdit, &Utils::PathChooser::rawPathChanged,
+            this, &ComponentNameDialog::validate);
+    connect(ui->componentNameEdit, &QLineEdit::textChanged,
+            this, &ComponentNameDialog::validate);
 }
 
 ComponentNameDialog::~ComponentNameDialog()
@@ -137,14 +137,6 @@ void ComponentNameDialog::generateCodePreview()
      }
 
      ui->plainTextEdit->appendPlainText(QLatin1String("}"));
-}
-
-void ComponentNameDialog::choosePath()
-{
-    QString dir = QFileDialog::getExistingDirectory(this, tr("Choose a path"),
-                                                    ui->pathEdit->path());
-    if (!dir.isEmpty())
-        ui->pathEdit->setPath(dir);
 }
 
 void ComponentNameDialog::validate()
