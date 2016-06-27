@@ -47,7 +47,8 @@ SOURCES += $$PWD/ipcserverinterface.cpp \
     $$PWD/updatetranslationunitsforeditormessage.cpp \
     $$PWD/updatevisibletranslationunitsmessage.cpp \
     $$PWD/highlightingchangedmessage.cpp \
-    $$PWD/highlightingmarkcontainer.cpp
+    $$PWD/highlightingmarkcontainer.cpp \
+    $$PWD/messageenvelop.cpp
 
 HEADERS += \
     $$PWD/ipcserverinterface.h \

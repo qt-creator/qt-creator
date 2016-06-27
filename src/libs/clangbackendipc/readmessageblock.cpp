@@ -41,19 +41,22 @@ ReadMessageBlock::ReadMessageBlock(QIODevice *ioDevice)
 {
 }
 
-void ReadMessageBlock::checkIfMessageIsLost(QDataStream &in)
+bool ReadMessageBlock::checkIfMessageIsLost(QDataStream &in)
 {
     qint64 currentMessageCounter;
 
     in >> currentMessageCounter;
 
+    bool messageIsLost = false;
 #ifndef DONT_CHECK_MESSAGE_COUNTER
-    bool messageLost = !((currentMessageCounter == 0 && messageCounter == 0) || (messageCounter + 1 == currentMessageCounter));
-    if (messageLost)
-        qWarning() << "client message lost: " << messageCounter <<  currentMessageCounter;
+    messageIsLost = !((currentMessageCounter == 0 && messageCounter == 0) || (messageCounter + 1 == currentMessageCounter));
+    if (messageIsLost)
+        qWarning() << "message lost: " << messageCounter <<  currentMessageCounter;
 #endif
 
     messageCounter = currentMessageCounter;
+
+    return messageIsLost;
 }
 
 MessageEnvelop ReadMessageBlock::read()
@@ -63,8 +66,12 @@ MessageEnvelop ReadMessageBlock::read()
     MessageEnvelop message;
 
     if (isTheWholeMessageReadable(in)) {
-        checkIfMessageIsLost(in);
+        bool messageIsLost = checkIfMessageIsLost(in);
+
         in >> message;
+
+        if (messageIsLost)
+            qDebug() << message;
     }
 
     return message;

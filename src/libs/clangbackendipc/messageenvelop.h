@@ -29,6 +29,7 @@
 
 #include <QByteArray>
 #include <QDataStream>
+#include <QDebug>
 
 namespace ClangBackEnd {
 
@@ -104,6 +105,8 @@ public:
         return first.messageType_ == second.messageType_
             && first.data == second.data;
     }
+
+    friend QDebug operator<<(QDebug debug, const MessageEnvelop &messageEnvelop);
 
 private:
     mutable QByteArray data;

@@ -48,7 +48,7 @@ public:
 
 private:
     bool isTheWholeMessageReadable(QDataStream &in);
-    void checkIfMessageIsLost(QDataStream &in);
+    bool checkIfMessageIsLost(QDataStream &in);
 
 private:
     QIODevice *ioDevice;
