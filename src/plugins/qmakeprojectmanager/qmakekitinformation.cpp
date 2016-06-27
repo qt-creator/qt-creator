@@ -101,6 +101,14 @@ KitInformation::ItemList QmakeKitInformation::toUserOutput(const Kit *k) const
     return ItemList() << qMakePair(tr("mkspec"), mkspec(k).toUserOutput());
 }
 
+void QmakeKitInformation::addToMacroExpander(Kit *kit, MacroExpander *expander) const
+{
+    expander->registerVariable("Qmake:mkspec", tr("Mkspec configured for qmake by the Kit."),
+                [this, kit]() -> QString {
+                    return QmakeKitInformation::mkspec(kit).toUserOutput();
+                });
+}
+
 Core::Id QmakeKitInformation::id()
 {
     return "QtPM4.mkSpecInformation";
