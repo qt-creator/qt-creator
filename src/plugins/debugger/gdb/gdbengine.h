@@ -204,7 +204,7 @@ private:
 
 private: ////////// Gdb Output, State & Capability Handling //////////
 protected:
-    void handleResponse(const QString &buff);
+    Q_INVOKABLE void handleResponse(const QString &buff);
     void handleAsyncOutput(const QString &asyncClass, const GdbMi &result);
     void handleStopResponse(const GdbMi &data);
     void handleResultRecord(DebuggerResponse *response);
