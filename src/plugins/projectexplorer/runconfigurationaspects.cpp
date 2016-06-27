@@ -36,9 +36,7 @@
 
 #include <QCheckBox>
 #include <QLineEdit>
-#include <QDebug>
 #include <QFormLayout>
-#include <QLabel>
 #include <QToolButton>
 
 using namespace Utils;
