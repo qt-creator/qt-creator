@@ -576,6 +576,7 @@ void QbsBuildStepConfigWidget::updatePropertyEdit(const QVariantMap &data)
     editable.remove(QLatin1String(Constants::QBS_CONFIG_VARIANT_KEY));
     editable.remove(QLatin1String(Constants::QBS_CONFIG_DECLARATIVE_DEBUG_KEY));
     editable.remove(QLatin1String(Constants::QBS_CONFIG_QUICK_DEBUG_KEY));
+    editable.remove(QLatin1String(Constants::QBS_FORCE_PROBES_KEY));
 
     QStringList propertyList;
     for (QVariantMap::const_iterator i = editable.constBegin(); i != editable.constEnd(); ++i)
