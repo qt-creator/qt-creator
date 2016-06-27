@@ -27,7 +27,10 @@ Module {
     property stringList llvmLibs: clangProbe.llvmLibs
 
     validate: {
-        if (!clangProbe.found)
+        if (!clangProbe.found) {
+            console.warn("Set LLVM_INSTALL_DIR to build the Clang Code Model."
+                         + " For details, see doc/src/editors/creator-clang-codemodel.qdoc.");
             throw "No usable libclang found";
+        }
     }
 }
