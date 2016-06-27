@@ -28,6 +28,7 @@
 #include "debuggerinternalconstants.h"
 #include "debuggeractions.h"
 #include "debuggercore.h"
+#include "debuggericons.h"
 #include "debuggerruncontrol.h"
 #include "debuggerstartparameters.h"
 #include "debuggertooltipmanager.h"
@@ -131,7 +132,7 @@ Location::Location(const StackFrame &frame, bool marker)
 LocationMark::LocationMark(DebuggerEngine *engine, const QString &file, int line)
     : TextMark(file, line, Constants::TEXT_MARK_CATEGORY_LOCATION), m_engine(engine)
 {
-    setIcon(Internal::locationMarkIcon());
+    setIcon(Icons::LOCATION.icon());
     setPriority(TextMark::HighPriority);
 }
 

@@ -123,7 +123,8 @@ SOURCES += \
     localsandexpressionswindow.cpp \
     imageviewer.cpp \
     simplifytype.cpp \
-    unstartedappwatcherdialog.cpp
+    unstartedappwatcherdialog.cpp \
+    debuggericons.cpp
 
 RESOURCES += debugger.qrc
 

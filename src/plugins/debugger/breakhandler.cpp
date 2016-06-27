@@ -259,44 +259,6 @@ BreakHandler::BreakHandler()
         << tr("Address") << tr("Condition") << tr("Ignore") << tr("Threads"));
 }
 
-QIcon BreakHandler::breakpointIcon()
-{
-    static QIcon icon = Icons::BREAKPOINT.icon();
-    return icon;
-}
-
-QIcon BreakHandler::disabledBreakpointIcon()
-{
-    static QIcon icon = Icons::BREAKPOINT_DISABLED.icon();
-    return icon;
-}
-
-QIcon BreakHandler::pendingBreakpointIcon()
-{
-    static QIcon icon = Icons::BREAKPOINT_PENDING.icon();
-    return icon;
-}
-
-QIcon BreakHandler::watchpointIcon()
-{
-    static QIcon icon = Icons::WATCHPOINT.icon();
-    return icon;
-}
-
-QIcon BreakHandler::tracepointIcon()
-{
-    static QIcon icon = Icons::TRACEPOINT.icon();
-    return icon;
-}
-
-QIcon BreakHandler::emptyIcon()
-{
-    static QIcon icon = Icons::BREAKPOINT_PENDING.icon();
-    //static QIcon icon = Icons::WATCHPOINT.icon();
-    //static QIcon icon = Icons::EMPTY.icon();
-    return icon;
-}
-
 static inline bool fileNameMatch(const QString &f1, const QString &f2)
 {
     if (HostOsInfo::fileNameCaseSensitivity() == Qt::CaseInsensitive)
@@ -1401,16 +1363,16 @@ QIcon BreakpointItem::icon() const
     // FIXME: This seems to be called on each cursor blink as soon as the
     // cursor is near a line with a breakpoint marker (+/- 2 lines or so).
     if (m_params.isTracepoint())
-        return BreakHandler::tracepointIcon();
+        return Icons::TRACEPOINT.icon();
     if (m_params.type == WatchpointAtAddress)
-        return BreakHandler::watchpointIcon();
+        return Icons::WATCHPOINT.icon();
     if (m_params.type == WatchpointAtExpression)
-        return BreakHandler::watchpointIcon();
+        return Icons::WATCHPOINT.icon();
     if (!m_params.enabled)
-        return BreakHandler::disabledBreakpointIcon();
+        return Icons::BREAKPOINT_DISABLED.icon();
     if (m_state == BreakpointInserted && !m_response.pending)
-        return BreakHandler::breakpointIcon();
-    return BreakHandler::pendingBreakpointIcon();
+        return Icons::BREAKPOINT.icon();
+    return Icons::BREAKPOINT_PENDING.icon();
 }
 
 QString BreakpointItem::toToolTip() const

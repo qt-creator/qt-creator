@@ -88,8 +88,6 @@ private:
     DebuggerEngine *m_engine;
     StackFrames m_stackFrames;
     int m_currentIndex;
-    const QVariant m_positionIcon;
-    const QVariant m_emptyIcon;
     bool m_canExpand;
     bool m_resetLocationScheduled;
     bool m_contentsValid;

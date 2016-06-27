@@ -65,8 +65,6 @@ private:
 
     int m_currentIndex;
     QList< QPointer<DebuggerEngine> > m_snapshots;
-    const QVariant m_positionIcon;
-    const QVariant m_emptyIcon;
 };
 
 } // namespace Internal

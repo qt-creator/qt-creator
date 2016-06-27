@@ -48,18 +48,6 @@ namespace Internal {
 //
 ///////////////////////////////////////////////////////////////////////
 
-static const QIcon &positionIcon()
-{
-    static QIcon icon = Icons::LOCATION.icon();
-    return icon;
-}
-
-static const QIcon &emptyIcon()
-{
-    static QIcon icon = Icons::EMPTY.icon();
-    return icon;
-}
-
 class ThreadItem : public TreeItem
 {
     Q_DECLARE_TR_FUNCTIONS(Debugger::Internal::ThreadsHandler)
@@ -79,7 +67,8 @@ public:
         case Qt::DecorationRole:
             // Return icon that indicates whether this is the active stack frame.
             if (column == 0)
-                return threadData.id == handler->currentThread() ? positionIcon() : emptyIcon();
+                return threadData.id == handler->currentThread() ? Icons::LOCATION.icon()
+                                                                 : Icons::EMPTY.icon();
             break;
         case ThreadData::IdRole:
             return threadData.id.raw();

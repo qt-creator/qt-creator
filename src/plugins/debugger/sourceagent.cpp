@@ -26,8 +26,8 @@
 #include "sourceagent.h"
 
 #include "debuggerengine.h"
+#include "debuggericons.h"
 #include "debuggerinternalconstants.h"
-#include "debuggercore.h"
 #include "stackhandler.h"
 
 #include <coreplugin/editormanager/editormanager.h>
@@ -141,7 +141,7 @@ void SourceAgent::updateLocationMarker()
 
         d->locationMark = new TextMark(QString(), lineNumber,
                                        Constants::TEXT_MARK_CATEGORY_LOCATION);
-        d->locationMark->setIcon(locationMarkIcon());
+        d->locationMark->setIcon(Icons::LOCATION.icon());
         d->locationMark->setPriority(TextMark::HighPriority);
 
         d->editor->textDocument()->addMark(d->locationMark);

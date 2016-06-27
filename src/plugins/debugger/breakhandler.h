@@ -187,13 +187,6 @@ public:
     Breakpoints findBreakpointsByIndex(const QList<QModelIndex> &list) const;
     void updateMarkers();
 
-    static QIcon breakpointIcon();
-    static QIcon disabledBreakpointIcon();
-    static QIcon pendingBreakpointIcon();
-    static QIcon emptyIcon();
-    static QIcon watchpointIcon();
-    static QIcon tracepointIcon();
-
     Breakpoint findBreakpointByFileAndLine(const QString &fileName,
         int lineNumber, bool useMarkerPosition = true);
     Breakpoint findBreakpointByAddress(quint64 address) const;

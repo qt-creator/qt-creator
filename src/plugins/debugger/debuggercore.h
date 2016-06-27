@@ -61,7 +61,6 @@ enum TestCases
 // Some convenience.
 void updateState(DebuggerEngine *engine);
 void updateWatchersWindow(bool showWatch, bool showReturn);
-QIcon locationMarkIcon();
 const CPlusPlus::Snapshot &cppCodeModelSnapshot();
 bool hasSnapshots();
 void openTextEditor(const QString &titlePattern, const QString &contents);
