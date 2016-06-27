@@ -108,8 +108,14 @@ BuildDirManager::BuildDirManager(CMakeBuildConfiguration *bc) :
     connect(&m_reparseTimer, &QTimer::timeout, this, &BuildDirManager::parse);
 
     connect(m_watcher, &QFileSystemWatcher::fileChanged, this, [this]() {
-        if (!isParsing())
-            m_reparseTimer.start();
+        if (isParsing())
+            return;
+
+        const CMakeTool *tool = CMakeKitInformation::cmakeTool(m_buildConfiguration->target()->kit());
+        if (!tool->isAutoRun())
+            return;
+
+        m_reparseTimer.start();
     });
 }
 

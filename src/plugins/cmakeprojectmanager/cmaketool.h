@@ -66,8 +66,10 @@ public:
     QVariantMap toMap () const;
 
     void setCMakeExecutable(const Utils::FileName &executable);
+    void setAutorun(bool autoRun);
 
     Utils::FileName cmakeExecutable() const;
+    bool isAutoRun() const;
     QStringList supportedGenerators() const;
     TextEditor::Keywords keywords();
 
@@ -86,6 +88,8 @@ private:
     Core::Id m_id;
     QString m_displayName;
     Utils::FileName m_executable;
+
+    bool m_isAutoRun;
 
     bool m_isAutoDetected;
 

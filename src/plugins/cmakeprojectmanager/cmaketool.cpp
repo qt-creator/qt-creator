@@ -42,6 +42,7 @@ namespace CMakeProjectManager {
 const char CMAKE_INFORMATION_ID[] = "Id";
 const char CMAKE_INFORMATION_COMMAND[] = "Binary";
 const char CMAKE_INFORMATION_DISPLAYNAME[] = "DisplayName";
+const char CMAKE_INFORMATION_AUTORUN[] = "AutoRun";
 const char CMAKE_INFORMATION_AUTODETECTED[] = "AutoDetected";
 
 ///////////////////////////
@@ -57,6 +58,7 @@ CMakeTool::CMakeTool(const QVariantMap &map, bool fromSdk) : m_isAutoDetected(fr
 {
     m_id = Core::Id::fromSetting(map.value(QLatin1String(CMAKE_INFORMATION_ID)));
     m_displayName = map.value(QLatin1String(CMAKE_INFORMATION_DISPLAYNAME)).toString();
+    m_isAutoRun = map.value(QLatin1String(CMAKE_INFORMATION_AUTORUN), true).toBool();
 
     //loading a CMakeTool from SDK is always autodetection
     if (!fromSdk)
@@ -79,6 +81,15 @@ void CMakeTool::setCMakeExecutable(const Utils::FileName &executable)
     m_didAttemptToRun = false;
 
     m_executable = executable;
+    CMakeToolManager::notifyAboutUpdate(this);
+}
+
+void CMakeTool::setAutorun(bool autoRun)
+{
+    if (m_isAutoRun == autoRun)
+        return;
+
+    m_isAutoRun = autoRun;
     CMakeToolManager::notifyAboutUpdate(this);
 }
 
@@ -121,6 +132,7 @@ QVariantMap CMakeTool::toMap() const
     data.insert(QLatin1String(CMAKE_INFORMATION_DISPLAYNAME), m_displayName);
     data.insert(QLatin1String(CMAKE_INFORMATION_ID), m_id.toSetting());
     data.insert(QLatin1String(CMAKE_INFORMATION_COMMAND), m_executable.toString());
+    data.insert(QLatin1String(CMAKE_INFORMATION_AUTORUN), m_isAutoRun);
     data.insert(QLatin1String(CMAKE_INFORMATION_AUTODETECTED), m_isAutoDetected);
     return data;
 }
@@ -128,6 +140,11 @@ QVariantMap CMakeTool::toMap() const
 Utils::FileName CMakeTool::cmakeExecutable() const
 {
     return m_executable;
+}
+
+bool CMakeTool::isAutoRun() const
+{
+    return m_isAutoRun;
 }
 
 QStringList CMakeTool::supportedGenerators() const

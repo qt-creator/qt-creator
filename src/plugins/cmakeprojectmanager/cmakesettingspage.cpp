@@ -36,6 +36,7 @@
 #include <utils/qtcassert.h>
 #include <utils/treemodel.h>
 
+#include <QCheckBox>
 #include <QFormLayout>
 #include <QHeaderView>
 #include <QLabel>
@@ -65,12 +66,13 @@ public:
 
     CMakeToolTreeItem *cmakeToolItem(const Core::Id &id) const;
     CMakeToolTreeItem *cmakeToolItem(const QModelIndex &index) const;
-    QModelIndex addCMakeTool(const QString &name, const FileName &executable, const bool isAutoDetected);
+    QModelIndex addCMakeTool(const QString &name, const FileName &executable, const bool autoRun, const bool isAutoDetected);
     void addCMakeTool(const CMakeTool *item, bool changed);
     TreeItem *autoGroupItem() const;
     TreeItem *manualGroupItem() const;
     void reevaluateChangedFlag(CMakeToolTreeItem *item) const;
-    void updateCMakeTool(const Core::Id &id, const QString &displayName, const FileName &executable);
+    void updateCMakeTool(const Core::Id &id, const QString &displayName, const FileName &executable,
+                         bool autoRun);
     void removeCMakeTool(const Core::Id &id);
     void apply();
 
@@ -92,19 +94,22 @@ public:
         m_id(item->id()),
         m_name(item->displayName()),
         m_executable(item->cmakeExecutable()),
+        m_isAutoRun(item->isAutoRun()),
         m_autodetected(item->isAutoDetected()),
         m_changed(changed)
     {}
 
-    CMakeToolTreeItem(const QString &name, const Utils::FileName &executable, bool autodetected) :
+    CMakeToolTreeItem(const QString &name, const Utils::FileName &executable,
+                      bool autoRun, bool autodetected) :
         m_id(Core::Id::fromString(QUuid::createUuid().toString())),
         m_name(name),
         m_executable(executable),
+        m_isAutoRun(autoRun),
         m_autodetected(autodetected),
         m_changed(true)
     {}
 
-    CMakeToolTreeItem() : m_autodetected(false), m_changed(true) {}
+    CMakeToolTreeItem() = default;
 
     CMakeToolItemModel *model() const { return static_cast<CMakeToolItemModel *>(TreeItem::model()); }
 
@@ -135,8 +140,9 @@ public:
     Core::Id m_id;
     QString  m_name;
     FileName m_executable;
-    bool m_autodetected;
-    bool m_changed;
+    bool m_isAutoRun = true;
+    bool m_autodetected = false;
+    bool m_changed = true;
 };
 
 CMakeToolItemModel::CMakeToolItemModel()
@@ -157,9 +163,10 @@ CMakeToolItemModel::CMakeToolItemModel()
 
 }
 
-QModelIndex CMakeToolItemModel::addCMakeTool(const QString &name, const FileName &executable, const bool isAutoDetected)
+QModelIndex CMakeToolItemModel::addCMakeTool(const QString &name, const FileName &executable,
+                                             const bool autoRun, const bool isAutoDetected)
 {
-    CMakeToolTreeItem *item = new CMakeToolTreeItem(name, executable, isAutoDetected);
+    CMakeToolTreeItem *item = new CMakeToolTreeItem(name, executable, autoRun, isAutoDetected);
     if (isAutoDetected)
         autoGroupItem()->appendChild(item);
     else
@@ -208,13 +215,14 @@ void CMakeToolItemModel::reevaluateChangedFlag(CMakeToolTreeItem *item) const
 }
 
 void CMakeToolItemModel::updateCMakeTool(const Core::Id &id, const QString &displayName,
-                                         const FileName &executable)
+                                         const FileName &executable, bool autoRun)
 {
     CMakeToolTreeItem *treeItem = cmakeToolItem(id);
     QTC_ASSERT(treeItem, return);
 
     treeItem->m_name = displayName;
     treeItem->m_executable = executable;
+    treeItem->m_isAutoRun = autoRun;
 
     reevaluateChangedFlag(treeItem);
 }
@@ -249,6 +257,7 @@ void CMakeToolItemModel::apply()
         if (CMakeTool *cmake = CMakeToolManager::findById(item->m_id)) {
             cmake->setDisplayName(item->m_name);
             cmake->setCMakeExecutable(item->m_executable);
+            cmake->setAutorun(item->m_isAutoRun);
         } else {
             toRegister.append(item);
         }
@@ -315,6 +324,7 @@ public:
 private:
     CMakeToolItemModel *m_model;
     QLineEdit *m_displayNameLineEdit;
+    QCheckBox *m_autoRunCheckBox;
     PathChooser *m_binaryChooser;
     Core::Id m_id;
     bool m_loadingItem;
@@ -330,21 +340,28 @@ CMakeToolItemConfigWidget::CMakeToolItemConfigWidget(CMakeToolItemModel *model)
     m_binaryChooser->setMinimumWidth(400);
     m_binaryChooser->setHistoryCompleter(QLatin1String("Cmake.Command.History"));
 
+    m_autoRunCheckBox = new QCheckBox;
+    m_autoRunCheckBox->setText("Autorun CMake");
+
     QFormLayout *formLayout = new QFormLayout(this);
     formLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
     formLayout->addRow(new QLabel(tr("Name:")), m_displayNameLineEdit);
     formLayout->addRow(new QLabel(tr("Path:")), m_binaryChooser);
+    formLayout->addRow(m_autoRunCheckBox);
 
     connect(m_binaryChooser, &PathChooser::rawPathChanged,
             this, &CMakeToolItemConfigWidget::store);
     connect(m_displayNameLineEdit, &QLineEdit::textChanged,
+            this, &CMakeToolItemConfigWidget::store);
+    connect(m_autoRunCheckBox, &QCheckBox::toggled,
             this, &CMakeToolItemConfigWidget::store);
 }
 
 void CMakeToolItemConfigWidget::store() const
 {
     if (!m_loadingItem && m_id.isValid())
-        m_model->updateCMakeTool(m_id, m_displayNameLineEdit->text(), m_binaryChooser->fileName());
+        m_model->updateCMakeTool(m_id, m_displayNameLineEdit->text(), m_binaryChooser->fileName(),
+                                 m_autoRunCheckBox->checkState() == Qt::Checked);
 }
 
 void CMakeToolItemConfigWidget::load(const CMakeToolTreeItem *item)
@@ -363,6 +380,8 @@ void CMakeToolItemConfigWidget::load(const CMakeToolTreeItem *item)
     m_binaryChooser->setReadOnly(item->m_autodetected);
     m_binaryChooser->setFileName(item->m_executable);
 
+    m_autoRunCheckBox->setChecked(item->m_isAutoRun);
+
     m_id = item->m_id;
     m_loadingItem = false;
 }
@@ -375,7 +394,7 @@ class CMakeToolConfigWidget : public QWidget
 {
     Q_OBJECT
 public:
-    CMakeToolConfigWidget() : m_currentItem(0)
+    CMakeToolConfigWidget()
     {
         m_addButton = new QPushButton(tr("Add"), this);
 
@@ -452,7 +471,7 @@ public:
     QPushButton *m_makeDefButton;
     DetailsWidget *m_container;
     CMakeToolItemConfigWidget *m_itemConfigWidget;
-    CMakeToolTreeItem *m_currentItem;
+    CMakeToolTreeItem *m_currentItem = nullptr;
 };
 
 void CMakeToolConfigWidget::apply()
@@ -467,7 +486,7 @@ void CMakeToolConfigWidget::cloneCMakeTool()
 
     QModelIndex newItem = m_model.addCMakeTool(tr("Clone of %1").arg(m_currentItem->m_name),
                                                m_currentItem->m_executable,
-                                               false);
+                                               m_currentItem->m_isAutoRun, false);
 
     m_cmakeToolsView->setCurrentIndex(newItem);
 }
@@ -475,7 +494,7 @@ void CMakeToolConfigWidget::cloneCMakeTool()
 void CMakeToolConfigWidget::addCMakeTool()
 {
     QModelIndex newItem = m_model.addCMakeTool(m_model.uniqueDisplayName(tr("New CMake")),
-                                               FileName(), false);
+                                               FileName(), true, false);
 
     m_cmakeToolsView->setCurrentIndex(newItem);
 }
