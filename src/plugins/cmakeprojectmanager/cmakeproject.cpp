@@ -36,6 +36,7 @@
 #include "cmakeprojectmanager.h"
 
 #include <coreplugin/icore.h>
+#include <coreplugin/documentmanager.h>
 #include <cpptools/cppmodelmanager.h>
 #include <cpptools/projectinfo.h>
 #include <cpptools/projectpartbuilder.h>
@@ -88,11 +89,13 @@ CMakeProject::CMakeProject(CMakeManager *manager, const FileName &fileName)
 {
     setId(Constants::CMAKEPROJECT_ID);
     setProjectManager(manager);
-    setDocument(new CMakeFile(fileName));
+    setDocument(new Internal::CMakeFile(this, fileName));
+
     setRootProjectNode(new CMakeProjectNode(fileName));
     setProjectContext(Core::Context(CMakeProjectManager::Constants::PROJECTCONTEXT));
     setProjectLanguages(Core::Context(ProjectExplorer::Constants::LANG_CXX));
 
+    Core::DocumentManager::addDocument(document());
     rootProjectNode()->setDisplayName(fileName.parentDir().fileName());
 
     connect(this, &CMakeProject::activeTargetChanged, this, &CMakeProject::handleActiveTargetChanged);
@@ -216,6 +219,29 @@ void CMakeProject::parseCMakeOutput()
     QTC_ASSERT(bdm, return);
 
     rootProjectNode()->setDisplayName(bdm->projectName());
+
+    // Delete no longer necessary file watcher:
+    const QSet<Utils::FileName> currentWatched
+            = Utils::transform(m_watchedFiles, [](CMakeFile *cmf) { return cmf->filePath(); });
+    const QSet<Utils::FileName> toWatch = bdm->cmakeFiles();
+    QSet<Utils::FileName> toDelete = currentWatched;
+    toDelete.subtract(toWatch);
+    m_watchedFiles = Utils::filtered(m_watchedFiles, [&toDelete](Internal::CMakeFile *cmf) {
+            if (toDelete.contains(cmf->filePath())) {
+                delete cmf;
+                return false;
+            }
+            return true;
+        });
+
+    // Add new file watchers:
+    QSet<Utils::FileName> toAdd = toWatch;
+    toAdd.subtract(currentWatched);
+    foreach (const Utils::FileName &fn, toAdd) {
+        CMakeFile *cm = new CMakeFile(this, fn);
+        Core::DocumentManager::addDocument(cm);
+        m_watchedFiles.insert(cm);
+    }
 
     buildTree(static_cast<CMakeProjectNode *>(rootProjectNode()), bdm->files());
     bdm->clearFiles(); // Some of the FileNodes in files() were deleted!
@@ -510,6 +536,15 @@ bool CMakeProject::setupTarget(Target *t)
     t->updateDefaultDeployConfigurations();
 
     return true;
+}
+
+void CMakeProject::handleCmakeFileChanged()
+{
+    if (Target *t = activeTarget()) {
+        if (auto bc = qobject_cast<CMakeBuildConfiguration *>(t->activeBuildConfiguration())) {
+            bc->cmakeFilesChanged();
+        }
+    }
 }
 
 void CMakeProject::handleActiveTargetChanged()

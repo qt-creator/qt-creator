@@ -35,9 +35,13 @@ namespace Internal {
 class CMakeFile : public Core::IDocument
 {
 public:
-    CMakeFile(const Utils::FileName &fileName);
+    CMakeFile(CMakeProject *project, const Utils::FileName &fileName);
 
     ReloadBehavior reloadBehavior(ChangeTrigger state, ChangeType type) const override;
+    bool reload(QString *errorString, ReloadFlag flag, ChangeType type) override;
+
+private:
+    CMakeProject *m_project;
 };
 
 } // namespace Internal
