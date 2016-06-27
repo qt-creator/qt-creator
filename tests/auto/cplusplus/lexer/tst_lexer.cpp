@@ -403,7 +403,7 @@ void tst_SimpleLexer::ppOpOrPunc()
     QFETCH(Kind, expectedTokenKind);
 
     const QByteArray source = QTest::currentDataTag();
-    run(source, toTokens({expectedTokenKind}), false, CompareKind, true);
+    run(source, toTokens({unsigned(expectedTokenKind)}), false, CompareKind, true);
 }
 
 void tst_SimpleLexer::ppOpOrPunc_data()
