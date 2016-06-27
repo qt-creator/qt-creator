@@ -54,6 +54,9 @@ public:
     QAction *selectAllAction = 0;
     QAction *openParentDiagramAction = 0;
     QAction *exportDiagramAction = 0;
+    QAction *zoomInAction = 0;
+    QAction *zoomOutAction = 0;
+    QAction *resetZoomAction = 0;
 };
 
 ActionHandler::ActionHandler(const Core::Context &context, QObject *parent)
@@ -118,6 +121,21 @@ QAction *ActionHandler::exportDiagramAction() const
     return d->exportDiagramAction;
 }
 
+QAction *ActionHandler::zoomInAction() const
+{
+    return d->zoomInAction;
+}
+
+QAction *ActionHandler::zoomOutAction() const
+{
+    return d->zoomOutAction;
+}
+
+QAction *ActionHandler::resetZoom() const
+{
+    return d->resetZoomAction;
+}
+
 void ActionHandler::createActions()
 {
     Core::ActionContainer *medit = Core::ActionManager::actionContainer(Core::Constants::M_EDIT);
@@ -149,6 +167,26 @@ void ActionHandler::createActions()
                 tr("Export Diagram..."));
     menuModelEditor->addAction(exportDiagramCommand);
     d->exportDiagramAction = exportDiagramCommand->action();
+
+    menuModelEditor->addSeparator(d->context);
+
+    Core::Command *zoomInCommand = registerCommand(
+                Constants::ZOOM_IN, [this]() { zoomIn(); }, d->context, true,
+                tr("Zoom In"), QKeySequence(QStringLiteral("Ctrl++")));
+    menuModelEditor->addAction(zoomInCommand);
+    d->zoomInAction = zoomInCommand->action();
+
+    Core::Command *zoomOutCommand = registerCommand(
+                Constants::ZOOM_OUT, [this]() { zoomOut(); }, d->context, true,
+                tr("Zoom Out"), QKeySequence(QStringLiteral("Ctrl+-")));
+    menuModelEditor->addAction(zoomOutCommand);
+    d->zoomOutAction = zoomOutCommand->action();
+
+    Core::Command *resetZoomCommand = registerCommand(
+                Constants::RESET_ZOOM, [this]() { resetZoom(); }, d->context, true,
+                tr("Reset Zoom"), QKeySequence(QStringLiteral("Ctrl+0")));
+    menuModelEditor->addAction(resetZoomCommand);
+    d->zoomOutAction = resetZoomCommand->action();
 
     d->openParentDiagramAction = registerCommand(
                 Constants::OPEN_PARENT_DIAGRAM, [this]() { openParentDiagram(); }, Core::Context(), true,
@@ -254,6 +292,27 @@ void ActionHandler::exportDiagram()
     auto editor = qobject_cast<ModelEditor *>(Core::EditorManager::currentEditor());
     if (editor)
         editor->exportDiagram();
+}
+
+void ActionHandler::zoomIn()
+{
+    auto editor = qobject_cast<ModelEditor *>(Core::EditorManager::currentEditor());
+    if (editor)
+        editor->zoomIn();
+}
+
+void ActionHandler::zoomOut()
+{
+    auto editor = qobject_cast<ModelEditor *>(Core::EditorManager::currentEditor());
+    if (editor)
+        editor->zoomOut();
+}
+
+void ActionHandler::resetZoom()
+{
+    auto editor = qobject_cast<ModelEditor *>(Core::EditorManager::currentEditor());
+    if (editor)
+        editor->resetZoom();
 }
 
 Core::Command *ActionHandler::registerCommand(const Core::Id &id, const std::function<void()> &slot,

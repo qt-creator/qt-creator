@@ -44,6 +44,7 @@ namespace Internal {
 
 class TestOutputReader;
 class TestResult;
+class TestRunConfiguration;
 struct TestSettings;
 
 using TestResultPtr = QSharedPointer<TestResult>;
@@ -55,7 +56,7 @@ public:
     explicit TestConfiguration();
     virtual ~TestConfiguration();
 
-    void completeTestInformation();
+    void completeTestInformation(int runMode);
 
     void setTestCases(const QStringList &testCases);
     void setTestCaseCount(int count);
@@ -79,6 +80,7 @@ public:
     QString displayName() const { return m_displayName; }
     Utils::Environment environment() const { return m_environment; }
     ProjectExplorer::Project *project() const { return m_project.data(); }
+    TestRunConfiguration *runConfiguration() const { return m_runConfig; }
     bool guessedConfiguration() const { return m_guessedConfiguration; }
 
     virtual TestOutputReader *outputReader(const QFutureInterface<TestResultPtr> &fi,
@@ -97,6 +99,7 @@ private:
     Utils::Environment m_environment;
     QPointer<ProjectExplorer::Project> m_project;
     bool m_guessedConfiguration = false;
+    TestRunConfiguration *m_runConfig = 0;
 };
 
 } // namespace Internal

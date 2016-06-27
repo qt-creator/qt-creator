@@ -101,7 +101,7 @@ FormatTask format(FormatTask task)
         process.setTimeoutS(5);
         Utils::SynchronousProcessResponse response = process.runBlocking(executable, options);
         if (response.result != Utils::SynchronousProcessResponse::Finished) {
-            task.error = QObject::tr("Failed to format: %1.").arg(response.exitMessage(executable, 5));
+            task.error = BeautifierPlugin::tr("Failed to format: %1.").arg(response.exitMessage(executable, 5));
             return task;
         }
         const QString output = response.stdErr;

@@ -135,6 +135,7 @@ public:
             funTy->copy(type);
             funTy->setConst(type->isConst());
             funTy->setVolatile(type->isVolatile());
+            funTy->setRefQualifier(type->refQualifier());
 
             funTy->setName(rewrite->rewriteName(type->name()));
 

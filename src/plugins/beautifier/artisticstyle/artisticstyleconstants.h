@@ -25,11 +25,13 @@
 
 #pragma once
 
+#include <QtGlobal>
+
 namespace Beautifier {
 namespace Constants {
 namespace ArtisticStyle {
 
-const char DISPLAY_NAME[]      = "Artistic Style";
+const char DISPLAY_NAME[]      = QT_TRANSLATE_NOOP("Beautifier::Internal::ArtisticStyle::ArtisticStyle", "Artistic Style");
 const char ACTION_FORMATFILE[] = "ArtisticStyle.FormatFile";
 const char MENU_ID[]           = "ArtisticStyle.Menu";
 const char OPTION_ID[]         = "ArtisticStyle";

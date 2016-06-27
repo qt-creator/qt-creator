@@ -133,6 +133,11 @@ TestConfiguration *GTestTreeItem::testConfiguration() const
     return config;
 }
 
+TestConfiguration *GTestTreeItem::debugConfiguration() const
+{
+    return testConfiguration();
+}
+
 // used as key inside getAllTestCases()/getSelectedTestCases() for Google Tests
 class ProFileWithDisplayName
 {

@@ -64,6 +64,7 @@ public:
     TextTip(QWidget *parent);
 
     virtual void setContent(const QVariant &content);
+    virtual bool isInteractive() const;
     virtual void configure(const QPoint &pos, QWidget *w);
     virtual bool canHandleContentReplacement(int typeId) const;
     virtual int showTime() const;

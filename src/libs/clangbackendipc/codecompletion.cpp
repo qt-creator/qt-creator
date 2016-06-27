@@ -115,24 +115,14 @@ const Utf8String &CodeCompletion::briefComment() const
     return briefComment_;
 }
 
-quint32 &CodeCompletion::completionKindAsInt()
-{
-    return reinterpret_cast<quint32&>(completionKind_);
-}
-
-quint32 &CodeCompletion::availabilityAsInt()
-{
-    return reinterpret_cast<quint32&>(availability_);
-}
-
 QDataStream &operator<<(QDataStream &out, const CodeCompletion &message)
 {
     out << message.text_;
     out << message.briefComment_;
     out << message.chunks_;
     out << message.priority_;
-    out << message.completionKind_;
-    out << message.availability_;
+    out << static_cast<quint32>(message.completionKind_);
+    out << static_cast<quint32>(message.availability_);
     out << message.hasParameters_;
 
     return out;
@@ -140,13 +130,19 @@ QDataStream &operator<<(QDataStream &out, const CodeCompletion &message)
 
 QDataStream &operator>>(QDataStream &in, CodeCompletion &message)
 {
+    quint32 completionKind;
+    quint32 availability;
+
     in >> message.text_;
     in >> message.briefComment_;
     in >> message.chunks_;
     in >> message.priority_;
-    in >> message.completionKindAsInt();
-    in >> message.availabilityAsInt();
+    in >> completionKind;
+    in >> availability;
     in >> message.hasParameters_;
+
+    message.completionKind_ = static_cast<CodeCompletion::Kind>(completionKind);
+    message.availability_ = static_cast<CodeCompletion::Availability>(availability);
 
     return in;
 }

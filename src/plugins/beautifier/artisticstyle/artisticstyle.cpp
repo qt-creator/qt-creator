@@ -69,7 +69,7 @@ ArtisticStyle::~ArtisticStyle()
 bool ArtisticStyle::initialize()
 {
     Core::ActionContainer *menu = Core::ActionManager::createMenu(Constants::ArtisticStyle::MENU_ID);
-    menu->menu()->setTitle(Constants::ArtisticStyle::DISPLAY_NAME);
+    menu->menu()->setTitle(tr(Constants::ArtisticStyle::DISPLAY_NAME));
 
     m_formatFile = new QAction(BeautifierPlugin::msgFormatCurrentFile(), this);
     menu->addAction(Core::ActionManager::registerAction(m_formatFile,
@@ -104,7 +104,7 @@ void ArtisticStyle::formatFile()
     const QString cfgFileName = configurationFile();
     if (cfgFileName.isEmpty()) {
         BeautifierPlugin::showError(BeautifierPlugin::msgCannotGetConfigurationFile(
-                                        Constants::ArtisticStyle::DISPLAY_NAME));
+                                        tr(Constants::ArtisticStyle::DISPLAY_NAME)));
     } else {
         m_beautifierPlugin->formatCurrentFile(command(cfgFileName));
     }

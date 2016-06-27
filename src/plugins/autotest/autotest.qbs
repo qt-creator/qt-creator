@@ -10,6 +10,7 @@ QtcPlugin {
     Depends { name: "QmlJS" }
     Depends { name: "QmlJSTools" }
     Depends { name: "Utils" }
+    Depends { name: "Debugger" }
 
     pluginTestDepends: [
         "QbsProjectManager",
@@ -71,7 +72,8 @@ QtcPlugin {
         "itestparser.h",
         "itestframework.h",
         "testframeworkmanager.cpp",
-        "testframeworkmanager.h"
+        "testframeworkmanager.h",
+        "testrunconfiguration.h"
     ]
 
     Group {

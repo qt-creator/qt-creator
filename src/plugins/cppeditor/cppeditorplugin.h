@@ -117,6 +117,7 @@ private slots:
 
     void test_quickfix_GenerateGetterSetter_basicGetterWithPrefixAndNamespaceToCpp();
     void test_quickfix_GenerateGetterSetter_onlyGetter();
+    void test_quickfix_GenerateGetterSetter_onlyGetter_DontPreferGetterWithGet();
     void test_quickfix_GenerateGetterSetter_onlySetter();
     void test_quickfix_GenerateGetterSetter_offerGetterWhenSetterPresent();
     void test_quickfix_GenerateGetterSetter_offerSetterWhenGetterPresent();

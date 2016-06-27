@@ -74,14 +74,21 @@ HighlightingTypes HighlightingMarkContainer::types() const
     return types_;
 }
 
+QDataStream &operator<<(QDataStream &out, HighlightingType highlightingType)
+{
+    out << static_cast<const quint8>(highlightingType);
+
+    return out;
+}
+
 QDataStream &operator<<(QDataStream &out, HighlightingTypes highlightingTypes)
 {
-    out << reinterpret_cast<const quint8&>(highlightingTypes.mainHighlightingType);
+    out << highlightingTypes.mainHighlightingType;
 
     out << highlightingTypes.mixinHighlightingTypes.size();
 
     for (HighlightingType type : highlightingTypes.mixinHighlightingTypes)
-        out << reinterpret_cast<const quint8&>(type);
+        out << type;
 
     return out;
 }
@@ -96,16 +103,27 @@ QDataStream &operator<<(QDataStream &out, const HighlightingMarkContainer &conta
     return out;
 }
 
+QDataStream &operator>>(QDataStream &in, HighlightingType &highlightingType)
+{
+    quint8 highlightingTypeInt;
+
+    in >> highlightingTypeInt;
+
+    highlightingType = static_cast<HighlightingType>(highlightingTypeInt);
+
+    return in;
+}
+
 QDataStream &operator>>(QDataStream &in, HighlightingTypes &highlightingTypes)
 {
-    in >> reinterpret_cast<quint8&>(highlightingTypes.mainHighlightingType);
+    in >> highlightingTypes.mainHighlightingType ;
 
     quint8 size;
     in >> size;
 
     for (int counter = 0; counter < size; ++counter) {
         HighlightingType type;
-        in >> reinterpret_cast<quint8&>(type);
+        in >> type;
         highlightingTypes.mixinHighlightingTypes.push_back(type);
     }
 

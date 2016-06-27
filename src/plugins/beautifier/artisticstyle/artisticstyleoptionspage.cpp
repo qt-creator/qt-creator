@@ -28,6 +28,7 @@
 
 #include "artisticstyleconstants.h"
 #include "artisticstylesettings.h"
+#include "artisticstyle.h"
 
 #include "../beautifierconstants.h"
 #include "../beautifierplugin.h"
@@ -49,7 +50,7 @@ ArtisticStyleOptionsPageWidget::ArtisticStyleOptionsPageWidget(ArtisticStyleSett
                                  "HOME", QDir::toNativeSeparators(QDir::home().absolutePath())));
     ui->command->setExpectedKind(Utils::PathChooser::ExistingCommand);
     ui->command->setPromptDialogTitle(BeautifierPlugin::msgCommandPromptDialogTitle(
-                                          Constants::ArtisticStyle::DISPLAY_NAME));
+                                          ArtisticStyle::tr(Constants::ArtisticStyle::DISPLAY_NAME)));
     connect(ui->command, &Utils::PathChooser::validChanged, ui->options, &QWidget::setEnabled);
     ui->configurations->setSettings(m_settings);
 }

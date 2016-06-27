@@ -40,23 +40,6 @@
 
 namespace qmt {
 
-class ArrowItem::GraphicsPathItem : public QGraphicsPathItem
-{
-public:
-    explicit GraphicsPathItem(QGraphicsItem *parent)
-        : QGraphicsPathItem(parent)
-    {
-    }
-
-    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
-    {
-        painter->save();
-        painter->setRenderHint(QPainter::Antialiasing, true);
-        QGraphicsPathItem::paint(painter, option, widget);
-        painter->restore();
-    }
-};
-
 class ArrowItem::GraphicsHeadItem : public QGraphicsItem
 {
 public:
@@ -182,7 +165,7 @@ public:
 
         if (hasArrow) {
             if (!m_arrowItem)
-                m_arrowItem = new ArrowItem::GraphicsPathItem(this);
+                m_arrowItem = new QGraphicsPathItem(this);
 
             if (m_head == ArrowItem::HeadOpen || m_head == ArrowItem::HeadTriangle) {
                 m_arrowItem->setPen(style->linePen());
@@ -210,7 +193,7 @@ public:
 
         if (hasDiamond) {
             if (!m_diamondItem)
-                m_diamondItem = new ArrowItem::GraphicsPathItem(this);
+                m_diamondItem = new QGraphicsPathItem(this);
 
             if (m_head == ArrowItem::HeadDiamond || m_head == ArrowItem::HeadDiamondFilledTriangle) {
                 m_diamondItem->setPen(style->linePen());
@@ -238,15 +221,15 @@ private:
     ArrowItem::Head m_head = ArrowItem::HeadNone;
     double m_arrowSize = 10.0;
     double m_diamondSize = 15.0;
-    ArrowItem::GraphicsPathItem *m_arrowItem = 0;
-    ArrowItem::GraphicsPathItem *m_diamondItem = 0;
+    QGraphicsPathItem *m_arrowItem = 0;
+    QGraphicsPathItem *m_diamondItem = 0;
 };
 
-class ArrowItem::GraphicsShaftItem : public ArrowItem::GraphicsPathItem
+class ArrowItem::GraphicsShaftItem : public QGraphicsPathItem
 {
 public:
     explicit GraphicsShaftItem(QGraphicsItem *parent)
-        : GraphicsPathItem(parent)
+        : QGraphicsPathItem(parent)
     {
     }
 };
