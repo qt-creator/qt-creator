@@ -24,7 +24,7 @@
 ****************************************************************************/
 
 #include "bineditorplugin.h"
-#include "bineditor.h"
+#include "bineditorwidget.h"
 #include "bineditorconstants.h"
 
 #include <coreplugin/icore.h>

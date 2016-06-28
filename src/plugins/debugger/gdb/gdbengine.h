@@ -122,7 +122,7 @@ protected: ////////// Gdb Process Management //////////
     // Make sure to clean up everything before emitting this signal.
     void handleAdapterCrashed(const QString &msg);
 
-private slots:
+private:
     friend class GdbPlainEngine;
     friend class GdbCoreEngine;
     void handleInterruptDeviceInferior(const QString &error);
@@ -132,7 +132,6 @@ private slots:
     void readGdbStandardError();
     void readDebuggeeOutput(const QByteArray &ba);
 
-private:
     QTextCodec *m_gdbOutputCodec;
     QTextCodec::ConverterState m_gdbOutputCodecState;
     QTextCodec *m_inferiorOutputCodec;
@@ -204,7 +203,7 @@ private:
 
 private: ////////// Gdb Output, State & Capability Handling //////////
 protected:
-    void handleResponse(const QString &buff);
+    Q_INVOKABLE void handleResponse(const QString &buff);
     void handleAsyncOutput(const QString &asyncClass, const GdbMi &result);
     void handleStopResponse(const GdbMi &data);
     void handleResultRecord(DebuggerResponse *response);

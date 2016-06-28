@@ -932,16 +932,26 @@ void ClangCodeCompletionTest::testCompleteConstructorAndFallbackToGlobalCompleti
     QVERIFY(!hasSnippet(t.proposal, "class"));
 }
 
+// Explicitly Inserting The Dot
+// ----------------------------
+// Inserting the dot for is important since it will send the editor
+// content to the backend and thus generate an unsaved file on the backend
+// side. The unsaved file enables us to do the dot to arrow correction.
+
 void ClangCodeCompletionTest::testCompleteWithDotToArrowCorrection()
 {
-    // Inserting the dot for this test is important since it will send the editor
-    // content to the backend and thus generate an unsaved file on the backend
-    // side. The unsaved file enables us to do the dot to arrow correction.
-
     ProjectLessCompletionTest t("dotToArrowCorrection.cpp",
-                                QStringLiteral("."));
+                                QStringLiteral(".")); // See above "Explicitly Inserting The Dot"
 
     QVERIFY(hasItem(t.proposal, "member"));
+}
+
+void ClangCodeCompletionTest::testDontCompleteWithDotToArrowCorrectionForFloats()
+{
+    ProjectLessCompletionTest t("noDotToArrowCorrectionForFloats.cpp",
+                                QStringLiteral(".")); // See above "Explicitly Inserting The Dot"
+
+    QCOMPARE(t.proposal->size(), 0);
 }
 
 void ClangCodeCompletionTest::testCompleteProjectDependingCode()

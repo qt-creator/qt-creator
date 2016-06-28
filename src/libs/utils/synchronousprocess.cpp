@@ -297,12 +297,12 @@ void SynchronousProcess::setTimeoutS(int timeoutS)
     if (timeoutS > 0)
         d->m_maxHangTimerCount = qMax(2, timeoutS);
     else
-        d->m_maxHangTimerCount = INT_MAX;
+        d->m_maxHangTimerCount = INT_MAX / 1000;
 }
 
 int SynchronousProcess::timeoutS() const
 {
-    return d->m_maxHangTimerCount == INT_MAX ? -1 : d->m_maxHangTimerCount;
+    return d->m_maxHangTimerCount == (INT_MAX / 1000) ? -1 : d->m_maxHangTimerCount;
 }
 
 void SynchronousProcess::setCodec(QTextCodec *c)
@@ -476,7 +476,7 @@ SynchronousProcessResponse SynchronousProcess::runBlocking(const QString &binary
 
     QTC_ASSERT(d->m_process.state() == QProcess::NotRunning, return d->m_result);
     d->m_result.exitCode = d->m_process.exitCode();
-    if (d->m_result.result != SynchronousProcessResponse::StartFailed) {
+    if (d->m_result.result == SynchronousProcessResponse::StartFailed) {
         if (d->m_process.exitStatus() != QProcess::NormalExit)
             d->m_result.result = SynchronousProcessResponse::TerminatedAbnormally;
         else

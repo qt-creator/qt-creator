@@ -51,7 +51,6 @@ public:
     int sizeOfFile(const QFont &font);
     int sizeOfLineNumber(const QFont &font);
 
-public slots:
     void clear();
 
 signals:

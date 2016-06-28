@@ -782,8 +782,8 @@ FindReferences::FindReferences(QObject *parent)
     : QObject(parent)
 {
     m_watcher.setPendingResultsLimit(1);
-    connect(&m_watcher, SIGNAL(resultsReadyAt(int,int)), this, SLOT(displayResults(int,int)));
-    connect(&m_watcher, SIGNAL(finished()), this, SLOT(searchFinished()));
+    connect(&m_watcher, &QFutureWatcherBase::resultsReadyAt, this, &FindReferences::displayResults);
+    connect(&m_watcher, &QFutureWatcherBase::finished, this, &FindReferences::searchFinished);
 }
 
 FindReferences::~FindReferences()
@@ -955,19 +955,19 @@ void FindReferences::displayResults(int first, int last)
                         label, QString(), symbolName, SearchResultWindow::SearchAndReplace,
                         SearchResultWindow::PreserveCaseDisabled);
             m_currentSearch->setTextToReplace(replacement);
-            connect(m_currentSearch, SIGNAL(replaceButtonClicked(QString,QList<Core::SearchResultItem>,bool)),
-                    SLOT(onReplaceButtonClicked(QString,QList<Core::SearchResultItem>,bool)));
+            connect(m_currentSearch.data(), &SearchResult::replaceButtonClicked,
+                    this, &FindReferences::onReplaceButtonClicked);
         }
-        connect(m_currentSearch, SIGNAL(activated(Core::SearchResultItem)),
-                this, SLOT(openEditor(Core::SearchResultItem)));
-        connect(m_currentSearch, SIGNAL(cancelled()), this, SLOT(cancel()));
-        connect(m_currentSearch, SIGNAL(paused(bool)), this, SLOT(setPaused(bool)));
+        connect(m_currentSearch.data(), &SearchResult::activated,
+                this, &FindReferences::openEditor);
+        connect(m_currentSearch.data(), &SearchResult::cancelled, this, &FindReferences::cancel);
+        connect(m_currentSearch.data(), &SearchResult::paused, this, &FindReferences::setPaused);
         SearchResultWindow::instance()->popup(IOutputPane::Flags(IOutputPane::ModeSwitch | IOutputPane::WithFocus));
 
         FutureProgress *progress = ProgressManager::addTask(
                     m_watcher.future(), tr("Searching for Usages"),
                     QmlJSEditor::Constants::TASK_SEARCH);
-        connect(progress, SIGNAL(clicked()), m_currentSearch, SLOT(popup()));
+        connect(progress, &FutureProgress::clicked, m_currentSearch.data(), &SearchResult::popup);
 
         ++first;
     }

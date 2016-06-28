@@ -27,6 +27,8 @@
 #include "cmakeproject.h"
 #include "cmakeprojectconstants.h"
 
+#include <projectexplorer/target.h>
+
 #include <utils/fileutils.h>
 
 using namespace Utils;
@@ -34,7 +36,7 @@ using namespace Utils;
 namespace CMakeProjectManager {
 namespace Internal {
 
-CMakeFile::CMakeFile(const FileName &fileName)
+CMakeFile::CMakeFile(CMakeProject *project, const FileName &fileName) : m_project(project)
 {
     setId("Cmake.ProjectFile");
     setMimeType(QLatin1String(Constants::CMAKEPROJECTMIMETYPE));
@@ -46,6 +48,16 @@ Core::IDocument::ReloadBehavior CMakeFile::reloadBehavior(ChangeTrigger state, C
     Q_UNUSED(state)
     Q_UNUSED(type)
     return BehaviorSilent;
+}
+
+bool CMakeFile::reload(QString *errorString, Core::IDocument::ReloadFlag flag, Core::IDocument::ChangeType type)
+{
+    Q_UNUSED(errorString);
+    Q_UNUSED(flag);
+
+    if (type != TypePermissions)
+        m_project->handleCmakeFileChanged();
+    return true;
 }
 
 } // namespace Internal

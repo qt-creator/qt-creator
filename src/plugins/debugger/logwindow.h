@@ -64,7 +64,6 @@ public:
     static QChar charForChannel(int channel);
     static LogChannel channelForChar(QChar c);
 
-public slots:
     void clearContents();
     void sendCommand();
     void executeLine();

@@ -162,7 +162,7 @@ void MoveManipulator::begin(const QPointF &beginPoint)
 
     setDirectUpdateInNodeInstances(true);
 
-    m_rewriterTransaction = m_view->beginRewriterTransaction(QByteArrayLiteral("MoveManipulator::begin"));
+    beginRewriterTransaction();
 }
 
 
@@ -426,6 +426,7 @@ void MoveManipulator::moveBy(double deltaX, double deltaY)
 void MoveManipulator::beginRewriterTransaction()
 {
     m_rewriterTransaction = m_view->beginRewriterTransaction(QByteArrayLiteral("MoveManipulator::beginRewriterTransaction"));
+    m_rewriterTransaction.ignoreSemanticChecks();
 }
 
 void MoveManipulator::endRewriterTransaction()

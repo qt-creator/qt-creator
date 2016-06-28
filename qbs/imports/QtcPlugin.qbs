@@ -6,6 +6,7 @@ QtcProduct {
     type: ["dynamiclibrary", "pluginSpec", "qtc.dev-module"]
     installDir: qtc.ide_plugin_path
     installTags: ["dynamiclibrary"]
+    useGuiPchFile: true
 
     property var pluginJsonReplacements
     property var pluginRecommends: []

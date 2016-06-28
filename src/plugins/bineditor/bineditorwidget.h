@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include "bineditor_global.h"
 #include "markup.h"
 
 #include <QBasicTimer>
@@ -46,7 +47,7 @@ namespace TextEditor { class FontSettings; }
 
 namespace BinEditor {
 
-class BinEditorWidget : public QAbstractScrollArea
+class BINEDITOR_EXPORT BinEditorWidget : public QAbstractScrollArea
 {
     Q_OBJECT
     Q_PROPERTY(bool modified READ isModified WRITE setModified DESIGNABLE false)

@@ -94,7 +94,10 @@ DesignerSettings SettingsPageWidget::settings() const
     settings.insert(DesignerSettingsKey::CANVASWIDTH, m_ui.spinCanvasWidth->value());
     settings.insert(DesignerSettingsKey::CANVASHEIGHT, m_ui.spinCanvasHeight->value());
     settings.insert(DesignerSettingsKey::WARNING_FOR_FEATURES_IN_DESIGNER,
-        m_ui.designerWarningsCheckBox->isChecked());
+                    m_ui.designerWarningsCheckBox->isChecked());
+    settings.insert(DesignerSettingsKey::WARNING_FOR_QML_FILES_INSTEAD_OF_UIQML_FILES,
+                    m_ui.designerWarningsUiQmlfiles->isChecked());
+
     settings.insert(DesignerSettingsKey::WARNING_FOR_DESIGNER_FEATURES_IN_EDITOR,
         m_ui.designerWarningsInEditorCheckBox->isChecked());
     settings.insert(DesignerSettingsKey::SHOW_DEBUGVIEW,
@@ -144,6 +147,8 @@ void SettingsPageWidget::setSettings(const DesignerSettings &settings)
         DesignerSettingsKey::CANVASHEIGHT).toInt());
     m_ui.designerWarningsCheckBox->setChecked(settings.value(
         DesignerSettingsKey::WARNING_FOR_FEATURES_IN_DESIGNER).toBool());
+    m_ui.designerWarningsUiQmlfiles->setChecked(settings.value(
+        DesignerSettingsKey::WARNING_FOR_QML_FILES_INSTEAD_OF_UIQML_FILES).toBool());
     m_ui.designerWarningsInEditorCheckBox->setChecked(settings.value(
         DesignerSettingsKey::WARNING_FOR_DESIGNER_FEATURES_IN_EDITOR).toBool());
     m_ui.designerShowDebuggerCheckBox->setChecked(settings.value(

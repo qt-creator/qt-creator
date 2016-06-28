@@ -392,7 +392,7 @@ QVariant fixResourcePaths(const QVariant &value)
                         if (QFileInfo(fixedPath).exists()) {
                             fixedPath.replace(QLatin1String("//"), QLatin1String("/"));
                             fixedPath.replace(QLatin1Char('\\'), QLatin1Char('/'));
-                            return QUrl(fixedPath);
+                            return QUrl::fromLocalFile(fixedPath);
                         }
                     }
                 }

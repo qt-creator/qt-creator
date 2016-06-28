@@ -613,7 +613,7 @@ void ClangCompletionAssistProcessor::handleAvailableCompletions(
     QTC_CHECK(m_completions.isEmpty());
 
     m_completions = toAssistProposalItems(completions);
-    if (m_addSnippets)
+    if (m_addSnippets && !m_completions.isEmpty())
         addSnippets();
 
     setAsyncProposalAvailable(createProposal(neededCorrection));

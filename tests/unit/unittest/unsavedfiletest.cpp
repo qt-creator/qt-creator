@@ -34,6 +34,7 @@
 using ClangBackEnd::UnsavedFile;
 using ClangBackEnd::UnsavedFiles;
 
+using ::testing::Eq;
 using ::testing::PrintToString;
 
 namespace {
@@ -148,6 +149,44 @@ TEST_F(UnsavedFile, Replace)
 
     ASSERT_TRUE(hasReplaced);
     ASSERT_THAT(unsavedFile, IsUnsavedFile(filePath, expectedContent, expectedContent.byteSize()));
+}
+
+TEST_F(UnsavedFile, ToUtf8PositionForValidLineColumn)
+{
+    ::UnsavedFile unsavedFile(filePath, fileContent);
+    bool ok = false;
+
+    const uint position = unsavedFile.toUtf8Position(1, 1, &ok);
+
+    ASSERT_TRUE(ok);
+    ASSERT_THAT(position, Eq(0));
+}
+
+TEST_F(UnsavedFile, ToUtf8PositionForInValidLineColumn)
+{
+    ::UnsavedFile unsavedFile(filePath, fileContent);
+    bool ok = false;
+
+    unsavedFile.toUtf8Position(2, 1, &ok);
+
+    ASSERT_FALSE(ok);
+}
+
+TEST_F(UnsavedFile, ToUtf8PositionForDefaultConstructedUnsavedFile)
+{
+    ::UnsavedFile unsavedFile;
+    bool ok = false;
+
+    unsavedFile.toUtf8Position(1, 1, &ok);
+
+    ASSERT_FALSE(ok);
+}
+
+TEST_F(UnsavedFile, HasNoCharacterForDefaultConstructedUnsavedFile)
+{
+    ::UnsavedFile unsavedFile;
+
+    ASSERT_FALSE(unsavedFile.hasCharacterAt(0, 'x'));
 }
 
 TEST_F(UnsavedFile, HasNoCharacterForTooBigOffset)

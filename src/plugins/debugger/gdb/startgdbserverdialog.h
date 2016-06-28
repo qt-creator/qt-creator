@@ -45,7 +45,7 @@ public:
 
     void run();
 
-private slots:
+private:
     void handleRemoteError(const QString &errorMessage);
     void portGathererError(const QString &errorMessage);
     void portListReady();
@@ -56,7 +56,6 @@ private slots:
     void handleProcessStarted();
     void handleConnectionError();
 
-private:
     void attach(int port);
     void logMessage(const QString &line);
     StartGdbServerDialogPrivate *d;

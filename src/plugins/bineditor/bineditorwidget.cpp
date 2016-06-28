@@ -23,7 +23,7 @@
 **
 ****************************************************************************/
 
-#include "bineditor.h"
+#include "bineditorwidget.h"
 
 #include <texteditor/fontsettings.h>
 #include <texteditor/texteditorconstants.h>

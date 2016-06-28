@@ -30,6 +30,8 @@
 
 #include <utils/qtcassert.h>
 
+using namespace Utils;
+
 namespace Debugger {
 namespace Internal {
 
@@ -286,9 +288,10 @@ void RegisterValue::shiftOneDigit(uint digit, RegisterFormat format)
 //
 //////////////////////////////////////////////////////////////////
 
+class RegisterItem;
 class RegisterSubItem;
 
-class RegisterEditItem : public Utils::TreeItem
+class RegisterEditItem : public TypedTreeItem<TreeItem, RegisterSubItem>
 {
 public:
     RegisterEditItem(int pos, RegisterKind subKind, int subSize, RegisterFormat format)
@@ -306,7 +309,7 @@ public:
 };
 
 
-class RegisterSubItem : public Utils::TreeItem
+class RegisterSubItem : public TypedTreeItem<RegisterEditItem, RegisterItem>
 {
 public:
     RegisterSubItem(RegisterKind subKind, int subSize, int count, RegisterFormat format)
@@ -333,7 +336,7 @@ public:
     bool m_changed;
 };
 
-class RegisterItem : public Utils::TreeItem
+class RegisterItem : public TypedTreeItem<RegisterSubItem>
 {
 public:
     explicit RegisterItem(const Register &reg);
@@ -460,10 +463,8 @@ QVariant RegisterSubItem::data(int column, int role) const
         case RegisterChangedRole:
             return m_changed;
 
-        case RegisterFormatRole: {
-            RegisterItem *registerItem = static_cast<RegisterItem *>(parent());
-            return int(registerItem->m_format);
-        }
+        case RegisterFormatRole:
+            return int(parent()->m_format);
 
         case RegisterAsAddressRole:
             return 0;
@@ -474,8 +475,7 @@ QVariant RegisterSubItem::data(int column, int role) const
                     return subTypeName(m_subKind, m_subSize, m_subFormat);
                 case RegisterValueColumn: {
                     QTC_ASSERT(parent(), return QVariant());
-                    RegisterItem *registerItem = static_cast<RegisterItem *>(parent());
-                    RegisterValue value = registerItem->m_reg.value;
+                    RegisterValue value = parent()->m_reg.value;
                     QString ba;
                     for (int i = 0; i != m_count; ++i) {
                         int tab = 5 * (i + 1) * m_subSize;
@@ -582,14 +582,13 @@ QVariant RegisterEditItem::data(int column, int role) const
                     return QString("[%1]").arg(m_index);
                 }
                 case RegisterValueColumn: {
-                    RegisterItem *registerItem = static_cast<RegisterItem *>(parent()->parent());
-                    RegisterValue value = registerItem->m_reg.value;
+                    RegisterValue value = parent()->parent()->m_reg.value;
                     return value.subValue(m_subSize, m_index)
                             .toString(m_subKind, m_subSize, m_subFormat, role == Qt::EditRole);
                 }
             }
         case Qt::ToolTipRole: {
-                RegisterItem *registerItem = static_cast<RegisterItem *>(parent()->parent());
+                RegisterItem *registerItem = parent()->parent();
                 return RegisterHandler::tr("Edit bits %1...%2 of register %3")
                         .arg(m_index * 8).arg(m_index * 8 + 7).arg(registerItem->m_reg.name);
             }
@@ -604,7 +603,7 @@ bool RegisterEditItem::setData(int column, const QVariant &value, int role)
     if (column == RegisterValueColumn && role == Qt::EditRole) {
         QTC_ASSERT(parent(), return false);
         QTC_ASSERT(parent()->parent(), return false);
-        RegisterItem *registerItem = static_cast<RegisterItem *>(parent()->parent());
+        RegisterItem *registerItem = parent()->parent();
         Register &reg = registerItem->m_reg;
         RegisterValue vv;
         vv.fromString(value.toString(), m_subFormat);
@@ -618,8 +617,7 @@ bool RegisterEditItem::setData(int column, const QVariant &value, int role)
 Qt::ItemFlags RegisterEditItem::flags(int column) const
 {
     QTC_ASSERT(parent(), return Qt::ItemFlags());
-    RegisterSubItem *registerSubItem = static_cast<RegisterSubItem *>(parent());
-    Qt::ItemFlags f = registerSubItem->flags(column);
+    Qt::ItemFlags f = parent()->flags(column);
     if (column == RegisterValueColumn)
         f |= Qt::ItemIsEditable;
     return f;

@@ -25,6 +25,7 @@
 
 #include "rewritertransaction.h"
 #include <abstractview.h>
+#include <rewriterview.h>
 
 #ifndef QMLDESIGNER_TEST
 #include <designdocument.h>
@@ -72,11 +73,22 @@ bool RewriterTransaction::isValid() const
     return m_valid;
 }
 
+void RewriterTransaction::ignoreSemanticChecks()
+{
+    m_ignoreSemanticChecks = true;
+}
+
 void RewriterTransaction::commit()
 {
     if (m_valid) {
         m_valid = false;
+        bool oldSemanticChecks = view()->rewriterView()->checkSemanticErrors();
+        if (m_ignoreSemanticChecks)
+            view()->rewriterView()->setCheckSemanticErrors(false);
+
         view()->emitRewriterEndTransaction();
+
+        view()->rewriterView()->setCheckSemanticErrors(oldSemanticChecks);
 
         if (m_activeIdentifier) {
             qDebug() << "Commit RewriterTransaction:" << m_identifier << m_identifierNumber;

@@ -36,9 +36,7 @@
 
 #include <QCheckBox>
 #include <QLineEdit>
-#include <QDebug>
 #include <QFormLayout>
-#include <QLabel>
 #include <QToolButton>
 
 using namespace Utils;
@@ -132,7 +130,7 @@ void TerminalAspect::setRunMode(ApplicationLauncher::Mode runMode)
 */
 
 WorkingDirectoryAspect::WorkingDirectoryAspect(RunConfiguration *runConfig, const QString &key)
-    : IRunConfigurationAspect(runConfig), m_chooser(0), m_key(key)
+    : IRunConfigurationAspect(runConfig), m_key(key)
 {
     setDisplayName(tr("Working Directory"));
     setId("WorkingDirectoryAspect");
@@ -215,16 +213,12 @@ void WorkingDirectoryAspect::toMap(QVariantMap &data) const
 
 FileName WorkingDirectoryAspect::workingDirectory() const
 {
-    if (m_chooser) {
-        return m_chooser->fileName();
-    } else {
-        auto envAspect = runConfiguration()->extraAspect<EnvironmentAspect>();
-        const Utils::Environment env = envAspect ? envAspect->environment()
-                                                 : Utils::Environment::systemEnvironment();
-        return FileName::fromString(
-                runConfiguration()->macroExpander()->expandProcessArgs(
-                        PathChooser::expandedDirectory(m_workingDirectory.toString(), env, QString())));
-    }
+    auto envAspect = runConfiguration()->extraAspect<EnvironmentAspect>();
+    const Utils::Environment env = envAspect ? envAspect->environment()
+                                             : Utils::Environment::systemEnvironment();
+    const QString macroExpanded
+            = runConfiguration()->macroExpander()->expandProcessArgs(m_workingDirectory.toUserOutput());
+    return FileName::fromString(PathChooser::expandedDirectory(macroExpanded, env, QString()));
 }
 
 FileName WorkingDirectoryAspect::defaultWorkingDirectory() const
@@ -244,13 +238,14 @@ void WorkingDirectoryAspect::setDefaultWorkingDirectory(const FileName &defaultW
 
     Utils::FileName oldDefaultDir = m_defaultWorkingDirectory;
     m_defaultWorkingDirectory = defaultWorkingDir;
-    if (m_chooser) {
-        if (m_chooser->fileName() == oldDefaultDir)
-            m_chooser->setFileName(m_defaultWorkingDirectory);
+    if (m_chooser)
         m_chooser->setBaseFileName(m_defaultWorkingDirectory);
-    }
-    if (m_workingDirectory.isEmpty() || m_workingDirectory == oldDefaultDir)
+
+    if (m_workingDirectory.isEmpty() || m_workingDirectory == oldDefaultDir) {
+        if (m_chooser)
+            m_chooser->setFileName(m_defaultWorkingDirectory);
         m_workingDirectory = defaultWorkingDir;
+    }
 }
 
 PathChooser *WorkingDirectoryAspect::pathChooser() const

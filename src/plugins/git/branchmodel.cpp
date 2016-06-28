@@ -470,6 +470,14 @@ QString BranchModel::sha(const QModelIndex &idx) const
     return node->sha;
 }
 
+QDateTime BranchModel::dateTime(const QModelIndex &idx) const
+{
+    if (!idx.isValid())
+        return QDateTime();
+    BranchNode *node = indexToNode(idx);
+    return node->dateTime;
+}
+
 bool BranchModel::hasTags() const
 {
     return m_rootNode->children.count() > Tags;
@@ -590,6 +598,7 @@ QModelIndex BranchModel::addBranch(const QString &name, bool track, const QModel
     QString startSha;
     QString output;
     QString errorMessage;
+    QDateTime branchDateTime;
 
     QStringList args;
     args << (track ? QLatin1String("--track") : QLatin1String("--no-track"));
@@ -597,8 +606,17 @@ QModelIndex BranchModel::addBranch(const QString &name, bool track, const QModel
     if (!fullTrackedBranch.isEmpty()) {
         args << fullTrackedBranch;
         startSha = sha(startPoint);
+        branchDateTime = dateTime(startPoint);
     } else {
-        startSha = m_client->synchronousTopRevision(m_workingDirectory);
+        QString output;
+        QString errorMessage;
+        const QStringList arguments({"-n1", "--format=%H %ct"});
+        if (m_client->synchronousLog(m_workingDirectory, arguments, &output, &errorMessage,
+                                      VcsCommand::SuppressCommandLogging)) {
+            const QStringList values = output.split(' ');
+            startSha = values[0];
+            branchDateTime = QDateTime::fromTime_t(values[1].toInt());
+        }
     }
 
     if (!m_client->synchronousBranchCmd(m_workingDirectory, args, &output, &errorMessage)) {
@@ -624,7 +642,8 @@ QModelIndex BranchModel::addBranch(const QString &name, bool track, const QModel
         local = child;
     }
     int pos = positionForName(local, leafName);
-    auto newNode = new BranchNode(leafName, startSha, track ? trackedBranch : QString());
+    auto newNode = new BranchNode(leafName, startSha, track ? trackedBranch : QString(),
+                                  branchDateTime);
     if (!added)
         beginInsertRows(nodeToIndex(local, 0), pos, pos);
     newNode->parent = local;

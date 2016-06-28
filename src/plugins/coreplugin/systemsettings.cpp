@@ -56,6 +56,9 @@ SystemSettings::SystemSettings()
     setCategory(Constants::SETTINGS_CATEGORY_CORE);
     setDisplayCategory(QCoreApplication::translate("Core", Constants::SETTINGS_TR_CATEGORY_CORE));
     setCategoryIcon(QLatin1String(Constants::SETTINGS_CATEGORY_CORE_ICON));
+
+    connect(VcsManager::instance(), &VcsManager::configurationChanged,
+            this, &SystemSettings::updatePath);
 }
 
 QWidget *SystemSettings::widget()
@@ -138,9 +141,6 @@ QWidget *SystemSettings::widget()
         }
 
         updatePath();
-
-        connect(VcsManager::instance(), &VcsManager::configurationChanged,
-                this, &SystemSettings::updatePath);
     }
     return m_widget;
 }
@@ -200,6 +200,9 @@ void SystemSettings::resetFileBrowser()
 
 void SystemSettings::updatePath()
 {
+    if (!m_page)
+       return;
+
     Environment env = Environment::systemEnvironment();
     QStringList toAdd = VcsManager::additionalToolsPath();
     env.appendOrSetPath(toAdd.join(HostOsInfo::pathListSeparator()));

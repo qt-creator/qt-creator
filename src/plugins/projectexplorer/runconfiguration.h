@@ -173,13 +173,15 @@ class PROJECTEXPLORER_EXPORT Runnable
 
         bool canReUseOutputPane(const std::unique_ptr<Concept> &other) const override
         {
+            if (!other.get())
+                return false;
             if (other->typeId() != typeId())
                 return false;
             auto that = static_cast<const Model<T> *>(other.get());
             return m_data == that->m_data;
         }
 
-        void *typeId() const { return T::staticTypeId; }
+        void *typeId() const override { return T::staticTypeId; }
 
         T m_data;
     };
@@ -220,7 +222,7 @@ class PROJECTEXPLORER_EXPORT Connection
     {
         Model(const T &data) : m_data(data) { }
         Concept *clone() const override { return new Model(*this); }
-        void *typeId() const { return T::staticTypeId; }
+        void *typeId() const override { return T::staticTypeId; }
         T m_data;
     };
 

@@ -99,7 +99,7 @@ public:
 // DebuggerItemModel
 // --------------------------------------------------------------------------
 
-class DebuggerItemModel : public LeveledTreeModel<StaticTreeItem, DebuggerTreeItem>
+class DebuggerItemModel : public LeveledTreeModel<TreeItem, StaticTreeItem, DebuggerTreeItem>
 {
     Q_DECLARE_TR_FUNCTIONS(Debugger::DebuggerOptionsPage)
 

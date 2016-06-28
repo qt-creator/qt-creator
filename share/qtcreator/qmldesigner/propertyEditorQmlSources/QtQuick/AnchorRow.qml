@@ -126,6 +126,7 @@ RowLayout {
                 exclusive: true
                 ButtonRowButton {
                     iconSource: verticalAnchor ? "../HelperWidgets/images/anchor-top.png" : "../HelperWidgets/images/anchor-left.png"
+                    tooltip: verticalAnchor ? qsTr("Anchor to the top of the target.") : qsTr("Anchor to the left of the target.")
                     onClicked: {
                         if (!invertRelativeTargets)
                             sameEdgeButtonClicked();
@@ -136,12 +137,14 @@ RowLayout {
 
                 ButtonRowButton {
                     iconSource: verticalAnchor ? "../HelperWidgets/images/anchor-vertical.png" : "../HelperWidgets/images/anchor-horizontal.png"
+                    tooltip: verticalAnchor ? qsTr("Anchor to the vertical center of the target.") : qsTr("Anchor to the horizontal center of the target.")
 
                     onClicked: centerButtonClicked();
                 }
 
                 ButtonRowButton {
                     iconSource: verticalAnchor ? "../HelperWidgets/images/anchor-bottom.png" : "../HelperWidgets/images/anchor-right.png"
+                    tooltip: verticalAnchor ? qsTr("Anchor to the bottom of the target.") : qsTr("Anchor to the right of the target.")
                     onClicked: {
                         if (!invertRelativeTargets)
                             oppositeEdgeButtonClicked();

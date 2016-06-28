@@ -310,7 +310,6 @@ public:
         (void) new OutputHighlighter(this);
     }
 
-public slots:
     void gotoResult(int i)
     {
         QString needle = QString::number(i) + QLatin1Char('^');

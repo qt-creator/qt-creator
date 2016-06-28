@@ -436,12 +436,17 @@ ContextPaneWidget* QuickToolBar::contextWidget()
 {
     if (m_widget.isNull()) { //lazily recreate widget
         m_widget = new ContextPaneWidget;
-        connect(m_widget.data(), SIGNAL(propertyChanged(QString,QVariant)), this, SLOT(onPropertyChanged(QString,QVariant)));
-        connect(m_widget.data(), SIGNAL(removeProperty(QString)), this, SLOT(onPropertyRemoved(QString)));
-        connect(m_widget.data(), SIGNAL(removeAndChangeProperty(QString,QString,QVariant,bool)), this, SLOT(onPropertyRemovedAndChange(QString,QString,QVariant,bool)));
-        connect(m_widget.data(), SIGNAL(enabledChanged(bool)), this, SLOT(onEnabledChanged(bool)));
-        connect(m_widget.data(), SIGNAL(pinnedChanged(bool)), this, SLOT(onPinnedChanged(bool)));
-        connect(m_widget.data(), SIGNAL(closed()), this, SIGNAL(closed()));
+        connect(m_widget.data(), &ContextPaneWidget::propertyChanged,
+                this, &QuickToolBar::onPropertyChanged);
+        connect(m_widget.data(), &ContextPaneWidget::removeProperty,
+                this, &QuickToolBar::onPropertyRemoved);
+        connect(m_widget.data(), &ContextPaneWidget::removeAndChangeProperty,
+                this, &QuickToolBar::onPropertyRemovedAndChange);
+        connect(m_widget.data(), &ContextPaneWidget::enabledChanged,
+                this, &QuickToolBar::onEnabledChanged);
+        connect(m_widget.data(), &ContextPaneWidget::pinnedChanged,
+                this, &QuickToolBar::onPinnedChanged);
+        connect(m_widget.data(), &ContextPaneWidget::closed, this, &IContextPane::closed);
     }
     return m_widget.data();
 }

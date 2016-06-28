@@ -54,9 +54,12 @@
 
 #include <QSet>
 #include <QDir>
+#include <QLoggingCategory>
 
 using namespace LanguageUtils;
 using namespace QmlJS;
+
+static Q_LOGGING_CATEGORY(rewriterBenchmark, "rewriter.load")
 
 namespace {
 
@@ -866,6 +869,12 @@ void TextToModelMerger::setupUsedImports()
 
 bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceHandler)
 {
+    qCInfo(rewriterBenchmark) << Q_FUNC_INFO;
+
+    QTime time;
+    if (rewriterBenchmark().isInfoEnabled())
+        time.start();
+
     // maybe the project environment (kit, ...) changed, so we need to clean old caches
     NodeMetaInfo::clearCache();
 
@@ -889,6 +898,8 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
         doc->setSource(data);
         doc->parseQml();
 
+        qCInfo(rewriterBenchmark) << "parsed correctly: " << doc->isParsedCorrectly() << time.elapsed();
+
         if (!doc->isParsedCorrectly()) {
             QList<RewriterError> errors;
             foreach (const QmlJS::DiagnosticMessage &message, doc->diagnosticMessages())
@@ -904,6 +915,8 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
                     new ScopeChain(ctxt.scopeChain()));
         m_document = doc;
 
+        qCInfo(rewriterBenchmark) << "linked:" << time.elapsed();
+
         QList<RewriterError> errors;
         QList<RewriterError> warnings;
 
@@ -916,6 +929,7 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
 
         if (view()->checkSemanticErrors()) {
 
+
             collectSemanticErrorsAndWarnings(&errors, &warnings);
 
             if (!errors.isEmpty()) {
@@ -924,6 +938,7 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
                 return false;
             }
             m_rewriterView->setWarnings(warnings);
+            qCInfo(rewriterBenchmark) << "checked semantic errors:" << time.elapsed();
         }
         setupUsedImports();
 
@@ -934,6 +949,8 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
         ModelNode modelRootNode = m_rewriterView->rootModelNode();
         syncNode(modelRootNode, astRootNode, &ctxt, differenceHandler);
         m_rewriterView->positionStorage()->cleanupInvalidOffsets();
+
+        qCInfo(rewriterBenchmark) << "synced nodes:" << time.elapsed();
 
         setActive(false);
         return true;
@@ -1943,20 +1960,20 @@ void TextToModelMerger::collectSemanticErrorsAndWarnings(QList<RewriterError> *e
 
 void TextToModelMerger::populateQrcMapping(const QString &filePath)
 {
+    if (!filePath.startsWith(QLatin1String("qrc:")))
+        return;
+
     QString path = removeFileFromQrcPath(filePath);
-    QString fileName = fileForFullQrcPath(filePath);
-    if (path.contains(QLatin1String("qrc:"))) {
-        path.remove(QLatin1String("qrc:"));
-        QMap<QString,QStringList> map = ModelManagerInterface::instance()->filesInQrcPath(path);
-        if (map.contains(fileName)) {
-            if (!map.value(fileName).isEmpty()) {
-                QString fileSystemPath =  map.value(fileName).first();
-                fileSystemPath.remove(fileName);
-                if (path.isEmpty())
-                    path.prepend(QLatin1String("/"));
-                m_qrcMapping.insert(qMakePair(path, fileSystemPath));
-            }
-        }
+    const QString fileName = fileForFullQrcPath(filePath);
+    path.remove(QLatin1String("qrc:"));
+    QMap<QString,QStringList> map = ModelManagerInterface::instance()->filesInQrcPath(path);
+    const QStringList qrcFilePathes = map.value(fileName, QStringList());
+    if (!qrcFilePathes.isEmpty()) {
+        QString fileSystemPath =  qrcFilePathes.first();
+        fileSystemPath.remove(fileName);
+        if (path.isEmpty())
+            path.prepend(QLatin1String("/"));
+        m_qrcMapping.insert(qMakePair(path, fileSystemPath));
     }
 }
 

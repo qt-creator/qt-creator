@@ -208,10 +208,11 @@ void MakeFileParse::parseAssignments(QList<QMakeAssignment> *assignments)
                 } else {
                     newValues.append(value);
                 }
+            }
+            if (!newValues.isEmpty()) {
                 QMakeAssignment newQA = qa;
                 newQA.value = newValues.join(QLatin1Char(' '));
-                if (!newValues.isEmpty())
-                    assignments->append(newQA);
+                assignments->append(newQA);
             }
         } else {
             assignments->append(qa);

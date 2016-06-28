@@ -48,11 +48,10 @@ public:
 
     QString displayName() const;
 
-private slots:
+private:
     void chooseSettings(int setting);
     void restoreGlobal();
 
-private:
     QWidget *m_configWidget;
     ProjectExplorer::IRunConfigurationAspect *m_aspect;
     ProjectExplorer::ISettingsAspect *m_config;

@@ -62,7 +62,7 @@ public:
     static SourcePathMap mergePlatformQtPath(const DebuggerRunParameters &sp,
                                              const SourcePathMap &in);
 
-private slots:
+private:
     void slotAdd();
     void slotAddQt();
     void slotRemove();
@@ -70,7 +70,6 @@ private slots:
     void slotEditSourceFieldChanged();
     void slotEditTargetFieldChanged();
 
-private:
     void resizeColumns();
     void updateEnabled();
     QString editSourceField() const;

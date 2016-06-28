@@ -95,7 +95,7 @@ struct ItemB : public TreeItem {};
 
 void tst_TreeModel::testMixed()
 {
-    LeveledTreeModel<ItemA, ItemB> m;
+    LeveledTreeModel<TreeItem, ItemA, ItemB> m;
     TreeItem *r = m.rootItem();
     TreeItem *ra;
     r->appendChild(new ItemA);

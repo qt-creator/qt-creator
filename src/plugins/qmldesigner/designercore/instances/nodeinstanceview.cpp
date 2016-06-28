@@ -124,7 +124,7 @@ NodeInstanceView::~NodeInstanceView()
 
 bool isSkippedRootNode(const ModelNode &node)
 {
-    static PropertyNameList skipList =  PropertyNameList() << "Qt.ListModel" << "QtQuick.ListModel" << "Qt.ListModel" << "QtQuick.ListModel";
+    static const PropertyNameList skipList({"Qt.ListModel", "QtQuick.ListModel", "Qt.ListModel", "QtQuick.ListModel"});
 
     if (skipList.contains(node.type()))
         return true;
@@ -135,7 +135,7 @@ bool isSkippedRootNode(const ModelNode &node)
 
 bool isSkippedNode(const ModelNode &node)
 {
-    static PropertyNameList skipList =  PropertyNameList() << "QtQuick.XmlRole" << "Qt.XmlRole" << "QtQuick.ListElement" << "Qt.ListElement";
+    static const PropertyNameList skipList({"QtQuick.XmlRole", "Qt.XmlRole", "QtQuick.ListElement", "Qt.ListElement"});
 
     if (skipList.contains(node.type()))
         return true;

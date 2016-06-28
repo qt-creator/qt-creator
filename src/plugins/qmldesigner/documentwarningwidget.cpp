@@ -86,6 +86,8 @@ DocumentWarningWidget::DocumentWarningWidget(QWidget *parent)
         }
     });
 
+    connect(m_ignoreWarningsCheckBox, &QCheckBox::toggled, this, &DocumentWarningWidget::ignoreCheckBoxToggled);
+
     QVBoxLayout *layout = new QVBoxLayout(this);
     layout->addWidget(m_headerLabel);
     QVBoxLayout *messageLayout = new QVBoxLayout;
@@ -117,7 +119,9 @@ void DocumentWarningWidget::refreshContent()
         m_continueButton->setText(tr("OK"));
     } else {
         m_headerLabel->setText(tr("This QML file contains features which are not supported by Qt Quick Designer at:"));
+        bool block = m_ignoreWarningsCheckBox->blockSignals(true);
         m_ignoreWarningsCheckBox->setChecked(!warningsEnabled());
+        m_ignoreWarningsCheckBox->blockSignals(block);
         m_ignoreWarningsCheckBox->show();
         m_continueButton->setText(tr("Ignore"));
     }
@@ -184,7 +188,7 @@ bool DocumentWarningWidget::warningsEnabled() const
 void DocumentWarningWidget::ignoreCheckBoxToggled(bool b)
 {
     DesignerSettings settings = QmlDesignerPlugin::instance()->settings();
-    settings.insert(DesignerSettingsKey::WARNING_FOR_FEATURES_IN_DESIGNER, b);
+    settings.insert(DesignerSettingsKey::WARNING_FOR_FEATURES_IN_DESIGNER, !b);
     QmlDesignerPlugin::instance()->setSettings(settings);
 }
 

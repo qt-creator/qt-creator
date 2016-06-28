@@ -65,7 +65,7 @@ void BehaviorNodeInstance::resetProperty(const PropertyName &name)
 
 PropertyNameList BehaviorNodeInstance::ignoredProperties() const
 {
-    return PropertyNameList() << "enabled";
+    return PropertyNameList({"enabled"});
 }
 
 

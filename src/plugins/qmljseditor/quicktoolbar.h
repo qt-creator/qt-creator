@@ -47,7 +47,6 @@ public:
    void setEnabled(bool);
    QWidget* widget();
 
-public slots:
    void onPropertyChanged(const QString &, const QVariant &);
    void onPropertyRemoved(const QString &);
    void onPropertyRemovedAndChange(const QString &, const QString &, const QVariant &, bool removeFirst = true);

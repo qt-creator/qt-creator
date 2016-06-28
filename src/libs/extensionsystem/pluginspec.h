@@ -63,6 +63,7 @@ struct EXTENSIONSYSTEM_EXPORT PluginDependency
     QString version;
     Type type;
     bool operator==(const PluginDependency &other) const;
+    QString toString() const;
 };
 
 uint qHash(const ExtensionSystem::PluginDependency &value);
@@ -118,6 +119,7 @@ public:
 
     // dependency specs, valid after 'Resolved' state is reached
     QHash<PluginDependency, PluginSpec *> dependencySpecs() const;
+    bool requiresAny(const QSet<PluginSpec *> &plugins) const;
 
     // linked plugin instance, valid after 'Loaded' state is reached
     IPlugin *plugin() const;

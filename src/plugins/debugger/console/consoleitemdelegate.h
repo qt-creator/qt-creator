@@ -44,8 +44,6 @@ public:
     void emitSizeHintChanged(const QModelIndex &index);
     QColor drawBackground(QPainter *painter, const QRect &rect, const QModelIndex &index,
                           bool selected) const;
-
-public slots:
     void currentChanged(const QModelIndex &current, const QModelIndex &previous);
 
 protected:

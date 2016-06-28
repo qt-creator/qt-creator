@@ -111,6 +111,7 @@ protected:
 
 private:
     QList<QGraphicsItem *> removeLayerItems(const QList<QGraphicsItem *> &itemList);
+    QList<QGraphicsItem *> itemsAt(const QPointF &pos);
 
     AbstractFormEditorTool* currentTool() const;
     void removeItemFromHash(FormEditorItem*);

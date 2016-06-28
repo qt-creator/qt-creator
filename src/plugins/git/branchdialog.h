@@ -52,11 +52,11 @@ public:
     explicit BranchDialog(QWidget *parent = 0);
     ~BranchDialog() override;
 
-public slots:
     void refresh(const QString &repository, bool force);
     void refreshIfSame(const QString &repository);
 
 private:
+    void resizeColumns();
     void enableButtons();
     void refreshCurrentRepository();
     void add();

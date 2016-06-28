@@ -467,28 +467,32 @@ QmlJSEditorDocumentPrivate::QmlJSEditorDocumentPrivate(QmlJSEditorDocument *pare
     // code model
     m_updateDocumentTimer.setInterval(UPDATE_DOCUMENT_DEFAULT_INTERVAL);
     m_updateDocumentTimer.setSingleShot(true);
-    connect(q->document(), SIGNAL(contentsChanged()), &m_updateDocumentTimer, SLOT(start()));
-    connect(&m_updateDocumentTimer, SIGNAL(timeout()), this, SLOT(reparseDocument()));
-    connect(modelManager, SIGNAL(documentUpdated(QmlJS::Document::Ptr)),
-            this, SLOT(onDocumentUpdated(QmlJS::Document::Ptr)));
+    connect(q->document(), &QTextDocument::contentsChanged,
+            &m_updateDocumentTimer, static_cast<void (QTimer::*)()>(&QTimer::start));
+    connect(&m_updateDocumentTimer, &QTimer::timeout,
+            this, &QmlJSEditorDocumentPrivate::reparseDocument);
+    connect(modelManager, &ModelManagerInterface::documentUpdated,
+            this, &QmlJSEditorDocumentPrivate::onDocumentUpdated);
 
     // semantic info
     m_semanticInfoUpdater = new SemanticInfoUpdater(this);
-    connect(m_semanticInfoUpdater, SIGNAL(updated(QmlJSTools::SemanticInfo)),
-            this, SLOT(acceptNewSemanticInfo(QmlJSTools::SemanticInfo)));
+    connect(m_semanticInfoUpdater, &SemanticInfoUpdater::updated,
+            this, &QmlJSEditorDocumentPrivate::acceptNewSemanticInfo);
     m_semanticInfoUpdater->start();
 
     // library info changes
     m_reupdateSemanticInfoTimer.setInterval(UPDATE_DOCUMENT_DEFAULT_INTERVAL);
     m_reupdateSemanticInfoTimer.setSingleShot(true);
-    connect(&m_reupdateSemanticInfoTimer, SIGNAL(timeout()), this, SLOT(reupdateSemanticInfo()));
-    connect(modelManager, SIGNAL(libraryInfoUpdated(QString,QmlJS::LibraryInfo)),
-            &m_reupdateSemanticInfoTimer, SLOT(start()));
+    connect(&m_reupdateSemanticInfoTimer, &QTimer::timeout,
+            this, &QmlJSEditorDocumentPrivate::reupdateSemanticInfo);
+    connect(modelManager, &ModelManagerInterface::libraryInfoUpdated,
+            &m_reupdateSemanticInfoTimer, static_cast<void (QTimer::*)()>(&QTimer::start));
 
     // outline model
     m_updateOutlineModelTimer.setInterval(UPDATE_OUTLINE_INTERVAL);
     m_updateOutlineModelTimer.setSingleShot(true);
-    connect(&m_updateOutlineModelTimer, SIGNAL(timeout()), this, SLOT(updateOutlineModel()));
+    connect(&m_updateOutlineModelTimer, &QTimer::timeout,
+            this, &QmlJSEditorDocumentPrivate::updateOutlineModel);
 
     modelManager->updateSourceFiles(QStringList(parent->filePath().toString()), false);
 }
@@ -589,8 +593,8 @@ QmlJSEditorDocument::QmlJSEditorDocument()
     : d(new Internal::QmlJSEditorDocumentPrivate(this))
 {
     setId(Constants::C_QMLJSEDITOR_ID);
-    connect(this, SIGNAL(tabSettingsChanged()),
-            d, SLOT(invalidateFormatterCache()));
+    connect(this, &TextEditor::TextDocument::tabSettingsChanged,
+            d, &Internal::QmlJSEditorDocumentPrivate::invalidateFormatterCache);
     setSyntaxHighlighter(new QmlJSHighlighter(document()));
     setIndenter(new Internal::Indenter);
 }

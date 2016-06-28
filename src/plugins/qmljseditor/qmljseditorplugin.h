@@ -73,18 +73,16 @@ public:
 
     Utils::JsonSchemaManager *jsonManager() const;
 
-public Q_SLOTS:
     void findUsages();
     void renameUsages();
     void reformatFile();
     void showContextPane();
 
-private Q_SLOTS:
+private:
     void currentEditorChanged(Core::IEditor *editor);
     void runSemanticScan();
     void checkCurrentEditorSemanticInfoUpToDate();
 
-private:
     Core::Command *addToolAction(QAction *a, Core::Context &context, Core::Id id,
                                  Core::ActionContainer *c1, const QString &keySequence);
 

@@ -150,7 +150,7 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
     addAutoReleasedObject(new GeneralSettingsPage());
     addAutoReleasedObject(m_searchTaskHandler = new SearchTaskHandler);
 
-    m_centralWidget = new CentralWidget(modecontext);
+    m_centralWidget = new CentralWidget(Context("Help.CentralHelpWidget"));
     connect(m_centralWidget, SIGNAL(sourceChanged(QUrl)), this,
         SLOT(updateSideBarSource(QUrl)));
     connect(m_centralWidget, &CentralWidget::closeButtonClicked,

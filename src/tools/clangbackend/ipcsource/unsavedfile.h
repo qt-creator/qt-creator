@@ -55,6 +55,7 @@ public:
     const char *filePath() const;
 
     // 1-based line and column
+    uint toUtf8Position(uint line, uint column, bool *ok) const;
     bool hasCharacterAt(uint line, uint column, char character) const;
     bool hasCharacterAt(uint position, char character) const;
     bool replaceAt(uint position, uint length, const Utf8String &replacement);

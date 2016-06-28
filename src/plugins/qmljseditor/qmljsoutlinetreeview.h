@@ -38,7 +38,7 @@ public:
 
     void contextMenuEvent(QContextMenuEvent *event);
 
-private slots:
+private:
     void collapseAllExceptRoot();
 };
 

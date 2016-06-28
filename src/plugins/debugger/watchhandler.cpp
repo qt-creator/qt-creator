@@ -36,7 +36,6 @@
 #include "simplifytype.h"
 #include "imageviewer.h"
 #include "watchutils.h"
-#include "cdb/cdbengine.h" // Remove after string freeze
 
 #include <coreplugin/icore.h>
 
@@ -1185,9 +1184,9 @@ QString WatchModel::nameForFormat(int format)
         case AutomaticFormat: return tr("Automatic");
 
         case RawFormat: return tr("Raw Data");
-        case SimpleFormat: return CdbEngine::tr("Normal");  // FIXME: String
+        case SimpleFormat: return tr("Normal");
         case EnhancedFormat: return tr("Enhanced");
-        case SeparateFormat: return CdbEngine::tr("Separate Window");  // FIXME: String
+        case SeparateFormat: return tr("Separate Window");
 
         case Latin1StringFormat: return tr("Latin1 String");
         case SeparateLatin1StringFormat: return tr("Latin1 String in Separate Window");

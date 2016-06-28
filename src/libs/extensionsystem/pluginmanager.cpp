@@ -369,12 +369,10 @@ void PluginManager::loadPlugins()
 */
 bool PluginManager::hasError()
 {
-    foreach (PluginSpec *spec, plugins()) {
+    return Utils::anyOf(plugins(), [](PluginSpec *spec) {
         // only show errors on startup if plugin is enabled.
-        if (spec->hasError() && spec->isEffectivelyEnabled())
-            return true;
-    }
-    return false;
+        return spec->hasError() && spec->isEffectivelyEnabled();
+    });
 }
 
 /*!
@@ -382,19 +380,11 @@ bool PluginManager::hasError()
  */
 QSet<PluginSpec *> PluginManager::pluginsRequiringPlugin(PluginSpec *spec)
 {
-    QSet<PluginSpec *> dependingPlugins;
-    dependingPlugins.insert(spec);
-    foreach (PluginSpec *checkSpec, d->loadQueue()) {
-        QHashIterator<PluginDependency, PluginSpec *> depIt(checkSpec->dependencySpecs());
-        while (depIt.hasNext()) {
-            depIt.next();
-            if (depIt.key().type != PluginDependency::Required)
-                continue;
-            if (dependingPlugins.contains(depIt.value())) {
-                dependingPlugins.insert(checkSpec);
-                break; // no use to check other dependencies, continue with load queue
-            }
-        }
+    QSet<PluginSpec *> dependingPlugins({spec});
+    // recursively add plugins that depend on plugins that.... that depend on spec
+    foreach (PluginSpec *spec, d->loadQueue()) {
+        if (spec->requiresAny(dependingPlugins))
+            dependingPlugins.insert(spec);
     }
     dependingPlugins.remove(spec);
     return dependingPlugins;
@@ -665,9 +655,7 @@ bool PluginManager::parseOptions(const QStringList &args,
 
 static inline void indent(QTextStream &str, int indent)
 {
-    const QChar blank = QLatin1Char(' ');
-    for (int i = 0 ; i < indent; i++)
-        str << blank;
+    str << QString(indent, ' ');
 }
 
 static inline void formatOption(QTextStream &str,
@@ -927,12 +915,9 @@ void PluginManagerPrivate::stopAll()
 */
 void PluginManagerPrivate::deleteAll()
 {
-    QList<PluginSpec *> queue = loadQueue();
-    QListIterator<PluginSpec *> it(queue);
-    it.toBack();
-    while (it.hasPrevious()) {
-        loadPlugin(it.previous(), PluginSpec::Deleted);
-    }
+    Utils::reverseForeach(loadQueue(), [this](PluginSpec *spec) {
+        loadPlugin(spec, PluginSpec::Deleted);
+    });
 }
 
 #ifdef WITH_TESTS
@@ -1225,10 +1210,7 @@ void PluginManagerPrivate::loadPlugins()
     foreach (PluginSpec *spec, queue) {
         loadPlugin(spec, PluginSpec::Initialized);
     }
-    QListIterator<PluginSpec *> it(queue);
-    it.toBack();
-    while (it.hasPrevious()) {
-        PluginSpec *spec = it.previous();
+    Utils::reverseForeach(queue, [this](PluginSpec *spec) {
         loadPlugin(spec, PluginSpec::Running);
         if (spec->state() == PluginSpec::Running) {
             delayedInitializeQueue.append(spec);
@@ -1236,7 +1218,7 @@ void PluginManagerPrivate::loadPlugins()
             // Plugin initialization failed, so cleanup after it
             spec->d->kill();
         }
-    }
+    });
     emit q->pluginsChanged();
 
     delayedInitializeTimer = new QTimer;
@@ -1420,6 +1402,21 @@ void PluginManagerPrivate::setPluginPaths(const QStringList &paths)
     readPluginPaths();
 }
 
+static QStringList pluginFiles(const QStringList &pluginPaths)
+{
+    QStringList pluginFiles;
+    QStringList searchPaths = pluginPaths;
+    while (!searchPaths.isEmpty()) {
+        const QDir dir(searchPaths.takeFirst());
+        const QFileInfoList files = dir.entryInfoList(QDir::Files | QDir::NoSymLinks);
+        const QStringList absoluteFilePaths = Utils::transform(files, &QFileInfo::absoluteFilePath);
+        pluginFiles += Utils::filtered(absoluteFilePaths, [](const QString &path) { return QLibrary::isLibrary(path); });
+        const QFileInfoList dirs = dir.entryInfoList(QDir::Dirs|QDir::NoDotAndDotDot);
+        searchPaths += Utils::transform(dirs, &QFileInfo::absoluteFilePath);
+    }
+    return pluginFiles;
+}
+
 /*!
     \internal
 */
@@ -1430,24 +1427,10 @@ void PluginManagerPrivate::readPluginPaths()
     pluginSpecs.clear();
     pluginCategories.clear();
 
-    QStringList pluginFiles;
-    QStringList searchPaths = pluginPaths;
-    while (!searchPaths.isEmpty()) {
-        const QDir dir(searchPaths.takeFirst());
-        const QFileInfoList files = dir.entryInfoList(QDir::Files | QDir::NoSymLinks);
-        foreach (const QFileInfo &file, files) {
-            const QString filePath = file.absoluteFilePath();
-            if (QLibrary::isLibrary(filePath))
-                pluginFiles.append(filePath);
-        }
-        const QFileInfoList dirs = dir.entryInfoList(QDir::Dirs|QDir::NoDotAndDotDot);
-        foreach (const QFileInfo &subdir, dirs)
-            searchPaths << subdir.absoluteFilePath();
-    }
-    defaultCollection = new PluginCollection(QString());
+    auto defaultCollection = new PluginCollection(QString());
     pluginCategories.insert(QString(), defaultCollection);
 
-    foreach (const QString &pluginFile, pluginFiles) {
+    foreach (const QString &pluginFile, pluginFiles(pluginPaths)) {
         PluginSpec *spec = new PluginSpec;
         if (!spec->d->read(pluginFile)) { // not a Qt Creator plugin
             delete spec;
@@ -1492,12 +1475,9 @@ void PluginManagerPrivate::resolveDependencies()
         spec->d->resolveDependencies(pluginSpecs);
     }
 
-    QListIterator<PluginSpec *> it(loadQueue());
-    it.toBack();
-    while (it.hasPrevious()) {
-        PluginSpec *spec = it.previous();
+    Utils::reverseForeach(loadQueue(), [](PluginSpec *spec) {
         spec->d->enableDependenciesIndirectly();
-    }
+    });
 }
 
 void PluginManagerPrivate::enableOnlyTestedSpecs()
@@ -1529,20 +1509,19 @@ void PluginManagerPrivate::enableOnlyTestedSpecs()
     }
 }
 
- // Look in argument descriptions of the specs for the option.
+// Look in argument descriptions of the specs for the option.
 PluginSpec *PluginManagerPrivate::pluginForOption(const QString &option, bool *requiresArgument) const
 {
     // Look in the plugins for an option
     *requiresArgument = false;
-    foreach (PluginSpec *ps, pluginSpecs) {
-        const PluginSpec::PluginArgumentDescriptions pargs = ps->argumentDescriptions();
-        if (!pargs.empty()) {
-            foreach (PluginArgumentDescription pad, pargs) {
-                if (pad.name == option) {
-                    *requiresArgument = !pad.parameter.isEmpty();
-                    return ps;
-                }
-            }
+    foreach (PluginSpec *spec, pluginSpecs) {
+        PluginArgumentDescription match = Utils::findOrDefault(spec->argumentDescriptions(),
+                                                               [option](PluginArgumentDescription pad) {
+                                                                   return pad.name == option;
+                                                               });
+        if (!match.name.isEmpty()) {
+            *requiresArgument = !match.parameter.isEmpty();
+            return spec;
         }
     }
     return 0;
@@ -1550,10 +1529,7 @@ PluginSpec *PluginManagerPrivate::pluginForOption(const QString &option, bool *r
 
 PluginSpec *PluginManagerPrivate::pluginByName(const QString &name) const
 {
-    foreach (PluginSpec *spec, pluginSpecs)
-        if (spec->name() == name)
-            return spec;
-    return 0;
+    return Utils::findOrDefault(pluginSpecs, [name](PluginSpec *spec) { return spec->name() == name; });
 }
 
 void PluginManagerPrivate::initProfiling()
@@ -1586,22 +1562,19 @@ void PluginManagerPrivate::profilingReport(const char *what, const PluginSpec *s
 void PluginManagerPrivate::profilingSummary() const
 {
     if (!m_profileTimer.isNull()) {
-        typedef QMultiMap<int, const PluginSpec *> Sorter;
-        Sorter sorter;
+        QMultiMap<int, const PluginSpec *> sorter;
         int total = 0;
 
-        QHash<const PluginSpec *, int>::ConstIterator it1 = m_profileTotal.constBegin();
-        QHash<const PluginSpec *, int>::ConstIterator et1 = m_profileTotal.constEnd();
-        for (; it1 != et1; ++it1) {
-            sorter.insert(it1.value(), it1.key());
-            total += it1.value();
+        auto totalEnd = m_profileTotal.constEnd();
+        for (auto it = m_profileTotal.constBegin(); it != totalEnd; ++it) {
+            sorter.insert(it.value(), it.key());
+            total += it.value();
         }
 
-        Sorter::ConstIterator it2 = sorter.constBegin();
-        Sorter::ConstIterator et2 = sorter.constEnd();
-        for (; it2 != et2; ++it2)
-            qDebug("%-22s %8dms   ( %5.2f%% )", qPrintable(it2.value()->name()),
-                it2.key(), 100.0 * it2.key() / total);
+        auto sorterEnd = sorter.constEnd();
+        for (auto it = sorter.constBegin(); it != sorterEnd; ++it)
+            qDebug("%-22s %8dms   ( %5.2f%% )", qPrintable(it.value()->name()),
+                it.key(), 100.0 * it.key() / total);
          qDebug("Total: %8dms", total);
     }
 }
@@ -1693,12 +1666,9 @@ bool PluginManager::isInitializationDone()
 QObject *PluginManager::getObjectByName(const QString &name)
 {
     QReadLocker lock(&d->m_lock);
-    QList<QObject *> all = allObjects();
-    foreach (QObject *obj, all) {
-        if (obj->objectName() == name)
-            return obj;
-    }
-    return 0;
+    return Utils::findOrDefault(allObjects(), [&name](const QObject *obj) {
+        return obj->objectName() == name;
+    });
 }
 
 /*!
@@ -1711,10 +1681,7 @@ QObject *PluginManager::getObjectByClassName(const QString &className)
 {
     const QByteArray ba = className.toUtf8();
     QReadLocker lock(&d->m_lock);
-    QList<QObject *> all = allObjects();
-    foreach (QObject *obj, all) {
-        if (obj->inherits(ba.constData()))
-            return obj;
-    }
-    return 0;
+    return Utils::findOrDefault(allObjects(), [&ba](const QObject *obj) {
+        return obj->inherits(ba.constData());
+    });
 }

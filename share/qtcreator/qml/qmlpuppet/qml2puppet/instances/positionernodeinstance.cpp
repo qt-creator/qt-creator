@@ -76,8 +76,8 @@ void PositionerNodeInstance::refreshLayoutable()
 
 PropertyNameList PositionerNodeInstance::ignoredProperties() const
 {
-    return PropertyNameList() << "move" << "add" << "populate";
+    static const PropertyNameList properties({"move", "add", "populate"});
+    return properties;
 }
-
-}
+} // namespace Internal
 } // namespace QmlDesigner

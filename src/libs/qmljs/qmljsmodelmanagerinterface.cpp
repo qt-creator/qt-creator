@@ -104,12 +104,13 @@ ModelManagerInterface::ModelManagerInterface(QObject *parent)
     m_updateCppQmlTypesTimer = new QTimer(this);
     m_updateCppQmlTypesTimer->setInterval(1000);
     m_updateCppQmlTypesTimer->setSingleShot(true);
-    connect(m_updateCppQmlTypesTimer, SIGNAL(timeout()), SLOT(startCppQmlTypeUpdate()));
+    connect(m_updateCppQmlTypesTimer, &QTimer::timeout,
+            this, &ModelManagerInterface::startCppQmlTypeUpdate);
 
     m_asyncResetTimer = new QTimer(this);
     m_asyncResetTimer->setInterval(15000);
     m_asyncResetTimer->setSingleShot(true);
-    connect(m_asyncResetTimer, SIGNAL(timeout()), SLOT(resetCodeModel()));
+    connect(m_asyncResetTimer, &QTimer::timeout, this, &ModelManagerInterface::resetCodeModel);
 
     qRegisterMetaType<QmlJS::Document::Ptr>("QmlJS::Document::Ptr");
     qRegisterMetaType<QmlJS::LibraryInfo>("QmlJS::LibraryInfo");

@@ -52,15 +52,14 @@ QmlTaskManager::QmlTaskManager(QObject *parent) :
     m_updatingSemantic(false)
 {
     // displaying results incrementally leads to flickering
-//    connect(&m_messageCollector, SIGNAL(resultsReadyAt(int,int)),
-//            SLOT(displayResults(int,int)));
-    connect(&m_messageCollector, SIGNAL(finished()),
-            SLOT(displayAllResults()));
+//    connect(&m_messageCollector, &QFutureWatcherBase::resultsReadyAt,
+//            this, &QmlTaskManager::displayResults);
+    connect(&m_messageCollector, &QFutureWatcherBase::finished,
+            this, &QmlTaskManager::displayAllResults);
 
     m_updateDelay.setInterval(500);
     m_updateDelay.setSingleShot(true);
-    connect(&m_updateDelay, SIGNAL(timeout()),
-            SLOT(updateMessagesNow()));
+    connect(&m_updateDelay, &QTimer::timeout, this, [this] { updateMessagesNow(); });
 }
 
 static QList<Task> convertToTasks(const QList<DiagnosticMessage> &messages, const FileName &fileName, Core::Id category)

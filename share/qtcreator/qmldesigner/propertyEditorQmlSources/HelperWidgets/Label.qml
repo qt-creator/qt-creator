@@ -32,6 +32,8 @@ Controls.Label {
     id: label
 
     property alias tooltip: toolTipArea.tooltip
+    // workaround because PictureSpecifics.qml still use this
+    property alias toolTip: toolTipArea.tooltip
 
     width: Math.max(Math.min(240, parent.width - 220), 80)
     color: "#eee"

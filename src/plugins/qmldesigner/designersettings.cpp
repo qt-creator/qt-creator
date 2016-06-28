@@ -53,6 +53,7 @@ void DesignerSettings::fromSettings(QSettings *settings)
     restoreValue(settings, DesignerSettingsKey::CANVASWIDTH, 10000);
     restoreValue(settings, DesignerSettingsKey::CANVASHEIGHT, 10000);
     restoreValue(settings, DesignerSettingsKey::WARNING_FOR_FEATURES_IN_DESIGNER, true);
+    restoreValue(settings, DesignerSettingsKey::WARNING_FOR_QML_FILES_INSTEAD_OF_UIQML_FILES, true);
     restoreValue(settings, DesignerSettingsKey::WARNING_FOR_DESIGNER_FEATURES_IN_EDITOR, false);
     restoreValue(settings, DesignerSettingsKey::SHOW_DEBUGVIEW, false);
     restoreValue(settings, DesignerSettingsKey::ENABLE_DEBUGVIEW, false);

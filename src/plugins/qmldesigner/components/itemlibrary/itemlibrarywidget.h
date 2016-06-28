@@ -34,6 +34,7 @@
 #include <QToolButton>
 #include <QFileIconProvider>
 #include <QQuickWidget>
+#include <QTimer>
 
 QT_BEGIN_NAMESPACE
 class QFileSystemModel;
@@ -86,6 +87,7 @@ public:
     static QString qmlSourcesPath();
 public slots:
     void setSearchFilter(const QString &searchFilter);
+    void delayedUpdateModel();
     void updateModel();
     void updateSearch();
 
@@ -107,6 +109,7 @@ private slots:
     void reloadQmlSource();
 
 private:
+    QTimer m_compressionTimer;
     QSize m_itemIconSize;
     QSize m_resIconSize;
     ItemLibraryFileIconProvider m_iconProvider;

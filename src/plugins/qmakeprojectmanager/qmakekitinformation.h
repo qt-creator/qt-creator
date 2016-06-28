@@ -47,6 +47,8 @@ public:
 
     ItemList toUserOutput(const ProjectExplorer::Kit *k) const override;
 
+    void addToMacroExpander(ProjectExplorer::Kit *kit, Utils::MacroExpander *expander) const override;
+
     static Core::Id id();
     static void setMkspec(ProjectExplorer::Kit *k, const Utils::FileName &fn);
     static Utils::FileName mkspec(const ProjectExplorer::Kit *k);

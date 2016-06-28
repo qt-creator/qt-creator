@@ -820,6 +820,9 @@ void Check::visitQmlObject(Node *ast, UiQualifiedId *typeId,
 
     const QString typeName = getRightMostIdentifier(typeId)->name.toString();
 
+    if (!m_typeStack.isEmpty() && m_typeStack.last() == QLatin1String("State"))
+        addMessage(StateCannotHaveChildItem, typeErrorLocation, typeName);
+
     if (checkTypeForDesignerSupport(typeId))
         addMessage(WarnUnsupportedTypeInVisualDesigner, typeErrorLocation, typeName);
 

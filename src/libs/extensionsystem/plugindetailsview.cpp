@@ -29,6 +29,8 @@
 #include "pluginmanager.h"
 #include "pluginspec.h"
 
+#include <utils/algorithm.h>
+
 #include <QDir>
 #include <QRegExp>
 
@@ -88,23 +90,6 @@ void PluginDetailsView::update(PluginSpec *spec)
     const QString platformString = tr("%1 (current: \"%2\")").arg(pluginPlatformString,
                                                                   PluginManager::platformName());
     m_ui->platforms->setText(platformString);
-    QStringList depStrings;
-    foreach (const PluginDependency &dep, spec->dependencies()) {
-        QString depString = dep.name;
-        depString += QLatin1String(" (");
-        depString += dep.version;
-        switch (dep.type) {
-        case PluginDependency::Required:
-            break;
-        case PluginDependency::Optional:
-            depString += QLatin1String(", optional");
-            break;
-        case PluginDependency::Test:
-            depString += QLatin1String(", test");
-            break;
-        }
-        depString += QLatin1Char(')');
-        depStrings.append(depString);
-    }
+    const QStringList depStrings = Utils::transform<QList>(spec->dependencies(), &PluginDependency::toString);
     m_ui->dependencies->addItems(depStrings);
 }

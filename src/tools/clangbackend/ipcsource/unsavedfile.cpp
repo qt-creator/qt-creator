@@ -71,15 +71,24 @@ const char *UnsavedFile::filePath() const
     return cxUnsavedFile.Filename;
 }
 
-bool UnsavedFile::hasCharacterAt(uint line, uint column, char character) const
+uint UnsavedFile::toUtf8Position(uint line, uint column, bool *ok) const
 {
     Utf8PositionFromLineColumn converter(cxUnsavedFile.Contents);
     if (converter.find(line, column)) {
-        const uint utf8Position = converter.position();
-        return hasCharacterAt(utf8Position, character);
+        *ok = true;
+        return converter.position();
     }
 
-    return false;
+    *ok = false;
+    return 0;
+}
+
+bool UnsavedFile::hasCharacterAt(uint line, uint column, char character) const
+{
+    bool positionIsOk = false;
+    const uint utf8Position = toUtf8Position(line, column, &positionIsOk);
+
+    return positionIsOk && hasCharacterAt(utf8Position, character);
 }
 
 bool UnsavedFile::hasCharacterAt(uint position, char character) const
@@ -118,11 +127,16 @@ UnsavedFile::~UnsavedFile()
     cxUnsavedFile.Length = 0;
 }
 
+static const char *printCString(const char *str)
+{
+    return str ? str : "nullptr";
+}
+
 void PrintTo(const UnsavedFile &unsavedFile, std::ostream *os)
 {
     *os << "UnsavedFile("
-           << unsavedFile.cxUnsavedFile.Filename << ", "
-           << unsavedFile.cxUnsavedFile.Contents << ", "
+           << printCString(unsavedFile.cxUnsavedFile.Filename) << ", "
+           << printCString(unsavedFile.cxUnsavedFile.Contents) << ", "
            << unsavedFile.cxUnsavedFile.Length << ")";
 }
 

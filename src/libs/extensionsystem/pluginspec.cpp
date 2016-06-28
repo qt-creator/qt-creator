@@ -30,6 +30,8 @@
 #include "iplugin_p.h"
 #include "pluginmanager.h"
 
+#include <utils/algorithm.h>
+
 #include <QCoreApplication>
 #include <QDebug>
 #include <QDir>
@@ -144,6 +146,24 @@ uint ExtensionSystem::qHash(const PluginDependency &value)
 bool PluginDependency::operator==(const PluginDependency &other) const
 {
     return name == other.name && version == other.version && type == other.type;
+}
+
+static QString typeString(PluginDependency::Type type)
+{
+    switch (type) {
+    case PluginDependency::Optional:
+        return QString(", optional");
+    case PluginDependency::Test:
+        return QString(", test");
+    case PluginDependency::Required:
+    default:
+        return QString();
+    }
+}
+
+QString PluginDependency::toString() const
+{
+    return name + " (" + version + typeString(type) + ")";
 }
 
 /*!
@@ -444,6 +464,14 @@ IPlugin *PluginSpec::plugin() const
 QHash<PluginDependency, PluginSpec *> PluginSpec::dependencySpecs() const
 {
     return d->dependencySpecs;
+}
+
+bool PluginSpec::requiresAny(const QSet<PluginSpec *> &plugins) const
+{
+    return Utils::anyOf(d->dependencySpecs.keys(), [this, &plugins](const PluginDependency &dep) {
+        return dep.type == PluginDependency::Required
+               && plugins.contains(d->dependencySpecs.value(dep));
+    });
 }
 
 //==========PluginSpecPrivate==================
@@ -877,14 +905,9 @@ bool PluginSpecPrivate::resolveDependencies(const QList<PluginSpec *> &specs)
     }
     QHash<PluginDependency, PluginSpec *> resolvedDependencies;
     foreach (const PluginDependency &dependency, dependencies) {
-        PluginSpec *found = 0;
-
-        foreach (PluginSpec *spec, specs) {
-            if (spec->provides(dependency.name, dependency.version)) {
-                found = spec;
-                break;
-            }
-        }
+        PluginSpec * const found = Utils::findOrDefault(specs, [&dependency](PluginSpec *spec) {
+            return spec->provides(dependency.name, dependency.version);
+        });
         if (!found) {
             if (dependency.type == PluginDependency::Required) {
                 hasError = true;
