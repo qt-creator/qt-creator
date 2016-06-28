@@ -112,6 +112,19 @@ protected:
         readFileContent(QStringLiteral("/complete_withDotArrowCorrectionForPointer.cpp")),
         true
     };
+    ClangBackEnd::FileContainer dotArrowCorrectionForPointerFileContainerBeforeTyping{
+        Utf8StringLiteral(TESTDATA_DIR"/complete_withDotArrowCorrectionForPointer.cpp"),
+        projectPart.projectPartId(),
+        readFileContent(QStringLiteral("/complete_withDotArrowCorrectionForPointer_beforeTyping.cpp")),
+        true
+    };
+    ClangBackEnd::FileContainer dotArrowCorrectionForPointerFileContainerAfterTyping{
+        Utf8StringLiteral(TESTDATA_DIR"/complete_withDotArrowCorrectionForPointer.cpp"),
+        projectPart.projectPartId(),
+        readFileContent(QStringLiteral("/complete_withDotArrowCorrectionForPointer_afterTyping.cpp")),
+        true
+    };
+
     ClangBackEnd::FileContainer dotArrowCorrectionForPointerFileContainerInitial{
         Utf8StringLiteral(TESTDATA_DIR"/complete_withDotArrowCorrectionForPointer.cpp"),
         projectPart.projectPartId(),
@@ -313,33 +326,27 @@ TEST_F(CodeCompleter, ArrowCompletion)
                 ClangBackEnd::CompletionCorrection::NoCorrection);
 }
 
-TEST_F(CodeCompleter, HasDotAt)
-{
-    auto myCompleter = setupCompleter(dotArrowCorrectionForPointerFileContainer);
-
-    ASSERT_TRUE(myCompleter.hasDotAt(5, 8));
-}
-
-TEST_F(CodeCompleter, HasDotAtWithUpdatedUnsavedFile)
-{
-    auto myCompleter = setupCompleter(dotArrowCorrectionForPointerFileContainerInitial);
-    unsavedFiles.createOrUpdate({dotArrowCorrectionForPointerFileContainerUpdated});
-
-    ASSERT_TRUE(myCompleter.hasDotAt(5, 8));
-}
-
-TEST_F(CodeCompleter, HasNoDotAtDueToMissingUnsavedFile)
-{
-    const ClangBackEnd::FileContainer fileContainer = dotArrowCorrectionForPointerFileContainer;
-    translationUnits.create({fileContainer});
-    ClangBackEnd::CodeCompleter myCompleter(translationUnits.translationUnit(fileContainer));
-
-    ASSERT_FALSE(myCompleter.hasDotAt(5, 8));
-}
-
 TEST_F(CodeCompleter, DotToArrowCompletionForPointer)
 {
     auto myCompleter = setupCompleter(dotArrowCorrectionForPointerFileContainer);
+
+    const ClangBackEnd::CodeCompletions completions = myCompleter.complete(5, 9);
+
+    ASSERT_THAT(completions,
+                Contains(IsCodeCompletion(Utf8StringLiteral("member"),
+                                          CodeCompletion::VariableCompletionKind)));
+    ASSERT_THAT(myCompleter.neededCorrection(),
+                ClangBackEnd::CompletionCorrection::DotToArrowCorrection);
+}
+
+TEST_F(CodeCompleter, DotToArrowCompletionForPointerInOutdatedTranslationUnit)
+{
+    auto fileContainerBeforeTyping = dotArrowCorrectionForPointerFileContainerBeforeTyping;
+    auto myCompleter = setupCompleter(fileContainerBeforeTyping);
+    auto translationUnit = translationUnits.translationUnit(fileContainerBeforeTyping.filePath(),
+                                                            fileContainerBeforeTyping.projectPartId());
+    translationUnit.cxTranslationUnit(); // Parse
+    unsavedFiles.createOrUpdate({dotArrowCorrectionForPointerFileContainerAfterTyping});
 
     const ClangBackEnd::CodeCompletions completions = myCompleter.complete(5, 9);
 

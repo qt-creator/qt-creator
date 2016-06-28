@@ -22,5 +22,6 @@
         <file>objc_messages_3.mm</file>
         <file>preprocessorKeywordsCompletion.cpp</file>
         <file>dotToArrowCorrection.cpp</file>
+        <file>noDotToArrowCorrectionForFloats.cpp</file>
     </qresource>
 </RCC>

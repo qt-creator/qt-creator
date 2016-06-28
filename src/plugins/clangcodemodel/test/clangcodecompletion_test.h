@@ -48,6 +48,7 @@ private slots:
     void testCompleteConstructorAndFallbackToGlobalCompletion();
 
     void testCompleteWithDotToArrowCorrection();
+    void testDontCompleteWithDotToArrowCorrectionForFloats();
 
     void testCompleteProjectDependingCode();
     void testCompleteProjectDependingCodeAfterChangingProject();

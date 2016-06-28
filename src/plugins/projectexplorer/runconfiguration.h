@@ -173,6 +173,8 @@ class PROJECTEXPLORER_EXPORT Runnable
 
         bool canReUseOutputPane(const std::unique_ptr<Concept> &other) const override
         {
+            if (!other.get())
+                return false;
             if (other->typeId() != typeId())
                 return false;
             auto that = static_cast<const Model<T> *>(other.get());
