@@ -426,13 +426,8 @@ bool LinkPrivate::importLibrary(Document::Ptr doc,
     QString libraryPath = libraryPath_;
 
     LibraryInfo libraryInfo = snapshot.libraryInfo(libraryPath);
-    if (!libraryInfo.isValid()) {
-        // try canonical path
-        libraryPath = QFileInfo(libraryPath).canonicalFilePath();
-        libraryInfo = snapshot.libraryInfo(libraryPath);
-        if (!libraryInfo.isValid())
-            return false;
-    }
+    if (!libraryInfo.isValid())
+        return false;
 
     import->libraryPath = libraryPath;
 
