@@ -155,14 +155,12 @@ signals:
 public slots:
     bool terminate();
 
-private slots:
+private:
     void slotTimeout();
     void finished(int exitCode, QProcess::ExitStatus e);
     void error(QProcess::ProcessError);
     void stdOutReady();
     void stdErrReady();
-
-private:
     void processStdOut(bool emitSignals);
     void processStdErr(bool emitSignals);
     QString convertOutput(const QByteArray &, QTextCodec::ConverterState *state) const;

@@ -79,10 +79,9 @@ protected:
     void showEvent(QShowEvent *event);
     void contextMenuEvent(QContextMenuEvent *event);
 
-private slots:
+private:
     void onDockActionTriggered();
 
-private:
     void handleVisibilityChanged(bool visible);
 
     FancyMainWindowPrivate *d;

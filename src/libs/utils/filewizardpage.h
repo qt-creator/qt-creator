@@ -65,11 +65,10 @@ public slots:
     void setPath(const QString &path);
     void setFileName(const QString &name);
 
-private slots:
+private:
     void slotValidChanged();
     void slotActivated();
 
-private:
     FileWizardPagePrivate *d;
 };
 

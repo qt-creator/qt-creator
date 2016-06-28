@@ -87,7 +87,7 @@ signals:
     void linkActivated(const QString &link);
     void expanded(bool);
 
-private slots:
+private:
     void setExpanded(bool);
 
 protected:

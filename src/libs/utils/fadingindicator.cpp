@@ -87,7 +87,7 @@ public:
     {
         show();
         raise();
-        QTimer::singleShot(ms, this, SLOT(runInternal()));
+        QTimer::singleShot(ms, this, &FadingIndicatorPrivate::runInternal);
     }
 
 protected:
@@ -104,7 +104,7 @@ protected:
         }
     }
 
-private slots:
+private:
     void runInternal()
     {
         QPropertyAnimation *anim = new QPropertyAnimation(m_effect, "opacity", this);
@@ -114,7 +114,6 @@ private slots:
         anim->start(QAbstractAnimation::DeleteWhenStopped);
     }
 
-private:
     QGraphicsOpacityEffect *m_effect;
     QLabel *m_label;
     QPixmap m_pixmap;

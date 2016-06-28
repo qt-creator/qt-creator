@@ -99,7 +99,7 @@ class LinearProgressWidget : public QWidget
 public:
     LinearProgressWidget(WizardProgress *progress, QWidget *parent = 0);
 
-private slots:
+private:
     void slotItemAdded(WizardProgressItem *item);
     void slotItemRemoved(WizardProgressItem *item);
     void slotItemChanged(WizardProgressItem *item);
@@ -107,8 +107,6 @@ private slots:
     void slotNextShownItemChanged(WizardProgressItem *item, WizardProgressItem *nextItem);
     void slotStartItemChanged(WizardProgressItem *item);
     void slotCurrentItemChanged(WizardProgressItem *item);
-
-private:
     void recreateLayout();
     void updateProgress();
     void disableUpdates();

@@ -68,11 +68,10 @@ public:
 protected:
     bool eventFilter(QObject *obj, QEvent *event);
 
-private slots:
+private:
     void emitFilesDropped();
     void emitValuesDropped();
 
-private:
     DropFilterFunction m_filterFunction;
     QList<FileSpec> m_files;
     QList<QVariant> m_values;

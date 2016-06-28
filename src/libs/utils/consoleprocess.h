@@ -103,7 +103,7 @@ signals:
     void stubStarted();
     void stubStopped();
 
-private slots:
+private:
     void stubConnectionAvailable();
     void readStubOutput();
     void stubExited();
@@ -111,7 +111,6 @@ private slots:
     void inferiorExited();
 #endif
 
-private:
     static QString modeOption(Mode m);
     static QString msgCommChannelFailed(const QString &error);
     static QString msgPromptToClose();
