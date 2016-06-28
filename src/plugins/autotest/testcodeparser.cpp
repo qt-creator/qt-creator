@@ -143,7 +143,7 @@ void TestCodeParser::emitUpdateTestTree()
 
     qCDebug(LOG) << "adding singleShot";
     m_singleShotScheduled = true;
-    QTimer::singleShot(1000, this, SLOT(updateTestTree()));
+    QTimer::singleShot(1000, this, &TestCodeParser::updateTestTree);
 }
 
 void TestCodeParser::updateTestTree()

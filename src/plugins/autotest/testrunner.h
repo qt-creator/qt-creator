@@ -56,21 +56,19 @@ public:
     void setSelectedTests(const QList<TestConfiguration *> &selected);
     bool isTestRunning() const { return m_executingTests; }
 
+    void prepareToRunTests(Mode mode);
+
 signals:
     void testRunStarted();
     void testRunFinished();
     void requestStopTestRun();
     void testResultReady(const TestResultPtr &result);
 
-public slots:
-    void prepareToRunTests(Mode mode);
-
-private slots:
+private:
     void buildProject(ProjectExplorer::Project *project);
     void buildFinished(bool success);
     void onFinished();
 
-private:
     void runTests();
     void debugTests();
     void runOrDebugTests();

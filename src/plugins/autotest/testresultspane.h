@@ -87,20 +87,17 @@ public:
     void goToNext();
     void goToPrev();
 
-signals:
-
-public slots:
     void addTestResult(const TestResultPtr &result);
 
-private slots:
+private:
+    explicit TestResultsPane(QObject *parent = 0);
+
     void onItemActivated(const QModelIndex &index);
     void onRunAllTriggered();
     void onRunSelectedTriggered();
     void enableAllFilter();
     void filterMenuTriggered(QAction *action);
 
-private:
-    explicit TestResultsPane(QObject *parent = 0);
     void initializeFilterMenu();
     void updateSummaryLabel();
     void createToolButtons();

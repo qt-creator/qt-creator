@@ -83,8 +83,6 @@ signals:
     void sweepingDone();
 #endif
 
-public slots:
-
 private:
     void onParseResultReady(const TestParseResultPtr result);
     void handleParseResult(const TestParseResult *result, TestTreeItem *rootNode);
