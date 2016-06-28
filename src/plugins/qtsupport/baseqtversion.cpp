@@ -341,7 +341,7 @@ void BaseQtVersion::setupExpander()
         [this] { return qmakeProperty(m_versionInfo, "QT_INSTALL_DEMOS"); });
 
     m_expander.registerVariable("Qt:QMAKE_MKSPECS",
-        QtKitInformation::tr("The current Qt version's default mkspecs."),
+        QtKitInformation::tr("The current Qt version's default mkspecs (Qt 4)."),
         [this] { return qmakeProperty(m_versionInfo, "QMAKE_MKSPECS"); });
 
     m_expander.registerVariable("Qt:QMAKE_VERSION",
