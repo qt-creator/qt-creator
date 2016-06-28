@@ -637,7 +637,7 @@ static QStringList getSortedSignalNameList(const ModelNode &modelNode)
     return signalNames;
 }
 
-void gotoImplementation(const SelectionContext &selectionState)
+void addSignalHandlerOrGotoImplementation(const SelectionContext &selectionState, bool addAlwaysNewSlot)
 {
     ModelNode modelNode;
     if (selectionState.singleNodeIsSelected())
@@ -687,7 +687,7 @@ void gotoImplementation(const SelectionContext &selectionState)
 
     Core::ModeManager::activateMode(Core::Constants::MODE_EDIT);
 
-    if (usages.count() == 1) {
+    if (usages.count() > 0 && (addAlwaysNewSlot || usages.count()< 2)) {
         Core::EditorManager::openEditorAt(usages.first().path, usages.first().line, usages.first().col);
 
         if (!signalNames.isEmpty()) {
@@ -780,6 +780,16 @@ void moveToComponent(const SelectionContext &selectionContext)
 
     if (modelNode.isValid())
         selectionContext.view()->model()->rewriterView()->moveToComponent(modelNode);
+}
+
+void goImplementation(const SelectionContext &selectionState)
+{
+    addSignalHandlerOrGotoImplementation(selectionState, false);
+}
+
+void addNewSignalHandler(const SelectionContext &selectionState)
+{
+    addSignalHandlerOrGotoImplementation(selectionState, true);
 }
 
 } // namespace Mode

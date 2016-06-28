@@ -509,10 +509,11 @@ void DesignerActionManager::createDefaultDesignerActions()
     addDesignerAction(new ModelNodeAction
                (goIntoComponentDisplayName, rootCategory, priorityGoIntoComponent, &goIntoComponent, &selectionIsComponent));
     addDesignerAction(new ModelNodeAction
-               (goToImplementationDisplayName, rootCategory, 42, &gotoImplementation, &singleSelectedAndUiFile, &singleSelectedAndUiFile));
+               (goToImplementationDisplayName, rootCategory, 42, &goImplementation, &singleSelectedAndUiFile, &singleSelectedAndUiFile));
+    addDesignerAction(new ModelNodeAction
+               (addSignalHandlerDisplayName, rootCategory, 42, &addNewSignalHandler, &singleSelectedAndUiFile, &singleSelectedAndUiFile));
     addDesignerAction(new ModelNodeAction
                (moveToComponentDisplayName, rootCategory, 44, &moveToComponent, &singleSelection, &singleSelection));
-
 }
 
 void DesignerActionManager::addDesignerAction(ActionInterface *newAction)
