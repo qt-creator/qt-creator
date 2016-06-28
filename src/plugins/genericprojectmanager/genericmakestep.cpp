@@ -239,13 +239,13 @@ GenericMakeStepConfigWidget::GenericMakeStepConfigWidget(GenericMakeStep *makeSt
     connect(m_ui->makeArgumentsLineEdit, &QLineEdit::textEdited,
             this, &GenericMakeStepConfigWidget::makeArgumentsLineEditTextEdited);
 
-    connect(ProjectExplorerPlugin::instance(), SIGNAL(settingsChanged()),
-            this, SLOT(updateMakeOverrrideLabel()));
-    connect(ProjectExplorerPlugin::instance(), SIGNAL(settingsChanged()),
-            this, SLOT(updateDetails()));
+    connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::settingsChanged,
+            this, &GenericMakeStepConfigWidget::updateMakeOverrrideLabel);
+    connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::settingsChanged,
+            this, &GenericMakeStepConfigWidget::updateDetails);
 
-    connect(m_makeStep->target(), SIGNAL(kitChanged()),
-            this, SLOT(updateMakeOverrrideLabel()));
+    connect(m_makeStep->target(), &Target::kitChanged,
+            this, &GenericMakeStepConfigWidget::updateMakeOverrrideLabel);
 
     connect(pro, &GenericProject::environmentChanged,
             this, &GenericMakeStepConfigWidget::updateMakeOverrrideLabel);
