@@ -57,8 +57,10 @@ void QmlJSOutlineTreeView::contextMenuEvent(QContextMenuEvent *event)
 
     QMenu contextMenu;
 
-    contextMenu.addAction(tr("Expand All"), this, [this] { expandAll(); });
-    contextMenu.addAction(tr("Collapse All"), this, [this] { collapseAllExceptRoot(); });
+    QAction *action = contextMenu.addAction(tr("Expand All"));
+    connect(action, &QAction::triggered, this, [this] () { expandAll(); });
+    action = contextMenu.addAction(tr("Collapse All"));
+    connect(action, &QAction::triggered, this, [this] () { collapseAllExceptRoot(); });
 
     contextMenu.exec(event->globalPos());
 
