@@ -195,7 +195,7 @@ public:
     void operator=(Runnable other) { d = std::move(other.d); }
 
     template <class T> bool is() const {
-        return d.get()->typeId() == T::staticTypeId;
+        return d.get() && (d.get()->typeId() == T::staticTypeId);
     }
 
     template <class T> const T &as() const {
@@ -219,7 +219,7 @@ public:
     void operator=(Connection other) { d = std::move(other.d); }
 
     template <class T> bool is() const {
-        return d.get()->typeId() == T::staticTypeId;
+        return d.get() && (d.get()->typeId() == T::staticTypeId);
     }
 
     template <class T> const T &as() const {
