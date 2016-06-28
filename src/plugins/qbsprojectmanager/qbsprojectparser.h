@@ -57,12 +57,11 @@ signals:
     void done(bool success);
     void ruleExecutionDone();
 
-private slots:
+private:
     void handleQbsParsingDone(bool success);
     void handleQbsParsingProgress(int progress);
     void handleQbsParsingTaskSetup(const QString &description, int maximumProgressValue);
 
-private:
     QString pluginsBaseDirectory() const;
     QString resourcesBaseDirectory() const;
     QString libExecDirectory() const;

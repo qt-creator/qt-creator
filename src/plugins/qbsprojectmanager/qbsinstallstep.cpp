@@ -99,11 +99,11 @@ void QbsInstallStep::run(QFutureInterface<bool> &fi)
 
     m_progressBase = 0;
 
-    connect(m_job, SIGNAL(finished(bool,qbs::AbstractJob*)), this, SLOT(installDone(bool)));
-    connect(m_job, SIGNAL(taskStarted(QString,int,qbs::AbstractJob*)),
-            this, SLOT(handleTaskStarted(QString,int)));
-    connect(m_job, SIGNAL(taskProgress(int,qbs::AbstractJob*)),
-            this, SLOT(handleProgress(int)));
+    connect(m_job, &qbs::AbstractJob::finished, this, &QbsInstallStep::installDone);
+    connect(m_job, &qbs::AbstractJob::taskStarted,
+            this, &QbsInstallStep::handleTaskStarted);
+    connect(m_job, &qbs::AbstractJob::taskProgress,
+            this, &QbsInstallStep::handleProgress);
 }
 
 ProjectExplorer::BuildStepConfigWidget *QbsInstallStep::createConfigWidget()
@@ -261,8 +261,10 @@ void QbsInstallStep::setKeepGoing(bool kg)
 QbsInstallStepConfigWidget::QbsInstallStepConfigWidget(QbsInstallStep *step) :
     m_step(step), m_ignoreChange(false)
 {
-    connect(m_step, SIGNAL(displayNameChanged()), this, SLOT(updateState()));
-    connect(m_step, SIGNAL(changed()), this, SLOT(updateState()));
+    connect(m_step, &ProjectExplorer::ProjectConfiguration::displayNameChanged,
+            this, &QbsInstallStepConfigWidget::updateState);
+    connect(m_step, &QbsInstallStep::changed,
+            this, &QbsInstallStepConfigWidget::updateState);
 
     setContentsMargins(0, 0, 0, 0);
 
@@ -275,13 +277,17 @@ QbsInstallStepConfigWidget::QbsInstallStepConfigWidget(QbsInstallStep *step) :
     m_ui->installRootChooser->setExpectedKind(Utils::PathChooser::Directory);
     m_ui->installRootChooser->setHistoryCompleter(QLatin1String("Qbs.InstallRoot.History"));
 
-    connect(m_ui->installRootChooser, SIGNAL(rawPathChanged(QString)), this,
-            SLOT(changeInstallRoot()));
-    connect(m_ui->removeFirstCheckBox, SIGNAL(toggled(bool)), this, SLOT(changeRemoveFirst(bool)));
-    connect(m_ui->dryRunCheckBox, SIGNAL(toggled(bool)), this, SLOT(changeDryRun(bool)));
-    connect(m_ui->keepGoingCheckBox, SIGNAL(toggled(bool)), this, SLOT(changeKeepGoing(bool)));
+    connect(m_ui->installRootChooser, &Utils::PathChooser::rawPathChanged, this,
+            &QbsInstallStepConfigWidget::changeInstallRoot);
+    connect(m_ui->removeFirstCheckBox, &QAbstractButton::toggled,
+            this, &QbsInstallStepConfigWidget::changeRemoveFirst);
+    connect(m_ui->dryRunCheckBox, &QAbstractButton::toggled,
+            this, &QbsInstallStepConfigWidget::changeDryRun);
+    connect(m_ui->keepGoingCheckBox, &QAbstractButton::toggled,
+            this, &QbsInstallStepConfigWidget::changeKeepGoing);
 
-    connect(project, SIGNAL(projectParsingDone(bool)), this, SLOT(updateState()));
+    connect(project, &QbsProject::projectParsingDone,
+            this, &QbsInstallStepConfigWidget::updateState);
 
     updateState();
 }

@@ -127,19 +127,22 @@ bool QbsProjectManagerPlugin::initialize(const QStringList &arguments, QString *
     command = Core::ActionManager::registerAction(m_reparseQbs, Constants::ACTION_REPARSE_QBS, projectContext);
     command->setAttribute(Core::Command::CA_Hide);
     mbuild->addAction(command, ProjectExplorer::Constants::G_BUILD_BUILD);
-    connect(m_reparseQbs, SIGNAL(triggered()), this, SLOT(reparseCurrentProject()));
+    connect(m_reparseQbs, &QAction::triggered,
+            this, &QbsProjectManagerPlugin::reparseCurrentProject);
 
     m_reparseQbsCtx = new QAction(tr("Reparse Qbs"), this);
     command = Core::ActionManager::registerAction(m_reparseQbsCtx, Constants::ACTION_REPARSE_QBS_CONTEXT, projectContext);
     command->setAttribute(Core::Command::CA_Hide);
     mproject->addAction(command, ProjectExplorer::Constants::G_PROJECT_BUILD);
-    connect(m_reparseQbsCtx, SIGNAL(triggered()), this, SLOT(reparseSelectedProject()));
+    connect(m_reparseQbsCtx, &QAction::triggered,
+            this, &QbsProjectManagerPlugin::reparseSelectedProject);
 
     m_buildFileCtx = new QAction(tr("Build"), this);
     command = Core::ActionManager::registerAction(m_buildFileCtx, Constants::ACTION_BUILD_FILE_CONTEXT, projectContext);
     command->setAttribute(Core::Command::CA_Hide);
     mfile->addAction(command, ProjectExplorer::Constants::G_FILE_OTHER);
-    connect(m_buildFileCtx, SIGNAL(triggered()), this, SLOT(buildFileContextMenu()));
+    connect(m_buildFileCtx, &QAction::triggered,
+            this, &QbsProjectManagerPlugin::buildFileContextMenu);
 
     m_buildFile = new Utils::ParameterAction(tr("Build File"), tr("Build File \"%1\""),
                                                    Utils::ParameterAction::AlwaysEnabled, this);
@@ -149,13 +152,14 @@ bool QbsProjectManagerPlugin::initialize(const QStringList &arguments, QString *
     command->setDescription(m_buildFile->text());
     command->setDefaultKeySequence(QKeySequence(tr("Ctrl+Alt+B")));
     mbuild->addAction(command, ProjectExplorer::Constants::G_BUILD_BUILD);
-    connect(m_buildFile, SIGNAL(triggered()), this, SLOT(buildFile()));
+    connect(m_buildFile, &QAction::triggered, this, &QbsProjectManagerPlugin::buildFile);
 
     m_buildProductCtx = new QAction(tr("Build"), this);
     command = Core::ActionManager::registerAction(m_buildProductCtx, Constants::ACTION_BUILD_PRODUCT_CONTEXT, projectContext);
     command->setAttribute(Core::Command::CA_Hide);
     msubproject->addAction(command, ProjectExplorer::Constants::G_PROJECT_BUILD);
-    connect(m_buildProductCtx, SIGNAL(triggered()), this, SLOT(buildProductContextMenu()));
+    connect(m_buildProductCtx, &QAction::triggered,
+            this, &QbsProjectManagerPlugin::buildProductContextMenu);
 
     m_buildProduct = new Utils::ParameterAction(tr("Build Product"), tr("Build Product \"%1\""),
                                                 Utils::ParameterAction::AlwaysEnabled, this);
@@ -165,13 +169,14 @@ bool QbsProjectManagerPlugin::initialize(const QStringList &arguments, QString *
     command->setDescription(m_buildFile->text());
     command->setDefaultKeySequence(QKeySequence(tr("Ctrl+Alt+Shift+B")));
     mbuild->addAction(command, ProjectExplorer::Constants::G_BUILD_BUILD);
-    connect(m_buildProduct, SIGNAL(triggered()), this, SLOT(buildProduct()));
+    connect(m_buildProduct, &QAction::triggered, this, &QbsProjectManagerPlugin::buildProduct);
 
     m_buildSubprojectCtx = new QAction(tr("Build"), this);
     command = Core::ActionManager::registerAction(m_buildSubprojectCtx, Constants::ACTION_BUILD_SUBPROJECT_CONTEXT, projectContext);
     command->setAttribute(Core::Command::CA_Hide);
     msubproject->addAction(command, ProjectExplorer::Constants::G_PROJECT_BUILD);
-    connect(m_buildSubprojectCtx, SIGNAL(triggered()), this, SLOT(buildSubprojectContextMenu()));
+    connect(m_buildSubprojectCtx, &QAction::triggered,
+            this, &QbsProjectManagerPlugin::buildSubprojectContextMenu);
 
     m_buildSubproject = new Utils::ParameterAction(tr("Build Subproject"), tr("Build Subproject \"%1\""),
                                                 Utils::ParameterAction::AlwaysEnabled, this);
@@ -181,24 +186,24 @@ bool QbsProjectManagerPlugin::initialize(const QStringList &arguments, QString *
     command->setDescription(m_buildFile->text());
     command->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+B")));
     mbuild->addAction(command, ProjectExplorer::Constants::G_BUILD_BUILD);
-    connect(m_buildSubproject, SIGNAL(triggered()), this, SLOT(buildSubproject()));
+    connect(m_buildSubproject, &QAction::triggered, this, &QbsProjectManagerPlugin::buildSubproject);
 
     // Connect
     connect(ProjectTree::instance(), &ProjectTree::currentNodeChanged,
             this, &QbsProjectManagerPlugin::nodeSelectionChanged);
 
-    connect(BuildManager::instance(), SIGNAL(buildStateChanged(ProjectExplorer::Project*)),
-            this, SLOT(buildStateChanged(ProjectExplorer::Project*)));
+    connect(BuildManager::instance(), &BuildManager::buildStateChanged,
+            this, &QbsProjectManagerPlugin::buildStateChanged);
 
-    connect(Core::EditorManager::instance(), SIGNAL(currentEditorChanged(Core::IEditor*)),
-            this, SLOT(currentEditorChanged()));
+    connect(Core::EditorManager::instance(), &Core::EditorManager::currentEditorChanged,
+            this, &QbsProjectManagerPlugin::currentEditorChanged);
 
-    connect(SessionManager::instance(), SIGNAL(projectAdded(ProjectExplorer::Project*)),
-            this, SLOT(projectWasAdded(ProjectExplorer::Project*)));
-    connect(SessionManager::instance(), SIGNAL(projectRemoved(ProjectExplorer::Project*)),
-            this, SLOT(projectWasRemoved()));
-    connect(SessionManager::instance(), SIGNAL(startupProjectChanged(ProjectExplorer::Project*)),
-            this, SLOT(currentProjectWasChanged(ProjectExplorer::Project*)));
+    connect(SessionManager::instance(), &SessionManager::projectAdded,
+            this, &QbsProjectManagerPlugin::projectWasAdded);
+    connect(SessionManager::instance(), &SessionManager::projectRemoved,
+            this, &QbsProjectManagerPlugin::projectWasRemoved);
+    connect(SessionManager::instance(), &SessionManager::startupProjectChanged,
+            this, &QbsProjectManagerPlugin::currentProjectWasChanged);
 
     // Run initial setup routines
     updateContextActions();
@@ -218,8 +223,10 @@ void QbsProjectManagerPlugin::projectWasAdded(Project *project)
     if (!qbsProject)
         return;
 
-    connect(qbsProject, SIGNAL(projectParsingStarted()), this, SLOT(parsingStateChanged()));
-    connect(qbsProject, SIGNAL(projectParsingDone(bool)), this, SLOT(parsingStateChanged()));
+    connect(qbsProject, &QbsProject::projectParsingStarted,
+            this, &QbsProjectManagerPlugin::parsingStateChanged);
+    connect(qbsProject, &QbsProject::projectParsingDone,
+            this, &QbsProjectManagerPlugin::parsingStateChanged);
 }
 
 void QbsProjectManagerPlugin::currentProjectWasChanged(Project *project)

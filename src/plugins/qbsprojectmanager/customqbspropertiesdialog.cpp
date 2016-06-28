@@ -51,10 +51,12 @@ CustomQbsPropertiesDialog::CustomQbsPropertiesDialog(const QVariantMap &properti
         m_ui->propertiesTable->setItem(currentRow, 1, valueItem);
         ++currentRow;
     }
-    connect(m_ui->addButton, SIGNAL(clicked()), SLOT(addProperty()));
-    connect(m_ui->removeButton, SIGNAL(clicked()), SLOT(removeSelectedProperty()));
-    connect(m_ui->propertiesTable, SIGNAL(currentItemChanged(QTableWidgetItem*,QTableWidgetItem*)),
-            SLOT(handleCurrentItemChanged()));
+    connect(m_ui->addButton, &QAbstractButton::clicked,
+            this, &CustomQbsPropertiesDialog::addProperty);
+    connect(m_ui->removeButton, &QAbstractButton::clicked,
+            this, &CustomQbsPropertiesDialog::removeSelectedProperty);
+    connect(m_ui->propertiesTable, &QTableWidget::currentItemChanged,
+            this, &CustomQbsPropertiesDialog::handleCurrentItemChanged);
     handleCurrentItemChanged();
 }
 

@@ -45,10 +45,9 @@ public:
 signals:
     void newTask(const ProjectExplorer::Task &task);
 
-private slots:
-    void sendMessages();
-
 private:
+    Q_INVOKABLE void sendMessages();
+
     void doPrintWarning(const qbs::ErrorInfo &warning);
     void doPrintMessage(qbs::LoggerLevel level, const QString &message, const QString &tag);
 

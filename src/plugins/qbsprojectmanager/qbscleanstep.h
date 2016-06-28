@@ -65,12 +65,11 @@ public:
 signals:
     void changed();
 
-private slots:
+private:
     void cleaningDone(bool success);
     void handleTaskStarted(const QString &desciption, int max);
     void handleProgress(int value);
 
-private:
     void createTaskAndOutput(ProjectExplorer::Task::TaskType type,
                              const QString &message, const QString &file, int line);
 
@@ -100,14 +99,13 @@ public:
     QString summaryText() const;
     QString displayName() const;
 
-private slots:
+private:
     void updateState();
 
     void changeDryRun(bool dr);
     void changeKeepGoing(bool kg);
     void changeJobCount(int jobcount);
 
-private:
     Ui::QbsCleanStepConfigWidget *m_ui;
 
     QbsCleanStep *m_step;

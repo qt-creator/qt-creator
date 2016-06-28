@@ -43,7 +43,7 @@ class QbsBuildConfigurationWidget : public ProjectExplorer::NamedWidget
 public:
     QbsBuildConfigurationWidget(Internal::QbsBuildConfiguration *bc);
 
-private slots:
+private:
     void buildDirEdited();
 
     // Changes triggered from creator

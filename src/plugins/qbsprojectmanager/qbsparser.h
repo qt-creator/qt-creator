@@ -41,12 +41,10 @@ class QbsParser : public ProjectExplorer::IOutputParser
 public:
     explicit QbsParser();
 
+private:
     void setWorkingDirectory(const QString &workingDirectory);
-
-public slots:
     void taskAdded(const ProjectExplorer::Task &task, int linkedLines, int skipLines);
 
-private:
     QDir m_workingDirectory;
 };
 
