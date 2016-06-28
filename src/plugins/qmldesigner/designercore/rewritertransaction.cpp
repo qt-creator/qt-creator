@@ -27,6 +27,8 @@
 #include <abstractview.h>
 #include <rewriterview.h>
 
+#include <utils/qtcassert.h>
+
 #ifndef QMLDESIGNER_TEST
 #include <designdocument.h>
 #include <qmldesignerplugin.h>
@@ -82,13 +84,22 @@ void RewriterTransaction::commit()
 {
     if (m_valid) {
         m_valid = false;
-        bool oldSemanticChecks = view()->rewriterView()->checkSemanticErrors();
-        if (m_ignoreSemanticChecks)
-            view()->rewriterView()->setCheckSemanticErrors(false);
+
+        RewriterView *rewriterView = view()->rewriterView();
+
+        QTC_ASSERT(rewriterView, qWarning() << Q_FUNC_INFO << "No rewriter attached");
+
+        bool oldSemanticChecks = false;
+        if (rewriterView) {
+            oldSemanticChecks = rewriterView->checkSemanticErrors();
+            if (m_ignoreSemanticChecks)
+                rewriterView->setCheckSemanticErrors(false);
+        }
 
         view()->emitRewriterEndTransaction();
 
-        view()->rewriterView()->setCheckSemanticErrors(oldSemanticChecks);
+        if (rewriterView)
+            view()->rewriterView()->setCheckSemanticErrors(oldSemanticChecks);
 
         if (m_activeIdentifier) {
             qDebug() << "Commit RewriterTransaction:" << m_identifier << m_identifierNumber;
