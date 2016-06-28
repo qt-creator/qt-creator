@@ -71,7 +71,6 @@ public:
 
     QtWebKitHelpPage *page() const;
 
-public slots:
     void scaleUp();
     void scaleDown();
     void resetScale();
@@ -81,12 +80,11 @@ public slots:
     void backward();
     void print(QPrinter *printer);
 
-private slots:
+private:
     void goToBackHistoryItem();
     void goToForwardHistoryItem();
     void goToHistoryItem(bool forward);
 
-private:
     QString m_oldHighlightId;
     QString m_oldHighlightStyle;
     QtWebKitHelpWidget *m_webView;
@@ -102,8 +100,6 @@ public:
 
     void scaleUp();
     void scaleDown();
-
-public slots:
     void copy();
 
 signals:
@@ -117,11 +113,9 @@ protected:
     void mouseReleaseEvent(QMouseEvent *event);
     void contextMenuEvent(QContextMenuEvent *event);
 
-private slots:
+private:
     void actionChanged();
     void slotNetworkReplyFinished(QNetworkReply *reply);
-
-private:
     bool eventFilter(QObject *obj, QEvent *event);
 
     QtWebKitHelpViewer *m_parent;
@@ -140,10 +134,9 @@ protected:
     virtual bool acceptNavigationRequest(QWebFrame *frame,
         const QNetworkRequest &request, NavigationType type);
 
-private slots:
+private:
     void onHandleUnsupportedContent(QNetworkReply *reply);
 
-private:
     QUrl m_loadingUrl;
     bool closeNewTabIfNeeded;
 

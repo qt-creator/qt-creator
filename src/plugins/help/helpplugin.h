@@ -77,7 +77,7 @@ public:
 
     static HelpViewer *createHelpViewer(qreal zoom);
 
-private slots:
+private:
     void modeChanged(Core::Id mode, Core::Id old);
 
     void showContextHelp();
@@ -89,7 +89,6 @@ private slots:
     void showLinksInHelpMode(const QMap<QString, QUrl> &links, const QString &key);
     void slotHideRightPane();
 
-    void updateSideBarSource();
     void updateSideBarSource(const QUrl &newUrl);
 
     void setupHelpEngineIfNeeded();
@@ -100,7 +99,6 @@ private slots:
     void slotOpenSupportPage();
     void slotReportBug();
 
-private:
     void resetFilter();
     void activateHelpMode();
     bool canShowHelpSideBySide() const;
@@ -112,7 +110,6 @@ private:
 
     void doSetupIfNeeded();
 
-private:
     HelpMode *m_mode;
     CentralWidget *m_centralWidget;
     HelpWidget *m_rightPaneSideBarWidget;

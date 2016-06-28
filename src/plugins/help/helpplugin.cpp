@@ -151,24 +151,24 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
     addAutoReleasedObject(m_searchTaskHandler = new SearchTaskHandler);
 
     m_centralWidget = new CentralWidget(Context("Help.CentralHelpWidget"));
-    connect(m_centralWidget, SIGNAL(sourceChanged(QUrl)), this,
-        SLOT(updateSideBarSource(QUrl)));
+    connect(m_centralWidget, &HelpWidget::sourceChanged, this,
+            &HelpPlugin::updateSideBarSource);
     connect(m_centralWidget, &CentralWidget::closeButtonClicked,
             &OpenPagesManager::instance(), &OpenPagesManager::closeCurrentPage);
 
     connect(LocalHelpManager::instance(), &LocalHelpManager::returnOnCloseChanged,
             m_centralWidget, &CentralWidget::updateCloseButton);
-    connect(HelpManager::instance(), SIGNAL(helpRequested(QUrl,Core::HelpManager::HelpViewerLocation)),
-            this, SLOT(handleHelpRequest(QUrl,Core::HelpManager::HelpViewerLocation)));
-    connect(m_searchTaskHandler, SIGNAL(search(QUrl)), this,
-            SLOT(showLinkInHelpMode(QUrl)));
+    connect(HelpManager::instance(), &HelpManager::helpRequested,
+            this, &HelpPlugin::handleHelpRequest);
+    connect(m_searchTaskHandler, &SearchTaskHandler::search, this,
+            &HelpPlugin::showLinkInHelpMode);
 
-    connect(m_filterSettingsPage, SIGNAL(filtersChanged()), this,
-        SLOT(setupHelpEngineIfNeeded()));
-    connect(HelpManager::instance(), SIGNAL(documentationChanged()), this,
-        SLOT(setupHelpEngineIfNeeded()));
-    connect(HelpManager::instance(), SIGNAL(collectionFileChanged()), this,
-        SLOT(setupHelpEngineIfNeeded()));
+    connect(m_filterSettingsPage, &FilterSettingsPage::filtersChanged, this,
+        &HelpPlugin::setupHelpEngineIfNeeded);
+    connect(HelpManager::instance(), &HelpManager::documentationChanged, this,
+        &HelpPlugin::setupHelpEngineIfNeeded);
+    connect(HelpManager::instance(), &HelpManager::collectionFileChanged, this,
+        &HelpPlugin::setupHelpEngineIfNeeded);
 
     connect(ToolTip::instance(), &ToolTip::shown, ICore::instance(), []() {
         ICore::addAdditionalContext(Context(kToolTipHelpContext), ICore::ContextPriority::High);
@@ -185,29 +185,29 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
         tr(Constants::SB_CONTENTS), this);
     cmd = ActionManager::registerAction(action, "Help.ContentsMenu");
     ActionManager::actionContainer(Core::Constants::M_HELP)->addAction(cmd, Core::Constants::G_HELP_HELP);
-    connect(action, SIGNAL(triggered()), this, SLOT(activateContents()));
+    connect(action, &QAction::triggered, this, &HelpPlugin::activateContents);
 
     action = new QAction(tr(Constants::SB_INDEX), this);
     cmd = ActionManager::registerAction(action, "Help.IndexMenu");
     ActionManager::actionContainer(Core::Constants::M_HELP)->addAction(cmd, Core::Constants::G_HELP_HELP);
-    connect(action, SIGNAL(triggered()), this, SLOT(activateIndex()));
+    connect(action, &QAction::triggered, this, &HelpPlugin::activateIndex);
 
     action = new QAction(tr("Context Help"), this);
     cmd = ActionManager::registerAction(action, Help::Constants::CONTEXT_HELP,
                                         Context(kToolTipHelpContext, Core::Constants::C_GLOBAL));
     ActionManager::actionContainer(Core::Constants::M_HELP)->addAction(cmd, Core::Constants::G_HELP_HELP);
     cmd->setDefaultKeySequence(QKeySequence(Qt::Key_F1));
-    connect(action, SIGNAL(triggered()), this, SLOT(showContextHelp()));
+    connect(action, &QAction::triggered, this, &HelpPlugin::showContextHelp);
 
     action = new QAction(tr("Technical Support"), this);
     cmd = ActionManager::registerAction(action, "Help.TechSupport");
     ActionManager::actionContainer(Core::Constants::M_HELP)->addAction(cmd, Core::Constants::G_HELP_SUPPORT);
-    connect(action, SIGNAL(triggered()), this, SLOT(slotOpenSupportPage()));
+    connect(action, &QAction::triggered, this, &HelpPlugin::slotOpenSupportPage);
 
     action = new QAction(tr("Report Bug..."), this);
     cmd = ActionManager::registerAction(action, "Help.ReportBug");
     ActionManager::actionContainer(Core::Constants::M_HELP)->addAction(cmd, Core::Constants::G_HELP_SUPPORT);
-    connect(action, SIGNAL(triggered()), this, SLOT(slotReportBug()));
+    connect(action, &QAction::triggered, this, &HelpPlugin::slotReportBug);
 
     if (ActionContainer *windowMenu = ActionManager::actionContainer(Core::Constants::M_WINDOW)) {
         // reuse EditorManager constants to avoid a second pair of menu actions
@@ -216,16 +216,16 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
         Command *ctrlTab = ActionManager::registerAction(action, Core::Constants::GOTOPREVINHISTORY,
             modecontext);
         windowMenu->addAction(ctrlTab, Core::Constants::G_WINDOW_NAVIGATE);
-        connect(action, SIGNAL(triggered()), &OpenPagesManager::instance(),
-            SLOT(gotoPreviousPage()));
+        connect(action, &QAction::triggered, &OpenPagesManager::instance(),
+            &OpenPagesManager::gotoPreviousPage);
 
         // Goto Next In History Action
         action = new QAction(this);
         Command *ctrlShiftTab = ActionManager::registerAction(action, Core::Constants::GOTONEXTINHISTORY,
             modecontext);
         windowMenu->addAction(ctrlShiftTab, Core::Constants::G_WINDOW_NAVIGATE);
-        connect(action, SIGNAL(triggered()), &OpenPagesManager::instance(),
-            SLOT(gotoNextPage()));
+        connect(action, &QAction::triggered, &OpenPagesManager::instance(),
+            &OpenPagesManager::gotoNextPage);
     }
 
     auto helpIndexFilter = new HelpIndexFilter();
@@ -237,8 +237,8 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
 
     RemoteHelpFilter *remoteHelpFilter = new RemoteHelpFilter();
     addAutoReleasedObject(remoteHelpFilter);
-    connect(remoteHelpFilter, SIGNAL(linkActivated(QUrl)), this,
-        SLOT(showLinkInHelpMode(QUrl)));
+    connect(remoteHelpFilter, &RemoteHelpFilter::linkActivated, this,
+        &HelpPlugin::showLinkInHelpMode);
 
     QDesktopServices::setUrlHandler(QLatin1String("qthelp"), HelpManager::instance(), "handleHelpRequest");
     connect(ModeManager::instance(), &ModeManager::currentModeChanged,
@@ -318,14 +318,14 @@ HelpWidget *HelpPlugin::createHelpWidget(const Context &context, HelpWidget::Wid
 {
     HelpWidget *widget = new HelpWidget(context, style);
 
-    connect(widget->currentViewer(), SIGNAL(loadFinished()),
-            this, SLOT(highlightSearchTermsInContextHelp()));
-    connect(widget, SIGNAL(openHelpMode(QUrl)),
-            this, SLOT(showLinkInHelpMode(QUrl)));
-    connect(widget, SIGNAL(closeButtonClicked()),
-            this, SLOT(slotHideRightPane()));
-    connect(widget, SIGNAL(aboutToClose()),
-            this, SLOT(saveExternalWindowSettings()));
+    connect(widget->currentViewer(), &HelpViewer::loadFinished,
+            this, &HelpPlugin::highlightSearchTermsInContextHelp);
+    connect(widget, &HelpWidget::openHelpMode,
+            this, &HelpPlugin::showLinkInHelpMode);
+    connect(widget, &HelpWidget::closeButtonClicked,
+            this, &HelpPlugin::slotHideRightPane);
+    connect(widget, &HelpWidget::aboutToClose,
+            this, &HelpPlugin::saveExternalWindowSettings);
 
     // force setup, as we might have never switched to full help mode
     // thus the help engine might still run without collection file setup
@@ -452,15 +452,6 @@ void HelpPlugin::modeChanged(Core::Id mode, Core::Id old)
         qApp->setOverrideCursor(Qt::WaitCursor);
         doSetupIfNeeded();
         qApp->restoreOverrideCursor();
-    }
-}
-
-void HelpPlugin::updateSideBarSource()
-{
-    if (HelpViewer *viewer = m_centralWidget->currentViewer()) {
-        const QUrl &url = viewer->source();
-        if (url.isValid())
-            updateSideBarSource(url);
     }
 }
 

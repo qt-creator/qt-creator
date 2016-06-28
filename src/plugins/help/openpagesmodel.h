@@ -50,10 +50,9 @@ public:
     void removePage(int index);
     HelpViewer *pageAt(int index) const;
 
-private slots:
+private:
     void handleTitleChanged();
 
-private:
     QList<HelpViewer *> m_pages;
 };
 

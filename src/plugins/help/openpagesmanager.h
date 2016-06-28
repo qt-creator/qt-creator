@@ -58,11 +58,10 @@ public:
     int pageCount() const;
     void setupInitialPages();
 
-public slots:
     HelpViewer *createPage();
     HelpViewer *createPage(const QUrl &url);
 
-    void setCurrentPage(int index);
+    void setCurrentPageByRow(int index);
     void setCurrentPage(const QModelIndex &index);
 
     void closeCurrentPage();
@@ -78,11 +77,8 @@ signals:
 private:
     void removePage(int index);
     void showTwicherOrSelectPage() const;
-
-private slots:
     void openPagesContextMenu(const QPoint &point);
 
-private:
     QComboBox *m_comboBox;
     OpenPagesModel *m_model;
     mutable OpenPagesWidget *m_openPagesWidget;

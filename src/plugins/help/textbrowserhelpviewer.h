@@ -67,7 +67,6 @@ public:
     bool findText(const QString &text, Core::FindFlags flags,
                   bool incremental, bool fromSearch, bool *wrapped = 0);
 
-public slots:
     void scaleUp();
     void scaleDown();
     void resetScale();
@@ -77,10 +76,9 @@ public slots:
     void backward();
     void print(QPrinter *printer);
 
-private slots:
+private:
     void goToHistoryItem();
 
-private:
     TextBrowserHelpWidget *m_textBrowser;
 };
 
