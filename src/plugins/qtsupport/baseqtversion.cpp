@@ -343,6 +343,12 @@ void BaseQtVersion::setupExpander()
     m_expander.registerVariable("Qt:QMAKE_MKSPECS",
         QtKitInformation::tr("The current Qt version's default mkspecs (Qt 4)."),
         [this] { return qmakeProperty(m_versionInfo, "QMAKE_MKSPECS"); });
+    m_expander.registerVariable("Qt:QMAKE_SPEC",
+        QtKitInformation::tr("The current Qt version's default mkspec (Qt 5; host system)"),
+        [this] { return qmakeProperty(m_versionInfo, "QMAKE_SPEC"); });
+    m_expander.registerVariable("Qt:QMAKE_XSPEC",
+        QtKitInformation::tr("The current Qt version's default mkspec (Qt 5; target system)."),
+        [this] { return qmakeProperty(m_versionInfo, "QMAKE_XSPEC"); });
 
     m_expander.registerVariable("Qt:QMAKE_VERSION",
         QtKitInformation::tr("The current Qt's qmake version."),
