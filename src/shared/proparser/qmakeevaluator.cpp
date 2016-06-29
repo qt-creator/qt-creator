@@ -401,7 +401,7 @@ static ALWAYS_INLINE void addStrList(
     }
 }
 
-void QMakeEvaluator::evaluateExpression(
+QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateExpression(
         const ushort *&tokPtr, ProStringList *ret, bool joined)
 {
     debugMsg(2, joined ? "evaluating joined expression" : "evaluating expression");
@@ -451,12 +451,15 @@ void QMakeEvaluator::evaluateExpression(
         case TokFuncName: {
             const ProKey &func = pro->getHashStr(tokPtr);
             debugMsg(2, "function %s", dbgKey(func));
-            addStrList(evaluateExpandFunction(func, tokPtr), tok, ret, pending, joined);
+            ProStringList val;
+            if (evaluateExpandFunction(func, tokPtr, &val) == ReturnError)
+                return ReturnError;
+            addStrList(val, tok, ret, pending, joined);
             break; }
         default:
             debugMsg(2, "evaluated expression => %s", dbgStrList(*ret));
             tokPtr--;
-            return;
+            return ReturnTrue;
         }
     }
 }
@@ -528,7 +531,9 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::visitProBlock(
         case TokAppendUnique:
         case TokRemove:
         case TokReplace:
-            visitProVariable(tok, curr, tokPtr);
+            ret = visitProVariable(tok, curr, tokPtr);
+            if (ret == ReturnError)
+                break;
             curr.clear();
             continue;
         case TokBranch:
@@ -688,9 +693,9 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::visitProBlock(
             continue;
         default: {
                 const ushort *oTokPtr = --tokPtr;
-                evaluateExpression(tokPtr, &curr, false);
-                if (tokPtr != oTokPtr)
-                    continue;
+                ret = evaluateExpression(tokPtr, &curr, false);
+                if (ret == ReturnError || tokPtr != oTokPtr)
+                    break;
             }
             Q_ASSERT_X(false, "visitProBlock", "unexpected item type");
             continue;
@@ -723,7 +728,10 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::visitProLoop(
     int index = 0;
     ProKey variable;
     ProStringList oldVarVal;
-    ProString it_list = expandVariableReferences(exprPtr, 0, true).at(0);
+    ProStringList it_list_out;
+    if (expandVariableReferences(exprPtr, 0, &it_list_out, true) == ReturnError)
+        return ReturnError;
+    ProString it_list = it_list_out.at(0);
     if (_variable.isEmpty()) {
         if (it_list != statics.strever) {
             evalError(fL1S("Invalid loop expression."));
@@ -820,7 +828,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::visitProLoop(
     return ret;
 }
 
-void QMakeEvaluator::visitProVariable(
+QMakeEvaluator::VisitReturn QMakeEvaluator::visitProVariable(
         ushort tok, const ProStringList &curr, const ushort *&tokPtr)
 {
     int sizeHint = *tokPtr++;
@@ -829,24 +837,26 @@ void QMakeEvaluator::visitProVariable(
         skipExpression(tokPtr);
         if (!m_cumulative || !curr.isEmpty())
             evalError(fL1S("Left hand side of assignment must expand to exactly one word."));
-        return;
+        return ReturnTrue;
     }
     const ProKey &varName = map(curr.first());
 
     if (tok == TokReplace) {      // ~=
         // DEFINES ~= s/a/b/?[gqi]
 
-        const ProStringList &varVal = expandVariableReferences(tokPtr, sizeHint, true);
+        ProStringList varVal;
+        if (expandVariableReferences(tokPtr, sizeHint, &varVal, true) == ReturnError)
+            return ReturnError;
         const QString &val = varVal.at(0).toQString(m_tmp1);
         if (val.length() < 4 || val.at(0) != QLatin1Char('s')) {
             evalError(fL1S("The ~= operator can handle only the s/// function."));
-            return;
+            return ReturnTrue;
         }
         QChar sep = val.at(1);
         QStringList func = val.split(sep);
         if (func.count() < 3 || func.count() > 4) {
             evalError(fL1S("The s/// function expects 3 or 4 arguments."));
-            return;
+            return ReturnTrue;
         }
 
         bool global = false, quote = false, case_sense = false;
@@ -867,7 +877,9 @@ void QMakeEvaluator::visitProVariable(
         replaceInList(&valuesRef(varName), regexp, replace, global, m_tmp2);
         debugMsg(2, "replaced %s with %s", dbgQStr(pattern), dbgQStr(replace));
     } else {
-        ProStringList varVal = expandVariableReferences(tokPtr, sizeHint);
+        ProStringList varVal;
+        if (expandVariableReferences(tokPtr, sizeHint, &varVal, false) == ReturnError)
+            return ReturnError;
         switch (tok) {
         default: // whatever - cannot happen
         case TokAssign:          // =
@@ -915,6 +927,8 @@ void QMakeEvaluator::visitProVariable(
     else if (varName == statics.strREQUIRES)
         checkRequirements(values(varName));
 #endif
+
+    return ReturnTrue;
 }
 
 void QMakeEvaluator::setTemplate()
@@ -1602,18 +1616,18 @@ bool QMakeEvaluator::isActiveConfig(const QString &config, bool regex)
     return false;
 }
 
-ProStringList QMakeEvaluator::expandVariableReferences(
-        const ushort *&tokPtr, int sizeHint, bool joined)
+QMakeEvaluator::VisitReturn QMakeEvaluator::expandVariableReferences(
+        const ushort *&tokPtr, int sizeHint, ProStringList *ret, bool joined)
 {
-    ProStringList ret;
-    ret.reserve(sizeHint);
+    ret->reserve(sizeHint);
     forever {
-        evaluateExpression(tokPtr, &ret, joined);
+        if (evaluateExpression(tokPtr, ret, joined) == ReturnError)
+            return ReturnError;
         switch (*tokPtr) {
         case TokValueTerminator:
         case TokFuncTerminator:
             tokPtr++;
-            return ret;
+            return ReturnTrue;
         case TokArgSeparator:
             if (joined) {
                 tokPtr++;
@@ -1627,28 +1641,28 @@ ProStringList QMakeEvaluator::expandVariableReferences(
     }
 }
 
-QList<ProStringList> QMakeEvaluator::prepareFunctionArgs(const ushort *&tokPtr)
+QMakeEvaluator::VisitReturn QMakeEvaluator::prepareFunctionArgs(
+        const ushort *&tokPtr, QList<ProStringList> *ret)
 {
-    QList<ProStringList> args_list;
     if (*tokPtr != TokFuncTerminator) {
         for (;; tokPtr++) {
             ProStringList arg;
-            evaluateExpression(tokPtr, &arg, false);
-            args_list << arg;
+            if (evaluateExpression(tokPtr, &arg, false) == ReturnError)
+                return ReturnError;
+            *ret << arg;
             if (*tokPtr == TokFuncTerminator)
                 break;
             Q_ASSERT(*tokPtr == TokArgSeparator);
         }
     }
     tokPtr++;
-    return args_list;
+    return ReturnTrue;
 }
 
-ProStringList QMakeEvaluator::evaluateFunction(
-        const ProFunctionDef &func, const QList<ProStringList> &argumentsList, VisitReturn *ok)
+QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateFunction(
+        const ProFunctionDef &func, const QList<ProStringList> &argumentsList, ProStringList *ret)
 {
     VisitReturn vr;
-    ProStringList ret;
 
     if (m_valuemapStack.count() >= 100) {
         evalError(fL1S("Ran into infinite recursion (depth > 100)."));
@@ -1667,25 +1681,22 @@ ProStringList QMakeEvaluator::evaluateFunction(
         vr = visitProBlock(func.pro(), func.tokPtr());
         if (vr == ReturnReturn)
             vr = ReturnTrue;
-        ret = m_returnValue;
+        if (vr == ReturnTrue)
+            *ret = m_returnValue;
         m_returnValue.clear();
 
         m_current = m_locationStack.pop();
         m_valuemapStack.pop();
     }
-    if (ok)
-        *ok = vr;
-    if (vr == ReturnTrue)
-        return ret;
-    return ProStringList();
+    return vr;
 }
 
 QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateBoolFunction(
         const ProFunctionDef &func, const QList<ProStringList> &argumentsList,
         const ProString &function)
 {
-    VisitReturn vr;
-    ProStringList ret = evaluateFunction(func, argumentsList, &vr);
+    ProStringList ret;
+    VisitReturn vr = evaluateFunction(func, argumentsList, &ret);
     if (vr == ReturnTrue) {
         if (ret.isEmpty())
             return ReturnTrue;
@@ -1713,13 +1724,18 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateConditionalFunction(
 {
     if (int func_t = statics.functions.value(func)) {
         //why don't the builtin functions just use args_list? --Sam
-        return evaluateBuiltinConditional(func_t, func, expandVariableReferences(tokPtr, 5, true));
+        ProStringList args;
+        if (expandVariableReferences(tokPtr, 5, &args, true) == ReturnError)
+            return ReturnError;
+        return evaluateBuiltinConditional(func_t, func, args);
     }
 
     QHash<ProKey, ProFunctionDef>::ConstIterator it =
             m_functionDefs.testFunctions.constFind(func);
     if (it != m_functionDefs.testFunctions.constEnd()) {
-        const QList<ProStringList> args = prepareFunctionArgs(tokPtr);
+        QList<ProStringList> args;
+        if (prepareFunctionArgs(tokPtr, &args) == ReturnError)
+            return ReturnError;
         traceMsg("calling %s(%s)", dbgKey(func), dbgStrListList(args));
         return evaluateBoolFunction(*it, args, func);
     }
@@ -1729,25 +1745,31 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateConditionalFunction(
     return ReturnFalse;
 }
 
-ProStringList QMakeEvaluator::evaluateExpandFunction(
-        const ProKey &func, const ushort *&tokPtr)
+QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateExpandFunction(
+        const ProKey &func, const ushort *&tokPtr, ProStringList *ret)
 {
     if (int func_t = statics.expands.value(func)) {
         //why don't the builtin functions just use args_list? --Sam
-        return evaluateBuiltinExpand(func_t, func, expandVariableReferences(tokPtr, 5, true));
+        ProStringList args;
+        if (expandVariableReferences(tokPtr, 5, &args, true) == ReturnError)
+            return ReturnError;
+        *ret = evaluateBuiltinExpand(func_t, func, args);
+        return ReturnTrue;
     }
 
     QHash<ProKey, ProFunctionDef>::ConstIterator it =
             m_functionDefs.replaceFunctions.constFind(func);
     if (it != m_functionDefs.replaceFunctions.constEnd()) {
-        const QList<ProStringList> args = prepareFunctionArgs(tokPtr);
+        QList<ProStringList> args;
+        if (prepareFunctionArgs(tokPtr, &args) == ReturnError)
+            return ReturnError;
         traceMsg("calling $$%s(%s)", dbgKey(func), dbgStrListList(args));
-        return evaluateFunction(*it, args, 0);
+        return evaluateFunction(*it, args, ret);
     }
 
     skipExpression(tokPtr);
     evalError(fL1S("'%1' is not a recognized replace function.").arg(func.toQString(m_tmp1)));
-    return ProStringList();
+    return ReturnFalse;
 }
 
 QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateConditional(
