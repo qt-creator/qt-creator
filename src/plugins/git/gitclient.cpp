@@ -995,7 +995,7 @@ QStringList GitClient::setupCheckoutArguments(const QString &workingDirectory,
                 ICore::settings(), "Git.CreateLocalBranchOnCheckout" /*setting*/,
                 QDialogButtonBox::Yes | QDialogButtonBox::No /*buttons*/,
                 QDialogButtonBox::No /*default button*/,
-                QDialogButtonBox::No /*button to save*/) == QMessageBox::No) {
+                QDialogButtonBox::No /*button to save*/) == QDialogButtonBox::No) {
         return arguments;
     }
 
