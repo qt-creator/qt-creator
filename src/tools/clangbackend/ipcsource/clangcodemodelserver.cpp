@@ -23,7 +23,7 @@
 **
 ****************************************************************************/
 
-#include "clangipcserver.h"
+#include "clangcodemodelserver.h"
 
 #include "clangfilesystemwatcher.h"
 #include "codecompleter.h"
@@ -86,7 +86,7 @@ int delayedDocumentAnnotationsTimerInterval()
 
 }
 
-ClangIpcServer::ClangIpcServer()
+ClangCodeModelServer::ClangCodeModelServer()
     : translationUnits(projects, unsavedFiles)
 {
     const auto sendDocumentAnnotations
@@ -104,7 +104,7 @@ ClangIpcServer::ClangIpcServer()
             else
                 sendDocumentAnnotationsTimer.stop();
         } catch (const std::exception &exception) {
-            qWarning() << "Error in ClangIpcServer::sendDelayedDocumentAnnotationsTimer:" << exception.what();
+            qWarning() << "Error in ClangCodeModelServer::sendDelayedDocumentAnnotationsTimer:" << exception.what();
         }
     };
 
@@ -123,14 +123,14 @@ ClangIpcServer::ClangIpcServer()
                      onFileChanged);
 }
 
-void ClangIpcServer::end()
+void ClangCodeModelServer::end()
 {
     QCoreApplication::exit();
 }
 
-void ClangIpcServer::registerTranslationUnitsForEditor(const ClangBackEnd::RegisterTranslationUnitForEditorMessage &message)
+void ClangCodeModelServer::registerTranslationUnitsForEditor(const ClangBackEnd::RegisterTranslationUnitForEditorMessage &message)
 {
-    TIME_SCOPE_DURATION("ClangIpcServer::registerTranslationUnitsForEditor");
+    TIME_SCOPE_DURATION("ClangCodeModelServer::registerTranslationUnitsForEditor");
 
     try {
         auto createdTranslationUnits = translationUnits.create(message.fileContainers());
@@ -142,13 +142,13 @@ void ClangIpcServer::registerTranslationUnitsForEditor(const ClangBackEnd::Regis
     } catch (const ProjectPartDoNotExistException &exception) {
         client()->projectPartsDoNotExist(ProjectPartsDoNotExistMessage(exception.projectPartIds()));
     } catch (const std::exception &exception) {
-        qWarning() << "Error in ClangIpcServer::registerTranslationUnitsForEditor:" << exception.what();
+        qWarning() << "Error in ClangCodeModelServer::registerTranslationUnitsForEditor:" << exception.what();
     }
 }
 
-void ClangIpcServer::updateTranslationUnitsForEditor(const UpdateTranslationUnitsForEditorMessage &message)
+void ClangCodeModelServer::updateTranslationUnitsForEditor(const UpdateTranslationUnitsForEditorMessage &message)
 {
-    TIME_SCOPE_DURATION("ClangIpcServer::updateTranslationUnitsForEditor");
+    TIME_SCOPE_DURATION("ClangCodeModelServer::updateTranslationUnitsForEditor");
 
     try {
         const auto newerFileContainers = translationUnits.newerFileContainers(message.fileContainers());
@@ -162,13 +162,13 @@ void ClangIpcServer::updateTranslationUnitsForEditor(const UpdateTranslationUnit
     } catch (const TranslationUnitDoesNotExistException &exception) {
         client()->translationUnitDoesNotExist(TranslationUnitDoesNotExistMessage(exception.fileContainer()));
     } catch (const std::exception &exception) {
-        qWarning() << "Error in ClangIpcServer::updateTranslationUnitsForEditor:" << exception.what();
+        qWarning() << "Error in ClangCodeModelServer::updateTranslationUnitsForEditor:" << exception.what();
     }
 }
 
-void ClangIpcServer::unregisterTranslationUnitsForEditor(const ClangBackEnd::UnregisterTranslationUnitsForEditorMessage &message)
+void ClangCodeModelServer::unregisterTranslationUnitsForEditor(const ClangBackEnd::UnregisterTranslationUnitsForEditorMessage &message)
 {
-    TIME_SCOPE_DURATION("ClangIpcServer::unregisterTranslationUnitsForEditor");
+    TIME_SCOPE_DURATION("ClangCodeModelServer::unregisterTranslationUnitsForEditor");
 
     try {
         translationUnits.remove(message.fileContainers());
@@ -178,39 +178,39 @@ void ClangIpcServer::unregisterTranslationUnitsForEditor(const ClangBackEnd::Unr
     } catch (const ProjectPartDoNotExistException &exception) {
         client()->projectPartsDoNotExist(ProjectPartsDoNotExistMessage(exception.projectPartIds()));
     } catch (const std::exception &exception) {
-        qWarning() << "Error in ClangIpcServer::unregisterTranslationUnitsForEditor:" << exception.what();
+        qWarning() << "Error in ClangCodeModelServer::unregisterTranslationUnitsForEditor:" << exception.what();
     }
 }
 
-void ClangIpcServer::registerProjectPartsForEditor(const RegisterProjectPartsForEditorMessage &message)
+void ClangCodeModelServer::registerProjectPartsForEditor(const RegisterProjectPartsForEditorMessage &message)
 {
-    TIME_SCOPE_DURATION("ClangIpcServer::registerProjectPartsForEditor");
+    TIME_SCOPE_DURATION("ClangCodeModelServer::registerProjectPartsForEditor");
 
     try {
         projects.createOrUpdate(message.projectContainers());
         translationUnits.setTranslationUnitsDirtyIfProjectPartChanged();
         sendDocumentAnnotationsTimer.start(0);
     } catch (const std::exception &exception) {
-        qWarning() << "Error in ClangIpcServer::registerProjectPartsForEditor:" << exception.what();
+        qWarning() << "Error in ClangCodeModelServer::registerProjectPartsForEditor:" << exception.what();
     }
 }
 
-void ClangIpcServer::unregisterProjectPartsForEditor(const UnregisterProjectPartsForEditorMessage &message)
+void ClangCodeModelServer::unregisterProjectPartsForEditor(const UnregisterProjectPartsForEditorMessage &message)
 {
-    TIME_SCOPE_DURATION("ClangIpcServer::unregisterProjectPartsForEditor");
+    TIME_SCOPE_DURATION("ClangCodeModelServer::unregisterProjectPartsForEditor");
 
     try {
         projects.remove(message.projectPartIds());
     } catch (const ProjectPartDoNotExistException &exception) {
         client()->projectPartsDoNotExist(ProjectPartsDoNotExistMessage(exception.projectPartIds()));
     } catch (const std::exception &exception) {
-        qWarning() << "Error in ClangIpcServer::unregisterProjectPartsForEditor:" << exception.what();
+        qWarning() << "Error in ClangCodeModelServer::unregisterProjectPartsForEditor:" << exception.what();
     }
 }
 
-void ClangIpcServer::registerUnsavedFilesForEditor(const RegisterUnsavedFilesForEditorMessage &message)
+void ClangCodeModelServer::registerUnsavedFilesForEditor(const RegisterUnsavedFilesForEditorMessage &message)
 {
-    TIME_SCOPE_DURATION("ClangIpcServer::registerUnsavedFilesForEditor");
+    TIME_SCOPE_DURATION("ClangCodeModelServer::registerUnsavedFilesForEditor");
 
     try {
         unsavedFiles.createOrUpdate(message.fileContainers());
@@ -219,13 +219,13 @@ void ClangIpcServer::registerUnsavedFilesForEditor(const RegisterUnsavedFilesFor
     } catch (const ProjectPartDoNotExistException &exception) {
         client()->projectPartsDoNotExist(ProjectPartsDoNotExistMessage(exception.projectPartIds()));
     } catch (const std::exception &exception) {
-        qWarning() << "Error in ClangIpcServer::registerUnsavedFilesForEditor:" << exception.what();
+        qWarning() << "Error in ClangCodeModelServer::registerUnsavedFilesForEditor:" << exception.what();
     }
 }
 
-void ClangIpcServer::unregisterUnsavedFilesForEditor(const UnregisterUnsavedFilesForEditorMessage &message)
+void ClangCodeModelServer::unregisterUnsavedFilesForEditor(const UnregisterUnsavedFilesForEditorMessage &message)
 {
-    TIME_SCOPE_DURATION("ClangIpcServer::unregisterUnsavedFilesForEditor");
+    TIME_SCOPE_DURATION("ClangCodeModelServer::unregisterUnsavedFilesForEditor");
 
     try {
         unsavedFiles.remove(message.fileContainers());
@@ -235,13 +235,13 @@ void ClangIpcServer::unregisterUnsavedFilesForEditor(const UnregisterUnsavedFile
     } catch (const ProjectPartDoNotExistException &exception) {
         client()->projectPartsDoNotExist(ProjectPartsDoNotExistMessage(exception.projectPartIds()));
     } catch (const std::exception &exception) {
-        qWarning() << "Error in ClangIpcServer::unregisterUnsavedFilesForEditor:" << exception.what();
+        qWarning() << "Error in ClangCodeModelServer::unregisterUnsavedFilesForEditor:" << exception.what();
     }
 }
 
-void ClangIpcServer::completeCode(const ClangBackEnd::CompleteCodeMessage &message)
+void ClangCodeModelServer::completeCode(const ClangBackEnd::CompleteCodeMessage &message)
 {
-    TIME_SCOPE_DURATION("ClangIpcServer::completeCode");
+    TIME_SCOPE_DURATION("ClangCodeModelServer::completeCode");
 
     try {
         CodeCompleter codeCompleter(translationUnits.translationUnit(message.filePath(), message.projectPartId()));
@@ -256,13 +256,13 @@ void ClangIpcServer::completeCode(const ClangBackEnd::CompleteCodeMessage &messa
     } catch (const ProjectPartDoNotExistException &exception) {
         client()->projectPartsDoNotExist(ProjectPartsDoNotExistMessage(exception.projectPartIds()));
     }  catch (const std::exception &exception) {
-        qWarning() << "Error in ClangIpcServer::completeCode:" << exception.what();
+        qWarning() << "Error in ClangCodeModelServer::completeCode:" << exception.what();
     }
 }
 
-void ClangIpcServer::requestDiagnostics(const RequestDiagnosticsMessage &message)
+void ClangCodeModelServer::requestDiagnostics(const RequestDiagnosticsMessage &message)
 {
-    TIME_SCOPE_DURATION("ClangIpcServer::requestDiagnostics");
+    TIME_SCOPE_DURATION("ClangCodeModelServer::requestDiagnostics");
 
     try {
         auto translationUnit = translationUnits.translationUnit(message.file().filePath(),
@@ -275,13 +275,13 @@ void ClangIpcServer::requestDiagnostics(const RequestDiagnosticsMessage &message
     } catch (const ProjectPartDoNotExistException &exception) {
         client()->projectPartsDoNotExist(ProjectPartsDoNotExistMessage(exception.projectPartIds()));
     }  catch (const std::exception &exception) {
-        qWarning() << "Error in ClangIpcServer::requestDiagnostics:" << exception.what();
+        qWarning() << "Error in ClangCodeModelServer::requestDiagnostics:" << exception.what();
     }
 }
 
-void ClangIpcServer::requestHighlighting(const RequestHighlightingMessage &message)
+void ClangCodeModelServer::requestHighlighting(const RequestHighlightingMessage &message)
 {
-    TIME_SCOPE_DURATION("ClangIpcServer::requestHighlighting");
+    TIME_SCOPE_DURATION("ClangCodeModelServer::requestHighlighting");
 
     try {
         auto translationUnit = translationUnits.translationUnit(message.fileContainer().filePath(),
@@ -295,35 +295,35 @@ void ClangIpcServer::requestHighlighting(const RequestHighlightingMessage &messa
     } catch (const ProjectPartDoNotExistException &exception) {
         client()->projectPartsDoNotExist(ProjectPartsDoNotExistMessage(exception.projectPartIds()));
     } catch (const std::exception &exception) {
-        qWarning() << "Error in ClangIpcServer::requestHighlighting:" << exception.what();
+        qWarning() << "Error in ClangCodeModelServer::requestHighlighting:" << exception.what();
     }
 }
 
-void ClangIpcServer::updateVisibleTranslationUnits(const UpdateVisibleTranslationUnitsMessage &message)
+void ClangCodeModelServer::updateVisibleTranslationUnits(const UpdateVisibleTranslationUnitsMessage &message)
 {
-    TIME_SCOPE_DURATION("ClangIpcServer::updateVisibleTranslationUnits");
+    TIME_SCOPE_DURATION("ClangCodeModelServer::updateVisibleTranslationUnits");
 
     try {
         translationUnits.setUsedByCurrentEditor(message.currentEditorFilePath());
         translationUnits.setVisibleInEditors(message.visibleEditorFilePaths());
         sendDocumentAnnotationsTimer.start(0);
     }  catch (const std::exception &exception) {
-        qWarning() << "Error in ClangIpcServer::updateVisibleTranslationUnits:" << exception.what();
+        qWarning() << "Error in ClangCodeModelServer::updateVisibleTranslationUnits:" << exception.what();
     }
 }
 
-const TranslationUnits &ClangIpcServer::translationUnitsForTestOnly() const
+const TranslationUnits &ClangCodeModelServer::translationUnitsForTestOnly() const
 {
     return translationUnits;
 }
 
-void ClangIpcServer::startDocumentAnnotationsTimerIfFileIsNotATranslationUnit(const Utf8String &filePath)
+void ClangCodeModelServer::startDocumentAnnotationsTimerIfFileIsNotATranslationUnit(const Utf8String &filePath)
 {
     if (!translationUnits.hasTranslationUnit(filePath))
         sendDocumentAnnotationsTimer.start(0);
 }
 
-void ClangIpcServer::startDocumentAnnotations()
+void ClangCodeModelServer::startDocumentAnnotations()
 {
     DocumentAnnotationsSendState sendState = DocumentAnnotationsSendState::MaybeThereAreDocumentAnnotations;
 
@@ -331,7 +331,7 @@ void ClangIpcServer::startDocumentAnnotations()
         sendState = translationUnits.sendDocumentAnnotations();
 }
 
-void ClangIpcServer::reparseVisibleDocuments(std::vector<TranslationUnit> &translationUnits)
+void ClangCodeModelServer::reparseVisibleDocuments(std::vector<TranslationUnit> &translationUnits)
 {
     for (TranslationUnit &translationUnit : translationUnits)
         if (translationUnit.isVisibleInEditor())

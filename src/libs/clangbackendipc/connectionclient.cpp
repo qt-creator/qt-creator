@@ -56,7 +56,7 @@ QString connectionName()
 }
 }
 
-ConnectionClient::ConnectionClient(IpcClientInterface *client)
+ConnectionClient::ConnectionClient(ClangCodeModelClientInterface *client)
     : serverProxy_(client, &localSocket),
       isAliveTimerResetted(false),
       stdErrPrefixer("clangbackend.stderr: "),
@@ -263,7 +263,7 @@ bool ConnectionClient::waitForEcho()
     return localSocket.waitForReadyRead();
 }
 
-IpcServerProxy &ConnectionClient::serverProxy()
+ClangCodeModelServerProxy &ConnectionClient::serverProxy()
 {
     return serverProxy_;
 }

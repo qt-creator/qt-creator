@@ -23,7 +23,7 @@
 **
 ****************************************************************************/
 
-#include "ipcclientproxy.h"
+#include "clangcodemodelclientproxy.h"
 
 #include "cmbalivemessage.h"
 #include "cmbcodecompletedmessage.h"
@@ -31,7 +31,7 @@
 #include "cmbregistertranslationunitsforeditormessage.h"
 #include "diagnosticschangedmessage.h"
 #include "highlightingchangedmessage.h"
-#include "ipcserverinterface.h"
+#include "clangcodemodelserverinterface.h"
 #include "messageenvelop.h"
 #include "projectpartsdonotexistmessage.h"
 #include "translationunitdoesnotexistmessage.h"
@@ -43,16 +43,16 @@
 
 namespace ClangBackEnd {
 
-IpcClientProxy::IpcClientProxy(IpcServerInterface *server, QIODevice *ioDevice)
+ClangCodeModelClientProxy::ClangCodeModelClientProxy(ClangCodeModelServerInterface *server, QIODevice *ioDevice)
     : writeMessageBlock(ioDevice),
       readMessageBlock(ioDevice),
       server(server),
       ioDevice(ioDevice)
 {
-    QObject::connect(ioDevice, &QIODevice::readyRead, [this] () {IpcClientProxy::readMessages();});
+    QObject::connect(ioDevice, &QIODevice::readyRead, [this] () {ClangCodeModelClientProxy::readMessages();});
 }
 
-IpcClientProxy::IpcClientProxy(IpcClientProxy &&other)
+ClangCodeModelClientProxy::ClangCodeModelClientProxy(ClangCodeModelClientProxy &&other)
     : writeMessageBlock(std::move(other.writeMessageBlock)),
       readMessageBlock(std::move(other.readMessageBlock)),
       server(std::move(other.server)),
@@ -61,7 +61,7 @@ IpcClientProxy::IpcClientProxy(IpcClientProxy &&other)
 
 }
 
-IpcClientProxy &IpcClientProxy::operator=(IpcClientProxy &&other)
+ClangCodeModelClientProxy &ClangCodeModelClientProxy::operator=(ClangCodeModelClientProxy &&other)
 {
     writeMessageBlock = std::move(other.writeMessageBlock);
     readMessageBlock = std::move(other.readMessageBlock);
@@ -71,48 +71,48 @@ IpcClientProxy &IpcClientProxy::operator=(IpcClientProxy &&other)
     return *this;
 }
 
-void IpcClientProxy::alive()
+void ClangCodeModelClientProxy::alive()
 {
     writeMessageBlock.write(AliveMessage());
 }
 
-void IpcClientProxy::echo(const EchoMessage &message)
+void ClangCodeModelClientProxy::echo(const EchoMessage &message)
 {
     writeMessageBlock.write(message);
 }
 
-void IpcClientProxy::codeCompleted(const CodeCompletedMessage &message)
+void ClangCodeModelClientProxy::codeCompleted(const CodeCompletedMessage &message)
 {
     writeMessageBlock.write(message);
 }
 
-void IpcClientProxy::translationUnitDoesNotExist(const TranslationUnitDoesNotExistMessage &message)
+void ClangCodeModelClientProxy::translationUnitDoesNotExist(const TranslationUnitDoesNotExistMessage &message)
 {
     writeMessageBlock.write(message);
 }
 
-void IpcClientProxy::projectPartsDoNotExist(const ProjectPartsDoNotExistMessage &message)
+void ClangCodeModelClientProxy::projectPartsDoNotExist(const ProjectPartsDoNotExistMessage &message)
 {
     writeMessageBlock.write(message);
 }
 
-void IpcClientProxy::diagnosticsChanged(const DiagnosticsChangedMessage &message)
+void ClangCodeModelClientProxy::diagnosticsChanged(const DiagnosticsChangedMessage &message)
 {
     writeMessageBlock.write(message);
 }
 
-void IpcClientProxy::highlightingChanged(const HighlightingChangedMessage &message)
+void ClangCodeModelClientProxy::highlightingChanged(const HighlightingChangedMessage &message)
 {
     writeMessageBlock.write(message);
 }
 
-void IpcClientProxy::readMessages()
+void ClangCodeModelClientProxy::readMessages()
 {
     for (const MessageEnvelop &message : readMessageBlock.readAll())
         server->dispatch(message);
 }
 
-bool IpcClientProxy::isUsingThatIoDevice(QIODevice *ioDevice) const
+bool ClangCodeModelClientProxy::isUsingThatIoDevice(QIODevice *ioDevice) const
 {
     return this->ioDevice == ioDevice;
 }

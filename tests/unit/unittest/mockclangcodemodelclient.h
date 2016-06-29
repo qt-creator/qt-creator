@@ -25,14 +25,14 @@
 
 #pragma once
 
-#include <ipcclientinterface.h>
+#include <clangcodemodelclientinterface.h>
 
 #include <gmock/gmock.h>
 #include <gmock/gmock-matchers.h>
 #include <gtest/gtest.h>
 #include "gtest-qt-printing.h"
 
-class MockIpcClient : public ClangBackEnd::IpcClientInterface {
+class MockClangCodeModelClient : public ClangBackEnd::ClangCodeModelClientInterface {
 public:
     MOCK_METHOD0(alive,
                  void());

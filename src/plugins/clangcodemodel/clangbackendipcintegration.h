@@ -29,7 +29,7 @@
 
 #include <clangbackendipc/connectionclient.h>
 #include <clangbackendipc/filecontainer.h>
-#include <clangbackendipc/ipcclientinterface.h>
+#include <clangbackendipc/clangcodemodelclientinterface.h>
 #include <clangbackendipc/projectpartcontainer.h>
 
 #include <QObject>
@@ -57,7 +57,7 @@ class ModelManagerSupportClang;
 
 class ClangCompletionAssistProcessor;
 
-class IpcReceiver : public ClangBackEnd::IpcClientInterface
+class IpcReceiver : public ClangBackEnd::ClangCodeModelClientInterface
 {
 public:
     IpcReceiver();

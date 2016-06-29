@@ -26,7 +26,7 @@
 #pragma once
 
 #include "clangbackendipc_global.h"
-#include "ipcclientinterface.h"
+#include "clangcodemodelclientinterface.h"
 #include "readmessageblock.h"
 #include "writemessageblock.h"
 
@@ -41,15 +41,15 @@ QT_END_NAMESPACE
 
 namespace ClangBackEnd {
 
-class CMBIPC_EXPORT IpcClientProxy : public IpcClientInterface
+class CMBIPC_EXPORT ClangCodeModelClientProxy : public ClangCodeModelClientInterface
 {
 public:
-    explicit IpcClientProxy(IpcServerInterface *server, QIODevice *ioDevice);
-    IpcClientProxy(const IpcClientProxy&) = delete;
-    const IpcClientProxy &operator=(const IpcClientProxy&) = delete;
+    explicit ClangCodeModelClientProxy(ClangCodeModelServerInterface *server, QIODevice *ioDevice);
+    ClangCodeModelClientProxy(const ClangCodeModelClientProxy&) = delete;
+    const ClangCodeModelClientProxy &operator=(const ClangCodeModelClientProxy&) = delete;
 
-    IpcClientProxy(IpcClientProxy&&other);
-    IpcClientProxy &operator=(IpcClientProxy&&other);
+    ClangCodeModelClientProxy(ClangCodeModelClientProxy&&other);
+    ClangCodeModelClientProxy &operator=(ClangCodeModelClientProxy&&other);
 
     void alive() override;
     void echo(const EchoMessage &message) override;
@@ -66,7 +66,7 @@ public:
 private:
     ClangBackEnd::WriteMessageBlock writeMessageBlock;
     ClangBackEnd::ReadMessageBlock readMessageBlock;
-    IpcServerInterface *server = nullptr;
+    ClangCodeModelServerInterface *server = nullptr;
     QIODevice *ioDevice = nullptr;
 };
 

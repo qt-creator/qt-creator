@@ -23,7 +23,7 @@
 **
 ****************************************************************************/
 
-#include "ipcclientinterface.h"
+#include "clangcodemodelclientinterface.h"
 
 #include "cmbcodecompletedmessage.h"
 #include "cmbechomessage.h"
@@ -38,7 +38,7 @@
 
 namespace ClangBackEnd {
 
-void IpcClientInterface::dispatch(const MessageEnvelop &messageEnvelop)
+void ClangCodeModelClientInterface::dispatch(const MessageEnvelop &messageEnvelop)
 {
     switch (messageEnvelop.messageType()) {
         case MessageType::AliveMessage:
@@ -63,7 +63,7 @@ void IpcClientInterface::dispatch(const MessageEnvelop &messageEnvelop)
             highlightingChanged(messageEnvelop.message<HighlightingChangedMessage>());
             break;
         default:
-            qWarning() << "Unknown IpcClientMessage";
+            qWarning() << "Unknown ClangCodeModelClientMessage";
     }
 }
 

@@ -25,11 +25,11 @@
 
 #pragma once
 
-#include <ipcserverinterface.h>
+#include <clangcodemodelserverinterface.h>
 
 namespace ClangBackEnd {
 
-class EchoIpcServer : public IpcServerInterface
+class EchoClangCodeModelServer : public ClangCodeModelServerInterface
 {
 public:
     void dispatch(const MessageEnvelop &message) override;

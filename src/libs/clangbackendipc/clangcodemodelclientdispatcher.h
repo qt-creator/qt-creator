@@ -25,17 +25,17 @@
 
 #pragma once
 
-#include "ipcclientinterface.h"
+#include "clangcodemodelclientinterface.h"
 
 #include <QVector>
 
 namespace ClangBackEnd {
 
-class CMBIPC_EXPORT IpcClientDispatcher : public ClangBackEnd::IpcClientInterface
+class CMBIPC_EXPORT ClangCodeModelClientDispatcher : public ClangBackEnd::ClangCodeModelClientInterface
 {
 public:
-    void addClient(IpcClientInterface *client);
-    void removeClient(IpcClientInterface *client);
+    void addClient(ClangCodeModelClientInterface *client);
+    void removeClient(ClangCodeModelClientInterface *client);
 
     void alive() override;
     void echo(const EchoMessage &message) override;
@@ -46,7 +46,7 @@ public:
     void highlightingChanged(const HighlightingChangedMessage &message) override;
 
 private:
-    QVector<IpcClientInterface*> clients;
+    QVector<ClangCodeModelClientInterface*> clients;
 };
 
 } // namespace ClangBackEnd

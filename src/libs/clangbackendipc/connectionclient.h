@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include "ipcserverproxy.h"
+#include "clangcodemodelserverproxy.h"
 #include "lineprefixer.h"
 
 #include <QLocalSocket>
@@ -49,7 +49,7 @@ class CMBIPC_EXPORT ConnectionClient : public QObject
     Q_OBJECT
 
 public:
-    ConnectionClient(IpcClientInterface *client);
+    ConnectionClient(ClangCodeModelClientInterface *client);
     ~ConnectionClient();
 
     bool connectToServer();
@@ -72,7 +72,7 @@ public:
 
     bool waitForEcho();
 
-    IpcServerProxy &serverProxy();
+    ClangCodeModelServerProxy &serverProxy();
 
     QProcess *processForTestOnly() const;
 
@@ -100,7 +100,7 @@ private:
 private:
     mutable std::unique_ptr<QProcess> process_;
     QLocalSocket localSocket;
-    IpcServerProxy serverProxy_;
+    ClangCodeModelServerProxy serverProxy_;
     QTimer processAliveTimer;
     QString processPath_;
     bool isAliveTimerResetted;

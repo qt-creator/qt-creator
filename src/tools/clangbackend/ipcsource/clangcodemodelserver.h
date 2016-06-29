@@ -24,30 +24,26 @@
 ****************************************************************************/
 
 #pragma once
-#include "ipcserverinterface.h"
-#include "readmessageblock.h"
-#include "writemessageblock.h"
 
-#include <QtGlobal>
+#include "clangcodemodelserverinterface.h"
+
+#include "projectpart.h"
+#include "projects.h"
+#include "clangtranslationunit.h"
+#include "translationunits.h"
+#include "unsavedfiles.h"
+
+#include <utf8string.h>
+
+#include <QMap>
 #include <QTimer>
-
-#include <memory>
-
-QT_BEGIN_NAMESPACE
-class QVariant;
-class QProcess;
-class QLocalServer;
-class QLocalSocket;
-QT_END_NAMESPACE
 
 namespace ClangBackEnd {
 
-class CMBIPC_EXPORT IpcServerProxy : public IpcServerInterface
+class ClangCodeModelServer : public ClangCodeModelServerInterface
 {
 public:
-    IpcServerProxy(IpcClientInterface *client, QIODevice *ioDevice);
-    IpcServerProxy(const IpcServerProxy&) = delete;
-    IpcServerProxy &operator=(const IpcServerProxy&) = delete;
+    ClangCodeModelServer();
 
     void end() override;
     void registerTranslationUnitsForEditor(const RegisterTranslationUnitForEditorMessage &message) override;
@@ -62,14 +58,18 @@ public:
     void requestHighlighting(const RequestHighlightingMessage &message) override;
     void updateVisibleTranslationUnits(const UpdateVisibleTranslationUnitsMessage &message) override;
 
-    void readMessages();
-
-    void resetCounter();
+    const TranslationUnits &translationUnitsForTestOnly() const;
 
 private:
-    ClangBackEnd::WriteMessageBlock writeMessageBlock;
-    ClangBackEnd::ReadMessageBlock readMessageBlock;
-    IpcClientInterface *client;
+    void startDocumentAnnotationsTimerIfFileIsNotATranslationUnit(const Utf8String &filePath);
+    void startDocumentAnnotations();
+    void reparseVisibleDocuments(std::vector<TranslationUnit> &translationUnits);
+
+private:
+    ProjectParts projects;
+    UnsavedFiles unsavedFiles;
+    TranslationUnits translationUnits;
+    QTimer sendDocumentAnnotationsTimer;
 };
 
 } // namespace ClangBackEnd

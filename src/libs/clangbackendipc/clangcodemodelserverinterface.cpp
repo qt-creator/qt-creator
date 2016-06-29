@@ -23,7 +23,7 @@
 **
 ****************************************************************************/
 
-#include "ipcserverinterface.h"
+#include "clangcodemodelserverinterface.h"
 
 #include "cmbcompletecodemessage.h"
 #include "cmbregisterprojectsforeditormessage.h"
@@ -43,7 +43,7 @@
 
 namespace ClangBackEnd {
 
-void IpcServerInterface::dispatch(const MessageEnvelop &messageEnvelop)
+void ClangCodeModelServerInterface::dispatch(const MessageEnvelop &messageEnvelop)
 {
     switch (messageEnvelop.messageType()) {
         case MessageType::EndMessage:
@@ -83,21 +83,21 @@ void IpcServerInterface::dispatch(const MessageEnvelop &messageEnvelop)
             updateVisibleTranslationUnits(messageEnvelop.message<UpdateVisibleTranslationUnitsMessage>());
             break;
         default:
-            qWarning() << "Unknown IpcServerMessage";
+            qWarning() << "Unknown ClangCodeModelServerMessage";
     }
 }
 
-void IpcServerInterface::addClient(IpcClientInterface *client)
+void ClangCodeModelServerInterface::addClient(ClangCodeModelClientInterface *client)
 {
     clientDispatcher.addClient(client);
 }
 
-void IpcServerInterface::removeClient(IpcClientInterface *client)
+void ClangCodeModelServerInterface::removeClient(ClangCodeModelClientInterface *client)
 {
     clientDispatcher.removeClient(client);
 }
 
-IpcClientInterface *IpcServerInterface::client()
+ClangCodeModelClientInterface *ClangCodeModelServerInterface::client()
 {
     return &clientDispatcher;
 }

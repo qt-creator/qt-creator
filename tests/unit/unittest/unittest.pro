@@ -78,8 +78,8 @@ SOURCES += \
 
 HEADERS += \
     gtest-qt-printing.h \
-    mockipclient.h \
-    mockipcserver.h \
+    mockclangcodemodelclient.h \
+    mockclangcodemodelserver.h \
     spydummy.h \
     matcher-diagnosticcontainer.h \
     chunksreportedmonitor.h \

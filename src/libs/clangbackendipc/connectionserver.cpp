@@ -25,7 +25,7 @@
 
 #include "connectionserver.h"
 
-#include <ipcserverinterface.h>
+#include <clangcodemodelserverinterface.h>
 
 #include <QCoreApplication>
 #include <QLocalSocket>
@@ -62,7 +62,7 @@ void ConnectionServer::start()
     localServer.listen(connectionName);
 }
 
-void ConnectionServer::setIpcServer(IpcServerInterface *ipcServer)
+void ConnectionServer::setClangCodeModelServer(ClangCodeModelServerInterface *ipcServer)
 {
     this->ipcServer = ipcServer;
 
@@ -70,7 +70,7 @@ void ConnectionServer::setIpcServer(IpcServerInterface *ipcServer)
 
 int ConnectionServer::clientProxyCount() const
 {
-    return static_cast<int>(ipcClientProxies.size());
+    return static_cast<int>(ipcServerProxies.size());
 }
 
 void ConnectionServer::timerEvent(QTimerEvent *timerEvent)
@@ -83,9 +83,9 @@ void ConnectionServer::handleNewConnection()
 {
     QLocalSocket *localSocket(nextPendingConnection());
 
-    ipcClientProxies.emplace_back(ipcServer, localSocket);
+    ipcServerProxies.emplace_back(ipcServer, localSocket);
 
-    ipcServer->addClient(&ipcClientProxies.back());
+    ipcServer->addClient(&ipcServerProxies.back());
 
     localSockets.push_back(localSocket);
 
@@ -111,9 +111,9 @@ void ConnectionServer::handleSocketDisconnect()
 
 void ConnectionServer::removeClientProxyWithLocalSocket(QLocalSocket *localSocket)
 {
-    ipcClientProxies.erase(std::remove_if(ipcClientProxies.begin(),
-                                          ipcClientProxies.end(),
-                                          [localSocket](const IpcClientProxy &client) { return client.isUsingThatIoDevice(localSocket);}));
+    ipcServerProxies.erase(std::remove_if(ipcServerProxies.begin(),
+                                          ipcServerProxies.end(),
+                                          [localSocket](const ClangCodeModelClientProxy &client) { return client.isUsingThatIoDevice(localSocket);}));
 }
 
 QLocalSocket *ConnectionServer::nextPendingConnection()

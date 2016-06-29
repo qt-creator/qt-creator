@@ -28,7 +28,7 @@
 #include <QLoggingCategory>
 
 #include <connectionserver.h>
-#include <clangipcserver.h>
+#include <clangcodemodelserver.h>
 
 QString processArguments(QCoreApplication &application)
 {
@@ -62,10 +62,10 @@ int main(int argc, char *argv[])
     clang_toggleCrashRecovery(true);
     clang_enableStackTraces();
 
-    ClangBackEnd::ClangIpcServer clangIpcServer;
+    ClangBackEnd::ClangCodeModelServer clangCodeModelServer;
     ClangBackEnd::ConnectionServer connectionServer(connection);
     connectionServer.start();
-    connectionServer.setIpcServer(&clangIpcServer);
+    connectionServer.setClangCodeModelServer(&clangCodeModelServer);
 
     return application.exec();
 }

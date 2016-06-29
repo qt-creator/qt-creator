@@ -23,7 +23,7 @@
 **
 ****************************************************************************/
 
-#include "echoipcserver.h"
+#include "echoclangcodemodelserver.h"
 
 #include <connectionserver.h>
 
@@ -43,10 +43,10 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    ClangBackEnd::EchoIpcServer echoIpcServer;
+    ClangBackEnd::EchoClangCodeModelServer echoClangCodeModelServer;
     ClangBackEnd::ConnectionServer connectionServer(application.arguments()[1]);
     connectionServer.start();
-    connectionServer.setIpcServer(&echoIpcServer);
+    connectionServer.setClangCodeModelServer(&echoClangCodeModelServer);
 
     return application.exec();
 }

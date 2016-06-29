@@ -8,19 +8,19 @@ QT += network
 
 INCLUDEPATH += $$PWD
 
-SOURCES += $$PWD/ipcserverinterface.cpp \
-    $$PWD/ipcserverproxy.cpp \
-    $$PWD/ipcclientinterface.cpp \
+SOURCES += $$PWD/clangcodemodelserverinterface.cpp \
+    $$PWD/clangcodemodelserverproxy.cpp \
+    $$PWD/clangcodemodelclientinterface.cpp \
     $$PWD/cmbendmessage.cpp \
     $$PWD/cmbalivemessage.cpp \
-    $$PWD/ipcclientproxy.cpp \
+    $$PWD/clangcodemodelclientproxy.cpp \
     $$PWD/writemessageblock.cpp \
     $$PWD/readmessageblock.cpp \
     $$PWD/ipcinterface.cpp \
     $$PWD/connectionserver.cpp \
     $$PWD/connectionclient.cpp \
     $$PWD/cmbechomessage.cpp \
-    $$PWD/ipcclientdispatcher.cpp \
+    $$PWD/clangcodemodelclientdispatcher.cpp \
     $$PWD/cmbregistertranslationunitsforeditormessage.cpp \
     $$PWD/filecontainer.cpp \
     $$PWD/cmbunregistertranslationunitsforeditormessage.cpp \
@@ -51,19 +51,19 @@ SOURCES += $$PWD/ipcserverinterface.cpp \
     $$PWD/messageenvelop.cpp
 
 HEADERS += \
-    $$PWD/ipcserverinterface.h \
-    $$PWD/ipcserverproxy.h \
-    $$PWD/ipcclientinterface.h \
+    $$PWD/clangcodemodelserverinterface.h \
+    $$PWD/clangcodemodelserverproxy.h \
+    $$PWD/clangcodemodelclientinterface.h \
     $$PWD/cmbendmessage.h \
     $$PWD/cmbalivemessage.h \
-    $$PWD/ipcclientproxy.h \
+    $$PWD/clangcodemodelclientproxy.h \
     $$PWD/writemessageblock.h \
     $$PWD/readmessageblock.h \
     $$PWD/ipcinterface.h \
     $$PWD/connectionserver.h \
     $$PWD/connectionclient.h \
     $$PWD/cmbechomessage.h \
-    $$PWD/ipcclientdispatcher.h \
+    $$PWD/clangcodemodelclientdispatcher.h \
     $$PWD/cmbregistertranslationunitsforeditormessage.h \
     $$PWD/filecontainer.h \
     $$PWD/cmbunregistertranslationunitsforeditormessage.h \

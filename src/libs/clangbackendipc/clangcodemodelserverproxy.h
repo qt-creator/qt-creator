@@ -24,26 +24,30 @@
 ****************************************************************************/
 
 #pragma once
+#include "clangcodemodelserverinterface.h"
+#include "readmessageblock.h"
+#include "writemessageblock.h"
 
-#include "ipcserverinterface.h"
-
-#include "projectpart.h"
-#include "projects.h"
-#include "clangtranslationunit.h"
-#include "translationunits.h"
-#include "unsavedfiles.h"
-
-#include <utf8string.h>
-
-#include <QMap>
+#include <QtGlobal>
 #include <QTimer>
+
+#include <memory>
+
+QT_BEGIN_NAMESPACE
+class QVariant;
+class QProcess;
+class QLocalServer;
+class QLocalSocket;
+QT_END_NAMESPACE
 
 namespace ClangBackEnd {
 
-class ClangIpcServer : public IpcServerInterface
+class CMBIPC_EXPORT ClangCodeModelServerProxy : public ClangCodeModelServerInterface
 {
 public:
-    ClangIpcServer();
+    ClangCodeModelServerProxy(ClangCodeModelClientInterface *client, QIODevice *ioDevice);
+    ClangCodeModelServerProxy(const ClangCodeModelServerProxy&) = delete;
+    ClangCodeModelServerProxy &operator=(const ClangCodeModelServerProxy&) = delete;
 
     void end() override;
     void registerTranslationUnitsForEditor(const RegisterTranslationUnitForEditorMessage &message) override;
@@ -58,18 +62,14 @@ public:
     void requestHighlighting(const RequestHighlightingMessage &message) override;
     void updateVisibleTranslationUnits(const UpdateVisibleTranslationUnitsMessage &message) override;
 
-    const TranslationUnits &translationUnitsForTestOnly() const;
+    void readMessages();
+
+    void resetCounter();
 
 private:
-    void startDocumentAnnotationsTimerIfFileIsNotATranslationUnit(const Utf8String &filePath);
-    void startDocumentAnnotations();
-    void reparseVisibleDocuments(std::vector<TranslationUnit> &translationUnits);
-
-private:
-    ProjectParts projects;
-    UnsavedFiles unsavedFiles;
-    TranslationUnits translationUnits;
-    QTimer sendDocumentAnnotationsTimer;
+    ClangBackEnd::WriteMessageBlock writeMessageBlock;
+    ClangBackEnd::ReadMessageBlock readMessageBlock;
+    ClangCodeModelClientInterface *client;
 };
 
 } // namespace ClangBackEnd

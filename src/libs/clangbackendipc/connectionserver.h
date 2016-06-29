@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include <ipcclientproxy.h>
+#include <clangcodemodelclientproxy.h>
 
 #include <QLocalServer>
 
@@ -33,8 +33,8 @@
 
 namespace ClangBackEnd {
 
-class IpcServerInterface;
-class IpcClientProxy;
+class ClangCodeModelServerInterface;
+class ClangCodeModelClientProxy;
 
 class CMBIPC_EXPORT ConnectionServer : public QObject
 {
@@ -44,7 +44,7 @@ public:
     ~ConnectionServer();
 
     void start();
-    void setIpcServer(IpcServerInterface *ipcServer);
+    void setClangCodeModelServer(ClangCodeModelServerInterface *ipcServer);
 
     int clientProxyCount() const;
 
@@ -66,9 +66,9 @@ private:
     void exitApplicationIfNoSockedIsConnected();
 
 private:
-    std::vector<IpcClientProxy> ipcClientProxies;
+    std::vector<ClangCodeModelClientProxy> ipcServerProxies;
     std::vector<QLocalSocket*> localSockets;
-    IpcServerInterface *ipcServer;
+    ClangCodeModelServerInterface *ipcServer;
     QLocalServer localServer;
     static QString connectionName;
     int aliveTimerId;

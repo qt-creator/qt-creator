@@ -23,59 +23,59 @@
 **
 ****************************************************************************/
 
-#include "ipcclientdispatcher.h"
+#include "clangcodemodelclientdispatcher.h"
 
 #include <QDebug>
 
 namespace ClangBackEnd {
 
-void IpcClientDispatcher::addClient(IpcClientInterface *client)
+void ClangCodeModelClientDispatcher::addClient(ClangCodeModelClientInterface *client)
 {
     clients.append(client);
 }
 
-void IpcClientDispatcher::removeClient(IpcClientInterface *client)
+void ClangCodeModelClientDispatcher::removeClient(ClangCodeModelClientInterface *client)
 {
     clients.removeOne(client);
 }
 
-void IpcClientDispatcher::alive()
+void ClangCodeModelClientDispatcher::alive()
 {
     for (auto *client : clients)
         client->alive();
 }
 
-void IpcClientDispatcher::echo(const EchoMessage &message)
+void ClangCodeModelClientDispatcher::echo(const EchoMessage &message)
 {
     for (auto *client : clients)
         client->echo(message);
 }
 
-void IpcClientDispatcher::codeCompleted(const CodeCompletedMessage &message)
+void ClangCodeModelClientDispatcher::codeCompleted(const CodeCompletedMessage &message)
 {
     for (auto *client : clients)
         client->codeCompleted(message);
 }
 
-void IpcClientDispatcher::translationUnitDoesNotExist(const TranslationUnitDoesNotExistMessage &message)
+void ClangCodeModelClientDispatcher::translationUnitDoesNotExist(const TranslationUnitDoesNotExistMessage &message)
 {
     for (auto *client : clients)
         client->translationUnitDoesNotExist(message);
 }
 
-void IpcClientDispatcher::projectPartsDoNotExist(const ProjectPartsDoNotExistMessage &message)
+void ClangCodeModelClientDispatcher::projectPartsDoNotExist(const ProjectPartsDoNotExistMessage &message)
 {
     for (auto *client : clients)
         client->projectPartsDoNotExist(message);
 }
 
-void IpcClientDispatcher::diagnosticsChanged(const DiagnosticsChangedMessage &message)
+void ClangCodeModelClientDispatcher::diagnosticsChanged(const DiagnosticsChangedMessage &message)
 {
     for (auto *client : clients)
         client->diagnosticsChanged(message);
 }
 
-void IpcClientDispatcher::highlightingChanged(const HighlightingChangedMessage &message)
+void ClangCodeModelClientDispatcher::highlightingChanged(const HighlightingChangedMessage &message)
 {
     for (auto *client : clients)
         client->highlightingChanged(message);

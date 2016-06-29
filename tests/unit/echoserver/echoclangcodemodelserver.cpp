@@ -23,7 +23,7 @@
 **
 ****************************************************************************/
 
-#include "echoipcserver.h"
+#include "echoclangcodemodelserver.h"
 
 #include "cmbcodecompletedmessage.h"
 #include "cmbcompletecodemessage.h"
@@ -47,73 +47,73 @@
 
 namespace ClangBackEnd {
 
-void EchoIpcServer::dispatch(const MessageEnvelop &message)
+void EchoClangCodeModelServer::dispatch(const MessageEnvelop &message)
 {
-    IpcServerInterface::dispatch(message);
+    ClangCodeModelServerInterface::dispatch(message);
 }
 
-void EchoIpcServer::end()
+void EchoClangCodeModelServer::end()
 {
     ConnectionServer::removeServer();
     QCoreApplication::quit();
 }
 
-void EchoIpcServer::registerTranslationUnitsForEditor(const RegisterTranslationUnitForEditorMessage &message)
+void EchoClangCodeModelServer::registerTranslationUnitsForEditor(const RegisterTranslationUnitForEditorMessage &message)
 {
     echoMessage(message);
 }
 
-void EchoIpcServer::updateTranslationUnitsForEditor(const UpdateTranslationUnitsForEditorMessage &message)
+void EchoClangCodeModelServer::updateTranslationUnitsForEditor(const UpdateTranslationUnitsForEditorMessage &message)
 {
     echoMessage(message);
 }
 
-void EchoIpcServer::unregisterTranslationUnitsForEditor(const UnregisterTranslationUnitsForEditorMessage &message)
+void EchoClangCodeModelServer::unregisterTranslationUnitsForEditor(const UnregisterTranslationUnitsForEditorMessage &message)
 {
     echoMessage(message);
 }
 
-void EchoIpcServer::registerProjectPartsForEditor(const RegisterProjectPartsForEditorMessage &message)
+void EchoClangCodeModelServer::registerProjectPartsForEditor(const RegisterProjectPartsForEditorMessage &message)
 {
     echoMessage(message);
 }
 
-void EchoIpcServer::unregisterProjectPartsForEditor(const UnregisterProjectPartsForEditorMessage &message)
+void EchoClangCodeModelServer::unregisterProjectPartsForEditor(const UnregisterProjectPartsForEditorMessage &message)
 {
     echoMessage(message);
 }
 
-void EchoIpcServer::registerUnsavedFilesForEditor(const RegisterUnsavedFilesForEditorMessage &message)
+void EchoClangCodeModelServer::registerUnsavedFilesForEditor(const RegisterUnsavedFilesForEditorMessage &message)
 {
     echoMessage(message);
 }
 
-void EchoIpcServer::unregisterUnsavedFilesForEditor(const UnregisterUnsavedFilesForEditorMessage &message)
+void EchoClangCodeModelServer::unregisterUnsavedFilesForEditor(const UnregisterUnsavedFilesForEditorMessage &message)
 {
     echoMessage(message);
 }
 
-void EchoIpcServer::completeCode(const CompleteCodeMessage &message)
+void EchoClangCodeModelServer::completeCode(const CompleteCodeMessage &message)
 {
     echoMessage(message);
 }
 
-void EchoIpcServer::requestDiagnostics(const RequestDiagnosticsMessage &message)
+void EchoClangCodeModelServer::requestDiagnostics(const RequestDiagnosticsMessage &message)
 {
     echoMessage(message);
 }
 
-void EchoIpcServer::requestHighlighting(const RequestHighlightingMessage &message)
+void EchoClangCodeModelServer::requestHighlighting(const RequestHighlightingMessage &message)
 {
     echoMessage(message);
 }
 
-void EchoIpcServer::updateVisibleTranslationUnits(const UpdateVisibleTranslationUnitsMessage &message)
+void EchoClangCodeModelServer::updateVisibleTranslationUnits(const UpdateVisibleTranslationUnitsMessage &message)
 {
     echoMessage(message);
 }
 
-void EchoIpcServer::echoMessage(const MessageEnvelop &message)
+void EchoClangCodeModelServer::echoMessage(const MessageEnvelop &message)
 {
     client()->echo(EchoMessage(message));
 }

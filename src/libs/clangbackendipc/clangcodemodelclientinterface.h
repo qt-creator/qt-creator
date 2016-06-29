@@ -29,7 +29,7 @@
 
 namespace ClangBackEnd {
 
-class IpcServerInterface;
+class ClangCodeModelServerInterface;
 class RegisterTranslationUnitForEditorMessage;
 class UpdateTranslationUnitsForEditorMessage;
 class RegisterProjectPartsForEditorMessage;
@@ -48,7 +48,7 @@ class UpdateVisibleTranslationUnitsMessage;
 class RequestHighlightingMessage;
 class HighlightingChangedMessage;
 
-class CMBIPC_EXPORT IpcClientInterface : public IpcInterface
+class CMBIPC_EXPORT ClangCodeModelClientInterface : public IpcInterface
 {
 public:
     void dispatch(const MessageEnvelop &messageEnvelop) override;

@@ -1,6 +1,6 @@
 INCLUDEPATH += $$PWD
 
-HEADERS += $$PWD/clangipcserver.h \
+HEADERS += $$PWD/clangcodemodelserver.h \
     $$PWD/codecompleter.h \
     $$PWD/clangstring.h \
     $$PWD/translationunitisnullexception.h \
@@ -36,7 +36,7 @@ HEADERS += $$PWD/clangipcserver.h \
     $$PWD/highlightingmarksiterator.h \
     $$PWD/utf8positionfromlinecolumn.h
 
-SOURCES += $$PWD/clangipcserver.cpp \
+SOURCES += $$PWD/clangcodemodelserver.cpp \
     $$PWD/codecompleter.cpp \
     $$PWD/clangstring.cpp \
     $$PWD/translationunitisnullexception.cpp \

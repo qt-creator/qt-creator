@@ -23,13 +23,13 @@
 **
 ****************************************************************************/
 
-#include "mockipclient.h"
+#include "mockclangcodemodelclient.h"
 
-#include <clangipcserver.h>
+#include <clangcodemodelserver.h>
 #include <highlightingchangedmessage.h>
 #include <highlightingmarkcontainer.h>
-#include <ipcclientproxy.h>
-#include <ipcserverproxy.h>
+#include <clangcodemodelclientproxy.h>
+#include <clangcodemodelserverproxy.h>
 #include <requesthighlightingmessage.h>
 #include <translationunitdoesnotexistexception.h>
 #include <translationunitparseerrorexception.h>
@@ -132,7 +132,7 @@ MATCHER_P5(HasDirtyTranslationUnit,
 }
 
 
-class ClangIpcServer : public ::testing::Test
+class ClangClangCodeModelServer : public ::testing::Test
 {
 protected:
     void SetUp() override;
@@ -145,8 +145,8 @@ protected:
     static const Utf8String unsavedContent(const QString &unsavedFilePath);
 
 protected:
-    MockIpcClient mockIpcClient;
-    ClangBackEnd::ClangIpcServer clangServer;
+    MockClangCodeModelClient mockClangCodeModelClient;
+    ClangBackEnd::ClangCodeModelServer clangServer;
     const ClangBackEnd::TranslationUnits &translationUnits = clangServer.translationUnitsForTestOnly();
     const Utf8String projectPartId = Utf8StringLiteral("pathToProjectPart.pro");
     const Utf8String functionTestFilePath = Utf8StringLiteral(TESTDATA_DIR"/complete_extractor_function.cpp");
@@ -156,7 +156,7 @@ protected:
     const Utf8String parseErrorTestFilePath = Utf8StringLiteral(TESTDATA_DIR"/complete_translationunit_parse_error.cpp");
 };
 
-TEST_F(ClangIpcServer, GetCodeCompletion)
+TEST_F(ClangClangCodeModelServer, GetCodeCompletion)
 {
     CompleteCodeMessage completeCodeMessage(functionTestFilePath,
                                             20,
@@ -166,13 +166,13 @@ TEST_F(ClangIpcServer, GetCodeCompletion)
                                   34,
                                   CodeCompletion::FunctionCompletionKind);
 
-    EXPECT_CALL(mockIpcClient, codeCompleted(Property(&CodeCompletedMessage::codeCompletions, Contains(codeCompletion))))
+    EXPECT_CALL(mockClangCodeModelClient, codeCompleted(Property(&CodeCompletedMessage::codeCompletions, Contains(codeCompletion))))
         .Times(1);
 
     clangServer.completeCode(completeCodeMessage);
 }
 
-TEST_F(ClangIpcServer, RequestHighlighting)
+TEST_F(ClangClangCodeModelServer, RequestHighlighting)
 {
     RequestHighlightingMessage requestHighlightingMessage({variableTestFilePath, projectPartId});
     HighlightingTypes types;
@@ -180,13 +180,13 @@ TEST_F(ClangIpcServer, RequestHighlighting)
     types.mixinHighlightingTypes.push_back(ClangBackEnd::HighlightingType::Declaration);
     HighlightingMarkContainer highlightingMarkContainer(1, 6, 8, types);
 
-    EXPECT_CALL(mockIpcClient, highlightingChanged(Property(&HighlightingChangedMessage::highlightingMarks, Contains(highlightingMarkContainer))))
+    EXPECT_CALL(mockClangCodeModelClient, highlightingChanged(Property(&HighlightingChangedMessage::highlightingMarks, Contains(highlightingMarkContainer))))
         .Times(1);
 
     clangServer.requestHighlighting(requestHighlightingMessage);
 }
 
-TEST_F(ClangIpcServer, GetCodeCompletionDependingOnArgumets)
+TEST_F(ClangClangCodeModelServer, GetCodeCompletionDependingOnArgumets)
 {
     CompleteCodeMessage completeCodeMessage(variableTestFilePath,
                                             35,
@@ -196,14 +196,14 @@ TEST_F(ClangIpcServer, GetCodeCompletionDependingOnArgumets)
                                   34,
                                   CodeCompletion::VariableCompletionKind);
 
-    EXPECT_CALL(mockIpcClient, codeCompleted(Property(&CodeCompletedMessage::codeCompletions, Contains(codeCompletion))))
+    EXPECT_CALL(mockClangCodeModelClient, codeCompleted(Property(&CodeCompletedMessage::codeCompletions, Contains(codeCompletion))))
         .Times(1);
 
     changeProjectPartArguments();
     clangServer.completeCode(completeCodeMessage);
 }
 
-TEST_F(ClangIpcServer, GetTranslationUnitDoesNotExistForEditorOnNonExistingTranslationUnit)
+TEST_F(ClangClangCodeModelServer, GetTranslationUnitDoesNotExistForEditorOnNonExistingTranslationUnit)
 {
     CompleteCodeMessage completeCodeMessage(Utf8StringLiteral("dontexists.cpp"),
                                             34,
@@ -211,13 +211,13 @@ TEST_F(ClangIpcServer, GetTranslationUnitDoesNotExistForEditorOnNonExistingTrans
                                             projectPartId);
     TranslationUnitDoesNotExistMessage translationUnitDoesNotExistMessage(Utf8StringLiteral("dontexists.cpp"), projectPartId);
 
-    EXPECT_CALL(mockIpcClient, translationUnitDoesNotExist(translationUnitDoesNotExistMessage))
+    EXPECT_CALL(mockClangCodeModelClient, translationUnitDoesNotExist(translationUnitDoesNotExistMessage))
         .Times(1);
 
     clangServer.completeCode(completeCodeMessage);
 }
 
-TEST_F(ClangIpcServer, GetTranslationUnitDoesNotExistForCompletingUnregisteredFile)
+TEST_F(ClangClangCodeModelServer, GetTranslationUnitDoesNotExistForCompletingUnregisteredFile)
 {
     CompleteCodeMessage completeCodeMessage(parseErrorTestFilePath,
                                             20,
@@ -225,13 +225,13 @@ TEST_F(ClangIpcServer, GetTranslationUnitDoesNotExistForCompletingUnregisteredFi
                                             projectPartId);
     TranslationUnitDoesNotExistMessage translationUnitDoesNotExistMessage(parseErrorTestFilePath, projectPartId);
 
-    EXPECT_CALL(mockIpcClient, translationUnitDoesNotExist(translationUnitDoesNotExistMessage))
+    EXPECT_CALL(mockClangCodeModelClient, translationUnitDoesNotExist(translationUnitDoesNotExistMessage))
         .Times(1);
 
     clangServer.completeCode(completeCodeMessage);
 }
 
-TEST_F(ClangIpcServer, GetCodeCompletionForUnsavedFile)
+TEST_F(ClangClangCodeModelServer, GetCodeCompletionForUnsavedFile)
 {
     CompleteCodeMessage completeCodeMessage(functionTestFilePath,
                                             20,
@@ -241,13 +241,13 @@ TEST_F(ClangIpcServer, GetCodeCompletionForUnsavedFile)
                                   34,
                                   CodeCompletion::FunctionCompletionKind);
 
-    EXPECT_CALL(mockIpcClient, codeCompleted(Property(&CodeCompletedMessage::codeCompletions, Contains(codeCompletion))))
+    EXPECT_CALL(mockClangCodeModelClient, codeCompleted(Property(&CodeCompletedMessage::codeCompletions, Contains(codeCompletion))))
         .Times(1);
 
     clangServer.completeCode(completeCodeMessage);
 }
 
-TEST_F(ClangIpcServer, GetNoCodeCompletionAfterRemovingUnsavedFile)
+TEST_F(ClangClangCodeModelServer, GetNoCodeCompletionAfterRemovingUnsavedFile)
 {
     clangServer.updateTranslationUnitsForEditor(UpdateTranslationUnitsForEditorMessage(
         {FileContainer(functionTestFilePath, projectPartId, Utf8StringVector(), 74)}));
@@ -259,13 +259,13 @@ TEST_F(ClangIpcServer, GetNoCodeCompletionAfterRemovingUnsavedFile)
                                   34,
                                   CodeCompletion::FunctionCompletionKind);
 
-    EXPECT_CALL(mockIpcClient, codeCompleted(Property(&CodeCompletedMessage::codeCompletions, Not(Contains(codeCompletion)))))
+    EXPECT_CALL(mockClangCodeModelClient, codeCompleted(Property(&CodeCompletedMessage::codeCompletions, Not(Contains(codeCompletion)))))
         .Times(1);
 
     clangServer.completeCode(completeCodeMessage);
 }
 
-TEST_F(ClangIpcServer, GetNewCodeCompletionAfterUpdatingUnsavedFile)
+TEST_F(ClangClangCodeModelServer, GetNewCodeCompletionAfterUpdatingUnsavedFile)
 {
     clangServer.updateTranslationUnitsForEditor(UpdateTranslationUnitsForEditorMessage({{functionTestFilePath,
                                                                                          projectPartId,
@@ -280,25 +280,25 @@ TEST_F(ClangIpcServer, GetNewCodeCompletionAfterUpdatingUnsavedFile)
                                   34,
                                   CodeCompletion::FunctionCompletionKind);
 
-    EXPECT_CALL(mockIpcClient, codeCompleted(Property(&CodeCompletedMessage::codeCompletions, Contains(codeCompletion))))
+    EXPECT_CALL(mockClangCodeModelClient, codeCompleted(Property(&CodeCompletedMessage::codeCompletions, Contains(codeCompletion))))
         .Times(1);
 
     clangServer.completeCode(completeCodeMessage);
 }
 
-TEST_F(ClangIpcServer, GetTranslationUnitDoesNotExistForUnregisterTranslationUnitWithWrongFilePath)
+TEST_F(ClangClangCodeModelServer, GetTranslationUnitDoesNotExistForUnregisterTranslationUnitWithWrongFilePath)
 {
     FileContainer fileContainer(Utf8StringLiteral("foo.cpp"), projectPartId);
     UnregisterTranslationUnitsForEditorMessage message({fileContainer});
     TranslationUnitDoesNotExistMessage translationUnitDoesNotExistMessage(fileContainer);
 
-    EXPECT_CALL(mockIpcClient, translationUnitDoesNotExist(translationUnitDoesNotExistMessage))
+    EXPECT_CALL(mockClangCodeModelClient, translationUnitDoesNotExist(translationUnitDoesNotExistMessage))
         .Times(1);
 
     clangServer.unregisterTranslationUnitsForEditor(message);
 }
 
-TEST_F(ClangIpcServer, UnregisterTranslationUnitAndTestFailingCompletion)
+TEST_F(ClangClangCodeModelServer, UnregisterTranslationUnitAndTestFailingCompletion)
 {
     FileContainer fileContainer(functionTestFilePath, projectPartId);
     UnregisterTranslationUnitsForEditorMessage message({fileContainer});
@@ -309,25 +309,25 @@ TEST_F(ClangIpcServer, UnregisterTranslationUnitAndTestFailingCompletion)
                                             projectPartId);
     TranslationUnitDoesNotExistMessage translationUnitDoesNotExistMessage(fileContainer);
 
-    EXPECT_CALL(mockIpcClient, translationUnitDoesNotExist(translationUnitDoesNotExistMessage))
+    EXPECT_CALL(mockClangCodeModelClient, translationUnitDoesNotExist(translationUnitDoesNotExistMessage))
         .Times(1);
 
     clangServer.completeCode(completeCodeMessage);
 }
 
-TEST_F(ClangIpcServer, GetProjectPartDoesNotExistUnregisterProjectPartInexistingProjectPart)
+TEST_F(ClangClangCodeModelServer, GetProjectPartDoesNotExistUnregisterProjectPartInexistingProjectPart)
 {
     Utf8StringVector inexistingProjectPartFilePath = {Utf8StringLiteral("projectpartsdoesnotexist.pro"), Utf8StringLiteral("project2doesnotexists.pro")};
     UnregisterProjectPartsForEditorMessage unregisterProjectPartsForEditorMessage(inexistingProjectPartFilePath);
     ProjectPartsDoNotExistMessage projectPartsDoNotExistMessage(inexistingProjectPartFilePath);
 
-    EXPECT_CALL(mockIpcClient, projectPartsDoNotExist(projectPartsDoNotExistMessage))
+    EXPECT_CALL(mockClangCodeModelClient, projectPartsDoNotExist(projectPartsDoNotExistMessage))
         .Times(1);
 
     clangServer.unregisterProjectPartsForEditor(unregisterProjectPartsForEditorMessage);
 }
 
-TEST_F(ClangIpcServer, GetProjectPartDoesNotExistRegisterTranslationUnitWithInexistingProjectPart)
+TEST_F(ClangClangCodeModelServer, GetProjectPartDoesNotExistRegisterTranslationUnitWithInexistingProjectPart)
 {
     Utf8String inexistingProjectPartFilePath = Utf8StringLiteral("projectpartsdoesnotexist.pro");
     RegisterTranslationUnitForEditorMessage registerFileForEditorMessage({FileContainer(variableTestFilePath, inexistingProjectPartFilePath)},
@@ -335,25 +335,25 @@ TEST_F(ClangIpcServer, GetProjectPartDoesNotExistRegisterTranslationUnitWithInex
                                                                          {variableTestFilePath});
     ProjectPartsDoNotExistMessage projectPartsDoNotExistMessage({inexistingProjectPartFilePath});
 
-    EXPECT_CALL(mockIpcClient, projectPartsDoNotExist(projectPartsDoNotExistMessage))
+    EXPECT_CALL(mockClangCodeModelClient, projectPartsDoNotExist(projectPartsDoNotExistMessage))
         .Times(1);
 
     clangServer.registerTranslationUnitsForEditor(registerFileForEditorMessage);
 }
 
-TEST_F(ClangIpcServer, GetProjectPartDoesNotExistUnregisterTranslationUnitWithInexistingProjectPart)
+TEST_F(ClangClangCodeModelServer, GetProjectPartDoesNotExistUnregisterTranslationUnitWithInexistingProjectPart)
 {
     Utf8String inexistingProjectPartFilePath = Utf8StringLiteral("projectpartsdoesnotexist.pro");
     UnregisterTranslationUnitsForEditorMessage unregisterFileForEditorMessage({FileContainer(variableTestFilePath, inexistingProjectPartFilePath)});
     ProjectPartsDoNotExistMessage projectPartsDoNotExistMessage({inexistingProjectPartFilePath});
 
-    EXPECT_CALL(mockIpcClient, projectPartsDoNotExist(projectPartsDoNotExistMessage))
+    EXPECT_CALL(mockClangCodeModelClient, projectPartsDoNotExist(projectPartsDoNotExistMessage))
         .Times(1);
 
     clangServer.unregisterTranslationUnitsForEditor(unregisterFileForEditorMessage);
 }
 
-TEST_F(ClangIpcServer, GetProjectPartDoesNotExistForCompletingProjectPartFile)
+TEST_F(ClangClangCodeModelServer, GetProjectPartDoesNotExistForCompletingProjectPartFile)
 {
     Utf8String inexistingProjectPartFilePath = Utf8StringLiteral("projectpartsdoesnotexist.pro");
     CompleteCodeMessage completeCodeMessage(variableTestFilePath,
@@ -362,13 +362,13 @@ TEST_F(ClangIpcServer, GetProjectPartDoesNotExistForCompletingProjectPartFile)
                                             inexistingProjectPartFilePath);
     ProjectPartsDoNotExistMessage projectPartsDoNotExistMessage({inexistingProjectPartFilePath});
 
-    EXPECT_CALL(mockIpcClient, projectPartsDoNotExist(projectPartsDoNotExistMessage))
+    EXPECT_CALL(mockClangCodeModelClient, projectPartsDoNotExist(projectPartsDoNotExistMessage))
         .Times(1);
 
     clangServer.completeCode(completeCodeMessage);
 }
 
-TEST_F(ClangIpcServer, GetProjectPartDoesNotExistForCompletingUnregisteredFile)
+TEST_F(ClangClangCodeModelServer, GetProjectPartDoesNotExistForCompletingUnregisteredFile)
 {
     CompleteCodeMessage completeCodeMessage(parseErrorTestFilePath,
                                             20,
@@ -376,13 +376,13 @@ TEST_F(ClangIpcServer, GetProjectPartDoesNotExistForCompletingUnregisteredFile)
                                             projectPartId);
     TranslationUnitDoesNotExistMessage translationUnitDoesNotExistMessage(parseErrorTestFilePath, projectPartId);
 
-    EXPECT_CALL(mockIpcClient, translationUnitDoesNotExist(translationUnitDoesNotExistMessage))
+    EXPECT_CALL(mockClangCodeModelClient, translationUnitDoesNotExist(translationUnitDoesNotExistMessage))
         .Times(1);
 
     clangServer.completeCode(completeCodeMessage);
 }
 
-TEST_F(ClangIpcServer, TicketNumberIsForwarded)
+TEST_F(ClangClangCodeModelServer, TicketNumberIsForwarded)
 {
     CompleteCodeMessage completeCodeMessage(functionTestFilePath,
                                             20,
@@ -392,18 +392,18 @@ TEST_F(ClangIpcServer, TicketNumberIsForwarded)
                                   34,
                                   CodeCompletion::FunctionCompletionKind);
 
-    EXPECT_CALL(mockIpcClient, codeCompleted(Property(&CodeCompletedMessage::ticketNumber, Eq(completeCodeMessage.ticketNumber()))))
+    EXPECT_CALL(mockClangCodeModelClient, codeCompleted(Property(&CodeCompletedMessage::ticketNumber, Eq(completeCodeMessage.ticketNumber()))))
         .Times(1);
 
     clangServer.completeCode(completeCodeMessage);
 }
 
-TEST_F(ClangIpcServer, TranslationUnitAfterCreationNeedsNoReparseAndHasNoNewDiagnostics)
+TEST_F(ClangClangCodeModelServer, TranslationUnitAfterCreationNeedsNoReparseAndHasNoNewDiagnostics)
 {
     ASSERT_THAT(clangServer, HasDirtyTranslationUnit(functionTestFilePath, projectPartId, 0U, false, false));
 }
 
-TEST_F(ClangIpcServer, SetCurrentAndVisibleEditor)
+TEST_F(ClangClangCodeModelServer, SetCurrentAndVisibleEditor)
 {
     auto functionTranslationUnit = translationUnits.translationUnit(functionTestFilePath, projectPartId);
     auto variableTranslationUnit = translationUnits.translationUnit(variableTestFilePath, projectPartId);
@@ -415,7 +415,7 @@ TEST_F(ClangIpcServer, SetCurrentAndVisibleEditor)
     ASSERT_TRUE(variableTranslationUnit.isVisibleInEditor());
 }
 
-TEST_F(ClangIpcServer, IsNotCurrentCurrentAndVisibleEditorAnymore)
+TEST_F(ClangClangCodeModelServer, IsNotCurrentCurrentAndVisibleEditorAnymore)
 {
     auto functionTranslationUnit = translationUnits.translationUnit(functionTestFilePath, projectPartId);
     auto variableTranslationUnit = translationUnits.translationUnit(variableTestFilePath, projectPartId);
@@ -429,48 +429,48 @@ TEST_F(ClangIpcServer, IsNotCurrentCurrentAndVisibleEditorAnymore)
     ASSERT_TRUE(variableTranslationUnit.isVisibleInEditor());
 }
 
-void ClangIpcServer::SetUp()
+void ClangClangCodeModelServer::SetUp()
 {
-    clangServer.addClient(&mockIpcClient);
+    clangServer.addClient(&mockClangCodeModelClient);
     registerProjectPart();
     registerFiles();
 }
 
-void ClangIpcServer::registerFiles()
+void ClangClangCodeModelServer::registerFiles()
 {
     RegisterTranslationUnitForEditorMessage message({FileContainer(functionTestFilePath, projectPartId, unsavedContent(unsavedTestFilePath), true),
                                                      FileContainer(variableTestFilePath, projectPartId)},
                                                     functionTestFilePath,
                                                     {functionTestFilePath, variableTestFilePath});
 
-    EXPECT_CALL(mockIpcClient, diagnosticsChanged(_)).Times(2);
-    EXPECT_CALL(mockIpcClient, highlightingChanged(_)).Times(2);
+    EXPECT_CALL(mockClangCodeModelClient, diagnosticsChanged(_)).Times(2);
+    EXPECT_CALL(mockClangCodeModelClient, highlightingChanged(_)).Times(2);
 
     clangServer.registerTranslationUnitsForEditor(message);
 }
 
-void ClangIpcServer::registerProjectPart()
+void ClangClangCodeModelServer::registerProjectPart()
 {
     RegisterProjectPartsForEditorMessage message({ProjectPartContainer(projectPartId)});
 
     clangServer.registerProjectPartsForEditor(message);
 }
 
-void ClangIpcServer::changeProjectPartArguments()
+void ClangClangCodeModelServer::changeProjectPartArguments()
 {
     RegisterProjectPartsForEditorMessage message({ProjectPartContainer(projectPartId, {Utf8StringLiteral("-DArgumentDefinition")})});
 
     clangServer.registerProjectPartsForEditor(message);
 }
 
-void ClangIpcServer::changeProjectPartArgumentsToWrongValues()
+void ClangClangCodeModelServer::changeProjectPartArgumentsToWrongValues()
 {
     RegisterProjectPartsForEditorMessage message({ProjectPartContainer(projectPartId, {Utf8StringLiteral("-blah")})});
 
     clangServer.registerProjectPartsForEditor(message);
 }
 
-void ClangIpcServer::updateVisibilty(const Utf8String &currentEditor, const Utf8String &additionalVisibleEditor)
+void ClangClangCodeModelServer::updateVisibilty(const Utf8String &currentEditor, const Utf8String &additionalVisibleEditor)
 {
     UpdateVisibleTranslationUnitsMessage message(currentEditor,
                                                  {currentEditor, additionalVisibleEditor});
@@ -478,7 +478,7 @@ void ClangIpcServer::updateVisibilty(const Utf8String &currentEditor, const Utf8
     clangServer.updateVisibleTranslationUnits(message);
 }
 
-const Utf8String ClangIpcServer::unsavedContent(const QString &unsavedFilePath)
+const Utf8String ClangClangCodeModelServer::unsavedContent(const QString &unsavedFilePath)
 {
     QFile unsavedFileContentFile(unsavedFilePath);
     bool isOpen = unsavedFileContentFile.open(QIODevice::ReadOnly | QIODevice::Text);
@@ -488,7 +488,7 @@ const Utf8String ClangIpcServer::unsavedContent(const QString &unsavedFilePath)
     return Utf8String::fromByteArray(unsavedFileContentFile.readAll());
 }
 
-TEST_F(ClangIpcServer, TranslationUnitAfterUpdateNeedsReparseAndHasNewDiagnostics)
+TEST_F(ClangClangCodeModelServer, TranslationUnitAfterUpdateNeedsReparseAndHasNewDiagnostics)
 {
     const auto fileContainer = FileContainer(functionTestFilePath, projectPartId,unsavedContent(unsavedTestFilePath), true, 1);
 

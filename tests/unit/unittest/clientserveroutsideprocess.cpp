@@ -23,7 +23,7 @@
 **
 ****************************************************************************/
 
-#include "mockipclient.h"
+#include "mockclangcodemodelclient.h"
 
 #include <cmbalivemessage.h>
 #include <cmbcodecompletedmessage.h>
@@ -70,12 +70,12 @@ protected:
     static void SetUpTestCase();
     static void TearDownTestCase();
 
-    static MockIpcClient mockIpcClient;
+    static MockClangCodeModelClient mockClangCodeModelClient;
     static ClangBackEnd::ConnectionClient client;
 };
 
-MockIpcClient ClientServerOutsideProcess::mockIpcClient;
-ClangBackEnd::ConnectionClient ClientServerOutsideProcess::client(&ClientServerOutsideProcess::mockIpcClient);
+MockClangCodeModelClient ClientServerOutsideProcess::mockClangCodeModelClient;
+ClangBackEnd::ConnectionClient ClientServerOutsideProcess::client(&ClientServerOutsideProcess::mockClangCodeModelClient);
 
 TEST_F(ClientServerOutsideProcess, RestartProcess)
 {
@@ -112,7 +112,7 @@ TEST_F(ClientServerOutsideProcess, SendRegisterTranslationUnitForEditorMessage)
                                                                                                   {filePath});
     EchoMessage echoMessage(registerTranslationUnitForEditorMessage);
 
-    EXPECT_CALL(mockIpcClient, echo(echoMessage))
+    EXPECT_CALL(mockClangCodeModelClient, echo(echoMessage))
             .Times(1);
 
     client.serverProxy().registerTranslationUnitsForEditor(registerTranslationUnitForEditorMessage);
@@ -125,7 +125,7 @@ TEST_F(ClientServerOutsideProcess, SendUnregisterTranslationUnitsForEditorMessag
     ClangBackEnd::UnregisterTranslationUnitsForEditorMessage unregisterTranslationUnitsForEditorMessage ({fileContainer});
     EchoMessage echoMessage(unregisterTranslationUnitsForEditorMessage);
 
-    EXPECT_CALL(mockIpcClient, echo(echoMessage))
+    EXPECT_CALL(mockClangCodeModelClient, echo(echoMessage))
             .Times(1);
 
     client.serverProxy().unregisterTranslationUnitsForEditor(unregisterTranslationUnitsForEditorMessage);
@@ -137,7 +137,7 @@ TEST_F(ClientServerOutsideProcess, SendCompleteCodeMessage)
     CompleteCodeMessage codeCompleteMessage(Utf8StringLiteral("foo.cpp"), 24, 33, Utf8StringLiteral("do what I want"));
     EchoMessage echoMessage(codeCompleteMessage);
 
-    EXPECT_CALL(mockIpcClient, echo(echoMessage))
+    EXPECT_CALL(mockClangCodeModelClient, echo(echoMessage))
             .Times(1);
 
     client.serverProxy().completeCode(codeCompleteMessage);
@@ -150,7 +150,7 @@ TEST_F(ClientServerOutsideProcess, SendRegisterProjectPartsForEditorMessage)
     ClangBackEnd::RegisterProjectPartsForEditorMessage registerProjectPartsForEditorMessage({projectContainer});
     EchoMessage echoMessage(registerProjectPartsForEditorMessage);
 
-    EXPECT_CALL(mockIpcClient, echo(echoMessage))
+    EXPECT_CALL(mockClangCodeModelClient, echo(echoMessage))
             .Times(1);
 
     client.serverProxy().registerProjectPartsForEditor(registerProjectPartsForEditorMessage);
@@ -162,7 +162,7 @@ TEST_F(ClientServerOutsideProcess, SendUnregisterProjectPartsForEditorMessage)
     ClangBackEnd::UnregisterProjectPartsForEditorMessage unregisterProjectPartsForEditorMessage({Utf8StringLiteral(TESTDATA_DIR"/complete.pro")});
     EchoMessage echoMessage(unregisterProjectPartsForEditorMessage);
 
-    EXPECT_CALL(mockIpcClient, echo(echoMessage))
+    EXPECT_CALL(mockClangCodeModelClient, echo(echoMessage))
             .Times(1);
 
     client.serverProxy().unregisterProjectPartsForEditor(unregisterProjectPartsForEditorMessage);

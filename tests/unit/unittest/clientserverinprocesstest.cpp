@@ -23,11 +23,11 @@
 **
 ****************************************************************************/
 
-#include "mockipclient.h"
-#include "mockipcserver.h"
+#include "mockclangcodemodelclient.h"
+#include "mockclangcodemodelserver.h"
 
-#include <ipcclientproxy.h>
-#include <ipcserverproxy.h>
+#include <clangcodemodelclientproxy.h>
+#include <clangcodemodelserverproxy.h>
 #include <projectpartsdonotexistmessage.h>
 
 #include <cmbalivemessage.h>
@@ -90,16 +90,16 @@ protected:
                                               true,
                                               1};
     QBuffer buffer;
-    MockIpcClient mockIpcClient;
-    MockIpcServer mockIpcServer;
+    MockClangCodeModelClient mockClangCodeModelClient;
+    MockClangCodeModelServer mockClangCodeModelServer;
 
-    ClangBackEnd::IpcServerProxy serverProxy;
-    ClangBackEnd::IpcClientProxy clientProxy;
+    ClangBackEnd::ClangCodeModelServerProxy serverProxy;
+    ClangBackEnd::ClangCodeModelClientProxy clientProxy;
 };
 
 TEST_F(ClientServerInProcess, SendEndMessage)
 {
-    EXPECT_CALL(mockIpcServer, end())
+    EXPECT_CALL(mockClangCodeModelServer, end())
         .Times(1);
 
     serverProxy.end();
@@ -108,7 +108,7 @@ TEST_F(ClientServerInProcess, SendEndMessage)
 
 TEST_F(ClientServerInProcess, SendAliveMessage)
 {
-    EXPECT_CALL(mockIpcClient, alive())
+    EXPECT_CALL(mockClangCodeModelClient, alive())
         .Times(1);
 
     clientProxy.alive();
@@ -121,7 +121,7 @@ TEST_F(ClientServerInProcess, SendRegisterTranslationUnitForEditorMessage)
                                                                   filePath,
                                                                   {filePath});
 
-    EXPECT_CALL(mockIpcServer, registerTranslationUnitsForEditor(message))
+    EXPECT_CALL(mockClangCodeModelServer, registerTranslationUnitsForEditor(message))
         .Times(1);
 
     serverProxy.registerTranslationUnitsForEditor(message);
@@ -132,7 +132,7 @@ TEST_F(ClientServerInProcess, SendUpdateTranslationUnitsForEditorMessage)
 {
     ClangBackEnd::UpdateTranslationUnitsForEditorMessage message({fileContainer});
 
-    EXPECT_CALL(mockIpcServer, updateTranslationUnitsForEditor(message))
+    EXPECT_CALL(mockClangCodeModelServer, updateTranslationUnitsForEditor(message))
         .Times(1);
 
     serverProxy.updateTranslationUnitsForEditor(message);
@@ -143,7 +143,7 @@ TEST_F(ClientServerInProcess, SendUnregisterTranslationUnitsForEditorMessage)
 {
     ClangBackEnd::UnregisterTranslationUnitsForEditorMessage message({fileContainer});
 
-    EXPECT_CALL(mockIpcServer, unregisterTranslationUnitsForEditor(message))
+    EXPECT_CALL(mockClangCodeModelServer, unregisterTranslationUnitsForEditor(message))
         .Times(1);
 
     serverProxy.unregisterTranslationUnitsForEditor(message);
@@ -154,7 +154,7 @@ TEST_F(ClientServerInProcess, SendRegisterUnsavedFilesForEditorMessage)
 {
     ClangBackEnd::RegisterUnsavedFilesForEditorMessage message({fileContainer});
 
-    EXPECT_CALL(mockIpcServer, registerUnsavedFilesForEditor(message))
+    EXPECT_CALL(mockClangCodeModelServer, registerUnsavedFilesForEditor(message))
         .Times(1);
 
     serverProxy.registerUnsavedFilesForEditor(message);
@@ -165,7 +165,7 @@ TEST_F(ClientServerInProcess, SendUnregisterUnsavedFilesForEditorMessage)
 {
     ClangBackEnd::UnregisterUnsavedFilesForEditorMessage message({fileContainer});
 
-    EXPECT_CALL(mockIpcServer, unregisterUnsavedFilesForEditor(message))
+    EXPECT_CALL(mockClangCodeModelServer, unregisterUnsavedFilesForEditor(message))
         .Times(1);
 
     serverProxy.unregisterUnsavedFilesForEditor(message);
@@ -176,7 +176,7 @@ TEST_F(ClientServerInProcess, SendCompleteCodeMessage)
 {
     ClangBackEnd::CompleteCodeMessage message(Utf8StringLiteral("foo.cpp"), 24, 33, Utf8StringLiteral("do what I want"));
 
-    EXPECT_CALL(mockIpcServer, completeCode(message))
+    EXPECT_CALL(mockClangCodeModelServer, completeCode(message))
         .Times(1);
 
     serverProxy.completeCode(message);
@@ -188,7 +188,7 @@ TEST_F(ClientServerInProcess, SendRequestDiagnosticsMessage)
     ClangBackEnd::RequestDiagnosticsMessage message({Utf8StringLiteral("foo.cpp"),
                                                      Utf8StringLiteral("projectId")});
 
-    EXPECT_CALL(mockIpcServer, requestDiagnostics(message))
+    EXPECT_CALL(mockClangCodeModelServer, requestDiagnostics(message))
         .Times(1);
 
     serverProxy.requestDiagnostics(message);
@@ -200,7 +200,7 @@ TEST_F(ClientServerInProcess, SendRequestHighlightingMessage)
     ClangBackEnd::RequestHighlightingMessage message({Utf8StringLiteral("foo.cpp"),
                                                      Utf8StringLiteral("projectId")});
 
-    EXPECT_CALL(mockIpcServer, requestHighlighting(message))
+    EXPECT_CALL(mockClangCodeModelServer, requestHighlighting(message))
         .Times(1);
 
     serverProxy.requestHighlighting(message);
@@ -214,7 +214,7 @@ TEST_F(ClientServerInProcess, SendCodeCompletedMessage)
                                                ClangBackEnd::CompletionCorrection::NoCorrection,
                                                1);
 
-    EXPECT_CALL(mockIpcClient, codeCompleted(message))
+    EXPECT_CALL(mockClangCodeModelClient, codeCompleted(message))
         .Times(1);
 
     clientProxy.codeCompleted(message);
@@ -226,7 +226,7 @@ TEST_F(ClientServerInProcess, SendRegisterProjectPartsForEditorMessage)
     ClangBackEnd::ProjectPartContainer projectContainer(Utf8StringLiteral(TESTDATA_DIR"/complete.pro"));
     ClangBackEnd::RegisterProjectPartsForEditorMessage message({projectContainer});
 
-    EXPECT_CALL(mockIpcServer, registerProjectPartsForEditor(message))
+    EXPECT_CALL(mockClangCodeModelServer, registerProjectPartsForEditor(message))
         .Times(1);
 
     serverProxy.registerProjectPartsForEditor(message);
@@ -237,7 +237,7 @@ TEST_F(ClientServerInProcess, SendUnregisterProjectPartsForEditorMessage)
 {
     ClangBackEnd::UnregisterProjectPartsForEditorMessage message({Utf8StringLiteral(TESTDATA_DIR"/complete.pro")});
 
-    EXPECT_CALL(mockIpcServer, unregisterProjectPartsForEditor(message))
+    EXPECT_CALL(mockClangCodeModelServer, unregisterProjectPartsForEditor(message))
         .Times(1);
 
     serverProxy.unregisterProjectPartsForEditor(message);
@@ -250,7 +250,7 @@ TEST_F(ClientServerInProcess, UpdateVisibleTranslationUnitsMessage)
                                                                {Utf8StringLiteral(TESTDATA_DIR"/fileone.cpp"),
                                                                 Utf8StringLiteral(TESTDATA_DIR"/filetwo.cpp")});
 
-    EXPECT_CALL(mockIpcServer, updateVisibleTranslationUnits(message))
+    EXPECT_CALL(mockClangCodeModelServer, updateVisibleTranslationUnits(message))
         .Times(1);
 
     serverProxy.updateVisibleTranslationUnits(message);
@@ -261,7 +261,7 @@ TEST_F(ClientServerInProcess, SendTranslationUnitDoesNotExistMessage)
 {
     ClangBackEnd::TranslationUnitDoesNotExistMessage message(fileContainer);
 
-    EXPECT_CALL(mockIpcClient, translationUnitDoesNotExist(message))
+    EXPECT_CALL(mockClangCodeModelClient, translationUnitDoesNotExist(message))
         .Times(1);
 
     clientProxy.translationUnitDoesNotExist(message);
@@ -273,7 +273,7 @@ TEST_F(ClientServerInProcess, SendProjectPartDoesNotExistMessage)
 {
     ClangBackEnd::ProjectPartsDoNotExistMessage message({Utf8StringLiteral("projectId")});
 
-    EXPECT_CALL(mockIpcClient, projectPartsDoNotExist(message))
+    EXPECT_CALL(mockClangCodeModelClient, projectPartsDoNotExist(message))
         .Times(1);
 
     clientProxy.projectPartsDoNotExist(message);
@@ -293,7 +293,7 @@ TEST_F(ClientServerInProcess, SendDiagnosticsChangedMessage)
     ClangBackEnd::DiagnosticsChangedMessage message(fileContainer,
                                                     {container});
 
-    EXPECT_CALL(mockIpcClient, diagnosticsChanged(message))
+    EXPECT_CALL(mockClangCodeModelClient, diagnosticsChanged(message))
         .Times(1);
 
     clientProxy.diagnosticsChanged(message);
@@ -308,7 +308,7 @@ TEST_F(ClientServerInProcess, SendHighlightingChangedMessage)
                                                      {container},
                                                      QVector<SourceRangeContainer>());
 
-    EXPECT_CALL(mockIpcClient, highlightingChanged(message))
+    EXPECT_CALL(mockClangCodeModelClient, highlightingChanged(message))
         .Times(1);
 
     clientProxy.highlightingChanged(message);
@@ -316,8 +316,8 @@ TEST_F(ClientServerInProcess, SendHighlightingChangedMessage)
 }
 
 ClientServerInProcess::ClientServerInProcess()
-    : serverProxy(&mockIpcClient, &buffer),
-      clientProxy(&mockIpcServer, &buffer)
+    : serverProxy(&mockClangCodeModelClient, &buffer),
+      clientProxy(&mockClangCodeModelServer, &buffer)
 {
 }
 

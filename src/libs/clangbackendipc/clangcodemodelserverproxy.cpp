@@ -23,7 +23,7 @@
 **
 ****************************************************************************/
 
-#include "ipcserverproxy.h"
+#include "clangcodemodelserverproxy.h"
 
 #include <cmbalivemessage.h>
 #include <cmbcompletecodemessage.h>
@@ -32,7 +32,7 @@
 #include <cmbregistertranslationunitsforeditormessage.h>
 #include <cmbunregisterprojectsforeditormessage.h>
 #include <cmbunregistertranslationunitsforeditormessage.h>
-#include <ipcclientinterface.h>
+#include <clangcodemodelclientinterface.h>
 #include <messageenvelop.h>
 #include <registerunsavedfilesforeditormessage.h>
 #include <requestdiagnosticsmessage.h>
@@ -47,82 +47,82 @@
 
 namespace ClangBackEnd {
 
-IpcServerProxy::IpcServerProxy(IpcClientInterface *client, QIODevice *ioDevice)
+ClangCodeModelServerProxy::ClangCodeModelServerProxy(ClangCodeModelClientInterface *client, QIODevice *ioDevice)
     : writeMessageBlock(ioDevice),
       readMessageBlock(ioDevice),
       client(client)
 {
-    QObject::connect(ioDevice, &QIODevice::readyRead, [this] () {IpcServerProxy::readMessages();});
+    QObject::connect(ioDevice, &QIODevice::readyRead, [this] () {ClangCodeModelServerProxy::readMessages();});
 }
 
-void IpcServerProxy::readMessages()
+void ClangCodeModelServerProxy::readMessages()
 {
     for (const auto &message : readMessageBlock.readAll())
         client->dispatch(message);
 }
 
-void IpcServerProxy::resetCounter()
+void ClangCodeModelServerProxy::resetCounter()
 {
     writeMessageBlock.resetCounter();
     readMessageBlock.resetCounter();
 }
 
-void IpcServerProxy::end()
+void ClangCodeModelServerProxy::end()
 {
     writeMessageBlock.write(EndMessage());
 }
 
-void IpcServerProxy::registerTranslationUnitsForEditor(const RegisterTranslationUnitForEditorMessage &message)
+void ClangCodeModelServerProxy::registerTranslationUnitsForEditor(const RegisterTranslationUnitForEditorMessage &message)
 {
     writeMessageBlock.write(message);
 }
 
-void IpcServerProxy::updateTranslationUnitsForEditor(const ClangBackEnd::UpdateTranslationUnitsForEditorMessage &message)
+void ClangCodeModelServerProxy::updateTranslationUnitsForEditor(const ClangBackEnd::UpdateTranslationUnitsForEditorMessage &message)
 {
     writeMessageBlock.write(message);
 }
 
-void IpcServerProxy::unregisterTranslationUnitsForEditor(const UnregisterTranslationUnitsForEditorMessage &message)
+void ClangCodeModelServerProxy::unregisterTranslationUnitsForEditor(const UnregisterTranslationUnitsForEditorMessage &message)
 {
     writeMessageBlock.write(message);
 }
 
-void IpcServerProxy::registerProjectPartsForEditor(const RegisterProjectPartsForEditorMessage &message)
+void ClangCodeModelServerProxy::registerProjectPartsForEditor(const RegisterProjectPartsForEditorMessage &message)
 {
     writeMessageBlock.write(message);
 }
 
-void IpcServerProxy::unregisterProjectPartsForEditor(const UnregisterProjectPartsForEditorMessage &message)
+void ClangCodeModelServerProxy::unregisterProjectPartsForEditor(const UnregisterProjectPartsForEditorMessage &message)
 {
     writeMessageBlock.write(message);
 }
 
-void ClangBackEnd::IpcServerProxy::registerUnsavedFilesForEditor(const ClangBackEnd::RegisterUnsavedFilesForEditorMessage &message)
+void ClangBackEnd::ClangCodeModelServerProxy::registerUnsavedFilesForEditor(const ClangBackEnd::RegisterUnsavedFilesForEditorMessage &message)
 {
     writeMessageBlock.write(message);
 }
 
-void ClangBackEnd::IpcServerProxy::unregisterUnsavedFilesForEditor(const ClangBackEnd::UnregisterUnsavedFilesForEditorMessage &message)
+void ClangBackEnd::ClangCodeModelServerProxy::unregisterUnsavedFilesForEditor(const ClangBackEnd::UnregisterUnsavedFilesForEditorMessage &message)
 {
     writeMessageBlock.write(message);
 }
 
-void IpcServerProxy::completeCode(const CompleteCodeMessage &message)
+void ClangCodeModelServerProxy::completeCode(const CompleteCodeMessage &message)
 {
     writeMessageBlock.write(message);
 }
 
-void IpcServerProxy::requestDiagnostics(const ClangBackEnd::RequestDiagnosticsMessage &message)
+void ClangCodeModelServerProxy::requestDiagnostics(const ClangBackEnd::RequestDiagnosticsMessage &message)
 {
     writeMessageBlock.write(message);
 }
 
-void IpcServerProxy::requestHighlighting(const RequestHighlightingMessage &message)
+void ClangCodeModelServerProxy::requestHighlighting(const RequestHighlightingMessage &message)
 {
     writeMessageBlock.write(message);
 }
 
-void IpcServerProxy::updateVisibleTranslationUnits(const UpdateVisibleTranslationUnitsMessage &message)
+void ClangCodeModelServerProxy::updateVisibleTranslationUnits(const UpdateVisibleTranslationUnitsMessage &message)
 {
     writeMessageBlock.write(message);
 }
