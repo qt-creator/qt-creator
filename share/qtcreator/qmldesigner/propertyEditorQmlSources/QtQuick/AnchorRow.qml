@@ -71,7 +71,7 @@ RowLayout {
             text: qsTr("Target")
             color: "#eee"
             elide: Text.ElideRight
-            Layout.minimumWidth: Math.min(60, preferredWidth + 10)
+            Layout.minimumWidth: Math.min(60, Layout.preferredWidth + 10)
         }
 
         TargetComboBox {
@@ -85,7 +85,7 @@ RowLayout {
             text: "Margin"
             color: "#eee"
             elide: Text.ElideRight
-            Layout.minimumWidth: Math.min(60, preferredWidth + 10)
+            Layout.minimumWidth: Math.min(60, Layout.preferredWidth + 10)
         }
 
         RowLayout {
