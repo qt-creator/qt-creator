@@ -40,6 +40,8 @@
 #include <qmljs/qmljsvalueowner.h>
 #include <languageutils/fakemetaobject.h>
 
+#include <utils/qtcassert.h>
+
 namespace QmlDesigner {
 
 namespace Internal {
@@ -565,6 +567,9 @@ private:
     const CppComponentValue *getNearestCppComponentValue() const;
     QString fullQualifiedImportAliasType() const;
 
+    void ensureProperties() const;
+    void initialiseProperties();
+
     TypeName m_qualfiedTypeName;
     int m_majorVersion;
     int m_minorVersion;
@@ -585,6 +590,8 @@ private:
 
     QPointer<Model> m_model;
     static QHash<TypeName, Pointer> m_nodeMetaInfoCache;
+    const ObjectValue *m_objectValue = nullptr;
+    bool m_propertiesSetup = false;
 };
 
 QHash<TypeName, NodeMetaInfoPrivate::Pointer> NodeMetaInfoPrivate::m_nodeMetaInfoCache;
@@ -596,16 +603,21 @@ bool NodeMetaInfoPrivate::isFileComponent() const
 
 PropertyNameList NodeMetaInfoPrivate::properties() const
 {
+    ensureProperties();
+
     return m_properties;
 }
 
 PropertyNameList NodeMetaInfoPrivate::localProperties() const
 {
+    ensureProperties();
+
     return m_localProperties;
 }
 
 PropertyNameList NodeMetaInfoPrivate::signalNames() const
 {
+    ensureProperties();
     return m_signals;
 }
 
@@ -670,12 +682,10 @@ NodeMetaInfoPrivate::NodeMetaInfoPrivate(Model *model, TypeName type, int maj, i
                 m_majorVersion = cppObjectValue->componentVersion().majorVersion();
                 m_minorVersion = cppObjectValue->componentVersion().minorVersion();
             }
-            setupPropertyInfo(getTypes(cppObjectValue, context()));
-            setupLocalPropertyInfo(getTypes(cppObjectValue, context(), true));
+            m_objectValue = cppObjectValue;
             m_defaultPropertyName = cppObjectValue->defaultPropertyName().toUtf8();
             m_isValid = true;
             setupPrototypes();
-            m_signals = getSignals(cppObjectValue, context());
         } else {
             const ObjectValue *objectValue = getObjectValue();
             if (objectValue) {
@@ -699,12 +709,10 @@ NodeMetaInfoPrivate::NodeMetaInfoPrivate(Model *model, TypeName type, int maj, i
                         m_minorVersion = importInfo.version().minorVersion();
                     }
                 }
-                setupPropertyInfo(getTypes(objectValue, context()));
-                setupLocalPropertyInfo(getTypes(objectValue, context(), true));
+                m_objectValue = objectValue;
                 m_defaultPropertyName = context()->defaultPropertyName(objectValue).toUtf8();
                 m_isValid = true;
                 setupPrototypes();
-                m_signals = getSignals(objectValue, context());
             }
         }
     }
@@ -803,6 +811,8 @@ bool NodeMetaInfoPrivate::isPropertyWritable(const PropertyName &propertyName) c
     if (!isValid())
         return false;
 
+    ensureProperties();
+
     if (propertyName.contains('.')) {
         const PropertyNameList parts = propertyName.split('.');
         const PropertyName objectName = parts.first();
@@ -834,6 +844,8 @@ bool NodeMetaInfoPrivate::isPropertyList(const PropertyName &propertyName) const
     if (!isValid())
         return false;
 
+    ensureProperties();
+
     if (propertyName.contains('.')) {
         const PropertyNameList parts = propertyName.split('.');
         const PropertyName objectName = parts.first();
@@ -861,6 +873,8 @@ bool NodeMetaInfoPrivate::isPropertyPointer(const PropertyName &propertyName) co
     if (!isValid())
         return false;
 
+    ensureProperties();
+
     if (propertyName.contains('.')) {
         const PropertyNameList parts = propertyName.split('.');
         const PropertyName objectName = parts.first();
@@ -887,6 +901,8 @@ bool NodeMetaInfoPrivate::isPropertyEnum(const PropertyName &propertyName) const
 {
     if (!isValid())
         return false;
+
+    ensureProperties();
 
     if (propertyType(propertyName).contains("Qt::"))
         return true;
@@ -917,6 +933,8 @@ QString NodeMetaInfoPrivate::propertyEnumScope(const PropertyName &propertyName)
 {
     if (!isValid())
         return QString();
+
+    ensureProperties();
 
     if (propertyType(propertyName).contains("Qt::"))
         return QStringLiteral("Qt");
@@ -1260,6 +1278,29 @@ QString NodeMetaInfoPrivate::fullQualifiedImportAliasType() const
     if (m_model && m_model->rewriterView())
         return model()->rewriterView()->convertTypeToImportAlias(QString::fromUtf8(m_qualfiedTypeName));
     return QString::fromUtf8(m_qualfiedTypeName);
+}
+
+void NodeMetaInfoPrivate::ensureProperties() const
+{
+    if (m_propertiesSetup)
+        return;
+
+    const_cast<NodeMetaInfoPrivate*>(this)->initialiseProperties();
+}
+
+void NodeMetaInfoPrivate::initialiseProperties()
+{
+    if (!isValid())
+        return;
+
+    m_propertiesSetup = true;
+
+    QTC_ASSERT(m_objectValue, qDebug() << qualfiedTypeName(); return);
+
+    setupPropertyInfo(getTypes(m_objectValue, context()));
+    setupLocalPropertyInfo(getTypes(m_objectValue, context(), true));
+
+    m_signals = getSignals(m_objectValue, context());
 }
 
 } //namespace Internal
