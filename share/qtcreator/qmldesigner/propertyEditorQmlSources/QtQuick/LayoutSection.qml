@@ -151,7 +151,7 @@ Section {
             onTargetChanged: {
                 anchorBackend.horizontalTarget = currentText
             }
-            verticalAnchor: true
+            verticalAnchor: false
         }
 
         AnchorRow {
@@ -163,7 +163,7 @@ Section {
             onTargetChanged: {
                  anchorBackend.verticalTarget = currentText
             }
-            verticalAnchor: false
+            verticalAnchor: true
         }
 
     }

@@ -46,7 +46,7 @@ RowLayout {
 
     signal targetChanged
 
-    property bool verticalAnchor: true
+    property bool verticalAnchor
 
     property bool invertRelativeTargets: false
 
