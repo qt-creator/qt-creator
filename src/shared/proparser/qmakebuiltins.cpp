@@ -1215,8 +1215,8 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateBuiltinConditional(
             evalError(fL1S("if(condition) requires one argument."));
             return ReturnFalse;
         }
-        return returnBool(evaluateConditional(args.at(0).toQString(),
-                                              m_current.pro->fileName(), m_current.line));
+        return evaluateConditional(args.at(0).toQString(),
+                                   m_current.pro->fileName(), m_current.line);
     }
     case T_CONFIG: {
         if (args.count() < 1 || args.count() > 2) {

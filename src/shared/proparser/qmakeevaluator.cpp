@@ -1750,13 +1750,14 @@ ProStringList QMakeEvaluator::evaluateExpandFunction(
     return ProStringList();
 }
 
-bool QMakeEvaluator::evaluateConditional(const QString &cond, const QString &where, int line)
+QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateConditional(
+        const QString &cond, const QString &where, int line)
 {
-    bool ret = false;
+    VisitReturn ret = ReturnFalse;
     ProFile *pro = m_parser->parsedProBlock(cond, where, line, QMakeParser::TestGrammar);
     if (pro->isOk()) {
         m_locationStack.push(m_current);
-        ret = visitProBlock(pro, pro->tokPtr()) == ReturnTrue;
+        ret = visitProBlock(pro, pro->tokPtr());
         m_current = m_locationStack.pop();
     }
     pro->deref();
@@ -1768,7 +1769,7 @@ void QMakeEvaluator::checkRequirements(const ProStringList &deps)
 {
     ProStringList &failed = valuesRef(ProKey("QMAKE_FAILED_REQUIREMENTS"));
     foreach (const ProString &dep, deps)
-        if (!evaluateConditional(dep.toQString(), m_current.pro->fileName(), m_current.line))
+        if (evaluateConditional(dep.toQString(), m_current.pro->fileName(), m_current.line) != ReturnTrue)
             failed << dep;
 }
 #endif
