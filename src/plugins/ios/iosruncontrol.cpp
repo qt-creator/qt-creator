@@ -56,12 +56,12 @@ void IosRunControl::start()
     emit started();
     disconnect(m_runner, 0, this, 0);
 
-    connect(m_runner, SIGNAL(errorMsg(QString)),
-        SLOT(handleRemoteErrorOutput(QString)));
-    connect(m_runner, SIGNAL(appOutput(QString)),
-        SLOT(handleRemoteOutput(QString)));
-    connect(m_runner, SIGNAL(finished(bool)),
-        SLOT(handleRemoteProcessFinished(bool)));
+    connect(m_runner, &IosRunner::errorMsg,
+        this, &IosRunControl::handleRemoteErrorOutput);
+    connect(m_runner, &IosRunner::appOutput,
+        this, &IosRunControl::handleRemoteOutput);
+    connect(m_runner, &IosRunner::finished,
+        this, &IosRunControl::handleRemoteProcessFinished);
     appendMessage(tr("Starting remote process.") + QLatin1Char('\n'), Utils::NormalMessageFormat);
     m_runner->start();
 }

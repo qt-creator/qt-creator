@@ -60,7 +60,7 @@ public:
     IosToolHandler::RunKind runType();
     bool cppDebug() const;
     QmlDebug::QmlDebugServicesPreset qmlDebugServices() const;
-public slots:
+
     void start();
     void stop();
 

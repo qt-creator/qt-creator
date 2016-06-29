@@ -60,12 +60,10 @@ public:
     static void setIgnoreAllDevices(bool ignoreDevices);
     static Utils::FileName developerPath();
     static Utils::FileName lldbPath();
+    static void updateAutomaticKitList();
 
 signals:
     void updated();
-
-public slots:
-    static void updateAutomaticKitList();
 
 private:
     IosConfigurations(QObject *parent);

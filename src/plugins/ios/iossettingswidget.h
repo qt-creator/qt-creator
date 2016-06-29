@@ -49,8 +49,6 @@ public:
 
     void saveSettings();
 
-private slots:
-
 private:
     void initGui();
 

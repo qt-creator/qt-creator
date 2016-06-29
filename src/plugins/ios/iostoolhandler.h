@@ -65,6 +65,8 @@ public:
                             const QString &deviceId, int timeout = 1000);
     void requestDeviceInfo(const QString &deviceId, int timeout = 1000);
     bool isRunning();
+    void stop();
+
 signals:
     void isTransferringApp(Ios::IosToolHandler *handler, const QString &bundlePath,
                            const QString &deviceId, int progress, int maxProgress,
@@ -83,9 +85,7 @@ signals:
     void errorMsg(Ios::IosToolHandler *handler, const QString &msg);
     void toolExited(Ios::IosToolHandler *handler, int code);
     void finished(Ios::IosToolHandler *handler);
-public slots:
-    void stop();
-private slots:
+private:
     void subprocessError(QProcess::ProcessError error);
     void subprocessFinished(int exitCode, QProcess::ExitStatus exitStatus);
     void subprocessHasData();

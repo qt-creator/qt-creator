@@ -89,13 +89,12 @@ public:
     QString displayName() const override;
     QString summaryText() const override;
 
-private slots:
+private:
     void buildArgumentsChanged();
     void resetDefaultArguments();
     void extraArgumentsChanged();
     void updateDetails();
 
-private:
     Ui::IosBuildStep *m_ui;
     IosBuildStep *m_buildStep;
     QString m_summaryText;
