@@ -315,15 +315,6 @@ void BookmarkWidget::setOpenInNewPageActionVisible(bool visible)
     m_isOpenInNewPageActionVisible = visible;
 }
 
-void BookmarkWidget::removeClicked()
-{
-    const QModelIndex& index = treeView->currentIndex();
-    if (searchField->text().isEmpty()) {
-        bookmarkManager->removeBookmarkItem(treeView,
-            filterBookmarkModel->mapToSource(index));
-    }
-}
-
 void BookmarkWidget::filterChanged()
 {
     bool searchBookmarks = searchField->text().isEmpty();

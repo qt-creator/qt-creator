@@ -114,7 +114,6 @@ signals:
     void createPage(const QUrl &url, bool fromSearch);
 
 private:
-    void removeClicked();
     void filterChanged();
     void expand(const QModelIndex& index);
     void activated(const QModelIndex &index);
