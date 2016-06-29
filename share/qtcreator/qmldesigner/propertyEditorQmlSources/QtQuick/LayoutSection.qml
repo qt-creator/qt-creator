@@ -49,7 +49,7 @@ Section {
         }
 
         AnchorRow {
-            enabled: anchorBackend.topAnchored;
+            visible: anchorBackend.topAnchored;
             iconSource: "../HelperWidgets/images/anchor-top.png"
             anchorMargin: backendValues.anchors_topMargin
             targetName: anchorBackend.topTarget
@@ -72,7 +72,7 @@ Section {
         }
 
         AnchorRow {
-            enabled: anchorBackend.bottomAnchored;
+            visible: anchorBackend.bottomAnchored;
             iconSource: "../HelperWidgets/images/anchor-bottom.png"
             anchorMargin: backendValues.anchors_bottomMargin
             targetName: anchorBackend.bottomTarget
@@ -96,7 +96,7 @@ Section {
         }
 
         AnchorRow {
-            enabled: anchorBackend.leftAnchored;
+            visible: anchorBackend.leftAnchored;
             iconSource: "../HelperWidgets/images/anchor-left.png"
             anchorMargin: backendValues.anchors_leftMargin
             targetName: anchorBackend.leftTarget
@@ -119,7 +119,7 @@ Section {
         }
 
         AnchorRow {
-            enabled: anchorBackend.rightAnchored;
+            visible: anchorBackend.rightAnchored;
             iconSource: "../HelperWidgets/images/anchor-right.png"
             anchorMargin: backendValues.anchors_rightMargin
             targetName: anchorBackend.rightTarget
@@ -144,7 +144,7 @@ Section {
 
         AnchorRow {
             showAlternativeTargets: false
-            enabled: anchorBackend.horizontalCentered;
+            visible: anchorBackend.horizontalCentered;
             iconSource: "../HelperWidgets/images/anchor-horizontal.png"
             anchorMargin: backendValues.anchors_horizontalCenterOffset
             targetName: anchorBackend.horizontalTarget
@@ -156,7 +156,7 @@ Section {
 
         AnchorRow {
             showAlternativeTargets: false
-            enabled: anchorBackend.verticalCentered;
+            visible: anchorBackend.verticalCentered;
             iconSource: "../HelperWidgets/images/anchor-vertical.png"
             anchorMargin: backendValues.anchors_verticalCenterOffset
             targetName: anchorBackend.verticalTarget
