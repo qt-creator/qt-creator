@@ -30,7 +30,7 @@
     <description>Opens the current file in Notepad</description>
     <displayname>Edit with Notepad</displayname>
     <category>Text</category>
-    <executable modifiesdocument="yes">
+    <executable>
         <path>notepad</path>
         <arguments>"%{CurrentDocument:FilePath}"</arguments>
         <workingdirectory>%{CurrentDocument:Path}</workingdirectory>

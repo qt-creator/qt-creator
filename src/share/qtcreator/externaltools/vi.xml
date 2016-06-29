@@ -30,7 +30,7 @@
     <description>Opens the current file in vi</description>
     <displayname>Edit with vi</displayname>
     <category>Text</category>
-    <executable modifiesdocument="yes">
+    <executable>
         <path>xterm</path>
         <arguments>-geom %{CurrentDocument:ColumnCount}x%{CurrentDocument:RowCount}+%{CurrentDocument:XPos}+%{CurrentDocument:YPos} -e vi "%{CurrentDocument:FilePath}" +%{CurrentDocument:Row}</arguments>
         <workingdirectory>%{CurrentDocument:Path}</workingdirectory>
