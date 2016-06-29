@@ -125,7 +125,7 @@ def __createProjectSetNameAndPath__(path, projectName = None, checks = True, lib
     return str(projectName)
 
 def __createProjectHandleQtQuickSelection__(minimumQtVersion):
-    comboBox = waitForObject("{buddy=':Minimal required Qt version:_QLabel' name='QtVersion' "
+    comboBox = waitForObject("{leftWidget=':Minimal required Qt version:_QLabel' name='QtVersion' "
                              "type='Utils::TextFieldComboBox' visible='1'}")
     try:
         selectFromCombo(comboBox, "Qt %s" % minimumQtVersion)
