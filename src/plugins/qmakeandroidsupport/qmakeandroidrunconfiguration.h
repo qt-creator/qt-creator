@@ -29,7 +29,10 @@
 
 #include <utils/fileutils.h>
 
-namespace QmakeProjectManager { class QmakeProFileNode; }
+namespace QmakeProjectManager {
+class QmakeProFileNode;
+class QmakeProject;
+}
 
 namespace QmakeAndroidSupport {
 namespace Internal {
@@ -59,6 +62,7 @@ private slots:
     void proFileUpdated(QmakeProjectManager::QmakeProFileNode *pro, bool success, bool parseInProgress);
 
 private:
+    QmakeProjectManager::QmakeProject *qmakeProject() const;
     void init();
 
     mutable Utils::FileName m_proFilePath;
