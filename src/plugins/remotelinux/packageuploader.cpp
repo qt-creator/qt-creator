@@ -57,12 +57,12 @@ void PackageUploader::uploadPackage(SshConnection *connection,
     connect(m_connection, &SshConnection::error,
             this, &PackageUploader::handleConnectionFailure);
     m_uploader = m_connection->createSftpChannel();
-    connect(m_uploader.data(), SIGNAL(initialized()), this,
-        SLOT(handleSftpChannelInitialized()));
-    connect(m_uploader.data(), SIGNAL(channelError(QString)), this,
-        SLOT(handleSftpChannelError(QString)));
-    connect(m_uploader.data(), SIGNAL(finished(QSsh::SftpJobId,QString)),
-        this, SLOT(handleSftpJobFinished(QSsh::SftpJobId,QString)));
+    connect(m_uploader.data(), &SftpChannel::initialized,
+            this, &PackageUploader::handleSftpChannelInitialized);
+    connect(m_uploader.data(), &SftpChannel::channelError,
+            this, &PackageUploader::handleSftpChannelError);
+    connect(m_uploader.data(), &SftpChannel::finished,
+            this, &PackageUploader::handleSftpJobFinished);
     m_uploader->initialize();
 }
 

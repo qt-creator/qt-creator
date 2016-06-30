@@ -40,11 +40,10 @@ public:
     void setPathToCheck(const QString &path);
     void setRequiredSpaceInBytes(quint64 sizeInBytes);
 
-private slots:
+private:
     void handleStdErr();
     void handleProcessFinished();
 
-private:
     bool isDeploymentNecessary() const { return true; }
     void doDeviceSetup() { handleDeviceSetupDone(true); }
     void stopDeviceSetup() { handleDeviceSetupDone(false); }

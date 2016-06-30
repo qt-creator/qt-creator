@@ -52,13 +52,12 @@ signals:
 protected:
     explicit AbstractRemoteLinuxPackageInstaller(QObject *parent = 0);
 
-private slots:
+private:
     void handleConnectionError();
     void handleInstallationFinished(int exitStatus);
     void handleInstallerOutput();
     void handleInstallerErrorOutput();
 
-private:
     virtual QString installCommandLine(const QString &packageFilePath) const = 0;
     virtual QString cancelInstallationCommandLine() const = 0;
 

@@ -53,14 +53,16 @@ public:
         m_ui.pathLineEdit->setText(m_step.pathToCheck());
         m_ui.requiredSpaceSpinBox->setValue(m_step.requiredSpaceInBytes()/multiplier);
 
-        connect(m_ui.pathLineEdit, SIGNAL(textChanged(QString)), SLOT(handlePathChanged()));
-        connect(m_ui.requiredSpaceSpinBox, SIGNAL(valueChanged(int)),
-                SLOT(handleRequiredSpaceChanged()));
+        connect(m_ui.pathLineEdit, &QLineEdit::textChanged,
+                this, &RemoteLinuxCheckForFreeDiskSpaceStepWidget::handlePathChanged);
+        connect(m_ui.requiredSpaceSpinBox,
+                static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged),
+                this, &RemoteLinuxCheckForFreeDiskSpaceStepWidget::handleRequiredSpaceChanged);
     }
 
 private:
-    Q_SLOT void handlePathChanged() { m_step.setPathToCheck(m_ui.pathLineEdit->text().trimmed()); }
-    Q_SLOT void handleRequiredSpaceChanged() {
+    void handlePathChanged() { m_step.setPathToCheck(m_ui.pathLineEdit->text().trimmed()); }
+    void handleRequiredSpaceChanged() {
         m_step.setRequiredSpaceInBytes(quint64(m_ui.requiredSpaceSpinBox->value())*multiplier);
     }
 

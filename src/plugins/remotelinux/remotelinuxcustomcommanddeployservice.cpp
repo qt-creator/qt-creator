@@ -89,9 +89,12 @@ void RemoteLinuxCustomCommandDeployService::doDeploy()
 
     if (!d->runner)
         d->runner = new SshRemoteProcessRunner(this);
-    connect(d->runner, SIGNAL(readyReadStandardOutput()), SLOT(handleStdout()));
-    connect(d->runner, SIGNAL(readyReadStandardError()), SLOT(handleStderr()));
-    connect(d->runner, SIGNAL(processClosed(int)), SLOT(handleProcessClosed(int)));
+    connect(d->runner, &SshRemoteProcessRunner::readyReadStandardOutput,
+            this, &RemoteLinuxCustomCommandDeployService::handleStdout);
+    connect(d->runner, &SshRemoteProcessRunner::readyReadStandardError,
+            this, &RemoteLinuxCustomCommandDeployService::handleStderr);
+    connect(d->runner, &SshRemoteProcessRunner::processClosed,
+            this, &RemoteLinuxCustomCommandDeployService::handleProcessClosed);
 
     emit progressMessage(tr("Starting remote command \"%1\"...").arg(d->commandLine));
     d->state = Running;

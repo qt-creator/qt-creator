@@ -120,9 +120,10 @@ void GenericDirectUploadService::doDeploy()
     QTC_ASSERT(d->state == Inactive, setFinished(); return);
 
     d->uploader = connection()->createSftpChannel();
-    connect(d->uploader.data(), SIGNAL(initialized()), SLOT(handleSftpInitialized()));
-    connect(d->uploader.data(), SIGNAL(channelError(QString)),
-        SLOT(handleSftpChannelError(QString)));
+    connect(d->uploader.data(), &SftpChannel::initialized,
+            this, &GenericDirectUploadService::handleSftpInitialized);
+    connect(d->uploader.data(), &SftpChannel::channelError,
+            this, &GenericDirectUploadService::handleSftpChannelError);
     d->uploader->initialize();
     d->state = InitializingSftp;
 }
@@ -138,8 +139,8 @@ void GenericDirectUploadService::handleSftpInitialized()
     }
 
     Q_ASSERT(!d->filesToUpload.isEmpty());
-    connect(d->uploader.data(), SIGNAL(finished(QSsh::SftpJobId,QString)),
-        SLOT(handleUploadFinished(QSsh::SftpJobId,QString)));
+    connect(d->uploader.data(), &SftpChannel::finished,
+            this, &GenericDirectUploadService::handleUploadFinished);
     d->state = Uploading;
     uploadNextFile();
 }
@@ -184,11 +185,12 @@ void GenericDirectUploadService::handleUploadFinished(SftpJobId jobId, const QSt
             const QString command = QLatin1String("chmod a+x ")
                     + Utils::QtcProcess::quoteArgUnix(df.remoteFilePath());
             d->chmodProc = connection()->createRemoteProcess(command.toUtf8());
-            connect(d->chmodProc.data(), SIGNAL(closed(int)), SLOT(handleChmodFinished(int)));
-            connect(d->chmodProc.data(), SIGNAL(readyReadStandardOutput()),
-                    SLOT(handleStdOutData()));
-            connect(d->chmodProc.data(), SIGNAL(readyReadStandardError()),
-                    SLOT(handleStdErrData()));
+            connect(d->chmodProc.data(), &SshRemoteProcess::closed,
+                    this, &GenericDirectUploadService::handleChmodFinished);
+            connect(d->chmodProc.data(), &SshRemoteProcess::readyReadStandardOutput,
+                    this, &GenericDirectUploadService::handleStdOutData);
+            connect(d->chmodProc.data(), &SshRemoteProcess::readyReadStandardError,
+                    this, &GenericDirectUploadService::handleStdErrData);
             d->chmodProc->start();
         } else {
             uploadNextFile();
@@ -267,9 +269,12 @@ void GenericDirectUploadService::handleMkdirFinished(int exitStatus)
 
              // See comment in SftpChannel::createLink as to why we can't use it.
              d->lnProc = connection()->createRemoteProcess(command.toUtf8());
-             connect(d->lnProc.data(), SIGNAL(closed(int)), SLOT(handleLnFinished(int)));
-             connect(d->lnProc.data(), SIGNAL(readyReadStandardOutput()), SLOT(handleStdOutData()));
-             connect(d->lnProc.data(), SIGNAL(readyReadStandardError()), SLOT(handleStdErrData()));
+             connect(d->lnProc.data(), &SshRemoteProcess::closed,
+                     this, &GenericDirectUploadService::handleLnFinished);
+             connect(d->lnProc.data(), &SshRemoteProcess::readyReadStandardOutput,
+                     this, &GenericDirectUploadService::handleStdOutData);
+             connect(d->lnProc.data(), &SshRemoteProcess::readyReadStandardError,
+                     this, &GenericDirectUploadService::handleStdErrData);
              d->lnProc->start();
         } else {
             const SftpJobId job = d->uploader->uploadFile(df.localFilePath().toString(),
@@ -372,9 +377,12 @@ void GenericDirectUploadService::uploadNextFile()
     const QString command = QLatin1String("mkdir -p ")
             + Utils::QtcProcess::quoteArgUnix(dirToCreate);
     d->mkdirProc = connection()->createRemoteProcess(command.toUtf8());
-    connect(d->mkdirProc.data(), SIGNAL(closed(int)), SLOT(handleMkdirFinished(int)));
-    connect(d->mkdirProc.data(), SIGNAL(readyReadStandardOutput()), SLOT(handleStdOutData()));
-    connect(d->mkdirProc.data(), SIGNAL(readyReadStandardError()), SLOT(handleStdErrData()));
+    connect(d->mkdirProc.data(), &SshRemoteProcess::closed,
+            this, &GenericDirectUploadService::handleMkdirFinished);
+    connect(d->mkdirProc.data(), &SshRemoteProcess::readyReadStandardOutput,
+            this, &GenericDirectUploadService::handleStdOutData);
+    connect(d->mkdirProc.data(), &SshRemoteProcess::readyReadStandardError,
+            this, &GenericDirectUploadService::handleStdErrData);
     emit progressMessage(tr("Uploading file \"%1\"...")
         .arg(df.localFilePath().toUserOutput()));
     d->mkdirProc->start();

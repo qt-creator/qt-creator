@@ -45,13 +45,12 @@ public:
     RemoteLinuxEnvironmentAspect *aspect() const;
     QPushButton *fetchButton() const;
 
-private slots:
+private:
     void fetchEnvironment();
     void fetchEnvironmentFinished();
     void fetchEnvironmentError(const QString &error);
     void stopFetchEnvironment();
 
-private:
     Internal::RemoteLinuxEnvironmentReader *deviceEnvReader;
 };
 

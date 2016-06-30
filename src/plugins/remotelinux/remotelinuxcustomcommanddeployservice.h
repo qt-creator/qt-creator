@@ -49,12 +49,11 @@ protected:
     void doDeploy();
     void stopDeployment();
 
-private slots:
+private:
     void handleStdout();
     void handleStderr();
     void handleProcessClosed(int exitStatus);
 
-private:
     Internal::RemoteLinuxCustomCommandDeployservicePrivate *d;
 };
 

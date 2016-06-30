@@ -150,10 +150,12 @@ void AbstractUploadAndInstallPackageService::handleUploadFinished(const QString 
         + Utils::FileName::fromString(packageFilePath()).fileName();
     d->state = Installing;
     emit progressMessage(tr("Installing package to device..."));
-    connect(packageInstaller(), SIGNAL(stdoutData(QString)), SIGNAL(stdOutData(QString)));
-    connect(packageInstaller(), SIGNAL(stderrData(QString)), SIGNAL(stdErrData(QString)));
-    connect(packageInstaller(), SIGNAL(finished(QString)),
-        SLOT(handleInstallationFinished(QString)));
+    connect(packageInstaller(), &AbstractRemoteLinuxPackageInstaller::stdoutData,
+            this, &AbstractRemoteLinuxDeployService::stdOutData);
+    connect(packageInstaller(), &AbstractRemoteLinuxPackageInstaller::stderrData,
+            this, &AbstractRemoteLinuxDeployService::stdErrData);
+    connect(packageInstaller(), &AbstractRemoteLinuxPackageInstaller::finished,
+            this, &AbstractUploadAndInstallPackageService::handleInstallationFinished);
     packageInstaller()->installPackage(deviceConfiguration(), remoteFilePath, true);
 }
 

@@ -59,7 +59,7 @@ public:
     void doDeploy();
     void stopDeployment();
 
-private slots:
+private:
     void handleSftpInitialized();
     void handleSftpChannelError(const QString &errorMessage);
     void handleUploadFinished(QSsh::SftpJobId jobId, const QString &errorMsg);
@@ -69,7 +69,6 @@ private slots:
     void handleStdOutData();
     void handleStdErrData();
 
-private:
     void checkDeploymentNeeded(const ProjectExplorer::DeployableFile &file) const;
     void setFinished();
     void uploadNextFile();

@@ -44,23 +44,38 @@ GenericLinuxDeviceConfigurationWidget::GenericLinuxDeviceConfigurationWidget(
     m_ui(new Ui::GenericLinuxDeviceConfigurationWidget)
 {
     m_ui->setupUi(this);
-    connect(m_ui->hostLineEdit, SIGNAL(editingFinished()), this, SLOT(hostNameEditingFinished()));
-    connect(m_ui->userLineEdit, SIGNAL(editingFinished()), this, SLOT(userNameEditingFinished()));
-    connect(m_ui->pwdLineEdit, SIGNAL(editingFinished()), this, SLOT(passwordEditingFinished()));
-    connect(m_ui->passwordButton, SIGNAL(toggled(bool)), this, SLOT(authenticationTypeChanged()));
-    connect(m_ui->keyFileLineEdit, SIGNAL(editingFinished()), this, SLOT(keyFileEditingFinished()));
-    connect(m_ui->keyFileLineEdit, SIGNAL(browsingFinished()), this, SLOT(keyFileEditingFinished()));
-    connect(m_ui->keyButton, SIGNAL(toggled(bool)), this, SLOT(authenticationTypeChanged()));
-    connect(m_ui->timeoutSpinBox, SIGNAL(editingFinished()), this, SLOT(timeoutEditingFinished()));
-    connect(m_ui->timeoutSpinBox, SIGNAL(valueChanged(int)), this, SLOT(timeoutEditingFinished()));
-    connect(m_ui->sshPortSpinBox, SIGNAL(editingFinished()), this, SLOT(sshPortEditingFinished()));
-    connect(m_ui->sshPortSpinBox, SIGNAL(valueChanged(int)), this, SLOT(sshPortEditingFinished()));
-    connect(m_ui->showPasswordCheckBox, SIGNAL(toggled(bool)), this, SLOT(showPassword(bool)));
-    connect(m_ui->portsLineEdit, SIGNAL(editingFinished()), this, SLOT(handleFreePortsChanged()));
-    connect(m_ui->createKeyButton, SIGNAL(clicked()), SLOT(createNewKey()));
-    connect(m_ui->gdbServerLineEdit, SIGNAL(editingFinished()), SLOT(gdbServerEditingFinished()));
-    connect(m_ui->hostKeyCheckBox, &QCheckBox::toggled, this,
-            &GenericLinuxDeviceConfigurationWidget::hostKeyCheckingChanged);
+    connect(m_ui->hostLineEdit, &QLineEdit::editingFinished,
+            this, &GenericLinuxDeviceConfigurationWidget::hostNameEditingFinished);
+    connect(m_ui->userLineEdit, &QLineEdit::editingFinished,
+            this, &GenericLinuxDeviceConfigurationWidget::userNameEditingFinished);
+    connect(m_ui->pwdLineEdit, &QLineEdit::editingFinished,
+            this, &GenericLinuxDeviceConfigurationWidget::passwordEditingFinished);
+    connect(m_ui->passwordButton, &QAbstractButton::toggled,
+            this, &GenericLinuxDeviceConfigurationWidget::authenticationTypeChanged);
+    connect(m_ui->keyFileLineEdit, &PathChooser::editingFinished,
+            this, &GenericLinuxDeviceConfigurationWidget::keyFileEditingFinished);
+    connect(m_ui->keyFileLineEdit, &PathChooser::browsingFinished,
+            this, &GenericLinuxDeviceConfigurationWidget::keyFileEditingFinished);
+    connect(m_ui->keyButton, &QAbstractButton::toggled,
+            this, &GenericLinuxDeviceConfigurationWidget::authenticationTypeChanged);
+    connect(m_ui->timeoutSpinBox, &QAbstractSpinBox::editingFinished,
+            this, &GenericLinuxDeviceConfigurationWidget::timeoutEditingFinished);
+    connect(m_ui->timeoutSpinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged),
+            this, &GenericLinuxDeviceConfigurationWidget::timeoutEditingFinished);
+    connect(m_ui->sshPortSpinBox, &QAbstractSpinBox::editingFinished,
+            this, &GenericLinuxDeviceConfigurationWidget::sshPortEditingFinished);
+    connect(m_ui->sshPortSpinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged),
+            this, &GenericLinuxDeviceConfigurationWidget::sshPortEditingFinished);
+    connect(m_ui->showPasswordCheckBox, &QAbstractButton::toggled,
+            this, &GenericLinuxDeviceConfigurationWidget::showPassword);
+    connect(m_ui->portsLineEdit, &QLineEdit::editingFinished,
+            this, &GenericLinuxDeviceConfigurationWidget::handleFreePortsChanged);
+    connect(m_ui->createKeyButton, &QAbstractButton::clicked,
+            this, &GenericLinuxDeviceConfigurationWidget::createNewKey);
+    connect(m_ui->gdbServerLineEdit, &QLineEdit::editingFinished,
+            this, &GenericLinuxDeviceConfigurationWidget::gdbServerEditingFinished);
+    connect(m_ui->hostKeyCheckBox, &QCheckBox::toggled,
+            this, &GenericLinuxDeviceConfigurationWidget::hostKeyCheckingChanged);
 
     initGui();
 }

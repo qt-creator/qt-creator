@@ -62,10 +62,6 @@
    <extends>QWidget</extends>
    <header location="global">utils/pathchooser.h</header>
    <container>1</container>
-   <slots>
-    <signal>editingFinished()</signal>
-    <signal>browsingFinished()</signal>
-   </slots>
   </customwidget>
  </customwidgets>
  <resources/>

@@ -82,11 +82,10 @@ protected:
     void handleDeviceSetupDone(bool success);
     void handleDeploymentDone();
 
-private slots:
+private:
     void handleConnected();
     void handleConnectionFailure();
 
-private:
     virtual bool isDeploymentNecessary() const = 0;
 
     // Should do things needed *before* connecting. Call handleDeviceSetupDone() afterwards.

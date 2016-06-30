@@ -56,10 +56,11 @@ public:
         mainLayout->setMargin(0);
         mainLayout->addWidget(&m_ignoreMissingFilesCheckBox);
         m_ignoreMissingFilesCheckBox.setChecked(step->ignoreMissingFiles());
-        connect(&m_ignoreMissingFilesCheckBox, SIGNAL(toggled(bool)),
-            SLOT(handleIgnoreMissingFilesChanged(bool)));
+        connect(&m_ignoreMissingFilesCheckBox, &QAbstractButton::toggled,
+                this, &CreateTarStepWidget::handleIgnoreMissingFilesChanged);
 
-        connect(step, SIGNAL(packageFilePathChanged()), SIGNAL(updateSummary()));
+        connect(step, &AbstractPackagingStep::packageFilePathChanged,
+                this, &BuildStepConfigWidget::updateSummary);
     }
 
     QString summaryText() const
@@ -76,7 +77,7 @@ public:
     bool showWidget() const { return true; }
 
 private:
-    Q_SLOT void handleIgnoreMissingFilesChanged(bool ignoreMissingFiles) {
+    void handleIgnoreMissingFilesChanged(bool ignoreMissingFiles) {
         TarPackageCreationStep *step = qobject_cast<TarPackageCreationStep *>(this->step());
         step->setIgnoreMissingFiles(ignoreMissingFiles);
     }

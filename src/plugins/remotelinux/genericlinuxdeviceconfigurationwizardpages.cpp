@@ -57,11 +57,13 @@ GenericLinuxDeviceConfigurationWizardSetupPage::GenericLinuxDeviceConfigurationW
     d->ui.privateKeyPathChooser->setExpectedKind(PathChooser::File);
     d->ui.privateKeyPathChooser->setHistoryCompleter(QLatin1String("Ssh.KeyFile.History"));
     d->ui.privateKeyPathChooser->setPromptDialogTitle(tr("Choose a Private Key File"));
-    connect(d->ui.nameLineEdit, SIGNAL(textChanged(QString)), SIGNAL(completeChanged()));
-    connect(d->ui.hostNameLineEdit, SIGNAL(textChanged(QString)), SIGNAL(completeChanged()));
-    connect(d->ui.userNameLineEdit, SIGNAL(textChanged(QString)), SIGNAL(completeChanged()));
-    connect(d->ui.privateKeyPathChooser, SIGNAL(validChanged(bool)), SIGNAL(completeChanged()));
-    connect(d->ui.passwordButton, SIGNAL(toggled(bool)), SLOT(handleAuthTypeChanged()));
+    connect(d->ui.nameLineEdit, &QLineEdit::textChanged, this, &QWizardPage::completeChanged);
+    connect(d->ui.hostNameLineEdit, &QLineEdit::textChanged, this, &QWizardPage::completeChanged);
+    connect(d->ui.userNameLineEdit, &QLineEdit::textChanged, this, &QWizardPage::completeChanged);
+    connect(d->ui.privateKeyPathChooser, &PathChooser::validChanged,
+            this, &QWizardPage::completeChanged);
+    connect(d->ui.passwordButton, &QAbstractButton::toggled,
+            this, &GenericLinuxDeviceConfigurationWizardSetupPage::handleAuthTypeChanged);
 }
 
 GenericLinuxDeviceConfigurationWizardSetupPage::~GenericLinuxDeviceConfigurationWizardSetupPage()
