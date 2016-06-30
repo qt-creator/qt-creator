@@ -64,7 +64,7 @@ Button {
                     border.color: (button.checked || button.pressed)
                                   ? creatorTheme.Welcome_ForegroundPrimaryColor
                                   : creatorTheme.Welcome_ForegroundSecondaryColor
-                    radius: (creatorTheme.WidgetStyle === 'StyleFlat') ? 0 : 4
+                    radius: creatorTheme.FlatToolBars ? 0 : 4
                 }
             }
 
