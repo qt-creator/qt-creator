@@ -213,7 +213,7 @@ public:
 
     VisitReturn evaluateConditional(const QString &cond, const QString &where, int line = -1);
 #ifdef PROEVALUATOR_FULL
-    void checkRequirements(const ProStringList &deps);
+    VisitReturn checkRequirements(const ProStringList &deps);
 #endif
 
     void updateMkspecPaths();

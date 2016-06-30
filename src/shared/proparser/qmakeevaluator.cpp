@@ -925,7 +925,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::visitProVariable(
     }
 #ifdef PROEVALUATOR_FULL
     else if (varName == statics.strREQUIRES)
-        checkRequirements(values(varName));
+        return checkRequirements(values(varName));
 #endif
 
     return ReturnTrue;
@@ -1787,12 +1787,17 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateConditional(
 }
 
 #ifdef PROEVALUATOR_FULL
-void QMakeEvaluator::checkRequirements(const ProStringList &deps)
+QMakeEvaluator::VisitReturn QMakeEvaluator::checkRequirements(const ProStringList &deps)
 {
     ProStringList &failed = valuesRef(ProKey("QMAKE_FAILED_REQUIREMENTS"));
-    foreach (const ProString &dep, deps)
-        if (evaluateConditional(dep.toQString(), m_current.pro->fileName(), m_current.line) != ReturnTrue)
+    foreach (const ProString &dep, deps) {
+        VisitReturn vr = evaluateConditional(dep.toQString(), m_current.pro->fileName(), m_current.line);
+        if (vr == ReturnError)
+            return ReturnError;
+        if (vr != ReturnTrue)
             failed << dep;
+    }
+    return ReturnTrue;
 }
 #endif
 

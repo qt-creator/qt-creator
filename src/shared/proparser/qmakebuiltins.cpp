@@ -1194,7 +1194,8 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateBuiltinConditional(
         return ReturnFalse;
     case T_REQUIRES:
 #ifdef PROEVALUATOR_FULL
-        checkRequirements(args);
+        if (checkRequirements(args) == ReturnError)
+            return ReturnError;
 #endif
         return ReturnFalse; // Another qmake breakage
     case T_EVAL: {
