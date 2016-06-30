@@ -42,7 +42,7 @@ public:
     QVariantMap properties() const;
     ~CustomQbsPropertiesDialog();
 
-private slots:
+private:
     void addProperty();
     void removeSelectedProperty();
     void handleCurrentItemChanged();

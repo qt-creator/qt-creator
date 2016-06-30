@@ -124,6 +124,8 @@ private slots:
 private: // functions
     void changeToInFileComponentModel(ComponentTextModifier *textModifer);
 
+    void updateQrcFiles();
+
     QWidget *centralWidget() const;
     QString pathToQt() const;
 

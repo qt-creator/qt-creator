@@ -54,9 +54,20 @@ RowLayout {
 
         property bool isComplete: false
 
-        property string textValue: backendValue.value
+        function setCurrentText(text) {
+            if (text === "")
+                return
+
+
+            var index = comboBox.find(textValue)
+            if (index === -1)
+                currentIndex = -1
+            editText = textValue
+        }
+
+        property string textValue: backendValue.valueToString
         onTextValueChanged: {
-            comboBox.editText = textValue
+            setCurrentText(textValue)
         }
 
         Layout.fillWidth: true
@@ -72,7 +83,7 @@ RowLayout {
             if (!comboBox.isComplete)
                 return;
 
-            editText = backendValue.valueToString
+            setCurrentText(textValue)
         }
 
         onCurrentTextChanged: {
@@ -95,7 +106,7 @@ RowLayout {
                 }
             }
             comboBox.isComplete = true
-            editText = backendValue.valueToString
+            setCurrentText(textValue)
         }
 
     }

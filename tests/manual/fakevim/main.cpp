@@ -84,7 +84,6 @@ public:
       : QObject(parent), m_widget(widget), m_mainWindow(mw)
     {}
 
-public slots:
     void changeSelection(const QList<QTextEdit::ExtraSelection> &s)
     {
         if (QPlainTextEdit *ed = qobject_cast<QPlainTextEdit *>(m_widget))
@@ -230,19 +229,18 @@ void readFile(FakeVimHandler &handler, const QString &editFileName)
 
 void connectSignals(FakeVimHandler &handler, Proxy &proxy)
 {
-    QObject::connect(&handler, SIGNAL(commandBufferChanged(QString,int,int,int,QObject*)),
-        &proxy, SLOT(changeStatusMessage(QString,int)));
-    QObject::connect(&handler,
-        SIGNAL(selectionChanged(QList<QTextEdit::ExtraSelection>)),
-        &proxy, SLOT(changeSelection(QList<QTextEdit::ExtraSelection>)));
-    QObject::connect(&handler, SIGNAL(extraInformationChanged(QString)),
-        &proxy, SLOT(changeExtraInformation(QString)));
-    QObject::connect(&handler, SIGNAL(statusDataChanged(QString)),
-        &proxy, SLOT(changeStatusData(QString)));
-    QObject::connect(&handler, SIGNAL(highlightMatches(QString)),
-        &proxy, SLOT(highlightMatches(QString)));
-    QObject::connect(&handler, SIGNAL(handleExCommandRequested(bool*,ExCommand)),
-        &proxy, SLOT(handleExCommand(bool*,ExCommand)));
+    QObject::connect(&handler, &FakeVimHandler::commandBufferChanged,
+                     &proxy, &Proxy::changeStatusMessage);
+    QObject::connect(&handler, &FakeVimHandler::selectionChanged,
+                     &proxy, &Proxy::changeSelection);
+    QObject::connect(&handler, &FakeVimHandler::extraInformationChanged,
+                     &proxy, &Proxy::changeExtraInformation);
+    QObject::connect(&handler, &FakeVimHandler::statusDataChanged,
+                     &proxy, &Proxy::changeStatusData);
+    QObject::connect(&handler, &FakeVimHandler::highlightMatches,
+                     &proxy, &Proxy::highlightMatches);
+    QObject::connect(&handler, &FakeVimHandler::handleExCommandRequested,
+                     &proxy, &Proxy::handleExCommand);
 }
 
 int main(int argc, char *argv[])

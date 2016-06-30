@@ -65,16 +65,12 @@ public:
 
 signals:
 
-public slots:
-
-private slots:
+private:
     void onItemActivated(const QModelIndex &index);
     void onSortClicked();
     void onFilterMenuTriggered(QAction *action);
     void onParsingStarted();
     void onParsingFinished();
-
-private:
     void initializeFilterMenu();
     void onRunThisTestTriggered(TestRunner::Mode runMode);
 

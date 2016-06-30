@@ -28,14 +28,17 @@ import re
 
 # test search in help mode and advanced search
 searchKeywordDictionary={ "deployment":True, "deplmint":False, "build":True, "bld":False }
+urlDictionary = { "deployment":"qthelp://com.trolltech.qt.481/qdoc/gettingstarted-develop.html",
+                  "build":"qthelp://com.trolltech.qt.481/qdoc/sql-driver.html" }
 
 
 def __getSelectedText__():
     hv = getHelpViewer()
+    isWebEngineView = className(hv) == "QWebEngineView"
     try:
         selText = hv.selectedText
         if className(selText) != 'instancemethod':
-            return str(selText)
+            return str(selText), isWebEngineView
     except:
         pass
     try:
@@ -43,7 +46,7 @@ def __getSelectedText__():
     except:
         test.warning("Could not get highlighted text.")
         selText = ''
-    return str(selText)
+    return str(selText), isWebEngineView
 
 def __getUrl__():
     helpViewer = getHelpViewer()
@@ -66,11 +69,19 @@ def getHighlightsInHtml(htmlCode):
     return res
 
 def verifySelection(expected):
-    selText = str(__getSelectedText__())
+    selText, isWebEngineView = __getSelectedText__()
+    if isWebEngineView:
+        test.log("The search results are not a selection in a QWebEngineView",
+                 "Searched strings should still be highlighted")
+        return
+    selText = str(selText)
     if test.verify(selText, "Verify that there is a selection"):
         # verify if search keyword is found in results
         test.verify(expected.lower() in selText.lower(),
                     "'%s' search result can be found" % expected)
+
+def verifyUrl(expected):
+    return test.compare(expected, __getUrl__(), "Expected URL loaded?")
 
 def main():
     global sdkPath
@@ -109,14 +120,15 @@ def main():
             test.verify(waitFor("re.match('[1-9]\d* - [1-9]\d* of [1-9]\d* Hits',"
                                 "str(findObject(':Hits_QLabel').text))", 2000),
                                 "Verifying if search results found with 1+ hits for: " + searchKeyword)
-            selText = __getSelectedText__()
+            selText = __getSelectedText__()[0]
             url = __getUrl__()
             # click in the widget, tab to first item and press enter
             mouseClick(waitForObject(":Hits_QCLuceneResultWidget"), 1, 1, 0, Qt.LeftButton)
             type(waitForObject(":Hits_QCLuceneResultWidget"), "<Tab>")
             type(waitForObject(":Hits_QCLuceneResultWidget"), "<Return>")
-            waitFor("__getUrl__() != url or selText != __getSelectedText__()", 20000)
+            waitFor("__getUrl__() != url or selText != __getSelectedText__()[0]", 20000)
             verifySelection(searchKeyword)
+            verifyUrl(urlDictionary[searchKeyword])
         else:
             test.verify(waitFor("noMatch in "
                                 "str(waitForObject(':Hits_QCLuceneResultWidget').plainText)", 1000),
@@ -148,10 +160,12 @@ def main():
     type(resultsView, "<Tab>")
     type(resultsView, "<Return>")
     verifySelection("printing")
+    verifyUrl("qthelp://com.trolltech.qt.481/qdoc/overviews.html")
     for i in range(2):
         type(resultsView, "<Tab>")
     type(resultsView, "<Return>")
     verifySelection("sql")
+    verifyUrl("qthelp://com.trolltech.qt.481/qdoc/best-practices.html")
     # verify if simple search is properly disabled
     test.verify(not searchLineEdit.enabled,
                 "Verifying if simple search is not active in advanced mode.")

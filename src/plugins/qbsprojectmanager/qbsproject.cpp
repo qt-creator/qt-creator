@@ -117,13 +117,11 @@ QbsProject::QbsProject(QbsManager *manager, const QString &fileName) :
     setProjectContext(Context(Constants::PROJECT_ID));
     setProjectLanguages(Context(ProjectExplorer::Constants::LANG_CXX));
 
-    connect(this, SIGNAL(activeTargetChanged(ProjectExplorer::Target*)),
-            this, SLOT(changeActiveTarget(ProjectExplorer::Target*)));
-    connect(this, SIGNAL(addedTarget(ProjectExplorer::Target*)),
-            this, SLOT(targetWasAdded(ProjectExplorer::Target*)));
-    connect(this, SIGNAL(environmentChanged()), this, SLOT(delayParsing()));
+    connect(this, &Project::activeTargetChanged, this, &QbsProject::changeActiveTarget);
+    connect(this, &Project::addedTarget, this, &QbsProject::targetWasAdded);
+    connect(this, &Project::environmentChanged, this, &QbsProject::delayParsing);
 
-    connect(&m_parsingDelay, SIGNAL(timeout()), this, SLOT(startParsing()));
+    connect(&m_parsingDelay, &QTimer::timeout, this, &QbsProject::startParsing);
 }
 
 QbsProject::~QbsProject()
@@ -531,9 +529,8 @@ void QbsProject::handleRuleExecutionDone()
 
 void QbsProject::targetWasAdded(Target *t)
 {
-    connect(t, SIGNAL(activeBuildConfigurationChanged(ProjectExplorer::BuildConfiguration*)),
-            this, SLOT(delayParsing()));
-    connect(t, SIGNAL(buildDirectoryChanged()), this, SLOT(delayParsing()));
+    connect(t, &Target::activeBuildConfigurationChanged, this, &QbsProject::delayParsing);
+    connect(t, &Target::buildDirectoryChanged, this, &QbsProject::delayParsing);
 }
 
 void QbsProject::changeActiveTarget(Target *t)
@@ -547,11 +544,13 @@ void QbsProject::changeActiveTarget(Target *t)
 void QbsProject::buildConfigurationChanged(BuildConfiguration *bc)
 {
     if (m_currentBc)
-        disconnect(m_currentBc, SIGNAL(qbsConfigurationChanged()), this, SLOT(delayParsing()));
+        disconnect(m_currentBc, &QbsBuildConfiguration::qbsConfigurationChanged,
+                   this, &QbsProject::delayParsing);
 
     m_currentBc = qobject_cast<QbsBuildConfiguration *>(bc);
     if (m_currentBc) {
-        connect(m_currentBc, SIGNAL(qbsConfigurationChanged()), this, SLOT(delayParsing()));
+        connect(m_currentBc, &QbsBuildConfiguration::qbsConfigurationChanged,
+                this, &QbsProject::delayParsing);
         delayParsing();
     } else {
         invalidate();
@@ -640,7 +639,8 @@ void QbsProject::registerQbsProjectParser(QbsProjectParser *p)
     if (p) {
         connect(m_qbsProjectParser, &QbsProjectParser::ruleExecutionDone,
                 this, &QbsProject::handleRuleExecutionDone);
-        connect(m_qbsProjectParser, SIGNAL(done(bool)), this, SLOT(handleQbsParsingDone(bool)));
+        connect(m_qbsProjectParser, &QbsProjectParser::done,
+                this, &QbsProject::handleQbsParsingDone);
     }
 }
 

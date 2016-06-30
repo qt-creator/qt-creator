@@ -60,10 +60,8 @@ signals:
 protected:
     void resizeEvent(QResizeEvent *);
 
-private slots:
-    void emitElementClicked();
-
 private:
+    void emitElementClicked();
     void resizeButtons();
     void setBackgroundStyle();
 

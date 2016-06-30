@@ -106,7 +106,7 @@ public:
                                       const qbs::ProductData &product);
     static QString uniqueProductName(const qbs::ProductData &product);
 
-public slots:
+public:
     void invalidate();
     void delayParsing();
 
@@ -114,7 +114,7 @@ signals:
     void projectParsingStarted();
     void projectParsingDone(bool);
 
-private slots:
+private:
     void handleQbsParsingDone(bool success);
 
     void targetWasAdded(ProjectExplorer::Target *t);
@@ -122,7 +122,6 @@ private slots:
     void buildConfigurationChanged(ProjectExplorer::BuildConfiguration *bc);
     void startParsing();
 
-private:
     RestoreResult fromMap(const QVariantMap &map, QString *errorMessage) override;
 
     void parse(const QVariantMap &config, const Utils::Environment &env, const QString &dir);

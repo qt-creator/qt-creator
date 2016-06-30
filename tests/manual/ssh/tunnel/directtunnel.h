@@ -51,7 +51,7 @@ public:
 signals:
     void finished(int errorCode);
 
-private slots:
+private:
     void handleConnected();
     void handleConnectionError();
     void handleServerData();
@@ -63,7 +63,6 @@ private slots:
     void handleClientData();
     void handleTimeout();
 
-private:
     QSsh::SshConnection * const m_connection;
     QSharedPointer<QSsh::SshDirectTcpIpTunnel> m_tunnel;
     QTcpServer * const m_targetServer;

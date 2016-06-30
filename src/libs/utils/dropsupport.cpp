@@ -140,7 +140,7 @@ bool DropSupport::eventFilter(QObject *obj, QEvent *event)
                     // after the drag operation.
                     // If we do not do this, e.g. dragging from Outline view crashes if the editor and
                     // the selected item changes
-                    QTimer::singleShot(100, this, SLOT(emitFilesDropped()));
+                    QTimer::singleShot(100, this, &DropSupport::emitFilesDropped);
                 }
             }
             if (fileDropMimeData && !fileDropMimeData->values().isEmpty()) {
@@ -150,7 +150,7 @@ bool DropSupport::eventFilter(QObject *obj, QEvent *event)
                 m_values.append(fileDropMimeData->values());
                 m_dropPos = de->pos();
                 if (needToScheduleEmit)
-                    QTimer::singleShot(100, this, SLOT(emitValuesDropped()));
+                    QTimer::singleShot(100, this, &DropSupport::emitValuesDropped);
             }
         }
         if (!accepted) {

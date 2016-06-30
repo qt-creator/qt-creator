@@ -112,8 +112,10 @@ bool QbsBuildStep::init(QList<const BuildStep *> &earlierSteps)
     m_activeFileTags = bc->activeFileTags();
     m_products = bc->products();
 
-    connect(m_parser, SIGNAL(addOutput(QString,ProjectExplorer::BuildStep::OutputFormat)),
-            this, SIGNAL(addOutput(QString,ProjectExplorer::BuildStep::OutputFormat)));
+    connect(m_parser, &ProjectExplorer::IOutputParser::addOutput,
+            this, [this](const QString &string, ProjectExplorer::BuildStep::OutputFormat format) {
+        emit addOutput(string, format);
+    });
     connect(m_parser, &ProjectExplorer::IOutputParser::addTask, this, &QbsBuildStep::addTask);
 
     return true;
@@ -259,7 +261,7 @@ void QbsBuildStep::buildingDone(bool success)
 
 void QbsBuildStep::reparsingDone(bool success)
 {
-    disconnect(qbsProject(), SIGNAL(projectParsingDone(bool)), this, SLOT(reparsingDone(bool)));
+    disconnect(qbsProject(), &QbsProject::projectParsingDone, this, &QbsBuildStep::reparsingDone);
     m_parsingProject = false;
     if (m_job) { // This was a scheduled reparsing after building.
         finish();
@@ -398,7 +400,7 @@ void QbsBuildStep::setCleanInstallRoot(bool clean)
 void QbsBuildStep::parseProject()
 {
     m_parsingProject = true;
-    connect(qbsProject(), SIGNAL(projectParsingDone(bool)), SLOT(reparsingDone(bool)));
+    connect(qbsProject(), &QbsProject::projectParsingDone, this, &QbsBuildStep::reparsingDone);
     qbsProject()->parseCurrentBuildConfiguration();
 }
 
@@ -419,15 +421,15 @@ void QbsBuildStep::build()
 
     m_progressBase = 0;
 
-    connect(m_job, SIGNAL(finished(bool,qbs::AbstractJob*)), this, SLOT(buildingDone(bool)));
-    connect(m_job, SIGNAL(taskStarted(QString,int,qbs::AbstractJob*)),
-            this, SLOT(handleTaskStarted(QString,int)));
-    connect(m_job, SIGNAL(taskProgress(int,qbs::AbstractJob*)),
-            this, SLOT(handleProgress(int)));
-    connect(m_job, SIGNAL(reportCommandDescription(QString,QString)),
-            this, SLOT(handleCommandDescriptionReport(QString,QString)));
-    connect(m_job, SIGNAL(reportProcessResult(qbs::ProcessResult)),
-            this, SLOT(handleProcessResultReport(qbs::ProcessResult)));
+    connect(m_job, &qbs::AbstractJob::finished, this, &QbsBuildStep::buildingDone);
+    connect(m_job, &qbs::AbstractJob::taskStarted,
+            this, &QbsBuildStep::handleTaskStarted);
+    connect(m_job, &qbs::AbstractJob::taskProgress,
+            this, &QbsBuildStep::handleProgress);
+    connect(m_job, &qbs::BuildJob::reportCommandDescription,
+            this, &QbsBuildStep::handleCommandDescriptionReport);
+    connect(m_job, &qbs::BuildJob::reportProcessResult,
+            this, &QbsBuildStep::handleProcessResultReport);
 
 }
 
@@ -455,9 +457,12 @@ QbsBuildStepConfigWidget::QbsBuildStepConfigWidget(QbsBuildStep *step) :
     m_step(step),
     m_ignoreChange(false)
 {
-    connect(m_step, SIGNAL(displayNameChanged()), this, SLOT(updateState()));
-    connect(m_step, SIGNAL(qbsConfigurationChanged()), this, SLOT(updateState()));
-    connect(m_step, SIGNAL(qbsBuildOptionsChanged()), this, SLOT(updateState()));
+    connect(m_step, &ProjectExplorer::ProjectConfiguration::displayNameChanged,
+            this, &QbsBuildStepConfigWidget::updateState);
+    connect(m_step, &QbsBuildStep::qbsConfigurationChanged,
+            this, &QbsBuildStepConfigWidget::updateState);
+    connect(m_step, &QbsBuildStep::qbsBuildOptionsChanged,
+            this, &QbsBuildStepConfigWidget::updateState);
     connect(&QbsProjectManagerSettings::instance(), &QbsProjectManagerSettings::settingsBaseChanged,
             this, &QbsBuildStepConfigWidget::updateState);
     connect(step->buildConfiguration()->target(), &ProjectExplorer::Target::buildDirectoryChanged,
@@ -474,10 +479,13 @@ QbsBuildStepConfigWidget::QbsBuildStepConfigWidget(QbsBuildStep *step) :
     });
     m_ui->qmlDebuggingWarningText->setPixmap(Core::Icons::WARNING.pixmap());
 
-    connect(m_ui->buildVariantComboBox, SIGNAL(currentIndexChanged(int)),
-            this, SLOT(changeBuildVariant(int)));
-    connect(m_ui->keepGoingCheckBox, SIGNAL(toggled(bool)), this, SLOT(changeKeepGoing(bool)));
-    connect(m_ui->jobSpinBox, SIGNAL(valueChanged(int)), this, SLOT(changeJobCount(int)));
+    connect(m_ui->buildVariantComboBox,
+            static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+            this, &QbsBuildStepConfigWidget::changeBuildVariant);
+    connect(m_ui->keepGoingCheckBox, &QAbstractButton::toggled,
+            this, &QbsBuildStepConfigWidget::changeKeepGoing);
+    connect(m_ui->jobSpinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged),
+            this, &QbsBuildStepConfigWidget::changeJobCount);
     connect(m_ui->showCommandLinesCheckBox, &QCheckBox::toggled, this,
             &QbsBuildStepConfigWidget::changeShowCommandLines);
     connect(m_ui->installCheckBox, &QCheckBox::toggled, this,
@@ -486,10 +494,10 @@ QbsBuildStepConfigWidget::QbsBuildStepConfigWidget(QbsBuildStep *step) :
             &QbsBuildStepConfigWidget::changeCleanInstallRoot);
     connect(m_ui->forceProbesCheckBox, &QCheckBox::toggled, this,
             &QbsBuildStepConfigWidget::changeForceProbes);
-    connect(m_ui->qmlDebuggingLibraryCheckBox, SIGNAL(toggled(bool)),
-            this, SLOT(linkQmlDebuggingLibraryChecked(bool)));
-    connect(QtSupport::QtVersionManager::instance(), SIGNAL(dumpUpdatedFor(Utils::FileName)),
-            this, SLOT(updateQmlDebuggingOption()));
+    connect(m_ui->qmlDebuggingLibraryCheckBox, &QAbstractButton::toggled,
+            this, &QbsBuildStepConfigWidget::linkQmlDebuggingLibraryChecked);
+    connect(QtSupport::QtVersionManager::instance(), &QtSupport::QtVersionManager::dumpUpdatedFor,
+            this, &QbsBuildStepConfigWidget::updateQmlDebuggingOption);
     updateState();
 }
 

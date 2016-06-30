@@ -46,6 +46,8 @@
 #include <qtsupport/qtversionmanager.h>
 #include <coreplugin/idocument.h>
 
+#include <qmljs/qmljsmodelmanagerinterface.h>
+
 #include <QFileInfo>
 #include <QUrl>
 #include <QDebug>
@@ -170,7 +172,7 @@ QList<RewriterError> DesignDocument::qmlParseWarnings() const
 
 bool DesignDocument::hasQmlParseWarnings() const
 {
-    return m_rewriterView->warnings().isEmpty();
+    return !m_rewriterView->warnings().isEmpty();
 }
 
 QList<RewriterError> DesignDocument::qmlParseErrors() const
@@ -180,7 +182,7 @@ QList<RewriterError> DesignDocument::qmlParseErrors() const
 
 bool DesignDocument::hasQmlParseErrors() const
 {
-    return m_rewriterView->errors().isEmpty();
+    return !m_rewriterView->errors().isEmpty();
 }
 
 QString DesignDocument::displayName() const
@@ -243,11 +245,16 @@ void DesignDocument::loadDocument(QPlainTextEdit *edit)
             this, SIGNAL(dirtyStateChanged(bool)));
 
     m_documentTextModifier.reset(new BaseTextEditModifier(dynamic_cast<TextEditor::TextEditorWidget*>(plainTextEdit())));
+
+    connect(m_documentTextModifier.data(), &TextModifier::textChanged, this, &DesignDocument::updateQrcFiles);
+
     m_documentModel->setTextModifier(m_documentTextModifier.data());
 
     m_inFileComponentTextModifier.reset();
 
     updateFileName(Utils::FileName(), fileName());
+
+    updateQrcFiles();
 
     m_documentLoaded = true;
 }
@@ -275,6 +282,18 @@ void DesignDocument::changeToInFileComponentModel(ComponentTextModifier *textMod
 
     viewManager().attachRewriterView();
     viewManager().attachViewsExceptRewriterAndComponetView();
+}
+
+void DesignDocument::updateQrcFiles()
+{
+    ProjectExplorer::Project *currentProject = ProjectExplorer::SessionManager::projectForFile(fileName());
+
+    if (currentProject) {
+        foreach (const QString &fileName, currentProject->files(ProjectExplorer::Project::SourceFiles)) {
+            if (fileName.endsWith(".qrc"))
+                QmlJS::ModelManagerInterface::instance()->updateQrcFile(fileName);
+        }
+    }
 }
 
 void DesignDocument::changeToSubComponent(const ModelNode &componentNode)

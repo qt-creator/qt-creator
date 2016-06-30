@@ -106,11 +106,11 @@ void QbsCleanStep::run(QFutureInterface<bool> &fi)
 
     m_progressBase = 0;
 
-    connect(m_job, SIGNAL(finished(bool,qbs::AbstractJob*)), this, SLOT(cleaningDone(bool)));
-    connect(m_job, SIGNAL(taskStarted(QString,int,qbs::AbstractJob*)),
-            this, SLOT(handleTaskStarted(QString,int)));
-    connect(m_job, SIGNAL(taskProgress(int,qbs::AbstractJob*)),
-            this, SLOT(handleProgress(int)));
+    connect(m_job, &qbs::AbstractJob::finished, this, &QbsCleanStep::cleaningDone);
+    connect(m_job, &qbs::AbstractJob::taskStarted,
+            this, &QbsCleanStep::handleTaskStarted);
+    connect(m_job, &qbs::AbstractJob::taskProgress,
+            this, &QbsCleanStep::handleProgress);
 }
 
 ProjectExplorer::BuildStepConfigWidget *QbsCleanStep::createConfigWidget()
@@ -233,16 +233,20 @@ void QbsCleanStep::setMaxJobs(int jobcount)
 QbsCleanStepConfigWidget::QbsCleanStepConfigWidget(QbsCleanStep *step) :
     m_step(step)
 {
-    connect(m_step, SIGNAL(displayNameChanged()), this, SLOT(updateState()));
-    connect(m_step, SIGNAL(changed()), this, SLOT(updateState()));
+    connect(m_step, &ProjectExplorer::ProjectConfiguration::displayNameChanged,
+            this, &QbsCleanStepConfigWidget::updateState);
+    connect(m_step, &QbsCleanStep::changed,
+            this, &QbsCleanStepConfigWidget::updateState);
 
     setContentsMargins(0, 0, 0, 0);
 
     m_ui = new Ui::QbsCleanStepConfigWidget;
     m_ui->setupUi(this);
 
-    connect(m_ui->dryRunCheckBox, SIGNAL(toggled(bool)), this, SLOT(changeDryRun(bool)));
-    connect(m_ui->keepGoingCheckBox, SIGNAL(toggled(bool)), this, SLOT(changeKeepGoing(bool)));
+    connect(m_ui->dryRunCheckBox, &QAbstractButton::toggled,
+            this, &QbsCleanStepConfigWidget::changeDryRun);
+    connect(m_ui->keepGoingCheckBox, &QAbstractButton::toggled,
+            this, &QbsCleanStepConfigWidget::changeKeepGoing);
 
     updateState();
 }

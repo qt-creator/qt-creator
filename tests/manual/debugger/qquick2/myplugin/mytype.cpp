@@ -10,7 +10,7 @@ MyType::MyType(QObject *parent)
     updateTimerText();
     m_timer = new QTimer(this);
     m_timer->setInterval(1000);
-    connect(m_timer, SIGNAL(timeout()), SLOT(updateTimerText()));
+    connect(m_timer, &QTimer::timeout, this, &MyType::updateTimerText);
     m_timer->start();
 }
 

@@ -41,7 +41,7 @@ namespace Internal {
 class GdbMi;
 class ThreadItem;
 
-class ThreadsHandler : public Utils::LeveledTreeModel<Utils::TreeItem, ThreadItem>
+class ThreadsHandler : public Utils::LeveledTreeModel<Utils::TypedTreeItem<ThreadItem>, ThreadItem>
 {
     Q_OBJECT
 

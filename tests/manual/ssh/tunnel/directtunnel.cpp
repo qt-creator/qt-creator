@@ -47,8 +47,8 @@ DirectTunnel::DirectTunnel(const SshConnectionParameters &parameters, QObject *p
       m_targetServer(new QTcpServer(this)),
       m_expectingChannelClose(false)
 {
-    connect(m_connection, SIGNAL(connected()), SLOT(handleConnected()));
-    connect(m_connection, SIGNAL(error(QSsh::SshError)), SLOT(handleConnectionError()));
+    connect(m_connection, &SshConnection::connected, this, &DirectTunnel::handleConnected);
+    connect(m_connection, &SshConnection::error, this, &DirectTunnel::handleConnectionError);
 }
 
 DirectTunnel::~DirectTunnel()
@@ -77,14 +77,16 @@ void DirectTunnel::handleConnected()
         return;
     }
     m_targetPort = m_targetServer->serverPort();
-    connect(m_targetServer, SIGNAL(newConnection()), SLOT(handleNewConnection()));
+    connect(m_targetServer, &QTcpServer::newConnection, this, &DirectTunnel::handleNewConnection);
 
     m_tunnel = m_connection->createDirectTunnel(QLatin1String("localhost"), 1024, // made-up values
                                                 QLatin1String("localhost"), m_targetPort);
-    connect(m_tunnel.data(), SIGNAL(initialized()), SLOT(handleInitialized()));
-    connect(m_tunnel.data(), SIGNAL(error(QString)), SLOT(handleTunnelError(QString)));
-    connect(m_tunnel.data(), SIGNAL(readyRead()), SLOT(handleServerData()));
-    connect(m_tunnel.data(), SIGNAL(aboutToClose()), SLOT(handleTunnelClosed()));
+    connect(m_tunnel.data(), &SshDirectTcpIpTunnel::initialized,
+            this, &DirectTunnel::handleInitialized);
+    connect(m_tunnel.data(), &SshDirectTcpIpTunnel::error,
+            this, &DirectTunnel::handleTunnelError);
+    connect(m_tunnel.data(), &QIODevice::readyRead, this, &DirectTunnel::handleServerData);
+    connect(m_tunnel.data(), &QIODevice::aboutToClose, this, &DirectTunnel::handleTunnelClosed);
 
     std::cout << "Initializing tunnel..." << std::endl;
     m_tunnel->initialize();
@@ -95,7 +97,7 @@ void DirectTunnel::handleInitialized()
     std::cout << "Writing data into the tunnel..." << std::endl;
     m_tunnel->write(TestData);
     QTimer * const timeoutTimer = new QTimer(this);
-    connect(timeoutTimer, SIGNAL(timeout()), SLOT(handleTimeout()));
+    connect(timeoutTimer, &QTimer::timeout, this, &DirectTunnel::handleTimeout);
     timeoutTimer->start(10000);
 }
 
@@ -131,8 +133,10 @@ void DirectTunnel::handleNewConnection()
 {
     m_targetSocket = m_targetServer->nextPendingConnection();
     m_targetServer->close();
-    connect(m_targetSocket, SIGNAL(error(QAbstractSocket::SocketError)), SLOT(handleSocketError()));
-    connect(m_targetSocket, SIGNAL(readyRead()), SLOT(handleClientData()));
+    connect(m_targetSocket,
+            static_cast<void (QAbstractSocket::*)(QAbstractSocket::SocketError)>(&QAbstractSocket::error),
+            this, &DirectTunnel::handleSocketError);
+    connect(m_targetSocket, &QIODevice::readyRead, this, &DirectTunnel::handleClientData);
     handleClientData();
 }
 

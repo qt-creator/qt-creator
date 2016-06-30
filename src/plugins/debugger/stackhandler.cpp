@@ -54,9 +54,7 @@ namespace Internal {
  */
 
 StackHandler::StackHandler(DebuggerEngine *engine)
-  : m_engine(engine),
-    m_positionIcon(Icons::LOCATION.icon()),
-    m_emptyIcon(Icons::EMPTY.icon())
+  : m_engine(engine)
 {
     setObjectName(QLatin1String("StackModel"));
     m_resetLocationScheduled = false;
@@ -93,7 +91,7 @@ QVariant StackHandler::data(const QModelIndex &index, int role) const
         if (role == Qt::DisplayRole && index.column() == StackFunctionNameColumn)
             return tr("<More>");
         if (role == Qt::DecorationRole && index.column() == StackLevelColumn)
-            return m_emptyIcon;
+            return Icons::EMPTY.icon();
         return QVariant();
     }
 
@@ -120,7 +118,7 @@ QVariant StackHandler::data(const QModelIndex &index, int role) const
     if (role == Qt::DecorationRole && index.column() == StackLevelColumn) {
         // Return icon that indicates whether this is the active stack frame
         return (m_contentsValid && index.row() == m_currentIndex)
-            ? m_positionIcon : m_emptyIcon;
+            ? Icons::LOCATION.icon() : Icons::EMPTY.icon();
     }
 
     if (role == Qt::ToolTipRole && boolSetting(UseToolTipsInStackView))

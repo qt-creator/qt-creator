@@ -43,10 +43,8 @@ public slots:
     void showStatusMessage(const QString &message, int timeoutMS = 5000);
     void clearStatusMessage();
 
-private slots:
-    void slotTimeout();
-
 private:
+    void slotTimeout();
     void stopTimer();
 
     QTimer *m_timer;

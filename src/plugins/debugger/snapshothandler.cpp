@@ -119,8 +119,6 @@ QDebug operator<<(QDebug d, const  SnapshotData &f)
 */
 
 SnapshotHandler::SnapshotHandler()
-  : m_positionIcon(Icons::LOCATION.icon()),
-    m_emptyIcon(Icons::EMPTY.icon())
 {
     m_currentIndex = -1;
 }
@@ -178,8 +176,7 @@ QVariant SnapshotHandler::data(const QModelIndex &index, int role) const
     case Qt::DecorationRole:
         // Return icon that indicates whether this is the active stack frame.
         if (index.column() == 0)
-            return (index.row() == m_currentIndex) ? m_positionIcon : m_emptyIcon;
-        break;
+            return (index.row() == m_currentIndex) ? Icons::LOCATION.icon() : Icons::EMPTY.icon();
 
     default:
         break;

@@ -40,14 +40,13 @@ public:
     SftpFsWindow(QWidget *parent = 0);
     ~SftpFsWindow();
 
-private slots:
+private:
     void connectToHost();
     void downloadFile();
     void handleConnectionError(const QString &errorMessage);
     void handleSftpOperationFailed(const QString &errorMessage);
     void handleSftpOperationFinished(QSsh::SftpJobId jobId, const QString &error);
 
-private:
     QSsh::SftpFileSystemModel *m_fsModel;
     Ui::Window *m_ui;
 };

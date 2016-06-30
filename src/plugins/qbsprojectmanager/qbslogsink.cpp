@@ -36,6 +36,8 @@
 #include <QMutexLocker>
 #include <QTimer>
 
+using namespace ProjectExplorer;
+
 namespace QbsProjectManager {
 namespace Internal {
 
@@ -45,9 +47,9 @@ namespace Internal {
 
 QbsLogSink::QbsLogSink(QObject *parent) : QObject(parent)
 {
-    connect(this, SIGNAL(newTask(ProjectExplorer::Task)),
-            ProjectExplorer::TaskHub::instance(),
-            SLOT(addTask(ProjectExplorer::Task)), Qt::QueuedConnection);
+    connect(this, &QbsLogSink::newTask,
+            TaskHub::instance(),
+            [](const Task &task) { TaskHub::addTask(task); }, Qt::QueuedConnection);
 }
 
 void QbsLogSink::sendMessages()
@@ -66,11 +68,11 @@ void QbsLogSink::sendMessages()
 void QbsLogSink::doPrintWarning(const qbs::ErrorInfo &warning)
 {
     foreach (const qbs::ErrorItem &item, warning.items())
-        emit newTask(ProjectExplorer::Task(ProjectExplorer::Task::Warning,
-                                           item.description(),
-                                           Utils::FileName::fromString(item.codeLocation().filePath()),
-                                           item.codeLocation().line(),
-                                           ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
+        emit newTask(Task(Task::Warning,
+                          item.description(),
+                          Utils::FileName::fromString(item.codeLocation().filePath()),
+                          item.codeLocation().line(),
+                          Constants::TASK_CATEGORY_BUILDSYSTEM));
 }
 
 void QbsLogSink::doPrintMessage(qbs::LoggerLevel level, const QString &message, const QString &tag)

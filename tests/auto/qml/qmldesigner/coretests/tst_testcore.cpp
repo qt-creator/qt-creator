@@ -149,7 +149,7 @@ static QmlDesigner::Model* createModel(const QString &typeName, int major = 2, i
     QmlDesigner::Model *model = QmlDesigner::Model::create(typeName.toUtf8(), major, minor, metaInfoPropxyModel);
 
     QPlainTextEdit *textEdit = new QPlainTextEdit;
-    QObject::connect(model, SIGNAL(destroyed()), textEdit, SLOT(deleteLater()));
+    QObject::connect(model, &QObject::destroyed, textEdit, &QObject::deleteLater);
     textEdit->setPlainText(QString("import %1 %3.%4; %2{}").arg(typeName.split(".").first())
             .arg(typeName.split(".").last())
             .arg(major)

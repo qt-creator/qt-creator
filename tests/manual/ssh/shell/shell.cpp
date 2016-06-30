@@ -42,9 +42,9 @@ Shell::Shell(const SshConnectionParameters &parameters, QObject *parent)
       m_connection(new SshConnection(parameters)),
       m_stdin(new QFile(this))
 {
-    connect(m_connection, SIGNAL(connected()), SLOT(handleConnected()));
-    connect(m_connection, SIGNAL(dataAvailable(QString)), SLOT(handleShellMessage(QString)));
-    connect(m_connection, SIGNAL(error(QSsh::SshError)), SLOT(handleConnectionError()));
+    connect(m_connection, &SshConnection::connected, this, &Shell::handleConnected);
+    connect(m_connection, &SshConnection::dataAvailable, this, &Shell::handleShellMessage);
+    connect(m_connection, &SshConnection::error, this, &Shell::handleConnectionError);
 }
 
 Shell::~Shell()
@@ -77,17 +77,19 @@ void Shell::handleShellMessage(const QString &message)
 void Shell::handleConnected()
 {
     m_shell = m_connection->createRemoteShell();
-    connect(m_shell.data(), SIGNAL(started()), SLOT(handleShellStarted()));
-    connect(m_shell.data(), SIGNAL(readyReadStandardOutput()), SLOT(handleRemoteStdout()));
-    connect(m_shell.data(), SIGNAL(readyReadStandardError()), SLOT(handleRemoteStderr()));
-    connect(m_shell.data(), SIGNAL(closed(int)), SLOT(handleChannelClosed(int)));
+    connect(m_shell.data(), &SshRemoteProcess::started, this, &Shell::handleShellStarted);
+    connect(m_shell.data(), &SshRemoteProcess::readyReadStandardOutput,
+            this, &Shell::handleRemoteStdout);
+    connect(m_shell.data(), &SshRemoteProcess::readyReadStandardError,
+            this, &Shell::handleRemoteStderr);
+    connect(m_shell.data(), &SshRemoteProcess::closed, this, &Shell::handleChannelClosed);
     m_shell->start();
 }
 
 void Shell::handleShellStarted()
 {
     QSocketNotifier * const notifier = new QSocketNotifier(0, QSocketNotifier::Read, this);
-    connect(notifier, SIGNAL(activated(int)), SLOT(handleStdin()));
+    connect(notifier, &QSocketNotifier::activated, this, &Shell::handleStdin);
 }
 
 void Shell::handleRemoteStdout()

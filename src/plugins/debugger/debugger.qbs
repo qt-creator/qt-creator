@@ -49,7 +49,7 @@ Project {
                 "debugger_global.h",
                 "debuggeractions.cpp", "debuggeractions.h",
                 "debuggerconstants.h",
-                "debuggericons.h",
+                "debuggericons.h", "debuggericons.cpp",
                 "debuggercore.h",
                 "debuggerdialogs.cpp", "debuggerdialogs.h",
                 "debuggerengine.cpp", "debuggerengine.h",

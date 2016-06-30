@@ -352,13 +352,17 @@ void ClangDiagnosticManager::addFixItAvailableMarker(
         QSet<int> &lineNumbersWithFixItMarker)
 {
     for (auto &&diagnostic : diagnostics) {
-        const int line = int(diagnostic.location().line());
-        if (!diagnostic.fixIts().isEmpty() && !lineNumbersWithFixItMarker.contains(line)) {
-            const TextEditor::RefactorMarker marker
-                    = createFixItAvailableMarker(m_textDocument->document(), line);
+        for (auto &&fixit : diagnostic.fixIts()) {
+            const ClangBackEnd::SourceLocationContainer location = fixit.range().start();
+            const int line = int(location.line());
 
-            lineNumbersWithFixItMarker.insert(line);
-            m_fixItAvailableMarkers.append(marker);
+            if (location.filePath() == filePath() && !lineNumbersWithFixItMarker.contains(line)) {
+                const TextEditor::RefactorMarker marker
+                        = createFixItAvailableMarker(m_textDocument->document(), line);
+
+                lineNumbersWithFixItMarker.insert(line);
+                m_fixItAvailableMarkers.append(marker);
+            }
         }
 
         addFixItAvailableMarker(diagnostic.children(), lineNumbersWithFixItMarker);

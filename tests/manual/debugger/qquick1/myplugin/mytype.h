@@ -20,10 +20,9 @@ public:
 signals:
     void timeChanged(const QString &newText);
 
-private slots:
+private:
     void updateTimerText();
 
-private:
     QString m_timeText;
     QTimer *m_timer;
 

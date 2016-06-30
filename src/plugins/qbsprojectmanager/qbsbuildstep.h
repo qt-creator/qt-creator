@@ -80,7 +80,7 @@ signals:
     void qbsConfigurationChanged();
     void qbsBuildOptionsChanged();
 
-private slots:
+private:
     void buildingDone(bool success);
     void reparsingDone(bool success);
     void handleTaskStarted(const QString &desciption, int max);
@@ -88,7 +88,6 @@ private slots:
     void handleCommandDescriptionReport(const QString &highlight, const QString &message);
     void handleProcessResultReport(const qbs::ProcessResult &result);
 
-private:
     void createTaskAndOutput(ProjectExplorer::Task::TaskType type,
                              const QString &message, const QString &file, int line);
 
@@ -137,7 +136,7 @@ public:
     QString summaryText() const;
     QString displayName() const;
 
-private slots:
+private:
     void updateState();
     void updateQmlDebuggingOption();
     void updatePropertyEdit(const QVariantMap &data);
@@ -154,7 +153,6 @@ private slots:
     // QML debugging:
     void linkQmlDebuggingLibraryChecked(bool checked);
 
-private:
     bool validateProperties(Utils::FancyLineEdit *edit, QString *errorMessage);
 
     Ui::QbsBuildStepConfigWidget *m_ui;

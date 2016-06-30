@@ -49,7 +49,7 @@ public:
 
     void run();
 
-private slots:
+private:
     void handleConnected();
     void handleConnectionError();
     void handleRemoteStdout();
@@ -59,7 +59,6 @@ private slots:
     void handleShellStarted();
     void handleStdin();
 
-private:
     QSsh::SshConnection *m_connection;
     QSharedPointer<QSsh::SshRemoteProcess> m_shell;
     QFile * const m_stdin;

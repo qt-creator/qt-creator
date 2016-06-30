@@ -998,8 +998,6 @@ public:
 
     QToolButton *m_reverseToolButton = 0;
 
-    QIcon m_locationMarkIcon;
-
     QLabel *m_threadLabel = 0;
     QComboBox *m_threadBox = 0;
 
@@ -1309,8 +1307,6 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
 
     const Context cppDebuggercontext(C_CPPDEBUGGER);
     const Context cppeditorcontext(CppEditor::Constants::CPPEDITOR_ID);
-
-    m_locationMarkIcon = Icons::LOCATION.icon();
 
     m_busy = false;
 
@@ -3105,11 +3101,6 @@ void updateWatchersWindow(bool showWatch, bool showReturn)
 {
     dd->m_watchersWindow->setVisible(showWatch);
     dd->m_returnWindow->setVisible(showReturn);
-}
-
-QIcon locationMarkIcon()
-{
-    return dd->m_locationMarkIcon;
 }
 
 bool hasSnapshots()

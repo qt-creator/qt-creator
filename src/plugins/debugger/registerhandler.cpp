@@ -562,9 +562,8 @@ void RegisterHandler::setNumberFormat(const QString &name, RegisterFormat format
 RegisterMap RegisterHandler::registerMap() const
 {
     RegisterMap result;
-    Utils::TreeItem *root = rootItem();
-    for (int i = 0, n = root->rowCount(); i != n; ++i) {
-        RegisterItem *reg = static_cast<RegisterItem *>(root->child(i));
+    for (int i = 0, n = rootItem()->childCount(); i != n; ++i) {
+        RegisterItem *reg = rootItem()->childAt(i);
         quint64 value = reg->addressValue();
         if (value)
             result.insert(value, reg->m_reg.name);

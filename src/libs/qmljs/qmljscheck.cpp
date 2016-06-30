@@ -820,7 +820,8 @@ void Check::visitQmlObject(Node *ast, UiQualifiedId *typeId,
 
     const QString typeName = getRightMostIdentifier(typeId)->name.toString();
 
-    if (!m_typeStack.isEmpty() && m_typeStack.last() == QLatin1String("State"))
+    if (!m_typeStack.isEmpty() && m_typeStack.last() == QLatin1String("State")
+            && typeId->name.toString() != "PropertyChanges")
         addMessage(StateCannotHaveChildItem, typeErrorLocation, typeName);
 
     if (checkTypeForDesignerSupport(typeId))

@@ -58,7 +58,7 @@ public:
 
     void extensionsInitialized();
 
-private slots:
+private:
     void projectWasAdded(ProjectExplorer::Project *project);
     void currentProjectWasChanged(ProjectExplorer::Project *project);
     void projectWasRemoved();
@@ -78,7 +78,6 @@ private slots:
     void reparseCurrentProject();
     void reparseProject(QbsProject *project);
 
-private:
     void updateContextActions();
     void updateReparseQbsAction();
     void updateBuildActions();

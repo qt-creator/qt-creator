@@ -44,8 +44,8 @@ using namespace QSsh;
 SftpFsWindow::SftpFsWindow(QWidget *parent) : QDialog(parent), m_ui(new Ui::Window)
 {
     m_ui->setupUi(this);
-    connect(m_ui->connectButton, SIGNAL(clicked()), SLOT(connectToHost()));
-    connect(m_ui->downloadButton, SIGNAL(clicked()), SLOT(downloadFile()));
+    connect(m_ui->connectButton, &QAbstractButton::clicked, this, &SftpFsWindow::connectToHost);
+    connect(m_ui->downloadButton, &QAbstractButton::clicked, this, &SftpFsWindow::downloadFile);
 }
 
 SftpFsWindow::~SftpFsWindow()
@@ -67,11 +67,12 @@ void SftpFsWindow::connectToHost()
     m_fsModel = new SftpFileSystemModel(this);
     if (m_ui->useModelTesterCheckBox->isChecked())
         new ModelTest(m_fsModel, this);
-    connect(m_fsModel, SIGNAL(sftpOperationFailed(QString)),
-        SLOT(handleSftpOperationFailed(QString)));
-    connect(m_fsModel, SIGNAL(connectionError(QString)), SLOT(handleConnectionError(QString)));
-    connect(m_fsModel, SIGNAL(sftpOperationFinished(QSsh::SftpJobId,QString)),
-        SLOT(handleSftpOperationFinished(QSsh::SftpJobId,QString)));
+    connect(m_fsModel, &SftpFileSystemModel::sftpOperationFailed,
+            this, &SftpFsWindow::handleSftpOperationFailed);
+    connect(m_fsModel, &SftpFileSystemModel::connectionError,
+            this, &SftpFsWindow::handleConnectionError);
+    connect(m_fsModel, &SftpFileSystemModel::sftpOperationFinished,
+            this, &SftpFsWindow::handleSftpOperationFinished);
     m_fsModel->setSshConnection(sshParams);
     m_ui->fsView->setModel(m_fsModel);
 }

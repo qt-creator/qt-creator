@@ -87,14 +87,13 @@ public:
     QString displayName() const override;
     QString summaryText() const override;
 
-private slots:
+private:
     void itemChanged(QListWidgetItem *item);
     void makeLineEditTextEdited();
     void makeArgumentsLineEditTextEdited();
     void updateMakeOverrrideLabel();
     void updateDetails();
 
-private:
     Ui::GenericMakeStep *m_ui;
     GenericMakeStep *m_makeStep;
     QString m_summaryText;

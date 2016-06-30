@@ -85,11 +85,9 @@ signals:
 protected:
     QbsRunConfiguration(ProjectExplorer::Target *parent, QbsRunConfiguration *source);
 
-private slots:
+private:
     void installStepChanged();
     void installStepToBeRemoved(int pos);
-
-private:
     QString baseWorkingDirectory() const;
     QString defaultDisplayName();
     qbs::InstallOptions installOptions() const;

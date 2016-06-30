@@ -37,7 +37,7 @@ MainWindow::MainWindow(QWidget *parent) :
     m_logWindow(new QPlainTextEdit)
 {
     setCentralWidget(m_logWindow);
-    QTimer::singleShot(200, this, SLOT(test()));
+    QTimer::singleShot(200, this, &MainWindow::test);
 }
 
 void MainWindow::append(const QString &s)
@@ -54,8 +54,8 @@ void MainWindow::test()
     Utils::SynchronousProcess process;
     process.setTimeoutS(2);
     qDebug() << "Async: " << cmd << args;
-    connect(&process, SIGNAL(stdOut(QString,bool)), this, SLOT(append(QString)));
-    connect(&process, SIGNAL(stdErr(QString,bool)), this, SLOT(append(QString)));
+    connect(&process, &Utils::SynchronousProcess::stdOut, this, &MainWindow::append);
+    connect(&process, &Utils::SynchronousProcess::stdErr, this, &MainWindow::append);
     const Utils::SynchronousProcessResponse resp = process.run(cmd, args);
     qDebug() << resp;
 }

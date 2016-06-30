@@ -222,8 +222,8 @@ void testObject(int &argc, char *argv[])
     QObject ob1;
     ob1.setObjectName("Another Object");
 
-    QObject::connect(&ob, SIGNAL(destroyed()), &ob1, SLOT(deleteLater()));
-    QObject::connect(&app, SIGNAL(lastWindowClosed()), &ob, SLOT(deleteLater()));
+    QObject::connect(&ob, &QObject::destroyed, &ob1, &QObject::deleteLater);
+    QObject::connect(&app, &QGuiApplication::lastWindowClosed, &ob, &QObject::deleteLater);
 
     QList<QObject *> obs;
     obs.append(&ob);

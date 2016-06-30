@@ -149,15 +149,13 @@ public slots:
      */
     void suggestClassNameFromBase();
 
-private slots:
+private:
     void slotUpdateFileNames(const QString &t);
     void slotValidChanged();
     void slotActivated();
     void classNameEdited();
     void slotFormInputChecked();
     void slotBaseClassEdited(const QString &);
-
-private:
     void setFormInputCheckable(bool checkable, bool force);
 
     QString fixSuffix(const QString &suffix);

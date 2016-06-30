@@ -48,18 +48,6 @@ namespace Internal {
 //
 ///////////////////////////////////////////////////////////////////////
 
-static const QIcon &positionIcon()
-{
-    static QIcon icon = Icons::LOCATION.icon();
-    return icon;
-}
-
-static const QIcon &emptyIcon()
-{
-    static QIcon icon = Icons::EMPTY.icon();
-    return icon;
-}
-
 class ThreadItem : public TreeItem
 {
     Q_DECLARE_TR_FUNCTIONS(Debugger::Internal::ThreadsHandler)
@@ -79,7 +67,8 @@ public:
         case Qt::DecorationRole:
             // Return icon that indicates whether this is the active stack frame.
             if (column == 0)
-                return threadData.id == handler->currentThread() ? positionIcon() : emptyIcon();
+                return threadData.id == handler->currentThread() ? Icons::LOCATION.icon()
+                                                                 : Icons::EMPTY.icon();
             break;
         case ThreadData::IdRole:
             return threadData.id.raw();
@@ -266,9 +255,9 @@ int ThreadsHandler::currentThreadIndex() const
 
 void ThreadsHandler::sort(int column, Qt::SortOrder order)
 {
-    rootItem()->sortChildren([order, column](const TreeItem *item1, const TreeItem *item2) -> bool {
-        const QVariant v1 = static_cast<const ThreadItem *>(item1)->threadPart(column);
-        const QVariant v2 = static_cast<const ThreadItem *>(item2)->threadPart(column);
+    rootItem()->sortChildren([order, column](const ThreadItem *item1, const ThreadItem *item2) -> bool {
+        const QVariant v1 = item1->threadPart(column);
+        const QVariant v2 = item2->threadPart(column);
         if (v1 == v2)
             return false;
         if (column == 0)
@@ -286,7 +275,7 @@ ThreadId ThreadsHandler::currentThread() const
 ThreadId ThreadsHandler::threadAt(int index) const
 {
     QTC_ASSERT(index >= 0 && index < rootItem()->childCount(), return ThreadId());
-    return static_cast<ThreadItem *>(rootItem()->childAt(index))->threadData.id;
+    return rootItem()->childAt(index)->threadData.id;
 }
 
 void ThreadsHandler::setCurrentThread(ThreadId id)

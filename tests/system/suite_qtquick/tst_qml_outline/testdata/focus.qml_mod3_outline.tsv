@@ -3,7 +3,7 @@
 "id"	"1"	"window"
 "txtCnt"	"1"	"""Property"""
 "clicked"	"1"	""
-"clicked"	"1"	""
+"clicked()"	"1"	""
 "width"	"1"	"800"
 "height"	"1"	"480"
 "color"	"1"	"""white"""

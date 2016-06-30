@@ -73,11 +73,10 @@ public slots:
     void setUseAsDefaultPath(bool u);
     void setProjectNameRegularExpression(const QRegularExpression &regEx);
 
-private slots:
+private:
     void slotChanged();
     void slotActivated();
 
-private:
     enum StatusLabelMode { Error, Warning, Hint };
 
     bool validate();

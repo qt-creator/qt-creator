@@ -37,9 +37,6 @@ Q_OBJECT
 public:
     explicit MainWindow(QWidget *parent = 0);
 
-signals:
-
-public slots:
     void test();
     void append(const QString &s);
 

@@ -115,9 +115,13 @@ public:
 };
 
 class RegisterItem;
+class RegisterSubItem;
+using RegisterRootItem = Utils::TypedTreeItem<RegisterItem>;
+
 typedef QMap<quint64, QString> RegisterMap;
 
-class RegisterHandler : public Utils::TreeModel
+class RegisterHandler
+    : public Utils::LeveledTreeModel<RegisterRootItem, RegisterItem, RegisterSubItem>
 {
     Q_OBJECT
 

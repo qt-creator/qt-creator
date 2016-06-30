@@ -28,6 +28,7 @@
 #include "debuggerinternalconstants.h"
 #include "debuggeractions.h"
 #include "debuggercore.h"
+#include "debuggericons.h"
 #include "debuggerruncontrol.h"
 #include "debuggerstartparameters.h"
 #include "debuggertooltipmanager.h"
@@ -37,7 +38,6 @@
 #include "logwindow.h"
 #include "memoryagent.h"
 #include "moduleshandler.h"
-#include "gdb/gdbengine.h" // REMOVE
 #include "registerhandler.h"
 #include "sourcefileshandler.h"
 #include "sourceutils.h"
@@ -132,7 +132,7 @@ Location::Location(const StackFrame &frame, bool marker)
 LocationMark::LocationMark(DebuggerEngine *engine, const QString &file, int line)
     : TextMark(file, line, Constants::TEXT_MARK_CATEGORY_LOCATION), m_engine(engine)
 {
-    setIcon(Internal::locationMarkIcon());
+    setIcon(Icons::LOCATION.icon());
     setPriority(TextMark::HighPriority);
 }
 
@@ -564,7 +564,7 @@ void DebuggerEngine::startDebugger(DebuggerRunControl *runControl)
         d->m_runControl->setApplicationProcessHandle(ProcessHandle(d->m_inferiorPid));
 
     if (isNativeMixedActive())
-        d->m_runParameters.inferior.environment.set(QLatin1String("QV4_FORCE_INTERPRETER"), QLatin1String("1"));
+        d->m_runParameters.inferior.environment.set("QV4_FORCE_INTERPRETER", "1");
 
     action(OperateByInstruction)->setEnabled(hasCapability(DisassemblerCapability));
 
@@ -609,7 +609,7 @@ void DebuggerEngine::gotoLocation(const Location &loc)
     }
 
     if (loc.fileName().isEmpty()) {
-        showMessage(QLatin1String("CANNOT GO TO THIS LOCATION"));
+        showMessage("CANNOT GO TO THIS LOCATION");
         return;
     }
     const QString file = QDir::cleanPath(loc.fileName());
@@ -633,7 +633,7 @@ void DebuggerEngine::gotoLocation(const Location &loc)
 // Called from RunControl.
 void DebuggerEngine::handleStartFailed()
 {
-    showMessage(QLatin1String("HANDLE RUNCONTROL START FAILED"));
+    showMessage("HANDLE RUNCONTROL START FAILED");
     d->m_runControl = 0;
     d->m_progress.setProgressValue(900);
     d->m_progress.reportCanceled();
@@ -643,7 +643,7 @@ void DebuggerEngine::handleStartFailed()
 // Called from RunControl.
 void DebuggerEngine::handleFinished()
 {
-    showMessage(QLatin1String("HANDLE RUNCONTROL FINISHED"));
+    showMessage("HANDLE RUNCONTROL FINISHED");
     d->m_runControl = 0;
     d->m_progress.setProgressValue(1000);
     d->m_progress.reportFinished();
@@ -905,7 +905,7 @@ void DebuggerEngine::notifyEngineRemoteSetupFinished(const RemoteSetupResult &re
 
         if (result.gdbServerPort.isValid()) {
             QString &rc = d->m_runParameters.remoteChannel;
-            const int sepIndex = rc.lastIndexOf(QLatin1Char(':'));
+            const int sepIndex = rc.lastIndexOf(':');
             if (sepIndex != -1) {
                 rc.replace(sepIndex + 1, rc.count() - sepIndex - 1,
                            QString::number(result.gdbServerPort.number()));
@@ -1785,9 +1785,9 @@ QString DebuggerEngine::msgInterrupted()
 void DebuggerEngine::showStoppedBySignalMessageBox(QString meaning, QString name)
 {
     if (name.isEmpty())
-        name = QLatin1Char(' ') + tr("<Unknown>", "name") + QLatin1Char(' ');
+        name = ' ' + tr("<Unknown>", "name") + ' ';
     if (meaning.isEmpty())
-        meaning = QLatin1Char(' ') + tr("<Unknown>", "meaning") + QLatin1Char(' ');
+        meaning = ' ' + tr("<Unknown>", "meaning") + ' ';
     const QString msg = tr("<p>The inferior stopped because it received a "
                            "signal from the operating system.<p>"
                            "<table><tr><td>Signal name : </td><td>%1</td></tr>"
@@ -1856,14 +1856,14 @@ void DebuggerEngine::validateExecutable(DebuggerRunParameters *sp)
                         "experience for this binary format.");
             return;
         } else if (warnOnRelease) {
-            if (!symbolFile.endsWith(QLatin1String(".exe"), Qt::CaseInsensitive))
-                symbolFile.append(QLatin1String(".exe"));
+            if (!symbolFile.endsWith(".exe", Qt::CaseInsensitive))
+                symbolFile.append(".exe");
             QString errorMessage;
             QStringList rc;
             if (getPDBFiles(symbolFile, &rc, &errorMessage) && !rc.isEmpty())
                 return;
             if (!errorMessage.isEmpty()) {
-                detailedWarning.append(QLatin1Char('\n'));
+                detailedWarning.append('\n');
                 detailedWarning.append(errorMessage);
             }
         } else {
@@ -1979,12 +1979,12 @@ void DebuggerEngine::validateExecutable(DebuggerRunParameters *sp)
                 tr("The selected debugger may be inappropiate for the inferior.\n"
                    "Examining symbols and setting breakpoints by file name and line number "
                    "may fail.\n")
-               + QLatin1Char('\n') + detailedWarning);
+               + '\n' + detailedWarning);
     } else if (warnOnRelease) {
         AsynchronousMessageBox::information(tr("Warning"),
                tr("This does not seem to be a \"Debug\" build.\n"
                   "Setting breakpoints by file name and line number may fail.")
-               + QLatin1Char('\n') + detailedWarning);
+               + '\n' + detailedWarning);
     }
 }
 
@@ -2007,7 +2007,7 @@ void DebuggerEngine::updateLocalsView(const GdbMi &all)
     static int count = 0;
     showMessage(QString("<Rebuild Watchmodel %1 @ %2 >")
                 .arg(++count).arg(LogWindow::logTimeStamp()), LogMiscInput);
-    showStatusMessage(GdbEngine::tr("Finished retrieving data"), 400); // FIXME: String
+    showStatusMessage(tr("Finished retrieving data"), 400);
 
     DebuggerToolTipManager::updateEngine(this);
 

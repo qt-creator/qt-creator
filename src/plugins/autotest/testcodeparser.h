@@ -70,7 +70,7 @@ signals:
     void parsingFinished();
     void parsingFailed();
 
-public slots:
+public:
     void emitUpdateTestTree();
     void updateTestTree();
     void onCppDocumentUpdated(const CPlusPlus::Document::Ptr &document);

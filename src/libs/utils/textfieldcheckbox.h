@@ -51,10 +51,9 @@ public:
 signals:
     void textChanged(const QString &);
 
-private slots:
+private:
     void slotStateChanged(int);
 
-private:
     QString m_trueText;
     QString m_falseText;
 };
