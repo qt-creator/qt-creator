@@ -187,7 +187,7 @@ Rectangle {
     Rectangle {
         id: border
         color: "#00000000"
-        radius: creatorTheme.WidgetStyle === 'StyleFlat' ? 0 : 6
+        radius: creatorTheme.FlatToolBars ? 0 : 6
         anchors.rightMargin: 4
         anchors.leftMargin: 4
         anchors.bottomMargin: 4
