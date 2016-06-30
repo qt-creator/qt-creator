@@ -12,7 +12,7 @@ QtcProduct {
     property var pluginRecommends: []
     property var pluginTestDepends: []
 
-    property string minimumQtVersion: "5.5.0"
+    property string minimumQtVersion: "5.6.0"
     condition: QtcFunctions.versionIsAtLeast(Qt.core.version, minimumQtVersion)
 
     targetName: QtcFunctions.qtLibraryName(qbs, name)

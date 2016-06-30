@@ -10,19 +10,17 @@ Windows 7 or later
 (K)Ubuntu Linux 14.04 (64-bit) or later
 macOS 10.8 or later
 
-Building the sources requires Qt 5.5.0 or later.
-
 ## Compiling Qt Creator
 
 Prerequisites:
 
-* Qt 5.5.0 or later
+* Qt 5.6.0 or later
 * On Windows:
     * ActiveState Active Perl
-    * MinGW with g++ 4.7 or Visual Studio 2013 Update 2 or later
+    * MinGW with g++ 4.8 or Visual Studio 2015 or later
     * jom
 * On Mac OS X: latest Xcode
-* On Linux: g++ 4.7 or later
+* On Linux: g++ 4.8 or later
 
 The installed toolchains have to match the one Qt was compiled with.
 
