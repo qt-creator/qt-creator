@@ -46,7 +46,6 @@ def main():
     createNewQtQuickApplication(tempDir(), "SampleApp")
     for expectDialog in [True, False]:
         files = ["SampleApp.SampleApp\\.pro",
-                 "SampleApp.deployment.deployment\\.pri",
                  "SampleApp.Sources.main\\.cpp",
                  "SampleApp.Resources.qml\.qrc./.main\\.qml"]
         for i, file in enumerate(files):
