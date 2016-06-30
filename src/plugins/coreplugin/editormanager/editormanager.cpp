@@ -442,6 +442,8 @@ void EditorManagerPrivate::init()
 
     // other setup
     auto mainEditorArea = new EditorArea();
+    // assign parent to avoid failing updates (e.g. windowTitle) before it is displayed first time
+    mainEditorArea->setParent(ICore::mainWindow());
     mainEditorArea->hide();
     connect(mainEditorArea, &EditorArea::windowTitleNeedsUpdate,
             this, &EditorManagerPrivate::updateWindowTitle);
