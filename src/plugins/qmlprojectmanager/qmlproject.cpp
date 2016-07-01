@@ -79,8 +79,8 @@ QmlProject::~QmlProject()
 
 void QmlProject::addedTarget(Target *target)
 {
-    connect(target, SIGNAL(addedRunConfiguration(ProjectExplorer::RunConfiguration*)),
-            this, SLOT(addedRunConfiguration(ProjectExplorer::RunConfiguration*)));
+    connect(target, &Target::addedRunConfiguration,
+            this, &QmlProject::addedRunConfiguration);
     foreach (RunConfiguration *rc, target->runConfigurations())
         addedRunConfiguration(rc);
 }
@@ -91,7 +91,7 @@ void QmlProject::onActiveTargetChanged(Target *target)
         disconnect(m_activeTarget, &Target::kitChanged, this, &QmlProject::onKitChanged);
     m_activeTarget = target;
     if (m_activeTarget)
-        connect(target, SIGNAL(kitChanged()), this, SLOT(onKitChanged()));
+        connect(target, &Target::kitChanged, this, &QmlProject::onKitChanged);
 
     // make sure e.g. the default qml imports are adapted
     refresh(Configuration);
@@ -141,8 +141,8 @@ void QmlProject::parseProject(RefreshOptions options)
               QString errorMessage;
               m_projectItem = QmlProjectFileFormat::parseProjectFile(projectFilePath(), &errorMessage);
               if (m_projectItem) {
-                  connect(m_projectItem.data(), SIGNAL(qmlFilesChanged(QSet<QString>,QSet<QString>)),
-                          this, SLOT(refreshFiles(QSet<QString>,QSet<QString>)));
+                  connect(m_projectItem.data(), &QmlProjectItem::qmlFilesChanged,
+                          this, &QmlProject::refreshFiles);
 
               } else {
                   MessageManager::write(tr("Error while loading project file %1.")

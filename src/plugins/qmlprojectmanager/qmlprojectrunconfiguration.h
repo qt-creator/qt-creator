@@ -80,10 +80,6 @@ public:
 signals:
     void scriptSourceChanged();
 
-private slots:
-    void changeCurrentFile(Core::IEditor* = 0);
-    void updateEnabled();
-
 protected:
     QmlProjectRunConfiguration(ProjectExplorer::Target *parent,
                                QmlProjectRunConfiguration *source);
@@ -92,6 +88,9 @@ protected:
 
 private:
     void ctor();
+
+    void changeCurrentFile(Core::IEditor* = 0);
+    void updateEnabled();
 
     QString executable() const;
     QString commandLineArguments() const;

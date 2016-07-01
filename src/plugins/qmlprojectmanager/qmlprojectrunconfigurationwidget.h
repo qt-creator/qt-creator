@@ -44,12 +44,11 @@ class QmlProjectRunConfigurationWidget : public QWidget
 public:
     explicit QmlProjectRunConfigurationWidget(QmlProjectRunConfiguration *rc);
 
-private slots:
+private:
     void updateFileComboBox();
     void setMainScript(int index);
     void onViewerArgsChanged();
 
-private:
     QmlProjectRunConfiguration *m_runConfiguration;
 
     QComboBox *m_fileListCombo;

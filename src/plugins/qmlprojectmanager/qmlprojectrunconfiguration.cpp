@@ -100,13 +100,13 @@ QString QmlProjectRunConfiguration::disabledReason() const
 void QmlProjectRunConfiguration::ctor()
 {
     // reset default settings in constructor
-    connect(EditorManager::instance(), SIGNAL(currentEditorChanged(Core::IEditor*)),
-            this, SLOT(changeCurrentFile(Core::IEditor*)));
-    connect(EditorManager::instance(), SIGNAL(currentDocumentStateChanged()),
-            this, SLOT(changeCurrentFile()));
+    connect(EditorManager::instance(), &EditorManager::currentEditorChanged,
+            this, &QmlProjectRunConfiguration::changeCurrentFile);
+    connect(EditorManager::instance(), &EditorManager::currentDocumentStateChanged,
+            this, [this] { changeCurrentFile(); });
 
-    connect(target(), SIGNAL(kitChanged()),
-            this, SLOT(updateEnabled()));
+    connect(target(), &Target::kitChanged,
+            this, &QmlProjectRunConfiguration::updateEnabled);
 
     if (id() == Constants::QML_SCENE_RC_ID)
         setDisplayName(tr("QML Scene", "QMLRunConfiguration display name."));
