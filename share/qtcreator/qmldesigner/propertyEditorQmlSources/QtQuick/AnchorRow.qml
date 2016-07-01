@@ -56,6 +56,8 @@ RowLayout {
     signal centerButtonClicked
     signal oppositeEdgeButtonClicked
 
+    property alias buttonRow: buttonRow
+
 
     IconLabel {
         id: icon

@@ -152,6 +152,7 @@ Section {
                 anchorBackend.horizontalTarget = currentText
             }
             verticalAnchor: false
+            buttonRow.visible: false
         }
 
         AnchorRow {
@@ -164,6 +165,7 @@ Section {
                  anchorBackend.verticalTarget = currentText
             }
             verticalAnchor: true
+            buttonRow.visible: false
         }
 
     }
