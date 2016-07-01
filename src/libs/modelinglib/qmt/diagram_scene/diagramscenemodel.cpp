@@ -814,7 +814,7 @@ void DiagramSceneModel::onSelectionChanged()
             QMT_CHECK(endBObject);
             QGraphicsItem *endBItem = m_elementToItemMap.value(endBObject);
             QMT_CHECK(endBItem);
-            if (!relationItem->isSelected()
+            if (relationItem && !relationItem->isSelected()
                     && (m_selectedItems.contains(endAItem) || newSecondarySelectedItems.contains(endAItem))
                     && (m_selectedItems.contains(endBItem) || newSecondarySelectedItems.contains(endBItem))) {
                 QMT_CHECK(!m_selectedItems.contains(relationItem));

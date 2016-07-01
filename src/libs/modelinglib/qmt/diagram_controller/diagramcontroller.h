@@ -163,6 +163,9 @@ private:
 
     void updateAllDiagramsList();
 
+    void verifyDiagramsIntegrity();
+    void verifyDiagramIntegrity(const MDiagram *diagram);
+
     ModelController *m_modelController;
     UndoController *m_undoController;
     QList<MDiagram *> m_allDiagrams;
