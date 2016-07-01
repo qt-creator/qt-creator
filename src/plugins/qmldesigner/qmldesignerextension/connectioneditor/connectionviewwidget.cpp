@@ -55,7 +55,7 @@ ConnectionViewWidget::ConnectionViewWidget(QWidget *parent) :
 
     ui->tabBar->addTab(tr("Connections", "Title of connection view"));
     ui->tabBar->addTab(tr("Bindings", "Title of connection view"));
-    ui->tabBar->addTab(tr("Dynamic Properties", "Title of dynamic properties view"));
+    ui->tabBar->addTab(tr("Properties", "Title of dynamic properties view"));
     ui->tabBar->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 
     ui->connectionView->setStyleSheet(
