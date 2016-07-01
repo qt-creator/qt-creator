@@ -1,7 +1,5 @@
 <RCC>
     <qresource prefix="/connectionview">
         <file>stylesheet.css</file>
-        <file>plus.png</file>
-        <file>minus.png</file>
     </qresource>
 </RCC>

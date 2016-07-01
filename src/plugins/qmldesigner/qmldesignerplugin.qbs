@@ -583,8 +583,6 @@ Project {
                 "connectioneditor/connectionviewwidget.ui",
                 "connectioneditor/dynamicpropertiesmodel.cpp",
                 "connectioneditor/dynamicpropertiesmodel.h",
-                "connectioneditor/minus.png",
-                "connectioneditor/plus.png",
                 "connectioneditor/stylesheet.css",
                 "pathtool/controlpoint.cpp",
                 "pathtool/controlpoint.h",

@@ -33,6 +33,7 @@
 #include "dynamicpropertiesmodel.h"
 
 #include <coreplugin/coreconstants.h>
+#include <coreplugin/coreicons.h>
 #include <utils/fileutils.h>
 
 #include <QToolButton>
@@ -118,13 +119,13 @@ QList<QToolButton *> ConnectionViewWidget::createToolBarWidgets()
     QList<QToolButton *> buttons;
 
     buttons << new QToolButton();
-    buttons.last()->setIcon(QIcon(QStringLiteral(":/connectionview/plus.png")));
+    buttons.last()->setIcon(Core::Icons::PLUS.icon());
     buttons.last()->setToolTip(tr("Add binding or connection."));
     connect(buttons.last(), SIGNAL(clicked()), this, SLOT(addButtonClicked()));
     connect(this, SIGNAL(setEnabledAddButton(bool)), buttons.last(), SLOT(setEnabled(bool)));
 
     buttons << new QToolButton();
-    buttons.last()->setIcon(QIcon(QStringLiteral(":/connectionview/minus.png")));
+    buttons.last()->setIcon(Core::Icons::MINUS.icon());
     buttons.last()->setToolTip(tr("Remove selected binding or connection."));
     buttons.last()->setShortcut(QKeySequence(Qt::Key_Delete));
     connect(buttons.last(), SIGNAL(clicked()), this, SLOT(removeButtonClicked()));
