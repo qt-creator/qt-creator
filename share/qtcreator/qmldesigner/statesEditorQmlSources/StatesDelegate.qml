@@ -105,12 +105,14 @@ Rectangle {
 
     Item {
         id: stateImageArea
-        anchors.topMargin: 1
+        anchors.topMargin: 4
         anchors.left: stateNameField.left
         anchors.top: stateNameField.bottom
 
         height: delegateStateImageSize + 2
         width: delegateStateImageSize + 2
+
+        visible: expanded
         Rectangle {
             anchors.margins: -1
             anchors.fill: stateImage
