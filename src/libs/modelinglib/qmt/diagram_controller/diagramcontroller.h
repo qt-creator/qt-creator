@@ -87,6 +87,7 @@ public:
     void setModelController(ModelController *modelController);
     UndoController *undoController() const { return m_undoController; }
     void setUndoController(UndoController *undoController);
+    QList<MDiagram *> allDiagrams() const { return m_allDiagrams; }
 
 private:
     MDiagram *findDiagram(const Uid &diagramKey) const;
