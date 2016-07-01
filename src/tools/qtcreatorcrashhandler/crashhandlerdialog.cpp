@@ -59,10 +59,13 @@ CrashHandlerDialog::CrashHandlerDialog(CrashHandler *handler, const QString &sig
     QIcon icon = style->standardIcon(QStyle::SP_MessageBoxCritical);
     m_ui->iconLabel->setPixmap(icon.pixmap(iconSize, iconSize));
 
-    connect(m_ui->copyToClipBoardButton, SIGNAL(clicked()), this, SLOT(copyToClipboardClicked()));
-    connect(m_ui->reportBugButton, SIGNAL(clicked()), m_crashHandler, SLOT(openBugTracker()));
-    connect(m_ui->debugAppButton, SIGNAL(clicked()), m_crashHandler, SLOT(debugApplication()));
-    connect(m_ui->closeButton, SIGNAL(clicked()), this, SLOT(close()));
+    connect(m_ui->copyToClipBoardButton, &QAbstractButton::clicked,
+            this, &CrashHandlerDialog::copyToClipboardClicked);
+    connect(m_ui->reportBugButton, &QAbstractButton::clicked,
+            m_crashHandler, &CrashHandler::openBugTracker);
+    connect(m_ui->debugAppButton, &QAbstractButton::clicked,
+            m_crashHandler, &CrashHandler::debugApplication);
+    connect(m_ui->closeButton, &QAbstractButton::clicked, this, &CrashHandlerDialog::close);
 
     setApplicationInfo(signalName);
 }
