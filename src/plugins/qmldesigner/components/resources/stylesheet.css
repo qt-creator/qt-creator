@@ -40,7 +40,6 @@ QTabWidget::pane { /* The tab widget frame */
 QLineEdit
 {
      border: 2px solid #8F8F8F;
-     border-radius: 4px;
      padding: 0 8px;
      background-color: white;
      selection-background-color: darkgray;
@@ -51,7 +50,6 @@ QLineEdit#itemLibrarySearchInput
     color: white;
     font-size: 11px;
     border: 2px solid #0F0F0F;
-    border-radius: 6px;
     border-width: 1;
     max-height: 20px;
     min-height: 20px;
