@@ -92,10 +92,10 @@ public:
 
         layout->addWidget(buttons);
 
-        connect(buttons, SIGNAL(accepted()),
-                this, SLOT(accept()));
-        connect(buttons, SIGNAL(rejected()),
-                this, SLOT(reject()));
+        connect(buttons, &QDialogButtonBox::accepted,
+                this, &QDialog::accept);
+        connect(buttons, &QDialogButtonBox::rejected,
+                this, &QDialog::reject);
     }
     QString prefix() const
     {
@@ -134,9 +134,9 @@ bool ResourceEditorPlugin::initialize(const QStringList &arguments, QString *err
     Core::ActionManager::registerAction(m_undoAction, Core::Constants::UNDO, context);
     Core::ActionManager::registerAction(m_redoAction, Core::Constants::REDO, context);
     Core::ActionManager::registerAction(m_refreshAction, Constants::REFRESH, context);
-    connect(m_undoAction, SIGNAL(triggered()), this, SLOT(onUndo()));
-    connect(m_redoAction, SIGNAL(triggered()), this, SLOT(onRedo()));
-    connect(m_refreshAction, SIGNAL(triggered()), this, SLOT(onRefresh()));
+    connect(m_undoAction, &QAction::triggered, this, &ResourceEditorPlugin::onUndo);
+    connect(m_redoAction, &QAction::triggered, this, &ResourceEditorPlugin::onRedo);
+    connect(m_refreshAction, &QAction::triggered, this, &ResourceEditorPlugin::onRefresh);
 
     Core::Context projectTreeContext(ProjectExplorer::Constants::C_PROJECT_TREE);
     Core::ActionContainer *folderContextMenu =
@@ -148,17 +148,17 @@ bool ResourceEditorPlugin::initialize(const QStringList &arguments, QString *err
     m_addPrefix = new QAction(tr("Add Prefix..."), this);
     command = Core::ActionManager::registerAction(m_addPrefix, Constants::C_ADD_PREFIX, projectTreeContext);
     folderContextMenu->addAction(command, ProjectExplorer::Constants::G_FOLDER_FILES);
-    connect(m_addPrefix, SIGNAL(triggered()), this, SLOT(addPrefixContextMenu()));
+    connect(m_addPrefix, &QAction::triggered, this, &ResourceEditorPlugin::addPrefixContextMenu);
 
     m_renamePrefix = new QAction(tr("Change Prefix..."), this);
     command = Core::ActionManager::registerAction(m_renamePrefix, Constants::C_RENAME_PREFIX, projectTreeContext);
     folderContextMenu->addAction(command, ProjectExplorer::Constants::G_FOLDER_FILES);
-    connect(m_renamePrefix, SIGNAL(triggered()), this, SLOT(renamePrefixContextMenu()));
+    connect(m_renamePrefix, &QAction::triggered, this, &ResourceEditorPlugin::renamePrefixContextMenu);
 
     m_removePrefix = new QAction(tr("Remove Prefix..."), this);
     command = Core::ActionManager::registerAction(m_removePrefix, Constants::C_REMOVE_PREFIX, projectTreeContext);
     folderContextMenu->addAction(command, ProjectExplorer::Constants::G_FOLDER_FILES);
-    connect(m_removePrefix, SIGNAL(triggered()), this, SLOT(removePrefixContextMenu()));
+    connect(m_removePrefix, &QAction::triggered, this, &ResourceEditorPlugin::removePrefixContextMenu);
 
     m_removeNonExisting = new QAction(tr("Remove Missing Files"), this);
     command = Core::ActionManager::registerAction(m_removeNonExisting, Constants::C_REMOVE_NON_EXISTING, projectTreeContext);
@@ -168,17 +168,17 @@ bool ResourceEditorPlugin::initialize(const QStringList &arguments, QString *err
     m_renameResourceFile = new QAction(tr("Rename..."), this);
     command = Core::ActionManager::registerAction(m_renameResourceFile, Constants::C_RENAME_FILE, projectTreeContext);
     folderContextMenu->addAction(command, ProjectExplorer::Constants::G_FOLDER_FILES);
-    connect(m_renameResourceFile, SIGNAL(triggered()), this, SLOT(renameFileContextMenu()));
+    connect(m_renameResourceFile, &QAction::triggered, this, &ResourceEditorPlugin::renameFileContextMenu);
 
     m_removeResourceFile = new QAction(tr("Remove File..."), this);
     command = Core::ActionManager::registerAction(m_removeResourceFile, Constants::C_REMOVE_FILE, projectTreeContext);
     folderContextMenu->addAction(command, ProjectExplorer::Constants::G_FOLDER_FILES);
-    connect(m_removeResourceFile, SIGNAL(triggered()), this, SLOT(removeFileContextMenu()));
+    connect(m_removeResourceFile, &QAction::triggered, this, &ResourceEditorPlugin::removeFileContextMenu);
 
     m_openInEditor = new QAction(tr("Open in Editor"), this);
     command = Core::ActionManager::registerAction(m_openInEditor, Constants::C_OPEN_EDITOR, projectTreeContext);
     folderContextMenu->addAction(command, ProjectExplorer::Constants::G_FOLDER_FILES);
-    connect(m_openInEditor, SIGNAL(triggered()), this, SLOT(openEditorContextMenu()));
+    connect(m_openInEditor, &QAction::triggered, this, &ResourceEditorPlugin::openEditorContextMenu);
 
     m_openWithMenu = new QMenu(tr("Open With"), folderContextMenu->menu());
     folderContextMenu->menu()->insertMenu(
@@ -189,13 +189,13 @@ bool ResourceEditorPlugin::initialize(const QStringList &arguments, QString *err
     command = Core::ActionManager::registerAction(m_copyPath, Constants::C_COPY_PATH, projectTreeContext);
     command->setAttribute(Core::Command::CA_UpdateText);
     fileContextMenu->addAction(command, ProjectExplorer::Constants::G_FILE_OTHER);
-    connect(m_copyPath, SIGNAL(triggered()), this, SLOT(copyPathContextMenu()));
+    connect(m_copyPath, &QAction::triggered, this, &ResourceEditorPlugin::copyPathContextMenu);
 
     m_copyUrl = new Utils::ParameterAction(QString(), tr("Copy url \"%1\""), Utils::ParameterAction::AlwaysEnabled, this);
     command = Core::ActionManager::registerAction(m_copyUrl, Constants::C_COPY_URL, projectTreeContext);
     command->setAttribute(Core::Command::CA_UpdateText);
     fileContextMenu->addAction(command, ProjectExplorer::Constants::G_FILE_OTHER);
-    connect(m_copyUrl, SIGNAL(triggered()), this, SLOT(copyUrlContextMenu()));
+    connect(m_copyUrl, &QAction::triggered, this, &ResourceEditorPlugin::copyUrlContextMenu);
 
     m_addPrefix->setEnabled(false);
     m_removePrefix->setEnabled(false);

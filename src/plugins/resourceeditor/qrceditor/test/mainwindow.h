@@ -36,10 +36,9 @@ class MainWindow : public QMainWindow
 public:
     MainWindow();
 
-private slots:
+private:
     void slotOpen();
     void slotSave();
 
-private:
     SharedTools::QrcEditor *m_qrcEditor;
 };

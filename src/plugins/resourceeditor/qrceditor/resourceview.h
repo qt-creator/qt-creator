@@ -81,11 +81,13 @@ public:
 
     void refresh();
 
-public slots:
     void setCurrentAlias(const QString &before, const QString &after);
     void setCurrentPrefix(const QString &before, const QString &after);
     void setCurrentLanguage(const QString &before, const QString &after);
     void advanceMergeId();
+
+    QString getCurrentValue(NodeProperty property) const;
+    void changeValue(const QModelIndex &nodeIndex, NodeProperty property, const QString &value);
 
 protected:
     void keyPressEvent(QKeyEvent *e);
@@ -93,17 +95,11 @@ protected:
 signals:
     void removeItem();
     void itemActivated(const QString &fileName);
-    void showContextMenu(const QPoint &globalPos, const QString &fileName);
-
-public:
-    QString getCurrentValue(NodeProperty property) const;
-    void changeValue(const QModelIndex &nodeIndex, NodeProperty property, const QString &value);
-
-private slots:
-    void itemActivated(const QModelIndex &index);
-    void showContextMenu(const QPoint &pos);
+    void contextMenuShown(const QPoint &globalPos, const QString &fileName);
 
 private:
+    void onItemActivated(const QModelIndex &index);
+    void showContextMenu(const QPoint &pos);
     void addUndoCommand(const QModelIndex &nodeIndex, NodeProperty property,
                         const QString &before, const QString &after);
 
