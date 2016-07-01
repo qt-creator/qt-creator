@@ -108,9 +108,9 @@ bool WinRtRunControl::startWinRtRunner()
 {
     QTC_ASSERT(!m_runner, return false);
     m_runner = new WinRtRunnerHelper(this);
-    connect(m_runner, SIGNAL(started()), SLOT(onProcessStarted()));
-    connect(m_runner, SIGNAL(finished(int,QProcess::ExitStatus)), SLOT(onProcessFinished()));
-    connect(m_runner, SIGNAL(error(QProcess::ProcessError)), SLOT(onProcessError()));
+    connect(m_runner, &WinRtRunnerHelper::started, this, &WinRtRunControl::onProcessStarted);
+    connect(m_runner, &WinRtRunnerHelper::finished, this, &WinRtRunControl::onProcessFinished);
+    connect(m_runner, &WinRtRunnerHelper::error, this, &WinRtRunControl::onProcessError);
     m_state = StartingState;
     m_runner->start();
     return true;

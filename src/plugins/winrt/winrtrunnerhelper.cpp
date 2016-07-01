@@ -228,13 +228,14 @@ void WinRtRunnerHelper::startWinRtRunner(const RunConf &conf)
     appendMessage(QStringLiteral("winrtrunner ") + runnerArgs + QLatin1Char('\n'), NormalMessageFormat);
 
     if (connectProcess) {
-        connect(process, SIGNAL(started()), SIGNAL(started()));
-        connect(process, SIGNAL(finished(int,QProcess::ExitStatus)),
-                SLOT(onProcessFinished(int,QProcess::ExitStatus)));
-        connect(process, SIGNAL(error(QProcess::ProcessError)),
-                SLOT(onProcessError(QProcess::ProcessError)));
-        connect(process, SIGNAL(readyReadStandardOutput()), SLOT(onProcessReadyReadStdOut()));
-        connect(process, SIGNAL(readyReadStandardError()), SLOT(onProcessReadyReadStdErr()));
+        connect(process, &QProcess::started, this, &WinRtRunnerHelper::started);
+        connect(process,
+                static_cast<void (QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished),
+                this, &WinRtRunnerHelper::onProcessFinished);
+        connect(process, static_cast<void (QProcess::*)(QProcess::ProcessError)>(&QProcess::error),
+                this, &WinRtRunnerHelper::onProcessError);
+        connect(process, &QProcess::readyReadStandardOutput, this, &WinRtRunnerHelper::onProcessReadyReadStdOut);
+        connect(process, &QProcess::readyReadStandardError, this, &WinRtRunnerHelper::onProcessReadyReadStdErr);
     }
 
     process->setUseCtrlCStub(true);

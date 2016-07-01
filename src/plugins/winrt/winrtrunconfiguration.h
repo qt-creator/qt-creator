@@ -45,13 +45,11 @@ public:
     const QString &proFilePath() const { return m_proFilePath; }
     QString arguments() const;
     bool uninstallAfterStop() const { return m_uninstallAfterStop; }
+    void setUninstallAfterStop(bool b);
 
 signals:
     void argumentsChanged(QString);
     void uninstallAfterStopChanged(bool);
-
-public slots:
-    void setUninstallAfterStop(bool b);
 
 private:
     QString m_proFilePath;

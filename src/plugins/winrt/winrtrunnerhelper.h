@@ -63,14 +63,14 @@ signals:
     void finished(int exitCode, QProcess::ExitStatus exitStatus);
     void error(QProcess::ProcessError error);
 
-private slots:
+private:
+    enum RunConf { Start, Stop, Debug };
+
     void onProcessReadyReadStdOut();
     void onProcessReadyReadStdErr();
     void onProcessFinished(int exitCode, QProcess::ExitStatus exitStatus);
     void onProcessError(QProcess::ProcessError processError);
 
-private:
-    enum RunConf { Start, Stop, Debug };
     void startWinRtRunner(const RunConf &conf);
     bool init(WinRtRunConfiguration *runConfiguration, QString *errorMessage);
     void appendMessage(const QString &message, Utils::OutputFormat format);
