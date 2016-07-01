@@ -63,6 +63,18 @@ struct DebugPrint : public std::ostringstream {
     }
 };
 
+struct Bench
+{
+    Bench(const std::string &what) : m_initialTickCount(GetTickCount()), m_what(what) {}
+    ~Bench()
+    {
+        DebugPrint() << m_what << " took "
+                     << GetTickCount() - m_initialTickCount << "ms to execute." << std::endl;
+    }
+    const DWORD m_initialTickCount;
+    const std::string m_what;
+};
+
 ULONG currentThreadId(IDebugSystemObjects *sysObjects);
 ULONG currentThreadId(CIDebugClient *client);
 ULONG currentProcessId(IDebugSystemObjects *sysObjects);
