@@ -64,6 +64,9 @@ ConnectionViewWidget::ConnectionViewWidget(QWidget *parent) :
     ui->bindingView->setStyleSheet(
             QLatin1String(Utils::FileReader::fetchQrc(QLatin1String(":/qmldesigner/scrollbar.css"))));
 
+    ui->dynamicPropertiesView->setStyleSheet(
+                QLatin1String(Utils::FileReader::fetchQrc(QLatin1String(":/qmldesigner/scrollbar.css"))));
+
     connect(ui->tabBar, SIGNAL(currentChanged(int)),
             ui->stackedWidget, SLOT(setCurrentIndex(int)));
 
