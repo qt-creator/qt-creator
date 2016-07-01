@@ -692,7 +692,7 @@ void IosDeviceManagerPrivate::deviceWithId(QString deviceId, int timeout,
     pendingLookup->userData = userData;
     pendingLookup->timer.setSingleShot(true);
     pendingLookup->timer.setInterval(timeout);
-    QObject::connect(&(pendingLookup->timer), SIGNAL(timeout()), q, SLOT(checkPendingLookups()));
+    QObject::connect(&(pendingLookup->timer), &QTimer::timeout, q, &IosDeviceManager::checkPendingLookups);
     m_pendingLookups.insertMulti(deviceId, pendingLookup);
     pendingLookup->timer.start();
 }

@@ -85,12 +85,11 @@ signals:
     void deviceInfo(const QString &deviceId, const Ios::IosDeviceManager::Dict &info);
     void appOutput(const QString &output);
     void errorMsg(const QString &msg);
-private slots:
-    void checkPendingLookups();
 private:
     friend class Internal::IosDeviceManagerPrivate;
     friend class Internal::DevInfoSession;
     IosDeviceManager(QObject *parent = 0);
+    void checkPendingLookups();
     Internal::IosDeviceManagerPrivate *d;
 };
 
