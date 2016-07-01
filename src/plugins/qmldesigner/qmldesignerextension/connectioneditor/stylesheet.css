@@ -123,11 +123,6 @@ QStackedWidget {
     background-color: #4f4f4f;
 }
 
-QTabBar::tab:hover {
-    image: url(:/connectionview/panelselected.png);
-    border-width: 2px;
-}
-
 QTabBar::tab:selected {
     border: none;
     border-image: none;
