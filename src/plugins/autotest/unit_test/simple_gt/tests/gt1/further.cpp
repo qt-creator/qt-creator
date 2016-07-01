@@ -46,3 +46,16 @@ TEST(FactorialTest, DISABLED_Fake)
 {
     EXPECT_EQ(-4, sum(-2, -2));
 }
+
+namespace Dummy {
+namespace {
+namespace Internal {
+
+TEST(NamespaceTest, Valid)
+{
+    EXPECT_EQ(1, 1);
+}
+
+} // namespace Internal
+} // anon namespace
+} // namespace Dummy

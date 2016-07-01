@@ -27,6 +27,7 @@
 #include "gtest_utils.h"
 
 #include <cplusplus/LookupContext.h>
+#include <utils/qtcassert.h>
 
 namespace Autotest {
 namespace Internal {
@@ -48,7 +49,15 @@ bool GTestVisitor::visit(CPlusPlus::FunctionDefinitionAST *ast)
         return false;
 
     CPlusPlus::LookupContext lc;
-    const QString prettyName = m_overview.prettyName(lc.fullyQualifiedName(ast->symbol));
+    QString prettyName = m_overview.prettyName(lc.fullyQualifiedName(ast->symbol));
+
+    // get surrounding namespace(s) and strip them out
+    const QString namespaces = enclosingNamespaces(ast->symbol);
+    if (!namespaces.isEmpty()) {
+        QTC_CHECK(prettyName.startsWith(namespaces));
+        prettyName = prettyName.mid(namespaces.length());
+    }
+
     if (!GTestUtils::isGTestMacro(prettyName))
         return false;
 
@@ -81,6 +90,21 @@ bool GTestVisitor::visit(CPlusPlus::FunctionDefinitionAST *ast)
     }
 
     return false;
+}
+
+QString GTestVisitor::enclosingNamespaces(CPlusPlus::Symbol *symbol) const
+{
+    QString enclosing;
+    if (!symbol)
+        return enclosing;
+
+    CPlusPlus::Symbol *currentSymbol = symbol;
+    while (CPlusPlus::Namespace *ns = currentSymbol->enclosingNamespace()) {
+        if (ns->name()) // handle anonymous namespaces as well
+            enclosing.prepend(m_overview.prettyName(ns->name()).append("::"));
+        currentSymbol = ns;
+    }
+    return enclosing;
 }
 
 } // namespace Internal
