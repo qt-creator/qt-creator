@@ -117,13 +117,6 @@ ScrollView {
                                 height: styleConstants.cellHeight
                             }
                         }
-                        move: Transition {
-                            NumberAnimation {
-                                properties: "x, y";
-                                easing.type: Easing.OutQuart
-                                duration: 80
-                            }
-                        }
                     }
                 }
             }
