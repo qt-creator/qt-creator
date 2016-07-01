@@ -46,6 +46,7 @@ public:
     void print() const;
 
 private:
+    Utf8String m_nativeFilePath;
     std::vector<const char *> m_arguments;
 };
 

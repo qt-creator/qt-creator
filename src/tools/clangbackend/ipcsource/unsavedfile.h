@@ -52,7 +52,8 @@ public:
     UnsavedFile(UnsavedFile &&other) Q_DECL_NOEXCEPT;
     UnsavedFile &operator=(UnsavedFile &&other) Q_DECL_NOEXCEPT;
 
-    const char *filePath() const;
+    Utf8String filePath() const;
+    const char *nativeFilePath() const;
 
     // 1-based line and column
     uint toUtf8Position(uint line, uint column, bool *ok) const;

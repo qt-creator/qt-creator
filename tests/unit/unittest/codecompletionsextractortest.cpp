@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include <clangcodecompleteresults.h>
+#include <clangfilepath.h>
 #include <codecompletionsextractor.h>
 #include <filecontainer.h>
 #include <projectpart.h>
@@ -44,6 +45,7 @@
 
 using ClangBackEnd::CodeCompletionsExtractor;
 using ClangBackEnd::ClangCodeCompleteResults;
+using ClangBackEnd::FilePath;
 using ClangBackEnd::TranslationUnit;
 using ClangBackEnd::CodeCompletion;
 using ClangBackEnd::UnsavedFiles;
@@ -139,8 +141,10 @@ const ClangBackEnd::FileContainer unsavedDataFileContainer(const char *filePath,
 
 ClangCodeCompleteResults getResults(const TranslationUnit &translationUnit, uint line, uint column = 1)
 {
+    Utf8String nativeFilePath = FilePath::toNativeSeparators(translationUnit.filePath());
+
     return ClangCodeCompleteResults(clang_codeCompleteAt(translationUnit.cxTranslationUnit(),
-                                                         translationUnit.filePath().constData(),
+                                                         nativeFilePath.constData(),
                                                          line,
                                                          column,
                                                          translationUnit.cxUnsavedFiles(),

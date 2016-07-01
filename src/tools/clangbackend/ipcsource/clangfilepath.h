@@ -25,53 +25,14 @@
 
 #pragma once
 
-#include <clang-c/Index.h>
-
-#include <utf8string.h>
+class Utf8String;
 
 namespace ClangBackEnd {
 
-class SourceLocationContainer;
-class TranslationUnit;
-
-class SourceLocation
-{
-    friend class Diagnostic;
-    friend class SourceRange;
-    friend class TranslationUnit;
-    friend class Cursor;
-    friend bool operator==(const SourceLocation &first, const SourceLocation &second);
-
+class FilePath {
 public:
-    SourceLocation();
-
-    const Utf8String &filePath() const;
-    uint line() const;
-    uint column() const;
-    uint offset() const;
-
-    SourceLocationContainer toSourceLocationContainer() const;
-
-private:
-    SourceLocation(CXSourceLocation cxSourceLocation);
-    SourceLocation(CXTranslationUnit cxTranslationUnit,
-                   const Utf8String &filePath,
-                   uint line,
-                   uint column);
-
-    operator CXSourceLocation() const;
-
-private:
-   CXSourceLocation cxSourceLocation;
-   mutable Utf8String filePath_;
-   uint line_ = 0;
-   uint column_ = 0;
-   uint offset_ = 0;
-   mutable bool isFilePathNormalized_ = true;
+    static Utf8String fromNativeSeparators(const Utf8String &pathName);
+    static Utf8String toNativeSeparators(const Utf8String &pathName);
 };
-
-bool operator==(const SourceLocation &first, const SourceLocation &second);
-
-void PrintTo(const SourceLocation &sourceLocation, ::std::ostream* os);
 
 } // namespace ClangBackEnd
