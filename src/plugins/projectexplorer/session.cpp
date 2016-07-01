@@ -383,8 +383,10 @@ void SessionManager::addProject(Project *pro)
     connect(pro, &Project::fileListChanged,
             m_instance, &SessionManager::clearProjectFileCache);
 
-    connect(pro, &Project::displayNameChanged,
-            m_instance, &SessionManager::handleProjectDisplayNameChanged);
+    connect(pro, &Project::displayNameChanged, m_instance, [pro] {
+        d->m_sessionNode->projectDisplayNameChanged(pro->rootProjectNode());
+        emit m_instance->projectDisplayNameChanged(pro);
+    });
 
     emit m_instance->projectAdded(pro);
     configureEditors(pro);
@@ -1073,15 +1075,6 @@ void SessionManagerPrivate::sessionLoadingProgress()
 {
     m_future.setProgressValue(m_future.progressValue() + 1);
     QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
-}
-
-void SessionManager::handleProjectDisplayNameChanged()
-{
-    auto pro = qobject_cast<Project*>(m_instance->sender());
-    if (pro) {
-        d->m_sessionNode->projectDisplayNameChanged(pro->rootProjectNode());
-        emit m_instance->projectDisplayNameChanged(pro);
-    }
 }
 
 QStringList SessionManager::projectsForSessionName(const QString &session)

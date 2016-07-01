@@ -141,7 +141,6 @@ private:
     void clearProjectFileCache();
     static void configureEditor(Core::IEditor *editor, const QString &fileName);
     static void markSessionFileDirty(bool makeDefaultVirginDirty = true);
-    static void handleProjectDisplayNameChanged();
     static void configureEditors(Project *project);
 };
 
