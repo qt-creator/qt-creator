@@ -47,11 +47,7 @@ public:
 
     Q_INVOKABLE void selectNextFromSelectionId(int selectionId);
     Q_INVOKABLE void selectPrevFromSelectionId(int selectionId);
-
-    // TODO: We could add some Q_INVOKABLE functions to enable or disable render passes when the the
-    // need arises.
-
-    void clearData();
+    Q_INVOKABLE void clearData();
 
 protected:
     virtual QSGNode *updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *updatePaintNodeData);
