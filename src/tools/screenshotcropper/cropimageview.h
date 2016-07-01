@@ -39,7 +39,6 @@ public:
     void mouseMoveEvent(QMouseEvent *event);
     void mouseReleaseEvent(QMouseEvent *event);
 
-public slots:
     void setImage(const QImage &image);
     void setArea(const QRect &area);
 

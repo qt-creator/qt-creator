@@ -35,10 +35,10 @@ ScreenShotCropperWindow::ScreenShotCropperWindow(QWidget *parent)
     , ui(new Ui::ScreenShotCropperWindow)
 {
     ui->setupUi(this);
-    connect(ui->m_filenamesList, SIGNAL(currentRowChanged(int)), SLOT(selectImage(int)));
-    connect(ui->m_cropImageView, SIGNAL(cropAreaChanged(QRect)), SLOT(setArea(QRect)));
-    connect(ui->m_buttonBox, SIGNAL(accepted()), SLOT(saveData()));
-    connect(ui->m_buttonBox, SIGNAL(rejected()), SLOT(close()));
+    connect(ui->m_filenamesList, &QListWidget::currentRowChanged, this, &ScreenShotCropperWindow::selectImage);
+    connect(ui->m_cropImageView, &CropImageView::cropAreaChanged, this, &ScreenShotCropperWindow::setArea);
+    connect(ui->m_buttonBox, &QDialogButtonBox::accepted, this, &ScreenShotCropperWindow::saveData);
+    connect(ui->m_buttonBox, &QDialogButtonBox::rejected, this, &QWidget::close);
 }
 
 ScreenShotCropperWindow::~ScreenShotCropperWindow()

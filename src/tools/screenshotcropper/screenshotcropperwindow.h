@@ -25,8 +25,9 @@
 
 #pragma once
 
+#include <qtsupport/screenshotcropper.h>
+
 #include <QMainWindow>
-#include "screenshotcropper.h"
 
 using namespace QtSupport::Internal;
 
@@ -42,7 +43,6 @@ public:
 
     void loadData(const QString &areasXmlFile, const QString &imagesFolder);
 
-public slots:
     void selectImage(int index);
     void setArea(const QRect &area);
     void saveData();
