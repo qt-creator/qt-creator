@@ -584,7 +584,6 @@ Project {
                 "connectioneditor/dynamicpropertiesmodel.cpp",
                 "connectioneditor/dynamicpropertiesmodel.h",
                 "connectioneditor/minus.png",
-                "connectioneditor/panel.png",
                 "connectioneditor/panelselected.png",
                 "connectioneditor/plus.png",
                 "connectioneditor/stylesheet.css",

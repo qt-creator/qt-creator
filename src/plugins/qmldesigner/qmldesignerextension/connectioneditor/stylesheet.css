@@ -138,11 +138,9 @@ QTabBar::tab:selected {
     color: #3c3c3c;
 }
 
+
 QTabBar::tab {
-image: url(:/connectionview/panel.png);
-
-    width: 130px;
-
+    width: 80px;
     height: 22px;
     margin-top: 0x;
     margin-bottom: 0px;
@@ -150,6 +148,7 @@ image: url(:/connectionview/panel.png);
     margin-right: 0px;
     font: bold;
     font-size: 11px;
+    background-color: #444444;
     color: #EEEEEE;
 }
 
