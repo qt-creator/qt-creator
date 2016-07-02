@@ -223,15 +223,19 @@ std::string dumpMemory(const unsigned char *p, size_t size,
         switch (u) {
         case '\t':
             str << "\\t";
+            break;
         case '\r':
             str << "\\r";
+            break;
         case '\n':
             str << "\\n";
+            break;
         default:
             if (u >= 32 && u < 128)
                 str << (char(u));
             else
                 str  << '\\' << std::setw(3) << unsigned(u);
+            break;
         }
     }
     if (wantQuotes)
