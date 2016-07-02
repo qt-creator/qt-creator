@@ -149,7 +149,7 @@ std::string wStringToString(const std::wstring &w)
 }
 
 // Convert an ASCII hex digit to its value 'A'->10
-inline unsigned hexDigit(char c)
+static inline unsigned hexDigit(char c)
 {
     if (c <= '9')
         return c - '0';
