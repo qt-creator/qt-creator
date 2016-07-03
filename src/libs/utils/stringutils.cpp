@@ -128,6 +128,7 @@ bool AbstractMacroExpander::expandNestedMacros(const QString &str, int *pos, QSt
 {
     QString varName;
     QString pattern, replace;
+    QString defaultValue;
     QString *currArg = &varName;
     QChar prev;
     QChar c;
@@ -172,12 +173,20 @@ bool AbstractMacroExpander::expandNestedMacros(const QString &str, int *pos, QSt
                 }
                 return true;
             }
+            if (!defaultValue.isEmpty()) {
+                *pos = i;
+                *ret = defaultValue;
+                return true;
+            }
             return false;
         } else if (c == '{' && prev == '%') {
             if (!expandNestedMacros(str, &i, ret))
                 return false;
             varName.chop(1);
             varName += ret;
+        } else if (currArg == &varName && c == '-' && prev == ':' && validateVarName(varName)) {
+            varName.chop(1);
+            currArg = &defaultValue;
         } else if (currArg == &varName && c == '/' && validateVarName(varName)) {
             currArg = &pattern;
             if (i < strLen && str.at(i) == '/') {

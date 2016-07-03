@@ -153,6 +153,7 @@ void tst_StringUtils::testMacroExpander_data()
         { "%{sl\\/sh/(.)(a)(.)/\\2\\1\\3as}", "salsash" }, // escape in variable name
         { "%{JS:foo/b/c}", "%{JS:foo/b/c}" }, // No replacement for JS (all considered varName)
         { "%{%{a}%{a}/b/c}", "car" },
+        { "%{nonsense:-sense}", "sense" },
     };
 
     for (unsigned i = 0; i < sizeof(vals)/sizeof(vals[0]); i++)
