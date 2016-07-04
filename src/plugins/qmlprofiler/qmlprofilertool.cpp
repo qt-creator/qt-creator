@@ -835,7 +835,7 @@ void QmlProfilerTool::profilerStateChanged()
     case QmlProfilerStateManager::AppDying : {
         // If already disconnected when dying, check again that all data was read
         if (!d->m_profilerConnections->isConnected())
-            QTimer::singleShot(0, this, &QmlProfilerTool::clientsDisconnected);
+            clientsDisconnected();
         break;
     }
     case QmlProfilerStateManager::Idle :
