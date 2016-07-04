@@ -780,8 +780,6 @@ void QmlProfilerTool::profilerDataModelStateChanged()
         setButtonsEnabled(false);
         break;
     case QmlProfilerModelManager::Done :
-        if (d->m_profilerState->currentState() == QmlProfilerStateManager::AppStopRequested)
-            d->m_profilerState->setCurrentState(QmlProfilerStateManager::Idle);
         showSaveOption();
         updateTimeDisplay();
         d->m_recordButton->setEnabled(true);

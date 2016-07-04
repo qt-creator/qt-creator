@@ -346,6 +346,8 @@ void QmlProfilerClientManager::retryMessageBoxFinished(int result)
 
 void QmlProfilerClientManager::qmlComplete(qint64 maximumTime)
 {
+    if (d->profilerState->currentState() == QmlProfilerStateManager::AppStopRequested)
+        d->profilerState->setCurrentState(QmlProfilerStateManager::Idle);
     d->modelManager->traceTime()->increaseEndTime(maximumTime);
     if (d->modelManager && !d->aggregateTraces)
         d->modelManager->acquiringDone();
