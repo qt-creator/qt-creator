@@ -455,43 +455,6 @@ Utils::SynchronousProcessResponse ShellCommand::runSynchronous(const Utils::File
     return response;
 }
 
-bool ShellCommand::runFullySynchronous(const Utils::FileName &binary, const QStringList &arguments,
-                                       int timeoutS, QByteArray *outputData, QByteArray *errorData,
-                                       const QString &workingDirectory)
-{
-    QTC_ASSERT(!binary.isEmpty(), return false);
-
-    QScopedPointer<OutputProxy> proxy(d->m_proxyFactory());
-    const QString dir = workDirectory(workingDirectory);
-
-    if (!(d->m_flags & SuppressCommandLogging))
-        proxy->appendCommand(dir, binary, arguments);
-
-    QProcess process;
-    process.setWorkingDirectory(dir);
-    process.setProcessEnvironment(d->m_environment);
-
-    process.start(binary.toString(), arguments);
-    process.closeWriteChannel();
-    if (!process.waitForStarted()) {
-        if (errorData) {
-            const QString msg = QString::fromLatin1("Unable to execute \"%1\": %2:")
-                    .arg(binary.toUserOutput(), process.errorString());
-            *errorData = msg.toLocal8Bit();
-        }
-        return false;
-    }
-
-    if (!Utils::SynchronousProcess::readDataFromProcess(process, timeoutS, outputData, errorData, true)) {
-        if (errorData)
-            errorData->append(tr("Error: Executable timed out after %1 s.").arg(timeoutS).toLocal8Bit());
-        Utils::SynchronousProcess::stopProcess(process);
-        return false;
-    }
-
-    return process.exitStatus() == QProcess::NormalExit && process.exitCode() == 0;
-}
-
 const QVariant &ShellCommand::cookie() const
 {
     return d->m_cookie;

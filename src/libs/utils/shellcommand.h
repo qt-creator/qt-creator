@@ -115,7 +115,7 @@ public:
                 const QString &workingDirectory = QString(), const ExitCodeInterpreter &interpreter = defaultExitCodeInterpreter);
     void addJob(const FileName &binary, const QStringList &arguments, int timeoutS,
                 const QString &workingDirectory = QString(), const ExitCodeInterpreter &interpreter = defaultExitCodeInterpreter);
-    void execute();
+    void execute(); // Execute tasks asynchronously!
     void abort();
     bool lastExecutionSuccess() const;
     int lastExecutionExitCode() const;
@@ -144,12 +144,7 @@ public:
                                                   int timeoutS,
                                                   const QString &workingDirectory = QString(),
                                                   const ExitCodeInterpreter &interpreter = defaultExitCodeInterpreter);
-    // Make sure to not pass through the event loop at all:
-    virtual bool runFullySynchronous(const FileName &binary, const QStringList &arguments,
-                                     int timeoutS, QByteArray *outputData, QByteArray *errorData,
-                                     const QString &workingDirectory = QString());
 
-public slots:
     void cancel();
 
 signals:

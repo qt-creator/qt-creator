@@ -82,16 +82,6 @@ Utils::SynchronousProcessResponse VcsCommand::runCommand(const Utils::FileName &
     return response;
 }
 
-bool VcsCommand::runFullySynchronous(const Utils::FileName &binary, const QStringList &arguments,
-                                     int timeoutS, QByteArray *outputData, QByteArray *errorData,
-                                     const QString &workingDirectory)
-{
-    bool result = Core::ShellCommand::runFullySynchronous(binary, arguments, timeoutS,
-                                                          outputData, errorData, workingDirectory);
-    emitRepositoryChanged(workingDirectory);
-    return result;
-}
-
 void VcsCommand::emitRepositoryChanged(const QString &workingDirectory)
 {
     if (m_preventRepositoryChanged || !(flags() & VcsCommand::ExpectRepoChanges))
