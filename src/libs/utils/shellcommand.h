@@ -162,9 +162,9 @@ protected:
 
 private:
     void run(QFutureInterface<void> &future);
-    SynchronousProcessResponse runSynchronous(const FileName &binary, const QStringList &arguments,
-                                              int timeoutS, const QString &workingDirectory,
-                                              const ExitCodeInterpreter &interpreter = defaultExitCodeInterpreter);
+    SynchronousProcessResponse runFullySynchronous(const FileName &binary, const QStringList &arguments,
+                                                   int timeoutS, const QString &workingDirectory,
+                                                   const ExitCodeInterpreter &interpreter = defaultExitCodeInterpreter);
 
     class Internal::ShellCommandPrivate *const d;
 };
