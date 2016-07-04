@@ -89,13 +89,13 @@ public:
     QString getCurrentValue(NodeProperty property) const;
     void changeValue(const QModelIndex &nodeIndex, NodeProperty property, const QString &value);
 
-protected:
-    void keyPressEvent(QKeyEvent *e);
-
 signals:
     void removeItem();
     void itemActivated(const QString &fileName);
     void contextMenuShown(const QPoint &globalPos, const QString &fileName);
+
+protected:
+    void keyPressEvent(QKeyEvent *e);
 
 private:
     void onItemActivated(const QModelIndex &index);
