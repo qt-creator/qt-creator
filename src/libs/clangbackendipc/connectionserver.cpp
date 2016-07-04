@@ -42,6 +42,8 @@ ConnectionServer::ConnectionServer(const QString &connectionName)
 {
     this->connectionName = connectionName;
 
+    localServer.setMaxPendingConnections(1);
+
     connect(&localServer, &QLocalServer::newConnection, this, &ConnectionServer::handleNewConnection);
     std::atexit(&ConnectionServer::removeServer);
 #if defined(_GLIBCXX_HAVE_AT_QUICK_EXIT)
@@ -85,7 +87,7 @@ void ConnectionServer::handleNewConnection()
 
     ipcServerProxies.emplace_back(ipcServer, localSocket);
 
-    ipcServer->addClient(&ipcServerProxies.back());
+    ipcServer->setClient(&ipcServerProxies.back());
 
     localSockets.push_back(localSocket);
 

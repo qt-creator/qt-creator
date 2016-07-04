@@ -87,20 +87,5 @@ void ClangCodeModelServerInterface::dispatch(const MessageEnvelop &messageEnvelo
     }
 }
 
-void ClangCodeModelServerInterface::addClient(ClangCodeModelClientInterface *client)
-{
-    clientDispatcher.addClient(client);
-}
-
-void ClangCodeModelServerInterface::removeClient(ClangCodeModelClientInterface *client)
-{
-    clientDispatcher.removeClient(client);
-}
-
-ClangCodeModelClientInterface *ClangCodeModelServerInterface::client()
-{
-    return &clientDispatcher;
-}
-
 } // namespace ClangBackEnd
 

@@ -29,10 +29,27 @@
 
 namespace ClangBackEnd {
 
+template <typename ClientInterface>
 class CMBIPC_EXPORT IpcServerInterface : public IpcInterface
 {
 public:
+    void setClient(ClientInterface *client)
+    {
+        client_ = client;
+    }
 
+    void resetClient()
+    {
+        client_ = nullptr;
+    }
+
+    ClientInterface *client()
+    {
+        return client_;
+    }
+
+private:
+    ClientInterface *client_;
 };
 
 } // namespace ClangBackEnd

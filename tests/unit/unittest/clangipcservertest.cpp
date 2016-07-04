@@ -431,7 +431,7 @@ TEST_F(ClangClangCodeModelServer, IsNotCurrentCurrentAndVisibleEditorAnymore)
 
 void ClangClangCodeModelServer::SetUp()
 {
-    clangServer.addClient(&mockClangCodeModelClient);
+    clangServer.setClient(&mockClangCodeModelClient);
     registerProjectPart();
     registerFiles();
 }

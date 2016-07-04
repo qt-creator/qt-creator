@@ -27,13 +27,13 @@
 
 #include "ipcserverinterface.h"
 
-#include "clangcodemodelclientdispatcher.h"
+#include "clangcodemodelclientinterface.h"
 
 namespace ClangBackEnd {
 
 class ClangCodeModelClientInterface;
 
-class CMBIPC_EXPORT ClangCodeModelServerInterface : public IpcServerInterface
+class CMBIPC_EXPORT ClangCodeModelServerInterface : public IpcServerInterface<ClangCodeModelClientInterface>
 {
 public:
     void dispatch(const MessageEnvelop &messageEnvelop) override;
@@ -50,14 +50,6 @@ public:
     virtual void requestDiagnostics(const RequestDiagnosticsMessage &message) = 0;
     virtual void requestHighlighting(const RequestHighlightingMessage &message) = 0;
     virtual void updateVisibleTranslationUnits(const UpdateVisibleTranslationUnitsMessage &message) = 0;
-
-    void addClient(ClangCodeModelClientInterface *client);
-    void removeClient(ClangCodeModelClientInterface *client);
-
-    ClangCodeModelClientInterface *client();
-
-private:
-    ClangCodeModelClientDispatcher clientDispatcher;
 };
 
 } // namespace ClangBackEnd

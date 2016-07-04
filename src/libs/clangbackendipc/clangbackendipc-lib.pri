@@ -20,7 +20,6 @@ SOURCES += $$PWD/clangcodemodelserverinterface.cpp \
     $$PWD/connectionserver.cpp \
     $$PWD/connectionclient.cpp \
     $$PWD/cmbechomessage.cpp \
-    $$PWD/clangcodemodelclientdispatcher.cpp \
     $$PWD/cmbregistertranslationunitsforeditormessage.cpp \
     $$PWD/filecontainer.cpp \
     $$PWD/cmbunregistertranslationunitsforeditormessage.cpp \
@@ -66,7 +65,6 @@ HEADERS += \
     $$PWD/connectionserver.h \
     $$PWD/connectionclient.h \
     $$PWD/cmbechomessage.h \
-    $$PWD/clangcodemodelclientdispatcher.h \
     $$PWD/cmbregistertranslationunitsforeditormessage.h \
     $$PWD/filecontainer.h \
     $$PWD/cmbunregistertranslationunitsforeditormessage.h \
