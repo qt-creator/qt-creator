@@ -790,16 +790,16 @@ void ManhattanStyle::drawControl(ControlElement element, const QStyleOption *opt
         break;
 
     case CE_MenuBarEmptyArea: {
-            if (!creatorTheme()->flag(Theme::FlatMenuBar)) {
-                StyleHelper::menuGradient(painter, option->rect, option->rect);
-                painter->save();
-                painter->setPen(StyleHelper::borderColor());
-                painter->drawLine(option->rect.bottomLeft() + QPointF(0.5, 0.5),
-                                  option->rect.bottomRight() + QPointF(0.5, 0.5));
-                painter->restore();
-            } else {
+            if (creatorTheme()->flag(Theme::FlatMenuBar))
                 painter->fillRect(option->rect, StyleHelper::baseColor());
-            }
+            else
+                StyleHelper::menuGradient(painter, option->rect, option->rect);
+
+            painter->save();
+            painter->setPen(StyleHelper::borderColor());
+            painter->drawLine(option->rect.bottomLeft() + QPointF(0.5, 0.5),
+                              option->rect.bottomRight() + QPointF(0.5, 0.5));
+            painter->restore();
         }
         break;
 
