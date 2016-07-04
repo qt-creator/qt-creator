@@ -38,7 +38,7 @@ public:
     QmlProfilerNotesModel(QObject *parent);
 
     void loadData();
-    void saveData();
+    void saveData(qint64 startTime, qint64 endTime);
 
     const QVector<QmlNote> &notes() const;
     void setNotes(const QVector<QmlNote> &notes);

@@ -26,6 +26,8 @@
 #include "qmlprofilernotesmodel.h"
 #include "qmlprofilerdatamodel.h"
 
+#include <utils/algorithm.h>
+
 namespace QmlProfiler {
 
 QmlProfilerNotesModel::QmlProfilerNotesModel(QObject *parent) : TimelineNotesModel(parent)
@@ -74,9 +76,13 @@ void QmlProfilerNotesModel::loadData()
     emit changed(-1, -1, -1);
 }
 
-void QmlProfilerNotesModel::saveData()
+void QmlProfilerNotesModel::saveData(qint64 startTime, qint64 endTime)
 {
-    m_notes.clear();
+    // Keep notes that are outside the given range, overwrite the ones inside the range.
+    m_notes = Utils::filtered(m_notes, [startTime, endTime](const QmlNote &note) {
+        return note.startTime() > endTime || note.startTime() + note.duration() < startTime;
+    });
+
     for (int i = 0; i < count(); ++i) {
         const Timeline::TimelineModel *model = timelineModelByModelId(timelineModel(i));
         if (!model)
