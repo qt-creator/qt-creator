@@ -1049,6 +1049,11 @@ TreeItem *TreeModel::takeItem(TreeItem *item)
     return item;
 }
 
+void TreeModel::destroyItem(TreeItem *item)
+{
+    delete takeItem(item);
+}
+
 StaticTreeItem::StaticTreeItem(const QStringList &displays)
     : m_displays(displays)
 {

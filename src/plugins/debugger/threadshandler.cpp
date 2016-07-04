@@ -320,7 +320,7 @@ void ThreadsHandler::updateThread(const ThreadData &threadData)
 void ThreadsHandler::removeThread(ThreadId threadId)
 {
     if (ThreadItem *item = itemForThreadId(this, threadId))
-        delete takeItem(item);
+        destroyItem(item);
 }
 
 void ThreadsHandler::setThreads(const Threads &threads)
@@ -363,7 +363,7 @@ bool ThreadsHandler::notifyGroupExited(const QString &groupId)
             list.append(item);
     });
     foreach (ThreadItem *item, list)
-        delete takeItem(item);
+        destroyItem(item);
 
     m_pidForGroupId.remove(groupId);
     return m_pidForGroupId.isEmpty();

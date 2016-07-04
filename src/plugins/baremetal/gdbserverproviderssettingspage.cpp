@@ -184,7 +184,7 @@ void GdbServerProviderModel::markForRemoval(GdbServerProvider *provider)
 {
     GdbServerProviderNode *n = findNode(provider);
     QTC_ASSERT(n, return);
-    delete takeItem(n);
+    destroyItem(n);
 
     if (m_providersToAdd.contains(provider)) {
         m_providersToAdd.removeOne(provider);
@@ -233,7 +233,7 @@ void GdbServerProviderModel::removeProvider(GdbServerProvider *provider)
 {
     m_providersToRemove.removeAll(provider);
     if (GdbServerProviderNode *n = findNode(provider))
-        delete takeItem(n);
+        destroyItem(n);
 
     emit providerStateChanged();
 }

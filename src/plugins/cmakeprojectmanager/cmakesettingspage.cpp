@@ -242,7 +242,7 @@ void CMakeToolItemModel::removeCMakeTool(const Core::Id &id)
     CMakeToolTreeItem *treeItem = cmakeToolItem(id);
     QTC_ASSERT(treeItem, return);
 
-    delete takeItem(treeItem);
+    destroyItem(treeItem);
     m_removedItems.append(id);
 }
 

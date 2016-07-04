@@ -345,7 +345,7 @@ void KitModel::removeKit(Kit *k)
     if (node == m_defaultNode)
         setDefaultNode(findSecondLevelItem([node](KitNode *kn) { return kn != node; }));
 
-    delete takeItem(node);
+    destroyItem(node);
 
     validateKitNames();
     emit kitStateChanged();

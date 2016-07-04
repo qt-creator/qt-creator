@@ -1289,7 +1289,7 @@ bool WatchHandler::insertItem(WatchItem *item)
     const QVector<TreeItem *> siblings = parent->children();
     for (int row = 0, n = siblings.size(); row < n; ++row) {
         if (static_cast<WatchItem *>(siblings.at(row))->iname == item->iname) {
-            delete m_model->takeItem(parent->children().at(row));
+            m_model->destroyItem(parent->children().at(row));
             parent->insertChild(row, item);
             found = true;
             break;
@@ -1377,7 +1377,7 @@ void WatchHandler::notifyUpdateFinished()
     });
 
     foreach (auto item, toRemove)
-        delete m_model->takeItem(item);
+        m_model->destroyItem(item);
 
     m_model->m_contentsValid = true;
     updateWatchersWindow();
@@ -1400,7 +1400,7 @@ void WatchHandler::removeItemByIName(const QString &iname)
         theWatcherNames.remove(item->exp);
         saveWatchers();
     }
-    delete m_model->takeItem(item);
+    m_model->destroyItem(item);
     updateWatchersWindow();
 }
 

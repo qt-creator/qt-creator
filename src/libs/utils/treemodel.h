@@ -230,6 +230,7 @@ public:
     void fetchMore(const QModelIndex &idx) override;
 
     TreeItem *takeItem(TreeItem *item); // item is not destroyed.
+    void destroyItem(TreeItem *item); // item is destroyed.
 
 signals:
     void requestExpansion(QModelIndex);

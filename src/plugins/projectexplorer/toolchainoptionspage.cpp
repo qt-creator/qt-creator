@@ -255,7 +255,7 @@ void ToolChainOptionsWidget::removeToolChain(ToolChain *tc)
     auto item = m_model.findSecondLevelItem([tc](ToolChainTreeItem *item) {
         return tc->isAutoDetected() && item->toolChain == tc;
     });
-    delete m_model.takeItem(item);
+    m_model.destroyItem(item);
 
     updateState();
 }
