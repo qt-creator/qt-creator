@@ -35,7 +35,7 @@
 #include <cmbunregisterprojectsforeditormessage.h>
 #include <cmbunregistertranslationunitsforeditormessage.h>
 #include <highlightingchangedmessage.h>
-#include <connectionclient.h>
+#include <clangcodemodelconnectionclient.h>
 #include <diagnosticschangedmessage.h>
 #include <projectpartsdonotexistmessage.h>
 #include <readmessageblock.h>
@@ -72,11 +72,11 @@ protected:
     static void TearDownTestCase();
 
     static MockClangCodeModelClient mockClangCodeModelClient;
-    static ClangBackEnd::ConnectionClient client;
+    static ClangBackEnd::ClangCodeModelConnectionClient client;
 };
 
 MockClangCodeModelClient ClientServerOutsideProcess::mockClangCodeModelClient;
-ClangBackEnd::ConnectionClient ClientServerOutsideProcess::client(&ClientServerOutsideProcess::mockClangCodeModelClient);
+ClangBackEnd::ClangCodeModelConnectionClient ClientServerOutsideProcess::client(&ClientServerOutsideProcess::mockClangCodeModelClient);
 
 TEST_F(ClientServerOutsideProcess, RestartProcessAsynchronously)
 {

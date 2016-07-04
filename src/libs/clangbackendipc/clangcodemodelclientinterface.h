@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include "ipcinterface.h"
+#include "ipcclientinterface.h"
 
 namespace ClangBackEnd {
 
@@ -48,7 +48,7 @@ class UpdateVisibleTranslationUnitsMessage;
 class RequestHighlightingMessage;
 class HighlightingChangedMessage;
 
-class CMBIPC_EXPORT ClangCodeModelClientInterface : public IpcInterface
+class CMBIPC_EXPORT ClangCodeModelClientInterface : public IpcClientInterface
 {
 public:
     void dispatch(const MessageEnvelop &messageEnvelop) override;

@@ -49,7 +49,7 @@ class CMBIPC_EXPORT ConnectionClient : public QObject
     Q_OBJECT
 
 public:
-    ConnectionClient(ClangCodeModelClientInterface *client);
+    ConnectionClient();
     ~ConnectionClient();
 
     void startProcessAndConnectToServerAsynchronously();
@@ -72,13 +72,17 @@ public:
     bool waitForEcho();
     bool waitForConnected();
 
-    ClangCodeModelServerProxy &serverProxy();
-
     QProcess *processForTestOnly() const;
 
 signals:
     void connectedToLocalSocket();
     void processFinished();
+
+protected:
+    QIODevice *ioDevice();
+
+    virtual void sendEndCommand() = 0;
+    virtual void resetCounter() = 0;
 
 private:
     std::unique_ptr<QProcess> startProcess();
@@ -107,14 +111,13 @@ private:
 private:
     mutable std::unique_ptr<QProcess> process_;
     QLocalSocket localSocket;
-    ClangCodeModelServerProxy serverProxy_;
     QTimer processAliveTimer;
     QString processPath_;
     bool isAliveTimerResetted = false;
     bool processIsStarting = false;
 
-    LinePrefixer stdErrPrefixer;
-    LinePrefixer stdOutPrefixer;
+    LinePrefixer stdErrPrefixer = QByteArrayLiteral("clangbackend.stderr: ");
+    LinePrefixer stdOutPrefixer = QByteArrayLiteral("clangbackend.stdout: ");
 };
 
 } // namespace ClangBackEnd

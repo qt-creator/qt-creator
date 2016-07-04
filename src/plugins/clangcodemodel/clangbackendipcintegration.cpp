@@ -216,7 +216,7 @@ void IpcReceiver::projectPartsDoNotExist(const ProjectPartsDoNotExistMessage &me
 class IpcSender : public IpcSenderInterface
 {
 public:
-    IpcSender(ClangBackEnd::ConnectionClient &connectionClient)
+    IpcSender(ClangBackEnd::ClangCodeModelConnectionClient &connectionClient)
         : m_connection(connectionClient)
     {}
 
@@ -234,7 +234,7 @@ public:
     void updateVisibleTranslationUnits(const UpdateVisibleTranslationUnitsMessage &message) override;
 
 private:
-    ClangBackEnd::ConnectionClient &m_connection;
+    ClangBackEnd::ClangCodeModelConnectionClient &m_connection;
 };
 
 void IpcSender::end()

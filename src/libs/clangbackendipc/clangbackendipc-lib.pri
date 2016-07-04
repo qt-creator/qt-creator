@@ -48,7 +48,10 @@ SOURCES += $$PWD/clangcodemodelserverinterface.cpp \
     $$PWD/updatevisibletranslationunitsmessage.cpp \
     $$PWD/highlightingchangedmessage.cpp \
     $$PWD/highlightingmarkcontainer.cpp \
-    $$PWD/messageenvelop.cpp
+    $$PWD/messageenvelop.cpp \
+    $$PWD/ipcclientinterface.cpp \
+    $$PWD/ipcserverinterface.cpp \
+    $$PWD/clangcodemodelconnectionclient.cpp
 
 HEADERS += \
     $$PWD/clangcodemodelserverinterface.h \
@@ -92,6 +95,9 @@ HEADERS += \
     $$PWD/updatevisibletranslationunitsmessage.h \
     $$PWD/highlightingchangedmessage.h \
     $$PWD/highlightingmarkcontainer.h \
-    $$PWD/messageenvelop.h
+    $$PWD/messageenvelop.h \
+    $$PWD/ipcclientinterface.h \
+    $$PWD/ipcserverinterface.h \
+    $$PWD/clangcodemodelconnectionclient.h
 
 contains(QT_CONFIG, reduce_exports):CONFIG += hide_symbols

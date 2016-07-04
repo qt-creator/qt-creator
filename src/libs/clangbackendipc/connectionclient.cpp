@@ -57,10 +57,7 @@ QString connectionName()
 }
 }
 
-ConnectionClient::ConnectionClient(ClangCodeModelClientInterface *client)
-    : serverProxy_(client, &localSocket),
-      stdErrPrefixer("clangbackend.stderr: "),
-      stdOutPrefixer("clangbackend.stdout: ")
+ConnectionClient::ConnectionClient()
 {
     processAliveTimer.setInterval(10000);
 
@@ -105,7 +102,7 @@ void ConnectionClient::ensureMessageIsWritten()
 
 void ConnectionClient::sendEndMessage()
 {
-    serverProxy_.end();
+    sendEndCommand();
     localSocket.flush();
     ensureMessageIsWritten();
 }
@@ -258,7 +255,7 @@ void ConnectionClient::finishProcess(std::unique_ptr<QProcess> &&process)
         terminateProcess(process.get());
         killProcess(process.get());
 
-        serverProxy_.resetCounter();
+    resetCounter();
     }
 }
 
@@ -286,14 +283,15 @@ bool ConnectionClient::waitForConnected()
     return isConnected;
 }
 
-ClangCodeModelServerProxy &ConnectionClient::serverProxy()
-{
-    return serverProxy_;
-}
 
 QProcess *ConnectionClient::processForTestOnly() const
 {
     return process_.get();
+}
+
+QIODevice *ConnectionClient::ioDevice()
+{
+    return &localSocket;
 }
 
 bool ConnectionClient::isProcessIsRunning() const

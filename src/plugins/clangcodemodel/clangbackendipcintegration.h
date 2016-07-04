@@ -27,7 +27,7 @@
 
 #include <cpptools/projectpart.h>
 
-#include <clangbackendipc/connectionclient.h>
+#include <clangbackendipc/clangcodemodelconnectionclient.h>
 #include <clangbackendipc/filecontainer.h>
 #include <clangbackendipc/clangcodemodelclientinterface.h>
 #include <clangbackendipc/projectpartcontainer.h>
@@ -177,7 +177,7 @@ private:
 
 private:
     IpcReceiver m_ipcReceiver;
-    ClangBackEnd::ConnectionClient m_connection;
+    ClangBackEnd::ClangCodeModelConnectionClient m_connection;
     QScopedPointer<IpcSenderInterface> m_ipcSender;
     int m_connectedCount = 0;
 };

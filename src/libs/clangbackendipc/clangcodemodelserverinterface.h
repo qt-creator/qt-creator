@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include "ipcinterface.h"
+#include "ipcserverinterface.h"
 
 #include "clangcodemodelclientdispatcher.h"
 
@@ -33,7 +33,7 @@ namespace ClangBackEnd {
 
 class ClangCodeModelClientInterface;
 
-class CMBIPC_EXPORT ClangCodeModelServerInterface : public IpcInterface
+class CMBIPC_EXPORT ClangCodeModelServerInterface : public IpcServerInterface
 {
 public:
     void dispatch(const MessageEnvelop &messageEnvelop) override;
