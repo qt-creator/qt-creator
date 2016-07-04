@@ -25,10 +25,14 @@
 
 #pragma once
 
-#include <clangcodemodelclientproxy.h>
+#include "clangbackendipc_global.h"
 
+#include <QCoreApplication>
 #include <QLocalServer>
+#include <QLocalSocket>
+#include <QTimer>
 
+#include <memory>
 #include <vector>
 
 namespace ClangBackEnd {
@@ -36,42 +40,112 @@ namespace ClangBackEnd {
 class ClangCodeModelServerInterface;
 class ClangCodeModelClientProxy;
 
-class CMBIPC_EXPORT ConnectionServer : public QObject
-{
-    Q_OBJECT
-public:
-    ConnectionServer(const QString &connectionName);
-    ~ConnectionServer();
-
-    void start();
-    void setClangCodeModelServer(ClangCodeModelServerInterface *ipcServer);
-
-    int clientProxyCount() const;
-
-    static void removeServer();
-
-signals:
-    void newConnection();
-
-protected:
-    void timerEvent(QTimerEvent *timerEvent);
-
-private:
-    void handleNewConnection();
-    void sendAliveMessage();
-    void handleSocketDisconnect();
-    void removeClientProxyWithLocalSocket(QLocalSocket *localSocket);
-    QLocalSocket *nextPendingConnection();
-    void delayedExitApplicationIfNoSockedIsConnected();
-    void exitApplicationIfNoSockedIsConnected();
-
-private:
-    std::vector<ClangCodeModelClientProxy> ipcServerProxies;
-    std::vector<QLocalSocket*> localSockets;
-    ClangCodeModelServerInterface *ipcServer;
-    QLocalServer localServer;
+struct CMBIPC_EXPORT ConnectionName {
     static QString connectionName;
-    int aliveTimerId;
+};
+
+template <typename ServerInterface,
+          typename ClientProxy>
+class ConnectionServer
+{
+public:
+    ConnectionServer(const QString &connectionName)
+    {
+        ConnectionName::connectionName = connectionName;
+
+        aliveTimer.start(5000);
+
+        localServer.setMaxPendingConnections(1);
+
+        QObject::connect(&localServer,
+                         &QLocalServer::newConnection,
+                         [&] { handleNewConnection(); });
+        QObject::connect(&aliveTimer,
+                         &QTimer::timeout,
+                         [&] { sendAliveMessage(); });
+
+        std::atexit(&ConnectionServer::removeServer);
+    #if defined(_GLIBCXX_HAVE_AT_QUICK_EXIT)
+        std::at_quick_exit(&ConnectionServer::removeServer);
+    #endif
+        std::set_terminate(&ConnectionServer::removeServer);
+    }
+
+    ~ConnectionServer()
+    {
+        removeServer();
+    }
+
+    void start()
+    {
+        QLocalServer::removeServer(ConnectionName::connectionName);
+        localServer.listen(ConnectionName::connectionName);
+    }
+
+    void setClangCodeModelServer(ServerInterface *ipcServer)
+    {
+        this->ipcServer = ipcServer;
+
+    }
+
+    static void removeServer()
+    {
+        QLocalServer::removeServer(ConnectionName::connectionName);
+    }
+
+private:
+    void handleNewConnection()
+    {
+        localSocket = nextPendingConnection();
+
+        ipcClientProxy.reset(new ClientProxy(ipcServer, localSocket));
+
+        ipcServer->setClient(ipcClientProxy.get());
+    }
+
+    void sendAliveMessage()
+    {
+        ipcClientProxy->alive();
+    }
+
+    void handleSocketDisconnect()
+    {
+        ipcClientProxy.reset();
+
+        localSocket = nullptr;
+
+        delayedExitApplicationIfNoSockedIsConnected();
+    }
+
+    QLocalSocket *nextPendingConnection()
+    {
+        QLocalSocket *localSocket = localServer.nextPendingConnection();
+
+        QObject::connect(localSocket,
+                         &QLocalSocket::disconnected,
+                         [&] { handleSocketDisconnect(); });
+
+        return localSocket;
+    }
+
+    void delayedExitApplicationIfNoSockedIsConnected()
+    {
+        if (localSocket == nullptr)
+            QTimer::singleShot(60000, [&] { exitApplicationIfNoSockedIsConnected(); });
+    }
+
+    void exitApplicationIfNoSockedIsConnected()
+    {
+        if (localSocket == nullptr)
+            QCoreApplication::exit();
+    }
+
+private:
+    std::unique_ptr<ClientProxy> ipcClientProxy;
+    QLocalSocket* localSocket;
+    ServerInterface *ipcServer;
+    QLocalServer localServer;
+    QTimer aliveTimer;
 };
 
 } // namespace ClangBackEnd

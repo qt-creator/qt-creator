@@ -25,9 +25,14 @@
 
 #include "echoclangcodemodelserver.h"
 
+#include <clangcodemodelclientproxy.h>
 #include <connectionserver.h>
 
 #include <QCoreApplication>
+
+using ClangBackEnd::ClangCodeModelClientProxy;
+using ClangBackEnd::ConnectionServer;
+using ClangBackEnd::EchoClangCodeModelServer;
 
 int main(int argc, char *argv[])
 {
@@ -43,8 +48,8 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    ClangBackEnd::EchoClangCodeModelServer echoClangCodeModelServer;
-    ClangBackEnd::ConnectionServer connectionServer(application.arguments()[1]);
+    EchoClangCodeModelServer echoClangCodeModelServer;
+    ConnectionServer<EchoClangCodeModelServer, ClangCodeModelClientProxy> connectionServer(application.arguments()[1]);
     connectionServer.start();
     connectionServer.setClangCodeModelServer(&echoClangCodeModelServer);
 

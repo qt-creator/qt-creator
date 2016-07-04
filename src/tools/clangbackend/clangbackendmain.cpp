@@ -29,6 +29,11 @@
 
 #include <connectionserver.h>
 #include <clangcodemodelserver.h>
+#include <clangcodemodelclientproxy.h>
+
+using ClangBackEnd::ClangCodeModelClientProxy;
+using ClangBackEnd::ClangCodeModelServer;
+using ClangBackEnd::ConnectionServer;
 
 QString processArguments(QCoreApplication &application)
 {
@@ -62,8 +67,8 @@ int main(int argc, char *argv[])
     clang_toggleCrashRecovery(true);
     clang_enableStackTraces();
 
-    ClangBackEnd::ClangCodeModelServer clangCodeModelServer;
-    ClangBackEnd::ConnectionServer connectionServer(connection);
+    ClangCodeModelServer clangCodeModelServer;
+    ConnectionServer<ClangCodeModelServer, ClangCodeModelClientProxy> connectionServer(connection);
     connectionServer.start();
     connectionServer.setClangCodeModelServer(&clangCodeModelServer);
 

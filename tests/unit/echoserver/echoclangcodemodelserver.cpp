@@ -54,7 +54,7 @@ void EchoClangCodeModelServer::dispatch(const MessageEnvelop &message)
 
 void EchoClangCodeModelServer::end()
 {
-    ConnectionServer::removeServer();
+    ConnectionServer<EchoClangCodeModelServer, ClangCodeModelClientProxy>::removeServer();
     QCoreApplication::quit();
 }
 
