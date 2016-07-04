@@ -140,6 +140,9 @@ public:
 
     void setOutputProxyFactory(const std::function<OutputProxy *()> &factory);
 
+    // This is called once per job in a thread.
+    // When called from the UI thread it will execute fully synchronously, so no signals will
+    // be triggered!
     virtual SynchronousProcessResponse runCommand(const FileName &binary, const QStringList &arguments,
                                                   int timeoutS,
                                                   const QString &workingDirectory = QString(),
@@ -162,10 +165,13 @@ protected:
 
 private:
     void run(QFutureInterface<void> &future);
+
+    // Run without a event loop in fully blocking mode. No signals will be delivered.
     SynchronousProcessResponse runFullySynchronous(const FileName &binary, const QStringList &arguments,
                                                    OutputProxy *proxy,
                                                    int timeoutS, const QString &workingDirectory,
                                                    const ExitCodeInterpreter &interpreter = defaultExitCodeInterpreter);
+    // Run with an event loop. Signals will be delivered.
     SynchronousProcessResponse runSynchronous(const FileName &binary, const QStringList &arguments,
                                               OutputProxy *proxy,
                                               int timeoutS, const QString &workingDirectory,

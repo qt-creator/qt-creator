@@ -39,6 +39,7 @@
 #include <QSharedPointer>
 #include <QStringList>
 #include <QTextCodec>
+#include <QThread>
 #include <QVariant>
 
 /*!
@@ -326,7 +327,7 @@ Utils::SynchronousProcessResponse ShellCommand::runCommand(const Utils::FileName
     if (!(d->m_flags & SuppressCommandLogging))
         proxy->appendCommand(dir, binary, arguments);
 
-    if (d->m_flags & FullySynchronously)
+    if (d->m_flags & FullySynchronously || QThread::currentThread() == QCoreApplication::instance()->thread())
         response = runFullySynchronous(binary, arguments, proxy.data(), timeoutS, dir, interpreter);
     else
         response = runSynchronous(binary, arguments, proxy.data(), timeoutS, dir, interpreter);
