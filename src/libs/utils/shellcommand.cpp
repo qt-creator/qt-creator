@@ -351,58 +351,37 @@ Utils::SynchronousProcessResponse ShellCommand::runFullySynchronous(const Utils:
                                                                     const QString &workingDirectory,
                                                                     const ExitCodeInterpreter &interpreter)
 {
-    Utils::SynchronousProcessResponse response;
-
     // Set up process
-    QSharedPointer<QProcess> process = Utils::SynchronousProcess::createProcess(processFlags());
-    if (!d->m_defaultWorkingDirectory.isEmpty())
-        process->setWorkingDirectory(workDirectory(workingDirectory));
-    process->setProcessEnvironment(processEnvironment());
+    Utils::SynchronousProcess process;
+    process.setFlags(processFlags());
+    const QString dir = workDirectory(workingDirectory);
+    if (!dir.isEmpty())
+        process.setWorkingDirectory(dir);
+    process.setProcessEnvironment(processEnvironment());
     if (d->m_flags & MergeOutputChannels)
-        process->setProcessChannelMode(QProcess::MergedChannels);
+        process.setProcessChannelMode(QProcess::MergedChannels);
+    if (d->m_codec)
+        process.setCodec(d->m_codec);
+    process.setTimeoutS(timeoutS);
+    process.setExitCodeInterpreter(interpreter);
 
-    // Start
-    process->start(binary.toString(), arguments, QIODevice::ReadOnly);
-    process->closeWriteChannel();
-    if (!process->waitForStarted()) {
-        response.result = Utils::SynchronousProcessResponse::StartFailed;
-        return response;
-    }
-
-    // process output
-    QByteArray stdOut;
-    QByteArray stdErr;
-    const bool timedOut =
-            !Utils::SynchronousProcess::readDataFromProcess(*process.data(), timeoutS,
-                                                            &stdOut, &stdErr, true);
+    SynchronousProcessResponse resp = process.runBlocking(binary.toString(), arguments);
 
     if (!d->m_aborted) {
-        response.codec = d->m_codec ? d->m_codec : QTextCodec::codecForLocale();
-        if (!stdErr.isEmpty()) {
-            response.rawStdErr = stdErr;
-            if (!(d->m_flags & SuppressStdErr))
-                proxy->append(response.stdErr());
-        }
+        const QString stdErr = resp.stdErr();
+        if (!stdErr.isEmpty() && !(d->m_flags & SuppressStdErr))
+            proxy->append(stdErr);
 
-        if (!stdOut.isEmpty()) {
-            response.rawStdOut = stdOut;
-            if (d->m_flags & ShowStdOut) {
-                if (d->m_flags & SilentOutput)
-                    proxy->appendSilently(response.stdOut());
-                else
-                    proxy->append(response.stdOut());
-            }
+        const QString stdOut = resp.stdOut();
+        if (!stdOut.isEmpty() && d->m_flags & ShowStdOut) {
+            if (d->m_flags & SilentOutput)
+                proxy->appendSilently(stdOut);
+            else
+                proxy->append(stdOut);
         }
     }
 
-    // Result
-    if (timedOut)
-        response.result = Utils::SynchronousProcessResponse::Hang;
-    else if (process->exitStatus() != QProcess::NormalExit)
-        response.result = Utils::SynchronousProcessResponse::TerminatedAbnormally;
-    else
-        response.result = interpreter(process->exitCode());
-    return response;
+    return resp;
 }
 
 SynchronousProcessResponse ShellCommand::runSynchronous(const FileName &binary,
@@ -415,15 +394,15 @@ SynchronousProcessResponse ShellCommand::runSynchronous(const FileName &binary,
     Utils::SynchronousProcess process;
     process.setExitCodeInterpreter(interpreter);
     connect(this, &ShellCommand::terminate, &process, &Utils::SynchronousProcess::terminate);
-    process.setWorkingDirectory(workingDirectory);
-
     process.setProcessEnvironment(processEnvironment());
     process.setTimeoutS(timeoutS);
     if (d->m_codec)
         process.setCodec(d->m_codec);
-
     process.setFlags(processFlags());
-
+    const QString dir = workDirectory(workingDirectory);
+    if (!dir.isEmpty())
+        process.setWorkingDirectory(dir);
+    process.setProcessEnvironment(processEnvironment());
     // connect stderr to the output window if desired
     if (d->m_flags & MergeOutputChannels) {
         process.setProcessChannelMode(QProcess::MergedChannels);
@@ -459,8 +438,12 @@ SynchronousProcessResponse ShellCommand::runSynchronous(const FileName &binary,
 
     process.setTimeOutMessageBoxEnabled(true);
 
-    // Run!
-    return process.runBlocking(binary.toString(), arguments);
+    if (d->m_codec)
+        process.setCodec(d->m_codec);
+    process.setTimeoutS(timeoutS);
+    process.setExitCodeInterpreter(interpreter);
+
+    return process.run(binary.toString(), arguments);
 }
 
 const QVariant &ShellCommand::cookie() const
