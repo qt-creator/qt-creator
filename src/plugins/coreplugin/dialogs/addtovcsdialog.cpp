@@ -26,6 +26,7 @@
 #include "addtovcsdialog.h"
 #include "ui_addtovcsdialog.h"
 
+#include <QDir>
 #include <QListWidgetItem>
 
 namespace Core {
@@ -45,7 +46,7 @@ AddToVcsDialog::AddToVcsDialog(QWidget *parent, const QString &title,
     setWindowTitle(title);
 
     foreach (const QString &file, files) {
-        QListWidgetItem *item = new QListWidgetItem(file);
+        QListWidgetItem *item = new QListWidgetItem(QDir::toNativeSeparators(file));
         ui->filesListWidget->addItem(item);
     }
 }
