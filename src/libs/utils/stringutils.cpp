@@ -38,9 +38,9 @@ namespace Utils {
 QTCREATOR_UTILS_EXPORT QString settingsKey(const QString &category)
 {
     QString rc(category);
-    const QChar underscore = QLatin1Char('_');
+    const QChar underscore = '_';
     // Remove the sort category "X.Category" -> "Category"
-    if (rc.size() > 2 && rc.at(0).isLetter() && rc.at(1) == QLatin1Char('.'))
+    if (rc.size() > 2 && rc.at(0).isLetter() && rc.at(1) == '.')
         rc.remove(0, 2);
     // Replace special characters
     const int size = rc.size();
@@ -85,15 +85,15 @@ QTCREATOR_UTILS_EXPORT QString commonPrefix(const QStringList &strings)
 QTCREATOR_UTILS_EXPORT QString commonPath(const QStringList &files)
 {
     QStringList appendedSlashes = Utils::transform(files, [](const QString &file) -> QString {
-        if (!file.endsWith(QLatin1Char('/')))
-            return QString(file + QLatin1Char('/'));
+        if (!file.endsWith('/'))
+            return QString(file + '/');
         return file;
     });
     QString common = commonPrefix(appendedSlashes);
     // Find common directory part: "C:\foo\bar" -> "C:\foo"
-    int lastSeparatorPos = common.lastIndexOf(QLatin1Char('/'));
+    int lastSeparatorPos = common.lastIndexOf('/');
     if (lastSeparatorPos == -1)
-        lastSeparatorPos = common.lastIndexOf(QLatin1Char('\\'));
+        lastSeparatorPos = common.lastIndexOf('\\');
     if (lastSeparatorPos == -1)
         return QString();
     if (HostOsInfo::isAnyUnixHost() && lastSeparatorPos == 0) // Unix: "/a", "/b" -> '/'
@@ -112,7 +112,7 @@ QTCREATOR_UTILS_EXPORT QString withTildeHomePath(const QString &path)
     QFileInfo fi(QDir::cleanPath(path));
     QString outPath = fi.absoluteFilePath();
     if (outPath.startsWith(homePath))
-        outPath = QLatin1Char('~') + outPath.mid(homePath.size());
+        outPath = '~' + outPath.mid(homePath.size());
     else
         outPath = path;
     return outPath;
@@ -129,9 +129,9 @@ bool AbstractMacroExpander::expandNestedMacros(const QString &str, int *pos, QSt
     varName.reserve(strLen - i);
     for (; i < strLen; prev = c) {
         c = str.at(i++);
-        if (c == QLatin1Char('}')) {
+        if (c == '}') {
             if (varName.isEmpty()) { // replace "%{}" with "%"
-                *ret = QString(QLatin1Char('%'));
+                *ret = QString('%');
                 *pos = i;
                 return true;
             }
@@ -140,7 +140,7 @@ bool AbstractMacroExpander::expandNestedMacros(const QString &str, int *pos, QSt
                 return true;
             }
             return false;
-        } else if (c == QLatin1Char('{') && prev == QLatin1Char('%')) {
+        } else if (c == '{' && prev == '%') {
             if (!expandNestedMacros(str, &i, ret))
                 return false;
             varName.chop(1);
@@ -155,7 +155,7 @@ bool AbstractMacroExpander::expandNestedMacros(const QString &str, int *pos, QSt
 int AbstractMacroExpander::findMacro(const QString &str, int *pos, QString *ret)
 {
     forever {
-        int openPos = str.indexOf(QLatin1String("%{"), *pos);
+        int openPos = str.indexOf("%{", *pos);
         if (openPos < 0)
             return 0;
         int varPos = openPos + 2;
