@@ -25,7 +25,7 @@ QtcProduct {
         name: "Qt.test"
     }
 
-    cpp.createSymlinks: false
+    cpp.internalVersion: ""
     cpp.defines: base.concat([name.toUpperCase() + "_LIBRARY"])
     cpp.sonamePrefix: qbs.targetOS.contains("osx")
         ? "@rpath"
