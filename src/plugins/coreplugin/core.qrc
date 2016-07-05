@@ -108,5 +108,9 @@
         <file>images/desktopdevicesmall.png</file>
         <file>images/desktopdevicesmall@2x.png</file>
         <file>images/reset@2x.png</file>
+        <file>images/collapse.png</file>
+        <file>images/collapse@2x.png</file>
+        <file>images/expand.png</file>
+        <file>images/expand@2x.png</file>
     </qresource>
 </RCC>

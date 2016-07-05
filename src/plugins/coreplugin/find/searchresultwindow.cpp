@@ -136,7 +136,7 @@ namespace Internal {
         m_expandCollapseButton->setAutoRaise(true);
 
         m_expandCollapseAction->setCheckable(true);
-        m_expandCollapseAction->setIcon(Core::Icons::EXPAND.icon());
+        m_expandCollapseAction->setIcon(Core::Icons::EXPAND_ALL_TOOLBAR.icon());
         Command *cmd = ActionManager::registerAction(m_expandCollapseAction, "Find.ExpandAll");
         cmd->setAttribute(Command::CA_UpdateText);
         m_expandCollapseButton->setDefaultAction(cmd->action());

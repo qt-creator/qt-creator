@@ -146,7 +146,7 @@ TestResultsPane::TestResultsPane(QObject *parent) :
 void TestResultsPane::createToolButtons()
 {
     m_expandCollapse = new QToolButton(m_treeView);
-    m_expandCollapse->setIcon(Core::Icons::EXPAND.icon());
+    m_expandCollapse->setIcon(Core::Icons::EXPAND_ALL_TOOLBAR.icon());
     m_expandCollapse->setToolTip(tr("Expand All"));
     m_expandCollapse->setCheckable(true);
     m_expandCollapse->setChecked(false);

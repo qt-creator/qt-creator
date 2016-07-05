@@ -3046,7 +3046,7 @@
     </g>
     <g
        style="display:inline"
-       id="src/plugins/autotest/images/expand"
+       id="src/plugins/coreplugin/images/expand"
        transform="translate(48,0)">
       <rect
          y="568"
@@ -3075,7 +3075,7 @@
          inkscape:connector-curvature="0" />
     </g>
     <g
-       id="src/plugins/autotest/images/collapse"
+       id="src/plugins/coreplugin/images/collapse"
        transform="translate(16,0)">
       <rect
          style="display:inline;fill:#ffffff;fill-opacity:1;stroke:none"

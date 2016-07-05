@@ -69,8 +69,8 @@ ConsoleItemDelegate::ConsoleItemDelegate(ConsoleItemModel *model, QObject *paren
     m_logIcon(Core::Icons::INFO.icon()),
     m_warningIcon(Core::Icons::WARNING.icon()),
     m_errorIcon(Core::Icons::ERROR.icon()),
-    m_expandIcon(QLatin1String(":/qmljstools/images/expand.png")),
-    m_collapseIcon(QLatin1String(":/qmljstools/images/collapse.png")),
+    m_expandIcon(Core::Icons::EXPAND.icon()),
+    m_collapseIcon(Core::Icons::COLLAPSE.icon()),
     m_prompt(QLatin1String(":/qmljstools/images/prompt.png")),
     m_cachedHeight(0)
 {

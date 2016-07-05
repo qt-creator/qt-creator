@@ -1,10 +1,6 @@
 <RCC>
     <qresource prefix="/">
         <file>images/autotest.png</file>
-        <file>images/expand.png</file>
-        <file>images/expand@2x.png</file>
-        <file>images/collapse.png</file>
-        <file>images/collapse@2x.png</file>
         <file>images/sort.png</file>
         <file>images/sort@2x.png</file>
         <file>images/leafsort.png</file>
