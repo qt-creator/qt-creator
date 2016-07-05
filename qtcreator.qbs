@@ -49,8 +49,7 @@ Project {
                     break;
                 }
             }
-            var fullQtcInstallDir
-                    = FileInfo.joinPaths(qbs.installRoot, qbs.installPrefix, qbs.InstallDir);
+            var fullQtcInstallDir = FileInfo.joinPaths(qbs.installRoot, qbs.installPrefix);
             var fullLibInstallDir = FileInfo.joinPaths(fullQtcInstallDir, qtc.ide_library_path);
             var fullPluginInstallDir = FileInfo.joinPaths(fullQtcInstallDir, qtc.ide_plugin_path);
             path = Qt.core.binPath + ";" + fullLibInstallDir + ";" + fullPluginInstallDir
