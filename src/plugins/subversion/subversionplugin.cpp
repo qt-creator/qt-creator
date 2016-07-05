@@ -877,21 +877,19 @@ SubversionResponse SubversionPlugin::runSvn(const QString &workingDir,
                                             int timeOutS, unsigned flags,
                                             QTextCodec *outputCodec) const
 {
-    const FileName executable = client()->vcsBinary();
     SubversionResponse response;
-    if (executable.isEmpty()) {
+    if (client()->vcsBinary().isEmpty()) {
         response.error = true;
         response.message =tr("No subversion executable specified.");
         return response;
     }
 
-    const SynchronousProcessResponse sp_resp =
-            VcsBasePlugin::runVcs(workingDir, executable, arguments, timeOutS,
-                                           flags, outputCodec);
+    const SynchronousProcessResponse sp_resp
+            = client()->vcsFullySynchronousExec(workingDir, arguments, flags, timeOutS, outputCodec);
 
     response.error = sp_resp.result != SynchronousProcessResponse::Finished;
     if (response.error)
-        response.message = sp_resp.exitMessage(executable.toString(), timeOutS);
+        response.message = sp_resp.exitMessage(client()->vcsBinary().toString(), timeOutS);
     response.stdErr = sp_resp.stdErr();
     response.stdOut = sp_resp.stdOut();
     return response;
