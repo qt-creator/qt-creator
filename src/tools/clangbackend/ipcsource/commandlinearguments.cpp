@@ -28,6 +28,7 @@
 #include "clangfilepath.h"
 
 #include <utf8string.h>
+#include <utils/qtcprocess.h>
 
 #include <QByteArray>
 
@@ -71,13 +72,10 @@ const char *CommandLineArguments::at(int position) const
 
 static Utf8String maybeQuoted(const char *argumentAsCString)
 {
-    const auto quotationMark = Utf8StringLiteral("\"");
-    const auto argument = Utf8String::fromUtf8(argumentAsCString);
+    const QString argumentAsQString = QString::fromUtf8(argumentAsCString);
+    const QString quotedArgument = Utils::QtcProcess::quoteArg(argumentAsQString);
 
-    if (argument.contains(quotationMark))
-        return argument;
-
-    return quotationMark + argument + quotationMark;
+    return Utf8String::fromString(quotedArgument);
 }
 
 void CommandLineArguments::print() const
