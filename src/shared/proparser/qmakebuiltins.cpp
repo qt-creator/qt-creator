@@ -1021,7 +1021,11 @@ ProStringList QMakeEvaluator::evaluateBuiltinExpand(
             QString rstr = QDir::cleanPath(
                     QDir(args.count() > 1 ? args.at(1).toQString(m_tmp2) : currentDirectory())
                     .absoluteFilePath(args.at(0).toQString(m_tmp1)));
-            ret << (rstr.isSharedWith(m_tmp1) ? args.at(0) : ProString(rstr).setSource(args.at(0)));
+            ret << (rstr.isSharedWith(m_tmp1)
+                        ? args.at(0)
+                        : args.count() > 1 && rstr.isSharedWith(m_tmp2)
+                            ? args.at(1)
+                            : ProString(rstr).setSource(args.at(0)));
         }
         break;
     case E_RELATIVE_PATH:
