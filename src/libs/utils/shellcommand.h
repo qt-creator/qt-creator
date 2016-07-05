@@ -163,6 +163,7 @@ protected:
 private:
     void run(QFutureInterface<void> &future);
     SynchronousProcessResponse runFullySynchronous(const FileName &binary, const QStringList &arguments,
+                                                   OutputProxy *proxy,
                                                    int timeoutS, const QString &workingDirectory,
                                                    const ExitCodeInterpreter &interpreter = defaultExitCodeInterpreter);
 

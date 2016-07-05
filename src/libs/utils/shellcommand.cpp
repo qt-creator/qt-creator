@@ -327,7 +327,7 @@ Utils::SynchronousProcessResponse ShellCommand::runCommand(const Utils::FileName
         proxy->appendCommand(dir, binary, arguments);
 
     if (d->m_flags & FullySynchronously) {
-        response = runFullySynchronous(binary, arguments, timeoutS, dir, interpreter);
+        response = runFullySynchronous(binary, arguments, proxy.data(), timeoutS, dir, interpreter);
     } else {
         Utils::SynchronousProcess process;
         process.setExitCodeInterpreter(interpreter);
@@ -395,13 +395,12 @@ Utils::SynchronousProcessResponse ShellCommand::runCommand(const Utils::FileName
 
 Utils::SynchronousProcessResponse ShellCommand::runFullySynchronous(const Utils::FileName &binary,
                                                                     const QStringList &arguments,
+                                                                    OutputProxy *proxy,
                                                                     int timeoutS,
                                                                     const QString &workingDirectory,
                                                                     const ExitCodeInterpreter &interpreter)
 {
     Utils::SynchronousProcessResponse response;
-
-    QScopedPointer<OutputProxy> proxy(d->m_proxyFactory());
 
     // Set up process
     QSharedPointer<QProcess> process = Utils::SynchronousProcess::createProcess(processFlags());
