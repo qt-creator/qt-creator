@@ -296,27 +296,30 @@ void QMakeParser::read(ProFile *pro, const QString &in, int line, SubGrammar gra
     // Worst-case size calculations:
     // - line marker adds 1 (2-nl) to 1st token of each line
     // - empty assignment "A=":2 =>
-    //   TokHashLiteral(1) + hash(2) + len(1) + "A"(1) + TokAssign(1) + 0(1) +
+    //   TokHashLiteral(1) + hash(2) + len(1) + "A"(1) + TokAssign(1) + size_hint(1) +
     //   TokValueTerminator(1) == 8 (9)
     // - non-empty assignment "A=B C":5 =>
-    //   TokHashLiteral(1) + hash(2) + len(1) + "A"(1) + TokAssign(1) + 2(1) +
+    //   TokHashLiteral(1) + hash(2) + len(1) + "A"(1) + TokAssign(1) + size_hint(1) +
     //   TokLiteral(1) + len(1) + "B"(1) +
     //   TokLiteral(1) + len(1) + "C"(1) + TokValueTerminator(1) == 14 (15)
     // - variable expansion: "$$f":3 =>
     //   TokVariable(1) + hash(2) + len(1) + "f"(1) = 5
     // - function expansion: "$$f()":5 =>
     //   TokFuncName(1) + hash(2) + len(1) + "f"(1) + TokFuncTerminator(1) = 6
+    // - test literal: "X":1 =>
+    //   TokHashLiteral(1) + hash(2) + len(1) + "A"(1) + TokCondition(1) = 6 (7)
     // - scope: "X:":2 =>
     //   TokHashLiteral(1) + hash(2) + len(1) + "A"(1) + TokCondition(1) +
-    //   TokBranch(1) + len(2) + ... + len(2) + ... == 10
-    // - test: "X():":4 =>
+    //   TokBranch(1) + len(2) + ... + len(2) + ... == 11 (12)
+    // - test call: "X():":4 =>
     //   TokHashLiteral(1) + hash(2) + len(1) + "A"(1) + TokTestCall(1) + TokFuncTerminator(1) +
-    //   TokBranch(1) + len(2) + ... + len(2) + ... == 11
+    //   TokBranch(1) + len(2) + ... + len(2) + ... == 12 (13)
     // - "for(A,B):":9 =>
     //   TokForLoop(1) + hash(2) + len(1) + "A"(1) +
     //   len(2) + TokLiteral(1) + len(1) + "B"(1) + TokValueTerminator(1) +
     //   len(2) + ... + TokTerminator(1) == 14 (15)
-    tokBuff.reserve((in.size() + 1) * 5);
+    // One extra for possibly missing trailing newline.
+    tokBuff.reserve((in.size() + 1) * 7);
     ushort *tokPtr = (ushort *)tokBuff.constData(); // Current writing position
 
     // Expression precompiler buffer.
