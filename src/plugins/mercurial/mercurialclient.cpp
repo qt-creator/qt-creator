@@ -157,7 +157,7 @@ bool MercurialClient::synchronousPull(const QString &workingDir, const QString &
                 workingDir, vcsBinary(), args, vcsTimeoutS(), flags, 0, env);
     const bool ok = resp.result == SynchronousProcessResponse::Finished;
 
-    parsePullOutput(resp.stdOut.trimmed());
+    parsePullOutput(resp.stdOut().trimmed());
     return ok;
 }
 

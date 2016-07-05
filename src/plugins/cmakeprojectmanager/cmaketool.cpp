@@ -153,7 +153,7 @@ QStringList CMakeTool::supportedGenerators() const
         Utils::SynchronousProcessResponse response = run(QLatin1String("--help"));
         if (response.result == Utils::SynchronousProcessResponse::Finished) {
             bool inGeneratorSection = false;
-            const QStringList lines = response.stdOut.split(QLatin1Char('\n'));
+            const QStringList lines = response.stdOut().split(QLatin1Char('\n'));
             foreach (const QString &line, lines) {
                 if (line.isEmpty())
                     continue;
@@ -188,19 +188,19 @@ TextEditor::Keywords CMakeTool::keywords()
         Utils::SynchronousProcessResponse response;
         response = run(QLatin1String("--help-command-list"));
         if (response.result == Utils::SynchronousProcessResponse::Finished)
-            m_functions = response.stdOut.split(QLatin1Char('\n'));
+            m_functions = response.stdOut().split(QLatin1Char('\n'));
 
         response = run(QLatin1String("--help-commands"));
         if (response.result == Utils::SynchronousProcessResponse::Finished)
-            parseFunctionDetailsOutput(response.stdOut);
+            parseFunctionDetailsOutput(response.stdOut());
 
         response = run(QLatin1String("--help-property-list"));
         if (response.result == Utils::SynchronousProcessResponse::Finished)
-            m_variables = parseVariableOutput(response.stdOut);
+            m_variables = parseVariableOutput(response.stdOut());
 
         response = run(QLatin1String("--help-variable-list"));
         if (response.result == Utils::SynchronousProcessResponse::Finished) {
-            m_variables.append(parseVariableOutput(response.stdOut));
+            m_variables.append(parseVariableOutput(response.stdOut()));
             m_variables = Utils::filteredUnique(m_variables);
             Utils::sort(m_variables);
         }

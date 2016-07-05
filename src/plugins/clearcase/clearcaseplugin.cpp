@@ -1480,8 +1480,8 @@ ClearCasePlugin::runCleartool(const QString &workingDir,
     response.error = sp_resp.result != SynchronousProcessResponse::Finished;
     if (response.error)
         response.message = sp_resp.exitMessage(executable, timeOutS);
-    response.stdErr = sp_resp.stdErr;
-    response.stdOut = sp_resp.stdOut;
+    response.stdErr = sp_resp.stdErr();
+    response.stdOut = sp_resp.stdOut();
     return response;
 }
 

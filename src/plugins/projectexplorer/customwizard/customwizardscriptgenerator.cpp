@@ -116,15 +116,15 @@ static bool
     if (response.result != Utils::SynchronousProcessResponse::Finished) {
         *errorMessage = QString::fromLatin1("Generator script failed: %1")
                 .arg(response.exitMessage(binary, 30));
-        if (!response.stdErr.isEmpty()) {
+        const QString stdErr = response.stdErr();
+        if (!stdErr.isEmpty()) {
             errorMessage->append(QLatin1Char('\n'));
-            errorMessage->append(response.stdErr);
+            errorMessage->append(stdErr);
         }
         return false;
     }
     if (stdOut) {
-        *stdOut = response.stdOut;
-        stdOut->remove(QLatin1Char('\r'));
+        *stdOut = response.stdOut();
         if (CustomWizard::verbose())
             qDebug("Output: '%s'\n", qPrintable(*stdOut));
     }

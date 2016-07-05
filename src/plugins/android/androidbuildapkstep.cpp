@@ -305,7 +305,7 @@ QAbstractItemModel *AndroidBuildApkStep::keystoreCertificates()
             QMessageBox::critical(0, tr("Error"), tr("Invalid password."));
             m_keystorePasswd.clear();
         }
-        rawCerts = response.stdOut;
+        rawCerts = response.stdOut();
     }
     return new CertificatesModel(rawCerts, this);
 }

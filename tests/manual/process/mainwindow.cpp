@@ -54,8 +54,8 @@ void MainWindow::test()
     Utils::SynchronousProcess process;
     process.setTimeoutS(2);
     qDebug() << "Async: " << cmd << args;
-    connect(&process, &Utils::SynchronousProcess::stdOut, this, &MainWindow::append);
-    connect(&process, &Utils::SynchronousProcess::stdErr, this, &MainWindow::append);
+    connect(&process, &Utils::SynchronousProcess::stdOutBuffered, this, &MainWindow::append);
+    connect(&process, &Utils::SynchronousProcess::stdErrBuffered, this, &MainWindow::append);
     const Utils::SynchronousProcessResponse resp = process.run(cmd, args);
     qDebug() << resp;
 }

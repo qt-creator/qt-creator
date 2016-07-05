@@ -277,8 +277,8 @@ void ShellCommand::run(QFutureInterface<void> &future)
         Utils::SynchronousProcessResponse resp
                 = runCommand(job.binary, job.arguments, job.timeoutS, job.workingDirectory,
                              job.exitCodeInterpreter);
-        stdOut += resp.stdOut;
-        stdErr += resp.stdErr;
+        stdOut += resp.stdOut();
+        stdErr += resp.stdErr();
         d->m_lastExecExitCode = resp.exitCode;
         d->m_lastExecSuccess = resp.result == Utils::SynchronousProcessResponse::Finished;
         if (!d->m_lastExecSuccess)
@@ -427,21 +427,20 @@ Utils::SynchronousProcessResponse ShellCommand::runSynchronous(const Utils::File
                                                             &stdOut, &stdErr, true);
 
     if (!d->m_aborted) {
+        response.codec = d->m_codec ? d->m_codec : QTextCodec::codecForLocale();
         if (!stdErr.isEmpty()) {
-            response.stdErr = Utils::SynchronousProcess::normalizeNewlines(
-                        d->m_codec ? d->m_codec->toUnicode(stdErr) : QString::fromLocal8Bit(stdErr));
+            response.rawStdErr = stdErr;
             if (!(d->m_flags & SuppressStdErr))
-                proxy->append(response.stdErr);
+                proxy->append(response.stdErr());
         }
 
         if (!stdOut.isEmpty()) {
-            response.stdOut = Utils::SynchronousProcess::normalizeNewlines(
-                        d->m_codec ? d->m_codec->toUnicode(stdOut) : QString::fromLocal8Bit(stdOut));
+            response.rawStdOut = stdOut;
             if (d->m_flags & ShowStdOut) {
                 if (d->m_flags & SilentOutput)
-                    proxy->appendSilently(response.stdOut);
+                    proxy->appendSilently(response.stdOut());
                 else
-                    proxy->append(response.stdOut);
+                    proxy->append(response.stdOut());
             }
         }
     }

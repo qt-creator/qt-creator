@@ -473,8 +473,8 @@ public:
         // No conflicts => do nothing
         if (response.result == SynchronousProcessResponse::Finished)
             return;
-        handler.readStdOut(response.stdOut);
-        handler.readStdErr(response.stdErr);
+        handler.readStdOut(response.stdOut());
+        handler.readStdErr(response.stdErr());
     }
 
 private:
@@ -1543,7 +1543,7 @@ bool GitClient::executeSynchronousStash(const QString &workingDirectory,
     const SynchronousProcessResponse response = vcsSynchronousExec(workingDirectory, arguments, flags);
     const bool rc = response.result == SynchronousProcessResponse::Finished;
     if (!rc)
-        msgCannotRun(arguments, workingDirectory, response.stdErr.toLocal8Bit(), errorMessage);
+        msgCannotRun(arguments, workingDirectory, response.rawStdErr, errorMessage);
 
     return rc;
 }
@@ -2119,7 +2119,7 @@ QStringList GitClient::synchronousRepositoryBranches(const QString &repositoryUR
     QString headSha;
     // split "82bfad2f51d34e98b18982211c82220b8db049b<tab>refs/heads/master"
     bool headFound = false;
-    foreach (const QString &line, resp.stdOut.split('\n')) {
+    foreach (const QString &line, resp.stdOut().split('\n')) {
         if (line.endsWith("\tHEAD")) {
             QTC_CHECK(headSha.isNull());
             headSha = line.left(line.indexOf('\t'));

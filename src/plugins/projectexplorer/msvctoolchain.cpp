@@ -253,18 +253,17 @@ QByteArray MsvcToolChain::msvcPredefinedMacros(const QStringList cxxflags,
             response.exitCode != 0)
         return predefinedMacros;
 
-    const QStringList output = response.stdOut.split('\n');
+    const QStringList output = Utils::filtered(response.stdOut().split('\n'),
+                                               [](const QString &s) { return s.startsWith('V'); });
     foreach (const QString& line, output) {
-        if (line.startsWith('V')) {
-            QStringList split = line.split('=');
-            const QString key = split.at(0).mid(1);
-            QString value = split.at(1);
-            predefinedMacros += "#define ";
-            predefinedMacros += key.toUtf8();
-            predefinedMacros += ' ';
-            predefinedMacros += value.toUtf8();
-            predefinedMacros += '\n';
-        }
+        QStringList split = line.split('=');
+        const QString key = split.at(0).mid(1);
+        QString value = split.at(1);
+        predefinedMacros += "#define ";
+        predefinedMacros += key.toUtf8();
+        predefinedMacros += ' ';
+        predefinedMacros += value.toUtf8();
+        predefinedMacros += '\n';
     }
     if (debug)
         qDebug() << "msvcPredefinedMacros" << predefinedMacros;

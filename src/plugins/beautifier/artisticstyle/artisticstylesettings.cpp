@@ -85,10 +85,10 @@ static int updateVersionHelper(const QString &command)
         return 0;
 
     // Astyle prints the version on stdout or stderr, depending on platform
-    const int version = parseVersion(response.stdOut.trimmed());
+    const int version = parseVersion(response.stdOut().trimmed());
     if (version != 0)
         return version;
-    return parseVersion(response.stdErr.trimmed());
+    return parseVersion(response.stdErr().trimmed());
 }
 
 void ArtisticStyleSettings::updateVersion()
@@ -176,7 +176,7 @@ void ArtisticStyleSettings::createDocumentationFile() const
     stream.writeStartElement(Constants::DOCUMENTATION_XMLROOT);
 
     // astyle writes its output to 'error'...
-    const QStringList lines = response.stdErr.split(QLatin1Char('\n'));
+    const QStringList lines = response.stdErr().split(QLatin1Char('\n'));
     QStringList keys;
     QStringList docu;
     for (QString line : lines) {
