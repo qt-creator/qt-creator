@@ -187,6 +187,15 @@ void QmlProfilerDataModel::QmlProfilerDataModelPrivate::rewriteType(int typeInde
     detailsRewriter->requestDetailsForLocation(typeIndex, type.location());
 }
 
+static bool isStateful(const QmlEventType &type)
+{
+    // Events of these types carry state that has to be taken into account when adding later events:
+    // PixmapCacheEvent: Total size of the cache and size of pixmap currently being loaded
+    // MemoryAllocation: Total size of the JS heap and the amount of it currently in use
+    const Message message = type.message();
+    return message == PixmapCacheEvent || message == MemoryAllocation;
+}
+
 void QmlProfilerDataModel::replayEvents(qint64 rangeStart, qint64 rangeEnd,
                                         QmlProfilerModelManager::EventLoader loader) const
 {
@@ -209,8 +218,12 @@ void QmlProfilerDataModel::replayEvents(qint64 rangeStart, qint64 rangeEnd,
                         stack.push(event);
                     else if (event.rangeStage() == RangeEnd)
                         stack.pop();
+                    continue;
+                } else if (isStateful(type)) {
+                    event.setTimestamp(rangeStart);
+                } else {
+                    continue;
                 }
-                continue;
             } else if (event.timestamp() > rangeEnd) {
                 if (type.rangeType() != MaximumRangeType) {
                     if (event.rangeStage() == RangeEnd) {
@@ -224,8 +237,12 @@ void QmlProfilerDataModel::replayEvents(qint64 rangeStart, qint64 rangeEnd,
                     } else if (event.rangeStage() == RangeStart) {
                         stack.push(event);
                     }
+                    continue;
+                } else if (isStateful(type)) {
+                    event.setTimestamp(rangeEnd);
+                } else {
+                    continue;
                 }
-                continue;
             } else if (!stack.isEmpty()) {
                 foreach (QmlEvent stashed, stack) {
                     stashed.setTimestamp(rangeStart);
