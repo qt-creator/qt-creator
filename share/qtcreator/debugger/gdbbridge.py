@@ -256,11 +256,6 @@ class Dumper(DumperBase):
         self.qtNamespaceToReport = None
         self.interpreterBreakpointResolvers = []
 
-        # The guess does not need to be updated during a fetchVariables()
-        # as the result is fixed during that time (ignoring "active"
-        # dumpers causing loading of shared objects etc).
-        self.currentQtNamespaceGuess = None
-
     def prepare(self, args):
         self.output = []
         self.currentIName = ""
@@ -293,6 +288,11 @@ class Dumper(DumperBase):
         #warn("NAMESPACE: '%s'" % self.qtNamespace())
         #warn("EXPANDED INAMES: %s" % self.expandedINames)
         #warn("WATCHERS: %s" % self.watchers)
+
+        # The guess does not need to be updated during a fetchVariables()
+        # as the result is fixed during that time (ignoring "active"
+        # dumpers causing loading of shared objects etc).
+        self.currentQtNamespaceGuess = None
 
     def listOfLocals(self):
         frame = gdb.selected_frame()
