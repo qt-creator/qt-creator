@@ -47,6 +47,12 @@ using ClangBackEnd::TranslationUnit;
 using ClangBackEnd::UnsavedFiles;
 using ClangBackEnd::ProjectPart;
 
+static unsigned completionOptions(const TranslationUnit &translationUnit)
+{
+    return translationUnit.defaultOptions() & CXTranslationUnit_IncludeBriefCommentsInCodeCompletion
+            ? CXCodeComplete_IncludeBriefComments : 0;
+}
+
 TEST(ClangCodeCompleteResults, GetData)
 {
     ProjectPart projectPart(Utf8StringLiteral("projectPartId"));
@@ -58,7 +64,11 @@ TEST(ClangCodeCompleteResults, GetData)
                                     Utf8StringVector(),
                                     translationUnits);
     Utf8String nativeFilePath = FilePath::toNativeSeparators(translationUnit.filePath());
-    CXCodeCompleteResults *cxCodeCompleteResults = clang_codeCompleteAt(translationUnit.cxTranslationUnit(), nativeFilePath.constData(), 49, 1, 0, 0, 0);
+    CXCodeCompleteResults *cxCodeCompleteResults =
+            clang_codeCompleteAt(translationUnit.cxTranslationUnit(),
+                                 nativeFilePath.constData(),
+                                 49, 1, 0, 0,
+                                 completionOptions(translationUnit));
 
     ClangCodeCompleteResults codeCompleteResults(cxCodeCompleteResults);
 
@@ -85,7 +95,11 @@ TEST(ClangCodeCompleteResults, MoveClangCodeCompleteResults)
                                     Utf8StringVector(),
                                     translationUnits);
     Utf8String nativeFilePath = FilePath::toNativeSeparators(translationUnit.filePath());
-    CXCodeCompleteResults *cxCodeCompleteResults = clang_codeCompleteAt(translationUnit.cxTranslationUnit(), nativeFilePath.constData(), 49, 1, 0, 0, 0);
+    CXCodeCompleteResults *cxCodeCompleteResults =
+            clang_codeCompleteAt(translationUnit.cxTranslationUnit(),
+                                 nativeFilePath.constData(),
+                                 49, 1, 0, 0,
+                                 completionOptions(translationUnit));
 
     ClangCodeCompleteResults codeCompleteResults(cxCodeCompleteResults);
 
