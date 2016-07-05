@@ -106,6 +106,6 @@ unix {
 }
 
 isEmpty(LLVM_VERSION): error("Cannot determine clang version at $$LLVM_INSTALL_DIR")
-!versionIsAtLeast($$LLVM_VERSION, 3, 6, 2): {
-    error("LLVM/Clang version >= 3.6.2 required, version provided: $$LLVM_VERSION")
+!versionIsAtLeast($$LLVM_VERSION, 3, 8, 0): {
+    error("LLVM/Clang version >= 3.8.0 required, version provided: $$LLVM_VERSION")
 }

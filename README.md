@@ -23,6 +23,7 @@ Prerequisites:
     * jom
 * On Mac OS X: latest Xcode
 * On Linux: g++ 4.7 or later
+* LLVM 3.8.0 or later for the Clang Code Model
 
 The installed toolchains have to match the one Qt was compiled with.
 
@@ -116,7 +117,7 @@ For detailed information on the supported compilers, see
        command...` error. If a `sh.exe` is found, the compile process will fail.
        You have to remove it from the path.
 
-  10.  To enable the Clang-based code model: Install Clang (>= version 3.6.2)
+  10.  To enable the Clang-based code model: Install Clang (>= version 3.8.0)
        and set the environment variable LLVM_INSTALL_DIR to point to the
        installation location.
 
