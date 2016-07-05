@@ -564,7 +564,8 @@ void ClangStaticAnalyzerRunControl::onRunnerFinishedWithSuccess(const QString &l
 void ClangStaticAnalyzerRunControl::onRunnerFinishedWithFailure(const QString &errorMessage,
                                                                 const QString &errorDetails)
 {
-    qCDebug(LOG) << "onRunnerFinishedWithFailure:" << errorMessage << errorDetails;
+    qCDebug(LOG).noquote() << "onRunnerFinishedWithFailure:"
+                           << errorMessage << '\n' << errorDetails;
 
     ++m_filesNotAnalyzed;
     m_success = false;

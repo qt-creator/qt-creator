@@ -114,7 +114,7 @@ bool ClangStaticAnalyzerRunner::run(const QString &filePath, const QStringList &
                                                                 compilerOptions);
     m_commandLine = Utils::QtcProcess::joinArgs(QStringList(m_clangExecutable) + arguments);
 
-    qCDebug(LOG) << "Starting" << m_commandLine;
+    qCDebug(LOG).noquote() << "Starting" << m_commandLine;
     m_process.start(m_clangExecutable, arguments);
     return true;
 }
@@ -177,7 +177,8 @@ QString ClangStaticAnalyzerRunner::processCommandlineAndOutput() const
                        "Output:\n%3")
                             .arg(m_commandLine,
                                  QString::number(m_process.error()),
-                                 QString::fromLocal8Bit(m_processOutput));
+                                 Utils::SynchronousProcess::normalizeNewlines(
+                                     QString::fromLocal8Bit(m_processOutput)));
 }
 
 QString ClangStaticAnalyzerRunner::actualLogFile() const
