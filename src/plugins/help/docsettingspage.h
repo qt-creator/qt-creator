@@ -50,14 +50,12 @@ public:
     void apply();
     void finish();
 
-private slots:
+private:
     void addDocumentation();
 
-private:
     bool eventFilter(QObject *object, QEvent *event);
     void removeDocumentation(const QList<QModelIndex> &items);
 
-private:
     QList<QModelIndex> currentSelection() const;
 
     Ui::DocSettingsPage m_ui;

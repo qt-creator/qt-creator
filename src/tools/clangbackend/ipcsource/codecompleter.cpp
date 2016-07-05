@@ -25,6 +25,7 @@
 
 #include "codecompleter.h"
 
+#include "clangfilepath.h"
 #include "clangcodecompleteresults.h"
 #include "clangstring.h"
 #include "cursor.h"
@@ -83,8 +84,10 @@ ClangCodeCompleteResults CodeCompleter::complete(uint line,
                                                  CXUnsavedFile *unsavedFiles,
                                                  unsigned unsavedFileCount)
 {
+    const Utf8String nativeFilePath = FilePath::toNativeSeparators(translationUnit.filePath());
+
     return clang_codeCompleteAt(translationUnit.cxTranslationUnitWithoutReparsing(),
-                                translationUnit.filePath().constData(),
+                                nativeFilePath.constData(),
                                 line,
                                 column,
                                 unsavedFiles,

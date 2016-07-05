@@ -131,8 +131,8 @@ AndroidSettingsWidget::AndroidSettingsWidget(QWidget *parent)
 {
     m_ui->setupUi(this);
 
-    connect(&m_checkGdbWatcher, SIGNAL(finished()),
-            this, SLOT(checkGdbFinished()));
+    connect(&m_checkGdbWatcher, &QFutureWatcherBase::finished,
+            this, &AndroidSettingsWidget::checkGdbFinished);
 
     m_ui->SDKLocationPathChooser->setFileName(m_androidConfig.sdkLocation());
     m_ui->SDKLocationPathChooser->setPromptDialogTitle(tr("Select Android SDK folder"));
@@ -179,22 +179,52 @@ AndroidSettingsWidget::AndroidSettingsWidget(QWidget *parent)
     m_ui->gdbWarningIconLabel->setPixmap(errorPixmap);
     m_ui->ndkWarningIconLabel->setPixmap(errorPixmap);
 
-    connect(m_ui->gdbWarningLabel, SIGNAL(linkActivated(QString)),
-            this, SLOT(showGdbWarningDialog()));
+    connect(m_ui->gdbWarningLabel, &QLabel::linkActivated,
+            this, &AndroidSettingsWidget::showGdbWarningDialog);
 
-    connect(&m_virtualDevicesWatcher, SIGNAL(finished()),
-            this, SLOT(updateAvds()));
+    connect(&m_virtualDevicesWatcher, &QFutureWatcherBase::finished,
+            this, &AndroidSettingsWidget::updateAvds);
 
     check(All);
     applyToUi(All);
 
-    connect(&m_futureWatcher, SIGNAL(finished()),
-            this, SLOT(avdAdded()));
+    connect(&m_futureWatcher, &QFutureWatcherBase::finished,
+            this, &AndroidSettingsWidget::avdAdded);
 
-    connect(m_ui->NDKLocationPathChooser, SIGNAL(rawPathChanged(QString)), this, SLOT(ndkLocationEditingFinished()));
-    connect(m_ui->SDKLocationPathChooser, SIGNAL(rawPathChanged(QString)), this, SLOT(sdkLocationEditingFinished()));
-    connect(m_ui->AntLocationPathChooser, SIGNAL(rawPathChanged(QString)), this, SLOT(antLocationEditingFinished()));
-    connect(m_ui->OpenJDKLocationPathChooser, SIGNAL(rawPathChanged(QString)), this, SLOT(openJDKLocationEditingFinished()));
+    connect(m_ui->NDKLocationPathChooser, &Utils::PathChooser::rawPathChanged,
+            this, &AndroidSettingsWidget::ndkLocationEditingFinished);
+    connect(m_ui->SDKLocationPathChooser, &Utils::PathChooser::rawPathChanged,
+            this, &AndroidSettingsWidget::sdkLocationEditingFinished);
+    connect(m_ui->AntLocationPathChooser, &Utils::PathChooser::rawPathChanged,
+            this, &AndroidSettingsWidget::antLocationEditingFinished);
+    connect(m_ui->OpenJDKLocationPathChooser, &Utils::PathChooser::rawPathChanged,
+            this, &AndroidSettingsWidget::openJDKLocationEditingFinished);
+    connect(m_ui->AVDAddPushButton, &QAbstractButton::clicked,
+            this, &AndroidSettingsWidget::addAVD);
+    connect(m_ui->AVDRemovePushButton, &QAbstractButton::clicked,
+            this, &AndroidSettingsWidget::removeAVD);
+    connect(m_ui->AVDStartPushButton, &QAbstractButton::clicked,
+            this, &AndroidSettingsWidget::startAVD);
+    connect(m_ui->AVDTableView, &QAbstractItemView::activated,
+            this, &AndroidSettingsWidget::avdActivated);
+    connect(m_ui->AVDTableView, &QAbstractItemView::clicked,
+            this, &AndroidSettingsWidget::avdActivated);
+    connect(m_ui->DataPartitionSizeSpinBox, &QAbstractSpinBox::editingFinished,
+            this, &AndroidSettingsWidget::dataPartitionSizeEditingFinished);
+    connect(m_ui->manageAVDPushButton, &QAbstractButton::clicked,
+            this, &AndroidSettingsWidget::manageAVD);
+    connect(m_ui->CreateKitCheckBox, &QAbstractButton::toggled,
+            this, &AndroidSettingsWidget::createKitToggled);
+    connect(m_ui->downloadSDKToolButton, &QAbstractButton::clicked,
+            this, &AndroidSettingsWidget::openSDKDownloadUrl);
+    connect(m_ui->downloadNDKToolButton, &QAbstractButton::clicked,
+            this, &AndroidSettingsWidget::openNDKDownloadUrl);
+    connect(m_ui->downloadAntToolButton, &QAbstractButton::clicked,
+            this, &AndroidSettingsWidget::openAntDownloadUrl);
+    connect(m_ui->downloadOpenJDKToolButton, &QAbstractButton::clicked,
+            this, &AndroidSettingsWidget::openOpenJDKDownloadUrl);
+    connect(m_ui->UseGradleCheckBox, &QAbstractButton::toggled,
+            this, &AndroidSettingsWidget::useGradleToggled);
 
 }
 
@@ -646,8 +676,9 @@ void AndroidSettingsWidget::showGdbWarningDialog()
 void AndroidSettingsWidget::manageAVD()
 {
     QProcess *avdProcess = new QProcess();
-    connect(this, SIGNAL(destroyed()), avdProcess, SLOT(deleteLater()));
-    connect(avdProcess, SIGNAL(finished(int)), avdProcess, SLOT(deleteLater()));
+    connect(this, &QObject::destroyed, avdProcess, &QObject::deleteLater);
+    connect(avdProcess, static_cast<void (QProcess::*)(int)>(&QProcess::finished),
+            avdProcess, &QObject::deleteLater);
 
     avdProcess->setProcessEnvironment(m_androidConfig.androidToolEnvironment().toProcessEnvironment());
     QString executable = m_androidConfig.androidToolPath().toString();

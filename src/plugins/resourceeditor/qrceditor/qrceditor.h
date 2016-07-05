@@ -54,18 +54,20 @@ public:
 
     QString currentResourcePath() const;
 
+    void onUndo();
+    void onRedo();
+
 signals:
     void itemActivated(const QString &fileName);
     void showContextMenu(const QPoint &globalPos, const QString &fileName);
+    void undoStackChanged(bool canUndo, bool canRedo);
 
-private slots:
+private:
     void updateCurrent();
     void updateHistoryControls();
 
-private:
     void resolveLocationIssues(QStringList &files);
 
-private slots:
     void onAliasChanged(const QString &alias);
     void onPrefixChanged(const QString &prefix);
     void onLanguageChanged(const QString &language);
@@ -74,14 +76,6 @@ private slots:
     void onAddFiles();
     void onAddPrefix();
 
-signals:
-    void undoStackChanged(bool canUndo, bool canRedo);
-
-public slots:
-    void onUndo();
-    void onRedo();
-
-private:
     Ui::QrcEditor m_ui;
     QUndoStack m_history;
     ResourceView *m_treeview;

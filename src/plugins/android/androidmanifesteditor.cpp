@@ -42,7 +42,8 @@ AndroidManifestEditor::AndroidManifestEditor(AndroidManifestEditorWidget *editor
 {
     m_toolBar = new QToolBar(editorWidget);
     m_actionGroup = new QActionGroup(this);
-    connect(m_actionGroup, SIGNAL(triggered(QAction*)), this, SLOT(changeEditorPage(QAction*)));
+    connect(m_actionGroup, &QActionGroup::triggered,
+            this, &AndroidManifestEditor::changeEditorPage);
 
     QAction *generalAction = m_toolBar->addAction(tr("General"));
     generalAction->setData(AndroidManifestEditorWidget::General);

@@ -239,25 +239,25 @@ void IndexFilterModel::setSourceModel(QAbstractItemModel *sm)
 {
     QAbstractItemModel *previousModel = sourceModel();
     if (previousModel) {
-        disconnect(previousModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)),
-                   this, SLOT(sourceDataChanged(QModelIndex,QModelIndex)));
-        disconnect(previousModel, SIGNAL(rowsInserted(QModelIndex,int,int)),
-                   this, SLOT(sourceRowsInserted(QModelIndex,int,int)));
-        disconnect(previousModel, SIGNAL(rowsRemoved(QModelIndex,int,int)),
-                   this, SLOT(sourceRowsRemoved(QModelIndex,int,int)));
-        disconnect(previousModel, SIGNAL(modelReset()),
-                   this, SLOT(sourceModelReset()));
+        disconnect(previousModel, &QAbstractItemModel::dataChanged,
+                   this, &IndexFilterModel::sourceDataChanged);
+        disconnect(previousModel, &QAbstractItemModel::rowsInserted,
+                   this, &IndexFilterModel::sourceRowsInserted);
+        disconnect(previousModel, &QAbstractItemModel::rowsRemoved,
+                   this, &IndexFilterModel::sourceRowsRemoved);
+        disconnect(previousModel, &QAbstractItemModel::modelReset,
+                   this, &IndexFilterModel::sourceModelReset);
     }
     QAbstractProxyModel::setSourceModel(sm);
     if (sm) {
-        connect(sm, SIGNAL(dataChanged(QModelIndex,QModelIndex)),
-                this, SLOT(sourceDataChanged(QModelIndex,QModelIndex)));
-        connect(sm, SIGNAL(rowsInserted(QModelIndex,int,int)),
-                this, SLOT(sourceRowsInserted(QModelIndex,int,int)));
-        connect(sm, SIGNAL(rowsRemoved(QModelIndex,int,int)),
-                this, SLOT(sourceRowsRemoved(QModelIndex,int,int)));
-        connect(sm, SIGNAL(modelReset()),
-                this, SLOT(sourceModelReset()));
+        connect(sm, &QAbstractItemModel::dataChanged,
+                this, &IndexFilterModel::sourceDataChanged);
+        connect(sm, &QAbstractItemModel::rowsInserted,
+                this, &IndexFilterModel::sourceRowsInserted);
+        connect(sm, &QAbstractItemModel::rowsRemoved,
+                this, &IndexFilterModel::sourceRowsRemoved);
+        connect(sm, &QAbstractItemModel::modelReset,
+                this, &IndexFilterModel::sourceModelReset);
     }
     filter(m_filter, m_wildcard);
 }

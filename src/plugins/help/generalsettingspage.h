@@ -49,20 +49,18 @@ public:
 signals:
     void fontChanged();
 
-private slots:
+private:
     void setCurrentPage();
     void setBlankPage();
     void setDefaultPage();
     void importBookmarks();
     void exportBookmarks();
 
-private:
     void updateFontSize();
     void updateFontStyle();
     void updateFontFamily();
     int closestPointSizeIndex(int desiredPointSize) const;
 
-private:
     QFont m_font;
     QFontDatabase m_fontDatabase;
 

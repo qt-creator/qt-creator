@@ -66,8 +66,6 @@ public:
     void zoomOut();
     void resetZoom();
 
-
-public slots:
     void reindexDocumentation();
 
 signals:
@@ -76,7 +74,7 @@ signals:
 protected:
     void showEvent(QShowEvent *event);
 
-private slots:
+private:
     void search() const;
 
     void searchingStarted();
@@ -85,12 +83,10 @@ private slots:
     void indexingStarted();
     void indexingFinished();
 
-private:
     bool eventFilter(QObject* o, QEvent *e);
     void contextMenuEvent(QContextMenuEvent *contextMenuEvent);
     QStringList currentSearchTerms() const;
 
-private:
     int zoomCount;
 
     QFutureWatcher<void> m_watcher;

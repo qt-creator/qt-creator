@@ -63,10 +63,11 @@ private:
 
 private:
    CXSourceLocation cxSourceLocation;
-   Utf8String filePath_;
+   mutable Utf8String filePath_;
    uint line_ = 0;
    uint column_ = 0;
    uint offset_ = 0;
+   mutable bool isFilePathNormalized_ = true;
 };
 
 bool operator==(const SourceLocation &first, const SourceLocation &second);

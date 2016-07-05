@@ -43,7 +43,7 @@ FileFilterBaseItem::FileFilterBaseItem(QObject *parent) :
     m_updateFileListTimer.setSingleShot(true);
     m_updateFileListTimer.setInterval(50);
 
-    connect(&m_updateFileListTimer, SIGNAL(timeout()), this, SLOT(updateFileListNow()));
+    connect(&m_updateFileListTimer, &QTimer::timeout, this, &FileFilterBaseItem::updateFileListNow);
 }
 
 Utils::FileSystemWatcher *FileFilterBaseItem::dirWatcher()
@@ -51,7 +51,8 @@ Utils::FileSystemWatcher *FileFilterBaseItem::dirWatcher()
     if (!m_dirWatcher) {
         m_dirWatcher = new Utils::FileSystemWatcher(1, this); // Separate id, might exceed OS limits.
         m_dirWatcher->setObjectName(QLatin1String("FileFilterBaseItemWatcher"));
-        connect(m_dirWatcher, SIGNAL(directoryChanged(QString)), this, SLOT(updateFileList()));
+        connect(m_dirWatcher, &Utils::FileSystemWatcher::directoryChanged,
+                this, &FileFilterBaseItem::updateFileList);
     }
     return m_dirWatcher;
 }

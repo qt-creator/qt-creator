@@ -27,7 +27,6 @@
 #include <debugger/analyzer/analyzermanager.h>
 #include <debugger/analyzer/analyzerruncontrol.h>
 #include <debugger/analyzer/analyzerstartparameters.h>
-#include <utils/hostosinfo.h>
 #include <QtTest>
 #include <QTcpServer>
 
@@ -40,13 +39,16 @@ LocalQmlProfilerRunnerTest::LocalQmlProfilerRunnerTest(QObject *parent) : QObjec
 
 void LocalQmlProfilerRunnerTest::testRunner()
 {
-    if (Utils::HostOsInfo::isWindowsHost())
-        QSKIP("This test is disabled on Windows as it produces a blocking dialog.");
-
+    Debugger::AnalyzerConnection connection;
     LocalQmlProfilerRunner::Configuration configuration;
+    configuration.debuggee.environment = Utils::Environment::systemEnvironment();
+
+    // should not be used anywhere but cannot be empty
+    configuration.socket = connection.analyzerSocket = QString("invalid");
+
     Debugger::AnalyzerRunControl *rc = Debugger::createAnalyzerRunControl(
                 nullptr, ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
-    rc->setConnection(Debugger::AnalyzerConnection());
+    rc->setConnection(connection);
     auto runner = new LocalQmlProfilerRunner(configuration, rc);
 
     bool running = false;
@@ -67,7 +69,8 @@ void LocalQmlProfilerRunnerTest::testRunner()
         connect(runner, &LocalQmlProfilerRunner::appendMessage, this,
                 [&errors](const QString &message, Utils::OutputFormat format) {
             Q_UNUSED(message);
-            if (format == Utils::ErrorMessageFormat)
+            if (format == Utils::ErrorMessageFormat && message !=
+                    ProjectExplorer::ApplicationLauncher::msgWinCannotRetrieveDebuggingOutput())
                 ++errors;
         });
     };
@@ -80,14 +83,16 @@ void LocalQmlProfilerRunnerTest::testRunner()
     QTRY_VERIFY_WITH_TIMEOUT(!running, 10000);
     QCOMPARE(errors, 1);
 
-    configuration.debuggee.environment = Utils::Environment::systemEnvironment();
+    configuration.socket = connection.analyzerSocket = LocalQmlProfilerRunner::findFreeSocket();
     configuration.debuggee.executable = qApp->applicationFilePath();
-    configuration.debuggee.commandLineArguments = QString("-version");
+
+    // comma is used to specify a test function. In this case, an invalid one.
+    configuration.debuggee.commandLineArguments = QString("-test QmlProfiler,");
 
     delete rc;
     rc = Debugger::createAnalyzerRunControl(
                 nullptr, ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
-    rc->setConnection(Debugger::AnalyzerConnection());
+    rc->setConnection(connection);
     runner = new LocalQmlProfilerRunner(configuration, rc);
     connectRunner();
     rc->start();
@@ -99,9 +104,13 @@ void LocalQmlProfilerRunnerTest::testRunner()
     delete rc;
 
     configuration.debuggee.commandLineArguments.clear();
+    configuration.socket.clear();
+    connection.analyzerSocket.clear();
+    configuration.port = connection.analyzerPort =
+            LocalQmlProfilerRunner::findFreePort(connection.analyzerHost);
     rc = Debugger::createAnalyzerRunControl(
                 nullptr, ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
-    rc->setConnection(Debugger::AnalyzerConnection());
+    rc->setConnection(connection);
     runner = new LocalQmlProfilerRunner(configuration, rc);
     connectRunner();
     rc->start();

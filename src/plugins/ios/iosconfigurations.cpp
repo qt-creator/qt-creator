@@ -344,7 +344,8 @@ void IosConfigurations::setDeveloperPath(const FileName &devPath)
         m_instance->save();
         if (!hasDevPath && !devPath.isEmpty()) {
             hasDevPath = true;
-            QTimer::singleShot(1000, IosDeviceManager::instance(), SLOT(monitorAvailableDevices()));
+            QTimer::singleShot(1000, IosDeviceManager::instance(),
+                               &IosDeviceManager::monitorAvailableDevices);
             m_instance->updateSimulators();
         }
         emit m_instance->updated();

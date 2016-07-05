@@ -107,7 +107,6 @@ QHeaderView::section {
     padding: 4px;
     border: 1px solid black;
     color: #cacaca;
-    border-radius: 2px;
     margin: 2px
 }
 
@@ -124,11 +123,6 @@ QStackedWidget {
     background-color: #4f4f4f;
 }
 
-QTabBar::tab:hover {
-    image: url(:/connectionview/panelselected.png);
-    border-width: 2px;
-}
-
 QTabBar::tab:selected {
     border: none;
     border-image: none;
@@ -139,11 +133,9 @@ QTabBar::tab:selected {
     color: #3c3c3c;
 }
 
+
 QTabBar::tab {
-image: url(:/connectionview/panel.png);
-
-    width: 130px;
-
+    width: 80px;
     height: 22px;
     margin-top: 0x;
     margin-bottom: 0px;
@@ -151,6 +143,7 @@ image: url(:/connectionview/panel.png);
     margin-right: 0px;
     font: bold;
     font-size: 11px;
+    background-color: #444444;
     color: #EEEEEE;
 }
 
@@ -169,7 +162,6 @@ QSpinBox
     padding-bottom: 2px;
     padding-left: 12px;
     border: 2px solid #0F0F0F;
-    border-radius: 6px;
     border-width: 1;
     background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
     stop: 0 #2c2c2c, stop: 1 #333333);
@@ -186,7 +178,6 @@ QSpinBox
     padding-bottom: 2px;
     padding-left: 12px;
     border: 2px solid #0F0F0F;
-    border-radius: 6px;
     border-width: 1;
     background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
     stop: 0 #2c2c2c, stop: 1 #333333);
@@ -310,7 +301,6 @@ QLineEdit
     color: white;
     font-size: 11px;
     border: 2px solid #0F0F0F;
-    border-radius: 6px;
     border-width: 1;
     min-height: 26px;
     background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,

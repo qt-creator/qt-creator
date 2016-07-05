@@ -77,10 +77,10 @@ void IosDeployStep::ctor()
     m_transferStatus = NoTransfer;
     cleanup();
     updateDisplayNames();
-    connect(DeviceManager::instance(), SIGNAL(updated()),
-            SLOT(updateDisplayNames()));
-    connect(target(), SIGNAL(kitChanged()),
-            SLOT(updateDisplayNames()));
+    connect(DeviceManager::instance(), &DeviceManager::updated,
+            this, &IosDeployStep::updateDisplayNames);
+    connect(target(), &Target::kitChanged,
+            this, &IosDeployStep::updateDisplayNames);
 }
 
 void IosDeployStep::updateDisplayNames()
@@ -127,14 +127,14 @@ void IosDeployStep::run(QFutureInterface<bool> &fi)
     m_futureInterface.setProgressRange(0, 200);
     m_futureInterface.setProgressValueAndText(0, QLatin1String("Transferring application"));
     m_futureInterface.reportStarted();
-    connect(m_toolHandler, SIGNAL(isTransferringApp(Ios::IosToolHandler*,QString,QString,int,int,QString)),
-            SLOT(handleIsTransferringApp(Ios::IosToolHandler*,QString,QString,int,int,QString)));
-    connect(m_toolHandler, SIGNAL(didTransferApp(Ios::IosToolHandler*,QString,QString,Ios::IosToolHandler::OpStatus)),
-            SLOT(handleDidTransferApp(Ios::IosToolHandler*,QString,QString,Ios::IosToolHandler::OpStatus)));
-    connect(m_toolHandler, SIGNAL(finished(Ios::IosToolHandler*)),
-            SLOT(handleFinished(Ios::IosToolHandler*)));
-    connect(m_toolHandler, SIGNAL(errorMsg(Ios::IosToolHandler*,QString)),
-            SLOT(handleErrorMsg(Ios::IosToolHandler*,QString)));
+    connect(m_toolHandler, &IosToolHandler::isTransferringApp,
+            this, &IosDeployStep::handleIsTransferringApp);
+    connect(m_toolHandler, &IosToolHandler::didTransferApp,
+            this, &IosDeployStep::handleDidTransferApp);
+    connect(m_toolHandler, &IosToolHandler::finished,
+            this, &IosDeployStep::handleFinished);
+    connect(m_toolHandler, &IosToolHandler::errorMsg,
+            this, &IosDeployStep::handleErrorMsg);
     checkProvisioningProfile();
     m_toolHandler->requestTransferApp(appBundle(), deviceId());
 }

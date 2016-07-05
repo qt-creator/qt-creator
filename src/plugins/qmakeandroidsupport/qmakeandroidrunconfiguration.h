@@ -29,7 +29,10 @@
 
 #include <utils/fileutils.h>
 
-namespace QmakeProjectManager { class QmakeProFileNode; }
+namespace QmakeProjectManager {
+class QmakeProFileNode;
+class QmakeProject;
+}
 
 namespace QmakeAndroidSupport {
 namespace Internal {
@@ -55,10 +58,9 @@ protected:
     QVariantMap toMap() const override;
     QString defaultDisplayName();
 
-private slots:
-    void proFileUpdated(QmakeProjectManager::QmakeProFileNode *pro, bool success, bool parseInProgress);
-
 private:
+    void proFileUpdated(QmakeProjectManager::QmakeProFileNode *pro, bool success, bool parseInProgress);
+    QmakeProjectManager::QmakeProject *qmakeProject() const;
     void init();
 
     mutable Utils::FileName m_proFilePath;

@@ -98,7 +98,7 @@ public:
 
         optionsBuilder.addPredefinedMacrosAndHeaderPathsOptions();
         optionsBuilder.addWrappedQtHeadersIncludePath();
-        optionsBuilder.addHeaderPathOptions();
+        optionsBuilder.addHeaderPathOptions(/*addAsNativePath*/ true);
         optionsBuilder.addProjectConfigFileInclude();
 
         optionsBuilder.addMsvcCompatibilityVersion();
@@ -149,19 +149,20 @@ private:
         static const QString resourceDir = getResourceDir();
         if (!resourceDir.isEmpty()) {
             add(QLatin1String("-nostdlibinc"));
-            add(QLatin1String("-I") + resourceDir);
+            add(QLatin1String("-I") + QDir::toNativeSeparators(resourceDir));
             add(QLatin1String("-undef"));
         }
     }
 
     void addWrappedQtHeadersIncludePath()
     {
-        static const QString wrappedQtHeaders = ICore::instance()->resourcePath()
+        static const QString wrappedQtHeadersPath = ICore::instance()->resourcePath()
                 + QLatin1String("/cplusplus/wrappedQtHeaders");
 
         if (m_projectPart.qtVersion != ProjectPart::NoQt) {
-            add(QLatin1String("-I") + wrappedQtHeaders);
-            add(QLatin1String("-I") + wrappedQtHeaders + QLatin1String("/QtCore"));
+            const QString wrappedQtCoreHeaderPath = wrappedQtHeadersPath + QLatin1String("/QtCore");
+            add(QLatin1String("-I") + QDir::toNativeSeparators(wrappedQtHeadersPath));
+            add(QLatin1String("-I") + QDir::toNativeSeparators(wrappedQtCoreHeaderPath));
         }
     }
 
@@ -169,7 +170,7 @@ private:
     {
         if (!m_projectPart.projectConfigFile.isEmpty()) {
             add(QLatin1String("-include"));
-            add(m_projectPart.projectConfigFile);
+            add(QDir::toNativeSeparators(m_projectPart.projectConfigFile));
         }
     }
 

@@ -47,12 +47,11 @@ public:
     bool isRunning() const override;
     QString displayName() const override;
 
-private slots:
+private:
     void handleRemoteProcessFinished(bool cleanEnd);
     void handleRemoteOutput(const QString &output);
     void handleRemoteErrorOutput(const QString &output);
 
-private:
     IosRunner *const m_runner;
     bool m_running;
 };

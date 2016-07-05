@@ -54,7 +54,7 @@ public:
     explicit QmakeAndroidBuildApkWidget(QmakeAndroidBuildApkStep *step);
     ~QmakeAndroidBuildApkWidget();
 
-private slots:
+private:
     void createAndroidTemplatesButton();
     void addAndroidExtraLib();
     void removeAndroidExtraLib();

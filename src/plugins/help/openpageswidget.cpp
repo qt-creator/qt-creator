@@ -53,10 +53,10 @@ OpenPagesWidget::OpenPagesWidget(OpenPagesModel *sourceModel, QWidget *parent)
             this, &OpenPagesWidget::handleCloseActivated);
     connect(this, &OpenDocumentsTreeView::customContextMenuRequested,
             this, &OpenPagesWidget::contextMenuRequested);
-    connect(model(), SIGNAL(rowsInserted(QModelIndex,int,int)),
-            this, SLOT(updateCloseButtonVisibility()));
-    connect(model(), SIGNAL(rowsRemoved(QModelIndex,int,int)),
-            this, SLOT(updateCloseButtonVisibility()));
+    connect(model(), &QAbstractItemModel::rowsInserted,
+            this, &OpenPagesWidget::updateCloseButtonVisibility);
+    connect(model(), &QAbstractItemModel::rowsRemoved,
+            this, &OpenPagesWidget::updateCloseButtonVisibility);
 }
 
 OpenPagesWidget::~OpenPagesWidget()
@@ -77,7 +77,7 @@ void OpenPagesWidget::allowContextMenu(bool ok)
     m_allowContextMenu = ok;
 }
 
-// -- private slots
+// -- private
 
 void OpenPagesWidget::contextMenuRequested(QPoint pos)
 {

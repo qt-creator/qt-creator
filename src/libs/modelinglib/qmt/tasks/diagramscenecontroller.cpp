@@ -724,8 +724,18 @@ bool DiagramSceneController::relocateRelationEnd(DRelation *relation, DObject *t
             MObject *currentTargetMObject = m_modelController->findObject((modelRelation->*endUid)());
             QMT_CHECK(currentTargetMObject);
             m_modelController->undoController()->beginMergeSequence(tr("Relocate Relation"));
+            // move relation into new target if it was a child of the old target
             if (currentTargetMObject == modelRelation->owner())
                 m_modelController->moveRelation(targetMObject, modelRelation);
+            // remove relation on all diagrams where the new targe element does not exist
+            foreach (MDiagram *diagram, m_diagramController->allDiagrams()) {
+                if (DElement *diagramRelation = m_diagramController->findDelegate(modelRelation, diagram)) {
+                    if (!m_diagramController->findDelegate(targetMObject, diagram)) {
+                        m_diagramController->removeElement(diagramRelation, diagram);
+                    }
+                }
+            }
+            // update end of relation
             m_modelController->startUpdateRelation(modelRelation);
             (modelRelation->*setEndUid)(targetMObject->uid());
             m_modelController->finishUpdateRelation(modelRelation, false);

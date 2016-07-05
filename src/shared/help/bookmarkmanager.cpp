@@ -102,8 +102,8 @@ BookmarkDialog::BookmarkDialog(BookmarkManager *manager, const QString &title,
     connect(ui.treeView, &TreeView::customContextMenuRequested,
             this, &BookmarkDialog::customContextMenuRequested);
 
-    connect(ui.treeView->selectionModel(), SIGNAL(currentChanged(QModelIndex, QModelIndex)),
-            this, SLOT(currentChanged(QModelIndex)));
+    connect(ui.treeView->selectionModel(), &QItemSelectionModel::currentChanged,
+            this, &BookmarkDialog::currentChanged);
 }
 
 BookmarkDialog::~BookmarkDialog()
@@ -313,15 +313,6 @@ BookmarkWidget::~BookmarkWidget()
 void BookmarkWidget::setOpenInNewPageActionVisible(bool visible)
 {
     m_isOpenInNewPageActionVisible = visible;
-}
-
-void BookmarkWidget::removeClicked()
-{
-    const QModelIndex& index = treeView->currentIndex();
-    if (searchField->text().isEmpty()) {
-        bookmarkManager->removeBookmarkItem(treeView,
-            filterBookmarkModel->mapToSource(index));
-    }
 }
 
 void BookmarkWidget::filterChanged()

@@ -43,7 +43,6 @@ public:
 
     void run();
 
-public slots:
     void onError(const QString &errorMessage);
     void onBacktraceChunk(const QString &chunk);
     void onBacktraceFinished(const QString &backtrace);

@@ -89,13 +89,11 @@ protected:
     bool fromMap(const QVariantMap &map) override;
     QString defaultDisplayName();
 
-protected slots:
+protected:
     void updateEnabledState() { emit enabledChanged(); }
 
-private slots:
-    void handleBuildSystemDataUpdated();
-
 private:
+    void handleBuildSystemDataUpdated();
     void init();
 
     Internal::RemoteLinuxRunConfigurationPrivate * const d;

@@ -226,13 +226,16 @@ IosToolHandlerPrivate::IosToolHandlerPrivate(const IosDeviceType &devType,
     env.insert(QLatin1String("DYLD_FALLBACK_FRAMEWORK_PATH"), frameworkPaths.join(QLatin1Char(':')));
     qCDebug(toolHandlerLog) << "IosToolHandler runEnv:" << env.toStringList();
     process.setProcessEnvironment(env);
-    QObject::connect(&process, SIGNAL(readyReadStandardOutput()), q, SLOT(subprocessHasData()));
-    QObject::connect(&process, SIGNAL(finished(int,QProcess::ExitStatus)),
-            q, SLOT(subprocessFinished(int,QProcess::ExitStatus)));
-    QObject::connect(&process, SIGNAL(error(QProcess::ProcessError)),
-            q, SLOT(subprocessError(QProcess::ProcessError)));
-    QObject::connect(&killTimer, SIGNAL(timeout()),
-            q, SLOT(killProcess()));
+    QObject::connect(&process, &QProcess::readyReadStandardOutput,
+                     q, &IosToolHandler::subprocessHasData);
+    QObject::connect(&process,
+                     static_cast<void (QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished),
+                     q, &IosToolHandler::subprocessFinished);
+    QObject::connect(&process,
+                     static_cast<void (QProcess::*)(QProcess::ProcessError)>(&QProcess::error),
+                     q, &IosToolHandler::subprocessError);
+    QObject::connect(&killTimer, &QTimer::timeout,
+                     q, &IosToolHandler::killProcess);
 }
 
 bool IosToolHandlerPrivate::isRunning()

@@ -52,11 +52,10 @@ public:
     void disableDebugAppButton();
     bool runDebuggerWhileBacktraceNotFinished();
 
-private slots:
+private:
     void copyToClipboardClicked();
     void close();
 
-private:
     CrashHandler *m_crashHandler;
     Ui::CrashHandlerDialog *m_ui;
 };

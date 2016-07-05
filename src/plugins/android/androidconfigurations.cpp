@@ -776,7 +776,8 @@ QString AndroidConfig::startAVD(const QString &name) const
 bool AndroidConfig::startAVDAsync(const QString &avdName) const
 {
     QProcess *avdProcess = new QProcess();
-    avdProcess->connect(avdProcess, SIGNAL(finished(int)), avdProcess, SLOT(deleteLater()));
+    QObject::connect(avdProcess, static_cast<void (QProcess::*)(int)>(&QProcess::finished),
+                     avdProcess, &QObject::deleteLater);
 
     // start the emulator
     QStringList arguments;

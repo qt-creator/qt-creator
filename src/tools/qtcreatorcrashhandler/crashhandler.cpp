@@ -103,9 +103,11 @@ public:
 CrashHandler::CrashHandler(pid_t pid, const QString &signalName, QObject *parent)
     : QObject(parent), d(new CrashHandlerPrivate(pid, signalName, this))
 {
-    connect(&d->backtraceCollector, SIGNAL(error(QString)), SLOT(onError(QString)));
-    connect(&d->backtraceCollector, SIGNAL(backtraceChunk(QString)), SLOT(onBacktraceChunk(QString)));
-    connect(&d->backtraceCollector, SIGNAL(backtrace(QString)), SLOT(onBacktraceFinished(QString)));
+    connect(&d->backtraceCollector, &BacktraceCollector::error, this, &CrashHandler::onError);
+    connect(&d->backtraceCollector, &BacktraceCollector::backtraceChunk,
+            this, &CrashHandler::onBacktraceChunk);
+    connect(&d->backtraceCollector, &BacktraceCollector::backtrace,
+            this, &CrashHandler::onBacktraceFinished);
 
     d->dialog.appendDebugInfo(collectKernelVersionInfo());
     d->dialog.appendDebugInfo(collectLinuxDistributionInfo());

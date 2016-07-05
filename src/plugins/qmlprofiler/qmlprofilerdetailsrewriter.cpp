@@ -139,7 +139,7 @@ void QmlProfilerDetailsRewriter::requestDetailsForLocation(int requestId,
     PendingEvent ev = {location, localFile, requestId};
     d->m_pendingEvents << ev;
     if (!d->m_pendingDocs.contains(localFile)) {
-        if (d->m_pendingDocs.isEmpty())
+        if (d->m_pendingDocs.isEmpty() && QmlJS::ModelManagerInterface::instance())
             connect(QmlJS::ModelManagerInterface::instance(),
                     &QmlJS::ModelManagerInterface::documentUpdated,
                     this,

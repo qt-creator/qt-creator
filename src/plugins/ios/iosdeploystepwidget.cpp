@@ -42,7 +42,8 @@ IosDeployStepWidget::IosDeployStepWidget(IosDeployStep *step) :
     m_step(step)
 {
     ui->setupUi(this);
-    connect(m_step, SIGNAL(displayNameChanged()), SIGNAL(updateSummary()));
+    connect(m_step, &ProjectExplorer::ProjectConfiguration::displayNameChanged,
+            this, &ProjectExplorer::BuildStepConfigWidget::updateSummary);
 }
 
 IosDeployStepWidget::~IosDeployStepWidget()

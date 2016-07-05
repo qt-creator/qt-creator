@@ -25,7 +25,11 @@
 
 #include "commandlinearguments.h"
 
+#include "clangfilepath.h"
+
 #include <utf8string.h>
+
+#include <QByteArray>
 
 #include <iostream>
 
@@ -46,7 +50,8 @@ CommandLineArguments::CommandLineArguments(const char *filePath,
         m_arguments.push_back(argument.constData());
     if (addVerboseOption)
         m_arguments.push_back("-v");
-    m_arguments.push_back(filePath);
+    m_nativeFilePath = FilePath::toNativeSeparators(Utf8String::fromUtf8(filePath));
+    m_arguments.push_back(m_nativeFilePath.constData());
 }
 
 const char * const *CommandLineArguments::data() const

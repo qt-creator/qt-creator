@@ -206,23 +206,14 @@ void FancyToolButton::paintEvent(QPaintEvent *event)
         QPoint textOffset = centerRect.center() - QPoint(iconRect.width()/2, iconRect.height()/2);
         textOffset = textOffset - QPoint(0, lineHeight + 4);
         QRectF r(0, textOffset.y(), rect().width(), lineHeight);
-        QColor penColor;
-        if (isEnabled())
-            penColor = Qt::white;
-        else
-            penColor = Qt::gray;
-        painter.setPen(penColor);
+        painter.setPen(creatorTheme()->color(isEnabled()
+                                             ? Theme::PanelTextColorLight
+                                             : Theme::IconsDisabledColor));
 
         // draw project name
         const int margin = 6;
         const qreal availableWidth = r.width() - margin;
         QString ellidedProjectName = fm.elidedText(projectName, Qt::ElideMiddle, availableWidth);
-        if (isEnabled()) {
-            const QRectF shadowR = r.translated(0, 1);
-            painter.setPen(QColor(30, 30, 30, 80));
-            painter.drawText(shadowR, textFlags, ellidedProjectName);
-            painter.setPen(penColor);
-        }
         painter.drawText(r, textFlags, ellidedProjectName);
 
         // draw build configuration name
@@ -240,15 +231,12 @@ void FancyToolButton::paintEvent(QPaintEvent *event)
             splitBuildConfiguration = splitInTwoLines(buildConfiguration, boldFm, availableWidth);
         }
         // draw the two lines for the build configuration
+        painter.setPen(creatorTheme()->color(isEnabled()
+                                             ? Theme::FancyTabWidgetEnabledSelectedTextColor
+                                             : Theme::FancyTabWidgetDisabledSelectedTextColor));
         for (int i = 0; i < 2; ++i) {
             if (splitBuildConfiguration[i].isEmpty())
                 continue;
-            if (isEnabled()) {
-                const QRectF shadowR = buildConfigRect[i].translated(0, 1);
-                painter.setPen(QColor(30, 30, 30, 80));
-                painter.drawText(shadowR, textFlags, splitBuildConfiguration[i]);
-                painter.setPen(penColor);
-            }
             painter.drawText(buildConfigRect[i], textFlags, splitBuildConfiguration[i]);
         }
 

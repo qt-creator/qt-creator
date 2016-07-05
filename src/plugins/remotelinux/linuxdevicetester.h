@@ -50,14 +50,13 @@ public:
 
     ProjectExplorer::DeviceUsedPortsGatherer *usedPortsGatherer() const;
 
-private slots:
+private:
     void handleConnected();
     void handleConnectionFailure();
     void handleProcessFinished(int exitStatus);
     void handlePortsGatheringError(const QString &message);
     void handlePortListReady();
 
-private:
     void setFinished(ProjectExplorer::DeviceTester::TestResult result);
 
     Internal::GenericLinuxDeviceTesterPrivate * const d;

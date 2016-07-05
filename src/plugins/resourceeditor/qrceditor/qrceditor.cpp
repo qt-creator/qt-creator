@@ -51,31 +51,28 @@ QrcEditor::QrcEditor(RelativeResourceModel *model, QWidget *parent)
     m_treeview->setFrameStyle(QFrame::NoFrame);
     layout->addWidget(m_treeview);
 
-    connect(m_ui.removeButton, SIGNAL(clicked()), this, SLOT(onRemove()));
+    connect(m_ui.removeButton, &QAbstractButton::clicked, this, &QrcEditor::onRemove);
     connect(m_ui.removeNonExistingButton, &QPushButton::clicked,
             this, &QrcEditor::onRemoveNonExisting);
 
     // 'Add' button with menu
     QMenu *addMenu = new QMenu(this);
-    m_addFileAction = addMenu->addAction(tr("Add Files"), this, SLOT(onAddFiles()));
-    addMenu->addAction(tr("Add Prefix"), this, SLOT(onAddPrefix()));
+    m_addFileAction = addMenu->addAction(tr("Add Files"));
+    connect(m_addFileAction, &QAction::triggered, this, &QrcEditor::onAddFiles);
+    connect(addMenu->addAction(tr("Add Prefix")), &QAction::triggered,
+            this, &QrcEditor::onAddPrefix);
     m_ui.addButton->setMenu(addMenu);
 
-    connect(m_treeview, SIGNAL(removeItem()), this, SLOT(onRemove()));
-    connect(m_treeview->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)),
-            this, SLOT(updateCurrent()));
-    connect(m_treeview, SIGNAL(itemActivated(QString)),
-            this, SIGNAL(itemActivated(QString)));
-    connect(m_treeview, SIGNAL(showContextMenu(QPoint,QString)),
-            this, SIGNAL(showContextMenu(QPoint,QString)));
+    connect(m_treeview, &ResourceView::removeItem, this, &QrcEditor::onRemove);
+    connect(m_treeview->selectionModel(), &QItemSelectionModel::currentChanged,
+            this, &QrcEditor::updateCurrent);
+    connect(m_treeview, &ResourceView::itemActivated, this, &QrcEditor::itemActivated);
+    connect(m_treeview, &ResourceView::contextMenuShown, this, &QrcEditor::showContextMenu);
     m_treeview->setFocus();
 
-    connect(m_ui.aliasText, SIGNAL(textEdited(QString)),
-            this, SLOT(onAliasChanged(QString)));
-    connect(m_ui.prefixText, SIGNAL(textEdited(QString)),
-            this, SLOT(onPrefixChanged(QString)));
-    connect(m_ui.languageText, SIGNAL(textEdited(QString)),
-            this, SLOT(onLanguageChanged(QString)));
+    connect(m_ui.aliasText, &QLineEdit::textEdited, this, &QrcEditor::onAliasChanged);
+    connect(m_ui.prefixText, &QLineEdit::textEdited, this, &QrcEditor::onPrefixChanged);
+    connect(m_ui.languageText, &QLineEdit::textEdited, this, &QrcEditor::onLanguageChanged);
 
     // Prevent undo command merging after a switch of focus:
     // (0) The initial text is "Green".
@@ -85,15 +82,15 @@ QrcEditor::QrcEditor(RelativeResourceModel *model, QWidget *parent)
     //     --> text now is "Red is a color."
     // (4) The user hits undo --> text now is "Green is a color."
     //     Without calling advanceMergeId() it would have been "Green", instead.
-    connect(m_ui.aliasText, SIGNAL(editingFinished()),
-            m_treeview, SLOT(advanceMergeId()));
-    connect(m_ui.prefixText, SIGNAL(editingFinished()),
-            m_treeview, SLOT(advanceMergeId()));
-    connect(m_ui.languageText, SIGNAL(editingFinished()),
-            m_treeview, SLOT(advanceMergeId()));
+    connect(m_ui.aliasText, &QLineEdit::editingFinished,
+            m_treeview, &ResourceView::advanceMergeId);
+    connect(m_ui.prefixText, &QLineEdit::editingFinished,
+            m_treeview, &ResourceView::advanceMergeId);
+    connect(m_ui.languageText, &QLineEdit::editingFinished,
+            m_treeview, &ResourceView::advanceMergeId);
 
-    connect(&m_history, SIGNAL(canRedoChanged(bool)), this, SLOT(updateHistoryControls()));
-    connect(&m_history, SIGNAL(canUndoChanged(bool)), this, SLOT(updateHistoryControls()));
+    connect(&m_history, &QUndoStack::canRedoChanged, this, &QrcEditor::updateHistoryControls);
+    connect(&m_history, &QUndoStack::canUndoChanged, this, &QrcEditor::updateHistoryControls);
 
     Aggregation::Aggregate * agg = new Aggregation::Aggregate;
     agg->add(m_treeview);

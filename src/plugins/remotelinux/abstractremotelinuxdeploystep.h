@@ -60,7 +60,7 @@ protected:
         AbstractRemoteLinuxDeployStep *other);
     virtual bool initInternal(QString *error = 0) = 0;
 
-private slots:
+private:
     void handleProgressMessage(const QString &message);
     void handleErrorMessage(const QString &message);
     void handleWarningMessage(const QString &message);
@@ -68,7 +68,6 @@ private slots:
     void handleStdOutData(const QString &data);
     void handleStdErrData(const QString &data);
 
-private:
     Internal::AbstractRemoteLinuxDeployStepPrivate *d;
 };
 

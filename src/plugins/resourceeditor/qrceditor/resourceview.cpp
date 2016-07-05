@@ -57,10 +57,8 @@ ResourceView::ResourceView(RelativeResourceModel *model, QUndoStack *history, QW
 
     header()->hide();
 
-    connect(this, SIGNAL(customContextMenuRequested(QPoint)),
-            this, SLOT(showContextMenu(QPoint)));
-    connect(this, SIGNAL(activated(QModelIndex)),
-            this, SLOT(itemActivated(QModelIndex)));
+    connect(this, &QWidget::customContextMenuRequested, this, &ResourceView::showContextMenu);
+    connect(this, &QAbstractItemView::activated, this, &ResourceView::onItemActivated);
 }
 
 ResourceView::~ResourceView()
@@ -276,7 +274,7 @@ void ResourceView::changeValue(const QModelIndex &nodeIndex, NodeProperty proper
     }
 }
 
-void ResourceView::itemActivated(const QModelIndex &index)
+void ResourceView::onItemActivated(const QModelIndex &index)
 {
     const QString fileName = m_qrcModel->file(index);
     if (fileName.isEmpty())
@@ -290,7 +288,7 @@ void ResourceView::showContextMenu(const QPoint &pos)
     const QString fileName = m_qrcModel->file(index);
     if (fileName.isEmpty())
         return;
-    emit showContextMenu(mapToGlobal(pos), fileName);
+    emit contextMenuShown(mapToGlobal(pos), fileName);
 }
 
 void ResourceView::advanceMergeId()

@@ -41,13 +41,13 @@ MainWindow::MainWindow() :
     QMenu* fMenu = menuBar()->addMenu(QLatin1String("File"));
 
     QAction* oa = fMenu->addAction(QLatin1String("Open..."));
-    connect(oa, SIGNAL(triggered()), this, SLOT(slotOpen()));
+    connect(oa, &QAction::triggered, this, &MainWindow::slotOpen);
 
     QAction* sa = fMenu->addAction(QLatin1String("Save"));
-    connect(sa, SIGNAL(triggered()), this, SLOT(slotSave()));
+    connect(sa, &QAction::triggered, this, &MainWindow::slotSave);
 
     QAction* xa = fMenu->addAction(QLatin1String("Exit!"));
-    connect(xa, SIGNAL(triggered()), this, SLOT(close()));
+    connect(xa, &QAction::triggered, this, &QWidget::close);
 
 
     QWidget *cw = new QWidget();

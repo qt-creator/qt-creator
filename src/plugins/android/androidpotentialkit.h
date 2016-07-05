@@ -46,7 +46,7 @@ class AndroidPotentialKitWidget : public Utils::DetailsWidget
     Q_OBJECT
 public:
     AndroidPotentialKitWidget(QWidget *parent);
-private slots:
+private:
     void openOptions();
     void recheck();
 };

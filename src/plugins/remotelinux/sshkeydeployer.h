@@ -50,11 +50,9 @@ signals:
     void error(const QString &errorMsg);
     void finishedSuccessfully();
 
-private slots:
+private:
     void handleConnectionFailure();
     void handleKeyUploadFinished(int exitStatus);
-
-private:
     void cleanup();
 
     Internal::SshKeyDeployerPrivate * const d;

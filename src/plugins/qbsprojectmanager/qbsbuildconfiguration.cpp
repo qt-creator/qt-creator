@@ -309,12 +309,16 @@ QString QbsBuildConfiguration::equivalentCommandLine(const BuildStep *buildStep)
                                    << installRoot);
     }
 
+    const QString profileName = QbsManager::instance()->profileForKit(buildStep->target()->kit());
     if (buildConfig) {
-        Utils::QtcProcess::addArg(&commandLine, buildConfig->qbsConfiguration()
-                .value(QLatin1String(Constants::QBS_CONFIG_VARIANT_KEY)).toString());
+        const QString buildVariant = buildConfig->qbsConfiguration()
+                .value(QLatin1String(Constants::QBS_CONFIG_VARIANT_KEY)).toString();
+        const QString configName = profileName + QLatin1Char('-') + buildVariant;
+        Utils::QtcProcess::addArg(&commandLine, configName);
+        Utils::QtcProcess::addArg(&commandLine, QLatin1String(Constants::QBS_CONFIG_VARIANT_KEY)
+                                  + QLatin1Char(':') + buildVariant);
     }
-    Utils::QtcProcess::addArg(&commandLine, QLatin1String("profile:")
-                              + QbsManager::instance()->profileForKit(buildStep->target()->kit()));
+    Utils::QtcProcess::addArg(&commandLine, QLatin1String("profile:") + profileName);
 
     return commandLine;
 }

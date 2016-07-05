@@ -158,7 +158,7 @@ TEST_F(Cursor, Mangling)
     auto cursor = translationUnit.cursorAt(3, 6);
 
 
-    ASSERT_THAT(cursor.mangling(), Utf8StringLiteral("_Z8functioni"));
+    ASSERT_THAT(cursor.mangling().isEmpty(), false);
 }
 
 TEST_F(Cursor, Spelling)

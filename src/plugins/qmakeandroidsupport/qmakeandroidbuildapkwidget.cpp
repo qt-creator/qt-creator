@@ -83,20 +83,20 @@ QmakeAndroidBuildApkWidget::QmakeAndroidBuildApkWidget(QmakeAndroidBuildApkStep 
     m_extraLibraryListModel = new AndroidExtraLibraryListModel(m_step->target(), this);
     m_ui->androidExtraLibsListView->setModel(m_extraLibraryListModel);
 
-    connect(m_ui->createAndroidTemplatesButton, SIGNAL(clicked()),
-            SLOT(createAndroidTemplatesButton()));
+    connect(m_ui->createAndroidTemplatesButton, &QAbstractButton::clicked,
+            this, &QmakeAndroidBuildApkWidget::createAndroidTemplatesButton);
 
-    connect(m_ui->addAndroidExtraLibButton, SIGNAL(clicked()),
-            SLOT(addAndroidExtraLib()));
+    connect(m_ui->addAndroidExtraLibButton, &QAbstractButton::clicked,
+            this, &QmakeAndroidBuildApkWidget::addAndroidExtraLib);
 
-    connect(m_ui->removeAndroidExtraLibButton, SIGNAL(clicked()),
-            SLOT(removeAndroidExtraLib()));
+    connect(m_ui->removeAndroidExtraLibButton, &QAbstractButton::clicked,
+            this, &QmakeAndroidBuildApkWidget::removeAndroidExtraLib);
 
-    connect(m_ui->androidExtraLibsListView->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
-            SLOT(checkEnableRemoveButton()));
+    connect(m_ui->androidExtraLibsListView->selectionModel(), &QItemSelectionModel::selectionChanged,
+            this, &QmakeAndroidBuildApkWidget::checkEnableRemoveButton);
 
-    connect(m_extraLibraryListModel, SIGNAL(enabledChanged(bool)),
-            m_ui->additionalLibrariesGroupBox, SLOT(setEnabled(bool)));
+    connect(m_extraLibraryListModel, &AndroidExtraLibraryListModel::enabledChanged,
+            m_ui->additionalLibrariesGroupBox, &QWidget::setEnabled);
 
     m_ui->additionalLibrariesGroupBox->setEnabled(m_extraLibraryListModel->isEnabled());
 }

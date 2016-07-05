@@ -49,7 +49,7 @@ public:
     AndroidBuildApkWidget(AndroidBuildApkStep *step);
     ~AndroidBuildApkWidget();
 
-private slots:
+private:
     void setTargetSdk(const QString &sdk);
     void setMinistro();
     void setDeployLocalQtLibs();
@@ -65,7 +65,6 @@ private slots:
     void updateKeyStorePath(const QString &path);
     void signPackageCheckBoxToggled(bool checked);
 
-private:
     virtual QString summaryText() const;
     virtual QString displayName() const;
     void setCertificates();

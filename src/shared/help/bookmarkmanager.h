@@ -64,7 +64,7 @@ public:
         const QString &url, QWidget *parent = 0);
     ~BookmarkDialog();
 
-private slots:
+private:
     void addAccepted();
     void addNewFolder();
     void toolButtonClicked();
@@ -73,11 +73,8 @@ private slots:
     void selectBookmarkFolder(const QString &folderName);
     void customContextMenuRequested(const QPoint &point);
     void currentChanged(const QModelIndex& current);
-
-private:
     bool eventFilter(QObject *object, QEvent *e);
 
-private:
     QString m_url;
     QString m_title;
 
@@ -116,19 +113,15 @@ signals:
     void linkActivated(const QUrl &url);
     void createPage(const QUrl &url, bool fromSearch);
 
-private slots:
-    void removeClicked();
+private:
     void filterChanged();
     void expand(const QModelIndex& index);
     void activated(const QModelIndex &index);
     void customContextMenuRequested(const QPoint &point);
-
-private:
     void setup();
     void expandItems();
     bool eventFilter(QObject *object, QEvent *event);
 
-private:
     QRegExp regExp;
     TreeView *treeView;
     Utils::FancyLineEdit *searchField;
@@ -168,16 +161,13 @@ public:
     void addNewBookmark(const QModelIndex &index, const QString &name, const QString &url);
     void setupBookmarkModels();
 
-private slots:
-    void itemChanged(QStandardItem *item);
-
 private:
+    void itemChanged(QStandardItem *item);
     QString uniqueFolderName() const;
     void removeBookmarkFolderItems(QStandardItem *item);
     void readBookmarksRecursive(const QStandardItem *item, QDataStream &stream,
         const qint32 depth) const;
 
-private:
     const QIcon m_folderIcon;
     const QIcon m_bookmarkIcon;
 

@@ -46,7 +46,7 @@ public:
     // Add options based on project part
     virtual void addTargetTriple();
     virtual void enableExceptions();
-    void addHeaderPathOptions();
+    void addHeaderPathOptions(bool addAsNativePath = false);
     void addToolchainAndProjectDefines();
     virtual void addLanguageOption(ProjectFile::Kind fileKind);
     virtual void addOptionsForLanguage(bool checkForBorlandExtensions = true);

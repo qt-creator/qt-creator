@@ -86,7 +86,7 @@ ResourceEditorW::ResourceEditorW(const Core::Context &context,
 
     Core::CommandButton *refreshButton = new Core::CommandButton(Constants::REFRESH, m_toolBar);
     refreshButton->setIcon(QIcon(QLatin1String(":/texteditor/images/finddocuments.png")));
-    connect(refreshButton, SIGNAL(clicked()), this, SLOT(onRefresh()));
+    connect(refreshButton, &QAbstractButton::clicked, this, &ResourceEditorW::onRefresh);
     m_toolBar->addWidget(refreshButton);
 
     m_resourceEditor->setResourceDragEnabled(true);
@@ -97,12 +97,12 @@ ResourceEditorW::ResourceEditorW(const Core::Context &context,
 
     connect(m_resourceDocument, &ResourceEditorDocument::loaded,
             m_resourceEditor, &QrcEditor::loaded);
-    connect(m_resourceEditor, SIGNAL(undoStackChanged(bool,bool)),
-            this, SLOT(onUndoStackChanged(bool,bool)));
-    connect(m_resourceEditor, SIGNAL(showContextMenu(QPoint,QString)),
-            this, SLOT(showContextMenu(QPoint,QString)));
-    connect(m_resourceEditor, SIGNAL(itemActivated(QString)),
-            this, SLOT(openFile(QString)));
+    connect(m_resourceEditor, &QrcEditor::undoStackChanged,
+            this, &ResourceEditorW::onUndoStackChanged);
+    connect(m_resourceEditor, &QrcEditor::showContextMenu,
+            this, &ResourceEditorW::showContextMenu);
+    connect(m_resourceEditor, &QrcEditor::itemActivated,
+            this, &ResourceEditorW::openFile);
     connect(m_resourceEditor->commandHistory(), &QUndoStack::indexChanged,
             m_resourceDocument, [this]() { m_resourceDocument->setShouldAutoSave(true); });
     if (debugResourceEditorW)

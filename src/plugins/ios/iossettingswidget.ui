@@ -51,21 +51,4 @@
  </widget>
  <resources/>
  <connections/>
- <slots>
-  <slot>sdkLocationEditingFinished()</slot>
-  <slot>ndkLocationEditingFinished()</slot>
-  <slot>browseSDKLocation()</slot>
-  <slot>browseNDKLocation()</slot>
-  <slot>antLocationEditingFinished()</slot>
-  <slot>browseAntLocation()</slot>
-  <slot>addAVD()</slot>
-  <slot>removeAVD()</slot>
-  <slot>startAVD()</slot>
-  <slot>avdActivated(QModelIndex)</slot>
-  <slot>dataPartitionSizeEditingFinished()</slot>
-  <slot>openJDKLocationEditingFinished()</slot>
-  <slot>browseOpenJDKLocation()</slot>
-  <slot>manageAVD()</slot>
-  <slot>createKitToggled()</slot>
- </slots>
 </ui>

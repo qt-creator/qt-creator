@@ -62,12 +62,11 @@ protected:
 
     virtual bool isPackagingNeeded() const;
 
-private slots:
+private:
     void handleBuildConfigurationChanged();
     void setDeploymentDataUnmodified();
     void setDeploymentDataModified();
 
-private:
     virtual QString packageFileName() const = 0;
 
     void ctor();

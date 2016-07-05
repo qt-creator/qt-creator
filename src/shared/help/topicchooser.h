@@ -46,15 +46,12 @@ public:
 
     QUrl link() const;
 
-private slots:
+private:
     void acceptDialog();
     void setFilter(const QString &pattern);
     void activated(const QModelIndex &index);
-
-private:
     bool eventFilter(QObject *object, QEvent *event);
 
-private:
     Ui::TopicChooser ui;
     QList<QUrl> m_links;
 

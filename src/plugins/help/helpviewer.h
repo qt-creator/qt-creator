@@ -77,7 +77,6 @@ public:
     static QString mimeFromUrl(const QUrl &url);
     static bool launchWithExternalApp(const QUrl &url);
 
-public slots:
     void home();
 
     virtual void scaleUp() = 0;
@@ -97,7 +96,7 @@ signals:
     void backwardAvailable(bool);
     void loadFinished();
 
-protected slots:
+protected:
     void slotLoadStarted();
     void slotLoadFinished();
 };

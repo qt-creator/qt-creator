@@ -316,7 +316,8 @@ void AndroidManager::cleanLibsOnDevice(ProjectExplorer::Target *target)
     QProcess *process = new QProcess();
     QStringList arguments = AndroidDeviceInfo::adbSelector(deviceSerialNumber);
     arguments << QLatin1String("shell") << QLatin1String("rm") << QLatin1String("-r") << QLatin1String("/data/local/tmp/qt");
-    process->connect(process, SIGNAL(finished(int)), process, SLOT(deleteLater()));
+    QObject::connect(process, static_cast<void (QProcess::*)(int)>(&QProcess::finished),
+                     process, &QObject::deleteLater);
     const QString adb = AndroidConfigurations::currentConfig().adbToolPath().toString();
     Core::MessageManager::write(adb + QLatin1Char(' ') + arguments.join(QLatin1Char(' ')));
     process->start(adb, arguments);

@@ -90,8 +90,8 @@ ChooseProFilePage::ChooseProFilePage(CreateAndroidManifestWizard *wizard, const 
     }
 
     nodeSelected(m_comboBox->currentIndex());
-    connect(m_comboBox, SIGNAL(currentIndexChanged(int)),
-            this, SLOT(nodeSelected(int)));
+    connect(m_comboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+            this, &ChooseProFilePage::nodeSelected);
 
     fl->addRow(tr(".pro file:"), m_comboBox);
     setTitle(tr("Select a .pro File"));
@@ -136,8 +136,8 @@ ChooseDirectoryPage::ChooseDirectoryPage(CreateAndroidManifestWizard *wizard)
 
     m_layout->addRow(hbox);
 
-    connect(m_androidPackageSourceDir, SIGNAL(pathChanged(QString)),
-            m_wizard, SLOT(setDirectory(QString)));
+    connect(m_androidPackageSourceDir, &PathChooser::pathChanged,
+            m_wizard, &CreateAndroidManifestWizard::setDirectory);
 
     if (wizard->copyGradle()) {
         QCheckBox *checkBox = new QCheckBox(this);
@@ -178,8 +178,8 @@ void ChooseDirectoryPage::initializePage()
                           "Android directory and the default files are overwritten."));
 
         m_androidPackageSourceDir->setPath(m_wizard->node()->filePath().toFileInfo().absolutePath().append(QLatin1String("/android")));
-        connect(m_androidPackageSourceDir, SIGNAL(rawPathChanged(QString)),
-                this, SLOT(checkPackageSourceDir()));
+        connect(m_androidPackageSourceDir, &PathChooser::rawPathChanged,
+                this, &ChooseDirectoryPage::checkPackageSourceDir);
     } else {
         m_label->setText(tr("The Android template files will be created in the ANDROID_PACKAGE_SOURCE_DIR set in the .pro file."));
         m_androidPackageSourceDir->setPath(androidPackageDir);

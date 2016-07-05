@@ -63,8 +63,8 @@ QWidget *FilterSettingsPage::widget()
                 this, &FilterSettingsPage::addFilter);
         connect(m_ui.filterRemoveButton, &QPushButton::clicked,
                 this, &FilterSettingsPage::removeFilter);
-        connect(HelpManager::instance(), SIGNAL(documentationChanged()),
-                this, SLOT(updateFilterPage()));
+        connect(HelpManager::instance(), &HelpManager::documentationChanged,
+                this, &FilterSettingsPage::updateFilterPage);
     }
     return m_widget;
 }
@@ -221,8 +221,8 @@ void FilterSettingsPage::apply()
 
 void FilterSettingsPage::finish()
 {
-    disconnect(HelpManager::instance(), SIGNAL(documentationChanged()),
-        this, SLOT(updateFilterPage()));
+    disconnect(HelpManager::instance(), &HelpManager::documentationChanged,
+               this, &FilterSettingsPage::updateFilterPage);
     delete m_widget;
 }
 

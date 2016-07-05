@@ -81,7 +81,7 @@ protected:
 
     void reset();
 
-protected slots:
+protected:
     virtual void handleRemoteSetupRequested() = 0;
     virtual void handleAppRunnerError(const QString &error) = 0;
     virtual void handleRemoteOutput(const QByteArray &output) = 0;
@@ -89,11 +89,10 @@ protected slots:
     virtual void handleAppRunnerFinished(bool success) = 0;
     virtual void handleProgressReport(const QString &progressOutput) = 0;
 
-private slots:
+private:
     void handleResourcesError(const QString &message);
     void handleResourcesAvailable();
 
-private:
     friend class Internal::AbstractRemoteLinuxRunSupportPrivate;
     Internal::AbstractRemoteLinuxRunSupportPrivate * const d;
 };

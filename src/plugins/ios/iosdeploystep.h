@@ -71,7 +71,7 @@ signals:
     //void done();
     //void error();
 
-private slots:
+private:
     void handleIsTransferringApp(Ios::IosToolHandler *handler, const QString &bundlePath,
                            const QString &deviceId, int progress, int maxProgress,
                            const QString &info);
@@ -80,9 +80,7 @@ private slots:
     void handleFinished(Ios::IosToolHandler *handler);
     void handleErrorMsg(Ios::IosToolHandler *handler, const QString &msg);
     void updateDisplayNames();
-private:
-    IosDeployStep(ProjectExplorer::BuildStepList *bc,
-        IosDeployStep *other);
+    IosDeployStep(ProjectExplorer::BuildStepList *bc, IosDeployStep *other);
     bool init(QList<const BuildStep *> &earlierSteps) override;
     ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;
     bool immutable() const override { return true; }
@@ -97,7 +95,7 @@ private:
     void raiseError(const QString &error);
     void writeOutput(const QString &text, OutputFormat = MessageOutput);
     void checkProvisioningProfile();
-private:
+
     TransferStatus m_transferStatus;
     IosToolHandler *m_toolHandler;
     QFutureInterface<bool> m_futureInterface;

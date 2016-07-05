@@ -72,11 +72,10 @@ signals:
     void pathsChanged();
     void filesChanged(const QSet<QString> &added, const QSet<QString> &removed);
 
-private slots:
+private:
     void updateFileList();
     void updateFileListNow();
 
-private:
     QString absolutePath(const QString &path) const;
     QString absoluteDir() const;
 

@@ -96,37 +96,47 @@ AndroidBuildApkWidget::AndroidBuildApkWidget(AndroidBuildApkStep *step)
     m_ui->openPackageLocationCheckBox->setChecked(m_step->openPackageLocation());
 
     // target sdk
-    connect(m_ui->targetSDKComboBox, SIGNAL(activated(QString)), SLOT(setTargetSdk(QString)));
+    connect(m_ui->targetSDKComboBox,
+            static_cast<void (QComboBox::*)(const QString &)>(&QComboBox::activated),
+            this, &AndroidBuildApkWidget::setTargetSdk);
 
     // deployment options
-    connect(m_ui->ministroOption, SIGNAL(clicked()), SLOT(setMinistro()));
-    connect(m_ui->temporaryQtOption, SIGNAL(clicked()), SLOT(setDeployLocalQtLibs()));
-    connect(m_ui->bundleQtOption, SIGNAL(clicked()), SLOT(setBundleQtLibs()));
-    connect(m_ui->ministroOption, SIGNAL(clicked()), SLOT(updateDebugDeploySigningWarning()));
-    connect(m_ui->temporaryQtOption, SIGNAL(clicked()), SLOT(updateDebugDeploySigningWarning()));
-    connect(m_ui->bundleQtOption, SIGNAL(clicked()), SLOT(updateDebugDeploySigningWarning()));
+    connect(m_ui->ministroOption, &QAbstractButton::clicked,
+            this, &AndroidBuildApkWidget::setMinistro);
+    connect(m_ui->temporaryQtOption, &QAbstractButton::clicked,
+            this, &AndroidBuildApkWidget::setDeployLocalQtLibs);
+    connect(m_ui->bundleQtOption, &QAbstractButton::clicked,
+            this, &AndroidBuildApkWidget::setBundleQtLibs);
+    connect(m_ui->ministroOption, &QAbstractButton::clicked,
+            this, &AndroidBuildApkWidget::updateDebugDeploySigningWarning);
+    connect(m_ui->temporaryQtOption, &QAbstractButton::clicked,
+            this, &AndroidBuildApkWidget::updateDebugDeploySigningWarning);
+    connect(m_ui->bundleQtOption, &QAbstractButton::clicked,
+            this, &AndroidBuildApkWidget::updateDebugDeploySigningWarning);
 
-    connect(m_ui->useGradleCheckBox, SIGNAL(toggled(bool)),
-            this, SLOT(useGradleCheckBoxToggled(bool)));
-    connect(m_ui->openPackageLocationCheckBox, SIGNAL(toggled(bool)),
-            this, SLOT(openPackageLocationCheckBoxToggled(bool)));
-    connect(m_ui->verboseOutputCheckBox, SIGNAL(toggled(bool)),
-            this, SLOT(verboseOutputCheckBoxToggled(bool)));
+    connect(m_ui->useGradleCheckBox, &QAbstractButton::toggled,
+            this, &AndroidBuildApkWidget::useGradleCheckBoxToggled);
+    connect(m_ui->openPackageLocationCheckBox, &QAbstractButton::toggled,
+            this, &AndroidBuildApkWidget::openPackageLocationCheckBoxToggled);
+    connect(m_ui->verboseOutputCheckBox, &QAbstractButton::toggled,
+            this, &AndroidBuildApkWidget::verboseOutputCheckBoxToggled);
 
     //signing
-    connect(m_ui->signPackageCheckBox, SIGNAL(toggled(bool)),
-            this, SLOT(signPackageCheckBoxToggled(bool)));
-    connect(m_ui->KeystoreCreatePushButton, SIGNAL(clicked()),
-            this, SLOT(createKeyStore()));
-    connect(m_ui->KeystoreLocationPathChooser, SIGNAL(pathChanged(QString)),
-            SLOT(updateKeyStorePath(QString)));
-    connect(m_ui->certificatesAliasComboBox, SIGNAL(activated(QString)),
-            this, SLOT(certificatesAliasComboBoxActivated(QString)));
-    connect(m_ui->certificatesAliasComboBox, SIGNAL(currentIndexChanged(QString)),
-            this, SLOT(certificatesAliasComboBoxCurrentIndexChanged(QString)));
+    connect(m_ui->signPackageCheckBox, &QAbstractButton::toggled,
+            this, &AndroidBuildApkWidget::signPackageCheckBoxToggled);
+    connect(m_ui->KeystoreCreatePushButton, &QAbstractButton::clicked,
+            this, &AndroidBuildApkWidget::createKeyStore);
+    connect(m_ui->KeystoreLocationPathChooser, &Utils::PathChooser::pathChanged,
+            this, &AndroidBuildApkWidget::updateKeyStorePath);
+    connect(m_ui->certificatesAliasComboBox,
+            static_cast<void (QComboBox::*)(const QString &)>(&QComboBox::activated),
+            this, &AndroidBuildApkWidget::certificatesAliasComboBoxActivated);
+    connect(m_ui->certificatesAliasComboBox,
+            static_cast<void (QComboBox::*)(const QString &)>(&QComboBox::currentIndexChanged),
+            this, &AndroidBuildApkWidget::certificatesAliasComboBoxCurrentIndexChanged);
 
-    connect(m_step->buildConfiguration(), SIGNAL(buildTypeChanged()),
-            this, SLOT(updateSigningWarning()));
+    connect(m_step->buildConfiguration(), &ProjectExplorer::BuildConfiguration::buildTypeChanged,
+            this, &AndroidBuildApkWidget::updateSigningWarning);
 
     updateSigningWarning();
     updateDebugDeploySigningWarning();

@@ -53,7 +53,8 @@ RemoteFilterOptions::RemoteFilterOptions(RemoteHelpFilter *filter, QWidget *pare
             this, &RemoteFilterOptions::addNewItem);
     connect(m_ui.remove, &QPushButton::clicked,
             this, &RemoteFilterOptions::removeItem);
-    connect(m_ui.listWidget, SIGNAL(currentItemChanged(QListWidgetItem*,QListWidgetItem*)), SLOT(updateRemoveButton()));
+    connect(m_ui.listWidget, &QListWidget::currentItemChanged,
+            this, &RemoteFilterOptions::updateRemoveButton);
     updateRemoveButton();
 }
 

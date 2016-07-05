@@ -30,6 +30,7 @@
 #include "stringutils.h"
 
 #include <cctype>
+#include <cstring>
 #include <iostream>
 #include <sstream>
 #include <iomanip>
@@ -149,7 +150,7 @@ std::string wStringToString(const std::wstring &w)
 }
 
 // Convert an ASCII hex digit to its value 'A'->10
-inline unsigned hexDigit(char c)
+static inline unsigned hexDigit(char c)
 {
     if (c <= '9')
         return c - '0';
@@ -223,15 +224,19 @@ std::string dumpMemory(const unsigned char *p, size_t size,
         switch (u) {
         case '\t':
             str << "\\t";
+            break;
         case '\r':
             str << "\\r";
+            break;
         case '\n':
             str << "\\n";
+            break;
         default:
             if (u >= 32 && u < 128)
                 str << (char(u));
             else
                 str  << '\\' << std::setw(3) << unsigned(u);
+            break;
         }
     }
     if (wantQuotes)

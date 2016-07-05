@@ -780,8 +780,6 @@ void QmlProfilerTool::profilerDataModelStateChanged()
         setButtonsEnabled(false);
         break;
     case QmlProfilerModelManager::Done :
-        if (d->m_profilerState->currentState() == QmlProfilerStateManager::AppStopRequested)
-            d->m_profilerState->setCurrentState(QmlProfilerStateManager::Idle);
         showSaveOption();
         updateTimeDisplay();
         d->m_recordButton->setEnabled(true);
@@ -835,7 +833,7 @@ void QmlProfilerTool::profilerStateChanged()
     case QmlProfilerStateManager::AppDying : {
         // If already disconnected when dying, check again that all data was read
         if (!d->m_profilerConnections->isConnected())
-            QTimer::singleShot(0, this, &QmlProfilerTool::clientsDisconnected);
+            clientsDisconnected();
         break;
     }
     case QmlProfilerStateManager::Idle :

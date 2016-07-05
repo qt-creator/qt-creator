@@ -68,14 +68,17 @@ public:
     {
         DObject *baseObject = m_diagramSceneModel->diagramController()->findElement<DObject>(inheritance->base(), m_diagramSceneModel->diagram());
         QMT_CHECK(baseObject);
-        bool baseIsInterface = baseObject->stereotypes().contains(QStringLiteral("interface"));
+        bool baseIsInterface = false;
         bool lollipopDisplay = false;
-        if (baseIsInterface) {
-            StereotypeDisplayVisitor stereotypeDisplayVisitor;
-            stereotypeDisplayVisitor.setModelController(m_diagramSceneModel->diagramSceneController()->modelController());
-            stereotypeDisplayVisitor.setStereotypeController(m_diagramSceneModel->stereotypeController());
-            baseObject->accept(&stereotypeDisplayVisitor);
-            lollipopDisplay = stereotypeDisplayVisitor.stereotypeDisplay() == DObject::StereotypeIcon;
+        if (baseObject) {
+            baseIsInterface = baseObject->stereotypes().contains(QStringLiteral("interface"));
+            if (baseIsInterface) {
+                StereotypeDisplayVisitor stereotypeDisplayVisitor;
+                stereotypeDisplayVisitor.setModelController(m_diagramSceneModel->diagramSceneController()->modelController());
+                stereotypeDisplayVisitor.setStereotypeController(m_diagramSceneModel->stereotypeController());
+                baseObject->accept(&stereotypeDisplayVisitor);
+                lollipopDisplay = stereotypeDisplayVisitor.stereotypeDisplay() == DObject::StereotypeIcon;
+            }
         }
         if (lollipopDisplay) {
             m_arrow->setShaft(ArrowItem::ShaftSolid);
@@ -484,7 +487,8 @@ QPointF RelationItem::calcEndPoint(const Uid &end, const Uid &otherEnd, int near
     } else {
         DObject *endOtherObject = m_diagramSceneModel->diagramController()->findElement<DObject>(otherEnd, m_diagramSceneModel->diagram());
         QMT_CHECK(endOtherObject);
-        otherEndPos = endOtherObject->pos();
+        if (endOtherObject)
+            otherEndPos = endOtherObject->pos();
     }
     return calcEndPoint(end, otherEndPos, nearestIntermediatePointIndex);
 }

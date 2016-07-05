@@ -16,5 +16,8 @@
         <file>unit-tests/simple-library/simple-library.h</file>
         <file>unit-tests/simple-library/simple-library.pro</file>
         <file>unit-tests/simple-library/simple-library.qbs</file>
+        <file>unit-tests/stdc++11-includes/main.cpp</file>
+        <file>unit-tests/stdc++11-includes/stdc++11-includes.pro</file>
+        <file>unit-tests/stdc++11-includes/stdc++11-includes.qbs</file>
     </qresource>
 </RCC>

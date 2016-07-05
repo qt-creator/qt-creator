@@ -81,19 +81,19 @@ bool IosPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 
 void IosPlugin::extensionsInitialized()
 {
-    connect(ProjectExplorer::KitManager::instance(), SIGNAL(kitsLoaded()),
-            this, SLOT(kitsRestored()));
+    connect(ProjectExplorer::KitManager::instance(), &ProjectExplorer::KitManager::kitsLoaded,
+            this, &IosPlugin::kitsRestored);
 }
 
 void IosPlugin::kitsRestored()
 {
-    disconnect(ProjectExplorer::KitManager::instance(), SIGNAL(kitsLoaded()),
-               this, SLOT(kitsRestored()));
+    disconnect(ProjectExplorer::KitManager::instance(), &ProjectExplorer::KitManager::kitsLoaded,
+               this, &IosPlugin::kitsRestored);
     Internal::IosConfigurations::updateAutomaticKitList();
     connect(QtSupport::QtVersionManager::instance(),
-            SIGNAL(qtVersionsChanged(QList<int>,QList<int>,QList<int>)),
+            &QtSupport::QtVersionManager::qtVersionsChanged,
             Internal::IosConfigurations::instance(),
-            SLOT(updateAutomaticKitList()));
+            &Internal::IosConfigurations::updateAutomaticKitList);
 }
 
 } // namespace Ios

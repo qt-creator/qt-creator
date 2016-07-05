@@ -33,6 +33,7 @@
 #include "dynamicpropertiesmodel.h"
 
 #include <coreplugin/coreconstants.h>
+#include <coreplugin/coreicons.h>
 #include <utils/fileutils.h>
 
 #include <QToolButton>
@@ -55,7 +56,7 @@ ConnectionViewWidget::ConnectionViewWidget(QWidget *parent) :
 
     ui->tabBar->addTab(tr("Connections", "Title of connection view"));
     ui->tabBar->addTab(tr("Bindings", "Title of connection view"));
-    ui->tabBar->addTab(tr("Dynamic Properties", "Title of dynamic properties view"));
+    ui->tabBar->addTab(tr("Properties", "Title of dynamic properties view"));
     ui->tabBar->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 
     ui->connectionView->setStyleSheet(
@@ -63,6 +64,9 @@ ConnectionViewWidget::ConnectionViewWidget(QWidget *parent) :
 
     ui->bindingView->setStyleSheet(
             QLatin1String(Utils::FileReader::fetchQrc(QLatin1String(":/qmldesigner/scrollbar.css"))));
+
+    ui->dynamicPropertiesView->setStyleSheet(
+                QLatin1String(Utils::FileReader::fetchQrc(QLatin1String(":/qmldesigner/scrollbar.css"))));
 
     connect(ui->tabBar, SIGNAL(currentChanged(int)),
             ui->stackedWidget, SLOT(setCurrentIndex(int)));
@@ -115,13 +119,13 @@ QList<QToolButton *> ConnectionViewWidget::createToolBarWidgets()
     QList<QToolButton *> buttons;
 
     buttons << new QToolButton();
-    buttons.last()->setIcon(QIcon(QStringLiteral(":/connectionview/plus.png")));
+    buttons.last()->setIcon(Core::Icons::PLUS.icon());
     buttons.last()->setToolTip(tr("Add binding or connection."));
     connect(buttons.last(), SIGNAL(clicked()), this, SLOT(addButtonClicked()));
     connect(this, SIGNAL(setEnabledAddButton(bool)), buttons.last(), SLOT(setEnabled(bool)));
 
     buttons << new QToolButton();
-    buttons.last()->setIcon(QIcon(QStringLiteral(":/connectionview/minus.png")));
+    buttons.last()->setIcon(Core::Icons::MINUS.icon());
     buttons.last()->setToolTip(tr("Remove selected binding or connection."));
     buttons.last()->setShortcut(QKeySequence(Qt::Key_Delete));
     connect(buttons.last(), SIGNAL(clicked()), this, SLOT(removeButtonClicked()));

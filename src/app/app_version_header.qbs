@@ -4,12 +4,16 @@ import qbs.TextFile
 Product {
     name: "app_version_header"
     type: "hpp"
-    files: "app_version.h.in"
+
+    Group {
+        files: ["app_version.h.in"]
+        fileTags: ["hpp.in"]
+    }
 
     Depends { name: "qtc" }
 
-    Transformer {
-        inputs: ["app_version.h.in"]
+    Rule {
+        inputs: ["hpp.in"]
         Artifact {
             filePath: "app/app_version.h"
             fileTags: "hpp"

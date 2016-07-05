@@ -105,11 +105,11 @@ AndroidPotentialKitWidget::AndroidPotentialKitWidget(QWidget *parent)
     openOptions->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     layout->addWidget(openOptions, 1, 1);
 
-    connect(openOptions, SIGNAL(clicked()),
-            this, SLOT(openOptions()));
+    connect(openOptions, &QAbstractButton::clicked,
+            this, &AndroidPotentialKitWidget::openOptions);
 
-    connect(AndroidConfigurations::instance(), SIGNAL(updated()),
-            this, SLOT(recheck()));
+    connect(AndroidConfigurations::instance(), &AndroidConfigurations::updated,
+            this, &AndroidPotentialKitWidget::recheck);
 }
 
 void AndroidPotentialKitWidget::openOptions()

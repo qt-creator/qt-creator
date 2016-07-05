@@ -55,21 +55,21 @@ public:
         mainLayout->addWidget(&m_ignoreMissingFilesCheckBox);
         m_incrementalCheckBox.setChecked(step->incrementalDeployment());
         m_ignoreMissingFilesCheckBox.setChecked(step->ignoreMissingFiles());
-        connect(&m_incrementalCheckBox, SIGNAL(toggled(bool)),
-            SLOT(handleIncrementalChanged(bool)));
-        connect(&m_ignoreMissingFilesCheckBox, SIGNAL(toggled(bool)),
-            SLOT(handleIgnoreMissingFilesChanged(bool)));
+        connect(&m_incrementalCheckBox, &QAbstractButton::toggled,
+                this, &ConfigWidget::handleIncrementalChanged);
+        connect(&m_ignoreMissingFilesCheckBox, &QAbstractButton::toggled,
+                this, &ConfigWidget::handleIgnoreMissingFilesChanged);
     }
 
     bool showWidget() const { return true; }
 
 private:
-    Q_SLOT void handleIncrementalChanged(bool incremental) {
+    void handleIncrementalChanged(bool incremental) {
         GenericDirectUploadStep *step = qobject_cast<GenericDirectUploadStep *>(this->step());
         step->setIncrementalDeployment(incremental);
     }
 
-    Q_SLOT void handleIgnoreMissingFilesChanged(bool ignoreMissingFiles) {
+    void handleIgnoreMissingFilesChanged(bool ignoreMissingFiles) {
         GenericDirectUploadStep *step = qobject_cast<GenericDirectUploadStep *>(this->step());
         step->setIgnoreMissingFiles(ignoreMissingFiles);
     }

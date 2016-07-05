@@ -106,10 +106,13 @@ void RemoteLinuxRunConfiguration::init()
 
     addExtraAspect(new RemoteLinuxEnvironmentAspect(this));
 
-    connect(target(), SIGNAL(deploymentDataChanged()), SLOT(handleBuildSystemDataUpdated()));
-    connect(target(), SIGNAL(applicationTargetsChanged()), SLOT(handleBuildSystemDataUpdated()));
-    connect(target(), SIGNAL(kitChanged()),
-            this, SLOT(handleBuildSystemDataUpdated())); // Handles device changes, etc.
+    connect(target(), &Target::deploymentDataChanged,
+            this, &RemoteLinuxRunConfiguration::handleBuildSystemDataUpdated);
+    connect(target(), &Target::applicationTargetsChanged,
+            this, &RemoteLinuxRunConfiguration::handleBuildSystemDataUpdated);
+    // Handles device changes, etc.
+    connect(target(), &Target::kitChanged,
+            this, &RemoteLinuxRunConfiguration::handleBuildSystemDataUpdated);
 }
 
 bool RemoteLinuxRunConfiguration::isEnabled() const

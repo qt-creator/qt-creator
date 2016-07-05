@@ -47,7 +47,7 @@ class MacResponderHack : public QObject
 public:
     MacResponderHack(QObject *parent);
 
-private slots:
+private:
     void responderHack(QWidget *old, QWidget *now);
 };
 
@@ -109,7 +109,7 @@ public:
 
     MacWebKitHelpWidget *widget() const { return m_widget; }
 
-public slots:
+public:
     void scaleUp();
     void scaleDown();
     void resetScale();
@@ -119,14 +119,12 @@ public slots:
     void backward();
     void print(QPrinter *printer);
 
-public slots:
     void slotLoadStarted();
     void slotLoadFinished();
 
-private slots:
+private:
     void goToHistoryItem();
 
-private:
     DOMRange *findText(NSString *text, bool forward, bool caseSensitive, DOMNode *startNode,
                        int startOffset);
     MacWebKitHelpWidget *m_widget;

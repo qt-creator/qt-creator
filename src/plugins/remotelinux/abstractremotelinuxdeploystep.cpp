@@ -87,13 +87,18 @@ bool AbstractRemoteLinuxDeployStep::init(QList<const BuildStep *> &earlierSteps)
 
 void AbstractRemoteLinuxDeployStep::run(QFutureInterface<bool> &fi)
 {
-    connect(deployService(), SIGNAL(errorMessage(QString)), SLOT(handleErrorMessage(QString)));
-    connect(deployService(), SIGNAL(progressMessage(QString)),
-        SLOT(handleProgressMessage(QString)));
-    connect(deployService(), SIGNAL(warningMessage(QString)), SLOT(handleWarningMessage(QString)));
-    connect(deployService(), SIGNAL(stdOutData(QString)), SLOT(handleStdOutData(QString)));
-    connect(deployService(), SIGNAL(stdErrData(QString)), SLOT(handleStdErrData(QString)));
-    connect(deployService(), SIGNAL(finished()), SLOT(handleFinished()));
+    connect(deployService(), &AbstractRemoteLinuxDeployService::errorMessage,
+            this, &AbstractRemoteLinuxDeployStep::handleErrorMessage);
+    connect(deployService(), &AbstractRemoteLinuxDeployService::progressMessage,
+            this, &AbstractRemoteLinuxDeployStep::handleProgressMessage);
+    connect(deployService(), &AbstractRemoteLinuxDeployService::warningMessage,
+            this, &AbstractRemoteLinuxDeployStep::handleWarningMessage);
+    connect(deployService(), &AbstractRemoteLinuxDeployService::stdOutData,
+            this, &AbstractRemoteLinuxDeployStep::handleStdOutData);
+    connect(deployService(), &AbstractRemoteLinuxDeployService::stdErrData,
+            this, &AbstractRemoteLinuxDeployStep::handleStdErrData);
+    connect(deployService(), &AbstractRemoteLinuxDeployService::finished,
+            this, &AbstractRemoteLinuxDeployStep::handleFinished);
 
     d->hasError = false;
     d->future = fi;

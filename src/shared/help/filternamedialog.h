@@ -36,9 +36,8 @@ public:
     FilterNameDialog(QWidget *parent = 0);
     QString filterName() const;
 
-private slots:
+private:
     void updateOkButton();
 
-private:
     Ui::FilterNameDialogClass m_ui;
 };

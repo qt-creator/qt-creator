@@ -69,12 +69,11 @@ class RemoteFilterOptions : public QDialog
 public:
     explicit RemoteFilterOptions(RemoteHelpFilter *filter, QWidget *parent = 0);
 
-private slots:
+private:
     void addNewItem();
     void removeItem();
     void updateRemoveButton();
 
-private:
     RemoteHelpFilter *m_filter;
     Ui::RemoteFilterOptions m_ui;
 };

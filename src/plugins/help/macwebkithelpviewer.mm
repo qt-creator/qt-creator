@@ -657,7 +657,7 @@ void MacWebKitHelpViewer::addBackHistoryItems(QMenu *backMenu)
             QAction *action = new QAction(backMenu);
             action->setText(QString::fromNSString([list itemAtIndex:historyIndex].title));
             action->setData(historyIndex);
-            connect(action, SIGNAL(triggered()), this, SLOT(goToHistoryItem()));
+            connect(action, &QAction::triggered, this, &MacWebKitHelpViewer::goToHistoryItem);
             backMenu->addAction(action);
         }
     }
@@ -673,7 +673,7 @@ void MacWebKitHelpViewer::addForwardHistoryItems(QMenu *forwardMenu)
             QAction *action = new QAction(forwardMenu);
             action->setText(QString::fromNSString([list itemAtIndex:historyIndex].title));
             action->setData(historyIndex);
-            connect(action, SIGNAL(triggered()), this, SLOT(goToHistoryItem()));
+            connect(action, &QAction::triggered, this, &MacWebKitHelpViewer::goToHistoryItem);
             forwardMenu->addAction(action);
         }
     }
@@ -878,8 +878,8 @@ void MacWebKitHelpViewer::goToHistoryItem()
 MacResponderHack::MacResponderHack(QObject *parent)
     : QObject(parent)
 {
-    connect(qApp, SIGNAL(focusChanged(QWidget*,QWidget*)),
-            this, SLOT(responderHack(QWidget*,QWidget*)));
+    connect(qApp, &QApplication::focusChanged,
+            this, &MacResponderHack::responderHack);
 }
 
 void MacResponderHack::responderHack(QWidget *old, QWidget *now)

@@ -94,9 +94,9 @@ HelpNetworkReply::HelpNetworkReply(const QNetworkRequest &request,
 
     setHeader(QNetworkRequest::ContentTypeHeader, mimeType);
     setHeader(QNetworkRequest::ContentLengthHeader, QByteArray::number(dataLength));
-    QTimer::singleShot(0, this, SIGNAL(metaDataChanged()));
-    QTimer::singleShot(0, this, SIGNAL(readyRead()));
-    QTimer::singleShot(0, this, SIGNAL(finished()));
+    QTimer::singleShot(0, this, &QNetworkReply::metaDataChanged);
+    QTimer::singleShot(0, this, &QIODevice::readyRead);
+    QTimer::singleShot(0, this, &QNetworkReply::finished);
 }
 
 qint64 HelpNetworkReply::readData(char *buffer, qint64 maxlen)
@@ -145,8 +145,8 @@ QtWebKitHelpPage::QtWebKitHelpPage(QObject *parent)
     , m_keyboardModifiers(Qt::NoModifier)
 {
     setForwardUnsupportedContent(true);
-    connect(this, SIGNAL(unsupportedContent(QNetworkReply*)), this,
-        SLOT(onHandleUnsupportedContent(QNetworkReply*)));
+    connect(this, &QWebPage::unsupportedContent, this,
+        &QtWebKitHelpPage::onHandleUnsupportedContent);
 }
 
 QWebPage *QtWebKitHelpPage::createWindow(QWebPage::WebWindowType)
@@ -257,8 +257,8 @@ QtWebKitHelpWidget::QtWebKitHelpWidget(QtWebKitHelpViewer *parent)
     setPage(new QtWebKitHelpPage(this));
     HelpNetworkAccessManager *manager = new HelpNetworkAccessManager(this);
     page()->setNetworkAccessManager(manager);
-    connect(manager, SIGNAL(finished(QNetworkReply*)), this,
-        SLOT(slotNetworkReplyFinished(QNetworkReply*)));
+    connect(manager, &QNetworkAccessManager::finished, this,
+        &QtWebKitHelpWidget::slotNetworkReplyFinished);
 
     QAction* action = pageAction(QWebPage::OpenLinkInNewWindow);
     action->setText(tr("Open Link as New Page"));
@@ -267,12 +267,12 @@ QtWebKitHelpWidget::QtWebKitHelpWidget(QtWebKitHelpViewer *parent)
     pageAction(QWebPage::DownloadImageToDisk)->setVisible(false);
     pageAction(QWebPage::OpenImageInNewWindow)->setVisible(false);
 
-    connect(pageAction(QWebPage::Copy), SIGNAL(changed()), this,
-        SLOT(actionChanged()));
-    connect(pageAction(QWebPage::Back), SIGNAL(changed()), this,
-        SLOT(actionChanged()));
-    connect(pageAction(QWebPage::Forward), SIGNAL(changed()), this,
-        SLOT(actionChanged()));
+    connect(pageAction(QWebPage::Copy), &QAction::changed, this,
+        &QtWebKitHelpWidget::actionChanged);
+    connect(pageAction(QWebPage::Back), &QAction::changed, this,
+        &QtWebKitHelpWidget::actionChanged);
+    connect(pageAction(QWebPage::Forward), &QAction::changed, this,
+        &QtWebKitHelpWidget::actionChanged);
 }
 
 QtWebKitHelpWidget::~QtWebKitHelpWidget()
@@ -288,8 +288,6 @@ void QtWebKitHelpWidget::scaleDown()
 {
     setZoomFactor(qMax(qreal(0.0), zoomFactor() - qreal(0.1)));
 }
-
-// -- public slots
 
 void QtWebKitHelpWidget::copy()
 {
@@ -348,7 +346,7 @@ void QtWebKitHelpWidget::contextMenuEvent(QContextMenuEvent *event)
     delete menu;
 }
 
-// -- private slots
+// -- private
 
 void QtWebKitHelpWidget::actionChanged()
 {
@@ -395,13 +393,13 @@ QtWebKitHelpViewer::QtWebKitHelpViewer(QWidget *parent)
     p.setColor(QPalette::Text, Qt::black);
     setPalette(p);
 
-    connect(m_webView, SIGNAL(urlChanged(QUrl)), this, SIGNAL(sourceChanged(QUrl)));
-    connect(m_webView, SIGNAL(loadStarted()), this, SLOT(slotLoadStarted()));
-    connect(m_webView, SIGNAL(loadFinished(bool)), this, SLOT(slotLoadFinished()));
-    connect(m_webView, SIGNAL(titleChanged(QString)), this, SIGNAL(titleChanged()));
-    connect(m_webView->page(), SIGNAL(printRequested(QWebFrame*)), this, SIGNAL(printRequested()));
-    connect(m_webView, SIGNAL(backwardAvailable(bool)), this, SIGNAL(backwardAvailable(bool)));
-    connect(m_webView, SIGNAL(forwardAvailable(bool)), this, SIGNAL(forwardAvailable(bool)));
+    connect(m_webView, &QWebView::urlChanged, this, &HelpViewer::sourceChanged);
+    connect(m_webView, &QWebView::loadStarted, this, &QtWebKitHelpViewer::slotLoadStarted);
+    connect(m_webView, &QWebView::loadFinished, this, &QtWebKitHelpViewer::slotLoadFinished);
+    connect(m_webView, &QWebView::titleChanged, this, &HelpViewer::titleChanged);
+    connect(m_webView->page(), &QWebPage::printRequested, this, &HelpViewer::printRequested);
+    connect(m_webView, &QtWebKitHelpWidget::backwardAvailable, this, &HelpViewer::backwardAvailable);
+    connect(m_webView, &QtWebKitHelpWidget::forwardAvailable, this, &HelpViewer::forwardAvailable);
     connect(page(), &QtWebKitHelpPage::linkHovered, this, &QtWebKitHelpViewer::setToolTip);
 }
 
@@ -531,7 +529,7 @@ void QtWebKitHelpViewer::addBackHistoryItems(QMenu *backMenu)
             QAction *action = new QAction(backMenu);
             action->setText(items.at(i).title());
             action->setData(i);
-            connect(action, SIGNAL(triggered()), this, SLOT(goToBackHistoryItem()));
+            connect(action, &QAction::triggered, this, &QtWebKitHelpViewer::goToBackHistoryItem);
             backMenu->addAction(action);
         }
     }
@@ -545,7 +543,7 @@ void QtWebKitHelpViewer::addForwardHistoryItems(QMenu *forwardMenu)
             QAction *action = new QAction(forwardMenu);
             action->setText(items.at(i).title());
             action->setData(i);
-            connect(action, SIGNAL(triggered()), this, SLOT(goToForwardHistoryItem()));
+            connect(action, &QAction::triggered, this, &QtWebKitHelpViewer::goToForwardHistoryItem);
             forwardMenu->addAction(action);
         }
     }

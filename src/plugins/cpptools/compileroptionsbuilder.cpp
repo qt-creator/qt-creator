@@ -27,6 +27,8 @@
 
 #include <projectexplorer/projectexplorerconstants.h>
 
+#include <QDir>
+
 namespace CppTools {
 
 CompilerOptionsBuilder::CompilerOptionsBuilder(const ProjectPart &projectPart)
@@ -98,7 +100,7 @@ void CompilerOptionsBuilder::enableExceptions()
     add(QLatin1String("-fexceptions"));
 }
 
-void CompilerOptionsBuilder::addHeaderPathOptions()
+void CompilerOptionsBuilder::addHeaderPathOptions(bool addAsNativePath)
 {
     typedef ProjectPartHeaderPath HeaderPath;
     const QString defaultPrefix = includeOption();
@@ -124,7 +126,10 @@ void CompilerOptionsBuilder::addHeaderPathOptions()
             break;
         }
 
-        result.append(prefix + headerPath.path);
+        QString path = prefix + headerPath.path;
+        path = addAsNativePath ? QDir::toNativeSeparators(path) : path;
+
+        result.append(path);
     }
 
     m_options.append(result);

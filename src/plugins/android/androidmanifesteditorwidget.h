@@ -101,7 +101,6 @@ public:
     Core::IEditor *editor() const;
     TextEditor::TextEditorWidget *textEditorWidget() const;
 
-public slots:
     void setDirty(bool dirty = true);
 
 signals:
@@ -109,7 +108,8 @@ signals:
 
 protected:
     bool eventFilter(QObject *obj, QEvent *event);
-private slots:
+
+private:
     void setLDPIIcon();
     void setMDPIIcon();
     void setHDPIIcon();
@@ -122,7 +122,6 @@ private slots:
     void updateSdkVersions();
     void startParseCheck();
     void delayedParseCheck();
-private:
     void initializePage();
     bool syncToWidgets();
     void syncToWidgets(const QDomDocument &doc);
@@ -138,7 +137,7 @@ private:
 
     void updateInfoBar(const QString &errorMessage, int line, int column);
     void hideInfoBar();
-    Q_SLOT void updateTargetComboBox();
+    void updateTargetComboBox();
 
     void parseManifest(QXmlStreamReader &reader, QXmlStreamWriter &writer);
     void parseApplication(QXmlStreamReader &reader, QXmlStreamWriter &writer);

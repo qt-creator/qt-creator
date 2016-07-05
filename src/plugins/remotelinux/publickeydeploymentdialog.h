@@ -44,15 +44,13 @@ public:
 
     ~PublicKeyDeploymentDialog();
 
-private slots:
-    void handleDeploymentError(const QString &errorMsg);
-    void handleDeploymentSuccess();
-    void handleCanceled();
-
 private:
     explicit PublicKeyDeploymentDialog(const ProjectExplorer::IDevice::ConstPtr &deviceConfig,
         const QString &publicKeyFileName, QWidget *parent = 0);
     void handleDeploymentFinished(const QString &errorMsg);
+    void handleDeploymentError(const QString &errorMsg);
+    void handleDeploymentSuccess();
+    void handleCanceled();
 
     Internal::PublicKeyDeploymentDialogPrivate * const d;
 };

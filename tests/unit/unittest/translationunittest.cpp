@@ -23,6 +23,7 @@
 **
 ****************************************************************************/
 
+#include <clangfilepath.h>
 #include <commandlinearguments.h>
 #include <diagnosticset.h>
 #include <highlightingmarks.h>
@@ -52,6 +53,7 @@
 #include <thread>
 
 using ClangBackEnd::FileContainer;
+using ClangBackEnd::FilePath;
 using ClangBackEnd::TranslationUnit;
 using ClangBackEnd::UnsavedFiles;
 using ClangBackEnd::ProjectPart;
@@ -156,9 +158,10 @@ TEST_F(TranslationUnit, ResetedTranslationUnitIsNull)
 
 TEST_F(TranslationUnit, LastCommandLineArgumentIsFilePath)
 {
+    const Utf8String nativeFilePath = FilePath::toNativeSeparators(translationUnitFilePath);
     const auto arguments = translationUnit.commandLineArguments();
 
-    ASSERT_THAT(arguments.at(arguments.count() - 1), Eq(translationUnitFilePath));
+    ASSERT_THAT(arguments.at(arguments.count() - 1), Eq(nativeFilePath));
 }
 
 TEST_F(TranslationUnit, TimeStampForProjectPartChangeIsUpdatedAsNewCxTranslationUnitIsGenerated)

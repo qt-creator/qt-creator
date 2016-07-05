@@ -271,7 +271,7 @@ QString QbsRunConfiguration::baseWorkingDirectory() const
 void QbsRunConfiguration::addToBaseEnvironment(Utils::Environment &env) const
 {
     QbsProject *project = static_cast<QbsProject *>(target()->project());
-    if (project) {
+    if (project && project->qbsProject().isValid()) {
         const qbs::ProductData product = findProduct(project->qbsProjectData(), m_uniqueProductName);
         if (product.isValid()) {
             QProcessEnvironment procEnv = env.toProcessEnvironment();

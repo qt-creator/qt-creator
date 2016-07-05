@@ -4,8 +4,6 @@ QtcProduct {
     Depends { name: "bundle" }
     Depends { name: "ib"; condition: qbs.targetOS.contains("osx") }
 
-    bundle.infoPlistFile: "Info.plist" // TODO: Remove for qbs 1.6
-
     Properties {
         condition: qbs.targetOS.contains("osx")
         ib.appIconName: "qtcreator"
@@ -38,7 +36,7 @@ QtcProduct {
     Depends { name: "ExtensionSystem" }
 
     files: [
-        // TODO: Uncomment for qbs 1.6 "Info.plist",
+        "Info.plist",
         "main.cpp",
         "qtcreator.xcassets",
         "qtcreator.rc",

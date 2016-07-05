@@ -1,9 +1,5 @@
 <RCC>
     <qresource prefix="/connectionview">
         <file>stylesheet.css</file>
-        <file>panel.png</file>
-        <file>panelselected.png</file>
-        <file>plus.png</file>
-        <file>minus.png</file>
     </qresource>
 </RCC>

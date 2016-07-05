@@ -67,12 +67,12 @@ ScrollView {
         property color backgroundColor: "#4f4f4f"
         property color lighterBackgroundColor: "#5f5f5f"
 
-        property int textWidth: 55
-        property int textHeight: 26
+        property int textWidth: 58
+        property int textHeight: 22
 
-        property int cellHorizontalMargin: 5
-        property int cellVerticalSpacing: 3
-        property int cellVerticalMargin: 7
+        property int cellHorizontalMargin: 1
+        property int cellVerticalSpacing: 2
+        property int cellVerticalMargin: 4
 
         // the following depend on the actual shape of the item delegate
         property int cellWidth: textWidth + 2 * cellHorizontalMargin
@@ -115,13 +115,6 @@ ScrollView {
                                 visible: itemVisible
                                 width: styleConstants.cellWidth + itemGrid.flexibleWidth
                                 height: styleConstants.cellHeight
-                            }
-                        }
-                        move: Transition {
-                            NumberAnimation {
-                                properties: "x, y";
-                                easing.type: Easing.OutQuart
-                                duration: 80
                             }
                         }
                     }

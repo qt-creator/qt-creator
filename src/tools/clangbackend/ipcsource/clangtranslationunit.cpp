@@ -26,6 +26,7 @@
 #include "clangtranslationunit.h"
 
 #include "cursor.h"
+#include "clangfilepath.h"
 #include "clangstring.h"
 #include "codecompleter.h"
 #include "commandlinearguments.h"
@@ -475,7 +476,8 @@ void TranslationUnit::includeCallback(CXFile included_file,
 
     TranslationUnit *translationUnit = static_cast<TranslationUnit*>(clientData);
 
-    translationUnit->d->dependedFilePaths.insert(includeFilePath);
+    const Utf8String normalizedFilePath = FilePath::fromNativeSeparators(includeFilePath);
+    translationUnit->d->dependedFilePaths.insert(normalizedFilePath);
 }
 
 UnsavedFiles &TranslationUnit::unsavedFiles() const

@@ -71,12 +71,12 @@ public:
 protected:
     IosRunConfiguration(ProjectExplorer::Target *parent, IosRunConfiguration *source);
 
-private slots:
-    void proFileUpdated(QmakeProjectManager::QmakeProFileNode *pro, bool success, bool parseInProgress);
-    void deviceChanges();
 signals:
     void localExecutableChanged();
+
 private:
+    void proFileUpdated(QmakeProjectManager::QmakeProFileNode *pro, bool success, bool parseInProgress);
+    void deviceChanges();
     void init();
     void enabledCheck();
     friend class IosRunConfigurationWidget;

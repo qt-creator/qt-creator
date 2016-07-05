@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include <clangcodecompleteresults.h>
+#include <clangfilepath.h>
 #include <projectpart.h>
 #include <projects.h>
 #include <clangtranslationunit.h>
@@ -41,6 +42,7 @@
 namespace {
 
 using ClangBackEnd::ClangCodeCompleteResults;
+using ClangBackEnd::FilePath;
 using ClangBackEnd::TranslationUnit;
 using ClangBackEnd::UnsavedFiles;
 using ClangBackEnd::ProjectPart;
@@ -55,7 +57,8 @@ TEST(ClangCodeCompleteResults, GetData)
                                     projectPart,
                                     Utf8StringVector(),
                                     translationUnits);
-    CXCodeCompleteResults *cxCodeCompleteResults = clang_codeCompleteAt(translationUnit.cxTranslationUnit(), translationUnit.filePath().constData(), 49, 1, 0, 0, 0);
+    Utf8String nativeFilePath = FilePath::toNativeSeparators(translationUnit.filePath());
+    CXCodeCompleteResults *cxCodeCompleteResults = clang_codeCompleteAt(translationUnit.cxTranslationUnit(), nativeFilePath.constData(), 49, 1, 0, 0, 0);
 
     ClangCodeCompleteResults codeCompleteResults(cxCodeCompleteResults);
 
@@ -81,7 +84,8 @@ TEST(ClangCodeCompleteResults, MoveClangCodeCompleteResults)
                                     projectPart,
                                     Utf8StringVector(),
                                     translationUnits);
-    CXCodeCompleteResults *cxCodeCompleteResults = clang_codeCompleteAt(translationUnit.cxTranslationUnit(), translationUnit.filePath().constData(), 49, 1, 0, 0, 0);
+    Utf8String nativeFilePath = FilePath::toNativeSeparators(translationUnit.filePath());
+    CXCodeCompleteResults *cxCodeCompleteResults = clang_codeCompleteAt(translationUnit.cxTranslationUnit(), nativeFilePath.constData(), 49, 1, 0, 0, 0);
 
     ClangCodeCompleteResults codeCompleteResults(cxCodeCompleteResults);
 

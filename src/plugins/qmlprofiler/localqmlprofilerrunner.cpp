@@ -83,6 +83,8 @@ LocalQmlProfilerRunner::LocalQmlProfilerRunner(const Configuration &configuratio
 
 void LocalQmlProfilerRunner::start()
 {
+    QTC_ASSERT(!m_configuration.socket.isEmpty() || m_configuration.port.isValid(), return);
+
     StandardRunnable runnable = m_configuration.debuggee;
     QString arguments = m_configuration.socket.isEmpty() ?
                 QmlDebug::qmlDebugTcpArguments(QmlDebug::QmlProfilerServices,

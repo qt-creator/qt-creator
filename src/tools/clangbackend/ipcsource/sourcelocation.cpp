@@ -25,6 +25,7 @@
 
 #include "sourcelocation.h"
 
+#include "clangfilepath.h"
 #include "clangstring.h"
 #include "clangtranslationunit.h"
 
@@ -42,6 +43,12 @@ SourceLocation::SourceLocation()
 
 const Utf8String &SourceLocation::filePath() const
 {
+    if (isFilePathNormalized_)
+        return filePath_;
+
+    isFilePathNormalized_ = true;
+    filePath_ = FilePath::fromNativeSeparators(filePath_);
+
     return filePath_;
 }
 
@@ -62,7 +69,7 @@ uint SourceLocation::offset() const
 
 SourceLocationContainer SourceLocation::toSourceLocationContainer() const
 {
-    return SourceLocationContainer(filePath_, line_, column_);
+    return SourceLocationContainer(filePath(), line_, column_);
 }
 
 SourceLocation::SourceLocation(CXSourceLocation cxSourceLocation)
@@ -77,6 +84,7 @@ SourceLocation::SourceLocation(CXSourceLocation cxSourceLocation)
                           &offset_);
 
     filePath_ = ClangString(clang_getFileName(cxFile));
+    isFilePathNormalized_ = false;
 }
 
 SourceLocation::SourceLocation(CXTranslationUnit cxTranslationUnit,
@@ -90,7 +98,8 @@ SourceLocation::SourceLocation(CXTranslationUnit cxTranslationUnit,
                                          column)),
       filePath_(filePath),
       line_(line),
-      column_(column)
+      column_(column),
+      isFilePathNormalized_(true)
 {
     clang_getFileLocation(cxSourceLocation, 0, 0, 0, &offset_);
 }

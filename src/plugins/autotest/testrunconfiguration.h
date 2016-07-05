@@ -71,7 +71,7 @@ public:
     }
 
 private:
-    QWidget *createConfigurationWidget() { return 0; }
+    QWidget *createConfigurationWidget() override { return 0; }
     TestConfiguration *m_testConfig = 0;
 };
 

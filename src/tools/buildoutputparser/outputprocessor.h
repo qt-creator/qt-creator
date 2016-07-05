@@ -47,11 +47,10 @@ public:
     CompilerOutputProcessor(CompilerType compilerType, QIODevice &source);
      ~CompilerOutputProcessor();
 
-private slots:
+private:
     void start();
     void handleTask(const ProjectExplorer::Task &task);
 
-private:
     const CompilerType m_compilerType;
     QIODevice &m_source;
     QTextStream * const m_ostream;

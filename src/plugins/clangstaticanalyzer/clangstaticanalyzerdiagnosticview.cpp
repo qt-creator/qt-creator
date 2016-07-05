@@ -45,7 +45,8 @@ ClangStaticAnalyzerDiagnosticView::ClangStaticAnalyzerDiagnosticView(QWidget *pa
     : Debugger::DetailedErrorView(parent)
 {
     m_suppressAction = new QAction(tr("Suppress This Diagnostic"), this);
-    connect(m_suppressAction, &QAction::triggered, [this](bool) { suppressCurrentDiagnostic(); });
+    connect(m_suppressAction, &QAction::triggered,
+            this, &ClangStaticAnalyzerDiagnosticView::suppressCurrentDiagnostic);
 }
 
 void ClangStaticAnalyzerDiagnosticView::suppressCurrentDiagnostic()

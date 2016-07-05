@@ -85,7 +85,7 @@ MetaInfo {
         icon: ":/qtquickplugin/images/mouse-area-icon16.png"
 
         ItemLibraryEntry {
-            name: "MouseArea"
+            name: "Mouse Area"
             category: "Qt Quick - Basic"
             libraryIcon: ":/qtquickplugin/images/mouse-area-icon.png"
             version: "2.0"

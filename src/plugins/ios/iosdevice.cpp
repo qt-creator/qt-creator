@@ -288,10 +288,10 @@ void IosDeviceManager::deviceDisconnected(const QString &uid)
 void IosDeviceManager::updateInfo(const QString &devId)
 {
     IosToolHandler *requester = new IosToolHandler(IosDeviceType(IosDeviceType::IosDevice), this);
-    connect(requester, SIGNAL(deviceInfo(Ios::IosToolHandler*,QString,Ios::IosToolHandler::Dict)),
-            SLOT(deviceInfo(Ios::IosToolHandler*,QString,Ios::IosToolHandler::Dict)), Qt::QueuedConnection);
-    connect(requester, SIGNAL(finished(Ios::IosToolHandler*)),
-            SLOT(infoGathererFinished(Ios::IosToolHandler*)));
+    connect(requester, &IosToolHandler::deviceInfo,
+            this, &IosDeviceManager::deviceInfo, Qt::QueuedConnection);
+    connect(requester, &IosToolHandler::finished,
+            this, &IosDeviceManager::infoGathererFinished);
     requester->requestDeviceInfo(devId);
 }
 
@@ -518,8 +518,8 @@ IosDeviceManager::IosDeviceManager(QObject *parent) :
 {
     m_userModeDevicesTimer.setSingleShot(true);
     m_userModeDevicesTimer.setInterval(8000);
-    connect(&m_userModeDevicesTimer, SIGNAL(timeout()),
-            SLOT(updateUserModeDevices()));
+    connect(&m_userModeDevicesTimer, &QTimer::timeout,
+            this, &IosDeviceManager::updateUserModeDevices);
 }
 
 void IosDeviceManager::updateUserModeDevices()

@@ -115,7 +115,8 @@ void GenericLinuxDeviceTester::handleConnected()
     QTC_ASSERT(d->state == Connecting, return);
 
     d->process = d->connection->createRemoteProcess("uname -rsm");
-    connect(d->process.data(), SIGNAL(closed(int)), SLOT(handleProcessFinished(int)));
+    connect(d->process.data(), &SshRemoteProcess::closed,
+            this, &GenericLinuxDeviceTester::handleProcessFinished);
 
     emit progressMessage(tr("Checking kernel version..."));
     d->state = RunningUname;

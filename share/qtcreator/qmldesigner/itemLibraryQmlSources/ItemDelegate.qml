@@ -48,7 +48,7 @@ Rectangle {
 
     Text {
         id: text
-        font.pixelSize: 11
+        font.pixelSize: 9
         elide: Text.ElideMiddle
         wrapMode: Text.WordWrap
         anchors.top: itemIcon.bottom

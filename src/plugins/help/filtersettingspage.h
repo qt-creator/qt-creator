@@ -47,18 +47,15 @@ public:
 signals:
     void filtersChanged();
 
-private slots:
+private:
     void updateAttributes(QListWidgetItem *item);
     void updateFilterMap();
     void updateFilterPage();
     void addFilter();
     void removeFilter();
-
-private:
     void updateFilterDescription(const QString &filter);
-
-private:
     QString msgFilterLabel(const QString &filter) const;
+
     Ui::FilterSettingsPage m_ui;
     QPointer<QWidget> m_widget;
 

@@ -179,9 +179,11 @@ AndroidRunner::AndroidRunner(QObject *parent,
 
     m_checkPIDTimer.setInterval(1000);
 
-    connect(&m_adbLogcatProcess, SIGNAL(readyReadStandardOutput()), SLOT(logcatReadStandardOutput()));
-    connect(&m_adbLogcatProcess, SIGNAL(readyReadStandardError()), SLOT(logcatReadStandardError()));
-    connect(&m_checkPIDTimer, SIGNAL(timeout()), SLOT(checkPID()));
+    connect(&m_adbLogcatProcess, &QProcess::readyReadStandardOutput,
+            this, &AndroidRunner::logcatReadStandardOutput);
+    connect(&m_adbLogcatProcess, &QProcess::readyReadStandardError,
+            this, &AndroidRunner::logcatReadStandardError);
+    connect(&m_checkPIDTimer, &QTimer::timeout, this, &AndroidRunner::checkPID);
 
     if (version && version->qtVersion() >= QtSupport::QtVersionNumber(5, 4, 0)) {
         if (qEnvironmentVariableIsSet("QTC_ANDROID_USE_FILE_HANDSHAKE"))

@@ -25,6 +25,7 @@
 
 #include "unsavedfile.h"
 
+#include "clangfilepath.h"
 #include "utf8string.h"
 #include "utf8positionfromlinecolumn.h"
 
@@ -40,10 +41,12 @@ UnsavedFile::UnsavedFile()
 
 UnsavedFile::UnsavedFile(const Utf8String &filePath, const Utf8String &fileContent)
 {
-    char *cxUnsavedFilePath = new char[filePath.byteSize() + 1];
+    const Utf8String nativeFilePath = FilePath::toNativeSeparators(filePath);
+
+    char *cxUnsavedFilePath = new char[nativeFilePath.byteSize() + 1];
     char *cxUnsavedFileContent = new char[fileContent.byteSize() + 1];
 
-    std::memcpy(cxUnsavedFilePath, filePath.constData(), filePath.byteSize() + 1);
+    std::memcpy(cxUnsavedFilePath, nativeFilePath.constData(), nativeFilePath.byteSize() + 1);
     std::memcpy(cxUnsavedFileContent, fileContent.constData(), fileContent.byteSize() + 1);
 
     cxUnsavedFile = CXUnsavedFile{cxUnsavedFilePath,
@@ -66,7 +69,14 @@ UnsavedFile &UnsavedFile::operator=(UnsavedFile &&other) Q_DECL_NOEXCEPT
     return *this;
 }
 
-const char *UnsavedFile::filePath() const
+Utf8String UnsavedFile::filePath() const
+{
+    const Utf8String nativeFilePathAsUtf8String = Utf8String::fromUtf8(nativeFilePath());
+
+    return FilePath::fromNativeSeparators(nativeFilePathAsUtf8String);
+}
+
+const char *UnsavedFile::nativeFilePath() const
 {
     return cxUnsavedFile.Filename;
 }
@@ -105,7 +115,7 @@ bool UnsavedFile::replaceAt(uint position, uint length, const Utf8String &replac
         Utf8String modifiedContent(cxUnsavedFile.Contents, cxUnsavedFile.Length);
         modifiedContent.replace(int(position), int(length), replacement);
 
-        *this = UnsavedFile(Utf8String::fromUtf8(filePath()), modifiedContent);
+        *this = UnsavedFile(Utf8String::fromUtf8(nativeFilePath()), modifiedContent);
 
         return true;
     }

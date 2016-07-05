@@ -61,7 +61,7 @@ public:
     virtual QString defaultPassWord() const;
 
 private:
-    Q_SLOT void handleAuthTypeChanged();
+    void handleAuthTypeChanged();
 
     Internal::GenericLinuxDeviceConfigurationWizardSetupPagePrivate * const d;
 };

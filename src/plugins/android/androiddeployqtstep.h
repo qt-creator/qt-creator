@@ -77,7 +77,6 @@ public:
 
     AndroidDeviceInfo deviceInfo() const;
 
-public slots:
     void setUninstallPreviousPackage(bool uninstall);
 
 signals:

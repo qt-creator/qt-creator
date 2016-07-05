@@ -28,9 +28,11 @@
 #include "gmock/gmock.h"
 #include "gtest-qt-printing.h"
 
+#include <clangfilepath.h>
 #include <unsavedfile.h>
 #include <unsavedfiles.h>
 
+using ClangBackEnd::FilePath;
 using ClangBackEnd::UnsavedFile;
 using ClangBackEnd::UnsavedFiles;
 
@@ -60,6 +62,8 @@ protected:
 
     Utf8String otherFilePath = Utf8StringLiteral("otherpath");
     Utf8String otherFileContent = Utf8StringLiteral("othercontent");
+
+    Utf8String absoluteFilePath = Utf8StringLiteral(TESTDATA_DIR"/file.cpp");
 
     uint aLength = 2;
     Utf8String aReplacement = Utf8StringLiteral("replacement");
@@ -124,6 +128,21 @@ TEST_F(UnsavedFile, AssignMoveFromIsSwapped)
     ASSERT_THAT(movedFrom, IsUnsavedFile(otherFilePath,
                                          otherFileContent,
                                          otherFileContent.byteSize()));
+}
+
+TEST_F(UnsavedFile, FilePath)
+{
+    ::UnsavedFile unsavedFile(absoluteFilePath, QStringLiteral(""));
+
+    ASSERT_THAT(unsavedFile.filePath(), Eq(absoluteFilePath));
+}
+
+TEST_F(UnsavedFile, NativeFilePath)
+{
+    ::UnsavedFile unsavedFile(absoluteFilePath, QStringLiteral(""));
+    const Utf8String nativeFilePath = FilePath::toNativeSeparators(absoluteFilePath);
+
+    ASSERT_THAT(unsavedFile.nativeFilePath(), Eq(nativeFilePath));
 }
 
 TEST_F(UnsavedFile, DoNotReplaceWithOffsetZeroInEmptyContent)

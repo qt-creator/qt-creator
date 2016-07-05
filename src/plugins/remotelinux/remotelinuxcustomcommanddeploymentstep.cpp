@@ -55,13 +55,14 @@ public:
         m_commandLineEdit.setText(step->commandLine());
         commandLineLayout->addWidget(&m_commandLineEdit);
 
-        connect(&m_commandLineEdit, SIGNAL(textEdited(QString)), SLOT(handleCommandLineEdited()));
+        connect(&m_commandLineEdit, &QLineEdit::textEdited,
+                this, &ConfigWidget::handleCommandLineEdited);
     }
 
     bool showWidget() const { return true; }
 
 private:
-    Q_SLOT void handleCommandLineEdited() {
+    void handleCommandLineEdited() {
         AbstractRemoteLinuxCustomCommandDeploymentStep *step =
             qobject_cast<AbstractRemoteLinuxCustomCommandDeploymentStep *>(this->step());
         step->setCommandLine(m_commandLineEdit.text().trimmed());

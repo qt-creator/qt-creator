@@ -46,12 +46,11 @@ public:
     bool isRunning() const override;
     QString displayName() const override;
 
-private slots:
+private:
     void handleRemoteProcessFinished(const QString &error);
     void handleRemoteOutput(const QString &output);
     void handleRemoteErrorOutput(const QString &output);
 
-private:
     AndroidRunner *const m_runner;
     bool m_running;
 };

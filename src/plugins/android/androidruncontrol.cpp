@@ -58,12 +58,12 @@ void AndroidRunControl::start()
     emit started();
     disconnect(m_runner, 0, this, 0);
 
-    connect(m_runner, SIGNAL(remoteErrorOutput(QString)),
-        SLOT(handleRemoteErrorOutput(QString)));
-    connect(m_runner, SIGNAL(remoteOutput(QString)),
-        SLOT(handleRemoteOutput(QString)));
-    connect(m_runner, SIGNAL(remoteProcessFinished(QString)),
-        SLOT(handleRemoteProcessFinished(QString)));
+    connect(m_runner, &AndroidRunner::remoteErrorOutput,
+        this, &AndroidRunControl::handleRemoteErrorOutput);
+    connect(m_runner, &AndroidRunner::remoteOutput,
+        this, &AndroidRunControl::handleRemoteOutput);
+    connect(m_runner, &AndroidRunner::remoteProcessFinished,
+        this, &AndroidRunControl::handleRemoteProcessFinished);
     appendMessage(tr("Starting remote process."), Utils::NormalMessageFormat);
     m_runner->setRunnable(runnable().as<AndroidRunnable>());
     m_runner->start();

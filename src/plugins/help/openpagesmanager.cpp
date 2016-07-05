@@ -65,15 +65,16 @@ OpenPagesManager::OpenPagesManager(QObject *parent)
     m_comboBox = new QComboBox;
     m_comboBox->setModel(m_model);
     m_comboBox->setContextMenuPolicy(Qt::CustomContextMenu);
-    connect(m_comboBox, SIGNAL(activated(int)), this, SLOT(setCurrentPage(int)));
-    connect(m_comboBox, SIGNAL(customContextMenuRequested(QPoint)), this,
-        SLOT(openPagesContextMenu(QPoint)));
+    connect(m_comboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated),
+            this, &OpenPagesManager::setCurrentPageByRow);
+    connect(m_comboBox, &QWidget::customContextMenuRequested, this,
+        &OpenPagesManager::openPagesContextMenu);
 
     m_openPagesSwitcher = new OpenPagesSwitcher(m_model);
-    connect(m_openPagesSwitcher, SIGNAL(closePage(QModelIndex)), this,
-        SLOT(closePage(QModelIndex)));
-    connect(m_openPagesSwitcher, SIGNAL(setCurrentPage(QModelIndex)), this,
-        SLOT(setCurrentPage(QModelIndex)));
+    connect(m_openPagesSwitcher, &OpenPagesSwitcher::closePage, this,
+        &OpenPagesManager::closePage);
+    connect(m_openPagesSwitcher, &OpenPagesSwitcher::setCurrentPage,
+            this, &OpenPagesManager::setCurrentPage);
 }
 
 OpenPagesManager ::~OpenPagesManager()
@@ -92,12 +93,12 @@ QWidget *OpenPagesManager::openPagesWidget() const
 {
     if (!m_openPagesWidget) {
         m_openPagesWidget = new OpenPagesWidget(m_model);
-        connect(m_openPagesWidget, SIGNAL(setCurrentPage(QModelIndex)), this,
-            SLOT(setCurrentPage(QModelIndex)));
-        connect(m_openPagesWidget, SIGNAL(closePage(QModelIndex)), this,
-            SLOT(closePage(QModelIndex)));
-        connect(m_openPagesWidget, SIGNAL(closePagesExcept(QModelIndex)), this,
-            SLOT(closePagesExcept(QModelIndex)));
+        connect(m_openPagesWidget, &OpenPagesWidget::setCurrentPage,
+                this, &OpenPagesManager::setCurrentPage);
+        connect(m_openPagesWidget, &OpenPagesWidget::closePage,
+                this, &OpenPagesManager::closePage);
+        connect(m_openPagesWidget, &OpenPagesWidget::closePagesExcept,
+                this, &OpenPagesManager::closePagesExcept);
     }
     return m_openPagesWidget;
 }
@@ -166,12 +167,10 @@ void OpenPagesManager::setupInitialPages()
         CentralWidget::instance()->addViewer(m_model->pageAt(i));
 
     emit pagesChanged();
-    setCurrentPage((initialPage >= m_model->rowCount())
+    setCurrentPageByRow((initialPage >= m_model->rowCount())
         ? m_model->rowCount() - 1 : initialPage);
     m_openPagesSwitcher->selectCurrentPage();
 }
-
-// -- public slots
 
 HelpViewer *OpenPagesManager::createPage()
 {
@@ -190,12 +189,12 @@ HelpViewer *OpenPagesManager::createPage(const QUrl &url)
     CentralWidget::instance()->addViewer(page);
 
     emit pagesChanged();
-    setCurrentPage(index);
+    setCurrentPageByRow(index);
 
     return page;
 }
 
-void OpenPagesManager::setCurrentPage(int index)
+void OpenPagesManager::setCurrentPageByRow(int index)
 {
     CentralWidget::instance()->setCurrentViewer(m_model->pageAt(index));
 
@@ -207,7 +206,7 @@ void OpenPagesManager::setCurrentPage(int index)
 void OpenPagesManager::setCurrentPage(const QModelIndex &index)
 {
     if (index.isValid())
-        setCurrentPage(index.row());
+        setCurrentPageByRow(index.row());
 }
 
 void OpenPagesManager::closeCurrentPage()
@@ -298,8 +297,6 @@ void OpenPagesManager::showTwicherOrSelectPage() const
         m_openPagesSwitcher->selectAndHide();
     }
 }
-
-// -- private slots
 
 void OpenPagesManager::openPagesContextMenu(const QPoint &point)
 {

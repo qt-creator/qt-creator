@@ -39,7 +39,7 @@ Android::Internal::AndroidSignalOperation::AndroidSignalOperation()
     , m_signal(0)
 {
     m_timeout->setInterval(5000);
-    connect(m_timeout, SIGNAL(timeout()), this, SLOT(handleTimeout()));
+    connect(m_timeout, &QTimer::timeout, this, &AndroidSignalOperation::handleTimeout);
 }
 
 void Android::Internal::AndroidSignalOperation::adbFindRunAsFinished(int exitCode,
@@ -63,8 +63,9 @@ void Android::Internal::AndroidSignalOperation::adbFindRunAsFinished(int exitCod
         m_state = Idle;
         emit finished(m_errorMessage);
     } else {
-        connect(m_adbProcess, SIGNAL(finished(int,QProcess::ExitStatus)),
-                SLOT(adbKillFinished(int,QProcess::ExitStatus)));
+        connect(m_adbProcess,
+                static_cast<void (QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished),
+                this, &AndroidSignalOperation::adbKillFinished);
         m_state = Kill;
         m_timeout->start();
         m_adbProcess->start(m_adbPath, QStringList()
@@ -116,8 +117,9 @@ void Android::Internal::AndroidSignalOperation::signalOperationViaADB(qint64 pid
     m_adbProcess->disconnect(this);
     m_pid = pid;
     m_signal = signal;
-    connect(m_adbProcess, SIGNAL(finished(int,QProcess::ExitStatus)),
-            SLOT(adbFindRunAsFinished(int,QProcess::ExitStatus)));
+    connect(m_adbProcess,
+            static_cast<void (QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished),
+            this, &AndroidSignalOperation::adbFindRunAsFinished);
     m_state = RunAs;
     m_timeout->start();
     m_adbProcess->start(m_adbPath, QStringList()

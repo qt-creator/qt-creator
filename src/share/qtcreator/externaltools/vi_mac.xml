@@ -30,7 +30,7 @@
     <description>Opens the current file in vi</description>
     <displayname>Edit with vi</displayname>
     <category>Text</category>
-    <executable modifiesdocument="yes">
+    <executable>
         <path>osascript</path>
         <input>
         --Terminal opens a window by default when it is not running, so check
