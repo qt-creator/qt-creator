@@ -554,6 +554,7 @@ Project {
                 "propertyeditor/qmlmodelnodeproxy.h",
                 "resources/resources.qrc",
                 "stateseditor/stateseditorimageprovider.cpp",
+                "stateseditor/stateseditoriconprovider.cpp",
                 "stateseditor/stateseditormodel.cpp",
                 "stateseditor/stateseditormodel.h",
                 "stateseditor/stateseditorview.cpp",

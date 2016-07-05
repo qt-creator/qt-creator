@@ -27,10 +27,12 @@
 #include "stateseditormodel.h"
 #include "stateseditorview.h"
 #include "stateseditorimageprovider.h"
+#include "stateseditoriconprovider.h"
 
 #include <invalidqmlsourceexception.h>
 
 #include <coreplugin/icore.h>
+
 #include <utils/qtcassert.h>
 #include <utils/stylehelper.h>
 
@@ -95,8 +97,9 @@ StatesEditorWidget::StatesEditorWidget(StatesEditorView *statesEditorView, State
     rootContext()->setContextProperty(QStringLiteral("statesEditorModel"), statesEditorModel);
     rootContext()->setContextProperty(QStringLiteral("highlightColor"), Utils::StyleHelper::notTooBrightHighlightColor());
 
-
     rootContext()->setContextProperty(QLatin1String("canAddNewStates"), true);
+
+    engine()->addImageProvider(QLatin1String("icons"), new StatesEditorIconProvider());
 
     setWindowTitle(tr("States", "Title of Editor widget"));
 
