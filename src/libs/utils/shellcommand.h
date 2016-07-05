@@ -166,6 +166,10 @@ private:
                                                    OutputProxy *proxy,
                                                    int timeoutS, const QString &workingDirectory,
                                                    const ExitCodeInterpreter &interpreter = defaultExitCodeInterpreter);
+    SynchronousProcessResponse runSynchronous(const FileName &binary, const QStringList &arguments,
+                                              OutputProxy *proxy,
+                                              int timeoutS, const QString &workingDirectory,
+                                              const ExitCodeInterpreter &interpreter = defaultExitCodeInterpreter);
 
     class Internal::ShellCommandPrivate *const d;
 };

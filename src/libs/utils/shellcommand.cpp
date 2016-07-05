@@ -326,59 +326,10 @@ Utils::SynchronousProcessResponse ShellCommand::runCommand(const Utils::FileName
     if (!(d->m_flags & SuppressCommandLogging))
         proxy->appendCommand(dir, binary, arguments);
 
-    if (d->m_flags & FullySynchronously) {
+    if (d->m_flags & FullySynchronously)
         response = runFullySynchronous(binary, arguments, proxy.data(), timeoutS, dir, interpreter);
-    } else {
-        Utils::SynchronousProcess process;
-        process.setExitCodeInterpreter(interpreter);
-        connect(this, &ShellCommand::terminate, &process, &Utils::SynchronousProcess::terminate);
-        process.setWorkingDirectory(dir);
-
-        process.setProcessEnvironment(processEnvironment());
-        process.setTimeoutS(timeoutS);
-        if (d->m_codec)
-            process.setCodec(d->m_codec);
-
-        process.setFlags(processFlags());
-
-        // connect stderr to the output window if desired
-        if (d->m_flags & MergeOutputChannels) {
-            process.setProcessChannelMode(QProcess::MergedChannels);
-        } else if (d->m_progressiveOutput
-                   || !(d->m_flags & SuppressStdErr)) {
-            process.setStdErrBufferedSignalsEnabled(true);
-            connect(&process, &Utils::SynchronousProcess::stdErrBuffered,
-                    this, [this, proxy](const QString &text)
-            {
-                if (!(d->m_flags & SuppressStdErr))
-                    proxy->appendError(text);
-                if (d->m_progressiveOutput)
-                    emit stdErrText(text);
-            });
-        }
-
-        // connect stdout to the output window if desired
-        if (d->m_progressParser || d->m_progressiveOutput || (d->m_flags & ShowStdOut)) {
-            process.setStdOutBufferedSignalsEnabled(true);
-            connect(&process, &Utils::SynchronousProcess::stdOutBuffered,
-                    this, [this, proxy](const QString &text)
-            {
-                if (d->m_progressParser)
-                    d->m_progressParser->parseProgress(text);
-                if (d->m_flags & ShowStdOut)
-                    proxy->append(text);
-                if (d->m_progressiveOutput) {
-                    emit stdOutText(text);
-                    d->m_hadOutput = true;
-                }
-            });
-        }
-
-        process.setTimeOutMessageBoxEnabled(true);
-
-        // Run!
-        response = process.runBlocking(binary.toString(), arguments);
-    }
+    else
+        response = runSynchronous(binary, arguments, proxy.data(), timeoutS, dir, interpreter);
 
     if (!d->m_aborted) {
         // Success/Fail message in appropriate window?
@@ -452,6 +403,64 @@ Utils::SynchronousProcessResponse ShellCommand::runFullySynchronous(const Utils:
     else
         response.result = interpreter(process->exitCode());
     return response;
+}
+
+SynchronousProcessResponse ShellCommand::runSynchronous(const FileName &binary,
+                                                        const QStringList &arguments,
+                                                        OutputProxy *proxy,
+                                                        int timeoutS,
+                                                        const QString &workingDirectory,
+                                                        const ExitCodeInterpreter &interpreter)
+{
+    Utils::SynchronousProcess process;
+    process.setExitCodeInterpreter(interpreter);
+    connect(this, &ShellCommand::terminate, &process, &Utils::SynchronousProcess::terminate);
+    process.setWorkingDirectory(workingDirectory);
+
+    process.setProcessEnvironment(processEnvironment());
+    process.setTimeoutS(timeoutS);
+    if (d->m_codec)
+        process.setCodec(d->m_codec);
+
+    process.setFlags(processFlags());
+
+    // connect stderr to the output window if desired
+    if (d->m_flags & MergeOutputChannels) {
+        process.setProcessChannelMode(QProcess::MergedChannels);
+    } else if (d->m_progressiveOutput
+               || !(d->m_flags & SuppressStdErr)) {
+        process.setStdErrBufferedSignalsEnabled(true);
+        connect(&process, &Utils::SynchronousProcess::stdErrBuffered,
+                this, [this, proxy](const QString &text)
+        {
+            if (!(d->m_flags & SuppressStdErr))
+                proxy->appendError(text);
+            if (d->m_progressiveOutput)
+                emit stdErrText(text);
+        });
+    }
+
+    // connect stdout to the output window if desired
+    if (d->m_progressParser || d->m_progressiveOutput || (d->m_flags & ShowStdOut)) {
+        process.setStdOutBufferedSignalsEnabled(true);
+        connect(&process, &Utils::SynchronousProcess::stdOutBuffered,
+                this, [this, proxy](const QString &text)
+        {
+            if (d->m_progressParser)
+                d->m_progressParser->parseProgress(text);
+            if (d->m_flags & ShowStdOut)
+                proxy->append(text);
+            if (d->m_progressiveOutput) {
+                emit stdOutText(text);
+                d->m_hadOutput = true;
+            }
+        });
+    }
+
+    process.setTimeOutMessageBoxEnabled(true);
+
+    // Run!
+    return process.runBlocking(binary.toString(), arguments);
 }
 
 const QVariant &ShellCommand::cookie() const
