@@ -328,3 +328,5 @@ public:
 };
 
 } // namespace Utils
+
+Q_DECLARE_METATYPE(Utils::TreeItem *)
