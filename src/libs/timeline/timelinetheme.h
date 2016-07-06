@@ -27,7 +27,7 @@
 
 #include "timeline_global.h"
 
-class QQmlEngine;
+QT_FORWARD_DECLARE_CLASS(QQmlEngine)
 
 namespace Timeline {
 
