@@ -231,7 +231,10 @@ bool AndroidToolChain::isSecondaryToolChain() const
 
 void AndroidToolChain::setSecondaryToolChain(bool b)
 {
+    if (m_secondaryToolChain == b)
+        return;
     m_secondaryToolChain = b;
+    toolChainUpdated();
 }
 
 GccToolChain::DetectedAbisResult AndroidToolChain::detectSupportedAbis() const
