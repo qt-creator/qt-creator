@@ -205,6 +205,7 @@ void QmlProfilerDataModel::replayEvents(qint64 rangeStart, qint64 rangeEnd,
     QFile file(d->file.fileName());
     file.open(QIODevice::ReadOnly);
     QDataStream stream(&file);
+    bool crossedRangeStart = false;
     while (!stream.atEnd()) {
         stream >> event;
         if (stream.status() == QDataStream::ReadPastEnd)
@@ -212,7 +213,8 @@ void QmlProfilerDataModel::replayEvents(qint64 rangeStart, qint64 rangeEnd,
 
         const QmlEventType &type = d->eventTypes[event.typeIndex()];
         if (rangeStart != -1 && rangeEnd != -1) {
-            if (event.timestamp() < rangeStart) {
+            // Double-check if rangeStart has been crossed. Some versions of Qt send dirty data.
+            if (event.timestamp() < rangeStart && !crossedRangeStart) {
                 if (type.rangeType() != MaximumRangeType) {
                     if (event.rangeStage() == RangeStart)
                         stack.push(event);
@@ -224,31 +226,35 @@ void QmlProfilerDataModel::replayEvents(qint64 rangeStart, qint64 rangeEnd,
                 } else {
                     continue;
                 }
-            } else if (event.timestamp() > rangeEnd) {
-                if (type.rangeType() != MaximumRangeType) {
-                    if (event.rangeStage() == RangeEnd) {
-                        if (stack.isEmpty()) {
-                            QmlEvent endEvent(event);
-                            endEvent.setTimestamp(rangeEnd);
-                            loader(endEvent, d->eventTypes[event.typeIndex()]);
-                        } else {
-                            stack.pop();
-                        }
-                    } else if (event.rangeStage() == RangeStart) {
-                        stack.push(event);
+            } else {
+                if (!crossedRangeStart) {
+                    foreach (QmlEvent stashed, stack) {
+                        stashed.setTimestamp(rangeStart);
+                        loader(stashed, d->eventTypes[stashed.typeIndex()]);
                     }
-                    continue;
-                } else if (isStateful(type)) {
-                    event.setTimestamp(rangeEnd);
-                } else {
-                    continue;
+                    stack.clear();
+                    crossedRangeStart = true;
                 }
-            } else if (!stack.isEmpty()) {
-                foreach (QmlEvent stashed, stack) {
-                    stashed.setTimestamp(rangeStart);
-                    loader(stashed, d->eventTypes[stashed.typeIndex()]);
+                if (event.timestamp() > rangeEnd) {
+                    if (type.rangeType() != MaximumRangeType) {
+                        if (event.rangeStage() == RangeEnd) {
+                            if (stack.isEmpty()) {
+                                QmlEvent endEvent(event);
+                                endEvent.setTimestamp(rangeEnd);
+                                loader(endEvent, d->eventTypes[event.typeIndex()]);
+                            } else {
+                                stack.pop();
+                            }
+                        } else if (event.rangeStage() == RangeStart) {
+                            stack.push(event);
+                        }
+                        continue;
+                    } else if (isStateful(type)) {
+                        event.setTimestamp(rangeEnd);
+                    } else {
+                        continue;
+                    }
                 }
-                stack.clear();
             }
         }
 
