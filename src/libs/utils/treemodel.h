@@ -250,7 +250,7 @@ template <class RootItem,
 class LeveledTreeModel : public TreeModel
 {
 public:
-    explicit LeveledTreeModel(QObject *parent = 0) : TreeModel(parent) {}
+    explicit LeveledTreeModel(QObject *parent = 0) : TreeModel(new RootItem, parent) {}
     explicit LeveledTreeModel(RootItem *root, QObject *parent = 0) : TreeModel(root, parent) {}
 
     template <class Predicate>
