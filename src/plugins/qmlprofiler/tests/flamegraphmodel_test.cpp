@@ -84,7 +84,7 @@ void FlameGraphModelTest::generateData(QmlProfilerModelManager *manager)
 
     manager->acquiringDone();
 
-    manager->notesModel()->setNotes(QVector<QmlNote>({QmlNote(0, 1, 20, "dings")}));
+    manager->notesModel()->setNotes(QVector<QmlNote>({QmlNote(0, 2, 1, 20, "dings")}));
     manager->notesModel()->loadData();
 
     QCOMPARE(manager->state(), QmlProfilerModelManager::Done);

@@ -314,7 +314,7 @@ void QmlProfilerModelManager::save(const QString &filename)
         return;
     }
 
-    d->notesModel->saveData(d->traceTime->startTime(), d->traceTime->endTime());
+    d->notesModel->saveData();
 
     QmlProfilerFileWriter *writer = new QmlProfilerFileWriter(this);
     writer->setTraceTime(traceTime()->startTime(), traceTime()->endTime(),
@@ -442,7 +442,7 @@ void QmlProfilerModelManager::clear()
 
 void QmlProfilerModelManager::restrictToRange(qint64 startTime, qint64 endTime)
 {
-    d->notesModel->saveData(d->traceTime->startTime(), d->traceTime->endTime());
+    d->notesModel->saveData();
     setState(ClearingData);
     setVisibleFeatures(0);
 

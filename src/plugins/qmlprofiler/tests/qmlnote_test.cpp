@@ -45,7 +45,7 @@ void QmlNoteTest::testAccessors()
     note.setText("blah");
     QCOMPARE(note.text(), QString("blah"));
 
-    QmlNote note2(8, 9, 10, "semmeln");
+    QmlNote note2(8, 5, 9, 10, "semmeln");
     QCOMPARE(note2.typeIndex(), 8);
     QCOMPARE(note2.startTime(), 9);
     QCOMPARE(note2.duration(), 10);
@@ -54,7 +54,7 @@ void QmlNoteTest::testAccessors()
 
 void QmlNoteTest::testStreamOps()
 {
-    QmlNote note(4, 5, 6, "eheheh");
+    QmlNote note(4, 1, 5, 6, "eheheh");
 
     QBuffer wbuffer;
     wbuffer.open(QIODevice::WriteOnly);
