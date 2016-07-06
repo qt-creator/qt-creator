@@ -202,6 +202,11 @@
             <string>All</string>
            </property>
           </item>
+          <item>
+           <property name="text">
+            <string>Same Build Directory</string>
+           </property>
+          </item>
          </widget>
         </item>
         <item>

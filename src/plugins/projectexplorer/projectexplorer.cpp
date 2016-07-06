@@ -1144,7 +1144,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
         dd->m_projectExplorerSettings.environmentId = QUuid::createUuid();
     int tmp = s->value(QLatin1String("ProjectExplorer/Settings/StopBeforeBuild"),
                             Utils::HostOsInfo::isWindowsHost() ? 1 : 0).toInt();
-    if (tmp < 0 || tmp > ProjectExplorerSettings::StopAll)
+    if (tmp < 0 || tmp > ProjectExplorerSettings::StopSameBuildDir)
         tmp = Utils::HostOsInfo::isWindowsHost() ? 1 : 0;
     dd->m_projectExplorerSettings.stopBeforeBuild = ProjectExplorerSettings::StopBeforeBuild(tmp);
 
@@ -2225,10 +2225,36 @@ int ProjectExplorerPluginPrivate::queue(QList<Project *> projects, QList<Id> ste
 
     if (m_projectExplorerSettings.stopBeforeBuild != ProjectExplorerSettings::StopNone
             && stepIds.contains(Constants::BUILDSTEPS_BUILD)) {
-        bool stopAll = (m_projectExplorerSettings.stopBeforeBuild == ProjectExplorerSettings::StopAll);
+        ProjectExplorerSettings::StopBeforeBuild stopCondition = m_projectExplorerSettings.stopBeforeBuild;
         const QList<RunControl *> toStop
-                = Utils::filtered(m_outputPane->allRunControls(), [&projects, stopAll](RunControl *rc) {
-                                      return rc->isRunning() && (stopAll || projects.contains(rc->project()));
+                = Utils::filtered(m_outputPane->allRunControls(), [&projects, stopCondition](RunControl *rc) -> bool {
+                                      if (!rc->isRunning())
+                                          return false;
+
+                                      switch (stopCondition) {
+                                      case ProjectExplorerSettings::StopNone:
+                                          return false;
+                                      case ProjectExplorerSettings::StopAll:
+                                          return true;
+                                      case ProjectExplorerSettings::StopSameProject:
+                                          return projects.contains(rc->project());
+                                      case ProjectExplorerSettings::StopSameBuildDir:
+                                          return Utils::contains(projects, [rc](Project *p) {
+                                              Target *t = p ? p->activeTarget() : nullptr;
+                                              BuildConfiguration *bc = t ? t->activeBuildConfiguration() : nullptr;
+                                              if (!bc)
+                                                  return false;
+                                              if (!rc->runnable().is<StandardRunnable>())
+                                                  return false;
+                                              if (!Utils::FileName::fromString(rc->runnable().as<StandardRunnable>().executable).isChildOf(bc->buildDirectory()))
+                                                  return false;
+                                              IDevice::ConstPtr device = rc->runnable().as<StandardRunnable>().device;
+                                              if (device.isNull())
+                                                  device = DeviceKitInformation::device(t->kit());
+                                              return !device.isNull() && device->type() == Core::Id(Constants::DESKTOP_DEVICE_TYPE);
+                                          });
+                                      }
+                                      return false; // Can't get here!
                                   });
 
         if (!toStop.isEmpty()) {
