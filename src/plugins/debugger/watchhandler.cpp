@@ -1162,7 +1162,7 @@ bool WatchModel::hasChildren(const QModelIndex &idx) const
     const WatchItem *item = nonRootItemForIndex(idx);
     if (!item)
         return true;
-    if (item->rowCount() > 0)
+    if (item->childCount() > 0)
         return true;
 
     // "Can fetch more", see above.

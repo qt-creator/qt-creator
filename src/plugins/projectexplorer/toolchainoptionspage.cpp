@@ -236,7 +236,7 @@ void ToolChainOptionsWidget::addToolChain(ToolChain *tc)
         }
     }
 
-    TreeItem *parent = m_model.rootItem()->child(tc->isAutoDetected() ? 0 : 1);
+    TreeItem *parent = m_model.rootItem()->childAt(tc->isAutoDetected() ? 0 : 1);
     parent->appendChild(new ToolChainTreeItem(tc, false));
 
     updateState();

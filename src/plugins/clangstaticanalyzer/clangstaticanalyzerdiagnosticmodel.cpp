@@ -273,7 +273,7 @@ QVariant ExplainingStepItem::data(int column, int role) const
         return QVariant::fromValue(static_cast<DiagnosticItem *>(parent())->diagnostic());
     case Qt::DisplayRole: {
         const int row = parent()->children().indexOf(const_cast<ExplainingStepItem *>(this)) + 1;
-        const int padding = static_cast<int>(std::log10(parent()->rowCount()))
+        const int padding = static_cast<int>(std::log10(parent()->childCount()))
                 - static_cast<int>(std::log10(row));
         return QString::fromLatin1("%1%2: %3")
                 .arg(QString(padding, QLatin1Char(' ')))

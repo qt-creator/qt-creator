@@ -338,7 +338,7 @@ void TestResultsPane::goToNext()
         if (!rootItem || !rootItem->childCount())
             return;
 
-        nextCurrentIndex = m_filterModel->mapFromSource(m_model->indexForItem(rootItem->child(0)));
+        nextCurrentIndex = m_filterModel->mapFromSource(m_model->indexForItem(rootItem->childAt(0)));
     }
 
     m_treeView->setCurrentIndex(nextCurrentIndex);

@@ -279,7 +279,7 @@ QVariant FrameItem::data(int column, int role) const
         return QVariant::fromValue(getErrorItem()->error());
     case Qt::DisplayRole: {
         const int row = parent()->children().indexOf(const_cast<FrameItem *>(this)) + 1;
-        const int padding = static_cast<int>(std::log10(parent()->rowCount()))
+        const int padding = static_cast<int>(std::log10(parent()->childCount()))
                 - static_cast<int>(std::log10(row));
         return QString::fromLatin1("%1%2: %3")
                 .arg(QString(padding, QLatin1Char(' ')))

@@ -189,12 +189,12 @@ void CMakeToolItemModel::addCMakeTool(const CMakeTool *item, bool changed)
 
 TreeItem *CMakeToolItemModel::autoGroupItem() const
 {
-    return rootItem()->child(0);
+    return rootItem()->childAt(0);
 }
 
 TreeItem *CMakeToolItemModel::manualGroupItem() const
 {
-    return rootItem()->child(1);
+    return rootItem()->childAt(1);
 }
 
 void CMakeToolItemModel::reevaluateChangedFlag(CMakeToolTreeItem *item) const
