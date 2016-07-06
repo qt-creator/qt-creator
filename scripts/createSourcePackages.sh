@@ -34,6 +34,7 @@ cd ${TEMPSOURCES} || exit 1
 tar xf __qtcreator_main.tar || exit 1
 tar xf __qtcreator_qbs.tar || exit 1
 tar czf "${RESULTDIR}/${PREFIX}.tar.gz" ${PREFIX}/ || exit 1
+tar cJf "${RESULTDIR}/${PREFIX}.tar.xz" ${PREFIX}/ || exit 1
 
 echo "Creating zip archive..."
 echo "  Filtering binary vs text files..."
