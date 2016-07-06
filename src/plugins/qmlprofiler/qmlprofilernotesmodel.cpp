@@ -87,7 +87,6 @@ int QmlProfilerNotesModel::addQmlNote(int typeId, int collapsedRow, qint64 start
 void QmlProfilerNotesModel::loadData()
 {
     blockSignals(true);
-    TimelineNotesModel::clear();
     for (int i = 0; i != m_notes.size(); ++i) {
         QmlNote &note = m_notes[i];
         note.setLoaded(addQmlNote(note.typeIndex(), note.collapsedRow(), note.startTime(),
