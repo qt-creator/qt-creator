@@ -57,6 +57,7 @@ public:
     void removeChildren();
     void sortChildren(const std::function<bool(const TreeItem *, const TreeItem *)> &cmp);
     void update();
+    void updateAll();
     void updateColumn(int column);
     void expand();
     TreeItem *firstChild() const;

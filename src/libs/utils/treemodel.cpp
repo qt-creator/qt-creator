@@ -730,6 +730,16 @@ void TreeItem::update()
     }
 }
 
+void TreeItem::updateAll()
+{
+    if (m_model) {
+        QModelIndex idx = index();
+        m_model->dataChanged(idx, idx.sibling(idx.row(), m_model->m_columnCount - 1));
+        foreach (TreeItem *item, m_children)
+            item->updateAll();
+    }
+}
+
 void TreeItem::updateColumn(int column)
 {
     if (m_model) {
