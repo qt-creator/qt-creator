@@ -244,9 +244,7 @@ QWidget *CompileOutputWindow::outputWidget(QWidget *)
 
 QList<QWidget *> CompileOutputWindow::toolBarWidgets() const
 {
-     return QList<QWidget *>() << m_cancelBuildButton
-                               << m_zoomInButton
-                               << m_zoomOutButton;
+     return { m_cancelBuildButton, m_zoomInButton, m_zoomOutButton };
 }
 
 void CompileOutputWindow::appendText(const QString &text, BuildStep::OutputFormat format)
