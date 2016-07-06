@@ -32,6 +32,8 @@
 #include <qmldebug/qpacketprotocol.h>
 #include <utils/qtcassert.h>
 
+#include <QQueue>
+
 namespace QmlProfiler {
 
 class QmlProfilerTraceClientPrivate {
@@ -70,6 +72,7 @@ public:
     QHash<QmlEventType, int> eventTypeIds;
     QHash<qint64, int> serverTypeIds;
     QStack<QmlTypedEvent> rangesInProgress;
+    QQueue<QmlEvent> pendingMessages;
 };
 
 int QmlProfilerTraceClientPrivate::resolveType(const QmlTypedEvent &event)
@@ -109,6 +112,10 @@ int QmlProfilerTraceClientPrivate::resolveStackTop()
 
     typeIndex = resolveType(typedEvent);
     typedEvent.event.setTypeIndex(typeIndex);
+    while (!pendingMessages.isEmpty()
+           && pendingMessages.head().timestamp() < typedEvent.event.timestamp()) {
+        model->addEvent(pendingMessages.dequeue());
+    }
     model->addEvent(typedEvent.event);
     return typeIndex;
 }
@@ -130,6 +137,8 @@ void QmlProfilerTraceClientPrivate::processCurrentEvent()
         int typeIndex = resolveStackTop();
         QTC_ASSERT(typeIndex != -1, break);
         currentEvent.event.setTypeIndex(typeIndex);
+        while (!pendingMessages.isEmpty())
+            model->addEvent(pendingMessages.dequeue());
         model->addEvent(currentEvent.event);
         rangesInProgress.pop();
         break;
@@ -143,7 +152,10 @@ void QmlProfilerTraceClientPrivate::processCurrentEvent()
     default: {
         int typeIndex = resolveType(currentEvent);
         currentEvent.event.setTypeIndex(typeIndex);
-        model->addEvent(currentEvent.event);
+        if (rangesInProgress.isEmpty())
+            model->addEvent(currentEvent.event);
+        else
+            pendingMessages.enqueue(currentEvent.event);
         break;
     }
     }
@@ -281,6 +293,12 @@ void QmlProfilerTraceClient::messageReceived(const QByteArray &data)
 
     d->maximumTime = qMax(d->currentEvent.event.timestamp(), d->maximumTime);
     if (d->currentEvent.type.message() == Complete) {
+        while (!d->rangesInProgress.isEmpty()) {
+            d->currentEvent = d->rangesInProgress.top();
+            d->currentEvent.event.setRangeStage(RangeEnd);
+            d->currentEvent.event.setTimestamp(d->maximumTime);
+            d->processCurrentEvent();
+        }
         emit complete(d->maximumTime);
         setRecordingFromServer(false);
     } else if (d->currentEvent.type.message() == Event
