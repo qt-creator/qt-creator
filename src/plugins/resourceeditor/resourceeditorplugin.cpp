@@ -185,13 +185,13 @@ bool ResourceEditorPlugin::initialize(const QStringList &arguments, QString *err
                 folderContextMenu->insertLocation(ProjectExplorer::Constants::G_FOLDER_FILES),
                 m_openWithMenu);
 
-    m_copyPath = new Utils::ParameterAction(QString(), tr("Copy path \"%1\""), Utils::ParameterAction::AlwaysEnabled, this);
+    m_copyPath = new Utils::ParameterAction(tr("Copy Path"), tr("Copy Path \"%1\""), Utils::ParameterAction::AlwaysEnabled, this);
     command = Core::ActionManager::registerAction(m_copyPath, Constants::C_COPY_PATH, projectTreeContext);
     command->setAttribute(Core::Command::CA_UpdateText);
     fileContextMenu->addAction(command, ProjectExplorer::Constants::G_FILE_OTHER);
     connect(m_copyPath, &QAction::triggered, this, &ResourceEditorPlugin::copyPathContextMenu);
 
-    m_copyUrl = new Utils::ParameterAction(QString(), tr("Copy url \"%1\""), Utils::ParameterAction::AlwaysEnabled, this);
+    m_copyUrl = new Utils::ParameterAction(tr("Copy URL"), tr("Copy URL \"%1\""), Utils::ParameterAction::AlwaysEnabled, this);
     command = Core::ActionManager::registerAction(m_copyUrl, Constants::C_COPY_URL, projectTreeContext);
     command->setAttribute(Core::Command::CA_UpdateText);
     fileContextMenu->addAction(command, ProjectExplorer::Constants::G_FILE_OTHER);
