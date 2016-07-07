@@ -306,7 +306,7 @@ void TestCodeParser::scanForTests(const QStringList &fileList)
     bool isFullParse = fileList.isEmpty();
     QStringList list;
     if (isFullParse) {
-        list = ProjectExplorer::SessionManager::startupProject()->files(ProjectExplorer::Project::AllFiles);
+        list = ProjectExplorer::SessionManager::startupProject()->files(ProjectExplorer::Project::SourceFiles);
         if (list.isEmpty())
             return;
         qCDebug(LOG) << "setting state to FullParse (scanForTests)";
