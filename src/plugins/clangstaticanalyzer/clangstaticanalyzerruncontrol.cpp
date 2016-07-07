@@ -184,6 +184,7 @@ public:
             optionsBuilder.addDefine("#define _X86INTRIN_H_INCLUDED\n");
 
         optionsBuilder.addToolchainAndProjectDefines();
+        optionsBuilder.undefineClangVersionMacrosForMsvc();
         optionsBuilder.undefineCppLanguageFeatureMacrosForMsvc2015();
         optionsBuilder.addHeaderPathOptions();
         optionsBuilder.addMsvcCompatibilityVersion();
@@ -201,6 +202,23 @@ public:
         : CompilerOptionsBuilder(projectPart)
         , m_isMsvcToolchain(m_projectPart.toolchainType == ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID)
     {
+    }
+
+public:
+    void undefineClangVersionMacrosForMsvc()
+    {
+        if (m_projectPart.toolchainType == ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID) {
+            static QStringList macroNames {
+                "__clang__",
+                "__clang_major__",
+                "__clang_minor__",
+                "__clang_patchlevel__",
+                "__clang_version__"
+            };
+
+            foreach (const QString &macroName, macroNames)
+                add(QLatin1String("/U") + macroName);
+        }
     }
 
 private:
@@ -272,6 +290,14 @@ static QStringList createOptionsToUndefineCppLanguageFeatureMacrosForMsvc2015(
     return optionsBuilder.options();
 }
 
+static QStringList createOptionsToUndefineClangVersionMacrosForMsvc(const ProjectPart &projectPart)
+{
+    ClangStaticAnalyzerOptionsBuilder optionsBuilder(projectPart);
+    optionsBuilder.undefineClangVersionMacrosForMsvc();
+
+    return optionsBuilder.options();
+}
+
 static QStringList tweakedArguments(const ProjectPart &projectPart,
                                     const QString &filePath,
                                     const QStringList &arguments,
@@ -281,6 +307,7 @@ static QStringList tweakedArguments(const ProjectPart &projectPart,
     prependWordWidthArgumentIfNotIncluded(&newArguments, extraParams.wordWidth);
     prependTargetTripleIfNotIncludedAndNotEmpty(&newArguments, extraParams.targetTriple);
     newArguments.append(createMsCompatibilityVersionOption(projectPart));
+    newArguments.append(createOptionsToUndefineClangVersionMacrosForMsvc(projectPart));
     newArguments.append(createOptionsToUndefineCppLanguageFeatureMacrosForMsvc2015(projectPart));
 
     return newArguments;
