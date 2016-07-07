@@ -155,6 +155,9 @@ struct functionTraits<Callable&&> : public functionTraits<Callable>
 {
 };
 
+template <typename F>
+using functionResult_t = typename functionTraits<F>::ResultType;
+
 ////////////////////
 // functionTakesArgument
 ////////////////////

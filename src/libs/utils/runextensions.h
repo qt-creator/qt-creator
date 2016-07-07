@@ -98,7 +98,7 @@ struct resultTypeWithArgument<Function, QFutureInterface<ResultType>&>
 template <typename Function, typename Arg>
 struct resultTypeWithArgument
 {
-    using type = typename functionTraits<Function>::ResultType;
+    using type = functionResult_t<Function>;
 };
 
 template <typename Function, int index>
@@ -110,7 +110,7 @@ struct resultTypeTakesArguments<Function, index, true>
 template <typename Function, int index>
 struct resultTypeTakesArguments<Function, index, false>
 {
-    using type = typename functionTraits<Function>::ResultType;
+    using type = functionResult_t<Function>;
 };
 
 template <typename Function>
