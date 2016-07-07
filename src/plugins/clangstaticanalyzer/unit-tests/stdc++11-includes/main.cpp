@@ -16,7 +16,9 @@
 #include <climits>
 #include <clocale>
 #include <cmath>
-#include <codecvt>
+#if !defined(__GNUC__) || __GNUC__ >= 5
+#  include <codecvt>
+#endif
 #include <complex>
 #include <condition_variable>
 #include <csetjmp>
