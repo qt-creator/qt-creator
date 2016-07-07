@@ -137,10 +137,15 @@ void CompilerOptionsBuilder::addHeaderPathOptions(bool addAsNativePath)
 
 void CompilerOptionsBuilder::addToolchainAndProjectDefines()
 {
-    QByteArray extendedDefines = m_projectPart.toolchainDefines + m_projectPart.projectDefines;
+    addDefines(m_projectPart.toolchainDefines);
+    addDefines(m_projectPart.projectDefines);
+}
+
+void CompilerOptionsBuilder::addDefines(const QByteArray &defineDirectives)
+{
     QStringList result;
 
-    foreach (QByteArray def, extendedDefines.split('\n')) {
+    foreach (QByteArray def, defineDirectives.split('\n')) {
         if (def.isEmpty() || excludeDefineLine(def))
             continue;
 

@@ -183,7 +183,9 @@ public:
                 || type == ProjectExplorer::Constants::GCC_TOOLCHAIN_TYPEID)
             optionsBuilder.addDefine("#define _X86INTRIN_H_INCLUDED\n");
 
-        optionsBuilder.addToolchainAndProjectDefines();
+        if (type != ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID)
+            optionsBuilder.addDefines(projectPart.toolchainDefines);
+        optionsBuilder.addDefines(projectPart.projectDefines);
         optionsBuilder.undefineClangVersionMacrosForMsvc();
         optionsBuilder.undefineCppLanguageFeatureMacrosForMsvc2015();
         optionsBuilder.addHeaderPathOptions();

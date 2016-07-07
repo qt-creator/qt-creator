@@ -48,6 +48,7 @@ public:
     virtual void enableExceptions();
     void addHeaderPathOptions(bool addAsNativePath = false);
     void addToolchainAndProjectDefines();
+    void addDefines(const QByteArray &defineDirectives);
     virtual void addLanguageOption(ProjectFile::Kind fileKind);
     virtual void addOptionsForLanguage(bool checkForBorlandExtensions = true);
 
