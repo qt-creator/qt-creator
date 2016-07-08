@@ -670,12 +670,6 @@ QSize OutputPaneToggleButton::sizeHint() const
 
 void OutputPaneToggleButton::paintEvent(QPaintEvent*)
 {
-    static const QImage panelButton(StyleHelper::dpiSpecificImageFile(QStringLiteral(":/core/images/panel_button.png")));
-    static const QImage panelButtonHover(StyleHelper::dpiSpecificImageFile(QStringLiteral(":/core/images/panel_button_hover.png")));
-    static const QImage panelButtonPressed(StyleHelper::dpiSpecificImageFile(QStringLiteral(":/core/images/panel_button_pressed.png")));
-    static const QImage panelButtonChecked(StyleHelper::dpiSpecificImageFile(QStringLiteral(":/core/images/panel_button_checked.png")));
-    static const QImage panelButtonCheckedHover(StyleHelper::dpiSpecificImageFile(QStringLiteral(":/core/images/panel_button_checked_hover.png")));
-
     const QFontMetrics fm = fontMetrics();
     const int baseLine = (height() - fm.height() + 1) / 2 + fm.ascent();
     const int numberWidth = fm.width(m_number);
@@ -686,7 +680,6 @@ void OutputPaneToggleButton::paintEvent(QPaintEvent*)
     styleOption.initFrom(this);
     const bool hovered = !HostOsInfo::isMacHost() && (styleOption.state & QStyle::State_MouseOver);
 
-    const QImage *image = 0;
     if (creatorTheme()->flag(Theme::FlatToolBars)) {
         Theme::Color c = Theme::BackgroundColorDark;
 
@@ -698,12 +691,32 @@ void OutputPaneToggleButton::paintEvent(QPaintEvent*)
         if (c != Theme::BackgroundColorDark)
             p.fillRect(rect(), creatorTheme()->color(c));
     } else {
-        if (isDown())
-            image = &panelButtonPressed;
-        else if (isChecked())
-            image = hovered ? &panelButtonCheckedHover : &panelButtonChecked;
-        else
-            image = hovered ? &panelButtonHover : &panelButton;
+        const QImage *image = 0;
+        if (isDown()) {
+            static const QImage pressed(
+                        StyleHelper::dpiSpecificImageFile(":/core/images/panel_button_pressed.png"));
+            image = &pressed;
+        } else if (isChecked()) {
+            if (hovered) {
+                static const QImage checkedHover(
+                            StyleHelper::dpiSpecificImageFile(":/core/images/panel_button_checked_hover.png"));
+                image = &checkedHover;
+            } else {
+                static const QImage checked(
+                            StyleHelper::dpiSpecificImageFile(":/core/images/panel_button_checked.png"));
+                image = &checked;
+            }
+        } else {
+            if (hovered) {
+                static const QImage hover(
+                            StyleHelper::dpiSpecificImageFile(":/core/images/panel_button_hover.png"));
+                image = &hover;
+            } else {
+                static const QImage button(
+                            StyleHelper::dpiSpecificImageFile(":/core/images/panel_button.png"));
+                image = &button;
+            }
+        }
         if (image)
             StyleHelper::drawCornerImage(*image, &p, rect(), numberAreaWidth(), buttonBorderWidth, buttonBorderWidth, buttonBorderWidth);
     }
