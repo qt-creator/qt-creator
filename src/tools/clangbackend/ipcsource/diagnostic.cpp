@@ -150,7 +150,7 @@ QVector<SourceRangeContainer> Diagnostic::getSourceRangeContainers() const
     auto rangeVector = ranges();
 
     QVector<SourceRangeContainer> sourceRangeContainers;
-    sourceRangeContainers.reserve(rangeVector.size());
+    sourceRangeContainers.reserve(int(rangeVector.size()));
 
     for (auto &&sourceRange : rangeVector)
         sourceRangeContainers.push_back(sourceRange.toSourceRangeContainer());
@@ -163,7 +163,7 @@ QVector<FixItContainer> Diagnostic::getFixItContainers() const
     auto fixItVector = fixIts();
 
     QVector<FixItContainer> fixItContainers;
-    fixItContainers.reserve(fixItVector.size());
+    fixItContainers.reserve(int(fixItVector.size()));
 
     for (auto &&fixIt : fixItVector)
         fixItContainers.push_back(fixIt.toFixItContainer());
