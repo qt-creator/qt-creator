@@ -85,6 +85,8 @@ TestCodeParser::~TestCodeParser()
 
 void TestCodeParser::setState(State state)
 {
+    if (m_parserState == Shutdown)
+        return;
     qCDebug(LOG) << "setState(" << state << "), currentState:" << m_parserState;
     // avoid triggering parse before code model parsing has finished, but mark as dirty
     if (m_codeModelParsing) {
@@ -175,6 +177,8 @@ static bool checkDocumentForTestCode(QFutureInterface<TestParseResultPtr> &futur
                                      const QVector<ITestParser *> &parsers)
 {
     foreach (ITestParser *currentParser, parsers) {
+        if (futureInterface.isCanceled())
+            return false;
         if (currentParser->processDocument(futureInterface, fileName))
             return true;
     }
@@ -253,6 +257,17 @@ void TestCodeParser::onProjectPartsUpdated(ProjectExplorer::Project *project)
         emitUpdateTestTree();
 }
 
+void TestCodeParser::aboutToShutdown()
+{
+    qCDebug(LOG) << "Disabling (immediately) - shutting down";
+    State oldState = m_parserState;
+    m_parserState = Shutdown;
+    if (oldState == PartialParse || oldState == FullParse) {
+        m_futureWatcher.cancel();
+        m_futureWatcher.waitForFinished();
+    }
+}
+
 bool TestCodeParser::postponed(const QStringList &fileList)
 {
     switch (m_parserState) {
@@ -278,6 +293,7 @@ bool TestCodeParser::postponed(const QStringList &fileList)
         }
         return true;
     case Disabled:
+    case Shutdown:
         break;
     }
     QTC_ASSERT(false, return false); // should not happen at all
@@ -285,7 +301,7 @@ bool TestCodeParser::postponed(const QStringList &fileList)
 
 void TestCodeParser::scanForTests(const QStringList &fileList)
 {
-    if (m_parserState == Disabled) {
+    if (m_parserState == Disabled || m_parserState == Shutdown) {
         m_dirty = true;
         if (fileList.isEmpty()) {
             m_fullUpdatePostponed = true;
@@ -389,6 +405,9 @@ void TestCodeParser::onFinished()
     case Disabled: // can happen if all Test related widgets become hidden while parsing
         qCDebug(LOG) << "emitting parsingFinished (onFinished, Disabled)";
         emit parsingFinished();
+        break;
+    case Shutdown:
+        qCDebug(LOG) << "Shutdown complete - not emitting parsingFinished (onFinished)";
         break;
     default:
         qWarning("I should not be here... State: %d", m_parserState);

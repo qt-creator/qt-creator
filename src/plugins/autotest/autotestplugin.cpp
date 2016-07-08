@@ -154,6 +154,7 @@ void AutotestPlugin::extensionsInitialized()
 
 ExtensionSystem::IPlugin::ShutdownFlag AutotestPlugin::aboutToShutdown()
 {
+    TestTreeModel::instance()->parser()->aboutToShutdown();
     return SynchronousShutdown;
 }
 

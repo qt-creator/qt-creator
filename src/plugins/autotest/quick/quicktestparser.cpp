@@ -202,7 +202,8 @@ static bool handleQtQuickTest(QFutureInterface<TestParseResultPtr> futureInterfa
 
     const QString cppFileName = document->fileName();
     QList<CppTools::ProjectPart::Ptr> ppList = modelManager->projectPart(cppFileName);
-    QTC_ASSERT(!ppList.isEmpty(), return false);
+    if (ppList.isEmpty()) // happens if shutting down while parsing
+        return false;
     const QString &proFile = ppList.at(0)->projectFile;
 
     const QString srcDir = quickTestSrcDir(modelManager, cppFileName);

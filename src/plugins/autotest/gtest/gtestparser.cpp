@@ -90,6 +90,8 @@ static bool handleGTest(QFutureInterface<TestParseResultPtr> futureInterface,
     const QList<CppTools::ProjectPart::Ptr> &ppList = modelManager->projectPart(filePath);
     if (ppList.size())
         proFile = ppList.first()->projectFile;
+    else
+        return false; // happens if shutting down while parsing
 
     foreach (const GTestCaseSpec &testSpec, result.keys()) {
         GTestParseResult *parseResult = new GTestParseResult(id);
