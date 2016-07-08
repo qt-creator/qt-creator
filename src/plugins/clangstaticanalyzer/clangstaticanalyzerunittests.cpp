@@ -100,32 +100,29 @@ void ClangStaticAnalyzerUnitTests::testProject_data()
     QTest::addColumn<QString>("projectFilePath");
     QTest::addColumn<int>("expectedDiagCount");
 
-    QTest::newRow("simple qbs project")
-            << QString(m_tmpDir->absolutePath("simple/simple.qbs")) << 1;
-    QTest::newRow("simple qmake project")
-            << QString(m_tmpDir->absolutePath("simple/simple.pro")) << 1;
+    addTestRow("simple/simple.qbs", 1);
+    addTestRow("simple/simple.pro", 1);
 
-    QTest::newRow("simple qbs library project")
-            << QString(m_tmpDir->absolutePath("simple-library/simple-library.qbs")) << 0;
-    QTest::newRow("simple qmake library project")
-            << QString(m_tmpDir->absolutePath("simple-library/simple-library.pro")) << 0;
+    addTestRow("simple-library/simple-library.qbs", 0);
+    addTestRow("simple-library/simple-library.pro", 0);
 
-    QTest::newRow("stdc++11-includes qbs project")
-            << QString(m_tmpDir->absolutePath("stdc++11-includes/stdc++11-includes.qbs")) << 0;
-    QTest::newRow("stdc++11-includes qmake project")
-            << QString(m_tmpDir->absolutePath("stdc++11-includes/stdc++11-includes.pro")) << 0;
+    addTestRow("stdc++11-includes/stdc++11-includes.qbs", 0);
+    addTestRow("stdc++11-includes/stdc++11-includes.pro", 0);
 
-    QTest::newRow("qt-widgets-app qbs project")
-            << QString(m_tmpDir->absolutePath("qt-widgets-app/qt-widgets-app.qbs")) << 0;
-    QTest::newRow("qt-widgets-app qmake project")
-            << QString(m_tmpDir->absolutePath("qt-widgets-app/qt-widgets-app.pro")) << 0;
+    addTestRow("qt-widgets-app/qt-widgets-app.qbs", 0);
+    addTestRow("qt-widgets-app/qt-widgets-app.pro", 0);
 
-    QTest::newRow("qt-essential-includes qbs project")
-            << QString(m_tmpDir->absolutePath("qt-essential-includes/qt-essential-includes.qbs"))
-            << 0;
-    QTest::newRow("qt-essential-includes qmake project")
-            << QString(m_tmpDir->absolutePath("qt-essential-includes/qt-essential-includes.pro"))
-            << 0;
+    addTestRow("qt-essential-includes/qt-essential-includes.qbs", 0);
+    addTestRow("qt-essential-includes/qt-essential-includes.pro", 0);
+}
+
+void ClangStaticAnalyzerUnitTests::addTestRow(const QByteArray &relativeFilePath,
+                                              int expectedDiagCount)
+{
+    const QString absoluteFilePath = m_tmpDir->absolutePath(relativeFilePath);
+    const QString fileName = QFileInfo(absoluteFilePath).fileName();
+
+    QTest::newRow(fileName.toUtf8().constData()) << absoluteFilePath << expectedDiagCount;
 }
 
 } // namespace Internal

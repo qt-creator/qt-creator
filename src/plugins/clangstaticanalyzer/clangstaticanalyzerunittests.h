@@ -47,6 +47,9 @@ private slots:
     void testProject_data();
 
 private:
+    void addTestRow(const QByteArray &relativeFilePath, int expectedDiagCount);
+
+private:
     ClangStaticAnalyzerTool * const m_analyzerTool;
     CppTools::Tests::TemporaryCopiedDir *m_tmpDir;
 };
