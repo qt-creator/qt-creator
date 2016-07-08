@@ -28,6 +28,7 @@ QtcProduct {
         "../../../../share/qtcreator/qml/qmlpuppet/interfaces",
         "../../../../share/qtcreator/qml/qmlpuppet/types",
     ])
+    cpp.internalVersion: ""
 
     Group {
         name: "controls"
