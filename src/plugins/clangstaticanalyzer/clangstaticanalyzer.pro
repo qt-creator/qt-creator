@@ -41,8 +41,14 @@ FORMS += \
     clangstaticanalyzerprojectsettingswidget.ui
 
 equals(TEST, 1) {
-    HEADERS += clangstaticanalyzerunittests.h
-    SOURCES += clangstaticanalyzerunittests.cpp
+    HEADERS += \
+        clangstaticanalyzerpreconfiguredsessiontests.h \
+        clangstaticanalyzerunittests.h
+
+    SOURCES += \
+        clangstaticanalyzerpreconfiguredsessiontests.cpp \
+        clangstaticanalyzerunittests.cpp
+
     RESOURCES += clangstaticanalyzerunittests.qrc
 }
 
