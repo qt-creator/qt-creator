@@ -1259,6 +1259,37 @@ void ModelManagerInterface::asyncReset()
     m_asyncResetTimer->start();
 }
 
+bool rescanExports(const QString &fileName, FindExportedCppTypes &finder,
+                   ModelManagerInterface::CppDataHash &newData)
+{
+    bool hasNewInfo = false;
+
+    QList<LanguageUtils::FakeMetaObject::ConstPtr> exported = finder.exportedTypes();
+    QHash<QString, QString> contextProperties = finder.contextProperties();
+    if (exported.isEmpty() && contextProperties.isEmpty()) {
+        hasNewInfo = hasNewInfo || newData.remove(fileName) > 0;
+    } else {
+        ModelManagerInterface::CppData &data = newData[fileName];
+        if (!hasNewInfo && (data.exportedTypes.size() != exported.size()
+                            || data.contextProperties != contextProperties))
+            hasNewInfo = true;
+        if (!hasNewInfo) {
+            QHash<QString, QByteArray> newFingerprints;
+            foreach (LanguageUtils::FakeMetaObject::ConstPtr newType, exported)
+                newFingerprints[newType->className()]=newType->fingerprint();
+            foreach (LanguageUtils::FakeMetaObject::ConstPtr oldType, data.exportedTypes) {
+                if (newFingerprints.value(oldType->className()) != oldType->fingerprint()) {
+                    hasNewInfo = true;
+                    break;
+                }
+            }
+        }
+        data.exportedTypes = exported;
+        data.contextProperties = contextProperties;
+    }
+    return hasNewInfo;
+}
+
 void ModelManagerInterface::updateCppQmlTypes(QFutureInterface<void> &interface,
                                      ModelManagerInterface *qmlModelManager,
                                      CPlusPlus::Snapshot snapshot,
@@ -1266,7 +1297,14 @@ void ModelManagerInterface::updateCppQmlTypes(QFutureInterface<void> &interface,
 {
     interface.setProgressRange(0, documents.size());
     interface.setProgressValue(0);
-    CppDataHash newData = qmlModelManager->cppData();
+
+    CppDataHash newData;
+    QHash<QString, QStringList> newDeclarations;
+    {
+        QMutexLocker locker(&qmlModelManager->m_cppDataMutex);
+        newData = qmlModelManager->m_cppDataHash;
+        newDeclarations = qmlModelManager->m_cppDeclarationFiles;
+    }
 
     FindExportedCppTypes finder(snapshot);
 
@@ -1281,41 +1319,37 @@ void ModelManagerInterface::updateCppQmlTypes(QFutureInterface<void> &interface,
         const bool scan = pair.second;
         const QString fileName = doc->fileName();
         if (!scan) {
-            hasNewInfo = hasNewInfo || newData.remove(fileName) > 0;
+            hasNewInfo = newData.remove(fileName) > 0 || hasNewInfo;
+            foreach (const QString &file, newDeclarations[fileName]) {
+                finder(snapshot.document(file));
+                hasNewInfo = rescanExports(file, finder, newData) || hasNewInfo;
+            }
             continue;
         }
 
-        finder(doc);
-
-        QList<LanguageUtils::FakeMetaObject::ConstPtr> exported = finder.exportedTypes();
-        QHash<QString, QString> contextProperties = finder.contextProperties();
-        if (exported.isEmpty() && contextProperties.isEmpty()) {
-            hasNewInfo = hasNewInfo || newData.remove(fileName) > 0;
-        } else {
-            CppData &data = newData[fileName];
-            if (!hasNewInfo && (data.exportedTypes.size() != exported.size()
-                                || data.contextProperties != contextProperties))
-                hasNewInfo = true;
-            if (!hasNewInfo) {
-                QHash<QString, QByteArray> newFingerprints;
-                foreach (LanguageUtils::FakeMetaObject::ConstPtr newType, exported)
-                    newFingerprints[newType->className()]=newType->fingerprint();
-                foreach (LanguageUtils::FakeMetaObject::ConstPtr oldType, data.exportedTypes) {
-                    if (newFingerprints.value(oldType->className()) != oldType->fingerprint()) {
-                        hasNewInfo = true;
-                        break;
-                    }
+        for (auto it = newDeclarations.begin(), end = newDeclarations.end(); it != end;) {
+            if (it->removeOne(fileName)) {
+                doc->releaseSourceAndAST();
+                if (it->isEmpty()) {
+                    it = newDeclarations.erase(it);
+                    continue;
                 }
             }
-            data.exportedTypes = exported;
-            data.contextProperties = contextProperties;
+            ++it;
         }
 
+        foreach (const QString &declarationFile, finder(doc)) {
+            newDeclarations[declarationFile].append(fileName);
+            doc->keepSourceAndAST(); // keep for later reparsing when dependent doc changes
+        }
+
+        hasNewInfo = rescanExports(doc->fileName(), finder, newData) || hasNewInfo;
         doc->releaseSourceAndAST();
     }
 
     QMutexLocker locker(&qmlModelManager->m_cppDataMutex);
     qmlModelManager->m_cppDataHash = newData;
+    qmlModelManager->m_cppDeclarationFiles = newDeclarations;
     if (hasNewInfo)
         // one could get away with re-linking the cpp types...
         QMetaObject::invokeMethod(qmlModelManager, "asyncReset");

@@ -817,16 +817,17 @@ FindExportedCppTypes::FindExportedCppTypes(const CPlusPlus::Snapshot &snapshot)
 {
 }
 
-void FindExportedCppTypes::operator()(const CPlusPlus::Document::Ptr &document)
+QStringList FindExportedCppTypes::operator()(const CPlusPlus::Document::Ptr &document)
 {
     m_contextProperties.clear();
     m_exportedTypes.clear();
+    QStringList fileNames;
 
     // this check only guards against some input errors, if document's source and AST has not
     // been guarded properly the source and AST may still become empty/null while this function is running
     if (document->utf8Source().isEmpty()
             || !document->translationUnit()->ast())
-        return;
+        return fileNames;
 
     FindExportsVisitor finder(document);
     finder();
@@ -838,7 +839,7 @@ void FindExportedCppTypes::operator()(const CPlusPlus::Document::Ptr &document)
     const QList<ContextProperty> contextPropertyDescriptions = finder.contextProperties();
     const QList<ExportedQmlType> exports = finder.exportedTypes();
     if (exports.isEmpty() && contextPropertyDescriptions.isEmpty())
-        return;
+        return fileNames;
 
     // context properties need lookup inside function scope, and thus require a full check
     CPlusPlus::Document::Ptr localDoc = document;
@@ -863,14 +864,19 @@ void FindExportedCppTypes::operator()(const CPlusPlus::Document::Ptr &document)
 
     // convert to list of FakeMetaObject::ConstPtr
     m_exportedTypes.reserve(fakeMetaObjects.size() + extraFakeMetaObjects.size());
-    foreach (const LanguageUtils::FakeMetaObject::Ptr &fmo, fakeMetaObjects) {
-        fmo->updateFingerprint();
-        m_exportedTypes += fmo;
+    fileNames.reserve(fakeMetaObjects.size());
+    for (auto it = fakeMetaObjects.constBegin(), end = fakeMetaObjects.constEnd(); it != end;
+         ++it) {
+        it.value()->updateFingerprint();
+        m_exportedTypes += it.value();
+        fileNames += QLatin1String(it.key()->fileName());
     }
     foreach (const LanguageUtils::FakeMetaObject::Ptr &fmo, extraFakeMetaObjects) {
         fmo->updateFingerprint();
         m_exportedTypes += fmo;
     }
+
+    return fileNames;
 }
 
 QList<LanguageUtils::FakeMetaObject::ConstPtr> FindExportedCppTypes::exportedTypes() const

@@ -275,6 +275,7 @@ private:
     QrcCache m_qrcCache;
 
     CppDataHash m_cppDataHash;
+    QHash<QString, QStringList> m_cppDeclarationFiles;
     mutable QMutex m_cppDataMutex;
 
     // project integration
