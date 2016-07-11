@@ -108,6 +108,7 @@ OpenDocumentsTreeView::OpenDocumentsTreeView(QWidget *parent) :
     setTextElideMode(Qt::ElideMiddle);
     setFrameStyle(QFrame::NoFrame);
     setAttribute(Qt::WA_MacShowFocusRect, false);
+    setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
     viewport()->setAttribute(Qt::WA_Hover);
 
     setSelectionMode(QAbstractItemView::SingleSelection);
