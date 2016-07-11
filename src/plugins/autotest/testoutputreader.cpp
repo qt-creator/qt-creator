@@ -45,7 +45,7 @@ TestOutputReader::TestOutputReader(const QFutureInterface<TestResultPtr> &future
 
 void TestOutputReader::processStdError()
 {
-    qWarning() << "Ignored plain output:" << m_testApplication->readAllStandardError();
+    qWarning() << "AutoTest.Run: Ignored plain output:" << m_testApplication->readAllStandardError();
 }
 
 } // namespace Internal
