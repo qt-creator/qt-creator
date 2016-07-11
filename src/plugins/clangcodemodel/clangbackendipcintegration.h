@@ -168,8 +168,7 @@ private:
     void registerVisibleCppEditorDocumentAndMarkInvisibleDirty();
     void registerCurrentCodeModelUiHeaders();
 
-
-    void onBackendRestarted();
+    void onConnectedToBackend();
     void onEditorAboutToClose(Core::IEditor *editor);
     void onCoreAboutToClose();
 
@@ -180,8 +179,7 @@ private:
     IpcReceiver m_ipcReceiver;
     ClangBackEnd::ConnectionClient m_connection;
     QScopedPointer<IpcSenderInterface> m_ipcSender;
-
-    SendMode m_sendMode = RespectSendRequests;
+    int m_connectedCount = 0;
 };
 
 } // namespace Internal

@@ -82,6 +82,8 @@ ModelManagerSupportClang::ModelManagerSupportClang()
             this, &ModelManagerSupportClang::onProjectPartsUpdated);
     connect(modelManager, &CppTools::CppModelManager::projectPartsRemoved,
             this, &ModelManagerSupportClang::onProjectPartsRemoved);
+
+    m_ipcCommunicator.registerFallbackProjectPart();
 }
 
 ModelManagerSupportClang::~ModelManagerSupportClang()
