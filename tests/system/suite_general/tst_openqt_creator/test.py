@@ -65,7 +65,7 @@ def main():
     generalMessages = str(waitForObject(":Qt Creator_Core::OutputWindow").plainText)
     test.verify("Project MESSAGE: Cannot build Qt Creator with Qt version 5.3.1." in generalMessages,
                 "Warning about outdated Qt shown?")
-    test.verify("Project ERROR: Use at least Qt 5.4.0." in generalMessages,
+    test.verify("Project ERROR: Use at least Qt 5.5.0." in generalMessages,
                 "Minimum Qt version shown?")
 
     # Now check some basic lookups in the search box
