@@ -60,6 +60,7 @@
 using namespace ClangBackEnd;
 
 using ::testing::Eq;
+using ::testing::SizeIs;
 
 class ClientServerOutsideProcess : public ::testing::Test
 {
@@ -77,30 +78,35 @@ protected:
 MockClangCodeModelClient ClientServerOutsideProcess::mockClangCodeModelClient;
 ClangBackEnd::ConnectionClient ClientServerOutsideProcess::client(&ClientServerOutsideProcess::mockClangCodeModelClient);
 
-TEST_F(ClientServerOutsideProcess, RestartProcess)
+TEST_F(ClientServerOutsideProcess, RestartProcessAsynchronously)
 {
-    client.restartProcess();
+    QSignalSpy clientSpy(&client, &ConnectionClient::connectedToLocalSocket);
 
+    client.restartProcessAsynchronously();
+
+    ASSERT_TRUE(clientSpy.wait(100000));
     ASSERT_TRUE(client.isProcessIsRunning());
     ASSERT_TRUE(client.isConnected());
 }
 
 TEST_F(ClientServerOutsideProcess, RestartProcessAfterAliveTimeout)
 {
-    QSignalSpy clientSpy(&client, SIGNAL(processRestarted()));
+    QSignalSpy clientSpy(&client, &ConnectionClient::connectedToLocalSocket);
 
     client.setProcessAliveTimerInterval(1);
 
     ASSERT_TRUE(clientSpy.wait(100000));
+    ASSERT_THAT(clientSpy, SizeIs(1));
 }
 
 TEST_F(ClientServerOutsideProcess, RestartProcessAfterTermination)
 {
-    QSignalSpy clientSpy(&client, SIGNAL(processRestarted()));
+    QSignalSpy clientSpy(&client, &ConnectionClient::connectedToLocalSocket);
 
     client.processForTestOnly()->kill();
 
     ASSERT_TRUE(clientSpy.wait(100000));
+    ASSERT_THAT(clientSpy, SizeIs(1));
 }
 
 TEST_F(ClientServerOutsideProcess, SendRegisterTranslationUnitForEditorMessage)
@@ -171,9 +177,13 @@ TEST_F(ClientServerOutsideProcess, SendUnregisterProjectPartsForEditorMessage)
 
 void ClientServerOutsideProcess::SetUpTestCase()
 {
+    QSignalSpy clientSpy(&client, &ConnectionClient::connectedToLocalSocket);
     client.setProcessPath(Utils::HostOsInfo::withExecutableSuffix(QStringLiteral(ECHOSERVER)));
 
-    ASSERT_TRUE(client.connectToServer());
+    client.startProcessAndConnectToServerAsynchronously();
+
+    ASSERT_TRUE(clientSpy.wait(100000));
+    ASSERT_THAT(clientSpy, SizeIs(1));
 }
 
 void ClientServerOutsideProcess::TearDownTestCase()
@@ -189,6 +199,9 @@ void ClientServerOutsideProcess::SetUp()
 
 void ClientServerOutsideProcess::TearDown()
 {
+    client.setProcessAliveTimerInterval(1000000);
+    client.waitForConnected();
+
     ASSERT_TRUE(client.isProcessIsRunning());
     ASSERT_TRUE(client.isConnected());
 }

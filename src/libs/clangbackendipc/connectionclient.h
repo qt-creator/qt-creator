@@ -52,7 +52,7 @@ public:
     ConnectionClient(ClangCodeModelClientInterface *client);
     ~ConnectionClient();
 
-    bool connectToServer();
+    void startProcessAndConnectToServerAsynchronously();
     bool disconnectFromServer();
     bool isConnected() const;
 
@@ -64,34 +64,41 @@ public:
     const QString &processPath() const;
     void setProcessPath(const QString &processPath);
 
-    void startProcess();
-    void restartProcess();
+    void restartProcessAsynchronously();
     void restartProcessIfTimerIsNotResettedAndSocketIsEmpty();
     void finishProcess();
     bool isProcessIsRunning() const;
 
     bool waitForEcho();
+    bool waitForConnected();
 
     ClangCodeModelServerProxy &serverProxy();
 
     QProcess *processForTestOnly() const;
 
 signals:
-    void processRestarted();
+    void connectedToLocalSocket();
+    void processFinished();
 
 private:
-    bool connectToLocalSocket();
-    void endProcess();
-    void terminateProcess();
-    void killProcess();
+    std::unique_ptr<QProcess> startProcess();
+    void finishProcess(std::unique_ptr<QProcess> &&process);
+    void connectToLocalSocket();
+    void endProcess(QProcess *process);
+    void terminateProcess(QProcess *process);
+    void killProcess(QProcess *process);
+    void resetProcessIsStarting();
     void printLocalSocketError(QLocalSocket::LocalSocketError socketError);
     void printStandardOutput();
     void printStandardError();
 
-    QProcess *process() const;
-    void connectProcessFinished() const;
-    void disconnectProcessFinished() const;
-    void connectStandardOutputAndError() const;
+    void connectLocalSocketConnected();
+    void connectProcessFinished(QProcess *process) const;
+    void connectProcessStarted(QProcess *process) const;
+    void disconnectProcessFinished(QProcess *process) const;
+    void connectStandardOutputAndError(QProcess *process) const;
+    void connectLocalSocketError() const;
+    void connectAliveTimer();
 
     void ensureMessageIsWritten();
 
@@ -103,7 +110,8 @@ private:
     ClangCodeModelServerProxy serverProxy_;
     QTimer processAliveTimer;
     QString processPath_;
-    bool isAliveTimerResetted;
+    bool isAliveTimerResetted = false;
+    bool processIsStarting = false;
 
     LinePrefixer stdErrPrefixer;
     LinePrefixer stdOutPrefixer;

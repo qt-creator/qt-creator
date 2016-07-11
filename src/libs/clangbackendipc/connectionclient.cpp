@@ -31,6 +31,7 @@
 #include "cmbunregistertranslationunitsforeditormessage.h"
 
 #include <QCoreApplication>
+#include <QMetaMethod>
 #include <QProcess>
 #include <QTemporaryDir>
 #include <QThread>
@@ -58,7 +59,6 @@ QString connectionName()
 
 ConnectionClient::ConnectionClient(ClangCodeModelClientInterface *client)
     : serverProxy_(client, &localSocket),
-      isAliveTimerResetted(false),
       stdErrPrefixer("clangbackend.stderr: "),
       stdOutPrefixer("clangbackend.stdout: ")
 {
@@ -66,15 +66,11 @@ ConnectionClient::ConnectionClient(ClangCodeModelClientInterface *client)
 
     const bool startAliveTimer = !qgetenv("QTC_CLANG_NO_ALIVE_TIMER").toInt();
 
-    if (startAliveTimer) {
-        connect(&processAliveTimer, &QTimer::timeout,
-                this, &ConnectionClient::restartProcessIfTimerIsNotResettedAndSocketIsEmpty);
-    }
+    if (startAliveTimer)
+        connectAliveTimer();
 
-    connect(&localSocket,
-            static_cast<void (QLocalSocket::*)(QLocalSocket::LocalSocketError)>(&QLocalSocket::error),
-            this,
-            &ConnectionClient::printLocalSocketError);
+    connectLocalSocketError();
+    connectLocalSocketConnected();
 }
 
 ConnectionClient::~ConnectionClient()
@@ -82,15 +78,9 @@ ConnectionClient::~ConnectionClient()
     finishProcess();
 }
 
-bool ConnectionClient::connectToServer()
+void ConnectionClient::startProcessAndConnectToServerAsynchronously()
 {
-    TIME_SCOPE_DURATION("ConnectionClient::connectToServer");
-
-    startProcess();
-    resetProcessAliveTimer();
-    const bool isConnected = connectToLocalSocket();
-
-    return isConnected;
+    process_  = startProcess();
 }
 
 bool ConnectionClient::disconnectFromServer()
@@ -145,28 +135,28 @@ QProcessEnvironment ConnectionClient::processEnvironment() const
     return processEnvironment;
 }
 
-void ConnectionClient::startProcess()
+std::unique_ptr<QProcess> ConnectionClient::startProcess()
 {
-    TIME_SCOPE_DURATION("ConnectionClient::startProcess");
+    processIsStarting = true;
 
-    if (!isProcessIsRunning()) {
-        connectProcessFinished();
-        connectStandardOutputAndError();
-        process()->setProcessEnvironment(processEnvironment());
-        process()->start(processPath(), {connectionName()});
-        process()->waitForStarted();
-        resetProcessAliveTimer();
-    }
+    auto process = std::unique_ptr<QProcess>(new QProcess);
+    connectProcessFinished(process.get());
+    connectProcessStarted(process.get());
+    connectStandardOutputAndError(process.get());
+    process->setProcessEnvironment(processEnvironment());
+    process->start(processPath(), {connectionName()});
+    resetProcessAliveTimer();
+
+    return process;
 }
 
-void ConnectionClient::restartProcess()
+void ConnectionClient::restartProcessAsynchronously()
 {
-    finishProcess();
-    startProcess();
+    if (!processIsStarting) {
+        finishProcess(std::move(process_));
 
-    connectToServer();
-
-    emit processRestarted();
+        startProcessAndConnectToServerAsynchronously();
+    }
 }
 
 void ConnectionClient::restartProcessIfTimerIsNotResettedAndSocketIsEmpty()
@@ -179,50 +169,46 @@ void ConnectionClient::restartProcessIfTimerIsNotResettedAndSocketIsEmpty()
     if (localSocket.bytesAvailable() > 0)
         return; // We come first, the incoming data was not yet processed.
 
-    restartProcess();
+    restartProcessAsynchronously();
 }
 
-bool ConnectionClient::connectToLocalSocket()
+void ConnectionClient::connectToLocalSocket()
 {
-    for (int counter = 0; counter < 1000; counter++) {
+    if (!isConnected()) {
         localSocket.connectToServer(connectionName());
-        bool isConnected = localSocket.waitForConnected(20);
-
-        if (isConnected)
-            return isConnected;
-        else
-            QThread::msleep(30);
+        QTimer::singleShot(20, this, &ConnectionClient::connectToLocalSocket);
     }
-
-    qDebug() << "Cannot connect:" <<localSocket.errorString();
-
-    return false;
 }
 
-void ConnectionClient::endProcess()
+void ConnectionClient::endProcess(QProcess *process)
 {
-    if (isProcessIsRunning()) {
+    if (isProcessIsRunning() && isConnected()) {
         sendEndMessage();
-        process()->waitForFinished();
+        process->waitForFinished();
     }
 }
 
-void ConnectionClient::terminateProcess()
+void ConnectionClient::terminateProcess(QProcess *process)
 {
 #ifndef Q_OS_WIN32
     if (isProcessIsRunning()) {
-        process()->terminate();
-        process()->waitForFinished();
+        process->terminate();
+        process->waitForFinished();
     }
 #endif
 }
 
-void ConnectionClient::killProcess()
+void ConnectionClient::killProcess(QProcess *process)
 {
     if (isProcessIsRunning()) {
-        process()->kill();
-        process()->waitForFinished();
+        process->kill();
+        process->waitForFinished();
     }
+}
+
+void ConnectionClient::resetProcessIsStarting()
+{
+    processIsStarting = false;
 }
 
 void ConnectionClient::printLocalSocketError(QLocalSocket::LocalSocketError socketError)
@@ -241,26 +227,63 @@ void ConnectionClient::printStandardError()
     qDebug("%s", stdErrPrefixer.prefix(process_->readAllStandardError()).constData());
 }
 
+void ConnectionClient::connectLocalSocketConnected()
+{
+    connect(&localSocket,
+            &QLocalSocket::connected,
+            this,
+            &ConnectionClient::connectedToLocalSocket);
+
+    connect(&localSocket,
+            &QLocalSocket::connected,
+            this,
+            &ConnectionClient::resetProcessIsStarting);
+}
+
 void ConnectionClient::finishProcess()
+{
+    finishProcess(std::move(process_));
+}
+
+void ConnectionClient::finishProcess(std::unique_ptr<QProcess> &&process)
 {
     TIME_SCOPE_DURATION("ConnectionClient::finishProcess");
 
-    processAliveTimer.stop();
+    if (process) {
+        processAliveTimer.stop();
 
-    disconnectProcessFinished();
-    endProcess();
-    disconnectFromServer();
-    terminateProcess();
-    killProcess();
+        disconnectProcessFinished(process.get());
+        endProcess(process.get());
+        disconnectFromServer();
+        terminateProcess(process.get());
+        killProcess(process.get());
 
-    process_.reset();
-
-    serverProxy_.resetCounter();
+        serverProxy_.resetCounter();
+    }
 }
 
 bool ConnectionClient::waitForEcho()
 {
     return localSocket.waitForReadyRead();
+}
+
+bool ConnectionClient::waitForConnected()
+{
+    bool isConnected = false;
+
+    for (int counter = 0; counter < 100; counter++) {
+        isConnected = localSocket.waitForConnected(20);
+        if (isConnected)
+            return isConnected;
+        else {
+            QThread::msleep(30);
+            QCoreApplication::instance()->processEvents();
+        }
+    }
+
+    qWarning() << "Cannot connect:" << localSocket.errorString();
+
+    return isConnected;
 }
 
 ClangCodeModelServerProxy &ConnectionClient::serverProxy()
@@ -278,37 +301,53 @@ bool ConnectionClient::isProcessIsRunning() const
     return process_ && process_->state() == QProcess::Running;
 }
 
-QProcess *ConnectionClient::process() const
+void ConnectionClient::connectProcessFinished(QProcess *process) const
 {
-    if (!process_)
-        process_.reset(new QProcess);
-
-    return process_.get();
-}
-
-void ConnectionClient::connectProcessFinished() const
-{
-    connect(process(),
+    connect(process,
             static_cast<void (QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished),
             this,
-            &ConnectionClient::restartProcess);
+            &ConnectionClient::restartProcessAsynchronously);
 
 }
 
-void ConnectionClient::disconnectProcessFinished() const
+void ConnectionClient::connectProcessStarted(QProcess *process) const
 {
-    if (process_) {
-        disconnect(process_.get(),
+    connect(process,
+            &QProcess::started,
+            this,
+            &ConnectionClient::connectToLocalSocket);
+}
+
+void ConnectionClient::disconnectProcessFinished(QProcess *process) const
+{
+    if (process) {
+        disconnect(process,
                    static_cast<void (QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished),
                    this,
-                   &ConnectionClient::restartProcess);
+                   &ConnectionClient::restartProcessAsynchronously);
     }
 }
 
-void ConnectionClient::connectStandardOutputAndError() const
+void ConnectionClient::connectStandardOutputAndError(QProcess *process) const
 {
-    connect(process(), &QProcess::readyReadStandardOutput, this, &ConnectionClient::printStandardOutput);
-    connect(process(), &QProcess::readyReadStandardError, this, &ConnectionClient::printStandardError);
+    connect(process, &QProcess::readyReadStandardOutput, this, &ConnectionClient::printStandardOutput);
+    connect(process, &QProcess::readyReadStandardError, this, &ConnectionClient::printStandardError);
+}
+
+void ConnectionClient::connectLocalSocketError() const
+{
+    connect(&localSocket,
+            static_cast<void (QLocalSocket::*)(QLocalSocket::LocalSocketError)>(&QLocalSocket::error),
+            this,
+            &ConnectionClient::printLocalSocketError);
+}
+
+void ConnectionClient::connectAliveTimer()
+{
+    connect(&processAliveTimer,
+            &QTimer::timeout,
+            this,
+            &ConnectionClient::restartProcessIfTimerIsNotResettedAndSocketIsEmpty);
 }
 
 const QString &ConnectionClient::processPath() const

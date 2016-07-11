@@ -331,12 +331,11 @@ void IpcCommunicator::initializeBackend()
     m_connection.setProcessAliveTimerInterval(30 * 1000);
     m_connection.setProcessPath(clangBackEndProcessPath);
 
-    connect(&m_connection, &ConnectionClient::processRestarted,
+    connect(&m_connection, &ConnectionClient::connectedToLocalSocket,
             this, &IpcCommunicator::onBackendRestarted);
 
     // TODO: Add a asynchron API to ConnectionClient, otherwise we might hang here
-    if (m_connection.connectToServer())
-        initializeBackendWithCurrentData();
+    m_connection.startProcessAndConnectToServerAsynchronously();
 }
 
 static QStringList projectPartOptions(const CppTools::ProjectPart::Ptr &projectPart)
