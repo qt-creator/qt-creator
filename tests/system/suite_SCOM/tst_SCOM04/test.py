@@ -30,6 +30,7 @@ source("../../shared/suites_qtta.py")
 def main():
     # expected error texts - for different compilers
     expectedErrorAlternatives = ["'SyntaxError' was not declared in this scope",
+                                 "\xe2\x80\x98SyntaxError\xe2\x80\x99 was not declared in this scope",
                                  "'SyntaxError' : undeclared identifier",
                                  "use of undeclared identifier 'SyntaxError'",
                                  "unknown type name 'SyntaxError'"]
