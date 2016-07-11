@@ -59,6 +59,7 @@ static QIcon testResultIcon(Result::Type result) {
         QIcon(QLatin1String(":/images/debug.png")), // Info get's the same handling as Debug for now
         QIcon(QLatin1String(":/images/warn.png")),
         QIcon(QLatin1String(":/images/fatal.png")),
+        QIcon(QLatin1String(":/images/fatal.png")), // System get's same handling as Fatal for now
     }; // provide an icon for unknown??
 
     if (result < 0 || result >= Result::MessageInternal) {
@@ -299,7 +300,7 @@ void TestResultFilterModel::enableAllResultTypes()
               << Result::MessageCurrentTest << Result::MessageTestCaseStart
               << Result::MessageTestCaseSuccess << Result::MessageTestCaseWarn
               << Result::MessageTestCaseFail << Result::MessageTestCaseEnd
-              << Result::MessageTestCaseRepetition << Result::MessageInfo;
+              << Result::MessageTestCaseRepetition << Result::MessageInfo << Result::MessageSystem;
     invalidateFilter();
 }
 
