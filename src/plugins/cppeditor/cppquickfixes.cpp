@@ -2934,8 +2934,6 @@ public:
         updateDescriptionAndPriority();
     }
 
-    void determineGetterSetterNames();
-
     // Clones "other" in order to prevent all the initial detection made in the ctor.
     GenerateGetterSetterOperation(const CppQuickFixInterface &interface,
                                   GenerateGetterSetterOperation *other, OperationType type)
@@ -2966,6 +2964,28 @@ public:
     bool generateSetter() const
     {
         return (m_type == GetterSetterType || m_type == SetterType);
+    }
+
+    void determineGetterSetterNames()
+    {
+        m_baseName = memberBaseName(m_variableString);
+        if (m_baseName.isEmpty())
+            m_baseName = QLatin1String("value");
+
+        // Getter Name
+        const CppCodeStyleSettings settings = CppCodeStyleSettings::currentProjectCodeStyle();
+        const bool hasValidBaseName = m_baseName != m_variableString;
+        const bool getPrefixIsAlreadyUsed = hasClassMemberWithGetPrefix(m_classSpecifier->symbol);
+        if (settings.preferGetterNameWithoutGetPrefix && hasValidBaseName && !getPrefixIsAlreadyUsed) {
+            m_getterName = m_baseName;
+        } else {
+            const QString baseNameWithCapital = m_baseName.left(1).toUpper() + m_baseName.mid(1);
+            m_getterName = QLatin1String("get") + baseNameWithCapital;
+        }
+
+        // Setter Name
+        const QString baseNameWithCapital = m_baseName.left(1).toUpper() + m_baseName.mid(1);
+        m_setterName = QLatin1String("set") + baseNameWithCapital;
     }
 
     void updateDescriptionAndPriority()
@@ -6018,27 +6038,7 @@ void ExtraRefactoringOperations::match(const CppQuickFixInterface &interface,
     }
 }
 
-void GenerateGetterSetterOperation::determineGetterSetterNames()
-{
-    m_baseName = memberBaseName(m_variableString);
-    if (m_baseName.isEmpty())
-        m_baseName = QLatin1String("value");
 
-    // Getter Name
-    const CppCodeStyleSettings settings = CppCodeStyleSettings::currentProjectCodeStyle();
-    const bool hasValidBaseName = m_baseName != m_variableString;
-    const bool getPrefixIsAlreadyUsed = hasClassMemberWithGetPrefix(m_classSpecifier->symbol);
-    if (settings.preferGetterNameWithoutGetPrefix && hasValidBaseName && !getPrefixIsAlreadyUsed) {
-        m_getterName = m_baseName;
-    } else {
-        const QString baseNameWithCapital = m_baseName.left(1).toUpper() + m_baseName.mid(1);
-        m_getterName = QLatin1String("get") + baseNameWithCapital;
-    }
-
-    // Setter Name
-    const QString baseNameWithCapital = m_baseName.left(1).toUpper() + m_baseName.mid(1);
-    m_setterName = QLatin1String("set") + baseNameWithCapital;
-}
 
 } // namespace Internal
 } // namespace CppEditor
