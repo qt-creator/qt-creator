@@ -230,16 +230,25 @@ void GccToolChain::setCompilerCommand(const FileName &path)
         return;
 
     m_compilerCommand = path;
+    toolChainUpdated();
 }
 
 void GccToolChain::setSupportedAbis(const QList<Abi> &m_abis)
 {
+    if (m_supportedAbis == m_abis)
+        return;
+
     m_supportedAbis = m_abis;
+    toolChainUpdated();
 }
 
 void GccToolChain::setOriginalTargetTriple(const QString &targetTriple)
 {
+    if (m_originalTargetTriple == targetTriple)
+        return;
+
     m_originalTargetTriple = targetTriple;
+    toolChainUpdated();
 }
 
 void GccToolChain::setMacroCache(const QStringList &allCxxflags, const QByteArray &macros) const

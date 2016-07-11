@@ -27,16 +27,21 @@
 
 #include <texteditor/refactoringchanges.h>
 
+#include <utils/qtcassert.h>
+
 #include <QTextDocument>
 
 namespace ClangCodeModel {
 
-ClangFixItOperation::ClangFixItOperation(const Utf8String &filePath,
-                                         const Utf8String &fixItText,
-                                         const QVector<ClangBackEnd::FixItContainer> &fixItContainers)
-    : filePath(filePath),
-      fixItText(fixItText),
-      fixItContainers(fixItContainers)
+using FileToFixits = QMap<QString, QVector<ClangBackEnd::FixItContainer>>;
+using FileToFixitsIterator = QMapIterator<QString, QVector<ClangBackEnd::FixItContainer>>;
+using RefactoringFilePtr = QSharedPointer<TextEditor::RefactoringFile>;
+
+ClangFixItOperation::ClangFixItOperation(
+        const Utf8String &fixItText,
+        const QVector<ClangBackEnd::FixItContainer> &fixItContainers)
+    : fixItText(fixItText)
+    , fixItContainers(fixItContainers)
 {
 }
 
@@ -50,20 +55,56 @@ QString ClangCodeModel::ClangFixItOperation::description() const
     return QStringLiteral("Apply Fix: ") + fixItText.toString();
 }
 
+static FileToFixits fixitsPerFile(const QVector<ClangBackEnd::FixItContainer> &fixItContainers)
+{
+    FileToFixits mapping;
+
+    for (const auto &fixItContainer : fixItContainers) {
+        const QString rangeStartFilePath = fixItContainer.range().start().filePath().toString();
+        const QString rangeEndFilePath = fixItContainer.range().end().filePath().toString();
+        QTC_CHECK(rangeStartFilePath == rangeEndFilePath);
+        mapping[rangeStartFilePath].append(fixItContainer);
+    }
+
+    return mapping;
+}
+
 void ClangFixItOperation::perform()
 {
     const TextEditor::RefactoringChanges refactoringChanges;
-    refactoringFile = refactoringChanges.file(filePath.toString());
-    refactoringFile->setChangeSet(changeSet());
-    refactoringFile->apply();
+    const FileToFixits fileToFixIts = fixitsPerFile(fixItContainers);
+
+    FileToFixitsIterator i(fileToFixIts);
+    while (i.hasNext()) {
+        i.next();
+        const QString filePath = i.key();
+        const QVector<ClangBackEnd::FixItContainer> fixits = i.value();
+
+        RefactoringFilePtr refactoringFile = refactoringChanges.file(filePath);
+        refactoringFiles.append(refactoringFile);
+
+        applyFixitsToFile(*refactoringFile, fixits);
+    }
 }
 
-QString ClangFixItOperation::refactoringFileContent_forTestOnly() const
+QString ClangFixItOperation::firstRefactoringFileContent_forTestOnly() const
 {
-    return refactoringFile->document()->toPlainText();
+    return refactoringFiles.first()->document()->toPlainText();
 }
 
-Utils::ChangeSet ClangFixItOperation::changeSet() const
+void ClangFixItOperation::applyFixitsToFile(
+        TextEditor::RefactoringFile &refactoringFile,
+        const QVector<ClangBackEnd::FixItContainer> fixItContainers)
+{
+    const Utils::ChangeSet changeSet = toChangeSet(refactoringFile, fixItContainers);
+
+    refactoringFile.setChangeSet(changeSet);
+    refactoringFile.apply();
+}
+
+Utils::ChangeSet ClangFixItOperation::toChangeSet(
+        TextEditor::RefactoringFile &refactoringFile,
+        const QVector<ClangBackEnd::FixItContainer> fixItContainers) const
 {
     Utils::ChangeSet changeSet;
 
@@ -71,8 +112,8 @@ Utils::ChangeSet ClangFixItOperation::changeSet() const
         const auto range = fixItContainer.range();
         const auto start = range.start();
         const auto end = range.end();
-        changeSet.replace(refactoringFile->position(start.line(), start.column()),
-                          refactoringFile->position(end.line(), end.column()),
+        changeSet.replace(refactoringFile.position(start.line(), start.column()),
+                          refactoringFile.position(end.line(), end.column()),
                           fixItContainer.text());
     }
 

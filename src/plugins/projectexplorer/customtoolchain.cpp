@@ -164,7 +164,10 @@ const QStringList &CustomToolChain::rawPredefinedMacros() const
 
 void CustomToolChain::setPredefinedMacros(const QStringList &list)
 {
+    if (m_predefinedMacros == list)
+        return;
     m_predefinedMacros = list;
+    toolChainUpdated();
 }
 
 QList<HeaderPath> CustomToolChain::systemHeaderPaths(const QStringList &cxxFlags, const FileName &) const
@@ -215,9 +218,14 @@ QStringList CustomToolChain::headerPathsList() const
 
 void CustomToolChain::setHeaderPaths(const QStringList &list)
 {
-    m_systemHeaderPaths = Utils::transform(list, [](const QString &headerPath) {
+    QList<HeaderPath> tmp = Utils::transform(list, [](const QString &headerPath) {
         return HeaderPath(headerPath.trimmed(), HeaderPath::GlobalHeaderPath);
     });
+
+    if (m_systemHeaderPaths == tmp)
+        return;
+    m_systemHeaderPaths = tmp;
+    toolChainUpdated();
 }
 
 void CustomToolChain::setCompilerCommand(const FileName &path)
@@ -261,8 +269,14 @@ const QStringList &CustomToolChain::cxx11Flags() const
 
 void CustomToolChain::setMkspecs(const QString &specs)
 {
-    m_mkspecs = Utils::transform(specs.split(QLatin1Char(',')),
-                                 [](QString fn) { return FileName::fromString(fn); });
+    Utils::FileNameList tmp
+            = Utils::transform(specs.split(QLatin1Char(',')),
+                               [](QString fn) { return FileName::fromString(fn); });
+
+    if (tmp == m_mkspecs)
+        return;
+    m_mkspecs = tmp;
+    toolChainUpdated();
 }
 
 QString CustomToolChain::mkspecs() const
@@ -367,7 +381,10 @@ CustomToolChain::OutputParser CustomToolChain::outputParserType() const
 
 void CustomToolChain::setOutputParserType(CustomToolChain::OutputParser parser)
 {
+    if (m_outputParser == parser)
+        return;
     m_outputParser = parser;
+    toolChainUpdated();
 }
 
 CustomParserSettings CustomToolChain::customParserSettings() const
@@ -377,7 +394,10 @@ CustomParserSettings CustomToolChain::customParserSettings() const
 
 void CustomToolChain::setCustomParserSettings(const CustomParserSettings &settings)
 {
+    if (m_customParserSettings == settings)
+        return;
     m_customParserSettings = settings;
+    toolChainUpdated();
 }
 
 QString CustomToolChain::parserName(CustomToolChain::OutputParser parser)

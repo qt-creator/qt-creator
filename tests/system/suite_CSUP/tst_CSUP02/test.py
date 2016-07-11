@@ -48,6 +48,8 @@ def main():
         type(editorWidget, "<Return>")
         type(editorWidget, "<Up>")
         type(editorWidget, "class")
+        if useClang and JIRA.isBugStillOpen(15639):
+            snooze(8)
         if platform.system() == "Darwin":
             type(editorWidget, "<Meta+Space>")
         else:

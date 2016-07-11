@@ -53,7 +53,7 @@ WinRtDebugSupport::WinRtDebugSupport(RunControl *runControl, WinRtRunnerHelper *
     , m_debugRunControl(runControl)
     , m_runner(runner)
 {
-    connect(m_debugRunControl, SIGNAL(finished()), this, SLOT(finish()));
+    connect(m_debugRunControl, &RunControl::finished, this, &WinRtDebugSupport::finish);
 }
 
 bool WinRtDebugSupport::useQmlDebugging(WinRtRunConfiguration *runConfig)

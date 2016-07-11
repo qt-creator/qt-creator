@@ -130,7 +130,7 @@ const Icon INFO({
         {QLatin1String(":/core/images/info.png"), Theme::IconsInfoColor}}, Icon::Tint);
 const Icon INFO_TOOLBAR({
         {QLatin1String(":/core/images/info.png"), Theme::IconsInfoToolBarColor}});
-const Icon EXPAND({
+const Icon EXPAND_ALL_TOOLBAR({
         {QLatin1String(":/find/images/expand.png"), Theme::IconsBaseColor}});
 const Icon TOOLBAR_EXTENSION({
         {QLatin1String(":/core/images/extension.png"), Theme::IconsBaseColor}});
@@ -155,6 +155,14 @@ const Icon EYE_CLOSED_TOOLBAR({
 const Icon REPLACE({
         {QLatin1String(":/core/images/replace_a.png"), Theme::PanelTextColorMid},
         {QLatin1String(":/core/images/replace_b.png"), Theme::IconsInfoColor}}, Icon::Tint);
+const Icon EXPAND({
+        {QLatin1String(":/core/images/expand.png"), Theme::PanelTextColorMid}}, Utils::Icon::Tint);
+const Icon EXPAND_TOOLBAR({
+        {QLatin1String(":/core/images/expand.png"), Theme::IconsBaseColor}});
+const Icon COLLAPSE({
+        {QLatin1String(":/core/images/collapse.png"), Theme::PanelTextColorMid}}, Utils::Icon::Tint);
+const Icon COLLAPSE_TOOLBAR({
+        {QLatin1String(":/core/images/collapse.png"), Theme::IconsBaseColor}});
 
 const Icon MODE_EDIT_CLASSIC(
         QLatin1String(":/fancyactionbar/images/mode_Edit.png"));

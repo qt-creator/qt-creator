@@ -314,7 +314,7 @@ PluginView::PluginView(QWidget *parent)
     m_categoryView->setSelectionMode(QAbstractItemView::SingleSelection);
     m_categoryView->setSelectionBehavior(QAbstractItemView::SelectRows);
 
-    m_model = new LeveledTreeModel<CollectionItem, PluginItem>(this);
+    m_model = new LeveledTreeModel<TreeItem, CollectionItem, PluginItem>(this);
     m_model->setHeader({ tr("Name"), tr("Load"), tr("Version"), tr("Vendor") });
 
     m_sortModel = new CategorySortFilterModel(this);

@@ -21,7 +21,7 @@ Project {
     property bool useExternalQbs: qbs_install_dir
     property bool buildQbsProjectManager: useExternalQbs || qbsSubModuleExists
     Project {
-        name: "qbs"
+        name: "qbs project"
         id: qbsProject
         property string qbsBaseDir: project.sharedSourcesDir + "/qbs"
         condition: qbsSubModuleExists && !useExternalQbs

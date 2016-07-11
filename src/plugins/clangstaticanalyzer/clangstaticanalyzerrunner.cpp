@@ -27,6 +27,7 @@
 
 #include "clangstaticanalyzerconstants.h"
 
+#include <utils/qtcprocess.h>
 #include <utils/synchronousprocess.h>
 
 #include <QDebug>
@@ -111,9 +112,9 @@ bool ClangStaticAnalyzerRunner::run(const QString &filePath, const QStringList &
     QTC_ASSERT(!m_logFile.isEmpty(), return false);
     const QStringList arguments = constructCommandLineArguments(filePath, m_logFile,
                                                                 compilerOptions);
-    m_commandLine = (QStringList(m_clangExecutable) + arguments).join(QLatin1String("\" \""));
+    m_commandLine = Utils::QtcProcess::joinArgs(QStringList(m_clangExecutable) + arguments);
 
-    qCDebug(LOG) << "Starting" << m_commandLine;
+    qCDebug(LOG).noquote() << "Starting" << m_commandLine;
     m_process.start(m_clangExecutable, arguments);
     return true;
 }
@@ -171,12 +172,13 @@ QString ClangStaticAnalyzerRunner::createLogFile(const QString &filePath) const
 
 QString ClangStaticAnalyzerRunner::processCommandlineAndOutput() const
 {
-    return tr("Command line: \"%1\"\n"
+    return tr("Command line: %1\n"
                        "Process Error: %2\n"
                        "Output:\n%3")
                             .arg(m_commandLine,
                                  QString::number(m_process.error()),
-                                 QString::fromLocal8Bit(m_processOutput));
+                                 Utils::SynchronousProcess::normalizeNewlines(
+                                     QString::fromLocal8Bit(m_processOutput)));
 }
 
 QString ClangStaticAnalyzerRunner::actualLogFile() const

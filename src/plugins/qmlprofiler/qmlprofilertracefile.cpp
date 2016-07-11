@@ -525,7 +525,11 @@ void QmlProfilerFileReader::loadNotes(QXmlStreamReader &stream)
             if (elementName == _("note")) {
                 updateProgress(stream.device());
                 QXmlStreamAttributes attrs = stream.attributes();
+                int collapsedRow = attrs.hasAttribute(_("collapsedRow")) ?
+                            attrs.value(_("collapsedRow")).toInt() : -1;
+
                 currentNote = QmlNote(attrs.value(_("eventIndex")).toInt(),
+                                      collapsedRow,
                                       attrs.value(_("startTime")).toLongLong(),
                                       attrs.value(_("duration")).toLongLong());
             }
@@ -751,6 +755,7 @@ void QmlProfilerFileWriter::saveQtd(QIODevice *device)
         stream.writeAttribute(_("startTime"), QString::number(note.startTime()));
         stream.writeAttribute(_("duration"), QString::number(note.duration()));
         stream.writeAttribute(_("eventIndex"), QString::number(note.typeIndex()));
+        stream.writeAttribute(_("collapsedRow"), QString::number(note.collapsedRow()));
         stream.writeCharacters(note.text());
         stream.writeEndElement(); // note
         incrementProgress();

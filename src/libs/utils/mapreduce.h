@@ -243,7 +243,7 @@ protected:
 };
 
 template <typename ResultType, typename Function, typename... Args>
-typename functionTraits<Function>::ResultType
+functionResult_t<Function>
 callWithMaybeFutureInterfaceDispatch(std::false_type, QFutureInterface<ResultType> &,
                                      Function &&function, Args&&... args)
 {
@@ -251,7 +251,7 @@ callWithMaybeFutureInterfaceDispatch(std::false_type, QFutureInterface<ResultTyp
 }
 
 template <typename ResultType, typename Function, typename... Args>
-typename functionTraits<Function>::ResultType
+functionResult_t<Function>
 callWithMaybeFutureInterfaceDispatch(std::true_type, QFutureInterface<ResultType> &futureInterface,
                                      Function &&function, Args&&... args)
 {
@@ -259,7 +259,7 @@ callWithMaybeFutureInterfaceDispatch(std::true_type, QFutureInterface<ResultType
 }
 
 template <typename ResultType, typename Function, typename... Args>
-typename functionTraits<Function>::ResultType
+functionResult_t<Function>
 callWithMaybeFutureInterface(QFutureInterface<ResultType> &futureInterface,
                              Function &&function, Args&&... args)
 {

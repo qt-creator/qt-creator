@@ -58,7 +58,7 @@ MATCHER_P(MatchText, expectedText,
           + " expected text:\n" + PrintToString(expectedText))
 {
     const ::ClangFixItOperation &operation = arg;
-    QString resultText = operation.refactoringFileContent_forTestOnly();
+    QString resultText = operation.firstRefactoringFileContent_forTestOnly();
 
     if (resultText != expectedText) {
         *result_listener << "\n" << resultText.toUtf8().constData();
@@ -95,7 +95,7 @@ protected:
 
 TEST_F(ClangFixItOperation, Description)
 {
-    ::ClangFixItOperation operation(semicolonFilePath, diagnosticText, {semicolonFixItContainer});
+    ::ClangFixItOperation operation(diagnosticText, {semicolonFixItContainer});
 
     ASSERT_THAT(operation.description(),
                 QStringLiteral("Apply Fix: expected ';' at end of declaration"));
@@ -103,7 +103,7 @@ TEST_F(ClangFixItOperation, Description)
 
 TEST_F(ClangFixItOperation, AppendSemicolon)
 {
-    ::ClangFixItOperation operation(semicolonFilePath, diagnosticText, {semicolonFixItContainer});
+    ::ClangFixItOperation operation(diagnosticText, {semicolonFixItContainer});
 
     operation.perform();
 
@@ -112,7 +112,7 @@ TEST_F(ClangFixItOperation, AppendSemicolon)
 
 TEST_F(ClangFixItOperation, ComparisonVersusAssignmentChooseComparison)
 {
-    ::ClangFixItOperation operation(compareFilePath, diagnosticText, {compareFixItContainer});
+    ::ClangFixItOperation operation(diagnosticText, {compareFixItContainer});
 
     operation.perform();
 
@@ -121,8 +121,7 @@ TEST_F(ClangFixItOperation, ComparisonVersusAssignmentChooseComparison)
 
 TEST_F(ClangFixItOperation, ComparisonVersusAssignmentChooseParentheses)
 {
-    ::ClangFixItOperation operation(compareFilePath,
-                                    diagnosticText,
+    ::ClangFixItOperation operation(diagnosticText,
                                     {assignmentFixItContainerParenLeft,
                                      assignmentFixItContainerParenRight});
 

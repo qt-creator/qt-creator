@@ -359,7 +359,7 @@ void LocatorSettingsPage::removeCustomFilter()
     QTC_ASSERT(item, return);
     ILocatorFilter *filter = item->filter();
     QTC_ASSERT(m_customFilters.contains(filter), return);
-    delete m_model->takeItem(item);
+    m_model->destroyItem(item);
     m_filters.removeAll(filter);
     m_customFilters.removeAll(filter);
     m_refreshFilters.removeAll(filter);

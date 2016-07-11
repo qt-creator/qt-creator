@@ -108,10 +108,9 @@ void openEditorAt(const ClangBackEnd::SourceLocationContainer &location)
                                       int(location.column() - 1));
 }
 
-void applyFixit(const ClangBackEnd::SourceLocationContainer &location,
-                const QVector<ClangBackEnd::FixItContainer> &fixits)
+void applyFixit(const QVector<ClangBackEnd::FixItContainer> &fixits)
 {
-    ClangCodeModel::ClangFixItOperation operation(location.filePath(), Utf8String(), fixits);
+    ClangCodeModel::ClangFixItOperation operation(Utf8String(), fixits);
 
     operation.perform();
 }
@@ -146,7 +145,7 @@ QWidget *createDiagnosticLabel(const ClangBackEnd::DiagnosticContainer &diagnost
     label->setTextFormat(Qt::RichText);
     QObject::connect(label, &QLabel::linkActivated, [location, fixits](const QString &action) {
         if (action == QLatin1String(LINK_ACTION_APPLY_FIX))
-            applyFixit(location, fixits);
+            applyFixit(fixits);
         else
             openEditorAt(location);
 

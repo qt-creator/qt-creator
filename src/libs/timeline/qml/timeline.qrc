@@ -17,11 +17,11 @@
         <file>arrow_right.png</file>
         <file>range_handle.png</file>
         <file>ico_selectionmode.png</file>
-        <file>ico_zoom.png</file>
-        <file>ico_prev.png</file>
-        <file>ico_next.png</file>
+        <file>ico_selectionmode@2x.png</file>
         <file>ico_rangeselection.png</file>
+        <file>ico_rangeselection@2x.png</file>
         <file>ico_rangeselected.png</file>
+        <file>ico_rangeselected@2x.png</file>
         <file>ico_note.png</file>
         <file>ButtonsBar.qml</file>
         <file>timelineitems.vert</file>
@@ -33,5 +33,6 @@
         <file>RowLabel.qml</file>
         <file>SynchronousReloader.qml</file>
         <file>TimelineText.qml</file>
+        <file>ImageToolButton.qml</file>
     </qresource>
 </RCC>

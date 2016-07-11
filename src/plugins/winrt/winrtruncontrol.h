@@ -54,13 +54,12 @@ public:
     StopResult stop() override;
     bool isRunning() const override;
 
-private slots:
+private:
+    enum State { StartingState, StartedState, StoppedState };
+
     void onProcessStarted();
     void onProcessFinished();
     void onProcessError();
-
-private:
-    enum State { StartingState, StartedState, StoppedState };
     bool startWinRtRunner();
 
     WinRtRunConfiguration *m_runConfiguration;

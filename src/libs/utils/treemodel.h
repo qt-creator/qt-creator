@@ -41,10 +41,6 @@ public:
     TreeItem();
     virtual ~TreeItem();
 
-    TreeItem *parent() const { return m_parent; }
-    virtual TreeItem *child(int pos) const;
-    virtual int rowCount() const;
-
     virtual QVariant data(int column, int role) const;
     virtual bool setData(int column, const QVariant &data, int role);
     virtual Qt::ItemFlags flags(int column) const;
@@ -52,6 +48,8 @@ public:
     virtual bool hasChildren() const;
     virtual bool canFetchMore() const;
     virtual void fetchMore() {}
+
+    TreeItem *parent() const { return m_parent; }
 
     void prependChild(TreeItem *item);
     void appendChild(TreeItem *item);
@@ -67,7 +65,7 @@ public:
 
     void setFlags(Qt::ItemFlags flags);
     int childCount() const { return m_children.size(); }
-    TreeItem *childAt(int index) const { return m_children.at(index); }
+    TreeItem *childAt(int index) const;
     QVector<TreeItem *> children() const { return m_children; }
     QModelIndex index() const;
 
@@ -230,6 +228,7 @@ public:
     void fetchMore(const QModelIndex &idx) override;
 
     TreeItem *takeItem(TreeItem *item); // item is not destroyed.
+    void destroyItem(TreeItem *item); // item is destroyed.
 
 signals:
     void requestExpansion(QModelIndex);

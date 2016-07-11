@@ -30,7 +30,6 @@ import QtQuick.Controls.Styles 1.2
 
 ToolBar {
     id: buttons
-    readonly property int buttonWidth: 30
 
     signal jumpToPrev()
     signal jumpToNext()
@@ -63,7 +62,7 @@ ToolBar {
         }
         background: Rectangle {
             anchors.fill: parent
-            color: "#9B9B9B"
+            color: creatorTheme.PanelStatusBarBackgroundColor
         }
     }
 
@@ -71,62 +70,56 @@ ToolBar {
         spacing: 0
         anchors.fill: parent
 
-        ToolButton {
+        ImageToolButton {
             id: jumpToPrevButton
             anchors.top: parent.top
             anchors.bottom: parent.bottom
-            implicitWidth: buttonWidth
 
-            iconSource: "qrc:/timeline/ico_prev.png"
+            imageSource: "image://icons/prev"
             tooltip: qsTr("Jump to previous event.")
             onClicked: buttons.jumpToPrev()
         }
 
-        ToolButton {
+        ImageToolButton {
             id: jumpToNextButton
             anchors.top: parent.top
             anchors.bottom: parent.bottom
-            implicitWidth: buttonWidth
 
-            iconSource: "qrc:/timeline/ico_next.png"
+            imageSource: "image://icons/next"
             tooltip: qsTr("Jump to next event.")
             onClicked: buttons.jumpToNext()
         }
 
-        ToolButton {
+        ImageToolButton {
             id: zoomControlButton
             anchors.top: parent.top
             anchors.bottom: parent.bottom
-            implicitWidth: buttonWidth
 
-            iconSource: "qrc:/timeline/ico_zoom.png"
+            imageSource: "image://icons/zoom"
             tooltip: qsTr("Show zoom slider.")
             checkable: true
             checked: false
             onCheckedChanged: buttons.zoomControlChanged()
         }
 
-        ToolButton {
+        ImageToolButton {
             id: rangeButton
             anchors.top: parent.top
             anchors.bottom: parent.bottom
-            implicitWidth: buttonWidth
 
-            iconSource: checked ? "qrc:/timeline/ico_rangeselected.png" :
-                                  "qrc:/timeline/ico_rangeselection.png"
+            imageSource: "image://icons/" + (checked ? "rangeselected" : "rangeselection");
             tooltip: qsTr("Select range.")
             checkable: true
             checked: false
             onCheckedChanged: buttons.rangeSelectChanged()
         }
 
-        ToolButton {
+        ImageToolButton {
             id: lockButton
             anchors.top: parent.top
             anchors.bottom: parent.bottom
-            implicitWidth: buttonWidth
 
-            iconSource: "qrc:/timeline/ico_selectionmode.png"
+            imageSource: "image://icons/selectionmode"
             tooltip: qsTr("View event information on mouseover.")
             checkable: true
             checked: false

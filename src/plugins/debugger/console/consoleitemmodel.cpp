@@ -80,7 +80,7 @@ int ConsoleItemModel::sizeOfFile(const QFont &font)
     lastReadOnlyRow -= 2; // skip editable row
     if (lastReadOnlyRow < 0)
         return 0;
-    QString filename = static_cast<ConsoleItem *>(rootItem()->child(lastReadOnlyRow))->file();
+    QString filename = static_cast<ConsoleItem *>(rootItem()->childAt(lastReadOnlyRow))->file();
     const int pos = filename.lastIndexOf(QLatin1Char('/'));
     if (pos != -1)
         filename = filename.mid(pos + 1);

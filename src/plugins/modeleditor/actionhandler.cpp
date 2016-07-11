@@ -199,10 +199,10 @@ void ActionHandler::createActions()
                 Constants::OPEN_PARENT_DIAGRAM, [this]() { openParentDiagram(); }, Core::Context(), true,
                 tr("Open Parent Diagram"), QKeySequence(QStringLiteral("Ctrl+Shift+P")))->action();
     d->openParentDiagramAction->setIcon(QIcon(QStringLiteral(":/modeleditor/up.png")));
-    registerCommand(Constants::ACTION_ADD_PACKAGE, nullptr, Core::Context());
-    registerCommand(Constants::ACTION_ADD_COMPONENT, nullptr, Core::Context());
-    registerCommand(Constants::ACTION_ADD_CLASS, nullptr, Core::Context());
-    registerCommand(Constants::ACTION_ADD_CANVAS_DIAGRAM, nullptr, Core::Context());
+    registerCommand(Constants::ACTION_ADD_PACKAGE, nullptr, Core::Context(), true, tr("Add Package"));
+    registerCommand(Constants::ACTION_ADD_COMPONENT, nullptr, Core::Context(), true, tr("Add Component"));
+    registerCommand(Constants::ACTION_ADD_CLASS, nullptr, Core::Context(), true, tr("Add Class"));
+    registerCommand(Constants::ACTION_ADD_CANVAS_DIAGRAM, nullptr, Core::Context(), true, tr("Add Canvas Diagram"));
     d->synchronizeBrowserAction = registerCommand(
                 Constants::ACTION_SYNC_BROWSER, nullptr, Core::Context(), true,
                 tr("Synchronize Browser and Diagram<br><i><small>Press&Hold for options</small></i>"))->action();

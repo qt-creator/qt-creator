@@ -30,10 +30,6 @@
 namespace Autotest {
 namespace Icons {
 
-const Utils::Icon EXPAND({
-        {QLatin1String(":/images/expand.png"), Utils::Theme::IconsBaseColor}});
-const Utils::Icon COLLAPSE({
-        {QLatin1String(":/images/collapse.png"), Utils::Theme::IconsBaseColor}});
 const Utils::Icon SORT_ALPHABETICALLY({
         {QLatin1String(":/images/sort.png"), Utils::Theme::IconsBaseColor}});
 const Utils::Icon SORT_NATURALLY({

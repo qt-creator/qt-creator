@@ -104,7 +104,6 @@ FocusScope {
             anchors.verticalCenter: parent.verticalCenter
             width: Math.max(parent.height / 2 - 8, 18)
             height: width
-            iconSource: "images/plus.png"
 
             onClicked: root.createNewState()
 
@@ -113,6 +112,13 @@ FocusScope {
                     property color buttonBaseColor: "#6f6f6f"
                     color: control.hovered ? Qt.lighter(buttonBaseColor, 1.2)  : buttonBaseColor
                     border.width: 1
+                    Image {
+                        source: "image://icons/plus"
+                        width: 16
+                        height: 16
+                        anchors.centerIn: parent
+                        smooth: false
+                    }
                 }
             }
         }

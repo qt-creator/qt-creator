@@ -443,6 +443,9 @@ void QmlProfilerModelManager::clear()
 void QmlProfilerModelManager::restrictToRange(qint64 startTime, qint64 endTime)
 {
     d->notesModel->saveData();
+    const QVector<QmlNote> notes = d->notesModel->notes();
+    d->notesModel->clear();
+
     setState(ClearingData);
     setVisibleFeatures(0);
 
@@ -450,7 +453,7 @@ void QmlProfilerModelManager::restrictToRange(qint64 startTime, qint64 endTime)
     d->model->replayEvents(startTime, endTime,
                            std::bind(&QmlProfilerModelManager::dispatch, this,
                                      std::placeholders::_1, std::placeholders::_2));
-    d->notesModel->loadData();
+    d->notesModel->setNotes(notes);
     d->traceTime->restrictToRange(startTime, endTime);
     acquiringDone();
 }

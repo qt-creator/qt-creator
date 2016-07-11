@@ -349,9 +349,10 @@ void PixmapCacheModel::loadEvent(const QmlEvent &event, const QmlEventType &type
                     }
                 }
             }
+        } else {
+            insertEnd(state.started, pixmapStartTime - startTime(state.started));
         }
 
-        insertEnd(state.started, pixmapStartTime - startTime(state.started));
         if (pixmapType == PixmapLoadingError) {
             state.loadState = Error;
             switch (state.cacheState) {

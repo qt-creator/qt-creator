@@ -346,3 +346,28 @@ def qdump__KDSoapValue(d, value):
     p = (value.cast(lookupType("char*")) + 4).dereference().cast(lookupType("QString"))
     d.putStringValue(p)
     d.putPlainChildren(value["d"]["d"].dereference())
+
+#######################################################################
+#
+# Webkit
+#
+#######################################################################
+
+def qdump__WTF__String(d, value):
+    # WTF::String -> WTF::RefPtr<WTF::StringImpl> -> WTF::StringImpl*
+    data = value['m_impl']['m_ptr']
+    d.checkPointer(data)
+
+    stringLength = int(data['m_length'])
+    d.check(0 <= stringLength and stringLength <= 100000000)
+
+    # WTF::StringImpl* -> WTF::StringImpl -> sizeof(WTF::StringImpl)
+    offsetToData = data.type.target().sizeof
+    bufferPtr = data.cast(d.charPtrType()) + offsetToData
+
+    is8Bit = data['m_is8Bit']
+    charSize = 1
+    if not is8Bit:
+        charSize = 2
+
+    d.putCharArrayHelper(bufferPtr, stringLength, charSize)

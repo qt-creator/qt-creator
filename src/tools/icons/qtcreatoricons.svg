@@ -661,6 +661,17 @@
          offset="1"
          id="stop5101" />
     </linearGradient>
+    <clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath6127">
+      <rect
+         style="display:inline;fill:#999999;fill-opacity:1"
+         x="1097"
+         y="568"
+         width="16"
+         height="16"
+         id="rect6129" />
+    </clipPath>
   </defs>
   <sodipodi:namedview
      id="base"
@@ -3035,7 +3046,7 @@
     </g>
     <g
        style="display:inline"
-       id="src/plugins/autotest/images/expand"
+       id="src/plugins/coreplugin/images/expand"
        transform="translate(48,0)">
       <rect
          y="568"
@@ -3064,7 +3075,7 @@
          inkscape:connector-curvature="0" />
     </g>
     <g
-       id="src/plugins/autotest/images/collapse"
+       id="src/plugins/coreplugin/images/collapse"
        transform="translate(16,0)">
       <rect
          style="display:inline;fill:#ffffff;fill-opacity:1;stroke:none"
@@ -3338,8 +3349,9 @@
          x="1018.5"
          y="570.5" />
       <g
-         id="g5932"
-         transform="translate(4,0)">
+         id="selectArrow"
+         transform="translate(4,0)"
+         inkscape:label="#g5932">
         <path
            sodipodi:nodetypes="ccccc"
            inkscape:connector-curvature="0"
@@ -3399,6 +3411,120 @@
          id="path4757-4-2"
          d="m 1070,583.5 3,-3 -3,-3 z"
          style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+    </g>
+    <g
+       transform="translate(32,0)"
+       style="display:inline"
+       id="src/libs/timeline/qml/ico_rangeselection">
+      <rect
+         id="rect6782-96-0-0-7"
+         height="16"
+         width="16"
+         y="568"
+         x="1064"
+         style="display:inline;fill:#ffffff;fill-opacity:1" />
+      <path
+         sodipodi:nodetypes="cc"
+         inkscape:connector-curvature="0"
+         id="path5087"
+         d="m 1068.5,576 7,0"
+         style="stroke:#000000;stroke-width:2" />
+      <g
+         id="g5092">
+        <path
+           d="m 1066,570 0,12"
+           id="path5068"
+           inkscape:connector-curvature="0"
+           sodipodi:nodetypes="cc"
+           style="stroke:#000000;stroke-width:2" />
+        <path
+           style="fill:#000000"
+           d="m 1067,576 3,-3 0,6"
+           id="path5090"
+           inkscape:connector-curvature="0"
+           sodipodi:nodetypes="ccc" />
+      </g>
+      <use
+         height="100%"
+         width="100%"
+         transform="matrix(-1,0,0,1,2144,0)"
+         id="use5096"
+         xlink:href="#g5092"
+         y="0"
+         x="0" />
+    </g>
+    <g
+       transform="translate(32,0)"
+       style="display:inline"
+       id="src/libs/timeline/qml/ico_rangeselected">
+      <use
+         height="100%"
+         width="100%"
+         transform="translate(-16,0)"
+         id="use5136"
+         xlink:href="#src/libs/timeline/qml/ico_rangeselection"
+         y="0"
+         x="0" />
+      <rect
+         y="570.5"
+         x="1082.5"
+         height="11"
+         width="11"
+         id="rect5138"
+         style="fill:#000000;fill-opacity:0.15686275;stroke:#000000" />
+    </g>
+    <g
+       style="display:inline"
+       id="src/libs/timeline/qml/ico_selectionmode"
+       clip-path="url(#clipPath6127)"
+       transform="translate(31,0)">
+      <rect
+         style="display:inline;fill:#ffffff;fill-opacity:1"
+         x="1097"
+         y="568"
+         width="16"
+         height="16"
+         id="rect6782-96-0-0-7-8" />
+      <rect
+         y="570"
+         x="1099"
+         height="5"
+         width="3"
+         id="rect5184"
+         style="fill:#000000" />
+      <use
+         height="100%"
+         width="100%"
+         transform="translate(4,0)"
+         id="use5201"
+         xlink:href="#rect5184"
+         y="0"
+         x="0" />
+      <use
+         x="0"
+         y="0"
+         xlink:href="#rect5184"
+         id="use5071"
+         transform="translate(8,0)"
+         width="100%"
+         height="100%" />
+      <use
+         height="100%"
+         width="100%"
+         id="use5159"
+         xlink:href="#selectArrow"
+         y="0"
+         x="0"
+         style="display:inline"
+         transform="translate(80,2.0000004e-7)" />
+      <use
+         height="100%"
+         width="100%"
+         transform="translate(0,6)"
+         id="use5203"
+         xlink:href="#rect5184"
+         y="0"
+         x="0" />
     </g>
   </g>
   <g

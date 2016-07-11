@@ -67,11 +67,7 @@ QWidget *TodoOutputPane::outputWidget(QWidget *parent)
 
 QList<QWidget*> TodoOutputPane::toolBarWidgets() const
 {
-    return QList<QWidget*>()
-        << m_spacer
-        << m_currentFileButton
-        << m_wholeProjectButton
-        << m_subProjectButton;
+    return { m_spacer, m_currentFileButton, m_wholeProjectButton, m_subProjectButton };
 }
 
 QString TodoOutputPane::displayName() const

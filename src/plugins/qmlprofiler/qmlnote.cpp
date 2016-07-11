@@ -30,18 +30,21 @@ namespace QmlProfiler {
 
 QDataStream &operator>>(QDataStream &stream, QmlNote &note)
 {
-    return stream >> note.m_typeIndex >> note.m_startTime >> note.m_duration >> note.m_text;
+    return stream >> note.m_typeIndex >> note.m_collapsedRow >> note.m_startTime >> note.m_duration
+                  >> note.m_text;
 }
 
 QDataStream &operator<<(QDataStream &stream, const QmlNote &note)
 {
-    return stream << note.m_typeIndex << note.m_startTime << note.m_duration << note.m_text;
+    return stream << note.m_typeIndex << note.m_collapsedRow << note.m_startTime << note.m_duration
+                  << note.m_text;
 }
 
 bool operator==(const QmlNote &note1, const QmlNote &note2)
 {
-    return note1.typeIndex() == note2.typeIndex() && note1.startTime() == note2.startTime()
-            && note1.duration() == note2.duration() && note1.text() == note2.text();
+    return note1.typeIndex() == note2.typeIndex() && note1.collapsedRow() == note2.collapsedRow()
+            && note1.startTime() == note2.startTime() && note1.duration() == note2.duration()
+            && note1.text() == note2.text();
 }
 
 bool operator!=(const QmlNote &note1, const QmlNote &note2)

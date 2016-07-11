@@ -257,14 +257,14 @@ bool TestTreeModel::sweepChildren(TestTreeItem *item)
         TestTreeItem *child = item->childItem(row);
 
         if (child->parentItem()->type() != TestTreeItem::Root && child->markedForRemoval()) {
-            delete takeItem(child);
+            destroyItem(child);
             hasChanged = true;
             continue;
         }
         if (bool noEndNode = child->hasChildren()) {
             hasChanged |= sweepChildren(child);
             if (noEndNode && child->childCount() == 0) {
-                delete takeItem(child);
+                destroyItem(child);
                 hasChanged = true;
                 continue;
             }

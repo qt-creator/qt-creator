@@ -236,7 +236,7 @@ void ToolChainOptionsWidget::addToolChain(ToolChain *tc)
         }
     }
 
-    TreeItem *parent = m_model.rootItem()->child(tc->isAutoDetected() ? 0 : 1);
+    TreeItem *parent = m_model.rootItem()->childAt(tc->isAutoDetected() ? 0 : 1);
     parent->appendChild(new ToolChainTreeItem(tc, false));
 
     updateState();
@@ -255,7 +255,7 @@ void ToolChainOptionsWidget::removeToolChain(ToolChain *tc)
     auto item = m_model.findSecondLevelItem([tc](ToolChainTreeItem *item) {
         return tc->isAutoDetected() && item->toolChain == tc;
     });
-    delete m_model.takeItem(item);
+    m_model.destroyItem(item);
 
     updateState();
 }

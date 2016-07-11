@@ -146,7 +146,7 @@ TestResultsPane::TestResultsPane(QObject *parent) :
 void TestResultsPane::createToolButtons()
 {
     m_expandCollapse = new QToolButton(m_treeView);
-    m_expandCollapse->setIcon(Core::Icons::EXPAND.icon());
+    m_expandCollapse->setIcon(Core::Icons::EXPAND_ALL_TOOLBAR.icon());
     m_expandCollapse->setToolTip(tr("Expand All"));
     m_expandCollapse->setCheckable(true);
     m_expandCollapse->setChecked(false);
@@ -231,8 +231,7 @@ QWidget *TestResultsPane::outputWidget(QWidget *parent)
 
 QList<QWidget *> TestResultsPane::toolBarWidgets() const
 {
-    return QList<QWidget *>() << m_expandCollapse << m_runAll << m_runSelected << m_stopTestRun
-                              << m_filterButton;
+    return { m_expandCollapse, m_runAll, m_runSelected, m_stopTestRun, m_filterButton };
 }
 
 QString TestResultsPane::displayName() const
@@ -338,7 +337,7 @@ void TestResultsPane::goToNext()
         if (!rootItem || !rootItem->childCount())
             return;
 
-        nextCurrentIndex = m_filterModel->mapFromSource(m_model->indexForItem(rootItem->child(0)));
+        nextCurrentIndex = m_filterModel->mapFromSource(m_model->indexForItem(rootItem->childAt(0)));
     }
 
     m_treeView->setCurrentIndex(nextCurrentIndex);

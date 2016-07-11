@@ -82,6 +82,7 @@ private:
     bool postponed(const QStringList &fileList);
     void scanForTests(const QStringList &fileList = QStringList());
 
+    void onDocumentUpdated(const QString &fileName);
     void onTaskStarted(Core::Id type);
     void onAllTasksFinished(Core::Id type);
     void onFinished();

@@ -54,7 +54,11 @@ Rectangle {
         style: ButtonStyle {
             background: Rectangle {
                 color: control.hovered ? Qt.lighter(baseColor, 1.2)  : "transparent"
-                radius: 2
+                Image {
+                    source: "image://icons/close"
+                    height: 16
+                    width: 16
+                }
             }
         }
 
@@ -64,7 +68,6 @@ Rectangle {
         anchors.verticalCenter: stateNameField.verticalCenter
         height: 16
         width: 16
-        iconSource: "images/darkclose.png"
         visible: !isBaseState
 
         onClicked: root.deleteState(internalNodeId)

@@ -79,7 +79,7 @@ void tst_TreeModel::testIteration()
     group2->appendChild(item21);
     group2->appendChild(item22);
 
-    QCOMPARE(r->rowCount(), 3);
+    QCOMPARE(r->childCount(), 3);
     QCOMPARE(countLevelItems(r, 1), 3);
     QCOMPARE(countLevelItems(r, 2), 6);
     QCOMPARE(countLevelItems(r, 3), 0);

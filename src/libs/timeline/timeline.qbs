@@ -28,6 +28,7 @@ Project {
                 "timelinerenderpass.cpp", "timelinerenderpass.h",
                 "timelinerenderstate.cpp", "timelinerenderstate.h", "timelinerenderstate_p.h",
                 "timelineselectionrenderpass.cpp", "timelineselectionrenderpass.h",
+                "timelinetheme.cpp", "timelinetheme.h",
                 "timelinezoomcontrol.cpp", "timelinezoomcontrol.h"
             ]
         }

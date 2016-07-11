@@ -182,10 +182,8 @@ void Theme::readSettings(QSettings &settings)
     }
     {
         settings.beginGroup(QLatin1String("Palette"));
-        foreach (const QString &key, settings.allKeys()) {
-            QColor c = readColor(settings.value(key).toString());
-            d->palette[key] = c;
-        }
+        foreach (const QString &key, settings.allKeys())
+            d->palette[key] = readNamedColor(settings.value(key).toString()).first;
         settings.endGroup();
     }
     {

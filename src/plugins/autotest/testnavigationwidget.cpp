@@ -202,11 +202,11 @@ QList<QToolButton *> TestNavigationWidget::createToolButtons()
     m_sort->setToolTip(tr("Sort Naturally"));
 
     QToolButton *expand = new QToolButton(this);
-    expand->setIcon(Icons::EXPAND.icon());
+    expand->setIcon(Core::Icons::EXPAND_TOOLBAR.icon());
     expand->setToolTip(tr("Expand All"));
 
     QToolButton *collapse = new QToolButton(this);
-    collapse->setIcon(Icons::COLLAPSE.icon());
+    collapse->setIcon(Core::Icons::COLLAPSE_TOOLBAR.icon());
     collapse->setToolTip(tr("Collapse All"));
 
     connect(expand, &QToolButton::clicked, m_view, &TestTreeView::expandAll);

@@ -8,6 +8,7 @@ QtcProduct {
 
     cpp.defines: base.concat("QTQUICK_LIBRARY")
     cpp.includePaths: base.concat("../designercore/include")
+    cpp.internalVersion: ""
 
     Group {
         name: "sources"

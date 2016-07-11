@@ -42,8 +42,7 @@ private:
     void extractFromDiagnostic(const ClangBackEnd::DiagnosticContainer &diagnosticContainer,
                                const QString &filePath,
                                int line);
-    void appendFixitOperation(const QString &filePath,
-                              const QString &diagnosticText,
+    void appendFixitOperation(const QString &diagnosticText,
                               const QVector<ClangBackEnd::FixItContainer> &fixits);
 
 private:

@@ -209,7 +209,7 @@ void TestResultModel::removeCurrentTestMessage()
     for (int row = topLevelItems.size() - 1; row >= 0; --row) {
         TestResultItem *current = static_cast<TestResultItem *>(topLevelItems.at(row));
         if (current->testResult()->result() == Result::MessageCurrentTest) {
-            delete takeItem(current);
+            destroyItem(current);
             break;
         }
     }

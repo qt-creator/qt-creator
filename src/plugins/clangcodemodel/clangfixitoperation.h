@@ -36,6 +36,7 @@
 
 namespace TextEditor
 {
+class RefactoringChanges;
 class RefactoringFile;
 }
 
@@ -44,23 +45,25 @@ namespace ClangCodeModel {
 class ClangFixItOperation : public TextEditor::QuickFixOperation
 {
 public:
-    ClangFixItOperation(const Utf8String &filePath,
-                        const Utf8String &fixItText,
+    ClangFixItOperation(const Utf8String &fixItText,
                         const QVector<ClangBackEnd::FixItContainer> &fixItContainers);
 
     int priority() const override;
     QString description() const override;
     void perform() override;
 
-    QString refactoringFileContent_forTestOnly() const;
+    QString firstRefactoringFileContent_forTestOnly() const;
 
 private:
-    Utils::ChangeSet changeSet() const;
+    void applyFixitsToFile(TextEditor::RefactoringFile &refactoringFile,
+                           const QVector<ClangBackEnd::FixItContainer> fixItContainers);
+    Utils::ChangeSet toChangeSet(
+            TextEditor::RefactoringFile &refactoringFile,
+            const QVector<ClangBackEnd::FixItContainer> fixItContainers) const;
 
 private:
-    Utf8String filePath;
     Utf8String fixItText;
-    QSharedPointer<TextEditor::RefactoringFile> refactoringFile;
+    QVector<QSharedPointer<TextEditor::RefactoringFile>> refactoringFiles;
     QVector<ClangBackEnd::FixItContainer> fixItContainers;
 };
 

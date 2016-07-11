@@ -53,7 +53,7 @@
 :Compiler:_QComboBox	{aboveWidget=':Path.Utils_BaseValidatingLineEdit' container=':qt_tabwidget_stackedwidget_QWidget' leftWidget=':Compiler:_QLabel' type='QComboBox' unnamed='1' visible='1'}
 :Compiler:_QLabel	{container=':qt_tabwidget_stackedwidget_QWidget' text='Compiler:' type='QLabel' unnamed='1' visible='1'}
 :Core__Internal__GeneralSettings.User Interface_QGroupBox	{container=':qt_tabwidget_stackedwidget.Core__Internal__GeneralSettings_QWidget' name='interfaceBox' title='User Interface' type='QGroupBox' visible='1'}
-:CppTools__Internal__CompletionSettingsPage.Behavior_QGroupBox	{container=':qt_tabwidget_stackedwidget.CppTools__Internal__CompletionSettingsPage_QWidget' name='groupBox' title='Behavior' type='QGroupBox' visible='1'}
+:CppTools__Internal__CompletionSettingsPage.Behavior_QGroupBox	{container=':qt_tabwidget_stackedwidget_QScrollArea' name='groupBox' title='Behavior' type='QGroupBox' visible='1'}
 :DebugModeWidget.Debugger Log_QDockWidget	{container=':Qt Creator.DebugModeWidget_QSplitter' name='Debugger.Docks.OutputDockWidget' type='QDockWidget' visible='1'}
 :DebugModeWidget.Debugger.Docks.BreakDockWidget_QDockWidget	{container=':Qt Creator.DebugModeWidget_QSplitter' name='Debugger.Docks.BreakDockWidget' type='QDockWidget' visible='1'}
 :DebugModeWidget.Debugger.Docks.LocalsAndWatchersDockWidget_QDockWidget	{container=':Qt Creator.DebugModeWidget_QSplitter' name='Debugger.Docks.LocalsAndWatchersDockWidget' type='QDockWidget' visible='1'}
@@ -213,7 +213,6 @@
 :qdesigner_internal::WidgetBoxCategoryListView	{container=':Widget Box_qdesigner_internal::WidgetBoxTreeWidget' occurrence='3' type='qdesigner_internal::WidgetBoxCategoryListView' unnamed='1' visible='1'}
 :qmakeCallEdit	{container=':Qt Creator.scrollArea_QScrollArea' text?='<b>qmake:</b> qmake*' type='QLabel' unnamed='1' visible='1'}
 :qt_tabwidget_stackedwidget.Core__Internal__GeneralSettings_QWidget	{container=':Options.qt_tabwidget_stackedwidget_QStackedWidget' name='Core__Internal__GeneralSettings' type='QWidget' visible='1'}
-:qt_tabwidget_stackedwidget.CppTools__Internal__CompletionSettingsPage_QWidget	{container=':Options.qt_tabwidget_stackedwidget_QStackedWidget' name='CppTools__Internal__CompletionSettingsPage' type='QWidget' visible='1'}
 :qt_tabwidget_stackedwidget.Form_QWidget	{container=':Options.qt_tabwidget_stackedwidget_QStackedWidget' name='Help__Internal__GeneralSettingsPage' type='QWidget' visible='1' windowTitle='Form'}
 :qt_tabwidget_stackedwidget.QtSupport__Internal__QtVersionManager_QtSupport::Internal::QtOptionsPageWidget	{container=':Options.qt_tabwidget_stackedwidget_QStackedWidget' name='QtSupport__Internal__QtVersionManager' type='QtSupport::Internal::QtOptionsPageWidget' visible='1'}
 :qt_tabwidget_stackedwidget_QScrollArea	{container=':Options.qt_tabwidget_stackedwidget_QStackedWidget' type='QScrollArea' unnamed='1' visible='1'}

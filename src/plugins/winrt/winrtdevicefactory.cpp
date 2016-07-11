@@ -102,9 +102,12 @@ void WinRtDeviceFactory::autoDetect()
 
     if (!m_process) {
         m_process = new Utils::QtcProcess(this);
-        connect(m_process, SIGNAL(error(QProcess::ProcessError)), SLOT(onProcessError()));
-        connect(m_process, SIGNAL(finished(int,QProcess::ExitStatus)),
-                SLOT(onProcessFinished(int,QProcess::ExitStatus)));
+        connect(m_process,
+                static_cast<void (QProcess::*)(QProcess::ProcessError)>(&QProcess::error),
+                this, &WinRtDeviceFactory::onProcessError);
+        connect(m_process,
+                static_cast<void (QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished),
+                this, &WinRtDeviceFactory::onProcessFinished);
     }
 
     const QString args = QStringLiteral("--list-devices");

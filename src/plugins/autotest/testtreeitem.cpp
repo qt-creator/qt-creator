@@ -217,7 +217,7 @@ TestTreeItem *TestTreeItem::parentItem() const
 
 TestTreeItem *TestTreeItem::childItem(int row) const
 {
-    return static_cast<TestTreeItem *>(child(row));
+    return static_cast<TestTreeItem *>(childAt(row));
 }
 
 TestTreeItem *TestTreeItem::findChildByName(const QString &name)

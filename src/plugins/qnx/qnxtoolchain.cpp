@@ -114,7 +114,10 @@ QString QnxToolChain::ndkPath() const
 
 void QnxToolChain::setNdkPath(const QString &ndkPath)
 {
+    if (m_ndkPath == ndkPath)
+        return;
     m_ndkPath = ndkPath;
+    toolChainUpdated();
 }
 
 // qcc doesn't support a "-dumpmachine" option to get supported abis

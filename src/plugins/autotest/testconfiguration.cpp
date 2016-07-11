@@ -172,6 +172,7 @@ void TestConfiguration::completeTestInformation(int runMode)
                 env = stdRunnable.environment;
                 hasDesktopTarget = true;
                 guessedRunConfiguration = true;
+                runConfigTarget = rc->target();
             }
         }
     }
@@ -186,7 +187,7 @@ void TestConfiguration::completeTestInformation(int runMode)
         setEnvironment(env);
         setProject(project);
         setGuessedConfiguration(guessedRunConfiguration);
-        if (!guessedRunConfiguration && runMode == TestRunner::Debug)
+        if (runMode == TestRunner::Debug)
             m_runConfig = new TestRunConfiguration(runConfigTarget, this);
     }
 }

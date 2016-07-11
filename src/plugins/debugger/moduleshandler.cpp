@@ -157,8 +157,8 @@ QVariant ModuleItem::data(int column, int role) const
 static ModuleItem *moduleFromPath(TreeItem *root, const QString &modulePath)
 {
     // Recent modules are more likely to be unloaded first.
-    for (int i = root->rowCount(); --i >= 0; ) {
-        auto item = static_cast<ModuleItem *>(root->child(i));
+    for (int i = root->childCount(); --i >= 0; ) {
+        auto item = static_cast<ModuleItem *>(root->childAt(i));
         if (item->module.modulePath == modulePath)
             return item;
     }
@@ -199,15 +199,15 @@ Modules ModulesHandler::modules() const
 {
     Modules mods;
     TreeItem *root = m_model->rootItem();
-    for (int i = root->rowCount(); --i >= 0; )
-        mods.append(static_cast<ModuleItem *>(root->child(i))->module);
+    for (int i = root->childCount(); --i >= 0; )
+        mods.append(static_cast<ModuleItem *>(root->childAt(i))->module);
     return mods;
 }
 
 void ModulesHandler::removeModule(const QString &modulePath)
 {
     if (ModuleItem *item = moduleFromPath(m_model->rootItem(), modulePath))
-        delete m_model->takeItem(item);
+        m_model->destroyItem(item);
 }
 
 void ModulesHandler::updateModule(const Module &module)
@@ -239,17 +239,17 @@ void ModulesHandler::updateModule(const Module &module)
 void ModulesHandler::beginUpdateAll()
 {
     TreeItem *root = m_model->rootItem();
-    for (int i = root->rowCount(); --i >= 0; )
-        static_cast<ModuleItem *>(root->child(i))->updated = false;
+    for (int i = root->childCount(); --i >= 0; )
+        static_cast<ModuleItem *>(root->childAt(i))->updated = false;
 }
 
 void ModulesHandler::endUpdateAll()
 {
     TreeItem *root = m_model->rootItem();
-    for (int i = root->rowCount(); --i >= 0; ) {
-        auto item = static_cast<ModuleItem *>(root->child(i));
+    for (int i = root->childCount(); --i >= 0; ) {
+        auto item = static_cast<ModuleItem *>(root->childAt(i));
         if (!item->updated)
-            delete m_model->takeItem(item);
+            m_model->destroyItem(item);
     }
 }
 

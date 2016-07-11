@@ -328,10 +328,8 @@ void QtOptionsPageWidget::cleanUpQtVersions()
                              QMessageBox::Yes, QMessageBox::No) == QMessageBox::No)
         return;
 
-    foreach (QtVersionItem *item, toRemove) {
-        m_model->takeItem(item);
-        delete item;
-    }
+    foreach (QtVersionItem *item, toRemove)
+        m_model->destroyItem(item);
 
     updateCleanUpButton();
 }
@@ -526,10 +524,8 @@ void QtOptionsPageWidget::updateQtVersions(const QList<int> &additions, const QL
     });
 
     // Remove changed/removed items:
-    foreach (QtVersionItem *item, toRemove) {
-        m_model->takeItem(item);
-        delete item;
-    }
+    foreach (QtVersionItem *item, toRemove)
+        m_model->destroyItem(item);
 
     // Add changed/added items:
     foreach (int a, toAdd) {
@@ -620,8 +616,7 @@ void QtOptionsPageWidget::removeQtDir()
     if (!item)
         return;
 
-    m_model->takeItem(item);
-    delete item;
+    m_model->destroyItem(item);
 
     updateCleanUpButton();
 }

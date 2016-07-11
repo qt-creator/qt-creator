@@ -47,14 +47,13 @@ public:
 private:
     WinRtDebugSupport(ProjectExplorer::RunControl *runControl, WinRtRunnerHelper *runner);
 
+    void finish();
+
     static bool useQmlDebugging(WinRtRunConfiguration *runConfig);
     static bool getFreePort(Utils::Port &qmlDebuggerPort, QString *errorMessage);
 
     ProjectExplorer::RunControl *m_debugRunControl;
     WinRtRunnerHelper *m_runner;
-
-private slots:
-    void finish();
 };
 
 } // namespace Internal
