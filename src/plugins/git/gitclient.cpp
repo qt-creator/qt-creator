@@ -44,6 +44,7 @@
 #include <coreplugin/iversioncontrol.h>
 #include <coreplugin/vcsmanager.h>
 
+#include <utils/algorithm.h>
 #include <utils/checkablemessagebox.h>
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
@@ -1301,17 +1302,11 @@ bool GitClient::synchronousHeadRefs(const QString &workingDirectory, QStringList
 
     const QString stdOut = resp.stdOut();
     const QString headSha = stdOut.left(10);
-    const QChar newLine('\n');
+    QString rest = stdOut.mid(15);
 
-    int currentIndex = 15;
-
-    while (true) {
-        currentIndex = stdOut.indexOf(headSha, currentIndex);
-        if (currentIndex < 0)
-            break;
-        currentIndex += 11;
-        output->append(stdOut.mid(currentIndex, stdOut.indexOf(newLine, currentIndex) - currentIndex));
-   }
+    const QStringList headShaLines = Utils::filtered(
+                rest.split('\n'), [&headSha](const QString &s) { return s.startsWith(headSha); });
+    *output = Utils::transform(headShaLines, [](const QString &s) { return s.mid(11); }); // sha + space
 
     return true;
 }
@@ -1756,10 +1751,13 @@ bool GitClient::cleanList(const QString &workingDirectory, const QString &module
     // Filter files that git would remove
     const QString relativeBase = modulePath.isEmpty() ? QString() : modulePath + '/';
     const QString prefix = "Would remove ";
-    foreach (const QString &line, resp.stdOut()) {
-        if (line.startsWith(prefix))
-            files->push_back(relativeBase + line.mid(prefix.size()));
-    }
+    const QStringList removeLines = Utils::filtered(
+                splitLines(resp.stdOut()), [&prefix](const QString &s) {
+        return s.startsWith("Would remove ");
+    });
+    *files = Utils::transform(removeLines, [&relativeBase, &prefix](const QString &s) -> QString {
+        return relativeBase + s.mid(prefix.size());
+    });
     return true;
 }
 
@@ -1941,12 +1939,10 @@ GitClient::StatusResult GitClient::gitStatus(const QString &workingDirectory, St
         return StatusFailed;
     }
     // Unchanged (output text depending on whether -u was passed)
-    QList<QString> lines = resp.stdOut().split('\n');
-    foreach (const QString &line, lines) {
-        if (!line.isEmpty() && !line.startsWith('#'))
-            return StatusChanged;
-    }
-    return StatusUnchanged;
+    const bool hasChanges = Utils::contains(stdOut.split('\n'), [](const QString &s) {
+                                                return !s.isEmpty() && !s.startsWith('#');
+                                            });
+    return hasChanges ? StatusChanged : StatusUnchanged;
 }
 
 QString GitClient::commandInProgressDescription(const QString &workingDirectory) const
@@ -2248,9 +2244,9 @@ FileName GitClient::vcsBinary() const
     return binary;
 }
 
-QTextCodec *GitClient::encoding(const QString &workingDirectory, const QByteArray &configVar) const
+QTextCodec *GitClient::encoding(const QString &workingDirectory, const QString &configVar) const
 {
-    QString codecName = readConfigValue(workingDirectory, QLatin1String(configVar)).trimmed();
+    QString codecName = readConfigValue(workingDirectory, configVar).trimmed();
     // Set default commit encoding to 'UTF-8', when it's not set,
     // to solve displaying error of commit log with non-latin characters.
     if (codecName.isEmpty())

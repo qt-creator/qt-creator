@@ -278,7 +278,7 @@ public:
     QString readGitVar(const QString &workingDirectory, const QString &configVar) const;
     QString readConfigValue(const QString &workingDirectory, const QString &configVar) const;
 
-    QTextCodec *encoding(const QString &workingDirectory, const QByteArray &configVar) const;
+    QTextCodec *encoding(const QString &workingDirectory, const QString &configVar) const;
     bool readDataFromCommit(const QString &repoDirectory, const QString &commit,
                             CommitData &commitData, QString *errorMessage = nullptr,
                             QString *commitTemplate = nullptr);
