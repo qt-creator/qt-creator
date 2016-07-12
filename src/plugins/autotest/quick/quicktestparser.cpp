@@ -220,6 +220,7 @@ static bool handleQtQuickTest(QFutureInterface<TestParseResultPtr> futureInterfa
 void QuickTestParser::init(const QStringList &filesToParse)
 {
     m_qmlSnapshot = QmlJSTools::Internal::ModelManager::instance()->snapshot();
+    m_proFilesForQmlFiles = QuickTestUtils::proFilesForQmlFiles(id(), filesToParse);
     CppParser::init(filesToParse);
 }
 
@@ -227,8 +228,11 @@ bool QuickTestParser::processDocument(QFutureInterface<TestParseResultPtr> futur
                                       const QString &fileName)
 {
     if (fileName.endsWith(".qml")) {
+        const QString &proFile = m_proFilesForQmlFiles.value(fileName);
+        if (proFile.isEmpty())
+            return false;
         QmlJS::Document::Ptr qmlJSDoc = m_qmlSnapshot.document(fileName);
-        return checkQmlDocumentForQuickTestCode(futureInterface, qmlJSDoc, id());
+        return checkQmlDocumentForQuickTestCode(futureInterface, qmlJSDoc, id(), proFile);
     }
     if (!m_cppSnapshot.contains(fileName) || !selectedForBuilding(fileName))
         return false;

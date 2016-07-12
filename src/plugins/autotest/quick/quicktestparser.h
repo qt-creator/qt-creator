@@ -47,6 +47,7 @@ public:
                          const QString &fileName) override;
 private:
     QmlJS::Snapshot m_qmlSnapshot;
+    QHash<QString, QString> m_proFilesForQmlFiles;
 };
 
 } // namespace Internal
