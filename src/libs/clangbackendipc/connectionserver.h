@@ -32,6 +32,7 @@
 #include <QLocalSocket>
 #include <QTimer>
 
+#include <cstdlib>
 #include <memory>
 #include <vector>
 
