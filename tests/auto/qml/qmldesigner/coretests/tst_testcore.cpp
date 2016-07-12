@@ -4312,6 +4312,95 @@ void tst_TestCore::testQtQuickControls2()
     QVERIFY(layout.isSubclassOf("QtQuick.Item", 2, -1));
 }
 
+void tst_TestCore::testImplicitComponents()
+{
+    const char* qmlString
+            =   "import QtQuick 2.0\n"
+                "import QtQuick.Controls 1.2\n"
+                "Item {\n"
+                    "ListView {\n"
+                    "id: listView\n"
+                    "x: 200\n"
+                    "y: 100\n"
+                    "width: 110\n"
+                    "height: 160\n"
+                    "delegate: Item {\n"
+                        "x: 5\n"
+                        "width: 80\n"
+                        "height: 40\n"
+                        "Row {\n"
+                            "id: row1\n"
+                            "spacing: 10\n"
+                            "Rectangle {\n"
+                                "width: 40\n"
+                                "height: 40\n"
+                                "color: colorCode\n"
+                            "}\n"
+                            "Text {\n"
+                                "text: name\n"
+                                "font.bold: true\n"
+                                "anchors.verticalCenter: parent.verticalCenter\n"
+                            "}\n"
+                        "}\n"
+                    "}\n"
+                    "model: ListModel {\n"
+                        "ListElement {\n"
+                            "name: \"Grey\"\n"
+                            "colorCode: \"grey\"\n"
+                        "}\n"
+                        "ListElement {\n"
+                            "name: \"Red\"\n"
+                            "colorCode: \"red\"\n"
+                        "}\n"
+                        "ListElement {\n"
+                            "name: \"Blue\"\n"
+                            "colorCode: \"blue\"\n"
+                        "}\n"
+                        "ListElement {\n"
+                            "name: \"Green\"\n"
+                            "colorCode: \"green\"\n"
+                        "}\n"
+                    "}\n"
+                "}\n"
+            "}\n";
+
+    QPlainTextEdit textEdit;
+    textEdit.setPlainText(QLatin1String(qmlString));
+    NotIndentingTextEditModifier modifier(&textEdit);
+
+    QScopedPointer<Model> model(Model::create("QtQuick.Item"));
+    QVERIFY(model.data());
+    QScopedPointer<TestView> view(new TestView(model.data()));
+    QVERIFY(view.data());
+    model->attachView(view.data());
+
+    TestRewriterView *testRewriterView = new TestRewriterView(model.data());
+    testRewriterView->setTextModifier(&modifier);
+    model->attachView(testRewriterView);
+
+    QVERIFY(testRewriterView->errors().isEmpty());
+
+    ModelNode rootModelNode(view->rootModelNode());
+
+    QVERIFY(rootModelNode.isValid());
+
+    ModelNode listView = rootModelNode.directSubModelNodes().first();
+
+    QVERIFY(listView.isValid());
+    QCOMPARE(listView.id(), QLatin1String("listView"));
+
+    NodeProperty delegateProperty = listView.nodeProperty("delegate");
+
+    QVERIFY(delegateProperty.isValid());
+
+    ModelNode delegate = delegateProperty.modelNode();
+
+    QVERIFY(delegate.isValid());
+
+    QVERIFY(delegate.isComponent()); //The delegate is an implicit component
+    QCOMPARE(delegate.nodeSourceType(), ModelNode::NodeWithComponentSource);
+}
+
 void tst_TestCore::testStatesRewriter()
 {
     QPlainTextEdit textEdit;
