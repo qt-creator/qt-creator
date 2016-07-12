@@ -769,6 +769,11 @@ GccToolChainFactory::GccToolChainFactory()
     setDisplayName(tr("GCC"));
 }
 
+QSet<ToolChain::Language> GccToolChainFactory::supportedLanguages() const
+{
+    return { ToolChain::Language::Cxx };
+}
+
 bool GccToolChainFactory::canCreate()
 {
     return true;
@@ -1134,6 +1139,11 @@ ClangToolChainFactory::ClangToolChainFactory()
     setDisplayName(tr("Clang"));
 }
 
+QSet<ToolChain::Language> ClangToolChainFactory::supportedLanguages() const
+{
+    return { ProjectExplorer::ToolChain::Language::Cxx };
+}
+
 QList<ToolChain *> ClangToolChainFactory::autoDetect(const QList<ToolChain *> &alreadyKnown)
 {
     return autoDetectToolchains(QLatin1String("clang++"), Abi::hostAbi(),
@@ -1213,6 +1223,11 @@ MingwToolChainFactory::MingwToolChainFactory()
     setDisplayName(tr("MinGW"));
 }
 
+QSet<ToolChain::Language> MingwToolChainFactory::supportedLanguages() const
+{
+    return { ProjectExplorer::ToolChain::Language::Cxx };
+}
+
 QList<ToolChain *> MingwToolChainFactory::autoDetect(const QList<ToolChain *> &alreadyKnown)
 {
     Abi ha = Abi::hostAbi();
@@ -1289,6 +1304,11 @@ ToolChain *LinuxIccToolChain::clone() const
 LinuxIccToolChainFactory::LinuxIccToolChainFactory()
 {
     setDisplayName(tr("Linux ICC"));
+}
+
+QSet<ToolChain::Language> LinuxIccToolChainFactory::supportedLanguages() const
+{
+    return { ProjectExplorer::ToolChain::Language::Cxx };
 }
 
 QList<ToolChain *> LinuxIccToolChainFactory::autoDetect(const QList<ToolChain *> &alreadyKnown)

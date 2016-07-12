@@ -363,6 +363,11 @@ static ClangToolChain *createToolChain(const Platform &platform)
     return toolChain;
 }
 
+QSet<ToolChain::Language> IosToolChainFactory::supportedLanguages() const
+{
+    return { ProjectExplorer::ToolChain::Language::Cxx };
+}
+
 QList<ToolChain *> IosToolChainFactory::autoDetect(const QList<ToolChain *> &existingToolChains)
 {
     QList<ClangToolChain *> existingClangToolChains = clangToolChains(existingToolChains);

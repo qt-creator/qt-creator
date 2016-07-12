@@ -348,6 +348,11 @@ WinCEToolChainFactory::WinCEToolChainFactory()
     setDisplayName(tr("WinCE"));
 }
 
+QSet<ToolChain::Language> WinCEToolChainFactory::supportedLanguages() const
+{
+    return { ProjectExplorer::ToolChain::Language::Cxx };
+}
+
 static ToolChain *findOrCreateToolChain(const QList<ToolChain *> &alreadyKnown,
                                         const QString &name, const Abi &abi,
                                         const QString &vcvarsBat, const QString &msvcVer,

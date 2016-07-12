@@ -572,6 +572,11 @@ MsvcToolChainFactory::MsvcToolChainFactory()
     setDisplayName(tr("MSVC"));
 }
 
+QSet<ToolChain::Language> MsvcToolChainFactory::supportedLanguages() const
+{
+    return { ProjectExplorer::ToolChain::Language::Cxx };
+}
+
 bool MsvcToolChainFactory::checkForVisualStudioInstallation(const QString &vsName)
 {
     const QSettings vsRegistry(

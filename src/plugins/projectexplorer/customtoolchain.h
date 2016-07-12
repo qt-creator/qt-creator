@@ -147,6 +147,7 @@ class CustomToolChainFactory : public ToolChainFactory
 
 public:
     CustomToolChainFactory();
+    QSet<ToolChain::Language> supportedLanguages() const override;
 
     bool canCreate() override;
     ToolChain *create() override;

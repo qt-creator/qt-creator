@@ -175,6 +175,8 @@ public:
     static Core::Id typeIdFromMap(const QVariantMap &data);
     static void autoDetectionToMap(QVariantMap &data, bool detected);
 
+    virtual QSet<ToolChain::Language> supportedLanguages() const = 0;
+
 protected:
     void setDisplayName(const QString &name) { m_displayName = name; }
 

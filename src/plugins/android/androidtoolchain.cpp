@@ -263,6 +263,11 @@ AndroidToolChainFactory::AndroidToolChainFactory()
     setDisplayName(tr("Android GCC"));
 }
 
+QSet<ToolChain::Language> Android::Internal::AndroidToolChainFactory::supportedLanguages() const
+{
+    return { ToolChain::Language::Cxx };
+}
+
 QList<ToolChain *> AndroidToolChainFactory::autoDetect(const QList<ToolChain *> &alreadyKnown)
 {
     return autodetectToolChainsForNdk(AndroidConfigurations::currentConfig().ndkLocation(), alreadyKnown);

@@ -160,6 +160,11 @@ QnxToolChainFactory::QnxToolChainFactory()
     setDisplayName(tr("QCC"));
 }
 
+QSet<ToolChain::Language> QnxToolChainFactory::supportedLanguages() const
+{
+    return { ProjectExplorer::ToolChain::Language::Cxx };
+}
+
 bool QnxToolChainFactory::canRestore(const QVariantMap &data)
 {
     return typeIdFromMap(data) == Constants::QNX_TOOLCHAIN_ID;

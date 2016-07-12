@@ -432,6 +432,11 @@ CustomToolChainFactory::CustomToolChainFactory()
     setDisplayName(tr("Custom"));
 }
 
+QSet<ToolChain::Language> CustomToolChainFactory::supportedLanguages() const
+{
+    return { ToolChain::Language::Cxx };
+}
+
 bool CustomToolChainFactory::canCreate()
 {
     return true;

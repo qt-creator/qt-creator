@@ -106,6 +106,7 @@ class WinCEToolChainFactory : public ToolChainFactory
 
 public:
     WinCEToolChainFactory();
+    QSet<ToolChain::Language> supportedLanguages() const override;
 
     QList<ToolChain *> autoDetect(const QList<ToolChain *> &alreadyKnown) override;
 

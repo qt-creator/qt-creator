@@ -49,6 +49,7 @@ class GccToolChainFactory : public ToolChainFactory
 
 public:
     GccToolChainFactory();
+    QSet<ToolChain::Language> supportedLanguages() const override;
 
     QList<ToolChain *> autoDetect(const QList<ToolChain *> &alreadyKnown) override;
 
@@ -108,6 +109,7 @@ class ClangToolChainFactory : public GccToolChainFactory
 
 public:
     ClangToolChainFactory();
+    QSet<ToolChain::Language> supportedLanguages() const override;
 
     QList<ToolChain *> autoDetect(const QList<ToolChain *> &alreadyKnown) override;
 
@@ -127,6 +129,7 @@ class MingwToolChainFactory : public GccToolChainFactory
 
 public:
     MingwToolChainFactory();
+    QSet<ToolChain::Language> supportedLanguages() const override;
 
     QList<ToolChain *> autoDetect(const QList<ToolChain *> &alreadyKnown) override;
 
@@ -146,6 +149,7 @@ class LinuxIccToolChainFactory : public GccToolChainFactory
 
 public:
     LinuxIccToolChainFactory();
+    QSet<ToolChain::Language> supportedLanguages() const override;
 
     QList<ToolChain *> autoDetect(const QList<ToolChain *> &alreadyKnown) override;
 

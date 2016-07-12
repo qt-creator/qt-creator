@@ -95,6 +95,7 @@ class AndroidToolChainFactory : public ProjectExplorer::ToolChainFactory
 
 public:
     AndroidToolChainFactory();
+    QSet<ProjectExplorer::ToolChain::Language> supportedLanguages() const override;
 
     QList<ProjectExplorer::ToolChain *> autoDetect(const QList<ProjectExplorer::ToolChain *> &alreadyKnown) override;
     bool canRestore(const QVariantMap &data) override;
