@@ -42,6 +42,7 @@
 #include "tests/qmleventlocation_test.h"
 #include "tests/qmleventtype_test.h"
 #include "tests/qmlnote_test.h"
+#include "tests/qmlprofileranimationsmodel_test.h"
 #endif
 
 #include <extensionsystem/pluginmanager.h>
@@ -101,6 +102,7 @@ QList<QObject *> QmlProfiler::Internal::QmlProfilerPlugin::createTestObjects() c
     tests << new QmlEventLocationTest;
     tests << new QmlEventTypeTest;
     tests << new QmlNoteTest;
+    tests << new QmlProfilerAnimationsModelTest;
 #endif
     return tests;
 }

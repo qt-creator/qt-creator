@@ -25,57 +25,34 @@
 
 #pragma once
 
-#include "qmlprofilertimelinemodel.h"
-#include "qmlprofilereventtypes.h"
-#include "qmleventlocation.h"
-#include "qmlprofilerdatamodel.h"
-
-#include <QVariantList>
-#include <QColor>
+#include <qmlprofiler/qmlprofileranimationsmodel.h>
+#include <qmlprofiler/qmlprofilermodelmanager.h>
 #include <QObject>
 
 namespace QmlProfiler {
-class QmlProfilerModelManager;
-
 namespace Internal {
 
-class QmlProfilerAnimationsModel : public QmlProfilerTimelineModel
+class QmlProfilerAnimationsModelTest : public QObject
 {
     Q_OBJECT
 public:
+    explicit QmlProfilerAnimationsModelTest(QObject *parent = 0);
 
-    struct QmlPaintEventData {
-        int framerate;
-        int animationcount;
-        int typeId;
-    };
-
-    QmlProfilerAnimationsModel(QmlProfilerModelManager *manager, QObject *parent = 0);
-
-    int rowMaxValue(int rowNumber) const override;
-
-    int typeId(int index) const override;
-    Q_INVOKABLE int expandedRow(int index) const override;
-    Q_INVOKABLE int collapsedRow(int index) const override;
-
-    QColor color(int index) const override;
-    float relativeHeight(int index) const override;
-
-    QVariantList labels() const override;
-    QVariantMap details(int index) const override;
-
-    bool accepted(const QmlEventType &type) const override;
-    void loadEvent(const QmlEvent &event, const QmlEventType &type) override;
-    void finalize() override;
-    void clear() override;
+private slots:
+    void initTestCase();
+    void testAccepted();
+    void testRowMaxValue();
+    void testRowNumbers();
+    void testTypeId();
+    void testColor();
+    void testRelativeHeight();
+    void testLabels();
+    void testDetails();
+    void cleanupTestCase();
 
 private:
-    QVector<QmlProfilerAnimationsModel::QmlPaintEventData> m_data;
-    int m_maxGuiThreadAnimations = 0;
-    int m_maxRenderThreadAnimations = 0;
-    qint64 m_minNextStartTimes[2];
-
-    int rowFromThreadId(int threadId) const;
+    QmlProfilerModelManager manager;
+    QmlProfilerAnimationsModel model;
 };
 
 } // namespace Internal

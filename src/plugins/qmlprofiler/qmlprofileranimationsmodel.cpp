@@ -160,17 +160,17 @@ QVariantList QmlProfilerAnimationsModel::labels() const
 
     if (m_maxGuiThreadAnimations > 0) {
         QVariantMap element;
-        element.insert(QLatin1String("displayName"), QVariant(tr("Animations")));
-        element.insert(QLatin1String("description"), QVariant(tr("GUI Thread")));
-        element.insert(QLatin1String("id"), QVariant(GuiThread));
+        element.insert(QLatin1String("displayName"), tr("Animations"));
+        element.insert(QLatin1String("description"), tr("GUI Thread"));
+        element.insert(QLatin1String("id"), GuiThread);
         result << element;
     }
 
     if (m_maxRenderThreadAnimations > 0) {
         QVariantMap element;
-        element.insert(QLatin1String("displayName"), QVariant(tr("Animations")));
-        element.insert(QLatin1String("description"), QVariant(tr("Render Thread")));
-        element.insert(QLatin1String("id"), QVariant(RenderThread));
+        element.insert(QLatin1String("displayName"), tr("Animations"));
+        element.insert(QLatin1String("description"), tr("Render Thread"));
+        element.insert(QLatin1String("id"), RenderThread);
         result << element;
     }
 
@@ -184,9 +184,9 @@ QVariantMap QmlProfilerAnimationsModel::details(int index) const
     result.insert(QStringLiteral("displayName"), displayName());
     result.insert(tr("Duration"), QmlProfilerDataModel::formatTime(duration(index)));
     result.insert(tr("Framerate"), QString::fromLatin1("%1 FPS").arg(m_data[index].framerate));
-    result.insert(tr("Animations"), QString::fromLatin1("%1").arg(m_data[index].animationcount));
-    result.insert(tr("Context"), tr(selectionId(index) == GuiThread ? "GUI Thread" :
-                                                                      "Render Thread"));
+    result.insert(tr("Animations"), QString::number(m_data[index].animationcount));
+    result.insert(tr("Context"), selectionId(index) == GuiThread ? tr("GUI Thread") :
+                                                                   tr("Render Thread"));
     return result;
 }
 
