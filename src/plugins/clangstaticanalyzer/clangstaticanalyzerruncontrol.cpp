@@ -53,6 +53,7 @@
 #include <projectexplorer/toolchain.h>
 
 #include <utils/algorithm.h>
+#include <utils/hostosinfo.h>
 
 #include <QLoggingCategory>
 #include <QTemporaryDir>
@@ -300,6 +301,20 @@ static QStringList createOptionsToUndefineClangVersionMacrosForMsvc(const Projec
     return optionsBuilder.options();
 }
 
+static QStringList createHeaderPathsOptionsForClangOnMac(const ProjectPart &projectPart)
+{
+    QStringList options;
+
+    if (Utils::HostOsInfo::isMacHost()
+            && projectPart.toolchainType == ProjectExplorer::Constants::CLANG_TOOLCHAIN_TYPEID) {
+        ClangStaticAnalyzerOptionsBuilder optionsBuilder(projectPart);
+        optionsBuilder.addHeaderPathOptions();
+        options = optionsBuilder.options();
+    }
+
+    return options;
+}
+
 static QStringList tweakedArguments(const ProjectPart &projectPart,
                                     const QString &filePath,
                                     const QStringList &arguments,
@@ -308,6 +323,7 @@ static QStringList tweakedArguments(const ProjectPart &projectPart,
     QStringList newArguments = inputAndOutputArgumentsRemoved(filePath, arguments);
     prependWordWidthArgumentIfNotIncluded(&newArguments, extraParams.wordWidth);
     prependTargetTripleIfNotIncludedAndNotEmpty(&newArguments, extraParams.targetTriple);
+    newArguments.append(createHeaderPathsOptionsForClangOnMac(projectPart));
     newArguments.append(createMsCompatibilityVersionOption(projectPart));
     newArguments.append(createOptionsToUndefineClangVersionMacrosForMsvc(projectPart));
     newArguments.append(createOptionsToUndefineCppLanguageFeatureMacrosForMsvc2015(projectPart));
