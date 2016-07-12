@@ -26,6 +26,7 @@
 #pragma once
 
 #include "kitconfigwidget.h"
+#include "toolchain.h"
 
 #include <coreplugin/id.h>
 
@@ -43,7 +44,6 @@ namespace Utils { class PathChooser; }
 namespace ProjectExplorer {
 
 class DeviceManagerModel;
-class ToolChain;
 
 namespace Internal {
 
@@ -96,12 +96,13 @@ public:
 
 private:
     void manageToolChains();
-    void currentToolChainChanged(int idx);
+    void currentToolChainChanged(ToolChain::Language l, int idx);
 
-    int indexOf(const ToolChain *tc);
+    int indexOf(QComboBox *cb, const ToolChain *tc);
 
-    QComboBox *m_comboBox;
+    QWidget *m_mainWidget;
     QPushButton *m_manageButton;
+    QHash<ToolChain::Language, QComboBox *> m_languageComboboxMap;
     bool m_ignoreChanges = false;
     bool m_isReadOnly = false;
 };
