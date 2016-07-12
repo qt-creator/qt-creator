@@ -166,7 +166,7 @@ public:
     virtual QList<ToolChain *> autoDetect(const QList<ToolChain *> &alreadyKnown);
 
     virtual bool canCreate();
-    virtual ToolChain *create();
+    virtual ToolChain *create(ToolChain::Language l);
 
     virtual bool canRestore(const QVariantMap &data);
     virtual ToolChain *restore(const QVariantMap &data);

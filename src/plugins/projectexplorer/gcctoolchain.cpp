@@ -771,7 +771,7 @@ GccToolChainFactory::GccToolChainFactory()
 
 QSet<ToolChain::Language> GccToolChainFactory::supportedLanguages() const
 {
-    return { ToolChain::Language::Cxx };
+    return { ToolChain::Language::Cxx, ToolChain::Language::C };
 }
 
 bool GccToolChainFactory::canCreate()
@@ -779,10 +779,10 @@ bool GccToolChainFactory::canCreate()
     return true;
 }
 
-ToolChain *GccToolChainFactory::create()
+ToolChain *GccToolChainFactory::create(ToolChain::Language l)
 {
     ToolChain *tc = createToolChain(false);
-    tc->setLanguage({ ToolChain::Language::Cxx });
+    tc->setLanguage(l);
     return tc;
 }
 
@@ -1141,7 +1141,7 @@ ClangToolChainFactory::ClangToolChainFactory()
 
 QSet<ToolChain::Language> ClangToolChainFactory::supportedLanguages() const
 {
-    return { ProjectExplorer::ToolChain::Language::Cxx };
+    return { ProjectExplorer::ToolChain::Language::Cxx, ProjectExplorer::ToolChain::Language::C };
 }
 
 QList<ToolChain *> ClangToolChainFactory::autoDetect(const QList<ToolChain *> &alreadyKnown)

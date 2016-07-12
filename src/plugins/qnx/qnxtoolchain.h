@@ -75,7 +75,7 @@ public:
     ProjectExplorer::ToolChain *restore(const QVariantMap &data) override;
 
     bool canCreate() override;
-    ProjectExplorer::ToolChain *create() override;
+    ProjectExplorer::ToolChain *create(ProjectExplorer::ToolChain::Language l) override;
 };
 
 //----------------------------------------------------------------------------

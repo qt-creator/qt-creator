@@ -122,6 +122,7 @@ protected:
 
 private:
     explicit CustomToolChain(Detection d);
+    explicit CustomToolChain(Language l, Detection d);
 
     Utils::FileName m_compilerCommand;
     Utils::FileName m_makeCommand;
@@ -150,7 +151,7 @@ public:
     QSet<ToolChain::Language> supportedLanguages() const override;
 
     bool canCreate() override;
-    ToolChain *create() override;
+    ToolChain *create(ToolChain::Language l) override;
 
     // Used by the ToolChainManager to restore user-generated tool chains
     bool canRestore(const QVariantMap &data) override;

@@ -185,9 +185,9 @@ bool QnxToolChainFactory::canCreate()
     return true;
 }
 
-ToolChain *QnxToolChainFactory::create()
+ToolChain *QnxToolChainFactory::create(ToolChain::Language l)
 {
-    return new QnxToolChain(ToolChain::ManualDetection);
+    return new QnxToolChain(l, ToolChain::ManualDetection);
 }
 
 //---------------------------------------------------------------------------------

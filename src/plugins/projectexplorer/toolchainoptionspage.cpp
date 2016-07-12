@@ -152,27 +152,20 @@ public:
                 continue;
 
             if (languages.count() == 1) {
-                QAction *action = new QAction(addMenu);
-                action->setText(factory->displayName());
-                connect(action, &QAction::triggered, [this, factory] { createToolChain(factory); });
-                addMenu->addAction(action);
+                addMenu->addAction(createAction(factory->displayName(), factory, languages.at(0)));
             } else {
                 Utils::sort(languages, [](ToolChain::Language l1, ToolChain::Language l2) {
                                 return ToolChain::languageDisplayName(l1) < ToolChain::languageDisplayName(l2);
                             });
                 auto subMenu = addMenu->addMenu(factory->displayName());
-                foreach (ToolChain::Language l, languages) {
-                    auto action = new QAction(subMenu);
-                    action->setText(ToolChain::languageDisplayName(l));
-                    connect(action, &QAction::triggered, [this, factory] { createToolChain(factory); });
-                    subMenu->addAction(action);
-                }
+                foreach (ToolChain::Language l, languages)
+                    subMenu->addAction(createAction(ToolChain::languageDisplayName(l), factory, l));
             }
         }
         m_addButton->setMenu(addMenu);
 
         m_cloneButton = new QPushButton(ToolChainOptionsPage::tr("Clone"), this);
-        connect(m_cloneButton, &QAbstractButton::clicked, [this] { createToolChain(nullptr); });
+        connect(m_cloneButton, &QAbstractButton::clicked, [this] { cloneToolChain(); });
 
         m_delButton = new QPushButton(ToolChainOptionsPage::tr("Remove"), this);
 
@@ -216,7 +209,8 @@ public:
 
     void toolChainSelectionChanged();
     void updateState();
-    void createToolChain(ToolChainFactory *factory);
+    void createToolChain(ToolChainFactory *factory, ToolChain::Language l);
+    void cloneToolChain();
     ToolChainTreeItem *currentTreeItem();
 
     void markForRemoval(ToolChainTreeItem *item);
@@ -225,6 +219,12 @@ public:
     void removeToolChain(ProjectExplorer::ToolChain *);
 
     StaticTreeItem *parentForToolChain(ToolChain *tc);
+    QAction *createAction(const QString &name, ToolChainFactory *factory, ToolChain::Language l)
+    {
+        auto action = new QAction(name, nullptr);
+        connect(action, &QAction::triggered, [this, factory, l] { createToolChain(factory, l); });
+        return action;
+    }
 
     void apply();
 
@@ -374,21 +374,28 @@ void ToolChainOptionsWidget::apply()
     }
 }
 
-void ToolChainOptionsWidget::createToolChain(ToolChainFactory *factory)
+void ToolChainOptionsWidget::createToolChain(ToolChainFactory *factory, ToolChain::Language l)
 {
-    ToolChain *tc = nullptr;
+    QTC_ASSERT(factory, return);
+    QTC_ASSERT(factory->canCreate(), return);
+    QTC_ASSERT(l != ToolChain::Language::None, return);
 
-    if (factory) {
-        // Clone.
-        QTC_CHECK(factory->canCreate());
-        tc = factory->create();
-    } else {
-        // Copy.
-        ToolChainTreeItem *current = currentTreeItem();
-        if (!current)
-            return;
-        tc = current->toolChain->clone();
-    }
+    ToolChain *tc = factory->create(l);
+    if (!tc)
+        return;
+
+    auto item = insertToolChain(tc, true);
+    m_toAddList.append(item);
+
+    m_toolChainView->setCurrentIndex(m_model.indexForItem(item));
+}
+
+void ToolChainOptionsWidget::cloneToolChain()
+{
+    ToolChainTreeItem *current = currentTreeItem();
+    if (!current)
+        return;
+    ToolChain *tc = current->toolChain->clone();
 
     if (!tc)
         return;

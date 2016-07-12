@@ -88,9 +88,13 @@ static const char messageCapKeyC[] = "ProjectExplorer.CustomToolChain.MessageCap
 CustomToolChain::CustomToolChain(Detection d) :
     ToolChain(Constants::CUSTOM_TOOLCHAIN_TYPEID, d),
     m_outputParser(Gcc)
+{ }
+
+CustomToolChain::CustomToolChain(Language l, Detection d) : CustomToolChain(d)
 {
-    setLanguage(Language::Cxx);
+    setLanguage(l);
 }
+
 
 QString CustomToolChain::typeDisplayName() const
 {
@@ -434,7 +438,7 @@ CustomToolChainFactory::CustomToolChainFactory()
 
 QSet<ToolChain::Language> CustomToolChainFactory::supportedLanguages() const
 {
-    return { ToolChain::Language::Cxx };
+    return ToolChain::allLanguages();
 }
 
 bool CustomToolChainFactory::canCreate()
@@ -442,9 +446,9 @@ bool CustomToolChainFactory::canCreate()
     return true;
 }
 
-ToolChain *CustomToolChainFactory::create()
+ToolChain *CustomToolChainFactory::create(ToolChain::Language l)
 {
-    return new CustomToolChain(ToolChain::ManualDetection);
+    return new CustomToolChain(l, ToolChain::ManualDetection);
 }
 
 // Used by the ToolChainManager to restore user-generated tool chains

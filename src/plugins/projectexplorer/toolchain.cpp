@@ -291,8 +291,9 @@ bool ToolChainFactory::canCreate()
     return false;
 }
 
-ToolChain *ToolChainFactory::create()
+ToolChain *ToolChainFactory::create(ToolChain::Language l)
 {
+    Q_UNUSED(l);
     return nullptr;
 }
 
