@@ -355,6 +355,7 @@ void IosConfigurations::setDeveloperPath(const FileName &devPath)
 static ClangToolChain *createToolChain(const Platform &platform)
 {
     ClangToolChain *toolChain = new ClangToolChain(ToolChain::AutoDetection);
+    toolChain->setLanguage(ToolChain::Language::Cxx);
     toolChain->setDisplayName(platform.name);
     toolChain->setPlatformCodeGenFlags(platform.backendFlags);
     toolChain->setPlatformLinkerFlags(platform.backendFlags);

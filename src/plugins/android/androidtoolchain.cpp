@@ -63,10 +63,11 @@ static const char ANDROID_NDK_TC_VERION[] = "Qt4ProjectManager.Android.NDK_TC_VE
 QHash<Abi, QList<int> > AndroidToolChainFactory::m_newestVersionForAbi;
 FileName AndroidToolChainFactory::m_ndkLocation;
 
-AndroidToolChain::AndroidToolChain(const Abi &abi, const QString &ndkToolChainVersion, Detection d)
+AndroidToolChain::AndroidToolChain(const Abi &abi, const QString &ndkToolChainVersion, Language l, Detection d)
     : GccToolChain(Constants::ANDROID_TOOLCHAIN_ID, d),
       m_ndkToolChainVersion(ndkToolChainVersion), m_secondaryToolChain(false)
 {
+    setLanguage(l);
     setTargetAbi(abi);
     setDisplayName(QString::fromLatin1("Android GCC (%1-%2)")
                    .arg(AndroidConfig::displayName(targetAbi()))
@@ -392,7 +393,8 @@ AndroidToolChainFactory::autodetectToolChainsForNdk(const FileName &ndkPath,
 
         AndroidToolChain *tc = findToolChain(compilerPath, alreadyKnown);
         if (!tc) {
-            tc = new AndroidToolChain(abi, version, ToolChain::AutoDetection);
+            tc = new AndroidToolChain(abi, version, ToolChain::Language::Cxx,
+                                      ToolChain::AutoDetection);
             tc->resetToolChain(compilerPath);
         }
         result.append(tc);

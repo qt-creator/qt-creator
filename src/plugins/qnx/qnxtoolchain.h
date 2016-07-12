@@ -35,6 +35,7 @@ class QnxToolChain : public ProjectExplorer::GccToolChain
 {
 public:
     explicit QnxToolChain(Detection d);
+    explicit QnxToolChain(Language l, Detection d);
 
     QString typeDisplayName() const override;
 

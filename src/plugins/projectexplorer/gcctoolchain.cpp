@@ -776,7 +776,9 @@ bool GccToolChainFactory::canCreate()
 
 ToolChain *GccToolChainFactory::create()
 {
-    return createToolChain(false);
+    ToolChain *tc = createToolChain(false);
+    tc->setLanguage({ ToolChain::Language::Cxx });
+    return tc;
 }
 
 QList<ToolChain *> GccToolChainFactory::autoDetect(const QList<ToolChain *> &alreadyKnown)
@@ -860,6 +862,7 @@ QList<ToolChain *> GccToolChainFactory::autoDetectToolchains(const QString &comp
         tc->setTargetAbi(abi);
         tc->setOriginalTargetTriple(detectedAbis.originalTargetTriple);
         tc->setDisplayName(tc->defaultDisplayName()); // reset displayname
+        tc->setLanguage(ToolChain::Language::Cxx);
 
         result.append(tc.take());
     }

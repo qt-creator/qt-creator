@@ -62,7 +62,8 @@ protected:
     DetectedAbisResult detectSupportedAbis() const override;
 
 private:
-    explicit AndroidToolChain(const ProjectExplorer::Abi &abi, const QString &ndkToolChainVersion, Detection d);
+    explicit AndroidToolChain(const ProjectExplorer::Abi &abi, const QString &ndkToolChainVersion,
+                              Language l, Detection d);
     AndroidToolChain();
     AndroidToolChain(const AndroidToolChain &);
 

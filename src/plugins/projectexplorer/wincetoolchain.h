@@ -43,6 +43,7 @@ public:
                    const QString &binPath,
                    const QString &includePath,
                    const QString &libPath,
+                   const Language &l,
                    Detection d = ManualDetection);
 
     Utils::FileNameList suggestedMkspecList() const override;

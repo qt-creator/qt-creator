@@ -88,7 +88,9 @@ static const char messageCapKeyC[] = "ProjectExplorer.CustomToolChain.MessageCap
 CustomToolChain::CustomToolChain(Detection d) :
     ToolChain(Constants::CUSTOM_TOOLCHAIN_TYPEID, d),
     m_outputParser(Gcc)
-{ }
+{
+    setLanguage(Language::Cxx);
+}
 
 QString CustomToolChain::typeDisplayName() const
 {

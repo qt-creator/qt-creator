@@ -42,6 +42,7 @@ namespace ProjectExplorer {
 namespace Internal {
 
 AbstractMsvcToolChain::AbstractMsvcToolChain(Core::Id typeId,
+                                             const Language &l,
                                              Detection d,
                                              const Abi &abi,
                                              const QString& vcvarsBat) : ToolChain(typeId, d),
@@ -53,6 +54,7 @@ AbstractMsvcToolChain::AbstractMsvcToolChain(Core::Id typeId,
     Q_ASSERT(abi.binaryFormat() == Abi::PEFormat);
     Q_ASSERT(abi.osFlavor() != Abi::WindowsMSysFlavor);
     Q_ASSERT(!m_vcvarsBat.isEmpty());
+    setLanguage(l);
 }
 
 AbstractMsvcToolChain::AbstractMsvcToolChain(Core::Id typeId, Detection d) :

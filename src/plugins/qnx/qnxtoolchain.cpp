@@ -62,6 +62,13 @@ QnxToolChain::QnxToolChain(ToolChain::Detection d)
     : GccToolChain(Constants::QNX_TOOLCHAIN_ID, d)
 { }
 
+QnxToolChain::QnxToolChain(Language l, ToolChain::Detection d)
+    : QnxToolChain(d)
+{
+    setLanguage(l);
+}
+
+
 QString QnxToolChain::typeDisplayName() const
 {
     return QnxToolChainFactory::tr("QCC");

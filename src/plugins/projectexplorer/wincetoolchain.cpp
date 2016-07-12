@@ -236,8 +236,9 @@ WinCEToolChain::WinCEToolChain(const QString &name,
                                const QString &binPath,
                                const QString &includePath,
                                const QString &libPath,
+                               const Language &l,
                                Detection d) :
-    AbstractMsvcToolChain(Constants::WINCE_TOOLCHAIN_TYPEID, d, abi, vcvarsBat),
+    AbstractMsvcToolChain(Constants::WINCE_TOOLCHAIN_TYPEID, l, d, abi, vcvarsBat),
     m_msvcVer(msvcVer),
     m_ceVer(ceVer),
     m_binPath(binPath),
@@ -368,7 +369,8 @@ static ToolChain *findOrCreateToolChain(const QList<ToolChain *> &alreadyKnown,
                                                   && cetc->libPath() == libPath;
                                          });
     if (!tc)
-        tc = new WinCEToolChain(name, abi, vcvarsBat, msvcVer, ceVer, binPath, includePath, libPath, d);
+        tc = new WinCEToolChain(name, abi, vcvarsBat, msvcVer, ceVer, binPath, includePath, libPath,
+                                ProjectExplorer::ToolChain::Language::Cxx, d);
     return tc;
 }
 
