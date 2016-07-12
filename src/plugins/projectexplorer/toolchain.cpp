@@ -39,6 +39,7 @@
 static const char ID_KEY[] = "ProjectExplorer.ToolChain.Id";
 static const char DISPLAY_NAME_KEY[] = "ProjectExplorer.ToolChain.DisplayName";
 static const char AUTODETECT_KEY[] = "ProjectExplorer.ToolChain.Autodetect";
+static const char LANGUAGE_KEY[] = "ProjectExplorer.ToolChain.Language";
 
 namespace ProjectExplorer {
 namespace Internal {
@@ -62,8 +63,10 @@ public:
     }
 
     QByteArray m_id;
+    QSet<ToolChain::Language> m_supportedLanguages;
     mutable QString m_displayName;
     Core::Id m_typeId;
+    ToolChain::Language m_language = ToolChain::Language::None;
     Detection m_detection;
 };
 
@@ -79,14 +82,25 @@ public:
 
 ToolChain::ToolChain(Core::Id typeId, Detection d) :
     d(new Internal::ToolChainPrivate(typeId, d))
-{ }
+{
+}
 
 ToolChain::ToolChain(const ToolChain &other) :
     d(new Internal::ToolChainPrivate(other.d->m_typeId, ManualDetection))
 {
+    d->m_language = other.d->m_language;
+
     // leave the autodetection bit at false.
     d->m_displayName = QCoreApplication::translate("ProjectExplorer::ToolChain", "Clone of %1")
             .arg(other.displayName());
+}
+
+void ToolChain::setLanguage(const ToolChain::Language &l)
+{
+    QTC_ASSERT(d->m_language == Language::None, return);
+    QTC_ASSERT(l != Language::None, return);
+
+    d->m_language = l;
 }
 
 ToolChain::~ToolChain()
@@ -135,6 +149,30 @@ Core::Id ToolChain::typeId() const
     return d->m_typeId;
 }
 
+const QSet<ToolChain::Language> &ToolChain::allLanguages()
+{
+    static QSet<Language> languages({ Language::C, Language::Cxx });
+    return languages;
+}
+
+QString ToolChain::languageDisplayName(Language language)
+{
+    switch (language) {
+    case Language::None:
+        return QCoreApplication::translate("ProjectExplorer::ToolChain", "None");
+    case Language::C:
+        return QCoreApplication::translate("ProjectExplorer::ToolChain", "C");
+    case Language::Cxx:
+        return QCoreApplication::translate("ProjectExplorer::ToolChain", "C++");
+    };
+    return QString();
+}
+
+ToolChain::Language ToolChain::language() const
+{
+    return d->m_language;
+}
+
 bool ToolChain::canClone() const
 {
     return true;
@@ -162,6 +200,7 @@ QVariantMap ToolChain::toMap() const
     result.insert(QLatin1String(ID_KEY), idToSave);
     result.insert(QLatin1String(DISPLAY_NAME_KEY), displayName());
     result.insert(QLatin1String(AUTODETECT_KEY), isAutoDetected());
+    result.insert(QLatin1String(LANGUAGE_KEY), static_cast<int>(language()));
 
     return result;
 }
@@ -198,6 +237,13 @@ bool ToolChain::fromMap(const QVariantMap &data)
 
     const bool autoDetect = data.value(QLatin1String(AUTODETECT_KEY), false).toBool();
     d->m_detection = autoDetect ? AutoDetectionFromSettings : ManualDetection;
+
+    bool ok;
+    d->m_language
+            = static_cast<Language>(data.value(QLatin1String(LANGUAGE_KEY),
+                                               static_cast<int>(Language::Cxx)).toInt(&ok));
+    if (!ok)
+        d->m_language = Language::Cxx;
 
     return true;
 }
