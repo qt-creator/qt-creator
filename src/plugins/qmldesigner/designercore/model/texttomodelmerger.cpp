@@ -275,7 +275,11 @@ static bool isListElementType(const QmlDesigner::TypeName &type)
 
 static bool isComponentType(const QmlDesigner::TypeName &type)
 {
-    return type == "Component" || type == "Qt.Component" || type == "QtQuick.Component" || type == "<cpp>.QQmlComponent";
+    return type == "Component"
+            || type == "Qt.Component"
+            || type == "QtQuick.Component"
+            || type == "<cpp>.QQmlComponent"
+            || type == "QQmlComponent";
 }
 
 static bool isCustomParserType(const QmlDesigner::TypeName &type)
