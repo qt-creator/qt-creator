@@ -147,10 +147,27 @@ public:
         m_addButton = new QPushButton(ToolChainOptionsPage::tr("Add"), this);
         auto addMenu = new QMenu;
         foreach (ToolChainFactory *factory, m_factories) {
-            QAction *action = new QAction(addMenu);
-            action->setText(factory->displayName());
-            connect(action, &QAction::triggered, [this, factory] { createToolChain(factory); });
-            addMenu->addAction(action);
+            QList<ToolChain::Language> languages = factory->supportedLanguages().toList();
+            if (languages.isEmpty())
+                continue;
+
+            if (languages.count() == 1) {
+                QAction *action = new QAction(addMenu);
+                action->setText(factory->displayName());
+                connect(action, &QAction::triggered, [this, factory] { createToolChain(factory); });
+                addMenu->addAction(action);
+            } else {
+                Utils::sort(languages, [](ToolChain::Language l1, ToolChain::Language l2) {
+                                return ToolChain::languageDisplayName(l1) < ToolChain::languageDisplayName(l2);
+                            });
+                auto subMenu = addMenu->addMenu(factory->displayName());
+                foreach (ToolChain::Language l, languages) {
+                    auto action = new QAction(subMenu);
+                    action->setText(ToolChain::languageDisplayName(l));
+                    connect(action, &QAction::triggered, [this, factory] { createToolChain(factory); });
+                    subMenu->addAction(action);
+                }
+            }
         }
         m_addButton->setMenu(addMenu);
 
