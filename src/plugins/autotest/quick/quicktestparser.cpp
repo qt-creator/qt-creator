@@ -224,6 +224,13 @@ void QuickTestParser::init(const QStringList &filesToParse)
     CppParser::init(filesToParse);
 }
 
+void QuickTestParser::release()
+{
+    m_qmlSnapshot = QmlJS::Snapshot();
+    m_proFilesForQmlFiles.clear();
+    CppParser::release();
+}
+
 bool QuickTestParser::processDocument(QFutureInterface<TestParseResultPtr> futureInterface,
                                       const QString &fileName)
 {

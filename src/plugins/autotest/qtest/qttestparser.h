@@ -41,6 +41,7 @@ class QtTestParser : public CppParser
 {
 public:
     void init(const QStringList &filesToParse) override;
+    void release() override;
     bool processDocument(QFutureInterface<TestParseResultPtr> futureInterface,
                          const QString &fileName) override;
 

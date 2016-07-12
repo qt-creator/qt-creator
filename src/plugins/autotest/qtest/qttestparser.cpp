@@ -241,6 +241,12 @@ void QtTestParser::init(const QStringList &filesToParse)
     CppParser::init(filesToParse);
 }
 
+void QtTestParser::release()
+{
+    m_testCaseNames.clear();
+    CppParser::release();
+}
+
 bool QtTestParser::processDocument(QFutureInterface<TestParseResultPtr> futureInterface,
                                    const QString &fileName)
 {
