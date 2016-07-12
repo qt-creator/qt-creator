@@ -4067,17 +4067,6 @@ void GdbEngine::startGdb(const QStringList &args)
     //runCommand("set overload-resolution off");
 
     //runCommand(_("set demangle-style none"));
-    // From the docs:
-    //  Stop means reenter debugger if this signal happens (implies print).
-    //  Print means print a message if this signal happens.
-    //  Pass means let program see this signal;
-    //  otherwise program doesn't know.
-    //  Pass and Stop may be combined.
-    // We need "print" as otherwise we will get no feedback whatsoever
-    // when Custom DebuggingHelper crash (which happen regularly when accessing
-    // uninitialized variables).
-    runCommand({"handle SIGSEGV nopass stop print"});
-
     runCommand({"set unwindonsignal on"});
     runCommand({"set width 0"});
     runCommand({"set height 0"});
