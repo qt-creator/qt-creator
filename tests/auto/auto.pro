@@ -1,6 +1,7 @@
 TEMPLATE = subdirs
 
 SUBDIRS += \
+    algorithm \
     aggregation \
     changeset \
     clangstaticanalyzer \

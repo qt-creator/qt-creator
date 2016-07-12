@@ -622,8 +622,10 @@ static ToolChain *findOrCreateToolChain(const QList<ToolChain *> &alreadyKnown,
                                         ToolChain::Detection d = ToolChain::ManualDetection)
 {
     ToolChain *tc = Utils::findOrDefault(alreadyKnown,
-                                         [&varsBat, &varsBatArg](ToolChain *tc) -> bool {
+                                         [&varsBat, &varsBatArg, &abi](ToolChain *tc) -> bool {
                                               if (tc->typeId() != Constants::MSVC_TOOLCHAIN_TYPEID)
+                                                  return false;
+                                              if (tc->targetAbi() != abi)
                                                   return false;
                                               auto mtc = static_cast<MsvcToolChain *>(tc);
                                               return mtc->varsBat() == varsBat

@@ -758,16 +758,21 @@ void QmlAnchorBindingProxy::anchorTop()
 {
     m_locked = true;
 
+    bool topTargetIsParent = m_topTarget == m_qmlItemNode.instanceParentItem();
+
     if (m_relativeTopTarget == SameEdge) {
-        qreal topMargin = transformedBoundingBox().top() - parentBoundingBox().top();
+        qreal topPos = topTargetIsParent ? parentBoundingBox().top() : boundingBox(m_topTarget).top();
+        qreal topMargin = transformedBoundingBox().top() - topPos;
         m_qmlItemNode.anchors().setMargin( AnchorLineTop, topMargin);
         m_qmlItemNode.anchors().setAnchor(AnchorLineTop, m_topTarget, AnchorLineTop);
     } else if (m_relativeTopTarget == OppositeEdge) {
-        qreal topMargin = boundingBox(m_qmlItemNode).top() - boundingBox(m_topTarget).bottom();
+        qreal bottomPos = topTargetIsParent ? parentBoundingBox().bottom() : boundingBox(m_topTarget).bottom();
+        qreal topMargin = transformedBoundingBox().top() - bottomPos;
         m_qmlItemNode.anchors().setMargin( AnchorLineTop, topMargin);
         m_qmlItemNode.anchors().setAnchor(AnchorLineTop, m_topTarget, AnchorLineBottom);
     } else if (m_relativeTopTarget == Center) {
-        qreal topMargin = boundingBox(m_qmlItemNode).top() - boundingBox(m_topTarget).center().y();
+        qreal centerPos = topTargetIsParent ? parentBoundingBox().center().y() : boundingBox(m_topTarget).center().y();
+        qreal topMargin = transformedBoundingBox().top() - centerPos;
         m_qmlItemNode.anchors().setMargin(AnchorLineTop, topMargin);
         m_qmlItemNode.anchors().setAnchor(AnchorLineTop, m_topTarget, AnchorLineVerticalCenter);
     }
@@ -779,16 +784,21 @@ void QmlAnchorBindingProxy::anchorBottom()
 {
     m_locked = true;
 
+    bool bottomTargetIsParent = m_bottomTarget == m_qmlItemNode.instanceParentItem();
+
     if (m_relativeBottomTarget == SameEdge) {
-        qreal bottomMargin =  parentBoundingBox().bottom() - transformedBoundingBox().bottom();
+        qreal bottomPos = bottomTargetIsParent ? parentBoundingBox().bottom() : boundingBox(m_bottomTarget).bottom();
+        qreal bottomMargin = bottomPos - transformedBoundingBox().bottom();
         m_qmlItemNode.anchors().setMargin( AnchorLineBottom, bottomMargin);
         m_qmlItemNode.anchors().setAnchor(AnchorLineBottom, m_bottomTarget, AnchorLineBottom);
     } else  if (m_relativeBottomTarget == OppositeEdge) {
-        qreal bottomMargin = boundingBox(m_bottomTarget).top()- boundingBox(m_qmlItemNode).bottom();
+        qreal topPos = bottomTargetIsParent ? parentBoundingBox().top() : boundingBox(m_bottomTarget).top();
+        qreal bottomMargin = topPos - transformedBoundingBox().bottom();
         m_qmlItemNode.anchors().setMargin( AnchorLineBottom, bottomMargin);
         m_qmlItemNode.anchors().setAnchor(AnchorLineBottom, m_bottomTarget, AnchorLineTop);
     } else if (m_relativeBottomTarget == Center) {
-        qreal bottomMargin = boundingBox(m_qmlItemNode).top() - boundingBox(m_bottomTarget).center().y();
+        qreal centerPos = bottomTargetIsParent ? parentBoundingBox().center().y() : boundingBox(m_bottomTarget).center().y();
+        qreal bottomMargin = centerPos - transformedBoundingBox().bottom();
         m_qmlItemNode.anchors().setMargin(AnchorLineBottom, bottomMargin);
         m_qmlItemNode.anchors().setAnchor(AnchorLineBottom, m_bottomTarget, AnchorLineVerticalCenter);
     }
@@ -800,16 +810,21 @@ void QmlAnchorBindingProxy::anchorLeft()
 {
     m_locked = true;
 
+    bool leftTargetIsParent = m_leftTarget == m_qmlItemNode.instanceParentItem();
+
     if (m_relativeLeftTarget == SameEdge) {
-        qreal leftMargin = transformedBoundingBox().left() - parentBoundingBox().left();
+        qreal leftPos = leftTargetIsParent ? parentBoundingBox().left() : boundingBox(m_leftTarget).left();
+        qreal leftMargin = transformedBoundingBox().left() - leftPos;
         m_qmlItemNode.anchors().setMargin(AnchorLineLeft, leftMargin);
         m_qmlItemNode.anchors().setAnchor(AnchorLineLeft, m_leftTarget, AnchorLineLeft);
     } else if (m_relativeLeftTarget == OppositeEdge) {
-        qreal leftMargin = boundingBox(m_qmlItemNode).left() - boundingBox(m_leftTarget).right();
+        qreal rightPos = leftTargetIsParent ? parentBoundingBox().right() : boundingBox(m_leftTarget).right();
+        qreal leftMargin = transformedBoundingBox().left() - rightPos;
         m_qmlItemNode.anchors().setMargin( AnchorLineLeft, leftMargin);
         m_qmlItemNode.anchors().setAnchor(AnchorLineLeft, m_leftTarget, AnchorLineRight);
     } else if (m_relativeLeftTarget == Center) {
-        qreal leftMargin = boundingBox(m_qmlItemNode).top() - boundingBox(m_leftTarget).center().x();
+        qreal centerPos = leftTargetIsParent ? parentBoundingBox().center().x() : boundingBox(m_leftTarget).center().x();
+        qreal leftMargin = transformedBoundingBox().left() - centerPos;
         m_qmlItemNode.anchors().setMargin(AnchorLineLeft, leftMargin);
         m_qmlItemNode.anchors().setAnchor(AnchorLineLeft, m_leftTarget, AnchorLineHorizontalCenter);
     }
@@ -821,16 +836,21 @@ void QmlAnchorBindingProxy::anchorRight()
 {
     m_locked = true;
 
+    bool rightTargetIsParent = m_rightTarget == m_qmlItemNode.instanceParentItem();
+
     if (m_relativeRightTarget == SameEdge) {
-        qreal rightMargin = parentBoundingBox().right() - transformedBoundingBox().right();
+        qreal rightPos = rightTargetIsParent ? parentBoundingBox().right() : boundingBox(m_rightTarget).right();
+        qreal rightMargin = rightPos - transformedBoundingBox().right();
         m_qmlItemNode.anchors().setMargin( AnchorLineRight, rightMargin);
         m_qmlItemNode.anchors().setAnchor(AnchorLineRight, m_rightTarget, AnchorLineRight);
     } else if (m_relativeRightTarget == OppositeEdge) {
-        qreal rightMargin = boundingBox(m_rightTarget).left() - boundingBox(m_qmlItemNode).right();
+        qreal leftPos = rightTargetIsParent ? parentBoundingBox().left() : boundingBox(m_rightTarget).left();
+        qreal rightMargin = leftPos - transformedBoundingBox().right();
         m_qmlItemNode.anchors().setMargin( AnchorLineRight, rightMargin);
         m_qmlItemNode.anchors().setAnchor(AnchorLineRight, m_rightTarget, AnchorLineLeft);
     } else if (m_relativeRightTarget == Center) {
-        qreal rightMargin = boundingBox(m_qmlItemNode).top() - boundingBox(m_rightTarget).center().x();
+        qreal centerPos = rightTargetIsParent ? parentBoundingBox().center().x() : boundingBox(m_rightTarget).center().x();
+        qreal rightMargin = centerPos - transformedBoundingBox().right();
         m_qmlItemNode.anchors().setMargin(AnchorLineRight, rightMargin);
         m_qmlItemNode.anchors().setAnchor(AnchorLineRight, m_rightTarget, AnchorLineHorizontalCenter);
     }

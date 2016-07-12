@@ -46,7 +46,7 @@ TestResultItem::~TestResultItem()
 }
 
 static QIcon testResultIcon(Result::Type result) {
-    static QIcon icons[11] = {
+    static QIcon icons[] = {
         QIcon(QLatin1String(":/images/pass.png")),
         QIcon(QLatin1String(":/images/fail.png")),
         QIcon(QLatin1String(":/images/xfail.png")),
@@ -56,6 +56,7 @@ static QIcon testResultIcon(Result::Type result) {
         QIcon(QLatin1String(":/images/blacklisted_fail.png")),
         QIcon(QLatin1String(":/images/benchmark.png")),
         QIcon(QLatin1String(":/images/debug.png")),
+        QIcon(QLatin1String(":/images/debug.png")), // Info get's the same handling as Debug for now
         QIcon(QLatin1String(":/images/warn.png")),
         QIcon(QLatin1String(":/images/fatal.png")),
     }; // provide an icon for unknown??
@@ -298,7 +299,7 @@ void TestResultFilterModel::enableAllResultTypes()
               << Result::MessageCurrentTest << Result::MessageTestCaseStart
               << Result::MessageTestCaseSuccess << Result::MessageTestCaseWarn
               << Result::MessageTestCaseFail << Result::MessageTestCaseEnd
-              << Result::MessageTestCaseRepetition;
+              << Result::MessageTestCaseRepetition << Result::MessageInfo;
     invalidateFilter();
 }
 
@@ -308,10 +309,14 @@ void TestResultFilterModel::toggleTestResultType(Result::Type type)
         m_enabled.remove(type);
         if (type == Result::MessageInternal)
             m_enabled.remove(Result::MessageTestCaseEnd);
+        if (type == Result::MessageDebug)
+            m_enabled.remove(Result::MessageInfo);
     } else {
         m_enabled.insert(type);
         if (type == Result::MessageInternal)
             m_enabled.insert(Result::MessageTestCaseEnd);
+        if (type == Result::MessageDebug)
+            m_enabled.insert(Result::MessageInfo);
     }
     invalidateFilter();
 }

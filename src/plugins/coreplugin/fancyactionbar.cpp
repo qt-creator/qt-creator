@@ -230,10 +230,15 @@ void FancyToolButton::paintEvent(QPaintEvent *event)
         } else {
             splitBuildConfiguration = splitInTwoLines(buildConfiguration, boldFm, availableWidth);
         }
-        // draw the two lines for the build configuration
+
+        // draw the two text lines for the build configuration
         painter.setPen(creatorTheme()->color(isEnabled()
-                                             ? Theme::FancyTabWidgetEnabledSelectedTextColor
-                                             : Theme::FancyTabWidgetDisabledSelectedTextColor));
+                                             // Intentionally using the "Unselected" colors,
+                                             // because the text color won't change in the pressed
+                                             // state as they would do on the mode buttons.
+                                             ? Theme::FancyTabWidgetEnabledUnselectedTextColor
+                                             : Theme::FancyTabWidgetDisabledUnselectedTextColor));
+
         for (int i = 0; i < 2; ++i) {
             if (splitBuildConfiguration[i].isEmpty())
                 continue;

@@ -21,11 +21,14 @@ Prerequisites:
     * jom
 * On Mac OS X: latest Xcode
 * On Linux: g++ 4.8 or later
-* LLVM 3.8.0 or later for the Clang Code Model
+* LLVM 3.8.0 or later (optional, needed for the Clang Code Model)
 
 The installed toolchains have to match the one Qt was compiled with.
 
 You can build Qt Creator with
+
+    # Optional, needed for the Clang Code Model:
+    export LLVM_INSTALL_DIR=/path/to/llvm (or "set" on Windows)
 
     cd $SOURCE_DIRECTORY
     qmake -r

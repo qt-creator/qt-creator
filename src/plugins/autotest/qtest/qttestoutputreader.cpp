@@ -241,7 +241,7 @@ void QtTestOutputReader::processOutput()
                     break;
                 default:
                     // this must come from plain printf() calls - but this will be ignored anyhow
-                    qWarning() << "Ignored plain output:" << text.toString();
+                    qWarning() << "AutoTest.Run: Ignored plain output:" << text.toString();
                     break;
                 }
                 break;

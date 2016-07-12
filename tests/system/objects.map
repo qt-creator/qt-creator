@@ -3,17 +3,17 @@
 :*Qt Creator.Cancel Build_QToolButton	{text='Cancel Build' type='QToolButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :*Qt Creator.Cancel_QPushButton	{text='Cancel' type='QPushButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :*Qt Creator.Clear_QToolButton	{text='Clear' type='QToolButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
-:*Qt Creator.Continue_Core::Internal::FancyToolButton	{text='Continue' type='Core::Internal::FancyToolButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
+:*Qt Creator.Continue_Core::Internal::FancyToolButton	{toolTip?='Continue *' type='Core::Internal::FancyToolButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :*Qt Creator.DoubleTabWidget_ProjectExplorer::Internal::DoubleTabWidget	{name='ProjectExplorer__Internal__DoubleTabWidget' type='ProjectExplorer::Internal::DoubleTabWidget' visible='1' window=':Qt Creator_Core::Internal::MainWindow' windowTitle='DoubleTabWidget'}
 :*Qt Creator.Events_QDockWidget	{name='QmlProfilerStatisticsViewDockWidget' type='QDockWidget' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :*Qt Creator.Events_QTabBar	{aboveWidget=':*Qt Creator.Events_QDockWidget' type='QTabBar' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :*Qt Creator.Find_Find::Internal::FindToolBar	{name='Core__Internal__FindWidget' type='Core::Internal::FindToolBar' visible='1' window=':Qt Creator_Core::Internal::MainWindow' windowTitle='Find'}
 :*Qt Creator.FormEditorStack_Designer::Internal::FormEditorStack	{name='FormEditorStack' type='Designer::Internal::FormEditorStack' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
-:*Qt Creator.Interrupt_Core::Internal::FancyToolButton	{text='Interrupt' type='Core::Internal::FancyToolButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
+:*Qt Creator.Interrupt_Core::Internal::FancyToolButton	{toolTip='Interrupt' type='Core::Internal::FancyToolButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :*Qt Creator.JavaScript_QDockWidget	{name='QmlProfilerV8ProfileViewDockWidget' type='QDockWidget' visible='1' window=':Qt Creator_Core::Internal::MainWindow' windowTitle='V8'}
 :*Qt Creator.JavaScript_QTabBar	{aboveWidget=':*Qt Creator.JavaScript_QDockWidget' type='QTabBar' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :*Qt Creator.Run_Core::Internal::FancyToolButton	{text='Run' type='Core::Internal::FancyToolButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
-:*Qt Creator.Start Debugging_Core::Internal::FancyToolButton	{text='Start Debugging' type='Core::Internal::FancyToolButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
+:*Qt Creator.Start Debugging_Core::Internal::FancyToolButton	{toolTip?='Start Debugging *' type='Core::Internal::FancyToolButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :*Qt Creator.Timeline_QDockWidget	{name='QML ProfilerDockWidget' type='QDockWidget' visible='1' window=':Qt Creator_Core::Internal::MainWindow' windowTitle='Timeline'}
 :*Qt Creator.Timeline_QTabBar	{aboveWidget=':*Qt Creator.Timeline_QDockWidget' type='QTabBar' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :*Qt Creator.Widget Box_QDockWidget	{name='WidgetBoxDockWidget' type='QDockWidget' visible='1' window=':Qt Creator_Core::Internal::MainWindow' windowTitle='Widget Box'}
@@ -61,7 +61,7 @@
 :DebugModeWidget.Toolbar_QDockWidget	{container=':Qt Creator.DebugModeWidget_QSplitter' name='Toolbar' type='QDockWidget' visible='1'}
 :DebugModeWidget_Debugger::Internal::ConsoleView	{container=':Qt Creator.DebugModeWidget_QSplitter' type='Debugger::Internal::ConsoleView' unnamed='1' visible='1'}
 :DebugModeWidget_QComboBox	{container=':Qt Creator.DebugModeWidget_QSplitter' occurrence='2' type='QComboBox' unnamed='1' visible='1'}
-:Debugger Toolbar.Continue_QToolButton	{container=':DebugModeWidget.Toolbar_QDockWidget' text='Continue' type='QToolButton' unnamed='1' visible='1'}
+:Debugger Toolbar.Continue_QToolButton	{container=':DebugModeWidget.Toolbar_QDockWidget' toolTip?='Continue *' type='QToolButton' unnamed='1' visible='1'}
 :Debugger Toolbar.Exit Debugger_QToolButton	{container=':DebugModeWidget.Toolbar_QDockWidget' text='Stop Debugger' type='QToolButton' unnamed='1' visible='1'}
 :Debugger Toolbar.StatusText_Utils::StatusLabel	{container=':DebugModeWidget.Toolbar_QDockWidget' type='Utils::StatusLabel' unnamed='1'}
 :Debugger.Docks.BreakDockWidget.Debugger.Docks.Break_QFrame	{container=':DebugModeWidget.Debugger.Docks.BreakDockWidget_QDockWidget' name='Debugger.Docks.Break' type='QFrame' visible='1'}

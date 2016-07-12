@@ -65,6 +65,8 @@ Result::Type TestResult::resultFromString(const QString &resultString)
         return Result::Skip;
     if (resultString == QLatin1String("qdebug"))
         return Result::MessageDebug;
+    if (resultString == QLatin1String("qinfo"))
+        return Result::MessageInfo;
     if (resultString == QLatin1String("warn") || resultString == QLatin1String("qwarn"))
         return Result::MessageWarn;
     if (resultString == QLatin1String("qfatal"))
@@ -105,6 +107,8 @@ QString TestResult::resultToString(const Result::Type type)
         return QLatin1String("BENCH");
     case Result::MessageDebug:
         return QLatin1String("DEBUG");
+    case Result::MessageInfo:
+        return QLatin1String("INFO");
     case Result::MessageWarn:
         return QLatin1String("WARN");
     case Result::MessageFatal:
@@ -136,6 +140,7 @@ QColor TestResult::colorForType(const Result::Type type)
     case Result::Skip:
         return creatorTheme->color(Utils::Theme::OutputPanes_TestSkipTextColor);
     case Result::MessageDebug:
+    case Result::MessageInfo:
         return creatorTheme->color(Utils::Theme::OutputPanes_TestDebugTextColor);
     case Result::MessageWarn:
         return creatorTheme->color(Utils::Theme::OutputPanes_TestWarnTextColor);

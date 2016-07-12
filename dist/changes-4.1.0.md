@@ -48,6 +48,10 @@ CMake Projects
   (QTCREATORBUG-15934)
 * Fixed that CMake was automatically run even if the Qt Creator application
   is not in the foreground (QTCREATORBUG-16354)
+* QML_IMPORT_PATH can now be set in CMakeLists.txt files. This information
+  will be passed on to the QmlJS code model (QTCREATORBUG-11328)  
+  Example CMakeLists.txt code:  
+  `set(QML_IMPORT_PATH ${CMAKE_SOURCE_DIR}/qml ${CMAKE_BINARY_DIR}/imports CACHE string "" FORCE)`
 
 Qbs Projects
 

@@ -187,6 +187,15 @@ void QmlProfilerDataModel::QmlProfilerDataModelPrivate::rewriteType(int typeInde
     detailsRewriter->requestDetailsForLocation(typeIndex, type.location());
 }
 
+static bool isStateful(const QmlEventType &type)
+{
+    // Events of these types carry state that has to be taken into account when adding later events:
+    // PixmapCacheEvent: Total size of the cache and size of pixmap currently being loaded
+    // MemoryAllocation: Total size of the JS heap and the amount of it currently in use
+    const Message message = type.message();
+    return message == PixmapCacheEvent || message == MemoryAllocation;
+}
+
 void QmlProfilerDataModel::replayEvents(qint64 rangeStart, qint64 rangeEnd,
                                         QmlProfilerModelManager::EventLoader loader) const
 {
@@ -196,6 +205,7 @@ void QmlProfilerDataModel::replayEvents(qint64 rangeStart, qint64 rangeEnd,
     QFile file(d->file.fileName());
     file.open(QIODevice::ReadOnly);
     QDataStream stream(&file);
+    bool crossedRangeStart = false;
     while (!stream.atEnd()) {
         stream >> event;
         if (stream.status() == QDataStream::ReadPastEnd)
@@ -203,35 +213,48 @@ void QmlProfilerDataModel::replayEvents(qint64 rangeStart, qint64 rangeEnd,
 
         const QmlEventType &type = d->eventTypes[event.typeIndex()];
         if (rangeStart != -1 && rangeEnd != -1) {
-            if (event.timestamp() < rangeStart) {
+            // Double-check if rangeStart has been crossed. Some versions of Qt send dirty data.
+            if (event.timestamp() < rangeStart && !crossedRangeStart) {
                 if (type.rangeType() != MaximumRangeType) {
                     if (event.rangeStage() == RangeStart)
                         stack.push(event);
                     else if (event.rangeStage() == RangeEnd)
                         stack.pop();
+                    continue;
+                } else if (isStateful(type)) {
+                    event.setTimestamp(rangeStart);
+                } else {
+                    continue;
                 }
-                continue;
-            } else if (event.timestamp() > rangeEnd) {
-                if (type.rangeType() != MaximumRangeType) {
-                    if (event.rangeStage() == RangeEnd) {
-                        if (stack.isEmpty()) {
-                            QmlEvent endEvent(event);
-                            endEvent.setTimestamp(rangeEnd);
-                            loader(endEvent, d->eventTypes[event.typeIndex()]);
-                        } else {
-                            stack.pop();
+            } else {
+                if (!crossedRangeStart) {
+                    foreach (QmlEvent stashed, stack) {
+                        stashed.setTimestamp(rangeStart);
+                        loader(stashed, d->eventTypes[stashed.typeIndex()]);
+                    }
+                    stack.clear();
+                    crossedRangeStart = true;
+                }
+                if (event.timestamp() > rangeEnd) {
+                    if (type.rangeType() != MaximumRangeType) {
+                        if (event.rangeStage() == RangeEnd) {
+                            if (stack.isEmpty()) {
+                                QmlEvent endEvent(event);
+                                endEvent.setTimestamp(rangeEnd);
+                                loader(endEvent, d->eventTypes[event.typeIndex()]);
+                            } else {
+                                stack.pop();
+                            }
+                        } else if (event.rangeStage() == RangeStart) {
+                            stack.push(event);
                         }
-                    } else if (event.rangeStage() == RangeStart) {
-                        stack.push(event);
+                        continue;
+                    } else if (isStateful(type)) {
+                        event.setTimestamp(rangeEnd);
+                    } else {
+                        continue;
                     }
                 }
-                continue;
-            } else if (!stack.isEmpty()) {
-                foreach (QmlEvent stashed, stack) {
-                    stashed.setTimestamp(rangeStart);
-                    loader(stashed, d->eventTypes[stashed.typeIndex()]);
-                }
-                stack.clear();
             }
         }
 

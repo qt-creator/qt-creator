@@ -46,6 +46,7 @@ enum Type {
     BlacklistedFail,
     Benchmark,
     MessageDebug,
+    MessageInfo,
     MessageWarn,
     MessageFatal,
 

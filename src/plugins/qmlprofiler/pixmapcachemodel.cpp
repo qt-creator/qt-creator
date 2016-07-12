@@ -214,8 +214,6 @@ void PixmapCacheModel::loadEvent(const QmlEvent &event, const QmlEventType &type
         break;
     }
     case PixmapCacheCountChanged: {// Cache Size Changed Event
-        pixmapStartTime = event.timestamp() + 1; // delay 1 ns for proper sorting
-
         bool uncache = m_cumulatedCount > event.number<qint32>(2);
         m_cumulatedCount = event.number<qint32>(2);
         qint64 pixSize = 0;
@@ -433,11 +431,16 @@ void PixmapCacheModel::computeMaxCacheSize()
 
 void PixmapCacheModel::resizeUnfinishedLoads()
 {
-    // all the "load start" events with duration 0 continue till the end of the trace
-    for (int i = 0; i < count(); i++) {
-        if (m_data[i].pixmapEventType == PixmapCacheModel::PixmapLoadingStarted &&
-                duration(i) == 0) {
-            insertEnd(i, modelManager()->traceTime()->endTime() - startTime(i));
+    // all the unfinished "load start" events continue till the end of the trace
+    for (auto pixmap = m_pixmaps.begin(), pixmapsEnd = m_pixmaps.end();
+         pixmap != pixmapsEnd; ++pixmap) {
+        for (auto size = pixmap->sizes.begin(), sizesEnd = pixmap->sizes.end(); size != sizesEnd;
+             ++size) {
+            if (size->loadState == Loading) {
+                insertEnd(size->started,
+                          modelManager()->traceTime()->endTime() - startTime(size->started));
+                size->loadState = Error;
+            }
         }
     }
 }
@@ -477,17 +480,26 @@ int PixmapCacheModel::updateCacheCount(int lastCacheSizeEvent,
 {
     newEvent.pixmapEventType = PixmapCacheCountChanged;
     newEvent.rowNumberCollapsed = 1;
+    newEvent.typeId = typeId;
 
-    qint64 prevSize = 0;
+    int index = lastCacheSizeEvent;
     if (lastCacheSizeEvent != -1) {
-        prevSize = m_data[lastCacheSizeEvent].cacheSize;
-        insertEnd(lastCacheSizeEvent, pixmapStartTime - startTime(lastCacheSizeEvent));
+        newEvent.cacheSize = m_data[lastCacheSizeEvent].cacheSize + pixSize;
+        qint64 duration = pixmapStartTime - startTime(lastCacheSizeEvent);
+        if (duration > 0) {
+            insertEnd(lastCacheSizeEvent, duration);
+            index = insertStart(pixmapStartTime, 0);
+            m_data.insert(index, newEvent);
+        } else {
+            // If the timestamps are the same, just replace it
+            m_data[index] = newEvent;
+        }
+    } else {
+        newEvent.cacheSize = pixSize;
+        index = insertStart(pixmapStartTime, 0);
+        m_data.insert(index, newEvent);
     }
 
-    newEvent.cacheSize = prevSize + pixSize;
-    newEvent.typeId = typeId;
-    int index = insertStart(pixmapStartTime, 0);
-    m_data.insert(index, newEvent);
     return index;
 }
 

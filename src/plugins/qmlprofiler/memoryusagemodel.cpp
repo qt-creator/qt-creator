@@ -177,11 +177,19 @@ void MemoryUsageModel::loadEvent(const QmlEvent &event, const QmlEventType &type
             m_currentUsage = allocation.size;
 
             if (m_currentUsageIndex != -1) {
-                insertEnd(m_currentUsageIndex,
-                          event.timestamp() - startTime(m_currentUsageIndex) - 1);
+                qint64 duration = event.timestamp() - startTime(m_currentUsageIndex);
+                if (duration > 0) {
+                    insertEnd(m_currentUsageIndex, duration - 1);
+                    m_currentUsageIndex = insertStart(event.timestamp(), SmallItem);
+                    m_data.insert(m_currentUsageIndex, allocation);
+                } else {
+                    // Ignore ranges of 0 duration. We only need to keep track of the sizes.
+                    m_data[m_currentUsageIndex] = allocation;
+                }
+            } else {
+                m_currentUsageIndex = insertStart(event.timestamp(), SmallItem);
+                m_data.insert(m_currentUsageIndex, allocation);
             }
-            m_currentUsageIndex = insertStart(event.timestamp(), SmallItem);
-            m_data.insert(m_currentUsageIndex, allocation);
             m_continuation = m_continuation | ContinueUsage;
         }
     }
@@ -201,11 +209,22 @@ void MemoryUsageModel::loadEvent(const QmlEvent &event, const QmlEventType &type
 
             if (m_currentSize > m_maxSize)
                 m_maxSize = m_currentSize;
-            if (m_currentJSHeapIndex != -1)
-                insertEnd(m_currentJSHeapIndex,
-                          event.timestamp() - startTime(m_currentJSHeapIndex) - 1);
-            m_currentJSHeapIndex = insertStart(event.timestamp(), type.detailType());
-            m_data.insert(m_currentJSHeapIndex, allocation);
+
+            if (m_currentJSHeapIndex != -1) {
+                qint64 duration = event.timestamp() - startTime(m_currentJSHeapIndex);
+                if (duration > 0){
+                    insertEnd(m_currentJSHeapIndex, duration - 1);
+                    m_currentJSHeapIndex = insertStart(event.timestamp(), type.detailType());
+                    m_data.insert(m_currentJSHeapIndex, allocation);
+                } else {
+                    // Ignore ranges of 0 duration. We only need to keep track of the sizes.
+                    m_data[m_currentJSHeapIndex] = allocation;
+                }
+            } else {
+                m_currentJSHeapIndex = insertStart(event.timestamp(), type.detailType());
+                m_data.insert(m_currentJSHeapIndex, allocation);
+            }
+
             m_continuation = m_continuation | ContinueAllocation;
         }
     }
@@ -215,10 +234,10 @@ void MemoryUsageModel::finalize()
 {
     if (m_currentJSHeapIndex != -1)
         insertEnd(m_currentJSHeapIndex, modelManager()->traceTime()->endTime() -
-                  startTime(m_currentJSHeapIndex) - 1);
+                  startTime(m_currentJSHeapIndex));
     if (m_currentUsageIndex != -1)
         insertEnd(m_currentUsageIndex, modelManager()->traceTime()->endTime() -
-                  startTime(m_currentUsageIndex) - 1);
+                  startTime(m_currentUsageIndex));
 
 
     computeNesting();
