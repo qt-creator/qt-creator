@@ -23,7 +23,7 @@
 #include <condition_variable>
 #include <csetjmp>
 #include <csignal>
-#ifndef _MSC_VER
+#if !defined(_MSC_VER) && !defined(_LIBCPP_VERSION)
 #  include <cstdalign>
 #endif
 #include <cstdarg>
