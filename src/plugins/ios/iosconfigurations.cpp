@@ -238,7 +238,7 @@ void IosConfigurations::updateAutomaticKitList()
                 // we do not compare the sdk (thus automatically upgrading it in place if a
                 // new Xcode is used). Change?
                 return DeviceTypeKitInformation::deviceTypeId(kit) == pDeviceType
-                        && ToolChainKitInformation::toolChain(kit) == pToolchain
+                        && ToolChainKitInformation::toolChain(kit, ToolChain::Language::Cxx) == pToolchain
                         && QtKitInformation::qtVersion(kit) == qtVersion;
             });
             QTC_ASSERT(!resultingKits.contains(kit), continue);

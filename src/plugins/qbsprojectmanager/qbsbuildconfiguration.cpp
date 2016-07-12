@@ -134,7 +134,7 @@ Internal::QbsProject *QbsBuildConfiguration::project() const
 
 IOutputParser *QbsBuildConfiguration::createOutputParser() const
 {
-    ToolChain *tc = ToolChainKitInformation::toolChain(target()->kit());
+    ToolChain *tc = ToolChainKitInformation::toolChain(target()->kit(), ToolChain::Language::Cxx);
     return tc ? tc->outputParser() : 0;
 }
 

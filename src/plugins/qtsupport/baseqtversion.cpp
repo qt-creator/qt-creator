@@ -493,7 +493,7 @@ QList<Task> BaseQtVersion::validateKit(const Kit *k)
                        FileName(), -1, ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM);
     }
 
-    ToolChain *tc = ToolChainKitInformation::toolChain(k);
+    ToolChain *tc = ToolChainKitInformation::toolChain(k, ToolChain::Language::Cxx);
     if (tc) {
         Abi targetAbi = tc->targetAbi();
         bool fuzzyMatch = false;

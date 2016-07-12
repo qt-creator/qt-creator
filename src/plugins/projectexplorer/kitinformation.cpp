@@ -144,28 +144,20 @@ ToolChainKitInformation::ToolChainKitInformation()
 QVariant ToolChainKitInformation::defaultValue(const Kit *k) const
 {
     Q_UNUSED(k);
-    QList<ToolChain *> tcList = ToolChainManager::toolChains();
-    if (tcList.isEmpty())
-        return QString();
-
-    Abi abi = Abi::hostAbi();
-
-    ToolChain *tc = Utils::findOr(tcList, tcList.first(),
-                                  Utils::equal(&ToolChain::targetAbi, abi));
-
-    return tc->id();
+    return defaultValue();
 }
 
 QList<Task> ToolChainKitInformation::validate(const Kit *k) const
 {
     QList<Task> result;
 
-    const ToolChain* toolchain = toolChain(k);
-    if (!toolchain) {
+    const QList<ToolChain*> tcList = toolChains(k);
+    if (tcList.isEmpty()) {
         result << Task(Task::Error, ToolChainKitInformation::msgNoToolChainInTarget(),
                        Utils::FileName(), -1, Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM));
     } else {
-        result << toolchain->validateKit(k);
+        foreach (ToolChain *tc, tcList)
+            result << tc->validateKit(k);
     }
     return result;
 }
@@ -173,12 +165,13 @@ QList<Task> ToolChainKitInformation::validate(const Kit *k) const
 void ToolChainKitInformation::fix(Kit *k)
 {
     QTC_ASSERT(ToolChainManager::isLoaded(), return);
-    if (toolChain(k))
-        return;
-
-    qWarning("No tool chain set from kit \"%s\".",
-             qPrintable(k->displayName()));
-    setToolChain(k, 0); // make sure to clear out no longer known tool chains
+    foreach (ToolChain::Language l, ToolChain::allLanguages()) {
+        if (!toolChain(k, l)) {
+            qWarning("No tool chain set from kit \"%s\".",
+                     qPrintable(k->displayName()));
+            setToolChain(k, l, nullptr); // make sure to clear out no longer known tool chains
+        }
+    }
 }
 
 void ToolChainKitInformation::setup(Kit *k)
@@ -206,19 +199,19 @@ KitConfigWidget *ToolChainKitInformation::createConfigWidget(Kit *k) const
 
 QString ToolChainKitInformation::displayNamePostfix(const Kit *k) const
 {
-    ToolChain *tc = toolChain(k);
+    ToolChain *tc = toolChain(k, ToolChain::Language::Cxx);
     return tc ? tc->displayName() : QString();
 }
 
 KitInformation::ItemList ToolChainKitInformation::toUserOutput(const Kit *k) const
 {
-    ToolChain *tc = toolChain(k);
+    ToolChain *tc = toolChain(k, ToolChain::Language::Cxx);
     return ItemList() << qMakePair(tr("Compiler"), tc ? tc->displayName() : tr("None"));
 }
 
 void ToolChainKitInformation::addToEnvironment(const Kit *k, Utils::Environment &env) const
 {
-    ToolChain *tc = toolChain(k);
+    ToolChain *tc = toolChain(k, ToolChain::Language::Cxx);
     if (tc)
         tc->addToEnvironment(env);
 }
@@ -228,13 +221,13 @@ void ToolChainKitInformation::addToMacroExpander(Kit *kit, Utils::MacroExpander 
     // FIXME: Use better strings
     expander->registerVariable("Compiler:Name", tr("Compiler"),
                                [this, kit]() -> QString {
-                                   const ToolChain *tc = toolChain(kit);
+                                   const ToolChain *tc = toolChain(kit, ToolChain::Language::Cxx);
                                    return tc ? tc->displayName() : tr("None");
                                });
 
     expander->registerVariable("Compiler:Executable", tr("Path to the compiler executable"),
                                [this, kit]() -> QString {
-                                   const ToolChain *tc = toolChain(kit);
+                                   const ToolChain *tc = toolChain(kit, ToolChain::Language::Cxx);
                                    return tc ? tc->compilerCommand().toString() : QString();
                                });
 }
@@ -242,7 +235,7 @@ void ToolChainKitInformation::addToMacroExpander(Kit *kit, Utils::MacroExpander 
 
 IOutputParser *ToolChainKitInformation::createOutputParser(const Kit *k) const
 {
-    ToolChain *tc = toolChain(k);
+    ToolChain *tc = toolChain(k, ToolChain::Language::Cxx);
     if (tc)
         return tc->outputParser();
     return 0;
@@ -253,22 +246,73 @@ Core::Id ToolChainKitInformation::id()
     return "PE.Profile.ToolChain";
 }
 
-ToolChain *ToolChainKitInformation::toolChain(const Kit *k)
+ToolChain *ToolChainKitInformation::toolChain(const Kit *k, ToolChain::Language l)
 {
     QTC_ASSERT(ToolChainManager::isLoaded(), return 0);
     if (!k)
         return 0;
-    return ToolChainManager::findToolChain(k->value(ToolChainKitInformation::id()).toByteArray());
+    QVariantMap value = readValue(k);
+    const QByteArray id = value.value(ToolChain::languageId(l), QByteArray()).toByteArray();
+    return ToolChainManager::findToolChain(id);
+}
+
+QList<ToolChain *> ToolChainKitInformation::toolChains(const Kit *k)
+{
+    const QVariantMap value = readValue(k);
+    const QList<ToolChain *> tcList
+            = Utils::transform(ToolChain::allLanguages().toList(),
+                               [&value](ToolChain::Language l) -> ToolChain * {
+                                   return ToolChainManager::findToolChain(value.value(ToolChain::languageId(l)).toByteArray());
+                               });
+    return Utils::filtered(tcList, [](ToolChain *tc) { return tc; });
 }
 
 void ToolChainKitInformation::setToolChain(Kit *k, ToolChain *tc)
 {
-    k->setValue(ToolChainKitInformation::id(), tc ? QString::fromUtf8(tc->id()) : QString());
+    QTC_ASSERT(tc, return);
+    setToolChain(k, tc->language(), tc);
+}
+
+void ToolChainKitInformation::setToolChain(Kit *k, ToolChain::Language l, ToolChain *tc)
+{
+    if (l == ToolChain::Language::None)
+        return;
+
+    QVariantMap result = readValue(k);
+    result.insert(ToolChain::languageId(l), tc ? tc->id() : QByteArray());
+    k->setValue(id(), result);
 }
 
 QString ToolChainKitInformation::msgNoToolChainInTarget()
 {
     return tr("No compiler set in kit.");
+}
+
+QVariantMap ToolChainKitInformation::readValue(const Kit *k)
+{
+    QVariant value = k->value(ToolChainKitInformation::id());
+    if (value.isNull())
+        value = defaultValue();
+    else if (value.type() == QVariant::String) {
+        // Legacy value: Convert...
+        QVariantMap tmp;
+        tmp.insert(ToolChain::languageDisplayName(ToolChain::Language::Cxx), value.toString());
+        value = tmp;
+    }
+    return value.toMap();
+}
+
+QVariant ToolChainKitInformation::defaultValue()
+{
+    Abi abi = Abi::hostAbi();
+    QList<ToolChain *> tcList = Utils::filtered(ToolChainManager::toolChains(),
+                                                Utils::equal(&ToolChain::targetAbi, abi));
+    QVariantMap result;
+    foreach (ToolChain::Language l, ToolChain::allLanguages()) {
+        ToolChain *tc = Utils::findOrDefault(tcList, Utils::equal(&ToolChain::language, l));
+        result.insert(ToolChain::languageId(l), tc ? tc->id() : QByteArray());
+    }
+    return result;
 }
 
 void ToolChainKitInformation::kitsWereLoaded()
@@ -284,7 +328,7 @@ void ToolChainKitInformation::kitsWereLoaded()
 
 void ToolChainKitInformation::toolChainUpdated(ToolChain *tc)
 {
-    auto matcher = KitMatcher([tc, this](const Kit *k) { return toolChain(k) == tc; });
+    auto matcher = KitMatcher([tc, this](const Kit *k) { return toolChain(k, ToolChain::Language::Cxx) == tc; });
     foreach (Kit *k, KitManager::matchingKits(matcher))
         notifyAboutUpdate(k);
 }

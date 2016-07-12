@@ -118,6 +118,7 @@ public:
     };
     static const QSet<Language>& allLanguages();
     static QString languageDisplayName(Language language);
+    static QString languageId(Language l);
 
     Language language() const;
 

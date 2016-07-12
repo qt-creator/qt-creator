@@ -62,7 +62,8 @@ void ClangStaticAnalyzerUnitTests::initTestCase()
     const QList<Kit *> allKits = KitManager::kits();
     if (allKits.count() != 1)
         QSKIP("This test requires exactly one kit to be present");
-    const ToolChain * const toolchain = ToolChainKitInformation::toolChain(allKits.first());
+    const ToolChain * const toolchain = ToolChainKitInformation::toolChain(allKits.first(),
+                                                                           ToolChain::Language::Cxx);
     if (!toolchain)
         QSKIP("This test requires that there is a kit with a toolchain.");
     bool hasClangExecutable;

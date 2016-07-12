@@ -251,7 +251,7 @@ void CMakeProject::parseCMakeOutput()
 
     createGeneratedCodeModelSupport();
 
-    ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(k);
+    ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(k, ToolChain::Language::Cxx);
     if (!tc) {
         emit fileListChanged();
         return;

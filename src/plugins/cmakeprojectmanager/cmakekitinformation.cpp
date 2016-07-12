@@ -187,7 +187,7 @@ QVariant CMakeGeneratorKitInformation::defaultValue(const Kit *k) const
     }
     if (Utils::HostOsInfo::isWindowsHost()) {
         // *sigh* Windows with its zoo of incompatible stuff again...
-        ToolChain *tc = ToolChainKitInformation::toolChain(k);
+        ToolChain *tc = ToolChainKitInformation::toolChain(k, ToolChain::Language::Cxx);
         if (tc && tc->typeId() == ProjectExplorer::Constants::MINGW_TOOLCHAIN_TYPEID) {
             if (it == known.constEnd())
                 it = std::find_if(known.constBegin(), known.constEnd(),
@@ -343,7 +343,7 @@ QVariant CMakeConfigurationKitInformation::defaultValue(const Kit *k) const
 QList<Task> CMakeConfigurationKitInformation::validate(const Kit *k) const
 {
     const QtSupport::BaseQtVersion *const version = QtSupport::QtKitInformation::qtVersion(k);
-    const ToolChain *const tc = ToolChainKitInformation::toolChain(k);
+    const ToolChain *const tc = ToolChainKitInformation::toolChain(k, ToolChain::Language::Cxx);
     const CMakeConfig config = configuration(k);
 
     QByteArray qmakePath;

@@ -82,7 +82,7 @@ Core::Id AndroidGdbServerKitInformation::id()
 bool AndroidGdbServerKitInformation::isAndroidKit(const Kit *kit)
 {
     QtSupport::BaseQtVersion *qt = QtSupport::QtKitInformation::qtVersion(kit);
-    ToolChain *tc = ToolChainKitInformation::toolChain(kit);
+    ToolChain *tc = ToolChainKitInformation::toolChain(kit, ToolChain::Language::Cxx);
     if (qt && tc)
         return qt->type() == QLatin1String(Constants::ANDROIDQT)
                 && tc->typeId() == Constants::ANDROID_TOOLCHAIN_ID;
@@ -102,7 +102,7 @@ void AndroidGdbServerKitInformation::setGdbSever(Kit *kit, const FileName &gdbSe
 
 FileName AndroidGdbServerKitInformation::autoDetect(const Kit *kit)
 {
-    ToolChain *tc = ToolChainKitInformation::toolChain(kit);
+    ToolChain *tc = ToolChainKitInformation::toolChain(kit, ToolChain::Language::Cxx);
     if (!tc || tc->typeId() != Constants::ANDROID_TOOLCHAIN_ID)
         return FileName();
     auto atc = static_cast<AndroidToolChain *>(tc);

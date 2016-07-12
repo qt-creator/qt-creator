@@ -366,7 +366,7 @@ static DebuggerRunControl *doCreate(DebuggerRunParameters rp, RunConfiguration *
         }
     }
 
-    if (ToolChain *tc = ToolChainKitInformation::toolChain(kit))
+    if (ToolChain *tc = ToolChainKitInformation::toolChain(kit, ToolChain::Language::Cxx))
         rp.toolChainAbi = tc->targetAbi();
 
     if (false) {

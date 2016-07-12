@@ -1200,8 +1200,8 @@ static bool equalKits(Kit *a, Kit *b)
 {
     if (QtSupport::QtKitInformation::qtVersion(a) != QtSupport::QtKitInformation::qtVersion(b))
         return false;
-    ToolChain *atc = ToolChainKitInformation::toolChain(a);
-    ToolChain *btc = ToolChainKitInformation::toolChain(b);
+    ToolChain *atc = ToolChainKitInformation::toolChain(a, ToolChain::Language::Cxx);
+    ToolChain *btc = ToolChainKitInformation::toolChain(b, ToolChain::Language::Cxx);
     if (atc == btc)
         return true;
     if (!atc || atc->typeId() != Constants::ANDROID_TOOLCHAIN_ID)
@@ -1267,7 +1267,7 @@ void AndroidConfigurations::updateAutomaticKitList()
             continue;
 
         // Update code for 3.0 beta, which shipped with a bug for the debugger settings
-        ToolChain *tc =ToolChainKitInformation::toolChain(k);
+        ToolChain *tc = ToolChainKitInformation::toolChain(k, ToolChain::Language::Cxx);
         if (tc && Debugger::DebuggerKitInformation::debuggerCommand(k) != tc->suggestedDebugger()) {
             Debugger::DebuggerItem debugger;
             debugger.setCommand(tc->suggestedDebugger());
@@ -1341,7 +1341,7 @@ void AndroidConfigurations::updateAutomaticKitList()
                 newKits.removeAt(j);
                 existingKits.at(i)->makeSticky();
                 existingKits.removeAt(i);
-                ToolChainKitInformation::setToolChain(existingKit, ToolChainKitInformation::toolChain(newKit));
+                ToolChainKitInformation::setToolChain(existingKit, ToolChainKitInformation::toolChain(newKit, ToolChain::Language::Cxx));
                 KitManager::deleteKit(newKit);
                 j = newKits.count();
             }
@@ -1349,7 +1349,7 @@ void AndroidConfigurations::updateAutomaticKitList()
     }
 
     foreach (Kit *k, existingKits) {
-        ToolChain *tc = ToolChainKitInformation::toolChain(k);
+        ToolChain *tc = ToolChainKitInformation::toolChain(k, ToolChain::Language::Cxx);
         QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitInformation::qtVersion(k);
         if (tc && tc->typeId() == Constants::ANDROID_TOOLCHAIN_ID
                 && tc->isValid()
@@ -1362,7 +1362,7 @@ void AndroidConfigurations::updateAutomaticKitList()
     }
 
     foreach (Kit *kit, newKits) {
-        AndroidToolChain *tc = static_cast<AndroidToolChain *>(ToolChainKitInformation::toolChain(kit));
+        AndroidToolChain *tc = static_cast<AndroidToolChain *>(ToolChainKitInformation::toolChain(kit, ToolChain::Language::Cxx));
         AndroidQtVersion *qt = static_cast<AndroidQtVersion *>(QtSupport::QtKitInformation::qtVersion(kit));
         kit->setUnexpandedDisplayName(tr("Android for %1 (GCC %2, Qt %3)")
                             .arg(qt->targetArch())

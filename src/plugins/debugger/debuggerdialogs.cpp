@@ -110,7 +110,7 @@ DebuggerKitChooser::DebuggerKitChooser(Mode mode, QWidget *parent)
         if (!DebuggerKitInformation::isValidDebugger(k))
             return false;
         if (m_mode == LocalDebugging) {
-            const ToolChain *tc = ToolChainKitInformation::toolChain(k);
+            const ToolChain *tc = ToolChainKitInformation::toolChain(k, ToolChain::Language::Cxx);
             return tc && tc->targetAbi().os() == m_hostAbi.os();
         }
         return true;

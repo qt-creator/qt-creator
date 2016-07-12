@@ -386,7 +386,9 @@ QString PuppetCreator::buildCommand() const
     Utils::Environment environment = Utils::Environment::systemEnvironment();
     m_kit->addToEnvironment(environment);
 
-    ProjectExplorer::ToolChain *toolChain = ProjectExplorer::ToolChainKitInformation::toolChain(m_kit);
+    ProjectExplorer::ToolChain *toolChain
+            = ProjectExplorer::ToolChainKitInformation::toolChain(m_kit,
+                                                                  ProjectExplorer::ToolChain::Language::Cxx);
 
     if (toolChain)
         return toolChain->makeCommand(environment);

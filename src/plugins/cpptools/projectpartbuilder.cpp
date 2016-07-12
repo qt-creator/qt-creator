@@ -273,7 +273,7 @@ QString targetTriple(ProjectExplorer::Project *project, const Core::Id &toolchai
 
     if (project) {
         if (Target *target = project->activeTarget()) {
-            if (ToolChain *toolChain = ToolChainKitInformation::toolChain(target->kit()))
+            if (ToolChain *toolChain = ToolChainKitInformation::toolChain(target->kit(), ToolChain::Language::Cxx))
                 return toolChain->originalTargetTriple();
         }
     }
@@ -361,7 +361,7 @@ void ProjectPartBuilder::createProjectPart(const QVector<ProjectFile> &theSource
     QTC_ASSERT(part->project, return);
     if (ProjectExplorer::Target *activeTarget = part->project->activeTarget()) {
         if (ProjectExplorer::Kit *kit = activeTarget->kit()) {
-            if (ProjectExplorer::ToolChain *toolChain = ProjectExplorer::ToolChainKitInformation::toolChain(kit)) {
+            if (ProjectExplorer::ToolChain *toolChain = ProjectExplorer::ToolChainKitInformation::toolChain(kit, ProjectExplorer::ToolChain::Language::Cxx)) {
                 const QStringList flags = languageVersion >= ProjectPart::CXX98 ? m_cxxFlags
                                                                                 : m_cFlags;
                 evaluateProjectPartToolchain(part.data(),

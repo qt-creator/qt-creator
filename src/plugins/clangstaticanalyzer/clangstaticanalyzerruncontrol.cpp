@@ -83,7 +83,7 @@ ClangStaticAnalyzerRunControl::ClangStaticAnalyzerRunControl(
     QTC_ASSERT(buildConfiguration, return);
     m_environment = buildConfiguration->environment();
 
-    ToolChain *toolChain = ToolChainKitInformation::toolChain(target->kit());
+    ToolChain *toolChain = ToolChainKitInformation::toolChain(target->kit(), ToolChain::Language::Cxx);
     QTC_ASSERT(toolChain, return);
     m_extraToolChainInfo.wordWidth = toolChain->targetAbi().wordWidth();
     m_extraToolChainInfo.targetTriple = toolChain->originalTargetTriple();
@@ -427,7 +427,7 @@ static QDebug operator<<(QDebug debug, const AnalyzeUnits &analyzeUnits)
 static Core::Id toolchainType(ProjectExplorer::RunConfiguration *runConfiguration)
 {
     QTC_ASSERT(runConfiguration, return Core::Id());
-    return ToolChainKitInformation::toolChain(runConfiguration->target()->kit())->typeId();
+    return ToolChainKitInformation::toolChain(runConfiguration->target()->kit(), ToolChain::Language::Cxx)->typeId();
 }
 
 void ClangStaticAnalyzerRunControl::start()

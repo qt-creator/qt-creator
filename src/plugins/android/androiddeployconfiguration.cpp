@@ -114,7 +114,7 @@ QList<Core::Id> AndroidDeployConfigurationFactory::availableCreationIds(Target *
     if (!parent->project()->supportsKit(parent->kit()))
         return ids;
 
-    ToolChain *tc = ToolChainKitInformation::toolChain(parent->kit());
+    ToolChain *tc = ToolChainKitInformation::toolChain(parent->kit(), ToolChain::Language::Cxx);
 
     if (!tc || tc->targetAbi().osFlavor() != Abi::AndroidLinuxFlavor)
         return ids;

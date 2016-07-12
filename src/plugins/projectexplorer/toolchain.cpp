@@ -168,6 +168,19 @@ QString ToolChain::languageDisplayName(Language language)
     return QString();
 }
 
+QString ToolChain::languageId(ToolChain::Language l)
+{
+    switch (l) {
+    case Language::None:
+        return "None";
+    case Language::C:
+        return "C";
+    case Language::Cxx:
+        return "C++";
+    };
+    return QString();
+}
+
 ToolChain::Language ToolChain::language() const
 {
     return d->m_language;

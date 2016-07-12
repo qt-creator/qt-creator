@@ -171,7 +171,7 @@ void ToolChainInformationConfigWidget::refresh()
 
     m_comboBox->setEnabled(m_comboBox->count() > 1 && !m_isReadOnly);
 
-    const int index = indexOf(ToolChainKitInformation::toolChain(m_kit));
+    const int index = indexOf(ToolChainKitInformation::toolChain(m_kit, ToolChain::Language::Cxx));
     m_comboBox->setCurrentIndex(index);
     m_ignoreChanges = false;
 }
@@ -203,7 +203,7 @@ void ToolChainInformationConfigWidget::currentToolChainChanged(int idx)
         return;
 
     const QByteArray id = m_comboBox->itemData(idx).toByteArray();
-    ToolChainKitInformation::setToolChain(m_kit, ToolChainManager::findToolChain(id));
+    ToolChainKitInformation::setToolChain(m_kit, ToolChain::Language::Cxx, ToolChainManager::findToolChain(id));
 }
 
 int ToolChainInformationConfigWidget::indexOf(const ToolChain *tc)

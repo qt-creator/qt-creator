@@ -72,7 +72,7 @@ LibraryDetailsController::LibraryDetailsController(
         const Project *project = SessionManager::projectForFile(Utils::FileName::fromString(proFile));
         if (project && project->activeTarget()) {
             // if its tool chain is maemo behave the same as we would be on linux
-            ProjectExplorer::ToolChain *tc = ToolChainKitInformation::toolChain(project->activeTarget()->kit());
+            ProjectExplorer::ToolChain *tc = ToolChainKitInformation::toolChain(project->activeTarget()->kit(), ToolChain::Language::Cxx);
             if (tc) {
                 switch (tc->targetAbi().os()) {
                 case Abi::WindowsOS:

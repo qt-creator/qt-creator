@@ -482,7 +482,7 @@ void QmakeProject::updateCppCodeModel()
 
             const QStringList cxxflags = pro->variableValue(CppFlagsVar);
             CppTools::ProjectPartBuilder::evaluateProjectPartToolchain(objcppPart.data(),
-                                                                       ToolChainKitInformation::toolChain(k),
+                                                                       ToolChainKitInformation::toolChain(k, ToolChain::Language::Cxx),
                                                                        cxxflags,
                                                                        SysRootKitInformation::sysRoot(k));
 
@@ -524,8 +524,8 @@ void QmakeProject::updateCppCodeModel()
                                            ProjectFile::CXXSource));
         const QStringList cxxflags = pro->variableValue(CppFlagsVar);
         CppTools::ProjectPartBuilder::evaluateProjectPartToolchain(
-                    cppPart.data(), ToolChainKitInformation::toolChain(k), cxxflags,
-                    SysRootKitInformation::sysRoot(k));
+                    cppPart.data(), ToolChainKitInformation::toolChain(k, ToolChain::Language::Cxx),
+                    cxxflags, SysRootKitInformation::sysRoot(k));
         if (!cppPart->files.isEmpty()) {
             pinfo.appendProjectPart(cppPart);
             setProjectLanguage(ProjectExplorer::Constants::LANG_CXX, true);
@@ -1440,7 +1440,7 @@ void QmakeProject::collectLibraryData(const QmakeProFileNode *node, DeploymentDa
     if (targetPath.isEmpty())
         return;
     const Kit * const kit = activeTarget()->kit();
-    const ToolChain * const toolchain = ToolChainKitInformation::toolChain(kit);
+    const ToolChain * const toolchain = ToolChainKitInformation::toolChain(kit, ToolChain::Language::Cxx);
     if (!toolchain)
         return;
 
@@ -1536,7 +1536,7 @@ bool QmakeProject::matchesKit(const Kit *kit)
 QString QmakeProject::executableFor(const QmakeProFileNode *node)
 {
     const Kit * const kit = activeTarget()->kit();
-    const ToolChain * const toolchain = ToolChainKitInformation::toolChain(kit);
+    const ToolChain * const toolchain = ToolChainKitInformation::toolChain(kit, ToolChain::Language::Cxx);
     if (!toolchain)
         return QString();
 

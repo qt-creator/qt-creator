@@ -64,7 +64,8 @@ bool AndroidPackageInstallationStep::init(QList<const BuildStep *> &earlierSteps
             dirPath = QDir::toNativeSeparators(dirPath);
 
     ProjectExplorer::ToolChain *tc
-            = ProjectExplorer::ToolChainKitInformation::toolChain(target()->kit());
+            = ProjectExplorer::ToolChainKitInformation::toolChain(target()->kit(),
+                                                                  ProjectExplorer::ToolChain::Language::Cxx);
 
     ProjectExplorer::ProcessParameters *pp = processParameters();
     pp->setMacroExpander(bc->macroExpander());

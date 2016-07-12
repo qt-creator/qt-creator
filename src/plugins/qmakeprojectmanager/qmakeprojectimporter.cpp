@@ -177,7 +177,7 @@ QList<BuildInfo *> QmakeProjectImporter::import(const FileName &importPath, bool
         foreach (Kit *k, KitManager::kits()) {
             BaseQtVersion *kitVersion = QtKitInformation::qtVersion(k);
             FileName kitSpec = QmakeKitInformation::mkspec(k);
-            ToolChain *tc = ToolChainKitInformation::toolChain(k);
+            ToolChain *tc = ToolChainKitInformation::toolChain(k, ToolChain::Language::Cxx);
             if (kitSpec.isEmpty() && kitVersion)
                 kitSpec = kitVersion->mkspecFor(tc);
             QMakeStepConfig::TargetArchConfig kitTargetArch = QMakeStepConfig::NoArch;

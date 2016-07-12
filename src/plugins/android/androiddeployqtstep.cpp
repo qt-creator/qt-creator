@@ -176,7 +176,7 @@ bool AndroidDeployQtStep::init(QList<const BuildStep *> &earlierSteps)
     m_libdir = QLatin1String("lib");
     if (info.cpuAbi.contains(QLatin1String("arm64-v8a")) ||
             info.cpuAbi.contains(QLatin1String("x86_64"))) {
-        ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(target()->kit());
+        ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(target()->kit(), ToolChain::Language::Cxx);
         if (tc && tc->targetAbi().wordWidth() == 64) {
             m_appProcessBinaries << QLatin1String("/system/bin/app_process64");
             m_libdir += QLatin1String("64");

@@ -218,7 +218,7 @@ void QnxConfiguration::deactivate()
     foreach (Kit *kit, KitManager::kits()) {
         if (kit->isAutoDetected()
                 && DeviceTypeKitInformation::deviceTypeId(kit) == Constants::QNX_QNX_OS_TYPE
-                && toolChainsToRemove.contains(ToolChainKitInformation::toolChain(kit)))
+                && toolChainsToRemove.contains(ToolChainKitInformation::toolChain(kit, ToolChain::Language::Cxx)))
             KitManager::deregisterKit(kit);
     }
 

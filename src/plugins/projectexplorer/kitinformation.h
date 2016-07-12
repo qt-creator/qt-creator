@@ -25,17 +25,17 @@
 
 #pragma once
 
+#include "devicesupport/idevice.h"
 #include "kitmanager.h"
 #include "kit.h"
+#include "toolchain.h"
 
-#include "devicesupport/idevice.h"
 #include <utils/environment.h>
 
 #include <QVariant>
 
 namespace ProjectExplorer {
 
-class ToolChain;
 class KitConfigWidget;
 
 // --------------------------------------------------------------------------
@@ -92,12 +92,16 @@ public:
     IOutputParser *createOutputParser(const Kit *k) const override;
 
     static Core::Id id();
-    static ToolChain *toolChain(const Kit *k);
+    static ToolChain *toolChain(const Kit *k, ToolChain::Language l);
+    static QList<ToolChain *> toolChains(const Kit *k);
     static void setToolChain(Kit *k, ToolChain *tc);
+    static void setToolChain(Kit *k, ToolChain::Language l, ToolChain *tc);
 
     static QString msgNoToolChainInTarget();
 
 private:
+    static QVariantMap readValue(const Kit *k);
+    static QVariant defaultValue();
     void kitsWereLoaded();
     void toolChainUpdated(ProjectExplorer::ToolChain *tc);
     void toolChainRemoved(ProjectExplorer::ToolChain *tc);

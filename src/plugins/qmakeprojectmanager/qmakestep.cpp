@@ -161,7 +161,7 @@ QMakeStepConfig QMakeStep::deducedArguments() const
     ProjectExplorer::Kit *kit = target()->kit();
     QMakeStepConfig config;
     ProjectExplorer::ToolChain *tc
-            = ProjectExplorer::ToolChainKitInformation::toolChain(kit);
+            = ProjectExplorer::ToolChainKitInformation::toolChain(kit, ToolChain::Language::Cxx);
     ProjectExplorer::Abi targetAbi;
     if (tc)
         targetAbi = tc->targetAbi();

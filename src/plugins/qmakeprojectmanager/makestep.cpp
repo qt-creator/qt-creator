@@ -113,7 +113,7 @@ QString MakeStep::effectiveMakeCommand() const
     QString makeCmd = m_makeCmd;
     if (makeCmd.isEmpty()) {
         QmakeBuildConfiguration *bc = qmakeBuildConfiguration();
-        ToolChain *tc = ToolChainKitInformation::toolChain(target()->kit());
+        ToolChain *tc = ToolChainKitInformation::toolChain(target()->kit(), ToolChain::Language::Cxx);
 
         if (bc && tc)
             makeCmd = tc->makeCommand(bc->environment());
@@ -133,7 +133,7 @@ QVariantMap MakeStep::toMap() const
 
 QStringList MakeStep::automaticallyAddedArguments() const
 {
-    ToolChain *tc = ToolChainKitInformation::toolChain(target()->kit());
+    ToolChain *tc = ToolChainKitInformation::toolChain(target()->kit(), ToolChain::Language::Cxx);
     if (!tc || tc->targetAbi().binaryFormat() == Abi::PEFormat)
         return QStringList();
     return QStringList() << QLatin1String("-w") << QLatin1String("-r");
@@ -163,7 +163,7 @@ bool MakeStep::init(QList<const BuildStep *> &earlierSteps)
     if (!bc)
         emit addTask(Task::buildConfigurationMissingTask());
 
-    ToolChain *tc = ToolChainKitInformation::toolChain(target()->kit());
+    ToolChain *tc = ToolChainKitInformation::toolChain(target()->kit(), ToolChain::Language::Cxx);
     if (!tc)
         emit addTask(Task::compilerMissingTask());
 
@@ -392,7 +392,7 @@ MakeStepConfigWidget::~MakeStepConfigWidget()
 void MakeStepConfigWidget::updateDetails()
 {
     ToolChain *tc
-            = ToolChainKitInformation::toolChain(m_makeStep->target()->kit());
+            = ToolChainKitInformation::toolChain(m_makeStep->target()->kit(), ToolChain::Language::Cxx);
     QmakeBuildConfiguration *bc = m_makeStep->qmakeBuildConfiguration();
     if (!bc)
         bc = qobject_cast<QmakeBuildConfiguration *>(m_makeStep->target()->activeBuildConfiguration());

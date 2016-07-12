@@ -57,7 +57,7 @@ DebuggerKitInformation::DebuggerKitInformation()
 
 QVariant DebuggerKitInformation::defaultValue(const Kit *k) const
 {
-    ToolChain *tc = ToolChainKitInformation::toolChain(k);
+    ToolChain *tc = ToolChainKitInformation::toolChain(k, ToolChain::Language::Cxx);
     if (!tc)
         return QVariant();
 
@@ -87,7 +87,7 @@ void DebuggerKitInformation::setup(Kit *k)
     //  </valuemap>
     const QVariant rawId = k->value(DebuggerKitInformation::id());
 
-    const ToolChain *tc = ToolChainKitInformation::toolChain(k);
+    const ToolChain *tc = ToolChainKitInformation::toolChain(k, ToolChain::Language::Cxx);
 
     // Get the best of the available debugger matching the kit's toolchain.
     // The general idea is to find an item that exactly matches what
@@ -237,7 +237,7 @@ static unsigned debuggerConfigurationErrors(const Kit *k)
     else if (!fi.isExecutable())
         result |= DebuggerNotExecutable;
 
-    const ToolChain *tc = ToolChainKitInformation::toolChain(k);
+    const ToolChain *tc = ToolChainKitInformation::toolChain(k, ToolChain::Language::Cxx);
     if (tc && item->matchTarget(tc->targetAbi()) == DebuggerItem::DoesNotMatch) {
         // currently restricting the check to desktop devices, may be extended to all device types
         const IDevice::ConstPtr device = DeviceKitInformation::device(k);

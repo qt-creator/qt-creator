@@ -568,7 +568,7 @@ static std::function<bool(const Kit *)> cdbMatcher(char wordWidth = 0)
             return false;
         }
         if (wordWidth) {
-            const ToolChain *tc = ToolChainKitInformation::toolChain(k);
+            const ToolChain *tc = ToolChainKitInformation::toolChain(k, ToolChain::Language::Cxx);
             return tc && wordWidth == tc->targetAbi().wordWidth();
         }
         return true;
@@ -1103,14 +1103,14 @@ static Kit *guessKitFromParameters(const DebuggerRunParameters &rp)
     if (!abis.isEmpty()) {
         // Try exact abis.
         kit = KitManager::find(KitMatcher([abis](const Kit *k) -> bool {
-            if (const ToolChain *tc = ToolChainKitInformation::toolChain(k))
+            if (const ToolChain *tc = ToolChainKitInformation::toolChain(k, ToolChain::Language::Cxx))
                 return abis.contains(tc->targetAbi()) && DebuggerKitInformation::isValidDebugger(k);
             return false;
         }));
         if (!kit) {
             // Or something compatible.
             kit = KitManager::find(KitMatcher([abis](const Kit *k) -> bool {
-                if (const ToolChain *tc = ToolChainKitInformation::toolChain(k))
+                if (const ToolChain *tc = ToolChainKitInformation::toolChain(k, ToolChain::Language::Cxx))
                     foreach (const Abi &a, abis)
                         if (a.isCompatibleWith(tc->targetAbi()) && DebuggerKitInformation::isValidDebugger(k))
                             return true;
@@ -2081,7 +2081,7 @@ DebuggerRunControl *DebuggerPluginPrivate::attachToRunningProcess(Kit *kit,
     }
 
     bool isWindows = false;
-    if (const ToolChain *tc = ToolChainKitInformation::toolChain(kit))
+    if (const ToolChain *tc = ToolChainKitInformation::toolChain(kit, ToolChain::Language::Cxx))
         isWindows = tc->targetAbi().os() == Abi::WindowsOS;
     if (isWindows && isWinProcessBeingDebugged(process.pid)) {
         AsynchronousMessageBox::warning(tr("Process Already Under Debugger Control"),
