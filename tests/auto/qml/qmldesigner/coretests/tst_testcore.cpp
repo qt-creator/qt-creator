@@ -7800,7 +7800,9 @@ void tst_TestCore::loadGradient()
 
     {
         QCOMPARE(rootModelNode.directSubModelNodes().count(), 2);
-        ModelNode gradientNode = rootModelNode.directSubModelNodes().last();
+        QVERIFY(rootModelNode.defaultNodeListProperty().isValid());
+        QCOMPARE(rootModelNode.defaultNodeListProperty().toModelNodeList().count(), 1);
+        ModelNode gradientNode = rootModelNode.defaultNodeListProperty().toModelNodeList().first();
         QVERIFY(gradientNode.isValid());
         QVERIFY(!gradientNode.metaInfo().isSubclassOf("QtQuick.Item", -1, -1));
         QCOMPARE(gradientNode.type(), QmlDesigner::TypeName("QtQuick.Gradient"));
