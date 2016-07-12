@@ -156,8 +156,15 @@ QList<Task> ToolChainKitInformation::validate(const Kit *k) const
         result << Task(Task::Error, ToolChainKitInformation::msgNoToolChainInTarget(),
                        Utils::FileName(), -1, Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM));
     } else {
-        foreach (ToolChain *tc, tcList)
+        QSet<Abi> targetAbis;
+        foreach (ToolChain *tc, tcList) {
+            targetAbis.insert(tc->targetAbi());
             result << tc->validateKit(k);
+        }
+        if (targetAbis.count() != 1) {
+            result << Task(Task::Error, tr("Compilers produce code for different ABIs."),
+                           Utils::FileName(), -1, Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM));
+        }
     }
     return result;
 }
