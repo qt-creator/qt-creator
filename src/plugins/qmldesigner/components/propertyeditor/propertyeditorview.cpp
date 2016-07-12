@@ -40,6 +40,8 @@
 
 #include <nodeabstractproperty.h>
 
+#include <theming.h>
+
 #include <coreplugin/icore.h>
 #include <utils/fileutils.h>
 #include <coreplugin/messagebox.h>
@@ -80,8 +82,8 @@ PropertyEditorView::PropertyEditorView(QWidget *parent) :
     m_updateShortcut = new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_F3), m_stackedWidget);
     connect(m_updateShortcut, SIGNAL(activated()), this, SLOT(reloadQml()));
 
-    m_stackedWidget->setStyleSheet(
-            QString::fromUtf8(Utils::FileReader::fetchQrc(QStringLiteral(":/qmldesigner/stylesheet.css"))));
+    m_stackedWidget->setStyleSheet(Theming::replaceCssColors(
+            QString::fromUtf8(Utils::FileReader::fetchQrc(QStringLiteral(":/qmldesigner/stylesheet.css")))));
     m_stackedWidget->setMinimumWidth(320);
     m_stackedWidget->move(0, 0);
     connect(m_stackedWidget, SIGNAL(resized()), this, SLOT(updateSize()));

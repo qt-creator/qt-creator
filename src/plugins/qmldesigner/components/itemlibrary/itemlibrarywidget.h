@@ -34,6 +34,7 @@
 #include <QToolButton>
 #include <QFileIconProvider>
 #include <QQuickWidget>
+#include <QQmlPropertyMap>
 #include <QTimer>
 
 QT_BEGIN_NAMESPACE
@@ -129,6 +130,7 @@ private:
     QPointer<Model> m_model;
     FilterChangeFlag m_filterFlag;
     ItemLibraryEntry m_currentitemLibraryEntry;
+    QQmlPropertyMap m_themeProperties;
 };
 
 }

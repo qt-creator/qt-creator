@@ -35,6 +35,8 @@
 #include <variantproperty.h>
 #include <bindingproperty.h>
 
+#include <theming.h>
+
 #include <coreplugin/icore.h>
 #include <qmljs/qmljssimplereader.h>
 #include <utils/algorithm.h>
@@ -99,6 +101,9 @@ PropertyEditorQmlBackend::PropertyEditorQmlBackend(PropertyEditorView *propertyE
     context()->setContextProperty(QLatin1String("dummyBackendValue"), m_dummyPropertyEditorValue.data());
     m_contextObject->setBackendValues(&m_backendValuesPropertyMap);
     m_contextObject->insertInQmlContext(context());
+
+    Theming::insertTheme(&m_themeProperties);
+    context()->setContextProperty(QLatin1String("creatorTheme"), &m_themeProperties);
 
     QObject::connect(&m_backendValuesPropertyMap, &DesignerPropertyMap::valueChanged, propertyEditor, &PropertyEditorView::changeValue);
 }

@@ -57,7 +57,7 @@ FocusScope {
     Rectangle {
         id: background
         anchors.fill: parent
-        color: "#4f4f4f"
+        color: creatorTheme.QmlDesignerBackgroundColorDarkAlternate
     }
 
     MouseArea {
@@ -109,7 +109,7 @@ FocusScope {
 
             style: ButtonStyle {
                 background: Rectangle {
-                    property color buttonBaseColor: "#6f6f6f"
+                    property color buttonBaseColor: Qt.darker(creatorTheme.QmlDesignerBackgroundColorDarkAlternate, 1.1)
                     color: control.hovered ? Qt.lighter(buttonBaseColor, 1.2)  : buttonBaseColor
                     border.width: 1
                     Image {

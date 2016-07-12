@@ -68,12 +68,8 @@ Item {
             roundRight: isLast()
 
             anchors.fill: parent
-            z: checked ? 1 : 0
-
-            gradient: Gradient {
-                GradientStop {color: '#444' ; position: 0}
-                GradientStop {color: '#333' ; position: 1}
-            }
+            visible: checked
+            color: creatorTheme.QmlDesignerBackgroundColorDarker
         }
 
         RoundedPanel {
@@ -81,7 +77,8 @@ Item {
             roundRight: isLast()
 
             anchors.fill: parent
-            z: !checked ? 1 : 0
+            visible: !checked
+            color: creatorTheme.BackgroundColorDark
         }
     }
 

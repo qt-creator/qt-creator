@@ -29,6 +29,8 @@
 #include "stateseditorimageprovider.h"
 #include "stateseditoriconprovider.h"
 
+#include <theming.h>
+
 #include <invalidqmlsourceexception.h>
 
 #include <coreplugin/icore.h>
@@ -98,6 +100,9 @@ StatesEditorWidget::StatesEditorWidget(StatesEditorView *statesEditorView, State
     rootContext()->setContextProperty(QStringLiteral("highlightColor"), Utils::StyleHelper::notTooBrightHighlightColor());
 
     rootContext()->setContextProperty(QLatin1String("canAddNewStates"), true);
+
+    Theming::insertTheme(&m_themeProperties);
+    rootContext()->setContextProperty(QLatin1String("creatorTheme"), &m_themeProperties);
 
     engine()->addImageProvider(QLatin1String("icons"), new StatesEditorIconProvider());
 

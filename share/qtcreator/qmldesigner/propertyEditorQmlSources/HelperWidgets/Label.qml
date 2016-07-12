@@ -36,7 +36,7 @@ Controls.Label {
     property alias toolTip: toolTipArea.tooltip
 
     width: Math.max(Math.min(240, parent.width - 220), 80)
-    color: "#eee"
+    color: creatorTheme.PanelTextColorLight
     elide: Text.ElideRight
 
     Layout.preferredWidth: width

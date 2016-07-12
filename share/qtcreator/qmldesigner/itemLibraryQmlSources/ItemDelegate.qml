@@ -28,9 +28,9 @@ import QtQuick.Controls 1.1
 import QtQuick.Controls.Styles 1.0
 
 Rectangle {
-    color: styleConstants.lighterBackgroundColor
+    color: creatorTheme.QmlDesignerBackgroundColorLighter
 
-    border.color: styleConstants.backgroundColor
+    border.color: creatorTheme.BackgroundColorDark
     border.width: 1
 
 
@@ -63,7 +63,7 @@ Rectangle {
         verticalAlignment: Qt.AlignVCenter
         horizontalAlignment: Qt.AlignHCenter
         text: itemName  // to be set by model
-        color: "#FFFFFF"
+        color: creatorTheme.PanelTextColorLight
         renderType: Text.NativeRendering
     }
 

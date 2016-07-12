@@ -112,7 +112,7 @@ Controls.ComboBox {
 
     ExtendedFunctionButton {
         x: 2
-        y: 4
+        y: 6
         backendValue: comboBox.backendValue
         visible: comboBox.enabled
     }

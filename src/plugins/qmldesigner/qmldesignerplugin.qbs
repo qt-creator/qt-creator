@@ -381,6 +381,8 @@ Project {
                 "componentcore/findimplementation.h",
                 "componentcore/layoutingridlayout.cpp",
                 "componentcore/layoutingridlayout.h",
+                "componentcore/theming.cpp",
+                "componentcore/theming.h",
                 "componentcore/modelnodecontextmenu.cpp",
                 "componentcore/modelnodecontextmenu.h",
                 "componentcore/modelnodecontextmenu_helper.cpp",

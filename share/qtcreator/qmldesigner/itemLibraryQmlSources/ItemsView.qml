@@ -64,8 +64,8 @@ ScrollView {
 
     Item {
         id: styleConstants
-        property color backgroundColor: "#4f4f4f"
-        property color lighterBackgroundColor: "#5f5f5f"
+        readonly property color backgroundColor: creatorTheme.QmlDesignerBackgroundColorDarkAlternate
+        readonly property color lighterBackgroundColor: creatorTheme.FancyToolBarSeparatorColor
 
         property int textWidth: 58
         property int textHeight: 22

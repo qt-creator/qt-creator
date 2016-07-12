@@ -52,7 +52,7 @@ Controls.TextField {
 
     ExtendedFunctionButton {
         x: 2
-        y: 4
+        y: 6
         backendValue: lineEdit.backendValue
         visible: lineEdit.enabled && showExtendedFunctionButton
     }
@@ -105,31 +105,21 @@ Controls.TextField {
     }
 
     style: TextFieldStyle {
-        selectionColor: lineEdit.textColor
-        selectedTextColor: "black"
-        textColor: lineEdit.textColor
+
+        selectionColor: creatorTheme.PanelTextColorLight
+        selectedTextColor: creatorTheme.PanelTextColorMid
+        textColor: creatorTheme.PanelTextColorLight
+        placeholderTextColor: creatorTheme.PanelTextColorMid
+
         padding.top: 3
-        padding.bottom: 1
+        padding.bottom: 3
         padding.left: 16
         padding.right: lineEdit.showTranslateCheckBox ? 16 : 1
-        placeholderTextColor: "gray"
         background: Rectangle {
             implicitWidth: 100
-            implicitHeight: 23
-            border.color: borderColor
-            gradient: Gradient {
-                GradientStop {color: "#2c2c2c" ; position: 0}
-                GradientStop {color: "#343434" ; position: 0.15}
-                GradientStop {color: "#373737" ; position: 1.0}
-            }
-            Rectangle {
-                border.color: highlightColor
-                anchors.fill: parent
-                anchors.margins: -1
-                color: "transparent"
-                opacity: 0.3
-                visible: control.activeFocus
-            }
+            implicitHeight: 24
+            color: creatorTheme.FancyToolButtonSelectedColor
+            border.color: creatorTheme.QmlDesignerBackgroundColorDarker
         }
     }
 

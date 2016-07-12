@@ -103,7 +103,7 @@ Rectangle {
 
         // as we change the background we need to change the text
         // color to see some text
-        textColor: "#FFFFFF"
+        textColor: creatorTheme.PanelTextColorLight
     }
 
     Item {

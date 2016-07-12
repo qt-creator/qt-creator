@@ -25,6 +25,8 @@
 
 #include "itemlibrarywidget.h"
 
+#include <theming.h>
+
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 #include <utils/stylehelper.h>
@@ -81,6 +83,8 @@ ItemLibraryWidget::ItemLibraryWidget(QWidget *parent) :
     rootContext->setContextProperty(QStringLiteral("itemLibraryIconWidth"), m_itemIconSize.width());
     rootContext->setContextProperty(QStringLiteral("itemLibraryIconHeight"), m_itemIconSize.height());
     rootContext->setContextProperty(QStringLiteral("rootView"), this);
+    Theming::insertTheme(&m_themeProperties);
+    rootContext->setContextProperty(QLatin1String("creatorTheme"), &m_themeProperties);
 
     m_itemViewQuickWidget->rootContext()->setContextProperty(QStringLiteral("highlightColor"), Utils::StyleHelper::notTooBrightHighlightColor());
 
@@ -141,8 +145,8 @@ ItemLibraryWidget::ItemLibraryWidget(QWidget *parent) :
     setSearchFilter(QString());
 
     /* style sheets */
-    setStyleSheet(QString::fromUtf8(Utils::FileReader::fetchQrc(QLatin1String(":/qmldesigner/stylesheet.css"))));
-    m_resourcesView->setStyleSheet(QString::fromUtf8(Utils::FileReader::fetchQrc(QLatin1String(":/qmldesigner/scrollbar.css"))));
+    setStyleSheet(Theming::replaceCssColors(QString::fromUtf8(Utils::FileReader::fetchQrc(QLatin1String(":/qmldesigner/stylesheet.css")))));
+    m_resourcesView->setStyleSheet(Theming::replaceCssColors(QString::fromUtf8(Utils::FileReader::fetchQrc(QLatin1String(":/qmldesigner/scrollbar.css")))));
 
     m_qmlSourceUpdateShortcut = new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_F5), this);
     connect(m_qmlSourceUpdateShortcut, SIGNAL(activated()), this, SLOT(reloadQmlSource()));

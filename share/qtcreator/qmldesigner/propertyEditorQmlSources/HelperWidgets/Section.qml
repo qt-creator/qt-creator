@@ -48,10 +48,8 @@ Item {
         Controls.Label {
             id: label
             anchors.verticalCenter: parent.verticalCenter
-            color: "white"
+            color: creatorTheme.PanelTextColorLight
             x: 22
-            style: Text.Sunken
-            styleColor: "#292929"
             font.bold: true
         }
 
@@ -68,7 +66,7 @@ Item {
             }
         }
 
-        color: "#444"
+        color: creatorTheme.BackgroundColorDark
 
         Rectangle {
             visible: false
@@ -78,6 +76,7 @@ Item {
         }
 
         Rectangle {
+            visible: false
             color: "#333"
             anchors.bottom: parent.bottom
             width: parent.width

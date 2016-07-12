@@ -30,7 +30,7 @@ Rectangle {
     id: itemPane
     width: 320
     height: 400
-    color: "#4f4f4f"
+    color: creatorTheme.QmlDesignerBackgroundColorDarkAlternate
 
     Section {
         y: -1

@@ -33,6 +33,7 @@
 #include <texteditor/textdocument.h>
 #include <nodeinstanceview.h>
 #include <itemlibrarywidget.h>
+#include <theming.h>
 
 #include <coreplugin/modemanager.h>
 #include <coreplugin/coreconstants.h>
@@ -300,7 +301,7 @@ void DesignModeWidget::setup()
             QByteArray sheet = Utils::FileReader::fetchQrc(":/qmldesigner/stylesheet.css");
             sheet += Utils::FileReader::fetchQrc(":/qmldesigner/scrollbar.css");
             sheet += "QLabel { background-color: #4f4f4f; }";
-            navigationView.widget->setStyleSheet(QString::fromUtf8(sheet));
+            navigationView.widget->setStyleSheet(Theming::replaceCssColors(QString::fromUtf8(sheet)));
         }
     }
 

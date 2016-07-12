@@ -23,23 +23,17 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.2
-import QtQuick.Controls 1.1
-import QtQuick.Controls.Styles 1.1
+#pragma once
 
-TextFieldStyle {
-    selectionColor: creatorTheme.PanelTextColorLight
-    selectedTextColor: creatorTheme.PanelTextColorDark
-    textColor: creatorTheme.PanelTextColorLight
-    placeholderTextColor: creatorTheme.PanelTextColorMid
+#include <QQmlPropertyMap>
 
-    padding.top: 4
-    padding.bottom: 4
+namespace QmlDesigner {
 
-    background: Rectangle {
-        implicitWidth: 100
-        implicitHeight: font.pixelSize + padding.top + padding.bottom
-        color: creatorTheme.FancyToolButtonSelectedColor
-        border.color: creatorTheme.QmlDesignerBackgroundColorDarker
-    }
-}
+class Theming
+{
+public:
+    static void insertTheme(QQmlPropertyMap *map);
+    static QString replaceCssColors(const QString &input);
+};
+
+} // namespace QmlDesigner

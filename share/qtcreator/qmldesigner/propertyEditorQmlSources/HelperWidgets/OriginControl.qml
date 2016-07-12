@@ -32,10 +32,12 @@ Item {
 
 
     property variant backendValue
-    property color highlightColor: "orange"
     property color borderColor: colorLogic.textColor
 
     property bool showTranslateCheckBox: true
+
+    readonly property color selectedColor: creatorTheme.QmlDesignerBackgroundColorDarkAlternate
+    readonly property color unselectedColor: creatorTheme.QmlDesignerBackgroundColorDarker
 
     ExtendedFunctionButton {
         backendValue: originControl.backendValue
@@ -98,7 +100,7 @@ Item {
             id: topLeft
             width: 15
             height: 15
-            color: selected ? "#4f4f4f" : "black"
+            color: selected ? selectedColor : unselectedColor
             border.color: originControl.borderColor
             border.width: selected ? 2 : 0
             MouseArea {
@@ -113,7 +115,7 @@ Item {
             property bool selected: false
             width: topLeft.width
             height: topLeft.height
-            color: selected ? "#4f4f4f" : "black"
+            color: selected ? selectedColor : unselectedColor
             border.width: selected ? 2 : 0
             border.color: originControl.borderColor
             MouseArea {
@@ -128,7 +130,7 @@ Item {
             property bool selected: false
             width: topLeft.width
             height: topLeft.height
-            color: selected ? "#4f4f4f" : "black"
+            color: selected ? selectedColor : unselectedColor
             border.width: selected ? 2 : 0
             border.color: originControl.borderColor
             MouseArea {
@@ -143,7 +145,7 @@ Item {
             property bool selected: false
             width: topLeft.width
             height: topLeft.height
-            color: selected ? "#4f4f4f" : "black"
+            color: selected ? selectedColor : unselectedColor
             border.width: selected ? 2 : 0
             border.color: originControl.borderColor
             MouseArea {
@@ -158,7 +160,7 @@ Item {
             property bool selected: false
             width: topLeft.width
             height: topLeft.height
-            color: selected ? "#4f4f4f" : "black"
+            color: selected ? selectedColor : unselectedColor
             border.width: selected ? 2 : 0
             border.color: originControl.borderColor
             MouseArea {
@@ -173,7 +175,7 @@ Item {
             property bool selected: false
             width: topLeft.width
             height: topLeft.height
-            color: selected ? "#4f4f4f" : "black"
+            color: selected ? selectedColor : unselectedColor
             border.width: selected ? 2 : 0
             border.color: originControl.borderColor
             MouseArea {
@@ -188,7 +190,7 @@ Item {
             property bool selected: false
             width: topLeft.width
             height: topLeft.height
-            color: selected ? "#4f4f4f" : "black"
+            color: selected ? selectedColor : unselectedColor
             border.width: selected ? 2 : 0
             border.color: originControl.borderColor
             MouseArea {
@@ -203,7 +205,7 @@ Item {
             property bool selected: false
             width: topLeft.width
             height: topLeft.height
-            color: selected ? "#4f4f4f" : "black"
+            color: selected ? selectedColor : unselectedColor
             border.width: selected ? 2 : 0
             border.color: originControl.borderColor
             MouseArea {
@@ -218,7 +220,7 @@ Item {
             property bool selected: false
             width: topLeft.width
             height: topLeft.height
-            color: selected ? "#4f4f4f" : "black"
+            color: selected ? selectedColor : unselectedColor
             border.width: selected ? 2 : 0
             border.color: originControl.borderColor
             MouseArea {

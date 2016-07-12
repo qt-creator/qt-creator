@@ -28,10 +28,7 @@ import QtQuick.Controls 1.1 as Controls
 import QtQuick.Controls.Styles 1.2
 
 ComboBoxStyle {
-    property color borderColor: "#222"
-    property color highlightColor: "orange"
-    property color textColor: "#eee"
-
+    property color textColor: creatorTheme.PanelTextColorLight
     __editor: Item {
 
     }
@@ -40,31 +37,20 @@ ComboBoxStyle {
         implicitWidth: 120
         implicitHeight: 25
 
-        RoundedPanel {
+        Rectangle {
             anchors.fill: parent
-            roundLeft: true
-            roundRight: true
             visible: !control.pressed
-        }
-
-        RoundedPanel {
-            gradient: Gradient {
-                GradientStop {color: '#444' ; position: 0}
-                GradientStop {color: '#333' ; position: 1}
-            }
-            anchors.fill: parent
-            roundLeft: true
-            roundRight: true
-            visible: control.pressed
+            color: creatorTheme.FancyToolButtonSelectedColor
+            border.color: creatorTheme.QmlDesignerBackgroundColorDarker
+            border.width: 1
         }
 
         Rectangle {
-            border.color: highlightColor
+            color: creatorTheme.FancyToolButtonHoverColor
             anchors.fill: parent
-            anchors.margins: -1
-            color: "transparent"
-            opacity: 0.3
-            visible: control.activeFocus
+            visible: control.pressed
+            border.color: creatorTheme.QmlDesignerBackgroundColorDarker
+            border.width: 1
         }
 
         Rectangle {
@@ -97,7 +83,7 @@ ComboBoxStyle {
             anchors.verticalCenter: parent.verticalCenter
             text: control.currentText
             renderType: Text.NativeRendering
-            color: textColor
+            color: creatorTheme.PanelTextColorLight
         }
     }
 

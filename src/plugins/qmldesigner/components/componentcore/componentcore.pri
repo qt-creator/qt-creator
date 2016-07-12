@@ -1,6 +1,7 @@
 VPATH += $$PWD
 
 SOURCES += modelnodecontextmenu.cpp
+SOURCES += theming.cpp
 SOURCES += findimplementation.cpp
 SOURCES += addsignalhandlerdialog.cpp
 SOURCES += layoutingridlayout.cpp
@@ -14,6 +15,7 @@ SOURCES += modelnodeoperations.cpp
 SOURCES += crumblebar.cpp
 
 HEADERS += modelnodecontextmenu.h
+HEADERS += theming.h
 HEADERS += findimplementation.h
 HEADERS += addsignalhandlerdialog.h
 HEADERS += layoutingridlayout.h
