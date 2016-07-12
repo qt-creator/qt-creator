@@ -11,7 +11,8 @@ SOURCES += \
     $$PWD/qmleventlocation_test.cpp \
     $$PWD/qmleventtype_test.cpp \
     $$PWD/qmlnote_test.cpp \
-    $$PWD/qmlprofileranimationsmodel_test.cpp
+    $$PWD/qmlprofileranimationsmodel_test.cpp \
+    $$PWD/qmlprofilerattachdialog_test.cpp
 
 HEADERS += \
     $$PWD/debugmessagesmodel_test.h \
@@ -26,4 +27,5 @@ HEADERS += \
     $$PWD/qmleventlocation_test.h \
     $$PWD/qmleventtype_test.h \
     $$PWD/qmlnote_test.h \
-    $$PWD/qmlprofileranimationsmodel_test.h
+    $$PWD/qmlprofileranimationsmodel_test.h \
+    $$PWD/qmlprofilerattachdialog_test.h

@@ -43,6 +43,7 @@
 #include "tests/qmleventtype_test.h"
 #include "tests/qmlnote_test.h"
 #include "tests/qmlprofileranimationsmodel_test.h"
+#include "tests/qmlprofilerattachdialog_test.h"
 #endif
 
 #include <extensionsystem/pluginmanager.h>
@@ -103,6 +104,7 @@ QList<QObject *> QmlProfiler::Internal::QmlProfilerPlugin::createTestObjects() c
     tests << new QmlEventTypeTest;
     tests << new QmlNoteTest;
     tests << new QmlProfilerAnimationsModelTest;
+    tests << new QmlProfilerAttachDialogTest;
 #endif
     return tests;
 }

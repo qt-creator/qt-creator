@@ -90,6 +90,7 @@ QtcPlugin {
             "qmleventtype_test.cpp", "qmleventtype_test.h",
             "qmlnote_test.cpp", "qmlnote_test.h",
             "qmlprofileranimationsmodel_test.cpp", "qmlprofileranimationsmodel_test.h",
+            "qmlprofilerattachdialog_test.cpp", "qmlprofilerattachdialog_test.h",
         ]
     }
 }
