@@ -44,5 +44,40 @@ QString clangExecutableFromSettings(Core::Id toolchainType, bool *isValid);
 
 QString createFullLocationString(const Debugger::DiagnosticLocation &location);
 
+// TODO: Use QVersionNumber once we can use >= Qt 5.6.0
+class ClangExecutableVersion {
+public:
+    ClangExecutableVersion() : majorNumber(-1) , minorNumber(-1) , patchNumber(-1) {}
+    ClangExecutableVersion(int major, int minor, int patch)
+        : majorNumber(major) , minorNumber(minor) , patchNumber(patch) {}
+
+    bool isValid() const
+    {
+        return majorNumber >= 0 && minorNumber >= 0 && patchNumber >= 0;
+    }
+
+    bool isSupportedVersion() const
+    {
+        return majorNumber == 3 && minorNumber == 8;
+    }
+
+    static QString supportedVersionAsString()
+    {
+        return QLatin1String("3.8");
+    }
+
+    QString toString() const
+    {
+        return QString::fromLatin1("%1.%2.%3").arg(majorNumber).arg(minorNumber).arg(patchNumber);
+    }
+
+public:
+    int majorNumber;
+    int minorNumber;
+    int patchNumber;
+};
+
+ClangExecutableVersion clangExecutableVersion(const QString &absolutePath);
+
 } // namespace Internal
 } // namespace ClangStaticAnalyzer

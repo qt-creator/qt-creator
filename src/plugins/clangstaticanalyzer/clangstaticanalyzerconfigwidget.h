@@ -34,6 +34,8 @@ namespace Internal {
 
 namespace Ui { class ClangStaticAnalyzerConfigWidget; }
 
+class ClangExecutableVersion;
+
 class ClangStaticAnalyzerConfigWidget : public QWidget
 {
     Q_OBJECT
@@ -42,6 +44,9 @@ public:
     explicit ClangStaticAnalyzerConfigWidget(ClangStaticAnalyzerSettings *settings,
                                              QWidget *parent = 0);
     ~ClangStaticAnalyzerConfigWidget();
+
+    void updateDetectedVersionLabel(bool executableIsValid,
+                                    const ClangExecutableVersion &providedVersion);
 
 private:
     Ui::ClangStaticAnalyzerConfigWidget *m_ui;
