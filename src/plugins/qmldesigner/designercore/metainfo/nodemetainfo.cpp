@@ -1185,6 +1185,8 @@ bool NodeMetaInfoPrivate::isValid() const
 
 TypeName NodeMetaInfoPrivate::propertyType(const PropertyName &propertyName) const
 {
+    ensureProperties();
+
     if (!m_properties.contains(propertyName))
         return TypeName("Property does not exist...");
     return m_propertyTypes.at(m_properties.indexOf(propertyName));
