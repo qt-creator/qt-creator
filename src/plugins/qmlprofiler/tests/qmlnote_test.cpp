@@ -40,6 +40,8 @@ void QmlNoteTest::testAccessors()
     QCOMPARE(note.typeIndex(), -1);
     QCOMPARE(note.startTime(), -1);
     QCOMPARE(note.duration(), 0);
+    QCOMPARE(note.collapsedRow(), -1);
+    QVERIFY(!note.loaded());
     QVERIFY(note.text().isEmpty());
 
     note.setText("blah");
@@ -49,7 +51,12 @@ void QmlNoteTest::testAccessors()
     QCOMPARE(note2.typeIndex(), 8);
     QCOMPARE(note2.startTime(), 9);
     QCOMPARE(note2.duration(), 10);
+    QCOMPARE(note2.collapsedRow(), 5);
+    QVERIFY(!note2.loaded());
     QCOMPARE(note2.text(), QString("semmeln"));
+
+    note2.setLoaded(true);
+    QVERIFY(note2.loaded());
 }
 
 void QmlNoteTest::testStreamOps()
