@@ -237,7 +237,9 @@ HEADERS += \
     $$PWD/smallstringio.h \
     $$PWD/guard.h \
     $$PWD/asconst.h \
-    $$PWD/smallstringfwd.h
+    $$PWD/smallstringfwd.h \
+    $$PWD/optional.h \
+    $$PWD/../3rdparty/optional/optional.hpp
 
 FORMS += $$PWD/filewizardpage.ui \
     $$PWD/projectintropage.ui \

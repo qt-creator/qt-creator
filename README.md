@@ -274,6 +274,21 @@ http://llvm.org/docs/GettingStarted.html#git-mirror:
 Qt Creator includes the following third-party components,
 we thank the authors who made this possible:
 
+### Reference implementation for std::experimental::optional
+
+  https://github.com/akrzemi1/Optional
+
+  QtCreator/src/libs/3rdparty/optional
+
+  Copyright (C) 2011-2012 Andrzej Krzemienski
+
+  Distributed under the Boost Software License, Version 1.0
+  (see accompanying file LICENSE_1_0.txt or a copy at
+  http://www.boost.org/LICENSE_1_0.txt)
+
+  The idea and interface is based on Boost.Optional library
+  authored by Fernando Luis Cacciola Carballal
+
 ### Open Source front-end for C++ (license MIT), enhanced for use in Qt Creator
 
   Roberto Raggi <roberto.raggi@gmail.com>

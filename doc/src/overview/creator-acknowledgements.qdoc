@@ -41,6 +41,24 @@
     \QC contains the following third-party components:
 
     \list
+        \li \b{Reference implementation for std::experimental::optional}
+
+            Copyright (C) 2011-2012 Andrzej Krzemienski
+
+            Distributed under the Boost Software License, Version 1.0
+            (see accompanying file LICENSE_1_0.txt or a copy at
+            http://www.boost.org/LICENSE_1_0.txt)
+
+            The idea and interface is based on Boost.Optional library
+            authored by Fernando Luis Cacciola Carballal
+
+            The source code of std::experimental::optional can be found
+            here:
+            \list
+            \li \l{https://github.com/akrzemi1/Optional}
+            \li QtCreator/src/libs/3rdparty/optional
+            \li \l{https://code.qt.io/cgit/qt-creator/qt-creator.git/tree/src/libs/3rdparty/optional}
+            \endlist
 
         \li \b{Open Source front-end for C++ (license MIT)}, enhanced for use
             in \QC.\br

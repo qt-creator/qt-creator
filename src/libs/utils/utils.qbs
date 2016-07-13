@@ -142,6 +142,8 @@ Project {
             "newclasswidget.cpp",
             "newclasswidget.h",
             "newclasswidget.ui",
+            "optional.h",
+            "../3rdparty/optional/optional.hpp",
             "osspecificaspects.h",
             "outputformat.h",
             "outputformatter.cpp",
