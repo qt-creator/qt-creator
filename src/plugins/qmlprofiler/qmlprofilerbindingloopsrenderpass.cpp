@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "qmlprofilerbindingloopsrenderpass.h"
+#include <utils/qtcassert.h>
 
 namespace QmlProfiler {
 namespace Internal {
@@ -164,7 +165,7 @@ Timeline::TimelineRenderPass::State *QmlProfilerBindingLoopsRenderPass::update(
     const QmlProfilerRangeModel *model = qobject_cast<const QmlProfilerRangeModel *>(
                 renderer->model());
 
-    if (!model || indexFrom < 0 || indexTo > model->count())
+    if (!model || indexFrom < 0 || indexTo > model->count() || indexFrom >= indexTo)
         return oldState;
 
     BindingLoopsRenderPassState *state;
@@ -256,12 +257,11 @@ void BindlingLoopsGeometry::addCollapsedEvent(float horizontalCenterSource,
                                               float verticalCenterSource,
                                               float verticalCenterTarget)
 {
-    if (verticalCenterSource < verticalCenterTarget) {
-        qSwap(verticalCenterSource, verticalCenterTarget);
-        qSwap(horizontalCenterSource, horizontalCenterTarget);
-    }
+    // The source event should always be above the parent event because ranges are perfectly nested
+    // and events are ordered by start time.
+    QTC_ASSERT(verticalCenterSource > verticalCenterTarget, /**/);
 
-    float tilt = horizontalCenterSource < horizontalCenterTarget ? +0.3 : -0.3;
+    float tilt = horizontalCenterSource < horizontalCenterTarget ? +0.3f : -0.3f;
 
     Point2DWithOffset *v = vertexData() + usedVertices;
     v[0].set(horizontalCenterSource, verticalCenterSource, -0.3f, tilt);
