@@ -1121,82 +1121,22 @@ def qdump__QMetaObject(d, value):
             dd = value["d"]
             d.putSubItem("d", dd)
             data = d.extractPointer(dd["data"])
-
-            propertyNames = d.staticQObjectPropertyNames(value)
-            propertyIndex = 0
-            for propertyName in propertyNames:
-                with SubItem(d, "property_%s" % propertyIndex):
-                    d.putValue(propertyName)
-                    propertyIndex += 1
-
-           #byteArrayDataType = d.lookupType(d.qtNamespace() + "QByteArrayData")
-           #byteArrayDataSize = byteArrayDataType.sizeof
-           #sd = d.extractPointer(dd["stringdata"])
-           #stringdata, size, alloc = d.byteArrayDataHelper(sd)
-
-           #propertyCount = d.extractInt(data + 24)
-           #propertyData = d.extractInt(data + 28)
-
-           ## This is the 'data' member in the qt_meta_stringdata_qobject__*_t struct
-           #d.putIntItem("_byteArrayDataSize", byteArrayDataSize)
-           #d.putAddressItem("_data", data)
-           #d.putAddressItem("_sd_", stringdata)
-           #with SubItem(d, "_sd"):
-           #    d.putValue(d.readMemory(stringdata, size), "latin1")
-           #with SubItem(d, "_cn"):
-           #    d.putValue(d.readMemory(stringdata + d.extractInt(data + 4), size), "latin1")
-
-           #for i in range(propertyCount):
-           #    with SubItem(d, "property_%s" % i):
-           #        x = data + (propertyData + 3 * i) * 4
-           #        literal = sd + d.extractInt(x) * byteArrayDataSize
-           #        ldata, lsize, lalloc = d.byteArrayDataHelper(literal)
-           #        d.putValue(d.readMemory(ldata, lsize), "latin1")
-
-           #        d.putNumChild(1)
-           #        if d.isExpanded():
-           #            with Children(d):
-           #                if d.isExpanded():
-           #                    d.putAddressItem("_literal", literal)
-           #                    d.putIntItem("__data", ldata)
-           #                    d.putIntItem("__size", lsize)
-           #                    d.putIntItem("__alloc", lalloc)
-           #                    d.putIntItem("name", d.extractInt(x))
-           #                    d.putIntItem("type", d.extractInt(x + 4))
-           #                    d.putIntItem("flags", d.extractInt(x + 8))
-
-            methodCount = d.extractInt(data + 16)
-            methodData = d.extractInt(data + 20)
-            for i in range(methodCount):
-                with SubItem(d, "method_%s" % i):
-                    x = data + (methodData + 5 * i) * 4
-                    #d.putEmptyValue()
-                    d.putValue(d.readCString(stringdata + d.extractInt(x)))
-                    d.putNumChild(1)
-                    if d.isExpanded():
-                        with Children(d):
-                            if d.isExpanded():
-                                d.putIntItem("name", d.extractInt(x))
-                                d.putIntItem("argc", d.extractInt(x + 4))
-                                d.putIntItem("argv", d.extractInt(x + 8))
-                                d.putIntItem("type", d.extractInt(x + 12))
-                                d.putIntItem("flags", d.extractInt(x + 16))
-
+            d.putQObjectGutsHelper(0, 0, value)
             d.putSubItem("stringData", dd["stringdata"])
-            d.putIntItem("revision", d.extractInt(data))
-            d.putIntItem("className", d.extractInt(data + 4))
-            d.putIntItem("classInfoCount", d.extractInt(data + 8))
-            d.putIntItem("className", d.extractInt(data + 12))
-            d.putIntItem("methodCount", d.extractInt(data + 16))
-            d.putIntItem("methodData", d.extractInt(data + 20))
-            d.putIntItem("propertyCount", d.extractInt(data + 24))
-            d.putIntItem("propertyData", d.extractInt(data + 28))
-            d.putIntItem("enumeratorCount", d.extractInt(data + 32))
-            d.putIntItem("enumeratorData", d.extractInt(data + 36))
-            d.putIntItem("constructorCount", d.extractInt(data + 40))
-            d.putIntItem("constructorData", d.extractInt(data + 44))
-            d.putIntItem("flags", d.extractInt(data + 48))
-            d.putIntItem("signalCount", d.extractInt(data + 52))
+            #d.putIntItem("revision", d.extractInt(data))
+            #d.putIntItem("className", d.extractInt(data + 4))
+            #d.putIntItem("classInfoCount", d.extractInt(data + 8))
+            #d.putIntItem("className", d.extractInt(data + 12))
+            #d.putIntItem("methodCount", d.extractInt(data + 16))
+            #d.putIntItem("methodData", d.extractInt(data + 20))
+            #d.putIntItem("propertyCount", d.extractInt(data + 24))
+            #d.putIntItem("propertyData", d.extractInt(data + 28))
+            #d.putIntItem("enumeratorCount", d.extractInt(data + 32))
+            #d.putIntItem("enumeratorData", d.extractInt(data + 36))
+            #d.putIntItem("constructorCount", d.extractInt(data + 40))
+            #d.putIntItem("constructorData", d.extractInt(data + 44))
+            #d.putIntItem("flags", d.extractInt(data + 48))
+            #d.putIntItem("signalCount", d.extractInt(data + 52))
 
 def _qdump__QObject(d, value):
     d.putQObjectNameValue(value)
