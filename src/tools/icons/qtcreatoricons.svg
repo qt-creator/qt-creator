@@ -1482,18 +1482,25 @@
     <rect
        style="opacity:1;fill:#000000;fill-opacity:1;stroke:none;stroke-opacity:1"
        id="rect6617"
-       width="232"
+       width="173"
        height="16"
-       x="484"
+       x="543"
        y="584" />
     <g
        id="share/qtcreator/qmldesigner/propertyEditorQmlSources/HelperWidgets/images/down-arrow">
+      <rect
+         style="fill:#ffffff"
+         id="rect5094"
+         width="8"
+         height="4"
+         x="485"
+         y="585" />
       <path
          sodipodi:nodetypes="cccc"
          inkscape:connector-curvature="0"
          id="path6627"
          d="m 485,585 8,0 -4,4 -4,-4"
-         style="fill:#dbdbdb;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+         style="fill:#000000;fill-opacity:1.0;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
     </g>
     <use
        x="0"
@@ -1505,49 +1512,56 @@
        height="100%" />
     <g
        id="share/qtcreator/qmldesigner/propertyEditorQmlSources/HelperWidgets/images/placeholder">
-      <circle
-         r="2"
-         cy="591.5"
-         cx="507.5"
-         id="path6659"
-         style="opacity:1;fill:none;fill-opacity:1;stroke:#dbdbdb;stroke-opacity:1" />
       <rect
          y="584"
          x="501"
          height="14"
          width="14"
          id="rect6661"
-         style="opacity:1;fill:none;fill-opacity:1;stroke:none;stroke-opacity:1" />
+         style="fill:#ffffff" />
+      <circle
+         r="2"
+         cy="591.5"
+         cx="507.5"
+         id="path6659"
+         style="fill:none;stroke:#000000" />
     </g>
     <g
        id="share/qtcreator/qmldesigner/propertyEditorQmlSources/HelperWidgets/images/submenu">
-      <path
-         style="fill:#dbdbdb;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-         d="m 521.5,587 c -2.48528,0 -4.5,2.01472 -4.5,4.5 0,2.48528 2.01472,4.5 4.5,4.5 2.48528,0 4.5,-2.01472 4.5,-4.5 0,-2.48528 -2.01472,-4.5 -4.5,-4.5 z m -4,3 8,0 -4,4 z"
-         id="path6673"
-         inkscape:connector-curvature="0"
-         sodipodi:nodetypes="ssssscccc" />
       <rect
          y="584"
          x="515"
          height="14"
          width="14"
          id="rect6685"
-         style="opacity:0.647;fill:none;fill-opacity:1;stroke:none;stroke-opacity:1" />
+         style="fill:#ffffff" />
+      <path
+         style="fill:#000000"
+         d="m 521.5,587 c -2.48528,0 -4.5,2.01472 -4.5,4.5 0,2.48528 2.01472,4.5 4.5,4.5 2.48528,0 4.5,-2.01472 4.5,-4.5 0,-2.48528 -2.01472,-4.5 -4.5,-4.5 z m -4,3 8,0 -4,4 z"
+         id="path6673"
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="ssssscccc" />
     </g>
     <g
        id="share/qtcreator/qmldesigner/propertyEditorQmlSources/HelperWidgets/images/expression">
+      <rect
+         y="584"
+         x="529"
+         height="14"
+         width="14"
+         id="rect6738"
+         style="fill:#ffffff" />
       <g
          transform="matrix(0.98173989,-0.19022827,0.19022827,0.98173989,-103.24469,112.42841)"
          id="g6727">
         <circle
-           style="opacity:1;fill:none;fill-opacity:1;stroke:#dbdbdb;stroke-opacity:1"
+           style="fill:none;stroke:#000000"
            id="path6713"
            cx="534"
            cy="594"
            r="2.5" />
         <rect
-           style="opacity:1;fill:#dbdbdb;fill-opacity:1;stroke:none;stroke-opacity:1"
+           style="fill:#000000"
            id="rect6715"
            width="1"
            height="1.5"
@@ -1612,13 +1626,6 @@
          xlink:href="#g6727"
          y="0"
          x="0" />
-      <rect
-         y="584"
-         x="529"
-         height="14"
-         width="14"
-         id="rect6738"
-         style="opacity:1;fill:none;fill-opacity:1;stroke:none;stroke-opacity:1" />
     </g>
     <g
        id="src/libs/qmleditorwidgets/images/checkbox_unchecked">

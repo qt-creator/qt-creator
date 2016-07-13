@@ -43,7 +43,9 @@ SpinBoxStyle {
         implicitHeight: parent.height/2
         opacity: styleData.upEnabled ? styleData.upPressed ? 0.5 : 1 : 0.5
         Image {
-            source: "images/up-arrow.png"
+            width: 8
+            height: 4
+            source: "image://icons/up-arrow"
             x: 1
             y: 5
         }
@@ -54,7 +56,9 @@ SpinBoxStyle {
         implicitHeight: parent.height/2
         opacity: styleData.downEnabled ? styleData.downPressed ? 0.5 : 1 : 0.5
         Image {
-            source: "images/down-arrow.png"
+            width: 8
+            height: 4
+            source: "image://icons/down-arrow"
             x: 1
             y: 2.5 // Hack! Spinbox sets an non-int offset, somewhere
         }

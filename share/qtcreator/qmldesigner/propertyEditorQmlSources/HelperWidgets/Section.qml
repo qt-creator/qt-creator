@@ -55,12 +55,15 @@ Item {
 
         Image {
             id: arrow
-            source: "images/down-arrow.png"
+            width: 8
+            height: 4
+            source: "image://icons/down-arrow"
             anchors.left: parent.left
             anchors.leftMargin: 4
             anchors.verticalCenter: parent.verticalCenter
             Behavior on rotation {
                 NumberAnimation {
+                    easing.type: Easing.OutCubic
                     duration: animationDuration
                 }
             }

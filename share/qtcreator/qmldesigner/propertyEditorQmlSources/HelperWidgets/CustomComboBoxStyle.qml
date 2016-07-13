@@ -54,7 +54,7 @@ ComboBoxStyle {
         }
 
         Rectangle {
-            color: "#333"
+            color: creatorTheme.IconsBaseColor
             width: 1
             anchors.right: imageItem.left
             anchors.topMargin: 4
@@ -66,11 +66,13 @@ ComboBoxStyle {
 
         Image {
             id: imageItem
-            source: "images/down-arrow.png"
+            width: 8
+            height: 4
+            source: "image://icons/down-arrow"
             anchors.verticalCenter: parent.verticalCenter
             anchors.right: parent.right
-            anchors.rightMargin: 10
-            opacity: control.enabled ? 0.7 : 0.5
+            anchors.rightMargin: 8
+            opacity: control.enabled ? 1 : 0.5
         }
     }
 
