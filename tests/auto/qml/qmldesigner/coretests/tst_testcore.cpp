@@ -1001,7 +1001,7 @@ void tst_TestCore::testRewriterChangeImports()
 void tst_TestCore::testRewriterForGradientMagic()
 {
     const QLatin1String qmlString("\n"
-                                  "import QtQuick 1.1\n"
+                                  "import QtQuick 2.1\n"
                                   "\n"
                                   "Rectangle {\n"
                                   "    id: root\n"
@@ -1055,7 +1055,7 @@ void tst_TestCore::testRewriterForGradientMagic()
     myRect.variantProperty("rotation").setValue(QVariant(45));
     QVERIFY(myRect.isValid());
 
-    QScopedPointer<Model> model1(Model::create("QtQuick.Item", 1, 1));
+    QScopedPointer<Model> model1(Model::create("QtQuick.Item", 2, 1));
     QVERIFY(model1.data());
 
     QScopedPointer<TestView> view1(new TestView(model1.data()));
@@ -1063,7 +1063,7 @@ void tst_TestCore::testRewriterForGradientMagic()
 
     QScopedPointer<TestRewriterView> testRewriterView1(new TestRewriterView());
     QPlainTextEdit textEdit1;
-    textEdit1.setPlainText("import QtQuick 1.1; Item {}");
+    textEdit1.setPlainText("import QtQuick 2.1; Item {}");
     NotIndentingTextEditModifier modifier1(&textEdit1);
 
     testRewriterView1->setTextModifier(&modifier1);
@@ -1953,7 +1953,7 @@ void tst_TestCore::reparentingNode()
 void tst_TestCore::reparentingNodeLikeDragAndDrop()
 {
     QPlainTextEdit textEdit;
-    textEdit.setPlainText("import QtQuick 1.1;\n\nItem {\n}\n");
+    textEdit.setPlainText("import QtQuick 2.0;\n\nItem {\n}\n");
     NotIndentingTextEditModifier textModifier(&textEdit);
 
     QScopedPointer<Model> model(Model::create("QtQuick.Item"));
@@ -1972,7 +1972,7 @@ void tst_TestCore::reparentingNodeLikeDragAndDrop()
     view->rootModelNode().setIdWithoutRefactoring("rootModelNode");
     QCOMPARE(view->rootModelNode().id(), QString("rootModelNode"));
 
-    ModelNode rectNode = addNodeListChild(view->rootModelNode(), "QtQuick.Rectangle", 1, 0, "data");
+    ModelNode rectNode = addNodeListChild(view->rootModelNode(), "QtQuick.Rectangle", 2, 0, "data");
     rectNode.setIdWithoutRefactoring("rect_1");
     rectNode.variantProperty("x").setValue(20);
     rectNode.variantProperty("y").setValue(30);
@@ -1981,7 +1981,7 @@ void tst_TestCore::reparentingNodeLikeDragAndDrop()
 
     RewriterTransaction transaction(view->beginRewriterTransaction("TEST"));
 
-    ModelNode textNode = addNodeListChild(view->rootModelNode(), "QtQuick.Text", 1, 1, "data");
+    ModelNode textNode = addNodeListChild(view->rootModelNode(), "QtQuick.Text", 2, 0, "data");
     QCOMPARE(textNode.parentProperty().parentModelNode(), view->rootModelNode());
     QVERIFY(view->rootModelNode().directSubModelNodes().contains(textNode));
 
@@ -2388,7 +2388,7 @@ void tst_TestCore::testRewriterTransaction()
 
 void tst_TestCore::testRewriterId()
 {
-    char qmlString[] = "import QtQuick 1.1\n"
+    char qmlString[] = "import QtQuick 2.1\n"
                        "Rectangle {\n"
                        "}\n";
 
@@ -2415,12 +2415,12 @@ void tst_TestCore::testRewriterId()
 
     QVERIFY(rootModelNode.isValid());
 
-    ModelNode newNode(view->createModelNode("QtQuick.Rectangle", 1, 0));
+    ModelNode newNode(view->createModelNode("QtQuick.Rectangle", 2, 0));
     newNode.setIdWithoutRefactoring("testId");
 
     rootModelNode.nodeListProperty("data").reparentHere(newNode);
 
-    const QLatin1String expected("import QtQuick 1.1\n"
+    const QLatin1String expected("import QtQuick 2.1\n"
                                   "Rectangle {\n"
                                   "Rectangle {\n"
                                   "    id: testId\n"
@@ -2789,7 +2789,7 @@ void tst_TestCore::testRewriterPropertyDeclarations()
     //  property variant myArray: [ Rectangle {} ]
     //  property variant someGradient: Gradient {}
 
-    char qmlString[] = "import QtQuick 1.1\n"
+    char qmlString[] = "import QtQuick 2.1\n"
         "Item {\n"
         "   property int intProperty\n"
         "   property bool boolProperty: true\n"
@@ -2853,7 +2853,7 @@ void tst_TestCore::testRewriterPropertyAliases()
     // where type is (int | bool | double | real | string | url | color | date | variant)
     //
 
-    char qmlString[] = "import QtQuick 1.1\n"
+    char qmlString[] = "import QtQuick 2.1\n"
         "Item {\n"
         "   property alias theText: t.text\n"
         "   default alias property yPos: t.y\n"
@@ -2886,7 +2886,7 @@ void tst_TestCore::testRewriterPropertyAliases()
 void tst_TestCore::testRewriterPositionAndOffset()
 {
     const QLatin1String qmlString("\n"
-                                  "import QtQuick 1.1\n"
+                                  "import QtQuick 2.1\n"
                                   "\n"
                                   "Rectangle {\n"
                                   "    id: root\n"
@@ -2924,7 +2924,7 @@ void tst_TestCore::testRewriterPositionAndOffset()
     textEdit.setPlainText(qmlString);
     NotIndentingTextEditModifier textModifier(&textEdit);
 
-    QScopedPointer<Model> model(Model::create("QtQuick.Item", 1, 1));
+    QScopedPointer<Model> model(Model::create("QtQuick.Item", 2, 1));
     QVERIFY(model.data());
 
     QScopedPointer<TestView> view(new TestView(model.data()));
@@ -3003,7 +3003,7 @@ void tst_TestCore::testRewriterPositionAndOffset()
 
 void tst_TestCore::testRewriterComponentTextModifier()
 {
-    const QString qmlString("import QtQuick 1.1\n"
+    const QString qmlString("import QtQuick 2.1\n"
                             "Rectangle {\n"
                             "    id: root\n"
                             "    x: 10;\n"
@@ -3026,7 +3026,7 @@ void tst_TestCore::testRewriterComponentTextModifier()
     textEdit.setPlainText(qmlString);
     NotIndentingTextEditModifier textModifier(&textEdit);
 
-    QScopedPointer<Model> model(Model::create("QtQuick.Item", 1, 1));
+    QScopedPointer<Model> model(Model::create("QtQuick.Item", 2, 1));
     QVERIFY(model.data());
 
     QScopedPointer<TestView> view(new TestView(model.data()));
@@ -3050,7 +3050,7 @@ void tst_TestCore::testRewriterComponentTextModifier()
 
     ComponentTextModifier componentTextModifier(&textModifier, componentStartOffset, componentEndOffset, rootStartOffset);
 
-     const QString qmlExpected("import QtQuick 1.1\n"
+     const QString qmlExpected("import QtQuick 2.1\n"
                             "            "
                             "             "
                             "           "
@@ -3185,7 +3185,7 @@ void tst_TestCore::testRewriterForArrayMagic()
 
 void tst_TestCore::testRewriterWithSignals()
 {
-    const QLatin1String qmlString("import QtQuick 1.1\n"
+    const QLatin1String qmlString("import QtQuick 2.1\n"
                                   "\n"
                                   "TextEdit {\n"
                                   "    onTextChanged: { print(\"foo\"); }\n"
@@ -3194,7 +3194,7 @@ void tst_TestCore::testRewriterWithSignals()
     textEdit.setPlainText(qmlString);
     NotIndentingTextEditModifier textModifier(&textEdit);
 
-    QScopedPointer<Model> model(Model::create("QtQuick.Item", 1, 1));
+    QScopedPointer<Model> model(Model::create("QtQuick.Item", 2, 1));
     QVERIFY(model.data());
 
     QScopedPointer<TestView> view(new TestView(model.data()));
@@ -3217,7 +3217,7 @@ void tst_TestCore::testRewriterWithSignals()
 
 void tst_TestCore::testRewriterNodeSliding()
 {
-    const QLatin1String qmlString("import QtQuick 1.1\n"
+    const QLatin1String qmlString("import QtQuick 2.1\n"
                                   "Rectangle {\n"
                                   "    id: root\n"
                                   "    Rectangle {\n"
@@ -3237,7 +3237,7 @@ void tst_TestCore::testRewriterNodeSliding()
     textEdit.setPlainText(qmlString);
     NotIndentingTextEditModifier textModifier(&textEdit);
 
-    QScopedPointer<Model> model(Model::create("QtQuick.Item", 1, 1));
+    QScopedPointer<Model> model(Model::create("QtQuick.Item", 2, 1));
     QVERIFY(model.data());
 
     QScopedPointer<TestView> view(new TestView(model.data()));
@@ -3269,7 +3269,6 @@ void tst_TestCore::testRewriterNodeSliding()
 
 void tst_TestCore::testRewriterExceptionHandling()
 {
-    //Does fail because we do not support QtQuick 1 anymore and generate an explicit semantic error
     const QLatin1String qmlString("import QtQuick 2.1\n"
                                   "Text {\n"
                                   "}");
@@ -3312,7 +3311,7 @@ void tst_TestCore::testRewriterExceptionHandling()
 
 void tst_TestCore::testRewriterFirstDefinitionInside()
 {
-    const QString qmlString("import QtQuick 1.1\n"
+    const QString qmlString("import QtQuick 2.1\n"
                             "Rectangle {\n"
                             "    id: root\n"
                             "    x: 10;\n"
@@ -3336,7 +3335,7 @@ void tst_TestCore::testRewriterFirstDefinitionInside()
     textEdit.setPlainText(qmlString);
     NotIndentingTextEditModifier textModifier(&textEdit);
 
-    QScopedPointer<Model> model(Model::create("QtQuick.Item", 1, 1));
+    QScopedPointer<Model> model(Model::create("QtQuick.Item", 2, 1));
     QVERIFY(model.data());
 
     QScopedPointer<TestView> view(new TestView(model.data()));
@@ -3368,7 +3367,7 @@ void tst_TestCore::testRewriterFirstDefinitionInside()
 void tst_TestCore::testCopyModelRewriter1()
 {
     const QLatin1String qmlString("\n"
-                                  "import QtQuick 1.1\n"
+                                  "import QtQuick 2.1\n"
                                   "\n"
                                   "Rectangle {\n"
                                   "    id: root\n"
@@ -3406,7 +3405,7 @@ void tst_TestCore::testCopyModelRewriter1()
     textEdit1.setPlainText(qmlString);
     NotIndentingTextEditModifier textModifier1(&textEdit1);
 
-    QScopedPointer<Model> model1(Model::create("QtQuick.Item", 1, 1));
+    QScopedPointer<Model> model1(Model::create("QtQuick.Item", 2, 1));
     QVERIFY(model1.data());
 
     QScopedPointer<TestView> view1(new TestView(model1.data()));
@@ -3463,7 +3462,7 @@ void tst_TestCore::testCopyModelRewriter1()
     const QLatin1String expected(
 
         "\n"
-        "import QtQuick 1.1\n"
+        "import QtQuick 2.1\n"
         "\n"
         "Rectangle {\n"
         "    id: root\n"
@@ -3538,7 +3537,7 @@ void tst_TestCore::testCopyModelRewriter1()
 void tst_TestCore::testCopyModelRewriter2()
 {
    const QLatin1String qmlString1("\n"
-                                  "import QtQuick 1.1\n"
+                                  "import QtQuick 2.1\n"
                                   "\n"
                                   "Rectangle {\n"
                                   "id: root\n"
@@ -3578,7 +3577,7 @@ void tst_TestCore::testCopyModelRewriter2()
 
 
     const QLatin1String qmlString2("\n"
-                                  "import QtQuick 1.1\n"
+                                  "import QtQuick 2.1\n"
                                   "\n"
                                   "Rectangle {\n"
                                   "}");
@@ -3587,7 +3586,7 @@ void tst_TestCore::testCopyModelRewriter2()
     textEdit1.setPlainText(qmlString1);
     NotIndentingTextEditModifier textModifier1(&textEdit1);
 
-    QScopedPointer<Model> model1(Model::create("QtQuick.Item", 1, 1));
+    QScopedPointer<Model> model1(Model::create("QtQuick.Item", 2, 1));
     QVERIFY(model1.data());
 
     QScopedPointer<TestView> view1(new TestView(model1.data()));
@@ -3609,7 +3608,7 @@ void tst_TestCore::testCopyModelRewriter2()
     textEdit2.setPlainText(qmlString2);
     NotIndentingTextEditModifier textModifier2(&textEdit2);
 
-    QScopedPointer<Model> model2(Model::create("QtQuick.Item", 1, 1));
+    QScopedPointer<Model> model2(Model::create("QtQuick.Item", 2, 1));
     QVERIFY(model2.data());
 
     QScopedPointer<TestView> view2(new TestView(model2.data()));
@@ -3691,7 +3690,7 @@ void tst_TestCore::testSubComponentManager()
 
 void tst_TestCore::testAnchorsAndRewriting()
 {
-        const QString qmlString("import QtQuick 1.1\n"
+        const QString qmlString("import QtQuick 2.1\n"
                             "Rectangle {\n"
                             "    id: root\n"
                             "    x: 10;\n"
@@ -3714,7 +3713,7 @@ void tst_TestCore::testAnchorsAndRewriting()
     textEdit.setPlainText(qmlString);
     NotIndentingTextEditModifier textModifier(&textEdit);
 
-    QScopedPointer<Model> model(Model::create("QtQuick.Item", 1, 1));
+    QScopedPointer<Model> model(Model::create("QtQuick.Item", 2, 1));
     QVERIFY(model.data());
 
     QScopedPointer<TestView> view(new TestView(model.data()));
@@ -3757,7 +3756,7 @@ void tst_TestCore::testAnchorsAndRewriting()
 
 void tst_TestCore::testAnchorsAndRewritingCenter()
 {
-      const QString qmlString("import QtQuick 1.1\n"
+      const QString qmlString("import QtQuick 2.1\n"
                             "Rectangle {\n"
                             "    id: root\n"
                             "    x: 10;\n"
@@ -3780,7 +3779,7 @@ void tst_TestCore::testAnchorsAndRewritingCenter()
     textEdit.setPlainText(qmlString);
     NotIndentingTextEditModifier textModifier(&textEdit);
 
-    QScopedPointer<Model> model(Model::create("QtQuick.Item", 1, 1));
+    QScopedPointer<Model> model(Model::create("QtQuick.Item", 2, 1));
     QVERIFY(model.data());
 
     QScopedPointer<TestView> view(new TestView(model.data()));
@@ -3807,7 +3806,7 @@ void tst_TestCore::testAnchorsAndRewritingCenter()
 
 void tst_TestCore::loadQml()
 {
-char qmlString[] = "import QtQuick 1.1\n"
+char qmlString[] = "import QtQuick 2.1\n"
                        "Rectangle {\n"
                             "id: root;\n"
                             "width: 200;\n"
@@ -3939,17 +3938,17 @@ void tst_TestCore::testMetaInfo()
 void tst_TestCore::testMetaInfoSimpleType()
 {
 
-    QScopedPointer<Model> model(createModel("QtQuick.Item"));
+    QScopedPointer<Model> model(createModel("QtQuick.Item", 2, 1));
     QVERIFY(model.data());
 
-    QVERIFY(model->hasNodeMetaInfo("QtQuick.Item", 1, 1));
-    QVERIFY(model->hasNodeMetaInfo("QtQuick.Item", 1, 1));
+    QVERIFY(model->hasNodeMetaInfo("QtQuick.Item", 2, 1));
+    QVERIFY(model->hasNodeMetaInfo("QtQuick.Item", 2, 1));
 
-    NodeMetaInfo itemMetaInfo = model->metaInfo("QtQuick.Item", 1, 1);
+    NodeMetaInfo itemMetaInfo = model->metaInfo("QtQuick.Item", 2, 1);
 
     QVERIFY(itemMetaInfo.isValid());
     QCOMPARE(itemMetaInfo.typeName(), QmlDesigner::TypeName("QtQuick.Item"));
-    QCOMPARE(itemMetaInfo.majorVersion(), 1);
+    QCOMPARE(itemMetaInfo.majorVersion(), 2);
     QCOMPARE(itemMetaInfo.minorVersion(), 1);
 
     // super classes
@@ -3963,30 +3962,29 @@ void tst_TestCore::testMetaInfoSimpleType()
     QVERIFY(itemMetaInfo.isSubclassOf("QtQuick.QtObject", -1, -1));
 
     // availableInVersion
-    QVERIFY(itemMetaInfo.availableInVersion(1, 1));
-    QVERIFY(itemMetaInfo.availableInVersion(1, 0));
+    QVERIFY(itemMetaInfo.availableInVersion(2, 2));
+    QVERIFY(itemMetaInfo.availableInVersion(2, 0));
     QVERIFY(itemMetaInfo.availableInVersion(-1, -1));
 }
 
 void tst_TestCore::testMetaInfoUncreatableType()
 {
-    QScopedPointer<Model> model(createModel("QtQuick.Item"));
+    QScopedPointer<Model> model(createModel("QtQuick.Item", 2, 1));
     QVERIFY(model.data());
 
     QVERIFY(model->hasNodeMetaInfo("QtQuick.Animation"));
-    NodeMetaInfo animationTypeInfo = model->metaInfo("QtQuick.Animation", 1, 1);
+    NodeMetaInfo animationTypeInfo = model->metaInfo("QtQuick.Animation", 2, 1);
     QVERIFY(animationTypeInfo.isValid());
 
     QVERIFY(animationTypeInfo.isValid());
     QCOMPARE(animationTypeInfo.typeName(), QmlDesigner::TypeName("QtQuick.Animation"));
-    QCOMPARE(animationTypeInfo.majorVersion(), 1);
+    QCOMPARE(animationTypeInfo.majorVersion(), 2);
     QCOMPARE(animationTypeInfo.minorVersion(), 1);
 
     NodeMetaInfo qObjectTypeInfo = animationTypeInfo.directSuperClass();
     QVERIFY(qObjectTypeInfo.isValid());
     QCOMPARE(qObjectTypeInfo.typeName(), QmlDesigner::TypeName("QtQuick.QtObject"));
-    QCOMPARE(qObjectTypeInfo.majorVersion(), 1);
-    QCOMPARE(qObjectTypeInfo.minorVersion(), 0);
+
     QCOMPARE(animationTypeInfo.superClasses().size(), 2);
 }
 
@@ -5827,7 +5825,7 @@ void tst_TestCore::testQmlModelStateWithName()
 void tst_TestCore::testRewriterAutomaticSemicolonAfterChangedProperty()
 {
     QPlainTextEdit textEdit1;
-    textEdit1.setPlainText("import QtQuick 1.1; Rectangle {\n    width: 640\n    height: 480\n}\n");
+    textEdit1.setPlainText("import QtQuick 2.1; Rectangle {\n    width: 640\n    height: 480\n}\n");
     NotIndentingTextEditModifier modifier1(&textEdit1);
 
     QScopedPointer<Model> model1(Model::create("QtQuick.Item"));
