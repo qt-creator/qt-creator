@@ -62,7 +62,7 @@ public:
 protected:
     virtual GccToolChain *createToolChain(bool autoDetect);
     QList<ToolChain *> autoDetectToolchains(const QString &compiler, const Abi &requiredAbi,
-                                            const Core::Id requiredTypeId,
+                                            ToolChain::Language l, const Core::Id requiredTypeId,
                                             const QList<ToolChain *> &alreadyKnown);
 };
 
