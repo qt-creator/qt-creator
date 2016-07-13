@@ -124,8 +124,6 @@ public:
     {
         return QmlJS::LibraryInfo();
     }
-
-
 };
 
 static void initializeMetaTypeSystem(const QString &resourcePath)
@@ -172,6 +170,7 @@ tst_TestCore::tst_TestCore()
     : QObject()
 {
     QLoggingCategory::setFilterRules(QStringLiteral("qtc.qmljs.imports=false"));
+    QLoggingCategory::setFilterRules(QStringLiteral("*.info=false\n*.debug=false\n*.warning=false"));
 }
 
 void tst_TestCore::initTestCase()
@@ -190,10 +189,8 @@ void tst_TestCore::initTestCase()
     QmlJS::PathsAndLanguages lPaths;
 
     lPaths.maybeInsert(Utils::FileName::fromString(basePaths.first()), QmlJS::Dialect::Qml);
-    QmlJS::ModelManagerInterface::importScan(result, QmlJS::ModelManagerInterface::workingCopy(), lPaths,
-                                      QmlJS::ModelManagerInterface::instance(), false);
-
-
+    QmlJS::ModelManagerInterface::importScan(result, QmlJS::ModelManagerInterface::workingCopy(),
+        lPaths, QmlJS::ModelManagerInterface::instance(), false);
 
    // Load plugins
 
@@ -209,7 +206,7 @@ void tst_TestCore::initTestCase()
 
     QFileInfo builtins(resourcePath() + "/qml-type-descriptions/builtins.qmltypes");
     QStringList errors, warnings;
-    QmlJS::CppQmlTypesLoader::defaultQtObjects = QmlJS::CppQmlTypesLoader::loadQmlTypes(QFileInfoList() << builtins, &errors, &warnings);
+    QmlJS::CppQmlTypesLoader::defaultQtObjects = QmlJS::CppQmlTypesLoader::loadQmlTypes(QFileInfoList{builtins}, &errors, &warnings);
 }
 
 void tst_TestCore::cleanupTestCase()
