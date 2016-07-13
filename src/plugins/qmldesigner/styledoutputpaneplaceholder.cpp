@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "styledoutputpaneplaceholder.h"
+#include "theming.h"
 
 #include <utils/fileutils.h>
 
@@ -36,9 +37,8 @@ namespace Internal {
 StyledOutputpanePlaceHolder::StyledOutputpanePlaceHolder(Core::Id mode, QSplitter *parent)
     : Core::OutputPanePlaceHolder(mode, parent)
 {
-    QByteArray sheet = Utils::FileReader::fetchQrc(":/qmldesigner/outputpane-style.css");
-    sheet += Utils::FileReader::fetchQrc(":/qmldesigner/scrollbar.css");
-    m_customStylesheet = QString::fromUtf8(sheet);
+    QByteArray sheet = Utils::FileReader::fetchQrc(":/qmldesigner/scrollbar.css");
+    m_customStylesheet = Theming::replaceCssColors(QString::fromUtf8(sheet));
 }
 
 void StyledOutputpanePlaceHolder::childEvent(QChildEvent *event)

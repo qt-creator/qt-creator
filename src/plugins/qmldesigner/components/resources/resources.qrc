@@ -4,6 +4,5 @@
         <file>stylesheet.css</file>
         <file>scrollbar.css</file>
         <file>formeditorstylesheet.css</file>
-        <file>outputpane-style.css</file>
     </qresource>
 </RCC>
