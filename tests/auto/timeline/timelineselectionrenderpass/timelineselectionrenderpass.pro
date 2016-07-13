@@ -1,4 +1,7 @@
-include(../shared/shared.pri)
+QT += quick
+
+QTC_LIB_DEPENDS += timeline
+include(../../qttest.pri)
 
 SOURCES += \
     tst_timelineselectionrenderpass.cpp

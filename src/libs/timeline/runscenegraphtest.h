@@ -25,6 +25,11 @@
 
 #pragma once
 
+#include "timeline_global.h"
 #include <QSGNode>
 
-void runSceneGraph(QSGNode *node);
+namespace Timeline {
+
+void TIMELINE_EXPORT runSceneGraphTest(QSGNode *node);
+
+} // namespace Timeline

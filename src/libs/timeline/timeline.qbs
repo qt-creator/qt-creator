@@ -39,6 +39,14 @@ Project {
             files: ["timeline.qrc"]
         }
 
+        Group {
+            name: "Unit test utilities"
+            condition: qtc.testsEnabled
+            files: [
+                "runscenegraphtest.cpp", "runscenegraphtest.h"
+            ]
+        }
+
         cpp.defines: base.concat("TIMELINE_LIBRARY")
     }
 }

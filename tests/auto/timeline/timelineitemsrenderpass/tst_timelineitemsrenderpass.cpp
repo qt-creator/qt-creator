@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#include "../shared/runscenegraph.h"
-
+#include <timeline/runscenegraphtest.h>
 #include <timeline/timelineitemsrenderpass.h>
 #include <timeline/timelinerenderstate.h>
 
@@ -146,8 +145,8 @@ void tst_TimelineItemsRenderPass::update()
     parentState.setPassState(0, result);
     parentState.assembleNodeTree(&model, 1, 1);
 
-    runSceneGraph(parentState.collapsedRowRoot());
-    runSceneGraph(parentState.expandedRowRoot());
+    runSceneGraphTest(parentState.collapsedRowRoot());
+    runSceneGraphTest(parentState.expandedRowRoot());
 }
 
 QTEST_MAIN(tst_TimelineItemsRenderPass)

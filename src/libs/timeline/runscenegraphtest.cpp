@@ -23,7 +23,7 @@
 **
 ****************************************************************************/
 
-#include "runscenegraph.h"
+#include "runscenegraphtest.h"
 
 #include <QTest>
 #include <QString>
@@ -32,7 +32,10 @@
 #include <QSGEngine>
 #include <QSGAbstractRenderer>
 
-void renderMessageHandler(QtMsgType type, const QMessageLogContext &context, const QString &message)
+namespace Timeline {
+
+static void renderMessageHandler(QtMsgType type, const QMessageLogContext &context,
+                                 const QString &message)
 {
     if (type > QtDebugMsg)
         QTest::qFail(message.toLatin1().constData(), context.file, context.line);
@@ -40,7 +43,7 @@ void renderMessageHandler(QtMsgType type, const QMessageLogContext &context, con
         QTest::qWarn(message.toLatin1().constData(), context.file, context.line);
 }
 
-void runSceneGraph(QSGNode *node)
+void runSceneGraphTest(QSGNode *node)
 {
     QSurfaceFormat format;
     format.setStencilBufferSize(8);
@@ -74,3 +77,5 @@ void runSceneGraph(QSGNode *node)
 
     context.doneCurrent();
 }
+
+} // namespace Timeline

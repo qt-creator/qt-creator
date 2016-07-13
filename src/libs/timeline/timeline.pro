@@ -45,3 +45,8 @@ RESOURCES += \
     $$PWD/qml/timeline.qrc
 
 DISTFILES += README
+
+equals(TEST, 1) {
+    SOURCES += runscenegraphtest.cpp
+    HEADERS += runscenegraphtest.h
+}

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#include "../shared/runscenegraph.h"
-
+#include <timeline/runscenegraphtest.h>
 #include <timeline/timelineselectionrenderpass.h>
 #include <timeline/timelinerenderstate.h>
 #include <timeline/timelineabstractrenderer_p.h>
@@ -171,8 +170,8 @@ void tst_TimelineSelectionRenderPass::update()
     parentState.setPassState(0, result);
     parentState.assembleNodeTree(&model, 1, 1);
 
-    runSceneGraph(parentState.collapsedOverlayRoot());
-    runSceneGraph(parentState.expandedOverlayRoot());
+    runSceneGraphTest(parentState.collapsedOverlayRoot());
+    runSceneGraphTest(parentState.expandedOverlayRoot());
 }
 
 QTEST_MAIN(tst_TimelineSelectionRenderPass)
