@@ -219,7 +219,7 @@ WaitForAsyncCompletions::WaitResult WaitForAsyncCompletions::wait(
     // There are not any, so wait for async results.
     QElapsedTimer timer; timer.start();
     while (!gotResults) {
-        if (timer.elapsed() >= 5 * 1000)
+        if (timer.elapsed() >= 30 * 1000)
             return Timeout;
         QCoreApplication::processEvents();
     }
