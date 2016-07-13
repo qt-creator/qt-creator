@@ -27,19 +27,20 @@ source("../../shared/qtcreator.py")
 
 qmlEditor = ":Qt Creator_QmlJSEditor::QmlJSTextEditorWidget"
 outline = ":Qt Creator_QmlJSEditor::Internal::QmlJSOutlineTreeView"
+treebase = "keyinteraction.Resources.keyinteraction\\.qrc./keyinteraction.focus."
 
 def main():
-    sourceExample = os.path.abspath(os.path.join(sdkPath, "Examples", "4.7", "declarative",
-                                                 "keyinteraction", "focus"))
-    proFile = "focus.pro"
+    sourceExample = os.path.join(Qt5Path.examplesPath(Targets.DESKTOP_561_DEFAULT),
+                                 "quick", "keyinteraction")
+    proFile = "keyinteraction.pro"
     if not neededFilePresent(os.path.join(sourceExample, proFile)):
         return
     templateDir = prepareTemplate(sourceExample)
     startApplication("qtcreator" + SettingsPath)
     if not startedWithoutPluginError():
         return
-    openQmakeProject(os.path.join(templateDir, proFile), Targets.DESKTOP_480_DEFAULT)
-    qmlFiles = ["focus.QML.qml.focus\\.qml", "focus.QML.qml.Core.ListMenu\\.qml"]
+    openQmakeProject(os.path.join(templateDir, proFile), Targets.DESKTOP_531_DEFAULT)
+    qmlFiles = [treebase + "focus\\.qml", treebase + "Core.ListMenu\\.qml"]
     checkOutlineFor(qmlFiles)
     testModify()
     invokeMenuItem("File", "Save All")
@@ -73,7 +74,7 @@ def processChildren(model, startIndex, level):
 
 def testModify():
     global qmlEditor
-    if not openDocument("focus.QML.qml.focus\\.qml"):
+    if not openDocument(treebase + "focus\\.qml"):
         test.fatal("Failed to open file focus.qml")
         return
     test.log("Testing whether modifications show up inside outline.")
