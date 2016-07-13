@@ -25,8 +25,8 @@
 
 #pragma once
 
-#include "diffutils.h"
 #include "selectabletexteditorwidget.h"
+#include "diffeditorwidgetcontroller.h"
 
 namespace TextEditor {
 class DisplaySettings;
@@ -81,10 +81,6 @@ private slots:
 
     void slotCursorPositionChangedInEditor();
 
-    void slotSendChunkToCodePaster();
-    void slotApplyChunk();
-    void slotRevertChunk();
-
 private:
     void setLeftLineNumber(int blockNumber, int lineNumber);
     void setRightLineNumber(int blockNumber, int lineNumber);
@@ -102,39 +98,23 @@ private:
     int fileIndexForBlockNumber(int blockNumber) const;
     int chunkIndexForBlockNumber(int blockNumber) const;
     void jumpToOriginalFile(const QTextCursor &cursor);
-    void jumpToOriginalFile(const QString &fileName,
-                            int lineNumber,
-                            int columnNumber);
     void addContextMenuActions(QMenu *menu,
                                int diffFileIndex,
                                int chunkIndex);
-    void patch(bool revert);
-
-    DiffEditorDocument *m_document;
 
     // block number, visual line number.
     QMap<int, int> m_leftLineNumbers;
     QMap<int, int> m_rightLineNumbers;
-    bool m_ignoreCurrentIndexChange;
-    int m_contextMenuFileIndex;
-    int m_contextMenuChunkIndex;
 
-    int m_leftLineNumberDigits;
-    int m_rightLineNumberDigits;
+    DiffEditorWidgetController m_controller;
+
+    int m_leftLineNumberDigits = 1;
+    int m_rightLineNumberDigits = 1;
     // block number, visual line number.
     QMap<int, QPair<DiffFileInfo, DiffFileInfo> > m_fileInfo;
     // start block number, block count of a chunk, chunk index inside a file.
     QMap<int, QPair<int, int> > m_chunkInfo;
 
-    QList<FileData> m_contextFileData; // ultimate data to be shown
-                                       // contextLineCount taken into account
-
-    QTextCharFormat m_fileLineFormat;
-    QTextCharFormat m_chunkLineFormat;
-    QTextCharFormat m_leftLineFormat;
-    QTextCharFormat m_rightLineFormat;
-    QTextCharFormat m_leftCharFormat;
-    QTextCharFormat m_rightCharFormat;
     QByteArray m_state;
 };
 

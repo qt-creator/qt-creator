@@ -24,40 +24,21 @@
 ****************************************************************************/
 
 #include "unifieddiffeditorwidget.h"
-#include "diffeditorcontroller.h"
-#include "diffutils.h"
-#include "diffeditorconstants.h"
 #include "diffeditordocument.h"
+#include "diffutils.h"
 
-#include <QPlainTextEdit>
 #include <QMenu>
-#include <QPlainTextDocumentLayout>
+#include <QPainter>
 #include <QScrollBar>
 #include <QTextBlock>
-#include <QTextCodec>
-#include <QPainter>
-#include <QDir>
-#include <QMessageBox>
 
 #include <texteditor/textdocument.h>
 #include <texteditor/textdocumentlayout.h>
 #include <texteditor/texteditorsettings.h>
 #include <texteditor/fontsettings.h>
 #include <texteditor/displaysettings.h>
-#include <texteditor/highlighterutils.h>
 
-#include <coreplugin/patchtool.h>
-#include <coreplugin/editormanager/editormanager.h>
-
-#include <cpaster/codepasterservice.h>
-
-#include <extensionsystem/pluginmanager.h>
-
-#include <utils/qtcassert.h>
 #include <utils/tooltip/tooltip.h>
-
-//static const int FILE_LEVEL = 1;
-//static const int CHUNK_LEVEL = 2;
 
 using namespace Core;
 using namespace TextEditor;
@@ -67,12 +48,7 @@ namespace Internal {
 
 UnifiedDiffEditorWidget::UnifiedDiffEditorWidget(QWidget *parent)
     : SelectableTextEditorWidget("DiffEditor.UnifiedDiffEditor", parent)
-    , m_document(0)
-    , m_ignoreCurrentIndexChange(false)
-    , m_contextMenuFileIndex(-1)
-    , m_contextMenuChunkIndex(-1)
-    , m_leftLineNumberDigits(1)
-    , m_rightLineNumberDigits(1)
+    , m_controller(this)
 {
     DisplaySettings settings = displaySettings();
     settings.m_textWrapping = false;
@@ -101,7 +77,7 @@ UnifiedDiffEditorWidget::UnifiedDiffEditorWidget(QWidget *parent)
 
 void UnifiedDiffEditorWidget::setDocument(DiffEditorDocument *document)
 {
-    m_document = document;
+    m_controller.setDocument(document);
 }
 
 void UnifiedDiffEditorWidget::saveState()
@@ -117,11 +93,11 @@ void UnifiedDiffEditorWidget::restoreState()
     if (m_state.isNull())
         return;
 
-    const bool oldIgnore = m_ignoreCurrentIndexChange;
-    m_ignoreCurrentIndexChange = true;
+    const bool oldIgnore = m_controller.m_ignoreCurrentIndexChange;
+    m_controller.m_ignoreCurrentIndexChange = true;
     SelectableTextEditorWidget::restoreState(m_state);
     m_state.clear();
-    m_ignoreCurrentIndexChange = oldIgnore;
+    m_controller.m_ignoreCurrentIndexChange = oldIgnore;
 }
 
 void UnifiedDiffEditorWidget::setDisplaySettings(const DisplaySettings &ds)
@@ -133,23 +109,18 @@ void UnifiedDiffEditorWidget::setDisplaySettings(const DisplaySettings &ds)
 
 void UnifiedDiffEditorWidget::setFontSettings(const FontSettings &fontSettings)
 {
-    m_fileLineFormat  = fontSettings.toTextCharFormat(C_DIFF_FILE_LINE);
-    m_chunkLineFormat = fontSettings.toTextCharFormat(C_DIFF_CONTEXT_LINE);
-    m_leftLineFormat  = fontSettings.toTextCharFormat(C_DIFF_SOURCE_LINE);
-    m_leftCharFormat  = fontSettings.toTextCharFormat(C_DIFF_SOURCE_CHAR);
-    m_rightLineFormat = fontSettings.toTextCharFormat(C_DIFF_DEST_LINE);
-    m_rightCharFormat = fontSettings.toTextCharFormat(C_DIFF_DEST_CHAR);
+    m_controller.setFontSettings(fontSettings);
 }
 
 void UnifiedDiffEditorWidget::slotCursorPositionChangedInEditor()
 {
-    if (m_ignoreCurrentIndexChange)
+    if (m_controller.m_ignoreCurrentIndexChange)
         return;
 
-    const bool oldIgnore = m_ignoreCurrentIndexChange;
-    m_ignoreCurrentIndexChange = true;
+    const bool oldIgnore = m_controller.m_ignoreCurrentIndexChange;
+    m_controller.m_ignoreCurrentIndexChange = true;
     emit currentDiffFileIndexChanged(fileIndexForBlockNumber(textCursor().blockNumber()));
-    m_ignoreCurrentIndexChange = oldIgnore;
+    m_controller.m_ignoreCurrentIndexChange = oldIgnore;
 }
 
 void UnifiedDiffEditorWidget::mouseDoubleClickEvent(QMouseEvent *e)
@@ -182,109 +153,11 @@ void UnifiedDiffEditorWidget::addContextMenuActions(QMenu *menu,
                                                     int diffFileIndex,
                                                     int chunkIndex)
 {
-    if (!m_document || !m_document->controller())
-        return;
-
     menu->addSeparator();
-    menu->addSeparator();
-    if (ExtensionSystem::PluginManager::getObject<CodePaster::Service>()) {
-        // optional code pasting service
-        QAction *sendChunkToCodePasterAction =
-                menu->addAction(tr("Send Chunk to CodePaster..."));
-        connect(sendChunkToCodePasterAction, &QAction::triggered,
-                this, &UnifiedDiffEditorWidget::slotSendChunkToCodePaster);
-    }
-    QAction *applyAction = menu->addAction(tr("Apply Chunk..."));
-    connect(applyAction, &QAction::triggered, this, &UnifiedDiffEditorWidget::slotApplyChunk);
-    QAction *revertAction = menu->addAction(tr("Revert Chunk..."));
-    connect(revertAction, &QAction::triggered, this, &UnifiedDiffEditorWidget::slotRevertChunk);
 
-    m_contextMenuFileIndex = diffFileIndex;
-    m_contextMenuChunkIndex = chunkIndex;
-
-    applyAction->setEnabled(false);
-    revertAction->setEnabled(false);
-
-    if (m_contextMenuFileIndex < 0 || m_contextMenuChunkIndex < 0)
-        return;
-
-    if (m_contextMenuFileIndex >= m_contextFileData.count())
-        return;
-
-    const FileData fileData = m_contextFileData.at(m_contextMenuFileIndex);
-    if (m_contextMenuChunkIndex >= fileData.chunks.count())
-        return;
-
-    m_document->chunkActionsRequested(menu, diffFileIndex, chunkIndex);
-
-    revertAction->setEnabled(true);
-
-    if (fileData.leftFileInfo.fileName == fileData.rightFileInfo.fileName)
-        return;
-
-    applyAction->setEnabled(true);
-}
-
-void UnifiedDiffEditorWidget::slotSendChunkToCodePaster()
-{
-    if (!m_document)
-        return;
-
-    // Retrieve service by soft dependency.
-    auto pasteService = ExtensionSystem::PluginManager::getObject<CodePaster::Service>();
-    QTC_ASSERT(pasteService, return);
-
-    const QString patch = m_document->makePatch(m_contextMenuFileIndex, m_contextMenuChunkIndex, false);
-
-    if (patch.isEmpty())
-        return;
-
-    pasteService->postText(patch, QLatin1String(Constants::DIFF_EDITOR_MIMETYPE));
-}
-
-void UnifiedDiffEditorWidget::slotApplyChunk()
-{
-    patch(false);
-}
-
-void UnifiedDiffEditorWidget::slotRevertChunk()
-{
-    patch(true);
-}
-
-void UnifiedDiffEditorWidget::patch(bool revert)
-{
-    if (!m_document)
-        return;
-
-    const QString title = revert ? tr("Revert Chunk") : tr("Apply Chunk");
-    const QString question = revert
-            ? tr("Would you like to revert the chunk?")
-            : tr("Would you like to apply the chunk?");
-    if (QMessageBox::No == QMessageBox::question(this, title, question,
-                                                 QMessageBox::Yes
-                                                 | QMessageBox::No)) {
-        return;
-    }
-
-    const int strip = m_document->baseDirectory().isEmpty() ? -1 : 0;
-
-    const FileData fileData = m_contextFileData.at(m_contextMenuFileIndex);
-    const QString fileName = revert
-            ? fileData.rightFileInfo.fileName
-            : fileData.leftFileInfo.fileName;
-
-    const QString workingDirectory = m_document->baseDirectory().isEmpty()
-            ? QFileInfo(fileName).absolutePath()
-            : m_document->baseDirectory();
-
-    const QString patch = m_document->makePatch(m_contextMenuFileIndex, m_contextMenuChunkIndex, revert);
-    if (patch.isEmpty())
-        return;
-
-    if (PatchTool::runPatch(EditorManager::defaultTextCodec()->fromUnicode(patch),
-                            workingDirectory, strip, revert))
-        m_document->reload();
+    m_controller.addCodePasterAction(menu);
+    m_controller.addApplyAction(menu, diffFileIndex, chunkIndex);
+    m_controller.addRevertAction(menu, diffFileIndex, chunkIndex);
 }
 
 void UnifiedDiffEditorWidget::clear(const QString &message)
@@ -297,12 +170,12 @@ void UnifiedDiffEditorWidget::clear(const QString &message)
     m_chunkInfo.clear();
     setSelections(QMap<int, QList<DiffSelection> >());
 
-    const bool oldIgnore = m_ignoreCurrentIndexChange;
-    m_ignoreCurrentIndexChange = true;
+    const bool oldIgnore = m_controller.m_ignoreCurrentIndexChange;
+    m_controller.m_ignoreCurrentIndexChange = true;
     SelectableTextEditorWidget::clear();
     setDiff(QList<FileData>(), QString());
     setPlainText(message);
-    m_ignoreCurrentIndexChange = oldIgnore;
+    m_controller.m_ignoreCurrentIndexChange = oldIgnore;
 }
 
 QString UnifiedDiffEditorWidget::lineNumber(int blockNumber) const
@@ -370,7 +243,7 @@ void UnifiedDiffEditorWidget::setDiff(const QList<FileData> &diffFileList,
 {
     Q_UNUSED(workingDirectory)
 
-    m_contextFileData = diffFileList;
+    m_controller.m_contextFileData = diffFileList;
 
     showDiff();
 }
@@ -391,7 +264,7 @@ QString UnifiedDiffEditorWidget::showChunk(const ChunkData &chunkData,
     int charCount = 0;
     QList<TextLineData> leftBuffer, rightBuffer;
 
-    (*selections)[*blockNumber].append(DiffSelection(&m_chunkLineFormat));
+    (*selections)[*blockNumber].append(DiffSelection(&m_controller.m_chunkLineFormat));
 
     int lastEqualRow = -1;
     if (lastChunk) {
@@ -424,7 +297,7 @@ QString UnifiedDiffEditorWidget::showChunk(const ChunkData &chunkData,
                     const int blockDelta = line.count(QLatin1Char('\n')); // no new line
                                                      // could have been added
                     for (int k = 0; k < blockDelta; k++)
-                        (*selections)[*blockNumber + blockCount + 1 + k].append(&m_leftLineFormat);
+                        (*selections)[*blockNumber + blockCount + 1 + k].append(&m_controller.m_leftLineFormat);
                     QMapIterator<int, int> itPos(lineData.changedPositions);
                     while (itPos.hasNext()) {
                         itPos.next();
@@ -433,7 +306,7 @@ QString UnifiedDiffEditorWidget::showChunk(const ChunkData &chunkData,
                         const int endPos = itPos.value() < 0
                                 ? itPos.value() : itPos.value() + 1;
                         (*selections)[*blockNumber + blockCount + 1].append(
-                                    DiffSelection(startPos, endPos, &m_leftCharFormat));
+                                    DiffSelection(startPos, endPos, &m_controller.m_leftCharFormat));
                     }
 
                     if (!line.isEmpty()) {
@@ -464,7 +337,7 @@ QString UnifiedDiffEditorWidget::showChunk(const ChunkData &chunkData,
                                                      // could have been added
 
                     for (int k = 0; k < blockDelta; k++)
-                        (*selections)[*blockNumber + blockCount + 1 + k].append(&m_rightLineFormat);
+                        (*selections)[*blockNumber + blockCount + 1 + k].append(&m_controller.m_rightLineFormat);
                     QMapIterator<int, int> itPos(lineData.changedPositions);
                     while (itPos.hasNext()) {
                         itPos.next();
@@ -473,7 +346,7 @@ QString UnifiedDiffEditorWidget::showChunk(const ChunkData &chunkData,
                         const int endPos = itPos.value() < 0
                                 ? itPos.value() : itPos.value() + 1;
                         (*selections)[*blockNumber + blockCount + 1].append
-                                (DiffSelection(startPos, endPos, &m_rightCharFormat));
+                                (DiffSelection(startPos, endPos, &m_controller.m_rightCharFormat));
                     }
 
                     if (!line.isEmpty()) {
@@ -548,16 +421,16 @@ void UnifiedDiffEditorWidget::showDiff()
 
     QMap<int, QList<DiffSelection> > selections;
 
-    for (int i = 0; i < m_contextFileData.count(); i++) {
-        const FileData &fileData = m_contextFileData.at(i);
+    for (int i = 0; i < m_controller.m_contextFileData.count(); i++) {
+        const FileData &fileData = m_controller.m_contextFileData.at(i);
         const QString leftFileInfo = QLatin1String("--- ")
                 + fileData.leftFileInfo.fileName + QLatin1Char('\n');
         const QString rightFileInfo = QLatin1String("+++ ")
                 + fileData.rightFileInfo.fileName + QLatin1Char('\n');
         setFileInfo(blockNumber, fileData.leftFileInfo, fileData.rightFileInfo);
-        selections[blockNumber].append(DiffSelection(&m_fileLineFormat));
+        selections[blockNumber].append(DiffSelection(&m_controller.m_fileLineFormat));
         blockNumber++;
-        selections[blockNumber].append(DiffSelection(&m_fileLineFormat));
+        selections[blockNumber].append(DiffSelection(&m_controller.m_fileLineFormat));
         blockNumber++;
 
         diffText += leftFileInfo;
@@ -565,7 +438,7 @@ void UnifiedDiffEditorWidget::showDiff()
         charNumber += leftFileInfo.count() + rightFileInfo.count();
 
         if (fileData.binaryFiles) {
-            selections[blockNumber].append(DiffSelection(&m_chunkLineFormat));
+            selections[blockNumber].append(DiffSelection(&m_controller.m_chunkLineFormat));
             blockNumber++;
             const QString binaryLine = QLatin1String("Binary files ")
                     + fileData.leftFileInfo.fileName
@@ -596,10 +469,10 @@ void UnifiedDiffEditorWidget::showDiff()
     }
 
     diffText.replace(QLatin1Char('\r'), QLatin1Char(' '));
-    const bool oldIgnore = m_ignoreCurrentIndexChange;
-    m_ignoreCurrentIndexChange = true;
+    const bool oldIgnore = m_controller.m_ignoreCurrentIndexChange;
+    m_controller.m_ignoreCurrentIndexChange = true;
     setPlainText(diffText);
-    m_ignoreCurrentIndexChange = oldIgnore;
+    m_controller.m_ignoreCurrentIndexChange = oldIgnore;
 
     setSelections(selections);
 }
@@ -662,7 +535,7 @@ void UnifiedDiffEditorWidget::jumpToOriginalFile(const QTextCursor &cursor)
     if (fileIndex < 0)
         return;
 
-    const FileData fileData = m_contextFileData.at(fileIndex);
+    const FileData fileData = m_controller.m_contextFileData.at(fileIndex);
     const QString leftFileName = fileData.leftFileInfo.fileName;
     const QString rightFileName = fileData.rightFileInfo.fileName;
 
@@ -670,7 +543,7 @@ void UnifiedDiffEditorWidget::jumpToOriginalFile(const QTextCursor &cursor)
 
     const int rightLineNumber = m_rightLineNumbers.value(blockNumber, -1);
     if (rightLineNumber >= 0) {
-        jumpToOriginalFile(rightFileName, rightLineNumber, columnNumber);
+        m_controller.jumpToOriginalFile(rightFileName, rightLineNumber, columnNumber);
         return;
     }
 
@@ -690,39 +563,25 @@ void UnifiedDiffEditorWidget::jumpToOriginalFile(const QTextCursor &cursor)
                     if (rowData.rightLine.textLineType == TextLineData::TextLine)
                         newRightLineNumber++;
                     if (newLeftLineNumber == leftLineNumber) {
-                        jumpToOriginalFile(leftFileName, newRightLineNumber, 0);
+                        m_controller.jumpToOriginalFile(leftFileName, newRightLineNumber, 0);
                         return;
                     }
                 }
             }
         } else {
-            jumpToOriginalFile(leftFileName, leftLineNumber, columnNumber);
+            m_controller.jumpToOriginalFile(leftFileName, leftLineNumber, columnNumber);
         }
         return;
     }
 }
 
-void UnifiedDiffEditorWidget::jumpToOriginalFile(const QString &fileName,
-                                                 int lineNumber,
-                                                 int columnNumber)
-{
-    if (!m_document)
-        return;
-
-    const QDir dir(m_document->baseDirectory());
-    const QString absoluteFileName = dir.absoluteFilePath(fileName);
-    QFileInfo fi(absoluteFileName);
-    if (fi.exists() && !fi.isDir())
-        EditorManager::openEditorAt(absoluteFileName, lineNumber, columnNumber);
-}
-
 void UnifiedDiffEditorWidget::setCurrentDiffFileIndex(int diffFileIndex)
 {
-    if (m_ignoreCurrentIndexChange)
+    if (m_controller.m_ignoreCurrentIndexChange)
         return;
 
-    const bool oldIgnore = m_ignoreCurrentIndexChange;
-    m_ignoreCurrentIndexChange = true;
+    const bool oldIgnore = m_controller.m_ignoreCurrentIndexChange;
+    m_controller.m_ignoreCurrentIndexChange = true;
     const int blockNumber = blockNumberForFileIndex(diffFileIndex);
 
     QTextBlock block = document()->findBlockByNumber(blockNumber);
@@ -730,7 +589,7 @@ void UnifiedDiffEditorWidget::setCurrentDiffFileIndex(int diffFileIndex)
     cursor.setPosition(block.position());
     setTextCursor(cursor);
     verticalScrollBar()->setValue(blockNumber);
-    m_ignoreCurrentIndexChange = oldIgnore;
+    m_controller.m_ignoreCurrentIndexChange = oldIgnore;
 }
 
 } // namespace Internal

@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include "diffutils.h"
+#include "diffeditorwidgetcontroller.h"
 
 #include <QWidget>
 #include <QTextCharFormat>
@@ -40,6 +40,7 @@ QT_END_NAMESPACE
 namespace DiffEditor {
 
 class DiffEditorController;
+class FileData;
 
 namespace Internal {
 
@@ -78,9 +79,6 @@ private slots:
                                       int chunkIndex);
     void slotRightContextMenuRequested(QMenu *menu, int diffFileIndex,
                                        int chunkIndex);
-    void slotSendChunkToCodePaster();
-    void slotApplyChunk();
-    void slotRevertChunk();
     void leftVSliderChanged();
     void rightVSliderChanged();
     void leftHSliderChanged();
@@ -90,30 +88,16 @@ private slots:
 
 private:
     void showDiff();
-    void jumpToOriginalFile(const QString &fileName,
-                            int lineNumber, int columnNumber);
-    void patch(bool revert);
 
-    DiffEditorDocument *m_document;
     SideDiffEditorWidget *m_leftEditor;
     SideDiffEditorWidget *m_rightEditor;
     QSplitter *m_splitter;
 
-    QList<FileData> m_contextFileData; // ultimate data to be shown, contextLineCount taken into account
+    DiffEditorWidgetController m_controller;
 
-    bool m_ignoreCurrentIndexChange;
-    bool m_foldingBlocker;
-    bool m_horizontalSync;
-    int m_contextMenuFileIndex;
-    int m_contextMenuChunkIndex;
+    bool m_horizontalSync = false;
 
     QTextCharFormat m_spanLineFormat;
-    QTextCharFormat m_fileLineFormat;
-    QTextCharFormat m_chunkLineFormat;
-    QTextCharFormat m_leftLineFormat;
-    QTextCharFormat m_leftCharFormat;
-    QTextCharFormat m_rightLineFormat;
-    QTextCharFormat m_rightCharFormat;
 };
 
 } // namespace Internal
