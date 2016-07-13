@@ -57,15 +57,13 @@ DebuggerKitInformation::DebuggerKitInformation()
 
 QVariant DebuggerKitInformation::defaultValue(const Kit *k) const
 {
-    ToolChain *tc = ToolChainKitInformation::toolChain(k, ToolChain::Language::Cxx);
-    if (!tc)
-        return QVariant();
-
-    const Abi toolChainAbi = tc->targetAbi();
-    foreach (const DebuggerItem &item, DebuggerItemManager::debuggers())
-        foreach (const Abi targetAbi, item.abis())
+    const Abi toolChainAbi = ToolChainKitInformation::targetAbi(k);
+    foreach (const DebuggerItem &item, DebuggerItemManager::debuggers()) {
+        foreach (const Abi targetAbi, item.abis()) {
             if (targetAbi.isCompatibleWith(toolChainAbi))
                 return item.id();
+        }
+    }
 
     return QVariant();
 }
@@ -87,7 +85,7 @@ void DebuggerKitInformation::setup(Kit *k)
     //  </valuemap>
     const QVariant rawId = k->value(DebuggerKitInformation::id());
 
-    const ToolChain *tc = ToolChainKitInformation::toolChain(k, ToolChain::Language::Cxx);
+    const Abi tcAbi = ToolChainKitInformation::targetAbi(k);
 
     // Get the best of the available debugger matching the kit's toolchain.
     // The general idea is to find an item that exactly matches what
@@ -102,13 +100,7 @@ void DebuggerKitInformation::setup(Kit *k)
 
         if (rawId.isNull()) {
             // Initial setup of a kit.
-            if (tc) {
-                // Use item if target toolchain fits.
-                level = item.matchTarget(tc->targetAbi());
-            } else {
-                // Use item if host toolchain fits, but only as fallback.
-                level = std::min(item.matchTarget(Abi::hostAbi()), DebuggerItem::MatchesSomewhat);
-            }
+            level = item.matchTarget(tcAbi);
         } else if (rawId.type() == QVariant::String) {
             // New structure.
             if (item.id() == rawId) {
@@ -117,8 +109,7 @@ void DebuggerKitInformation::setup(Kit *k)
             } else {
                 // This item does not match by ID, and is an unlikely candidate.
                 // However, consider using it as fallback if the tool chain fits.
-                if (tc)
-                    level = std::min(item.matchTarget(tc->targetAbi()), DebuggerItem::MatchesSomewhat);
+                level = std::min(item.matchTarget(tcAbi), DebuggerItem::MatchesSomewhat);
             }
         } else {
             // Old structure.
@@ -129,31 +120,19 @@ void DebuggerKitInformation::setup(Kit *k)
                 // an engine type.
                 DebuggerEngineType autoEngine = DebuggerEngineType(map.value(QLatin1String("EngineType")).toInt());
                 if (item.engineType() == autoEngine) {
-                    if (tc) {
-                        // Use item if target toolchain fits.
-                        level = item.matchTarget(tc->targetAbi());
-                    } else {
-                        // Use item if host toolchain fits, but only as fallback.
-                        level = std::min(item.matchTarget(Abi::hostAbi()), DebuggerItem::MatchesSomewhat);
-                    }
+                    // Use item if host toolchain fits, but only as fallback.
+                    level = std::min(item.matchTarget(tcAbi), DebuggerItem::MatchesSomewhat);
                 }
             } else {
                 // We have an executable path.
                 FileName fileName = FileName::fromUserInput(binary);
                 if (item.command() == fileName) {
                     // And it's is the path of this item.
-                    if (tc) {
-                        // Use item if target toolchain fits.
-                        level = item.matchTarget(tc->targetAbi());
-                    } else {
-                        // Use item if host toolchain fits, but only as fallback.
-                        level = std::min(item.matchTarget(Abi::hostAbi()), DebuggerItem::MatchesSomewhat);
-                    }
+                    level = std::min(item.matchTarget(tcAbi), DebuggerItem::MatchesSomewhat);
                 } else {
                     // This item does not match by filename, and is an unlikely candidate.
                     // However, consider using it as fallback if the tool chain fits.
-                    if (tc)
-                        level = std::min(item.matchTarget(tc->targetAbi()), DebuggerItem::MatchesSomewhat);
+                    level = std::min(item.matchTarget(tcAbi), DebuggerItem::MatchesSomewhat);
                 }
             }
         }
@@ -237,8 +216,8 @@ static unsigned debuggerConfigurationErrors(const Kit *k)
     else if (!fi.isExecutable())
         result |= DebuggerNotExecutable;
 
-    const ToolChain *tc = ToolChainKitInformation::toolChain(k, ToolChain::Language::Cxx);
-    if (tc && item->matchTarget(tc->targetAbi()) == DebuggerItem::DoesNotMatch) {
+    const Abi tcAbi = ToolChainKitInformation::targetAbi(k);
+    if (item->matchTarget(tcAbi) == DebuggerItem::DoesNotMatch) {
         // currently restricting the check to desktop devices, may be extended to all device types
         const IDevice::ConstPtr device = DeviceKitInformation::device(k);
         if (device && device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE)
@@ -251,7 +230,7 @@ static unsigned debuggerConfigurationErrors(const Kit *k)
 
         // We need an absolute path to be able to locate Python on Windows.
         if (item->engineType() == GdbEngineType) {
-            if (tc && tc->targetAbi().os() == Abi::WindowsOS && !fi.isAbsolute())
+            if (tcAbi.os() == Abi::WindowsOS && !fi.isAbsolute())
                 result |= DebuggerNeedsAbsolutePath;
         }
     }

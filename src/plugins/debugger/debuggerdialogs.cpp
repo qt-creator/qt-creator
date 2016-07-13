@@ -109,10 +109,8 @@ DebuggerKitChooser::DebuggerKitChooser(Mode mode, QWidget *parent)
         // Match valid debuggers and restrict local debugging to compatible toolchains.
         if (!DebuggerKitInformation::isValidDebugger(k))
             return false;
-        if (m_mode == LocalDebugging) {
-            const ToolChain *tc = ToolChainKitInformation::toolChain(k, ToolChain::Language::Cxx);
-            return tc && tc->targetAbi().os() == m_hostAbi.os();
-        }
+        if (m_mode == LocalDebugging)
+            return ToolChainKitInformation::targetAbi(k).os() == m_hostAbi.os();
         return true;
     });
 }

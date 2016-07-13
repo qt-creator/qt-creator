@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include "abi.h"
 #include "devicesupport/idevice.h"
 #include "kitmanager.h"
 #include "kit.h"
@@ -96,6 +97,7 @@ public:
     static QList<ToolChain *> toolChains(const Kit *k);
     static void setToolChain(Kit *k, ToolChain *tc);
     static void setToolChain(Kit *k, ToolChain::Language l, ToolChain *tc);
+    static Abi targetAbi(const Kit *k);
 
     static QString msgNoToolChainInTarget();
 

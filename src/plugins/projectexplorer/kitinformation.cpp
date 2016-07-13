@@ -290,6 +290,39 @@ void ToolChainKitInformation::setToolChain(Kit *k, ToolChain::Language l, ToolCh
     k->setValue(id(), result);
 }
 
+Abi ToolChainKitInformation::targetAbi(const Kit *k)
+{
+    QList<ToolChain *> tcList = toolChains(k);
+    // Find the best possible ABI for all the tool chains...
+    Abi cxxAbi;
+    QHash<Abi, int> abiCount;
+    foreach (ToolChain *tc, tcList) {
+        Abi ta = tc->targetAbi();
+        if (tc->language() == ToolChain::Language::Cxx)
+            cxxAbi = tc->targetAbi();
+        abiCount[ta] = (abiCount.contains(ta) ? abiCount[ta] + 1 : 1);
+    }
+    QVector<Abi> candidates;
+    int count = -1;
+    candidates.reserve(tcList.count());
+    for (auto i = abiCount.begin(); i != abiCount.end(); ++i) {
+        if (i.value() > count) {
+            candidates.clear();
+            candidates.append(i.key());
+            count = i.value();
+        } else if (i.value() == count) {
+            candidates.append(i.key());
+        }
+    }
+
+    // Found a good candidate:
+    if (candidates.isEmpty())
+        return Abi::hostAbi();
+    if (candidates.contains(cxxAbi)) // Use Cxx compiler as a tie breaker
+        return cxxAbi;
+    return candidates.at(0); // Use basically a random Abi...
+}
+
 QString ToolChainKitInformation::msgNoToolChainInTarget()
 {
     return tr("No compiler set in kit.");

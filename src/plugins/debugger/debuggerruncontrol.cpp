@@ -366,8 +366,7 @@ static DebuggerRunControl *doCreate(DebuggerRunParameters rp, RunConfiguration *
         }
     }
 
-    if (ToolChain *tc = ToolChainKitInformation::toolChain(kit, ToolChain::Language::Cxx))
-        rp.toolChainAbi = tc->targetAbi();
+    rp.toolChainAbi = ToolChainKitInformation::targetAbi(kit);
 
     if (false) {
         const QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(kit);
