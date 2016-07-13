@@ -361,9 +361,16 @@ void ProjectPartBuilder::createProjectPart(const QVector<ProjectFile> &theSource
     QTC_ASSERT(part->project, return);
     if (ProjectExplorer::Target *activeTarget = part->project->activeTarget()) {
         if (ProjectExplorer::Kit *kit = activeTarget->kit()) {
-            if (ProjectExplorer::ToolChain *toolChain = ProjectExplorer::ToolChainKitInformation::toolChain(kit, ProjectExplorer::ToolChain::Language::Cxx)) {
-                const QStringList flags = languageVersion >= ProjectPart::CXX98 ? m_cxxFlags
-                                                                                : m_cFlags;
+            ProjectExplorer::ToolChain *toolChain = nullptr;
+            if (languageVersion < ProjectPart::CXX98)
+                toolChain = ProjectExplorer::ToolChainKitInformation::toolChain(kit, ProjectExplorer::ToolChain::Language::C);
+            if (!toolChain) // Use Cxx toolchain for C projects without C compiler in kit and for C++ code
+                toolChain = ProjectExplorer::ToolChainKitInformation::toolChain(kit, ProjectExplorer::ToolChain::Language::Cxx);
+
+            if (toolChain) {
+                const QStringList flags
+                        = (toolChain->language() == ProjectExplorer::ToolChain::Language::Cxx)
+                          ? m_cxxFlags : m_cFlags;
                 evaluateProjectPartToolchain(part.data(),
                                              toolChain,
                                              flags,
