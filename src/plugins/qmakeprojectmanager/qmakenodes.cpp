@@ -1438,6 +1438,9 @@ QString QmakePriFileNode::varNameForAdding(const QString &mimeType)
     if (mimeType == QLatin1String(ProjectExplorer::Constants::QML_MIMETYPE))
         return QLatin1String("DISTFILES");
 
+    if (mimeType == QLatin1String(ProjectExplorer::Constants::SCXML_MIMETYPE))
+        return QLatin1String("STATECHARTS");
+
     if (mimeType == QLatin1String(Constants::PROFILE_MIMETYPE))
         return QLatin1String("SUBDIRS");
 
@@ -1464,6 +1467,7 @@ QStringList QmakePriFileNode::varNamesForRemoving()
     vars << QLatin1String("DISTFILES");
     vars << QLatin1String("ICON");
     vars << QLatin1String("QMAKE_INFO_PLIST");
+    vars << QLatin1String("STATECHARTS");
     return vars;
 }
 
