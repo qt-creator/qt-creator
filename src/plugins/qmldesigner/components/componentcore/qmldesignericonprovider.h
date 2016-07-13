@@ -29,10 +29,10 @@
 
 namespace QmlDesigner {
 
-class StatesEditorIconProvider : public QQuickImageProvider
+class QmlDesignerIconProvider : public QQuickImageProvider
 {
 public:
-    StatesEditorIconProvider();
+    QmlDesignerIconProvider();
     QPixmap requestPixmap(const QString &id, QSize *size, const QSize &requestedSize) override;
 };
 

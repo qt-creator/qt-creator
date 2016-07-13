@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include <QQmlEngine>
 #include <QQmlPropertyMap>
 
 namespace QmlDesigner {
@@ -34,6 +35,7 @@ class Theming
 public:
     static void insertTheme(QQmlPropertyMap *map);
     static QString replaceCssColors(const QString &input);
+    static void registerIconProvider(QQmlEngine *engine);
 };
 
 } // namespace QmlDesigner

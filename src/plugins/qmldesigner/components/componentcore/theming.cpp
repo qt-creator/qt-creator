@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "theming.h"
+#include "qmldesignericonprovider.h"
 
 #include <utils/theme/theme.h>
 
@@ -85,6 +86,11 @@ QString Theming::replaceCssColors(const QString &input)
 
     return output;
 
+}
+
+void Theming::registerIconProvider(QQmlEngine *engine)
+{
+    engine->addImageProvider(QLatin1String("icons"), new QmlDesignerIconProvider());
 }
 
 } // namespace QmlDesigner

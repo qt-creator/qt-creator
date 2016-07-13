@@ -27,7 +27,6 @@
 #include "stateseditormodel.h"
 #include "stateseditorview.h"
 #include "stateseditorimageprovider.h"
-#include "stateseditoriconprovider.h"
 
 #include <theming.h>
 
@@ -104,7 +103,7 @@ StatesEditorWidget::StatesEditorWidget(StatesEditorView *statesEditorView, State
     Theming::insertTheme(&m_themeProperties);
     rootContext()->setContextProperty(QLatin1String("creatorTheme"), &m_themeProperties);
 
-    engine()->addImageProvider(QLatin1String("icons"), new StatesEditorIconProvider());
+    Theming::registerIconProvider(engine());
 
     setWindowTitle(tr("States", "Title of Editor widget"));
 

@@ -23,19 +23,19 @@
 **
 ****************************************************************************/
 
-#include "stateseditoriconprovider.h"
+#include "qmldesignericonprovider.h"
 
 #include <coreplugin/coreicons.h>
 
 namespace QmlDesigner {
 
-StatesEditorIconProvider::StatesEditorIconProvider()
+QmlDesignerIconProvider::QmlDesignerIconProvider()
     : QQuickImageProvider(Pixmap)
 {
 
 }
 
-QPixmap StatesEditorIconProvider::requestPixmap(const QString &id, QSize *size, const QSize &requestedSize)
+QPixmap QmlDesignerIconProvider::requestPixmap(const QString &id, QSize *size, const QSize &requestedSize)
 {
     Q_UNUSED(requestedSize)
 
