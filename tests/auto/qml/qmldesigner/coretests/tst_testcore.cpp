@@ -219,11 +219,9 @@ void tst_TestCore::cleanupTestCase()
 
 void tst_TestCore::init()
 {
-    QApplication::processEvents();
 }
 void tst_TestCore::cleanup()
 {
-    QApplication::processEvents();
 }
 
 void tst_TestCore::testModelCreateCoreModel()
