@@ -12,7 +12,8 @@ SOURCES += \
     $$PWD/qmleventtype_test.cpp \
     $$PWD/qmlnote_test.cpp \
     $$PWD/qmlprofileranimationsmodel_test.cpp \
-    $$PWD/qmlprofilerattachdialog_test.cpp
+    $$PWD/qmlprofilerattachdialog_test.cpp \
+    $$PWD/qmlprofilerbindingloopsrenderpass_test.cpp
 
 HEADERS += \
     $$PWD/debugmessagesmodel_test.h \
@@ -28,4 +29,5 @@ HEADERS += \
     $$PWD/qmleventtype_test.h \
     $$PWD/qmlnote_test.h \
     $$PWD/qmlprofileranimationsmodel_test.h \
-    $$PWD/qmlprofilerattachdialog_test.h
+    $$PWD/qmlprofilerattachdialog_test.h \
+    $$PWD/qmlprofilerbindingloopsrenderpass_test.h

@@ -91,6 +91,8 @@ QtcPlugin {
             "qmlnote_test.cpp", "qmlnote_test.h",
             "qmlprofileranimationsmodel_test.cpp", "qmlprofileranimationsmodel_test.h",
             "qmlprofilerattachdialog_test.cpp", "qmlprofilerattachdialog_test.h",
+            "qmlprofilerbindingloopsrenderpass_test.cpp",
+            "qmlprofilerbindingloopsrenderpass_test.h",
         ]
     }
 }

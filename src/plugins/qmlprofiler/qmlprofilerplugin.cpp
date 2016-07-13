@@ -44,6 +44,7 @@
 #include "tests/qmlnote_test.h"
 #include "tests/qmlprofileranimationsmodel_test.h"
 #include "tests/qmlprofilerattachdialog_test.h"
+#include "tests/qmlprofilerbindingloopsrenderpass_test.h"
 #endif
 
 #include <extensionsystem/pluginmanager.h>
@@ -105,6 +106,7 @@ QList<QObject *> QmlProfiler::Internal::QmlProfilerPlugin::createTestObjects() c
     tests << new QmlNoteTest;
     tests << new QmlProfilerAnimationsModelTest;
     tests << new QmlProfilerAttachDialogTest;
+    tests << new QmlProfilerBindingLoopsRenderPassTest;
 #endif
     return tests;
 }
