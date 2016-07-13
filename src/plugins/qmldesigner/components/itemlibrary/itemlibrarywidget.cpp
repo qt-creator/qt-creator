@@ -96,6 +96,7 @@ ItemLibraryWidget::ItemLibraryWidget(QWidget *parent) :
 
     /* create image provider for loading item icons */
     m_itemViewQuickWidget->engine()->addImageProvider(QStringLiteral("qmldesigner_itemlibrary"), new Internal::ItemLibraryImageProvider);
+    Theming::registerIconProvider(m_itemViewQuickWidget->engine());
 
     /* other widgets */
     QTabBar *tabBar = new QTabBar(this);
