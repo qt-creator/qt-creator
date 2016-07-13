@@ -61,7 +61,7 @@ public:
 
     Q_INVOKABLE int expandedRow(int index) const override;
     Q_INVOKABLE int collapsedRow(int index) const override;
-    int bindingLoopDest(int index) const override;
+    int bindingLoopDest(int index) const;
     QColor color(int index) const override;
 
     QVariantList labels() const override;

@@ -112,12 +112,6 @@ void QmlProfilerTimelineModel::onVisibleFeaturesChanged(quint64 features)
     setHidden(!(features & (1ULL << m_mainFeature)));
 }
 
-int QmlProfilerTimelineModel::bindingLoopDest(int index) const
-{
-    Q_UNUSED(index);
-    return -1;
-}
-
 QVariantMap QmlProfilerTimelineModel::locationFromTypeId(int index) const
 {
     QVariantMap result;
