@@ -30,7 +30,7 @@
 namespace ClangBackEnd {
 
 template <typename ClientInterface>
-class CMBIPC_EXPORT IpcServerInterface : public IpcInterface
+class IpcServerInterface : public IpcInterface
 {
 public:
     void setClient(ClientInterface *client)
