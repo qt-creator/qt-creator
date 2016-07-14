@@ -28,7 +28,6 @@
 #include "debuggerengine.h"
 #include "watchdelegatewidgets.h"
 
-#include "memoryview.h"
 #include "memoryagent.h"
 #include "debuggeractions.h"
 #include "debuggerdialogs.h"
@@ -712,8 +711,8 @@ bool RegisterHandler::contextMenuEvent(const ItemViewEvent &ev)
                     MemoryViewSetupData data;
                     data.startAddress = address;
                     data.registerName = registerName;
-                    data.markup = RegisterMemoryView::registerMarkup(address, registerName);
-                    data.title = RegisterMemoryView::title(registerName);
+                    data.markup = registerViewMarkup(address, registerName);
+                    data.title = registerViewTitle(registerName);
                     m_engine->openMemoryView(data);
               });
 

@@ -59,7 +59,6 @@ HEADERS += \
     watchdelegatewidgets.h \
     debuggertooltipmanager.h \
     debuggersourcepathmappingwidget.h \
-    memoryview.h \
     localsandexpressionswindow.h \
     imageviewer.h \
     simplifytype.h \
@@ -109,7 +108,6 @@ SOURCES += \
     watchdelegatewidgets.cpp \
     debuggertooltipmanager.cpp \
     debuggersourcepathmappingwidget.cpp \
-    memoryview.cpp \
     localsandexpressionswindow.cpp \
     imageviewer.cpp \
     simplifytype.cpp \

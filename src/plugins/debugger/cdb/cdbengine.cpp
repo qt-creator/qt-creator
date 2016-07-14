@@ -151,13 +151,11 @@ static const char localsPrefixC[] = "local.";
 
 struct MemoryViewCookie
 {
-    explicit MemoryViewCookie(MemoryAgent *a = 0, QObject *e = 0,
-                              quint64 addr = 0, quint64 l = 0) :
-        agent(a), editorToken(e), address(addr), length(l)
+    explicit MemoryViewCookie(MemoryAgent *a = 0, quint64 addr = 0, quint64 l = 0)
+        : agent(a), address(addr), length(l)
     {}
 
     MemoryAgent *agent;
-    QObject *editorToken;
     quint64 address;
     quint64 length;
 };
@@ -1499,11 +1497,11 @@ void CdbEngine::handleResolveSymbolHelper(const QList<quint64> &addresses, Disas
     }
 }
 
-void CdbEngine::fetchMemory(MemoryAgent *agent, QObject *editor, quint64 addr, quint64 length)
+void CdbEngine::fetchMemory(MemoryAgent *agent, quint64 addr, quint64 length)
 {
     if (debug)
         qDebug("CdbEngine::fetchMemory %llu bytes from 0x%llx", length, addr);
-    const MemoryViewCookie cookie(agent, editor, addr, length);
+    const MemoryViewCookie cookie(agent, addr, length);
     if (m_accessible)
         postFetchMemory(cookie);
     else
@@ -1521,7 +1519,7 @@ void CdbEngine::postFetchMemory(const MemoryViewCookie &cookie)
         if (response.resultClass == ResultDone && cookie.agent) {
             const QByteArray data = QByteArray::fromHex(response.data.data().toUtf8());
             if (unsigned(data.size()) == cookie.length)
-                cookie.agent->addLazyData(cookie.editorToken, cookie.address, data);
+                cookie.agent->addData(cookie.address, data);
         } else {
             showMessage(response.data["msg"].data(), LogWarning);
         }
@@ -1529,7 +1527,7 @@ void CdbEngine::postFetchMemory(const MemoryViewCookie &cookie)
     runCommand(cmd);
 }
 
-void CdbEngine::changeMemory(Internal::MemoryAgent *, QObject *, quint64 addr, const QByteArray &data)
+void CdbEngine::changeMemory(MemoryAgent *, quint64 addr, const QByteArray &data)
 {
     QTC_ASSERT(!data.isEmpty(), return);
     if (!m_accessible) {

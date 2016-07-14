@@ -3710,39 +3710,34 @@ void GdbEngine::handleWatchPoint(const DebuggerResponse &response)
 class MemoryAgentCookie
 {
 public:
-    MemoryAgentCookie()
-        : accumulator(0), pendingRequests(0), agent(0), token(0), base(0), offset(0), length(0)
-    {}
+    MemoryAgentCookie() {}
 
-public:
-    QByteArray *accumulator; // Shared between split request. Last one cleans up.
-    uint *pendingRequests; // Shared between split request. Last one cleans up.
+    QByteArray *accumulator = nullptr; // Shared between split request. Last one cleans up.
+    uint *pendingRequests = nullptr; // Shared between split request. Last one cleans up.
 
     QPointer<MemoryAgent> agent;
-    QPointer<QObject> token;
-    quint64 base; // base address.
-    uint offset; // offset to base, and in accumulator
-    uint length; //
+    quint64 base = 0; // base address.
+    uint offset = 0; // offset to base, and in accumulator
+    uint length = 0; //
 };
 
 
-void GdbEngine::changeMemory(MemoryAgent *, QObject *,
-        quint64 addr, const QByteArray &data)
+void GdbEngine::changeMemory(MemoryAgent *agent, quint64 addr, const QByteArray &data)
 {
+    Q_UNUSED(agent)
     DebuggerCommand cmd("-data-write-memory 0x" + QString::number(addr, 16) + " d 1", NeedsStop);
     foreach (unsigned char c, data)
         cmd.function += ' ' + QString::number(uint(c));
+    cmd.callback = CB(handleVarAssign);
     runCommand(cmd);
 }
 
-void GdbEngine::fetchMemory(MemoryAgent *agent, QObject *token, quint64 addr,
-                            quint64 length)
+void GdbEngine::fetchMemory(MemoryAgent *agent, quint64 addr, quint64 length)
 {
     MemoryAgentCookie ac;
     ac.accumulator = new QByteArray(length, char());
     ac.pendingRequests = new uint(1);
     ac.agent = agent;
-    ac.token = token;
     ac.base = addr;
     ac.length = length;
     fetchMemoryHelper(ac);
@@ -3800,7 +3795,7 @@ void GdbEngine::handleFetchMemory(const DebuggerResponse &response, MemoryAgentC
     }
 
     if (*ac.pendingRequests <= 0) {
-        ac.agent->addLazyData(ac.token, ac.base, *ac.accumulator);
+        ac.agent->addData(ac.base, *ac.accumulator);
         delete ac.pendingRequests;
         delete ac.accumulator;
     }

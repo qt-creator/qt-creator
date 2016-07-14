@@ -24,13 +24,15 @@
 ****************************************************************************/
 
 #include "memoryagent.h"
-#include "memoryview.h"
 
 #include "breakhandler.h"
 #include "debuggerengine.h"
 #include "debuggerstartparameters.h"
 #include "debuggercore.h"
 #include "debuggerinternalconstants.h"
+#include "registerhandler.h"
+
+#include <bineditor/bineditorservice.h>
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/ieditor.h>
@@ -42,12 +44,130 @@
 #include <extensionsystem/pluginmanager.h>
 #include <extensionsystem/invoker.h>
 
+#include <QVBoxLayout>
+
 #include <cstring>
 
 using namespace Core;
+using namespace ProjectExplorer;
 
 namespace Debugger {
 namespace Internal {
+
+enum { BinBlockSize = 1024 };
+enum { DataRange = 1024 * 1024 };
+
+/*!
+    \class Debugger::Internal::MemoryView
+    \brief The MemoryView class is a base class for memory view tool windows.
+
+    This class is a small tool-window that stays on top and displays a chunk
+    of memory based on the widget provided by the BinEditor plugin.
+
+    \sa Debugger::Internal::MemoryAgent, Debugger::DebuggerEngine
+*/
+
+class MemoryView : public QWidget
+{
+public:
+    explicit MemoryView(MemoryAgent *agent, QWidget *parent)
+        : QWidget(parent, Qt::Tool), m_agent(agent)
+    {
+        setAttribute(Qt::WA_DeleteOnClose);
+        QVBoxLayout *layout = new QVBoxLayout(this);
+        layout->addWidget(agent->service()->widget());
+        layout->setContentsMargins(0, 0, 0, 0);
+        setMinimumWidth(400);
+        resize(800, 200);
+    }
+
+    void updateContents()
+    {
+        if (m_agent)
+            m_agent->updateContents();
+    }
+
+protected:
+    void setAddress(quint64 a)
+    {
+        if (m_agent)
+            m_agent->setAddress(a);
+    }
+
+    void setMarkup(const QList<MemoryMarkup> &m)
+    {
+        if (m_agent)
+            m_agent->setMarkup(m);
+    }
+
+private:
+    QPointer<MemoryAgent> m_agent;
+};
+
+
+/*!
+    \class Debugger::Internal::RegisterMemoryView
+    \brief The RegisterMemoryView class provides a memory view that shows the
+           memory around the contents of a register (such as stack pointer,
+           program counter), tracking changes of the register value.
+
+    Connects to Debugger::Internal::RegisterHandler to listen for changes
+    of the register value.
+
+    \note Some registers might switch to 0 (for example, 'rsi','rbp'
+    while stepping out of a function with parameters).
+    This must be handled gracefully.
+
+    \sa Debugger::Internal::RegisterHandler, Debugger::Internal::RegisterWindow
+    \sa Debugger::Internal::MemoryAgent, Debugger::DebuggerEngine
+*/
+
+class RegisterMemoryView : public MemoryView
+{
+public:
+    RegisterMemoryView(MemoryAgent *agent, quint64 addr, const QString &regName,
+                       RegisterHandler *rh, QWidget *parent)
+        : MemoryView(agent, parent), m_registerName(regName), m_registerAddress(addr)
+    {
+        connect(rh, &QAbstractItemModel::modelReset, this, &QWidget::close);
+        connect(rh, &RegisterHandler::registerChanged, this, &RegisterMemoryView::onRegisterChanged);
+        updateContents();
+    }
+
+private:
+    void onRegisterChanged(const QString &name, quint64 value)
+    {
+        if (name == m_registerName)
+            setRegisterAddress(value);
+    }
+
+    void setRegisterAddress(quint64 v)
+    {
+        if (v == m_registerAddress) {
+            updateContents();
+            return;
+        }
+        m_registerAddress = v;
+        setAddress(v);
+        setWindowTitle(registerViewTitle(m_registerName, v));
+        if (v)
+            setMarkup(registerViewMarkup(v, m_registerName));
+    }
+
+    QString m_registerName;
+    quint64 m_registerAddress;
+};
+
+QString registerViewTitle(const QString &registerName, quint64 addr)
+{
+    return MemoryAgent::tr("Memory at Register \"%1\" (0x%2)").arg(registerName).arg(addr, 0, 16);
+}
+
+QList<MemoryMarkup> registerViewMarkup(quint64 a, const QString &regName)
+{
+    return { MemoryMarkup(a, 1, QColor(Qt::blue).lighter(),
+                          MemoryAgent::tr("Register \"%1\"").arg(regName)) };
+}
 
 ///////////////////////////////////////////////////////////////////////
 //
@@ -80,219 +200,137 @@ namespace Internal {
     \sa Debugger::MemoryView,  Debugger::RegisterMemoryView
 */
 
-MemoryAgent::MemoryAgent(DebuggerEngine *engine)
-    : QObject(engine), m_engine(engine)
+BinEditor::FactoryService *binEditorFactory()
 {
-    QTC_CHECK(engine);
-    connect(engine, &DebuggerEngine::stackFrameCompleted,
-            this, &MemoryAgent::updateContents);
+    static auto theBinEditorFactory = ExtensionSystem::PluginManager::getObject<BinEditor::FactoryService>();
+    return theBinEditorFactory;
+}
+
+bool MemoryAgent::hasBinEditor()
+{
+    return binEditorFactory() != nullptr;
+}
+
+MemoryAgent::MemoryAgent(const MemoryViewSetupData &data, DebuggerEngine *engine)
+    : m_engine(engine), m_flags(data.flags)
+{
+    auto factory = binEditorFactory();
+    if (!factory)
+        return;
+
+    const bool readOnly = (m_flags & DebuggerEngine::MemoryReadOnly) != 0;
+    QString title = data.title.isEmpty() ? tr("Memory at 0x%1").arg(data.startAddress, 0, 16) : data.title;
+    if (!(m_flags & DebuggerEngine::MemoryView) && !title.endsWith('$'))
+        title.append(" $");
+
+    if (m_flags & DebuggerEngine::MemoryView) {
+        // Ask BIN editor plugin for factory service and have it create a bin editor widget.
+        m_service = factory->createEditorService(title, false);
+    } else {
+        // Editor: Register tracking not supported.
+        m_service = factory->createEditorService(title, true);
+    }
+
+    if (!m_service)
+        return;
+
+    m_service->setNewRangeRequestHandler([this](quint64 address) {
+        m_service->setSizes(address, DataRange, BinBlockSize);
+    });
+
+    m_service->setFetchDataHandler([this](quint64 address) {
+        m_engine->fetchMemory(this, address, BinBlockSize);
+    });
+
+    m_service->setNewWindowRequestHandler([this](quint64 address) {
+        MemoryViewSetupData data;
+        data.startAddress = address;
+        auto agent = new MemoryAgent(data, m_engine);
+        if (!agent->isUsable())
+            delete agent;
+    });
+
+    m_service->setDataChangedHandler([this](quint64 address, const QByteArray &data) {
+        m_engine->changeMemory(this, address, data);
+    });
+
+    m_service->setWatchPointRequestHandler([this](quint64 address, uint size) {
+        m_engine->breakHandler()->setWatchpointAtAddress(address, size);
+    });
+
+    m_service->setAboutToBeDestroyedHandler([this] { m_service = nullptr; });
+
+    // Separate view?
+    if (m_flags & DebuggerEngine::MemoryView) {
+        // Memory view tracking register value, providing its own updating mechanism.
+        if (m_flags & DebuggerEngine::MemoryTrackRegister) {
+            auto view = new RegisterMemoryView(this, data.startAddress, data.registerName, m_engine->registerHandler(), data.parent);
+            view->show();
+        } else {
+            // Ordinary memory view
+            auto view = new MemoryView(this, data.parent);
+            view->setWindowTitle(title);
+            view->show();
+        }
+    } else {
+        m_service->editor()->document()->setTemporary(true);
+        m_service->editor()->document()->setProperty(Constants::OPENED_BY_DEBUGGER, QVariant(true));
+    }
+
+    m_service->setReadOnly(readOnly);
+    m_service->setNewWindowRequestAllowed(true);
+    m_service->setSizes(data.startAddress, DataRange, BinBlockSize);
+    setMarkup(data.markup);
 }
 
 MemoryAgent::~MemoryAgent()
 {
-    closeEditors();
-    closeViews();
-}
-
-void MemoryAgent::closeEditors()
-{
-    if (m_editors.isEmpty())
-        return;
-
-    QSet<IDocument *> documents;
-    foreach (QPointer<IEditor> editor, m_editors)
-        if (editor)
-            documents.insert(editor->document());
-    EditorManager::closeDocuments(documents.toList());
-    m_editors.clear();
-}
-
-void MemoryAgent::closeViews()
-{
-    foreach (const QPointer<MemoryView> &w, m_views)
-        if (w)
-            w->close();
-    m_views.clear();
-}
-
-void MemoryAgent::updateMemoryView(quint64 address, quint64 length)
-{
-    m_engine->fetchMemory(this, sender(), address, length);
-}
-
-void MemoryAgent::connectBinEditorWidget(QWidget *w)
-{
-    connect(w, SIGNAL(dataRequested(quint64)), SLOT(fetchLazyData(quint64)));
-    connect(w, SIGNAL(newWindowRequested(quint64)), SLOT(createBinEditor(quint64)));
-    connect(w, SIGNAL(newRangeRequested(quint64)), SLOT(provideNewRange(quint64)));
-    connect(w, SIGNAL(dataChanged(quint64,QByteArray)), SLOT(handleDataChanged(quint64,QByteArray)));
-    connect(w, SIGNAL(dataChanged(quint64,QByteArray)), SLOT(handleDataChanged(quint64,QByteArray)));
-    connect(w, SIGNAL(addWatchpointRequested(quint64,uint)), SLOT(handleWatchpointRequest(quint64,uint)));
-}
-
-bool MemoryAgent::doCreateBinEditor(const MemoryViewSetupData &data)
-{
-    const bool readOnly = (data.flags & DebuggerEngine::MemoryReadOnly) != 0;
-    QString title = data.title.isEmpty() ? tr("Memory at 0x%1").arg(data.startAddress, 0, 16) : data.title;
-    // Separate view?
-    if (data.flags & DebuggerEngine::MemoryView) {
-        // Ask BIN editor plugin for factory service and have it create a bin editor widget.
-        QWidget *binEditor = 0;
-        if (QObject *factory = ExtensionSystem::PluginManager::getObjectByClassName(QLatin1String("BinEditor::BinEditorWidgetFactory")))
-            binEditor = ExtensionSystem::invoke<QWidget *>(factory, "createWidget", (QWidget *)0);
-        if (!binEditor)
-            return false;
-        connectBinEditorWidget(binEditor);
-        MemoryView::setBinEditorReadOnly(binEditor, readOnly);
-        MemoryView::setBinEditorNewWindowRequestAllowed(binEditor, true);
-        MemoryView *topLevel = 0;
-        // Memory view tracking register value, providing its own updating mechanism.
-        if (data.flags & DebuggerEngine::MemoryTrackRegister) {
-            topLevel = new RegisterMemoryView(binEditor, data.startAddress, data.registerName, m_engine->registerHandler(), data.parent);
-        } else {
-            // Ordinary memory view
-            MemoryView::setBinEditorMarkup(binEditor, data.markup);
-            MemoryView::setBinEditorRange(binEditor, data.startAddress, MemoryAgent::DataRange, MemoryAgent::BinBlockSize);
-            topLevel = new MemoryView(binEditor, data.parent);
-            topLevel->setWindowTitle(title);
-        }
-        m_views << topLevel;
-        topLevel->show();
-        return true;
+    if (m_service) {
+        if (m_service->editor())
+            EditorManager::closeDocument(m_service->editor()->document());
+        if (m_service->widget())
+            m_service->widget()->close();
     }
-    // Editor: Register tracking not supported.
-    QTC_ASSERT(!(data.flags & DebuggerEngine::MemoryTrackRegister), return false);
-    if (!title.endsWith(QLatin1Char('$')))
-        title.append(QLatin1String(" $"));
-    IEditor *editor = EditorManager::openEditorWithContents(
-                Core::Constants::K_DEFAULT_BINARY_EDITOR_ID, &title);
-    if (!editor)
-        return false;
-    editor->document()->setProperty(Constants::OPENED_BY_DEBUGGER, QVariant(true));
-    editor->document()->setTemporary(true);
-    QWidget *editorBinEditor = editor->widget();
-    connectBinEditorWidget(editorBinEditor);
-    MemoryView::setBinEditorReadOnly(editorBinEditor, readOnly);
-    MemoryView::setBinEditorNewWindowRequestAllowed(editorBinEditor, true);
-    MemoryView::setBinEditorRange(editorBinEditor, data.startAddress, MemoryAgent::DataRange, MemoryAgent::BinBlockSize);
-    MemoryView::setBinEditorMarkup(editorBinEditor, data.markup);
-    m_editors << editor;
-    return true;
 }
 
-void MemoryAgent::createBinEditor(const MemoryViewSetupData &data)
+void MemoryAgent::setAddress(quint64 address)
 {
-    if (!doCreateBinEditor(data))
-        AsynchronousMessageBox::warning(
-            tr("No Memory Viewer Available"),
-            tr("The memory contents cannot be shown as no viewer plugin "
-               "for binary data has been loaded."));
+    QTC_ASSERT(m_service, return);
+    m_service->setSizes(address, DataRange, BinBlockSize);
 }
 
-void MemoryAgent::createBinEditor(quint64 addr)
+void MemoryAgent::setMarkup(const QList<MemoryMarkup> &markup)
 {
-    MemoryViewSetupData data;
-    data.startAddress = addr;
-    createBinEditor(data);
-}
-
-void MemoryAgent::fetchLazyData(quint64 block)
-{
-    m_engine->fetchMemory(this, sender(), BinBlockSize * block, BinBlockSize);
-}
-
-void MemoryAgent::addLazyData(QObject *editorToken, quint64 addr,
-                                  const QByteArray &ba)
-{
-    QWidget *w = qobject_cast<QWidget *>(editorToken);
-    QTC_ASSERT(w, return);
-    MemoryView::binEditorAddData(w, addr, ba);
-}
-
-void MemoryAgent::provideNewRange(quint64 address)
-{
-    QWidget *w = qobject_cast<QWidget *>(sender());
-    QTC_ASSERT(w, return);
-    MemoryView::setBinEditorRange(w, address, DataRange, BinBlockSize);
-}
-
-void MemoryAgent::handleDataChanged(quint64 addr, const QByteArray &data)
-{
-    m_engine->changeMemory(this, sender(), addr, data);
-}
-
-void MemoryAgent::handleWatchpointRequest(quint64 address, uint size)
-{
-    m_engine->breakHandler()->setWatchpointAtAddress(address, size);
+    QTC_ASSERT(m_service, return);
+    m_service->clearMarkup();
+    for (const MemoryMarkup &m : markup)
+        m_service->addMarkup(m.address, m.length, m.color, m.toolTip);
+    m_service->commitMarkup();
 }
 
 void MemoryAgent::updateContents()
 {
-    foreach (const QPointer<IEditor> &e, m_editors)
-        if (e)
-            MemoryView::binEditorUpdateContents(e->widget());
     // Update all views except register views, which trigger on
     // register value set/changed.
-    foreach (const QPointer<MemoryView> &w, m_views)
-        if (w && !qobject_cast<RegisterMemoryView *>(w.data()))
-            w->updateContents();
+    if (!(m_flags & DebuggerEngine::MemoryTrackRegister) && m_service)
+        m_service->updateContents();
 }
 
-bool MemoryAgent::hasVisibleEditor() const
+void MemoryAgent::addData(quint64 address, const QByteArray &a)
 {
-    QList<IEditor *> visible = EditorManager::visibleEditors();
-    foreach (QPointer<IEditor> editor, m_editors)
-        if (visible.contains(editor.data()))
-            return true;
-    return false;
+    QTC_ASSERT(m_service, return);
+    m_service->addData(address, a);
 }
 
-void MemoryAgent::handleDebuggerFinished()
+void MemoryAgent::setFinished()
 {
-    foreach (const QPointer<IEditor> &editor, m_editors) {
-        if (editor) { // Prevent triggering updates, etc.
-            MemoryView::setBinEditorReadOnly(editor->widget(), true);
-            editor->widget()->disconnect(this);
-        }
-    }
+    if (m_service)
+        m_service->setFinished();
 }
 
-bool MemoryAgent::isBigEndian(const ProjectExplorer::Abi &a)
+bool MemoryAgent::isUsable()
 {
-    switch (a.architecture()) {
-    case ProjectExplorer::Abi::UnknownArchitecture:
-    case ProjectExplorer::Abi::X86Architecture:
-    case ProjectExplorer::Abi::ItaniumArchitecture: // Configureable
-    case ProjectExplorer::Abi::ArmArchitecture:     // Configureable
-    case ProjectExplorer::Abi::ShArchitecture:     // Configureable
-        break;
-    case ProjectExplorer::Abi::MipsArchitecture:     // Configureable
-    case ProjectExplorer::Abi::PowerPCArchitecture: // Configureable
-        return true;
-    }
-    return false;
-}
-
-// Read a POD variable from a memory location. Swap bytes if endianness differs
-template <class POD> POD readPod(const unsigned char *data, bool swapByteOrder)
-{
-    POD pod = 0;
-    if (swapByteOrder) {
-        unsigned char *target = reinterpret_cast<unsigned char *>(&pod) + sizeof(POD) - 1;
-        for (size_t i = 0; i < sizeof(POD); i++)
-            *target-- = data[i];
-    } else {
-        std::memcpy(&pod, data, sizeof(POD));
-    }
-    return pod;
-}
-
-// Read memory from debuggee
-quint64 MemoryAgent::readInferiorPointerValue(const unsigned char *data, const ProjectExplorer::Abi &a)
-{
-    const bool swapByteOrder = isBigEndian(a) != isBigEndian(ProjectExplorer::Abi::hostAbi());
-    return a.wordWidth() == 32 ? readPod<quint32>(data, swapByteOrder) :
-                                 readPod<quint64>(data, swapByteOrder);
+    return m_service != nullptr;
 }
 
 } // namespace Internal

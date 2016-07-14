@@ -1054,45 +1054,26 @@ void LldbEngine::fetchFullBacktrace()
     runCommand(cmd);
 }
 
-void LldbEngine::fetchMemory(MemoryAgent *agent, QObject *editorToken,
-        quint64 addr, quint64 length)
+void LldbEngine::fetchMemory(MemoryAgent *agent, quint64 addr, quint64 length)
 {
-    int id = m_memoryAgents.value(agent, -1);
-    if (id == -1) {
-        id = ++m_lastAgentId;
-        m_memoryAgents.insert(agent, id);
-    }
-    m_memoryAgentTokens.insert(id, editorToken);
-
     DebuggerCommand cmd("fetchMemory");
     cmd.arg("address", addr);
     cmd.arg("length", length);
-    cmd.callback = [this, id](const DebuggerResponse &response) {
+    cmd.callback = [this, agent](const DebuggerResponse &response) {
         qulonglong addr = response.data["address"].toAddress();
-        QPointer<MemoryAgent> agent = m_memoryAgents.key(id);
-        if (!agent.isNull()) {
-            QPointer<QObject> token = m_memoryAgentTokens.value(id);
-            QTC_ASSERT(!token.isNull(), return);
-            QByteArray ba = QByteArray::fromHex(response.data["contents"].data().toUtf8());
-            agent->addLazyData(token.data(), addr, ba);
-        }
+        QByteArray ba = QByteArray::fromHex(response.data["contents"].data().toUtf8());
+        agent->addData(addr, ba);
     };
     runCommand(cmd);
 }
 
-void LldbEngine::changeMemory(MemoryAgent *agent, QObject *editorToken,
-        quint64 addr, const QByteArray &data)
+void LldbEngine::changeMemory(MemoryAgent *agent, quint64 addr, const QByteArray &data)
 {
-    int id = m_memoryAgents.value(agent, -1);
-    if (id == -1) {
-        id = ++m_lastAgentId;
-        m_memoryAgents.insert(agent, id);
-        m_memoryAgentTokens.insert(id, editorToken);
-    }
+    Q_UNUSED(agent)
     DebuggerCommand cmd("writeMemory");
     cmd.arg("address", addr);
     cmd.arg("data", QString::fromUtf8(data.toHex()));
-    cmd.callback = [this, id](const DebuggerResponse &response) { Q_UNUSED(response); };
+    cmd.callback = [this](const DebuggerResponse &response) { Q_UNUSED(response); };
     runCommand(cmd);
 }
 

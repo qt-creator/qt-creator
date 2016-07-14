@@ -217,10 +217,8 @@ public:
 
     virtual void runCommand(const DebuggerCommand &cmd);
     virtual void openMemoryView(const MemoryViewSetupData &data);
-    virtual void fetchMemory(Internal::MemoryAgent *, QObject *,
-                             quint64 addr, quint64 length);
-    virtual void changeMemory(Internal::MemoryAgent *, QObject *,
-                              quint64 addr, const QByteArray &data);
+    virtual void fetchMemory(MemoryAgent *, quint64 addr, quint64 length);
+    virtual void changeMemory(MemoryAgent *, quint64 addr, const QByteArray &data);
     virtual void updateMemoryViews();
     virtual void openDisassemblerView(const Internal::Location &location);
     virtual void fetchDisassembler(Internal::DisassemblerAgent *);
@@ -328,8 +326,6 @@ public:
 
 signals:
     void stateChanged(Debugger::DebuggerState state);
-    // A new stack frame is on display including locals.
-    void stackFrameCompleted();
     /*
      * For "external" clients of a debugger run control that needs to do
      * further setup before the debugger is started (e.g. RemoteLinux).

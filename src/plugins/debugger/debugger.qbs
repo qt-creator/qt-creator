@@ -35,7 +35,8 @@ Project {
         cpp.enableExceptions: true
 
         pluginRecommends: [
-            "CppEditor"
+            "CppEditor",
+            "BinEditor"
         ]
 
         Group {
@@ -73,7 +74,6 @@ Project {
                 "localsandexpressionswindow.cpp", "localsandexpressionswindow.h",
                 "logwindow.cpp", "logwindow.h",
                 "memoryagent.cpp", "memoryagent.h",
-                "memoryview.cpp", "memoryview.h",
                 "moduleshandler.cpp", "moduleshandler.h",
                 "outputcollector.cpp", "outputcollector.h",
                 "procinterrupt.cpp", "procinterrupt.h",

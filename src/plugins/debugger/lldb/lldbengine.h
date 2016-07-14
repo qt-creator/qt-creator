@@ -118,8 +118,8 @@ private:
     bool isSynchronous() const override { return true; }
     void setRegisterValue(const QString &name, const QString &value) override;
 
-    void fetchMemory(Internal::MemoryAgent *, QObject *, quint64 addr, quint64 length) override;
-    void changeMemory(Internal::MemoryAgent *, QObject *, quint64 addr, const QByteArray &data) override;
+    void fetchMemory(MemoryAgent *, quint64 addr, quint64 length) override;
+    void changeMemory(MemoryAgent *, quint64 addr, const QByteArray &data) override;
 
     QString errorMessage(QProcess::ProcessError error) const;
     bool hasCapability(unsigned cap) const override;
@@ -156,8 +156,6 @@ private:
     int m_lastAgentId;
     int m_continueAtNextSpontaneousStop;
     QMap<QPointer<DisassemblerAgent>, int> m_disassemblerAgents;
-    QMap<QPointer<MemoryAgent>, int> m_memoryAgents;
-    QHash<int, QPointer<QObject> > m_memoryAgentTokens;
 
     QHash<int, DebuggerCommand> m_commandForToken;
 

@@ -35,7 +35,6 @@
 #include "debuggertooltipmanager.h"
 #include "imageviewer.h"
 #include "memoryagent.h"
-#include "memoryview.h"
 #include "registerhandler.h"
 #include "simplifytype.h"
 #include "watchdelegatewidgets.h"

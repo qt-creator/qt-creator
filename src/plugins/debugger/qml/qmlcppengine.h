@@ -47,7 +47,8 @@ public:
     void selectWatchData(const QString &iname) override;
 
     void watchPoint(const QPoint &) override;
-    void fetchMemory(MemoryAgent *, QObject *, quint64 addr, quint64 length) override;
+    void fetchMemory(MemoryAgent *, quint64 addr, quint64 length) override;
+    void changeMemory(MemoryAgent *, quint64 addr, const QByteArray &data) override;
     void fetchDisassembler(DisassemblerAgent *) override;
     void activateFrame(int index) override;
 

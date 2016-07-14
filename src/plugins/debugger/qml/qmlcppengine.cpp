@@ -129,10 +129,14 @@ void QmlCppEngine::watchPoint(const QPoint &point)
     m_cppEngine->watchPoint(point);
 }
 
-void QmlCppEngine::fetchMemory(MemoryAgent *ma, QObject *obj,
-        quint64 addr, quint64 length)
+void QmlCppEngine::fetchMemory(MemoryAgent *agent, quint64 addr, quint64 length)
 {
-    m_cppEngine->fetchMemory(ma, obj, addr, length);
+    m_cppEngine->fetchMemory(agent, addr, length);
+}
+
+void QmlCppEngine::changeMemory(MemoryAgent *agent, quint64 addr, const QByteArray &data)
+{
+    m_cppEngine->changeMemory(agent, addr, data);
 }
 
 void QmlCppEngine::fetchDisassembler(DisassemblerAgent *da)

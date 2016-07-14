@@ -154,6 +154,59 @@ void LocationMark::dragToLine(int line)
 
 //////////////////////////////////////////////////////////////////////
 //
+// MemoryAgentSet
+//
+//////////////////////////////////////////////////////////////////////
+
+class MemoryAgentSet
+{
+public:
+    ~MemoryAgentSet()
+    {
+        qDeleteAll(m_agents);
+        m_agents.clear();
+    }
+
+    // Called by engine to create a new view.
+    void createBinEditor(const MemoryViewSetupData &data, DebuggerEngine *engine)
+    {
+        auto agent = new MemoryAgent(data, engine);
+        if (agent->isUsable()) {
+            m_agents.append(agent);
+        } else {
+            delete agent;
+            AsynchronousMessageBox::warning(
+                        DebuggerEngine::tr("No Memory Viewer Available"),
+                        DebuggerEngine::tr("The memory contents cannot be shown as no viewer plugin "
+                                           "for binary data has been loaded."));
+        }
+    }
+
+    // On stack frame completed and on request.
+    void updateContents()
+    {
+        foreach (MemoryAgent *agent, m_agents) {
+            if (agent)
+                agent->updateContents();
+        }
+    }
+
+    void handleDebuggerFinished()
+    {
+        foreach (MemoryAgent *agent, m_agents) {
+            if (agent)
+                agent->setFinished(); // Prevent triggering updates, etc.
+        }
+    }
+
+private:
+    QList<MemoryAgent *> m_agents;
+};
+
+
+
+//////////////////////////////////////////////////////////////////////
+//
 // DebuggerEnginePrivate
 //
 //////////////////////////////////////////////////////////////////////
@@ -182,7 +235,7 @@ public:
         m_threadsHandler(engine),
         m_watchHandler(engine),
         m_disassemblerAgent(engine),
-        m_memoryAgent(engine)
+        m_isStateDebugging(false)
     {
         connect(&m_locationTimer, &QTimer::timeout,
                 this, &DebuggerEnginePrivate::resetLocation);
@@ -320,7 +373,7 @@ public:
     QFutureInterface<void> m_progress;
 
     DisassemblerAgent m_disassemblerAgent;
-    MemoryAgent m_memoryAgent;
+    MemoryAgentSet m_memoryAgents;
     QScopedPointer<LocationMark> m_locationMark;
     QTimer m_locationTimer;
 
@@ -480,15 +533,13 @@ QAbstractItemModel *DebuggerEngine::sourceFilesModel() const
     return sourceFilesHandler()->model();
 }
 
-void DebuggerEngine::fetchMemory(MemoryAgent *, QObject *,
-        quint64 addr, quint64 length)
+void DebuggerEngine::fetchMemory(MemoryAgent *, quint64 addr, quint64 length)
 {
     Q_UNUSED(addr);
     Q_UNUSED(length);
 }
 
-void DebuggerEngine::changeMemory(MemoryAgent *, QObject *,
-        quint64 addr, const QByteArray &data)
+void DebuggerEngine::changeMemory(MemoryAgent *, quint64 addr, const QByteArray &data)
 {
     Q_UNUSED(addr);
     Q_UNUSED(data);
@@ -618,8 +669,6 @@ void DebuggerEngine::gotoLocation(const Location &loc)
 
     if (loc.needsMarker())
         d->m_locationMark.reset(new LocationMark(this, file, line));
-
-    //qDebug() << "MEMORY: " << d->m_memoryAgent.hasVisibleEditor();
 }
 
 // Called from RunControl.
@@ -1270,7 +1319,7 @@ void DebuggerEngine::setState(DebuggerState state, bool forced)
         foreach (Breakpoint bp, breakHandler()->engineBreakpoints(this))
             bp.notifyBreakpointReleased();
         DebuggerToolTipManager::deregisterEngine(this);
-        d->m_memoryAgent.handleDebuggerFinished();
+        d->m_memoryAgents.handleDebuggerFinished();
         prepareForRestart();
     }
 
@@ -1798,12 +1847,12 @@ void DebuggerEngine::showStoppedByExceptionMessageBox(const QString &description
 
 void DebuggerEngine::openMemoryView(const MemoryViewSetupData &data)
 {
-    d->m_memoryAgent.createBinEditor(data);
+    d->m_memoryAgents.createBinEditor(data, this);
 }
 
 void DebuggerEngine::updateMemoryViews()
 {
-    d->m_memoryAgent.updateContents();
+    d->m_memoryAgents.updateContents();
 }
 
 void DebuggerEngine::openDisassemblerView(const Location &location)
@@ -2005,7 +2054,7 @@ void DebuggerEngine::updateLocalsView(const GdbMi &all)
 
     const bool partial = all["partial"].toInt();
     if (!partial)
-        emit stackFrameCompleted();
+        updateMemoryViews();
 }
 
 bool DebuggerEngine::canHandleToolTip(const DebuggerToolTipContext &context) const

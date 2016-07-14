@@ -26,6 +26,7 @@
 #include "bineditorplugin.h"
 #include "bineditorwidget.h"
 #include "bineditorconstants.h"
+#include "bineditorservice.h"
 
 #include <coreplugin/icore.h>
 
@@ -59,30 +60,6 @@ using namespace Utils;
 using namespace Core;
 
 namespace BinEditor {
-
-///////////////////////////////// BinEditorWidgetFactory //////////////////////////////////
-
-/*!
-   \class BinEditor::BinEditorWidgetFactory
-   \brief The BinEditorWidgetFactory class offers a service registered with
-   PluginManager to create bin editor widgets for plugins
-   without direct linkage.
-
-   \sa ExtensionSystem::PluginManager::getObjectByClassName, ExtensionSystem::invoke
-*/
-
-class BinEditorWidgetFactory : public QObject
-{
-    Q_OBJECT
-public:
-    BinEditorWidgetFactory() {}
-
-    Q_INVOKABLE QWidget *createWidget(QWidget *parent)
-    {
-        return new BinEditorWidget(parent);
-    }
-};
-
 namespace Internal {
 
 class BinEditorFind : public IFindSupport
@@ -230,12 +207,10 @@ public:
         setId(Core::Constants::K_DEFAULT_BINARY_EDITOR_ID);
         setMimeType(QLatin1String(BinEditor::Constants::C_BINEDITOR_MIMETYPE));
         m_widget = parent;
-        connect(m_widget, &BinEditorWidget::dataRequested,
-                this, &BinEditorDocument::provideData);
-        connect(m_widget, &BinEditorWidget::newRangeRequested,
-                this, &BinEditorDocument::provideNewRange);
-        connect(m_widget, &BinEditorWidget::dataChanged,
-                this, &IDocument::contentsChanged);
+        EditorService *es = m_widget->editorService();
+        es->setFetchDataHandler([this](quint64 address) { provideData(address); });
+        es->setNewRangeRequestHandler([this](quint64 offset) { provideNewRange(offset); });
+        es->setDataChangedHandler([this](quint64, const QByteArray &) { contentsChanged(); });
     }
 
     QByteArray contents() const override
@@ -316,7 +291,7 @@ public:
         return OpenResult::ReadError;
     }
 
-    void provideData(quint64 block)
+    void provideData(quint64 address)
     {
         const FileName fn = filePath();
         if (fn.isEmpty())
@@ -324,13 +299,13 @@ public:
         QFile file(fn.toString());
         if (file.open(QIODevice::ReadOnly)) {
             int blockSize = m_widget->dataBlockSize();
-            file.seek(block * blockSize);
+            file.seek(address);
             QByteArray data = file.read(blockSize);
             file.close();
             const int dataSize = data.size();
             if (dataSize != blockSize)
                 data += QByteArray(blockSize - dataSize, 0);
-            m_widget->addData(block, data);
+            m_widget->addData(address, data);
         } else {
             QMessageBox::critical(ICore::mainWindow(), tr("File Error"),
                                   tr("Cannot open %1: %2").arg(
@@ -470,12 +445,30 @@ IEditor *BinEditorFactory::createEditor()
     return editor;
 }
 
+///////////////////////////////// BinEditor Services //////////////////////////////////
+
+EditorService *FactoryServiceImpl::createEditorService(const QString &title0, bool wantsEditor)
+{
+    BinEditorWidget *widget = nullptr;
+    if (wantsEditor) {
+        QString title = title0;
+        IEditor *editor = EditorManager::openEditorWithContents(
+                    Core::Constants::K_DEFAULT_BINARY_EDITOR_ID, &title);
+        if (!editor)
+            return 0;
+        widget = qobject_cast<BinEditorWidget *>(editor->widget());
+        widget->setEditor(editor);
+    } else {
+        widget = new BinEditorWidget;
+        widget->setWindowTitle(title0);
+    }
+    return widget->editorService();
+}
 
 ///////////////////////////////// BinEditorPlugin //////////////////////////////////
 
 BinEditorPlugin::BinEditorPlugin()
 {
-    m_undoAction = m_redoAction = m_copyAction = m_selectAllAction = 0;
 }
 
 BinEditorPlugin::~BinEditorPlugin()
@@ -522,8 +515,8 @@ bool BinEditorPlugin::initialize(const QStringList &arguments, QString *errorMes
     connect(Core::EditorManager::instance(), &EditorManager::currentEditorChanged,
             this, &BinEditorPlugin::updateCurrentEditor);
 
+    addAutoReleasedObject(new FactoryServiceImpl);
     addAutoReleasedObject(new BinEditorFactory(this));
-    addAutoReleasedObject(new BinEditorWidgetFactory);
     return true;
 }
 

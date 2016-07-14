@@ -370,12 +370,10 @@ protected:
     virtual void assignValueInDebugger(WatchItem *item,
         const QString &expr, const QVariant &value) override;
 
-    virtual void fetchMemory(MemoryAgent *agent, QObject *token,
-        quint64 addr, quint64 length) override;
+    void fetchMemory(MemoryAgent *agent, quint64 addr, quint64 length) override;
     void fetchMemoryHelper(const MemoryAgentCookie &cookie);
     void handleChangeMemory(const DebuggerResponse &response);
-    virtual void changeMemory(MemoryAgent *agent, QObject *token,
-        quint64 addr, const QByteArray &data) override;
+    void changeMemory(MemoryAgent *agent, quint64 addr, const QByteArray &data) override;
     void handleFetchMemory(const DebuggerResponse &response, MemoryAgentCookie ac);
 
     virtual void watchPoint(const QPoint &) override;

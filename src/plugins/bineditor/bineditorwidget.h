@@ -27,6 +27,7 @@
 
 #include "bineditor_global.h"
 #include "markup.h"
+#include "bineditorservice.h"
 
 #include <QBasicTimer>
 #include <QMap>
@@ -46,8 +47,11 @@ namespace Core { class IEditor; }
 namespace TextEditor { class FontSettings; }
 
 namespace BinEditor {
+namespace Internal {
 
-class BINEDITOR_EXPORT BinEditorWidget : public QAbstractScrollArea
+class BinEditorWidgetPrivate;
+
+class BinEditorWidget : public QAbstractScrollArea
 {
     Q_OBJECT
     Q_PROPERTY(bool modified READ isModified WRITE setModified DESIGNABLE false)
@@ -59,17 +63,19 @@ public:
     BinEditorWidget(QWidget *parent = 0);
     ~BinEditorWidget();
 
+    EditorService *editorService() const;
+
     quint64 baseAddress() const { return m_baseAddr; }
 
-    Q_INVOKABLE void setSizes(quint64 startAddr, qint64 range, int blockSize = 4096);
+    void setSizes(quint64 startAddr, qint64 range, int blockSize = 4096);
     int dataBlockSize() const { return m_blockSize; }
     QByteArray contents() const { return dataMid(0, m_size); }
 
-    Q_INVOKABLE void addData(quint64 block, const QByteArray &data);
+    void addData(quint64 addr, const QByteArray &data);
 
     bool newWindowRequestAllowed() const { return m_canRequestNewWindow; }
 
-    Q_INVOKABLE void updateContents();
+    void updateContents();
     bool save(QString *errorString, const QString &oldFileName, const QString &newFileName);
 
     void zoomIn(int range = 1);
@@ -81,7 +87,7 @@ public:
     };
 
     qint64 cursorPosition() const;
-    Q_INVOKABLE void setCursorPosition(qint64 pos, MoveMode moveMode = MoveAnchor);
+    void setCursorPosition(qint64 pos, MoveMode moveMode = MoveAnchor);
     void jumpToAddress(quint64 address);
 
     void setModified(bool);
@@ -123,19 +129,13 @@ public:
     void setMarkup(const QList<Markup> &markup);
     void setNewWindowRequestAllowed(bool c);
 
-Q_SIGNALS:
+signals:
     void modificationChanged(bool modified);
     void undoAvailable(bool);
     void redoAvailable(bool);
     void cursorPositionChanged(int position);
 
-    void dataRequested(quint64 block);
-    void newWindowRequested(quint64 address);
-    void newRangeRequested(quint64 address);
-    void addWatchpointRequested(quint64 address, uint size);
-    void dataChanged(quint64 address, const QByteArray &data);
-
-protected:
+private:
     void scrollContentsBy(int dx, int dy);
     void paintEvent(QPaintEvent *e);
     void resizeEvent(QResizeEvent *);
@@ -150,7 +150,9 @@ protected:
     void timerEvent(QTimerEvent *);
     void contextMenuEvent(QContextMenuEvent *event);
 
-private:
+    friend class BinEditorWidgetPrivate;
+    BinEditorWidgetPrivate *d;
+
     typedef QMap<qint64, QByteArray> BlockMap;
     BlockMap m_data;
     BlockMap m_oldData;
@@ -242,4 +244,5 @@ private:
     QList<Markup> m_markup;
 };
 
+} // namespace Internal
 } // namespace BinEditor

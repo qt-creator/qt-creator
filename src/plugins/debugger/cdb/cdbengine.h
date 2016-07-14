@@ -99,9 +99,8 @@ public:
     void attemptBreakpointSynchronization() override;
 
     void fetchDisassembler(DisassemblerAgent *agent) override;
-    void fetchMemory(MemoryAgent *, QObject *, quint64 addr, quint64 length) override;
-    void changeMemory(Internal::MemoryAgent *, QObject *, quint64 addr,
-                      const QByteArray &data) override;
+    void fetchMemory(MemoryAgent *, quint64 addr, quint64 length) override;
+    void changeMemory(MemoryAgent *, quint64 addr, const QByteArray &data) override;
 
     void reloadModules() override;
     void loadSymbols(const QString &moduleName) override;

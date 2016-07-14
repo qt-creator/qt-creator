@@ -24,11 +24,17 @@
 ****************************************************************************/
 
 #include "bineditorwidget.h"
+#include "bineditorservice.h"
+#include "markup.h"
+
+#include <coreplugin/coreconstants.h>
+#include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/editormanager/ieditor.h>
 
 #include <texteditor/fontsettings.h>
 #include <texteditor/texteditorconstants.h>
 #include <texteditor/texteditorsettings.h>
-#include <coreplugin/editormanager/ieditor.h>
+
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 
@@ -51,6 +57,8 @@
 #include <QToolTip>
 #include <QWheelEvent>
 
+using namespace Core;
+
 static QByteArray calculateHexPattern(const QByteArray &pattern)
 {
     QByteArray result;
@@ -69,9 +77,65 @@ static QByteArray calculateHexPattern(const QByteArray &pattern)
 }
 
 namespace BinEditor {
+namespace Internal {
+
+class BinEditorWidgetPrivate : public EditorService
+{
+public:
+    BinEditorWidgetPrivate(BinEditorWidget *widget) : q(widget) {}
+    ~BinEditorWidgetPrivate() override { if (m_aboutToBeDestroyedHandler) m_aboutToBeDestroyedHandler(); }
+
+    QWidget *widget() override { return q; }
+    IEditor *editor() override { return q->editor(); }
+
+    void setReadOnly(bool on) override { q->setReadOnly(on); }
+    void setNewWindowRequestAllowed(bool on) override { q->setNewWindowRequestAllowed(on); }
+
+    void setFinished() override
+    {
+        q->setReadOnly(true);
+        m_fetchDataHandler = {};
+        m_newWindowRequestHandler = {};
+        m_newRangeRequestHandler = {};
+        m_dataChangedHandler = {};
+        m_watchPointRequestHandler = {};
+    }
+
+    void setSizes(quint64 address, qint64 range, int blockSize) override { q->setSizes(address, range, blockSize); }
+    void setCursorPosition(qint64 pos) override { q->setCursorPosition(pos); }
+    void updateContents() override { q->updateContents(); }
+    void addData(quint64 address, const QByteArray &data) override { q->addData(address, data); }
+
+    void clearMarkup() override { m_markup.clear(); }
+    void addMarkup(quint64 a, quint64 l, const QColor &c, const QString &t) override { m_markup.append(Markup(a, l, c, t)); }
+    void commitMarkup() override { q->setMarkup(m_markup); }
+
+    void setFetchDataHandler(const std::function<void(quint64)> &cb) override { m_fetchDataHandler = cb; }
+    void setNewWindowRequestHandler(const std::function<void(quint64)> &cb) { m_newWindowRequestHandler = cb; }
+    void setNewRangeRequestHandler(const std::function<void(quint64)> &cb) { m_newRangeRequestHandler = cb; }
+    void setDataChangedHandler(const std::function<void(quint64, const QByteArray &)> &cb) { m_dataChangedHandler = cb; }
+    void setWatchPointRequestHandler(const std::function<void(quint64, uint)> &cb) { m_watchPointRequestHandler = cb; }
+    void setAboutToBeDestroyedHandler(const std::function<void()> & cb) { m_aboutToBeDestroyedHandler = cb; }
+
+    void fetchData(quint64 address) { if (m_fetchDataHandler) m_fetchDataHandler(address); }
+    void requestNewWindow(quint64 address) { if (m_newWindowRequestHandler) m_newWindowRequestHandler(address); }
+    void requestWatchPoint(quint64 address, int size) { if (m_watchPointRequestHandler) m_watchPointRequestHandler(address, size); }
+    void requestNewRange(quint64 address) { if (m_newRangeRequestHandler) m_newRangeRequestHandler(address); }
+    void announceChangedData(quint64 address, const QByteArray &ba) { if (m_dataChangedHandler) m_dataChangedHandler(address, ba); }
+
+private:
+    BinEditorWidget *q;
+    std::function<void(quint64)> m_fetchDataHandler;
+    std::function<void(quint64)> m_newWindowRequestHandler;
+    std::function<void(quint64)> m_newRangeRequestHandler;
+    std::function<void(quint64, const QByteArray &)> m_dataChangedHandler;
+    std::function<void(quint64, uint)> m_watchPointRequestHandler;
+    std::function<void()> m_aboutToBeDestroyedHandler;
+    QList<Markup> m_markup;
+};
 
 BinEditorWidget::BinEditorWidget(QWidget *parent)
-    : QAbstractScrollArea(parent)
+    : QAbstractScrollArea(parent), d(new BinEditorWidgetPrivate(this))
 {
     m_bytesPerLine = 16;
     m_ieditor = 0;
@@ -102,6 +166,12 @@ BinEditorWidget::BinEditorWidget(QWidget *parent)
 
 BinEditorWidget::~BinEditorWidget()
 {
+    delete d;
+}
+
+EditorService *BinEditorWidget::editorService() const
+{
+    return d;
 }
 
 void BinEditorWidget::init()
@@ -153,10 +223,9 @@ void BinEditorWidget::init()
 }
 
 
-void BinEditorWidget::addData(quint64 block, const QByteArray &data)
+void BinEditorWidget::addData(quint64 addr, const QByteArray &data)
 {
     QTC_ASSERT(data.size() == m_blockSize, return);
-    const quint64 addr = block * m_blockSize;
     if (addr >= m_baseAddr && addr <= m_baseAddr + m_size - 1) {
         if (m_data.size() * m_blockSize >= 64 * 1024 * 1024)
             m_data.clear();
@@ -176,13 +245,11 @@ bool BinEditorWidget::requestDataAt(qint64 pos) const
     it = m_data.find(block);
     if (it != m_data.end())
         return true;
-    if (!m_requests.contains(block)) {
-        m_requests.insert(block);
-        emit const_cast<BinEditorWidget*>(this)->
-            dataRequested(m_baseAddr / m_blockSize + block);
-        return true;
-    }
-    return false;
+    if (m_requests.contains(block))
+        return false;
+    m_requests.insert(block);
+    d->fetchData((m_baseAddr / m_blockSize + block) * m_blockSize);
+    return true;
 }
 
 bool BinEditorWidget::requestOldDataAt(qint64 pos) const
@@ -215,7 +282,7 @@ void BinEditorWidget::changeDataAt(qint64 pos, char c)
         }
     }
 
-    emit dataChanged(m_baseAddr + pos, QByteArray(1, c));
+    d->announceChangedData(m_baseAddr + pos, QByteArray(1, c));
 }
 
 QByteArray BinEditorWidget::dataMid(qint64 from, int length, bool old) const
@@ -429,9 +496,9 @@ void BinEditorWidget::scrollContentsBy(int dx, int dy)
     const QScrollBar * const scrollBar = verticalScrollBar();
     const int scrollPos = scrollBar->value();
     if (dy <= 0 && scrollPos == scrollBar->maximum())
-        emit newRangeRequested(baseAddress() + m_size);
+        d->requestNewRange(baseAddress() + m_size);
     else if (dy >= 0 && scrollPos == scrollBar->minimum())
-        emit newRangeRequested(baseAddress());
+        d->requestNewRange(baseAddress());
 }
 
 void BinEditorWidget::changeEvent(QEvent *e)
@@ -1044,7 +1111,7 @@ bool BinEditorWidget::event(QEvent *e)
             const QScrollBar * const scrollBar = verticalScrollBar();
             const int maximum = scrollBar->maximum();
             if (maximum && scrollBar->value() >= maximum - 1) {
-                emit newRangeRequested(baseAddress() + m_size);
+                d->requestNewRange(baseAddress() + m_size);
                 return true;
             }
             break;
@@ -1531,11 +1598,11 @@ void BinEditorWidget::contextMenuEvent(QContextMenuEvent *event)
     else if (action == jumpToLeAddressHereAction)
         jumpToAddress(leAddress);
     else if (action == jumpToBeAddressNewWindowAction)
-        emit newWindowRequested(beAddress);
+        d->requestNewWindow(beAddress);
     else if (action == jumpToLeAddressNewWindowAction)
-        emit newWindowRequested(leAddress);
+        d->requestNewWindow(leAddress);
     else if (action == addWatchpointAction)
-        emit addWatchpointRequested(m_baseAddr + selStart, byteCount);
+        d->requestWatchPoint(m_baseAddr + selStart, byteCount);
     delete contextMenu;
 }
 
@@ -1557,7 +1624,7 @@ void BinEditorWidget::jumpToAddress(quint64 address)
     if (address >= m_baseAddr && address < m_baseAddr + m_size)
         setCursorPosition(address - m_baseAddr);
     else
-        emit newRangeRequested(address);
+        d->requestNewRange(address);
 }
 
 void BinEditorWidget::setNewWindowRequestAllowed(bool c)
@@ -1614,4 +1681,5 @@ void BinEditorWidget::setMarkup(const QList<Markup> &markup)
     viewport()->update();
 }
 
+} // namespace Internal
 } // namespace BinEditor

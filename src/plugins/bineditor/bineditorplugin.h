@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include "bineditorservice.h"
+
 #include <extensionsystem/iplugin.h>
 #include <coreplugin/editormanager/ieditorfactory.h>
 #include <coreplugin/icontext.h>
@@ -34,9 +36,9 @@
 #include <QAction>
 
 namespace BinEditor {
-class BinEditorWidget;
-
 namespace Internal {
+
+class BinEditorWidget;
 class BinEditorFactory;
 
 class BinEditorPlugin : public ExtensionSystem::IPlugin
@@ -65,10 +67,10 @@ private:
 
     Core::Context m_context;
     QAction *registerNewAction(Core::Id id, const QString &title = QString());
-    QAction *m_undoAction;
-    QAction *m_redoAction;
-    QAction *m_copyAction;
-    QAction *m_selectAllAction;
+    QAction *m_undoAction = nullptr;
+    QAction *m_redoAction = nullptr;
+    QAction *m_copyAction = nullptr;
+    QAction *m_selectAllAction = nullptr;
 
     QPointer<BinEditorWidget> m_currentEditor;
 };
@@ -84,6 +86,15 @@ public:
 
 private:
     BinEditorPlugin *m_owner;
+};
+
+class FactoryServiceImpl : public QObject, public FactoryService
+{
+    Q_OBJECT
+    Q_INTERFACES(BinEditor::FactoryService)
+
+public:
+    EditorService *createEditorService(const QString &title0, bool wantsEditor) override;
 };
 
 } // namespace Internal
