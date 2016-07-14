@@ -30,6 +30,7 @@
 #include "qmlprofilertimelinemodel.h"
 
 #ifdef WITH_TESTS
+
 #include "tests/debugmessagesmodel_test.h"
 #include "tests/flamegraph_test.h"
 #include "tests/flamegraphmodel_test.h"
@@ -45,7 +46,15 @@
 #include "tests/qmlprofileranimationsmodel_test.h"
 #include "tests/qmlprofilerattachdialog_test.h"
 #include "tests/qmlprofilerbindingloopsrenderpass_test.h"
-#endif
+#include "tests/qmlprofilerclientmanager_test.h"
+
+// Force QML Debugging to be enabled, so that we can selftest the profiler
+#define QT_QML_DEBUG_NO_WARNING
+#include <QQmlDebuggingEnabler>
+#include <QQmlEngine>
+#undef QT_QML_DEBUG_NO_WARNING
+
+#endif // WITH_TESTS
 
 #include <extensionsystem/pluginmanager.h>
 #include <utils/hostosinfo.h>
@@ -107,6 +116,9 @@ QList<QObject *> QmlProfiler::Internal::QmlProfilerPlugin::createTestObjects() c
     tests << new QmlProfilerAnimationsModelTest;
     tests << new QmlProfilerAttachDialogTest;
     tests << new QmlProfilerBindingLoopsRenderPassTest;
+    tests << new QmlProfilerClientManagerTest;
+
+    tests << new QQmlEngine; // Trigger debug connector to be started
 #endif
     return tests;
 }
