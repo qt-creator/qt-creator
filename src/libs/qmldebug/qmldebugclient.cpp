@@ -42,7 +42,6 @@ const QString clientId = QLatin1String("QDeclarativeDebugClient");
 
 class QmlDebugClientPrivate
 {
-    //    Q_DECLARE_PUBLIC(QmlDebugClient)
 public:
     QmlDebugClientPrivate();
 
@@ -56,7 +55,7 @@ public:
     QmlDebugConnectionPrivate();
     QPacketProtocol *protocol;
     QLocalServer *server;
-    QIODevice *device; // Currently a QTcpSocket
+    QIODevice *device; // Currently a QTcpSocket or a QLocalSocket
 
     bool gotHello;
     QHash <QString, float> serverPlugins;
@@ -350,11 +349,10 @@ bool QmlDebugConnection::sendMessage(const QString &name, const QByteArray &mess
 
 void QmlDebugConnectionPrivate::flush()
 {
-    QAbstractSocket *socket = qobject_cast<QAbstractSocket*>(device);
-    if (socket) {
+    if (QAbstractSocket *socket = qobject_cast<QAbstractSocket *>(device))
         socket->flush();
-        return;
-    }
+    else if (QLocalSocket *socket = qobject_cast<QLocalSocket *>(device))
+        socket->flush();
 }
 
 void QmlDebugConnection::connectToHost(const QString &hostName, quint16 port)
@@ -432,14 +430,13 @@ void QmlDebugConnection::setMaximumDataStreamVersion(int maximumVersion)
 QAbstractSocket::SocketState QmlDebugConnection::socketState() const
 {
     Q_D(const QmlDebugConnection);
-    // TODO: when merging into master, add clause for local socket
     if (QAbstractSocket *socket = qobject_cast<QAbstractSocket *>(d->device))
         return socket->state();
+    else if (QLocalSocket *socket = qobject_cast<QLocalSocket *>(d->device))
+        return static_cast<QAbstractSocket::SocketState>(socket->state());
     else
         return QAbstractSocket::UnconnectedState;
 }
-
-//
 
 QmlDebugClientPrivate::QmlDebugClientPrivate()
     : connection(0)
