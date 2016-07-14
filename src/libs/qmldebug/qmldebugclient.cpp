@@ -387,7 +387,8 @@ void QmlDebugConnection::startLocalServer(const QString &fileName)
     // QueuedConnection so that waitForNewConnection() returns true.
     connect(d->server, &QLocalServer::newConnection,
             this, &QmlDebugConnection::newConnection, Qt::QueuedConnection);
-    d->server->listen(fileName);
+    if (!d->server->listen(fileName))
+        emit socketError(QAbstractSocket::UnknownSocketError);
 }
 
 void QmlDebugConnection::newConnection()
