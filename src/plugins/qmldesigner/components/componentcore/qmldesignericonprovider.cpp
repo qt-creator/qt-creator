@@ -25,6 +25,8 @@
 
 #include "qmldesignericonprovider.h"
 
+#include <utils/icon.h>
+
 #include <coreplugin/coreicons.h>
 #include <coreplugin/icore.h>
 
@@ -47,42 +49,37 @@ QPixmap QmlDesignerIconProvider::requestPixmap(const QString &id, QSize *size, c
 {
     Q_UNUSED(requestedSize)
 
-    static Utils::Icon UP_ARROW({
-            { iconPath() + QLatin1String("up-arrow.png"), Utils::Theme::IconsBaseColor}});
-
-    static Utils::Icon DOWN_ARROW({
-            { iconPath() + QLatin1String("down-arrow.png"), Utils::Theme::IconsBaseColor}});
-
-    static Utils::Icon PLACEHOLDER({
-            { iconPath() + QLatin1String("placeholder.png"), Utils::Theme::IconsBaseColor}});
-
-    static Utils::Icon EXPRESSION({
-            { iconPath() + QLatin1String("expression.png"), Utils::Theme::IconsBaseColor}});
-
-    static Utils::Icon SUBMENU({
-            { iconPath() + QLatin1String("submenu.png"), Utils::Theme::IconsBaseColor}});
+    using namespace Utils;
 
     QPixmap result;
 
     if (id == "close")
         result = Core::Icons::CLOSE_TOOLBAR.pixmap();
-
     else if (id == "plus")
         result = Core::Icons::PLUS.pixmap();
     else if (id == "expression")
-        result = EXPRESSION.pixmap();
+        result = Icon({
+                { iconPath() + QLatin1String("expression.png"), Theme::IconsBaseColor}}, Icon::Tint).pixmap();
     else if (id == "placeholder")
-        result = PLACEHOLDER.pixmap();
-    else if (id == "expression")
-        result = EXPRESSION.pixmap();
+        result = Icon({
+                { iconPath() + QLatin1String("placeholder.png"), Theme::IconsBaseColor}}, Icon::Tint).pixmap();
     else if (id == "submenu")
-        result = SUBMENU.pixmap();
+        result = Icon({
+                { iconPath() + QLatin1String("submenu.png"), Theme::IconsBaseColor}}, Icon::Tint).pixmap();
     else if (id == "up-arrow")
-        result = UP_ARROW.pixmap();
+        result = Icon({
+                { iconPath() + QLatin1String("up-arrow.png"), Theme::IconsBaseColor}}, Icon::Tint).pixmap();
     else if (id == "down-arrow")
-        result = DOWN_ARROW.pixmap();
+        result = Icon({
+                { iconPath() + QLatin1String("down-arrow.png"), Theme::IconsBaseColor}}, Icon::Tint).pixmap();
+    else if (id == "checkbox-indicator")
+        result = Icon({
+                { ":/qmldesigner/images/checkbox_indicator.png", Theme::IconsBaseColor}}, Icon::Tint).pixmap();
+    else if (id == "tr")
+        result = Icon({
+                { ":/qmldesigner/images/tr.png", Theme::IconsBaseColor}}, Icon::Tint).pixmap();
     else
-        qWarning() << Q_FUNC_INFO << "Image not found.";
+        qWarning() << Q_FUNC_INFO << "Image not found:" << id;
 
     if (size)
         *size = result.size();

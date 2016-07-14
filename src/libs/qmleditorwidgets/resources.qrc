@@ -1,21 +1,9 @@
 <RCC>
     <qresource prefix="/qmldesigner">
-        <file>images/checkbox_checked.png</file>
-        <file>images/checkbox_checked@2x.png</file>
-        <file>images/checkbox_checked_pressed.png</file>
-        <file>images/checkbox_checked_pressed@2x.png</file>
-        <file>images/checkbox_unchecked.png</file>
-        <file>images/checkbox_unchecked@2x.png</file>
-        <file>images/checkbox_unchecked_pressed.png</file>
-        <file>images/checkbox_unchecked_pressed@2x.png</file>
-        <file>images/checkbox_tr_checked.png</file>
-        <file>images/checkbox_tr_checked@2x.png</file>
-        <file>images/checkbox_tr_checked_pressed.png</file>
-        <file>images/checkbox_tr_checked_pressed@2x.png</file>
-        <file>images/checkbox_tr_unchecked.png</file>
-        <file>images/checkbox_tr_unchecked@2x.png</file>
-        <file>images/checkbox_tr_unchecked_pressed.png</file>
-        <file>images/checkbox_tr_unchecked_pressed@2x.png</file>
+        <file>images/checkbox_indicator.png</file>
+        <file>images/checkbox_indicator@2x.png</file>
+        <file>images/tr.png</file>
+        <file>images/tr@2x.png</file>
         <file>images/lock.png</file>
         <file>images/hole.png</file>
         <file>images/scrollbar-borderimage-horizontal.png</file>

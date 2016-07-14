@@ -20,41 +20,6 @@
      id="defs4">
     <linearGradient
        inkscape:collect="always"
-       id="linearGradient6897">
-      <stop
-         style="stop-color:#191919;stop-opacity:1"
-         offset="0"
-         id="stop6899" />
-      <stop
-         style="stop-color:#3f3f3f;stop-opacity:1"
-         offset="1"
-         id="stop6901" />
-    </linearGradient>
-    <linearGradient
-       inkscape:collect="always"
-       id="linearGradient6874">
-      <stop
-         style="stop-color:#5d5d5d;stop-opacity:1"
-         offset="0"
-         id="stop6876" />
-      <stop
-         style="stop-color:#4a4a4a;stop-opacity:1"
-         offset="1"
-         id="stop6878" />
-    </linearGradient>
-    <linearGradient
-       id="linearGradient4217-1">
-      <stop
-         id="stop6870"
-         offset="0"
-         style="stop-color:#4a4a4a;stop-opacity:1" />
-      <stop
-         id="stop6872"
-         offset="1"
-         style="stop-color:#383838;stop-opacity:1" />
-    </linearGradient>
-    <linearGradient
-       inkscape:collect="always"
        id="linearGradient4806">
       <stop
          style="stop-color:#646464;stop-opacity:1"
@@ -590,33 +555,6 @@
          x="141"
          y="408" />
     </clipPath>
-    <linearGradient
-       inkscape:collect="always"
-       xlink:href="#linearGradient4217-1"
-       id="linearGradient6858"
-       x1="547.5"
-       y1="585.5"
-       x2="547.5"
-       y2="595.5"
-       gradientUnits="userSpaceOnUse" />
-    <linearGradient
-       inkscape:collect="always"
-       xlink:href="#linearGradient6874"
-       id="linearGradient6880"
-       x1="546.5"
-       y1="585.5"
-       x2="546.5"
-       y2="595.5"
-       gradientUnits="userSpaceOnUse" />
-    <linearGradient
-       inkscape:collect="always"
-       xlink:href="#linearGradient6897"
-       id="linearGradient6903"
-       x1="558.5"
-       y1="584.5"
-       x2="558.5"
-       y2="596.5"
-       gradientUnits="userSpaceOnUse" />
     <clipPath
        clipPathUnits="userSpaceOnUse"
        id="clipPath6003">
@@ -1479,13 +1417,6 @@
          style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:2;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
          sodipodi:nodetypes="cc" />
     </g>
-    <rect
-       style="opacity:1;fill:#000000;fill-opacity:1;stroke:none;stroke-opacity:1"
-       id="rect6617"
-       width="173"
-       height="16"
-       x="543"
-       y="584" />
     <g
        id="share/qtcreator/qmldesigner/propertyEditorQmlSources/HelperWidgets/images/down-arrow">
       <rect
@@ -1628,149 +1559,38 @@
          x="0" />
     </g>
     <g
-       id="src/libs/qmleditorwidgets/images/checkbox_unchecked">
-      <image
-         width="13"
+       id="src/libs/qmleditorwidgets/images/checkbox_indicator"
+       transform="translate(-26,0)">
+      <rect
+         style="display:inline;fill:#ffffff"
+         id="rect6738-1"
+         width="14"
          height="13"
-         preserveAspectRatio="none"
-         style="image-rendering:optimizeSpeed"
-         xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA0AAAANCAIAAAD9iXMrAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJ bWFnZVJlYWR5ccllPAAAAFxJREFUeNpikZKSYiACsACxs7MzfkV79+4Fqfv///+7d+9wKRISEoKa B1T3798/XOqAslB1/8AAlzqIFEjdXzDApQ4iRYp5xLqP2vaSoA4SmATUXbhwgWD8AgQYACE8WYRh 3ceiAAAAAElFTkSuQmCC "
-         id="image6826"
-         x="543"
+         x="569"
          y="584" />
-      <rect
-         y="584"
-         x="543"
-         height="13"
-         width="13"
-         id="rect6840"
-         style="opacity:1;fill:#1a1a1a;fill-opacity:1;stroke:none;stroke-opacity:1" />
-      <rect
-         y="585.5"
-         x="544.5"
-         height="10"
-         width="10"
-         id="rect6842"
-         style="opacity:1;fill:url(#linearGradient6858);fill-opacity:1;stroke:url(#linearGradient6880);stroke-opacity:1" />
-    </g>
-    <rect
-       style="display:inline;opacity:1;fill:url(#linearGradient6903);fill-opacity:1;stroke:#1a1a1a;stroke-opacity:1"
-       id="src/libs/qmleditorwidgets/images/checkbox_unchecked_pressed"
-       width="12"
-       height="12"
-       x="556.5"
-       y="584.5" />
-    <g
-       id="src/libs/qmleditorwidgets/images/checkbox_checked">
-      <use
-         height="100%"
-         width="100%"
-         transform="translate(26,0)"
-         id="use6912"
-         xlink:href="#src/libs/qmleditorwidgets/images/checkbox_unchecked"
-         y="0"
-         x="0" />
       <path
          sodipodi:nodetypes="ccccccc"
          inkscape:connector-curvature="0"
-         id="qmlpropertyeditor_checkbox_indicator"
-         d="m 571.87109,590.50735 1.5,-1.5 c 0.62624,0.82304 1.36869,1.69471 2.11049,3.5 0.88951,-2.5 2.40793,-5.00735 7.51842,-8.50735 -4,4.5 -5.5625,7.125 -6.0625,10.625 l -2.28125,1.84375 c -0.44837,-1.5873 -1.91768,-4.96759 -2.78516,-5.96142"
-         style="fill:#dbdbdb;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+         d="m 571.87109,590.50735 1.5,-1.5 c 0.62624,0.82304 1.36869,1.69471 2.11049,3.5 0.88951,-2.5 2.40793,-5.00735 7.51842,-8.50735 -4,4.5 -5.5625,7.125 -6.0625,10.625 l -2.28125,1.84375"
+         style="fill:#000000"
+         id="path4396" />
     </g>
     <g
-       id="src/libs/qmleditorwidgets/images/checkbox_checked_pressed">
-      <use
-         height="100%"
-         width="100%"
-         transform="translate(27,0)"
-         id="use6918"
-         xlink:href="#src/libs/qmleditorwidgets/images/checkbox_unchecked_pressed"
-         y="0"
-         x="0" />
-      <use
-         height="100%"
-         width="100%"
-         transform="translate(14,0)"
-         id="use6916"
-         xlink:href="#qmlpropertyeditor_checkbox_indicator"
-         y="0"
-         x="0" />
-    </g>
-    <g
-       id="src/libs/qmleditorwidgets/images/checkbox_tr_unchecked">
-      <use
-         height="100%"
-         width="100%"
-         transform="translate(54,0)"
-         id="use4835"
-         xlink:href="#src/libs/qmleditorwidgets/images/checkbox_unchecked"
-         y="0"
-         x="0" />
-      <use
-         style="opacity:0.25"
-         height="100%"
-         width="100%"
-         transform="translate(-26,0)"
-         id="use4839"
-         xlink:href="#qmlpropertyeditor_checkbox_tr_indicator"
-         y="0"
-         x="0" />
-    </g>
-    <g
-       id="src/libs/qmleditorwidgets/images/checkbox_tr_unchecked_pressed">
-      <use
-         height="100%"
-         width="100%"
-         transform="translate(54,0)"
-         id="use4837"
-         xlink:href="#src/libs/qmleditorwidgets/images/checkbox_unchecked_pressed"
-         y="0"
-         x="0" />
-      <use
-         style="opacity:0.25"
-         height="100%"
-         width="100%"
-         transform="translate(-13,0)"
-         id="use4841"
-         xlink:href="#qmlpropertyeditor_checkbox_tr_indicator"
-         y="0"
-         x="0" />
-    </g>
-    <g
-       id="src/libs/qmleditorwidgets/images/checkbox_tr_checked">
-      <use
-         height="100%"
-         width="100%"
-         transform="translate(80,0)"
-         id="use4826"
-         xlink:href="#src/libs/qmleditorwidgets/images/checkbox_unchecked"
-         y="0"
-         x="0" />
+       id="src/libs/qmleditorwidgets/images/tr"
+       transform="translate(-25,0)">
+      <rect
+         y="584"
+         x="582"
+         height="13"
+         width="13"
+         id="rect6738-1-2"
+         style="display:inline;fill:#ffffff" />
       <path
          sodipodi:nodetypes="cccscsscccccccccsccccccccccccccsccccscccc"
          inkscape:connector-curvature="0"
-         d="m 634.7863,588.98601 -0.3052,1.56048 -0.55626,0 c 0.01,-0.0689 0.0148,-0.13292 0.0148,-0.19199 0,-0.18378 -0.0394,-0.32653 -0.11814,-0.42827 -0.10502,-0.13784 -0.28223,-0.20675 -0.53165,-0.20675 -0.38068,0 -0.71378,0.16737 -0.9993,0.50211 -0.2855,0.33474 -0.44149,0.57814 -0.55636,1.17214 L 631.61506,594 l -1.74261,0 0.3926,-4.01028 -0.79747,0 0.17951,-0.98972 2.54009,0 -0.17722,0.97546 c 0.23957,-0.36428 0.51688,-0.63338 0.83193,-0.80731 0.31505,-0.17722 0.67604,-0.26583 1.08298,-0.26583 0.10174,0 0.22316,0.008 0.36428,0.0246 0.1444,0.0131 0.31012,0.0328 0.49718,0.0591 z m -10.16263,1.00371 0.17951,-0.98972 0.86858,0 0.27086,-2 1.74261,0 -0.27085,2 1.34169,0 -0.17952,0.98972 -1.34169,0 c -0.0466,1.08737 -0.26951,2.07452 -0.31112,3.151 0,0.0886 0.008,0.1526 0.0246,0.19198 0.0525,0.11158 0.17396,0.16737 0.36427,0.16737 0.21003,0 0.37905,-0.0706 0.50704,-0.21167 0.12799,-0.14112 0.2248,-0.35936 0.29043,-0.65472 l 0.73348,0 c -0.13127,0.52509 -0.34623,0.89429 -0.64487,1.1076 -0.29864,0.21003 -0.76301,0.31505 -1.39311,0.31505 -0.71871,0 -1.18472,-0.11322 -1.39803,-0.33966 -0.13783,-0.1444 -0.20675,-0.36756 -0.20675,-0.66948 l 0.3299,-3.03691 z"
-         style="font-style:italic;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:serif;-inkscape-font-specification:'serif Bold Italic';fill:#dbdbdb;fill-opacity:1"
-         id="qmlpropertyeditor_checkbox_tr_indicator" />
-    </g>
-    <g
-       id="src/libs/qmleditorwidgets/images/checkbox_tr_checked_pressed">
-      <use
-         height="100%"
-         width="100%"
-         transform="translate(80,0)"
-         id="use4828"
-         xlink:href="#src/libs/qmleditorwidgets/images/checkbox_unchecked_pressed"
-         y="0"
-         x="0" />
-      <use
-         height="100%"
-         width="100%"
-         transform="translate(13.00033,0)"
-         id="use4831"
-         xlink:href="#qmlpropertyeditor_checkbox_tr_indicator"
-         y="0"
-         x="0" />
+         d="m 593.78663,588.98601 -0.3052,1.56048 -0.55626,0 c 0.01,-0.0689 0.0148,-0.13292 0.0148,-0.19199 0,-0.18378 -0.0394,-0.32653 -0.11814,-0.42827 -0.10502,-0.13784 -0.28223,-0.20675 -0.53165,-0.20675 -0.38068,0 -0.71378,0.16737 -0.9993,0.50211 -0.2855,0.33474 -0.44149,0.57814 -0.55636,1.17214 L 590.61539,594 l -1.74261,0 0.3926,-4.01028 -0.79747,0 0.17951,-0.98972 2.54009,0 -0.17722,0.97546 c 0.23957,-0.36428 0.51688,-0.63338 0.83193,-0.80731 0.31505,-0.17722 0.67604,-0.26583 1.08298,-0.26583 0.10174,0 0.22316,0.008 0.36428,0.0246 0.1444,0.0131 0.31012,0.0328 0.49718,0.0591 z M 583.624,589.98972 583.80351,589 l 0.86858,0 0.27086,-2 1.74261,0 -0.27085,2 1.34169,0 -0.17952,0.98972 -1.34169,0 c -0.0466,1.08737 -0.26951,2.07452 -0.31112,3.151 0,0.0886 0.008,0.1526 0.0246,0.19198 0.0525,0.11158 0.17396,0.16737 0.36427,0.16737 0.21003,0 0.37905,-0.0706 0.50704,-0.21167 0.12799,-0.14112 0.2248,-0.35936 0.29043,-0.65472 l 0.73348,0 c -0.13127,0.52509 -0.34623,0.89429 -0.64487,1.1076 -0.29864,0.21003 -0.76301,0.31505 -1.39311,0.31505 -0.71871,0 -1.18472,-0.11322 -1.39803,-0.33966 -0.13783,-0.1444 -0.20675,-0.36756 -0.20675,-0.66948 l 0.3299,-3.03691 z"
+         style="fill:#000000"
+         id="path4400" />
     </g>
   </g>
   <g

@@ -165,16 +165,28 @@ Controls.TextField {
 
         style: CheckBoxStyle {
             spacing: 8
-            indicator:  Item {
-                implicitWidth: 16
-                implicitHeight: 16
+            indicator: Item {
+                implicitWidth: 15
+                implicitHeight: 15
                 x: 7
                 y: 1
-                Image { source: "qrc:qmldesigner/images/checkbox_tr_" +
-                                (control.checked ? "checked": "unchecked") +
-                                (control.pressed ? "_pressed": "") + ".png" }
+                Rectangle {
+                    anchors.fill: parent
+                    border.color: creatorTheme.QmlDesignerBackgroundColorDarker
+                    color: control.pressed
+                           ? creatorTheme.QmlDesignerBackgroundColorLighter
+                           : creatorTheme.FancyToolButtonHoverColor
+                    opacity: control.hovered || control.pressed ? 1 : 0.75
+                }
+                Image {
+                    x: 1
+                    y: 1
+                    width: 13
+                    height: 13
+                    source: "image://icons/tr"
+                    opacity: control.checked ? 1 : 0.3;
+                }
             }
-        }                                          //control.pressed ? "qrc:qmldesigner/images/checkbox_unchecked_pressed.png" :
-
+        }
     }
 }

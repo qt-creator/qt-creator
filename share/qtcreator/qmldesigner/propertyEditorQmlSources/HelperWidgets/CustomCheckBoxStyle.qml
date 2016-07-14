@@ -30,11 +30,24 @@ import QtQuick.Controls.Styles 1.1
 CheckBoxStyle {
     spacing: 24
     label: Controls.Label { text: control.text ; color: checkBox.textColor }
-    indicator:  Item {
+    indicator: Item {
         implicitWidth: 16
         implicitHeight: 16
-        Image { source: "qrc:qmldesigner/images/checkbox_" +
-                        (control.checked ? "checked": "unchecked") +
-                        (control.pressed ? "_pressed": "") + ".png" }
+        Rectangle {
+            anchors.fill: parent
+            color: control.pressed
+                   ? creatorTheme.FancyToolButtonHoverColor
+                   : creatorTheme.FancyToolButtonSelectedColor
+            border.color: creatorTheme.QmlDesignerBackgroundColorDarker
+            anchors.margins: 1
+        }
+        Image {
+            x: 2
+            y: 2
+            width: 14
+            height: 13
+            source: "image://icons/checkbox-indicator"
+            visible: control.checked
+        }
     }
 }
