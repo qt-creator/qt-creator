@@ -172,11 +172,11 @@ QString ToolChain::languageId(ToolChain::Language l)
 {
     switch (l) {
     case Language::None:
-        return "None";
+        return QStringLiteral("None");
     case Language::C:
-        return "C";
+        return QStringLiteral("C");
     case Language::Cxx:
-        return "C++";
+        return QStringLiteral("C++");
     };
     return QString();
 }
