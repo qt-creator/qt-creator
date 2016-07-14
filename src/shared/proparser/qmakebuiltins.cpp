@@ -54,6 +54,8 @@
 #include <utime.h>
 #include <errno.h>
 #include <unistd.h>
+#include <signal.h>
+#include <sys/wait.h>
 #include <sys/stat.h>
 #include <sys/utsname.h>
 #else
@@ -1498,9 +1500,14 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateBuiltinConditional(
         runProcess(&proc, args.at(0).toQString(m_tmp2));
         return returnBool(proc.exitStatus() == QProcess::NormalExit && proc.exitCode() == 0);
 #else
-        return returnBool(system((QLatin1String("cd ")
-                                  + IoUtils::shellQuote(QDir::toNativeSeparators(currentDirectory()))
-                                  + QLatin1String(" && ") + args.at(0)).toLocal8Bit().constData()) == 0);
+        int ec = system((QLatin1String("cd ")
+                         + IoUtils::shellQuote(QDir::toNativeSeparators(currentDirectory()))
+                         + QLatin1String(" && ") + args.at(0)).toLocal8Bit().constData());
+#  ifdef Q_OS_UNIX
+        if (ec != -1 && WIFSIGNALED(ec) && (WTERMSIG(ec) == SIGQUIT || WTERMSIG(ec) == SIGINT))
+            raise(WTERMSIG(ec));
+#  endif
+        return returnBool(ec == 0);
 #endif
 #else
         return ReturnTrue;
