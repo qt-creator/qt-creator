@@ -268,7 +268,28 @@ def qdump__QDateTime(d, value):
     # {sharedref(4), ...
     base = d.extractPointer(value)
     is32bit = d.is32bit()
-    if qtVersion >= 0x050200:
+    if qtVersion >= 0x050800:
+        # FIXME: Don't give up.
+        d.putPlainChildren(value)
+        return
+        msecsOffset = 0
+        statusOffset = 8
+        offsetFromUtcOffset = 12
+        timeZoneOffset = 24
+        status = d.extractInt(base + statusOffset)
+        if int(status & 0x0c == 0x0c): # ValidDate and ValidTime
+            isValid = True
+            msecs = d.extractInt64(base + msecsOffset)
+            offset = d.extractInt(base + offsetFromUtcOffset)
+            tzp = d.extractPointer(base + timeZoneOffset)
+            if tzp == 0:
+                tz = ""
+            else:
+                idBase = tzp + 2 * d.ptrSize() # [QSharedData] + [vptr]
+                elided, tz = d.encodeByteArrayHelper(d.extractPointer(idBase), limit=100)
+            d.putValue("%s/%s/%s/%s/%s" % (msecs, -1, offset, tz, status),
+                "datetimeinternal")
+    elif qtVersion >= 0x050200:
         if d.isWindowsTarget():
             msecsOffset = 8
             specOffset = 16
