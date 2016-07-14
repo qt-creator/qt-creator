@@ -1581,7 +1581,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateBuiltinConditional(
 #ifdef PROEVALUATOR_FULL
                 fputs(msg.toLatin1().constData(), stderr);
 #endif
-            } else {
+            } else if (!msg.isEmpty() || func_t != T_ERROR) {
                 m_handler->fileMessage(
                         (func_t == T_ERROR   ? QMakeHandler::ErrorMessage :
                          func_t == T_WARNING ? QMakeHandler::WarningMessage :
