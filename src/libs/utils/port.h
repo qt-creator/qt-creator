@@ -27,6 +27,7 @@
 
 #include "utils_global.h"
 #include "qtcassert.h"
+#include <QMetaType>
 
 namespace Utils {
 
@@ -60,3 +61,5 @@ inline bool operator==(const Port &p1, const Port &p2) { return p1.number() == p
 inline bool operator!=(const Port &p1, const Port &p2) { return p1.number() != p2.number(); }
 
 } // Utils
+
+Q_DECLARE_METATYPE(Utils::Port)
