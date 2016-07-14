@@ -348,14 +348,15 @@ AnalyzerRunControl *QmlProfilerTool::createRunControl(RunConfiguration *runConfi
 void QmlProfilerTool::finalizeRunControl(QmlProfilerRunControl *runControl)
 {
     runControl->registerProfilerStateManager(d->m_profilerState);
+    QmlProfilerClientManager *clientManager = d->m_profilerConnections;
 
     QTC_ASSERT(runControl->connection().is<AnalyzerConnection>(), return);
     // FIXME: Check that there's something sensible in sp.connParams
     auto connection = runControl->connection().as<AnalyzerConnection>();
     if (!connection.analyzerSocket.isEmpty())
-        d->m_profilerConnections->setLocalSocket(connection.analyzerSocket);
+        clientManager->setLocalSocket(connection.analyzerSocket);
     else
-        d->m_profilerConnections->setTcpConnection(connection.analyzerHost, connection.analyzerPort);
+        clientManager->setTcpConnection(connection.analyzerHost, connection.analyzerPort);
 
     //
     // Initialize m_projectFinder
@@ -372,8 +373,35 @@ void QmlProfilerTool::finalizeRunControl(QmlProfilerRunControl *runControl)
     if (connection.analyzerSocket.isEmpty())
         connect(runControl, &QmlProfilerRunControl::processRunning,
                 d->m_profilerConnections, &QmlProfilerClientManager::connectTcpClient);
-    connect(d->m_profilerConnections, &QmlProfilerClientManager::connectionFailed,
-            runControl, &QmlProfilerRunControl::cancelProcess);
+    connect(clientManager, &QmlProfilerClientManager::connectionFailed,
+            runControl, [clientManager, runControl]() {
+        QMessageBox *infoBox = new QMessageBox(ICore::mainWindow());
+        infoBox->setIcon(QMessageBox::Critical);
+        infoBox->setWindowTitle(tr("Qt Creator"));
+        infoBox->setText(tr("Could not connect to the in-process QML profiler.\n"
+                            "Do you want to retry?"));
+        infoBox->setStandardButtons(QMessageBox::Retry | QMessageBox::Cancel | QMessageBox::Help);
+        infoBox->setDefaultButton(QMessageBox::Retry);
+        infoBox->setModal(true);
+
+        connect(infoBox, &QDialog::finished, runControl, [clientManager, runControl](int result) {
+            switch (result) {
+            case QMessageBox::Retry:
+                clientManager->retryConnect();
+                break;
+            case QMessageBox::Help:
+                HelpManager::handleHelpRequest(
+                            "qthelp://org.qt-project.qtcreator/doc/creator-debugging-qml.html");
+            case QMessageBox::Cancel:
+                // The actual error message has already been logged.
+                logState(tr("Failed to connect!"));
+                runControl->cancelProcess();
+                break;
+            }
+        });
+
+        infoBox->show();
+    });
 }
 
 void QmlProfilerTool::populateFileFinder(QString projectDirectory, QString activeSysroot)
@@ -815,16 +843,6 @@ void QmlProfilerTool::showNonmodalWarning(const QString &warningMsg)
     noExecWarning->setDefaultButton(QMessageBox::Ok);
     noExecWarning->setModal(false);
     noExecWarning->show();
-}
-
-QMessageBox *QmlProfilerTool::requestMessageBox()
-{
-    return new QMessageBox(ICore::mainWindow());
-}
-
-void QmlProfilerTool::handleHelpRequest(const QString &link)
-{
-    HelpManager::handleHelpRequest(link);
 }
 
 void QmlProfilerTool::profilerStateChanged()

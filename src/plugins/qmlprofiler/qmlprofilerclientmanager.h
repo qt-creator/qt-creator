@@ -63,6 +63,7 @@ signals:
     void connectionClosed();
 
 public slots:
+    void retryConnect();
     void connectTcpClient(Utils::Port port);
     void connectLocalClient(const QString &file);
     void disconnectClient();
@@ -74,8 +75,6 @@ private slots:
     void qmlDebugConnectionError(QAbstractSocket::SocketError error);
     void qmlDebugConnectionStateChanged(QAbstractSocket::SocketState state);
     void logState(const QString &);
-
-    void retryMessageBoxFinished(int result);
 
     void qmlComplete(qint64 maximumTime);
     void qmlNewEngine(int engineId);

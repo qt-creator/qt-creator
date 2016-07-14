@@ -33,7 +33,6 @@
 
 #include <QPointer>
 #include <QTimer>
-#include <QMessageBox>
 
 using namespace Core;
 
@@ -186,6 +185,17 @@ void QmlProfilerClientManager::createConnection()
             this, &QmlProfilerClientManager::qmlDebugConnectionStateChanged);
 }
 
+void QmlProfilerClientManager::retryConnect()
+{
+    disconnectClient();
+    if (!d->localSocket.isEmpty())
+        connectLocalClient(d->localSocket);
+    else if (!d->tcpHost.isEmpty() && d->tcpPort.isValid())
+        connectTcpClient(d->tcpPort);
+    else
+        emit connectionFailed();
+}
+
 void QmlProfilerClientManager::connectClientSignals()
 {
     QTC_ASSERT(d->profilerState, return);
@@ -267,22 +277,7 @@ void QmlProfilerClientManager::tryToConnect()
         d->connectionAttempts = 0;
         delete d->connection; // delete directly.
         d->connection = 0;
-
-        QMessageBox *infoBox = QmlProfilerTool::requestMessageBox();
-        infoBox->setIcon(QMessageBox::Critical);
-        infoBox->setWindowTitle(tr("Qt Creator"));
-        infoBox->setText(tr("Could not connect to the in-process QML profiler.\n"
-                            "Do you want to retry?"));
-        infoBox->setStandardButtons(QMessageBox::Retry |
-                                    QMessageBox::Cancel |
-                                    QMessageBox::Help);
-        infoBox->setDefaultButton(QMessageBox::Retry);
-        infoBox->setModal(true);
-
-        connect(infoBox, &QDialog::finished,
-                this, &QmlProfilerClientManager::retryMessageBoxFinished);
-
-        infoBox->show();
+        emit connectionFailed();
     }
 }
 
@@ -318,30 +313,6 @@ void QmlProfilerClientManager::qmlDebugConnectionStateChanged(QAbstractSocket::S
 void QmlProfilerClientManager::logState(const QString &msg)
 {
     QmlProfilerTool::logState(QLatin1String("QML Profiler: ") + msg);
-}
-
-void QmlProfilerClientManager::retryMessageBoxFinished(int result)
-{
-    QTC_ASSERT(!d->connection, disconnectClient());
-
-    switch (result) {
-    case QMessageBox::Retry: {
-        connectTcpClient(d->tcpPort);
-        d->connectionAttempts = 0;
-        d->connectionTimer.start();
-        break;
-    }
-    case QMessageBox::Help: {
-        QmlProfilerTool::handleHelpRequest(QLatin1String("qthelp://org.qt-project.qtcreator/doc/creator-debugging-qml.html"));
-        // fall through
-    }
-    default: {
-        // The actual error message has already been logged.
-        logState(tr("Failed to connect!"));
-        emit connectionFailed();
-        break;
-    }
-    }
 }
 
 void QmlProfilerClientManager::qmlComplete(qint64 maximumTime)

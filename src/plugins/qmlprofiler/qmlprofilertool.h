@@ -59,8 +59,6 @@ public:
     static QList <QAction *> profilerContextMenuActions();
 
     // display dialogs / log output
-    static QMessageBox *requestMessageBox();
-    static void handleHelpRequest(const QString &link);
     static void logState(const QString &msg);
     static void logError(const QString &msg);
     static void showNonmodalWarning(const QString &warningMsg);
