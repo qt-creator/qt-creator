@@ -194,8 +194,7 @@ void QmlDebugConnection::protocolReadyRead()
 
         if (!validHello) {
             qWarning("QML Debug Client: Invalid hello message");
-            QObject::disconnect(d->protocol, &QPacketProtocol::readyRead,
-                                this, &QmlDebugConnection::protocolReadyRead);
+            close();
             return;
         }
         d->gotHello = true;
