@@ -61,9 +61,9 @@
   <style name="DiffDestLine" background="#dfffdf"/>
   <style name="DiffDestChar" background="#afffaf"/>
   <style name="LogChangeLine" foreground="#c00000"/>
-  <style name="Warning" underlineColor="#ffbe00" underlineStyle="SingleUnderline"/>
-  <style name="WarningContext" underlineColor="#ffbe00" underlineStyle="DotLine"/>
-  <style name="Error" underlineColor="#ff0000" underlineStyle="SingleUnderline"/>
-  <style name="ErrorContext" underlineColor="#ff0000" underlineStyle="DotLine"/>
+  <style name="Warning" underlineColor="#b58900" underlineStyle="SingleUnderline"/>
+  <style name="WarningContext" underlineColor="#b58900" underlineStyle="DotLine"/>
+  <style name="Error" underlineColor="#dc322f" underlineStyle="SingleUnderline"/>
+  <style name="ErrorContext" underlineColor="#dc322f" underlineStyle="DotLine"/>
   <style name="Declaration"/>
 </style-scheme>
