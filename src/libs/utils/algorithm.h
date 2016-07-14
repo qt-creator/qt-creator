@@ -246,7 +246,7 @@ template<template<typename> class C, // result container type
 Q_REQUIRED_RESULT
 auto transform(const SC<T> &container, R (S::*p)() const) -> ResultContainer<C, SC, T, R(S::*)() const>
 {
-    return Utils::transform<C>(container, std::mem_fn(p));
+    return Utils::transform<C, SC, T>(container, std::mem_fn(p));
 }
 
 // same container type for input and output, e.g. transforming a QList<QString> into QList<int>
