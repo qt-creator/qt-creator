@@ -80,18 +80,6 @@ QTreeView::branch:has-siblings:!adjoins-item {
      image:none;
  }
 
- QTreeView::branch:has-children:!has-siblings:closed,
- QTreeView::branch:closed:has-children:has-siblings {
-         border-image: none;
-         image: url(:/qmldesigner/images/triangle_horz.png);
- }
-
- QTreeView::branch:open:has-children:!has-siblings,
- QTreeView::branch:open:has-children:has-siblings  {
-         border-image: none;
-         image: url(:/qmldesigner/images/triangle_vert.png);
- }
-
  QListView {
     color:creatorTheme.PanelTextColorLight;
     selection-color: creatorTheme.PanelTextColorLight;
