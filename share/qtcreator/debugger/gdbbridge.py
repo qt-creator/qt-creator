@@ -1136,23 +1136,10 @@ class Dumper(DumperBase):
         #warn("INAME: %s " % self.currentIName)
         #warn("INAMES: %s " % self.expandedINames)
         #warn("EXPANDED: %s " % (self.currentIName in self.expandedINames))
-        if self.showQObjectNames:
-            staticMetaObject = self.extractStaticMetaObject(value.type)
-            if staticMetaObject:
-                self.putQObjectNameValue(value)
         self.putType(typeName)
-        self.putEmptyValue()
         self.putNumChild(len(typeobj.fields()))
+        self.putStructGuts(value)
 
-        if self.currentIName in self.expandedINames:
-            innerType = None
-            self.put('sortable="1"')
-            with Children(self, 1, childType=innerType):
-                self.putFields(value)
-                if not self.showQObjectNames:
-                    staticMetaObject = self.extractStaticMetaObject(value.type)
-                if staticMetaObject:
-                    self.putQObjectGuts(value, staticMetaObject)
 
     def toBlob(self, value):
         size = toInteger(value.type.sizeof)
@@ -1251,7 +1238,7 @@ class Dumper(DumperBase):
                         # int (**)(void)
                         n = 100
                         self.putType(" ")
-                        self.put('sortgroup="1"')
+                        self.put('sortgroup="20"')
                         self.putValue(value[field.name])
                         self.putNumChild(n)
                         if self.isExpanded():
@@ -1275,7 +1262,7 @@ class Dumper(DumperBase):
                         baseNumber += 1
                         with UnnamedSubItem(self, "@%d" % baseNumber):
                             baseValue = value.cast(field.type)
-                            self.put('sortgroup="2"')
+                            self.put('sortgroup="30"')
                             self.putBaseClassName(field.name)
                             self.putAddress(baseValue.address)
                             self.putItem(baseValue, False)
