@@ -353,10 +353,13 @@ void QmlProfilerTool::finalizeRunControl(QmlProfilerRunControl *runControl)
     QTC_ASSERT(runControl->connection().is<AnalyzerConnection>(), return);
     // FIXME: Check that there's something sensible in sp.connParams
     auto connection = runControl->connection().as<AnalyzerConnection>();
-    if (!connection.analyzerSocket.isEmpty())
+    if (!connection.analyzerSocket.isEmpty()) {
         clientManager->setLocalSocket(connection.analyzerSocket);
-    else
+        // We open the server and the application connects to it, so let's do that right away.
+        clientManager->startLocalServer();
+    } else {
         clientManager->setTcpConnection(connection.analyzerHost, connection.analyzerPort);
+    }
 
     //
     // Initialize m_projectFinder
@@ -370,9 +373,14 @@ void QmlProfilerTool::finalizeRunControl(QmlProfilerRunControl *runControl)
         populateFileFinder(projectDirectory, sysroot(runConfiguration));
     }
 
-    if (connection.analyzerSocket.isEmpty())
+    if (connection.analyzerSocket.isEmpty()) {
+        QString host = connection.analyzerHost;
         connect(runControl, &QmlProfilerRunControl::processRunning,
-                d->m_profilerConnections, &QmlProfilerClientManager::connectTcpClient);
+                clientManager, [clientManager, host](Utils::Port port) {
+            clientManager->setTcpConnection(host, port);
+            clientManager->connectToTcpServer();
+        });
+    }
     connect(clientManager, &QmlProfilerClientManager::connectionFailed,
             runControl, [this, clientManager, runControl]() {
         QMessageBox *infoBox = new QMessageBox(ICore::mainWindow());

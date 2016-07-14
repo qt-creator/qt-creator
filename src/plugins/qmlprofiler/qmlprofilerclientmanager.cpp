@@ -25,286 +25,282 @@
 
 #include "qmlprofilerclientmanager.h"
 #include "qmlprofilertool.h"
-#include "qmlprofilerplugin.h"
-#include "qmlprofilertraceclient.h"
 #include "qmlprofilermodelmanager.h"
+#include "qmlprofilerstatemanager.h"
 
 #include <utils/qtcassert.h>
-
-#include <QPointer>
-#include <QTimer>
-
-using namespace Core;
 
 namespace QmlProfiler {
 namespace Internal {
 
-class QmlProfilerClientManager::QmlProfilerClientManagerPrivate
-{
-public:
-    QmlProfilerStateManager *profilerState;
-
-    QmlDebug::QmlDebugConnection *connection;
-    QPointer<QmlProfilerTraceClient> qmlclientplugin;
-
-    QTimer connectionTimer;
-    int connectionAttempts;
-
-    QString localSocket;
-    QString tcpHost;
-    Utils::Port tcpPort;
-    QString sysroot;
-    quint32 flushInterval;
-    bool aggregateTraces;
-
-    QmlProfilerModelManager *modelManager;
-};
-
-QmlProfilerClientManager::QmlProfilerClientManager(QObject *parent) :
-    QObject(parent), d(new QmlProfilerClientManagerPrivate)
+QmlProfilerClientManager::QmlProfilerClientManager(QObject *parent) : QObject(parent)
 {
     setObjectName(QLatin1String("QML Profiler Connections"));
-
-    d->profilerState = 0;
-
-    d->connection = 0;
-    d->connectionAttempts = 0;
-    d->flushInterval = 0;
-    d->aggregateTraces = true;
-
-    d->modelManager = 0;
-
-    d->connectionTimer.setInterval(200);
-    connect(&d->connectionTimer, &QTimer::timeout, this, &QmlProfilerClientManager::tryToConnect);
-}
-
-QmlProfilerClientManager::~QmlProfilerClientManager()
-{
-    delete d->connection;
-    delete d->qmlclientplugin.data();
-    delete d;
 }
 
 void QmlProfilerClientManager::setModelManager(QmlProfilerModelManager *m)
 {
-    d->modelManager = m;
+    QTC_ASSERT(m_connection.isNull() && m_qmlclientplugin.isNull(), disconnectClient());
+    m_modelManager = m;
 }
 
 void QmlProfilerClientManager::setFlushInterval(quint32 flushInterval)
 {
-    d->flushInterval = flushInterval;
+    m_flushInterval = flushInterval;
 }
 
 bool QmlProfilerClientManager::aggregateTraces() const
 {
-    return d->aggregateTraces;
+    return m_aggregateTraces;
 }
 
 void QmlProfilerClientManager::setAggregateTraces(bool aggregateTraces)
 {
-    d->aggregateTraces = aggregateTraces;
+    m_aggregateTraces = aggregateTraces;
+}
+
+void QmlProfilerClientManager::setRetryParams(int interval, int maxAttempts)
+{
+    m_retryInterval = interval;
+    m_maximumRetries = maxAttempts;
 }
 
 void QmlProfilerClientManager::setTcpConnection(QString host, Utils::Port port)
 {
-    d->tcpHost = host;
-    d->tcpPort = port;
-    d->localSocket.clear();
-    disconnectClient();
-    // Wait for the application to announce the port before connecting.
+    if (!m_localSocket.isEmpty() || m_tcpHost != host || m_tcpPort != port) {
+        m_tcpHost = host;
+        m_tcpPort = port;
+        m_localSocket.clear();
+        disconnectClient();
+        stopConnectionTimer();
+    }
 }
 
 void QmlProfilerClientManager::setLocalSocket(QString file)
 {
-    d->localSocket = file;
-    d->tcpHost.clear();
-    d->tcpPort = Utils::Port();
+    if (m_localSocket != file || !m_tcpHost.isEmpty() || m_tcpPort.isValid()) {
+        m_localSocket = file;
+        m_tcpHost.clear();
+        m_tcpPort = Utils::Port();
+        disconnectClient();
+        stopConnectionTimer();
+    }
+}
+
+void QmlProfilerClientManager::clearConnection()
+{
+    m_localSocket.clear();
+    m_tcpHost.clear();
+    m_tcpPort = Utils::Port();
     disconnectClient();
-    // We open the server and the application connects to it, so let's do that right away.
-    connectLocalClient(file);
+    stopConnectionTimer();
 }
 
 void QmlProfilerClientManager::clearBufferedData()
 {
-    if (d->qmlclientplugin)
-        d->qmlclientplugin.data()->clearData();
+    if (m_qmlclientplugin)
+        m_qmlclientplugin->clearData();
 }
 
-void QmlProfilerClientManager::connectTcpClient(Utils::Port port)
+void QmlProfilerClientManager::connectToTcpServer()
 {
-    if (d->connection) {
-        if (port == d->tcpPort) {
-            tryToConnect();
-            return;
+    if (m_connection.isNull()) {
+        QTC_ASSERT(m_qmlclientplugin.isNull(), disconnectClient());
+        createConnection();
+        QTC_ASSERT(m_connection, emit connectionFailed(); return);
+        m_connection->connectToHost(m_tcpHost, m_tcpPort.number());
+    }
+
+    // Calling this again when we're already trying means "reset the retry timer". This is
+    // useful in cases where we have to parse the port from the output. We might waste retries
+    // on an initial guess for the port.
+    stopConnectionTimer();
+    connect(&m_connectionTimer, &QTimer::timeout, this, [this]{
+        QTC_ASSERT(!isConnected(), return);
+
+        if (++(m_numRetries) < m_maximumRetries) {
+            if (m_connection.isNull()) {
+                // If the previous connection failed, recreate it.
+                createConnection();
+                m_connection->connectToHost(m_tcpHost, m_tcpPort.number());
+            } else if (m_numRetries < 3
+                       && m_connection->socketState() != QAbstractSocket::ConnectedState) {
+                // If we don't get connected in the first retry interval, drop the socket and try
+                // with a new one. On some operating systems (maxOS) the very first connection to a
+                // TCP server takes a very long time to get established and this helps.
+                // On other operating systems (windows) every connection takes forever to get
+                // established. So, after tearing down and rebuilding the socket twice, just
+                // keep trying with the same one.
+                m_connection->connectToHost(m_tcpHost, m_tcpPort.number());
+            } // Else leave it alone and wait for hello.
         } else {
-            delete d->connection;
+            // On final timeout, clear the connection.
+            stopConnectionTimer();
+            if (m_connection)
+                disconnectClientSignals();
+            m_qmlclientplugin.reset();
+            m_connection.reset();
+            emit connectionFailed();
         }
-    }
-
-    createConnection();
-    d->connectionTimer.start();
-    d->tcpPort = port;
-    d->connection->connectToHost(d->tcpHost, d->tcpPort.number());
+    });
+    m_connectionTimer.start(m_retryInterval);
 }
 
-void QmlProfilerClientManager::connectLocalClient(const QString &file)
+void QmlProfilerClientManager::startLocalServer()
 {
-    if (d->connection) {
-        if (file == d->localSocket)
-            return;
-        else
-            delete d->connection;
+    if (m_connection.isNull()) {
+        // Otherwise, reuse the same one
+        QTC_ASSERT(m_qmlclientplugin.isNull(), disconnectClient());
+        createConnection();
+        QTC_ASSERT(m_connection, emit connectionFailed(); return);
+        m_connection->startLocalServer(m_localSocket);
     }
 
-    createConnection();
-    d->localSocket = file;
-    d->connection->startLocalServer(file);
-}
+    stopConnectionTimer();
+    connect(&m_connectionTimer, &QTimer::timeout, this, [this]() {
+        QTC_ASSERT(!isConnected(), return);
 
-void QmlProfilerClientManager::createConnection()
-{
-    d->connection = new QmlDebug::QmlDebugConnection;
-    QTC_ASSERT(d->profilerState, return);
+        // We leave the server running as some application might currently be trying to
+        // connect. Don't cut this off, or the application might hang on the hello mutex.
+        // qmlConnectionFailed() might drop the connection, which is fatal. We detect this
+        // here and signal it accordingly.
 
-    disconnectClientSignals();
-    d->profilerState->setServerRecording(false); // false by default (will be set to true when connected)
-    delete d->qmlclientplugin.data();
-    d->profilerState->setRecordedFeatures(0);
-    d->qmlclientplugin = new QmlProfilerTraceClient(d->connection,
-                                                    d->modelManager->qmlModel(),
-                                                    d->profilerState->requestedFeatures());
-    d->qmlclientplugin->setFlushInterval(d->flushInterval);
-    connectClientSignals();
-    connect(d->connection, &QmlDebug::QmlDebugConnection::connected,
-            this, &QmlProfilerClientManager::qmlDebugConnectionOpened);
-    connect(d->connection, &QmlDebug::QmlDebugConnection::disconnected,
-            this, &QmlProfilerClientManager::qmlDebugConnectionClosed);
-    connect(d->connection, &QmlDebug::QmlDebugConnection::connectionFailed,
-            this, &QmlProfilerClientManager::qmlDebugConnectionFailed);
-
-    connect(d->connection, &QmlDebug::QmlDebugConnection::logError,
-            this, &QmlProfilerClientManager::logState);
-    connect(d->connection, &QmlDebug::QmlDebugConnection::logStateChange,
-            this, &QmlProfilerClientManager::logState);
+        if (!m_connection || ++(m_numRetries) >= m_maximumRetries) {
+            stopConnectionTimer();
+            emit connectionFailed();
+        }
+    });
+    m_connectionTimer.start(m_retryInterval);
 }
 
 void QmlProfilerClientManager::retryConnect()
 {
-    disconnectClient();
-    if (!d->localSocket.isEmpty())
-        connectLocalClient(d->localSocket);
-    else if (!d->tcpHost.isEmpty() && d->tcpPort.isValid())
-        connectTcpClient(d->tcpPort);
-    else
+    if (!m_localSocket.isEmpty()) {
+        startLocalServer();
+    } else if (!m_tcpHost.isEmpty() && m_tcpPort.isValid()) {
+        disconnectClient();
+        connectToTcpServer();
+    } else {
         emit connectionFailed();
+    }
+}
+
+void QmlProfilerClientManager::createConnection()
+{
+    QTC_ASSERT(m_profilerState, return);
+    QTC_ASSERT(m_modelManager, return);
+    QTC_ASSERT(m_connection.isNull() && m_qmlclientplugin.isNull(), disconnectClient());
+
+    m_connection.reset(new QmlDebug::QmlDebugConnection);
+
+    // false by default (will be set to true when connected)
+    m_profilerState->setServerRecording(false);
+    m_profilerState->setRecordedFeatures(0);
+    m_qmlclientplugin.reset(new QmlProfilerTraceClient(m_connection.data(),
+                                                     m_modelManager->qmlModel(),
+                                                     m_profilerState->requestedFeatures()));
+    m_qmlclientplugin->setFlushInterval(m_flushInterval);
+    connectClientSignals();
 }
 
 void QmlProfilerClientManager::connectClientSignals()
 {
-    QTC_ASSERT(d->profilerState, return);
-    if (d->qmlclientplugin) {
-        connect(d->qmlclientplugin.data(), &QmlProfilerTraceClient::complete,
-                this, &QmlProfilerClientManager::qmlComplete);
-        connect(d->qmlclientplugin.data(), &QmlProfilerTraceClient::newEngine,
-                this, &QmlProfilerClientManager::qmlNewEngine);
-        connect(d->qmlclientplugin.data(), &QmlProfilerTraceClient::traceFinished,
-                d->modelManager->traceTime(), &QmlProfilerTraceTime::increaseEndTime);
-        connect(d->qmlclientplugin.data(), &QmlProfilerTraceClient::traceStarted,
-                d->modelManager->traceTime(), &QmlProfilerTraceTime::decreaseStartTime);
-        connect(d->qmlclientplugin.data(), &QmlProfilerTraceClient::recordingChanged,
-                d->profilerState, &QmlProfilerStateManager::setServerRecording);
-        connect(d->profilerState, &QmlProfilerStateManager::requestedFeaturesChanged,
-                d->qmlclientplugin.data(), &QmlProfilerTraceClient::setRequestedFeatures);
-        connect(d->qmlclientplugin.data(), &QmlProfilerTraceClient::recordedFeaturesChanged,
-                d->profilerState, &QmlProfilerStateManager::setRecordedFeatures);
-    }
+    QTC_ASSERT(m_connection, return);
+    QObject::connect(m_connection.data(), &QmlDebug::QmlDebugConnection::connected,
+                     this, &QmlProfilerClientManager::qmlDebugConnectionOpened);
+    QObject::connect(m_connection.data(), &QmlDebug::QmlDebugConnection::disconnected,
+                     this, &QmlProfilerClientManager::qmlDebugConnectionClosed);
+    QObject::connect(m_connection.data(), &QmlDebug::QmlDebugConnection::connectionFailed,
+                     this, &QmlProfilerClientManager::qmlDebugConnectionFailed);
+
+    QObject::connect(m_connection.data(), &QmlDebug::QmlDebugConnection::logStateChange,
+                     this, &QmlProfilerClientManager::logState);
+    QObject::connect(m_connection.data(), &QmlDebug::QmlDebugConnection::logError,
+                     this, &QmlProfilerClientManager::logState);
+
+
+    QTC_ASSERT(m_qmlclientplugin, return);
+    QObject::connect(m_qmlclientplugin.data(), &QmlProfilerTraceClient::complete,
+                     this, &QmlProfilerClientManager::qmlComplete);
+    QObject::connect(m_qmlclientplugin.data(), &QmlProfilerTraceClient::newEngine,
+                     this, &QmlProfilerClientManager::qmlNewEngine);
+
+    QTC_ASSERT(m_modelManager, return);
+    QObject::connect(m_qmlclientplugin.data(), &QmlProfilerTraceClient::traceFinished,
+                     m_modelManager->traceTime(), &QmlProfilerTraceTime::increaseEndTime);
+    QObject::connect(m_qmlclientplugin.data(), &QmlProfilerTraceClient::traceStarted,
+                     m_modelManager->traceTime(), &QmlProfilerTraceTime::decreaseStartTime);
+
+    QTC_ASSERT(m_profilerState, return);
+    QObject::connect(m_qmlclientplugin.data(), &QmlProfilerTraceClient::recordingChanged,
+                     m_profilerState, &QmlProfilerStateManager::setServerRecording);
+    QObject::connect(m_profilerState, &QmlProfilerStateManager::requestedFeaturesChanged,
+                     m_qmlclientplugin.data(), &QmlProfilerTraceClient::setRequestedFeatures);
+    QObject::connect(m_qmlclientplugin.data(), &QmlProfilerTraceClient::recordedFeaturesChanged,
+                     m_profilerState, &QmlProfilerStateManager::setRecordedFeatures);
 }
 
 void QmlProfilerClientManager::disconnectClientSignals()
 {
-    if (d->qmlclientplugin) {
-        disconnect(d->qmlclientplugin.data(), &QmlProfilerTraceClient::complete,
-                   this, &QmlProfilerClientManager::qmlComplete);
-        disconnect(d->qmlclientplugin.data(), &QmlProfilerTraceClient::newEngine,
-                   this, &QmlProfilerClientManager::qmlNewEngine);
-        disconnect(d->qmlclientplugin.data(), &QmlProfilerTraceClient::traceFinished,
-                   d->modelManager->traceTime(), &QmlProfilerTraceTime::increaseEndTime);
-        disconnect(d->qmlclientplugin.data(), &QmlProfilerTraceClient::traceStarted,
-                   d->modelManager->traceTime(), &QmlProfilerTraceTime::decreaseStartTime);
-        disconnect(d->qmlclientplugin.data(), &QmlProfilerTraceClient::recordingChanged,
-                   d->profilerState, &QmlProfilerStateManager::setServerRecording);
-        disconnect(d->profilerState, &QmlProfilerStateManager::requestedFeaturesChanged,
-                   d->qmlclientplugin.data(), &QmlProfilerTraceClient::setRequestedFeatures);
-        disconnect(d->qmlclientplugin.data(), &QmlProfilerTraceClient::recordedFeaturesChanged,
-                   d->profilerState, &QmlProfilerStateManager::setRecordedFeatures);
-    }
+    QTC_ASSERT(m_connection, return);
+    m_connection->disconnect();
+
+    QTC_ASSERT(m_qmlclientplugin, return);
+    m_qmlclientplugin->disconnect();
+
+    QTC_ASSERT(m_profilerState, return);
+    QObject::disconnect(m_profilerState, &QmlProfilerStateManager::requestedFeaturesChanged,
+                        m_qmlclientplugin.data(), &QmlProfilerTraceClient::setRequestedFeatures);
 }
 
 bool QmlProfilerClientManager::isConnected() const
 {
-    return d->connection && d->connection->isConnected();
+    return m_connection && m_connection->isConnected();
 }
 
 void QmlProfilerClientManager::disconnectClient()
 {
-    // this might be actually be called indirectly by QDDConnectionPrivate::readyRead(), therefore allow
-    // function to complete before deleting object
-    if (d->connection) {
-        d->connection->deleteLater();
-        d->connection = 0;
-    }
-}
+    // This might be called indirectly by QDebugConnectionPrivate::readyRead().
+    // Therefore, allow the function to complete before deleting the object.
+    if (m_connection) {
+        // Don't receive any more signals from the connection or the client
+        disconnectClientSignals();
 
-void QmlProfilerClientManager::tryToConnect()
-{
-    ++d->connectionAttempts;
-
-    if (d->connection && d->connection->isConnected()) {
-        d->connectionTimer.stop();
-        d->connectionAttempts = 0;
-    } else if (d->connection && d->connection->socketState() != QAbstractSocket::ConnectedState) {
-        if (d->connectionAttempts < 3) {
-            // Replace the connection after trying for some time. On some operating systems (OSX) the
-            // very first connection to a TCP server takes a very long time to get established.
-
-            // delete directly here, so that any pending events aren't delivered. We don't want the
-            // connection first to be established and then torn down again.
-            delete d->connection;
-            d->connection = 0;
-            connectTcpClient(d->tcpPort);
-        } else if (!d->connection->isConnecting()) {
-            d->connection->connectToHost(d->tcpHost, d->tcpPort.number());
-        }
-    } else if (d->connectionAttempts == 50) {
-        d->connectionTimer.stop();
-        d->connectionAttempts = 0;
-        delete d->connection; // delete directly.
-        d->connection = 0;
-        emit connectionFailed();
+        QTC_ASSERT(m_connection && m_qmlclientplugin, return);
+        m_qmlclientplugin.take()->deleteLater();
+        m_connection.take()->deleteLater();
     }
 }
 
 void QmlProfilerClientManager::qmlDebugConnectionOpened()
 {
     logState(tr("Debug connection opened"));
+    QTC_ASSERT(m_connection && m_qmlclientplugin, return);
+    QTC_ASSERT(m_connection->isConnected(), return);
+    stopConnectionTimer();
     clientRecordingChanged();
+    emit connectionOpened();
 }
 
 void QmlProfilerClientManager::qmlDebugConnectionClosed()
 {
     logState(tr("Debug connection closed"));
+    QTC_ASSERT(m_connection && m_qmlclientplugin, return);
+    QTC_ASSERT(!m_connection->isConnected(), return);
     disconnectClient();
     emit connectionClosed();
 }
 
 void QmlProfilerClientManager::qmlDebugConnectionFailed()
 {
-    if (d->connection->isConnected()) {
-        disconnectClient();
-        emit connectionClosed();
-    } else {
-        disconnectClient();
-    }
+    logState(tr("Debug connection failed"));
+    QTC_ASSERT(m_connection && m_qmlclientplugin, return);
+    QTC_ASSERT(!m_connection->isConnected(), /**/);
+
+    disconnectClient();
+    // The retry handler, driven by m_connectionTimer should decide to retry or signal a failure.
+
+    QTC_ASSERT(m_connectionTimer.isActive(), emit connectionFailed());
 }
 
 void QmlProfilerClientManager::logState(const QString &msg)
@@ -314,51 +310,56 @@ void QmlProfilerClientManager::logState(const QString &msg)
 
 void QmlProfilerClientManager::qmlComplete(qint64 maximumTime)
 {
-    if (d->profilerState->currentState() == QmlProfilerStateManager::AppStopRequested)
-        d->profilerState->setCurrentState(QmlProfilerStateManager::Idle);
-    d->modelManager->traceTime()->increaseEndTime(maximumTime);
-    if (d->modelManager && !d->aggregateTraces)
-        d->modelManager->acquiringDone();
+    QTC_ASSERT(m_profilerState && m_modelManager, return);
+    if (m_profilerState->currentState() == QmlProfilerStateManager::AppStopRequested)
+        m_profilerState->setCurrentState(QmlProfilerStateManager::Idle);
+    m_modelManager->traceTime()->increaseEndTime(maximumTime);
+    if (m_modelManager && !m_aggregateTraces)
+        m_modelManager->acquiringDone();
 }
 
 void QmlProfilerClientManager::qmlNewEngine(int engineId)
 {
-    if (d->qmlclientplugin->isRecording() != d->profilerState->clientRecording())
-        d->qmlclientplugin->setRecording(d->profilerState->clientRecording());
+    QTC_ASSERT(m_connection && m_qmlclientplugin, return);
+    if (m_qmlclientplugin->isRecording() != m_profilerState->clientRecording())
+        m_qmlclientplugin->setRecording(m_profilerState->clientRecording());
     else
-        d->qmlclientplugin->sendRecordingStatus(engineId);
+        m_qmlclientplugin->sendRecordingStatus(engineId);
 }
 
 void QmlProfilerClientManager::setProfilerStateManager(QmlProfilerStateManager *profilerState)
 {
-    if (d->profilerState) {
-        disconnect(d->profilerState, &QmlProfilerStateManager::stateChanged,
+    // Don't do this while connecting
+    QTC_ASSERT(m_connection.isNull() && m_qmlclientplugin.isNull(), disconnectClient());
+
+    if (m_profilerState) {
+        disconnect(m_profilerState, &QmlProfilerStateManager::stateChanged,
                    this, &QmlProfilerClientManager::profilerStateChanged);
-        disconnect(d->profilerState, &QmlProfilerStateManager::clientRecordingChanged,
+        disconnect(m_profilerState, &QmlProfilerStateManager::clientRecordingChanged,
                    this, &QmlProfilerClientManager::clientRecordingChanged);
     }
 
-    d->profilerState = profilerState;
+    m_profilerState = profilerState;
 
     // connect
-    if (d->profilerState) {
-        connect(d->profilerState, &QmlProfilerStateManager::stateChanged,
+    if (m_profilerState) {
+        connect(m_profilerState, &QmlProfilerStateManager::stateChanged,
                 this, &QmlProfilerClientManager::profilerStateChanged);
-        connect(d->profilerState, &QmlProfilerStateManager::clientRecordingChanged,
+        connect(m_profilerState, &QmlProfilerStateManager::clientRecordingChanged,
                 this, &QmlProfilerClientManager::clientRecordingChanged);
     }
 }
 
 void QmlProfilerClientManager::profilerStateChanged()
 {
-    QTC_ASSERT(d->profilerState, return);
-    switch (d->profilerState->currentState()) {
+    QTC_ASSERT(m_profilerState, return);
+    switch (m_profilerState->currentState()) {
     case QmlProfilerStateManager::AppStopRequested :
-        if (d->profilerState->serverRecording()) {
-            if (d->qmlclientplugin)
-                d->qmlclientplugin.data()->setRecording(false);
+        if (m_profilerState->serverRecording()) {
+            if (m_qmlclientplugin)
+                m_qmlclientplugin->setRecording(false);
         } else {
-            d->profilerState->setCurrentState(QmlProfilerStateManager::Idle);
+            m_profilerState->setCurrentState(QmlProfilerStateManager::Idle);
         }
         break;
     default:
@@ -368,9 +369,16 @@ void QmlProfilerClientManager::profilerStateChanged()
 
 void QmlProfilerClientManager::clientRecordingChanged()
 {
-    QTC_ASSERT(d->profilerState, return);
-    if (d->qmlclientplugin)
-        d->qmlclientplugin->setRecording(d->profilerState->clientRecording());
+    QTC_ASSERT(m_profilerState, return);
+    if (m_qmlclientplugin)
+        m_qmlclientplugin->setRecording(m_profilerState->clientRecording());
+}
+
+void QmlProfilerClientManager::stopConnectionTimer()
+{
+    m_connectionTimer.stop();
+    m_connectionTimer.disconnect();
+    m_numRetries = 0;
 }
 
 } // namespace Internal

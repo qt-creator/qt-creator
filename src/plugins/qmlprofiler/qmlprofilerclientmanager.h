@@ -25,16 +25,19 @@
 
 #pragma once
 
-#include "qmlprofilerstatemanager.h"
-#include "qmleventlocation.h"
+#include "qmlprofilertraceclient.h"
+
+#include <qmldebug/qmldebugclient.h>
 #include <utils/port.h>
 
+#include <QPointer>
+#include <QTimer>
 #include <QObject>
-#include <QStringList>
-#include <QAbstractSocket>
+#include <QVector>
 
 namespace QmlProfiler {
 class QmlProfilerModelManager;
+class QmlProfilerStateManager;
 
 namespace Internal {
 
@@ -43,11 +46,11 @@ class QmlProfilerClientManager : public QObject
     Q_OBJECT
 public:
     explicit QmlProfilerClientManager(QObject *parent = 0);
-    ~QmlProfilerClientManager();
 
     void setProfilerStateManager(QmlProfilerStateManager *profilerState);
     void setTcpConnection(QString host, Utils::Port port);
     void setLocalSocket(QString file);
+    void clearConnection();
 
     void clearBufferedData();
     bool isConnected() const;
@@ -58,18 +61,38 @@ public:
     bool aggregateTraces() const;
     void setAggregateTraces(bool aggregateTraces);
 
+    void setRetryParams(int interval, int maxAttempts);
+    void retryConnect();
+    void connectToTcpServer();
+    void startLocalServer();
+
 signals:
+    void connectionOpened();
     void connectionFailed();
     void connectionClosed();
 
-public slots:
-    void retryConnect();
-    void connectTcpClient(Utils::Port port);
-    void connectLocalClient(const QString &file);
-    void disconnectClient();
+private:
+    QPointer<QmlProfilerStateManager> m_profilerState;
+    QPointer<QmlProfilerModelManager> m_modelManager;
+    QScopedPointer<QmlDebug::QmlDebugConnection> m_connection;
+    QScopedPointer<QmlProfilerTraceClient> m_qmlclientplugin;
 
-private slots:
-    void tryToConnect();
+    QTimer m_connectionTimer;
+
+    QString m_localSocket;
+    QString m_tcpHost;
+    Utils::Port m_tcpPort;
+    quint32 m_flushInterval = 0;
+
+    int m_retryInterval = 200;
+    int m_maximumRetries = 50;
+    int m_numRetries = 0;
+
+    bool m_aggregateTraces = true;
+
+    void disconnectClient();
+    void stopConnectionTimer();
+
     void qmlDebugConnectionOpened();
     void qmlDebugConnectionClosed();
     void qmlDebugConnectionFailed();
@@ -82,15 +105,9 @@ private slots:
     void profilerStateChanged();
     void clientRecordingChanged();
 
-private:
-    class QmlProfilerClientManagerPrivate;
-    QmlProfilerClientManagerPrivate *d;
-
     void createConnection();
     void connectClientSignals();
     void disconnectClientSignals();
-
-    void stopClientsRecording();
 };
 
 } // namespace Internal
