@@ -27,8 +27,9 @@
 #include "diffeditorconstants.h"
 #include "diffeditordocument.h"
 
-#include <coreplugin/patchtool.h>
+#include <coreplugin/documentmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/patchtool.h>
 
 #include <texteditor/fontsettings.h>
 
@@ -92,6 +93,8 @@ void DiffEditorWidgetController::patch(bool revert)
     if (patch.isEmpty())
         return;
 
+    const QString absFileName = QFileInfo(workingDirectory + '/' + fileName).absoluteFilePath();
+    FileChangeBlocker fileChangeBlocker(absFileName);
     if (PatchTool::runPatch(EditorManager::defaultTextCodec()->fromUnicode(patch),
                             workingDirectory, strip, revert))
         m_document->reload();
