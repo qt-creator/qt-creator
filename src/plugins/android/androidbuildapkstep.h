@@ -81,6 +81,9 @@ public:
     virtual Utils::FileName androidPackageSourceDir() const = 0;
     void setDeployAction(AndroidDeployAction deploy);
 
+signals:
+    void useGradleChanged();
+
 protected:
     Q_INVOKABLE void showInGraphicalShell();
 

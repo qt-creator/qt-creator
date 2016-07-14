@@ -262,9 +262,12 @@ bool AndroidBuildApkStep::useGradle() const
 
 void AndroidBuildApkStep::setUseGradle(bool b)
 {
-    m_useGradle = b;
-    if (m_useGradle)
-        AndroidManager::updateGradleProperties(target());
+    if (m_useGradle != b) {
+        m_useGradle = b;
+        if (m_useGradle)
+            AndroidManager::updateGradleProperties(target());
+        emit useGradleChanged();
+    }
 }
 
 bool AndroidBuildApkStep::runInGuiThread() const
