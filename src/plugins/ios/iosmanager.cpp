@@ -40,12 +40,25 @@ using namespace ProjectExplorer;
 namespace Ios {
 namespace Internal {
 
-bool IosManager::supportsIos(Target *target)
+/*!
+    Returns \c true if the target supports iOS build, \c false otherwise.
+*/
+bool IosManager::supportsIos(const Target *target)
 {
-    if (!qobject_cast<QmakeProject *>(target->project()))
-        return false;
-    QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(target->kit());
-    return version && version->type() == QLatin1String(Ios::Constants::IOSQT);
+    return qobject_cast<QmakeProject *>(target->project()) && supportsIos(target->kit());
+}
+
+/*!
+    Returns \c true if the kit supports iOS build, \c false otherwise.
+*/
+bool IosManager::supportsIos(const Kit *kit)
+{
+    bool supports = false;
+    if (kit) {
+        QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(kit);
+        supports = version && version->type() == QLatin1String(Ios::Constants::IOSQT);
+    }
+    return supports;
 }
 
 QString IosManager::resDirForTarget(Target *target)
