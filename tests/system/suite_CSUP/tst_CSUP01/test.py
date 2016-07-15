@@ -88,6 +88,15 @@ def main():
         except:
             test.compare(str(lineUnderCursor(editorWidget)), "    " + lineWithFloat,
                          "Typing a float value does not trigger code completion")
+        triggerCompletion(editorWidget)
+        try:
+            waitForObject(":popupFrame_Proposal_QListView", 5000)
+            if useClang and JIRA.isBugStillOpen(16607):
+                test.xfail("User can trigger code completion manually in a float value")
+            else:
+                test.fail("User can trigger code completion manually in a float value")
+        except:
+            test.passes("User can't trigger code completion manually in a float value")
 # Step 5: From "Tools -> Options -> Text Editor -> Completion" select Activate completion Manually,
 # uncheck Autocomplete common prefix and press Apply and then Ok . Return to Edit mode.
         test.log("Step 5: Change Code Completion settings")
