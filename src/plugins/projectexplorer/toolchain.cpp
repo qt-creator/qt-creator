@@ -176,7 +176,7 @@ QString ToolChain::languageId(ToolChain::Language l)
     case Language::C:
         return QStringLiteral("C");
     case Language::Cxx:
-        return QStringLiteral("C++");
+        return QStringLiteral("Cxx");
     };
     return QString();
 }
