@@ -35,12 +35,6 @@
 namespace Debugger {
 namespace Internal {
 
-///////////////////////////////////////////////////////////////////////
-//
-// AttachGdbAdapter
-//
-///////////////////////////////////////////////////////////////////////
-
 GdbAttachEngine::GdbAttachEngine(const DebuggerRunParameters &startParameters)
     : GdbEngine(startParameters)
 {
@@ -70,9 +64,16 @@ void GdbAttachEngine::runEngine()
 {
     QTC_ASSERT(state() == EngineRunRequested, qDebug() << state());
     const qint64 pid = runParameters().attachPID;
+    showStatusMessage(tr("Attaching to process %1.").arg(pid));
     runCommand({"attach " + QString::number(pid), NoFlags,
                 [this](const DebuggerResponse &r) { handleAttach(r); }});
-    showStatusMessage(tr("Attached to process %1.").arg(inferiorPid()));
+    // In some cases we get only output like
+    //   "Could not attach to process.  If your uid matches the uid of the target\n"
+    //   "process, check the setting of /proc/sys/kernel/yama/ptrace_scope, or try\n"
+    //   " again as the root user.  For more details, see /etc/sysctl.d/10-ptrace.conf\n"
+    //   " ptrace: Operation not permitted.\n"
+    // but no(!) ^ response. Use a second command to force *some* output
+    runCommand({"print 24", NoFlags});
 }
 
 void GdbAttachEngine::handleAttach(const DebuggerResponse &response)
@@ -112,6 +113,7 @@ void GdbAttachEngine::handleAttach(const DebuggerResponse &response)
         notifyEngineIll();
     }
 }
+
 
 void GdbAttachEngine::interruptInferior2()
 {

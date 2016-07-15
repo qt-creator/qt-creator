@@ -30,9 +30,7 @@ SpinBox {
     id: spinBox
     width: 76
 
-    property color borderColor: "#222"
-    property color highlightColor: "orange"
-    property color textColor: "#eee"
+     property color textColor: colorLogic.textColor
 
     style: CustomSpinBoxStyle {
 

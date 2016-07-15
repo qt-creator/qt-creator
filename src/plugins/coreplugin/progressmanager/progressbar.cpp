@@ -265,14 +265,10 @@ void ProgressBar::paintEvent(QPaintEvent *)
         QString elidedtitle  = fm.elidedText(m_title, Qt::ElideRight, textSpace);
 
         QRect textRect = rect().adjusted(3, separatorHeight - 1, -3, 0);
-        textRect.setHeight(titleHeight+5);
+        textRect.setHeight(titleHeight + 4);
 
-        p.setPen(QColor(0, 0, 0, 120));
-        p.drawText(textRect, alignment | Qt::AlignBottom, elidedtitle);
-        p.translate(0, -1);
         p.setPen(creatorTheme()->color(Theme::ProgressBarTitleColor));
         p.drawText(textRect, alignment | Qt::AlignBottom, elidedtitle);
-        p.translate(0, 1);
     }
 
     m_progressHeight = PROGRESSBAR_HEIGHT;

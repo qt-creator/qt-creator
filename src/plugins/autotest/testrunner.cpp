@@ -256,7 +256,8 @@ void TestRunner::prepareToRunTests(Mode mode)
         return;
     }
 
-    if (!projectExplorerSettings.buildBeforeDeploy) {
+    if (!projectExplorerSettings.buildBeforeDeploy || mode == TestRunner::DebugWithoutDeploy
+            || mode == TestRunner::RunWithoutDeploy) {
         runOrDebugTests();
     } else {
         if (project->hasActiveBuildSettings()) {
@@ -332,9 +333,11 @@ void TestRunner::runOrDebugTests()
 {
     switch (m_runMode) {
     case Run:
+    case RunWithoutDeploy:
         runTests();
         break;
     case Debug:
+    case DebugWithoutDeploy:
         debugTests();
         break;
     default:

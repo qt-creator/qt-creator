@@ -58,6 +58,7 @@ RowLayout {
 
     property alias buttonRow: buttonRow
 
+    readonly property color __defaultTextColor: creatorTheme.PanelTextColorLight
 
     IconLabel {
         id: icon
@@ -71,7 +72,7 @@ RowLayout {
 
         Controls.Label {
             text: qsTr("Target")
-            color: "#eee"
+            color: __defaultTextColor
             elide: Text.ElideRight
             Layout.minimumWidth: Math.min(60, Layout.preferredWidth + 10)
         }
@@ -85,7 +86,7 @@ RowLayout {
 
         Controls.Label {
             text: "Margin"
-            color: "#eee"
+            color: __defaultTextColor
             elide: Text.ElideRight
             Layout.minimumWidth: Math.min(60, Layout.preferredWidth + 10)
         }

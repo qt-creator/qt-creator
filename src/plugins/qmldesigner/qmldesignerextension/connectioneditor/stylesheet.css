@@ -1,6 +1,6 @@
 QFrame
 {
-    background-color: #4f4f4f;
+    background-color: creatorTheme.QmlDesignerBackgroundColorDarkAlternate;
     font-size: 11px;
     border-radius: 0px;
 }
@@ -79,7 +79,7 @@ QComboBox QAbstractItemView {
 }
 
 QTableView {
-    color: white;
+    color: creatorTheme.PanelTextColorLight;
 }
 
 QTableView::item
@@ -115,7 +115,7 @@ QTableView {
 }
 
 QWidget#widgetSpacer {
-    background-color: #eeeeee;
+    background-color: creatorTheme.QmlDesignerTabLight;
 }
 
 QStackedWidget {
@@ -128,9 +128,8 @@ QTabBar::tab:selected {
     border-image: none;
     image: none;
 
-    background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
-    stop: 0 #EFEFEF, stop: 1 #EEEEEE);
-    color: #3c3c3c;
+    background-color: creatorTheme.QmlDesignerTabLight;
+    color: creatorTheme.QmlDesignerTabDark;
 }
 
 
@@ -143,8 +142,8 @@ QTabBar::tab {
     margin-right: 0px;
     font: bold;
     font-size: 11px;
-    background-color: #444444;
-    color: #EEEEEE;
+    background-color: creatorTheme.QmlDesignerTabDark;
+    color: creatorTheme.QmlDesignerTabLight;
 }
 
 QComboBox::menu-indicator, QComboBox::down-arrow {

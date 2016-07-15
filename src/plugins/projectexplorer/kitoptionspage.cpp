@@ -151,6 +151,9 @@ void KitOptionsPageWidget::kitSelectionChanged()
         m_currentWidget->setVisible(true);
         m_kitsView->scrollTo(current);
     }
+
+    adjustSize(); // Force relayout!
+
     updateState();
 }
 

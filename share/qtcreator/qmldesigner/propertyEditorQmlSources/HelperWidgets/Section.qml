@@ -48,27 +48,28 @@ Item {
         Controls.Label {
             id: label
             anchors.verticalCenter: parent.verticalCenter
-            color: "white"
+            color: creatorTheme.PanelTextColorLight
             x: 22
-            style: Text.Sunken
-            styleColor: "#292929"
             font.bold: true
         }
 
         Image {
             id: arrow
-            source: "images/down-arrow.png"
+            width: 8
+            height: 4
+            source: "image://icons/down-arrow"
             anchors.left: parent.left
             anchors.leftMargin: 4
             anchors.verticalCenter: parent.verticalCenter
             Behavior on rotation {
                 NumberAnimation {
+                    easing.type: Easing.OutCubic
                     duration: animationDuration
                 }
             }
         }
 
-        color: "#444"
+        color: creatorTheme.BackgroundColorDark
 
         Rectangle {
             visible: false
@@ -78,6 +79,7 @@ Item {
         }
 
         Rectangle {
+            visible: false
             color: "#333"
             anchors.bottom: parent.bottom
             width: parent.width

@@ -441,6 +441,10 @@ QVector<PropertyInfo> getQmlTypes(const CppComponentValue *objectValue, const Co
         TypeName type = property.second;
         if (!objectValue->isPointer(nameAsString) && !objectValue->isListProperty(nameAsString))
             type = objectValue->propertyType(nameAsString).toUtf8();
+
+        if (type == "unknown" && objectValue->hasProperty(nameAsString))
+            type = objectValue->propertyType(nameAsString).toUtf8();
+
         propertyList.append(qMakePair(name, type));
     }
 
@@ -1185,6 +1189,8 @@ bool NodeMetaInfoPrivate::isValid() const
 
 TypeName NodeMetaInfoPrivate::propertyType(const PropertyName &propertyName) const
 {
+    ensureProperties();
+
     if (!m_properties.contains(propertyName))
         return TypeName("Property does not exist...");
     return m_propertyTypes.at(m_properties.indexOf(propertyName));

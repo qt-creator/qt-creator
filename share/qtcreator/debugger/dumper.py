@@ -737,11 +737,15 @@ class DumperBase:
             with Children(self):
                 self.putFields(value, dumpBase)
 
+    def putMembersItem(self, value, sortorder = 10):
+        with SubItem(self, "[members]"):
+            self.put('sortgroup="%s"' % sortorder)
+            self.putPlainChildren(value)
+
     def isMapCompact(self, keyType, valueType):
         if self.currentItemFormat() == CompactMapFormat:
             return True
         return self.isSimpleType(keyType) and self.isSimpleType(valueType)
-
 
     def check(self, exp):
         if not exp:
@@ -922,13 +926,6 @@ class DumperBase:
         #warn("IS EXPANDED: %s in %s: %s" % (self.currentIName,
         #    self.expandedINames, self.currentIName in self.expandedINames))
         return self.currentIName in self.expandedINames
-
-    def putPlainChildren(self, value):
-        self.putEmptyValue(-99)
-        self.putNumChild(1)
-        if self.currentIName in self.expandedINames:
-            with Children(self):
-               self.putFields(value)
 
     def putCStyleArray(self, value):
         arrayType = value.type.unqualified()
@@ -1325,50 +1322,6 @@ class DumperBase:
         self.knownStaticMetaObjects[typeName] = result
         return result
 
-    def staticQObjectMetaData(self, metaobject, offset1, offset2, step):
-        items = []
-        dd = metaobject["d"]
-        data = self.extractPointer(dd["data"])
-        sd = self.extractPointer(dd["stringdata"])
-
-        metaObjectVersion = self.extractInt(data)
-        itemCount = self.extractInt(data + offset1)
-        itemData = -offset2 if offset2 < 0 else self.extractInt(data + offset2)
-
-        if metaObjectVersion >= 7: # Qt 5.
-            byteArrayDataType = self.lookupType(self.qtNamespace() + "QByteArrayData")
-            byteArrayDataSize = byteArrayDataType.sizeof
-            for i in range(itemCount):
-                x = data + (itemData + step * i) * 4
-                literal = sd + self.extractInt(x) * byteArrayDataSize
-                ldata, lsize, lalloc = self.byteArrayDataHelper(literal)
-                items.append(self.extractBlob(ldata, lsize).toString())
-        else: # Qt 4.
-            for i in range(itemCount):
-                x = data + (itemData + step * i) * 4
-                ldata = sd + self.extractInt(x)
-                items.append(self.extractCString(ldata).decode("utf8"))
-
-        return items
-
-    def staticQObjectPropertyCount(self, metaobject):
-        return self.extractInt(self.extractPointer(metaobject["d"]["data"]) + 24)
-
-    def staticQObjectPropertyNames(self, metaobject):
-        return self.staticQObjectMetaData(metaobject, 24, 28, 3)
-
-    def staticQObjectMethodCount(self, metaobject):
-        return self.extractInt(self.extractPointer(metaobject["d"]["data"]) + 16)
-
-    def staticQObjectMethodNames(self, metaobject):
-        return self.staticQObjectMetaData(metaobject, 16, 20, 5)
-
-    def staticQObjectSignalCount(self, metaobject):
-        return self.extractInt(self.extractPointer(metaobject["d"]["data"]) + 52)
-
-    def staticQObjectSignalNames(self, metaobject):
-        return self.staticQObjectMetaData(metaobject, 52, -14, 5)
-
     def extractCString(self, addr):
         result = bytearray()
         while True:
@@ -1406,95 +1359,301 @@ class DumperBase:
         for i in range(size):
             yield self.createValue(data + i * innerSize, innerType)
 
+    def putStructGuts(self, value):
+        self.putEmptyValue()
+        if self.showQObjectNames:
+            staticMetaObject = self.extractStaticMetaObject(value.type)
+            if staticMetaObject:
+                self.context = value
+                self.putQObjectNameValue(value)
+        if self.isExpanded():
+            self.put('sortable="1"')
+            with Children(self, 1, childType=None):
+                self.putFields(value)
+                if not self.showQObjectNames:
+                    staticMetaObject = self.extractStaticMetaObject(value.type)
+                if staticMetaObject:
+                    self.putQObjectGuts(value, staticMetaObject)
 
     # This is called is when a QObject derived class is expanded
     def putQObjectGuts(self, qobject, smo):
-        intSize = self.intSize()
         ptrSize = self.ptrSize()
-        # dd = value["d_ptr"]["d"] is just behind the vtable.
         dd = self.extractPointer(qobject, offset=ptrSize)
-        isQt5 = self.qtVersion() >= 0x50000
-
-        extraDataOffset = 5 * ptrSize + 8 if isQt5 else 6 * ptrSize + 8
-        extraData = self.extractPointer(dd + extraDataOffset)
-        #with SubItem(self, "[extradata]"):
-        #    self.putValue("0x%x" % toInteger(extraData))
 
         # Parent and children.
         try:
-            d_ptr = qobject["d_ptr"]["d"]
-            self.putSubItem("[parent]", d_ptr["parent"])
-            self.putSubItem("[children]", d_ptr["children"])
+            if qobject:
+                d_ptr = qobject["d_ptr"]["d"]
+                with SubItem(self, "[parent]"):
+                    self.putItem(d_ptr["parent"])
+                    self.put('sortgroup="9"')
+                with SubItem(self, "[children]"):
+                    self.putItem(d_ptr["children"])
+                    self.put('sortgroup="1"')
         except:
             pass
 
-        with SubItem(self, "[properties]"):
-            propertyCount = 0
-            usesVector = self.qtVersion() >= 0x50700
-            if self.isExpanded():
-                propertyNames = self.staticQObjectPropertyNames(smo)
-                propertyCount = len(propertyNames) # Doesn't include dynamic properties.
-                with Children(self):
-                    # Static properties.
-                    for i in range(propertyCount):
-                        name = propertyNames[i]
-                        self.putCallItem(str(name), qobject, "property", '"' + name + '"')
+        # dd = value["d_ptr"]["d"] is just behind the vtable.
+        isQt5 = self.qtVersion() >= 0x50000
+        extraDataOffset = 5 * ptrSize + 8 if isQt5 else 6 * ptrSize + 8
+        extraData = self.extractPointer(dd + extraDataOffset)
+        self.putQObjectGutsHelper(qobject, extraData, -1, smo, "QObject")
 
-                    # Dynamic properties.
-                    if extraData:
-                        byteArrayType = self.lookupQtType("QByteArray")
-                        variantType = self.lookupQtType("QVariant")
-                        names = self.listChildrenGenerator(extraData + ptrSize, byteArrayType)
-                        if usesVector:
-                            values = self.vectorChildrenGenerator(extraData + 2 * ptrSize, variantType)
-                        else:
-                            values = self.listChildrenGenerator(extraData + 2 * ptrSize, variantType)
-                        for (k, v) in zip(names, values):
-                            with SubItem(self, propertyCount):
-                                self.put('key="%s",' % self.encodeByteArray(k))
-                                self.put('keyencoded="latin1",')
-                                self.putItem(v)
-                                propertyCount += 1
-                self.putItemCount(propertyCount)
-            else:
-                # We need a handle to [x] for the user to expand the item
-                # before we know whether there are actual children. Counting
-                # them is too expensive.
+
+    def metaString(self, metaObject, index, revision = 7):
+        sd = self.extractPointer(metaObject["d"]["stringdata"])
+        if revision >= 7: # Qt 5.
+            byteArrayDataType = self.lookupQtType("QByteArrayData")
+            byteArrayDataSize = byteArrayDataType.sizeof
+            literal = toInteger(sd) + toInteger(index) * byteArrayDataSize
+            ldata, lsize, lalloc = self.byteArrayDataHelper(literal)
+            try:
+                return self.extractBlob(ldata, lsize).toString()
+            except:
+                return "<unavailable>"
+        else: # Qt 4.
+            ldata = sd + index
+            return self.extractCString(ldata).decode("utf8")
+
+    def putQMetaStuff(self, value, origType):
+        metaObject = value["mobj"]
+        if not metaObject:
+            self.putEmptyValue()
+            if self.isExpanded():
+                with Children(self):
+                    self.putFields(value)
+        else:
+            handle = toInteger(value["handle"])
+            index = toInteger(metaObject["d"]["data"][handle])
+            name = self.metaString(metaObject.dereference(), index)
+            self.putValue(name)
+            self.putNumChild(1)
+            if self.isExpanded():
+                with Children(self):
+                    self.putFields(value)
+                    self.putQObjectGutsHelper(0, 0, handle, metaObject, origType)
+
+    def putQObjectGutsHelper(self, qobject, extraData, handle, metaObject, origType):
+        intSize = self.intSize()
+        ptrSize = self.ptrSize()
+        data = metaObject["d"]["data"]
+
+        def walker(base):
+            ptr = toInteger(base)
+            while True:
+                yield self.extractInt(ptr)
+                ptr += intSize
+
+        def putt(name, value, typeName = ' '):
+            with SubItem(self, name):
+                self.putValue(value)
+                self.putType(typeName)
+                self.putNumChild(0)
+
+        def superData(mo):
+            return mo['d']['superdata']
+
+        isQMetaObject = origType == "QMetaObject"
+        isQObject = origType == "QObject"
+
+        p = walker(data)
+        revision = p.next()
+        classname = p.next()
+        classinfo = p.next()
+        classinfo2 = p.next()
+        methodCount = p.next()
+        methods = p.next()
+        propertyCount = p.next()
+        properties = p.next()
+        enumCount = p.next()
+        enums = p.next()
+        constructorCount = p.next()
+        constructors = p.next()
+        flags = p.next()
+        signalCount = p.next()
+
+        globalOffset = 0
+        superdata = superData(metaObject)
+        while toInteger(superdata):
+            sdata = superdata["d"]["data"]
+            p = walker(sdata)
+            revision = p.next()
+            classname = p.next()
+            classinfo = p.next()
+            classinfo2 = p.next()
+            methodCount = p.next()
+            globalOffset += methodCount
+            superdata = superData(superdata)
+
+        largestStringIndex = -1
+        for i in range(methodCount):
+            t = (p.next(), p.next(), p.next(), p.next(), p.next())
+            if largestStringIndex < t[0]:
+                largestStringIndex = t[0]
+
+        if isQMetaObject:
+            with SubItem(self, "[strings]"):
+                self.put('sortgroup="2"')
+                self.putSpecialValue("minimumitemcount", largestStringIndex + 1)
                 self.putNumChild(1)
-                self.putSpecialValue("minimumitemcount", 0)
+                if self.isExpanded():
+                    with Children(self, largestStringIndex + 1):
+                        for i in self.childRange():
+                            with SubItem(self, i):
+                                self.putValue(self.hexencode(self.metaString(metaObject, i)), "latin1")
+                                self.putNumChild(0)
 
-        with SubItem(self, "[methods]"):
-            methodCount = self.staticQObjectMethodCount(smo)
-            self.putItemCount(methodCount)
-            if self.isExpanded():
-                methodNames = self.staticQObjectMethodNames(smo)
-                with Children(self):
-                    for i in range(methodCount):
-                        k = methodNames[i]
-                        with SubItem(self, k):
-                            self.putEmptyValue()
+        if isQMetaObject:
+            with SubItem(self, "[raw]"):
+                self.put('sortgroup="1"')
+                p = walker(data)
+                self.putEmptyValue()
+                self.putNumChild(1)
+                if self.isExpanded():
+                    with Children(self):
+                        putt("revision", revision)
+                        putt("classname", classname)
+                        putt("classinfo", classinfo)
+                        putt("methods", "%d %d" % (methodCount, methods))
+                        putt("properties", "%d %d" % (propertyCount, properties))
+                        putt("enums/sets", "%d %d" % (enumCount, enums))
+                        putt("constructors", "%d %d" % (constructorCount, constructors))
+                        putt("flags", flags)
+                        putt("signalCount", signalCount)
+                        p = walker(toInteger(data) + 14 * 4)
+                        for i in range(methodCount):
+                            t = (p.next(), p.next(), p.next(), p.next(), p.next())
+                            putt("method %d" % i, "%s %s %s %s %s" % t)
 
-        with SubItem(self, "[signals]"):
-            signalCount = self.staticQObjectSignalCount(smo)
-            self.putItemCount(signalCount)
-            if self.isExpanded():
-                signalNames = self.staticQObjectSignalNames(smo)
-                signalCount = len(signalNames)
-                with Children(self):
-                    for i in range(signalCount):
-                        k = signalNames[i]
-                        with SubItem(self, k):
-                            self.putEmptyValue()
-                    self.putQObjectConnections(qobject)
+                putt("[extraData]", "0x%x" % toInteger(extraData), "void *")
 
-    def putQObjectConnections(self, qobject):
+        if isQMetaObject or isQObject:
+            with SubItem(self, "[properties]"):
+                self.put('sortgroup="5"')
+                self.putItemCount(propertyCount)
+                if self.isExpanded():
+                    usesVector = self.qtVersion() >= 0x50700
+                    with Children(self):
+                        # Static properties.
+                        p = walker(toInteger(data) + properties * 4)
+                        for i in range(propertyCount):
+                            t = (p.next(), p.next(), p.next())
+                            name = self.metaString(metaObject, t[0])
+                            if qobject:
+                                self.putCallItem(name, qobject, "property", '"' + name + '"')
+                            else:
+                                putt(name, ' ')
+
+                        # Dynamic properties.
+                        if extraData:
+                            byteArrayType = self.lookupQtType("QByteArray")
+                            variantType = self.lookupQtType("QVariant")
+                            names = self.listChildrenGenerator(extraData + ptrSize, byteArrayType)
+                            if usesVector:
+                                values = self.vectorChildrenGenerator(extraData + 2 * ptrSize, variantType)
+                            else:
+                                values = self.listChildrenGenerator(extraData + 2 * ptrSize, variantType)
+                            for (k, v) in zip(names, values):
+                                with SubItem(self, propertyCount):
+                                    self.put('key="%s",' % self.encodeByteArray(k))
+                                    self.put('keyencoded="latin1",')
+                                    self.putItem(v)
+                                    propertyCount += 1
+                else:
+                    # We need a handle to [x] for the user to expand the item
+                    # before we know whether there are actual children. Counting
+                    # them is too expensive.
+                    self.putNumChild(1)
+                    self.putSpecialValue("minimumitemcount", propertyCount)
+
+        if isQMetaObject or isQObject:
+            with SubItem(self, "[methods]"):
+                self.put('sortgroup="3"')
+                self.putItemCount(methodCount)
+                if self.isExpanded():
+                    with Children(self):
+                        p = walker(toInteger(data) + 14 * 4)
+                        for i in range(methodCount):
+                            t = (p.next(), p.next(), p.next(), p.next(), p.next())
+                            name = self.metaString(metaObject, t[0])
+                            with SubItem(self, i):
+                                self.putValue(name)
+                                self.putType(" ")
+                                self.putNumChild(1)
+                                isSignal = False
+                                flags = t[4]
+                                if flags == 0x06:
+                                    typ = "signal"
+                                    isSignal = True
+                                elif flags == 0x0a:
+                                    typ = "slot"
+                                elif flags == 0x0a:
+                                    typ = "invokable"
+                                else:
+                                    typ = "<unknown>"
+                                with Children(self):
+                                    putt("[nameindex]", t[0])
+                                    putt("[type]", typ)
+                                    putt("[argc]", t[1])
+                                    putt("[parameter]", t[2])
+                                    putt("[tag]", t[3])
+                                    putt("[flags]", t[4])
+                                    putt("[localindex]", str(i))
+                                    putt("[globalindex]", str(globalOffset + i))
+
+        if isQObject:
+            self.putSubItem("[metaObject]", metaObject)
+
+        if isQObject:
+            with SubItem(self, "d"):
+                self.put('sortgroup="15"')
+                self.putItem(qobject["d_ptr"]["d"])
+
+        if isQMetaObject:
+            with SubItem(self, "[superdata]"):
+                self.put('sortgroup="12"')
+                superdata = superData(metaObject)
+                self.putValue("0x%x" % superdata)
+                if toInteger(superdata):
+                    self.putNumChild(1)
+                    if self.isExpanded():
+                        with Children(self):
+                            self.putSubItem('*', superdata)
+                else:
+                    self.putNumChild(0)
+                self.putType(superdata.type)
+
+        if handle >= 0:
+            localIndex = (handle - methods) / 5
+            with SubItem(self, "[localindex]"):
+                self.put('sortgroup="12"')
+                self.putValue(localIndex)
+            with SubItem(self, "[globalindex]"):
+                self.put('sortgroup="11"')
+                self.putValue(globalOffset + localIndex)
+
+
+        #with SubItem(self, "[signals]"):
+        #    self.putItemCount(signalCount)
+        #    signalNames = metaData(52, -14, 5)
+        #    warn("NAMES: %s" % signalNames)
+        #    if self.isExpanded():
+        #        with Children(self):
+        #            putt("A", "b")
+        #            for i in range(signalCount):
+        #                k = signalNames[i]
+        #                with SubItem(self, k):
+        #                    self.putEmptyValue()
+        #            if dd:
+        #                self.putQObjectConnections(dd)
+
+    def putQObjectConnections(self, dd):
         with SubItem(self, "[connections]"):
             ptrSize = self.ptrSize()
             self.putNoType()
             ns = self.qtNamespace()
             privateTypeName = ns + "QObjectPrivate"
             privateType = self.lookupType(privateTypeName)
-            dd = qobject["d_ptr"]["d"]
             d_ptr = dd.cast(privateType.pointer()).dereference()
             connections = d_ptr["connectionLists"]
             if self.isNull(connections):

@@ -202,7 +202,8 @@ static bool handleQtQuickTest(QFutureInterface<TestParseResultPtr> futureInterfa
 
     const QString cppFileName = document->fileName();
     QList<CppTools::ProjectPart::Ptr> ppList = modelManager->projectPart(cppFileName);
-    QTC_ASSERT(!ppList.isEmpty(), return false);
+    if (ppList.isEmpty()) // happens if shutting down while parsing
+        return false;
     const QString &proFile = ppList.at(0)->projectFile;
 
     const QString srcDir = quickTestSrcDir(modelManager, cppFileName);
@@ -219,15 +220,26 @@ static bool handleQtQuickTest(QFutureInterface<TestParseResultPtr> futureInterfa
 void QuickTestParser::init(const QStringList &filesToParse)
 {
     m_qmlSnapshot = QmlJSTools::Internal::ModelManager::instance()->snapshot();
+    m_proFilesForQmlFiles = QuickTestUtils::proFilesForQmlFiles(id(), filesToParse);
     CppParser::init(filesToParse);
+}
+
+void QuickTestParser::release()
+{
+    m_qmlSnapshot = QmlJS::Snapshot();
+    m_proFilesForQmlFiles.clear();
+    CppParser::release();
 }
 
 bool QuickTestParser::processDocument(QFutureInterface<TestParseResultPtr> futureInterface,
                                       const QString &fileName)
 {
     if (fileName.endsWith(".qml")) {
+        const QString &proFile = m_proFilesForQmlFiles.value(fileName);
+        if (proFile.isEmpty())
+            return false;
         QmlJS::Document::Ptr qmlJSDoc = m_qmlSnapshot.document(fileName);
-        return checkQmlDocumentForQuickTestCode(futureInterface, qmlJSDoc, id());
+        return checkQmlDocumentForQuickTestCode(futureInterface, qmlJSDoc, id(), proFile);
     }
     if (!m_cppSnapshot.contains(fileName) || !selectedForBuilding(fileName))
         return false;

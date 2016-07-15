@@ -120,7 +120,9 @@ void TestNavigationWidget::contextMenuEvent(QContextMenuEvent *event)
 
     QMenu menu;
     QAction *runThisTest = 0;
+    QAction *runWithoutDeploy = 0;
     QAction *debugThisTest = 0;
+    QAction *debugWithoutDeploy = 0;
     const QModelIndexList list = m_view->selectionModel()->selectedIndexes();
     if (list.size() == 1) {
         const QModelIndex index = list.first();
@@ -135,6 +137,12 @@ void TestNavigationWidget::contextMenuEvent(QContextMenuEvent *event)
                         this, [this] () {
                     onRunThisTestTriggered(TestRunner::Run);
                 });
+                runWithoutDeploy = new QAction(tr("Run Without Deployment"), &menu);
+                runWithoutDeploy->setEnabled(enabled);
+                connect(runWithoutDeploy, &QAction::triggered,
+                        this, [this] () {
+                    onRunThisTestTriggered(TestRunner::RunWithoutDeploy);
+                });
             }
             if (item->canProvideDebugConfiguration()) {
                 debugThisTest = new QAction(tr("Debug This Test"), &menu);
@@ -142,6 +150,12 @@ void TestNavigationWidget::contextMenuEvent(QContextMenuEvent *event)
                 connect(debugThisTest, &QAction::triggered,
                         this, [this] () {
                     onRunThisTestTriggered(TestRunner::Debug);
+                });
+                debugWithoutDeploy = new QAction(tr("Debug Without Deployment"), &menu);
+                debugWithoutDeploy->setEnabled(enabled);
+                connect(debugWithoutDeploy, &QAction::triggered,
+                        this, [this] () {
+                    onRunThisTestTriggered(TestRunner::DebugWithoutDeploy);
                 });
             }
         }
@@ -163,10 +177,14 @@ void TestNavigationWidget::contextMenuEvent(QContextMenuEvent *event)
     deselectAll->setEnabled(enabled && hasTests);
     rescan->setEnabled(enabled);
 
-    if (runThisTest)
+    if (runThisTest) {
         menu.addAction(runThisTest);
-    if (debugThisTest)
+        menu.addAction(runWithoutDeploy);
+    }
+    if (debugThisTest) {
         menu.addAction(debugThisTest);
+        menu.addAction(debugWithoutDeploy);
+    }
     if (runThisTest || debugThisTest)
         menu.addSeparator();
 
@@ -287,9 +305,11 @@ void TestNavigationWidget::onRunThisTestTriggered(TestRunner::Mode runMode)
     TestConfiguration *configuration;
     switch (runMode) {
     case TestRunner::Run:
+    case TestRunner::RunWithoutDeploy:
         configuration = item->testConfiguration();
         break;
     case TestRunner::Debug:
+    case TestRunner::DebugWithoutDeploy:
         configuration = item->debugConfiguration();
         break;
     default:

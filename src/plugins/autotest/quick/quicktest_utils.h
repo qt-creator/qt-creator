@@ -25,6 +25,10 @@
 
 #pragma once
 
+#include "../testframeworkmanager.h"
+
+#include <utils/qtcassert.h>
+
 #include <QByteArrayList>
 
 namespace Autotest {
@@ -37,6 +41,36 @@ public:
     {
         static const QByteArrayList valid = {"QUICK_TEST_MAIN", "QUICK_TEST_OPENGL_MAIN"};
         return valid.contains(macro);
+    }
+
+    static QHash<QString, QString> proFilesForQmlFiles(const Core::Id &id, const QStringList &files)
+    {
+        QHash<QString, QString> result;
+        TestTreeItem *rootNode = TestFrameworkManager::instance()->rootNodeForTestFramework(id);
+        QTC_ASSERT(rootNode, return result);
+
+        if (files.isEmpty())
+            return result;
+
+        for (int row = 0, rootCount = rootNode->childCount(); row < rootCount; ++row) {
+            const TestTreeItem *child = rootNode->childItem(row);
+            const QString &file = child->filePath();
+            if (!file.isEmpty() && files.contains(file)) {
+                const QString &proFile = child->proFile();
+                if (!proFile.isEmpty())
+                    result.insert(file, proFile);
+            }
+            for (int subRow = 0, subCount = child->childCount(); subRow < subCount; ++subRow) {
+                const TestTreeItem *grandChild = child->childItem(subRow);
+                const QString &file = grandChild->filePath();
+                if (!file.isEmpty() && files.contains(file)) {
+                    const QString &proFile = grandChild->proFile();
+                    if (!proFile.isEmpty())
+                        result.insert(file, proFile);
+                }
+            }
+        }
+        return result;
     }
 };
 

@@ -63,6 +63,8 @@ public:
     QMap<GTestCaseSpec, GTestCodeLocationList> gtestFunctions() const { return m_gtestFunctions; }
 
 private:
+    QString enclosingNamespaces(CPlusPlus::Symbol *symbol) const;
+
     CPlusPlus::Document::Ptr m_document;
     CPlusPlus::Overview m_overview;
     QMap<GTestCaseSpec, GTestCodeLocationList> m_gtestFunctions;

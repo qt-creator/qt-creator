@@ -29,6 +29,7 @@
 
 #include <QByteArray>
 
+#if defined(Q_OS_WIN)
 // Parameterized QDir::toNativeSeparators/-fromNativeSeparators for QByteArray
 static inline QByteArray replace(const QByteArray &pathName, char toReplace, char replacement)
 {
@@ -49,6 +50,7 @@ static inline QByteArray replace(const QByteArray &pathName, char toReplace, cha
 
     return pathName;
 }
+#endif
 
 static QByteArray fromNativeSeparatorsForQByteArray(const QByteArray &pathName)
 {

@@ -33,7 +33,7 @@ namespace Internal {
 class ProjectExplorerSettings
 {
 public:
-    enum StopBeforeBuild { StopNone = 0, StopSameProject = 1, StopAll = 2 };
+    enum StopBeforeBuild { StopNone = 0, StopSameProject, StopAll, StopSameBuildDir };
 
     bool buildBeforeDeploy = true;
     bool deployBeforeRun = true;

@@ -1084,27 +1084,14 @@ class Dumper(DumperBase):
             self.putValue(v)
 
         self.putType(typeName)
-        self.putEmptyValue()
         self.putNumChild(numchild)
-        if self.showQObjectNames:
-            staticMetaObject = self.extractStaticMetaObject(value.GetType())
-            if staticMetaObject:
-                self.context = value
-                self.putQObjectNameValue(value)
+        self.putStructGuts(value)
 
-        if self.currentIName in self.expandedINames:
-            self.put('sortable="1"')
-            with Children(self):
-                self.putFields(value)
-                if not self.showQObjectNames:
-                    staticMetaObject = self.extractStaticMetaObject(value.GetType())
-                if staticMetaObject:
-                    self.putQObjectGuts(value, staticMetaObject)
 
     def warn(self, msg):
         self.put('{name="%s",value="",type="",numchild="0"},' % msg)
 
-    def putFields(self, value):
+    def putFields(self, value, dumpBase = True):
         # Suppress printing of 'name' field for arrays.
         if value.GetType().GetTypeClass() == lldb.eTypeClassArray:
             for i in xrange(value.GetNumChildren()):
@@ -1139,9 +1126,10 @@ class Dumper(DumperBase):
         for i in xrange(len(baseObjects)):
             baseObject = baseObjects[i]
             with UnnamedSubItem(self, "@%d" % (i + 1)):
-               self.put('iname="%s",' % self.currentIName)
-               self.put('name="[%s]",' % baseObject.name)
-               self.putItem(baseObject.value)
+                self.put('iname="%s",' % self.currentIName)
+                self.put('name="[%s]",' % baseObject.name)
+                self.put('sortgroup="30"')
+                self.putItem(baseObject.value)
 
         memberCount = value.GetNumChildren()
         if memberCount > 10000:

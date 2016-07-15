@@ -29,8 +29,7 @@ import QtQuick.Controls.Styles 1.1
 
 Controls.SpinBox {
     id: spinBox
-    property color borderColor: "#222"
-    property color highlightColor: "orange"
+
     property color textColor: colorLogic.textColor
     property variant backendValue;
 

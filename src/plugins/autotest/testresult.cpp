@@ -71,6 +71,8 @@ Result::Type TestResult::resultFromString(const QString &resultString)
         return Result::MessageWarn;
     if (resultString == QLatin1String("qfatal"))
         return Result::MessageFatal;
+    if (resultString == QLatin1String("system"))
+        return Result::MessageSystem;
     if (resultString == QLatin1String("bpass"))
         return Result::BlacklistedPass;
     if (resultString == QLatin1String("bfail"))
@@ -113,6 +115,8 @@ QString TestResult::resultToString(const Result::Type type)
         return QLatin1String("WARN");
     case Result::MessageFatal:
         return QLatin1String("FATAL");
+    case Result::MessageSystem:
+        return QLatin1String("SYSTEM");
     case Result::BlacklistedPass:
         return QLatin1String("BPASS");
     case Result::BlacklistedFail:
@@ -145,6 +149,7 @@ QColor TestResult::colorForType(const Result::Type type)
     case Result::MessageWarn:
         return creatorTheme->color(Utils::Theme::OutputPanes_TestWarnTextColor);
     case Result::MessageFatal:
+    case Result::MessageSystem:
         return creatorTheme->color(Utils::Theme::OutputPanes_TestFatalTextColor);
     case Result::BlacklistedPass:
     case Result::BlacklistedFail:

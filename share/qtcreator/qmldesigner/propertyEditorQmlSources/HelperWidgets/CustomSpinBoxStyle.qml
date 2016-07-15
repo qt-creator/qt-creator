@@ -28,10 +28,11 @@ import QtQuick.Controls 1.1 as Controls
 import QtQuick.Controls.Styles 1.1
 
 SpinBoxStyle {
-
-    selectionColor: spinBox.textColor
-    selectedTextColor: "black"
+    selectionColor: creatorTheme.PanelTextColorLight
+    selectedTextColor: creatorTheme.PanelTextColorMid
     textColor: spinBox.textColor
+
+
     padding.top: 3
     padding.bottom: 1
     padding.right: 18
@@ -42,7 +43,9 @@ SpinBoxStyle {
         implicitHeight: parent.height/2
         opacity: styleData.upEnabled ? styleData.upPressed ? 0.5 : 1 : 0.5
         Image {
-            source: "images/up-arrow.png"
+            width: 8
+            height: 4
+            source: "image://icons/up-arrow"
             x: 1
             y: 5
         }
@@ -53,7 +56,9 @@ SpinBoxStyle {
         implicitHeight: parent.height/2
         opacity: styleData.downEnabled ? styleData.downPressed ? 0.5 : 1 : 0.5
         Image {
-            source: "images/down-arrow.png"
+            width: 8
+            height: 4
+            source: "image://icons/down-arrow"
             x: 1
             y: 2.5 // Hack! Spinbox sets an non-int offset, somewhere
         }
@@ -62,19 +67,7 @@ SpinBoxStyle {
     background: Rectangle {
         implicitWidth: Math.max(64, styleData.contentWidth)
         implicitHeight: 23
-        border.color: borderColor
-        gradient: Gradient {
-            GradientStop {color: "#2c2c2c" ; position: 0}
-            GradientStop {color: "#343434" ; position: 0.15}
-            GradientStop {color: "#373737" ; position: 1}
-        }
-        Rectangle {
-            border.color: highlightColor
-            anchors.fill: parent
-            anchors.margins: -1
-            color: "transparent"
-            opacity: 0.3
-            visible: control.activeFocus
-        }
+        color: creatorTheme.FancyToolButtonSelectedColor
+        border.color: creatorTheme.QmlDesignerBackgroundColorDarker
     }
 }

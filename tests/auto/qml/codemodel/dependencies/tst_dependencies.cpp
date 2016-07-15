@@ -113,7 +113,7 @@ private:
 void tst_Dependencies::initTestCase()
 {
     QLoggingCategory::setFilterRules(QLatin1String("qtc.*.debug=false"));
-    m_path = QCoreApplication::applicationDirPath() + QLatin1Literal("/samples");
+    m_path = QLatin1Literal(TESTSRCDIR "/samples");
 
     m_basePaths.append(QLibraryInfo::location(QLibraryInfo::Qml2ImportsPath));
 

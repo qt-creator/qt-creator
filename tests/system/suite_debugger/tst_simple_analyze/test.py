@@ -101,11 +101,10 @@ def performTest(workingDir, projectName, targetCount, availableConfigs):
             model = waitForObject(":Events.QmlProfilerEventsTable_QmlProfiler::"
                                   "Internal::QmlProfilerEventsMainView").model()
             compareEventsTab(model, "events_qt5.tsv")
-            numberOfMsRows = 3
             test.compare(dumpItems(model, column=colPercent)[0], '100.00 %')
             # cannot run following test on colShortest (unstable)
             for i in [colTotal, colMean, colMedian, colLongest]:
-                for item in dumpItems(model, column=i)[:numberOfMsRows]:
+                for item in dumpItems(model, column=i)[1:5]:
                     test.verify(item.endswith(' ms'), "Verify that '%s' ends with ' ms'" % item)
             for i in [colTotal, colMean, colMedian, colLongest, colShortest]:
                 for item in dumpItems(model, column=i):

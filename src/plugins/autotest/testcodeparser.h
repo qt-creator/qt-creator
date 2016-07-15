@@ -48,7 +48,8 @@ public:
         Idle,
         PartialParse,
         FullParse,
-        Disabled
+        Disabled,
+        Shutdown
     };
 
     explicit TestCodeParser(TestTreeModel *parent = 0);
@@ -77,6 +78,7 @@ public:
     void onQmlDocumentUpdated(const QmlJS::Document::Ptr &document);
     void onStartupProjectChanged(ProjectExplorer::Project *project);
     void onProjectPartsUpdated(ProjectExplorer::Project *project);
+    void aboutToShutdown();
 
 private:
     bool postponed(const QStringList &fileList);

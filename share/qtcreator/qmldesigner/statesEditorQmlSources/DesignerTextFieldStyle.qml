@@ -28,10 +28,10 @@ import QtQuick.Controls 1.1
 import QtQuick.Controls.Styles 1.1
 
 TextFieldStyle {
-    selectionColor: "#FFFFFF"
-    selectedTextColor: "#000000"
-    textColor: "#FFFFFF"
-    placeholderTextColor: "#A0A0A0"
+    selectionColor: creatorTheme.PanelTextColorLight
+    selectedTextColor: creatorTheme.PanelTextColorDark
+    textColor: creatorTheme.PanelTextColorLight
+    placeholderTextColor: creatorTheme.PanelTextColorMid
 
     padding.top: 4
     padding.bottom: 4
@@ -39,20 +39,7 @@ TextFieldStyle {
     background: Rectangle {
         implicitWidth: 100
         implicitHeight: font.pixelSize + padding.top + padding.bottom
-        border.color: "#222222"
-        gradient: Gradient {
-            GradientStop {color: "#2c2c2c" ; position: 0}
-            GradientStop {color: "#343434" ; position: 0.15}
-            GradientStop {color: "#373737" ; position: 1.0}
-        }
-        Rectangle {
-            border.color: highlightColor
-            anchors.fill: parent
-            anchors.margins: -1
-            color: "#00000000" //Qt.transparent
-            radius: 4
-            opacity: 0.3
-            visible: control.activeFocus
-        }
+        color: creatorTheme.FancyToolButtonSelectedColor
+        border.color: creatorTheme.QmlDesignerBackgroundColorDarker
     }
 }

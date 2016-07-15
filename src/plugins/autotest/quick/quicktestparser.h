@@ -43,10 +43,12 @@ class QuickTestParser : public CppParser
 {
 public:
     void init(const QStringList &filesToParse) override;
+    void release() override;
     bool processDocument(QFutureInterface<TestParseResultPtr> futureInterface,
                          const QString &fileName) override;
 private:
     QmlJS::Snapshot m_qmlSnapshot;
+    QHash<QString, QString> m_proFilesForQmlFiles;
 };
 
 } // namespace Internal

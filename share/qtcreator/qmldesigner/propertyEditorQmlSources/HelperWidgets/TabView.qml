@@ -30,13 +30,12 @@ import QtQuick.Controls.Styles 1.1
 Controls.TabView {
     id: root
 
-    property color textColor: "#eee"
     frameVisible: false
     style: TabViewStyle {
         frameOverlap: 0
         frame: Item { }
         tab: Rectangle {
-            color: styleData.selected ? "#eee" : "#414141"
+            color: styleData.selected ? creatorTheme.QmlDesignerTabLight : creatorTheme.QmlDesignerTabDark
             implicitWidth: root.width/root.count + 2
             implicitHeight: 28
             Text {
@@ -46,20 +45,14 @@ Controls.TabView {
                 anchors.verticalCenterOffset: -1
                 text: styleData.title
                 renderType: Text.NativeRendering
-                color: styleData.selected ? "#333" : "#fff"
+                color: styleData.selected ? creatorTheme.QmlDesignerTabDark : creatorTheme.QmlDesignerTabLight
             }
 
             Rectangle {
-                color: "#eee"
+                color:creatorTheme.QmlDesignerTabLight
                 width: parent.width
                 height: 4
                 anchors.bottom: parent.bottom
-            }
-
-            Rectangle {
-                color: "#333"
-                width: parent.width
-                height: 1
             }
         }
     }

@@ -37,26 +37,25 @@ Item {
 
     property variant backendValue
 
-    property string icon:  "images/placeholder.png"
-    property string hoverIcon:  "images/submenu.png";
+    property string icon: "image://icons/placeholder"
+    property string hoverIcon: "image://icons/submenu"
 
     property bool active: true
 
 
     function setIcon() {
         if (backendValue == null) {
-            extendedFunctionButton.icon = "images/placeholder.png"
+            extendedFunctionButton.icon = "image://icons/placeholder"
         } else if (backendValue.isBound ) {
             if (backendValue.isTranslated) { //translations are a special case
-                extendedFunctionButton.icon = "images/placeholder.png"
+                extendedFunctionButton.icon = "image://icons/placeholder"
             } else {
-                extendedFunctionButton.icon = "images/expression.png"
+                extendedFunctionButton.icon = "image://icons/expression"
             }
         } else {
             if (backendValue.complexNode != null && backendValue.complexNode.exists) {
-                //extendedFunctionButton.icon = "images/behaivour.png"
             } else {
-                extendedFunctionButton.icon = "images/placeholder.png"
+                extendedFunctionButton.icon = "image://icons/placeholder"
             }
         }
     }
@@ -86,6 +85,8 @@ Item {
     }
 
     Image {
+        width: 14
+        height: 14
         source: extendedFunctionButton.icon
         anchors.centerIn: parent
     }

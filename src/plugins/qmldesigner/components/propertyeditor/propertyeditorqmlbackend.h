@@ -34,6 +34,8 @@
 
 #include <nodemetainfo.h>
 
+#include <QQmlPropertyMap>
+
 class PropertyEditorValue;
 
 namespace QmlDesigner {
@@ -101,6 +103,7 @@ private:
     QScopedPointer<PropertyEditorTransaction> m_propertyEditorTransaction;
     QScopedPointer<PropertyEditorValue> m_dummyPropertyEditorValue;
     QScopedPointer<PropertyEditorContextObject> m_contextObject;
+    QQmlPropertyMap m_themeProperties;
 };
 
 } //QmlDesigner

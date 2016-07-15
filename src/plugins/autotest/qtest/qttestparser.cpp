@@ -199,7 +199,10 @@ static bool handleQtTest(QFutureInterface<TestParseResultPtr> futureInterface,
         parseResult->displayName = testCaseName;
         parseResult->line = line;
         parseResult->column = column;
-        parseResult->proFile = modelManager->projectPart(fileName).first()->projectFile;
+        QList<CppTools::ProjectPart::Ptr> projectParts = modelManager->projectPart(fileName);
+        if (projectParts.isEmpty()) // happens if shutting down while parsing
+            return false;
+        parseResult->proFile = projectParts.first()->projectFile;
         QMap<QString, TestCodeLocationAndType>::ConstIterator it = testFunctions.begin();
         const QMap<QString, TestCodeLocationAndType>::ConstIterator end = testFunctions.end();
         for ( ; it != end; ++it) {
@@ -236,6 +239,12 @@ void QtTestParser::init(const QStringList &filesToParse)
 {
     m_testCaseNames = QTestUtils::testCaseNamesForFiles(id(), filesToParse);
     CppParser::init(filesToParse);
+}
+
+void QtTestParser::release()
+{
+    m_testCaseNames.clear();
+    CppParser::release();
 }
 
 bool QtTestParser::processDocument(QFutureInterface<TestParseResultPtr> futureInterface,

@@ -27,7 +27,8 @@
 #include "stateseditormodel.h"
 #include "stateseditorview.h"
 #include "stateseditorimageprovider.h"
-#include "stateseditoriconprovider.h"
+
+#include <theming.h>
 
 #include <invalidqmlsourceexception.h>
 
@@ -99,7 +100,10 @@ StatesEditorWidget::StatesEditorWidget(StatesEditorView *statesEditorView, State
 
     rootContext()->setContextProperty(QLatin1String("canAddNewStates"), true);
 
-    engine()->addImageProvider(QLatin1String("icons"), new StatesEditorIconProvider());
+    Theming::insertTheme(&m_themeProperties);
+    rootContext()->setContextProperty(QLatin1String("creatorTheme"), &m_themeProperties);
+
+    Theming::registerIconProvider(engine());
 
     setWindowTitle(tr("States", "Title of Editor widget"));
 

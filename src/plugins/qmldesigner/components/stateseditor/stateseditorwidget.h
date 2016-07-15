@@ -27,6 +27,7 @@
 
 #include <QQuickWidget>
 #include <QPointer>
+#include <QQmlPropertyMap>
 
 QT_BEGIN_NAMESPACE
 class QShortcut;
@@ -66,6 +67,7 @@ private:
     QPointer<StatesEditorView> m_statesEditorView;
     Internal::StatesEditorImageProvider *m_imageProvider;
     QShortcut *m_qmlSourceUpdateShortcut;
+    QQmlPropertyMap m_themeProperties;
 };
 
 }

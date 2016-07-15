@@ -28,19 +28,23 @@ import QtQuick.Controls 1.0 as Controls
 import QtQuick.Layouts 1.0
 
 Rectangle {
+    id: panel
 
     property bool roundLeft: false
     property bool roundRight: false
 
 
+    /*
     radius: roundLeft || roundRight ? 1 : 0
     gradient: Gradient {
         GradientStop {color: '#555' ; position: 0}
         GradientStop {color: '#444' ; position: 1}
     }
+    */
 
     border.width: roundLeft || roundRight ? 1 : 0
-    border.color: "#2e2e2e"
+    color: creatorTheme.BackgroundColorDark
+    border.color: creatorTheme.QmlDesignerBackgroundColorDarker
 
     Rectangle {
         anchors.fill: parent
@@ -48,8 +52,9 @@ Rectangle {
         anchors.leftMargin: 10
         anchors.topMargin: 1
         anchors.bottomMargin: 1
+        color: panel.color
         Component.onCompleted: {
-            gradient = parent.gradient
+            //gradient = parent.gradient
         }
     }
 
@@ -59,13 +64,14 @@ Rectangle {
         anchors.rightMargin: 10
         anchors.topMargin: 1
         anchors.bottomMargin: 1
+        color: panel.color
         Component.onCompleted: {
-            gradient = parent.gradient
+            //gradient = parent.gradient
         }
     }
 
     Rectangle {
-        color: "#2e2e2e"
+        color: creatorTheme.QmlDesignerBackgroundColorDarker
         anchors.top: parent.top
         anchors.left: parent.left
         anchors.right: parent.right
@@ -75,7 +81,7 @@ Rectangle {
     }
 
     Rectangle {
-        color: "#2e2e2e"
+        color: creatorTheme.QmlDesignerBackgroundColorDarker
         anchors.bottom: parent.bottom
         anchors.left: parent.left
         anchors.right: parent.right

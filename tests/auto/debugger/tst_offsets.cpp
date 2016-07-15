@@ -80,9 +80,14 @@ OFFSET_ACCESS(QDate, QDateTimePrivate, date);
 OFFSET_ACCESS(QTime, QDateTimePrivate, time);
 OFFSET_ACCESS(Qt::TimeSpec, QDateTimePrivate, spec);
 OFFSET_ACCESS(int, QDateTimePrivate, utcOffset);
-#else
+#elif QT_VERSION < 0x50800
 OFFSET_ACCESS(qint64, QDateTimePrivate, m_msecs);
 OFFSET_ACCESS(Qt::TimeSpec, QDateTimePrivate, m_spec);
+OFFSET_ACCESS(int, QDateTimePrivate, m_offsetFromUtc);
+OFFSET_ACCESS(QTimeZone, QDateTimePrivate, m_timeZone);
+OFFSET_ACCESS(QDateTimePrivate::StatusFlags, QDateTimePrivate, m_status);
+#else
+OFFSET_ACCESS(qint64, QDateTimePrivate, m_msecs);
 OFFSET_ACCESS(int, QDateTimePrivate, m_offsetFromUtc);
 OFFSET_ACCESS(QTimeZone, QDateTimePrivate, m_timeZone);
 OFFSET_ACCESS(QDateTimePrivate::StatusFlags, QDateTimePrivate, m_status);
@@ -222,7 +227,7 @@ void tst_offsets::offsets_data()
         OFFSET_TEST(QDateTimePrivate, spec) << 16 << 20;
         OFFSET_TEST(QDateTimePrivate, utcOffset) << 20 << 24;
 #   endif
-#else
+#elif QT_VERSION < 0x50800
 #   ifdef Q_OS_WIN
         OFFSET_TEST(QDateTimePrivate, m_msecs) << 8 << 8;
         OFFSET_TEST(QDateTimePrivate, m_spec) << 16 << 16;
@@ -236,6 +241,11 @@ void tst_offsets::offsets_data()
         OFFSET_TEST(QDateTimePrivate, m_timeZone) << 20 << 24;
         OFFSET_TEST(QDateTimePrivate, m_status) << 24 << 32;
 #   endif
+#else
+        OFFSET_TEST(QDateTimePrivate, m_msecs) << 0 << 0;
+        OFFSET_TEST(QDateTimePrivate, m_status) << 8 << 8;
+        OFFSET_TEST(QDateTimePrivate, m_offsetFromUtc) << 12 << 12;
+        OFFSET_TEST(QDateTimePrivate, m_timeZone) << 20 << 24;
 #endif
 
 #ifdef HAS_BOOST

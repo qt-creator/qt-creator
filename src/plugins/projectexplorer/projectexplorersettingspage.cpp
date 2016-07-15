@@ -109,7 +109,7 @@ ProjectExplorerSettings ProjectExplorerSettingsWidget::settings() const
     m_settings.useJom = m_ui.jomCheckbox->isChecked();
     m_settings.prompToStopRunControl = m_ui.promptToStopRunControlCheckBox->isChecked();
     m_settings.maxAppOutputLines = m_ui.maxAppOutputBox->value();
-    m_settings.stopBeforeBuild = ProjectExplorerSettings::StopBeforeBuild(m_ui.stopBeforeBuildComboBox->currentIndex());
+    m_settings.stopBeforeBuild = static_cast<ProjectExplorerSettings::StopBeforeBuild>(m_ui.stopBeforeBuildComboBox->currentIndex());
     return m_settings;
 }
 
@@ -128,7 +128,7 @@ void ProjectExplorerSettingsWidget::setSettings(const ProjectExplorerSettings  &
     m_ui.jomCheckbox->setChecked(m_settings.useJom);
     m_ui.promptToStopRunControlCheckBox->setChecked(m_settings.prompToStopRunControl);
     m_ui.maxAppOutputBox->setValue(m_settings.maxAppOutputLines);
-    m_ui.stopBeforeBuildComboBox->setCurrentIndex(pes.stopBeforeBuild);
+    m_ui.stopBeforeBuildComboBox->setCurrentIndex(static_cast<int>(pes.stopBeforeBuild));
 }
 
 QString ProjectExplorerSettingsWidget::projectsDirectory() const

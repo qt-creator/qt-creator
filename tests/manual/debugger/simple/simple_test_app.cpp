@@ -217,6 +217,7 @@ void dummyStatement(...) {}
 #include <string>
 #include <vector>
 
+#include <QMetaMethod>
 #include <stdarg.h>
 #include <stdint.h>
 
@@ -1842,6 +1843,9 @@ namespace qobject {
             Q_SIGNAL void sigFoo();
             Q_SIGNAL void sigBar(int);
 
+            enum Side { LeftSide, RightSide };
+            Q_ENUMS(Side)
+
         public:
             Ui *m_ui;
             QString m_myProp1;
@@ -1860,11 +1864,32 @@ namespace qobject {
         test.setObjectName("An object");
         QString s = test.myProp1();
         s += test.myProp2();
+        const QMetaObject *mo = test.metaObject();
+        QMetaMethod mm0;
+        const QMetaObject smo = test.staticMetaObject;
+        QMetaMethod mm = mo->method(0);
+        QByteArray mmname = mm.name();
+
+        QMetaEnum me0;
+        QMetaEnum me = mo->enumerator(0);
+
+        QMetaProperty mp0;
+        QMetaProperty mp = mo->property(0);
+
+        QMetaClassInfo mci0;
+        QMetaClassInfo mci = mo->classInfo(0);
+
+        int n = mo->methodCount();
+        QVector<QMetaMethod> v(n);
+        for (int i = 0; i < n; ++i)
+            v[i] = mo->method(i);
+
+
         BREAK_HERE;
         // Check s "HELLOWORLD" QString.
         // Check test  qobject::Names::Bar::TestObject.
         // Continue.
-        dummyStatement(&s);
+        dummyStatement(&s, &mm, &smo, &mo, &mmname, &mm0, &me, &me0, &mp, &mp0, &mci, &mci0);
     }
 
     void testQObject3()

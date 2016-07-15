@@ -27,6 +27,7 @@
 #include "navigatorview.h"
 #include "qmldesignerconstants.h"
 #include "qmldesignericons.h"
+#include <theming.h>
 
 #include <QBoxLayout>
 #include <QToolButton>
@@ -34,6 +35,8 @@
 #include <QHeaderView>
 #include <QtDebug>
 #include <utils/fileutils.h>
+
+#include <QStyleFactory>
 
 namespace QmlDesigner {
 
@@ -50,6 +53,9 @@ NavigatorWidget::NavigatorWidget(NavigatorView *view) :
     m_treeView->setDefaultDropAction(Qt::LinkAction);
     m_treeView->setHeaderHidden(true);
 
+    QStyle *style = QStyleFactory::create("fusion");
+    m_treeView->setStyle(style);
+
     QVBoxLayout *layout = new QVBoxLayout;
     layout->setSpacing(0);
     layout->setMargin(0);
@@ -59,8 +65,8 @@ NavigatorWidget::NavigatorWidget(NavigatorView *view) :
 
     setWindowTitle(tr("Navigator", "Title of navigator view"));
 
-    setStyleSheet(QString::fromUtf8(Utils::FileReader::fetchQrc(QLatin1String(":/qmldesigner/stylesheet.css"))));
-    m_treeView->setStyleSheet(QString::fromUtf8(Utils::FileReader::fetchQrc(QLatin1String(":/qmldesigner/scrollbar.css"))));
+    setStyleSheet(Theming::replaceCssColors(QString::fromUtf8(Utils::FileReader::fetchQrc(QLatin1String(":/qmldesigner/stylesheet.css")))));
+    m_treeView->setStyleSheet(Theming::replaceCssColors(QString::fromUtf8(Utils::FileReader::fetchQrc(QLatin1String(":/qmldesigner/scrollbar.css")))));
 }
 
 void NavigatorWidget::setTreeModel(QAbstractItemModel* model)
