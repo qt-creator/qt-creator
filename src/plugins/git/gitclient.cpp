@@ -3000,45 +3000,6 @@ QString GitClient::readOneLine(const QString &workingDirectory, const QStringLis
     return resp.stdOut().trimmed();
 }
 
-bool GitClient::cloneRepository(const QString &directory,const QByteArray &url)
-{
-    QDir workingDirectory(directory);
-    const unsigned flags = VcsCommand::SshPasswordPrompt
-            | VcsCommand::ShowStdOut | VcsCommand::ShowSuccessMessage;
-
-    if (workingDirectory.exists()) {
-        if (!synchronousInit(workingDirectory.path()))
-            return false;
-
-        const SynchronousProcessResponse resp = vcsFullySynchronousExec(
-                    workingDirectory.path(), { "remote", "add", "origin", QString::fromUtf8(url) });
-        if (resp.result != SynchronousProcessResponse::Finished)
-            return false;
-
-        const SynchronousProcessResponse resp1 = vcsSynchronousExec(
-                    workingDirectory.path(), { "fetch" }, flags);
-        if (resp1.result != SynchronousProcessResponse::Finished)
-            return false;
-
-        const SynchronousProcessResponse resp2 = vcsSynchronousExec(
-                    workingDirectory.path(), { "config", "branch.master.remote", "origin" }, flags);
-        if (resp2.result != SynchronousProcessResponse::Finished)
-            return false;
-
-        const SynchronousProcessResponse resp3 = vcsSynchronousExec(
-                    workingDirectory.path(),
-                    { "config", "branch.master.merge", "refs/heads/master" }, flags);
-        return resp3.result == SynchronousProcessResponse::Finished;
-    } else {
-        workingDirectory.cdUp();
-        const SynchronousProcessResponse resp = vcsSynchronousExec(
-                    workingDirectory.path(),
-                    { "clone", QString::fromUtf8(url), workingDirectory.dirName() }, flags);
-        resetCachedVcsInfo(workingDirectory.absolutePath());
-        return (resp.result == SynchronousProcessResponse::Finished);
-    }
-}
-
 // determine version as '(major << 16) + (minor << 8) + patch' or 0.
 unsigned GitClient::gitVersion(QString *errorMessage) const
 {

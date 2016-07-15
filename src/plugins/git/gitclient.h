@@ -242,7 +242,6 @@ public:
     bool isRemoteCommit(const QString &workingDirectory, const QString &commit);
     bool isFastForwardMerge(const QString &workingDirectory, const QString &branch);
 
-    bool cloneRepository(const QString &directory, const QByteArray &url);
     void fetch(const QString &workingDirectory, const QString &remote);
     bool synchronousPull(const QString &workingDirectory, bool rebase);
     void push(const QString &workingDirectory, const QStringList &pushArgs = QStringList());
