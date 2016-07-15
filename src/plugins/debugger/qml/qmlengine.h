@@ -133,8 +133,7 @@ private:
     void startApplicationLauncher();
     void stopApplicationLauncher();
 
-    void connectionErrorOccurred(QAbstractSocket::SocketError socketError);
-    void connectionStateChanged(QAbstractSocket::SocketState socketState);
+    void connectionFailed();
 
     void checkConnectionState();
     void showConnectionStateMessage(const QString &message);

@@ -179,10 +179,13 @@ void QmlProfilerClientManager::createConnection()
             this, &QmlProfilerClientManager::qmlDebugConnectionOpened);
     connect(d->connection, &QmlDebug::QmlDebugConnection::disconnected,
             this, &QmlProfilerClientManager::qmlDebugConnectionClosed);
-    connect(d->connection, &QmlDebug::QmlDebugConnection::socketError,
-            this, &QmlProfilerClientManager::qmlDebugConnectionError);
-    connect(d->connection, &QmlDebug::QmlDebugConnection::socketStateChanged,
-            this, &QmlProfilerClientManager::qmlDebugConnectionStateChanged);
+    connect(d->connection, &QmlDebug::QmlDebugConnection::connectionFailed,
+            this, &QmlProfilerClientManager::qmlDebugConnectionFailed);
+
+    connect(d->connection, &QmlDebug::QmlDebugConnection::logError,
+            this, &QmlProfilerClientManager::logState);
+    connect(d->connection, &QmlDebug::QmlDebugConnection::logStateChange,
+            this, &QmlProfilerClientManager::logState);
 }
 
 void QmlProfilerClientManager::retryConnect()
@@ -294,20 +297,14 @@ void QmlProfilerClientManager::qmlDebugConnectionClosed()
     emit connectionClosed();
 }
 
-void QmlProfilerClientManager::qmlDebugConnectionError(QAbstractSocket::SocketError error)
+void QmlProfilerClientManager::qmlDebugConnectionFailed()
 {
-    logState(QmlDebug::QmlDebugConnection::socketErrorToString(error));
     if (d->connection->isConnected()) {
         disconnectClient();
         emit connectionClosed();
     } else {
         disconnectClient();
     }
-}
-
-void QmlProfilerClientManager::qmlDebugConnectionStateChanged(QAbstractSocket::SocketState state)
-{
-    logState(QmlDebug::QmlDebugConnection::socketStateToString(state));
 }
 
 void QmlProfilerClientManager::logState(const QString &msg)

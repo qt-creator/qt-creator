@@ -72,8 +72,8 @@ private slots:
     void tryToConnect();
     void qmlDebugConnectionOpened();
     void qmlDebugConnectionClosed();
-    void qmlDebugConnectionError(QAbstractSocket::SocketError error);
-    void qmlDebugConnectionStateChanged(QAbstractSocket::SocketState state);
+    void qmlDebugConnectionFailed();
+
     void logState(const QString &);
 
     void qmlComplete(qint64 maximumTime);

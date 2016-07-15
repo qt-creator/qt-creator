@@ -68,34 +68,36 @@ public:
     void flush();
 };
 
-QString QmlDebugConnection::socketStateToString(QAbstractSocket::SocketState state)
+static QString socketStateToString(QAbstractSocket::SocketState state)
 {
     switch (state) {
     case QAbstractSocket::UnconnectedState:
-        return tr("Network connection dropped");
+        return QmlDebugConnection::tr("Network connection dropped");
     case QAbstractSocket::HostLookupState:
-        return tr("Resolving host");
+        return QmlDebugConnection::tr("Resolving host");
     case QAbstractSocket::ConnectingState:
-        return tr("Establishing network connection ...");
+        return QmlDebugConnection::tr("Establishing network connection ...");
     case QAbstractSocket::ConnectedState:
-        return tr("Network connection established");
+        return QmlDebugConnection::tr("Network connection established");
     case QAbstractSocket::ClosingState:
-        return tr("Network connection closing");
+        return QmlDebugConnection::tr("Network connection closing");
     case QAbstractSocket::BoundState:
-        return tr("Socket state changed to BoundState. This should not happen!");
+        return QmlDebugConnection::tr("Socket state changed to BoundState. "
+                                      "This should not happen!");
     case QAbstractSocket::ListeningState:
-        return tr("Socket state changed to ListeningState. This should not happen!");
+        return QmlDebugConnection::tr("Socket state changed to ListeningState. "
+                                      "This should not happen!");
     default:
-        return tr("Unknown state %1").arg(state);
+        return QmlDebugConnection::tr("Unknown state %1").arg(state);
     }
 }
 
-QString QmlDebugConnection::socketErrorToString(QAbstractSocket::SocketError error)
+static QString socketErrorToString(QAbstractSocket::SocketError error)
 {
     if (error == QAbstractSocket::RemoteHostClosedError) {
-        return tr("Error: Remote host closed the connection");
+        return QmlDebugConnection::tr("Error: Remote host closed the connection");
     } else {
-        return tr("Error: Unknown socket error %1").arg(error);
+        return QmlDebugConnection::tr("Error: Unknown socket error %1").arg(error);
     }
 }
 
@@ -136,6 +138,8 @@ void QmlDebugConnection::socketDisconnected()
         for (; iter != d->plugins.end(); ++iter)
             iter.value()->stateChanged(QmlDebugClient::NotConnected);
         emit disconnected();
+    } else if (d->device) {
+        emit connectionFailed();
     }
     delete d->protocol;
     d->protocol = 0;
@@ -365,9 +369,16 @@ void QmlDebugConnection::connectToHost(const QString &hostName, quint16 port)
     d->protocol = new QPacketProtocol(socket, this);
     QObject::connect(d->protocol, &QPacketProtocol::readyRead,
                      this, &QmlDebugConnection::protocolReadyRead);
-    connect(socket, &QAbstractSocket::stateChanged, this, &QmlDebugConnection::socketStateChanged);
+    connect(socket, &QAbstractSocket::stateChanged,
+            this, [this](QAbstractSocket::SocketState state) {
+        emit logStateChange(socketStateToString(state));
+    });
+
     connect(socket, static_cast<void (QTcpSocket::*)(QAbstractSocket::SocketError)>
-            (&QAbstractSocket::error), this, &QmlDebugConnection::socketError);
+            (&QAbstractSocket::error), this, [this](QAbstractSocket::SocketError error) {
+        emit logError(socketErrorToString(error));
+        socketDisconnected();
+    });
     connect(socket, &QAbstractSocket::connected, this, &QmlDebugConnection::socketConnected);
     connect(socket, &QAbstractSocket::disconnected, this, &QmlDebugConnection::socketDisconnected);
     socket->connectToHost(hostName, port);
@@ -385,7 +396,7 @@ void QmlDebugConnection::startLocalServer(const QString &fileName)
     connect(d->server, &QLocalServer::newConnection,
             this, &QmlDebugConnection::newConnection, Qt::QueuedConnection);
     if (!d->server->listen(fileName))
-        emit socketError(QAbstractSocket::UnknownSocketError);
+        emit connectionFailed();
 }
 
 void QmlDebugConnection::newConnection()
@@ -403,13 +414,14 @@ void QmlDebugConnection::newConnection()
     connect(socket, &QLocalSocket::disconnected, this, &QmlDebugConnection::socketDisconnected);
 
     connect(socket, static_cast<void (QLocalSocket::*)(QLocalSocket::LocalSocketError)>
-            (&QLocalSocket::error), this, [this](QLocalSocket::LocalSocketError error) {
-        socketError(static_cast<QAbstractSocket::SocketError>(error));
+            (&QLocalSocket::error), this, [this, d](QLocalSocket::LocalSocketError error) {
+        logError(socketErrorToString(static_cast<QAbstractSocket::SocketError>(error)));
+        socketDisconnected();
     });
 
     connect(socket, &QLocalSocket::stateChanged,
             this, [this](QLocalSocket::LocalSocketState state) {
-        socketStateChanged(static_cast<QAbstractSocket::SocketState>(state));
+        logStateChange(socketStateToString(static_cast<QAbstractSocket::SocketState>(state)));
     });
 
     socketConnected();

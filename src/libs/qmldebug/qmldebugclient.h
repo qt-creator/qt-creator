@@ -61,14 +61,13 @@ public:
     float serviceVersion(const QString &serviceName) const;
     bool sendMessage(const QString &name, const QByteArray &message);
 
-    static QString socketStateToString(QAbstractSocket::SocketState state);
-    static QString socketErrorToString(QAbstractSocket::SocketError error);
-
 signals:
     void connected();
     void disconnected();
-    void socketError(QAbstractSocket::SocketError error);
-    void socketStateChanged(QAbstractSocket::SocketState state);
+    void connectionFailed();
+
+    void logError(const QString &error);
+    void logStateChange(const QString &state);
 
 private:
     void newConnection();

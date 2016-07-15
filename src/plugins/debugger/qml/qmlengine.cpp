@@ -289,10 +289,13 @@ QmlEngine::QmlEngine(const DebuggerRunParameters &startParameters, DebuggerEngin
     connect(&d->connectionTimer, &QTimer::timeout,
             this, &QmlEngine::checkConnectionState);
 
-    connect(d->connection, &QmlDebugConnection::socketStateChanged,
-            this, &QmlEngine::connectionStateChanged);
-    connect(d->connection, &QmlDebugConnection::socketError,
-            this, &QmlEngine::connectionErrorOccurred);
+    connect(d->connection, &QmlDebugConnection::logStateChange,
+            this, &QmlEngine::showConnectionStateMessage);
+    connect(d->connection, &QmlDebugConnection::logError, this,
+            [this](const QString &error) { showMessage("QML Debugger: " + error, StatusBar); });
+
+    connect(d->connection, &QmlDebugConnection::connectionFailed,
+            this, &QmlEngine::connectionFailed);
     connect(d->connection, &QmlDebugConnection::connected,
             &d->connectionTimer, &QTimer::stop);
     connect(d->connection, &QmlDebugConnection::connected,
@@ -1200,13 +1203,10 @@ bool QmlEnginePrivate::canEvaluateScript(const QString &script)
     return interpreter.canEvaluate();
 }
 
-void QmlEngine::connectionErrorOccurred(QAbstractSocket::SocketError error)
+void QmlEngine::connectionFailed()
 {
     // this is only an error if we are already connected and something goes wrong.
     if (isConnected()) {
-        if (error == QAbstractSocket::RemoteHostClosedError)
-            showMessage(tr("QML Debugger: Remote host closed connection."), StatusBar);
-
         if (!isSlaveEngine()) { // normal flow for slave engine when gdb exits
             notifyInferiorSpontaneousStop();
             notifyInferiorIll();
@@ -1215,11 +1215,6 @@ void QmlEngine::connectionErrorOccurred(QAbstractSocket::SocketError error)
         d->connectionTimer.stop();
         connectionStartupFailed();
     }
-}
-
-void QmlEngine::connectionStateChanged(QAbstractSocket::SocketState socketState)
-{
-    showConnectionStateMessage(QmlDebugConnection::socketStateToString(socketState));
 }
 
 void QmlEngine::checkConnectionState()
