@@ -63,7 +63,7 @@ const char DEBUGGER_BINARY[] = "Binary";
 const char DEVICE_TYPE[] = "PE.Profile.DeviceType";
 const char DEVICE_ID[] = "PE.Profile.Device";
 const char SYSROOT[] = "PE.Profile.SysRoot";
-const char TOOLCHAIN[] = "PE.Profile.ToolChain";
+const char TOOLCHAIN[] = "PE.Profile.ToolChains";
 const char MKSPEC[] = "QtPM4.mkSpecInformation";
 const char QT[] = "QtSupport.QtInformation";
 
@@ -95,7 +95,7 @@ QString AddKitOperation::argumentsHelpText() const
            "    --devicetype <TYPE>                        device type of the new kit (required).\n"
            "    --device <ID>                              device id to use (optional).\n"
            "    --sysroot <PATH>                           sysroot of the new kit.\n"
-           "    --toolchain <ID>                           tool chain of the new kit.\n"
+           "    --toolchain <LANGID> <ID>                  tool chain of the new kit (may repeat!).\n"
            "    --qt <ID>                                  Qt of the new kit.\n"
            "    --mkspec <PATH>                            mkspec of the new kit.\n"
            "    --env <VALUE>                              add a custom environment setting. [may be repeated]\n"
@@ -109,6 +109,7 @@ bool AddKitOperation::setArguments(const QStringList &args)
     for (int i = 0; i < args.count(); ++i) {
         const QString current = args.at(i);
         const QString next = ((i + 1) < args.count()) ? args.at(i + 1) : QString();
+        const QString nextnext = ((i + 2) < args.count()) ? args.at(i + 2) : QString();
 
         if (current == "--id") {
             if (next.isNull())
@@ -191,7 +192,20 @@ bool AddKitOperation::setArguments(const QStringList &args)
             if (next.isNull())
                 return false;
             ++i; // skip next;
-            m_tc = next;
+
+            if (next.isEmpty()) {
+                std::cerr << "Empty langid for toolchain given." << std::endl << std::endl;
+                return false;
+            }
+            if (nextnext.isEmpty()) {
+                std::cerr << "Empty id for toolchain given." << std::endl << std::endl;
+                return false;
+            }
+            if (m_tcs.contains(next)) {
+                std::cerr << "No langid for toolchain given twice." << std::endl << std::endl;
+                return false;
+            }
+            m_tcs.insert(next, nextnext);
             continue;
         }
 
@@ -252,7 +266,7 @@ int AddKitOperation::execute() const
         map = initializeKits();
 
     QVariantMap result = addKit(map, m_id, m_displayName, m_icon, m_debuggerId, m_debuggerEngine,
-                                m_debugger, m_deviceType, m_device, m_sysRoot, m_tc, m_qt,
+                                m_debugger, m_deviceType, m_device, m_sysRoot, m_tcs, m_qt,
                                 m_mkspec, m_env, m_extra);
 
     if (result.isEmpty() || map == result)
@@ -267,7 +281,7 @@ bool AddKitOperation::test() const
     QVariantMap map = initializeKits();
 
     QVariantMap tcMap = AddToolChainOperation::initializeToolChains();
-    tcMap = AddToolChainOperation::addToolChain(tcMap, "{tc-id}", "TC", "/usr/bin/gcc",
+    tcMap = AddToolChainOperation::addToolChain(tcMap, "{tc-id}", "langId", "TC", "/usr/bin/gcc",
                                                 "x86-linux-generic-elf-32bit",
                                                 "x86-linux-generic-elf-32bit",
                                                 KeyValuePairList());
@@ -293,39 +307,48 @@ bool AddKitOperation::test() const
             || !map.contains(DEFAULT) || !map.value(DEFAULT).toString().isEmpty())
         return false;
 
+    QHash<QString, QString> tcs;
+    tcs.insert("Cxx", "{tcXX-id}");
+
     // Fail if TC is not there:
     QVariantMap empty = addKit(map, tcMap, qtMap, devMap,
                                "testId", "Test Kit", "/tmp/icon.png", QString(), 1,
                                "/usr/bin/gdb-test", "Desktop", "{dev-id}", QString(),
-                               "{tcXX-id}", "{qt-id}", "unsupported/mkspec", QStringList(),
+                               tcs, "{qt-id}", "unsupported/mkspec", QStringList(),
                                KeyValuePairList({ KeyValuePair("PE.Profile.Data/extraData", QVariant("extraValue")) }));
     if (!empty.isEmpty())
         return false;
     // Do not fail if TC is an ABI:
+    tcs.clear();
+    tcs.insert("C", "x86-linux-generic-elf-64bit");
     empty = addKit(map, tcMap, qtMap, devMap, "testId", "Test Kit", "/tmp/icon.png", QString(), 1,
                    "/usr/bin/gdb-test", "Desktop", "{dev-id}", QString(),
-                   "x86-linux-generic-elf-64bit", "{qt-id}", "unsupported/mkspec", env,
+                   tcs, "{qt-id}", "unsupported/mkspec", env,
                    KeyValuePairList({ KeyValuePair("PE.Profile.Data/extraData", QVariant("extraValue")) }));
     if (empty.isEmpty())
         return false;
     // QTCREATORBUG-11983, mach_o was not covered by the first attempt to fix this.
+    tcs.insert("D", "x86-macos-generic-mach_o-64bit");
     empty = addKit(map, tcMap, qtMap, devMap, "testId", "Test Kit", "/tmp/icon.png", QString(), 1,
                    "/usr/bin/gdb-test", "Desktop", "{dev-id}", QString(),
-                   "x86-macos-generic-mach_o-64bit", "{qt-id}", "unsupported/mkspec", env,
+                   tcs, "{qt-id}", "unsupported/mkspec", env,
                    KeyValuePairList({ KeyValuePair("PE.Profile.Data/extraData", QVariant("extraValue")) }));
     if (empty.isEmpty())
         return false;
 
+    tcs.clear();
+    tcs.insert("Cxx", "{tc-id}");
+
     // Fail if Qt is not there:
     empty = addKit(map, tcMap, qtMap, devMap, "testId", "Test Kit", "/tmp/icon.png", QString(), 1,
-                   "/usr/bin/gdb-test", "Desktop", "{dev-id}", QString(), "{tc-id}", "{qtXX-id}",
+                   "/usr/bin/gdb-test", "Desktop", "{dev-id}", QString(), tcs, "{qtXX-id}",
                    "unsupported/mkspec", env,
                    KeyValuePairList({ KeyValuePair("PE.Profile.Data/extraData", QVariant("extraValue")) }));
     if (!empty.isEmpty())
         return false;
     // Fail if dev is not there:
     empty = addKit(map, tcMap, qtMap, devMap, "testId", "Test Kit", "/tmp/icon.png", QString(), 1,
-                   "/usr/bin/gdb-test", "Desktop", "{devXX-id}", QString(), "{tc-id}", "{qt-id}",
+                   "/usr/bin/gdb-test", "Desktop", "{devXX-id}", QString(), tcs, "{qt-id}",
                    "unsupported/mkspec", env,
                    KeyValuePairList({ KeyValuePair("PE.Profile.Data/extraData", QVariant("extraValue")) }));
     if (!empty.isEmpty())
@@ -333,7 +356,7 @@ bool AddKitOperation::test() const
 
     // Profile 0:
     map = addKit(map, tcMap, qtMap, devMap, "testId", "Test Kit", "/tmp/icon.png", QString(), 1,
-                 "/usr/bin/gdb-test", "Desktop", QString(), QString(), "{tc-id}", "{qt-id}",
+                 "/usr/bin/gdb-test", "Desktop", QString(), QString(), tcs, "{qt-id}",
                  "unsupported/mkspec", env,
                  KeyValuePairList({ KeyValuePair("PE.Profile.Data/extraData", QVariant("extraValue")) }));
 
@@ -358,23 +381,27 @@ bool AddKitOperation::test() const
     if (data.count() != 7
             || !data.contains(DEBUGGER) || data.value(DEBUGGER).type() != QVariant::Map
             || !data.contains(DEVICE_TYPE) || data.value(DEVICE_TYPE).toString() != "Desktop"
-            || !data.contains(TOOLCHAIN) || data.value(TOOLCHAIN).toString() != "{tc-id}"
+            || !data.contains(TOOLCHAIN)
             || !data.contains(QT) || data.value(QT).toString() != "SDK.{qt-id}"
             || !data.contains(MKSPEC) || data.value(MKSPEC).toString() != "unsupported/mkspec"
             || !data.contains("extraData") || data.value("extraData").toString() != "extraValue")
+        return false;
+    QVariantMap tcOutput = data.value(TOOLCHAIN).toMap();
+    if (tcOutput.count() != 1
+            || !tcOutput.contains("Cxx") || tcOutput.value("Cxx") != "{tc-id}")
         return false;
 
     // Ignore existing ids:
     QVariantMap result = addKit(map, tcMap, qtMap, devMap, "testId", "Test Qt Version X",
                                 "/tmp/icon3.png", QString(), 1, "/usr/bin/gdb-test3", "Desktop",
-                                QString(), QString(), "{tc-id}", "{qt-id}", "unsupported/mkspec", env,
+                                QString(), QString(), tcs, "{qt-id}", "unsupported/mkspec", env,
                                 KeyValuePairList({ KeyValuePair("PE.Profile.Data/extraData", QVariant("extraValue")) }));
     if (!result.isEmpty())
         return false;
 
     // Profile 1: Make sure name is unique:
     map = addKit(map, tcMap, qtMap, devMap, "testId2", "Test Kit2", "/tmp/icon2.png", QString(), 1,
-                 "/usr/bin/gdb-test2", "Desktop", "{dev-id}", "/sys/root\\\\", "{tc-id}",
+                 "/usr/bin/gdb-test2", "Desktop", "{dev-id}", "/sys/root\\\\", tcs,
                  "{qt-id}", "unsupported/mkspec", env,
                  KeyValuePairList({ KeyValuePair("PE.Profile.Data/extraData", QVariant("extraValue")) }));
     if (map.count() != 5
@@ -403,17 +430,21 @@ bool AddKitOperation::test() const
             || !data.contains(DEVICE_TYPE) || data.value(DEVICE_TYPE).toString() != "Desktop"
             || !data.contains(DEVICE_ID) || data.value(DEVICE_ID).toString() != "{dev-id}"
             || !data.contains(SYSROOT) || data.value(SYSROOT).toString() != "/sys/root\\\\"
-            || !data.contains(TOOLCHAIN) || data.value(TOOLCHAIN).toString() != "{tc-id}"
+            || !data.contains(TOOLCHAIN)
             || !data.contains(QT) || data.value(QT).toString() != "SDK.{qt-id}"
             || !data.contains(MKSPEC) || data.value(MKSPEC).toString() != "unsupported/mkspec"
             || !data.contains(ENV) || data.value(ENV).toStringList() != env
             || !data.contains("extraData") || data.value("extraData").toString() != "extraValue")
         return false;
+    tcOutput = data.value(TOOLCHAIN).toMap();
+    if (tcOutput.count() != 1
+            || !tcOutput.contains("Cxx") || tcOutput.value("Cxx") != "{tc-id}")
+        return false;
 
     // Profile 2: Test debugger id:
     map = addKit(map, tcMap, qtMap, devMap, "test with debugger Id", "Test debugger Id",
                  "/tmp/icon2.png", "debugger Id", 0, QString(), "Desktop", QString(), QString(),
-                 "{tc-id}", "{qt-id}", "unsupported/mkspec", env,
+                 tcs, "{qt-id}", "unsupported/mkspec", env,
                  KeyValuePairList({ KeyValuePair("PE.Profile.Data/extraData", QVariant("extraValue")) }));
     if (map.count() != 6
             || !map.contains(VERSION) || map.value(VERSION).toInt() != 1
@@ -452,7 +483,7 @@ QVariantMap AddKitOperation::addKit(const QVariantMap &map,
                                     const QString &icon, const QString &debuggerId,
                                     const quint32 &debuggerType, const QString &debugger,
                                     const QString &deviceType, const QString &device,
-                                    const QString &sysRoot, const QString &tc, const QString &qt,
+                                    const QString &sysRoot, const QHash<QString, QString> &tcs, const QString &qt,
                                     const QString &mkspec, const QStringList &env,
                                     const KeyValuePairList &extra)
 {
@@ -461,7 +492,7 @@ QVariantMap AddKitOperation::addKit(const QVariantMap &map,
     QVariantMap devMap = load("Devices");
 
     return addKit(map, tcMap, qtMap, devMap, id, displayName, icon, debuggerId, debuggerType,
-                  debugger, deviceType, device, sysRoot, tc, qt, mkspec, env, extra);
+                  debugger, deviceType, device, sysRoot, tcs, qt, mkspec, env, extra);
 }
 
 QVariantMap AddKitOperation::addKit(const QVariantMap &map, const QVariantMap &tcMap,
@@ -470,7 +501,7 @@ QVariantMap AddKitOperation::addKit(const QVariantMap &map, const QVariantMap &t
                                     const QString &icon, const QString &debuggerId,
                                     const quint32 &debuggerType, const QString &debugger,
                                     const QString &deviceType, const QString &device,
-                                    const QString &sysRoot, const QString &tc, const QString &qt,
+                                    const QString &sysRoot, const QHash<QString, QString> &tcs, const QString &qt,
                                     const QString &mkspec, const QStringList &env,
                                     const KeyValuePairList &extra)
 {
@@ -488,11 +519,14 @@ QVariantMap AddKitOperation::addKit(const QVariantMap &map, const QVariantMap &t
         return QVariantMap();
     }
 
-    if (!tc.isEmpty() && !AddToolChainOperation::exists(tcMap, tc)) {
-        QRegExp abiRegExp = QRegExp("[a-z0-9_]+-[a-z0-9_]+-[a-z0-9_]+-[a-z0-9_]+-(8|16|32|64|128)bit");
-        if (!abiRegExp.exactMatch(tc)) {
-            std::cerr << "Error: Toolchain " << qPrintable(tc) << " does not exist." << std::endl;
-            return QVariantMap();
+    for (auto i = tcs.constBegin(); i != tcs.constEnd(); ++i) {
+        if (!i.value().isEmpty() && !AddToolChainOperation::exists(tcMap, i.value())) {
+            QRegExp abiRegExp = QRegExp("[a-z0-9_]+-[a-z0-9_]+-[a-z0-9_]+-[a-z0-9_]+-(8|16|32|64|128)bit");
+            if (!abiRegExp.exactMatch(i.value())) {
+                std::cerr << "Error: Toolchain " << qPrintable(i.value())
+                          << " for language " << qPrintable(i.key()) << " does not exist." << std::endl;
+                return QVariantMap();
+            }
         }
     }
 
@@ -552,8 +586,8 @@ QVariantMap AddKitOperation::addKit(const QVariantMap &map, const QVariantMap &t
         data << KeyValuePair({ kit, DATA, DEVICE_ID }, QVariant(device));
     if (!sysRoot.isNull())
         data << KeyValuePair({ kit, DATA, SYSROOT }, QVariant(sysRoot));
-    if (!tc.isNull())
-        data << KeyValuePair({ kit, DATA, TOOLCHAIN }, QVariant(tc));
+    for (auto i = tcs.constBegin(); i != tcs.constEnd(); ++i)
+        data << KeyValuePair({ kit, DATA, TOOLCHAIN, i.key() }, QVariant(i.value()));
     if (!qtId.isNull())
         data << KeyValuePair({ kit, DATA, QT }, QVariant(qtId));
     if (!mkspec.isNull())

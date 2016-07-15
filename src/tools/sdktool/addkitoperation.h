@@ -27,6 +27,7 @@
 
 #include "operation.h"
 
+#include <QHash>
 #include <QString>
 
 class AddKitOperation : public Operation
@@ -50,8 +51,9 @@ public:
                               const QString &icon, const QString &debuggerId,
                               const quint32 &debuggerType, const QString &debugger,
                               const QString &deviceType, const QString &device,
-                              const QString &sysRoot, const QString &tc, const QString &qt,
-                              const QString &mkspec, const QStringList &env, const KeyValuePairList &extra);
+                              const QString &sysRoot, const QHash<QString, QString> &tcs,
+                              const QString &qt, const QString &mkspec, const QStringList &env,
+                              const KeyValuePairList &extra);
 
     static QVariantMap initializeKits();
 
@@ -62,8 +64,9 @@ public:
                               const QString &icon, const QString &debuggerId,
                               const quint32 &debuggerType, const QString &debugger,
                               const QString &deviceType, const QString &device,
-                              const QString &sysRoot, const QString &tc, const QString &qt,
-                              const QString &mkspec, const QStringList &env, const KeyValuePairList &extra);
+                              const QString &sysRoot, const QHash<QString, QString> &tcs,
+                              const QString &qt, const QString &mkspec, const QStringList &env,
+                              const KeyValuePairList &extra);
 
 private:
     QString m_id;
@@ -75,7 +78,7 @@ private:
     QString m_deviceType;
     QString m_device;
     QString m_sysRoot;
-    QString m_tc;
+    QHash<QString, QString> m_tcs;
     QString m_qt;
     QString m_mkspec;
     QStringList m_env;

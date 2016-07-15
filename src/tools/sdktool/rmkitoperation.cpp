@@ -98,7 +98,7 @@ int RmKitOperation::execute() const
 bool RmKitOperation::test() const
 {
     QVariantMap tcMap = AddToolChainOperation::initializeToolChains();
-    tcMap = AddToolChainOperation::addToolChain(tcMap, "{tc-id}", "TC", "/usr/bin/gcc",
+    tcMap = AddToolChainOperation::addToolChain(tcMap, "{tc-id}", "langId", "TC", "/usr/bin/gcc",
                                                 "x86-linux-generic-elf-32bit",
                                                 "x86-linux-generic-elf-32bit",
                                                 KeyValuePairList());
@@ -114,17 +114,19 @@ bool RmKitOperation::test() const
                                            "desktop", "", 22, 10000, "uname", 1,
                                            KeyValuePairList());
 
+    QHash<QString, QString> tcs;
+    tcs.insert("Cxx", "{tc-id}");
+
     QVariantMap map =
             AddKitOperation::addKit(AddKitOperation::initializeKits(), tcMap, qtMap, devMap,
-                                    "testId", "Test Qt Version", "/tmp/icon.png",
-                                    QString(), 1, "/usr/bin/gdb-test", "Desktop",
-                                    QString(), QString(), "{tc-id}", "{qt-id}",
-                                    "unsupported/mkspec", QStringList(),
+                                    "testId", "Test Qt Version", "/tmp/icon.png", QString(), 1,
+                                    "/usr/bin/gdb-test", "Desktop", QString(), QString(), tcs,
+                                    "{qt-id}", "unsupported/mkspec", QStringList(),
                                     KeyValuePairList() << KeyValuePair("PE.Profile.Data/extraData", QVariant("extraValue")));
     map =
             AddKitOperation::addKit(map, tcMap, qtMap, devMap, "testId2", "Test Qt Version",
                                     "/tmp/icon2.png", QString(), 1, "/usr/bin/gdb-test2",
-                                    "Desktop", QString(), QString(), "{tc-id}", "{qt-id}",
+                                    "Desktop", QString(), QString(), tcs, "{qt-id}",
                                     "unsupported/mkspec2", QStringList(),
                                     KeyValuePairList() << KeyValuePair("PE.Profile.Data/extraData", QVariant("extraValue2")));
 
