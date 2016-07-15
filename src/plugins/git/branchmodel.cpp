@@ -691,9 +691,13 @@ void BranchModel::parseOutputLine(const QString &line)
     }
 
     if (!m_oldBranchesIncluded && !current && dateTime.isValid()) {
-        const int age = dateTime.daysTo(QDateTime::currentDateTime());
-        if (age > Constants::OBSOLETE_COMMIT_AGE_IN_DAYS)
+        const qint64 age = dateTime.daysTo(QDateTime::currentDateTime());
+        if (age > Constants::OBSOLETE_COMMIT_AGE_IN_DAYS) {
+            const QString heads = "refs/heads/";
+            if (fullName.startsWith(heads))
+                m_obsoleteLocalBranches.append(fullName.mid(heads.size()));
             return;
+        }
     }
     bool showTags = m_client->settings().boolValue(GitSettings::showTagsKey);
 
