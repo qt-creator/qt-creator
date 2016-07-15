@@ -84,10 +84,7 @@ def main():
         type(editorWidget, lineWithFloat)
         try:
             waitForObject(":popupFrame_Proposal_QListView", 5000)
-            if useClang and JIRA.isBugStillOpen(16188):
-                test.xfail("Typing a float value triggered code completion")
-            else:
-                test.fail("Typing a float value triggered code completion")
+            test.fail("Typing a float value triggered code completion")
         except:
             test.compare(str(lineUnderCursor(editorWidget)), "    " + lineWithFloat,
                          "Typing a float value does not trigger code completion")
