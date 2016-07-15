@@ -863,8 +863,7 @@ void MiniProjectTargetSelector::doLayout(bool keepSize)
         visibleLineCount += m_listWidgets[i]->isVisibleTo(this) ? 0 : 1;
 
     if (visibleLineCount == LAST) {
-        summaryLabelHeight = visibleLineCount * QFontMetrics(m_summaryLabel->font()).height()
-                + m_summaryLabel->margin() *2;
+        summaryLabelHeight = m_summaryLabel->sizeHint().height();
         onlySummary = true;
     } else {
         if (visibleLineCount < 3) {
@@ -872,8 +871,7 @@ void MiniProjectTargetSelector::doLayout(bool keepSize)
                 visibleLineCount = 3;
         }
         if (visibleLineCount)
-            summaryLabelHeight = visibleLineCount * QFontMetrics(m_summaryLabel->font()).height()
-                    + m_summaryLabel->margin() *2;
+            summaryLabelHeight = m_summaryLabel->sizeHint().height();
     }
 
     if (keepSize && oldSummaryLabelHeight > summaryLabelHeight)
