@@ -184,18 +184,29 @@ void ToolChainKitInformation::fix(Kit *k)
 void ToolChainKitInformation::setup(Kit *k)
 {
     QTC_ASSERT(ToolChainManager::isLoaded(), return);
-    const QByteArray id = k->value(ToolChainKitInformation::id()).toByteArray();
-    if (id.isEmpty())
-        return;
+    const QVariantMap value = readValue(k);
+    const QList<ToolChain *> knownTcs = ToolChainManager::toolChains();
 
-    ToolChain *tc = ToolChainManager::findToolChain(id);
-    if (tc)
-        return;
+    for (auto i = value.constBegin(); i != value.constEnd(); ++i) {
+        ToolChain::Language l
+                = Utils::findOr(ToolChain::allLanguages(), ToolChain::Language::None,
+                                [i](ToolChain::Language l) {
+                                    return ToolChain::languageId(l) == i.key();
+                                });
+        if (l == ToolChain::Language::None)
+            continue;
 
-    // ID is not found: Might be an ABI string...
-    foreach (ToolChain *current, ToolChainManager::toolChains()) {
-        if (current->targetAbi().toString() == QString::fromUtf8(id))
-            return setToolChain(k, current);
+        const QByteArray id = i.value().toByteArray();
+        ToolChain *tc = ToolChainManager::findToolChain(id);
+        if (tc)
+            continue;
+
+        // ID is not found: Might be an ABI string...
+        const QString abi = QString::fromUtf8(id);
+        tc = Utils::findOrDefault(knownTcs, [abi, l](ToolChain *t) {
+                 return t->targetAbi().toString() == abi && t->language() == l;
+             });
+        setToolChain(k, l, tc);
     }
 }
 
