@@ -36,6 +36,7 @@
 
 #include <QDebug>
 #include <QDir>
+#include <QFontDatabase>
 #include <QFileInfo>
 #include <QLibraryInfo>
 #include <QLoggingCategory>
@@ -295,6 +296,14 @@ static inline QSettings *userSettings()
 static const char *SHARE_PATH =
         Utils::HostOsInfo::isMacHost() ? "/../Resources" : "/../share/qtcreator";
 
+void loadFonts()
+{
+    const QDir dir(QCoreApplication::applicationDirPath() + SHARE_PATH + "/fonts/");
+
+    foreach (const QFileInfo &fileInfo, dir.entryList(QStringList("*.ttf"), QDir::Files))
+        QFontDatabase::addApplicationFont(fileInfo.absoluteFilePath());
+}
+
 int main(int argc, char **argv)
 {
     const char *highDpiEnvironmentVariable = setHighDpiEnvironmentVariable();
@@ -310,6 +319,8 @@ int main(int argc, char **argv)
 #endif
 
     SharedTools::QtSingleApplication app((QLatin1String(appNameC)), argc, argv);
+
+    loadFonts();
 
     if (highDpiEnvironmentVariable)
         qunsetenv(highDpiEnvironmentVariable);
