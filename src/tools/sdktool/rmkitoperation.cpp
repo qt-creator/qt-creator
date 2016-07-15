@@ -52,24 +52,24 @@ const char ID[] = "PE.Profile.Id";
 
 QString RmKitOperation::name() const
 {
-    return QLatin1String("rmKit");
+    return "rmKit";
 }
 
 QString RmKitOperation::helpText() const
 {
-    return QLatin1String("remove a Kit from Qt Creator");
+    return "remove a Kit from Qt Creator";
 }
 
 QString RmKitOperation::argumentsHelpText() const
 {
-    return QLatin1String("    --id <ID>                                  id of the kit to remove.\n");
+    return "    --id <ID>                                  id of the kit to remove.\n";
 }
 
 bool RmKitOperation::setArguments(const QStringList &args)
 {
     if (args.count() != 2)
         return false;
-    if (args.at(0) != QLatin1String("--id"))
+    if (args.at(0) != "--id")
         return false;
 
     m_id = args.at(1);
@@ -98,81 +98,61 @@ int RmKitOperation::execute() const
 bool RmKitOperation::test() const
 {
     QVariantMap tcMap = AddToolChainOperation::initializeToolChains();
-    tcMap = AddToolChainOperation::addToolChain(tcMap, QLatin1String("{tc-id}"), QLatin1String("TC"),
-                                                QLatin1String("/usr/bin/gcc"),
-                                                QLatin1String("x86-linux-generic-elf-32bit"),
-                                                QLatin1String("x86-linux-generic-elf-32bit"),
+    tcMap = AddToolChainOperation::addToolChain(tcMap, "{tc-id}", "TC", "/usr/bin/gcc",
+                                                "x86-linux-generic-elf-32bit",
+                                                "x86-linux-generic-elf-32bit",
                                                 KeyValuePairList());
 
     QVariantMap qtMap = AddQtOperation::initializeQtVersions();
-    qtMap = AddQtOperation::addQt(qtMap, QLatin1String("{qt-id}"), QLatin1String("Qt"),
-                                  QLatin1String("desktop-qt"), QLatin1String("/usr/bin/qmake"),
+    qtMap = AddQtOperation::addQt(qtMap, "{qt-id}", "Qt", "desktop-qt", "/usr/bin/qmake",
                                   KeyValuePairList());
 
     QVariantMap devMap = AddDeviceOperation::initializeDevices();
-    devMap = AddDeviceOperation::addDevice(devMap, QLatin1String("{dev-id}"), QLatin1String("Dev"), 0, 0,
-                                           QLatin1String("HWplatform"), QLatin1String("SWplatform"),
-                                           QLatin1String("localhost"), QLatin1String("10000-11000"),
-                                           QLatin1String("localhost"), QLatin1String(""), 42,
-                                           QLatin1String("desktop"), QLatin1String(""), 22, 10000,
-                                           QLatin1String("uname"), 1,
+    devMap = AddDeviceOperation::addDevice(devMap, "{dev-id}", "Dev", 0, 0,
+                                           "HWplatform", "SWplatform",
+                                           "localhost", "10000-11000", "localhost", "", 42,
+                                           "desktop", "", 22, 10000, "uname", 1,
                                            KeyValuePairList());
 
     QVariantMap map =
             AddKitOperation::addKit(AddKitOperation::initializeKits(), tcMap, qtMap, devMap,
-                                    QLatin1String("testId"), QLatin1String("Test Qt Version"),
-                                    QLatin1String("/tmp/icon.png"),
-                                    QString(), 1, QLatin1String("/usr/bin/gdb-test"),
-                                    QLatin1String("Desktop"), QString(),  QString(),
-                                    QLatin1String("{tc-id}"), QLatin1String("{qt-id}"),
-                                    QLatin1String("unsupported/mkspec"),
-                                    QStringList(),
-                                    KeyValuePairList() << KeyValuePair(QLatin1String("PE.Profile.Data/extraData"), QVariant(QLatin1String("extraValue"))));
+                                    "testId", "Test Qt Version", "/tmp/icon.png",
+                                    QString(), 1, "/usr/bin/gdb-test", "Desktop",
+                                    QString(), QString(), "{tc-id}", "{qt-id}",
+                                    "unsupported/mkspec", QStringList(),
+                                    KeyValuePairList() << KeyValuePair("PE.Profile.Data/extraData", QVariant("extraValue")));
     map =
-            AddKitOperation::addKit(map, tcMap, qtMap, devMap,
-                                    QLatin1String("testId2"), QLatin1String("Test Qt Version"),
-                                    QLatin1String("/tmp/icon2.png"),
-                                    QString(), 1, QLatin1String("/usr/bin/gdb-test2"),
-                                    QLatin1String("Desktop"), QString(), QString(),
-                                    QLatin1String("{tc-id}"), QLatin1String("{qt-id}"),
-                                    QLatin1String("unsupported/mkspec2"),
-                                    QStringList(),
-                                    KeyValuePairList() << KeyValuePair(QLatin1String("PE.Profile.Data/extraData"), QVariant(QLatin1String("extraValue2"))));
+            AddKitOperation::addKit(map, tcMap, qtMap, devMap, "testId2", "Test Qt Version",
+                                    "/tmp/icon2.png", QString(), 1, "/usr/bin/gdb-test2",
+                                    "Desktop", QString(), QString(), "{tc-id}", "{qt-id}",
+                                    "unsupported/mkspec2", QStringList(),
+                                    KeyValuePairList() << KeyValuePair("PE.Profile.Data/extraData", QVariant("extraValue2")));
 
-    QVariantMap result = rmKit(map, QLatin1String("testId"));
+    QVariantMap result = rmKit(map, "testId");
     if (result.count() != 4
-            || !result.contains(QLatin1String("Profile.0"))
-            || !result.contains(QLatin1String(COUNT))
-            || result.value(QLatin1String(COUNT)).toInt() != 1
-            || !result.contains(QLatin1String(DEFAULT))
-            || result.value(QLatin1String(DEFAULT)).toInt() != 0
-            || !result.contains(QLatin1String(VERSION))
-            || result.value(QLatin1String(VERSION)).toInt() != 1)
+            || !result.contains("Profile.0")
+            || !result.contains(COUNT) || result.value(COUNT).toInt() != 1
+            || !result.contains(DEFAULT) || result.value(DEFAULT).toInt() != 0
+            || !result.contains(VERSION) || result.value(VERSION).toInt() != 1)
         return false;
 
-    result = rmKit(map, QLatin1String("unknown"));
+    result = rmKit(map, "unknown");
     if (result != map)
         return false;
 
-    result = rmKit(map, QLatin1String("testId2"));
+    result = rmKit(map, "testId2");
     if (result.count() != 4
-            || !result.contains(QLatin1String("Profile.0"))
-            || !result.contains(QLatin1String(COUNT))
-            || result.value(QLatin1String(COUNT)).toInt() != 1
-            || !result.contains(QLatin1String(DEFAULT))
-            || result.value(QLatin1String(DEFAULT)).toInt() != 0
-            || !result.contains(QLatin1String(VERSION))
-            || result.value(QLatin1String(VERSION)).toInt() != 1)
+            || !result.contains("Profile.0")
+            || !result.contains(COUNT) || result.value(COUNT).toInt() != 1
+            || !result.contains(DEFAULT) || result.value(DEFAULT).toInt() != 0
+            || !result.contains(VERSION) || result.value(VERSION).toInt() != 1)
         return false;
 
     result = rmKit(result, QLatin1String("testId"));
     if (result.count() != 3
-            || !result.contains(QLatin1String(COUNT))
-            || result.value(QLatin1String(COUNT)).toInt() != 0
-            || !result.contains(QLatin1String(DEFAULT))
-            || result.value(QLatin1String(DEFAULT)).toInt() != -1
-            || !result.contains(QLatin1String(VERSION))
-            || result.value(QLatin1String(VERSION)).toInt() != 1)
+            || !result.contains(COUNT) || result.value(COUNT).toInt() != 0
+            || !result.contains(DEFAULT) || result.value(DEFAULT).toInt() != -1
+            || !result.contains(VERSION) || result.value(VERSION).toInt() != 1)
         return false;
 
     return true;
@@ -185,7 +165,7 @@ QVariantMap RmKitOperation::rmKit(const QVariantMap &map, const QString &id)
 
     QVariantList profileList;
     bool ok;
-    int count = GetOperation::get(map, QLatin1String(COUNT)).toInt(&ok);
+    int count = GetOperation::get(map, COUNT).toInt(&ok);
     if (!ok) {
         std::cerr << "Error: The count found in map is not an integer." << std::endl;
         return map;
@@ -195,7 +175,7 @@ QVariantMap RmKitOperation::rmKit(const QVariantMap &map, const QString &id)
     for (int i = 0; i < count; ++i) {
         const QString key = QString::fromLatin1(PREFIX) + QString::number(i);
         QVariantMap profile = map.value(key).toMap();
-        if (profile.value(QLatin1String(ID)).toString() == id) {
+        if (profile.value(ID).toString() == id) {
             kitPos = i;
             continue;
         }
@@ -206,7 +186,7 @@ QVariantMap RmKitOperation::rmKit(const QVariantMap &map, const QString &id)
         return map;
     }
 
-    int defaultKit = GetOperation::get(map, QLatin1String(DEFAULT)).toInt(&ok);
+    int defaultKit = GetOperation::get(map, DEFAULT).toInt(&ok);
     if (!ok) {
         std::cerr << "Error: Could not find the default kit." << std::endl;
         defaultKit = -1;
@@ -216,19 +196,16 @@ QVariantMap RmKitOperation::rmKit(const QVariantMap &map, const QString &id)
         defaultKit = (count > 1) ? 0 : -1;
 
     // remove data:
-    QStringList toRemove;
-    toRemove << QLatin1String(COUNT) << QLatin1String(DEFAULT);
-    result = RmKeysOperation::rmKeys(result, toRemove);
+    result = RmKeysOperation::rmKeys(result, { COUNT, DEFAULT });
 
     // insert data:
     KeyValuePairList data;
-    data << KeyValuePair(QStringList() << QLatin1String(DEFAULT), QVariant(defaultKit));
-    data << KeyValuePair(QStringList() << QLatin1String(COUNT), QVariant(count - 1));
+    data << KeyValuePair(DEFAULT, QVariant(defaultKit));
+    data << KeyValuePair(COUNT, QVariant(count - 1));
 
     for (int i = 0; i < profileList.count(); ++i)
-        data << KeyValuePair(QStringList() << QString::fromLatin1(PREFIX) + QString::number(i),
+        data << KeyValuePair(QString::fromLatin1(PREFIX) + QString::number(i),
                              profileList.at(i));
 
     return AddKeysOperation::addKeys(result, data);
 }
-
