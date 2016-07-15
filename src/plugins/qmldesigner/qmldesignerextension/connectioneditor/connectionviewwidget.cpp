@@ -38,6 +38,7 @@
 #include <utils/fileutils.h>
 
 #include <QToolButton>
+#include <QStyleFactory>
 
 namespace QmlDesigner {
 
@@ -50,6 +51,9 @@ ConnectionViewWidget::ConnectionViewWidget(QWidget *parent) :
 
     setWindowTitle(tr("Connections", "Title of connection view"));
     ui->setupUi(this);
+
+    QStyle *style = QStyleFactory::create("fusion");
+    setStyle(style);
 
     setStyleSheet(Theming::replaceCssColors(QLatin1String(Utils::FileReader::fetchQrc(QLatin1String(":/connectionview/stylesheet.css")))));
 

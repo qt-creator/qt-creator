@@ -57,11 +57,8 @@ QStringList prependOnForSignalHandler(const QStringList &signalNames)
 
 PropertiesComboBox::PropertiesComboBox(QWidget *parent) : QComboBox(parent)
 {
-    static QScopedPointer<QStyle> style(QStyleFactory::create(QLatin1String("windows")));
     setEditable(true);
     setValidator(new QRegularExpressionValidator(QRegularExpression(QLatin1String("[a-z|A-Z|0-9|._-]*")), this));
-    if (style)
-        setStyle(style.data());
 }
 
 QString PropertiesComboBox::text() const
@@ -194,12 +191,6 @@ DynamicPropertiesDelegate::DynamicPropertiesDelegate(QWidget *parent) : Connecti
 QWidget *DynamicPropertiesDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
         QWidget *widget = QStyledItemDelegate::createEditor(parent, option, index);
-
-        if (widget) {
-            static QScopedPointer<QStyle> style(QStyleFactory::create(QLatin1String("windows")));
-            if (style)
-                widget->setStyle(style.data());
-        }
 
         const DynamicPropertiesModel *model = qobject_cast<const DynamicPropertiesModel*>(index.model());
 
