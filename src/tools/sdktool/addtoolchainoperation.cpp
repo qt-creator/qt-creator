@@ -54,22 +54,22 @@ const char SUPPORTED_ABIS[] = "ProjectExplorer.GccToolChain.SupportedAbis";
 
 QString AddToolChainOperation::name() const
 {
-    return QLatin1String("addTC");
+    return "addTC";
 }
 
 QString AddToolChainOperation::helpText() const
 {
-    return QLatin1String("add a tool chain to Qt Creator");
+    return "add a tool chain to Qt Creator";
 }
 
 QString AddToolChainOperation::argumentsHelpText() const
 {
-    return QLatin1String("    --id <ID>                                  id of the new tool chain (required).\n"
-                         "    --name <NAME>                              display name of the new tool chain (required).\n"
-                         "    --path <PATH>                              path to the compiler (required).\n"
-                         "    --abi <ABI STRING>                         ABI of the compiler (required).\n"
-                         "    --supportedAbis <ABI STRING>,<ABI STRING>  list of ABIs supported by the compiler.\n"
-                         "    <KEY> <TYPE:VALUE>                         extra key value pairs\n");
+    return "    --id <ID>                                  id of the new tool chain (required).\n"
+           "    --name <NAME>                              display name of the new tool chain (required).\n"
+           "    --path <PATH>                              path to the compiler (required).\n"
+           "    --abi <ABI STRING>                         ABI of the compiler (required).\n"
+           "    --supportedAbis <ABI STRING>,<ABI STRING>  list of ABIs supported by the compiler.\n"
+           "    <KEY> <TYPE:VALUE>                         extra key value pairs\n";
 }
 
 bool AddToolChainOperation::setArguments(const QStringList &args)
@@ -78,36 +78,36 @@ bool AddToolChainOperation::setArguments(const QStringList &args)
         const QString current = args.at(i);
         const QString next = ((i + 1) < args.count()) ? args.at(i + 1) : QString();
 
-        if (next.isNull() && current.startsWith(QLatin1String("--"))) {
+        if (next.isNull() && current.startsWith("--")) {
             std::cerr << "No parameter for option '" << qPrintable(current) << "' given." << std::endl << std::endl;
             return false;
         }
 
-        if (current == QLatin1String("--id")) {
+        if (current == "--id") {
             ++i; // skip next;
             m_id = next;
             continue;
         }
 
-        if (current == QLatin1String("--name")) {
+        if (current == "--name") {
             ++i; // skip next;
             m_displayName = next;
             continue;
         }
 
-        if (current == QLatin1String("--path")) {
+        if (current == "--path") {
             ++i; // skip next;
             m_path = QDir::fromNativeSeparators(next);
             continue;
         }
 
-        if (current == QLatin1String("--abi")) {
+        if (current == "--abi") {
             ++i; // skip next;
             m_targetAbi = next;
             continue;
         }
 
-        if (current == QLatin1String("--supportedAbis")) {
+        if (current == "--supportedAbis") {
             ++i; // skip next;
             m_supportedAbis = next;
             continue;
@@ -143,7 +143,7 @@ bool AddToolChainOperation::setArguments(const QStringList &args)
 
 int AddToolChainOperation::execute() const
 {
-    QVariantMap map = load(QLatin1String("ToolChains"));
+    QVariantMap map = load("ToolChains");
     if (map.isEmpty())
         map = initializeToolChains();
 
@@ -151,7 +151,7 @@ int AddToolChainOperation::execute() const
     if (result.isEmpty() || map == result)
         return 2;
 
-    return save(result, QLatin1String("ToolChains")) ? 0 : 3;
+    return save(result, "ToolChains") ? 0 : 3;
 }
 
 #ifdef WITH_TESTS
@@ -160,57 +160,54 @@ bool AddToolChainOperation::test() const
     QVariantMap map = initializeToolChains();
 
     // Add toolchain:
-    map = addToolChain(map, QLatin1String("testId"), QLatin1String("name"), QLatin1String("/tmp/test"),
-                            QLatin1String("test-abi"), QLatin1String("test-abi,test-abi2"),
-                            KeyValuePairList() << KeyValuePair(QLatin1String("ExtraKey"), QVariant(QLatin1String("ExtraValue"))));
-    if (map.value(QLatin1String(COUNT)).toInt() != 1
-            || !map.contains(QString::fromLatin1(PREFIX) + QLatin1Char('0')))
+    map = addToolChain(map, "testId", "name", "/tmp/test", "test-abi", "test-abi,test-abi2",
+                       KeyValuePairList() << KeyValuePair("ExtraKey", QVariant("ExtraValue")));
+    if (map.value(COUNT).toInt() != 1
+            || !map.contains(QString::fromLatin1(PREFIX) + '0'))
         return false;
-    QVariantMap tcData = map.value(QString::fromLatin1(PREFIX) + QLatin1Char('0')).toMap();
+    QVariantMap tcData = map.value(QString::fromLatin1(PREFIX) + '0').toMap();
     if (tcData.count() != 7
-            || tcData.value(QLatin1String(ID)).toString() != QLatin1String("testId")
-            || tcData.value(QLatin1String(DISPLAYNAME)).toString() != QLatin1String("name")
-            || tcData.value(QLatin1String(AUTODETECTED)).toBool() != true
-            || tcData.value(QLatin1String(PATH)).toString() != QLatin1String("/tmp/test")
-            || tcData.value(QLatin1String(TARGET_ABI)).toString() != QLatin1String("test-abi")
-            || tcData.value(QLatin1String(SUPPORTED_ABIS)).toList().count() != 2
-            || tcData.value(QLatin1String("ExtraKey")).toString() != QLatin1String("ExtraValue"))
+            || tcData.value(ID).toString() != "testId"
+            || tcData.value(DISPLAYNAME).toString() != "name"
+            || tcData.value(AUTODETECTED).toBool() != true
+            || tcData.value(PATH).toString() != "/tmp/test"
+            || tcData.value(TARGET_ABI).toString() != "test-abi"
+            || tcData.value(SUPPORTED_ABIS).toList().count() != 2
+            || tcData.value("ExtraKey").toString() != "ExtraValue")
         return false;
 
     // Ignore same Id:
-    QVariantMap unchanged = addToolChain(map, QLatin1String("testId"), QLatin1String("name2"), QLatin1String("/tmp/test2"),
-                                              QLatin1String("test-abi2"), QLatin1String("test-abi2,test-abi3"),
-                                              KeyValuePairList() << KeyValuePair(QLatin1String("ExtraKey"), QVariant(QLatin1String("ExtraValue2"))));
+    QVariantMap unchanged = addToolChain(map, "testId", "name2", "/tmp/test2", "test-abi2", "test-abi2,test-abi3",
+                                         KeyValuePairList() << KeyValuePair("ExtraKey", QVariant("ExtraValue2")));
     if (!unchanged.isEmpty())
         return false;
 
     // Make sure name stays unique:
-    map = addToolChain(map, QLatin1String("{some-tc-id}"), QLatin1String("name"), QLatin1String("/tmp/test"),
-                            QLatin1String("test-abi"), QLatin1String("test-abi,test-abi2"),
-                            KeyValuePairList() << KeyValuePair(QLatin1String("ExtraKey"), QVariant(QLatin1String("ExtraValue"))));
-    if (map.value(QLatin1String(COUNT)).toInt() != 2
-            || !map.contains(QString::fromLatin1(PREFIX) + QLatin1Char('0'))
-            || !map.contains(QString::fromLatin1(PREFIX) + QLatin1Char('1')))
+    map = addToolChain(map, "{some-tc-id}", "name", "/tmp/test", "test-abi", "test-abi,test-abi2",
+                       KeyValuePairList() << KeyValuePair("ExtraKey", QVariant("ExtraValue")));
+    if (map.value(COUNT).toInt() != 2
+            || !map.contains(QString::fromLatin1(PREFIX) + '0')
+            || !map.contains(QString::fromLatin1(PREFIX) + '1'))
         return false;
-    tcData = map.value(QString::fromLatin1(PREFIX) + QLatin1Char('0')).toMap();
+    tcData = map.value(QString::fromLatin1(PREFIX) + '0').toMap();
     if (tcData.count() != 7
-            || tcData.value(QLatin1String(ID)).toString() != QLatin1String("testId")
-            || tcData.value(QLatin1String(DISPLAYNAME)).toString() != QLatin1String("name")
-            || tcData.value(QLatin1String(AUTODETECTED)).toBool() != true
-            || tcData.value(QLatin1String(PATH)).toString() != QLatin1String("/tmp/test")
-            || tcData.value(QLatin1String(TARGET_ABI)).toString() != QLatin1String("test-abi")
-            || tcData.value(QLatin1String(SUPPORTED_ABIS)).toList().count() != 2
-            || tcData.value(QLatin1String("ExtraKey")).toString() != QLatin1String("ExtraValue"))
+            || tcData.value(ID).toString() != "testId"
+            || tcData.value(DISPLAYNAME).toString() != "name"
+            || tcData.value(AUTODETECTED).toBool() != true
+            || tcData.value(PATH).toString() != "/tmp/test"
+            || tcData.value(TARGET_ABI).toString() != "test-abi"
+            || tcData.value(SUPPORTED_ABIS).toList().count() != 2
+            || tcData.value("ExtraKey").toString() != "ExtraValue")
         return false;
-    tcData = map.value(QString::fromLatin1(PREFIX) + QLatin1Char('1')).toMap();
+    tcData = map.value(QString::fromLatin1(PREFIX) + '1').toMap();
         if (tcData.count() != 7
-                || tcData.value(QLatin1String(ID)).toString() != QLatin1String("{some-tc-id}")
-                || tcData.value(QLatin1String(DISPLAYNAME)).toString() != QLatin1String("name2")
-                || tcData.value(QLatin1String(AUTODETECTED)).toBool() != true
-                || tcData.value(QLatin1String(PATH)).toString() != QLatin1String("/tmp/test")
-                || tcData.value(QLatin1String(TARGET_ABI)).toString() != QLatin1String("test-abi")
-                || tcData.value(QLatin1String(SUPPORTED_ABIS)).toList().count() != 2
-                || tcData.value(QLatin1String("ExtraKey")).toString() != QLatin1String("ExtraValue"))
+                || tcData.value(ID).toString() != "{some-tc-id}"
+                || tcData.value(DISPLAYNAME).toString() != "name2"
+                || tcData.value(AUTODETECTED).toBool() != true
+                || tcData.value(PATH).toString() != "/tmp/test"
+                || tcData.value(TARGET_ABI).toString() != "test-abi"
+                || tcData.value(SUPPORTED_ABIS).toList().count() != 2
+                || tcData.value("ExtraKey").toString() != "ExtraValue")
             return false;
 
     return true;
@@ -230,39 +227,39 @@ QVariantMap AddToolChainOperation::addToolChain(const QVariantMap &map,
 
     // Find position to insert Tool Chain at:
     bool ok;
-    int count = GetOperation::get(map, QLatin1String(COUNT)).toInt(&ok);
+    int count = GetOperation::get(map, COUNT).toInt(&ok);
     if (!ok || count < 0) {
         std::cerr << "Error: Count found in toolchains file seems wrong." << std::endl;
         return QVariantMap();
     }
 
     // Sanity check: Make sure displayName is unique.
-    QStringList nameKeys = FindKeyOperation::findKey(map, QLatin1String(DISPLAYNAME));
+    QStringList nameKeys = FindKeyOperation::findKey(map, DISPLAYNAME);
     QStringList nameList;
     foreach (const QString &nameKey, nameKeys)
         nameList << GetOperation::get(map, nameKey).toString();
     const QString uniqueName = makeUnique(displayName, nameList);
 
-    QVariantMap result = RmKeysOperation::rmKeys(map, QStringList() << QLatin1String(COUNT));
+    QVariantMap result = RmKeysOperation::rmKeys(map, { COUNT });
 
     const QString tc = QString::fromLatin1(PREFIX) + QString::number(count);
 
     KeyValuePairList data;
-    data << KeyValuePair(QStringList() << tc << QLatin1String(ID), QVariant(id));
-    data << KeyValuePair(QStringList() << tc << QLatin1String(DISPLAYNAME), QVariant(uniqueName));
-    data << KeyValuePair(QStringList() << tc << QLatin1String(AUTODETECTED), QVariant(true));
-    data << KeyValuePair(QStringList() << tc << QLatin1String(PATH), QVariant(path));
-    data << KeyValuePair(QStringList() << tc << QLatin1String(TARGET_ABI), QVariant(abi));
+    data << KeyValuePair({ tc, ID }, QVariant(id));
+    data << KeyValuePair({ tc, DISPLAYNAME }, QVariant(uniqueName));
+    data << KeyValuePair({ tc, AUTODETECTED }, QVariant(true));
+    data << KeyValuePair({ tc, PATH }, QVariant(path));
+    data << KeyValuePair({ tc, TARGET_ABI }, QVariant(abi));
     QVariantList abis;
-    QStringList abiStrings = supportedAbis.split(QLatin1Char(','));
+    QStringList abiStrings = supportedAbis.split(',');
     foreach (const QString &s, abiStrings)
         abis << QVariant(s);
-    data << KeyValuePair(QStringList() << tc << QLatin1String(SUPPORTED_ABIS), QVariant(abis));
+    data << KeyValuePair({ tc, SUPPORTED_ABIS }, QVariant(abis));
     KeyValuePairList tcExtraList;
     foreach (const KeyValuePair &pair, extra)
-        tcExtraList << KeyValuePair(QStringList() << tc << pair.key, pair.value);
+        tcExtraList << KeyValuePair(QStringList({ tc }) << pair.key, pair.value);
     data.append(tcExtraList);
-    data << KeyValuePair(QLatin1String(COUNT), QVariant(count + 1));
+    data << KeyValuePair(COUNT, QVariant(count + 1));
 
     return AddKeysOperation::addKeys(result, data);
 }
@@ -270,8 +267,8 @@ QVariantMap AddToolChainOperation::addToolChain(const QVariantMap &map,
 QVariantMap AddToolChainOperation::initializeToolChains()
 {
     QVariantMap map;
-    map.insert(QLatin1String(COUNT), 0);
-    map.insert(QLatin1String(VERSION), 1);
+    map.insert(COUNT, 0);
+    map.insert(VERSION, 1);
     return map;
 }
 
@@ -282,7 +279,7 @@ bool AddToolChainOperation::exists(const QVariantMap &map, const QString &id)
     valueKeys.append(FindValueOperation::findValue(map, id.toUtf8()));
 
     foreach (const QString &k, valueKeys) {
-        if (k.endsWith(QString(QLatin1Char('/')) + QLatin1String(ID))) {
+        if (k.endsWith(QString('/') + ID)) {
             return true;
         }
     }
@@ -291,6 +288,6 @@ bool AddToolChainOperation::exists(const QVariantMap &map, const QString &id)
 
 bool AddToolChainOperation::exists(const QString &id)
 {
-    QVariantMap map = Operation::load(QLatin1String("ToolChains"));
+    QVariantMap map = Operation::load("ToolChains");
     return exists(map, id);
 }
