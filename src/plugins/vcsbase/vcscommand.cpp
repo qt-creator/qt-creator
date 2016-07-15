@@ -40,27 +40,27 @@ VcsCommand::VcsCommand(const QString &workingDirectory,
     m_preventRepositoryChanged(false)
 {
     setOutputProxyFactory([this]() -> Utils::OutputProxy * {
-                              auto proxy = new Utils::OutputProxy;
-                              VcsOutputWindow *outputWindow = VcsOutputWindow::instance();
+        auto proxy = new Utils::OutputProxy;
+        VcsOutputWindow *outputWindow = VcsOutputWindow::instance();
 
-                              connect(proxy, &Utils::OutputProxy::append,
-                                      outputWindow, [](const QString &txt) { VcsOutputWindow::append(txt); },
-                                      Qt::QueuedConnection);
-                              connect(proxy, &Utils::OutputProxy::appendSilently,
-                                      outputWindow, &VcsOutputWindow::appendSilently,
-                                      Qt::QueuedConnection);
-                              connect(proxy, &Utils::OutputProxy::appendError,
-                                      outputWindow, &VcsOutputWindow::appendError,
-                                      Qt::QueuedConnection);
-                              connect(proxy, &Utils::OutputProxy::appendCommand,
-                                      outputWindow, &VcsOutputWindow::appendCommand,
-                                      Qt::QueuedConnection);
-                              connect(proxy, &Utils::OutputProxy::appendMessage,
-                                      outputWindow, &VcsOutputWindow::appendMessage,
-                                      Qt::QueuedConnection);
+        connect(proxy, &Utils::OutputProxy::append,
+                outputWindow, [](const QString &txt) { VcsOutputWindow::append(txt); },
+                Qt::QueuedConnection);
+        connect(proxy, &Utils::OutputProxy::appendSilently,
+                outputWindow, &VcsOutputWindow::appendSilently,
+                Qt::QueuedConnection);
+        connect(proxy, &Utils::OutputProxy::appendError,
+                outputWindow, &VcsOutputWindow::appendError,
+                Qt::QueuedConnection);
+        connect(proxy, &Utils::OutputProxy::appendCommand,
+                outputWindow, &VcsOutputWindow::appendCommand,
+                Qt::QueuedConnection);
+        connect(proxy, &Utils::OutputProxy::appendMessage,
+                outputWindow, &VcsOutputWindow::appendMessage,
+                Qt::QueuedConnection);
 
-                              return proxy;
-                          });
+        return proxy;
+    });
 }
 
 const QProcessEnvironment VcsCommand::processEnvironment() const
