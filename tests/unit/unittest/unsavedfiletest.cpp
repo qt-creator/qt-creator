@@ -178,7 +178,7 @@ TEST_F(UnsavedFile, ToUtf8PositionForValidLineColumn)
     const uint position = unsavedFile.toUtf8Position(1, 1, &ok);
 
     ASSERT_TRUE(ok);
-    ASSERT_THAT(position, Eq(0));
+    ASSERT_THAT(position, Eq(0L));
 }
 
 TEST_F(UnsavedFile, ToUtf8PositionForInValidLineColumn)
