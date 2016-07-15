@@ -223,9 +223,15 @@ void ToolChainKitInformation::addToEnvironment(const Kit *k, Utils::Environment 
         tc->addToEnvironment(env);
 }
 
+static ToolChain::Language findLanguage(const QString &ls)
+{
+    return Utils::findOr(ToolChain::allLanguages(), ToolChain::Language::None,
+                         [ls](ToolChain::Language l) { return ls == ToolChain::languageId(l).toUpper(); });
+}
+
 void ToolChainKitInformation::addToMacroExpander(Kit *kit, Utils::MacroExpander *expander) const
 {
-    // FIXME: Use better strings
+    // Compatibility with Qt Creator < 4.2:
     expander->registerVariable("Compiler:Name", tr("Compiler"),
                                [this, kit]() -> QString {
                                    const ToolChain *tc = toolChain(kit, ToolChain::Language::Cxx);
@@ -237,6 +243,17 @@ void ToolChainKitInformation::addToMacroExpander(Kit *kit, Utils::MacroExpander 
                                    const ToolChain *tc = toolChain(kit, ToolChain::Language::Cxx);
                                    return tc ? tc->compilerCommand().toString() : QString();
                                });
+
+    expander->registerPrefix("Compiler:Name", tr("Compiler for different languages"),
+                             [this, kit](const QString &ls) -> QString {
+                                 const ToolChain *tc = toolChain(kit, findLanguage(ls.toUpper()));
+                                 return tc ? tc->displayName() : tr("None");
+                             });
+    expander->registerPrefix("Compiler:Executable", tr("Compiler executable for different languages"),
+                             [this, kit](const QString &ls) -> QString {
+                                 const ToolChain *tc = toolChain(kit, findLanguage(ls.toUpper()));
+                                 return tc ? tc->compilerCommand().toString() : QString();
+                             });
 }
 
 
